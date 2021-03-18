@@ -1,0 +1,5 @@
+.timeline {
+	-fx-timeline-background: derive(-fx-background, -4%);
+	-fx-timeline-tick-color: derive(-fx-background, -30%);
+	-fx-timeline-text-color: derive(-fx-text-background-color, 30%);
+}

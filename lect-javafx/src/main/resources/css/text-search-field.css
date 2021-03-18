@@ -1,0 +1,35 @@
+@import "clearable-text-field.css";
+
+.text-search-field > .search-icon {
+	-fx-icon-fill: #718096;
+	-fx-icon-stroke-width: 0;
+	-fx-icon-content: "M513.312 507.392c-1.088 0.832-2.144 1.76-3.168 2.784s-1.92 2.048-2.784 3.168c-40.256 38.816-95.008 62.656-155.36 62.656-61.856 0-117.824-25.024-158.4-65.6s-65.6-96.544-65.6-158.4 25.024-117.824 65.6-158.4 96.544-65.6 158.4-65.6 117.824 25.024 158.4 65.6 65.6 96.544 65.6 158.4c0 60.352-23.84 115.104-62.688 155.392zM694.624 649.376l-117.6-117.6c39.392-49.28 62.976-111.776 62.976-179.776 0-79.52-32.256-151.552-84.352-203.648s-124.128-84.352-203.648-84.352-151.552 32.256-203.648 84.352-84.352 124.128-84.352 203.648 32.256 151.552 84.352 203.648 124.128 84.352 203.648 84.352c68 0 130.496-23.584 179.776-62.976l117.6 117.6c12.512 12.512 32.768 12.512 45.248 0s12.512-32.768 0-45.248z";
+}
+.text-search-field-popup > .list-view {
+	-fx-background-color:
+		linear-gradient(to bottom,
+			derive(-fx-color,-17%),
+			derive(-fx-color,-30%)
+		),
+		-fx-control-inner-background;
+	-fx-background-insets: 0, 1;
+	-fx-effect: dropshadow(gaussian, rgba(0,0,0,0.2), 12, 0.0, 0, 8);
+}
+.text-search-field-popup > .list-view > .virtual-flow > .clipped-container > .sheet > .list-cell {
+	-fx-padding: 4 0 4 5;
+	/* No alternate highlighting */
+	-fx-background: -fx-control-inner-background;
+}
+.text-search-field-popup > .list-view > .virtual-flow > .clipped-container > .sheet > .list-cell:filled:hover {
+	-fx-background: -fx-accent;
+	-fx-background-color: -fx-selection-bar;
+}
+.text-search-field-popup > .list-view > .virtual-flow > .clipped-container > .sheet > .list-cell:filled:selected,
+.text-search-field-popup > .list-view > .virtual-flow > .clipped-container > .sheet > .list-cell:filled:selected:hover {
+	-fx-background: -fx-accent;
+	-fx-background-color: -fx-background, -fx-cell-focus-inner-border, -fx-background;
+	-fx-background-insets: 0, 1, 2;
+}
+.text-search-field-popup > .list-view > .placeholder > .label {
+	-fx-text-fill: derive(-fx-control-inner-background,-30%);
+}

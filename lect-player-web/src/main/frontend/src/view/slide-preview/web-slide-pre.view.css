@@ -1,0 +1,21 @@
+:host {
+	cursor: pointer;
+	padding: 0;
+	margin: 4px 4px 0 4px;
+}
+:host([hidden]) {
+	display: none;
+}
+:host(.selected) {
+	outline: 3px solid #ff465a;
+}
+
+/* Edge compatibility */
+slide-preview {
+	cursor: pointer;
+	padding: 0;
+	margin: 4px 4px 0 4px;
+}
+slide-preview.selected {
+	outline: 3px solid #ff465a;
+}

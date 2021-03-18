@@ -1,0 +1,17 @@
+{
+	"quiz": {
+		"service": {
+			"name": "Quiz"
+		},
+		"answer": {
+			"count": {
+				"error": "Only one answer per quiz is allowed"
+			},
+			"sent": "Your answer has been successfully sent",
+			"input": {
+				"invalid": "Please enter valid values",
+				"error": "Input is not allowed. Please try again."
+			}
+		}
+	}
+}

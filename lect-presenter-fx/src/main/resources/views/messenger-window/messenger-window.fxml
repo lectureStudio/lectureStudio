@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.ScrollPane?>
+<?import javafx.scene.layout.VBox?>
+
+<ScrollPane fitToWidth="true" prefHeight="400" prefWidth="600" xmlns="http://javafx.com/javafx/8.0.141" xmlns:fx="http://javafx.com/fxml/1">
+   <VBox fx:id="container" spacing="10">
+      <padding>
+         <Insets bottom="10" left="10" right="10" top="10"/>
+      </padding>
+   </VBox>
+</ScrollPane>

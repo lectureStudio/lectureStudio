@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import java.lang.String?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.layout.GridPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.StackPane?>
+<?import org.lecturestudio.javafx.control.SvgIcon?>
+
+<fx:root type="StackPane" styleClass="notification" xmlns="http://javafx.com/javafx/8.0.111" xmlns:fx="http://javafx.com/fxml/1">
+	<stylesheets>
+		<String fx:value="resources/css/notification.css" />
+	</stylesheets>
+
+	<fx:define>
+		<SvgIcon fx:id="errorIcon" styleClass="error-icon" />
+		<SvgIcon fx:id="questionIcon" styleClass="question-icon" />
+		<SvgIcon fx:id="warningIcon" styleClass="warning-icon" />
+	</fx:define>
+
+	<children>
+		<GridPane fx:id="contentPane" styleClass="content" maxHeight="-Infinity" maxWidth="-Infinity" vgap="10">
+			<Label fx:id="iconLabel" styleClass="icon" GridPane.rowSpan="2" GridPane.valignment="TOP"/>
+			<Label fx:id="titleLabel" minHeight="-Infinity" styleClass="title" GridPane.hgrow="ALWAYS" GridPane.columnIndex="1" GridPane.valignment="TOP"/>
+			<Label fx:id="messageLabel" styleClass="message" GridPane.columnIndex="1" GridPane.rowIndex="1" GridPane.valignment="TOP"/>
+			<HBox fx:id="buttons" alignment="CENTER_RIGHT" spacing="10" GridPane.hgrow="ALWAYS" GridPane.halignment="RIGHT" GridPane.columnSpan="2" GridPane.rowIndex="2"/>
+		</GridPane>
+	</children>
+</fx:root>

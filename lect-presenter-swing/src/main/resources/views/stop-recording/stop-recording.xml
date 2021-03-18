@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Panel>
+	<Panel ref="buttonContainer">
+		<Button id="stopButton" text="button.end" />
+		<Button id="continueButton" text="button.continue" />
+	</Panel>
+</Panel>

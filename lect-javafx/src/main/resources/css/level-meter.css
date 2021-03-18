@@ -1,0 +1,4 @@
+.level-meter {
+	-fx-background-fill: derive(-fx-box-border, 40%);
+	-fx-level-fill: linear-gradient(to right, #32cd32 0%, rgb(248, 200, 23) 70%, #dc143c 100%);
+}

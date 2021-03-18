@@ -1,0 +1,79 @@
+<?xml version="1.0"?>
+<project
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd"
+	xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+	<modelVersion>4.0.0</modelVersion>
+
+	<parent>
+		<groupId>org.lecturestudio</groupId>
+		<artifactId>lect-studio</artifactId>
+		<version>4.0.0</version>
+	</parent>
+
+	<groupId>org.lecturestudio.swing</groupId>
+	<artifactId>lect-swing</artifactId>
+	<version>4.0.0</version>
+
+	<properties>
+		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+	</properties>
+
+	<build>
+		<resources>
+			<resource>
+				<directory>src/main/resources</directory>
+				<targetPath>resources</targetPath>
+				<filtering>false</filtering>
+				<excludes>
+					<exclude>**/META-INF/**</exclude>
+				</excludes>
+			</resource>
+			<resource>
+				<directory>src/main/resources</directory>
+				<targetPath>.</targetPath>
+				<filtering>false</filtering>
+				<includes>
+					<include>**/META-INF/**</include>
+				</includes>
+			</resource>
+		</resources>
+	</build>
+
+	<dependencies>
+		<dependency>
+			<groupId>org.lecturestudio.core</groupId>
+			<artifactId>lect-core</artifactId>
+			<version>4.0.0</version>
+		</dependency>
+		<dependency>
+			<groupId>com.formdev</groupId>
+			<artifactId>flatlaf</artifactId>
+			<version>0.40</version>
+		</dependency>
+		<dependency>
+			<groupId>com.formdev</groupId>
+			<artifactId>svgSalamander</artifactId>
+			<version>1.1.2.1</version>
+		</dependency>
+		<dependency>
+			<groupId>org.swixml</groupId>
+			<artifactId>swixml</artifactId>
+			<version>2.6.20130530</version>
+			<exclusions>
+				<exclusion>
+					<groupId>javax.jnlp</groupId>
+					<artifactId>jnlp</artifactId>
+				</exclusion>
+				<exclusion>
+					<groupId>com.apple</groupId>
+					<artifactId>AppleJavaExtensions</artifactId>
+				</exclusion>
+			</exclusions>
+		</dependency>
+		<dependency>
+			<groupId>net.atlanticbb.tantlinger</groupId>
+			<artifactId>shef</artifactId>
+			<version>0.5</version>
+		</dependency>
+	</dependencies>
+</project>

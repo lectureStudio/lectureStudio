@@ -1,0 +1,8 @@
+<mat-list [formGroup]="form">
+	<mat-list-item formArrayName="options" *ngFor="let option of options; let i = index">
+		<label class="option-index">{{ indexChar(i) }})</label>
+		<mat-form-field>
+			<input type="number" [formControlName]="i" matInput placeholder="{{option}}" name="options" size="30" maxLength="40" required>
+		</mat-form-field>
+	</mat-list-item>
+</mat-list>

@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.Button?>
+<?import org.lecturestudio.javafx.control.NotificationPane?>
+
+<fx:root type="NotificationPane" xmlns="http://javafx.com/javafx/8.0.111" xmlns:fx="http://javafx.com/fxml/1">
+	<Button fx:id="discardButton" text="%button.discard"/>
+	<Button fx:id="saveButton" text="%button.save"/>
+	<Button fx:id="closeButton" text="%button.close"/>
+</fx:root>

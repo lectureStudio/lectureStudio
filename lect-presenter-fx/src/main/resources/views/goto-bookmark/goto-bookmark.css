@@ -1,0 +1,9 @@
+.bookmarks .table-view .table-row-cell {
+	-fx-cell-size: 3em;
+}
+.bookmarks .table-cell {
+	-fx-alignment: center;
+}
+.bookmarks .doc-title-column {
+	-fx-alignment: center-left;
+}

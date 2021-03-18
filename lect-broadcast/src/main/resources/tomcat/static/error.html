@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<title>${reason}</title>
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1">
+		<style>
+			body { background-color: #dfe3e5; color: #002538; text-transform: uppercase; font-size: 1.25em; font-family: "Lucida Sans Unicode", "Lucida Grande", sans-serif; width: 100%; height: 100%; }
+			.container { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); text-align: center; width: 100%; }
+			.reason { background: #002538; color: #fff; display: inline-block; font-size: 1.25em; border-radius: 0.4em; padding: 0.5rem 1rem; }
+			.statusCode { text-decoration: underline dotted; }
+		</style>
+	</head>
+	<body>
+		<div class="container">
+			<div class="reason">${reason}</div>
+			<div class="statusCode">${statusCode}</div>
+		</div>
+	</body>
+</html>

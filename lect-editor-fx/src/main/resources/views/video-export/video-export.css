@@ -1,0 +1,25 @@
+.video-export {
+	-fx-background-color: rgba(64, 64, 64, 0.85);
+}
+.video-export > .content {
+	-fx-background-color: white;
+	-fx-background-radius: 3;
+	-fx-padding: 1em;
+}
+.video-export > .content > .header {
+	-fx-font-size: 1.15em;
+	-fx-font-weight: bold;
+	-fx-padding: 0 0 1.25em 0;
+}
+.video-export > .content > HBox {
+	-fx-spacing: 5;
+}
+.video-export > .content > .desc {
+	-fx-padding: 1em 0 0.2em 0;
+}
+.video-export > .content > .desc-first {
+	-fx-padding: 0 0 0.2em 0;
+}
+.video-export > .content > .check-box {
+	-fx-padding: 1em 0 0 0;
+}

@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Panel>
+	<Panel ref="contentContainer">
+		<ProgressBar id="progressIndicator" maximum="100" border="EmptyBorder(0, 0, 20, 0)" visible="false" />
+	</Panel>
+	<Panel ref="buttonContainer">
+		<Button id="discardButton" text="button.discard" />
+		<Button id="saveButton" text="button.save" />
+	</Panel>
+</Panel>

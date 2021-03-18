@@ -1,0 +1,146 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import java.lang.String?>
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.ComboBox?>
+<?import javafx.scene.control.Hyperlink?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ToggleGroup?>
+<?import javafx.scene.control.Tooltip?>
+<?import javafx.scene.layout.ColumnConstraints?>
+<?import javafx.scene.layout.GridPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.RowConstraints?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.web.HTMLEditor?>
+<?import org.lecturestudio.javafx.control.ExtButton?>
+<?import org.lecturestudio.javafx.control.ExtRadioButton?>
+<?import org.lecturestudio.javafx.control.SvgIcon?>
+<?import org.lecturestudio.javafx.layout.ContentPane?>
+
+<fx:root type="ContentPane" title="%create.quiz.title" fx:id="createQuizPane" styleClass="create-quiz" xmlns="http://javafx.com/javafx/8.0.111" xmlns:fx="http://javafx.com/fxml/1">
+	<fx:define>
+		<String fx:id="defaultOptionFxml" fx:value="/resources/views/quiz-default-option/quiz-default-option.fxml" />
+		<String fx:id="numericOptionFxml" fx:value="/resources/views/quiz-numeric-option/quiz-numeric-option.fxml" />
+	</fx:define>
+
+	<VBox styleClass="content" spacing="10">
+		<Label text="%create.quiz.question"/>
+		<HTMLEditor fx:id="htmlEditor"/>
+		<GridPane hgap="10">
+			<columnConstraints>
+				<ColumnConstraints prefWidth="100"/>
+				<ColumnConstraints hgrow="SOMETIMES" prefWidth="100"/>
+				<ColumnConstraints/>
+				<ColumnConstraints/>
+			</columnConstraints>
+			<rowConstraints>
+				<RowConstraints minHeight="30"/>
+				<RowConstraints minHeight="30"/>
+				<RowConstraints minHeight="30"/>
+			</rowConstraints>
+			<Label text="%create.quiz.type"/>
+			<ExtRadioButton fx:id="multipleTypeRadioButton" accelerator="shortcut+m" selected="true" text="%create.quiz.type.multiple"
+							onAction="#onMultipleType" GridPane.columnIndex="1">
+				<toggleGroup>
+					<ToggleGroup fx:id="quizTypeGroup"/>
+				</toggleGroup>
+				<tooltip>
+					<Tooltip text="%create.quiz.type.multiple"/>
+				</tooltip>
+			</ExtRadioButton>
+			<ExtRadioButton fx:id="singleTypeRadioButton" accelerator="shortcut+s" text="%create.quiz.type.single" onAction="#onSingleType"
+							toggleGroup="$quizTypeGroup" GridPane.columnIndex="1" GridPane.rowIndex="1">
+				<tooltip>
+					<Tooltip text="%create.quiz.type.single"/>
+				</tooltip>
+			</ExtRadioButton>
+			<ExtRadioButton fx:id="numericTypeRadioButton" accelerator="shortcut+n" text="%create.quiz.type.numeric" onAction="#onNumericType"
+							toggleGroup="$quizTypeGroup" GridPane.columnIndex="1" GridPane.rowIndex="2">
+				<tooltip>
+					<Tooltip text="%create.quiz.type.numeric"/>
+				</tooltip>
+			</ExtRadioButton>
+			<Label text="%create.quiz.set" GridPane.columnIndex="2"/>
+			<ComboBox fx:id="docSetComboBox" GridPane.columnIndex="3"/>
+		</GridPane>
+		<VBox fx:id="optionContainer" spacing="10">
+			<padding>
+				<Insets bottom="10" left="10" right="10" top="10"/>
+			</padding>
+		</VBox>
+		<Hyperlink fx:id="newOptionButton" styleClass="quiz-option-add" text="%create.quiz.option.add">
+			<tooltip>
+				<Tooltip text="%create.quiz.option.add.tooltip"/>
+			</tooltip>
+			<graphic>
+				<SvgIcon styleClass="icon, add-icon"/>
+			</graphic>
+		</Hyperlink>
+	</VBox>
+	<HBox styleClass="buttons">
+		<ExtButton fx:id="closeButton" text="%button.close">
+			<tooltip>
+				<Tooltip text="%create.quiz.cancel.tooltip"/>
+			</tooltip>
+		</ExtButton>
+		<ExtButton fx:id="saveQuizButton" accelerator="shortcut+enter" text="%create.quiz.save">
+			<tooltip>
+				<Tooltip text="%create.quiz.save.tooltip"/>
+			</tooltip>
+		</ExtButton>
+		<ExtButton fx:id="startQuizButton" text="%create.quiz.start">
+			<tooltip>
+				<Tooltip text="%create.quiz.start"/>
+			</tooltip>
+		</ExtButton>
+		<opaqueInsets>
+			<Insets/>
+		</opaqueInsets>
+	</HBox>
+
+	<fx:define>
+		<Tooltip fx:id="optionTooltip" contentDisplay="RIGHT">
+			<graphic>
+				<GridPane hgap="20" vgap="5">
+					<columnConstraints>
+						<ColumnConstraints hgrow="SOMETIMES" />
+						<ColumnConstraints hgrow="SOMETIMES" />
+					</columnConstraints>
+					<rowConstraints>
+						<RowConstraints />
+						<RowConstraints />
+						<RowConstraints />
+					</rowConstraints>
+					<Label text="%create.quiz.option.next.tooltip" />
+					<Label fx:id="tooltipTabAccelerator" text="Tab" styleClass="accelerator" GridPane.columnIndex="1" GridPane.halignment="RIGHT" />
+					<Label text="%create.quiz.option.up.tooltip" GridPane.rowIndex="1" />
+					<Label fx:id="tooltipUpAccelerator" text="Up" styleClass="accelerator" GridPane.columnIndex="1" GridPane.halignment="RIGHT" GridPane.rowIndex="1" />
+					<Label text="%create.quiz.option.down.tooltip" GridPane.rowIndex="2" />
+					<Label fx:id="tooltipDownAccelerator" text="Down" styleClass="accelerator" GridPane.columnIndex="1" GridPane.halignment="RIGHT" GridPane.rowIndex="2" />
+				</GridPane>
+			</graphic>
+		</Tooltip>
+		<Tooltip fx:id="lastOptionTooltip" contentDisplay="RIGHT">
+			<graphic>
+				<GridPane hgap="20" vgap="5">
+					<columnConstraints>
+						<ColumnConstraints hgrow="SOMETIMES" />
+						<ColumnConstraints hgrow="SOMETIMES" />
+					</columnConstraints>
+					<rowConstraints>
+						<RowConstraints />
+						<RowConstraints />
+						<RowConstraints />
+					</rowConstraints>
+					<Label text="%create.quiz.option.add.tooltip" />
+					<Label fx:id="tooltipTabAccelerator" text="Tab" styleClass="accelerator" GridPane.columnIndex="1" GridPane.halignment="RIGHT" />
+					<Label text="%create.quiz.start" GridPane.rowIndex="1" />
+					<Label fx:id="tooltipEnterAccelerator" text="Enter" styleClass="accelerator" GridPane.columnIndex="1" GridPane.halignment="RIGHT" GridPane.rowIndex="1" />
+					<Label text="%create.quiz.option.up.tooltip" GridPane.rowIndex="2" />
+					<Label fx:id="tooltipUpAccelerator" text="Up" styleClass="accelerator" GridPane.columnIndex="1" GridPane.halignment="RIGHT" GridPane.rowIndex="2" />
+				</GridPane>
+			</graphic>
+		</Tooltip>
+	</fx:define>
+</fx:root>

@@ -1,0 +1,63 @@
+.split-menu-button:selected > .label {
+    -fx-background-color:
+        -fx-shadow-highlight-color,
+        linear-gradient(to bottom, derive(-fx-outer-border, -20%), -fx-outer-border),
+        linear-gradient(to bottom,
+            derive(-fx-color, -22%) 0%,
+            derive(-fx-color, -13%) 20%,
+            derive(-fx-color, -11%) 50%);
+
+    -fx-background-insets: 1 0 1 1, 1 0 1 1;
+    -fx-background-radius: 2 0 0 2, 1 0 0 1;
+}
+.split-menu-button:selected:focused > .label {
+    -fx-background-color:
+        -fx-focus-color,
+        linear-gradient(to bottom,
+            derive(-fx-color, -22%) 0%,
+            derive(-fx-color, -13%) 20%,
+            derive(-fx-color, -11%) 50%),
+        -fx-faint-focus-color,
+        linear-gradient(to bottom,
+            derive(-fx-color, -22%) 0%,
+            derive(-fx-color, -13%) 20%,
+            derive(-fx-color, -11%) 50%);
+    -fx-background-insets: -0.2 0 -0.2 -0.2, 1 0 1 1, -1.4 0 -1.4 -1.4, 2.6 0 2.6 2.6;
+    -fx-background-radius: 3 0 0 3, 2 0 0 2, 4 0 0 4, 0;
+}
+
+/***** left ******************************************************************/
+
+.split-menu-button.left-pill {
+    -fx-background-radius: 3 0 0 3, 3 0 0 3;
+}
+.split-menu-button.left-pill > .arrow-button {
+	-fx-background-radius: 0;
+}
+
+/***** center ****************************************************************/
+
+.split-menu-button.center-pill,
+.split-menu-button.center-pill > .arrow-button {
+    -fx-background-radius: 0;
+}
+.split-menu-button.center-pill > .label {
+	-fx-background-insets: 1 0 1 0, 2 1 2 1;
+	-fx-background-radius: 0;
+}
+.split-menu-button:selected.center-pill > .label {
+	-fx-background-insets: 1 0 1 0, 1 0 1 0;
+}
+
+/***** right *****************************************************************/
+
+.split-menu-button.right-pill {
+    -fx-background-radius: 0 3 3 0, 0 3 3 0;
+}
+.split-menu-button.right-pill > .label {
+	-fx-background-insets: 1 0 1 0, 2 1 2 1;
+    -fx-background-radius: 0;
+}
+.split-menu-button:selected.right-pill > .label {
+	-fx-background-insets: 1 0 1 0, 1 0 1 0;
+}

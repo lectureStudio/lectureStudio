@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.control.cell.*?>
+<?import javafx.scene.layout.*?>
+<?import org.lecturestudio.javafx.control.SvgIcon?>
+<?import org.lecturestudio.javafx.factory.*?>
+<?import org.lecturestudio.javafx.layout.*?>
+
+<fx:root type="ContentPane" title="%create.bookmark.title" styleClass="bookmarks" xmlns="http://javafx.com/javafx/8.0.111" xmlns:fx="http://javafx.com/fxml/1">
+	<VBox styleClass="content" spacing="5" VBox.vgrow="ALWAYS">
+		<Label text="%create.bookmark.assign.key"/>
+		<TextField fx:id="acceleratorTextField"/>
+		<TableView fx:id="bookmarkTableView" VBox.vgrow="ALWAYS">
+			<rowFactory>
+				<TableViewRowFactory />
+			</rowFactory>
+			<columnResizePolicy>
+				<DynamicResizePolicy tableView="$bookmarkTableView">
+					<columnConstraints>
+						<ColumnSizeConstraints percentWidth="1"/>
+						<ColumnSizeConstraints prefWidth="60"/>
+						<ColumnSizeConstraints prefWidth="80"/>
+						<ColumnSizeConstraints prefWidth="40"/>
+					</columnConstraints>
+				</DynamicResizePolicy>
+			</columnResizePolicy>
+			<columns>
+				<TableColumn text="%create.bookmark.document" styleClass="doc-title-column">
+					<cellValueFactory>
+						<PropertyValueFactory property="documentTitle"/>
+					</cellValueFactory>
+				</TableColumn>
+				<TableColumn resizable="false" text="%create.bookmark.slide.number">
+					<cellValueFactory>
+						<PropertyValueFactory property="slideNumber"/>
+					</cellValueFactory>
+				</TableColumn>
+				<TableColumn text="%create.bookmark.key">
+					<cellValueFactory>
+						<PropertyValueFactory property="accelerator"/>
+					</cellValueFactory>
+				</TableColumn>
+				<TableColumn resizable="false" sortable="false" styleClass="table-button-column">
+					<cellFactory>
+						<ButtonCellFactory>
+							<button>
+								<Button styleClass="delete-button" onAction="#onDeleteBookmark">
+									<graphic>
+										<SvgIcon styleClass="icon, delete-icon"/>
+									</graphic>
+									<tooltip>
+										<Tooltip text="%create.bookmark.delete"/>
+									</tooltip>
+								</Button>
+							</button>
+						</ButtonCellFactory>
+					</cellFactory>
+					<cellValueFactory>
+						<ButtonCellValueFactory/>
+					</cellValueFactory>
+				</TableColumn>
+			</columns>
+		</TableView>
+	</VBox>
+	<HBox styleClass="buttons">
+		<Button fx:id="closeButton" text="%button.close"/>
+	</HBox>
+</fx:root>

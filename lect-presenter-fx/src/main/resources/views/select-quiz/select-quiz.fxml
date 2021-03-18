@@ -1,0 +1,103 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.collections.FXCollections?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.TableColumn?>
+<?import javafx.scene.control.TableView?>
+<?import javafx.scene.control.Tooltip?>
+<?import javafx.scene.control.cell.PropertyValueFactory?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.VBox?>
+<?import org.lecturestudio.javafx.control.SvgIcon?>
+<?import org.lecturestudio.javafx.factory.ButtonCellValueFactory?>
+<?import org.lecturestudio.javafx.factory.ButtonGroupCellFactory?>
+<?import org.lecturestudio.javafx.factory.TableViewRowFactory?>
+<?import org.lecturestudio.javafx.layout.DynamicResizePolicy?>
+<?import org.lecturestudio.javafx.layout.ColumnSizeConstraints?>
+<?import org.lecturestudio.javafx.layout.ContentPane?>
+<?import org.lecturestudio.presenter.javafx.factory.QuizSetCellFactory?>
+<?import org.lecturestudio.presenter.javafx.factory.QuizQuestionCellFactory?>
+
+<fx:root type="ContentPane" title="%select.quiz.title" styleClass="select-quiz" xmlns="http://javafx.com/javafx/8.0.111" xmlns:fx="http://javafx.com/fxml/1">
+	<VBox styleClass="content" VBox.vgrow="ALWAYS">
+		<TableView fx:id="quizTableView" fixedCellSize="45" VBox.vgrow="ALWAYS">
+			<rowFactory>
+				<TableViewRowFactory />
+			</rowFactory>
+			<columnResizePolicy>
+				<DynamicResizePolicy tableView="$quizTableView">
+					<columnConstraints>
+						<ColumnSizeConstraints prefWidth="30"/>
+						<ColumnSizeConstraints percentWidth="1"/>
+						<ColumnSizeConstraints prefWidth="80"/>
+						<ColumnSizeConstraints prefWidth="80"/>
+					</columnConstraints>
+				</DynamicResizePolicy>
+			</columnResizePolicy>
+			<columns>
+				<TableColumn styleClass="quiz-table-set-column" resizable="false">
+					<cellFactory>
+						<QuizSetCellFactory genericStyle="" documentStyle="pdf-icon"/>
+					</cellFactory>
+					<cellValueFactory>
+						<PropertyValueFactory property="quizSet"/>
+					</cellValueFactory>
+				</TableColumn>
+				<TableColumn styleClass="quiz-table-question-column" maxWidth="1.7976931348623157E308" text="%select.quiz.question">
+					<cellFactory>
+						<QuizQuestionCellFactory/>
+					</cellFactory>
+					<cellValueFactory>
+						<PropertyValueFactory property="quizQuestion"/>
+					</cellValueFactory>
+				</TableColumn>
+				<TableColumn styleClass="quiz-table-type-column" resizable="false" text="%select.quiz.type">
+					<cellValueFactory>
+						<PropertyValueFactory property="quizType"/>
+					</cellValueFactory>
+				</TableColumn>
+				<TableColumn styleClass="table-button-column" resizable="false" sortable="false">
+					<cellFactory>
+						<ButtonGroupCellFactory>
+							<buttons>
+								<FXCollections fx:factory="observableArrayList">
+									<Button onAction="#onEditQuiz">
+										<graphic>
+											<SvgIcon styleClass="icon, edit-icon"/>
+										</graphic>
+										<tooltip>
+											<Tooltip text="%select.quiz.edit" />
+										</tooltip>
+									</Button>
+									<Button onAction="#onDeleteQuiz" styleClass="delete-button">
+										<graphic>
+											<SvgIcon styleClass="icon, delete-icon"/>
+										</graphic>
+										<tooltip>
+											<Tooltip text="%select.quiz.delete" />
+										</tooltip>
+									</Button>
+								</FXCollections>
+							</buttons>
+						</ButtonGroupCellFactory>
+					</cellFactory>
+					<cellValueFactory>
+						<ButtonCellValueFactory/>
+					</cellValueFactory>
+				</TableColumn>
+			</columns>
+		</TableView>
+	</VBox>
+	<HBox styleClass="buttons" VBox.vgrow="NEVER">
+		<Button fx:id="closeButton" text="%button.close">
+			<tooltip>
+				<Tooltip text="%select.quiz.cancel.tooltip"/>
+			</tooltip>
+		</Button>
+		<Button fx:id="startQuizButton" text="%select.quiz.start">
+			<tooltip>
+				<Tooltip text="%select.quiz.start"/>
+			</tooltip>
+		</Button>
+	</HBox>
+</fx:root>

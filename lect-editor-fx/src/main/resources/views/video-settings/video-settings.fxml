@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<fx:root styleClass="video-settings" type="GridPane" xmlns="http://javafx.com/javafx/10.0.2-internal" xmlns:fx="http://javafx.com/fxml/1">
+	<columnConstraints>
+		<ColumnConstraints />
+		<ColumnConstraints />
+	</columnConstraints>
+	<rowConstraints>
+		<RowConstraints />
+		<RowConstraints />
+		<RowConstraints />
+		<RowConstraints vgrow="ALWAYS" />
+	</rowConstraints>
+
+	<Label text="%video.settings.export.path" GridPane.columnSpan="2" />
+	<TextField fx:id="targetPathField" GridPane.hgrow="ALWAYS" GridPane.rowIndex="1">
+      <GridPane.margin>
+         <Insets />
+      </GridPane.margin></TextField>
+	<Button fx:id="browseButton" text="%button.browse" GridPane.columnIndex="1" GridPane.rowIndex="1" />
+	<Label fx:id="freeSpaceLabel" styleClass="text-small" GridPane.columnSpan="2" GridPane.rowIndex="2" />
+	<HBox alignment="BOTTOM_RIGHT" spacing="5" GridPane.columnSpan="2" GridPane.rowIndex="3">
+		<Button fx:id="resetButton" text="%button.reset" />
+		<Button fx:id="closeButton" text="%button.close" />
+	</HBox>
+</fx:root>

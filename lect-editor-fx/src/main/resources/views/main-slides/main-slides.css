@@ -1,0 +1,71 @@
+.main-slides .left-tabs {
+	-fx-pref-width: 320;
+}
+.main-slides .left-tabs .content-pane > .title {
+	-fx-font-size: 1em;
+	-fx-padding: 0.5em;
+}
+.main-slides .left-tabs .scroll-pane {
+	-fx-background-color: transparent;
+}
+.main-slides .left-tabs .table-view {
+	-fx-background-color: -fx-control-inner-background;
+	-fx-background-insets: 0;
+	-fx-padding: 0;
+}
+.main-slides .left-tabs > .tab-header-area > .headers-region > .tab {
+	-fx-background-insets: 0 0 2 0;
+	-fx-background-radius: 0;
+	-fx-padding: 1.25em 0em 0.25em 0em;
+	-fx-pref-width: 3em;
+}
+.main-slides .left-tabs > .tab-header-area > .headers-region > .tab SvgIcon {
+	-fx-icon-stroke-width: 0;
+	-fx-icon-size: 1.75em;
+}
+.main-slides .left-tabs > .tab-header-area > .headers-region > .tab > .tab-container > .tab-label {
+	-fx-graphic-text-gap: 0;
+}
+.main-slides .left-tabs > .tab-header-area > .headers-region > .tab:left {
+    -fx-background-color: transparent;
+}
+.main-slides .left-tabs > .tab-header-area > .headers-region > .tab > .tab-container {
+	-fx-rotate: 90;
+}
+.main-slides .left-tabs > .tab-header-area > .headers-region > .tab:hover {
+	-fx-background-color: -fx-base;
+}
+.main-slides .left-tabs > .tab-header-area > .headers-region > .tab:selected {
+	-fx-background-color: -fx-accent, -fx-background;
+	-fx-background-insets: 0, 0 0 2 0;
+	-fx-text-base-color: -fx-text-background-color;
+}
+.main-slides .left-tabs > .tab-header-area > .headers-region > .tab:selected SvgIcon {
+	-fx-icon-fill: -fx-text-background-color;
+	-fx-icon-stroke: -fx-text-background-color;
+}
+.main-slides .left-tabs:focused > .tab-header-area > .headers-region > .tab:selected .focus-indicator {
+    -fx-border-color: transparent;
+    -fx-border-insets: 0;
+    -fx-border-radius: 0;
+    -fx-border-width: 0;
+}
+.main-slides .left-tabs:left > .tab-header-area > .tab-header-background {
+    -fx-background-insets: 0, 0, 0 0 2 0;
+}
+.main-slides .left-tabs:left > .tab-header-area {
+    -fx-padding: 0;
+}
+
+.main-slides .delete-page-icon {
+	-fx-icon-content: "M 5,2.25 C 3.4894729,2.25 2.25,3.4894729 2.25,5 v 14 c 0,1.510527 1.2394729,2.75 2.75,2.75 h 14 c 1.510527,0 2.75,-1.239473 2.75,-2.75 V 5 C 21.75,3.4894729 20.510527,2.25 19,2.25 Z m 0,1.5 h 14 c 0.705473,0 1.25,0.5445271 1.25,1.25 v 14 c 0,0.705473 -0.544527,1.25 -1.25,1.25 H 5 C 4.2945271,20.25 3.75,19.705473 3.75,19 V 5 C 3.75,4.2945271 4.2945271,3.75 5,3.75 Z m 3,7.5 a 0.750075,0.750075 0 1 0 0,1.5 h 8 a 0.750075,0.750075 0 1 0 0,-1.5 z";
+}
+.main-slides .video-icon {
+	-fx-icon-content: "M10 8v8l5-4-5-4zm9-5H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 16H5V5h14v14z";
+}
+.main-slides .noise-reduction-icon {
+	-fx-icon-content: "M704 352h-128c-14.048 0-25.984 9.056-30.368 21.888l-65.632 196.928-161.632-484.928c-5.6-16.768-23.712-25.824-40.48-20.256-9.92 3.296-17.12 10.976-20.256 20.256l-88.704 266.112h-104.928c-17.664 0-32 14.336-32 32s14.336 32 32 32h128c13.536-0.096 25.92-8.544 30.368-21.888l65.632-196.928 161.632 484.928c3.136 9.28 10.336 16.928 20.224 20.224 16.768 5.6 34.88-3.488 40.48-20.224l88.736-266.112h104.928c17.664 0 32-14.336 32-32s-14.336-32-32-32z";
+}
+.main-slides .page-events-icon {
+	-fx-icon-content: "M992 896q13 0 22.5 9.25t9.5 22.75q0 12-8.5 22-15 17.5-34.5 31.25t-41.5 23.25-45.5 14.5-46 5q-49.5 0-91.5-19.25t-76-54.75q-24.5-25.5-54.5-39.75t-66-14.25q-35 0-65.75 14.25t-54.75 39.75l-4.75 4.5-11.5 11.25-14.75 14.75-15.25 15-12.5 12.5-6.25 6.5q-9.5 9.5-22.5 9.5t-22.5-9.5-9.5-22.5 9.5-22.5q27-27 51-52t50-44 57-30.25 72.5-11.25q49.5 0 91.5 19.25t76 54.75q24.5 25.5 54.5 39.75t66 14.25q38 0 66-14.25t54.5-39.75q5.5-5 10.75-7.5t12.75-2.5zm-374.5-751q7 4 11.5 11.5t4.5 16q0 4-1 7.5t-2.5 7l-353.5 707.5q-4.5 9.5-14 14l-86.5 43.5q-16 8-34.5 8h-4.75l-4.75-.5-23.5 47q-4 8-11.75 12.75t-16.75 4.75q-13 0-22.5-9.5t-9.5-22.5q0-6 3.5-15t8.25-18.75 9.75-18.25 7.5-14q-13-20-13-43.5v-82.5q0-8 3.5-14.5l288-576-32.5-16-118.5 237q-4 8-11.75 12.75t-16.75 4.75q-13 0-22.5-9.5t-9.5-22.5q0-6.5 3.5-14.5l119.5-239q8-16 21.5-25.25t31.5-9.25q17.5 0 33.25 8.5t30.75 16l35.5-71q4-8.5 11.75-13t16.75-4.5q6.5 0 11 2 6-12 11.75-23.75t13-21.25 17.75-15.25 26.5-5.75 30.5 7.5l47 23.5q16 8 25.25 21.25t9.25 31.75q0 17-7.75 31.75t-14.75 29.25zm-101-50.5l43.5 21.5 14.5-29-43.5-21.5zm42 92.5l-96-48-334.5 668.5v75q0 5.5 4 9.5t9.5 4q2 0 8.25-2.5t14.5-6.5 17.5-8.75 17.75-9.25 15-8 9.5-5z";
+}

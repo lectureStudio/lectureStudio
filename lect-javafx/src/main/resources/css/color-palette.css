@@ -1,0 +1,18 @@
+.tool-color-palette .color-palette-pane {
+	-fx-padding: 1em;
+}
+.tool-color-palette .color-palette-pane .color-palette-grid {
+	-fx-padding: 0.5px;
+	-fx-snap-to-pixel: true;
+}
+.tool-color-palette .color-palette-pane .color-palette-grid .color-grid-square {
+	-fx-background-color: transparent;
+	-fx-padding: 0.5px;
+}
+.tool-color-palette .hover-square {
+	-fx-background-color: -fx-faint-focus-color, -fx-focus-color;
+	-fx-background-insets: -3, -1;
+	-fx-background-radius: 5, 0;
+	-fx-scale-x: 1.5;
+	-fx-scale-y: 1.5;
+}

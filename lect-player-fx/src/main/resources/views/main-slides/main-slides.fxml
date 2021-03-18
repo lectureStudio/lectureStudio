@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import org.lecturestudio.javafx.control.*?>
+<?import org.lecturestudio.player.javafx.view.*?>
+
+<fx:root type="VBox" VBox.vgrow="ALWAYS" styleClass="main-slides" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1">
+	<SplitPane fx:id="tabSplitPane" dividerPositions="0.75" VBox.vgrow="ALWAYS">
+		<HBox>
+			<SlideView fx:id="slideView" HBox.hgrow="ALWAYS"/>
+		</HBox>
+		<TabPane fx:id="tabPane" side="RIGHT" tabClosingPolicy="UNAVAILABLE" focusTraversable="false" VBox.vgrow="ALWAYS" />
+	</SplitPane>
+	<FxMediaControlsView />
+</fx:root>

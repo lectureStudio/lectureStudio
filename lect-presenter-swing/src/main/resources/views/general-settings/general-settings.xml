@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Panel layout="GridBagLayout" border="EmptyBorder(20, 20, 20, 20)">
+	<Label text="general.settings.language">
+		<gridbagconstraints gridx="0" gridy="0" anchor="GridBagConstraints.WEST" insets="5,0,5,0" />
+	</Label>
+	<ComboBox id="localeCombo">
+		<gridbagconstraints gridx="1" gridy="0" anchor="GridBagConstraints.WEST" insets="5,0,5,0" />
+		<renderer class="org.lecturestudio.swing.ui.LocaleComboBoxRenderer" />
+	</ComboBox>
+	<CheckBox id="maximizedCheckBox" text="general.settings.start.maximized">
+		<gridbagconstraints gridx="0" gridy="1" gridwidth="2" anchor="GridBagConstraints.WEST" insets="5,0,2,0" />
+	</CheckBox>
+	<CheckBox id="tabletCheckBox" text="general.settings.tablet.mode">
+		<gridbagconstraints gridx="0" gridy="2" gridwidth="2" anchor="GridBagConstraints.WEST" insets="5,0,2,0" />
+	</CheckBox>
+	<CheckBox id="saveAnnotationsCheckBox" text="general.settings.annotations.save">
+		<gridbagconstraints gridx="0" gridy="3" gridwidth="2" anchor="GridBagConstraints.WEST" insets="5,0,2,0" />
+	</CheckBox>
+	<CheckBox id="fullscreenModeCheckBox" text="general.settings.fullscreen.hide.extended">
+		<gridbagconstraints gridx="0" gridy="4" gridwidth="2" anchor="GridBagConstraints.WEST" insets="5,0,10,0" />
+	</CheckBox>
+	<Label text="general.settings.extended.space">
+		<gridbagconstraints gridx="0" gridy="5" anchor="GridBagConstraints.WEST" insets="5,0,5,0" />
+	</Label>
+	<Slider id="extendViewSlider" maximum="100">
+		<gridbagconstraints gridx="1" gridy="5" anchor="GridBagConstraints.WEST" insets="5,0,5,0" />
+	</Slider>
+	<box.vglue>
+		<gridbagconstraints gridx="0" gridy="6" weighty="1.0" />
+	</box.vglue>
+	<HBox gap="5">
+		<gridbagconstraints gridx="0" gridy="7" gridwidth="2" weightx="1.0" fill="GridBagConstraints.HORIZONTAL" />
+		<box.hglue />
+		<Button id="resetButton" text="button.reset"/>
+		<Button id="closeButton" text="button.close"/>
+	</HBox>
+</Panel>

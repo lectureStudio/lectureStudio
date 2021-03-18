@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.control.cell.*?>
+<?import org.lecturestudio.editor.javafx.factory.*?>
+<?import org.lecturestudio.javafx.control.*?>
+<?import org.lecturestudio.javafx.factory.*?>
+<?import org.lecturestudio.javafx.layout.*?>
+
+<fx:root type="ContentPane" title="%page.events.title" styleClass="page-events" xmlns="http://javafx.com/javafx/10.0.2-internal" xmlns:fx="http://javafx.com/fxml/1">
+	<TableView fx:id="eventsTableView">
+		<rowFactory>
+			<TableViewRowFactory />
+		</rowFactory>
+		<columnResizePolicy>
+			<DynamicResizePolicy tableView="$eventsTableView">
+				<columnConstraints>
+					<ColumnSizeConstraints percentWidth="1"/>
+					<ColumnSizeConstraints prefWidth="80"/>
+					<ColumnSizeConstraints prefWidth="40"/>
+				</columnConstraints>
+			</DynamicResizePolicy>
+		</columnResizePolicy>
+		<columns>
+			<TableColumn text="%page.events.event">
+				<cellFactory>
+					<EventTypeCellFactory />
+				</cellFactory>
+				<cellValueFactory>
+					<PropertyValueFactory property="actionType"/>
+				</cellValueFactory>
+			</TableColumn>
+			<TableColumn text="%page.events.time">
+				<cellValueFactory>
+					<PropertyValueFactory property="time"/>
+				</cellValueFactory>
+			</TableColumn>
+			<TableColumn resizable="false" sortable="false" styleClass="table-button-column">
+				<cellFactory>
+					<ButtonCellFactory>
+						<button>
+							<Button styleClass="delete-button" onAction="#onDeleteEvent">
+								<graphic>
+									<SvgIcon styleClass="delete-icon"/>
+								</graphic>
+								<tooltip>
+									<Tooltip text="%page.events.delete"/>
+								</tooltip>
+							</Button>
+						</button>
+					</ButtonCellFactory>
+				</cellFactory>
+				<cellValueFactory>
+					<ButtonCellValueFactory/>
+				</cellValueFactory>
+			</TableColumn>
+		</columns>
+	</TableView>
+</fx:root>

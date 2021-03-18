@@ -1,0 +1,8 @@
+@import "/resources/css/page-object.css";
+
+.tex-box {
+	-fx-border-color: DARKCYAN;
+}
+.tex-box > .header {
+	-fx-background-color: DARKCYAN;
+}

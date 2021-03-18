@@ -1,0 +1,35 @@
+@import "/resources/css/page-object.css";
+
+.tex-box {
+	-fx-border-color: CORNFLOWERBLUE;
+}
+.tex-box > .header {
+	-fx-background-color: CORNFLOWERBLUE;
+}
+.text-box .text-area {
+	-fx-background: transparent;
+	-fx-background-color: transparent;
+}
+.text-box .text-area .content {
+	-fx-background-color: null;
+	-fx-padding: 0;
+}
+.text-box .text-area .scroll-pane {
+    -fx-hbar-policy: never;
+    -fx-vbar-policy: never;
+}
+.text-box .text-area *.scroll-bar:horizontal *.increment-button,
+.text-box .text-area *.scroll-bar:horizontal *.decrement-button {
+	-fx-background-color: null;
+	-fx-background-radius: 0;
+	-fx-background-insets: 0;
+	-fx-padding: 0;
+}
+.text-box .text-area *.scroll-bar:horizontal *.increment-arrow,
+.text-box .text-area *.scroll-bar:horizontal *.decrement-arrow {
+	-fx-background-color: null;
+	-fx-background-radius: 0;
+	-fx-background-insets: 0;
+	-fx-padding: 0;
+	-fx-shape: null;
+}

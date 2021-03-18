@@ -1,0 +1,6 @@
+.adjust-audio-capture-level {
+	-fx-background-color: rgba(64, 64, 64, 0.85);
+}
+.adjust-audio-capture-level > .containerPane {
+	-fx-background-color: white;
+}

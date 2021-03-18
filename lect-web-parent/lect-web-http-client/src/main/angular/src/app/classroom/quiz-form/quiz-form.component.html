@@ -1,0 +1,16 @@
+<div [innerHTML]="serviceData.quiz.question | keepHtml"></div>
+
+<form (ngSubmit)="onSubmit()" [formGroup]="form">
+	<input type="hidden" name="serviceId" value="{{serviceData.serviceId}}" />
+
+	<div [ngSwitch]="serviceData?.quiz.type" class="option-panel">
+		<multiple-choice-option *ngSwitchCase="'MULTIPLE'" [form]="form" [options]="serviceData.quiz.options"></multiple-choice-option>
+		<numeric-option *ngSwitchCase="'NUMERIC'" [form]="form" [options]="serviceData.quiz.options"></numeric-option>
+		<single-choice-option *ngSwitchCase="'SINGLE'" [form]="form" [options]="serviceData.quiz.options"></single-choice-option>
+	</div>
+
+	<button mat-stroked-button color="primary" [disabled]="form.disabled">
+		{{ 'button.send' | translate }}
+		<mat-icon>send</mat-icon>
+	</button>
+</form>

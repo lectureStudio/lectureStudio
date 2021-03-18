@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.Tooltip?>
+<?import javafx.scene.layout.HBox?>
+<?import org.lecturestudio.javafx.control.ExtButton?>
+<?import org.lecturestudio.javafx.control.SvgIcon?>
+
+<fx:root type="HBox" styleClass="quiz-option" alignment="CENTER_LEFT" xmlns="http://javafx.com/javafx/8.0.111" xmlns:fx="http://javafx.com/fxml/1">
+	<children>
+		<HBox fx:id="content" styleClass="quiz-option-input" alignment="CENTER_RIGHT" HBox.hgrow="ALWAYS" spacing="5"/>
+
+		<ExtButton fx:id="moveUpButton" accelerator="Up" styleClass="quiz-option-move-up, left-pill">
+			<tooltip>
+				<Tooltip text="%quiz.option.up.tooltip" />
+			</tooltip>
+			<graphic>
+				<SvgIcon styleClass="icon, move-up-icon"/>
+			</graphic>
+		</ExtButton>
+		<ExtButton fx:id="moveDownButton" accelerator="Down" styleClass="quiz-option-move-down, center-pill">
+			<tooltip>
+				<Tooltip text="%quiz.option.down.tooltip" />
+			</tooltip>
+			<graphic>
+				<SvgIcon styleClass="icon, move-down-icon"/>
+			</graphic>
+		</ExtButton>
+		<ExtButton fx:id="removeButton" styleClass="quiz-option-delete, delete-button, right-pill">
+			<tooltip>
+				<Tooltip text="%quiz.option.remove.tooltip" />
+			</tooltip>
+			<graphic>
+				<SvgIcon styleClass="icon, delete-icon"/>
+			</graphic>
+		</ExtButton>
+	</children>
+</fx:root>

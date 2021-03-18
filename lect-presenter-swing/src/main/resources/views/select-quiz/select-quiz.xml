@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Panel name="select.quiz.title">
+	<Panel layout="GridBagLayout" border="EmptyBorder(0, 20, 20, 20)">
+		<ScrollPane border="EmptyBorder(10, 0, 0, 0)">
+			<gridbagconstraints gridx="0" gridy="0" weightx="1.0" weighty="1.0" fill="GridBagConstraints.BOTH" />
+			<Table id="quizTableView" autoCreateColumnsFromModel="false" fillsViewportHeight="true" rowHeight="25" selectionMode="ListSelectionModel.SINGLE_SELECTION">
+				<TableColumn maxWidth="30" />
+				<TableColumn headerValue="select.quiz.question" />
+				<TableColumn headerValue="select.quiz.type" maxWidth="80" />
+				<TableColumn maxWidth="35">
+					<TableButtonRenderer icon="edit.svg, 20" toolTipText="select.quiz.edit" />
+					<TableButtonEditor icon="edit.svg, 20" action="editAction" />
+				</TableColumn>
+				<TableColumn maxWidth="35">
+					<TableButtonRenderer icon="delete.svg, 20" toolTipText="select.quiz.delete" />
+					<TableButtonEditor icon="delete.svg, 20" action="deleteAction" />
+				</TableColumn>
+			</Table>
+		</ScrollPane>
+		<HBox gap="5" border="EmptyBorder(10, 0, 0, 0)">
+			<gridbagconstraints gridx="0" gridy="1" fill="GridBagConstraints.HORIZONTAL" />
+			<box.hglue />
+			<Button id="closeButton" text="button.close" tooltipText="select.quiz.cancel.tooltip" />
+			<Button id="startQuizButton" text="select.quiz.start" tooltipText="select.quiz.start" enabled="false" />
+		</HBox>
+	</Panel>
+</Panel>

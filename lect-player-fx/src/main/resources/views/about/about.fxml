@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.Tab?>
+<?import javafx.scene.control.TabPane?>
+<?import javafx.scene.control.TableColumn?>
+<?import javafx.scene.control.TableView?>
+<?import javafx.scene.control.cell.PropertyValueFactory?>
+<?import javafx.scene.layout.FlowPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.VBox?>
+<?import org.lecturestudio.javafx.layout.ColumnSizeConstraints?>
+<?import org.lecturestudio.javafx.layout.ContentPane?>
+<?import org.lecturestudio.javafx.layout.DynamicResizePolicy?>
+
+<fx:root type="ContentPane" title="%about.title" styleClass="about" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1">
+	<TabPane styleClass="content" tabClosingPolicy="UNAVAILABLE" VBox.vgrow="ALWAYS">
+		<Tab text="%about.contributors">
+			<VBox styleClass="tab-content" spacing="10.0">
+				<FlowPane fx:id="sponsorList" styleClass="sponsors-container" hgap="10.0" vgap="10.0" />
+				<FlowPane fx:id="contributorList" styleClass="developers-container" hgap="10.0" vgap="10.0" />
+			</VBox>
+		</Tab>
+		<Tab text="%about.system">
+			<VBox styleClass="tab-content" spacing="10.0">
+				<Label minHeight="-Infinity" styleClass="description-label" text="%about.system.properties" textAlignment="JUSTIFY" wrapText="true">
+					<VBox.margin>
+						<Insets bottom="5.0" />
+					</VBox.margin>
+				</Label>
+				<TableView fx:id="systemPropertiesTable" styleClass="properties-table" VBox.vgrow="SOMETIMES">
+					<columnResizePolicy>
+						<DynamicResizePolicy tableView="$systemPropertiesTable">
+							<columnConstraints>
+								<ColumnSizeConstraints prefWidth="80"/>
+								<ColumnSizeConstraints percentWidth="1"/>
+							</columnConstraints>
+						</DynamicResizePolicy>
+					</columnResizePolicy>
+					<columns>
+						<TableColumn text="%about.property" editable="false">
+							<cellValueFactory>
+								<PropertyValueFactory property="propertyKey" />
+							</cellValueFactory>
+						</TableColumn>
+						<TableColumn text="%about.property.value" editable="false">
+							<cellValueFactory>
+								<PropertyValueFactory property="propertyValue" />
+							</cellValueFactory>
+						</TableColumn>
+					</columns>
+				</TableView>
+				<opaqueInsets>
+					<Insets bottom="30.0" left="30.0" right="30.0" top="30.0" />
+				</opaqueInsets>
+			</VBox>
+		</Tab>
+	</TabPane>
+	<HBox styleClass="buttons" VBox.vgrow="NEVER">
+		<Button fx:id="closeButton" text="%button.close" />
+	</HBox>
+</fx:root>

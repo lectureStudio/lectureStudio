@@ -1,0 +1,7 @@
+.event-timeline {
+	-fx-event-timeline-background: derive(-fx-background, -4%);
+	-fx-event-timeline-text-color: -fx-mid-text-color;
+	-fx-event-timeline-page-mark-color: -fx-text-inner-color;
+	-fx-event-timeline-page-mark-background: derive(-fx-background, -12%);
+	-fx-event-timeline-event-mark-color: #FC8181;
+}

@@ -1,0 +1,91 @@
+<?xml version="1.0"?>
+<project
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd"
+	xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+	<modelVersion>4.0.0</modelVersion>
+
+	<parent>
+		<groupId>org.lecturestudio</groupId>
+		<artifactId>lect-studio</artifactId>
+		<version>4.0.0</version>
+	</parent>
+
+	<groupId>org.lecturestudio.presenter.swing</groupId>
+	<artifactId>lect-presenter-swing</artifactId>
+	<version>4.0.0</version>
+
+	<properties>
+		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+	</properties>
+
+	<build>
+		<plugins>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-jar-plugin</artifactId>
+				<configuration>
+					<classifier>${envClassifier}</classifier>
+					<archive>
+						<manifest>
+							<mainClass>org.lecturestudio.presenter.swing.PresenterApplication</mainClass>
+							<addClasspath>true</addClasspath>
+							<classpathPrefix>lib/</classpathPrefix>
+							<classpathLayoutType>custom</classpathLayoutType>
+							<customClasspathLayout>${artifact.artifactId}.${artifact.extension}</customClasspathLayout>
+						</manifest>
+						<manifestEntries>
+							<Class-Path>lib/javafx-controls-win.jar lib/javafx-graphics-win.jar lib/javafx-base-win.jar lib/javafx-fxml-win.jar lib/javafx-swing-win.jar lib/javafx-web-win.jar lib/javafx-media-win.jar lect-broadcast.jar</Class-Path>
+						</manifestEntries>
+					</archive>
+				</configuration>
+			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-dependency-plugin</artifactId>
+			</plugin>
+		</plugins>
+
+		<resources>
+			<resource>
+				<directory>src/main/resources</directory>
+				<targetPath>resources</targetPath>
+				<filtering>false</filtering>
+				<excludes>
+					<exclude>log.properties</exclude>
+					<exclude>log4j2.xml</exclude>
+				</excludes>
+			</resource>
+			<resource>
+				<directory>src/main/resources</directory>
+				<includes>
+					<include>log.properties</include>
+					<include>log4j2.xml</include>
+				</includes>
+				<filtering>false</filtering>
+			</resource>
+		</resources>
+	</build>
+
+	<dependencies>
+		<dependency>
+			<groupId>org.lecturestudio.core</groupId>
+			<artifactId>lect-core</artifactId>
+			<version>4.0.0</version>
+		</dependency>
+		<dependency>
+			<groupId>org.lecturestudio.presenter.api</groupId>
+			<artifactId>lect-presenter-api</artifactId>
+			<version>1.0.0</version>
+		</dependency>
+		<dependency>
+			<groupId>org.lecturestudio.swing</groupId>
+			<artifactId>lect-swing</artifactId>
+			<version>4.0.0</version>
+		</dependency>
+		<dependency>
+			<groupId>org.lecturestudio.stylus</groupId>
+			<artifactId>stylus-awt</artifactId>
+			<version>0.1.0-SNAPSHOT</version>
+		</dependency>
+	</dependencies>
+</project>

@@ -1,0 +1,68 @@
+.main-settings {
+    -fx-tab-min-height: 3em;
+    -fx-tab-max-height: 3em;
+}
+.main-settings .table-column {
+    -fx-alignment: center-left;
+}
+.main-settings .table-button-column.table-cell {
+	-fx-alignment: CENTER;
+}
+
+.main-settings.tab-pane > .tab-header-area > .headers-region > .tab {
+	-fx-background-insets: 0 0 2 0;
+	-fx-background-radius: 0;
+	-fx-padding: 3em 0em 9em 0em;
+	-fx-pref-width: 3em;
+}
+.main-settings.tab-pane > .tab-header-area > .headers-region > .tab > .tab-container > .tab-label {
+	-fx-graphic-text-gap: 10;
+}
+.main-settings.tab-pane > .tab-header-area > .headers-region > .tab:left {
+    -fx-background-color: transparent;
+}
+.main-settings.tab-pane > .tab-header-area > .headers-region > .tab > .tab-container {
+	-fx-rotate: 90;
+}
+.main-settings.tab-pane > .tab-header-area > .headers-region > .tab:hover {
+	-fx-background-color: -fx-base;
+}
+.main-settings.tab-pane > .tab-header-area > .headers-region > .tab:selected {
+	-fx-background: -fx-accent;
+	-fx-background-color: -fx-background;
+	-fx-text-base-color: -fx-text-background-color;
+}
+.main-settings.tab-pane > .tab-header-area > .headers-region > .tab:selected SvgIcon {
+	-fx-icon-fill: -fx-text-background-color;
+	-fx-icon-stroke: -fx-text-background-color;
+}
+.main-settings.tab-pane:focused > .tab-header-area > .headers-region > .tab:selected .focus-indicator {
+    -fx-border-color: transparent;
+    -fx-border-insets: 0;
+    -fx-border-radius: 0;
+    -fx-border-width: 0;
+}
+.main-settings.tab-pane:left > .tab-header-area > .tab-header-background {
+    -fx-background-insets: 0, 0, 0 0 2 0;
+}
+.main-settings.tab-pane:left > .tab-header-area {
+    -fx-padding: 0;
+}
+
+.main-settings .add-icon {
+	-fx-icon-size: 1.4em;
+	-fx-icon-stroke-width: 0;
+}
+
+/*******************************************************************************
+ *                                                                             *
+ * Tab icons                                                                   *
+ *                                                                             *
+ ******************************************************************************/
+
+.settings-general-icon {
+    -fx-icon-content: "M32,376h283.35c6.186-14.112,20.281-24,36.65-24s30.465,9.888,36.65,24H480v32h-91.35c-6.186,14.112-20.281,24-36.65,24 s-30.465-9.888-36.65-24H32 M32,240h91.35c6.186-14.112,20.281-24,36.65-24s30.465,9.888,36.65,24H480v32H196.65c-6.186,14.112-20.281,24-36.65,24 s-30.465-9.888-36.65-24H32 M32,104h283.35c6.186-14.112,20.281-24,36.65-24s30.465,9.888,36.65,24H480v32h-91.35c-6.186,14.112-20.281,24-36.65,24 s-30.465-9.888-36.65-24H32";
+}
+.settings-video-icon {
+    -fx-icon-content: "M10 8v8l5-4-5-4zm9-5H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 16H5V5h14v14z";
+}

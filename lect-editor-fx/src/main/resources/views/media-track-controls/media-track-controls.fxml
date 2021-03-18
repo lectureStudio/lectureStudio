@@ -1,0 +1,105 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import org.lecturestudio.javafx.control.*?>
+
+<fx:root type="HBox" alignment="CENTER_LEFT" styleClass="media-track-controls" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1">
+	<ButtonGroup>
+		<buttons>
+			<Button fx:id="undoButton">
+				<tooltip>
+					<Tooltip text="%media.undo" />
+				</tooltip>
+				<graphic>
+					<SvgIcon styleClass="undo-icon"/>
+				</graphic>
+			</Button>
+			<Button fx:id="redoButton">
+				<tooltip>
+					<Tooltip text="%media.redo" />
+				</tooltip>
+				<graphic>
+					<SvgIcon styleClass="redo-icon"/>
+				</graphic>
+			</Button>
+		</buttons>
+	</ButtonGroup>
+	<Separator />
+	<ButtonGroup>
+		<buttons>
+			<Button fx:id="cutButton">
+				<tooltip>
+					<Tooltip text="%media.cut" />
+				</tooltip>
+				<graphic>
+					<SvgIcon styleClass="cut-icon"/>
+				</graphic>
+			</Button>
+			<Button fx:id="deletePageButton">
+				<tooltip>
+					<Tooltip text="%media.delete.page" />
+				</tooltip>
+				<graphic>
+					<SvgIcon styleClass="delete-page-icon"/>
+				</graphic>
+			</Button>
+			<Button fx:id="importRecordingButton">
+				<tooltip>
+					<Tooltip text="%media.import.recording" />
+				</tooltip>
+				<graphic>
+					<SvgIcon styleClass="import-recording-icon"/>
+				</graphic>
+			</Button>
+		</buttons>
+	</ButtonGroup>
+	<Separator />
+	<Button fx:id="zoomOutButton">
+		<tooltip>
+			<Tooltip text="%media.zoom.out" />
+		</tooltip>
+		<graphic>
+			<SvgIcon styleClass="zoom-out-icon"/>
+		</graphic>
+	</Button>
+	<Slider fx:id="zoomSlider" styleClass="zoom-slider" />
+	<Button fx:id="zoomInButton">
+		<tooltip>
+			<Tooltip text="%media.zoom.in" />
+		</tooltip>
+		<graphic>
+			<SvgIcon styleClass="zoom-in-icon"/>
+		</graphic>
+	</Button>
+	<Separator />
+
+	<Label text="%media.volume.quieter"/>
+	<Slider fx:id="adjustVolumeSlider" min="-1" max="1" styleClass="zoom-slider" />
+	<Label text="%media.volume.louder"/>
+
+	<HBox styleClass="search-box" alignment="CENTER_RIGHT" HBox.hgrow="ALWAYS">
+		<Label fx:id="searchStateLabel" managed="false" visible="false" />
+		<ButtonGroup>
+			<buttons>
+				<Button fx:id="searchPrevButton" managed="false" visible="false">
+					<tooltip>
+						<Tooltip text="%media.previous.search.index" />
+					</tooltip>
+					<graphic>
+						<SvgIcon styleClass="search-prev-icon"/>
+					</graphic>
+				</Button>
+				<Button fx:id="searchNextButton" managed="false" visible="false">
+					<tooltip>
+						<Tooltip text="%media.next.search.index" />
+					</tooltip>
+					<graphic>
+						<SvgIcon styleClass="search-next-icon"/>
+					</graphic>
+				</Button>
+			</buttons>
+		</ButtonGroup>
+		<TextSearchField fx:id="searchField" promptText="%media.search.pages" styleClass="search-field" />
+	</HBox>
+</fx:root>

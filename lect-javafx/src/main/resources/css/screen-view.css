@@ -1,0 +1,25 @@
+.screen-view {
+    -fx-padding: 2em;
+}
+.screen-view > .screen-rect {
+    -fx-cursor: hand;
+    -fx-fill: lightslategray;
+    -fx-stroke: dimgray;
+    -fx-stroke-width: 2;
+}
+.screen-view > .screen-rect:hover {
+    -fx-fill: lightsteelblue;
+}
+.screen-view > .screen-rect:pressed {
+    -fx-fill: lightskyblue;
+}
+.screen-view > .screen-number-text {
+    -fx-fill: aliceblue;
+    -fx-font-size: 50;
+    -fx-smooth: false;
+}
+.screen-view > .screen-ratio-text {
+    -fx-fill: aliceblue;
+    -fx-font-size: 12;
+    -fx-smooth: false;
+}

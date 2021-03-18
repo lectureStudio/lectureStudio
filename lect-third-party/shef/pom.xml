@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+
+	<parent>
+		<groupId>org.lecturestudio.thirdparty</groupId>
+		<artifactId>lect-thirdparty-parent</artifactId>
+		<version>1.0.0</version>
+	</parent>
+
+	<groupId>net.atlanticbb.tantlinger</groupId>
+	<artifactId>shef</artifactId>
+	<version>0.5</version>
+
+	<developers>
+		<developer>
+			<name>btantlinger</name>
+		</developer>
+	</developers>
+
+	<licenses>
+		<license>
+			<name>GNU Library General Public License (LGPL-2.0)</name>
+			<url>https://www.gnu.org/licenses/old-licenses/lgpl-2.0.html</url>
+			<distribution>repo</distribution>
+		</license>
+	</licenses>
+
+	<dependencies>
+		<dependency>
+			<groupId>javax.inject</groupId>
+			<artifactId>javax.inject</artifactId>
+			<version>1</version>
+		</dependency>
+	</dependencies>
+</project>

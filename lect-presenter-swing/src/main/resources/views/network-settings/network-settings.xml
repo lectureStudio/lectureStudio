@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Panel layout="GridBagLayout" border="EmptyBorder(20, 20, 20, 20)">
+	<TitledSeparator text="network.settings.adapter">
+		<gridbagconstraints gridx="0" gridy="0" gridwidth="2" anchor="GridBagConstraints.WEST" weightx="1.0" fill="GridBagConstraints.HORIZONTAL" insets="5,0,5,0" />
+	</TitledSeparator>
+	<Label text="network.settings.adapter.name">
+		<gridbagconstraints gridx="0" gridy="1" anchor="GridBagConstraints.WEST" insets="5,0,5,15" />
+	</Label>
+	<ComboBox id="netAdapterCombo">
+		<gridbagconstraints gridx="1" gridy="1" anchor="GridBagConstraints.WEST" insets="5,0,5,0" />
+		<renderer class="org.lecturestudio.swing.combobox.NetAdapterRenderer" />
+	</ComboBox>
+	<Label text="network.settings.ipv4.address">
+		<gridbagconstraints gridx="0" gridy="2" anchor="GridBagConstraints.WEST" insets="5,0,5,15" />
+	</Label>
+	<TextField id="ipv4TextField" columns="40" editable="false">
+		<gridbagconstraints gridx="1" gridy="2" fill="GridBagConstraints.HORIZONTAL" anchor="GridBagConstraints.WEST" insets="5,0,5,0" />
+	</TextField>
+	<Label text="network.settings.ipv6.address">
+		<gridbagconstraints gridx="0" gridy="3" anchor="GridBagConstraints.WEST" insets="5,0,5,15" />
+	</Label>
+	<TextField id="ipv6TextField" columns="40" editable="false">
+		<gridbagconstraints gridx="1" gridy="3" fill="GridBagConstraints.HORIZONTAL" anchor="GridBagConstraints.WEST" insets="5,0,5,0" />
+	</TextField>
+	<TitledSeparator name="extendedUI" text="network.settings.ip.filter">
+		<gridbagconstraints gridx="0" gridy="4" gridwidth="2" anchor="GridBagConstraints.WEST" weightx="1.0" fill="GridBagConstraints.HORIZONTAL" insets="5,0,5,0" />
+	</TitledSeparator>
+	<Button id="addIpRuleButton" name="extendedUI" icon="add.svg, 20" text="button.new">
+		<gridbagconstraints gridx="0" gridy="5" gridwidth="2" anchor="GridBagConstraints.EAST" insets="5,0,5,0" />
+	</Button>
+	<ScrollPane name="extendedUI">
+		<gridbagconstraints gridx="0" gridy="6" gridwidth="2" weightx="1" weighty="0.6" fill="GridBagConstraints.BOTH" anchor="GridBagConstraints.WEST" insets="5,0,5,0" />
+		<Table id="ipFilterTable" autoCreateColumnsFromModel="false" fillsViewportHeight="true" rowHeight="25" selectionMode="ListSelectionModel.SINGLE_SELECTION">
+			<TableColumn headerValue="network.settings.ip.from" />
+			<TableColumn headerValue="network.settings.ip.to" />
+			<TableColumn maxWidth="35">
+				<TableButtonRenderer icon="delete.svg, 20" toolTipText="network.settings.ip.filter.delete" />
+				<TableButtonEditor icon="delete.svg, 20" action="deleteAction" />
+			</TableColumn>
+		</Table>
+	</ScrollPane>
+	<box.vglue>
+		<gridbagconstraints gridx="0" gridy="7" weighty="1.0" />
+	</box.vglue>
+	<HBox gap="5">
+		<gridbagconstraints gridx="0" gridy="8" gridwidth="2" weightx="1.0" fill="GridBagConstraints.HORIZONTAL" />
+		<box.hglue />
+		<Button id="resetButton" text="button.reset"/>
+		<Button id="closeButton" text="button.close"/>
+	</HBox>
+</Panel>

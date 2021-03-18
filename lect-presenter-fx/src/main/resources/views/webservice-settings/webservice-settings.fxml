@@ -1,0 +1,140 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Hyperlink?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.TableColumn?>
+<?import javafx.scene.control.TableView?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.control.ToggleButton?>
+<?import javafx.scene.control.ToggleGroup?>
+<?import javafx.scene.control.Tooltip?>
+<?import javafx.scene.control.cell.PropertyValueFactory?>
+<?import javafx.scene.control.cell.TextFieldTableCell?>
+<?import javafx.scene.layout.ColumnConstraints?>
+<?import javafx.scene.layout.GridPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.RowConstraints?>
+<?import org.lecturestudio.javafx.control.SvgIcon?>
+<?import org.lecturestudio.javafx.factory.ButtonCellFactory?>
+<?import org.lecturestudio.javafx.factory.ButtonCellValueFactory?>
+<?import org.lecturestudio.javafx.factory.TableViewRowFactory?>
+<?import org.lecturestudio.javafx.layout.ColumnSizeConstraints?>
+<?import org.lecturestudio.javafx.layout.DynamicResizePolicy?>
+<?import org.lecturestudio.javafx.layout.ManagedRowConstraints?>
+
+<fx:root type="GridPane" hgap="10" vgap="5" xmlns="http://javafx.com/javafx/8.0.111" xmlns:fx="http://javafx.com/fxml/1">
+	<columnConstraints>
+		<ColumnConstraints hgrow="ALWAYS"/>
+		<ColumnConstraints hgrow="NEVER"/>
+	</columnConstraints>
+	<rowConstraints>
+		<RowConstraints/>
+		<RowConstraints/>
+		<ManagedRowConstraints/>
+		<ManagedRowConstraints/>
+		<ManagedRowConstraints vgrow="ALWAYS"/>
+		<ManagedRowConstraints/>
+		<ManagedRowConstraints/>
+		<RowConstraints/>
+	</rowConstraints>
+
+	<Label text="%webservice.settings.lecture.title" />
+	<Label text="%webservice.settings.lecture.title.short" GridPane.columnIndex="1" />
+	<TextField fx:id="lectureTitleTextField" GridPane.rowIndex="1">
+		<GridPane.margin>
+			<Insets bottom="15"/>
+		</GridPane.margin>
+	</TextField>
+	<TextField fx:id="lectureTitleShortTextField" GridPane.columnIndex="1" GridPane.rowIndex="1">
+		<GridPane.margin>
+			<Insets bottom="15"/>
+		</GridPane.margin>
+	</TextField>
+	<Label id="extendedUI" text="%webservice.settings.quiz" styleClass="text-head" GridPane.columnSpan="2" GridPane.rowIndex="2"/>
+	<Label id="extendedUI" text="%webservice.settings.regex.blocked" GridPane.rowIndex="3" />
+	<Hyperlink id="extendedUI" fx:id="addQuizRegexButton" text="%button.new" GridPane.columnIndex="1" GridPane.halignment="RIGHT" GridPane.rowIndex="3">
+		<graphic>
+			<SvgIcon styleClass="add-icon"/>
+		</graphic>
+	</Hyperlink>
+	<TableView id="extendedUI" fx:id="quizRegexTableView" editable="true" fixedCellSize="40" GridPane.columnSpan="2" GridPane.rowIndex="4">
+		<rowFactory>
+			<TableViewRowFactory />
+		</rowFactory>
+		<columnResizePolicy>
+			<DynamicResizePolicy tableView="$quizRegexTableView">
+				<columnConstraints>
+					<ColumnSizeConstraints percentWidth="1"/>
+					<ColumnSizeConstraints prefWidth="40"/>
+				</columnConstraints>
+			</DynamicResizePolicy>
+		</columnResizePolicy>
+		<columns>
+			<TableColumn resizable="false" text="%webservice.settings.regex">
+				<cellFactory>
+					<TextFieldTableCell fx:factory="forTableColumn"/>
+				</cellFactory>
+				<cellValueFactory>
+					<PropertyValueFactory property="quizRegex"/>
+				</cellValueFactory>
+			</TableColumn>
+			<TableColumn styleClass="table-button-column" resizable="false" sortable="false">
+				<cellFactory>
+					<ButtonCellFactory>
+						<button>
+							<Button onAction="#onDeleteQuizRegex" styleClass="delete-button">
+								<graphic>
+									<SvgIcon styleClass="icon, delete-icon"/>
+								</graphic>
+								<tooltip>
+									<Tooltip text="%webservice.settings.regex.delete" />
+								</tooltip>
+							</Button>
+						</button>
+					</ButtonCellFactory>
+				</cellFactory>
+				<cellValueFactory>
+					<ButtonCellValueFactory/>
+				</cellValueFactory>
+			</TableColumn>
+		</columns>
+		<GridPane.margin>
+			<Insets bottom="20"/>
+		</GridPane.margin>
+	</TableView>
+	<Label id="extendedUI" text="%webservice.settings.display.ip.position" GridPane.columnSpan="2" GridPane.rowIndex="5" />
+	<GridPane id="extendedUI" hgap="3" vgap="3" GridPane.columnSpan="2" GridPane.rowIndex="6">
+		<fx:define>
+			<ToggleGroup fx:id="ipPositionGroup"/>
+		</fx:define>
+		<columnConstraints>
+			<ColumnConstraints halignment="CENTER" minWidth="30"/>
+			<ColumnConstraints halignment="CENTER" minWidth="30"/>
+			<ColumnConstraints halignment="CENTER" minWidth="30"/>
+		</columnConstraints>
+		<rowConstraints>
+			<RowConstraints/>
+			<RowConstraints/>
+			<RowConstraints/>
+		</rowConstraints>
+
+		<ToggleButton text="1" toggleGroup="$ipPositionGroup" userData="TOP_LEFT"/>
+		<ToggleButton text="2" toggleGroup="$ipPositionGroup" userData="TOP_CENTER" GridPane.columnIndex="1"/>
+		<ToggleButton text="3" toggleGroup="$ipPositionGroup" userData="TOP_RIGHT" GridPane.columnIndex="2"/>
+		<ToggleButton text="4" toggleGroup="$ipPositionGroup" userData="CENTER_LEFT" GridPane.rowIndex="1"/>
+		<ToggleButton text="6" toggleGroup="$ipPositionGroup" userData="CENTER_RIGHT" GridPane.columnIndex="2" GridPane.rowIndex="1"/>
+		<ToggleButton text="7" toggleGroup="$ipPositionGroup" userData="BOTTOM_LEFT" GridPane.rowIndex="2"/>
+		<ToggleButton text="8" toggleGroup="$ipPositionGroup" userData="BOTTOM_CENTER" GridPane.columnIndex="1" GridPane.rowIndex="2"/>
+		<ToggleButton text="9" toggleGroup="$ipPositionGroup" userData="BOTTOM_RIGHT" GridPane.columnIndex="2" GridPane.rowIndex="2"/>
+	</GridPane>
+	<HBox alignment="BOTTOM_RIGHT" spacing="5" GridPane.columnSpan="3" GridPane.rowIndex="7">
+		<Button fx:id="resetButton" text="%button.reset"/>
+		<Button fx:id="closeButton" text="%button.close"/>
+	</HBox>
+
+	<padding>
+		<Insets bottom="20" left="20" right="20" top="20"/>
+	</padding>
+</fx:root>

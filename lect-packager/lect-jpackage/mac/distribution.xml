@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<installer-gui-script minSpecVersion="1">
+	<title>${package.name}</title>
+	<license file="license.rtf" />
+    <pkg-ref id="org.lecturestudio"/>
+    <options customize="never" require-scripts="false"/>
+    <choices-outline>
+        <line choice="default">
+            <line choice="org.lecturestudio"/>
+        </line>
+    </choices-outline>
+    <choice id="default"/>
+    <choice id="org.lecturestudio" visible="false">
+        <pkg-ref id="org.lecturestudio"/>
+    </choice>
+    <pkg-ref id="org.lecturestudio" version="${package.version}" onConclusion="none">${package.full.name}.pkg</pkg-ref>
+</installer-gui-script>

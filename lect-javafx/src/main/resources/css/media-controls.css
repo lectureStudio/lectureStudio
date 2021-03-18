@@ -1,0 +1,79 @@
+.media-controls {
+	-fx-padding: 0.25em;
+}
+.media-controls .state-labels {
+	-fx-padding: 0 0.5em 0 0;
+}
+.media-controls > .media-buttons {
+	-fx-spacing: 1em;
+}
+.media-controls > .media-buttons > .button,
+.media-controls > .media-buttons > .toggle-button,
+.media-controls > .volume-controls > .toggle-button {
+	-fx-background-color: transparent;
+	-fx-background-radius: 20em;
+	-fx-border-color: transparent;
+	-fx-border-radius: 20em;
+	-fx-border-width: 1;
+	-fx-font-size: 1.5em;
+	-button-size: 2.5em;
+	-fx-content-display: graphic-only;
+	-fx-pref-width: -button-size;
+	-fx-pref-height: -button-size;
+	-fx-min-width: -button-size;
+	-fx-min-height: -button-size;
+	-fx-max-width: -button-size;
+	-fx-max-height: -button-size;
+}
+.media-controls > .media-buttons > .button:hover,
+.media-controls > .media-buttons > .toggle-button:hover,
+.media-controls > .volume-controls > .toggle-button:hover {
+	-fx-background-color: -fx-color;
+	-fx-border-color: derive(-fx-outer-border, 50%);
+}
+.media-controls > .media-buttons SvgIcon {
+	-fx-icon-content-width: 24;
+	-fx-icon-content-height: 24;
+}
+.media-controls > .volume-controls SvgIcon {
+	-fx-icon-content-width: 2048;
+	-fx-icon-content-height: 2048;
+}
+.media-controls > .media-buttons > .play {
+	-fx-font-size: 2em;
+	-button-size: 3em;
+	-fx-pref-width: -button-size;
+	-fx-pref-height: -button-size;
+	-fx-min-width: -button-size;
+	-fx-min-height: -button-size;
+	-fx-max-width: -button-size;
+	-fx-max-height: -button-size;
+}
+.media-controls > .volume-controls {
+	-fx-spacing: 0.5em;
+}
+
+.media-controls > .media-buttons > .play SvgIcon {
+	-fx-icon-content: "M 4.9882812 2.5 A 0.50005 0.50005 0 0 0 4.5 3 L 4.5 21 A 0.50005 0.50005 0 0 0 5.2695312 21.419922 L 19.269531 12.419922 A 0.50005 0.50005 0 0 0 19.269531 11.580078 L 5.2695312 2.5800781 A 0.50005 0.50005 0 0 0 4.9882812 2.5 z M 5.5 3.9140625 L 18.078125 12 L 5.5 20.085938 L 5.5 3.9140625 z";
+}
+.media-controls > .media-buttons > .play:selected SvgIcon {
+	-fx-icon-content: "M 6 3.5 A 0.50005 0.50005 0 0 0 5.5 4 L 5.5 20 A 0.50005 0.50005 0 0 0 6 20.5 L 10 20.5 A 0.50005 0.50005 0 0 0 10.5 20 L 10.5 4 A 0.50005 0.50005 0 0 0 10 3.5 L 6 3.5 z M 14 3.5 A 0.50005 0.50005 0 0 0 13.5 4 L 13.5 20 A 0.50005 0.50005 0 0 0 14 20.5 L 18 20.5 A 0.50005 0.50005 0 0 0 18.5 20 L 18.5 4 A 0.50005 0.50005 0 0 0 18 3.5 L 14 3.5 z M 6.5 4.5 L 9.5 4.5 L 9.5 19.5 L 6.5 19.5 L 6.5 4.5 z M 14.5 4.5 L 17.5 4.5 L 17.5 19.5 L 14.5 19.5 L 14.5 4.5 z";
+}
+.media-controls .prev-icon {
+	-fx-icon-content: "M 5,4.5 A 0.5,0.5 0 0 0 4.5,5 V 19 A 0.5,0.5 0 0 0 5,19.5 0.5,0.5 0 0 0 5.5,19 V 5 A 0.5,0.5 0 0 0 5,4.5 Z m 14.011719,-1 A 0.50005,0.50005 0 0 0 18.6875,3.609375 l -10,8 a 0.50005,0.50005 0 0 0 0,0.78125 l 10,8 A 0.50005,0.50005 0 0 0 19.5,20 V 4 A 0.50005,0.50005 0 0 0 19.011719,3.5 Z M 18.5,5.0410156 V 18.958984 L 9.8007812,12 Z";
+}
+.media-controls .next-icon {
+	-fx-icon-content: "M 4.9804688 3.5 A 0.50005 0.50005 0 0 0 4.5 4 L 4.5 20 A 0.50005 0.50005 0 0 0 5.3125 20.390625 L 15.3125 12.390625 A 0.50005 0.50005 0 0 0 15.3125 11.609375 L 5.3125 3.609375 A 0.50005 0.50005 0 0 0 4.9804688 3.5 z M 19 4.5 A 0.5 0.5 0 0 0 18.5 5 L 18.5 19 A 0.5 0.5 0 0 0 19 19.5 A 0.5 0.5 0 0 0 19.5 19 L 19.5 5 A 0.5 0.5 0 0 0 19 4.5 z M 5.5 5.0410156 L 14.199219 12 L 5.5 18.958984 L 5.5 5.0410156 z";
+}
+.media-controls .volume-mute-icon {
+	-fx-icon-content: "M677 1792H768V256H677L293 640H0V1408H293zM640 1573L347 1280H128V768H347L640 475V1573zM1499 1024L1773 749L1683 659L1408 933L1133 659L1043 749L1317 1024L1043 1299L1133 1389L1408 1115L1683 1389L1773 1299z";
+}
+.media-controls .volume-low-icon {
+	-fx-icon-content: "M1130 1386Q1203 1313 1241.5 1220T1280 1024T1241.5 828T1130 662L1040 752Q1094 806 1123 876.5T1152 1024T1123 1171.5T1040 1296zM677 1792H768V256H678L293 640H0V1408H293zM640 1573L347 1280H128V768H347L640 475V1573z";
+}
+.media-controls .volume-medium-icon {
+	-fx-icon-content: "M1402 1658Q1528 1530 1596 1367T1664 1024T1596 681T1402 390L1311 481Q1420 590 1478 730T1536 1024T1478 1318T1311 1567zM1130 1386Q1203 1313 1241.5 1220T1280 1024T1241.5 828T1130 662L1040 752Q1094 806 1123 876.5T1152 1024T1123 1171.5T1040 1296zM677 1792H768V256H678L293 640H0V1408H293zM640 1573L347 1280H128V768H347L640 475V1573z";
+}
+.media-controls .volume-high-icon {
+	-fx-icon-content: "M1673 1929Q1763 1839 1833 1734T1950.5 1514T2023 1275T2048 1024Q2048 896 2023 772.5T1950.5 534T1833 314T1673 119L1582 210Q1663 291 1726 385.5T1832 583.5T1897 798T1919 1024T1897 1250T1832 1464.5T1726 1662.5T1582 1838zM1664 1024Q1664 844 1596 681T1402 390L1311 481Q1420 590 1478 730T1536 1024T1478 1318T1311 1567L1402 1658Q1528 1530 1596 1367T1664 1024zM1130 1386Q1203 1313 1241.5 1220T1280 1024T1241.5 828T1130 662L1040 752Q1094 806 1123 876.5T1152 1024T1123 1171.5T1040 1296zM677 1792H768V256H678L293 640H0V1408H293zM640 1573L347 1280H128V768H347L640 475V1573z";
+}

@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Panel layout="BorderLayout" border="EmptyBorder(20, 20, 20, 20)">
+	<Panel layout="GridBagLayout" constraints="BorderLayout.CENTER">
+		<Label text="start.getting.started" font="Arial 16" border="EmptyBorder(0, 0, 10, 0)">
+			<gridbagconstraints gridx="0" gridy="0" anchor="GridBagConstraints.NORTHWEST"/>
+		</Label>
+		<Panel layout="GridLayout(1, 2, 5, 5)">
+			<gridbagconstraints gridx="0" gridy="1" anchor="GridBagConstraints.NORTHWEST"/>
+			<Button id="openWhiteboardButton" text="start.open.whiteboard" icon="whiteboard-start.svg, 50" verticalTextPosition="3" horizontalTextPosition="0"/>
+			<Button id="openDocumentButton" text="start.open.document" icon="open-start.svg, 50" verticalTextPosition="3" horizontalTextPosition="0"/>
+		</Panel>
+		<VBox id="recentContainer" border="EmptyBorder(0, 50, 0, 0)" visible="false">
+			<gridbagconstraints gridx="1" gridy="0" gridheight="2" anchor="GridBagConstraints.NORTHWEST"/>
+			<Label text="start.recently.opened" font="Arial 16" border="EmptyBorder(0, 0, 10, 0)"/>
+			<VBox id="docContainer" />
+		</VBox>
+	</Panel>
+</Panel>

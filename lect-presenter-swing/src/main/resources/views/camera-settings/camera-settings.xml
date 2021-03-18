@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Panel layout="GridBagLayout" border="EmptyBorder(20, 20, 20, 20)">
+	<Label text="camera.settings.camera">
+		<gridbagconstraints gridx="0" gridy="0" anchor="GridBagConstraints.WEST" insets="5,0,2,0" />
+	</Label>
+	<ComboBox id="camerasCombo">
+		<gridbagconstraints gridx="0" gridy="1" anchor="GridBagConstraints.WEST" insets="5,0,15,0" />
+	</ComboBox>
+	<Label text="camera.settings.format">
+		<gridbagconstraints gridx="0" gridy="2" anchor="GridBagConstraints.WEST" insets="5,0,2,0" />
+	</Label>
+	<ComboBox id="cameraFormatsCombo">
+		<gridbagconstraints gridx="0" gridy="3" anchor="GridBagConstraints.WEST" insets="5,0,15,0" />
+	</ComboBox>
+	<Label text="camera.settings.resolution">
+		<gridbagconstraints gridx="0" gridy="4" anchor="GridBagConstraints.WEST" insets="5,0,2,0" />
+	</Label>
+	<ComboBox id="cameraResolutionsCombo">
+		<gridbagconstraints gridx="0" gridy="5" anchor="GridBagConstraints.WEST" insets="5,0,15,0" />
+		<renderer class="org.lecturestudio.swing.combobox.CameraFormatRenderer" />
+	</ComboBox>
+	<CameraPreviewPanel id="cameraView" preferredSize="400,300" maximumSize="400,300">
+		<gridbagconstraints gridx="1" gridy="0" gridheight="7" weightx="1.0" weighty="1.0" fill="GridBagConstraints.BOTH" anchor="GridBagConstraints.NORTH" insets="5,10,5,0" />
+	</CameraPreviewPanel>
+	<box.vglue>
+		<gridbagconstraints gridx="0" gridy="6" weighty="1.0" />
+	</box.vglue>
+	<HBox gap="5">
+		<gridbagconstraints gridx="0" gridy="7" gridwidth="2" weightx="1.0" fill="GridBagConstraints.HORIZONTAL" />
+		<box.hglue />
+		<Button id="resetButton" text="button.reset"/>
+		<Button id="closeButton" text="button.close"/>
+	</HBox>
+</Panel>

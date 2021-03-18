@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import org.lecturestudio.javafx.factory.*?>
+
+<fx:root type="GridPane" hgap="10" vgap="10" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1">
+	<columnConstraints>
+		<ColumnConstraints/>
+		<ColumnConstraints/>
+	</columnConstraints>
+	<rowConstraints>
+		<RowConstraints/>
+		<RowConstraints/>
+		<RowConstraints/>
+		<RowConstraints/>
+		<RowConstraints vgrow="ALWAYS"/>
+	</rowConstraints>
+
+	<Label text="%general.settings.language" />
+	<ComboBox fx:id="localeCombo" GridPane.columnIndex="1" GridPane.hgrow="ALWAYS">
+		<buttonCell>
+			<LocaleListCell/>
+		</buttonCell>
+		<cellFactory>
+			<LocaleCellFactory/>
+		</cellFactory>
+	</ComboBox>
+	<CheckBox fx:id="maximizedCheckBox" text="%general.settings.start.maximized" maxWidth="Infinity" GridPane.columnSpan="2" GridPane.rowIndex="1"/>
+	<CheckBox fx:id="fullscreenModeCheckBox" text="%general.settings.fullscreen.hide.extended" maxWidth="Infinity" GridPane.columnSpan="2" GridPane.rowIndex="2"/>
+
+	<Label text="%general.settings.font.size" GridPane.rowIndex="3"/>
+	<Slider fx:id="textSizeSlider" blockIncrement="1.0" majorTickUnit="1.0" max="24.0" min="9.0" minorTickCount="0"
+			showTickLabels="true" showTickMarks="true" GridPane.columnIndex="1" GridPane.rowIndex="3"/>
+	<HBox alignment="BOTTOM_RIGHT" spacing="5" GridPane.columnSpan="2" GridPane.rowIndex="4">
+		<Button fx:id="resetButton" text="%button.reset"/>
+		<Button fx:id="closeButton" text="%button.close"/>
+	</HBox>
+
+	<padding>
+		<Insets bottom="20" left="20" right="20" top="20"/>
+	</padding>
+</fx:root>

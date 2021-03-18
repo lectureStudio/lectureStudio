@@ -1,0 +1,15 @@
+.doc-button {
+	-fx-pref-width: 18em;
+	-fx-pref-height: 7.8em;
+}
+.doc-button .doc-name {
+	-fx-font-weight: bold;
+	-fx-padding: 0em 0em 0.7em 0em;
+}
+.doc-button .doc-path {
+	-fx-font-size: 0.85em;
+	-fx-padding: 0em 0em 0.5em 0em;
+}
+.doc-button .doc-date {
+	-fx-font-size: 0.85em;
+}

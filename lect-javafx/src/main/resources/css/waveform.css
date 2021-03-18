@@ -1,0 +1,5 @@
+.waveform {
+	-fx-waveform-background: derive(-fx-background, -4%);
+	-fx-waveform-color: #63B3ED;
+	-fx-waveform-center: derive(-fx-waveform-color, 10%);
+}

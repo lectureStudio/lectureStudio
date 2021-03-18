@@ -1,0 +1,28 @@
+.main-slides .tab-icon {
+    -fx-padding: 0.33em;
+	-fx-background-color: -fx-text-base-color;
+	-fx-snap-to-pixel: true;
+}
+.main-slides .latex-icon {
+	-fx-shape: "M256 363v-64h-149l106 -107l-106 -107h149v-64h-256v43l139 128l-139 128v43h256z";
+}
+.main-slides .notes-icon {
+	-fx-shape: "M256 128v-43h-256v43h256zM256 299v-43h-256v43h256zM0 171v42h384v-42h-384zM0 0v43h384v-43h-384zM0 384h384v-43h-384v43z";
+}
+
+/*******************************************************************************
+ *                                                                             *
+ * Notes highlight                                                             *
+ *                                                                             *
+ ******************************************************************************/
+
+.main-slides .ext-tab-pane > .ext-tab-header > .ext-tab.notes-highlight {
+    -fx-background-color: -fx-outer-border, -fx-inner-border, CRIMSON;
+}
+.main-slides .ext-tab-pane > .ext-tab-header > .ext-tab.notes-highlight > .ext-tab-label {
+    -fx-text-fill: -fx-light-text-color;
+}
+
+.main-slides .tab-icon.notes-highlight {
+	-fx-background-color: -fx-light-text-color;
+}

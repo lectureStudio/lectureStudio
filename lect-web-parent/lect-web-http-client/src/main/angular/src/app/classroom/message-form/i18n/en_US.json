@@ -1,0 +1,14 @@
+{
+	"message": {
+		"service": {
+			"name": "Message"
+		},
+		"desc": "Ask a question or leave a message",
+		"sent": "Your message has been successfully sent",
+		"input": {
+			"empty": "No message entered",
+			"invalid": "Please enter valid text",
+			"length": "At least {{count}} characters"
+		}
+	}
+}

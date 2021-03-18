@@ -1,0 +1,17 @@
+.notification {
+	-fx-background-color: transparent;
+	-fx-effect: dropshadow(two-pass-box, rgba(0, 0, 0, 0.3), 5, 0, 0, 2);
+}
+.notification > .content {
+    -fx-background-color: #3E4C59;
+}
+.notification > .content > Label SvgIcon {
+    -fx-icon-fill: white;
+	-fx-icon-size: 2em;
+}
+.notification > .content > .title {
+	-fx-text-fill: white;
+}
+.notification > .content > .message {
+	-fx-text-fill: white;
+}

@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import java.lang.String?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.StackPane?>
+<?import org.lecturestudio.player.javafx.view.FxMenuView?>
+<?import org.lecturestudio.player.javafx.view.FxStartView?>
+
+<fx:root type="StackPane" prefWidth="1000" prefHeight="660" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1">
+	<stylesheets>
+		<String fx:value="/resources/css/base.css" />
+	</stylesheets>
+
+	<BorderPane fx:id="contentPane">
+		<top>
+			<FxMenuView fx:id="menuBar" StackPane.alignment="TOP_LEFT" />
+		</top>
+		<center>
+			<FxStartView />
+		</center>
+	</BorderPane>
+</fx:root>

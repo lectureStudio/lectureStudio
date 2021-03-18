@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.ComboBox?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.ColumnConstraints?>
+<?import javafx.scene.layout.GridPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.RowConstraints?>
+<?import org.lecturestudio.javafx.factory.AudioFormatCellFactory?>
+<?import org.lecturestudio.javafx.factory.AudioFormatListCell?>
+<?import org.lecturestudio.javafx.layout.ManagedRowConstraints?>
+<?import org.lecturestudio.javafx.util.TextIntegerFormatter?>
+
+<fx:root type="GridPane" hgap="10" vgap="5" xmlns="http://javafx.com/javafx/8.0.111" xmlns:fx="http://javafx.com/fxml/1">
+	<columnConstraints>
+		<ColumnConstraints/>
+		<ColumnConstraints/>
+		<ColumnConstraints fillWidth="false" hgrow="ALWAYS"/>
+	</columnConstraints>
+	<rowConstraints>
+		<ManagedRowConstraints/>
+		<ManagedRowConstraints/>
+		<ManagedRowConstraints/>
+		<ManagedRowConstraints/>
+		<ManagedRowConstraints/>
+		<ManagedRowConstraints/>
+		<RowConstraints/>
+		<RowConstraints/>
+		<RowConstraints/>
+		<RowConstraints vgrow="ALWAYS"/>
+	</rowConstraints>
+
+	<Label id="extendedUI" text="%stream.settings.audio" styleClass="text-head" GridPane.columnSpan="3"/>
+	<Label id="extendedUI" text="%stream.settings.audio.codec" GridPane.rowIndex="1" />
+	<Label id="extendedUI" text="%stream.settings.audio.format" GridPane.columnIndex="1" GridPane.rowIndex="1" />
+	<ComboBox id="extendedUI" fx:id="streamAudioCodecCombo" GridPane.rowIndex="2">
+		<GridPane.margin>
+			<Insets bottom="15"/>
+		</GridPane.margin>
+	</ComboBox>
+	<ComboBox id="extendedUI" fx:id="streamAudioFormatCombo" GridPane.columnIndex="1" GridPane.rowIndex="2">
+		<buttonCell>
+			<AudioFormatListCell/>
+		</buttonCell>
+		<cellFactory>
+			<AudioFormatCellFactory/>
+		</cellFactory>
+		<GridPane.margin>
+			<Insets bottom="15"/>
+		</GridPane.margin>
+	</ComboBox>
+	<Label id="extendedUI" text="%stream.settings.camera" styleClass="text-head" GridPane.columnSpan="3" GridPane.rowIndex="3"/>
+	<Label id="extendedUI" text="%stream.settings.camera.bitrate" GridPane.rowIndex="4" />
+	<TextField id="extendedUI" fx:id="cameraBitrateTextField" prefColumnCount="6" GridPane.rowIndex="5">
+		<textFormatter>
+			<TextIntegerFormatter/>
+		</textFormatter>
+		<GridPane.margin>
+			<Insets bottom="15"/>
+		</GridPane.margin>
+	</TextField>
+	<Label text="%stream.settings.broadcast" styleClass="text-head" GridPane.columnSpan="3" GridPane.rowIndex="6"/>
+	<Label text="%stream.settings.broadcast.address" GridPane.rowIndex="7" />
+	<Label text="%stream.settings.broadcast.port" GridPane.columnIndex="1" GridPane.rowIndex="7" />
+	<TextField fx:id="broadcastAddressTextField" GridPane.rowIndex="8"/>
+	<TextField fx:id="broadcastPortTextField" prefColumnCount="5" GridPane.columnIndex="1" GridPane.hgrow="NEVER" GridPane.rowIndex="8">
+		<textFormatter>
+			<TextIntegerFormatter/>
+		</textFormatter>
+	</TextField>
+	<Label text="%stream.settings.broadcast.port.tls" GridPane.columnIndex="2" GridPane.rowIndex="7" />
+	<TextField fx:id="broadcastTlsPortTextField" prefColumnCount="5" GridPane.columnIndex="2" GridPane.hgrow="NEVER" GridPane.rowIndex="8">
+		<textFormatter>
+			<TextIntegerFormatter/>
+		</textFormatter>
+	</TextField>
+	<HBox alignment="BOTTOM_RIGHT" spacing="5" GridPane.columnSpan="3" GridPane.rowIndex="9">
+		<Button fx:id="resetButton" text="%button.reset"/>
+		<Button fx:id="closeButton" text="%button.close"/>
+	</HBox>
+
+	<padding>
+		<Insets bottom="20" left="20" right="20" top="20"/>
+	</padding>
+</fx:root>

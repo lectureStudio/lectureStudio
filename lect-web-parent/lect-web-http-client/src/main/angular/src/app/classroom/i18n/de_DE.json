@@ -1,0 +1,7 @@
+{
+	"restricted": {
+		"ip": {
+			"error": "Zugang aufgrund blockierter IP-Adresse verweigert"
+		}
+	}
+}

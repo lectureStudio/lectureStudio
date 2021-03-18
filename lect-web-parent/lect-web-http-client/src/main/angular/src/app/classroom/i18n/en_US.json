@@ -1,0 +1,7 @@
+{
+	"restricted": {
+		"ip": {
+			"error": "Access denied due to blocked IP address"
+		}
+	}
+}

@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import org.lecturestudio.javafx.factory.*?>
+<?import org.lecturestudio.javafx.layout.*?>
+<?import org.lecturestudio.javafx.util.*?>
+
+<fx:root type="ContentPane" title="%video.export.settings.title" styleClass="video-export-settings" xmlns="http://javafx.com/javafx/10.0.2-internal" xmlns:fx="http://javafx.com/fxml/1">
+	<Accordion expandedPane="$filePane">
+		<panes>
+			<TitledPane fx:id="filePane" animated="false" text="%video.export.settings.file">
+				<GridPane styleClass="container">
+					<rowConstraints>
+						<RowConstraints />
+					</rowConstraints>
+					<columnConstraints>
+						<ColumnConstraints minWidth="80" />
+						<ColumnConstraints />
+					</columnConstraints>
+					<Label text="%video.export.settings.video.format" />
+					<ComboBox fx:id="videoFormatCombo" GridPane.columnIndex="1" />
+				</GridPane>
+			</TitledPane>
+			<TitledPane animated="false" text="%video.export.settings.video">
+				<ScrollPane>
+					<GridPane styleClass="container">
+						<rowConstraints>
+							<RowConstraints />
+							<RowConstraints />
+							<RowConstraints />
+							<RowConstraints />
+						</rowConstraints>
+						<columnConstraints>
+							<ColumnConstraints minWidth="80" />
+							<ColumnConstraints />
+						</columnConstraints>
+						<Label text="%video.export.settings.dimensions" />
+						<ComboBox fx:id="dimensionsCombo" GridPane.columnIndex="1">
+							<buttonCell>
+								<DimensionListCell />
+							</buttonCell>
+							<cellFactory>
+								<DimensionCellFactory />
+							</cellFactory>
+						</ComboBox>
+						<Label text="%video.export.settings.frame.rate" GridPane.rowIndex="1" />
+						<ComboBox fx:id="frameRateCombo" GridPane.columnIndex="1" GridPane.rowIndex="1" />
+						<Label text="%video.export.settings.video.bitrate" GridPane.rowIndex="2" />
+						<TextField fx:id="videoBitrateField" prefColumnCount="4" maxWidth="-Infinity" GridPane.columnIndex="1" GridPane.rowIndex="2">
+							<textFormatter>
+								<TextIntegerFormatter />
+							</textFormatter>
+						</TextField>
+						<CheckBox fx:id="twoPassCheckbox" maxWidth="1.7976931348623157E308" text="%video.export.settings.two.pass" GridPane.columnSpan="2147483647" GridPane.rowIndex="3" />
+					</GridPane>
+				</ScrollPane>
+			</TitledPane>
+			<TitledPane animated="false" text="%video.export.settings.audio">
+				<ScrollPane>
+					<GridPane styleClass="container">
+						<rowConstraints>
+							<RowConstraints />
+							<RowConstraints />
+							<RowConstraints />
+						</rowConstraints>
+						<columnConstraints>
+							<ColumnConstraints minWidth="80" />
+							<ColumnConstraints />
+						</columnConstraints>
+						<Label text="%video.export.settings.sample.rate" />
+						<ComboBox fx:id="sampleRateCombo" GridPane.columnIndex="1">
+							<buttonCell>
+								<AudioFormatListCell/>
+							</buttonCell>
+							<cellFactory>
+								<AudioFormatCellFactory/>
+							</cellFactory>
+						</ComboBox>
+						<Label text="%video.export.settings.audio.bitrate" GridPane.rowIndex="1" />
+						<ComboBox fx:id="audioBitrateCombo" GridPane.columnIndex="1" GridPane.rowIndex="1" />
+						<CheckBox fx:id="audioVbrCheckbox" maxWidth="1.7976931348623157E308" text="%video.export.settings.audio.variable.bitrate" GridPane.columnSpan="2147483647" GridPane.rowIndex="2" />
+					</GridPane>
+				</ScrollPane>
+			</TitledPane>
+		</panes>
+	</Accordion>
+
+	<HBox alignment="BOTTOM_RIGHT" spacing="5" styleClass="buttons" VBox.vgrow="ALWAYS">
+		<Button fx:id="createButton" text="%video.export.settings.create"/>
+	</HBox>
+</fx:root>

@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<fx:root styleClass="video-export" type="StackPane" xmlns="http://javafx.com/javafx/10.0.2-internal" xmlns:fx="http://javafx.com/fxml/1">
+	<VBox styleClass="content" maxHeight="350" maxWidth="600">
+		<Label styleClass="header" text="%video.export.create.video"/>
+		<Label styleClass="desc-first" text="%video.export.save.name"/>
+		<TextField fx:id="targetNameField" />
+		<Label styleClass="desc" text="%video.export.save.location"/>
+		<HBox>
+			<TextField fx:id="targetPathField" HBox.hgrow="ALWAYS"/>
+			<Button fx:id="browseButton" text="%button.browse"/>
+		</HBox>
+		<CheckBox fx:id="videoPlayerCheckbox" text="%video.export.video.player" maxWidth="Infinity"/>
+		<CheckBox fx:id="vectorPlayerCheckbox" text="%video.export.vector.player" maxWidth="Infinity"/>
+		<HBox styleClass="buttons" alignment="BOTTOM_RIGHT" VBox.vgrow="ALWAYS">
+			<Button fx:id="cancelButton" text="%button.cancel"/>
+			<Button fx:id="createButton" text="%video.export.create" defaultButton="true"/>
+		</HBox>
+	</VBox>
+</fx:root>

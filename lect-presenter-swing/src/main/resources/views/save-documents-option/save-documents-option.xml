@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Panel layout="BorderLayout(10, 0)">
+	<CheckBox id="documentCheckBox" constraints="BorderLayout.CENTER" />
+	<Button id="saveDocumentButton" text="save.documents.write.individual" constraints="BorderLayout.EAST" />
+</Panel>

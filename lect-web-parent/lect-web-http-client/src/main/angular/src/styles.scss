@@ -1,0 +1,26 @@
+@import '~@angular/material/theming';
+// Include the common styles for Angular Material.
+@include mat-core();
+
+// Available color palettes: https://material.io/design/color/
+$app-primary: mat-palette($mat-blue, 800);
+$app-accent:  mat-palette($mat-cyan, 800);
+$app-warn:    mat-palette($mat-pink, 700);
+
+$app-theme: mat-light-theme($app-primary, $app-accent, $app-warn);
+
+@include angular-material-theme($app-theme);
+
+
+
+body {
+	margin: 0;
+	padding: 0;
+}
+
+.text-notification {
+	background-color: mat-color($app-primary);
+}
+.error-notification {
+	background-color: mat-color($app-warn);
+}

@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.ComboBox?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.layout.ColumnConstraints?>
+<?import javafx.scene.layout.GridPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.RowConstraints?>
+<?import org.lecturestudio.javafx.control.CameraView?>
+<?import org.lecturestudio.javafx.factory.CameraFormatCellFactory?>
+<?import org.lecturestudio.javafx.factory.CameraFormatListCell?>
+
+<fx:root type="GridPane" hgap="10" vgap="5" xmlns="http://javafx.com/javafx/8.0.111" xmlns:fx="http://javafx.com/fxml/1">
+	<columnConstraints>
+		<ColumnConstraints/>
+		<ColumnConstraints hgrow="SOMETIMES"/>
+	</columnConstraints>
+	<rowConstraints>
+		<RowConstraints/>
+		<RowConstraints/>
+		<RowConstraints/>
+		<RowConstraints/>
+		<RowConstraints/>
+		<RowConstraints/>
+		<RowConstraints vgrow="ALWAYS"/>
+	</rowConstraints>
+
+	<Label text="%camera.settings.camera" />
+	<ComboBox fx:id="camerasCombo" GridPane.rowIndex="1">
+		<GridPane.margin>
+			<Insets bottom="10"/>
+		</GridPane.margin>
+	</ComboBox>
+	<Label text="%camera.settings.format" GridPane.rowIndex="2" />
+	<ComboBox fx:id="cameraFormatsCombo" GridPane.rowIndex="3">
+		<GridPane.margin>
+			<Insets bottom="10"/>
+		</GridPane.margin>
+	</ComboBox>
+	<Label text="%camera.settings.resolution" GridPane.rowIndex="4" />
+	<ComboBox fx:id="cameraResolutionsCombo" GridPane.rowIndex="5" GridPane.valignment="TOP">
+		<buttonCell>
+			<CameraFormatListCell/>
+		</buttonCell>
+		<cellFactory>
+			<CameraFormatCellFactory/>
+		</cellFactory>
+	</ComboBox>
+	<CameraView fx:id="cameraView" maxWidth="400" maxHeight="300" minWidth="400" minHeight="300" GridPane.columnIndex="1"
+				GridPane.halignment="CENTER" GridPane.rowSpan="6" GridPane.valignment="CENTER"/>
+	<HBox alignment="BOTTOM_RIGHT" spacing="5" GridPane.columnSpan="2" GridPane.rowIndex="6">
+		<Button fx:id="resetButton" text="%button.reset"/>
+		<Button fx:id="closeButton" text="%button.close"/>
+	</HBox>
+
+	<padding>
+		<Insets bottom="20" left="20" right="20" top="20"/>
+	</padding>
+</fx:root>

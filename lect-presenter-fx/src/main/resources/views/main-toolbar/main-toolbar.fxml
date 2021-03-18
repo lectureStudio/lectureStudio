@@ -1,0 +1,320 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ToggleGroup?>
+<?import javafx.scene.control.Tooltip?>
+<?import javafx.scene.layout.FlowPane?>
+<?import javafx.scene.layout.GridPane?>
+<?import org.lecturestudio.javafx.control.ButtonGroup?>
+<?import org.lecturestudio.javafx.control.ColorPaletteButton?>
+<?import org.lecturestudio.javafx.control.ExtButton?>
+<?import org.lecturestudio.javafx.control.ExtToggleButton?>
+<?import org.lecturestudio.javafx.control.FontPickerButton?>
+<?import org.lecturestudio.javafx.control.SvgIcon?>
+<?import org.lecturestudio.javafx.control.TeXFontPickerButton?>
+<?import org.lecturestudio.presenter.javafx.control.RecordButton?>
+<?import org.lecturestudio.presenter.javafx.control.ToolGroupButton?>
+
+<fx:root type="FlowPane" styleClass="main-toolbar" hgap="5" vgap="5" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1">
+	<fx:define>
+		<ToggleGroup fx:id="colorToggleGroup" />
+		<ToggleGroup fx:id="toolToggleGroup" />
+	</fx:define>
+
+	<ButtonGroup>
+		<buttons>
+			<ExtButton fx:id="undoButton" accelerator="shortcut+z">
+				<tooltip>
+					<Tooltip text="%toolbar.undo.tooltip"/>
+				</tooltip>
+				<graphic>
+					<SvgIcon styleClass="icon, undo-icon"/>
+				</graphic>
+			</ExtButton>
+			<ExtButton fx:id="redoButton" accelerator="shortcut+y">
+				<tooltip>
+					<Tooltip text="%toolbar.redo.tooltip"/>
+				</tooltip>
+				<graphic>
+					<SvgIcon styleClass="icon, redo-icon"/>
+				</graphic>
+			</ExtButton>
+		</buttons>
+		<padding>
+			<Insets right="10" />
+		</padding>
+	</ButtonGroup>
+
+	<ColorPaletteButton fx:id="customColorButton" accelerator="m" styleClass="tool-bar-color" toggleGroup="$colorToggleGroup">
+		<graphic>
+			<Label styleClass="color-graphic"/>
+		</graphic>
+		<tooltip>
+			<Tooltip />
+		</tooltip>
+	</ColorPaletteButton>
+
+	<GridPane styleClass="color-group">
+		<ExtToggleButton fx:id="colorButton1" accelerator="f1" styleClass="top-left" toggleGroup="$colorToggleGroup">
+			<graphic>
+				<Label styleClass="color-graphic"/>
+			</graphic>
+			<tooltip>
+				<Tooltip />
+			</tooltip>
+		</ExtToggleButton>
+		<ExtToggleButton fx:id="colorButton2" accelerator="f2" styleClass="top-center" toggleGroup="$colorToggleGroup" GridPane.columnIndex="1">
+			<graphic>
+				<Label styleClass="color-graphic"/>
+			</graphic>
+			<tooltip>
+				<Tooltip />
+			</tooltip>
+		</ExtToggleButton>
+		<ExtToggleButton fx:id="colorButton3" accelerator="f3" styleClass="top-right" toggleGroup="$colorToggleGroup" GridPane.columnIndex="2">
+			<graphic>
+				<Label styleClass="color-graphic"/>
+			</graphic>
+			<tooltip>
+				<Tooltip />
+			</tooltip>
+		</ExtToggleButton>
+		<ExtToggleButton fx:id="colorButton4" accelerator="f4" styleClass="bottom-left" toggleGroup="$colorToggleGroup" GridPane.rowIndex="1">
+			<graphic>
+				<Label styleClass="color-graphic"/>
+			</graphic>
+			<tooltip>
+				<Tooltip />
+			</tooltip>
+		</ExtToggleButton>
+		<ExtToggleButton fx:id="colorButton5" accelerator="f5" styleClass="bottom-center" toggleGroup="$colorToggleGroup" GridPane.columnIndex="1" GridPane.rowIndex="1">
+			<graphic>
+				<Label styleClass="color-graphic"/>
+			</graphic>
+			<tooltip>
+				<Tooltip />
+			</tooltip>
+		</ExtToggleButton>
+		<ExtToggleButton fx:id="colorButton6" accelerator="f6" styleClass="bottom-right" toggleGroup="$colorToggleGroup" selected="true" GridPane.columnIndex="2" GridPane.rowIndex="1">
+			<graphic>
+				<Label styleClass="color-graphic"/>
+			</graphic>
+			<tooltip>
+				<Tooltip />
+			</tooltip>
+		</ExtToggleButton>
+	</GridPane>
+
+	<ButtonGroup>
+		<buttons>
+			<ExtToggleButton fx:id="penButton" accelerator="p" toggleGroup="$toolToggleGroup" selected="true">
+				<tooltip>
+					<Tooltip text="%toolbar.pen.tooltip"/>
+				</tooltip>
+				<graphic>
+					<SvgIcon styleClass="icon, stylus-icon"/>
+				</graphic>
+				<userData>PEN</userData>
+			</ExtToggleButton>
+			<ExtToggleButton fx:id="highlighterButton" accelerator="h" toggleGroup="$toolToggleGroup">
+				<tooltip>
+					<Tooltip text="%toolbar.highlighter.tooltip"/>
+				</tooltip>
+				<graphic>
+					<SvgIcon styleClass="icon, highlighter-icon"/>
+				</graphic>
+				<userData>HIGHLIGHTER</userData>
+			</ExtToggleButton>
+			<ExtToggleButton fx:id="pointerButton" accelerator="a" toggleGroup="$toolToggleGroup">
+				<tooltip>
+					<Tooltip text="%toolbar.pointer.tooltip"/>
+				</tooltip>
+				<graphic>
+					<SvgIcon styleClass="icon, pointer-icon"/>
+				</graphic>
+				<userData>POINTER</userData>
+			</ExtToggleButton>
+			<ExtToggleButton fx:id="textSelectButton" accelerator="s" toggleGroup="$toolToggleGroup">
+				<tooltip>
+					<Tooltip text="%toolbar.text.select.tooltip"/>
+				</tooltip>
+				<graphic>
+					<SvgIcon styleClass="icon, text-select-icon"/>
+				</graphic>
+				<userData>TEXT_SELECTION</userData>
+			</ExtToggleButton>
+			<ExtToggleButton fx:id="lineButton" accelerator="i" toggleGroup="$toolToggleGroup">
+				<tooltip>
+					<Tooltip text="%toolbar.line.tooltip"/>
+				</tooltip>
+				<graphic>
+					<SvgIcon styleClass="icon, line-icon"/>
+				</graphic>
+				<userData>LINE</userData>
+			</ExtToggleButton>
+			<ExtToggleButton fx:id="arrowButton" accelerator="w" toggleGroup="$toolToggleGroup">
+				<tooltip>
+					<Tooltip text="%toolbar.arrow.tooltip"/>
+				</tooltip>
+				<graphic>
+					<SvgIcon styleClass="icon, arrow-icon"/>
+				</graphic>
+				<userData>ARROW</userData>
+			</ExtToggleButton>
+			<ExtToggleButton fx:id="rectangleButton" accelerator="r" toggleGroup="$toolToggleGroup">
+				<tooltip>
+					<Tooltip text="%toolbar.rectangle.tooltip"/>
+				</tooltip>
+				<graphic>
+					<SvgIcon styleClass="icon, rectangle-icon"/>
+				</graphic>
+				<userData>RECTANGLE</userData>
+			</ExtToggleButton>
+			<ExtToggleButton fx:id="ellipseButton" accelerator="c" toggleGroup="$toolToggleGroup">
+				<tooltip>
+					<Tooltip text="%toolbar.ellipse.tooltip"/>
+				</tooltip>
+				<graphic>
+					<SvgIcon styleClass="icon, ellipse-icon"/>
+				</graphic>
+				<userData>ELLIPSE</userData>
+			</ExtToggleButton>
+			<ToolGroupButton fx:id="selectButton" accelerator="o" toggleGroup="$toolToggleGroup">
+				<tooltip>
+					<Tooltip text="%toolbar.select.tooltip"/>
+				</tooltip>
+				<graphic>
+					<SvgIcon styleClass="icon, select-icon"/>
+				</graphic>
+				<userData>SELECT, SELECT_GROUP, CLONE</userData>
+			</ToolGroupButton>
+			<ExtToggleButton fx:id="eraseButton" accelerator="e" toggleGroup="$toolToggleGroup">
+				<tooltip>
+					<Tooltip text="%toolbar.erase.tooltip"/>
+				</tooltip>
+				<graphic>
+					<SvgIcon styleClass="icon, eraser-icon"/>
+				</graphic>
+				<userData>RUBBER</userData>
+			</ExtToggleButton>
+			<FontPickerButton fx:id="textButton" accelerator="t" toggleGroup="$toolToggleGroup">
+				<tooltip>
+					<Tooltip text="%toolbar.text.tooltip"/>
+				</tooltip>
+				<graphic>
+					<SvgIcon styleClass="icon, text-icon"/>
+				</graphic>
+				<userData>TEXT</userData>
+			</FontPickerButton>
+			<TeXFontPickerButton fx:id="texButton" accelerator="l" toggleGroup="$toolToggleGroup">
+				<tooltip>
+					<Tooltip text="%toolbar.latex.tooltip"/>
+				</tooltip>
+				<graphic>
+					<SvgIcon styleClass="icon, tex-icon"/>
+				</graphic>
+				<userData>LATEX</userData>
+			</TeXFontPickerButton>
+			<ExtButton fx:id="clearButton" accelerator="esc">
+				<tooltip>
+					<Tooltip text="%toolbar.clear.tooltip"/>
+				</tooltip>
+				<graphic>
+					<SvgIcon styleClass="icon, trash-icon"/>
+				</graphic>
+			</ExtButton>
+		</buttons>
+		<padding>
+			<Insets right="10"/>
+		</padding>
+	</ButtonGroup>
+
+	<ExtToggleButton fx:id="gridButton" accelerator="q">
+		<tooltip>
+			<Tooltip text="%toolbar.grid.tooltip"/>
+		</tooltip>
+		<graphic>
+			<SvgIcon styleClass="icon, grid-icon"/>
+		</graphic>
+	</ExtToggleButton>
+	<ExtToggleButton fx:id="extendButton" accelerator="f7">
+		<tooltip>
+			<Tooltip text="%toolbar.extend.tooltip"/>
+		</tooltip>
+		<graphic>
+			<SvgIcon styleClass="icon, extend-icon"/>
+		</graphic>
+	</ExtToggleButton>
+	<ExtToggleButton fx:id="whiteboardButton" accelerator="f8">
+		<tooltip>
+			<Tooltip text="%toolbar.whiteboard.tooltip"/>
+		</tooltip>
+		<graphic>
+			<SvgIcon styleClass="icon, whiteboard-icon"/>
+		</graphic>
+	</ExtToggleButton>
+	<ExtToggleButton fx:id="displaysButton">
+		<tooltip>
+			<Tooltip text="%toolbar.displays.tooltip"/>
+		</tooltip>
+		<graphic>
+			<SvgIcon styleClass="icon, display-icon"/>
+		</graphic>
+	</ExtToggleButton>
+
+	<ButtonGroup>
+		<buttons>
+			<ExtToggleButton fx:id="zoomInButton" accelerator="f10" toggleGroup="$toolToggleGroup">
+				<tooltip>
+					<Tooltip text="%toolbar.zoom.in.tooltip"/>
+				</tooltip>
+				<graphic>
+					<SvgIcon styleClass="icon, zoom-in-icon"/>
+				</graphic>
+				<userData>ZOOM</userData>
+			</ExtToggleButton>
+			<ExtToggleButton fx:id="panButton" accelerator="f11" toggleGroup="$toolToggleGroup">
+				<tooltip>
+					<Tooltip text="%toolbar.zoom.pan.tooltip"/>
+				</tooltip>
+				<graphic>
+					<SvgIcon styleClass="icon, pan-icon"/>
+				</graphic>
+				<userData>PANNING</userData>
+			</ExtToggleButton>
+			<ExtButton fx:id="zoomOutButton" accelerator="f12">
+				<tooltip>
+					<Tooltip text="%toolbar.zoom.out.tooltip"/>
+				</tooltip>
+				<graphic>
+					<SvgIcon styleClass="icon, zoom-out-icon"/>
+				</graphic>
+			</ExtButton>
+		</buttons>
+		<padding>
+			<Insets left="10" right="10"/>
+		</padding>
+	</ButtonGroup>
+
+	<ButtonGroup>
+		<buttons>
+			<RecordButton fx:id="startRecordingButton">
+				<tooltip>
+					<Tooltip text="%toolbar.recording.start.tooltip"/>
+				</tooltip>
+				<graphic>
+					<SvgIcon styleClass="icon, record-start-icon"/>
+				</graphic>
+			</RecordButton>
+			<ExtButton fx:id="stopRecordingButton">
+				<tooltip>
+					<Tooltip text="%toolbar.recording.stop.tooltip"/>
+				</tooltip>
+				<graphic>
+					<SvgIcon styleClass="icon, record-stop-icon"/>
+				</graphic>
+			</ExtButton>
+		</buttons>
+	</ButtonGroup>
+</fx:root>

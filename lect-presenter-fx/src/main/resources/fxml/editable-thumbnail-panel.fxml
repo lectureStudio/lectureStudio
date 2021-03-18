@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import java.lang.String?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Tooltip?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.VBox?>
+<?import org.lecturestudio.javafx.control.SvgIcon?>
+<?import org.lecturestudio.javafx.control.ThumbnailPanel?>
+
+<fx:root type="VBox" styleClass="editable-thumbnail-panel" xmlns="http://javafx.com/javafx/8.0.111" xmlns:fx="http://javafx.com/fxml/1">
+	<stylesheets>
+		<String fx:value="resources/css/editable-thumbnail-panel.css" />
+	</stylesheets>
+
+	<ThumbnailPanel fx:id="thumbnailPanel" VBox.vgrow="ALWAYS" />
+
+	<HBox fx:id="bottomButtonPanel" styleClass="bottom-button-panel" alignment="CENTER" fillHeight="false" spacing="30" VBox.vgrow="NEVER">
+		<Button fx:id="deletePageButton">
+			<graphic>
+				<SvgIcon styleClass="delete-page-icon"/>
+			</graphic>
+			<tooltip>
+				<Tooltip text="%menu.slide.delete"/>
+			</tooltip>
+		</Button>
+		<Button fx:id="addPageButton">
+			<graphic>
+				<SvgIcon styleClass="add-page-icon"/>
+			</graphic>
+			<tooltip>
+				<Tooltip text="%menu.slide.new"/>
+			</tooltip>
+		</Button>
+	</HBox>
+</fx:root>

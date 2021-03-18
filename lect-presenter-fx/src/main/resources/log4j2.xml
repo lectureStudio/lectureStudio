@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Configuration>
+
+	<Properties>
+		<Property name="filename">presenter-fx</Property>
+	</Properties>
+
+	<Appenders>
+		<Console name="STDOUT" target="SYSTEM_OUT">
+			<PatternLayout pattern="%d{HH:mm:ss.SSS} %-5p [%25.25c{1}]  %m%n" />
+		</Console>
+		<RollingFile
+				name="JavaLookup"
+				fileName="${sys:logFilePath}/${filename}.log"
+				filePattern="${sys:logFilePath}/${filename}-%d{MM-dd-yyyy}-%i.log">
+			<PatternLayout header="# ${java:runtime} %n# ${java:vm} %n# ${java:os} %n">
+				<Pattern>%d %m%n</Pattern>
+			</PatternLayout>
+			<Policies>
+				<TimeBasedTriggeringPolicy interval="1" modulate="true"/>
+				<SizeBasedTriggeringPolicy size="100 MB"/>
+			</Policies>
+		</RollingFile>
+		<RollingFile
+				name="FILE"
+				fileName="${sys:logFilePath}/${filename}.log"
+				filePattern="${sys:logFilePath}/${filename}-%d{MM-dd-yyyy}-%i.log"
+				immediateFlush="true">
+			<PatternLayout pattern="%d{HH:mm:ss.SSS} %-5p [%25.25c{1}]  %m%n" />
+			<Policies>
+				<TimeBasedTriggeringPolicy interval="1" modulate="true"/>
+				<SizeBasedTriggeringPolicy size="100 MB"/>
+			</Policies>
+		</RollingFile>
+	</Appenders>
+
+	<Loggers>
+		<Logger name="org.apache.openjpa" level="error" />
+		<Logger name="org.lecturestudio" level="error" />
+
+		<Root level="info">
+			<AppenderRef ref="STDOUT" />
+			<AppenderRef ref="FILE" />
+		</Root>
+	</Loggers>
+    
+</Configuration>

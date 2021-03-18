@@ -1,0 +1,17 @@
+.toolbar {
+	background-color: #002538;
+	color: whitesmoke;
+}
+
+.toolbar .locale-select {
+	font-size: 0.75em;
+	max-width: 6em;
+}
+
+.toolbar .spacer {
+	flex: 1 1 auto;
+}
+
+.content-panel {
+	margin: 1em;
+}

@@ -1,0 +1,93 @@
+.thumbnail-panel {
+	-fx-skin: "org.lecturestudio.javafx.control.ExtListViewSkin";
+    -fx-padding: 0;
+    -fx-background-color: white;
+}
+
+/*******************************************************************************
+ *                                                                             *
+ * Style list cells                                                            *
+ *                                                                             *
+ ******************************************************************************/
+
+.thumbnail-panel .list-cell {
+    -fx-alignment: center;
+    -fx-background-color: white;
+    -fx-background-insets: 0 2 0 2;
+    -fx-background-radius: 3;
+    -fx-padding: 0.4375em;
+}
+.thumbnail-panel .list-cell:filled:selected,
+.thumbnail-panel .list-cell:filled:selected:focused {
+    -fx-background-color: -fx-focus-color;
+}
+.thumbnail-panel .list-cell .slide-view {
+    -fx-focus-traversable: false;
+    -fx-alignment: center;
+    -fx-border-color: darkgray;
+    -fx-border-width: 1px;
+}
+.thumbnail-panel .list-cell:filled:selected .slide-view,
+.thumbnail-panel .list-cell:filled:selected:focused .slide-view {
+    -fx-border-color: transparent;
+}
+
+/***** Remove ScrollBars ******************************************************/
+
+.thumbnail-panel > .virtual-flow > .scroll-bar,
+.thumbnail-panel > .virtual-flow > .scroll-bar .decrement-arrow,
+.thumbnail-panel > .virtual-flow > .scroll-bar .increment-arrow,
+.thumbnail-panel > .virtual-flow > .scroll-bar .decrement-button,
+.thumbnail-panel > .virtual-flow > .scroll-bar .increment-button {
+    -fx-pref-width: 0;
+    -fx-pref-height: 0;
+    -fx-background-color: null;
+    -fx-background-radius: 0;
+    -fx-background-insets: 0;
+    -fx-padding: 0;
+}
+.thumbnail-panel > .virtual-flow > .scroll-bar .decrement-arrow,
+.thumbnail-panel > .virtual-flow > .scroll-bar .increment-arrow {
+    -fx-shape: null;
+}
+
+/***** Theme ScrollBars *******************************************************/
+
+.thumbnail-panel > .theme-scroll-bar {
+    -fx-background-color: transparent;
+    -fx-pref-width: 1em;
+    -fx-pref-height: 1em;
+    -fx-padding: 0 0.0666em;
+}
+.thumbnail-panel > .theme-scroll-bar:horizontal .decrement-arrow,
+.thumbnail-panel > .theme-scroll-bar:horizontal .increment-arrow,
+.thumbnail-panel > .theme-scroll-bar:horizontal .decrement-button,
+.thumbnail-panel > .theme-scroll-bar:horizontal .increment-button {
+    -fx-background-color: null;
+    -fx-background-radius: 0;
+    -fx-padding: 0 0 0.8333em 0;
+    -fx-pref-width: 0;
+    -fx-shape: null;
+}
+.thumbnail-panel > .theme-scroll-bar:vertical .decrement-arrow,
+.thumbnail-panel > .theme-scroll-bar:vertical .increment-arrow,
+.thumbnail-panel > .theme-scroll-bar:vertical .decrement-button,
+.thumbnail-panel > .theme-scroll-bar:vertical .increment-button {
+    -fx-background-color: null;
+    -fx-background-radius: 0;
+    -fx-padding: 0 0.8333em 0 0;
+    -fx-pref-height: 0;
+    -fx-shape: null;
+}
+.thumbnail-panel > .theme-scroll-bar .thumb {
+    -fx-background-color: rgba(0, 0, 0, .4);
+    -fx-background-radius: 5;
+    -fx-pref-width: 1em;
+    -fx-pref-height: 1em;
+}
+.thumbnail-panel > .theme-scroll-bar:horizontal .thumb {
+    -fx-background-insets: 0 0 0.1666em 0;
+}
+.thumbnail-panel > .theme-scroll-bar:vertical .thumb {
+    -fx-background-insets: 0 0.1666em 0 0;
+}

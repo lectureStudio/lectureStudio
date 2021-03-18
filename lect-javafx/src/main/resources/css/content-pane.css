@@ -1,0 +1,26 @@
+.content-pane {
+    -fx-background-color: -fx-background;
+}
+.content-pane > .title {
+    -fx-background-color: -fx-base;
+    -fx-border-color: derive(-fx-base, -7%);
+    -fx-border-width: 0 0 1 0;
+    -fx-padding: 1.6666em;
+    -fx-font-size: 1.1666em;
+    -fx-font-weight: bold;
+    -fx-max-width: infinity;
+}
+.content-pane > .content {
+    -fx-padding: 0.8333em 1.6666em 1.6666em 1.6666em;
+}
+.content-pane > .buttons {
+    -fx-padding: 0 1.6666em 1.6666em 1.6666em;
+    -fx-alignment: bottom-right;
+    -fx-spacing: 10;
+}
+
+/***** TabPane ***************************************************************/
+
+.content-pane > .content.tab-pane > .tab-header-area > .tab-header-background {
+    -fx-background-color: -fx-box-border, -fx-background;
+}

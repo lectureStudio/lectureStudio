@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Panel layout="GridLayout(4,1,0,7)" border="EmptyBorder(20, 20, 20, 20)">
+	<Label text="quit.recording.question" border="EmptyBorder(0, 0, 10, 0)"/>
+	<Button id="saveButton" icon="save.svg, 20" text="quit.recording.save" />
+	<Button id="abortButton" icon="abort.svg, 20" text="quit.recording.abort" />
+	<Button id="discardButton" icon="discard.svg, 20" text="quit.recording.discard" />
+</Panel>

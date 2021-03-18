@@ -1,0 +1,39 @@
+.border-layout {
+	display: flex;
+	flex-direction: column;
+	width: 100%;
+	height: 100%;
+}
+
+.border-layout-content {
+	flex: 1;
+	display: flex;
+	flex-direction: row;
+}
+
+header {
+	background: #3c464b;
+}
+
+article {
+	flex: 5;
+	background: #373c41;
+}
+
+nav,
+aside {
+	background: #2d3237;
+}
+
+sidebar-view {
+	display: block;
+	width: 200px;
+	height: 100%;
+}
+
+@media (max-width: 400px) {
+	nav,
+	aside {
+		display: none;
+	}
+}

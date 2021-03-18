@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import org.lecturestudio.javafx.control.*?>
+<?import org.lecturestudio.editor.javafx.view.*?>
+
+<fx:root type="TabPane" tabClosingPolicy="UNAVAILABLE" side="LEFT" rotateGraphic="true" styleClass="main-settings" xmlns:fx="http://javafx.com/fxml/1" xmlns="http://javafx.com/javafx/8.0.111">
+	<Tab id="general" text="%settings.general">
+		<FxGeneralSettingsView />
+		<graphic>
+			<SvgIcon styleClass="settings-general-icon" />
+		</graphic>
+	</Tab>
+	<Tab id="video" text="%settings.video">
+		<FxVideoSettingsView />
+		<graphic>
+			<SvgIcon styleClass="settings-video-icon" />
+		</graphic>
+	</Tab>
+</fx:root>

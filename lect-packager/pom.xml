@@ -1,0 +1,41 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+
+	<parent>
+		<groupId>org.lecturestudio</groupId>
+		<artifactId>lect-studio</artifactId>
+		<version>4.0.0</version>
+	</parent>
+
+	<artifactId>lect-packager</artifactId>
+	<packaging>pom</packaging>
+
+	<properties>
+		<package.name>lectureStudio</package.name>
+		<package.full.name>${package.name}-${package.version}-${platform.name}-${platform.arch}</package.full.name>
+		<package.copyright>Copyright © 2020 TU Darmstadt</package.copyright>
+		<package.description>An integrated tool for presenting lectures</package.description>
+		<package.version>4.3.${git.commitsCount}</package.version>
+		<package.vendor>TU Darmstadt</package.vendor>
+	</properties>
+
+	<modules>
+		<module>lect-jpackage</module>
+	</modules>
+
+	<profiles>
+		<profile>
+			<id>package:msi</id>
+			<activation>
+				<os>
+					<family>windows</family>
+					<arch>amd64</arch>
+				</os>
+			</activation>
+			<modules>
+				<module>lect-msi</module>
+			</modules>
+		</profile>
+	</profiles>
+</project>

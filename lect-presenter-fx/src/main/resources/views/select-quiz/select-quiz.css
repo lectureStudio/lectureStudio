@@ -1,0 +1,15 @@
+.select-quiz .quiz-table-question-column {
+	-fx-alignment: center-left;
+}
+.select-quiz .quiz-table-set-column.table-cell SvgIcon {
+	-fx-icon-size: 1.4em;
+}
+.select-quiz .quiz-table-set-column.table-cell,
+.select-quiz .quiz-table-type-column.table-cell,
+.select-quiz .table-button-column.table-cell {
+	-fx-alignment: center;
+}
+.select-quiz .table-button-column .icon {
+    -fx-icon-size: 1.2em;
+	-fx-icon-stroke-width: 0;
+}

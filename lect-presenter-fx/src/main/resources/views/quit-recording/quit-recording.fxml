@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.layout.GridPane?>
+<?import javafx.scene.layout.StackPane?>
+<?import javafx.scene.layout.VBox?>
+<?import org.lecturestudio.javafx.control.SvgIcon?>
+
+<fx:root type="StackPane" styleClass="quit-recording" xmlns="http://javafx.com/javafx/8.0.111" xmlns:fx="http://javafx.com/fxml/1">
+	<GridPane styleClass="content" vgap="15" maxHeight="-Infinity" maxWidth="-Infinity">
+		<Label text="%quit.recording.question"/>
+		<VBox alignment="CENTER" maxWidth="-Infinity" spacing="10" GridPane.halignment="CENTER" GridPane.rowIndex="1">
+			<Button fx:id="saveButton" alignment="BASELINE_LEFT" graphicTextGap="10" maxWidth="1.7976931348623157E308" text="%quit.recording.save">
+				<graphic>
+					<SvgIcon styleClass="icon, save-icon"/>
+				</graphic>
+			</Button>
+			<Button fx:id="abortButton" alignment="BASELINE_LEFT" graphicTextGap="10" maxWidth="1.7976931348623157E308" text="%quit.recording.abort">
+				<graphic>
+					<SvgIcon styleClass="icon, abort-icon"/>
+				</graphic>
+			</Button>
+			<Button fx:id="discardButton" alignment="BASELINE_LEFT" graphicTextGap="10" maxWidth="1.7976931348623157E308" text="%quit.recording.discard">
+				<graphic>
+					<SvgIcon styleClass="icon, discard-icon"/>
+				</graphic>
+			</Button>
+		</VBox>
+	</GridPane>
+</fx:root>

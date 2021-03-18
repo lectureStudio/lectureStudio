@@ -1,0 +1,17 @@
+.video-export-settings > .accordion > .titled-pane > *.content {
+	-fx-border-color: null;
+	-fx-border-insets: 0;
+}
+.video-export-settings > .accordion > .titled-pane:focused > .title > .arrow-button > .arrow {
+	-fx-background-color: -fx-mark-color;
+	-fx-background-insets: 0;
+	-fx-effect: null;
+}
+.video-export-settings > .accordion > .titled-pane > .content .container {
+	-fx-hgap: 20;
+	-fx-vgap: 8;
+	-fx-padding: 1em;
+}
+.video-export-settings > .buttons {
+	-fx-padding: 0.5em;
+}

@@ -1,0 +1,14 @@
+{
+	"message": {
+		"service": {
+			"name": "Nachricht"
+		},
+		"desc": "Eine Frage oder Nachricht senden",
+		"sent": "Ihre Nachricht wurde erfolgreich verschickt",
+		"input": {
+			"empty": "Keine Nachricht eingegeben",
+			"invalid": "Bitte geben Sie einen g\u00fcltigen Text ein",
+			"length": "Mindestens {{count}} Zeichen"
+		}
+	}
+}

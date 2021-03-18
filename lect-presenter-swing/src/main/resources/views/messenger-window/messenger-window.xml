@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<frame size="600,400" plaf="com.formdev.flatlaf.FlatLightLaf" defaultCloseOperation="JFrame.DO_NOTHING_ON_CLOSE">
+	<ScrollPane>
+		<VBox id="container" gap="10" border="EmptyBorder(20,20,20,20)" />
+	</ScrollPane>
+</frame>

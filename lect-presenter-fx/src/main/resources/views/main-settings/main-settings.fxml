@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.Tab?>
+<?import javafx.scene.control.TabPane?>
+<?import org.lecturestudio.javafx.control.SvgIcon?>
+<?import org.lecturestudio.presenter.javafx.view.FxCameraSettingsView?>
+<?import org.lecturestudio.presenter.javafx.view.FxDisplaySettingsView?>
+<?import org.lecturestudio.presenter.javafx.view.FxGeneralSettingsView?>
+<?import org.lecturestudio.presenter.javafx.view.FxGridSettingsView?>
+<?import org.lecturestudio.presenter.javafx.view.FxMicrophoneSettingsView?>
+<?import org.lecturestudio.presenter.javafx.view.FxNetworkSettingsView?>
+<?import org.lecturestudio.presenter.javafx.view.FxRecordSettingsView?>
+<?import org.lecturestudio.presenter.javafx.view.FxStreamSettingsView?>
+<?import org.lecturestudio.presenter.javafx.view.FxToolSettingsView?>
+<?import org.lecturestudio.presenter.javafx.view.FxWebServiceSettingsView?>
+<?import org.lecturestudio.presenter.javafx.view.FxWhiteboardSettingsView?>
+
+<fx:root type="TabPane" tabClosingPolicy="UNAVAILABLE" side="LEFT" rotateGraphic="true" styleClass="main-settings" xmlns:fx="http://javafx.com/fxml/1" xmlns="http://javafx.com/javafx/8.0.111">
+	<Tab id="general" text="%settings.general">
+		<FxGeneralSettingsView />
+		<graphic>
+			<SvgIcon styleClass="settings-general-icon" />
+		</graphic>
+	</Tab>
+	<Tab id="displays" text="%settings.displays">
+		<FxDisplaySettingsView />
+		<graphic>
+			<SvgIcon styleClass="settings-monitor-icon" />
+		</graphic>
+	</Tab>
+	<Tab id="grid" text="%settings.grid">
+		<FxGridSettingsView />
+		<graphic>
+			<SvgIcon styleClass="settings-grid-icon" />
+		</graphic>
+	</Tab>
+	<Tab id="tools" text="%settings.tools">
+		<FxToolSettingsView />
+		<graphic>
+			<SvgIcon styleClass="settings-brush-icon" />
+		</graphic>
+	</Tab>
+	<Tab id="whiteboard" text="%settings.whiteboard">
+		<FxWhiteboardSettingsView />
+		<graphic>
+			<SvgIcon styleClass="settings-whiteboard-icon" />
+		</graphic>
+	</Tab>
+	<Tab id="recording" text="%settings.recording">
+		<FxRecordSettingsView />
+		<graphic>
+			<SvgIcon styleClass="settings-record-icon" />
+		</graphic>
+	</Tab>
+	<Tab id="microphone" text="%settings.microphone">
+		<FxMicrophoneSettingsView />
+		<graphic>
+			<SvgIcon styleClass="settings-microphone-icon" />
+		</graphic>
+	</Tab>
+	<Tab id="camera" text="%settings.camera">
+		<FxCameraSettingsView />
+		<graphic>
+			<SvgIcon styleClass="settings-camera-icon" />
+		</graphic>
+	</Tab>
+	<Tab id="live-stream" text="%settings.live.stream">
+		<FxStreamSettingsView />
+		<graphic>
+			<SvgIcon styleClass="settings-stream-icon" />
+		</graphic>
+	</Tab>
+	<Tab id="web-service" text="%settings.web.service">
+		<FxWebServiceSettingsView />
+		<graphic>
+			<SvgIcon styleClass="settings-webservice-icon" />
+		</graphic>
+	</Tab>
+	<Tab id="network" text="%settings.network">
+		<FxNetworkSettingsView />
+		<graphic>
+			<SvgIcon styleClass="settings-network-icon" />
+		</graphic>
+	</Tab>
+</fx:root>

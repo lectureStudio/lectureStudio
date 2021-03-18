@@ -1,0 +1,184 @@
+@font-face {
+	font-family: 'Open Sans', sans-serif;
+	src: url('/resources/fonts/OpenSans-Regular.ttf');
+}
+@font-face {
+	font-family: 'Open Sans', sans-serif;
+	src: url('/resources/fonts/OpenSans-SemiBold.ttf');
+}
+@font-face {
+	font-family: 'Open Sans', sans-serif;
+	src: url('/resources/fonts/OpenSans-Bold.ttf');
+}
+
+/*******************************************************************************
+ *                                                                             *
+ * Icons                                                                       *
+ *                                                                             *
+ ******************************************************************************/
+
+.add-icon {
+	-fx-icon-content: "M346.5 240H272v-74.5c0-8.8-7.2-16-16-16s-16 7.2-16 16V240h-74.5c-8.8 0-16 6-16 16s7.5 16 16 16H240v74.5c0 9.5 7 16 16 16s16-7.2 16-16V272h74.5c8.8 0 16-7.2 16-16s-7.2-16-16-16z M256 76c48.1 0 93.3 18.7 127.3 52.7S436 207.9 436 256s-18.7 93.3-52.7 127.3S304.1 436 256 436c-48.1 0-93.3-18.7-127.3-52.7S76 304.1 76 256s18.7-93.3 52.7-127.3S207.9 76 256 76m0-28C141.1 48 48 141.1 48 256s93.1 208 208 208 208-93.1 208-208S370.9 48 256 48z";
+}
+.delete-icon {
+	-fx-icon-fill: -fx-text-background-color;
+	-fx-icon-content: "M32 464a48 48 0 0 0 48 48h288a48 48 0 0 0 48-48V128H32zm272-256a16 16 0 0 1 32 0v224a16 16 0 0 1-32 0zm-96 0a16 16 0 0 1 32 0v224a16 16 0 0 1-32 0zm-96 0a16 16 0 0 1 32 0v224a16 16 0 0 1-32 0zM432 32H312l-9.4-18.7A24 24 0 0 0 281.1 0H166.8a23.72 23.72 0 0 0-21.4 13.3L136 32H16A16 16 0 0 0 0 48v32a16 16 0 0 0 16 16h416a16 16 0 0 0 16-16V48a16 16 0 0 0-16-16z";
+}
+.edit-icon {
+	-fx-icon-content: "M402.3 344.9l32-32c5-5 13.7-1.5 13.7 5.7V464c0 26.5-21.5 48-48 48H48c-26.5 0-48-21.5-48-48V112c0-26.5 21.5-48 48-48h273.5c7.1 0 10.7 8.6 5.7 13.7l-32 32c-1.5 1.5-3.5 2.3-5.7 2.3H48v352h352V350.5c0-2.1.8-4.1 2.3-5.6zm156.6-201.8L296.3 405.7l-90.4 10c-26.2 2.9-48.5-19.2-45.6-45.6l10-90.4L432.9 17.1c22.9-22.9 59.9-22.9 82.7 0l43.2 43.2c22.9 22.9 22.9 60 .1 82.8zM460.1 174L402 115.9 216.2 301.8l-7.3 65.3 65.3-7.3L460.1 174zm64.8-79.7l-43.2-43.2c-4.1-4.1-10.8-4.1-14.8 0L436 82l58.1 58.1 30.9-30.9c4-4.2 4-10.8-.1-14.9z";
+}
+.pdf-icon {
+	-fx-icon-content: "M369.9 97.9L286 14C277 5 264.8-.1 252.1-.1H48C21.5 0 0 21.5 0 48v416c0 26.5 21.5 48 48 48h288c26.5 0 48-21.5 48-48V131.9c0-12.7-5.1-25-14.1-34zM332.1 128H256V51.9l76.1 76.1zM48 464V48h160v104c0 13.3 10.7 24 24 24h104v288H48zm250.2-143.7c-12.2-12-47-8.7-64.4-6.5-17.2-10.5-28.7-25-36.8-46.3 3.9-16.1 10.1-40.6 5.4-56-4.2-26.2-37.8-23.6-42.6-5.9-4.4 16.1-.4 38.5 7 67.1-10 23.9-24.9 56-35.4 74.4-20 10.3-47 26.2-51 46.2-3.3 15.8 26 55.2 76.1-31.2 22.4-7.4 46.8-16.5 68.4-20.1 18.9 10.2 41 17 55.8 17 25.5 0 28-28.2 17.5-38.7zm-198.1 77.8c5.1-13.7 24.5-29.5 30.4-35-19 30.3-30.4 35.7-30.4 35zm81.6-190.6c7.4 0 6.7 32.1 1.8 40.8-4.4-13.9-4.3-40.8-1.8-40.8zm-24.4 136.6c9.7-16.9 18-37 24.7-54.7 8.3 15.1 18.9 27.2 30.1 35.5-20.8 4.3-38.9 13.1-54.8 19.2zm131.6-5s-5 6-37.3-7.8c35.1-2.6 40.9 5.4 37.3 7.8z";
+}
+
+/*******************************************************************************
+ *                                                                             *
+ * Reusable styles                                                             *
+ *                                                                             *
+ ******************************************************************************/
+
+.delete-button {
+	-fx-base: #E12D39;
+	-fx-background: -fx-base;
+}
+.secondary-button {
+	-fx-background-color: transparent;
+	-fx-background-insets: 0;
+	-fx-border-width: 0;
+	-fx-text-fill: -fx-accent;
+}
+.secondary-button:hover {
+	-fx-background-color: derive(-fx-base, -3%);
+}
+.secondary-button:armed {
+	-fx-background-color: derive(-fx-base, -8%);
+}
+.secondary-button SvgIcon {
+	-fx-icon-fill: -fx-text-fill;
+}
+
+/*******************************************************************************
+ *                                                                             *
+ * Root                                                                        *
+ *                                                                             *
+ ******************************************************************************/
+ 
+.root {
+	-fx-font-family: 'Open Sans', sans-serif;
+	-fx-font-size: 1em;
+}
+
+/*******************************************************************************
+ *                                                                             *
+ * Text styles                                                                 *
+ *                                                                             *
+ ******************************************************************************/
+
+.text-head {
+	-fx-font-weight: bold;
+	-fx-border-color: -fx-outer-border;
+	-fx-border-width: 0 0 1 0;
+	-fx-border-insets: 0 0 5 0;
+	-fx-max-width: infinity;
+	-fx-padding: 0 0 1 0;
+}
+.text-small {
+	-fx-font-size: 0.9em;
+}
+
+/*******************************************************************************
+ *                                                                             *
+ * TableView                                                                   *
+ *                                                                             *
+ ******************************************************************************/
+
+.table-view:focused {
+	-fx-background-color: -fx-box-border, -fx-control-inner-background;
+	-fx-background-insets: 0, 1;
+	-fx-background-radius: 0;
+}
+.table-view .table-cell {
+	-fx-alignment: center-left;
+}
+.table-view .table-cell SvgIcon {
+	-fx-icon-stroke-width: 0;
+}
+.table-button-column.table-cell,
+.table-button-column.table-cell .button-group > .container {
+	-fx-alignment: center;
+}
+.table-row-cell:filled:selected SvgIcon {
+	-fx-icon-fill: -fx-text-background-color;
+}
+.table-row-cell:filled:selected .button SvgIcon {
+	-fx-background: -fx-base;
+	-fx-icon-fill: -fx-text-background-color;
+}
+
+/*******************************************************************************
+ *                                                                             *
+ * ListView                                                                    *
+ *                                                                             *
+ ******************************************************************************/
+
+.list-view:focused {
+	-fx-background-color: -fx-box-border, -fx-control-inner-background;
+	-fx-background-insets: 0, 1;
+}
+
+/*******************************************************************************
+ *                                                                             *
+ * Menu                                                                        *
+ *                                                                             *
+ ******************************************************************************/
+.menu-item SvgIcon {
+	-fx-icon-fill: -fx-text-background-color;
+}
+
+/*******************************************************************************
+ *                                                                             *
+ * ToolTip                                                                     *
+ *                                                                             *
+ ******************************************************************************/
+.tooltip {
+	-fx-font-size: 1em;
+	-fx-graphic-text-gap: 20;
+}
+.tooltip .accelerator {
+	-fx-text-fill: -fx-mid-text-color;
+	-fx-border-radius: 3;
+	-fx-background-radius: 3;
+	-fx-background-color: -fx-text-background-color;
+	-fx-padding: 2 5 4 4;
+}
+
+/*******************************************************************************
+ *                                                                             *
+ * SplitPickerButton                                                           *
+ *                                                                             *
+ ******************************************************************************/
+
+.split-picker-button .menu-item,
+.split-picker-button .menu-item > .left-container,
+.split-picker-button .menu-item > .right-container,
+.split-picker-button .menu-item > .graphic-container,
+.split-picker-button .menu-item > .label {
+	-fx-padding: 0;
+}
+
+/*******************************************************************************
+ *                                                                             *
+ * ExtSplitPane                                                                *
+ *                                                                             *
+ ******************************************************************************/
+.ext-split-pane > .ext-split-pane-divider {
+    -fx-padding: 0.25em 0.25em 0.25em 0.25em; /* 0 3 0 3 */
+}
+.ext-split-pane:horizontal > .ext-split-pane-divider {
+    -fx-background-color: -fx-box-border, -fx-inner-border-horizontal;
+    -fx-background-insets: 0, 0 1 0 1;
+}
+.ext-split-pane:vertical > .ext-split-pane-divider {
+    -fx-background-color: -fx-box-border, -fx-inner-border;
+    -fx-background-insets: 0, 1 0 1 0;
+}

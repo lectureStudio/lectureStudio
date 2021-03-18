@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.SplitPane?>
+<?import javafx.scene.control.TabPane?>
+<?import javafx.scene.control.TextArea?>
+<?import javafx.scene.layout.Region?>
+<?import javafx.scene.layout.VBox?>
+<?import org.lecturestudio.javafx.control.ExtTab?>
+<?import org.lecturestudio.javafx.control.ExtTabPane?>
+<?import org.lecturestudio.javafx.control.MessageView?>
+<?import org.lecturestudio.javafx.control.SlideView?>
+<?import org.lecturestudio.presenter.javafx.view.FxToolbarView?>
+
+<fx:root type="VBox" VBox.vgrow="ALWAYS" styleClass="main-slides" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1">
+	<FxToolbarView VBox.vgrow="NEVER"/>
+
+	<SplitPane fx:id="tabSplitPane" dividerPositions="0.75" VBox.vgrow="ALWAYS">
+		<SplitPane fx:id="notesSplitPane" dividerPositions="0.75" orientation="VERTICAL" styleClass="slide-view-pane">
+			<SlideView fx:id="slideView"/>
+
+			<ExtTabPane fx:id="bottomTabPane" side="BOTTOM" tabToggle="true">
+				<ExtTab fx:id="notesTab" text="%slides.notes">
+					<TextArea fx:id="notesTextArea" editable="false" focusTraversable="false"/>
+					<graphic>
+						<Region styleClass="notes-icon, tab-icon"/>
+					</graphic>
+				</ExtTab>
+				<ExtTab fx:id="latexTab" text="%slides.latex">
+					<TextArea fx:id="latexTextArea"/>
+					<graphic>
+						<Region styleClass="latex-icon, tab-icon"/>
+					</graphic>
+				</ExtTab>
+			</ExtTabPane>
+		</SplitPane>
+
+		<VBox>
+			<TabPane fx:id="tabPane" side="RIGHT" tabClosingPolicy="UNAVAILABLE" focusTraversable="false" VBox.vgrow="ALWAYS" />
+			<MessageView fx:id="messageView" minHeight="200" VBox.vgrow="NEVER" />
+		</VBox>
+	</SplitPane>
+</fx:root>

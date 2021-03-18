@@ -1,0 +1,4 @@
+mime-type=application/lecture
+extension=presenter
+icon=${project.parent.parent.basedir}/lect-editor-fx/src/main/resources/gfx/app-icon/lectureRecording.icns
+description=lecturePresenter Recording

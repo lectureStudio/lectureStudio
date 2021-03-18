@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<menubar>
+	<menu id="fileMenu" text="menu.file">
+		<menuitem id="openDocumentMenuItem" text="menu.open" accelerator="ctrl O" />
+		<menuitem id="closeDocumentMenuItem" text="menu.close" accelerator="ctrl F4" enabled="false" />
+		<separator />
+		<menuitem id="saveDocumentsMenuItem" text="menu.save.documents" enabled="false" />
+		<menuitem id="saveQuizMenuItem" text="menu.save.quiz.results" enabled="false" />
+		<separator />
+		<menuitem id="exitMenuItem" text="menu.exit" accelerator="ctrl Q" />
+	</menu>
+	<menu text="menu.edit">
+		<menuitem id="undoMenuItem" text="menu.undo" accelerator="ctrl Z" enabled="false" />
+		<menuitem id="redoMenuItem" text="menu.redo" accelerator="ctrl Y" enabled="false" />
+		<separator />
+		<menuitem id="settingsMenuItem" text="menu.options" />
+	</menu>
+	<menu text="menu.view">
+		<checkboxmenuitem id="outlineMenuItem" text="menu.contents" />
+		<checkboxmenuitem id="fullscreenMenuItem" text="menu.fullscreen" type="checkbox" accelerator="alt ENTER" />
+		<checkboxmenuitem id="advancedSettingsMenuItem" text="menu.advanced.settings" type="checkbox" />
+	</menu>
+	<menu text="menu.whiteboard">
+		<menuitem id="newWhiteboardMenuItem" text="menu.whiteboard.new" />
+		<separator />
+		<menuitem id="newWhiteboardPageMenuItem" text="menu.slide.new" accelerator="F9" enabled="false" />
+		<menuitem id="deleteWhiteboardPageMenuItem" text="menu.slide.delete" accelerator="ctrl D" enabled="false" />
+		<separator />
+		<checkboxmenuitem id="gridMenuItem" text="menu.grid" accelerator="Q" enabled="false" />
+	</menu>
+	<menu text="menu.presentation">
+		<menuitem id="startRecordingMenuItem" text="menu.recording.start" enabled="false" />
+		<menuitem id="stopRecordingMenuItem" text="menu.recording.stop" enabled="false" />
+		<separator />
+		<menuitem id="startStreamingMenuItem" text="menu.streaming.start" enabled="false" />
+		<menuitem id="stopStreamingMenuItem" text="menu.streaming.stop" enabled="false" />
+		<separator />
+		<menuitem id="startMessengerMenuItem" text="menu.messenger.start" enabled="false" />
+		<menuitem id="stopMessengerMenuItem" text="menu.messenger.stop" enabled="false" />
+		<checkboxmenuitem id="showMessengerWindowMenuItem" text="menu.messenger.window.visible" type="checkbox" selected="true" enabled="false" />
+		<separator />
+		<menuitem id="selectQuizMenuItem" text="menu.quiz.selection" accelerator="Z" enabled="false" />
+		<menuitem id="newQuizMenuItem" text="menu.quiz.new" enabled="false" />
+		<menuitem id="closeQuizMenuItem" text="menu.quiz.close" enabled="false" />
+	</menu>
+	<menu id="bookmarksMenu" text="menu.bookmarks">
+		<menuitem id="clearBookmarksMenuItem" text="menu.bookmarks.clear" enabled="false" />
+		<menuitem id="newBookmarkMenuItem" text="menu.bookmarks.add" accelerator="B" enabled="false" />
+		<separator />
+		<menuitem id="gotoBookmarkMenuItem" text="menu.bookmarks.goto" accelerator="G" enabled="false" />
+		<menuitem id="previousBookmarkMenuItem" text="menu.bookmarks.previous" accelerator="L" enabled="false" />
+	</menu>
+	<menu id="pageActionsMenu" text="menu.slide.actions" visible="false" />
+	<menu id="embeddedQuizMenu" text="menu.quiz.embedded" visible="false" />
+	<menu text="menu.info">
+		<menuitem id="logMenuItem" text="menu.log" />
+		<menuitem id="aboutMenuItem" text="menu.about" />
+	</menu>
+	<box.hglue />
+	<menu id="timeMenu" icon="clock-indicator.svg, 20" disabledicon="clock-indicator.svg, 20" enabled="false" />
+	<box.hstrut width="10" />
+	<menu id="recordIndicatorMenu" icon="record-indicator.svg, 20" disabledicon="record-indicator.svg, 20" enabled="false" />
+	<menu id="quizIndicatorMenu" icon="quiz-indicator.svg, 20" disabledicon="quiz-indicator.svg, 20" enabled="false" />
+	<menu id="messengerIndicatorMenu" icon="messenger-indicator.svg, 20" disabledicon="messenger-indicator.svg, 20" enabled="false" />
+	<menu id="streamIndicatorMenu" icon="stream-indicator.svg, 20" disabledicon="stream-indicator.svg, 20" enabled="false" />
+</menubar>

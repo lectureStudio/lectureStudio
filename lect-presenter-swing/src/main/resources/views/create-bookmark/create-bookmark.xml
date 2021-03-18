@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Panel name="create.bookmark.title">
+	<Panel layout="GridBagLayout" border="EmptyBorder(0, 20, 20, 20)">
+		<Label text="create.bookmark.assign.key" border="EmptyBorder(0, 0, 5, 0)">
+			<gridbagconstraints gridx="0" gridy="0" fill="GridBagConstraints.BOTH" />
+		</Label>
+		<TextField id="acceleratorTextField" text="">
+			<gridbagconstraints gridx="0" gridy="1" fill="GridBagConstraints.BOTH" />
+		</TextField>
+		<ScrollPane border="EmptyBorder(10, 0, 0, 0)">
+			<gridbagconstraints gridx="0" gridy="2" weightx="1.0" weighty="1.0" fill="GridBagConstraints.BOTH" />
+			<Table id="bookmarkTableView" autoCreateColumnsFromModel="false" fillsViewportHeight="true" rowHeight="25" selectionMode="ListSelectionModel.SINGLE_SELECTION">
+				<TableColumn headerValue="create.bookmark.document" />
+				<TableColumn headerValue="create.bookmark.slide.number" maxWidth="65" />
+				<TableColumn headerValue="create.bookmark.key" maxWidth="60" />
+				<TableColumn maxWidth="35">
+					<TableButtonRenderer icon="delete.svg, 20" toolTipText="create.bookmark.delete" />
+					<TableButtonEditor icon="delete.svg, 20" action="deleteAction" />
+				</TableColumn>
+			</Table>
+		</ScrollPane>
+		<HBox gap="5" border="EmptyBorder(10, 0, 0, 0)">
+			<gridbagconstraints gridx="0" gridy="3" fill="GridBagConstraints.HORIZONTAL" />
+			<box.hglue />
+			<Button id="closeButton" text="button.close"/>
+		</HBox>
+	</Panel>
+</Panel>

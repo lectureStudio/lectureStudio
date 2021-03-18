@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import org.lecturestudio.javafx.control.*?>
+<?import org.lecturestudio.javafx.factory.*?>
+
+<fx:root type="VBox" styleClass="main-start" alignment="CENTER" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1">
+	<TextSearchField fx:id="recordingSearchField" promptText="%start.search.recording">
+		<cellFactory>
+			<PathCellFactory />
+		</cellFactory>
+	</TextSearchField>
+	<HBox alignment="CENTER" spacing="10">
+		<VBox styleClass="container">
+			<Label styleClass="desc-label" text="%start.getting.started"/>
+			<ExtButton fx:id="openRecordingButton" styleClass="main-button" text="%start.open.recording"
+					   alignment="CENTER" contentDisplay="TOP"
+					   maxHeight="1.7976931348623157E308"
+					   maxWidth="1.7976931348623157E308" GridPane.halignment="CENTER"
+					   GridPane.hgrow="ALWAYS" GridPane.valignment="CENTER" GridPane.vgrow="ALWAYS">
+				<graphic>
+					<SvgIcon styleClass="open-rec-icon"/>
+				</graphic>
+			</ExtButton>
+		</VBox>
+		<VBox styleClass="container">
+			<Label styleClass="desc-label" text="%start.recently.opened"/>
+
+			<FlowPane fx:id="docContainer" hgap="10" orientation="VERTICAL" prefWrapLength="300" rowValignment="TOP" vgap="10"/>
+		</VBox>
+	</HBox>
+</fx:root>

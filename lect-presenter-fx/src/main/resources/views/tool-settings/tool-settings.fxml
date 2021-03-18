@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.CheckBox?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.Slider?>
+<?import javafx.scene.layout.ColumnConstraints?>
+<?import javafx.scene.layout.GridPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.RowConstraints?>
+<?import javafx.scene.shape.CubicCurve?>
+<?import javafx.scene.shape.Circle?>
+
+<fx:root type="GridPane" hgap="10" vgap="5" xmlns="http://javafx.com/javafx/8.0.111" xmlns:fx="http://javafx.com/fxml/1">
+	<columnConstraints>
+		<ColumnConstraints/>
+		<ColumnConstraints hgrow="ALWAYS"/>
+		<ColumnConstraints hgrow="ALWAYS" minWidth="400.0"/>
+	</columnConstraints>
+	<rowConstraints>
+		<RowConstraints minHeight="30"/>
+		<RowConstraints minHeight="100.0"/>
+		<RowConstraints minHeight="100.0"/>
+		<RowConstraints minHeight="100.0"/>
+		<RowConstraints vgrow="ALWAYS"/>
+	</rowConstraints>
+
+	<CheckBox fx:id="scaleHighlighterCheckBox" text="%tool.settings.highlighter.scale" GridPane.columnSpan="3"/>
+	<Label text="%tool.settings.highlighter.size" GridPane.rowIndex="1"/>
+	<Slider fx:id="highlighterSlider" max="50" min="1" GridPane.columnIndex="1" GridPane.rowIndex="1"/>
+	<Label text="%tool.settings.pen.size" GridPane.rowIndex="2"/>
+	<Slider fx:id="penSlider" max="30" min="1" GridPane.columnIndex="1" GridPane.rowIndex="2"/>
+	<Label text="%tool.settings.pointer.size" GridPane.rowIndex="3"/>
+	<Slider fx:id="pointerSlider" max="50" min="1" GridPane.columnIndex="1" GridPane.rowIndex="3"/>
+	<CubicCurve fx:id="highlighterCurve" controlX1="-50" controlX2="50" controlY1="-100" controlY2="100" endX="150"
+				fill="#ffffff00" startX="-150" stroke="BLACK" strokeLineCap="ROUND" strokeLineJoin="ROUND"
+				GridPane.columnIndex="2"
+				GridPane.halignment="CENTER" GridPane.rowIndex="1"/>
+	<CubicCurve fx:id="penCurve" controlX1="-50" controlX2="50" controlY1="-100" controlY2="100" endX="150" fill="#ffffff00"
+				startX="-150" stroke="BLACK" strokeLineCap="ROUND" strokeLineJoin="ROUND" GridPane.columnIndex="2"
+				GridPane.halignment="CENTER"
+				GridPane.rowIndex="2"/>
+	<Circle fx:id="pointerCircle" fill="#1f93ff" radius="10.0" strokeWidth="0" strokeLineCap="ROUND" strokeLineJoin="ROUND"
+			GridPane.columnIndex="2" GridPane.halignment="CENTER" GridPane.rowIndex="3"/>
+	<HBox alignment="BOTTOM_RIGHT" spacing="5" GridPane.columnSpan="3" GridPane.rowIndex="4">
+		<Button fx:id="resetButton" text="%button.reset"/>
+		<Button fx:id="closeButton" text="%button.close"/>
+	</HBox>
+
+	<padding>
+		<Insets bottom="20" left="20" right="20" top="20"/>
+	</padding>
+</fx:root>

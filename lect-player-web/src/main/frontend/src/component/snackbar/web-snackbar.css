@@ -1,0 +1,94 @@
+web-snackbar {
+	transition: all 500ms ease;
+	transition-property: top, right, bottom, left, opacity;
+	background-color: #070b0e;
+	color: white;
+	position: fixed;
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	line-height: 22px;
+	padding: 14px 20px;
+	bottom: -100px;
+	top: -100px;
+	opacity: 0;
+	z-index: 9999;
+}
+
+web-snackbar svg {
+	display: inline-block;
+	border: none;
+	border-radius: 50%;
+	background: #181818;
+	fill: #ccc;
+	cursor: pointer;
+	min-width: 30px;
+	min-height: 30px;
+	width: 30px;
+	height: 30px;
+	margin-left: 14px;
+}
+web-snackbar svg:hover {
+	background: #303030;
+}
+web-snackbar svg:active {
+	background: #474747;
+}
+
+web-snackbar.bottom-center {
+	top: auto !important;
+	bottom: 0;
+	left: 50%;
+	transform: translate(-50%, 0);
+}
+
+web-snackbar.bottom-left {
+	top: auto !important;
+	bottom: 0;
+	left: 0;
+}
+
+web-snackbar.bottom-right {
+	top: auto !important;
+	bottom: 0;
+	right: 0;
+}
+
+web-snackbar.top-left {
+	bottom: auto !important;
+	top: 0;
+	left: 0;
+}
+
+web-snackbar.top-center {
+	bottom: auto !important;
+	top: 0;
+	left: 50%;
+	transform: translate(-50%, 0);
+}
+
+web-snackbar.top-right {
+	bottom: auto !important;
+	top: 0;
+	right: 0;
+}
+
+@media (min-width: 640px) {
+	web-snackbar {
+		min-width: 320px;
+		max-width: 640px;
+		display: inline-flex;
+		border-radius: 2px;
+		margin: 24px;
+	}
+}
+@media (max-width: 640px) {
+	web-snackbar {
+		left: 0;
+		right: 0;
+	}
+	web-snackbar.bottom-center, web-snackbar.top-center {
+		left: 0;
+		transform: none;
+	}
+}

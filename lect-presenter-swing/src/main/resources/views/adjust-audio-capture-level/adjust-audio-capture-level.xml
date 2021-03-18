@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Panel layout="GridBagLayout">
+	<VBox border="EmptyBorder(20, 20, 20, 20)" preferredSize="500,200" maximumSize="500,200">
+		<TextArea text="adjust.audio.capture.header" editable="false" focusable="false" wrapStyleWord="true" lineWrap="true" opaque="false" />
+		<Label id="captureDeviceLabel" border="EmptyBorder(5, 30, 5, 0)" />
+		<TextArea text="adjust.audio.capture.footer" editable="false" focusable="false" wrapStyleWord="true" lineWrap="true" opaque="false" />
+		<LevelMeter id="levelMeter" orientation="HORIZONTAL" border="EmptyBorder(20, 0, 20, 0)" />
+		<HBox gap="5">
+			<box.hglue />
+			<Button id="cancelButton" text="button.cancel" />
+			<Button id="beginButton" text="button.begin" />
+		</HBox>
+	</VBox>
+</Panel>

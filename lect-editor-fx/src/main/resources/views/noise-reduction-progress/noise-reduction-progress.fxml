@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<fx:root styleClass="noise-reduction-progress" type="StackPane" xmlns="http://javafx.com/javafx/10.0.2-internal" xmlns:fx="http://javafx.com/fxml/1">
+	<VBox styleClass="content" maxHeight="-Infinity">
+		<Label fx:id="titleLabel" text="%noise.reduction.progress.title" styleClass="title"/>
+		<ProgressBar fx:id="progressBar" />
+		<HBox styleClass="buttons">
+			<Button fx:id="cancelButton" text="%button.cancel"/>
+			<Button fx:id="closeButton" text="%button.close" defaultButton="true" disable="true"/>
+		</HBox>
+	</VBox>
+</fx:root>

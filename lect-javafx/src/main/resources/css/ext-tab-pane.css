@@ -1,0 +1,106 @@
+.ext-tab-pane {
+    -fx-tab-min-height: 1.8333em; /* 22 */
+    -fx-tab-max-height: 1.8333em; /* 22 */
+}
+.ext-tab-pane:disabled,
+.ext-tab-pane > .ext-tab-header > .ext-tab:disabled {
+    -fx-opacity: 0.4;
+}
+.ext-tab-pane > .ext-tab-header > .ext-tab > .ext-tab-label {
+    -fx-alignment: CENTER;
+    -fx-text-fill: -fx-text-base-color;
+}
+.ext-tab-pane > .ext-tab-header > .ext-tab {
+    -fx-background-insets: 0 1 1 0, 1 2 1 1, 2 3 1 2;
+    -fx-background-radius: 3 3 0 0, 2 2 0 0, 1 1 0 0;
+    -fx-padding: 0.083333em 0.5em 0.0769em 0.5em; /* 1 6 0.99 6 */
+}
+.ext-tab-pane > .ext-tab-header > .ext-tab:top {
+    -fx-background-color: -fx-outer-border, -fx-inner-border, -fx-body-color;
+}
+.ext-tab-pane > .ext-tab-header > .ext-tab:right {
+    -fx-background-color: -fx-outer-border, -fx-inner-border-bottomup, -fx-body-color-bottomup;
+}
+.ext-tab-pane > .ext-tab-header > .ext-tab:bottom {
+    -fx-background-color: -fx-outer-border, -fx-inner-border-bottomup, -fx-body-color-bottomup;
+}
+.ext-tab-pane > .ext-tab-header > .ext-tab:left {
+    -fx-background-color: -fx-outer-border, -fx-inner-border, -fx-body-color;
+}
+.ext-tab-pane > .ext-tab-header > .ext-tab:hover {
+    -fx-color: -fx-hover-base;
+}
+.ext-tab-pane > .ext-tab-header > .ext-tab:selected {
+    -fx-background-color: -fx-outer-border, -fx-inner-border, -fx-background;
+    -fx-background-insets: 0 1 1 0, 1 2 0 1, 2 3 0 2;
+}
+.ext-tab-pane > .ext-tab-header > .ext-tab:disabled:hover {
+    -fx-color: -fx-base;
+}
+.ext-tab-pane > .ext-tab-header {
+    -fx-background-color:
+        -fx-outer-border,
+        -fx-text-box-border,
+        linear-gradient(from 0px 0px to 0px 5px, -fx-text-box-border, derive(-fx-text-box-border, 30%));
+}
+.ext-tab-pane:top > .ext-tab-header {
+    -fx-background-insets: 0, 0 0 1 0, 1;
+}
+.ext-tab-pane:bottom > .ext-tab-header {
+    -fx-background-insets: 0, 1 0 0 0, 1;
+}
+.ext-tab-pane:left > .ext-tab-header {
+    -fx-background-insets: 0, 0 1 0 0, 1;
+}
+.ext-tab-pane:right > .ext-tab-header {
+    -fx-background-insets: 0, 0 0 0 1, 1;
+}
+.ext-tab-pane:top > .ext-tab-header {
+    -fx-background-insets: 0, 0 0 1 0, 1;
+    -fx-padding: 0.416667em 5 0.0em 0.416667em; /* 5 2 0 5 */
+}
+.ext-tab-pane:bottom > .ext-tab-header {
+    -fx-background-insets: 0, 1 0 0 0, 1;
+    -fx-padding: 0 0.166667em 0.416667em 0.416667em; /* 0 2 5 5 */
+}
+.ext-tab-pane:left > .ext-tab-header {
+    -fx-background-insets: 0, 0 1 0 0, 1;
+    -fx-padding: 0.416667em 0.0em 0.166667em 0.416667em; /* 5 0 2 5 */
+}
+.ext-tab-pane:right > .ext-tab-header {
+    -fx-background-insets: 0, 0 0 0 1, 1;
+    -fx-padding: 0.416667em 0.416667em 0.166667em 0.0em; /* 5 5 2 0 */
+}
+
+/*******************************************************************************
+ * Combinations                                                                *
+ ******************************************************************************/
+
+.ext-tab-pane > * > .scroll-pane {
+    -fx-background-color: -fx-background;
+    -fx-background-insets: 0;
+    -fx-padding: 0;
+}
+.ext-tab-pane > * > .scroll-pane > .corner {
+     -fx-background-insets: 0;  /* Fix for RT-35067 */
+ }
+.ext-tab-pane > * > .scroll-pane > .scroll-bar {
+    -fx-background-insets: 0;
+    -fx-padding: 0;
+}
+.ext-tab-pane > * > .scroll-pane > .scroll-bar > .increment-button,
+.ext-tab-pane > * > .scroll-pane > .scroll-bar > .decrement-button {
+    -fx-padding: 0.25em; /* 3px */
+}
+
+.ext-tab-pane > * > .table-view,
+.ext-tab-pane > * > .tree-table-view,
+.ext-tab-pane > * > .list-view,
+.ext-tab-pane > * > .tree-view,
+.ext-tab-pane > * > .scroll-pane,
+.ext-tab-pane > * > .split-pane,
+.ext-tab-pane > * > .text-area,
+.ext-tab-pane > * > .html-editor {
+    -fx-background-insets: 0, 0;
+    -fx-padding: 0;
+}

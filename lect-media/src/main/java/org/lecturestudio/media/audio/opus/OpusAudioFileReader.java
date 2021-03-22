@@ -117,6 +117,10 @@ public class OpusAudioFileReader extends AudioFileReader {
 			opusStream = new OpusStream(stream);
 		}
 		catch (IOException e) {
+			if (stream.markSupported()) {
+				stream.reset();
+			}
+
 			throw new UnsupportedAudioFileException(e.getMessage());
 		}
 

@@ -16,7 +16,7 @@
 
 	<properties>
 		<package.input.dir>${project.parent.parent.build.directory}/${build.output.dir}</package.input.dir>
-		<package.output.dir>${project.parent.parent.basedir}/../release</package.output.dir>
+		<package.output.dir>${project.parent.parent.build.directory}</package.output.dir>
 	</properties>
 
 	<build>

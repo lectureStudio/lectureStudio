@@ -16,7 +16,7 @@
 
 	<properties>
 		<package.input.dir>${project.parent.basedir}/lect-jpackage/target/${package.full.name}</package.input.dir>
-		<package.output.dir>${project.parent.parent.basedir}/../release</package.output.dir>
+		<package.output.dir>${project.parent.parent.build.directory}</package.output.dir>
 		<wix.version>3.11.1</wix.version>
 	</properties>
 

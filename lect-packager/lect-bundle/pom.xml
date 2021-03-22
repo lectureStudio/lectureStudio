@@ -15,7 +15,7 @@
 	<packaging>pom</packaging>
 
 	<properties>
-		<package.output.dir>${project.parent.parent.basedir}/../release</package.output.dir>
+		<package.output.dir>${project.parent.parent.build.directory}</package.output.dir>
 	</properties>
 
 	<build>

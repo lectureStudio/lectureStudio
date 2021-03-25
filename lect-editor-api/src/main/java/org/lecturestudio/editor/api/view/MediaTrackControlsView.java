@@ -44,6 +44,8 @@ public interface MediaTrackControlsView extends View {
 
 	void setOnCut(Action action);
 
+	void setOnAdjustVolume(Action action);
+
 	void setOnDeletePage(Action action);
 
 	void setOnImportRecording(Action action);
@@ -51,8 +53,6 @@ public interface MediaTrackControlsView extends View {
 	void setOnZoomIn(Action action);
 
 	void setOnZoomOut(Action action);
-
-	void setOnAdjustAudio(ConsumerAction<Double> action);
 
 	void setOnSearch(ConsumerAction<String> action);
 

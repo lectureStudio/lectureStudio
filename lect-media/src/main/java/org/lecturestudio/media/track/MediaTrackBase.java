@@ -22,9 +22,15 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;
 
+import org.lecturestudio.core.util.ObservableArrayList;
+import org.lecturestudio.core.util.ObservableList;
+import org.lecturestudio.media.track.control.MediaTrackControl;
+
 public abstract class MediaTrackBase<T> implements MediaTrack<T> {
 
 	private final List<Consumer<T>> listeners = new ArrayList<>();
+
+	private final ObservableList<MediaTrackControl> controls = new ObservableArrayList<>();
 
 	private T data;
 
@@ -37,6 +43,16 @@ public abstract class MediaTrackBase<T> implements MediaTrack<T> {
 	@Override
 	public void removeChangeListener(Consumer<T> consumer) {
 		listeners.remove(consumer);
+	}
+
+	@Override
+	public void addMediaTrackControl(MediaTrackControl control) {
+		controls.add(control);
+	}
+
+	@Override
+	public void removeMediaTrackControl(MediaTrackControl control) {
+		controls.remove(control);
 	}
 
 	@Override
@@ -54,6 +70,10 @@ public abstract class MediaTrackBase<T> implements MediaTrack<T> {
 	@Override
 	public void dispose() {
 		data = null;
+	}
+
+	public ObservableList<MediaTrackControl> getControls() {
+		return controls;
 	}
 
 	protected void notifyChange(T data) {

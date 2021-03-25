@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2020 TU Darmstadt, Department of Computer Science,
+ * Copyright (C) 2021 TU Darmstadt, Department of Computer Science,
  * Embedded Systems and Applications Group.
  *
  * This program is free software: you can redistribute it and/or modify
@@ -16,27 +16,23 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package org.lecturestudio.media.track;
+package org.lecturestudio.core.audio.filter;
 
-import java.util.function.Consumer;
+/**
+ * An AudioFilter manipulates audio samples. Audio filters are meant to be used
+ * in a non-invasive manner, e.g. with input streams.
+ *
+ * @author Alex Andres
+ */
+public interface AudioFilter {
 
-import org.lecturestudio.core.recording.RecordingChangeListener;
-import org.lecturestudio.media.track.control.MediaTrackControl;
-
-public interface MediaTrack<T> extends RecordingChangeListener {
-
-	void addMediaTrackControl(MediaTrackControl control);
-
-	void removeMediaTrackControl(MediaTrackControl control);
-
-	T getData();
-
-	void setData(T data);
-
-	void addChangeListener(Consumer<T> consumer);
-
-	void removeChangeListener(Consumer<T> consumer);
-
-	void dispose();
+	/**
+	 * Filter the input data in-place.
+	 *
+	 * @param data   The audio samples.
+	 * @param offset The data offset.
+	 * @param length The length of data to process.
+	 */
+	void process(byte[] data, int offset, int length);
 
 }

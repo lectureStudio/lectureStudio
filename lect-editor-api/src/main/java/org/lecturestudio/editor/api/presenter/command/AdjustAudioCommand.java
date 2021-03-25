@@ -20,14 +20,14 @@ package org.lecturestudio.editor.api.presenter.command;
 
 public class AdjustAudioCommand {
 
-	private final double delta;
+	private final double position;
 
 
-	public AdjustAudioCommand(double delta) {
-		this.delta = delta;
+	public AdjustAudioCommand(double position) {
+		this.position = position;
 	}
 
-	public double getDelta() {
-		return delta;
+	public double getPosition() {
+		return position;
 	}
 }

@@ -32,7 +32,7 @@ import javafx.scene.paint.Paint;
 import org.lecturestudio.javafx.util.FxStyleablePropertyFactory;
 import org.lecturestudio.media.track.AudioTrack;
 
-public class Waveform extends MediaTrackControl<AudioTrack> {
+public class Waveform extends MediaTrackControlBase<AudioTrack> {
 
 	private final static String DEFAULT_STYLE_CLASS = "waveform";
 

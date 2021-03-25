@@ -36,6 +36,14 @@
 					<SvgIcon styleClass="cut-icon"/>
 				</graphic>
 			</Button>
+			<Button fx:id="adjustVolumeButton">
+				<tooltip>
+					<Tooltip text="%media.volume.adjust" />
+				</tooltip>
+				<graphic>
+					<SvgIcon styleClass="adjust-volume-icon"/>
+				</graphic>
+			</Button>
 			<Button fx:id="deletePageButton">
 				<tooltip>
 					<Tooltip text="%media.delete.page" />
@@ -73,10 +81,6 @@
 		</graphic>
 	</Button>
 	<Separator />
-
-	<Label text="%media.volume.quieter"/>
-	<Slider fx:id="adjustVolumeSlider" min="-1" max="1" styleClass="zoom-slider" />
-	<Label text="%media.volume.louder"/>
 
 	<HBox styleClass="search-box" alignment="CENTER_RIGHT" HBox.hgrow="ALWAYS">
 		<Label fx:id="searchStateLabel" managed="false" visible="false" />

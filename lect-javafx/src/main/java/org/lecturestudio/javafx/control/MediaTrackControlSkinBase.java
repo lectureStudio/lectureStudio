@@ -20,18 +20,27 @@ package org.lecturestudio.javafx.control;
 
 import static java.util.Objects.nonNull;
 
+import java.util.HashMap;
+import java.util.Map;
+
+import javafx.scene.Node;
 import javafx.scene.control.SkinBase;
 import javafx.scene.transform.Affine;
 
-public abstract class MediaTrackControlSkin extends SkinBase<MediaTrackControl<?>> {
+import org.lecturestudio.media.track.control.MediaTrackControl;
 
-	private final MediaTrackControl<?> mediaTrackControl;
+public abstract class MediaTrackControlSkinBase extends SkinBase<MediaTrackControlBase<?>> {
+
+	private final MediaTrackControlBase<?> mediaTrackControl;
+
+	protected final Map<MediaTrackControl, Node> controlNodeMap;
 
 
-	protected MediaTrackControlSkin(MediaTrackControl control) {
+	protected MediaTrackControlSkinBase(MediaTrackControlBase control) {
 		super(control);
 
 		mediaTrackControl = control;
+		controlNodeMap = new HashMap<>();
 
 		initLayout(control);
 	}
@@ -48,7 +57,7 @@ public abstract class MediaTrackControlSkin extends SkinBase<MediaTrackControl<?
 		}
 	}
 
-	private void initLayout(MediaTrackControl<?> control) {
+	private void initLayout(MediaTrackControlBase<?> control) {
 		Affine transform = control.getTransform();
 
 		if (nonNull(transform)) {

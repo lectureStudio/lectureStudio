@@ -35,7 +35,7 @@ import org.lecturestudio.core.model.Time;
 import org.lecturestudio.javafx.util.FxStyleablePropertyFactory;
 import org.lecturestudio.media.track.EventsTrack;
 
-public class EventTimeline extends MediaTrackControl<EventsTrack> {
+public class EventTimeline extends MediaTrackControlBase<EventsTrack> {
 
 	private final static String DEFAULT_STYLE_CLASS = "event-timeline";
 

@@ -76,6 +76,7 @@ public class MediaTrackControlsPresenter extends Presenter<MediaTrackControlsVie
 	public void initialize() {
 		EditorContext editorContext = (EditorContext) context;
 
+		view.setOnAdjustVolume(this::adjustAudio);
 		view.setOnCut(this::cut);
 		view.setOnDeletePage(this::deletePage);
 		view.setOnUndo(this::undo);
@@ -84,7 +85,6 @@ public class MediaTrackControlsPresenter extends Presenter<MediaTrackControlsVie
 		view.setOnSearch(this::search);
 		view.setOnPreviousFoundPage(this::previousFoundPage);
 		view.setOnNextFoundPage(this::nextFoundPage);
-		view.setOnAdjustAudio(this::adjustAudio);
 		view.setOnZoomIn(this::zoomIn);
 		view.setOnZoomOut(this::zoomOut);
 		view.bindZoomLevel(zoomConstraints, editorContext.trackZoomLevelProperty());
@@ -135,6 +135,13 @@ public class MediaTrackControlsPresenter extends Presenter<MediaTrackControlsVie
 			});
 	}
 
+	private void adjustAudio() {
+		EditorContext editorContext = (EditorContext) context;
+		double position = editorContext.getPrimarySelection();
+
+		context.getEventBus().post(new AdjustAudioCommand(position));
+	}
+
 	private void cut() {
 		EditorContext editorContext = (EditorContext) context;
 
@@ -181,19 +188,6 @@ public class MediaTrackControlsPresenter extends Presenter<MediaTrackControlsVie
 					return null;
 				});
 		}
-	}
-
-	private Double adjustValue = null;
-
-	private void adjustAudio(double delta) {
-		if (adjustValue != null) {
-			delta = adjustValue - delta;
-		}
-		else {
-			adjustValue = delta;
-		}
-
-		context.getEventBus().post(new AdjustAudioCommand(delta));
 	}
 
 	private void search(String text) {

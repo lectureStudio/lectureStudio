@@ -31,24 +31,21 @@ import javax.inject.Inject;
 
 import org.lecturestudio.core.ExecutableException;
 import org.lecturestudio.core.app.ApplicationContext;
-import org.lecturestudio.core.audio.AudioFormat;
-import org.lecturestudio.core.io.RandomAccessAudioStream;
 import org.lecturestudio.core.model.Time;
 import org.lecturestudio.core.presenter.Presenter;
-import org.lecturestudio.core.recording.RecordedAudio;
 import org.lecturestudio.core.recording.RecordingChangeEvent;
 import org.lecturestudio.core.recording.Recording;
-import org.lecturestudio.core.util.AudioUtils;
 import org.lecturestudio.editor.api.context.EditorContext;
 import org.lecturestudio.media.recording.RecordingEvent;
 import org.lecturestudio.editor.api.presenter.command.AdjustAudioCommand;
 import org.lecturestudio.editor.api.service.RecordingFileService;
 import org.lecturestudio.editor.api.service.RecordingPlaybackService;
 import org.lecturestudio.editor.api.view.MediaTracksView;
-import org.lecturestudio.media.audio.WaveformData;
 import org.lecturestudio.media.track.AudioTrack;
 import org.lecturestudio.media.track.EventsTrack;
 import org.lecturestudio.media.track.MediaTrack;
+import org.lecturestudio.media.track.control.AdjustAudioVolumeControl;
+import org.lecturestudio.media.track.control.MediaTrackControl;
 
 public class MediaTracksPresenter extends Presenter<MediaTracksView> {
 
@@ -97,75 +94,9 @@ public class MediaTracksPresenter extends Presenter<MediaTracksView> {
 			return;
 		}
 
-		EditorContext editorContext = (EditorContext) context;
-		Recording recording = recordingService.getSelectedRecording();
-		RecordedAudio audio = recording.getRecordedAudio();
-		RandomAccessAudioStream stream = audio.getAudioStream().clone();
-		AudioFormat audioFormat = stream.getAudioFormat();
+		MediaTrackControl trackControl = new AdjustAudioVolumeControl();
 
-		double timeSelect1 = editorContext.getLeftSelection();
-		double timeSelect2 = editorContext.getRightSelection();
-
-		double start = Math.min(timeSelect1, timeSelect2);
-		double end = Math.max(timeSelect1, timeSelect2);
-
-		int startTime = (int) (start * stream.getLengthInMillis());
-		int endTime = (int) (end * stream.getLengthInMillis());
-
-		long startBytePosition = AudioUtils.getAudioBytePosition(audioFormat, startTime);
-		long endBytePosition = AudioUtils.getAudioBytePosition(audioFormat, endTime);
-
-		int sampleSize = audioFormat.getBytesPerSample();
-		long readCount = endBytePosition - startBytePosition;
-
-		double delta = command.getDelta();
-		float scalar = (float) (delta < 0 ? 1 - -delta : 1 + delta);
-
-		scalar = (float) (1 - delta);
-
-		System.out.println(delta + " " + scalar);
-//		System.out.println(startTime + " / " + endTime);
-//		System.out.println(startBytePosition + " / " + endBytePosition);
-//		System.out.println(readCount);
-//		System.out.println();
-
-		byte[] buffer = new byte[8192];
-		boolean done = false;
-		int readTotal = 0;
-		int read;
-
-		try {
-			WaveformData data = audioTrack.getWaveformData();
-
-			for (int i = 0; i < 10000; i++) {
-				data.posSamples[i] *= scalar;
-				data.negSamples[i] *= scalar;
-			}
-
-			audioTrack.notifyWaveformDataChange();
-
-
-
-//			stream.skip(startBytePosition);
-//			newStream.skip(startBytePosition);
-//
-//			while (!done && (read = stream.read(buffer)) > 0) {
-//				readTotal += read;
-//
-//				if (readTotal >= readCount) {
-//					read -= (int) (readTotal - readCount);
-//					done = true;
-//				}
-//
-//				// Scale all samples in the chunk.
-//				AudioUtils.scaleSampleValues(buffer, read, sampleSize, scalar);
-//
-//				// TODO: write
-//			}
-		}
-		catch (Exception e) {
-			handleException(e, "Adjust audio failed", "Adjust audio failed");
-		}
+		audioTrack.addMediaTrackControl(trackControl);
 	}
 
 	@Subscribe

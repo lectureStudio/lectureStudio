@@ -1,0 +1,26 @@
+.media-track-selection {
+	-fx-fill: #38B2AC55;
+	-fx-background-color: #38B2AC55;
+}
+.media-track-selection > .selection-slider > .slider-line {
+	-fx-stroke: #38B2AC;
+	-fx-stroke-width: 1;
+	-fx-stroke-line-cap: butt;
+	-fx-smooth: false;
+}
+.media-track-selection > .selection-slider > .slider-thumb {
+	-fx-icon-content-width: 24;
+	-fx-icon-content-height: 24;
+	-fx-icon-fill: #2C7A7B;
+	-fx-icon-stroke: #38B2AC;
+	-fx-icon-stroke-width: 1;
+	-fx-icon-size: 2em;
+	-fx-background-color: null;
+	-fx-padding: 0;
+}
+.media-track-selection > .selection-slider:left > .slider-thumb {
+	-fx-icon-content: "M 18.5,2.5 c 1.1,0 2,0.9 2,2 v 17 l -7,-6 h -8 c -1.1,0 -2,-0.9 -2,-2 v -9 c 0,-1.1 0.9,-2 2,-2 z M 6.773438,5.2675781 H 6.666016 v 7.4374999 h 0.107422 z m 3.24414,0.00195 H 9.910156 v 7.4355468 h 0.107422 z";
+}
+.media-track-selection > .selection-slider:right > .slider-thumb {
+	-fx-icon-content: "M 5.5 2.5 C 4.4 2.5 3.5 3.4 3.5 4.5 L 3.5 21.5 L 10.5 15.5 L 18.5 15.5 C 19.6 15.5 20.5 14.6 20.5 13.5 L 20.5 4.5 C 20.5 3.4 19.6 2.5 18.5 2.5 L 5.5 2.5 z M 17.226562 5.2675781 L 17.333984 5.2675781 L 17.333984 12.705078 L 17.226562 12.705078 L 17.226562 5.2675781 z M 13.982422 5.2695312 L 14.089844 5.2695312 L 14.089844 12.705078 L 13.982422 12.705078 L 13.982422 5.2695312 z";
+}

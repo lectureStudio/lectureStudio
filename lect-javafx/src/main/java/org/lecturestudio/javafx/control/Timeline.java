@@ -35,7 +35,7 @@ import org.lecturestudio.core.model.Time;
 import org.lecturestudio.javafx.util.FxStyleablePropertyFactory;
 import org.lecturestudio.media.track.MediaTrack;
 
-public class Timeline extends MediaTrackControl<MediaTrack<?>> {
+public class Timeline extends MediaTrackControlBase<MediaTrack<?>> {
 
 	private final static String DEFAULT_STYLE_CLASS = "timeline";
 

@@ -23,15 +23,19 @@ import static java.util.Objects.nonNull;
 
 import java.util.function.Consumer;
 
+import javafx.scene.Node;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.transform.Affine;
 
 import org.lecturestudio.core.io.RandomAccessAudioStream;
+import org.lecturestudio.core.util.ListChangeListener;
+import org.lecturestudio.core.util.ObservableList;
 import org.lecturestudio.media.audio.WaveformData;
 import org.lecturestudio.media.track.AudioTrack;
+import org.lecturestudio.media.track.control.MediaTrackControl;
 
-public class WaveformSkin extends MediaTrackControlSkin {
+public class WaveformSkin extends MediaTrackControlSkinBase {
 
 	private final Consumer<RandomAccessAudioStream> trackListener = recordedPages -> {
 		updateControl();
@@ -141,6 +145,22 @@ public class WaveformSkin extends MediaTrackControlSkin {
 		return leftInset + rightInset + 10;
 	}
 
+	private void addMediaTrackControl(MediaTrackControl control) {
+		MediaTrackSelection trackSelection = new MediaTrackSelection();
+
+		controlNodeMap.put(control, trackSelection);
+
+		getChildren().add(trackSelection);
+	}
+
+	private void removeMediaTrackControl(MediaTrackControl control) {
+		Node trackSelection = controlNodeMap.get(control);
+
+		if (nonNull(trackSelection)) {
+			getChildren().remove(trackSelection);
+		}
+	}
+
 	private void initLayout(Waveform control) {
 		AudioTrack track = control.getMediaTrack();
 
@@ -156,6 +176,9 @@ public class WaveformSkin extends MediaTrackControlSkin {
 			track.addChangeListener(trackListener);
 			updateControl();
 		}
+		if (track.getControls().size() > 1) {
+			updateTrackControls(track);
+		}
 
 		control.mediaTrackProperty().addListener((o, oldValue, newValue) -> {
 			if (nonNull(oldValue)) {
@@ -166,5 +189,25 @@ public class WaveformSkin extends MediaTrackControlSkin {
 				updateControl();
 			}
 		});
+		track.getControls().addListener(new ListChangeListener<>() {
+
+			@Override
+			public void listItemsInserted(ObservableList<MediaTrackControl> list,
+					int startIndex, int itemCount) {
+				addMediaTrackControl(list.get(startIndex));
+			}
+
+			@Override
+			public void listItemsRemoved(ObservableList<MediaTrackControl> list,
+					int startIndex, int itemCount) {
+				removeMediaTrackControl(list.get(startIndex));
+			}
+		});
+	}
+
+	private void updateTrackControls(AudioTrack track) {
+		for (MediaTrackControl control : track.getControls()) {
+			addMediaTrackControl(control);
+		}
 	}
 }

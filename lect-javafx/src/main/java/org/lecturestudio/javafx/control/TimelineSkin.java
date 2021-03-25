@@ -29,7 +29,7 @@ import javafx.scene.transform.Affine;
 
 import org.lecturestudio.core.model.Time;
 
-public class TimelineSkin extends MediaTrackControlSkin {
+public class TimelineSkin extends MediaTrackControlSkinBase {
 
 	private final Timeline timeline;
 

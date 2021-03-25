@@ -299,7 +299,7 @@ public class MediaTracksSkin extends SkinBase<MediaTracks> {
 		}
 	}
 
-	private void addMediaTrackControl(MediaTrackControl<?> control, String iconName) {
+	private void addMediaTrackControl(MediaTrackControlBase<?> control, String iconName) {
 		control.transformProperty().bind(mediaTracks.transformProperty());
 
 		Pane infoPane = createTrackInfo(iconName);

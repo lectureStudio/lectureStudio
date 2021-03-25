@@ -23,7 +23,6 @@ import static java.util.Objects.nonNull;
 import java.text.MessageFormat;
 import java.util.ResourceBundle;
 
-import javafx.beans.binding.BooleanBinding;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
@@ -60,6 +59,9 @@ public class FxMediaTrackControlsView extends HBox implements MediaTrackControls
 	private Button cutButton;
 
 	@FXML
+	private Button adjustVolumeButton;
+
+	@FXML
 	private Button deletePageButton;
 
 	@FXML
@@ -73,9 +75,6 @@ public class FxMediaTrackControlsView extends HBox implements MediaTrackControls
 
 	@FXML
 	private Slider zoomSlider;
-
-	@FXML
-	private Slider adjustVolumeSlider;
 
 	@FXML
 	private Label searchStateLabel;
@@ -96,10 +95,7 @@ public class FxMediaTrackControlsView extends HBox implements MediaTrackControls
 
 	@Override
 	public void bindCanCut(BooleanProperty property) {
-		BooleanBinding lectProperty = new LectBooleanProperty(property).not();
-
-		cutButton.disableProperty().bind(lectProperty);
-		adjustVolumeSlider.disableProperty().bind(lectProperty);
+		cutButton.disableProperty().bind(new LectBooleanProperty(property).not());
 	}
 
 	@Override
@@ -146,6 +142,11 @@ public class FxMediaTrackControlsView extends HBox implements MediaTrackControls
 	}
 
 	@Override
+	public void setOnAdjustVolume(Action action) {
+		FxUtils.bindAction(adjustVolumeButton, action);
+	}
+
+	@Override
 	public void setOnDeletePage(Action action) {
 		FxUtils.bindAction(deletePageButton, action);
 	}
@@ -163,13 +164,6 @@ public class FxMediaTrackControlsView extends HBox implements MediaTrackControls
 	@Override
 	public void setOnZoomOut(Action action) {
 		FxUtils.bindAction(zoomOutButton, action);
-	}
-
-	@Override
-	public void setOnAdjustAudio(ConsumerAction<Double> action) {
-		adjustVolumeSlider.valueProperty().addListener((observable, oldValue, newValue) -> {
-			action.execute(newValue.doubleValue());
-		});
 	}
 
 	@Override

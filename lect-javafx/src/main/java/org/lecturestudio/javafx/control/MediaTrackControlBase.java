@@ -25,7 +25,7 @@ import javafx.scene.transform.Affine;
 
 import org.lecturestudio.media.track.MediaTrack;
 
-public abstract class MediaTrackControl<T extends MediaTrack<?>> extends Control {
+public abstract class MediaTrackControlBase<T extends MediaTrack<?>> extends Control {
 
 	private final ObjectProperty<T> mediaTrack = new SimpleObjectProperty<>();
 

@@ -36,7 +36,7 @@ import org.lecturestudio.core.recording.RecordedPage;
 import org.lecturestudio.core.recording.action.PlaybackAction;
 import org.lecturestudio.media.track.EventsTrack;
 
-public class EventTimelineSkin extends MediaTrackControlSkin {
+public class EventTimelineSkin extends MediaTrackControlSkinBase {
 
 	private final Consumer<List<RecordedPage>> trackListener = recordedPages -> {
 		updateControl();

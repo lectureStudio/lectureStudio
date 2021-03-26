@@ -1,9 +1,8 @@
-.media-track-selection {
-	-fx-fill: #38B2AC55;
-	-fx-background-color: #38B2AC55;
+.media-track-selection > .select-rect {
+	-fx-fill: #A78BFA55;
 }
 .media-track-selection > .selection-slider > .slider-line {
-	-fx-stroke: #38B2AC;
+	-fx-stroke: #A78BFA;
 	-fx-stroke-width: 1;
 	-fx-stroke-line-cap: butt;
 	-fx-smooth: false;
@@ -11,8 +10,8 @@
 .media-track-selection > .selection-slider > .slider-thumb {
 	-fx-icon-content-width: 24;
 	-fx-icon-content-height: 24;
-	-fx-icon-fill: #2C7A7B;
-	-fx-icon-stroke: #38B2AC;
+	-fx-icon-fill: #8B5CF6;
+	-fx-icon-stroke: #A78BFA;
 	-fx-icon-stroke-width: 1;
 	-fx-icon-size: 2em;
 	-fx-background-color: null;

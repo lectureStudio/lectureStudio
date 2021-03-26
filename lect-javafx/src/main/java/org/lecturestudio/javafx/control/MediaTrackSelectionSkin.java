@@ -34,11 +34,17 @@ import javafx.scene.control.Control;
 import javafx.scene.control.SkinBase;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.shape.Line;
+import javafx.scene.shape.Rectangle;
+import javafx.scene.transform.Affine;
 
 public class MediaTrackSelectionSkin extends SkinBase<MediaTrackSelection> {
 
+	private MediaTrackControlBase<?> parent;
+
 	private SelectionSlider leftSlider;
 	private SelectionSlider rightSlider;
+
+	private Rectangle selectRect;
 
 
 	protected MediaTrackSelectionSkin(MediaTrackSelection control) {
@@ -73,10 +79,94 @@ public class MediaTrackSelectionSkin extends SkinBase<MediaTrackSelection> {
 	}
 
 	private void initLayout(MediaTrackSelection control) {
-		leftSlider = new SelectionSlider(control, HPos.LEFT);
-		rightSlider = new SelectionSlider(control, HPos.RIGHT);
+		parent = (MediaTrackControlBase<?>) control.getParent();
 
-		getChildren().addAll(leftSlider, rightSlider);
+		control.setManaged(false);
+
+		leftSlider = new SelectionSlider(parent, HPos.LEFT);
+		rightSlider = new SelectionSlider(parent, HPos.RIGHT);
+
+		leftSlider.setOnUpdateValue(this::updateLeftSliderValue);
+		rightSlider.setOnUpdateValue(this::updateRightSliderValue);
+
+		selectRect = new Rectangle();
+		selectRect.getStyleClass().add("select-rect");
+		selectRect.setManaged(false);
+		selectRect.heightProperty().bind(parent.heightProperty());
+
+		getChildren().addAll(selectRect, leftSlider, rightSlider);
+
+		registerChangeListener(parent.getTransform().mxxProperty(), o -> {
+			updateSliderPos();
+		});
+		registerChangeListener(parent.getTransform().txProperty(), o -> {
+			updateSliderPos();
+		});
+		registerChangeListener(control.leftSelectionProperty(), o -> {
+			setSliderPos(leftSlider, (Double) o.getValue());
+			updateSelectRect();
+		});
+		registerChangeListener(control.rightSelectionProperty(), o -> {
+			setSliderPos(rightSlider, (Double) o.getValue());
+			updateSelectRect();
+		});
+
+		control.toFront();
+	}
+
+	private double getSliderValue(SelectionSlider slider) {
+		Affine transform = parent.getTransform();
+
+		double width = parent.getWidth();
+		double sx = transform.getMxx();
+		double tx = transform.getTx();
+		double offset = slider.getLineOffset() - parent.getLayoutX();
+
+		return ((slider.getLayoutX() + offset) / width - tx) / sx;
+	}
+
+	private void setSliderPos(SelectionSlider slider, double value) {
+		Affine transform = parent.getTransform();
+		double width = parent.getWidth();
+		double sx = transform.getMxx();
+		double tx = transform.getTx() * width + parent.getLayoutX();
+
+		slider.setLayoutX(width * sx * value + tx - slider.getLineOffset());
+	}
+
+	private void updateSliderPos() {
+		setSliderPos(leftSlider, getSkinnable().getLeftSelection());
+		setSliderPos(rightSlider, getSkinnable().getRightSelection());
+		updateSelectRect();
+	}
+
+	private void updateSelectRect() {
+		Affine transform = parent.getTransform();
+		double sx = transform.getMxx();
+		double tx = transform.getTx() * parent.getWidth() + parent.getLayoutX();
+		double width = parent.getWidth() * sx;
+
+		double x1 = width * getSkinnable().getLeftSelection() + tx;
+		double x2 = width * getSkinnable().getRightSelection() + tx;
+		double selectX1 = Math.min(x1, x2);
+		double selectX2 = Math.max(x1, x2);
+
+		if (nonNull(selectRect)) {
+			selectRect.setX(selectX1);
+			selectRect.setWidth(selectX2 - selectX1);
+		}
+	}
+
+	private void updateLeftSliderValue() {
+		double value = getSliderValue(leftSlider);
+
+		getSkinnable().setLeftSelection(value);
+	}
+
+	private void updateRightSliderValue() {
+		double value = getSliderValue(rightSlider);
+
+		getSkinnable().setRightSelection(value);
 	}
 
 
@@ -118,6 +208,7 @@ public class MediaTrackSelectionSkin extends SkinBase<MediaTrackSelection> {
 
 			thumb = new SvgIcon();
 			thumb.getStyleClass().add("slider-thumb");
+			thumb.setLayoutY(-2);
 			thumb.widthProperty().addListener(o -> {
 				updateLinePos();
 			});

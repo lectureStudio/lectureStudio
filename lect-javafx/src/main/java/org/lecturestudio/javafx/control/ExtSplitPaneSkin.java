@@ -60,8 +60,6 @@ public class ExtSplitPaneSkin extends SkinBase<ExtSplitPane> {
 		final ExtSplitPane pane = getSkinnable();
 		final double dividerPos = pane.getDividerPosition();
 
-		System.out.println(dividerNode.computePrefWidth(-1) + " " + dividerNode.computePrefHeight(-1));
-
 		if (orientation == Orientation.HORIZONTAL) {
 			final Node leftNode = pane.getLeftNode();
 			final Node rightNode = pane.getRightNode();

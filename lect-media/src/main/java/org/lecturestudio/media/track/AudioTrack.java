@@ -77,8 +77,4 @@ public class AudioTrack extends MediaTrackBase<RandomAccessAudioStream> {
 	public WaveformData getWaveformData() {
 		return waveformData;
 	}
-
-	public void notifyWaveformDataChange() {
-		notifyChange(getData());
-	}
 }

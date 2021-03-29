@@ -31,9 +31,13 @@ import org.lecturestudio.core.model.Interval;
  */
 public abstract class MediaTrackControlBase implements MediaTrackControl {
 
+	private final List<Runnable> listeners = new ArrayList<>();
+
 	private final Interval<Double> interval = new Interval<>();
 
-	private final List<Runnable> listeners = new ArrayList<>();
+	private double start;
+
+	private double end;
 
 
 	@Override
@@ -44,6 +48,38 @@ public abstract class MediaTrackControlBase implements MediaTrackControl {
 	@Override
 	public void removeChangeListener(Runnable listener) {
 		listeners.remove(listener);
+	}
+
+	@Override
+	public void setStartTime(double value) {
+		// Convert -0.0 to +0.0.
+		if (value == 0.0) {
+			value = 0.0;
+		}
+
+		if (Double.compare(this.start, value) != 0) {
+			this.start = value;
+
+			interval.set(start, end);
+
+			fireControlChange();
+		}
+	}
+
+	@Override
+	public void setEndTime(double value) {
+		// Convert -0.0 to +0.0.
+		if (value == 0.0) {
+			value = 0.0;
+		}
+
+		if (Double.compare(this.end, value) != 0) {
+			this.end = value;
+
+			interval.set(start, end);
+
+			fireControlChange();
+		}
 	}
 
 	@Override

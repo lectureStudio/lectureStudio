@@ -94,7 +94,16 @@ public class MediaTracksPresenter extends Presenter<MediaTracksView> {
 			return;
 		}
 
-		MediaTrackControl trackControl = new AdjustAudioVolumeControl();
+		EditorContext editorContext = (EditorContext) context;
+		double selectPos = editorContext.getPrimarySelection();
+
+		AdjustAudioVolumeControl trackControl = new AdjustAudioVolumeControl();
+		trackControl.setStartTime(selectPos);
+		trackControl.setEndTime(selectPos);
+
+		Recording recording = recordingService.getSelectedRecording();
+		recording.getRecordedAudio().getAudioStream().addAudioFilter(
+				trackControl.getInterval(), trackControl.getAudioFilter());
 
 		audioTrack.addMediaTrackControl(trackControl);
 	}

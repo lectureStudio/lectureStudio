@@ -1,6 +1,11 @@
 .media-track-selection > .select-rect {
 	-fx-fill: #A78BFA55;
 }
+.media-track-selection > .slider-rect {
+	-fx-cursor: V_RESIZE;
+	-fx-fill: #8B5CF6CC;
+	-fx-stroke: #A78BFA;
+}
 .media-track-selection > .selection-slider > .slider-line {
 	-fx-stroke: #A78BFA;
 	-fx-stroke-width: 1;

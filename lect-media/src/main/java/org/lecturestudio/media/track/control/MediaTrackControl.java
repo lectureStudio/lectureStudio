@@ -46,6 +46,24 @@ public interface MediaTrackControl {
 	void removeChangeListener(Runnable listener);
 
 	/**
+	 * Sets the start time at which this control will start modifying the media
+	 * track. Valid values must be in the range of [0, 1].
+	 *
+	 * @param start The start time.
+	 */
+	void setStartTime(double start);
+
+	/**
+	 * Sets the end time at which this control will end modifying the media
+	 * track. Valid values must be in the range of [0, 1].
+	 *
+	 * @param end The end time.
+	 */
+	void setEndTime(double end);
+
+	/**
+	 * Returns the closed time interval [start, end].
+	 *
 	 * @return The time interval in which this control modifies the content.
 	 */
 	Interval<Double> getInterval();

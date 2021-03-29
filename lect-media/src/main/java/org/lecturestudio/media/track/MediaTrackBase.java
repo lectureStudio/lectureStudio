@@ -48,6 +48,8 @@ public abstract class MediaTrackBase<T> implements MediaTrack<T> {
 	@Override
 	public void addMediaTrackControl(MediaTrackControl control) {
 		controls.add(control);
+
+		control.addChangeListener(() -> notifyChange(getData()));
 	}
 
 	@Override

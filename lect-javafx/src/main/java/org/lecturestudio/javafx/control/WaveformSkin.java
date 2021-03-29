@@ -33,6 +33,7 @@ import org.lecturestudio.core.util.ListChangeListener;
 import org.lecturestudio.core.util.ObservableList;
 import org.lecturestudio.media.audio.WaveformData;
 import org.lecturestudio.media.track.AudioTrack;
+import org.lecturestudio.media.track.control.AdjustAudioVolumeControl;
 import org.lecturestudio.media.track.control.MediaTrackControl;
 
 public class WaveformSkin extends MediaTrackControlSkinBase {
@@ -146,7 +147,8 @@ public class WaveformSkin extends MediaTrackControlSkinBase {
 	}
 
 	private void addMediaTrackControl(MediaTrackControl control) {
-		MediaTrackSelection trackSelection = new MediaTrackSelection();
+		AdjustAudioVolumeSelection trackSelection = new AdjustAudioVolumeSelection();
+		trackSelection.setTrackControl((AdjustAudioVolumeControl) control);
 
 		controlNodeMap.put(control, trackSelection);
 

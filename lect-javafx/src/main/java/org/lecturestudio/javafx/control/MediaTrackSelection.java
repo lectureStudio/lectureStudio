@@ -18,14 +18,20 @@
 
 package org.lecturestudio.javafx.control;
 
+import org.lecturestudio.media.track.control.MediaTrackControl;
+
 import javafx.beans.property.DoubleProperty;
+import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleDoubleProperty;
+import javafx.beans.property.SimpleObjectProperty;
 import javafx.scene.control.Control;
 import javafx.scene.control.Skin;
 
-public class MediaTrackSelection extends Control {
+public class MediaTrackSelection<T extends MediaTrackControl> extends Control {
 
 	private final static String DEFAULT_STYLE_CLASS = "media-track-selection";
+
+	private final ObjectProperty<T> trackControl = new SimpleObjectProperty<>();
 
 	private final DoubleProperty leftSelection = new SimpleDoubleProperty();
 
@@ -34,6 +40,18 @@ public class MediaTrackSelection extends Control {
 
 	public MediaTrackSelection() {
 		initialize();
+	}
+
+	public final T getTrackControl() {
+		return trackControl.get();
+	}
+
+	public final void setTrackControl(T control) {
+		trackControl.set(control);
+	}
+
+	public final ObjectProperty<T> trackControlProperty() {
+		return trackControl;
 	}
 
 	public final double getLeftSelection() {

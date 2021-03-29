@@ -20,6 +20,9 @@ package org.lecturestudio.javafx.control;
 
 import static java.util.Objects.nonNull;
 
+import org.lecturestudio.core.model.Interval;
+
+import javafx.application.Platform;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.DoubleProperty;
 import javafx.beans.property.SimpleBooleanProperty;
@@ -28,6 +31,7 @@ import javafx.css.PseudoClass;
 import javafx.event.EventHandler;
 import javafx.geometry.Bounds;
 import javafx.geometry.HPos;
+import javafx.geometry.Orientation;
 import javafx.scene.Group;
 import javafx.scene.Node;
 import javafx.scene.control.Control;
@@ -37,54 +41,70 @@ import javafx.scene.shape.Line;
 import javafx.scene.shape.Rectangle;
 import javafx.scene.transform.Affine;
 
-public class MediaTrackSelectionSkin extends SkinBase<MediaTrackSelection> {
+public class MediaTrackSelectionSkin extends SkinBase<MediaTrackSelection<?>> {
 
-	private MediaTrackControlBase<?> parent;
+	private final MediaTrackSelection<?> trackSelection;
 
-	private SelectionSlider leftSlider;
-	private SelectionSlider rightSlider;
+	protected MediaTrackControlBase<?> parent;
 
-	private Rectangle selectRect;
+	protected SelectionSlider leftSlider;
+	protected SelectionSlider rightSlider;
+
+	protected Rectangle selectRect;
 
 
 	protected MediaTrackSelectionSkin(MediaTrackSelection control) {
 		super(control);
 
-		initLayout(control);
+		this.trackSelection = control;
+
+		initLayout();
+	}
+
+	@Override
+	public void dispose() {
+		super.dispose();
+
+		unregisterChangeListeners(parent.getTransform().mxxProperty());
+		unregisterChangeListeners(parent.getTransform().txProperty());
+		unregisterChangeListeners(trackSelection.leftSelectionProperty());
+		unregisterChangeListeners(trackSelection.rightSelectionProperty());
 	}
 
 	@Override
 	protected double computeMinHeight(double width, double topInset, double rightInset, double bottomInset, double leftInset) {
-		return topInset + bottomInset;
+		return 0;
 	}
 
 	@Override
-	protected double computePrefHeight(double width, double topInset, double rightInset, double bottomInset, double leftInset) {
-		return computeMinHeight(width, topInset, rightInset, bottomInset, leftInset);
+	protected double computeMaxHeight(double width, double topInset, double rightInset, double bottomInset, double leftInset) {
+		return 1;
 	}
 
 	@Override
 	protected double computeMinWidth(double height, double topInset, double rightInset, double bottomInset, double leftInset) {
-		return leftInset + rightInset;
+		return 0;
 	}
 
 	@Override
 	protected double computeMaxWidth(double height, double topInset, double rightInset, double bottomInset, double leftInset) {
-		return leftInset + rightInset;
+		return 1;
 	}
 
-	@Override
-	protected double computePrefWidth(double height, double topInset, double rightInset, double bottomInset, double leftInset) {
-		return computeMinWidth(height, topInset, rightInset, bottomInset, leftInset);
-	}
+	private void initLayout() {
+		parent = (MediaTrackControlBase<?>) trackSelection.getParent();
 
-	private void initLayout(MediaTrackSelection control) {
-		parent = (MediaTrackControlBase<?>) control.getParent();
+		Interval<Double> interval = trackSelection.getTrackControl().getInterval();
 
-		control.setManaged(false);
+		trackSelection.setManaged(false);
+		trackSelection.setLeftSelection(interval.getStart());
+		trackSelection.setRightSelection(interval.getEnd());
 
 		leftSlider = new SelectionSlider(parent, HPos.LEFT);
 		rightSlider = new SelectionSlider(parent, HPos.RIGHT);
+
+		leftSlider.setVisible(false);
+		rightSlider.setVisible(false);
 
 		leftSlider.setOnUpdateValue(this::updateLeftSliderValue);
 		rightSlider.setOnUpdateValue(this::updateRightSliderValue);
@@ -102,16 +122,21 @@ public class MediaTrackSelectionSkin extends SkinBase<MediaTrackSelection> {
 		registerChangeListener(parent.getTransform().txProperty(), o -> {
 			updateSliderPos();
 		});
-		registerChangeListener(control.leftSelectionProperty(), o -> {
+		registerChangeListener(trackSelection.leftSelectionProperty(), o -> {
 			setSliderPos(leftSlider, (Double) o.getValue());
 			updateSelectRect();
 		});
-		registerChangeListener(control.rightSelectionProperty(), o -> {
+		registerChangeListener(trackSelection.rightSelectionProperty(), o -> {
 			setSliderPos(rightSlider, (Double) o.getValue());
 			updateSelectRect();
 		});
 
-		control.toFront();
+		Platform.runLater(() -> {
+			updateSliderPos();
+
+			leftSlider.setVisible(true);
+			rightSlider.setVisible(true);
+		});
 	}
 
 	private double getSliderValue(SelectionSlider slider) {
@@ -135,8 +160,9 @@ public class MediaTrackSelectionSkin extends SkinBase<MediaTrackSelection> {
 	}
 
 	private void updateSliderPos() {
-		setSliderPos(leftSlider, getSkinnable().getLeftSelection());
-		setSliderPos(rightSlider, getSkinnable().getRightSelection());
+		setSliderPos(leftSlider, trackSelection.getLeftSelection());
+		setSliderPos(rightSlider, trackSelection.getRightSelection());
+
 		updateSelectRect();
 	}
 
@@ -146,32 +172,32 @@ public class MediaTrackSelectionSkin extends SkinBase<MediaTrackSelection> {
 		double tx = transform.getTx() * parent.getWidth() + parent.getLayoutX();
 		double width = parent.getWidth() * sx;
 
-		double x1 = width * getSkinnable().getLeftSelection() + tx;
-		double x2 = width * getSkinnable().getRightSelection() + tx;
+		double x1 = width * trackSelection.getLeftSelection() + tx;
+		double x2 = width * trackSelection.getRightSelection() + tx;
 		double selectX1 = Math.min(x1, x2);
 		double selectX2 = Math.max(x1, x2);
 
-		if (nonNull(selectRect)) {
-			selectRect.setX(selectX1);
-			selectRect.setWidth(selectX2 - selectX1);
-		}
+		selectRect.setLayoutX(selectX1);
+		selectRect.setWidth(selectX2 - selectX1);
 	}
 
 	private void updateLeftSliderValue() {
 		double value = getSliderValue(leftSlider);
 
-		getSkinnable().setLeftSelection(value);
+		trackSelection.setLeftSelection(value);
+		trackSelection.getTrackControl().setStartTime(value);
 	}
 
 	private void updateRightSliderValue() {
 		double value = getSliderValue(rightSlider);
 
-		getSkinnable().setRightSelection(value);
+		trackSelection.setRightSelection(value);
+		trackSelection.getTrackControl().setEndTime(value);
 	}
 
 
 
-	private class SelectionSlider extends Group {
+	private class SelectionSlider extends Group implements Slider {
 
 		private final PseudoClass LEFT_PSEUDO_CLASS = PseudoClass.getPseudoClass("left");
 		private final PseudoClass RIGHT_PSEUDO_CLASS = PseudoClass.getPseudoClass("right");
@@ -184,8 +210,6 @@ public class MediaTrackSelectionSkin extends SkinBase<MediaTrackSelection> {
 		private final DoubleProperty lineX;
 
 		private HPos lineAnchor;
-
-		private boolean valueChanging;
 
 		private Runnable updateValueCallback;
 
@@ -216,7 +240,7 @@ public class MediaTrackSelectionSkin extends SkinBase<MediaTrackSelection> {
 
 			getChildren().addAll(line, thumb);
 
-			ThumbMouseHandler mouseHandler = new ThumbMouseHandler(this);
+			ThumbMouseHandler mouseHandler = new ThumbMouseHandler(this, Orientation.HORIZONTAL);
 
 			Node thumbNode = getThumbNode();
 			thumbNode.setOnMouseDragged(mouseHandler);
@@ -234,6 +258,18 @@ public class MediaTrackSelectionSkin extends SkinBase<MediaTrackSelection> {
 			setPosition(position);
 		}
 
+		@Override
+		public void moveByDelta(double dx) {
+			setLayoutX(getLayoutX() + dx);
+		}
+
+		@Override
+		public void mouseDragged() {
+			if (nonNull(updateValueCallback)) {
+				updateValueCallback.run();
+			}
+		}
+
 		void setPosition(HPos position) {
 			left.set(position == HPos.LEFT);
 			right.set(position == HPos.RIGHT);
@@ -247,46 +283,12 @@ public class MediaTrackSelectionSkin extends SkinBase<MediaTrackSelection> {
 			updateLinePos();
 		}
 
-		void setValueChanging(boolean changing) {
-			valueChanging = changing;
-		}
-
-		boolean isValueChanging() {
-			return valueChanging;
-		}
-
 		double getLineOffset() {
 			return lineX.get();
 		}
 
 		void setOnUpdateValue(Runnable callback) {
 			updateValueCallback = callback;
-		}
-
-		void updateSliderValue() {
-			if (nonNull(updateValueCallback)) {
-				updateValueCallback.run();
-			}
-		}
-
-		void moveByDeltaX(double dx) {
-			setLayoutX(getLayoutX() + dx);
-		}
-
-		void mousePressed() {
-			setValueChanging(true);
-		}
-
-		void mouseReleased() {
-			setValueChanging(false);
-		}
-
-		void mouseDragged() {
-			updateSliderValue();
-		}
-
-		void mouseDoubleClicked() {
-
 		}
 
 		protected Node getThumbNode() {
@@ -314,15 +316,19 @@ public class MediaTrackSelectionSkin extends SkinBase<MediaTrackSelection> {
 
 
 
-	private static class ThumbMouseHandler implements EventHandler<MouseEvent> {
+	protected static class ThumbMouseHandler implements EventHandler<MouseEvent> {
 
-		protected final SelectionSlider slider;
+		protected final Slider slider;
+
+		private final Orientation orientation;
 
 		private double lastX;
+		private double lastY;
 
 
-		ThumbMouseHandler(SelectionSlider slider) {
+		ThumbMouseHandler(Slider slider, Orientation orientation) {
 			this.slider = slider;
+			this.orientation = orientation;
 		}
 
 		@Override
@@ -338,6 +344,7 @@ public class MediaTrackSelectionSkin extends SkinBase<MediaTrackSelection> {
 				event.consume();
 
 				lastX = event.getX();
+				lastY = event.getY();
 
 				slider.mousePressed();
 			}
@@ -349,9 +356,30 @@ public class MediaTrackSelectionSkin extends SkinBase<MediaTrackSelection> {
 			else if (event.getEventType() == MouseEvent.MOUSE_DRAGGED) {
 				event.consume();
 
-				slider.moveByDeltaX(event.getX() - lastX);
+				if (orientation == Orientation.HORIZONTAL) {
+					slider.moveByDelta(event.getX() - lastX);
+				}
+				else if (orientation == Orientation.VERTICAL) {
+					slider.moveByDelta(event.getY() - lastY);
+				}
+
 				slider.mouseDragged();
 			}
 		}
+	}
+
+
+
+	protected interface Slider {
+
+		void moveByDelta(double delta);
+
+		default void mousePressed() {}
+
+		default void mouseReleased() {}
+
+		default void mouseDragged() {}
+
+		default void mouseDoubleClicked() {}
 	}
 }

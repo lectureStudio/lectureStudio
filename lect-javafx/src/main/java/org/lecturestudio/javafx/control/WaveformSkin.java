@@ -21,7 +21,9 @@ package org.lecturestudio.javafx.control;
 import static java.util.Objects.isNull;
 import static java.util.Objects.nonNull;
 
+import java.util.List;
 import java.util.function.Consumer;
+import java.util.stream.Collectors;
 
 import javafx.scene.Node;
 import javafx.scene.canvas.Canvas;
@@ -42,15 +44,20 @@ public class WaveformSkin extends MediaTrackControlSkinBase {
 		updateControl();
 	};
 
+	private final Runnable controlChangeListener = this::updateControl;
+
 	private final Waveform waveform;
 
 	private Canvas canvas;
+
+	private List<AdjustAudioVolumeControl> volumeControls;
 
 
 	protected WaveformSkin(Waveform control) {
 		super(control);
 
 		waveform = control;
+		volumeControls = List.of();
 
 		initLayout(control);
 	}
@@ -76,12 +83,14 @@ public class WaveformSkin extends MediaTrackControlSkinBase {
 		double sx = transform.getMxx();
 		double tx = transform.getTx() * width;
 
+		double scaledWidth = width * sx;
+
 		// Sample blocks per pixel.
 		int blocks = data.negSamples.length;
-		int blocksPerPixel = (int) (blocks / (width * sx));
+		int blocksPerPixel = (int) (blocks / scaledWidth);
 		int errorBlock = 0;
 		int errorBlocks = 0;
-		double error = blocks / (width * sx) - blocksPerPixel;
+		double error = blocks / scaledWidth - blocksPerPixel;
 		double errorSum = 0;
 
 		GraphicsContext ctx = canvas.getGraphicsContext2D();
@@ -93,7 +102,7 @@ public class WaveformSkin extends MediaTrackControlSkinBase {
 
 		int blocksRead = 0;
 
-		for (int x = 0; x < width * sx; x++) {
+		for (int x = 0; x < scaledWidth; x++) {
 			if (errorSum > 1) {
 				errorSum -= 1;
 				errorBlock = 1;
@@ -117,6 +126,17 @@ public class WaveformSkin extends MediaTrackControlSkinBase {
 
 			double y1 = pos * half;
 			double y2 = neg * half;
+
+			// Scale sample values only for visual representation.
+			for (AdjustAudioVolumeControl control : volumeControls) {
+				double x1 = control.getInterval().getStart() * scaledWidth;
+				double x2 = control.getInterval().getEnd() * scaledWidth;
+
+				if (x > x1 && x < x2) {
+					y1 *= control.getVolumeScalar();
+					y2 *= control.getVolumeScalar();
+				}
+			}
 
 			ctx.strokeLine(x + tx, half - y1, x + tx, half + y2);
 
@@ -147,19 +167,37 @@ public class WaveformSkin extends MediaTrackControlSkinBase {
 	}
 
 	private void addMediaTrackControl(MediaTrackControl control) {
-		AdjustAudioVolumeSelection trackSelection = new AdjustAudioVolumeSelection();
-		trackSelection.setTrackControl((AdjustAudioVolumeControl) control);
+		Node controlNode = null;
 
-		controlNodeMap.put(control, trackSelection);
+		if (control instanceof AdjustAudioVolumeControl) {
+			AdjustAudioVolumeSelection trackSelection = new AdjustAudioVolumeSelection();
+			trackSelection.setTrackControl((AdjustAudioVolumeControl) control);
 
-		getChildren().add(trackSelection);
+			controlNode = trackSelection;
+		}
+
+		if (nonNull(controlNode)) {
+			control.addChangeListener(controlChangeListener);
+
+			controlNodeMap.put(control, controlNode);
+
+			getChildren().add(controlNode);
+
+			updateVolumeControls();
+			updateControl();
+		}
 	}
 
 	private void removeMediaTrackControl(MediaTrackControl control) {
-		Node trackSelection = controlNodeMap.get(control);
+		Node trackSelection = controlNodeMap.remove(control);
 
 		if (nonNull(trackSelection)) {
+			control.removeChangeListener(controlChangeListener);
+
 			getChildren().remove(trackSelection);
+
+			updateVolumeControls();
+			updateControl();
 		}
 	}
 
@@ -211,5 +249,12 @@ public class WaveformSkin extends MediaTrackControlSkinBase {
 		for (MediaTrackControl control : track.getControls()) {
 			addMediaTrackControl(control);
 		}
+	}
+
+	private void updateVolumeControls() {
+		volumeControls = controlNodeMap.keySet().stream()
+				.filter(AdjustAudioVolumeControl.class::isInstance)
+				.map(AdjustAudioVolumeControl.class::cast)
+				.collect(Collectors.toList());
 	}
 }

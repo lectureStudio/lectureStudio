@@ -31,6 +31,8 @@ public class AdjustAudioVolumeControl extends MediaTrackControlBase {
 
 	private final AudioVolumeFilter audioFilter = new AudioVolumeFilter();
 
+	private double scalar = 1;
+
 
 	/**
 	 * @return The audio filter that processes the audio samples.
@@ -40,12 +42,21 @@ public class AdjustAudioVolumeControl extends MediaTrackControlBase {
 	}
 
 	/**
+	 * @return the scalar value.
+	 */
+	public double getVolumeScalar() {
+		return scalar;
+	}
+
+	/**
 	 * Set the new scalar value. A value of 1 causes no effect on the processed
 	 * samples.
 	 *
 	 * @param scalar The new scalar.
 	 */
 	public void setVolumeScalar(double scalar) {
+		this.scalar = scalar;
+
 		audioFilter.setVolumeScalar(scalar);
 
 		fireControlChange();

@@ -22,6 +22,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.*;
 
+import org.lecturestudio.core.audio.filter.AudioFilter;
 import org.lecturestudio.core.model.Interval;
 
 public class DynamicInputStream extends InputStream implements Cloneable {
@@ -30,6 +31,8 @@ public class DynamicInputStream extends InputStream implements Cloneable {
 
 	protected List<Interval<Long>> exclude = new ArrayList<>();
 
+	protected Map<AudioFilter, Interval<Long>> filters = new HashMap<>();
+
 	protected InputStream stream;
 
 	private long readPointer = 0;
@@ -37,6 +40,14 @@ public class DynamicInputStream extends InputStream implements Cloneable {
 
 	public DynamicInputStream(InputStream inputStream) {
 		stream = inputStream;
+	}
+
+	public void setAudioFilter(AudioFilter filter, Interval<Long> interval) {
+		filters.put(filter, interval);
+	}
+
+	public void removeAudioFilter(AudioFilter filter) {
+		filters.remove(filter);
 	}
 
 	public void addExclusion(Interval<Long> interval) {
@@ -84,6 +95,10 @@ public class DynamicInputStream extends InputStream implements Cloneable {
 
 		for (Interval<Long> iv : exclusions) {
 			clone.addExclusion(new Interval<>(iv.getStart(), iv.getEnd()));
+		}
+
+		for (var entry : filters.entrySet()) {
+			clone.setAudioFilter(entry.getKey(), entry.getValue());
 		}
 
 		return clone;
@@ -264,10 +279,57 @@ public class DynamicInputStream extends InputStream implements Cloneable {
 		if (!foundGap) {
 			read += stream.read(buffer, offset, length);
 
+			processAudioFilters(buffer, offset, length);
+
 			readPointer += read;
 		}
 
 		return read;
 	}
 
+	private void processAudioFilters(byte[] buffer, int offset, int length) {
+		long lpos = readPointer;
+		long rpos = readPointer + length;
+		boolean done = false;
+
+		for (var entry : filters.entrySet()) {
+			Interval<Long> iv = entry.getValue();
+
+			if (iv.contains(lpos)) {
+				if (rpos <= iv.getEnd()) {
+					// Test if interval encloses the total read count.
+					done = iv.contains(rpos);
+				}
+
+				int processLength = (int) Math.min(rpos, iv.getEnd());
+
+				entry.getKey().process(buffer, offset, processLength);
+
+				offset += processLength;
+			}
+			else if (iv.contains(rpos)) {
+				// Interval contains right side of the buffer to process.
+				done = true;
+
+				int processLength = (int) (rpos - iv.getStart());
+
+				entry.getKey().process(buffer, offset + length - processLength, processLength);
+
+				offset += processLength;
+			}
+			else if (lpos < iv.getStart() && rpos > iv.getEnd()) {
+				// Total read count encloses the interval.
+				int processOffset = (int) (iv.getStart() - lpos);
+				int processLength = (int) (iv.getEnd() - iv.getStart());
+
+				entry.getKey().process(buffer, processOffset, processLength);
+
+				offset += processLength;
+			}
+
+			if (done) {
+				break;
+			}
+		}
+	}
 }

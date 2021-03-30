@@ -70,6 +70,8 @@ public class RecordingPlayer extends ExecutableBase {
 
 	private final SyncState syncState = new SyncState();
 
+	private RandomAccessAudioStream audioStream;
+
 	private Recording recording;
 
 	private Time duration;
@@ -184,6 +186,10 @@ public class RecordingPlayer extends ExecutableBase {
 		actionExecutor.destroy();
 	}
 
+	public RandomAccessAudioStream getAudioStream() {
+		return audioStream;
+	}
+
 	public Time getDuration() {
 		return duration;
 	}
@@ -295,9 +301,11 @@ public class RecordingPlayer extends ExecutableBase {
 	}
 
 	private void initAudioPlayer(RecordedAudio audio) throws Exception {
-		RandomAccessAudioStream audioStream = audio.getAudioStream().clone();
+		audioStream = audio.getAudioStream().clone();
+
 		AudioFormat sourceFormat = audioStream.getAudioFormat();
 		AudioFormat targetFormat = new AudioFormat(AudioFormat.Encoding.S16LE, sourceFormat.getSampleRate(), sourceFormat.getChannels());
+
 		audioStream.setAudioFormat(targetFormat);
 		
 		AudioInputStreamSource audioSource = new AudioInputStreamSource(audioStream, targetFormat);

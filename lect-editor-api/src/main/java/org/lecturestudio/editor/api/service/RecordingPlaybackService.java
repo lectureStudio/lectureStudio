@@ -32,11 +32,14 @@ import org.lecturestudio.core.ExecutableState;
 import org.lecturestudio.core.ExecutableStateListener;
 import org.lecturestudio.core.app.ApplicationContext;
 import org.lecturestudio.core.app.configuration.AudioConfiguration;
+import org.lecturestudio.core.audio.filter.AudioFilter;
+import org.lecturestudio.core.model.Interval;
 import org.lecturestudio.core.model.Page;
 import org.lecturestudio.core.model.Time;
 import org.lecturestudio.core.recording.Recording;
 import org.lecturestudio.editor.api.context.EditorContext;
 import org.lecturestudio.media.playback.RecordingPlayer;
+import org.lecturestudio.media.track.control.AdjustAudioVolumeControl;
 
 @Singleton
 public class RecordingPlaybackService extends ExecutableBase {
@@ -76,6 +79,10 @@ public class RecordingPlaybackService extends ExecutableBase {
 
 	public Time getDuration() {
 		return nonNull(recordingPlayer) ? recordingPlayer.getDuration() : null;
+	}
+
+	public void setAudioFilter(AudioFilter filter, Interval<Long> interval) {
+		recordingPlayer.getAudioStream().setAudioFilter(filter, interval);
 	}
 
 	public void setRecording(Recording recording) {

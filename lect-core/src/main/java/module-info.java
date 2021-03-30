@@ -34,6 +34,7 @@ module org.lecturestudio.core {
 	exports org.lecturestudio.core.audio.bus.event;
 	exports org.lecturestudio.core.audio.codec;
 	exports org.lecturestudio.core.audio.device;
+	exports org.lecturestudio.core.audio.filter;
 	exports org.lecturestudio.core.audio.sink;
 	exports org.lecturestudio.core.audio.source;
 	exports org.lecturestudio.core.beans;

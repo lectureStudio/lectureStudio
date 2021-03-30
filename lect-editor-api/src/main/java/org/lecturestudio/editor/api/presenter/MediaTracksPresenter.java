@@ -31,10 +31,15 @@ import javax.inject.Inject;
 
 import org.lecturestudio.core.ExecutableException;
 import org.lecturestudio.core.app.ApplicationContext;
+import org.lecturestudio.core.audio.AudioFormat;
+import org.lecturestudio.core.io.RandomAccessAudioStream;
+import org.lecturestudio.core.model.Interval;
 import org.lecturestudio.core.model.Time;
 import org.lecturestudio.core.presenter.Presenter;
+import org.lecturestudio.core.recording.RecordedAudio;
 import org.lecturestudio.core.recording.RecordingChangeEvent;
 import org.lecturestudio.core.recording.Recording;
+import org.lecturestudio.core.util.AudioUtils;
 import org.lecturestudio.editor.api.context.EditorContext;
 import org.lecturestudio.media.recording.RecordingEvent;
 import org.lecturestudio.editor.api.presenter.command.AdjustAudioCommand;
@@ -45,7 +50,6 @@ import org.lecturestudio.media.track.AudioTrack;
 import org.lecturestudio.media.track.EventsTrack;
 import org.lecturestudio.media.track.MediaTrack;
 import org.lecturestudio.media.track.control.AdjustAudioVolumeControl;
-import org.lecturestudio.media.track.control.MediaTrackControl;
 
 public class MediaTracksPresenter extends Presenter<MediaTracksView> {
 
@@ -100,10 +104,11 @@ public class MediaTracksPresenter extends Presenter<MediaTracksView> {
 		AdjustAudioVolumeControl trackControl = new AdjustAudioVolumeControl();
 		trackControl.setStartTime(selectPos);
 		trackControl.setEndTime(selectPos);
+		trackControl.addChangeListener(() -> {
+			setAudioVolumeFilter(trackControl);
+		});
 
-		Recording recording = recordingService.getSelectedRecording();
-		recording.getRecordedAudio().getAudioStream().addAudioFilter(
-				trackControl.getInterval(), trackControl.getAudioFilter());
+		setAudioVolumeFilter(trackControl);
 
 		audioTrack.addMediaTrackControl(trackControl);
 	}
@@ -173,5 +178,29 @@ public class MediaTracksPresenter extends Presenter<MediaTracksView> {
 		catch (ExecutableException e) {
 			logException(e, "Suspend playback failed");
 		}
+	}
+
+	private void setAudioVolumeFilter(AdjustAudioVolumeControl trackControl) {
+		Recording recording = recordingService.getSelectedRecording();
+		RecordedAudio recordedAudio = recording.getRecordedAudio();
+		RandomAccessAudioStream stream = recordedAudio.getAudioStream();
+		AudioFormat audioFormat = stream.getAudioFormat();
+
+		// Convert [0, 1] values to audio stream byte offsets.
+		long durationMs = stream.getLengthInMillis();
+		long x1 = (long) (trackControl.getInterval().getStart() * durationMs);
+		long x2 = (long) (trackControl.getInterval().getEnd() * durationMs);
+
+		long startBytePos = AudioUtils.getAudioBytePosition(audioFormat, x1);
+		long endBytePos = AudioUtils.getAudioBytePosition(audioFormat, x2);
+
+		// Handle padding created by previous exclusions.
+		long padding = stream.getPadding(startBytePos);
+
+		stream.setAudioFilter(trackControl.getAudioFilter(),
+				new Interval<>(padding + startBytePos, padding + endBytePos));
+
+		playbackService.setAudioFilter(trackControl.getAudioFilter(),
+				new Interval<>(padding + startBytePos, padding + endBytePos));
 	}
 }

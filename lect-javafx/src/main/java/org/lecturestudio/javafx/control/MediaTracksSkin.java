@@ -214,11 +214,11 @@ public class MediaTracksSkin extends SkinBase<MediaTracks> {
 		Line leftLine = leftSlider.createLine(control);
 		Line rightLine = rightSlider.createLine(control);
 
-		getChildren().addAll(sliderPane, timeline, trackContainer, selectRect,
-							 leftLine, rightLine, primaryLine, placeholder,
-							 rightPlaceholder, leftSlider, rightSlider,
-							 primarySlider, sliderTime, scrollBar,
-							 trackInfoContainer, scrollPlaceholder);
+		getChildren().addAll(sliderPane, timeline, placeholder,
+				rightPlaceholder, trackInfoContainer, trackContainer,
+				selectRect, leftLine, rightLine, primaryLine, leftSlider,
+				rightSlider, primarySlider, sliderTime, scrollBar,
+				scrollPlaceholder);
 
 		timeline.durationProperty().bind(control.durationProperty());
 		timeline.transformProperty().bind(control.transformProperty());

@@ -97,6 +97,7 @@ public class MediaTrackSelectionSkin extends SkinBase<MediaTrackSelection<?>> {
 		Interval<Double> interval = trackSelection.getTrackControl().getInterval();
 
 		trackSelection.setManaged(false);
+		trackSelection.setPickOnBounds(false);
 		trackSelection.setLeftSelection(interval.getStart());
 		trackSelection.setRightSelection(interval.getEnd());
 
@@ -260,7 +261,22 @@ public class MediaTrackSelectionSkin extends SkinBase<MediaTrackSelection<?>> {
 
 		@Override
 		public void moveByDelta(double dx) {
-			setLayoutX(getLayoutX() + dx);
+			double x = getLayoutX() + dx;
+			double offset = getLineOffset();
+
+			// Left-right slider collision.
+			if (lineAnchor == HPos.LEFT) {
+				x = Math.min(x, rightSlider.getLayoutX() + rightSlider.getLineOffset() - offset);
+			}
+			else if (lineAnchor == HPos.RIGHT) {
+				x = Math.max(x, leftSlider.getLayoutX() + leftSlider.getLineOffset() - offset);
+			}
+
+			// Slider parent collision.
+			x = Math.max(x, parent.getLayoutX() - offset);
+			x = Math.min(x, parent.getLayoutX() + parent.getWidth() - offset);
+
+			setLayoutX(x);
 		}
 
 		@Override

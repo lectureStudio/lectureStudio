@@ -113,6 +113,7 @@ public class MediaTrackSelectionSkin extends SkinBase<MediaTrackSelection<?>> {
 		selectRect = new Rectangle();
 		selectRect.getStyleClass().add("select-rect");
 		selectRect.setManaged(false);
+		selectRect.setMouseTransparent(true);
 		selectRect.heightProperty().bind(parent.heightProperty());
 
 		getChildren().addAll(selectRect, leftSlider, rightSlider);

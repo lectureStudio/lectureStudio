@@ -190,6 +190,7 @@ public class MediaTracksSkin extends SkinBase<MediaTracks> {
 		selectRect = new Rectangle();
 		selectRect.getStyleClass().add("select-rect");
 		selectRect.setManaged(false);
+		selectRect.setMouseTransparent(true);
 		selectRect.yProperty().bind(timeline.layoutYProperty()
 				.add(timeline.heightProperty()));
 		selectRect.heightProperty().bind(control.heightProperty()

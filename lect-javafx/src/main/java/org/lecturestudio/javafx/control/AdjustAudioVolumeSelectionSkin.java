@@ -58,8 +58,14 @@ public class AdjustAudioVolumeSelectionSkin extends MediaTrackSelectionSkin {
 		getChildren().add(volumeSlider);
 
 		Platform.runLater(() -> {
-			volumeSlider.setLayoutY((parent.getHeight() - volumeSlider.getHeight()) / 2);
+			setSliderPos(volumeSlider, trackSelection.getVolumeScalar());
 		});
+	}
+
+	private void setSliderPos(VolumeSlider slider, double value) {
+		double y = (value - OUT_MAX) / (OUT_MIN - OUT_MAX);
+
+		slider.setLayoutY(parent.getHeight() * y - slider.getHeight() / 2);
 	}
 
 	private double getSliderValue(VolumeSlider slider) {

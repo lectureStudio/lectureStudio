@@ -21,10 +21,13 @@ package org.lecturestudio.javafx.control;
 import static java.util.Objects.isNull;
 import static java.util.Objects.nonNull;
 
+import java.util.Iterator;
 import java.util.List;
+import java.util.Map.Entry;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
+import javafx.application.Platform;
 import javafx.scene.Node;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
@@ -170,8 +173,11 @@ public class WaveformSkin extends MediaTrackControlSkinBase {
 		Node controlNode = null;
 
 		if (control instanceof AdjustAudioVolumeControl) {
+			AdjustAudioVolumeControl volumeControl = (AdjustAudioVolumeControl) control;
+
 			AdjustAudioVolumeSelection trackSelection = new AdjustAudioVolumeSelection();
-			trackSelection.setTrackControl((AdjustAudioVolumeControl) control);
+			trackSelection.setVolumeScalar(volumeControl.getVolumeScalar());
+			trackSelection.setTrackControl(volumeControl);
 
 			controlNode = trackSelection;
 		}
@@ -182,22 +188,16 @@ public class WaveformSkin extends MediaTrackControlSkinBase {
 			controlNodeMap.put(control, controlNode);
 
 			getChildren().add(controlNode);
-
-			updateVolumeControls();
-			updateControl();
 		}
 	}
 
 	private void removeMediaTrackControl(MediaTrackControl control) {
-		Node trackSelection = controlNodeMap.remove(control);
+		Node trackSelection = controlNodeMap.get(control);
 
 		if (nonNull(trackSelection)) {
 			control.removeChangeListener(controlChangeListener);
 
 			getChildren().remove(trackSelection);
-
-			updateVolumeControls();
-			updateControl();
 		}
 	}
 
@@ -234,13 +234,41 @@ public class WaveformSkin extends MediaTrackControlSkinBase {
 			@Override
 			public void listItemsInserted(ObservableList<MediaTrackControl> list,
 					int startIndex, int itemCount) {
-				addMediaTrackControl(list.get(startIndex));
+				Platform.runLater(() -> {
+					addMediaTrackControl(list.get(startIndex));
+
+					updateVolumeControls();
+					updateControl();
+				});
 			}
 
 			@Override
 			public void listItemsRemoved(ObservableList<MediaTrackControl> list,
 					int startIndex, int itemCount) {
-				removeMediaTrackControl(list.get(startIndex));
+				Platform.runLater(() -> {
+					if (list.isEmpty()) {
+						for (Iterator<Entry<MediaTrackControl, Node>> it = controlNodeMap
+								.entrySet().iterator(); it.hasNext(); ) {
+							Entry<MediaTrackControl, Node> entry = it.next();
+
+							removeMediaTrackControl(entry.getKey());
+							it.remove();
+						}
+					}
+
+					for (Iterator<Entry<MediaTrackControl, Node>> it = controlNodeMap
+							.entrySet().iterator(); it.hasNext(); ) {
+						Entry<MediaTrackControl, Node> entry = it.next();
+
+						if (!list.contains(entry.getKey())) {
+							removeMediaTrackControl(entry.getKey());
+							it.remove();
+						}
+					}
+
+					updateVolumeControls();
+					updateControl();
+				});
 			}
 		});
 	}
@@ -249,12 +277,20 @@ public class WaveformSkin extends MediaTrackControlSkinBase {
 		for (MediaTrackControl control : track.getControls()) {
 			addMediaTrackControl(control);
 		}
+
+		updateVolumeControls();
+		updateControl();
 	}
 
 	private void updateVolumeControls() {
-		volumeControls = controlNodeMap.keySet().stream()
-				.filter(AdjustAudioVolumeControl.class::isInstance)
-				.map(AdjustAudioVolumeControl.class::cast)
-				.collect(Collectors.toList());
+		if (controlNodeMap.isEmpty()) {
+			volumeControls.clear();
+		}
+		else {
+			volumeControls = controlNodeMap.keySet().stream()
+					.filter(AdjustAudioVolumeControl.class::isInstance)
+					.map(AdjustAudioVolumeControl.class::cast)
+					.collect(Collectors.toList());
+		}
 	}
 }

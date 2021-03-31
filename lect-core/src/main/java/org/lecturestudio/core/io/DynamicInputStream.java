@@ -265,6 +265,8 @@ public class DynamicInputStream extends InputStream implements Cloneable {
 
 				read += stream.read(buffer, offset, len);
 
+				processAudioFilters(buffer, offset, read);
+
 				readPointer += stream.skip(iv.lengthLong() + 1);
 				readPointer += read;
 				foundGap = true;

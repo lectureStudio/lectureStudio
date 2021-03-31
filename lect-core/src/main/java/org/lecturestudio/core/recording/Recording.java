@@ -32,7 +32,8 @@ import org.lecturestudio.core.recording.edit.DeleteAudioAction;
 import org.lecturestudio.core.recording.edit.DeleteDocumentAction;
 import org.lecturestudio.core.recording.edit.DeletePageAction;
 import org.lecturestudio.core.recording.edit.DeleteEventsAction;
-import org.lecturestudio.core.recording.edit.ShiftEventsAction;
+import org.lecturestudio.core.recording.edit.RecordingChangeAction;
+import org.lecturestudio.core.recording.edit.RecordingEditManager;
 import org.lecturestudio.core.recording.edit.EditHeaderAction;
 import org.lecturestudio.core.recording.edit.InsertAudioAction;
 import org.lecturestudio.core.recording.edit.InsertDocumentAction;
@@ -53,6 +54,8 @@ public class Recording {
 
 	private final List<RecordingChangeListener> listeners = new ArrayList<>();
 
+	private final RecordingEditManager editManager = new RecordingEditManager();
+
 	private RecordingHeader header;
 
 	private RecordedAudio audio;
@@ -64,6 +67,10 @@ public class Recording {
 
 	public Recording() {
 		header = new RecordingHeader();
+	}
+
+	public RecordingEditManager getEditManager() {
+		return editManager;
 	}
 
 	public RecordingHeader getRecordingHeader() {
@@ -118,15 +125,6 @@ public class Recording {
 		}
 
 		return timetable;
-	}
-
-	public void shiftEvents(int millis) {
-		ShiftEventsAction shiftAction = new ShiftEventsAction(getRecordedEvents(), millis);
-		shiftAction.execute();
-
-		getRecordedEvents().addEditAction(shiftAction);
-
-		fireChangeEvent(Content.EVENTS);
 	}
 
 	public void close() {
@@ -220,6 +218,8 @@ public class Recording {
 		getRecordedDocument().addEditAction(editDocument);
 		getRecordedAudio().addEditAction(editAudio);
 
+		editManager.addEditAction(new RecordingChangeAction(this));
+
 		fireChangeEvent(Content.ALL);
 	}
 
@@ -242,6 +242,8 @@ public class Recording {
 		getRecordedEvents().addEditAction(deleteActions);
 		getRecordedDocument().addEditAction(deletePageAction);
 		getRecordedAudio().addEditAction(deleteAudio);
+
+		editManager.addEditAction(new RecordingChangeAction(this));
 
 		fireChangeEvent(Content.ALL);
 	}
@@ -284,6 +286,8 @@ public class Recording {
 		events.addEditAction(eventsAction);
 		doc.addEditAction(documentAction);
 		audio.addEditAction(audioAction);
+
+		editManager.addEditAction(new RecordingChangeAction(this));
 
 		fireChangeEvent(Content.ALL);
 	}

@@ -19,6 +19,7 @@
 package org.lecturestudio.core.pdf.pdfbox;
 
 import static java.util.Objects.isNull;
+import static java.util.Objects.nonNull;
 
 import java.awt.geom.AffineTransform;
 import java.io.File;
@@ -107,8 +108,17 @@ public class PDFBoxDocument implements DocumentAdapter {
 			PDDocumentCatalog pdCatalog = doc.getDocumentCatalog();
 			PDDocumentOutline pdOutline = pdCatalog.getDocumentOutline();
 
+			PDOutlineItem lastItem = null;
+
 			for (PDOutlineItem item : pdOutline.children()) {
+				if (nonNull(lastItem) && lastItem.getTitle().equals(item.getTitle())) {
+					// Skip duplicate item, even if the page number is different.
+					continue;
+				}
+
 				loadOutline(pdCatalog, item, outline);
+
+				lastItem = item;
 			}
 		}
 
@@ -516,8 +526,17 @@ public class PDFBoxDocument implements DocumentAdapter {
 		outline.getChildren().add(outlineItem);
 
 		if (item.hasChildren()) {
+			PDOutlineItem lastItem = null;
+
 			for (PDOutlineItem child : item.children()) {
+				if (nonNull(lastItem) && lastItem.getTitle().equals(item.getTitle())) {
+					// Skip duplicate item.
+					continue;
+				}
+
 				loadOutline(catalog, child, outlineItem);
+
+				lastItem = child;
 			}
 		}
 	}

@@ -453,12 +453,22 @@ public class MuPDFDocument implements DocumentAdapter {
 			return;
 		}
 
+		DocumentOutlineItem lastItem = null;
+
 		for (Outline item : outlines) {
+			if (nonNull(lastItem) && lastItem.getTitle().equals(item.title)) {
+				// Skip duplicate item, even if the page number is different.
+				continue;
+			}
+
 			String uri = item.uri;
 			Integer pageNumber = null;
 
 			try {
-				String uriPage = uri.substring(uri.indexOf("#") + 1, uri.indexOf(","));
+				int sepIndex = uri.indexOf(",");
+				String uriPage = uri.substring(uri.indexOf("#") + 1,
+						sepIndex > 0 ? uri.indexOf(",") : uri.length());
+
 				pageNumber = Integer.parseInt(uriPage) - 1;
 			}
 			catch (Exception e) {
@@ -471,6 +481,8 @@ public class MuPDFDocument implements DocumentAdapter {
 			if (nonNull(item.down)) {
 				loadOutline(item.down, outlineItem);
 			}
+
+			lastItem = outlineItem;
 		}
 	}
 

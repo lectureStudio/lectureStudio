@@ -275,12 +275,10 @@ public class MediaTracksSkin extends SkinBase<MediaTracks> {
 			}
 		});
 		registerChangeListener(control.leftSelectionProperty(), o -> {
-			setSliderPos(leftSlider, (Double) o.getValue());
-			updateSelectRect();
+			changeSliderValue(leftSlider, (Double) o.getValue());
 		});
 		registerChangeListener(control.rightSelectionProperty(), o -> {
-			setSliderPos(rightSlider, (Double) o.getValue());
-			updateSelectRect();
+			changeSliderValue(rightSlider, (Double) o.getValue());
 		});
 	}
 
@@ -318,6 +316,21 @@ public class MediaTracksSkin extends SkinBase<MediaTracks> {
 		infoPane.getStyleClass().add("track-info");
 
 		return infoPane;
+	}
+
+	private void changeSliderValue(SecondaryTimeSlider slider, double value) {
+		double primary = mediaTracks.getPrimarySelection();
+		boolean stick = Math.abs(value - primary) < 0.0001D;
+
+		if (stick) {
+			slider.setStickToPrimary(true);
+			setSliderPos(slider, primary);
+		}
+		else {
+			setSliderPos(slider, value);
+		}
+
+		updateSelectRect();
 	}
 
 	private void setSliderPos(TimeSlider slider, double value) {

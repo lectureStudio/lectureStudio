@@ -78,6 +78,7 @@ public class MediaTrackControlsPresenter extends Presenter<MediaTrackControlsVie
 
 		view.setOnAdjustVolume(this::adjustAudio);
 		view.setOnCut(this::cut);
+		view.setOnCollapseSelection(this::collapseSelection);
 		view.setOnDeletePage(this::deletePage);
 		view.setOnUndo(this::undo);
 		view.setOnRedo(this::redo);
@@ -156,6 +157,14 @@ public class MediaTrackControlsPresenter extends Presenter<MediaTrackControlsVie
 					handleException(throwable, "Cut recording failed", "cut.recording.error");
 					return null;
 				});
+	}
+
+	private void collapseSelection() {
+		EditorContext editorContext = (EditorContext) context;
+		double primaryValue = editorContext.getPrimarySelection();
+
+		editorContext.setLeftSelection(primaryValue);
+		editorContext.setRightSelection(primaryValue);
 	}
 
 	private void deletePage() {

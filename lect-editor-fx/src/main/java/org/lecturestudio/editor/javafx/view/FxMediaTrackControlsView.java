@@ -59,6 +59,9 @@ public class FxMediaTrackControlsView extends HBox implements MediaTrackControls
 	private Button cutButton;
 
 	@FXML
+	private Button collapseSelectionButton;
+
+	@FXML
 	private Button adjustVolumeButton;
 
 	@FXML
@@ -124,6 +127,11 @@ public class FxMediaTrackControlsView extends HBox implements MediaTrackControls
 		property.addListener((o, oldValue, newValue) -> {
 			updateZoomButtons(constraints, newValue);
 		});
+	}
+
+	@Override
+	public void setOnCollapseSelection(Action action) {
+		FxUtils.bindAction(collapseSelectionButton, action);
 	}
 
 	@Override

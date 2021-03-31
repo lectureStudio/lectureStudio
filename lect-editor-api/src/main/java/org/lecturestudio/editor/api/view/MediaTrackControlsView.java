@@ -38,6 +38,8 @@ public interface MediaTrackControlsView extends View {
 
 	void bindZoomLevel(ZoomConstraints constraints, DoubleProperty property);
 
+	void setOnCollapseSelection(Action action);
+
 	void setOnUndo(Action action);
 
 	void setOnRedo(Action action);

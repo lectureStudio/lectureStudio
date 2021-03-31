@@ -81,6 +81,15 @@
 		</graphic>
 	</Button>
 	<Separator />
+	<Button fx:id="collapseSelectionButton">
+		<tooltip>
+			<Tooltip text="%media.collapse.selection" />
+		</tooltip>
+		<graphic>
+			<SvgIcon styleClass="collapse-selection-icon"/>
+		</graphic>
+	</Button>
+	<Separator />
 
 	<HBox styleClass="search-box" alignment="CENTER_RIGHT" HBox.hgrow="ALWAYS">
 		<Label fx:id="searchStateLabel" managed="false" visible="false" />

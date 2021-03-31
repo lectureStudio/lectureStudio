@@ -18,41 +18,29 @@
 
 package org.lecturestudio.media.track.control;
 
-import org.lecturestudio.core.audio.filter.AudioVolumeFilter;
+import org.lecturestudio.core.audio.filter.AudioFilter;
 
 /**
- * This media track control increases or decreases the audio sample values based
- * on the provided scalar value.
+ * This audio track control filters audio samples based on the implementation of
+ * the {@link AudioFilter}.
+ *
+ * @param <T> The type of the audio filter implementation.
  *
  * @author Alex Andres
  */
-public class AdjustAudioVolumeControl extends AudioFilterControl<AudioVolumeFilter> {
+public abstract class AudioFilterControl<T extends AudioFilter> extends MediaTrackControlBase {
 
-	private double scalar = 1;
+	private final T audioFilter;
 
 
-	public AdjustAudioVolumeControl() {
-		super(new AudioVolumeFilter());
+	protected AudioFilterControl(T filter) {
+		this.audioFilter = filter;
 	}
 
 	/**
-	 * @return the scalar value.
+	 * @return The audio filter that processes the audio samples.
 	 */
-	public double getVolumeScalar() {
-		return scalar;
-	}
-
-	/**
-	 * Set the new scalar value. A value of 1 causes no effect on the processed
-	 * samples.
-	 *
-	 * @param scalar The new scalar.
-	 */
-	public void setVolumeScalar(double scalar) {
-		this.scalar = scalar;
-
-		getAudioFilter().setVolumeScalar(scalar);
-
-		fireControlChange();
+	public T getAudioFilter() {
+		return audioFilter;
 	}
 }

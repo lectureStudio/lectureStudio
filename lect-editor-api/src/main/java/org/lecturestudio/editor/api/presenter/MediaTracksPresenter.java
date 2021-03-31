@@ -31,16 +31,14 @@ import javax.inject.Inject;
 
 import org.lecturestudio.core.ExecutableException;
 import org.lecturestudio.core.app.ApplicationContext;
-import org.lecturestudio.core.audio.AudioFormat;
-import org.lecturestudio.core.io.RandomAccessAudioStream;
-import org.lecturestudio.core.model.Interval;
 import org.lecturestudio.core.model.Time;
 import org.lecturestudio.core.presenter.Presenter;
-import org.lecturestudio.core.recording.RecordedAudio;
 import org.lecturestudio.core.recording.RecordingChangeEvent;
 import org.lecturestudio.core.recording.Recording;
-import org.lecturestudio.core.util.AudioUtils;
+import org.lecturestudio.core.recording.RecordingEditException;
+import org.lecturestudio.core.recording.edit.RecordingEditManager;
 import org.lecturestudio.editor.api.context.EditorContext;
+import org.lecturestudio.editor.api.edit.AudioTrackOverlayAction;
 import org.lecturestudio.media.recording.RecordingEvent;
 import org.lecturestudio.editor.api.presenter.command.AdjustAudioCommand;
 import org.lecturestudio.editor.api.service.RecordingFileService;
@@ -98,19 +96,25 @@ public class MediaTracksPresenter extends Presenter<MediaTracksView> {
 			return;
 		}
 
+		Recording recording = recordingService.getSelectedRecording();
+		RecordingEditManager editManager = recording.getEditManager();
+
 		EditorContext editorContext = (EditorContext) context;
-		double selectPos = editorContext.getPrimarySelection();
 
 		AdjustAudioVolumeControl trackControl = new AdjustAudioVolumeControl();
-		trackControl.setStartTime(selectPos);
-		trackControl.setEndTime(selectPos);
-		trackControl.addChangeListener(() -> {
-			setAudioVolumeFilter(trackControl);
-		});
+		trackControl.setStartTime(editorContext.getLeftSelection());
+		trackControl.setEndTime(editorContext.getRightSelection());
 
-		setAudioVolumeFilter(trackControl);
+		try {
+			editManager.addEditAction(new AudioTrackOverlayAction(
+					recording, audioTrack, trackControl, playbackService));
 
-		audioTrack.addMediaTrackControl(trackControl);
+			editorContext.setCanRedo(editManager.hasRedoActions());
+			editorContext.setCanUndo(editManager.hasUndoActions());
+		}
+		catch (RecordingEditException e) {
+			handleException(e, "Add edit action failed", "generic.error");
+		}
 	}
 
 	@Subscribe
@@ -178,29 +182,5 @@ public class MediaTracksPresenter extends Presenter<MediaTracksView> {
 		catch (ExecutableException e) {
 			logException(e, "Suspend playback failed");
 		}
-	}
-
-	private void setAudioVolumeFilter(AdjustAudioVolumeControl trackControl) {
-		Recording recording = recordingService.getSelectedRecording();
-		RecordedAudio recordedAudio = recording.getRecordedAudio();
-		RandomAccessAudioStream stream = recordedAudio.getAudioStream();
-		AudioFormat audioFormat = stream.getAudioFormat();
-
-		// Convert [0, 1] values to audio stream byte offsets.
-		long durationMs = stream.getLengthInMillis();
-		long x1 = (long) (trackControl.getInterval().getStart() * durationMs);
-		long x2 = (long) (trackControl.getInterval().getEnd() * durationMs);
-
-		long startBytePos = AudioUtils.getAudioBytePosition(audioFormat, x1);
-		long endBytePos = AudioUtils.getAudioBytePosition(audioFormat, x2);
-
-		// Handle padding created by previous exclusions.
-		long padding = stream.getPadding(startBytePos);
-
-		stream.setAudioFilter(trackControl.getAudioFilter(),
-				new Interval<>(padding + startBytePos, padding + endBytePos));
-
-		playbackService.setAudioFilter(trackControl.getAudioFilter(),
-				new Interval<>(padding + startBytePos, padding + endBytePos));
 	}
 }

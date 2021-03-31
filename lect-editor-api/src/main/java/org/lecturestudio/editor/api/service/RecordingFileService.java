@@ -163,9 +163,7 @@ public class RecordingFileService {
 			playbackService.setRecording(recording);
 			documentService.selectDocument(document);
 
-			context.setCanDeletePage(document.getPageCount() > 1);
-			context.setCanRedo(recording.hasRedoActions());
-			context.setCanUndo(recording.hasUndoActions());
+			updateEditState(recording);
 		}
 	}
 
@@ -228,7 +226,9 @@ public class RecordingFileService {
 				suspendPlayback();
 
 				Recording recording = getSelectedRecording();
-				recording.undo();
+				recording.getEditManager().undo();
+
+				updateEditState(recording);
 			}
 			catch (Exception e) {
 				throw new CompletionException(e);
@@ -242,7 +242,9 @@ public class RecordingFileService {
 				suspendPlayback();
 
 				Recording recording = getSelectedRecording();
-				recording.redo();
+				recording.getEditManager().redo();
+
+				updateEditState(recording);
 			}
 			catch (Exception e) {
 				throw new CompletionException(e);
@@ -349,9 +351,8 @@ public class RecordingFileService {
 		documentService.replace(document);
 		playbackService.setRecording(recording);
 
-		context.setCanDeletePage(document.getPageCount() > 1);
-		context.setCanRedo(recording.hasRedoActions());
-		context.setCanUndo(recording.hasUndoActions());
+		updateEditState(recording);
+
 		context.getEventBus().post(event);
 
 		// Show the position on the left side of the selection.
@@ -372,5 +373,13 @@ public class RecordingFileService {
 		if (playbackService.started()) {
 			playbackService.suspend();
 		}
+	}
+
+	private void updateEditState(Recording recording) {
+		Document document = recording.getRecordedDocument().getDocument();
+
+		context.setCanDeletePage(document.getPageCount() > 1);
+		context.setCanRedo(recording.getEditManager().hasRedoActions());
+		context.setCanUndo(recording.getEditManager().hasUndoActions());
 	}
 }

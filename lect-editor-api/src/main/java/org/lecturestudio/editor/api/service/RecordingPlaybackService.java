@@ -39,7 +39,6 @@ import org.lecturestudio.core.model.Time;
 import org.lecturestudio.core.recording.Recording;
 import org.lecturestudio.editor.api.context.EditorContext;
 import org.lecturestudio.media.playback.RecordingPlayer;
-import org.lecturestudio.media.track.control.AdjustAudioVolumeControl;
 
 @Singleton
 public class RecordingPlaybackService extends ExecutableBase {
@@ -83,6 +82,10 @@ public class RecordingPlaybackService extends ExecutableBase {
 
 	public void setAudioFilter(AudioFilter filter, Interval<Long> interval) {
 		recordingPlayer.getAudioStream().setAudioFilter(filter, interval);
+	}
+
+	public void removeAudioFilter(AudioFilter filter) {
+		recordingPlayer.getAudioStream().removeAudioFilter(filter);
 	}
 
 	public void setRecording(Recording recording) {

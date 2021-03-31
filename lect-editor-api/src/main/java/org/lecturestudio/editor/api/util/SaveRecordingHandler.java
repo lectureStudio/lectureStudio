@@ -58,7 +58,7 @@ public class SaveRecordingHandler extends ShutdownHandler {
 			}
 		}
 
-		if (recording.hasRedoActions() || recording.hasUndoActions()) {
+		if (recording.getEditManager().hasRedoActions() || recording.getEditManager().hasUndoActions()) {
 			executeAndWait(() -> {
 				Action closeAction = this::resume;
 

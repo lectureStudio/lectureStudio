@@ -16,7 +16,7 @@
 		<package.full.name>${package.name}-${package.version}-${platform.name}-${platform.arch}</package.full.name>
 		<package.copyright>Copyright © 2020 TU Darmstadt</package.copyright>
 		<package.description>An integrated tool for presenting lectures</package.description>
-		<package.version>4.3.${git.commitsCount}</package.version>
+		<package.version>4.4.${git.commitsCount}</package.version>
 		<package.vendor>TU Darmstadt</package.vendor>
 	</properties>
 

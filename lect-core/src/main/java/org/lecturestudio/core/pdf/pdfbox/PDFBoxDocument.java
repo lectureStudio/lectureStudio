@@ -522,7 +522,20 @@ public class PDFBoxDocument implements DocumentAdapter {
 			// Ignore.
 		}
 
-		DocumentOutlineItem outlineItem = new DocumentOutlineItem(item.getTitle(), pageNumber);
+		// Remove line tabulation character from the title string.
+		String title = item.getTitle();
+		int ltIndex;
+
+		while ((ltIndex = title.indexOf("\u000B")) > -1) {
+			// Do not replace the line tabulation with a space separator if
+			// a space separator precedes the line tabulation.
+			int prevIndex = ltIndex - 1 > -1 ? ltIndex - 1 : 0;
+			String rep = title.charAt(prevIndex) == ' ' ? "" : " ";
+
+			title = title.replace("\u000B", rep);
+		}
+
+		DocumentOutlineItem outlineItem = new DocumentOutlineItem(title, pageNumber);
 		outline.getChildren().add(outlineItem);
 
 		if (item.hasChildren()) {

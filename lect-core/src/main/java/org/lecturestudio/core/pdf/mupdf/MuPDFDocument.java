@@ -453,10 +453,10 @@ public class MuPDFDocument implements DocumentAdapter {
 			return;
 		}
 
-		DocumentOutlineItem lastItem = null;
+		Outline lastItem = null;
 
 		for (Outline item : outlines) {
-			if (nonNull(lastItem) && lastItem.getTitle().equals(item.title)) {
+			if (nonNull(lastItem) && lastItem.title.equals(item.title)) {
 				// Skip duplicate item, even if the page number is different.
 				continue;
 			}
@@ -475,14 +475,27 @@ public class MuPDFDocument implements DocumentAdapter {
 				// Ignore.
 			}
 
-			DocumentOutlineItem outlineItem = new DocumentOutlineItem(item.title, pageNumber);
+			// Remove line tabulation character from the title string.
+			String title = item.title;
+			int ltIndex;
+
+			while ((ltIndex = title.indexOf("\u000B")) > -1) {
+				// Do not replace the line tabulation with a space separator if
+				// a space separator precedes the line tabulation.
+				int prevIndex = ltIndex - 1 > -1 ? ltIndex - 1 : 0;
+				String rep = title.charAt(prevIndex) == ' ' ? "" : " ";
+
+				title = title.replace("\u000B", rep);
+			}
+
+			DocumentOutlineItem outlineItem = new DocumentOutlineItem(title, pageNumber);
 			outline.getChildren().add(outlineItem);
 
 			if (nonNull(item.down)) {
 				loadOutline(item.down, outlineItem);
 			}
 
-			lastItem = outlineItem;
+			lastItem = item;
 		}
 	}
 

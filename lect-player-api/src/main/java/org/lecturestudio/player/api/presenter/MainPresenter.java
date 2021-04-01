@@ -35,6 +35,7 @@ import java.util.function.Predicate;
 import javax.inject.Inject;
 
 import org.lecturestudio.core.app.ApplicationContext;
+import org.lecturestudio.core.app.configuration.Configuration;
 import org.lecturestudio.core.beans.BooleanProperty;
 import org.lecturestudio.core.bus.event.ViewVisibleEvent;
 import org.lecturestudio.core.input.KeyEvent;
@@ -43,7 +44,6 @@ import org.lecturestudio.core.presenter.NotificationPresenter;
 import org.lecturestudio.core.presenter.Presenter;
 import org.lecturestudio.core.presenter.command.CloseApplicationCommand;
 import org.lecturestudio.core.presenter.command.ClosePresenterCommand;
-import org.lecturestudio.core.presenter.command.FullscreenCommand;
 import org.lecturestudio.core.presenter.command.ShowPresenterCommand;
 import org.lecturestudio.core.service.RecentDocumentService;
 import org.lecturestudio.core.util.FileUtils;
@@ -165,14 +165,21 @@ public class MainPresenter extends org.lecturestudio.core.presenter.MainPresente
 			}
 		});
 
-		context.getConfiguration().extendedFullscreenProperty().addListener((observable, oldValue, newValue) -> {
+		Configuration config = context.getConfiguration();
+
+		context.setFullscreen(config.getStartFullscreen());
+		context.fullscreenProperty().addListener((observable, oldValue, newValue) -> {
+			setFullscreen(newValue);
+		});
+
+		config.extendedFullscreenProperty().addListener((observable, oldValue, newValue) -> {
 			view.setMenuVisible(!newValue);
 		});
 
 		slidesPresenter = createPresenter(SlidesPresenter.class);
 		slidesPresenter.initialize();
 
-		view.setMenuVisible(!context.getConfiguration().getExtendedFullscreen());
+		view.setMenuVisible(!config.getExtendedFullscreen());
 		view.setOnClose(this::closeWindow);
 		view.setOnShown(this::onViewShown);
 		view.setOnKeyEvent(this::keyEvent);
@@ -212,11 +219,6 @@ public class MainPresenter extends org.lecturestudio.core.presenter.MainPresente
 	@Subscribe
 	public void onCommand(final ClosePresenterCommand command) {
 		destroyHandler(command.getPresenterClass());
-	}
-
-	@Subscribe
-	public void onCommand(final FullscreenCommand command) {
-		setFullscreen(command.isFullscreen());
 	}
 
 	@Subscribe

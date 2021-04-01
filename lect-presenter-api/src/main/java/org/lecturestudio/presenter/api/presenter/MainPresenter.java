@@ -39,6 +39,7 @@ import javax.inject.Inject;
 
 import org.lecturestudio.core.ExecutableState;
 import org.lecturestudio.core.app.ApplicationContext;
+import org.lecturestudio.core.app.configuration.Configuration;
 import org.lecturestudio.core.app.dictionary.Dictionary;
 import org.lecturestudio.core.audio.bus.event.AudioDeviceHotplugEvent;
 import org.lecturestudio.core.beans.BooleanProperty;
@@ -52,7 +53,6 @@ import org.lecturestudio.core.presenter.NotificationPresenter;
 import org.lecturestudio.core.presenter.Presenter;
 import org.lecturestudio.core.presenter.command.CloseApplicationCommand;
 import org.lecturestudio.core.presenter.command.ClosePresenterCommand;
-import org.lecturestudio.core.presenter.command.FullscreenCommand;
 import org.lecturestudio.core.presenter.command.ShowPresenterCommand;
 import org.lecturestudio.core.service.DocumentService;
 import org.lecturestudio.core.util.ObservableHashMap;
@@ -170,11 +170,18 @@ public class MainPresenter extends org.lecturestudio.core.presenter.MainPresente
 			}
 		});
 
-		context.getConfiguration().extendedFullscreenProperty().addListener((observable, oldValue, newValue) -> {
+		Configuration config = context.getConfiguration();
+
+		context.setFullscreen(config.getStartFullscreen());
+		context.fullscreenProperty().addListener((observable, oldValue, newValue) -> {
+			setFullscreen(newValue);
+		});
+
+		config.extendedFullscreenProperty().addListener((observable, oldValue, newValue) -> {
 			view.setMenuVisible(!newValue);
 		});
 
-		context.getConfiguration().getAudioConfig().recordingFormatProperty().addListener((observable, oldFormat, newFormat) -> {
+		config.getAudioConfig().recordingFormatProperty().addListener((observable, oldFormat, newFormat) -> {
 			recordingService.setAudioFormat(newFormat);
 		});
 
@@ -184,7 +191,7 @@ public class MainPresenter extends org.lecturestudio.core.presenter.MainPresente
 			slidesPresenter.initialize();
 		}
 
-		view.setMenuVisible(!context.getConfiguration().getExtendedFullscreen());
+		view.setMenuVisible(!config.getExtendedFullscreen());
 		view.setOnClose(this::closeWindow);
 		view.setOnShown(this::onViewShown);
 		view.setOnBounds(this::onViewBounds);
@@ -238,11 +245,6 @@ public class MainPresenter extends org.lecturestudio.core.presenter.MainPresente
 	@Subscribe
 	public void onCommand(final ClosePresenterCommand command) {
 		destroyHandler(command.getPresenterClass());
-	}
-
-	@Subscribe
-	public void onCommand(final FullscreenCommand command) {
-		setFullscreen(command.isFullscreen());
 	}
 
 	@Subscribe

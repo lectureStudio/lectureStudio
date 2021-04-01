@@ -38,10 +38,12 @@ import javafx.scene.control.SeparatorMenuItem;
 import javafx.stage.Stage;
 import javafx.stage.Window;
 
+import org.lecturestudio.core.beans.BooleanProperty;
 import org.lecturestudio.core.model.Document;
 import org.lecturestudio.core.model.RecentDocument;
 import org.lecturestudio.core.view.Action;
 import org.lecturestudio.core.view.ConsumerAction;
+import org.lecturestudio.javafx.beans.LectBooleanProperty;
 import org.lecturestudio.javafx.util.FxUtils;
 import org.lecturestudio.javafx.view.FxmlView;
 import org.lecturestudio.player.api.view.MenuView;
@@ -155,8 +157,8 @@ public class FxMenuView extends MenuBar implements MenuView {
 	 */
 
 	@Override
-	public void setOnFullscreen(ConsumerAction<Boolean> action) {
-		FxUtils.bindAction(fullscreenMenuItem, action);
+	public void bindFullscreen(BooleanProperty fullscreen) {
+		fullscreenMenuItem.selectedProperty().bindBidirectional(new LectBooleanProperty(fullscreen));
 	}
 
 	@Override

@@ -46,6 +46,7 @@ public class GeneralSettingsPresenter extends Presenter<GeneralSettingsView> {
 		view.setThemes(themeProvider.getThemes());
 		view.setTheme(config.themeProperty());
 		view.setStartMaximized(config.startMaximizedProperty());
+		view.setStartFullscreen(config.startFullscreenProperty());
 		view.setTabletMode(config.tabletModeProperty());
 		view.setSaveAnnotationsOnClose(config.saveDocOnCloseProperty());
 		view.setExtendPageDimension(config.extendPageDimensionProperty());
@@ -61,6 +62,7 @@ public class GeneralSettingsPresenter extends Presenter<GeneralSettingsView> {
 		config.setTheme(defaultConfig.getTheme());
 		config.setLocale(defaultConfig.getLocale());
 		config.setStartMaximized(defaultConfig.getStartMaximized());
+		config.setStartFullscreen(defaultConfig.getStartFullscreen());
 		config.setTabletMode(defaultConfig.getTabletMode());
 		config.setSaveDocumentOnClose(defaultConfig.getSaveDocumentOnClose());
 		config.setExtendedFullscreen(defaultConfig.getExtendedFullscreen());

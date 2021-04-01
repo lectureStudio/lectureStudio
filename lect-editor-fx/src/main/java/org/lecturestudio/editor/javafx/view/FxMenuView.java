@@ -231,8 +231,8 @@ public class FxMenuView extends MenuBar implements MenuView {
 	 */
 
 	@Override
-	public void setOnFullscreen(ConsumerAction<Boolean> action) {
-		FxUtils.bindAction(fullscreenMenuItem, action);
+	public void bindFullscreen(BooleanProperty fullscreen) {
+		fullscreenMenuItem.selectedProperty().bindBidirectional(new LectBooleanProperty(fullscreen));
 	}
 
 	@Override

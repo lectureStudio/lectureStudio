@@ -69,6 +69,9 @@ public class Configuration {
 	/** Indicates whether to open the application window maximized. */
 	private final BooleanProperty startMaximized = new BooleanProperty();
 
+	/** Indicates whether to open the application in fullscreen mode. */
+	private final BooleanProperty startFullscreen = new BooleanProperty();
+
 	/** Indicates whether to enable a virtual keyboard on tablet devices. */
 	private final BooleanProperty tabletMode = new BooleanProperty();
 
@@ -306,6 +309,35 @@ public class Configuration {
 	 */
 	public BooleanProperty startMaximizedProperty() {
 		return startMaximized;
+	}
+
+	/**
+	 * Check whether to open the application window in fullscreen mode.
+	 *
+	 * @return true if the application window should be opened fullscreen, false
+	 * otherwise.
+	 */
+	public Boolean getStartFullscreen() {
+		return startFullscreen.get();
+	}
+
+	/**
+	 * Set whether to open the application window in fullscreen mode.
+	 *
+	 * @param fullscreen True to open the application window fullscreen, false
+	 *                   otherwise.
+	 */
+	public void setStartFullscreen(boolean fullscreen) {
+		this.startFullscreen.set(fullscreen);
+	}
+
+	/**
+	 * Obtain the start fullscreen property.
+	 *
+	 * @return the start fullscreen property.
+	 */
+	public BooleanProperty startFullscreenProperty() {
+		return startFullscreen;
 	}
 
 	/**

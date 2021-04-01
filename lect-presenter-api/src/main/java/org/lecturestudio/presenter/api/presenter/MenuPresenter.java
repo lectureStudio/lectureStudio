@@ -39,6 +39,7 @@ import javax.inject.Inject;
 import org.lecturestudio.core.ExecutableException;
 import org.lecturestudio.core.ExecutableState;
 import org.lecturestudio.core.app.ApplicationContext;
+import org.lecturestudio.core.app.configuration.Configuration;
 import org.lecturestudio.core.audio.AudioDeviceNotConnectedException;
 import org.lecturestudio.core.bus.EventBus;
 import org.lecturestudio.core.bus.event.DocumentEvent;
@@ -53,7 +54,6 @@ import org.lecturestudio.core.model.listener.ParameterChangeListener;
 import org.lecturestudio.core.presenter.Presenter;
 import org.lecturestudio.core.presenter.command.CloseApplicationCommand;
 import org.lecturestudio.core.presenter.command.ClosePresenterCommand;
-import org.lecturestudio.core.presenter.command.FullscreenCommand;
 import org.lecturestudio.core.presenter.command.ShowPresenterCommand;
 import org.lecturestudio.core.service.DocumentService;
 import org.lecturestudio.core.util.DesktopUtils;
@@ -301,10 +301,6 @@ public class MenuPresenter extends Presenter<MenuView> {
 
 	public void showSettingsView() {
 		eventBus.post(new ShowPresenterCommand<>(SettingsPresenter.class));
-	}
-
-	public void setFullscreen(boolean enable) {
-		eventBus.post(new FullscreenCommand(enable));
 	}
 
 	public void setAdvancedSettings(boolean selected) {
@@ -586,6 +582,7 @@ public class MenuPresenter extends Presenter<MenuView> {
 	@Override
 	public void initialize() {
 		PresenterContext ctx = (PresenterContext) context;
+		Configuration config = context.getConfiguration();
 
 		eventBus.register(this);
 
@@ -609,8 +606,8 @@ public class MenuPresenter extends Presenter<MenuView> {
 		view.setOnSettings(this::showSettingsView);
 
 		view.bindShowOutline(ctx.showOutlineProperty());
-		view.setAdvancedSettings(context.getConfiguration().getAdvancedUIMode());
-		view.setOnFullscreen(this::setFullscreen);
+		view.setAdvancedSettings(config.getAdvancedUIMode());
+		view.bindFullscreen(ctx.fullscreenProperty());
 		view.setOnAdvancedSettings(this::setAdvancedSettings);
 
 		view.setOnNewWhiteboard(this::newWhiteboard);

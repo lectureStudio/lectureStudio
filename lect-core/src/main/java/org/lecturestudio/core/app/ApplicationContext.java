@@ -23,6 +23,7 @@ import java.util.Map;
 
 import org.lecturestudio.core.app.configuration.Configuration;
 import org.lecturestudio.core.app.dictionary.Dictionary;
+import org.lecturestudio.core.beans.BooleanProperty;
 import org.lecturestudio.core.bus.EventBus;
 import org.lecturestudio.core.model.DocumentList;
 import org.lecturestudio.core.service.DocumentService;
@@ -37,6 +38,9 @@ import org.lecturestudio.core.view.ViewType;
  * @author Alex Andres
  */
 public abstract class ApplicationContext {
+
+	/** Indicates whether the application is in fullscreen mode. */
+	private final BooleanProperty fullscreen = new BooleanProperty();
 
 	/** The application resource data locator. */
 	private final AppDataLocator dataLocator;
@@ -168,4 +172,21 @@ public abstract class ApplicationContext {
 		return ppProvider.get(type);
 	}
 
+	/**
+	 * Puts the application in full screen mode.
+	 *
+	 * @param active True to set full screen mode.
+	 */
+	public void setFullscreen(boolean active) {
+		fullscreen.set(active);
+	}
+
+	/**
+	 * Returns the observable fullscreen property.
+	 *
+	 * @return The fullscreen property.
+	 */
+	public BooleanProperty fullscreenProperty() {
+		return fullscreen;
+	}
 }

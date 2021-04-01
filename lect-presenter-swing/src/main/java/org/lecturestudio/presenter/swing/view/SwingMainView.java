@@ -18,6 +18,7 @@
 
 package org.lecturestudio.presenter.swing.view;
 
+import static java.util.Objects.isNull;
 import static java.util.Objects.nonNull;
 
 import com.formdev.flatlaf.FlatLightLaf;
@@ -175,7 +176,14 @@ public class SwingMainView extends JPanel implements MainView, KeyEventDispatche
 			resizeable = true;
 		}
 
-		window.setBounds(windowBounds);
+		if (isNull(windowBounds)) {
+			window.pack();
+			window.setLocationRelativeTo(null);
+		}
+		else {
+			window.setBounds(windowBounds);
+		}
+
 		window.setResizable(resizeable);
 		window.validate();
 		window.setVisible(true);

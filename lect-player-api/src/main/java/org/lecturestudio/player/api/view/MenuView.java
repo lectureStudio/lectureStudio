@@ -21,6 +21,7 @@ package org.lecturestudio.player.api.view;
 import java.io.File;
 import java.util.List;
 
+import org.lecturestudio.core.beans.BooleanProperty;
 import org.lecturestudio.core.model.Document;
 import org.lecturestudio.core.model.RecentDocument;
 import org.lecturestudio.core.view.Action;
@@ -55,7 +56,7 @@ public interface MenuView extends View {
 	 * View Menu
 	 */
 
-	void setOnFullscreen(ConsumerAction<Boolean> action);
+	void bindFullscreen(BooleanProperty fullscreen);
 
 	/**
 	 * Info Menu

@@ -52,6 +52,7 @@ import org.lecturestudio.core.model.Time;
 import org.lecturestudio.core.view.Action;
 import org.lecturestudio.core.view.ConsumerAction;
 import org.lecturestudio.core.view.PresentationParameter;
+import org.lecturestudio.javafx.beans.LectBooleanProperty;
 import org.lecturestudio.javafx.util.FxUtils;
 import org.lecturestudio.javafx.view.FxmlView;
 import org.lecturestudio.presenter.api.model.Bookmark;
@@ -342,8 +343,8 @@ public class FxMenuView extends HBox implements MenuView {
 	}
 
 	@Override
-	public void setOnFullscreen(ConsumerAction<Boolean> action) {
-		FxUtils.bindAction(fullscreenMenuItem, action);
+	public void bindFullscreen(BooleanProperty fullscreen) {
+		fullscreenMenuItem.selectedProperty().bindBidirectional(new LectBooleanProperty(fullscreen));
 	}
 
 	@Override

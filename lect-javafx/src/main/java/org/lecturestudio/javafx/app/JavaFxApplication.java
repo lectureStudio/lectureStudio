@@ -144,9 +144,13 @@ public abstract class JavaFxApplication extends ApplicationBase implements Graph
 				primaryStage.getIcons().add(new Image(JavaFxApplication.class.getResourceAsStream(iconPath)));
 			}
 
+			boolean fullscreen = config.getStartFullscreen();
+			boolean maximized = config.getStartMaximized();
+
 			primaryStage.setScene(scene);
 			primaryStage.setTitle(config.getApplicationName());
-			primaryStage.setMaximized(config.getStartMaximized());
+			primaryStage.setMaximized(!fullscreen && maximized);
+			primaryStage.setFullScreen(fullscreen);
 
 			initLatch.countDown();
 

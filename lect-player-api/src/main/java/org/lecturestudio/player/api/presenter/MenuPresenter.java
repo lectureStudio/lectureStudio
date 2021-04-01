@@ -36,7 +36,6 @@ import org.lecturestudio.core.model.Document;
 import org.lecturestudio.core.model.RecentDocument;
 import org.lecturestudio.core.presenter.Presenter;
 import org.lecturestudio.core.presenter.command.CloseApplicationCommand;
-import org.lecturestudio.core.presenter.command.FullscreenCommand;
 import org.lecturestudio.core.presenter.command.ShowPresenterCommand;
 import org.lecturestudio.core.service.RecentDocumentService;
 import org.lecturestudio.core.util.FileUtils;
@@ -81,7 +80,7 @@ public class MenuPresenter extends Presenter<MenuView> {
 		view.setOnCloseRecording(this::closeSelectedRecording);
 		view.setOnExit(this::exit);
 		view.setOnSettings(this::showSettingsView);
-		view.setOnFullscreen(this::setFullscreen);
+		view.bindFullscreen(context.fullscreenProperty());
 		view.setOnOpenLog(this::showLog);
 		view.setOnOpenAbout(this::showAboutView);
 	}
@@ -128,10 +127,6 @@ public class MenuPresenter extends Presenter<MenuView> {
 
 	public void showSettingsView() {
 //		eventBus.post(new ShowPresenterCommand<>(SettingsPresenter.class));
-	}
-
-	public void setFullscreen(boolean enable) {
-		eventBus.post(new FullscreenCommand(enable));
 	}
 
 	public void showLog() {

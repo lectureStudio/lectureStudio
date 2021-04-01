@@ -114,6 +114,11 @@ class GeneralSettingsPresenterTest extends PresenterTest {
 		}
 
 		@Override
+		public void setStartFullscreen(BooleanProperty fullscreen) {
+			assertFalse(fullscreen.get());
+		}
+
+		@Override
 		public void setTabletMode(BooleanProperty tabletMode) {
 			assertFalse(tabletMode.get());
 		}

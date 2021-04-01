@@ -57,6 +57,9 @@ public class FxGeneralSettingsView extends GridPane implements GeneralSettingsVi
 	private CheckBox maximizedCheckBox;
 
 	@FXML
+	private CheckBox fullscreenCheckBox;
+
+	@FXML
 	private CheckBox tabletCheckBox;
 
 	@FXML
@@ -105,6 +108,11 @@ public class FxGeneralSettingsView extends GridPane implements GeneralSettingsVi
 	@Override
 	public void setStartMaximized(BooleanProperty maximized) {
 		maximizedCheckBox.selectedProperty().bindBidirectional(new LectBooleanProperty(maximized));
+	}
+
+	@Override
+	public void setStartFullscreen(BooleanProperty fullscreen) {
+		fullscreenCheckBox.selectedProperty().bindBidirectional(new LectBooleanProperty(fullscreen));
 	}
 
 	@Override

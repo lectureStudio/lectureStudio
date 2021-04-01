@@ -21,11 +21,15 @@ package org.lecturestudio.swing.app;
 import static java.util.Objects.requireNonNull;
 
 import java.awt.Component;
+import java.awt.GraphicsDevice;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.FutureTask;
 
 import javax.swing.JFrame;
 import javax.swing.SwingUtilities;
+
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import org.lecturestudio.core.ExecutableException;
 import org.lecturestudio.core.app.ApplicationBase;
@@ -33,10 +37,8 @@ import org.lecturestudio.core.app.ApplicationContext;
 import org.lecturestudio.core.app.ApplicationFactory;
 import org.lecturestudio.core.app.GraphicalApplication;
 import org.lecturestudio.core.app.configuration.Configuration;
+import org.lecturestudio.core.app.view.Screens;
 import org.lecturestudio.core.presenter.MainPresenter;
-
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 
 public abstract class SwingApplication extends ApplicationBase implements GraphicalApplication {
 
@@ -97,10 +99,21 @@ public abstract class SwingApplication extends ApplicationBase implements Graphi
 			window = new JFrame();
 			window.setTitle(config.getApplicationName());
 			window.getContentPane().add((Component) mainPresenter.getView());
-			window.pack();
 
-			if (config.getStartMaximized()) {
-				window.setExtendedState(window.getExtendedState() | JFrame.MAXIMIZED_BOTH);
+			if (config.getStartFullscreen()) {
+				GraphicsDevice device = Screens.getScreenDevice(window);
+
+				window.setUndecorated(true);
+				window.setBounds(device.getDefaultConfiguration().getBounds());
+				window.setResizable(false);
+				window.validate();
+			}
+			else {
+				window.pack();
+
+				if (config.getStartMaximized()) {
+					window.setExtendedState(window.getExtendedState() | JFrame.MAXIMIZED_BOTH);
+				}
 			}
 
 			initLatch.countDown();

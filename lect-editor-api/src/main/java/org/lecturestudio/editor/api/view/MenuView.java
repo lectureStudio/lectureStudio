@@ -76,7 +76,7 @@ public interface MenuView extends View {
 	 * View Menu
 	 */
 
-	void setOnFullscreen(ConsumerAction<Boolean> action);
+	void bindFullscreen(BooleanProperty fullscreen);
 
 	/**
 	 * Info Menu

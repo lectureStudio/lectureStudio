@@ -29,6 +29,7 @@
 		<RowConstraints/>
 		<RowConstraints/>
 		<RowConstraints/>
+		<RowConstraints/>
 		<RowConstraints vgrow="ALWAYS"/>
 	</rowConstraints>
 
@@ -51,16 +52,17 @@
 		</cellFactory>
 	</ComboBox>
 	<CheckBox fx:id="maximizedCheckBox" text="%general.settings.start.maximized" GridPane.columnSpan="2" GridPane.rowIndex="2"/>
-	<CheckBox fx:id="tabletCheckBox" text="%general.settings.tablet.mode" GridPane.columnSpan="2" GridPane.rowIndex="3"/>
-	<CheckBox fx:id="saveAnnotationsCheckBox" text="%general.settings.annotations.save" GridPane.columnSpan="2" GridPane.rowIndex="4"/>
-	<CheckBox fx:id="fullscreenModeCheckBox" text="%general.settings.fullscreen.hide.extended" GridPane.columnSpan="2" GridPane.rowIndex="5"/>
+	<CheckBox fx:id="fullscreenCheckBox" text="%general.settings.start.fullscreen" GridPane.columnSpan="2" GridPane.rowIndex="3"/>
+	<CheckBox fx:id="tabletCheckBox" text="%general.settings.tablet.mode" GridPane.columnSpan="2" GridPane.rowIndex="4"/>
+	<CheckBox fx:id="saveAnnotationsCheckBox" text="%general.settings.annotations.save" GridPane.columnSpan="2" GridPane.rowIndex="5"/>
+	<CheckBox fx:id="fullscreenModeCheckBox" text="%general.settings.fullscreen.hide.extended" GridPane.columnSpan="2" GridPane.rowIndex="6"/>
 
-	<Label text="%general.settings.extended.space" GridPane.rowIndex="6"/>
-	<Slider fx:id="extendViewSlider" max="1.0" GridPane.columnIndex="1" GridPane.rowIndex="6"/>
-	<Label text="%general.settings.font.size" GridPane.rowIndex="7"/>
+	<Label text="%general.settings.extended.space" GridPane.rowIndex="7"/>
+	<Slider fx:id="extendViewSlider" max="1.0" GridPane.columnIndex="1" GridPane.rowIndex="7"/>
+	<Label text="%general.settings.font.size" GridPane.rowIndex="8"/>
 	<Slider fx:id="textSizeSlider" blockIncrement="1.0" majorTickUnit="1.0" max="24.0" min="9.0" minorTickCount="0"
-			showTickLabels="true" showTickMarks="true" GridPane.columnIndex="1" GridPane.rowIndex="7"/>
-	<HBox alignment="BOTTOM_RIGHT" spacing="5" GridPane.columnSpan="2" GridPane.rowIndex="8">
+			showTickLabels="true" showTickMarks="true" GridPane.columnIndex="1" GridPane.rowIndex="8"/>
+	<HBox alignment="BOTTOM_RIGHT" spacing="5" GridPane.columnSpan="2" GridPane.rowIndex="9">
 		<Button fx:id="resetButton" text="%button.reset"/>
 		<Button fx:id="closeButton" text="%button.close"/>
 	</HBox>

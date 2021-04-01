@@ -39,6 +39,8 @@ public interface GeneralSettingsView extends SettingsBaseView {
 
 	void setStartMaximized(BooleanProperty maximized);
 
+	void setStartFullscreen(BooleanProperty fullscreen);
+
 	void setTabletMode(BooleanProperty tabletMode);
 
 	void setSaveAnnotationsOnClose(BooleanProperty saveAnnotations);

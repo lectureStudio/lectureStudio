@@ -49,6 +49,8 @@ public class SwingGeneralSettingsView extends JPanel implements GeneralSettingsV
 
 	private JCheckBox maximizedCheckBox;
 
+	private JCheckBox fullscreenCheckBox;
+
 	private JCheckBox tabletCheckBox;
 
 	private JCheckBox saveAnnotationsCheckBox;
@@ -90,6 +92,11 @@ public class SwingGeneralSettingsView extends JPanel implements GeneralSettingsV
 	@Override
 	public void setStartMaximized(BooleanProperty maximized) {
 		SwingUtils.bindBidirectional(maximizedCheckBox, maximized);
+	}
+
+	@Override
+	public void setStartFullscreen(BooleanProperty fullscreen) {
+		SwingUtils.bindBidirectional(fullscreenCheckBox, fullscreen);
 	}
 
 	@Override

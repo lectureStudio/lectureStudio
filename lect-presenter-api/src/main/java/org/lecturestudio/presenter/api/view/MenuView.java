@@ -80,7 +80,7 @@ public interface MenuView extends View {
 
 	void setAdvancedSettings(boolean selected);
 
-	void setOnFullscreen(ConsumerAction<Boolean> action);
+	void bindFullscreen(BooleanProperty fullscreen);
 
 	void setOnAdvancedSettings(ConsumerAction<Boolean> action);
 

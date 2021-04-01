@@ -289,8 +289,8 @@ public class SwingMenuView extends JMenuBar implements MenuView {
 	}
 
 	@Override
-	public void setOnFullscreen(ConsumerAction<Boolean> action) {
-		SwingUtils.bindAction(fullscreenMenuItem, action);
+	public void bindFullscreen(BooleanProperty fullscreen) {
+		SwingUtils.bindBidirectional(fullscreenMenuItem, fullscreen);
 	}
 
 	@Override

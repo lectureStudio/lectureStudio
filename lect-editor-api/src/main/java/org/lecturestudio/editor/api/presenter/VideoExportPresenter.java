@@ -77,6 +77,7 @@ public class VideoExportPresenter extends Presenter<VideoExportView> {
 
 		view.bindTargetName(targetName);
 		view.bindTargetDirectory(targetDirectory);
+		view.bindVideo(videoRenderConfig.videoExportProperty());
 		view.bindVectorPlayer(videoRenderConfig.webVectorExportProperty());
 		view.bindVideoPlayer(videoRenderConfig.webVideoExportProperty());
 		view.setOnSelectTargetDirectory(this::selectTargetDir);

@@ -36,6 +36,8 @@ public class RenderConfiguration {
 	/** The output file format. */
 	private final StringProperty fileFormat = new StringProperty();
 
+	private final BooleanProperty videoExport = new BooleanProperty();
+
 	private final BooleanProperty vectorExport = new BooleanProperty();
 
 	private final BooleanProperty webExport = new BooleanProperty();
@@ -94,6 +96,18 @@ public class RenderConfiguration {
 
 	public void setOutputFile(File file) {
 		this.outputFile.set(file);
+	}
+
+	public boolean getVideoExport() {
+		return videoExport.get();
+	}
+
+	public void setVideoExport(boolean export) {
+		this.videoExport.set(export);
+	}
+
+	public BooleanProperty videoExportProperty() {
+		return videoExport;
 	}
 
 	public boolean getWebVectorExport() {

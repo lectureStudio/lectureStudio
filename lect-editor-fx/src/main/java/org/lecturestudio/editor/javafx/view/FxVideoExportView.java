@@ -18,6 +18,8 @@
 
 package org.lecturestudio.editor.javafx.view;
 
+import javafx.beans.property.IntegerProperty;
+import javafx.beans.property.SimpleIntegerProperty;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
 import javafx.scene.control.CheckBox;
@@ -38,11 +40,16 @@ import org.lecturestudio.javafx.view.FxmlView;
 @FxmlView(name = "video-export", presenter = VideoExportPresenter.class)
 public class FxVideoExportView extends StackPane implements VideoExportView {
 
+	private final IntegerProperty anySelected;
+
 	@FXML
 	private TextField targetNameField;
 
 	@FXML
 	private TextField targetPathField;
+
+	@FXML
+	private CheckBox videoCheckbox;
 
 	@FXML
 	private CheckBox videoPlayerCheckbox;
@@ -62,6 +69,8 @@ public class FxVideoExportView extends StackPane implements VideoExportView {
 
 	public FxVideoExportView() {
 		super();
+
+		anySelected = new SimpleIntegerProperty();
 	}
 
 	@Override
@@ -72,6 +81,11 @@ public class FxVideoExportView extends StackPane implements VideoExportView {
 	@Override
 	public void bindTargetDirectory(StringProperty property) {
 		targetPathField.textProperty().bindBidirectional(new LectStringProperty(property));
+	}
+
+	@Override
+	public void bindVideo(BooleanProperty property) {
+		videoCheckbox.selectedProperty().bindBidirectional(new LectObjectProperty<>(property));
 	}
 
 	@Override
@@ -97,5 +111,20 @@ public class FxVideoExportView extends StackPane implements VideoExportView {
 	@Override
 	public void setOnCancel(Action action) {
 		FxUtils.bindAction(cancelButton, action);
+	}
+
+	@FXML
+	private void initialize() {
+		for (var node : lookupAll("CheckBox")) {
+			CheckBox checkBox = (CheckBox) node;
+			checkBox.selectedProperty()
+					.addListener((observable, oldValue, newValue) -> {
+						anySelected.set(newValue ?
+								anySelected.get() + 1 :
+								anySelected.get() - 1);
+					});
+		}
+
+		createButton.disableProperty().bind(anySelected.lessThanOrEqualTo(0));
 	}
 }

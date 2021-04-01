@@ -31,7 +31,6 @@ import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.Base64;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.regex.Matcher;
@@ -42,23 +41,29 @@ import javax.sound.sampled.AudioFormat;
 import javax.sound.sampled.AudioInputStream;
 import javax.sound.sampled.AudioSystem;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.concentus.OpusSignal;
+import org.lecturestudio.core.ExecutableBase;
+import org.lecturestudio.core.ExecutableException;
+import org.lecturestudio.core.bus.ApplicationBus;
 import org.lecturestudio.core.io.DynamicInputStream;
 import org.lecturestudio.core.io.RandomAccessAudioStream;
 import org.lecturestudio.core.io.ResourceLoader;
+import org.lecturestudio.core.model.Time;
 import org.lecturestudio.core.recording.RecordedAudio;
 import org.lecturestudio.core.recording.Recording;
 import org.lecturestudio.core.recording.file.RecordingFileWriter;
 import org.lecturestudio.core.util.AudioUtils;
 import org.lecturestudio.core.util.DirUtils;
 import org.lecturestudio.core.util.FileUtils;
+import org.lecturestudio.editor.api.video.VideoRenderProgressEvent;
+import org.lecturestudio.editor.api.video.VideoRenderStateEvent;
+import org.lecturestudio.editor.api.video.VideoRenderStateEvent.State;
 import org.lecturestudio.media.audio.opus.OpusAudioFileWriter;
 import org.lecturestudio.media.audio.opus.OpusFileFormatType;
 
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-
-public class WebVectorExport {
+public class WebVectorExport extends ExecutableBase {
 
 	private static final Logger LOG = LogManager.getLogger(WebVectorExport.class);
 
@@ -68,6 +73,17 @@ public class WebVectorExport {
 
 	private final Map<String, String> data = new HashMap<>();
 
+	private final Recording recording;
+
+	private final File outputFolder;
+
+	private double streamLength;
+
+
+	public WebVectorExport(Recording recording, File outputFolder) {
+		this.recording = recording;
+		this.outputFolder = outputFolder;
+	}
 
 	public void setTitle(String title) {
 		data.put("title", title);
@@ -77,18 +93,38 @@ public class WebVectorExport {
 		data.put("name", name);
 	}
 
-	public void export(Recording recording, File outputFolder) throws Exception {
+	@Override
+	protected void initInternal() throws ExecutableException {
 		String indexContent = loadTemplateFile(TEMPLATE_FOLDER + "/" + TEMPLATE_FILE);
 		indexContent = processTemplateFile(indexContent, data);
 
-		copyResourceToFilesystem(TEMPLATE_FOLDER, outputFolder.getAbsolutePath());
+		try {
+			copyResourceToFilesystem(TEMPLATE_FOLDER, outputFolder.getAbsolutePath());
 
-		writeTemplateFile(indexContent, new File(outputFolder.getPath() + File.separator + TEMPLATE_FILE));
+			writeTemplateFile(indexContent, new File(outputFolder.getPath() + File.separator + TEMPLATE_FILE));
+		}
+		catch (Exception e) {
+			throw new ExecutableException(e);
+		}
+	}
+
+	@Override
+	protected void startInternal() throws ExecutableException {
+		fireRenderState(new VideoRenderStateEvent(State.RENDER_AUDIO));
+
+		RecordedAudio encAudio;
+
+		try {
+			encAudio = encodeAudio(recording.getRecordedAudio());
+		}
+		catch (Exception e) {
+			throw new ExecutableException(e);
+		}
 
 		Recording encRecording = new Recording();
 		encRecording.setRecordingHeader(recording.getRecordingHeader());
 		encRecording.setRecordedEvents(recording.getRecordedEvents());
-		encRecording.setRecordedAudio(encodeAudio(recording.getRecordedAudio()));
+		encRecording.setRecordedAudio(encAudio);
 		encRecording.setRecordedDocument(recording.getRecordedDocument());
 
 		File plrFile = Paths.get(outputFolder.getPath(), data.get("name") + ".plr").toFile();
@@ -96,9 +132,26 @@ public class WebVectorExport {
 		String bundleContent = loadTemplateFile(TEMPLATE_FOLDER + "/main.bundle.js");
 		bundleContent = processTemplateFile(bundleContent, Map.of("recordingFile", plrFile.getName()));
 
-		writeTemplateFile(bundleContent, new File(outputFolder.getPath() + File.separator + "main.bundle.js"));
+		try {
+			writeTemplateFile(bundleContent, new File(outputFolder.getPath() + File.separator + "main.bundle.js"));
 
-		RecordingFileWriter.write(encRecording, plrFile);
+			RecordingFileWriter.write(encRecording, plrFile);
+
+			fireRenderState(new VideoRenderStateEvent(State.FINISHED));
+		}
+		catch (Exception e) {
+			throw new ExecutableException(e);
+		}
+	}
+
+	@Override
+	protected void stopInternal() throws ExecutableException {
+
+	}
+
+	@Override
+	protected void destroyInternal() throws ExecutableException {
+
 	}
 
 	private RecordedAudio encodeAudio(RecordedAudio recAudio) throws Exception {
@@ -110,13 +163,29 @@ public class WebVectorExport {
 				sourceFormat.getSampleSizeInBits(),
 				sourceFormat.getChannels(),
 				sourceFormat.getFrameSize(),
-				sourceFormat.getFrameRate(),
+				16000,
 				sourceFormat.isBigEndian());
+
+		streamLength = stream.getAudioInputStream().available() * (16000 / sourceFormat.getSampleRate());
+
+		Time totalTime = new Time(stream.getLengthInMillis());
+		Time progressTime = new Time(0);
+
+		VideoRenderProgressEvent progressEvent = new VideoRenderProgressEvent();
+		progressEvent.setCurrentTime(progressTime);
+		progressEvent.setTotalTime(totalTime);
 
 		AudioInputStream inputStream = AudioSystem.getAudioInputStream(targetFormat, stream.getAudioInputStream());
 		ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
 
 		OpusAudioFileWriter writer = new OpusAudioFileWriter(16000, 10, OpusSignal.OPUS_SIGNAL_VOICE);
+		writer.setProgressListener(readTotal -> {
+			double progress = readTotal / streamLength;
+
+			progressTime.setMillis((long) (totalTime.getMillis() * progress));
+
+			fireRenderProgress(progressEvent);
+		});
 		writer.write(inputStream, OpusFileFormatType.OPUS, outputStream);
 
 		ByteArrayInputStream encodedStream = new ByteArrayInputStream(
@@ -186,5 +255,13 @@ public class WebVectorExport {
 				DirUtils.copy(sourcePath, targetPath);
 			}
 		}
+	}
+
+	private void fireRenderState(VideoRenderStateEvent event) {
+		ApplicationBus.post(event);
+	}
+
+	private void fireRenderProgress(VideoRenderProgressEvent event) {
+		ApplicationBus.post(event);
 	}
 }

@@ -29,6 +29,8 @@ public interface VideoExportView extends View {
 
 	void bindTargetDirectory(StringProperty property);
 
+	void bindVideo(BooleanProperty property);
+
 	void bindVideoPlayer(BooleanProperty property);
 
 	void bindVectorPlayer(BooleanProperty property);

@@ -18,10 +18,13 @@
 
 package org.lecturestudio.media.audio.opus;
 
+import static java.util.Objects.nonNull;
+
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.util.function.Consumer;
 
 import javax.sound.sampled.AudioFileFormat.Type;
 import javax.sound.sampled.AudioFormat;
@@ -53,6 +56,8 @@ public class OpusAudioFileWriter extends AudioFileWriter {
 
 	private final OpusSignal signalType;
 
+	private Consumer<Integer> progressListener;
+
 
 	public OpusAudioFileWriter() {
 		this(64000, 8);
@@ -66,6 +71,10 @@ public class OpusAudioFileWriter extends AudioFileWriter {
 		this.bitrate = bitrate;
 		this.complexity = complexity;
 		this.signalType = signalType;
+	}
+
+	public void setProgressListener(Consumer<Integer> listener) {
+		progressListener = listener;
 	}
 
 	@Override
@@ -101,6 +110,7 @@ public class OpusAudioFileWriter extends AudioFileWriter {
 		AudioFormat format = stream.getFormat();
 		int sampleRate = (int) format.getSampleRate();
 		int channels = format.getChannels();
+
 		OpusEncoder encoder;
 
 		try {
@@ -123,6 +133,8 @@ public class OpusAudioFileWriter extends AudioFileWriter {
 
 		OpusFile file = new OpusFile(out, info, tags);
 
+		int read;
+		int readTotal = 0;
 		int encoded = 0;
 		int packetSamples = 960; // 20ms of audio: 48000 Hz / 1000 * 20ms = 960
 		int granulePosition = 0;
@@ -132,7 +144,7 @@ public class OpusAudioFileWriter extends AudioFileWriter {
 		byte[] packetBuffer = new byte[1275]; // Maximum possible number of octets
 
 		try {
-			while (stream.read(input) > 0) {
+			while ((read = stream.read(input)) > 0) {
 				bytesToShorts(input, pcm);
 
 				int bytesEncoded = encoder.encode(pcm, 0, packetSamples, packetBuffer, 0, packetBuffer.length);
@@ -148,6 +160,11 @@ public class OpusAudioFileWriter extends AudioFileWriter {
 				file.writeAudioData(data);
 
 				encoded += bytesEncoded;
+				readTotal += read;
+
+				if (nonNull(progressListener)) {
+					progressListener.accept(readTotal);
+				}
 			}
 		}
 		catch (OpusException e) {

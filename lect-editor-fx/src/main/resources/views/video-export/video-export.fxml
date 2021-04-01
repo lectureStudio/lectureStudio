@@ -13,6 +13,7 @@
 			<TextField fx:id="targetPathField" HBox.hgrow="ALWAYS"/>
 			<Button fx:id="browseButton" text="%button.browse"/>
 		</HBox>
+		<CheckBox fx:id="videoCheckbox" text="%video.export.compressed.video" maxWidth="Infinity"/>
 		<CheckBox fx:id="videoPlayerCheckbox" text="%video.export.video.player" maxWidth="Infinity"/>
 		<CheckBox fx:id="vectorPlayerCheckbox" text="%video.export.vector.player" maxWidth="Infinity"/>
 		<HBox styleClass="buttons" alignment="BOTTOM_RIGHT" VBox.vgrow="ALWAYS">

@@ -34,6 +34,7 @@ import javafx.geometry.HPos;
 import javafx.geometry.Orientation;
 import javafx.scene.Group;
 import javafx.scene.Node;
+import javafx.scene.control.Button;
 import javafx.scene.control.Control;
 import javafx.scene.control.SkinBase;
 import javafx.scene.input.MouseEvent;
@@ -51,6 +52,8 @@ public class MediaTrackSelectionSkin extends SkinBase<MediaTrackSelection<?>> {
 	protected SelectionSlider rightSlider;
 
 	protected Rectangle selectRect;
+
+	protected Button closeButton;
 
 
 	protected MediaTrackSelectionSkin(MediaTrackSelection control) {
@@ -116,7 +119,21 @@ public class MediaTrackSelectionSkin extends SkinBase<MediaTrackSelection<?>> {
 		selectRect.setMouseTransparent(true);
 		selectRect.heightProperty().bind(parent.heightProperty());
 
-		getChildren().addAll(selectRect, leftSlider, rightSlider);
+		SvgIcon closeIcon = new SvgIcon();
+		closeIcon.getStyleClass().add("close-icon");
+
+		closeButton = new Button();
+		closeButton.onActionProperty().bind(trackSelection.removeActionProperty());
+		closeButton.getStyleClass().add("close-button");
+		closeButton.setManaged(false);
+		closeButton.prefHeightProperty().bind(leftSlider.thumb.widthProperty());
+		closeButton.prefWidthProperty().bind(leftSlider.thumb.widthProperty());
+		closeButton.layoutXProperty().bind(leftSlider.layoutXProperty()
+				.subtract(closeButton.widthProperty()).add(leftSlider.lineX));
+		closeButton.layoutYProperty().bind(parent.heightProperty()
+				.subtract(closeButton.heightProperty()));
+
+		getChildren().addAll(selectRect, closeButton, leftSlider, rightSlider);
 
 		registerChangeListener(parent.getTransform().mxxProperty(), o -> {
 			updateSliderPos();
@@ -134,6 +151,15 @@ public class MediaTrackSelectionSkin extends SkinBase<MediaTrackSelection<?>> {
 		});
 
 		Platform.runLater(() -> {
+			double buttonSize = leftSlider.thumb.getWidth();
+			double sizeOffset = buttonSize - leftSlider.getLineOffset();
+			buttonSize -= sizeOffset * 2;
+
+			closeButton.resize(buttonSize, buttonSize);
+			closeButton.setGraphic(closeIcon);
+
+			closeIcon.applyCss();
+
 			updateSliderPos();
 
 			leftSlider.setVisible(true);

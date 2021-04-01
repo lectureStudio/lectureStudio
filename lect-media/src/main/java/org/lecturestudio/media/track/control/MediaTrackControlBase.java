@@ -31,7 +31,9 @@ import org.lecturestudio.core.model.Interval;
  */
 public abstract class MediaTrackControlBase implements MediaTrackControl {
 
-	private final List<Runnable> listeners = new ArrayList<>();
+	private final List<Runnable> onChangeListeners = new ArrayList<>();
+
+	private final List<Runnable> onRemoveListeners = new ArrayList<>();
 
 	private final Interval<Double> interval = new Interval<>();
 
@@ -42,12 +44,12 @@ public abstract class MediaTrackControlBase implements MediaTrackControl {
 
 	@Override
 	public void addChangeListener(Runnable listener) {
-		listeners.add(listener);
+		onChangeListeners.add(listener);
 	}
 
 	@Override
 	public void removeChangeListener(Runnable listener) {
-		listeners.remove(listener);
+		onChangeListeners.remove(listener);
 	}
 
 	@Override
@@ -88,10 +90,30 @@ public abstract class MediaTrackControlBase implements MediaTrackControl {
 	}
 
 	/**
+	 * Adds a listener that is notified when this media track control should be
+	 * removed from further processing.
+	 *
+	 * @param listener The listener to add.
+	 */
+	public void addRemoveListener(Runnable listener) {
+		onRemoveListeners.add(listener);
+	}
+
+	/**
+	 * Indicates that this control should be removed from the media track and
+	 * its further processing.
+	 */
+	public void remove() {
+		for (Runnable listener : onRemoveListeners) {
+			listener.run();
+		}
+	}
+
+	/**
 	 * Notify listeners that a change within this control has occurred.
 	 */
 	protected void fireControlChange() {
-		for (Runnable listener : listeners) {
+		for (Runnable listener : onChangeListeners) {
 			listener.run();
 		}
 	}

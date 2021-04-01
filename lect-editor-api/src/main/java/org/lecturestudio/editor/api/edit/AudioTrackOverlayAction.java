@@ -36,22 +36,51 @@ public class AudioTrackOverlayAction implements EditAction {
 
 	private final MediaTrack<?> track;
 
-	private final AudioFilterControl control;
+	private final AudioFilterControl<?> control;
 
 	private final RecordingPlaybackService playbackService;
 
-	private final Runnable controlListener;
+	private final Runnable controlChangeListener;
+
+	private final Runnable controlRemoveListener;
 
 
 	public AudioTrackOverlayAction(Recording recording, MediaTrack<?> track,
-			AudioFilterControl control,
+			AudioFilterControl<?> control,
 			RecordingPlaybackService playbackService) {
 		this.recording = recording;
 		this.track = track;
 		this.control = control;
 		this.playbackService = playbackService;
-		this.controlListener = () -> {
+		this.controlChangeListener = () -> {
 			setAudioVolumeFilter(control);
+		};
+		this.controlRemoveListener = () -> {
+			try {
+				recording.getEditManager().addEditAction(
+						new AudioTrackOverlayAction(recording, track, control,
+								playbackService) {
+
+							@Override
+							public void undo() throws RecordingEditException {
+								AudioTrackOverlayAction.this.redo();
+							}
+
+							@Override
+							public void redo() throws RecordingEditException {
+								execute();
+							}
+
+							@Override
+							public void execute()
+									throws RecordingEditException {
+								AudioTrackOverlayAction.this.undo();
+							}
+						});
+			}
+			catch (RecordingEditException e) {
+				// Ignore
+			}
 		};
 	}
 
@@ -59,7 +88,7 @@ public class AudioTrackOverlayAction implements EditAction {
 	public void undo() throws RecordingEditException {
 		track.removeMediaTrackControl(control);
 
-		control.removeChangeListener(controlListener);
+		control.removeChangeListener(controlChangeListener);
 
 		removeAudioVolumeFilter(control);
 	}
@@ -73,12 +102,13 @@ public class AudioTrackOverlayAction implements EditAction {
 	public void execute() throws RecordingEditException {
 		track.addMediaTrackControl(control);
 
-		control.addChangeListener(controlListener);
+		control.addChangeListener(controlChangeListener);
+		control.addRemoveListener(controlRemoveListener);
 
 		setAudioVolumeFilter(control);
 	}
 
-	private void setAudioVolumeFilter(AudioFilterControl control) {
+	private void setAudioVolumeFilter(AudioFilterControl<?> control) {
 		RecordedAudio recordedAudio = recording.getRecordedAudio();
 		RandomAccessAudioStream stream = recordedAudio.getAudioStream();
 		AudioFormat audioFormat = stream.getAudioFormat();
@@ -101,7 +131,7 @@ public class AudioTrackOverlayAction implements EditAction {
 				new Interval<>(padding + startBytePos, padding + endBytePos));
 	}
 
-	private void removeAudioVolumeFilter(AudioFilterControl control) {
+	private void removeAudioVolumeFilter(AudioFilterControl<?> control) {
 		RecordedAudio recordedAudio = recording.getRecordedAudio();
 		RandomAccessAudioStream stream = recordedAudio.getAudioStream();
 

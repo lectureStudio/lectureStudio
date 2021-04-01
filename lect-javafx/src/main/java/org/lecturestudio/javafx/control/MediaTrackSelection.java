@@ -24,6 +24,8 @@ import javafx.beans.property.DoubleProperty;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleDoubleProperty;
 import javafx.beans.property.SimpleObjectProperty;
+import javafx.event.ActionEvent;
+import javafx.event.EventHandler;
 import javafx.scene.control.Control;
 import javafx.scene.control.Skin;
 
@@ -36,6 +38,8 @@ public class MediaTrackSelection<T extends MediaTrackControl> extends Control {
 	private final DoubleProperty leftSelection = new SimpleDoubleProperty();
 
 	private final DoubleProperty rightSelection = new SimpleDoubleProperty();
+
+	private final ObjectProperty<EventHandler<ActionEvent>> removeAction = new SimpleObjectProperty<>(this, "removeAction");
 
 
 	public MediaTrackSelection() {
@@ -76,6 +80,24 @@ public class MediaTrackSelection<T extends MediaTrackControl> extends Control {
 
 	public final DoubleProperty rightSelectionProperty() {
 		return rightSelection;
+	}
+
+	/**
+	 * The 'Remove'-button's action, which is invoked whenever the button is
+	 * fired. This may be due to the user clicking on the button with the mouse,
+	 * or by a touch event, or by a key press, or if the developer
+	 * programmatically invokes the {@link #fire()} method.
+	 */
+	public final ObjectProperty<EventHandler<ActionEvent>> removeActionProperty() {
+		return removeAction;
+	}
+
+	public final EventHandler<ActionEvent> getRemoveAction() {
+		return removeActionProperty().get();
+	}
+
+	public final void setRemoveAction(EventHandler<ActionEvent> handler) {
+		removeAction.set(handler);
 	}
 
 	@Override

@@ -178,6 +178,7 @@ public class WaveformSkin extends MediaTrackControlSkinBase {
 			AdjustAudioVolumeSelection trackSelection = new AdjustAudioVolumeSelection();
 			trackSelection.setVolumeScalar(volumeControl.getVolumeScalar());
 			trackSelection.setTrackControl(volumeControl);
+			trackSelection.setRemoveAction(event -> volumeControl.remove());
 
 			controlNode = trackSelection;
 		}

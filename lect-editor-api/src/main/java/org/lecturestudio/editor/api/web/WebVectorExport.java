@@ -32,7 +32,10 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
+import java.util.function.Consumer;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -52,6 +55,8 @@ import org.lecturestudio.core.io.RandomAccessAudioStream;
 import org.lecturestudio.core.io.ResourceLoader;
 import org.lecturestudio.core.model.Time;
 import org.lecturestudio.core.recording.RecordedAudio;
+import org.lecturestudio.core.recording.RecordedEvents;
+import org.lecturestudio.core.recording.RecordedPage;
 import org.lecturestudio.core.recording.Recording;
 import org.lecturestudio.core.recording.file.RecordingFileWriter;
 import org.lecturestudio.core.util.AudioUtils;
@@ -76,8 +81,6 @@ public class WebVectorExport extends ExecutableBase {
 	private final Recording recording;
 
 	private final File outputFolder;
-
-	private double streamLength;
 
 
 	public WebVectorExport(Recording recording, File outputFolder) {
@@ -115,7 +118,7 @@ public class WebVectorExport extends ExecutableBase {
 		RecordedAudio encAudio;
 
 		try {
-			encAudio = encodeAudio(recording.getRecordedAudio());
+			encAudio = encodeAudio();
 		}
 		catch (Exception e) {
 			throw new ExecutableException(e);
@@ -154,7 +157,8 @@ public class WebVectorExport extends ExecutableBase {
 
 	}
 
-	private RecordedAudio encodeAudio(RecordedAudio recAudio) throws Exception {
+	private RecordedAudio encodeAudio() throws Exception {
+		RecordedAudio recAudio = recording.getRecordedAudio();
 		RandomAccessAudioStream stream = recAudio.getAudioStream().clone();
 
 		AudioFormat sourceFormat = AudioUtils.createAudioFormat(stream.getAudioFormat());
@@ -166,26 +170,11 @@ public class WebVectorExport extends ExecutableBase {
 				16000,
 				sourceFormat.isBigEndian());
 
-		streamLength = stream.getAudioInputStream().available() * (16000 / sourceFormat.getSampleRate());
-
-		Time totalTime = new Time(stream.getLengthInMillis());
-		Time progressTime = new Time(0);
-
-		VideoRenderProgressEvent progressEvent = new VideoRenderProgressEvent();
-		progressEvent.setCurrentTime(progressTime);
-		progressEvent.setTotalTime(totalTime);
-
 		AudioInputStream inputStream = AudioSystem.getAudioInputStream(targetFormat, stream.getAudioInputStream());
 		ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
 
 		OpusAudioFileWriter writer = new OpusAudioFileWriter(16000, 10, OpusSignal.OPUS_SIGNAL_VOICE);
-		writer.setProgressListener(readTotal -> {
-			double progress = readTotal / streamLength;
-
-			progressTime.setMillis((long) (totalTime.getMillis() * progress));
-
-			fireRenderProgress(progressEvent);
-		});
+		writer.setProgressListener(new ProgressListener(recording, targetFormat));
 		writer.write(inputStream, OpusFileFormatType.OPUS, outputStream);
 
 		ByteArrayInputStream encodedStream = new ByteArrayInputStream(
@@ -261,7 +250,62 @@ public class WebVectorExport extends ExecutableBase {
 		ApplicationBus.post(event);
 	}
 
-	private void fireRenderProgress(VideoRenderProgressEvent event) {
-		ApplicationBus.post(event);
+
+
+	private static class ProgressListener implements Consumer<Integer> {
+
+		private final Time progressTime;
+
+		private final VideoRenderProgressEvent event;
+
+		private final Iterator<RecordedPage> pageIter;
+
+		private RecordedPage recPage;
+
+		double bytesPerMs;
+
+
+		ProgressListener(Recording recording, AudioFormat targetFormat) {
+			double bytesPerSecond = Math.round(targetFormat.getSampleRate() *
+					targetFormat.getFrameSize() * targetFormat.getChannels());
+			this.bytesPerMs = bytesPerSecond / 1000;
+
+			RecordedAudio recAudio = recording.getRecordedAudio();
+			RandomAccessAudioStream stream = recAudio.getAudioStream();
+			RecordedEvents recEvents = recording.getRecordedEvents();
+			List<RecordedPage> pageList = recEvents.getRecordedPages();
+
+			pageIter = pageList.iterator();
+			recPage = pageIter.next();
+
+			progressTime = new Time(0);
+
+			event = new VideoRenderProgressEvent();
+			event.setTotalTime(new Time(stream.getLengthInMillis()));
+			event.setCurrentTime(progressTime);
+			event.setPageCount(pageList.size());
+			event.setPageNumber(recPage.getNumber() + 1);
+
+			if (pageIter.hasNext()) {
+				recPage = pageIter.next();
+			}
+		}
+
+		@Override
+		public void accept(Integer readTotal) {
+			long currentMs = (long) (readTotal / bytesPerMs);
+
+			progressTime.setMillis(currentMs);
+
+			if (recPage.getTimestamp() < currentMs) {
+				event.setPageNumber(recPage.getNumber() + 1);
+
+				if (pageIter.hasNext()) {
+					recPage = pageIter.next();
+				}
+			}
+
+			ApplicationBus.post(event);
+		}
 	}
 }

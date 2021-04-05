@@ -24,6 +24,7 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Consumer;
 
 import javax.sound.sampled.AudioFileFormat.Type;
@@ -56,6 +57,8 @@ public class OpusAudioFileWriter extends AudioFileWriter {
 
 	private final OpusSignal signalType;
 
+	private final AtomicBoolean cancelWrite;
+
 	private Consumer<Integer> progressListener;
 
 
@@ -71,6 +74,11 @@ public class OpusAudioFileWriter extends AudioFileWriter {
 		this.bitrate = bitrate;
 		this.complexity = complexity;
 		this.signalType = signalType;
+		this.cancelWrite = new AtomicBoolean();
+	}
+
+	public void cancelWriting() {
+		cancelWrite.set(true);
 	}
 
 	public void setProgressListener(Consumer<Integer> listener) {
@@ -144,7 +152,7 @@ public class OpusAudioFileWriter extends AudioFileWriter {
 		byte[] packetBuffer = new byte[1275]; // Maximum possible number of octets
 
 		try {
-			while ((read = stream.read(input)) > 0) {
+			while (!cancelWrite.get() && (read = stream.read(input)) > 0) {
 				bytesToShorts(input, pcm);
 
 				int bytesEncoded = encoder.encode(pcm, 0, packetSamples, packetBuffer, 0, packetBuffer.length);

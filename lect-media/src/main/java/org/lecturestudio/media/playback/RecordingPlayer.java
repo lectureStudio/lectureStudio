@@ -131,8 +131,7 @@ public class RecordingPlayer extends ExecutableBase {
 		progressEvent.setCurrentTime(new Time(0));
 		progressEvent.setTotalTime(new Time(recording.getRecordingHeader().getDuration()));
 		progressEvent.setPageNumber(1);
-		progressEvent.setPageCount(
-				recording.getRecordedEvents().getRecordedPages().size());
+		progressEvent.setPageCount(recording.getRecordedEvents().getRecordedPages().size());
 
 		AudioBus.register(this);
 	}

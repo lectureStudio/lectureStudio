@@ -16,36 +16,18 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package org.lecturestudio.editor.api.video;
+package org.lecturestudio.editor.api.recording;
 
 import org.lecturestudio.core.model.Time;
 
-public class VideoRenderStateEvent {
-
-	public enum State {
-		RENDER_AUDIO,
-		RENDER_VIDEO,
-		PASS_1,
-		PASS_2,
-		FINISHED
-	}
-
-
-
-	private final State state;
+public class RecordingRenderProgressEvent {
 
 	private Time current;
-
 	private Time total;
 
+	private int pageNumber;
+	private int pageCount;
 
-	public VideoRenderStateEvent(State state) {
-		this.state = state;
-	}
-
-	public State getState() {
-		return state;
-	}
 
 	public Time getCurrentTime() {
 		return current;
@@ -63,4 +45,19 @@ public class VideoRenderStateEvent {
 		this.total = total;
 	}
 
+	public int getPageNumber() {
+		return pageNumber;
+	}
+
+	public void setPageNumber(int pageNumber) {
+		this.pageNumber = pageNumber;
+	}
+
+	public int getPageCount() {
+		return pageCount;
+	}
+
+	public void setPageCount(int pageCount) {
+		this.pageCount = pageCount;
+	}
 }

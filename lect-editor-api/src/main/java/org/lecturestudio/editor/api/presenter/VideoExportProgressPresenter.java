@@ -20,43 +20,41 @@ package org.lecturestudio.editor.api.presenter;
 
 import static java.util.Objects.nonNull;
 
-import com.google.common.eventbus.Subscribe;
-
-import java.io.File;
-import java.nio.file.Paths;
 import java.text.MessageFormat;
+import java.util.Stack;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.CompletionException;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import javax.inject.Inject;
 
 import org.lecturestudio.core.ExecutableException;
-import org.lecturestudio.core.ExecutableState;
 import org.lecturestudio.core.app.ApplicationContext;
 import org.lecturestudio.core.app.dictionary.Dictionary;
-import org.lecturestudio.core.bus.ApplicationBus;
-import org.lecturestudio.core.bus.EventBus;
-import org.lecturestudio.core.controller.RenderController;
 import org.lecturestudio.core.model.Time;
 import org.lecturestudio.core.presenter.Presenter;
 import org.lecturestudio.core.recording.Recording;
-import org.lecturestudio.core.util.FileUtils;
 import org.lecturestudio.core.view.ViewLayer;
 import org.lecturestudio.editor.api.context.EditorContext;
+import org.lecturestudio.editor.api.recording.RecordingExport;
+import org.lecturestudio.editor.api.recording.RecordingRenderState;
 import org.lecturestudio.editor.api.service.RecordingFileService;
-import org.lecturestudio.editor.api.video.VideoRenderProgressEvent;
-import org.lecturestudio.editor.api.video.VideoRenderStateEvent;
+import org.lecturestudio.editor.api.recording.RecordingRenderProgressEvent;
 import org.lecturestudio.editor.api.video.VideoRenderer;
 import org.lecturestudio.editor.api.view.VideoExportProgressView;
 import org.lecturestudio.editor.api.web.WebVectorExport;
 import org.lecturestudio.editor.api.web.WebVideoExport;
 import org.lecturestudio.media.config.RenderConfiguration;
-import org.lecturestudio.swing.DefaultRenderContext;
 
 public class VideoExportProgressPresenter extends Presenter<VideoExportProgressView> {
 
 	private final RecordingFileService recordingService;
 
-	private VideoRenderer videoRenderer;
+	private final Stack<RecordingExport> exportStack;
+
+	private final AtomicBoolean canceled = new AtomicBoolean();
+
+	private RecordingExport export;
 
 
 	@Inject
@@ -65,39 +63,47 @@ public class VideoExportProgressPresenter extends Presenter<VideoExportProgressV
 		super(context, view);
 
 		this.recordingService = recordingService;
+		this.exportStack = new Stack<>();
 	}
 
 	@Override
-	public void initialize() {
-		ApplicationBus.register(this);
-
+	public void initialize() throws ExecutableException {
 		view.setOnCancel(this::cancel);
 		view.setOnClose(this::close);
 
-		CompletableFuture.runAsync(() -> {
-			Recording recording = recordingService.getSelectedRecording();
-			RenderConfiguration config = ((EditorContext) context).getRenderConfiguration();
+		Recording recording = recordingService.getSelectedRecording();
+		RenderConfiguration config = ((EditorContext) context).getRenderConfiguration();
 
-			// Web video export is dependent on the compressed video.
-			boolean renderVideo = config.getVideoExport() || config.getWebVideoExport();
+		// Web video export is dependent on the compressed video.
+		boolean renderVideo = config.getVideoExport() || config.getWebVideoExport();
 
-			if (renderVideo) {
-				createVideo(recording, config);
-			}
+		try {
+			// Note the order last-in-first-out.
 			if (config.getWebVectorExport()) {
-				createWebVectorExport(recording, renderVideo);
+				exportStack.push(createWebVectorExport(recording, config));
 			}
 			if (config.getWebVideoExport()) {
-				createWebVideoExport(recording);
+				exportStack.push(createWebVideoExport(recording, config));
 			}
-		});
+			if (renderVideo) {
+				exportStack.push(new VideoRenderer(context, recording, config));
+			}
+		}
+		catch (Exception e) {
+			throw new ExecutableException(e);
+		}
+
+		CompletableFuture.runAsync(this::run)
+				.thenRun(this::done)
+				.exceptionally(e -> {
+					handleException(e, "Video rendering failed", "recording.render.error");
+					return null;
+				});
 	}
 
 	@Override
 	public void destroy() {
 		cancel();
-
-		ApplicationBus.unregister(this);
 	}
 
 	@Override
@@ -105,8 +111,7 @@ public class VideoExportProgressPresenter extends Presenter<VideoExportProgressV
 		return ViewLayer.Dialog;
 	}
 
-	@Subscribe
-	public void onEvent(final VideoRenderProgressEvent event) {
+	private void onRenderProgress(RecordingRenderProgressEvent event) {
 		final Time current = event.getCurrentTime();
 		final Time total = event.getTotalTime();
 
@@ -115,29 +120,23 @@ public class VideoExportProgressPresenter extends Presenter<VideoExportProgressV
 		view.setProgress(current.getMillis() / (double) total.getMillis());
 	}
 
-	@Subscribe
-	public void onEvent(final VideoRenderStateEvent event) {
+	private void onRenderState(RecordingRenderState state) {
 		Dictionary dict = context.getDictionary();
 		String message = null;
 
-		if (event.getState() == VideoRenderStateEvent.State.RENDER_AUDIO) {
-			message = dict.get("recording.render.audio");
-		}
-		else if (event.getState() == VideoRenderStateEvent.State.RENDER_VIDEO) {
-			message = dict.get("recording.render.video");
-		}
-		else if (event.getState() == VideoRenderStateEvent.State.PASS_1) {
-			message = MessageFormat.format(dict.get("recording.render.video.pass"), 1);
-		}
-		else if (event.getState() == VideoRenderStateEvent.State.PASS_2) {
-			message = MessageFormat.format(dict.get("recording.render.video.pass"), 2);
-		}
-		else if (event.getState() == VideoRenderStateEvent.State.FINISHED) {
-			message = dict.get("recording.render.finished");
-
-			setCloseable(true);
-
-			view.setFinished();
+		switch (state) {
+			case PASS_1:
+				message = MessageFormat.format(dict.get("recording.render.video.pass"), 1);
+				break;
+			case PASS_2:
+				message = MessageFormat.format(dict.get("recording.render.video.pass"), 2);
+				break;
+			case RENDER_AUDIO:
+				message = dict.get("recording.render.audio");
+				break;
+			case RENDER_VIDEO:
+				message = dict.get("recording.render.video");
+				break;
 		}
 
 		if (nonNull(message)) {
@@ -146,12 +145,13 @@ public class VideoExportProgressPresenter extends Presenter<VideoExportProgressV
 	}
 
 	private void cancel() {
-		if (nonNull(videoRenderer) && (videoRenderer.started() || videoRenderer.suspended())) {
-			try {
-				videoRenderer.stop();
+		canceled.set(true);
 
-				view.setTitle(context.getDictionary().get("recording.render.canceled"));
-				view.setCanceled();
+		exportStack.clear();
+
+		if (nonNull(export) && export.started()) {
+			try {
+				export.stop();
 			}
 			catch (ExecutableException e) {
 				handleException(e, "Stop video rendering failed", "recording.render.error");
@@ -159,70 +159,50 @@ public class VideoExportProgressPresenter extends Presenter<VideoExportProgressV
 		}
 	}
 
-	private void createVideo(Recording recording, RenderConfiguration config) {
-		videoRenderer = new VideoRenderer(context, recording, config);
-		videoRenderer.addStateListener((oldState, newState) -> {
-			if (newState == ExecutableState.Started) {
-				setCloseable(false);
-			}
-			else if (newState == ExecutableState.Stopped) {
-				setCloseable(true);
-			}
-		});
+	private void run() {
+		while (!exportStack.isEmpty()) {
+			export = exportStack.pop();
 
-		try {
-			videoRenderer.start();
-		}
-		catch (Exception e) {
-			handleException(e, "Video rendering failed", "recording.render.error");
+			try {
+				export.addRenderProgressListener(this::onRenderProgress);
+				export.addRenderStateListener(this::onRenderState);
+				export.start();
+
+				// When done, clean-up resources.
+				export.destroy();
+			}
+			catch (Exception e) {
+				throw new CompletionException(e);
+			}
 		}
 	}
 
-	private void createWebVectorExport(Recording recording, boolean hasVideo) {
-		RenderConfiguration config = ((EditorContext) context).getRenderConfiguration();
+	private void done() {
+		export = null;
 
-		File outputFile = config.getOutputFile();
-		String webExportPath = FileUtils.stripExtension(outputFile.getPath());
-		File outputFolder = Paths.get(webExportPath).getParent().resolve("vector").toFile();
+		if (canceled.get()) {
+			view.setTitle(context.getDictionary().get("recording.render.canceled"));
+			view.setCanceled();
+		}
+		else {
+			view.setTitle(context.getDictionary().get("recording.render.finished"));
+			view.setFinished();
+		}
 
-		WebVectorExport vectorExport = new WebVectorExport(recording, outputFolder);
+		setCloseable(true);
+	}
+
+	private RecordingExport createWebVectorExport(Recording recording, RenderConfiguration config) {
+		WebVectorExport vectorExport = new WebVectorExport(recording, config);
 		vectorExport.setTitle("Web Player");
-		vectorExport.setName(FileUtils.stripExtension(outputFile.getName()));
 
-		if (!hasVideo) {
-			setCloseable(false);
-
-			view.setProgress(0);
-		}
-
-		try {
-			vectorExport.start();
-		}
-		catch (Exception e) {
-			handleException(e, "Vector rendering failed", "recording.render.error");
-		}
+		return vectorExport;
 	}
 
-	private void createWebVideoExport(Recording recording) {
-		RenderConfiguration config = ((EditorContext) context).getRenderConfiguration();
-
-		String webExportPath = FileUtils.stripExtension(config.getOutputFile().getPath());
-		File webExportFile = new File(webExportPath + ".html");
-
-		WebVideoExport webExport = new WebVideoExport();
+	private RecordingExport createWebVideoExport(Recording recording, RenderConfiguration config) {
+		WebVideoExport webExport = new WebVideoExport(recording, config);
 		webExport.setTitle("Web Player");
-		webExport.setVideoSource(config.getOutputFile().getName());
 
-		try {
-			EditorContext renderContext = new EditorContext(null, null,
-					context.getConfiguration(), context.getDictionary(),
-					new EventBus(), new EventBus());
-
-			webExport.setRenderController(new RenderController(renderContext, new DefaultRenderContext()));
-			webExport.export(recording, webExportFile);
-		}
-		catch (Exception e) {
-			handleException(e, "Video rendering failed", "recording.render.error");
-		}
+		return webExport;
 	}
 }

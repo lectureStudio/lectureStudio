@@ -47,9 +47,7 @@ import javax.sound.sampled.AudioSystem;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.concentus.OpusSignal;
-import org.lecturestudio.core.ExecutableBase;
 import org.lecturestudio.core.ExecutableException;
-import org.lecturestudio.core.bus.ApplicationBus;
 import org.lecturestudio.core.io.DynamicInputStream;
 import org.lecturestudio.core.io.RandomAccessAudioStream;
 import org.lecturestudio.core.io.ResourceLoader;
@@ -62,13 +60,14 @@ import org.lecturestudio.core.recording.file.RecordingFileWriter;
 import org.lecturestudio.core.util.AudioUtils;
 import org.lecturestudio.core.util.DirUtils;
 import org.lecturestudio.core.util.FileUtils;
-import org.lecturestudio.editor.api.video.VideoRenderProgressEvent;
-import org.lecturestudio.editor.api.video.VideoRenderStateEvent;
-import org.lecturestudio.editor.api.video.VideoRenderStateEvent.State;
+import org.lecturestudio.editor.api.recording.RecordingExport;
+import org.lecturestudio.editor.api.recording.RecordingRenderState;
+import org.lecturestudio.editor.api.recording.RecordingRenderProgressEvent;
 import org.lecturestudio.media.audio.opus.OpusAudioFileWriter;
 import org.lecturestudio.media.audio.opus.OpusFileFormatType;
+import org.lecturestudio.media.config.RenderConfiguration;
 
-public class WebVectorExport extends ExecutableBase {
+public class WebVectorExport extends RecordingExport {
 
 	private static final Logger LOG = LogManager.getLogger(WebVectorExport.class);
 
@@ -80,12 +79,14 @@ public class WebVectorExport extends ExecutableBase {
 
 	private final Recording recording;
 
-	private final File outputFolder;
+	private final RenderConfiguration config;
+
+	private String outputPath;
 
 
-	public WebVectorExport(Recording recording, File outputFolder) {
+	public WebVectorExport(Recording recording, RenderConfiguration config) {
 		this.recording = recording;
-		this.outputFolder = outputFolder;
+		this.config = config;
 	}
 
 	public void setTitle(String title) {
@@ -98,13 +99,21 @@ public class WebVectorExport extends ExecutableBase {
 
 	@Override
 	protected void initInternal() throws ExecutableException {
+		File outputFile = config.getOutputFile();
+		String webExportPath = FileUtils.stripExtension(outputFile.getPath());
+		File outputFolder = Paths.get(webExportPath).getParent().resolve("vector").toFile();
+
+		outputPath = outputFolder.getAbsolutePath();
+
+		setName(FileUtils.stripExtension(outputFile.getName()));
+
 		String indexContent = loadTemplateFile(TEMPLATE_FOLDER + "/" + TEMPLATE_FILE);
 		indexContent = processTemplateFile(indexContent, data);
 
 		try {
-			copyResourceToFilesystem(TEMPLATE_FOLDER, outputFolder.getAbsolutePath());
+			copyResourceToFilesystem(TEMPLATE_FOLDER, outputPath);
 
-			writeTemplateFile(indexContent, new File(outputFolder.getPath() + File.separator + TEMPLATE_FILE));
+			writeTemplateFile(indexContent, getFile(TEMPLATE_FILE));
 		}
 		catch (Exception e) {
 			throw new ExecutableException(e);
@@ -113,7 +122,7 @@ public class WebVectorExport extends ExecutableBase {
 
 	@Override
 	protected void startInternal() throws ExecutableException {
-		fireRenderState(new VideoRenderStateEvent(State.RENDER_AUDIO));
+		onRenderState(RecordingRenderState.RENDER_AUDIO);
 
 		RecordedAudio encAudio;
 
@@ -130,17 +139,15 @@ public class WebVectorExport extends ExecutableBase {
 		encRecording.setRecordedAudio(encAudio);
 		encRecording.setRecordedDocument(recording.getRecordedDocument());
 
-		File plrFile = Paths.get(outputFolder.getPath(), data.get("name") + ".plr").toFile();
+		File plrFile = getFile(data.get("name") + ".plr");
 
 		String bundleContent = loadTemplateFile(TEMPLATE_FOLDER + "/main.bundle.js");
 		bundleContent = processTemplateFile(bundleContent, Map.of("recordingFile", plrFile.getName()));
 
 		try {
-			writeTemplateFile(bundleContent, new File(outputFolder.getPath() + File.separator + "main.bundle.js"));
+			writeTemplateFile(bundleContent, getFile("main.bundle.js"));
 
 			RecordingFileWriter.write(encRecording, plrFile);
-
-			fireRenderState(new VideoRenderStateEvent(State.FINISHED));
 		}
 		catch (Exception e) {
 			throw new ExecutableException(e);
@@ -155,6 +162,10 @@ public class WebVectorExport extends ExecutableBase {
 	@Override
 	protected void destroyInternal() throws ExecutableException {
 
+	}
+
+	private File getFile(String file) {
+		return Paths.get(outputPath, file).toFile();
 	}
 
 	private RecordedAudio encodeAudio() throws Exception {
@@ -246,17 +257,13 @@ public class WebVectorExport extends ExecutableBase {
 		}
 	}
 
-	private void fireRenderState(VideoRenderStateEvent event) {
-		ApplicationBus.post(event);
-	}
 
 
-
-	private static class ProgressListener implements Consumer<Integer> {
+	private class ProgressListener implements Consumer<Integer> {
 
 		private final Time progressTime;
 
-		private final VideoRenderProgressEvent event;
+		private final RecordingRenderProgressEvent event;
 
 		private final Iterator<RecordedPage> pageIter;
 
@@ -280,7 +287,7 @@ public class WebVectorExport extends ExecutableBase {
 
 			progressTime = new Time(0);
 
-			event = new VideoRenderProgressEvent();
+			event = new RecordingRenderProgressEvent();
 			event.setTotalTime(new Time(stream.getLengthInMillis()));
 			event.setCurrentTime(progressTime);
 			event.setPageCount(pageList.size());
@@ -305,7 +312,7 @@ public class WebVectorExport extends ExecutableBase {
 				}
 			}
 
-			ApplicationBus.post(event);
+			onRenderProgress(event);
 		}
 	}
 }

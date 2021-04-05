@@ -43,6 +43,11 @@ import java.util.stream.Collectors;
 
 import javax.imageio.ImageIO;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
+import org.lecturestudio.core.ExecutableException;
+import org.lecturestudio.core.bus.EventBus;
 import org.lecturestudio.core.controller.RenderController;
 import org.lecturestudio.core.geometry.Rectangle2D;
 import org.lecturestudio.core.model.Document;
@@ -50,12 +55,14 @@ import org.lecturestudio.core.model.Page;
 import org.lecturestudio.core.recording.RecordedDocument;
 import org.lecturestudio.core.recording.RecordedEvents;
 import org.lecturestudio.core.recording.Recording;
-
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import org.lecturestudio.core.util.FileUtils;
 import org.lecturestudio.core.view.ViewType;
+import org.lecturestudio.editor.api.context.EditorContext;
+import org.lecturestudio.editor.api.recording.RecordingExport;
+import org.lecturestudio.media.config.RenderConfiguration;
+import org.lecturestudio.swing.DefaultRenderContext;
 
-public class WebVideoExport {
+public class WebVideoExport extends RecordingExport {
 
 	private static final Logger LOG = LogManager.getLogger(WebVideoExport.class);
 
@@ -65,24 +72,22 @@ public class WebVideoExport {
 
 	private final Map<String, String> data = new HashMap<>();
 
+	private final Recording recording;
+
+	private final RenderConfiguration config;
+
 	private BufferedImage pageImage;
 
 	private RenderController renderController;
 
 
-	public void setRenderController(RenderController renderController) {
-		this.renderController = renderController;
+	public WebVideoExport(Recording recording, RenderConfiguration config) {
+		this.recording = recording;
+		this.config = config;
 	}
 
-	public void export(Recording recording, File outputFile) throws Exception {
-		String pageModel = createPageModel(recording);
-
-		data.put("pageModelData", pageModel);
-
-		String indexContent = loadTemplateFile();
-		indexContent = processTemplateFile(indexContent, data);
-
-		writeTemplateFile(indexContent, outputFile);
+	public void setRenderController(RenderController renderController) {
+		this.renderController = renderController;
 	}
 
 	public void setTitle(String title) {
@@ -91,6 +96,52 @@ public class WebVideoExport {
 
 	public void setVideoSource(String source) {
 		data.put("videoSource", source);
+	}
+
+	@Override
+	protected void initInternal() throws ExecutableException {
+		EditorContext renderContext;
+
+		try {
+			renderContext = new EditorContext(null, null, null, null,
+					new EventBus(), new EventBus());
+		}
+		catch (IOException e) {
+			throw new ExecutableException(e);
+		}
+
+		setVideoSource(config.getOutputFile().getName());
+		setRenderController(new RenderController(renderContext, new DefaultRenderContext()));
+	}
+
+	@Override
+	protected void startInternal() throws ExecutableException {
+		try {
+			String pageModel = createPageModel(recording);
+
+			data.put("pageModelData", pageModel);
+
+			File targetFile = config.getOutputFile();
+			String webExportPath = FileUtils.stripExtension(targetFile.getPath());
+			File outputFile = new File(webExportPath + ".html");
+			String indexContent = loadTemplateFile();
+			indexContent = processTemplateFile(indexContent, data);
+
+			writeTemplateFile(indexContent, outputFile);
+		}
+		catch (Exception e) {
+			throw new ExecutableException(e);
+		}
+	}
+
+	@Override
+	protected void stopInternal() throws ExecutableException {
+
+	}
+
+	@Override
+	protected void destroyInternal() throws ExecutableException {
+
 	}
 
 	private String loadTemplateFile() {

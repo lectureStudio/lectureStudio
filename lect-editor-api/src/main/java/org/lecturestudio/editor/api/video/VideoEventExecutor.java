@@ -26,11 +26,10 @@ import java.awt.image.BufferedImage;
 import java.util.Collections;
 import java.util.List;
 import java.util.Stack;
-import java.util.function.Consumer;
+import java.util.function.BiConsumer;
 
 import org.lecturestudio.core.ExecutableException;
 import org.lecturestudio.core.ExecutableState;
-import org.lecturestudio.core.bus.ApplicationBus;
 import org.lecturestudio.core.bus.EventBus;
 import org.lecturestudio.core.bus.event.PageEvent;
 import org.lecturestudio.core.controller.ToolController;
@@ -40,13 +39,9 @@ import org.lecturestudio.core.recording.EventExecutor;
 import org.lecturestudio.core.recording.RecordedPage;
 import org.lecturestudio.core.recording.action.NextPageAction;
 import org.lecturestudio.core.recording.action.PlaybackAction;
-
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import org.lecturestudio.editor.api.recording.RecordingRenderProgressEvent;
 
 public class VideoEventExecutor extends EventExecutor {
-
-	private static final Logger LOG = LogManager.getLogger(VideoEventExecutor.class);
 
 	private final VideoRendererView renderView;
 
@@ -60,11 +55,9 @@ public class VideoEventExecutor extends EventExecutor {
 
 	private List<RecordedPage> recordedPages;
 
-	private VideoRenderProgressEvent progressEvent;
+	private RecordingRenderProgressEvent progressEvent;
 
-	private Consumer<BufferedImage> frameConsumer;
-
-	private Thread thread;
+	private BiConsumer<BufferedImage, RecordingRenderProgressEvent> frameConsumer;
 
 	private int pageNumber;
 
@@ -100,7 +93,7 @@ public class VideoEventExecutor extends EventExecutor {
 		this.frameRate = rate;
 	}
 
-	public void setFrameConsumer(Consumer<BufferedImage> frameConsumer) {
+	public void setFrameConsumer(BiConsumer<BufferedImage, RecordingRenderProgressEvent> frameConsumer) {
 		this.frameConsumer = frameConsumer;
 	}
 
@@ -141,12 +134,10 @@ public class VideoEventExecutor extends EventExecutor {
 
 		toolController.init();
 
-		progressEvent = new VideoRenderProgressEvent();
+		progressEvent = new RecordingRenderProgressEvent();
 		progressEvent.setCurrentTime(new Time(0));
 		progressEvent.setTotalTime(new Time(duration));
 		progressEvent.setPageCount(document.getPageCount());
-
-		renderProgress(getElapsedTime());
 	}
 
 	@Override
@@ -157,26 +148,14 @@ public class VideoEventExecutor extends EventExecutor {
 		
 		if (state == ExecutableState.Initialized || state == ExecutableState.Stopped) {
 			eventBus.register(this);
-			
-			thread = new Thread(() -> {
-				try {
-					executeEvents();
-				}
-				catch (InterruptedException e) {
-					// Ignore
-				}
-				catch (ExecutableException e) {
-					LOG.error("Stop event executor failed", e);
-				}
-				catch (Exception e) {
-					LOG.error("Render event failed", e);
-				}
-			});
-			thread.start();
-		}
-		else if (state == ExecutableState.Suspended) {
-			synchronized (thread) {
-				thread.notify();
+
+			try {
+				executeEvents();
+			}
+			catch (Exception e) {
+				eventBus.unregister(this);
+
+				throw new ExecutableException(e);
 			}
 		}
 	}
@@ -198,7 +177,7 @@ public class VideoEventExecutor extends EventExecutor {
 	protected void executeEvents() throws Exception {
 		int timeStep = (int) (1000 / frameRate);
 
-		while (thread != null && getElapsedTime() < duration) {
+		while (getElapsedTime() < duration) {
 			ExecutableState state = getState();
 
 			if (state == ExecutableState.Starting || state == ExecutableState.Started) {
@@ -232,25 +211,14 @@ public class VideoEventExecutor extends EventExecutor {
 					renderFrame(this.time);
 
 					this.time += timeStep;
-
-					renderProgress(getElapsedTime());
 				}
 
 				// Relieve the CPU.
 				Thread.sleep(1);
 			}
-			else if (state == ExecutableState.Suspended) {
-				synchronized (thread) {
-					thread.wait();
-				}
-			}
 			else {
 				break;
 			}
-		}
-
-		if (!stopped()) {
-			stop();
 		}
 	}
 
@@ -267,7 +235,10 @@ public class VideoEventExecutor extends EventExecutor {
 		}
 
 		if (nonNull(frameConsumer)) {
-			frameConsumer.accept(renderView.renderCurrentFrame());
+			progressEvent.getCurrentTime().setMillis(timestamp);
+			progressEvent.setPageNumber(document.getCurrentPageNumber() + 1);
+
+			frameConsumer.accept(renderView.renderCurrentFrame(), progressEvent);
 		}
 
 		frames++;
@@ -293,12 +264,4 @@ public class VideoEventExecutor extends EventExecutor {
 
 		this.pageNumber = pageNumber;
 	}
-
-	private void renderProgress(long timeMs) {
-		progressEvent.getCurrentTime().setMillis(timeMs);
-		progressEvent.setPageNumber(document.getCurrentPageNumber() + 1);
-
-		ApplicationBus.post(progressEvent);
-	}
-
 }

@@ -26,16 +26,16 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.security.SecureRandom;
+import java.util.Iterator;
+import java.util.List;
 import java.util.function.Consumer;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import org.lecturestudio.core.ExecutableBase;
 import org.lecturestudio.core.ExecutableException;
 import org.lecturestudio.core.ExecutableState;
 import org.lecturestudio.core.app.ApplicationContext;
-import org.lecturestudio.core.bus.ApplicationBus;
 import org.lecturestudio.core.bus.EventBus;
 import org.lecturestudio.core.controller.RenderController;
 import org.lecturestudio.core.controller.ToolController;
@@ -43,15 +43,20 @@ import org.lecturestudio.core.io.RandomAccessAudioStream;
 import org.lecturestudio.core.model.Document;
 import org.lecturestudio.core.model.Page;
 import org.lecturestudio.core.model.Time;
+import org.lecturestudio.core.recording.RecordedEvents;
+import org.lecturestudio.core.recording.RecordedPage;
 import org.lecturestudio.core.recording.Recording;
 import org.lecturestudio.core.service.DocumentService;
 import org.lecturestudio.editor.api.context.EditorContext;
+import org.lecturestudio.editor.api.recording.RecordingExport;
+import org.lecturestudio.editor.api.recording.RecordingRenderProgressEvent;
+import org.lecturestudio.editor.api.recording.RecordingRenderState;
 import org.lecturestudio.media.config.AudioRenderConfiguration;
 import org.lecturestudio.media.config.RenderConfiguration;
 import org.lecturestudio.media.config.VideoRenderConfiguration;
 import org.lecturestudio.swing.DefaultRenderContext;
 
-public class VideoRenderer extends ExecutableBase {
+public class VideoRenderer extends RecordingExport {
 
 	private static final Logger LOG = LogManager.getLogger(VideoRenderer.class);
 
@@ -170,6 +175,18 @@ public class VideoRenderer extends ExecutableBase {
 				context.getConfiguration(), context.getDictionary(),
 				new EventBus(), new EventBus());
 
+		if (videoConfig.getTwoPass()) {
+			if (videoConfig.getPass() == 1) {
+				onRenderState(RecordingRenderState.PASS_1);
+			}
+			else if (videoConfig.getPass() == 2) {
+				onRenderState(RecordingRenderState.PASS_2);
+			}
+		}
+		else {
+			onRenderState(RecordingRenderState.RENDER_VIDEO);
+		}
+
 		muxer = new FFmpegProcessMuxer(config);
 		muxer.start();
 
@@ -197,38 +214,32 @@ public class VideoRenderer extends ExecutableBase {
 		eventExecutor.setDuration((int) recording.getRecordedAudio().getAudioStream().getLengthInMillis());
 		eventExecutor.setFrameConsumer(this::onVideoFrame);
 		eventExecutor.setFrameRate(videoConfig.getFrameRate());
-		eventExecutor.addStateListener((oldState, newState) -> {
-			if (started() && newState == ExecutableState.Stopped) {
-				onEventExecutorFinish();
-			}
-		});
 		eventExecutor.start();
 
-		if (videoConfig.getTwoPass()) {
-			if (videoConfig.getPass() == 1) {
-				fireStateChanged(new VideoRenderStateEvent(VideoRenderStateEvent.State.PASS_1));
-			}
-			if (videoConfig.getPass() == 2) {
-				fireStateChanged(new VideoRenderStateEvent(VideoRenderStateEvent.State.PASS_2));
-			}
-		}
-		else {
-			fireStateChanged(new VideoRenderStateEvent(VideoRenderStateEvent.State.RENDER_VIDEO));
+		if (eventExecutor.started()) {
+			onEventExecutorFinish();
 		}
 	}
 
 	private void renderAudio() throws Exception {
+		onRenderState(RecordingRenderState.RENDER_AUDIO);
+
 		RandomAccessAudioStream stream = recording.getRecordedAudio().getAudioStream().clone();
+
+		RecordedEvents recEvents = recording.getRecordedEvents();
+		List<RecordedPage> pageList = recEvents.getRecordedPages();
+		Iterator<RecordedPage> pageIter = pageList.iterator();
+		RecordedPage recPage = pageIter.next();
 
 		RenderConfiguration renderConfig = new RenderConfiguration();
 		renderConfig.setFileFormat(config.getFileFormat());
-    	renderConfig.setOutputFile(config.getOutputFile());
-    	renderConfig.setAudioConfig(config.getAudioConfig());
-    	renderConfig.setVideoConfig(null);
+		renderConfig.setOutputFile(config.getOutputFile());
+		renderConfig.setAudioConfig(config.getAudioConfig());
+		renderConfig.setVideoConfig(null);
 
-    	AudioRenderConfiguration audioConfig = renderConfig.getAudioConfig();
-    	audioConfig.setInputFormat(stream.getAudioFormat());
-    	audioConfig.setVideoInputFile(runningConfig.getOutputFile());
+		AudioRenderConfiguration audioConfig = renderConfig.getAudioConfig();
+		audioConfig.setInputFormat(stream.getAudioFormat());
+		audioConfig.setVideoInputFile(runningConfig.getOutputFile());
 
 		VideoMuxer muxer = new FFmpegProcessMuxer(renderConfig);
 		muxer.start();
@@ -236,15 +247,20 @@ public class VideoRenderer extends ExecutableBase {
 		Time totalTime = new Time(stream.getLengthInMillis());
 		Time progressTime = new Time(0);
 
-		VideoRenderStateEvent progressEvent = new VideoRenderStateEvent(VideoRenderStateEvent.State.RENDER_AUDIO);
+		RecordingRenderProgressEvent progressEvent = new RecordingRenderProgressEvent();
 		progressEvent.setCurrentTime(progressTime);
 		progressEvent.setTotalTime(totalTime);
+		progressEvent.setPageCount(pageList.size());
+		progressEvent.setPageNumber(recPage.getNumber() + 1);
 
-		fireStateChanged(progressEvent);
+		if (pageIter.hasNext()) {
+			recPage = pageIter.next();
+		}
 
 		byte[] buffer = new byte[8192];
 		long totalSize = stream.getLength();
 		long totalRead = 0;
+		long currentMs;
 		int read;
 
 		while ((read = stream.read(buffer)) > 0) {
@@ -253,9 +269,19 @@ public class VideoRenderer extends ExecutableBase {
 			totalRead += read;
 
 			// Progress update.
-			progressTime.setMillis(totalRead * totalTime.getMillis() / totalSize);
+			currentMs = totalRead * totalTime.getMillis() / totalSize;
 
-			fireStateChanged(progressEvent);
+			progressTime.setMillis(currentMs);
+
+			if (recPage.getTimestamp() < currentMs) {
+				progressEvent.setPageNumber(recPage.getNumber() + 1);
+
+				if (pageIter.hasNext()) {
+					recPage = pageIter.next();
+				}
+			}
+
+			onRenderProgress(progressEvent);
 		}
 
 		muxer.stop();
@@ -263,31 +289,21 @@ public class VideoRenderer extends ExecutableBase {
 
 		deleteProfile();
 		deleteTempFile();
-
-		stop();
-
-		progressEvent = new VideoRenderStateEvent(VideoRenderStateEvent.State.FINISHED);
-		progressEvent.setCurrentTime(progressTime);
-		progressEvent.setTotalTime(totalTime);
-
-		fireStateChanged(progressEvent);
 	}
 
-	private void onVideoFrame(BufferedImage image) {
+	private void onVideoFrame(BufferedImage image, RecordingRenderProgressEvent event) {
 		try {
 			muxer.addVideoFrame(image);
 
 			if (nonNull(videoFrameConsumer)) {
 				videoFrameConsumer.accept(image);
 			}
+
+			onRenderProgress(event);
 		}
 		catch (IOException e) {
 			LOG.error("Mux video frame failed", e);
 		}
-	}
-
-	private void fireStateChanged(VideoRenderStateEvent event) {
-		ApplicationBus.post(event);
 	}
 
 	private void onEventExecutorFinish() {

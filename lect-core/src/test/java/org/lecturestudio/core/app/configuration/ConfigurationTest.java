@@ -27,6 +27,7 @@ import java.io.IOException;
 import java.net.URISyntaxException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
@@ -72,7 +73,7 @@ class ConfigurationTest {
 
 	@Test
 	final void testConfig() throws IOException {
-		Calendar buildDate = Calendar.getInstance();
+		ZonedDateTime buildDate = ZonedDateTime.now();
 
 		List<RecentDocument> recentDocuments = new ArrayList<>();
 		recentDocuments.add(new RecentDocument("Test Doc", "/home/var", Calendar.getInstance().getTime()));

@@ -18,9 +18,8 @@
 
 package org.lecturestudio.core.app.configuration;
 
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
-import java.util.Calendar;
+import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.Locale;
 import java.util.Set;
 import java.util.jar.Attributes;
@@ -52,7 +51,7 @@ public class Configuration {
 	private String version;
 
 	/** The build date of the application. */
-	private Calendar buildDate;
+	private ZonedDateTime buildDate;
 
 	/** The name of the application. */
 	private final StringProperty applicationName = new StringProperty();
@@ -113,7 +112,7 @@ public class Configuration {
 	 */
 	public Configuration() {
 		String version = null;
-		Calendar date = Calendar.getInstance();
+		ZonedDateTime date = ZonedDateTime.now();
 
 		try {
 			Manifest manifest = new Manifest(ResourceLoader.getResourceAsStream(JarFile.MANIFEST_NAME));
@@ -126,8 +125,8 @@ public class Configuration {
 				version = "1.0";
 			}
 			if (buildDate != null) {
-				DateFormat formatter = new SimpleDateFormat("yyyy-MM-dd HH:mm");
-				date.setTime(formatter.parse(buildDate));
+				DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
+				date = ZonedDateTime.parse(buildDate, formatter);
 			}
 		}
 		catch (Exception e) {
@@ -161,7 +160,7 @@ public class Configuration {
 	 *
 	 * @return the build date of the application.
 	 */
-	public Calendar getBuildDate() {
+	public ZonedDateTime getBuildDate() {
 		return buildDate;
 	}
 
@@ -170,7 +169,7 @@ public class Configuration {
 	 *
 	 * @param date The build date of the application.
 	 */
-	public void setBuildDate(Calendar date) {
+	public void setBuildDate(ZonedDateTime date) {
 		this.buildDate = date;
 	}
 

@@ -24,6 +24,8 @@ import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.databind.module.SimpleModule;
+import com.fasterxml.jackson.datatype.jdk8.Jdk8Module;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -59,7 +61,7 @@ public class JsonConfigurationService<T> implements ConfigurationService<T> {
 	 * The object mapper that configures the conversion to and from the JSON
 	 * format.
 	 */
-	private ObjectMapper mapper;
+	private final ObjectMapper mapper;
 
 
 	/**
@@ -78,6 +80,7 @@ public class JsonConfigurationService<T> implements ConfigurationService<T> {
 
 		mapper = new ObjectMapper();
 		mapper.enable(SerializationFeature.INDENT_OUTPUT);
+		mapper.registerModules(new Jdk8Module(), new JavaTimeModule());
 		mapper.registerModule(module);
 		mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
 	}

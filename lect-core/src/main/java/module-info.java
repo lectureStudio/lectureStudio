@@ -7,6 +7,8 @@ module org.lecturestudio.core {
 	requires com.fasterxml.jackson.core;
 	requires com.fasterxml.jackson.databind;
 	requires com.fasterxml.jackson.dataformat.yaml;
+	requires com.fasterxml.jackson.datatype.jdk8;
+	requires com.fasterxml.jackson.datatype.jsr310;
 	requires com.google.common;
 	requires com.google.guice;
 	requires commons.math3;

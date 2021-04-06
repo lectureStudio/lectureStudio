@@ -3,6 +3,15 @@
 	<Panel layout="GridBagLayout" border="EmptyBorder(0, 20, 20, 20)">
 		<TabbedPane tabPlacement="JTabbedPane.TOP">
 			<gridbagconstraints gridx="0" gridy="0" anchor="GridBagConstraints.NORTHWEST" weightx="1.0" weighty="1.0" fill="GridBagConstraints.BOTH" />
+			<Tab text="about.info">
+				<VBox border="EmptyBorder(10, 10, 10, 10)">
+					<Label id="versionLabel" border="EmptyBorder(0, 0, 3, 0)" />
+					<Label id="buildDateLabel" border="EmptyBorder(0, 0, 10, 0)" />
+					<Label id="websiteLabel" foreground="0000B3" />
+					<Label border="EmptyBorder(10, 0, 10, 0)" />
+					<Label id="issueLabel" text="about.info.issue" foreground="0000B3" />
+				</VBox>
+			</Tab>
 			<Tab text="about.contributors">
 				<Panel layout="BorderLayout">
 					<Panel id="sponsorPane" constraints="BorderLayout.NORTH" />

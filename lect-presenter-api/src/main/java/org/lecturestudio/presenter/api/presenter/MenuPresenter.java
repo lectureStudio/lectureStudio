@@ -51,6 +51,7 @@ import org.lecturestudio.core.model.Page;
 import org.lecturestudio.core.model.RecentDocument;
 import org.lecturestudio.core.model.listener.PageEditEvent;
 import org.lecturestudio.core.model.listener.ParameterChangeListener;
+import org.lecturestudio.core.presenter.AboutPresenter;
 import org.lecturestudio.core.presenter.Presenter;
 import org.lecturestudio.core.presenter.command.CloseApplicationCommand;
 import org.lecturestudio.core.presenter.command.ClosePresenterCommand;

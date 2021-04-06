@@ -48,7 +48,7 @@ public class LectSwingPreloader extends SwingPreloader {
 
 		JPanel panel = new JPanel() {
 
-			Font versionFont = new Font("Dialog", Font.BOLD, 12);
+			final Font versionFont = new Font("Dialog", Font.BOLD, 12);
 
 
 			@Override

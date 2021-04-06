@@ -19,8 +19,14 @@
 package org.lecturestudio.presenter.swing.view;
 
 import java.awt.Container;
+import java.awt.Cursor;
+import java.awt.Desktop;
 import java.awt.FlowLayout;
 import java.awt.Font;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
+import java.net.URI;
 import java.util.AbstractMap.SimpleEntry;
 import java.util.ArrayList;
 import java.util.Enumeration;
@@ -45,6 +51,14 @@ import org.lecturestudio.swing.view.ViewPostConstruct;
 @SwingView(name = "about")
 public class SwingAboutView extends ContentPane implements AboutView {
 
+	private JLabel versionLabel;
+
+	private JLabel buildDateLabel;
+
+	private JLabel websiteLabel;
+
+	private JLabel issueLabel;
+
 	private JTable systemPropertiesTable;
 
 	private Container contributorPane;
@@ -56,6 +70,42 @@ public class SwingAboutView extends ContentPane implements AboutView {
 
 	public SwingAboutView() {
 		super();
+	}
+
+	@Override
+	public void setAppName(String name) {
+		SwingUtils.invoke(() -> {
+			setTitle(getTitle() + " " + name);
+		});
+	}
+
+	@Override
+	public void setAppVersion(String version) {
+		SwingUtils.invoke(() -> {
+			versionLabel.setText(version);
+		});
+	}
+
+	@Override
+	public void setAppBuildDate(String date) {
+		SwingUtils.invoke(() -> {
+			buildDateLabel.setText(date);
+		});
+	}
+
+	@Override
+	public void setWebsite(String website) {
+		SwingUtils.invoke(() -> {
+			websiteLabel.setName(website);
+			websiteLabel.setText(website);
+		});
+	}
+
+	@Override
+	public void setIssueWebsite(String website) {
+		SwingUtils.invoke(() -> {
+			issueLabel.setName(website);
+		});
 	}
 
 	@Override
@@ -111,6 +161,25 @@ public class SwingAboutView extends ContentPane implements AboutView {
 
 	@ViewPostConstruct
 	private void initialize() {
+		MouseListener clickListener = new MouseAdapter() {
+
+			@Override
+			public void mouseClicked(MouseEvent event) {
+				JLabel label = (JLabel) event.getSource();
+				try {
+					Desktop.getDesktop().browse(new URI(label.getName()));
+				}
+				catch (Exception e) {
+					// Ignore.
+				}
+			}
+		};
+
+		websiteLabel.setCursor(new Cursor(Cursor.HAND_CURSOR));
+		websiteLabel.addMouseListener(clickListener);
+		issueLabel.setCursor(new Cursor(Cursor.HAND_CURSOR));
+		issueLabel.addMouseListener(clickListener);
+
 		contributorPane.setLayout(new WrapFlowLayout(FlowLayout.LEFT, 10, 10));
 		sponsorPane.setLayout(new WrapFlowLayout(FlowLayout.LEFT, 10, 10));
 

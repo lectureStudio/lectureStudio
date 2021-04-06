@@ -18,15 +18,22 @@
 
 package org.lecturestudio.presenter.javafx.view;
 
+import static java.util.Objects.nonNull;
+
 import java.util.Enumeration;
 import java.util.List;
 import java.util.Properties;
 
+import javafx.application.HostServices;
+import javafx.event.ActionEvent;
+import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
+import javafx.scene.control.Hyperlink;
 import javafx.scene.control.Label;
 import javafx.scene.control.TableView;
 import javafx.scene.layout.Pane;
+import javafx.stage.Stage;
 
 import org.lecturestudio.core.model.Contributor;
 import org.lecturestudio.core.model.Sponsor;
@@ -39,6 +46,18 @@ import org.lecturestudio.javafx.view.model.SystemPropertyTableItem;
 
 @FxmlView(name = "about")
 public class FxAboutView extends ContentPane implements AboutView {
+
+	@FXML
+	private Label versionLabel;
+
+	@FXML
+	private Label buildDateLabel;
+
+	@FXML
+	private Hyperlink websiteLink;
+
+	@FXML
+	private Hyperlink issueLink;
 
 	@FXML
 	private TableView<SystemPropertyTableItem> systemPropertiesTable;
@@ -55,6 +74,42 @@ public class FxAboutView extends ContentPane implements AboutView {
 
 	public FxAboutView() {
 		super();
+	}
+
+	@Override
+	public void setAppName(String name) {
+		FxUtils.invoke(() -> {
+			setTitle(getTitle() + " " + name);
+		});
+	}
+
+	@Override
+	public void setAppVersion(String version) {
+		FxUtils.invoke(() -> {
+			versionLabel.setText(version);
+		});
+	}
+
+	@Override
+	public void setAppBuildDate(String date) {
+		FxUtils.invoke(() -> {
+			buildDateLabel.setText(date);
+		});
+	}
+
+	@Override
+	public void setWebsite(String website) {
+		FxUtils.invoke(() -> {
+			websiteLink.setUserData(website);
+			websiteLink.setText(website);
+		});
+	}
+
+	@Override
+	public void setIssueWebsite(String website) {
+		FxUtils.invoke(() -> {
+			issueLink.setUserData(website);
+		});
 	}
 
 	@Override
@@ -100,4 +155,19 @@ public class FxAboutView extends ContentPane implements AboutView {
 		FxUtils.bindAction(closeButton, action);
 	}
 
+	@FXML
+	private void initialize() {
+		EventHandler<ActionEvent> linkHandler = event -> {
+			Stage window = (Stage) getScene().getWindow();
+			HostServices hostServices = (HostServices) window.getProperties().get("hostServices");
+
+			if (nonNull(hostServices)) {
+				Hyperlink link = (Hyperlink) event.getSource();
+				hostServices.showDocument((String) link.getUserData());
+			}
+		};
+
+		websiteLink.setOnAction(linkHandler);
+		issueLink.setOnAction(linkHandler);
+	}
 }

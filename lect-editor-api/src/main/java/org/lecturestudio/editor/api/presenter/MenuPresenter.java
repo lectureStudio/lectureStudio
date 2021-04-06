@@ -34,6 +34,7 @@ import org.lecturestudio.core.bus.EventBus;
 import org.lecturestudio.core.bus.event.DocumentEvent;
 import org.lecturestudio.core.model.Document;
 import org.lecturestudio.core.model.RecentDocument;
+import org.lecturestudio.core.presenter.AboutPresenter;
 import org.lecturestudio.core.presenter.Presenter;
 import org.lecturestudio.core.presenter.command.CloseApplicationCommand;
 import org.lecturestudio.core.presenter.command.ShowPresenterCommand;

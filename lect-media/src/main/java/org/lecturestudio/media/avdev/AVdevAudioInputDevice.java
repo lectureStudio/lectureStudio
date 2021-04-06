@@ -149,6 +149,7 @@ public class AVdevAudioInputDevice extends AudioInputDevice {
 			}
 
 			stream.close();
+			stream = null;
 		}
 	}
 
@@ -168,7 +169,7 @@ public class AVdevAudioInputDevice extends AudioInputDevice {
 
 	@Override
 	public boolean isOpen() {
-		return false;
+		return nonNull(stream);
 	}
 
 	@Override

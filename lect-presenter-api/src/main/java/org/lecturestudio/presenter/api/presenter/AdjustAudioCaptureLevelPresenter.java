@@ -110,7 +110,7 @@ public class AdjustAudioCaptureLevelPresenter extends Presenter<AdjustAudioCaptu
 		unbindFromAudioBus();
 
 		AudioConfiguration config = context.getConfiguration().getAudioConfig();
-		config.setRecordingVolume(config.getInputDeviceName(), 1 - audioLevel * 0.65);
+		config.setRecordingVolume(config.getInputDeviceName(), 1 - audioLevel * 0.5);
 
 		close();
 	}

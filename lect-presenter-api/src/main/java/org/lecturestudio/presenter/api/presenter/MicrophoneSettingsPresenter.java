@@ -60,6 +60,8 @@ public class MicrophoneSettingsPresenter extends Presenter<MicrophoneSettingsVie
 
 	private AVdevAudioInputDevice levelDevice;
 
+	private AVdevAudioInputDevice testDevice;
+
 	private ByteArrayInputStream testPlaybackStream;
 
 	private ByteArrayOutputStream testCaptureStream;
@@ -148,6 +150,9 @@ public class MicrophoneSettingsPresenter extends Presenter<MicrophoneSettingsVie
 			if (nonNull(levelDevice)) {
 				levelDevice.setVolume(newValue.doubleValue());
 			}
+			if (nonNull(testDevice)) {
+				testDevice.setVolume(newValue.doubleValue());
+			}
 		});
 
 		audioConfig.getRecordingVolumes().addListener(new MapChangeListener<>() {
@@ -189,7 +194,20 @@ public class MicrophoneSettingsPresenter extends Presenter<MicrophoneSettingsVie
 		playbackEnabled.set(!capture);
 
 		if (capture) {
-			testCaptureStream.reset();
+			testCaptureStream = new ByteArrayOutputStream();
+			testDevice = createCaptureDevice();
+
+			if (isNull(testDevice)) {
+				logException(new NullPointerException(), "Create audio capture device failed");
+				return;
+			}
+
+			testDevice.setSink((data, length) -> testCaptureStream.write(data, 0, length));
+
+			startDevice(testDevice);
+		}
+		else {
+			stopDevice(testDevice);
 		}
 	}
 
@@ -277,43 +295,18 @@ public class MicrophoneSettingsPresenter extends Presenter<MicrophoneSettingsVie
 	}
 
 	private void startAudioLevelCapture() {
-		String inputDeviceName = audioConfig.getInputDeviceName();
+		levelDevice = createCaptureDevice();
 
-		if (!soundSystem.equals("AVdev")) {
-			return;
-		}
-		if (!AudioUtils.hasAudioCaptureDevice(soundSystem, inputDeviceName)) {
-			// Select default device.
-			AudioInputDevice[] devices = AudioUtils.getAudioCaptureDevices(soundSystem);
-
-			inputDeviceName = (devices.length > 0) ? devices[0].getName() : null;
-		}
-		if (isNull(inputDeviceName)) {
+		if (isNull(levelDevice)) {
+			logException(new NullPointerException(), "Create audio capture device failed");
 			return;
 		}
 
-		AudioFormat format = audioConfig.getRecordingFormat();
-		AudioInputDevice inputDevice = AudioUtils.getAudioInputDevice(soundSystem, inputDeviceName);
-
-		double volume = audioConfig.getMasterRecordingVolume();
-		Double devVolume = audioConfig.getRecordingVolume(inputDeviceName);
-
-		if (nonNull(devVolume)) {
-			volume = devVolume;
-		}
-
-		testCaptureStream = new ByteArrayOutputStream();
-
-		levelDevice = (AVdevAudioInputDevice) inputDevice;
 		levelDevice.setSink(new AudioSink() {
 
 			@Override
 			public void write(byte[] data, int length) {
 				double level = getSignalPowerLevel(data);
-
-				if (testCapture.get()) {
-					testCaptureStream.write(data, 0, length);
-				}
 
 				view.setAudioCaptureLevel(level);
 
@@ -332,30 +325,72 @@ public class MicrophoneSettingsPresenter extends Presenter<MicrophoneSettingsVie
 				return max / 32767.0;
 			}
 		});
-		levelDevice.setAudioFormat(format);
-		levelDevice.setMute(false);
-		levelDevice.setVolume(volume);
 
+		startDevice(levelDevice);
+	}
+
+	private void stopAudioLevelCapture() {
+		if (nonNull(levelDevice) && levelDevice.isOpen()) {
+			stopDevice(levelDevice);
+		}
+		if (nonNull(testDevice) && testDevice.isOpen()) {
+			// This will update the view and the model.
+			testCapture.set(false);
+		}
+	}
+
+	private void startDevice(AVdevAudioInputDevice device) {
 		try {
-			levelDevice.open();
-			levelDevice.start();
+			device.open();
+			device.start();
 		}
 		catch (Exception e) {
 			logException(e, "Start audio capture device failed");
 		}
 	}
 
-	private void stopAudioLevelCapture() {
-		if (nonNull(levelDevice)) {
-			try {
-				levelDevice.stop();
-				levelDevice.close();
-				levelDevice = null;
-			}
-			catch (Exception e) {
-				logException(e, "Stop audio capture device failed");
-			}
+	private void stopDevice(AVdevAudioInputDevice device) {
+		try {
+			device.stop();
+			device.close();
 		}
+		catch (Exception e) {
+			logException(e, "Stop audio capture device failed");
+		}
+	}
+
+	private AVdevAudioInputDevice createCaptureDevice() {
+		String inputDeviceName = audioConfig.getInputDeviceName();
+
+		if (!soundSystem.equals("AVdev")) {
+			return null;
+		}
+		if (!AudioUtils.hasAudioCaptureDevice(soundSystem, inputDeviceName)) {
+			// Select default device.
+			AudioInputDevice[] devices = AudioUtils.getAudioCaptureDevices(soundSystem);
+
+			inputDeviceName = (devices.length > 0) ? devices[0].getName() : null;
+		}
+		if (isNull(inputDeviceName)) {
+			return null;
+		}
+
+		AudioFormat format = audioConfig.getRecordingFormat();
+		AudioInputDevice inputDevice = AudioUtils.getAudioInputDevice(soundSystem, inputDeviceName);
+
+		double volume = audioConfig.getMasterRecordingVolume();
+		Double devVolume = audioConfig.getRecordingVolume(inputDeviceName);
+
+		if (nonNull(devVolume)) {
+			volume = devVolume;
+		}
+
+		AVdevAudioInputDevice device = (AVdevAudioInputDevice) inputDevice;
+		device.setAudioFormat(format);
+		device.setMute(false);
+		device.setVolume(volume);
+
+		return device;
 	}
 
 
@@ -394,7 +429,7 @@ public class MicrophoneSettingsPresenter extends Presenter<MicrophoneSettingsVie
 
 		@Override
 		public AudioFormat getAudioFormat() {
-			return levelDevice.getAudioFormat();
+			return audioConfig.getRecordingFormat();
 		}
 	}
 }

@@ -30,9 +30,6 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.function.Consumer;
 
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-
 import org.lecturestudio.core.ExecutableException;
 import org.lecturestudio.core.ExecutableState;
 import org.lecturestudio.core.app.ApplicationContext;
@@ -57,8 +54,6 @@ import org.lecturestudio.media.config.VideoRenderConfiguration;
 import org.lecturestudio.swing.DefaultRenderContext;
 
 public class VideoRenderer extends RecordingExport {
-
-	private static final Logger LOG = LogManager.getLogger(VideoRenderer.class);
 
 	private final ApplicationContext context;
 
@@ -214,11 +209,12 @@ public class VideoRenderer extends RecordingExport {
 		eventExecutor.setDuration((int) recording.getRecordedAudio().getAudioStream().getLengthInMillis());
 		eventExecutor.setFrameConsumer(this::onVideoFrame);
 		eventExecutor.setFrameRate(videoConfig.getFrameRate());
+		eventExecutor.addStateListener((oldState, newState) -> {
+			if (started() && newState == ExecutableState.Stopped) {
+				onEventExecutorFinish();
+			}
+		});
 		eventExecutor.start();
-
-		if (eventExecutor.started()) {
-			onEventExecutorFinish();
-		}
 	}
 
 	private void renderAudio() throws Exception {
@@ -287,8 +283,7 @@ public class VideoRenderer extends RecordingExport {
 		muxer.stop();
 		stream.close();
 
-		deleteProfile();
-		deleteTempFile();
+		stop();
 	}
 
 	private void onVideoFrame(BufferedImage image, RecordingRenderProgressEvent event) {

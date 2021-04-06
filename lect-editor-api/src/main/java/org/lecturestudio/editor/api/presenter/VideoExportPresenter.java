@@ -23,6 +23,7 @@ import static java.util.Objects.nonNull;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Path;
+import java.util.Stack;
 
 import javax.inject.Inject;
 
@@ -30,7 +31,7 @@ import org.lecturestudio.core.app.ApplicationContext;
 import org.lecturestudio.core.beans.StringProperty;
 import org.lecturestudio.core.model.RecentDocument;
 import org.lecturestudio.core.presenter.Presenter;
-import org.lecturestudio.core.presenter.command.ShowPresenterCommand;
+import org.lecturestudio.core.recording.Recording;
 import org.lecturestudio.core.service.RecentDocumentService;
 import org.lecturestudio.core.util.FileUtils;
 import org.lecturestudio.core.view.DirectoryChooserView;
@@ -38,7 +39,13 @@ import org.lecturestudio.core.view.ViewContextFactory;
 import org.lecturestudio.core.view.ViewLayer;
 import org.lecturestudio.editor.api.config.EditorConfiguration;
 import org.lecturestudio.editor.api.context.EditorContext;
+import org.lecturestudio.editor.api.presenter.command.ExportRecordingCommand;
+import org.lecturestudio.editor.api.recording.RecordingExport;
+import org.lecturestudio.editor.api.service.RecordingFileService;
+import org.lecturestudio.editor.api.video.VideoRenderer;
 import org.lecturestudio.editor.api.view.VideoExportView;
+import org.lecturestudio.editor.api.web.WebVectorExport;
+import org.lecturestudio.editor.api.web.WebVideoExport;
 import org.lecturestudio.media.config.RenderConfiguration;
 
 public class VideoExportPresenter extends Presenter<VideoExportView> {
@@ -47,7 +54,9 @@ public class VideoExportPresenter extends Presenter<VideoExportView> {
 
 	private final RecentDocumentService recentDocumentService;
 
-	private final RenderConfiguration videoRenderConfig;
+	private final RecordingFileService recordingService;
+
+	private final RenderConfiguration renderConfig;
 
 	private StringProperty targetName;
 
@@ -57,12 +66,14 @@ public class VideoExportPresenter extends Presenter<VideoExportView> {
 	@Inject
 	VideoExportPresenter(ApplicationContext context, VideoExportView view,
 			ViewContextFactory viewFactory,
+			RecordingFileService recordingService,
 			RecentDocumentService recentDocumentService) {
 		super(context, view);
 
 		this.viewFactory = viewFactory;
+		this.recordingService = recordingService;
 		this.recentDocumentService = recentDocumentService;
-		this.videoRenderConfig = ((EditorContext) context).getRenderConfiguration();
+		this.renderConfig = ((EditorContext) context).getRenderConfiguration();
 	}
 
 	@Override
@@ -77,9 +88,9 @@ public class VideoExportPresenter extends Presenter<VideoExportView> {
 
 		view.bindTargetName(targetName);
 		view.bindTargetDirectory(targetDirectory);
-		view.bindVideo(videoRenderConfig.videoExportProperty());
-		view.bindVectorPlayer(videoRenderConfig.webVectorExportProperty());
-		view.bindVideoPlayer(videoRenderConfig.webVideoExportProperty());
+		view.bindVideo(renderConfig.videoExportProperty());
+		view.bindVectorPlayer(renderConfig.webVectorExportProperty());
+		view.bindVideoPlayer(renderConfig.webVideoExportProperty());
 		view.setOnSelectTargetDirectory(this::selectTargetDir);
 		view.setOnCancel(this::close);
 		view.setOnCreate(this::create);
@@ -104,11 +115,58 @@ public class VideoExportPresenter extends Presenter<VideoExportView> {
 	}
 
 	private void create() {
+		Stack<RecordingExport> exportStack = createExportStack();
+
+		close();
+
+		context.getEventBus().post(new ExportRecordingCommand(exportStack));
+	}
+
+	private RecordingExport createWebVectorExport(Recording recording, RenderConfiguration config) {
+		WebVectorExport vectorExport = new WebVectorExport(recording, config);
+		vectorExport.setTitle("Web Player");
+
+		return vectorExport;
+	}
+
+	private RecordingExport createWebVideoExport(Recording recording, RenderConfiguration config) {
+		WebVideoExport webExport = new WebVideoExport(context, recording, config);
+		webExport.setTitle("Web Player");
+
+		return webExport;
+	}
+
+	private Stack<RecordingExport> createExportStack() {
+		setOutputPath();
+
+		Recording recording = recordingService.getSelectedRecording();
+
+		// Web video export is dependent on the compressed video.
+		boolean renderVideo = renderConfig.getVideoExport() || renderConfig.getWebVideoExport();
+
+		Stack<RecordingExport> stack = new Stack<>();
+
+		// Note the order last-in-first-out.
+		if (renderConfig.getWebVectorExport()) {
+			stack.push(createWebVectorExport(recording, renderConfig));
+		}
+		if (renderConfig.getWebVideoExport()) {
+			stack.push(createWebVideoExport(recording, renderConfig));
+		}
+		if (renderVideo) {
+			stack.push(new VideoRenderer(context, recording, renderConfig));
+		}
+
+		return stack;
+	}
+
+	private void setOutputPath() {
 		String name = targetName.get();
-		String extension = videoRenderConfig.getFileFormat();
+		String extension = renderConfig.getFileFormat();
 		File outputFolder = new File(targetDirectory.get());
 
-		if (videoRenderConfig.getWebVectorExport() || videoRenderConfig.getWebVideoExport()) {
+		// Create a common folder, if we want to export more files than a single video.
+		if (renderConfig.getWebVectorExport() || renderConfig.getWebVideoExport()) {
 			outputFolder = new File(outputFolder, name);
 		}
 		if (!outputFolder.exists()) {
@@ -117,11 +175,6 @@ public class VideoExportPresenter extends Presenter<VideoExportView> {
 			}
 		}
 
-		videoRenderConfig.setOutputFile(new File(outputFolder, name + "." + extension));
-
-		close();
-
-		context.getEventBus().post(new ShowPresenterCommand<>(VideoExportProgressPresenter.class));
+		renderConfig.setOutputFile(new File(outputFolder, name + "." + extension));
 	}
-
 }

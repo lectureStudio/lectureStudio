@@ -24,6 +24,7 @@ import java.text.MessageFormat;
 import java.util.Stack;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionException;
+import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import javax.inject.Inject;
@@ -33,37 +34,25 @@ import org.lecturestudio.core.app.ApplicationContext;
 import org.lecturestudio.core.app.dictionary.Dictionary;
 import org.lecturestudio.core.model.Time;
 import org.lecturestudio.core.presenter.Presenter;
-import org.lecturestudio.core.recording.Recording;
 import org.lecturestudio.core.view.ViewLayer;
-import org.lecturestudio.editor.api.context.EditorContext;
 import org.lecturestudio.editor.api.recording.RecordingExport;
 import org.lecturestudio.editor.api.recording.RecordingRenderState;
-import org.lecturestudio.editor.api.service.RecordingFileService;
 import org.lecturestudio.editor.api.recording.RecordingRenderProgressEvent;
-import org.lecturestudio.editor.api.video.VideoRenderer;
 import org.lecturestudio.editor.api.view.VideoExportProgressView;
-import org.lecturestudio.editor.api.web.WebVectorExport;
-import org.lecturestudio.editor.api.web.WebVideoExport;
-import org.lecturestudio.media.config.RenderConfiguration;
 
 public class VideoExportProgressPresenter extends Presenter<VideoExportProgressView> {
 
-	private final RecordingFileService recordingService;
-
-	private final Stack<RecordingExport> exportStack;
-
 	private final AtomicBoolean canceled = new AtomicBoolean();
+
+	private Stack<RecordingExport> exportStack;
 
 	private RecordingExport export;
 
 
 	@Inject
-	VideoExportProgressPresenter(ApplicationContext context, VideoExportProgressView view,
-			RecordingFileService recordingService) {
+	VideoExportProgressPresenter(ApplicationContext context,
+			VideoExportProgressView view) {
 		super(context, view);
-
-		this.recordingService = recordingService;
-		this.exportStack = new Stack<>();
 	}
 
 	@Override
@@ -71,32 +60,11 @@ public class VideoExportProgressPresenter extends Presenter<VideoExportProgressV
 		view.setOnCancel(this::cancel);
 		view.setOnClose(this::close);
 
-		Recording recording = recordingService.getSelectedRecording();
-		RenderConfiguration config = ((EditorContext) context).getRenderConfiguration();
-
-		// Web video export is dependent on the compressed video.
-		boolean renderVideo = config.getVideoExport() || config.getWebVideoExport();
-
-		try {
-			// Note the order last-in-first-out.
-			if (config.getWebVectorExport()) {
-				exportStack.push(createWebVectorExport(recording, config));
-			}
-			if (config.getWebVideoExport()) {
-				exportStack.push(createWebVideoExport(recording, config));
-			}
-			if (renderVideo) {
-				exportStack.push(new VideoRenderer(context, recording, config));
-			}
-		}
-		catch (Exception e) {
-			throw new ExecutableException(e);
-		}
-
 		CompletableFuture.runAsync(this::run)
 				.thenRun(this::done)
 				.exceptionally(e -> {
-					handleException(e, "Video rendering failed", "recording.render.error");
+					handleException(e, "Video rendering failed",
+							"recording.render.error");
 					return null;
 				});
 	}
@@ -109,6 +77,10 @@ public class VideoExportProgressPresenter extends Presenter<VideoExportProgressV
 	@Override
 	public ViewLayer getViewLayer() {
 		return ViewLayer.Dialog;
+	}
+
+	public void setExportStack(Stack<RecordingExport> stack) {
+		this.exportStack = stack;
 	}
 
 	private void onRenderProgress(RecordingRenderProgressEvent event) {
@@ -160,16 +132,26 @@ public class VideoExportProgressPresenter extends Presenter<VideoExportProgressV
 	}
 
 	private void run() {
+		setCloseable(false);
+
 		while (!exportStack.isEmpty()) {
+			// Sequential processing of the export stack.
 			export = exportStack.pop();
+
+			CountDownLatch latch = new CountDownLatch(1);
 
 			try {
 				export.addRenderProgressListener(this::onRenderProgress);
 				export.addRenderStateListener(this::onRenderState);
+				export.addStateListener((oldState, newState) -> {
+					if (export.stopped()) {
+						latch.countDown();
+					}
+				});
 				export.start();
 
-				// When done, clean-up resources.
-				export.destroy();
+				// Wait until the export process has finished (stopped).
+				latch.await();
 			}
 			catch (Exception e) {
 				throw new CompletionException(e);
@@ -190,19 +172,5 @@ public class VideoExportProgressPresenter extends Presenter<VideoExportProgressV
 		}
 
 		setCloseable(true);
-	}
-
-	private RecordingExport createWebVectorExport(Recording recording, RenderConfiguration config) {
-		WebVectorExport vectorExport = new WebVectorExport(recording, config);
-		vectorExport.setTitle("Web Player");
-
-		return vectorExport;
-	}
-
-	private RecordingExport createWebVideoExport(Recording recording, RenderConfiguration config) {
-		WebVideoExport webExport = new WebVideoExport(recording, config);
-		webExport.setTitle("Web Player");
-
-		return webExport;
 	}
 }

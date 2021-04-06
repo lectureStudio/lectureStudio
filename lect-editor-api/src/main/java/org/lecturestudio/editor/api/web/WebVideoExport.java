@@ -37,16 +37,16 @@ import java.util.Base64;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.CompletionException;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 import javax.imageio.ImageIO;
 
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-
 import org.lecturestudio.core.ExecutableException;
+import org.lecturestudio.core.app.ApplicationContext;
 import org.lecturestudio.core.bus.EventBus;
 import org.lecturestudio.core.controller.RenderController;
 import org.lecturestudio.core.geometry.Rectangle2D;
@@ -64,13 +64,13 @@ import org.lecturestudio.swing.DefaultRenderContext;
 
 public class WebVideoExport extends RecordingExport {
 
-	private static final Logger LOG = LogManager.getLogger(WebVideoExport.class);
-
 	private static final String TEMPLATE_FILE = "resources/export/web/video/index.html";
 
 	private static final int PREVIEW_WIDTH = 250;
 
 	private final Map<String, String> data = new HashMap<>();
+
+	private final ApplicationContext context;
 
 	private final Recording recording;
 
@@ -81,7 +81,9 @@ public class WebVideoExport extends RecordingExport {
 	private RenderController renderController;
 
 
-	public WebVideoExport(Recording recording, RenderConfiguration config) {
+	public WebVideoExport(ApplicationContext context, Recording recording,
+			RenderConfiguration config) {
+		this.context = context;
 		this.recording = recording;
 		this.config = config;
 	}
@@ -103,7 +105,8 @@ public class WebVideoExport extends RecordingExport {
 		EditorContext renderContext;
 
 		try {
-			renderContext = new EditorContext(null, null, null, null,
+			renderContext = new EditorContext(null, null,
+					context.getConfiguration(), context.getDictionary(),
 					new EventBus(), new EventBus());
 		}
 		catch (IOException e) {
@@ -116,22 +119,30 @@ public class WebVideoExport extends RecordingExport {
 
 	@Override
 	protected void startInternal() throws ExecutableException {
-		try {
-			String pageModel = createPageModel(recording);
+		CompletableFuture.runAsync(() -> {
+			try {
+				String pageModel = createPageModel(recording);
 
-			data.put("pageModelData", pageModel);
+				data.put("pageModelData", pageModel);
 
-			File targetFile = config.getOutputFile();
-			String webExportPath = FileUtils.stripExtension(targetFile.getPath());
-			File outputFile = new File(webExportPath + ".html");
-			String indexContent = loadTemplateFile();
-			indexContent = processTemplateFile(indexContent, data);
+				File targetFile = config.getOutputFile();
+				String webExportPath = FileUtils.stripExtension(targetFile.getPath());
+				File outputFile = new File(webExportPath + ".html");
+				String indexContent = loadTemplateFile();
+				indexContent = processTemplateFile(indexContent, data);
 
-			writeTemplateFile(indexContent, outputFile);
-		}
-		catch (Exception e) {
-			throw new ExecutableException(e);
-		}
+				writeTemplateFile(indexContent, outputFile);
+
+				stop();
+			}
+			catch (Exception e) {
+				throw new CompletionException(e);
+			}
+		})
+		.exceptionally(throwable -> {
+			LOG.error("HTML video export failed", throwable);
+			return null;
+		});
 	}
 
 	@Override

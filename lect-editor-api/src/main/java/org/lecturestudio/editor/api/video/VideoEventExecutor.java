@@ -26,6 +26,8 @@ import java.awt.image.BufferedImage;
 import java.util.Collections;
 import java.util.List;
 import java.util.Stack;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.CompletionException;
 import java.util.function.BiConsumer;
 
 import org.lecturestudio.core.ExecutableException;
@@ -149,14 +151,16 @@ public class VideoEventExecutor extends EventExecutor {
 		if (state == ExecutableState.Initialized || state == ExecutableState.Stopped) {
 			eventBus.register(this);
 
-			try {
-				executeEvents();
-			}
-			catch (Exception e) {
-				eventBus.unregister(this);
+			CompletableFuture.runAsync(() -> {
+				try {
+					executeEvents();
+				}
+				catch (Exception e) {
+					eventBus.unregister(this);
 
-				throw new ExecutableException(e);
-			}
+					throw new CompletionException(e);
+				}
+			});
 		}
 	}
 
@@ -219,6 +223,10 @@ public class VideoEventExecutor extends EventExecutor {
 			else {
 				break;
 			}
+		}
+
+		if (!stopped()) {
+			stop();
 		}
 	}
 

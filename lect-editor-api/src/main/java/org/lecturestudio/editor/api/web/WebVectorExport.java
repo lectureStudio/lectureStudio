@@ -35,6 +35,8 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.CompletionException;
 import java.util.function.Consumer;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -44,8 +46,6 @@ import javax.sound.sampled.AudioFormat;
 import javax.sound.sampled.AudioInputStream;
 import javax.sound.sampled.AudioSystem;
 
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import org.concentus.OpusSignal;
 import org.lecturestudio.core.ExecutableException;
 import org.lecturestudio.core.io.DynamicInputStream;
@@ -69,8 +69,6 @@ import org.lecturestudio.media.config.RenderConfiguration;
 
 public class WebVectorExport extends RecordingExport {
 
-	private static final Logger LOG = LogManager.getLogger(WebVectorExport.class);
-
 	private static final String TEMPLATE_FOLDER = "resources/export/web/vector";
 
 	private static final String TEMPLATE_FILE = "index.html";
@@ -80,6 +78,8 @@ public class WebVectorExport extends RecordingExport {
 	private final Recording recording;
 
 	private final RenderConfiguration config;
+
+	private OpusAudioFileWriter writer;
 
 	private String outputPath;
 
@@ -122,41 +122,56 @@ public class WebVectorExport extends RecordingExport {
 
 	@Override
 	protected void startInternal() throws ExecutableException {
-		onRenderState(RecordingRenderState.RENDER_AUDIO);
+		CompletableFuture.supplyAsync(() -> {
+			RecordedAudio encAudio;
 
-		RecordedAudio encAudio;
+			try {
+				encAudio = encodeAudio();
+			}
+			catch (Exception e) {
+				throw new CompletionException(e);
+			}
 
-		try {
-			encAudio = encodeAudio();
-		}
-		catch (Exception e) {
-			throw new ExecutableException(e);
-		}
+			return encAudio;
+		})
+		.thenAccept(encAudio -> {
+			if (stopped()) {
+				return;
+			}
 
-		Recording encRecording = new Recording();
-		encRecording.setRecordingHeader(recording.getRecordingHeader());
-		encRecording.setRecordedEvents(recording.getRecordedEvents());
-		encRecording.setRecordedAudio(encAudio);
-		encRecording.setRecordedDocument(recording.getRecordedDocument());
+			Recording encRecording = new Recording();
+			encRecording.setRecordingHeader(recording.getRecordingHeader());
+			encRecording.setRecordedEvents(recording.getRecordedEvents());
+			encRecording.setRecordedAudio(encAudio);
+			encRecording.setRecordedDocument(recording.getRecordedDocument());
 
-		File plrFile = getFile(data.get("name") + ".plr");
+			File plrFile = getFile(data.get("name") + ".plr");
 
-		String bundleContent = loadTemplateFile(TEMPLATE_FOLDER + "/main.bundle.js");
-		bundleContent = processTemplateFile(bundleContent, Map.of("recordingFile", plrFile.getName()));
+			String bundleContent = loadTemplateFile(TEMPLATE_FOLDER + "/main.bundle.js");
+			bundleContent = processTemplateFile(bundleContent, Map.of("recordingFile", plrFile.getName()));
 
-		try {
-			writeTemplateFile(bundleContent, getFile("main.bundle.js"));
+			try {
+				writeTemplateFile(bundleContent, getFile("main.bundle.js"));
 
-			RecordingFileWriter.write(encRecording, plrFile);
-		}
-		catch (Exception e) {
-			throw new ExecutableException(e);
-		}
+				RecordingFileWriter.write(encRecording, plrFile);
+
+				stop();
+			}
+			catch (Exception e) {
+				throw new CompletionException(e);
+			}
+		})
+		.exceptionally(throwable -> {
+			LOG.error("HTML vector export failed", throwable);
+			return null;
+		});
 	}
 
 	@Override
 	protected void stopInternal() throws ExecutableException {
-
+		if (nonNull(writer)) {
+			writer.cancelWriting();
+		}
 	}
 
 	@Override
@@ -169,6 +184,8 @@ public class WebVectorExport extends RecordingExport {
 	}
 
 	private RecordedAudio encodeAudio() throws Exception {
+		onRenderState(RecordingRenderState.RENDER_AUDIO);
+
 		RecordedAudio recAudio = recording.getRecordedAudio();
 		RandomAccessAudioStream stream = recAudio.getAudioStream().clone();
 
@@ -184,7 +201,7 @@ public class WebVectorExport extends RecordingExport {
 		AudioInputStream inputStream = AudioSystem.getAudioInputStream(targetFormat, stream.getAudioInputStream());
 		ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
 
-		OpusAudioFileWriter writer = new OpusAudioFileWriter(16000, 10, OpusSignal.OPUS_SIGNAL_VOICE);
+		writer = new OpusAudioFileWriter(16000, 10, OpusSignal.OPUS_SIGNAL_VOICE);
 		writer.setProgressListener(new ProgressListener(recording, targetFormat));
 		writer.write(inputStream, OpusFileFormatType.OPUS, outputStream);
 

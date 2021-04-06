@@ -125,6 +125,7 @@ public class FFmpegProcessMuxer extends ExecutableBase implements VideoMuxer {
 			// Close the process output stream, otherwise the process remains open.
 			if (nonNull(outStream)) {
 				outStream.close();
+				outStream = null;
 			}
 
 			// Wait for the process to finish.

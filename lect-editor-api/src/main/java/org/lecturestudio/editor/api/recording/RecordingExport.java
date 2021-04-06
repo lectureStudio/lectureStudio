@@ -20,23 +20,21 @@ package org.lecturestudio.editor.api.recording;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.CompletableFuture;
 import java.util.function.Consumer;
+
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import org.lecturestudio.core.ExecutableBase;
 
 public abstract class RecordingExport extends ExecutableBase {
 
+	protected static final Logger LOG = LogManager.getLogger(RecordingExport.class);
+
 	private final List<Consumer<RecordingRenderProgressEvent>> progressListeners = new ArrayList<>();
 
 	private final List<Consumer<RecordingRenderState>> stateListeners = new ArrayList<>();
 
-	protected CompletableFuture<Void> completableFuture;
-
-
-	public CompletableFuture<Void> getCompletableFuture() {
-		return completableFuture;
-	}
 
 	public void addRenderProgressListener(Consumer<RecordingRenderProgressEvent> listener) {
 		progressListeners.add(listener);

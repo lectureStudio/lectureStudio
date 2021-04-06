@@ -40,8 +40,6 @@ public class RenderConfiguration {
 
 	private final BooleanProperty vectorExport = new BooleanProperty();
 
-	private final BooleanProperty webExport = new BooleanProperty();
-
 
 	public RenderConfiguration() {
 		setAudioConfig(new AudioRenderConfiguration());
@@ -121,17 +119,4 @@ public class RenderConfiguration {
 	public BooleanProperty webVectorExportProperty() {
 		return vectorExport;
 	}
-
-	public boolean getWebVideoExport() {
-		return webExport.get();
-	}
-
-	public void setWebVideoExport(boolean export) {
-		this.webExport.set(export);
-	}
-
-	public BooleanProperty webVideoExportProperty() {
-		return webExport;
-	}
-
 }

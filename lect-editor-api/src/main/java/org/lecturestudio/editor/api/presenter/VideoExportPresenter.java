@@ -90,7 +90,6 @@ public class VideoExportPresenter extends Presenter<VideoExportView> {
 		view.bindTargetDirectory(targetDirectory);
 		view.bindVideo(renderConfig.videoExportProperty());
 		view.bindVectorPlayer(renderConfig.webVectorExportProperty());
-		view.bindVideoPlayer(renderConfig.webVideoExportProperty());
 		view.setOnSelectTargetDirectory(this::selectTargetDir);
 		view.setOnCancel(this::close);
 		view.setOnCreate(this::create);
@@ -141,19 +140,15 @@ public class VideoExportPresenter extends Presenter<VideoExportView> {
 
 		Recording recording = recordingService.getSelectedRecording();
 
-		// Web video export is dependent on the compressed video.
-		boolean renderVideo = renderConfig.getVideoExport() || renderConfig.getWebVideoExport();
-
 		Stack<RecordingExport> stack = new Stack<>();
 
 		// Note the order last-in-first-out.
 		if (renderConfig.getWebVectorExport()) {
 			stack.push(createWebVectorExport(recording, renderConfig));
 		}
-		if (renderConfig.getWebVideoExport()) {
+		if (renderConfig.getVideoExport()) {
+			// Web video export is dependent on the compressed video.
 			stack.push(createWebVideoExport(recording, renderConfig));
-		}
-		if (renderVideo) {
 			stack.push(new VideoRenderer(context, recording, renderConfig));
 		}
 
@@ -161,14 +156,11 @@ public class VideoExportPresenter extends Presenter<VideoExportView> {
 	}
 
 	private void setOutputPath() {
+		// Create a common folder.
 		String name = targetName.get();
 		String extension = renderConfig.getFileFormat();
-		File outputFolder = new File(targetDirectory.get());
+		File outputFolder = new File(targetDirectory.get(), name);
 
-		// Create a common folder, if we want to export more files than a single video.
-		if (renderConfig.getWebVectorExport() || renderConfig.getWebVideoExport()) {
-			outputFolder = new File(outputFolder, name);
-		}
 		if (!outputFolder.exists()) {
 			if (!outputFolder.mkdirs()) {
 				logException(new IOException(), "Create output folder failed");

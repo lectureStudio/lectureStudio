@@ -52,9 +52,6 @@ public class FxVideoExportView extends StackPane implements VideoExportView {
 	private CheckBox videoCheckbox;
 
 	@FXML
-	private CheckBox videoPlayerCheckbox;
-
-	@FXML
 	private CheckBox vectorPlayerCheckbox;
 
 	@FXML
@@ -86,11 +83,6 @@ public class FxVideoExportView extends StackPane implements VideoExportView {
 	@Override
 	public void bindVideo(BooleanProperty property) {
 		videoCheckbox.selectedProperty().bindBidirectional(new LectObjectProperty<>(property));
-	}
-
-	@Override
-	public void bindVideoPlayer(BooleanProperty property) {
-		videoPlayerCheckbox.selectedProperty().bindBidirectional(new LectObjectProperty<>(property));
 	}
 
 	@Override

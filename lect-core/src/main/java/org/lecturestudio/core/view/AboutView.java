@@ -26,6 +26,16 @@ import org.lecturestudio.core.model.Sponsor;
 
 public interface AboutView extends View {
 
+	void setAppName(String name);
+
+	void setAppVersion(String version);
+
+	void setAppBuildDate(String date);
+
+	void setWebsite(String website);
+
+	void setIssueWebsite(String website);
+
 	void setContributors(List<Contributor> contributors);
 
 	void setSponsors(List<Sponsor> sponsors);

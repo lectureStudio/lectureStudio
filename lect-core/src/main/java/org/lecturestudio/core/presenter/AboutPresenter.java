@@ -16,17 +16,21 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package org.lecturestudio.editor.api.presenter;
+package org.lecturestudio.core.presenter;
 
 import java.io.IOException;
-import java.util.Locale;
+import java.text.MessageFormat;
+import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
+import java.time.format.FormatStyle;
 
 import javax.inject.Inject;
 
 import org.lecturestudio.core.app.ApplicationContext;
+import org.lecturestudio.core.app.configuration.Configuration;
+import org.lecturestudio.core.app.dictionary.Dictionary;
 import org.lecturestudio.core.model.Contributor;
 import org.lecturestudio.core.model.Sponsor;
-import org.lecturestudio.core.presenter.Presenter;
 import org.lecturestudio.core.service.ContributorsYamlSource;
 import org.lecturestudio.core.service.DataSource;
 import org.lecturestudio.core.service.SponsorsYamlSource;
@@ -41,14 +45,27 @@ public class AboutPresenter extends Presenter<AboutView> {
 
 	@Override
 	public void initialize() throws IOException {
-		Locale locale = context.getConfiguration().getLocale();
-		String lang = locale.getLanguage();
+		Configuration config = context.getConfiguration();
+		Dictionary dict = context.getDictionary();
+
+		DateTimeFormatter pattern = DateTimeFormatter
+				.ofLocalizedDate(FormatStyle.LONG)
+				.withLocale(config.getLocale());
+
+		String version = MessageFormat.format(dict.get("about.version"), config.getVersion());
+		String buildDate = ZonedDateTime.now().format(pattern);
+		String lang = config.getLocale().getLanguage();
 		String contributorsRes = String.format("/resources/contributors/contributors_%s.yaml", lang);
 		String sponsorsRes = String.format("/resources/contributors/sponsors_%s.yaml", lang);
 
 		DataSource<Contributor> contributorsSource = new ContributorsYamlSource(contributorsRes);
 		DataSource<Sponsor> sponsorsSource = new SponsorsYamlSource(sponsorsRes);
 
+		view.setAppName(config.getApplicationName());
+		view.setAppVersion(version);
+		view.setAppBuildDate(buildDate);
+		view.setWebsite("https://www.lecturestudio.org");
+		view.setIssueWebsite("https://github.com/lectureStudio/lectureStudio/issues");
 		view.setContributors(contributorsSource.getAll());
 		view.setSponsors(sponsorsSource.getAll());
 		view.setProperties(System.getProperties());

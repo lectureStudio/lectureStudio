@@ -229,6 +229,8 @@ public abstract class JavaFxApplication extends ApplicationBase implements Graph
 
 		@Override
 		public void start(Stage primaryStage) {
+			primaryStage.getProperties().put("hostServices", getHostServices());
+
 			JavaFxApplication.primaryStage = primaryStage;
 			JavaFxApplication.startFxLatch.countDown();
 		}

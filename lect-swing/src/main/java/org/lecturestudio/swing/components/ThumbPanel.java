@@ -49,7 +49,6 @@ import javax.swing.JScrollBar;
 import javax.swing.JScrollPane;
 import javax.swing.JViewport;
 import javax.swing.ListCellRenderer;
-import javax.swing.ListModel;
 import javax.swing.ListSelectionModel;
 import javax.swing.SwingUtilities;
 
@@ -126,7 +125,6 @@ public class ThumbPanel extends JPanel {
 		list.setFocusable(false);
 		list.addListSelectionListener(event -> {
 			if (!event.getValueIsAdjusting()) {
-				updateListeners(event.getFirstIndex(), event.getLastIndex());
 				fireThumbSelected(list.getSelectedValue());
 			}
 		});
@@ -180,22 +178,6 @@ public class ThumbPanel extends JPanel {
 		if (doc.equals(document)) {
 			setSelectedThumbnail(doc.getCurrentPage());
 		}
-	}
-
-	private void updateListeners(int fistIndex, int lastIndex) {
-		ListModel<Page> model = list.getModel();
-
-		int selected = list.getSelectedIndex();
-		int previous = selected == fistIndex ? lastIndex : fistIndex;
-
-		Page selectedPage = model.getElementAt(selected);
-		Page previousPage = model.getElementAt(previous);
-
-		if (selectedPage != previousPage) {
-			previousPage.removePageEditedListener(pageEditedHandler);
-		}
-
-		selectedPage.addPageEditedListener(pageEditedHandler);
 	}
 
 	private void fireThumbSelected(Page page) {
@@ -261,8 +243,13 @@ public class ThumbPanel extends JPanel {
 		if (this.document != selectedSlide.getDocument()) {
 			return;
 		}
-
 		if (this.selectedPage != selectedSlide) {
+			if (nonNull(selectedPage)) {
+				selectedPage.removePageEditedListener(pageEditedHandler);
+			}
+
+			selectedSlide.addPageEditedListener(pageEditedHandler);
+
 			DefaultListModel<Page> listModel = (DefaultListModel<Page>) list.getModel();
 			int index = document.getPageIndex(selectedSlide);
 

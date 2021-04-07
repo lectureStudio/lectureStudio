@@ -553,6 +553,10 @@ public class SlideView extends JComponent implements org.lecturestudio.core.view
 	}
 
 	private synchronized void updateBackImage() {
+		if (isNull(getGraphicsConfiguration())) {
+			return;
+		}
+
 		AffineTransform transform = getGraphicsConfiguration().getDefaultTransform();
 		int width = (int) (canvasBounds.width * transform.getScaleX());
 		int height = (int) (canvasBounds.height * transform.getScaleY());

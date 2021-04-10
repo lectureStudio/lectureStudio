@@ -285,12 +285,7 @@ public class PDFBoxDocument implements DocumentAdapter {
 	public int importPage(DocumentAdapter srcDocument, int pageNumber) throws IOException {
 		PDFBoxDocument pdfBoxSrcDoc = (PDFBoxDocument) srcDocument;
 
-		PDPage srcPage = pdfBoxSrcDoc.doc.getPage(pageNumber);
-		PDPage dstPage = doc.importPage(srcPage);
-
-		dstPage.setResources(srcPage.getResources());
-
-		return getPageCount() - 1;
+		return importPage(pdfBoxSrcDoc, pageNumber, new AffineTransform());
 	}
 
 	public int importPage(PDFBoxDocument srcDocument, int pageNumber, AffineTransform transform) throws IOException {

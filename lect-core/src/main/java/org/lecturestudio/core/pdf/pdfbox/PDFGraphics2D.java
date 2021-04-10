@@ -269,12 +269,9 @@ public class PDFGraphics2D extends Graphics2D {
 
 		try {
 			stream.saveGraphicsState();
-			
-			boolean opaque = color.getAlpha() == 255;
-			if (!opaque) {
-				applyAlpha(color.getAlpha(), OPAQUE);
-			}
-			
+
+			applyAlpha(color);
+
 			stream.setStrokingColor(getColor());
 			stream.setNonStrokingColor(getBackground());
 			
@@ -353,10 +350,7 @@ public class PDFGraphics2D extends Graphics2D {
 			stream.setStrokingColor(getBackground());
 			stream.setNonStrokingColor(getColor());
 
-			boolean opaque = getColor().getAlpha() == 255;
-			if (!opaque) {
-				applyAlpha(getColor().getAlpha(), OPAQUE);
-			}
+			applyAlpha(getColor());
 
 			PdfFontManager fontManager = PdfFontManager.getInstance();
 			PDFont pdFont = fontManager.getPdfFont(getFont(), document);
@@ -443,15 +437,13 @@ public class PDFGraphics2D extends Graphics2D {
 				
 				if (paint instanceof Color) {
 					Color color = (Color) paint;
-					
-					if (color.getAlpha() == 0)
+
+					if (color.getAlpha() == 0) {
 						return;
-					
-					// Create alpha painting command.
-					boolean opaque = color.getAlpha() == 255;
-					if (!opaque) {
-						applyAlpha(OPAQUE, color.getAlpha());
 					}
+
+					// Create alpha painting command.
+					applyAlpha(color);
 				}
 				
 				stream.setStrokingColor(getBackground());
@@ -977,7 +969,35 @@ public class PDFGraphics2D extends Graphics2D {
         else
         	return PDType1Font.HELVETICA;
 	}
-	
+
+	/**
+	 * Applies the given alpha values for filling and stroking.
+	 *
+	 * @param color The color to apply blending with.
+	 */
+	protected void applyAlpha(Color color) {
+		int alpha = color.getAlpha();
+		if (alpha == OPAQUE) {
+			// Allow blending, even with fully opaque color.
+			alpha -= 1;
+		}
+
+		checkTransparencyAllowed();
+
+		// Create blending graphics state.
+		PDExtendedGraphicsState extGState = new PDExtendedGraphicsState();
+		extGState.getCOSObject().setName(COSName.BM, COSName.MULTIPLY.getName());
+		extGState.setStrokingAlphaConstant(alpha / 255f);
+		extGState.setNonStrokingAlphaConstant(alpha / 255f);
+
+		try {
+			stream.setGraphicsStateParameters(extGState);
+		}
+		catch (IOException e) {
+			LOG.error("Set graphics state parameters failed.", e);
+		}
+	}
+
 	/**
      * Applies the given alpha values for filling and stroking.
      * 
@@ -990,8 +1010,8 @@ public class PDFGraphics2D extends Graphics2D {
 			
 			// Create blending graphics state.
 			PDExtendedGraphicsState extGState = new PDExtendedGraphicsState();
-			extGState.getCOSObject().setName(COSName.BM, "Multiply");
-			
+			extGState.getCOSObject().setName(COSName.BM, COSName.MULTIPLY.getName());
+
 			if (strokeAlpha != OPAQUE) {
 				extGState.setStrokingAlphaConstant(strokeAlpha / 255f);
 			}

@@ -59,13 +59,17 @@ public class PointerTool extends StrokeTool<PointerShape> {
 
 	@Override
 	protected PlaybackAction createPlaybackAction() {
-		return new PointerAction(createStroke(), context.getKeyEvent());
+		Stroke actionStroke = createStroke();
+		actionStroke.scale(context.getPageScale());
+
+		return new PointerAction(actionStroke, context.getKeyEvent());
 	}
 
 	@Override
 	protected PointerShape createShape() {
 		Stroke stroke = createStroke();
 		stroke.scale(3);
+		stroke.scale(context.getPageScale());
 
 		return new PointerShape(stroke);
 	}

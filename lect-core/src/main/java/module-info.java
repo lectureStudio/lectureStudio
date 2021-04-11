@@ -46,6 +46,7 @@ module org.lecturestudio.core {
 	exports org.lecturestudio.core.camera.bus.event;
 	exports org.lecturestudio.core.codec;
 	exports org.lecturestudio.core.codec.h264;
+	exports org.lecturestudio.core.controller;
 	exports org.lecturestudio.core.converter;
 	exports org.lecturestudio.core.geometry;
 	exports org.lecturestudio.core.graphics;

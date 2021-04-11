@@ -59,13 +59,15 @@ public abstract class BaseStrokeAction extends PlaybackAction {
 	public void parseFrom(byte[] input) throws IOException {
 		ByteBuffer buffer = createBuffer(input);
 
-		// Stroke
-		Color color = new Color(buffer.getInt());
-		StrokeLineCap lineCap = StrokeLineCap.values()[buffer.get()];
-		double penWidth = buffer.getDouble();
+		if (buffer.remaining() >= 13) {
+			// Stroke
+			Color color = new Color(buffer.getInt());
+			StrokeLineCap lineCap = StrokeLineCap.values()[buffer.get()];
+			double penWidth = buffer.getDouble();
 
-		stroke = new Stroke(color, penWidth);
-		stroke.setStrokeLineCap(lineCap);
+			stroke = new Stroke(color, penWidth);
+			stroke.setStrokeLineCap(lineCap);
+		}
 	}
 
 }

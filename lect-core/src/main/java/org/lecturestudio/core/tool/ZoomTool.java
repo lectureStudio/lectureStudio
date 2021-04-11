@@ -74,7 +74,7 @@ public class ZoomTool extends StrokeTool<ZoomShape> {
 
 	@Override
 	protected PlaybackAction createPlaybackAction() {
-		return new ZoomAction();
+		return new ZoomAction(createStroke(), context.getKeyEvent());
 	}
 
 	@Override

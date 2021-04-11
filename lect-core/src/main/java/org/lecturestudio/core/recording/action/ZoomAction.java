@@ -19,36 +19,30 @@
 package org.lecturestudio.core.recording.action;
 
 import java.io.IOException;
-import java.nio.ByteBuffer;
 
 import org.lecturestudio.core.controller.ToolController;
+import org.lecturestudio.core.input.KeyEvent;
+import org.lecturestudio.core.tool.Stroke;
+import org.lecturestudio.core.tool.StrokeSettings;
+import org.lecturestudio.core.tool.ToolType;
 
-public class ZoomAction extends PlaybackAction {
+public class ZoomAction extends BaseStrokeAction {
 
-	public ZoomAction() {
-		
+	public ZoomAction(Stroke stroke, KeyEvent keyEvent) {
+		super(stroke, keyEvent);
 	}
 
 	public ZoomAction(byte[] input) throws IOException {
-		parseFrom(input);
+		super(input);
 	}
 
 	@Override
 	public void execute(ToolController controller) throws Exception {
+		StrokeSettings settings = controller.getPaintSettings(ToolType.RECTANGLE);
+		settings.setWidth(stroke.getWidth());
+
 		controller.selectZoomTool();
 		controller.setKeyEvent(getKeyEvent());
-	}
-
-	@Override
-	public byte[] toByteArray() throws IOException {
-		ByteBuffer buffer = createBuffer(0);
-
-		return buffer.array();
-	}
-
-	@Override
-	public void parseFrom(byte[] input) throws IOException {
-		createBuffer(input);
 	}
 
 	@Override

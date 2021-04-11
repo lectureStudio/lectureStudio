@@ -55,11 +55,7 @@ public class PenTool extends StrokeTool<StrokeShape> {
 
 	@Override
 	protected PlaybackAction createPlaybackAction() {
-		Stroke actionStroke = createStroke();
-		// Pens should be smaller when zoomed in.
-		actionStroke.scale(context.getPageScale());
-
-		return new PenAction(actionStroke, context.getKeyEvent());
+		return new PenAction(createStroke(), context.getKeyEvent());
 	}
 
 	@Override

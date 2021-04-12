@@ -30,6 +30,10 @@ import java.util.Map;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.atomic.AtomicBoolean;
+
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import org.lecturestudio.core.ExecutableBase;
 import org.lecturestudio.core.ExecutableException;
@@ -46,17 +50,19 @@ import org.lecturestudio.core.model.listener.PageEditedListener;
  */
 public class DocumentRecorder extends ExecutableBase {
 
+	private static final Logger LOG = LogManager.getLogger(DocumentRecorder.class);
+
 	private IdleTimer idleTimer;
 
 	private Map<Document, Document> documentMap;
 
 	private Map<Document, Page> documentPageMap;
 
+	private Map<Document, PageListener> documentListenerMap;
+
 	private List<Page> recordedPages;
 
 	private int pageRecordingTimeout = 2000;
-
-	private PageListener pageListener;
 
 
 	/**
@@ -102,9 +108,17 @@ public class DocumentRecorder extends ExecutableBase {
 			throw new ExecutableException("Recording has not been started");
 		}
 
-		Page prevPage = documentPageMap.get(page.getDocument());
+		Document doc = page.getDocument();
+		Page prevPage = documentPageMap.get(doc);
 
 		if (nonNull(prevPage) && prevPage == page) {
+			PageListener pageListener = documentListenerMap.get(doc);
+
+			if (nonNull(pageListener)) {
+				// Switch to new page provision mode.
+				pageListener.setProvisionMode();
+			}
+
 			// Do not record the same page successively.
 			return;
 		}
@@ -126,6 +140,7 @@ public class DocumentRecorder extends ExecutableBase {
 	protected void initInternal() throws ExecutableException {
 		documentMap = new ConcurrentHashMap<>();
 		documentPageMap = new ConcurrentHashMap<>();
+		documentListenerMap = new ConcurrentHashMap<>();
 		recordedPages = new ArrayList<>();
 	}
 
@@ -142,6 +157,7 @@ public class DocumentRecorder extends ExecutableBase {
 
 		documentMap.clear();
 		documentPageMap.clear();
+		documentListenerMap.clear();
 		recordedPages.clear();
 	}
 
@@ -150,7 +166,7 @@ public class DocumentRecorder extends ExecutableBase {
 		// Nothing to do.
 	}
 
-	private void insertPage(Page page) throws ExecutableException {
+	private void insertPage(Page page) {
 		Document pageDoc = page.getDocument();
 		Document recDocument = documentMap.get(pageDoc);
 
@@ -164,7 +180,8 @@ public class DocumentRecorder extends ExecutableBase {
 				documentMap.put(pageDoc, recDocument);
 			}
 			catch (IOException e) {
-				throw new ExecutableException(e);
+				LOG.error("Record document failed", e);
+				return;
 			}
 		}
 
@@ -172,19 +189,21 @@ public class DocumentRecorder extends ExecutableBase {
 			Page recPage = recDocument.createPage(page);
 			recPage.addShapes(page.getShapes());
 
+			PageListener pageListener = documentListenerMap.get(pageDoc);
+
 			if (nonNull(pageListener)) {
 				// Cancel observing the previous page.
 				pageListener.dispose();
 			}
-			pageListener = new PageListener(page, recPage);
 
 			recordedPages.add(recPage);
 
 			// Register page to avoid successive recording.
 			documentPageMap.put(pageDoc, page);
+			documentListenerMap.put(pageDoc, new PageListener(page, recPage));
 		}
 		catch (IOException e) {
-			throw new ExecutableException(e);
+			LOG.error("Record page failed", e);
 		}
 	}
 
@@ -200,10 +219,11 @@ public class DocumentRecorder extends ExecutableBase {
 
 
 
-	private static class PageListener implements PageEditedListener {
+	private class PageListener implements PageEditedListener {
+
+		private final AtomicBoolean provision = new AtomicBoolean();
 
 		private final Page page;
-
 		private final Page srcPage;
 
 
@@ -216,6 +236,11 @@ public class DocumentRecorder extends ExecutableBase {
 
 		@Override
 		public void pageEdited(PageEditEvent event) {
+			if (provision.get()) {
+				insertPage(srcPage);
+				return;
+			}
+
 			switch (event.getType()) {
 				case CLEAR:
 					page.clear();
@@ -235,6 +260,10 @@ public class DocumentRecorder extends ExecutableBase {
 
 		void dispose() {
 			srcPage.removePageEditedListener(this);
+		}
+
+		void setProvisionMode() {
+			provision.set(true);
 		}
 	}
 
@@ -256,12 +285,7 @@ public class DocumentRecorder extends ExecutableBase {
 
 				@Override
 				public void run() {
-					try {
-						insertPage(page);
-					}
-					catch (ExecutableException e) {
-						e.printStackTrace();
-					}
+					insertPage(page);
 				}
 			};
 

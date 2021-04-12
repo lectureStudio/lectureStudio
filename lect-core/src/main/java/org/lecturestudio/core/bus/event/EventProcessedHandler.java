@@ -23,6 +23,6 @@ public interface EventProcessedHandler {
 	/**
 	 * Called when an event has been successfully processed.
 	 */
-	public void onEventProcessed();
+	void onEventProcessed();
 
 }

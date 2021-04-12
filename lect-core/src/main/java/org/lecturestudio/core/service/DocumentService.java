@@ -33,6 +33,10 @@ import java.util.concurrent.CompletionException;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
+import org.lecturestudio.core.ExecutableException;
 import org.lecturestudio.core.app.ApplicationContext;
 import org.lecturestudio.core.app.configuration.Configuration;
 import org.lecturestudio.core.bus.event.DocumentEvent;
@@ -44,9 +48,7 @@ import org.lecturestudio.core.model.DocumentList;
 import org.lecturestudio.core.model.DocumentType;
 import org.lecturestudio.core.model.Page;
 import org.lecturestudio.core.model.RecentDocument;
-
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import org.lecturestudio.core.recording.DocumentRecorder;
 
 @Singleton
 public class DocumentService {
@@ -57,15 +59,38 @@ public class DocumentService {
 
 	private final DocumentList documents;
 
+	private final DocumentRecorder documentRecorder;
+
 
 	@Inject
 	public DocumentService(ApplicationContext context) {
 		this.context = context;
 		this.documents = new DocumentList();
+		this.documentRecorder = new DocumentRecorder();
+
+		try {
+			documentRecorder.start();
+		}
+		catch (ExecutableException e) {
+			LOG.error("Start document recorder failed", e);
+		}
 	}
 
+	/**
+	 * @return A list of all opened documents.
+	 */
 	public DocumentList getDocuments() {
 		return documents;
+	}
+
+	/**
+	 * Returns the {@code DocumentRecorder} to obtain all recorded documents and
+	 * pages.
+	 *
+	 * @return The {@code DocumentRecorder}.
+	 */
+	public DocumentRecorder getDocumentRecorder() {
+		return documentRecorder;
 	}
 
 	/**
@@ -190,6 +215,8 @@ public class DocumentService {
 		Document oldDoc = documents.getSelectedDocument();
 
 		if (documents.select(doc)) {
+			recordPage(doc.getCurrentPage());
+
 			context.getEventBus().post(new DocumentEvent(oldDoc, doc, DocumentEvent.Type.SELECTED));
 		}
 	}
@@ -337,6 +364,17 @@ public class DocumentService {
 			Page newPage = document.getPage(pageNumber);
 
 			context.getEventBus().post(new PageEvent(newPage, oldPage, PageEvent.Type.SELECTED));
+
+			recordPage(newPage);
+		}
+	}
+
+	private void recordPage(Page page) {
+		try {
+			documentRecorder.recordPage(page);
+		}
+		catch (ExecutableException e) {
+			LOG.error("Record page failed", e);
 		}
 	}
 

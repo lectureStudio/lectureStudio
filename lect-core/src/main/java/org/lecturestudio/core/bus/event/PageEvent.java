@@ -23,10 +23,10 @@ public class PageEvent extends BusEvent {
 	
 	public enum Type { CREATED, REMOVED, SELECTED };
 
-	private Page page;
-	private Page oldPage;
+	private final Page page;
+	private final Page oldPage;
 	
-	private Type type;
+	private final Type type;
 	
 	
 	public PageEvent(Page page, Type type) {

@@ -18,6 +18,8 @@
 
 package org.lecturestudio.core.model;
 
+import static java.util.Objects.nonNull;
+
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
@@ -215,17 +217,17 @@ public class Document {
 	public String getAuthor() {
 		return pdfDocument.getAuthor();
 	}
-	
+
 	/**
-	 * Either the filename is returned, if this document is backed by a file, or the
-	 * document title is returned.
-	 * 
+	 * Either the filename is returned, if this document is backed by a file, or
+	 * the document title is returned.
+	 *
 	 * @return the name of this document.
 	 */
 	public String getName() {
-		String name = null;
-		
-    	if (file != null) {
+		String name;
+
+    	if (nonNull(file)) {
     		name = file.getName();
     		
     		// Strip file extension.

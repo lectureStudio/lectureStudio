@@ -34,10 +34,11 @@ import javax.inject.Inject;
 import org.lecturestudio.core.app.ApplicationContext;
 import org.lecturestudio.core.beans.StringProperty;
 import org.lecturestudio.core.model.Document;
-import org.lecturestudio.core.model.DocumentList;
+import org.lecturestudio.core.model.Page;
 import org.lecturestudio.core.presenter.Presenter;
 import org.lecturestudio.core.presenter.ProgressPresenter;
 import org.lecturestudio.core.presenter.command.ShowPresenterCommand;
+import org.lecturestudio.core.recording.DocumentRecorder;
 import org.lecturestudio.core.render.RenderService;
 import org.lecturestudio.core.service.DocumentService;
 import org.lecturestudio.core.view.FileChooserView;
@@ -82,9 +83,9 @@ public class SaveDocumentsPresenter extends Presenter<SaveDocumentsView> {
 
 	@Override
 	public void initialize() {
-		DocumentList docList = documentService.getDocuments();
+		DocumentRecorder documentRecorder = documentService.getDocumentRecorder();
 
-		for (Document doc : docList.asList()) {
+		for (Document doc : documentRecorder.getRecordedDocuments()) {
 			SaveDocumentOptionView optionView = createDocumentOptionView(doc);
 
 			view.addDocumentOptionView(optionView);
@@ -184,6 +185,9 @@ public class SaveDocumentsPresenter extends Presenter<SaveDocumentsView> {
 	}
 
 	private void saveAsync(ProgressView progressView, List<Document> documents, File file) {
+		DocumentRecorder documentRecorder = documentService.getDocumentRecorder();
+		List<Page> recPages = documentRecorder.getRecordedPages();
+
 		RenderService renderService = new RenderService();
 		renderService.registerRenderer(new ArrowRenderer());
 		renderService.registerRenderer(new EllipseRenderer());
@@ -196,7 +200,8 @@ public class SaveDocumentsPresenter extends Presenter<SaveDocumentsView> {
 
 		CompletableFuture.runAsync(() -> {
 			try {
-				PdfFactory.writeDocumentsToPDF(renderService, file, documents, progressView::setProgress, true);
+				PdfFactory.writeDocumentsToPDF(renderService, file, documents,
+						recPages, progressView::setProgress, true);
 			}
 			catch (Exception e) {
 				throw new CompletionException(e);

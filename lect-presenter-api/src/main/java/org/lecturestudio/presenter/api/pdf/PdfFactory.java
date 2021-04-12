@@ -18,12 +18,15 @@
 
 package org.lecturestudio.presenter.api.pdf;
 
+import static java.util.Objects.isNull;
+
 import java.awt.Color;
 import java.awt.Graphics2D;
 import java.awt.geom.AffineTransform;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
+import java.nio.file.Files;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -107,37 +110,37 @@ public class PdfFactory {
 		}
 	}
 
-
-	public static void writeDocumentsToPDF(RenderService renderService, File outputFile, List<Document> documents, ProgressCallback progressCallback, boolean editable)
+	public static void writeDocumentsToPDF(RenderService renderService,
+			File outputFile, List<Document> documents, List<Page> pages,
+			ProgressCallback progressCallback, boolean editable)
 			throws Exception {
-		if (documents == null || documents.isEmpty()) {
+		if (isNull(documents) || documents.isEmpty()) {
 			throw new IllegalArgumentException("No documents to write.");
+		}
+		if (isNull(pages) || pages.isEmpty()) {
+			throw new IllegalArgumentException("No pages to write.");
 		}
 
 		Document newDocument = new Document();
-		newDocument.setTitle(documents.get(0).getTitle());
-		newDocument.setAuthor(documents.get(0).getAuthor());
+		newDocument.setTitle(FileUtils.stripExtension(outputFile.getName()));
 
 		int pageCount = documents.stream().mapToInt(Document::getPageCount).sum();
 		int pagesWritten = 0;
+		float pageStep = 1.f / pageCount;
 
-		for (Document doc : documents) {
-			for (Page page : doc.getPages()) {
-				// Import page.
+		for (Page page : pages) {
+			if (documents.contains(page.getDocument())) {
+				// Import page with all annotations.
 				createPage(renderService, newDocument, page, editable);
 
 				// Progress notification.
 				pagesWritten++;
 
-				progressCallback.onProgress(pagesWritten * 1.F / pageCount);
+				progressCallback.onProgress(pagesWritten * pageStep);
 			}
-
-			doc.setSaved();
 		}
 
-		if (!outputFile.getParentFile().exists()) {
-			outputFile.getParentFile().mkdirs();
-		}
+		Files.createDirectories(outputFile.getParentFile().toPath());
 
 		FileOutputStream fileStream = new FileOutputStream(outputFile);
 		newDocument.toOutputStream(fileStream);

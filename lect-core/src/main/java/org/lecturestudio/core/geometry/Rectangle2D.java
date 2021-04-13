@@ -65,6 +65,16 @@ public class Rectangle2D implements Cloneable, Serializable {
 	}
 
 	/**
+	 * Creates a new instance of {@code Rectangle2D} with specified Rectangle2D
+	 * to copy.
+	 *
+	 * @param rect The rectangle to copy.
+	 */
+	public Rectangle2D(Rectangle2D rect) {
+		setRect(rect.x, rect.y, rect.width, rect.height);
+	}
+
+	/**
 	 * Sets the location of the <code>Rectangle2D</code> to the specified
 	 * values.
 	 *

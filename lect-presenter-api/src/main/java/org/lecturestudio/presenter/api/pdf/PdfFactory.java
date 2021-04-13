@@ -63,10 +63,13 @@ import org.lecturestudio.core.model.shape.Shape;
 import org.lecturestudio.core.pdf.PdfDocument;
 import org.lecturestudio.core.pdf.PdfFontManager;
 import org.lecturestudio.core.pdf.pdfbox.PDFGraphics2D;
+import org.lecturestudio.core.recording.DocumentRecorder;
 import org.lecturestudio.core.render.RenderService;
 import org.lecturestudio.core.swing.SwingGraphicsContext;
 import org.lecturestudio.core.util.FileUtils;
 import org.lecturestudio.core.util.ProgressCallback;
+import org.lecturestudio.core.view.PresentationParameter;
+import org.lecturestudio.core.view.PresentationParameterProvider;
 import org.lecturestudio.web.api.model.quiz.Quiz;
 import org.lecturestudio.web.api.model.quiz.Quiz.QuizType;
 import org.lecturestudio.web.api.model.quiz.QuizAnswer;
@@ -111,15 +114,15 @@ public class PdfFactory {
 	}
 
 	public static void writeDocumentsToPDF(RenderService renderService,
-			File outputFile, List<Document> documents, List<Page> pages,
-			ProgressCallback progressCallback, boolean editable)
-			throws Exception {
+			DocumentRecorder documentRecorder, File outputFile,
+			List<Document> documents, ProgressCallback progressCallback,
+			boolean editable) throws Exception {
 		if (isNull(documents) || documents.isEmpty()) {
 			throw new IllegalArgumentException("No documents to write.");
 		}
-		if (isNull(pages) || pages.isEmpty()) {
-			throw new IllegalArgumentException("No pages to write.");
-		}
+
+		List<Page> pages = documentRecorder.getRecordedPages();
+		PresentationParameterProvider ppProvider = documentRecorder.getRecordedParamProvider();
 
 		Document newDocument = new Document();
 		newDocument.setTitle(FileUtils.stripExtension(outputFile.getName()));
@@ -130,8 +133,10 @@ public class PdfFactory {
 
 		for (Page page : pages) {
 			if (documents.contains(page.getDocument())) {
+				PresentationParameter param = ppProvider.getParameter(page);
+
 				// Import page with all annotations.
-				createPage(renderService, newDocument, page, editable);
+				createPage(renderService, param, newDocument, page, editable);
 
 				// Progress notification.
 				pagesWritten++;
@@ -149,9 +154,14 @@ public class PdfFactory {
 		fileStream.close();
 	}
 
-	private static void createPage(RenderService renderContext, Document newDocument, Page page, boolean editable)
-			throws Exception {
-		AffineTransform pageTransform = new AffineTransform(1, 0, 0, 1, 0, 0);
+	private static void createPage(RenderService renderContext,
+			PresentationParameter param, Document newDocument, Page page,
+			boolean editable) throws Exception {
+		Rectangle2D pageRect = param.getPageRect();
+
+		AffineTransform transform = new AffineTransform();
+		transform.translate(-pageRect.getX(), -pageRect.getY());
+		transform.scale(pageRect.getWidth(), pageRect.getWidth());
 
 		Page newPage = newDocument.createPage(page);
 		int pageIndex = newPage.getPageNumber();
@@ -162,22 +172,24 @@ public class PdfFactory {
 		}
 
 		// Create page annotation graphics renderer.
+		PdfDocument pdfDocument = newDocument.getPdfDocument();
 		PDFGraphics2D graphics;
 
 		if (editable) {
 			// Tag graphics stream to be able to find it later.
-			graphics = (PDFGraphics2D) newDocument.getPdfDocument().createAppendablePageGraphics2D(pageIndex, PdfDocument.EMBEDDED_SHAPES_KEY);
+			graphics = (PDFGraphics2D) pdfDocument.createAppendablePageGraphics2D(
+					pageIndex, PdfDocument.EMBEDDED_SHAPES_KEY);
 		}
 		else {
-			graphics = (PDFGraphics2D) newDocument.getPdfDocument().createAppendablePageGraphics2D(pageIndex);
+			graphics = (PDFGraphics2D) pdfDocument.createAppendablePageGraphics2D(
+					pageIndex);
 		}
 
 		SwingGraphicsContext gc = new SwingGraphicsContext(graphics);
 
 		// Calculate page annotation scaling.
-		AffineTransform annotTransform = pageTransform.createInverse();
-
-		Rectangle2D mediaBox = newDocument.getPdfDocument().getPageMediaBox(pageIndex);
+		AffineTransform annotTransform = transform.createInverse();
+		Rectangle2D mediaBox = pdfDocument.getPageMediaBox(pageIndex);
 
 		double sx = mediaBox.getWidth() * annotTransform.getScaleX();
 
@@ -194,7 +206,7 @@ public class PdfFactory {
 					.filter(shape -> renderContext.hasRenderer(shape.getClass()))
 					.collect(Collectors.toList());
 
-			newDocument.getPdfDocument().createEditableAnnotationStream(pageIndex, shapes);
+			pdfDocument.createEditableAnnotationStream(pageIndex, shapes);
 		}
 
 		graphics.close();

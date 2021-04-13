@@ -66,14 +66,7 @@ public class DocumentService {
 	public DocumentService(ApplicationContext context) {
 		this.context = context;
 		this.documents = new DocumentList();
-		this.documentRecorder = new DocumentRecorder();
-
-		try {
-			documentRecorder.start();
-		}
-		catch (ExecutableException e) {
-			LOG.error("Start document recorder failed", e);
-		}
+		this.documentRecorder = new DocumentRecorder(context);
 	}
 
 	/**
@@ -190,6 +183,15 @@ public class DocumentService {
 
 	public void addDocument(Document doc) {
 		if (documents.add(doc)) {
+			if (documentRecorder.created()) {
+				try {
+					documentRecorder.start();
+				}
+				catch (ExecutableException e) {
+					LOG.error("Start document recorder failed", e);
+				}
+			}
+
 			context.getEventBus().post(new DocumentEvent(doc, DocumentEvent.Type.CREATED));
 		}
 	}

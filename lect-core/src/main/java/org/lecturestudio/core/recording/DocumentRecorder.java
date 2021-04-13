@@ -37,10 +37,15 @@ import org.apache.logging.log4j.Logger;
 
 import org.lecturestudio.core.ExecutableBase;
 import org.lecturestudio.core.ExecutableException;
+import org.lecturestudio.core.app.ApplicationContext;
+import org.lecturestudio.core.geometry.Rectangle2D;
 import org.lecturestudio.core.model.Document;
 import org.lecturestudio.core.model.Page;
 import org.lecturestudio.core.model.listener.PageEditEvent;
 import org.lecturestudio.core.model.listener.PageEditedListener;
+import org.lecturestudio.core.view.PresentationParameter;
+import org.lecturestudio.core.view.PresentationParameterProvider;
+import org.lecturestudio.core.view.ViewType;
 
 /**
  * Records all opened documents and visited pages. The recorded documents can be
@@ -52,18 +57,26 @@ public class DocumentRecorder extends ExecutableBase {
 
 	private static final Logger LOG = LogManager.getLogger(DocumentRecorder.class);
 
+	private final ApplicationContext context;
+
+	private PresentationParameterProvider paramProvider;
+
+	private PresentationParameterProvider recParamProvider;
+
 	private IdleTimer idleTimer;
 
 	private Map<Document, Document> documentMap;
 
-	private Map<Document, Page> documentPageMap;
-
-	private Map<Document, PageListener> documentListenerMap;
+	private Map<Document, PageState> documentPageMap;
 
 	private List<Page> recordedPages;
 
 	private int pageRecordingTimeout = 2000;
 
+
+	public DocumentRecorder(ApplicationContext context) {
+		this.context = context;
+	}
 
 	/**
 	 * Returns all recorded documents. The order of recorded documents is not
@@ -93,6 +106,14 @@ public class DocumentRecorder extends ExecutableBase {
 		return recordedPages;
 	}
 
+	public PresentationParameterProvider getRecordedParamProvider() {
+		if (!started()) {
+			return null;
+		}
+
+		return recParamProvider;
+	}
+
 	/**
 	 * Records the provided page. The page will be automatically assigned to a
 	 * documents it belongs to. The document preserves the insertion order of
@@ -109,15 +130,11 @@ public class DocumentRecorder extends ExecutableBase {
 		}
 
 		Document doc = page.getDocument();
-		Page prevPage = documentPageMap.get(doc);
+		PageState state = documentPageMap.get(doc);
 
-		if (nonNull(prevPage) && prevPage == page) {
-			PageListener pageListener = documentListenerMap.get(doc);
-
-			if (nonNull(pageListener)) {
-				// Switch to new page provision mode.
-				pageListener.setProvisionMode();
-			}
+		if (nonNull(state) && state.srcPage == page) {
+			// Switch to new page provision mode.
+			state.setProvisionMode();
 
 			// Do not record the same page successively.
 			return;
@@ -140,8 +157,10 @@ public class DocumentRecorder extends ExecutableBase {
 	protected void initInternal() throws ExecutableException {
 		documentMap = new ConcurrentHashMap<>();
 		documentPageMap = new ConcurrentHashMap<>();
-		documentListenerMap = new ConcurrentHashMap<>();
 		recordedPages = new ArrayList<>();
+
+		recParamProvider = new PresentationParameterProvider(context.getConfiguration());
+		paramProvider = context.getPagePropertyPropvider(ViewType.User);
 	}
 
 	@Override
@@ -157,7 +176,6 @@ public class DocumentRecorder extends ExecutableBase {
 
 		documentMap.clear();
 		documentPageMap.clear();
-		documentListenerMap.clear();
 		recordedPages.clear();
 	}
 
@@ -186,21 +204,26 @@ public class DocumentRecorder extends ExecutableBase {
 		}
 
 		try {
-			Page recPage = recDocument.createPage(page);
+			PresentationParameter param = paramProvider.getParameter(page);
+
+			Page recPage = recDocument.createPage(page, param.getPageRect());
 			recPage.addShapes(page.getShapes());
 
-			PageListener pageListener = documentListenerMap.get(pageDoc);
+			// Remember page presentation state.
+			PresentationParameter recParam = recParamProvider.getParameter(recPage);
+			recParam.setPageRect(param.getPageRect());
 
-			if (nonNull(pageListener)) {
+			PageState state = documentPageMap.get(pageDoc);
+
+			if (nonNull(state)) {
 				// Cancel observing the previous page.
-				pageListener.dispose();
+				state.dispose();
 			}
 
 			recordedPages.add(recPage);
 
 			// Register page to avoid successive recording.
-			documentPageMap.put(pageDoc, page);
-			documentListenerMap.put(pageDoc, new PageListener(page, recPage));
+			documentPageMap.put(pageDoc, new PageState(page, recPage, param));
 		}
 		catch (IOException e) {
 			LOG.error("Record page failed", e);
@@ -219,51 +242,80 @@ public class DocumentRecorder extends ExecutableBase {
 
 
 
-	private class PageListener implements PageEditedListener {
+	private class PageState {
 
-		private final AtomicBoolean provision = new AtomicBoolean();
+		final AtomicBoolean provision = new AtomicBoolean();
 
-		private final Page page;
-		private final Page srcPage;
+		final Page page;
+		final Page srcPage;
+
+		final PresentationParameter param;
+
+		final PageListener pageListener;
+
+		Rectangle2D pageRect;
 
 
-		PageListener(Page srcPage, Page dstPage) {
+		PageState(Page srcPage, Page dstPage, PresentationParameter param) {
 			this.srcPage = srcPage;
 			this.page = dstPage;
+			this.param = param;
+			this.pageListener = new PageListener(this);
+			this.pageRect = param.getPageRect();
 
-			srcPage.addPageEditedListener(this);
+			srcPage.addPageEditedListener(pageListener);
+		}
+
+		void dispose() {
+			srcPage.removePageEditedListener(pageListener);
+		}
+
+		boolean hasChanged() {
+			return !pageRect.equals(param.getPageRect()) || isProvisionMode();
+		}
+
+		boolean isProvisionMode() {
+			return provision.get();
+		}
+
+		void setProvisionMode() {
+			provision.set(true);
+		}
+	}
+
+
+
+	private class PageListener implements PageEditedListener {
+
+		private final PageState state;
+
+
+		PageListener(PageState state) {
+			this.state = state;
 		}
 
 		@Override
 		public void pageEdited(PageEditEvent event) {
-			if (provision.get()) {
-				insertPage(srcPage);
+			if (state.hasChanged()) {
+				insertPage(state.srcPage);
 				return;
 			}
 
 			switch (event.getType()) {
 				case CLEAR:
-					page.clear();
+					state.page.clear();
 					break;
 				case SHAPE_ADDED:
-					page.addShape(event.getShape());
+					state.page.addShape(event.getShape());
 					break;
 				case SHAPES_ADDED:
-					page.clear();
-					page.addShapes(event.getPage().getShapes());
+					state.page.clear();
+					state.page.addShapes(event.getPage().getShapes());
 					break;
 				case SHAPE_REMOVED:
-					page.removeShape(event.getShape());
+					state.page.removeShape(event.getShape());
 					break;
 			}
-		}
-
-		void dispose() {
-			srcPage.removePageEditedListener(this);
-		}
-
-		void setProvisionMode() {
-			provision.set(true);
 		}
 	}
 

@@ -347,18 +347,13 @@ public class Document {
 	}
 	
 	public Page createPage(Page page) throws IOException {
-		int pageIndex = pdfDocument.importPage(page.getDocument().getPdfDocument(), page.getPageNumber());
-		
-		if (pageIndex == -1) {
-			return null;
-		}
-
-		Page newPage = new Page(this, pageIndex);
-		addPage(newPage);
-		
-		return newPage;
+		return importPage(page, null);
 	}
-	
+
+	public Page createPage(Page page, Rectangle2D pageRect) throws IOException {
+		return importPage(page, pageRect);
+	}
+
 	public void setDocumentType(DocumentType type) {
 		this.type = type;
 	}
@@ -496,6 +491,22 @@ public class Document {
 		pages.add(page);
 		
 		fireAddChange(page);
+	}
+
+	private Page importPage(Page page, Rectangle2D pageRect)
+			throws IOException {
+		PdfDocument pagePdfDocument = page.getDocument().getPdfDocument();
+		int pageIndex = pdfDocument.importPage(pagePdfDocument,
+				page.getPageNumber(), pageRect);
+
+		if (pageIndex == -1) {
+			return null;
+		}
+
+		Page newPage = new Page(this, pageIndex);
+		addPage(newPage);
+
+		return newPage;
 	}
 
 	private void fireDocumentChange() {

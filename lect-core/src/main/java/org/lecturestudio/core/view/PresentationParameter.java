@@ -135,8 +135,8 @@ public class PresentationParameter {
 			translation = new Point2D();
 
 			Rectangle2D oldValue = this.pageRect;
-			this.pageRect = pageRect;
-			
+			this.pageRect = new Rectangle2D(pageRect);
+
 			pcs.firePropertyChange("PageRect", oldValue, pageRect);
 		}
 	}

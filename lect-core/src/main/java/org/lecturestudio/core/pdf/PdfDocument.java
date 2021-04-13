@@ -126,8 +126,8 @@ public class PdfDocument {
 		return pdfBoxDocument.getPageBounds(pageIndex);
 	}
 	
-	public int importPage(PdfDocument pdfDocument, int pageIndex) throws IOException {
-		return pdfBoxDocument.importPage(pdfDocument.pdfBoxDocument, pageIndex);
+	public int importPage(PdfDocument pdfDocument, int pageIndex, Rectangle2D pageRect) throws IOException {
+		return pdfBoxDocument.importPage(pdfDocument.pdfBoxDocument, pageIndex, pageRect);
 	}
 
 	public void createEditableAnnotationStream(int pageIndex, List<Shape> shapes) throws IOException {

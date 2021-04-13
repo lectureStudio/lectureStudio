@@ -288,6 +288,19 @@ public class PDFBoxDocument implements DocumentAdapter {
 		return importPage(pdfBoxSrcDoc, pageNumber, new AffineTransform());
 	}
 
+	public int importPage(DocumentAdapter srcDocument, int pageNumber, Rectangle2D pageRect) throws IOException {
+		PDFBoxDocument pdfBoxSrcDoc = (PDFBoxDocument) srcDocument;
+
+		AffineTransform transform = new AffineTransform();
+
+		if (nonNull(pageRect)) {
+			transform.translate(pageRect.getX(), pageRect.getY());
+			transform.scale(1 / pageRect.getWidth(), 1 / pageRect.getHeight());
+		}
+
+		return importPage(pdfBoxSrcDoc, pageNumber, transform);
+	}
+
 	public int importPage(PDFBoxDocument srcDocument, int pageNumber, AffineTransform transform) throws IOException {
 		PDDocument sourceDocument = srcDocument.doc;
 		PDPage page = sourceDocument.getPage(pageNumber);
@@ -313,7 +326,7 @@ public class PDFBoxDocument implements DocumentAdapter {
 		// Translate by taking the scaled size into account.
 		float tx = (float) (transform.getTranslateX() * w * -sx);
 		// Move y-position from bottom-left to top-left origin and translate.
-		float ty = (float) (h - (h * sy) + transform.getTranslateY() * h * sy);
+		float ty = (float) (h - (h * sx) + transform.getTranslateY() * h * sy);
 
 		// Create page transformation content stream.
 		PDStream transformStream = new PDStream(sourceDocument);
@@ -322,7 +335,7 @@ public class PDFBoxDocument implements DocumentAdapter {
 		writer.writeToken(new COSFloat(sx));
 		writer.writeToken(COSInteger.ZERO);
 		writer.writeToken(COSInteger.ZERO);
-		writer.writeToken(new COSFloat(sy));
+		writer.writeToken(new COSFloat(sx));
 		writer.writeToken(new COSFloat(tx));
 		writer.writeToken(new COSFloat(ty));
 		writer.writeToken(Operator.getOperator("cm"));

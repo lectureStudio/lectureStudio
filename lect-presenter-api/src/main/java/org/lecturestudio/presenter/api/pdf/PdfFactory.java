@@ -191,10 +191,13 @@ public class PdfFactory {
 		AffineTransform annotTransform = transform.createInverse();
 		Rectangle2D mediaBox = pdfDocument.getPageMediaBox(pageIndex);
 
-		double sx = mediaBox.getWidth() * annotTransform.getScaleX();
+		double pageWidth = mediaBox.getWidth();
+		double sx = pageWidth * annotTransform.getScaleX();
+		double tx = pageWidth * annotTransform.getTranslateX();
+		double ty = pageWidth * annotTransform.getTranslateY();
 
 		// Move to top-left corner.
-		gc.translate(0, mediaBox.getHeight());
+		gc.translate(-tx, ty + mediaBox.getHeight());
 		gc.scale(sx, -sx);
 
 		// Draw shapes.

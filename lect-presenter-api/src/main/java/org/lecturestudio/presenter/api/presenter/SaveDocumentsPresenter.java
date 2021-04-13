@@ -31,30 +31,21 @@ import java.util.concurrent.CompletionException;
 
 import javax.inject.Inject;
 
+import org.lecturestudio.core.ExecutableException;
 import org.lecturestudio.core.app.ApplicationContext;
 import org.lecturestudio.core.beans.StringProperty;
 import org.lecturestudio.core.model.Document;
-import org.lecturestudio.core.model.Page;
 import org.lecturestudio.core.presenter.Presenter;
 import org.lecturestudio.core.presenter.ProgressPresenter;
 import org.lecturestudio.core.presenter.command.ShowPresenterCommand;
 import org.lecturestudio.core.recording.DocumentRecorder;
-import org.lecturestudio.core.render.RenderService;
 import org.lecturestudio.core.service.DocumentService;
 import org.lecturestudio.core.view.FileChooserView;
 import org.lecturestudio.core.view.ProgressView;
 import org.lecturestudio.core.view.ViewContextFactory;
-import org.lecturestudio.presenter.api.pdf.PdfFactory;
 import org.lecturestudio.presenter.api.view.SaveDocumentOptionView;
 import org.lecturestudio.presenter.api.view.SaveDocumentsView;
-import org.lecturestudio.swing.renderer.ArrowRenderer;
-import org.lecturestudio.swing.renderer.EllipseRenderer;
-import org.lecturestudio.swing.renderer.LineRenderer;
-import org.lecturestudio.swing.renderer.PDFTeXRenderer;
-import org.lecturestudio.swing.renderer.PDFTextRenderer;
-import org.lecturestudio.swing.renderer.RectangleRenderer;
-import org.lecturestudio.swing.renderer.StrokeRenderer;
-import org.lecturestudio.swing.renderer.TextSelectionRenderer;
+import org.lecturestudio.swing.renderer.PdfDocumentRenderer;
 
 public class SaveDocumentsPresenter extends Presenter<SaveDocumentsView> {
 
@@ -186,24 +177,18 @@ public class SaveDocumentsPresenter extends Presenter<SaveDocumentsView> {
 
 	private void saveAsync(ProgressView progressView, List<Document> documents, File file) {
 		DocumentRecorder documentRecorder = documentService.getDocumentRecorder();
-		List<Page> recPages = documentRecorder.getRecordedPages();
-
-		RenderService renderService = new RenderService();
-		renderService.registerRenderer(new ArrowRenderer());
-		renderService.registerRenderer(new EllipseRenderer());
-		renderService.registerRenderer(new LineRenderer());
-		renderService.registerRenderer(new PDFTeXRenderer());
-		renderService.registerRenderer(new PDFTextRenderer());
-		renderService.registerRenderer(new StrokeRenderer());
-		renderService.registerRenderer(new RectangleRenderer());
-		renderService.registerRenderer(new TextSelectionRenderer());
 
 		CompletableFuture.runAsync(() -> {
+			PdfDocumentRenderer documentRenderer = new PdfDocumentRenderer();
+			documentRenderer.setDocumentRecorder(documentRecorder);
+			documentRenderer.setDocuments(documents);
+			documentRenderer.setOutputFile(file);
+			documentRenderer.setProgressCallback(progressView::setProgress);
+
 			try {
-				PdfFactory.writeDocumentsToPDF(renderService, file, documents,
-						recPages, progressView::setProgress, true);
+				documentRenderer.start();
 			}
-			catch (Exception e) {
+			catch (ExecutableException e) {
 				throw new CompletionException(e);
 			}
 		})

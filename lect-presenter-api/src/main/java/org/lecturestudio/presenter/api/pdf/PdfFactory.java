@@ -18,19 +18,12 @@
 
 package org.lecturestudio.presenter.api.pdf;
 
-import static java.util.Objects.isNull;
-
 import java.awt.Color;
 import java.awt.Graphics2D;
-import java.awt.geom.AffineTransform;
 import java.io.ByteArrayOutputStream;
-import java.io.File;
-import java.io.FileOutputStream;
-import java.nio.file.Files;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 import javax.swing.JEditorPane;
 import javax.swing.SizeRequirements;
@@ -56,20 +49,10 @@ import org.knowm.xchart.style.Styler.ChartTheme;
 import org.knowm.xchart.style.theme.GGPlot2Theme;
 
 import org.lecturestudio.core.app.dictionary.Dictionary;
-import org.lecturestudio.core.geometry.Rectangle2D;
-import org.lecturestudio.core.model.Document;
-import org.lecturestudio.core.model.Page;
-import org.lecturestudio.core.model.shape.Shape;
 import org.lecturestudio.core.pdf.PdfDocument;
 import org.lecturestudio.core.pdf.PdfFontManager;
 import org.lecturestudio.core.pdf.pdfbox.PDFGraphics2D;
-import org.lecturestudio.core.recording.DocumentRecorder;
-import org.lecturestudio.core.render.RenderService;
-import org.lecturestudio.core.swing.SwingGraphicsContext;
 import org.lecturestudio.core.util.FileUtils;
-import org.lecturestudio.core.util.ProgressCallback;
-import org.lecturestudio.core.view.PresentationParameter;
-import org.lecturestudio.core.view.PresentationParameterProvider;
 import org.lecturestudio.web.api.model.quiz.Quiz;
 import org.lecturestudio.web.api.model.quiz.Quiz.QuizType;
 import org.lecturestudio.web.api.model.quiz.QuizAnswer;
@@ -111,108 +94,6 @@ public class PdfFactory {
 		catch (Exception e) {
 			throw new RuntimeException("Load LaTeX fonts failed", e);
 		}
-	}
-
-	public static void writeDocumentsToPDF(RenderService renderService,
-			DocumentRecorder documentRecorder, File outputFile,
-			List<Document> documents, ProgressCallback progressCallback,
-			boolean editable) throws Exception {
-		if (isNull(documents) || documents.isEmpty()) {
-			throw new IllegalArgumentException("No documents to write.");
-		}
-
-		List<Page> pages = documentRecorder.getRecordedPages();
-		PresentationParameterProvider ppProvider = documentRecorder.getRecordedParamProvider();
-
-		Document newDocument = new Document();
-		newDocument.setTitle(FileUtils.stripExtension(outputFile.getName()));
-
-		int pageCount = documents.stream().mapToInt(Document::getPageCount).sum();
-		int pagesWritten = 0;
-		float pageStep = 1.f / pageCount;
-
-		for (Page page : pages) {
-			if (documents.contains(page.getDocument())) {
-				PresentationParameter param = ppProvider.getParameter(page);
-
-				// Import page with all annotations.
-				createPage(renderService, param, newDocument, page, editable);
-
-				// Progress notification.
-				pagesWritten++;
-
-				progressCallback.onProgress(pagesWritten * pageStep);
-			}
-		}
-
-		Files.createDirectories(outputFile.getParentFile().toPath());
-
-		FileOutputStream fileStream = new FileOutputStream(outputFile);
-		newDocument.toOutputStream(fileStream);
-		newDocument.close();
-		fileStream.flush();
-		fileStream.close();
-	}
-
-	private static void createPage(RenderService renderContext,
-			PresentationParameter param, Document newDocument, Page page,
-			boolean editable) throws Exception {
-		Rectangle2D pageRect = param.getPageRect();
-
-		AffineTransform transform = new AffineTransform();
-		transform.translate(-pageRect.getX(), -pageRect.getY());
-		transform.scale(pageRect.getWidth(), pageRect.getWidth());
-
-		Page newPage = newDocument.createPage(page);
-		int pageIndex = newPage.getPageNumber();
-
-		if (!page.hasShapes()) {
-			// Nothing to render.
-			return;
-		}
-
-		// Create page annotation graphics renderer.
-		PdfDocument pdfDocument = newDocument.getPdfDocument();
-		PDFGraphics2D graphics;
-
-		if (editable) {
-			// Tag graphics stream to be able to find it later.
-			graphics = (PDFGraphics2D) pdfDocument.createAppendablePageGraphics2D(
-					pageIndex, PdfDocument.EMBEDDED_SHAPES_KEY);
-		}
-		else {
-			graphics = (PDFGraphics2D) pdfDocument.createAppendablePageGraphics2D(
-					pageIndex);
-		}
-
-		SwingGraphicsContext gc = new SwingGraphicsContext(graphics);
-
-		// Calculate page annotation scaling.
-		AffineTransform annotTransform = transform.createInverse();
-		Rectangle2D mediaBox = pdfDocument.getPageMediaBox(pageIndex);
-
-		double pageWidth = mediaBox.getWidth();
-		double sx = pageWidth * annotTransform.getScaleX();
-		double tx = pageWidth * annotTransform.getTranslateX();
-		double ty = pageWidth * annotTransform.getTranslateY();
-
-		// Move to top-left corner.
-		gc.translate(-tx, ty + mediaBox.getHeight());
-		gc.scale(sx, -sx);
-
-		// Draw shapes.
-		renderContext.renderShapes(page.getShapes(), gc);
-
-		if (editable) {
-			// Create additional binary encoded shape stream.
-			List<Shape> shapes = page.getShapes().stream()
-					.filter(shape -> renderContext.hasRenderer(shape.getClass()))
-					.collect(Collectors.toList());
-
-			pdfDocument.createEditableAnnotationStream(pageIndex, shapes);
-		}
-
-		graphics.close();
 	}
 
 	public static PdfDocument createQuizDocument(Dictionary dict, QuizResult result) throws Exception {

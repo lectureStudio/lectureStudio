@@ -27,7 +27,6 @@ import java.io.IOException;
 import java.net.URISyntaxException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
@@ -73,16 +72,12 @@ class ConfigurationTest {
 
 	@Test
 	final void testConfig() throws IOException {
-		ZonedDateTime buildDate = ZonedDateTime.now();
-
 		List<RecentDocument> recentDocuments = new ArrayList<>();
 		recentDocuments.add(new RecentDocument("Test Doc", "/home/var", Calendar.getInstance().getTime()));
 		recentDocuments.add(new RecentDocument("Temp Doc", "/tmp", Calendar.getInstance().getTime()));
 
 		Configuration config = new Configuration();
 		config.setLocale(Locale.GERMANY);
-		config.setVersion("3.0");
-		config.setBuildDate(buildDate);
 		config.setExtendPageDimension(new Dimension2D(6, 4));
 		config.getRecentDocuments().add(recentDocuments.get(0));
 		config.getRecentDocuments().add(recentDocuments.get(1));
@@ -93,8 +88,6 @@ class ConfigurationTest {
 
 		Configuration loadedConfig = manager.load(configFile, Configuration.class);
 
-		assertEquals("3.0", loadedConfig.getVersion());
-		assertEquals(buildDate, loadedConfig.getBuildDate());
 		assertEquals(Locale.GERMANY, loadedConfig.getLocale());
 		assertEquals(new Dimension2D(6, 4), loadedConfig.getExtendPageDimension());
 		assertEquals(true, loadedConfig.getStartMaximized());

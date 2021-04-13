@@ -18,13 +18,8 @@
 
 package org.lecturestudio.core.app.configuration;
 
-import java.time.ZonedDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.Locale;
 import java.util.Set;
-import java.util.jar.Attributes;
-import java.util.jar.JarFile;
-import java.util.jar.Manifest;
 
 import org.lecturestudio.core.app.Theme;
 import org.lecturestudio.core.beans.BooleanProperty;
@@ -32,7 +27,6 @@ import org.lecturestudio.core.beans.DoubleProperty;
 import org.lecturestudio.core.beans.ObjectProperty;
 import org.lecturestudio.core.beans.StringProperty;
 import org.lecturestudio.core.geometry.Dimension2D;
-import org.lecturestudio.core.io.ResourceLoader;
 import org.lecturestudio.core.model.RecentDocument;
 import org.lecturestudio.core.util.ObservableArrayList;
 import org.lecturestudio.core.util.ObservableHashSet;
@@ -46,12 +40,6 @@ import org.lecturestudio.core.util.ObservableSet;
  * @author Alex Andres
  */
 public class Configuration {
-
-	/** The version of the application. */
-	private String version;
-
-	/** The build date of the application. */
-	private ZonedDateTime buildDate;
 
 	/** The name of the application. */
 	private final StringProperty applicationName = new StringProperty();
@@ -107,71 +95,6 @@ public class Configuration {
 	/** The audio configuration containing all audio related properties. */
 	private final AudioConfiguration audioConfig = new AudioConfiguration();
 
-	/**
-	 * Creates a new Configuration instance.
-	 */
-	public Configuration() {
-		String version = null;
-		ZonedDateTime date = ZonedDateTime.now();
-
-		try {
-			Manifest manifest = new Manifest(ResourceLoader.getResourceAsStream(JarFile.MANIFEST_NAME));
-			Attributes attr = manifest.getMainAttributes();
-			String buildDate = attr.getValue("Build-Date");
-			version = attr.getValue("Package-Version");
-
-			if (version == null) {
-				// Set default version.
-				version = "1.0";
-			}
-			if (buildDate != null) {
-				DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
-				date = ZonedDateTime.parse(buildDate, formatter);
-			}
-		}
-		catch (Exception e) {
-			// Ignore
-		}
-
-		setVersion(version);
-		setBuildDate(date);
-	}
-
-	/**
-	 * Obtain the current version of the application.
-	 *
-	 * @return the version of the application.
-	 */
-	public String getVersion() {
-		return version;
-	}
-
-	/**
-	 * Set the current version of the application.
-	 *
-	 * @param version The new version to set.
-	 */
-	public void setVersion(String version) {
-		this.version = version;
-	}
-
-	/**
-	 * Obtain the build date of the application.
-	 *
-	 * @return the build date of the application.
-	 */
-	public ZonedDateTime getBuildDate() {
-		return buildDate;
-	}
-
-	/**
-	 * Set the build date of the application.
-	 *
-	 * @param date The build date of the application.
-	 */
-	public void setBuildDate(ZonedDateTime date) {
-		this.buildDate = date;
-	}
 
 	/**
 	 * Obtain the name of the application.

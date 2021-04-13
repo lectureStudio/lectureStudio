@@ -57,11 +57,13 @@ public class EventTypeCellFactory implements Callback<TableColumn<Object, Action
 				String eventName = "page.events." + typeName.replace("_", ".");
 				String iconName = typeName.replace("_", "-") + "-icon";
 
-				SvgIcon icon = new SvgIcon();
-				icon.getStyleClass().add(iconName);
+				if (resources.containsKey(eventName)) {
+					SvgIcon icon = new SvgIcon();
+					icon.getStyleClass().add(iconName);
 
-				setText(resources.getString(eventName));
-				setGraphic(icon);
+					setText(resources.getString(eventName));
+					setGraphic(icon);
+				}
 			}
 			else {
 				setText(null);

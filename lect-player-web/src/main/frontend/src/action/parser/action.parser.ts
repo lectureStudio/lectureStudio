@@ -130,7 +130,7 @@ class ActionParser {
 				action = this.extendViewAction(dataView);
 				break;
 			case ActionType.ZOOM:
-				action = this.atomicAction(dataView, ZoomAction);
+				action = this.toolBrushAction(dataView, ZoomAction);
 				break;
 			case ActionType.ZOOM_OUT:
 				action = this.atomicAction(dataView, ZoomOutAction);

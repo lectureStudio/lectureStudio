@@ -84,6 +84,7 @@ import org.lecturestudio.core.tool.TextSettings;
 import org.lecturestudio.core.tool.TextTool;
 import org.lecturestudio.core.tool.Tool;
 import org.lecturestudio.core.tool.ToolEvent;
+import org.lecturestudio.core.tool.ToolEventType;
 import org.lecturestudio.core.tool.ToolType;
 import org.lecturestudio.core.tool.UndoTool;
 import org.lecturestudio.core.tool.ZoomOutTool;
@@ -199,8 +200,6 @@ public class ToolController extends Controller implements ToolContext {
 
 	@Override
 	public void fireToolEvent(ToolEvent event) {
-//		System.out.println(event.getType());
-
 		Document document = documentService.getDocuments().getSelectedDocument();
 		Page page = document.getCurrentPage();
 
@@ -789,6 +788,9 @@ public class ToolController extends Controller implements ToolContext {
 	public void setText(int handle, String text) throws Exception {
 		TextBoxShape<?> textShape = getTextShape(handle);
 		textShape.setText(text);
+
+		fireToolEvent(new ShapePaintEvent(ToolEventType.BEGIN,
+				(Shape) textShape, null));
 	}
 
 	/**
@@ -807,6 +809,9 @@ public class ToolController extends Controller implements ToolContext {
 		textShape.setFont(font);
 		textShape.setTextAttributes(attributes);
 		textShape.setTextColor(color);
+
+		fireToolEvent(new ShapePaintEvent(ToolEventType.BEGIN,
+				(Shape) textShape, null));
 	}
 
 	/**
@@ -823,6 +828,9 @@ public class ToolController extends Controller implements ToolContext {
 		TextBoxShape<TeXFont> textShape = (TextBoxShape<TeXFont>) getTextShape(handle);
 		textShape.setFont(font);
 		textShape.setTextColor(color);
+
+		fireToolEvent(new ShapePaintEvent(ToolEventType.BEGIN,
+				(Shape) textShape, null));
 	}
 
 	/**
@@ -836,6 +844,9 @@ public class ToolController extends Controller implements ToolContext {
 	public void setTextLocation(int handle, Point2D location) throws Exception {
 		TextBoxShape<?> textShape = getTextShape(handle);
 		textShape.setLocation(location);
+
+		fireToolEvent(new ShapePaintEvent(ToolEventType.BEGIN,
+				(Shape) textShape, null));
 	}
 
 	/**

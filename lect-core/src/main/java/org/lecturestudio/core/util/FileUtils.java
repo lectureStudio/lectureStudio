@@ -90,7 +90,7 @@ public class FileUtils {
 
 	public static Locale extractLocale(String path, String baseName) {
 		String tag = stripExtension(path);
-		tag = tag.substring(tag.indexOf(baseName) + baseName.length());
+		tag = tag.substring(tag.lastIndexOf(baseName) + baseName.length());
 		tag = tag.replace("_", "-");
 
 		if (tag.startsWith("-")) {

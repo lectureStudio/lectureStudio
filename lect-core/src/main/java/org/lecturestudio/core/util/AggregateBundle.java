@@ -107,6 +107,8 @@ public class AggregateBundle extends ResourceBundle {
 		List<Locale> candidateLocales = control.getCandidateLocales(baseName, locale);
 		Enumeration<URL> names = cl.getResources(path);
 
+		candidateLocales.removeIf(locale -> locale == Locale.ROOT);
+
 		while (names.hasMoreElements()) {
 			final URL url = names.nextElement();
 			String protocol = url.getProtocol();
@@ -160,7 +162,7 @@ public class AggregateBundle extends ResourceBundle {
 					JarEntry entry = entries.nextElement();
 					String name = entry.getName();
 
-					if (!entry.isDirectory() && name.startsWith(searchPath)) {
+					if (!entry.isDirectory() && name.startsWith(searchPath) && name.endsWith(".properties")) {
 						// Extract locale from file name.
 						Locale tagLocale = FileUtils.extractLocale(name, baseName);
 

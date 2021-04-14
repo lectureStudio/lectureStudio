@@ -39,17 +39,17 @@ import org.lecturestudio.core.presenter.Presenter;
 import org.lecturestudio.core.presenter.ProgressPresenter;
 import org.lecturestudio.core.presenter.command.ShowPresenterCommand;
 import org.lecturestudio.core.recording.DocumentRecorder;
-import org.lecturestudio.core.service.DocumentService;
 import org.lecturestudio.core.view.FileChooserView;
 import org.lecturestudio.core.view.ProgressView;
 import org.lecturestudio.core.view.ViewContextFactory;
+import org.lecturestudio.presenter.api.context.PresenterContext;
 import org.lecturestudio.presenter.api.view.SaveDocumentOptionView;
 import org.lecturestudio.presenter.api.view.SaveDocumentsView;
 import org.lecturestudio.swing.renderer.PdfDocumentRenderer;
 
 public class SaveDocumentsPresenter extends Presenter<SaveDocumentsView> {
 
-	private final DocumentService documentService;
+	private final DocumentRecorder documentRecorder;
 
 	private final ViewContextFactory viewFactory;
 
@@ -62,10 +62,10 @@ public class SaveDocumentsPresenter extends Presenter<SaveDocumentsView> {
 
 	@Inject
 	SaveDocumentsPresenter(ApplicationContext context, SaveDocumentsView view,
-			ViewContextFactory viewFactory, DocumentService documentService) {
+			ViewContextFactory viewFactory, DocumentRecorder documentRecorder) {
 		super(context, view);
 
-		this.documentService = documentService;
+		this.documentRecorder = documentRecorder;
 		this.viewFactory = viewFactory;
 		this.dateFormat = new SimpleDateFormat("yyyy_MM_dd-HH_mm");
 		this.selectedDocuments = new ArrayList<>();
@@ -74,12 +74,12 @@ public class SaveDocumentsPresenter extends Presenter<SaveDocumentsView> {
 
 	@Override
 	public void initialize() {
-		DocumentRecorder documentRecorder = documentService.getDocumentRecorder();
-
 		for (Document doc : documentRecorder.getRecordedDocuments()) {
 			SaveDocumentOptionView optionView = createDocumentOptionView(doc);
 
 			view.addDocumentOptionView(optionView);
+
+			optionView.select();
 		}
 
 		savePath.set(System.getProperty("user.home") + File.separator + getFileName(null));
@@ -155,6 +155,7 @@ public class SaveDocumentsPresenter extends Presenter<SaveDocumentsView> {
 				progressView.setOnViewShown(() -> {
 					saveAsync(progressView, documents, file);
 				});
+				progressView.setOnClose(() -> close());
 			}
 		});
 	}
@@ -176,8 +177,6 @@ public class SaveDocumentsPresenter extends Presenter<SaveDocumentsView> {
 	}
 
 	private void saveAsync(ProgressView progressView, List<Document> documents, File file) {
-		DocumentRecorder documentRecorder = documentService.getDocumentRecorder();
-
 		CompletableFuture.runAsync(() -> {
 			PdfDocumentRenderer documentRenderer = new PdfDocumentRenderer();
 			documentRenderer.setDocumentRecorder(documentRecorder);
@@ -193,6 +192,9 @@ public class SaveDocumentsPresenter extends Presenter<SaveDocumentsView> {
 			}
 		})
 		.thenRun(() -> {
+			PresenterContext presenterContext = (PresenterContext) context;
+			presenterContext.setHasRecordedChanges(false);
+
 			progressView.setTitle(context.getDictionary().get("save.documents.success"));
 		})
 		.exceptionally(throwable -> {

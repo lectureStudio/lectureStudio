@@ -72,6 +72,7 @@ public class ApplicationModule extends AbstractModule {
 
 	@Override
 	protected void configure() {
+		bind(ApplicationContext.class).to(PresenterContext.class);
 		bind(CameraDriver.class).to(AVdevDriver.class);
 		bind(ToolController.class).asEagerSingleton();
 	}
@@ -130,7 +131,7 @@ public class ApplicationModule extends AbstractModule {
 
 	@Provides
 	@Singleton
-	ApplicationContext createApplicationContext(Configuration config, Dictionary dict) {
+	PresenterContext createApplicationContext(Configuration config, Dictionary dict) {
 		EventBus eventBus = ApplicationBus.get();
 		EventBus audioBus = AudioBus.get();
 

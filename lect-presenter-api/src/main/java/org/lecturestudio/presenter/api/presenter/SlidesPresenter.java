@@ -58,6 +58,7 @@ import org.lecturestudio.core.model.shape.Shape;
 import org.lecturestudio.core.model.shape.TeXShape;
 import org.lecturestudio.core.model.shape.TextShape;
 import org.lecturestudio.core.presenter.Presenter;
+import org.lecturestudio.core.recording.DocumentRecorder;
 import org.lecturestudio.core.service.DocumentService;
 import org.lecturestudio.core.tool.ToolType;
 import org.lecturestudio.core.util.NetUtils;
@@ -93,6 +94,8 @@ public class SlidesPresenter extends Presenter<SlidesView> {
 	private final PageObjectRegistry pageObjectRegistry;
 
 	private final DocumentChangeListener documentChangeListener;
+
+	private final DocumentRecorder documentRecorder;
 
 	private StylusHandler stylusHandler;
 
@@ -130,6 +133,7 @@ public class SlidesPresenter extends Presenter<SlidesView> {
 			PresentationController presentationController,
 			RenderController renderController,
 			DocumentService documentService,
+			DocumentRecorder documentRecorder,
 			RecordingService recordingService) {
 		super(context, view);
 
@@ -137,6 +141,7 @@ public class SlidesPresenter extends Presenter<SlidesView> {
 		this.toolController = toolController;
 		this.presentationController = presentationController;
 		this.renderController = renderController;
+		this.documentRecorder = documentRecorder;
 		this.documentService = documentService;
 		this.recordingService = recordingService;
 		this.eventBus = context.getEventBus();
@@ -396,6 +401,8 @@ public class SlidesPresenter extends Presenter<SlidesView> {
 		view.setPageNotes(embeddedNotes);
 
 		loadPageObjectViews(page);
+
+		recordPage(page);
 	}
 
 	private void pageShapeAdded(Shape shape) {
@@ -568,9 +575,23 @@ public class SlidesPresenter extends Presenter<SlidesView> {
 
 		try {
 			recordingService.init();
+
+			documentRecorder.start();
 		}
 		catch (ExecutableException e) {
 			throw new RuntimeException(e);
+		}
+	}
+
+	private void recordPage(Page page) {
+		try {
+			documentRecorder.recordPage(page);
+
+			PresenterContext ctx = (PresenterContext) context;
+			ctx.setHasRecordedChanges(true);
+		}
+		catch (ExecutableException e) {
+			logException(e, "Record page failed");
 		}
 	}
 

@@ -36,6 +36,7 @@ import org.lecturestudio.core.geometry.PenPoint2D;
 import org.lecturestudio.core.geometry.Rectangle2D;
 import org.lecturestudio.core.input.KeyEvent;
 import org.lecturestudio.core.presenter.Presenter;
+import org.lecturestudio.core.recording.DocumentRecorder;
 import org.lecturestudio.core.service.DocumentService;
 import org.lecturestudio.core.util.ShutdownHandler;
 import org.lecturestudio.core.view.Action;
@@ -89,7 +90,7 @@ class MainPresenterTest extends PresenterTest {
 			public <T> T getInstance(Class<T> cls) {
 				if (cls == SlidesPresenter.class) {
 					ToolController toolController = new ToolController(context, documentService);
-					return (T) new SlidesPresenter(context, createProxy(SlidesView.class), null, toolController, null, null, null, null);
+					return (T) new SlidesPresenter(context, createProxy(SlidesView.class), null, toolController, null, null, null, new DocumentRecorder(context), null);
 				}
 				else if (cls == SettingsPresenter.class) {
 					return (T) new SettingsPresenter(context, createProxy(SettingsView.class));
@@ -101,7 +102,7 @@ class MainPresenterTest extends PresenterTest {
 					return (T) new QuitRecordingPresenter(context, createProxy(QuitRecordingView.class), null);
 				}
 				else if (cls == SaveDocumentsPresenter.class) {
-					return (T) new SaveDocumentsPresenter(context, createProxy(SaveDocumentsView.class), viewFactory, documentService);
+					return (T) new SaveDocumentsPresenter(context, createProxy(SaveDocumentsView.class), viewFactory, new DocumentRecorder(context));
 				}
 
 				return super.getInstance(cls);

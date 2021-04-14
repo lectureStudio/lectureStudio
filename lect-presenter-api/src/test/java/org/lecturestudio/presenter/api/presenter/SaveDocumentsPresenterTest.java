@@ -36,6 +36,7 @@ import java.util.concurrent.atomic.AtomicReference;
 
 import org.lecturestudio.core.beans.StringProperty;
 import org.lecturestudio.core.model.Document;
+import org.lecturestudio.core.recording.DocumentRecorder;
 import org.lecturestudio.core.service.DocumentService;
 import org.lecturestudio.core.view.Action;
 import org.lecturestudio.core.view.FileChooserView;
@@ -76,7 +77,7 @@ class SaveDocumentsPresenterTest extends PresenterTest {
 			}
 		};
 
-		SaveDocumentsPresenter presenter = new SaveDocumentsPresenter(context, view, viewFactory, context.getDocumentService());
+		SaveDocumentsPresenter presenter = new SaveDocumentsPresenter(context, view, viewFactory, new DocumentRecorder(context));
 		presenter.initialize();
 
 		String savePath = System.getProperty("user.home") + File.separator + getFileName();
@@ -116,7 +117,7 @@ class SaveDocumentsPresenterTest extends PresenterTest {
 			}
 		};
 
-		SaveDocumentsPresenter presenter = new SaveDocumentsPresenter(context, view, viewFactory, context.getDocumentService());
+		SaveDocumentsPresenter presenter = new SaveDocumentsPresenter(context, view, viewFactory, new DocumentRecorder(context));
 		presenter.initialize();
 
 		view.selectPathAction.execute();
@@ -135,7 +136,7 @@ class SaveDocumentsPresenterTest extends PresenterTest {
 
 		SaveDocumentsMockView view = new SaveDocumentsMockView();
 
-		SaveDocumentsPresenter presenter = new SaveDocumentsPresenter(context, view, viewFactory, context.getDocumentService());
+		SaveDocumentsPresenter presenter = new SaveDocumentsPresenter(context, view, viewFactory, new DocumentRecorder(context));
 		presenter.initialize();
 
 		view.mergeAction.execute();
@@ -185,7 +186,7 @@ class SaveDocumentsPresenterTest extends PresenterTest {
 			}
 		};
 
-		SaveDocumentsPresenter presenter = new SaveDocumentsPresenter(context, view, viewFactory, context.getDocumentService());
+		SaveDocumentsPresenter presenter = new SaveDocumentsPresenter(context, view, viewFactory, new DocumentRecorder(context));
 		presenter.initialize();
 
 		view.selectPathAction.execute();
@@ -243,7 +244,7 @@ class SaveDocumentsPresenterTest extends PresenterTest {
 			}
 		};
 
-		SaveDocumentsPresenter presenter = new SaveDocumentsPresenter(context, view, viewFactory, context.getDocumentService());
+		SaveDocumentsPresenter presenter = new SaveDocumentsPresenter(context, view, viewFactory, new DocumentRecorder(context));
 		presenter.initialize();
 
 		assertEquals(2, optionViews.size());

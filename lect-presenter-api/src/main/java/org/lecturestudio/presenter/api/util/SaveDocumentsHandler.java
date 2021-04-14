@@ -19,9 +19,9 @@
 package org.lecturestudio.presenter.api.util;
 
 import org.lecturestudio.core.app.ApplicationContext;
-import org.lecturestudio.core.model.Document;
 import org.lecturestudio.core.util.ShutdownHandler;
 import org.lecturestudio.presenter.api.config.PresenterConfiguration;
+import org.lecturestudio.presenter.api.context.PresenterContext;
 import org.lecturestudio.presenter.api.presenter.command.QuitSaveDocumentsCommand;
 
 public class SaveDocumentsHandler extends ShutdownHandler {
@@ -35,20 +35,14 @@ public class SaveDocumentsHandler extends ShutdownHandler {
 
 	@Override
 	public boolean execute() throws Exception {
-		PresenterConfiguration config = (PresenterConfiguration) context.getConfiguration();
+		PresenterContext presenterContext = (PresenterContext) context;
+		PresenterConfiguration config = (PresenterConfiguration) context
+				.getConfiguration();
 
 		if (config.getSaveDocumentOnClose()) {
-			boolean hasChanges = false;
-
-			for (Document doc : context.getDocuments().asList()) {
-				if (doc.hasChanges()) {
-					hasChanges = true;
-					break;
-				}
-			}
-
-			if (hasChanges) {
-				executeAndWait(() -> context.getEventBus().post(new QuitSaveDocumentsCommand(this::resume)));
+			if (presenterContext.hasRecordedChanges()) {
+				executeAndWait(() -> context.getEventBus()
+						.post(new QuitSaveDocumentsCommand(this::resume)));
 			}
 		}
 

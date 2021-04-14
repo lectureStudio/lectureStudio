@@ -39,10 +39,12 @@ import org.lecturestudio.web.api.model.quiz.Quiz;
 
 public class PresenterContext extends ApplicationContext {
 
+	private final BooleanProperty hasRecordedChanges = new BooleanProperty();
+
 	private final BooleanProperty showOutline = new BooleanProperty();
 
 	private final File configFile;
-	
+
 	private final String recordingDir;
 
 	private final BookmarkService bookmarkService;
@@ -68,6 +70,14 @@ public class PresenterContext extends ApplicationContext {
 	public void saveConfiguration() throws Exception {
 		ConfigurationService<PresenterConfiguration> configService = new PresenterConfigService();
 		configService.save(configFile, (PresenterConfiguration) getConfiguration());
+	}
+
+	public void setHasRecordedChanges(boolean changes) {
+		hasRecordedChanges.set(changes);
+	}
+
+	public boolean hasRecordedChanges() {
+		return hasRecordedChanges.get();
 	}
 
 	public void setShowOutline(boolean show) {

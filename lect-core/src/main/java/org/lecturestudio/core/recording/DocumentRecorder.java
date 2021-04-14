@@ -32,6 +32,9 @@ import java.util.TimerTask;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicBoolean;
 
+import javax.inject.Inject;
+import javax.inject.Singleton;
+
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -53,6 +56,7 @@ import org.lecturestudio.core.view.ViewType;
  *
  * @author Alex Andres
  */
+@Singleton
 public class DocumentRecorder extends ExecutableBase {
 
 	private static final Logger LOG = LogManager.getLogger(DocumentRecorder.class);
@@ -74,6 +78,7 @@ public class DocumentRecorder extends ExecutableBase {
 	private int pageRecordingTimeout = 2000;
 
 
+	@Inject
 	public DocumentRecorder(ApplicationContext context) {
 		this.context = context;
 	}
@@ -106,6 +111,11 @@ public class DocumentRecorder extends ExecutableBase {
 		return recordedPages;
 	}
 
+	/**
+	 * Returns the recorded {@code PresentationParameter}s for each page.
+	 *
+	 * @return The provider for recorded {@code PresentationParameter}s.
+	 */
 	public PresentationParameterProvider getRecordedParamProvider() {
 		if (!started()) {
 			return null;

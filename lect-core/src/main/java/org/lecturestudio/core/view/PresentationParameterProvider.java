@@ -35,10 +35,10 @@ import org.lecturestudio.core.model.Page;
 import org.lecturestudio.core.model.listener.ParameterChangeListener;
 
 /**
- * Manages a set of PresentationParamters and notifies listeners whenever a
- * parameter is changed. Usually a PresentationParameterProvider exists for each
- * ViewType.
- * 
+ * Manages a set of {@code PresentationParameter}s and notifies listeners
+ * whenever a parameter has changed. Usually a {@code PresentationParameterProvider}
+ * exists for each {@link ViewType}.
+ *
  * @author Alex Andres
  * @author Tobias
  */

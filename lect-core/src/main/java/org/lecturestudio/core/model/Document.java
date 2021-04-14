@@ -72,8 +72,6 @@ public class Document {
 	
 	private int currentPageNumber = 0;
 	
-	private int writtenAnnotations = 0;
-	
 
 	public Document() throws IOException {
 		this(new PdfDocument());
@@ -396,25 +394,6 @@ public class Document {
 	 */
 	public Page getCurrentPage() {
 		return getPage(currentPageNumber);
-	}
-	
-	public int getAnnotationCount() {
-		int count = 0;
-		
-		for (Page page : pages) {
-			count += page.getShapeCount();
-		}
-		
-		return count;
-	}
-	
-	public boolean hasChanges() {
-		int count = getAnnotationCount();
-		return count != writtenAnnotations;
-	}
-	
-	public void setSaved() {
-		writtenAnnotations = getAnnotationCount();
 	}
 	
 	public PdfDocument getPdfDocument() {

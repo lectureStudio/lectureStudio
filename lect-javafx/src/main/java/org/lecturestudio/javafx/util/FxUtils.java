@@ -28,10 +28,10 @@ import java.util.ResourceBundle;
 import java.util.Set;
 
 import javafx.application.Platform;
+import javafx.event.ActionEvent;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Node;
 import javafx.scene.Parent;
-import javafx.scene.control.Button;
 import javafx.scene.control.ButtonBase;
 import javafx.scene.control.CheckBox;
 import javafx.scene.control.CheckMenuItem;
@@ -40,7 +40,6 @@ import javafx.scene.control.ToggleButton;
 
 import org.lecturestudio.core.view.Action;
 import org.lecturestudio.core.view.ConsumerAction;
-import org.lecturestudio.javafx.control.ExtToggleButton;
 
 public final class FxUtils {
 
@@ -113,52 +112,38 @@ public final class FxUtils {
 		}
 	}
 
-	public static void bindAction(Button button, Action action) {
-		requireNonNull(button);
-		requireNonNull(action);
-
-		button.setOnAction(event -> action.execute());
-	}
-
 	public static void bindAction(ButtonBase button, Action action) {
 		requireNonNull(button);
 		requireNonNull(action);
 
-		button.setOnAction(event -> action.execute());
+		button.addEventHandler(ActionEvent.ACTION, event -> action.execute());
 	}
 
 	public static void bindAction(ToggleButton toggle, ConsumerAction<Boolean> action) {
 		requireNonNull(toggle);
 		requireNonNull(action);
 
-		toggle.setOnAction(event -> action.execute(toggle.isSelected()));
-	}
-
-	public static void bindAction(ExtToggleButton toggle, ConsumerAction<Boolean> action) {
-		requireNonNull(toggle);
-		requireNonNull(action);
-
-		toggle.setOnAction(event -> action.execute(toggle.isSelected()));
+		toggle.addEventHandler(ActionEvent.ACTION, event -> action.execute(toggle.isSelected()));
 	}
 
 	public static void bindAction(CheckBox checkBox, ConsumerAction<Boolean> action) {
 		requireNonNull(checkBox);
 		requireNonNull(action);
 
-		checkBox.setOnAction(event -> action.execute(checkBox.isSelected()));
+		checkBox.addEventHandler(ActionEvent.ACTION, event -> action.execute(checkBox.isSelected()));
 	}
 
 	public static void bindAction(MenuItem menuItem, Action action) {
 		requireNonNull(menuItem);
 		requireNonNull(action);
 
-		menuItem.setOnAction(event -> action.execute());
+		menuItem.addEventHandler(ActionEvent.ACTION, event -> action.execute());
 	}
 
 	public static void bindAction(CheckMenuItem menuItem, ConsumerAction<Boolean> action) {
 		requireNonNull(menuItem);
 		requireNonNull(action);
 
-		menuItem.setOnAction(event -> action.execute(menuItem.isSelected()));
+		menuItem.addEventHandler(ActionEvent.ACTION, event -> action.execute(menuItem.isSelected()));
 	}
 }

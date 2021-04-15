@@ -18,7 +18,7 @@ module.exports = {
 		})
 	],
 	output: {
-		path: path.resolve(__dirname, '../resources/META-INF/resources'),
+		path: path.resolve(__dirname, '../resources/web-player'),
 		filename: '[name].bundle.js'
 	},
 	resolve: {

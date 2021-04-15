@@ -86,6 +86,10 @@ public class PresenterContext extends ApplicationContext {
 		return hasRecordedChanges.get();
 	}
 
+	public BooleanProperty hasRecordedChangesProperty() {
+		return hasRecordedChanges;
+	}
+
 	public void setShowOutline(boolean show) {
 		showOutline.set(show);
 	}

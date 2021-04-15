@@ -41,6 +41,7 @@ import org.apache.logging.log4j.Logger;
 import org.lecturestudio.core.ExecutableBase;
 import org.lecturestudio.core.ExecutableException;
 import org.lecturestudio.core.app.ApplicationContext;
+import org.lecturestudio.core.beans.BooleanProperty;
 import org.lecturestudio.core.geometry.Rectangle2D;
 import org.lecturestudio.core.model.Document;
 import org.lecturestudio.core.model.Page;
@@ -74,6 +75,8 @@ public class DocumentRecorder extends ExecutableBase {
 	private Map<Document, PageState> documentPageMap;
 
 	private List<Page> recordedPages;
+
+	private BooleanProperty hasChangesProperty;
 
 	private int pageRecordingTimeout = 2000;
 
@@ -163,6 +166,16 @@ public class DocumentRecorder extends ExecutableBase {
 		pageRecordingTimeout = timeoutMs;
 	}
 
+	/**
+	 * Sets the property that should be updated whenever a change on a recorded
+	 * page has occurred.
+	 *
+	 * @param property The property to update on recording changes.
+	 */
+	public void setHasChangesProperty(BooleanProperty property) {
+		hasChangesProperty = property;
+	}
+
 	@Override
 	protected void initInternal() throws ExecutableException {
 		documentMap = new ConcurrentHashMap<>();
@@ -232,7 +245,7 @@ public class DocumentRecorder extends ExecutableBase {
 
 			recordedPages.add(recPage);
 
-			// Register page to avoid successive recording.
+			// Register page to avoid successive recording and observe the state.
 			documentPageMap.put(pageDoc, new PageState(page, recPage, param));
 		}
 		catch (IOException e) {
@@ -325,6 +338,10 @@ public class DocumentRecorder extends ExecutableBase {
 				case SHAPE_REMOVED:
 					state.page.removeShape(event.getShape());
 					break;
+			}
+
+			if (nonNull(hasChangesProperty)) {
+				hasChangesProperty.set(true);
 			}
 		}
 	}

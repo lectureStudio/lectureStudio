@@ -576,6 +576,7 @@ public class SlidesPresenter extends Presenter<SlidesView> {
 		try {
 			recordingService.init();
 
+			documentRecorder.setHasChangesProperty(ctx.hasRecordedChangesProperty());
 			documentRecorder.start();
 		}
 		catch (ExecutableException e) {
@@ -586,9 +587,6 @@ public class SlidesPresenter extends Presenter<SlidesView> {
 	private void recordPage(Page page) {
 		try {
 			documentRecorder.recordPage(page);
-
-			PresenterContext ctx = (PresenterContext) context;
-			ctx.setHasRecordedChanges(true);
 		}
 		catch (ExecutableException e) {
 			logException(e, "Record page failed");

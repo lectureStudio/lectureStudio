@@ -22,6 +22,7 @@ import static java.util.Objects.isNull;
 
 import java.awt.event.ItemEvent;
 
+import javax.swing.ComboBoxModel;
 import javax.swing.JComboBox;
 
 import org.lecturestudio.core.beans.ObjectProperty;
@@ -41,6 +42,10 @@ public class ComboBoxProperty<T> extends ObjectProperty<T> {
 			if (stateChange == ItemEvent.SELECTED) {
 				super.set(comboBox.getModel().getElementAt(comboBox.getSelectedIndex()));
 			}
+		});
+		this.comboBox.addPropertyChangeListener("model", evt -> {
+			ComboBoxModel<T> model = (ComboBoxModel<T>) evt.getNewValue();
+			model.setSelectedItem(super.get());
 		});
 	}
 

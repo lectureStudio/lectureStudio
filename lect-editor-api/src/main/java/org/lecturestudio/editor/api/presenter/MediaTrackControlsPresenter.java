@@ -24,13 +24,17 @@ import static java.util.Objects.nonNull;
 import com.google.common.eventbus.Subscribe;
 
 import java.io.File;
+import java.nio.file.Path;
 
 import javax.inject.Inject;
 
 import org.lecturestudio.core.app.ApplicationContext;
+import org.lecturestudio.core.app.configuration.Configuration;
+import org.lecturestudio.core.app.dictionary.Dictionary;
 import org.lecturestudio.core.bus.event.DocumentEvent;
 import org.lecturestudio.core.presenter.Presenter;
 import org.lecturestudio.core.recording.Recording;
+import org.lecturestudio.core.util.FileUtils;
 import org.lecturestudio.core.view.FileChooserView;
 import org.lecturestudio.core.view.ViewContextFactory;
 import org.lecturestudio.editor.api.context.EditorContext;
@@ -182,9 +186,15 @@ public class MediaTrackControlsPresenter extends Presenter<MediaTrackControlsVie
 	}
 
 	private void importRecording() {
+		final String pathContext = EditorContext.RECORDING_CONTEXT;
+		Configuration config = context.getConfiguration();
+		Dictionary dict = context.getDictionary();
+		Path dirPath = FileUtils.getContextPath(config, pathContext);
+
 		FileChooserView fileChooser = viewFactory.createFileChooserView();
-		fileChooser.setInitialDirectory(new File(System.getProperty("user.home")));
-		fileChooser.addExtensionFilter("Lecture Recordings", "presenter");
+		fileChooser.setInitialDirectory(dirPath.toFile());
+		fileChooser.addExtensionFilter(dict.get("file.description.recording"),
+				EditorContext.RECORDING_EXTENSION);
 
 		File file = fileChooser.showOpenFile(view);
 

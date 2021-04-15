@@ -22,11 +22,15 @@ import static java.util.Objects.isNull;
 import static java.util.Objects.nonNull;
 
 import java.io.File;
+import java.nio.file.Path;
 import java.util.Date;
+import java.util.Map;
 
 import javax.inject.Inject;
 
 import org.lecturestudio.core.app.ApplicationContext;
+import org.lecturestudio.core.app.configuration.Configuration;
+import org.lecturestudio.core.app.dictionary.Dictionary;
 import org.lecturestudio.core.model.RecentDocument;
 import org.lecturestudio.core.presenter.Presenter;
 import org.lecturestudio.core.service.RecentDocumentService;
@@ -34,6 +38,7 @@ import org.lecturestudio.core.service.SearchFileService;
 import org.lecturestudio.core.util.FileUtils;
 import org.lecturestudio.core.view.FileChooserView;
 import org.lecturestudio.core.view.ViewContextFactory;
+import org.lecturestudio.editor.api.context.EditorContext;
 import org.lecturestudio.editor.api.service.RecordingFileService;
 import org.lecturestudio.editor.api.view.StartView;
 
@@ -95,13 +100,22 @@ public class StartPresenter extends Presenter<StartView> {
 	}
 
 	private void selectNewRecording() {
+		final String pathContext = EditorContext.RECORDING_CONTEXT;
+		Configuration config = context.getConfiguration();
+		Dictionary dict = context.getDictionary();
+		Map<String, String> contextPaths = config.getContextPaths();
+		Path dirPath = FileUtils.getContextPath(config, pathContext);
+
 		FileChooserView fileChooser = viewFactory.createFileChooserView();
-		fileChooser.setInitialDirectory(new File(System.getProperty("user.home")));
-		fileChooser.addExtensionFilter("Lecture Recordings", "presenter");
+		fileChooser.setInitialDirectory(dirPath.toFile());
+		fileChooser.addExtensionFilter(dict.get("file.description.recording"),
+				EditorContext.RECORDING_EXTENSION);
 
 		File selectedFile = fileChooser.showOpenFile(view);
 
 		if (nonNull(selectedFile)) {
+			contextPaths.put(pathContext, selectedFile.getParent());
+
 			openRecording(selectedFile);
 		}
 	}

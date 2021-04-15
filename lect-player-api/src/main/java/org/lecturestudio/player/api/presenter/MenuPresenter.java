@@ -25,11 +25,15 @@ import com.google.common.eventbus.Subscribe;
 import java.awt.Desktop;
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Path;
 import java.util.Date;
+import java.util.Map;
 
 import javax.inject.Inject;
 
 import org.lecturestudio.core.app.ApplicationContext;
+import org.lecturestudio.core.app.configuration.Configuration;
+import org.lecturestudio.core.app.dictionary.Dictionary;
 import org.lecturestudio.core.bus.EventBus;
 import org.lecturestudio.core.bus.event.DocumentEvent;
 import org.lecturestudio.core.model.Document;
@@ -43,6 +47,7 @@ import org.lecturestudio.core.util.FileUtils;
 import org.lecturestudio.core.view.FileChooserView;
 import org.lecturestudio.core.view.ViewContextFactory;
 import org.lecturestudio.media.recording.RecordingFileService;
+import org.lecturestudio.player.api.context.PlayerContext;
 import org.lecturestudio.player.api.view.MenuView;
 
 public class MenuPresenter extends Presenter<MenuView> {
@@ -145,13 +150,22 @@ public class MenuPresenter extends Presenter<MenuView> {
 	}
 
 	private void selectNewRecording() {
+		final String pathContext = PlayerContext.RECORDING_CONTEXT;
+		Configuration config = context.getConfiguration();
+		Dictionary dict = context.getDictionary();
+		Map<String, String> contextPaths = config.getContextPaths();
+		Path dirPath = FileUtils.getContextPath(config, pathContext);
+
 		FileChooserView fileChooser = viewFactory.createFileChooserView();
-		fileChooser.setInitialDirectory(new File(System.getProperty("user.home")));
-		fileChooser.addExtensionFilter("Lecture Recordings", "presenter", "plr");
+		fileChooser.setInitialDirectory(dirPath.toFile());
+		fileChooser.addExtensionFilter(dict.get("file.description.recording"),
+				PlayerContext.RECORDING_EXTENSION, "plr");
 
 		File selectedFile = fileChooser.showOpenFile(view);
 
 		if (nonNull(selectedFile)) {
+			contextPaths.put(pathContext, selectedFile.getParent());
+
 			openRecording(selectedFile);
 		}
 	}

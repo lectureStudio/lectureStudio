@@ -33,6 +33,7 @@ import org.lecturestudio.core.ExecutableException;
 import org.lecturestudio.core.app.ApplicationContext;
 import org.lecturestudio.core.app.configuration.ConfigurationService;
 import org.lecturestudio.core.app.configuration.JsonConfigurationService;
+import org.lecturestudio.core.app.dictionary.Dictionary;
 import org.lecturestudio.core.model.Document;
 import org.lecturestudio.core.model.RecentDocument;
 import org.lecturestudio.core.presenter.Presenter;
@@ -42,6 +43,7 @@ import org.lecturestudio.core.view.Action;
 import org.lecturestudio.core.view.FileChooserView;
 import org.lecturestudio.core.view.ViewContextFactory;
 import org.lecturestudio.core.view.ViewLayer;
+import org.lecturestudio.presenter.api.context.PresenterContext;
 import org.lecturestudio.presenter.api.service.RecordingService;
 import org.lecturestudio.presenter.api.view.SaveRecordingView;
 
@@ -101,20 +103,22 @@ public class SaveRecordingPresenter extends Presenter<SaveRecordingView> {
 			recordingPath = System.getProperty("user.home");
 		}
 
+		Dictionary dict = context.getDictionary();
 		Document doc = documentService.getDocuments().getSelectedDocument();
 		String date = dateFormat.format(new Date());
 		String fileName = doc.getName() + "-" + date;
 		File recordingDir = new File(recordingPath);
 
 		FileChooserView fileChooser = viewFactory.createFileChooserView();
-		fileChooser.addExtensionFilter("Presenter Recordings", "presenter");
+		fileChooser.addExtensionFilter(dict.get("file.description.recording"),
+				PresenterContext.RECORDING_EXTENSION);
 		fileChooser.setInitialFileName(fileName);
 		fileChooser.setInitialDirectory(recordingDir);
 
 		File selectedFile = fileChooser.showSaveFile(view);
 
 		if (nonNull(selectedFile)) {
-			File recFile = FileUtils.ensureExtension(selectedFile, ".presenter");
+			File recFile = FileUtils.ensureExtension(selectedFile, "." + PresenterContext.RECORDING_EXTENSION);
 
 			view.setDestinationFile(recFile);
 

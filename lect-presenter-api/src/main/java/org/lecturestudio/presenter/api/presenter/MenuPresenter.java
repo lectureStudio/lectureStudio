@@ -27,10 +27,12 @@ import java.awt.Desktop;
 import java.io.File;
 import java.io.IOException;
 import java.net.URI;
+import java.nio.file.Path;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.Timer;
 import java.util.TimerTask;
 
@@ -40,6 +42,7 @@ import org.lecturestudio.core.ExecutableException;
 import org.lecturestudio.core.ExecutableState;
 import org.lecturestudio.core.app.ApplicationContext;
 import org.lecturestudio.core.app.configuration.Configuration;
+import org.lecturestudio.core.app.dictionary.Dictionary;
 import org.lecturestudio.core.audio.AudioDeviceNotConnectedException;
 import org.lecturestudio.core.bus.EventBus;
 import org.lecturestudio.core.bus.event.DocumentEvent;
@@ -58,6 +61,7 @@ import org.lecturestudio.core.presenter.command.ClosePresenterCommand;
 import org.lecturestudio.core.presenter.command.ShowPresenterCommand;
 import org.lecturestudio.core.service.DocumentService;
 import org.lecturestudio.core.util.DesktopUtils;
+import org.lecturestudio.core.util.FileUtils;
 import org.lecturestudio.core.util.ListChangeListener;
 import org.lecturestudio.core.util.ObservableList;
 import org.lecturestudio.core.view.FileChooserView;
@@ -528,13 +532,22 @@ public class MenuPresenter extends Presenter<MenuView> {
 	}
 
 	private void selectNewDocument() {
+		final String pathContext = PresenterContext.SLIDES_CONTEXT;
+		Configuration config = context.getConfiguration();
+		Dictionary dict = context.getDictionary();
+		Map<String, String> contextPaths = config.getContextPaths();
+		Path dirPath = FileUtils.getContextPath(config, pathContext);
+
 		FileChooserView fileChooser = viewFactory.createFileChooserView();
-		fileChooser.setInitialDirectory(new File(System.getProperty("user.home")));
-		fileChooser.addExtensionFilter("PDF Files", "pdf");
+		fileChooser.setInitialDirectory(dirPath.toFile());
+		fileChooser.addExtensionFilter(dict.get("file.description.pdf"),
+				PresenterContext.SLIDES_EXTENSION);
 
 		File selectedFile = fileChooser.showOpenFile(view);
 
 		if (nonNull(selectedFile)) {
+			contextPaths.put(pathContext, selectedFile.getParent());
+
 			openDocument(selectedFile);
 		}
 	}

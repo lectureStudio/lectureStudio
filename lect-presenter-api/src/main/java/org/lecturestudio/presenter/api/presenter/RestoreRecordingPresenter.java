@@ -29,6 +29,7 @@ import java.util.concurrent.CompletionException;
 import javax.inject.Inject;
 
 import org.lecturestudio.core.app.ApplicationContext;
+import org.lecturestudio.core.app.dictionary.Dictionary;
 import org.lecturestudio.core.presenter.Presenter;
 import org.lecturestudio.core.util.FileUtils;
 import org.lecturestudio.core.view.Action;
@@ -130,17 +131,19 @@ public class RestoreRecordingPresenter extends Presenter<RestoreRecordingView> {
 			return;
 		}
 
-		File initFile = new File(recordingName + ".presenter");
+		File initFile = new File(recordingName + "." + PresenterContext.RECORDING_EXTENSION);
+
+		Dictionary dict = context.getDictionary();
 
 		FileChooserView fileChooser = viewFactory.createFileChooserView();
-		fileChooser.addExtensionFilter("Presenter Recordings", "presenter");
+		fileChooser.addExtensionFilter(dict.get("file.description.recording"), PresenterContext.RECORDING_EXTENSION);
 		fileChooser.setInitialFileName(initFile.getName());
 		fileChooser.setInitialDirectory(initFile.getParentFile());
 
 		File selectedFile = fileChooser.showSaveFile(view);
 
 		if (nonNull(selectedFile)) {
-			File recFile = FileUtils.ensureExtension(selectedFile, ".presenter");
+			File recFile = FileUtils.ensureExtension(selectedFile, "." + PresenterContext.RECORDING_EXTENSION);
 
 			view.setSavePath(recFile.getPath());
 			view.showProgress();

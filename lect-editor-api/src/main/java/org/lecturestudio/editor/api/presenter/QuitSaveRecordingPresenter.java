@@ -21,14 +21,19 @@ package org.lecturestudio.editor.api.presenter;
 import static java.util.Objects.nonNull;
 
 import java.io.File;
+import java.nio.file.Path;
 
 import javax.inject.Inject;
 
 import org.lecturestudio.core.app.ApplicationContext;
+import org.lecturestudio.core.app.configuration.Configuration;
+import org.lecturestudio.core.app.dictionary.Dictionary;
 import org.lecturestudio.core.presenter.Presenter;
+import org.lecturestudio.core.util.FileUtils;
 import org.lecturestudio.core.view.FileChooserView;
 import org.lecturestudio.core.view.ViewContextFactory;
 import org.lecturestudio.core.view.ViewLayer;
+import org.lecturestudio.editor.api.context.EditorContext;
 import org.lecturestudio.editor.api.service.RecordingFileService;
 import org.lecturestudio.editor.api.view.QuitSaveRecordingView;
 
@@ -62,13 +67,19 @@ public class QuitSaveRecordingPresenter extends Presenter<QuitSaveRecordingView>
 	}
 
 	private void saveRecording() {
+		final String pathContext = EditorContext.RECORDING_CONTEXT;
+		Configuration config = context.getConfiguration();
+		Dictionary dict = context.getDictionary();
+		Path dirPath = FileUtils.getContextPath(config, pathContext);
+
 		String title = recordingService.getSelectedRecording().getRecordedDocument().getDocument().getTitle();
 		String fileName = title + "-edit";
 
 		FileChooserView fileChooser = viewFactory.createFileChooserView();
-		fileChooser.addExtensionFilter("Lecture Recordings", "presenter");
+		fileChooser.addExtensionFilter(dict.get("file.description.recording"),
+				EditorContext.RECORDING_EXTENSION);
 		fileChooser.setInitialFileName(fileName);
-		fileChooser.setInitialDirectory(new File(System.getProperty("user.home")));
+		fileChooser.setInitialDirectory(dirPath.toFile());
 
 		File selectedFile = fileChooser.showSaveFile(view);
 

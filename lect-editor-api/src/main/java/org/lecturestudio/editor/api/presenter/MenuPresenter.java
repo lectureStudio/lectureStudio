@@ -25,11 +25,15 @@ import com.google.common.eventbus.Subscribe;
 import java.awt.Desktop;
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Path;
 import java.util.Date;
+import java.util.Map;
 
 import javax.inject.Inject;
 
 import org.lecturestudio.core.app.ApplicationContext;
+import org.lecturestudio.core.app.configuration.Configuration;
+import org.lecturestudio.core.app.dictionary.Dictionary;
 import org.lecturestudio.core.bus.EventBus;
 import org.lecturestudio.core.bus.event.DocumentEvent;
 import org.lecturestudio.core.model.Document;
@@ -141,12 +145,18 @@ public class MenuPresenter extends Presenter<MenuView> {
 	}
 
 	private void saveRecording() {
+		final String pathContext = EditorContext.RECORDING_CONTEXT;
+		Configuration config = context.getConfiguration();
+		Dictionary dict = context.getDictionary();
+		Path dirPath = FileUtils.getContextPath(config, pathContext);
+
 		String title = recordingService.getSelectedRecording().getRecordedDocument().getDocument().getTitle();
 		String fileName = title + "-edit";
 
 		FileChooserView fileChooser = viewFactory.createFileChooserView();
-		fileChooser.addExtensionFilter("Lecture Recordings", "presenter");
-		fileChooser.setInitialDirectory(new File(System.getProperty("user.home")));
+		fileChooser.addExtensionFilter(dict.get("file.description.recording"),
+				EditorContext.RECORDING_EXTENSION);
+		fileChooser.setInitialDirectory(dirPath.toFile());
 		fileChooser.setInitialFileName(fileName);
 
 		File file = fileChooser.showSaveFile(view);
@@ -207,9 +217,15 @@ public class MenuPresenter extends Presenter<MenuView> {
 	}
 
 	private void selectNewRecording() {
+		final String pathContext = EditorContext.RECORDING_CONTEXT;
+		Configuration config = context.getConfiguration();
+		Dictionary dict = context.getDictionary();
+		Path dirPath = FileUtils.getContextPath(config, pathContext);
+
 		FileChooserView fileChooser = viewFactory.createFileChooserView();
-		fileChooser.setInitialDirectory(new File(System.getProperty("user.home")));
-		fileChooser.addExtensionFilter("Lecture Recordings", "presenter");
+		fileChooser.setInitialDirectory(dirPath.toFile());
+		fileChooser.addExtensionFilter(dict.get("file.description.recording"),
+				EditorContext.RECORDING_EXTENSION);
 
 		File selectedFile = fileChooser.showOpenFile(view);
 
@@ -219,13 +235,22 @@ public class MenuPresenter extends Presenter<MenuView> {
 	}
 
 	private void exportAudio() {
+		final String pathContext = EditorContext.WAV_CONTEXT;
+		Configuration config = context.getConfiguration();
+		Dictionary dict = context.getDictionary();
+		Map<String, String> contextPaths = config.getContextPaths();
+		Path dirPath = FileUtils.getContextPath(config, pathContext);
+
 		FileChooserView fileChooser = viewFactory.createFileChooserView();
-		fileChooser.setInitialDirectory(new File(System.getProperty("user.home")));
-		fileChooser.addExtensionFilter("WAV", "wav");
+		fileChooser.setInitialDirectory(dirPath.toFile());
+		fileChooser.addExtensionFilter(dict.get("file.description.wav"),
+				EditorContext.WAV_EXTENSION);
 
 		File file = fileChooser.showSaveFile(view);
 
 		if (nonNull(file)) {
+			contextPaths.put(pathContext, file.getParent());
+
 			ProgressDialogView progressView = viewFactory.getInstance(ProgressDialogView.class);
 			progressView.setMessageTitle(context.getDictionary().get("export.audio"));
 			progressView.setParent(view);
@@ -240,13 +265,22 @@ public class MenuPresenter extends Presenter<MenuView> {
 	}
 
 	private void importAudio() {
+		final String pathContext = EditorContext.WAV_CONTEXT;
+		Configuration config = context.getConfiguration();
+		Dictionary dict = context.getDictionary();
+		Map<String, String> contextPaths = config.getContextPaths();
+		Path dirPath = FileUtils.getContextPath(config, pathContext);
+
 		FileChooserView fileChooser = viewFactory.createFileChooserView();
-		fileChooser.setInitialDirectory(new File(System.getProperty("user.home")));
-		fileChooser.addExtensionFilter("WAV", "wav");
+		fileChooser.setInitialDirectory(dirPath.toFile());
+		fileChooser.addExtensionFilter(dict.get("file.description.wav"),
+				EditorContext.WAV_EXTENSION);
 
 		File file = fileChooser.showOpenFile(view);
 
 		if (nonNull(file)) {
+			contextPaths.put(pathContext, file.getParent());
+
 			recordingService.importAudio(file)
 				.exceptionally(throwable -> {
 					handleException(throwable, "Import audio failed", "import.audio.error", file.getPath());

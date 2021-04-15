@@ -30,6 +30,9 @@ import org.lecturestudio.media.playback.PlaybackContext;
 
 public class PlayerContext extends PlaybackContext {
 
+	public static final String RECORDING_CONTEXT = "Recording";
+	public static final String RECORDING_EXTENSION = "presenter";
+
 	private final File configFile;
 
 

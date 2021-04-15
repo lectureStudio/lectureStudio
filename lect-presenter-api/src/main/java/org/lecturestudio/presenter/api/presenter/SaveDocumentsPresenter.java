@@ -33,6 +33,7 @@ import javax.inject.Inject;
 
 import org.lecturestudio.core.ExecutableException;
 import org.lecturestudio.core.app.ApplicationContext;
+import org.lecturestudio.core.app.dictionary.Dictionary;
 import org.lecturestudio.core.beans.StringProperty;
 import org.lecturestudio.core.model.Document;
 import org.lecturestudio.core.presenter.Presenter;
@@ -97,11 +98,13 @@ public class SaveDocumentsPresenter extends Presenter<SaveDocumentsView> {
 	}
 
 	private void saveDocument(Document doc) {
+		Dictionary dict = context.getDictionary();
 		String initFile = getFileName(doc.getName());
 		File initDirectory = new File(savePath.get()).getParentFile();
 
 		FileChooserView fileChooser = viewFactory.createFileChooserView();
-		fileChooser.addExtensionFilter("PDF Files", "pdf");
+		fileChooser.addExtensionFilter(dict.get("file.description.pdf"),
+				PresenterContext.SLIDES_EXTENSION);
 		fileChooser.setInitialFileName(initFile);
 		fileChooser.setInitialDirectory(initDirectory);
 
@@ -121,10 +124,12 @@ public class SaveDocumentsPresenter extends Presenter<SaveDocumentsView> {
 	}
 
 	private void selectSavePath() {
+		Dictionary dict = context.getDictionary();
 		File initPath = new File(savePath.get());
 
 		FileChooserView fileChooser = viewFactory.createFileChooserView();
-		fileChooser.addExtensionFilter("PDF Files", "pdf");
+		fileChooser.addExtensionFilter(dict.get("file.description.pdf"),
+				PresenterContext.SLIDES_EXTENSION);
 		fileChooser.setInitialFileName(initPath.getName());
 		fileChooser.setInitialDirectory(initPath.getParentFile());
 

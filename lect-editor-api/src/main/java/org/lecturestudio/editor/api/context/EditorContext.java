@@ -35,6 +35,12 @@ import org.lecturestudio.media.config.RenderConfiguration;
 
 public class EditorContext extends ApplicationContext {
 
+	public static final String RECORDING_CONTEXT = "Recording";
+	public static final String RECORDING_EXTENSION = "presenter";
+
+	public static final String WAV_CONTEXT = "Wav";
+	public static final String WAV_EXTENSION = "wav";
+
 	private final BooleanProperty canCut = new BooleanProperty();
 
 	private final BooleanProperty canDeletePage = new BooleanProperty();

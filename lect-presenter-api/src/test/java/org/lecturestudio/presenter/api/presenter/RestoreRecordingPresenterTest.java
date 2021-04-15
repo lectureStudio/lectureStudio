@@ -37,6 +37,7 @@ import org.lecturestudio.core.service.DocumentService;
 import org.lecturestudio.core.view.Action;
 import org.lecturestudio.core.view.FileChooserView;
 import org.lecturestudio.core.view.View;
+import org.lecturestudio.presenter.api.context.PresenterContext;
 import org.lecturestudio.presenter.api.recording.FileLectureRecorder;
 import org.lecturestudio.presenter.api.recording.RecordingBackup;
 import org.lecturestudio.presenter.api.service.RecordingService;
@@ -158,7 +159,7 @@ class RestoreRecordingPresenterTest extends PresenterTest {
 		view.saveAction.execute();
 
 		RecordingBackup backup = new RecordingBackup(context.getRecordingDirectory());
-		File initFile = new File(backup.getCheckpoint() + ".presenter");
+		File initFile = new File(backup.getCheckpoint() + "." + PresenterContext.RECORDING_EXTENSION);
 
 		view.saveAction.execute();
 

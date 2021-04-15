@@ -33,6 +33,7 @@ import java.util.concurrent.CompletionException;
 import javax.inject.Inject;
 
 import org.lecturestudio.core.app.ApplicationContext;
+import org.lecturestudio.core.app.dictionary.Dictionary;
 import org.lecturestudio.core.beans.StringProperty;
 import org.lecturestudio.core.presenter.Presenter;
 import org.lecturestudio.core.presenter.ProgressPresenter;
@@ -41,6 +42,7 @@ import org.lecturestudio.core.util.FileUtils;
 import org.lecturestudio.core.view.FileChooserView;
 import org.lecturestudio.core.view.ProgressView;
 import org.lecturestudio.core.view.ViewContextFactory;
+import org.lecturestudio.presenter.api.context.PresenterContext;
 import org.lecturestudio.presenter.api.service.WebService;
 import org.lecturestudio.presenter.api.view.SaveQuizResultsView;
 
@@ -128,11 +130,13 @@ public class SaveQuizResultsPresenter extends Presenter<SaveQuizResultsView> {
 	}
 
 	private void selectSavePath() {
+		Dictionary dict = context.getDictionary();
 		File initPath = new File(savePath.get());
 
 		FileChooserView fileChooser = viewFactory.createFileChooserView();
 		fileChooser.addExtensionFilter("CSV Files", "csv");
-		fileChooser.addExtensionFilter("PDF Files", "pdf");
+		fileChooser.addExtensionFilter(dict.get("file.description.pdf"),
+				PresenterContext.SLIDES_EXTENSION);
 		fileChooser.setInitialFileName(initPath.getName());
 		fileChooser.setInitialDirectory(initPath.getParentFile());
 

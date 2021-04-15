@@ -21,17 +21,23 @@ package org.lecturestudio.presenter.api.presenter;
 import static java.util.Objects.nonNull;
 
 import java.io.File;
+import java.nio.file.Path;
+import java.util.Map;
 
 import javax.inject.Inject;
 
 import org.lecturestudio.core.app.ApplicationContext;
+import org.lecturestudio.core.app.configuration.Configuration;
+import org.lecturestudio.core.app.dictionary.Dictionary;
 import org.lecturestudio.core.model.RecentDocument;
 import org.lecturestudio.core.presenter.Presenter;
 import org.lecturestudio.core.service.DocumentService;
+import org.lecturestudio.core.util.FileUtils;
 import org.lecturestudio.core.util.ListChangeListener;
 import org.lecturestudio.core.util.ObservableList;
 import org.lecturestudio.core.view.FileChooserView;
 import org.lecturestudio.core.view.ViewContextFactory;
+import org.lecturestudio.presenter.api.context.PresenterContext;
 import org.lecturestudio.presenter.api.view.StartView;
 
 public class StartPresenter extends Presenter<StartView> {
@@ -69,13 +75,22 @@ public class StartPresenter extends Presenter<StartView> {
 	}
 
 	private void selectNewDocument() {
+		final String pathContext = PresenterContext.SLIDES_CONTEXT;
+		Configuration config = context.getConfiguration();
+		Dictionary dict = context.getDictionary();
+		Map<String, String> contextPaths = config.getContextPaths();
+		Path dirPath = FileUtils.getContextPath(config, pathContext);
+
 		FileChooserView fileChooser = viewFactory.createFileChooserView();
-		fileChooser.setInitialDirectory(new File(System.getProperty("user.home")));
-		fileChooser.addExtensionFilter("PDF Files", "pdf");
+		fileChooser.setInitialDirectory(dirPath.toFile());
+		fileChooser.addExtensionFilter(dict.get("file.description.pdf"),
+				PresenterContext.SLIDES_EXTENSION);
 
 		File selectedFile = fileChooser.showOpenFile(view);
 
 		if (nonNull(selectedFile)) {
+			contextPaths.put(pathContext, selectedFile.getParent());
+
 			openDocument(selectedFile);
 		}
 	}

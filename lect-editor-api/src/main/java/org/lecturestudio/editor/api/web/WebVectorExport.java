@@ -69,7 +69,7 @@ import org.lecturestudio.media.config.RenderConfiguration;
 
 public class WebVectorExport extends RecordingExport {
 
-	private static final String TEMPLATE_FOLDER = "resources/export/web/vector";
+	private static final String TEMPLATE_FOLDER = "web-player";
 
 	private static final String TEMPLATE_FILE = "index.html";
 
@@ -214,7 +214,7 @@ public class WebVectorExport extends RecordingExport {
 	}
 
 	private String loadTemplateFile(String path) {
-		InputStream is = getClass().getClassLoader().getResourceAsStream(path);
+		InputStream is = ResourceLoader.getResourceAsStream(path);
 
 		if (isNull(is)) {
 			throw new NullPointerException("Missing web index.html file.");

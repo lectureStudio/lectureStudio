@@ -22,7 +22,6 @@ import static java.util.Objects.nonNull;
 
 import java.io.IOException;
 
-import org.lecturestudio.core.app.ApplicationContext;
 import org.lecturestudio.core.util.ShutdownHandler;
 import org.lecturestudio.core.view.Action;
 import org.lecturestudio.presenter.api.context.PresenterContext;
@@ -31,12 +30,12 @@ import org.lecturestudio.presenter.api.recording.RecordingBackup;
 
 public class SaveRecordingHandler extends ShutdownHandler {
 
-	private final ApplicationContext context;
+	private final PresenterContext context;
 
 	private boolean result;
 
 
-	public SaveRecordingHandler(ApplicationContext context) {
+	public SaveRecordingHandler(PresenterContext context) {
 		this.context = context;
 	}
 
@@ -44,11 +43,10 @@ public class SaveRecordingHandler extends ShutdownHandler {
 	public boolean execute() {
 		result = true;
 
-		PresenterContext presenterContext = (PresenterContext) context;
 		RecordingBackup backup = null;
 
 		try {
-			backup = new RecordingBackup(presenterContext.getRecordingDirectory());
+			backup = new RecordingBackup(context.getRecordingDirectory());
 		}
 		catch (IOException e) {
 			result = false;

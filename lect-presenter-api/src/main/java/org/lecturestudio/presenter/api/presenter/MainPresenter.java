@@ -149,8 +149,10 @@ public class MainPresenter extends org.lecturestudio.core.presenter.MainPresente
 		registerShortcut(Shortcut.PAUSE_RECORDING, this::pauseRecording);
 		registerShortcut(Shortcut.PAUSE_RECORDING_P, this::pauseRecording);
 
-		addShutdownHandler(new SaveRecordingHandler(context));
-		addShutdownHandler(new SaveDocumentsHandler(context));
+		PresenterContext presenterContext = (PresenterContext) context;
+
+		addShutdownHandler(new SaveRecordingHandler(presenterContext));
+		addShutdownHandler(new SaveDocumentsHandler(presenterContext));
 		addShutdownHandler(new ShutdownHandler() {
 
 			@Override

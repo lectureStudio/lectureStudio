@@ -37,15 +37,31 @@ import java.util.Enumeration;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 import java.util.Set;
 import java.util.function.Predicate;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 
+import org.lecturestudio.core.app.configuration.Configuration;
+
 public class FileUtils {
 
 	private static final char[] HEX_DIGITS = { '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'a', 'b', 'c', 'd', 'e', 'f' };
 
+
+	public static Path getContextPath(Configuration config, String pathContext) {
+		Map<String, String> contextPaths = config.getContextPaths();
+		String defaultPath = System.getProperty("user.home");
+		String pathStr = contextPaths.getOrDefault(pathContext, defaultPath);
+		Path dirPath = Paths.get(pathStr);
+
+		if (Files.notExists(dirPath) || !Files.isDirectory(dirPath)) {
+			dirPath = Paths.get(defaultPath);
+		}
+
+		return dirPath;
+	}
 
 	public static File ensureExtension(File file, String extension) {
 		String path = file.getAbsolutePath();

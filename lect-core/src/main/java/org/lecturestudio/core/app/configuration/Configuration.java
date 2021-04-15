@@ -19,7 +19,6 @@
 package org.lecturestudio.core.app.configuration;
 
 import java.util.Locale;
-import java.util.Set;
 
 import org.lecturestudio.core.app.Theme;
 import org.lecturestudio.core.beans.BooleanProperty;
@@ -29,9 +28,8 @@ import org.lecturestudio.core.beans.StringProperty;
 import org.lecturestudio.core.geometry.Dimension2D;
 import org.lecturestudio.core.model.RecentDocument;
 import org.lecturestudio.core.util.ObservableArrayList;
-import org.lecturestudio.core.util.ObservableHashSet;
+import org.lecturestudio.core.util.ObservableHashMap;
 import org.lecturestudio.core.util.ObservableList;
-import org.lecturestudio.core.util.ObservableSet;
 
 /**
  * The Configuration specifies application wide properties. Context specific
@@ -74,11 +72,8 @@ public class Configuration {
 	/** The list of recently opened slide documents. */
 	private final ObservableList<RecentDocument> recentDocuments = new ObservableArrayList<>();
 
-	/**
-	 * The set of window configurations that describe the properties of all
-	 * opened windows and dialogs.
-	 */
-	private final ObservableSet<WindowConfiguration> windowConfigs = new ObservableHashSet<>();
+	/** The mapping of a filesystem path to a related context. */
+	private final ObservableHashMap<String, String> contextPaths = new ObservableHashMap<>();
 
 	/** The grid configuration containing all grid related properties. */
 	private final GridConfiguration gridConfig = new GridConfiguration();
@@ -404,29 +399,12 @@ public class Configuration {
 	}
 
 	/**
-	 * Obtain the set of window configurations that describe the properties of
-	 * all opened windows and dialogs. Each time a window or dialog is opened
-	 * the set should be updated in order to show the windows and dialogs with
-	 * the recently used properties.
+	 * Returns the mapping of a filesystem path to a related context.
 	 *
-	 * @return the set of window configurations.
-	 *
-	 * @see #addWindowConfiguration(WindowConfiguration)
+	 * @return The context to path mapping.
 	 */
-	public Set<WindowConfiguration> getWindowConfigurations() {
-		return windowConfigs;
-	}
-
-	/**
-	 * Add a new {@link WindowConfiguration} to the set.
-	 *
-	 * @param config The new WindowConfiguration to add.
-	 */
-	public void addWindowConfiguration(WindowConfiguration config) {
-		if (!windowConfigs.add(config)) {
-			windowConfigs.remove(config);
-			windowConfigs.add(config);
-		}
+	public ObservableHashMap<String, String> getContextPaths() {
+		return contextPaths;
 	}
 
 	/**

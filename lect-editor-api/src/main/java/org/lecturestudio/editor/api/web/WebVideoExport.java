@@ -21,6 +21,7 @@ package org.lecturestudio.editor.api.web;
 import static java.util.Objects.isNull;
 import static java.util.Objects.nonNull;
 
+import java.awt.Graphics2D;
 import java.awt.GraphicsConfiguration;
 import java.awt.GraphicsEnvironment;
 import java.awt.image.BufferedImage;
@@ -49,12 +50,15 @@ import org.lecturestudio.core.ExecutableException;
 import org.lecturestudio.core.app.ApplicationContext;
 import org.lecturestudio.core.bus.EventBus;
 import org.lecturestudio.core.controller.RenderController;
+import org.lecturestudio.core.geometry.Dimension2D;
 import org.lecturestudio.core.geometry.Rectangle2D;
 import org.lecturestudio.core.model.Document;
 import org.lecturestudio.core.model.Page;
+import org.lecturestudio.core.model.shape.Shape;
 import org.lecturestudio.core.recording.RecordedDocument;
 import org.lecturestudio.core.recording.RecordedEvents;
 import org.lecturestudio.core.recording.Recording;
+import org.lecturestudio.core.swing.SwingGraphicsContext;
 import org.lecturestudio.core.util.FileUtils;
 import org.lecturestudio.core.view.ViewType;
 import org.lecturestudio.editor.api.context.EditorContext;
@@ -118,7 +122,7 @@ public class WebVideoExport extends RecordingExport {
 	}
 
 	@Override
-	protected void startInternal() throws ExecutableException {
+	protected void startInternal() {
 		CompletableFuture.runAsync(() -> {
 			try {
 				String pageModel = createPageModel(recording);
@@ -146,12 +150,12 @@ public class WebVideoExport extends RecordingExport {
 	}
 
 	@Override
-	protected void stopInternal() throws ExecutableException {
+	protected void stopInternal() {
 
 	}
 
 	@Override
-	protected void destroyInternal() throws ExecutableException {
+	protected void destroyInternal() {
 
 	}
 
@@ -234,13 +238,25 @@ public class WebVideoExport extends RecordingExport {
 	}
 
 	private void encodePagePreview(StringBuilder builder, Page page, int width) throws IOException {
+		ViewType viewType = ViewType.User;
+
 		// Calculate the height for the desired image width.
 		Rectangle2D pageRect = page.getDocument().getPageRect(page.getPageNumber());
 		int height = (int) (pageRect.getHeight() / pageRect.getWidth() * width);
 
 		pageImage = getPageImage(pageImage, width, height);
 
-		renderController.renderPage(pageImage, page, ViewType.User);
+		renderController.renderPage(pageImage, page, viewType);
+
+		if (page.hasShapes()) {
+			List<Shape> shapes = page.getShapes();
+			Dimension2D imageSize = new Dimension2D(width, height);
+			Graphics2D g = pageImage.createGraphics();
+
+			SwingGraphicsContext gc = new SwingGraphicsContext(g);
+			renderController.renderShapes(gc, viewType, imageSize, page, shapes);
+			g.dispose();
+		}
 
 		ByteArrayOutputStream os = new ByteArrayOutputStream();
 		ImageIO.write(pageImage, "png", os);

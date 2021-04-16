@@ -23,6 +23,7 @@ import java.nio.file.FileVisitOption;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.EnumSet;
+import java.util.List;
 
 import org.lecturestudio.core.io.file.visitor.CleanDirVisitor;
 import org.lecturestudio.core.io.file.visitor.CopyDirVisitor;
@@ -69,6 +70,21 @@ public final class DirUtils {
 	public static void copy(Path from, Path to) throws IOException {
 		validate(from);
 		Files.walkFileTree(from, EnumSet.of(FileVisitOption.FOLLOW_LINKS), Integer.MAX_VALUE, new CopyDirVisitor(from, to));
+	}
+
+	/**
+	 * Copies a directory tree by excluding files having a extension that is
+	 * noted in the provided skip-list.
+	 *
+	 * @param from     The source path.
+	 * @param to       The target path.
+	 * @param skipList The list containing extensions that should be excluded.
+	 *
+	 * @throws IOException If the path could not be copied.
+	 */
+	public static void copy(Path from, Path to, List<String> skipList) throws IOException {
+		validate(from);
+		Files.walkFileTree(from, EnumSet.of(FileVisitOption.FOLLOW_LINKS), Integer.MAX_VALUE, new CopyDirVisitor(from, to, skipList));
 	}
     
     /**

@@ -18,6 +18,8 @@
 
 package org.lecturestudio.core.util;
 
+import static java.util.Objects.nonNull;
+
 import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileInputStream;
@@ -160,6 +162,10 @@ public class FileUtils {
 	}
 
 	public static void copyJarResource(String jarPath, String source, String destDir) throws IOException {
+		copyJarResource(jarPath, source, destDir, null);
+	}
+
+	public static void copyJarResource(String jarPath, String source, String destDir, List<String> skipList) throws IOException {
 		final JarFile jarFile = new JarFile(jarPath);
 		boolean foundExactMatch = false;
 
@@ -189,6 +195,10 @@ public class FileUtils {
 				dest.mkdir();
 			}
 			else {
+				if (nonNull(skipList) && skipList.contains(FileUtils.getExtension(entryName))) {
+					continue;
+				}
+
 				// Copy file.
 				InputStream inputStream = jarFile.getInputStream(entry);
 				Files.copy(inputStream, dest.toPath(), StandardCopyOption.REPLACE_EXISTING);

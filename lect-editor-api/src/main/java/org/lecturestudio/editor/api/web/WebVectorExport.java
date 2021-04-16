@@ -27,6 +27,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.net.URI;
 import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -111,7 +112,7 @@ public class WebVectorExport extends RecordingExport {
 		indexContent = processTemplateFile(indexContent, data);
 
 		try {
-			copyResourceToFilesystem(TEMPLATE_FOLDER, outputPath);
+			copyResourceToFilesystem(TEMPLATE_FOLDER, outputPath, List.of("txt"));
 
 			writeTemplateFile(indexContent, getFile(TEMPLATE_FILE));
 		}
@@ -121,7 +122,7 @@ public class WebVectorExport extends RecordingExport {
 	}
 
 	@Override
-	protected void startInternal() throws ExecutableException {
+	protected void startInternal() {
 		CompletableFuture.supplyAsync(() -> {
 			RecordedAudio encAudio;
 
@@ -168,14 +169,14 @@ public class WebVectorExport extends RecordingExport {
 	}
 
 	@Override
-	protected void stopInternal() throws ExecutableException {
+	protected void stopInternal() {
 		if (nonNull(writer)) {
 			writer.cancelWriting();
 		}
 	}
 
 	@Override
-	protected void destroyInternal() throws ExecutableException {
+	protected void destroyInternal() {
 
 	}
 
@@ -252,24 +253,28 @@ public class WebVectorExport extends RecordingExport {
 		Files.writeString(path, fileContent);
 	}
 
-	private void copyResourceToFilesystem(String resName, String baseDir) throws Exception {
+	private void copyResourceToFilesystem(String resName, String baseDir,
+			List<String> skipList) throws Exception {
 		URL resURL = ResourceLoader.getResourceURL(resName);
 
 		if (ResourceLoader.isJarResource(resURL)) {
-			String jarPath = ResourceLoader.getJarPath(this.getClass());
-			FileUtils.copyJarResource(jarPath, resName, baseDir);
+			String jarStringPath = resURL.toString().replace("jar:", "");
+			String jarCleanPath = Paths.get(new URI(jarStringPath)).toString();
+			String jarPath = jarCleanPath.substring(0, jarCleanPath.lastIndexOf(".jar") + 4);
+
+			FileUtils.copyJarResource(jarPath, resName, baseDir, skipList);
 		}
 		else {
 			File resFile = new File(resURL.getPath());
 			Path sourcePath = resFile.toPath();
 
-			if (resFile.isFile()) {
+			if (resFile.isFile() && !skipList.contains(FileUtils.getExtension(sourcePath.toString()))) {
 				Path targetPath = Paths.get(baseDir, resFile.getName());
 				Files.copy(sourcePath, targetPath);
 			}
 			else if (resFile.isDirectory()) {
 				Path targetPath = Paths.get(baseDir);
-				DirUtils.copy(sourcePath, targetPath);
+				DirUtils.copy(sourcePath, targetPath, skipList);
 			}
 		}
 	}

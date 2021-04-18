@@ -248,7 +248,7 @@ class RenderController {
 		const size = this.slideRenderSurface.getSize();
 		const bounds = new Rectangle(0, 0, size.width, size.height);
 
-		return this.slideRenderSurface.renderShape(page.getSlideShape(), bounds);
+		return this.slideRenderSurface.renderSlideShape(page.getSlideShape(), bounds);
 	}
 
 	private getPageTransform(): Transform {

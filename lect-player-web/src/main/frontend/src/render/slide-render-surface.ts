@@ -5,7 +5,7 @@ import { SlideShape } from "../model/shape/slide.shape";
 
 class SlideRenderSurface extends RenderSurface {
 
-	renderShape(shape: SlideShape, dirtyRegion: Rectangle): Promise<CanvasImageSource> {
+	renderSlideShape(shape: SlideShape, dirtyRegion: Rectangle): Promise<CanvasImageSource> {
 		const renderer = <SlideRenderer> this.renderers.get(shape.constructor.name);
 		let promise: Promise<CanvasImageSource> = null;
 

@@ -62,11 +62,12 @@ class FileActionPlayer extends ActionPlayer {
 
 		for (let recPage of this.recordedPages) {
 			this.pageChangeActions.set(recPage.pageNumber, recPage.timestamp);
+
+			this.resetPage(recPage.pageNumber);
 		}
 
-		this.resetPage(this.pageNumber);
 		this.getPlaybackActions(this.pageNumber);
-		
+
 		this.executor.setPageNumber(this.pageNumber);
 	}
 
@@ -147,8 +148,6 @@ class FileActionPlayer extends ActionPlayer {
 
 	private getPlaybackActions(pageNumber: number): void {
 		const recPage = this.recordedPages[pageNumber];
-
-		this.loadStaticShapes(recPage);
 
 		// Add page change action.
 		const action = new PageAction(pageNumber);
@@ -246,7 +245,9 @@ class FileActionPlayer extends ActionPlayer {
 			page.clear();
 		}
 
-		page.getSlideShape().setPageRect(new Rectangle(0, 0, 1, 1));
+		this.loadStaticShapes(this.recordedPages[pageNumber]);
+
+		page.getSlideShape().setPageRect(new Rectangle(0, 0, 1, 1));		
 	}
 
 	private loadStaticShapes(recPage: RecordedPage): void {

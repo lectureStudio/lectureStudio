@@ -393,7 +393,7 @@ public class SlideView extends JComponent implements org.lecturestudio.core.view
 
 					BufferedImage renderImage = backImage;
 
-					if (OsInfo.isMac() && page.hasShapes()) {
+					if (!OsInfo.isWindows() && page.hasShapes()) {
 						Graphics2D fg2d = frontImage.createGraphics();
 						fg2d.drawImage(backImage, 0, 0, null);
 
@@ -412,7 +412,7 @@ public class SlideView extends JComponent implements org.lecturestudio.core.view
 					g2d.setTransform(transform);
 				}
 
-				if (!OsInfo.isMac() && page.hasShapes()) {
+				if (OsInfo.isWindows() && page.hasShapes()) {
 					SwingGraphicsContext gc = new SwingGraphicsContext(g2d);
 
 					renderController.renderShapes(gc, getViewType(), imageRect, page, page.getShapes());
@@ -582,7 +582,7 @@ public class SlideView extends JComponent implements org.lecturestudio.core.view
 
 		backImage = createBackImage(backImage, width, height);
 
-		if (OsInfo.isMac()) {
+		if (!OsInfo.isWindows()) {
 			frontImage = createBackImage(frontImage, width, height);
 		}
 

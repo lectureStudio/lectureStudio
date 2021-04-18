@@ -55,6 +55,7 @@ import org.lecturestudio.core.model.shape.Shape;
 import org.lecturestudio.core.swing.SwingGraphicsContext;
 import org.lecturestudio.core.tool.ShapeModifyEvent;
 import org.lecturestudio.core.tool.ShapePaintEvent;
+import org.lecturestudio.core.util.OsInfo;
 import org.lecturestudio.core.view.PageObjectView;
 import org.lecturestudio.core.view.PresentationParameter;
 import org.lecturestudio.core.view.SlideViewOverlay;
@@ -390,12 +391,28 @@ public class SlideView extends JComponent implements org.lecturestudio.core.view
 					AffineTransform imageTransform = new AffineTransform();
 					imageTransform.translate(transform.getTranslateX(), transform.getTranslateY());
 
+					BufferedImage renderImage = backImage;
+
+					if (OsInfo.isMac() && page.hasShapes()) {
+						Graphics2D fg2d = frontImage.createGraphics();
+						fg2d.drawImage(backImage, 0, 0, null);
+
+						SwingGraphicsContext gc = new SwingGraphicsContext(fg2d);
+						gc.scale(transform.getScaleX(), transform.getScaleY());
+
+						renderController.renderShapes(gc, getViewType(), imageRect, page, page.getShapes());
+
+						fg2d.dispose();
+
+						renderImage = frontImage;
+					}
+
 					g2d.setTransform(imageTransform);
-					g2d.drawImage(backImage, 0, 0, this);
+					g2d.drawImage(renderImage, 0, 0, this);
 					g2d.setTransform(transform);
 				}
 
-				if (page.hasShapes()) {
+				if (!OsInfo.isMac() && page.hasShapes()) {
 					SwingGraphicsContext gc = new SwingGraphicsContext(g2d);
 
 					renderController.renderShapes(gc, getViewType(), imageRect, page, page.getShapes());
@@ -537,6 +554,8 @@ public class SlideView extends JComponent implements org.lecturestudio.core.view
 
 	private BufferedImage backImage;
 
+	private BufferedImage frontImage;
+
 	private BufferedImage createBackImage(BufferedImage reference, int width, int height) {
 		if (reference != null) {
 			if (width == reference.getWidth() && height == reference.getHeight()) {
@@ -562,6 +581,10 @@ public class SlideView extends JComponent implements org.lecturestudio.core.view
 		int height = (int) (canvasBounds.height * transform.getScaleY());
 
 		backImage = createBackImage(backImage, width, height);
+
+		if (OsInfo.isMac()) {
+			frontImage = createBackImage(frontImage, width, height);
+		}
 
 		renderController.renderPage(backImage, page, getViewType());
 	}

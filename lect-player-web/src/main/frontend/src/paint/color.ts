@@ -27,6 +27,10 @@ class Color {
 		return `rgba(${this.r}, ${this.g}, ${this.b}, ${this.a})`;
 	}
 
+	toAlpha(alpha: number): string {
+		return `rgba(${this.r}, ${this.g}, ${this.b}, ${alpha})`;
+	}
+
 	equals(other: Color): boolean {
 		return this.a === other.a && this.r === other.r && this.g === other.g && this.b === other.b;
 	}

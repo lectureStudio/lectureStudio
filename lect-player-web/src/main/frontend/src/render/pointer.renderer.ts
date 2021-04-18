@@ -16,7 +16,7 @@ class PointerRenderer implements ShapeRenderer {
 		const w2 = w / 2;
 
 		context.beginPath();
-		context.fillStyle = brush.color.toRgba();
+		context.fillStyle = brush.color.toAlpha(0.4);
 		context.arc(point.x, point.y, w, 0, 2 * Math.PI);
 		context.fill();
 

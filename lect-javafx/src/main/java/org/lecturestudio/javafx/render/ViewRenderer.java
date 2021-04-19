@@ -18,6 +18,8 @@
 
 package org.lecturestudio.javafx.render;
 
+import static java.util.Objects.isNull;
+
 import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.Dimension;
@@ -113,6 +115,10 @@ public class ViewRenderer {
 	}
 
 	public synchronized void renderPage(Page page, Dimension size) {
+		if (isNull(page) || page.getDocument().isClosed()) {
+			return;
+		}
+
 		updateBackImage(page, size);
 		renderForeground();
 	}

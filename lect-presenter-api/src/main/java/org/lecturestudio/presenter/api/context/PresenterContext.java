@@ -40,6 +40,7 @@ import org.lecturestudio.web.api.model.quiz.Quiz;
 public class PresenterContext extends ApplicationContext {
 
 	public static final String SLIDES_CONTEXT = "Slides";
+	public static final String SLIDES_TO_PDF_CONTEXT = "SlidesToPDF";
 	public static final String SLIDES_EXTENSION = "pdf";
 
 	public static final String RECORDING_CONTEXT = "Recording";

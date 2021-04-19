@@ -22,6 +22,7 @@ import static java.util.Objects.isNull;
 import static java.util.Objects.nonNull;
 
 import java.io.File;
+import java.nio.file.Path;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -33,6 +34,7 @@ import javax.inject.Inject;
 
 import org.lecturestudio.core.ExecutableException;
 import org.lecturestudio.core.app.ApplicationContext;
+import org.lecturestudio.core.app.configuration.Configuration;
 import org.lecturestudio.core.app.dictionary.Dictionary;
 import org.lecturestudio.core.beans.StringProperty;
 import org.lecturestudio.core.model.Document;
@@ -40,6 +42,7 @@ import org.lecturestudio.core.presenter.Presenter;
 import org.lecturestudio.core.presenter.ProgressPresenter;
 import org.lecturestudio.core.presenter.command.ShowPresenterCommand;
 import org.lecturestudio.core.recording.DocumentRecorder;
+import org.lecturestudio.core.util.FileUtils;
 import org.lecturestudio.core.view.FileChooserView;
 import org.lecturestudio.core.view.ProgressView;
 import org.lecturestudio.core.view.ViewContextFactory;
@@ -83,7 +86,11 @@ public class SaveDocumentsPresenter extends Presenter<SaveDocumentsView> {
 			optionView.select();
 		}
 
-		savePath.set(System.getProperty("user.home") + File.separator + getFileName(null));
+		final String pathContext = PresenterContext.SLIDES_TO_PDF_CONTEXT;
+		Configuration config = context.getConfiguration();
+		Path dirPath = FileUtils.getContextPath(config, pathContext);
+
+		savePath.set(dirPath.resolve(getFileName(null)).toString());
 
 		view.setSavePath(savePath);
 		view.setOnClose(this::close);
@@ -151,6 +158,10 @@ public class SaveDocumentsPresenter extends Presenter<SaveDocumentsView> {
 	}
 
 	private void saveDocuments(List<Document> documents, File file) {
+		Configuration config = context.getConfiguration();
+		config.getContextPaths().put(PresenterContext.SLIDES_TO_PDF_CONTEXT,
+				file.getParent());
+
 		context.getEventBus().post(new ShowPresenterCommand<>(ProgressPresenter.class) {
 			@Override
 			public void execute(ProgressPresenter presenter) {

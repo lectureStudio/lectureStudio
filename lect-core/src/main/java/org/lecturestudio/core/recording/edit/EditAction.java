@@ -20,12 +20,38 @@ package org.lecturestudio.core.recording.edit;
 
 import org.lecturestudio.core.recording.RecordingEditException;
 
+/**
+ * Defines an editing action on a {@code Recording}. An editing action can undo
+ * and redo the changes it exerts on the recording. EditActions can be added to
+ * the {@code RecordingEditManager} that will take over the execution of the
+ * action.
+ *
+ * @author Alex Andres
+ *
+ * @see org.lecturestudio.core.recording.Recording
+ * @see RecordingEditManager
+ */
 public interface EditAction {
 
+	/**
+	 * Undoes the changes applied by this action.
+	 *
+	 * @throws RecordingEditException If the edits cannot be undone.
+	 */
 	void undo() throws RecordingEditException;
 
+	/**
+	 * Redoes the changes applied by this action.
+	 *
+	 * @throws RecordingEditException If the edits cannot be redone.
+	 */
 	void redo() throws RecordingEditException;
 
+	/**
+	 * Executes and applies the changes defined by this action.
+	 *
+	 * @throws RecordingEditException If the edits cannot be executed.
+	 */
 	void execute() throws RecordingEditException;
 
 }

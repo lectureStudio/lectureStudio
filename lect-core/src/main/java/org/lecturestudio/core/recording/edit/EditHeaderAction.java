@@ -20,7 +20,7 @@ package org.lecturestudio.core.recording.edit;
 
 import org.lecturestudio.core.recording.RecordingHeader;
 
-public class EditHeaderAction extends RecordingEditAction<RecordingHeader> {
+public class EditHeaderAction extends RecordedObjectAction<RecordingHeader> {
 
 	private final long durationDelta;
 

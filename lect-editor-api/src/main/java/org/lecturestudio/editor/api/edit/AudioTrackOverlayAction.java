@@ -30,6 +30,16 @@ import org.lecturestudio.editor.api.service.RecordingPlaybackService;
 import org.lecturestudio.media.track.MediaTrack;
 import org.lecturestudio.media.track.control.AudioFilterControl;
 
+/**
+ * EditAction that applies an {@code AudioFilter} on an {@code AudioTrack}. The
+ * parameters of the AudioFilter are managed by the {@code AudioFilterControl}.
+ *
+ * @author Alex Andres
+ *
+ * @see org.lecturestudio.core.audio.filter.AudioFilter
+ * @see org.lecturestudio.media.track.AudioTrack
+ * @see AudioFilterControl
+ */
 public class AudioTrackOverlayAction implements EditAction {
 
 	private final Recording recording;
@@ -45,6 +55,16 @@ public class AudioTrackOverlayAction implements EditAction {
 	private final Runnable controlRemoveListener;
 
 
+	/**
+	 * Creates a new {@code AudioTrackOverlayAction} with the provided
+	 * parameters.
+	 *
+	 * @param recording       The recording on which to operate.
+	 * @param track           The audio track on which to operate.
+	 * @param control         The audio control to observe.
+	 * @param playbackService The playback service to notify when changes
+	 *                        occur.
+	 */
 	public AudioTrackOverlayAction(Recording recording, MediaTrack<?> track,
 			AudioFilterControl<?> control,
 			RecordingPlaybackService playbackService) {

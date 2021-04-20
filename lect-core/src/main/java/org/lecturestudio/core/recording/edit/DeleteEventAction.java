@@ -26,7 +26,7 @@ import org.lecturestudio.core.recording.RecordedPage;
 import org.lecturestudio.core.recording.action.ActionType;
 import org.lecturestudio.core.recording.action.PlaybackAction;
 
-public class DeleteEventAction extends RecordingEditAction<RecordedEvents> {
+public class DeleteEventAction extends RecordedObjectAction<RecordedEvents> {
 
 	private final List<PlaybackAction> removedActions = new ArrayList<>();
 

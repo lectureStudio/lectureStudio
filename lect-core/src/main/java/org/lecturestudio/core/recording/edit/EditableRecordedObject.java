@@ -22,7 +22,7 @@ import org.lecturestudio.core.recording.RecordingEditException;
 
 public interface EditableRecordedObject {
 
-	void addEditAction(RecordingEditAction<?> action);
+	void addEditAction(RecordedObjectAction<?> action);
 
 	void undo() throws RecordingEditException;
 

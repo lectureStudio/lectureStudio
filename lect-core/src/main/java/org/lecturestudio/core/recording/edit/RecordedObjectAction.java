@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2021 TU Darmstadt, Department of Computer Science,
+ * Copyright (C) 2020 TU Darmstadt, Department of Computer Science,
  * Embedded Systems and Applications Group.
  *
  * This program is free software: you can redistribute it and/or modify
@@ -18,30 +18,19 @@
 
 package org.lecturestudio.core.recording.edit;
 
-import org.lecturestudio.core.recording.Recording;
-import org.lecturestudio.core.recording.RecordingEditException;
+import org.lecturestudio.core.recording.RecordedObjectBase;
 
-public class RecordingChangeAction implements EditAction {
+public abstract class RecordedObjectAction<T extends RecordedObjectBase> implements EditAction {
 
-	private final Recording recording;
+	private final T recordedObject;
 
 
-	public RecordingChangeAction(Recording recording) {
-		this.recording = recording;
+	public RecordedObjectAction(T recordedObject) {
+		this.recordedObject = recordedObject;
 	}
 
-	@Override
-	public void undo() throws RecordingEditException {
-		recording.undo();
+	protected T getRecordedObject() {
+		return recordedObject;
 	}
 
-	@Override
-	public void redo() throws RecordingEditException {
-		recording.redo();
-	}
-
-	@Override
-	public void execute() throws RecordingEditException {
-
-	}
 }

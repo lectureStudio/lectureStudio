@@ -24,14 +24,14 @@ import org.lecturestudio.core.model.Document;
 import org.lecturestudio.core.recording.RecordedDocument;
 import org.lecturestudio.core.recording.RecordingEditException;
 
-public class DeletePageAction extends RecordingEditAction<RecordedDocument> {
+public class DeleteDocumentPageAction extends RecordedObjectAction<RecordedDocument> {
 
 	private final int pageNumber;
 
 	private byte[] docStream;
 
 
-	public DeletePageAction(RecordedDocument lectureObject, int pageNumber) {
+	public DeleteDocumentPageAction(RecordedDocument lectureObject, int pageNumber) {
 		super(lectureObject);
 
 		this.pageNumber = pageNumber;

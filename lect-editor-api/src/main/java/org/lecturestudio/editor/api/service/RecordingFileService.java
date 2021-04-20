@@ -50,6 +50,9 @@ import org.lecturestudio.core.recording.RecordedAudio;
 import org.lecturestudio.core.service.DocumentService;
 import org.lecturestudio.core.util.ProgressCallback;
 import org.lecturestudio.editor.api.context.EditorContext;
+import org.lecturestudio.editor.api.edit.CutAction;
+import org.lecturestudio.editor.api.edit.DeletePageAction;
+import org.lecturestudio.editor.api.edit.InsertRecordingAction;
 import org.lecturestudio.media.recording.RecordingEvent;
 
 import org.apache.logging.log4j.LogManager;
@@ -112,12 +115,16 @@ public class RecordingFileService {
 
 	public CompletableFuture<Recording> importRecording(File file, double start) {
 		return CompletableFuture.supplyAsync(() -> {
+			Recording selected = getSelectedRecording();
 			Recording recording;
 
 			try {
 				recording = RecordingFileReader.read(file);
 
-				getSelectedRecording().insert(recording, start);
+				selected.getEditManager().addEditAction(
+						new InsertRecordingAction(selected, recording, start));
+
+				updateEditState(recording);
 			}
 			catch (Exception e) {
 				throw new CompletionException(e);
@@ -185,17 +192,13 @@ public class RecordingFileService {
 
 	public CompletableFuture<Void> cut(double start, double end, Recording recording) {
 		return CompletableFuture.runAsync(() -> {
-			long timeMillis = recording.getRecordedAudio().getAudioStream().getLengthInMillis();
-			double startRel = Math.min(start, end);
-			double endRel = Math.max(start, end);
-
-			int x1 = (int) (startRel * timeMillis);
-			int x2 = (int) (endRel * timeMillis);
-
 			try {
 				suspendPlayback();
 
-				recording.cut(x1, x2);
+				recording.getEditManager().addEditAction(new CutAction(
+						recording, start, end));
+
+				updateEditState(recording);
 			}
 			catch (Exception e) {
 				throw new CompletionException(e);
@@ -203,16 +206,19 @@ public class RecordingFileService {
 		});
 	}
 
-	public CompletableFuture<Void> deletePage(int pageNumber) {
-		return deletePage(pageNumber, getSelectedRecording());
+	public CompletableFuture<Void> deletePage(double timeNorm) {
+		return deletePage(timeNorm, getSelectedRecording());
 	}
 
-	public CompletableFuture<Void> deletePage(int pageNumber, Recording recording) {
+	public CompletableFuture<Void> deletePage(double timeNorm, Recording recording) {
 		return CompletableFuture.runAsync(() -> {
 			try {
 				suspendPlayback();
 
-				recording.deletePage(pageNumber);
+				recording.getEditManager().addEditAction(new DeletePageAction(
+						recording, timeNorm));
+
+				updateEditState(recording);
 			}
 			catch (Exception e) {
 				throw new CompletionException(e);

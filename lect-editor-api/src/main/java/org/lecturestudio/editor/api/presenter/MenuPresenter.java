@@ -42,7 +42,6 @@ import org.lecturestudio.core.presenter.AboutPresenter;
 import org.lecturestudio.core.presenter.Presenter;
 import org.lecturestudio.core.presenter.command.CloseApplicationCommand;
 import org.lecturestudio.core.presenter.command.ShowPresenterCommand;
-import org.lecturestudio.core.recording.Recording;
 import org.lecturestudio.core.service.RecentDocumentService;
 import org.lecturestudio.core.util.FileUtils;
 import org.lecturestudio.core.view.FileChooserView;
@@ -307,12 +306,9 @@ public class MenuPresenter extends Presenter<MenuView> {
 
 	private void deletePage() {
 		EditorContext editorContext = (EditorContext) context;
-		Recording recording = recordingService.getSelectedRecording();
 		double timeNorm = editorContext.getPrimarySelection();
-		int time = (int) (timeNorm * recording.getRecordedAudio().getAudioStream().getLengthInMillis());
-		int pageIndex = recording.getPageIndex(time, 0);
 
-		recordingService.deletePage(pageIndex)
+		recordingService.deletePage(timeNorm)
 				.exceptionally(throwable -> {
 					handleException(throwable, "Delete page failed", "delete.page.error");
 					return null;

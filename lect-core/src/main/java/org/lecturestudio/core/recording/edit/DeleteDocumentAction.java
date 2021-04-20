@@ -27,7 +27,7 @@ import org.lecturestudio.core.model.Page;
 import org.lecturestudio.core.recording.RecordingEditException;
 import org.lecturestudio.core.recording.RecordedDocument;
 
-public class DeleteDocumentAction extends RecordingEditAction<RecordedDocument> {
+public class DeleteDocumentAction extends RecordedObjectAction<RecordedDocument> {
 
 	private final List<Integer> pages = new ArrayList<>();
 

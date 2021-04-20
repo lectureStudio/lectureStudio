@@ -27,7 +27,7 @@ import org.lecturestudio.core.model.Interval;
 import org.lecturestudio.core.recording.RecordedEvents;
 import org.lecturestudio.core.recording.RecordedPage;
 
-public class DeleteEventsAction extends RecordingEditAction<RecordedEvents> {
+public class DeleteEventsAction extends RecordedObjectAction<RecordedEvents> {
 
 	private final List<RecordedPage> backupPages = new ArrayList<>();
 

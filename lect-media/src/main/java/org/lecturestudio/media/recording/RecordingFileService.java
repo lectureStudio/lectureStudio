@@ -77,23 +77,6 @@ public class RecordingFileService {
 		});
 	}
 
-	public CompletableFuture<Recording> importRecording(File file, double start) {
-		return CompletableFuture.supplyAsync(() -> {
-			Recording recording;
-
-			try {
-				recording = RecordingFileReader.read(file);
-
-				getSelectedRecording().insert(recording, start);
-			}
-			catch (Exception e) {
-				throw new CompletionException(e);
-			}
-
-			return recording;
-		});
-	}
-
 	public void closeSelectedRecording() {
 		closeRecording(getSelectedRecording());
 	}

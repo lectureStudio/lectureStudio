@@ -20,7 +20,7 @@ package org.lecturestudio.core.recording.edit;
 
 import org.lecturestudio.core.recording.RecordedObjectBase;
 
-public abstract class RecordingInsertAction<T extends RecordedObjectBase> extends RecordingEditAction<T> {
+public abstract class RecordingInsertAction<T extends RecordedObjectBase> extends RecordedObjectAction<T> {
 
 	protected final T objectToInsert;
 

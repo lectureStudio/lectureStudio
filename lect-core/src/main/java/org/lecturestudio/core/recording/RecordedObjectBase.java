@@ -22,12 +22,12 @@ import java.util.Objects;
 import java.util.Stack;
 
 import org.lecturestudio.core.recording.edit.EditableRecordedObject;
-import org.lecturestudio.core.recording.edit.RecordingEditAction;
+import org.lecturestudio.core.recording.edit.RecordedObjectAction;
 
 public abstract class RecordedObjectBase implements EditableRecordedObject, RecordedObject {
 
-	protected Stack<RecordingEditAction<?>> undoActions = new Stack<>();
-	protected Stack<RecordingEditAction<?>> redoActions = new Stack<>();
+	protected Stack<RecordedObjectAction<?>> undoActions = new Stack<>();
+	protected Stack<RecordedObjectAction<?>> redoActions = new Stack<>();
 
 
 	@Override
@@ -36,7 +36,7 @@ public abstract class RecordedObjectBase implements EditableRecordedObject, Reco
 			return;
 		}
 
-		RecordingEditAction<?> aEditAction = undoActions.pop();
+		RecordedObjectAction<?> aEditAction = undoActions.pop();
 		aEditAction.undo();
 
 		redoActions.push(aEditAction);
@@ -48,14 +48,14 @@ public abstract class RecordedObjectBase implements EditableRecordedObject, Reco
 			return;
 		}
 
-		RecordingEditAction<?> aEditAction = redoActions.pop();
+		RecordedObjectAction<?> aEditAction = redoActions.pop();
 		aEditAction.redo();
 
 		undoActions.push(aEditAction);
 	}
 
 	@Override
-	public void addEditAction(RecordingEditAction<?> action) {
+	public void addEditAction(RecordedObjectAction<?> action) {
 		undoActions.push(action);
 		redoActions.clear();
 	}

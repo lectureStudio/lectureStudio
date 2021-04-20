@@ -173,12 +173,9 @@ public class MediaTrackControlsPresenter extends Presenter<MediaTrackControlsVie
 
 	private void deletePage() {
 		EditorContext editorContext = (EditorContext) context;
-		Recording recording = recordingService.getSelectedRecording();
 		double timeNorm = editorContext.getPrimarySelection();
-		int time = (int) (timeNorm * recording.getRecordedAudio().getAudioStream().getLengthInMillis());
-		int pageIndex = recording.getPageIndex(time, 0);
 
-		recordingService.deletePage(pageIndex)
+		recordingService.deletePage(timeNorm)
 				.exceptionally(throwable -> {
 					handleException(throwable, "Delete page failed", "delete.page.error");
 					return null;

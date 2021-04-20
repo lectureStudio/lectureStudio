@@ -27,7 +27,7 @@ import org.lecturestudio.core.recording.RecordingEditException;
 import org.lecturestudio.core.recording.RecordedAudio;
 import org.lecturestudio.core.util.AudioUtils;
 
-public class DeleteAudioAction extends RecordingEditAction<RecordedAudio> {
+public class DeleteAudioAction extends RecordedObjectAction<RecordedAudio> {
 
 	private final Interval<Long> cutInterval;
 

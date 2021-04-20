@@ -24,7 +24,7 @@ import org.lecturestudio.core.io.RandomAccessAudioStream;
 import org.lecturestudio.core.recording.RecordingEditException;
 import org.lecturestudio.core.recording.RecordedAudio;
 
-public class ReplaceAudioAction extends RecordingEditAction<RecordedAudio> {
+public class ReplaceAudioAction extends RecordedObjectAction<RecordedAudio> {
 
 	private final RandomAccessAudioStream oldStream;
 	private final RandomAccessAudioStream newStream;

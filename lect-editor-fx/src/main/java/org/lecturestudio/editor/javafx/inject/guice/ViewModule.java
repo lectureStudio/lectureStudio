@@ -62,6 +62,7 @@ public class ViewModule extends AbstractModule {
 		bind(PageEventsView.class).to(FxPageEventsView.class);
 		bind(ProgressDialogView.class).to(FxProgressDialogView.class);
 		bind(QuitSaveRecordingView.class).to(FxQuitSaveRecordingView.class);
+		bind(ReplacePageView.class).to(FxReplacePageView.class);
 		bind(SettingsView.class).to(FxSettingsView.class);
 		bind(SlidesView.class).to(FxSlidesView.class);
 		bind(StartView.class).to(FxStartView.class);

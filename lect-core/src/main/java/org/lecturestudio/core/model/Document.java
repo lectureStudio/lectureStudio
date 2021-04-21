@@ -488,6 +488,13 @@ public class Document {
 		return newPage;
 	}
 
+	public void replacePage(Page page, Page newPage) throws IOException {
+		PdfDocument newPdfDocument = newPage.getDocument().getPdfDocument();
+		int docIndex = newPage.getPageNumber();
+
+		pdfDocument.replacePage(page.getPageNumber(), newPdfDocument, docIndex);
+	}
+
 	private void fireDocumentChange() {
 		for (DocumentChangeListener listener : changeListeners) {
 			listener.documentChanged(this);

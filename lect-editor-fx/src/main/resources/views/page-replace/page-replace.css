@@ -1,0 +1,25 @@
+.page-replace {
+	-fx-background-color: rgba(64, 64, 64, 0.85);
+}
+.page-replace > .content {
+	-fx-background-color: white;
+	-fx-background-radius: 3;
+	-fx-padding: 1em;
+}
+.page-replace > .content > .header {
+	-fx-font-size: 1.15em;
+	-fx-font-weight: bold;
+	-fx-padding: 0 0 1.25em 0;
+}
+.page-replace ImageView {
+	-fx-effect: dropshadow( gaussian , rgba(0,0,0,0.5) , 0,0,0,1 );
+}
+.page-replace > .content > HBox {
+	-fx-spacing: 5;
+}
+.page-replace .prev-icon {
+	-fx-icon-content: "M 5,4.5 A 0.5,0.5 0 0 0 4.5,5 V 19 A 0.5,0.5 0 0 0 5,19.5 0.5,0.5 0 0 0 5.5,19 V 5 A 0.5,0.5 0 0 0 5,4.5 Z m 14.011719,-1 A 0.50005,0.50005 0 0 0 18.6875,3.609375 l -10,8 a 0.50005,0.50005 0 0 0 0,0.78125 l 10,8 A 0.50005,0.50005 0 0 0 19.5,20 V 4 A 0.50005,0.50005 0 0 0 19.011719,3.5 Z M 18.5,5.0410156 V 18.958984 L 9.8007812,12 Z";
+}
+.page-replace .next-icon {
+	-fx-icon-content: "M 4.9804688 3.5 A 0.50005 0.50005 0 0 0 4.5 4 L 4.5 20 A 0.50005 0.50005 0 0 0 5.3125 20.390625 L 15.3125 12.390625 A 0.50005 0.50005 0 0 0 15.3125 11.609375 L 5.3125 3.609375 A 0.50005 0.50005 0 0 0 4.9804688 3.5 z M 19 4.5 A 0.5 0.5 0 0 0 18.5 5 L 18.5 19 A 0.5 0.5 0 0 0 19 19.5 A 0.5 0.5 0 0 0 19.5 19 L 19.5 5 A 0.5 0.5 0 0 0 19 4.5 z M 5.5 5.0410156 L 14.199219 12 L 5.5 18.958984 L 5.5 5.0410156 z";
+}

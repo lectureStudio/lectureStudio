@@ -52,6 +52,14 @@
 					<SvgIcon styleClass="delete-page-icon"/>
 				</graphic>
 			</Button>
+			<Button fx:id="replacePageButton">
+				<tooltip>
+					<Tooltip text="%media.replace.page" />
+				</tooltip>
+				<graphic>
+					<SvgIcon styleClass="replace-page-icon"/>
+				</graphic>
+			</Button>
 			<Button fx:id="importRecordingButton">
 				<tooltip>
 					<Tooltip text="%media.import.recording" />

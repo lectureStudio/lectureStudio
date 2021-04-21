@@ -53,6 +53,7 @@ import org.lecturestudio.editor.api.context.EditorContext;
 import org.lecturestudio.editor.api.edit.CutAction;
 import org.lecturestudio.editor.api.edit.DeletePageAction;
 import org.lecturestudio.editor.api.edit.InsertRecordingAction;
+import org.lecturestudio.editor.api.edit.ReplacePageAction;
 import org.lecturestudio.media.recording.RecordingEvent;
 
 import org.apache.logging.log4j.LogManager;
@@ -217,6 +218,22 @@ public class RecordingFileService {
 
 				recording.getEditManager().addEditAction(new DeletePageAction(
 						recording, timeNorm));
+
+				updateEditState(recording);
+			}
+			catch (Exception e) {
+				throw new CompletionException(e);
+			}
+		});
+	}
+
+	public CompletableFuture<Void> replacePage(Document newDoc) {
+		Recording recording = getSelectedRecording();
+
+		return CompletableFuture.runAsync(() -> {
+			try {
+				recording.getEditManager().addEditAction(new ReplacePageAction(
+						recording, newDoc));
 
 				updateEditState(recording);
 			}

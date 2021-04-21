@@ -38,6 +38,9 @@ public class EditorContext extends ApplicationContext {
 	public static final String RECORDING_CONTEXT = "Recording";
 	public static final String RECORDING_EXTENSION = "presenter";
 
+	public static final String SLIDES_CONTEXT = "Slides";
+	public static final String SLIDES_EXTENSION = "pdf";
+
 	public static final String WAV_CONTEXT = "Wav";
 	public static final String WAV_EXTENSION = "wav";
 

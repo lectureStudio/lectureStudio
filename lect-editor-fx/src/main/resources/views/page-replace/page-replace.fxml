@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import org.lecturestudio.javafx.control.SlideView?>
+<?import org.lecturestudio.javafx.control.SvgIcon?>
+<?import org.lecturestudio.javafx.util.TextIntegerFormatter?>
+
+<fx:root styleClass="page-replace" type="StackPane" xmlns="http://javafx.com/javafx/10.0.2-internal" xmlns:fx="http://javafx.com/fxml/1">
+	<VBox styleClass="content" maxHeight="400" maxWidth="600">
+		<Label styleClass="header" text="%page.replace.title"/>
+
+		<HBox VBox.vgrow="ALWAYS">
+			<VBox HBox.hgrow="ALWAYS">
+				<Label styleClass="header" text="%page.replace.page.new"/>
+				<SlideView fx:id="newPageView" alignment="CENTER" VBox.vgrow="ALWAYS" minWidth="300" prefWidth="300" />
+			</VBox>
+			<VBox HBox.hgrow="ALWAYS">
+				<Label styleClass="header" text="%page.replace.page.current"/>
+				<SlideView fx:id="currentPageView" alignment="CENTER" VBox.vgrow="ALWAYS" minWidth="300" prefWidth="300" />
+			</VBox>
+		</HBox>
+
+		<HBox fx:id="controlsContainer">
+			<Button fx:id="prevPageButton" >
+				<tooltip>
+					<Tooltip text="%page.replace.previous" />
+				</tooltip>
+				<graphic>
+					<SvgIcon styleClass="prev-icon"/>
+				</graphic>
+			</Button>
+			<TextField fx:id="pageNumberField" prefColumnCount="3">
+				<textFormatter>
+					<TextIntegerFormatter/>
+				</textFormatter>
+			</TextField>
+			<Button fx:id="nextPageButton">
+				<tooltip>
+					<Tooltip text="%page.replace.next" />
+				</tooltip>
+				<graphic>
+					<SvgIcon styleClass="next-icon"/>
+				</graphic>
+			</Button>
+		</HBox>
+
+		<HBox styleClass="buttons" alignment="BOTTOM_RIGHT" VBox.vgrow="ALWAYS">
+			<Button fx:id="cancelButton" text="%button.cancel"/>
+			<Button fx:id="replaceButton" text="%page.replace.button" defaultButton="true"/>
+		</HBox>
+	</VBox>
+</fx:root>

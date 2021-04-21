@@ -383,6 +383,14 @@ public class PDFBoxDocument implements DocumentAdapter {
 		return getPageCount() - 1;
 	}
 
+	public void replacePage(int pageNumber, PDFBoxDocument newDoc, int docIndex) {
+		PDPage page = doc.getPage(pageNumber);
+		PDPage newPage = newDoc.doc.getPage(docIndex);
+
+		doc.getPages().insertAfter(newPage, page);
+		doc.getPages().remove(page);
+	}
+
 	@Override
 	public void toOutputStream(OutputStream stream) throws IOException {
 		doc.save(stream);

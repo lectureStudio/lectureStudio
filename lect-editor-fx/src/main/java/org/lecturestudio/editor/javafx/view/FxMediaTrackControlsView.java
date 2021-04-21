@@ -68,6 +68,9 @@ public class FxMediaTrackControlsView extends HBox implements MediaTrackControls
 	private Button deletePageButton;
 
 	@FXML
+	private Button replacePageButton;
+
+	@FXML
 	private Button importRecordingButton;
 
 	@FXML
@@ -157,6 +160,11 @@ public class FxMediaTrackControlsView extends HBox implements MediaTrackControls
 	@Override
 	public void setOnDeletePage(Action action) {
 		FxUtils.bindAction(deletePageButton, action);
+	}
+
+	@Override
+	public void setOnReplacePage(Action action) {
+		FxUtils.bindAction(replacePageButton, action);
 	}
 
 	@Override

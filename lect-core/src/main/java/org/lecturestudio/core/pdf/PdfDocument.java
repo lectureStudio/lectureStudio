@@ -130,6 +130,10 @@ public class PdfDocument {
 		return pdfBoxDocument.importPage(pdfDocument.pdfBoxDocument, pageIndex, pageRect);
 	}
 
+	public void replacePage(int pageIndex, PdfDocument newPdfDocument, int docIndex) throws IOException {
+		pdfBoxDocument.replacePage(pageIndex, newPdfDocument.pdfBoxDocument, docIndex);
+	}
+
 	public void createEditableAnnotationStream(int pageIndex, List<Shape> shapes) throws IOException {
 		pdfBoxDocument.setEditableAnnotations(pageIndex, shapes);
 	}

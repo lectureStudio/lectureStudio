@@ -24,7 +24,10 @@ import static java.util.Objects.nonNull;
 import com.google.common.eventbus.Subscribe;
 
 import java.io.File;
+import java.io.IOException;
 import java.nio.file.Path;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.CompletionException;
 
 import javax.inject.Inject;
 
@@ -32,14 +35,15 @@ import org.lecturestudio.core.app.ApplicationContext;
 import org.lecturestudio.core.app.configuration.Configuration;
 import org.lecturestudio.core.app.dictionary.Dictionary;
 import org.lecturestudio.core.bus.event.DocumentEvent;
+import org.lecturestudio.core.model.Document;
 import org.lecturestudio.core.presenter.Presenter;
-import org.lecturestudio.core.recording.Recording;
 import org.lecturestudio.core.util.FileUtils;
 import org.lecturestudio.core.view.FileChooserView;
 import org.lecturestudio.core.view.ViewContextFactory;
 import org.lecturestudio.editor.api.context.EditorContext;
 import org.lecturestudio.editor.api.model.ZoomConstraints;
 import org.lecturestudio.editor.api.presenter.command.AdjustAudioCommand;
+import org.lecturestudio.editor.api.presenter.command.ReplacePageCommand;
 import org.lecturestudio.media.search.SearchService;
 import org.lecturestudio.media.search.SearchState;
 import org.lecturestudio.editor.api.service.RecordingFileService;
@@ -84,6 +88,7 @@ public class MediaTrackControlsPresenter extends Presenter<MediaTrackControlsVie
 		view.setOnCut(this::cut);
 		view.setOnCollapseSelection(this::collapseSelection);
 		view.setOnDeletePage(this::deletePage);
+		view.setOnReplacePage(this::replacePage);
 		view.setOnUndo(this::undo);
 		view.setOnRedo(this::redo);
 		view.setOnImportRecording(this::importRecording);
@@ -180,6 +185,42 @@ public class MediaTrackControlsPresenter extends Presenter<MediaTrackControlsVie
 					handleException(throwable, "Delete page failed", "delete.page.error");
 					return null;
 				});
+	}
+
+	private void replacePage() {
+		final String pathContext = EditorContext.SLIDES_CONTEXT;
+		Configuration config = context.getConfiguration();
+		Dictionary dict = context.getDictionary();
+		Path dirPath = FileUtils.getContextPath(config, pathContext);
+
+		FileChooserView fileChooser = viewFactory.createFileChooserView();
+		fileChooser.setInitialDirectory(dirPath.toFile());
+		fileChooser.addExtensionFilter(dict.get("file.description.pdf"),
+				EditorContext.SLIDES_EXTENSION);
+
+		File file = fileChooser.showOpenFile(view);
+
+		if (nonNull(file)) {
+			config.getContextPaths().put(pathContext, file.getParent());
+
+			CompletableFuture.runAsync(() -> {
+				Document doc;
+
+				try {
+					doc = new Document(file);
+				}
+				catch (IOException e) {
+					throw new CompletionException(e);
+				}
+
+				context.getEventBus().post(new ReplacePageCommand(doc));
+			})
+			.exceptionally(throwable -> {
+				handleException(throwable, "Open document failed",
+						"open.document.error", file.getPath());
+				return null;
+			});
+		}
 	}
 
 	private void importRecording() {

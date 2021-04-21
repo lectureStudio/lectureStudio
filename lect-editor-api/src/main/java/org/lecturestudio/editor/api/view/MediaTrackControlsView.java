@@ -50,6 +50,8 @@ public interface MediaTrackControlsView extends View {
 
 	void setOnDeletePage(Action action);
 
+	void setOnReplacePage(Action action);
+
 	void setOnImportRecording(Action action);
 
 	void setOnZoomIn(Action action);

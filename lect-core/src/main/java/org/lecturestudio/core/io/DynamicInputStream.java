@@ -197,11 +197,14 @@ public class DynamicInputStream extends InputStream implements Cloneable {
 		return skipped - padding;
 	}
 
-	public long getPadding(long start) {
+	public <T extends Number> long getPadding(Interval<T> interval) {
 		long padding = 0;
 
+		long start = interval.getStart().longValue();
+		long end = interval.getEnd().longValue();
+
 		for (Interval<Long> iv : exclusions) {
-			if (iv.getStart() <= (start + padding)) {
+			if (iv.getStart() <= (start + padding) || iv.contains(end)) {
 				padding += iv.lengthLong();
 			}
 		}

@@ -142,7 +142,7 @@ public class AudioTrackOverlayAction implements EditAction {
 		long endBytePos = AudioUtils.getAudioBytePosition(audioFormat, x2);
 
 		// Handle padding created by previous exclusions.
-		long padding = stream.getPadding(startBytePos);
+		long padding = stream.getPadding(new Interval<>(startBytePos, endBytePos));
 
 		stream.setAudioFilter(control.getAudioFilter(),
 				new Interval<>(padding + startBytePos, padding + endBytePos));

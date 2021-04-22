@@ -79,7 +79,7 @@ public class DeleteAudioAction extends RecordedObjectAction<RecordedAudio> {
 		long endBytePosition = AudioUtils.getAudioBytePosition(audioFormat, interval.getEnd());
 
 		// Handle padding created by previous exclusions.
-		long padding = stream.getPadding(startBytePosition);
+		long padding = stream.getPadding(new Interval<>(startBytePosition, endBytePosition));
 
 		return new Interval<>(padding + startBytePosition, padding + endBytePosition);
 	}

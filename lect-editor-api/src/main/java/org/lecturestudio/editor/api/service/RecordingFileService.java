@@ -116,14 +116,14 @@ public class RecordingFileService {
 
 	public CompletableFuture<Recording> importRecording(File file, double start) {
 		return CompletableFuture.supplyAsync(() -> {
-			Recording selected = getSelectedRecording();
-			Recording recording;
+			Recording recording = getSelectedRecording();
+			Recording imported;
 
 			try {
-				recording = RecordingFileReader.read(file);
+				imported = RecordingFileReader.read(file);
 
-				selected.getEditManager().addEditAction(
-						new InsertRecordingAction(selected, recording, start));
+				recording.getEditManager().addEditAction(
+						new InsertRecordingAction(recording, imported, start));
 
 				updateEditState(recording);
 			}
@@ -131,7 +131,7 @@ public class RecordingFileService {
 				throw new CompletionException(e);
 			}
 
-			return recording;
+			return imported;
 		});
 	}
 

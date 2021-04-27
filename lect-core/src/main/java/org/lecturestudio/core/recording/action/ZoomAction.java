@@ -18,6 +18,8 @@
 
 package org.lecturestudio.core.recording.action;
 
+import static java.util.Objects.nonNull;
+
 import java.io.IOException;
 
 import org.lecturestudio.core.controller.ToolController;
@@ -39,7 +41,10 @@ public class ZoomAction extends BaseStrokeAction {
 	@Override
 	public void execute(ToolController controller) throws Exception {
 		StrokeSettings settings = controller.getPaintSettings(ToolType.RECTANGLE);
-		settings.setWidth(stroke.getWidth());
+
+		if (nonNull(stroke)) {
+			settings.setWidth(stroke.getWidth());
+		}
 
 		controller.selectZoomTool();
 		controller.setKeyEvent(getKeyEvent());

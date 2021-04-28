@@ -25,6 +25,7 @@ import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.URI;
@@ -199,7 +200,15 @@ public class WebVectorExport extends RecordingExport {
 				16000,
 				sourceFormat.isBigEndian());
 
-		AudioInputStream inputStream = AudioSystem.getAudioInputStream(targetFormat, stream.getAudioInputStream());
+		// TODO: avoid this intermediate step and use stream with exclusions directly.
+		File target = new File(Files.createTempFile("export-v", ".wav").toString());
+		FileOutputStream outStream = new FileOutputStream(target);
+		stream.reset();
+		stream.write(outStream.getChannel());
+		outStream.close();
+
+		AudioInputStream targetStream = AudioSystem.getAudioInputStream(target);
+		AudioInputStream inputStream = AudioSystem.getAudioInputStream(targetFormat, targetStream);
 		ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
 
 		writer = new OpusAudioFileWriter(16000, 10, OpusSignal.OPUS_SIGNAL_VOICE);
@@ -210,6 +219,13 @@ public class WebVectorExport extends RecordingExport {
 				outputStream.toByteArray());
 		RandomAccessAudioStream audioStream = new RandomAccessAudioStream(
 				new DynamicInputStream(encodedStream), true);
+
+		targetStream.close();
+		inputStream.close();
+
+		if (!target.delete()) {
+			target.deleteOnExit();
+		}
 
 		return new RecordedAudio(audioStream);
 	}

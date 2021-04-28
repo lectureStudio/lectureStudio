@@ -18,6 +18,8 @@
 
 package org.lecturestudio.core.recording.action;
 
+import static java.util.Objects.nonNull;
+
 import java.io.IOException;
 import java.nio.ByteBuffer;
 
@@ -43,14 +45,16 @@ public abstract class BaseStrokeAction extends PlaybackAction {
 
 	@Override
 	public byte[] toByteArray() throws IOException {
-		int length = 13;
+		int length = nonNull(stroke) ? 13 : 0;
 
 		ByteBuffer buffer = createBuffer(length);
 
-		// Stroke data: 13 bytes.
-		buffer.putInt(stroke.getColor().getRGBA());
-		buffer.put((byte) stroke.getStrokeLineCap().ordinal());
-		buffer.putDouble(stroke.getWidth());
+		if (nonNull(stroke)) {
+			// Stroke data: 13 bytes.
+			buffer.putInt(stroke.getColor().getRGBA());
+			buffer.put((byte) stroke.getStrokeLineCap().ordinal());
+			buffer.putDouble(stroke.getWidth());
+		}
 
 		return buffer.array();
 	}

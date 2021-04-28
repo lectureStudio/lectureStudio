@@ -65,6 +65,8 @@ public class PdfDocumentRenderer extends ExecutableBase {
 
 	private boolean editable;
 
+	private boolean pageScale;
+
 
 	/**
 	 * Sets the provider for {@code PresentationParameter}s which are used to
@@ -106,6 +108,17 @@ public class PdfDocumentRenderer extends ExecutableBase {
 	 */
 	public void setEditable(boolean editable) {
 		this.editable = editable;
+	}
+
+	/**
+	 * Enables page scaling. If set to {@code true}, the page content will be
+	 * rendered with the page transformation provided by the {@code
+	 * PresentationParameter}.
+	 *
+	 * @param pageScale True to enable page scaling.
+	 */
+	public void setPageScale(boolean pageScale) {
+		this.pageScale = pageScale;
 	}
 
 	/**
@@ -208,11 +221,7 @@ public class PdfDocumentRenderer extends ExecutableBase {
 			Document newDocument, Page page) throws Exception {
 		Rectangle2D pageRect = param.getPageRect();
 
-		AffineTransform transform = new AffineTransform();
-		transform.translate(-pageRect.getX(), -pageRect.getY());
-		transform.scale(pageRect.getWidth(), pageRect.getWidth());
-
-		Page newPage = newDocument.createPage(page);
+		Page newPage = newDocument.createPage(page, pageScale ? pageRect : null);
 		int pageIndex = newPage.getPageNumber();
 
 		if (!page.hasShapes()) {
@@ -237,6 +246,14 @@ public class PdfDocumentRenderer extends ExecutableBase {
 		SwingGraphicsContext gc = new SwingGraphicsContext(graphics);
 
 		// Calculate page annotation scaling.
+		AffineTransform transform = new AffineTransform();
+		transform.translate(-pageRect.getX(), -pageRect.getY());
+		transform.scale(pageRect.getWidth(), pageRect.getWidth());
+
+		if (pageScale) {
+			transform.scale(1 / pageRect.getWidth(), 1 / pageRect.getHeight());
+		}
+
 		AffineTransform annotTransform = transform.createInverse();
 		Rectangle2D mediaBox = pdfDocument.getPageMediaBox(pageIndex);
 

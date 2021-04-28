@@ -11,6 +11,7 @@
 		<MenuItem fx:id="openRecordingMenuItem" accelerator="shortcut+o" text="%menu.open" />
 		<MenuItem fx:id="closeRecordingMenuItem" accelerator="shortcut+f4" text="%menu.close" />
 		<SeparatorMenuItem />
+		<MenuItem fx:id="saveDocumentMenuItem" text="%menu.save.document" />
 		<MenuItem fx:id="saveRecordingAsMenuItem" text="%menu.save.as" />
 		<SeparatorMenuItem />
 		<MenuItem fx:id="exportAudioMenuItem" text="%menu.export.audio" />

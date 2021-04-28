@@ -60,6 +60,7 @@ public class ViewModule extends AbstractModule {
 		bind(NoiseReductionProgressView.class).to(FxNoiseReductionProgressView.class);
 		bind(NoiseReductionSettingsView.class).to(FxNoiseReductionSettingsView.class);
 		bind(PageEventsView.class).to(FxPageEventsView.class);
+		bind(ProgressView.class).to(FxProgressView.class);
 		bind(ProgressDialogView.class).to(FxProgressDialogView.class);
 		bind(QuitSaveRecordingView.class).to(FxQuitSaveRecordingView.class);
 		bind(ReplacePageView.class).to(FxReplacePageView.class);

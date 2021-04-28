@@ -23,33 +23,47 @@ import static java.util.Objects.nonNull;
 import com.google.common.eventbus.Subscribe;
 
 import java.awt.Desktop;
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.util.Date;
+import java.util.List;
 import java.util.Map;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.CompletionException;
 
 import javax.inject.Inject;
 
+import org.lecturestudio.core.ExecutableException;
 import org.lecturestudio.core.app.ApplicationContext;
 import org.lecturestudio.core.app.configuration.Configuration;
 import org.lecturestudio.core.app.dictionary.Dictionary;
 import org.lecturestudio.core.bus.EventBus;
 import org.lecturestudio.core.bus.event.DocumentEvent;
+import org.lecturestudio.core.controller.ToolController;
 import org.lecturestudio.core.model.Document;
 import org.lecturestudio.core.model.RecentDocument;
 import org.lecturestudio.core.presenter.AboutPresenter;
 import org.lecturestudio.core.presenter.Presenter;
+import org.lecturestudio.core.presenter.ProgressPresenter;
 import org.lecturestudio.core.presenter.command.CloseApplicationCommand;
 import org.lecturestudio.core.presenter.command.ShowPresenterCommand;
+import org.lecturestudio.core.recording.DummyEventExecutor;
+import org.lecturestudio.core.recording.EventExecutor;
+import org.lecturestudio.core.recording.Recording;
+import org.lecturestudio.core.service.DocumentService;
 import org.lecturestudio.core.service.RecentDocumentService;
 import org.lecturestudio.core.util.FileUtils;
 import org.lecturestudio.core.view.FileChooserView;
 import org.lecturestudio.core.view.ProgressDialogView;
+import org.lecturestudio.core.view.ProgressView;
 import org.lecturestudio.core.view.ViewContextFactory;
+import org.lecturestudio.core.view.ViewType;
 import org.lecturestudio.editor.api.context.EditorContext;
 import org.lecturestudio.editor.api.service.RecordingFileService;
 import org.lecturestudio.editor.api.view.MenuView;
+import org.lecturestudio.swing.renderer.PdfDocumentRenderer;
 
 public class MenuPresenter extends Presenter<MenuView> {
 
@@ -87,6 +101,7 @@ public class MenuPresenter extends Presenter<MenuView> {
 		view.setOnOpenRecording(this::selectNewRecording);
 		view.setOnOpenRecording(this::openRecording);
 		view.setOnCloseRecording(this::closeSelectedRecording);
+		view.setOnSaveDocument(this::saveDocument);
 		view.setOnSaveRecordingAs(this::saveRecording);
 		view.setOnExportAudio(this::exportAudio);
 		view.setOnImportAudio(this::importAudio);
@@ -141,6 +156,109 @@ public class MenuPresenter extends Presenter<MenuView> {
 
 	public void closeSelectedRecording() {
 		recordingService.closeSelectedRecording();
+	}
+
+	private Document executeActions(ApplicationContext context, Recording recording)
+			throws ExecutableException, IOException {
+		ByteArrayOutputStream docStream = new ByteArrayOutputStream();
+
+		Document recDoc = recording.getRecordedDocument().getDocument();
+		recDoc.toOutputStream(docStream);
+
+		Document document = new Document(docStream.toByteArray());
+
+		DocumentService docService = new DocumentService(context);
+		docService.addDocument(document);
+
+		ToolController toolController = new ToolController(context, docService);
+		toolController.start();
+
+		EventExecutor actionExecutor = new DummyEventExecutor(toolController,
+				recording.getRecordedEvents().getRecordedPages());
+		actionExecutor.start();
+
+		return document;
+	}
+
+	private void saveDocument() {
+		final String pathContext = EditorContext.SLIDES_CONTEXT;
+		Recording recording = recordingService.getSelectedRecording();
+		Configuration config = context.getConfiguration();
+		Dictionary dict = context.getDictionary();
+		Path dirPath = FileUtils.getContextPath(config, pathContext);
+
+		String fileName = recording.getRecordedDocument().getDocument().getTitle();
+
+		FileChooserView fileChooser = viewFactory.createFileChooserView();
+		fileChooser.addExtensionFilter(dict.get("file.description.pdf"),
+				EditorContext.SLIDES_EXTENSION);
+		fileChooser.setInitialDirectory(dirPath.toFile());
+		fileChooser.setInitialFileName(fileName);
+
+		File file = fileChooser.showSaveFile(view);
+
+		if (nonNull(file)) {
+			config.getContextPaths().put(pathContext, file.getParent());
+
+			context.getEventBus().post(new ShowPresenterCommand<>(ProgressPresenter.class) {
+				@Override
+				public void execute(ProgressPresenter presenter) {
+					ProgressView progressView = presenter.getView();
+					progressView.setTitle(context.getDictionary().get("save.document.title"));
+					progressView.setMessage(file.getAbsolutePath());
+					progressView.setOnViewShown(() -> {
+						saveDocument(recording, progressView, file);
+					});
+				}
+			});
+		}
+	}
+
+	private void saveDocument(Recording recording, ProgressView progressView, File file) {
+		ApplicationContext dummyContext = new ApplicationContext(null,
+				context.getConfiguration(), context.getDictionary(),
+				new EventBus(), new EventBus()) {
+
+			@Override
+			public void saveConfiguration() {
+
+			}
+		};
+
+		CompletableFuture.runAsync(() -> {
+			Document document;
+
+			try {
+				document = executeActions(dummyContext, recording);
+			}
+			catch (Exception e) {
+				throw new CompletionException(e);
+			}
+
+			PdfDocumentRenderer documentRenderer = new PdfDocumentRenderer();
+			documentRenderer.setDocuments(List.of(document));
+			documentRenderer.setPages(document.getPages());
+			documentRenderer.setParameterProvider(dummyContext.getPagePropertyPropvider(ViewType.User));
+			documentRenderer.setProgressCallback(progressView::setProgress);
+			documentRenderer.setOutputFile(file);
+			documentRenderer.setPageScale(true);
+
+			try {
+				documentRenderer.start();
+			}
+			catch (ExecutableException e) {
+				throw new CompletionException(e);
+			}
+		})
+		.thenRun(() -> {
+			progressView.setTitle(context.getDictionary().get("save.document.success"));
+		})
+		.exceptionally(throwable -> {
+			logException(throwable, "Write document to PDF failed");
+
+			progressView.setError(context.getDictionary().get("save.document.error"));
+			return null;
+		});
 	}
 
 	private void saveRecording() {

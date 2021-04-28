@@ -63,6 +63,9 @@ public class FxMenuView extends MenuBar implements MenuView {
 	private MenuItem closeRecordingMenuItem;
 
 	@FXML
+	private MenuItem saveDocumentMenuItem;
+
+	@FXML
 	private MenuItem saveRecordingAsMenuItem;
 
 	@FXML
@@ -109,6 +112,7 @@ public class FxMenuView extends MenuBar implements MenuView {
 
 		FxUtils.invoke(() -> {
 			closeRecordingMenuItem.setDisable(!hasDocument);
+			saveDocumentMenuItem.setDisable(!hasDocument);
 			saveRecordingAsMenuItem.setDisable(!hasDocument);
 			exportAudioMenuItem.setDisable(!hasDocument);
 			importAudioMenuItem.setDisable(!hasDocument);
@@ -160,6 +164,11 @@ public class FxMenuView extends MenuBar implements MenuView {
 	@Override
 	public void setOnCloseRecording(Action action) {
 		FxUtils.bindAction(closeRecordingMenuItem, action);
+	}
+
+	@Override
+	public void setOnSaveDocument(Action action) {
+		FxUtils.bindAction(saveDocumentMenuItem, action);
 	}
 
 	@Override

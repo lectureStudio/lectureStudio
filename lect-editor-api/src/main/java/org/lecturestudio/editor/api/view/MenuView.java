@@ -44,6 +44,8 @@ public interface MenuView extends View {
 
 	void setOnCloseRecording(Action action);
 
+	void setOnSaveDocument(Action action);
+
 	void setOnSaveRecordingAs(Action action);
 
 	void setOnExportAudio(Action action);

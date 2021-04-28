@@ -39,6 +39,8 @@ import org.lecturestudio.core.app.ApplicationContext;
 import org.lecturestudio.core.bus.EventBus;
 import org.lecturestudio.core.io.RandomAccessAudioStream;
 import org.lecturestudio.core.model.Document;
+import org.lecturestudio.core.recording.RecordingEditException;
+import org.lecturestudio.core.recording.edit.EditAction;
 import org.lecturestudio.core.recording.edit.ReplaceAudioAction;
 import org.lecturestudio.core.recording.RecordingChangeEvent;
 import org.lecturestudio.core.recording.RecordingChangeListener;
@@ -122,10 +124,8 @@ public class RecordingFileService {
 			try {
 				imported = RecordingFileReader.read(file);
 
-				recording.getEditManager().addEditAction(
-						new InsertRecordingAction(recording, imported, start));
-
-				updateEditState(recording);
+				addEditAction(recording, new InsertRecordingAction(recording,
+						imported, start));
 			}
 			catch (Exception e) {
 				throw new CompletionException(e);
@@ -196,10 +196,7 @@ public class RecordingFileService {
 			try {
 				suspendPlayback();
 
-				recording.getEditManager().addEditAction(new CutAction(
-						recording, start, end));
-
-				updateEditState(recording);
+				addEditAction(recording, new CutAction(recording, start, end));
 			}
 			catch (Exception e) {
 				throw new CompletionException(e);
@@ -216,10 +213,7 @@ public class RecordingFileService {
 			try {
 				suspendPlayback();
 
-				recording.getEditManager().addEditAction(new DeletePageAction(
-						recording, timeNorm));
-
-				updateEditState(recording);
+				addEditAction(recording, new DeletePageAction(recording, timeNorm));
 			}
 			catch (Exception e) {
 				throw new CompletionException(e);
@@ -232,10 +226,7 @@ public class RecordingFileService {
 
 		return CompletableFuture.runAsync(() -> {
 			try {
-				recording.getEditManager().addEditAction(new ReplacePageAction(
-						recording, newDoc));
-
-				updateEditState(recording);
+				addEditAction(recording, new ReplacePageAction(recording, newDoc));
 			}
 			catch (Exception e) {
 				throw new CompletionException(e);
@@ -378,14 +369,14 @@ public class RecordingFileService {
 
 		context.getEventBus().post(event);
 
-		// Show the position on the left side of the selection.
-		double pos = Math.min(context.getLeftSelection(), context.getRightSelection()) * scale;
+		// Adjust the position of the selection.
+		double pos = Math.min(context.getLeftSelection(), context.getRightSelection());
+		double selection = Math.min(1.0, pos * scale);
 
-		context.setLeftSelection(pos);
-		context.setRightSelection(pos);
+		context.setPrimarySelection(selection);
 
 		try {
-			playbackService.seek(pos);
+			playbackService.seek(selection);
 		}
 		catch (ExecutableException e) {
 			LOG.error("Seek failed", e);
@@ -396,6 +387,13 @@ public class RecordingFileService {
 		if (playbackService.started()) {
 			playbackService.suspend();
 		}
+	}
+
+	private void addEditAction(Recording recording, EditAction action)
+			throws RecordingEditException {
+		recording.getEditManager().addEditAction(action);
+
+		updateEditState(recording);
 	}
 
 	private void updateEditState(Recording recording) {

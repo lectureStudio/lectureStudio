@@ -101,7 +101,7 @@ public class SaveDocumentsPresenter extends Presenter<SaveDocumentsView> {
 	private void saveSelectedDocuments() {
 		File file = new File(savePath.get());
 
-		saveDocuments(selectedDocuments, file);
+		saveDocuments(selectedDocuments, file, true);
 	}
 
 	private void saveDocument(Document doc) {
@@ -118,7 +118,7 @@ public class SaveDocumentsPresenter extends Presenter<SaveDocumentsView> {
 		File selectedFile = fileChooser.showSaveFile(view);
 
 		if (nonNull(selectedFile)) {
-			saveDocuments(List.of(doc), selectedFile);
+			saveDocuments(List.of(doc), selectedFile, false);
 		}
 	}
 
@@ -157,7 +157,7 @@ public class SaveDocumentsPresenter extends Presenter<SaveDocumentsView> {
 		return docName + "-" + date + ".pdf";
 	}
 
-	private void saveDocuments(List<Document> documents, File file) {
+	private void saveDocuments(List<Document> documents, File file, boolean autoClose) {
 		Configuration config = context.getConfiguration();
 		config.getContextPaths().put(PresenterContext.SLIDES_TO_PDF_CONTEXT,
 				file.getParent());
@@ -171,7 +171,10 @@ public class SaveDocumentsPresenter extends Presenter<SaveDocumentsView> {
 				progressView.setOnViewShown(() -> {
 					saveAsync(progressView, documents, file);
 				});
-				progressView.setOnClose(() -> close());
+
+				if (autoClose) {
+					progressView.setOnClose(() -> close());
+				}
 			}
 		});
 	}

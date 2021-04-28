@@ -74,7 +74,8 @@ public class EditorContext extends ApplicationContext {
 		super(dataLocator, config, dict, eventBus, audioBus);
 
 		this.configFile = configFile;
-		this.tempDir = Files.createTempDirectory("lectEditor").toFile();
+		this.tempDir = Files.createTempDirectory("lectureEditor").toFile();
+		this.tempDir.deleteOnExit();
 
 		leftSelectionProperty().addListener((o, oldValue, newValue) -> {
 			setCanCut(!newValue.equals(getRightSelection()));

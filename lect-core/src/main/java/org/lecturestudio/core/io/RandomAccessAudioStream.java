@@ -61,10 +61,6 @@ public class RandomAccessAudioStream extends DynamicInputStream {
 		streamLength = stream.available();
 	}
 
-	public AudioInputStream getAudioInputStream() {
-		return getAudioStream(inputStream);
-	}
-
 	public AudioFormat getAudioFormat() {
 		return audioFormat;
 	}

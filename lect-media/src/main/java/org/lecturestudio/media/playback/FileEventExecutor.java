@@ -25,7 +25,6 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Stack;
-import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.ReentrantLock;
 
@@ -35,14 +34,12 @@ import org.apache.logging.log4j.Logger;
 import org.lecturestudio.core.ExecutableException;
 import org.lecturestudio.core.ExecutableState;
 import org.lecturestudio.core.audio.SyncState;
-import org.lecturestudio.core.bus.ApplicationBus;
 import org.lecturestudio.core.controller.ToolController;
 import org.lecturestudio.core.model.DocumentType;
 import org.lecturestudio.core.recording.EventExecutor;
 import org.lecturestudio.core.recording.RecordedPage;
 import org.lecturestudio.core.recording.action.PageAction;
 import org.lecturestudio.core.recording.action.PlaybackAction;
-import org.lecturestudio.media.event.ExecutorStateEvent;
 
 public class FileEventExecutor extends EventExecutor {
 
@@ -149,12 +146,7 @@ public class FileEventExecutor extends EventExecutor {
 		playbacks.clear();
 		pageChangeEvents.clear();
 	}
-	
-	@Override
-	protected void fireStateChanged() {
-		ApplicationBus.post(new ExecutorStateEvent(getState()));
-	}
-	
+
 	@Override
 	protected void executeEvents() throws Exception {
 		while (nonNull(thread)) {
@@ -322,20 +314,6 @@ public class FileEventExecutor extends EventExecutor {
 
 			try {
 				condition.await();
-			}
-			catch (InterruptedException e) {
-				// Ignore
-			}
-			finally {
-				lock.unlock();
-			}
-		}
-
-		void await(long time) {
-			lock.lock();
-
-			try {
-				condition.await(time, TimeUnit.MILLISECONDS);
 			}
 			catch (InterruptedException e) {
 				// Ignore

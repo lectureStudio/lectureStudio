@@ -198,10 +198,11 @@ public class SaveDocumentsPresenter extends Presenter<SaveDocumentsView> {
 	private void saveAsync(ProgressView progressView, List<Document> documents, File file) {
 		CompletableFuture.runAsync(() -> {
 			PdfDocumentRenderer documentRenderer = new PdfDocumentRenderer();
-			documentRenderer.setDocumentRecorder(documentRecorder);
 			documentRenderer.setDocuments(documents);
-			documentRenderer.setOutputFile(file);
+			documentRenderer.setPages(documentRecorder.getRecordedPages());
+			documentRenderer.setParameterProvider(documentRecorder.getRecordedParamProvider());
 			documentRenderer.setProgressCallback(progressView::setProgress);
+			documentRenderer.setOutputFile(file);
 
 			try {
 				documentRenderer.start();

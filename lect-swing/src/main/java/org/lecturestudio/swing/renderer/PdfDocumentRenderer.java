@@ -25,7 +25,6 @@ import java.awt.geom.AffineTransform;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.nio.file.Files;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -37,7 +36,6 @@ import org.lecturestudio.core.model.Page;
 import org.lecturestudio.core.model.shape.Shape;
 import org.lecturestudio.core.pdf.PdfDocument;
 import org.lecturestudio.core.pdf.pdfbox.PDFGraphics2D;
-import org.lecturestudio.core.recording.DocumentRecorder;
 import org.lecturestudio.core.render.RenderService;
 import org.lecturestudio.core.swing.SwingGraphicsContext;
 import org.lecturestudio.core.util.FileUtils;
@@ -55,9 +53,11 @@ public class PdfDocumentRenderer extends ExecutableBase {
 
 	private RenderService renderService;
 
-	private DocumentRecorder documentRecorder;
+	private PresentationParameterProvider ppProvider;
 
 	private List<Document> documents;
+
+	private List<Page> pages;
 
 	private File outputFile;
 
@@ -67,14 +67,13 @@ public class PdfDocumentRenderer extends ExecutableBase {
 
 
 	/**
-	 * Sets the {@code DocumentRecorder} that contains the state of all recorded
-	 * documents and pages. The document recorder is mandatory in order to start
-	 * the document rendering.
+	 * Sets the provider for {@code PresentationParameter}s which are used to
+	 * render the view state of each document page.
 	 *
-	 * @param recorder The document recorder.
+	 * @param ppProvider The provider for recorded {@code PresentationParameter}s.
 	 */
-	public void setDocumentRecorder(DocumentRecorder recorder) {
-		documentRecorder = recorder;
+	public void setParameterProvider(PresentationParameterProvider ppProvider) {
+		this.ppProvider = ppProvider;
 	}
 
 	/**
@@ -84,7 +83,18 @@ public class PdfDocumentRenderer extends ExecutableBase {
 	 * @param docs The documents to render.
 	 */
 	public void setDocuments(List<Document> docs) {
-		documents = docs;
+		this.documents = docs;
+	}
+
+	/**
+	 * Sets a list of selected pages that should be included into the rendered
+	 * document. A page will be rendered only if it exists in one of the
+	 * provided documents by {@link #setDocuments(List)}.
+	 *
+	 * @param pages The pages to render.
+	 */
+	public void setPages(List<Page> pages) {
+		this.pages = pages;
 	}
 
 	/**
@@ -133,20 +143,15 @@ public class PdfDocumentRenderer extends ExecutableBase {
 
 	@Override
 	protected void startInternal() throws ExecutableException {
-		if (isNull(documentRecorder)) {
-			throw new ExecutableException("No document recorder provided");
+		if (isNull(documents)) {
+			throw new ExecutableException("No documents to render provided");
+		}
+		if (isNull(pages)) {
+			throw new ExecutableException("No pages to render provided");
 		}
 		if (isNull(outputFile)) {
 			throw new ExecutableException("No output file provided");
 		}
-
-		if (isNull(documents)) {
-			// Use complete set of recorded documents.
-			documents = new ArrayList<>(documentRecorder.getRecordedDocuments());
-		}
-
-		List<Page> pages = documentRecorder.getRecordedPages();
-		PresentationParameterProvider ppProvider = documentRecorder.getRecordedParamProvider();
 
 		try {
 			Document newDocument = new Document();
@@ -172,7 +177,9 @@ public class PdfDocumentRenderer extends ExecutableBase {
 				}
 			}
 
-			Files.createDirectories(outputFile.getParentFile().toPath());
+			if (nonNull(outputFile.getParentFile())) {
+				Files.createDirectories(outputFile.getParentFile().toPath());
+			}
 
 			FileOutputStream fileStream = new FileOutputStream(outputFile);
 

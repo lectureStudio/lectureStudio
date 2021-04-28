@@ -13,7 +13,7 @@ class RtpActionDecoder implements RtpPacketDecoder<Action> {
 		const type = dataView.getInt8();
 		const timestamp = dataView.getInt32();
 
-		const action = ActionParser.parse(dataView, type);
+		const action = ActionParser.parse(dataView, type, length);
 		action.timestamp = timestamp;
 
 		return action;

@@ -197,9 +197,7 @@ public class SwingMenuView extends JMenuBar implements MenuView {
 	@Override
 	public void setRecentDocuments(List<RecentDocument> recentDocs) {
 		// Remove recent document items.
-		for (int i = 0; i < fileMenu.getMenuComponentCount(); i++) {
-			Component item = fileMenu.getMenuComponent(i);
-
+		for (Component item : fileMenu.getMenuComponents()) {
 			if (nonNull(item)) {
 				String name = item.getName();
 

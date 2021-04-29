@@ -18,17 +18,21 @@
 
 package org.lecturestudio.core.recording;
 
+import static java.util.Objects.isNull;
+
 import java.util.Collections;
-import java.util.LinkedHashMap;
+import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
 import java.util.Stack;
 
 import org.lecturestudio.core.ExecutableException;
 import org.lecturestudio.core.controller.ToolController;
+import org.lecturestudio.core.model.Document;
 import org.lecturestudio.core.model.DocumentType;
+import org.lecturestudio.core.model.Page;
 import org.lecturestudio.core.recording.action.PageAction;
 import org.lecturestudio.core.recording.action.PlaybackAction;
+import org.lecturestudio.core.recording.action.StaticShapeAction;
 
 /**
  * An {@code EventExecutor} that executes all events at once resulting in a
@@ -40,24 +44,24 @@ import org.lecturestudio.core.recording.action.PlaybackAction;
  */
 public class DummyEventExecutor extends EventExecutor {
 
+	private final Document document;
+
 	private final ToolController toolController;
 
 	private final List<RecordedPage> recordedPages;
-
-	private Stack<PlaybackAction> playbacks;
-
-	private Map<Integer, Integer> pageChangeEvents;
 
 
 	/**
 	 * Creates a new {@code DummyEventExecutor} with the provided parameters.
 	 *
+	 * @param document       The document to pre-load.
 	 * @param toolController The tool controller to execute tool events.
 	 * @param recordedPages  The recorded pages containing the events to
 	 *                       execute.
 	 */
-	public DummyEventExecutor(ToolController toolController,
+	public DummyEventExecutor(Document document, ToolController toolController,
 			List<RecordedPage> recordedPages) {
+		this.document = document;
 		this.toolController = toolController;
 		this.recordedPages = recordedPages;
 	}
@@ -84,14 +88,7 @@ public class DummyEventExecutor extends EventExecutor {
 
 	@Override
 	protected void initInternal() {
-		playbacks = new Stack<>();
-		pageChangeEvents = new LinkedHashMap<>();
-
-		for (RecordedPage recPage : recordedPages) {
-			pageChangeEvents.put(recPage.getNumber(), recPage.getTimestamp());
-		}
-
-		getPlaybackActions(0);
+		// No-op
 	}
 
 	@Override
@@ -106,43 +103,71 @@ public class DummyEventExecutor extends EventExecutor {
 
 	@Override
 	protected void stopInternal() {
-		getPlaybackActions(0);
+		// No-op
 	}
 
 	@Override
 	protected void destroyInternal() {
-		playbacks.clear();
-		pageChangeEvents.clear();
+		// No-op
 	}
 
 	@Override
 	protected void executeEvents() throws Exception {
-		for (Integer pageNumber : pageChangeEvents.keySet()) {
-			getPlaybackActions(pageNumber);
+		for (RecordedPage recPage : recordedPages) {
+			loadStaticShapes(recPage);
 
-			while (!playbacks.isEmpty()) {
-				PlaybackAction action = playbacks.peek();
+			Stack<PlaybackAction> actions = getPlaybackActions(recPage);
 
+			while (!actions.isEmpty()) {
+				PlaybackAction action = actions.pop();
 				action.execute(toolController);
-
-				playbacks.pop();
 			}
 		}
 	}
 
-	private synchronized void getPlaybackActions(int pageNumber) {
-		RecordedPage recPage = recordedPages.get(pageNumber);
-
+	private Stack<PlaybackAction> getPlaybackActions(RecordedPage recPage) {
 		// Add page change event.
-		PlaybackAction action = new PageAction(DocumentType.PDF, 0, pageNumber);
+		PlaybackAction action = new PageAction(DocumentType.PDF, 0, recPage.getNumber());
 		action.setTimestamp(recPage.getTimestamp());
 
-		playbacks.clear();
+		Stack<PlaybackAction> playbacks = new Stack<>();
 		playbacks.push(action);
 		playbacks.addAll(recPage.getPlaybackActions());
 
-		if (!playbacks.empty()) {
-			Collections.reverse(playbacks);
+		Collections.reverse(playbacks);
+
+		return playbacks;
+	}
+
+	private void loadStaticShapes(RecordedPage recPage)
+			throws Exception {
+		Page page = document.getPage(recPage.getNumber());
+
+		if (isNull(page)) {
+			return;
+		}
+
+		Iterator<StaticShapeAction> iter = recPage.getStaticActions().iterator();
+
+		if (iter.hasNext()) {
+			// Remember currently selected page.
+			int lastPageNumber = document.getCurrentPageNumber();
+
+			// Select the page to which to add static actions.
+			document.selectPage(recPage.getNumber());
+
+			while (iter.hasNext()) {
+				StaticShapeAction staticAction = iter.next();
+				PlaybackAction action = staticAction.getAction();
+
+				// Execute static action on selected page.
+				action.execute(toolController);
+			}
+
+			// Go back to the page which was selected prior preloading.
+			document.selectPage(lastPageNumber);
+
+			page.sendChangeEvent();
 		}
 	}
 }

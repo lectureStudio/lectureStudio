@@ -173,8 +173,8 @@ public class MenuPresenter extends Presenter<MenuView> {
 		ToolController toolController = new ToolController(context, docService);
 		toolController.start();
 
-		EventExecutor actionExecutor = new DummyEventExecutor(toolController,
-				recording.getRecordedEvents().getRecordedPages());
+		EventExecutor actionExecutor = new DummyEventExecutor(document,
+				toolController, recording.getRecordedEvents().getRecordedPages());
 		actionExecutor.start();
 
 		return document;

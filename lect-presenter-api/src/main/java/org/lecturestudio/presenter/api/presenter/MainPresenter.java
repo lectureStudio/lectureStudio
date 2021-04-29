@@ -74,6 +74,7 @@ import org.lecturestudio.presenter.api.input.Shortcut;
 import org.lecturestudio.presenter.api.recording.RecordingBackup;
 import org.lecturestudio.presenter.api.service.BookmarkService;
 import org.lecturestudio.presenter.api.service.RecordingService;
+import org.lecturestudio.presenter.api.util.SaveConfigurationHandler;
 import org.lecturestudio.presenter.api.util.SaveDocumentsHandler;
 import org.lecturestudio.presenter.api.util.SaveRecordingHandler;
 import org.lecturestudio.presenter.api.view.MainView;
@@ -153,6 +154,7 @@ public class MainPresenter extends org.lecturestudio.core.presenter.MainPresente
 
 		addShutdownHandler(new SaveRecordingHandler(presenterContext));
 		addShutdownHandler(new SaveDocumentsHandler(presenterContext));
+		addShutdownHandler(new SaveConfigurationHandler(presenterContext));
 		addShutdownHandler(new ShutdownHandler() {
 
 			@Override

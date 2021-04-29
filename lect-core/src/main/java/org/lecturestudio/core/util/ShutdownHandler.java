@@ -18,11 +18,18 @@
 
 package org.lecturestudio.core.util;
 
+import static java.util.Objects.requireNonNull;
+
 import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
 public abstract class ShutdownHandler {
+
+	private final static Logger LOG = LogManager.getLogger(ShutdownHandler.class);
 
 	private final Lock lock = new ReentrantLock();
 
@@ -68,4 +75,10 @@ public abstract class ShutdownHandler {
 		}
 	}
 
+	final protected void logException(Throwable throwable, String throwMessage) {
+		requireNonNull(throwable);
+		requireNonNull(throwMessage);
+
+		LOG.error(throwMessage, throwable);
+	}
 }

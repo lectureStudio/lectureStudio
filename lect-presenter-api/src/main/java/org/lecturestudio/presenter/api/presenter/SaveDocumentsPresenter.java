@@ -105,15 +105,16 @@ public class SaveDocumentsPresenter extends Presenter<SaveDocumentsView> {
 	}
 
 	private void saveDocument(Document doc) {
+		final String pathContext = PresenterContext.SLIDES_TO_PDF_CONTEXT;
+		Configuration config = context.getConfiguration();
 		Dictionary dict = context.getDictionary();
-		String initFile = getFileName(doc.getName());
-		File initDirectory = new File(savePath.get()).getParentFile();
+		Path dirPath = FileUtils.getContextPath(config, pathContext);
 
 		FileChooserView fileChooser = viewFactory.createFileChooserView();
 		fileChooser.addExtensionFilter(dict.get("file.description.pdf"),
 				PresenterContext.SLIDES_EXTENSION);
-		fileChooser.setInitialFileName(initFile);
-		fileChooser.setInitialDirectory(initDirectory);
+		fileChooser.setInitialFileName(getFileName(doc.getName()));
+		fileChooser.setInitialDirectory(dirPath.toFile());
 
 		File selectedFile = fileChooser.showSaveFile(view);
 

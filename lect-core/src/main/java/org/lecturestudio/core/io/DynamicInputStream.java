@@ -204,7 +204,7 @@ public class DynamicInputStream extends InputStream implements Cloneable {
 		long end = interval.getEnd().longValue();
 
 		for (Interval<Long> iv : exclusions) {
-			if (iv.getStart() <= (start + padding) || iv.contains(end)) {
+			if (iv.getStart() <= (start + padding)) {
 				padding += iv.lengthLong();
 			}
 		}

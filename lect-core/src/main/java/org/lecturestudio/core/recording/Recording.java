@@ -174,7 +174,12 @@ public class Recording {
 	}
 
 	public void fireChangeEvent(Content contentType) {
+		fireChangeEvent(contentType, null);
+	}
+
+	public void fireChangeEvent(Content contentType, Interval<Double> duration) {
 		RecordingChangeEvent event = new RecordingChangeEvent(this, contentType);
+		event.setDuration(duration);
 
 		for (RecordingChangeListener listener : listeners) {
 			listener.recordingChanged(event);

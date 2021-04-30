@@ -18,6 +18,7 @@
 
 package org.lecturestudio.core.recording;
 
+import org.lecturestudio.core.model.Interval;
 import org.lecturestudio.core.recording.Recording.Content;
 
 public class RecordingChangeEvent {
@@ -25,6 +26,8 @@ public class RecordingChangeEvent {
 	private final Recording file;
 
 	private final Content contentType;
+
+	private Interval<Double> duration;
 
 
 	public RecordingChangeEvent(Recording file, Content contentType) {
@@ -40,4 +43,11 @@ public class RecordingChangeEvent {
 		return contentType;
 	}
 
+	public Interval<Double> getDuration() {
+		return duration;
+	}
+
+	public void setDuration(Interval<Double> duration) {
+		this.duration = duration;
+	}
 }

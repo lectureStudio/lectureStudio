@@ -370,8 +370,16 @@ public class RecordingFileService {
 		context.getEventBus().post(event);
 
 		// Adjust the position of the selection.
-		double pos = Math.min(context.getLeftSelection(), context.getRightSelection());
-		double selection = Math.min(1.0, pos * scale);
+		double selection;
+
+		if (nonNull(event.getDuration())) {
+			selection = Math.max(0, Math.min(1.0, event.getDuration().getStart()));
+			selection *= scale;
+		}
+		else {
+			double pos = Math.min(context.getLeftSelection(), context.getRightSelection());
+			selection = Math.min(1.0, pos * scale);
+		}
 
 		context.setPrimarySelection(selection);
 

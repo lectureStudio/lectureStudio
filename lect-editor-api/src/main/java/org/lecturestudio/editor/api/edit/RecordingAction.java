@@ -20,6 +20,7 @@ package org.lecturestudio.editor.api.edit;
 
 import java.util.List;
 
+import org.lecturestudio.core.model.Interval;
 import org.lecturestudio.core.recording.Recording;
 import org.lecturestudio.core.recording.Recording.Content;
 import org.lecturestudio.core.recording.RecordingEditException;
@@ -58,28 +59,45 @@ public abstract class RecordingAction implements EditAction {
 
 	@Override
 	public void undo() throws RecordingEditException {
+		var duration = getEditDuration();
+
 		for (EditAction action : editActions) {
 			action.undo();
 		}
 
-		recording.fireChangeEvent(Content.ALL);
+		recording.fireChangeEvent(Content.ALL, duration);
 	}
 
 	@Override
 	public void redo() throws RecordingEditException {
+		var duration = getEditDuration();
+
 		for (EditAction action : editActions) {
 			action.redo();
 		}
 
-		recording.fireChangeEvent(Content.ALL);
+		recording.fireChangeEvent(Content.ALL, duration);
 	}
 
 	@Override
 	public void execute() throws RecordingEditException {
+		var duration = getEditDuration();
+
 		for (EditAction action : editActions) {
 			action.execute();
 		}
 
-		recording.fireChangeEvent(Content.ALL);
+		recording.fireChangeEvent(Content.ALL, duration);
+	}
+
+	/**
+	 * Returns the duration this action comprises. This method is meant to be
+	 * overridden by sub-classes to provide specific duration. By default {@code
+	 * null} is returned to indicate to ignore this value.
+	 *
+	 * @return The duration this action comprises.
+	 */
+	protected Interval<Double> getEditDuration() {
+		return null;
 	}
 }

@@ -39,6 +39,12 @@ import org.lecturestudio.core.recording.edit.EditHeaderAction;
 public class DeletePageAction extends RecordingAction {
 
 	/**
+	 * The page number of the recorded page to remove.
+	 */
+	private final int pageNumber;
+
+
+	/**
 	 * Creates a new {@code DeletePageAction} with the provided parameters.
 	 *
 	 * @param recording The recording on which to operate.
@@ -48,27 +54,49 @@ public class DeletePageAction extends RecordingAction {
 	 */
 	public DeletePageAction(Recording recording, double time) {
 		super(recording, createActions(recording, time));
+
+		pageNumber = getPageNumber(recording, time);
 	}
 
-	private static List<EditAction> createActions(Recording recording, double timeNorm) {
-		int time = (int) (timeNorm * recording.getRecordedAudio().getAudioStream().getLengthInMillis());
-		int pageIndex = recording.getPageIndex(time, 0);
+	@Override
+	protected Interval<Double> getEditDuration() {
+		long length = recording.getRecordedAudio().getAudioStream().getLengthInMillis();
+		Interval<Integer> pageDuration = getPageDuration(recording, pageNumber);
 
-		Interval<Integer> pageDuration = getPageDuration(recording, pageIndex);
+		return new Interval<>(1.0 * pageDuration.getStart() / length,
+				1.0 * pageDuration.getEnd() / length);
+	}
+
+	private static List<EditAction> createActions(Recording recording, double timeSelection) {
+		int pageNumber = getPageNumber(recording, timeSelection);
+		Interval<Integer> pageDuration = getPageDuration(recording, timeSelection);
 
 		EditHeaderAction headerAction = new EditHeaderAction(recording.getRecordingHeader(), -pageDuration.lengthLong());
-		DeleteDocumentPageAction documentAction = new DeleteDocumentPageAction(recording.getRecordedDocument(), pageIndex);
+		DeleteDocumentPageAction documentAction = new DeleteDocumentPageAction(recording.getRecordedDocument(), pageNumber);
 		DeleteEventsAction eventsAction = new DeleteEventsAction(recording.getRecordedEvents(), pageDuration);
 		DeleteAudioAction audioAction = new DeleteAudioAction(recording.getRecordedAudio(), pageDuration);
 
-		eventsAction.removeRecordedPage(pageIndex);
+		eventsAction.removeRecordedPage(pageNumber);
 
 		return List.of(headerAction, documentAction, eventsAction, audioAction);
 	}
 
+	private static int getPageNumber(Recording recording, double timeSelection) {
+		long length = recording.getRecordedAudio().getAudioStream().getLengthInMillis();
+		int time = (int) (timeSelection * length);
+
+		return recording.getPageIndex(time, 0);
+	}
+
+	private static Interval<Integer> getPageDuration(Recording recording, double timeSelection) {
+		int pageNumber = getPageNumber(recording, timeSelection);
+
+		return getPageDuration(recording, pageNumber);
+	}
+
 	private static Interval<Integer> getPageDuration(Recording recording, int pageNumber) {
 		List<RecordedPage> recPages = recording.getRecordedEvents().getRecordedPages();
-		RecordedPage page = recPages.get(pageNumber);
+		RecordedPage page = recPages.get(Math.min(pageNumber, recPages.size() - 1));
 
 		RecordedPage lastPage = new RecordedPage();
 		lastPage.setTimestamp((int) recording.getRecordedAudio().getAudioStream().getLengthInMillis());

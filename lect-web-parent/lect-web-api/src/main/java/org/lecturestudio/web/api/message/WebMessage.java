@@ -21,8 +21,8 @@ package org.lecturestudio.web.api.message;
 public abstract class WebMessage {
 
 	private String remoteAddress;
-	
-	
+
+
 	/**
 	 * @return the remoteAddress
 	 */
@@ -36,5 +36,5 @@ public abstract class WebMessage {
 	public void setRemoteAddress(String remoteAddress) {
 		this.remoteAddress = remoteAddress;
 	}
-	
+
 }

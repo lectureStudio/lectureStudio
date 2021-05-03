@@ -20,13 +20,21 @@ package org.lecturestudio.web.api.filter;
 
 import static java.util.Objects.nonNull;
 
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-@JsonIgnoreProperties(ignoreUnknown = true)
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.Id;
+import javax.persistence.SequenceGenerator;
+
+@Entity
 public class RegexRule implements FilterRule<String> {
+
+	@Id
+	@SequenceGenerator(name = "RegexRuleGen", sequenceName = "regex_rule_seq", allocationSize = 1)
+	@GeneratedValue(generator = "RegexRuleGen")
+	private long id;
 
 	private transient Pattern pattern;
 

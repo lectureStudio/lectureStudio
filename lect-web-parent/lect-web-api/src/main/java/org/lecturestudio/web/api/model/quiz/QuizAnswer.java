@@ -30,7 +30,7 @@ public class QuizAnswer extends ServiceModel implements Comparable<QuizAnswer>, 
 
 
 	public QuizAnswer() {
-		this(new String[0]);
+		this(null);
 	}
 
 	public QuizAnswer(String[] options) {

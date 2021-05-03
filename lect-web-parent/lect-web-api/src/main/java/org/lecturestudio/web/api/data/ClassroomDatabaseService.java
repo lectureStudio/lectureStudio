@@ -18,13 +18,19 @@
 
 package org.lecturestudio.web.api.data;
 
-import javax.enterprise.inject.Default;
+import java.util.UUID;
+
+import javax.enterprise.context.Dependent;
 import javax.persistence.TypedQuery;
+import javax.persistence.criteria.CriteriaBuilder;
+import javax.persistence.criteria.CriteriaQuery;
+import javax.persistence.criteria.Path;
+import javax.persistence.criteria.Root;
 
 import org.lecturestudio.web.api.model.Classroom;
 import org.lecturestudio.web.api.model.ClassroomService;
 
-@Default
+@Dependent
 public class ClassroomDatabaseService extends DatabaseServiceBase<Classroom> implements ClassroomDataService {
 
 	@Override
@@ -37,20 +43,40 @@ public class ClassroomDatabaseService extends DatabaseServiceBase<Classroom> imp
 	}
 
 	@Override
-	public <T extends ClassroomService> T getServiceByContextPath(String path, Class<T> serviceClass) {
-		String ql = "Select distinct s from Classroom c inner join c.services s where c.shortName = :path and s.type = :type";
-		TypedQuery<T> query = entityManager.createQuery(ql, serviceClass);
-		query.setParameter("path", path);
-		query.setParameter("type", serviceClass.getSimpleName());
+	public Classroom getByUuid(UUID uuid) {
+		String ql = "Select c from Classroom c where c.uuid = :uuid";
+		TypedQuery<Classroom> query = entityManager.createQuery(ql, Classroom.class);
+		query.setParameter("uuid", uuid);
 
-		return (T) query.getResultList().stream().findFirst().orElse(null);
+		return query.getResultList().stream().findFirst().orElse(null);
+	}
+
+	@Override
+	public <T extends ClassroomService> T getServiceByContextPath(String path, Class<T> serviceClass) {
+		CriteriaBuilder builder = entityManager.getCriteriaBuilder();
+		CriteriaQuery<T> criteriaQuery = builder.createQuery(serviceClass);
+		Root<T> fromType = criteriaQuery.from(serviceClass);
+		Path<Object> contextPath = fromType.get("contextPath");
+
+		CriteriaQuery<T> select = criteriaQuery.select(fromType);
+		select.where(builder.equal(contextPath, path));
+
+		TypedQuery<T> query = entityManager.createQuery(select);
+
+		return query.getResultList().stream().findFirst().orElse(null);
 	}
 
 	@Override
 	public <T extends ClassroomService> T getServiceById(String serviceId, Class<T> serviceClass) {
-		String ql = "Select s from ClassroomService s where s.serviceId = :serviceId";
-		TypedQuery<T> query = entityManager.createQuery(ql, serviceClass);
-		query.setParameter("serviceId", serviceId);
+		CriteriaBuilder builder = entityManager.getCriteriaBuilder();
+		CriteriaQuery<T> criteriaQuery = builder.createQuery(serviceClass);
+		Root<T> fromType = criteriaQuery.from(serviceClass);
+		Path<Object> serviceIdPath = fromType.get("serviceId");
+
+		CriteriaQuery<T> select = criteriaQuery.select(fromType);
+		select.where(builder.equal(serviceIdPath, serviceId));
+
+		TypedQuery<T> query = entityManager.createQuery(select);
 
 		return query.getResultList().stream().findFirst().orElse(null);
 	}

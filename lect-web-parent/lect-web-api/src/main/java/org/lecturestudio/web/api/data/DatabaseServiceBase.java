@@ -26,6 +26,7 @@ import javax.inject.Inject;
 import javax.persistence.EntityManager;
 import javax.persistence.TypedQuery;
 import javax.persistence.criteria.CriteriaBuilder;
+import javax.persistence.criteria.CriteriaDelete;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Root;
 
@@ -52,8 +53,15 @@ public abstract class DatabaseServiceBase<E> implements DataService<E> {
 	}
 
 	public void delete(E entity) {
-		EntityManager em = entityManager;
-		em.remove(em.contains(entity) ? entity : em.merge(entity));
+		entityManager.remove(entityManager.contains(entity) ? entity : entityManager.merge(entity));
+	}
+
+	public void deleteAll() {
+		CriteriaBuilder criteriaBuilder = entityManager.getCriteriaBuilder();
+		CriteriaDelete<E> query = criteriaBuilder.createCriteriaDelete(entityClass);
+		query.from(entityClass);
+
+		entityManager.createQuery(query).executeUpdate();
 	}
 
 	public List<E> getAll() {

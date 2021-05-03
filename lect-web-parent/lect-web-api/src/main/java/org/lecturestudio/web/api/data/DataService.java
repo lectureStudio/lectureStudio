@@ -29,6 +29,8 @@ public interface DataService<E> {
 
 	void delete(E entity);
 
+	void deleteAll();
+
 	List<E> getAll();
 
 	E getById(long id);

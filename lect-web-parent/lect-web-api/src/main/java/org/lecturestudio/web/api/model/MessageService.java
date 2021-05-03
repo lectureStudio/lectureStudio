@@ -18,26 +18,9 @@
 
 package org.lecturestudio.web.api.model;
 
-import javax.servlet.http.HttpServletRequest;
+import javax.persistence.Entity;
 
-import org.lecturestudio.web.api.config.WebServiceConfiguration;
-import org.lecturestudio.web.api.connector.RelayConnectors;
-import org.lecturestudio.web.api.connector.RelayConnectorsFactory;
-import org.lecturestudio.web.api.connector.server.Connectors;
-
+@Entity
 public class MessageService extends ClassroomService {
-
-	@Override
-	public RelayConnectors initialize(Classroom classroom, WebServiceConfiguration config, HttpServletRequest request) throws Exception {
-		String hostName = request.getServerName();
-
-		// Create a new session.
-		RelayConnectors relayConnectors = RelayConnectorsFactory.createProviderConnectors(hostName, config.mediaTransport);
-
-		Connectors connectors = relayConnectors.getProviderConnectors();
-		connectors.start();
-
-		return relayConnectors;
-	}
 
 }

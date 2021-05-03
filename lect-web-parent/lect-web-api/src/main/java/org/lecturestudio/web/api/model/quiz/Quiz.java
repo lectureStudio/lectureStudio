@@ -25,10 +25,24 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
+import javax.persistence.CascadeType;
+import javax.persistence.CollectionTable;
+import javax.persistence.Column;
+import javax.persistence.ElementCollection;
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.OneToMany;
+import javax.persistence.SequenceGenerator;
+
 import org.lecturestudio.web.api.filter.FilterRule;
 import org.lecturestudio.web.api.filter.InputFieldFilter;
 import org.lecturestudio.web.api.filter.InputFieldRule;
+import org.lecturestudio.web.api.filter.RegexRule;
+import org.lecturestudio.web.api.model.HttpResourceFile;
 
+@Entity
 public class Quiz implements Cloneable, Serializable {
 
 	private static final long serialVersionUID = -2922040254601147407L;
@@ -43,6 +57,11 @@ public class Quiz implements Cloneable, Serializable {
 	}
 
 
+	@Id
+	@SequenceGenerator(name = "QuizGen", sequenceName = "quiz_seq", allocationSize = 1)
+	@GeneratedValue(generator = "QuizGen")
+	private long id;
+
 	private QuizType type;
 
 	/** This is only used to identify where to store this quiz. */
@@ -50,9 +69,18 @@ public class Quiz implements Cloneable, Serializable {
 
 	private String question;
 
+	@OneToMany(cascade = { CascadeType.ALL })
+	private List<HttpResourceFile> questionResources = new ArrayList<>();
+
+	@ElementCollection
+	@CollectionTable(name = "QuizOptions", joinColumns = @JoinColumn(name = "id"))
+	@Column(name = "option")
 	private List<String> options = new ArrayList<>();
 
-	private InputFieldFilter filter = new InputFieldFilter();
+	@OneToMany(cascade = { CascadeType.ALL })
+	private List<RegexRule> regexRules;
+
+	private transient InputFieldFilter filter = new InputFieldFilter();
 
 
 	public Quiz() {
@@ -93,16 +121,38 @@ public class Quiz implements Cloneable, Serializable {
 		return question;
 	}
 
-	public List<String> getOptions() {
-		return options;
+	public List<HttpResourceFile> getQuestionResources() {
+		return questionResources;
+	}
+
+	public void setQuestionResources(List<HttpResourceFile> resources) {
+		this.questionResources = resources;
 	}
 
 	public void clearOptions() {
 		options.clear();
 	}
 
+	public List<String> getOptions() {
+		return options;
+	}
+
 	public void setOptions(List<String> options) {
 		this.options = options;
+	}
+
+	/**
+	 * @return the regex rules
+	 */
+	public List<RegexRule> getRegexRules() {
+		return regexRules;
+	}
+
+	/**
+	 * @param rules the regex rules to set
+	 */
+	public void setRegexRules(List<RegexRule> rules) {
+		this.regexRules = rules;
 	}
 
 	public void setQuizSet(QuizSet set) {

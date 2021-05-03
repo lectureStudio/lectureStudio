@@ -18,16 +18,8 @@
 
 package org.lecturestudio.broadcast;
 
-import static java.util.Objects.nonNull;
-
-import java.io.File;
 import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.Arrays;
-import java.util.Comparator;
-import java.util.stream.Stream;
 
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.CommandLineParser;
@@ -40,18 +32,11 @@ import org.apache.logging.log4j.Logger;
 
 import org.lecturestudio.broadcast.config.Configuration;
 import org.lecturestudio.core.ExecutableException;
-import org.lecturestudio.core.app.AppDataLocator;
 import org.lecturestudio.core.app.ApplicationBase;
-import org.lecturestudio.core.app.configuration.ConfigurationService;
-import org.lecturestudio.core.app.configuration.YamlConfigurationService;
 
 public class BroadcasterApplication extends ApplicationBase {
 
 	private static final Logger LOG = LogManager.getLogger(BroadcasterApplication.class);
-
-	private static final AppDataLocator LOCATOR = new AppDataLocator("lectureBroadcaster");
-
-	private static final File CONFIG_FILE = new File(LOCATOR.toAppDataPath("broadcaster.cfg"));
 
 	private static final Options OPTIONS = new Options();
 
@@ -60,7 +45,6 @@ public class BroadcasterApplication extends ApplicationBase {
 
 	static {
 		OPTIONS.addOption("help", false, "Print out a usage message");
-		OPTIONS.addOption("c", false, "Clear web server cache");
 		OPTIONS.addOption("p", true, "HTTP port");
 		OPTIONS.addOption("tls", true, "HTTP TLS port");
 	}
@@ -103,48 +87,12 @@ public class BroadcasterApplication extends ApplicationBase {
 
 	@Override
 	protected void initInternal(String[] args) throws ExecutableException {
-		ConfigurationService<Configuration> configService = new YamlConfigurationService<>();
-		Configuration config;
-
-		File configFile = CONFIG_FILE;
-
-		if (!configFile.exists()) {
-			configFile = new File("/resources/broadcaster.cfg");
-		}
-
-		try {
-			config = configService.load(configFile, Configuration.class);
-
-			if (!CONFIG_FILE.exists()) {
-				File parent = CONFIG_FILE.getParentFile();
-
-				if (nonNull(parent)) {
-					parent.mkdirs();
-
-					// Write the default config to the file system.
-					configService.save(CONFIG_FILE, config);
-				}
-			}
-		}
-		catch (Exception e) {
-			throw new ExecutableException(e);
-		}
+		Configuration config = new Configuration();
 
 		try {
 			CommandLineParser parser = new DefaultParser();
 			CommandLine cmd = parser.parse(OPTIONS, args);
 
-			if (cmd.hasOption("c")) {
-				Path basePath = Paths.get(LOCATOR.toAppDataPath(config.baseDir));
-
-				if (Files.exists(basePath)) {
-					try (Stream<Path> walk = Files.walk(basePath)) {
-						walk.sorted(Comparator.reverseOrder())
-								.map(Path::toFile)
-								.forEach(File::delete);
-					}
-				}
-			}
 			if (cmd.hasOption("p")) {
 				config.port = Integer.parseInt(cmd.getOptionValue("p"));
 			}

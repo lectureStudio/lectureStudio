@@ -18,12 +18,16 @@
 
 package org.lecturestudio.web.api.data;
 
+import java.util.UUID;
+
 import org.lecturestudio.web.api.model.Classroom;
 import org.lecturestudio.web.api.model.ClassroomService;
 
 public interface ClassroomDataService extends DataService<Classroom> {
 
 	Classroom getByContextPath(String path);
+
+	Classroom getByUuid(UUID uuid);
 
 	<T extends ClassroomService> T getServiceByContextPath(String path, Class<T> serviceClass);
 

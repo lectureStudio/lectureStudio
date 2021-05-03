@@ -20,55 +20,70 @@ package org.lecturestudio.web.api.filter;
 
 import java.util.Objects;
 
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.Id;
+import javax.persistence.SequenceGenerator;
+
+@Entity
 public class IpRangeRule implements FilterRule<String> {
 
-	private String from;
+	@Id
+	@SequenceGenerator(name = "ipRangeRuleSeq", sequenceName = "iprangerule_id_seq", allocationSize = 1, initialValue = 1)
+	@GeneratedValue(generator = "ipRangeRuleSeq")
+	private Long id;
 
-	private String to;
+	private String fromIp;
+
+	private String toIp;
 
 
 	public IpRangeRule() {
 		this("", "");
 	}
 
-	public IpRangeRule(String from, String to) {
-		setFrom(from);
-		setTo(to);
+	public IpRangeRule(String fromIp, String toIp) {
+		setFromIp(fromIp);
+		setToIp(toIp);
 	}
 
-	public String getFrom() {
-		return from;
+	public Long getId() {
+		return id;
 	}
 
-	public void setFrom(String fromIP) {
-		this.from = fromIP;
+	public String getFromIp() {
+		return fromIp;
 	}
 
-	public String getTo() {
-		return to;
+	public void setFromIp(String fromIp) {
+		this.fromIp = fromIp;
 	}
 
-	public void setTo(String toIP) {
-		this.to = toIP;
+	public String getToIp() {
+		return toIp;
+	}
+
+	public void setToIp(String toIp) {
+		this.toIp = toIp;
 	}
 
 	@Override
 	public boolean isAllowed(String ip) {
 		long toCheck = convertStringToInt(ip);
-		long from = convertStringToInt(this.from);
-		long to = convertStringToInt(this.to);
+		long from = convertStringToInt(this.fromIp);
+		long to = convertStringToInt(this.toIp);
 
 		return (toCheck >= from && toCheck <= to);
 	}
 
 	@Override
 	public FilterRule<String> clone() {
-		return new IpRangeRule(from, to);
+		return new IpRangeRule(fromIp, toIp);
 	}
 
 	@Override
 	public int hashCode() {
-		return Objects.hash(from, to);
+		return Objects.hash(fromIp, toIp);
 	}
 
 	@Override
@@ -82,23 +97,24 @@ public class IpRangeRule implements FilterRule<String> {
 
 		IpRangeRule other = (IpRangeRule) obj;
 
-		boolean equal = from == other.from || (from != null && from.equals(other.from));
+		boolean equal = fromIp == other.fromIp || (fromIp != null && fromIp
+				.equals(other.fromIp));
 
 		if (!equal) {
 			return false;
 		}
 
-		equal = to == other.to || (to != null && to.equals(other.to));
+		equal = toIp == other.toIp || (toIp != null && toIp.equals(other.toIp));
 
 		return equal;
 	}
 
 	@Override
 	public String toString() {
-		return from + " - " + to;
+		return fromIp + " - " + toIp;
 	}
 
-	private long convertStringToInt(String ip) {
+	private static long convertStringToInt(String ip) {
 		String[] ipStr = ip.split("\\.");
 
 		int octet1 = Integer.parseInt(ipStr[0]);

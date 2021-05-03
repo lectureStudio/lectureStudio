@@ -19,42 +19,31 @@
 package org.lecturestudio.web.api.model;
 
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 
-import javax.servlet.http.HttpServletRequest;
+import javax.persistence.CascadeType;
+import javax.persistence.CollectionTable;
+import javax.persistence.Column;
+import javax.persistence.ElementCollection;
+import javax.persistence.Entity;
+import javax.persistence.JoinColumn;
+import javax.persistence.OneToOne;
 
-import org.lecturestudio.web.api.config.WebServiceConfiguration;
-import org.lecturestudio.web.api.connector.RelayConnectors;
-import org.lecturestudio.web.api.connector.RelayConnectorsFactory;
-import org.lecturestudio.web.api.connector.server.Connectors;
-import org.lecturestudio.web.api.filter.RegexRule;
 import org.lecturestudio.web.api.model.quiz.Quiz;
 
+@Entity
 public class QuizService extends ClassroomService {
 
 	/** The quiz of this session. */
+	@OneToOne(cascade = { CascadeType.ALL })
 	private Quiz quiz;
 
-	private List<RegexRule> regexRules;
-
 	/** The end-points which posted an answer. This is a concurrent hash set. */
-	private Set<Integer> hosts;
+	@ElementCollection
+	@CollectionTable(name = "QuizServiceHosts", joinColumns = @JoinColumn(name = "id"))
+	@Column(name = "host")
+	private Set<Integer> hosts = new HashSet<>();
 
-
-	@Override
-	public RelayConnectors initialize(Classroom classroom, WebServiceConfiguration config, HttpServletRequest request) throws Exception {
-		hosts = new HashSet<>();
-		String hostName = request.getServerName();
-
-		// Create a new session.
-		RelayConnectors relayConnectors = RelayConnectorsFactory.createProviderConnectors(hostName, config.mediaTransport);
-
-		Connectors connectors = relayConnectors.getProviderConnectors();
-		connectors.start();
-
-		return relayConnectors;
-	}
 
 	/**
 	 * @return the quiz
@@ -77,17 +66,7 @@ public class QuizService extends ClassroomService {
 		return hosts;
 	}
 
-	/**
-	 * @return the regex rules
-	 */
-	public List<RegexRule> getRegexRules() {
-		return regexRules;
-	}
-
-	/**
-	 * @param rules the regex rules to set
-	 */
-	public void setRegexRules(List<RegexRule> rules) {
-		this.regexRules = rules;
+	public void setHosts(Set<Integer> hosts) {
+		this.hosts = hosts;
 	}
 }

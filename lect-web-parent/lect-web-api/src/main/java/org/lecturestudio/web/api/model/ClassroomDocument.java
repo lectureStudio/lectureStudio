@@ -21,8 +21,18 @@ package org.lecturestudio.web.api.model;
 import java.io.Serializable;
 import java.util.Objects;
 
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.SequenceGenerator;
+
+@Entity
 public class ClassroomDocument implements Serializable {
 
+	@Id
+	@SequenceGenerator(name = "ClassroomDocumentGen", sequenceName = "classroom_doc_id_seq", allocationSize = 1)
+	@GeneratedValue(generator = "ClassroomDocumentGen")
 	private long id;
 
 	private String fileName;

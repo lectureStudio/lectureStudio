@@ -18,17 +18,17 @@
 
 package org.lecturestudio.broadcast;
 
+import org.lecturestudio.broadcast.config.Configuration;
+import org.lecturestudio.broadcast.server.QuarkusServer;
+import org.lecturestudio.core.Executable;
 import org.lecturestudio.core.ExecutableBase;
 import org.lecturestudio.core.ExecutableException;
-import org.lecturestudio.core.net.ApplicationServer;
-import org.lecturestudio.broadcast.config.Configuration;
-import org.lecturestudio.broadcast.server.MeecrowaveServer;
 
 public class Broadcaster extends ExecutableBase {
 
 	private final Configuration config;
 
-	private ApplicationServer appServer;
+	private Executable appServer;
 
 
 	public Broadcaster(Configuration config) {
@@ -37,7 +37,8 @@ public class Broadcaster extends ExecutableBase {
 
 	@Override
 	protected void initInternal() throws ExecutableException {
-		appServer = new MeecrowaveServer(config);
+		appServer = new QuarkusServer(config);
+		appServer.init();
 	}
 
 	@Override

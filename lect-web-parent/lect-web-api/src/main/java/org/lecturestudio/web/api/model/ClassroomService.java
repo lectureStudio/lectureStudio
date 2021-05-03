@@ -19,30 +19,28 @@
 package org.lecturestudio.web.api.model;
 
 import java.io.Serializable;
-import java.util.List;
+import java.util.StringJoiner;
 
-import javax.servlet.http.HttpServletRequest;
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.Id;
+import javax.persistence.Inheritance;
+import javax.persistence.InheritanceType;
+import javax.persistence.SequenceGenerator;
 
-import org.lecturestudio.web.api.config.WebServiceConfiguration;
-import org.lecturestudio.web.api.connector.RelayConnectors;
-
+@Entity
+@Inheritance(strategy = InheritanceType.JOINED)
 public abstract class ClassroomService implements Serializable, Cloneable {
 
+	@Id
+	@SequenceGenerator(name = "ClassroomServiceGen", sequenceName = "classroom_service_id_seq", allocationSize = 1)
+	@GeneratedValue(generator = "ClassroomServiceGen")
 	private long id;
-
-	private String type;
 
 	/** The unique service ID number of the service session. */
 	private String serviceId;
 
 	private String contextPath;
-
-	/** The media stream descriptions for this classroom session. */
-	private List<StreamDescription> streamDescriptions;
-
-
-	abstract public RelayConnectors initialize(Classroom classroom, WebServiceConfiguration config,
-			HttpServletRequest request) throws Exception;
 
 
 	/**
@@ -67,21 +65,15 @@ public abstract class ClassroomService implements Serializable, Cloneable {
 		this.contextPath = contextPath;
 	}
 
-	/**
-	 * @return the streamDescriptions
-	 */
-	public List<StreamDescription> getStreamDescriptions() {
-		return streamDescriptions;
-	}
-
-	/**
-	 * @param streamDescriptions the streamDescriptions to set
-	 */
-	public void setStreamDescriptions(List<StreamDescription> streamDescriptions) {
-		this.streamDescriptions = streamDescriptions;
-	}
-
 	public ClassroomService clone() throws CloneNotSupportedException {
 		return (ClassroomService) super.clone();
+	}
+
+	@Override
+	public String toString() {
+		return new StringJoiner(", ",
+				getClass().getSimpleName() + "[", "]")
+				.add("id=" + id).add("serviceId='" + serviceId + "'")
+				.add("contextPath='" + contextPath + "'").toString();
 	}
 }

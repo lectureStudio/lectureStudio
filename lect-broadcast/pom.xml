@@ -4,90 +4,81 @@
 	xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
 	<modelVersion>4.0.0</modelVersion>
 
-	<parent>
-		<groupId>org.lecturestudio</groupId>
-		<artifactId>lect-studio</artifactId>
-		<version>4.0.0</version>
-	</parent>
-
 	<groupId>org.lecturestudio.broadcast</groupId>
 	<artifactId>lect-broadcast</artifactId>
 	<version>4.0.0</version>
 
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-		<cxf.version>3.3.6</cxf.version>
-		<jackson.version>2.9.10</jackson.version>
+		<quarkus-plugin.version>1.10.5.Final</quarkus-plugin.version>
+		<quarkus.platform.artifact-id>quarkus-bom</quarkus.platform.artifact-id>
+		<quarkus.platform.group-id>io.quarkus</quarkus.platform.group-id>
+		<quarkus.platform.version>1.10.5.Final</quarkus.platform.version>
+		<compiler-plugin.version>3.8.1</compiler-plugin.version>
+		<surefire-plugin.version>3.0.0-M4</surefire-plugin.version>
 		<web.auth.version>1.0.0</web.auth.version>
 		<web.client.version>1.0.0</web.client.version>
 		<web.service.version>1.0.0</web.service.version>
-		<meecrowave.version>1.2.9</meecrowave.version>
+		<maven.compiler.source>11</maven.compiler.source>
+		<maven.compiler.target>11</maven.compiler.target>
+		<maven.compiler.parameters>true</maven.compiler.parameters>
 	</properties>
 
 	<build>
 		<plugins>
 			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-jar-plugin</artifactId>
+				<artifactId>maven-compiler-plugin</artifactId>
+				<version>${compiler-plugin.version}</version>
+			</plugin>
+			<plugin>
+				<artifactId>maven-surefire-plugin</artifactId>
+				<version>${surefire-plugin.version}</version>
 				<configuration>
-					<classifier>${envClassifier}</classifier>
-					<archive>
-						<manifest>
-							<mainClass>org.lecturestudio.broadcast.BroadcasterApplication</mainClass>
-							<addClasspath>true</addClasspath>
-							<classpathPrefix>lib/</classpathPrefix>
-							<classpathLayoutType>custom</classpathLayoutType>
-							<customClasspathLayout>${artifact.artifactId}.${artifact.extension}</customClasspathLayout>
-						</manifest>
-					</archive>
+					<systemPropertyVariables>
+						<java.util.logging.manager>org.jboss.logmanager.LogManager</java.util.logging.manager>
+						<maven.home>${maven.home}</maven.home>
+					</systemPropertyVariables>
 				</configuration>
 			</plugin>
 			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-dependency-plugin</artifactId>
-				<version>3.1.1</version>
+				<groupId>io.quarkus</groupId>
+				<artifactId>quarkus-maven-plugin</artifactId>
+				<version>${quarkus-plugin.version}</version>
 				<executions>
 					<execution>
-						<id>copy-dependencies</id>
-						<phase>package</phase>
 						<goals>
-							<goal>copy-dependencies</goal>
+							<goal>build</goal>
 						</goals>
-
-						<configuration>
-							<excludeTypes>jar</excludeTypes>
-							<includeTypes>war</includeTypes>
-							<includeScope>provided</includeScope>
-
-							<outputDirectory>${project.build.outputDirectory}/resources/tomcat/apps</outputDirectory>
-							<overWriteReleases>true</overWriteReleases>
-							<overWriteSnapshots>true</overWriteSnapshots>
-							<overWriteIfNewer>true</overWriteIfNewer>
-						</configuration>
+					</execution>
+				</executions>
+			</plugin>
+			<plugin>
+				<groupId>org.jboss.jandex</groupId>
+				<artifactId>jandex-maven-plugin</artifactId>
+				<version>1.0.8</version>
+				<executions>
+					<execution>
+						<id>make-index</id>
+						<goals>
+							<goal>jandex</goal>
+						</goals>
 					</execution>
 				</executions>
 			</plugin>
 		</plugins>
-
-		<resources>
-			<resource>
-				<directory>src/main/resources</directory>
-				<targetPath>resources</targetPath>
-				<filtering>false</filtering>
-				<excludes>
-					<exclude>log4j2.xml</exclude>
-				</excludes>
-			</resource>
-			<resource>
-				<directory>src/main/resources</directory>
-				<includes>
-					<include>log4j2.xml</include>
-					<include>*.war</include>
-				</includes>
-				<filtering>false</filtering>
-			</resource>
-		</resources>
 	</build>
+
+	<dependencyManagement>
+		<dependencies>
+			<dependency>
+				<groupId>${quarkus.platform.group-id}</groupId>
+				<artifactId>${quarkus.platform.artifact-id}</artifactId>
+				<version>${quarkus.platform.version}</version>
+				<type>pom</type>
+				<scope>import</scope>
+			</dependency>
+		</dependencies>
+	</dependencyManagement>
 
 	<dependencies>
 		<dependency>
@@ -107,6 +98,11 @@
 			<artifactId>lect-web-api</artifactId>
 			<version>1.0.0</version>
 		</dependency>
+		<dependency>
+			<groupId>org.lecturestudio.web.frontend</groupId>
+			<artifactId>classroom-frontend</artifactId>
+			<version>1.0.0</version>
+		</dependency>
 
 		<dependency>
 			<groupId>org.apache.commons</groupId>
@@ -119,84 +115,59 @@
 			<version>1.4</version>
 		</dependency>
 
-		<!-- Web applications -->
 		<dependency>
-			<groupId>org.lecturestudio.web.auth</groupId>
-			<artifactId>lect-web-auth</artifactId>
-			<version>${web.auth.version}</version>
-			<type>war</type>
-			<scope>provided</scope>
-		</dependency>
-		<dependency>
-			<groupId>org.lecturestudio.web.service</groupId>
-			<artifactId>lect-web-service</artifactId>
-			<version>${web.service.version}</version>
-			<type>war</type>
-			<scope>provided</scope>
-		</dependency>
-		<dependency>
-			<groupId>org.lecturestudio.web.http.client</groupId>
-			<artifactId>lect-web-http-client</artifactId>
-			<version>${web.client.version}</version>
-			<type>war</type>
-			<scope>provided</scope>
-		</dependency>
-		<!-- Shared web applications database driver -->
-		<dependency>
-			<groupId>org.hsqldb</groupId>
-			<artifactId>hsqldb</artifactId>
-			<version>2.4.1</version>
+			<groupId>io.quarkus</groupId>
+			<artifactId>quarkus-arc</artifactId>
 		</dependency>
 
+		<!-- REST endpoints -->
 		<dependency>
-			<groupId>javax.persistence</groupId>
-			<artifactId>javax.persistence-api</artifactId>
-			<version>2.2</version>
+			<groupId>io.quarkus</groupId>
+			<artifactId>quarkus-resteasy</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>io.quarkus</groupId>
+			<artifactId>quarkus-resteasy-jsonb</artifactId>
 		</dependency>
 
+		<!-- JWT RBAC authentication -->
 		<dependency>
-			<groupId>org.apache.logging.log4j</groupId>
-			<artifactId>log4j-slf4j-impl</artifactId>
-			<version>${log4j.version}</version>
+			<groupId>io.quarkus</groupId>
+			<artifactId>quarkus-smallrye-jwt</artifactId>
 		</dependency>
 
-		<!-- Meecrowave application server -->
+		<!-- Servlets -->
 		<dependency>
-			<groupId>org.apache.meecrowave</groupId>
-			<artifactId>meecrowave-specs-api</artifactId>
-			<version>${meecrowave.version}</version>
-		</dependency>
-		<dependency>
-			<groupId>org.apache.meecrowave</groupId>
-			<artifactId>meecrowave-core</artifactId>
-			<version>${meecrowave.version}</version>
+			<groupId>io.quarkus</groupId>
+			<artifactId>quarkus-undertow</artifactId>
 		</dependency>
 
+		<!-- Enables the JPA capabilities -->
 		<dependency>
-			<groupId>net.sf.ehcache</groupId>
-			<artifactId>ehcache</artifactId>
-			<version>2.10.4</version>
+			<groupId>io.quarkus</groupId>
+			<artifactId>quarkus-hibernate-orm</artifactId>
 		</dependency>
+		<!-- We'll be using the H2 database -->
 		<dependency>
-			<groupId>org.apache.cxf</groupId>
-			<artifactId>cxf-rt-rs-security-oauth2</artifactId>
-			<version>${cxf.version}</version>
-		</dependency>
-		<dependency>
-			<groupId>org.apache.cxf</groupId>
-			<artifactId>cxf-rt-rs-security-sso-oidc</artifactId>
-			<version>${cxf.version}</version>
+			<groupId>io.quarkus</groupId>
+			<artifactId>quarkus-jdbc-h2</artifactId>
 		</dependency>
 
+		<!-- test dependencies -->
 		<dependency>
-			<groupId>com.fasterxml.jackson.core</groupId>
-			<artifactId>jackson-core</artifactId>
-			<version>${jackson.version}</version>
+			<groupId>io.quarkus</groupId>
+			<artifactId>quarkus-junit5</artifactId>
+			<scope>test</scope>
 		</dependency>
 		<dependency>
-			<groupId>com.fasterxml.jackson.dataformat</groupId>
-			<artifactId>jackson-dataformat-yaml</artifactId>
-			<version>${jackson.version}</version>
+			<groupId>io.rest-assured</groupId>
+			<artifactId>rest-assured</artifactId>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>io.quarkus</groupId>
+			<artifactId>quarkus-test-h2</artifactId>
+			<scope>test</scope>
 		</dependency>
 	</dependencies>
 </project>

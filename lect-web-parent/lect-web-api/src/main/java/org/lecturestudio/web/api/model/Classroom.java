@@ -21,14 +21,25 @@ package org.lecturestudio.web.api.model;
 import java.io.Serializable;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Locale;
 import java.util.Set;
+import java.util.UUID;
+
+import javax.persistence.CascadeType;
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.Id;
+import javax.persistence.OneToMany;
+import javax.persistence.SequenceGenerator;
 
 import org.lecturestudio.web.api.filter.IpRangeRule;
 
+@Entity
 public class Classroom implements Serializable {
 
 	/** The unique classroom identifier. */
+	@Id
+	@SequenceGenerator(name = "ClassroomGen", sequenceName = "classroom_id_seq", allocationSize = 1)
+	@GeneratedValue(generator = "ClassroomGen")
 	private long id;
 
 	/** The name of the classroom. */
@@ -36,18 +47,20 @@ public class Classroom implements Serializable {
 	
 	/** The short name of the classroom which is used mainly for URLs. */
 	private String shortName;
-	
-	/** The language of the classroom. */
-	private Locale locale;
 
 	/** The timestamp of when the classroom was created. */
 	private long createdTime;
 
+	private UUID uuid;
+
+	@OneToMany(cascade = { CascadeType.ALL })
 	private List<IpRangeRule> ipFilterRules;
 
+	@OneToMany(cascade = { CascadeType.ALL })
 	private Set<ClassroomService> services;
 
 	/** The initial list of documents used in this classroom. */
+	@OneToMany(cascade = { CascadeType.ALL })
 	private Set<ClassroomDocument> documents;
 	
 
@@ -58,13 +71,8 @@ public class Classroom implements Serializable {
 	public Classroom(String name, String shortName) {
 		setName(name);
 		setShortName(shortName);
-		setLocale(Locale.US);
 		setDocuments(new HashSet<>());
 		setServices(new HashSet<>());
-	}
-
-	public long getId() {
-		return id;
 	}
 
 	public String getName() {
@@ -82,20 +90,6 @@ public class Classroom implements Serializable {
 	public void setShortName(String shortName) {
 		this.shortName = shortName;
 	}
-	
-	/**
-	 * @return the locale
-	 */
-	public Locale getLocale() {
-		return locale;
-	}
-	
-	/**
-	 * @param locale the locale to set
-	 */
-	public void setLocale(Locale locale) {
-		this.locale = locale;
-	}
 
 	/**
 	 * @return the timestamp
@@ -109,6 +103,14 @@ public class Classroom implements Serializable {
 	 */
 	public void setCreatedTimestamp(long timestamp) {
 		this.createdTime = timestamp;
+	}
+
+	public UUID getUuid() {
+		return uuid;
+	}
+
+	public void setUuid(UUID uuid) {
+		this.uuid = uuid;
 	}
 
 	public List<IpRangeRule> getIpFilterRules() {
@@ -150,9 +152,6 @@ public class Classroom implements Serializable {
 		buffer.append(", ");
 		buffer.append(getShortName());
 		buffer.append(", ");
-		buffer.append("Locale: ");
-		buffer.append(getLocale());
-		buffer.append(", ");
 		buffer.append("Created: ");
 		buffer.append(getCreatedTimestamp());
 		buffer.append(", ");
@@ -164,7 +163,7 @@ public class Classroom implements Serializable {
 		buffer.append(", ");
 		buffer.append("Documents: ");
 		buffer.append(getDocuments());
-		
+
 		return buffer.toString();
 	}
 }

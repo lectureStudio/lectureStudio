@@ -21,8 +21,6 @@ package org.lecturestudio.web.api.model.quiz;
 import java.util.Map;
 import java.util.TreeMap;
 
-import org.lecturestudio.core.bus.ApplicationBus;
-
 public class QuizResult {
 
 	private final Quiz quiz;
@@ -42,8 +40,6 @@ public class QuizResult {
 		}
 
 		result.merge(answer, 1, Integer::sum);
-
-		fireChange();
 
 		return true;
 	}
@@ -73,10 +69,6 @@ public class QuizResult {
 		return str.toString();
 	}
 
-	protected void fireChange() {
-		ApplicationBus.post(this);
-	}
-	
 	protected boolean checkAnswer(QuizAnswer answer) {
 		if (answer.getOptions().length > quiz.getOptions().size()
 				&& quiz.getType() != Quiz.QuizType.NUMERIC) {

@@ -21,6 +21,7 @@ package org.lecturestudio.web.api.filter;
 import static java.util.Objects.isNull;
 
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
@@ -31,26 +32,27 @@ import org.lecturestudio.core.util.ObservableList;
 
 public abstract class Filter<T, R extends FilterRule<T>> implements Serializable {
 
-	private final ObservableList<R> rules;
+	private final List<R> rules;
 
 
 	public Filter() {
-		rules = new ObservableArrayList<>();
+		rules = new ArrayList<>();
 	}
 
 	public Filter(Filter<T, R> filter) {
-		rules = new ObservableArrayList<>();
+		rules = new ArrayList<>();
 		rules.addAll(filter.getRules());
 	}
 
 	public void addListener(ListChangeListener<ObservableList<R>> listener) {
-		rules.addListener(listener);
+//		rules.addListener(listener);
 	}
 
 	public void removeListener(ListChangeListener<ObservableList<R>> listener) {
-		rules.removeListener(listener);
+//		rules.removeListener(listener);
 	}
 
+	@SuppressWarnings("unchecked")
 	public void registerRule(R rule) {
 		rules.add((R) rule.clone());
 	}

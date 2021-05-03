@@ -21,18 +21,20 @@ package org.lecturestudio.web.api.message;
 import java.util.Date;
 import java.util.Objects;
 
+import org.lecturestudio.web.api.model.Message;
+
 public class MessengerMessage extends WebMessage {
 
 	private Date date;
 
-	private String message;
+	private Message message;
 
 
 	public MessengerMessage() {
 		this(null, null, null);
 	}
 
-	public MessengerMessage(String message, String remoteAddress, Date date) {
+	public MessengerMessage(Message message, String remoteAddress, Date date) {
 		setMessage(message);
 		setRemoteAddress(remoteAddress);
 		setDate(date);
@@ -55,14 +57,14 @@ public class MessengerMessage extends WebMessage {
 	/**
 	 * @return the message
 	 */
-	public String getMessage() {
+	public Message getMessage() {
 		return message;
 	}
 
 	/**
 	 * @param message the message to set
 	 */
-	public void setMessage(String message) {
+	public void setMessage(Message message) {
 		this.message = message;
 	}
 

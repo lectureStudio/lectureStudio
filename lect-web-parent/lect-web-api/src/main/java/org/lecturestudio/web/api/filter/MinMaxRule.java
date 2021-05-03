@@ -21,6 +21,9 @@ package org.lecturestudio.web.api.filter;
 import java.io.Serializable;
 import java.util.Objects;
 
+import javax.persistence.Entity;
+
+//@Entity
 public class MinMaxRule implements InputFieldRule<String>, Serializable {
 
 	private static final long serialVersionUID = 827184938853275192L;

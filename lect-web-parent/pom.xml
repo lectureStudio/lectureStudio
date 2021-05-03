@@ -13,19 +13,14 @@
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 
-		<maven.compiler.source>1.9</maven.compiler.source>
-		<maven.compiler.target>1.9</maven.compiler.target>
+		<maven.compiler.source>11</maven.compiler.source>
+		<maven.compiler.target>11</maven.compiler.target>
 
-		<cxf.version>3.2.5</cxf.version>
-		<jackson.version>2.9.10</jackson.version>
 		<log4j.version>2.11.0</log4j.version>
-		<openjpa.version>3.0.0</openjpa.version>
 	</properties>
 
 	<modules>
 		<module>lect-web-api</module>
-		<module>lect-web-auth</module>
-		<module>lect-web-service</module>
 		<module>lect-web-http-client</module>
 	</modules>
 
@@ -53,14 +48,6 @@
 					<version>3.1.0</version>
 				</plugin>
 				<plugin>
-					<artifactId>maven-war-plugin</artifactId>
-					<version>3.2.0</version>
-					<!-- Exclude dependencies, since they will be loaded by the application server itself. -->
-					<configuration>
-						<packagingExcludes>WEB-INF/lib/</packagingExcludes>
-					</configuration>
-				</plugin>
-				<plugin>
 					<artifactId>maven-install-plugin</artifactId>
 					<version>2.5.2</version>
 				</plugin>
@@ -71,13 +58,4 @@
 			</plugins>
 		</pluginManagement>
 	</build>
-
-	<dependencies>
-		<dependency>
-			<groupId>javax</groupId>
-			<artifactId>javaee-web-api</artifactId>
-			<version>8.0</version>
-			<scope>provided</scope>
-		</dependency>
-	</dependencies>
 </project>

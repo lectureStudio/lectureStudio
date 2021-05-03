@@ -1,31 +1,23 @@
 module org.lecturestudio.web.api {
 
-	requires com.fasterxml.jackson.annotation;
-	requires com.fasterxml.jackson.core;
-	requires com.fasterxml.jackson.databind;
-	requires com.fasterxml.jackson.jaxrs.json;
-	requires io.netty.all;
+	requires jakarta.enterprise.cdi.api;
+	requires jakarta.inject.api;
+	requires java.json.bind;
 	requires java.management;
-	requires javaee.web.api;
-	requires org.apache.cxf.frontend.jaxrs;
+	requires java.persistence;
+	requires java.ws.rs;
+	requires microprofile.rest.client.api;
 	requires org.apache.logging.log4j;
 	requires org.apache.logging.log4j.core;
-	requires org.jsoup;
 	requires org.lecturestudio.core;
+	requires quarkus.core;
+	requires resteasy.core;
+	requires smallrye.jwt;
 
-	exports org.lecturestudio.web.api.config;
-	exports org.lecturestudio.web.api.connector;
-	exports org.lecturestudio.web.api.connector.client;
-	exports org.lecturestudio.web.api.connector.server;
 	exports org.lecturestudio.web.api.data;
-	exports org.lecturestudio.web.api.http;
 	exports org.lecturestudio.web.api.filter;
 	exports org.lecturestudio.web.api.message;
 	exports org.lecturestudio.web.api.model;
-	exports org.lecturestudio.web.api.model.bind;
 	exports org.lecturestudio.web.api.model.quiz;
-	exports org.lecturestudio.web.api.ws;
-	exports org.lecturestudio.web.api.ws.databind;
-	exports org.lecturestudio.web.api.ws.rs;
 
 }

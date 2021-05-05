@@ -36,12 +36,12 @@ public class Configuration {
 	/**
 	 * The application server's port number.
 	 */
-	public int port;
+	public Integer port;
 
 	/**
 	 * The application server's TLS port number.
 	 */
-	public int tlsPort;
+	public Integer tlsPort;
 
 	/**
 	 * Indicator whether to use TLS.

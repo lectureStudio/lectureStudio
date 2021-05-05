@@ -10,12 +10,12 @@
 
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-		<quarkus-plugin.version>1.10.5.Final</quarkus-plugin.version>
-		<quarkus.platform.artifact-id>quarkus-bom</quarkus.platform.artifact-id>
+		<quarkus-plugin.version>1.13.3.Final</quarkus-plugin.version>
+		<quarkus.platform.artifact-id>quarkus-universe-bom</quarkus.platform.artifact-id>
 		<quarkus.platform.group-id>io.quarkus</quarkus.platform.group-id>
-		<quarkus.platform.version>1.10.5.Final</quarkus.platform.version>
+		<quarkus.platform.version>1.13.3.Final</quarkus.platform.version>
 		<compiler-plugin.version>3.8.1</compiler-plugin.version>
-		<surefire-plugin.version>3.0.0-M4</surefire-plugin.version>
+		<surefire-plugin.version>3.0.0-M5</surefire-plugin.version>
 		<web.auth.version>1.0.0</web.auth.version>
 		<web.client.version>1.0.0</web.client.version>
 		<web.service.version>1.0.0</web.service.version>
@@ -29,6 +29,9 @@
 			<plugin>
 				<artifactId>maven-compiler-plugin</artifactId>
 				<version>${compiler-plugin.version}</version>
+				<configuration>
+					<parameters>${maven.compiler.parameters}</parameters>
+				</configuration>
 			</plugin>
 			<plugin>
 				<artifactId>maven-surefire-plugin</artifactId>
@@ -44,10 +47,13 @@
 				<groupId>io.quarkus</groupId>
 				<artifactId>quarkus-maven-plugin</artifactId>
 				<version>${quarkus-plugin.version}</version>
+				<extensions>true</extensions>
 				<executions>
 					<execution>
 						<goals>
 							<goal>build</goal>
+							<goal>generate-code</goal>
+							<goal>generate-code-tests</goal>
 						</goals>
 					</execution>
 				</executions>

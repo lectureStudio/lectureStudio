@@ -1,0 +1,23 @@
+<mat-toolbar class="toolbar">
+	<mat-toolbar-row>
+		<span *ngIf="classroom">{{ classroom.name }}</span>
+		<span class="spacer"></span>
+		<mat-form-field class="locale-select">
+			<mat-select [(value)]="locale" (selectionChange)="setLocale($event)">
+				<mat-option *ngFor="let locale of locales" [value]="locale.tag">
+					{{ locale.name }}
+				</mat-option>
+			</mat-select>
+		</mat-form-field>
+	</mat-toolbar-row>
+</mat-toolbar>
+
+<nav mat-tab-nav-bar *ngIf="navLinks">
+	<a mat-tab-link *ngFor="let link of navLinks" [routerLink]="link.path" routerLinkActive #rla="routerLinkActive" [active]="rla.isActive">
+		{{ 'service.' + link.path  + '.name' | translate }}
+	</a>
+</nav>
+
+<div class="content-panel" [@routeAnimations]="o.isActivated && o.activatedRoute.routeConfig.path">
+	<router-outlet #o="outlet"></router-outlet>
+</div>

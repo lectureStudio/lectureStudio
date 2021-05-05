@@ -100,7 +100,7 @@
 		</dependency>
 		<dependency>
 			<groupId>org.lecturestudio.web.frontend</groupId>
-			<artifactId>classroom-frontend</artifactId>
+			<artifactId>lect-web-frontend</artifactId>
 			<version>1.0.0</version>
 		</dependency>
 

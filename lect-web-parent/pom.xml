@@ -12,16 +12,13 @@
 
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-
 		<maven.compiler.source>11</maven.compiler.source>
 		<maven.compiler.target>11</maven.compiler.target>
-
-		<log4j.version>2.11.0</log4j.version>
 	</properties>
 
 	<modules>
 		<module>lect-web-api</module>
-		<module>lect-web-http-client</module>
+		<module>lect-web-frontend</module>
 	</modules>
 
 	<build>

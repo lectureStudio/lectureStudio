@@ -1,0 +1,26 @@
+{
+	"context": {
+		"tag": "en_US",
+		"name": "English"
+	},
+
+	"button": {
+		"close": "Close",
+		"retry": "Retry",
+		"send": "Send"
+	},
+
+	"connection": {
+		"404": "Resource could not be found",
+		"error": "Connection error"
+	},
+
+	"service": {
+		"message": {
+			"name": "Message"
+		},
+		"quiz": {
+			"name": "Quiz"
+		}
+	}
+}

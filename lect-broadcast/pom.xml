@@ -14,6 +14,7 @@
 		<quarkus.platform.artifact-id>quarkus-universe-bom</quarkus.platform.artifact-id>
 		<quarkus.platform.group-id>io.quarkus</quarkus.platform.group-id>
 		<quarkus.platform.version>1.13.3.Final</quarkus.platform.version>
+		<resteasy.version>4.6.0.Final</resteasy.version>
 		<compiler-plugin.version>3.8.1</compiler-plugin.version>
 		<surefire-plugin.version>3.0.0-M5</surefire-plugin.version>
 		<web.auth.version>1.0.0</web.auth.version>
@@ -159,7 +160,7 @@
 			<artifactId>quarkus-jdbc-h2</artifactId>
 		</dependency>
 
-		<!-- test dependencies -->
+		<!-- Testing -->
 		<dependency>
 			<groupId>io.quarkus</groupId>
 			<artifactId>quarkus-junit5</artifactId>
@@ -173,6 +174,19 @@
 		<dependency>
 			<groupId>io.quarkus</groupId>
 			<artifactId>quarkus-test-h2</artifactId>
+			<scope>test</scope>
+		</dependency>
+
+		<dependency>
+			<groupId>org.jboss.resteasy</groupId>
+			<artifactId>resteasy-client-microprofile</artifactId>
+			<version>${resteasy.version}</version>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.jboss.resteasy</groupId>
+			<artifactId>resteasy-json-binding-provider</artifactId>
+			<version>${resteasy.version}</version>
 			<scope>test</scope>
 		</dependency>
 	</dependencies>

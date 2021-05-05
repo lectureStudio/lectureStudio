@@ -19,6 +19,8 @@ import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
+import org.eclipse.microprofile.config.ConfigProvider;
+import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.MethodOrderer;
 import org.junit.jupiter.api.Order;
@@ -37,6 +39,18 @@ class StaticContentTest extends ResourceTest {
 	@TestHTTPResource("index.html")
 	URL url;
 
+
+	@AfterAll
+	static void shutdown() {
+		given()
+				.port(ConfigProvider.getConfig()
+				.getValue("quarkus.http.test-port", Integer.class))
+				.headers(headers)
+		.when()
+				.delete("/api/classroom/" + classroomId)
+		.then()
+				.statusCode(200);
+	}
 
 	@Test
 	@Order(1)

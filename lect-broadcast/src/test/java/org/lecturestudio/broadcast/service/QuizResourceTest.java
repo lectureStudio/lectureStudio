@@ -22,10 +22,10 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
 
+import javax.json.bind.Jsonb;
 import javax.ws.rs.client.Client;
 import javax.ws.rs.client.ClientBuilder;
 import javax.ws.rs.client.WebTarget;
-import javax.ws.rs.core.MediaType;
 import javax.ws.rs.sse.SseEventSource;
 
 import org.eclipse.microprofile.config.ConfigProvider;
@@ -35,9 +35,11 @@ import org.junit.jupiter.api.MethodOrderer;
 import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestMethodOrder;
+import org.lecturestudio.web.api.data.bind.JsonConfig;
 import org.lecturestudio.web.api.filter.MinMaxRule;
 import org.lecturestudio.web.api.filter.RegexRule;
 import org.lecturestudio.web.api.message.QuizAnswerMessage;
+import org.lecturestudio.web.api.model.AuthState;
 import org.lecturestudio.web.api.model.Classroom;
 import org.lecturestudio.web.api.model.ClassroomService;
 import org.lecturestudio.web.api.model.HttpResourceFile;
@@ -153,14 +155,16 @@ class QuizResourceTest extends ResourceTest {
 		final AtomicReference<QuizAnswerMessage> answerRef = new AtomicReference<>();
 
 		// Subscribe for SSE.
+		AuthState.getInstance().setToken(TestProducers.getToken());
+
 		Client client = ClientBuilder.newClient()
-				.register(JwtRequestFilter.class);;
+				.register(JwtRequestFilter.class);
 		WebTarget target = client.target(getURL("api/quiz/subscribe", serviceId));
 
 		try (SseEventSource eventSource = SseEventSource.target(target).build()) {
 			eventSource.register(sseEvent -> {
-				QuizAnswerMessage answer = sseEvent.readData(QuizAnswerMessage.class,
-						MediaType.APPLICATION_JSON_TYPE);
+				Jsonb jsonb = new JsonConfig().getContext(null);
+				QuizAnswerMessage answer = jsonb.fromJson(sseEvent.readData(), QuizAnswerMessage.class);
 
 				answerRef.set(answer);
 

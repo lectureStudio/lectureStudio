@@ -18,7 +18,6 @@
 
 package org.lecturestudio.web.api.data;
 
-import java.lang.reflect.ParameterizedType;
 import java.util.Iterator;
 import java.util.List;
 
@@ -38,10 +37,8 @@ public abstract class DatabaseServiceBase<E> implements DataService<E> {
 	protected Class<E> entityClass;
 
 
-	@SuppressWarnings("unchecked")
-	DatabaseServiceBase() {
-		ParameterizedType genericSuperclass = (ParameterizedType) getClass().getGenericSuperclass();
-		this.entityClass = (Class<E>) genericSuperclass.getActualTypeArguments()[0];
+	DatabaseServiceBase(Class<E> cls) {
+		this.entityClass = cls;
 	}
 
 	public void add(E entity) {

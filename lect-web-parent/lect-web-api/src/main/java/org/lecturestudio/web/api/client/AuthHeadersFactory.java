@@ -1,14 +1,11 @@
 package org.lecturestudio.web.api.client;
 
-import io.quarkus.runtime.annotations.RegisterForReflection;
-
 import javax.ws.rs.core.MultivaluedHashMap;
 import javax.ws.rs.core.MultivaluedMap;
 
 import org.eclipse.microprofile.rest.client.ext.ClientHeadersFactory;
 import org.lecturestudio.web.api.model.AuthState;
 
-@RegisterForReflection
 public class AuthHeadersFactory implements ClientHeadersFactory {
 
 	@Override

@@ -33,6 +33,10 @@ import org.lecturestudio.web.api.model.ClassroomService;
 @Dependent
 public class ClassroomDatabaseService extends DatabaseServiceBase<Classroom> implements ClassroomDataService {
 
+	ClassroomDatabaseService() {
+		super(Classroom.class);
+	}
+
 	@Override
 	public Classroom getByContextPath(String path) {
 		String ql = "Select c from Classroom c where c.shortName = :path";

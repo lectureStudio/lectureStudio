@@ -22,14 +22,14 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.module.SimpleModule;
 
 import org.lecturestudio.core.app.configuration.JsonConfigurationService;
+import org.lecturestudio.presenter.api.model.bind.FilterRuleMixIn;
+import org.lecturestudio.presenter.api.model.bind.IpRangeRuleMixIn;
+import org.lecturestudio.presenter.api.model.bind.MinMaxRuleMixIn;
+import org.lecturestudio.presenter.api.model.bind.RegexRuleMixIn;
 import org.lecturestudio.web.api.filter.FilterRule;
 import org.lecturestudio.web.api.filter.IpRangeRule;
 import org.lecturestudio.web.api.filter.MinMaxRule;
 import org.lecturestudio.web.api.filter.RegexRule;
-import org.lecturestudio.web.api.model.bind.FilterRuleMixIn;
-import org.lecturestudio.web.api.model.bind.IpRangeRuleMixIn;
-import org.lecturestudio.web.api.model.bind.MinMaxRuleMixIn;
-import org.lecturestudio.web.api.model.bind.RegexRuleMixIn;
 
 public class PresenterConfigService extends JsonConfigurationService<PresenterConfiguration> {
 

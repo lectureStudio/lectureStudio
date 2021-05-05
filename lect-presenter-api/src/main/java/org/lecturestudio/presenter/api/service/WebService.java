@@ -22,7 +22,9 @@ import static java.util.Objects.isNull;
 import static java.util.Objects.nonNull;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -40,7 +42,12 @@ import org.lecturestudio.presenter.api.config.PresenterConfiguration;
 import org.lecturestudio.presenter.api.event.MessengerStateEvent;
 import org.lecturestudio.presenter.api.event.QuizStateEvent;
 import org.lecturestudio.presenter.api.net.LocalBroadcaster;
+import org.lecturestudio.web.api.model.AuthState;
+import org.lecturestudio.web.api.model.Classroom;
 import org.lecturestudio.web.api.model.quiz.Quiz;
+import org.lecturestudio.web.api.service.AuthService;
+import org.lecturestudio.web.api.service.ClassroomProviderService;
+import org.lecturestudio.web.api.service.ServiceParameters;
 
 /**
  * The {@code WebService} maintains different web services, like {@link QuizWebService}
@@ -59,11 +66,13 @@ public class WebService extends ExecutableBase {
 
 	private final DocumentService documentService;
 
+	private final List<ExecutableBase> startedServices;
+
 	private Quiz lastQuiz;
 
-	private QuizWebService quizWebService;
+	private String classroomId;
 
-	private MessageWebService messageWebService;
+	private ClassroomProviderService classroomWebService;
 
 
 	@Inject
@@ -71,6 +80,7 @@ public class WebService extends ExecutableBase {
 		this.context = context;
 		this.documentService = documentService;
 		this.localBroadcaster = localBroadcaster;
+		this.startedServices = new ArrayList<>();
 	}
 
 	/**
@@ -80,7 +90,9 @@ public class WebService extends ExecutableBase {
 	 * @throws ExecutableException if the message service could not be started.
 	 */
 	public void startMessenger() throws ExecutableException {
-		if (nonNull(messageWebService) && messageWebService.started()) {
+		var service = getService(MessageWebService.class);
+
+		if (nonNull(service) && service.started()) {
 			throw new ExecutableException("Message service is already running.");
 		}
 
@@ -88,8 +100,13 @@ public class WebService extends ExecutableBase {
 
 		startLocalBroadcaster();
 
-		messageWebService = new MessageWebService(context);
+		updateClassroom();
+
+		MessageWebService messageWebService = new MessageWebService(context);
+		messageWebService.setClassroomId(classroomId);
 		messageWebService.start();
+
+		startedServices.add(messageWebService);
 
 		context.getEventBus().post(new MessengerStateEvent(ExecutableState.Started));
 	}
@@ -101,17 +118,15 @@ public class WebService extends ExecutableBase {
 	 * @throws ExecutableException if the message service could not be stopped.
 	 */
 	public void stopMessenger() throws ExecutableException {
-		if (isNull(messageWebService)) {
+		var service = getService(MessageWebService.class);
+
+		if (isNull(service)) {
 			return;
 		}
 
 		context.getEventBus().post(new MessengerStateEvent(ExecutableState.Stopping));
 
-		messageWebService.stop();
-		messageWebService.destroy();
-		messageWebService = null;
-
-		stopLocalBroadcaster();
+		stopService(service);
 
 		context.getEventBus().post(new MessengerStateEvent(ExecutableState.Stopped));
 	}
@@ -128,11 +143,13 @@ public class WebService extends ExecutableBase {
 	 * @throws NullPointerException if no quiz service is running.
 	 */
 	public void saveQuizResult(List<String> files, ProgressCallback callback) throws IOException {
-		if (isNull(quizWebService)) {
+		var service = getService(QuizWebService.class);
+
+		if (isNull(service)) {
 			throw new NullPointerException("Quiz service is not running");
 		}
 
-		quizWebService.saveQuizResult(files, callback);
+		service.saveQuizResult(files, callback);
 	}
 
 	/**
@@ -142,28 +159,35 @@ public class WebService extends ExecutableBase {
 	 * @throws ExecutableException if the quiz service could not be started.
 	 */
 	public void startQuiz(Quiz quiz) throws ExecutableException {
+		var service = getService(QuizWebService.class);
+
 		context.getEventBus().post(new QuizStateEvent(ExecutableState.Starting));
 
 		Document oldQuizDoc = null;
 
 		// Allow only one quiz running at a time.
-		if (isNull(quizWebService)) {
+		if (isNull(service)) {
 			startLocalBroadcaster();
 
-			quizWebService = new QuizWebService(context);
+			service = new QuizWebService(context);
 		}
 		else {
-			oldQuizDoc = quizWebService.getQuizDocument();
+			oldQuizDoc = service.getQuizDocument();
 
-			quizWebService.stop();
-			quizWebService.destroy();
+			service.stop();
+			service.destroy();
 		}
 
-		quizWebService.setQuiz(quiz);
-		quizWebService.start();
+		updateClassroom();
+
+		service.setClassroomId(classroomId);
+		service.setQuiz(quiz);
+		service.start();
+
+		startedServices.add(service);
 
 		// Add quiz document.
-		Document newQuizDoc = quizWebService.getQuizDocument();
+		Document newQuizDoc = service.getQuizDocument();
 
 		// Replace quiz document in silent-mode.
 		if (documentService.getDocuments().contains(oldQuizDoc)) {
@@ -187,14 +211,16 @@ public class WebService extends ExecutableBase {
 	 * @throws ExecutableException if the message service could not be stopped.
 	 */
 	public void stopQuiz() throws ExecutableException {
-		if (isNull(quizWebService)) {
+		var service = getService(QuizWebService.class);
+
+		if (isNull(service)) {
 			return;
 		}
 
 		context.getEventBus().post(new QuizStateEvent(ExecutableState.Stopping));
 
 		// Remove quiz document.
-		Document quizDoc = quizWebService.getQuizDocument();
+		Document quizDoc = service.getQuizDocument();
 
 		if (nonNull(quizDoc)) {
 			quizDoc.close();
@@ -204,12 +230,7 @@ public class WebService extends ExecutableBase {
 
 		lastQuiz = null;
 
-		// Stop service.
-		quizWebService.stop();
-		quizWebService.destroy();
-		quizWebService = null;
-
-		stopLocalBroadcaster();
+		stopService(service);
 
 		context.getEventBus().post(new QuizStateEvent(ExecutableState.Stopped));
 	}
@@ -235,26 +256,22 @@ public class WebService extends ExecutableBase {
 
 	@Override
 	protected void stopInternal() throws ExecutableException {
-		if (nonNull(messageWebService) && messageWebService.started()) {
-			messageWebService.stop();
-
-			stopLocalBroadcaster();
+		for (var webService : startedServices) {
+			if (webService.started()) {
+				webService.stop();
+			}
 		}
-		if (nonNull(quizWebService) && quizWebService.started()) {
-			quizWebService.stop();
 
-			stopLocalBroadcaster();
-		}
+		stopLocalBroadcaster();
 	}
 
 	@Override
 	protected void destroyInternal() throws ExecutableException {
-		if (nonNull(messageWebService)) {
-			messageWebService.destroy();
+		for (var webService : startedServices) {
+			webService.destroy();
 		}
-		if (nonNull(quizWebService)) {
-			quizWebService.destroy();
-		}
+
+		startedServices.clear();
 	}
 
 	private void startLocalBroadcaster() throws ExecutableException {
@@ -264,7 +281,7 @@ public class WebService extends ExecutableBase {
 		Integer broadcastPort = netConfig.getBroadcastPort();
 
 		if (NetUtils.isLocalAddress(broadcastAddress, broadcastPort)) {
-			localBroadcaster.start();
+//			localBroadcaster.start();
 		}
 		else {
 			stopLocalBroadcaster();
@@ -276,5 +293,58 @@ public class WebService extends ExecutableBase {
 			localBroadcaster.stop();
 			localBroadcaster.destroy();
 		}
+	}
+
+	private void stopService(ExecutableBase service) throws ExecutableException {
+		service.stop();
+		service.destroy();
+
+		startedServices.remove(service);
+
+		stopLocalBroadcaster();
+	}
+
+	private <T> T getService(Class<T> cls) {
+		return startedServices.stream()
+				.filter(cls::isInstance)
+				.map(cls::cast)
+				.findFirst()
+				.orElse(null);
+	}
+
+	private void updateClassroom() {
+		PresenterConfiguration config = (PresenterConfiguration) context.getConfiguration();
+		NetworkConfiguration netConfig = config.getNetworkConfig();
+
+		Classroom classroom = new Classroom();
+		classroom.setName(config.getClassroomName());
+		classroom.setShortName(config.getClassroomShortName());
+		classroom.setIpFilterRules(netConfig.getIpFilter().getRules());
+
+		if (isNull(classroomId)) {
+			createClassroomService();
+
+			classroomId = classroomWebService.createClassroom(classroom);
+		}
+		else {
+			classroom.setUuid(UUID.fromString(classroomId));
+
+			classroomWebService.updateClassroom(classroom);
+		}
+	}
+
+	private void createClassroomService() {
+		PresenterConfiguration config = (PresenterConfiguration) context.getConfiguration();
+		NetworkConfiguration netConfig = config.getNetworkConfig();
+		String broadcastAddress = netConfig.getBroadcastAddress();
+		int broadcastPort = netConfig.getBroadcastTlsPort();
+
+		ServiceParameters params = new ServiceParameters();
+		params.setUrl(String.format("https://%s:%d", broadcastAddress, broadcastPort));
+
+		AuthService authService = new AuthService(params);
+		AuthState.getInstance().setToken(authService.authenticate());
+
+		classroomWebService = new ClassroomProviderService(params);
 	}
 }

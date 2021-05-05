@@ -83,7 +83,7 @@ public class FxMessengerWindow implements MessengerWindow {
 			MessageView messageView = new MessageView();
 			messageView.setDate(message.getDate());
 			messageView.setHost(message.getRemoteAddress());
-			messageView.setMessage(message.getMessage());
+			messageView.setMessage(message.getMessage().getText());
 
 			container.getChildren().add(messageView);
 		});

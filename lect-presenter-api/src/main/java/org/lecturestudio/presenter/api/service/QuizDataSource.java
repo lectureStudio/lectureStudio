@@ -27,11 +27,11 @@ import java.io.IOException;
 import java.util.List;
 
 import org.lecturestudio.core.model.Document;
+import org.lecturestudio.presenter.api.quiz.QuizFileReader;
+import org.lecturestudio.presenter.api.quiz.QuizFileWriter;
+import org.lecturestudio.presenter.api.quiz.QuizReader;
+import org.lecturestudio.presenter.api.quiz.QuizWriter;
 import org.lecturestudio.web.api.model.quiz.Quiz;
-import org.lecturestudio.web.api.model.quiz.io.QuizFileReader;
-import org.lecturestudio.web.api.model.quiz.io.QuizFileWriter;
-import org.lecturestudio.web.api.model.quiz.io.QuizReader;
-import org.lecturestudio.web.api.model.quiz.io.QuizWriter;
 
 public class QuizDataSource {
 

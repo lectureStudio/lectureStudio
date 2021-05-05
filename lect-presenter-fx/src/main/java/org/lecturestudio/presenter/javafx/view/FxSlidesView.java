@@ -356,7 +356,7 @@ public class FxSlidesView extends VBox implements SlidesView {
 		Platform.runLater(() -> {
 			messageView.setDate(message.getDate());
 			messageView.setHost(message.getRemoteAddress());
-			messageView.setMessage(message.getMessage());
+			messageView.setMessage(message.getMessage().getText());
 		});
 	}
 

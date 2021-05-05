@@ -19,7 +19,9 @@
 package org.lecturestudio.core;
 
 import static java.util.Objects.isNull;
+import static java.util.Objects.requireNonNull;
 
+import java.text.MessageFormat;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 
@@ -298,7 +300,18 @@ public abstract class ExecutableBase implements Executable {
 			listener.onExecutableStateChange(prevState, state);
 		}
 	}
-	
+
+	final protected void logMessage(String message, Object... messageParams) {
+		LOG.debug(MessageFormat.format(message, messageParams));
+	}
+
+	final protected void logException(Throwable throwable, String throwMessage) {
+		requireNonNull(throwable);
+		requireNonNull(throwMessage);
+
+		LOG.error(throwMessage, throwable);
+	}
+
 	private boolean validateNextState(ExecutableState nextState) {
 		switch (this.state) {
 			case Created:

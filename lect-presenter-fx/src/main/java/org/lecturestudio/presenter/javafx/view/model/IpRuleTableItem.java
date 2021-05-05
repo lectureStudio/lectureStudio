@@ -39,13 +39,13 @@ public class IpRuleTableItem {
 	}
 
 	public IpRuleTableItem(IpRangeRule rule) {
-		this.fromIP = new SimpleStringProperty(rule.getFrom());
+		this.fromIP = new SimpleStringProperty(rule.getFromIp());
 		this.fromIP.addListener(observable -> {
-			rule.setFrom(getFromIP());
+			rule.setFromIp(getFromIP());
 		});
-		this.toIP = new SimpleStringProperty(rule.getTo());
+		this.toIP = new SimpleStringProperty(rule.getToIp());
 		this.toIP.addListener(observable -> {
-			rule.setTo(getToIP());
+			rule.setToIp(getToIP());
 		});
 		this.rule = rule;
 	}

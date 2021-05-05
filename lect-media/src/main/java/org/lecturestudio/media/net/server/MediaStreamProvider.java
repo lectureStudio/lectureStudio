@@ -45,8 +45,6 @@ import org.lecturestudio.web.api.model.Classroom;
 import org.lecturestudio.web.api.model.ClassroomDocument;
 import org.lecturestudio.web.api.model.ClassroomService;
 import org.lecturestudio.web.api.model.StreamDescription;
-import org.lecturestudio.web.api.model.StreamService;
-import org.lecturestudio.web.api.ws.StreamServiceClient;
 
 public class MediaStreamProvider extends ExecutableBase {
 
@@ -56,9 +54,9 @@ public class MediaStreamProvider extends ExecutableBase {
 
 	private final ApplicationContext context;
 	
-	private final StreamServiceClient streamService;
+//	private final StreamServiceClient streamService;
 
-	private StreamService streamConfig;
+//	private StreamService streamConfig;
 
 	private AudioStreamConfig audioStreamConfig;
 
@@ -67,9 +65,9 @@ public class MediaStreamProvider extends ExecutableBase {
 	private Classroom classroom;
 	
 	
-	public MediaStreamProvider(ApplicationContext context, StreamServiceClient streamService) {
+	public MediaStreamProvider(ApplicationContext context) {
 		this.context = context;
-		this.streamService = streamService;
+//		this.streamService = streamService;
 		this.servers = new HashMap<>();
 	}
 
@@ -85,9 +83,9 @@ public class MediaStreamProvider extends ExecutableBase {
 		this.cameraStreamConfig = config;
 	}
 
-	public void setStreamConfig(StreamService config) {
-		this.streamConfig = config;
-	}
+//	public void setStreamConfig(StreamService config) {
+//		this.streamConfig = config;
+//	}
 
 	public void addDocument(String docName) throws Exception {
 		if (getState() != ExecutableState.Started) {
@@ -111,7 +109,7 @@ public class MediaStreamProvider extends ExecutableBase {
 
 				classroom.getDocuments().add(classDoc);
 				
-				streamService.sendDocument(classroom, doc);
+//				streamService.sendDocument(classroom, doc);
 				break;
 			}
 		}
@@ -124,23 +122,23 @@ public class MediaStreamProvider extends ExecutableBase {
 			throw new ExecutableException("Camera stream already open.");
 		}
 
-		Optional<StreamDescription> camDesc = classroom.getServices()
-				.stream()
-				.filter(StreamService.class::isInstance)
-				.flatMap(service -> service.getStreamDescriptions().stream())
-				.filter(desc -> desc.getMediaType() == MediaType.Camera)
-				.findFirst();
-
-		if (camDesc.isEmpty()) {
-			throw new ExecutableException("Camera stream is not supported by this classroom.");
-		}
-
-		try {
-			createServer(camDesc.get());
-		}
-		catch (Exception e) {
-			throw new ExecutableException("Create camera server failed.", e);
-		}
+//		Optional<StreamDescription> camDesc = classroom.getServices()
+//				.stream()
+//				.filter(StreamService.class::isInstance)
+//				.flatMap(service -> service.getStreamDescriptions().stream())
+//				.filter(desc -> desc.getMediaType() == MediaType.Camera)
+//				.findFirst();
+//
+//		if (camDesc.isEmpty()) {
+//			throw new ExecutableException("Camera stream is not supported by this classroom.");
+//		}
+//
+//		try {
+//			createServer(camDesc.get());
+//		}
+//		catch (Exception e) {
+//			throw new ExecutableException("Create camera server failed.", e);
+//		}
 
 		cameraServer = getServer(MediaType.Camera);
 		cameraServer.start();
@@ -193,12 +191,12 @@ public class MediaStreamProvider extends ExecutableBase {
 			}
 		}
 
-		try {
-			classroom = streamService.stopService(classroom, new StreamService());
-		}
-		catch (Exception e) {
-			LOG.error("Close classroom stream service failed.", e);
-		}
+//		try {
+//			classroom = streamService.stopService(classroom, new StreamService());
+//		}
+//		catch (Exception e) {
+//			LOG.error("Close classroom stream service failed.", e);
+//		}
 	}
 
 	@Override
@@ -217,46 +215,46 @@ public class MediaStreamProvider extends ExecutableBase {
 		}
 
 		// Create the classroom on the remote host.
-		StreamService streamService = new StreamService();
-		streamService.setAudioCodec(streamConfig.getAudioCodec());
-		streamService.setAudioFormat(streamConfig.getAudioFormat());
-
-		classroom = this.streamService.startService(classroom, streamService);
-
-		if (!classroom.getDocuments().isEmpty()) {
-			// Upload required documents.
-			for (ClassroomDocument classDoc : classroom.getDocuments()) {
-				if (classDoc.getFileName() == null) {
-					continue;
-				}
-
-				for (Document doc : context.getDocuments().asList()) {
-					String name = FileUtils.stripExtension(classDoc.getFileName());
-
-					if (name.equals(doc.getName())) {
-						this.streamService.sendDocument(classroom, doc);
-						break;
-					}
-				}
-			}
-		}
+//		StreamService streamService = new StreamService();
+//		streamService.setAudioCodec(streamConfig.getAudioCodec());
+//		streamService.setAudioFormat(streamConfig.getAudioFormat());
+//
+//		classroom = this.streamService.startService(classroom, streamService);
+//
+//		if (!classroom.getDocuments().isEmpty()) {
+//			// Upload required documents.
+//			for (ClassroomDocument classDoc : classroom.getDocuments()) {
+//				if (classDoc.getFileName() == null) {
+//					continue;
+//				}
+//
+//				for (Document doc : context.getDocuments().asList()) {
+//					String name = FileUtils.stripExtension(classDoc.getFileName());
+//
+//					if (name.equals(doc.getName())) {
+//						this.streamService.sendDocument(classroom, doc);
+//						break;
+//					}
+//				}
+//			}
+//		}
 
 		createConnectors(classroom);
 	}
 
 	private void createConnectors(Classroom classroom) throws Exception {
 		for (ClassroomService service : classroom.getServices()) {
-			if (service instanceof StreamService) {
-				for (StreamDescription streamDesc : service.getStreamDescriptions()) {
-					MediaType mediaType = streamDesc.getMediaType();
-
-					if (mediaType == MediaType.Camera && isNull(cameraStreamConfig)) {
-						continue;
-					}
-
-					createServer(streamDesc);
-				}
-			}
+//			if (service instanceof StreamService) {
+//				for (StreamDescription streamDesc : service.getStreamDescriptions()) {
+//					MediaType mediaType = streamDesc.getMediaType();
+//
+//					if (mediaType == MediaType.Camera && isNull(cameraStreamConfig)) {
+//						continue;
+//					}
+//
+//					createServer(streamDesc);
+//				}
+//			}
 		}
 	}
 

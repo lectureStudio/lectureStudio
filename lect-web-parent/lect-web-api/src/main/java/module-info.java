@@ -1,5 +1,11 @@
 module org.lecturestudio.web.api {
 
+	requires io.netty.buffer;
+	requires io.netty.codec;
+	requires io.netty.codec.http;
+	requires io.netty.common;
+	requires io.netty.transport;
+	requires io.netty.handler;
 	requires jakarta.enterprise.cdi.api;
 	requires jakarta.inject.api;
 	requires java.json.bind;
@@ -12,7 +18,6 @@ module org.lecturestudio.web.api {
 	requires org.lecturestudio.core;
 	requires quarkus.core;
 	requires resteasy.core;
-	requires smallrye.jwt;
 
 	exports org.lecturestudio.web.api.data;
 	exports org.lecturestudio.web.api.filter;

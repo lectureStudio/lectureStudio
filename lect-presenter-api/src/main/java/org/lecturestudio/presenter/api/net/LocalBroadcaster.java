@@ -18,8 +18,6 @@
 
 package org.lecturestudio.presenter.api.net;
 
-import java.io.File;
-import java.io.IOException;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import javax.inject.Inject;
@@ -31,8 +29,6 @@ import org.lecturestudio.core.Executable;
 import org.lecturestudio.core.ExecutableException;
 import org.lecturestudio.core.ExecutableState;
 import org.lecturestudio.core.app.ApplicationContext;
-import org.lecturestudio.core.app.configuration.ConfigurationService;
-import org.lecturestudio.core.app.configuration.YamlConfigurationService;
 import org.lecturestudio.presenter.api.config.PresenterConfiguration;
 
 @Singleton
@@ -54,22 +50,12 @@ public class LocalBroadcaster implements Executable {
 	public LocalBroadcaster(ApplicationContext context) {
 		this.context = context;
 	}
-	
+
 	@Override
 	public final synchronized void init() throws ExecutableException {
-		File configFile = new File("/resources/broadcaster.cfg");
-		ConfigurationService<Configuration> configService = new YamlConfigurationService<>();
-		Configuration config;
-
-		try {
-			config = configService.load(configFile, Configuration.class);
-		}
-		catch (IOException e) {
-			throw new ExecutableException("Load broadcast configuration failed.", e);
-		}
-
 		PresenterConfiguration pConfig = (PresenterConfiguration) context.getConfiguration();
 
+		Configuration config = new Configuration();
 		config.port = pConfig.getNetworkConfig().getBroadcastPort();
 		config.tlsPort = pConfig.getNetworkConfig().getBroadcastTlsPort();
 

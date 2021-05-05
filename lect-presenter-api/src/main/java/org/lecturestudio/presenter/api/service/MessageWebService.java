@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2020 TU Darmstadt, Department of Computer Science,
+ * Copyright (C) 2021 TU Darmstadt, Department of Computer Science,
  * Embedded Systems and Applications Group.
  *
  * This program is free software: you can redistribute it and/or modify
@@ -18,57 +18,40 @@
 
 package org.lecturestudio.presenter.api.service;
 
+import static java.util.Objects.requireNonNull;
+
 import java.io.File;
 import java.text.SimpleDateFormat;
 import java.util.Date;
-import java.util.Optional;
-
-import com.google.common.eventbus.Subscribe;
 
 import org.lecturestudio.core.ExecutableBase;
 import org.lecturestudio.core.ExecutableException;
 import org.lecturestudio.core.app.ApplicationContext;
-import org.lecturestudio.core.bus.ApplicationBus;
-import org.lecturestudio.core.net.MediaType;
-import org.lecturestudio.core.util.NetUtils;
 import org.lecturestudio.media.config.NetworkConfiguration;
 import org.lecturestudio.presenter.api.config.PresenterConfiguration;
-import org.lecturestudio.presenter.api.event.AbuseMessageEvent;
 import org.lecturestudio.presenter.api.util.HtmlMessageLogger;
-import org.lecturestudio.web.api.connector.ConnectorFactory;
-import org.lecturestudio.web.api.connector.JsonDecoder;
-import org.lecturestudio.web.api.connector.client.ClientConnector;
-import org.lecturestudio.web.api.connector.client.ClientTcpConnectorHandler;
-import org.lecturestudio.web.api.connector.client.ConnectorListener;
 import org.lecturestudio.web.api.message.MessengerMessage;
-import org.lecturestudio.web.api.message.WebPacket;
-import org.lecturestudio.web.api.model.Classroom;
-import org.lecturestudio.web.api.model.MessageService;
-import org.lecturestudio.web.api.model.StreamDescription;
-import org.lecturestudio.web.api.ws.ConnectionParameters;
-import org.lecturestudio.web.api.ws.MessageServiceClient;
-import org.lecturestudio.web.api.ws.rs.MessageRestClient;
+import org.lecturestudio.web.api.service.MessageProviderService;
+import org.lecturestudio.web.api.service.ServiceParameters;
 
-public class MessageWebService extends ExecutableBase implements ConnectorListener<WebPacket> {
+public class MessageWebService extends ExecutableBase {
 
 	private final ApplicationContext context;
-	
-	/** The web service client. */
-	private MessageServiceClient webService;
-	
-	private ClientConnector connector;
-	
-	private Classroom classroom;
 
-	private org.lecturestudio.web.api.model.MessageService service;
-	
+	/** The web service client. */
+	private MessageProviderService webService;
+
+	private String classroomId;
+
+	private String serviceId;
+
 	/** A message logger. */
 	private HtmlMessageLogger logger;
 
 	/* The received message count. */
 	private long messageCount;
-	
-	
+
+
 	/**
 	 * Creates a new {@link MessageWebService}.
 	 * 
@@ -77,29 +60,13 @@ public class MessageWebService extends ExecutableBase implements ConnectorListen
 	public MessageWebService(ApplicationContext context) {
 		this.context = context;
 	}
-	
-	@Subscribe
-	public void onEvent(AbuseMessageEvent event) {
-		logAbuse(event.getHost(), event.getMessage());
+
+	public void setClassroomId(String id) {
+		requireNonNull(id);
+
+		classroomId = id;
 	}
-	
-	@Override
-	public void onConnectorRead(WebPacket packet) {
-		Class<?> msgClass = packet.getMessage().getClass();
 
-		if (MessengerMessage.class.isAssignableFrom(msgClass)) {
-			MessengerMessage msgMessage = (MessengerMessage) packet.getMessage();
-
-			logMessage(msgMessage.getRemoteAddress(), msgMessage.getMessage());
-
-			messageCount++;
-
-			// Forward message to UI.
-			ApplicationBus.post(msgMessage);
-			ApplicationBus.post(new MessageWebServiceState(getState(), messageCount));
-		}
-	}
-	
 	@Override
 	protected void initInternal() throws ExecutableException {
 		messageCount = 0;
@@ -115,29 +82,29 @@ public class MessageWebService extends ExecutableBase implements ConnectorListen
 	@Override
 	protected void startInternal() throws ExecutableException {
 		try {
-			Classroom webClassroom = webService.startService(classroom, service);
+			serviceId = webService.startMessenger(classroomId);
 
-			connector = createConnector(webClassroom);
-			connector.start();
+			webService.subscribe(serviceId, message -> {
+				logMessage(message);
+
+				messageCount++;
+
+				// Forward message to UI.
+				context.getEventBus().post(message);
+				context.getEventBus().post(new MessageWebServiceState(getState(), messageCount));
+			}, error -> logException(error, "Message event failure"));
 		}
 		catch (Exception e) {
 			throw new ExecutableException(e);
 		}
 
 		createLogFile();
-		
-		ApplicationBus.register(this);
 	}
 
 	@Override
 	protected void stopInternal() throws ExecutableException {
-		ApplicationBus.unregister(this);
-		
 		try {
-			webService.stopService(classroom, service);
-
-			connector.stop();
-			connector.destroy();
+			webService.stopMessenger(classroomId, serviceId);
 		}
 		catch (Exception e) {
 			throw new ExecutableException(e);
@@ -148,7 +115,7 @@ public class MessageWebService extends ExecutableBase implements ConnectorListen
 	protected void destroyInternal() {
 
 	}
-	
+
 	/**
 	 * Creates a new log file. The log file is parsed and written in the HTML
 	 * format.
@@ -157,7 +124,7 @@ public class MessageWebService extends ExecutableBase implements ConnectorListen
 		SimpleDateFormat dateFormat = new SimpleDateFormat("dd-MM-yyyy-HH.mm");
 		String date = dateFormat.format(new Date());
 
-		String name = classroom.getShortName() + "_" + date + ".html";
+		String name = date + ".html";
 		File messengerLog = new File(context.getDataLocator().toAppDataPath(name));
 
 		logger = new HtmlMessageLogger(messengerLog);
@@ -166,63 +133,22 @@ public class MessageWebService extends ExecutableBase implements ConnectorListen
 	/**
 	 * Adds a message to the log file.
 	 * 
-	 * @param host The host name or IP address.
 	 * @param message The descriptive message.
 	 */
-	private void logMessage(String host, String message) {
-		logger.logMessage(host, new Date(), message);
+	private void logMessage(MessengerMessage message) {
+		logger.logMessage(message.getRemoteAddress(), message.getDate(),
+				message.getMessage().getText());
 	}
-	
-	/**
-     * Adds a abuse message to the log file.
-     *
-	 * @param host The host name or IP address.
-	 * @param message The descriptive message.
-     */
-	private void logAbuse(String host, String message) {
-		logger.logAbuse(host, message);
-	}
-	
-	private void initSession() throws Exception {
+
+	private void initSession() {
 		PresenterConfiguration config = (PresenterConfiguration) context.getConfiguration();
 		NetworkConfiguration netConfig = config.getNetworkConfig();
 		String broadcastAddress = netConfig.getBroadcastAddress();
 		int broadcastPort = netConfig.getBroadcastTlsPort();
-		String classShortName = config.getClassroomShortName();
 
-		ConnectionParameters parameters = new ConnectionParameters(broadcastAddress, broadcastPort, true);
+		ServiceParameters params = new ServiceParameters();
+		params.setUrl(String.format("https://%s:%d", broadcastAddress, broadcastPort));
 
-		if (NetUtils.isLocalAddress(broadcastAddress, broadcastPort)) {
-			// No need to identify classroom by short name on the local machine.
-			classShortName = "";
-		}
-
-		webService = new MessageRestClient(parameters);
-
-		classroom = new Classroom(config.getClassroomName(), classShortName);
-		classroom.setLocale(config.getLocale());
-		classroom.setShortName(classShortName);
-		classroom.setIpFilterRules(netConfig.getIpFilter().getRules());
-
-		service = new org.lecturestudio.web.api.model.MessageService();
-	}
-
-	private ClientConnector createConnector(Classroom classroom) throws Exception {
-		Optional<StreamDescription> streamDesc = classroom.getServices()
-				.stream()
-				.filter(MessageService.class::isInstance)
-				.flatMap(service -> service.getStreamDescriptions().stream())
-				.filter(desc -> desc.getMediaType() == MediaType.Messenger)
-				.findFirst();
-
-		if (streamDesc.isEmpty()) {
-			throw new Exception("No stream provided for the messenger session.");
-		}
-
-		ClientConnector connector = ConnectorFactory.createClientConnector(streamDesc.get());
-		connector.addChannelHandler(new JsonDecoder());
-		connector.addChannelHandler(new ClientTcpConnectorHandler<>(this));
-
-		return connector;
+		webService = new MessageProviderService(params);
 	}
 }

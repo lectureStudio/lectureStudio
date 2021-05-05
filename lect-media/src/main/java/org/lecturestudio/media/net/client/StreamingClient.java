@@ -46,9 +46,6 @@ import org.lecturestudio.core.ExecutableState;
 import org.lecturestudio.core.app.ApplicationContext;
 import org.lecturestudio.web.api.model.Classroom;
 import org.lecturestudio.web.api.model.ClassroomDocument;
-import org.lecturestudio.web.api.model.StreamService;
-import org.lecturestudio.web.api.ws.ClassroomServiceClient;
-import org.lecturestudio.web.api.ws.StreamServiceClient;
 
 import org.lecturestudio.media.playback.StreamEventExecutor;
 
@@ -65,20 +62,20 @@ public class StreamingClient extends ExecutableBase {
 	
 	private final Classroom classroom;
 
-	private final ClassroomServiceClient classroomClient;
+//	private final ClassroomServiceClient classroomClient;
 
-	private final StreamServiceClient streamClient;
+//	private final StreamServiceClient streamClient;
 	
 	private final Map<MediaType, MediaStreamClient<?>> clients;
 
 	private MediaStreamReceiver streamReceiver;
 
 
-	public StreamingClient(ApplicationContext context, Classroom classroom, ClassroomServiceClient classroomClient, StreamServiceClient streamClient) {
+	public StreamingClient(ApplicationContext context, Classroom classroom) {
 		this.context = context;
 		this.classroom = classroom;
-		this.classroomClient = classroomClient;
-		this.streamClient = streamClient;
+//		this.classroomClient = classroomClient;
+//		this.streamClient = streamClient;
 		this.clients = new HashMap<>();
 	}
 	
@@ -228,31 +225,31 @@ public class StreamingClient extends ExecutableBase {
 	}
 
 	private void createStreamReceiver() throws Exception {
-		streamReceiver = new MediaStreamReceiver(classroomClient, streamClient);
+		streamReceiver = new MediaStreamReceiver();
 	}
 
 	private void createAudioClient(Classroom classroom) throws Exception {
-		Optional<StreamService> service = classroom.getServices()
-				.stream()
-				.filter(StreamService.class::isInstance)
-				.map(StreamService.class::cast)
-				.findFirst();
-
-		if (!service.isPresent()) {
-			throw new Exception("Stream service is not started.");
-		}
-
-		StreamService streamService = service.get();
-
-		String codec = streamService.getAudioCodec();
-		AudioFormat audioFormat = streamService.getAudioFormat();
-		AudioCodecProvider codecProvider = AudioCodecLoader.getInstance().getProvider(codec);
-		AudioConfiguration audioConfig = context.getConfiguration().getAudioConfig();
-		
-		RtpAudioClient audioClient = new RtpAudioClient(audioConfig, codecProvider, audioFormat);
-		audioClient.register(streamReceiver);
-		
-		addClient(MediaType.Audio, audioClient);
+//		Optional<StreamService> service = classroom.getServices()
+//				.stream()
+//				.filter(StreamService.class::isInstance)
+//				.map(StreamService.class::cast)
+//				.findFirst();
+//
+//		if (!service.isPresent()) {
+//			throw new Exception("Stream service is not started.");
+//		}
+//
+//		StreamService streamService = service.get();
+//
+//		String codec = streamService.getAudioCodec();
+//		AudioFormat audioFormat = streamService.getAudioFormat();
+//		AudioCodecProvider codecProvider = AudioCodecLoader.getInstance().getProvider(codec);
+//		AudioConfiguration audioConfig = context.getConfiguration().getAudioConfig();
+//
+//		RtpAudioClient audioClient = new RtpAudioClient(audioConfig, codecProvider, audioFormat);
+//		audioClient.register(streamReceiver);
+//
+//		addClient(MediaType.Audio, audioClient);
 	}
 	
 	private void createEventClient() throws Exception {

@@ -348,7 +348,7 @@ public class SwingSlidesView extends JPanel implements SlidesView {
 
 			messageView.setDate(nonNull ? message.getDate() : null);
 			messageView.setHost(nonNull ? message.getRemoteAddress() : "");
-			messageView.setMessage(nonNull ? message.getMessage() : "");
+			messageView.setMessage(nonNull ? message.getMessage().getText() : "");
 		});
 	}
 

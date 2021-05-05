@@ -39,9 +39,6 @@ import org.lecturestudio.web.api.model.Classroom;
 import org.lecturestudio.web.api.model.ClassroomDocument;
 import org.lecturestudio.web.api.model.ClassroomService;
 import org.lecturestudio.web.api.model.StreamDescription;
-import org.lecturestudio.web.api.model.StreamService;
-import org.lecturestudio.web.api.ws.ClassroomServiceClient;
-import org.lecturestudio.web.api.ws.StreamServiceClient;
 
 public class MediaStreamReceiver extends ExecutableBase {
 
@@ -53,39 +50,40 @@ public class MediaStreamReceiver extends ExecutableBase {
 	/** The ConnectorListeners for ClientConnectors which were not started. */
 	private final Map<MediaType, ConnectorListener<byte[]>> listeners = new ConcurrentHashMap<>();
 
-	private final ClassroomServiceClient classroomClient;
+//	private final ClassroomServiceClient classroomClient;
 
-	private final StreamServiceClient streamServiceClient;
+//	private final StreamServiceClient streamServiceClient;
 	
 	private Classroom classroom;
 	
 
-	public MediaStreamReceiver(ClassroomServiceClient classroomClient, StreamServiceClient webService) {
-		this.classroomClient = classroomClient;
-		this.streamServiceClient = webService;
+	public MediaStreamReceiver() {
+//		this.classroomClient = classroomClient;
+//		this.streamServiceClient = webService;
 	}
 	
 	public List<Classroom> getClassrooms() throws Exception {
-		return classroomClient.getClassrooms();
+//		return classroomClient.getClassrooms();
+		return null;
 	}
 	
 	public void joinClassroom(Classroom classroom) throws Exception {
 		for (ClassroomService service : classroom.getServices()) {
-			if (service instanceof StreamService) {
-				for (StreamDescription sd : service.getStreamDescriptions()) {
-					ConnectorListener<byte[]> listener = listeners.remove(sd.getMediaType());
-
-					// Create connectors only if a valid listener is available.
-					if (listener == null) {
-						continue;
-					}
-
-					ClientConnector connector = ConnectorFactory.createClientConnector(sd);
-					connector.addChannelHandler(new ClientTcpConnectorHandler<>(listener));
-
-					addConnector(sd.getMediaType(), connector);
-				}
-			}
+//			if (service instanceof StreamService) {
+//				for (StreamDescription sd : service.getStreamDescriptions()) {
+//					ConnectorListener<byte[]> listener = listeners.remove(sd.getMediaType());
+//
+//					// Create connectors only if a valid listener is available.
+//					if (listener == null) {
+//						continue;
+//					}
+//
+//					ClientConnector connector = ConnectorFactory.createClientConnector(sd);
+//					connector.addChannelHandler(new ClientTcpConnectorHandler<>(listener));
+//
+//					addConnector(sd.getMediaType(), connector);
+//				}
+//			}
 		}
 
 		// Start the connectors.
@@ -99,7 +97,7 @@ public class MediaStreamReceiver extends ExecutableBase {
 			throw new Exception("No classroom joined.");
 		}
 		
-		streamServiceClient.getDocument(classroom.getShortName(), doc.getFileName(), stream);
+//		streamServiceClient.getDocument(classroom.getShortName(), doc.getFileName(), stream);
 	}
 	
 	public void addConnectorListener(MediaType type, ConnectorListener<byte[]> listener) throws Exception {
@@ -108,22 +106,22 @@ public class MediaStreamReceiver extends ExecutableBase {
 			ClientConnector connector = getConnector(type);
 			
 			if (connector == null) {
-				Optional<StreamDescription> streamDesc = classroom.getServices()
-						.stream()
-						.filter(service -> (service instanceof StreamService))
-						.flatMap(service -> service.getStreamDescriptions().stream())
-						.filter(desc -> desc.getMediaType() == type)
-						.findFirst();
-
-				if (!streamDesc.isPresent()) {
-					throw new ExecutableException("Media stream is not supported by this classroom.");
-				}
+//				Optional<StreamDescription> streamDesc = classroom.getServices()
+//						.stream()
+//						.filter(service -> (service instanceof StreamService))
+//						.flatMap(service -> service.getStreamDescriptions().stream())
+//						.filter(desc -> desc.getMediaType() == type)
+//						.findFirst();
+//
+//				if (!streamDesc.isPresent()) {
+//					throw new ExecutableException("Media stream is not supported by this classroom.");
+//				}
 
 				// Create a new connector and start it.
-				connector = ConnectorFactory.createClientConnector(streamDesc.get());
-				connector.addChannelHandler(new ClientTcpConnectorHandler<>(listener));
-
-				addConnector(streamDesc.get().getMediaType(), connector);
+//				connector = ConnectorFactory.createClientConnector(streamDesc.get());
+//				connector.addChannelHandler(new ClientTcpConnectorHandler<>(listener));
+//
+//				addConnector(streamDesc.get().getMediaType(), connector);
 			}
 		}
 		else {

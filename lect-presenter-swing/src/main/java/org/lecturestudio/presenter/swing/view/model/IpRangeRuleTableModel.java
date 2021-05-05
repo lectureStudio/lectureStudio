@@ -36,10 +36,10 @@ public class IpRangeRuleTableModel extends TableModelBase<IpRangeRule> {
 		IpRangeRule rule = getItem(rowIndex);
 
 		if (columnIndex == 0) {
-			return rule.getFrom();
+			return rule.getFromIp();
 		}
 		else if (columnIndex == 1) {
-			return rule.getTo();
+			return rule.getToIp();
 		}
 
 		return null;
@@ -51,10 +51,10 @@ public class IpRangeRuleTableModel extends TableModelBase<IpRangeRule> {
 
 		if (nonNull(rule)) {
 			if (column == 0) {
-				rule.setFrom((String) value);
+				rule.setFromIp((String) value);
 			}
 			else if (column == 1) {
-				rule.setTo((String) value);
+				rule.setToIp((String) value);
 			}
 
 			fireTableCellUpdated(row, column);

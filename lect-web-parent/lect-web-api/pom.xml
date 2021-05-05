@@ -20,6 +20,7 @@
 		<quarkus.platform.artifact-id>quarkus-bom</quarkus.platform.artifact-id>
 		<quarkus.platform.group-id>io.quarkus</quarkus.platform.group-id>
 		<quarkus.platform.version>1.10.5.Final</quarkus.platform.version>
+		<log4j.version>2.11.0</log4j.version>
 	</properties>
 
 	<build>
@@ -60,10 +61,6 @@
 		<dependency>
 			<groupId>io.quarkus</groupId>
 			<artifactId>quarkus-resteasy-jsonb</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>io.quarkus</groupId>
-			<artifactId>quarkus-smallrye-jwt</artifactId>
 		</dependency>
 		<dependency>
 			<groupId>io.quarkus</groupId>

@@ -19,7 +19,7 @@
 package org.lecturestudio.presenter.api.service;
 
 import static java.util.Objects.isNull;
-import static java.util.Objects.nonNull;
+import static java.util.Objects.requireNonNull;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -28,18 +28,14 @@ import java.net.URI;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
-
 import org.lecturestudio.core.ExecutableBase;
 import org.lecturestudio.core.ExecutableException;
 import org.lecturestudio.core.ExecutableState;
@@ -48,48 +44,27 @@ import org.lecturestudio.core.app.dictionary.Dictionary;
 import org.lecturestudio.core.bus.EventBus;
 import org.lecturestudio.core.model.Document;
 import org.lecturestudio.core.model.DocumentType;
-import org.lecturestudio.core.net.MediaType;
 import org.lecturestudio.core.pdf.PdfDocument;
 import org.lecturestudio.core.util.FileUtils;
-import org.lecturestudio.core.util.NetUtils;
 import org.lecturestudio.core.util.ProgressCallback;
 import org.lecturestudio.media.config.NetworkConfiguration;
 import org.lecturestudio.presenter.api.config.PresenterConfiguration;
 import org.lecturestudio.presenter.api.pdf.PdfFactory;
-import org.lecturestudio.web.api.connector.ConnectorFactory;
-import org.lecturestudio.web.api.connector.JsonDecoder;
-import org.lecturestudio.web.api.connector.client.ClientConnector;
-import org.lecturestudio.web.api.connector.client.ClientTcpConnectorHandler;
-import org.lecturestudio.web.api.connector.client.ConnectorListener;
-import org.lecturestudio.web.api.message.QuizAnswerMessage;
-import org.lecturestudio.web.api.message.WebPacket;
-import org.lecturestudio.web.api.model.Classroom;
-import org.lecturestudio.web.api.model.QuizService;
-import org.lecturestudio.web.api.model.StreamDescription;
+import org.lecturestudio.presenter.api.quiz.QuizResultCsvWriter;
 import org.lecturestudio.web.api.model.quiz.Quiz;
 import org.lecturestudio.web.api.model.quiz.QuizAnswer;
 import org.lecturestudio.web.api.model.quiz.QuizResult;
-import org.lecturestudio.web.api.model.quiz.io.QuizResultCsvWriter;
-import org.lecturestudio.web.api.ws.ConnectionParameters;
-import org.lecturestudio.web.api.ws.QuizServiceClient;
-import org.lecturestudio.web.api.ws.rs.QuizRestClient;
+import org.lecturestudio.web.api.service.QuizProviderService;
+import org.lecturestudio.web.api.service.ServiceParameters;
 
-public class QuizWebService extends ExecutableBase implements ConnectorListener<WebPacket> {
-
-	private static final Logger LOG = LogManager.getLogger(QuizWebService.class);
+public class QuizWebService extends ExecutableBase {
 
 	private final ApplicationContext context;
 
 	private final EventBus eventBus;
 
 	/** The web service client. */
-	private QuizServiceClient webService;
-
-	private ClientConnector connector;
-
-	private Classroom classroom;
-
-	private org.lecturestudio.web.api.model.QuizService service;
+	private QuizProviderService webService;
 
 	/** Asynchronous quiz result render queue with only one rendering task in the queue. */
 	private ExecutorService executorService;
@@ -99,6 +74,10 @@ public class QuizWebService extends ExecutableBase implements ConnectorListener<
 	private QuizResult quizResult;
 
 	private Document quizDocument;
+
+	private String classroomId;
+
+	private String serviceId;
 
 	/* The received answer count. */
 	private long answerCount;
@@ -112,6 +91,12 @@ public class QuizWebService extends ExecutableBase implements ConnectorListener<
 	public QuizWebService(ApplicationContext context) {
 		this.context = context;
 		this.eventBus = context.getEventBus();
+	}
+
+	public void setClassroomId(String id) {
+		requireNonNull(id);
+
+		classroomId = id;
 	}
 
 	/**
@@ -176,32 +161,6 @@ public class QuizWebService extends ExecutableBase implements ConnectorListener<
 	}
 
 	@Override
-	public void onConnectorRead(WebPacket packet) {
-		Class<?> msgClass = packet.getMessage().getClass();
-
-		if (QuizAnswerMessage.class.isAssignableFrom(msgClass)) {
-			// Make sure the quiz is active and equal to the running one.
-			if (nonNull(quizResult)) {
-				QuizAnswerMessage quizMessage = (QuizAnswerMessage) packet.getMessage();
-				QuizAnswer answer = quizMessage.getQuizAnswer();
-
-				if (isNull(answer.getOptions())) {
-					// Handle malformed answer.
-					answer.setOptions(new String[0]);
-				}
-
-				if (quizResult.addAnswer(quizMessage.getQuizAnswer())) {
-					updateQuizDocument();
-
-					answerCount++;
-
-					eventBus.post(new QuizWebServiceState(getState(), answerCount));
-				}
-			}
-		}
-	}
-
-	@Override
 	protected void initInternal() throws ExecutableException {
 		if (isNull(quiz)) {
 			throw new NullPointerException("No quiz provided.");
@@ -230,17 +189,24 @@ public class QuizWebService extends ExecutableBase implements ConnectorListener<
 		List<File> files = loadQuizContent(webQuiz);
 
 		try {
-			Classroom webClassroom = webService.startService(classroom, service);
+			serviceId = webService.startQuiz(classroomId, webQuiz);
 
-			connector = createConnector(webClassroom);
-			connector.start();
-			
-			// Upload files included in the HTML source.
-			if (!files.isEmpty()) {
-				for (File file : files) {
-					webService.sendQuizFile(classroom, file.getAbsolutePath());
+			webService.subscribe(serviceId, message -> {
+				QuizAnswer answer = message.getQuizAnswer();
+
+				if (isNull(answer.getOptions())) {
+					// Handle malformed answer.
+					answer.setOptions(new String[0]);
 				}
-			}
+
+				if (quizResult.addAnswer(answer)) {
+					updateQuizDocument();
+
+					answerCount++;
+
+					eventBus.post(new QuizWebServiceState(getState(), answerCount));
+				}
+			}, error -> logException(error, "Quiz event failure"));
 		}
 		catch (Exception e) {
 			throw new ExecutableException(e);
@@ -256,10 +222,7 @@ public class QuizWebService extends ExecutableBase implements ConnectorListener<
 		eventBus.unregister(this);
 
 		try {
-			webService.stopService(classroom, service);
-
-			connector.stop();
-			connector.destroy();
+			webService.stopQuiz(classroomId, serviceId);
 		}
 		catch (Exception e) {
 			throw new ExecutableException(e);
@@ -299,7 +262,7 @@ public class QuizWebService extends ExecutableBase implements ConnectorListener<
 						quizDocument.setPdfDocument(pdfDoc);
 					}
 					catch (Exception e) {
-						LOG.error("Create quiz document failed.", e);
+						logException(e, "Create quiz document failed");
 					}
 				}
 			});
@@ -334,8 +297,8 @@ public class QuizWebService extends ExecutableBase implements ConnectorListener<
 			includeFiles.add(imgFile);
 			
 			// Replace by new relative web-root path.
-			e.attr("src", Paths.get("classrooms", classroom.getShortName(),
-					imgFile.getName()).toString().replaceAll("\\\\", "/"));
+			e.attr("src", Paths.get("classrooms", imgFile.getName()).toString()
+					.replaceAll("\\\\", "/"));
 		}
 		
 		html = doc.body().html();
@@ -344,54 +307,16 @@ public class QuizWebService extends ExecutableBase implements ConnectorListener<
 		
 		return includeFiles;
 	}
-	
-	private void initSession() throws Exception {
+
+	private void initSession() {
 		PresenterConfiguration config = (PresenterConfiguration) context.getConfiguration();
 		NetworkConfiguration netConfig = config.getNetworkConfig();
 		String broadcastAddress = netConfig.getBroadcastAddress();
 		int broadcastPort = netConfig.getBroadcastTlsPort();
-		String classShortName = config.getClassroomShortName();
 
-		ConnectionParameters parameters = new ConnectionParameters(broadcastAddress, broadcastPort, true);
+		ServiceParameters params = new ServiceParameters();
+		params.setUrl(String.format("https://%s:%d", broadcastAddress, broadcastPort));
 
-		if (NetUtils.isLocalAddress(broadcastAddress, broadcastPort)) {
-			// No need to identify classroom by short name on local machine.
-			classShortName = "";
-		}
-
-		webService = new QuizRestClient(parameters);
-
-		classroom = new Classroom(config.getClassroomName(), classShortName);
-		classroom.setLocale(config.getLocale());
-		classroom.setShortName(classShortName);
-		classroom.setIpFilterRules(netConfig.getIpFilter().getRules());
-
-		Quiz webQuiz = quiz.clone();
-
-		loadQuizContent(webQuiz);
-
-		service = new org.lecturestudio.web.api.model.QuizService();
-		service.setQuiz(webQuiz);
-		service.setRegexRules(config.getQuizConfig().getInputFilter().getRules());
+		webService = new QuizProviderService(params);
 	}
-	
-	private ClientConnector createConnector(Classroom classroom) throws Exception {
-		Optional<StreamDescription> streamDesc = classroom.getServices()
-				.stream()
-				.filter(QuizService.class::isInstance)
-				.flatMap(service -> service.getStreamDescriptions().stream())
-				.filter(desc -> desc.getMediaType() == MediaType.Messenger)
-				.findFirst();
-
-		if (streamDesc.isEmpty()) {
-			throw new Exception("No stream provided for the quiz session.");
-		}
-		
-		ClientConnector connector = ConnectorFactory.createClientConnector(streamDesc.get());
-		connector.addChannelHandler(new JsonDecoder());
-		connector.addChannelHandler(new ClientTcpConnectorHandler<>(this));
-		
-		return connector;
-	}
-	
 }

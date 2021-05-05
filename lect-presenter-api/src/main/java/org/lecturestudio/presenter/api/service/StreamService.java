@@ -42,8 +42,6 @@ import org.lecturestudio.presenter.api.event.StreamingStateEvent;
 import org.lecturestudio.presenter.api.net.LocalBroadcaster;
 import org.lecturestudio.web.api.model.Classroom;
 import org.lecturestudio.web.api.model.ClassroomDocument;
-import org.lecturestudio.web.api.ws.ConnectionParameters;
-import org.lecturestudio.web.api.ws.rs.StreamRestClient;
 
 /**
  * The {@code StreamService} is the interface between user interface and the
@@ -122,11 +120,11 @@ public class StreamService extends ExecutableBase {
 		PresenterConfiguration config = (PresenterConfiguration) context.getConfiguration();
 		StreamConfiguration streamConfig = config.getStreamConfig();
 
-		org.lecturestudio.web.api.model.StreamService streamService = new org.lecturestudio.web.api.model.StreamService();
-		streamService.setAudioCodec(streamConfig.getAudioCodec());
-		streamService.setAudioFormat(streamConfig.getAudioFormat());
+//		org.lecturestudio.web.api.model.StreamService streamService = new org.lecturestudio.web.api.model.StreamService();
+//		streamService.setAudioCodec(streamConfig.getAudioCodec());
+//		streamService.setAudioFormat(streamConfig.getAudioFormat());
 
-		streamProvider.setStreamConfig(streamService);
+//		streamProvider.setStreamConfig(streamService);
 		streamProvider.setAudioStreamConfig(createAudioStreamConfig());
 		streamProvider.addStateListener((oldState, newState) -> {
 			if (started() && newState == ExecutableState.Error) {
@@ -164,9 +162,9 @@ public class StreamService extends ExecutableBase {
 		PresenterConfiguration config = (PresenterConfiguration) context.getConfiguration();
 		NetworkConfiguration netConfig = config.getNetworkConfig();
 
-		ConnectionParameters parameters = new ConnectionParameters(netConfig.getBroadcastAddress(), netConfig.getBroadcastTlsPort(), true);
+//		ConnectionParameters parameters = new ConnectionParameters(netConfig.getBroadcastAddress(), netConfig.getBroadcastTlsPort(), true);
 
-		return new MediaStreamProvider(context, new StreamRestClient(parameters));
+		return new MediaStreamProvider(context);
 	}
 
 	private Classroom createClassroom() throws Exception {
@@ -183,7 +181,6 @@ public class StreamService extends ExecutableBase {
 		classDoc.setChecksum(doc.getChecksum(digest));
 
 		Classroom classroom = new Classroom(config.getClassroomName(), config.getClassroomShortName());
-		classroom.setLocale(config.getLocale());
 		classroom.getDocuments().add(classDoc);
 		classroom.setIpFilterRules(networkConfig.getIpFilter().getRules());
 

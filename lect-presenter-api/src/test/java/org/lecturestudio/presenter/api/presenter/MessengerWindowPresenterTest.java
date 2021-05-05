@@ -31,6 +31,7 @@ import org.lecturestudio.presenter.api.view.MessengerWindow;
 
 import org.junit.jupiter.api.Test;
 import org.lecturestudio.web.api.message.MessengerMessage;
+import org.lecturestudio.web.api.model.Message;
 
 class MessengerWindowPresenterTest extends PresenterTest {
 
@@ -70,7 +71,7 @@ class MessengerWindowPresenterTest extends PresenterTest {
 	@Test
 	void testOnMessage() {
 		AtomicReference<MessengerMessage> messageRef = new AtomicReference<>();
-		MessengerMessage message = new MessengerMessage("What?", "127.0.0.1", new Date());
+		MessengerMessage message = new MessengerMessage(new Message("What?"), "127.0.0.1", new Date());
 
 		MessengerMockWindow window = new MessengerMockWindow() {
 			@Override

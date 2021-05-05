@@ -48,7 +48,7 @@ public class AudioDeviceHotplugEvent extends BusEvent {
 
 
 	/**
-	 * Create a new AudioDeviceHotplugEvent with the given audio device name and
+	 * Create a new {@link AudioDeviceHotplugEvent} with the given audio device name and
 	 * the event type.
 	 *
 	 * @param name The audio device name.

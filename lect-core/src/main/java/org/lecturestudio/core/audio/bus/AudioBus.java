@@ -44,9 +44,9 @@ public class AudioBus {
 	}
 
 	/**
-	 * Get the AudioBus singleton instance.
+	 * Get the {@link AudioBus} singleton instance.
 	 *
-	 * @return the AudioBus instance.
+	 * @return the {@link AudioBus} instance.
 	 */
 	private static AudioBus getInstance() {
 		if (instance == null) {
@@ -84,9 +84,9 @@ public class AudioBus {
 	}
 
 	/**
-	 * Get the EventBus instance used by this AudioBus.
+	 * Get the {@link EventBus} instance used by this {@link AudioBus}.
 	 *
-	 * @return the EventBus instance.
+	 * @return the {@link EventBus} instance.
 	 */
 	public static EventBus get() {
 		return getInstance().bus;

@@ -193,7 +193,7 @@ public class ToolController extends Controller implements ToolContext {
 			return;
 		}
 
-		PresentationParameterProvider ppProvider = getContext().getPagePropertyPropvider(ViewType.User);
+		PresentationParameterProvider ppProvider = getContext().getPagePropertyProvider(ViewType.User);
 
 		boolean hasZoom = ppProvider.getParameter(event.getPage()).isZoomMode();
 
@@ -282,7 +282,7 @@ public class ToolController extends Controller implements ToolContext {
 
 	@Override
 	public PresentationParameterProvider getPresentationParameterProvider(ViewType viewType) {
-		return getContext().getPagePropertyPropvider(viewType);
+		return getContext().getPagePropertyProvider(viewType);
 	}
 
 	/**
@@ -655,15 +655,15 @@ public class ToolController extends Controller implements ToolContext {
 		}
 
 		// Zoom on user view and presentation view
-		PresentationParameterProvider ppp = getContext().getPagePropertyPropvider(ViewType.User);
+		PresentationParameterProvider ppp = getContext().getPagePropertyProvider(ViewType.User);
 		PresentationParameter param = ppp.getParameter(page);
 		param.zoom(rect);
 
-		ppp = getContext().getPagePropertyPropvider(ViewType.Preview);
+		ppp = getContext().getPagePropertyProvider(ViewType.Preview);
 		param = ppp.getParameter(page);
 		param.zoom(rect);
 
-		ppp = getContext().getPagePropertyPropvider(ViewType.Presentation);
+		ppp = getContext().getPagePropertyProvider(ViewType.Presentation);
 		param = ppp.getParameter(page);
 		param.zoom(rect);
 	}
@@ -874,7 +874,7 @@ public class ToolController extends Controller implements ToolContext {
 	public void toggleGrid() {
 		Document selectedDoc = documentService.getDocuments().getSelectedDocument();
 
-		PresentationParameterProvider provider = getContext().getPagePropertyPropvider(ViewType.User);
+		PresentationParameterProvider provider = getContext().getPagePropertyProvider(ViewType.User);
 		PresentationParameter param = provider.getParameter(selectedDoc.getCurrentPage());
 
 		// Toggle
@@ -885,7 +885,7 @@ public class ToolController extends Controller implements ToolContext {
 		GridConfiguration gridConfig = getConfig().getGridConfig();
 
 		if (gridConfig.getShowGridOnDisplays()) {
-			provider = getContext().getPagePropertyPropvider(ViewType.Presentation);
+			provider = getContext().getPagePropertyProvider(ViewType.Presentation);
 			param = provider.getParameter(selectedDoc.getCurrentPage());
 
 			// Sync with user's view.
@@ -994,7 +994,7 @@ public class ToolController extends Controller implements ToolContext {
 			return 1;
 		}
 
-		PresentationParameterProvider ppp = getContext().getPagePropertyPropvider(ViewType.User);
+		PresentationParameterProvider ppp = getContext().getPagePropertyProvider(ViewType.User);
 		PresentationParameter para = ppp.getParameter(doc.getCurrentPage());
 
 		return 1 / (1 / para.getPageRect().getWidth());
@@ -1034,7 +1034,7 @@ public class ToolController extends Controller implements ToolContext {
 		}
 
 		Page page = doc.getCurrentPage();
-		PresentationParameterProvider ppp = getContext().getPagePropertyPropvider(ViewType.User);
+		PresentationParameterProvider ppp = getContext().getPagePropertyProvider(ViewType.User);
 		PresentationParameter para = ppp.getParameter(page);
 
 		return para.isZoomMode();

@@ -69,13 +69,13 @@ public abstract class ApplicationContext {
 	 * class that implement their own configuration handling, like specific
 	 * configuration paths and names.
 	 *
-	 * @throws Exception If an fatal error occurs while saving the configuration.
+	 * @throws Exception If a fatal error occurs while saving the configuration.
 	 */
 	abstract public void saveConfiguration() throws Exception;
 
 
 	/**
-	 * Create a new ApplicationContext instance with the given parameters.
+	 * Create a new {@link ApplicationContext} instance with the given parameters.
 	 *
 	 * @param dataLocator The application resource data locator.
 	 * @param config      The application configuration.
@@ -153,22 +153,22 @@ public abstract class ApplicationContext {
 	}
 
 	/**
-	 * Obtain the {@code AppDataLocator} to access application specific data.
+	 * Obtain the {@link AppDataLocator} to access application specific data.
 	 *
-	 * @return the {@code AppDataLocator}.
+	 * @return the {@link AppDataLocator}.
 	 */
 	public AppDataLocator getDataLocator() {
 		return dataLocator;
 	}
 
 	/**
-	 * Obtain the PresentationParameterProvider for the given ViewType.
+	 * Obtain the {@link PresentationParameterProvider} for the given {@link ViewType}.
 	 *
-	 * @param type The ViewType of the presentation provider.
+	 * @param type The {@link ViewType} of the presentation provider.
 	 *
-	 * @return the PresentationParameterProvider bound to the ViewType.
+	 * @return the {@link PresentationParameterProvider} bound to the {@link ViewType}.
 	 */
-	public PresentationParameterProvider getPagePropertyPropvider(ViewType type) {
+	public PresentationParameterProvider getPagePropertyProvider(ViewType type) {
 		return ppProvider.get(type);
 	}
 

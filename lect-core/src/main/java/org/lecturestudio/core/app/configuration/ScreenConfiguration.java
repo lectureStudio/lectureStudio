@@ -56,9 +56,9 @@ public class ScreenConfiguration {
 	}
 
 	/**
-	 * Set the new Screen information.
+	 * Set the new screen information.
 	 *
-	 * @param screen The new Screen to set.
+	 * @param screen The new screen to set.
 	 */
 	public void setScreen(Screen screen) {
 		this.screen.set(screen);

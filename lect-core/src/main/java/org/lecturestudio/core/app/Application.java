@@ -32,7 +32,7 @@ public interface Application {
 	/**
 	 * Prepare the application for starting. This method should perform any
 	 * initialization required post object creation, optionally using the
-	 * arguments provided by the {@code #main(String[])} method.
+	 * arguments provided by the {@code main(String[])} method.
 	 *
 	 * @param args the main method's arguments.
 	 *
@@ -71,14 +71,14 @@ public interface Application {
 	void destroy() throws ExecutableException;
 
 	/**
-	 * Registers a ApplicationStateListener on this application.
+	 * Registers a {@link ApplicationStateListener} on this application.
 	 *
 	 * @param listener the state listener to be registered.
 	 */
 	void addStateListener(ApplicationStateListener listener);
 
 	/**
-	 * Removes a ApplicationStateListener from this application.
+	 * Removes a {@link ApplicationStateListener} from this application.
 	 *
 	 * @param listener the state listener to be removed.
 	 */

@@ -27,7 +27,7 @@ import java.io.IOException;
 import org.lecturestudio.core.graphics.Color;
 
 /**
- * Implementation of an {@link Color} JSON serializer.
+ * Implementation of a {@link Color} JSON serializer.
  *
  * @author Alex Andres
  */

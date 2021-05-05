@@ -362,7 +362,7 @@ public class SlidesPresenter extends Presenter<SlidesView> {
 	}
 
 	private void documentCreated(Document doc) {
-		PresentationParameterProvider ppProvider = context.getPagePropertyPropvider(ViewType.Preview);
+		PresentationParameterProvider ppProvider = context.getPagePropertyProvider(ViewType.Preview);
 
 		view.addDocument(doc, ppProvider);
 
@@ -415,7 +415,7 @@ public class SlidesPresenter extends Presenter<SlidesView> {
 	}
 
 	private void setPage(Page page) {
-		PresentationParameterProvider ppProvider = context.getPagePropertyPropvider(ViewType.User);
+		PresentationParameterProvider ppProvider = context.getPagePropertyProvider(ViewType.User);
 		PresentationParameter parameter = ppProvider.getParameter(page);
 
 		List<SlideNote> embeddedNotes = null;
@@ -539,7 +539,7 @@ public class SlidesPresenter extends Presenter<SlidesView> {
 		};
 
 		// Register for page parameter change updates.
-		PresentationParameterProvider ppProvider = context.getPagePropertyPropvider(ViewType.User);
+		PresentationParameterProvider ppProvider = context.getPagePropertyProvider(ViewType.User);
 		ppProvider.addParameterChangeListener(new ParameterChangeListener() {
 
 			@Override
@@ -562,7 +562,7 @@ public class SlidesPresenter extends Presenter<SlidesView> {
 
 		gridConfig.showGridOnDisplaysProperty().addListener((observable, oldValue, newValue) -> {
 			// Update grid parameter.
-			PresentationParameterProvider pProvider = context.getPagePropertyPropvider(ViewType.Presentation);
+			PresentationParameterProvider pProvider = context.getPagePropertyProvider(ViewType.Presentation);
 
 			if (!newValue) {
 				// Hide grid if previously enabled.
@@ -570,7 +570,7 @@ public class SlidesPresenter extends Presenter<SlidesView> {
 			}
 			else {
 				// Sync with user's view.
-				PresentationParameterProvider uProvider = context.getPagePropertyPropvider(ViewType.User);
+				PresentationParameterProvider uProvider = context.getPagePropertyProvider(ViewType.User);
 
 				for (PresentationParameter param : pProvider.getAllPresentationParameters()) {
 					PresentationParameter userParam = uProvider.getParameter(param.getPage());

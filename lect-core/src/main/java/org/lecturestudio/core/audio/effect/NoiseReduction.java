@@ -232,7 +232,7 @@ public class NoiseReduction implements AudioEffect {
 
 		System.arraycopy(window, 0, realIn, 0, WINDOW_SIZE);
 
-		DSP.FFT(WINDOW_SIZE, realIn, null, realOut, imagOut);
+		DSP.FFT(WINDOW_SIZE, realIn, null, realOut, imagOut, false);
 
 		System.arraycopy(window, 0, realIn, 0, WINDOW_SIZE);
 
@@ -278,7 +278,7 @@ public class NoiseReduction implements AudioEffect {
 			imagOut[j] *= smooth;
 		}
 
-		DSP.IFFT(WINDOW_SIZE, realOut, imagOut, realIn, imagIn);
+		DSP.FFT(WINDOW_SIZE, realOut, imagOut, realIn, imagIn, true);
 
 		windowFunction.apply(realIn);
 

@@ -174,7 +174,7 @@ class ToolControllerTest extends CoreTest {
 	void testExtendViewTool() {
 		controller.selectExtendViewTool();
 
-		PresentationParameterProvider ppp = context.getPagePropertyPropvider(ViewType.User);
+		PresentationParameterProvider ppp = context.getPagePropertyProvider(ViewType.User);
 		PresentationParameter param = ppp.getParameter(getPage());
 
 		assertEquals(new Rectangle2D(0.0, 0.0, 1.3, 1.3), param.getPageRect());
@@ -265,7 +265,7 @@ class ToolControllerTest extends CoreTest {
 		controller.executeToolAction(new PenPoint2D(zw, zh));
 		controller.endToolAction(new PenPoint2D(zw, zh));
 
-		PresentationParameterProvider ppp = context.getPagePropertyPropvider(ViewType.User);
+		PresentationParameterProvider ppp = context.getPagePropertyProvider(ViewType.User);
 		PresentationParameter param = ppp.getParameter(getPage());
 
 		assertEquals(0, getShapes().size());
@@ -465,7 +465,7 @@ class ToolControllerTest extends CoreTest {
 		rect.setLocation(location.getX(), location.getY());
 		rect.setFromDiagonal(location.getX(), location.getY(), location.getX() + size.getWidth(), location.getY() + size.getHeight());
 
-		PresentationParameterProvider ppp = context.getPagePropertyPropvider(ViewType.User);
+		PresentationParameterProvider ppp = context.getPagePropertyProvider(ViewType.User);
 		PresentationParameter param = ppp.getParameter(getPage());
 
 		assertEquals(rect, param.getPageRect());
@@ -473,7 +473,7 @@ class ToolControllerTest extends CoreTest {
 
 	@Test
 	void testZoomOutTool() {
-		PresentationParameterProvider ppp = context.getPagePropertyPropvider(ViewType.User);
+		PresentationParameterProvider ppp = context.getPagePropertyProvider(ViewType.User);
 		PresentationParameter param = ppp.getParameter(getPage());
 
 		Rectangle2D initRect = new Rectangle2D(0, 0, 1, 1);
@@ -490,7 +490,7 @@ class ToolControllerTest extends CoreTest {
 
 	@Test
 	void testToggleGrid() {
-		PresentationParameterProvider provider = context.getPagePropertyPropvider(ViewType.User);
+		PresentationParameterProvider provider = context.getPagePropertyProvider(ViewType.User);
 		PresentationParameter param = provider.getParameter(getPage());
 
 		assertFalse(param.showGrid());

@@ -86,7 +86,7 @@ public class VideoRendererView implements SlideView, ShapeListener, ParameterCha
 		image = gConf.createCompatibleImage(width, height);
 		image.setAccelerationPriority(1.0f);
 
-		PresentationParameterProvider ppProvider = context.getPagePropertyPropvider(viewType);
+		PresentationParameterProvider ppProvider = context.getPagePropertyProvider(viewType);
 		ppProvider.addParameterChangeListener(this);
 	}
 

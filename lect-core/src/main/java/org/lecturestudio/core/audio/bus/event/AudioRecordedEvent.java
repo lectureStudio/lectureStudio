@@ -37,7 +37,7 @@ public class AudioRecordedEvent extends BusEvent {
 
 
 	/**
-	 * Create a new AudioRecordedEvent instance with the specified audio data
+	 * Create a new {@link AudioRecordedEvent} instance with the specified audio data
 	 * and audio format.
 	 *
 	 * @param data        The recorded audio data.

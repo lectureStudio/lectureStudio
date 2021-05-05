@@ -82,7 +82,7 @@ public class SlidePresentationPresenter extends PresentationPresenter<SlidePrese
 	public void close() {
 		eventBus.unregister(this);
 
-		PresentationParameterProvider ppProvider = context.getPagePropertyPropvider(ViewType.Presentation);
+		PresentationParameterProvider ppProvider = context.getPagePropertyProvider(ViewType.Presentation);
 		ppProvider.removeParameterChangeListener(parameterChangeListener);
 
 		super.close();
@@ -95,7 +95,7 @@ public class SlidePresentationPresenter extends PresentationPresenter<SlidePrese
 	}
 
 	private void setPage(Page page) {
-		PresentationParameterProvider ppProvider = context.getPagePropertyPropvider(ViewType.Presentation);
+		PresentationParameterProvider ppProvider = context.getPagePropertyProvider(ViewType.Presentation);
 		PresentationParameter parameter = ppProvider.getParameter(page);
 
 		view.setPage(page, parameter);
@@ -129,7 +129,7 @@ public class SlidePresentationPresenter extends PresentationPresenter<SlidePrese
 		};
 
 		// Register for page parameter change updates.
-		PresentationParameterProvider ppProvider = context.getPagePropertyPropvider(ViewType.Presentation);
+		PresentationParameterProvider ppProvider = context.getPagePropertyProvider(ViewType.Presentation);
 		ppProvider.addParameterChangeListener(parameterChangeListener);
 
 		view.setOnVisible(this::viewVisible);

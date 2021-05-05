@@ -37,14 +37,14 @@ public class Theme {
 
 
 	/**
-	 * Create a new Theme with empty name.
+	 * Create a new {@link Theme} with empty name.
 	 */
 	public Theme() {
 		this("", null);
 	}
 
 	/**
-	 * Create a new Theme with the specified name and source file.
+	 * Create a new {@link Theme} with the specified name and source file.
 	 *
 	 * @param name The name of the theme.
 	 * @param file The file containing theme definitions.

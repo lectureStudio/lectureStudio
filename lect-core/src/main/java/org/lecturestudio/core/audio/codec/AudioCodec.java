@@ -56,7 +56,7 @@ public abstract class AudioCodec extends ExecutableBase {
 	}
 
 	/**
-	 * Get the codec's audio format.
+	 * Get the audio format of the audio codec.
 	 *
 	 * @return the audio format.
 	 */

@@ -29,7 +29,7 @@ import static java.lang.StrictMath.cos;
 public class HannWindowFunction extends WindowFunction {
 
 	/**
-	 * Create the HannWindowFunction with specified window length.
+	 * Create the {@link HannWindowFunction} with specified window length.
 	 *
 	 * @param length the length of the window.
 	 */

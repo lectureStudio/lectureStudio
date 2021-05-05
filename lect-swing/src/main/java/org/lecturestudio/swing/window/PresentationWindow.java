@@ -131,7 +131,7 @@ public class PresentationWindow extends AbstractWindow implements SlidePresentat
 				centerSlideView();
 
 				PresentationParameterProvider paramProvider = getContext()
-						.getPagePropertyPropvider(ViewType.Presentation);
+						.getPagePropertyProvider(ViewType.Presentation);
 
 				updateSlideView(page, paramProvider.getParameter(page));
 			}

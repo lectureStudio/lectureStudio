@@ -31,11 +31,11 @@ public interface Preloader {
 	/**
 	 * Prepare the preloader for starting. This method should perform any
 	 * initialization required post object creation, optionally using the
-	 * arguments provided by the {@code #main(String[])} method.
+	 * arguments provided by the {@code main(String[])} method.
 	 *
 	 * @param args The main method's arguments.
 	 *
-	 * @throws ExecutableException If an fatal error occurred that prevents this
+	 * @throws ExecutableException If a fatal error occurred that prevents this
 	 *                             preloader from being used.
 	 */
 	void init(final String[] args) throws ExecutableException;
@@ -43,7 +43,7 @@ public interface Preloader {
 	/**
 	 * Start the preloader and show the UI.
 	 *
-	 * @throws ExecutableException If an fatal error occurred that prevents this
+	 * @throws ExecutableException If a fatal error occurred that prevents this
 	 *                             preloader from being used.
 	 */
 	void start() throws ExecutableException;
@@ -51,7 +51,7 @@ public interface Preloader {
 	/**
 	 * Close the preloader and hide the UI.
 	 *
-	 * @throws ExecutableException If an fatal error occurred that prevents this
+	 * @throws ExecutableException If a fatal error occurred that prevents this
 	 *                             preloader from being closed.
 	 */
 	void close() throws ExecutableException;
@@ -59,7 +59,7 @@ public interface Preloader {
 	/**
 	 * Cleanup resources used by this preloader.
 	 *
-	 * @throws ExecutableException If an fatal error occurred that prevents this
+	 * @throws ExecutableException If a fatal error occurred that prevents this
 	 *                             preloader from being destroyed.
 	 */
 	void destroy() throws ExecutableException;

@@ -41,9 +41,10 @@ import org.apache.logging.log4j.Logger;
  */
 public class AudioCodecLoader {
 
+	/** Logger for {@link AudioCodecLoader} */
 	private static final Logger LOG = LogManager.getLogger(AudioCodecLoader.class);
 
-	/** The AudioCodecLoader singleton instance. */
+	/** The {@link AudioCodecLoader} singleton instance. */
 	private static AudioCodecLoader service;
 
 	/** The audio codec service loader. */
@@ -51,7 +52,7 @@ public class AudioCodecLoader {
 
 
 	/**
-	 * Retrieve the singleton instance of AudioCodecLoader.
+	 * Retrieve the singleton instance of {@link AudioCodecLoader}.
 	 */
 	public static synchronized AudioCodecLoader getInstance() {
 		if (service == null) {
@@ -61,11 +62,11 @@ public class AudioCodecLoader {
 	}
 
 	/**
-	 * Get a AudioCodecProvider with the specified name.
+	 * Get a {@link AudioCodecProvider} with the specified name.
 	 *
-	 * @param providerName The name of the AudioCodecProvider to retrieve.
+	 * @param providerName The name of the {@link AudioCodecProvider} to retrieve.
 	 *
-	 * @return the AudioCodecProvider or null, if no such provider exists.
+	 * @return the {@link AudioCodecProvider} or null, if no such provider exists.
 	 */
 	public AudioCodecProvider getProvider(String providerName) {
 		try {

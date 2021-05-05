@@ -33,7 +33,7 @@ public class AudioVolumeEvent extends BusEvent {
 
 
 	/**
-	 * Create a AudioVolumeEvent instance with the specified audio volume value.
+	 * Create a {@link AudioVolumeEvent} instance with the specified audio volume value.
 	 * The value must be in the range of [0,1].
 	 *
 	 * @param volume The audio volume.

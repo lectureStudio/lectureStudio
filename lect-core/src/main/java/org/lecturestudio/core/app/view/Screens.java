@@ -137,12 +137,12 @@ public final class Screens {
 	}
 
 	/**
-	 * Get {@code GraphicsConfiguration} associated with a graphics device which
+	 * Get {@link GraphicsConfiguration} associated with a graphics device which
 	 * has the bounds defined by the provided screen.
 	 *
-	 * @param screen The screen for which to obtain the GraphicsConfiguration.
+	 * @param screen The screen for which to obtain the {@link GraphicsConfiguration}.
 	 *
-	 * @return a GraphicsConfiguration or {@code null}.
+	 * @return a {@link GraphicsConfiguration} or {@code null}.
 	 */
 	public static GraphicsConfiguration getGraphicsConfiguration(Screen screen) {
 		GraphicsDevice[] devices = GE.getScreenDevices();
@@ -159,7 +159,14 @@ public final class Screens {
 		return null;
 	}
 
+	/**
+	 * Converts a {@link Rectangle2D} into a {@link Rectangle}
+	 *
+	 * @param r {@link Rectangle2D} to be converted
+	 * @return the converted {@link Rectangle}
+	 */
 	private static Rectangle toAwtRectangle(Rectangle2D r) {
 		return new Rectangle((int) r.getX(), (int) r.getY(), (int) r.getWidth(), (int) r.getHeight());
 	}
+
 }

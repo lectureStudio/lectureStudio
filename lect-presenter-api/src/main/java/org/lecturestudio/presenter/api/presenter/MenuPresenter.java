@@ -573,7 +573,7 @@ public class MenuPresenter extends Presenter<MenuView> {
 		List<File> embeddedFileActions = null;
 
 		if (nonNull(page)) {
-			PresentationParameterProvider ppProvider = context.getPagePropertyPropvider(ViewType.User);
+			PresentationParameterProvider ppProvider = context.getPagePropertyProvider(ViewType.User);
 			parameter = ppProvider.getParameter(page);
 
 			String text = page.getPageText();
@@ -600,7 +600,7 @@ public class MenuPresenter extends Presenter<MenuView> {
 		PresentationParameter parameter = null;
 
 		if (nonNull(page)) {
-			PresentationParameterProvider ppProvider = context.getPagePropertyPropvider(ViewType.User);
+			PresentationParameterProvider ppProvider = context.getPagePropertyProvider(ViewType.User);
 			parameter = ppProvider.getParameter(page);
 		}
 
@@ -688,7 +688,7 @@ public class MenuPresenter extends Presenter<MenuView> {
 		});
 
 		// Register for page parameter change updates.
-		PresentationParameterProvider ppProvider = context.getPagePropertyPropvider(ViewType.User);
+		PresentationParameterProvider ppProvider = context.getPagePropertyProvider(ViewType.User);
 		ppProvider.addParameterChangeListener(new ParameterChangeListener() {
 
 			@Override

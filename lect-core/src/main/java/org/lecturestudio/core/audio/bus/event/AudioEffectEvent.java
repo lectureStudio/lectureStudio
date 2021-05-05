@@ -24,30 +24,30 @@ import org.lecturestudio.core.io.DynamicInputStream;
 
 /**
  * This event is published when an {@link AudioEffect} state transition occurs
- * or the AudioEffect has made progress while processing.
+ * or the {@link AudioEffect} has made progress while processing.
  *
  * @author Alex Andres
  */
 public class AudioEffectEvent extends BusEvent {
 
 	/**
-	 * The AudioEffect state type.
+	 * The {@link AudioEffect} state type.
 	 */
 	public enum State {
 
-		/** The AudioEffect has been initialized. */
+		/** The {@link AudioEffect} has been initialized. */
 		Initialized,
 
-		/** The AudioEffect has been terminated and dropped all processed data. */
+		/** The {@link AudioEffect} has been terminated and dropped all processed data. */
 		Terminated,
 
-		/** The AudioEffect has successfully finished the processing. */
+		/** The {@link AudioEffect} has successfully finished the processing. */
 		Finished,
 
-		/** The AudioEffect has made progress while processing. */
+		/** The {@link AudioEffect} has made progress while processing. */
 		Progress,
 
-		/** The event contains the processed result of the AudioEffect. */
+		/** The event contains the processed result of the {@link AudioEffect}. */
 		Result
 	}
 
@@ -55,10 +55,10 @@ public class AudioEffectEvent extends BusEvent {
 	/** The event ID. */
 	private String id;
 
-	/** The AudioEffect state. */
+	/** The {@link AudioEffect} state. */
 	private State state;
 
-	/** The AudioEffect progress. */
+	/** The {@link AudioEffect} progress. */
 	private float progress;
 
 	/** The audio input stream that contains audio data to be processed. */
@@ -66,7 +66,7 @@ public class AudioEffectEvent extends BusEvent {
 
 
 	/**
-	 * Create an AudioEffectEvent instance with the specified ID and AudioEffect
+	 * Create an {@link AudioEffectEvent} instance with the specified ID and {@link AudioEffect}
 	 * state.
 	 *
 	 * @param id    The event ID.
@@ -87,38 +87,38 @@ public class AudioEffectEvent extends BusEvent {
 	}
 
 	/**
-	 * Set the AudioEffect state.
+	 * Set the {@link AudioEffect} state.
 	 *
-	 * @param state The AudioEffect state.
+	 * @param state The {@link AudioEffect} state.
 	 */
 	public void setState(State state) {
 		this.state = state;
 	}
 
 	/**
-	 * Get the AudioEffect state.
+	 * Get the {@link AudioEffect} state.
 	 *
-	 * @return the AudioEffect state.
+	 * @return the {@link AudioEffect} state.
 	 */
 	public State getState() {
 		return state;
 	}
 
 	/**
-	 * Set the AudioEffect processing progress. The value must be in the range
+	 * Set the {@link AudioEffect} processing progress. The value must be in the range
 	 * of [0,1].
 	 *
-	 * @param progress The progress of the AudioEffect.
+	 * @param progress The progress of the {@link AudioEffect}.
 	 */
 	public void setProgress(float progress) {
 		this.progress = progress;
 	}
 
 	/**
-	 * Get the AudioEffect processing progress. The value is in the range of
+	 * Get the {@link AudioEffect} processing progress. The value is in the range of
 	 * [0,1].
 	 *
-	 * @return AudioEffect progress.
+	 * @return {@link AudioEffect} progress.
 	 */
 	public float getProgress() {
 		return progress;

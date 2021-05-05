@@ -59,9 +59,10 @@ public abstract class ApplicationBase implements Application {
 		}
 	}
 
-
+	/** Logger for {@link ApplicationBase} */
 	private static final Logger LOG = LogManager.getLogger(ApplicationBase.class);
 
+	/** ArrayList containing all open files. */
 	protected static final List<File> OPEN_FILES = new ArrayList<>();
 
 	/**
@@ -383,6 +384,13 @@ public abstract class ApplicationBase implements Application {
 		fireStateChanged();
 	}
 
+	/**
+	 * Checks if {@code nextState} is allowed the be the next state after the current {@code state} of the application.
+	 *
+	 * @param nextState The state that is desired to be the next state.
+	 * @return 			true if {@code nextState} is allowed the be the next state after the current {@code state} of
+	 * 					the application and false otherwise.
+	 */
 	private boolean validateNextState(ExecutableState nextState) {
 		switch (this.state) {
 			case Created:
@@ -421,6 +429,13 @@ public abstract class ApplicationBase implements Application {
 		}
 	}
 
+	/**
+	 * Checks if {@code nextState} is a allowed to be the next state.
+	 *
+	 * @param nextState The state that is desired to be the next state.
+	 * @param allowedStates All the states that are possible to be the next state.
+	 * @return true if {@code allowedStates} contains {@code nextState} and false otherwise.
+	 */
 	private boolean isAllowed(ExecutableState nextState, ExecutableState... allowedStates) {
 		requireNonNull(allowedStates, "No allowed states provided.");
 
@@ -435,11 +450,17 @@ public abstract class ApplicationBase implements Application {
 
 	private static class StateListener implements ApplicationStateListener {
 
+		/** The stateListeners preloader */
 		private final Preloader preloader;
 
+		/** Possible exception caught in {@link #applicationState(ExecutableState)}  */
 		private Exception exception;
 
-
+		/**
+		 * Create a new {@link StateListener} with the specified preloader.
+		 *
+		 * @param preloader the currently active preloader
+		 */
 		StateListener(Preloader preloader) {
 			this.preloader = preloader;
 		}
@@ -459,6 +480,11 @@ public abstract class ApplicationBase implements Application {
 			}
 		}
 
+		/**
+		 * Obtain the exception of this {@link StateListener}.
+		 *
+		 * @return The exception of this {@link StateListener}.
+		 */
 		public Exception getException() {
 			return exception;
 		}

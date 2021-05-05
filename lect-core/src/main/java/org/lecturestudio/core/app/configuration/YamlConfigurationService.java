@@ -45,7 +45,7 @@ public class YamlConfigurationService<T> implements ConfigurationService<T> {
 
 
 	/**
-	 * Create a new YamlConfigurationService instance.
+	 * Create a new {@link YamlConfigurationService} instance.
 	 */
 	public YamlConfigurationService() {
 		mapper = new ObjectMapper(new YAMLFactory());

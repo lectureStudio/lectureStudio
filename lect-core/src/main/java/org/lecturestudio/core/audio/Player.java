@@ -29,8 +29,7 @@ import org.lecturestudio.core.ExecutableStateListener;
 public interface Player extends Executable {
 
 	/**
-	 * Set the audio volume for playback. The volume value must be in the range
-	 * of [0,1].
+	 * Set the audio volume for playback. The volume value must be in the range of [0,1].
 	 *
 	 * @param volume The new volume value.
 	 */

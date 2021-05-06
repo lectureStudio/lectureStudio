@@ -41,7 +41,7 @@ public final class DSP {
 	 * @param imagOut The computed imaginary part of the transform.
 	 * @param inverse True if inverse transform is to be used, false if forward transform is to be used
 	 */
-	public static void FFT (int samples, float[] realIn, float[] imagIn, float[] realOut, float[] imagOut, boolean inverse) {
+	public static void FFT(int samples, float[] realIn, float[] imagIn, float[] realOut, float[] imagOut, boolean inverse) {
 		float[] work = new float[2 * samples];
 
 		for (int i = 0; i < 2 * samples; i += 2) {

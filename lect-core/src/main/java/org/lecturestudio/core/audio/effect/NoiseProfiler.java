@@ -25,7 +25,7 @@ import org.lecturestudio.core.audio.analysis.DSP;
  * Noise reduction audio effect implementation that creates a noise profile for
  * an audio stream.
  * <p>
- * The implementation is based on the SoX library (http://sox.sourceforge.net).
+ * The implementation is based on the SoX library (<a href="http://sox.sourceforge.net">http://sox.sourceforge.net</a>).
  *
  * @author Alex Andres
  */

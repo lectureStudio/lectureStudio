@@ -37,16 +37,16 @@ public class AudioEffectParameters {
 
 
 	/**
-	 * Create a new uninitialized AudioEffectParameters instance.
+	 * Create a new uninitialized {@link AudioEffectParameters} instance.
 	 */
 	public AudioEffectParameters() {
 
 	}
 
 	/**
-	 * Copy constructor of AudioEffectParameters.
+	 * Copy constructor of {@link AudioEffectParameters}.
 	 *
-	 * @param params The AudioEffectParameters from which to copy the parameters.
+	 * @param params The {@link AudioEffectParameters} from which to copy the parameters.
 	 */
 	public AudioEffectParameters(AudioEffectParameters params) {
 		setFormat(params.getFormat());
@@ -90,9 +90,9 @@ public class AudioEffectParameters {
 	}
 
 	/**
-	 * Create a copy of this AudioEffectParameters.
+	 * Create a copy of this {@link AudioEffectParameters}.
 	 *
-	 * @return copy of AudioEffectParameters.
+	 * @return copy of {@link AudioEffectParameters}.
 	 */
 	public AudioEffectParameters clone() {
 		return new AudioEffectParameters(this);

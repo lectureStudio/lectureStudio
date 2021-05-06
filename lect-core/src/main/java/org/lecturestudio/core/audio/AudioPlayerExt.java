@@ -42,6 +42,7 @@ import org.apache.logging.log4j.Logger;
  */
 public class AudioPlayerExt extends ExecutableBase implements Player {
 
+	/** Logger for {@link AudioPlayerExt} */
 	private static final Logger LOG = LogManager.getLogger(AudioPlayerExt.class);
 
 	/** The audio playback device. */
@@ -58,8 +59,7 @@ public class AudioPlayerExt extends ExecutableBase implements Player {
 
 
 	/**
-	 * Create an AudioPlayerExt with the specified playback device and audio
-	 * buffer.
+	 * Create an {@link AudioPlayerExt} with the specified playback device and audio buffer.
 	 *
 	 * @param device The audio playback device.
 	 * @param buffer The audio source.

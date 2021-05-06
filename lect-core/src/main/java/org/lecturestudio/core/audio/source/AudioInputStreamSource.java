@@ -24,7 +24,7 @@ import java.io.InputStream;
 import org.lecturestudio.core.audio.AudioFormat;
 
 /**
- * Audio input stream implementation of AudioSource.
+ * Audio input stream implementation of {@link AudioSource}.
  *
  * @author Alex Andres
  */
@@ -38,7 +38,7 @@ public class AudioInputStreamSource implements AudioSource {
 
 
 	/**
-	 * Create a AudioInputStreamSource with the specified audio input stream and
+	 * Create a {@link AudioInputStreamSource} with the specified audio input stream and
 	 * its audio format.
 	 *
 	 * @param audioStream The audio input stream.

@@ -33,7 +33,7 @@ public class AudioDeviceNotConnectedException extends ExecutableException {
 
 
 	/**
-	 * Construct a new AudioDeviceNotConnectedException with no other
+	 * Construct a new {@link AudioDeviceNotConnectedException} with no other
 	 * information.
 	 *
 	 * @param deviceName The name of the device.
@@ -45,7 +45,7 @@ public class AudioDeviceNotConnectedException extends ExecutableException {
 	}
 
 	/**
-	 * Construct a new AudioDeviceNotConnectedException with the specified
+	 * Construct a new {@link AudioDeviceNotConnectedException} with the specified
 	 * message.
 	 *
 	 * @param message    A Message describing this exception.
@@ -58,51 +58,48 @@ public class AudioDeviceNotConnectedException extends ExecutableException {
 	}
 
 	/**
-	 * Construct a new AudioDeviceNotConnectedException with the specified
+	 * Construct a new {@link AudioDeviceNotConnectedException} with the specified
 	 * formatted message.
 	 *
 	 * @param message    A Message describing this exception.
 	 * @param deviceName The name of the device.
 	 * @param args       Arguments used in the formatted message.
 	 */
-	public AudioDeviceNotConnectedException(String message, String deviceName,
-			Object... args) {
+	public AudioDeviceNotConnectedException(String message, String deviceName, Object... args) {
 		super(String.format(message, args));
 
 		this.deviceName = deviceName;
 	}
 
 	/**
-	 * Construct a new AudioDeviceNotConnectedException with the specified
+	 * Construct a new {@link AudioDeviceNotConnectedException} with the specified
 	 * throwable.
 	 *
 	 * @param throwable  A Throwable that caused this exception.
 	 * @param deviceName The name of the device.
 	 */
-	public AudioDeviceNotConnectedException(Throwable throwable,
-			String deviceName) {
+	public AudioDeviceNotConnectedException(Throwable throwable, String deviceName) {
 		super(throwable);
 
 		this.deviceName = deviceName;
 	}
 
 	/**
-	 * Construct a new AudioDeviceNotConnectedException with the specified
+	 * Construct a new {@link AudioDeviceNotConnectedException} with the specified
 	 * message and throwable.
 	 *
 	 * @param message    A Message describing this exception.
 	 * @param throwable  A Throwable that caused this exception.
 	 * @param deviceName The name of the device.
 	 */
-	public AudioDeviceNotConnectedException(String message, Throwable throwable,
-			String deviceName) {
+	public AudioDeviceNotConnectedException(String message, Throwable throwable, String deviceName) {
 		super(message, throwable);
 
 		this.deviceName = deviceName;
 	}
 
 	/**
-	 * Construct a new AudioDeviceNotConnectedException with the specified
+	 * Construct a new {@link AudioDeviceNotConnectedException} with the specified
 	 * formatted message and provided throwable.
 	 *
 	 * @param message    A Message describing this exception.
@@ -110,8 +107,7 @@ public class AudioDeviceNotConnectedException extends ExecutableException {
 	 * @param deviceName The name of the device.
 	 * @param args       Arguments used in the formatted message.
 	 */
-	public AudioDeviceNotConnectedException(String message, Throwable throwable,
-			String deviceName, Object... args) {
+	public AudioDeviceNotConnectedException(String message, Throwable throwable, String deviceName, Object... args) {
 		super(String.format(message, args), throwable);
 
 		this.deviceName = deviceName;

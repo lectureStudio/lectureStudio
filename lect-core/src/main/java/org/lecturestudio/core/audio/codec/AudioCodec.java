@@ -40,7 +40,7 @@ public abstract class AudioCodec extends ExecutableBase {
 	 * @param length    The length of the audio input data.
 	 * @param timestamp The current timestamp the specified audio data.
 	 *
-	 * @throws Exception If an fatal error occurred preventing the processed
+	 * @throws Exception If a fatal error occurred preventing the processed
 	 *                   audio data to be used.
 	 */
 	abstract public void process(byte[] input, int length, long timestamp) throws Exception;

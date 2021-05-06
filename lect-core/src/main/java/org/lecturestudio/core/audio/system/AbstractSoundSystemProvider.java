@@ -22,7 +22,7 @@ import org.lecturestudio.core.audio.device.AudioInputDevice;
 import org.lecturestudio.core.audio.device.AudioOutputDevice;
 
 /**
- * Base AudioSystemProvider implementation that implements the default retrieval
+ * Base {@link AudioSystemProvider} implementation that implements the default retrieval
  * of audio devices.
  *
  * @author Alex Andres

@@ -32,7 +32,7 @@ import org.lecturestudio.core.audio.analysis.WindowFunction;
  * The first step would be running the {@link NoiseProfiler} and then running
  * this NoiseReduction.
  * <p>
- * The implementation is based on the SoX library (http://sox.sourceforge.net).
+ * The implementation is based on the SoX library (<a href="http://sox.sourceforge.net">http://sox.sourceforge.net</a>).
  *
  * @author Alex Andres
  */
@@ -119,10 +119,7 @@ public class NoiseReduction implements AudioEffect {
 				channelData.window[oldbuf + j] = inSamples[i + channels * j];
 			}
 
-			if (!wholeWindow) {
-				continue;
-			}
-			else {
+			if (wholeWindow) {
 				processWindow(i, channels, outSamples, (oldbuf + ncopy));
 			}
 		}

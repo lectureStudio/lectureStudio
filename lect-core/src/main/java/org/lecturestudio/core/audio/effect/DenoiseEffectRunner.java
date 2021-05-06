@@ -32,7 +32,7 @@ import org.lecturestudio.core.audio.source.RandomAccessAudioSource;
 public class DenoiseEffectRunner extends AudioEffectRunner {
 
 	/**
-	 * Create an DenoiseEffectRunner with the with the desired output parameters
+	 * Create an {@link DenoiseEffectRunner} with the with the desired output parameters
 	 * and the audio source and sink.
 	 *
 	 * @param params The audio output parameters.
@@ -64,7 +64,7 @@ public class DenoiseEffectRunner extends AudioEffectRunner {
 		runEffect(profiler, profileParams, null);
 
 		if (!isRendering()) {
-			// Quit, if aborted during the profiling phase.
+			// Quit if aborted during the profiling phase.
 			return;
 		}
 

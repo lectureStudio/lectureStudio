@@ -19,7 +19,7 @@
 package org.lecturestudio.core.audio.filter;
 
 /**
- * An AudioFilter manipulates audio samples. Audio filters are meant to be used
+ * An {@link AudioFilter} manipulates audio samples. Audio filters are meant to be used
  * in a non-invasive manner, e.g. with input streams.
  *
  * @author Alex Andres

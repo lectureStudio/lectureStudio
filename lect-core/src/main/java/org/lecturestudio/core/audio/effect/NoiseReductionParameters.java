@@ -42,16 +42,16 @@ public class NoiseReductionParameters extends AudioEffectParameters {
 
 
 	/**
-	 * Create a new uninitialized NoiseReductionParameters instance.
+	 * Create a new uninitialized {@link NoiseReductionParameters} instance.
 	 */
 	public NoiseReductionParameters() {
 
 	}
 
 	/**
-	 * Copy constructor of NoiseReductionParameters.
+	 * Copy constructor of {@link NoiseReductionParameters}.
 	 *
-	 * @param params The NoiseReductionParameters from which to copy the
+	 * @param params The {@link NoiseReductionParameters} from which to copy the
 	 *               parameters.
 	 */
 	public NoiseReductionParameters(NoiseReductionParameters params) {

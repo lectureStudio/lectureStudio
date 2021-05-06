@@ -26,6 +26,7 @@ package org.lecturestudio.core.audio.filter;
  */
 public class AudioVolumeFilter implements AudioFilter {
 
+	/** The scalar value */
 	private double scalar = 1;
 
 

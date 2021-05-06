@@ -43,6 +43,7 @@ import org.apache.logging.log4j.Logger;
  */
 public abstract class AudioEffectRunner extends ExecutableBase {
 
+	/** Logger for {@link AudioEffectRunner} */
 	private static final Logger LOG = LogManager.getLogger(AudioEffectRunner.class);
 
 	/** The audio effect parameters. */
@@ -74,7 +75,7 @@ public abstract class AudioEffectRunner extends ExecutableBase {
 
 
 	/**
-	 * Create an AudioEffectRunner with the desired output parameters and the
+	 * Create an {@link AudioEffectRunner} with the desired output parameters and the
 	 * audio source and sink.
 	 *
 	 * @param params The audio output parameters.
@@ -190,7 +191,7 @@ public abstract class AudioEffectRunner extends ExecutableBase {
 	}
 
 	/**
-	 * Notify that the AudioEffect has made progress while processing. The
+	 * Notify that the {@link AudioEffect} has made progress while processing. The
 	 * progress value must be in the range of [0,1].
 	 *
 	 * @param sink     The audio sink to which to write the processed audio
@@ -216,7 +217,7 @@ public abstract class AudioEffectRunner extends ExecutableBase {
 	 * @param sink   The audio sink to which to write the processed audio
 	 *               samples.
 	 *
-	 * @throws IOException If an fatal error occurred preventing the audio
+	 * @throws IOException If a fatal error occurred preventing the audio
 	 *                     effect producing output samples.
 	 */
 	protected void runEffect(AudioEffect effect, AudioEffectParameters params, AudioSink sink) throws IOException {

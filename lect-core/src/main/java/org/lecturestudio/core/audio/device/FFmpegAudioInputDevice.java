@@ -38,7 +38,7 @@ public class FFmpegAudioInputDevice extends AudioInputDevice {
 
 
 	/**
-	 * Create a new FFmpegAudioInputDevice instance with the specified FFmpeg
+	 * Create a new {@link FFmpegAudioInputDevice} instance with the specified FFmpeg
 	 * capture device.
 	 *
 	 * @param device The FFmpeg capture device.

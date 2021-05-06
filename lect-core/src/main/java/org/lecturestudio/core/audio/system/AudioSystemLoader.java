@@ -31,7 +31,8 @@ import org.lecturestudio.core.spi.SpiLoader;
  * and be registered via the SPI.
  *
  * @author Alex Andres
- * @link https://docs.oracle.com/javase/tutorial/ext/basics/spi.html
+ * @see <a href= "https://docs.oracle.com/javase/tutorial/ext/basics/spi.html">
+ *     https://docs.oracle.com/javase/tutorial/ext/basics/spi.html</a>
  */
 public class AudioSystemLoader extends SpiLoader<AudioSystemProvider> {
 
@@ -43,7 +44,7 @@ public class AudioSystemLoader extends SpiLoader<AudioSystemProvider> {
 
 
 	/**
-	 * Retrieve the singleton instance of AudioSystemLoader.
+	 * Retrieve the singleton instance of {@link AudioSystemLoader}.
 	 */
 	public static synchronized AudioSystemLoader getInstance() {
 		if (serviceLoader == null) {
@@ -53,11 +54,11 @@ public class AudioSystemLoader extends SpiLoader<AudioSystemProvider> {
 	}
 
 	/**
-	 * Get an AudioSystemProvider with the specified name.
+	 * Get an {@link AudioSystemProvider} with the specified name.
 	 *
-	 * @param providerName The name of the AudioSystemProvider to retrieve.
+	 * @param providerName The name of the {@link AudioSystemProvider} to retrieve.
 	 *
-	 * @return the AudioSystemProvider or null, if no such provider exists.
+	 * @return the {@link AudioSystemProvider} or null, if no such provider exists.
 	 */
 	public AudioSystemProvider getProvider(String providerName) {
 		if (javaSoundProvider.getProviderName().equals(providerName)) {

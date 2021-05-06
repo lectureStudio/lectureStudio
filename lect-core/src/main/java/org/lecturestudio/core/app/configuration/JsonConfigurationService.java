@@ -104,17 +104,9 @@ public class JsonConfigurationService<T> implements ConfigurationService<T> {
 
 			config = mapper.readValue(input, cls);
 		}
-		catch (IOException e) {
-			throw e;
-		}
 		finally {
 			if (input != null) {
-				try {
-					input.close();
-				}
-				catch (Exception e) {
-					throw e;
-				}
+				input.close();
 			}
 		}
 

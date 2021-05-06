@@ -33,7 +33,6 @@ import org.lecturestudio.core.ExecutableBase;
 import org.lecturestudio.core.ExecutableException;
 import org.lecturestudio.core.ExecutableState;
 import org.lecturestudio.core.app.ApplicationContext;
-import org.lecturestudio.core.model.Document;
 import org.lecturestudio.core.service.DocumentService;
 import org.lecturestudio.core.util.NetUtils;
 import org.lecturestudio.core.util.ProgressCallback;
@@ -66,7 +65,7 @@ public class WebService extends ExecutableBase {
 
 	private final DocumentService documentService;
 
-	private final List<ExecutableBase> startedServices;
+	private final List<WebServiceBase> startedServices;
 
 	private Quiz lastQuiz;
 
@@ -100,13 +99,7 @@ public class WebService extends ExecutableBase {
 
 		startLocalBroadcaster();
 
-		updateClassroom();
-
-		MessageWebService messageWebService = new MessageWebService(context);
-		messageWebService.setClassroomId(classroomId);
-		messageWebService.start();
-
-		startedServices.add(messageWebService);
+		startService(new MessageWebService(context));
 
 		context.getEventBus().post(new MessengerStateEvent(ExecutableState.Started));
 	}
@@ -163,41 +156,19 @@ public class WebService extends ExecutableBase {
 
 		context.getEventBus().post(new QuizStateEvent(ExecutableState.Starting));
 
-		Document oldQuizDoc = null;
-
 		// Allow only one quiz running at a time.
 		if (isNull(service)) {
 			startLocalBroadcaster();
 
-			service = new QuizWebService(context);
+			service = new QuizWebService(context, documentService);
 		}
 		else {
-			oldQuizDoc = service.getQuizDocument();
-
 			service.stop();
-			service.destroy();
 		}
 
-		updateClassroom();
-
-		service.setClassroomId(classroomId);
 		service.setQuiz(quiz);
-		service.start();
 
-		startedServices.add(service);
-
-		// Add quiz document.
-		Document newQuizDoc = service.getQuizDocument();
-
-		// Replace quiz document in silent-mode.
-		if (documentService.getDocuments().contains(oldQuizDoc)) {
-			documentService.getDocuments().replace(oldQuizDoc, newQuizDoc);
-		}
-		else {
-			documentService.addDocument(newQuizDoc);
-		}
-
-		documentService.selectDocument(newQuizDoc);
+		startService(service);
 
 		lastQuiz = quiz;
 
@@ -218,15 +189,6 @@ public class WebService extends ExecutableBase {
 		}
 
 		context.getEventBus().post(new QuizStateEvent(ExecutableState.Stopping));
-
-		// Remove quiz document.
-		Document quizDoc = service.getQuizDocument();
-
-		if (nonNull(quizDoc)) {
-			quizDoc.close();
-
-			documentService.closeDocument(quizDoc);
-		}
 
 		lastQuiz = null;
 
@@ -281,7 +243,7 @@ public class WebService extends ExecutableBase {
 		Integer broadcastPort = netConfig.getBroadcastPort();
 
 		if (NetUtils.isLocalAddress(broadcastAddress, broadcastPort)) {
-//			localBroadcaster.start();
+			localBroadcaster.start();
 		}
 		else {
 			stopLocalBroadcaster();
@@ -292,16 +254,29 @@ public class WebService extends ExecutableBase {
 		if (localBroadcaster.getState() == ExecutableState.Started) {
 			localBroadcaster.stop();
 			localBroadcaster.destroy();
+
+			classroomId = null;
 		}
 	}
 
-	private void stopService(ExecutableBase service) throws ExecutableException {
+	private void startService(WebServiceBase service) throws ExecutableException {
+		updateClassroom();
+
+		service.setClassroomId(classroomId);
+		service.start();
+
+		if (!startedServices.contains(service)) {
+			startedServices.add(service);
+		}
+	}
+
+	private void stopService(WebServiceBase service) throws ExecutableException {
 		service.stop();
 		service.destroy();
 
 		startedServices.remove(service);
 
-		stopLocalBroadcaster();
+		//stopLocalBroadcaster();
 	}
 
 	private <T> T getService(Class<T> cls) {
@@ -324,7 +299,14 @@ public class WebService extends ExecutableBase {
 		if (isNull(classroomId)) {
 			createClassroomService();
 
-			classroomId = classroomWebService.createClassroom(classroom);
+			classroomId = classroomWebService.getClassrooms().stream()
+					.filter(room -> room.getShortName().equals(classroom.getShortName()))
+					.map(Classroom::getUuid).map(UUID::toString).findFirst()
+					.orElse(null);
+
+			if (isNull(classroomId)) {
+				classroomId = classroomWebService.createClassroom(classroom);
+			}
 		}
 		else {
 			classroom.setUuid(UUID.fromString(classroomId));

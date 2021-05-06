@@ -18,13 +18,10 @@
 
 package org.lecturestudio.presenter.api.service;
 
-import static java.util.Objects.requireNonNull;
-
 import java.io.File;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
-import org.lecturestudio.core.ExecutableBase;
 import org.lecturestudio.core.ExecutableException;
 import org.lecturestudio.core.app.ApplicationContext;
 import org.lecturestudio.media.config.NetworkConfiguration;
@@ -34,16 +31,10 @@ import org.lecturestudio.web.api.message.MessengerMessage;
 import org.lecturestudio.web.api.service.MessageProviderService;
 import org.lecturestudio.web.api.service.ServiceParameters;
 
-public class MessageWebService extends ExecutableBase {
-
-	private final ApplicationContext context;
+public class MessageWebService extends WebServiceBase {
 
 	/** The web service client. */
 	private MessageProviderService webService;
-
-	private String classroomId;
-
-	private String serviceId;
 
 	/** A message logger. */
 	private HtmlMessageLogger logger;
@@ -58,13 +49,7 @@ public class MessageWebService extends ExecutableBase {
 	 * @param context The ApplicationContext.
 	 */
 	public MessageWebService(ApplicationContext context) {
-		this.context = context;
-	}
-
-	public void setClassroomId(String id) {
-		requireNonNull(id);
-
-		classroomId = id;
+		super(context);
 	}
 
 	@Override
@@ -105,6 +90,8 @@ public class MessageWebService extends ExecutableBase {
 	protected void stopInternal() throws ExecutableException {
 		try {
 			webService.stopMessenger(classroomId, serviceId);
+			// Stop receiving message events.
+			webService.close();
 		}
 		catch (Exception e) {
 			throw new ExecutableException(e);

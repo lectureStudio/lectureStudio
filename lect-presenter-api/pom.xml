@@ -16,6 +16,7 @@
 
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+		<resteasy.version>4.6.0.Final</resteasy.version>
 	</properties>
 
 	<build>
@@ -68,6 +69,17 @@
 			<groupId>dev.onvoid.webrtc</groupId>
 			<artifactId>webrtc-java</artifactId>
 			<version>0.2.0</version>
+		</dependency>
+
+		<dependency>
+			<groupId>org.jboss.resteasy</groupId>
+			<artifactId>resteasy-client-microprofile</artifactId>
+			<version>${resteasy.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>org.jboss.resteasy</groupId>
+			<artifactId>resteasy-json-binding-provider</artifactId>
+			<version>${resteasy.version}</version>
 		</dependency>
 
 		<dependency>

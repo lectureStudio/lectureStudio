@@ -19,7 +19,7 @@
 package org.lecturestudio.presenter.api.service;
 
 import static java.util.Objects.isNull;
-import static java.util.Objects.requireNonNull;
+import static java.util.Objects.nonNull;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -36,15 +36,14 @@ import java.util.concurrent.TimeUnit;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
-import org.lecturestudio.core.ExecutableBase;
 import org.lecturestudio.core.ExecutableException;
-import org.lecturestudio.core.ExecutableState;
 import org.lecturestudio.core.app.ApplicationContext;
 import org.lecturestudio.core.app.dictionary.Dictionary;
 import org.lecturestudio.core.bus.EventBus;
 import org.lecturestudio.core.model.Document;
 import org.lecturestudio.core.model.DocumentType;
 import org.lecturestudio.core.pdf.PdfDocument;
+import org.lecturestudio.core.service.DocumentService;
 import org.lecturestudio.core.util.FileUtils;
 import org.lecturestudio.core.util.ProgressCallback;
 import org.lecturestudio.media.config.NetworkConfiguration;
@@ -57,9 +56,9 @@ import org.lecturestudio.web.api.model.quiz.QuizResult;
 import org.lecturestudio.web.api.service.QuizProviderService;
 import org.lecturestudio.web.api.service.ServiceParameters;
 
-public class QuizWebService extends ExecutableBase {
+public class QuizWebService extends WebServiceBase {
 
-	private final ApplicationContext context;
+	private final DocumentService documentService;
 
 	private final EventBus eventBus;
 
@@ -75,10 +74,6 @@ public class QuizWebService extends ExecutableBase {
 
 	private Document quizDocument;
 
-	private String classroomId;
-
-	private String serviceId;
-
 	/* The received answer count. */
 	private long answerCount;
 
@@ -88,25 +83,11 @@ public class QuizWebService extends ExecutableBase {
 	 *
 	 * @param context The ApplicationContext.
 	 */
-	public QuizWebService(ApplicationContext context) {
-		this.context = context;
+	public QuizWebService(ApplicationContext context, DocumentService documentService) {
+		super(context);
+
+		this.documentService = documentService;
 		this.eventBus = context.getEventBus();
-	}
-
-	public void setClassroomId(String id) {
-		requireNonNull(id);
-
-		classroomId = id;
-	}
-
-	/**
-	 * Returns the quiz document that contains the question and results
-	 * of the current quiz session.
-	 *
-	 * @return the current quiz document.
-	 */
-	public Document getQuizDocument() {
-		return quizDocument;
 	}
 
 	/**
@@ -173,7 +154,6 @@ public class QuizWebService extends ExecutableBase {
 			throw new ExecutableException(e);
 		}
 
-		answerCount = 0;
 		executorService = new ThreadPoolExecutor(1, 1, 0L, TimeUnit.MILLISECONDS, new ArrayBlockingQueue<>(1));
 	}
 
@@ -182,6 +162,8 @@ public class QuizWebService extends ExecutableBase {
 		if (isNull(quizResult)) {
 			throw new NullPointerException("No quiz result created.");
 		}
+
+		answerCount = 0;
 
 		// Create a copy, since the markup of the question gets changed for the web view.
 		Quiz webQuiz = quiz.clone();
@@ -200,7 +182,7 @@ public class QuizWebService extends ExecutableBase {
 				}
 
 				if (quizResult.addAnswer(answer)) {
-					updateQuizDocument();
+					updateQuizDocumentAsync();
 
 					answerCount++;
 
@@ -212,17 +194,25 @@ public class QuizWebService extends ExecutableBase {
 			throw new ExecutableException(e);
 		}
 
-		quizDocument = createQuizDocument(quizResult);
+		if (isNull(quizDocument)) {
+			// Add quiz document.
+			quizDocument = createQuizDocument(quizResult);
 
-		eventBus.register(this);
+			documentService.addDocument(quizDocument);
+			documentService.selectDocument(quizDocument);
+		}
+		else {
+			// Replace quiz document in silent-mode.
+			updateQuizDocument();
+		}
 	}
 
 	@Override
 	protected void stopInternal() throws ExecutableException {
-		eventBus.unregister(this);
-
 		try {
 			webService.stopQuiz(classroomId, serviceId);
+			// Stop receiving quiz events.
+			webService.close();
 		}
 		catch (Exception e) {
 			throw new ExecutableException(e);
@@ -231,6 +221,11 @@ public class QuizWebService extends ExecutableBase {
 
 	@Override
 	protected void destroyInternal() {
+		// Remove quiz document.
+		if (nonNull(quizDocument)) {
+			documentService.closeDocument(quizDocument);
+		}
+
 		executorService.shutdown();
 	}
 	
@@ -252,23 +247,28 @@ public class QuizWebService extends ExecutableBase {
 	}
 
 	private void updateQuizDocument() {
+		Dictionary dict = context.getDictionary();
+		try {
+			PdfDocument pdfDoc = PdfFactory.createQuizDocument(dict, quizResult);
+
+			quizDocument.setPdfDocument(pdfDoc);
+		}
+		catch (Exception e) {
+			logException(e, "Create quiz document failed");
+		}
+	}
+
+	private void updateQuizDocumentAsync() {
 		try {
 			executorService.execute(() -> {
-				if (getState() == ExecutableState.Started) {
-					Dictionary dict = context.getDictionary();
-					try {
-						PdfDocument pdfDoc = PdfFactory.createQuizDocument(dict, quizResult);
-						
-						quizDocument.setPdfDocument(pdfDoc);
-					}
-					catch (Exception e) {
-						logException(e, "Create quiz document failed");
-					}
+				if (started()) {
+					updateQuizDocument();
 				}
 			});
 		}
 		catch (Exception e) {
-			// Ignore. May happen if execution was rejected, which is the objective.
+			// Ignore. May happen if execution was rejected, which is the
+			// objective to avoid multiple renderings.
 		}
 	}
 

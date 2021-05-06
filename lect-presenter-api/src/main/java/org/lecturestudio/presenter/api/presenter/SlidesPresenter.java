@@ -28,6 +28,7 @@ import java.net.SocketException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.CompletableFuture;
 
 import javax.inject.Inject;
 
@@ -671,7 +672,9 @@ public class SlidesPresenter extends Presenter<SlidesView> {
 
 		@Override
 		public void documentChanged(Document document) {
-			setPage(document.getCurrentPage());
+			CompletableFuture.runAsync(() -> {
+				setPage(document.getCurrentPage());
+			});
 		}
 
 		@Override

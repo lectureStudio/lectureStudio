@@ -52,7 +52,7 @@ class SingleChoiceHandler implements QuizFormHandler {
 	}
 
 	getInput(formGroup: FormGroup): string[] {
-		return formGroup.value.options;
+		return [ formGroup.value.options ];
 	}
 }
 

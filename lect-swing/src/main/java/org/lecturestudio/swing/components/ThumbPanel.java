@@ -265,17 +265,6 @@ public class ThumbPanel extends JPanel {
 		}
 	}
 
-	public void reload() {
-		createThumbnails();
-		setSelectedThumbnail(document.getCurrentPage());
-
-		updateUI();
-
-		dispatchEvent(new ComponentEvent(this, ComponentEvent.COMPONENT_RESIZED));
-
-		resizeContent();
-	}
-
 	public void setDocument(Document doc, PresentationParameterProvider ppProvider) {
 		if (nonNull(document)) {
 			document.removeChangeListener(docChangeListener);
@@ -323,9 +312,16 @@ public class ThumbPanel extends JPanel {
 	}
 
 	private void onDocumentChanged(Document document) {
-		DefaultListModel<Page> model = (DefaultListModel<Page>) list.getModel();
-		model.removeAllElements();
-		model.addAll(document.getPages());
+		SwingUtilities.invokeLater(() -> {
+			createThumbnails();
+			resizeContent();
+
+			list.revalidate();
+			list.repaint();
+			list.setSelectedValue(document.getCurrentPage(), false);
+
+			scrollToSelected();
+		});
 	}
 
 	private void onPageAdded(Page page) {
@@ -459,6 +455,13 @@ public class ThumbPanel extends JPanel {
 
 		private void renderPage() {
 			if (isNull(page) || getBounds().isEmpty()) {
+				return;
+			}
+
+			int pageCount = page.getDocument().getPageCount();
+
+			if (page.getPageNumber() > pageCount - 1) {
+				// Avoid rendering of outdated documents.
 				return;
 			}
 

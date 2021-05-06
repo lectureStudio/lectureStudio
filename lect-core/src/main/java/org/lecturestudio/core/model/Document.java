@@ -528,6 +528,8 @@ public class Document {
 	}
 
 	private void loadPages() {
+		pages.clear();
+
 		int pageCount = pdfDocument.getPageCount();
 
 		for (int number = 0; number < pageCount; number++) {
@@ -542,6 +544,10 @@ public class Document {
 			}
 
 			pages.add(page);
+		}
+
+		if (currentPageNumber > pageCount - 1) {
+			currentPageNumber = 0;
 		}
 	}
 

@@ -34,6 +34,9 @@ for /f "tokens=2*" %%a in ('REG QUERY "HKEY_LOCAL_MACHINE\SOFTWARE\WOW6432Node\M
 :: mt.exe is available in the Microsoft Windows Software Development Kit (SDK).
 set MT_BIN="%WindowsSdkDir%\bin\%ProductVersion%.0\x64\mt"
 
+:: Start with modules not discovered with jdeps.
+set MODULES="java.security.jgss,jdk.zipfs"
+
 :: Retrieve modules.
 for /l %%n in (0,1,2) do (
 	echo Get !app[%%n]! modules

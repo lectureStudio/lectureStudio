@@ -23,6 +23,9 @@ jar[2]=lect-broadcast.jar
 
 mkdir "$PRODUCT_NAME"
 
+# Start with modules not discovered with jdeps.
+MODULES="java.security.jgss,jdk.zipfs"
+
 # Retrieve modules.
 for value in {0..2}
 do

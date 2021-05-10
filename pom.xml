@@ -92,16 +92,12 @@
 						<release>11</release>
 						<showDeprecation>true</showDeprecation>
 						<showWarnings>true</showWarnings>
-						<fork>true</fork>
 					</configuration>
 				</plugin>
 				<plugin>
 					<groupId>org.apache.maven.plugins</groupId>
 					<artifactId>maven-surefire-plugin</artifactId>
 					<version>3.0.0-M5</version>
-					<configuration>
-						<forkCount>0</forkCount>
-					</configuration>
 				</plugin>
 				<plugin>
 					<groupId>org.apache.maven.plugins</groupId>
@@ -144,7 +140,7 @@
 								<goal>copy-dependencies</goal>
 							</goals>
 							<configuration>
-								<excludeArtifactIds>lect-broadcast,junit</excludeArtifactIds>
+								<excludeArtifactIds>junit</excludeArtifactIds>
 								<stripVersion>true</stripVersion>
 								<excludeTransitive>false</excludeTransitive>
 								<excludeTypes>war</excludeTypes>
@@ -398,6 +394,11 @@
 		<dependency>
 			<groupId>org.apache.logging.log4j</groupId>
 			<artifactId>log4j-core</artifactId>
+			<version>${log4j.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.logging.log4j</groupId>
+			<artifactId>log4j-jul</artifactId>
 			<version>${log4j.version}</version>
 		</dependency>
 		<dependency>

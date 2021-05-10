@@ -10,25 +10,36 @@ import io.quarkus.runtime.Quarkus;
 import io.quarkus.runtime.QuarkusApplication;
 
 import java.io.BufferedInputStream;
+import java.io.BufferedWriter;
 import java.io.File;
 import java.io.InputStream;
 import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.security.KeyPair;
+import java.security.KeyPairGenerator;
+import java.time.Instant;
+import java.time.ZonedDateTime;
+import java.util.Base64;
 import java.util.concurrent.CompletableFuture;
 
 import org.apache.logging.log4j.jul.LogManager;
 import org.lecturestudio.broadcast.config.Configuration;
 import org.lecturestudio.core.ExecutableBase;
 import org.lecturestudio.core.ExecutableException;
+import org.lecturestudio.core.app.AppDataLocator;
 
 public class QuarkusServer extends ExecutableBase {
+
+	private final AppDataLocator dataLocator;
 
 	private final Configuration config;
 
 
 	public QuarkusServer(Configuration config) {
+		dataLocator = new AppDataLocator("lectureBroadcaster");
 		this.config = config;
 	}
 
@@ -37,6 +48,36 @@ public class QuarkusServer extends ExecutableBase {
 		if (isNull(config)) {
 			throw new ExecutableException("No configuration provided");
 		}
+
+		Path privateKeyPath = Paths.get(dataLocator.toAppDataPath("jwt/privateKey.pem"));
+		Path publicKeyPath = Paths.get(dataLocator.toAppDataPath("jwt/publicKey.pem"));
+
+		if (Files.notExists(privateKeyPath)) {
+			try {
+				generateJwtKeys(privateKeyPath, publicKeyPath);
+			}
+			catch (Exception e) {
+				throw new ExecutableException(e);
+			}
+		}
+		else {
+			// Generate new key pair every day.
+			Instant retentionPeriod = ZonedDateTime.now().minusDays(1)
+					.toInstant();
+
+			try {
+				if (Files.getLastModifiedTime(privateKeyPath).toInstant()
+						.isBefore(retentionPeriod)) {
+					generateJwtKeys(privateKeyPath, publicKeyPath);
+				}
+			}
+			catch (Exception e) {
+				throw new ExecutableException(e);
+			}
+		}
+
+		System.setProperty("smallrye.jwt.sign.key.location", privateKeyPath.toString());
+		System.setProperty("mp.jwt.verify.publickey.location", publicKeyPath.toString());
 	}
 
 	@Override
@@ -95,6 +136,34 @@ public class QuarkusServer extends ExecutableBase {
 		}
 		finally {
 			app.getRunnerClassLoader().close();
+		}
+	}
+
+	private static void generateJwtKeys(Path privateKeyPath, Path publicKeyPath) throws Exception {
+		KeyPairGenerator kpg = KeyPairGenerator.getInstance("RSA");
+		kpg.initialize(2048);
+		KeyPair kp = kpg.generateKeyPair();
+
+		if (Files.notExists(privateKeyPath.getParent())) {
+			Files.createDirectories(privateKeyPath.getParent());
+		}
+
+		try (BufferedWriter writer = Files.newBufferedWriter(privateKeyPath,
+				StandardCharsets.UTF_8)) {
+			writer.write("-----BEGIN PRIVATE KEY-----");
+			writer.write(System.lineSeparator());
+			writer.write(Base64.getMimeEncoder().encodeToString(kp.getPrivate().getEncoded()));
+			writer.write(System.lineSeparator());
+			writer.write("-----END PRIVATE KEY-----");
+		}
+
+		try (BufferedWriter writer = Files.newBufferedWriter(publicKeyPath,
+				StandardCharsets.UTF_8)) {
+			writer.write("-----BEGIN PUBLIC KEY-----");
+			writer.write(System.lineSeparator());
+			writer.write(Base64.getMimeEncoder().encodeToString(kp.getPublic().getEncoded()));
+			writer.write(System.lineSeparator());
+			writer.write("-----END PUBLIC KEY-----");
 		}
 	}
 

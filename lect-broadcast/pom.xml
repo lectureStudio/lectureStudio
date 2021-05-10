@@ -4,6 +4,12 @@
 	xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
 	<modelVersion>4.0.0</modelVersion>
 
+	<parent>
+		<groupId>org.lecturestudio</groupId>
+		<artifactId>lect-studio</artifactId>
+		<version>4.0.0</version>
+	</parent>
+
 	<groupId>org.lecturestudio.broadcast</groupId>
 	<artifactId>lect-broadcast</artifactId>
 	<version>4.0.0</version>
@@ -14,8 +20,8 @@
 		<quarkus.platform.artifact-id>quarkus-universe-bom</quarkus.platform.artifact-id>
 		<quarkus.platform.group-id>io.quarkus</quarkus.platform.group-id>
 		<quarkus.platform.version>1.13.3.Final</quarkus.platform.version>
+		<quarkus.package.output-directory>broadcast</quarkus.package.output-directory>
 		<resteasy.version>4.6.0.Final</resteasy.version>
-		<compiler-plugin.version>3.8.1</compiler-plugin.version>
 		<surefire-plugin.version>3.0.0-M5</surefire-plugin.version>
 		<web.auth.version>1.0.0</web.auth.version>
 		<web.client.version>1.0.0</web.client.version>
@@ -28,8 +34,24 @@
 	<build>
 		<plugins>
 			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-jar-plugin</artifactId>
+				<version>3.2.0</version>
+				<configuration>
+					<classifier>${envClassifier}</classifier>
+					<archive>
+						<manifest>
+							<mainClass>org.lecturestudio.broadcast.BroadcasterApplication</mainClass>
+							<addClasspath>true</addClasspath>
+							<classpathPrefix>lib/</classpathPrefix>
+							<classpathLayoutType>custom</classpathLayoutType>
+							<customClasspathLayout>${artifact.artifactId}.${artifact.extension}</customClasspathLayout>
+						</manifest>
+					</archive>
+				</configuration>
+			</plugin>
+			<plugin>
 				<artifactId>maven-compiler-plugin</artifactId>
-				<version>${compiler-plugin.version}</version>
 				<configuration>
 					<parameters>${maven.compiler.parameters}</parameters>
 				</configuration>
@@ -72,6 +94,34 @@
 					</execution>
 				</executions>
 			</plugin>
+			<!-- Copy resources for the embedded version -->
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-resources-plugin</artifactId>
+				<executions>
+					<execution>
+						<id>copy-resources</id>
+						<phase>install</phase>
+						<goals>
+							<goal>copy-resources</goal>
+						</goals>
+						<configuration>
+							<outputDirectory>${project.parent.build.directory}/${build.output.dir}/lib/${quarkus.package.output-directory}</outputDirectory>
+							<resources>
+								<resource>
+									<directory>${project.build.directory}/${quarkus.package.output-directory}</directory>
+									<filtering>false</filtering>
+									<includes>
+										<include>app/**</include>
+										<include>lib/**</include>
+										<include>quarkus/**</include>
+									</includes>
+								</resource>
+							</resources>
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>
 		</plugins>
 	</build>
 
@@ -92,7 +142,6 @@
 			<groupId>org.lecturestudio.core</groupId>
 			<artifactId>lect-core</artifactId>
 			<version>4.0.0</version>
-
 			<exclusions>
 				<exclusion>
 					<artifactId>*</artifactId>

@@ -119,7 +119,7 @@ public class PenStroker {
 	 *
 	 * @return the generated stoke path.
 	 */
-	public Path2D getStrokePath() {
+	public synchronized Path2D getStrokePath() {
 		if (points.isEmpty()) {
 			return null;
 		}

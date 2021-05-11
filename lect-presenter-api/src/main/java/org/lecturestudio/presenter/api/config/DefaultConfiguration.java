@@ -43,6 +43,7 @@ public class DefaultConfiguration extends PresenterConfiguration {
 		setApplicationName("lecturePresenter");
 		setTheme(new Theme("default", null));
 		setLocale(Locale.GERMANY);
+		setCheckNewVersion(true);
 		setUIControlSize(10);
 		setExtendPageDimension(new Dimension2D(1.3, 1.3));
 		setStartMaximized(true);

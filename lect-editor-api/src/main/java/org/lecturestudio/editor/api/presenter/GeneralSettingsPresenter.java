@@ -51,6 +51,7 @@ public class GeneralSettingsPresenter extends Presenter<GeneralSettingsView> {
 
 		view.setLocales(localeProvider.getLocales());
 		view.setLocale(config.localeProperty());
+		view.setCheckNewVersion(config.checkNewVersionProperty());
 		view.setStartMaximized(config.startMaximizedProperty());
 		view.setExtendedFullscreen(config.extendedFullscreenProperty());
 		view.setTextSize(config.uiControlSizeProperty());

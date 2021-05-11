@@ -49,10 +49,13 @@ import org.lecturestudio.core.controller.PresentationController;
 import org.lecturestudio.core.geometry.Rectangle2D;
 import org.lecturestudio.core.input.KeyEvent;
 import org.lecturestudio.core.model.Document;
+import org.lecturestudio.core.model.VersionInfo;
+import org.lecturestudio.core.presenter.NewVersionPresenter;
 import org.lecturestudio.core.presenter.NotificationPresenter;
 import org.lecturestudio.core.presenter.Presenter;
 import org.lecturestudio.core.presenter.command.CloseApplicationCommand;
 import org.lecturestudio.core.presenter.command.ClosePresenterCommand;
+import org.lecturestudio.core.presenter.command.NewVersionCommand;
 import org.lecturestudio.core.presenter.command.ShowPresenterCommand;
 import org.lecturestudio.core.service.DocumentService;
 import org.lecturestudio.core.util.ObservableHashMap;
@@ -78,6 +81,8 @@ import org.lecturestudio.presenter.api.util.SaveConfigurationHandler;
 import org.lecturestudio.presenter.api.util.SaveDocumentsHandler;
 import org.lecturestudio.presenter.api.util.SaveRecordingHandler;
 import org.lecturestudio.presenter.api.view.MainView;
+import org.lecturestudio.web.api.model.GitHubRelease;
+import org.lecturestudio.web.api.service.VersionChecker;
 
 public class MainPresenter extends org.lecturestudio.core.presenter.MainPresenter<MainView> implements ViewHandler {
 
@@ -223,6 +228,35 @@ public class MainPresenter extends org.lecturestudio.core.presenter.MainPresente
 			logException(throwable, "Create settings failed");
 			return null;
 		});
+
+		if (config.getCheckNewVersion()) {
+			// Check for a new version.
+			CompletableFuture.runAsync(() -> {
+				try {
+					VersionChecker versionChecker = new VersionChecker();
+
+					if (versionChecker.newVersionAvailable()) {
+						GitHubRelease release = versionChecker.getLatestRelease();
+
+						VersionInfo version = new VersionInfo();
+						version.downloadUrl = versionChecker.getMatchingAssetUrl();
+						version.htmlUrl = release.getUrl();
+						version.published = release.getPublishedAt();
+						version.version = release.getTagName();
+
+						context.getEventBus().post(new NewVersionCommand(
+								NewVersionPresenter.class, version));
+					}
+				}
+				catch (Exception e) {
+					throw new CompletionException(e);
+				}
+			})
+			.exceptionally(throwable -> {
+				logException(throwable, "Check for new version failed");
+				return null;
+			});
+		}
 	}
 
 	@Subscribe

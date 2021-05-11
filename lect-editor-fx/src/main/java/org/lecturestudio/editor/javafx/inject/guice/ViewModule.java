@@ -57,6 +57,7 @@ public class ViewModule extends AbstractModule {
 		bind(MediaTrackControlsView.class).to(FxMediaTrackControlsView.class);
 		bind(MediaTracksView.class).to(FxMediaTracksView.class);
 		bind(MenuView.class).to(FxMenuView.class);
+		bind(NewVersionView.class).to(FxNewVersionView.class);
 		bind(NoiseReductionProgressView.class).to(FxNoiseReductionProgressView.class);
 		bind(NoiseReductionSettingsView.class).to(FxNoiseReductionSettingsView.class);
 		bind(PageEventsView.class).to(FxPageEventsView.class);

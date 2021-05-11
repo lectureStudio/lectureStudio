@@ -16,7 +16,6 @@
 
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-		<resteasy.version>4.6.0.Final</resteasy.version>
 		<quarkus.version>1.13.3.Final</quarkus.version>
 	</properties>
 
@@ -94,17 +93,6 @@
 			<groupId>org.graalvm.sdk</groupId>
 			<artifactId>graal-sdk</artifactId>
 			<version>21.0.0</version>
-		</dependency>
-
-		<dependency>
-			<groupId>org.jboss.resteasy</groupId>
-			<artifactId>resteasy-client-microprofile</artifactId>
-			<version>${resteasy.version}</version>
-		</dependency>
-		<dependency>
-			<groupId>org.jboss.resteasy</groupId>
-			<artifactId>resteasy-json-binding-provider</artifactId>
-			<version>${resteasy.version}</version>
 		</dependency>
 
 		<dependency>

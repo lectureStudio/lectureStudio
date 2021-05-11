@@ -47,6 +47,8 @@ public class SwingGeneralSettingsView extends JPanel implements GeneralSettingsV
 
 	private JComboBox<Locale> localeCombo;
 
+	private JCheckBox checkVersionCheckBox;
+
 	private JCheckBox maximizedCheckBox;
 
 	private JCheckBox fullscreenCheckBox;
@@ -87,6 +89,11 @@ public class SwingGeneralSettingsView extends JPanel implements GeneralSettingsV
 	public void setLocales(List<Locale> locales) {
 		SwingUtils.invoke(() -> localeCombo
 				.setModel(new DefaultComboBoxModel<>(new Vector<>(locales))));
+	}
+
+	@Override
+	public void setCheckNewVersion(BooleanProperty check) {
+		SwingUtils.bindBidirectional(checkVersionCheckBox, check);
 	}
 
 	@Override

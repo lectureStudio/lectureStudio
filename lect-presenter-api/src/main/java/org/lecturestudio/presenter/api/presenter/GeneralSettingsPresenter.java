@@ -56,6 +56,7 @@ public class GeneralSettingsPresenter extends Presenter<GeneralSettingsView> {
 		view.setLocale(config.localeProperty());
 		view.setThemes(themeProvider.getThemes());
 		view.setTheme(config.themeProperty());
+		view.setCheckNewVersion(config.checkNewVersionProperty());
 		view.setStartMaximized(config.startMaximizedProperty());
 		view.setStartFullscreen(config.startFullscreenProperty());
 		view.setTabletMode(config.tabletModeProperty());

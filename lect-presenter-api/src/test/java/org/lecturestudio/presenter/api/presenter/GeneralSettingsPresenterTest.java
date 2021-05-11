@@ -109,6 +109,11 @@ class GeneralSettingsPresenterTest extends PresenterTest {
 		}
 
 		@Override
+		public void setCheckNewVersion(BooleanProperty check) {
+			assertNotNull(check);
+		}
+
+		@Override
 		public void setStartMaximized(BooleanProperty maximized) {
 			assertFalse(maximized.get());
 		}

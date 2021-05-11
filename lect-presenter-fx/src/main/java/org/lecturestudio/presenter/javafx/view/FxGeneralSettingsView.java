@@ -54,6 +54,9 @@ public class FxGeneralSettingsView extends GridPane implements GeneralSettingsVi
 	private ComboBox<Locale> localeCombo;
 
 	@FXML
+	private CheckBox checkVersionCheckBox;
+
+	@FXML
 	private CheckBox maximizedCheckBox;
 
 	@FXML
@@ -103,6 +106,11 @@ public class FxGeneralSettingsView extends GridPane implements GeneralSettingsVi
 	@Override
 	public void setLocales(List<Locale> locales) {
 		FxUtils.invoke(() -> localeCombo.getItems().setAll(locales));
+	}
+
+	@Override
+	public void setCheckNewVersion(BooleanProperty check) {
+		checkVersionCheckBox.selectedProperty().bindBidirectional(new LectBooleanProperty(check));
 	}
 
 	@Override

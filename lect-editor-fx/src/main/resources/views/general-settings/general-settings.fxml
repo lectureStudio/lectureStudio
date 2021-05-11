@@ -15,6 +15,7 @@
 		<RowConstraints/>
 		<RowConstraints/>
 		<RowConstraints/>
+		<RowConstraints/>
 		<RowConstraints vgrow="ALWAYS"/>
 	</rowConstraints>
 
@@ -27,13 +28,14 @@
 			<LocaleCellFactory/>
 		</cellFactory>
 	</ComboBox>
-	<CheckBox fx:id="maximizedCheckBox" text="%general.settings.start.maximized" maxWidth="Infinity" GridPane.columnSpan="2" GridPane.rowIndex="1"/>
-	<CheckBox fx:id="fullscreenModeCheckBox" text="%general.settings.fullscreen.hide.extended" maxWidth="Infinity" GridPane.columnSpan="2" GridPane.rowIndex="2"/>
+	<CheckBox fx:id="checkVersionCheckBox" text="%general.settings.check.version" GridPane.columnSpan="2" GridPane.rowIndex="1"/>
+	<CheckBox fx:id="maximizedCheckBox" text="%general.settings.start.maximized" maxWidth="Infinity" GridPane.columnSpan="2" GridPane.rowIndex="2"/>
+	<CheckBox fx:id="fullscreenModeCheckBox" text="%general.settings.fullscreen.hide.extended" maxWidth="Infinity" GridPane.columnSpan="2" GridPane.rowIndex="3"/>
 
-	<Label text="%general.settings.font.size" GridPane.rowIndex="3"/>
+	<Label text="%general.settings.font.size" GridPane.rowIndex="4"/>
 	<Slider fx:id="textSizeSlider" blockIncrement="1.0" majorTickUnit="1.0" max="24.0" min="9.0" minorTickCount="0"
-			showTickLabels="true" showTickMarks="true" GridPane.columnIndex="1" GridPane.rowIndex="3"/>
-	<HBox alignment="BOTTOM_RIGHT" spacing="5" GridPane.columnSpan="2" GridPane.rowIndex="4">
+			showTickLabels="true" showTickMarks="true" GridPane.columnIndex="1" GridPane.rowIndex="4"/>
+	<HBox alignment="BOTTOM_RIGHT" spacing="5" GridPane.columnSpan="2" GridPane.rowIndex="5">
 		<Button fx:id="resetButton" text="%button.reset"/>
 		<Button fx:id="closeButton" text="%button.close"/>
 	</HBox>

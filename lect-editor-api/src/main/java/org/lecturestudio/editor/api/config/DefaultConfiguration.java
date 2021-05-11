@@ -34,6 +34,7 @@ public class DefaultConfiguration extends EditorConfiguration {
 	public DefaultConfiguration() {
 		setApplicationName("lectureEditor");
 		setLocale(Locale.getDefault());
+		setCheckNewVersion(true);
 		setUIControlSize(9);
 		setExtendPageDimension(new Dimension2D(6.0, 4.5));
 		setStartMaximized(true);

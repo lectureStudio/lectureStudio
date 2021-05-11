@@ -31,6 +31,8 @@ public interface GeneralSettingsView extends SettingsBaseView {
 
 	void setLocales(List<Locale> locales);
 
+	void setCheckNewVersion(BooleanProperty check);
+
 	void setStartMaximized(BooleanProperty maximized);
 
 	void setExtendedFullscreen(BooleanProperty extended);

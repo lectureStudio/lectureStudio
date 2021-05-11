@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Panel>
+	<Panel ref="buttonContainer">
+		<Button id="openUrlButton" text="version.website" />
+		<Button id="downloadButton" text="button.download" />
+		<Button id="closeButton" text="button.close" />
+	</Panel>
+</Panel>

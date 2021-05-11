@@ -48,6 +48,9 @@ public class Configuration {
 	/** The locale of the application. */
 	private final ObjectProperty<Locale> locale = new ObjectProperty<>();
 
+	/** Indicates whether to check for a new version of the application. */
+	private final BooleanProperty checkNewVersion = new BooleanProperty();
+
 	/** The UI control size of the application. */
 	private final DoubleProperty uiControlSize = new DoubleProperty();
 
@@ -170,6 +173,33 @@ public class Configuration {
 	 */
 	public ObjectProperty<Locale> localeProperty() {
 		return locale;
+	}
+
+	/**
+	 * Obtain whether new version checking is enabled.
+	 *
+	 * @return true if version checking is enabled.
+	 */
+	public boolean getCheckNewVersion() {
+		return checkNewVersion.get();
+	}
+
+	/**
+	 * Set whether to check for new versions of the application.
+	 *
+	 * @param check True to check for new versions.
+	 */
+	public void setCheckNewVersion(boolean check) {
+		this.checkNewVersion.set(check);
+	}
+
+	/**
+	 * Obtain the property for new version checking.
+	 *
+	 * @return the new version checking property.
+	 */
+	public BooleanProperty checkNewVersionProperty() {
+		return checkNewVersion;
 	}
 
 	/**

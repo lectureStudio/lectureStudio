@@ -77,7 +77,7 @@ public class VersionChecker {
 		ComparableVersion appVersion = new ComparableVersion(VersionInfo.getAppVersion());
 		ComparableVersion repoVersion = new ComparableVersion(latestRelease.getTagName());
 
-		return repoVersion.compareTo(appVersion) < 0;
+		return repoVersion.compareTo(appVersion) > 0;
 	}
 
 	/**

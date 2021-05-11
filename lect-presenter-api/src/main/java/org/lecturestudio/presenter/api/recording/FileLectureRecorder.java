@@ -408,11 +408,6 @@ public class FileLectureRecorder extends LectureRecorder {
 
 		// Add action to the current page.
 		recordedPages.peek().addPlaybackAction(action);
-
-		// Write backup.
-		backup.writePages(recordedPages);
-
-		//LOG.info("Record action: " + action.getClass().getSimpleName() + "\t" + new Time(action.getTimestamp(), true));
 	}
 
 	private void recordPage(Page page, long timestamp) {

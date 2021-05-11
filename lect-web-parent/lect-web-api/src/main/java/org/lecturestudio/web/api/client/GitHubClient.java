@@ -23,6 +23,9 @@ import java.util.List;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 
+import org.eclipse.microprofile.rest.client.annotation.RegisterProvider;
+import org.eclipse.microprofile.rest.client.annotation.RegisterProviders;
+import org.lecturestudio.web.api.data.bind.JsonConfigProvider;
 import org.lecturestudio.web.api.model.GitHubRelease;
 
 /**
@@ -32,6 +35,9 @@ import org.lecturestudio.web.api.model.GitHubRelease;
  * @author Alex Andres
  */
 @Path("/repos")
+@RegisterProviders({
+	@RegisterProvider(JsonConfigProvider.class)
+})
 public interface GitHubClient {
 
 	/**

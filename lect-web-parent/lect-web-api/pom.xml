@@ -94,6 +94,13 @@
 			<version>${log4j.version}</version>
 		</dependency>
 
+		<!-- Used to compare app/release versions -->
+		<dependency>
+			<groupId>org.apache.maven</groupId>
+			<artifactId>maven-artifact</artifactId>
+			<version>3.8.1</version>
+		</dependency>
+
 		<dependency>
 			<groupId>org.lecturestudio.core</groupId>
 			<artifactId>lect-core</artifactId>

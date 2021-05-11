@@ -7,6 +7,7 @@ module org.lecturestudio.web.api {
 	requires java.json.bind;
 	requires java.persistence;
 	requires java.ws.rs;
+	requires maven.artifact;
 	requires microprofile.rest.client.api;
 	requires org.apache.logging.log4j;
 	requires org.apache.logging.log4j.core;

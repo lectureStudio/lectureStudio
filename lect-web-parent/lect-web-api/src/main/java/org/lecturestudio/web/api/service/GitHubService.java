@@ -18,10 +18,12 @@
 
 package org.lecturestudio.web.api.service;
 
+import java.net.URI;
 import java.util.List;
 
 import javax.inject.Inject;
 
+import org.eclipse.microprofile.rest.client.RestClientBuilder;
 import org.lecturestudio.web.api.client.GitHubClient;
 import org.lecturestudio.web.api.model.GitHubRelease;
 
@@ -42,7 +44,9 @@ public class GitHubService extends ProviderService {
 	 */
 	@Inject
 	public GitHubService(ServiceParameters parameters) {
-		providerClient = createProxy(GitHubClient.class, parameters);
+		providerClient = RestClientBuilder.newBuilder()
+				.baseUri(URI.create(parameters.getUrl()))
+				.build(GitHubClient.class);
 	}
 
 	/**

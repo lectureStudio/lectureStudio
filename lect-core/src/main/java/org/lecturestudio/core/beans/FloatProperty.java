@@ -26,14 +26,14 @@ package org.lecturestudio.core.beans;
 public class FloatProperty extends ObjectProperty<Float> {
 
 	/**
-	 * Create a FloatProperty with the initial value set to {@code 0}.
+	 * Create a {@link FloatProperty} with the initial value set to {@code 0}.
 	 */
 	public FloatProperty() {
 		this(0);
 	}
 
 	/**
-	 * Create a FloatProperty with the specified initial value.
+	 * Create a {@link FloatProperty} with the specified initial value.
 	 *
 	 * @param defaultValue The initial value.
 	 */

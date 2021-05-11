@@ -19,7 +19,7 @@
 package org.lecturestudio.core.beans;
 
 /**
- * A ChangeListener is notified whenever the value of an {@link Observable} has
+ * A {@link ChangeListener} is notified whenever the value of an {@link Observable} has
  * changed.
  *
  * @param <T> The type of the observed data.
@@ -30,9 +30,9 @@ package org.lecturestudio.core.beans;
 public interface ChangeListener<T> {
 
 	/**
-	 * This method is called when the value of an {@code Observable} has changed.
+	 * This method is called when the value of an {@link Observable} has changed.
 	 *
-	 * @param observable The Observable of which the value has changed.
+	 * @param observable The {@link Observable} of which the value has changed.
 	 * @param oldValue   The old value.
 	 * @param newValue   The new value.
 	 */

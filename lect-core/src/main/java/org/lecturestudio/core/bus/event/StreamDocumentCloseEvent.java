@@ -21,6 +21,12 @@ import org.lecturestudio.core.model.DocumentType;
 
 public class StreamDocumentCloseEvent extends StreamDocumentEvent {
 
+	/**
+	 * Create the {@link StreamDocumentCloseEvent} with specified type and document title.
+	 *
+	 * @param type The type of the {@link StreamDocumentCloseEvent}.
+	 * @param documentTitle The document title.
+	 */
 	public StreamDocumentCloseEvent(DocumentType type, String documentTitle) {
 		super(type, documentTitle);
 	}

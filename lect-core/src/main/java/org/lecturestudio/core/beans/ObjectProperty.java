@@ -32,14 +32,14 @@ public class ObjectProperty<T> extends ObservableBase<T> implements Property<T> 
 
 
 	/**
-	 * Create an ObjectProperty with the initial value set to {@code null}.
+	 * Create an {@link ObjectProperty} with the initial value set to {@code null}.
 	 */
 	public ObjectProperty() {
 		this(null);
 	}
 
 	/**
-	 * Create an ObjectProperty with the specified initial value.
+	 * Create an {@link ObjectProperty} with the specified initial value.
 	 *
 	 * @param value The initial value.
 	 */

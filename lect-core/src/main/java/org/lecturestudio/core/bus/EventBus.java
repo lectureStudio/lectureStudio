@@ -24,13 +24,14 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 /**
- * The EventBus implements the publish-subscribe paradigm. It dispatches any
+ * The {@link EventBus} implements the publish-subscribe paradigm. It dispatches any
  * kind of events to the subscribers.
  *
  * @author Alex Andres
  */
 public class EventBus {
 
+	/** Logger for {@link EventBus} */
 	private static final Logger LOG = LogManager.getLogger(EventBus.class);
 
 	/** The handler for subscriber exceptions. */
@@ -45,7 +46,7 @@ public class EventBus {
 
 
 	/**
-	 * Create an EventBus.
+	 * Create an {@link EventBus}.
 	 */
 	public EventBus() {
 		bus = new com.google.common.eventbus.EventBus(exceptionHandler);

@@ -22,20 +22,37 @@ import org.lecturestudio.core.tool.ToolType;
 
 public class ToolSelectionEvent extends BusEvent {
 
+	/** The tool type. */
 	private final ToolType toolType;
-	
+
+	/** The paint settings. */
 	private final PaintSettings paintSettings;
-	
-	 
+
+	/**
+	 * Create the {@link ToolSelectionEvent} with specified tool type and paint settings.
+	 *
+	 * @param toolType The tool type.
+	 * @param settings The paint settings.
+	 */
 	public ToolSelectionEvent(ToolType toolType, PaintSettings settings) {
 		this.toolType = toolType;
 		this.paintSettings = settings;
 	}
-	
+
+	/**
+	 * Get the tool type.
+	 *
+	 * @return The tool type.
+	 */
 	public ToolType getToolType() {
 		return toolType;
 	}
-	
+
+	/**
+	 * Get the paint settings.
+	 *
+	 * @return The paint settings.
+	 */
 	public PaintSettings getPaintSettings() {
 		return paintSettings;
 	}

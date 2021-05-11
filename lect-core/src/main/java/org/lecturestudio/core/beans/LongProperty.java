@@ -26,14 +26,14 @@ package org.lecturestudio.core.beans;
 public class LongProperty extends ObjectProperty<Long> {
 
 	/**
-	 * Create a LongProperty with the initial value set to {@code 0}.
+	 * Create a {@link LongProperty} with the initial value set to {@code 0}.
 	 */
 	public LongProperty() {
 		this(0);
 	}
 
 	/**
-	 * Create a LongProperty with the specified initial value.
+	 * Create a {@link LongProperty} with the specified initial value.
 	 *
 	 * @param defaultValue The initial value.
 	 */

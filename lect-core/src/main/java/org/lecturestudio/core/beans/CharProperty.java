@@ -26,14 +26,14 @@ package org.lecturestudio.core.beans;
 public class CharProperty extends ObjectProperty<Character> {
 
 	/**
-	 * Create a CharProperty with the initial value set to {@code '0'}.
+	 * Create a {@link CharProperty} with the initial value set to {@code '0'}.
 	 */
 	public CharProperty() {
 		this('0');
 	}
 
 	/**
-	 * Create a CharProperty with the specified initial value.
+	 * Create a {@link CharProperty} with the specified initial value.
 	 *
 	 * @param defaultValue The initial value.
 	 */

@@ -21,13 +21,24 @@ import org.lecturestudio.core.recording.action.PlaybackAction;
 
 public class RecordActionEvent extends BusEvent {
 
+	/** The playback action. */
 	private final PlaybackAction action;
-	
-	
+
+
+	/**
+	 * Create the {@link RecordActionEvent} with specified playback action.
+	 *
+	 * @param action The playback action.
+	 */
 	public RecordActionEvent(PlaybackAction action) {
 		this.action = action;
 	}
-	
+
+	/**
+	 * Get the playback action.
+	 *
+	 * @return The playback action.
+	 */
 	public PlaybackAction getAction() {
 		return action;
 	}

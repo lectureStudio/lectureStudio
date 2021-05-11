@@ -21,46 +21,90 @@ import org.lecturestudio.core.model.DocumentType;
 
 public abstract class StreamDocumentEvent extends ApplicationControllerEvent {
 
+	/** The type of the document. */
 	private DocumentType documentType;
-	
+
+	/** The title of the document. */
 	private String documentTitle;
-	
+
+	/** The file name of the document. */
 	private String documentFileName;
-	
+
+	/** The document checksum. */
 	private String documentChecksum;
-	
-	
+
+	/**
+	 *  Create the {@link StreamDocumentEvent} with specified type and document title.
+	 *
+	 * @param type The type of the {@link StreamDocumentEvent}.
+	 * @param documentTitle The document title.
+	 */
 	public StreamDocumentEvent(DocumentType type, String documentTitle) {
 		this.documentType = type;
 		this.documentTitle = documentTitle;
 		
 		setSynchronous(true);
 	}
-	
+
+	/**
+	 * Get the type of the document.
+	 *
+	 * @return The type of the document.
+	 */
 	public DocumentType getDocumentType() {
 		return documentType;
 	}
-	
+
+	/**
+	 * Get the file name of the document.
+	 *
+	 * @return The file name of the document.
+	 */
 	public String getDocumentFileName() {
 		return documentFileName;
 	}
-	
+
+	/**
+	 * Set the {@link #documentFileName}.
+	 *
+	 * @param documentFileName The new file name.
+	 */
 	public void setDocumentFileName(String documentFileName) {
 		this.documentFileName = documentFileName;
 	}
-	
+
+	/**
+	 * Get the document checksum.
+	 *
+	 * @return The document checksum.
+	 */
 	public String getDocumentChecksum() {
 		return documentChecksum;
 	}
-	
+
+	/**
+	 * Set the {@link #documentChecksum}.
+	 *
+	 * @param documentChecksum The new checksum.
+	 */
 	public void setDocumentChecksum(String documentChecksum) {
 		this.documentChecksum = documentChecksum;
 	}
-	
+
+	/**
+	 * Get the document title.
+	 *
+	 * @return The document title.
+	 */
 	public String getDocumentTitle() {
 		return documentTitle;
 	}
-	
+
+	/**
+	 * Set the {@link #documentTitle}.
+	 *
+	 * @param documentTitle The new title.
+	 */
 	public void setDocumentTitle(String documentTitle) {
 		this.documentTitle = documentTitle;
 	}

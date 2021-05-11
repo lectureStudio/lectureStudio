@@ -19,23 +19,45 @@ package org.lecturestudio.core.bus.event;
 
 public abstract class ControllerEvent extends BusEvent {
 
+	/** The data of the {@link ControllerEvent}. */
 	private Object data;
 
+	/** Boolean that indicates whether {@link ControllerEvent} is synchronous. */
 	private boolean synchronous;
 
 
+	/**
+	 * Create the {@link ControllerEvent} with specified data.
+	 *
+	 * @param data The data.
+	 */
 	protected ControllerEvent(Object data) {
 		this.data = data;
 	}
 
+	/**
+	 * Get the value of {@link #synchronous}.
+	 *
+	 * @return True if {@link #synchronous} is true, otherwise false.
+	 */
 	public boolean isSynchronous() {
 		return synchronous;
 	}
 
+	/**
+	 * Set a new value for {@link #synchronous}.
+	 *
+	 * @param sync The new value.
+	 */
 	public void setSynchronous(boolean sync) {
 		this.synchronous = sync;
 	}
 
+	/**
+	 * Get the {@link #data}.
+	 *
+	 * @return The {@link #data}.
+	 */
 	public Object getData() {
 		return data;
 	}

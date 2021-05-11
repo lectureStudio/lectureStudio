@@ -21,29 +21,59 @@ import org.lecturestudio.core.ExecutableState;
 
 public class ExecutableEvent extends BusEvent {
 
+	/** The state of the {@link ExecutableEvent} */
 	private ExecutableState state;
-	
-	
+
+	/**
+	 * Create the {@link ExecutableEvent} with the specified state.
+	 *
+	 * @param state The state.
+	 */
 	public ExecutableEvent(ExecutableState state) {
 		this.state = state;
 	}
-	
+
+	/**
+	 * Get the state.
+	 *
+	 * @return The state.
+	 */
 	public ExecutableState getState() {
 		return state;
 	}
-	
+
+	/**
+	 * Indicates whether {@link ExecutableEvent} is starting.
+	 *
+	 * @return True if the {@link #state} equals {@code ExecutableState.Starting}, otherwise false.
+	 */
 	public boolean starting() {
 		return state == ExecutableState.Starting;
 	}
-	
+
+	/**
+	 * Indicates whether {@link ExecutableEvent} has started.
+	 *
+	 * @return True if the {@link #state} equals {@code ExecutableState.Started}, otherwise false.
+	 */
 	public boolean started() {
 		return state == ExecutableState.Started;
 	}
-	
+
+	/**
+	 * Indicates whether {@link ExecutableEvent} is stopping.
+	 *
+	 * @return True if the {@link #state} equals {@code ExecutableState.Stopping}, otherwise false.
+	 */
 	public boolean stopping() {
 		return state == ExecutableState.Stopping;
 	}
 
+	/**
+	 * Indicates whether {@link ExecutableEvent} has stopped.
+	 *
+	 * @return True if the {@link #state} equals {@code ExecutableState.Stopped}, otherwise false.
+	 */
 	public boolean stopped() {
 		return state == ExecutableState.Stopped;
 	}

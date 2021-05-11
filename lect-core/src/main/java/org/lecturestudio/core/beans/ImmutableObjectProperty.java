@@ -33,15 +33,14 @@ public class ImmutableObjectProperty<T> extends ObjectProperty<T> {
 
 
 	/**
-	 * Create a ImmutableObjectProperty with the initial value set to {@code
-	 * null}.
+	 * Create an {@link ImmutableObjectProperty} with the initial value set to {@code null}.
 	 */
 	public ImmutableObjectProperty() {
 
 	}
 
 	/**
-	 * Create a ImmutableObjectProperty with the specified initial value.
+	 * Create an {@link ImmutableObjectProperty} with the specified initial value.
 	 *
 	 * @param defaultValue The initial value.
 	 */
@@ -50,9 +49,9 @@ public class ImmutableObjectProperty<T> extends ObjectProperty<T> {
 	}
 
 	/**
-	 * Get the immutable ObjectProperty.
+	 * Get the immutable {@link ObjectProperty}.
 	 *
-	 * @return the immutable ObjectProperty.
+	 * @return the immutable {@link ObjectProperty}.
 	 */
 	public ObjectProperty<T> getImmutableProperty() {
 		if (isNull(immutableProperty)) {

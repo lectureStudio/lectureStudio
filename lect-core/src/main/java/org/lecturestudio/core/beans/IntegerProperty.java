@@ -26,14 +26,14 @@ package org.lecturestudio.core.beans;
 public class IntegerProperty extends ObjectProperty<Integer> {
 
 	/**
-	 * Create a IntegerProperty with the initial value set to {@code 0}.
+	 * Create an {@link IntegerProperty] with the initial value set to {@code 0}.
 	 */
 	public IntegerProperty() {
 		this(0);
 	}
 
 	/**
-	 * Create a IntegerProperty with the specified initial value.
+	 * Create an {@link IntegerProperty} with the specified initial value.
 	 *
 	 * @param defaultValue The initial value.
 	 */

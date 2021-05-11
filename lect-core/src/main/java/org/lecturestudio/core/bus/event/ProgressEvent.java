@@ -19,37 +19,74 @@ package org.lecturestudio.core.bus.event;
 
 public class ProgressEvent extends BusEvent {
 
+	/** Enum with the {@link ProgressEvent} states. */
 	private enum State { STARTED, RUNNING, FINISHED }
-	
+
+	/** The {@link State} of the {@link ProgressEvent}. */
 	private State state;
-	
+
+	/** The progress of the {@link ProgressEvent}. */
 	private float progress;
 
 
+	/**
+	 * Create the {@link ProgressEvent}. (Calls {@link #setProgress(float)} with 0 as parameter)
+	 */
 	public ProgressEvent() {
 		setProgress(0);
 	}
-	
+
+	/**
+	 * Create the {@link ProgressEvent} with specified progress.
+	 * (Calls {@link #setProgress(float)} with progress as parameter)
+	 *
+	 * @param progress The progress.
+	 */
 	public ProgressEvent(float progress) {
 		setProgress(progress);
 	}
-	
+
+	/**
+	 * Indicates whether the {@link ProgressEvent} is started.
+	 *
+	 * @return True if the {@link #state} equals {@code State.STARTED}, otherwise false.
+	 */
 	public boolean started() {
 		return state == State.STARTED;
 	}
-	
+
+	/**
+	 * Indicates whether the {@link ProgressEvent} is running.
+	 *
+	 * @return True if the {@link #state} equals {@code State.RUNNING}, otherwise false.
+	 */
 	public boolean running() {
 		return state == State.RUNNING;
 	}
-	
+
+	/**
+	 * Indicates whether the {@link ProgressEvent} is finished.
+	 *
+	 * @return True if the {@link #state} equals {@code State.FINISHED}, otherwise false.
+	 */
 	public boolean finished() {
 		return state == State.FINISHED;
-	}	
+	}
 
+	/**
+	 * Get the progress.
+	 *
+	 * @return The progress.
+	 */
 	public float getProgress() {
 		return progress;
 	}
 
+	/**
+	 * Set the {@link #progress} and update {@link #state}.
+	 *
+	 * @param progress The new progress.
+	 */
 	public void setProgress(float progress) {
 		this.progress = progress;
 		

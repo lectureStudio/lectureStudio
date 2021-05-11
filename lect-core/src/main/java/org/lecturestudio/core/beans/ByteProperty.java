@@ -26,14 +26,14 @@ package org.lecturestudio.core.beans;
 public class ByteProperty extends ObjectProperty<Byte> {
 
 	/**
-	 * Create a ByteProperty with the initial value set to {@code 0}.
+	 * Create a {@link ByteProperty} with the initial value set to {@code 0}.
 	 */
 	public ByteProperty() {
 		this((byte) 0);
 	}
 
 	/**
-	 * Create a ByteProperty with the specified initial value.
+	 * Create a {@link ByteProperty} with the specified initial value.
 	 *
 	 * @param defaultValue The initial value.
 	 */

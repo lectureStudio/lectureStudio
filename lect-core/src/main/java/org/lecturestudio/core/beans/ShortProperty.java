@@ -26,14 +26,14 @@ package org.lecturestudio.core.beans;
 public class ShortProperty extends ObjectProperty<Short> {
 
 	/**
-	 * Create a ShortProperty with the initial value set to {@code 0}.
+	 * Create a {@link ShortProperty} with the initial value set to {@code 0}.
 	 */
 	public ShortProperty() {
 		this((short) 0);
 	}
 
 	/**
-	 * Create a ShortProperty with the specified initial value.
+	 * Create a {@link ShortProperty} with the specified initial value.
 	 *
 	 * @param defaultValue The initial value.
 	 */

@@ -472,7 +472,7 @@ public class Document {
 		fireAddChange(page);
 	}
 
-	private Page importPage(Page page, Rectangle2D pageRect)
+	private synchronized Page importPage(Page page, Rectangle2D pageRect)
 			throws IOException {
 		PdfDocument pagePdfDocument = page.getDocument().getPdfDocument();
 		int pageIndex = pdfDocument.importPage(pagePdfDocument,

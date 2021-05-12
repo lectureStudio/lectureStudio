@@ -24,7 +24,7 @@ jar[2]=lect-broadcast.jar
 mkdir "$PRODUCT_NAME"
 
 # Start with modules not discovered with jdeps.
-MODULES="java.security.jgss,jdk.zipfs"
+MODULES="jdk.localedata,java.security.jgss,jdk.zipfs"
 
 # Retrieve modules.
 for value in {0..2}
@@ -57,6 +57,7 @@ jlink \
 	--compress=1 \
 	--strip-debug \
 	--strip-native-commands \
+	--include-locales=de,en \
 	--add-modules="$MODULES" \
 	--output "runtime"
 

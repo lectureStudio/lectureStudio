@@ -35,7 +35,7 @@ for /f "tokens=2*" %%a in ('REG QUERY "HKEY_LOCAL_MACHINE\SOFTWARE\WOW6432Node\M
 set MT_BIN="%WindowsSdkDir%\bin\%ProductVersion%.0\x64\mt"
 
 :: Start with modules not discovered with jdeps.
-set MODULES="java.security.jgss,jdk.zipfs"
+set MODULES="jdk.localedata,java.security.jgss,jdk.zipfs"
 
 :: Retrieve modules.
 for /l %%n in (0,1,2) do (
@@ -64,6 +64,7 @@ jlink ^
 	--compress=1 ^
 	--strip-debug ^
 	--strip-native-commands ^
+	--include-locales=de,en ^
 	--add-modules="%MODULES%" ^
 	--output "%PRODUCT_NAME%\runtime"
 

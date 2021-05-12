@@ -146,7 +146,7 @@ assoc[2]=
 mkdir $PRODUCT_NAME
 
 # Start with modules not discovered with jdeps.
-MODULES="jdk.localedata,java.security.jgss,jdk.zipfs"
+MODULES="jdk.localedata,java.security.jgss,java.security.sasl,jdk.crypto.cryptoki,jdk.crypto.ec,jdk.zipfs"
 
 # Retrieve modules.
 for value in {0..2}

@@ -1,7 +1,6 @@
 package org.lecturestudio.web.api.service;
 
 import java.net.URI;
-import java.security.cert.X509Certificate;
 
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.TrustManager;
@@ -9,6 +8,7 @@ import javax.net.ssl.X509TrustManager;
 
 import org.eclipse.microprofile.rest.client.RestClientBuilder;
 import org.lecturestudio.web.api.data.bind.JsonConfig;
+import org.lecturestudio.web.api.net.OwnTrustManager;
 
 public abstract class ProviderService {
 
@@ -24,38 +24,22 @@ public abstract class ProviderService {
 
 		if (parameters.getUrl().startsWith("https")) {
 			builder.sslContext(createSSLContext());
-			builder.hostnameVerifier((s, sslSession) -> true);
+			builder.hostnameVerifier((hostname, sslSession) -> hostname
+					.equalsIgnoreCase(sslSession.getPeerHost()));
 		}
 
 		return builder.build(proxyClass);
 	}
 
 	private static SSLContext createSSLContext() {
-		TrustManager[] noopTrustManager = new TrustManager[] {
-				new X509TrustManager() {
-
-					@Override
-					public X509Certificate[] getAcceptedIssuers() {
-						return null;
-					}
-
-					@Override
-					public void checkClientTrusted(X509Certificate[] certs,
-							String authType) {
-					}
-
-					@Override
-					public void checkServerTrusted(X509Certificate[] certs,
-							String authType) {
-					}
-				}
-		};
-
 		SSLContext sslContext;
 
 		try {
+			X509TrustManager trustManager = new OwnTrustManager("keystore.jks",
+					"mypassword");
+
 			sslContext = SSLContext.getInstance("TLSv1.2");
-			sslContext.init(null, noopTrustManager, null);
+			sslContext.init(null, new TrustManager[] { trustManager }, null);
 		}
 		catch (Exception e) {
 			throw new RuntimeException(e);

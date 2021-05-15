@@ -25,20 +25,37 @@ import org.lecturestudio.core.bus.event.BusEvent;
 
 public class CameraImageEvent extends BusEvent {
 
+	/** The stats. */
 	private final Map<String, Number> stats;
 
+	/** The image. */
 	private final BufferedImage image;
 
 
+	/**
+	 * Create the {@link CameraImageEvent} with specified image and stats.
+	 * @param image
+	 * @param stats
+	 */
 	public CameraImageEvent(BufferedImage image, Map<String, Number> stats) {
 		this.image = image;
 		this.stats = stats;
 	}
 
+	/**
+	 * Get the image.
+	 *
+	 * @return The image.
+	 */
 	public BufferedImage getImage() {
 		return image;
 	}
 
+	/**
+	 * Get the stats.
+	 *
+	 * @return The stats.
+	 */
 	public Map<String, Number> getStats() {
 		return stats;
 	}

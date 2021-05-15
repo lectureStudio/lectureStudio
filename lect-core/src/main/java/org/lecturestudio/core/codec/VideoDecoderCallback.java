@@ -21,8 +21,7 @@ package org.lecturestudio.core.codec;
 import java.awt.image.BufferedImage;
 
 /**
- * A VideoDecoderCallback receives decoded video images from an {@link
- * VideoDecoder}.
+ * A {@link VideoDecoderCallback} receives decoded video images from an {@link VideoDecoder}.
  *
  * @author Alex Andres
  */

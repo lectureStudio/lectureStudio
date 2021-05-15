@@ -62,7 +62,7 @@ public class NalUnitHeader {
 	 *
 	 * @param data The byte array from a packet payload.
 	 *
-	 * @return the extracted NalUnitHeader.
+	 * @return the extracted {@link NalUnitHeader}.
 	 *
 	 * @throws IllegalArgumentException If the packet data is null.
 	 */
@@ -118,8 +118,7 @@ public class NalUnitHeader {
 	/**
 	 * Verifies if the H.264 packet is a aggregation unit packet.
 	 *
-	 * @return true if the packet represents a aggregation unit, false
-	 * otherwise.
+	 * @return true if the packet represents a aggregation unit, false otherwise.
 	 */
 	boolean isAggregationUnit() {
 		return type > 23 && type < 28;
@@ -128,8 +127,7 @@ public class NalUnitHeader {
 	/**
 	 * Verifies if the H.264 packet is a fragmentation unit packet.
 	 *
-	 * @return true if the packet represents a fragmentation unit, false
-	 * otherwise.
+	 * @return true if the packet represents a fragmentation unit, false otherwise.
 	 */
 	boolean isFragmentationUnit() {
 		return type > 27 && type < 30;

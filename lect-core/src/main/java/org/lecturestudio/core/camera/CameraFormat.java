@@ -21,9 +21,9 @@ package org.lecturestudio.core.camera;
 import com.google.common.base.Objects;
 
 /**
- * A CameraFormat represents the image size and frame rate with which a camera
- * device is capturing frames. The CameraFormat class also implements {@code
- * Comparable} to compare the image size with other formats.
+ * A {@link CameraFormat} represents the image size and frame rate with which a camera
+ * device is capturing frames. The CameraFormat class also implements {@link Comparable}
+ * to compare the image size with other formats.
  *
  * @author Alex Andres
  */
@@ -40,16 +40,14 @@ public class CameraFormat implements Comparable<CameraFormat> {
 
 
     /**
-     * Create a new {@code CameraFormat} with the image size and frame rate
-     * equal {@code zero}.
+     * Create a new {@link CameraFormat} with the image size and frame rate equal to {@code 0}.
      */
     public CameraFormat() {
         this(0, 0, 0);
     }
 
     /**
-     * Create a new {@code CameraFormat} with specified image size and frame
-     * rate.
+     * Create a new {@link CameraFormat} with specified image size and frame rate.
      *
      * @param width     The image width.
      * @param height    The image height.
@@ -64,7 +62,7 @@ public class CameraFormat implements Comparable<CameraFormat> {
     /**
      * Get the image height.
      *
-     * @return thr image height.
+     * @return The image height.
      */
     public int getHeight() {
         return height;
@@ -73,7 +71,7 @@ public class CameraFormat implements Comparable<CameraFormat> {
     /**
      * Get the image width.
      *
-     * @return the image width.
+     * @return The image width.
      */
     public int getWidth() {
         return width;
@@ -82,7 +80,7 @@ public class CameraFormat implements Comparable<CameraFormat> {
     /**
      * Get the frame rate.
      *
-     * @return the frame rate.
+     * @return The frame rate.
      */
 	public double getFrameRate() {
 		return frameRate;

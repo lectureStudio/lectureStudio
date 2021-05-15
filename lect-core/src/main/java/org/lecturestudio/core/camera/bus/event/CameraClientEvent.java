@@ -23,6 +23,11 @@ import org.lecturestudio.core.bus.event.ExecutableEvent;
 
 public class CameraClientEvent extends ExecutableEvent {
 
+	/**
+	 * Create the {@link CameraClientEvent} with the specified state.
+	 *
+	 * @param state The state.
+	 */
 	public CameraClientEvent(ExecutableState state) {
 		super(state);
 	}

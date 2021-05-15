@@ -42,7 +42,7 @@ import org.lecturestudio.core.view.Screen;
 import org.lecturestudio.core.view.SlideViewOverlay;
 
 /**
- * The PresentationController maintains presentation windows displaying document
+ * The {@link PresentationController} maintains presentation windows displaying document
  * pages that are shown on connected displays. The windows can be switched on
  * and off for each individual display.
  *
@@ -68,7 +68,7 @@ public class PresentationController {
 	/** The presentation window factory. */
 	private final PresentationViewFactory factory;
 
-	/** The mapping of Screen to PresentationPresenter. */
+	/** The mapping of Screen to {@link PresentationPresenter}. */
 	private final Map<Screen, PresentationPresenter<?>> views;
 
 	/** The bounds of the main window. */
@@ -76,7 +76,7 @@ public class PresentationController {
 
 
 	/**
-	 * Create a PresentationController with the specified arguments.
+	 * Create a {@link PresentationController} with the specified arguments.
 	 *
 	 * @param context        The application context.
 	 * @param displayService The display service to obtain connected displays.
@@ -117,9 +117,9 @@ public class PresentationController {
 	}
 
 	/**
-	 * Returns a {@code ObservableList} containing all connected screens.
+	 * Returns a {@link ObservableList} containing all connected screens.
 	 *
-	 * @return the list of connected screens.
+	 * @return The list of connected screens.
 	 */
 	public ObservableList<Screen> getScreens() {
 		return displayService.getScreens();
@@ -128,7 +128,7 @@ public class PresentationController {
 	/**
 	 * Check whether any displays are connected or not.
 	 *
-	 * @return true if at least one display is connected, false otherwise.
+	 * @return True if at least one display is connected, false otherwise.
 	 */
 	public boolean getScreensAvailable() {
 		return screensAvailable.get();
@@ -137,7 +137,7 @@ public class PresentationController {
 	/**
 	 * Get the screens available property.
 	 *
-	 * @return the screens available property.
+	 * @return The screens available property.
 	 */
 	public BooleanProperty screensAvailableProperty() {
 		return screensAvailable.getImmutableProperty();
@@ -146,8 +146,7 @@ public class PresentationController {
 	/**
 	 * Check whether any presentation windows are visible or not.
 	 *
-	 * @return true if at least one presentation window is visible, false
-	 * otherwise.
+	 * @return True if at least one presentation window is visible, false otherwise.
 	 */
 	public boolean getPresentationViewsVisible() {
 		return presentationViewsVisible.get();
@@ -176,8 +175,7 @@ public class PresentationController {
 	/**
 	 * Show or hide all presentation windows.
 	 *
-	 * @param show True to show all presentation windows, false to hide all
-	 *             windows.
+	 * @param show True to show all presentation windows, false to hide all windows.
 	 */
 	public void showPresentationViews(boolean show) {
 		for (Screen screen : views.keySet()) {
@@ -186,12 +184,10 @@ public class PresentationController {
 	}
 
 	/**
-	 * Show a presentation window that lies within the bounds of the specified
-	 * screen.
+	 * Show a presentation window that lies within the bounds of the specified screen.
 	 *
 	 * @param screen The screen containing a presentation window.
-	 * @param show   True to show a presentation window on that screen, false to
-	 *               hide a window.
+	 * @param show   True to show a presentation window on that screen, false to hide a window.
 	 */
 	public void showPresentationView(Screen screen, boolean show) {
 		PresentationPresenter<?> presenter = views.get(screen);
@@ -324,8 +320,7 @@ public class PresentationController {
 			return true;
 		}
 
-		// The main window may cover more area than the screen itself or cover
-		// a huge area on the screen.
+		// The main window may cover more area than the screen itself or cover a huge area on the screen.
 		Rectangle2D intersection = mainWindowBounds.intersection(screenBounds);
 
 		if (nonNull(intersection)) {

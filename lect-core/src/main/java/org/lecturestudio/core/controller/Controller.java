@@ -37,7 +37,7 @@ public abstract class Controller extends ExecutableBase {
 
 
 	/**
-	 * Create a Controller with the specified application context.
+	 * Create a {@link Controller} with the specified application context.
 	 *
 	 * @param context The application context.
 	 */

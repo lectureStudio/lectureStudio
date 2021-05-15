@@ -57,7 +57,7 @@ public class H264StreamDecoder implements VideoDecoder {
 
 
 	/**
-	 * Create a H264StreamDecoder with the specified callback that receives the
+	 * Create a {@link H264StreamDecoder} with the specified callback that receives the
 	 * decoded video frames.
 	 *
 	 * @param callback The decoded frame sink.

@@ -22,7 +22,7 @@ import java.awt.image.BufferedImage;
 import java.nio.ByteBuffer;
 
 /**
- * A VideoEncoder encodes uncompressed video frames to the encoder specific bit
+ * A {@link VideoEncoder} encodes uncompressed video frames to the encoder specific bit
  * stream and provides encoder specific statistics.
  *
  * @author Alex Andres
@@ -34,7 +34,7 @@ public interface VideoEncoder {
 	 *
 	 * @param image The uncompressed video frame.
 	 *
-	 * @return The encoded bit stream stored in the ByteBuffer.
+	 * @return The encoded bit stream stored in the {@link ByteBuffer}.
 	 */
 	ByteBuffer encode(BufferedImage image);
 

@@ -21,7 +21,7 @@ package org.lecturestudio.core.codec;
 import java.nio.ByteBuffer;
 
 /**
- * A VideoDecoder decodes video frames to uncompressed images and provides
+ * A {@link VideoDecoder} decodes video frames to uncompressed images and provides
  * decoder specific statistics.
  *
  * @author Alex Andres
@@ -38,21 +38,21 @@ public interface VideoDecoder {
 	/**
 	 * Get the number of frames decoded per second.
 	 *
-	 * @return the number of frames decoded per second.
+	 * @return The number of frames decoded per second.
 	 */
 	float getFPS();
 
 	/**
 	 * Get the bitrate of uncompressed images. The number is expressed in kbps.
 	 *
-	 * @return the bitrate of uncompressed images.
+	 * @return The bitrate of uncompressed images.
 	 */
 	float getBitrate();
 
 	/**
 	 * Get the total number of bytes the decoder has processed.
 	 *
-	 * @return the total number of bytes the decoder has processed.
+	 * @return The total number of bytes the decoder has processed.
 	 */
 	long getTotalBytesReceived();
 

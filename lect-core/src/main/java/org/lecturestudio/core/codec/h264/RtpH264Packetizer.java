@@ -36,6 +36,7 @@ import org.lecturestudio.core.net.rtp.RtpPacket;
  */
 public class RtpH264Packetizer {
 
+	/** Packetization modes. */
 	public enum Mode {
 		SINGLE_NAL,
 		NON_INTERLEAVED,
@@ -44,16 +45,16 @@ public class RtpH264Packetizer {
 
 
 
-	/** Packetization mode */
+	/** Packetization mode. */
 	private Mode mode;
 
-	/** Maximum payload size */
+	/** Maximum payload size. */
 	private int MTU = 1300;
 
-	/** Random number generator */
+	/** Random number generator. */
 	private Random rand = new Random();
 
-	/** The RTP packet which should be sent */
+	/** The RTP packet which should be sent. */
 	private RtpPacket rtpPacket;
 
 	/*
@@ -64,7 +65,7 @@ public class RtpH264Packetizer {
 		this(Mode.SINGLE_NAL);
 	}
 
-	/*
+	/**
 	 * Creates a new RTP Packetizer implementation for H.264 Video with specified
 	 * packetization mode.
 	 *
@@ -80,6 +81,14 @@ public class RtpH264Packetizer {
 		initRtp();
 	}
 
+	/**
+	 * Processes the {@link RtpPacket}s with the specified data depending on the mode
+	 *
+	 * @param data The data to pack
+	 * @param timestamp The RTP timestamp.
+	 *
+	 * @return a list of {@link RtpPacket}s containing the data
+	 */
 	public List<RtpPacket> processPacket(ByteBuffer data, long timestamp) {
 		List<RtpPacket> packets = new ArrayList<>();
 
@@ -140,10 +149,8 @@ public class RtpH264Packetizer {
 
 			return packets;
 		}
-		if (mode == Mode.INTERLEAVED) {
-			// not supported
-			return packets;
-		}
+
+		// Mode.INTERLEAVED not supported
 
 		return packets;
 	}

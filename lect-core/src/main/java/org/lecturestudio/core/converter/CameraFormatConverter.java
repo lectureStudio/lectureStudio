@@ -18,6 +18,7 @@
 
 package org.lecturestudio.core.converter;
 
+import static java.util.Objects.isNull;
 import static java.util.Objects.nonNull;
 
 import org.lecturestudio.core.beans.Converter;
@@ -44,6 +45,10 @@ public class CameraFormatConverter implements Converter<Rectangle2D, CameraForma
 
 	@Override
 	public Rectangle2D from(CameraFormat value) {
+		if (isNull(value)) {
+			return new Rectangle2D();
+		}
+
 		return new Rectangle2D(0, 0, value.getWidth(), value.getHeight());
 	}
 }

@@ -24,7 +24,7 @@ import java.util.Iterator;
 import java.util.List;
 
 /**
- * The PenStroker generates variable width strokes from a list of points or
+ * The {@link PenStroker} generates variable width strokes from a list of points or
  * dynamically added points in sequence.
  *
  * @author Alex Andres
@@ -54,7 +54,7 @@ public class PenStroker {
 
 
 	/**
-	 * Create a PenStroker with the specified stroke width. The stroke width is
+	 * Create a {@link PenStroker} with the specified stroke width. The stroke width is
 	 * multiplied with the pressure of the individual points.
 	 *
 	 * @param strokeWidth The width of the stroke.
@@ -68,7 +68,7 @@ public class PenStroker {
 	 *
 	 * @param points The list of points captured by a input device.
 	 *
-	 * @return a variable width stroke as {@code Path2D}.
+	 * @return A variable width stroke as {@link Path2D}.
 	 */
 	public Path2D createPath(List<PenPoint2D> points) {
 		if (points == null || points.isEmpty()) {
@@ -83,10 +83,10 @@ public class PenStroker {
 	}
 
 	/**
-	 * Get a list of points this PenStroker has generated for all captured
+	 * Get a list of points this {@link PenStroker} has generated for all captured
 	 * points.
 	 *
-	 * @return a list of points representing the generated variable width path.
+	 * @return A list of points representing the generated variable width path.
 	 */
 	public List<PenPoint2D> getStrokeList() {
 		if (points.isEmpty()) {
@@ -117,7 +117,7 @@ public class PenStroker {
 	/**
 	 * Get the generated stoke path.
 	 *
-	 * @return the generated stoke path.
+	 * @return The generated stoke path.
 	 */
 	public synchronized Path2D getStrokePath() {
 		if (points.isEmpty()) {

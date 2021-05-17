@@ -24,8 +24,7 @@ import org.lecturestudio.core.crypto.Authority;
 import org.lecturestudio.core.crypto.GroupParameters;
 
 /**
- * The {SRPClientContext handles client-side computing and storing of SRP-6a
- * values.
+ * The {@link SrpClientContext} handles client-side computing and storing of SRP-6a values.
  *
  * @author Alex Andres
  */
@@ -39,11 +38,10 @@ public class SrpClientContext extends SrpContext {
 
 
 	/**
-	 * Creates a new {@link SrpClientContext} for specified identity and
-	 * negotiated group parameters.
+	 * Creates a new {@link SrpClientContext} for specified identity and negotiated group parameters.
 	 *
 	 * @param authority The authority.
-	 * @param params    The GroupParameters, N and g.
+	 * @param params    The {@link GroupParameters}, N and g.
 	 *
 	 * @throws Exception On initialization errors.
 	 */
@@ -115,8 +113,7 @@ public class SrpClientContext extends SrpContext {
 	 *
 	 * @param hAMK The session key verifier of the server.
 	 *
-	 * @return true if own session key verifier matches the provided one, false
-	 * otherwise.
+	 * @return True if own session key verifier matches the provided one, false otherwise.
 	 */
 	public boolean verifySessionKey(BigInteger hAMK) {
 		BigInteger ownHAMK = computeSessionKeyVerifier();
@@ -130,7 +127,7 @@ public class SrpClientContext extends SrpContext {
 	 * @param s        The user's salt.
 	 * @param password The user's password.
 	 *
-	 * @return the secret private key.
+	 * @return The secret private key.
 	 */
 	private BigInteger computePrivateKey(BigInteger s, String password) {
 		digest.update(s.toByteArray());

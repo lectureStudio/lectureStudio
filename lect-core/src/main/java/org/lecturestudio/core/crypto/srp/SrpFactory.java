@@ -25,7 +25,7 @@ import java.security.SecureRandom;
 import org.lecturestudio.core.crypto.GroupParameters;
 
 /**
- * SRP factory class that creates all necessary SRP parameters and classes.
+ * {@link SrpFactory} class that creates all necessary SRP parameters and classes.
  * 
  * @author Alex Andres
  */
@@ -43,12 +43,10 @@ public abstract class SrpFactory {
 	 *
 	 * @param digest   The secure one-way hash function.
 	 * @param params   The group parameters N and g.
-	 * @param identity The user's identity 'I', e.g. user name, e-mail address
-	 *                 etc.
+	 * @param identity The user's identity 'I', e.g. user name, e-mail address etc.
 	 * @param password The user's password.
 	 *
-	 * @return a new triple {identity, verifier, salt} represented by {@code
-	 * SRPUserEntry}.
+	 * @return a new triple {identity, verifier, salt} represented by {@link SrpUserEntry}.
 	 */
 	public static SrpUserEntry createUserEntry(MessageDigest digest, GroupParameters params, String identity, String password) {
 		BigInteger s = generateRandomNumber();
@@ -67,7 +65,7 @@ public abstract class SrpFactory {
 	 *
 	 * @param bytes The count of bytes the number must have.
 	 *
-	 * @return The random number as {@code BigInteger}.
+	 * @return The random number as {@link BigInteger}.
 	 */
 	public static BigInteger generateRandomNumber(int bytes) {
 		return new BigInteger(bytes * 8, random);
@@ -76,7 +74,7 @@ public abstract class SrpFactory {
 	/**
 	 * Generates a random 16-byte number.
 	 *
-	 * @return The random number as {@code BigInteger}.
+	 * @return The random number as {@link BigInteger}.
 	 */
 	public static BigInteger generateRandomNumber() {
 		return generateRandomNumber(16);

@@ -21,8 +21,8 @@ package org.lecturestudio.core.crypto.srp;
 import java.math.BigInteger;
 
 /**
- * The class {@code SRPUserEntry} represents the triple {identity, verifier,
- * salt} which can be stored in a database. The triples are only accessed by the
+ * The class {@link SrpUserEntry} represents the triple {identity, verifier, salt}
+ * which can be stored in a database. The triples are only accessed by the
  * server that performs a lookup for a identity.
  *
  * @author Alex Andres
@@ -41,8 +41,7 @@ public class SrpUserEntry {
 	/**
 	 * Creates a new {@link SrpUserEntry} with specified parameters.
 	 *
-	 * @param identity The user's identity 'I', e.g. user name, e-mail address
-	 *                 etc.
+	 * @param identity The user's identity 'I', e.g. user name, e-mail address etc.
 	 * @param salt     The user's salt.
 	 * @param verifier The corresponding password verifier.
 	 */
@@ -55,7 +54,7 @@ public class SrpUserEntry {
 	/**
 	 * Returns the identity of the user.
 	 *
-	 * @return user's identity.
+	 * @return User's identity.
 	 */
 	public String getIdentity() {
 		return identity;
@@ -64,7 +63,7 @@ public class SrpUserEntry {
 	/**
 	 * Returns user's salt.
 	 *
-	 * @return the salt.
+	 * @return The salt.
 	 */
 	public BigInteger getSalt() {
 		return salt;
@@ -73,7 +72,7 @@ public class SrpUserEntry {
 	/**
 	 * Returns the password verifier.
 	 *
-	 * @return the password verifier.
+	 * @return The password verifier.
 	 */
 	public BigInteger getVerifier() {
 		return verifier;

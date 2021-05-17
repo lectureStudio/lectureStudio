@@ -37,22 +37,21 @@ public class Point2D implements Cloneable, Serializable {
 
 
 	/**
-	 * Create a new instance of {@code Point2D} with origin coordinates.
+	 * Create a new instance of {@link Point2D} with origin coordinates.
 	 */
 	public Point2D() {
 		this(0, 0);
 	}
 
 	/**
-	 * Create a new instance of {@code Point2D} with coordinates from provided
-	 * point.
+	 * Create a new instance of {@link Point2D} with coordinates from provided point.
 	 */
 	public Point2D(Point2D point) {
 		this(point.getX(), point.getY());
 	}
 
 	/**
-	 * Creates a new instance of {@code Point2D} with specified coordinates.
+	 * Creates a new instance of {@link Point2D} with specified coordinates.
 	 *
 	 * @param x The x coordinate of the point.
 	 * @param y The y coordinate of the point.
@@ -98,7 +97,7 @@ public class Point2D implements Cloneable, Serializable {
 	 *
 	 * @param p The point from which to copy the coordinates.
 	 *
-	 * @return this point.
+	 * @return This point.
 	 */
 	public Point2D set(Point2D p) {
 		set(p.x, p.y);
@@ -126,7 +125,7 @@ public class Point2D implements Cloneable, Serializable {
 	 *
 	 * @param p The other vector.
 	 *
-	 * @return the dot product of the two vectors
+	 * @return The dot product of the two vectors
 	 */
 	public double dot(Point2D p) {
 		return x * p.x + y * p.y;
@@ -137,7 +136,7 @@ public class Point2D implements Cloneable, Serializable {
 	 *
 	 * @param p The point whose coordinates are to be added.
 	 *
-	 * @return this point instance with added coordinates.
+	 * @return This point instance with added coordinates.
 	 */
 	public Point2D add(Point2D p) {
 		x += p.x;
@@ -147,12 +146,11 @@ public class Point2D implements Cloneable, Serializable {
 	}
 
 	/**
-	 * Subtract coordinates of the specified point from the coordinates of this
-	 * point.
+	 * Subtract coordinates of the specified point from the coordinates of this point.
 	 *
 	 * @param p The point whose coordinates are to be subtracted.
 	 *
-	 * @return this point instance with subtracted coordinates.
+	 * @return This point instance with subtracted coordinates.
 	 */
 	public Point2D subtract(Point2D p) {
 		x -= p.x;
@@ -162,13 +160,12 @@ public class Point2D implements Cloneable, Serializable {
 	}
 
 	/**
-	 * Interpolate a point between the specified point and this point with the
-	 * defined scalar.
+	 * Interpolate a point between the specified point and this point with the defined scalar.
 	 *
 	 * @param v The other point that will define a line segment with this point.
 	 * @param f The scalar.
 	 *
-	 * @return an interpolated point.
+	 * @return An interpolated point.
 	 */
 	public Point2D interpolate(Point2D v, double f) {
 		return new Point2D(this.x + (v.x - this.x) * f, this.y + (v.y - this.y) * f);
@@ -179,7 +176,7 @@ public class Point2D implements Cloneable, Serializable {
 	 *
 	 * @param factor The multiplying factor.
 	 *
-	 * @return this point instance with multiplied coordinates.
+	 * @return This point instance with multiplied coordinates.
 	 */
 	public Point2D multiply(double factor) {
 		x *= factor;
@@ -191,7 +188,7 @@ public class Point2D implements Cloneable, Serializable {
 	/**
 	 * Normalize the relative magnitude vector represented by this point.
 	 *
-	 * @return this point instance as the normalized vector.
+	 * @return This point instance as the normalized vector.
 	 */
 	public Point2D normalize() {
 		double length = Math.sqrt(x * x + y * y);
@@ -207,7 +204,7 @@ public class Point2D implements Cloneable, Serializable {
 	 *
 	 * @param length The length to normalize to.
 	 *
-	 * @return this normalized point instance.
+	 * @return This normalized point instance.
 	 */
 	public Point2D normalize(double length) {
 		double mag = Math.sqrt(x * x + y * y);
@@ -224,7 +221,7 @@ public class Point2D implements Cloneable, Serializable {
 	/**
 	 * Compute a point on the perpendicular of this point.
 	 *
-	 * @return a new point on the perpendicular of this point.
+	 * @return A new point on the perpendicular of this point.
 	 */
 	public Point2D perpendicular() {
 		double t = x;

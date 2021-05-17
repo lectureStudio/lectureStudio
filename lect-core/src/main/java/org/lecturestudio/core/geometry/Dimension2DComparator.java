@@ -21,7 +21,7 @@ package org.lecturestudio.core.geometry;
 import java.util.Comparator;
 
 /**
- * Dimension2D comparator implementation. This {@code Comparator} compares the
+ * Dimension2D comparator implementation. This {@link Comparator} compares the
  * width and height of the dimension. The dimension with greater width will be
  * of higher order. If the width is equal, the dimension with greater height
  * will be of higher order.

@@ -50,6 +50,6 @@ public enum Position {
 	BOTTOM_CENTER,
 
 	/** Positioning on the bottom vertically and on the right horizontally. */
-	BOTTOM_RIGHT;
+	BOTTOM_RIGHT
 
 }

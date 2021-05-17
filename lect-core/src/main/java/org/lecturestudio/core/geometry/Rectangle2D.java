@@ -21,8 +21,7 @@ package org.lecturestudio.core.geometry;
 import java.io.Serializable;
 
 /**
- * A Rectangle2D represents a rectangle in 2D space defined by a location (x, y)
- * and dimension (w x h).
+ * A {@link Rectangle2D} represents a rectangle in 2D space defined by a location (x, y) and dimension (w x h).
  *
  * @author Alex Andres
  */
@@ -44,16 +43,14 @@ public class Rectangle2D implements Cloneable, Serializable {
 
 
 	/**
-	 * Creates a new instance of {@code Rectangle2D} with origin coordinates and
-	 * zero size.
+	 * Creates a new instance of {@link Rectangle2D} with origin coordinates and zero size.
 	 */
 	public Rectangle2D() {
 		this(0, 0, 0, 0);
 	}
 
 	/**
-	 * Creates a new instance of {@code Rectangle2D} with specified location
-	 * coordinates and size.
+	 * Creates a new instance of {@link Rectangle2D} with specified location coordinates and size.
 	 *
 	 * @param x      The x coordinate of the rectangle.
 	 * @param y      The y coordinate of the rectangle.
@@ -65,8 +62,7 @@ public class Rectangle2D implements Cloneable, Serializable {
 	}
 
 	/**
-	 * Creates a new instance of {@code Rectangle2D} with specified Rectangle2D
-	 * to copy.
+	 * Creates a new instance of {@link Rectangle2D} with specified {@link Rectangle2D} to copy.
 	 *
 	 * @param rect The rectangle to copy.
 	 */
@@ -75,8 +71,7 @@ public class Rectangle2D implements Cloneable, Serializable {
 	}
 
 	/**
-	 * Sets the location of the <code>Rectangle2D</code> to the specified
-	 * values.
+	 * Sets the location of the <code>Rectangle2D</code> to the specified values.
 	 *
 	 * @param x The new x coordinate.
 	 * @param y The new y coordinate.
@@ -87,7 +82,7 @@ public class Rectangle2D implements Cloneable, Serializable {
 	}
 
 	/**
-	 * Sets the size of the <code>Rectangle2D</code> to the specified values.
+	 * Sets the size of the {@link Rectangle2D}> to the specified values.
 	 *
 	 * @param width  The width.
 	 * @param height The height.
@@ -98,10 +93,9 @@ public class Rectangle2D implements Cloneable, Serializable {
 	}
 
 	/**
-	 * The location of the <code>Rectangle2D</code> represented by {@code
-	 * Point2D}.
+	 * The location of the {@link Rectangle2D} represented by {@link Point2D}.
 	 *
-	 * @return the location of this rectangle.
+	 * @return The location of this rectangle.
 	 */
 	public Point2D getLocation() {
 		return new Point2D(x, y);
@@ -110,7 +104,7 @@ public class Rectangle2D implements Cloneable, Serializable {
 	/**
 	 * The x coordinate of the top left corner.
 	 *
-	 * @return the x coordinate.
+	 * @return The x coordinate.
 	 */
 	public double getX() {
 		return x;
@@ -119,33 +113,33 @@ public class Rectangle2D implements Cloneable, Serializable {
 	/**
 	 * The y coordinate of the top left corner.
 	 *
-	 * @return the y coordinate.
+	 * @return The y coordinate.
 	 */
 	public double getY() {
 		return y;
 	}
 
 	/**
-	 * The width of the <code>Rectangle2D</code>.
+	 * The width of the {@link Rectangle2D}.
 	 *
-	 * @return the width of this rectangle.
+	 * @return The width of this rectangle.
 	 */
 	public double getWidth() {
 		return width;
 	}
 
 	/**
-	 * The height of the <code>Rectangle2D</code>.
+	 * The height of the {@link Rectangle2D}.
 	 *
-	 * @return the height of this rectangle.
+	 * @return The height of this rectangle.
 	 */
 	public double getHeight() {
 		return height;
 	}
 
 	/**
-	 * Adds a point to the <code>Rectangle2D</code>. The resulting
-	 * <code>Rectangle2D</code> is enlarged so it contains the specified point.
+	 * Adds a point to the {@link Rectangle2D}. The resulting {@link Rectangle2D} is enlarged
+	 * so it contains the specified point.
 	 *
 	 * @param x The x coordinate of the point.
 	 * @param y The y coordinate of the point.
@@ -160,14 +154,11 @@ public class Rectangle2D implements Cloneable, Serializable {
 	}
 
 	/**
-	 * Checks, if the specified {@code Point2D} is inside the boundary of the
-	 * {@code Rectangle2D}.
+	 * Checks, if the specified {@link Point2D} is inside the boundary of the {@link Rectangle2D}.
 	 *
-	 * @param point The {@code Point2D} that represents a x and y coordinate
-	 *              pair.
+	 * @param point The {@link Point2D} that represents a x and y coordinate pair.
 	 *
-	 * @return true if the specified {@code Point2D} is inside the boundary,
-	 * false otherwise.
+	 * @return True if the specified {@link Point2D} is inside the boundary, false otherwise.
 	 */
 	public boolean contains(Point2D point) {
 		double px = point.getX();
@@ -177,14 +168,11 @@ public class Rectangle2D implements Cloneable, Serializable {
 	}
 
 	/**
-	 * Checks, if the interior of this <code>Rectangle2D</code> entirely
-	 * encloses the specified <code>Rectangle2D</code>.
+	 * Checks if the interior of this {@link Rectangle2D} entirely encloses the specified {@link Rectangle2D}.
 	 *
-	 * @param r The <code>Rectangle2D</code> to check, whether it is enclosed by
-	 *          this <code>Rectangle2D</code>.
+	 * @param r The {@link Rectangle2D} to check if it is enclosed by this {@link Rectangle2D}.
 	 *
-	 * @return true if the interior of this <code>Rectangle2D</code> entirely
-	 * contains the specified area, false otherwise.
+	 * @return True if the interior of this {@link Rectangle2D} entirely contains the specified area, false otherwise.
 	 */
 	public boolean contains(Rectangle2D r) {
 		double w = r.getWidth();
@@ -204,13 +192,12 @@ public class Rectangle2D implements Cloneable, Serializable {
 	}
 
 	/**
-	 * Intersects the provided <code>Rectangle2D</code> with this one and puts
-	 * the result into the returned <code>Rectangle2D</code> object.
+	 * Intersects the provided {@link Rectangle2D} with this one and puts the result into
+	 * the returned {@link Rectangle2D} object.
 	 *
-	 * @param rect The Rectangle2D to be intersected with this one.
+	 * @param rect The {@link Rectangle2D} to be intersected with this one.
 	 *
-	 * @return the intersection rectangle, or <code>null</code> if the
-	 * rectangles don't intersect each other.
+	 * @return The intersection rectangle, or {@code null} if the rectangles don't intersect each other.
 	 */
 	public Rectangle2D intersection(Rectangle2D rect) {
 		double iX = Math.max(x, rect.x);
@@ -231,17 +218,16 @@ public class Rectangle2D implements Cloneable, Serializable {
 	}
 
 	/**
-	 * Determines whether the <code>Rectangle2D</code> encloses some area.
+	 * Determines if the {@link Rectangle2D} encloses some area.
 	 *
-	 * @return true if the <code>Rectangle2D</code> is empty, false otherwise.
+	 * @return True if the {@link Rectangle2D} is empty, false otherwise.
 	 */
 	public boolean isEmpty() {
 		return (width <= 0.0) || (height <= 0.0);
 	}
 
 	/**
-	 * Set the location and size of the <code>Rectangle2D</code> to the
-	 * specified values.
+	 * Set the location and size of the {@link Rectangle2D} to the specified values.
 	 *
 	 * @param x      The x coordinate.
 	 * @param y      The y coordinate.
@@ -280,10 +266,9 @@ public class Rectangle2D implements Cloneable, Serializable {
 	}
 
 	/**
-	 * Unions the provided <code>Rectangle2D</code> with this one and puts the
-	 * result into this <code>Rectangle2D</code> object.
+	 * Unions the provided {@link Rectangle2D} with this one and puts the result into this {@link Rectangle2D} object.
 	 *
-	 * @param rect The Rectangle2D to be combined with this one.
+	 * @param rect The {@link Rectangle2D} to be combined with this one.
 	 */
 	public void union(Rectangle2D rect) {
 		double x1 = Math.min(getX(), rect.getX());

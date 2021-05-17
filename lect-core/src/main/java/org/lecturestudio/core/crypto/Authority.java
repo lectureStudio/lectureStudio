@@ -19,7 +19,7 @@
 package org.lecturestudio.core.crypto;
 
 /**
- * The Authority describes the user's identity and needed credentials to
+ * The {@link Authority} describes the user's identity and needed credentials to
  * authenticate a user during the challenge.
  *
  * @author Alex Andres
@@ -34,7 +34,7 @@ public class Authority {
 
 
 	/**
-	 * Create a Authority with the specified user identity and password.
+	 * Create a {@link Authority} with the specified user identity and password.
 	 *
 	 * @param identity The user's identity.
 	 * @param password The user's password.
@@ -47,7 +47,7 @@ public class Authority {
 	/**
 	 * Get the identity of the user.
 	 *
-	 * @return the identity of the user.
+	 * @return The identity of the user.
 	 */
 	public String getIdentity() {
 		return identity;
@@ -65,7 +65,7 @@ public class Authority {
 	/**
 	 * Get the password of the user.
 	 *
-	 * @return the password of the user.
+	 * @return The password of the user.
 	 */
 	public String getPassword() {
 		return password;

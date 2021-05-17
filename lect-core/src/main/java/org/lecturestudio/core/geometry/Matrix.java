@@ -21,8 +21,7 @@ package org.lecturestudio.core.geometry;
 import java.util.Objects;
 
 /**
- * A 2D matrix implementation that currently only holds the 3x3 transformation
- * matrix double precision values.
+ * A 2D matrix implementation that currently only holds the 3x3 transformation matrix double precision values.
  *
  * @author Alex Andres
  */
@@ -48,14 +47,14 @@ public class Matrix implements Cloneable {
 
 
 	/**
-	 * Creates a new {@code Matrix} representing the Identity matrix.
+	 * Creates a new {@link Matrix} representing the Identity matrix.
 	 */
 	public Matrix() {
 		m00 = m11 = 1.0;
 	}
 
 	/**
-	 * Creates a new {@code Matrix} from 6 double precision values representing
+	 * Creates a new {@link Matrix} from 6 double precision values representing
 	 * the 6 specifiable entries of the 3x3 transformation matrix.
 	 *
 	 * @param m00 The X coordinate scaling element of the matrix.
@@ -75,68 +74,61 @@ public class Matrix implements Cloneable {
 	}
 
 	/**
-	 * Returns the {@code m00} scaling element of the 3x3 transformation
-	 * matrix.
+	 * Returns the {@link #m00} scaling element of the 3x3 transformation matrix.
 	 *
-	 * @return The {@code m00} element of the matrix.
+	 * @return The {@link #m00} element of the matrix.
 	 */
 	public double getScaleX() {
 		return m00;
 	}
 
 	/**
-	 * Returns the {@code m11} scaling element of the 3x3 transformation
-	 * matrix.
+	 * Returns the {@link #m11} scaling element of the 3x3 transformation matrix.
 	 *
-	 * @return The {@code m11} element of the matrix.
+	 * @return The {@link #m11} element of the matrix.
 	 */
 	public double getScaleY() {
 		return m11;
 	}
 
 	/**
-	 * Returns the {@code m01} shearing element of the 3x3 transformation
-	 * matrix.
+	 * Returns the {@link #m01} shearing element of the 3x3 transformation matrix.
 	 *
-	 * @return The {@code m01} element of the matrix.
+	 * @return The {@link #m01} element of the matrix.
 	 */
 	public double getShearX() {
 		return m01;
 	}
 
 	/**
-	 * Returns the {@code m10} shearing element of the 3x3 transformation
-	 * matrix.
+	 * Returns the {@link #m10} shearing element of the 3x3 transformation matrix.
 	 *
-	 * @return The {@code m10} element of the matrix.
+	 * @return The {@link #m10} element of the matrix.
 	 */
 	public double getShearY() {
 		return m10;
 	}
 
 	/**
-	 * Returns the {@code m02} translation element of the 3x3 transformation
-	 * matrix.
+	 * Returns the {@link #m02} translation element of the 3x3 transformation matrix.
 	 *
-	 * @return The {@code m02} element of the matrix.
+	 * @return The {@link #m02} element of the matrix.
 	 */
 	public double getTranslateX() {
 		return m02;
 	}
 
 	/**
-	 * Returns the {@code m12} translation element of the 3x3 transformation
-	 * matrix.
+	 * Returns the {@link #m12} translation element of the 3x3 transformation matrix.
 	 *
-	 * @return The {@code m12} element of the matrix.
+	 * @return The {@link #m12} element of the matrix.
 	 */
 	public double getTranslateY() {
 		return m12;
 	}
 
 	/**
-	 * Sets this matrix to the matrix specified by the 6 double precision
-	 * values.
+	 * Sets this matrix to the matrix specified by the 6 double precision values.
 	 *
 	 * @param m00 The X coordinate scaling element of the matrix.
 	 * @param m10 The Y coordinate shearing element of the matrix.
@@ -179,7 +171,7 @@ public class Matrix implements Cloneable {
 	/**
 	 * Returns a deep copy of this matrix.
 	 *
-	 * @return a copy of this matrix.
+	 * @return A copy of this matrix.
 	 */
 	@Override
 	public Matrix clone() {

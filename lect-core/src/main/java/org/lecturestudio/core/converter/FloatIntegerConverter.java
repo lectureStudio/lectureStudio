@@ -22,9 +22,14 @@ import org.lecturestudio.core.beans.Converter;
 
 public class FloatIntegerConverter implements Converter<Float, Integer> {
 
+	/** The scalar of the converter. */
 	private final float scalar;
 
-
+	/**
+	 * Create a {@link FloatIntegerConverter} with the specified scalar.
+	 *
+	 * @param scalar The scalar of the converter.
+	 */
 	public FloatIntegerConverter(float scalar) {
 		this.scalar = scalar;
 	}

@@ -31,23 +31,44 @@ import org.lecturestudio.core.beans.Converter;
 
 public class NumberStringConverter<T extends Number> implements Converter<T, String> {
 
+	/** The locale. */
 	private Locale locale;
 
+	/** The pattern. */
 	private String pattern;
 
-
+	/**
+	 * Creates a {@link NumberStringConverter} with the default {@link Locale}.
+	 */
 	public NumberStringConverter() {
 		this(Locale.getDefault());
 	}
 
+	/**
+	 * Creates a {@link NumberStringConverter} with the specified locale. (The pattern will be {@code null})
+	 *
+	 * @param locale The locale.
+	 */
 	public NumberStringConverter(Locale locale) {
 		this(locale, null);
 	}
 
+	/**
+	 * Creates a {@link NumberStringConverter} with the specified pattern.
+	 * (The locale will be the default {@link Locale})
+	 *
+	 * @param pattern The pattern.
+	 */
 	public NumberStringConverter(String pattern) {
 		this(Locale.getDefault(), pattern);
 	}
 
+	/**
+	 * Creates a {@link NumberStringConverter} with the specified locale and pattern.
+	 *
+	 * @param locale The locale.
+	 * @param pattern The pattern.
+	 */
 	public NumberStringConverter(Locale locale, String pattern) {
 		this.locale = locale;
 		this.pattern = pattern;
@@ -87,19 +108,28 @@ public class NumberStringConverter<T extends Number> implements Converter<T, Str
 		}
 	}
 
+	/**
+	 * Set a new locale.
+	 *
+	 * @param locale The new locale.
+	 */
 	public void setLocale(Locale locale) {
 		this.locale = locale;
 	}
 
+	/**
+	 * Set a new pattern.
+	 *
+	 * @param pattern The new pattern.
+	 */
 	public void setPattern(String pattern) {
 		this.pattern = pattern;
 	}
 
 	/**
-	 * Returns a {@code NumberFormat} instance for formatting and parsing a
-	 * string.
+	 * Returns a {@link NumberFormat} instance for formatting and parsing a string.
 	 *
-	 * @return a {@code NumberFormat} instance.
+	 * @return a {@link NumberFormat} instance.
 	 */
 	protected NumberFormat getNumberFormat() {
 		Locale lc = isNull(locale) ? Locale.getDefault() : locale;

@@ -27,21 +27,19 @@ import java.util.List;
 import org.lecturestudio.core.input.KeyEvent;
 
 /**
- * The PathFactory creates renderable shapes represented by a {@link Path2D}
- * from a list of points.
+ * The {@link PathFactory} creates renderable shapes represented by a {@link Path2D} from a list of points.
  *
  * @author Alex Andres
  */
 public final class PathFactory {
 
 	/**
-	 * Create a variable width pen stroke from a list of points with the
-	 * specified pen width.
+	 * Create a variable width pen stroke from a list of points with the specified pen width.
 	 *
 	 * @param points   The list of points captured by a input device.
 	 * @param penWidth The pen width.
 	 *
-	 * @return a variable width pen stroke {@code Path2D}.
+	 * @return A variable width pen stroke {@link Path2D}.
 	 */
 	public static Path2D createPenPath(List<PenPoint2D> points, double penWidth) {
 		PenStroker stroker = new PenStroker(penWidth);
@@ -50,13 +48,12 @@ public final class PathFactory {
 	}
 
 	/**
-	 * Create a highlighter stroke from a list of points with the specified pen
-	 * width.
+	 * Create a highlighter stroke from a list of points with the specified pen width.
 	 *
 	 * @param points The list of points captured by a input device.
 	 * @param width  The width of the highlighter stroke.
 	 *
-	 * @return a highlighter stroke as {@code Path2D}.
+	 * @return A highlighter stroke as {@link Path2D}.
 	 */
 	public static Path2D createHighlighterPath(List<PenPoint2D> points, double width) {
 		GeneralPath path = new GeneralPath();
@@ -99,13 +96,12 @@ public final class PathFactory {
 	 * key event modifies the thickness and the double arrow attributes.
 	 *
 	 * @param tx       The transform of the arrow, e.g. may be rotated.
-	 * @param keyEvent The key event to modify the thickness and the double
-	 *                 arrow attributes.
+	 * @param keyEvent The key event to modify the thickness and the double  arrow attributes.
 	 * @param p1       The start point of the arrow.
 	 * @param p2       The end point of the arrow.
 	 * @param penWidth The width of the arrow.
 	 *
-	 * @return an arrow stroke as {@code Path2D}.
+	 * @return An arrow stroke as {@link Path2D}.
 	 */
 	public static Path2D createArrowPath(AffineTransform tx, KeyEvent keyEvent, PenPoint2D p1, PenPoint2D p2, double penWidth) {
 		boolean bold = keyEvent != null && keyEvent.isAltDown();
@@ -131,8 +127,7 @@ public final class PathFactory {
 		double arrowRatio = 0.5;
 		double arrowLength = w * 5;
 		double waisting = 0.35;
-		double endX = length;
-		double veeX = endX - w * 0.5 / arrowRatio;
+		double veeX = length - w * 0.5 / arrowRatio;
 
 		double waistX = length - arrowLength * 0.5;
 		double waistY = arrowRatio * arrowLength * 0.5 * waisting;

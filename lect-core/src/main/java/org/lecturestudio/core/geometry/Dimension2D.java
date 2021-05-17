@@ -23,8 +23,7 @@ import com.google.common.base.Objects;
 import java.io.Serializable;
 
 /**
- * The Dimension2D represents the horizontal and vertical extent of an object in
- * 2D space.
+ * The {@link Dimension2D} represents the horizontal and vertical extent of an object in 2D space.
  *
  * @author Alex Andres
  */
@@ -40,14 +39,14 @@ public class Dimension2D implements Cloneable, Serializable {
 
 
 	/**
-	 * Creates a new instance of {@code Dimension2D} with zero size.
+	 * Creates a new instance of {@link Dimension2D} with zero size.
 	 */
 	public Dimension2D() {
 		this(0, 0);
 	}
 
 	/**
-	 * Creates a new instance of {@code Dimension2D} with the specified size.
+	 * Creates a new instance of {@link Dimension2D} with the specified size.
 	 *
 	 * @param width  The width.
 	 * @param height The height.
@@ -59,7 +58,7 @@ public class Dimension2D implements Cloneable, Serializable {
 	/**
 	 * The width of this dimension.
 	 *
-	 * @return the width.
+	 * @return The width.
 	 */
 	public double getWidth() {
 		return width;
@@ -68,7 +67,7 @@ public class Dimension2D implements Cloneable, Serializable {
 	/**
 	 * The height of this dimension.
 	 * 
-	 * @return the height.
+	 * @return The height.
 	 */
 	public double getHeight() {
 		return height;

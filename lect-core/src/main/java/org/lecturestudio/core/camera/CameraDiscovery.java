@@ -44,7 +44,7 @@ public final class CameraDiscovery {
 	private final AtomicBoolean open = new AtomicBoolean(false);
 
 	/* Scheduled discovery executor. */
-	private ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
+	private final ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
 
 	/* Current discovery task that may be cancelled. */
 	private ScheduledFuture<?> scheduledTask;
@@ -53,7 +53,7 @@ public final class CameraDiscovery {
 	private CameraDriver cameraDriver;
 
 	/* Recently seen connected cameras. */
-	private TreeSet<Camera> lastCameras = new TreeSet<>();
+	private final TreeSet<Camera> lastCameras = new TreeSet<>();
 
 
 	/**

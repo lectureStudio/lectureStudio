@@ -72,11 +72,6 @@
 			<artifactId>stylus</artifactId>
 			<version>0.1.0</version>
 		</dependency>
-		<dependency>
-			<groupId>dev.onvoid.webrtc</groupId>
-			<artifactId>webrtc-java</artifactId>
-			<version>0.2.0</version>
-		</dependency>
 
 		<!-- Used to bootstrap the embedded broadcaster -->
 		<dependency>

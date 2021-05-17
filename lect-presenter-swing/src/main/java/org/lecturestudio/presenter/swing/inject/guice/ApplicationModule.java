@@ -50,7 +50,7 @@ import org.lecturestudio.core.service.DocumentService;
 import org.lecturestudio.core.util.AggregateBundle;
 import org.lecturestudio.core.util.DirUtils;
 import org.lecturestudio.core.view.PresentationViewFactory;
-import org.lecturestudio.media.avdev.AVdevDriver;
+import org.lecturestudio.media.webrtc.WebRtcDriver;
 import org.lecturestudio.presenter.api.config.DefaultConfiguration;
 import org.lecturestudio.presenter.api.config.PresenterConfigService;
 import org.lecturestudio.presenter.api.config.PresenterConfiguration;
@@ -73,7 +73,7 @@ public class ApplicationModule extends AbstractModule {
 	@Override
 	protected void configure() {
 		bind(ApplicationContext.class).to(PresenterContext.class);
-		bind(CameraDriver.class).to(AVdevDriver.class);
+		bind(CameraDriver.class).to(WebRtcDriver.class);
 		bind(ToolController.class).asEagerSingleton();
 	}
 

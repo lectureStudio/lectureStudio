@@ -92,7 +92,7 @@ public class CameraView extends JComponent {
 	@Override
 	public void paintComponent(Graphics g) {
 		if (nonNull(image)) {
-			g.drawImage(image, 0, 0, getWidth(), getHeight(), null);
+			g.drawImage(image, 0, 0, null);
 		}
 		else {
 			paintNoImage((Graphics2D) g);

@@ -19,6 +19,9 @@
 package org.lecturestudio.core.camera;
 
 import java.awt.image.BufferedImage;
+import java.util.function.Consumer;
+
+import org.lecturestudio.core.geometry.Dimension2D;
 
 /**
  * A Camera is used to retrieve frames from an camera device for video encoding
@@ -67,6 +70,15 @@ public interface Camera extends Comparable<Camera> {
 	void setFormat(CameraFormat format);
 
 	/**
+	 * Set the image size to which the captured frame should be scaled. Calling
+	 * this method is useful when the captured frame is rendered by an UI
+	 * framework and fast scaling is desired.
+	 *
+	 * @param size The size of the image.
+	 */
+	void setImageSize(Dimension2D size);
+
+	/**
 	 * Retrieve a camera format with the highest image resolution the camera can
 	 * capture with the specified frames per second.
 	 *
@@ -77,11 +89,12 @@ public interface Camera extends Comparable<Camera> {
 	CameraFormat getHighestFormat(double fps);
 
 	/**
-	 * Retrieve the last captured frame.
+	 * Set the captured image callback that is notified when a new image has
+	 * been captured by the camera.
 	 *
-	 * @return the last captured frame.
+	 * @param consumer The captured image callback.
 	 */
-	BufferedImage getImage();
+	void setImageConsumer(Consumer<BufferedImage> consumer);
 
 	/**
 	 * Check if the camera is opened and capturing.

@@ -18,6 +18,8 @@
 
 package org.lecturestudio.media.webrtc;
 
+import static java.util.Objects.nonNull;
+
 import dev.onvoid.webrtc.media.FourCC;
 import dev.onvoid.webrtc.media.MediaDevices;
 import dev.onvoid.webrtc.media.video.VideoBufferConverter;
@@ -84,19 +86,14 @@ public class WebRtcCamera extends AbstractCamera {
 	}
 
 	@Override
-	public BufferedImage getImage() {
-		if (open.get() && device != null) {
-			return image;
-		}
-		return null;
-	}
-
-	@Override
 	public void open() throws CameraException {
 		if (!open.get()) {
 			int width = getFormat().getWidth();
 			int height = getFormat().getHeight();
 			int frameRate = (int) getFormat().getFrameRate();
+
+			final int imageWidth = nonNull(imageSize) ? (int) imageSize.getWidth() : width;
+			final int imageHeight = nonNull(imageSize) ? (int) imageSize.getHeight() : height;
 
 			VideoCaptureCapability capability = new VideoCaptureCapability(width, height, frameRate);
 
@@ -107,7 +104,13 @@ public class WebRtcCamera extends AbstractCamera {
 				VideoFrameBuffer buffer = frame.buffer;
 
 				try {
-					VideoBufferConverter.convertFromI420(buffer, imageBuffer, FourCC.ARGB);
+					VideoFrameBuffer scaled = buffer.cropAndScale(0, 0, width, height, imageWidth, imageHeight);
+					VideoBufferConverter.convertFromI420(scaled, imageBuffer, FourCC.ARGB);
+					scaled.release();
+
+					if (nonNull(imageConsumer)) {
+						imageConsumer.accept(image);
+					}
 				}
 				catch (Exception e) {
 					e.printStackTrace();
@@ -115,7 +118,7 @@ public class WebRtcCamera extends AbstractCamera {
 			});
 
 			try {
-				createBufferedImage(width, height);
+				createBufferedImage(imageWidth, imageHeight);
 
 				videoCapture.start();
 			}

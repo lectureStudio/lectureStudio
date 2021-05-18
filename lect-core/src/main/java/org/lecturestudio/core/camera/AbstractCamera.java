@@ -18,7 +18,11 @@
 
 package org.lecturestudio.core.camera;
 
+import java.awt.image.BufferedImage;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.function.Consumer;
+
+import org.lecturestudio.core.geometry.Dimension2D;
 
 /**
  * Base camera implementation that manages the state and camera format.
@@ -35,6 +39,12 @@ public abstract class AbstractCamera implements Camera {
 
 	/** Supported formats by the camera, may be default or real supported ones. */
 	protected CameraFormat[] formats;
+
+	/** The desired image size the captured frame should be scaled to. */
+	protected Dimension2D imageSize;
+
+	/** The captured image callback. */
+	protected Consumer<BufferedImage> imageConsumer;
 
 
 	@Override
@@ -76,6 +86,16 @@ public abstract class AbstractCamera implements Camera {
 	}
 
 	@Override
+	public void setImageSize(Dimension2D size) {
+		this.imageSize = size;
+	}
+
+	@Override
+	public void setImageConsumer(Consumer<BufferedImage> consumer) {
+		imageConsumer = consumer;
+	}
+
+	@Override
 	public int compareTo(Camera o) {
 		return getName().compareTo(o.getName());
 	}
@@ -103,5 +123,4 @@ public abstract class AbstractCamera implements Camera {
 	public String toString() {
 		return getName();
 	}
-
 }

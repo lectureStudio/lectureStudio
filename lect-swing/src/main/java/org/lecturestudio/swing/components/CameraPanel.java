@@ -22,7 +22,6 @@ import static java.util.Objects.isNull;
 import static java.util.Objects.nonNull;
 
 import java.awt.Dimension;
-import java.awt.image.BufferedImage;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import javax.swing.JPanel;
@@ -30,6 +29,7 @@ import javax.swing.border.EmptyBorder;
 
 import org.lecturestudio.core.camera.Camera;
 import org.lecturestudio.core.camera.CameraFormat;
+import org.lecturestudio.core.geometry.Dimension2D;
 
 /**
  * Simply implementation of JPanel allowing users to render pictures taken with
@@ -49,9 +49,6 @@ public class CameraPanel extends JPanel {
 
     /** Camera to fetch images. */
     private Camera camera;
-
-	/** Capturing thread. */
-	private Thread thread;
 
 
     /**
@@ -81,26 +78,6 @@ public class CameraPanel extends JPanel {
 	}
 
 	/**
-	 * Set the camera of which the captured frames of specified size should be
-	 * shown.
-	 *
-	 * @param camera the camera to capture.
-	 * @param format the camera input format.
-	 */
-	public void setCamera(Camera camera, CameraFormat format) {
-		setCamera(camera);
-
-		try {
-			if (nonNull(this.camera)) {
-				this.camera.setFormat(format);
-			}
-		}
-		catch (Exception e) {
-			throw new RuntimeException(e);
-		}
-	}
-
-	/**
 	 * Set the new capture format.
 	 *
 	 * @param format the camera capture format.
@@ -118,9 +95,15 @@ public class CameraPanel extends JPanel {
 		if (started.compareAndSet(false, true)) {
 			setCanvasSize();
 
-			thread = new Thread(this::captureLoop);
-			thread.setDaemon(true);
-			thread.start();
+			camera.setImageSize(new Dimension2D(canvas.getWidth(), canvas.getHeight()));
+			camera.setImageConsumer(image -> canvas.showImage(image));
+
+			try {
+				camera.open();
+			}
+			catch (Exception e) {
+				throw new RuntimeException(e);
+			}
 		}
 	}
 
@@ -128,16 +111,15 @@ public class CameraPanel extends JPanel {
 	 * Stop camera capturing.
 	 */
 	public void stopCapture() {
-		started.set(false);
-
-		if (nonNull(thread)) {
-			// Perform clean shutdown.
+		if (started.compareAndSet(true, false)) {
 			try {
-				thread.join();
+				camera.close();
 			}
-			catch (InterruptedException e) {
+			catch (Exception e) {
 				throw new RuntimeException(e);
 			}
+
+			canvas.clearImage();
 		}
 	}
 
@@ -164,26 +146,6 @@ public class CameraPanel extends JPanel {
 		canvas.setPreferredSize(size);
 		canvas.setSize(size);
     }
-
-	private void captureLoop() {
-		try {
-			camera.open();
-
-			while (camera.isOpened() && started.get()) {
-				BufferedImage image = camera.getImage();
-
-				canvas.showImage(image);
-
-				Thread.sleep(5);
-			}
-
-			camera.close();
-			canvas.clearImage();
-		}
-		catch (Exception e) {
-			throw new RuntimeException(e);
-		}
-	}
 
 	private void initialize() {
 		setLayout(null);

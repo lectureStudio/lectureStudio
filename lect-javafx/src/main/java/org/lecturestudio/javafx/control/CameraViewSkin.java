@@ -21,7 +21,6 @@ package org.lecturestudio.javafx.control;
 import static java.util.Objects.isNull;
 import static java.util.Objects.nonNull;
 
-import java.awt.image.BufferedImage;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.apache.logging.log4j.LogManager;
@@ -42,6 +41,7 @@ import javafx.scene.shape.Rectangle;
 
 import org.lecturestudio.core.camera.Camera;
 import org.lecturestudio.core.camera.CameraFormat;
+import org.lecturestudio.core.geometry.Dimension2D;
 import org.lecturestudio.core.geometry.Rectangle2D;
 
 public class CameraViewSkin extends SkinBase<CameraView> {
@@ -50,9 +50,6 @@ public class CameraViewSkin extends SkinBase<CameraView> {
 
 	/** Represents the current camera capturing state. */
 	private final AtomicBoolean started = new AtomicBoolean(false);
-
-	/** Capturing thread. */
-	private Thread thread;
 
 	/** Camera image painter. */
 	private CameraCanvas canvas;
@@ -124,15 +121,18 @@ public class CameraViewSkin extends SkinBase<CameraView> {
 	 */
 	private void startCapture() {
 		if (started.compareAndSet(false, true)) {
-			thread = new Thread(getClass().getName()) {
+			try {
+				int imageWidth = (int) canvas.getWidth();
+				int imageHeight = (int) canvas.getHeight();
 
-				@Override
-				public void run() {
-					captureCamera();
-				}
-			};
-			thread.setDaemon(true);
-			thread.start();
+				Camera camera = getSkinnable().getCamera();
+				camera.setImageSize(new Dimension2D(imageWidth, imageHeight));
+				camera.setImageConsumer(image -> canvas.setImage(image));
+				camera.open();
+			}
+			catch (Exception e) {
+				LOG.error("Camera capture error.", e);
+			}
 		}
 	}
 
@@ -140,37 +140,16 @@ public class CameraViewSkin extends SkinBase<CameraView> {
 	 * Stop camera capturing.
 	 */
 	private void stopCapture() {
-		started.set(false);
-
-		if (thread != null) {
-			// Perform clean shutdown.
+		if (started.compareAndSet(true, false)) {
 			try {
-				thread.join();
+				Camera camera = getSkinnable().getCamera();
+				camera.close();
 			}
-			catch (InterruptedException e) {
-				LOG.error("Thread join failed.", e);
-			}
-		}
-	}
-
-	private void captureCamera() {
-		try {
-			Camera camera = getSkinnable().getCamera();
-			camera.open();
-
-			while (camera.isOpened() && started.get()) {
-				BufferedImage image = camera.getImage();
-
-				canvas.setImage(image);
-
-				Thread.sleep(5);
+			catch (Exception e) {
+				LOG.error("Camera capture error.", e);
 			}
 
-			camera.close();
 			canvas.clearImage();
-		}
-		catch (Exception e) {
-			LOG.error("Camera capture error.", e);
 		}
 	}
 

@@ -18,11 +18,7 @@
 
 package org.lecturestudio.core.camera;
 
-import java.awt.image.BufferedImage;
 import java.util.concurrent.atomic.AtomicBoolean;
-
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 
 /**
  * The FrameGrabber asynchronously captures video frames from a camera and
@@ -30,24 +26,19 @@ import org.apache.logging.log4j.Logger;
  *
  * @author Alex Andres
  */
-public class FrameGrabber implements Thread.UncaughtExceptionHandler {
-
-	private final static Logger LOG = LogManager.getLogger(FrameGrabber.class);
+public class FrameGrabber {
 
 	/** The callback that receives the captured frames. */
-	private FrameGrabberCallback callback;
+	private final FrameGrabberCallback callback;
 
 	/** The camera that captures the frames. */
-	private Camera camera;
+	private final Camera camera;
 
 	/** The format th. */
-	private CameraFormat format;
+	private final CameraFormat format;
 
 	/** Represents the current camera capturing state. */
-	private AtomicBoolean running = new AtomicBoolean(false);
-
-	/* Capturing thread. */
-	private Thread captureThread;
+	private final AtomicBoolean running = new AtomicBoolean(false);
 
 
 	/**
@@ -70,10 +61,15 @@ public class FrameGrabber implements Thread.UncaughtExceptionHandler {
 	 */
 	public void start() {
 		if (running.compareAndSet(false, true)) {
-			captureThread = new Thread(new CaptureTask(), "Camera Capture Thread");
-			captureThread.setDaemon(true);
-			captureThread.setUncaughtExceptionHandler(this);
-			captureThread.start();
+			camera.setFormat(format);
+			camera.setImageConsumer(callback::onFrame);
+
+			try {
+				camera.open();
+			}
+			catch (CameraException e) {
+				throw new RuntimeException(e);
+			}
 		}
 	}
 
@@ -82,67 +78,13 @@ public class FrameGrabber implements Thread.UncaughtExceptionHandler {
 	 * resources.
 	 */
 	public void stop() {
-		if (running.get() && captureThread != null) {
-			// Perform clean shutdown.
-			try {
-				if (!captureThread.isInterrupted()) {
-					captureThread.join(1000);
-				}
-			}
-			catch (InterruptedException e) {
-				// Ignore
-			}
-
-			captureThread = null;
-		}
-
-		running.set(false);
-
-		callback = null;
-	}
-
-	@Override
-	public void uncaughtException(Thread t, Throwable e) {
-		LOG.error("Exception in thread " + t.getName(), e);
-	}
-
-
-
-	/**
-	 * The frame capture task.
-	 */
-	private class CaptureTask implements Runnable {
-
-		@Override
-		public void run() {
-			camera.setFormat(format);
-
-			if (!camera.isOpened()) {
-				try {
-					camera.open();
-				}
-				catch (CameraException e) {
-					e.printStackTrace();
-				}
-			}
-
-			while (camera.isOpened() && running.get()) {
-				BufferedImage image = camera.getImage();
-
-				if (image != null && callback != null) {
-					callback.onFrame(image);
-				}
-			}
-
+		if (running.compareAndSet(true, false)) {
 			try {
 				camera.close();
 			}
 			catch (CameraException e) {
-				LOG.error("Close camera failed.", e);
+				throw new RuntimeException(e);
 			}
-
-			stop();
 		}
 	}
-
 }

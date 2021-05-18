@@ -80,14 +80,6 @@ public class AVdevCamera extends AbstractCamera {
 	}
 
 	@Override
-	public BufferedImage getImage() {
-		if (open.get() && device != null) {
-			return image;
-		}
-		return null;
-	}
-
-	@Override
 	public void open() throws CameraException {
 		if (!open.get()) {
 			int width = getFormat().getWidth();

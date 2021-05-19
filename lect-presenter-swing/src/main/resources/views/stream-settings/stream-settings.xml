@@ -29,34 +29,53 @@
 	<TitledSeparator text="stream.settings.broadcast">
 		<gridbagconstraints gridx="0" gridy="6" gridwidth="2" anchor="GridBagConstraints.WEST" weightx="1.0" fill="GridBagConstraints.HORIZONTAL" insets="5,0,5,0" />
 	</TitledSeparator>
+	<Label text="stream.settings.broadcast.profile" name="extendedUI">
+		<gridbagconstraints gridx="0" gridy="7" anchor="GridBagConstraints.WEST" insets="5,0,2,0" />
+	</Label>
+	<ComboBox id="bcastProfilesCombo" name="extendedUI">
+		<gridbagconstraints gridx="0" gridy="8" gridwidth="2" anchor="GridBagConstraints.WEST" insets="5,0,15,0" />
+		<renderer class="org.lecturestudio.presenter.swing.combobox.BroadcastProfileRenderer" />
+	</ComboBox>
+	<Label text="stream.settings.broadcast.profile.create" name="extendedUI">
+		<gridbagconstraints gridx="0" gridy="9" gridwidth="2" anchor="GridBagConstraints.WEST" insets="10,0,5,0" />
+	</Label>
 	<Panel layout="GridBagLayout" border="EmptyBorder()">
-		<gridbagconstraints gridx="0" gridy="7" gridwidth="2" anchor="GridBagConstraints.WEST" />
-		<Label text="stream.settings.broadcast.address">
-			<gridbagconstraints gridx="0" gridy="0" anchor="GridBagConstraints.WEST" insets="5,0,2,15" />
+		<gridbagconstraints gridx="0" gridy="10" gridwidth="2" anchor="GridBagConstraints.WEST" insets="0,0,20,0" weightx="1" fill="GridBagConstraints.HORIZONTAL" />
+		<Label text="stream.settings.broadcast.name">
+			<gridbagconstraints gridx="0" gridy="0" anchor="GridBagConstraints.WEST" insets="5,0,2,15" weightx="1" fill="GridBagConstraints.HORIZONTAL" />
 		</Label>
-		<IPTextField id="broadcastAddressTextField">
-			<gridbagconstraints gridx="0" gridy="1" anchor="GridBagConstraints.WEST" insets="5,0,15,15" />
-		</IPTextField>
-		<Label text="stream.settings.broadcast.port">
+		<TextField id="broadcastNameTextField" text="">
+			<gridbagconstraints gridx="0" gridy="1" anchor="GridBagConstraints.WEST" insets="5,0,15,15" weightx="1" fill="GridBagConstraints.HORIZONTAL" />
+		</TextField>
+		<Label text="stream.settings.broadcast.address">
 			<gridbagconstraints gridx="1" gridy="0" anchor="GridBagConstraints.WEST" insets="5,0,2,15" />
 		</Label>
-		<TextField id="broadcastPortTextField">
+		<IPTextField id="broadcastAddressTextField" text="0.0.0.0">
 			<gridbagconstraints gridx="1" gridy="1" anchor="GridBagConstraints.WEST" insets="5,0,15,15" />
+		</IPTextField>
+		<Label text="stream.settings.broadcast.port">
+			<gridbagconstraints gridx="2" gridy="0" anchor="GridBagConstraints.WEST" insets="5,0,2,15" />
+		</Label>
+		<TextField id="broadcastPortTextField" text="80">
+			<gridbagconstraints gridx="2" gridy="1" anchor="GridBagConstraints.WEST" insets="5,0,15,15" />
 			<Filter class="org.lecturestudio.swing.filter.IntFilter" />
 		</TextField>
 		<Label text="stream.settings.broadcast.port.tls">
-			<gridbagconstraints gridx="2" gridy="0" anchor="GridBagConstraints.WEST" insets="5,0,2,0" />
+			<gridbagconstraints gridx="3" gridy="0" anchor="GridBagConstraints.WEST" insets="5,0,2,0" />
 		</Label>
-		<TextField id="broadcastTlsPortTextField">
-			<gridbagconstraints gridx="2" gridy="1" anchor="GridBagConstraints.WEST" insets="5,0,15,0" />
+		<TextField id="broadcastTlsPortTextField" text="443">
+			<gridbagconstraints gridx="3" gridy="1" anchor="GridBagConstraints.WEST" insets="5,0,15,15" />
 			<Filter class="org.lecturestudio.swing.filter.IntFilter" />
 		</TextField>
+		<Button id="addProfileButton" name="extendedUI" icon="add.svg, 20" text="button.new">
+			<gridbagconstraints gridx="4" gridy="1" anchor="GridBagConstraints.EAST" insets="5,30,15,0" />
+		</Button>
 	</Panel>
 	<box.vglue>
-		<gridbagconstraints gridx="0" gridy="8" weighty="1.0" />
+		<gridbagconstraints gridx="0" gridy="11" weighty="1.0" />
 	</box.vglue>
 	<HBox gap="5">
-		<gridbagconstraints gridx="0" gridy="9" gridwidth="2" weightx="1.0" fill="GridBagConstraints.HORIZONTAL" />
+		<gridbagconstraints gridx="0" gridy="12" gridwidth="2" weightx="1.0" fill="GridBagConstraints.HORIZONTAL" />
 		<box.hglue />
 		<Button id="resetButton" text="button.reset"/>
 		<Button id="closeButton" text="button.close"/>

@@ -35,7 +35,7 @@ import org.lecturestudio.core.presenter.Presenter;
 import org.lecturestudio.core.util.ListChangeListener;
 import org.lecturestudio.core.util.NetUtils;
 import org.lecturestudio.core.util.ObservableList;
-import org.lecturestudio.media.config.NetworkConfiguration;
+import org.lecturestudio.presenter.api.config.NetworkConfiguration;
 import org.lecturestudio.presenter.api.config.DefaultConfiguration;
 import org.lecturestudio.presenter.api.config.PresenterConfiguration;
 import org.lecturestudio.presenter.api.view.NetworkSettingsView;

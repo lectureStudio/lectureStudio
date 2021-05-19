@@ -19,13 +19,10 @@ package org.lecturestudio.player.api.config;
 
 import org.lecturestudio.core.app.configuration.Configuration;
 import org.lecturestudio.core.beans.StringProperty;
-import org.lecturestudio.media.config.NetworkConfiguration;
 
 public class PlayerConfiguration extends Configuration {
 
 	private final StringProperty documentsPath = new StringProperty();
-
-	private final NetworkConfiguration networkConfig = new NetworkConfiguration();
 
 
 	/**
@@ -45,12 +42,4 @@ public class PlayerConfiguration extends Configuration {
 	public StringProperty documentsPathProperty() {
 		return documentsPath;
 	}
-
-	/**
-	 * @return the networkConfig
-	 */
-	public NetworkConfiguration getNetworkConfig() {
-		return networkConfig;
-	}
-	
 }

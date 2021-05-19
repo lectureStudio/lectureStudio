@@ -23,6 +23,7 @@ import java.security.MessageDigest;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
+import org.lecturestudio.broadcast.config.BroadcastProfile;
 import org.lecturestudio.core.ExecutableBase;
 import org.lecturestudio.core.ExecutableException;
 import org.lecturestudio.core.ExecutableState;
@@ -33,7 +34,7 @@ import org.lecturestudio.core.service.DocumentService;
 import org.lecturestudio.core.util.NetUtils;
 import org.lecturestudio.media.config.AudioStreamConfig;
 import org.lecturestudio.media.config.CameraStreamConfig;
-import org.lecturestudio.media.config.NetworkConfiguration;
+import org.lecturestudio.presenter.api.config.NetworkConfiguration;
 import org.lecturestudio.media.net.server.MediaStreamProvider;
 import org.lecturestudio.presenter.api.config.PresenterConfiguration;
 import org.lecturestudio.presenter.api.config.StreamConfiguration;
@@ -215,8 +216,9 @@ public class StreamService extends ExecutableBase {
 	private void checkStartLocalBroadcaster() throws ExecutableException {
 		PresenterConfiguration config = (PresenterConfiguration) context.getConfiguration();
 		NetworkConfiguration netConfig = config.getNetworkConfig();
-		String broadcastAddress = netConfig.getBroadcastAddress();
-		Integer broadcastPort = netConfig.getBroadcastPort();
+		BroadcastProfile bastProfile = netConfig.getBroadcastProfile();
+		String broadcastAddress = bastProfile.getBroadcastAddress();
+		Integer broadcastPort = bastProfile.getBroadcastPort();
 
 		if (NetUtils.isLocalAddress(broadcastAddress, broadcastPort)) {
 			localBroadcaster.start();

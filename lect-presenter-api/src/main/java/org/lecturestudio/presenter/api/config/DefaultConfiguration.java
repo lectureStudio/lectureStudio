@@ -22,6 +22,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Locale;
 
+import org.lecturestudio.broadcast.config.BroadcastProfile;
 import org.lecturestudio.core.app.Theme;
 import org.lecturestudio.core.audio.AudioFormat;
 import org.lecturestudio.core.geometry.Dimension2D;
@@ -103,12 +104,24 @@ public class DefaultConfiguration extends PresenterConfiguration {
 		filter.registerRule(new IpRangeRule("127.0.0.1", "127.0.0.1"));
 		filter.registerRule(new IpRangeRule("192.168.0.1", "192.168.0.254"));
 		filter.registerRule(new IpRangeRule("130.83.0.0", "130.83.255.254"));
-		
+
+		BroadcastProfile localProfile = new BroadcastProfile();
+		localProfile.setName("Local");
+		localProfile.setBroadcastAddress("0.0.0.0");
+		localProfile.setBroadcastPort(OsInfo.isWindows() ? 80 : 8080);
+		localProfile.setBroadcastTlsPort(OsInfo.isWindows() ? 443 : 8443);
+
+		BroadcastProfile etitProfile = new BroadcastProfile();
+		etitProfile.setName("ETiT Cloud");
+		etitProfile.setBroadcastAddress("130.83.158.130");
+		etitProfile.setBroadcastPort(8080);
+		etitProfile.setBroadcastTlsPort(8443);
+
 		getNetworkConfig().setIpFilter(filter);
-		getNetworkConfig().setBroadcastAddress("0.0.0.0");
-		getNetworkConfig().setBroadcastPort(OsInfo.isWindows() ? 80 : 8080);
-		getNetworkConfig().setBroadcastTlsPort(OsInfo.isWindows() ? 443 : 8443);
-		
+		getNetworkConfig().setBroadcastProfile(localProfile);
+		getNetworkConfig().getBroadcastProfiles().add(localProfile);
+		getNetworkConfig().getBroadcastProfiles().add(etitProfile);
+
 		getAudioConfig().setRecordingFormat(new AudioFormat(AudioFormat.Encoding.S16LE, 44100, 1));
 		getAudioConfig().setSoundSystem("AVdev");
 		getAudioConfig().setRecordingPath(System.getProperty("user.home"));

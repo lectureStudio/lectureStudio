@@ -22,7 +22,6 @@ import org.lecturestudio.core.app.configuration.Configuration;
 import org.lecturestudio.core.beans.BooleanProperty;
 import org.lecturestudio.core.beans.IntegerProperty;
 import org.lecturestudio.core.beans.StringProperty;
-import org.lecturestudio.media.config.NetworkConfiguration;
 
 public class PresenterConfiguration extends Configuration {
 
@@ -31,8 +30,6 @@ public class PresenterConfiguration extends Configuration {
 
 	/** The short name of the classroom which is used mainly for URLs. */
 	private final StringProperty classroomShortName = new StringProperty();
-
-	private final StringProperty customBroadcastAddress = new StringProperty();
 
 	/** Show a reminder notification, if desired, to start lecture recording. */
 	private final BooleanProperty notifyToRecord = new BooleanProperty();
@@ -84,24 +81,6 @@ public class PresenterConfiguration extends Configuration {
 	
 	public StringProperty classroomShortNameProperty() {
 		return classroomShortName;
-	}
-
-	/**
-	 * @return the customBroadcastAddress
-	 */
-	public String getCustomBroadcastAddress() {
-		return customBroadcastAddress.get();
-	}
-
-	/**
-	 * @param address the custom broadcast address to set
-	 */
-	public void setCustomBroadcastAddress(String address) {
-		this.customBroadcastAddress.set(address);
-	}
-
-	public StringProperty customBroadcastAddressProperty() {
-		return customBroadcastAddress;
 	}
 
 	/**

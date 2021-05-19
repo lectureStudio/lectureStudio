@@ -36,6 +36,7 @@ import java.util.concurrent.TimeUnit;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
+import org.lecturestudio.broadcast.config.BroadcastProfile;
 import org.lecturestudio.core.ExecutableException;
 import org.lecturestudio.core.app.ApplicationContext;
 import org.lecturestudio.core.app.dictionary.Dictionary;
@@ -46,7 +47,7 @@ import org.lecturestudio.core.pdf.PdfDocument;
 import org.lecturestudio.core.service.DocumentService;
 import org.lecturestudio.core.util.FileUtils;
 import org.lecturestudio.core.util.ProgressCallback;
-import org.lecturestudio.media.config.NetworkConfiguration;
+import org.lecturestudio.presenter.api.config.NetworkConfiguration;
 import org.lecturestudio.presenter.api.config.PresenterConfiguration;
 import org.lecturestudio.presenter.api.pdf.PdfFactory;
 import org.lecturestudio.presenter.api.quiz.QuizResultCsvWriter;
@@ -311,8 +312,9 @@ public class QuizWebService extends WebServiceBase {
 	private void initSession() {
 		PresenterConfiguration config = (PresenterConfiguration) context.getConfiguration();
 		NetworkConfiguration netConfig = config.getNetworkConfig();
-		String broadcastAddress = netConfig.getBroadcastAddress();
-		int broadcastPort = netConfig.getBroadcastTlsPort();
+		BroadcastProfile bastProfile = netConfig.getBroadcastProfile();
+		String broadcastAddress = bastProfile.getBroadcastAddress();
+		int broadcastPort = bastProfile.getBroadcastTlsPort();
 
 		ServiceParameters params = new ServiceParameters();
 		params.setUrl(String.format("https://%s:%d", broadcastAddress, broadcastPort));

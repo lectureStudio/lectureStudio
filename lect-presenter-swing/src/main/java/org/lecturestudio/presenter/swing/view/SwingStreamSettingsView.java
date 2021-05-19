@@ -18,6 +18,8 @@
 
 package org.lecturestudio.presenter.swing.view;
 
+import static java.util.Objects.nonNull;
+
 import java.util.List;
 import java.util.Vector;
 
@@ -27,20 +29,27 @@ import javax.swing.JComboBox;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
 
+import org.lecturestudio.broadcast.config.BroadcastProfile;
 import org.lecturestudio.core.audio.AudioFormat;
 import org.lecturestudio.core.beans.IntegerProperty;
 import org.lecturestudio.core.beans.ObjectProperty;
 import org.lecturestudio.core.beans.StringProperty;
 import org.lecturestudio.core.converter.IntegerStringConverter;
 import org.lecturestudio.core.view.Action;
+import org.lecturestudio.core.view.ConsumerAction;
 import org.lecturestudio.presenter.api.view.StreamSettingsView;
 import org.lecturestudio.swing.beans.ConvertibleObjectProperty;
 import org.lecturestudio.swing.components.IPTextField;
 import org.lecturestudio.swing.util.SwingUtils;
 import org.lecturestudio.swing.view.SwingView;
+import org.lecturestudio.swing.view.ViewPostConstruct;
 
 @SwingView(name = "stream-settings", presenter = org.lecturestudio.presenter.api.presenter.StreamSettingsPresenter.class)
 public class SwingStreamSettingsView extends JPanel implements StreamSettingsView {
+
+	private ConsumerAction<BroadcastProfile> newBcastProfileAction;
+
+	private JComboBox<BroadcastProfile> bcastProfilesCombo;
 
 	private JComboBox<String> streamAudioCodecCombo;
 
@@ -48,11 +57,15 @@ public class SwingStreamSettingsView extends JPanel implements StreamSettingsVie
 
 	private JTextField cameraBitrateTextField;
 
+	private JTextField broadcastNameTextField;
+
 	private IPTextField broadcastAddressTextField;
 
 	private JTextField broadcastPortTextField;
 
 	private JTextField broadcastTlsPortTextField;
+
+	private JButton addProfileButton;
 
 	private JButton closeButton;
 
@@ -95,22 +108,21 @@ public class SwingStreamSettingsView extends JPanel implements StreamSettingsVie
 	}
 
 	@Override
-	public void setBroadcastAddress(StringProperty address) {
-		SwingUtils.bindBidirectional(broadcastAddressTextField, address);
+	public void setBroadcastProfile(ObjectProperty<BroadcastProfile> profile) {
+		SwingUtils.invoke(() -> {
+			SwingUtils.bindBidirectional(bcastProfilesCombo, profile);
+		});
 	}
 
 	@Override
-	public void setBroadcastPort(IntegerProperty port) {
-		SwingUtils.bindBidirectional(broadcastPortTextField,
-				new ConvertibleObjectProperty<>(port,
-						new IntegerStringConverter("#")));
+	public void setBroadcastProfiles(List<BroadcastProfile> profiles) {
+		SwingUtils.invoke(() -> bcastProfilesCombo
+				.setModel(new DefaultComboBoxModel<>(new Vector<>(profiles))));
 	}
 
 	@Override
-	public void setBroadcastTlsPort(IntegerProperty port) {
-		SwingUtils.bindBidirectional(broadcastTlsPortTextField,
-				new ConvertibleObjectProperty<>(port,
-						new IntegerStringConverter("#")));
+	public void setOnNewBroadcastProfile(ConsumerAction<BroadcastProfile> action) {
+		newBcastProfileAction = action;
 	}
 
 	@Override
@@ -121,5 +133,25 @@ public class SwingStreamSettingsView extends JPanel implements StreamSettingsVie
 	@Override
 	public void setOnReset(Action action) {
 		SwingUtils.bindAction(resetButton, action);
+	}
+
+	@ViewPostConstruct
+	private void initialize() {
+		addProfileButton.addActionListener(e -> {
+			if (nonNull(newBcastProfileAction)) {
+				IntegerStringConverter converter = new IntegerStringConverter("#");
+
+				BroadcastProfile profile = new BroadcastProfile();
+				profile.setName(broadcastNameTextField.getText());
+				profile.setBroadcastAddress(broadcastAddressTextField.getText());
+				profile.setBroadcastPort(converter.from(broadcastPortTextField.getText()));
+				profile.setBroadcastTlsPort(converter.from(broadcastTlsPortTextField.getText()));
+
+				newBcastProfileAction.execute(profile);
+
+				// Reset value.
+				broadcastNameTextField.setText("");
+			}
+		});
 	}
 }

@@ -32,6 +32,7 @@ import java.util.concurrent.CompletableFuture;
 
 import javax.inject.Inject;
 
+import org.lecturestudio.broadcast.config.BroadcastProfile;
 import org.lecturestudio.core.ExecutableException;
 import org.lecturestudio.core.ExecutableState;
 import org.lecturestudio.core.app.ApplicationContext;
@@ -72,7 +73,7 @@ import org.lecturestudio.core.view.TeXBoxView;
 import org.lecturestudio.core.view.TextBoxView;
 import org.lecturestudio.core.view.ViewContextFactory;
 import org.lecturestudio.core.view.ViewType;
-import org.lecturestudio.media.config.NetworkConfiguration;
+import org.lecturestudio.presenter.api.config.NetworkConfiguration;
 import org.lecturestudio.presenter.api.config.PresenterConfiguration;
 import org.lecturestudio.presenter.api.context.PresenterContext;
 import org.lecturestudio.presenter.api.event.MessengerStateEvent;
@@ -615,45 +616,32 @@ public class SlidesPresenter extends Presenter<SlidesView> {
 		PresenterConfiguration config = (PresenterConfiguration) context.getConfiguration();
 		DisplayConfiguration displayConfig = config.getDisplayConfig();
 		NetworkConfiguration netConfig = config.getNetworkConfig();
+		BroadcastProfile profile = netConfig.getBroadcastProfile();
 
-		String broadcastAddress;
+		String broadcastAddress = profile.getBroadcastAddress();
+		Integer broadcastPort = profile.getBroadcastPort();
 
-		if (nonNull(config.getCustomBroadcastAddress())) {
-			broadcastAddress = config.getCustomBroadcastAddress();
+		boolean isLocal = NetUtils.isLocalAddress(broadcastAddress, broadcastPort);
+
+		if (isLocal) {
+			// Get local address.
+			String adapter = config.getNetworkConfig().getAdapter();
+
+			if (isNull(adapter)) {
+				adapter = NetUtils.getNetworkInterfaces().get(0).getName();
+			}
+
+			try {
+				broadcastAddress = NetUtils.getHostAddress(adapter, java.net.Inet4Address.class);
+			}
+			catch (SocketException e) {
+				logException(e, "Unknown Host");
+			}
 		}
-		else {
-			broadcastAddress = netConfig.getBroadcastAddress();
-			Integer broadcastPort = netConfig.getBroadcastPort();
 
-			boolean isLocal = NetUtils.isLocalAddress(broadcastAddress, broadcastPort);
-
-			if (isLocal) {
-				// Get local address.
-				String adapter = config.getNetworkConfig().getAdapter();
-
-				if (isNull(adapter)) {
-					adapter = NetUtils.getNetworkInterfaces().get(0).getName();
-				}
-
-				try {
-					broadcastAddress = NetUtils.getHostAddress(adapter, java.net.Inet4Address.class);
-				}
-				catch (SocketException e) {
-					logException(e, "Unknown Host");
-				}
-			}
-
-			// Show only non-standard port.
-			if (broadcastPort != 80) {
-				broadcastAddress += ":" + broadcastPort;
-			}
-			if (!isLocal) {
-				String roomName = config.getClassroomShortName();
-
-				if (nonNull(roomName) && !roomName.isEmpty() && !roomName.isBlank()) {
-					broadcastAddress += "/" + config.getClassroomShortName();
-				}
-			}
+		// Show only non-standard port.
+		if (broadcastPort != 80) {
+			broadcastAddress += ":" + broadcastPort;
 		}
 
 		SlideViewAddressOverlay overlay = viewFactory.getInstance(SlideViewAddressOverlay.class);

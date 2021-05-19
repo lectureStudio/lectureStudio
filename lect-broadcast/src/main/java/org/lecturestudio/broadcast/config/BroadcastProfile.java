@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2020 TU Darmstadt, Department of Computer Science,
+ * Copyright (C) 2021 TU Darmstadt, Department of Computer Science,
  * Embedded Systems and Applications Group.
  *
  * This program is free software: you can redistribute it and/or modify
@@ -16,64 +16,75 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package org.lecturestudio.media.config;
+package org.lecturestudio.broadcast.config;
+
+import java.util.Objects;
 
 import org.lecturestudio.core.beans.IntegerProperty;
-import org.lecturestudio.core.beans.ObjectProperty;
 import org.lecturestudio.core.beans.StringProperty;
-import org.lecturestudio.web.api.filter.IpFilter;
 
-public class NetworkConfiguration {
+/**
+ * A broadcast profile describes connection parameters required to establish a
+ * connection to a broadcast server.
+ *
+ * @author Alex Andres
+ */
+public class BroadcastProfile {
 
-	private final StringProperty adapter = new StringProperty();
-	
+	private final StringProperty name = new StringProperty();
+
 	private final StringProperty broadcastAddress = new StringProperty();
-	
+
 	private final IntegerProperty broadcastPort = new IntegerProperty();
 
 	private final IntegerProperty broadcastTlsPort = new IntegerProperty();
-	
-	private final ObjectProperty<IpFilter> ipFilter = new ObjectProperty<>();
 
-	
+
 	/**
-	 * @return the adapter
+	 * Get the name of this profile. The name represents a short human-readable
+	 * text to be used by UI frameworks to describe this profile.
+	 *
+	 * @return The profile name.
 	 */
-	public String getAdapter() {
-		return adapter.get();
+	public String getName() {
+		return name.get();
 	}
 
 	/**
-	 * @param adapter the adapter to set
+	 * @param name the name to set
 	 */
-	public void setAdapter(String adapter) {
-		this.adapter.set(adapter);
+	public void setName(String name) {
+		this.name.set(name);
 	}
-	
-	public StringProperty adapterProperty() {
-		return adapter;
+
+	public StringProperty nameProperty() {
+		return name;
 	}
 
 	/**
-	 * @return the broadcastAddress
+	 * Get the address of the broadcast server.
+	 *
+	 * @return The broadcast server address.
 	 */
 	public String getBroadcastAddress() {
 		return broadcastAddress.get();
 	}
-	
+
 	/**
 	 * @param address the broadcastAddress to set
 	 */
 	public void setBroadcastAddress(String address) {
 		this.broadcastAddress.set(address);
 	}
-	
+
 	public StringProperty broadcastAddressProperty() {
 		return broadcastAddress;
 	}
-	
+
 	/**
-	 * @return the broadcastPort
+	 * Get the service port of the broadcast server.
+	 *
+	 * @return The service port.
 	 */
 	public Integer getBroadcastPort() {
 		return broadcastPort.get();
@@ -85,13 +96,15 @@ public class NetworkConfiguration {
 	public void setBroadcastPort(int port) {
 		this.broadcastPort.set(port);
 	}
-	
+
 	public IntegerProperty broadcastPortProperty() {
 		return broadcastPort;
 	}
 
 	/**
-	 * @return the TLS port
+	 * Get the service TLS port of the broadcast server.
+	 *
+	 * @return The service TLS port.
 	 */
 	public Integer getBroadcastTlsPort() {
 		return broadcastTlsPort.get();
@@ -108,22 +121,26 @@ public class NetworkConfiguration {
 		return broadcastTlsPort;
 	}
 
-	/**
-	 * @return the ipFilter
-	 */
-	public IpFilter getIpFilter() {
-		return ipFilter.get();
+	@Override
+	public boolean equals(Object o) {
+		if (this == o) {
+			return true;
+		}
+		if (o == null || getClass() != o.getClass()) {
+			return false;
+		}
+
+		BroadcastProfile profile = (BroadcastProfile) o;
+
+		return Objects.equals(getName(), profile.getName())
+				&& Objects.equals(getBroadcastAddress(), profile.getBroadcastAddress())
+				&& Objects.equals(getBroadcastPort(), profile.getBroadcastPort())
+				&& Objects.equals(getBroadcastTlsPort(), profile.getBroadcastTlsPort());
 	}
-	
-	/**
-	 * @param ipFilter the ipFilter to set
-	 */
-	public void setIpFilter(IpFilter ipFilter) {
-		this.ipFilter.set(ipFilter);
+
+	@Override
+	public int hashCode() {
+		return Objects.hash(getName(), getBroadcastAddress(),
+				getBroadcastPort(), getBroadcastTlsPort());
 	}
-	
-	public ObjectProperty<IpFilter> ipFilterProperty() {
-		return ipFilter;
-	}
-	
 }

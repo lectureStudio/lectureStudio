@@ -27,11 +27,13 @@ import javafx.scene.control.TextField;
 import javafx.scene.layout.GridPane;
 import javafx.util.converter.NumberStringConverter;
 
+import org.lecturestudio.broadcast.config.BroadcastProfile;
 import org.lecturestudio.core.audio.AudioFormat;
 import org.lecturestudio.core.beans.IntegerProperty;
 import org.lecturestudio.core.beans.ObjectProperty;
 import org.lecturestudio.core.beans.StringProperty;
 import org.lecturestudio.core.view.Action;
+import org.lecturestudio.core.view.ConsumerAction;
 import org.lecturestudio.javafx.beans.LectIntegerProperty;
 import org.lecturestudio.javafx.beans.LectObjectProperty;
 import org.lecturestudio.javafx.beans.LectStringProperty;
@@ -41,6 +43,11 @@ import org.lecturestudio.presenter.api.view.StreamSettingsView;
 
 @FxmlView(name = "stream-settings", presenter = org.lecturestudio.presenter.api.presenter.StreamSettingsPresenter.class)
 public class FxStreamSettingsView extends GridPane implements StreamSettingsView {
+
+	private ConsumerAction<BroadcastProfile> newBcastProfileAction;
+
+	@FXML
+	private ComboBox<BroadcastProfile> bcastProfilesCombo;
 
 	@FXML
 	private ComboBox<String> streamAudioCodecCombo;
@@ -101,18 +108,20 @@ public class FxStreamSettingsView extends GridPane implements StreamSettingsView
 	}
 
 	@Override
-	public void setBroadcastAddress(StringProperty address) {
-		broadcastAddressTextField.textProperty().bindBidirectional(new LectStringProperty(address));
+	public void setBroadcastProfile(ObjectProperty<BroadcastProfile> profile) {
+		bcastProfilesCombo.valueProperty().bindBidirectional(new LectObjectProperty<>(profile));
 	}
 
 	@Override
-	public void setBroadcastPort(IntegerProperty port) {
-		broadcastPortTextField.textProperty().bindBidirectional(new LectIntegerProperty(port), new NumberStringConverter("#"));
+	public void setBroadcastProfiles(List<BroadcastProfile> profiles) {
+		FxUtils.invoke(() -> {
+			bcastProfilesCombo.getItems().setAll(profiles);
+		});
 	}
 
 	@Override
-	public void setBroadcastTlsPort(IntegerProperty port) {
-		broadcastTlsPortTextField.textProperty().bindBidirectional(new LectIntegerProperty(port), new NumberStringConverter("#"));
+	public void setOnNewBroadcastProfile(ConsumerAction<BroadcastProfile> action) {
+		newBcastProfileAction = action;
 	}
 
 	@Override

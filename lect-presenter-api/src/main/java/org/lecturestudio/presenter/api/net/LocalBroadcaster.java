@@ -24,6 +24,7 @@ import javax.inject.Inject;
 import javax.inject.Singleton;
 
 import org.lecturestudio.broadcast.Broadcaster;
+import org.lecturestudio.broadcast.config.BroadcastProfile;
 import org.lecturestudio.broadcast.config.Configuration;
 import org.lecturestudio.core.Executable;
 import org.lecturestudio.core.ExecutableException;
@@ -54,10 +55,11 @@ public class LocalBroadcaster implements Executable {
 	@Override
 	public final synchronized void init() throws ExecutableException {
 		PresenterConfiguration pConfig = (PresenterConfiguration) context.getConfiguration();
+		BroadcastProfile bcastProfile = pConfig.getNetworkConfig().getBroadcastProfile();
 
 		Configuration config = new Configuration();
-		config.port = pConfig.getNetworkConfig().getBroadcastPort();
-		config.tlsPort = pConfig.getNetworkConfig().getBroadcastTlsPort();
+		config.port = bcastProfile.getBroadcastPort();
+		config.tlsPort = bcastProfile.getBroadcastTlsPort();
 
 		broadcaster = new Broadcaster(config);
 		broadcaster.init();

@@ -68,7 +68,6 @@ import org.lecturestudio.core.view.View;
 import org.lecturestudio.core.view.ViewContextFactory;
 import org.lecturestudio.core.view.ViewHandler;
 import org.lecturestudio.core.view.ViewLayer;
-import org.lecturestudio.presenter.api.config.PresenterConfiguration;
 import org.lecturestudio.presenter.api.context.PresenterContext;
 import org.lecturestudio.presenter.api.event.MessengerStateEvent;
 import org.lecturestudio.presenter.api.event.QuizStateEvent;
@@ -141,12 +140,7 @@ public class MainPresenter extends org.lecturestudio.core.presenter.MainPresente
 
 	@Override
 	public void setArgs(String[] args) {
-		if (args.length > 0) {
-			logMessage("Custom broadcast address: {0}", args[0]);
 
-			PresenterConfiguration config = (PresenterConfiguration) context.getConfiguration();
-			config.setCustomBroadcastAddress(args[0]);
-		}
 	}
 
 	@Override

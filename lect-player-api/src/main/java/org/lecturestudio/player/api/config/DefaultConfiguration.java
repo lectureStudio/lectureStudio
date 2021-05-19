@@ -81,9 +81,6 @@ public class DefaultConfiguration extends PlayerConfiguration {
 
 		getToolConfig().getPresetColors().addAll(new ArrayList<>(6));
 		
-		getNetworkConfig().setBroadcastAddress("127.0.0.1");
-		getNetworkConfig().setBroadcastPort(80);
-		
 		getAudioConfig().setSoundSystem("Java Sound");
 		getAudioConfig().setPlaybackVolume(1);
 	}

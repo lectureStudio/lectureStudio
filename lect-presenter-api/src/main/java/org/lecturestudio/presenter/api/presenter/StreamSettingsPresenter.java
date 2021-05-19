@@ -24,6 +24,7 @@ import java.util.Arrays;
 
 import javax.inject.Inject;
 
+import org.lecturestudio.broadcast.config.BroadcastProfile;
 import org.lecturestudio.core.app.ApplicationContext;
 import org.lecturestudio.core.app.configuration.AudioConfiguration;
 import org.lecturestudio.core.audio.AudioFormat;
@@ -32,7 +33,9 @@ import org.lecturestudio.core.audio.codec.AudioCodecLoader;
 import org.lecturestudio.core.audio.codec.AudioCodecProvider;
 import org.lecturestudio.core.codec.VideoCodecConfiguration;
 import org.lecturestudio.core.presenter.Presenter;
-import org.lecturestudio.media.config.NetworkConfiguration;
+import org.lecturestudio.core.util.ListChangeListener;
+import org.lecturestudio.core.util.ObservableList;
+import org.lecturestudio.presenter.api.config.NetworkConfiguration;
 import org.lecturestudio.presenter.api.config.DefaultConfiguration;
 import org.lecturestudio.presenter.api.config.PresenterConfiguration;
 import org.lecturestudio.presenter.api.config.StreamConfiguration;
@@ -67,10 +70,12 @@ public class StreamSettingsPresenter extends Presenter<StreamSettingsView> {
 
 		streamConfig.setAudioCodec(defaultConfig.getStreamConfig().getAudioCodec());
 		streamConfig.setAudioFormat(defaultConfig.getStreamConfig().getAudioFormat());
+
 		cameraConfig.setBitRate(defaultConfig.getStreamConfig().getCameraCodecConfig().getBitRate());
-		netConfig.setBroadcastAddress(defaultConfig.getNetworkConfig().getBroadcastAddress());
-		netConfig.setBroadcastPort(defaultConfig.getNetworkConfig().getBroadcastPort());
-		netConfig.setBroadcastTlsPort(defaultConfig.getNetworkConfig().getBroadcastTlsPort());
+
+		netConfig.getBroadcastProfiles().clear();
+		netConfig.getBroadcastProfiles().addAll(defaultConfig.getNetworkConfig().getBroadcastProfiles());
+		netConfig.setBroadcastProfile(defaultConfig.getNetworkConfig().getBroadcastProfile());
 	}
 
 	@Override
@@ -90,10 +95,20 @@ public class StreamSettingsPresenter extends Presenter<StreamSettingsView> {
 		view.setStreamAudioCodecNames(codecNames);
 		view.setStreamAudioCodecName(streamConfig.audioCodecProperty());
 		view.setStreamCameraBitrate(cameraConfig.bitRateProperty());
-		view.setBroadcastAddress(netConfig.broadcastAddressProperty());
-		view.setBroadcastPort(netConfig.broadcastPortProperty());
-		view.setBroadcastTlsPort(netConfig.broadcastTlsPortProperty());
+
+		view.setBroadcastProfiles(netConfig.getBroadcastProfiles());
+		view.setBroadcastProfile(netConfig.broadcastProfileProperty());
+		view.setOnNewBroadcastProfile(profile -> netConfig.getBroadcastProfiles().add(profile));
+
 		view.setOnReset(this::reset);
+
+		netConfig.getBroadcastProfiles().addListener(new ListChangeListener<>() {
+
+			@Override
+			public void listChanged(ObservableList<BroadcastProfile> list) {
+				view.setBroadcastProfiles(netConfig.getBroadcastProfiles());
+			}
+		});
 
 		streamConfig.audioCodecProperty().addListener((observable, oldCodec, newCodec) -> {
 			setStreamAudioFormats(newCodec);

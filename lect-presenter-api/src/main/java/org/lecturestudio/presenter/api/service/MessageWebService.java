@@ -22,9 +22,10 @@ import java.io.File;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
+import org.lecturestudio.broadcast.config.BroadcastProfile;
 import org.lecturestudio.core.ExecutableException;
 import org.lecturestudio.core.app.ApplicationContext;
-import org.lecturestudio.media.config.NetworkConfiguration;
+import org.lecturestudio.presenter.api.config.NetworkConfiguration;
 import org.lecturestudio.presenter.api.config.PresenterConfiguration;
 import org.lecturestudio.presenter.api.util.HtmlMessageLogger;
 import org.lecturestudio.web.api.message.MessengerMessage;
@@ -130,8 +131,9 @@ public class MessageWebService extends WebServiceBase {
 	private void initSession() {
 		PresenterConfiguration config = (PresenterConfiguration) context.getConfiguration();
 		NetworkConfiguration netConfig = config.getNetworkConfig();
-		String broadcastAddress = netConfig.getBroadcastAddress();
-		int broadcastPort = netConfig.getBroadcastTlsPort();
+		BroadcastProfile bastProfile = netConfig.getBroadcastProfile();
+		String broadcastAddress = bastProfile.getBroadcastAddress();
+		int broadcastPort = bastProfile.getBroadcastTlsPort();
 
 		ServiceParameters params = new ServiceParameters();
 		params.setUrl(String.format("https://%s:%d", broadcastAddress, broadcastPort));

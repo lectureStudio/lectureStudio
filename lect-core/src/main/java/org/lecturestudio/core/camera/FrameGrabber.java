@@ -21,7 +21,7 @@ package org.lecturestudio.core.camera;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
- * The FrameGrabber asynchronously captures video frames from a camera and
+ * The {@link FrameGrabber} asynchronously captures video frames from a camera and
  * writes them to the {@link FrameGrabberCallback}.
  *
  * @author Alex Andres
@@ -34,7 +34,7 @@ public class FrameGrabber {
 	/** The camera that captures the frames. */
 	private final Camera camera;
 
-	/** The format th. */
+	/** The format. */
 	private final CameraFormat format;
 
 	/** Represents the current camera capturing state. */
@@ -42,13 +42,11 @@ public class FrameGrabber {
 
 
 	/**
-	 * Create a FrameGrabber with the specified frame callback, the camera and
-	 * the capturing format.
+	 * Create a {@link FrameGrabber} with the specified frame callback, camera and capturing format.
 	 *
 	 * @param callback The callback that receives the captured frames.
 	 * @param camera   The camera that captures the frames.
-	 * @param format   The camera format that describes the format of the
-	 *                 frames.
+	 * @param format   The camera format that describes the format of the frames.
 	 */
 	public FrameGrabber(FrameGrabberCallback callback, Camera camera, CameraFormat format) {
 		this.callback = callback;
@@ -74,8 +72,7 @@ public class FrameGrabber {
 	}
 
 	/**
-	 * Stop capturing video frames from the camera and release all assigned
-	 * resources.
+	 * Stop capturing video frames from the camera and release all assigned resources.
 	 */
 	public void stop() {
 		if (running.compareAndSet(true, false)) {

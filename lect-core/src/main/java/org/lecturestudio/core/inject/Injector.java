@@ -31,7 +31,7 @@ public interface Injector {
 	 * @param cls The class of the instance.
 	 * @param <T> The resulting instance type.
 	 *
-	 * @return the resulting instance.
+	 * @return The resulting instance.
 	 */
 	<T> T getInstance(Class<T> cls);
 

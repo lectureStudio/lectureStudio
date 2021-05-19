@@ -37,30 +37,30 @@ public class Color implements Cloneable, Serializable {
 	/**
 	 * Copy-constructor.
 	 *
-	 * @param color the color to copy.
+	 * @param color The color to copy.
 	 */
 	public Color(Color color) {
 		this(color.getRGBA());
 	}
 
 	/**
-	 * Creates a new instance of {@code Color}. The values must be in the range 0 - 255.
+	 * Creates a new instance of {@link Color}. The values must be in the range 0 - 255.
 	 * 
-	 * @param red the red component of the Color.
-	 * @param green the green component of the Color.
-	 * @param blue the blue component of the Color.
+	 * @param red The red component of the {@link Color}.
+	 * @param green The green component of the {@link Color}.
+	 * @param blue The blue component of the {@link Color}.
 	 */
 	public Color(int red, int green, int blue) {
 		this(red, green, blue, 255);
 	}
 
 	/**
-	 * Creates a new instance of {@code Color}. The values must be in the range 0 - 255.
+	 * Creates a new instance of {@link Color}. The values must be in the range 0 - 255.
 	 * 
-	 * @param red the red component of the Color.
-	 * @param green the green component of the Color.
-	 * @param blue the blue component of the Color.
-	 * @param opacity the opacity of the Color.
+	 * @param red The red component of the {@link Color}.
+	 * @param green The green component of the {@link Color}.
+	 * @param blue The blue component of the {@link Color}.
+	 * @param opacity The opacity of the {@link Color}.
 	 */
 	public Color(int red, int green, int blue, int opacity) {
 		value = ((opacity & 0xFF) << 24) |
@@ -70,37 +70,35 @@ public class Color implements Cloneable, Serializable {
 	}
 
 	/**
-	 * Creates a new instance of {@code Color} with the specified combined RGBA
-	 * value consisting of the alpha component in bits 24-31, the red component
-	 * in bits 16-23, the green component in bits 8-15, and the blue component
-	 * in bits 0-7.
+	 * Creates a new instance of {@link Color} with the specified combined RGBA value
+	 * consisting of the alpha component in bits 24-31, the red component in bits 16-23,
+	 * the green component in bits 8-15, and the blue component in bits 0-7.
 	 * 
-	 * @param rgba the combined RGBA components.
+	 * @param rgba The combined RGBA components.
 	 */
 	public Color(int rgba) {
 		this.value = rgba;
 	}
 
 	/**
-	 * Creates a new Color with the specified opacity.
+	 * Creates a new {@link Color} with the specified opacity.
 	 * 
-	 * @param opacity the new opacity of the Color.
+	 * @param opacity The new opacity of the {@link Color}.
 	 * 
-	 * @return a new Color with the given opacity.
+	 * @return A new {@link Color} with the given opacity.
 	 */
 	public Color derive(int opacity) {
 		return new Color(((opacity & 0xFF) << 24) | (value & 0x00FFFFFF));
 	}
 
 	/**
-	 * Calculates an interpolated color along the fraction between {@code 0.0}
-	 * and {@code 1.0}. When {@code fraction} = 1.0, {@code endColor} is
-	 * returned.
+	 * Calculates an interpolated {@link Color} along the fraction between {@code 0.0}
+	 * and {@code 1.0}. If {@code fraction == 1.0}, {@code endColor} is returned.
 	 *
 	 * @param endColor The color the interpolation ends with.
 	 * @param fraction The fraction between {@code 0.0} and {@code 1.0}
 	 *
-	 * @return the interpolated color.
+	 * @return The interpolated {@link Color}.
 	 */
 	public Color interpolate(Color endColor, double fraction) {
 		if (fraction <= 0.0) {
@@ -125,48 +123,53 @@ public class Color implements Cloneable, Serializable {
 	/**
 	 * Returns the RGBA value representing the color.
 	 * 
-	 * @return the RGBA value of the color.
+	 * @return The RGBA value of the color.
 	 */
 	public int getRGBA() {
 		return value;
 	}
 
 	/**
-	 * The red component of the Color, in the range 0 - 255.
+	 * The red component of the {@link Color}, in the range 0 - 255.
 	 * 
-	 * @return the red component.
+	 * @return The red component.
 	 */
 	public int getRed() {
 		return (getRGBA() >> 16) & 0xFF;
 	}
 
 	/**
-	 * The green component of the Color, in the range 0 - 255.
+	 * The green component of the {@link Color}, in the range 0 - 255.
 	 * 
-	 * @return the green component.
+	 * @return The green component.
 	 */
 	public int getGreen() {
 		return (getRGBA() >> 8) & 0xFF;
 	}
 
 	/**
-	 * The blue component of the Color, in the range 0 - 255.
+	 * The blue component of the {@link Color}, in the range 0 - 255.
 	 * 
-	 * @return the blue component.
+	 * @return The blue component.
 	 */
 	public int getBlue() {
 		return getRGBA() & 0xFF;
 	}
 
 	/**
-	 * The opacity of the Color, in the range 0 - 255.
+	 * The opacity of the {@link Color}, in the range 0 - 255.
 	 * 
-	 * @return the opacity.
+	 * @return The opacity.
 	 */
 	public int getOpacity() {
 		return (getRGBA() >> 24) & 0xFF;
 	}
 
+	/**
+	 * Indicates if the opacity equals {@code 255}.
+	 *
+	 * @return True if the opacity equals {@code 255}, otherwise false.
+	 */
 	public boolean isOpaque() {
 		return getOpacity() == 255;
 	}

@@ -18,6 +18,9 @@
 
 package org.lecturestudio.core.graphics;
 
+/**
+ * Enum for describing the line cap style.
+ */
 public enum StrokeLineCap {
 
 	BUTT, ROUND, SQUARE

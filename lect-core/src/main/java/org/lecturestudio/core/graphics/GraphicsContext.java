@@ -24,26 +24,26 @@ public interface GraphicsContext {
 	 * Fills the specified rectangle using the current fill paint.
 	 * 
 	 * @param x The X position of the upper left corner of the rectangle.
-	 * @param y the Y position of the upper left corner of the rectangle.
+	 * @param y The Y position of the upper left corner of the rectangle.
 	 * @param width The width of the rectangle.
 	 * @param height The height of the rectangle.
 	 */
 	void fillRect(double x, double y, double width, double height);
 
 	/**
-	 * Restores the GraphicsContext state by setting the attributes to their
+	 * Restores the {@link GraphicsContext} state by setting the attributes to their
 	 * value at the time when that state was pushed onto the stack.
 	 */
 	void restore();
 
 	/**
-	 * Saves the current GraphicsContext attributes state onto a stack.
+	 * Saves the current {@link GraphicsContext} attributes state onto a stack.
 	 */
 	void save();
 
 	/**
-	 * Sets the current clipping area to a rectangle clip shape. Rendering
-	 * operations have no effect outside of the clipping area.
+	 * Sets the current clipping area to a rectangle clip shape.
+	 * Rendering operations have no effect outside of the clipping area.
 	 *
 	 * @param x The x coordinate of the clip rectangle.
 	 * @param y The y coordinate of the clip rectangle.
@@ -55,14 +55,13 @@ public interface GraphicsContext {
 	/**
 	 * Sets the current fill color attribute.
 	 * 
-	 * @param color The {@code Color} to be used by fill operations.
+	 * @param color The {@link Color} to be used by fill operations.
 	 */
 	void setFill(Color color);
 
 	/**
 	 * Concatenates the current transform with a scaling transformation.
-	 * Subsequent rendering is resized according to the specified scaling
-	 * factors relative to the previous scaling.
+	 * Subsequent rendering is resized according to the specified scaling factors relative to the previous scaling.
 	 * 
 	 * @param sx The factor by which x coordinates are multiplied.
 	 * @param sy The factor by which y coordinates are multiplied.
@@ -71,8 +70,7 @@ public interface GraphicsContext {
 
 	/**
 	 * Concatenates the current transform with a translation transformation.
-	 * Subsequent rendering is translated by the specified distance relative
-	 * to the previous position.
+	 * Subsequent rendering is translated by the specified distance relative to the previous position.
 	 * 
 	 * @param tx The distance to translate along the x-axis.
 	 * @param ty The distance to translate along the y-axis.

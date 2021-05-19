@@ -18,6 +18,9 @@
 
 package org.lecturestudio.core.input;
 
+/**
+ * Enum with key code names the underlying platform codes used to represent the characters.
+ */
 public enum KeyCode {
 
 	ENTER(0x0A, "Enter"),
@@ -181,12 +184,16 @@ public enum KeyCode {
 	SOFTKEY_8(0x1008, "Softkey 8"),
 	SOFTKEY_9(0x1009, "Softkey 9");
 
-
+	/** The platform code used to represent the character. */
 	final int code;
+
+	/** The string representation of the {@link #code}. */
 	final String ch;
+
+	/** The name of this key code. */
 	final String name;
 
-	private KeyCode(int code, String name) {
+	KeyCode(int code, String name) {
 		this.code = code;
 		this.name = name;
 		this.ch = String.valueOf((char)code);
@@ -202,6 +209,8 @@ public enum KeyCode {
 	}
 
 	/**
+	 * Returns the name of this key code.
+	 *
 	 * @return The name of this key code.
 	 */
 	public final String getName() {

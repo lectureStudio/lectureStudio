@@ -36,15 +36,28 @@ public class ByteArrayChannel implements SeekableByteChannel {
 	/** The current position in the buffer. */
 	private int position;
 
-
+	/**
+	 * Creates a new instance of {@link ByteArrayChannel}.
+	 * (Calls {@link #ByteArrayChannel} with {@code 256} as {@code initCapacity})
+	 */
 	public ByteArrayChannel() {
 		this(256);
 	}
 
+	/**
+	 * Creates a new instance of {@link ByteArrayChannel} with the specified initial capacity.
+	 *
+	 * @param initCapacity The initial capacity of the {@link #buffer}.
+	 */
 	public ByteArrayChannel(int initCapacity) {
 		buffer = new byte[initCapacity];
 	}
 
+	/**
+	 * Returns a byte array with the valid bytes in the {@link #buffer}.
+	 *
+	 * @return A byte array with the valid bytes in the {@link #buffer}.
+	 */
 	public byte[] toByteArray() {
 		return Arrays.copyOf(buffer, capacity);
 	}

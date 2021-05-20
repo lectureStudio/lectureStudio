@@ -35,7 +35,12 @@ public class StreamGobbler extends Thread {
 
 	private final Consumer<String> consumer;
 
-
+	/**
+	 * Create a new instance of {@link StreamGobbler} with the specified input stream and consumer.
+	 *
+	 * @param stream The input stream.
+	 * @param consumer The consumer.
+	 */
 	public StreamGobbler(InputStream stream, Consumer<String> consumer) {
 		this.stream = stream;
 		this.consumer = consumer;

@@ -35,13 +35,24 @@ public class WaveOutputStream {
 
 	private AudioFormat audioFormat;
 
-
+	/**
+	 * Create a new instance of {@link WaveOutputStream} with the specified seekable byte channel.
+	 * (Calls {@link #reset()})
+	 *
+	 * @param channel The seekable byte channel.
+	 */
 	public WaveOutputStream(SeekableByteChannel channel) throws IOException {
 		this.channel = channel;
 		
 		reset();
 	}
 
+	/**
+	 * Set a new audio format.
+	 * (Calls {@link #writeHeader()} and {@link #reset()})
+	 *
+	 * @param format The new audio format.
+	 */
 	public void setAudioFormat(AudioFormat format) throws IOException {
 		this.audioFormat = format;
 		
@@ -50,6 +61,16 @@ public class WaveOutputStream {
 		reset();
 	}
 
+	/**
+	 * Writes a sequence of bytes to {@link #channel} from the new {@link ByteBuffer}
+	 * created with the specified data, offset and length.
+	 *
+	 * @param data The byte array.
+	 * @param offset The offset.
+	 * @param length The length.
+	 *
+	 * @return The number of bytes written.
+	 */
 	public int write(byte[] data, int offset, int length) throws IOException {
 		if (channel.isOpen())
 			return channel.write(ByteBuffer.wrap(data, offset, length));
@@ -57,10 +78,17 @@ public class WaveOutputStream {
 		return 0;
 	}
 
+	/**
+	 * Sets {@link #channel} to position {@code 44}.
+	 */
 	public void reset() throws IOException {
 		channel.position(44);
 	}
 
+	/**
+	 * Closes {@link #channel}.
+	 * (Calls {@link #writeHeader()} before)
+	 */
 	public void close() throws IOException {
 		writeHeader();
 		

@@ -29,19 +29,36 @@ import org.apache.logging.log4j.Logger;
 
 public class RandomAccessStream extends DynamicInputStream {
 
+	/** Logger for {@link RandomAccessStream}. */
 	private static final Logger LOG = LogManager.getLogger(RandomAccessStream.class);
 
+	/** The source file. */
 	private final File sourceFile;
 
+	/** The start pointer. */
 	private final long startPointer;
 
+	/** The length of the {@link RandomAccessStream} */
 	private final long length;
 
-
+	/**
+	 * Create a new instance of {@link RandomAccessStream} with the specified source file.
+	 * (Calls {@link #RandomAccessStream(File, long, long)} with the specified file, {@code 0} as start pointer and
+	 * the length of the specified file as length.)
+	 *
+	 * @param file The source file.
+	 */
 	public RandomAccessStream(File file) throws IOException {
 		this(file, 0, file.length());
 	}
 
+	/**
+	 * Create a new instance of {@link RandomAccessStream} with the specified source file, start pointer and length.
+	 *
+	 * @param file The source file.
+	 * @param startPointer The start pointer.
+	 * @param length The length of the {@link RandomAccessStream}
+	 */
 	public RandomAccessStream(File file, long startPointer, long length) throws IOException {
 		super(new SeekableChannelInputStream(
 				Files.newByteChannel(Paths.get(file.getPath()),

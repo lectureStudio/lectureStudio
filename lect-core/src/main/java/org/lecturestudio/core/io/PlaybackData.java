@@ -24,16 +24,31 @@ public class PlaybackData<T> {
 
 	private final long timestamp;
 
-
+	/**
+	 * Creates a new instance of {@link PlaybackData} with the specified data and timestamp.
+	 *
+	 * @param data The data.
+	 * @param timestamp The timestamp.
+	 */
 	public PlaybackData(T data, long timestamp) {
 		this.data = data;
 		this.timestamp = timestamp;
 	}
 
+	/**
+	 * Get the data.
+	 *
+	 * @return The data.
+	 */
 	public T getData() {
 		return data;
 	}
 
+	/**
+	 * Get the timestamp.
+	 *
+	 * @return The timestamp.
+	 */
 	public long getTimestamp() {
 		return timestamp;
 	}

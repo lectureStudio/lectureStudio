@@ -22,7 +22,7 @@ import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 
 /**
- * The PlaybackBuffer is used by media players to play the enqueued media data
+ * The {@link PlaybackBuffer} is used by media players to play the enqueued media data
  * encapsulated in {@link PlaybackData}.
  *
  * @param <T> The type of the buffer values.
@@ -36,7 +36,7 @@ public class PlaybackBuffer<T> {
 
 
 	/**
-	 * Create a new PlaybackBuffer instance.
+	 * Create a new {@link PlaybackBuffer} instance.
 	 */
 	public PlaybackBuffer() {
 		this.playbackQueue = new LinkedBlockingQueue<>();
@@ -58,7 +58,7 @@ public class PlaybackBuffer<T> {
 	/**
 	 * Retrieves, but does not remove, the head of the playback buffer queue.
 	 *
-	 * @return the head of the playback buffer queue.
+	 * @return The head of the playback buffer queue.
 	 */
 	public PlaybackData<T> peek() {
 		return playbackQueue.peek();
@@ -68,7 +68,7 @@ public class PlaybackBuffer<T> {
 	 * Retrieves and removes the head of the playback buffer queue, waiting if
 	 * necessary until media data becomes available.
 	 *
-	 * @return the head of the playback buffer queue.
+	 * @return The head of the playback buffer queue.
 	 */
 	public PlaybackData<T> take() {
 		try {

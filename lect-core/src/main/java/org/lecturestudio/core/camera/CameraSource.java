@@ -57,8 +57,7 @@ public class CameraSource implements VideoSource, FrameGrabberCallback {
 	 * and video codec configuration.
 	 *
 	 * @param camera      The camera what captures the video frames.
-	 * @param format      The camera format that describes the format of the
-	 *                    frames.
+	 * @param format      The camera format that describes the format of the frames.
 	 * @param codecConfig The video encoder configuration.
 	 */
 	public CameraSource(Camera camera, CameraFormat format, VideoCodecConfiguration codecConfig) {

@@ -29,11 +29,24 @@ public abstract class BitConverter {
 			BYTE_TO_FLOAT_LUT[i] = i / 255f;
 	}
 
-
+	/**
+	 * Converts the specified byte array into a big endian integer.
+	 *
+	 * @param b The byte array.
+	 *
+	 * @return The specified byte array converted into a big endian integer.
+	 */
 	public static int getBigEndianInt(byte[] b) {
 		return ((b[0] & 0xFF) << 24) | ((b[1] & 0xFF) << 16) | ((b[2] & 0xFF) << 8) | (b[3] & 0xFF);
 	}
 
+	/**
+	 * Converts the specified integer value into a big endian byte array.
+	 *
+	 * @param value The integer value.
+	 *
+	 * @return The specified integer value converted into a big endian byte array.
+	 */
 	public static byte[] getBigEndianBytes(int value) {
 		byte[] b = new byte[4];
 		b[0] = (byte) ((value >>> 24) & 0xFF);
@@ -44,6 +57,13 @@ public abstract class BitConverter {
 		return b;
 	}
 
+	/**
+	 * Converts the specified integer value into a little endian byte array.
+	 *
+	 * @param value The integer value.
+	 *
+	 * @return The specified integer value converted into a little endian byte array.
+	 */
 	public static byte[] getLittleEndianBytes(int value) {
 		byte[] b = new byte[4];
 		b[0] = (byte) (value);
@@ -54,6 +74,13 @@ public abstract class BitConverter {
 		return b;
 	}
 
+	/**
+	 * Converts the specified short value into a little endian byte array.
+	 *
+	 * @param value The short value.
+	 *
+	 * @return The specified integer value converted into a little endian byte array.
+	 */
 	public static byte[] getLittleEndianBytes(short value) {
 		byte[] b = new byte[2];
 		b[0] = (byte) (value);

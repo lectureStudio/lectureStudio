@@ -135,6 +135,8 @@ public class SlideViewSkin extends SkinBase<SlideView> {
 		control.pageProperty().removeListener(pageListener);
 		control.presentationParameterProperty().removeListener(presentationListener);
 
+		unregisterChangeListeners(control.seekingProperty());
+
 		Page page = control.getPage();
 
 		if (nonNull(page)) {
@@ -357,22 +359,6 @@ public class SlideViewSkin extends SkinBase<SlideView> {
 		return imageRef;
 	}
 
-	private BufferedImage createBackImage(BufferedImage imageRef, int width, int height) {
-		if (imageRef != null) {
-			if (width == imageRef.getWidth() && height == imageRef.getHeight()) {
-				return imageRef;
-			}
-
-			imageRef.flush();
-			imageRef = null;
-		}
-
-		imageRef = new BufferedImage(width, height, BufferedImage.TYPE_INT_BGR);
-		imageRef.setAccelerationPriority(1);
-
-		return imageRef;
-	}
-
 	private void setBounds(Bounds bounds) {
 		Dimension2D size = getViewSize(bounds);
 
@@ -392,7 +378,12 @@ public class SlideViewSkin extends SkinBase<SlideView> {
 
 		setBounds(bounds);
 
-		renderThread.onTask(renderPageTask);
+		FxUtils.invoke(() -> {
+			renderer.renderPage(getSkinnable().getPage(), new Dimension(
+					(int) viewSize.getWidth(), (int) viewSize.getHeight()));
+
+			updateBuffer(null);
+		});
 	}
 
 	private void onPageChanged(Page oldPage, Page newPage) {

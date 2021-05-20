@@ -34,9 +34,7 @@ import java.awt.image.DirectColorModel;
 import java.awt.image.WritableRaster;
 import java.nio.IntBuffer;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Map;
-import java.util.Set;
 
 import javafx.application.Platform;
 import javafx.beans.property.ReadOnlyObjectWrapper;
@@ -63,11 +61,9 @@ import org.lecturestudio.core.model.Page;
 import org.lecturestudio.core.model.listener.PageEditEvent;
 import org.lecturestudio.core.model.listener.PageEditedListener;
 import org.lecturestudio.core.model.listener.PageEditEvent.Type;
-import org.lecturestudio.core.model.shape.PointerShape;
 import org.lecturestudio.core.model.shape.Shape;
 import org.lecturestudio.core.model.shape.TeXShape;
 import org.lecturestudio.core.model.shape.TextShape;
-import org.lecturestudio.core.model.shape.ZoomShape;
 import org.lecturestudio.core.render.RenderThread;
 import org.lecturestudio.core.render.RenderThreadTask;
 import org.lecturestudio.core.view.PageObjectView;
@@ -108,11 +104,7 @@ public class SlideViewSkin extends SkinBase<SlideView> {
 		onPresentationChanged(newParam);
 	};
 
-	private final PageEditedListener pageEditedListener = event -> onPageEdited(event);
-
-	private final Set<Class<? extends Shape>> nonPermanent = new HashSet<>();
-
-	private Dimension2D imageSize;
+	private final PageEditedListener pageEditedListener = this::onPageEdited;
 
 	private PixelBuffer<IntBuffer> pixelBuffer;
 
@@ -123,11 +115,9 @@ public class SlideViewSkin extends SkinBase<SlideView> {
 
 	private BufferedImage slideImage;
 
-	private RenderController slideRenderer;
-
 	private ViewRenderer renderer;
 
-	private RenderThreadTask renderPageTask = new PageRenderTask();
+	private final RenderThreadTask renderPageTask = new PageRenderTask();
 
 
 	protected SlideViewSkin(SlideView control, ReadOnlyObjectWrapper<Bounds> canvasBounds) {
@@ -220,7 +210,7 @@ public class SlideViewSkin extends SkinBase<SlideView> {
 			}
 		}
 
-		slideRenderer = control.getPageRenderer();
+		RenderController slideRenderer = control.getPageRenderer();
 
 		renderer.setRenderController(slideRenderer);
 		renderer.setParameter(control.getPresentationParameter());
@@ -230,11 +220,6 @@ public class SlideViewSkin extends SkinBase<SlideView> {
 		imageView.setSmooth(false);
 		imageView.setPreserveRatio(true);
 		imageView.setMouseTransparent(true);
-
-		nonPermanent.add(PointerShape.class);
-		nonPermanent.add(TextShape.class);
-		nonPermanent.add(TeXShape.class);
-		nonPermanent.add(ZoomShape.class);
 
 		control.layoutBoundsProperty().addListener(boundsListener);
 		control.pageProperty().addListener(pageListener);
@@ -248,16 +233,16 @@ public class SlideViewSkin extends SkinBase<SlideView> {
 
 		canvasBounds.bind(imageView.boundsInParentProperty());
 
-		control.getPageObjectViews().addListener((ListChangeListener<PageObjectView>) change -> {
+		control.getPageObjectViews().addListener((ListChangeListener<PageObjectView<?>>) change -> {
 			Platform.runLater(() -> {
 				while (change.next()) {
 					if (change.wasAdded()) {
-						for (PageObjectView objectViewNode : change.getAddedSubList()) {
+						for (PageObjectView<?> objectViewNode : change.getAddedSubList()) {
 							getChildren().add((Node) objectViewNode);
 						}
 					}
 					else if (change.wasRemoved()) {
-						for (PageObjectView objectViewNode : change.getRemoved()) {
+						for (PageObjectView<?> objectViewNode : change.getRemoved()) {
 							getChildren().remove(objectViewNode);
 						}
 					}
@@ -286,7 +271,7 @@ public class SlideViewSkin extends SkinBase<SlideView> {
 
 		control.focusedProperty().addListener(observable -> {
 			// Focus page object views.
-			for (PageObjectView objectView : control.getPageObjectViews()) {
+			for (PageObjectView<?> objectView : control.getPageObjectViews()) {
 				if (objectView.getFocus()) {
 					Node nodeView = (Node) objectView;
 					nodeView.requestFocus();
@@ -297,7 +282,7 @@ public class SlideViewSkin extends SkinBase<SlideView> {
 
 		getChildren().addAll(imageView);
 
-		for (PageObjectView objectView : control.getPageObjectViews()) {
+		for (PageObjectView<?> objectView : control.getPageObjectViews()) {
 			getChildren().add((Node) objectView);
 		}
 
@@ -340,8 +325,6 @@ public class SlideViewSkin extends SkinBase<SlideView> {
 			fxBufferImage = new WritableImage(pixelBuffer);
 
             imageView.setImage(fxBufferImage);
-
-			imageSize = new Dimension2D(imageWidth, imageHeight);
 		}
 	}
 

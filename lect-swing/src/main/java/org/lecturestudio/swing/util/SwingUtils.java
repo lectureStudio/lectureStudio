@@ -23,13 +23,13 @@ import static java.util.Objects.requireNonNull;
 
 import java.awt.Color;
 import java.awt.Component;
-import java.awt.Container;
 
 import javax.swing.AbstractButton;
 import javax.swing.JCheckBoxMenuItem;
 import javax.swing.JComboBox;
 import javax.swing.JComponent;
 import javax.swing.JSlider;
+import javax.swing.JTable;
 import javax.swing.JToggleButton;
 import javax.swing.SwingUtilities;
 import javax.swing.text.JTextComponent;
@@ -43,6 +43,7 @@ import org.lecturestudio.swing.beans.ColorButtonProperty;
 import org.lecturestudio.swing.beans.ComboBoxProperty;
 import org.lecturestudio.swing.beans.SliderProperty;
 import org.lecturestudio.swing.beans.ObjectBinding;
+import org.lecturestudio.swing.beans.TableProperty;
 import org.lecturestudio.swing.beans.TextFieldProperty;
 import org.lecturestudio.swing.beans.ToggleButtonProperty;
 import org.lecturestudio.swing.beans.ToggleMenuProperty;
@@ -105,6 +106,10 @@ public final class SwingUtils {
 
 	public static Binding bindBidirectional(JSlider slider, ObjectProperty<Integer> property) {
 		return new ObjectBinding<>(property, new SliderProperty(slider));
+	}
+
+	public static <E> Binding bindBidirectional(JTable table, ObjectProperty<E> property) {
+		return new ObjectBinding<>(property, new TableProperty<>(table));
 	}
 
 	/**

@@ -25,4 +25,9 @@ public class SseSinkManager {
 			sseSinks.put(serviceId, eventSink);
 		}
 	}
+
+	public void unregisterSseSink(String serviceId) {
+		SseEventSink sink = sseSinks.remove(serviceId);
+		sink.close();
+	}
 }

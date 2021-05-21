@@ -40,6 +40,7 @@ import javax.ws.rs.sse.SseEventSink;
 
 import org.lecturestudio.broadcast.service.validator.MessageValidator;
 import org.lecturestudio.web.api.message.MessengerMessage;
+import org.lecturestudio.web.api.model.Classroom;
 import org.lecturestudio.web.api.model.Message;
 import org.lecturestudio.web.api.model.MessageService;
 
@@ -95,7 +96,12 @@ public class MessageResource extends ServiceBase {
 	public Response postMessage(@Context HttpServletRequest request, Message message) {
 		String serviceId = message.getServiceId();
 
-		MessageService service = classroomDataService.getServiceById(serviceId, MessageService.class);
+		Classroom classroom = classroomDataService.getByContextPath("");
+		MessageService service = classroom.getServices()
+				.stream()
+				.filter(MessageService.class::isInstance)
+				.map(MessageService.class::cast)
+				.findFirst().orElse(null);
 
 		// Validate input.
 		Response response = messageValidator.validate(service, message);

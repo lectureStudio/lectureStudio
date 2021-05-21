@@ -50,7 +50,7 @@ public class IpFilter implements Filter {
 
 		Classroom classroom = classroomDataService.get().getByContextPath(contextPath);
 
-		if (isNull(classroom)) {
+		if (isNull(classroom) || classroom.getServices().isEmpty()) {
 			sendError(response, HttpServletResponse.SC_NOT_FOUND, "Not Found");
 			return;
 		}

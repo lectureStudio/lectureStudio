@@ -121,6 +121,8 @@ abstract class ServiceBase {
 
 		classroomDataService.update(classroom);
 
+		sseSinkManager.unregisterSseSink(serviceId);
+
 		return Response.ok().build();
 	}
 

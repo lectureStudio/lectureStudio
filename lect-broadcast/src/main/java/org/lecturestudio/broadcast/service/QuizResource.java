@@ -18,8 +18,6 @@
 
 package org.lecturestudio.broadcast.service;
 
-import static java.util.Objects.isNull;
-
 import java.util.List;
 
 import javax.annotation.security.PermitAll;
@@ -43,8 +41,8 @@ import javax.ws.rs.sse.SseEventSink;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 
 import org.lecturestudio.broadcast.service.validator.QuizAnswerValidator;
-import org.lecturestudio.web.api.exception.ServiceNotFoundException;
 import org.lecturestudio.web.api.message.QuizAnswerMessage;
+import org.lecturestudio.web.api.model.Classroom;
 import org.lecturestudio.web.api.model.QuizService;
 import org.lecturestudio.web.api.model.quiz.Quiz;
 import org.lecturestudio.web.api.model.quiz.QuizAnswer;
@@ -110,12 +108,12 @@ public class QuizResource extends ServiceBase {
 			QuizAnswer quizAnswer) {
 		String serviceId = quizAnswer.getServiceId();
 
-		QuizService service = classroomDataService
-				.getServiceById(serviceId, QuizService.class);
-
-		if (isNull(service)) {
-			throw new ServiceNotFoundException();
-		}
+		Classroom classroom = classroomDataService.getByContextPath("");
+		QuizService service = classroom.getServices()
+				.stream()
+				.filter(QuizService.class::isInstance)
+				.map(QuizService.class::cast)
+				.findFirst().orElse(null);
 
 		// Validate input.
 		Response response = quizAnswerValidator.validate(request, service, quizAnswer);

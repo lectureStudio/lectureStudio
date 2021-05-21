@@ -32,24 +32,24 @@ import org.lecturestudio.core.util.ObservableList;
 
 public abstract class Filter<T, R extends FilterRule<T>> implements Serializable {
 
-	private final List<R> rules;
+	private final ObservableArrayList<R> rules;
 
 
 	public Filter() {
-		rules = new ArrayList<>();
+		rules = new ObservableArrayList<>();
 	}
 
 	public Filter(Filter<T, R> filter) {
-		rules = new ArrayList<>();
+		rules = new ObservableArrayList<>();
 		rules.addAll(filter.getRules());
 	}
 
 	public void addListener(ListChangeListener<ObservableList<R>> listener) {
-//		rules.addListener(listener);
+		rules.addListener(listener);
 	}
 
 	public void removeListener(ListChangeListener<ObservableList<R>> listener) {
-//		rules.removeListener(listener);
+		rules.removeListener(listener);
 	}
 
 	@SuppressWarnings("unchecked")

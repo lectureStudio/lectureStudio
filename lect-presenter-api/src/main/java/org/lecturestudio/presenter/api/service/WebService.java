@@ -81,6 +81,19 @@ public class WebService extends ExecutableBase {
 		this.documentService = documentService;
 		this.localBroadcaster = localBroadcaster;
 		this.startedServices = new ArrayList<>();
+
+		Runtime.getRuntime().addShutdownHook(new Thread(() -> {
+			for (var webService : startedServices) {
+				if (webService.started()) {
+					try {
+						webService.stop();
+					}
+					catch (ExecutableException e) {
+						// Ignore
+					}
+				}
+			}
+		}));
 	}
 
 	/**

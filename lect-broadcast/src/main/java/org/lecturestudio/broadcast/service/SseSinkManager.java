@@ -1,5 +1,7 @@
 package org.lecturestudio.broadcast.service;
 
+import static java.util.Objects.nonNull;
+
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -28,6 +30,9 @@ public class SseSinkManager {
 
 	public void unregisterSseSink(String serviceId) {
 		SseEventSink sink = sseSinks.remove(serviceId);
-		sink.close();
+
+		if (nonNull(sink)) {
+			sink.close();
+		}
 	}
 }

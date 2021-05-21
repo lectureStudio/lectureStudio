@@ -44,7 +44,7 @@ import org.lecturestudio.presenter.api.view.StreamSettingsView;
 @FxmlView(name = "stream-settings", presenter = org.lecturestudio.presenter.api.presenter.StreamSettingsPresenter.class)
 public class FxStreamSettingsView extends GridPane implements StreamSettingsView {
 
-	private ConsumerAction<BroadcastProfile> newBcastProfileAction;
+	private ConsumerAction<BroadcastProfile> deleteProfileAction;
 
 	@FXML
 	private ComboBox<BroadcastProfile> bcastProfilesCombo;
@@ -66,6 +66,9 @@ public class FxStreamSettingsView extends GridPane implements StreamSettingsView
 
 	@FXML
 	private TextField broadcastTlsPortTextField;
+
+	@FXML
+	private Button addProfileButton;
 
 	@FXML
 	private Button closeButton;
@@ -120,8 +123,13 @@ public class FxStreamSettingsView extends GridPane implements StreamSettingsView
 	}
 
 	@Override
-	public void setOnNewBroadcastProfile(ConsumerAction<BroadcastProfile> action) {
-		newBcastProfileAction = action;
+	public void setOnAddBroadcastProfile(Action action) {
+		FxUtils.bindAction(addProfileButton, action);
+	}
+
+	@Override
+	public void setOnDeleteBroadcastProfile(ConsumerAction<BroadcastProfile> action) {
+		this.deleteProfileAction = action;
 	}
 
 	@Override

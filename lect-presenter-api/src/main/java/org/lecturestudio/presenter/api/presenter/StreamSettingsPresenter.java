@@ -98,7 +98,8 @@ public class StreamSettingsPresenter extends Presenter<StreamSettingsView> {
 
 		view.setBroadcastProfiles(netConfig.getBroadcastProfiles());
 		view.setBroadcastProfile(netConfig.broadcastProfileProperty());
-		view.setOnNewBroadcastProfile(profile -> netConfig.getBroadcastProfiles().add(profile));
+		view.setOnAddBroadcastProfile(this::addBroadcastProfile);
+		view.setOnDeleteBroadcastProfile(this::deleteBroadcastProfile);
 
 		view.setOnReset(this::reset);
 
@@ -113,5 +114,26 @@ public class StreamSettingsPresenter extends Presenter<StreamSettingsView> {
 		streamConfig.audioCodecProperty().addListener((observable, oldCodec, newCodec) -> {
 			setStreamAudioFormats(newCodec);
 		});
+	}
+
+	public void addBroadcastProfile() {
+		PresenterConfiguration config = (PresenterConfiguration) context.getConfiguration();
+		NetworkConfiguration netConfig = config.getNetworkConfig();
+
+		BroadcastProfile profile = new BroadcastProfile();
+		profile.setBroadcastAddress("0.0.0.0");
+		profile.setBroadcastPort(80);
+		profile.setBroadcastTlsPort(433);
+
+		netConfig.getBroadcastProfiles().add(profile);
+	}
+
+	public void deleteBroadcastProfile(BroadcastProfile profile) {
+		if (nonNull(profile)) {
+			PresenterConfiguration config = (PresenterConfiguration) context.getConfiguration();
+			NetworkConfiguration netConfig = config.getNetworkConfig();
+
+			netConfig.getBroadcastProfiles().remove(profile);
+		}
 	}
 }

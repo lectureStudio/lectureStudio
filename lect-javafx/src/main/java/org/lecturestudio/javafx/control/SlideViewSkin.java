@@ -135,8 +135,6 @@ public class SlideViewSkin extends SkinBase<SlideView> {
 		control.pageProperty().removeListener(pageListener);
 		control.presentationParameterProperty().removeListener(presentationListener);
 
-		unregisterChangeListeners(control.seekingProperty());
-
 		Page page = control.getPage();
 
 		if (nonNull(page)) {

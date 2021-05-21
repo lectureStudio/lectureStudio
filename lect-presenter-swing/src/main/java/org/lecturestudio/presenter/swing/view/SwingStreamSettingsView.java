@@ -18,15 +18,16 @@
 
 package org.lecturestudio.presenter.swing.view;
 
-import static java.util.Objects.nonNull;
-
+import java.awt.event.ActionEvent;
 import java.util.List;
 import java.util.Vector;
 
+import javax.swing.AbstractAction;
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JPanel;
+import javax.swing.JTable;
 import javax.swing.JTextField;
 
 import org.lecturestudio.broadcast.config.BroadcastProfile;
@@ -38,6 +39,7 @@ import org.lecturestudio.core.converter.IntegerStringConverter;
 import org.lecturestudio.core.view.Action;
 import org.lecturestudio.core.view.ConsumerAction;
 import org.lecturestudio.presenter.api.view.StreamSettingsView;
+import org.lecturestudio.presenter.swing.view.model.BroadcastProfileTableModel;
 import org.lecturestudio.swing.beans.ConvertibleObjectProperty;
 import org.lecturestudio.swing.components.IPTextField;
 import org.lecturestudio.swing.util.SwingUtils;
@@ -46,10 +48,6 @@ import org.lecturestudio.swing.view.ViewPostConstruct;
 
 @SwingView(name = "stream-settings", presenter = org.lecturestudio.presenter.api.presenter.StreamSettingsPresenter.class)
 public class SwingStreamSettingsView extends JPanel implements StreamSettingsView {
-
-	private ConsumerAction<BroadcastProfile> newBcastProfileAction;
-
-	private JComboBox<BroadcastProfile> bcastProfilesCombo;
 
 	private JComboBox<String> streamAudioCodecCombo;
 
@@ -65,11 +63,27 @@ public class SwingStreamSettingsView extends JPanel implements StreamSettingsVie
 
 	private JTextField broadcastTlsPortTextField;
 
+	private JTable profileTable;
+
 	private JButton addProfileButton;
 
 	private JButton closeButton;
 
 	private JButton resetButton;
+
+	private ConsumerAction<BroadcastProfile> deleteProfileAction;
+
+	public javax.swing.Action deleteAction = new AbstractAction() {
+
+		@Override
+		public void actionPerformed(ActionEvent e) {
+			int row = Integer.parseInt(e.getActionCommand());
+			BroadcastProfileTableModel model = (BroadcastProfileTableModel) profileTable.getModel();
+			BroadcastProfile profile = model.getItem(row);
+
+			executeAction(deleteProfileAction, profile);
+		}
+	};
 
 
 	SwingStreamSettingsView() {
@@ -110,19 +124,26 @@ public class SwingStreamSettingsView extends JPanel implements StreamSettingsVie
 	@Override
 	public void setBroadcastProfile(ObjectProperty<BroadcastProfile> profile) {
 		SwingUtils.invoke(() -> {
-			SwingUtils.bindBidirectional(bcastProfilesCombo, profile);
+			SwingUtils.bindBidirectional(profileTable, profile);
 		});
 	}
 
 	@Override
 	public void setBroadcastProfiles(List<BroadcastProfile> profiles) {
-		SwingUtils.invoke(() -> bcastProfilesCombo
-				.setModel(new DefaultComboBoxModel<>(new Vector<>(profiles))));
+		SwingUtils.invoke(() -> {
+			BroadcastProfileTableModel model = (BroadcastProfileTableModel) profileTable.getModel();
+			model.setItems(profiles);
+		});
 	}
 
 	@Override
-	public void setOnNewBroadcastProfile(ConsumerAction<BroadcastProfile> action) {
-		newBcastProfileAction = action;
+	public void setOnAddBroadcastProfile(Action action) {
+		SwingUtils.bindAction(addProfileButton, action);
+	}
+
+	@Override
+	public void setOnDeleteBroadcastProfile(ConsumerAction<BroadcastProfile> action) {
+		this.deleteProfileAction = action;
 	}
 
 	@Override
@@ -137,21 +158,6 @@ public class SwingStreamSettingsView extends JPanel implements StreamSettingsVie
 
 	@ViewPostConstruct
 	private void initialize() {
-		addProfileButton.addActionListener(e -> {
-			if (nonNull(newBcastProfileAction)) {
-				IntegerStringConverter converter = new IntegerStringConverter("#");
-
-				BroadcastProfile profile = new BroadcastProfile();
-				profile.setName(broadcastNameTextField.getText());
-				profile.setBroadcastAddress(broadcastAddressTextField.getText());
-				profile.setBroadcastPort(converter.from(broadcastPortTextField.getText()));
-				profile.setBroadcastTlsPort(converter.from(broadcastTlsPortTextField.getText()));
-
-				newBcastProfileAction.execute(profile);
-
-				// Reset value.
-				broadcastNameTextField.setText("");
-			}
-		});
+		profileTable.setModel(new BroadcastProfileTableModel(profileTable.getColumnModel()));
 	}
 }

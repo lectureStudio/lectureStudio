@@ -40,9 +40,11 @@ public class TableProperty<T> extends ObjectProperty<T> {
 			if (e.getValueIsAdjusting()) {
 				return;
 			}
+
+			TableModelBase<T> model = getModel();
+
 			if (table.getSelectedRow() < 0) {
 				// Happens if model::clear() is called.
-				TableModelBase<T> model = getModel();
 				ListSelectionModel selectionModel = table.getSelectionModel();
 
 				// Try to select the previously selected row.
@@ -60,7 +62,9 @@ public class TableProperty<T> extends ObjectProperty<T> {
 				return;
 			}
 
-			super.set(getModel().getItem(table.getSelectedRow()));
+			super.set(model.getRowCount() > 0 ?
+					getModel().getItem(table.getSelectedRow()) :
+					null);
 		});
 
 		table.addPropertyChangeListener("model", evt -> {
@@ -79,7 +83,7 @@ public class TableProperty<T> extends ObjectProperty<T> {
 
 	@Override
 	public T get() {
-		if (table.getSelectedRow() < 0) {
+		if (table.getSelectedRow() < 0 || table.getRowCount() < 1) {
 			return null;
 		}
 

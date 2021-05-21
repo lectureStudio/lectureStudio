@@ -23,6 +23,7 @@ import org.lecturestudio.core.audio.AudioFormat;
 import org.lecturestudio.core.beans.IntegerProperty;
 import org.lecturestudio.core.beans.ObjectProperty;
 import org.lecturestudio.core.beans.StringProperty;
+import org.lecturestudio.core.view.Action;
 import org.lecturestudio.core.view.ConsumerAction;
 
 import java.util.List;
@@ -43,6 +44,8 @@ public interface StreamSettingsView extends SettingsBaseView {
 
 	void setBroadcastProfiles(List<BroadcastProfile> profiles);
 
-	void setOnNewBroadcastProfile(ConsumerAction<BroadcastProfile> action);
+	void setOnAddBroadcastProfile(Action action);
+
+	void setOnDeleteBroadcastProfile(ConsumerAction<BroadcastProfile> action);
 
 }

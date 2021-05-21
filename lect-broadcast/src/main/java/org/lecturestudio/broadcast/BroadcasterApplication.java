@@ -18,6 +18,8 @@
 
 package org.lecturestudio.broadcast;
 
+import io.quarkus.runtime.annotations.QuarkusMain;
+
 import java.io.IOException;
 import java.util.Arrays;
 
@@ -34,6 +36,7 @@ import org.lecturestudio.broadcast.config.Configuration;
 import org.lecturestudio.core.ExecutableException;
 import org.lecturestudio.core.app.ApplicationBase;
 
+@QuarkusMain
 public class BroadcasterApplication extends ApplicationBase {
 
 	private static final Logger LOG = LogManager.getLogger(BroadcasterApplication.class);

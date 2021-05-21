@@ -89,19 +89,26 @@ public class QuarkusServer extends ExecutableBase {
 			System.setProperty("quarkus.http.ssl-port", config.tlsPort.toString());
 		}
 
-		CompletableFuture.runAsync(() -> {
-			try {
-				runFast(new String[] { });
-			}
-			catch (Throwable e) {
-				logException(e, "Start quarkus server failed");
-			}
-		});
+		try {
+			Class.forName("io.quarkus.runner.ApplicationImpl");
+
+			Quarkus.run();
+		}
+		catch (Throwable e) {
+			CompletableFuture.runAsync(() -> {
+				try {
+					runFast(new String[] { });
+				}
+				catch (Throwable error) {
+					logException(error, "Start quarkus server failed");
+				}
+			});
+		}
 	}
 
 	@Override
 	protected void stopInternal() {
-//		Quarkus.asyncExit();
+		Quarkus.asyncExit();
 	}
 
 	@Override

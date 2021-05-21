@@ -25,9 +25,12 @@
 	<TitledSeparator name="extendedUI" text="network.settings.ip.filter">
 		<gridbagconstraints gridx="0" gridy="4" gridwidth="2" anchor="GridBagConstraints.WEST" weightx="1.0" fill="GridBagConstraints.HORIZONTAL" insets="5,0,5,0" />
 	</TitledSeparator>
-	<Button id="addIpRuleButton" name="extendedUI" icon="add.svg, 20" text="button.new">
-		<gridbagconstraints gridx="0" gridy="5" gridwidth="2" anchor="GridBagConstraints.EAST" insets="5,0,5,0" />
-	</Button>
+	<HBox gap="5">
+		<gridbagconstraints gridx="0" gridy="5" gridwidth="2" weightx="1.0" fill="GridBagConstraints.HORIZONTAL" />
+		<Label text="network.settings.ip.filter.description" />
+		<box.hglue />
+		<Button id="addIpRuleButton" name="extendedUI" icon="add.svg, 20" text="button.new" />
+	</HBox>
 	<ScrollPane name="extendedUI">
 		<gridbagconstraints gridx="0" gridy="6" gridwidth="2" weightx="1" weighty="0.6" fill="GridBagConstraints.BOTH" anchor="GridBagConstraints.WEST" insets="5,0,5,0" />
 		<Table id="ipFilterTable" autoCreateColumnsFromModel="false" fillsViewportHeight="true" rowHeight="25" selectionMode="ListSelectionModel.SINGLE_SELECTION">

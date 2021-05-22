@@ -153,11 +153,13 @@ public class SwingMenuView extends JMenuBar implements MenuView {
 	@Override
 	public void setDocument(Document doc) {
 		final boolean hasDocument = nonNull(doc);
+		final boolean isPdf = nonNull(doc) && doc.isPDF();
 		final boolean isWhiteboard = nonNull(doc) && doc.isWhiteboard();
 
 		SwingUtils.invoke(() -> {
 			closeDocumentMenuItem.setEnabled(hasDocument);
 			saveDocumentsMenuItem.setEnabled(hasDocument);
+			outlineMenuItem.setEnabled(isPdf);
 			newWhiteboardPageMenuItem.setEnabled(isWhiteboard);
 			deleteWhiteboardPageMenuItem.setEnabled(isWhiteboard);
 			gridMenuItem.setEnabled(isWhiteboard);
@@ -401,7 +403,7 @@ public class SwingMenuView extends JMenuBar implements MenuView {
 		final boolean started = state == ExecutableState.Started;
 
 		SwingUtils.invoke(() -> {
-			startRecordingMenuItem.setEnabled(!started);
+			startRecordingMenuItem.setEnabled(!started && closeDocumentMenuItem.isEnabled());
 			stopRecordingMenuItem.setEnabled(started);
 
 			updateRecTimeLabel(state);

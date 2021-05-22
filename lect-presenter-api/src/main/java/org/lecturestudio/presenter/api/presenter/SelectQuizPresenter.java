@@ -21,6 +21,8 @@ package org.lecturestudio.presenter.api.presenter;
 import static java.util.Objects.nonNull;
 
 import java.io.IOException;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.CompletionException;
 
 import javax.inject.Inject;
 
@@ -30,6 +32,7 @@ import org.lecturestudio.core.model.Document;
 import org.lecturestudio.core.model.DocumentList;
 import org.lecturestudio.core.presenter.Presenter;
 import org.lecturestudio.core.service.DocumentService;
+import org.lecturestudio.core.util.NetUtils;
 import org.lecturestudio.core.view.ConsumerAction;
 import org.lecturestudio.presenter.api.presenter.command.EditQuizCommand;
 import org.lecturestudio.presenter.api.service.QuizService;
@@ -103,13 +106,25 @@ public class SelectQuizPresenter extends Presenter<SelectQuizView> {
 	}
 
 	private void startQuiz(Quiz quiz) {
-		try {
-			webService.startQuiz(quiz);
+		CompletableFuture.runAsync(() -> {
+			try {
+				webService.startQuiz(quiz);
+			}
+			catch (ExecutableException e) {
+				throw new CompletionException(e);
+			}
+		})
+		.exceptionally(e -> {
+			String message = null;
 
-			close();
-		}
-		catch (ExecutableException e) {
-			handleException(e, "Start quiz failed", "quiz.start.error");
-		}
+			if (NetUtils.isSocketTimeout(e.getCause())) {
+				message = "service.timeout.error";
+			}
+
+			handleException(e, "Start quiz failed", "quiz.start.error", message);
+			return null;
+		});
+
+		close();
 	}
 }

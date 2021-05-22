@@ -18,9 +18,12 @@
 
 package org.lecturestudio.core.util;
 
+import static java.util.Objects.nonNull;
+
 import java.net.InetAddress;
 import java.net.NetworkInterface;
 import java.net.SocketException;
+import java.net.SocketTimeoutException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Enumeration;
@@ -90,5 +93,24 @@ public final class NetUtils {
 	public static boolean isLocalAddress(String address, Integer port) {
 		return address == null || port == null || address.equals("0.0.0.0") || address.equals("127.0.0.1");
 	}
-	
+
+	/**
+	 * Checks whether the specified {@code Throwable} was caused by a connection
+	 * timeout.
+	 *
+	 * @param cause The Throwable to check.
+	 *
+	 * @return True if the cause was a {@code SocketTimeoutException}.
+	 */
+	public static boolean isSocketTimeout(Throwable cause) {
+		while (nonNull(cause)) {
+			if (cause instanceof SocketTimeoutException) {
+				return true;
+			}
+
+			cause = cause.getCause();
+		}
+
+		return false;
+	}
 }

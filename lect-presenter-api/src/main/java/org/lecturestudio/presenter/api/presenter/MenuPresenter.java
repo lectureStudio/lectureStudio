@@ -35,6 +35,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Timer;
 import java.util.TimerTask;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.CompletionException;
 
 import javax.inject.Inject;
 
@@ -63,6 +65,7 @@ import org.lecturestudio.core.service.DocumentService;
 import org.lecturestudio.core.util.DesktopUtils;
 import org.lecturestudio.core.util.FileUtils;
 import org.lecturestudio.core.util.ListChangeListener;
+import org.lecturestudio.core.util.NetUtils;
 import org.lecturestudio.core.util.ObservableList;
 import org.lecturestudio.core.view.FileChooserView;
 import org.lecturestudio.core.view.PresentationParameter;
@@ -263,13 +266,18 @@ public class MenuPresenter extends Presenter<MenuView> {
 	}
 
 	public void openPageQuiz(Quiz quiz) {
-		try {
-			webService.startQuiz(quiz);
-		}
-		catch (ExecutableException e) {
-			handleException(e, "Start quiz failed", "quiz.start.error");
-		}
-
+		CompletableFuture.runAsync(() -> {
+			try {
+				webService.startQuiz(quiz);
+			}
+			catch (ExecutableException e) {
+				throw new CompletionException(e);
+			}
+		})
+		.exceptionally(e -> {
+			handleServiceError(e, "Start quiz failed", "quiz.start.error");
+			return null;
+		});
 	}
 
 	public void openDocument(File documentFile) {
@@ -406,39 +414,63 @@ public class MenuPresenter extends Presenter<MenuView> {
 	}
 
 	public void startStreaming() {
-		try {
-			streamService.start();
-		}
-		catch (ExecutableException e) {
-			handleException(e, "Start stream failed", "stream.start.error");
-		}
+		CompletableFuture.runAsync(() -> {
+			try {
+				streamService.start();
+			}
+			catch (ExecutableException e) {
+				throw new CompletionException(e);
+			}
+		})
+		.exceptionally(e -> {
+			handleServiceError(e, "Start stream failed", "stream.start.error");
+			return null;
+		});
 	}
 
 	public void stopStreaming() {
-		try {
-			streamService.stop();
-		}
-		catch (ExecutableException e) {
-			handleException(e, "Stop stream failed", "stream.stop.error");
-		}
+		CompletableFuture.runAsync(() -> {
+			try {
+				streamService.stop();
+			}
+			catch (ExecutableException e) {
+				throw new CompletionException(e);
+			}
+		})
+		.exceptionally(e -> {
+			handleServiceError(e, "Stop stream failed", "stream.stop.error");
+			return null;
+		});
 	}
 
 	public void startMessenger() {
-		try {
-			webService.startMessenger();
-		}
-		catch (ExecutableException e) {
-			handleException(e, "Start messenger failed", "messenger.start.error");
-		}
+		CompletableFuture.runAsync(() -> {
+			try {
+				webService.startMessenger();
+			}
+			catch (ExecutableException e) {
+				throw new CompletionException(e);
+			}
+		})
+		.exceptionally(e -> {
+			handleServiceError(e, "Start messenger failed", "messenger.start.error");
+			return null;
+		});
 	}
 
 	public void stopMessenger() {
-		try {
-			webService.stopMessenger();
-		}
-		catch (ExecutableException e) {
-			handleException(e, "Stop messenger failed", "messenger.stop.error");
-		}
+		CompletableFuture.runAsync(() -> {
+			try {
+				webService.stopMessenger();
+			}
+			catch (ExecutableException e) {
+				throw new CompletionException(e);
+			}
+		})
+		.exceptionally(e -> {
+			handleServiceError(e, "Stop messenger failed", "messenger.stop.error");
+			return null;
+		});
 	}
 
 	public void showMessengerWindow(boolean show) {
@@ -477,12 +509,18 @@ public class MenuPresenter extends Presenter<MenuView> {
 	}
 
 	public void closeQuiz() {
-		try {
-			webService.stopQuiz();
-		}
-		catch (ExecutableException e) {
-			handleException(e, "Stop quiz failed", "quiz.stop.error");
-		}
+		CompletableFuture.runAsync(() -> {
+			try {
+				webService.stopQuiz();
+			}
+			catch (ExecutableException e) {
+				throw new CompletionException(e);
+			}
+		})
+		.exceptionally(e -> {
+			handleServiceError(e, "Stop quiz failed", "quiz.stop.error");
+			return null;
+		});
 	}
 
 	public void clearBookmarks() {
@@ -737,4 +775,13 @@ public class MenuPresenter extends Presenter<MenuView> {
 		}, 0, 30000);
 	}
 
+	private void handleServiceError(Throwable error, String errorMessage, String title) {
+		String message = null;
+
+		if (NetUtils.isSocketTimeout(error.getCause())) {
+			message = "service.timeout.error";
+		}
+
+		handleException(error, errorMessage, title, message);
+	}
 }

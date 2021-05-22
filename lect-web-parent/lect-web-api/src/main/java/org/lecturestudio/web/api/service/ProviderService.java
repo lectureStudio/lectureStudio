@@ -1,6 +1,7 @@
 package org.lecturestudio.web.api.service;
 
 import java.net.URI;
+import java.util.concurrent.TimeUnit;
 
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.TrustManager;
@@ -21,6 +22,7 @@ public abstract class ProviderService {
 		RestClientBuilder builder = RestClientBuilder.newBuilder();
 		builder.baseUri(URI.create(parameters.getUrl()));
 		builder.register(JsonConfig.class);
+		builder.connectTimeout(2, TimeUnit.SECONDS);
 
 		if (parameters.getUrl().startsWith("https")) {
 			builder.sslContext(createSSLContext());

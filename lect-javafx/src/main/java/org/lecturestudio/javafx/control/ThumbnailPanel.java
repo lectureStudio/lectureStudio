@@ -85,11 +85,9 @@ public class ThumbnailPanel extends ListView<Page> {
 			return;
 		}
 
-		Document doc = page.getDocument();
+		document.selectPage(page.getPageNumber());
 
-		if (doc.equals(document)) {
-			setSelectedThumbnail(doc.getCurrentPage());
-		}
+		setSelectedThumbnail(document.getPage(page.getPageNumber()));
 	}
 
 	public void addSelectListener(PageSelectListener listener) {

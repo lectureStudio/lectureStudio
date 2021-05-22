@@ -58,7 +58,7 @@ import org.lecturestudio.javafx.view.FxmlView;
 @FxmlView(name = "main-slides")
 public class FxSlidesView extends VBox implements SlidesView {
 
-	private final EventHandler<KeyEvent> keyEventHandler = event -> onKeyEvent(event);
+	private final EventHandler<KeyEvent> keyEventHandler = this::onKeyEvent;
 
 	private final ChangeListener<Node> sceneFocusListener = (o, oldNode, newNode) -> {
 		onFocusChange(newNode);

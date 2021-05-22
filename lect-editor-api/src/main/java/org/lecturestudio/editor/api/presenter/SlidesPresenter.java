@@ -35,9 +35,10 @@ import org.lecturestudio.core.controller.RenderController;
 import org.lecturestudio.core.input.KeyEvent;
 import org.lecturestudio.core.model.Document;
 import org.lecturestudio.core.model.Page;
-import org.lecturestudio.core.model.listener.DocumentChangeListener;
 import org.lecturestudio.core.model.listener.ParameterChangeListener;
 import org.lecturestudio.core.presenter.Presenter;
+import org.lecturestudio.core.recording.DocumentEventExecutor;
+import org.lecturestudio.core.recording.Recording;
 import org.lecturestudio.core.view.Action;
 import org.lecturestudio.core.view.PresentationParameter;
 import org.lecturestudio.core.view.PresentationParameterProvider;
@@ -55,7 +56,7 @@ public class SlidesPresenter extends Presenter<SlidesView> {
 
 	private final Map<KeyEvent, Action> shortcutMap;
 
-	private final DocumentChangeListener documentChangeListener;
+	private final Map<Document, DocumentEventExecutor> docExecMap;
 
 	private final RenderController renderController;
 
@@ -76,7 +77,7 @@ public class SlidesPresenter extends Presenter<SlidesView> {
 		this.playbackService = playbackService;
 		this.eventBus = context.getEventBus();
 		this.shortcutMap = new HashMap<>();
-		this.documentChangeListener = new DocumentChangeHandler();
+		this.docExecMap = new HashMap<>();
 	}
 
 	@Override
@@ -131,8 +132,10 @@ public class SlidesPresenter extends Presenter<SlidesView> {
 				documentClosed(doc);
 				break;
 			case SELECTED:
+				documentSelected(doc);
+				break;
 			case REPLACED:
-				documentSelected(event.getOldDocument(), doc);
+				documentReplaced(event.getOldDocument(), doc);
 				break;
 		}
 	}
@@ -171,7 +174,10 @@ public class SlidesPresenter extends Presenter<SlidesView> {
 	}
 
 	private void deletePage(Page page) {
-		recordingService.deletePage(page.getPageNumber())
+		EditorContext editorContext = (EditorContext) context;
+		double timeNorm = editorContext.getPrimarySelection();
+
+		recordingService.deletePage(timeNorm)
 				.exceptionally(throwable -> {
 					handleException(throwable, "Delete page failed", "delete.page.error");
 					return null;
@@ -180,7 +186,10 @@ public class SlidesPresenter extends Presenter<SlidesView> {
 
 	private void selectPage(Page page) {
 		try {
-			playbackService.selectPage(page);
+			Document doc = recordingService.getSelectedRecording()
+					.getRecordedDocument().getDocument();
+
+			playbackService.selectPage(doc.getPage(page.getPageNumber()));
 		}
 		catch (Exception e) {
 			handleException(e, "Select page failed", "select.recording.page.error");
@@ -202,27 +211,51 @@ public class SlidesPresenter extends Presenter<SlidesView> {
 	}
 
 	private void documentCreated(Document doc) {
-		PresentationParameterProvider ppProvider = context.getPagePropertyPropvider(ViewType.Preview);
+		Recording recording = recordingService.getSelectedRecording();
+		DocumentEventExecutor docEventExecutor = new DocumentEventExecutor(
+				context, recording);
 
-		view.addDocument(doc, ppProvider);
+		try {
+			docEventExecutor.executeEvents();
+		}
+		catch (Exception e) {
+			logException(e, "Execute recorded events failed");
+		}
+
+		PresentationParameterProvider ppProvider = context
+				.getPagePropertyPropvider(ViewType.Preview);
+
+		docExecMap.put(doc, docEventExecutor);
+
+		view.addDocument(getProxyDocument(doc), ppProvider);
 
 		setPage(doc.getCurrentPage());
 	}
 
 	private void documentClosed(Document doc) {
-		view.removeDocument(doc);
+		view.removeDocument(getProxyDocument(doc));
+
+		docExecMap.remove(doc);
 	}
 
-	private void documentSelected(Document oldDoc, Document doc) {
-		if (nonNull(oldDoc)) {
-			oldDoc.removeChangeListener(documentChangeListener);
-		}
-
-		doc.addChangeListener(documentChangeListener);
-
-		view.selectDocument(doc);
+	private void documentSelected(Document doc) {
+		view.selectDocument(getProxyDocument(doc));
 
 		setPage(doc.getCurrentPage());
+	}
+
+	private void documentReplaced(Document oldDoc, Document doc) {
+		try {
+			DocumentEventExecutor docEventExecutor = docExecMap.remove(oldDoc);
+			docEventExecutor.executeEvents();
+
+			docExecMap.put(doc, docEventExecutor);
+
+			documentSelected(doc);
+		}
+		catch (Exception e) {
+			logException(e, "Execute recorded events failed");
+		}
 	}
 
 	private void setPage(Page page) {
@@ -232,23 +265,7 @@ public class SlidesPresenter extends Presenter<SlidesView> {
 		view.setPage(page, parameter);
 	}
 
-
-
-	private class DocumentChangeHandler implements DocumentChangeListener {
-
-		@Override
-		public void documentChanged(Document document) {
-			setPage(document.getCurrentPage());
-		}
-
-		@Override
-		public void pageAdded(Page page) {
-
-		}
-
-		@Override
-		public void pageRemoved(Page page) {
-
-		}
+	private Document getProxyDocument(Document document) {
+		return docExecMap.get(document).getDocument();
 	}
 }

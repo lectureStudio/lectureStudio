@@ -18,6 +18,7 @@
 
 package org.lecturestudio.editor.api.view;
 
+import org.lecturestudio.core.app.ApplicationContext;
 import org.lecturestudio.core.controller.RenderController;
 import org.lecturestudio.core.geometry.Matrix;
 import org.lecturestudio.core.input.KeyEvent;
@@ -30,7 +31,7 @@ import org.lecturestudio.core.view.View;
 
 public interface SlidesView extends View {
 
-	void addDocument(Document doc, PresentationParameterProvider ppProvider);
+	void addDocument(Document doc, ApplicationContext context);
 
 	void removeDocument(Document doc);
 

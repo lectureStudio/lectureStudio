@@ -40,13 +40,14 @@ import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.VBox;
 import javafx.scene.transform.TransformChangedEvent;
 
+import org.lecturestudio.core.app.ApplicationContext;
 import org.lecturestudio.core.controller.RenderController;
 import org.lecturestudio.core.geometry.Matrix;
 import org.lecturestudio.core.model.Document;
 import org.lecturestudio.core.model.Page;
 import org.lecturestudio.core.view.ConsumerAction;
 import org.lecturestudio.core.view.PresentationParameter;
-import org.lecturestudio.core.view.PresentationParameterProvider;
+import org.lecturestudio.core.view.ViewType;
 import org.lecturestudio.editor.api.view.SlidesView;
 import org.lecturestudio.javafx.beans.converter.KeyEventConverter;
 import org.lecturestudio.javafx.beans.converter.MatrixConverter;
@@ -99,12 +100,13 @@ public class FxSlidesView extends VBox implements SlidesView {
 	}
 
 	@Override
-	public void addDocument(Document doc, PresentationParameterProvider ppProvider) {
+	public void addDocument(Document doc, ApplicationContext context) {
 		FxUtils.invoke(() -> {
 			// Create the ThumbnailPanel for the TabPane.
 			ThumbnailPanel thumbPanel = new ThumbnailPanel();
-			thumbPanel.setPageRenderer(pageRenderer);
-			thumbPanel.setDocument(doc, ppProvider, contextMenu);
+			thumbPanel.setPageRenderer(new RenderController(context, pageRenderer));
+			thumbPanel.setDocument(doc, context.getPagePropertyPropvider(
+					ViewType.Preview), contextMenu);
 			thumbPanel.addSelectListener(page -> {
 				executeAction(selectPageAction, page);
 			});

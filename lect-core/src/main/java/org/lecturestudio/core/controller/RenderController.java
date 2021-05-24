@@ -53,7 +53,7 @@ public class RenderController extends Controller {
 
 
 	/**
-	 * Create a RenderController with the specified contexts.
+	 * Create a {@code RenderController} with the specified contexts.
 	 *
 	 * @param context       The application context.
 	 * @param renderContext The render context.
@@ -62,6 +62,20 @@ public class RenderController extends Controller {
 		super(context);
 
 		this.renderContext = renderContext;
+	}
+
+	/**
+	 * Copy constructor to create a {@code RenderController} with a different
+	 * {@code ApplicationContext}.
+	 *
+	 * @param context    The new application context.
+	 * @param controller The render controller to copy, except the application
+	 *                   context.
+	 */
+	public RenderController(ApplicationContext context, RenderController controller) {
+		super(context);
+
+		this.renderContext = controller.renderContext;
 	}
 
 	/**

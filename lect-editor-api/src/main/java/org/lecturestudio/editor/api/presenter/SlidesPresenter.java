@@ -215,9 +215,20 @@ public class SlidesPresenter extends Presenter<SlidesView> {
 	}
 
 	private void documentCreated(Document doc) {
+		// Create an execution context with own event buses to not interfere
+		// with the main application context.
+		ApplicationContext execContext = new ApplicationContext(null,
+				context.getConfiguration(), context.getDictionary(),
+				new EventBus(), new EventBus()) {
+
+			@Override
+			public void saveConfiguration() {
+			}
+		};
+
 		Recording recording = recordingService.getSelectedRecording();
 		DocumentEventExecutor docEventExecutor = new DocumentEventExecutor(
-				context, recording);
+				execContext, recording);
 
 		try {
 			docEventExecutor.executeEvents();
@@ -226,12 +237,9 @@ public class SlidesPresenter extends Presenter<SlidesView> {
 			logException(e, "Execute recorded events failed");
 		}
 
-		PresentationParameterProvider ppProvider = context
-				.getPagePropertyPropvider(ViewType.Preview);
+		setProxyDocument(doc, docEventExecutor);
 
-		docExecMap.put(doc, docEventExecutor);
-
-		view.addDocument(getProxyDocument(doc), ppProvider);
+		view.addDocument(getProxyDocument(doc), execContext);
 
 		setPage(doc.getCurrentPage());
 	}
@@ -239,7 +247,7 @@ public class SlidesPresenter extends Presenter<SlidesView> {
 	private void documentClosed(Document doc) {
 		view.removeDocument(getProxyDocument(doc));
 
-		docExecMap.remove(doc);
+		removeProxyDocument(doc);
 	}
 
 	private void documentSelected(Document doc) {
@@ -253,7 +261,7 @@ public class SlidesPresenter extends Presenter<SlidesView> {
 			DocumentEventExecutor docEventExecutor = docExecMap.remove(oldDoc);
 			docEventExecutor.executeEvents();
 
-			docExecMap.put(doc, docEventExecutor);
+			setProxyDocument(doc, docEventExecutor);
 
 			documentSelected(doc);
 		}
@@ -271,5 +279,13 @@ public class SlidesPresenter extends Presenter<SlidesView> {
 
 	private Document getProxyDocument(Document document) {
 		return docExecMap.get(document).getDocument();
+	}
+
+	private void setProxyDocument(Document document, DocumentEventExecutor docEventExecutor) {
+		docExecMap.put(document, docEventExecutor);
+	}
+
+	private void removeProxyDocument(Document document) {
+		docExecMap.remove(document);
 	}
 }

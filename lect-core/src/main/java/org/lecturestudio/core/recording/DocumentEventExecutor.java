@@ -27,7 +27,6 @@ import java.util.Iterator;
 import java.util.Stack;
 
 import org.lecturestudio.core.app.ApplicationContext;
-import org.lecturestudio.core.bus.EventBus;
 import org.lecturestudio.core.controller.ToolController;
 import org.lecturestudio.core.model.Document;
 import org.lecturestudio.core.model.DocumentType;
@@ -61,13 +60,7 @@ public class DocumentEventExecutor {
 	 */
 	public DocumentEventExecutor(ApplicationContext context, Recording recording) {
 		this.recording = recording;
-		this.context = new ApplicationContext(null, context.getConfiguration(),
-				context.getDictionary(), new EventBus(), new EventBus()) {
-
-			@Override
-			public void saveConfiguration() {
-			}
-		};
+		this.context = context;
 	}
 
 	/**

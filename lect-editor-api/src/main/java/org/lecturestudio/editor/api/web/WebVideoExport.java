@@ -46,7 +46,6 @@ import java.util.stream.Collectors;
 
 import javax.imageio.ImageIO;
 
-import org.lecturestudio.core.ExecutableException;
 import org.lecturestudio.core.app.ApplicationContext;
 import org.lecturestudio.core.bus.EventBus;
 import org.lecturestudio.core.controller.RenderController;
@@ -55,13 +54,12 @@ import org.lecturestudio.core.geometry.Rectangle2D;
 import org.lecturestudio.core.model.Document;
 import org.lecturestudio.core.model.Page;
 import org.lecturestudio.core.model.shape.Shape;
-import org.lecturestudio.core.recording.RecordedDocument;
+import org.lecturestudio.core.recording.DocumentEventExecutor;
 import org.lecturestudio.core.recording.RecordedEvents;
 import org.lecturestudio.core.recording.Recording;
 import org.lecturestudio.core.swing.SwingGraphicsContext;
 import org.lecturestudio.core.util.FileUtils;
 import org.lecturestudio.core.view.ViewType;
-import org.lecturestudio.editor.api.context.EditorContext;
 import org.lecturestudio.editor.api.recording.RecordingExport;
 import org.lecturestudio.media.config.RenderConfiguration;
 import org.lecturestudio.swing.DefaultRenderContext;
@@ -82,18 +80,12 @@ public class WebVideoExport extends RecordingExport {
 
 	private BufferedImage pageImage;
 
-	private RenderController renderController;
-
 
 	public WebVideoExport(ApplicationContext context, Recording recording,
 			RenderConfiguration config) {
 		this.context = context;
 		this.recording = recording;
 		this.config = config;
-	}
-
-	public void setRenderController(RenderController renderController) {
-		this.renderController = renderController;
 	}
 
 	public void setTitle(String title) {
@@ -105,20 +97,8 @@ public class WebVideoExport extends RecordingExport {
 	}
 
 	@Override
-	protected void initInternal() throws ExecutableException {
-		EditorContext renderContext;
-
-		try {
-			renderContext = new EditorContext(null, null,
-					context.getConfiguration(), context.getDictionary(),
-					new EventBus(), new EventBus());
-		}
-		catch (IOException e) {
-			throw new ExecutableException(e);
-		}
-
+	protected void initInternal() {
 		setVideoSource(config.getOutputFile().getName());
-		setRenderController(new RenderController(renderContext, new DefaultRenderContext()));
 	}
 
 	@Override
@@ -199,10 +179,23 @@ public class WebVideoExport extends RecordingExport {
 	}
 
 	private String createPageModel(Recording recording) throws Exception {
-		RecordedDocument recDocument = recording.getRecordedDocument();
+		// Create an execution context with own event buses to not interfere
+		// with the main application context.
+		ApplicationContext execContext = new ApplicationContext(null,
+				context.getConfiguration(), context.getDictionary(),
+				new EventBus(), new EventBus()) {
+
+			@Override
+			public void saveConfiguration() {
+			}
+		};
+
+		RenderController renderController = new RenderController(execContext,
+				new DefaultRenderContext());
+
 		RecordedEvents events = recording.getRecordedEvents();
-		Document doc = recDocument.getDocument();
-		List<Page> pages = doc.getPages();
+		Document document = createRenderedDocument(execContext);
+		List<Page> pages = document.getPages();
 
 		StringBuilder builder = new StringBuilder();
 
@@ -214,7 +207,7 @@ public class WebVideoExport extends RecordingExport {
 			builder.append(", ");
 			encodePageText(builder, page.getPageText());
 			builder.append(", ");
-			encodePagePreview(builder, page, PREVIEW_WIDTH);
+			encodePagePreview(builder, renderController, page, PREVIEW_WIDTH);
 			builder.append("}");
 
 			if (i + 1 < pages.size()) {
@@ -237,11 +230,14 @@ public class WebVideoExport extends RecordingExport {
 		builder.append("\"");
 	}
 
-	private void encodePagePreview(StringBuilder builder, Page page, int width) throws IOException {
+	private void encodePagePreview(StringBuilder builder,
+			RenderController renderController, Page page, int width)
+			throws IOException {
 		ViewType viewType = ViewType.User;
 
 		// Calculate the height for the desired image width.
-		Rectangle2D pageRect = page.getDocument().getPageRect(page.getPageNumber());
+		Rectangle2D pageRect = page.getDocument()
+				.getPageRect(page.getPageNumber());
 		int height = (int) (pageRect.getHeight() / pageRect.getWidth() * width);
 
 		pageImage = getPageImage(pageImage, width, height);
@@ -282,5 +278,12 @@ public class WebVideoExport extends RecordingExport {
 		}
 
 		return image;
+	}
+
+	private Document createRenderedDocument(ApplicationContext context) throws Exception {
+		DocumentEventExecutor docEventExecutor = new DocumentEventExecutor(context, recording);
+		docEventExecutor.executeEvents();
+
+		return docEventExecutor.getDocument();
 	}
 }

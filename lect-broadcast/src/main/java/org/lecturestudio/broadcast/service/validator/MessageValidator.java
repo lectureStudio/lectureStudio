@@ -40,7 +40,7 @@ public class MessageValidator {
 		if (isNull(service)) {
 			ClassroomServiceResponse serviceResponse = new ClassroomServiceResponse();
 			serviceResponse.statusCode = Status.ERROR.getCode();
-			serviceResponse.statusMessage = "service.absent";
+			serviceResponse.statusMessage = "message.service.absent";
 
 			responseBuilder = Response.status(Response.Status.BAD_REQUEST);
 			responseBuilder.entity(serviceResponse);
@@ -75,7 +75,7 @@ public class MessageValidator {
 
 	private static void validateServiceId(MessageService service, Message message) throws Exception {
 		if (!service.getServiceId().equals(message.getServiceId())) {
-			throw new Exception("service.absent");
+			throw new Exception("message.service.absent");
 		}
 	}
 

@@ -1,6 +1,7 @@
 {
 	"quiz": {
 		"service": {
+			"absent": "Answer could not be sent. Service is not available.",
 			"name": "Quiz"
 		},
 		"answer": {

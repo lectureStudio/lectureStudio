@@ -45,7 +45,7 @@ public class QuizAnswerValidator {
 		if (isNull(quizService)) {
 			ClassroomServiceResponse serviceResponse = new ClassroomServiceResponse();
 			serviceResponse.statusCode = Status.ERROR.getCode();
-			serviceResponse.statusMessage = "service.absent";
+			serviceResponse.statusMessage = "quiz.service.absent";
 
 			responseBuilder = Response.status(Response.Status.BAD_REQUEST);
 			responseBuilder.entity(serviceResponse);
@@ -90,7 +90,7 @@ public class QuizAnswerValidator {
 		String quizServiceId = quizService.getServiceId();
 
 		if (!quizServiceId.equals(serviceId)) {
-			throw new Exception("service.absent");
+			throw new Exception("quiz.service.absent");
 		}
 	}
 

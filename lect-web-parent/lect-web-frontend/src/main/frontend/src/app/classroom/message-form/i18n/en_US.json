@@ -1,6 +1,7 @@
 {
 	"message": {
 		"service": {
+			"absent": "Message could not be sent. Service is not available.",
 			"name": "Message"
 		},
 		"desc": "Ask a question or leave a message",

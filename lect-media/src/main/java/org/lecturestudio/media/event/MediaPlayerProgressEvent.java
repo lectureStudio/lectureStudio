@@ -28,11 +28,10 @@ public class MediaPlayerProgressEvent extends BusEvent {
 	
 	private int pageNumber;
 	private int pageCount;
+
+	private int prevEventNumber;
+	private int eventNumber;
 	
-	
-	public MediaPlayerProgressEvent() {
-		this(null, null, 0, 0);
-	}
 	
 	public MediaPlayerProgressEvent(Time current, Time total, int pageNumber, int pageCount) {
 		this.current = current;
@@ -72,5 +71,20 @@ public class MediaPlayerProgressEvent extends BusEvent {
 	public void setPageCount(int pageCount) {
 		this.pageCount = pageCount;
 	}
-	
+
+	public int getEventNumber() {
+		return eventNumber;
+	}
+
+	public void setEventNumber(int eventNumber) {
+		this.eventNumber = eventNumber;
+	}
+
+	public int getPrevEventNumber() {
+		return prevEventNumber;
+	}
+
+	public void setPrevEventNumber(int prevEventNumber) {
+		this.prevEventNumber = prevEventNumber;
+	}
 }

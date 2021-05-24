@@ -44,33 +44,31 @@ import org.lecturestudio.core.recording.action.PlaybackAction;
 public class FileEventExecutor extends EventExecutor {
 
 	private static final Logger LOG = LogManager.getLogger(FileEventExecutor.class);
-	
+
 	private final ToolController toolController;
-	
+
 	private final List<RecordedPage> recordedPages;
-	
+
 	private Stack<PlaybackAction> playbacks;
-	
+
 	private Map<Integer, Integer> pageChangeEvents;
-	
+
 	private final SyncState syncState;
 
 	private EventThread thread;
-	
-	private int pageNumber = 0;
-	
+
 
 	public FileEventExecutor(ToolController toolController, List<RecordedPage> recordedPages, SyncState syncState) {
 		this.toolController = toolController;
 		this.recordedPages = recordedPages;
 		this.syncState = syncState;
 	}
-	
+
 	@Override
 	public long getElapsedTime() {
 		return syncState.getAudioTime();
 	}
-	
+
 	@Override
 	public int getPageNumber(int seekTime) {
 		return getTimeTablePage(seekTime);
@@ -79,21 +77,21 @@ public class FileEventExecutor extends EventExecutor {
 	@Override
 	public synchronized int seekByTime(int seekTime) {
 		int pageNumber = getTimeTablePage(seekTime);
-		
+
 		seek(pageNumber, seekTime);
-		
+
 		return pageNumber;
 	}
-	
+
 	@Override
 	public synchronized Integer seekByPage(int pageNumber) {
 		Integer timestamp = pageChangeEvents.get(pageNumber);
-		
+
 		seek(pageNumber, timestamp);
-		
+
 		return timestamp;
 	}
-	
+
 	@Override
 	protected void initInternal() {
 		playbacks = new Stack<>();
@@ -102,14 +100,14 @@ public class FileEventExecutor extends EventExecutor {
 		for (RecordedPage recPage : recordedPages) {
 			pageChangeEvents.put(recPage.getNumber(), recPage.getTimestamp());
 		}
-		
+
 		getPlaybackActions(0);
 	}
 
 	@Override
 	protected void startInternal() {
 		ExecutableState state = getPreviousState();
-		
+
 		if (state == ExecutableState.Initialized || state == ExecutableState.Stopped) {
 			thread = new EventThread(() -> {
 				try {
@@ -164,10 +162,10 @@ public class FileEventExecutor extends EventExecutor {
 					if (!playbacks.isEmpty()) {
 						// Get next action for execution.
 						PlaybackAction action = playbacks.peek();
-						
+
 						if (time >= action.getTimestamp()) {
 							action.execute(toolController);
-							
+
 							// Remove executed action.
 							playbacks.pop();
 
@@ -176,15 +174,17 @@ public class FileEventExecutor extends EventExecutor {
 								PlaybackAction nextAction = playbacks.peek();
 								sleep = (nextAction.getTimestamp() - action.getTimestamp()) / 2;
 							}
+
+							syncState.setEventNumber(syncState.getEventNumber() + 1);
 						}
 						else {
 							// Relieve the CPU.
 							sleep = action.getTimestamp() - time;
 						}
 					}
-					else if (pageNumber < recordedPages.size() - 1) {
+					else if (syncState.getPageNumber() < recordedPages.size() - 1) {
 						// Get actions for the next page.
-						getPlaybackActions(++pageNumber);
+						getPlaybackActions(syncState.getPageNumber() + 1);
 					}
 				}
 
@@ -200,7 +200,7 @@ public class FileEventExecutor extends EventExecutor {
 				thread.await();
 			}
 		}
-		
+
 		if (!stopped()) {
 			stop();
 		}
@@ -225,6 +225,8 @@ public class FileEventExecutor extends EventExecutor {
 					}
 
 					playbacks.pop();
+
+					syncState.setEventNumber(syncState.getEventNumber() + 1);
 				}
 				else {
 					// Nothing more to execute.
@@ -233,7 +235,7 @@ public class FileEventExecutor extends EventExecutor {
 			}
 		}
 	}
-	
+
 	private synchronized void getPlaybackActions(int pageNumber) {
 		RecordedPage recPage = recordedPages.get(pageNumber);
 
@@ -244,14 +246,15 @@ public class FileEventExecutor extends EventExecutor {
 		playbacks.clear();
 		playbacks.push(action);
 		playbacks.addAll(recPage.getPlaybackActions());
-		
+
 		if (!playbacks.empty()) {
 			Collections.reverse(playbacks);
 		}
 
-		this.pageNumber = pageNumber;
+		syncState.setPageNumber(pageNumber);
+		syncState.setEventNumber(0);
 	}
-	
+
 	private int getTimeTablePage(int seekTime) {
 		int page = 0;
 

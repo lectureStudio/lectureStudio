@@ -132,6 +132,7 @@ public class RecordingPlayer extends ExecutableBase {
 		progressEvent.setTotalTime(new Time(recording.getRecordingHeader().getDuration()));
 		progressEvent.setPageNumber(1);
 		progressEvent.setPageCount(recording.getRecordedEvents().getRecordedPages().size());
+		progressEvent.setEventNumber(0);
 
 		AudioBus.register(this);
 	}
@@ -351,6 +352,8 @@ public class RecordingPlayer extends ExecutableBase {
 		progressEvent.setTotalTime(this.duration);
 		progressEvent.setPageNumber(pageNumber);
 		progressEvent.setPageCount(pageCount);
+		progressEvent.setPrevEventNumber(progressEvent.getEventNumber());
+		progressEvent.setEventNumber(syncState.getEventNumber());
 
 		ApplicationBus.post(progressEvent);
 	}

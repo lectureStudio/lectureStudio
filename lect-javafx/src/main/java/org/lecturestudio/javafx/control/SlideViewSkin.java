@@ -56,14 +56,7 @@ import org.lecturestudio.core.ExecutableException;
 import org.lecturestudio.core.PageMetrics;
 import org.lecturestudio.core.controller.RenderController;
 import org.lecturestudio.core.geometry.Dimension2D;
-import org.lecturestudio.core.geometry.Rectangle2D;
 import org.lecturestudio.core.model.Page;
-import org.lecturestudio.core.model.listener.PageEditEvent;
-import org.lecturestudio.core.model.listener.PageEditedListener;
-import org.lecturestudio.core.model.listener.PageEditEvent.Type;
-import org.lecturestudio.core.model.shape.Shape;
-import org.lecturestudio.core.model.shape.TeXShape;
-import org.lecturestudio.core.model.shape.TextShape;
 import org.lecturestudio.core.render.RenderThread;
 import org.lecturestudio.core.render.RenderThreadTask;
 import org.lecturestudio.core.view.PageObjectView;
@@ -104,8 +97,6 @@ public class SlideViewSkin extends SkinBase<SlideView> {
 		onPresentationChanged(newParam);
 	};
 
-	private final PageEditedListener pageEditedListener = this::onPageEdited;
-
 	private PixelBuffer<IntBuffer> pixelBuffer;
 
 	private ImageView imageView;
@@ -126,6 +117,14 @@ public class SlideViewSkin extends SkinBase<SlideView> {
 		initLayout(control, canvasBounds);
 	}
 
+	public void repaint() {
+		Platform.runLater(() -> {
+			renderer.renderForeground();
+
+			updateBuffer(null);
+		});
+	}
+
 	/** {@inheritDoc} */
 	@Override
 	public void dispose() {
@@ -134,12 +133,6 @@ public class SlideViewSkin extends SkinBase<SlideView> {
 		control.layoutBoundsProperty().removeListener(boundsListener);
 		control.pageProperty().removeListener(pageListener);
 		control.presentationParameterProperty().removeListener(presentationListener);
-
-		Page page = control.getPage();
-
-		if (nonNull(page)) {
-			page.removePageEditedListener(pageEditedListener);
-		}
 
 		super.dispose();
 	}
@@ -225,12 +218,6 @@ public class SlideViewSkin extends SkinBase<SlideView> {
 		control.pageProperty().addListener(pageListener);
 		control.presentationParameterProperty().addListener(presentationListener);
 
-		Page page = control.getPage();
-
-		if (nonNull(page)) {
-			page.addPageEditedListener(pageEditedListener);
-		}
-
 		canvasBounds.bind(imageView.boundsInParentProperty());
 
 		control.getPageObjectViews().addListener((ListChangeListener<PageObjectView<?>>) change -> {
@@ -243,7 +230,7 @@ public class SlideViewSkin extends SkinBase<SlideView> {
 					}
 					else if (change.wasRemoved()) {
 						for (PageObjectView<?> objectViewNode : change.getRemoved()) {
-							getChildren().remove(objectViewNode);
+							getChildren().remove((Node) objectViewNode);
 						}
 					}
 				}
@@ -335,7 +322,6 @@ public class SlideViewSkin extends SkinBase<SlideView> {
 			}
 
 			imageRef.flush();
-			imageRef = null;
 		}
 
 		ColorModel model = new DirectColorModel(
@@ -385,20 +371,9 @@ public class SlideViewSkin extends SkinBase<SlideView> {
 	}
 
 	private void onPageChanged(Page oldPage, Page newPage) {
-		if (nonNull(oldPage)) {
-			oldPage.removePageEditedListener(pageEditedListener);
-		}
-		if (nonNull(newPage)) {
-			newPage.addPageEditedListener(pageEditedListener);
-		}
-
 		renderer.setPage(newPage);
 
 		renderThread.onTask(renderPageTask);
-	}
-
-	private void onPageEdited(final PageEditEvent event) {
-		renderThread.onTask(new ShapeRenderTask(event));
 	}
 
 	private void onPresentationChanged(PresentationParameter newParam) {
@@ -478,35 +453,6 @@ public class SlideViewSkin extends SkinBase<SlideView> {
 		}
 	}
 
-	private Rectangle getClipRect(Rectangle2D clip) {
-		if (isNull(clip)) {
-			return null;
-		}
-
-		Rectangle2D pageRect = getSkinnable().getPresentationParameter().getViewRect();
-
-		double sx = pixelBuffer.getWidth() / pageRect.getWidth();
-
-		int x = (int) ((clip.getX() - pageRect.getX()) * sx) - 5;
-		int y = (int) ((clip.getY() - pageRect.getY()) * sx) - 5;
-		int w = (int) (clip.getWidth() * sx) + 10;
-		int h = (int) (clip.getHeight() * sx) + 10;
-
-		if (x + w > pixelBuffer.getWidth()) {
-			w -= x + w - pixelBuffer.getWidth();
-		}
-		if (y + h > pixelBuffer.getHeight()) {
-			h -= y + h - pixelBuffer.getHeight();
-		}
-
-		x = Math.max(0, x);
-		y = Math.max(0, y);
-		w = Math.max(0, w);
-		h = Math.max(0, h);
-
-		return new Rectangle(x, y, w, h);
-	}
-
 	private class PageRenderTask implements RenderThreadTask {
 
 		@Override
@@ -516,43 +462,4 @@ public class SlideViewSkin extends SkinBase<SlideView> {
 			updateBuffer(null);
 		}
 	}
-
-	private class ShapeRenderTask implements RenderThreadTask {
-
-		private final PageEditEvent event;
-
-
-		public ShapeRenderTask(final PageEditEvent event) {
-			this.event = event;
-		}
-
-		@Override
-		public void render() throws Exception {
-			final Shape shape = event.getShape();
-			final PageEditEvent.Type type = event.getType();
-
-			if (shape == null ||
-					type == Type.CLEAR ||
-					type == Type.SHAPES_ADDED ||
-					type == Type.SHAPE_ADDED ||
-					type == Type.SHAPE_REMOVED ||
-					shape instanceof TextShape ||
-					shape instanceof TeXShape ||
-					shape.isSelected()) {
-
-				renderer.renderForeground();
-
-				updateBuffer(null);
-			}
-			else {
-				final Page page = event.getPage();
-				final Rectangle clip = getClipRect(event.getDirtyArea());
-
-				renderer.render(page, shape, clip);
-
-				updateBuffer(clip);
-			}
-		}
-	}
-
 }

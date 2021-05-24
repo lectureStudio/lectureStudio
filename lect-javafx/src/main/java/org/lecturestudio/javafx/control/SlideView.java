@@ -277,7 +277,12 @@ public class SlideView extends Control implements ParameterChangeListener {
 
 		updateViewTransform();
 	}
-	
+
+	public void repaint() {
+		SlideViewSkin skin = (SlideViewSkin) getSkin();
+		skin.repaint();
+	}
+
 	/**
 	 * @return The CssMetaData associated with this class, which may include the
 	 *         CssMetaData of its super classes.

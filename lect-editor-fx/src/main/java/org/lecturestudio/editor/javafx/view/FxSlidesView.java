@@ -156,6 +156,11 @@ public class FxSlidesView extends VBox implements SlidesView {
 	}
 
 	@Override
+	public void repaint() {
+		slideView.repaint();
+	}
+
+	@Override
 	public Page getPage() {
 		return slideView.getPage();
 	}

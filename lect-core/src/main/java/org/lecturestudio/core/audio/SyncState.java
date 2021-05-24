@@ -18,11 +18,12 @@
 
 package org.lecturestudio.core.audio;
 
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
 
 /**
  * The synchronization state for media playback to keep different media players
- * in sync. The audio stream is considered to be the master stream and all other
+ * in sync. The audio stream is considered to be the main stream and all other
  * media stream must be in sync with it.
  *
  * @author Alex Andres
@@ -30,11 +31,17 @@ import java.util.concurrent.atomic.AtomicLong;
 public final class SyncState {
 
 	/** The current audio time in milliseconds. */
-	private static final AtomicLong audioTime = new AtomicLong(0);
+	private final AtomicLong audioTime = new AtomicLong(0);
+
+	/** The current page number being processed. */
+	private final AtomicInteger pageNumber = new AtomicInteger();
+
+	/** The current event number being processed in the current page. */
+	private final AtomicInteger eventNumber = new AtomicInteger();
 
 
 	/**
-	 * Set the current audio time in milliseconds of the audio master stream.
+	 * Set the current audio time in milliseconds of the audio main stream.
 	 *
 	 * @param time The audio time in milliseconds.
 	 */
@@ -43,7 +50,7 @@ public final class SyncState {
 	}
 
 	/**
-	 * Get current audio time in milliseconds of the audio master stream.
+	 * Get current audio time in milliseconds of the audio main stream.
 	 *
 	 * @return the audio time in milliseconds.
 	 */
@@ -52,10 +59,48 @@ public final class SyncState {
 	}
 
 	/**
-	 * Reset the audio time to 0.
+	 * Get current event number being processed in the current page.
+	 *
+	 * @return The current event number.
+	 */
+	public int getEventNumber() {
+		return eventNumber.get();
+	}
+
+	/**
+	 * Set current event number being processed in the current page.
+	 *
+	 * @param number The new event number.
+	 */
+	public void setEventNumber(int number) {
+		eventNumber.set(number);
+	}
+
+	/**
+	 * Get current number of the page that is being processed.
+	 *
+	 * @return The current page number.
+	 */
+	public int getPageNumber() {
+		return pageNumber.get();
+	}
+
+	/**
+	 * Set current number of the page that is being processed.
+	 *
+	 * @param number The new page number.
+	 */
+	public void setPageNumber(int number) {
+		pageNumber.set(number);
+	}
+
+	/**
+	 * Reset the audio time, page number and event number to {@code 0}.
 	 */
 	public void reset() {
 		audioTime.set(0);
+		pageNumber.set(0);
+		eventNumber.set(0);
 	}
 
 }

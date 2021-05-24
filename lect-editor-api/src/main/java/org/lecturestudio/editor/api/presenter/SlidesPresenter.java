@@ -153,6 +153,10 @@ public class SlidesPresenter extends Presenter<SlidesView> {
 		double progress = 1.0 * event.getCurrentTime().getMillis() / event.getTotalTime().getMillis();
 
 		editorContext.setPrimarySelection(progress);
+
+		if (event.getPrevEventNumber() != event.getEventNumber()) {
+			view.repaint();
+		}
 	}
 
 	private void nextPage() {

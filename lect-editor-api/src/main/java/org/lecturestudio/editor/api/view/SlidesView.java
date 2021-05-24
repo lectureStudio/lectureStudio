@@ -36,6 +36,8 @@ public interface SlidesView extends View {
 
 	void selectDocument(Document doc);
 
+	void repaint();
+
 	Page getPage();
 
 	void setPage(Page page, PresentationParameter parameter);

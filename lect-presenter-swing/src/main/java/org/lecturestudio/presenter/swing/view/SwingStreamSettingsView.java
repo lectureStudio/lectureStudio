@@ -19,13 +19,17 @@
 package org.lecturestudio.presenter.swing.view;
 
 import java.awt.event.ActionEvent;
+import java.text.MessageFormat;
 import java.util.List;
+import java.util.ResourceBundle;
 import java.util.Vector;
 
+import javax.inject.Inject;
 import javax.swing.AbstractAction;
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
+import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTable;
 import javax.swing.JTextField;
@@ -49,6 +53,8 @@ import org.lecturestudio.swing.view.ViewPostConstruct;
 @SwingView(name = "stream-settings", presenter = org.lecturestudio.presenter.api.presenter.StreamSettingsPresenter.class)
 public class SwingStreamSettingsView extends JPanel implements StreamSettingsView {
 
+	private final ResourceBundle resourceBundle;
+
 	private JComboBox<String> streamAudioCodecCombo;
 
 	private JComboBox<AudioFormat> streamAudioFormatCombo;
@@ -62,6 +68,8 @@ public class SwingStreamSettingsView extends JPanel implements StreamSettingsVie
 	private JTextField broadcastPortTextField;
 
 	private JTextField broadcastTlsPortTextField;
+
+	private JLabel selectedProfileLabel;
 
 	private JTable profileTable;
 
@@ -86,8 +94,11 @@ public class SwingStreamSettingsView extends JPanel implements StreamSettingsVie
 	};
 
 
-	SwingStreamSettingsView() {
+	@Inject
+	SwingStreamSettingsView(ResourceBundle resourceBundle) {
 		super();
+
+		this.resourceBundle = resourceBundle;
 	}
 
 	@Override
@@ -125,6 +136,17 @@ public class SwingStreamSettingsView extends JPanel implements StreamSettingsVie
 	public void setBroadcastProfile(ObjectProperty<BroadcastProfile> profile) {
 		SwingUtils.invoke(() -> {
 			SwingUtils.bindBidirectional(profileTable, profile);
+		});
+
+		profile.addListener((observable, oldValue, newValue) -> {
+			SwingUtils.invoke(() -> {
+				String message = resourceBundle.getString("stream.settings.broadcast.profile.selected");
+				selectedProfileLabel.setText(MessageFormat.format(message,
+						String.format("%s - %s : %d : %d", newValue.getName(),
+								newValue.getBroadcastAddress(),
+								newValue.getBroadcastPort(),
+								newValue.getBroadcastTlsPort())));
+			});
 		});
 	}
 

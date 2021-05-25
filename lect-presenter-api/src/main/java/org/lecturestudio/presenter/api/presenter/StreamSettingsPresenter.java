@@ -121,6 +121,7 @@ public class StreamSettingsPresenter extends Presenter<StreamSettingsView> {
 		NetworkConfiguration netConfig = config.getNetworkConfig();
 
 		BroadcastProfile profile = new BroadcastProfile();
+		profile.setName(context.getDictionary().get("stream.profile.new"));
 		profile.setBroadcastAddress("0.0.0.0");
 		profile.setBroadcastPort(80);
 		profile.setBroadcastTlsPort(433);

@@ -24,6 +24,8 @@ public enum RecordingRenderState {
 
 	RENDER_VIDEO,
 
+	RENDER_VECTOR,
+
 	PASS_1,
 
 	PASS_2;

@@ -125,6 +125,8 @@ public class WebVectorExport extends RecordingExport {
 	@Override
 	protected void startInternal() {
 		CompletableFuture.supplyAsync(() -> {
+			onRenderState(RecordingRenderState.RENDER_VECTOR);
+
 			RecordedAudio encAudio;
 
 			try {
@@ -186,8 +188,6 @@ public class WebVectorExport extends RecordingExport {
 	}
 
 	private RecordedAudio encodeAudio() throws Exception {
-		onRenderState(RecordingRenderState.RENDER_AUDIO);
-
 		RecordedAudio recAudio = recording.getRecordedAudio();
 		RandomAccessAudioStream stream = recAudio.getAudioStream().clone();
 

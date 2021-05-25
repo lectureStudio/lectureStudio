@@ -109,6 +109,9 @@ public class VideoExportProgressPresenter extends Presenter<VideoExportProgressV
 			case RENDER_VIDEO:
 				message = dict.get("recording.render.video");
 				break;
+			case RENDER_VECTOR:
+				message = dict.get("recording.render.vector");
+				break;
 		}
 
 		if (nonNull(message)) {

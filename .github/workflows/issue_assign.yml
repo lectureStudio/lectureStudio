@@ -44,3 +44,11 @@ jobs:
       with:
         project: 'https://github.com/lectureStudio/lectureStudio/projects/5'
         column_name: 'To Do'
+        
+    - name: Assign lecturePlayer issues
+      uses: srggrs/assign-one-project-github-action@1.2.1
+      if: |
+        contains(github.event.issue.title, 'player')
+      with:
+        project: 'https://github.com/lectureStudio/lectureStudio/projects/7'
+        column_name: 'To Do'

@@ -18,21 +18,21 @@
 
 package org.lecturestudio.core.recording;
 
-import static java.util.Objects.nonNull;
+import org.lecturestudio.core.model.Interval;
+import org.lecturestudio.core.recording.edit.RecordingEditManager;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
-import org.lecturestudio.core.model.Interval;
-import org.lecturestudio.core.recording.edit.RecordingEditManager;
+import static java.util.Objects.nonNull;
 
 public class Recording {
 
 	public static final int FORMAT_VERSION = 3;
 
 	public enum Content {
-		ALL, HEADER, AUDIO, DOCUMENT, EVENTS
+		ALL, HEADER, AUDIO, DOCUMENT, EVENTS, VIDEO
 	}
 
 	private final List<RecordingChangeListener> listeners = new ArrayList<>();
@@ -46,6 +46,8 @@ public class Recording {
 	private RecordedDocument document;
 
 	private RecordedEvents events;
+
+	private RecordedVideo video;
 
 
 	public Recording() {
@@ -96,6 +98,16 @@ public class Recording {
 		fireChangeEvent(Content.DOCUMENT);
 	}
 
+	public RecordedVideo getRecordedVideo() {
+		return video;
+	}
+
+	public void setRecordedVideo(RecordedVideo video) {
+		this.video = video;
+
+		fireChangeEvent(Content.VIDEO);
+	}
+
 	public void close() {
 		if (nonNull(getRecordedDocument().getDocument())) {
 			getRecordedDocument().getDocument().close();
@@ -107,6 +119,9 @@ public class Recording {
 			return;
 		}
 
+		if (getRecordedVideo().hasUndoActions()) {
+			getRecordedVideo().undo();
+		}
 		if (getRecordedEvents().hasUndoActions()) {
 			getRecordedEvents().undo();
 		}
@@ -128,6 +143,9 @@ public class Recording {
 			return;
 		}
 
+		if (getRecordedVideo().hasRedoActions()) {
+			getRecordedVideo().redo();
+		}
 		if (getRecordedEvents().hasRedoActions()) {
 			getRecordedEvents().redo();
 		}
@@ -148,21 +166,24 @@ public class Recording {
 		return getRecordingHeader().hasUndoActions() ||
 				getRecordedEvents().hasUndoActions() ||
 				getRecordedDocument().hasUndoActions() ||
-				getRecordedAudio().hasUndoActions();
+				getRecordedAudio().hasUndoActions() ||
+				getRecordedVideo().hasUndoActions();
 	}
 
 	public boolean hasRedoActions() {
 		return getRecordingHeader().hasRedoActions() ||
 				getRecordedEvents().hasRedoActions() ||
 				getRecordedDocument().hasRedoActions() ||
-				getRecordedAudio().hasRedoActions();
+				getRecordedAudio().hasRedoActions() ||
+				getRecordedVideo().hasRedoActions();
 	}
 
 	public int getStateHash() {
 		return Objects.hash(getRecordingHeader().getStateHash(),
 				getRecordedEvents().getStateHash(),
 				getRecordedDocument().getStateHash(),
-				getRecordedAudio().getStateHash());
+				getRecordedAudio().getStateHash(),
+				getRecordedVideo().getStateHash());
 	}
 
 	public void addRecordingChangeListener(RecordingChangeListener listener) {

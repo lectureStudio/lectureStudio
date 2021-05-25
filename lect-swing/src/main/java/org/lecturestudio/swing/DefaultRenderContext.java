@@ -21,18 +21,7 @@ package org.lecturestudio.swing;
 import org.lecturestudio.core.render.RenderContext;
 import org.lecturestudio.core.render.RenderService;
 import org.lecturestudio.core.view.ViewType;
-import org.lecturestudio.swing.renderer.ArrowRenderer;
-import org.lecturestudio.swing.renderer.EllipseRenderer;
-import org.lecturestudio.swing.renderer.GridRenderer;
-import org.lecturestudio.swing.renderer.LineRenderer;
-import org.lecturestudio.swing.renderer.PointerRenderer;
-import org.lecturestudio.swing.renderer.RectangleRenderer;
-import org.lecturestudio.swing.renderer.SelectRenderer;
-import org.lecturestudio.swing.renderer.StrokeRenderer;
-import org.lecturestudio.swing.renderer.TeXRenderer;
-import org.lecturestudio.swing.renderer.TextRenderer;
-import org.lecturestudio.swing.renderer.TextSelectionRenderer;
-import org.lecturestudio.swing.renderer.ZoomRenderer;
+import org.lecturestudio.swing.renderer.*;
 
 public class DefaultRenderContext extends RenderContext {
 
@@ -54,6 +43,7 @@ public class DefaultRenderContext extends RenderContext {
 		service.registerRenderer(new RectangleRenderer());
 		service.registerRenderer(new EllipseRenderer());
 		service.registerRenderer(new SelectRenderer());
+		service.registerRenderer(new ImageRenderer());
 
 		return service;
 	}
@@ -72,6 +62,7 @@ public class DefaultRenderContext extends RenderContext {
 		service.registerRenderer(new EllipseRenderer());
 		service.registerRenderer(new SelectRenderer());
 		service.registerRenderer(new GridRenderer());
+		service.registerRenderer(new ImageRenderer());
 
 		return service;
 	}
@@ -90,6 +81,7 @@ public class DefaultRenderContext extends RenderContext {
 		service.registerRenderer(new EllipseRenderer());
 		service.registerRenderer(new SelectRenderer());
 		service.registerRenderer(new GridRenderer());
+		service.registerRenderer(new ImageRenderer());
 
 		return service;
 	}

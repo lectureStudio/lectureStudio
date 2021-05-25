@@ -18,20 +18,7 @@
 
 package org.lecturestudio.presenter.api.presenter;
 
-import static java.util.Objects.isNull;
-import static java.util.Objects.nonNull;
-import static java.util.Objects.requireNonNull;
-
 import com.google.common.eventbus.Subscribe;
-
-import java.net.SocketException;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.concurrent.CompletableFuture;
-
-import javax.inject.Inject;
-
 import org.lecturestudio.broadcast.config.BroadcastProfile;
 import org.lecturestudio.core.ExecutableException;
 import org.lecturestudio.core.ExecutableState;
@@ -48,10 +35,7 @@ import org.lecturestudio.core.controller.ToolController;
 import org.lecturestudio.core.geometry.Matrix;
 import org.lecturestudio.core.graphics.Color;
 import org.lecturestudio.core.input.KeyEvent;
-import org.lecturestudio.core.model.Document;
-import org.lecturestudio.core.model.DocumentOutlineItem;
-import org.lecturestudio.core.model.Page;
-import org.lecturestudio.core.model.SlideNote;
+import org.lecturestudio.core.model.*;
 import org.lecturestudio.core.model.listener.DocumentChangeListener;
 import org.lecturestudio.core.model.listener.PageEditEvent;
 import org.lecturestudio.core.model.listener.PageEditedListener;
@@ -64,15 +48,7 @@ import org.lecturestudio.core.recording.DocumentRecorder;
 import org.lecturestudio.core.service.DocumentService;
 import org.lecturestudio.core.tool.ToolType;
 import org.lecturestudio.core.util.NetUtils;
-import org.lecturestudio.core.view.Action;
-import org.lecturestudio.core.view.PageObjectView;
-import org.lecturestudio.core.view.PresentationParameter;
-import org.lecturestudio.core.view.PresentationParameterProvider;
-import org.lecturestudio.core.view.SlideViewAddressOverlay;
-import org.lecturestudio.core.view.TeXBoxView;
-import org.lecturestudio.core.view.TextBoxView;
-import org.lecturestudio.core.view.ViewContextFactory;
-import org.lecturestudio.core.view.ViewType;
+import org.lecturestudio.core.view.*;
 import org.lecturestudio.presenter.api.config.NetworkConfiguration;
 import org.lecturestudio.presenter.api.config.PresenterConfiguration;
 import org.lecturestudio.presenter.api.context.PresenterContext;
@@ -86,6 +62,15 @@ import org.lecturestudio.presenter.api.stylus.StylusHandler;
 import org.lecturestudio.presenter.api.view.PageObjectRegistry;
 import org.lecturestudio.presenter.api.view.SlidesView;
 import org.lecturestudio.web.api.message.MessengerMessage;
+
+import javax.inject.Inject;
+import java.net.SocketException;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.CompletableFuture;
+
+import static java.util.Objects.*;
 
 public class SlidesPresenter extends Presenter<SlidesView> {
 
@@ -310,12 +295,30 @@ public class SlidesPresenter extends Presenter<SlidesView> {
 		documentService.selectDocument(doc);
 	}
 
-	private void newWhiteboardPage() {
-		documentService.createWhiteboardPage();
+	private void newPage() {
+		DocumentType docType = documentService.getDocuments().getSelectedDocument().getType();
+		switch (docType) {
+			case WHITEBOARD:
+				documentService.createWhiteboardPage();
+				return;
+			case SCREEN_CAPTURE:
+				documentService.createScreenCapturePage();
+		}
 	}
 
-	private void deleteWhiteboardPage() {
-		documentService.deleteWhiteboardPage();
+	private void deletePage() {
+		DocumentType docType = documentService.getDocuments().getSelectedDocument().getType();
+		switch (docType) {
+			case WHITEBOARD:
+				documentService.deleteWhiteboardPage();
+				return;
+			case SCREEN_CAPTURE:
+				documentService.deleteScreenCapturePage();
+		}
+	}
+
+	private void pauseScreenCapture() {
+		// TODO: Implement screen capture pausing
 	}
 
 	private void selectPage(Page page) {
@@ -554,8 +557,9 @@ public class SlidesPresenter extends Presenter<SlidesView> {
 		view.setOnOutlineItem(this::setOutlineItem);
 
 		view.setOnKeyEvent(this::keyEvent);
-		view.setOnNewPage(this::newWhiteboardPage);
-		view.setOnDeletePage(this::deleteWhiteboardPage);
+		view.setOnNewPage(this::newPage);
+		view.setOnDeletePage(this::deletePage);
+		view.setOnScreenCapturePause(this::pauseScreenCapture);
 		view.setOnSelectPage(this::selectPage);
 		view.setOnSelectDocument(this::selectDocument);
 		view.setOnViewTransform(this::setViewTransform);

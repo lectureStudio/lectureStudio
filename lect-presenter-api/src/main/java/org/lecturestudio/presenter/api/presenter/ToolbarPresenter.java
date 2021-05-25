@@ -18,12 +18,7 @@
 
 package org.lecturestudio.presenter.api.presenter;
 
-import static java.util.Objects.nonNull;
-
 import com.google.common.eventbus.Subscribe;
-
-import javax.inject.Inject;
-
 import org.lecturestudio.core.ExecutableException;
 import org.lecturestudio.core.ExecutableState;
 import org.lecturestudio.core.app.ApplicationContext;
@@ -54,6 +49,10 @@ import org.lecturestudio.presenter.api.config.PresenterConfiguration;
 import org.lecturestudio.presenter.api.event.RecordingStateEvent;
 import org.lecturestudio.presenter.api.service.RecordingService;
 import org.lecturestudio.presenter.api.view.ToolbarView;
+
+import javax.inject.Inject;
+
+import static java.util.Objects.nonNull;
 
 public class ToolbarPresenter extends Presenter<ToolbarView> {
 
@@ -246,6 +245,10 @@ public class ToolbarPresenter extends Presenter<ToolbarView> {
 		documentService.toggleWhiteboard();
 	}
 
+	public void openScreenCapture() {
+		documentService.toggleScreenCapture();
+	}
+
 	public void enableDisplays(boolean enable) {
 		presentationController.showPresentationViews(enable);
 
@@ -389,6 +392,7 @@ public class ToolbarPresenter extends Presenter<ToolbarView> {
 		view.setOnShowGrid(this::showGrid);
 		view.setOnExtend(this::extend);
 		view.setOnWhiteboard(this::openWhiteboard);
+		view.setOnScreenCapture(this::openScreenCapture);
 		view.setOnEnableDisplays(this::enableDisplays);
 		view.setOnZoomInTool(this::zoomInTool);
 		view.setOnZoomOutTool(this::zoomOutTool);

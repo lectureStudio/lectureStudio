@@ -18,17 +18,6 @@
 
 package org.lecturestudio.presenter.api.service;
 
-import static java.util.Objects.nonNull;
-
-import java.io.File;
-import java.util.Timer;
-import java.util.TimerTask;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.CompletionException;
-
-import javax.inject.Inject;
-import javax.inject.Singleton;
-
 import org.lecturestudio.core.ExecutableBase;
 import org.lecturestudio.core.ExecutableException;
 import org.lecturestudio.core.app.ApplicationContext;
@@ -38,6 +27,17 @@ import org.lecturestudio.core.util.ProgressCallback;
 import org.lecturestudio.presenter.api.config.PresenterConfiguration;
 import org.lecturestudio.presenter.api.event.RecordingTimeEvent;
 import org.lecturestudio.presenter.api.recording.FileLectureRecorder;
+import org.lecturestudio.presenter.api.recording.ScreenRecorder;
+
+import javax.inject.Inject;
+import javax.inject.Singleton;
+import java.io.File;
+import java.util.Timer;
+import java.util.TimerTask;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.CompletionException;
+
+import static java.util.Objects.nonNull;
 
 @Singleton
 public class RecordingService extends ExecutableBase {
@@ -45,14 +45,16 @@ public class RecordingService extends ExecutableBase {
 	private final ApplicationContext context;
 
 	private final FileLectureRecorder recorder;
+	private final ScreenRecorder screenRecorder;
 
 	private IdleTimer recordingTimer;
 
 
 	@Inject
-	public RecordingService(ApplicationContext context, FileLectureRecorder recorder) {
+	public RecordingService(ApplicationContext context, FileLectureRecorder recorder, ScreenRecorder screenRecorder) {
 		this.context = context;
 		this.recorder = recorder;
+		this.screenRecorder = screenRecorder;
 
 		setAudioFormat(context.getConfiguration().getAudioConfig().getRecordingFormat());
 
@@ -97,6 +99,7 @@ public class RecordingService extends ExecutableBase {
 	@Override
 	protected void initInternal() throws ExecutableException {
 		recorder.init();
+		screenRecorder.init();
 
 		recordingTimer = new IdleTimer();
 	}

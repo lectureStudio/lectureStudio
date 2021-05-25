@@ -20,18 +20,8 @@ package org.lecturestudio.presenter.swing.inject.guice;
 
 import com.google.inject.AbstractModule;
 import com.google.inject.Provides;
-
-import java.io.File;
-import java.io.IOException;
-import java.nio.file.Paths;
-import java.util.Locale;
-import java.util.ResourceBundle;
-
-import javax.inject.Singleton;
-
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-
 import org.lecturestudio.core.app.AppDataLocator;
 import org.lecturestudio.core.app.ApplicationContext;
 import org.lecturestudio.core.app.LocaleProvider;
@@ -56,10 +46,18 @@ import org.lecturestudio.presenter.api.config.PresenterConfigService;
 import org.lecturestudio.presenter.api.config.PresenterConfiguration;
 import org.lecturestudio.presenter.api.context.PresenterContext;
 import org.lecturestudio.presenter.api.recording.FileLectureRecorder;
+import org.lecturestudio.presenter.api.recording.ScreenRecorder;
 import org.lecturestudio.presenter.api.service.QuizDataSource;
 import org.lecturestudio.swing.AwtPresentationViewFactory;
 import org.lecturestudio.swing.DefaultRenderContext;
 import org.lecturestudio.swing.service.AwtDisplayService;
+
+import javax.inject.Singleton;
+import java.io.File;
+import java.io.IOException;
+import java.nio.file.Paths;
+import java.util.Locale;
+import java.util.ResourceBundle;
 
 public class ApplicationModule extends AbstractModule {
 
@@ -84,6 +82,12 @@ public class ApplicationModule extends AbstractModule {
 				documentService,
 				context.getConfiguration().getAudioConfig(),
 				((PresenterContext) context).getRecordingDirectory());
+	}
+
+	@Provides
+	@Singleton
+	ScreenRecorder createScreenRecorder() {
+		return new ScreenRecorder();
 	}
 
 	@Provides

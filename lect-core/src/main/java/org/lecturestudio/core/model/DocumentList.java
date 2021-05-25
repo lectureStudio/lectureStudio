@@ -18,7 +18,7 @@
 
 package org.lecturestudio.core.model;
 
-import static java.util.Objects.isNull;
+import org.lecturestudio.core.model.listener.DocumentListChangeListener;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -26,7 +26,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-import org.lecturestudio.core.model.listener.DocumentListChangeListener;
+import static java.util.Objects.isNull;
 
 public class DocumentList {
 
@@ -107,8 +107,26 @@ public class DocumentList {
 		return documents.stream().filter(Document::isWhiteboard).findFirst().orElse(null);
 	}
 
+	public Document getLastWhiteboard() {
+		return documents.stream().filter(Document::isWhiteboard).reduce((first, second) -> second).orElse(null);
+	}
+
 	public Document getLastNonWhiteboard() {
 		return documents.stream().filter(Document::isPDF).reduce((first, second) -> second).orElse(null);
+	}
+
+	public Document getFirstScreenCapture() {
+		return documents.stream().filter(Document::isScreenCapture).findFirst().orElse(null);
+	}
+
+	public Document getLastNonScreenCapture() {
+		Document lastDocument = getLastWhiteboard();
+
+		// Try get last non whiteboard if no whiteboard exists
+		if (isNull(lastDocument)) {
+			lastDocument = getLastNonWhiteboard();
+		}
+		return lastDocument;
 	}
 
 	public List<Document> getPdfDocuments() {
@@ -119,6 +137,10 @@ public class DocumentList {
 		long count = documents.stream().filter(doc -> doc.getType() == DocumentType.WHITEBOARD).count();
 
 		return (int) count;
+	}
+
+	public int getScreenCaptureCount() {
+		return (int) documents.stream().filter(Document::isScreenCapture).count();
 	}
 
 	public Optional<Document> getDocumentByFile(File file) {

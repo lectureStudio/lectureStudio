@@ -18,23 +18,6 @@
 
 package org.lecturestudio.presenter.swing.view;
 
-import static java.util.Objects.isNull;
-import static java.util.Objects.nonNull;
-
-import java.awt.Component;
-import java.awt.FlowLayout;
-import java.awt.Graphics2D;
-import java.awt.Paint;
-import java.awt.image.BufferedImage;
-import java.util.Enumeration;
-
-import javax.swing.AbstractButton;
-import javax.swing.ButtonGroup;
-import javax.swing.ImageIcon;
-import javax.swing.JButton;
-import javax.swing.JToggleButton;
-import javax.swing.JToolBar;
-
 import org.lecturestudio.core.ExecutableState;
 import org.lecturestudio.core.graphics.Color;
 import org.lecturestudio.core.model.Document;
@@ -48,17 +31,21 @@ import org.lecturestudio.core.view.Action;
 import org.lecturestudio.core.view.ConsumerAction;
 import org.lecturestudio.core.view.PresentationParameter;
 import org.lecturestudio.presenter.api.view.ToolbarView;
-import org.lecturestudio.swing.components.FontPickerButton;
-import org.lecturestudio.swing.components.RecordButton;
-import org.lecturestudio.swing.components.TeXFontPickerButton;
-import org.lecturestudio.swing.components.ToolColorPickerButton;
-import org.lecturestudio.swing.components.ToolGroupButton;
+import org.lecturestudio.swing.components.*;
 import org.lecturestudio.swing.converter.ColorConverter;
 import org.lecturestudio.swing.converter.FontConverter;
 import org.lecturestudio.swing.layout.WrapFlowLayout;
 import org.lecturestudio.swing.util.SwingUtils;
 import org.lecturestudio.swing.view.SwingView;
 import org.lecturestudio.swing.view.ViewPostConstruct;
+
+import javax.swing.*;
+import java.awt.*;
+import java.awt.image.BufferedImage;
+import java.util.Enumeration;
+
+import static java.util.Objects.isNull;
+import static java.util.Objects.nonNull;
 
 @SwingView(name = "main-toolbar", presenter = org.lecturestudio.presenter.api.presenter.ToolbarPresenter.class)
 public class SwingToolbarView extends JToolBar implements ToolbarView {
@@ -123,6 +110,8 @@ public class SwingToolbarView extends JToolBar implements ToolbarView {
 
 	private JToggleButton whiteboardButton;
 
+	private JToggleButton screenCaptureButton;
+
 	private JToggleButton displaysButton;
 
 	private JToggleButton zoomInButton;
@@ -144,10 +133,11 @@ public class SwingToolbarView extends JToolBar implements ToolbarView {
 
 	@Override
 	public void setDocument(Document doc) {
-		boolean isWhiteboard = nonNull(doc) && doc.isWhiteboard();
-
-		textSelectButton.setEnabled(!isWhiteboard);
-		whiteboardButton.setSelected(isWhiteboard);
+		if (nonNull(doc)) {
+			boolean isWhiteboard = doc.isWhiteboard();
+			textSelectButton.setEnabled(!isWhiteboard);
+			whiteboardButton.setSelected(isWhiteboard);
+		}
 	}
 
 	@Override
@@ -343,6 +333,11 @@ public class SwingToolbarView extends JToolBar implements ToolbarView {
 	@Override
 	public void setOnWhiteboard(Action action) {
 		SwingUtils.bindAction(whiteboardButton, action);
+	}
+
+	@Override
+	public void setOnScreenCapture(Action action) {
+		SwingUtils.bindAction(screenCaptureButton, action);
 	}
 
 	@Override

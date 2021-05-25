@@ -16,10 +16,23 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package org.lecturestudio.core.model;
+package org.lecturestudio.core.recording;
 
-public enum DocumentType {
+import java.io.IOException;
 
-	PDF, WHITEBOARD, QUIZ, SCREEN_CAPTURE
-	
+public class RecordedVideo extends RecordedObjectBase {
+
+    public RecordedVideo(byte[] input) throws IOException {
+        parseFrom(input);
+    }
+
+    @Override
+    public byte[] toByteArray() throws IOException {
+        return new byte[0];
+    }
+
+    @Override
+    public void parseFrom(byte[] input) throws IOException {
+
+    }
 }

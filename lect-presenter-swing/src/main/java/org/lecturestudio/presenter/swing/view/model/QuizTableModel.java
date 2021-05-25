@@ -18,16 +18,14 @@
 
 package org.lecturestudio.presenter.swing.view.model;
 
-import javax.swing.Icon;
-import javax.swing.table.TableColumnModel;
-
-import org.jsoup.Jsoup;
-
 import org.lecturestudio.swing.AwtResourceLoader;
 import org.lecturestudio.swing.table.TableModelBase;
 import org.lecturestudio.web.api.model.quiz.Quiz;
 import org.lecturestudio.web.api.model.quiz.Quiz.QuizSet;
 import org.lecturestudio.web.api.model.quiz.Quiz.QuizType;
+
+import javax.swing.*;
+import javax.swing.table.TableColumnModel;
 
 public class QuizTableModel extends TableModelBase<Quiz> {
 
@@ -52,8 +50,8 @@ public class QuizTableModel extends TableModelBase<Quiz> {
 			case 0:
 				return getSetIcon(quiz.getQuizSet());
 
-			case 1:
-				return Jsoup.parse(quiz.getQuestion()).text();
+//			case 1:
+//				return Jsoup.parse(quiz.getQuestion()).text();
 
 			case 2:
 				return getTypeIcon(quiz.getType());

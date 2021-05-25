@@ -16,10 +16,24 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package org.lecturestudio.core.model;
+package org.lecturestudio.core.screencapture;
 
-public enum DocumentType {
+import org.lecturestudio.core.util.WindowInfo;
 
-	PDF, WHITEBOARD, QUIZ, SCREEN_CAPTURE
-	
+public class ScreenCapture {
+
+    public enum CaptureType {
+        FULL_SCREEN,
+        WINDOW
+    }
+
+    private final WindowInfo window;
+
+    public ScreenCapture(WindowInfo window) {
+        this.window = window;
+    }
+
+    public WindowInfo getWindowInfo() {
+        return window;
+    }
 }

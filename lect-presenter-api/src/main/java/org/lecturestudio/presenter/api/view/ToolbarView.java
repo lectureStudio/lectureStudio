@@ -98,6 +98,8 @@ public interface ToolbarView extends View {
 
 	void setOnWhiteboard(Action action);
 
+	void setOnScreenCapture(Action action);
+
 	void setOnEnableDisplays(ConsumerAction<Boolean> action);
 
 	void setOnZoomInTool(Action action);

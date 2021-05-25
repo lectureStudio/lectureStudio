@@ -18,30 +18,29 @@
 
 package org.lecturestudio.presenter.swing.view;
 
-import static java.util.Objects.isNull;
-import static java.util.Objects.nonNull;
+import org.lecturestudio.core.ExecutableState;
+import org.lecturestudio.core.beans.BooleanProperty;
+import org.lecturestudio.core.controller.RenderController;
+import org.lecturestudio.core.geometry.Matrix;
+import org.lecturestudio.core.input.KeyEvent;
+import org.lecturestudio.core.model.*;
+import org.lecturestudio.core.tool.ToolType;
+import org.lecturestudio.core.view.Action;
+import org.lecturestudio.core.view.*;
+import org.lecturestudio.presenter.api.stylus.StylusHandler;
+import org.lecturestudio.presenter.api.view.SlidesView;
+import org.lecturestudio.presenter.swing.input.StylusListener;
+import org.lecturestudio.stylus.awt.AwtStylusManager;
+import org.lecturestudio.swing.components.SlideView;
+import org.lecturestudio.swing.components.*;
+import org.lecturestudio.swing.converter.KeyEventConverter;
+import org.lecturestudio.swing.converter.MatrixConverter;
+import org.lecturestudio.swing.util.SwingUtils;
+import org.lecturestudio.swing.view.SwingView;
+import org.lecturestudio.swing.view.ViewPostConstruct;
+import org.lecturestudio.web.api.message.MessengerMessage;
 
-import java.awt.Color;
-import java.awt.Component;
-import java.awt.Dimension;
-import java.awt.KeyboardFocusManager;
-import java.awt.Rectangle;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
-import java.util.Enumeration;
-import java.util.Iterator;
-import java.util.List;
-
-import javax.swing.JFrame;
-import javax.swing.JLabel;
-import javax.swing.JPanel;
-import javax.swing.JScrollPane;
-import javax.swing.JSplitPane;
-import javax.swing.JTabbedPane;
-import javax.swing.JTextArea;
-import javax.swing.JTree;
-import javax.swing.SwingUtilities;
-import javax.swing.ToolTipManager;
+import javax.swing.*;
 import javax.swing.event.AncestorEvent;
 import javax.swing.event.AncestorListener;
 import javax.swing.event.DocumentEvent;
@@ -51,38 +50,15 @@ import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeModel;
 import javax.swing.tree.TreeNode;
 import javax.swing.tree.TreePath;
+import java.awt.*;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
+import java.util.Enumeration;
+import java.util.Iterator;
+import java.util.List;
 
-import org.lecturestudio.core.ExecutableState;
-import org.lecturestudio.core.beans.BooleanProperty;
-import org.lecturestudio.core.controller.RenderController;
-import org.lecturestudio.core.geometry.Matrix;
-import org.lecturestudio.core.input.KeyEvent;
-import org.lecturestudio.core.model.Document;
-import org.lecturestudio.core.model.DocumentOutline;
-import org.lecturestudio.core.model.DocumentOutlineItem;
-import org.lecturestudio.core.model.Page;
-import org.lecturestudio.core.model.SlideNote;
-import org.lecturestudio.core.tool.ToolType;
-import org.lecturestudio.core.view.Action;
-import org.lecturestudio.core.view.ConsumerAction;
-import org.lecturestudio.core.view.PageObjectView;
-import org.lecturestudio.core.view.PresentationParameter;
-import org.lecturestudio.core.view.PresentationParameterProvider;
-import org.lecturestudio.presenter.api.stylus.StylusHandler;
-import org.lecturestudio.presenter.api.view.SlidesView;
-import org.lecturestudio.presenter.swing.input.StylusListener;
-import org.lecturestudio.stylus.awt.AwtStylusManager;
-import org.lecturestudio.swing.components.EditableThumbnailPanel;
-import org.lecturestudio.swing.components.MessageView;
-import org.lecturestudio.swing.components.SlideView;
-import org.lecturestudio.swing.components.ThumbPanel;
-import org.lecturestudio.swing.components.VerticalTab;
-import org.lecturestudio.swing.converter.KeyEventConverter;
-import org.lecturestudio.swing.converter.MatrixConverter;
-import org.lecturestudio.swing.util.SwingUtils;
-import org.lecturestudio.swing.view.SwingView;
-import org.lecturestudio.swing.view.ViewPostConstruct;
-import org.lecturestudio.web.api.message.MessengerMessage;
+import static java.util.Objects.isNull;
+import static java.util.Objects.nonNull;
 
 @SwingView(name = "main-slides")
 public class SwingSlidesView extends JPanel implements SlidesView {
@@ -100,6 +76,8 @@ public class SwingSlidesView extends JPanel implements SlidesView {
 	private Action newPageAction;
 
 	private Action deletePageAction;
+
+	private Action screenCapturePauseAction;
 
 	private double notesDividerPosition;
 
@@ -159,8 +137,20 @@ public class SwingSlidesView extends JPanel implements SlidesView {
 	@Override
 	public void addDocument(Document doc, PresentationParameterProvider ppProvider) {
 		SwingUtils.invoke(() -> {
+
 			// Create the ThumbnailPanel for the TabPane.
-			ThumbPanel thumbPanel = doc.isWhiteboard() ? new EditableThumbnailPanel() : new ThumbPanel();
+			ThumbPanel thumbPanel;
+			switch (doc.getType()) {
+				case WHITEBOARD:
+					thumbPanel = new EditableThumbnailPanel();
+					break;
+				case SCREEN_CAPTURE:
+					thumbPanel = new ScreenCaptureThumbnailPanel();
+					break;
+				default:
+					thumbPanel = new ThumbPanel();
+			}
+
 			thumbPanel.setRenderController(pageRenderer);
 			thumbPanel.setDocument(doc, ppProvider);
 			thumbPanel.addSelectedSlideChangedListener(event -> {
@@ -181,6 +171,14 @@ public class SwingSlidesView extends JPanel implements SlidesView {
 					executeAction(deletePageAction);
 				});
 			}
+
+			// Only need to add pause action because new and delete page buttons are already registered by EditableThumbnailPanel
+			if (thumbPanel instanceof ScreenCaptureThumbnailPanel) {
+				ScreenCaptureThumbnailPanel screenCaptureThumbPanel = (ScreenCaptureThumbnailPanel) thumbPanel;
+				screenCaptureThumbPanel.setOnScreenCapturePause(screenCapturePauseAction);
+			}
+
+
 
 			VerticalTab tab = new VerticalTab(tabPane.getTabPlacement());
 			tab.setText(doc.getName());
@@ -411,6 +409,11 @@ public class SwingSlidesView extends JPanel implements SlidesView {
 	@Override
 	public void setOnDeletePage(Action action) {
 		this.deletePageAction = action;
+	}
+
+	@Override
+	public void setOnScreenCapturePause(Action action) {
+		this.screenCapturePauseAction = action;
 	}
 
 	@Override

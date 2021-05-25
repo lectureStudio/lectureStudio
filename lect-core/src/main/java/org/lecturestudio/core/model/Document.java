@@ -18,7 +18,16 @@
 
 package org.lecturestudio.core.model;
 
-import static java.util.Objects.nonNull;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.lecturestudio.core.geometry.Dimension2D;
+import org.lecturestudio.core.geometry.Rectangle2D;
+import org.lecturestudio.core.model.listener.DocumentChangeListener;
+import org.lecturestudio.core.model.shape.Shape;
+import org.lecturestudio.core.pdf.DocumentRenderer;
+import org.lecturestudio.core.pdf.PdfDocument;
+import org.lecturestudio.core.screencapture.ScreenCaptureDocument;
+import org.lecturestudio.core.util.FileUtils;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -31,23 +40,15 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
 
-import org.lecturestudio.core.geometry.Dimension2D;
-import org.lecturestudio.core.geometry.Rectangle2D;
-import org.lecturestudio.core.model.listener.DocumentChangeListener;
-import org.lecturestudio.core.model.shape.Shape;
-import org.lecturestudio.core.pdf.DocumentRenderer;
-import org.lecturestudio.core.pdf.PdfDocument;
-import org.lecturestudio.core.util.FileUtils;
-
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import static java.util.Objects.nonNull;
 
 /**
  * This class represents a document. Documents consist of a list Pages and can
- * be Whiteboard-Documents or normal Documents. Documents have a handle so that
+ * be Whiteboard-Documents, Screen-Capture-Documents or normal Documents. Documents have a handle so that
  * the PDF-API can associate its specific information with the document.
  * 
  * @author Alex Andres
+ * @author Maximilian Felix Ratzke
  */
 public class Document {
 
@@ -66,6 +67,8 @@ public class Document {
 
 	/** The PDF document. */
 	private PdfDocument pdfDocument;
+
+	private ScreenCaptureDocument screenCaptureDocument;
 	
 	/** The title of the PDF document. */
 	private String title;
@@ -87,16 +90,21 @@ public class Document {
 	}
 	
 	public Document(PdfDocument pdfDocument) {
-		init(pdfDocument);
+		initPDFDocument(pdfDocument);
+		setPageSize(new Dimension2D(640, 480));
+	}
+
+	public Document(ScreenCaptureDocument screenCaptureDocument) {
+		initScreenCapture(screenCaptureDocument);
 		setPageSize(new Dimension2D(640, 480));
 	}
 
 	public DocumentOutline getDocumentOutline() {
-		return pdfDocument.getDocumentOutline();
+		return isScreenCapture() ? screenCaptureDocument.getDocumentOutline() : pdfDocument.getDocumentOutline();
 	}
 
 	public DocumentRenderer getDocumentRenderer() {
-		return pdfDocument.getDocumentRenderer();
+		return isScreenCapture() ? screenCaptureDocument.getDocumentRenderer() : pdfDocument.getDocumentRenderer();
 	}
 
 	public void addChangeListener(DocumentChangeListener listener) {
@@ -129,11 +137,15 @@ public class Document {
 				LOG.error("Close document failed.", e);
 			}
 		}
+		if (screenCaptureDocument != null) {
+			screenCaptureDocument.close();
+			screenCaptureDocument = null;
+		}
 	}
 	
 	public void setPdfDocument(PdfDocument pdfDocument) {
 		close();
-		init(pdfDocument);
+		initPDFDocument(pdfDocument);
 		fireDocumentChange();
 	}
 
@@ -142,11 +154,11 @@ public class Document {
 	}
 
 	public Rectangle2D getPageRect(int pageIndex) {
-		return pdfDocument.getPageMediaBox(pageIndex);
+		return pdfDocument != null ? pdfDocument.getPageMediaBox(pageIndex) : screenCaptureDocument.getScreenCaptureRect(pageIndex);
 	}
 
 	public String getPageText(int pageIndex) {
-		return pdfDocument.getPageText(pageIndex);
+		return pdfDocument != null ? pdfDocument.getPageText(pageIndex) : screenCaptureDocument.getScreenCaptureText(pageIndex);
 	}
 	
 	public List<Rectangle2D> getTextPositions(int pageIndex) {
@@ -160,26 +172,30 @@ public class Document {
 	}
 	
 	public List<URI> getUriActions(int pageIndex) {
-		List<URI> actions = null;
-		
-		try {
-			actions = pdfDocument.getUriActions(pageIndex);
-		}
-		catch (IOException e) {
-			LOG.error("Get URI actions failed.", e);
+		List<URI> actions = new ArrayList<>();
+
+		if (isPDF()) {
+			try {
+				actions = pdfDocument.getUriActions(pageIndex);
+			}
+			catch (IOException e) {
+				LOG.error("Get URI actions failed.", e);
+			}
 		}
 		
 		return actions;
 	}
 	
 	public List<File> getLaunchActions(int pageIndex) {
-		List<File> files = null;
-		
-		try {
-			files = pdfDocument.getLaunchActions(pageIndex);
-		}
-		catch (IOException e) {
-			LOG.error("Get launch actions failed.", e);
+		List<File> files = new ArrayList<>();
+
+		if (isPDF()) {
+			try {
+				files = pdfDocument.getLaunchActions(pageIndex);
+			}
+			catch (IOException e) {
+				LOG.error("Get launch actions failed.", e);
+			}
 		}
 		
 		return files;
@@ -200,7 +216,9 @@ public class Document {
     }
 
 	public void setTitle(String title) {
-		pdfDocument.setTitle(title);
+		if (pdfDocument != null) {
+			pdfDocument.setTitle(title);
+		}
 		this.title = title;
 	}
 	
@@ -209,11 +227,13 @@ public class Document {
 	}
 	
 	public void setAuthor(String author) {
-		pdfDocument.setAuthor(author);
+		if (pdfDocument != null) {
+			pdfDocument.setAuthor(author);
+		}
 	}
 	
 	public String getAuthor() {
-		return pdfDocument.getAuthor();
+		return pdfDocument != null ? pdfDocument.getAuthor() : "";
 	}
 
 	/**
@@ -270,9 +290,11 @@ public class Document {
 	public boolean removePage(Page page) {
 		int pageNumber = getPageIndex(page);
 		boolean isSelected = pageNumber == currentPageNumber;
-		
+
 		if (pages.remove(page)) {
-			pdfDocument.removePage(pageNumber);
+			if (isPDF()) {
+				pdfDocument.removePage(pageNumber);
+			}
 
 			if (isSelected) {
 				currentPageNumber = -1;
@@ -336,7 +358,7 @@ public class Document {
 	}
 
 	public Page createPage() {
-		int pageIndex = pdfDocument.createPage(pageSize);
+		int pageIndex = pdfDocument != null ? pdfDocument.createPage(pageSize) : screenCaptureDocument.createScreenCapture();
 
 		Page newPage = new Page(this, pageIndex);
 		addPage(newPage);
@@ -371,7 +393,11 @@ public class Document {
 	public boolean isQuiz() {
 		return type == DocumentType.QUIZ;
 	}
-	
+
+	public boolean isScreenCapture() {
+		return type == DocumentType.SCREEN_CAPTURE;
+	}
+
 	/**
 	 * Returns the index of the given page or -1 if the page isn't part of this
 	 * document
@@ -398,6 +424,10 @@ public class Document {
 	
 	public PdfDocument getPdfDocument() {
 		return pdfDocument;
+	}
+
+	public ScreenCaptureDocument getScreenCaptureDocument() {
+		return screenCaptureDocument;
 	}
 	
 	public String getChecksum(MessageDigest digest) throws IOException {
@@ -474,9 +504,17 @@ public class Document {
 
 	private synchronized Page importPage(Page page, Rectangle2D pageRect)
 			throws IOException {
-		PdfDocument pagePdfDocument = page.getDocument().getPdfDocument();
-		int pageIndex = pdfDocument.importPage(pagePdfDocument,
-				page.getPageNumber(), pageRect);
+
+		int pageIndex;
+		if (isScreenCapture()) {
+			ScreenCaptureDocument screenCaptureDocument = page.getDocument().getScreenCaptureDocument();
+			pageIndex = screenCaptureDocument.importScreenCapture(screenCaptureDocument, page.getPageNumber(), pageRect);
+		}
+		else {
+			PdfDocument pagePdfDocument = page.getDocument().getPdfDocument();
+			pageIndex = pdfDocument.importPage(pagePdfDocument,
+					page.getPageNumber(), pageRect);
+		}
 
 		if (pageIndex == -1) {
 			return null;
@@ -489,10 +527,12 @@ public class Document {
 	}
 
 	public void replacePage(Page page, Page newPage) throws IOException {
-		PdfDocument newPdfDocument = newPage.getDocument().getPdfDocument();
-		int docIndex = newPage.getPageNumber();
+		if (isPDF()) {
+			PdfDocument newPdfDocument = newPage.getDocument().getPdfDocument();
+			int docIndex = newPage.getPageNumber();
 
-		pdfDocument.replacePage(page.getPageNumber(), newPdfDocument, docIndex);
+			pdfDocument.replacePage(page.getPageNumber(), newPdfDocument, docIndex);
+		}
 	}
 
 	private void fireDocumentChange() {
@@ -513,7 +553,7 @@ public class Document {
 		}
 	}
 
-	private void init(PdfDocument pdfDocument) {
+	private void initPDFDocument(PdfDocument pdfDocument) {
 		this.pdfDocument = pdfDocument;
 		this.title = pdfDocument.getTitle();
 		
@@ -527,28 +567,46 @@ public class Document {
 		loadPages();
 	}
 
+	private void initScreenCapture(ScreenCaptureDocument screenCaptureDocument) {
+		this.screenCaptureDocument = screenCaptureDocument;
+		setDocumentType(DocumentType.SCREEN_CAPTURE);
+		loadPages();
+	}
+
 	private void loadPages() {
 		pages.clear();
 
-		int pageCount = pdfDocument.getPageCount();
 
-		for (int number = 0; number < pageCount; number++) {
-			Page page = new Page(this, number);
+		int pageCount;
+		if (isPDF()) {
+			pageCount = pdfDocument.getPageCount();
 
-			// Add embedded shapes.
-			List<Shape> shapes = pdfDocument.getEditableShapes(number);
-			if (shapes != null) {
-				for (Shape shape : shapes) {
-					page.addShape(shape);
+			for (int number = 0; number < pageCount; number++) {
+				Page page = new Page(this, number);
+
+				// Add embedded shapes.
+				List<Shape> shapes = pdfDocument.getEditableShapes(number);
+				if (shapes != null) {
+					for (Shape shape : shapes) {
+						page.addShape(shape);
+					}
 				}
-			}
 
-			pages.add(page);
+				pages.add(page);
+			}
+		} else {
+			pageCount = screenCaptureDocument.getScreenCaptureCount();
+			for (int i = 0; i < pageCount; i++) {
+				Page page = new Page(this, i);
+
+				// TODO: Load Editable Shapes from screen capture
+
+				pages.add(page);
+			}
 		}
 
 		if (currentPageNumber > pageCount - 1) {
 			currentPageNumber = 0;
 		}
 	}
-
 }

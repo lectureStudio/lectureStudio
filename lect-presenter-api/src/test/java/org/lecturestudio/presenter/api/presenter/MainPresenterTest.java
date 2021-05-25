@@ -18,17 +18,8 @@
 
 package org.lecturestudio.presenter.api.presenter;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-
-import java.io.IOException;
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.concurrent.atomic.AtomicInteger;
-import java.util.function.Predicate;
-
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.lecturestudio.core.app.ApplicationContext;
 import org.lecturestudio.core.app.configuration.AudioConfiguration;
 import org.lecturestudio.core.controller.ToolController;
@@ -39,25 +30,22 @@ import org.lecturestudio.core.presenter.Presenter;
 import org.lecturestudio.core.recording.DocumentRecorder;
 import org.lecturestudio.core.service.DocumentService;
 import org.lecturestudio.core.util.ShutdownHandler;
-import org.lecturestudio.core.view.Action;
-import org.lecturestudio.core.view.ConsumerAction;
-import org.lecturestudio.core.view.View;
-import org.lecturestudio.core.view.ViewContextFactory;
-import org.lecturestudio.core.view.ViewLayer;
+import org.lecturestudio.core.view.*;
 import org.lecturestudio.presenter.api.config.PresenterConfiguration;
 import org.lecturestudio.presenter.api.input.Shortcut;
 import org.lecturestudio.presenter.api.recording.FileLectureRecorder;
+import org.lecturestudio.presenter.api.recording.ScreenRecorder;
 import org.lecturestudio.presenter.api.service.BookmarkService;
 import org.lecturestudio.presenter.api.service.RecordingService;
-import org.lecturestudio.presenter.api.view.MainView;
-import org.lecturestudio.presenter.api.view.QuitRecordingView;
-import org.lecturestudio.presenter.api.view.RestoreRecordingView;
-import org.lecturestudio.presenter.api.view.SaveDocumentsView;
-import org.lecturestudio.presenter.api.view.SettingsView;
-import org.lecturestudio.presenter.api.view.SlidesView;
+import org.lecturestudio.presenter.api.view.*;
 
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
+import java.io.IOException;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.function.Predicate;
+
+import static org.junit.jupiter.api.Assertions.*;
 
 class MainPresenterTest extends PresenterTest {
 
@@ -81,8 +69,9 @@ class MainPresenterTest extends PresenterTest {
 		bookmarkService = context.getBookmarkService();
 
 		FileLectureRecorder recorder = new FileLectureRecorder(documentService, audioConfig, context.getRecordingDirectory());
+		ScreenRecorder screenRecorder = new ScreenRecorder();
 
-		recordingService = new RecordingService(context, recorder);
+		recordingService = new RecordingService(context, recorder, screenRecorder);
 
 		viewFactory = new ViewContextMockFactory() {
 			@Override

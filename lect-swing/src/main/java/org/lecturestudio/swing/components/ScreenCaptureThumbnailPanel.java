@@ -16,10 +16,25 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package org.lecturestudio.core.model;
+package org.lecturestudio.swing.components;
 
-public enum DocumentType {
+import org.lecturestudio.core.view.Action;
+import org.lecturestudio.swing.util.SwingUtils;
 
-	PDF, WHITEBOARD, QUIZ, SCREEN_CAPTURE
-	
+import javax.swing.*;
+
+public class ScreenCaptureThumbnailPanel extends EditableThumbnailPanel {
+
+    private final JButton pauseCaptureButton;
+
+    public ScreenCaptureThumbnailPanel() {
+        super();
+
+        pauseCaptureButton = new JButton("Pause");
+        container.add(pauseCaptureButton);
+    }
+
+    public void setOnScreenCapturePause(Action action) {
+        SwingUtils.bindAction(pauseCaptureButton, action);
+    }
 }

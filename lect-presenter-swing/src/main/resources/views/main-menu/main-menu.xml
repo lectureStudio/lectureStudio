@@ -28,6 +28,9 @@
 		<separator />
 		<checkboxmenuitem id="gridMenuItem" text="menu.grid" accelerator="Q" enabled="false" />
 	</menu>
+	<menu text="menu.screenCapture">
+		<menuitem id="newScreenCaptureMenuItem" text="menu.screenCapture.new" />
+	</menu>
 	<menu text="menu.presentation">
 		<menuitem id="startRecordingMenuItem" text="menu.recording.start" enabled="false" />
 		<menuitem id="stopRecordingMenuItem" text="menu.recording.stop" enabled="false" />

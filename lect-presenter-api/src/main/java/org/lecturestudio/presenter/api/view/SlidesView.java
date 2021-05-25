@@ -18,27 +18,18 @@
 
 package org.lecturestudio.presenter.api.view;
 
-import java.util.List;
-
 import org.lecturestudio.core.ExecutableState;
 import org.lecturestudio.core.beans.BooleanProperty;
 import org.lecturestudio.core.controller.RenderController;
 import org.lecturestudio.core.geometry.Matrix;
 import org.lecturestudio.core.input.KeyEvent;
-import org.lecturestudio.core.model.Document;
-import org.lecturestudio.core.model.DocumentOutline;
-import org.lecturestudio.core.model.DocumentOutlineItem;
-import org.lecturestudio.core.model.Page;
-import org.lecturestudio.core.model.SlideNote;
+import org.lecturestudio.core.model.*;
 import org.lecturestudio.core.tool.ToolType;
-import org.lecturestudio.core.view.Action;
-import org.lecturestudio.core.view.ConsumerAction;
-import org.lecturestudio.core.view.PageObjectView;
-import org.lecturestudio.core.view.PresentationParameter;
-import org.lecturestudio.core.view.PresentationParameterProvider;
-import org.lecturestudio.core.view.View;
+import org.lecturestudio.core.view.*;
 import org.lecturestudio.presenter.api.stylus.StylusHandler;
 import org.lecturestudio.web.api.message.MessengerMessage;
+
+import java.util.List;
 
 public interface SlidesView extends View {
 
@@ -93,6 +84,8 @@ public interface SlidesView extends View {
 	void setOnNewPage(Action action);
 
 	void setOnDeletePage(Action action);
+
+	void setOnScreenCapturePause(Action action);
 
 	void setOnOutlineItem(ConsumerAction<DocumentOutlineItem> action);
 

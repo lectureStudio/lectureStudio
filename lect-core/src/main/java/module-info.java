@@ -25,6 +25,9 @@ module org.lecturestudio.core {
 	requires org.bouncycastle.pkix;
 	requires org.knowm.xchart;
 	requires org.lecturestudio.javaffmpeg;
+	requires com.sun.jna;
+	requires com.sun.jna.platform;
+	requires webrtc.java;
 
 	exports org.lecturestudio.core;
 	exports org.lecturestudio.core.app;
@@ -67,6 +70,7 @@ module org.lecturestudio.core {
 	exports org.lecturestudio.core.recording.edit;
 	exports org.lecturestudio.core.recording.file;
 	exports org.lecturestudio.core.render;
+	exports org.lecturestudio.core.screencapture;
 	exports org.lecturestudio.core.service;
 	exports org.lecturestudio.core.text;
 	exports org.lecturestudio.core.tool;

@@ -18,24 +18,9 @@
 
 package org.lecturestudio.presenter.api.recording;
 
-import static java.util.Objects.isNull;
-import static java.util.Objects.nonNull;
-
 import com.google.common.eventbus.Subscribe;
-
-import java.io.File;
-import java.io.IOException;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.Stack;
-import java.util.Timer;
-import java.util.TimerTask;
-
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-
 import org.lecturestudio.core.ExecutableException;
 import org.lecturestudio.core.ExecutableState;
 import org.lecturestudio.core.app.configuration.AudioConfiguration;
@@ -53,22 +38,23 @@ import org.lecturestudio.core.bus.event.RecordActionEvent;
 import org.lecturestudio.core.io.RandomAccessAudioStream;
 import org.lecturestudio.core.model.Document;
 import org.lecturestudio.core.model.Page;
-import org.lecturestudio.core.recording.LectureRecorder;
-import org.lecturestudio.core.recording.Recording;
-import org.lecturestudio.core.recording.RecordingHeader;
-import org.lecturestudio.core.recording.file.RecordingFileWriter;
-import org.lecturestudio.core.recording.RecordedAudio;
-import org.lecturestudio.core.recording.RecordedDocument;
-import org.lecturestudio.core.recording.RecordedEvents;
-import org.lecturestudio.core.recording.RecordedPage;
+import org.lecturestudio.core.recording.*;
 import org.lecturestudio.core.recording.action.PlaybackAction;
 import org.lecturestudio.core.recording.action.StaticShapeAction;
+import org.lecturestudio.core.recording.file.RecordingFileWriter;
 import org.lecturestudio.core.service.DocumentService;
 import org.lecturestudio.core.util.FileUtils;
 import org.lecturestudio.core.util.ProgressCallback;
 import org.lecturestudio.media.avdev.AVdevAudioInputDevice;
 import org.lecturestudio.media.avdev.AvdevAudioRecorder;
 import org.lecturestudio.presenter.api.event.RecordingStateEvent;
+
+import java.io.File;
+import java.io.IOException;
+import java.util.*;
+
+import static java.util.Objects.isNull;
+import static java.util.Objects.nonNull;
 
 public class FileLectureRecorder extends LectureRecorder {
 
@@ -196,6 +182,7 @@ public class FileLectureRecorder extends LectureRecorder {
 		recording.setRecordedAudio(new RecordedAudio(audioStream));
 		recording.setRecordedEvents(new RecordedEvents(recordedPages));
 		recording.setRecordedDocument(new RecordedDocument(recordedDocument));
+
 
 		RecordingFileWriter.write(recording, destFile, progressCallback);
 

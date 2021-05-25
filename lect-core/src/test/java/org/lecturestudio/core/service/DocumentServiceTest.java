@@ -18,23 +18,19 @@
 
 package org.lecturestudio.core.service;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertNull;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-
-import java.io.File;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.ExecutionException;
-
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.lecturestudio.core.CoreTest;
 import org.lecturestudio.core.model.Document;
 import org.lecturestudio.core.model.DocumentList;
 import org.lecturestudio.core.model.DocumentType;
 import org.lecturestudio.core.model.Page;
 
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
+import java.io.File;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutionException;
+
+import static org.junit.jupiter.api.Assertions.*;
 
 class DocumentServiceTest extends CoreTest {
 
@@ -247,6 +243,98 @@ class DocumentServiceTest extends CoreTest {
 		assertEquals(page1, doc.getCurrentPage());
 
 		documentService.deleteWhiteboardPage();
+
+		assertEquals(1, doc.getPageCount());
+	}
+
+	@Test
+	void testAddScreenCapture() throws Exception {
+		CompletableFuture<Document> future = documentService.addScreenCapture();
+
+		Document doc = future.get();
+
+		assertNotNull(doc);
+		assertEquals(DocumentType.SCREEN_CAPTURE, doc.getType());
+		assertEquals(1, doc.getPageCount());
+	}
+
+	@Test
+	void testOpenScreenCapture() throws Exception {
+		documentService.openScreenCapture().get();
+
+		DocumentList documentList = documentService.getDocuments();
+		Document doc = documentList.getSelectedDocument();
+
+		assertEquals(1, documentList.getScreenCaptureCount());
+		assertEquals(DocumentType.SCREEN_CAPTURE, doc.getType());
+		assertEquals(1, doc.getPageCount());
+	}
+
+	@Test
+	void testAddOpenScreenCapture() throws Exception {
+		documentService.addScreenCapture().get();
+		documentService.openScreenCapture().get();
+
+		DocumentList documentList = documentService.getDocuments();
+		Document doc = documentList.getSelectedDocument();
+
+		assertEquals(1, documentList.getScreenCaptureCount());
+		assertEquals(DocumentType.SCREEN_CAPTURE, doc.getType());
+		assertEquals(1, doc.getPageCount());
+	}
+
+	@Test
+	void testToggleScreenCapture() throws Exception {
+		Document doc = new Document();
+		doc.setDocumentType(DocumentType.SCREEN_CAPTURE);
+
+		documentService.addDocument(doc);
+		documentService.selectDocument(doc);
+
+		assertEquals(doc, documentService.getDocuments().getSelectedDocument());
+
+		documentService.toggleScreenCapture();
+
+		Document selected = documentService.getDocuments().getSelectedDocument();
+		assertEquals(DocumentType.SCREEN_CAPTURE, selected.getType());
+
+		documentService.toggleScreenCapture();
+
+		assertEquals(doc, documentService.getDocuments().getSelectedDocument());
+	}
+
+	@Test
+	void testCreateScreenCapturePage() throws Exception {
+		assertThrows(IllegalArgumentException.class, () -> documentService.createScreenCapturePage());
+
+		Document doc = documentService.openScreenCapture().get();
+		documentService.createScreenCapturePage();
+		Page page = documentService.createScreenCapturePage();
+
+		assertEquals(3, doc.getPageCount());
+		assertEquals(page, doc.getCurrentPage());
+	}
+
+	@Test
+	void testDeleteScreenCapturePage() throws Exception {
+		assertThrows(IllegalArgumentException.class, () -> documentService.deleteScreenCapturePage());
+
+		Document doc = documentService.openScreenCapture().get();
+		Page page1 = doc.getCurrentPage();
+		Page page2 = documentService.createScreenCapturePage();
+		documentService.createScreenCapturePage();
+
+		documentService.deleteScreenCapturePage();
+
+		assertEquals(2, doc.getPageCount());
+		assertEquals(page2, doc.getCurrentPage());
+
+		documentService.deleteScreenCapturePage();
+
+		assertEquals(1, doc.getPageCount());
+		assertEquals(page1, doc.getCurrentPage());
+
+		documentService.deleteScreenCapturePage();
 
 		assertEquals(1, doc.getPageCount());
 	}

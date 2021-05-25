@@ -18,66 +18,26 @@
 
 package org.lecturestudio.swing.swixml;
 
-import static java.util.Objects.nonNull;
-
-import java.awt.Container;
-import java.util.Locale;
-import java.util.ResourceBundle;
-
-import javax.swing.Icon;
-import javax.swing.ImageIcon;
-import javax.swing.JButton;
-import javax.swing.JComboBox;
-import javax.swing.JPanel;
-import javax.swing.JRadioButton;
-import javax.swing.JTabbedPane;
-import javax.swing.JTable;
-import javax.swing.JTextField;
-import javax.swing.JToggleButton;
-import javax.swing.JTree;
-import javax.swing.table.TableColumn;
-
 import net.atlanticbb.tantlinger.shef.HTMLEditorPane;
-
 import org.lecturestudio.core.inject.Injector;
-import org.lecturestudio.swing.components.CameraPreviewPanel;
-import org.lecturestudio.swing.components.ColorChooserButton;
-import org.lecturestudio.swing.components.DisplayPanel;
-import org.lecturestudio.swing.components.FontPickerButton;
-import org.lecturestudio.swing.components.IPTextField;
-import org.lecturestudio.swing.components.LevelMeter;
-import org.lecturestudio.swing.components.MessageView;
-import org.lecturestudio.swing.components.PenToolPreview;
-import org.lecturestudio.swing.components.PointerToolPreview;
-import org.lecturestudio.swing.components.RecordButton;
-import org.lecturestudio.swing.components.SettingsTab;
-import org.lecturestudio.swing.components.SlideView;
-import org.lecturestudio.swing.components.TeXFontPickerButton;
-import org.lecturestudio.swing.components.TitledSeparator;
-import org.lecturestudio.swing.components.ToggleComboButton;
-import org.lecturestudio.swing.components.ToolColorPickerButton;
-import org.lecturestudio.swing.components.ToolGroupButton;
+import org.lecturestudio.swing.components.*;
 import org.lecturestudio.swing.swixml.converter.IconConverter;
 import org.lecturestudio.swing.swixml.factory.AbstractButtonFactory;
 import org.lecturestudio.swing.swixml.factory.AbstractInjectButtonFactory;
 import org.lecturestudio.swing.swixml.factory.InjectViewFactory;
-import org.lecturestudio.swing.swixml.processor.ComboBoxProcessor;
-import org.lecturestudio.swing.swixml.processor.PanelProcessor;
-import org.lecturestudio.swing.swixml.processor.TabProcessor;
-import org.lecturestudio.swing.swixml.processor.TabbedPaneProcessor;
-import org.lecturestudio.swing.swixml.processor.TableColumnProcessor;
-import org.lecturestudio.swing.swixml.processor.TableProcessor;
-import org.lecturestudio.swing.swixml.processor.TextFieldProcessor;
-import org.lecturestudio.swing.swixml.processor.TreeProcessor;
+import org.lecturestudio.swing.swixml.processor.*;
 import org.lecturestudio.swing.table.ButtonEditor;
 import org.lecturestudio.swing.table.ButtonRenderer;
-
-import org.swixml.ConverterLibrary;
-import org.swixml.Localizer;
-import org.swixml.SwingEngine;
-import org.swixml.SwingTagLibrary;
-import org.swixml.TagLibrary;
+import org.swixml.*;
 import org.swixml.factory.BeanFactory;
+
+import javax.swing.*;
+import javax.swing.table.TableColumn;
+import java.awt.*;
+import java.util.Locale;
+import java.util.ResourceBundle;
+
+import static java.util.Objects.nonNull;
 
 public class ViewLoader<T extends Container> extends SwingEngine<T> {
 
@@ -143,6 +103,7 @@ public class ViewLoader<T extends Container> extends SwingEngine<T> {
 		tagLibrary.registerTag("FontPickerButton", new AbstractInjectButtonFactory(FontPickerButton.class, injector));
 		tagLibrary.registerTag("TeXFontPickerButton", new AbstractInjectButtonFactory(TeXFontPickerButton.class, injector));
 		tagLibrary.registerTag("ToolColorPickerButton", new AbstractInjectButtonFactory(ToolColorPickerButton.class, injector));
+		tagLibrary.registerTag("ScreenCaptureSourcePickerButton", new AbstractInjectButtonFactory(ScreenCaptureSourcePickerButton.class, injector));
 	}
 
 	@Override

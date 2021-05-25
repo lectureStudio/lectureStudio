@@ -18,13 +18,21 @@
 
 package org.lecturestudio.presenter.api.recording;
 
-import java.io.BufferedOutputStream;
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.io.RandomAccessFile;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.lecturestudio.core.audio.AudioFormat;
+import org.lecturestudio.core.io.RandomAccessAudioStream;
+import org.lecturestudio.core.io.RandomAccessStream;
+import org.lecturestudio.core.io.WaveHeader;
+import org.lecturestudio.core.io.WaveOutputStream;
+import org.lecturestudio.core.model.Document;
+import org.lecturestudio.core.recording.*;
+import org.lecturestudio.core.recording.file.RecordingFileWriter;
+import org.lecturestudio.core.util.AudioUtils;
+import org.lecturestudio.core.util.FileUtils;
+import org.lecturestudio.core.util.ProgressCallback;
+
+import java.io.*;
 import java.nio.file.DirectoryStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -35,26 +43,6 @@ import java.util.Date;
 import java.util.Stack;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-
-import org.lecturestudio.core.audio.AudioFormat;
-import org.lecturestudio.core.io.RandomAccessAudioStream;
-import org.lecturestudio.core.io.RandomAccessStream;
-import org.lecturestudio.core.io.WaveHeader;
-import org.lecturestudio.core.io.WaveOutputStream;
-import org.lecturestudio.core.model.Document;
-import org.lecturestudio.core.recording.Recording;
-import org.lecturestudio.core.recording.RecordingHeader;
-import org.lecturestudio.core.recording.file.RecordingFileWriter;
-import org.lecturestudio.core.recording.RecordedAudio;
-import org.lecturestudio.core.recording.RecordedDocument;
-import org.lecturestudio.core.recording.RecordedEvents;
-import org.lecturestudio.core.recording.RecordedPage;
-import org.lecturestudio.core.util.AudioUtils;
-import org.lecturestudio.core.util.FileUtils;
-import org.lecturestudio.core.util.ProgressCallback;
-
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 
 public class RecordingBackup {
 
@@ -96,7 +84,9 @@ public class RecordingBackup {
 		File audioFile = new File(backupDir + File.separator + checkpointName + ".wav");
 		File documentFile = new File(backupDir + File.separator + checkpointName + ".pdf");
 		File eventsFile = new File(backupDir + File.separator + checkpointName + ".dat");
-		
+
+		// TODO: Add video recording backup
+
 		// Read WAV header.
 		InputStream audioFileStream = new RandomAccessStream(audioFile);
 		WaveHeader wavHeader = new WaveHeader(audioFileStream);

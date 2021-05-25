@@ -18,9 +18,6 @@
 
 package org.lecturestudio.presenter.javafx.view;
 
-import static java.util.Objects.isNull;
-import static java.util.Objects.nonNull;
-
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.geometry.Insets;
@@ -34,7 +31,6 @@ import javafx.scene.layout.BackgroundFill;
 import javafx.scene.layout.CornerRadii;
 import javafx.scene.layout.FlowPane;
 import javafx.scene.paint.Paint;
-
 import org.lecturestudio.core.ExecutableState;
 import org.lecturestudio.core.graphics.Color;
 import org.lecturestudio.core.model.Document;
@@ -49,16 +45,15 @@ import org.lecturestudio.core.view.ConsumerAction;
 import org.lecturestudio.core.view.PresentationParameter;
 import org.lecturestudio.javafx.beans.converter.ColorConverter;
 import org.lecturestudio.javafx.beans.converter.FontConverter;
-import org.lecturestudio.javafx.control.ColorPaletteButton;
-import org.lecturestudio.javafx.control.ExtButton;
-import org.lecturestudio.javafx.control.ExtToggleButton;
-import org.lecturestudio.javafx.control.FontPickerButton;
-import org.lecturestudio.javafx.control.TeXFontPickerButton;
+import org.lecturestudio.javafx.control.*;
 import org.lecturestudio.javafx.util.FxUtils;
 import org.lecturestudio.javafx.view.FxmlView;
 import org.lecturestudio.presenter.api.view.ToolbarView;
 import org.lecturestudio.presenter.javafx.control.RecordButton;
 import org.lecturestudio.presenter.javafx.control.ToolGroupButton;
+
+import static java.util.Objects.isNull;
+import static java.util.Objects.nonNull;
 
 @FxmlView(name = "main-toolbar", presenter = org.lecturestudio.presenter.api.presenter.ToolbarPresenter.class)
 public class FxToolbarView extends FlowPane implements ToolbarView {
@@ -374,6 +369,11 @@ public class FxToolbarView extends FlowPane implements ToolbarView {
 	@Override
 	public void setOnWhiteboard(Action action) {
 		FxUtils.bindAction(whiteboardButton, action);
+	}
+
+	@Override
+	public void setOnScreenCapture(Action action) {
+
 	}
 
 	@Override

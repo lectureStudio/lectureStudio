@@ -18,9 +18,19 @@
 
 package org.lecturestudio.core.service;
 
-import static java.util.Objects.isNull;
-import static java.util.Objects.nonNull;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.lecturestudio.core.app.ApplicationContext;
+import org.lecturestudio.core.app.configuration.Configuration;
+import org.lecturestudio.core.bus.event.DocumentEvent;
+import org.lecturestudio.core.bus.event.PageEvent;
+import org.lecturestudio.core.geometry.Dimension2D;
+import org.lecturestudio.core.geometry.Rectangle2D;
+import org.lecturestudio.core.model.*;
+import org.lecturestudio.core.screencapture.ScreenCaptureDocument;
 
+import javax.inject.Inject;
+import javax.inject.Singleton;
 import java.io.File;
 import java.io.IOException;
 import java.util.Date;
@@ -30,23 +40,8 @@ import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionException;
 
-import javax.inject.Inject;
-import javax.inject.Singleton;
-
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-
-import org.lecturestudio.core.app.ApplicationContext;
-import org.lecturestudio.core.app.configuration.Configuration;
-import org.lecturestudio.core.bus.event.DocumentEvent;
-import org.lecturestudio.core.bus.event.PageEvent;
-import org.lecturestudio.core.geometry.Dimension2D;
-import org.lecturestudio.core.geometry.Rectangle2D;
-import org.lecturestudio.core.model.Document;
-import org.lecturestudio.core.model.DocumentList;
-import org.lecturestudio.core.model.DocumentType;
-import org.lecturestudio.core.model.Page;
-import org.lecturestudio.core.model.RecentDocument;
+import static java.util.Objects.isNull;
+import static java.util.Objects.nonNull;
 
 @Singleton
 public class DocumentService {
@@ -132,6 +127,67 @@ public class DocumentService {
 		}
 		else {
 			selectDocument(documents.getLastNonWhiteboard());
+		}
+	}
+
+	/**
+	 * Creates and selects a new screen capture.
+	 */
+	public CompletableFuture<Document> addScreenCapture() {
+		return CompletableFuture.supplyAsync(() -> {
+			Document screenCapture;
+
+			try {
+				screenCapture = createScreenCapture();
+			}
+			catch (Exception e) {
+				throw new RuntimeException("Create screen capture failed");
+			}
+
+			addDocument(screenCapture);
+			selectDocument(screenCapture);
+
+			return screenCapture;
+		});
+	}
+
+	/**
+	 * Opens a screen capture document. If no screen captures are present, a new screen capture
+	 * is created. If more than one screen capture is present, then the first screen capture
+	 * in the document list will be opened.
+	 */
+	public CompletableFuture<Document> openScreenCapture() {
+		return CompletableFuture.supplyAsync(() -> {
+			Document screenCapture = documents.getFirstScreenCapture();
+
+			if (isNull(screenCapture)) {
+				try {
+					screenCapture = createScreenCapture();
+				}
+				catch (IOException e) {
+					throw new CompletionException("Create screen capture failed", e);
+				}
+
+				addDocument(screenCapture);
+			}
+
+			selectDocument(screenCapture);
+			return screenCapture;
+		});
+	}
+
+	/**
+	 * Toggles screen capture visibility. If a screen capture is opened and visible, the
+	 * last non-screen capture document will be shown.
+	 */
+	public void toggleScreenCapture() {
+		Document selectedDocument = documents.getSelectedDocument();
+
+		if (isNull(selectedDocument) || !selectedDocument.isScreenCapture()) {
+			openScreenCapture().join();
+		}
+		else {
+			selectDocument(documents.getLastNonScreenCapture());
 		}
 	}
 
@@ -264,25 +320,42 @@ public class DocumentService {
 			throw new IllegalArgumentException("No whiteboard selected");
 		}
 
-		if (selectedDocument.getPageCount() > 1) {
-			Page selectedPage = selectedDocument.getCurrentPage();
+		deletePage(selectedDocument);
+	}
 
-			if (selectedDocument.removePage(selectedPage)) {
-				context.getEventBus().post(new PageEvent(selectedPage, PageEvent.Type.REMOVED));
+	/**
+	 * Creates a page on the active screen capture. Does nothing if the active document
+	 * is not a screen capture.
+	 */
+	public Page createScreenCapturePage() {
+		Document selectedDocument = documents.getSelectedDocument();
 
-				// Check if the removed page was selected.
-				int pageNumber = selectedPage.getPageNumber();
+		if (nonNull(selectedDocument) && selectedDocument.isScreenCapture()) {
+			Page page = selectedDocument.createPage();
 
-				if (pageNumber == selectedDocument.getPages().size()) {
-					pageNumber--;
-				}
+			context.getEventBus().post(new PageEvent(page, PageEvent.Type.CREATED));
 
-				selectPage(selectedDocument, pageNumber);
-			}
+			selectPage(selectedDocument, page.getPageNumber());
+
+			return page;
 		}
-		else {
-			selectedDocument.getCurrentPage().reset();
+
+		throw new IllegalArgumentException("No screen capture selected");
+	}
+
+	/**
+	 * Removes the selected page on the active screen capture. Does nothing if the
+	 * selected Document is not a screen capture. If this would lead to an empty screen capture,
+	 * a new blank page is set as the first page of the screen capture.
+	 */
+	public void deleteScreenCapturePage() {
+		Document selectedDocument = documents.getSelectedDocument();
+
+		if (isNull(selectedDocument) || !selectedDocument.isScreenCapture()) {
+			throw new IllegalArgumentException("No screen capture selected");
 		}
+
+		deletePage(selectedDocument);
 	}
 
 	/**
@@ -343,6 +416,28 @@ public class DocumentService {
 		}
 	}
 
+	private void deletePage(Document document) {
+		if (document.getPageCount() > 1) {
+			Page selectedPage = document.getCurrentPage();
+
+			if (document.removePage(selectedPage)) {
+				context.getEventBus().post(new PageEvent(selectedPage, PageEvent.Type.REMOVED));
+
+				// Check if the removed page was selected.
+				int pageNumber = selectedPage.getPageNumber();
+
+				if (pageNumber == document.getPages().size()) {
+					pageNumber--;
+				}
+
+				selectPage(document, pageNumber);
+			}
+		}
+		else {
+			document.getCurrentPage().reset();
+		}
+	}
+
 	/**
 	 * Creates a new whiteboard.
 	 *
@@ -368,6 +463,25 @@ public class DocumentService {
 		whiteboard.createPage();
 
 		return whiteboard;
+	}
+
+	private Document createScreenCapture() throws IOException {
+		Document prevDoc = getDocuments().getSelectedDocument();
+		String name = "ScreenCapture-" + documents.getScreenCaptureCount();
+
+		Document screenCapture = new Document(new ScreenCaptureDocument());
+		screenCapture.setTitle(name);
+
+		if (nonNull(prevDoc)) {
+			Rectangle2D pageRect = prevDoc.getPage(0).getPageRect();
+			screenCapture.setPageSize(new Dimension2D(
+					pageRect.getWidth(),
+					pageRect.getHeight()
+			));
+		}
+
+		screenCapture.createPage();
+		return screenCapture;
 	}
 
 	private void updateRecentDocuments(Document doc) {

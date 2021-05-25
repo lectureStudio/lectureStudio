@@ -16,10 +16,28 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package org.lecturestudio.core.model;
+package org.lecturestudio.swing.renderer;
 
-public enum DocumentType {
+import org.lecturestudio.core.model.shape.ImageShape;
+import org.lecturestudio.core.model.shape.Shape;
 
-	PDF, WHITEBOARD, QUIZ, SCREEN_CAPTURE
-	
+import java.awt.*;
+
+/**
+ * Renderer for ImageShape instances.
+ *
+ * @author Maximilian Felix Ratzke
+ */
+public class ImageRenderer extends BaseRenderer {
+
+    @Override
+    public Class<? extends Shape> forClass() {
+        return ImageShape.class;
+    }
+
+    @Override
+    protected void renderPrivate(Shape shape, Graphics2D context) {
+        ImageShape imageShape = (ImageShape) shape;
+        context.drawImage(imageShape.getImage(), null, 0, 0);
+    }
 }

@@ -18,19 +18,14 @@
 
 package org.lecturestudio.swing.components;
 
-import java.awt.BorderLayout;
-import java.awt.Color;
-import java.awt.FlowLayout;
+import org.lecturestudio.core.view.Action;
+import org.lecturestudio.swing.util.SwingUtils;
 
-import javax.swing.Box;
-import javax.swing.JButton;
-import javax.swing.JPanel;
+import javax.swing.*;
 import javax.swing.border.CompoundBorder;
 import javax.swing.border.EmptyBorder;
 import javax.swing.border.MatteBorder;
-
-import org.lecturestudio.core.view.Action;
-import org.lecturestudio.swing.util.SwingUtils;
+import java.awt.*;
 
 public class EditableThumbnailPanel extends ThumbPanel {
 
@@ -38,6 +33,7 @@ public class EditableThumbnailPanel extends ThumbPanel {
 
 	private final JButton deletePageButton;
 
+	protected final JPanel container;
 
 	public EditableThumbnailPanel() {
 		super();
@@ -45,7 +41,7 @@ public class EditableThumbnailPanel extends ThumbPanel {
 		addPageButton = new JButton("+");
 		deletePageButton = new JButton("-");
 
-		JPanel container = new JPanel();
+		container = new JPanel();
 		container.setBorder(new CompoundBorder(
 				new MatteBorder(1, 0, 0, 0, Color.LIGHT_GRAY),
 				new EmptyBorder(5, 0, 5, 0)));

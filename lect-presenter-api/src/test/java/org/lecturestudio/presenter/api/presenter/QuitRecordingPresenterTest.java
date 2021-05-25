@@ -18,24 +18,22 @@
 
 package org.lecturestudio.presenter.api.presenter;
 
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-
-import java.io.IOException;
-import java.util.concurrent.atomic.AtomicBoolean;
-
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.lecturestudio.core.ExecutableException;
 import org.lecturestudio.core.app.configuration.AudioConfiguration;
 import org.lecturestudio.core.service.DocumentService;
 import org.lecturestudio.core.view.Action;
 import org.lecturestudio.presenter.api.recording.FileLectureRecorder;
 import org.lecturestudio.presenter.api.recording.RecordingBackup;
+import org.lecturestudio.presenter.api.recording.ScreenRecorder;
 import org.lecturestudio.presenter.api.service.RecordingService;
 import org.lecturestudio.presenter.api.view.QuitRecordingView;
 
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
+import java.io.IOException;
+import java.util.concurrent.atomic.AtomicBoolean;
+
+import static org.junit.jupiter.api.Assertions.*;
 
 class QuitRecordingPresenterTest extends PresenterTest {
 
@@ -55,8 +53,9 @@ class QuitRecordingPresenterTest extends PresenterTest {
 		DocumentService documentService = context.getDocumentService();
 
 		FileLectureRecorder recorder = new FileLectureRecorder(documentService, audioConfig, context.getRecordingDirectory());
+		ScreenRecorder screenRecorder = new ScreenRecorder();
 
-		recordingService = new RecordingService(context, recorder);
+		recordingService = new RecordingService(context, recorder, screenRecorder);
 
 		view = new QuitRecordingMockView();
 

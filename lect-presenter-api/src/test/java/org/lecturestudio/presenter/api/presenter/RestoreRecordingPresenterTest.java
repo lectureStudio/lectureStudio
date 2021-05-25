@@ -18,19 +18,9 @@
 
 package org.lecturestudio.presenter.api.presenter;
 
-import static org.junit.jupiter.api.Assertions.assertArrayEquals;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-
-import java.io.File;
-import java.io.IOException;
-import java.nio.file.Path;
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.concurrent.atomic.AtomicReference;
-
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.lecturestudio.core.ExecutableException;
 import org.lecturestudio.core.app.configuration.AudioConfiguration;
 import org.lecturestudio.core.service.DocumentService;
@@ -40,10 +30,18 @@ import org.lecturestudio.core.view.View;
 import org.lecturestudio.presenter.api.context.PresenterContext;
 import org.lecturestudio.presenter.api.recording.FileLectureRecorder;
 import org.lecturestudio.presenter.api.recording.RecordingBackup;
+import org.lecturestudio.presenter.api.recording.ScreenRecorder;
 import org.lecturestudio.presenter.api.service.RecordingService;
 import org.lecturestudio.presenter.api.view.RestoreRecordingView;
 
-import org.junit.jupiter.api.*;
+import java.io.File;
+import java.io.IOException;
+import java.nio.file.Path;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicReference;
+
+import static org.junit.jupiter.api.Assertions.*;
 
 class RestoreRecordingPresenterTest extends PresenterTest {
 
@@ -58,8 +56,9 @@ class RestoreRecordingPresenterTest extends PresenterTest {
 
 		DocumentService documentService = context.getDocumentService();
 		FileLectureRecorder recorder = new FileLectureRecorder(documentService, audioConfig, context.getRecordingDirectory());
+		ScreenRecorder screenRecorder = new ScreenRecorder();
 
-		recordingService = new RecordingService(context, recorder);
+		recordingService = new RecordingService(context, recorder, screenRecorder);
 		recordingService.start();
 		recordingService.stop();
 	}

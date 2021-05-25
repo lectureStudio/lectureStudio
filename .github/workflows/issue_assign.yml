@@ -1,0 +1,46 @@
+name: Auto Assign Issue to Project(s)
+
+on:
+  issues:
+    types: [opened, edited]
+
+env:
+  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+jobs:
+  assign_one_project:
+    runs-on: ubuntu-latest
+    name: Assign Issue to Project
+    steps:
+    - name: Assign web service issues
+      uses: srggrs/assign-one-project-github-action@1.2.1
+      if: |
+        contains(github.event.issue.title, 'quiz') ||
+        contains(github.event.issue.title, 'messenger')
+      with:
+        project: 'https://github.com/lectureStudio/lectureStudio/projects/2'
+        column_name: 'To Do'
+
+    - name: Assign server issues
+      uses: srggrs/assign-one-project-github-action@1.2.1
+      if: |
+        contains(github.event.issue.title, 'server')
+      with:
+        project: 'https://github.com/lectureStudio/lectureStudio/projects/3'
+        column_name: 'To Do'
+        
+    - name: Assign lecturePresenter issues
+      uses: srggrs/assign-one-project-github-action@1.2.1
+      if: |
+        contains(github.event.issue.title, 'presenter')
+      with:
+        project: 'https://github.com/lectureStudio/lectureStudio/projects/4'
+        column_name: 'To Do'
+        
+    - name: Assign lectureEditor issues
+      uses: srggrs/assign-one-project-github-action@1.2.1
+      if: |
+        contains(github.event.issue.title, 'editor')
+      with:
+        project: 'https://github.com/lectureStudio/lectureStudio/projects/5'
+        column_name: 'To Do'

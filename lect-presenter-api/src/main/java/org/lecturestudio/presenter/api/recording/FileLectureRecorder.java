@@ -32,6 +32,9 @@ import java.util.Set;
 import java.util.Stack;
 import java.util.Timer;
 import java.util.TimerTask;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -73,6 +76,8 @@ import org.lecturestudio.presenter.api.event.RecordingStateEvent;
 public class FileLectureRecorder extends LectureRecorder {
 
 	private static final Logger LOG = LogManager.getLogger(FileLectureRecorder.class);
+
+	private final ExecutorService executor = Executors.newSingleThreadExecutor();
 
 	private final Stack<RecordedPage> recordedPages = new Stack<>();
 
@@ -413,58 +418,60 @@ public class FileLectureRecorder extends LectureRecorder {
 	}
 
 	private void recordPage(Page page, long timestamp) {
-		int pageNumber = recordedPages.size();
+		CompletableFuture.runAsync(() -> {
+			int pageNumber = recordedPages.size();
 
-		RecordedPage recPage = new RecordedPage();
-		recPage.setTimestamp((int) timestamp);
-		recPage.setNumber(pageNumber);
+			RecordedPage recPage = new RecordedPage();
+			recPage.setTimestamp((int) timestamp);
+			recPage.setNumber(pageNumber);
 
-		// Copy all actions, if the page was previously annotated and visited again.
-		if (addedPages.containsKey(page)) {
-			RecordedPage rPage = addedPages.get(page);
+			// Copy all actions, if the page was previously annotated and visited again.
+			if (addedPages.containsKey(page)) {
+				RecordedPage rPage = addedPages.get(page);
 
-			if (rPage != null) {
-				for (StaticShapeAction action : rPage.getStaticActions()) {
-					recPage.addStaticAction(action.clone());
-				}
-				for (PlaybackAction action : rPage.getPlaybackActions()) {
-					StaticShapeAction staticAction = new StaticShapeAction(action.clone());
-					recPage.addStaticAction(staticAction);
-				}
-			}
-		}
-		if (pendingActions.hasPendingActions(page)) {
-			insertPendingPageActions(recPage, page);
-		}
-
-		synchronized (recordedDocument) {
-			// Set the recorded document's title to the title of the first used document.
-			if (recordedDocument.getTitle() == null) {
-				String title = page.getDocument().getTitle();
-
-				if (title != null && !title.isEmpty()) {
-					recordedDocument.setTitle(title);
+				if (rPage != null) {
+					for (StaticShapeAction action : rPage.getStaticActions()) {
+						recPage.addStaticAction(action.clone());
+					}
+					for (PlaybackAction action : rPage.getPlaybackActions()) {
+						StaticShapeAction staticAction = new StaticShapeAction(action.clone());
+						recPage.addStaticAction(staticAction);
+					}
 				}
 			}
-
-			try {
-				recordedDocument.createPage(page);
-			}
-			catch (Exception e) {
-				LOG.error("Create page failed", e);
-				return;
+			if (pendingActions.hasPendingActions(page)) {
+				insertPendingPageActions(recPage, page);
 			}
 
-			// Update page to last recorded page relation.
-			addedPages.remove(page);
-			addedPages.put(page, recPage);
+			synchronized (recordedDocument) {
+				// Set the recorded document's title to the title of the first used document.
+				if (recordedDocument.getTitle() == null) {
+					String title = page.getDocument().getTitle();
 
-			recordedPages.push(recPage);
+					if (title != null && !title.isEmpty()) {
+						recordedDocument.setTitle(title);
+					}
+				}
 
-			// Write backup.
-			backup.writeDocument(recordedDocument);
-			backup.writePages(recordedPages);
-		}
+				try {
+					recordedDocument.createPage(page);
+				}
+				catch (Exception e) {
+					LOG.error("Create page failed", e);
+					return;
+				}
+
+				// Update page to last recorded page relation.
+				addedPages.remove(page);
+				addedPages.put(page, recPage);
+
+				recordedPages.push(recPage);
+
+				// Write backup.
+				backup.writeDocument(recordedDocument);
+				backup.writePages(recordedPages);
+			}
+		}, executor).join();
 	}
 
 	private Page getLastRecordedPage() {

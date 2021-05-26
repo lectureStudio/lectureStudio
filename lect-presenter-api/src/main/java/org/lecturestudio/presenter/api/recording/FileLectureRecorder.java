@@ -350,8 +350,10 @@ public class FileLectureRecorder extends LectureRecorder {
 
 	private void clear() {
 		if (nonNull(recordedDocument)) {
-			recordedDocument.close();
-			recordedDocument = null;
+			synchronized (recordedDocument) {
+				recordedDocument.close();
+				recordedDocument = null;
+			}
 		}
 
 		addedPages.clear();
@@ -435,32 +437,34 @@ public class FileLectureRecorder extends LectureRecorder {
 			insertPendingPageActions(recPage, page);
 		}
 
-		// Set the recorded document's title to the title of the first used document.
-		if (recordedDocument.getTitle() == null) {
-			String title = page.getDocument().getTitle();
+		synchronized (recordedDocument) {
+			// Set the recorded document's title to the title of the first used document.
+			if (recordedDocument.getTitle() == null) {
+				String title = page.getDocument().getTitle();
 
-			if (title != null && !title.isEmpty()) {
-				recordedDocument.setTitle(title);
+				if (title != null && !title.isEmpty()) {
+					recordedDocument.setTitle(title);
+				}
 			}
+
+			try {
+				recordedDocument.createPage(page);
+			}
+			catch (Exception e) {
+				LOG.error("Create page failed", e);
+				return;
+			}
+
+			// Update page to last recorded page relation.
+			addedPages.remove(page);
+			addedPages.put(page, recPage);
+
+			recordedPages.push(recPage);
+
+			// Write backup.
+			backup.writeDocument(recordedDocument);
+			backup.writePages(recordedPages);
 		}
-
-		try {
-			recordedDocument.createPage(page);
-		}
-		catch (Exception e) {
-			LOG.error("Create page failed", e);
-			return;
-		}
-
-		// Update page to last recorded page relation.
-		addedPages.remove(page);
-		addedPages.put(page, recPage);
-
-		recordedPages.push(recPage);
-
-		// Write backup.
-		backup.writeDocument(recordedDocument);
-		backup.writePages(recordedPages);
 	}
 
 	private Page getLastRecordedPage() {
@@ -516,6 +520,7 @@ public class FileLectureRecorder extends LectureRecorder {
 		void runIdleTask() {
 			idleTask = new TimerTask() {
 
+				@Override
 				public void run() {
 					recordCurrentPage(getTaskTime());
 				}

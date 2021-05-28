@@ -301,86 +301,89 @@ public class PDFBoxDocument implements DocumentAdapter {
 		return importPage(pdfBoxSrcDoc, pageNumber, transform);
 	}
 
-	public int importPage(PDFBoxDocument srcDocument, int pageNumber, AffineTransform transform) throws IOException {
+	public synchronized int importPage(PDFBoxDocument srcDocument, int pageNumber, AffineTransform transform) throws IOException {
 		PDDocument sourceDocument = srcDocument.doc;
-		PDPage page = sourceDocument.getPage(pageNumber);
-		PDPage imported = doc.importPage(page);
 
-		imported.setResources(page.getResources());
+		synchronized (sourceDocument) {
+			PDPage page = sourceDocument.getPage(pageNumber);
+			PDPage imported = doc.importPage(page);
 
-		if (page.getRotation() == 90) {
-			// Set rotation to zero.
-			float mh = page.getMediaBox().getHeight();
-			float mw = page.getMediaBox().getWidth();
-			imported.setMediaBox(new PDRectangle(mh, mw));
-			imported.setCropBox(new PDRectangle(mh, mw));
-			imported.setRotation(0);
-		}
-
-		List<PDStream> newContents = new ArrayList<>();
-
-		float w = imported.getMediaBox().getWidth();
-		float h = imported.getMediaBox().getHeight();
-		float sx = (float) transform.getScaleX();
-		float sy = (float) transform.getScaleY();
-		// Translate by taking the scaled size into account.
-		float tx = (float) (transform.getTranslateX() * w * -sx);
-		// Move y-position from bottom-left to top-left origin and translate.
-		float ty = (float) (h - (h * sx) + transform.getTranslateY() * h * sy);
-
-		// Create page transformation content stream.
-		PDStream transformStream = new PDStream(sourceDocument);
-		OutputStream transformOutStream = transformStream.createOutputStream(COSName.FLATE_DECODE);
-		ContentStreamWriter writer = new ContentStreamWriter(transformOutStream);
-		writer.writeToken(new COSFloat(sx));
-		writer.writeToken(COSInteger.ZERO);
-		writer.writeToken(COSInteger.ZERO);
-		writer.writeToken(new COSFloat(sx));
-		writer.writeToken(new COSFloat(tx));
-		writer.writeToken(new COSFloat(ty));
-		writer.writeToken(Operator.getOperator("cm"));
-		transformOutStream.flush();
-		transformOutStream.close();
-
-		newContents.add(transformStream);
-
-		if (page.hasContents()) {
-			PDFStreamParser parser = new PDFStreamParser(page);
-			parser.parse();
-
-			PDStream contentStream = new PDStream(sourceDocument);
-			OutputStream contentOutStream = contentStream.createOutputStream(COSName.FLATE_DECODE);
-			ContentStreamWriter contentWriter = new ContentStreamWriter(contentOutStream);
-
-			contentWriter.writeToken(Operator.getOperator("q"));
+			imported.setResources(page.getResources());
 
 			if (page.getRotation() == 90) {
 				// Set rotation to zero.
-				AffineTransform t = new AffineTransform();
-				t.rotate(-Math.PI / 2);
-				t.translate(-page.getMediaBox().getWidth(), 0);
-				Matrix m = new Matrix(t);
-
-				contentWriter.writeToken(new COSFloat(m.getScaleX()));
-				contentWriter.writeToken(new COSFloat(m.getShearY()));
-				contentWriter.writeToken(new COSFloat(m.getShearX()));
-				contentWriter.writeToken(new COSFloat(m.getScaleY()));
-				contentWriter.writeToken(new COSFloat(m.getTranslateX()));
-				contentWriter.writeToken(new COSFloat(m.getTranslateY()));
-				contentWriter.writeToken(Operator.getOperator("cm"));
+				float mh = page.getMediaBox().getHeight();
+				float mw = page.getMediaBox().getWidth();
+				imported.setMediaBox(new PDRectangle(mh, mw));
+				imported.setCropBox(new PDRectangle(mh, mw));
+				imported.setRotation(0);
 			}
 
-			contentWriter.writeTokens(parser.getTokens());
-			contentWriter.writeToken(Operator.getOperator("Q"));
-			contentOutStream.flush();
-			contentOutStream.close();
+			List<PDStream> newContents = new ArrayList<>();
 
-			newContents.add(contentStream);
+			float w = imported.getMediaBox().getWidth();
+			float h = imported.getMediaBox().getHeight();
+			float sx = (float) transform.getScaleX();
+			float sy = (float) transform.getScaleY();
+			// Translate by taking the scaled size into account.
+			float tx = (float) (transform.getTranslateX() * w * -sx);
+			// Move y-position from bottom-left to top-left origin and translate.
+			float ty = (float) (h - (h * sx) + transform.getTranslateY() * h * sy);
+
+			// Create page transformation content stream.
+			PDStream transformStream = new PDStream(sourceDocument);
+			OutputStream transformOutStream = transformStream.createOutputStream(COSName.FLATE_DECODE);
+			ContentStreamWriter writer = new ContentStreamWriter(transformOutStream);
+			writer.writeToken(new COSFloat(sx));
+			writer.writeToken(COSInteger.ZERO);
+			writer.writeToken(COSInteger.ZERO);
+			writer.writeToken(new COSFloat(sx));
+			writer.writeToken(new COSFloat(tx));
+			writer.writeToken(new COSFloat(ty));
+			writer.writeToken(Operator.getOperator("cm"));
+			transformOutStream.flush();
+			transformOutStream.close();
+
+			newContents.add(transformStream);
+
+			if (page.hasContents()) {
+				PDFStreamParser parser = new PDFStreamParser(page);
+				parser.parse();
+
+				PDStream contentStream = new PDStream(sourceDocument);
+				OutputStream contentOutStream = contentStream.createOutputStream(COSName.FLATE_DECODE);
+				ContentStreamWriter contentWriter = new ContentStreamWriter(contentOutStream);
+
+				contentWriter.writeToken(Operator.getOperator("q"));
+
+				if (page.getRotation() == 90) {
+					// Set rotation to zero.
+					AffineTransform t = new AffineTransform();
+					t.rotate(-Math.PI / 2);
+					t.translate(-page.getMediaBox().getWidth(), 0);
+					Matrix m = new Matrix(t);
+
+					contentWriter.writeToken(new COSFloat(m.getScaleX()));
+					contentWriter.writeToken(new COSFloat(m.getShearY()));
+					contentWriter.writeToken(new COSFloat(m.getShearX()));
+					contentWriter.writeToken(new COSFloat(m.getScaleY()));
+					contentWriter.writeToken(new COSFloat(m.getTranslateX()));
+					contentWriter.writeToken(new COSFloat(m.getTranslateY()));
+					contentWriter.writeToken(Operator.getOperator("cm"));
+				}
+
+				contentWriter.writeTokens(parser.getTokens());
+				contentWriter.writeToken(Operator.getOperator("Q"));
+				contentOutStream.flush();
+				contentOutStream.close();
+
+				newContents.add(contentStream);
+			}
+
+			imported.setContents(newContents);
+
+			return getPageCount() - 1;
 		}
-
-		imported.setContents(newContents);
-
-		return getPageCount() - 1;
 	}
 
 	public void replacePage(int pageNumber, PDFBoxDocument newDoc, int docIndex) {

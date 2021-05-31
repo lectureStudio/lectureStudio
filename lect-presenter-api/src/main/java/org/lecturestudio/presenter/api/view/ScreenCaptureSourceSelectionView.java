@@ -16,29 +16,23 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package org.lecturestudio.swing.components;
+package org.lecturestudio.presenter.api.view;
 
+import dev.onvoid.webrtc.media.video.desktop.DesktopFrame;
 import dev.onvoid.webrtc.media.video.desktop.DesktopSource;
-import org.lecturestudio.core.service.ScreenCaptureService;
+import dev.onvoid.webrtc.media.video.desktop.DesktopSourceType;
+import org.lecturestudio.core.view.Action;
+import org.lecturestudio.core.view.View;
 
-import javax.inject.Inject;
-import java.util.ResourceBundle;
+public interface ScreenCaptureSourceSelectionView extends View {
 
-public class ScreenCaptureSourcePickerButton extends ToggleComboButton<DesktopSource> {
+    void addDesktopSource(DesktopSource source, DesktopSourceType type);
+    void removeDesktopSource(DesktopSource source, DesktopSourceType type);
+    void updateSourcePreviewFrame(DesktopSource source, DesktopFrame frame);
 
-    private final ScreenCaptureSourceChooser chooser;
+    DesktopSource getSelectedSource();
 
-    @Inject
-    public ScreenCaptureSourcePickerButton(ResourceBundle resources, ScreenCaptureService service) {
-        super();
+    void setOnOk(Action action);
+    void setOnClose(Action action);
 
-        chooser = new ScreenCaptureSourceChooser(resources, service);
-        chooser.setOnOk(e -> {
-            // setSelectedItem(chooser.getSelectedSource());
-            hidePopup();
-        });
-        chooser.setOnCancel(e -> hidePopup());
-
-        setContent(chooser);
-    }
 }

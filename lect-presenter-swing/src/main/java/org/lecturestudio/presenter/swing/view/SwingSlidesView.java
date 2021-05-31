@@ -178,8 +178,6 @@ public class SwingSlidesView extends JPanel implements SlidesView {
 				screenCaptureThumbPanel.setOnScreenCapturePause(screenCapturePauseAction);
 			}
 
-
-
 			VerticalTab tab = new VerticalTab(tabPane.getTabPlacement());
 			tab.setText(doc.getName());
 

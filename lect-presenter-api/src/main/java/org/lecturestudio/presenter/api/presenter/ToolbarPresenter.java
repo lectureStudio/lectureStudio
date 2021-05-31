@@ -48,6 +48,7 @@ import org.lecturestudio.core.view.ViewType;
 import org.lecturestudio.presenter.api.config.PresenterConfiguration;
 import org.lecturestudio.presenter.api.event.RecordingStateEvent;
 import org.lecturestudio.presenter.api.service.RecordingService;
+import org.lecturestudio.presenter.api.service.ScreenCaptureService;
 import org.lecturestudio.presenter.api.view.ToolbarView;
 
 import javax.inject.Inject;
@@ -76,6 +77,8 @@ public class ToolbarPresenter extends Presenter<ToolbarView> {
 	@Inject
 	private RecordingService recordingService;
 
+	@Inject
+	private ScreenCaptureService screenCaptureService;
 
 	@Inject
 	public ToolbarPresenter(ApplicationContext context, ToolbarView view) {
@@ -245,8 +248,8 @@ public class ToolbarPresenter extends Presenter<ToolbarView> {
 		documentService.toggleWhiteboard();
 	}
 
-	public void openScreenCapture() {
-		documentService.toggleScreenCapture();
+	public void openScreenCaptureChooser() {
+		eventBus.post(new ShowPresenterCommand<>(ScreenCaptureSelectionPresenter.class));
 	}
 
 	public void enableDisplays(boolean enable) {
@@ -392,7 +395,7 @@ public class ToolbarPresenter extends Presenter<ToolbarView> {
 		view.setOnShowGrid(this::showGrid);
 		view.setOnExtend(this::extend);
 		view.setOnWhiteboard(this::openWhiteboard);
-		view.setOnScreenCapture(this::openScreenCapture);
+		view.setOnScreenCapture(this::openScreenCaptureChooser);
 		view.setOnEnableDisplays(this::enableDisplays);
 		view.setOnZoomInTool(this::zoomInTool);
 		view.setOnZoomOutTool(this::zoomOutTool);

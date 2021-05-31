@@ -16,16 +16,12 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package org.lecturestudio.core.service;
+package org.lecturestudio.presenter.api.service;
 
 import com.github.javaffmpeg.*;
 import dev.onvoid.webrtc.PeerConnectionFactory;
 import dev.onvoid.webrtc.media.video.desktop.*;
 import org.lecturestudio.core.app.ApplicationContext;
-import org.lecturestudio.core.codec.VideoCodecConfiguration;
-import org.lecturestudio.core.codec.VideoEncoder;
-import org.lecturestudio.core.codec.h264.H264StreamEncoder;
-import org.lecturestudio.core.geometry.Rectangle2D;
 import org.lecturestudio.core.io.VideoSink;
 
 import javax.inject.Inject;
@@ -63,8 +59,8 @@ public class ScreenCaptureService {
 
     private DesktopSource selectedSource;
 
-    private final VideoEncoder videoEncoder;
-    private final VideoSink videoSink;
+//    private final VideoEncoder videoEncoder;
+//    private final VideoSink videoSink;
     private Muxer muxer;
 
     @Inject
@@ -77,30 +73,34 @@ public class ScreenCaptureService {
         File tempDir = new File(outputPath);
         tempDir.mkdirs();
 
-        JavaFFmpeg.loadLibrary();
+//        JavaFFmpeg.loadLibrary();
+//
+//        File videoFile = new File(outputPath + File.separator + "screen-capture.mp4");
+//        if (!videoFile.exists()) {
+//            try {
+//                videoFile.createNewFile();
+//            } catch(IOException e){
+//                e.printStackTrace();
+//            }
+//        }
 
-        File videoFile = new File(outputPath + File.separator + "screen-capture.mp4");
-        if (!videoFile.exists()) {
-            try {
-                videoFile.createNewFile();
-            } catch(IOException e){
-                e.printStackTrace();
-            }
-        }
-
-        initializeMuxer(videoFile.getAbsolutePath());
-
-        VideoCodecConfiguration videoConfig = new VideoCodecConfiguration();
-        videoConfig.setFrameRate(frameRate);
-        videoConfig.setViewRect(new Rectangle2D(0, 0, 1920, 1080));
-
-        videoEncoder = new H264StreamEncoder(videoConfig);
-        videoSink = new ScreenCaptureVideoSink(outputPath + File.separator + "temp");
+//        initializeMuxer(videoFile.getAbsolutePath());
+//
+//        VideoCodecConfiguration videoConfig = new VideoCodecConfiguration();
+//        videoConfig.setFrameRate(frameRate);
+//        videoConfig.setViewRect(new Rectangle2D(0, 0, 1920, 1080));
+//
+//        videoEncoder = new H264StreamEncoder(videoConfig);
+//        videoSink = new ScreenCaptureVideoSink(outputPath + File.separator + "temp");
 
         // This needs to be called before the first initialization of any native webrtc call
         connectionFactory = new PeerConnectionFactory();
         windowCapturer = new WindowCapturer();
         screenCapturer = new ScreenCapturer();
+    }
+
+    public void registerSourceListChangeListener(ScreenCaptureSourceListChangeListener listener) {
+
     }
 
     private void initializeMuxer(String filePath) {
@@ -138,11 +138,15 @@ public class ScreenCaptureService {
     }
 
     public void setSelectedSource(DesktopSource source) {
-        if (selectedSource != null) {
-            // TODO: Stop recording with previous source
-        }
+        if (source != null) {
+            System.out.println("Add DesktopSource " + source.id + " to screen capture service");
 
-        selectedSource = source;
+            if (selectedSource != null) {
+                // TODO: Stop recording with previous source
+            }
+
+            selectedSource = source;
+        }
     }
 
     public boolean isRecording() {
@@ -161,12 +165,8 @@ public class ScreenCaptureService {
         isRecording.set(false);
     }
 
-    public void captureWindowScreenshot(DesktopSource source, DesktopCaptureCallback callback) {
+    public void captureFrame(DesktopSource source, DesktopCaptureCallback callback) {
         captureDesktopScreenshot(source, CaptureMode.WINDOW, callback);
-    }
-    
-    public void captureScreenScreenshot(DesktopSource source, DesktopCaptureCallback callback) {
-        captureDesktopScreenshot(source, CaptureMode.SCREEN, callback);
     }
 
     public boolean startCapture() {
@@ -217,16 +217,20 @@ public class ScreenCaptureService {
     
     private void captureDesktopScreenshot(DesktopSource source, CaptureMode mode, DesktopCaptureCallback callback) {
         final DesktopCapturer capturer = (mode == CaptureMode.WINDOW) ? windowCapturer : screenCapturer;
-        capturer.selectSource(source);
-        capturer.start(callback);
-        capturer.captureFrame();
+        try {
+            capturer.selectSource(source);
+            capturer.start(callback);
+            capturer.captureFrame();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     private void saveFrame(DesktopFrame frame, int frameCount) {
         String fileName = outputPath + File.separator + "temp" + File.separator + "frame" + frameCount + ".png";
 
         BufferedImage image = new BufferedImage(frame.frameSize.width, frame.frameSize.height, BufferedImage.TYPE_4BYTE_ABGR);
-        videoSink.onVideoFrame(videoEncoder.encode(image));
+//        videoSink.onVideoFrame(videoEncoder.encode(image));
 
 //        try (AsynchronousFileChannel channel = AsynchronousFileChannel.open(Path.of(fileName), StandardOpenOption.WRITE, StandardOpenOption.CREATE)) {
 //            channel.write(frame.buffer, 0);
@@ -259,6 +263,13 @@ public class ScreenCaptureService {
 //
 //        return new BufferedImage(colorModel, wr, false, null);
 //    }
+
+
+    public interface ScreenCaptureSourceListChangeListener {
+
+        void OnDesktopSourceListChange(List<DesktopSource> sources, DesktopSourceType type);
+
+    }
 
 
     private static class ScreenCaptureVideoSink implements VideoSink {

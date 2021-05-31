@@ -47,7 +47,7 @@ public class ScreenCaptureRenderer implements DocumentRenderer {
             synchronized (lock) {
 
                 ScreenCapture screenCapture = document.getScreenCapture(page.getPageNumber());
-                LOG.info("Render screen capture for window: " + screenCapture.getWindowInfo().getTitle());
+                System.out.println("Render screen capture for window: " + screenCapture.getWindowInfo().getTitle());
 
                 // TODO: Implement rendering of screen capture
 
@@ -60,7 +60,7 @@ public class ScreenCaptureRenderer implements DocumentRenderer {
                     int imageWidth = image.getWidth();
                     int imageHeight = image.getHeight();
 
-                    g.drawImage(image, 0, 0, imageWidth, imageHeight, null);
+                    // g.drawImage(image, 0, 0, imageWidth, imageHeight, null);
                 } catch (AWTException e) {
                     e.printStackTrace();
                 }

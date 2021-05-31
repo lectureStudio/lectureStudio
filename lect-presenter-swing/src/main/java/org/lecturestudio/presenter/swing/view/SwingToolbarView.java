@@ -39,10 +39,12 @@ import org.lecturestudio.swing.util.SwingUtils;
 import org.lecturestudio.swing.view.SwingView;
 import org.lecturestudio.swing.view.ViewPostConstruct;
 
+import javax.inject.Inject;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.util.Enumeration;
+import java.util.ResourceBundle;
 
 import static java.util.Objects.isNull;
 import static java.util.Objects.nonNull;
@@ -110,7 +112,7 @@ public class SwingToolbarView extends JToolBar implements ToolbarView {
 
 	private JToggleButton whiteboardButton;
 
-	private JToggleButton screenCaptureButton;
+	private JButton screenCaptureButton;
 
 	private JToggleButton displaysButton;
 
@@ -124,10 +126,9 @@ public class SwingToolbarView extends JToolBar implements ToolbarView {
 
 	private JButton stopRecordingButton;
 
-
-	SwingToolbarView() {
+	@Inject
+	SwingToolbarView(ResourceBundle resources) {
 		super();
-
 		setLayout(new WrapFlowLayout(FlowLayout.LEFT, 0, 0));
 	}
 

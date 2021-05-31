@@ -302,6 +302,9 @@ public class SlidesPresenter extends Presenter<SlidesView> {
 				documentService.createWhiteboardPage();
 				return;
 			case SCREEN_CAPTURE:
+				System.out.println("Open Screen Capture Selection Screen");
+
+				// TODO: Open screen capture selection screen
 				documentService.createScreenCapturePage();
 		}
 	}

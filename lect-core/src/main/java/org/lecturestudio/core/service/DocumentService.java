@@ -467,7 +467,7 @@ public class DocumentService {
 
 	private Document createScreenCapture() throws IOException {
 		Document prevDoc = getDocuments().getSelectedDocument();
-		String name = "ScreenCapture-" + documents.getScreenCaptureCount();
+		String name = "Screen Captures";
 
 		Document screenCapture = new Document(new ScreenCaptureDocument());
 		screenCapture.setTitle(name);

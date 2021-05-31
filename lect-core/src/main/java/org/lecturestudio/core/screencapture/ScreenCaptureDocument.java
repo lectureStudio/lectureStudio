@@ -18,6 +18,7 @@
 
 package org.lecturestudio.core.screencapture;
 
+import dev.onvoid.webrtc.media.video.desktop.DesktopSource;
 import org.lecturestudio.core.geometry.Rectangle2D;
 import org.lecturestudio.core.model.DocumentOutline;
 import org.lecturestudio.core.model.DocumentOutlineItem;
@@ -28,6 +29,7 @@ import org.lecturestudio.core.util.WindowUtils;
 import java.awt.*;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import static java.util.Objects.isNull;
 
@@ -36,6 +38,8 @@ public class ScreenCaptureDocument {
     private final DocumentRenderer renderer;
 
     private final List<ScreenCapture> screenCaptures = new ArrayList<>();
+
+    private Map<Long, DesktopSource> captureSources;
 
     private DocumentOutline outline;
 
@@ -56,6 +60,10 @@ public class ScreenCaptureDocument {
             // TODO: Load outline
         }
         return outline;
+    }
+
+    public int addDesktopSource(DesktopSource source) {
+        return 0;
     }
 
     public int createScreenCapture() {

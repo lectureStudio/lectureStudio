@@ -18,16 +18,6 @@
 
 package org.lecturestudio.presenter.javafx.view;
 
-import static java.util.Objects.isNull;
-import static java.util.Objects.nonNull;
-
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
-import java.util.ResourceBundle;
-
-import javax.inject.Inject;
-
 import javafx.application.Platform;
 import javafx.beans.InvalidationListener;
 import javafx.beans.Observable;
@@ -46,24 +36,13 @@ import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.VBox;
 import javafx.scene.transform.TransformChangedEvent;
 import javafx.stage.Stage;
-
-import org.lecturestudio.core.beans.BooleanProperty;
-import org.lecturestudio.core.model.DocumentOutline;
-import org.lecturestudio.core.model.DocumentOutlineItem;
-import org.lecturestudio.presenter.javafx.input.StylusListener;
-
 import org.lecturestudio.core.ExecutableState;
+import org.lecturestudio.core.beans.BooleanProperty;
 import org.lecturestudio.core.controller.RenderController;
 import org.lecturestudio.core.geometry.Matrix;
-import org.lecturestudio.core.model.Document;
-import org.lecturestudio.core.model.Page;
-import org.lecturestudio.core.model.SlideNote;
+import org.lecturestudio.core.model.*;
 import org.lecturestudio.core.tool.ToolType;
-import org.lecturestudio.core.view.Action;
-import org.lecturestudio.core.view.ConsumerAction;
-import org.lecturestudio.core.view.PageObjectView;
-import org.lecturestudio.core.view.PresentationParameter;
-import org.lecturestudio.core.view.PresentationParameterProvider;
+import org.lecturestudio.core.view.*;
 import org.lecturestudio.javafx.beans.converter.KeyEventConverter;
 import org.lecturestudio.javafx.beans.converter.MatrixConverter;
 import org.lecturestudio.javafx.control.ExtTab;
@@ -75,8 +54,18 @@ import org.lecturestudio.javafx.view.FxmlView;
 import org.lecturestudio.presenter.api.stylus.StylusHandler;
 import org.lecturestudio.presenter.api.view.SlidesView;
 import org.lecturestudio.presenter.javafx.control.EditableThumbnailPanel;
+import org.lecturestudio.presenter.javafx.input.StylusListener;
 import org.lecturestudio.stylus.javafx.JavaFxStylusManager;
 import org.lecturestudio.web.api.message.MessengerMessage;
+
+import javax.inject.Inject;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
+import java.util.ResourceBundle;
+
+import static java.util.Objects.isNull;
+import static java.util.Objects.nonNull;
 
 @FxmlView(name = "main-slides")
 public class FxSlidesView extends VBox implements SlidesView {
@@ -411,6 +400,11 @@ public class FxSlidesView extends VBox implements SlidesView {
 	@Override
 	public void setOnDeletePage(Action action) {
 		this.deletePageAction = action;
+	}
+
+	@Override
+	public void setOnScreenCapturePause(Action action) {
+
 	}
 
 	@Override

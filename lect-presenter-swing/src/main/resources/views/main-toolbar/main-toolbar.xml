@@ -27,7 +27,7 @@
 	<ToggleButton id="gridButton" accelerator="Q" icon="grid-tool.svg, 30" tooltipText="toolbar.grid.tooltip" />
 	<ToggleButton id="extendButton" accelerator="F7" icon="extend-tool.svg, 30" tooltipText="toolbar.extend.tooltip" />
 	<ToggleButton id="whiteboardButton" accelerator="F8" icon="whiteboard-tool.svg, 30" tooltipText="toolbar.whiteboard.tooltip" />
-	<ToggleButton id="screenCaptureButton" accelerator="F9" icon="whiteboard-tool.svg, 30" tooltipText="toolbar.screenCapture.tooltip" />
+	<Button id="screenCaptureButton" accelerator="F9" icon="whiteboard-tool.svg, 30" tooltipText="toolbar.screenCapture.tooltip" />
 	<ToggleButton id="displaysButton" icon="display-tool.svg, 30" tooltipText="toolbar.displays.tooltip" />
 	<Separator />
 	<ToggleButton id="zoomInButton" accelerator="F10" icon="zoom-in-tool.svg, 30" tooltipText="toolbar.zoom.in.tooltip" tool="ZOOM" name="toolGroup" />

@@ -576,7 +576,6 @@ public class Document {
 	private void loadPages() {
 		pages.clear();
 
-
 		int pageCount;
 		if (isPDF()) {
 			pageCount = pdfDocument.getPageCount();
@@ -594,7 +593,8 @@ public class Document {
 
 				pages.add(page);
 			}
-		} else {
+		}
+		else {
 			pageCount = screenCaptureDocument.getScreenCaptureCount();
 			for (int i = 0; i < pageCount; i++) {
 				Page page = new Page(this, i);

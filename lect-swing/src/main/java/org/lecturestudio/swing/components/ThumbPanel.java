@@ -266,21 +266,29 @@ public class ThumbPanel extends JPanel {
 	}
 
 	public void setDocument(Document doc, PresentationParameterProvider ppProvider) {
+		boolean sameDoc = false;
+
 		if (nonNull(document)) {
 			document.removeChangeListener(docChangeListener);
+
+			sameDoc = !document.equals(doc);
 		}
 		if (nonNull(doc)) {
 			document = doc;
-
-			pageRenderer = new PageRenderer(renderController, ppProvider);
-			pageRenderer.setPreferredSize(getThumbSize(getPreferredSize().width));
-
-			list.setCellRenderer(pageRenderer);
-
-			createThumbnails();
-			setSelectedThumbnail(doc.getCurrentPage());
-
 			document.addChangeListener(docChangeListener);
+
+			if (sameDoc) {
+				onDocumentChanged(doc);
+			}
+			else {
+				pageRenderer = new PageRenderer(renderController, ppProvider);
+				pageRenderer.setPreferredSize(getThumbSize(getPreferredSize().width));
+
+				list.setCellRenderer(pageRenderer);
+
+				createThumbnails();
+				setSelectedThumbnail(doc.getCurrentPage());
+			}
 		}
 	}
 

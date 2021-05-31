@@ -114,7 +114,7 @@ public class BasicRecordingTest {
 		};
 
 		Document document = new Document(new File(getClass().getClassLoader()
-				.getResource("ModSim.pdf").getFile()));
+				.getResource("sync-fail.pdf").getFile()));
 
 		AppDataLocator locator = new AppDataLocator(testPath.toString());
 

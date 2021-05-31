@@ -151,6 +151,9 @@ public class RandomAccessAudioStream extends DynamicInputStream {
 		for (Interval<Long> iv : exclusions) {
 			clone.addExclusion(new Interval<>(iv.getStart(), iv.getEnd()));
 		}
+		for (var entry : filters.entrySet()) {
+			clone.setAudioFilter(entry.getKey(), entry.getValue());
+		}
 
 		return clone;
 	}

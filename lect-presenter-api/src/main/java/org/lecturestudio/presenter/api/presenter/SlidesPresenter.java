@@ -156,14 +156,19 @@ public class SlidesPresenter extends Presenter<SlidesView> {
 	public void onEvent(DocumentEvent event) {
 		Document doc = event.getDocument();
 
-		if (event.created()) {
-			documentCreated(doc);
-		}
-		else if (event.closed()) {
-			documentClosed(doc);
-		}
-		else if (event.selected()) {
-			documentSelected(event.getOldDocument(), doc);
+		switch (event.getType()) {
+			case CREATED:
+				documentCreated(doc);
+				break;
+			case CLOSED:
+				documentClosed(doc);
+				break;
+			case SELECTED:
+				documentSelected(event.getOldDocument(), doc);
+				break;
+			case REPLACED:
+				documentReplaced(event.getOldDocument(), doc);
+				break;
 		}
 	}
 
@@ -352,6 +357,18 @@ public class SlidesPresenter extends Presenter<SlidesView> {
 		view.removeDocument(doc);
 	}
 
+	private void documentReplaced(Document oldDoc, Document doc) {
+		if (nonNull(oldDoc)) {
+			oldDoc.removeChangeListener(documentChangeListener);
+		}
+
+		doc.addChangeListener(documentChangeListener);
+
+		view.selectDocument(doc, context.getPagePropertyPropvider(ViewType.Preview));
+
+		setPage(doc.getCurrentPage());
+	}
+
 	private void documentSelected(Document oldDoc, Document doc) {
 		if (nonNull(oldDoc)) {
 			oldDoc.removeChangeListener(documentChangeListener);
@@ -359,7 +376,7 @@ public class SlidesPresenter extends Presenter<SlidesView> {
 
 		doc.addChangeListener(documentChangeListener);
 
-		view.selectDocument(doc);
+		view.selectDocument(doc, context.getPagePropertyPropvider(ViewType.Preview));
 
 		setPage(doc.getCurrentPage());
 	}

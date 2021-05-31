@@ -220,7 +220,7 @@ public class FxSlidesView extends VBox implements SlidesView {
 	}
 
 	@Override
-	public void selectDocument(Document doc) {
+	public void selectDocument(Document doc, PresentationParameterProvider ppProvider) {
 		// Select document tab.
 		for (Tab tab : tabPane.getTabs()) {
 			EditableThumbnailPanel thumbPanel = (EditableThumbnailPanel) tab.getContent();

@@ -130,12 +130,6 @@ public class Document {
 			}
 		}
 	}
-	
-	public void setPdfDocument(PdfDocument pdfDocument) {
-		close();
-		init(pdfDocument);
-		fireDocumentChange();
-	}
 
 	public void setPageSize(Dimension2D size) {
 		pageSize = size;

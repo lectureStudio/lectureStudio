@@ -206,7 +206,7 @@ public class SwingSlidesView extends JPanel implements SlidesView {
 	}
 
 	@Override
-	public void selectDocument(Document doc) {
+	public void selectDocument(Document doc, PresentationParameterProvider ppProvider) {
 		SwingUtils.invoke(() -> {
 			// Select document tab.
 			int tabCount = tabPane.getTabCount();
@@ -218,7 +218,7 @@ public class SwingSlidesView extends JPanel implements SlidesView {
 					// Reload if document has changed.
 					if (!thumbnailPanel.getDocument().equals(doc)) {
 						// Prevent tab switching for quiz reloading.
-						thumbnailPanel.setDocument(doc, null);
+						thumbnailPanel.setDocument(doc, ppProvider);
 					}
 
 					tabPane.setSelectedIndex(i);

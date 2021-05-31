@@ -19,7 +19,6 @@
 package org.lecturestudio.presenter.api.service;
 
 import static java.util.Objects.isNull;
-import static java.util.Objects.nonNull;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -222,11 +221,6 @@ public class QuizWebService extends WebServiceBase {
 
 	@Override
 	protected void destroyInternal() {
-		// Remove quiz document.
-		if (nonNull(quizDocument)) {
-			documentService.closeDocument(quizDocument);
-		}
-
 		executorService.shutdown();
 	}
 	
@@ -248,11 +242,10 @@ public class QuizWebService extends WebServiceBase {
 	}
 
 	private void updateQuizDocument() {
-		Dictionary dict = context.getDictionary();
 		try {
-			PdfDocument pdfDoc = PdfFactory.createQuizDocument(dict, quizResult);
+			quizDocument = createQuizDocument(quizResult);
 
-			quizDocument.setPdfDocument(pdfDoc);
+			documentService.replace(quizDocument);
 		}
 		catch (Exception e) {
 			logException(e, "Create quiz document failed");

@@ -54,7 +54,7 @@ public interface SlidesView extends View {
 
 	void removeDocument(Document doc);
 
-	void selectDocument(Document doc);
+	void selectDocument(Document doc, PresentationParameterProvider ppProvider);
 
 	Page getPage();
 

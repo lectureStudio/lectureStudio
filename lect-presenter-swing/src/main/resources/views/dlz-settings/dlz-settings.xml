@@ -5,7 +5,7 @@
 	</Label>
 	<ComboBox id="roomsCombo">
 		<gridbagconstraints gridx="1" gridy="0" anchor="GridBagConstraints.WEST" insets="5,0,5,0" />
-		<renderer class="org.lecturestudio.swing.ui.LocaleComboBoxRenderer" />
+		<renderer class="org.lecturestudio.presenter.swing.combobox.DLZRoomRenderer" />
 	</ComboBox>
 	<box.vglue>
 		<gridbagconstraints gridx="0" gridy="8" weighty="1.0" />

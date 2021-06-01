@@ -34,6 +34,7 @@ public class SwingDLZSettingsView extends JPanel implements DLZSettingsView {
     public void setRooms(List<Room> rooms) {
         SwingUtils.invoke(() -> roomsCombo
                 .setModel(new DefaultComboBoxModel<>(new Vector<>(rooms))));
+        System.out.println(rooms);
     }
 
     @Override

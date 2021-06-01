@@ -46,7 +46,12 @@ public class PresenterConfiguration extends Configuration {
 
 	private final NetworkConfiguration networkConfig = new NetworkConfiguration();
 
+	private final StringProperty accessToken = new StringProperty();
 
+
+	public String getAccessToken(){ return accessToken.get();}
+
+	public void setAccessToken(String accessToken){this.accessToken.set(accessToken);}
 	/**
 	 * @return the classroomName
 	 */

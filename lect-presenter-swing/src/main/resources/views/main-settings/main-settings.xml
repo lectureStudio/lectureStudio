@@ -33,4 +33,7 @@
 	<Tab name="network" text="settings.network" icon="network-settings.svg, 24" size="120, 30">
 		<NetworkSettingsView />
 	</Tab>
+	<Tab name="dlz" text="settings.dlz" icon="display-settings.svg, 24" size="120, 30">
+		<DLZSettingsView />
+	</Tab>
 </TabbedPane>

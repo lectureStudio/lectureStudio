@@ -109,9 +109,6 @@ public class PdfFactory {
 			createBarChartAnswerStatsPage(dict, pdfDocument, result);
 		}
 
-		pdfDocument.setTitle("Quiz");
-		pdfDocument.setAuthor(System.getProperty("user.name"));
-
 		// Flush the PDF to a stream and recreate it.
 		ByteArrayOutputStream stream = new ByteArrayOutputStream();
 		pdfDocument.toOutputStream(stream);

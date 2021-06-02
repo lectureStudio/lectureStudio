@@ -230,7 +230,9 @@ public class QuizWebService extends WebServiceBase {
 		try {
 			Dictionary dict = context.getDictionary();
 			PdfDocument pdfDoc = PdfFactory.createQuizDocument(dict, result);
-			
+			pdfDoc.setTitle("Quiz");
+			pdfDoc.setAuthor(System.getProperty("user.name"));
+
 			doc = new Document(pdfDoc);
 			doc.setDocumentType(DocumentType.QUIZ);
 		}

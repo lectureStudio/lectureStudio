@@ -212,17 +212,24 @@ public class DocumentRecorder extends ExecutableBase {
 		Document recDocument = documentMap.get(pageDoc);
 
 		if (isNull(recDocument)) {
-			try {
-				recDocument = new Document();
-				recDocument.setAuthor(pageDoc.getAuthor());
-				recDocument.setDocumentType(pageDoc.getType());
-				recDocument.setTitle(pageDoc.getName());
+			// Try to merge with a document with the same name.
+			recDocument = documentMap.values().stream()
+					.filter(doc -> doc.getName().equals(pageDoc.getName()))
+					.findFirst().orElse(null);
 
-				documentMap.put(pageDoc, recDocument);
-			}
-			catch (IOException e) {
-				LOG.error("Record document failed", e);
-				return;
+			if (isNull(recDocument)) {
+				try {
+					recDocument = new Document();
+					recDocument.setAuthor(pageDoc.getAuthor());
+					recDocument.setDocumentType(pageDoc.getType());
+					recDocument.setTitle(pageDoc.getName());
+
+					documentMap.put(pageDoc, recDocument);
+				}
+				catch (IOException e) {
+					LOG.error("Record document failed", e);
+					return;
+				}
 			}
 		}
 

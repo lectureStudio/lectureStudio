@@ -178,6 +178,23 @@ public class FileLectureRecorder extends LectureRecorder {
 		return (int) ((bytesConsumed / bytesPerSecond) * 1000);
 	}
 
+	public String getBestRecordingName() {
+		String name = null;
+
+		for (Page page : addedPages.keySet()) {
+			Document doc = page.getDocument();
+
+			if (doc.isPDF() && nonNull(doc.getName())) {
+				// Return the name of the first used PDF document.
+				return doc.getName();
+			}
+
+			name = doc.getName();
+		}
+
+		return name;
+	}
+
 	public void writeRecording(File destFile, ProgressCallback progressCallback) throws Exception {
 		if (destFile == null) {
 			throw new NullPointerException("No destination file provided.");
@@ -444,15 +461,6 @@ public class FileLectureRecorder extends LectureRecorder {
 			}
 
 			synchronized (recordedDocument) {
-				// Set the recorded document's title to the title of the first used document.
-				if (recordedDocument.getTitle() == null) {
-					String title = page.getDocument().getTitle();
-
-					if (title != null && !title.isEmpty()) {
-						recordedDocument.setTitle(title);
-					}
-				}
-
 				try {
 					recordedDocument.createPage(page);
 				}

@@ -71,6 +71,10 @@ public class RecordingService extends ExecutableBase {
 		recorder.setAudioFormat(audioFormat);
 	}
 
+	public String getBestRecordingName() {
+		return recorder.getBestRecordingName();
+	}
+
 	public CompletableFuture<Void> writeRecording(File file, ProgressCallback callback) {
 		return CompletableFuture.runAsync(() -> {
 			try {

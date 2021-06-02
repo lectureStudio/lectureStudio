@@ -118,7 +118,7 @@ class SaveRecordingPresenterTest extends PresenterTest {
 			}
 		};
 
-		SaveRecordingPresenter presenter = new SaveRecordingPresenter(context, view, viewFactory, documentService, recordingService);
+		SaveRecordingPresenter presenter = new SaveRecordingPresenter(context, view, viewFactory, recordingService);
 		presenter.initialize();
 
 		view.viewShownAction.execute();
@@ -143,7 +143,7 @@ class SaveRecordingPresenterTest extends PresenterTest {
 			}
 		};
 
-		SaveRecordingPresenter presenter = new SaveRecordingPresenter(context, view, viewFactory, documentService, recordingService);
+		SaveRecordingPresenter presenter = new SaveRecordingPresenter(context, view, viewFactory, recordingService);
 		presenter.initialize();
 
 		view.viewShownAction.execute();
@@ -172,7 +172,7 @@ class SaveRecordingPresenterTest extends PresenterTest {
 
 		SaveRecordingMockView view = new SaveRecordingMockView();
 
-		SaveRecordingPresenter presenter = new SaveRecordingPresenter(context, view, viewFactory, documentService, recordingService);
+		SaveRecordingPresenter presenter = new SaveRecordingPresenter(context, view, viewFactory, recordingService);
 		presenter.initialize();
 		presenter.setOnAbort(() -> aborted.set(true));
 
@@ -206,7 +206,7 @@ class SaveRecordingPresenterTest extends PresenterTest {
 			}
 		};
 
-		SaveRecordingPresenter presenter = new SaveRecordingPresenter(context, view, viewFactory, documentService, recordingService);
+		SaveRecordingPresenter presenter = new SaveRecordingPresenter(context, view, viewFactory, recordingService);
 		presenter.initialize();
 
 		recordingService.start();

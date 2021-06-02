@@ -34,10 +34,8 @@ import org.lecturestudio.core.app.ApplicationContext;
 import org.lecturestudio.core.app.configuration.ConfigurationService;
 import org.lecturestudio.core.app.configuration.JsonConfigurationService;
 import org.lecturestudio.core.app.dictionary.Dictionary;
-import org.lecturestudio.core.model.Document;
 import org.lecturestudio.core.model.RecentDocument;
 import org.lecturestudio.core.presenter.Presenter;
-import org.lecturestudio.core.service.DocumentService;
 import org.lecturestudio.core.util.FileUtils;
 import org.lecturestudio.core.view.Action;
 import org.lecturestudio.core.view.FileChooserView;
@@ -53,8 +51,6 @@ public class SaveRecordingPresenter extends Presenter<SaveRecordingView> {
 
 	private final ViewContextFactory viewFactory;
 
-	private final DocumentService documentService;
-
 	private final RecordingService recordingService;
 
 	/** The action that is executed when the saving process has been aborted. */
@@ -63,12 +59,10 @@ public class SaveRecordingPresenter extends Presenter<SaveRecordingView> {
 
 	@Inject
 	SaveRecordingPresenter(ApplicationContext context, SaveRecordingView view,
-			ViewContextFactory viewFactory, DocumentService documentService,
-			RecordingService recordingService) {
+			ViewContextFactory viewFactory, RecordingService recordingService) {
 		super(context, view);
 
 		this.viewFactory = viewFactory;
-		this.documentService = documentService;
 		this.recordingService = recordingService;
 	}
 
@@ -104,9 +98,8 @@ public class SaveRecordingPresenter extends Presenter<SaveRecordingView> {
 		}
 
 		Dictionary dict = context.getDictionary();
-		Document doc = documentService.getDocuments().getSelectedDocument();
 		String date = dateFormat.format(new Date());
-		String fileName = doc.getName() + "-" + date;
+		String fileName = recordingService.getBestRecordingName() + "-" + date;
 		File recordingDir = new File(recordingPath);
 
 		FileChooserView fileChooser = viewFactory.createFileChooserView();

@@ -78,6 +78,7 @@ import org.lecturestudio.presenter.api.config.PresenterConfiguration;
 import org.lecturestudio.presenter.api.context.PresenterContext;
 import org.lecturestudio.presenter.api.event.MessengerStateEvent;
 import org.lecturestudio.presenter.api.event.QuizStateEvent;
+import org.lecturestudio.presenter.api.event.RecordingStateEvent;
 import org.lecturestudio.presenter.api.event.StreamingStateEvent;
 import org.lecturestudio.presenter.api.input.Shortcut;
 import org.lecturestudio.presenter.api.pdf.embedded.SlideNoteParser;
@@ -176,6 +177,26 @@ public class SlidesPresenter extends Presenter<SlidesView> {
 	public void onEvent(PageEvent event) {
 		if (event.isSelected()) {
 			setPage(event.getPage());
+		}
+	}
+
+	@Subscribe
+	public void onEvent(final RecordingStateEvent event) {
+		if (!event.started()) {
+			return;
+		}
+
+		// Restart document recording when a recording has been started.
+		try {
+			documentRecorder.stop();
+			documentRecorder.start();
+
+			Document doc = documentService.getDocuments().getSelectedDocument();
+
+			recordPage(doc.getCurrentPage());
+		}
+		catch (Exception e) {
+			logException(e, "Restart document recorded failed");
 		}
 	}
 

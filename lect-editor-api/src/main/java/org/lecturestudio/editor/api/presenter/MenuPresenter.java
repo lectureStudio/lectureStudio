@@ -23,7 +23,6 @@ import static java.util.Objects.nonNull;
 import com.google.common.eventbus.Subscribe;
 
 import java.awt.Desktop;
-import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Path;
@@ -41,7 +40,6 @@ import org.lecturestudio.core.app.configuration.Configuration;
 import org.lecturestudio.core.app.dictionary.Dictionary;
 import org.lecturestudio.core.bus.EventBus;
 import org.lecturestudio.core.bus.event.DocumentEvent;
-import org.lecturestudio.core.controller.ToolController;
 import org.lecturestudio.core.model.Document;
 import org.lecturestudio.core.model.RecentDocument;
 import org.lecturestudio.core.presenter.AboutPresenter;
@@ -49,10 +47,8 @@ import org.lecturestudio.core.presenter.Presenter;
 import org.lecturestudio.core.presenter.ProgressPresenter;
 import org.lecturestudio.core.presenter.command.CloseApplicationCommand;
 import org.lecturestudio.core.presenter.command.ShowPresenterCommand;
-import org.lecturestudio.core.recording.DummyEventExecutor;
-import org.lecturestudio.core.recording.EventExecutor;
+import org.lecturestudio.core.recording.DocumentEventExecutor;
 import org.lecturestudio.core.recording.Recording;
-import org.lecturestudio.core.service.DocumentService;
 import org.lecturestudio.core.service.RecentDocumentService;
 import org.lecturestudio.core.util.FileUtils;
 import org.lecturestudio.core.view.FileChooserView;
@@ -158,28 +154,6 @@ public class MenuPresenter extends Presenter<MenuView> {
 		recordingService.closeSelectedRecording();
 	}
 
-	private Document executeActions(ApplicationContext context, Recording recording)
-			throws ExecutableException, IOException {
-		ByteArrayOutputStream docStream = new ByteArrayOutputStream();
-
-		Document recDoc = recording.getRecordedDocument().getDocument();
-		recDoc.toOutputStream(docStream);
-
-		Document document = new Document(docStream.toByteArray());
-
-		DocumentService docService = new DocumentService(context);
-		docService.addDocument(document);
-
-		ToolController toolController = new ToolController(context, docService);
-		toolController.start();
-
-		EventExecutor actionExecutor = new DummyEventExecutor(document,
-				toolController, recording.getRecordedEvents().getRecordedPages());
-		actionExecutor.start();
-
-		return document;
-	}
-
 	private void saveDocument() {
 		final String pathContext = EditorContext.SLIDES_CONTEXT;
 		Recording recording = recordingService.getSelectedRecording();
@@ -226,10 +200,14 @@ public class MenuPresenter extends Presenter<MenuView> {
 		};
 
 		CompletableFuture.runAsync(() -> {
+			DocumentEventExecutor docEventExecutor = new DocumentEventExecutor(
+					dummyContext, recording);
 			Document document;
 
 			try {
-				document = executeActions(dummyContext, recording);
+				docEventExecutor.executeEvents();
+
+				document = docEventExecutor.getDocument();
 			}
 			catch (Exception e) {
 				throw new CompletionException(e);

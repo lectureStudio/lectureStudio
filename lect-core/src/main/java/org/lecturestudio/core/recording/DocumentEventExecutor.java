@@ -31,6 +31,7 @@ import org.lecturestudio.core.controller.ToolController;
 import org.lecturestudio.core.model.Document;
 import org.lecturestudio.core.model.DocumentType;
 import org.lecturestudio.core.model.Page;
+import org.lecturestudio.core.recording.action.ActionType;
 import org.lecturestudio.core.recording.action.PageAction;
 import org.lecturestudio.core.recording.action.PlaybackAction;
 import org.lecturestudio.core.recording.action.StaticShapeAction;
@@ -87,10 +88,21 @@ public class DocumentEventExecutor {
 			loadStaticShapes(toolController, document, recPage);
 
 			Stack<PlaybackAction> actions = getPlaybackActions(recPage);
+			boolean extended = false;
 
 			while (!actions.isEmpty()) {
 				PlaybackAction action = actions.pop();
+
+				if (action.getType() == ActionType.EXTEND_VIEW && extended) {
+					// Do not leave extended state to see all annotations.
+					continue;
+				}
+
 				action.execute(toolController);
+
+				if (action.getType() == ActionType.EXTEND_VIEW) {
+					extended = true;
+				}
 			}
 		}
 

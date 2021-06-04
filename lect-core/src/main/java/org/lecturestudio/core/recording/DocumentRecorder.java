@@ -153,7 +153,12 @@ public class DocumentRecorder extends ExecutableBase {
 			return;
 		}
 
-		runIdleTimer(page);
+		if (pageRecordingTimeout < 1) {
+			insertPage(page);
+		}
+		else {
+			runIdleTimer(page);
+		}
 	}
 
 	/**

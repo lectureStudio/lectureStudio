@@ -202,6 +202,10 @@ public class DocumentRecorder extends ExecutableBase {
 			idleTimer.stop();
 		}
 
+		for (var pageState : documentPageMap.values()) {
+			pageState.dispose();
+		}
+
 		documentMap.clear();
 		documentPageMap.clear();
 		recordedPages.clear();

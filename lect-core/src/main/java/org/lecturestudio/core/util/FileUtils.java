@@ -18,6 +18,7 @@
 
 package org.lecturestudio.core.util;
 
+import static java.util.Objects.isNull;
 import static java.util.Objects.nonNull;
 
 import java.io.ByteArrayInputStream;
@@ -49,12 +50,24 @@ import org.lecturestudio.core.app.configuration.Configuration;
 
 public class FileUtils {
 
+	/**
+	 * The default path resolves to 'user.home'.
+	 */
+	public static final String DEFAULT_PATH = System.getProperty("user.home");
+
 	private static final char[] HEX_DIGITS = { '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'a', 'b', 'c', 'd', 'e', 'f' };
 
 
 	public static Path getContextPath(Configuration config, String pathContext) {
+		return getContextPath(config, pathContext, DEFAULT_PATH);
+	}
+
+	public static Path getContextPath(Configuration config, String pathContext, String defaultPath) {
+		if (isNull(defaultPath) || defaultPath.isEmpty()) {
+			defaultPath = DEFAULT_PATH;
+		}
+
 		Map<String, String> contextPaths = config.getContextPaths();
-		String defaultPath = System.getProperty("user.home");
 		String pathStr = contextPaths.getOrDefault(pathContext, defaultPath);
 		Path dirPath = Paths.get(pathStr);
 

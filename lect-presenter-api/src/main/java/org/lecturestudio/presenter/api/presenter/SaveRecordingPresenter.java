@@ -18,11 +18,11 @@
 
 package org.lecturestudio.presenter.api.presenter;
 
-import static java.util.Objects.isNull;
 import static java.util.Objects.nonNull;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Path;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -31,6 +31,7 @@ import javax.inject.Inject;
 
 import org.lecturestudio.core.ExecutableException;
 import org.lecturestudio.core.app.ApplicationContext;
+import org.lecturestudio.core.app.configuration.Configuration;
 import org.lecturestudio.core.app.configuration.ConfigurationService;
 import org.lecturestudio.core.app.configuration.JsonConfigurationService;
 import org.lecturestudio.core.app.dictionary.Dictionary;
@@ -91,26 +92,29 @@ public class SaveRecordingPresenter extends Presenter<SaveRecordingView> {
 	}
 
 	private void chooseFile() {
-		String recordingPath = context.getConfiguration().getAudioConfig().getRecordingPath();
-
-		if (isNull(recordingPath) || recordingPath.isEmpty()) {
-			recordingPath = System.getProperty("user.home");
-		}
-
+		final String pathContext = PresenterContext.RECORDING_CONTEXT;
+		Configuration config = context.getConfiguration();
 		Dictionary dict = context.getDictionary();
+		String recordingPath = config.getAudioConfig().getRecordingPath();
+
+		Path dirPath = FileUtils.getContextPath(config, pathContext, recordingPath);
+
 		String date = dateFormat.format(new Date());
 		String fileName = recordingService.getBestRecordingName() + "-" + date;
-		File recordingDir = new File(recordingPath);
 
 		FileChooserView fileChooser = viewFactory.createFileChooserView();
 		fileChooser.addExtensionFilter(dict.get("file.description.recording"),
 				PresenterContext.RECORDING_EXTENSION);
 		fileChooser.setInitialFileName(fileName);
-		fileChooser.setInitialDirectory(recordingDir);
+		fileChooser.setInitialDirectory(dirPath.toFile());
 
 		File selectedFile = fileChooser.showSaveFile(view);
 
 		if (nonNull(selectedFile)) {
+			config.getContextPaths().put(PresenterContext.RECORDING_CONTEXT,
+					selectedFile.getParent());
+			config.getAudioConfig().setRecordingPath(selectedFile.getParent());
+
 			File recFile = FileUtils.ensureExtension(selectedFile, "." + PresenterContext.RECORDING_EXTENSION);
 
 			view.setDestinationFile(recFile);

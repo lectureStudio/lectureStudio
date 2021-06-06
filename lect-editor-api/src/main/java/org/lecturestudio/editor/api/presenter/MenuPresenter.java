@@ -256,6 +256,9 @@ public class MenuPresenter extends Presenter<MenuView> {
 		File file = fileChooser.showSaveFile(view);
 
 		if (nonNull(file)) {
+			config.getContextPaths().put(EditorContext.RECORDING_CONTEXT,
+					file.getParent());
+
 			ProgressDialogView progressView = viewFactory.getInstance(ProgressDialogView.class);
 			progressView.setMessageTitle(context.getDictionary().get("save.recording"));
 			progressView.setParent(view);

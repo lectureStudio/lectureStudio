@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2020 TU Darmstadt, Department of Computer Science,
+ * Copyright (C) 2021 TU Darmstadt, Department of Computer Science,
  * Embedded Systems and Applications Group.
  *
  * This program is free software: you can redistribute it and/or modify
@@ -16,17 +16,17 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package org.lecturestudio.presenter.api.util;
+package org.lecturestudio.core.app.util;
 
+import org.lecturestudio.core.app.ApplicationContext;
 import org.lecturestudio.core.util.ShutdownHandler;
-import org.lecturestudio.presenter.api.context.PresenterContext;
 
 public class SaveConfigurationHandler extends ShutdownHandler {
 
-	private final PresenterContext context;
+	private final ApplicationContext context;
 
 
-	public SaveConfigurationHandler(PresenterContext context) {
+	public SaveConfigurationHandler(ApplicationContext context) {
 		this.context = context;
 	}
 

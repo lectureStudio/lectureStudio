@@ -38,6 +38,7 @@ import javax.inject.Inject;
 
 import org.lecturestudio.core.app.ApplicationContext;
 import org.lecturestudio.core.app.configuration.Configuration;
+import org.lecturestudio.core.app.util.SaveConfigurationHandler;
 import org.lecturestudio.core.beans.BooleanProperty;
 import org.lecturestudio.core.bus.event.ViewVisibleEvent;
 import org.lecturestudio.core.input.KeyEvent;
@@ -149,20 +150,7 @@ public class MainPresenter extends org.lecturestudio.core.presenter.MainPresente
 		registerShortcut(Shortcut.CLOSE_VIEW, this::closeView);
 
 		addShutdownHandler(new SaveRecordingHandler(context, recordingService));
-		addShutdownHandler(new ShutdownHandler() {
-
-			@Override
-			public boolean execute() {
-				// Save configuration.
-				try {
-					context.saveConfiguration();
-				}
-				catch (Exception e) {
-					logException(e, "Save configuration failed");
-				}
-				return true;
-			}
-		});
+		addShutdownHandler(new SaveConfigurationHandler(context));
 		addShutdownHandler(new ShutdownHandler() {
 
 			@Override

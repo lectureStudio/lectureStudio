@@ -74,8 +74,14 @@ public class VersionChecker {
 			latestRelease = releases.get(0);
 		}
 
+		String latestVersion = latestRelease.getTagName();
+
+		if (latestVersion.startsWith("v")) {
+			latestVersion = latestVersion.substring(1);
+		}
+
 		ComparableVersion appVersion = new ComparableVersion(VersionInfo.getAppVersion());
-		ComparableVersion repoVersion = new ComparableVersion(latestRelease.getTagName());
+		ComparableVersion repoVersion = new ComparableVersion(latestVersion);
 
 		return repoVersion.compareTo(appVersion) > 0;
 	}

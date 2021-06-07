@@ -22,7 +22,7 @@ public abstract class ProviderService {
 		RestClientBuilder builder = RestClientBuilder.newBuilder();
 		builder.baseUri(URI.create(parameters.getUrl()));
 		builder.register(JsonConfig.class);
-		builder.connectTimeout(8, TimeUnit.SECONDS);
+		builder.connectTimeout(12, TimeUnit.SECONDS);
 
 		if (parameters.getUrl().startsWith("https")) {
 			builder.sslContext(createSSLContext());

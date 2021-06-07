@@ -4,9 +4,10 @@ import org.lecturestudio.core.app.ApplicationContext;
 import org.lecturestudio.core.presenter.Presenter;
 import org.lecturestudio.presenter.api.config.PresenterConfiguration;
 import org.lecturestudio.presenter.api.view.DLZSettingsView;
-import org.lecturestudio.web.api.client.DLZRoomClient;
 
-import org.lecturestudio.web.api.model.Room;
+import org.lecturestudio.web.api.client.RoomService;
+import org.lecturestudio.web.api.service.DLZRoomService;
+
 
 import javax.inject.Inject;
 
@@ -21,13 +22,11 @@ public class DLZSettingsPresenter extends Presenter<DLZSettingsView> {
     public void initialize() {
         PresenterConfiguration config = (PresenterConfiguration) context.getConfiguration();
 
-        view.setRoom(DLZRoomClient.defaultRoom);
-        view.setRooms(DLZRoomClient.getRooms());
+        view.setRoom(RoomService.defaultRoom);
+        view.setRooms(DLZRoomService.getRooms());
         view.setOnClose(this::close);
         view.setOnReset(this::reset);
     }
-
-
 
     public void reset() {
         PresenterConfiguration config = (PresenterConfiguration) context.getConfiguration();

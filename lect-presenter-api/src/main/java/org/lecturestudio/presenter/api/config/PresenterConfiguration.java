@@ -22,6 +22,7 @@ import org.lecturestudio.core.app.configuration.Configuration;
 import org.lecturestudio.core.beans.BooleanProperty;
 import org.lecturestudio.core.beans.IntegerProperty;
 import org.lecturestudio.core.beans.StringProperty;
+import org.lecturestudio.web.api.model.Room;
 
 public class PresenterConfiguration extends Configuration {
 
@@ -46,12 +47,12 @@ public class PresenterConfiguration extends Configuration {
 
 	private final NetworkConfiguration networkConfig = new NetworkConfiguration();
 
-	private final StringProperty accessToken = new StringProperty();
+	private Room UsedDLZRoom = new Room("0", "Room0");
 
 
-	public String getAccessToken(){ return accessToken.get();}
+	public Room getUsedDLZRoom(){ return UsedDLZRoom;}
 
-	public void setAccessToken(String accessToken){this.accessToken.set(accessToken);}
+	public void setUsedDLZRoom(Room UsedDLZRoom){this.UsedDLZRoom = UsedDLZRoom;}
 	/**
 	 * @return the classroomName
 	 */

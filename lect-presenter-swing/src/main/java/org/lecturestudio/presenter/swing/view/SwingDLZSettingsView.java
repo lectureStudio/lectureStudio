@@ -41,7 +41,7 @@ public class SwingDLZSettingsView extends JPanel implements DLZSettingsView {
     public void setRoom(ObjectProperty<Room> room) {
         SwingUtils.bindBidirectional(roomsCombo, room);
     }
-
+    //PresenterConfiguration config = (PresenterConfiguration) context.getConfiguration();
 
     @Override
     public void setOnClose(org.lecturestudio.core.view.Action action) {

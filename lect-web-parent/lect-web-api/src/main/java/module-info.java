@@ -5,6 +5,7 @@ module org.lecturestudio.web.api {
 	requires jakarta.inject.api;
 	requires java.json;
 	requires java.json.bind;
+	requires java.net.http;
 	requires java.persistence;
 	requires java.ws.rs;
 	requires maven.artifact;

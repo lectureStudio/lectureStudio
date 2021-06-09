@@ -27,44 +27,59 @@ package org.lecturestudio.web.api.janus.message;
 public enum JanusEventType {
 
 	/**
+	 * To get generic info from the server.
+	 */
+	INFO("info"),
+
+	/**
+	 * Info response from the server.
+	 */
+	SERVER_INFO("server_info"),
+
+	/**
 	 * To create a new session with the server.
 	 */
-	CREATE,
+	CREATE("create"),
 
 	/**
 	 * If the request is successful.
 	 */
-	SUCCESS,
+	SUCCESS("success"),
 
 	/**
 	 * To create a new handle to attach to a plugin.
 	 */
-	ATTACH,
+	ATTACH("attach"),
 
 	/**
 	 * To detach from a plugin and destroy the plugin handle.
 	 */
-	DETACH,
+	DETACH("detach"),
+
+	/**
+	 * Occurs when e.g. a session was destroyed due to inactivity.
+	 */
+	TIMEOUT("timeout"),
 
 	/**
 	 * To destroy the current session.
 	 */
-	DESTROY,
+	DESTROY("destroy"),
 
 	/**
 	 * If the server failed to process the request.
 	 */
-	ERROR,
+	ERROR("error"),
 
 	/**
 	 * For everything that is related to the communication with a plugin.
 	 */
-	MESSAGE,
+	MESSAGE("message"),
 
 	/**
 	 * To keep a session alive.
 	 */
-	KEEP_ALIVE,
+	KEEP_ALIVE("keepalive"),
 
 
 	// WebRTC-related events.
@@ -73,23 +88,44 @@ public enum JanusEventType {
 	 * ICE and DTLS succeeded. A PeerConnection has been correctly established
 	 * with the user/application.
 	 */
-	WEBRTC_UP,
+	WEBRTC_UP("webrtcup"),
 
 	/**
 	 * Whether Janus is receiving audio/video on the PeerConnection.
 	 */
-	MEDIA,
+	MEDIA("media"),
 
 	/**
 	 * Whether Janus is reporting trouble sending/receiving media on the
 	 * PeerConnection.
 	 */
-	SLOW_LINK,
+	SLOW_LINK("slowlink"),
 
 	/**
 	 * The PeerConnection was closed, either by Janus or by the
 	 * user/application, and as such cannot be used anymore.
 	 */
-	HANGUP,
+	HANGUP("hangup");
 
+
+	private final String type;
+
+
+	JanusEventType(String type) {
+		this.type = type;
+	}
+
+	public String getType() {
+		return type;
+	}
+
+	public static JanusEventType fromType(String typeStr) {
+		for (var value : JanusEventType.values()) {
+			if (value.getType().equals(typeStr)) {
+				return value;
+			}
+		}
+
+		return null;
+	}
 }

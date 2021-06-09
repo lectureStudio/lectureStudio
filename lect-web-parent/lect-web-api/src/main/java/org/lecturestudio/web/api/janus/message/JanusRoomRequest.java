@@ -18,40 +18,39 @@
 
 package org.lecturestudio.web.api.janus.message;
 
-import java.math.BigInteger;
-
 import javax.json.bind.annotation.JsonbProperty;
+import javax.json.bind.annotation.JsonbTypeAdapter;
+
+import org.lecturestudio.web.api.janus.json.RoomEventTypeAdapter;
 
 /**
- * Session message to perform session related requests with the Janus WebRTC
- * Server. The session message contains fields, such as the session ID, to be
- * used with push mechanisms made available by transport protocols like
- * WebSockets, RabbitMQ, MQTT, etc. For a plain HTTP REST communication this
- * message type may not be used.
+ * Basic request message implementation to perform room related requests with
+ * the video-room plugin running on the Janus WebRTC Server.
  *
  * @author Alex Andres
  */
-public class JanusSessionMessage extends JanusMessage {
+public abstract class JanusRoomRequest {
 
-	@JsonbProperty("session_id")
-	private final BigInteger sessionId;
+	@JsonbProperty("request")
+	@JsonbTypeAdapter(RoomEventTypeAdapter.class)
+	private JanusRoomRequestType requestType;
 
 
 	/**
-	 * Create a new {@code JanusSessionMessage} with the specified parameters.
+	 * Get the event type this request describes.
 	 *
-	 * @param sessionId The unique integer session ID.
+	 * @return The request event type.
 	 */
-	public JanusSessionMessage(BigInteger sessionId) {
-		this.sessionId = sessionId;
+	public JanusRoomRequestType getRequestType() {
+		return requestType;
 	}
 
 	/**
-	 * Get the unique session ID.
+	 * Set the event type this request describes.
 	 *
-	 * @return The unique integer session ID.
+	 * @param requestType The request event type.
 	 */
-	public BigInteger getSessionId() {
-		return sessionId;
+	public void setRequestType(JanusRoomRequestType requestType) {
+		this.requestType = requestType;
 	}
 }

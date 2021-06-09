@@ -20,42 +20,44 @@ package org.lecturestudio.web.api.janus.message;
 
 import java.math.BigInteger;
 
-import javax.json.bind.annotation.JsonbProperty;
-
 /**
- * Plugin message to perform plugin related requests with the Janus WebRTC
- * Server. The plugin message builds up on the {@link JanusSessionMessage}. The
- * plugin message contains fields, such as the plugin handle ID, to be used with
- * push mechanisms made available by transport protocols like WebSockets,
- * RabbitMQ, MQTT, etc. For a plain HTTP REST communication this message type
- * may not be used.
+ * Message to send request related data to a plugin.
  *
  * @author Alex Andres
  */
-public class JanusPluginMessage extends JanusSessionMessage {
+public class JanusPluginDataMessage extends JanusPluginMessage {
 
-	@JsonbProperty("handle_id")
-	private final BigInteger handleId;
+	private Object body;
 
 
 	/**
-	 * Create a new {@code JanusPluginMessage} with the specified parameters.
+	 * Create a new {@code JanusPluginDataMessage}.
 	 *
 	 * @param sessionId The unique integer session ID.
 	 * @param handleId  The unique integer plugin handle ID.
 	 */
-	public JanusPluginMessage(BigInteger sessionId, BigInteger handleId) {
-		super(sessionId);
+	public JanusPluginDataMessage(BigInteger sessionId, BigInteger handleId) {
+		super(sessionId, handleId);
 
-		this.handleId = handleId;
+		setEventType(JanusEventType.MESSAGE);
 	}
 
 	/**
-	 * Get the unique plugin handle ID.
+	 * Get data body of this message.
 	 *
-	 * @return The unique integer plugin handle ID.
+	 * @return The data body.
 	 */
-	public BigInteger getHandleId() {
-		return handleId;
+	public Object getBody() {
+		return body;
+	}
+
+	/**
+	 * Set data body of this message. The body contains specific plugin
+	 * configuration data.
+	 *
+	 * @param body The data body.
+	 */
+	public void setBody(Object body) {
+		this.body = body;
 	}
 }

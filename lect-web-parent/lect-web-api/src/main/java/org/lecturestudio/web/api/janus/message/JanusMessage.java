@@ -18,6 +18,11 @@
 
 package org.lecturestudio.web.api.janus.message;
 
+import javax.json.bind.annotation.JsonbProperty;
+import javax.json.bind.annotation.JsonbTypeAdapter;
+
+import org.lecturestudio.web.api.janus.json.EventTypeAdapter;
+
 /**
  * Basic message implementation to communicate with endpoints of the Janus
  * WebRTC Server. The {@code JanusMessage} is meant to be extended by specific
@@ -29,6 +34,8 @@ package org.lecturestudio.web.api.janus.message;
  */
 public class JanusMessage {
 
+	@JsonbProperty("janus")
+	@JsonbTypeAdapter(EventTypeAdapter.class)
 	private JanusEventType eventType;
 
 	private String transaction;

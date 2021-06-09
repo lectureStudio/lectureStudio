@@ -20,8 +20,6 @@ package org.lecturestudio.web.api.janus.message;
 
 import java.math.BigInteger;
 
-import javax.json.bind.annotation.JsonbProperty;
-
 /**
  * Plugin message to perform plugin related requests with the Janus WebRTC
  * Server. The plugin message builds up on the {@link JanusSessionMessage}. The
@@ -32,30 +30,31 @@ import javax.json.bind.annotation.JsonbProperty;
  *
  * @author Alex Andres
  */
-public class JanusPluginMessage extends JanusSessionMessage {
+public class JanusPluginAttachMessage extends JanusSessionMessage {
 
-	@JsonbProperty("handle_id")
-	private final BigInteger handleId;
+	private final String plugin;
 
 
 	/**
 	 * Create a new {@code JanusPluginMessage} with the specified parameters.
 	 *
-	 * @param sessionId The unique integer session ID.
-	 * @param handleId  The unique integer plugin handle ID.
+	 * @param sessionId  The unique integer session ID.
+	 * @param pluginName The plugin's unique package name.
 	 */
-	public JanusPluginMessage(BigInteger sessionId, BigInteger handleId) {
+	public JanusPluginAttachMessage(BigInteger sessionId, String pluginName) {
 		super(sessionId);
 
-		this.handleId = handleId;
+		setEventType(JanusEventType.ATTACH);
+
+		this.plugin = pluginName;
 	}
 
 	/**
-	 * Get the unique plugin handle ID.
+	 * Get the plugin's unique package name.
 	 *
-	 * @return The unique integer plugin handle ID.
+	 * @return The plugin package name.
 	 */
-	public BigInteger getHandleId() {
-		return handleId;
+	public String getPluginName() {
+		return plugin;
 	}
 }

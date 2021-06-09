@@ -20,30 +20,29 @@ package org.lecturestudio.web.api.janus.message;
 
 import java.math.BigInteger;
 
-import javax.json.bind.annotation.JsonbProperty;
-
 /**
- * Session message to perform session related requests with the Janus WebRTC
- * Server. The session message contains fields, such as the session ID, to be
- * used with push mechanisms made available by transport protocols like
- * WebSockets, RabbitMQ, MQTT, etc. For a plain HTTP REST communication this
- * message type may not be used.
+ * Timeout message returned by the Janus WebRTC Server. This message is returned
+ * when a session was destroyed due to inactivity. This happens if Janus doesn't
+ * receive any activity (requests, long polls) for a session and the client does
+ * not report keep-alive messages for a time period configured in Janus.
  *
  * @author Alex Andres
  */
-public class JanusSessionMessage extends JanusMessage {
+public class JanusSessionTimeoutMessage extends JanusMessage {
 
-	@JsonbProperty("session_id")
-	private final BigInteger sessionId;
+	private final BigInteger id;
 
 
 	/**
-	 * Create a new {@code JanusSessionMessage} with the specified parameters.
+	 * Create a new {@code JanusSessionSuccessMessage} with the specified
+	 * parameters.
 	 *
-	 * @param sessionId The unique integer session ID.
+	 * @param id The unique session ID.
 	 */
-	public JanusSessionMessage(BigInteger sessionId) {
-		this.sessionId = sessionId;
+	public JanusSessionTimeoutMessage(BigInteger id) {
+		setEventType(JanusEventType.TIMEOUT);
+
+		this.id = id;
 	}
 
 	/**
@@ -51,7 +50,7 @@ public class JanusSessionMessage extends JanusMessage {
 	 *
 	 * @return The unique integer session ID.
 	 */
-	public BigInteger getSessionId() {
-		return sessionId;
+	public BigInteger getId() {
+		return id;
 	}
 }

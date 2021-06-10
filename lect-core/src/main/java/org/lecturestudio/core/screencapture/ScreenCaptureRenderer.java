@@ -18,55 +18,95 @@
 
 package org.lecturestudio.core.screencapture;
 
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import dev.onvoid.webrtc.media.video.desktop.DesktopCapturer;
+import dev.onvoid.webrtc.media.video.desktop.DesktopFrame;
+import dev.onvoid.webrtc.media.video.desktop.WindowCapturer;
 import org.lecturestudio.core.model.Page;
 import org.lecturestudio.core.pdf.DocumentRenderer;
-import org.lecturestudio.core.util.WindowUtils;
 import org.lecturestudio.core.view.PresentationParameter;
 
 import java.awt.*;
+import java.awt.geom.AffineTransform;
+import java.awt.image.AffineTransformOp;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
 
 public class ScreenCaptureRenderer implements DocumentRenderer {
 
-    private static final Logger LOG = LogManager.getLogger(ScreenCaptureRenderer.class);
-
     private final Object lock = new Object();
 
     private final ScreenCaptureDocument document;
 
+    private WindowCapturer capturer;
+
     public ScreenCaptureRenderer(ScreenCaptureDocument document) {
         this.document = document;
+        capturer = new WindowCapturer();
+        capturer.start((result, desktopFrame) -> {
+            if (result == DesktopCapturer.Result.SUCCESS) {
+                lastDesktopFrame = desktopFrame;
+            }
+        });
     }
+
+    private int lastPageNumber;
+    private DesktopFrame lastDesktopFrame;
 
     @Override
     public void render(Page page, PresentationParameter parameter, BufferedImage image) throws IOException {
         if (page.getDocument().isScreenCapture()) {
             synchronized (lock) {
+                int pageNumber = page.getPageNumber();
 
-                ScreenCapture screenCapture = document.getScreenCapture(page.getPageNumber());
-                System.out.println("Render screen capture for window: " + screenCapture.getWindowInfo().getTitle());
-
-                // TODO: Implement rendering of screen capture
-
-                Graphics2D g = image.createGraphics();
-                g.setColor(Color.WHITE);
-
-                try {
-                    // Create screenshot from window and draw it to graphic
-                    image = WindowUtils.createScreenCapture(screenCapture.getWindowInfo().getHandle());
-                    int imageWidth = image.getWidth();
-                    int imageHeight = image.getHeight();
-
-                    // g.drawImage(image, 0, 0, imageWidth, imageHeight, null);
-                } catch (AWTException e) {
-                    e.printStackTrace();
+                BufferedImage previewImage = document.getPageFrame(pageNumber);
+                if (previewImage != null) {
+                    Graphics2D g = image.createGraphics();
+                    // System.out.println("Render Page " + page.getPageNumber() + ": " + previewImage.getWidth() + "x" + previewImage.getHeight());
+                    g.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BILINEAR);
+                    g.drawImage(previewImage, 0, 0, image.getWidth(), image.getHeight(), 0, 0, previewImage.getWidth(), previewImage.getHeight(), null);
+                    g.dispose();
                 }
 
-                g.dispose();
+//                DesktopSource captureSource = document.getScreenCaptureSource(pageNumber);
+//                System.out.println("Render screen capture for window: " + captureSource.title);
+//
+//                if (lastDesktopFrame != null && lastPageNumber == pageNumber) {
+//                    Graphics2D g = image.createGraphics();
+//                    g.setColor(Color.WHITE);
+//
+//                    // Create screenshot from window and draw it to graphic
+//                    image = ImageIO.read(new ByteArrayInputStream(lastDesktopFrame.buffer.array()));
+//                    g.drawImage(image, 0, 0, lastDesktopFrame.frameSize.width, lastDesktopFrame.frameSize.height, null);
+//                    g.dispose();
+//                } else {
+//                    capturer.selectSource(captureSource);
+//                    capturer.captureFrame();
+//                    lastPageNumber = pageNumber;
+//                }
             }
         }
+    }
+
+    private BufferedImage cropAndScaleImage(BufferedImage sourceImage, int width, int height) {
+
+        // TODO: Switch to WebRTC scale and cropping
+
+        AffineTransform transform = new AffineTransform();
+        transform.scale(2.0, 2.0);
+
+        AffineTransformOp scaleOperation = new AffineTransformOp(transform, AffineTransformOp.TYPE_BILINEAR);
+
+        BufferedImage newImage = new BufferedImage(width, height, sourceImage.getType());
+
+
+        //ScreenCaptureUtils.createBufferedImage(width, height);
+        return scaleOperation.filter(sourceImage, newImage);
+
+//        List<VideoDevice> devices = MediaDevices.getVideoCaptureDevices();
+//        for (VideoDevice device : devices) {
+//            System.out.println(device.getName() + " " + device.getDescriptor());
+//        }
+//
+//        return sourceImage;
     }
 }

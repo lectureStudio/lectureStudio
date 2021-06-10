@@ -19,6 +19,7 @@
 package org.lecturestudio.swing.components;
 
 import dev.onvoid.webrtc.media.video.desktop.DesktopFrame;
+import org.lecturestudio.core.util.ScreenCaptureUtils;
 import org.opencv.core.CvType;
 import org.opencv.core.Mat;
 import org.opencv.core.Size;
@@ -26,8 +27,9 @@ import org.opencv.imgproc.Imgproc;
 
 import javax.swing.*;
 import java.awt.*;
-import java.awt.color.ColorSpace;
-import java.awt.image.*;
+import java.awt.image.BufferedImage;
+import java.awt.image.DataBuffer;
+import java.awt.image.DataBufferByte;
 
 import static java.util.Objects.isNull;
 import static java.util.Objects.nonNull;
@@ -45,6 +47,9 @@ public class ImageView extends JComponent {
 
     private BufferedImage image;
 
+    public void setImage(BufferedImage image) {
+        this.image = image;
+    }
 
     public void drawFrame(DesktopFrame frame) {
         int width = frame.frameSize.width;
@@ -54,7 +59,7 @@ public class ImageView extends JComponent {
         int viewHeight = getPreferredSize().height;
 
         // Copy frame byte buffer into a buffered image.
-        BufferedImage frameImage = createViewImage(width, height);
+        BufferedImage frameImage = ScreenCaptureUtils.createBufferedImage(width, height);
 
         DataBuffer imageBuffer = frameImage.getRaster().getDataBuffer();
         DataBufferByte byteBuffer = (DataBufferByte) imageBuffer;
@@ -66,7 +71,7 @@ public class ImageView extends JComponent {
                 viewHeight);
 
         if (isNull(image) || image.getWidth() != rect.width || image.getHeight() != rect.height) {
-            image = createViewImage(rect.width, rect.height);
+            image = ScreenCaptureUtils.createBufferedImage(rect.width, rect.height);
         }
 
         scaleOpenCv(frameImage, rect.width, rect.height);
@@ -94,22 +99,6 @@ public class ImageView extends JComponent {
         if (nonNull(image)) {
             g.drawImage(image, 0, 0, this);
         }
-    }
-
-    private BufferedImage createViewImage(int width, int height) {
-        ColorSpace cs = ColorSpace.getInstance(ColorSpace.CS_sRGB);
-        int[] nBits = { 8, 8, 8, 8 };
-        int[] bOffs = { 2, 1, 0, 3 }; // bgra
-        ColorModel colorModel = new ComponentColorModel(cs, nBits, true, false,
-                Transparency.TRANSLUCENT,
-                DataBuffer.TYPE_BYTE);
-
-        WritableRaster wr = Raster.createInterleavedRaster(DataBuffer.TYPE_BYTE,
-                width, height,
-                width * 4, 4,
-                bOffs, null);
-
-        return new BufferedImage(colorModel, wr, false, null);
     }
 
     private Rectangle getScaledBounds(int imageWidth,

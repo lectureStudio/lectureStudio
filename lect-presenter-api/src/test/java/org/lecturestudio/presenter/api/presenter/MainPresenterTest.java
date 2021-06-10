@@ -57,7 +57,6 @@ class MainPresenterTest extends PresenterTest {
 
 	private RecordingService recordingService;
 
-
 	@BeforeEach
 	void setup() throws IOException {
 		AudioConfiguration audioConfig = context.getConfiguration().getAudioConfig();

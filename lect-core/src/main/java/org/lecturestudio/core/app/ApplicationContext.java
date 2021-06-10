@@ -18,9 +18,6 @@
 
 package org.lecturestudio.core.app;
 
-import java.util.HashMap;
-import java.util.Map;
-
 import org.lecturestudio.core.app.configuration.Configuration;
 import org.lecturestudio.core.app.dictionary.Dictionary;
 import org.lecturestudio.core.beans.BooleanProperty;
@@ -29,6 +26,9 @@ import org.lecturestudio.core.model.DocumentList;
 import org.lecturestudio.core.service.DocumentService;
 import org.lecturestudio.core.view.PresentationParameterProvider;
 import org.lecturestudio.core.view.ViewType;
+
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * Base application context implementation that holds data object required by

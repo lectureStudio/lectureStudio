@@ -18,18 +18,10 @@
 
 package org.lecturestudio.core.model;
 
-import java.io.File;
-import java.net.URI;
-import java.util.List;
-import java.util.Set;
-import java.util.Stack;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.CopyOnWriteArrayList;
-
 import org.lecturestudio.core.PageMetrics;
 import org.lecturestudio.core.geometry.Rectangle2D;
-import org.lecturestudio.core.model.action.ShapeAction;
 import org.lecturestudio.core.model.action.DeleteShapeAction;
+import org.lecturestudio.core.model.action.ShapeAction;
 import org.lecturestudio.core.model.listener.PageEditEvent;
 import org.lecturestudio.core.model.listener.PageEditedListener;
 import org.lecturestudio.core.model.listener.ShapeChangeListener;
@@ -37,6 +29,14 @@ import org.lecturestudio.core.model.listener.ShapeListener;
 import org.lecturestudio.core.model.shape.Shape;
 import org.lecturestudio.core.tool.ShapeModifyEvent;
 import org.lecturestudio.core.tool.ShapePaintEvent;
+
+import java.io.File;
+import java.net.URI;
+import java.util.List;
+import java.util.Set;
+import java.util.Stack;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 /**
  * This class is the representation of a Page in a Document. It has a background
@@ -89,10 +89,19 @@ public class Page {
 
 	private final int pageNumber;
 
+	private boolean isRecordable = true;
 
 	public Page(Document document, int pageNumber) {
 		this.document = document;
 		this.pageNumber = pageNumber;
+	}
+
+	public boolean isRecordable() {
+		return isRecordable;
+	}
+
+	public void setRecordable(boolean isRecordable) {
+		this.isRecordable = isRecordable;
 	}
 
 	public Rectangle2D getPageRect() {

@@ -26,6 +26,7 @@ import org.lecturestudio.core.input.KeyEvent;
 import org.lecturestudio.core.model.*;
 import org.lecturestudio.core.tool.ToolType;
 import org.lecturestudio.core.view.*;
+import org.lecturestudio.presenter.api.model.ScreenCapture;
 import org.lecturestudio.presenter.api.stylus.StylusHandler;
 import org.lecturestudio.web.api.message.MessengerMessage;
 
@@ -46,6 +47,12 @@ public interface SlidesView extends View {
 	void removeDocument(Document doc);
 
 	void selectDocument(Document doc);
+
+	void addScreenCapture(ScreenCapture capture);
+
+	void removeScreenCapture(ScreenCapture capture);
+
+	void selectScreenCapture(ScreenCapture capture);
 
 	Page getPage();
 
@@ -84,8 +91,6 @@ public interface SlidesView extends View {
 	void setOnNewPage(Action action);
 
 	void setOnDeletePage(Action action);
-
-	void setOnScreenCapturePause(Action action);
 
 	void setOnOutlineItem(ConsumerAction<DocumentOutlineItem> action);
 

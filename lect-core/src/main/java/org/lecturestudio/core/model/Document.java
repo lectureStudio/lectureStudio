@@ -23,12 +23,14 @@ import org.apache.logging.log4j.Logger;
 import org.lecturestudio.core.geometry.Dimension2D;
 import org.lecturestudio.core.geometry.Rectangle2D;
 import org.lecturestudio.core.model.listener.DocumentChangeListener;
+import org.lecturestudio.core.model.shape.ImageShape;
 import org.lecturestudio.core.model.shape.Shape;
 import org.lecturestudio.core.pdf.DocumentRenderer;
 import org.lecturestudio.core.pdf.PdfDocument;
 import org.lecturestudio.core.screencapture.ScreenCaptureDocument;
 import org.lecturestudio.core.util.FileUtils;
 
+import java.awt.image.BufferedImage;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
@@ -149,16 +151,22 @@ public class Document {
 		fireDocumentChange();
 	}
 
+	public void setScreenCaptureDocument(ScreenCaptureDocument screenCaptureDocument) {
+		close();
+		initScreenCapture(screenCaptureDocument);
+		fireDocumentChange();
+	}
+
 	public void setPageSize(Dimension2D size) {
 		pageSize = size;
 	}
 
 	public Rectangle2D getPageRect(int pageIndex) {
-		return pdfDocument != null ? pdfDocument.getPageMediaBox(pageIndex) : screenCaptureDocument.getScreenCaptureRect(pageIndex);
+		return pdfDocument != null ? pdfDocument.getPageMediaBox(pageIndex) : screenCaptureDocument.getPageRect(pageIndex);
 	}
 
 	public String getPageText(int pageIndex) {
-		return pdfDocument != null ? pdfDocument.getPageText(pageIndex) : screenCaptureDocument.getScreenCaptureText(pageIndex);
+		return pdfDocument != null ? pdfDocument.getPageText(pageIndex) : screenCaptureDocument.getPageText(pageIndex);
 	}
 	
 	public List<Rectangle2D> getTextPositions(int pageIndex) {
@@ -295,6 +303,9 @@ public class Document {
 			if (isPDF()) {
 				pdfDocument.removePage(pageNumber);
 			}
+			else if (isScreenCapture()) {
+				screenCaptureDocument.removePage(pageNumber);
+			}
 
 			if (isSelected) {
 				currentPageNumber = -1;
@@ -358,7 +369,7 @@ public class Document {
 	}
 
 	public Page createPage() {
-		int pageIndex = pdfDocument != null ? pdfDocument.createPage(pageSize) : screenCaptureDocument.createScreenCapture();
+		int pageIndex = isScreenCapture() ? screenCaptureDocument.createPage(pageSize) : pdfDocument.createPage(pageSize);
 
 		Page newPage = new Page(this, pageIndex);
 		addPage(newPage);
@@ -496,19 +507,19 @@ public class Document {
 	 * 
 	 * @param page The new page.
 	 */
-	private void addPage(Page page) {
+	protected void addPage(Page page) {
 		pages.add(page);
 		
 		fireAddChange(page);
 	}
 
-	private synchronized Page importPage(Page page, Rectangle2D pageRect)
+	protected synchronized Page importPage(Page page, Rectangle2D pageRect)
 			throws IOException {
 
 		int pageIndex;
 		if (isScreenCapture()) {
 			ScreenCaptureDocument screenCaptureDocument = page.getDocument().getScreenCaptureDocument();
-			pageIndex = screenCaptureDocument.importScreenCapture(screenCaptureDocument, page.getPageNumber(), pageRect);
+			pageIndex = screenCaptureDocument.importPage(screenCaptureDocument, page.getPageNumber(), pageRect);
 		}
 		else {
 			PdfDocument pagePdfDocument = page.getDocument().getPdfDocument();
@@ -533,21 +544,25 @@ public class Document {
 
 			pdfDocument.replacePage(page.getPageNumber(), newPdfDocument, docIndex);
 		}
+		else if (isScreenCapture()) {
+			ScreenCaptureDocument newScreenCaptureDocument = newPage.getDocument().getScreenCaptureDocument();
+			screenCaptureDocument.replacePage(page.getPageNumber(), newScreenCaptureDocument, newPage.getPageNumber());
+		}
 	}
 
-	private void fireDocumentChange() {
+	protected void fireDocumentChange() {
 		for (DocumentChangeListener listener : changeListeners) {
 			listener.documentChanged(this);
 		}
 	}
 
-	private void fireAddChange(Page page) {
+	protected void fireAddChange(Page page) {
 		for (DocumentChangeListener listener : changeListeners) {
 			listener.pageAdded(page);
 		}
 	}
 
-	private void fireRemoveChange(Page page) {
+	protected void fireRemoveChange(Page page) {
 		for (DocumentChangeListener listener : changeListeners) {
 			listener.pageRemoved(page);
 		}
@@ -570,6 +585,8 @@ public class Document {
 	private void initScreenCapture(ScreenCaptureDocument screenCaptureDocument) {
 		this.screenCaptureDocument = screenCaptureDocument;
 		setDocumentType(DocumentType.SCREEN_CAPTURE);
+		setTitle(screenCaptureDocument.getTitle());
+
 		loadPages();
 	}
 
@@ -595,9 +612,17 @@ public class Document {
 			}
 		}
 		else {
-			pageCount = screenCaptureDocument.getScreenCaptureCount();
+			pageCount = screenCaptureDocument.getPageCount();
 			for (int i = 0; i < pageCount; i++) {
 				Page page = new Page(this, i);
+
+				// Load preview image and add it as shape
+				BufferedImage previewImage = screenCaptureDocument.getPageFrame(i);
+				if (previewImage != null) {
+					ImageShape shape = new ImageShape();
+					shape.setImage(previewImage);
+					page.addShape(shape);
+				}
 
 				// TODO: Load Editable Shapes from screen capture
 

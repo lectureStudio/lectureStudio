@@ -18,11 +18,13 @@
 
 package org.lecturestudio.presenter.api.presenter;
 
-import dev.onvoid.webrtc.media.video.desktop.DesktopCapturer;
 import dev.onvoid.webrtc.media.video.desktop.DesktopSource;
 import dev.onvoid.webrtc.media.video.desktop.DesktopSourceType;
+import dev.onvoid.webrtc.media.video.desktop.WindowCapturer;
 import org.lecturestudio.core.app.ApplicationContext;
 import org.lecturestudio.core.presenter.Presenter;
+import org.lecturestudio.core.service.DocumentService;
+import org.lecturestudio.core.util.ScreenCaptureUtils;
 import org.lecturestudio.core.view.ViewLayer;
 import org.lecturestudio.presenter.api.service.ScreenCaptureService;
 import org.lecturestudio.presenter.api.view.ScreenCaptureSourceSelectionView;
@@ -32,22 +34,22 @@ import java.util.List;
 
 public class ScreenCaptureSelectionPresenter extends Presenter<ScreenCaptureSourceSelectionView> implements ScreenCaptureService.ScreenCaptureSourceListChangeListener {
 
-    private final ScreenCaptureService service;
+    private final DocumentService documentService;
 
     @Inject
-    public ScreenCaptureSelectionPresenter(ApplicationContext context, ScreenCaptureSourceSelectionView view, ScreenCaptureService service) {
+    public ScreenCaptureSelectionPresenter(ApplicationContext context, ScreenCaptureSourceSelectionView view, DocumentService documentService) {
         super(context, view);
-        this.service = service;
+        this.documentService = documentService;
+
+        WindowCapturer capturer = new WindowCapturer();
 
         // Populate view with window sources once at startup
-        OnDesktopSourceListChange(service.getWindowSources(), DesktopSourceType.WINDOW);
+        OnDesktopSourceListChange(capturer.getDesktopSources(), DesktopSourceType.WINDOW);
         // OnDesktopSourceListChange(service.getScreenSources(), DesktopSourceType.SCREEN);
     }
 
     @Override
     public void initialize() {
-        service.registerSourceListChangeListener(this);
-
         view.setOnOk(this::confirmSelection);
         view.setOnClose(this::close);
     }
@@ -63,18 +65,14 @@ public class ScreenCaptureSelectionPresenter extends Presenter<ScreenCaptureSour
             view.addDesktopSource(source, type);
 
             // TODO: Find a way to capture preview frames asynchronous
-            service.captureFrame(source, (result, frame) -> {
-                if (result == DesktopCapturer.Result.SUCCESS) {
-                    view.updateSourcePreviewFrame(source, frame);
-                }
-            });
+            ScreenCaptureUtils.requestFrame(source, image -> view.updateSourcePreviewImage(source, image));
         }
     }
 
     private void confirmSelection() {
         DesktopSource selectedSource = view.getSelectedSource();
         if (selectedSource != null) {
-            service.setSelectedSource(selectedSource);
+            documentService.addScreenCapture(selectedSource).join();
         }
         close();
     }

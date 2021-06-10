@@ -18,17 +18,18 @@
 
 package org.lecturestudio.presenter.api.view;
 
-import dev.onvoid.webrtc.media.video.desktop.DesktopFrame;
 import dev.onvoid.webrtc.media.video.desktop.DesktopSource;
 import dev.onvoid.webrtc.media.video.desktop.DesktopSourceType;
 import org.lecturestudio.core.view.Action;
 import org.lecturestudio.core.view.View;
 
+import java.awt.image.BufferedImage;
+
 public interface ScreenCaptureSourceSelectionView extends View {
 
     void addDesktopSource(DesktopSource source, DesktopSourceType type);
     void removeDesktopSource(DesktopSource source, DesktopSourceType type);
-    void updateSourcePreviewFrame(DesktopSource source, DesktopFrame frame);
+    void updateSourcePreviewImage(DesktopSource source, BufferedImage image);
 
     DesktopSource getSelectedSource();
 

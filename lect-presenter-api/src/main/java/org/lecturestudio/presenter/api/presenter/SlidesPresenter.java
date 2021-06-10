@@ -302,10 +302,8 @@ public class SlidesPresenter extends Presenter<SlidesView> {
 				documentService.createWhiteboardPage();
 				return;
 			case SCREEN_CAPTURE:
-				System.out.println("Open Screen Capture Selection Screen");
-
-				// TODO: Open screen capture selection screen
 				documentService.createScreenCapturePage();
+//				eventBus.post(new ShowPresenterCommand<>(ScreenCaptureSelectionPresenter.class));
 		}
 	}
 
@@ -318,10 +316,6 @@ public class SlidesPresenter extends Presenter<SlidesView> {
 			case SCREEN_CAPTURE:
 				documentService.deleteScreenCapturePage();
 		}
-	}
-
-	private void pauseScreenCapture() {
-		// TODO: Implement screen capture pausing
 	}
 
 	private void selectPage(Page page) {
@@ -410,7 +404,9 @@ public class SlidesPresenter extends Presenter<SlidesView> {
 
 		loadPageObjectViews(page);
 
-		recordPage(page);
+		if (page.isRecordable()) {
+			recordPage(page);
+		}
 	}
 
 	private void pageShapeAdded(Shape shape) {
@@ -562,7 +558,6 @@ public class SlidesPresenter extends Presenter<SlidesView> {
 		view.setOnKeyEvent(this::keyEvent);
 		view.setOnNewPage(this::newPage);
 		view.setOnDeletePage(this::deletePage);
-		view.setOnScreenCapturePause(this::pauseScreenCapture);
 		view.setOnSelectPage(this::selectPage);
 		view.setOnSelectDocument(this::selectDocument);
 		view.setOnViewTransform(this::setViewTransform);

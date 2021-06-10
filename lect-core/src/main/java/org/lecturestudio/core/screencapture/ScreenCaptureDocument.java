@@ -18,33 +18,45 @@
 
 package org.lecturestudio.core.screencapture;
 
+import dev.onvoid.webrtc.media.video.desktop.DesktopCapturer;
 import dev.onvoid.webrtc.media.video.desktop.DesktopSource;
+import dev.onvoid.webrtc.media.video.desktop.WindowCapturer;
+import org.lecturestudio.core.geometry.Dimension2D;
 import org.lecturestudio.core.geometry.Rectangle2D;
 import org.lecturestudio.core.model.DocumentOutline;
 import org.lecturestudio.core.model.DocumentOutlineItem;
 import org.lecturestudio.core.pdf.DocumentRenderer;
-import org.lecturestudio.core.util.WindowInfo;
-import org.lecturestudio.core.util.WindowUtils;
+import org.lecturestudio.core.util.ScreenCaptureUtils;
 
-import java.awt.*;
-import java.util.ArrayList;
-import java.util.List;
+import java.awt.image.BufferedImage;
+import java.util.HashMap;
 import java.util.Map;
 
 import static java.util.Objects.isNull;
 
+/**
+ * The ScreenCaptureDocument implements all methods required to handle a screen capture of a certain DesktopSource.
+ */
 public class ScreenCaptureDocument {
 
+    private final DesktopSource source;
     private final DocumentRenderer renderer;
 
-    private final List<ScreenCapture> screenCaptures = new ArrayList<>();
-
-    private Map<Long, DesktopSource> captureSources;
+    private final Map<Integer, BufferedImage> pageFrames = new HashMap<>();
 
     private DocumentOutline outline;
 
-    public ScreenCaptureDocument() {
-        renderer = new ScreenCaptureRenderer(this);
+    public ScreenCaptureDocument(DesktopSource source) {
+        this.source = source;
+        this.renderer = new ScreenCaptureRenderer(this);
+    }
+
+    public long getId() {
+        return source.id;
+    }
+
+    public String getTitle() {
+        return source.title;
     }
 
     public DocumentRenderer getDocumentRenderer() {
@@ -62,47 +74,77 @@ public class ScreenCaptureDocument {
         return outline;
     }
 
-    public int addDesktopSource(DesktopSource source) {
-        return 0;
+    public int createPage(Dimension2D size) {
+        int pageNumber = getPageCount();
+
+        // captureFrame(pageNumber);
+
+        BufferedImage image = ScreenCaptureUtils.createBufferedImage((int) size.getWidth(), (int) size.getHeight());
+        pageFrames.put(pageNumber, image);
+
+        ScreenCaptureUtils.requestFrame(source, frame -> {
+            pageFrames.put(pageNumber, frame);
+        });
+
+        return pageNumber;
     }
 
-    public int createScreenCapture() {
-        List<WindowInfo> activeWindows = WindowUtils.listActiveWindows();
+    private void captureFrame(int pageNumber) {
+        WindowCapturer capturer = new WindowCapturer();
+        capturer.selectSource(source);
+        capturer.start((result, frame) -> {
+            if (result == DesktopCapturer.Result.SUCCESS) {
+                BufferedImage image = ScreenCaptureUtils.convertFrame(frame, frame.frameSize.width, frame.frameSize.height);
+                pageFrames.put(pageNumber, image);
+                System.out.println("Captured frame (" + frame.frameSize.width + "x" + frame.frameSize.height + ") for: " + source.title);
+            }
+        });
+        capturer.captureFrame();
+    }
 
-        if (activeWindows.size() > 0) {
-            WindowInfo window = activeWindows.get(0);
-            ScreenCapture screenCapture = new ScreenCapture(window);
-            screenCaptures.add(screenCapture);
+//    private int createPage(BufferedImage image) {
+//        int pageNumber = getPageCount();
+//        System.out.println("PC2: " + pageNumber);
+//        pageFrames.put(pageNumber, image);
+//        return pageNumber;
+//    }
+
+    public int importPage(ScreenCaptureDocument srcDocument, int pageNumber, Rectangle2D pageRect) {
+        BufferedImage previewImage = srcDocument.getPageFrame(pageNumber);
+        pageFrames.put(pageNumber, previewImage);
+        return pageNumber;
+    }
+
+    public void removePage(int pageNumber) {
+        pageFrames.remove(pageNumber);
+    }
+
+    public void replacePage(int pageNumber, ScreenCaptureDocument srcDocument, int replacementPageNumber) {
+        BufferedImage image = srcDocument.getPageFrame(replacementPageNumber);
+        if (image != null) {
+            pageFrames.put(pageNumber, image);
         }
-        return screenCaptures.size() - 1;
     }
 
-    public ScreenCapture getScreenCapture(int index) {
-        return screenCaptures.get(index);
+    public BufferedImage getPageFrame(int pageNumber) {
+        return pageFrames.get(pageNumber);
     }
 
-    public Rectangle2D getScreenCaptureRect(int screenCaptureIndex) {
-        ScreenCapture capture = screenCaptures.get(screenCaptureIndex);
-        Rectangle windowBounds = capture.getWindowInfo().getBounds();
-        return new Rectangle2D(windowBounds.x, windowBounds.y, windowBounds.width, windowBounds.height);
+    public int getPageCount() {
+        return pageFrames.size();
     }
 
-    public String getScreenCaptureText(int screenCaptureIndex) {
-        ScreenCapture capture = screenCaptures.get(screenCaptureIndex);
-        return capture.getWindowInfo().getTitle();
+    public Rectangle2D getPageRect(int pageNumber) {
+        BufferedImage frame = pageFrames.get(pageNumber);
+        if (frame != null) {
+            return new Rectangle2D(0, 0, frame.getWidth(), frame.getHeight());
+        }
+        return null;
     }
 
-    public int importScreenCapture(ScreenCaptureDocument srcDocument, int screenCaptureIndex, Rectangle2D pageRect) {
-        // TODO: Implement import of new screen capture
-
-        return screenCaptures.size() - 1;
+    public String getPageText(int pageNumber) {
+        return getTitle();
     }
 
-    public int getScreenCaptureCount() {
-        return screenCaptures.size();
-    }
-
-    public void close() {
-
-    }
+    public void close() {}
 }

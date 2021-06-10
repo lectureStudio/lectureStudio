@@ -18,12 +18,20 @@
 
 package org.lecturestudio.presenter.api.service;
 
-import com.github.javaffmpeg.*;
+import com.github.javaffmpeg.JavaFFmpegException;
+import com.github.javaffmpeg.Muxer;
+import com.github.javaffmpeg.PixelFormat;
+import com.github.javaffmpeg.VideoFrame;
 import dev.onvoid.webrtc.PeerConnectionFactory;
 import dev.onvoid.webrtc.media.video.desktop.*;
 import org.lecturestudio.core.app.ApplicationContext;
+import org.lecturestudio.core.bus.event.DocumentEvent;
 import org.lecturestudio.core.io.VideoSink;
+import org.lecturestudio.core.service.DocumentService;
+import org.lecturestudio.presenter.api.model.ScreenCapture;
+import org.lecturestudio.presenter.api.model.ScreenCaptureDocument;
 
+import javax.imageio.ImageIO;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import java.awt.image.BufferedImage;
@@ -33,7 +41,9 @@ import java.nio.ByteBuffer;
 import java.nio.channels.AsynchronousFileChannel;
 import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 
@@ -56,42 +66,27 @@ public class ScreenCaptureService {
     private final PeerConnectionFactory connectionFactory;
 
     private final String outputPath;
+    private final DocumentService documentService;
 
     private DesktopSource selectedSource;
 
-//    private final VideoEncoder videoEncoder;
-//    private final VideoSink videoSink;
+    private Map<Long, ScreenCapture> screenCaptures = new HashMap<>();
+    private ScreenCapture selectedCapture;
+
+    private ScreenCaptureDocument document;
+
     private Muxer muxer;
 
     @Inject
-    public ScreenCaptureService(ApplicationContext context) {
+    public ScreenCaptureService(ApplicationContext context, DocumentService documentService) {
         this.context = context;
+        this.documentService = documentService;
 
         outputPath = context.getDataLocator().toAppDataPath("recording");
 
         // Create directory for temp frames
         File tempDir = new File(outputPath);
         tempDir.mkdirs();
-
-//        JavaFFmpeg.loadLibrary();
-//
-//        File videoFile = new File(outputPath + File.separator + "screen-capture.mp4");
-//        if (!videoFile.exists()) {
-//            try {
-//                videoFile.createNewFile();
-//            } catch(IOException e){
-//                e.printStackTrace();
-//            }
-//        }
-
-//        initializeMuxer(videoFile.getAbsolutePath());
-//
-//        VideoCodecConfiguration videoConfig = new VideoCodecConfiguration();
-//        videoConfig.setFrameRate(frameRate);
-//        videoConfig.setViewRect(new Rectangle2D(0, 0, 1920, 1080));
-//
-//        videoEncoder = new H264StreamEncoder(videoConfig);
-//        videoSink = new ScreenCaptureVideoSink(outputPath + File.separator + "temp");
 
         // This needs to be called before the first initialization of any native webrtc call
         connectionFactory = new PeerConnectionFactory();
@@ -101,32 +96,6 @@ public class ScreenCaptureService {
 
     public void registerSourceListChangeListener(ScreenCaptureSourceListChangeListener listener) {
 
-    }
-
-    private void initializeMuxer(String filePath) {
-        System.out.println("Init Muxer: " + filePath);
-
-        // Initialize muxer
-        muxer = new Muxer(filePath);
-        try {
-            muxer.setVideoCodec(Codec.getEncoderById(CodecID.H264));
-            muxer.setAudioCodec(Codec.getEncoderById(CodecID.MP3));
-            muxer.setImageWidth(1280);
-            muxer.setImageHeight(720);
-            muxer.setPixelFormat(PixelFormat.YUV420P);
-            muxer.setBitrate(2000000);
-            muxer.setFramerate(frameRate);
-            muxer.setAudioBitrate(128000);
-            muxer.setSampleRate(22050);
-            muxer.setAudioChannels(2);
-
-            Options videoOptions = new Options();
-            muxer.setVideoOptions(videoOptions);
-
-            muxer.open();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
     }
 
     public List<DesktopSource> getWindowSources() {
@@ -139,13 +108,40 @@ public class ScreenCaptureService {
 
     public void setSelectedSource(DesktopSource source) {
         if (source != null) {
-            System.out.println("Add DesktopSource " + source.id + " to screen capture service");
 
-            if (selectedSource != null) {
+            // Create document with source as first page if not already exists
+            if (document == null) {
+                try {
+                    document = new ScreenCaptureDocument(source);
+                    context.getEventBus().post(new DocumentEvent(document, DocumentEvent.Type.CREATED));
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+            // Add source as new page if document already exists
+            else {
+                document.selectScreenCapture(source);
+            }
+
+
+
+//            ScreenCapture capture = screenCaptures.getOrDefault(source.id, null);
+//            if (capture == null) {
+//                capture = new ScreenCapture(source);
+//                screenCaptures.put(source.id, capture);
+//                context.getEventBus().post(new ScreenCaptureEvent(capture, ScreenCaptureEvent.Type.CREATED));
+//            }
+
+
+            if (selectedCapture != null) {
                 // TODO: Stop recording with previous source
             }
 
-            selectedSource = source;
+//            // Notify about new selected screen capture
+//            context.getEventBus().post(new ScreenCaptureEvent(selectedCapture, capture, ScreenCaptureEvent.Type.SELECTED));
+//
+//            selectedCapture = capture;
+//            selectedSource = source;
         }
     }
 
@@ -228,8 +224,12 @@ public class ScreenCaptureService {
 
     private void saveFrame(DesktopFrame frame, int frameCount) {
         String fileName = outputPath + File.separator + "temp" + File.separator + "frame" + frameCount + ".png";
-
         BufferedImage image = new BufferedImage(frame.frameSize.width, frame.frameSize.height, BufferedImage.TYPE_4BYTE_ABGR);
+        try {
+            ImageIO.write(image, "png", new File(fileName));
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
 //        videoSink.onVideoFrame(videoEncoder.encode(image));
 
 //        try (AsynchronousFileChannel channel = AsynchronousFileChannel.open(Path.of(fileName), StandardOpenOption.WRITE, StandardOpenOption.CREATE)) {

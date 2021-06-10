@@ -18,7 +18,6 @@
 
 package org.lecturestudio.presenter.swing.view;
 
-import dev.onvoid.webrtc.media.video.desktop.DesktopFrame;
 import dev.onvoid.webrtc.media.video.desktop.DesktopSource;
 import dev.onvoid.webrtc.media.video.desktop.DesktopSourceType;
 import org.lecturestudio.core.view.Action;
@@ -36,6 +35,7 @@ import java.awt.*;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
+import java.awt.image.BufferedImage;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -110,10 +110,10 @@ public class SwingScreenCaptureSourceSelectionView extends JPanel implements Scr
     }
 
     @Override
-    public void updateSourcePreviewFrame(DesktopSource source, DesktopFrame frame) {
+    public void updateSourcePreviewImage(DesktopSource source, BufferedImage image) {
         if (previewMap.containsKey(source.id)) {
             SourcePreview preview = previewMap.get(source.id);
-            preview.drawFrame(frame);
+            preview.setImage(image);
         }
     }
 
@@ -218,8 +218,8 @@ public class SwingScreenCaptureSourceSelectionView extends JPanel implements Scr
             SwingUtils.invoke(() -> imageView.setBorder(active ? ACTIVE_BORDER : DEFAULT_BORDER));
         }
 
-        public void drawFrame(DesktopFrame frame) {
-            SwingUtils.invoke(() -> imageView.drawFrame(frame));
+        public void setImage(BufferedImage image) {
+            SwingUtils.invoke(() -> imageView.setImage(image));
         }
 
         private void initialize() {

@@ -34,6 +34,10 @@ public class ScreenCaptureThumbnailPanel extends EditableThumbnailPanel {
         container.add(pauseCaptureButton);
     }
 
+    public void setScreenCaptureRenderer() {
+
+    }
+
     public void setOnScreenCapturePause(Action action) {
         SwingUtils.bindAction(pauseCaptureButton, action);
     }

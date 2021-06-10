@@ -63,7 +63,7 @@ public abstract class Tool {
 	 *
 	 * @param event The key event.
 	 *
-	 * @return true, if key event is supported by this tool, false otherwise.
+	 * @return {@code true} if key event is supported by this tool, otherwise {@code false}.
 	 */
 	public boolean supportsKeyEvent(KeyEvent event) {
 		return false;

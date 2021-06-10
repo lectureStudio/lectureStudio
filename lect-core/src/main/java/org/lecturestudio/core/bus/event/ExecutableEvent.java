@@ -45,7 +45,7 @@ public class ExecutableEvent extends BusEvent {
 	/**
 	 * Indicates whether {@link ExecutableEvent} is starting.
 	 *
-	 * @return True if the {@link #state} equals {@code ExecutableState.Starting}, otherwise false.
+	 * @return {@code true} if the {@link #state} equals {@code ExecutableState.Starting}, otherwise {@code false}.
 	 */
 	public boolean starting() {
 		return state == ExecutableState.Starting;
@@ -54,7 +54,7 @@ public class ExecutableEvent extends BusEvent {
 	/**
 	 * Indicates whether {@link ExecutableEvent} has started.
 	 *
-	 * @return True if the {@link #state} equals {@code ExecutableState.Started}, otherwise false.
+	 * @return {@code true} if the {@link #state} equals {@code ExecutableState.Started}, otherwise {@code false}.
 	 */
 	public boolean started() {
 		return state == ExecutableState.Started;
@@ -63,7 +63,7 @@ public class ExecutableEvent extends BusEvent {
 	/**
 	 * Indicates whether {@link ExecutableEvent} is stopping.
 	 *
-	 * @return True if the {@link #state} equals {@code ExecutableState.Stopping}, otherwise false.
+	 * @return {@code true} if the {@link #state} equals {@code ExecutableState.Stopping}, otherwise {@code false}.
 	 */
 	public boolean stopping() {
 		return state == ExecutableState.Stopping;
@@ -72,7 +72,7 @@ public class ExecutableEvent extends BusEvent {
 	/**
 	 * Indicates whether {@link ExecutableEvent} has stopped.
 	 *
-	 * @return True if the {@link #state} equals {@code ExecutableState.Stopped}, otherwise false.
+	 * @return {@code true} if the {@link #state} equals {@code ExecutableState.Stopped}, otherwise {@code false}.
 	 */
 	public boolean stopped() {
 		return state == ExecutableState.Stopped;

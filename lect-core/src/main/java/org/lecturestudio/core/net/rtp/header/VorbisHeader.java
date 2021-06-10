@@ -35,8 +35,8 @@ public class VorbisHeader implements RtpPayloadHeader {
 	 */
 
 	/**
-	 * Ident field is used to associate the Vorbis data to a decoding
-	 * Configuration. It is stored as a network byte order integer.
+	 * Ident field is used to associate the Vorbis data to a decoding Configuration.
+	 * It is stored as a network byte order integer.
 	 */
 	public int cbident; // 24 bits
 
@@ -52,8 +52,8 @@ public class VorbisHeader implements RtpPayloadHeader {
 	public int fragType; // 2 bits
 
 	/**
-	 * Vorbis Data Type specifies the kind of Vorbis data stored in this RTP
-	 * packet. There are currently three different types of Vorbis payloads.
+	 * Vorbis Data Type specifies the kind of Vorbis data stored in this RTP packet.
+	 * There are currently three different types of Vorbis payloads.
 	 * Each packet MUST contain only a single type of Vorbis packet.
 	 * <ul>
 	 * <li>0 = Raw Vorbis payload</li>
@@ -67,9 +67,9 @@ public class VorbisHeader implements RtpPayloadHeader {
 	public int dataType; // 2 bits
 
 	/**
-	 * The number of complete packets in the current payload. This provides for
-	 * a maximum number of 15 Vorbis packets in the payload. If the payload
-	 * contains fragmented data, the number of packets <b>MUST</b> be set to 0.
+	 * The number of complete packets in the current payload.
+	 * This provides for a maximum number of 15 Vorbis packets in the payload.
+	 * If the payload contains fragmented data, the number of packets <b>MUST</b> be set to 0.
 	 */
 	public int packets; // 4 bits
 
@@ -84,7 +84,7 @@ public class VorbisHeader implements RtpPayloadHeader {
 	/**
 	 * Creates a new {@link VorbisHeader} with specified data.
 	 * 
-	 * @param data field data
+	 * @param data The field data
 	 */
 	public VorbisHeader(byte[] data) {
 		if (data.length < 4) {

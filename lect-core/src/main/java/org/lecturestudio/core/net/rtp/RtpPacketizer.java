@@ -21,8 +21,7 @@ package org.lecturestudio.core.net.rtp;
 import java.util.List;
 
 /**
- * Common interface to provide a consistent mechanism to form media data into
- * RTP packets according to the RTP protocol.
+ * Common interface to provide a consistent mechanism to form media data into RTP packets according to the RTP protocol.
  *
  * @author Alex Andres
  *
@@ -31,13 +30,13 @@ import java.util.List;
 public interface RtpPacketizer {
 
 	/**
-	 * Form the payload data into one or more {@code RtpPacket}'s.
+	 * Form the payload data into one or more {@link RtpPacket}'s.
 	 *
 	 * @param payload       The payload data to pack.
 	 * @param payloadLength The length of the payload data.
 	 * @param timestamp     The RTP timestamp.
 	 *
-	 * @return a list of RTP packets that contain the packed payload data.
+	 * @return A list of RTP packets that contain the packed payload data.
 	 */
 	List<RtpPacket> processPacket(byte[] payload, int payloadLength, long timestamp);
 

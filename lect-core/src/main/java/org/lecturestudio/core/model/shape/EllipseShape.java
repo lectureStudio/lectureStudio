@@ -37,10 +37,21 @@ import org.lecturestudio.core.tool.Stroke;
  */
 public class EllipseShape extends FormShape {
 
+	/**
+	 * Creates a new {@link EllipseShape} with the specified stroke.
+	 * (Calls {@link FormShape#FormShape(Stroke)} with the stroke.)
+	 *
+	 * @param stroke The stroke.
+	 */
     public EllipseShape(Stroke stroke) {
     	super(stroke);
     }
 
+	/**
+	 * Creates a new {@link EllipseShape} with the specified input byte array containing the data for a stroke.
+	 *
+	 * @param input The input byte array.
+	 */
     public EllipseShape(byte[] input) throws IOException {
     	super(null);
 
@@ -145,13 +156,7 @@ public class EllipseShape extends FormShape {
 
 			curve.subdivide(left, right);
 
-			if (left.intersects(x, y, w, h)) {
-				return true;
-			}
-			if (right.intersects(x, y, w, h)) {
-				return true;
-			}
-			return false;
+			return left.intersects(x, y, w, h) || right.intersects(x, y, w, h);
 		}
 
 		for (int i = index; i < steps; i++) {
@@ -160,10 +165,7 @@ public class EllipseShape extends FormShape {
 
 			curve.subdivide(left, right);
 
-			if (intersects(left, i + 1, steps, x, y, w, h)) {
-				return true;
-			}
-			if (intersects(right, i + 1, steps, x, y, w, h)) {
+			if (intersects(left, i + 1, steps, x, y, w, h) || intersects(right, i + 1, steps, x, y, w, h)) {
 				return true;
 			}
 		}

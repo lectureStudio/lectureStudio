@@ -86,7 +86,7 @@ public class PageEvent extends BusEvent {
 	/**
 	 * Indicates whether the {@link PageEvent} is created.
 	 *
-	 * @return True if the {@link #type} equals {@code Type.CREATED}, otherwise false.
+	 * @return {@code true} if the {@link #type} equals {@code Type.CREATED}, otherwise {@code false}.
 	 */
 	public boolean isCreated() {
 		return type == Type.CREATED;
@@ -95,7 +95,7 @@ public class PageEvent extends BusEvent {
 	/**
 	 * Indicates whether the {@link PageEvent} is removed.
 	 *
-	 * @return True if the {@link #type} equals {@code Type.REMOVED}, otherwise false.
+	 * @return {@code true} if the {@link #type} equals {@code Type.REMOVED}, otherwise {@code false}.
 	 */
 	public boolean isRemoved() {
 		return type == Type.REMOVED;
@@ -104,7 +104,7 @@ public class PageEvent extends BusEvent {
 	/**
 	 * Indicates whether the {@link PageEvent} is selected.
 	 *
-	 * @return True if the {@link #type} equals {@code Type.SELECTED}, otherwise false.
+	 * @return {@code true} if the {@link #type} equals {@code Type.SELECTED}, otherwise {@code false}.
 	 */
 	public boolean isSelected() {
 		return type == Type.SELECTED;

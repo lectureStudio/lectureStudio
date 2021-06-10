@@ -89,7 +89,7 @@ public class SrpServerContext extends SrpContext {
 	 *
 	 * @param M The session key verifier of the client.
 	 *
-	 * @return True if own session key verifier matches the provided one, false otherwise.
+	 * @return {@code true} if own session key verifier matches the provided one, otherwise {@code false}.
 	 */
 	public boolean verifySessionKey(BigInteger M) {
 		BigInteger ownEvidence = computeEvidenceMessage();

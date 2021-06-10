@@ -206,7 +206,7 @@ public abstract class ExecutableBase implements Executable {
 	/**
 	 * Indicates whether this component has been created.
 	 * 
-	 * @return true if this component has been created.
+	 * @return {@code true} if this component has been created, otherwise {@code false}.
 	 */
 	public final boolean created() {
 		return state == ExecutableState.Created;
@@ -215,7 +215,7 @@ public abstract class ExecutableBase implements Executable {
 	/**
 	 * Indicates whether this component has been initialized.
 	 * 
-	 * @return true if this component has been initialized.
+	 * @return {@code true} if this component has been initialized, otherwise {@code false}.
 	 */
 	public final boolean initialized() {
 		return state == ExecutableState.Initialized;
@@ -224,7 +224,7 @@ public abstract class ExecutableBase implements Executable {
 	/**
 	 * Indicates whether this component has been started.
 	 * 
-	 * @return true if this component has been started.
+	 * @return {@code true} if this component has been started, otherwise {@code false}.
 	 */
 	public final boolean started() {
 		return state == ExecutableState.Started;
@@ -233,7 +233,7 @@ public abstract class ExecutableBase implements Executable {
 	/**
 	 * Indicates whether this component has been stopped.
 	 * 
-	 * @return true if this component has been stopped.
+	 * @return {@code true} if this component has been stopped, otherwise {@code false}.
 	 */
 	public final boolean stopped() {
 		return state == ExecutableState.Stopped;
@@ -242,7 +242,7 @@ public abstract class ExecutableBase implements Executable {
 	/**
 	 * Indicates whether this component has been suspended.
 	 * 
-	 * @return true if this component has been suspended.
+	 * @return {@code true} if this component has been suspended, otherwise {@code false}.
 	 */
 	public final boolean suspended() {
 		return state == ExecutableState.Suspended;
@@ -251,7 +251,7 @@ public abstract class ExecutableBase implements Executable {
 	/**
 	 * Indicates whether this component has been destroyed.
 	 * 
-	 * @return true if this component has been destroyed.
+	 * @return {@code true} if this component has been destroyed, otherwise {@code false}.
 	 */
 	public final boolean destroyed() {
 		return state == ExecutableState.Destroyed;
@@ -261,7 +261,7 @@ public abstract class ExecutableBase implements Executable {
 	 * Indicates whether an error has occurred during a state transition of this
 	 * component.
 	 *
-	 * @return true if an error has occurred.
+	 * @return {@code true} if an error has occurred, otherwise {@code false}.
 	 */
 	public final boolean error() {
 		return state == ExecutableState.Error;

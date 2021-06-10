@@ -28,17 +28,30 @@ import java.util.List;
  */
 public class DocumentOutlineItem {
 
+	/** The title of this outline item. */
 	private final String title;
 
+	/** The page number of this outline item. */
 	private final Integer pageNumber;
 
+	/** The children of this outline item. */
 	private final List<DocumentOutlineItem> children;
 
 
+	/**
+	 * Create a new {@link DocumentOutlineItem}.
+	 * (Calls {@link #DocumentOutlineItem(String, Integer)} with {@code null} as title and page number.)
+	 */
 	public DocumentOutlineItem() {
 		this(null, null);
 	}
 
+	/**
+	 * Create a new {@link DocumentOutlineItem} with the specified title and page number.
+	 *
+	 * @param title The title.
+	 * @param pageNumber The page number.
+	 */
 	public DocumentOutlineItem(String title, Integer pageNumber) {
 		this.title = title;
 		this.pageNumber = pageNumber;
@@ -54,17 +67,26 @@ public class DocumentOutlineItem {
 		return title;
 	}
 
+	/**
+	 * Get the page number of this outline item.
+	 *
+	 * @return The page number of this item.
+	 */
 	public Integer getPageNumber() {
 		return pageNumber;
 	}
 
+	/**
+	 * Get the children of this outline item.
+	 *
+	 * @return The children of this item.
+	 */
 	public List<DocumentOutlineItem> getChildren() {
 		return children;
 	}
 
 	@Override
 	public String toString() {
-		return "DocumentOutlineItem{" + "title='" + title + '\''
-				+ ", pageNumber=" + pageNumber + '}';
+		return "DocumentOutlineItem{" + "title='" + title + '\'' + ", pageNumber=" + pageNumber + '}';
 	}
 }

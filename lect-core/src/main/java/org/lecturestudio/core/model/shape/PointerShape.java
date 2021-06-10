@@ -34,16 +34,32 @@ import org.lecturestudio.core.tool.Stroke;
  */
 public class PointerShape extends PenShape {
 
+	/**
+	 * Creates a new {@link PointerShape} with the specified stroke.
+	 * (Calls {@link PenShape#PenShape(Stroke)} with the stroke.)
+	 *
+	 * @param stroke The stroke.
+	 */
 	public PointerShape(Stroke stroke) {
 		super(stroke);
 	}
 
+	/**
+	 * Creates a new {@link PointerShape} with the specified input byte array containing the data for a stroke.
+	 *
+	 * @param input The input byte array.
+	 */
 	public PointerShape(byte[] input) throws IOException {
 		super(null);
 
 		parseFrom(input);
 	}
 
+	/**
+	 * Set a new point and update bounds.
+	 *
+	 * @param point The point to add.
+	 */
 	public void setPoint(PenPoint2D point) {
 		if (addPoint(point)) {
 			Rectangle2D clip = getBounds().clone();
@@ -61,6 +77,11 @@ public class PointerShape extends PenShape {
 		}
 	}
 
+	/**
+	 * Get the last added point.
+	 *
+	 * @return The last added point.
+	 */
 	public PenPoint2D getPoint() {
 		if (getPoints().isEmpty()) {
 			return null;

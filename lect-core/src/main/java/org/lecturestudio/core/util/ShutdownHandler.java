@@ -37,11 +37,9 @@ public abstract class ShutdownHandler {
 
 
 	/**
-	 * Executes specific code during the shutdown procedure, or throws an
-	 * exception if unable to do so.
+	 * Executes specific code during the shutdown procedure, or throws an exception if unable to do so.
 	 *
-	 * @return true to execute next ShutdownHandler, false to stop the shutdown
-	 *         procedure.
+	 * @return {@code true} to execute next ShutdownHandler, {@code true} to stop the shutdown procedure.
 	 * 
 	 * @throws Exception if unable to execute code.
 	 */

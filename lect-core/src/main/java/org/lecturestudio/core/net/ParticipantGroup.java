@@ -47,7 +47,7 @@ public class ParticipantGroup {
 	/**
 	 * Adds a participant to the group.
 	 * 
-	 * @param p new participant
+	 * @param p The new participant.
 	 */
 	public void add(Participant p) {
 		if (contains(p)) {
@@ -71,11 +71,11 @@ public class ParticipantGroup {
 	}
 
 	/**
-	 * Returns a participant that has the provided IP address.
+	 * Get a participant that has the specified IP address.
 	 * 
-	 * @param address
-	 *            the IP address
-	 * @return a participant or null if none found
+	 * @param address The IP address.
+	 *
+	 * @return A participant that has the specified IP address or {@code null} if no such participant was found.
 	 */
 	public Participant getByIpAddress(String address) {
 		for (Integer id : participants.keySet()) {
@@ -89,10 +89,9 @@ public class ParticipantGroup {
 	}
 
 	/**
-	 * Removes a participant from the group that has the specified IP address.
+	 * Removes a participant that has the specified IP address from the group.
 	 * 
-	 * @param address
-	 *            the IP address
+	 * @param address The IP address.
 	 */
 	public void remove(InetAddress address) {
 		for (Integer id : participants.keySet()) {
@@ -107,32 +106,38 @@ public class ParticipantGroup {
 	}
 
 	/**
-	 * Checks if a participant exists in the group.
+	 * Specifies whether the specified participant is in the group.
 	 * 
-	 * @param p
-	 *            a participant
-	 * @return true if the provided participant exists in the group
+	 * @param p The participant.
+	 *
+	 * @return {@code true} if the specified participant is in the group, otherwise {@code false}.
 	 */
 	public boolean contains(Participant p) {
 		return participants.containsValue(p);
 	}
 
 	/**
-	 * @return true if this group contains participants.
+	 * Specifies whether this group contains participants.
+	 *
+	 * @return {@code true} if this group contains participants, otherwise {@code false}.
 	 */
 	public boolean hasParticipants() {
 		return !participants.isEmpty();
 	}
 
 	/**
-	 * @return all participants of this group.
+	 * Get all participants of this group.
+	 *
+	 * @return All participants of this group.
 	 */
 	public List<Participant> getParticipants() {
 		return Collections.synchronizedList(new ArrayList<Participant>(participants.values()));
 	}
 
 	/**
-	 * @return all participants of this group represented by an iterator.
+	 * Get all participants of this group represented by an iterator.
+	 *
+	 * @return All participants of this group represented by an iterator.
 	 */
 	public Iterator<Participant> iterator() {
 		return participants.values().iterator();
@@ -146,7 +151,9 @@ public class ParticipantGroup {
 	}
 
 	/**
-	 * @return the number of participants in this group.
+	 * Get the number of participants in this group.
+	 *
+	 * @return The number of participants in this group.
 	 */
 	public int size() {
 		return participants.size();

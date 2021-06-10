@@ -100,7 +100,7 @@ public final class NetUtils {
 	 *
 	 * @param cause The Throwable to check.
 	 *
-	 * @return True if the cause was a {@code SocketTimeoutException}.
+	 * @return {@code true} if the cause was a {@code SocketTimeoutException}, otherwise {@code false}.
 	 */
 	public static boolean isSocketTimeout(Throwable cause) {
 		while (nonNull(cause)) {

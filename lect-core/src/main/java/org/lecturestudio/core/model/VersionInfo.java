@@ -36,12 +36,12 @@ import org.lecturestudio.core.io.ResourceLoader;
 public class VersionInfo {
 
 	/**
-	 * The download URL for the package.
+	 * The download {@link URL} for the package.
 	 */
 	public URL downloadUrl;
 
 	/**
-	 * The website URL.
+	 * The website {@link URL}.
 	 */
 	public URL htmlUrl;
 
@@ -59,8 +59,7 @@ public class VersionInfo {
 	/**
 	 * Retrieves the version of the running application. The version of deployed
 	 * applications will be retrieved from the {@code Package-Version} entry in
-	 * the application's manifest. The default value is {@code
-	 * 999.999.999-snapshot}.
+	 * the application's manifest. The default value is {@code 999.999.999-snapshot}.
 	 *
 	 * @return The application version.
 	 */
@@ -85,8 +84,7 @@ public class VersionInfo {
 	/**
 	 * Retrieves the application publish date. The date of deployed applications
 	 * will be retrieved from the {@code Build-Date} entry in the application's
-	 * manifest. The default value is the current date-time from the system
-	 * clock.
+	 * manifest. The default value is the current date-time from the system clock.
 	 *
 	 * @return The application publish date.
 	 */

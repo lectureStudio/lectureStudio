@@ -1021,7 +1021,7 @@ public class ToolController extends Controller implements ToolContext {
 	/**
 	 * Returns if the the selected page is zoomed on the user-view.
 	 *
-	 * @return True if the selected page is zoomed on the user-view, otherwise false.
+	 * @return {@code true} if the selected page is zoomed on the user-view, otherwise {@code false}.
 	 */
 	private boolean isZoomMode() {
 		Document doc = documentService.getDocuments().getSelectedDocument();

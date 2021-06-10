@@ -76,7 +76,7 @@ public abstract class SrpContext {
 	 *
 	 * @param M The session key verifier of the counter part.
 	 *
-	 * @return True if own session key verifier matches the provided one, false otherwise.
+	 * @return {@code true} if own session key verifier matches the provided one, otherwise {@code false}.
 	 */
 	abstract public boolean verifySessionKey(BigInteger M);
 
@@ -143,7 +143,7 @@ public abstract class SrpContext {
 	 * 
 	 * @param value The public value.
 	 * 
-	 * @return True if the public value % N != 0, false otherwise.
+	 * @return {@code true} if the public value % N != 0, otherwise {@code false}.
 	 */
 	public boolean verifyPublicValue(BigInteger value) {
 		return !value.mod(params.getPrime()).equals(BigInteger.ZERO);

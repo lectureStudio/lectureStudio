@@ -18,6 +18,9 @@
 
 package org.lecturestudio.core.model;
 
+/**
+ * Enum that represents the different types of a document.
+ */
 public enum DocumentType {
 
 	PDF, WHITEBOARD, QUIZ

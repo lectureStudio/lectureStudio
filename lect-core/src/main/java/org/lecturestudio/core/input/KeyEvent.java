@@ -120,7 +120,7 @@ public class KeyEvent {
 	/**
 	 * Indicates whether the key was released.
 	 *
-	 * @return True if the event type equals {@code EventType.RELEASED}, otherwise false.
+	 * @return {@code true} if the event type equals {@code EventType.RELEASED}, otherwise {@code false}.
 	 */
 	public boolean isReleased() {
 		return eventType == EventType.RELEASED;

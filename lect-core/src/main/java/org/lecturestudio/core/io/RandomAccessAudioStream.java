@@ -39,11 +39,24 @@ public class RandomAccessAudioStream extends DynamicInputStream {
 
 	private AudioFormat audioFormat;
 
-
+	/**
+	 * Create a new instance of {@link RandomAccessAudioStream} with the specified file.
+	 * (Creates a new {@link RandomAccessStream} with the file and calls
+	 * {@link #RandomAccessAudioStream(DynamicInputStream)} with it.)
+	 *
+	 * @param file The file.
+	 */
 	public RandomAccessAudioStream(File file) throws IOException {
 		this(new RandomAccessStream(file));
 	}
 
+	/**
+	 * Create a new instance of {@link RandomAccessAudioStream} with the specified inputStream.
+	 * (Calls {@link #RandomAccessAudioStream(DynamicInputStream, boolean)} with the input stream and {@code false}
+	 * as {@code encoded} parameter).
+	 *
+	 * @param inputStream The input stream.
+	 */
 	public RandomAccessAudioStream(DynamicInputStream inputStream) throws IOException {
 		this(inputStream, false);
 	}
@@ -61,10 +74,20 @@ public class RandomAccessAudioStream extends DynamicInputStream {
 		streamLength = stream.available();
 	}
 
+	/**
+	 * Get the audio format.
+	 *
+	 * @return The audio format.
+	 */
 	public AudioFormat getAudioFormat() {
 		return audioFormat;
 	}
 
+	/**
+	 * Set a new audio format.
+	 *
+	 * @param targetFormat The new audio format.
+	 */
 	public void setAudioFormat(AudioFormat targetFormat) {
 //		this.stream = AudioSystem.getAudioInputStream(AudioUtils.createAudioFormat(targetFormat), (AudioInputStream) this.stream);
 		this.audioFormat = targetFormat;

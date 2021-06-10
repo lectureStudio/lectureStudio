@@ -21,8 +21,7 @@ package org.lecturestudio.core.net.protocol.ptip;
 import org.lecturestudio.core.net.packet.Packet;
 
 /**
- * The {@code PTIPMessage} interface should be implemented by classes that
- * represent concrete PTIP messages.
+ * The {@code PTIPMessage} interface should be implemented by classes that represent concrete PTIP messages.
  * 
  * @author Alex Andres
  * 
@@ -30,10 +29,9 @@ import org.lecturestudio.core.net.packet.Packet;
 public interface PTIPMessage extends Packet {
 
 	/**
-	 * Returns the {@link PTIPMessageCode}. Each message has it's own code. The
-	 * message code identifies the message.
+	 * Returns the {@link PTIPMessageCode}. Each message has it's own code. The message code identifies the message.
 	 * 
-	 * @return the code of the message
+	 * @return The code of the message.
 	 */
 	PTIPMessageCode getMessageCode();
 

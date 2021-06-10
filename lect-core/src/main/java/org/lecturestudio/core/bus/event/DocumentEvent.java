@@ -86,7 +86,7 @@ public class DocumentEvent extends BusEvent {
 	/**
 	 * Indicates whether {@link DocumentEvent} is created.
 	 *
-	 * @return True if the {@link #type} equals {@code Type.CREATED}, otherwise false.
+	 * @return {@code true} if the {@link #type} equals {@code Type.CREATED}, otherwise {@code false}.
 	 */
 	public boolean created() {
 		return type == Type.CREATED;
@@ -95,7 +95,7 @@ public class DocumentEvent extends BusEvent {
 	/**
 	 * Indicates whether {@link DocumentEvent} is closed.
 	 *
-	 * @return True if the {@link #type} equals {@code Type.CLOSED}, otherwise false.
+	 * @return {@code true} if the {@link #type} equals {@code Type.CLOSED}, otherwise {@code false}.
 	 */
 	public boolean closed() {
 		return type == Type.CLOSED;
@@ -104,7 +104,7 @@ public class DocumentEvent extends BusEvent {
 	/**
 	 * Indicates whether {@link DocumentEvent} is selected.
 	 *
-	 * @return True if the {@link #type} equals {@code Type.SELECTED}, otherwise false.
+	 * @return {@code true} if the {@link #type} equals {@code Type.SELECTED}, otherwise {@code false}.
 	 */
 	public boolean selected() {
 		return type == Type.SELECTED;

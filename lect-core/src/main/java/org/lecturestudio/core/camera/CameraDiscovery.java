@@ -85,7 +85,7 @@ public final class CameraDiscovery {
 	/**
 	 * Check if the camera discovery task is running or not.
 	 *
-	 * @return True if the task is running, false otherwise.
+	 * @return {@code true} if the task is running, otherwise {@code false}.
 	 */
 	public boolean isRunning() {
 		return open.get();

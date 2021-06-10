@@ -158,7 +158,7 @@ public class Rectangle2D implements Cloneable, Serializable {
 	 *
 	 * @param point The {@link Point2D} that represents a x and y coordinate pair.
 	 *
-	 * @return True if the specified {@link Point2D} is inside the boundary, false otherwise.
+	 * @return {@code true} if the specified {@link Point2D} is inside the boundary, otherwise {@code true}.
 	 */
 	public boolean contains(Point2D point) {
 		double px = point.getX();
@@ -172,7 +172,8 @@ public class Rectangle2D implements Cloneable, Serializable {
 	 *
 	 * @param r The {@link Rectangle2D} to check if it is enclosed by this {@link Rectangle2D}.
 	 *
-	 * @return True if the interior of this {@link Rectangle2D} entirely contains the specified area, false otherwise.
+	 * @return {@code true} if the interior of this {@link Rectangle2D} entirely contains the specified area,
+	 * otherwise {@code false}.
 	 */
 	public boolean contains(Rectangle2D r) {
 		double w = r.getWidth();
@@ -220,7 +221,7 @@ public class Rectangle2D implements Cloneable, Serializable {
 	/**
 	 * Determines if the {@link Rectangle2D} encloses some area.
 	 *
-	 * @return True if the {@link Rectangle2D} is empty, false otherwise.
+	 * @return {@code true} if the {@link Rectangle2D} is empty, otherwise {@code false}.
 	 */
 	public boolean isEmpty() {
 		return (width <= 0.0) || (height <= 0.0);

@@ -40,14 +40,30 @@ import org.lecturestudio.core.tool.Stroke;
  */
 public class ArrowShape extends LineShape {
 
+	/**
+	 * Creates a new {@link ArrowShape} with the specified stroke.
+	 * (Calls {@link LineShape#LineShape(Stroke)} with the stroke.)
+	 *
+	 * @param stroke The stroke.
+	 */
 	public ArrowShape(Stroke stroke) {
 		super(stroke);
 	}
 
+	/**
+	 * Creates a new {@link ArrowShape} with the specified input byte array containing the data for a stroke.
+	 *
+	 * @param input The input byte array.
+	 */
 	public ArrowShape(byte[] input) throws IOException {
 		super(input);
 	}
 
+	/**
+	 * Return true if Shift is pressed (and a two sided arrow is to be created).
+	 *
+	 * @return {@code true} if Shift is pressed, otherwise {@code false}.
+	 */
 	public boolean isTwoSided() {
 		KeyEvent keyEvent = getKeyEvent();
 		return nonNull(keyEvent) && keyEvent.isShiftDown();
@@ -60,8 +76,7 @@ public class ArrowShape extends LineShape {
 
 	@Override
 	public boolean intersects(Rectangle2D rect) {
-		return getShape().intersects(rect.getX(), rect.getY(), rect.getWidth(),
-				rect.getHeight());
+		return getShape().intersects(rect.getX(), rect.getY(), rect.getWidth(), rect.getHeight());
 	}
 
 	@Override
@@ -88,8 +103,7 @@ public class ArrowShape extends LineShape {
 		double width = getLineWidth();
 
 		AffineTransform tx = new AffineTransform();
-		Path2D path = PathFactory.createArrowPath(tx, keyEvent,
-				getStartPoint(), getEndPoint(), width);
+		Path2D path = PathFactory.createArrowPath(tx, keyEvent, getStartPoint(), getEndPoint(), width);
 
 		return tx.createTransformedShape(path);
 	}

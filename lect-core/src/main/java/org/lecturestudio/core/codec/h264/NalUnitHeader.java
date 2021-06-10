@@ -109,7 +109,7 @@ public class NalUnitHeader {
 	/**
 	 * Verifies if the H.264 packet is a single NAL unit packet.
 	 *
-	 * @return true if the packet represents a single NAL unit, false otherwise.
+	 * @return {@code true} if the packet represents a single NAL unit, otherwise {@code false}.
 	 */
 	boolean isSingleNalUnit() {
 		return type > 0 && type < 24;
@@ -118,7 +118,7 @@ public class NalUnitHeader {
 	/**
 	 * Verifies if the H.264 packet is a aggregation unit packet.
 	 *
-	 * @return true if the packet represents a aggregation unit, false otherwise.
+	 * @return {@code true} if the packet represents a aggregation unit, otherwise {@code false}.
 	 */
 	boolean isAggregationUnit() {
 		return type > 23 && type < 28;
@@ -127,7 +127,7 @@ public class NalUnitHeader {
 	/**
 	 * Verifies if the H.264 packet is a fragmentation unit packet.
 	 *
-	 * @return true if the packet represents a fragmentation unit, false otherwise.
+	 * @return {@code true} if the packet represents a fragmentation unit, otherwise {@code false}.
 	 */
 	boolean isFragmentationUnit() {
 		return type > 27 && type < 30;

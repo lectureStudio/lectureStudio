@@ -434,7 +434,7 @@ public abstract class ApplicationBase implements Application {
 	 *
 	 * @param nextState The state that is desired to be the next state.
 	 * @param allowedStates All the states that are possible to be the next state.
-	 * @return true if {@code allowedStates} contains {@code nextState} and false otherwise.
+	 * @return {@code true} if {@code allowedStates} contains {@code nextState}, otherwise {@code false}.
 	 */
 	private boolean isAllowed(ExecutableState nextState, ExecutableState... allowedStates) {
 		requireNonNull(allowedStates, "No allowed states provided.");

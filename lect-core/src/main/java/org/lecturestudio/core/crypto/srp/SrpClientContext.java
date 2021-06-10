@@ -113,7 +113,7 @@ public class SrpClientContext extends SrpContext {
 	 *
 	 * @param hAMK The session key verifier of the server.
 	 *
-	 * @return True if own session key verifier matches the provided one, false otherwise.
+	 * @return {@code true} if own session key verifier matches the provided one, otherwise {@code false}.
 	 */
 	public boolean verifySessionKey(BigInteger hAMK) {
 		BigInteger ownHAMK = computeSessionKeyVerifier();

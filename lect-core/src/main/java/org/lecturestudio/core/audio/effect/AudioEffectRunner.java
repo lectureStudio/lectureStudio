@@ -159,7 +159,7 @@ public abstract class AudioEffectRunner extends ExecutableBase {
 	/**
 	 * Check whether the executor is rendering audio.
 	 *
-	 * @return true if the executor is rendering audio, false otherwise.
+	 * @return {@code true} if the executor is rendering audio, otherwise {@code false}.
 	 */
 	protected boolean isRendering() {
 		return render.get();

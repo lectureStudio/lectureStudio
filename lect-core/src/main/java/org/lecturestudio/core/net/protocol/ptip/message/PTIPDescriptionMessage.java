@@ -24,8 +24,8 @@ import org.lecturestudio.core.net.protocol.ptip.PTIPMessage;
 import org.lecturestudio.core.net.protocol.ptip.PTIPMessageCode;
 
 /**
- * The {@code PTIPDescriptionMessage} is used to notify the client about used
- * session configuration. The packet is defined as followed:
+ * The {@link PTIPDescriptionMessage} is used to notify the client about used session configuration.
+ * The packet is defined as followed:
  * 
  * <pre>
  * 0                   1                   2                   3 
@@ -51,17 +51,16 @@ public class PTIPDescriptionMessage implements PTIPMessage {
 	/**
 	 * Creates a new {@link PTIPDescriptionMessage} with specified description.
 	 * 
-	 * @param description
-	 *            the session description
+	 * @param description The session description.
 	 */
 	public PTIPDescriptionMessage(String description) {
 		this.description = description;
 	}
 
 	/**
-	 * Returns the session description.
+	 * Get the session description.
 	 * 
-	 * @return the session description.
+	 * @return The session description.
 	 */
 	public String getSessionDescription() {
 		return description;

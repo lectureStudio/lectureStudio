@@ -86,14 +86,14 @@ public class RecordingEditManager {
 	}
 
 	/**
-	 * @return true if recording edits may be undone.
+	 * @return {@code true} if recording edits may be undone, otherwise {@code false}.
 	 */
 	public boolean hasUndoActions() {
 		return !undoActions.empty();
 	}
 
 	/**
-	 * @return true if recording edits may be redone.
+	 * @return {@code true} if recording edits may be redone, otherwise {@code false}.
 	 */
 	public boolean hasRedoActions() {
 		return !redoActions.empty();

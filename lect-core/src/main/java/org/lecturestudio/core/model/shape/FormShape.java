@@ -38,11 +38,21 @@ public abstract class FormShape extends PenShape {
 
 	private final Rectangle2D rect = new Rectangle2D();
 
-
+	/**
+	 * Creates a {@link FormShape} with the specified stroke.
+	 * (Calls {@link PenShape#PenShape(Stroke)} with the stroke.)
+	 *
+	 * @param stroke The stroke.
+	 */
 	public FormShape(Stroke stroke) {
 		super(stroke);
 	}
 
+	/**
+	 * Get the first point of the form.
+	 *
+	 * @return The first point of the form.
+	 */
 	public PenPoint2D getStartPoint() {
 		if (getPoints().isEmpty()) {
 			return null;
@@ -51,6 +61,11 @@ public abstract class FormShape extends PenShape {
 		return getPoints().get(0);
 	}
 
+	/**
+	 * Get the last point of the form.
+	 *
+	 * @return The last point of the form.
+	 */
 	public PenPoint2D getEndPoint() {
 		if (getPoints().size() < 1) {
 			return null;
@@ -63,7 +78,7 @@ public abstract class FormShape extends PenShape {
 	/**
 	 * Sets the root location
 	 *
-	 * @param point
+	 * @param point The start point.
 	 */
 	public void setStartPoint(PenPoint2D point) {
 		addPoint(point);
@@ -71,9 +86,9 @@ public abstract class FormShape extends PenShape {
 	}
 
 	/**
-	 * Sets the diagonal
+	 * Sets a new end point and updates the diagonal.
 	 *
-	 * @param point
+	 * @param point The new end point.
 	 */
 	public void setEndPoint(PenPoint2D point) {
 		if (addPoint(point)) {
@@ -87,16 +102,28 @@ public abstract class FormShape extends PenShape {
 		}
 	}
 
+	/**
+	 * Get the rectangle.
+	 *
+	 * @return The rectangle.
+	 */
 	public Rectangle2D getRect() {
 		return rect;
 	}
 
+	/**
+	 * Set new ratio.
+	 *
+	 * @param ratio The new ratio.
+	 */
 	public void setRatio(Dimension2D ratio) {
 		this.ratio.setSize(ratio.getWidth(), ratio.getHeight());
 	}
 
 	/**
 	 * Indicates whether to fill the interior of the shape.
+	 *
+	 * @return {@code true} if Alt is pressed, otherwise {@code false}.
 	 */
 	public boolean fill() {
 		KeyEvent keyEvent = getKeyEvent();

@@ -49,7 +49,7 @@ public class ProgressEvent extends BusEvent {
 	/**
 	 * Indicates whether the {@link ProgressEvent} is started.
 	 *
-	 * @return True if the {@link #state} equals {@code State.STARTED}, otherwise false.
+	 * @return {@code true} if the {@link #state} equals {@code State.STARTED}, otherwise {@code false}.
 	 */
 	public boolean started() {
 		return state == State.STARTED;
@@ -58,7 +58,7 @@ public class ProgressEvent extends BusEvent {
 	/**
 	 * Indicates whether the {@link ProgressEvent} is running.
 	 *
-	 * @return True if the {@link #state} equals {@code State.RUNNING}, otherwise false.
+	 * @return {@code true} if the {@link #state} equals {@code State.RUNNING}, otherwise {@code false}.
 	 */
 	public boolean running() {
 		return state == State.RUNNING;
@@ -67,7 +67,7 @@ public class ProgressEvent extends BusEvent {
 	/**
 	 * Indicates whether the {@link ProgressEvent} is finished.
 	 *
-	 * @return True if the {@link #state} equals {@code State.FINISHED}, otherwise false.
+	 * @return {@code true} if the {@link #state} equals {@code State.FINISHED}, otherwise {@code false}.
 	 */
 	public boolean finished() {
 		return state == State.FINISHED;

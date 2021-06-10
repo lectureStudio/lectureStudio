@@ -22,8 +22,7 @@ import java.net.InetAddress;
 
 /**
  * The {@code ProtocolListener} is used during the Presenter Teleteaching
- * Session Initiation to process incoming {@link PTIPMessage}s and report
- * errors.
+ * Session Initiation to process incoming {@link PTIPMessage}s and report errors.
  * 
  * @author Alex Andres
  * 
@@ -31,23 +30,18 @@ import java.net.InetAddress;
 public interface PTIPListener {
 
 	/**
-	 * This method is called every time a {@link PTIPMessage} is received by a
-	 * channel.
+	 * This method is called every time a {@link PTIPMessage} is received by a channel.
 	 * 
-	 * @param address
-	 *            the source {@link InetAddress}
-	 * @param m
-	 *            a {@link PTIPMessage}
+	 * @param address The source {@link InetAddress}.
+	 * @param m A {@link PTIPMessage}.
 	 */
 	void protocolMessageReceived(InetAddress address, PTIPMessage m);
 
 	/**
 	 * This method is called if an error occurred during the initiation process.
 	 * 
-	 * @param address
-	 *            the source {@link InetAddress}
-	 * @param error
-	 *            the error message
+	 * @param address The source {@link InetAddress}.
+	 * @param error The error message.
 	 */
 	void protocolError(InetAddress address, String error);
 

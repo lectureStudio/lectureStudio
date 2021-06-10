@@ -41,8 +41,7 @@ public class TextSelectionShape extends Shape {
 
 
 	/**
-	 * Describes the distance from a character rectangle to a character group
-	 * box (container).
+	 * Describes the distance from a character rectangle to a character group box (container).
 	 */
 	private static class RectDist {
 
@@ -51,11 +50,21 @@ public class TextSelectionShape extends Shape {
 
 	}
 
-
+	/**
+	 * Creates a new {@link TextSelectionShape} with the specified color.
+	 *
+	 * @param color The color.
+	 */
 	public TextSelectionShape(Color color) {
 		setColor(color);
 	}
 
+	/**
+	 * Creates a new {@link TextSelectionShape} with the specified input byte array containing the data for
+	 * the {@link TextSelectionShape}.
+	 *
+	 * @param input The input byte array.
+	 */
 	public TextSelectionShape(byte[] input) throws IOException {
 		parseFrom(input);
 	}
@@ -90,18 +99,38 @@ public class TextSelectionShape extends Shape {
 		fireShapeChanged(getBounds());
 	}
 
+	/**
+	 * Specifies whether {@link #selection} is not empty.
+	 *
+	 * @return {@code true} if {@link #selection} is not empty, otherwise {@code false}.
+	 */
 	public boolean hasSelection() {
 		return !selection.isEmpty();
 	}
 
+	/**
+	 * Get an iterator over the elements of {@link #selection}.
+	 *
+	 * @return An iterator over the elements of {@link #selection}.
+	 */
 	public Iterator<Rectangle2D> getSelection() {
 		return selection.iterator();
 	}
 
+	/**
+	 * Set the new color.
+	 *
+	 * @param color The new color.
+	 */
 	public void setColor(Color color) {
 		this.color = color;
 	}
 
+	/**
+	 * Get the color.
+	 *
+	 * @return The color.
+	 */
 	public Color getColor() {
 		return color;
 	}

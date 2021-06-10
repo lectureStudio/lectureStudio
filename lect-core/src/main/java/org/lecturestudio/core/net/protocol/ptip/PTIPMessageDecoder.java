@@ -38,10 +38,9 @@ public class PTIPMessageDecoder {
 	/**
 	 * Decode incoming packet to {@link PTIPMessage}.
 	 * 
-	 * @param data the packet represented by byte array
-	 * @return the decoded {@link PTIPMessage}
-	 * 
-	 * @throws DecodeMessageException
+	 * @param data The packet represented by byte array.
+	 *
+	 * @return The decoded {@link PTIPMessage}.
 	 */
 	public PTIPMessage decode(byte[] data) throws DecodeMessageException {
 		if (data.length < 4) {
@@ -72,7 +71,14 @@ public class PTIPMessageDecoder {
 				throw new DecodeMessageException("Protocol message could not be identified.");
 		}
 	}
-	
+
+	/**
+	 * Decode incoming packet to {@link PTIPPage}.
+	 *
+	 * @param buffer The {@link ByteBuffer} that holds the packet.
+	 *
+	 * @return The decoded {@link PTIPPage}.
+	 */
 	protected PTIPMessage decodePage(ByteBuffer buffer) throws DecodeMessageException {
 		if (buffer.remaining() < 3) {
 			throw new DecodeMessageException("Corrupt protocol message received.");
@@ -97,10 +103,9 @@ public class PTIPMessageDecoder {
 	/**
 	 * Decode incoming packet to {@link PTIPDescriptionMessage}.
 	 * 
-	 * @param buffer the {@link ByteBuffer} that holds the packet.
-	 * @return the decoded {@link PTIPDescriptionMessage}
-	 * 
-	 * @throws DecodeMessageException
+	 * @param buffer The {@link ByteBuffer} that holds the packet.
+	 *
+	 * @return The decoded {@link PTIPDescriptionMessage}.
 	 */
 	private PTIPMessage decodeSessionDescription(ByteBuffer buffer) throws DecodeMessageException {
 		if (buffer.remaining() < 12) {
@@ -123,10 +128,9 @@ public class PTIPMessageDecoder {
 	/**
 	 * Decode incoming packet to {@link PTIPFileChunk}.
 	 * 
-	 * @param buffer the {@link ByteBuffer} that holds the packet.
-	 * @return the decoded {@link PTIPFileChunk}
-	 * 
-	 * @throws DecodeMessageException
+	 * @param buffer The {@link ByteBuffer} that holds the packet.
+	 *
+	 * @return The decoded {@link PTIPFileChunk}.
 	 */
 	private PTIPMessage decodeFileChunk(ByteBuffer buffer) throws DecodeMessageException {
 		if (buffer.remaining() < 11) {
@@ -157,10 +161,9 @@ public class PTIPMessageDecoder {
 	/**
 	 * Decode incoming packet to {@link PTIPChangeDocument}.
 	 * 
-	 * @param buffer the {@link ByteBuffer} that holds the packet.
-	 * @return the decoded {@link PTIPChangeDocument}
-	 * 
-	 * @throws DecodeMessageException
+	 * @param buffer The {@link ByteBuffer} that holds the packet.
+	 *
+	 * @return The decoded {@link PTIPChangeDocument}.
 	 */
 	private PTIPMessage decodeChangeDocument(ByteBuffer buffer) throws DecodeMessageException {
 		if (buffer.remaining() < 3) {
@@ -183,10 +186,9 @@ public class PTIPMessageDecoder {
 	/**
 	 * Decode incoming packet to {@link PTIPAuthRequest}.
 	 * 
-	 * @param buffer the {@link ByteBuffer} that holds the packet.
-	 * @return the decoded {@link PTIPAuthRequest}
-	 * 
-	 * @throws DecodeMessageException
+	 * @param buffer The {@link ByteBuffer} that holds the packet.
+	 *
+	 * @return The decoded {@link PTIPAuthRequest}.
 	 */
 	private PTIPMessage decodeAuthRequest(ByteBuffer buffer) throws DecodeMessageException {
 		if (buffer.remaining() < 3) {

@@ -94,8 +94,8 @@ public class AudioUtils {
 	 *
 	 * @param providerName The name of the {@link AudioSystemProvider}.
 	 * @param deviceName The name of the device.
-	 * @return True if an available audio capture device has the same name as the specified {@code deviceName},
-	 * otherwise false.
+	 * @return {@code true} if an available audio capture device has the same name as the specified {@code deviceName},
+	 * otherwise {@code false}.
 	 */
 	public static boolean hasAudioCaptureDevice(String providerName, String deviceName) {
 		if (isNull(deviceName)) {

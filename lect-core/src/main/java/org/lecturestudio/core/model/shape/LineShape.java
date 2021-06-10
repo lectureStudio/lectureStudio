@@ -38,20 +38,41 @@ import org.lecturestudio.core.tool.Stroke;
  */
 public class LineShape extends FormShape {
 
+	/**
+	 * Creates a new {@link LineShape} with the specified stroke.
+	 * (Calls {@link FormShape#FormShape(Stroke)} with the stroke.)
+	 *
+	 * @param stroke The stroke.
+	 */
     public LineShape(Stroke stroke) {
     	super(stroke);
     }
 
+	/**
+	 * Creates a new {@link LineShape} with the specified input byte array containing the data for a stroke.
+	 *
+	 * @param input The input byte array.
+	 */
 	public LineShape(byte[] input) throws IOException {
 		super(null);
 
 		parseFrom(input);
 	}
 
+	/**
+	 * Get the width of the line.
+	 *
+	 * @return The width of the stroke (times two if the line is bold).
+	 */
 	public double getLineWidth() {
 		return isBold() ? getStroke().getWidth() * 2 : getStroke().getWidth();
 	}
 
+	/**
+	 * Return true if Alt is pressed (and line should be bold).
+	 *
+	 * @return {@code true} if Shift is pressed, otherwise {@code false}.
+	 */
 	public boolean isBold() {
 		KeyEvent keyEvent = getKeyEvent();
 		return nonNull(keyEvent) && keyEvent.isAltDown();

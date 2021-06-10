@@ -21,8 +21,8 @@ package org.lecturestudio.core.net.protocol.srp.message;
 import org.lecturestudio.core.crypto.srp.SrpContext;
 
 /**
- * SrpMessage is a base class to provide common methods for a SRP message.
- * A SrpMessage carries SRP parameters over packet-swiched networks.
+ * {@link SrpMessage} is a base class to provide common methods for a SRP message.
+ * A {@link SrpMessage} carries SRP parameters over packet-swiched networks.
  * 
  * @author Alex Andres
  */
@@ -34,25 +34,27 @@ public abstract class SrpMessage {
 
 	/**
 	 * Get the SRP version string.
+	 *
+	 * @return The SRP version string.
 	 */
 	public String getVersion() {
 		return SrpContext.VERSION;
 	}
 
 	/**
-	 * Returns one of the message codes that are defined in {@link
-	 * SrpMessageCode}. Each SrpMessage has it's own message code.
+	 * Get one of the message codes that are defined in {@link SrpMessageCode}.
+	 * Each {@link SrpMessage} has it's own message code.
 	 *
-	 * @return the SrpMessageCode.
+	 * @return The {@link SrpMessageCode}.
 	 */
 	public SrpMessageCode getMessageCode() {
 		return messageCode;
 	}
 
 	/**
-	 * Set the new SrpMessageCode.
+	 * Set the new {@link SrpMessageCode}.
 	 *
-	 * @param messageCode The new SrpMessageCode.
+	 * @param messageCode The new {@link SrpMessageCode}.
 	 */
 	public void setMessageCode(SrpMessageCode messageCode) {
 		this.messageCode = messageCode;

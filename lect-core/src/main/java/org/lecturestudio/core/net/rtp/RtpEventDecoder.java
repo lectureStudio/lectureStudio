@@ -24,8 +24,7 @@ import org.lecturestudio.core.recording.action.ActionFactory;
 import org.lecturestudio.core.recording.action.PlaybackAction;
 
 /**
- * The {@code RtpEventDecoder} decodes {@link RtpPacket}s that contain event
- * data.
+ * The {@link RtpEventDecoder} decodes {@link RtpPacket}s that contain event data.
  * 
  * @author Alex Andres
  */

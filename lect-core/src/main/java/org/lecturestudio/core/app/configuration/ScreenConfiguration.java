@@ -76,7 +76,7 @@ public class ScreenConfiguration {
 	/**
 	 * Check whether the connected display should be activated or not.
 	 *
-	 * @return true to activate the display, false otherwise.
+	 * @return {@code true} to activate the display, otherwise {@code false}.
 	 */
 	public Boolean getEnabled() {
 		return enabled.get();

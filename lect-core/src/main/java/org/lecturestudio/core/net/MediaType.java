@@ -18,6 +18,9 @@
 
 package org.lecturestudio.core.net;
 
+/**
+ * Enum for the different media types.
+ */
 public enum MediaType
 {
 	/** Audio stream. */

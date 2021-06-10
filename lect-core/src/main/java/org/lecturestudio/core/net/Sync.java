@@ -23,14 +23,29 @@ public final class Sync {
 	private static long streamStart = 0;
 
 
+	/**
+	 * Set a new value for {@link #streamStart}.
+	 *
+	 * @param start The new value for {@link #streamStart}.
+	 */
 	public static void setStreamStart(long start) {
 		streamStart = start;
 	}
 
+	/**
+	 * Get the value of {@link #streamStart}.
+	 *
+	 * @return The value of {@link #streamStart}.
+	 */
 	public static long getStreamStart() {
 		return streamStart;
 	}
 
+	/**
+	 * Get the timestamp.
+	 *
+	 * @return The timestamp.
+	 */
 	public static long getTimestamp() {
 		return System.currentTimeMillis() - streamStart;
 	}

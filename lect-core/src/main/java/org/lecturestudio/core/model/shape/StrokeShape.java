@@ -46,17 +46,32 @@ public class StrokeShape extends PenShape {
 
 	private PenStroker stroker;
 
-
+	/**
+	 * Creates a new {@link StrokeShape} with the specified stroke.
+	 * (Calls {@link PenShape#PenShape(Stroke)} with the stroke.)
+	 *
+	 * @param stroke The stroke.
+	 */
 	public StrokeShape(Stroke stroke) {
 		super(stroke);
 	}
 
+	/**
+	 * Creates a new {@link StrokeShape} with the specified input byte array containing the data for a stroke.
+	 *
+	 * @param input The input byte array.
+	 */
 	public StrokeShape(byte[] input) throws IOException {
 		super(null);
 
 		parseFrom(input);
 	}
 
+	/**
+	 * Get the pen stroker.
+	 *
+	 * @return The pen stroker.
+	 */
 	public PenStroker getPenStroker() {
 		return stroker;
 	}
@@ -113,12 +128,7 @@ public class StrokeShape extends PenShape {
 		
 		return path.intersects(rect.getX(), rect.getY(), rect.getWidth(), rect.getHeight());
 	}
-	
-	/**
-	 * Adds a point to the shape
-	 * 
-	 * @param point
-	 */
+
 	@Override
 	public boolean addPoint(PenPoint2D point) {
 		if (point.getPressure() == 0) {

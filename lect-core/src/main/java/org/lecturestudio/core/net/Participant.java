@@ -23,9 +23,8 @@ import java.util.Collection;
 import java.util.Map;
 
 /**
- * A {@code Participant} is represented by an IP address and open ports mapped
- * to the media type. This class is used to register connected clients and to
- * distribute the streams to them.
+ * A {@link Participant} is represented by an IP address and open ports mapped to the media type.
+ * This class is used to register connected clients and to distribute the streams to them.
  * 
  * @author Alex Andres
  * 
@@ -46,10 +45,8 @@ public class Participant {
 	/**
 	 * Creates a new {@link Participant} with provided address parameters.
 	 * 
-	 * @param ipAddress
-	 *            the IP address of the participant
-	 * @param addressMap
-	 *            map of media addresses
+	 * @param ipAddress The IP address of the participant.
+	 * @param addressMap The map of media addresses.
 	 */
 	public Participant(String ipAddress, Map<String, InetSocketAddress> addressMap) {
 		this.ipAddress = ipAddress;
@@ -57,16 +54,20 @@ public class Participant {
 	}
 
 	/**
-	 * @return the IP address of the participant
+	 * Get the IP address of the participant.
+	 *
+	 * @return The IP address of the participant.
 	 */
 	public String getIpAddress() {
 		return ipAddress;
 	}
 
 	/**
-	 * @param mediaName the media name
+	 * Get the corresponding socket address for the specified media.
+	 *
+	 * @param mediaName The media name.
 	 * 
-	 * @return the socket address for the corresponding media
+	 * @return The corresponding socket address for the specified media.
 	 */
 	public InetSocketAddress getInetSocketAddress(String mediaName) {
 		return addressMap.get(mediaName);

@@ -178,7 +178,7 @@ public class Configuration {
 	/**
 	 * Obtain whether new version checking is enabled.
 	 *
-	 * @return true if version checking is enabled.
+	 * @return {@code true} if version checking is enabled, otherwise {@code false}.
 	 */
 	public boolean getCheckNewVersion() {
 		return checkNewVersion.get();
@@ -232,8 +232,7 @@ public class Configuration {
 	/**
 	 * Check whether to open the application window maximized.
 	 *
-	 * @return true if the application window should be opened maximized, false
-	 * otherwise.
+	 * @return {@code true} if the application window should be opened maximized, otherwise {@code false}.
 	 */
 	public Boolean getStartMaximized() {
 		return startMaximized.get();
@@ -261,8 +260,7 @@ public class Configuration {
 	/**
 	 * Check whether to open the application window in fullscreen mode.
 	 *
-	 * @return true if the application window should be opened fullscreen, false
-	 * otherwise.
+	 * @return {@code true} if the application window should be opened fullscreen, otherwise {@code false}.
 	 */
 	public Boolean getStartFullscreen() {
 		return startFullscreen.get();
@@ -290,7 +288,7 @@ public class Configuration {
 	/**
 	 * Check whether to enable a virtual keyboard on tablet devices.
 	 *
-	 * @return true to enable a virtual keyboard, false otherwise.
+	 * @return {@code true} to enable a virtual keyboard, false otherwise.
 	 */
 	public Boolean getTabletMode() {
 		return tabletMode.get();
@@ -318,7 +316,7 @@ public class Configuration {
 	 * Check whether to hide/show UI elements, like the menu, in fullscreen
 	 * mode.
 	 *
-	 * @return true if the extended fullscreen mode is enabled, false otherwise.
+	 * @return {@code true} if the extended fullscreen mode is enabled, otherwise {@code false}.
 	 *
 	 * @see #setExtendedFullscreen(boolean)
 	 */
@@ -353,7 +351,7 @@ public class Configuration {
 	 * Check whether to enable/disable advanced settings visible in the settings
 	 * UI view.
 	 *
-	 * @return true if the advanced settings mode is enabled, false otherwise.
+	 * @return {@code true} if the advanced settings mode is enabled, otherwise {@code false}.
 	 *
 	 * @see #setAdvancedUIMode(Boolean)
 	 */

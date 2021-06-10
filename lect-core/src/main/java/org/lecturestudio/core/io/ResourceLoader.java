@@ -44,7 +44,7 @@ public abstract class ResourceLoader {
 	 * Indicates whether the specified {@link URL} has the jar protocol.
 	 *
 	 * @param url The {@link URL}.
-	 * @return True if the protocol of the specified {@link URL} is the jar protocol, false otherwise.
+	 * @return {@code true} if the protocol of the specified {@link URL} is the jar protocol, otherwise {@code false}.
 	 */
 	public static boolean isJarResource(URL url) {
 		return url.getProtocol().equals("jar");

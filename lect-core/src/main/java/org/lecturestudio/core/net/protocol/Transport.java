@@ -59,16 +59,18 @@ public enum Transport {
 
 
 	/**
-	 * Create a new Transport enumeration with the specified description.
+	 * Create a new {@link Transport} enumeration with the specified description.
 	 * 
 	 * @param name The description.
 	 */
-	private Transport(String name) {
+	Transport(String name) {
 		this.name = name;
 	}
 
 	/**
 	 * Get the description for this transport protocol.
+	 *
+	 * @return The description for this transport protocol.
 	 */
 	public String asString() {
 		return name;
@@ -78,6 +80,11 @@ public enum Transport {
 		return this == RTP_TCP_TLS;
 	}
 
+	/**
+	 * Specifies whether TLS is enabled.
+	 *
+	 * @return {@code true} if TLS is enabled, otherwise {@code false}.
+	 */
 	public boolean isTlsEnabled() {
 		return this == RTP_TCP_TLS || this == RTP_HTTP_TLS || this == HTTP_TLS;
 	}

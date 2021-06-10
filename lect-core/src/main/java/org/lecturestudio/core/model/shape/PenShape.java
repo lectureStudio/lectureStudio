@@ -28,25 +28,27 @@ public abstract class PenShape extends Shape {
 	
 	
 	/**
-	 * Creates a new PenShape with the specified Stroke.
+	 * Creates a new {@link PenShape} with the specified {@link Stroke}.
 	 * 
-	 * @param stroke The {@code Stroke} of this shape.
+	 * @param stroke The {@link Stroke} of this shape.
 	 */
 	public PenShape(Stroke stroke) {
 		setStroke(stroke);
 	}
 	
 	/**
-	 * Returns the {@code Stroke} of this shape.
+	 * Returns the {@link Stroke} of this shape.
+	 *
+	 * @return The {@link Stroke} of this shape.
 	 */
 	public Stroke getStroke() {
 		return stroke;
 	}
 	
 	/**
-	 * Set a new {@code Stroke} for this shape.
+	 * Set a new {@link Stroke} for this shape.
 	 * 
-	 * @param stroke The new {@code Stroke}.
+	 * @param stroke The new {@link Stroke}.
 	 */
 	protected void setStroke(Stroke stroke) {
 		this.stroke = stroke;
@@ -64,7 +66,6 @@ public abstract class PenShape extends Shape {
 		double w = stroke.getWidth() * 2;
 
 		Rectangle2D bounds = getBounds();
-		bounds.setFromDiagonal(p1.getX() - w, p1.getY() - w,
-				p2.getX() + w, p2.getY() + w);
+		bounds.setFromDiagonal(p1.getX() - w, p1.getY() - w, p2.getX() + w, p2.getY() + w);
 	}
 }

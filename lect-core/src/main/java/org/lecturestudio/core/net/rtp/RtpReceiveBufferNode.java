@@ -19,9 +19,8 @@
 package org.lecturestudio.core.net.rtp;
 
 /**
- * A {@code RtpReceiveBufferNode} holds a {@link RtpPacket} and is placed into
- * the {@link RtpReceiveBuffer}. This class implements methods to compare this
- * node to another nodes to determine the order.
+ * A {@link RtpReceiveBufferNode} holds a {@link RtpPacket} and is placed into the {@link RtpReceiveBuffer}.
+ * This class implements methods to compare this node to another nodes to determine the order.
  * 
  * @author Alex Andres
  * 
@@ -37,7 +36,7 @@ public class RtpReceiveBufferNode implements Comparable<RtpReceiveBufferNode> {
 	/**
 	 * Creates a new {@link RtpReceiveBufferNode} with provided {@link RtpPacket}.
 	 * 
-	 * @param packet the RTP packet
+	 * @param packet The RTP packet.
 	 */
 	public RtpReceiveBufferNode(RtpPacket packet) {
 		this.packet = packet;
@@ -46,7 +45,7 @@ public class RtpReceiveBufferNode implements Comparable<RtpReceiveBufferNode> {
 	/**
 	 * Returns the RTP packet.
 	 * 
-	 * @return the RTP packet
+	 * @return The RTP packet.
 	 */
 	public RtpPacket getPacket() {
 		return packet;
@@ -70,6 +69,7 @@ public class RtpReceiveBufferNode implements Comparable<RtpReceiveBufferNode> {
 		return Integer.compare(a, b);
 	}
 
+	@Override
 	public boolean equals(Object o) {
 		try {
 			RtpReceiveBufferNode node = (RtpReceiveBufferNode) o;

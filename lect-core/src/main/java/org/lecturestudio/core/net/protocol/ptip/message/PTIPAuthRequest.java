@@ -24,9 +24,8 @@ import org.lecturestudio.core.net.protocol.ptip.PTIPMessage;
 import org.lecturestudio.core.net.protocol.ptip.PTIPMessageCode;
 
 /**
- * The {@code PTIPAuthRequest} is used if the session is protected by a
- * password. This message initiates the authentication process. The
- * packet is defined as followed:
+ * The {@link PTIPAuthRequest} is used if the session is protected by a password.
+ * This message initiates the authentication process. The packet is defined as followed:
  * 
  * <pre>
  * 0                   1                   2                   3 

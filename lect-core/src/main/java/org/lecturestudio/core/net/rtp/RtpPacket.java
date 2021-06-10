@@ -25,8 +25,7 @@ import org.lecturestudio.core.net.packet.Packet;
 import org.lecturestudio.core.net.rtp.header.RtpPayloadHeader;
 
 /**
- * This class represents a RTP packet. The {@code RtpPacket} holds all RTP
- * header fields that can be set or accessed.
+ * This class represents a RTP packet. The {@link RtpPacket} holds all RTP header fields that can be set or accessed.
  * 
  * @author Alex Andres
  * 
@@ -169,111 +168,224 @@ public class RtpPacket implements Packet, Cloneable {
 	}
 
 	/**
-	 * Returns the RTP version.
+	 * Get the RTP version.
 	 * 
-	 * @return the version
+	 * @return The version.
 	 */
 	public int getVersion() {
 		return version;
 	}
 
 	/**
-	 * Sets the RTP version.
+	 * Set the RTP version.
 	 * 
-	 * @param version the version
+	 * @param version The version.
 	 */
 	public void setVersion(int version) {
 		this.version = version;
 	}
 
+	/**
+	 * Get the padding flag.
+	 *
+	 * @return The padding flag.
+	 */
 	public int getPadding() {
 		return padding;
 	}
 
+	/**
+	 * Set the padding flag.
+	 *
+	 * @param padding The padding flag.
+	 */
 	public void setPadding(int padding) {
 		this.padding = padding;
 	}
 
+	/**
+	 * Get the header extension flag.
+	 *
+	 * @return The header extension flag.
+	 */
 	public int getExtension() {
 		return extension;
 	}
 
+	/**
+	 * Set the header extension flag.
+	 *
+	 * @param extension The header extension flag.
+	 */
 	public void setExtension(int extension) {
 		this.extension = extension;
 	}
 
+	/**
+	 * Get the marker bit.
+	 *
+	 * @return The marker bit.
+	 */
 	public int getMarker() {
 		return marker;
 	}
 
+	/**
+	 * Set the marker bit.
+	 *
+	 * @param marker The marker bit.
+	 */
 	public void setMarker(int marker) {
 		this.marker = marker;
 	}
 
+	/**
+	 * Get the payload type.
+	 *
+	 * @return The payload type.
+	 */
 	public int getPayloadType() {
 		return payloadType;
 	}
 
+	/**
+	 * Set the payload type.
+	 *
+	 * @param payloadType The payload type.
+	 */
 	public void setPayloadType(int payloadType) {
 		this.payloadType = payloadType;
 	}
 
+	/**
+	 * Get the sequence number.
+	 *
+	 * @return The sequence number.
+	 */
 	public int getSeqNumber() {
 		return seqNumber;
 	}
 
+	/**
+	 * Set the sequence number.
+	 *
+	 * @param seqNumber The sequence number.
+	 */
 	public void setSeqNumber(int seqNumber) {
 		this.seqNumber = seqNumber & 0xFFFF;
 	}
 
+	/**
+	 * Get the timestamp.
+	 *
+	 * @return The timestamp.
+	 */
 	public long getTimestamp() {
 		return timestamp;
 	}
 
+	/**
+	 * Set the timestamp.
+	 *
+	 * @param timestamp The timestamp.
+	 */
 	public void setTimestamp(long timestamp) {
 		this.timestamp = timestamp;
 	}
 
+	/**
+	 * Get the synchronization source.
+	 *
+	 * @return The synchronization source.
+	 */
 	public long getSsrc() {
 		return ssrc;
 	}
 
+	/**
+	 * Set the synchronization source.
+	 *
+	 * @param ssrc The synchronization source.
+	 */
 	public void setSsrc(int ssrc) {
 		this.ssrc = ssrc & 0xFFFFFFFFL;
 	}
 
+	/**
+	 * Get the CSRC list.
+	 *
+	 * @return The CSRC list.
+	 */
 	public long[] getCsrcArray() {
 		return csrc;
 	}
 
+	/**
+	 * Get the length of {@link #csrc}.
+	 *
+	 * @return The length of {@link #csrc} or {@code 0} if {@link #csrc} equals {@code null}.
+	 */
 	public int getCsrcCount() {
 		return (csrc == null) ? 0 : csrc.length;
 	}
 
+	/**
+	 * Set the CSRC list.
+	 *
+	 * @param csrcArray The CSRC list.
+	 */
 	public void setCsrcArray(long[] csrcArray) {
 		this.csrc = csrcArray;
 	}
 
+	/**
+	 * Get the payload (Actual data, without header).
+	 *
+	 * @return The payload.
+	 */
 	public byte[] getPayload() {
 		return payload;
 	}
-	
+
+	/**
+	 * Get the length of {@link #payload}.
+	 *
+	 * @return The length of {@link #payload}.
+	 */
 	public int getPayloadLength() {
 		return payload.length;
 	}
-	
+
+	/**
+	 * Get the length of the header.
+	 *
+	 * @return The length of the header.
+	 */
 	public int getHeaderLength() {
 		return 12 + getCsrcCount() * 4;
 	}
 
+	/**
+	 * Set the payload (Actual data, without header).
+	 *
+	 * @param payload The payload.
+	 */
 	public void setPayload(byte[] payload) {
 		this.payload = payload;
 	}
 
+	/**
+	 * Add a {@link RtpPayloadHeader} to {@link #headers}.
+	 *
+	 * @param header The {@link RtpPayloadHeader} to add.
+	 */
 	public void addPayloadHeader(RtpPayloadHeader header) {
 		headers.add(header);
 	}
 
+	/**
+	 * Removes all headers from {@link #headers}.
+	 */
 	public void removeHeaders() {
 		headers.clear();
 	}
@@ -281,8 +393,7 @@ public class RtpPacket implements Packet, Cloneable {
 	/**
 	 * Append a byte array to the end of the packet.
 	 * 
-	 * @param data
-	 *            byte array to append
+	 * @param data Byte array to append.
 	 */
 	public void append(byte[] data, int length) {
 		if (data == null || length == 0) {
@@ -329,19 +440,19 @@ public class RtpPacket implements Packet, Cloneable {
 	public String toString() {
 		int csrcLength = csrc == null ? 0 : csrc.length;
 
-		String str = "[RTP Packet] \n";
-		str += "V: " + version + " P: " + padding + " X: " + extension + " CC: " + csrcLength;
-		str += " M: " + marker + " PT: " + payloadType + " Seq: " + seqNumber + "\n";
-		str += "Timestamp: " + timestamp + "\n";
-		str += "SSRC: " + ssrc + "\n";
+		StringBuilder str = new StringBuilder("[RTP Packet] \n");
+		str.append("V: ").append(version).append(" P: ").append(padding).append(" X: ").append(extension).append(" CC: ").append(csrcLength);
+		str.append(" M: ").append(marker).append(" PT: ").append(payloadType).append(" Seq: ").append(seqNumber).append("\n");
+		str.append("Timestamp: ").append(timestamp).append("\n");
+		str.append("SSRC: ").append(ssrc).append("\n");
 
 		for (int i = 0; i < csrcLength; i++) {
-			str += "CSRC: " + csrc[i] + "\n";
+			str.append("CSRC: ").append(csrc[i]).append("\n");
 		}
 
-		str += "Data length: " + payload.length + "\n";
+		str.append("Data length: ").append(payload.length).append("\n");
 
-		return str;
+		return str.toString();
 	}
 
 }

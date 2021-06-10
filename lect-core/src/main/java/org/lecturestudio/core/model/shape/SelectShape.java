@@ -31,10 +31,21 @@ import org.lecturestudio.core.tool.Stroke;
  */
 public class SelectShape extends RectangleShape {
 
+	/**
+	 * Creates a new {@link SelectShape} with the specified stroke.
+	 * (Calls {@link RectangleShape#RectangleShape(Stroke)} with the stroke.)
+	 *
+	 * @param stroke The stroke.
+	 */
     public SelectShape(Stroke stroke) {
     	super(stroke);
     }
 
+	/**
+	 * Creates a new {@link SelectShape} with the specified input byte array containing the information for a stroke.
+	 *
+	 * @param input The input byte array.
+	 */
     public SelectShape(byte[] input) throws IOException {
 		super(input);
     }

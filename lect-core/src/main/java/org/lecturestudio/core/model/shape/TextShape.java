@@ -34,8 +34,7 @@ import org.lecturestudio.core.text.FontWeight;
 import org.lecturestudio.core.text.TextAttributes;
 
 /**
- * A shape representing a text input. It has a textbox handle to associate it
- * with some textbox widget on the GUI.
+ * A shape representing a text input. It has a textbox handle to associate it with some textbox widget on the GUI.
  * 
  * @author Alex Andres
  * @author Tobias
@@ -52,25 +51,41 @@ public class TextShape extends Shape implements TextBoxShape<Font> {
 	
 	private TextAttributes attributes = new TextAttributes();
 
-	
+	/**
+	 * Creates a {@link TextShape}.
+	 * (Calls the default constructor of {@link Shape} and calls {@link #initProperties()}.)
+	 */
 	public TextShape() {
 		super();
 		
 		initProperties();
 	}
-	
+
+	/**
+	 * Creates a new {@link TextShape} with the specified input byte array containing the data for the {@link TeXShape}.
+	 * (Calls {@link #initProperties().)
+	 *
+	 * @param input The input byte array.
+	 */
 	public TextShape(byte[] input) throws IOException {
 		initProperties();
 		parseFrom(input);
 	}
 
 	/**
-	 * Returns the text.
+	 * Get the text.
+	 *
+	 * @return The text.
 	 */
 	public String getText() {
 		return text.get();
 	}
 
+	/**
+	 * Get the text property.
+	 *
+	 * @return The text property.
+	 */
 	public StringProperty textProperty() {
 		return text;
 	}
@@ -95,7 +110,12 @@ public class TextShape extends Shape implements TextBoxShape<Font> {
 		fireTextFontChange();
 		fireShapeChanged(null);
 	}
-	
+
+	/**
+	 * Get the text attributes.
+	 *
+	 * @return The text attributes.
+	 */
 	public TextAttributes getTextAttributes() {
 		return attributes;
 	}
@@ -111,11 +131,11 @@ public class TextShape extends Shape implements TextBoxShape<Font> {
 		fireTextFontChange();
 		fireShapeChanged(null);
 	}
-	
+
 	/**
-	 * Returns the font color
-	 * 
-	 * @return
+	 * Get the font color.
+	 *
+	 * @return The font color.
 	 */
 	public Color getTextColor() {
 		return color;
@@ -134,9 +154,9 @@ public class TextShape extends Shape implements TextBoxShape<Font> {
 	}
 	
 	/**
-	 * Returns the font
-	 * 
-	 * @return
+	 * Get the  font.
+	 *
+	 * @return The font.
 	 */
 	public Font getFont() {
 		return font;
@@ -156,6 +176,11 @@ public class TextShape extends Shape implements TextBoxShape<Font> {
 		}
 	}
 
+	/**
+	 * Get the location of the bounding rectangle of the shape.
+	 *
+	 * @return The location of the bounding rectangle of the shape.
+	 */
 	public Point2D getLocation() {
 		return getBounds().getLocation();
 	}
@@ -163,7 +188,7 @@ public class TextShape extends Shape implements TextBoxShape<Font> {
 	/**
 	 * Returns whether text is underlined or not.
 	 * 
-	 * @return true if text is underlined, false otherwise
+	 * @return {@code true} if text is underlined, otherwise {@code false}.
 	 */
 	public boolean isUnderline() {
 		return attributes.isUnderline();
@@ -171,17 +196,15 @@ public class TextShape extends Shape implements TextBoxShape<Font> {
 	
 	/**
 	 * Underline the text.
-	 * 
-	 * @param underline
 	 */
 	public void setUnderline(boolean underline) {
 		this.attributes.setAttribute("underline", underline);
 	}
 
 	/**
-	 * Returns whether text is struck out or not.
+	 * Specifies whether text is struck out or not.
 	 * 
-	 * @return true if text is struck out, false otherwise
+	 * @return {@code true} if text is struck out, otherwise {@code false}.
 	 */
 	public boolean isStrikethrough() {
 		return attributes.isStrikethrough();
@@ -189,8 +212,6 @@ public class TextShape extends Shape implements TextBoxShape<Font> {
 	
 	/**
 	 * Strike through the text.
-	 * 
-	 * @param strikethrough
 	 */
 	public void setStrikethrough(boolean strikethrough) {
 		this.attributes.setAttribute("strikethrough", strikethrough);
@@ -206,10 +227,20 @@ public class TextShape extends Shape implements TextBoxShape<Font> {
 		fireTextRemoved();
 	}
 
+	/**
+	 * Adds a new text change listener to {@link #textListeners}.
+	 *
+	 * @param listener The text change listener to add.
+	 */
 	public void addTextChangeListener(TextChangeListener<TextShape> listener) {
 		textListeners.add(listener);
 	}
 
+	/**
+	 * Removes the specified text change listener from {@link #textListeners}.
+	 *
+	 * @param listener The text change listener to remove.
+	 */
 	public void removeTextChangeListener(TextChangeListener<TextShape> listener) {
 		textListeners.remove(listener);
 	}

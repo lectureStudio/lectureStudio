@@ -23,6 +23,7 @@ import java.nio.ByteBuffer;
 
 import org.lecturestudio.core.geometry.Dimension2D;
 import org.lecturestudio.core.graphics.Color;
+import org.lecturestudio.core.tool.Stroke;
 
 public class GridShape extends Shape {
 
@@ -38,11 +39,20 @@ public class GridShape extends Shape {
 
 	private Dimension2D viewRatio;
 
-
+	/**
+	 * Creates a {@link GridShape}.
+	 * (Calls the default constructor of {@link Shape}.)
+	 */
 	public GridShape() {
 		super();
 	}
 
+	/**
+	 * Creates a new {@link GridShape} with the specified input byte array containing
+	 * the data for the {@link GridShape}.
+	 *
+	 * @param input The input byte array.
+	 */
 	public GridShape(byte[] input) throws IOException {
 		super();
 
@@ -50,14 +60,18 @@ public class GridShape extends Shape {
 	}
 
 	/**
-	 * @return the verticalLinesVisible
+	 * Get the verticalLinesVisible.
+	 *
+	 * @return The verticalLinesVisible.
 	 */
 	public boolean getVerticalLinesVisible() {
 		return verticalLinesVisible;
 	}
 
 	/**
-	 * @param verticalLinesVisible the verticalLinesVisible to set
+	 * Set the verticalLinesVisible.
+	 *
+	 * @param verticalLinesVisible The verticalLinesVisible to set.
 	 */
 	public void setVerticalLinesVisible(boolean verticalLinesVisible) {
 		this.verticalLinesVisible = verticalLinesVisible;
@@ -66,14 +80,18 @@ public class GridShape extends Shape {
 	}
 
 	/**
-	 * @return the verticalLinesInterval
+	 * Get the verticalLinesInterval.
+	 *
+	 * @return The verticalLinesInterval.
 	 */
 	public double getVerticalLinesInterval() {
 		return verticalLinesInterval;
 	}
 
 	/**
-	 * @param verticalLinesInterval the verticalLinesInterval to set
+	 * Set the verticalLinesInterval.
+	 *
+	 * @param verticalLinesInterval The verticalLinesInterval to set.
 	 */
 	public void setVerticalLinesInterval(double verticalLinesInterval) {
 		this.verticalLinesInterval = verticalLinesInterval;
@@ -82,14 +100,18 @@ public class GridShape extends Shape {
 	}
 
 	/**
-	 * @return the horizontalLinesVisible
+	 * Get the horizontalLinesVisible.
+	 *
+	 * @return The horizontalLinesVisible.
 	 */
 	public boolean getHorizontalLinesVisible() {
 		return horizontalLinesVisible;
 	}
 
 	/**
-	 * @param horizontalLinesVisible the horizontalLinesVisible to set
+	 * Set new horizontalLinesVisible.
+	 *
+	 * @param horizontalLinesVisible The horizontalLinesVisible to set.
 	 */
 	public void setHorizontalLinesVisible(boolean horizontalLinesVisible) {
 		this.horizontalLinesVisible = horizontalLinesVisible;
@@ -98,14 +120,18 @@ public class GridShape extends Shape {
 	}
 
 	/**
-	 * @return the horizontalLinesInterval
+	 * Get the horizontalLinesInterval.
+	 *
+	 * @return The horizontalLinesInterval.
 	 */
 	public double getHorizontalLinesInterval() {
 		return horizontalLinesInterval;
 	}
 
 	/**
-	 * @param horizontalLinesInterval the horizontalLinesInterval to set
+	 * Set new horizontalLinesInterval.
+	 *
+	 * @param horizontalLinesInterval The horizontalLinesInterval to set.
 	 */
 	public void setHorizontalLinesInterval(double horizontalLinesInterval) {
 		this.horizontalLinesInterval = horizontalLinesInterval;
@@ -114,14 +140,18 @@ public class GridShape extends Shape {
 	}
 
 	/**
-	 * @return the color
+	 * Get the grid color.
+	 *
+	 * @return The color.
 	 */
 	public Color getColor() {
 		return gridColor;
 	}
 
 	/**
-	 * @param color the color to set
+	 * Set new grid color.
+	 *
+	 * @param color The color to set.
 	 */
 	public void setColor(Color color) {
 		this.gridColor = color;
@@ -130,14 +160,18 @@ public class GridShape extends Shape {
 	}
 
 	/**
-	 * @return the view ratio
+	 * Get the view ratio.
+	 *
+	 * @return The view ratio.
 	 */
 	public Dimension2D getViewRatio() {
 		return viewRatio;
 	}
 
 	/**
-	 * @param viewRatio the view ratio to set
+	 * Set new view ratio.
+	 *
+	 * @param viewRatio The view ratio to set.
 	 */
 	public void setViewRatio(Dimension2D viewRatio) {
 		this.viewRatio = viewRatio;

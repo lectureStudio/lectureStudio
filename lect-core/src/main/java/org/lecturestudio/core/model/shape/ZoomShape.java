@@ -31,10 +31,21 @@ import org.lecturestudio.core.tool.Stroke;
  */
 public class ZoomShape extends RectangleShape {
 
+	/**
+	 * Creates a new {@link ZoomShape} with the specified stroke.
+	 * (Calls {@link RectangleShape#RectangleShape(Stroke)} with the stroke.)
+	 *
+	 * @param stroke The stroke.
+	 */
 	public ZoomShape(Stroke stroke) {
 		super(stroke);
 	}
 
+	/**
+	 * Creates a new {@link ZoomShape} with the specified input byte array containing the data for a stroke.
+	 *
+	 * @param input The input byte array.
+	 */
 	public ZoomShape(byte[] input) throws IOException {
 		super(input);
 	}

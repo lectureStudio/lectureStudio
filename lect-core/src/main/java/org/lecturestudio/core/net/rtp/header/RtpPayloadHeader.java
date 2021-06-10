@@ -19,7 +19,7 @@
 package org.lecturestudio.core.net.rtp.header;
 
 /**
- * The {@code RtpPayloadHeader} should be implemented to use custom payload
+ * The {@link RtpPayloadHeader} should be implemented to use custom payload
  * headers within a {@link org.lecturestudio.core.net.rtp.RtpPacket}.
  * 
  * @author Alex Andres
@@ -30,14 +30,14 @@ public interface RtpPayloadHeader {
 	/**
 	 * Returns a byte array that represents this header.
 	 * 
-	 * @return a byte array that represents this header.
+	 * @return A byte array that represents this header.
 	 */
 	byte[] toByteArray();
 
 	/**
 	 * Returns the length of this header.
 	 * 
-	 * @return the header length
+	 * @return The header length.
 	 */
 	int getLength();
 

@@ -99,7 +99,7 @@ public interface Camera extends Comparable<Camera> {
 	/**
 	 * Check if the camera is opened and capturing.
 	 *
-	 * @return true if the camera is opened and capturing, false otherwise.
+	 * @return {@code true} if the camera is opened and capturing, otherwise {@code false}.
 	 */
 	boolean isOpened();
 

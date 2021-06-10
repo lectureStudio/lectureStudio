@@ -32,15 +32,15 @@ public interface ParameterChangeListener {
 	/**
 	 * Returns the Page for which the listener applies at the moment.
 	 * 
-	 * @return
+	 * @return The Page for which the listener applies at the moment.
 	 */
 	Page forPage();
 
 	/**
 	 * Fired when the PresentationParameter for Page p has changed.
 	 * 
-	 * @param p
-	 * @param parameter
+	 * @param p The page.
+	 * @param parameter The parameter that changed.
 	 */
 	void parameterChanged(Page p, PresentationParameter parameter);
 

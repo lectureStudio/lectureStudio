@@ -34,8 +34,7 @@ import org.lecturestudio.core.text.TextAttributes;
 import org.lecturestudio.core.text.TeXFont.Type;
 
 /**
- * A shape representing TeX input. It has a textbox handle to associate it
- * with some textbox widget on the GUI.
+ * A shape representing TeX input. It has a textbox handle to associate it with some textbox widget on the GUI.
  * 
  * @author Alex Andres
  */
@@ -50,13 +49,24 @@ public class TeXShape extends Shape implements TextBoxShape<TeXFont> {
 	private Color textColor = Color.BLACK;
 	
 	private TeXFont font = new TeXFont(Type.SERIF, 24);
-	
-	
+
+
+	/**
+	 * Creates a {@link TeXShape}.
+	 * (Calls the default constructor of {@link Shape} and sets a new bounding rectangle with
+	 * x-coordinate = 0, y-coordinate = 0, width = 1.0, height = 0.15.)
+	 */
 	public TeXShape() {
 		super();
 		setBounds(0, 0, 1.0, 0.15);
 	}
-	
+
+	/**
+	 * Creates a new {@link TeXShape} with the specified input byte array containing the data for the {@link TeXShape}.
+	 * (Sets a new bounding rectangle with x-coordinate = 0, y-coordinate = 0, width = 1.0, height = 0.15.)
+	 *
+	 * @param input The input byte array.
+	 */
 	public TeXShape(byte[] input) throws IOException {
 		setBounds(0, 0, 1.0, 0.15);
 		parseFrom(input);
@@ -75,14 +85,19 @@ public class TeXShape extends Shape implements TextBoxShape<TeXFont> {
 	}
 	
 	/**
-	 * Returns LaTeX text.
+	 * Get LaTeX text.
 	 * 
 	 * @return The LaTeX text.
 	 */
 	public String getText() {
 		return text.get();
 	}
-	
+
+	/**
+	 * Get LaTeX text property.
+	 *
+	 * @return The LaTeX text property.
+	 */
 	public StringProperty textProperty() {
 		return text;
 	}
@@ -91,7 +106,12 @@ public class TeXShape extends Shape implements TextBoxShape<TeXFont> {
 	public void setTextAttributes(TextAttributes attributes) {
 		// No attributes to set yet.
 	}
-	
+
+	/**
+	 * Get the text attributes.
+	 *
+	 * @return The text attributes.
+	 */
 	public TextAttributes getTextAttributes() {
 		return attributes;
 	}
@@ -109,9 +129,9 @@ public class TeXShape extends Shape implements TextBoxShape<TeXFont> {
 	}
 	
 	/**
-	 * Returns the font color
+	 * Get the font color.
 	 * 
-	 * @return
+	 * @return The font color.
 	 */
 	public Color getTextColor() {
 		return textColor;
@@ -130,9 +150,9 @@ public class TeXShape extends Shape implements TextBoxShape<TeXFont> {
 	}
 	
 	/**
-	 * Returns the TeX font.
+	 * Get the TeX font.
 	 * 
-	 * @return
+	 * @return The TeX font.
 	 */
 	public TeXFont getFont() {
 		return font;
@@ -151,26 +171,37 @@ public class TeXShape extends Shape implements TextBoxShape<TeXFont> {
 			fireShapeChanged(null);
 		}
 	}
-	
+
+	/**
+	 * Get the location of the bounding rectangle of the shape.
+	 *
+	 * @return The location of the bounding rectangle of the shape.
+	 */
 	public Point2D getLocation() {
 		return getBounds().getLocation();
 	}
 
 	/**
-	 * Sets the size of the shape
+	 * Sets the size of the shape.
 	 * 
-	 * @param size
+	 * @param size The new size of the shape.
 	 */
 	public void setSize(Dimension2D size) {
 		getBounds().setRect(getBounds().getX(), getBounds().getY(), size.getWidth(), size.getHeight());
 		fireShapeChanged(null);
 	}
 
+	@Override
 	public void setBounds(Rectangle2D rect) {
 		super.setBounds(rect);
 		fireShapeChanged(null);
 	}
 
+	/**
+	 * Get the size of the shape.
+	 *
+	 * @return  The size of the shape.
+	 */
 	public Dimension2D getSize() {
 		return new Dimension2D(getBounds().getWidth(), getBounds().getHeight());
 	}
@@ -179,10 +210,20 @@ public class TeXShape extends Shape implements TextBoxShape<TeXFont> {
 		fireTextRemoved();
 	}
 
+	/**
+	 * Adds a new text change listener to {@link #textListeners}.
+	 *
+	 * @param listener The text change listener to add.
+	 */
 	public void addTextChangeListener(TextChangeListener<TeXShape> listener) {
 		textListeners.add(listener);
 	}
 
+	/**
+	 * Removes the specified text change listener from {@link #textListeners}.
+	 *
+	 * @param listener The text change listener to remove.
+	 */
 	public void removeTextChangeListener(TextChangeListener<TeXShape> listener) {
 		textListeners.remove(listener);
 	}

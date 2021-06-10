@@ -22,7 +22,7 @@ import org.lecturestudio.core.net.protocol.srp.message.SrpMessage;
 import org.lecturestudio.core.crypto.srp.SrpAgreementException;
 
 /**
- * The interface {@code SRPMessageHandler} defines methods that should be
+ * The interface {@link SrpMessageHandler} defines methods that should be
  * implemented by a server and client to enable communication between them.
  * 
  * @author Alex Andres
@@ -30,27 +30,25 @@ import org.lecturestudio.core.crypto.srp.SrpAgreementException;
 public interface SrpMessageHandler {
 
 	/**
-	 * Processes a {@code SrpMessage} that is used for the password-authenticated
-	 * key agreement.
+	 * Processes a {@link SrpMessage} that is used for the password-authenticated key agreement.
 	 * 
-	 * @param message The SRP-Message to process.
+	 * @param message The {@link SrpMessage} to process.
 	 * 
 	 * @throws SrpAgreementException on errors during the authentication.
 	 */
 	void processSrpMessage(SrpMessage message) throws SrpAgreementException;
 
 	/**
-	 * Returns the next {@code SrpMessage} in the stack that should be transmitted
-	 * to the counterpart.
+	 * Get the next {@link SrpMessage} in the stack that should be transmitted to the counterpart.
 	 * 
-	 * @return the SrpMessage to transmit.
+	 * @return The SrpMessage to transmit.
 	 */
 	SrpMessage getNextOutgoingMessage();
 
 	/**
 	 * Checks whether the authentication is completed.
 	 * 
-	 * @return true if authenticated, false otherwise.
+	 * @return {@code true} if authenticated, otherwise {@code false}.
 	 */
 	boolean isAuthenticated();
 

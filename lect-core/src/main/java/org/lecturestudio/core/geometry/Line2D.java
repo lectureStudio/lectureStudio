@@ -134,7 +134,7 @@ public class Line2D implements Cloneable, Serializable {
 	 *
 	 * @param line The line to check the intersection with.
 	 *
-	 * @return True if the lines intersect each other, false otherwise.
+	 * @return {@code true} if the lines intersect each other, otherwise {@code true}.
 	 */
 	public boolean intersects(Line2D line) {
 		double d = (line.y2 - line.y1) * (x2 - x1) - (line.x2 - line.x1) * (y2 - y1);

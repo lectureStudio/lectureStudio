@@ -20,23 +20,45 @@ package org.lecturestudio.core.net.protocol.bcast.message;
 
 public class BcastMessage<T> {
 
+	/** The {@link BcastMessageCode}. */
 	private BcastMessageCode messageCode;
 
+	/** The payload. */
 	private T payload;
 
 
+	/**
+	 * Get the {@link BcastMessageCode}.
+	 *
+	 * @return The {@link BcastMessageCode}.
+	 */
 	public BcastMessageCode getMessageCode() {
 		return messageCode;
 	}
 
+	/**
+	 * Set a new {@link BcastMessageCode}.
+	 *
+	 * @param messageCode The new {@link BcastMessageCode}.
+	 */
 	public void setMessageCode(BcastMessageCode messageCode) {
 		this.messageCode = messageCode;
 	}
 
+	/**
+	 * Get the payload.
+	 *
+	 * @return The payload.
+	 */
 	public T getPayload() {
 		return payload;
 	}
 
+	/**
+	 * Set a new payload
+	 *
+	 * @param payload The new payload.
+	 */
 	public void setPayload(T payload) {
 		this.payload = payload;
 	}

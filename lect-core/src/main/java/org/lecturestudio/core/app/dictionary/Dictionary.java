@@ -44,8 +44,7 @@ public interface Dictionary {
 	 *
 	 * @param key A key in the dictionary.
 	 *
-	 * @return true if the dictionary contains an entry for the specified key,
-	 * false otherwise.
+	 * @return {@code true} if the dictionary contains an entry for the specified key, otherwise {@code false}.
 	 */
 	boolean contains(String key);
 

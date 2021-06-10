@@ -21,24 +21,23 @@ package org.lecturestudio.core.net.protocol.srp.message;
 import java.math.BigInteger;
 
 /**
- * The {@code ServerEvidenceMessage} is used to provide the evidence that the
- * shared secret key of the server matches the clients shared secret key. This
- * message carries the evidence of the server.
+ * The {@link SrpServerEvidenceMessage} is used to provide the evidence that the
+ * shared secret key of the server matches the clients shared secret key.
+ * This message carries the evidence of the server.
  * 
  * @author Alex Andres
  */
 public class SrpServerEvidenceMessage extends SrpEvidenceMessage {
 
 	/**
-	 * Creates a new SrpServerEvidenceMessage.
+	 * Creates a new {@link SrpServerEvidenceMessage}.
 	 */
 	public SrpServerEvidenceMessage() {
 		this(null);
 	}
 
 	/**
-	 * Creates a new SrpServerEvidenceMessage that contains the evidence of the
-	 * server.
+	 * Creates a new {@link SrpServerEvidenceMessage} that contains the evidence of the server.
 	 *
 	 * @param M The evidence.
 	 */

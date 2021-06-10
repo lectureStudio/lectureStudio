@@ -24,10 +24,9 @@ import java.util.Map;
 import org.lecturestudio.core.net.protocol.Transport;
 
 /**
- * The Session describes the media that should be broadcasted. A Session
- * defines the media provider who specifies which media types should be
- * broadcasted by associated transport protocols. Each Session is identified
- * by an unique name.
+ * The {@link Session} describes the media that should be broadcasted. A {@link Session} defines the media provider
+ * that specifies which media types should be broadcasted by associated transport protocols.
+ * Each {@link Session} is identified by a unique name.
  * 
  * @author Alex Andres
  */
@@ -47,7 +46,7 @@ public class Session
 	
 	
 	/**
-	 * Create a new Session.
+	 * Create a new {@link Session}.
 	 */
 	public Session()
 	{
@@ -55,7 +54,9 @@ public class Session
 	}
 	
 	/**
-	 * Get the name of the Session.
+	 * Get the name of the {@link Session}.
+	 *
+	 * @return The name of the {@link Session}.
 	 */
 	public String getSessionName()
 	{
@@ -63,9 +64,9 @@ public class Session
 	}
 
 	/**
-	 * Set the new name of this Session.
+	 * Set the new name of this {@link Session}.
 	 * 
-	 * @param sessionName The new name.
+	 * @param sessionName The new name of this {@link Session}.
 	 */
 	public void setSessionName(String sessionName)
 	{
@@ -74,6 +75,8 @@ public class Session
 	
 	/**
 	 * Get the provider's remote address.
+	 *
+	 * @return The provider's remote address.
 	 */
 	public String getProviderAddress()
 	{
@@ -109,7 +112,7 @@ public class Session
 //	}
 	
 	/**
-	 * Add a new MediaType to Transport mapping.
+	 * Add a new {@link MediaType} to {@link Transport} mapping.
 	 * 
 	 * @param type The media type to broadcast.
 	 * @param transport The transport protocol for the media type.
@@ -120,7 +123,9 @@ public class Session
 	}
 	
 	/**
-	 * Get all MediaType to Transport mappings.
+	 * Get all {@link MediaType} to {@link Transport} mappings.
+	 *
+	 * @return All {@link MediaType} to {@link Transport} mappings.
 	 */
 	public Map<MediaType, Transport> getMediaTransportTypes()
 	{

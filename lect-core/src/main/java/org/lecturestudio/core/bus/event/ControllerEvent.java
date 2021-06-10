@@ -38,7 +38,7 @@ public abstract class ControllerEvent extends BusEvent {
 	/**
 	 * Get the value of {@link #synchronous}.
 	 *
-	 * @return True if {@link #synchronous} is true, otherwise false.
+	 * @return {@code true} if {@link #synchronous} is {@code true}, otherwise {@code false}.
 	 */
 	public boolean isSynchronous() {
 		return synchronous;

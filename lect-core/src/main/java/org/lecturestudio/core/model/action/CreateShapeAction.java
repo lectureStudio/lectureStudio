@@ -30,12 +30,24 @@ import org.lecturestudio.core.model.shape.Shape;
  */
 public class CreateShapeAction extends ShapeAction {
 
+	/**
+	 * Create a {@link CreateShapeAction} with the specified page and adds the specified shape to the list of shapes.
+	 *
+	 * @param page The page.
+	 * @param shape The shape.
+	 */
 	public CreateShapeAction(Page page, Shape shape) {
 		super(page);
 
 		getShapes().add(shape);
 	}
 
+	/**
+	 * Create a {@link CreateShapeAction} with the specified page and adds the specified shapes to the list of shapes.
+	 *
+	 * @param page The page.
+	 * @param shapes The shapes.
+	 */
 	public CreateShapeAction(Page page, List<Shape> shapes) {
 		super(page);
 

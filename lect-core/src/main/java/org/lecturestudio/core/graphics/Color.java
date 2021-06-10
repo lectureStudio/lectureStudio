@@ -168,7 +168,7 @@ public class Color implements Cloneable, Serializable {
 	/**
 	 * Indicates if the opacity equals {@code 255}.
 	 *
-	 * @return True if the opacity equals {@code 255}, otherwise false.
+	 * @return {@code true} if the opacity equals {@code 255}, otherwise {@code false}.
 	 */
 	public boolean isOpaque() {
 		return getOpacity() == 255;

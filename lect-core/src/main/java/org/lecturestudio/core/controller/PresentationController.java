@@ -128,7 +128,7 @@ public class PresentationController {
 	/**
 	 * Check whether any displays are connected or not.
 	 *
-	 * @return True if at least one display is connected, false otherwise.
+	 * @return {@code true} if at least one display is connected, otherwise {@code false}.
 	 */
 	public boolean getScreensAvailable() {
 		return screensAvailable.get();
@@ -146,7 +146,7 @@ public class PresentationController {
 	/**
 	 * Check whether any presentation windows are visible or not.
 	 *
-	 * @return True if at least one presentation window is visible, false otherwise.
+	 * @return {@code true} if at least one presentation window is visible, otherwise {@code false}.
 	 */
 	public boolean getPresentationViewsVisible() {
 		return presentationViewsVisible.get();

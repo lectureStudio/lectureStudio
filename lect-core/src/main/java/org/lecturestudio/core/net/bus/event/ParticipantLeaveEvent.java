@@ -22,6 +22,11 @@ import org.lecturestudio.core.net.Participant;
 
 public class ParticipantLeaveEvent extends ParticipantEvent {
 
+	/**
+	 * Create a new {@link ParticipantLeaveEvent} with the specified participant.
+	 *
+	 * @param participant The participant.
+	 */
 	public ParticipantLeaveEvent(Participant participant) {
 		super(participant);
 	}

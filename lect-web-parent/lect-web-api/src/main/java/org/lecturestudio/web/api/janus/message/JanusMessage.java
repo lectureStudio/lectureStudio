@@ -21,7 +21,7 @@ package org.lecturestudio.web.api.janus.message;
 import javax.json.bind.annotation.JsonbProperty;
 import javax.json.bind.annotation.JsonbTypeAdapter;
 
-import org.lecturestudio.web.api.janus.json.EventTypeAdapter;
+import org.lecturestudio.web.api.janus.json.MessageTypeAdapter;
 
 /**
  * Basic message implementation to communicate with endpoints of the Janus
@@ -35,8 +35,8 @@ import org.lecturestudio.web.api.janus.json.EventTypeAdapter;
 public class JanusMessage {
 
 	@JsonbProperty("janus")
-	@JsonbTypeAdapter(EventTypeAdapter.class)
-	private JanusEventType eventType;
+	@JsonbTypeAdapter(MessageTypeAdapter.class)
+	private JanusMessageType eventType;
 
 	private String transaction;
 
@@ -46,7 +46,7 @@ public class JanusMessage {
 	 *
 	 * @return The message event type.
 	 */
-	public JanusEventType getEventType() {
+	public JanusMessageType getEventType() {
 		return eventType;
 	}
 
@@ -55,7 +55,7 @@ public class JanusMessage {
 	 *
 	 * @param eventType The message event type.
 	 */
-	public void setEventType(JanusEventType eventType) {
+	public void setEventType(JanusMessageType eventType) {
 		this.eventType = eventType;
 	}
 

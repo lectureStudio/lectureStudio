@@ -18,46 +18,38 @@
 
 package org.lecturestudio.web.api.janus.message;
 
+import java.math.BigInteger;
+
 /**
- * Error message returned by the Janus WebRTC Server.
+ * Response message used when a new video room has been successfully created.
  *
  * @author Alex Andres
  */
-public class JanusErrorMessage extends JanusMessage {
+public class JanusRoomCreatedMessage extends JanusRoomMessage {
 
-	private final int code;
-
-	private final String reason;
+	private final BigInteger roomId;
 
 
 	/**
-	 * Create a new {@code JanusErrorMessage} with the specified parameters.
+	 * Create a new {@code JanusRoomCreatedMessage}.
 	 *
-	 * @param code   The numeric error code.
-	 * @param reason The string describing the cause of the failure.
+	 * @param sessionId The unique integer session ID.
+	 * @param roomId    The unique numeric room ID.
 	 */
-	public JanusErrorMessage(int code, String reason) {
-		setEventType(JanusMessageType.ERROR);
+	public JanusRoomCreatedMessage(BigInteger sessionId, BigInteger roomId) {
+		super(sessionId);
 
-		this.code = code;
-		this.reason = reason;
+		this.roomId = roomId;
+
+		setRoomEventType(JanusRoomEventType.CREATED);
 	}
 
 	/**
-	 * Get the numeric error code.
+	 * Get the unique numeric room ID, optional, chosen by plugin if missing.
 	 *
-	 * @return The numeric error code.
+	 * @return The unique numeric room ID.
 	 */
-	public int getCode() {
-		return code;
-	}
-
-	/**
-	 * Get the verbose string describing the cause of the failure.
-	 *
-	 * @return The string describing the cause of the failure.
-	 */
-	public String getReason() {
-		return reason;
+	public BigInteger getRoomId() {
+		return roomId;
 	}
 }

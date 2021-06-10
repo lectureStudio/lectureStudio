@@ -96,7 +96,8 @@ public enum JanusRoomRequestType {
 	JOIN("join"),
 
 	/**
-	 * To combine the join and configure requests in a single one (just for publishers).
+	 * To combine the join and configure requests in a single one (just for
+	 * publishers).
 	 */
 	JOIN_AND_CONFIGURE("joinandconfigure"),
 
@@ -151,7 +152,7 @@ public enum JanusRoomRequestType {
 		return type;
 	}
 
-	public static JanusRoomRequestType fromType(String typeStr) {
+	public static JanusRoomRequestType fromString(String typeStr) {
 		for (var value : JanusRoomRequestType.values()) {
 			if (value.getType().equals(typeStr)) {
 				return value;

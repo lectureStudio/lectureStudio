@@ -39,7 +39,7 @@ public class JanusPluginDataMessage extends JanusPluginMessage {
 	public JanusPluginDataMessage(BigInteger sessionId, BigInteger handleId) {
 		super(sessionId, handleId);
 
-		setEventType(JanusEventType.MESSAGE);
+		setEventType(JanusMessageType.MESSAGE);
 	}
 
 	/**

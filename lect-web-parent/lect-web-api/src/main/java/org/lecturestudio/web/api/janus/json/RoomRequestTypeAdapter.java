@@ -22,7 +22,7 @@ import javax.json.bind.adapter.JsonbAdapter;
 
 import org.lecturestudio.web.api.janus.message.JanusRoomRequestType;
 
-public class RoomEventTypeAdapter implements JsonbAdapter<JanusRoomRequestType, String> {
+public class RoomRequestTypeAdapter implements JsonbAdapter<JanusRoomRequestType, String> {
 
 	@Override
 	public String adaptToJson(JanusRoomRequestType eventType) {
@@ -31,6 +31,6 @@ public class RoomEventTypeAdapter implements JsonbAdapter<JanusRoomRequestType, 
 
 	@Override
 	public JanusRoomRequestType adaptFromJson(String typeStr) {
-		return JanusRoomRequestType.fromType(typeStr);
+		return JanusRoomRequestType.fromString(typeStr);
 	}
 }

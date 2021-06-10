@@ -18,6 +18,9 @@
 
 package org.lecturestudio.web.api.janus.json;
 
+import static java.util.Objects.isNull;
+import static java.util.Objects.nonNull;
+
 import java.math.BigInteger;
 
 import javax.json.JsonObject;
@@ -25,27 +28,68 @@ import javax.ws.rs.NotSupportedException;
 
 import org.lecturestudio.web.api.janus.JanusInfo;
 import org.lecturestudio.web.api.janus.message.JanusErrorMessage;
-import org.lecturestudio.web.api.janus.message.JanusEventType;
+import org.lecturestudio.web.api.janus.message.JanusMessageType;
 import org.lecturestudio.web.api.janus.message.JanusInfoMessage;
 import org.lecturestudio.web.api.janus.message.JanusMessage;
+import org.lecturestudio.web.api.janus.message.JanusRoomCreatedMessage;
+import org.lecturestudio.web.api.janus.message.JanusRoomEventType;
 import org.lecturestudio.web.api.janus.message.JanusSessionSuccessMessage;
 import org.lecturestudio.web.api.janus.message.JanusSessionTimeoutMessage;
 
+/**
+ * Factory that creates various {@link JanusMessage}s out of the JSON formatted
+ * messages received over a signaling channel from the Janus server.
+ *
+ * @author Alex Andres
+ */
 public class JanusMessageFactory {
 
-	public static JanusMessage createMessage(JsonObject body, JanusEventType type) {
-		switch (type) {
-			case ERROR:
-				return createErrorMessage(body);
+	/**
+	 * Create a {@code JanusMessage} from the provided JSON formatted input.
+	 *
+	 * @param body The message body in JSON format.
+	 * @param type The message type that classifies the received message.
+	 *
+	 * @return A {@code JanusMessage} with its specific information.
+	 */
+	public static JanusMessage createMessage(JsonObject body, JanusMessageType type) {
+		JsonObject pluginData = body.getJsonObject("plugindata");
 
-			case SERVER_INFO:
-				return createInfoMessage(body);
+		if (isNull(pluginData)) {
+			// Common Janus signaling messages.
+			switch (type) {
+				case ERROR:
+					return createErrorMessage(body);
 
-			case SUCCESS:
-				return createSessionSuccessMessage(body);
+				case SERVER_INFO:
+					return createInfoMessage(body);
 
-			case TIMEOUT:
-				return createSessionTimeoutMessage(body);
+				case SUCCESS:
+					return createSessionSuccessMessage(body);
+
+				case TIMEOUT:
+					return createSessionTimeoutMessage(body);
+			}
+		}
+		else {
+			// Janus plugin related signaling messages.
+			JsonObject data = pluginData.getJsonObject("data");
+
+			if (nonNull(data)) {
+				String responseStr = data.getString("videoroom");
+				var responseType = JanusRoomEventType
+						.fromString(responseStr);
+
+				if (isNull(responseType)) {
+					throw new NotSupportedException("Event type not supported: "
+							+ responseStr);
+				}
+
+				switch (responseType) {
+					case CREATED:
+						return createRoomCreatedMessage(body, data, type);
+				}
+			}
 		}
 
 		throw new NotSupportedException("Message type not supported: " + type);
@@ -89,5 +133,17 @@ public class JanusMessageFactory {
 		BigInteger id = body.getJsonNumber("session_id").bigIntegerValue();
 
 		return new JanusSessionTimeoutMessage(id);
+	}
+
+	private static JanusMessage createRoomCreatedMessage(JsonObject body,
+			JsonObject data, JanusMessageType type) {
+		BigInteger sessionId = body.getJsonNumber("session_id").bigIntegerValue();
+		BigInteger roomId = data.getJsonNumber("room").bigIntegerValue();
+
+		JanusRoomCreatedMessage message = new JanusRoomCreatedMessage(sessionId, roomId);
+		message.setEventType(type);
+		message.setTransaction(body.getString("transaction"));
+
+		return message;
 	}
 }

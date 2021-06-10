@@ -38,6 +38,8 @@ public class JanusHandler {
 
 	private BigInteger pluginId;
 
+	private BigInteger roomId;
+
 
 	public JanusHandler(JanusMessageTransmitter transmitter) {
 		this.transmitter = transmitter;
@@ -79,5 +81,13 @@ public class JanusHandler {
 
 	public void setPluginId(BigInteger id) {
 		pluginId = id;
+	}
+
+	public BigInteger getRoomId() {
+		return roomId;
+	}
+
+	public void setRoomId(BigInteger id) {
+		roomId = id;
 	}
 }

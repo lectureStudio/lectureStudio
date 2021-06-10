@@ -24,7 +24,7 @@ package org.lecturestudio.web.api.janus.message;
  *
  * @author Alex Andres
  */
-public enum JanusEventType {
+public enum JanusMessageType {
 
 	/**
 	 * To get generic info from the server.
@@ -111,7 +111,7 @@ public enum JanusEventType {
 	private final String type;
 
 
-	JanusEventType(String type) {
+	JanusMessageType(String type) {
 		this.type = type;
 	}
 
@@ -119,8 +119,8 @@ public enum JanusEventType {
 		return type;
 	}
 
-	public static JanusEventType fromType(String typeStr) {
-		for (var value : JanusEventType.values()) {
+	public static JanusMessageType fromString(String typeStr) {
+		for (var value : JanusMessageType.values()) {
 			if (value.getType().equals(typeStr)) {
 				return value;
 			}

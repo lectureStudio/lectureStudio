@@ -38,7 +38,7 @@ public class JanusSessionSuccessMessage extends JanusMessage {
 	 * @param id The unique integer session or plugin handle ID.
 	 */
 	public JanusSessionSuccessMessage(BigInteger id) {
-		setEventType(JanusEventType.SUCCESS);
+		setEventType(JanusMessageType.SUCCESS);
 
 		this.id = id;
 	}

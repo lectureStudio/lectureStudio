@@ -21,7 +21,7 @@ package org.lecturestudio.web.api.janus.message;
 import javax.json.bind.annotation.JsonbProperty;
 import javax.json.bind.annotation.JsonbTypeAdapter;
 
-import org.lecturestudio.web.api.janus.json.RoomEventTypeAdapter;
+import org.lecturestudio.web.api.janus.json.RoomRequestTypeAdapter;
 
 /**
  * Basic request message implementation to perform room related requests with
@@ -32,7 +32,7 @@ import org.lecturestudio.web.api.janus.json.RoomEventTypeAdapter;
 public abstract class JanusRoomRequest {
 
 	@JsonbProperty("request")
-	@JsonbTypeAdapter(RoomEventTypeAdapter.class)
+	@JsonbTypeAdapter(RoomRequestTypeAdapter.class)
 	private JanusRoomRequestType requestType;
 
 

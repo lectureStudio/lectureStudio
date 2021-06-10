@@ -40,7 +40,7 @@ import org.lecturestudio.web.api.data.bind.JsonConfigProvider;
 import org.lecturestudio.web.api.janus.JanusHandler;
 import org.lecturestudio.web.api.janus.JanusMessageTransmitter;
 import org.lecturestudio.web.api.janus.json.JanusMessageFactory;
-import org.lecturestudio.web.api.janus.message.JanusEventType;
+import org.lecturestudio.web.api.janus.message.JanusMessageType;
 import org.lecturestudio.web.api.janus.message.JanusMessage;
 
 public class JanusWebSocketClient extends ExecutableBase implements JanusMessageTransmitter {
@@ -54,9 +54,7 @@ public class JanusWebSocketClient extends ExecutableBase implements JanusMessage
 
 	@Override
 	public void sendMessage(JanusMessage message) {
-		System.out.println("sending message:");
-		System.out.println(jsonb.toJson(message));
-		System.out.println();
+		logMessage("WebSocket ->: {0}", jsonb.toJson(message));
 
 		webSocket.sendText(jsonb.toJson(message), true)
 				.exceptionally(throwable -> {
@@ -105,19 +103,18 @@ public class JanusWebSocketClient extends ExecutableBase implements JanusMessage
 
 		@Override
 		public void onError(WebSocket webSocket, Throwable error) {
-			System.out.println("Error occurred: " + error.getMessage());
-			error.printStackTrace();
+			logException(error, "WebSocket error");
 
 			Listener.super.onError(webSocket, error);
 		}
 
 		@Override
 		public CompletionStage<?> onText(WebSocket webSocket, CharSequence data, boolean last) {
-			System.out.println("onText: " + data);
+			logMessage("WebSocket <-: {0}", data);
 
 			StringReader reader = new StringReader(data.toString());
 			JsonObject body = Json.createReader(reader).readObject();
-			JanusEventType type = JanusEventType.fromType(body.getString("janus"));
+			JanusMessageType type = JanusMessageType.fromString(body.getString("janus"));
 
 			if (nonNull(type)) {
 				JanusMessage message = JanusMessageFactory.createMessage(body, type);

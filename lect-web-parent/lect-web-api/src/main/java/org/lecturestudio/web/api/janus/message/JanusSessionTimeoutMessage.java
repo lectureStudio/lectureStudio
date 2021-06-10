@@ -40,7 +40,7 @@ public class JanusSessionTimeoutMessage extends JanusMessage {
 	 * @param id The unique session ID.
 	 */
 	public JanusSessionTimeoutMessage(BigInteger id) {
-		setEventType(JanusEventType.TIMEOUT);
+		setEventType(JanusMessageType.TIMEOUT);
 
 		this.id = id;
 	}

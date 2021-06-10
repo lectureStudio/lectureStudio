@@ -44,7 +44,7 @@ public class JanusPluginAttachMessage extends JanusSessionMessage {
 	public JanusPluginAttachMessage(BigInteger sessionId, String pluginName) {
 		super(sessionId);
 
-		setEventType(JanusEventType.ATTACH);
+		setEventType(JanusMessageType.ATTACH);
 
 		this.plugin = pluginName;
 	}

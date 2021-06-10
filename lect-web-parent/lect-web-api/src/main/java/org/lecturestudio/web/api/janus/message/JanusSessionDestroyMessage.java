@@ -35,6 +35,6 @@ public class JanusSessionDestroyMessage extends JanusSessionMessage {
 	public JanusSessionDestroyMessage(BigInteger sessionId) {
 		super(sessionId);
 
-		setEventType(JanusEventType.DESTROY);
+		setEventType(JanusMessageType.DESTROY);
 	}
 }

@@ -23,9 +23,10 @@ import java.util.UUID;
 
 import org.lecturestudio.web.api.janus.JanusHandler;
 import org.lecturestudio.web.api.janus.JanusMessageTransmitter;
-import org.lecturestudio.web.api.janus.message.JanusCreateRoomRequest;
+import org.lecturestudio.web.api.janus.message.JanusCreateRoomMessage;
 import org.lecturestudio.web.api.janus.message.JanusMessage;
 import org.lecturestudio.web.api.janus.message.JanusPluginDataMessage;
+import org.lecturestudio.web.api.janus.message.JanusRoomCreatedMessage;
 
 public class CreateRoomState implements JanusState {
 
@@ -43,7 +44,7 @@ public class CreateRoomState implements JanusState {
 
 	@Override
 	public void initialize(JanusMessageTransmitter transmitter) {
-		JanusCreateRoomRequest request = new JanusCreateRoomRequest();
+		JanusCreateRoomMessage request = new JanusCreateRoomMessage();
 		request.setIsPrivate(false);
 		request.setPermanent(false);
 
@@ -60,11 +61,11 @@ public class CreateRoomState implements JanusState {
 			throw new IllegalStateException("Transactions do not match");
 		}
 
-//		if (message instanceof JanusSessionSuccessMessage) {
-//			JanusSessionSuccessMessage success = (JanusSessionSuccessMessage) message;
-//
-//			handler.setPluginId(success.getId());
+		if (message instanceof JanusRoomCreatedMessage) {
+			JanusRoomCreatedMessage success = (JanusRoomCreatedMessage) message;
+
+			handler.setRoomId(success.getRoomId());
 //			handler.setState(new CreateRoomState());
-//		}
+		}
 	}
 }

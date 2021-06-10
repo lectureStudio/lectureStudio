@@ -22,7 +22,7 @@ import java.util.UUID;
 
 import org.lecturestudio.web.api.janus.JanusHandler;
 import org.lecturestudio.web.api.janus.JanusMessageTransmitter;
-import org.lecturestudio.web.api.janus.message.JanusEventType;
+import org.lecturestudio.web.api.janus.message.JanusMessageType;
 import org.lecturestudio.web.api.janus.message.JanusMessage;
 import org.lecturestudio.web.api.janus.message.JanusSessionSuccessMessage;
 
@@ -34,7 +34,7 @@ public class CreateSessionState implements JanusState {
 	@Override
 	public void initialize(JanusMessageTransmitter transmitter) {
 		createMessage = new JanusMessage();
-		createMessage.setEventType(JanusEventType.CREATE);
+		createMessage.setEventType(JanusMessageType.CREATE);
 		createMessage.setTransaction(UUID.randomUUID().toString());
 
 		transmitter.sendMessage(createMessage);

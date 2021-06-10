@@ -22,7 +22,7 @@ import java.util.UUID;
 
 import org.lecturestudio.web.api.janus.JanusHandler;
 import org.lecturestudio.web.api.janus.JanusMessageTransmitter;
-import org.lecturestudio.web.api.janus.message.JanusEventType;
+import org.lecturestudio.web.api.janus.message.JanusMessageType;
 import org.lecturestudio.web.api.janus.message.JanusInfoMessage;
 import org.lecturestudio.web.api.janus.message.JanusMessage;
 
@@ -34,7 +34,7 @@ public class InfoState implements JanusState {
 	@Override
 	public void initialize(JanusMessageTransmitter transmitter) {
 		infoMessage = new JanusMessage();
-		infoMessage.setEventType(JanusEventType.INFO);
+		infoMessage.setEventType(JanusMessageType.INFO);
 		infoMessage.setTransaction(UUID.randomUUID().toString());
 
 		transmitter.sendMessage(infoMessage);

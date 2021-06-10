@@ -26,13 +26,19 @@ import java.util.List;
  *
  * @author Alex Andres
  */
-public class JanusCreateRoomRequest extends JanusRoomRequest {
+public class JanusCreateRoomMessage extends JanusRoomRequest {
 
 	private BigInteger room;
 
-	private boolean permanent;
+	private Integer publishers;
 
-	private boolean is_private;
+	private Integer bitrate;
+
+	private Boolean permanent;
+
+	private Boolean is_private;
+
+	private Boolean record;
 
 	private String description;
 
@@ -46,7 +52,7 @@ public class JanusCreateRoomRequest extends JanusRoomRequest {
 	/**
 	 * Create a new {@code JanusCreateRoomRequest}.
 	 */
-	public JanusCreateRoomRequest() {
+	public JanusCreateRoomMessage() {
 		setRequestType(JanusRoomRequestType.CREATE);
 	}
 
@@ -66,6 +72,43 @@ public class JanusCreateRoomRequest extends JanusRoomRequest {
 	 */
 	public void setRoom(BigInteger room) {
 		this.room = room;
+	}
+
+	/**
+	 * Get the maximum number of concurrent senders.
+	 *
+	 * @return The maximum number senders.
+	 */
+	public int getPublishers() {
+		return publishers;
+	}
+
+	/**
+	 * Set the maximum number of concurrent senders, e.g. 6 for a video
+	 * conference or 1 for a webinar.
+	 *
+	 * @param publishers The maximum number senders.
+	 */
+	public void setPublishers(int publishers) {
+		this.publishers = publishers;
+	}
+
+	/**
+	 * Get the maximum video bitrate for senders.
+	 *
+	 * @return The maximum video bitrate for senders.
+	 */
+	public int getBitrate() {
+		return bitrate;
+	}
+
+	/**
+	 * Get the maximum video bitrate for senders, e.g. 128000.
+	 *
+	 * @param bitrate The maximum video bitrate for senders.
+	 */
+	public void setBitrate(int bitrate) {
+		this.bitrate = bitrate;
 	}
 
 	/**
@@ -158,6 +201,24 @@ public class JanusCreateRoomRequest extends JanusRoomRequest {
 	 */
 	public void setIsPrivate(boolean isPrivate) {
 		this.is_private = isPrivate;
+	}
+
+	/**
+	 * Check whether this room should be recorded.
+	 *
+	 * @return True if this room should be recorded.
+	 */
+	public boolean isRecord() {
+		return record;
+	}
+
+	/**
+	 * Set whether this room should be recorded.
+	 *
+	 * @param record True if this room should be recorded.
+	 */
+	public void setRecord(boolean record) {
+		this.record = record;
 	}
 
 	/**

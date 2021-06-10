@@ -16,21 +16,40 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package org.lecturestudio.web.api.janus.json;
+package org.lecturestudio.web.api.janus.message;
 
-import javax.json.bind.adapter.JsonbAdapter;
+import java.math.BigInteger;
 
-import org.lecturestudio.web.api.janus.message.JanusEventType;
 
-public class EventTypeAdapter implements JsonbAdapter<JanusEventType, String> {
+public abstract class JanusRoomMessage extends JanusSessionMessage {
 
-	@Override
-	public String adaptToJson(JanusEventType eventType) {
-		return eventType.getType();
+	private JanusRoomEventType eventType;
+
+
+	/**
+	 * Create a new {@code JanusSessionMessage} with the specified parameters.
+	 *
+	 * @param sessionId The unique integer session ID.
+	 */
+	public JanusRoomMessage(BigInteger sessionId) {
+		super(sessionId);
 	}
 
-	@Override
-	public JanusEventType adaptFromJson(String typeStr) {
-		return JanusEventType.fromType(typeStr);
+	/**
+	 * Get the event type this event describes.
+	 *
+	 * @return The event type.
+	 */
+	public JanusRoomEventType getRoomEventType() {
+		return eventType;
+	}
+
+	/**
+	 * Set the event type this event describes.
+	 *
+	 * @param eventType The event type.
+	 */
+	public void setRoomEventType(JanusRoomEventType eventType) {
+		this.eventType = eventType;
 	}
 }

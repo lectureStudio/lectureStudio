@@ -16,27 +16,21 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package org.lecturestudio.web.api.janus.message;
+package org.lecturestudio.web.api.janus.json;
 
-import java.math.BigInteger;
+import javax.json.bind.adapter.JsonbAdapter;
 
-/**
- * Message to detach from a plugin and destroy the plugin handle with the Janus
- * WebRTC Server.
- *
- * @author Alex Andres
- */
-public class JanusPluginDetachMessage extends JanusPluginMessage {
+import org.lecturestudio.web.api.janus.message.JanusMessageType;
 
-	/**
-	 * Create a new {@code JanusPluginDetachMessage}.
-	 *
-	 * @param sessionId The unique integer session ID.
-	 * @param handleId  The unique integer plugin handle ID.
-	 */
-	public JanusPluginDetachMessage(BigInteger sessionId, BigInteger handleId) {
-		super(sessionId, handleId);
+public class MessageTypeAdapter implements JsonbAdapter<JanusMessageType, String> {
 
-		setEventType(JanusMessageType.DETACH);
+	@Override
+	public String adaptToJson(JanusMessageType eventType) {
+		return eventType.getType();
+	}
+
+	@Override
+	public JanusMessageType adaptFromJson(String typeStr) {
+		return JanusMessageType.fromString(typeStr);
 	}
 }

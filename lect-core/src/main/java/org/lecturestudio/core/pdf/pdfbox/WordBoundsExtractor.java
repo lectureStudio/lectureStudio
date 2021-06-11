@@ -32,6 +32,7 @@ import org.apache.pdfbox.text.TextPosition;
 
 public class WordBoundsExtractor extends PDFTextStripper {
 
+	/** The {@link PDDocument} on which the {@link WordBoundsExtractor} is working. */
 	private final PDDocument document;
 
 	private List<Rectangle2D> boundsList;
@@ -40,7 +41,9 @@ public class WordBoundsExtractor extends PDFTextStripper {
 
 
 	/**
-	 * Instantiate a new WordBoundsExtractor object.
+	 * Create a new {@link WordBoundsExtractor} with the specified {@link PDDocument}.
+	 *
+	 * @param document The {@link PDDocument}..
 	 *
 	 * @throws IOException If there is an error loading the properties.
 	 */
@@ -48,6 +51,13 @@ public class WordBoundsExtractor extends PDFTextStripper {
 		this.document = document;
 	}
 
+	/**
+	 * Get the word bounds of the page in {@link #document} that has the specified page number.
+	 *
+	 * @param pageNumber The page number from which to get the word bounds.
+	 *
+	 * @return The word bounds of the page in {@link #document} that has the specified page number.
+	 */
 	public java.util.List<Rectangle2D> getWordBounds(int pageNumber) throws IOException {
 		PDPage page = document.getPage(pageNumber);
 		PDRectangle rect = page.getMediaBox();

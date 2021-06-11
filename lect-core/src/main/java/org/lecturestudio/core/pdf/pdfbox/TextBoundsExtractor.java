@@ -28,16 +28,32 @@ import org.apache.pdfbox.text.TextPosition;
 
 public class TextBoundsExtractor extends PDFTextStripper {
 
+	/** The {@link PDDocument} on which the {@link TextBoundsExtractor} is working. */
 	private final PDDocument document;
 
+	/** The text bounds of the {@link TextBoundsExtractor}. */
 	private final Rectangle2D textBounds;
 
 
+	/**
+	 * Create a new {@link TextBoundsExtractor} with the specified {@link PDDocument}.
+	 *
+	 * @param document The {@link PDDocument}.
+	 *
+	 * @throws IOException If there is an error loading the properties.
+	 */
 	public TextBoundsExtractor(PDDocument document) throws IOException {
 		this.document = document;
 		this.textBounds = new Rectangle2D();
 	}
 
+	/**
+	 * Get the text bounds of the page in {@link #document} that has the specified page number.
+	 *
+	 * @param pageNumber The page number from which to get the text bounds.
+	 *
+	 * @return The text bounds of the page in {@link #document} that has the specified page number.
+	 */
 	public Rectangle2D getTextBounds(int pageNumber) throws IOException {
 		textBounds.setRect(0, 0, 0, 0);
 

@@ -52,8 +52,12 @@ public class PdfFontManager {
 	private final TTFParser parser = new TTFParser(false, true);
 	
 	private final Map<PDDocument, Map<String, PDFont>> docFontMap = new WeakHashMap<>();
-	
-	
+
+	/**
+	 * Get the {@link PdfFontManager} instance.
+	 *
+	 * @return The {@link PdfFontManager} instance.
+	 */
 	public static PdfFontManager getInstance() {
 		return InstanceHolder.INSTANCE;
 	}
@@ -65,11 +69,23 @@ public class PdfFontManager {
 	private PdfFontManager() {
 		loadSystemFonts();
 	}
-	
+
+	/**
+	 * Get the path of the font file that belongs to the specified font name.
+	 *
+	 * @param fontPsName The font name.
+	 *
+	 * @return The path of the font file that belongs to the specified font name.
+	 */
 	public String getFontFile(String fontPsName) {
 		return fontFileMap.get(fontPsName);
 	}
-	
+
+	/**
+	 * Add the font file that belongs to the specified path to {@link #fontFileMap}.
+	 *
+	 * @param fontPath The path of the new font file.
+	 */
 	public void addFontFile(String fontPath) throws IOException {
 		registerFontFile(fontPath);
 	}

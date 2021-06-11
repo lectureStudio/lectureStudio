@@ -58,6 +58,7 @@ import java.io.IOException;
 import java.text.AttributedCharacterIterator;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.Objects;
 
 import org.lecturestudio.core.pdf.PdfFontManager;
 
@@ -90,15 +91,15 @@ import org.apache.pdfbox.pdmodel.graphics.state.PDExtendedGraphicsState;
 import org.apache.pdfbox.util.Matrix;
 
 /**
- * This class extends the fundamental Graphics2D to provide control over
- * geometry, coordinate transformations, color management, and text layout in
- * order to draw and create PDF content. You MUST call close() when you are
- * finished with drawing.
+ * This class extends the fundamental {@link Graphics2D} to provide control over geometry,
+ * coordinate transformations, color management, and text layout in order to draw and create PDF content.
+ * You MUST call close() when you are finished with drawing.
  * 
  * @author Alex Andres
  */
 public class PDFGraphics2D extends Graphics2D {
-	
+
+	/** Logger for {@link PDFGraphics2D}. */
 	private static final Logger LOG = LogManager.getLogger(PDFGraphics2D.class);
 
 	/** Convenience constant for full opacity. */
@@ -108,10 +109,9 @@ public class PDFGraphics2D extends Graphics2D {
     protected AffineTransform defaultTransform = new AffineTransform();
 
 	/**
-	 * Current AffineTransform. This is the concatenation of the original
-	 * AffineTransform (i.e., last setTransform invocation) and the following
-	 * transform invocations, as captured by originalTransform and the
-	 * transformStack.
+	 * Current AffineTransform.
+	 * This is the concatenation of the original AffineTransform (i.e., last setTransform invocation) and
+	 * the following transform invocations, as captured by originalTransform and the transformStack.
 	 */
     protected AffineTransform transform = new AffineTransform();
 
@@ -162,15 +162,14 @@ public class PDFGraphics2D extends Graphics2D {
 	
 	
     /**
-	 * Create a new PdfGraphics2DStream for a PDF page to which the drawn content should
-	 * be added. If the content should not be appended, then the origin of the page is
+	 * Create a new PdfGraphics2DStream for a PDF page to which the drawn content should be added.
+	 * If the content should not be appended, then the origin of the page is
 	 * moved to the top-left corner for further drawing operations.
 	 * 
 	 * @param document The PDF document to which to draw.
 	 * @param page The PDF page to which to draw.
 	 * @param streamName The PDF graphics stream name.
-	 * @param appendContent true, if content should be appended to the existing one,
-	 * 						false to overwrite.
+	 * @param appendContent {@code true} if content should be appended to the existing one, {@code false} to overwrite.
 	 */
 	public PDFGraphics2D(PDDocument document, PDPage page, String streamName, boolean appendContent) {
 		this(document, page, appendContent);
@@ -189,14 +188,13 @@ public class PDFGraphics2D extends Graphics2D {
 	}
     
 	/**
-	 * Create a new PdfGraphics2DStream for a PDF page to which the drawn content should
-	 * be added. If the content should not be appended, then the origin of the page is
+	 * Create a new PdfGraphics2DStream for a PDF page to which the drawn content should be added.
+	 * If the content should not be appended, then the origin of the page is
 	 * moved to the top-left corner for further drawing operations.
 	 * 
 	 * @param document The PDF document to which to draw.
 	 * @param page The PDF page to which to draw.
-	 * @param appendContent true, if content should be appended to the existing one,
-	 * 						false to overwrite.
+	 * @param appendContent {@code true} if content should be appended to the existing one, {@code false} to overwrite.
 	 */
 	public PDFGraphics2D(PDDocument document, PDPage page, boolean appendContent) {
 		this.document = document;
@@ -219,11 +217,9 @@ public class PDFGraphics2D extends Graphics2D {
 	}
 	
 	/**
-	 * Create a new PdfGraphics2DStream as a copy of the provided one. This is
-	 * usually used by {@link #create()}.
+	 * Create a new PdfGraphics2DStream as a copy of the provided one. This is usually used by {@link #create()}.
 	 * 
-	 * @param template
-	 *            The PdfGraphics2DStream to copy.
+	 * @param template The PdfGraphics2DStream to copy.
 	 */
 	public PDFGraphics2D(PDFGraphics2D template) {
 		super();
@@ -249,6 +245,9 @@ public class PDFGraphics2D extends Graphics2D {
 		}
 	}
 
+	/**
+	 * Closes the PDF content stream of the page and calls {@link #dispose()}.
+	 */
 	public void close() {
 		try {
 			stream.close();
@@ -648,14 +647,9 @@ public class PDFGraphics2D extends Graphics2D {
 		}
 
 		// Find out whether fractional metrics should be used.
-		boolean useFractionalMetrics = true;
-		
-		if (hints.get(RenderingHints.KEY_FRACTIONALMETRICS) == RenderingHints.VALUE_FRACTIONALMETRICS_OFF) {
-			useFractionalMetrics = false;
-		}
+		boolean useFractionalMetrics = hints.get(RenderingHints.KEY_FRACTIONALMETRICS) != RenderingHints.VALUE_FRACTIONALMETRICS_OFF;
 
-		FontRenderContext frc = new FontRenderContext(defaultTransform, isAntialiased, useFractionalMetrics);
-		return frc;
+		return new FontRenderContext(defaultTransform, isAntialiased, useFractionalMetrics);
 	}
 
 	@Override
@@ -681,12 +675,7 @@ public class PDFGraphics2D extends Graphics2D {
 
 	@Override
 	public void setPaintMode() {
-		if (composite != null) {
-			setComposite(composite);
-		}
-		else {
-			setComposite(AlphaComposite.SrcOver);
-		}
+		setComposite(Objects.requireNonNullElse(composite, AlphaComposite.SrcOver));
 	}
 
 	@Override
@@ -1034,8 +1023,6 @@ public class PDFGraphics2D extends Graphics2D {
      * to the PDF so that the stroke attributes are handled.
      *
      * @param stroke The java stroke.
-     * 
-	 * @throws IOException 
      */
     protected void applyStroke(Stroke stroke) throws IOException {
     	if (stroke == null)
@@ -1069,14 +1056,11 @@ public class PDFGraphics2D extends Graphics2D {
     }
 	
 	/**
-	 * Do the PDF drawing command. This does the PDF drawing command according to
-	 * fill stroke and winding rule.
+	 * Do the PDF drawing command. This does the PDF drawing command according to fill stroke and winding rule.
 	 *
-	 * @param fill true if filling the path
-	 * @param stroke true if stroking the path
-	 * @param nonzero true if using the non-zero winding rule
-	 * 
-	 * @throws IOException
+	 * @param fill {@code true} if filling the path.
+	 * @param stroke {@code true} if stroking the path.
+	 * @param nonzero {@code true} if using the non-zero winding rule.
 	 */
     protected void doDrawing(boolean fill, boolean stroke, boolean nonzero) throws IOException {
         if (fill) {
@@ -1105,9 +1089,7 @@ public class PDFGraphics2D extends Graphics2D {
 	/**
      * Processes a path iterator generating the necessary painting operations.
      * 
-     * @param iter PathIterator to process.
-     * 
-	 * @throws IOException 
+     * @param iter {@link PathIterator} to process.
      */
 	protected void processPathIterator(PathIterator iter) throws IOException {
 		while (!iter.isDone()) {

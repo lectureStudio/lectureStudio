@@ -40,6 +40,11 @@ public class WordWalker implements StructuredTextWalker {
 	private boolean inBounds = false;
 
 
+	/**
+	 * Create a new {@link WordWalker} with the specified page bounds.
+	 *
+	 * @param pageBounds The page bounds.
+	 */
 	public WordWalker(Rect pageBounds) {
 		this.pageBounds = pageBounds;
 		this.scale = 1.F / (pageBounds.x1 - pageBounds.x0);
@@ -88,6 +93,11 @@ public class WordWalker implements StructuredTextWalker {
 		}
 	}
 
+	/**
+	 * Get a list of all word bounds.
+	 *
+	 * @return A list of all word bounds.
+	 */
 	public java.util.List<Rectangle2D> getWordBounds() {
 		return boundsList;
 	}

@@ -33,6 +33,11 @@ public class SimpleTextWalker implements StructuredTextWalker {
 	private boolean inBounds = false;
 
 
+	/**
+	 * Create a new {@link SimpleTextWalker} with the specified page bounds.
+	 *
+	 * @param pageBounds The page bounds.
+	 */
 	public SimpleTextWalker(Rect pageBounds) {
 		this.pageBounds = pageBounds;
 		this.buffer = new StringBuffer();
@@ -76,6 +81,11 @@ public class SimpleTextWalker implements StructuredTextWalker {
 		}
 	}
 
+	/**
+	 * Get the text.
+	 *
+	 * @return The content of {@link #buffer} as a String.
+	 */
 	public String getText() {
 		return buffer.toString();
 	}

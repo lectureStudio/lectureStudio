@@ -22,8 +22,8 @@ import java.awt.GraphicsConfiguration;
 import java.awt.GraphicsDevice;
 
 /**
- * This class extends the fundamental GraphicsDevice to be used by
- * PDFGraphicsConfiguration for PDF creation. This device is a printer.
+ * This class extends the fundamental GraphicsDevice to be used by {@link PDFGraphicsConfiguration} for PDF creation.
+ * This device is a printer.
  * 
  * @author Alex Andres
  */
@@ -33,7 +33,7 @@ public class PDFGraphicsDevice extends GraphicsDevice {
 	
 	
 	/**
-	 * Create a new PDFGraphicsDevice with a specific PDFGraphicsConfiguration.
+	 * Create a new {@link PDFGraphicsDevice} with a specific {@link PDFGraphicsConfiguration}.
 	 * 
 	 * @param gc The GraphicsConfiguration.
 	 */

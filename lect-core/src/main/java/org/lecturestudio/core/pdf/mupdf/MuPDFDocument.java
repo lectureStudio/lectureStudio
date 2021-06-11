@@ -77,18 +77,39 @@ public class MuPDFDocument implements DocumentAdapter {
 	private AbstractMap.SimpleEntry<DocumentAdapter, PDFGraftMap> graftMapping;
 
 
+	/**
+	 * Create a new {@link MuPDFDocument}.
+	 * (Calls {@link #MuPDFDocument(PDFDocument)} with a new {@link PDFDocument})
+	 */
 	public MuPDFDocument() {
 		this(new PDFDocument());
 	}
 
+	/**
+	 * Create a new {@link MuPDFDocument} with the specified file.
+	 * (Calls {@link #MuPDFDocument(PDFDocument)})
+	 *
+	 * @param file The file.
+	 */
 	public MuPDFDocument(File file) {
 		this((PDFDocument) Document.openDocument(file.getAbsolutePath()));
 	}
 
+	/**
+	 * Create a new {@link MuPDFDocument} with the specified byte array.
+	 * (Calls {@link #MuPDFDocument(PDFDocument)})
+	 *
+	 * @param byteArray The byte array.
+	 */
 	public MuPDFDocument(byte[] byteArray) {
 		this((PDFDocument) Document.openDocument(byteArray, ""));
 	}
 
+	/**
+	 * Create a new {@link MuPDFDocument} with the specified {@link PDFDocument}.
+	 *
+	 * @param document The {@link PDFDocument}.
+	 */
 	private MuPDFDocument(PDFDocument document) {
 		doc = document;
 		renderer = new MuPDFRenderer(this);
@@ -391,13 +412,6 @@ public class MuPDFDocument implements DocumentAdapter {
 		return shapes;
 	}
 
-	/**
-	 * Parse page contents and remove editable annotations for page rendering.
-	 *
-	 * @return The removed annotations from all pages.
-	 *
-	 * @throws IOException If the cleaned document cannot be created.
-	 */
 	@Override
 	public Map<Integer, List<Shape>> removeEditableAnnotations() throws IOException {
 		Map<Integer, List<Shape>> shapes = new HashMap<>();
@@ -425,14 +439,38 @@ public class MuPDFDocument implements DocumentAdapter {
 		return shapes;
 	}
 
+	/**
+	 * Get the display list of the {@link PageEntry} that is mapped to the specified page number.
+	 *
+	 * @param pageNumber The page number.
+	 *
+	 * @return The display list of the {@link PageEntry} that is mapped to the specified page number.
+	 */
 	public DisplayList getDisplayList(int pageNumber) {
 		return getPageEntry(pageNumber).displayList;
 	}
 
+	/**
+	 * Get the page of the {@link PageEntry} that is mapped to the specified page number.
+	 *
+	 * @param pageNumber The page number.
+	 *
+	 * @return The page of the {@link PageEntry} that is mapped to the specified page number.
+	 */
 	public Page getPage(int pageNumber) {
 		return getPageEntry(pageNumber).page;
 	}
 
+	/**
+	 * Returns the {@link PageEntry} that is mapped to the specified page number.
+	 * If the {@link #displayListMap} doesn't contain a {@link PageEntry} for that page number,
+	 * this method loads the page from {@link #doc},
+	 * creates a new {@link PageEntry} and adds it to {@link #displayListMap}.
+	 *
+	 * @param pageNumber The page number.
+	 *
+	 * @return The {@link PageEntry} that is mapped to the specified page number.
+	 */
 	private PageEntry getPageEntry(int pageNumber) {
 		PageEntry pageEntry = displayListMap.get(pageNumber);
 

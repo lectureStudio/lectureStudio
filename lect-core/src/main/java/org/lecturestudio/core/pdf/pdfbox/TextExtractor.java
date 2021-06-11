@@ -25,16 +25,31 @@ import org.apache.pdfbox.text.PDFTextStripper;
 
 public class TextExtractor extends PDFTextStripper {
 
+	/** The {@link PDDocument} on which the {@link TextExtractor} is working. */
 	private final PDDocument document;
-	
-	
+
+
+	/**
+	 * Create a new {@link TextExtractor} with the specified {@link PDDocument}.
+	 *
+	 * @param document The {@link PDDocument}.
+	 *
+	 * @throws IOException If there is an error loading the properties.
+	 */
 	public TextExtractor(PDDocument document) throws IOException {
 		this.document = document;
 
 		setSortByPosition(true);
 		setShouldSeparateByBeads(true);
 	}
-	
+
+	/**
+	 * Get the text of the page in {@link #document} that has the specified page number.
+	 *
+	 * @param pageNumber The page number from which to get the text.
+	 *
+	 * @return The text of the page in {@link #document} that has the specified page number.
+	 */
 	public String getText(int pageNumber) throws IOException {
 		setStartPage(pageNumber);
 		setEndPage(pageNumber);

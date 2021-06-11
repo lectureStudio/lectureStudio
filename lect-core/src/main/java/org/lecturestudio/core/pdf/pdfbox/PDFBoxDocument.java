@@ -78,18 +78,39 @@ public class PDFBoxDocument implements DocumentAdapter {
 	private DocumentOutline outline;
 
 
+	/**
+	 * Create a new {@link PDFBoxDocument}.
+	 * (Calls {@link #PDFBoxDocument(PDDocument)} with a new {@link PDDocument})
+	 */
 	public PDFBoxDocument() {
 		this(new PDDocument());
 	}
 
+	/**
+	 * Create a new {@link PDFBoxDocument} with the specified file.
+	 * (Calls {@link #PDFBoxDocument(PDDocument)})
+	 *
+	 * @param file The file.
+	 */
 	public PDFBoxDocument(File file) throws IOException {
 		this(PDDocument.load(file));
 	}
 
+	/**
+	 * Create a new {@link PDFBoxDocument} with the specified byte array.
+	 * (Calls {@link #PDFBoxDocument(PDDocument)})
+	 *
+	 * @param byteArray The byte array.
+	 */
 	public PDFBoxDocument(byte[] byteArray) throws IOException {
 		this(PDDocument.load(byteArray));
 	}
 
+	/**
+	 * Create a new {@link PDFBoxDocument} with the specified {@link PDDocument}.
+	 *
+	 * @param pdDoc The {@link PDDocument}.
+	 */
 	private PDFBoxDocument(PDDocument pdDoc) {
 		doc = pdDoc;
 		renderer = new PDFBoxRenderer(doc);
@@ -386,6 +407,14 @@ public class PDFBoxDocument implements DocumentAdapter {
 		}
 	}
 
+	/**
+	 * Replaces the page that has the {@code pageNumber} in {@link #doc} with
+	 * the page that has {@code docIndex} in {@code newDoc}.
+	 *
+	 * @param pageNumber The page number of the page to replace.
+	 * @param newDoc The {@link PDFBoxDocument} that contains the new page.
+	 * @param docIndex The index of the new page in {@code newDoc}.
+	 */
 	public void replacePage(int pageNumber, PDFBoxDocument newDoc, int docIndex) {
 		PDPage page = doc.getPage(pageNumber);
 		PDPage newPage = newDoc.doc.getPage(docIndex);
@@ -480,13 +509,6 @@ public class PDFBoxDocument implements DocumentAdapter {
 		return shapes;
 	}
 
-	/**
-	 * Parse page contents and remove editable annotations for page rendering.
-	 *
-	 * @return The removed annotations from all pages.
-	 *
-	 * @throws IOException If the cleaned document cannot be created.
-	 */
 	@Override
 	public Map<Integer, List<Shape>> removeEditableAnnotations() throws IOException {
 		Map<Integer, List<Shape>> shapes = new HashMap<>();

@@ -18,6 +18,8 @@
 
 package org.lecturestudio.web.api.janus.message;
 
+import java.util.NoSuchElementException;
+
 /**
  * Event types used to classify messages when communicating with the video-room
  * plugin that runs on the Janus WebRTC Server.
@@ -32,6 +34,11 @@ public enum JanusRoomEventType {
 	 * Generic video room event.
 	 */
 	EVENT("event"),
+
+	/**
+	 * A successful request.
+	 */
+	SUCCESS("success"),
 
 	// Publishers
 
@@ -117,6 +124,6 @@ public enum JanusRoomEventType {
 			}
 		}
 
-		return null;
+		throw new NoSuchElementException();
 	}
 }

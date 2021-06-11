@@ -23,41 +23,49 @@ import java.util.UUID;
 
 import org.lecturestudio.web.api.janus.JanusHandler;
 import org.lecturestudio.web.api.janus.JanusMessageTransmitter;
+import org.lecturestudio.web.api.janus.JanusParticipantType;
+import org.lecturestudio.web.api.janus.message.JanusRoomJoinRequest;
 import org.lecturestudio.web.api.janus.message.JanusMessage;
-import org.lecturestudio.web.api.janus.message.JanusPluginAttachMessage;
-import org.lecturestudio.web.api.janus.message.JanusSessionSuccessMessage;
+import org.lecturestudio.web.api.janus.message.JanusPluginDataMessage;
+import org.lecturestudio.web.api.janus.message.JanusRoomJoinedMessage;
 
-public class AttachPluginState implements JanusState {
-
-	private final static String PLUGIN = "janus.plugin.videoroom";
+public class JoinRoomState implements JanusState {
 
 	private final BigInteger sessionId;
 
-	private JanusMessage attachMessage;
+	private final BigInteger pluginId;
+
+	private final BigInteger roomId;
+
+	private JanusPluginDataMessage joinMessage;
 
 
-	public AttachPluginState(BigInteger sessionId) {
+	public JoinRoomState(BigInteger sessionId, BigInteger pluginId, BigInteger roomId) {
 		this.sessionId = sessionId;
+		this.pluginId = pluginId;
+		this.roomId = roomId;
 	}
 
 	@Override
 	public void initialize(JanusMessageTransmitter transmitter) {
-		attachMessage = new JanusPluginAttachMessage(sessionId, PLUGIN);
-		attachMessage.setTransaction(UUID.randomUUID().toString());
+		JanusRoomJoinRequest request = new JanusRoomJoinRequest();
+		request.setParticipantType(JanusParticipantType.PUBLISHER);
+		request.setRoomId(roomId);
 
-		transmitter.sendMessage(attachMessage);
+		joinMessage = new JanusPluginDataMessage(sessionId, pluginId);
+		joinMessage.setTransaction(UUID.randomUUID().toString());
+		joinMessage.setBody(request);
+
+		transmitter.sendMessage(joinMessage);
 	}
 
 	@Override
 	public void handleMessage(JanusHandler handler, JanusMessage message) {
-		checkTransaction(attachMessage, message);
+		checkTransaction(joinMessage, message);
 
-		if (message instanceof JanusSessionSuccessMessage) {
-			JanusSessionSuccessMessage success = (JanusSessionSuccessMessage) message;
-
-			handler.setPluginId(success.getId());
-//			handler.setState(new CreateRoomState(handler.getSessionId(), handler.getPluginId()));
-			handler.setState(new JoinRoomState(handler.getSessionId(), handler.getPluginId(), BigInteger.valueOf(1234)));
+		if (message instanceof JanusRoomJoinedMessage) {
+			handler.setState(new PublishToRoomState(handler.getSessionId(),
+					handler.getPluginId()));
 		}
 	}
 }

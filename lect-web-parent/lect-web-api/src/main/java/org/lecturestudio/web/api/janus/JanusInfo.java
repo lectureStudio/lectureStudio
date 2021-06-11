@@ -38,6 +38,13 @@ public class JanusInfo {
 	private final boolean authToken;
 
 
+	/**
+	 * Create a new {@code JanusInfo} with the specified parameters.
+	 *
+	 * @param apiSecret      Whether an API secret is required.
+	 * @param authToken      Whether an auth token is required.
+	 * @param sessionTimeout The session timeout in seconds.
+	 */
 	public JanusInfo(boolean apiSecret, boolean authToken, int sessionTimeout) {
 		this.apiSecret = apiSecret;
 		this.authToken = authToken;

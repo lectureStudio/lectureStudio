@@ -16,21 +16,48 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package org.lecturestudio.web.api.janus.state;
+package org.lecturestudio.web.api.janus;
 
-import org.lecturestudio.web.api.janus.JanusHandler;
-import org.lecturestudio.web.api.janus.JanusMessageTransmitter;
-import org.lecturestudio.web.api.janus.message.JanusMessage;
+import java.util.NoSuchElementException;
 
-public interface JanusState {
+/**
+ * Janus video room participant types.
+ *
+ * @author Alex Andres
+ *
+ * @apiNote https://janus.conf.meetecho.com/docs/videoroom.html
+ */
+public enum JanusParticipantType {
 
-	void initialize(JanusMessageTransmitter transmitter);
+	/**
+	 * Publishers stream their media.
+	 */
+	PUBLISHER("publisher"),
 
-	void handleMessage(JanusHandler handler, JanusMessage message);
+	/**
+	 * Subscribers receive media from publishers.
+	 */
+	SUBSCRIBER("subscriber");
 
-	default void checkTransaction(JanusMessage sent, JanusMessage received) {
-		if (!sent.getTransaction().equals(received.getTransaction())) {
-			throw new IllegalStateException("Transactions do not match");
+
+	private final String type;
+
+
+	JanusParticipantType(String type) {
+		this.type = type;
+	}
+
+	public String getType() {
+		return type;
+	}
+
+	public static JanusParticipantType fromString(String typeStr) {
+		for (var value : JanusParticipantType.values()) {
+			if (value.getType().equals(typeStr)) {
+				return value;
+			}
 		}
+
+		throw new NoSuchElementException();
 	}
 }

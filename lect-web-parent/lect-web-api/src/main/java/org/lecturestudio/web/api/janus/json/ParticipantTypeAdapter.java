@@ -16,21 +16,21 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package org.lecturestudio.web.api.janus.state;
+package org.lecturestudio.web.api.janus.json;
 
-import org.lecturestudio.web.api.janus.JanusHandler;
-import org.lecturestudio.web.api.janus.JanusMessageTransmitter;
-import org.lecturestudio.web.api.janus.message.JanusMessage;
+import javax.json.bind.adapter.JsonbAdapter;
 
-public interface JanusState {
+import org.lecturestudio.web.api.janus.JanusParticipantType;
 
-	void initialize(JanusMessageTransmitter transmitter);
+public class ParticipantTypeAdapter implements JsonbAdapter<JanusParticipantType, String> {
 
-	void handleMessage(JanusHandler handler, JanusMessage message);
+	@Override
+	public String adaptToJson(JanusParticipantType eventType) {
+		return eventType.getType();
+	}
 
-	default void checkTransaction(JanusMessage sent, JanusMessage received) {
-		if (!sent.getTransaction().equals(received.getTransaction())) {
-			throw new IllegalStateException("Transactions do not match");
-		}
+	@Override
+	public JanusParticipantType adaptFromJson(String typeStr) {
+		return JanusParticipantType.fromString(typeStr);
 	}
 }

@@ -57,15 +57,13 @@ public class CreateRoomState implements JanusState {
 
 	@Override
 	public void handleMessage(JanusHandler handler, JanusMessage message) {
-		if (!requestMessage.getTransaction().equals(message.getTransaction())) {
-			throw new IllegalStateException("Transactions do not match");
-		}
+		checkTransaction(requestMessage, message);
 
 		if (message instanceof JanusRoomCreatedMessage) {
 			JanusRoomCreatedMessage success = (JanusRoomCreatedMessage) message;
 
 			handler.setRoomId(success.getRoomId());
-//			handler.setState(new CreateRoomState());
+			handler.setState(new JoinRoomState(handler.getSessionId(), handler.getPluginId(), success.getRoomId()));
 		}
 	}
 }

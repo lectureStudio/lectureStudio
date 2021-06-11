@@ -18,6 +18,8 @@
 
 package org.lecturestudio.web.api.janus.message;
 
+import java.util.NoSuchElementException;
+
 /**
  * Event types used to classify messages when communicating with the Janus
  * WebRTC Server.
@@ -25,6 +27,11 @@ package org.lecturestudio.web.api.janus.message;
  * @author Alex Andres
  */
 public enum JanusMessageType {
+
+	/**
+	 * Event related to messages being sent from plugins.
+	 */
+	EVENT("event"),
 
 	/**
 	 * To get generic info from the server.
@@ -45,6 +52,11 @@ public enum JanusMessageType {
 	 * If the request is successful.
 	 */
 	SUCCESS("success"),
+
+	/**
+	 * If an asynchronous request has been accepted.
+	 */
+	ACK("ack"),
 
 	/**
 	 * To create a new handle to attach to a plugin.
@@ -126,6 +138,6 @@ public enum JanusMessageType {
 			}
 		}
 
-		return null;
+		throw new NoSuchElementException();
 	}
 }

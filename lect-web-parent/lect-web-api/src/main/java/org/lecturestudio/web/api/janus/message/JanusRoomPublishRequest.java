@@ -18,39 +18,51 @@
 
 package org.lecturestudio.web.api.janus.message;
 
+import java.math.BigInteger;
+
 import javax.json.bind.annotation.JsonbProperty;
 import javax.json.bind.annotation.JsonbTypeAdapter;
 
-import org.lecturestudio.web.api.janus.json.RoomRequestTypeAdapter;
+import org.lecturestudio.web.api.janus.JanusParticipantType;
+import org.lecturestudio.web.api.janus.json.ParticipantTypeAdapter;
 
 /**
- * Basic request message implementation to perform room related requests with
- * the video-room plugin running on the Janus WebRTC Server.
+ * Join room request to associate the participant as an publisher.
  *
  * @author Alex Andres
  */
-public class JanusRoomRequest {
+public class JanusRoomPublishRequest extends JanusRoomRequest {
 
-	@JsonbProperty("request")
-	@JsonbTypeAdapter(RoomRequestTypeAdapter.class)
-	private JanusRoomRequestType requestType;
+	private Integer bitrate;
+
+	private Boolean record;
 
 
 	/**
-	 * Get the event type this request describes.
-	 *
-	 * @return The request event type.
+	 * Create a new {@code JanusJoinRoomRequest}.
 	 */
-	public JanusRoomRequestType getRequestType() {
-		return requestType;
+	public JanusRoomPublishRequest() {
+		setRequestType(JanusRoomRequestType.PUBLISH);
 	}
 
 	/**
-	 * Set the event type this request describes.
+	 * Set the bitrate cap to return via Receiver Estimated Maximum Bitrate
+	 * (REMB), overrides the global room value if present. This setting is
+	 * optional.
 	 *
-	 * @param requestType The request event type.
+	 * @param bitrate The bitrate cap for this publisher.
 	 */
-	public void setRequestType(JanusRoomRequestType requestType) {
-		this.requestType = requestType;
+	public void setBitrate(Integer bitrate) {
+		this.bitrate = bitrate;
+	}
+
+	/**
+	 * Set whether this publisher should be recorded or not. This setting is
+	 * optional.
+	 *
+	 * @param record True to record this publisher.
+	 */
+	public void setRecord(Boolean record) {
+		this.record = record;
 	}
 }

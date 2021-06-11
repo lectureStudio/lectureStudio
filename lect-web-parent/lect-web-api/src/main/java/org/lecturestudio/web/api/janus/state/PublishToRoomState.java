@@ -18,19 +18,44 @@
 
 package org.lecturestudio.web.api.janus.state;
 
+import java.math.BigInteger;
+import java.util.UUID;
+
 import org.lecturestudio.web.api.janus.JanusHandler;
 import org.lecturestudio.web.api.janus.JanusMessageTransmitter;
 import org.lecturestudio.web.api.janus.message.JanusMessage;
+import org.lecturestudio.web.api.janus.message.JanusPluginDataMessage;
+import org.lecturestudio.web.api.janus.message.JanusRoomPublishRequest;
 
-public interface JanusState {
+public class PublishToRoomState implements JanusState {
 
-	void initialize(JanusMessageTransmitter transmitter);
+	private final BigInteger sessionId;
 
-	void handleMessage(JanusHandler handler, JanusMessage message);
+	private final BigInteger pluginId;
 
-	default void checkTransaction(JanusMessage sent, JanusMessage received) {
-		if (!sent.getTransaction().equals(received.getTransaction())) {
-			throw new IllegalStateException("Transactions do not match");
-		}
+	private JanusPluginDataMessage publishMessage;
+
+
+	public PublishToRoomState(BigInteger sessionId, BigInteger pluginId) {
+		this.sessionId = sessionId;
+		this.pluginId = pluginId;
+	}
+
+	@Override
+	public void initialize(JanusMessageTransmitter transmitter) {
+		JanusRoomPublishRequest request = new JanusRoomPublishRequest();
+
+		publishMessage = new JanusPluginDataMessage(sessionId, pluginId);
+		publishMessage.setTransaction(UUID.randomUUID().toString());
+		publishMessage.setBody(request);
+
+		transmitter.sendMessage(publishMessage);
+	}
+
+	@Override
+	public void handleMessage(JanusHandler handler, JanusMessage message) {
+		checkTransaction(publishMessage, message);
+
+
 	}
 }

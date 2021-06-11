@@ -42,9 +42,7 @@ public class InfoState implements JanusState {
 
 	@Override
 	public void handleMessage(JanusHandler handler, JanusMessage message) {
-		if (!infoMessage.getTransaction().equals(message.getTransaction())) {
-			throw new IllegalStateException("Transactions do not match");
-		}
+		checkTransaction(infoMessage, message);
 
 		if (message instanceof JanusInfoMessage) {
 			JanusInfoMessage info = (JanusInfoMessage) message;

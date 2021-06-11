@@ -16,21 +16,41 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package org.lecturestudio.web.api.janus.state;
+package org.lecturestudio.web.api.janus.message;
 
-import org.lecturestudio.web.api.janus.JanusHandler;
-import org.lecturestudio.web.api.janus.JanusMessageTransmitter;
-import org.lecturestudio.web.api.janus.message.JanusMessage;
+import java.math.BigInteger;
+import java.util.List;
 
-public interface JanusState {
+import org.lecturestudio.web.api.janus.JanusRoom;
 
-	void initialize(JanusMessageTransmitter transmitter);
+/**
+ * Response message contains all the available rooms.
+ *
+ * @author Alex Andres
+ */
+public class JanusRoomListMessage extends JanusRoomMessage {
 
-	void handleMessage(JanusHandler handler, JanusMessage message);
+	private final List<JanusRoom> rooms;
 
-	default void checkTransaction(JanusMessage sent, JanusMessage received) {
-		if (!sent.getTransaction().equals(received.getTransaction())) {
-			throw new IllegalStateException("Transactions do not match");
-		}
+
+	/**
+	 * Create a new {@code JanusRoomListMessage}.
+	 *
+	 * @param sessionId The unique integer session ID.
+	 * @param rooms     The list of all available rooms.
+	 */
+	public JanusRoomListMessage(BigInteger sessionId, List<JanusRoom> rooms) {
+		super(sessionId);
+
+		this.rooms = rooms;
+	}
+
+	/**
+	 * Get a list of all available rooms.
+	 *
+	 * @return All available rooms.
+	 */
+	public List<JanusRoom> getRooms() {
+		return rooms;
 	}
 }

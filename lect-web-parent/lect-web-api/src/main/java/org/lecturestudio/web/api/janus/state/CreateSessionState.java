@@ -42,9 +42,7 @@ public class CreateSessionState implements JanusState {
 
 	@Override
 	public void handleMessage(JanusHandler handler, JanusMessage message) {
-		if (!createMessage.getTransaction().equals(message.getTransaction())) {
-			throw new IllegalStateException("Transactions do not match");
-		}
+		checkTransaction(createMessage, message);
 
 		if (message instanceof JanusSessionSuccessMessage) {
 			JanusSessionSuccessMessage success = (JanusSessionSuccessMessage) message;

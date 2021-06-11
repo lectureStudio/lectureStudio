@@ -16,21 +16,22 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package org.lecturestudio.web.api.janus.state;
+package org.lecturestudio.web.api.janus.json;
 
-import org.lecturestudio.web.api.janus.JanusHandler;
-import org.lecturestudio.web.api.janus.JanusMessageTransmitter;
-import org.lecturestudio.web.api.janus.message.JanusMessage;
+import java.util.Arrays;
+import java.util.List;
 
-public interface JanusState {
+import javax.json.bind.adapter.JsonbAdapter;
 
-	void initialize(JanusMessageTransmitter transmitter);
+public class CommaSeparatedListAdapter implements JsonbAdapter<List<String>, String> {
 
-	void handleMessage(JanusHandler handler, JanusMessage message);
+	@Override
+	public String adaptToJson(List<String> list) {
+		return String.join(",", list);
+	}
 
-	default void checkTransaction(JanusMessage sent, JanusMessage received) {
-		if (!sent.getTransaction().equals(received.getTransaction())) {
-			throw new IllegalStateException("Transactions do not match");
-		}
+	@Override
+	public List<String> adaptFromJson(String listStr) {
+		return Arrays.asList(listStr.split(","));
 	}
 }

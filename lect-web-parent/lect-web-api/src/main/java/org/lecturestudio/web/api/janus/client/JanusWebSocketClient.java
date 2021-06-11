@@ -18,8 +18,6 @@
 
 package org.lecturestudio.web.api.janus.client;
 
-import static java.util.Objects.nonNull;
-
 import java.io.StringReader;
 import java.net.URI;
 import java.net.http.HttpClient;
@@ -28,6 +26,7 @@ import java.net.http.WebSocket.Builder;
 import java.net.http.WebSocket.Listener;
 import java.time.Duration;
 import java.time.temporal.ChronoUnit;
+import java.util.NoSuchElementException;
 import java.util.concurrent.CompletionStage;
 
 import javax.json.Json;
@@ -80,9 +79,7 @@ public class JanusWebSocketClient extends ExecutableBase implements JanusMessage
 		webSocket = webSocketBuilder
 				.buildAsync(URI.create("ws://127.0.0.1:8188"),
 						new WebSocketListener())
-				.exceptionally(throwable -> {
-					return null;
-				}).join();
+				.join();
 
 		handler.start();
 	}
@@ -101,36 +98,43 @@ public class JanusWebSocketClient extends ExecutableBase implements JanusMessage
 
 	private class WebSocketListener implements Listener {
 
+		private StringBuffer buffer = new StringBuffer();
+
+
 		@Override
 		public void onError(WebSocket webSocket, Throwable error) {
 			logException(error, "WebSocket error");
-
-			Listener.super.onError(webSocket, error);
 		}
 
 		@Override
 		public CompletionStage<?> onText(WebSocket webSocket, CharSequence data, boolean last) {
 			logMessage("WebSocket <-: {0}", data);
 
-			StringReader reader = new StringReader(data.toString());
-			JsonObject body = Json.createReader(reader).readObject();
-			JanusMessageType type = JanusMessageType.fromString(body.getString("janus"));
+			webSocket.request(1);
 
-			if (nonNull(type)) {
-				JanusMessage message = JanusMessageFactory.createMessage(body, type);
+			buffer.append(data);
+
+			if (last) {
+				StringReader reader = new StringReader(buffer.toString());
+				JsonObject body = Json.createReader(reader).readObject();
 
 				try {
+					JanusMessageType type = JanusMessageType.fromString(body.getString("janus"));
+					JanusMessage message = JanusMessageFactory.createMessage(jsonb, body, type);
+
 					handler.handleMessage(message);
+				}
+				catch (NoSuchElementException e) {
+					logMessage("Non existing Janus event type received");
 				}
 				catch (Exception e) {
 					logException(e, "Process Janus message failed");
 				}
-			}
-			else {
-				logMessage("Non existing Janus event type received");
+
+				buffer = new StringBuffer();
 			}
 
-			return Listener.super.onText(webSocket, data, last);
+			return null;
 		}
 	}
 }

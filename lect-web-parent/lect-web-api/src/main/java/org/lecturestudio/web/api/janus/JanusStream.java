@@ -16,21 +16,15 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package org.lecturestudio.web.api.janus.state;
+package org.lecturestudio.web.api.janus;
 
-import org.lecturestudio.web.api.janus.JanusHandler;
-import org.lecturestudio.web.api.janus.JanusMessageTransmitter;
-import org.lecturestudio.web.api.janus.message.JanusMessage;
+/**
+ * A Janus WebRTC video room stream.
+ *
+ * @author Alex Andres
+ *
+ * @apiNote https://janus.conf.meetecho.com/docs/videoroom.html
+ */
+public class JanusStream {
 
-public interface JanusState {
-
-	void initialize(JanusMessageTransmitter transmitter);
-
-	void handleMessage(JanusHandler handler, JanusMessage message);
-
-	default void checkTransaction(JanusMessage sent, JanusMessage received) {
-		if (!sent.getTransaction().equals(received.getTransaction())) {
-			throw new IllegalStateException("Transactions do not match");
-		}
-	}
 }

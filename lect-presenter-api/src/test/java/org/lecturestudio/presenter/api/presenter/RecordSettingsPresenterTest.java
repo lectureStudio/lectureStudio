@@ -18,29 +18,26 @@
 
 package org.lecturestudio.presenter.api.presenter;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-
-import java.io.File;
-import java.util.List;
-import java.util.concurrent.atomic.AtomicReference;
-
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.lecturestudio.core.app.configuration.AudioConfiguration;
 import org.lecturestudio.core.audio.AudioFormat;
 import org.lecturestudio.core.beans.BooleanProperty;
 import org.lecturestudio.core.beans.IntegerProperty;
 import org.lecturestudio.core.beans.ObjectProperty;
 import org.lecturestudio.core.beans.StringProperty;
+import org.lecturestudio.core.screencapture.ScreenCaptureFormat;
 import org.lecturestudio.core.view.Action;
 import org.lecturestudio.core.view.DirectoryChooserView;
 import org.lecturestudio.presenter.api.config.DefaultConfiguration;
 import org.lecturestudio.presenter.api.config.PresenterConfiguration;
 import org.lecturestudio.presenter.api.view.RecordSettingsView;
 
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
+import java.io.File;
+import java.util.List;
+import java.util.concurrent.atomic.AtomicReference;
+
+import static org.junit.jupiter.api.Assertions.*;
 
 class RecordSettingsPresenterTest extends PresenterTest {
 
@@ -167,6 +164,16 @@ class RecordSettingsPresenterTest extends PresenterTest {
 			assertNotNull(action);
 
 			selectPathAction = action;
+		}
+
+		@Override
+		public void setRecordingScreenCaptureFormat(ObjectProperty<ScreenCaptureFormat> screenCaptureFormat) {
+
+		}
+
+		@Override
+		public void setRecordingScreenCaptureFormats(List<ScreenCaptureFormat> formats) {
+
 		}
 
 		@Override

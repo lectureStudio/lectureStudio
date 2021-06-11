@@ -18,16 +18,13 @@
 
 package org.lecturestudio.presenter.api.config;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Locale;
-
 import org.lecturestudio.broadcast.config.BroadcastProfile;
 import org.lecturestudio.core.app.Theme;
 import org.lecturestudio.core.audio.AudioFormat;
 import org.lecturestudio.core.geometry.Dimension2D;
 import org.lecturestudio.core.geometry.Position;
 import org.lecturestudio.core.graphics.Color;
+import org.lecturestudio.core.screencapture.ScreenCaptureFormat;
 import org.lecturestudio.core.text.Font;
 import org.lecturestudio.core.text.TeXFont;
 import org.lecturestudio.core.text.TextAttributes;
@@ -37,6 +34,10 @@ import org.lecturestudio.web.api.filter.IpFilter;
 import org.lecturestudio.web.api.filter.IpRangeRule;
 import org.lecturestudio.web.api.filter.RegexFilter;
 import org.lecturestudio.web.api.filter.RegexRule;
+
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Locale;
 
 public class DefaultConfiguration extends PresenterConfiguration {
 
@@ -127,7 +128,9 @@ public class DefaultConfiguration extends PresenterConfiguration {
 		getAudioConfig().setRecordingPath(System.getProperty("user.home"));
 		getAudioConfig().setDefaultRecordingVolume(1.0f);
 		getAudioConfig().setMasterRecordingVolume(1.0f);
-		
+
+		getScreenCaptureConfig().setRecordingFormat(new ScreenCaptureFormat(30));
+
 		getStreamConfig().setAudioCodec("OPUS");
 		getStreamConfig().setAudioFormat(new AudioFormat(AudioFormat.Encoding.S16LE, 24000, 1));
 		getStreamConfig().getCameraCodecConfig().setBitRate(2000);

@@ -18,29 +18,32 @@
 
 package org.lecturestudio.presenter.api.presenter;
 
-import static java.util.Objects.isNull;
-import static java.util.Objects.nonNull;
-
-import java.io.File;
-import java.util.List;
-
-import javax.inject.Inject;
-
 import org.lecturestudio.core.app.ApplicationContext;
 import org.lecturestudio.core.app.configuration.AudioConfiguration;
+import org.lecturestudio.core.app.configuration.ScreenCaptureConfiguration;
 import org.lecturestudio.core.audio.AudioFormat;
 import org.lecturestudio.core.audio.AudioUtils;
 import org.lecturestudio.core.audio.device.AudioInputDevice;
 import org.lecturestudio.core.presenter.Presenter;
+import org.lecturestudio.core.screencapture.ScreenCaptureFormat;
 import org.lecturestudio.core.view.DirectoryChooserView;
 import org.lecturestudio.core.view.ViewContextFactory;
 import org.lecturestudio.presenter.api.config.DefaultConfiguration;
 import org.lecturestudio.presenter.api.config.PresenterConfiguration;
 import org.lecturestudio.presenter.api.view.RecordSettingsView;
 
+import javax.inject.Inject;
+import java.io.File;
+import java.util.ArrayList;
+import java.util.List;
+
+import static java.util.Objects.isNull;
+import static java.util.Objects.nonNull;
+
 public class RecordSettingsPresenter extends Presenter<RecordSettingsView> {
 
 	private final AudioConfiguration audioConfig;
+	private final ScreenCaptureConfiguration screenCaptureConfig;
 
 	private final ViewContextFactory viewFactory;
 
@@ -51,6 +54,7 @@ public class RecordSettingsPresenter extends Presenter<RecordSettingsView> {
 
 		this.viewFactory = viewFactory;
 		this.audioConfig = context.getConfiguration().getAudioConfig();
+		this.screenCaptureConfig = context.getConfiguration().getScreenCaptureConfig();
 	}
 
 	@Override
@@ -61,6 +65,7 @@ public class RecordSettingsPresenter extends Presenter<RecordSettingsView> {
 		String inputDeviceName = audioConfig.getInputDeviceName();
 
 		loadAudioFormats(soundSystemName, inputDeviceName);
+		loadScreenCaptureFormats();
 
 		view.setNotifyToRecord(config.notifyToRecordProperty());
 		view.setConfirmStopRecording(config.confirmStopRecordingProperty());
@@ -68,6 +73,7 @@ public class RecordSettingsPresenter extends Presenter<RecordSettingsView> {
 		view.setRecordingAudioFormat(audioConfig.recordingFormatProperty());
 		view.setRecordingPath(audioConfig.recordingPathProperty());
 		view.setOnSelectRecordingPath(this::selectRecordingPath);
+		view.setRecordingScreenCaptureFormat(screenCaptureConfig.recordingFormatProperty());
 		view.setOnReset(this::reset);
 
 		audioConfig.inputDeviceNameProperty().addListener((observable, oldDevice, newDevice) -> {
@@ -96,6 +102,14 @@ public class RecordSettingsPresenter extends Presenter<RecordSettingsView> {
 		}
 	}
 
+	private void loadScreenCaptureFormats() {
+		List<ScreenCaptureFormat> formats = new ArrayList<>();
+		for (int frameRate : ScreenCaptureFormat.DEFAULT_FRAME_RATES) {
+			formats.add(new ScreenCaptureFormat(frameRate));
+		}
+		view.setRecordingScreenCaptureFormats(formats);
+	}
+
 	private void selectRecordingPath() {
 		File initDirectory = new File(audioConfig.getRecordingPath());
 
@@ -116,7 +130,10 @@ public class RecordSettingsPresenter extends Presenter<RecordSettingsView> {
 		config.setNotifyToRecord(defaultConfig.getNotifyToRecord());
 		config.setConfirmStopRecording(defaultConfig.getConfirmStopRecording());
 		config.setPageRecordingTimeout(defaultConfig.getPageRecordingTimeout());
+
 		audioConfig.setRecordingFormat(defaultConfig.getAudioConfig().getRecordingFormat());
 		audioConfig.setRecordingPath(defaultConfig.getAudioConfig().getRecordingPath());
+
+		screenCaptureConfig.setRecordingFormat(defaultConfig.getScreenCaptureConfig().getRecordingFormat());
 	}
 }

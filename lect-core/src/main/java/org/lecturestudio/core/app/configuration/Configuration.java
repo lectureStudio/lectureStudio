@@ -18,8 +18,6 @@
 
 package org.lecturestudio.core.app.configuration;
 
-import java.util.Locale;
-
 import org.lecturestudio.core.app.Theme;
 import org.lecturestudio.core.beans.BooleanProperty;
 import org.lecturestudio.core.beans.DoubleProperty;
@@ -30,6 +28,8 @@ import org.lecturestudio.core.model.RecentDocument;
 import org.lecturestudio.core.util.ObservableArrayList;
 import org.lecturestudio.core.util.ObservableHashMap;
 import org.lecturestudio.core.util.ObservableList;
+
+import java.util.Locale;
 
 /**
  * The Configuration specifies application wide properties. Context specific
@@ -93,6 +93,8 @@ public class Configuration {
 	/** The audio configuration containing all audio related properties. */
 	private final AudioConfiguration audioConfig = new AudioConfiguration();
 
+	/** The screen capture configuration containing all screen capture related properties. */
+	private final ScreenCaptureConfiguration screenCaptureConfig = new ScreenCaptureConfiguration();
 
 	/**
 	 * Obtain the name of the application.
@@ -483,4 +485,12 @@ public class Configuration {
 		return audioConfig;
 	}
 
+	/**
+	 * Obtain the screen capture configuration containing all screen capture related properties.
+	 *
+	 * @return the screen capture configuration.
+	 */
+	public ScreenCaptureConfiguration getScreenCaptureConfig() {
+		return screenCaptureConfig;
+	}
 }

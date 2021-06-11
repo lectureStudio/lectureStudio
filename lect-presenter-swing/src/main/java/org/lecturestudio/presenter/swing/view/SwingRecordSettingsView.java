@@ -18,27 +18,22 @@
 
 package org.lecturestudio.presenter.swing.view;
 
-import java.util.List;
-import java.util.Vector;
-
-import javax.swing.DefaultComboBoxModel;
-import javax.swing.JButton;
-import javax.swing.JCheckBox;
-import javax.swing.JComboBox;
-import javax.swing.JPanel;
-import javax.swing.JTextField;
-
 import org.lecturestudio.core.audio.AudioFormat;
 import org.lecturestudio.core.beans.BooleanProperty;
 import org.lecturestudio.core.beans.IntegerProperty;
 import org.lecturestudio.core.beans.ObjectProperty;
 import org.lecturestudio.core.beans.StringProperty;
 import org.lecturestudio.core.converter.IntegerStringConverter;
+import org.lecturestudio.core.screencapture.ScreenCaptureFormat;
 import org.lecturestudio.core.view.Action;
 import org.lecturestudio.presenter.api.view.RecordSettingsView;
 import org.lecturestudio.swing.beans.ConvertibleObjectProperty;
 import org.lecturestudio.swing.util.SwingUtils;
 import org.lecturestudio.swing.view.SwingView;
+
+import javax.swing.*;
+import java.util.List;
+import java.util.Vector;
 
 @SwingView(name = "recording-settings", presenter = org.lecturestudio.presenter.api.presenter.RecordSettingsPresenter.class)
 public class SwingRecordSettingsView extends JPanel implements RecordSettingsView {
@@ -49,7 +44,9 @@ public class SwingRecordSettingsView extends JPanel implements RecordSettingsVie
 
 	private JTextField pageTimeoutTextField;
 
-	private JComboBox<AudioFormat> recordingFormatCombo;
+	private JComboBox<AudioFormat> audioFormatCombo;
+
+	private JComboBox<ScreenCaptureFormat> screenCaptureFormatCombo;
 
 	private JTextField recordingPathTextField;
 
@@ -83,14 +80,12 @@ public class SwingRecordSettingsView extends JPanel implements RecordSettingsVie
 
 	@Override
 	public void setRecordingAudioFormat(ObjectProperty<AudioFormat> audioFormat) {
-		SwingUtils.invoke(() -> {
-			SwingUtils.bindBidirectional(recordingFormatCombo, audioFormat);
-		});
+		SwingUtils.invoke(() -> SwingUtils.bindBidirectional(audioFormatCombo, audioFormat));
 	}
 
 	@Override
 	public void setRecordingAudioFormats(List<AudioFormat> formats) {
-		SwingUtils.invoke(() -> recordingFormatCombo
+		SwingUtils.invoke(() -> audioFormatCombo
 				.setModel(new DefaultComboBoxModel<>(new Vector<>(formats))));
 	}
 
@@ -102,6 +97,16 @@ public class SwingRecordSettingsView extends JPanel implements RecordSettingsVie
 	@Override
 	public void setOnSelectRecordingPath(Action action) {
 		SwingUtils.bindAction(selectRecPathButton, action);
+	}
+
+	@Override
+	public void setRecordingScreenCaptureFormat(ObjectProperty<ScreenCaptureFormat> screenCaptureFormat) {
+		SwingUtils.invoke(() -> SwingUtils.bindBidirectional(screenCaptureFormatCombo, screenCaptureFormat));
+	}
+
+	@Override
+	public void setRecordingScreenCaptureFormats(List<ScreenCaptureFormat> formats) {
+		SwingUtils.invoke(() -> screenCaptureFormatCombo.setModel(new DefaultComboBoxModel<>(new Vector<>(formats))));
 	}
 
 	@Override

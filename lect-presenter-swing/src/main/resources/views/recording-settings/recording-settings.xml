@@ -13,27 +13,40 @@
 		<gridbagconstraints gridx="0" gridy="3" gridwidth="2" anchor="GridBagConstraints.WEST" insets="5,0,15,0" />
 		<Filter class="org.lecturestudio.swing.filter.IntFilter" />
 	</TextField>
-	<Label text="recording.settings.audio.format" name="extendedUI">
+	<Label text="recording.settings.directory">
 		<gridbagconstraints gridx="0" gridy="4" gridwidth="2" anchor="GridBagConstraints.WEST" insets="5,0,2,0" />
 	</Label>
-	<ComboBox id="recordingFormatCombo" name="extendedUI">
-		<gridbagconstraints gridx="0" gridy="5" gridwidth="2" anchor="GridBagConstraints.WEST" insets="5,0,15,0" />
-		<renderer class="org.lecturestudio.swing.combobox.AudioFormatRenderer" />
-	</ComboBox>
-	<Label text="recording.settings.directory">
-		<gridbagconstraints gridx="0" gridy="6" gridwidth="2" anchor="GridBagConstraints.WEST" insets="5,0,2,0" />
-	</Label>
 	<TextField id="recordingPathTextField">
-		<gridbagconstraints gridx="0" gridy="7" weightx="1" fill="GridBagConstraints.HORIZONTAL" anchor="GridBagConstraints.WEST" insets="5,0,15,0" />
+		<gridbagconstraints gridx="0" gridy="5" weightx="1" fill="GridBagConstraints.HORIZONTAL" anchor="GridBagConstraints.WEST" insets="5,0,15,0" />
 	</TextField>
 	<Button id="selectRecPathButton" text="button.browse">
-		<gridbagconstraints gridx="1" gridy="7" anchor="GridBagConstraints.WEST" insets="5,5,15,0" />
+		<gridbagconstraints gridx="1" gridy="5" anchor="GridBagConstraints.WEST" insets="5,5,15,0" />
 	</Button>
+	<TitledSeparator text="recording.settings.audio.title">
+		<gridbagconstraints gridx="0" gridy="6" anchor="GridBagConstraints.WEST" gridwidth="2" weightx="1.0" fill="GridBagConstraints.HORIZONTAL" insets="5,0,5,0" />
+	</TitledSeparator>
+	<Label text="recording.settings.audio.format" name="extendedUI">
+		<gridbagconstraints gridx="0" gridy="7" gridwidth="2" anchor="GridBagConstraints.WEST" insets="5,0,2,0" />
+	</Label>
+	<ComboBox id="audioFormatCombo" name="extendedUI">
+		<gridbagconstraints gridx="0" gridy="8" gridwidth="2" anchor="GridBagConstraints.WEST" insets="5,0,15,0" />
+		<renderer class="org.lecturestudio.swing.combobox.AudioFormatRenderer" />
+	</ComboBox>
+	<TitledSeparator text="recording.settings.screencapture.title">
+		<gridbagconstraints gridx="0" gridy="9" anchor="GridBagConstraints.WEST" gridwidth="2" weightx="1.0" fill="GridBagConstraints.HORIZONTAL" insets="5,0,5,0" />
+	</TitledSeparator>
+	<Label text="recording.settings.screencapture.framerate" name="extendedUI">
+		<gridbagconstraints gridx="0" gridy="10" gridwidth="2" anchor="GridBagConstraints.WEST" insets="5,0,2,0" />
+	</Label>
+	<ComboBox id="screenCaptureFormatCombo" name="extendedUI">
+		<gridbagconstraints gridx="0" gridy="11" gridwidth="2" anchor="GridBagConstraints.WEST" insets="5,0,15,0" />
+		<renderer class="org.lecturestudio.swing.combobox.ScreenCaptureFormatRenderer" />
+	</ComboBox>
 	<box.vglue>
-		<gridbagconstraints gridx="0" gridy="8" weighty="1.0" />
+		<gridbagconstraints gridx="0" gridy="12" weighty="1.0" />
 	</box.vglue>
 	<HBox gap="5">
-		<gridbagconstraints gridx="0" gridy="9" gridwidth="3" weightx="1.0" fill="GridBagConstraints.HORIZONTAL" />
+		<gridbagconstraints gridx="0" gridy="13" gridwidth="3" weightx="1.0" fill="GridBagConstraints.HORIZONTAL" />
 		<box.hglue />
 		<Button id="resetButton" text="button.reset"/>
 		<Button id="closeButton" text="button.close"/>

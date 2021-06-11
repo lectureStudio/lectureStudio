@@ -23,6 +23,7 @@ import org.lecturestudio.core.ExecutableException;
 import org.lecturestudio.core.app.ApplicationContext;
 import org.lecturestudio.core.audio.AudioFormat;
 import org.lecturestudio.core.model.Time;
+import org.lecturestudio.core.screencapture.ScreenCaptureFormat;
 import org.lecturestudio.core.util.ProgressCallback;
 import org.lecturestudio.presenter.api.config.PresenterConfiguration;
 import org.lecturestudio.presenter.api.event.RecordingTimeEvent;
@@ -54,11 +55,11 @@ public class RecordingService extends ExecutableBase {
 		this.recorder = recorder;
 
 		setAudioFormat(context.getConfiguration().getAudioConfig().getRecordingFormat());
+		setScreenCaptureFormat(context.getConfiguration().getScreenCaptureConfig().getRecordingFormat());
 
 		PresenterConfiguration config = (PresenterConfiguration) context.getConfiguration();
-		config.getAudioConfig().recordingMasterVolumeProperty().addListener((observable, oldValue, newValue) -> {
-			recorder.setAudioVolume(newValue.doubleValue());
-		});
+		config.getAudioConfig().recordingMasterVolumeProperty().addListener((observable, oldValue, newValue)
+				-> recorder.setAudioVolume(newValue.doubleValue()));
 		config.pageRecordingTimeoutProperty().addListener((o, oldValue, newValue) -> {
 			if (nonNull(newValue)) {
 				recorder.setPageRecordingTimeout(newValue);
@@ -68,6 +69,10 @@ public class RecordingService extends ExecutableBase {
 
 	public void setAudioFormat(AudioFormat audioFormat) {
 		recorder.setAudioFormat(audioFormat);
+	}
+
+	public void setScreenCaptureFormat(ScreenCaptureFormat format) {
+		recorder.setScreenCaptureFormat(format);
 	}
 
 	public CompletableFuture<Void> writeRecording(File file, ProgressCallback callback) {

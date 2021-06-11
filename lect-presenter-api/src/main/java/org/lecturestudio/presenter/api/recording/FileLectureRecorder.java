@@ -42,6 +42,7 @@ import org.lecturestudio.core.recording.*;
 import org.lecturestudio.core.recording.action.PlaybackAction;
 import org.lecturestudio.core.recording.action.StaticShapeAction;
 import org.lecturestudio.core.recording.file.RecordingFileWriter;
+import org.lecturestudio.core.screencapture.ScreenCaptureFormat;
 import org.lecturestudio.core.service.DocumentService;
 import org.lecturestudio.core.util.FileUtils;
 import org.lecturestudio.core.util.ProgressCallback;
@@ -79,6 +80,8 @@ public class FileLectureRecorder extends LectureRecorder {
 	private AudioSink audioSink;
 
 	private AudioFormat audioFormat;
+
+	private ScreenCaptureFormat screenCaptureFormat;
 
 	private Document recordedDocument;
 
@@ -205,6 +208,10 @@ public class FileLectureRecorder extends LectureRecorder {
 		if (nonNull(audioRecorder)) {
 			audioRecorder.setAudioVolume(volume);
 		}
+	}
+
+	public void setScreenCaptureFormat(ScreenCaptureFormat format) {
+		screenCaptureFormat = format;
 	}
 
 	@Override

@@ -23,6 +23,7 @@ import org.lecturestudio.core.beans.BooleanProperty;
 import org.lecturestudio.core.beans.IntegerProperty;
 import org.lecturestudio.core.beans.ObjectProperty;
 import org.lecturestudio.core.beans.StringProperty;
+import org.lecturestudio.core.screencapture.ScreenCaptureFormat;
 import org.lecturestudio.core.view.Action;
 
 import java.util.List;
@@ -42,5 +43,9 @@ public interface RecordSettingsView extends SettingsBaseView {
 	void setRecordingPath(StringProperty path);
 
 	void setOnSelectRecordingPath(Action action);
+
+	void setRecordingScreenCaptureFormat(ObjectProperty<ScreenCaptureFormat> screenCaptureFormat);
+
+	void setRecordingScreenCaptureFormats(List<ScreenCaptureFormat> formats);
 
 }

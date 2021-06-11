@@ -16,23 +16,24 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package org.lecturestudio.core.recording;
+package org.lecturestudio.core.app.configuration.bind;
+
+import com.fasterxml.jackson.core.JsonParser;
+import com.fasterxml.jackson.databind.DeserializationContext;
+import com.fasterxml.jackson.databind.JsonDeserializer;
+import com.fasterxml.jackson.databind.JsonNode;
+import org.lecturestudio.core.screencapture.ScreenCaptureFormat;
 
 import java.io.IOException;
 
-public class RecordedVideo extends RecordedObjectBase {
-
-    public RecordedVideo(byte[] input) throws IOException {
-        parseFrom(input);
-    }
+public class ScreenCaptureFormatDeserializer extends JsonDeserializer<ScreenCaptureFormat> {
 
     @Override
-    public byte[] toByteArray() throws IOException {
-        return new byte[0];
-    }
+    public ScreenCaptureFormat deserialize(JsonParser parser, DeserializationContext context) throws IOException {
+        JsonNode node = parser.getCodec().readTree(parser);
 
-    @Override
-    public void parseFrom(byte[] input) throws IOException {
+        int frameRate = node.get("frameRate").intValue();
 
+        return new ScreenCaptureFormat(frameRate);
     }
 }

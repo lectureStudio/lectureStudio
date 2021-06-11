@@ -19,6 +19,7 @@
 package org.lecturestudio.core.screencapture;
 
 import java.io.Serializable;
+import java.util.Objects;
 
 public class ScreenCaptureFormat implements Serializable {
 
@@ -37,5 +38,25 @@ public class ScreenCaptureFormat implements Serializable {
      */
     public int getFrameRate() {
         return frameRate;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        ScreenCaptureFormat that = (ScreenCaptureFormat) o;
+        return frameRate == that.frameRate;
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(frameRate);
+    }
+
+    @Override
+    public String toString() {
+        return "ScreenCaptureFormat{" +
+                "frameRate=" + frameRate +
+                '}';
     }
 }

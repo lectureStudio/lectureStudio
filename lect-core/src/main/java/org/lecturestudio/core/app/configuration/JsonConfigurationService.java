@@ -18,14 +18,21 @@
 
 package org.lecturestudio.core.app.configuration;
 
-import static java.util.Objects.nonNull;
-
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.databind.module.SimpleModule;
 import com.fasterxml.jackson.datatype.jdk8.Jdk8Module;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
+import org.lecturestudio.core.app.configuration.bind.*;
+import org.lecturestudio.core.audio.AudioFormat;
+import org.lecturestudio.core.geometry.Rectangle2D;
+import org.lecturestudio.core.graphics.Color;
+import org.lecturestudio.core.screencapture.ScreenCaptureFormat;
+import org.lecturestudio.core.util.ObservableArrayList;
+import org.lecturestudio.core.util.ObservableHashSet;
+import org.lecturestudio.core.util.ObservableList;
+import org.lecturestudio.core.util.ObservableSet;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -33,19 +40,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.Calendar;
 
-import org.lecturestudio.core.app.configuration.bind.AudioFormatDeserializer;
-import org.lecturestudio.core.app.configuration.bind.AudioFormatSerializer;
-import org.lecturestudio.core.app.configuration.bind.CalendarDeserializer;
-import org.lecturestudio.core.app.configuration.bind.ColorDeserializer;
-import org.lecturestudio.core.app.configuration.bind.ColorSerializer;
-import org.lecturestudio.core.app.configuration.bind.Rectangle2DMixin;
-import org.lecturestudio.core.audio.AudioFormat;
-import org.lecturestudio.core.geometry.Rectangle2D;
-import org.lecturestudio.core.graphics.Color;
-import org.lecturestudio.core.util.ObservableArrayList;
-import org.lecturestudio.core.util.ObservableHashSet;
-import org.lecturestudio.core.util.ObservableList;
-import org.lecturestudio.core.util.ObservableSet;
+import static java.util.Objects.nonNull;
 
 /**
  * ConfigurationService implementation for loading and saving configuration
@@ -73,8 +68,10 @@ public class JsonConfigurationService<T> implements ConfigurationService<T> {
 		module.addAbstractTypeMapping(ObservableSet.class, ObservableHashSet.class);
 		module.addSerializer(Color.class, new ColorSerializer());
 		module.addSerializer(AudioFormat.class, new AudioFormatSerializer());
+		module.addSerializer(ScreenCaptureFormat.class, new ScreenCaptureFormatSerializer());
 		module.addDeserializer(Color.class, new ColorDeserializer());
 		module.addDeserializer(AudioFormat.class, new AudioFormatDeserializer());
+		module.addDeserializer(ScreenCaptureFormat.class, new ScreenCaptureFormatDeserializer());
 		module.addDeserializer(Calendar.class, new CalendarDeserializer());
 		module.setMixInAnnotation(Rectangle2D.class, Rectangle2DMixin.class);
 

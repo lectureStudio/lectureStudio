@@ -19,6 +19,7 @@
 package org.lecturestudio.presenter.api.recording;
 
 import com.google.common.eventbus.Subscribe;
+import dev.onvoid.webrtc.media.video.desktop.DesktopSource;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.lecturestudio.core.ExecutableException;
@@ -43,6 +44,8 @@ import org.lecturestudio.core.recording.action.PlaybackAction;
 import org.lecturestudio.core.recording.action.StaticShapeAction;
 import org.lecturestudio.core.recording.file.RecordingFileWriter;
 import org.lecturestudio.core.screencapture.ScreenCaptureFormat;
+import org.lecturestudio.core.screencapture.ScreenCaptureOutputStream;
+import org.lecturestudio.core.screencapture.ScreenCaptureRecorder;
 import org.lecturestudio.core.service.DocumentService;
 import org.lecturestudio.core.util.FileUtils;
 import org.lecturestudio.core.util.ProgressCallback;
@@ -80,6 +83,8 @@ public class FileLectureRecorder extends LectureRecorder {
 	private AudioSink audioSink;
 
 	private AudioFormat audioFormat;
+
+	private ScreenCaptureRecorder screenCaptureRecorder;
 
 	private ScreenCaptureFormat screenCaptureFormat;
 
@@ -149,6 +154,12 @@ public class FileLectureRecorder extends LectureRecorder {
 		}
 		if (event.selected()) {
 			addPage(currentPage, 0);
+
+			// Update source of screen capture recorder if needed
+			if (event.getDocument().isScreenCapture()) {
+				DesktopSource source = event.getDocument().getScreenCaptureDocument().getSource();
+				screenCaptureRecorder.setActiveSource(source);
+			}
 		}
 	}
 
@@ -177,8 +188,9 @@ public class FileLectureRecorder extends LectureRecorder {
 		RandomAccessAudioStream audioStream = new RandomAccessAudioStream(audioFile);
 		audioStream.reset();
 
-		File videoFile = new File(backup.getVideoFile());
-
+		File screenCaptureFile = new File(backup.getScreenCaptureFile());
+		ScreenCaptureOutputStream screenCaptureStream = new ScreenCaptureOutputStream(screenCaptureFile);
+		screenCaptureStream.reset();
 
 		RecordingHeader fileHeader = new RecordingHeader();
 		fileHeader.setDuration(duration);
@@ -188,7 +200,7 @@ public class FileLectureRecorder extends LectureRecorder {
 		recording.setRecordedAudio(new RecordedAudio(audioStream));
 		recording.setRecordedEvents(new RecordedEvents(recordedPages));
 		recording.setRecordedDocument(new RecordedDocument(recordedDocument));
-
+		recording.setRecordedScreenCapture(new RecordedScreenCapture(screenCaptureStream));
 
 		RecordingFileWriter.write(recording, destFile, progressCallback);
 
@@ -273,6 +285,14 @@ public class FileLectureRecorder extends LectureRecorder {
 			});
 			audioRecorder.start();
 
+			try {
+				screenCaptureRecorder = new ScreenCaptureRecorder(new File(backup.getScreenCaptureFile()));
+				screenCaptureRecorder.setScreenCaptureFormat(screenCaptureFormat);
+				screenCaptureRecorder.start();
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+
 			// Record the first page.
 			Page firstPage = documentService.getDocuments().getSelectedDocument().getCurrentPage();
 			recordPage(firstPage, 0);
@@ -290,6 +310,12 @@ public class FileLectureRecorder extends LectureRecorder {
 			}
 
 			audioRecorder.start();
+
+			try {
+				screenCaptureRecorder.start();
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
 		}
 	}
 
@@ -308,6 +334,9 @@ public class FileLectureRecorder extends LectureRecorder {
 				LOG.error("Close audio sink failed", e);
 			}
 		}
+		if (nonNull(screenCaptureRecorder)) {
+			screenCaptureRecorder.stop();
+		}
 
 		backup.close();
 
@@ -318,6 +347,7 @@ public class FileLectureRecorder extends LectureRecorder {
 	protected void suspendInternal() {
 		if (getPreviousState() == ExecutableState.Started) {
 			audioRecorder.pause();
+			screenCaptureRecorder.pause();
 
 			pendingActions.setPendingPage(getLastRecordedPage());
 		}

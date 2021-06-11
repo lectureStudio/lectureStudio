@@ -39,10 +39,7 @@ public class ScreenCaptureUtils {
             capturer.selectSource(source);
             capturer.start((result, frame) -> {
                 if (result == DesktopCapturer.Result.SUCCESS) {
-                    BufferedImage image = createBufferedImage(frame.frameSize.width, frame.frameSize.height);
-                    DataBufferByte byteBuffer = (DataBufferByte) image.getRaster().getDataBuffer();
-                    frame.buffer.get(byteBuffer.getData());
-
+                    BufferedImage image = convertFrame(frame, frame.frameSize.width, frame.frameSize.height);
                     callback.onFrameCapture(image);
                 }
             });
@@ -51,10 +48,13 @@ public class ScreenCaptureUtils {
     }
 
     public static BufferedImage convertFrame(DesktopFrame frame, int width, int height) {
+        BufferedImage image = createBufferedImage(width, height);
+        DataBufferByte byteBuffer = (DataBufferByte) image.getRaster().getDataBuffer();
+        frame.buffer.get(byteBuffer.getData());
 
         // TODO: Implement scaling of frame to requested dimensions
 
-        return createBufferedImage(width, height);
+        return image;
     }
 
 //    public boolean startCapture() {

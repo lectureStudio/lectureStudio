@@ -59,6 +59,10 @@ public class ScreenCaptureDocument {
         return source.title;
     }
 
+    public DesktopSource getSource() {
+        return source;
+    }
+
     public DocumentRenderer getDocumentRenderer() {
         return renderer;
     }
@@ -127,9 +131,11 @@ public class ScreenCaptureDocument {
     }
 
     public void replacePage(int pageNumber, ScreenCaptureDocument srcDocument, int replacementPageNumber) {
-        BufferedImage image = srcDocument.getPageFrame(replacementPageNumber);
-        if (image != null && pageNumber < getPageCount()) {
-            pageFrames.set(pageNumber, image);
+        if (pageNumber < getPageCount()) {
+            BufferedImage image = srcDocument.getPageFrame(replacementPageNumber);
+            if (image != null && pageNumber < getPageCount()) {
+                pageFrames.set(pageNumber, image);
+            }
         }
     }
 
@@ -145,8 +151,8 @@ public class ScreenCaptureDocument {
     }
 
     public Rectangle2D getPageRect(int pageNumber) {
-        BufferedImage frame = pageFrames.get(pageNumber);
-        if (frame != null) {
+        if (pageNumber < getPageCount()) {
+            BufferedImage frame = pageFrames.get(pageNumber);
             return new Rectangle2D(0, 0, frame.getWidth(), frame.getHeight());
         }
         return null;

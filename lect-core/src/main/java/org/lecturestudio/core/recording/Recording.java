@@ -32,7 +32,7 @@ public class Recording {
 	public static final int FORMAT_VERSION = 3;
 
 	public enum Content {
-		ALL, HEADER, AUDIO, DOCUMENT, EVENTS, VIDEO
+		ALL, HEADER, AUDIO, DOCUMENT, EVENTS, SCREEN_CAPTURE
 	}
 
 	private final List<RecordingChangeListener> listeners = new ArrayList<>();
@@ -47,7 +47,7 @@ public class Recording {
 
 	private RecordedEvents events;
 
-	private RecordedVideo video;
+	private RecordedScreenCapture screenCapture;
 
 
 	public Recording() {
@@ -98,14 +98,14 @@ public class Recording {
 		fireChangeEvent(Content.DOCUMENT);
 	}
 
-	public RecordedVideo getRecordedVideo() {
-		return video;
+	public RecordedScreenCapture getRecordedScreenCapture() {
+		return screenCapture;
 	}
 
-	public void setRecordedVideo(RecordedVideo video) {
-		this.video = video;
+	public void setRecordedScreenCapture(RecordedScreenCapture screenCapture) {
+		this.screenCapture = screenCapture;
 
-		fireChangeEvent(Content.VIDEO);
+		fireChangeEvent(Content.SCREEN_CAPTURE);
 	}
 
 	public void close() {
@@ -119,8 +119,8 @@ public class Recording {
 			return;
 		}
 
-		if (getRecordedVideo().hasUndoActions()) {
-			getRecordedVideo().undo();
+		if (getRecordedScreenCapture().hasUndoActions()) {
+			getRecordedScreenCapture().undo();
 		}
 		if (getRecordedEvents().hasUndoActions()) {
 			getRecordedEvents().undo();
@@ -143,8 +143,8 @@ public class Recording {
 			return;
 		}
 
-		if (getRecordedVideo().hasRedoActions()) {
-			getRecordedVideo().redo();
+		if (getRecordedScreenCapture().hasRedoActions()) {
+			getRecordedScreenCapture().redo();
 		}
 		if (getRecordedEvents().hasRedoActions()) {
 			getRecordedEvents().redo();
@@ -167,7 +167,7 @@ public class Recording {
 				getRecordedEvents().hasUndoActions() ||
 				getRecordedDocument().hasUndoActions() ||
 				getRecordedAudio().hasUndoActions() ||
-				getRecordedVideo().hasUndoActions();
+				getRecordedScreenCapture().hasUndoActions();
 	}
 
 	public boolean hasRedoActions() {
@@ -175,7 +175,7 @@ public class Recording {
 				getRecordedEvents().hasRedoActions() ||
 				getRecordedDocument().hasRedoActions() ||
 				getRecordedAudio().hasRedoActions() ||
-				getRecordedVideo().hasRedoActions();
+				getRecordedScreenCapture().hasRedoActions();
 	}
 
 	public int getStateHash() {
@@ -183,7 +183,7 @@ public class Recording {
 				getRecordedEvents().getStateHash(),
 				getRecordedDocument().getStateHash(),
 				getRecordedAudio().getStateHash(),
-				getRecordedVideo().getStateHash());
+				getRecordedScreenCapture().getStateHash());
 	}
 
 	public void addRecordingChangeListener(RecordingChangeListener listener) {

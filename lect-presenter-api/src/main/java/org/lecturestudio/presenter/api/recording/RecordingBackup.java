@@ -28,6 +28,7 @@ import org.lecturestudio.core.io.WaveOutputStream;
 import org.lecturestudio.core.model.Document;
 import org.lecturestudio.core.recording.*;
 import org.lecturestudio.core.recording.file.RecordingFileWriter;
+import org.lecturestudio.core.screencapture.ScreenCaptureOutputStream;
 import org.lecturestudio.core.util.AudioUtils;
 import org.lecturestudio.core.util.FileUtils;
 import org.lecturestudio.core.util.ProgressCallback;
@@ -84,9 +85,7 @@ public class RecordingBackup {
 		File audioFile = new File(backupDir + File.separator + checkpointName + ".wav");
 		File documentFile = new File(backupDir + File.separator + checkpointName + ".pdf");
 		File eventsFile = new File(backupDir + File.separator + checkpointName + ".dat");
-		File videoFile = new File(backupDir + File.separator + checkpointName + ".vid");
-
-		// TODO: Add video recording backup
+		File screenCaptureFile = new File(backupDir + File.separator + checkpointName + ".capture");
 
 		// Read WAV header.
 		InputStream audioFileStream = new RandomAccessStream(audioFile);
@@ -110,13 +109,16 @@ public class RecordingBackup {
 
 		RecordingHeader fileHeader = new RecordingHeader();
 		fileHeader.setDuration(duration);
-		
+
+		ScreenCaptureOutputStream screenCaptureStream = new ScreenCaptureOutputStream(screenCaptureFile);
+		screenCaptureStream.reset();
+
 		Recording recording = new Recording();
 		recording.setRecordingHeader(fileHeader);
 		recording.setRecordedAudio(new RecordedAudio(audioStream));
 		recording.setRecordedEvents(new RecordedEvents(FileUtils.getByteArray(eventsFile)));
 		recording.setRecordedDocument(new RecordedDocument(FileUtils.getByteArray(documentFile)));
-		recording.setRecordedVideo(new RecordedVideo(FileUtils.getByteArray(videoFile)));
+		recording.setRecordedScreenCapture(new RecordedScreenCapture(screenCaptureStream));
 
 		RecordingFileWriter.write(recording, destFile, progressCallback);
 	}
@@ -224,8 +226,8 @@ public class RecordingBackup {
 		return sessionPathPrefix + ".wav";
 	}
 
-	public String getVideoFile() {
-		return sessionPathPrefix + ".vid";
+	public String getScreenCaptureFile() {
+		return sessionPathPrefix + ".capture";
 	}
 
 	private void initBackupDir(File dir) throws IOException {

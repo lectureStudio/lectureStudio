@@ -523,8 +523,7 @@ public class Document {
 		}
 		else {
 			PdfDocument pagePdfDocument = page.getDocument().getPdfDocument();
-			pageIndex = pdfDocument.importPage(pagePdfDocument,
-					page.getPageNumber(), pageRect);
+			pageIndex = pdfDocument.importPage(pagePdfDocument, page.getPageNumber(), pageRect);
 		}
 
 		if (pageIndex == -1) {

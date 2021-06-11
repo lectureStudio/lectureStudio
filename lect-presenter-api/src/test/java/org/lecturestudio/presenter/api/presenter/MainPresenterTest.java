@@ -34,7 +34,6 @@ import org.lecturestudio.core.view.*;
 import org.lecturestudio.presenter.api.config.PresenterConfiguration;
 import org.lecturestudio.presenter.api.input.Shortcut;
 import org.lecturestudio.presenter.api.recording.FileLectureRecorder;
-import org.lecturestudio.presenter.api.recording.ScreenRecorder;
 import org.lecturestudio.presenter.api.service.BookmarkService;
 import org.lecturestudio.presenter.api.service.RecordingService;
 import org.lecturestudio.presenter.api.view.*;
@@ -68,9 +67,7 @@ class MainPresenterTest extends PresenterTest {
 		bookmarkService = context.getBookmarkService();
 
 		FileLectureRecorder recorder = new FileLectureRecorder(documentService, audioConfig, context.getRecordingDirectory());
-		ScreenRecorder screenRecorder = new ScreenRecorder();
-
-		recordingService = new RecordingService(context, recorder, screenRecorder);
+		recordingService = new RecordingService(context, recorder);
 
 		viewFactory = new ViewContextMockFactory() {
 			@Override

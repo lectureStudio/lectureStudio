@@ -27,7 +27,6 @@ import org.lecturestudio.core.io.RandomAccessStream;
 import org.lecturestudio.core.io.WaveHeader;
 import org.lecturestudio.presenter.api.recording.FileLectureRecorder;
 import org.lecturestudio.presenter.api.recording.RecordingBackup;
-import org.lecturestudio.presenter.api.recording.ScreenRecorder;
 
 import java.io.File;
 import java.io.IOException;
@@ -79,9 +78,8 @@ class RecordingServiceTest extends ServiceTest {
 		audioConfig.setSoundSystem("dummy");
 
 		FileLectureRecorder recorder = new FileLectureRecorder(documentService, audioConfig, recPath.toFile().getPath());
-		ScreenRecorder screenRecorder = new ScreenRecorder();
 
-		recordingService = new RecordingService(context, recorder, screenRecorder);
+		recordingService = new RecordingService(context, recorder);
 		recordingService.setAudioFormat(new AudioFormat(AudioFormat.Encoding.S16BE, 24000, 1));
 	}
 

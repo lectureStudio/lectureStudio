@@ -26,7 +26,6 @@ import org.lecturestudio.core.service.DocumentService;
 import org.lecturestudio.core.view.Action;
 import org.lecturestudio.presenter.api.recording.FileLectureRecorder;
 import org.lecturestudio.presenter.api.recording.RecordingBackup;
-import org.lecturestudio.presenter.api.recording.ScreenRecorder;
 import org.lecturestudio.presenter.api.service.RecordingService;
 import org.lecturestudio.presenter.api.view.QuitRecordingView;
 
@@ -53,9 +52,7 @@ class QuitRecordingPresenterTest extends PresenterTest {
 		DocumentService documentService = context.getDocumentService();
 
 		FileLectureRecorder recorder = new FileLectureRecorder(documentService, audioConfig, context.getRecordingDirectory());
-		ScreenRecorder screenRecorder = new ScreenRecorder();
-
-		recordingService = new RecordingService(context, recorder, screenRecorder);
+		recordingService = new RecordingService(context, recorder);
 
 		view = new QuitRecordingMockView();
 

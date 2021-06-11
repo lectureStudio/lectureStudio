@@ -27,7 +27,6 @@ import org.lecturestudio.core.util.ProgressCallback;
 import org.lecturestudio.presenter.api.config.PresenterConfiguration;
 import org.lecturestudio.presenter.api.event.RecordingTimeEvent;
 import org.lecturestudio.presenter.api.recording.FileLectureRecorder;
-import org.lecturestudio.presenter.api.recording.ScreenRecorder;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -45,16 +44,14 @@ public class RecordingService extends ExecutableBase {
 	private final ApplicationContext context;
 
 	private final FileLectureRecorder recorder;
-	private final ScreenRecorder screenRecorder;
 
 	private IdleTimer recordingTimer;
 
 
 	@Inject
-	public RecordingService(ApplicationContext context, FileLectureRecorder recorder, ScreenRecorder screenRecorder) {
+	public RecordingService(ApplicationContext context, FileLectureRecorder recorder) {
 		this.context = context;
 		this.recorder = recorder;
-		this.screenRecorder = screenRecorder;
 
 		setAudioFormat(context.getConfiguration().getAudioConfig().getRecordingFormat());
 
@@ -99,8 +96,6 @@ public class RecordingService extends ExecutableBase {
 	@Override
 	protected void initInternal() throws ExecutableException {
 		recorder.init();
-		screenRecorder.init();
-
 		recordingTimer = new IdleTimer();
 	}
 

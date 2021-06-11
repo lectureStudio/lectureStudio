@@ -25,11 +25,8 @@ import com.github.javaffmpeg.VideoFrame;
 import dev.onvoid.webrtc.PeerConnectionFactory;
 import dev.onvoid.webrtc.media.video.desktop.*;
 import org.lecturestudio.core.app.ApplicationContext;
-import org.lecturestudio.core.bus.event.DocumentEvent;
 import org.lecturestudio.core.io.VideoSink;
 import org.lecturestudio.core.service.DocumentService;
-import org.lecturestudio.presenter.api.model.ScreenCapture;
-import org.lecturestudio.presenter.api.model.ScreenCaptureDocument;
 
 import javax.imageio.ImageIO;
 import javax.inject.Inject;
@@ -41,10 +38,7 @@ import java.nio.ByteBuffer;
 import java.nio.channels.AsynchronousFileChannel;
 import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
-import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 @Singleton
@@ -70,10 +64,10 @@ public class ScreenCaptureService {
 
     private DesktopSource selectedSource;
 
-    private Map<Long, ScreenCapture> screenCaptures = new HashMap<>();
-    private ScreenCapture selectedCapture;
-
-    private ScreenCaptureDocument document;
+//    private Map<Long, ScreenCapture> screenCaptures = new HashMap<>();
+//    private ScreenCapture selectedCapture;
+//
+//    private ScreenCaptureDocument document;
 
     private Muxer muxer;
 
@@ -106,44 +100,44 @@ public class ScreenCaptureService {
         return screenCapturer.getDesktopSources();
     }
 
-    public void setSelectedSource(DesktopSource source) {
-        if (source != null) {
-
-            // Create document with source as first page if not already exists
-            if (document == null) {
-                try {
-                    document = new ScreenCaptureDocument(source);
-                    context.getEventBus().post(new DocumentEvent(document, DocumentEvent.Type.CREATED));
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-            }
-            // Add source as new page if document already exists
-            else {
-                document.selectScreenCapture(source);
-            }
-
-
-
-//            ScreenCapture capture = screenCaptures.getOrDefault(source.id, null);
-//            if (capture == null) {
-//                capture = new ScreenCapture(source);
-//                screenCaptures.put(source.id, capture);
-//                context.getEventBus().post(new ScreenCaptureEvent(capture, ScreenCaptureEvent.Type.CREATED));
-//            }
-
-
-            if (selectedCapture != null) {
-                // TODO: Stop recording with previous source
-            }
-
-//            // Notify about new selected screen capture
-//            context.getEventBus().post(new ScreenCaptureEvent(selectedCapture, capture, ScreenCaptureEvent.Type.SELECTED));
+//    public void setSelectedSource(DesktopSource source) {
+//        if (source != null) {
 //
-//            selectedCapture = capture;
-//            selectedSource = source;
-        }
-    }
+//            // Create document with source as first page if not already exists
+//            if (document == null) {
+//                try {
+//                    document = new ScreenCaptureDocument(source);
+//                    context.getEventBus().post(new DocumentEvent(document, DocumentEvent.Type.CREATED));
+//                } catch (IOException e) {
+//                    e.printStackTrace();
+//                }
+//            }
+//            // Add source as new page if document already exists
+//            else {
+//                document.selectScreenCapture(source);
+//            }
+//
+//
+//
+////            ScreenCapture capture = screenCaptures.getOrDefault(source.id, null);
+////            if (capture == null) {
+////                capture = new ScreenCapture(source);
+////                screenCaptures.put(source.id, capture);
+////                context.getEventBus().post(new ScreenCaptureEvent(capture, ScreenCaptureEvent.Type.CREATED));
+////            }
+//
+//
+//            if (selectedCapture != null) {
+//                // TODO: Stop recording with previous source
+//            }
+//
+////            // Notify about new selected screen capture
+////            context.getEventBus().post(new ScreenCaptureEvent(selectedCapture, capture, ScreenCaptureEvent.Type.SELECTED));
+////
+////            selectedCapture = capture;
+////            selectedSource = source;
+//        }
+//    }
 
     public boolean isRecording() {
         return isRecording.get();
@@ -165,47 +159,7 @@ public class ScreenCaptureService {
         captureDesktopScreenshot(source, CaptureMode.WINDOW, callback);
     }
 
-    public boolean startCapture() {
-        if (selectedSource != null) {
-            frameCounter = 0;
-            windowCapturer.selectSource(selectedSource);
 
-            windowCapturer.start((result, frame) -> {
-                if (result == DesktopCapturer.Result.SUCCESS) {
-                    // TODO: Call callback to draw view, store frames etc
-                    saveFrame(frame, frameCounter);
-//                    try {
-//                        addFrameToVideo(frame);
-//                    } catch (IOException | JavaFFmpegException e) {
-//                        e.printStackTrace();
-//                    }
-                    frameCounter++;
-                }
-            });
-
-            isRecording.set(true);
-
-            new Thread(() -> {
-                long startTime = System.currentTimeMillis();
-
-                System.out.println("Start Recording of source '" + selectedSource.title + "'");
-                System.out.println("Save frames to: " + outputPath);
-                while (isRecording.get()) {
-                    windowCapturer.captureFrame();
-                    try {
-                        TimeUnit.MICROSECONDS.sleep(1000 / frameRate);
-                    } catch (InterruptedException ignored) {
-                        System.err.println("Execution of screen capture was interrupted");
-                    }
-                }
-
-                long duration = System.currentTimeMillis() - startTime;
-                System.out.println("Stopped Recording: " + frameCounter + " frames recorded in " + duration + "ms");
-            }).start();
-            return true;
-        }
-        return false;
-    }
 
     private void startDesktopCapture(DesktopSource source, CaptureMode mode) {
         final DesktopCapturer capturer = (mode == CaptureMode.WINDOW) ? windowCapturer : screenCapturer;

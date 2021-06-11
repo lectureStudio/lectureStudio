@@ -27,7 +27,6 @@ import org.lecturestudio.core.model.*;
 import org.lecturestudio.core.tool.ToolType;
 import org.lecturestudio.core.view.Action;
 import org.lecturestudio.core.view.*;
-import org.lecturestudio.presenter.api.model.ScreenCapture;
 import org.lecturestudio.presenter.api.stylus.StylusHandler;
 import org.lecturestudio.presenter.api.view.SlidesView;
 import org.lecturestudio.presenter.swing.input.StylusListener;
@@ -152,10 +151,6 @@ public class SwingSlidesView extends JPanel implements SlidesView {
 					thumbPanel = new ThumbPanel();
 			}
 
-//			if (doc instanceof ScreenCaptureDocument) {
-//				thumbPanel = new ScreenCaptureThumbnailPanel();
-//			}
-
 			thumbPanel.setRenderController(pageRenderer);
 			thumbPanel.setDocument(doc, ppProvider);
 			thumbPanel.addSelectedSlideChangedListener(event -> {
@@ -176,12 +171,6 @@ public class SwingSlidesView extends JPanel implements SlidesView {
 					executeAction(deletePageAction);
 				});
 			}
-
-			// Only need to add pause action because new and delete page buttons are already registered by EditableThumbnailPanel
-//			if (thumbPanel instanceof ScreenCaptureThumbnailPanel) {
-//				ScreenCaptureThumbnailPanel screenCaptureThumbPanel = (ScreenCaptureThumbnailPanel) thumbPanel;
-//				screenCaptureThumbPanel.setOnScreenCapturePause(screenCapturePauseAction);
-//			}
 
 			VerticalTab tab = new VerticalTab(tabPane.getTabPlacement());
 			tab.setText(limitTitleLength(doc.getTitle()));
@@ -234,43 +223,6 @@ public class SwingSlidesView extends JPanel implements SlidesView {
 			// Set document outline.
 			setOutline(doc.getDocumentOutline());
 		});
-	}
-
-	private VerticalTab screenCaptureTab;
-
-	@Override
-	public void addScreenCapture(ScreenCapture capture) {
-//		SwingUtils.invoke(() -> {
-//			// Make sure to create screen capture tab only once
-//			if (screenCaptureTab == null) {
-//				screenCaptureTab = new VerticalTab(tabPane.getTabPlacement());
-//				screenCaptureTab.setText("Screen Captures");
-//
-//				ScreenCaptureThumbnailPanel thumbPanel = new ScreenCaptureThumbnailPanel();
-//
-//				thumbPanel.setRenderController(pageRenderer);
-//				thumbPanel.setDocument(doc, null);
-//				thumbPanel.addSelectedSlideChangedListener(event -> {
-//					System.out.println("Selected Slide Changed Event");
-//				});
-//
-//				tabPane.addTab(null, thumbPanel);
-//				tabPane.setTabComponentAt(tabPane.getTabCount() - 1, screenCaptureTab);
-//			}
-//
-//			// TODO: Add actual screen capture page to thumbPanel
-//
-//		});
-	}
-
-	@Override
-	public void removeScreenCapture(ScreenCapture capture) {
-
-	}
-
-	@Override
-	public void selectScreenCapture(ScreenCapture capture) {
-
 	}
 
 	@Override

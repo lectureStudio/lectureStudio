@@ -18,9 +18,6 @@
 
 package org.lecturestudio.core.screencapture;
 
-import dev.onvoid.webrtc.media.video.desktop.DesktopCapturer;
-import dev.onvoid.webrtc.media.video.desktop.DesktopFrame;
-import dev.onvoid.webrtc.media.video.desktop.WindowCapturer;
 import org.lecturestudio.core.model.Page;
 import org.lecturestudio.core.pdf.DocumentRenderer;
 import org.lecturestudio.core.view.PresentationParameter;
@@ -35,35 +32,19 @@ public class ScreenCaptureRenderer implements DocumentRenderer {
 
     private final Object lock = new Object();
 
-    private final ScreenCaptureDocument document;
-
-    private WindowCapturer capturer;
-
-    public ScreenCaptureRenderer(ScreenCaptureDocument document) {
-        this.document = document;
-        capturer = new WindowCapturer();
-        capturer.start((result, desktopFrame) -> {
-            if (result == DesktopCapturer.Result.SUCCESS) {
-                lastDesktopFrame = desktopFrame;
-            }
-        });
-    }
-
-    private int lastPageNumber;
-    private DesktopFrame lastDesktopFrame;
-
     @Override
     public void render(Page page, PresentationParameter parameter, BufferedImage image) throws IOException {
         if (page.getDocument().isScreenCapture()) {
             synchronized (lock) {
+                ScreenCaptureDocument document = page.getDocument().getScreenCaptureDocument();
                 int pageNumber = page.getPageNumber();
 
-                BufferedImage previewImage = document.getPageFrame(pageNumber);
-                if (previewImage != null) {
+                // Get the frame of the page to be rendered from the document
+                BufferedImage pageFrame = document.getPageFrame(pageNumber);
+                if (pageFrame != null) {
                     Graphics2D g = image.createGraphics();
-                    // System.out.println("Render Page " + page.getPageNumber() + ": " + previewImage.getWidth() + "x" + previewImage.getHeight());
                     g.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BILINEAR);
-                    g.drawImage(previewImage, 0, 0, image.getWidth(), image.getHeight(), 0, 0, previewImage.getWidth(), previewImage.getHeight(), null);
+                    g.drawImage(pageFrame, 0, 0, image.getWidth(), image.getHeight(), 0, 0, pageFrame.getWidth(), pageFrame.getHeight(), null);
                     g.dispose();
                 }
 

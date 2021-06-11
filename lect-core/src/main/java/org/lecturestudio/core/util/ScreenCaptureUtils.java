@@ -57,6 +57,48 @@ public class ScreenCaptureUtils {
         return createBufferedImage(width, height);
     }
 
+//    public boolean startCapture() {
+//        if (selectedSource != null) {
+//            frameCounter = 0;
+//            windowCapturer.selectSource(selectedSource);
+//
+//            windowCapturer.start((result, frame) -> {
+//                if (result == DesktopCapturer.Result.SUCCESS) {
+//                    // TODO: Call callback to draw view, store frames etc
+//                    saveFrame(frame, frameCounter);
+////                    try {
+////                        addFrameToVideo(frame);
+////                    } catch (IOException | JavaFFmpegException e) {
+////                        e.printStackTrace();
+////                    }
+//                    frameCounter++;
+//                }
+//            });
+//
+//            isRecording.set(true);
+//
+//            new Thread(() -> {
+//                long startTime = System.currentTimeMillis();
+//
+//                System.out.println("Start Recording of source '" + selectedSource.title + "'");
+//                System.out.println("Save frames to: " + outputPath);
+//                while (isRecording.get()) {
+//                    windowCapturer.captureFrame();
+//                    try {
+//                        TimeUnit.MICROSECONDS.sleep(1000 / frameRate);
+//                    } catch (InterruptedException ignored) {
+//                        System.err.println("Execution of screen capture was interrupted");
+//                    }
+//                }
+//
+//                long duration = System.currentTimeMillis() - startTime;
+//                System.out.println("Stopped Recording: " + frameCounter + " frames recorded in " + duration + "ms");
+//            }).start();
+//            return true;
+//        }
+//        return false;
+//    }
+
     public static BufferedImage createBufferedImage(int width, int height) {
         ColorSpace cs = ColorSpace.getInstance(ColorSpace.CS_sRGB);
         int[] nBits = { 8, 8, 8, 8 };

@@ -84,6 +84,7 @@ public class RecordingBackup {
 		File audioFile = new File(backupDir + File.separator + checkpointName + ".wav");
 		File documentFile = new File(backupDir + File.separator + checkpointName + ".pdf");
 		File eventsFile = new File(backupDir + File.separator + checkpointName + ".dat");
+		File videoFile = new File(backupDir + File.separator + checkpointName + ".vid");
 
 		// TODO: Add video recording backup
 
@@ -115,6 +116,7 @@ public class RecordingBackup {
 		recording.setRecordedAudio(new RecordedAudio(audioStream));
 		recording.setRecordedEvents(new RecordedEvents(FileUtils.getByteArray(eventsFile)));
 		recording.setRecordedDocument(new RecordedDocument(FileUtils.getByteArray(documentFile)));
+		recording.setRecordedVideo(new RecordedVideo(FileUtils.getByteArray(videoFile)));
 
 		RecordingFileWriter.write(recording, destFile, progressCallback);
 	}
@@ -220,6 +222,10 @@ public class RecordingBackup {
 
 	public String getAudioFile() {
 		return sessionPathPrefix + ".wav";
+	}
+
+	public String getVideoFile() {
+		return sessionPathPrefix + ".vid";
 	}
 
 	private void initBackupDir(File dir) throws IOException {

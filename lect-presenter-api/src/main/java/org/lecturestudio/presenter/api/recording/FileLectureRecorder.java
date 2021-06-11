@@ -174,6 +174,9 @@ public class FileLectureRecorder extends LectureRecorder {
 		RandomAccessAudioStream audioStream = new RandomAccessAudioStream(audioFile);
 		audioStream.reset();
 
+		File videoFile = new File(backup.getVideoFile());
+
+
 		RecordingHeader fileHeader = new RecordingHeader();
 		fileHeader.setDuration(duration);
 

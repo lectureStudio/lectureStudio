@@ -46,7 +46,6 @@ import org.lecturestudio.presenter.api.config.PresenterConfigService;
 import org.lecturestudio.presenter.api.config.PresenterConfiguration;
 import org.lecturestudio.presenter.api.context.PresenterContext;
 import org.lecturestudio.presenter.api.recording.FileLectureRecorder;
-import org.lecturestudio.presenter.api.recording.ScreenRecorder;
 import org.lecturestudio.presenter.api.service.QuizDataSource;
 import org.lecturestudio.swing.AwtPresentationViewFactory;
 import org.lecturestudio.swing.DefaultRenderContext;
@@ -82,12 +81,6 @@ public class ApplicationModule extends AbstractModule {
 				documentService,
 				context.getConfiguration().getAudioConfig(),
 				((PresenterContext) context).getRecordingDirectory());
-	}
-
-	@Provides
-	@Singleton
-	ScreenRecorder createScreenRecorder() {
-		return new ScreenRecorder();
 	}
 
 	@Provides

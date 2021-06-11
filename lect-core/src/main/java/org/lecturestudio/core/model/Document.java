@@ -618,13 +618,11 @@ public class Document {
 
 				// Load preview image and add it as shape
 				BufferedImage previewImage = screenCaptureDocument.getPageFrame(i);
-				if (previewImage != null) {
+				if (previewImage != null)  {
 					ImageShape shape = new ImageShape();
 					shape.setImage(previewImage);
 					page.addShape(shape);
 				}
-
-				// TODO: Load Editable Shapes from screen capture
 
 				pages.add(page);
 			}

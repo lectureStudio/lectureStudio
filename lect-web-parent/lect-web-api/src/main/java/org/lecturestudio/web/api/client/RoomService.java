@@ -4,6 +4,7 @@ package org.lecturestudio.web.api.client;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
+import javax.ws.rs.QueryParam;
 
 import org.eclipse.microprofile.rest.client.annotation.RegisterProvider;
 import org.eclipse.microprofile.rest.client.annotation.RegisterProviders;
@@ -13,6 +14,8 @@ import org.lecturestudio.web.api.filter.AuthorizationFilter;
 import org.lecturestudio.web.api.filter.LoggingFilter;
 import org.lecturestudio.web.api.model.JoinedRooms;
 import org.lecturestudio.web.api.model.Room;
+import org.lecturestudio.web.api.model.RoomEventFilter;
+import org.lecturestudio.web.api.model.chunk;
 
 
 @Path("/_matrix/client/r0")
@@ -44,4 +47,19 @@ public interface RoomService {
     @Path("/rooms/{roomId}/state/m.room.name/")
     JoinedRooms getRoomAliases(@PathParam("roomId") String roomId);
 
+
+    /**
+     *
+     * @param roomId the id of the room
+     * @param dir in which direction the Messages should be given
+     * @param limit how many messages should be received
+     * @param filter a filter to filter the messages, often "m.room.message" filter
+     * @return the messages of the room as a List in the class chunk
+     *
+     * Receives the Messages of the given Room
+     */
+    @GET
+    @Path("/rooms/{roomId}/messages")
+    chunk getMessages(@PathParam("roomId") String roomId, @QueryParam("dir") String dir,
+                      @QueryParam("limit") int limit, @QueryParam("filter") RoomEventFilter filter);
 }

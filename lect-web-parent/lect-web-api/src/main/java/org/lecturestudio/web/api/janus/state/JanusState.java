@@ -18,13 +18,17 @@
 
 package org.lecturestudio.web.api.janus.state;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.lecturestudio.web.api.janus.JanusHandler;
-import org.lecturestudio.web.api.janus.JanusMessageTransmitter;
 import org.lecturestudio.web.api.janus.message.JanusMessage;
 
 public interface JanusState {
 
-	void initialize(JanusMessageTransmitter transmitter);
+	Logger LOG = LogManager.getLogger(JanusState.class);
+
+
+	void initialize(JanusHandler handler);
 
 	void handleMessage(JanusHandler handler, JanusMessage message);
 
@@ -32,5 +36,17 @@ public interface JanusState {
 		if (!sent.getTransaction().equals(received.getTransaction())) {
 			throw new IllegalStateException("Transactions do not match");
 		}
+	}
+
+	default void logError(Throwable throwable, String message) {
+		LOG.error(message, throwable);
+	}
+
+	default void logDebug(String message, Object... args) {
+		LOG.debug(String.format(message, args));
+	}
+
+	default void logDebug(Throwable throwable, String message) {
+		LOG.debug(message, throwable);
 	}
 }

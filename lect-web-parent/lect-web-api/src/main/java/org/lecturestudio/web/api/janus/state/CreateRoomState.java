@@ -18,11 +18,9 @@
 
 package org.lecturestudio.web.api.janus.state;
 
-import java.math.BigInteger;
 import java.util.UUID;
 
 import org.lecturestudio.web.api.janus.JanusHandler;
-import org.lecturestudio.web.api.janus.JanusMessageTransmitter;
 import org.lecturestudio.web.api.janus.message.JanusCreateRoomMessage;
 import org.lecturestudio.web.api.janus.message.JanusMessage;
 import org.lecturestudio.web.api.janus.message.JanusPluginDataMessage;
@@ -30,29 +28,21 @@ import org.lecturestudio.web.api.janus.message.JanusRoomCreatedMessage;
 
 public class CreateRoomState implements JanusState {
 
-	private final BigInteger sessionId;
-
-	private final BigInteger pluginId;
-
 	private JanusPluginDataMessage requestMessage;
 
 
-	public CreateRoomState(BigInteger sessionId, BigInteger pluginId) {
-		this.sessionId = sessionId;
-		this.pluginId = pluginId;
-	}
-
 	@Override
-	public void initialize(JanusMessageTransmitter transmitter) {
+	public void initialize(JanusHandler handler) {
 		JanusCreateRoomMessage request = new JanusCreateRoomMessage();
 		request.setIsPrivate(false);
 		request.setPermanent(false);
 
-		requestMessage = new JanusPluginDataMessage(sessionId, pluginId);
+		requestMessage = new JanusPluginDataMessage(handler.getSessionId(),
+				handler.getPluginId());
 		requestMessage.setTransaction(UUID.randomUUID().toString());
 		requestMessage.setBody(request);
 
-		transmitter.sendMessage(requestMessage);
+		handler.sendMessage(requestMessage);
 	}
 
 	@Override
@@ -62,8 +52,10 @@ public class CreateRoomState implements JanusState {
 		if (message instanceof JanusRoomCreatedMessage) {
 			JanusRoomCreatedMessage success = (JanusRoomCreatedMessage) message;
 
+			logDebug("Janus room created: %d", success.getRoomId());
+
 			handler.setRoomId(success.getRoomId());
-			handler.setState(new JoinRoomState(handler.getSessionId(), handler.getPluginId(), success.getRoomId()));
+			handler.setState(new JoinRoomState());
 		}
 	}
 }

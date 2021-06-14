@@ -18,16 +18,8 @@
 
 package org.lecturestudio.web.api.janus.message;
 
-import java.math.BigInteger;
-
-import javax.json.bind.annotation.JsonbProperty;
-import javax.json.bind.annotation.JsonbTypeAdapter;
-
-import org.lecturestudio.web.api.janus.JanusParticipantType;
-import org.lecturestudio.web.api.janus.json.ParticipantTypeAdapter;
-
 /**
- * Join room request to associate the participant as an publisher.
+ * Room request to start publishing media to a room.
  *
  * @author Alex Andres
  */
@@ -37,12 +29,45 @@ public class JanusRoomPublishRequest extends JanusRoomRequest {
 
 	private Boolean record;
 
+	private Boolean audio;
+
+	private Boolean video;
+
+	private Boolean data;
+
 
 	/**
 	 * Create a new {@code JanusJoinRoomRequest}.
 	 */
 	public JanusRoomPublishRequest() {
 		setRequestType(JanusRoomRequestType.PUBLISH);
+	}
+
+	/**
+	 * Set whether or not audio should be relayed. {@code True} by default.
+	 *
+	 * @param enable True to relay audio to participants.
+	 */
+	public void setAudio(Boolean enable) {
+		audio = enable;
+	}
+
+	/**
+	 * Set whether or not video should be relayed. {@code True} by default.
+	 *
+	 * @param enable True to relay video to participants.
+	 */
+	public void setVideo(Boolean enable) {
+		video = enable;
+	}
+
+	/**
+	 * Set whether or not data should be relayed. {@code True} by default.
+	 *
+	 * @param enable True to relay data to participants.
+	 */
+	public void setData(Boolean enable) {
+		data = enable;
 	}
 
 	/**

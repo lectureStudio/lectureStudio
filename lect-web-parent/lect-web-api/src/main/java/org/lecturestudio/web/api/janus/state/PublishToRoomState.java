@@ -18,44 +18,114 @@
 
 package org.lecturestudio.web.api.janus.state;
 
-import java.math.BigInteger;
+import dev.onvoid.webrtc.RTCIceCandidate;
+import dev.onvoid.webrtc.RTCIceGatheringState;
+import dev.onvoid.webrtc.RTCRtpTransceiverDirection;
+import dev.onvoid.webrtc.RTCSdpType;
+import dev.onvoid.webrtc.RTCSessionDescription;
+
+import java.util.Map;
 import java.util.UUID;
 
 import org.lecturestudio.web.api.janus.JanusHandler;
-import org.lecturestudio.web.api.janus.JanusMessageTransmitter;
+import org.lecturestudio.web.api.janus.message.JanusJsepMessage;
+import org.lecturestudio.web.api.janus.message.JanusMediaMessage;
 import org.lecturestudio.web.api.janus.message.JanusMessage;
-import org.lecturestudio.web.api.janus.message.JanusPluginDataMessage;
+import org.lecturestudio.web.api.janus.message.JanusMessageType;
+import org.lecturestudio.web.api.janus.message.JanusPluginMessage;
+import org.lecturestudio.web.api.janus.message.JanusRoomPublishMessage;
 import org.lecturestudio.web.api.janus.message.JanusRoomPublishRequest;
+import org.lecturestudio.web.api.janus.message.JanusTrickleMessage;
 
 public class PublishToRoomState implements JanusState {
 
-	private final BigInteger sessionId;
+	private JanusRoomPublishMessage publishMessage;
 
-	private final BigInteger pluginId;
-
-	private JanusPluginDataMessage publishMessage;
-
-
-	public PublishToRoomState(BigInteger sessionId, BigInteger pluginId) {
-		this.sessionId = sessionId;
-		this.pluginId = pluginId;
-	}
 
 	@Override
-	public void initialize(JanusMessageTransmitter transmitter) {
-		JanusRoomPublishRequest request = new JanusRoomPublishRequest();
+	public void initialize(JanusHandler handler) {
+		handler.getPeerConnection().setOnLocalSessionDescription(description -> {
+			sendRequest(handler, description.sdp);
+		});
+		handler.getPeerConnection().setOnIceCandidate(iceCandidate -> {
+			sendIceCandidate(handler, iceCandidate);
+		});
+		handler.getPeerConnection().setOnIceGatheringState(state -> {
+			if (state == RTCIceGatheringState.COMPLETE) {
+				sendEndOfCandidates(handler);
+			}
+		});
 
-		publishMessage = new JanusPluginDataMessage(sessionId, pluginId);
-		publishMessage.setTransaction(UUID.randomUUID().toString());
-		publishMessage.setBody(request);
-
-		transmitter.sendMessage(publishMessage);
+		// Publishers are send-only.
+		handler.getPeerConnection().initCall(
+				RTCRtpTransceiverDirection.SEND_ONLY,
+				RTCRtpTransceiverDirection.SEND_ONLY);
 	}
 
 	@Override
 	public void handleMessage(JanusHandler handler, JanusMessage message) {
+		JanusMessageType type = message.getEventType();
+
+		if (type == JanusMessageType.WEBRTC_UP) {
+			logDebug("Janus WebRTC connection is up");
+			return;
+		}
+		else if (type == JanusMessageType.MEDIA) {
+			JanusMediaMessage mediaMessage = (JanusMediaMessage) message;
+
+			logDebug("Janus %s receiving our %s",
+					(mediaMessage.isReceiving() ? "started" : "stopped"),
+					mediaMessage.getType());
+			return;
+		}
+
 		checkTransaction(publishMessage, message);
 
+		if (message instanceof JanusJsepMessage) {
+			JanusJsepMessage jsepMessage = (JanusJsepMessage) message;
+			String sdp = jsepMessage.getSdp();
+			RTCSessionDescription answer = new RTCSessionDescription(RTCSdpType.ANSWER, sdp);
 
+			handler.getPeerConnection().setSessionDescription(answer);
+		}
+	}
+
+	private void sendRequest(JanusHandler handler, String sdp) {
+		JanusRoomPublishRequest request = new JanusRoomPublishRequest();
+		request.setAudio(true);
+		request.setVideo(true);
+		request.setData(true);
+
+		publishMessage = new JanusRoomPublishMessage(handler.getSessionId(),
+				handler.getPluginId());
+		publishMessage.setSdp(sdp);
+		publishMessage.setTransaction(UUID.randomUUID().toString());
+		publishMessage.setBody(request);
+
+		handler.sendMessage(publishMessage);
+	}
+
+	private void sendIceCandidate(JanusHandler handler, RTCIceCandidate candidate) {
+		JanusTrickleMessage message = new JanusTrickleMessage(handler.getSessionId(),
+				handler.getPluginId());
+		message.setTransaction(UUID.randomUUID().toString());
+		message.setSdp(candidate.sdp);
+		message.setSdpMid(candidate.sdpMid);
+		message.setSdpMLineIndex(candidate.sdpMLineIndex);
+
+		handler.sendMessage(message);
+	}
+
+	private void sendEndOfCandidates(JanusHandler handler) {
+		JanusPluginMessage message = new JanusPluginMessage(handler.getSessionId(),
+				handler.getPluginId()) {
+
+			final Map<String, Object> candidate = Map.of("completed", true);
+
+		};
+		message.setEventType(JanusMessageType.TRICKLE);
+		message.setTransaction(UUID.randomUUID().toString());
+
+		handler.sendMessage(message);
 	}
 }

@@ -21,7 +21,6 @@ package org.lecturestudio.web.api.janus.state;
 import java.util.UUID;
 
 import org.lecturestudio.web.api.janus.JanusHandler;
-import org.lecturestudio.web.api.janus.JanusMessageTransmitter;
 import org.lecturestudio.web.api.janus.message.JanusMessageType;
 import org.lecturestudio.web.api.janus.message.JanusInfoMessage;
 import org.lecturestudio.web.api.janus.message.JanusMessage;
@@ -32,12 +31,12 @@ public class InfoState implements JanusState {
 
 
 	@Override
-	public void initialize(JanusMessageTransmitter transmitter) {
+	public void initialize(JanusHandler handler) {
 		infoMessage = new JanusMessage();
 		infoMessage.setEventType(JanusMessageType.INFO);
 		infoMessage.setTransaction(UUID.randomUUID().toString());
 
-		transmitter.sendMessage(infoMessage);
+		handler.sendMessage(infoMessage);
 	}
 
 	@Override

@@ -97,6 +97,11 @@ public enum JanusMessageType {
 	// WebRTC-related events.
 
 	/**
+	 * To trickle ICE candidates.
+	 */
+	TRICKLE("trickle"),
+
+	/**
 	 * ICE and DTLS succeeded. A PeerConnection has been correctly established
 	 * with the user/application.
 	 */

@@ -18,11 +18,9 @@
 
 package org.lecturestudio.web.api.janus.state;
 
-import java.math.BigInteger;
 import java.util.UUID;
 
 import org.lecturestudio.web.api.janus.JanusHandler;
-import org.lecturestudio.web.api.janus.JanusMessageTransmitter;
 import org.lecturestudio.web.api.janus.JanusParticipantType;
 import org.lecturestudio.web.api.janus.message.JanusRoomJoinRequest;
 import org.lecturestudio.web.api.janus.message.JanusMessage;
@@ -31,32 +29,21 @@ import org.lecturestudio.web.api.janus.message.JanusRoomJoinedMessage;
 
 public class JoinRoomState implements JanusState {
 
-	private final BigInteger sessionId;
-
-	private final BigInteger pluginId;
-
-	private final BigInteger roomId;
-
 	private JanusPluginDataMessage joinMessage;
 
 
-	public JoinRoomState(BigInteger sessionId, BigInteger pluginId, BigInteger roomId) {
-		this.sessionId = sessionId;
-		this.pluginId = pluginId;
-		this.roomId = roomId;
-	}
-
 	@Override
-	public void initialize(JanusMessageTransmitter transmitter) {
+	public void initialize(JanusHandler handler) {
 		JanusRoomJoinRequest request = new JanusRoomJoinRequest();
 		request.setParticipantType(JanusParticipantType.PUBLISHER);
-		request.setRoomId(roomId);
+		request.setRoomId(handler.getRoomId());
 
-		joinMessage = new JanusPluginDataMessage(sessionId, pluginId);
+		joinMessage = new JanusPluginDataMessage(handler.getSessionId(),
+				handler.getPluginId());
 		joinMessage.setTransaction(UUID.randomUUID().toString());
 		joinMessage.setBody(request);
 
-		transmitter.sendMessage(joinMessage);
+		handler.sendMessage(joinMessage);
 	}
 
 	@Override
@@ -64,8 +51,13 @@ public class JoinRoomState implements JanusState {
 		checkTransaction(joinMessage, message);
 
 		if (message instanceof JanusRoomJoinedMessage) {
-			handler.setState(new PublishToRoomState(handler.getSessionId(),
-					handler.getPluginId()));
+			JanusRoomJoinedMessage joinedMessage = (JanusRoomJoinedMessage) message;
+
+			logDebug("Janus room joined: %d (%s)", joinedMessage.getRoomId(),
+					joinedMessage.getDescription());
+
+			handler.createPeerConnection();
+			handler.setState(new PublishToRoomState());
 		}
 	}
 }

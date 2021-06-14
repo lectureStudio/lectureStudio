@@ -53,7 +53,7 @@ public class JanusWebSocketClient extends ExecutableBase implements JanusMessage
 
 	@Override
 	public void sendMessage(JanusMessage message) {
-		logMessage("WebSocket ->: {0}", jsonb.toJson(message));
+//		logMessage("WebSocket ->: {0}", jsonb.toJson(message));
 
 		webSocket.sendText(jsonb.toJson(message), true)
 				.exceptionally(throwable -> {
@@ -108,7 +108,7 @@ public class JanusWebSocketClient extends ExecutableBase implements JanusMessage
 
 		@Override
 		public CompletionStage<?> onText(WebSocket webSocket, CharSequence data, boolean last) {
-			logMessage("WebSocket <-: {0}", data);
+//			logMessage("WebSocket <-: {0}", data);
 
 			webSocket.request(1);
 

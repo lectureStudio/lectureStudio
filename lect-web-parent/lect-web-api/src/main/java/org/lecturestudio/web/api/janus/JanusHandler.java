@@ -43,6 +43,8 @@ import org.lecturestudio.web.api.janus.message.JanusSessionMessage;
 import org.lecturestudio.web.api.janus.message.JanusSessionTimeoutMessage;
 import org.lecturestudio.web.api.janus.state.InfoState;
 import org.lecturestudio.web.api.janus.state.JanusState;
+import org.lecturestudio.web.api.webrtc.config.Configuration;
+import org.lecturestudio.web.api.webrtc.config.DefaultConfiguration;
 
 public class JanusHandler {
 
@@ -51,6 +53,8 @@ public class JanusHandler {
 	private final JanusMessageTransmitter transmitter;
 
 	private final Map<Class<? extends JanusMessage>, Consumer<? extends JanusMessage>> handlerMap;
+
+	private JanusPeerConnection peerConnection;
 
 	private JanusState state;
 
@@ -81,6 +85,17 @@ public class JanusHandler {
 		setState(new InfoState());
 	}
 
+	public void createPeerConnection() {
+		Configuration config = new DefaultConfiguration();
+
+		peerConnection = new JanusPeerConnection(config,
+				Executors.newSingleThreadExecutor());
+	}
+
+	public JanusPeerConnection getPeerConnection() {
+		return peerConnection;
+	}
+
 	public void listRooms() {
 		JanusRoomRequest request = new JanusRoomRequest();
 		request.setRequestType(JanusRoomRequestType.LIST);
@@ -89,7 +104,11 @@ public class JanusHandler {
 		requestMessage.setTransaction(UUID.randomUUID().toString());
 		requestMessage.setBody(request);
 
-		transmitter.sendMessage(requestMessage);
+		sendMessage(requestMessage);
+	}
+
+	public void sendMessage(JanusMessage message) {
+		transmitter.sendMessage(message);
 	}
 
 	public <T extends JanusMessage> void handleMessage(T message) throws Exception {
@@ -113,7 +132,7 @@ public class JanusHandler {
 
 		this.state = state;
 
-		state.initialize(transmitter);
+		state.initialize(this);
 	}
 
 	public void setInfo(JanusInfo info) {
@@ -198,6 +217,6 @@ public class JanusHandler {
 		message.setEventType(JanusMessageType.KEEP_ALIVE);
 		message.setTransaction(UUID.randomUUID().toString());
 
-		transmitter.sendMessage(message);
+		sendMessage(message);
 	}
 }

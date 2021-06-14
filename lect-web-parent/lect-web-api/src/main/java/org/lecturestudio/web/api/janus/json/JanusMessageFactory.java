@@ -33,6 +33,8 @@ import org.lecturestudio.web.api.janus.JanusInfo;
 import org.lecturestudio.web.api.janus.JanusPublisher;
 import org.lecturestudio.web.api.janus.JanusRoom;
 import org.lecturestudio.web.api.janus.message.JanusErrorMessage;
+import org.lecturestudio.web.api.janus.message.JanusJsepMessage;
+import org.lecturestudio.web.api.janus.message.JanusMediaMessage;
 import org.lecturestudio.web.api.janus.message.JanusMessageType;
 import org.lecturestudio.web.api.janus.message.JanusInfoMessage;
 import org.lecturestudio.web.api.janus.message.JanusMessage;
@@ -69,7 +71,10 @@ public class JanusMessageFactory {
 			// Common Janus signaling messages.
 			switch (type) {
 				case ACK:
-					return createAcknowledgedMessage(body);
+				case HANGUP:
+				case SLOW_LINK:
+				case WEBRTC_UP:
+					return createMessage(body, type);
 
 				case ERROR:
 					return createErrorMessage(body);
@@ -82,6 +87,9 @@ public class JanusMessageFactory {
 
 				case TIMEOUT:
 					return createSessionTimeoutMessage(body);
+
+				case MEDIA:
+					return createMediaMessage(body);
 			}
 		}
 		else {
@@ -116,10 +124,13 @@ public class JanusMessageFactory {
 		throw new NotSupportedException("Message type not supported: " + type);
 	}
 
-	private static JanusMessage createAcknowledgedMessage(JsonObject body) {
+	private static JanusMessage createMessage(JsonObject body, JanusMessageType type) {
 		JanusMessage message = new JanusMessage();
-		message.setEventType(JanusMessageType.ACK);
-		message.setTransaction(body.getString("transaction"));
+		message.setEventType(type);
+
+		if (body.containsKey("transaction")) {
+			message.setTransaction(body.getString("transaction"));
+		}
 
 		return message;
 	}
@@ -167,6 +178,21 @@ public class JanusMessageFactory {
 		var id = body.getJsonNumber("session_id").bigIntegerValue();
 
 		return new JanusSessionTimeoutMessage(id);
+	}
+
+	private static JanusMessage createMediaMessage(JsonObject body) {
+		var sessionId = body.getJsonNumber("session_id").bigIntegerValue();
+		var handleId = body.getJsonNumber("sender").bigIntegerValue();
+
+		JanusMediaMessage message = new JanusMediaMessage(sessionId, handleId);
+		message.setType(body.getString("type"));
+		message.setReceiving(body.getBoolean("receiving"));
+
+		if (body.containsKey("transaction")) {
+			message.setTransaction(body.getString("transaction"));
+		}
+
+		return message;
 	}
 
 	private static JanusMessage createRoomCreatedMessage(JsonObject body,
@@ -258,12 +284,29 @@ public class JanusMessageFactory {
 		return message;
 	}
 
+	private static JanusMessage createJsepAnswerMessage(JsonObject body,
+			JsonObject data, JanusMessageType type) {
+		var sessionId = body.getJsonNumber("session_id").bigIntegerValue();
+		var handleId = body.getJsonNumber("sender").bigIntegerValue();
+		var jsep = body.getJsonObject("jsep");
+
+		JanusJsepMessage message = new JanusJsepMessage(sessionId, handleId);
+		message.setEventType(type);
+		message.setTransaction(body.getString("transaction"));
+		message.setSdp(jsep.getString("sdp"));
+
+		return message;
+	}
+
 	private static JanusMessage createRoomEventMessage(JsonObject body,
 			JsonObject data, JanusMessageType type, Jsonb jsonb) {
 		var eventType = JanusRoomEventType.fromString(data.getString("videoroom"));
 
 		// There are multiple room events with individual payloads.
-		if (data.containsKey("publishers")) {
+		if (body.containsKey("jsep")) {
+			return createJsepAnswerMessage(body, data, type);
+		}
+		else if (data.containsKey("publishers")) {
 			return createRoomPublisherJoinedMessage(body, data, type, jsonb);
 		}
 		else if (data.containsKey("unpublished")) {

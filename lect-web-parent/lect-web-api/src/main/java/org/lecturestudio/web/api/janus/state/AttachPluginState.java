@@ -22,7 +22,6 @@ import java.math.BigInteger;
 import java.util.UUID;
 
 import org.lecturestudio.web.api.janus.JanusHandler;
-import org.lecturestudio.web.api.janus.JanusMessageTransmitter;
 import org.lecturestudio.web.api.janus.message.JanusMessage;
 import org.lecturestudio.web.api.janus.message.JanusPluginAttachMessage;
 import org.lecturestudio.web.api.janus.message.JanusSessionSuccessMessage;
@@ -31,21 +30,15 @@ public class AttachPluginState implements JanusState {
 
 	private final static String PLUGIN = "janus.plugin.videoroom";
 
-	private final BigInteger sessionId;
-
 	private JanusMessage attachMessage;
 
 
-	public AttachPluginState(BigInteger sessionId) {
-		this.sessionId = sessionId;
-	}
-
 	@Override
-	public void initialize(JanusMessageTransmitter transmitter) {
-		attachMessage = new JanusPluginAttachMessage(sessionId, PLUGIN);
+	public void initialize(JanusHandler handler) {
+		attachMessage = new JanusPluginAttachMessage(handler.getSessionId(), PLUGIN);
 		attachMessage.setTransaction(UUID.randomUUID().toString());
 
-		transmitter.sendMessage(attachMessage);
+		handler.sendMessage(attachMessage);
 	}
 
 	@Override
@@ -55,9 +48,12 @@ public class AttachPluginState implements JanusState {
 		if (message instanceof JanusSessionSuccessMessage) {
 			JanusSessionSuccessMessage success = (JanusSessionSuccessMessage) message;
 
+			logDebug("Janus plugin handle created: %d", success.getId());
+
 			handler.setPluginId(success.getId());
-//			handler.setState(new CreateRoomState(handler.getSessionId(), handler.getPluginId()));
-			handler.setState(new JoinRoomState(handler.getSessionId(), handler.getPluginId(), BigInteger.valueOf(1234)));
+			handler.setRoomId(BigInteger.valueOf(1234));
+//			handler.setState(new CreateRoomState());
+			handler.setState(new JoinRoomState());
 		}
 	}
 }

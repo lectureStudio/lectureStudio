@@ -53,7 +53,7 @@ public class JanusWebSocketClient extends ExecutableBase implements JanusMessage
 
 	@Override
 	public void sendMessage(JanusMessage message) {
-//		logMessage("WebSocket ->: {0}", jsonb.toJson(message));
+		logTraceMessage("WebSocket ->: {0}", jsonb.toJson(message));
 
 		webSocket.sendText(jsonb.toJson(message), true)
 				.exceptionally(throwable -> {
@@ -98,6 +98,7 @@ public class JanusWebSocketClient extends ExecutableBase implements JanusMessage
 
 	private class WebSocketListener implements Listener {
 
+		/** Accumulating message buffer. */
 		private StringBuffer buffer = new StringBuffer();
 
 
@@ -108,7 +109,7 @@ public class JanusWebSocketClient extends ExecutableBase implements JanusMessage
 
 		@Override
 		public CompletionStage<?> onText(WebSocket webSocket, CharSequence data, boolean last) {
-//			logMessage("WebSocket <-: {0}", data);
+			logTraceMessage("WebSocket <-: {0}", data);
 
 			webSocket.request(1);
 
@@ -125,7 +126,7 @@ public class JanusWebSocketClient extends ExecutableBase implements JanusMessage
 					handler.handleMessage(message);
 				}
 				catch (NoSuchElementException e) {
-					logMessage("Non existing Janus event type received");
+					logException(e, "Non existing Janus event type received");
 				}
 				catch (Exception e) {
 					logException(e, "Process Janus message failed");

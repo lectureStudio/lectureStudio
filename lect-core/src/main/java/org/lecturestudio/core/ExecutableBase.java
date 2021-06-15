@@ -301,8 +301,12 @@ public abstract class ExecutableBase implements Executable {
 		}
 	}
 
-	final protected void logMessage(String message, Object... messageParams) {
+	final protected void logDebugMessage(String message, Object... messageParams) {
 		LOG.debug(MessageFormat.format(message, messageParams));
+	}
+
+	final protected void logTraceMessage(String message, Object... messageParams) {
+		LOG.trace(MessageFormat.format(message, messageParams));
 	}
 
 	final protected void logException(Throwable throwable, String throwMessage) {

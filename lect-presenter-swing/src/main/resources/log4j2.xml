@@ -35,10 +35,11 @@
 	</Appenders>
 
 	<Loggers>
-		<Logger name="org.lecturestudio" level="error" />
+		<Logger name="org.lecturestudio" level="debug" />
 		<Logger name="org.lecturestudio.presenter.api.recording" level="debug" />
 		<Logger name="org.apache.catalina" level="error" />
 		<Logger name="org.apache.openjpa" level="error" />
+		<Logger name="org.jboss" level="error" />
 
 		<Root level="error">
 			<AppenderRef ref="STDOUT" />

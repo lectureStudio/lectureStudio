@@ -20,8 +20,31 @@ package org.lecturestudio.web.api.janus;
 
 import org.lecturestudio.web.api.janus.message.JanusMessage;
 
+/**
+ * There are different ways to interact with a Janus WebRTC server. Supported
+ * transport protocols are:
+ * <ul>
+ *     <li>Plain HTTP REST Interface</li>
+ *     <li>WebSockets</li>
+ *     <li>RabbitMQ</li>
+ *     <li>MQTT</li>
+ *     <li>Nanomsg</li>
+ *     <li>UnixSockets</li>
+ * </ul>
+ * <p>
+ * This interface defines an abstraction layer for the various transport
+ * protocols. It's up to the specific implementation how the messages are
+ * received and transmitted.
+ *
+ * @author Alex Andres
+ */
 public interface JanusMessageTransmitter {
 
+	/**
+	 * Send the provided message to the Janus WebRTC server.
+	 *
+	 * @param message The message to send.
+	 */
 	void sendMessage(JanusMessage message);
 
 }

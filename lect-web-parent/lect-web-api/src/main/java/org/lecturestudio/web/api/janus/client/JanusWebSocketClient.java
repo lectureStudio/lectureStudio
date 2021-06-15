@@ -42,6 +42,12 @@ import org.lecturestudio.web.api.janus.json.JanusMessageFactory;
 import org.lecturestudio.web.api.janus.message.JanusMessageType;
 import org.lecturestudio.web.api.janus.message.JanusMessage;
 
+/**
+ * Janus WebSocket signaling client implementation. This client sends, receives,
+ * decodes and encodes Janus JSON-formatted signaling messages.
+ *
+ * @author Alex Andres
+ */
 public class JanusWebSocketClient extends ExecutableBase implements JanusMessageTransmitter {
 
 	private WebSocket webSocket;

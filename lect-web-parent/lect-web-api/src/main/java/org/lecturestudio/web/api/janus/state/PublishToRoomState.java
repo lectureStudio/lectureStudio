@@ -28,6 +28,7 @@ import java.util.Map;
 import java.util.UUID;
 
 import org.lecturestudio.web.api.janus.JanusHandler;
+import org.lecturestudio.web.api.janus.JanusPeerConnection;
 import org.lecturestudio.web.api.janus.message.JanusJsepMessage;
 import org.lecturestudio.web.api.janus.message.JanusMediaMessage;
 import org.lecturestudio.web.api.janus.message.JanusMessage;
@@ -37,29 +38,38 @@ import org.lecturestudio.web.api.janus.message.JanusRoomPublishMessage;
 import org.lecturestudio.web.api.janus.message.JanusRoomPublishRequest;
 import org.lecturestudio.web.api.janus.message.JanusTrickleMessage;
 
+/**
+ * This state starts publishing media (audio, video and data) to a joined
+ * video-room on the Janus WebRTC server. By default send-only media streams are
+ * established.
+ *
+ * @author Alex Andres
+ */
 public class PublishToRoomState implements JanusState {
 
-	private JanusRoomPublishMessage publishMessage;
+	private JanusRoomPublishMessage publishRequest;
 
 
 	@Override
 	public void initialize(JanusHandler handler) {
-		handler.getPeerConnection().setOnLocalSessionDescription(description -> {
+		JanusPeerConnection peerConnection = handler.getPeerConnection();
+
+		peerConnection.setOnLocalSessionDescription(description -> {
 			sendRequest(handler, description.sdp);
 		});
-		handler.getPeerConnection().setOnIceCandidate(iceCandidate -> {
+		peerConnection.setOnIceCandidate(iceCandidate -> {
 			sendIceCandidate(handler, iceCandidate);
 		});
-		handler.getPeerConnection().setOnIceGatheringState(state -> {
+		peerConnection.setOnIceGatheringState(state -> {
 			if (state == RTCIceGatheringState.COMPLETE) {
 				sendEndOfCandidates(handler);
 			}
 		});
 
 		// Publishers are send-only.
-		handler.getPeerConnection().initCall(
-				RTCRtpTransceiverDirection.SEND_ONLY,
-				RTCRtpTransceiverDirection.SEND_ONLY);
+		var mediaDirection = RTCRtpTransceiverDirection.SEND_ONLY;
+
+		peerConnection.initCall(mediaDirection, mediaDirection);
 	}
 
 	@Override
@@ -79,7 +89,7 @@ public class PublishToRoomState implements JanusState {
 			return;
 		}
 
-		checkTransaction(publishMessage, message);
+		checkTransaction(publishRequest, message);
 
 		if (message instanceof JanusJsepMessage) {
 			JanusJsepMessage jsepMessage = (JanusJsepMessage) message;
@@ -96,13 +106,13 @@ public class PublishToRoomState implements JanusState {
 		request.setVideo(true);
 		request.setData(true);
 
-		publishMessage = new JanusRoomPublishMessage(handler.getSessionId(),
+		publishRequest = new JanusRoomPublishMessage(handler.getSessionId(),
 				handler.getPluginId());
-		publishMessage.setSdp(sdp);
-		publishMessage.setTransaction(UUID.randomUUID().toString());
-		publishMessage.setBody(request);
+		publishRequest.setSdp(sdp);
+		publishRequest.setTransaction(UUID.randomUUID().toString());
+		publishRequest.setBody(request);
 
-		handler.sendMessage(publishMessage);
+		handler.sendMessage(publishRequest);
 	}
 
 	private void sendIceCandidate(JanusHandler handler, RTCIceCandidate candidate) {

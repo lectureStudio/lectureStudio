@@ -27,9 +27,16 @@ import org.lecturestudio.web.api.janus.message.JanusMessage;
 import org.lecturestudio.web.api.janus.message.JanusPluginDataMessage;
 import org.lecturestudio.web.api.janus.message.JanusRoomJoinedMessage;
 
+/**
+ * This state joins a previously created video-room on the Janus WebRTC server.
+ * By default this state joins the room as an publisher which makes you an
+ * active send-only participant.
+ *
+ * @author Alex Andres
+ */
 public class JoinRoomState implements JanusState {
 
-	private JanusPluginDataMessage joinMessage;
+	private JanusPluginDataMessage joinRequest;
 
 
 	@Override
@@ -38,17 +45,17 @@ public class JoinRoomState implements JanusState {
 		request.setParticipantType(JanusParticipantType.PUBLISHER);
 		request.setRoomId(handler.getRoomId());
 
-		joinMessage = new JanusPluginDataMessage(handler.getSessionId(),
+		joinRequest = new JanusPluginDataMessage(handler.getSessionId(),
 				handler.getPluginId());
-		joinMessage.setTransaction(UUID.randomUUID().toString());
-		joinMessage.setBody(request);
+		joinRequest.setTransaction(UUID.randomUUID().toString());
+		joinRequest.setBody(request);
 
-		handler.sendMessage(joinMessage);
+		handler.sendMessage(joinRequest);
 	}
 
 	@Override
 	public void handleMessage(JanusHandler handler, JanusMessage message) {
-		checkTransaction(joinMessage, message);
+		checkTransaction(joinRequest, message);
 
 		if (message instanceof JanusRoomJoinedMessage) {
 			JanusRoomJoinedMessage joinedMessage = (JanusRoomJoinedMessage) message;

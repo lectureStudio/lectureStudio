@@ -48,7 +48,7 @@ public class JanusSessionSuccessMessage extends JanusMessage {
 	 *
 	 * @return The unique integer session or plugin handle ID.
 	 */
-	public BigInteger getId() {
+	public BigInteger getSessionId() {
 		return id;
 	}
 }

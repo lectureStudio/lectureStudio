@@ -23,30 +23,79 @@ import org.apache.logging.log4j.Logger;
 import org.lecturestudio.web.api.janus.JanusHandler;
 import org.lecturestudio.web.api.janus.message.JanusMessage;
 
+/**
+ * A Janus state describes a single isolated step during the session
+ * establishment and message signaling process with the Janus WebRTC server. A
+ * concrete state handles state specific messages asynchronously. Once this
+ * state has finished its signaling and message handling, it can transition to
+ * another state by invoking {@link JanusHandler#setState(JanusState)}.
+ * Transitioning to the next state will make this state inactive and it will no
+ * longer receive messages.
+ *
+ * @author Alex Andres
+ */
 public interface JanusState {
 
+	/**
+	 * Shared state logger.
+	 */
 	Logger LOG = LogManager.getLogger(JanusState.class);
 
 
+	/**
+	 * Initialize this state with the provided {@code JanusHandler}. Usually
+	 * this is the point where the state sends specific messages to the Janus
+	 * WebRTC server. The response messages from the Janus server will be
+	 * provided to the {@link #handleMessage(JanusHandler, JanusMessage)}
+	 * method.
+	 *
+	 * @param handler The {@code JanusHandler}.
+	 */
 	void initialize(JanusHandler handler);
 
+	/**
+	 * Process state specific messages received from the Janus WebRTC server.
+	 * Once this state has finished its message handling, it can transition to
+	 * another state by invoking {@link JanusHandler#setState(JanusState)}.
+	 *
+	 * @param handler The {@code JanusHandler}.
+	 * @param message The message to process.
+	 */
 	void handleMessage(JanusHandler handler, JanusMessage message);
 
+	/**
+	 * Check whether the transaction IDs of the messages match. Any response
+	 * message MUST have the same transaction ID as the request message sent to
+	 * the server.
+	 *
+	 * @param sent     The previously sent message.
+	 * @param received The currently received message.
+	 *
+	 * @throws IllegalStateException If the transaction IDs do not match.
+	 */
 	default void checkTransaction(JanusMessage sent, JanusMessage received) {
 		if (!sent.getTransaction().equals(received.getTransaction())) {
 			throw new IllegalStateException("Transactions do not match");
 		}
 	}
 
+	/**
+	 * Log an error occurred within this state.
+	 *
+	 * @param throwable The cause of the error.
+	 * @param message   A concise message describing the error.
+	 */
 	default void logError(Throwable throwable, String message) {
 		LOG.error(message, throwable);
 	}
 
+	/**
+	 * Log a parameterized debugging message.
+	 *
+	 * @param message A concise message describing the debugging step.
+	 * @param args    Arguments specified in the formatted message.
+	 */
 	default void logDebug(String message, Object... args) {
 		LOG.debug(String.format(message, args));
-	}
-
-	default void logDebug(Throwable throwable, String message) {
-		LOG.debug(message, throwable);
 	}
 }

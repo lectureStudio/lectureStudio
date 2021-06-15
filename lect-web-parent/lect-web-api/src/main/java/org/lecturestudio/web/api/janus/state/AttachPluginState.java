@@ -26,31 +26,38 @@ import org.lecturestudio.web.api.janus.message.JanusMessage;
 import org.lecturestudio.web.api.janus.message.JanusPluginAttachMessage;
 import org.lecturestudio.web.api.janus.message.JanusSessionSuccessMessage;
 
+/**
+ * This state binds a Janus server plugin to a Janus session. This is the second
+ * mandatory step for the session establishment with the Janus WebRTC server. By
+ * default this state attaches to the Janus video-room plugin.
+ *
+ * @author Alex Andres
+ */
 public class AttachPluginState implements JanusState {
 
 	private final static String PLUGIN = "janus.plugin.videoroom";
 
-	private JanusMessage attachMessage;
+	private JanusMessage attachRequest;
 
 
 	@Override
 	public void initialize(JanusHandler handler) {
-		attachMessage = new JanusPluginAttachMessage(handler.getSessionId(), PLUGIN);
-		attachMessage.setTransaction(UUID.randomUUID().toString());
+		attachRequest = new JanusPluginAttachMessage(handler.getSessionId(), PLUGIN);
+		attachRequest.setTransaction(UUID.randomUUID().toString());
 
-		handler.sendMessage(attachMessage);
+		handler.sendMessage(attachRequest);
 	}
 
 	@Override
 	public void handleMessage(JanusHandler handler, JanusMessage message) {
-		checkTransaction(attachMessage, message);
+		checkTransaction(attachRequest, message);
 
 		if (message instanceof JanusSessionSuccessMessage) {
 			JanusSessionSuccessMessage success = (JanusSessionSuccessMessage) message;
 
-			logDebug("Janus plugin handle created: %d", success.getId());
+			logDebug("Janus plugin handle created: %d", success.getSessionId());
 
-			handler.setPluginId(success.getId());
+			handler.setPluginId(success.getSessionId());
 			handler.setRoomId(BigInteger.valueOf(1234));
 //			handler.setState(new CreateRoomState());
 			handler.setState(new JoinRoomState());

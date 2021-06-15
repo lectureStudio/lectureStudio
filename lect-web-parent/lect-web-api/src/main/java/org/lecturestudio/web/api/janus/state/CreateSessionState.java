@@ -25,30 +25,36 @@ import org.lecturestudio.web.api.janus.message.JanusMessageType;
 import org.lecturestudio.web.api.janus.message.JanusMessage;
 import org.lecturestudio.web.api.janus.message.JanusSessionSuccessMessage;
 
+/**
+ * This state creates a Janus session. This is the first mandatory step for the
+ * session establishment with the Janus WebRTC server.
+ *
+ * @author Alex Andres
+ */
 public class CreateSessionState implements JanusState {
 
-	private JanusMessage createMessage;
+	private JanusMessage createRequest;
 
 
 	@Override
 	public void initialize(JanusHandler handler) {
-		createMessage = new JanusMessage();
-		createMessage.setEventType(JanusMessageType.CREATE);
-		createMessage.setTransaction(UUID.randomUUID().toString());
+		createRequest = new JanusMessage();
+		createRequest.setEventType(JanusMessageType.CREATE);
+		createRequest.setTransaction(UUID.randomUUID().toString());
 
-		handler.sendMessage(createMessage);
+		handler.sendMessage(createRequest);
 	}
 
 	@Override
 	public void handleMessage(JanusHandler handler, JanusMessage message) {
-		checkTransaction(createMessage, message);
+		checkTransaction(createRequest, message);
 
 		if (message instanceof JanusSessionSuccessMessage) {
 			JanusSessionSuccessMessage success = (JanusSessionSuccessMessage) message;
 
-			logDebug("Janus session created: %d", success.getId());
+			logDebug("Janus session created: %d", success.getSessionId());
 
-			handler.setSessionId(success.getId());
+			handler.setSessionId(success.getSessionId());
 			handler.setState(new AttachPluginState());
 		}
 	}

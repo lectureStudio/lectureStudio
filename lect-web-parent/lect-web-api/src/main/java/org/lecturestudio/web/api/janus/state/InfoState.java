@@ -25,30 +25,38 @@ import org.lecturestudio.web.api.janus.message.JanusMessageType;
 import org.lecturestudio.web.api.janus.message.JanusInfoMessage;
 import org.lecturestudio.web.api.janus.message.JanusMessage;
 
+/**
+ * Usually this is the initial state of the session establishment with the Janus
+ * WebRTC server. This state gathers the server information, e.g. session
+ * relevant settings like the session timeout. This information can then be used
+ * by other states and the {@link JanusHandler}.
+ *
+ * @author Alex Andres
+ */
 public class InfoState implements JanusState {
 
-	private JanusMessage infoMessage;
+	private JanusMessage infoRequest;
 
 
 	@Override
 	public void initialize(JanusHandler handler) {
-		infoMessage = new JanusMessage();
-		infoMessage.setEventType(JanusMessageType.INFO);
-		infoMessage.setTransaction(UUID.randomUUID().toString());
+		infoRequest = new JanusMessage();
+		infoRequest.setEventType(JanusMessageType.INFO);
+		infoRequest.setTransaction(UUID.randomUUID().toString());
 
-		handler.sendMessage(infoMessage);
+		handler.sendMessage(infoRequest);
 	}
 
 	@Override
 	public void handleMessage(JanusHandler handler, JanusMessage message) {
-		checkTransaction(infoMessage, message);
+		checkTransaction(infoRequest, message);
 
 		if (message instanceof JanusInfoMessage) {
-			JanusInfoMessage info = (JanusInfoMessage) message;
+			JanusInfoMessage infoMessage = (JanusInfoMessage) message;
 
-			handler.setInfo(info.getJanusInfo());
+			// We're done here, move forward.
+			handler.setInfo(infoMessage.getJanusInfo());
 			handler.setState(new CreateSessionState());
 		}
 	}
-
 }

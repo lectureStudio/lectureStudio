@@ -4,6 +4,9 @@ public class Room {
     private String id; //id des Raums
     private String name;//Anzeigename des Raums
 
+    public Room(){
+
+    }
 
     public Room(String id, String name) {
         this.id = id;

@@ -28,7 +28,6 @@ public class DLZRoomService {
                     System.out.println(aliases.getRoomName());
                 }
                 catch (WebApplicationException e){
-
                 }
             }
         } catch (

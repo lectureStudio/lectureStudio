@@ -114,6 +114,12 @@ public interface MenuView extends View {
 
 	void setOnShowMessengerWindow(ConsumerAction<Boolean> action);
 
+	void setOnStartDLZ(Action action);
+
+	void setOnStopDLZ(Action action);
+
+	void setOnShowDLZWindow(ConsumerAction<Boolean> action);
+
 	void setOnShowSelectQuizView(Action action);
 
 	void setOnShowNewQuizView(Action action);
@@ -151,6 +157,14 @@ public interface MenuView extends View {
 	void setOnControlCamera(ConsumerAction<Boolean> action);
 
 	void setOnControlCameraSettings(Action action);
+
+	void setOnControlDLZ(ConsumerAction<Boolean> action);
+
+	void setOnControlDLZWindow(ConsumerAction<Boolean> action);
+
+	void setOnControlDLZSettings(Action action);
+
+
 
 	/**
 	 * Bookmarks Menu
@@ -215,4 +229,5 @@ public interface MenuView extends View {
 	void setMessageServiceState(MessageWebServiceState state);
 
 	void setQuizServiceState(QuizWebServiceState state);
+
 }

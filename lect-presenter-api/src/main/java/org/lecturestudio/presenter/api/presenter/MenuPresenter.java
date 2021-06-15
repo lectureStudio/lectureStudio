@@ -363,6 +363,15 @@ public class MenuPresenter extends Presenter<MenuView> {
 		}
 	}
 
+	public void toggleDLZ(boolean start){
+		if(start) {
+			startDLZ();
+		}
+		else{
+			stopDLZ();
+		}
+	}
+
 	public void toggleCamera(boolean start) {
 		if (start) {
 			startCamera();
@@ -482,6 +491,23 @@ public class MenuPresenter extends Presenter<MenuView> {
 		}
 	}
 
+	public void startDLZ(){
+		System.out.println("DLZ-Chat gestartet");
+	}
+
+	public void stopDLZ(){
+		System.out.println("DLZ-Chat gestoppt");
+	}
+
+	public void showDLZWindow(boolean show){
+		if(show){
+			System.out.println("DLZ-Chat anzeigen");
+		}
+		else{
+			System.out.println("DLZ-Chat nicht angezeigt");
+		}
+	}
+
 	public void startCamera() {
 		try {
 			streamService.startCameraStream();
@@ -559,6 +585,10 @@ public class MenuPresenter extends Presenter<MenuView> {
 
 	public void showMessengerSettings() {
 		eventBus.post(new ShowSettingsCommand("web-service"));
+	}
+
+	public void showDLZSettings(){
+		System.out.println("DLZ-Chat Fenster angezeigt");
 	}
 
 	public void showRecordingSettings() {
@@ -677,6 +707,9 @@ public class MenuPresenter extends Presenter<MenuView> {
 		view.setOnShowSelectQuizView(this::selectQuiz);
 		view.setOnShowNewQuizView(this::newQuiz);
 		view.setOnCloseQuiz(this::closeQuiz);
+		view.setOnStartDLZ(this::startDLZ);
+		view.setOnStopDLZ(this::stopDLZ);
+		view.setOnShowDLZWindow(this::showDLZWindow);
 
 		view.setOnControlCamera(this::toggleCamera);
 		view.setOnControlCameraSettings(this::showCameraSettings);
@@ -687,6 +720,9 @@ public class MenuPresenter extends Presenter<MenuView> {
 		view.setOnControlRecordingSettings(this::showRecordingSettings);
 		view.setOnControlStreaming(this::toggleStreaming);
 		view.setOnControlStreamingSettings(this::showStreamingSettings);
+		view.setOnControlMessenger(this::toggleDLZ);
+		view.setOnControlMessengerSettings(this::showDLZSettings);
+		view.setOnControlMessengerWindow(this::showDLZWindow);
 
 		view.setOnClearBookmarks(this::clearBookmarks);
 		view.setOnShowNewBookmarkView(this::newBookmark);

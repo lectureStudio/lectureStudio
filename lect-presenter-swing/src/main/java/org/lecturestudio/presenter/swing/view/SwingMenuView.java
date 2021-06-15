@@ -117,6 +117,8 @@ public class SwingMenuView extends JMenuBar implements MenuView {
 
 	private JCheckBoxMenuItem showMessengerWindowMenuItem;
 
+	private JMenuItem startDLZMenuItem;
+
 	private JMenuItem selectQuizMenuItem;
 
 	private JMenuItem newQuizMenuItem;
@@ -172,6 +174,7 @@ public class SwingMenuView extends JMenuBar implements MenuView {
 			startRecordingMenuItem.setEnabled(hasDocument);
 			startStreamingMenuItem.setEnabled(hasDocument);
 			startMessengerMenuItem.setEnabled(hasDocument);
+			startDLZMenuItem.setEnabled(hasDocument);
 		});
 	}
 
@@ -354,6 +357,21 @@ public class SwingMenuView extends JMenuBar implements MenuView {
 	}
 
 	@Override
+	public void setOnStartDLZ(Action action) {
+		SwingUtils.bindAction(startMessengerMenuItem, action);
+	}
+
+	@Override
+	public void setOnStopDLZ(Action action) {
+		SwingUtils.bindAction(stopMessengerMenuItem, action);
+	}
+
+	@Override
+	public void setOnShowDLZWindow(ConsumerAction<Boolean> action) {
+		SwingUtils.bindAction(showMessengerWindowMenuItem, action);
+	}
+
+	@Override
 	public void setOnShowSelectQuizView(Action action) {
 		SwingUtils.bindAction(selectQuizMenuItem, action);
 	}
@@ -466,6 +484,21 @@ public class SwingMenuView extends JMenuBar implements MenuView {
 
 	@Override
 	public void setOnControlCameraSettings(Action action) {
+
+	}
+
+	@Override
+	public void setOnControlDLZ(ConsumerAction<Boolean> action) {
+
+	}
+
+	@Override
+	public void setOnControlDLZWindow(ConsumerAction<Boolean> action) {
+
+	}
+
+	@Override
+	public void setOnControlDLZSettings(Action action) {
 
 	}
 

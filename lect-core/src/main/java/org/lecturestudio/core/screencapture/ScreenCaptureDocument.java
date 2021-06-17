@@ -24,6 +24,7 @@ import org.lecturestudio.core.geometry.Rectangle2D;
 import org.lecturestudio.core.model.DocumentOutline;
 import org.lecturestudio.core.model.DocumentOutlineItem;
 import org.lecturestudio.core.pdf.DocumentRenderer;
+import org.lecturestudio.core.util.ImageUtils;
 import org.lecturestudio.core.util.ScreenCaptureUtils;
 
 import java.awt.geom.AffineTransform;
@@ -82,7 +83,7 @@ public class ScreenCaptureDocument {
         int pageNumber = getPageCount();
 
         // Create empty image of requested size
-        BufferedImage image = ScreenCaptureUtils.createBufferedImage((int) size.getWidth(), (int) size.getHeight());
+        BufferedImage image = ImageUtils.createBufferedImage((int) size.getWidth(), (int) size.getHeight());
 
         // Add image to pageFrames and request actual frame of page
         pageFrames.add(image);

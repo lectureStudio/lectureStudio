@@ -20,6 +20,7 @@ package org.lecturestudio.presenter.swing.view;
 
 import dev.onvoid.webrtc.media.video.desktop.DesktopSource;
 import dev.onvoid.webrtc.media.video.desktop.DesktopSourceType;
+import org.lecturestudio.core.util.ImageUtils;
 import org.lecturestudio.core.view.Action;
 import org.lecturestudio.presenter.api.view.ScreenCaptureSourceSelectionView;
 import org.lecturestudio.swing.components.ImageView;
@@ -86,27 +87,40 @@ public class SwingScreenCaptureSourceSelectionView extends JPanel implements Scr
 
     @Override
     public void addDesktopSource(DesktopSource source, DesktopSourceType type) {
-        SourcePreview preview = previewMap.getOrDefault(source.id, null);
-        if (preview == null) {
-            preview = new SourcePreview(source, type);
-            preview.setMouseListener(previewMouseListener);
-            previewMap.put(source.id, preview);
-            addPreviewToContainer(preview, type);
-        } else {
-            preview.setWindowTitle(source.title);
 
-            DesktopSourceType currentType = preview.getType();
-            if (currentType != type) {
-                removeDesktopSource(source, currentType);
+        System.out.println("Add Source: " + source.title);
+
+        SwingUtils.invoke(() -> {
+            SourcePreview preview = previewMap.getOrDefault(source.id, null);
+            if (preview == null) {
+                preview = new SourcePreview(source, type);
+                preview.setMouseListener(previewMouseListener);
+                previewMap.put(source.id, preview);
                 addPreviewToContainer(preview, type);
+            } else {
+                preview.setWindowTitle(source.title);
+
+                DesktopSourceType currentType = preview.getType();
+                if (currentType != type) {
+                    addPreviewToContainer(preview, type);
+                }
+                preview.setType(type);
             }
-            preview.setType(type);
-        }
+        });
     }
 
     @Override
     public void removeDesktopSource(DesktopSource source, DesktopSourceType type) {
 
+        System.out.println("Remove Source: " + source.title);
+
+        SwingUtils.invoke(() -> {
+           SourcePreview preview = previewMap.get(source.id);
+           if (preview != null) {
+               removePreviewFromContainer(preview, type);
+               previewMap.remove(source.id);
+           }
+        });
     }
 
     @Override
@@ -165,12 +179,35 @@ public class SwingScreenCaptureSourceSelectionView extends JPanel implements Scr
     }
 
     private void addPreviewToContainer(SourcePreview preview, DesktopSourceType type) {
+        JPanel container = getContainerComponent(type);
+        container.add(preview);
+        container.revalidate();
+        container.repaint();
+    }
+
+    private void removePreviewFromContainer(SourcePreview preview, DesktopSourceType type) {
+        JPanel container = getContainerComponent(type);
+
+        Component[] components = container.getComponents();
+        for (Component component : components) {
+            if (component instanceof SourcePreview) {
+                SourcePreview previewComponent = (SourcePreview) component;
+                if (preview.equals(previewComponent)) {
+                    container.remove(previewComponent);
+                }
+            }
+        }
+
+        container.revalidate();
+        container.repaint();
+    }
+
+    private JPanel getContainerComponent(DesktopSourceType type) {
         switch (type) {
             case WINDOW:
-                windowSelectionContainer.add(preview);
-                break;
             case SCREEN:
-//                screenSelectionContainer.add(preview);
+            default:
+                return windowSelectionContainer;
         }
     }
 
@@ -179,6 +216,8 @@ public class SwingScreenCaptureSourceSelectionView extends JPanel implements Scr
     private static class SourcePreview extends JPanel {
 
         private final static int MAX_TITLE_LENGTH = 40;
+        private final static int PREVIEW_IMG_WIDTH = 250;
+        private final static int PREVIEW_IMG_HEIGHT = 140;
 
         private final static Border ACTIVE_BORDER = new LineBorder(Color.red, 3);
         private final static Border DEFAULT_BORDER = new EmptyBorder(3, 3, 3, 3);
@@ -227,13 +266,16 @@ public class SwingScreenCaptureSourceSelectionView extends JPanel implements Scr
             setPreferredSize(new Dimension(250, 165));
 
             imageView = new ImageView();
-            imageView.setPreferredSize(new Dimension(250, 140));
-            imageView.setMinimumSize(new Dimension(250, 140));
+            imageView.setPreferredSize(new Dimension(PREVIEW_IMG_WIDTH, PREVIEW_IMG_HEIGHT));
+            imageView.setMinimumSize(new Dimension(PREVIEW_IMG_WIDTH, PREVIEW_IMG_HEIGHT));
             imageView.setBorder(DEFAULT_BORDER);
+
+            BufferedImage placeholderImage = ImageUtils.createBufferedImage(PREVIEW_IMG_WIDTH, PREVIEW_IMG_HEIGHT, Color.lightGray);
+            imageView.setImage(placeholderImage);
 
             titleLabel = new JLabel();
             titleLabel.setVerticalAlignment(SwingConstants.CENTER);
-            titleLabel.setPreferredSize(new Dimension(250, 25));
+            titleLabel.setPreferredSize(new Dimension(PREVIEW_IMG_WIDTH, 25));
             titleLabel.setFont(new Font(titleLabel.getFont().getName(), Font.BOLD, 14));
 
             setWindowTitle(source.title);

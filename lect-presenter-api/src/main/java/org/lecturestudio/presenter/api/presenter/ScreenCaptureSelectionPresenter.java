@@ -20,31 +20,33 @@ package org.lecturestudio.presenter.api.presenter;
 
 import dev.onvoid.webrtc.media.video.desktop.DesktopSource;
 import dev.onvoid.webrtc.media.video.desktop.DesktopSourceType;
-import dev.onvoid.webrtc.media.video.desktop.WindowCapturer;
 import org.lecturestudio.core.app.ApplicationContext;
 import org.lecturestudio.core.presenter.Presenter;
 import org.lecturestudio.core.service.DocumentService;
-import org.lecturestudio.core.util.ScreenCaptureUtils;
+import org.lecturestudio.core.service.ScreenCaptureService;
 import org.lecturestudio.core.view.ViewLayer;
-import org.lecturestudio.presenter.api.service.ScreenCaptureService;
 import org.lecturestudio.presenter.api.view.ScreenCaptureSourceSelectionView;
 
 import javax.inject.Inject;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
 
-public class ScreenCaptureSelectionPresenter extends Presenter<ScreenCaptureSourceSelectionView> implements ScreenCaptureService.ScreenCaptureSourceListChangeListener {
+public class ScreenCaptureSelectionPresenter extends Presenter<ScreenCaptureSourceSelectionView> implements ScreenCaptureService.DesktopSourceListListener {
 
     private final DocumentService documentService;
+    private final ScreenCaptureService screenCaptureService;
+
+    private List<DesktopSource> sources = new ArrayList<>();
 
     @Inject
-    public ScreenCaptureSelectionPresenter(ApplicationContext context, ScreenCaptureSourceSelectionView view, DocumentService documentService) {
+    public ScreenCaptureSelectionPresenter(ApplicationContext context, ScreenCaptureSourceSelectionView view, DocumentService documentService, ScreenCaptureService screenCaptureService) {
         super(context, view);
         this.documentService = documentService;
-
-        WindowCapturer capturer = new WindowCapturer();
+        this.screenCaptureService = screenCaptureService;
 
         // Populate view with window sources once at startup
-        OnDesktopSourceListChange(capturer.getDesktopSources(), DesktopSourceType.WINDOW);
+        // OnDesktopSourceListChange(capturer.getDesktopSources(), DesktopSourceType.WINDOW);
         // OnDesktopSourceListChange(service.getScreenSources(), DesktopSourceType.SCREEN);
     }
 
@@ -52,6 +54,13 @@ public class ScreenCaptureSelectionPresenter extends Presenter<ScreenCaptureSour
     public void initialize() {
         view.setOnOk(this::confirmSelection);
         view.setOnClose(this::close);
+
+        System.out.println("Initialize");
+
+        screenCaptureService.removeSourceListListener(this);
+        screenCaptureService.addSourceListListener(this);
+
+        // onDesktopSourceListChange(screenCaptureService.getDesktopSources());
     }
 
     @Override
@@ -59,15 +68,6 @@ public class ScreenCaptureSelectionPresenter extends Presenter<ScreenCaptureSour
         return ViewLayer.Notification;
     }
 
-    @Override
-    public void OnDesktopSourceListChange(List<DesktopSource> sources, DesktopSourceType type) {
-        for (DesktopSource source : sources) {
-            view.addDesktopSource(source, type);
-
-            // TODO: Find a way to capture preview frames asynchronous
-            ScreenCaptureUtils.requestFrame(source, image -> view.updateSourcePreviewImage(source, image));
-        }
-    }
 
     private void confirmSelection() {
         DesktopSource selectedSource = view.getSelectedSource();
@@ -75,5 +75,36 @@ public class ScreenCaptureSelectionPresenter extends Presenter<ScreenCaptureSour
             documentService.addScreenCapture(selectedSource).join();
         }
         close();
+    }
+
+    @Override
+    public void onDesktopSourceListChange(List<DesktopSource> newSources) {
+        // Find all source which were opened since the last update
+        List<DesktopSource> sourcesToAdd = new ArrayList<>(newSources);
+        sourcesToAdd.removeAll(sources);
+
+        List<CompletableFuture<Void>> captureTasks = new ArrayList<>();
+
+        // Add new sources to the view
+        for (DesktopSource source : sourcesToAdd) {
+            view.addDesktopSource(source, DesktopSourceType.WINDOW);
+            screenCaptureService.addScreenCaptureListener(source, view::updateSourcePreviewImage);
+            captureTasks.add(screenCaptureService.requestFrame(source));
+        }
+
+        // Find all sources which were closed since the last update
+        List<DesktopSource> sourcesToRemove = new ArrayList<>(sources);
+        sourcesToRemove.removeAll(newSources);
+
+        // Remove old sources from the view
+        for (DesktopSource source : sourcesToRemove) {
+            view.removeDesktopSource(source, DesktopSourceType.WINDOW);
+            screenCaptureService.removeScreenCaptureListener(source, view::updateSourcePreviewImage);
+        }
+
+        sources = newSources;
+
+        // Wait for all capture tasks to complete
+        CompletableFuture.allOf(captureTasks.toArray(new CompletableFuture[0])).join();
     }
 }

@@ -42,7 +42,7 @@ import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 @Singleton
-public class ScreenCaptureService {
+public class ScreenCaptureServiceOld {
 
     public enum CaptureMode {
         WINDOW, SCREEN
@@ -72,7 +72,7 @@ public class ScreenCaptureService {
     private Muxer muxer;
 
     @Inject
-    public ScreenCaptureService(ApplicationContext context, DocumentService documentService) {
+    public ScreenCaptureServiceOld(ApplicationContext context, DocumentService documentService) {
         this.context = context;
         this.documentService = documentService;
 

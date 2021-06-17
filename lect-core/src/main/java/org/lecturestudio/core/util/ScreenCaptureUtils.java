@@ -23,9 +23,8 @@ import dev.onvoid.webrtc.media.video.desktop.DesktopFrame;
 import dev.onvoid.webrtc.media.video.desktop.DesktopSource;
 import dev.onvoid.webrtc.media.video.desktop.WindowCapturer;
 
-import java.awt.*;
-import java.awt.color.ColorSpace;
-import java.awt.image.*;
+import java.awt.image.BufferedImage;
+import java.awt.image.DataBufferByte;
 
 public class ScreenCaptureUtils {
 
@@ -48,7 +47,7 @@ public class ScreenCaptureUtils {
     }
 
     public static BufferedImage convertFrame(DesktopFrame frame, int width, int height) {
-        BufferedImage image = createBufferedImage(width, height);
+        BufferedImage image = ImageUtils.createBufferedImage(width, height);
         DataBufferByte byteBuffer = (DataBufferByte) image.getRaster().getDataBuffer();
         frame.buffer.get(byteBuffer.getData());
 
@@ -98,22 +97,6 @@ public class ScreenCaptureUtils {
 //        }
 //        return false;
 //    }
-
-    public static BufferedImage createBufferedImage(int width, int height) {
-        ColorSpace cs = ColorSpace.getInstance(ColorSpace.CS_sRGB);
-        int[] nBits = { 8, 8, 8, 8 };
-        int[] bOffs = { 2, 1, 0, 3 }; // bgra
-        ColorModel colorModel = new ComponentColorModel(cs, nBits, true, false,
-                Transparency.TRANSLUCENT,
-                DataBuffer.TYPE_BYTE);
-
-        WritableRaster wr = Raster.createInterleavedRaster(DataBuffer.TYPE_BYTE,
-                width, height,
-                width * 4, 4,
-                bOffs, null);
-
-        return new BufferedImage(colorModel, wr, false, null);
-    }
 
     public interface ScreenCaptureCallback {
 

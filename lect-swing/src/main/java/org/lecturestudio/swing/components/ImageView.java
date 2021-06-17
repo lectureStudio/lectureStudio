@@ -19,7 +19,7 @@
 package org.lecturestudio.swing.components;
 
 import dev.onvoid.webrtc.media.video.desktop.DesktopFrame;
-import org.lecturestudio.core.util.ScreenCaptureUtils;
+import org.lecturestudio.core.util.ImageUtils;
 import org.opencv.core.CvType;
 import org.opencv.core.Mat;
 import org.opencv.core.Size;
@@ -59,7 +59,7 @@ public class ImageView extends JComponent {
         int viewHeight = getPreferredSize().height;
 
         // Copy frame byte buffer into a buffered image.
-        BufferedImage frameImage = ScreenCaptureUtils.createBufferedImage(width, height);
+        BufferedImage frameImage = ImageUtils.createBufferedImage(width, height);
 
         DataBuffer imageBuffer = frameImage.getRaster().getDataBuffer();
         DataBufferByte byteBuffer = (DataBufferByte) imageBuffer;
@@ -71,7 +71,7 @@ public class ImageView extends JComponent {
                 viewHeight);
 
         if (isNull(image) || image.getWidth() != rect.width || image.getHeight() != rect.height) {
-            image = ScreenCaptureUtils.createBufferedImage(rect.width, rect.height);
+            image = ImageUtils.createBufferedImage(rect.width, rect.height);
         }
 
         scaleOpenCv(frameImage, rect.width, rect.height);

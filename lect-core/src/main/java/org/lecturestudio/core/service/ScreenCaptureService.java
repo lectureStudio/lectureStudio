@@ -18,6 +18,7 @@
 
 package org.lecturestudio.core.service;
 
+import dev.onvoid.webrtc.PeerConnectionFactory;
 import dev.onvoid.webrtc.media.video.desktop.*;
 import org.lecturestudio.core.app.ApplicationContext;
 import org.lecturestudio.core.bus.EventBus;
@@ -42,10 +43,15 @@ public class ScreenCaptureService {
     private final WindowCapturer windowCapturer = new WindowCapturer();
     private final ScreenCapturer screenCapturer = new ScreenCapturer();
 
-    private final List<ScreenCaptureListener> listeners = new ArrayList<>();
+    private final List<ScreenCaptureCallback> listeners = new ArrayList<>();
 
     private List<DesktopSource> windowSources;
     private List<DesktopSource> screenSources;
+
+    static {
+        // Make sure to load native library
+        new PeerConnectionFactory();
+    }
 
     @Inject
     public ScreenCaptureService(ApplicationContext context) {
@@ -74,7 +80,7 @@ public class ScreenCaptureService {
 
 
 
-    public void addScreenCaptureListener(ScreenCaptureListener listener) {
+    public void addScreenCaptureListener(ScreenCaptureCallback listener) {
         if (!listeners.contains(listener)) {
             listeners.add(listener);
         }
@@ -84,7 +90,7 @@ public class ScreenCaptureService {
 //        screenCaptures.put(source.id, capture);
     }
 
-    public void removeScreenCaptureListener(ScreenCaptureListener listener) {
+    public void removeScreenCaptureListener(ScreenCaptureCallback listener) {
         listeners.remove(listener);
 
 //        ScreenCapture capture = screenCaptures.getOrDefault(source.id, null);
@@ -98,6 +104,18 @@ public class ScreenCaptureService {
         ScreenCapture capture = screenCaptures.getOrDefault(source.id, new ScreenCapture(source, type));
         capture.requestFrame();
         screenCaptures.put(source.id, capture);
+    }
+
+    public void requestFrame(DesktopSource source, DesktopSourceType type, ScreenCaptureCallback callback) {
+        DesktopCapturer capturer = (type == DesktopSourceType.WINDOW) ? new WindowCapturer() : new ScreenCapturer();
+        capturer.selectSource(source);
+        capturer.start((result, frame) -> {
+            if (result == DesktopCapturer.Result.SUCCESS) {
+                BufferedImage image = ImageUtils.convertDesktopFrame(frame, frame.frameSize.width, frame.frameSize.height);
+                callback.onFrameCapture(source, image);
+            }
+        });
+        capturer.captureFrame();
     }
 
     private void setupSourceRefreshTimer() {
@@ -123,14 +141,14 @@ public class ScreenCaptureService {
     }
 
     private void notifyListeners(DesktopSource source, BufferedImage image) {
-        for (ScreenCaptureListener listener : listeners) {
+        for (ScreenCaptureCallback listener : listeners) {
             listener.onFrameCapture(source, image);
         }
     }
 
 
 
-    public interface ScreenCaptureListener {
+    public interface ScreenCaptureCallback {
         void onFrameCapture(DesktopSource source, BufferedImage image);
     }
 
@@ -187,13 +205,13 @@ public class ScreenCaptureService {
             }
         }
 
-        public void addListener(ScreenCaptureListener listener) {
+        public void addListener(ScreenCaptureCallback listener) {
             if (!listeners.contains(listener)) {
                 listeners.add(listener);
             }
         }
 
-        public void removeListener(ScreenCaptureListener listener) {
+        public void removeListener(ScreenCaptureCallback listener) {
             listeners.remove(listener);
         }
 

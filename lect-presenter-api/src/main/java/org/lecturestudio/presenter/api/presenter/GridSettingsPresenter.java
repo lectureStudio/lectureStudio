@@ -62,7 +62,7 @@ public class GridSettingsPresenter extends Presenter<GridSettingsView> {
 
 			Page whiteboardPage = whiteboard.getCurrentPage();
 
-			PresentationParameterProvider ppProvider = context.getPagePropertyPropvider(ViewType.User);
+			PresentationParameterProvider ppProvider = context.getPagePropertyProvider(ViewType.User);
 			ppProvider.addParameterChangeListener(new ParameterChangeListener() {
 
 				@Override

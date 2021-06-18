@@ -61,6 +61,7 @@ public class SwingScreenCaptureSourceSelectionView extends JPanel implements Scr
     private final Map<Long, SourcePreview> previewMap = new HashMap<>();
 
     private final MouseListener previewMouseListener;
+
     private SourcePreview selectedPreview;
 
     @Inject
@@ -135,8 +136,8 @@ public class SwingScreenCaptureSourceSelectionView extends JPanel implements Scr
     }
 
     @Override
-    public DesktopSource getSelectedSource() {
-        return selectedPreview != null ? selectedPreview.getSource() : null;
+    public SelectedDesktopSource getSelectedDesktopSource() {
+        return selectedPreview;
     }
 
     @Override
@@ -255,7 +256,7 @@ public class SwingScreenCaptureSourceSelectionView extends JPanel implements Scr
     }
 
 
-    private static class SourcePreview extends JPanel {
+    private static class SourcePreview extends JPanel implements SelectedDesktopSource {
 
         private final static int MAX_TITLE_LENGTH = 40;
         private final static int PREVIEW_IMG_WIDTH = 250;

@@ -98,7 +98,7 @@ public class Document {
 
 	public Document(ScreenCaptureDocument screenCaptureDocument) {
 		initScreenCapture(screenCaptureDocument);
-		setPageSize(new Dimension2D(640, 480));
+		setPageSize(new Dimension2D(1280, 960));
 	}
 
 	public DocumentOutline getDocumentOutline() {
@@ -585,6 +585,7 @@ public class Document {
 		this.screenCaptureDocument = screenCaptureDocument;
 		setDocumentType(DocumentType.SCREEN_CAPTURE);
 		setTitle(screenCaptureDocument.getTitle());
+
 
 		loadPages();
 	}

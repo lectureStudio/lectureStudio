@@ -238,7 +238,7 @@ public class MenuPresenter extends Presenter<MenuView> {
 			PdfDocumentRenderer documentRenderer = new PdfDocumentRenderer();
 			documentRenderer.setDocuments(List.of(document));
 			documentRenderer.setPages(document.getPages());
-			documentRenderer.setParameterProvider(dummyContext.getPagePropertyPropvider(ViewType.User));
+			documentRenderer.setParameterProvider(dummyContext.getPagePropertyProvider(ViewType.User));
 			documentRenderer.setProgressCallback(progressView::setProgress);
 			documentRenderer.setOutputFile(file);
 			documentRenderer.setPageScale(true);

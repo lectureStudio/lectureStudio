@@ -18,16 +18,6 @@
 
 package org.lecturestudio.editor.api.video;
 
-import static java.util.Objects.isNull;
-import static java.util.Objects.nonNull;
-
-import java.awt.Graphics2D;
-import java.awt.GraphicsConfiguration;
-import java.awt.GraphicsEnvironment;
-import java.awt.geom.AffineTransform;
-import java.awt.image.BufferedImage;
-import java.util.concurrent.atomic.AtomicBoolean;
-
 import org.lecturestudio.core.PageMetrics;
 import org.lecturestudio.core.app.ApplicationContext;
 import org.lecturestudio.core.controller.RenderController;
@@ -42,6 +32,14 @@ import org.lecturestudio.core.view.PresentationParameter;
 import org.lecturestudio.core.view.PresentationParameterProvider;
 import org.lecturestudio.core.view.SlideView;
 import org.lecturestudio.core.view.ViewType;
+
+import java.awt.*;
+import java.awt.geom.AffineTransform;
+import java.awt.image.BufferedImage;
+import java.util.concurrent.atomic.AtomicBoolean;
+
+import static java.util.Objects.isNull;
+import static java.util.Objects.nonNull;
 
 /**
  *
@@ -86,7 +84,7 @@ public class VideoRendererView implements SlideView, ShapeListener, ParameterCha
 		image = gConf.createCompatibleImage(width, height);
 		image.setAccelerationPriority(1.0f);
 
-		PresentationParameterProvider ppProvider = context.getPagePropertyPropvider(viewType);
+		PresentationParameterProvider ppProvider = context.getPagePropertyProvider(viewType);
 		ppProvider.addParameterChangeListener(this);
 	}
 

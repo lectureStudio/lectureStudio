@@ -320,7 +320,7 @@ public class ToolbarPresenter extends Presenter<ToolbarView> {
 		PresentationParameter parameter = null;
 
 		if (nonNull(page)) {
-			PresentationParameterProvider ppProvider = context.getPagePropertyPropvider(ViewType.User);
+			PresentationParameterProvider ppProvider = context.getPagePropertyProvider(ViewType.User);
 			parameter = ppProvider.getParameter(page);
 		}
 
@@ -401,7 +401,7 @@ public class ToolbarPresenter extends Presenter<ToolbarView> {
 		view.setOnStopRecording(this::stopRecording);
 
 		// Register for page parameter change updates.
-		PresentationParameterProvider ppProvider = context.getPagePropertyPropvider(ViewType.User);
+		PresentationParameterProvider ppProvider = context.getPagePropertyProvider(ViewType.User);
 		ppProvider.addParameterChangeListener(new ParameterChangeListener() {
 
 			@Override

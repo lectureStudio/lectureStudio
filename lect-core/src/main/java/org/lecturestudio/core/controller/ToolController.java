@@ -18,27 +18,12 @@
 
 package org.lecturestudio.core.controller;
 
-import static java.util.Objects.isNull;
-import static java.util.Objects.nonNull;
-
 import com.google.common.eventbus.Subscribe;
-
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
-import javax.inject.Inject;
-import javax.inject.Singleton;
-
 import org.lecturestudio.core.ExecutableException;
 import org.lecturestudio.core.app.ApplicationContext;
 import org.lecturestudio.core.app.configuration.GridConfiguration;
 import org.lecturestudio.core.app.configuration.ToolConfiguration;
-import org.lecturestudio.core.bus.event.BusEvent;
-import org.lecturestudio.core.bus.event.DocumentEvent;
-import org.lecturestudio.core.bus.event.PageEvent;
-import org.lecturestudio.core.bus.event.RecordActionEvent;
-import org.lecturestudio.core.bus.event.ToolSelectionEvent;
+import org.lecturestudio.core.bus.event.*;
 import org.lecturestudio.core.geometry.Matrix;
 import org.lecturestudio.core.geometry.PenPoint2D;
 import org.lecturestudio.core.geometry.Point2D;
@@ -56,42 +41,19 @@ import org.lecturestudio.core.service.DocumentService;
 import org.lecturestudio.core.text.Font;
 import org.lecturestudio.core.text.TeXFont;
 import org.lecturestudio.core.text.TextAttributes;
-import org.lecturestudio.core.tool.ArrowTool;
-import org.lecturestudio.core.tool.CloneTool;
-import org.lecturestudio.core.tool.DeleteAllTool;
-import org.lecturestudio.core.tool.EllipseTool;
-import org.lecturestudio.core.tool.ExtendViewTool;
-import org.lecturestudio.core.tool.HighlighterTool;
-import org.lecturestudio.core.tool.LatexTool;
-import org.lecturestudio.core.tool.LatexToolSettings;
-import org.lecturestudio.core.tool.LineTool;
-import org.lecturestudio.core.tool.PaintSettings;
-import org.lecturestudio.core.tool.PanningTool;
-import org.lecturestudio.core.tool.ShapeModifyEvent;
-import org.lecturestudio.core.tool.ShapePaintEvent;
-import org.lecturestudio.core.tool.ToolContext;
-import org.lecturestudio.core.tool.PenTool;
-import org.lecturestudio.core.tool.PointerTool;
-import org.lecturestudio.core.tool.RectangleTool;
-import org.lecturestudio.core.tool.RedoTool;
-import org.lecturestudio.core.tool.RubberTool;
-import org.lecturestudio.core.tool.SelectGroupTool;
-import org.lecturestudio.core.tool.SelectTool;
-import org.lecturestudio.core.tool.StrokeSettings;
-import org.lecturestudio.core.tool.TextSelectionSettings;
-import org.lecturestudio.core.tool.TextSelectionTool;
-import org.lecturestudio.core.tool.TextSettings;
-import org.lecturestudio.core.tool.TextTool;
-import org.lecturestudio.core.tool.Tool;
-import org.lecturestudio.core.tool.ToolEvent;
-import org.lecturestudio.core.tool.ToolEventType;
-import org.lecturestudio.core.tool.ToolType;
-import org.lecturestudio.core.tool.UndoTool;
-import org.lecturestudio.core.tool.ZoomOutTool;
-import org.lecturestudio.core.tool.ZoomTool;
+import org.lecturestudio.core.tool.*;
 import org.lecturestudio.core.view.PresentationParameter;
 import org.lecturestudio.core.view.PresentationParameterProvider;
 import org.lecturestudio.core.view.ViewType;
+
+import javax.inject.Inject;
+import javax.inject.Singleton;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import static java.util.Objects.isNull;
+import static java.util.Objects.nonNull;
 
 /**
  * Controller for actions related to the current Page of the current Document.
@@ -189,7 +151,7 @@ public class ToolController extends Controller implements ToolContext {
 			return;
 		}
 
-		PresentationParameterProvider ppProvider = getContext().getPagePropertyPropvider(ViewType.User);
+		PresentationParameterProvider ppProvider = getContext().getPagePropertyProvider(ViewType.User);
 
 		boolean hasZoom = ppProvider.getParameter(event.getPage()).isZoomMode();
 
@@ -278,7 +240,7 @@ public class ToolController extends Controller implements ToolContext {
 
 	@Override
 	public PresentationParameterProvider getPresentationParameterProvider(ViewType viewType) {
-		return getContext().getPagePropertyPropvider(viewType);
+		return getContext().getPagePropertyProvider(viewType);
 	}
 
 	/**
@@ -651,15 +613,15 @@ public class ToolController extends Controller implements ToolContext {
 		}
 
 		// Zoom on user view and presentation view
-		PresentationParameterProvider ppp = getContext().getPagePropertyPropvider(ViewType.User);
+		PresentationParameterProvider ppp = getContext().getPagePropertyProvider(ViewType.User);
 		PresentationParameter param = ppp.getParameter(page);
 		param.zoom(rect);
 
-		ppp = getContext().getPagePropertyPropvider(ViewType.Preview);
+		ppp = getContext().getPagePropertyProvider(ViewType.Preview);
 		param = ppp.getParameter(page);
 		param.zoom(rect);
 
-		ppp = getContext().getPagePropertyPropvider(ViewType.Presentation);
+		ppp = getContext().getPagePropertyProvider(ViewType.Presentation);
 		param = ppp.getParameter(page);
 		param.zoom(rect);
 	}
@@ -870,7 +832,7 @@ public class ToolController extends Controller implements ToolContext {
 	public void toggleGrid() {
 		Document selectedDoc = documentService.getDocuments().getSelectedDocument();
 
-		PresentationParameterProvider provider = getContext().getPagePropertyPropvider(ViewType.User);
+		PresentationParameterProvider provider = getContext().getPagePropertyProvider(ViewType.User);
 		PresentationParameter param = provider.getParameter(selectedDoc.getCurrentPage());
 
 		// Toggle
@@ -881,7 +843,7 @@ public class ToolController extends Controller implements ToolContext {
 		GridConfiguration gridConfig = getConfig().getGridConfig();
 
 		if (gridConfig.getShowGridOnDisplays()) {
-			provider = getContext().getPagePropertyPropvider(ViewType.Presentation);
+			provider = getContext().getPagePropertyProvider(ViewType.Presentation);
 			param = provider.getParameter(selectedDoc.getCurrentPage());
 
 			// Sync with user's view.
@@ -990,7 +952,7 @@ public class ToolController extends Controller implements ToolContext {
 			return 1;
 		}
 
-		PresentationParameterProvider ppp = getContext().getPagePropertyPropvider(ViewType.User);
+		PresentationParameterProvider ppp = getContext().getPagePropertyProvider(ViewType.User);
 		PresentationParameter para = ppp.getParameter(doc.getCurrentPage());
 
 		return 1 / (1 / para.getPageRect().getWidth());
@@ -1030,7 +992,7 @@ public class ToolController extends Controller implements ToolContext {
 		}
 
 		Page page = doc.getCurrentPage();
-		PresentationParameterProvider ppp = getContext().getPagePropertyPropvider(ViewType.User);
+		PresentationParameterProvider ppp = getContext().getPagePropertyProvider(ViewType.User);
 		PresentationParameter para = ppp.getParameter(page);
 
 		return para.isZoomMode();

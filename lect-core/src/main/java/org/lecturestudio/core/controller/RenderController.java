@@ -69,7 +69,7 @@ public class RenderController extends Controller {
 	 */
 	public void renderShapes(GraphicsContext gc, ViewType viewType, Dimension2D imageSize, Page page, List<Shape> shapes) {
 		try {
-			final PresentationParameterProvider ppProvider = getContext().getPagePropertyPropvider(viewType);
+			final PresentationParameterProvider ppProvider = getContext().getPagePropertyProvider(viewType);
 			final PresentationParameter parameter = ppProvider.getParameter(page);
 
 			Rectangle2D pageRect = parameter.getViewRect();
@@ -94,7 +94,7 @@ public class RenderController extends Controller {
 	 */
 	public void renderPage(BufferedImage image, Page page, ViewType viewType) {
 		try {
-			final PresentationParameterProvider ppProvider = getContext().getPagePropertyPropvider(viewType);
+			final PresentationParameterProvider ppProvider = getContext().getPagePropertyProvider(viewType);
 			final PresentationParameter parameter = ppProvider.getParameter(page);
 
 			page.getDocument().getDocumentRenderer().render(page, parameter, image);

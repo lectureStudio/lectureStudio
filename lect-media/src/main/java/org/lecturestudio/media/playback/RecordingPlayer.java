@@ -399,15 +399,15 @@ public class RecordingPlayer extends ExecutableBase {
 	
 	private void resetView(Page page) {
 		// Reset presentation on all view types.
-		PresentationParameterProvider ppp = context.getPagePropertyPropvider(ViewType.User);
+		PresentationParameterProvider ppp = context.getPagePropertyProvider(ViewType.User);
 		PresentationParameter para = ppp.getParameter(page);
 		para.resetPageRect();
 
-		ppp = context.getPagePropertyPropvider(ViewType.Presentation);
+		ppp = context.getPagePropertyProvider(ViewType.Presentation);
 		para = ppp.getParameter(page);
 		para.resetPageRect();
 
-		ppp = context.getPagePropertyPropvider(ViewType.Preview);
+		ppp = context.getPagePropertyProvider(ViewType.Preview);
 		para = ppp.getParameter(page);
 		para.resetPageRect();
 	}
@@ -426,7 +426,7 @@ public class RecordingPlayer extends ExecutableBase {
 		}
 		
 		// Reset page parameters.
-		context.getPagePropertyPropvider(ViewType.User).clearParameters();
+		context.getPagePropertyProvider(ViewType.User).clearParameters();
 
 		preloadDocument(document, recording.getRecordedEvents());
 
@@ -445,7 +445,7 @@ public class RecordingPlayer extends ExecutableBase {
 		
 		resetView(page);
 		
-		context.getPagePropertyPropvider(ViewType.User).clearParameter(page);
+		context.getPagePropertyProvider(ViewType.User).clearParameter(page);
 		
 		// Load static page shapes.
 		RecordedPage recPage = recording

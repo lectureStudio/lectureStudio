@@ -18,35 +18,14 @@
 
 package org.lecturestudio.core.controller;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertNotEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-
-import java.io.IOException;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.concurrent.ThreadLocalRandom;
-
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.lecturestudio.core.CoreTest;
 import org.lecturestudio.core.app.configuration.ToolConfiguration;
-import org.lecturestudio.core.geometry.Dimension2D;
-import org.lecturestudio.core.geometry.GeometryUtils;
-import org.lecturestudio.core.geometry.PenPoint2D;
-import org.lecturestudio.core.geometry.Point2D;
-import org.lecturestudio.core.geometry.Rectangle2D;
+import org.lecturestudio.core.geometry.*;
 import org.lecturestudio.core.model.Document;
 import org.lecturestudio.core.model.Page;
-import org.lecturestudio.core.model.shape.ArrowShape;
-import org.lecturestudio.core.model.shape.EllipseShape;
-import org.lecturestudio.core.model.shape.LineShape;
-import org.lecturestudio.core.model.shape.PenShape;
-import org.lecturestudio.core.model.shape.PointerShape;
-import org.lecturestudio.core.model.shape.RectangleShape;
-import org.lecturestudio.core.model.shape.Shape;
-import org.lecturestudio.core.model.shape.TeXShape;
-import org.lecturestudio.core.model.shape.TextShape;
+import org.lecturestudio.core.model.shape.*;
 import org.lecturestudio.core.service.DocumentService;
 import org.lecturestudio.core.text.Font;
 import org.lecturestudio.core.text.TeXFont;
@@ -57,8 +36,12 @@ import org.lecturestudio.core.view.PresentationParameter;
 import org.lecturestudio.core.view.PresentationParameterProvider;
 import org.lecturestudio.core.view.ViewType;
 
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
+import java.io.IOException;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.concurrent.ThreadLocalRandom;
+
+import static org.junit.jupiter.api.Assertions.*;
 
 class ToolControllerTest extends CoreTest {
 
@@ -174,7 +157,7 @@ class ToolControllerTest extends CoreTest {
 	void testExtendViewTool() {
 		controller.selectExtendViewTool();
 
-		PresentationParameterProvider ppp = context.getPagePropertyPropvider(ViewType.User);
+		PresentationParameterProvider ppp = context.getPagePropertyProvider(ViewType.User);
 		PresentationParameter param = ppp.getParameter(getPage());
 
 		assertEquals(new Rectangle2D(0.0, 0.0, 1.3, 1.3), param.getPageRect());
@@ -265,7 +248,7 @@ class ToolControllerTest extends CoreTest {
 		controller.executeToolAction(new PenPoint2D(zw, zh));
 		controller.endToolAction(new PenPoint2D(zw, zh));
 
-		PresentationParameterProvider ppp = context.getPagePropertyPropvider(ViewType.User);
+		PresentationParameterProvider ppp = context.getPagePropertyProvider(ViewType.User);
 		PresentationParameter param = ppp.getParameter(getPage());
 
 		assertEquals(0, getShapes().size());
@@ -465,7 +448,7 @@ class ToolControllerTest extends CoreTest {
 		rect.setLocation(location.getX(), location.getY());
 		rect.setFromDiagonal(location.getX(), location.getY(), location.getX() + size.getWidth(), location.getY() + size.getHeight());
 
-		PresentationParameterProvider ppp = context.getPagePropertyPropvider(ViewType.User);
+		PresentationParameterProvider ppp = context.getPagePropertyProvider(ViewType.User);
 		PresentationParameter param = ppp.getParameter(getPage());
 
 		assertEquals(rect, param.getPageRect());
@@ -473,7 +456,7 @@ class ToolControllerTest extends CoreTest {
 
 	@Test
 	void testZoomOutTool() {
-		PresentationParameterProvider ppp = context.getPagePropertyPropvider(ViewType.User);
+		PresentationParameterProvider ppp = context.getPagePropertyProvider(ViewType.User);
 		PresentationParameter param = ppp.getParameter(getPage());
 
 		Rectangle2D initRect = new Rectangle2D(0, 0, 1, 1);
@@ -490,7 +473,7 @@ class ToolControllerTest extends CoreTest {
 
 	@Test
 	void testToggleGrid() {
-		PresentationParameterProvider provider = context.getPagePropertyPropvider(ViewType.User);
+		PresentationParameterProvider provider = context.getPagePropertyProvider(ViewType.User);
 		PresentationParameter param = provider.getParameter(getPage());
 
 		assertFalse(param.showGrid());

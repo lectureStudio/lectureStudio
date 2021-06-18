@@ -18,23 +18,19 @@
 
 package org.lecturestudio.core.util;
 
-import dev.onvoid.webrtc.media.video.desktop.DesktopCapturer;
-import dev.onvoid.webrtc.media.video.desktop.DesktopFrame;
-import dev.onvoid.webrtc.media.video.desktop.DesktopSource;
-import dev.onvoid.webrtc.media.video.desktop.WindowCapturer;
+import dev.onvoid.webrtc.media.video.desktop.*;
 
 import java.awt.image.BufferedImage;
 import java.awt.image.DataBufferByte;
 
 public class ScreenCaptureUtils {
 
-    private static final WindowCapturer capturer = new WindowCapturer();
+    private static final WindowCapturer windowCapturer = new WindowCapturer();
+    private static final ScreenCapturer screenCapturer = new ScreenCapturer();
 
-    public static void requestFrame(DesktopSource source, ScreenCaptureCallback callback) {
+    public static void requestFrame(DesktopSource source, DesktopSourceType type, ScreenCaptureCallback callback) {
         if (source != null) {
-
-            // TODO: Find a way to capture preview frames asynchronous
-
+            DesktopCapturer capturer = (type == DesktopSourceType.WINDOW) ? windowCapturer : screenCapturer;
             capturer.selectSource(source);
             capturer.start((result, frame) -> {
                 if (result == DesktopCapturer.Result.SUCCESS) {

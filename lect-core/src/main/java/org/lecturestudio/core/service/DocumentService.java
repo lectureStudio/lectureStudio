@@ -19,6 +19,7 @@
 package org.lecturestudio.core.service;
 
 import dev.onvoid.webrtc.media.video.desktop.DesktopSource;
+import dev.onvoid.webrtc.media.video.desktop.DesktopSourceType;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.lecturestudio.core.app.ApplicationContext;
@@ -53,11 +54,14 @@ public class DocumentService {
 
 	private final DocumentList documents;
 
+	private final ScreenCaptureService screenCaptureService;
+
 
 	@Inject
 	public DocumentService(ApplicationContext context) {
 		this.context = context;
 		this.documents = new DocumentList();
+		this.screenCaptureService = context.getScreenCaptureService();
 	}
 
 	/**
@@ -134,65 +138,21 @@ public class DocumentService {
 	/**
 	 * Creates and selects a new screen capture.
 	 */
-	public CompletableFuture<Document> addScreenCapture(DesktopSource source) {
+	public CompletableFuture<Document> addScreenCapture(DesktopSource source, DesktopSourceType type) {
 		return CompletableFuture.supplyAsync(() -> {
 			// Try to get screen capture from documents list
 			Document document = documents.getScreenCaptureById(source.id).orElse(null);
 
 			// Check whether the document already exists
 			if (document == null) {
-				try {
-					document = createScreenCapture(source);
-					addDocument(document);
-				} catch (IOException e) {
-					throw new RuntimeException("Failed to create screen capture for source: '" + source.title + "'");
-				}
+				document = createScreenCapture(source, type);
+				addDocument(document);
 			}
 
 			selectDocument(document);
 			return document;
 		});
 	}
-
-	/**
-	 * Opens a screen capture document. If no screen captures are present, a new screen capture
-	 * is created. If more than one screen capture is present, then the first screen capture
-	 * in the document list will be opened.
-	 */
-//	public CompletableFuture<Document> openScreenCapture(DesktopSource source) {
-//		return CompletableFuture.supplyAsync(() -> {
-//			Document screenCapture = documents.getFirstScreenCapture(source);
-//
-//			if (isNull(screenCapture)) {
-//				try {
-//					screenCapture = createScreenCapture();
-//				}
-//				catch (IOException e) {
-//					throw new CompletionException("Create screen capture failed", e);
-//				}
-//
-//				addDocument(screenCapture);
-//			}
-//
-//			selectDocument(screenCapture);
-//			return screenCapture;
-//		});
-//	}
-
-	/**
-	 * Toggles screen capture visibility. If a screen capture is opened and visible, the
-	 * last non-screen capture document will be shown.
-	 */
-//	public void toggleScreenCapture() {
-//		Document selectedDocument = documents.getSelectedDocument();
-//
-//		if (isNull(selectedDocument) || !selectedDocument.isScreenCapture()) {
-//			openScreenCapture().join();
-//		}
-//		else {
-//			selectDocument(documents.getLastNonScreenCapture());
-//		}
-//	}
 
 	/**
 	 * Opens a document and sets it as the active document.
@@ -336,12 +296,15 @@ public class DocumentService {
 		if (nonNull(selectedDocument) && selectedDocument.isScreenCapture()) {
 			Page page = selectedDocument.createPage();
 
-			System.out.println("Create Screen Capture: " + page.getPageNumber());
-
-			context.getEventBus().post(new PageEvent(page, PageEvent.Type.CREATED));
+//			ScreenCaptureDocument screenCaptureDocument = selectedDocument.getScreenCaptureDocument();
+//			screenCaptureService.requestFrame(screenCaptureDocument.getSource(), screenCaptureDocument.getType(), (src, frame) -> {
+//				ImageShape shape = new ImageShape();
+//				shape.setImage(frame);
+//				page.addShape(shape);
+//				context.getEventBus().post(new PageEvent(page, PageEvent.Type.CREATED));
+//			});
 
 			selectPage(selectedDocument, page.getPageNumber());
-
 			return page;
 		}
 
@@ -470,28 +433,23 @@ public class DocumentService {
 		return whiteboard;
 	}
 
-	private Document createScreenCapture(DesktopSource source) throws IOException {
+	private Document createScreenCapture(DesktopSource source, DesktopSourceType type) {
+		ScreenCaptureDocument screenCaptureDocument = new ScreenCaptureDocument(source, type);
+		Document document = new Document(screenCaptureDocument);
+		document.createPage();
 
-		// Create new screen capture document
-		Document document = new Document(new ScreenCaptureDocument(source));
-
-//		// Get page size from previous document
-//		// TODO: Replace with correct size calculation for pages
-//		Document prevDoc = getDocuments().getSelectedDocument();
-//		if (nonNull(prevDoc)) {
-//			Rectangle2D pageRect = prevDoc.getPage(0).getPageRect();
-//			document.setPageSize(new Dimension2D(
-//					pageRect.getWidth(),
-//					pageRect.getHeight()
-//			));
-//		}
-
-		// Create page and shape for preview image
-		Page page = document.createPage();
-
-//		ImageShape previewShape = new ImageShape();
-//		ScreenCaptureUtils.requestFrame(source, previewShape::setImage);
-//		page.addShape(previewShape);
+//		screenCaptureService.addScreenCaptureListener(screenCaptureDocument);
+//		screenCaptureService.requestFrame(source, type, (src, frame) -> {
+//			Rectangle2D pageRect = page.getPageRect();
+//			try {
+//				BufferedImage croppedFrame = ImageUtils.cropAndScale(frame, (int) pageRect.getWidth(), (int) pageRect.getHeight());
+//				ImageShape shape = new ImageShape();
+//				shape.setImage(croppedFrame);
+//				page.addShape(shape);
+//			} catch (IOException e) {
+//				e.printStackTrace();
+//			}
+//		});
 
 		return document;
 	}
@@ -535,5 +493,4 @@ public class DocumentService {
 			LOG.error("Save configuration failed", e);
 		}
 	}
-
 }

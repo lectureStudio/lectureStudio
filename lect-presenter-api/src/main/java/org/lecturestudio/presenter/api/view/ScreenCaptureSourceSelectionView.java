@@ -31,9 +31,16 @@ public interface ScreenCaptureSourceSelectionView extends View {
     void removeDesktopSource(DesktopSource source, DesktopSourceType type);
     void updateSourcePreviewImage(DesktopSource source, BufferedImage image);
 
-    DesktopSource getSelectedSource();
+    SelectedDesktopSource getSelectedDesktopSource();
 
     void setOnOk(Action action);
     void setOnClose(Action action);
 
+
+    interface SelectedDesktopSource {
+
+        DesktopSource getSource();
+        DesktopSourceType getType();
+
+    }
 }

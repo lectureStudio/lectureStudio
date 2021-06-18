@@ -35,7 +35,7 @@ import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.List;
 
-public class ScreenCaptureSelectionPresenter extends Presenter<ScreenCaptureSourceSelectionView> implements ScreenCaptureService.ScreenCaptureListener {
+public class ScreenCaptureSelectionPresenter extends Presenter<ScreenCaptureSourceSelectionView> implements ScreenCaptureService.ScreenCaptureCallback {
 
     private final EventBus eventBus;
     private final DocumentService documentService;
@@ -43,8 +43,6 @@ public class ScreenCaptureSelectionPresenter extends Presenter<ScreenCaptureSour
 
     private List<DesktopSource> windowSources = new ArrayList<>();
     private List<DesktopSource> screenSources = new ArrayList<>();
-
-    private boolean isRegistered;
 
     @Inject
     public ScreenCaptureSelectionPresenter(ApplicationContext context, ScreenCaptureSourceSelectionView view,
@@ -66,11 +64,7 @@ public class ScreenCaptureSelectionPresenter extends Presenter<ScreenCaptureSour
         screenCaptureService.removeScreenCaptureListener(this);
         screenCaptureService.addScreenCaptureListener(this);
 
-        // Register only once
-        if (!isRegistered) {
-            eventBus.register(this);
-            isRegistered = true;
-        }
+        eventBus.register(this);
 
         updateDesktopSources(screenCaptureService.getDesktopSources(DesktopSourceType.WINDOW), DesktopSourceType.WINDOW);
         updateDesktopSources(screenCaptureService.getDesktopSources(DesktopSourceType.SCREEN), DesktopSourceType.SCREEN);
@@ -125,18 +119,15 @@ public class ScreenCaptureSelectionPresenter extends Presenter<ScreenCaptureSour
     }
 
     private void confirmSelection() {
-        DesktopSource selectedSource = view.getSelectedSource();
+        ScreenCaptureSourceSelectionView.SelectedDesktopSource selectedSource = view.getSelectedDesktopSource();
         if (selectedSource != null) {
-            documentService.addScreenCapture(selectedSource).join();
+            documentService.addScreenCapture(selectedSource.getSource(), selectedSource.getType()).join();
         }
         close();
     }
 
     private void reset() {
         eventBus.unregister(this);
-        isRegistered = false;
         windowSources = null;
     }
-
-
 }

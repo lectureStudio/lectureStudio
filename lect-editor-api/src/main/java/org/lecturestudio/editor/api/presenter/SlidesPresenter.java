@@ -18,15 +18,7 @@
 
 package org.lecturestudio.editor.api.presenter;
 
-import static java.util.Objects.nonNull;
-
 import com.google.common.eventbus.Subscribe;
-
-import java.util.HashMap;
-import java.util.Map;
-
-import javax.inject.Inject;
-
 import org.lecturestudio.core.app.ApplicationContext;
 import org.lecturestudio.core.bus.EventBus;
 import org.lecturestudio.core.bus.event.DocumentEvent;
@@ -48,6 +40,12 @@ import org.lecturestudio.editor.api.service.RecordingFileService;
 import org.lecturestudio.editor.api.service.RecordingPlaybackService;
 import org.lecturestudio.editor.api.view.SlidesView;
 import org.lecturestudio.media.event.MediaPlayerProgressEvent;
+
+import javax.inject.Inject;
+import java.util.HashMap;
+import java.util.Map;
+
+import static java.util.Objects.nonNull;
 
 public class SlidesPresenter extends Presenter<SlidesView> {
 
@@ -89,7 +87,7 @@ public class SlidesPresenter extends Presenter<SlidesView> {
 		view.setPageRenderer(renderController);
 
 		// Register for page parameter change updates.
-		PresentationParameterProvider ppProvider = context.getPagePropertyPropvider(ViewType.User);
+		PresentationParameterProvider ppProvider = context.getPagePropertyProvider(ViewType.User);
 		ppProvider.addParameterChangeListener(new ParameterChangeListener() {
 
 			@Override
@@ -202,7 +200,7 @@ public class SlidesPresenter extends Presenter<SlidesView> {
 	}
 
 	private void documentCreated(Document doc) {
-		PresentationParameterProvider ppProvider = context.getPagePropertyPropvider(ViewType.Preview);
+		PresentationParameterProvider ppProvider = context.getPagePropertyProvider(ViewType.Preview);
 
 		view.addDocument(doc, ppProvider);
 
@@ -226,7 +224,7 @@ public class SlidesPresenter extends Presenter<SlidesView> {
 	}
 
 	private void setPage(Page page) {
-		PresentationParameterProvider ppProvider = context.getPagePropertyPropvider(ViewType.User);
+		PresentationParameterProvider ppProvider = context.getPagePropertyProvider(ViewType.User);
 		PresentationParameter parameter = ppProvider.getParameter(page);
 
 		view.setPage(page, parameter);

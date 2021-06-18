@@ -24,6 +24,7 @@ import org.lecturestudio.core.beans.BooleanProperty;
 import org.lecturestudio.core.bus.EventBus;
 import org.lecturestudio.core.model.DocumentList;
 import org.lecturestudio.core.service.DocumentService;
+import org.lecturestudio.core.service.ScreenCaptureService;
 import org.lecturestudio.core.view.PresentationParameterProvider;
 import org.lecturestudio.core.view.ViewType;
 
@@ -54,6 +55,9 @@ public abstract class ApplicationContext {
 	/** The document service to manage all slide documents. */
 	private final DocumentService documentService;
 
+	/** The screen capture service to manage all screen captures. */
+	private final ScreenCaptureService screenCaptureService;
+
 	/** The presentation provider to manage the presentation of each page. */
 	private final Map<ViewType, PresentationParameterProvider> ppProvider;
 
@@ -62,7 +66,6 @@ public abstract class ApplicationContext {
 
 	/** The audio event bus. */
 	private final EventBus audioBus;
-
 
 	/**
 	 * This method is meant to be implemented by concrete application context
@@ -91,6 +94,7 @@ public abstract class ApplicationContext {
 		this.eventBus = eventBus;
 		this.audioBus = audioBus;
 		this.ppProvider = new HashMap<>();
+		this.screenCaptureService = new ScreenCaptureService(this);
 		this.documentService = new DocumentService(this);
 
 		ppProvider.put(ViewType.User, new PresentationParameterProvider(config));
@@ -123,6 +127,15 @@ public abstract class ApplicationContext {
 	 */
 	public DocumentService getDocumentService() {
 		return documentService;
+	}
+
+	/**
+	 * Obtain the screen capture service.
+	 *
+	 * @return the screen capture service.
+	 */
+	public ScreenCaptureService getScreenCaptureService() {
+		return screenCaptureService;
 	}
 
 	/**
@@ -168,7 +181,7 @@ public abstract class ApplicationContext {
 	 *
 	 * @return the PresentationParameterProvider bound to the ViewType.
 	 */
-	public PresentationParameterProvider getPagePropertyPropvider(ViewType type) {
+	public PresentationParameterProvider getPagePropertyProvider(ViewType type) {
 		return ppProvider.get(type);
 	}
 

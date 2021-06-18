@@ -28,6 +28,7 @@ import org.lecturestudio.swing.util.SwingUtils;
 import org.lecturestudio.swing.view.SwingView;
 import org.lecturestudio.swing.view.ViewPostConstruct;
 
+import javax.inject.Inject;
 import javax.swing.*;
 import javax.swing.border.Border;
 import javax.swing.border.EmptyBorder;
@@ -39,18 +40,21 @@ import java.awt.event.MouseListener;
 import java.awt.image.BufferedImage;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 @SwingView(name = "screen-capture-selection", presenter = org.lecturestudio.presenter.api.presenter.ScreenCaptureSelectionPresenter.class)
 public class SwingScreenCaptureSourceSelectionView extends JPanel implements ScreenCaptureSourceSelectionView {
 
     private JLabel windowSelectionLabel;
-    private JLabel screenSelectionLabel;
-
+    private JScrollPane windowSelectionScrollPane;
     private JPanel windowSelectionContainer;
-    private JPanel screenSelectionContainer;
-    private JPanel buttonContainer;
 
+    private JLabel screenSelectionLabel;
+    private JScrollPane screenSelectionScrollPane;
+    private JPanel screenSelectionContainer;
+
+    private JPanel buttonContainer;
     private JButton closeButton;
     private JButton okButton;
 
@@ -59,7 +63,9 @@ public class SwingScreenCaptureSourceSelectionView extends JPanel implements Scr
     private final MouseListener previewMouseListener;
     private SourcePreview selectedPreview;
 
+    @Inject
     public SwingScreenCaptureSourceSelectionView() {
+
         // Use mouseReleased instead of mouseClick to catch all clicks correctly
         previewMouseListener = new MouseAdapter() {
 
@@ -87,19 +93,15 @@ public class SwingScreenCaptureSourceSelectionView extends JPanel implements Scr
 
     @Override
     public void addDesktopSource(DesktopSource source, DesktopSourceType type) {
-
-        System.out.println("Add Source: " + source.title);
-
         SwingUtils.invoke(() -> {
             SourcePreview preview = previewMap.getOrDefault(source.id, null);
             if (preview == null) {
                 preview = new SourcePreview(source, type);
                 preview.setMouseListener(previewMouseListener);
-                previewMap.put(source.id, preview);
                 addPreviewToContainer(preview, type);
+                previewMap.put(source.id, preview);
             } else {
                 preview.setWindowTitle(source.title);
-
                 DesktopSourceType currentType = preview.getType();
                 if (currentType != type) {
                     addPreviewToContainer(preview, type);
@@ -111,23 +113,24 @@ public class SwingScreenCaptureSourceSelectionView extends JPanel implements Scr
 
     @Override
     public void removeDesktopSource(DesktopSource source, DesktopSourceType type) {
-
-        System.out.println("Remove Source: " + source.title);
-
         SwingUtils.invoke(() -> {
-           SourcePreview preview = previewMap.get(source.id);
-           if (preview != null) {
-               removePreviewFromContainer(preview, type);
-               previewMap.remove(source.id);
-           }
+            SourcePreview preview = previewMap.get(source.id);
+            if (preview != null) {
+                removePreviewFromContainer(preview, type);
+                previewMap.remove(source.id);
+
+                if (selectedPreview == preview) {
+                    selectedPreview = null;
+                }
+            }
         });
     }
 
     @Override
     public void updateSourcePreviewImage(DesktopSource source, BufferedImage image) {
-        if (previewMap.containsKey(source.id)) {
-            SourcePreview preview = previewMap.get(source.id);
-            preview.setImage(image);
+        SourcePreview preview = previewMap.getOrDefault(source.id, null);
+        if (preview != null) {
+            preview.updateImage(image);
         }
     }
 
@@ -149,33 +152,51 @@ public class SwingScreenCaptureSourceSelectionView extends JPanel implements Scr
     @ViewPostConstruct
     private void initialize() {
         setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
-        setBorder(new EmptyBorder(20, 20, 20, 20));
-        setAlignmentX(Component.LEFT_ALIGNMENT);
+        setBorder(new EmptyBorder(0, 20, 20, 20));
+        setAlignmentX(CENTER_ALIGNMENT);
+
+        GridLayout previewContainerLayout = new GridLayout(0, 3, 10, 10);
 
         Font sectionTitleFont = windowSelectionLabel.getFont();
         sectionTitleFont = new Font(sectionTitleFont.getName(), Font.BOLD, 16);
 
-        windowSelectionLabel.setHorizontalAlignment(SwingConstants.LEFT);
-        windowSelectionLabel.setFont(sectionTitleFont);
-        windowSelectionLabel.setBorder(new EmptyBorder(5, 5, 5, 5));
-        windowSelectionLabel.setVerticalAlignment(SwingConstants.CENTER);
-        windowSelectionLabel.setAlignmentX(Component.LEFT_ALIGNMENT);
-
-        GridLayout previewContainerLayout = new GridLayout(0, 3, 10, 10);
+        // Init window selection
+        initSectionLabel(windowSelectionLabel, sectionTitleFont);
+        initScrollPane(windowSelectionScrollPane, 2);
         windowSelectionContainer.setLayout(previewContainerLayout);
 
-//        screenSelectionLabel.setHorizontalAlignment(SwingConstants.LEFT);
-//        screenSelectionLabel.setFont(sectionTitleFont);
-//        screenSelectionLabel.setBorder(new EmptyBorder(5, 5, 5, 5));
-//        screenSelectionLabel.setVerticalAlignment(SwingConstants.CENTER);
-//        screenSelectionLabel.setAlignmentX(Component.LEFT_ALIGNMENT);
-//
-//        screenSelectionContainer.setLayout(previewContainerLayout);
+        // Init screen selection
+        initSectionLabel(screenSelectionLabel, sectionTitleFont);
+        initScrollPane(screenSelectionScrollPane, 1);
 
+        screenSelectionContainer.setLayout(previewContainerLayout);
+
+        // Init buttons
         buttonContainer.setLayout(new FlowLayout(FlowLayout.RIGHT, 5, 0));
         buttonContainer.setBorder(new EmptyBorder(5, 5, 5, 5));
-//        buttonContainer.add(okButton);
-//        buttonContainer.add(closeButton);
+    }
+
+    private void initScrollPane(JScrollPane pane, int numberOfRows) {
+        pane.setBorder(BorderFactory.createEmptyBorder());
+
+        int paneHeight = numberOfRows * 165 + (numberOfRows - 1) * 10;
+
+        pane.setMinimumSize(new Dimension(780, 165));
+        pane.setPreferredSize(new Dimension(780, paneHeight));
+        pane.setMaximumSize(new Dimension(780, paneHeight));
+
+        // Allow only vertical scrolling and show the scrollbar always to prevent issues with overlapping
+        pane.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
+        pane.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS);
+    }
+
+    private void initSectionLabel(JLabel label, Font font) {
+        label.setBorder(new EmptyBorder(5, 5, 5, 5));
+        label.setPreferredSize(new Dimension(0, 50));
+        label.setAlignmentX(CENTER_ALIGNMENT);
+//        label.setHorizontalAlignment(SwingConstants.CENTER);
+//        label.setVerticalAlignment(SwingConstants.CENTER);
+        label.setFont(font);
     }
 
     private void addPreviewToContainer(SourcePreview preview, DesktopSourceType type) {
@@ -203,14 +224,35 @@ public class SwingScreenCaptureSourceSelectionView extends JPanel implements Scr
     }
 
     private JPanel getContainerComponent(DesktopSourceType type) {
-        switch (type) {
-            case WINDOW:
-            case SCREEN:
-            default:
-                return windowSelectionContainer;
-        }
+        return type == DesktopSourceType.WINDOW ? windowSelectionContainer : screenSelectionContainer;
     }
 
+
+    private static class UpdatePreviewTask extends SwingWorker<BufferedImage, BufferedImage> {
+
+        private final ImageView view;
+        private final BufferedImage src;
+
+        public UpdatePreviewTask(ImageView view, BufferedImage src) {
+            this.view = view;
+            this.src = src;
+        }
+
+        @Override
+        protected BufferedImage doInBackground() throws Exception {
+            return ImageUtils.cropAndScale(src, SourcePreview.PREVIEW_IMG_WIDTH, SourcePreview.PREVIEW_IMG_HEIGHT);
+        }
+
+        @Override
+        protected void done() {
+            try {
+                view.setImage(get());
+                view.repaint();
+            } catch (InterruptedException | ExecutionException e) {
+                e.printStackTrace();
+            }
+        }
+    }
 
 
     private static class SourcePreview extends JPanel {
@@ -257,8 +299,16 @@ public class SwingScreenCaptureSourceSelectionView extends JPanel implements Scr
             SwingUtils.invoke(() -> imageView.setBorder(active ? ACTIVE_BORDER : DEFAULT_BORDER));
         }
 
-        public void setImage(BufferedImage image) {
-            SwingUtils.invoke(() -> imageView.setImage(image));
+        public void updateImage(BufferedImage image) {
+            new UpdatePreviewTask(imageView, image).execute();
+//            SwingUtils.invoke(() -> {
+//                try {
+//                    BufferedImage croppedImage = ImageUtils.cropAndScale(image, PREVIEW_IMG_WIDTH, PREVIEW_IMG_HEIGHT);
+//
+//                } catch (IOException e) {
+//                    e.printStackTrace();
+//                }
+//            });
         }
 
         private void initialize() {

@@ -48,7 +48,6 @@ import org.lecturestudio.core.view.ViewType;
 import org.lecturestudio.presenter.api.config.PresenterConfiguration;
 import org.lecturestudio.presenter.api.event.RecordingStateEvent;
 import org.lecturestudio.presenter.api.service.RecordingService;
-import org.lecturestudio.presenter.api.service.ScreenCaptureServiceOld;
 import org.lecturestudio.presenter.api.view.ToolbarView;
 
 import javax.inject.Inject;
@@ -76,9 +75,6 @@ public class ToolbarPresenter extends Presenter<ToolbarView> {
 
 	@Inject
 	private RecordingService recordingService;
-
-	@Inject
-	private ScreenCaptureServiceOld screenCaptureService;
 
 	@Inject
 	public ToolbarPresenter(ApplicationContext context, ToolbarView view) {

@@ -18,9 +18,13 @@
 
 package org.lecturestudio.core.util;
 
+import dev.onvoid.webrtc.media.video.desktop.DesktopFrame;
+
 import java.awt.*;
 import java.awt.color.ColorSpace;
+import java.awt.geom.AffineTransform;
 import java.awt.image.*;
+import java.io.IOException;
 
 public class ImageUtils {
 
@@ -64,5 +68,60 @@ public class ImageUtils {
                 bOffs, null);
 
         return new BufferedImage(colorModel, wr, false, null);
+    }
+
+    public static BufferedImage convertDesktopFrame(DesktopFrame frame, int width, int height) {
+        BufferedImage image = ImageUtils.createBufferedImage(width, height);
+        DataBufferByte byteBuffer = (DataBufferByte) image.getRaster().getDataBuffer();
+        frame.buffer.get(byteBuffer.getData());
+        return image;
+    }
+
+    public static BufferedImage crop(BufferedImage src, int width, int height) {
+        int x = src.getWidth() / 2 - width / 2;
+        int y = src.getHeight()/2 - height/2;
+
+        BufferedImage croppedImage = createBufferedImage(width, height);
+        Graphics2D g = croppedImage.createGraphics();
+        g.drawImage(src, 0, 0, croppedImage.getWidth(), croppedImage.getHeight(), x, y, x + croppedImage.getWidth(),
+                y + croppedImage.getHeight(), null);
+        g.dispose();
+
+        return croppedImage;
+    }
+
+    public static BufferedImage scale(BufferedImage src, int width, int height) throws IOException {
+        BufferedImage scaledImage = createBufferedImage(width, height);
+        Graphics2D g = scaledImage.createGraphics();
+        AffineTransform at = AffineTransform.getScaleInstance(
+                (double) width / src.getWidth(),
+                (double) height / src.getHeight());
+        g.drawRenderedImage(src, at);
+        g.dispose();
+        return scaledImage;
+    }
+
+    // See http://www.java2s.com/Code/Java/2D-Graphics-GUI/CropImage.htm for more information
+    public static BufferedImage cropAndScale(BufferedImage src, int width, int height) throws IOException {
+
+        float scale;
+        if (src.getWidth() > src.getHeight()) {
+            scale = (float) height / (float) src.getHeight();
+            if (src.getWidth() * scale < width) {
+                scale = (float) width / (float) src.getWidth();
+            }
+        } else {
+            scale = (float) width / (float) src.getWidth();
+            if (src.getHeight() * scale < height) {
+                scale = (float) height / (float) src.getHeight();
+            }
+        }
+
+        BufferedImage temp = scale(src, Float.valueOf(src.getWidth() * scale).intValue(),
+                Float.valueOf(src.getHeight() * scale).intValue());
+
+        temp = crop(temp, width, height);
+
+        return temp;
     }
 }

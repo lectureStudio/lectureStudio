@@ -18,111 +18,143 @@
 
 package org.lecturestudio.core.service;
 
-import dev.onvoid.webrtc.media.video.desktop.DesktopCapturer;
-import dev.onvoid.webrtc.media.video.desktop.DesktopFrame;
-import dev.onvoid.webrtc.media.video.desktop.DesktopSource;
-import dev.onvoid.webrtc.media.video.desktop.WindowCapturer;
+import dev.onvoid.webrtc.media.video.desktop.*;
+import org.lecturestudio.core.app.ApplicationContext;
+import org.lecturestudio.core.bus.EventBus;
+import org.lecturestudio.core.bus.event.ScreenCaptureSourceEvent;
+import org.lecturestudio.core.screencapture.ScreenCaptureFormat;
 import org.lecturestudio.core.util.ImageUtils;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import java.awt.image.BufferedImage;
-import java.awt.image.DataBufferByte;
 import java.util.*;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.CopyOnWriteArrayList;
 
 @Singleton
 public class ScreenCaptureService {
 
-    private final static int SOURCE_REFRESH_PERIOD = 3000;
+    // Interval of the refresh timer to check for updates in the DesktopSources (in ms)
+    private final static int SOURCE_REFRESH_INTERVAL = 3000;
 
     private final Map<Long, ScreenCapture> screenCaptures = new HashMap<>();
+    private final EventBus eventBus;
 
-    private final List<DesktopSourceListListener> sourceListListeners = new CopyOnWriteArrayList<>();
-    private List<DesktopSource> sources = new ArrayList<>();
+    private final WindowCapturer windowCapturer = new WindowCapturer();
+    private final ScreenCapturer screenCapturer = new ScreenCapturer();
+
+    private final List<ScreenCaptureListener> listeners = new ArrayList<>();
+
+    private List<DesktopSource> windowSources;
+    private List<DesktopSource> screenSources;
 
     @Inject
-    public ScreenCaptureService() {
+    public ScreenCaptureService(ApplicationContext context) {
+        eventBus = context.getEventBus();
+        windowSources = windowCapturer.getDesktopSources();
+        screenSources = screenCapturer.getDesktopSources();
         setupSourceRefreshTimer();
     }
 
-    public void addScreenCaptureListener(DesktopSource source, ScreenCaptureListener listener) {
-        ScreenCapture capture = screenCaptures.getOrDefault(source.id, new ScreenCapture(source));
-        capture.addListener(listener);
+    public List<DesktopSource> getDesktopSources(DesktopSourceType type) {
+        return type == DesktopSourceType.WINDOW ? windowSources : screenSources;
+    }
+
+    public void startCapture(DesktopSource source, DesktopSourceType type, ScreenCaptureFormat format) {
+        ScreenCapture capture = screenCaptures.getOrDefault(source.id, new ScreenCapture(source, type));
+        capture.startCapture(format);
         screenCaptures.put(source.id, capture);
     }
 
-    public void removeScreenCaptureListener(DesktopSource source, ScreenCaptureListener listener) {
+    public void stopCapture(DesktopSource source) {
         ScreenCapture capture = screenCaptures.getOrDefault(source.id, null);
         if (capture != null) {
-            capture.removeListener(listener);
+            capture.stopCapture();
         }
     }
 
-    public CompletableFuture<Void> requestFrame(DesktopSource source) {
-        ScreenCapture capture = screenCaptures.getOrDefault(source.id, null);
-        if (capture == null) {
-            throw new RuntimeException("No screen capture listener registered for source: " + source.title);
+
+
+    public void addScreenCaptureListener(ScreenCaptureListener listener) {
+        if (!listeners.contains(listener)) {
+            listeners.add(listener);
         }
-        return CompletableFuture.runAsync(capture::requestFrame);
+
+//        ScreenCapture capture = screenCaptures.getOrDefault(source.id, new ScreenCapture(source, type));
+//        capture.addListener(listener);
+//        screenCaptures.put(source.id, capture);
+    }
+
+    public void removeScreenCaptureListener(ScreenCaptureListener listener) {
+        listeners.remove(listener);
+
+//        ScreenCapture capture = screenCaptures.getOrDefault(source.id, null);
+//        if (capture != null) {
+//            capture.removeListener(listener);
+//        }
+//        screenCaptures.put(source.id, capture);
+    }
+
+    public void requestFrame(DesktopSource source, DesktopSourceType type) {
+        ScreenCapture capture = screenCaptures.getOrDefault(source.id, new ScreenCapture(source, type));
+        capture.requestFrame();
+        screenCaptures.put(source.id, capture);
     }
 
     private void setupSourceRefreshTimer() {
-        WindowCapturer capturer = new WindowCapturer();
         Timer sourceRefreshTimer = new Timer();
         sourceRefreshTimer.schedule((new TimerTask() {
             @Override
             public void run() {
-                List<DesktopSource> newSources = capturer.getDesktopSources();
-                if (newSources.size() != sources.size() || !newSources.containsAll(sources)) {
-                    for (DesktopSourceListListener listener : sourceListListeners) {
-                        listener.onDesktopSourceListChange(newSources);
-                    }
-                    sources = newSources;
+                // Post events for updated window sources
+                List<DesktopSource> newWindowSources = windowCapturer.getDesktopSources();
+                if (newWindowSources.size() != windowSources.size() || !newWindowSources.containsAll(windowSources)) {
+                    eventBus.post(new ScreenCaptureSourceEvent(newWindowSources, DesktopSourceType.WINDOW));
+                    windowSources = newWindowSources;
+                }
+
+                // Post events for updated screen sources
+                List<DesktopSource> newScreenSources = screenCapturer.getDesktopSources();
+                if (newScreenSources.size() != screenSources.size() || !newScreenSources.containsAll(screenSources)) {
+                    eventBus.post(new ScreenCaptureSourceEvent(newScreenSources, DesktopSourceType.SCREEN));
+                    screenSources = newScreenSources;
                 }
             }
-        }), 0, SOURCE_REFRESH_PERIOD);
+        }), 0, SOURCE_REFRESH_INTERVAL);
     }
 
-    public List<DesktopSource> getDesktopSources() {
-        return sources;
-    }
-
-    public void addSourceListListener(DesktopSourceListListener listener) {
-        if (!sourceListListeners.contains(listener)) {
-            sourceListListeners.add(listener);
+    private void notifyListeners(DesktopSource source, BufferedImage image) {
+        for (ScreenCaptureListener listener : listeners) {
+            listener.onFrameCapture(source, image);
         }
     }
 
-    public void removeSourceListListener(DesktopSourceListListener listener) {
-        sourceListListeners.remove(listener);
-    }
 
-    private static BufferedImage convertFrame(DesktopFrame frame, int width, int height) {
-        BufferedImage image = ImageUtils.createBufferedImage(width, height);
-        DataBufferByte byteBuffer = (DataBufferByte) image.getRaster().getDataBuffer();
-        frame.buffer.get(byteBuffer.getData());
 
-        // TODO: Implement scaling of frame to requested dimensions
-
-        return image;
+    public interface ScreenCaptureListener {
+        void onFrameCapture(DesktopSource source, BufferedImage image);
     }
 
 
-    private static class ScreenCapture {
+
+    private class ScreenCapture {
 
         private final DesktopSource source;
-        private final WindowCapturer capturer;
-
-        private final List<ScreenCaptureListener> listeners;
+        private final DesktopCapturer capturer;
 
         private BufferedImage lastFrame;
+        private Timer timer;
 
-        public ScreenCapture(DesktopSource source) {
+        private long lastFrameUpdate;
+        private boolean isCapturing;
+
+        public ScreenCapture(DesktopSource source, DesktopSourceType type) {
             this.source = source;
-            capturer = new WindowCapturer();
-            listeners = new ArrayList<>();
+
+            if (type == DesktopSourceType.WINDOW) {
+                capturer = new WindowCapturer();
+            } else {
+                capturer = new ScreenCapturer();
+            }
 
             initialize();
         }
@@ -133,6 +165,26 @@ public class ScreenCaptureService {
 
         public BufferedImage getLastFrame() {
             return lastFrame;
+        }
+
+        public void startCapture(ScreenCaptureFormat format) {
+            if (!isCapturing) {
+                int frameDuration = 1000 / format.getFrameRate();
+                timer = new Timer();
+                timer.schedule(new TimerTask() {
+                    @Override
+                    public void run() {
+                        capturer.captureFrame();
+                    }
+                }, 0, frameDuration);
+                isCapturing = true;
+            }
+        }
+
+        public void stopCapture() {
+            if (isCapturing) {
+                timer.cancel();
+            }
         }
 
         public void addListener(ScreenCaptureListener listener) {
@@ -149,24 +201,13 @@ public class ScreenCaptureService {
             capturer.selectSource(source);
             capturer.start((result, frame) -> {
                 if (result == DesktopCapturer.Result.SUCCESS) {
-                    BufferedImage image = convertFrame(frame, frame.frameSize.width, frame.frameSize.height);
-
-                    // Notify listeners
-                    for (ScreenCaptureListener listener : listeners) {
-                        listener.onFrameCapture(source, image);
-                    }
+                    BufferedImage image = ImageUtils.convertDesktopFrame(frame, frame.frameSize.width, frame.frameSize.height);
+                    notifyListeners(source, image);
 
                     lastFrame = image;
+                    lastFrameUpdate = System.currentTimeMillis();
                 }
             });
         }
-    }
-
-    public interface DesktopSourceListListener {
-        void onDesktopSourceListChange(List<DesktopSource> sources);
-    }
-
-    public interface ScreenCaptureListener {
-        void onFrameCapture(DesktopSource source, BufferedImage image);
     }
 }

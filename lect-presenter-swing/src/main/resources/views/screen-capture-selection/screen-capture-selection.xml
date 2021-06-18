@@ -1,9 +1,15 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Panel>
     <Label id="windowSelectionLabel" text="capture.window.title" />
-    <Panel id="windowSelectionContainer" />
-<!--    <Label id="screenSelectionLabel" text="capture.screen.title" />-->
-<!--    <Panel id="screenSelectionContainer" />-->
+    <ScrollPane id="windowSelectionScrollPane">
+        <Panel id="windowSelectionContainer" />
+    </ScrollPane>
+
+    <Label id="screenSelectionLabel" text="capture.screen.title" />
+    <ScrollPane id="screenSelectionScrollPane">
+        <Panel id="screenSelectionContainer" />
+    </ScrollPane>
+
     <Panel id="buttonContainer">
         <Button id="okButton" text="button.ok" />
         <Button id="closeButton" text="button.close" />

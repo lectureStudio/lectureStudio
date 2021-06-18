@@ -1,5 +1,6 @@
 package org.lecturestudio.web.api.service;
 
+import io.netty.buffer.search.KmpSearchProcessorFactory;
 import org.lecturestudio.web.api.client.RoomService;
 import org.lecturestudio.web.api.model.*;
 
@@ -15,6 +16,7 @@ public class DLZMessageService {
     RoomEventFilter filter = new RoomEventFilter();
     chunk chunks;
     List<DLZMessage> messages;
+    String start; //Start für den nächsten Aufruf
 
     public DLZMessageService(URI uri, String roomId){
         filter.getTypes().add("m.room.message");
@@ -22,7 +24,15 @@ public class DLZMessageService {
         this.roomId = roomId;
     }
     public List<DLZMessage> getMessage(){
-        chunks = roomClient.getMessages(roomId,"b",50,filter);
+        if(start == null) {
+            DLZMessageStructure msgs = roomClient.getMessages(roomId, "b", 50, filter);
+            chunks = msgs.chunk;
+            msgs.end = start;
+        }else{
+            DLZMessageStructure msgs = roomClient.getMessages(roomId,start, "b", 50, filter);
+            chunks = msgs.chunk;
+            msgs.end = start;
+        }
         chunks.chunk.forEach(message -> {
             DLZMessage nmessage = new DLZMessage();
             nmessage.message = message.content.body;

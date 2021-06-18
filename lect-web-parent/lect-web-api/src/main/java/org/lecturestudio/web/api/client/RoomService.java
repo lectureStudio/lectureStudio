@@ -12,10 +12,7 @@ import org.lecturestudio.core.beans.ObjectProperty;
 import org.lecturestudio.web.api.data.JsonbContextResolver;
 import org.lecturestudio.web.api.filter.AuthorizationFilter;
 import org.lecturestudio.web.api.filter.LoggingFilter;
-import org.lecturestudio.web.api.model.JoinedRooms;
-import org.lecturestudio.web.api.model.Room;
-import org.lecturestudio.web.api.model.RoomEventFilter;
-import org.lecturestudio.web.api.model.chunk;
+import org.lecturestudio.web.api.model.*;
 
 
 @Path("/_matrix/client/r0")
@@ -60,6 +57,10 @@ public interface RoomService {
      */
     @GET
     @Path("/rooms/{roomId}/messages")
-    chunk getMessages(@PathParam("roomId") String roomId, @QueryParam("dir") String dir,
-                      @QueryParam("limit") int limit, @QueryParam("filter") RoomEventFilter filter);
+    DLZMessageStructure getMessages(@PathParam("roomId") String roomId, @QueryParam("dir") String dir,
+                                    @QueryParam("limit") int limit, @QueryParam("filter") RoomEventFilter filter);
+    @GET
+    @Path("/rooms/{roomId}/messages")
+    DLZMessageStructure getMessages(@PathParam("roomId") String roomId, @QueryParam("from") String from,@QueryParam("dir") String dir,
+                                    @QueryParam("limit") int limit, @QueryParam("filter") RoomEventFilter filter);
 }

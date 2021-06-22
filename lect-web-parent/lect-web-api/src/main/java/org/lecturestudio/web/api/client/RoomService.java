@@ -12,6 +12,7 @@ import org.lecturestudio.core.beans.ObjectProperty;
 import org.lecturestudio.web.api.data.JsonbContextResolver;
 import org.lecturestudio.web.api.filter.AuthorizationFilter;
 import org.lecturestudio.web.api.filter.LoggingFilter;
+import org.lecturestudio.web.api.filter.MatrixExceptionFilter;
 import org.lecturestudio.web.api.model.*;
 
 
@@ -20,6 +21,7 @@ import org.lecturestudio.web.api.model.*;
         @RegisterProvider(JsonbContextResolver.class),
         @RegisterProvider(AuthorizationFilter.class),
         @RegisterProvider(LoggingFilter.class),
+        @RegisterProvider(MatrixExceptionFilter.class),
 })
 public interface RoomService {
 

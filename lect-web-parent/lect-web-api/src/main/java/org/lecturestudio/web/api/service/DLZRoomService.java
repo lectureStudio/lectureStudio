@@ -1,9 +1,9 @@
 package org.lecturestudio.web.api.service;
 
+import org.lecturestudio.web.api.exception.MatrixUnauthorizedException;
 import org.lecturestudio.web.api.model.JoinedRooms;
 import org.lecturestudio.web.api.model.Room;
 
-import javax.ws.rs.WebApplicationException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
@@ -27,7 +27,7 @@ public class DLZRoomService {
                     rooms.add(new Room(roomsId.getRoomIds().get(i), aliases.getRoomName()));
                     System.out.println(aliases.getRoomName());
                 }
-                catch (WebApplicationException e){
+                catch (Exception e){
                 }
             }
         } catch (

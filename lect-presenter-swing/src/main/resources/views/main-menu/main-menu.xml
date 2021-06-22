@@ -45,6 +45,7 @@
 		<separator />
 		<menuitem id="startDLZMenuItem" text="menu.dlz.start" enabled="false" />
 		<menuitem id="stopDLZMenuItem" text="menu.dlz.stop" enabled="false" />
+		<checkboxmenuitem id="showDLZWindowMenuItem" text="menu.dlz.window.visible" type="checkbox" selected="true" enabled="false" />
 
 	</menu>
 	<menu id="bookmarksMenu" text="menu.bookmarks">

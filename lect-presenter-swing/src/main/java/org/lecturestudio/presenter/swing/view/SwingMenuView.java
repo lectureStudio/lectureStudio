@@ -117,7 +117,11 @@ public class SwingMenuView extends JMenuBar implements MenuView {
 
 	private JCheckBoxMenuItem showMessengerWindowMenuItem;
 
+	private JCheckBoxMenuItem showDLZWindowMenuItem;
+
 	private JMenuItem startDLZMenuItem;
+
+	private JMenuItem stopDLZMenuItem;
 
 	private JMenuItem selectQuizMenuItem;
 
@@ -358,17 +362,18 @@ public class SwingMenuView extends JMenuBar implements MenuView {
 
 	@Override
 	public void setOnStartDLZ(Action action) {
-		SwingUtils.bindAction(startMessengerMenuItem, action);
+		SwingUtils.bindAction(startDLZMenuItem, action);
+
 	}
 
 	@Override
 	public void setOnStopDLZ(Action action) {
-		SwingUtils.bindAction(stopMessengerMenuItem, action);
+		SwingUtils.bindAction(stopDLZMenuItem, action);
 	}
 
 	@Override
 	public void setOnShowDLZWindow(ConsumerAction<Boolean> action) {
-		SwingUtils.bindAction(showMessengerWindowMenuItem, action);
+		SwingUtils.bindAction(showDLZWindowMenuItem, action);
 	}
 
 	@Override

@@ -28,6 +28,7 @@ import java.io.File;
 import java.io.IOException;
 import java.net.URI;
 import java.nio.file.Path;
+import java.text.MessageFormat;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Iterator;
@@ -493,6 +494,9 @@ public class MenuPresenter extends Presenter<MenuView> {
 
 	public void startDLZ(){
 		System.out.println("DLZ-Chat gestartet");
+		String shortcut = "";
+		String message = MessageFormat.format(context.getDictionary().get("dlz.started"), shortcut);
+		showNotificationPopup(message);
 	}
 
 	public void stopDLZ(){

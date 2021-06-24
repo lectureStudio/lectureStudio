@@ -36,7 +36,7 @@ public class DLZSettingsPresenter extends Presenter<DLZSettingsView> {
     public void initialize() {
         PresenterConfiguration config = (PresenterConfiguration) context.getConfiguration();
 
-        view.setRoom(RoomService.defaultRoom);
+        view.setRoom(config.dlzRoomProperty());
         view.setRooms(setRoomList());
         view.setOnClose(this::close);
         view.setOnReset(this::reset);

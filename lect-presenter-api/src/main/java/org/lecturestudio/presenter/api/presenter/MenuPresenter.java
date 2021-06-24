@@ -95,6 +95,7 @@ import org.lecturestudio.presenter.api.service.StreamService;
 import org.lecturestudio.presenter.api.service.WebService;
 import org.lecturestudio.presenter.api.view.MenuView;
 import org.lecturestudio.presenter.api.view.MessengerWindow;
+import org.lecturestudio.web.api.model.Room;
 import org.lecturestudio.web.api.model.quiz.Quiz;
 
 public class MenuPresenter extends Presenter<MenuView> {
@@ -106,6 +107,8 @@ public class MenuPresenter extends Presenter<MenuView> {
 	private final EventBus eventBus;
 
 	private final QuizParser quizParser;
+
+	public static Room ChoosenDLZRoom;
 
 	@Inject
 	private ToolController toolController;
@@ -494,6 +497,8 @@ public class MenuPresenter extends Presenter<MenuView> {
 
 	public void startDLZ(){
 		System.out.println("DLZ-Chat gestartet");
+		PresenterConfiguration config = (PresenterConfiguration) context.getConfiguration();
+		System.out.println(config.getDlzRoom().getName());
 		String shortcut = "";
 		String message = MessageFormat.format(context.getDictionary().get("dlz.started"), shortcut);
 		showNotificationPopup(message);

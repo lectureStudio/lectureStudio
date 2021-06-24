@@ -2,7 +2,7 @@ package org.lecturestudio.web.api.exception;
 
 import org.lecturestudio.web.api.model.MatrixError;
 
-public class MatrixException extends Exception{
+public class MatrixException extends RuntimeException{
     private final MatrixError error;
 
 

@@ -21,6 +21,7 @@ package org.lecturestudio.presenter.api.config;
 import org.lecturestudio.core.app.configuration.Configuration;
 import org.lecturestudio.core.beans.BooleanProperty;
 import org.lecturestudio.core.beans.IntegerProperty;
+import org.lecturestudio.core.beans.ObjectProperty;
 import org.lecturestudio.core.beans.StringProperty;
 import org.lecturestudio.web.api.model.Room;
 
@@ -47,12 +48,8 @@ public class PresenterConfiguration extends Configuration {
 
 	private final NetworkConfiguration networkConfig = new NetworkConfiguration();
 
-	private Room UsedDLZRoom = new Room("0", "Room0");
+	private final ObjectProperty<Room> dlzRoom = new ObjectProperty<>();
 
-
-	public Room getUsedDLZRoom(){ return UsedDLZRoom;}
-
-	public void setUsedDLZRoom(Room UsedDLZRoom){this.UsedDLZRoom = UsedDLZRoom;}
 	/**
 	 * @return the classroomName
 	 */
@@ -172,5 +169,18 @@ public class PresenterConfiguration extends Configuration {
 	public QuizConfiguration getQuizConfig() {
 		return quizConfig;
 	}
-	
+
+	public Room getDlzRoom() {
+		return dlzRoom.get();
+	}
+
+	public void setDlzRoom(Room room) {
+		dlzRoom.set(room);
+	}
+
+	public ObjectProperty<Room> dlzRoomProperty() {
+		return dlzRoom;
+	}
+
+
 }

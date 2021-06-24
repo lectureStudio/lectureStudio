@@ -5,6 +5,8 @@ import org.lecturestudio.core.beans.Converter;
 import org.lecturestudio.core.beans.ObjectProperty;
 import org.lecturestudio.core.geometry.Dimension2D;
 import org.lecturestudio.core.view.Action;
+import org.lecturestudio.presenter.api.config.PresenterConfiguration;
+import org.lecturestudio.presenter.api.presenter.MenuPresenter;
 import org.lecturestudio.presenter.api.view.DLZSettingsView;
 import org.lecturestudio.swing.util.SwingUtils;
 import org.lecturestudio.swing.view.SwingView;
@@ -38,10 +40,8 @@ public class SwingDLZSettingsView extends JPanel implements DLZSettingsView {
     }
 
     @Override
-    public void setRoom(ObjectProperty<Room> room) {
-        SwingUtils.bindBidirectional(roomsCombo, room);
+    public void setRoom(ObjectProperty<Room> room) { SwingUtils.bindBidirectional(roomsCombo, room);
     }
-    //PresenterConfiguration config = (PresenterConfiguration) context.getConfiguration();
 
     @Override
     public void setOnClose(org.lecturestudio.core.view.Action action) {

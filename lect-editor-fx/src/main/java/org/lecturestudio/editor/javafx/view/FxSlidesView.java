@@ -105,7 +105,7 @@ public class FxSlidesView extends VBox implements SlidesView {
 			// Create the ThumbnailPanel for the TabPane.
 			ThumbnailPanel thumbPanel = new ThumbnailPanel();
 			thumbPanel.setPageRenderer(new RenderController(context, pageRenderer));
-			thumbPanel.setDocument(doc, context.getPagePropertyPropvider(
+			thumbPanel.setDocument(doc, context.getPagePropertyProvider(
 					ViewType.Preview), contextMenu);
 			thumbPanel.addSelectListener(page -> {
 				executeAction(selectPageAction, page);

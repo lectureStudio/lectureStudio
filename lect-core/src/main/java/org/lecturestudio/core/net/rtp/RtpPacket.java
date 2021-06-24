@@ -83,8 +83,8 @@ public class RtpPacket implements Packet, Cloneable {
 	/**
 	 * Creates a new {@link RtpPacket} with provided payload.
 	 * 
-	 * @param data
-	 * @param dataLength
+	 * @param data The data of the {@link RtpPacket} as a byte array.
+	 * @param dataLength The length of the data.
 	 */
 	public RtpPacket(byte[] data, int dataLength) {
 		if (dataLength < 12) {

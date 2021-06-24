@@ -386,7 +386,7 @@ public class SlidesPresenter extends Presenter<SlidesView> {
 
 		doc.addChangeListener(documentChangeListener);
 
-		view.selectDocument(doc, context.getPagePropertyPropvider(ViewType.Preview));
+		view.selectDocument(doc, context.getPagePropertyProvider(ViewType.Preview));
 
 		setPage(doc.getCurrentPage());
 	}
@@ -398,7 +398,7 @@ public class SlidesPresenter extends Presenter<SlidesView> {
 
 		doc.addChangeListener(documentChangeListener);
 
-		view.selectDocument(doc, context.getPagePropertyPropvider(ViewType.Preview));
+		view.selectDocument(doc, context.getPagePropertyProvider(ViewType.Preview));
 
 		setPage(doc.getCurrentPage());
 	}

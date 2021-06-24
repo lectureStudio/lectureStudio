@@ -22,17 +22,33 @@ import org.lecturestudio.core.presenter.Presenter;
 
 public class ShowPresenterCommand<T extends Presenter<?>> {
 
+	/** The presenter class. */
 	private final Class<T> cls;
 
 
+	/**
+	 * Create a new {@link ShowPresenterCommand} with the specified presenter class.
+	 *
+	 * @param cls The presenter class.
+	 */
 	public ShowPresenterCommand(Class<T> cls) {
 		this.cls = cls;
 	}
 
+	/**
+	 * Get the presenter class.
+	 *
+	 * @return The presenter class.
+	 */
 	public Class<T> getPresenterClass() {
 		return cls;
 	}
 
+	/**
+	 * Execute the command on the specified presenter.
+	 *
+	 * @param presenter The presenter.
+	 */
 	public void execute(T presenter) {
 
 	}

@@ -22,16 +22,16 @@ import org.lecturestudio.core.util.ObservableList;
 import org.lecturestudio.core.view.Screen;
 
 /**
- * The {@code DisplayService} maintains all connected screens on the
- * running system. The {@code ObservableList}, returned by {@link #getScreens()},
- * allows to monitor if a screen has been connected or disconnected.
+ * The {@link DisplayService} maintains all connected screens on the running system.
+ * The {@link ObservableList}, returned by {@link #getScreens()}, allows to monitor
+ * if a screen has been connected or disconnected.
  *
  * @author Alex Andres
  */
 public interface DisplayService {
 
 	/**
-	 * Returns a {@code ObservableList} containing all connected screens.
+	 * Returns a {@link ObservableList} containing all connected screens.
 	 *
 	 * @return The list of connected screens.
 	 */

@@ -22,8 +22,8 @@ import org.lecturestudio.core.presenter.NotificationPresenter;
 import org.lecturestudio.core.view.NotificationType;
 
 /**
- * Notification view command implementation. Notifications will be shown on the
- * {@code Notification} layer at the top-most view layer.
+ * Notification view command implementation.
+ * Notifications will be shown on the {@code Notification} layer at the top-most view layer.
  *
  * @author Alex Andres
  */
@@ -40,8 +40,7 @@ public class NotificationCommand extends ShowPresenterCommand<NotificationPresen
 
 
 	/**
-	 * Create a new NotificationCommand with the specified notification type and
-	 * title. The message is empty.
+	 * Create a new {@link NotificationCommand} with the specified notification type and title. The message is empty.
 	 *
 	 * @param type  The type of the notification.
 	 * @param title The title of the notification.
@@ -51,8 +50,7 @@ public class NotificationCommand extends ShowPresenterCommand<NotificationPresen
 	}
 
 	/**
-	 * Create a new NotificationCommand with the specified notification type,
-	 * title and message.
+	 * Create a new {@link NotificationCommand} with the specified notification type, title and message.
 	 *
 	 * @param type    The type of the notification.
 	 * @param title   The title of the notification.

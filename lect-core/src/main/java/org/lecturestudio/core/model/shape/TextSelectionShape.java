@@ -69,6 +69,13 @@ public class TextSelectionShape extends Shape {
 		parseFrom(input);
 	}
 
+	/**
+	 * Create a new selection box with the specified character rectangle and add it to {@link #selection} if
+	 * {@link #selection} is empty or if there is a quite large gap between characters.
+	 * Otherwise add character rectangle into a selection box, which represents a group of characters.
+	 *
+	 * @param rect The character rectangle.
+	 */
 	public void addSelection(Rectangle2D rect) {
 		if (selection.isEmpty()) {
 			// Create new selection box.

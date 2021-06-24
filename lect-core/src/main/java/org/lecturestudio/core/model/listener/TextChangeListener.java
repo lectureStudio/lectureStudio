@@ -22,12 +22,32 @@ import org.lecturestudio.core.model.shape.Shape;
 
 public interface TextChangeListener<T extends Shape> {
 
+	/**
+	 * Fired when the text has changed.
+	 *
+	 * @param shape The shape.
+	 */
 	void textChanged(T shape);
-	
+
+	/**
+	 * Fired when the text font has changed.
+	 *
+	 * @param shape The shape.
+	 */
 	void textFontChanged(T shape);
-	
+
+	/**
+	 * Fired when the text location has changed.
+	 *
+	 * @param shape The shape.
+	 */
 	void textLocationChanged(T shape);
-	
+
+	/**
+	 * Fired when the text has been removed.
+	 *
+	 * @param shape The shape.
+	 */
 	void textRemoved(T shape);
 
 }

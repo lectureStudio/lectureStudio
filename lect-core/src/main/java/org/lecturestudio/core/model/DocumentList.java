@@ -143,9 +143,9 @@ public class DocumentList {
 	}
 
 	/**
-	 * Returns {@link #documents} as a {@link List}.
+	 * Returns {@link #documents} as a new {@link List}.
 	 *
-	 * @return {@link #documents} as a {@link List}.
+	 * @return {@link #documents} as a new {@link List}.
 	 */
 	public List<Document> asList() {
 		return new ArrayList<>(documents);

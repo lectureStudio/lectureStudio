@@ -22,12 +22,34 @@ import org.lecturestudio.core.model.Document;
 
 public interface DocumentListChangeListener {
 
+	/**
+	 * Fired when a document has been inserted.
+	 *
+	 * @param doc The document
+	 */
 	void documentInserted(Document doc);
 
+	/**
+	 * Fired when a document has been removed.
+	 *
+	 * @param doc The document
+	 */
 	void documentRemoved(Document doc);
 
+	/**
+	 * Fired when a new document has been selected.
+	 *
+	 * @param prevDoc The previous document.
+	 * @param newDoc The new document.
+	 */
 	void documentSelected(Document prevDoc, Document newDoc);
 
+	/**
+	 * Fired when a document has been replaced.
+	 *
+	 * @param prevDoc The previous document.
+	 * @param newDoc The new document.
+	 */
 	void documentReplaced(Document prevDoc, Document newDoc);
 
 }

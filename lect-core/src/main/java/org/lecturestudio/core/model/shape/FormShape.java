@@ -184,6 +184,7 @@ public abstract class FormShape extends PenShape {
 		setStroke(stroke);
 	}
 
+	@Override
 	protected void updateBounds(PenPoint2D p1, PenPoint2D p2) {
 		Dimension2D origin = new Dimension2D(p2.getX() - p1.getX(), p2.getY() - p1.getY());
 

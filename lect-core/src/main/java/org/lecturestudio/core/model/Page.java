@@ -89,19 +89,9 @@ public class Page {
 
 	private final int pageNumber;
 
-	private boolean isRecordable = true;
-
 	public Page(Document document, int pageNumber) {
 		this.document = document;
 		this.pageNumber = pageNumber;
-	}
-
-	public boolean isRecordable() {
-		return isRecordable;
-	}
-
-	public void setRecordable(boolean isRecordable) {
-		this.isRecordable = isRecordable;
 	}
 
 	public Rectangle2D getPageRect() {

@@ -18,35 +18,19 @@
 
 package org.lecturestudio.swing.util;
 
-import static java.util.Objects.isNull;
-import static java.util.Objects.requireNonNull;
-
-import java.awt.Color;
-import java.awt.Component;
-import java.awt.Container;
-
-import javax.swing.AbstractButton;
-import javax.swing.JCheckBoxMenuItem;
-import javax.swing.JComboBox;
-import javax.swing.JComponent;
-import javax.swing.JSlider;
-import javax.swing.JToggleButton;
-import javax.swing.SwingUtilities;
-import javax.swing.text.JTextComponent;
-
 import org.lecturestudio.core.beans.ObjectProperty;
 import org.lecturestudio.core.view.Action;
 import org.lecturestudio.core.view.ConsumerAction;
 import org.lecturestudio.core.view.View;
-import org.lecturestudio.swing.beans.Binding;
-import org.lecturestudio.swing.beans.ColorButtonProperty;
-import org.lecturestudio.swing.beans.ComboBoxProperty;
-import org.lecturestudio.swing.beans.SliderProperty;
-import org.lecturestudio.swing.beans.ObjectBinding;
-import org.lecturestudio.swing.beans.TextFieldProperty;
-import org.lecturestudio.swing.beans.ToggleButtonProperty;
-import org.lecturestudio.swing.beans.ToggleMenuProperty;
+import org.lecturestudio.swing.beans.*;
 import org.lecturestudio.swing.components.ColorChooserButton;
+
+import javax.swing.*;
+import javax.swing.text.JTextComponent;
+import java.awt.*;
+
+import static java.util.Objects.isNull;
+import static java.util.Objects.requireNonNull;
 
 public final class SwingUtils {
 

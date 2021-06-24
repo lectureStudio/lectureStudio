@@ -50,6 +50,8 @@ public class RecordingHeader extends RecordedObjectBase {
 	/**  The length in bytes of the audio chunk. */
 	private int audioLength;
 
+	/** The length in bytes of the screenCapture chunk. */
+	private int screenCaptureLength;
 
 	public RecordingHeader() {
 		setVersion(0);
@@ -105,8 +107,16 @@ public class RecordingHeader extends RecordedObjectBase {
 		return audioLength;
 	}
 
+	public void setScreenCaptureLength(int length) {
+		this.screenCaptureLength = length;
+	}
+
+	public int getScreenCaptureLength() {
+		return screenCaptureLength;
+	}
+
 	public int getHeaderLength() {
-		return CHECKSUM_LENGTH + 28;
+		return CHECKSUM_LENGTH + 32;
 	}
 
 	@Override
@@ -119,6 +129,7 @@ public class RecordingHeader extends RecordedObjectBase {
 		buffer.putInt(getEventsLength());
 		buffer.putInt(getDocumentLength());
 		buffer.putInt(getAudioLength());
+		buffer.putInt(getScreenCaptureLength());
 
 		return buffer.array();
 	}
@@ -144,6 +155,7 @@ public class RecordingHeader extends RecordedObjectBase {
 		setEventsLength(buffer.getInt());
 		setDocumentLength(buffer.getInt());
 		setAudioLength(buffer.getInt());
+		setScreenCaptureLength(buffer.getInt());
 	}
 
 	public RecordingHeader clone() {
@@ -154,6 +166,7 @@ public class RecordingHeader extends RecordedObjectBase {
 		header.setEventsLength(getEventsLength());
 		header.setDocumentLength(getDocumentLength());
 		header.setAudioLength(getAudioLength());
+		header.setScreenCaptureLength(getScreenCaptureLength());
 
 		return header;
 	}
@@ -167,8 +180,8 @@ public class RecordingHeader extends RecordedObjectBase {
 		buffer.append("Events: " + getEventsLength() + "\n");
 		buffer.append("Document: " + getDocumentLength() + "\n");
 		buffer.append("Audio: " + getAudioLength() + "\n");
+		buffer.append("Screen Capture: " + getScreenCaptureLength() + "\n");
 
 		return buffer.toString();
 	}
-
 }

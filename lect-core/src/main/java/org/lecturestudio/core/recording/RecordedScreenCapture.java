@@ -24,10 +24,14 @@ import java.io.IOException;
 
 public class RecordedScreenCapture extends RecordedObjectBase {
 
-    private ScreenCaptureOutputStream screenCaptureStream;
+    private final ScreenCaptureOutputStream screenCaptureStream;
 
     public RecordedScreenCapture(ScreenCaptureOutputStream outputStream) {
         this.screenCaptureStream = outputStream;
+    }
+
+    public ScreenCaptureOutputStream getScreenCaptureStream() {
+        return screenCaptureStream;
     }
 
     @Override

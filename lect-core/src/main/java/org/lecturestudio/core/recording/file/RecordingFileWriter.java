@@ -18,13 +18,14 @@
 
 package org.lecturestudio.core.recording.file;
 
-import java.io.File;
-
 import org.lecturestudio.core.io.DigestRandomAccessFile;
 import org.lecturestudio.core.io.RandomAccessAudioStream;
 import org.lecturestudio.core.recording.Recording;
 import org.lecturestudio.core.recording.RecordingHeader;
+import org.lecturestudio.core.screencapture.ScreenCaptureOutputStream;
 import org.lecturestudio.core.util.ProgressCallback;
+
+import java.io.File;
 
 public final class RecordingFileWriter {
 
@@ -42,6 +43,8 @@ public final class RecordingFileWriter {
 		RecordingHeader header = recFile.getRecordingHeader();
 		RandomAccessAudioStream audioStream = recFile.getRecordedAudio().getAudioStream().clone();
 		audioStream.reset();
+
+		ScreenCaptureOutputStream screenCaptureStream = recFile.getRecordedScreenCapture().getScreenCaptureStream();
 
 		byte[] eventData = recFile.getRecordedEvents().toByteArray();
 		byte[] docData = recFile.getRecordedDocument().toByteArray();

@@ -38,6 +38,7 @@ import org.lecturestudio.core.bus.event.PageEvent;
 import org.lecturestudio.core.bus.event.RecordActionEvent;
 import org.lecturestudio.core.io.RandomAccessAudioStream;
 import org.lecturestudio.core.model.Document;
+import org.lecturestudio.core.model.DocumentType;
 import org.lecturestudio.core.model.Page;
 import org.lecturestudio.core.recording.*;
 import org.lecturestudio.core.recording.action.PlaybackAction;
@@ -195,6 +196,8 @@ public class FileLectureRecorder extends LectureRecorder {
 		RecordingHeader fileHeader = new RecordingHeader();
 		fileHeader.setDuration(duration);
 
+		System.out.println(fileHeader);
+
 		Recording recording = new Recording();
 		recording.setRecordingHeader(fileHeader);
 		recording.setRecordedAudio(new RecordedAudio(audioStream));
@@ -285,16 +288,31 @@ public class FileLectureRecorder extends LectureRecorder {
 			});
 			audioRecorder.start();
 
+			Document selectedDocument = documentService.getDocuments().getSelectedDocument();
+
 			try {
+				// Stop previously running screen capture recorder if exists
+				if (nonNull(screenCaptureRecorder)) {
+					screenCaptureRecorder.stop();
+				}
+
+				// Initialize new screen capture recorder
 				screenCaptureRecorder = new ScreenCaptureRecorder(new File(backup.getScreenCaptureFile()));
 				screenCaptureRecorder.setScreenCaptureFormat(screenCaptureFormat);
+
+				// Set capture source if selected document is screen capture
+				if (selectedDocument.isScreenCapture()) {
+					DesktopSource screenCaptureSource = selectedDocument.getScreenCaptureDocument().getSource();
+					screenCaptureRecorder.setActiveSource(screenCaptureSource);
+				}
+
 				screenCaptureRecorder.start();
 			} catch (IOException e) {
 				e.printStackTrace();
 			}
 
 			// Record the first page.
-			Page firstPage = documentService.getDocuments().getSelectedDocument().getCurrentPage();
+			Page firstPage = selectedDocument.getCurrentPage();
 			recordPage(firstPage, 0);
 		}
 		else if (prevState == ExecutableState.Suspended) {
@@ -335,7 +353,11 @@ public class FileLectureRecorder extends LectureRecorder {
 			}
 		}
 		if (nonNull(screenCaptureRecorder)) {
-			screenCaptureRecorder.stop();
+			try {
+				screenCaptureRecorder.stop();
+			} catch (IOException e) {
+				LOG.error("Close screen capture recorder failed", e);
+			}
 		}
 
 		backup.close();
@@ -472,6 +494,9 @@ public class FileLectureRecorder extends LectureRecorder {
 		}
 
 		try {
+			if (page.getDocument().isScreenCapture()) {
+				recordedDocument.setDocumentType(DocumentType.SCREEN_CAPTURE);
+			}
 			recordedDocument.createPage(page);
 		}
 		catch (Exception e) {

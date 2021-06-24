@@ -18,14 +18,6 @@
 
 package org.lecturestudio.presenter.api.presenter;
 
-import static java.util.Objects.isNull;
-import static java.util.Objects.nonNull;
-
-import java.util.ArrayList;
-import java.util.List;
-
-import javax.inject.Inject;
-
 import org.lecturestudio.core.app.ApplicationContext;
 import org.lecturestudio.core.camera.AspectRatio;
 import org.lecturestudio.core.camera.Camera;
@@ -39,6 +31,13 @@ import org.lecturestudio.presenter.api.config.DefaultConfiguration;
 import org.lecturestudio.presenter.api.config.PresenterConfiguration;
 import org.lecturestudio.presenter.api.config.StreamConfiguration;
 import org.lecturestudio.presenter.api.view.CameraSettingsView;
+
+import javax.inject.Inject;
+import java.util.ArrayList;
+import java.util.List;
+
+import static java.util.Objects.isNull;
+import static java.util.Objects.nonNull;
 
 public class CameraSettingsPresenter extends Presenter<CameraSettingsView> {
 
@@ -142,7 +141,7 @@ public class CameraSettingsPresenter extends Presenter<CameraSettingsView> {
 	}
 
 	private CameraFormat[] getCameraFormats(AspectRatio ratio) {
-		CameraFormat[] formats = null;
+		CameraFormat[] formats = new CameraFormat[0];
 
 		if (ratio == AspectRatio.Standard) {
 			formats = CameraFormats.Standard;

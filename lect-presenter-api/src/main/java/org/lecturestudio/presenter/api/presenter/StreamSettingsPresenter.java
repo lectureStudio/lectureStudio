@@ -18,12 +18,6 @@
 
 package org.lecturestudio.presenter.api.presenter;
 
-import static java.util.Objects.nonNull;
-
-import java.util.Arrays;
-
-import javax.inject.Inject;
-
 import org.lecturestudio.broadcast.config.BroadcastProfile;
 import org.lecturestudio.core.app.ApplicationContext;
 import org.lecturestudio.core.app.configuration.AudioConfiguration;
@@ -35,11 +29,16 @@ import org.lecturestudio.core.codec.VideoCodecConfiguration;
 import org.lecturestudio.core.presenter.Presenter;
 import org.lecturestudio.core.util.ListChangeListener;
 import org.lecturestudio.core.util.ObservableList;
-import org.lecturestudio.presenter.api.config.NetworkConfiguration;
 import org.lecturestudio.presenter.api.config.DefaultConfiguration;
+import org.lecturestudio.presenter.api.config.NetworkConfiguration;
 import org.lecturestudio.presenter.api.config.PresenterConfiguration;
 import org.lecturestudio.presenter.api.config.StreamConfiguration;
 import org.lecturestudio.presenter.api.view.StreamSettingsView;
+
+import javax.inject.Inject;
+import java.util.Arrays;
+
+import static java.util.Objects.nonNull;
 
 public class StreamSettingsPresenter extends Presenter<StreamSettingsView> {
 
@@ -55,10 +54,11 @@ public class StreamSettingsPresenter extends Presenter<StreamSettingsView> {
 
 	public void setStreamAudioFormats(String codecName) {
 		AudioCodecProvider codecProvider = AudioCodecLoader.getInstance().getProvider(codecName);
-		AudioFormat[] audioFormats = codecProvider.getAudioEncoder().getSupportedFormats();
-
-		if (nonNull(audioFormats)) {
-			view.setStreamAudioFormats(Arrays.asList(audioFormats));
+		if (nonNull(codecProvider)) {
+			AudioFormat[] audioFormats = codecProvider.getAudioEncoder().getSupportedFormats();
+			if (nonNull(audioFormats)) {
+				view.setStreamAudioFormats(Arrays.asList(audioFormats));
+			}
 		}
 	}
 

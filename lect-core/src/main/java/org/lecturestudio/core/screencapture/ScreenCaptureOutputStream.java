@@ -23,12 +23,11 @@ import org.lecturestudio.core.io.BitConverter;
 import java.awt.image.BufferedImage;
 import java.awt.image.DataBufferByte;
 import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.nio.ByteBuffer;
-import java.nio.channels.SeekableByteChannel;
+import java.nio.channels.FileChannel;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.StandardOpenOption;
 
 public class ScreenCaptureOutputStream {
 
@@ -37,19 +36,19 @@ public class ScreenCaptureOutputStream {
     private static final String DATA_HEADER = "DATA";
     private static final String CHANNEL_HEADER = "CHAN";
 
-    private final SeekableByteChannel channel;
+    private final FileChannel channel;
     private ScreenCaptureFormat recordingFormat;
+
+    private long bytesWritten = 0;
 
     private int lastFrameChannelId = -1;
     private int activeChannelId = 0;
 
-    public ScreenCaptureOutputStream(File outputFile) throws FileNotFoundException {
-        FileOutputStream stream = new FileOutputStream(outputFile);
-        channel = stream.getChannel();
-    }
+    public ScreenCaptureOutputStream(File outputFile) throws IOException {
+//        FileOutputStream stream = new FileOutputStream(outputFile);
+//        channel = stream.getChannel();
 
-    public ScreenCaptureOutputStream(SeekableByteChannel channel) {
-        this.channel = channel;
+        channel = FileChannel.open(outputFile.toPath(), StandardOpenOption.WRITE, StandardOpenOption.CREATE);
     }
 
     public void setScreenCaptureFormat(ScreenCaptureFormat format) {
@@ -65,6 +64,10 @@ public class ScreenCaptureOutputStream {
         this.activeChannelId = channelId;
     }
 
+    public long getBytesWritten() {
+        return bytesWritten;
+    }
+
     /**
      * Writes a new frame to the output stream including its data size.
      *
@@ -77,8 +80,10 @@ public class ScreenCaptureOutputStream {
             byte[] imageData = imageBuffer.getData();
 
             // Add offset + image data to byte buffer
-            ByteBuffer buffer = ByteBuffer.wrap(imageData, 4, imageData.length + 4);
-            buffer.putInt(0, imageData.length);
+            ByteBuffer buffer = ByteBuffer.allocate(imageData.length + 4);
+            buffer.putInt(imageData.length);
+            buffer.put(imageData, 0, imageData.length);
+            buffer.flip();
 
             // Handle change of channel id
             if (activeChannelId != lastFrameChannelId) {
@@ -86,7 +91,13 @@ public class ScreenCaptureOutputStream {
             }
 
             lastFrameChannelId = activeChannelId;
-            return channel.write(buffer);
+
+            // Repeat until buffer is completely written to the channel
+            while (buffer.hasRemaining()) {
+                bytesWritten += channel.write(buffer);
+            }
+
+            return buffer.capacity();
         }
         return 0;
     }
@@ -98,6 +109,7 @@ public class ScreenCaptureOutputStream {
 
     public void close() throws IOException {
         writeHeader();
+        channel.force(true);
         channel.close();
     }
 
@@ -110,6 +122,7 @@ public class ScreenCaptureOutputStream {
         ByteBuffer header = ByteBuffer.allocate(8);
         header.put(CHANNEL_HEADER.getBytes(StandardCharsets.UTF_8));
         header.put(BitConverter.getLittleEndianBytes(channelId));
+        header.flip();
 
         channel.write(header);
     }
@@ -121,8 +134,12 @@ public class ScreenCaptureOutputStream {
         header.put(FORMAT_HEADER.getBytes(StandardCharsets.UTF_8));
         header.put(BitConverter.getLittleEndianBytes(frameRate));
         header.put(DATA_HEADER.getBytes(StandardCharsets.UTF_8));
+        header.flip();
 
+        // Write header at start of file
+        long position = channel.position();
         channel.position(0);
         channel.write(header);
+        channel.position(position);
     }
 }

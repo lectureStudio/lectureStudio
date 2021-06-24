@@ -18,29 +18,29 @@
 
 package org.lecturestudio.presenter.api.presenter;
 
-import static java.util.Objects.isNull;
-import static java.util.Objects.nonNull;
-
-import java.net.Inet6Address;
-import java.net.InetAddress;
-import java.net.NetworkInterface;
-import java.util.Collections;
-import java.util.Enumeration;
-import java.util.List;
-
-import javax.inject.Inject;
-
 import org.lecturestudio.core.app.ApplicationContext;
 import org.lecturestudio.core.presenter.Presenter;
 import org.lecturestudio.core.util.ListChangeListener;
 import org.lecturestudio.core.util.NetUtils;
 import org.lecturestudio.core.util.ObservableList;
-import org.lecturestudio.presenter.api.config.NetworkConfiguration;
 import org.lecturestudio.presenter.api.config.DefaultConfiguration;
+import org.lecturestudio.presenter.api.config.NetworkConfiguration;
 import org.lecturestudio.presenter.api.config.PresenterConfiguration;
 import org.lecturestudio.presenter.api.view.NetworkSettingsView;
 import org.lecturestudio.web.api.filter.IpFilter;
 import org.lecturestudio.web.api.filter.IpRangeRule;
+
+import javax.inject.Inject;
+import java.net.Inet6Address;
+import java.net.InetAddress;
+import java.net.NetworkInterface;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Enumeration;
+import java.util.List;
+
+import static java.util.Objects.isNull;
+import static java.util.Objects.nonNull;
 
 public class NetworkSettingsPresenter extends Presenter<NetworkSettingsView> {
 
@@ -69,17 +69,20 @@ public class NetworkSettingsPresenter extends Presenter<NetworkSettingsView> {
 			updateNetAdapter(newAdapter);
 		});
 
+		List<IpRangeRule> ipRules = new ArrayList<>();
+
 		// Fill IP table.
 		IpFilter ipFilter = netConfig.getIpFilter();
-		List<IpRangeRule> ipRules = ipFilter.getRules();
+		if (nonNull(ipFilter)) {
+			ipRules = ipFilter.getRules();
+			ipFilter.addListener(new ListChangeListener<>() {
 
-		ipFilter.addListener(new ListChangeListener<>() {
-
-			@Override
-			public void listChanged(ObservableList<IpRangeRule> list) {
-				view.setIpRules(list);
-			}
-		});
+				@Override
+				public void listChanged(ObservableList<IpRangeRule> list) {
+					view.setIpRules(list);
+				}
+			});
+		}
 
 		view.setIpRules(ipRules);
 		view.setOnAddIpRule(this::addIpRule);

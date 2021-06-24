@@ -404,9 +404,7 @@ public class SlidesPresenter extends Presenter<SlidesView> {
 
 		loadPageObjectViews(page);
 
-		if (page.isRecordable()) {
-			recordPage(page);
-		}
+		recordPage(page);
 	}
 
 	private void pageShapeAdded(Shape shape) {

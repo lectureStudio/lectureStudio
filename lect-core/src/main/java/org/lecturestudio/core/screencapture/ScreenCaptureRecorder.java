@@ -27,7 +27,6 @@ import org.lecturestudio.core.util.ScreenCaptureUtils;
 
 import java.awt.image.BufferedImage;
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.Timer;
 import java.util.TimerTask;
@@ -37,12 +36,13 @@ public class ScreenCaptureRecorder {
     private final WindowCapturer capturer = new WindowCapturer();
     private final ScreenCaptureOutputStream stream;
 
-    private ScreenCaptureTask screenCaptureTask;
+    private ScreenCaptureTask captureTask;
+    private ScreenCaptureFormat format;
 
     private ExecutableState state = ExecutableState.Stopped;
     private boolean initialized = false;
 
-    public ScreenCaptureRecorder(File outputFile) throws FileNotFoundException {
+    public ScreenCaptureRecorder(File outputFile) throws IOException {
         stream = new ScreenCaptureOutputStream(outputFile);
         capturer.start(this::onScreenCaptureFrame);
     }
@@ -55,7 +55,8 @@ public class ScreenCaptureRecorder {
         if (state != ExecutableState.Stopped) {
             throw new RuntimeException("Cannot update screen capture format, recording already started.");
         }
-        screenCaptureTask = new ScreenCaptureTask(format.getFrameRate());
+        this.format = format;
+        captureTask = new ScreenCaptureTask(format.getFrameRate());
     }
 
     public void start() throws IOException {
@@ -65,8 +66,9 @@ public class ScreenCaptureRecorder {
 
         System.out.println("Start recording of screen capture");
 
+        stream.setScreenCaptureFormat(format);
         stream.reset();
-        screenCaptureTask.start();
+        captureTask.start();
 
         state = ExecutableState.Started;
     }
@@ -76,16 +78,19 @@ public class ScreenCaptureRecorder {
             return;
         }
 
-        screenCaptureTask.stop();
+        captureTask.stop();
         state = ExecutableState.Suspended;
     }
 
-    public void stop() {
+    public void stop() throws IOException {
         if (state == ExecutableState.Stopped) {
             return;
         }
 
-        screenCaptureTask.stop();
+        // Closes stream and writes remaining bytes to disk
+        stream.close();
+
+        captureTask.stop();
         state = ExecutableState.Stopped;
     }
 
@@ -98,11 +103,10 @@ public class ScreenCaptureRecorder {
     }
 
     private void onScreenCaptureFrame(DesktopCapturer.Result result, DesktopFrame frame) {
-        System.out.println("Captured Frame!");
-
         BufferedImage image = ScreenCaptureUtils.convertFrame(frame, frame.frameSize.width, frame.frameSize.height);
         try {
-            stream.writeFrame(image);
+            int bytesWritten = stream.writeFrame(image);
+            System.out.println("Bytes Captured: " + bytesWritten + " Total: " + stream.getBytesWritten());
         } catch (IOException e) {
             System.err.println("Failed to write frame to screen capture stream.");
             e.printStackTrace();
@@ -115,7 +119,7 @@ public class ScreenCaptureRecorder {
         private final int period;
 
         public ScreenCaptureTask(int frameRate) {
-            period = 1 / frameRate * 1000;
+            period = 1000 / frameRate;
         }
 
         void start() {

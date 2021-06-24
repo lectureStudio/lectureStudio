@@ -18,12 +18,6 @@
 
 package org.lecturestudio.presenter.api.presenter;
 
-import static java.util.Objects.nonNull;
-
-import java.util.List;
-
-import javax.inject.Inject;
-
 import org.lecturestudio.core.app.ApplicationContext;
 import org.lecturestudio.core.presenter.Presenter;
 import org.lecturestudio.core.util.ListChangeListener;
@@ -34,6 +28,12 @@ import org.lecturestudio.presenter.api.config.QuizConfiguration;
 import org.lecturestudio.presenter.api.view.WebServiceSettingsView;
 import org.lecturestudio.web.api.filter.RegexFilter;
 import org.lecturestudio.web.api.filter.RegexRule;
+
+import javax.inject.Inject;
+import java.util.ArrayList;
+import java.util.List;
+
+import static java.util.Objects.nonNull;
 
 public class WebServiceSettingsPresenter extends Presenter<WebServiceSettingsView> {
 
@@ -79,16 +79,19 @@ public class WebServiceSettingsPresenter extends Presenter<WebServiceSettingsVie
 		PresenterConfiguration config = (PresenterConfiguration) context.getConfiguration();
 		QuizConfiguration quizConfig = config.getQuizConfig();
 
+		List<RegexRule> regexRules = new ArrayList<>();
+
 		RegexFilter regexFilter = quizConfig.getInputFilter();
-		List<RegexRule> regexRules = regexFilter.getRules();
+		if (nonNull(regexFilter)) {
+			regexRules = regexFilter.getRules();
+			regexFilter.addListener(new ListChangeListener<>() {
 
-		regexFilter.addListener(new ListChangeListener<>() {
-
-			@Override
-			public void listChanged(ObservableList<RegexRule> list) {
-				view.setQuizRegexRules(list);
-			}
-		});
+				@Override
+				public void listChanged(ObservableList<RegexRule> list) {
+					view.setQuizRegexRules(list);
+				}
+			});
+		}
 
 		view.setClassroomName(config.classroomNameProperty());
 		view.setClassroomShortName(config.classroomShortNameProperty());

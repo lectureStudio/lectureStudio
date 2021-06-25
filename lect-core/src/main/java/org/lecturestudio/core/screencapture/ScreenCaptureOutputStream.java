@@ -39,20 +39,23 @@ public class ScreenCaptureOutputStream {
     private final FileChannel channel;
     private ScreenCaptureFormat recordingFormat;
 
-    private long bytesWritten = 0;
+    private long totalBytesWritten = 0;
 
     private int lastFrameChannelId = -1;
     private int activeChannelId = 0;
 
     public ScreenCaptureOutputStream(File outputFile) throws IOException {
-//        FileOutputStream stream = new FileOutputStream(outputFile);
-//        channel = stream.getChannel();
-
         channel = FileChannel.open(outputFile.toPath(), StandardOpenOption.WRITE, StandardOpenOption.CREATE);
     }
 
     public void setScreenCaptureFormat(ScreenCaptureFormat format) {
         this.recordingFormat = format;
+    }
+
+    public ScreenCaptureOutputStream clone() {
+        // TODO: Implement actual clone
+
+        return this;
     }
 
     /**
@@ -64,25 +67,31 @@ public class ScreenCaptureOutputStream {
         this.activeChannelId = channelId;
     }
 
-    public long getBytesWritten() {
-        return bytesWritten;
+    public long getTotalBytesWritten() {
+        return totalBytesWritten;
     }
 
-    /**
-     * Writes a new frame to the output stream including its data size.
-     *
-     * @param image The image frame to be written.
-     * @return The number of bytes written to the stream.
-     */
-    public int writeFrame(BufferedImage image) throws IOException {
+    public int writeFrameBuffer(ByteBuffer frameBuffer) throws IOException {
+        int writtenBytes = 0;
         if (channel.isOpen()) {
-            DataBufferByte imageBuffer = (DataBufferByte) image.getRaster().getDataBuffer();
-            byte[] imageData = imageBuffer.getData();
+
+            // TODO: Find efficient way to compress screen capture frames
+            // BufferedImage compressedImage = ImageUtils.compress(image, 0.5f);
+
+//            byte[] frameBytes = new byte[frameBuffer.capacity()];
+//            frameBuffer.get(frameBytes);
+//
+//            byte[] compressedFrameBytes = ImageUtils.compress(frameBytes);
+//
+//            float compression = compressedFrameBytes.length / (float) frameBytes.length;
+//            System.out.println("Compressed from " + frameBytes.length + " to " + compressedFrameBytes.length + " " + compression);
+
+            int frameBufferSize = frameBuffer.capacity();
 
             // Add offset + image data to byte buffer
-            ByteBuffer buffer = ByteBuffer.allocate(imageData.length + 4);
-            buffer.putInt(imageData.length);
-            buffer.put(imageData, 0, imageData.length);
+            ByteBuffer buffer = ByteBuffer.allocate(frameBufferSize + 4);
+            buffer.putInt(frameBufferSize);
+            buffer.put(frameBuffer);
             buffer.flip();
 
             // Handle change of channel id
@@ -94,12 +103,23 @@ public class ScreenCaptureOutputStream {
 
             // Repeat until buffer is completely written to the channel
             while (buffer.hasRemaining()) {
-                bytesWritten += channel.write(buffer);
+                writtenBytes += channel.write(buffer);
             }
-
-            return buffer.capacity();
         }
-        return 0;
+
+        totalBytesWritten += writtenBytes;
+        return writtenBytes;
+    }
+
+    /**
+     * Writes a new frame to the output stream including its data size.
+     *
+     * @param image The image frame to be written.
+     * @return The number of bytes written to the stream.
+     */
+    public int writeFrame(BufferedImage image) throws IOException {
+        DataBufferByte imageBuffer = (DataBufferByte) image.getRaster().getDataBuffer();
+        return writeFrameBuffer(ByteBuffer.wrap(imageBuffer.getData()));
     }
 
     public void reset() throws IOException {

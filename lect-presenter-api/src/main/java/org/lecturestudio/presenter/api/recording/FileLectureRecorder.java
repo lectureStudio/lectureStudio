@@ -196,8 +196,6 @@ public class FileLectureRecorder extends LectureRecorder {
 		RecordingHeader fileHeader = new RecordingHeader();
 		fileHeader.setDuration(duration);
 
-		System.out.println(fileHeader);
-
 		Recording recording = new Recording();
 		recording.setRecordingHeader(fileHeader);
 		recording.setRecordedAudio(new RecordedAudio(audioStream));

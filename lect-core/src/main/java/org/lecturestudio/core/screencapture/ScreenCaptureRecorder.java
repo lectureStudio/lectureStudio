@@ -23,9 +23,7 @@ import dev.onvoid.webrtc.media.video.desktop.DesktopFrame;
 import dev.onvoid.webrtc.media.video.desktop.DesktopSource;
 import dev.onvoid.webrtc.media.video.desktop.WindowCapturer;
 import org.lecturestudio.core.ExecutableState;
-import org.lecturestudio.core.util.ScreenCaptureUtils;
 
-import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
 import java.util.Timer;
@@ -103,10 +101,10 @@ public class ScreenCaptureRecorder {
     }
 
     private void onScreenCaptureFrame(DesktopCapturer.Result result, DesktopFrame frame) {
-        BufferedImage image = ScreenCaptureUtils.convertFrame(frame, frame.frameSize.width, frame.frameSize.height);
+        // BufferedImage image = ScreenCaptureUtils.convertFrame(frame, frame.frameSize.width, frame.frameSize.height);
         try {
-            int bytesWritten = stream.writeFrame(image);
-            System.out.println("Bytes Captured: " + bytesWritten + " Total: " + stream.getBytesWritten());
+            int bytesWritten = stream.writeFrameBuffer(frame.buffer);
+            System.out.println("Bytes Captured: " + bytesWritten + " Total: " + stream.getTotalBytesWritten());
         } catch (IOException e) {
             System.err.println("Failed to write frame to screen capture stream.");
             e.printStackTrace();

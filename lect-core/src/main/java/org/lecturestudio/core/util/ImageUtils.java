@@ -20,13 +20,36 @@ package org.lecturestudio.core.util;
 
 import dev.onvoid.webrtc.media.video.desktop.DesktopFrame;
 
+import javax.imageio.IIOImage;
+import javax.imageio.ImageIO;
+import javax.imageio.ImageWriteParam;
+import javax.imageio.ImageWriter;
+import javax.imageio.stream.ImageOutputStream;
 import java.awt.*;
 import java.awt.color.ColorSpace;
 import java.awt.geom.AffineTransform;
 import java.awt.image.*;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.util.Iterator;
 
 public class ImageUtils {
+
+    private final static ImageWriter writer;
+    private final static ImageWriteParam writerParam;
+
+    static {
+        Iterator<ImageWriter> writers = ImageIO.getImageWritersBySuffix("png");
+        if (!writers.hasNext()) {
+            throw new IllegalStateException("No writers found.");
+        }
+        writer = writers.next();
+
+        writerParam = writer.getDefaultWriteParam();
+        writerParam.setCompressionMode(ImageWriteParam.MODE_EXPLICIT);
+        writerParam.setCompressionQuality(0.5f);
+    }
 
     /**
      * Creates a buffered image of a given width and height filled with a given color.
@@ -74,6 +97,39 @@ public class ImageUtils {
         BufferedImage image = ImageUtils.createBufferedImage(width, height);
         DataBufferByte byteBuffer = (DataBufferByte) image.getRaster().getDataBuffer();
         frame.buffer.get(byteBuffer.getData());
+        return image;
+    }
+
+    public static byte[] compress(byte[] frameBytes) {
+        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+        try {
+            ImageOutputStream ios = ImageIO.createImageOutputStream(outputStream);
+            writer.setOutput(ios);
+            writer.write(null, new IIOImage(ImageIO.read(new ByteArrayInputStream(frameBytes)), null, null), writerParam);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return outputStream.toByteArray();
+    }
+
+    // See http://www.java2s.com/example/java-utility-method/bufferedimage-compress/compress-bufferedimage-image-float-quality-e5d99.html
+    public static BufferedImage compress(BufferedImage image, float quality) {
+        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+        try {
+            ImageOutputStream ios = ImageIO.createImageOutputStream(outputStream);
+            writer.setOutput(ios);
+
+            ImageWriteParam param = writer.getDefaultWriteParam();
+            if (quality >= 0) {
+                param.setCompressionMode(ImageWriteParam.MODE_EXPLICIT);
+                param.setCompressionQuality(quality);
+            }
+            writer.write(null, new IIOImage(image, null, null), param);
+
+            return ImageIO.read(new ByteArrayInputStream(outputStream.toByteArray()));
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
         return image;
     }
 

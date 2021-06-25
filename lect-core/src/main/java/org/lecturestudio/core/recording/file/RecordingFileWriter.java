@@ -22,7 +22,6 @@ import org.lecturestudio.core.io.DigestRandomAccessFile;
 import org.lecturestudio.core.io.RandomAccessAudioStream;
 import org.lecturestudio.core.recording.Recording;
 import org.lecturestudio.core.recording.RecordingHeader;
-import org.lecturestudio.core.screencapture.ScreenCaptureOutputStream;
 import org.lecturestudio.core.util.ProgressCallback;
 
 import java.io.File;
@@ -44,8 +43,6 @@ public final class RecordingFileWriter {
 		RandomAccessAudioStream audioStream = recFile.getRecordedAudio().getAudioStream().clone();
 		audioStream.reset();
 
-		ScreenCaptureOutputStream screenCaptureStream = recFile.getRecordedScreenCapture().getScreenCaptureStream();
-
 		byte[] eventData = recFile.getRecordedEvents().toByteArray();
 		byte[] docData = recFile.getRecordedDocument().toByteArray();
 
@@ -53,7 +50,8 @@ public final class RecordingFileWriter {
 		int eventsLength = eventData.length;
 		int documentLength = docData.length;
 		int audioLength = (int) audioStream.getLength();
-		int totalSize = headerLength + eventsLength + documentLength + audioLength;
+		int screenCaptureLength = (int) recFile.getRecordedScreenCapture().getScreenCaptureStream().getTotalBytesWritten();
+		int totalSize = headerLength + eventsLength + documentLength + audioLength + screenCaptureLength;
 
 		float written = headerLength;
 
@@ -98,6 +96,9 @@ public final class RecordingFileWriter {
 		header.setEventsLength(eventsLength);
 		header.setDocumentLength(documentLength);
 		header.setAudioLength(audioLength);
+		header.setScreenCaptureLength(screenCaptureLength);
+
+		System.out.println(header);
 
 		// Write file header at the beginning of the file.
 		raFile.seek(0);

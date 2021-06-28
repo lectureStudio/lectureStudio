@@ -7,11 +7,16 @@ import org.lecturestudio.web.api.model.*;
 import javax.ws.rs.WebApplicationException;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * @author Michel Heidkamp
+ * manages Messages for a given room
+ */
 public class DLZMessageService {
 
-    String roomId;
+    static String roomId;
     RoomService roomClient;
     RoomEventFilter filter = new RoomEventFilter();
     chunk chunks;
@@ -23,6 +28,12 @@ public class DLZMessageService {
         roomClient = new DLZService(uri).getRoomClient();
         this.roomId = roomId;
     }
+
+    /**
+     * Loads new Messages from the Matrix Server
+     *
+     * @return List of DLZMessages
+     */
     public List<DLZMessage> getMessage(){
         if(start == null) {
             DLZMessageStructure msgs = roomClient.getMessages(roomId, "b", 50, filter);
@@ -42,5 +53,15 @@ public class DLZMessageService {
             messages.add(nmessage);
         });
         return messages;
+    }
+    public static List<DLZMessage> getNewMessages(){
+        List<DLZMessage> list = new ArrayList<>();
+        DLZMessage mes = new DLZMessage();
+        mes.message = "testo";
+        list.add(mes);
+        return list;
+    }
+    public static  boolean hasNewMessages(){
+        return true;
     }
 }

@@ -1,6 +1,7 @@
 package org.lecturestudio.web.api.service;
 
 import org.lecturestudio.web.api.exception.MatrixUnauthorizedException;
+import org.lecturestudio.web.api.model.DLZMessage;
 import org.lecturestudio.web.api.model.JoinedRooms;
 import org.lecturestudio.web.api.model.Room;
 
@@ -35,5 +36,15 @@ public class DLZRoomService {
             e.printStackTrace();
         }
         return rooms;
+    }
+    public static List<DLZMessage> getNewMessages(){
+        List<DLZMessage> list = new ArrayList<>();
+        DLZMessage mes = new DLZMessage();
+        mes.message = "testo";
+        list.add(mes);
+        return list;
+    }
+    public static  boolean hasNewMessages(){
+        return true;
     }
 }

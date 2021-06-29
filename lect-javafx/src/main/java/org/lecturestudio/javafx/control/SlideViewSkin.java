@@ -18,24 +18,6 @@
 
 package org.lecturestudio.javafx.control;
 
-import static java.util.Objects.isNull;
-import static java.util.Objects.nonNull;
-
-import java.awt.Dimension;
-import java.awt.Graphics2D;
-import java.awt.Rectangle;
-import java.awt.color.ColorSpace;
-import java.awt.geom.AffineTransform;
-import java.awt.image.BufferedImage;
-import java.awt.image.ColorModel;
-import java.awt.image.DataBuffer;
-import java.awt.image.DataBufferInt;
-import java.awt.image.DirectColorModel;
-import java.awt.image.WritableRaster;
-import java.nio.IntBuffer;
-import java.util.HashMap;
-import java.util.Map;
-
 import javafx.application.Platform;
 import javafx.beans.property.ReadOnlyObjectWrapper;
 import javafx.beans.value.ChangeListener;
@@ -51,7 +33,6 @@ import javafx.scene.image.PixelBuffer;
 import javafx.scene.image.PixelFormat;
 import javafx.scene.image.WritableImage;
 import javafx.stage.Screen;
-
 import org.lecturestudio.core.ExecutableException;
 import org.lecturestudio.core.PageMetrics;
 import org.lecturestudio.core.controller.RenderController;
@@ -59,8 +40,8 @@ import org.lecturestudio.core.geometry.Dimension2D;
 import org.lecturestudio.core.geometry.Rectangle2D;
 import org.lecturestudio.core.model.Page;
 import org.lecturestudio.core.model.listener.PageEditEvent;
-import org.lecturestudio.core.model.listener.PageEditedListener;
 import org.lecturestudio.core.model.listener.PageEditEvent.Type;
+import org.lecturestudio.core.model.listener.PageEditedListener;
 import org.lecturestudio.core.model.shape.Shape;
 import org.lecturestudio.core.model.shape.TeXShape;
 import org.lecturestudio.core.model.shape.TextShape;
@@ -74,6 +55,17 @@ import org.lecturestudio.javafx.beans.converter.HPositionConverter;
 import org.lecturestudio.javafx.beans.converter.VPositionConverter;
 import org.lecturestudio.javafx.render.ViewRenderer;
 import org.lecturestudio.javafx.util.FxUtils;
+
+import java.awt.*;
+import java.awt.color.ColorSpace;
+import java.awt.geom.AffineTransform;
+import java.awt.image.*;
+import java.nio.IntBuffer;
+import java.util.HashMap;
+import java.util.Map;
+
+import static java.util.Objects.isNull;
+import static java.util.Objects.nonNull;
 
 public class SlideViewSkin extends SkinBase<SlideView> {
 
@@ -135,7 +127,7 @@ public class SlideViewSkin extends SkinBase<SlideView> {
 		control.pageProperty().removeListener(pageListener);
 		control.presentationParameterProperty().removeListener(presentationListener);
 
-		unregisterChangeListeners(control.seekingProperty());
+		// unregisterChangeListeners(control.seekingProperty());
 
 		Page page = control.getPage();
 

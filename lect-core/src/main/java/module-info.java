@@ -28,6 +28,7 @@ module org.lecturestudio.core {
 	requires com.sun.jna;
 	requires com.sun.jna.platform;
 	requires webrtc.java;
+	requires pngencoder;
 
 	exports org.lecturestudio.core;
 	exports org.lecturestudio.core.app;

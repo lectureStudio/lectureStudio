@@ -18,43 +18,42 @@
 
 package org.lecturestudio.core.screencapture;
 
-import dev.onvoid.webrtc.media.video.desktop.DesktopCapturer;
-import dev.onvoid.webrtc.media.video.desktop.DesktopFrame;
-import dev.onvoid.webrtc.media.video.desktop.DesktopSource;
-import dev.onvoid.webrtc.media.video.desktop.WindowCapturer;
+import com.pngencoder.PngEncoder;
+import com.pngencoder.PngEncoderBufferedImageConverter;
+import dev.onvoid.webrtc.media.video.desktop.*;
 import org.lecturestudio.core.ExecutableState;
 
+import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
+import java.nio.IntBuffer;
+import java.util.Queue;
 import java.util.Timer;
 import java.util.TimerTask;
+import java.util.concurrent.ConcurrentLinkedQueue;
 
 public class ScreenCaptureRecorder {
 
-    private final WindowCapturer capturer = new WindowCapturer();
     private final ScreenCaptureOutputStream stream;
+    private final Queue<BufferedImage> frameQueue;
+
+    private DesktopCapturer capturer;
 
     private ScreenCaptureTask captureTask;
     private ScreenCaptureFormat format;
+
+    private FrameProcessor processor;
 
     private ExecutableState state = ExecutableState.Stopped;
     private boolean initialized = false;
 
     public ScreenCaptureRecorder(File outputFile) throws IOException {
         stream = new ScreenCaptureOutputStream(outputFile);
-        capturer.start(this::onScreenCaptureFrame);
+        frameQueue = new ConcurrentLinkedQueue<>();
     }
 
     public ScreenCaptureOutputStream getStream() {
         return stream;
-    }
-
-    public void setScreenCaptureFormat(ScreenCaptureFormat format) {
-        if (state != ExecutableState.Stopped) {
-            throw new RuntimeException("Cannot update screen capture format, recording already started.");
-        }
-        this.format = format;
-        captureTask = new ScreenCaptureTask(format.getFrameRate());
     }
 
     public void start() throws IOException {
@@ -66,6 +65,11 @@ public class ScreenCaptureRecorder {
 
         stream.setScreenCaptureFormat(format);
         stream.reset();
+
+        processor = new FrameProcessor();
+        new Thread(processor).start();
+
+        captureTask = new ScreenCaptureTask(format.getFrameRate());
         captureTask.start();
 
         state = ExecutableState.Started;
@@ -77,6 +81,8 @@ public class ScreenCaptureRecorder {
         }
 
         captureTask.stop();
+        processor.stop(false);
+
         state = ExecutableState.Suspended;
     }
 
@@ -85,31 +91,52 @@ public class ScreenCaptureRecorder {
             return;
         }
 
-        // Closes stream and writes remaining bytes to disk
-        stream.close();
-
         captureTask.stop();
+        processor.stop(true);
+
         state = ExecutableState.Stopped;
     }
 
-    public void setActiveSource(DesktopSource source) {
+    public void setScreenCaptureFormat(ScreenCaptureFormat format) {
+        if (state != ExecutableState.Stopped) {
+            throw new RuntimeException("Cannot update screen capture format, recording already started.");
+        }
+        this.format = format;
+    }
+
+    public void setActiveSource(DesktopSource source, DesktopSourceType type) {
         if (source != null) {
+            initialized = false;
+
+            // Initialize desktop capturer
+            capturer = (type == DesktopSourceType.WINDOW) ? new WindowCapturer() : new ScreenCapturer();
             capturer.selectSource(source);
+            capturer.start(this::onScreenCaptureFrame);
+
             stream.setActiveChannelId((int) source.id);
             initialized = true;
         }
     }
 
     private void onScreenCaptureFrame(DesktopCapturer.Result result, DesktopFrame frame) {
-        // BufferedImage image = ScreenCaptureUtils.convertFrame(frame, frame.frameSize.width, frame.frameSize.height);
-        try {
-            int bytesWritten = stream.writeFrameBuffer(frame.buffer);
-            System.out.println("Bytes Captured: " + bytesWritten + " Total: " + stream.getTotalBytesWritten());
-        } catch (IOException e) {
-            System.err.println("Failed to write frame to screen capture stream.");
-            e.printStackTrace();
+        // Add successfully captured frames to queue for further processing
+        if (result == DesktopCapturer.Result.SUCCESS) {
+            // Convert frame buffer to int array
+            IntBuffer buffer = frame.buffer.asIntBuffer();
+            int[] pixelBuffer = new int[buffer.remaining()];
+            buffer.get(pixelBuffer);
+
+            // Create buffered image from pixels
+            BufferedImage image = PngEncoderBufferedImageConverter.createFromIntArgb(pixelBuffer, frame.frameSize.width, frame.frameSize.height);
+
+            // Add buffered image to queue
+            if (!frameQueue.offer(image)) {
+                System.out.println("Failed to insert frame into queue.");
+            }
         }
     }
+
+
 
     private class ScreenCaptureTask extends Timer {
 
@@ -136,6 +163,58 @@ public class ScreenCaptureRecorder {
 
             task = null;
         }
+    }
 
+
+
+    private class FrameProcessor implements Runnable {
+
+        private boolean isRunning = false;
+        private int frameCounter = 0;
+
+        private boolean closeStream = false;
+
+        @Override
+        public void run() {
+            isRunning = true;
+            System.out.println("Started Frame Processor");
+
+            // Make sure to process remaining frames in the queue even if the task was stopped.
+            while (isRunning || !frameQueue.isEmpty()) {
+                BufferedImage frame = frameQueue.poll();
+                if (frame != null) {
+                    processFrame(frame);
+                }
+            }
+
+            if (closeStream) {
+                try {
+                    stream.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+
+            System.out.println("Stopped Frame Processor");
+        }
+
+        public void stop(boolean closeStream) {
+            this.closeStream = closeStream;
+            isRunning = false;
+        }
+
+        private void processFrame(BufferedImage frame) {
+            // Compress frame and convert it to bytes array
+            byte[] compressedImage = new PngEncoder().withBufferedImage(frame).toBytes();
+
+            try {
+                int bytesWritten = stream.writeFrameBytes(compressedImage);
+                System.out.println("Frame " + frameCounter + ": Bytes Processed: " + bytesWritten + " Total: " + stream.getTotalBytesWritten());
+                frameCounter++;
+            } catch (IOException e) {
+                System.err.println("Failed to write frame to screen capture stream.");
+                e.printStackTrace();
+            }
+        }
     }
 }

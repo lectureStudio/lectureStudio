@@ -18,8 +18,6 @@
 
 package org.lecturestudio.presenter.javafx.view;
 
-import java.util.List;
-
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
 import javafx.scene.control.CheckBox;
@@ -27,12 +25,12 @@ import javafx.scene.control.ComboBox;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.GridPane;
 import javafx.util.converter.NumberStringConverter;
-
 import org.lecturestudio.core.audio.AudioFormat;
 import org.lecturestudio.core.beans.BooleanProperty;
 import org.lecturestudio.core.beans.IntegerProperty;
 import org.lecturestudio.core.beans.ObjectProperty;
 import org.lecturestudio.core.beans.StringProperty;
+import org.lecturestudio.core.screencapture.ScreenCaptureFormat;
 import org.lecturestudio.core.view.Action;
 import org.lecturestudio.javafx.beans.LectBooleanProperty;
 import org.lecturestudio.javafx.beans.LectIntegerProperty;
@@ -41,6 +39,8 @@ import org.lecturestudio.javafx.beans.LectStringProperty;
 import org.lecturestudio.javafx.util.FxUtils;
 import org.lecturestudio.javafx.view.FxmlView;
 import org.lecturestudio.presenter.api.view.RecordSettingsView;
+
+import java.util.List;
 
 @FxmlView(name = "recording-settings", presenter = org.lecturestudio.presenter.api.presenter.RecordSettingsPresenter.class)
 public class FxRecordSettingsView extends GridPane implements RecordSettingsView {
@@ -109,6 +109,16 @@ public class FxRecordSettingsView extends GridPane implements RecordSettingsView
 	@Override
 	public void setOnSelectRecordingPath(Action action) {
 		FxUtils.bindAction(selectRecPathButton, action);
+	}
+
+	@Override
+	public void setRecordingScreenCaptureFormat(ObjectProperty<ScreenCaptureFormat> screenCaptureFormat) {
+
+	}
+
+	@Override
+	public void setRecordingScreenCaptureFormats(List<ScreenCaptureFormat> formats) {
+
 	}
 
 	@Override

@@ -403,11 +403,6 @@ public class FxSlidesView extends VBox implements SlidesView {
 	}
 
 	@Override
-	public void setOnScreenCapturePause(Action action) {
-
-	}
-
-	@Override
 	public void setOnOutlineItem(ConsumerAction<DocumentOutlineItem> action) {
 
 	}

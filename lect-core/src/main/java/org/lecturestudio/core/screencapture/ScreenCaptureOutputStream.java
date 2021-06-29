@@ -111,6 +111,31 @@ public class ScreenCaptureOutputStream {
         return writtenBytes;
     }
 
+    public int writeFrameBytes(byte[] frameBytes) throws IOException {
+        int bytesWritten = 0;
+        if (channel.isOpen()) {
+            // Add offset + image data to byte buffer
+            ByteBuffer buffer = ByteBuffer.allocate(frameBytes.length + 4);
+            buffer.putInt(frameBytes.length);
+            buffer.put(frameBytes);
+            buffer.flip();
+
+            // Handle change of channel id
+            if (activeChannelId != lastFrameChannelId) {
+                writeChannelHeader(activeChannelId);
+            }
+            lastFrameChannelId = activeChannelId;
+
+            // Repeat until buffer is completely written to the channel
+            while (buffer.hasRemaining()) {
+                bytesWritten += channel.write(buffer);
+            }
+        }
+
+        totalBytesWritten += bytesWritten;
+        return bytesWritten;
+    }
+
     /**
      * Writes a new frame to the output stream including its data size.
      *

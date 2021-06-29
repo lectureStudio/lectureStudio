@@ -19,7 +19,6 @@
 package org.lecturestudio.presenter.api.recording;
 
 import com.google.common.eventbus.Subscribe;
-import dev.onvoid.webrtc.media.video.desktop.DesktopSource;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.lecturestudio.core.ExecutableException;
@@ -44,6 +43,7 @@ import org.lecturestudio.core.recording.*;
 import org.lecturestudio.core.recording.action.PlaybackAction;
 import org.lecturestudio.core.recording.action.StaticShapeAction;
 import org.lecturestudio.core.recording.file.RecordingFileWriter;
+import org.lecturestudio.core.screencapture.ScreenCaptureDocument;
 import org.lecturestudio.core.screencapture.ScreenCaptureFormat;
 import org.lecturestudio.core.screencapture.ScreenCaptureOutputStream;
 import org.lecturestudio.core.screencapture.ScreenCaptureRecorder;
@@ -158,8 +158,8 @@ public class FileLectureRecorder extends LectureRecorder {
 
 			// Update source of screen capture recorder if needed
 			if (event.getDocument().isScreenCapture()) {
-				DesktopSource source = event.getDocument().getScreenCaptureDocument().getSource();
-				screenCaptureRecorder.setActiveSource(source);
+				ScreenCaptureDocument scd = event.getDocument().getScreenCaptureDocument();
+				screenCaptureRecorder.setActiveSource(scd.getSource(), scd.getType());
 			}
 		}
 	}
@@ -300,8 +300,8 @@ public class FileLectureRecorder extends LectureRecorder {
 
 				// Set capture source if selected document is screen capture
 				if (selectedDocument.isScreenCapture()) {
-					DesktopSource screenCaptureSource = selectedDocument.getScreenCaptureDocument().getSource();
-					screenCaptureRecorder.setActiveSource(screenCaptureSource);
+					ScreenCaptureDocument scd = selectedDocument.getScreenCaptureDocument();
+					screenCaptureRecorder.setActiveSource(scd.getSource(), scd.getType());
 				}
 
 				screenCaptureRecorder.start();

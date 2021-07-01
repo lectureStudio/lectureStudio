@@ -286,6 +286,7 @@ public class SlidesPresenter extends Presenter<SlidesView> {
 			return;
 		}
 
+		setFocusedTeXView(null);
 		view.setLaTeXText("");
 	}
 

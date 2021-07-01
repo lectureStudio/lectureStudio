@@ -16,6 +16,8 @@ import org.lecturestudio.web.api.service.DLZRoomService;
 
 
 import javax.inject.Inject;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.Date;
 import java.util.List;
 import java.util.concurrent.Executors;
@@ -24,7 +26,9 @@ import java.util.concurrent.TimeUnit;
 
 public class DLZSettingsPresenter extends Presenter<DLZSettingsView> {
 
+    private DLZMessageService messageservice;
     private ScheduledExecutorService service; //Service for requesting Messages
+    private URI uri;
 
     @Inject
     DLZSettingsPresenter(ApplicationContext context, DLZSettingsView view) {
@@ -34,12 +38,19 @@ public class DLZSettingsPresenter extends Presenter<DLZSettingsView> {
     @Override
     public void initialize() {
         PresenterConfiguration config = (PresenterConfiguration) context.getConfiguration();
+
+        try{
+            uri = new URI("https://chat.etit.tu-darmstadt.de");
+        }catch (URISyntaxException e){
+            e.printStackTrace();
+        }
+        messageservice = new DLZMessageService(uri, "!HfqjbRoQgfBsrHzWVn:chat.etit.tu-darmstadt.deNameTestLecureStudio");
         service = Executors.newSingleThreadScheduledExecutor();
 		service.scheduleAtFixedRate(() -> {
-        // TODO
+
         try {
-            if (DLZRoomService.hasNewMessages()) {
-                List<DLZMessage> messages = DLZRoomService.getNewMessages();
+            if (messageservice.hasNewMessages()) {
+                List<DLZMessage> messages = messageservice.getNewMessages();
 
                 for (var message : messages) {
                     String text = message.message;

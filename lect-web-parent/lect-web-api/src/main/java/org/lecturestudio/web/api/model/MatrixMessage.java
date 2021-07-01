@@ -9,6 +9,8 @@ import java.util.StringJoiner;
 public class MatrixMessage {
     public content content;
     public String sender;
+    public String event_id;
+
 
     @Override
     public String toString() {

@@ -35,7 +35,7 @@ public class ToolColorPickerButton extends ToggleComboButton<Stroke> {
 
 		chooser = new ToolColorChooser(resourceBundle);
 		chooser.setOnOk(e -> {
-			setSelectedItem(chooser.getSelectedStroke());
+			setSelectedItem(chooser.getSelectedStroke().clone());
 			hidePopup();
 		});
 		chooser.setOnCancel(e -> hidePopup());

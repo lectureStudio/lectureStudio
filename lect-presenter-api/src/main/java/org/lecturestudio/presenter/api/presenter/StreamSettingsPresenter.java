@@ -18,9 +18,11 @@
 
 package org.lecturestudio.presenter.api.presenter;
 
+import static java.util.Objects.isNull;
 import static java.util.Objects.nonNull;
 
 import java.util.Arrays;
+import java.util.List;
 
 import javax.inject.Inject;
 
@@ -40,6 +42,9 @@ import org.lecturestudio.presenter.api.config.DefaultConfiguration;
 import org.lecturestudio.presenter.api.config.PresenterConfiguration;
 import org.lecturestudio.presenter.api.config.StreamConfiguration;
 import org.lecturestudio.presenter.api.view.StreamSettingsView;
+import org.lecturestudio.web.api.service.ServiceParameters;
+import org.lecturestudio.web.api.stream.model.Lecture;
+import org.lecturestudio.web.api.stream.service.StreamService;
 
 public class StreamSettingsPresenter extends Presenter<StreamSettingsView> {
 
@@ -70,6 +75,8 @@ public class StreamSettingsPresenter extends Presenter<StreamSettingsView> {
 
 		streamConfig.setAudioCodec(defaultConfig.getStreamConfig().getAudioCodec());
 		streamConfig.setAudioFormat(defaultConfig.getStreamConfig().getAudioFormat());
+		streamConfig.setAccessToken(defaultConfig.getStreamConfig().getAccessToken());
+		streamConfig.setLecture(defaultConfig.getStreamConfig().getLecture());
 
 		cameraConfig.setBitRate(defaultConfig.getStreamConfig().getCameraCodecConfig().getBitRate());
 
@@ -91,6 +98,7 @@ public class StreamSettingsPresenter extends Presenter<StreamSettingsView> {
 
 		setStreamAudioFormats(streamConfig.getAudioCodec());
 
+		view.setAccessToken(streamConfig.accessTokenProperty());
 		view.setStreamAudioFormat(streamConfig.audioFormatProperty());
 		view.setStreamAudioCodecNames(codecNames);
 		view.setStreamAudioCodecName(streamConfig.audioCodecProperty());
@@ -102,6 +110,25 @@ public class StreamSettingsPresenter extends Presenter<StreamSettingsView> {
 		view.setOnDeleteBroadcastProfile(this::deleteBroadcastProfile);
 
 		view.setOnReset(this::reset);
+
+		try {
+			ServiceParameters parameters = new ServiceParameters();
+			parameters.setUrl("https://lecturestudio.dek.e-technik.tu-darmstadt.de");
+
+			StreamService streamService = new StreamService(parameters, streamConfig::getAccessToken);
+			List<Lecture> lectures = streamService.getLectures();
+
+			if (isNull(streamConfig.getLecture()) && !lectures.isEmpty()) {
+				// Set first available lecture by default.
+				streamConfig.setLecture(lectures.get(0));
+			}
+
+			view.setLectures(lectures);
+			view.setLecture(streamConfig.lectureProperty());
+		}
+		catch (Exception e) {
+			//
+		}
 
 		netConfig.getBroadcastProfiles().addListener(new ListChangeListener<>() {
 

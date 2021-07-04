@@ -18,6 +18,8 @@
 
 package org.lecturestudio.presenter.swing.view;
 
+import static java.util.Objects.isNull;
+
 import java.awt.event.ActionEvent;
 import java.text.MessageFormat;
 import java.util.List;
@@ -49,11 +51,16 @@ import org.lecturestudio.swing.components.IPTextField;
 import org.lecturestudio.swing.util.SwingUtils;
 import org.lecturestudio.swing.view.SwingView;
 import org.lecturestudio.swing.view.ViewPostConstruct;
+import org.lecturestudio.web.api.stream.model.Lecture;
 
 @SwingView(name = "stream-settings", presenter = org.lecturestudio.presenter.api.presenter.StreamSettingsPresenter.class)
 public class SwingStreamSettingsView extends JPanel implements StreamSettingsView {
 
 	private final ResourceBundle resourceBundle;
+
+	private JTextField accessTokenTextField;
+
+	private JComboBox<Lecture> lectureCombo;
 
 	private JComboBox<String> streamAudioCodecCombo;
 
@@ -102,6 +109,24 @@ public class SwingStreamSettingsView extends JPanel implements StreamSettingsVie
 	}
 
 	@Override
+	public void setAccessToken(StringProperty accessToken) {
+		SwingUtils.bindBidirectional(accessTokenTextField, accessToken);
+	}
+
+	@Override
+	public void setLecture(ObjectProperty<Lecture> lecture) {
+		SwingUtils.invoke(() -> {
+			SwingUtils.bindBidirectional(lectureCombo, lecture);
+		});
+	}
+
+	@Override
+	public void setLectures(List<Lecture> lectures) {
+		SwingUtils.invoke(() -> lectureCombo
+				.setModel(new DefaultComboBoxModel<>(new Vector<>(lectures))));
+	}
+
+	@Override
 	public void setStreamAudioFormat(ObjectProperty<AudioFormat> audioFormat) {
 		SwingUtils.invoke(() -> {
 			SwingUtils.bindBidirectional(streamAudioFormatCombo, audioFormat);
@@ -140,6 +165,10 @@ public class SwingStreamSettingsView extends JPanel implements StreamSettingsVie
 
 		profile.addListener((observable, oldValue, newValue) -> {
 			SwingUtils.invoke(() -> {
+				if (isNull(newValue)) {
+					return;
+				}
+
 				String message = resourceBundle.getString("stream.settings.broadcast.profile.selected");
 				selectedProfileLabel.setText(MessageFormat.format(message,
 						String.format("%s - %s : %d : %d", newValue.getName(),

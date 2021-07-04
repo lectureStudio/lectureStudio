@@ -40,11 +40,15 @@ import org.lecturestudio.javafx.beans.LectStringProperty;
 import org.lecturestudio.javafx.util.FxUtils;
 import org.lecturestudio.javafx.view.FxmlView;
 import org.lecturestudio.presenter.api.view.StreamSettingsView;
+import org.lecturestudio.web.api.stream.model.Lecture;
 
 @FxmlView(name = "stream-settings", presenter = org.lecturestudio.presenter.api.presenter.StreamSettingsPresenter.class)
 public class FxStreamSettingsView extends GridPane implements StreamSettingsView {
 
 	private ConsumerAction<BroadcastProfile> deleteProfileAction;
+
+	@FXML
+	private TextField accessTokenTextField;
 
 	@FXML
 	private ComboBox<BroadcastProfile> bcastProfilesCombo;
@@ -79,6 +83,21 @@ public class FxStreamSettingsView extends GridPane implements StreamSettingsView
 
 	public FxStreamSettingsView() {
 		super();
+	}
+
+	@Override
+	public void setAccessToken(StringProperty accessToken) {
+		accessTokenTextField.textProperty().bindBidirectional(new LectStringProperty(accessToken));
+	}
+
+	@Override
+	public void setLecture(ObjectProperty<Lecture> lecture) {
+
+	}
+
+	@Override
+	public void setLectures(List<Lecture> lectures) {
+
 	}
 
 	@Override

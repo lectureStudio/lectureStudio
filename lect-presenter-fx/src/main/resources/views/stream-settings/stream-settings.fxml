@@ -27,21 +27,25 @@
 		<ManagedRowConstraints/>
 		<ManagedRowConstraints/>
 		<ManagedRowConstraints/>
+		<ManagedRowConstraints/>
+		<ManagedRowConstraints/>
 		<RowConstraints/>
 		<RowConstraints/>
 		<RowConstraints/>
 		<RowConstraints vgrow="ALWAYS"/>
 	</rowConstraints>
 
-	<Label id="extendedUI" text="%stream.settings.audio" styleClass="text-head" GridPane.columnSpan="3"/>
-	<Label id="extendedUI" text="%stream.settings.audio.codec" GridPane.rowIndex="1" />
-	<Label id="extendedUI" text="%stream.settings.audio.format" GridPane.columnIndex="1" GridPane.rowIndex="1" />
-	<ComboBox id="extendedUI" fx:id="streamAudioCodecCombo" GridPane.rowIndex="2">
+	<Label id="extendedUI" text="%stream.settings.access.token" GridPane.columnSpan="3" />
+	<TextField id="extendedUI" fx:id="accessTokenTextField" GridPane.rowIndex="1"  GridPane.columnSpan="3" />
+	<Label id="extendedUI" text="%stream.settings.audio" styleClass="text-head" GridPane.rowIndex="2" GridPane.columnSpan="3" />
+	<Label id="extendedUI" text="%stream.settings.audio.codec" GridPane.rowIndex="3" />
+	<Label id="extendedUI" text="%stream.settings.audio.format" GridPane.columnIndex="1" GridPane.rowIndex="3" />
+	<ComboBox id="extendedUI" fx:id="streamAudioCodecCombo" GridPane.rowIndex="4">
 		<GridPane.margin>
 			<Insets bottom="15"/>
 		</GridPane.margin>
 	</ComboBox>
-	<ComboBox id="extendedUI" fx:id="streamAudioFormatCombo" GridPane.columnIndex="1" GridPane.rowIndex="2">
+	<ComboBox id="extendedUI" fx:id="streamAudioFormatCombo" GridPane.columnIndex="1" GridPane.rowIndex="4">
 		<buttonCell>
 			<AudioFormatListCell/>
 		</buttonCell>
@@ -52,9 +56,9 @@
 			<Insets bottom="15"/>
 		</GridPane.margin>
 	</ComboBox>
-	<Label id="extendedUI" text="%stream.settings.camera" styleClass="text-head" GridPane.columnSpan="3" GridPane.rowIndex="3"/>
-	<Label id="extendedUI" text="%stream.settings.camera.bitrate" GridPane.rowIndex="4" />
-	<TextField id="extendedUI" fx:id="cameraBitrateTextField" prefColumnCount="6" GridPane.rowIndex="5">
+	<Label id="extendedUI" text="%stream.settings.camera" styleClass="text-head" GridPane.columnSpan="3" GridPane.rowIndex="5"/>
+	<Label id="extendedUI" text="%stream.settings.camera.bitrate" GridPane.rowIndex="6" />
+	<TextField id="extendedUI" fx:id="cameraBitrateTextField" prefColumnCount="6" GridPane.rowIndex="7">
 		<textFormatter>
 			<TextIntegerFormatter/>
 		</textFormatter>
@@ -62,22 +66,22 @@
 			<Insets bottom="15"/>
 		</GridPane.margin>
 	</TextField>
-	<Label text="%stream.settings.broadcast" styleClass="text-head" GridPane.columnSpan="3" GridPane.rowIndex="6"/>
-	<Label text="%stream.settings.broadcast.address" GridPane.rowIndex="7" />
-	<Label text="%stream.settings.broadcast.port" GridPane.columnIndex="1" GridPane.rowIndex="7" />
-	<TextField fx:id="broadcastAddressTextField" GridPane.rowIndex="8"/>
-	<TextField fx:id="broadcastPortTextField" prefColumnCount="5" GridPane.columnIndex="1" GridPane.hgrow="NEVER" GridPane.rowIndex="8">
+	<Label text="%stream.settings.broadcast" styleClass="text-head" GridPane.columnSpan="3" GridPane.rowIndex="8"/>
+	<Label text="%stream.settings.broadcast.address" GridPane.rowIndex="9" />
+	<Label text="%stream.settings.broadcast.port" GridPane.columnIndex="1" GridPane.rowIndex="9" />
+	<TextField fx:id="broadcastAddressTextField" GridPane.rowIndex="10"/>
+	<TextField fx:id="broadcastPortTextField" prefColumnCount="5" GridPane.columnIndex="1" GridPane.hgrow="NEVER" GridPane.rowIndex="10">
 		<textFormatter>
 			<TextIntegerFormatter/>
 		</textFormatter>
 	</TextField>
-	<Label text="%stream.settings.broadcast.port.tls" GridPane.columnIndex="2" GridPane.rowIndex="7" />
-	<TextField fx:id="broadcastTlsPortTextField" prefColumnCount="5" GridPane.columnIndex="2" GridPane.hgrow="NEVER" GridPane.rowIndex="8">
+	<Label text="%stream.settings.broadcast.port.tls" GridPane.columnIndex="2" GridPane.rowIndex="9" />
+	<TextField fx:id="broadcastTlsPortTextField" prefColumnCount="5" GridPane.columnIndex="2" GridPane.hgrow="NEVER" GridPane.rowIndex="10">
 		<textFormatter>
 			<TextIntegerFormatter/>
 		</textFormatter>
 	</TextField>
-	<HBox alignment="BOTTOM_RIGHT" spacing="5" GridPane.columnSpan="3" GridPane.rowIndex="9">
+	<HBox alignment="BOTTOM_RIGHT" spacing="5" GridPane.columnSpan="3" GridPane.rowIndex="11">
 		<Button fx:id="resetButton" text="%button.reset"/>
 		<Button fx:id="closeButton" text="%button.close"/>
 	</HBox>

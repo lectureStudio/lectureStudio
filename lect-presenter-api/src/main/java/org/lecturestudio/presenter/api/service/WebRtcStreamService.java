@@ -18,51 +18,40 @@
 
 package org.lecturestudio.presenter.api.service;
 
-import java.security.MessageDigest;
-
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
-import org.lecturestudio.broadcast.config.BroadcastProfile;
 import org.lecturestudio.core.ExecutableBase;
 import org.lecturestudio.core.ExecutableException;
 import org.lecturestudio.core.ExecutableState;
 import org.lecturestudio.core.app.ApplicationContext;
 import org.lecturestudio.core.codec.VideoCodecConfiguration;
-import org.lecturestudio.core.model.Document;
 import org.lecturestudio.core.service.DocumentService;
-import org.lecturestudio.core.util.NetUtils;
 import org.lecturestudio.media.config.AudioStreamConfig;
 import org.lecturestudio.media.config.CameraStreamConfig;
-import org.lecturestudio.presenter.api.config.NetworkConfiguration;
-import org.lecturestudio.media.net.server.MediaStreamProvider;
 import org.lecturestudio.presenter.api.config.PresenterConfiguration;
 import org.lecturestudio.presenter.api.config.StreamConfiguration;
 import org.lecturestudio.presenter.api.event.CameraStateEvent;
 import org.lecturestudio.presenter.api.event.StreamingStateEvent;
-import org.lecturestudio.presenter.api.net.LocalBroadcaster;
-import org.lecturestudio.web.api.model.Classroom;
-import org.lecturestudio.web.api.model.ClassroomDocument;
+import org.lecturestudio.web.api.janus.client.JanusWebSocketClient;
+import org.lecturestudio.web.api.service.ServiceParameters;
 
 /**
- * The {@code StreamService} is the interface between user interface and the
- * servers.
+ * The {@code WebRtcStreamService} is the interface between user interface and
+ * the WebRTC servers.
  *
  * @author Alex Andres
  */
 @Singleton
-public class StreamService extends ExecutableBase {
+public class WebRtcStreamService extends ExecutableBase {
 
 	@Inject
 	private ApplicationContext context;
 
 	@Inject
-	private LocalBroadcaster localBroadcaster;
-
-	@Inject
 	private DocumentService documentService;
 
-	private MediaStreamProvider streamProvider;
+	private JanusWebSocketClient janusClient;
 
 	private ExecutableState streamState;
 
@@ -76,8 +65,6 @@ public class StreamService extends ExecutableBase {
 
 		setCameraState(ExecutableState.Starting);
 
-		streamProvider.setCameraStreamConfig(createCameraStreamConfig());
-		streamProvider.startCameraStream();
 
 		setCameraState(ExecutableState.Started);
 	}
@@ -89,15 +76,23 @@ public class StreamService extends ExecutableBase {
 
 		setCameraState(ExecutableState.Stopping);
 
-		streamProvider.stopCameraStream();
 
 		setCameraState(ExecutableState.Stopped);
 	}
 
 	@Override
-	protected void initInternal() {
+	protected void initInternal() throws ExecutableException {
 		streamState = ExecutableState.Stopped;
 		cameraState = ExecutableState.Stopped;
+
+		PresenterConfiguration config = (PresenterConfiguration) context.getConfiguration();
+		StreamConfiguration streamConfig = config.getStreamConfig();
+
+		ServiceParameters parameters = new ServiceParameters();
+		parameters.setUrl("ws://lecturestudio.dek.e-technik.tu-darmstadt.de:8188");
+
+		janusClient = new JanusWebSocketClient(parameters);
+		janusClient.init();
 	}
 
 	@Override
@@ -108,32 +103,7 @@ public class StreamService extends ExecutableBase {
 
 		setStreamState(ExecutableState.Starting);
 
-		checkStartLocalBroadcaster();
-
-		try {
-			streamProvider = createStreamProvider();
-			streamProvider.setClassroom(createClassroom());
-		}
-		catch (Exception e) {
-			throw new ExecutableException(e);
-		}
-
-		PresenterConfiguration config = (PresenterConfiguration) context.getConfiguration();
-		StreamConfiguration streamConfig = config.getStreamConfig();
-
-//		org.lecturestudio.web.api.model.StreamService streamService = new org.lecturestudio.web.api.model.StreamService();
-//		streamService.setAudioCodec(streamConfig.getAudioCodec());
-//		streamService.setAudioFormat(streamConfig.getAudioFormat());
-
-//		streamProvider.setStreamConfig(streamService);
-		streamProvider.setAudioStreamConfig(createAudioStreamConfig());
-		streamProvider.addStateListener((oldState, newState) -> {
-			if (started() && newState == ExecutableState.Error) {
-				setStreamState(ExecutableState.Error);
-				setCameraState(ExecutableState.Error);
-			}
-		});
-		streamProvider.start();
+		janusClient.start();
 
 		setStreamState(ExecutableState.Started);
 	}
@@ -146,46 +116,14 @@ public class StreamService extends ExecutableBase {
 
 		setStreamState(ExecutableState.Stopping);
 
-		streamProvider.stop();
-		streamProvider.destroy();
-
-		checkStopLocalBroadcaster();
+		janusClient.stop();
 
 		setStreamState(ExecutableState.Stopped);
 	}
 
 	@Override
-	protected void destroyInternal() {
-
-	}
-
-	private MediaStreamProvider createStreamProvider() throws Exception {
-		PresenterConfiguration config = (PresenterConfiguration) context.getConfiguration();
-		NetworkConfiguration netConfig = config.getNetworkConfig();
-
-//		ConnectionParameters parameters = new ConnectionParameters(netConfig.getBroadcastAddress(), netConfig.getBroadcastTlsPort(), true);
-
-		return new MediaStreamProvider(context);
-	}
-
-	private Classroom createClassroom() throws Exception {
-		PresenterConfiguration config = (PresenterConfiguration) context.getConfiguration();
-		NetworkConfiguration networkConfig = config.getNetworkConfig();
-
-		// Set current document.
-		MessageDigest digest = MessageDigest.getInstance("MD5");
-		Document doc = documentService.getDocuments().getSelectedDocument();
-		String fileName = doc.getName() + ".pdf";
-
-		ClassroomDocument classDoc = new ClassroomDocument();
-		classDoc.setFileName(fileName);
-		classDoc.setChecksum(doc.getChecksum(digest));
-
-		Classroom classroom = new Classroom(config.getClassroomName(), config.getClassroomShortName());
-		classroom.getDocuments().add(classDoc);
-		classroom.setIpFilterRules(networkConfig.getIpFilter().getRules());
-
-		return classroom;
+	protected void destroyInternal() throws ExecutableException {
+		janusClient.destroy();
 	}
 
 	private AudioStreamConfig createAudioStreamConfig() {
@@ -211,26 +149,6 @@ public class StreamService extends ExecutableBase {
 		cameraStreamConfig.codecConfig = codecConfig;
 
 		return cameraStreamConfig;
-	}
-
-	private void checkStartLocalBroadcaster() throws ExecutableException {
-		PresenterConfiguration config = (PresenterConfiguration) context.getConfiguration();
-		NetworkConfiguration netConfig = config.getNetworkConfig();
-		BroadcastProfile bastProfile = netConfig.getBroadcastProfile();
-		String broadcastAddress = bastProfile.getBroadcastAddress();
-		Integer broadcastPort = bastProfile.getBroadcastPort();
-
-		if (NetUtils.isLocalAddress(broadcastAddress, broadcastPort)) {
-			localBroadcaster.start();
-		}
-		else {
-			checkStopLocalBroadcaster();
-		}
-	}
-
-	private void checkStopLocalBroadcaster() throws ExecutableException {
-		localBroadcaster.stop();
-		localBroadcaster.destroy();
 	}
 
 	/**

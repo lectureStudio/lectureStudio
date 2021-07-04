@@ -23,27 +23,56 @@ import org.lecturestudio.core.beans.ObjectProperty;
 import org.lecturestudio.core.beans.StringProperty;
 import org.lecturestudio.core.camera.CameraFormat;
 import org.lecturestudio.core.codec.VideoCodecConfiguration;
+import org.lecturestudio.web.api.stream.model.Lecture;
 
 public class StreamConfiguration {
 
+	private final StringProperty accessToken = new StringProperty();
+
+	private final ObjectProperty<Lecture> lecture = new ObjectProperty<>();
+
 	private final ObjectProperty<AudioFormat> audioFormat = new ObjectProperty<>();
-	
+
 	private final StringProperty audioCodec = new StringProperty();
 
 	private final StringProperty cameraName = new StringProperty();
-	
+
 	private final ObjectProperty<CameraFormat> cameraFormat = new ObjectProperty<>();
-	
+
 	private final VideoCodecConfiguration cameraCodecConfig = new VideoCodecConfiguration();
-	
-	
+
+
+	public String getAccessToken() {
+		return accessToken.get();
+	}
+
+	public void setAccessToken(String token) {
+		this.accessToken.set(token);
+	}
+
+	public StringProperty accessTokenProperty() {
+		return accessToken;
+	}
+
+	public Lecture getLecture() {
+		return lecture.get();
+	}
+
+	public void setLecture(Lecture lecture) {
+		this.lecture.set(lecture);
+	}
+
+	public ObjectProperty<Lecture> lectureProperty() {
+		return lecture;
+	}
+
 	/**
 	 * @return the audioFormat
 	 */
 	public AudioFormat getAudioFormat() {
 		return audioFormat.get();
 	}
-	
+
 	/**
 	 * @param audioFormat the audioFormat to set
 	 */

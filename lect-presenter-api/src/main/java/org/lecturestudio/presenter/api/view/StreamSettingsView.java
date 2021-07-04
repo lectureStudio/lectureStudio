@@ -25,10 +25,17 @@ import org.lecturestudio.core.beans.ObjectProperty;
 import org.lecturestudio.core.beans.StringProperty;
 import org.lecturestudio.core.view.Action;
 import org.lecturestudio.core.view.ConsumerAction;
+import org.lecturestudio.web.api.stream.model.Lecture;
 
 import java.util.List;
 
 public interface StreamSettingsView extends SettingsBaseView {
+
+	void setAccessToken(StringProperty accessToken);
+
+	void setLecture(ObjectProperty<Lecture> lecture);
+
+	void setLectures(List<Lecture> lectures);
 
 	void setStreamAudioFormat(ObjectProperty<AudioFormat> audioFormat);
 

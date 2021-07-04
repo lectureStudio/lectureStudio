@@ -41,6 +41,7 @@ import org.lecturestudio.web.api.janus.JanusMessageTransmitter;
 import org.lecturestudio.web.api.janus.json.JanusMessageFactory;
 import org.lecturestudio.web.api.janus.message.JanusMessageType;
 import org.lecturestudio.web.api.janus.message.JanusMessage;
+import org.lecturestudio.web.api.service.ServiceParameters;
 
 /**
  * Janus WebSocket signaling client implementation. This client sends, receives,
@@ -50,12 +51,18 @@ import org.lecturestudio.web.api.janus.message.JanusMessage;
  */
 public class JanusWebSocketClient extends ExecutableBase implements JanusMessageTransmitter {
 
+	private final ServiceParameters serviceParameters;
+
 	private WebSocket webSocket;
 
 	private Jsonb jsonb;
 
 	private JanusHandler handler;
 
+
+	public JanusWebSocketClient(ServiceParameters parameters) {
+		serviceParameters = parameters;
+	}
 
 	@Override
 	public void sendMessage(JanusMessage message) {
@@ -83,7 +90,7 @@ public class JanusWebSocketClient extends ExecutableBase implements JanusMessage
 		webSocketBuilder.connectTimeout(Duration.of(10, ChronoUnit.SECONDS));
 
 		webSocket = webSocketBuilder
-				.buildAsync(URI.create("ws://127.0.0.1:8188"),
+				.buildAsync(URI.create(serviceParameters.getUrl()),
 						new WebSocketListener())
 				.join();
 

@@ -16,12 +16,9 @@ public abstract class ProviderService {
 	protected ServiceParameters parameters;
 
 
-	protected <T> T createProxy(Class<T> proxyClass, ServiceParameters parameters) {
-		this.parameters = parameters;
-
+	protected RestClientBuilder createClientBuilder(ServiceParameters parameters) {
 		RestClientBuilder builder = RestClientBuilder.newBuilder();
 		builder.baseUri(URI.create(parameters.getUrl()));
-		builder.register(JsonConfig.class);
 		builder.connectTimeout(12, TimeUnit.SECONDS);
 
 		if (parameters.getUrl().startsWith("https")) {
@@ -29,6 +26,15 @@ public abstract class ProviderService {
 			builder.hostnameVerifier((hostname, sslSession) -> hostname
 					.equalsIgnoreCase(sslSession.getPeerHost()));
 		}
+
+		return builder;
+	}
+
+	protected <T> T createProxy(Class<T> proxyClass, ServiceParameters parameters) {
+		this.parameters = parameters;
+
+		RestClientBuilder builder =createClientBuilder(parameters);
+		builder.register(JsonConfig.class);
 
 		return builder.build(proxyClass);
 	}

@@ -2,6 +2,8 @@ package org.lecturestudio.presenter.api.presenter;
 
 import org.lecturestudio.core.ExecutableException;
 import org.lecturestudio.core.app.ApplicationContext;
+import org.lecturestudio.core.beans.ObjectProperty;
+import org.lecturestudio.core.beans.StringProperty;
 import org.lecturestudio.core.presenter.Presenter;
 import org.lecturestudio.presenter.api.config.PresenterConfiguration;
 import org.lecturestudio.presenter.api.view.DLZSettingsView;
@@ -38,6 +40,8 @@ public class DLZSettingsPresenter extends Presenter<DLZSettingsView> {
     @Override
     public void initialize() {
         PresenterConfiguration config = (PresenterConfiguration) context.getConfiguration();
+        config.setDlzAccessToken(System.getProperty("dlz.token"));
+
 
         try{
             uri = new URI("https://chat.etit.tu-darmstadt.de");
@@ -76,6 +80,7 @@ public class DLZSettingsPresenter extends Presenter<DLZSettingsView> {
         view.setRooms(setRoomList());
         view.setOnClose(this::close);
         view.setOnReset(this::reset);
+        view.setDLZAccessToken(config.DLZAccessToken());
     }
 
     public List<Room> setRoomList() {
@@ -88,21 +93,8 @@ public class DLZSettingsPresenter extends Presenter<DLZSettingsView> {
         return rooms;
     }
 
-
-    /**@Override
-    public void initialize() {
-        PresenterConfiguration config = (PresenterConfiguration) context.getConfiguration();
-
-        view.setRoom(config.dlzRoomProperty());
-        view.setRooms(setRoomList());
-        view.setOnClose(this::close);
-        view.setOnReset(this::reset);
-    }**/
-
     public void reset() {
         PresenterConfiguration config = (PresenterConfiguration) context.getConfiguration();
-
-
     }
 
 }

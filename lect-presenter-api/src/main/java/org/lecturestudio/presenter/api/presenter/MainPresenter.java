@@ -69,6 +69,7 @@ import org.lecturestudio.core.view.ViewContextFactory;
 import org.lecturestudio.core.view.ViewHandler;
 import org.lecturestudio.core.view.ViewLayer;
 import org.lecturestudio.presenter.api.context.PresenterContext;
+import org.lecturestudio.presenter.api.event.DLZStateEvent;
 import org.lecturestudio.presenter.api.event.MessengerStateEvent;
 import org.lecturestudio.presenter.api.event.QuizStateEvent;
 import org.lecturestudio.presenter.api.event.StreamingStateEvent;
@@ -311,6 +312,23 @@ public class MainPresenter extends org.lecturestudio.core.presenter.MainPresente
 
 	@Subscribe
 	public void onEvent(final MessengerStateEvent event) {
+		ExecutableState state = event.getState();
+
+		if (state == ExecutableState.Starting) {
+			showWaitingNotification("messenger.starting");
+		}
+		else if (state == ExecutableState.Started) {
+			hideWaitingNotification();
+
+			display(createPresenter(MessengerWindowPresenter.class));
+		}
+		else if (state == ExecutableState.Stopped) {
+			destroyHandler(MessengerWindowPresenter.class);
+		}
+	}
+
+	@Subscribe
+	public void onEvent(final DLZStateEvent event) {
 		ExecutableState state = event.getState();
 
 		if (state == ExecutableState.Starting) {

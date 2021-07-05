@@ -50,6 +50,8 @@ public class PresenterConfiguration extends Configuration {
 
 	private final ObjectProperty<Room> dlzRoom = new ObjectProperty<>();
 
+	private final ObjectProperty<String> dlzAccessToken = new ObjectProperty<>();
+
 	/**
 	 * @return the classroomName
 	 */
@@ -181,6 +183,19 @@ public class PresenterConfiguration extends Configuration {
 	public ObjectProperty<Room> dlzRoomProperty() {
 		return dlzRoom;
 	}
+
+	public String getDLZAccessToken() {
+		return dlzAccessToken.get();}
+
+	public void setDlzAccessToken(String DLZAccessToken) {
+		dlzAccessToken.set(DLZAccessToken);
+		//org.lecturestudio.web.api.filter.AuthorizationFilter.setToken(DLZAccessToken);
+	}
+
+	public ObjectProperty<String> DLZAccessToken() {
+		return dlzAccessToken;
+	}
+
 
 
 }

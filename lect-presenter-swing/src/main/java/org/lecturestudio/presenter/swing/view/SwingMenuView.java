@@ -410,6 +410,19 @@ public class SwingMenuView extends JMenuBar implements MenuView {
 	}
 
 	@Override
+	public void setDLZState(ExecutableState state){
+		final boolean started = state == ExecutableState.Started;
+
+		SwingUtils.invoke(() -> {
+			startDLZMenuItem.setEnabled(!started);
+			stopDLZMenuItem.setEnabled(started);
+			showDLZWindowMenuItem.setEnabled(started);
+
+			setIndicatorState(messengerIndicatorMenu, state);
+		});
+	}
+
+	@Override
 	public void setQuizState(ExecutableState state) {
 		final boolean started = state == ExecutableState.Started;
 

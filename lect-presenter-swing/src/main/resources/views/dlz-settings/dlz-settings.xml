@@ -7,6 +7,12 @@
 		<gridbagconstraints gridx="1" gridy="0" anchor="GridBagConstraints.WEST" insets="5,0,5,0" />
 		<renderer class="org.lecturestudio.presenter.swing.combobox.DLZRoomRenderer" />
 	</ComboBox>
+	<Label text="dlz.settings.token">
+		<gridbagconstraints gridx="0" gridy="6" gridwidth="2" anchor="GridBagConstraints.WEST" insets="5,0,2,0" />
+	</Label>
+	<TextField id="dlzAccessTokenTextField">
+		<gridbagconstraints gridx="0" gridy="7" weightx="1" fill="GridBagConstraints.HORIZONTAL" anchor="GridBagConstraints.WEST" insets="5,0,15,0" />
+	</TextField>
 	<box.vglue>
 		<gridbagconstraints gridx="0" gridy="8" weighty="1.0" />
 	</box.vglue>

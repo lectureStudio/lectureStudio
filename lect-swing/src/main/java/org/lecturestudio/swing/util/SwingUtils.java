@@ -24,14 +24,7 @@ import static java.util.Objects.requireNonNull;
 import java.awt.Color;
 import java.awt.Component;
 
-import javax.swing.AbstractButton;
-import javax.swing.JCheckBoxMenuItem;
-import javax.swing.JComboBox;
-import javax.swing.JComponent;
-import javax.swing.JSlider;
-import javax.swing.JTable;
-import javax.swing.JToggleButton;
-import javax.swing.SwingUtilities;
+import javax.swing.*;
 import javax.swing.text.JTextComponent;
 
 import org.lecturestudio.core.beans.ObjectProperty;
@@ -155,4 +148,7 @@ public final class SwingUtils {
 			c.setEnabled(enabled);
 		}
 	}
+
+    public static void bindBidirectional(JTextField dlzAccessTokenTextField, String accessToken) {
+    }
 }

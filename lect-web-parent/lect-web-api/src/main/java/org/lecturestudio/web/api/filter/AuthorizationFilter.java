@@ -10,7 +10,11 @@ import javax.ws.rs.ext.Provider;
 public class AuthorizationFilter implements ClientRequestFilter {
 
     private static final String BEARER = "Bearer ";
+    private static String token;
 
+    /*public static void setToken(String Token) {
+        token = Token;
+    }*/
 
     @Override
     public void filter(ClientRequestContext requestContext) {
@@ -20,4 +24,5 @@ public class AuthorizationFilter implements ClientRequestFilter {
             requestContext.getHeaders().putSingle(AUTHORIZATION, BEARER + token);
         }
     }
+
 }

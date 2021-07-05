@@ -136,6 +136,8 @@ public interface MenuView extends View {
 
 	void setStreamingState(ExecutableState state);
 
+	void setDLZState(ExecutableState state);
+
 	/**
 	 * Services Menu
 	 */

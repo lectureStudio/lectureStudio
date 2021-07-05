@@ -76,11 +76,7 @@ import org.lecturestudio.core.view.ViewContextFactory;
 import org.lecturestudio.core.view.ViewType;
 import org.lecturestudio.presenter.api.config.PresenterConfiguration;
 import org.lecturestudio.presenter.api.context.PresenterContext;
-import org.lecturestudio.presenter.api.event.MessengerStateEvent;
-import org.lecturestudio.presenter.api.event.QuizStateEvent;
-import org.lecturestudio.presenter.api.event.RecordingStateEvent;
-import org.lecturestudio.presenter.api.event.RecordingTimeEvent;
-import org.lecturestudio.presenter.api.event.StreamingStateEvent;
+import org.lecturestudio.presenter.api.event.*;
 import org.lecturestudio.presenter.api.model.Bookmark;
 import org.lecturestudio.presenter.api.model.BookmarkKeyException;
 import org.lecturestudio.presenter.api.model.Bookmarks;
@@ -195,6 +191,10 @@ public class MenuPresenter extends Presenter<MenuView> {
 		view.setMessengerState(event.getState());
 	}
 
+	@Subscribe
+	public void onEvent(final DLZStateEvent event){
+		view.setDLZState(event.getState());
+	}
 	@Subscribe
 	public void onEvent(final QuizWebServiceState state) {
 		view.setQuizServiceState(state);
@@ -498,16 +498,16 @@ public class MenuPresenter extends Presenter<MenuView> {
 		System.out.println("DLZ-Chat gestartet");
 		PresenterConfiguration config = (PresenterConfiguration) context.getConfiguration();
 		System.out.println(config.getDlzRoom().getName());
-		org.lecturestudio.web.api.service.DLZSendMessageService.SendTextMessage("Test aus lectstudio" , config.getDlzRoom().getId());
-		String shortcut = "";
-		//String message = MessageFormat.format(context.getDictionary().get("dlz.started"), shortcut);
-		//showNotificationPopup(message);
-		context.getEventBus().post(new MessengerStateEvent(ExecutableState.Starting));
-		context.getEventBus().post(new MessengerStateEvent(ExecutableState.Started));
+		//org.lecturestudio.web.api.service.DLZSendMessageService.SendTextMessage("Test aus lectstudio" , config.getDlzRoom().getId());
+		context.getEventBus().post(new DLZStateEvent(ExecutableState.Starting));
+		context.getEventBus().post(new DLZStateEvent(ExecutableState.Started));
 	}
 
 	public void stopDLZ(){
 		System.out.println("DLZ-Chat gestoppt");
+		context.getEventBus().post(new DLZStateEvent(ExecutableState.Stopping));
+		context.getEventBus().post(new DLZStateEvent(ExecutableState.Stopped));
+
 	}
 
 	public void showDLZWindow(boolean show){

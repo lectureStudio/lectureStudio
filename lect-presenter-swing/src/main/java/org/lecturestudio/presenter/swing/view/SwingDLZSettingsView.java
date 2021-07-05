@@ -3,6 +3,7 @@ package org.lecturestudio.presenter.swing.view;
 import org.lecturestudio.core.PageMetrics;
 import org.lecturestudio.core.beans.Converter;
 import org.lecturestudio.core.beans.ObjectProperty;
+import org.lecturestudio.core.beans.StringProperty;
 import org.lecturestudio.core.geometry.Dimension2D;
 import org.lecturestudio.core.view.Action;
 import org.lecturestudio.presenter.api.config.PresenterConfiguration;
@@ -20,6 +21,8 @@ import java.util.Vector;
 public class SwingDLZSettingsView extends JPanel implements DLZSettingsView {
 
     private JComboBox<Room> roomsCombo;
+
+    private JTextField dlzAccessTokenTextField;
 
     private JButton closeButton;
 
@@ -42,6 +45,12 @@ public class SwingDLZSettingsView extends JPanel implements DLZSettingsView {
     @Override
     public void setRoom(ObjectProperty<Room> room) { SwingUtils.bindBidirectional(roomsCombo, room);
     }
+
+    @Override
+    public void setDLZAccessToken(ObjectProperty<String> AccessToken) {
+        SwingUtils.bindBidirectional(dlzAccessTokenTextField, AccessToken);
+    }
+
 
     @Override
     public void setOnClose(org.lecturestudio.core.view.Action action) {

@@ -20,6 +20,7 @@ import org.lecturestudio.web.api.service.DLZRoomService;
 import javax.inject.Inject;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.net.UnknownHostException;
 import java.util.Date;
 import java.util.List;
 import java.util.concurrent.Executors;
@@ -48,7 +49,8 @@ public class DLZSettingsPresenter extends Presenter<DLZSettingsView> {
         }catch (URISyntaxException e){
             e.printStackTrace();
         }
-        messageservice = new DLZMessageService(uri, "!HfqjbRoQgfBsrHzWVn:chat.etit.tu-darmstadt.deNameTestLecureStudio");
+
+        messageservice = new DLZMessageService(uri, "!HfqjbRoQgfBsrHzWVn:chat.etit.tu-darmstadt.de");
         service = Executors.newSingleThreadScheduledExecutor();
 		service.scheduleAtFixedRate(() -> {
 

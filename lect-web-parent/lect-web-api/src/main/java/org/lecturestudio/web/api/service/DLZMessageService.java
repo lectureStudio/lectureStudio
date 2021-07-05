@@ -18,16 +18,18 @@ public class DLZMessageService {
 
     String roomId;
     RoomService roomClient;
-    RoomEventFilter filter = new RoomEventFilter();
+    RoomEventFilter filter;
     chunk chunks;
     List<DLZMessage> messages;
     String start; //Start für den nächsten Aufruf
     ArrayList<String> messageIDs; //saves IDs of allready recived messages
 
     public DLZMessageService(URI uri, String roomId){
+        filter = new RoomEventFilter();
         filter.getTypes().add("m.room.message");
         roomClient = new DLZService(uri).getRoomClient();
         this.roomId = roomId;
+        messageIDs = new ArrayList<>();
     }
 
     /**
@@ -36,7 +38,7 @@ public class DLZMessageService {
      * @return List of DLZMessages
      */
     public List<DLZMessage> getNewMessages(){
-       List<DLZMessage> out = messages.subList(0, messages.size()-1);
+       List<DLZMessage> out = messages.subList(0, messages.size());
        messages = null;
        return out;
     }
@@ -54,15 +56,15 @@ public class DLZMessageService {
 
         messages = new ArrayList<DLZMessage>();
         if(start == null) {
-            DLZMessageStructure msgs = roomClient.getMessages(roomId, "b", 50, filter);
-            chunks = msgs.chunk;
-            start = msgs.end;
-        }else{
-            DLZMessageStructure msgs = roomClient.getMessages(roomId,start, "b", 50, filter);
-            chunks = msgs.chunk;
-            start = msgs.end;
+            chunks = roomClient.getMessages(roomId, "b", 5, filter);
+            start = chunks.start;
+        }else {
+            chunks = roomClient.getMessages(roomId, "b", 3, filter);
+            start = chunks.start;
         }
-        chunks.chunk.forEach(message -> {
+
+        for(MatrixMessage message : chunks.chunk){
+        //chunks.chunk.forEach(message -> {
             if(!isReceived(message.event_id)) {
                 messageIDs.add(message.event_id);
                 DLZMessage nmessage = new DLZMessage();
@@ -72,12 +74,14 @@ public class DLZMessageService {
                 nmessage.url = message.content.url;
                 messages.add(nmessage);
             }
-        });
+        }
+        //);
         if(messages.size() != 0){
             return true;
         }else{
             return false;
         }
+
 
 
     }
@@ -89,13 +93,12 @@ public class DLZMessageService {
      * @return message already received
      */
     private boolean isReceived(String id){
+        boolean received = false;
         for(String e : messageIDs){
             if(e.equals(id)){
-                return true;
-            }else{
-                return false;
+                received = true;
             }
         }
-        return false;
+        return received;
     }
 }

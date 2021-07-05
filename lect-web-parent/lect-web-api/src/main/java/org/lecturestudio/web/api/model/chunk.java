@@ -10,4 +10,6 @@ import java.util.List;
  */
 public class chunk {
     public List<MatrixMessage> chunk;
+    public String end;
+    public String start;
 }

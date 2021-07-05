@@ -108,7 +108,6 @@ public class MenuPresenter extends Presenter<MenuView> {
 
 	private final QuizParser quizParser;
 
-	public static Room ChoosenDLZRoom;
 
 	@Inject
 	private ToolController toolController;
@@ -499,9 +498,12 @@ public class MenuPresenter extends Presenter<MenuView> {
 		System.out.println("DLZ-Chat gestartet");
 		PresenterConfiguration config = (PresenterConfiguration) context.getConfiguration();
 		System.out.println(config.getDlzRoom().getName());
+		org.lecturestudio.web.api.service.DLZSendMessageService.SendTextMessage("Test aus lectstudio" , config.getDlzRoom().getId());
 		String shortcut = "";
-		String message = MessageFormat.format(context.getDictionary().get("dlz.started"), shortcut);
-		showNotificationPopup(message);
+		//String message = MessageFormat.format(context.getDictionary().get("dlz.started"), shortcut);
+		//showNotificationPopup(message);
+		context.getEventBus().post(new MessengerStateEvent(ExecutableState.Starting));
+		context.getEventBus().post(new MessengerStateEvent(ExecutableState.Started));
 	}
 
 	public void stopDLZ(){
@@ -509,11 +511,11 @@ public class MenuPresenter extends Presenter<MenuView> {
 	}
 
 	public void showDLZWindow(boolean show){
-		if(show){
-			System.out.println("DLZ-Chat anzeigen");
+		if (show) {
+			eventBus.post(new ShowPresenterCommand<>(MessengerWindowPresenter.class));
 		}
-		else{
-			System.out.println("DLZ-Chat nicht angezeigt");
+		else {
+			eventBus.post(new ClosePresenterCommand(MessengerWindowPresenter.class));
 		}
 	}
 
@@ -729,9 +731,9 @@ public class MenuPresenter extends Presenter<MenuView> {
 		view.setOnControlRecordingSettings(this::showRecordingSettings);
 		view.setOnControlStreaming(this::toggleStreaming);
 		view.setOnControlStreamingSettings(this::showStreamingSettings);
-		view.setOnControlMessenger(this::toggleDLZ);
-		view.setOnControlMessengerSettings(this::showDLZSettings);
-		view.setOnControlMessengerWindow(this::showDLZWindow);
+		view.setOnControlDLZ(this::toggleDLZ);
+		view.setOnControlDLZSettings(this::showDLZSettings);
+		view.setOnControlDLZWindow(this::showDLZWindow);
 
 		view.setOnClearBookmarks(this::clearBookmarks);
 		view.setOnShowNewBookmarkView(this::newBookmark);

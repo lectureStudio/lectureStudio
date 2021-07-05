@@ -35,6 +35,8 @@ import org.lecturestudio.presenter.api.event.CameraStateEvent;
 import org.lecturestudio.presenter.api.event.StreamingStateEvent;
 import org.lecturestudio.web.api.janus.client.JanusWebSocketClient;
 import org.lecturestudio.web.api.service.ServiceParameters;
+import org.lecturestudio.web.api.stream.config.WebRtcConfiguration;
+import org.lecturestudio.web.api.stream.config.WebRtcDefaultConfiguration;
 
 /**
  * The {@code WebRtcStreamService} is the interface between user interface and
@@ -91,7 +93,10 @@ public class WebRtcStreamService extends ExecutableBase {
 		ServiceParameters parameters = new ServiceParameters();
 		parameters.setUrl("ws://lecturestudio.dek.e-technik.tu-darmstadt.de:8188");
 
-		janusClient = new JanusWebSocketClient(parameters);
+		WebRtcConfiguration webRtcConfig = new WebRtcDefaultConfiguration();
+		webRtcConfig.setLecture(streamConfig.getLecture());
+
+		janusClient = new JanusWebSocketClient(parameters, webRtcConfig);
 		janusClient.init();
 	}
 

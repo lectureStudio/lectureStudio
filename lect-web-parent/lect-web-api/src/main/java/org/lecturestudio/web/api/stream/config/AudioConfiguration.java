@@ -16,7 +16,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package org.lecturestudio.web.api.webrtc.config;
+package org.lecturestudio.web.api.stream.config;
 
 import dev.onvoid.webrtc.media.audio.AudioDevice;
 

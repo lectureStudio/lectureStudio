@@ -16,13 +16,13 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package org.lecturestudio.web.api.webrtc.config;
+package org.lecturestudio.web.api.stream.config;
 
 import dev.onvoid.webrtc.RTCConfiguration;
 
-import javax.inject.Singleton;
+import org.lecturestudio.web.api.stream.model.Lecture;
 
-public class Configuration {
+public class WebRtcConfiguration {
 
 	private final AudioConfiguration audioConfig;
 
@@ -32,8 +32,10 @@ public class Configuration {
 
 	private final RTCConfiguration rtcConfig;
 
+	private Lecture lecture;
 
-	public Configuration() {
+
+	public WebRtcConfiguration() {
 		audioConfig = new AudioConfiguration();
 		videoConfig = new VideoConfiguration();
 		desktopCaptureConfig = new DesktopCaptureConfiguration();
@@ -54,5 +56,13 @@ public class Configuration {
 
 	public RTCConfiguration getRTCConfig() {
 		return rtcConfig;
+	}
+
+	public Lecture getLecture() {
+		return lecture;
+	}
+
+	public void setLecture(Lecture lecture) {
+		this.lecture = lecture;
 	}
 }

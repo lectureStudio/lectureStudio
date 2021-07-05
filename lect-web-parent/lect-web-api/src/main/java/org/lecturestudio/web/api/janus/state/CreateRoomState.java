@@ -18,6 +18,9 @@
 
 package org.lecturestudio.web.api.janus.state;
 
+import static java.util.Objects.requireNonNull;
+
+import java.math.BigInteger;
 import java.util.UUID;
 
 import org.lecturestudio.web.api.janus.JanusHandler;
@@ -25,6 +28,7 @@ import org.lecturestudio.web.api.janus.message.JanusCreateRoomMessage;
 import org.lecturestudio.web.api.janus.message.JanusMessage;
 import org.lecturestudio.web.api.janus.message.JanusPluginDataMessage;
 import org.lecturestudio.web.api.janus.message.JanusRoomCreatedMessage;
+import org.lecturestudio.web.api.stream.model.Lecture;
 
 /**
  * This state creates a new video-room on the Janus WebRTC server.
@@ -35,12 +39,25 @@ public class CreateRoomState implements JanusState {
 
 	private JanusPluginDataMessage createRequest;
 
+	private BigInteger roomId;
+
 
 	@Override
 	public void initialize(JanusHandler handler) {
+		Lecture lecture = handler.getWebRtcConfig().getLecture();
+
+		requireNonNull(lecture);
+
+		logDebug("Creating Janus room for: %s", lecture.getTitle());
+
+		handler.setRoomSecret(UUID.randomUUID().toString());
+
+		roomId = BigInteger.valueOf(lecture.getRoomId());
+
 		JanusCreateRoomMessage request = new JanusCreateRoomMessage();
-		request.setIsPrivate(false);
-		request.setPermanent(false);
+		request.setRoom(roomId);
+		request.setPublishers(1);
+		request.setSecret(handler.getRoomSecret());
 
 		createRequest = new JanusPluginDataMessage(handler.getSessionId(),
 				handler.getPluginId());
@@ -58,6 +75,10 @@ public class CreateRoomState implements JanusState {
 			JanusRoomCreatedMessage success = (JanusRoomCreatedMessage) message;
 
 			logDebug("Janus room created: %d", success.getRoomId());
+
+			if (!success.getRoomId().equals(roomId)) {
+				throw new IllegalStateException("Room IDs do not match");
+			}
 
 			handler.setRoomId(success.getRoomId());
 			handler.setState(new JoinRoomState());

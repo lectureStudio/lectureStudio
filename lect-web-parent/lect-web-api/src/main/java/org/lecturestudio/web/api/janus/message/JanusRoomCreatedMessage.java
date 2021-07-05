@@ -29,17 +29,21 @@ public class JanusRoomCreatedMessage extends JanusRoomMessage {
 
 	private final BigInteger roomId;
 
+	private final Boolean permanent;
+
 
 	/**
 	 * Create a new {@code JanusRoomCreatedMessage}.
 	 *
 	 * @param sessionId The unique integer session ID.
 	 * @param roomId    The unique numeric room ID.
+	 * @param permanent True if saved to config file, false if not.
 	 */
-	public JanusRoomCreatedMessage(BigInteger sessionId, BigInteger roomId) {
+	public JanusRoomCreatedMessage(BigInteger sessionId, BigInteger roomId, Boolean permanent) {
 		super(sessionId);
 
 		this.roomId = roomId;
+		this.permanent = permanent;
 
 		setRoomEventType(JanusRoomEventType.CREATED);
 	}
@@ -51,5 +55,15 @@ public class JanusRoomCreatedMessage extends JanusRoomMessage {
 	 */
 	public BigInteger getRoomId() {
 		return roomId;
+	}
+
+	/**
+	 * Checks if the created room has been permanently saved to the config file
+	 * on the server side.
+	 *
+	 * @return True if saved to config file, false if not.
+	 */
+	public Boolean getPermanent() {
+		return permanent;
 	}
 }

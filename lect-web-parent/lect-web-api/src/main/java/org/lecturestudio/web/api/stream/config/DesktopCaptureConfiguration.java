@@ -16,29 +16,28 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package org.lecturestudio.web.api.webrtc.config;
+package org.lecturestudio.web.api.stream.config;
 
-import dev.onvoid.webrtc.RTCBundlePolicy;
-import dev.onvoid.webrtc.RTCIceServer;
-import dev.onvoid.webrtc.RTCIceTransportPolicy;
+import org.lecturestudio.core.beans.IntegerProperty;
 
-public class DefaultConfiguration extends Configuration {
+public class DesktopCaptureConfiguration {
 
-	public DefaultConfiguration() {
-		getAudioConfiguration().setReceiveAudio(true);
-		getAudioConfiguration().setSendAudio(true);
+	private final IntegerProperty frameRate;
 
-		getVideoConfiguration().setReceiveVideo(true);
-		getVideoConfiguration().setSendVideo(true);
 
-		getDesktopCaptureConfiguration().setFrameRate(15);
-
-		RTCIceServer iceServer = new RTCIceServer();
-		iceServer.urls.add("stun:stun.l.google.com:19302");
-
-		getRTCConfig().iceTransportPolicy = RTCIceTransportPolicy.ALL;
-		getRTCConfig().bundlePolicy = RTCBundlePolicy.MAX_BUNDLE;
-		getRTCConfig().iceServers.add(iceServer);
+	public DesktopCaptureConfiguration() {
+		frameRate = new IntegerProperty();
 	}
 
+	public IntegerProperty frameRateProperty() {
+		return frameRate;
+	}
+
+	public Integer getFrameRate() {
+		return frameRate.get();
+	}
+
+	public void setFrameRate(int rate) {
+		frameRate.set(rate);
+	}
 }

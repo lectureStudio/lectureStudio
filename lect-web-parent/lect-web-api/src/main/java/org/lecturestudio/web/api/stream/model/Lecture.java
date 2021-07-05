@@ -24,6 +24,8 @@ public class Lecture {
 
 	private Long id;
 
+	private Long roomId;
+
 	private String title;
 
 	private String description;
@@ -31,6 +33,10 @@ public class Lecture {
 
 	public Long getId() {
 		return id;
+	}
+
+	public Long getRoomId() {
+		return roomId;
 	}
 
 	public String getTitle() {

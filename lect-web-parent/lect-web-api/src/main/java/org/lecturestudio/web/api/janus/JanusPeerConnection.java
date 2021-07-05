@@ -61,7 +61,7 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutorService;
 import java.util.function.Consumer;
 
-import org.lecturestudio.web.api.webrtc.config.Configuration;
+import org.lecturestudio.web.api.stream.config.WebRtcConfiguration;
 
 public class JanusPeerConnection implements PeerConnectionObserver {
 
@@ -69,7 +69,7 @@ public class JanusPeerConnection implements PeerConnectionObserver {
 
 	private final ExecutorService executor;
 
-	private final Configuration config;
+	private final WebRtcConfiguration config;
 
 	private PeerConnectionFactory factory;
 
@@ -103,7 +103,7 @@ public class JanusPeerConnection implements PeerConnectionObserver {
 	private Consumer<VideoFrame> onRemoteVideoFrame;
 
 
-	public JanusPeerConnection(Configuration config, ExecutorService executor) {
+	public JanusPeerConnection(WebRtcConfiguration config, ExecutorService executor) {
 		this.config = config;
 		this.executor = executor;
 		this.queuedRemoteCandidates = new ArrayList<>();

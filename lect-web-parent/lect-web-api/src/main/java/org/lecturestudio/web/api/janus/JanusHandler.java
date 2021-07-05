@@ -43,14 +43,15 @@ import org.lecturestudio.web.api.janus.message.JanusSessionMessage;
 import org.lecturestudio.web.api.janus.message.JanusSessionTimeoutMessage;
 import org.lecturestudio.web.api.janus.state.InfoState;
 import org.lecturestudio.web.api.janus.state.JanusState;
-import org.lecturestudio.web.api.webrtc.config.Configuration;
-import org.lecturestudio.web.api.webrtc.config.DefaultConfiguration;
+import org.lecturestudio.web.api.stream.config.WebRtcConfiguration;
 
 public class JanusHandler {
 
 	private final ScheduledExecutorService executorService;
 
 	private final JanusMessageTransmitter transmitter;
+
+	private final WebRtcConfiguration webRtcConfig;
 
 	private final Map<Class<? extends JanusMessage>, Consumer<? extends JanusMessage>> handlerMap;
 
@@ -66,9 +67,12 @@ public class JanusHandler {
 
 	private BigInteger roomId;
 
+	private String roomSecret;
 
-	public JanusHandler(JanusMessageTransmitter transmitter) {
+
+	public JanusHandler(JanusMessageTransmitter transmitter, WebRtcConfiguration webRtcConfig) {
 		this.transmitter = transmitter;
+		this.webRtcConfig = webRtcConfig;
 
 		executorService = Executors.newSingleThreadScheduledExecutor();
 		handlerMap = new HashMap<>();
@@ -86,14 +90,16 @@ public class JanusHandler {
 	}
 
 	public void createPeerConnection() {
-		Configuration config = new DefaultConfiguration();
-
-		peerConnection = new JanusPeerConnection(config,
+		peerConnection = new JanusPeerConnection(webRtcConfig,
 				Executors.newSingleThreadExecutor());
 	}
 
 	public JanusPeerConnection getPeerConnection() {
 		return peerConnection;
+	}
+
+	public WebRtcConfiguration getWebRtcConfig() {
+		return webRtcConfig;
 	}
 
 	public void listRooms() {
@@ -175,6 +181,16 @@ public class JanusHandler {
 		requireNonNull(id);
 
 		roomId = id;
+	}
+
+	public String getRoomSecret() {
+		return roomSecret;
+	}
+
+	public void setRoomSecret(String secret) {
+		requireNonNull(secret);
+
+		roomSecret = secret;
 	}
 
 	private <T extends JanusMessage> void registerHandler(Class<T> msgClass, Consumer<T> handler) {

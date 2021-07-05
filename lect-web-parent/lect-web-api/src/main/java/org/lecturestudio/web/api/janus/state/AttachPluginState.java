@@ -18,7 +18,6 @@
 
 package org.lecturestudio.web.api.janus.state;
 
-import java.math.BigInteger;
 import java.util.UUID;
 
 import org.lecturestudio.web.api.janus.JanusHandler;
@@ -58,9 +57,7 @@ public class AttachPluginState implements JanusState {
 			logDebug("Janus plugin handle created: %d", success.getSessionId());
 
 			handler.setPluginId(success.getSessionId());
-			handler.setRoomId(BigInteger.valueOf(1234));
-//			handler.setState(new CreateRoomState());
-			handler.setState(new JoinRoomState());
+			handler.setState(new CreateRoomState());
 		}
 	}
 }

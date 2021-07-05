@@ -42,6 +42,7 @@ import org.lecturestudio.web.api.janus.json.JanusMessageFactory;
 import org.lecturestudio.web.api.janus.message.JanusMessageType;
 import org.lecturestudio.web.api.janus.message.JanusMessage;
 import org.lecturestudio.web.api.service.ServiceParameters;
+import org.lecturestudio.web.api.stream.config.WebRtcConfiguration;
 
 /**
  * Janus WebSocket signaling client implementation. This client sends, receives,
@@ -53,6 +54,8 @@ public class JanusWebSocketClient extends ExecutableBase implements JanusMessage
 
 	private final ServiceParameters serviceParameters;
 
+	private final WebRtcConfiguration webRtcConfig;
+
 	private WebSocket webSocket;
 
 	private Jsonb jsonb;
@@ -60,8 +63,9 @@ public class JanusWebSocketClient extends ExecutableBase implements JanusMessage
 	private JanusHandler handler;
 
 
-	public JanusWebSocketClient(ServiceParameters parameters) {
-		serviceParameters = parameters;
+	public JanusWebSocketClient(ServiceParameters parameters, WebRtcConfiguration webRtcConfig) {
+		this.serviceParameters = parameters;
+		this.webRtcConfig = webRtcConfig;
 	}
 
 	@Override
@@ -78,7 +82,7 @@ public class JanusWebSocketClient extends ExecutableBase implements JanusMessage
 	@Override
 	protected void initInternal() throws ExecutableException {
 		jsonb = new JsonConfigProvider().getContext(null);
-		handler = new JanusHandler(this);
+		handler = new JanusHandler(this, webRtcConfig);
 	}
 
 	@Override

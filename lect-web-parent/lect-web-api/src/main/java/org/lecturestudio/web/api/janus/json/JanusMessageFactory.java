@@ -199,8 +199,9 @@ public class JanusMessageFactory {
 			JsonObject data, JanusMessageType type) {
 		var sessionId = body.getJsonNumber("session_id").bigIntegerValue();
 		var roomId = data.getJsonNumber("room").bigIntegerValue();
+		var permanent = data.getBoolean("permanent");
 
-		JanusRoomCreatedMessage message = new JanusRoomCreatedMessage(sessionId, roomId);
+		JanusRoomCreatedMessage message = new JanusRoomCreatedMessage(sessionId, roomId, permanent);
 		message.setEventType(type);
 		message.setTransaction(body.getString("transaction"));
 

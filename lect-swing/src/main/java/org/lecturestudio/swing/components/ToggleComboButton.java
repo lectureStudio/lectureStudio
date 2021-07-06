@@ -280,9 +280,6 @@ public class ToggleComboButton<T> extends JToggleButton {
 	 * or override.
 	 */
 	protected void selectedItemChanged() {
-		// Set the new selected item.
-		selectedItem = getSelectedItem();
-
 		if (nonNull(selectedItem)) {
 			for (ItemChangeListener<T> listener : listeners) {
 				listener.itemChanged(selectedItem);

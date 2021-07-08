@@ -18,10 +18,41 @@
 
 package org.lecturestudio.core.recording;
 
+import java.util.List;
+import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.function.Consumer;
+
 import org.lecturestudio.core.ExecutableBase;
+import org.lecturestudio.core.model.Document;
+import org.lecturestudio.core.recording.action.PlaybackAction;
 
 public abstract class LectureRecorder extends ExecutableBase {
 
+	protected final List<Consumer<PlaybackAction>> actionConsumers = new CopyOnWriteArrayList<>();
+
+	protected final List<Consumer<Document>> documentConsumers = new CopyOnWriteArrayList<>();
+
+
 	abstract public long getElapsedTime();
 
+
+	public void addDocumentConsumer(Consumer<Document> consumer) {
+		documentConsumers.add(consumer);
+	}
+
+	public void addRecordedActionConsumer(Consumer<PlaybackAction> consumer) {
+		actionConsumers.add(consumer);
+	}
+
+	protected void notifyDocumentConsumers(Document document) {
+		for (var consumer : documentConsumers) {
+			consumer.accept(document);
+		}
+	}
+
+	protected void notifyActionConsumers(PlaybackAction action) {
+		for (var consumer : actionConsumers) {
+			consumer.accept(action);
+		}
+	}
 }

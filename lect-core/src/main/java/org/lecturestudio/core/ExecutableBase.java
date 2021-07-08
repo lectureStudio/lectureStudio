@@ -309,6 +309,10 @@ public abstract class ExecutableBase implements Executable {
 		LOG.trace(MessageFormat.format(message, messageParams));
 	}
 
+	final protected void logErrorMessage(String message, Object... messageParams) {
+		LOG.error(MessageFormat.format(message, messageParams));
+	}
+
 	final protected void logException(Throwable throwable, String throwMessage) {
 		requireNonNull(throwable);
 		requireNonNull(throwMessage);

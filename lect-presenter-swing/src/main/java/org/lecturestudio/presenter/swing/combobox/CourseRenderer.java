@@ -25,19 +25,19 @@ import java.awt.Component;
 import javax.swing.DefaultListCellRenderer;
 import javax.swing.JList;
 
-import org.lecturestudio.web.api.stream.model.Lecture;
+import org.lecturestudio.web.api.stream.model.Course;
 
-public class LectureRenderer extends DefaultListCellRenderer {
+public class CourseRenderer extends DefaultListCellRenderer {
 
 	@Override
 	public Component getListCellRendererComponent(JList<?> list, Object value,
 			int index, boolean isSelected, boolean cellHasFocus) {
 		super.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
 
-		Lecture lecture = (Lecture) value;
+		Course course = (Course) value;
 
-		if (nonNull(lecture)) {
-			setText(String.format("%s", lecture.getTitle()));
+		if (nonNull(course)) {
+			setText(String.format("%s", course.getTitle()));
 		}
 		else {
 			setText("");

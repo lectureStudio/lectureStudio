@@ -43,7 +43,7 @@ import org.lecturestudio.presenter.api.config.PresenterConfiguration;
 import org.lecturestudio.presenter.api.config.StreamConfiguration;
 import org.lecturestudio.presenter.api.view.StreamSettingsView;
 import org.lecturestudio.web.api.service.ServiceParameters;
-import org.lecturestudio.web.api.stream.model.Lecture;
+import org.lecturestudio.web.api.stream.model.Course;
 import org.lecturestudio.web.api.stream.service.StreamService;
 
 public class StreamSettingsPresenter extends Presenter<StreamSettingsView> {
@@ -76,7 +76,7 @@ public class StreamSettingsPresenter extends Presenter<StreamSettingsView> {
 		streamConfig.setAudioCodec(defaultConfig.getStreamConfig().getAudioCodec());
 		streamConfig.setAudioFormat(defaultConfig.getStreamConfig().getAudioFormat());
 		streamConfig.setAccessToken(defaultConfig.getStreamConfig().getAccessToken());
-		streamConfig.setLecture(defaultConfig.getStreamConfig().getLecture());
+		streamConfig.setCourse(defaultConfig.getStreamConfig().getCourse());
 
 		cameraConfig.setBitRate(defaultConfig.getStreamConfig().getCameraCodecConfig().getBitRate());
 
@@ -116,15 +116,19 @@ public class StreamSettingsPresenter extends Presenter<StreamSettingsView> {
 			parameters.setUrl("https://lecturestudio.dek.e-technik.tu-darmstadt.de");
 
 			StreamService streamService = new StreamService(parameters, streamConfig::getAccessToken);
-			List<Lecture> lectures = streamService.getLectures();
+			List<Course> courses = streamService.getCourses();
+			Course selectedCourse = streamConfig.getCourse();
 
-			if (isNull(streamConfig.getLecture()) && !lectures.isEmpty()) {
+			if (isNull(selectedCourse) && !courses.isEmpty()) {
 				// Set first available lecture by default.
-				streamConfig.setLecture(lectures.get(0));
+				streamConfig.setCourse(courses.get(0));
+			}
+			else if (!courses.contains(selectedCourse)) {
+				streamConfig.setCourse(courses.get(0));
 			}
 
-			view.setLectures(lectures);
-			view.setLecture(streamConfig.lectureProperty());
+			view.setCourses(courses);
+			view.setCourse(streamConfig.courseProperty());
 		}
 		catch (Exception e) {
 			//

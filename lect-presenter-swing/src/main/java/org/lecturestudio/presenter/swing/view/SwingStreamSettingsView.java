@@ -51,7 +51,7 @@ import org.lecturestudio.swing.components.IPTextField;
 import org.lecturestudio.swing.util.SwingUtils;
 import org.lecturestudio.swing.view.SwingView;
 import org.lecturestudio.swing.view.ViewPostConstruct;
-import org.lecturestudio.web.api.stream.model.Lecture;
+import org.lecturestudio.web.api.stream.model.Course;
 
 @SwingView(name = "stream-settings", presenter = org.lecturestudio.presenter.api.presenter.StreamSettingsPresenter.class)
 public class SwingStreamSettingsView extends JPanel implements StreamSettingsView {
@@ -60,7 +60,7 @@ public class SwingStreamSettingsView extends JPanel implements StreamSettingsVie
 
 	private JTextField accessTokenTextField;
 
-	private JComboBox<Lecture> lectureCombo;
+	private JComboBox<Course> courseCombo;
 
 	private JComboBox<String> streamAudioCodecCombo;
 
@@ -114,16 +114,16 @@ public class SwingStreamSettingsView extends JPanel implements StreamSettingsVie
 	}
 
 	@Override
-	public void setLecture(ObjectProperty<Lecture> lecture) {
+	public void setCourse(ObjectProperty<Course> course) {
 		SwingUtils.invoke(() -> {
-			SwingUtils.bindBidirectional(lectureCombo, lecture);
+			SwingUtils.bindBidirectional(courseCombo, course);
 		});
 	}
 
 	@Override
-	public void setLectures(List<Lecture> lectures) {
-		SwingUtils.invoke(() -> lectureCombo
-				.setModel(new DefaultComboBoxModel<>(new Vector<>(lectures))));
+	public void setCourses(List<Course> courses) {
+		SwingUtils.invoke(() -> courseCombo
+				.setModel(new DefaultComboBoxModel<>(new Vector<>(courses))));
 	}
 
 	@Override

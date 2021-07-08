@@ -3,15 +3,15 @@
 	<Label text="stream.settings.access.token" name="extendedUI">
 		<gridbagconstraints gridx="0" gridy="0" weightx="0.6" anchor="GridBagConstraints.WEST" insets="5,0,2,15" />
 	</Label>
-	<Label text="stream.settings.lecture">
+	<Label text="stream.settings.course">
 		<gridbagconstraints gridx="1" gridy="0" weightx="0.4" anchor="GridBagConstraints.WEST" insets="5,0,2,0" />
 	</Label>
 	<TextField id="accessTokenTextField" name="extendedUI">
 		<gridbagconstraints gridx="0" gridy="1" fill="GridBagConstraints.HORIZONTAL" anchor="GridBagConstraints.WEST" insets="5,0,15,15" />
 	</TextField>
-	<ComboBox id="lectureCombo" name="extendedUI">
+	<ComboBox id="courseCombo" name="extendedUI">
 		<gridbagconstraints gridx="1" gridy="1" anchor="GridBagConstraints.WEST" insets="5,0,15,0" />
-		<renderer class="org.lecturestudio.presenter.swing.combobox.LectureRenderer" />
+		<renderer class="org.lecturestudio.presenter.swing.combobox.CourseRenderer" />
 	</ComboBox>
 	<TitledSeparator text="stream.settings.audio" name="extendedUI">
 		<gridbagconstraints gridx="0" gridy="2" gridwidth="2" anchor="GridBagConstraints.WEST" weightx="1.0" fill="GridBagConstraints.HORIZONTAL" insets="5,0,5,0" />

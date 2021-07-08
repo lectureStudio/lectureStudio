@@ -40,8 +40,8 @@
 		<RowConstraints/>
 	</rowConstraints>
 
-	<Label text="%webservice.settings.lecture.title" />
-	<Label text="%webservice.settings.lecture.title.short" GridPane.columnIndex="1" />
+	<Label text="%webservice.settings.course.title" />
+	<Label text="%webservice.settings.course.title.short" GridPane.columnIndex="1" />
 	<TextField fx:id="lectureTitleTextField" GridPane.rowIndex="1">
 		<GridPane.margin>
 			<Insets bottom="15"/>

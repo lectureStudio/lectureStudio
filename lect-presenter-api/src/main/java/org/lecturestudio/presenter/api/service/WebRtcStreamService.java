@@ -25,18 +25,18 @@ import org.lecturestudio.core.ExecutableBase;
 import org.lecturestudio.core.ExecutableException;
 import org.lecturestudio.core.ExecutableState;
 import org.lecturestudio.core.app.ApplicationContext;
-import org.lecturestudio.core.codec.VideoCodecConfiguration;
+import org.lecturestudio.core.recording.LectureRecorder;
 import org.lecturestudio.core.service.DocumentService;
-import org.lecturestudio.media.config.AudioStreamConfig;
-import org.lecturestudio.media.config.CameraStreamConfig;
 import org.lecturestudio.presenter.api.config.PresenterConfiguration;
 import org.lecturestudio.presenter.api.config.StreamConfiguration;
 import org.lecturestudio.presenter.api.event.CameraStateEvent;
 import org.lecturestudio.presenter.api.event.StreamingStateEvent;
 import org.lecturestudio.web.api.janus.client.JanusWebSocketClient;
 import org.lecturestudio.web.api.service.ServiceParameters;
+import org.lecturestudio.web.api.stream.client.StreamWebSocketClient;
 import org.lecturestudio.web.api.stream.config.WebRtcConfiguration;
 import org.lecturestudio.web.api.stream.config.WebRtcDefaultConfiguration;
+import org.lecturestudio.web.api.stream.service.StreamService;
 
 /**
  * The {@code WebRtcStreamService} is the interface between user interface and
@@ -52,6 +52,8 @@ public class WebRtcStreamService extends ExecutableBase {
 
 	@Inject
 	private DocumentService documentService;
+
+	private StreamWebSocketClient streamStateClient;
 
 	private JanusWebSocketClient janusClient;
 
@@ -87,16 +89,33 @@ public class WebRtcStreamService extends ExecutableBase {
 		streamState = ExecutableState.Stopped;
 		cameraState = ExecutableState.Stopped;
 
-		PresenterConfiguration config = (PresenterConfiguration) context.getConfiguration();
+		PresenterConfiguration config = (PresenterConfiguration) context
+				.getConfiguration();
 		StreamConfiguration streamConfig = config.getStreamConfig();
 
-		ServiceParameters parameters = new ServiceParameters();
-		parameters.setUrl("ws://lecturestudio.dek.e-technik.tu-darmstadt.de:8188");
+		ServiceParameters janusWsParameters = new ServiceParameters();
+		janusWsParameters.setUrl("wss://lecturestudio.dek.e-technik.tu-darmstadt.de:8989");
+
+		ServiceParameters stateWsParameters = new ServiceParameters();
+		stateWsParameters.setUrl("wss://lecturestudio.dek.e-technik.tu-darmstadt.de/api/publisher/course-state");
+
+		ServiceParameters streamApiParameters = new ServiceParameters();
+		streamApiParameters.setUrl("https://lecturestudio.dek.e-technik.tu-darmstadt.de");
 
 		WebRtcConfiguration webRtcConfig = new WebRtcDefaultConfiguration();
-		webRtcConfig.setLecture(streamConfig.getLecture());
+		webRtcConfig.setCourse(streamConfig.getCourse());
 
-		janusClient = new JanusWebSocketClient(parameters, webRtcConfig);
+		StreamService streamService = new StreamService(streamApiParameters,
+				streamConfig::getAccessToken);
+
+		LectureRecorder lectureRecorder = new WebRtcStreamEventRecorder(
+				documentService);
+
+		streamStateClient = new StreamWebSocketClient(stateWsParameters,
+				lectureRecorder, streamService);
+
+		janusClient = new JanusWebSocketClient(janusWsParameters, webRtcConfig,
+				lectureRecorder);
 		janusClient.init();
 	}
 
@@ -108,6 +127,7 @@ public class WebRtcStreamService extends ExecutableBase {
 
 		setStreamState(ExecutableState.Starting);
 
+		streamStateClient.start();
 		janusClient.start();
 
 		setStreamState(ExecutableState.Started);
@@ -121,39 +141,18 @@ public class WebRtcStreamService extends ExecutableBase {
 
 		setStreamState(ExecutableState.Stopping);
 
+		streamStateClient.stop();
+		streamStateClient.destroy();
+
 		janusClient.stop();
+		janusClient.destroy();
 
 		setStreamState(ExecutableState.Stopped);
 	}
 
 	@Override
-	protected void destroyInternal() throws ExecutableException {
-		janusClient.destroy();
-	}
+	protected void destroyInternal() {
 
-	private AudioStreamConfig createAudioStreamConfig() {
-		PresenterConfiguration config = (PresenterConfiguration) context.getConfiguration();
-
-		AudioStreamConfig audioStreamConfig = new AudioStreamConfig();
-		audioStreamConfig.codec = config.getStreamConfig().getAudioCodec();
-		audioStreamConfig.format = config.getStreamConfig().getAudioFormat();
-		audioStreamConfig.captureDeviceName = config.getAudioConfig().getInputDeviceName();
-		audioStreamConfig.system = config.getAudioConfig().getSoundSystem();
-
-		return audioStreamConfig;
-	}
-
-	private CameraStreamConfig createCameraStreamConfig() {
-		PresenterConfiguration config = (PresenterConfiguration) context.getConfiguration();
-		StreamConfiguration streamConfig = config.getStreamConfig();
-		VideoCodecConfiguration codecConfig = streamConfig.getCameraCodecConfig();
-
-		CameraStreamConfig cameraStreamConfig = new CameraStreamConfig();
-		cameraStreamConfig.cameraName = streamConfig.getCameraName();
-		cameraStreamConfig.cameraFormat = streamConfig.getCameraFormat();
-		cameraStreamConfig.codecConfig = codecConfig;
-
-		return cameraStreamConfig;
 	}
 
 	/**

@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Panel layout="GridBagLayout" border="EmptyBorder(20, 20, 20, 20)">
-	<Label text="webservice.settings.lecture.title">
+	<Label text="webservice.settings.course.title">
 		<gridbagconstraints gridx="0" gridy="0" anchor="GridBagConstraints.WEST" insets="5,0,2,15" />
 	</Label>
-	<Label text="webservice.settings.lecture.title.short">
+	<Label text="webservice.settings.course.title.short">
 		<gridbagconstraints gridx="1" gridy="0" weightx="0.4" anchor="GridBagConstraints.WEST" insets="5,0,2,0" />
 	</Label>
 	<TextField id="lectureTitleTextField" columns="40">

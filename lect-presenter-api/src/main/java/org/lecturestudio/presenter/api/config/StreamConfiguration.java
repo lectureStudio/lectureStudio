@@ -23,13 +23,13 @@ import org.lecturestudio.core.beans.ObjectProperty;
 import org.lecturestudio.core.beans.StringProperty;
 import org.lecturestudio.core.camera.CameraFormat;
 import org.lecturestudio.core.codec.VideoCodecConfiguration;
-import org.lecturestudio.web.api.stream.model.Lecture;
+import org.lecturestudio.web.api.stream.model.Course;
 
 public class StreamConfiguration {
 
 	private final StringProperty accessToken = new StringProperty();
 
-	private final ObjectProperty<Lecture> lecture = new ObjectProperty<>();
+	private final ObjectProperty<Course> course = new ObjectProperty<>();
 
 	private final ObjectProperty<AudioFormat> audioFormat = new ObjectProperty<>();
 
@@ -54,16 +54,16 @@ public class StreamConfiguration {
 		return accessToken;
 	}
 
-	public Lecture getLecture() {
-		return lecture.get();
+	public Course getCourse() {
+		return course.get();
 	}
 
-	public void setLecture(Lecture lecture) {
-		this.lecture.set(lecture);
+	public void setCourse(Course course) {
+		this.course.set(course);
 	}
 
-	public ObjectProperty<Lecture> lectureProperty() {
-		return lecture;
+	public ObjectProperty<Course> courseProperty() {
+		return course;
 	}
 
 	/**

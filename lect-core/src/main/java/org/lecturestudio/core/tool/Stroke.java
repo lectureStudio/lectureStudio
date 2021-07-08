@@ -21,6 +21,8 @@ package org.lecturestudio.core.tool;
 import org.lecturestudio.core.graphics.Color;
 import org.lecturestudio.core.graphics.StrokeLineCap;
 
+import java.util.Objects;
+
 /**
  * Class holding information about a pen (color, size, ...)
  * 
@@ -117,6 +119,7 @@ public class Stroke implements Cloneable {
 		this.width *= scale;
 	}
 
+	@Override
 	public Stroke clone() {
 		try {
 			return (Stroke) super.clone();
@@ -125,6 +128,18 @@ public class Stroke implements Cloneable {
 			// should never happen.
 		}
 		return null;
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (obj == null || obj.getClass() != this.getClass()) {
+			return false;
+		}
+		final Stroke otherStroke = (Stroke) obj;
+
+		return (Objects.equals(this.getColor(), otherStroke.getColor()) &&
+				Objects.equals(this.getStrokeLineCap(), otherStroke.getStrokeLineCap()) &&
+				Objects.equals(this.getWidth(), otherStroke.getWidth()));
 	}
 
 }

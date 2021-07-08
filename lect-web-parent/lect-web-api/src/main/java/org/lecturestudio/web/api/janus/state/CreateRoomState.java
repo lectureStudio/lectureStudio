@@ -28,7 +28,7 @@ import org.lecturestudio.web.api.janus.message.JanusCreateRoomMessage;
 import org.lecturestudio.web.api.janus.message.JanusMessage;
 import org.lecturestudio.web.api.janus.message.JanusPluginDataMessage;
 import org.lecturestudio.web.api.janus.message.JanusRoomCreatedMessage;
-import org.lecturestudio.web.api.stream.model.Lecture;
+import org.lecturestudio.web.api.stream.model.Course;
 
 /**
  * This state creates a new video-room on the Janus WebRTC server.
@@ -44,18 +44,19 @@ public class CreateRoomState implements JanusState {
 
 	@Override
 	public void initialize(JanusHandler handler) {
-		Lecture lecture = handler.getWebRtcConfig().getLecture();
+		Course course = handler.getWebRtcConfig().getCourse();
 
-		requireNonNull(lecture);
+		requireNonNull(course);
 
-		logDebug("Creating Janus room for: %s", lecture.getTitle());
+		logDebug("Creating Janus room for: %s", course.getTitle());
 
 		handler.setRoomSecret(UUID.randomUUID().toString());
 
-		roomId = BigInteger.valueOf(lecture.getRoomId());
+		roomId = BigInteger.valueOf(course.getRoomId());
 
 		JanusCreateRoomMessage request = new JanusCreateRoomMessage();
 		request.setRoom(roomId);
+		request.setDescription(course.getTitle());
 		request.setPublishers(1);
 		request.setSecret(handler.getRoomSecret());
 

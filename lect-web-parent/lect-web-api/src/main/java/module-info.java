@@ -13,6 +13,7 @@ module org.lecturestudio.web.api {
 	requires org.apache.logging.log4j;
 	requires org.apache.logging.log4j.core;
 	requires org.lecturestudio.core;
+	requires resteasy.multipart.provider;
 	requires webrtc.java;
 
 	exports org.lecturestudio.web.api.data;

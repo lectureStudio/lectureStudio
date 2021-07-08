@@ -20,7 +20,7 @@ package org.lecturestudio.web.api.stream.config;
 
 import dev.onvoid.webrtc.RTCConfiguration;
 
-import org.lecturestudio.web.api.stream.model.Lecture;
+import org.lecturestudio.web.api.stream.model.Course;
 
 public class WebRtcConfiguration {
 
@@ -32,7 +32,7 @@ public class WebRtcConfiguration {
 
 	private final RTCConfiguration rtcConfig;
 
-	private Lecture lecture;
+	private Course course;
 
 
 	public WebRtcConfiguration() {
@@ -58,11 +58,11 @@ public class WebRtcConfiguration {
 		return rtcConfig;
 	}
 
-	public Lecture getLecture() {
-		return lecture;
+	public Course getCourse() {
+		return course;
 	}
 
-	public void setLecture(Lecture lecture) {
-		this.lecture = lecture;
+	public void setCourse(Course course) {
+		this.course = course;
 	}
 }

@@ -55,6 +55,7 @@ import dev.onvoid.webrtc.media.video.VideoTrack;
 
 import java.lang.System.Logger;
 import java.lang.System.Logger.Level;
+import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
@@ -98,6 +99,8 @@ public class JanusPeerConnection implements PeerConnectionObserver {
 
 	private Consumer<RTCIceGatheringState> onIceGatheringState;
 
+	private Consumer<RTCDataChannelBuffer> onDataChannelBuffer;
+
 	private Consumer<Boolean> onRemoteVideoStream;
 
 	private Consumer<VideoFrame> onRemoteVideoFrame;
@@ -130,6 +133,10 @@ public class JanusPeerConnection implements PeerConnectionObserver {
 		onPeerConnectionState = callback;
 	}
 
+	public void setOnDataChannelBuffer(Consumer<RTCDataChannelBuffer> callback) {
+		onDataChannelBuffer = callback;
+	}
+
 	public void setOnRemoteVideoStream(Consumer<Boolean> callback) {
 		onRemoteVideoStream = callback;
 	}
@@ -154,6 +161,16 @@ public class JanusPeerConnection implements PeerConnectionObserver {
 		}
 
 		return false;
+	}
+
+	public void sendData(byte[] data) throws Exception {
+		if (isNull(dataChannel)) {
+			throw new IllegalStateException("Data channel has not been initialized");
+		}
+
+		ByteBuffer dataBuffer = ByteBuffer.wrap(data);
+
+		dataChannel.send(new RTCDataChannelBuffer(dataBuffer, true));
 	}
 
 	@Override
@@ -326,20 +343,15 @@ public class JanusPeerConnection implements PeerConnectionObserver {
 		}, executor);
 	}
 
-	public void initCall(RTCRtpTransceiverDirection audio,
+	public void setupConnection(RTCRtpTransceiverDirection audio,
 			RTCRtpTransceiverDirection video) {
 		execute(() -> {
-			initMedia(audio, video);
+			addAudio(audio);
+			addVideo(video);
 			addDataChannel();
 
 			createOffer();
 		});
-	}
-
-	private void initMedia(RTCRtpTransceiverDirection audio,
-			RTCRtpTransceiverDirection video) {
-		addAudio(audio);
-		addVideo(video);
 	}
 
 	private void addAudio(RTCRtpTransceiverDirection direction) {
@@ -414,7 +426,7 @@ public class JanusPeerConnection implements PeerConnectionObserver {
 
 	private void addDataChannel() {
 		RTCDataChannelInit dict = new RTCDataChannelInit();
-		dict.protocol = "demo-messaging";
+		dict.protocol = "stream-messaging";
 
 		dataChannel = peerConnection.createDataChannel("data", dict);
 	}
@@ -443,12 +455,8 @@ public class JanusPeerConnection implements PeerConnectionObserver {
 			@Override
 			public void onMessage(RTCDataChannelBuffer buffer) {
 				execute(() -> {
-					try {
-						// TODO
-//						decodeMessage(buffer);
-					}
-					catch (Exception e) {
-						LOGGER.log(Level.ERROR, "Decode data channel message failed", e);
+					if (nonNull(onDataChannelBuffer)) {
+						onDataChannelBuffer.accept(buffer);
 					}
 				});
 			}
@@ -466,8 +474,9 @@ public class JanusPeerConnection implements PeerConnectionObserver {
 					super.onSuccess();
 
 					if (receivingCall) {
-						initMedia(RTCRtpTransceiverDirection.RECV_ONLY,
-								RTCRtpTransceiverDirection.RECV_ONLY);
+						addAudio(RTCRtpTransceiverDirection.RECV_ONLY);
+						addVideo(RTCRtpTransceiverDirection.RECV_ONLY);
+
 						createAnswer();
 					}
 				}

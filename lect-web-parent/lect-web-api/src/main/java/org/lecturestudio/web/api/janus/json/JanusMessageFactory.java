@@ -39,6 +39,7 @@ import org.lecturestudio.web.api.janus.message.JanusMessageType;
 import org.lecturestudio.web.api.janus.message.JanusInfoMessage;
 import org.lecturestudio.web.api.janus.message.JanusMessage;
 import org.lecturestudio.web.api.janus.message.JanusRoomCreatedMessage;
+import org.lecturestudio.web.api.janus.message.JanusRoomDestroyedMessage;
 import org.lecturestudio.web.api.janus.message.JanusRoomEventType;
 import org.lecturestudio.web.api.janus.message.JanusRoomJoinedMessage;
 import org.lecturestudio.web.api.janus.message.JanusRoomListMessage;
@@ -104,6 +105,9 @@ public class JanusMessageFactory {
 				switch (responseType) {
 					case CREATED:
 						return createRoomCreatedMessage(body, data, type);
+
+					case DESTROYED:
+						return createRoomDestroyedMessage(body, data, type);
 
 					case EVENT:
 						return createRoomEventMessage(body, data, type, jsonb);
@@ -195,6 +199,21 @@ public class JanusMessageFactory {
 		return message;
 	}
 
+	private static JanusMessage createRoomErrorMessage(JsonObject body, JsonObject data) {
+		var code = data.getJsonNumber("error_code").intValue();
+		var reason = data.getString("error");
+
+		JanusErrorMessage message = new JanusErrorMessage(code, reason);
+
+		if (body.containsKey("transaction")) {
+			// Not all error messages have a transaction ID, e.g. if we forgot
+			// to set one in a request.
+			message.setTransaction(body.getString("transaction"));
+		}
+
+		return message;
+	}
+
 	private static JanusMessage createRoomCreatedMessage(JsonObject body,
 			JsonObject data, JanusMessageType type) {
 		var sessionId = body.getJsonNumber("session_id").bigIntegerValue();
@@ -204,6 +223,23 @@ public class JanusMessageFactory {
 		JanusRoomCreatedMessage message = new JanusRoomCreatedMessage(sessionId, roomId, permanent);
 		message.setEventType(type);
 		message.setTransaction(body.getString("transaction"));
+
+		return message;
+	}
+
+	private static JanusMessage createRoomDestroyedMessage(JsonObject body,
+			JsonObject data, JanusMessageType type) {
+		var sessionId = body.getJsonNumber("session_id").bigIntegerValue();
+		var roomId = data.getJsonNumber("room").bigIntegerValue();
+
+		JanusRoomDestroyedMessage message = new JanusRoomDestroyedMessage(sessionId, roomId);
+		message.setEventType(type);
+
+		// A destroyed event being sent to all the participants in the video
+		// room does not have a transaction.
+		if (body.containsKey("transaction")) {
+			message.setTransaction(body.getString("transaction"));
+		}
 
 		return message;
 	}
@@ -307,6 +343,9 @@ public class JanusMessageFactory {
 		if (body.containsKey("jsep")) {
 			return createJsepAnswerMessage(body, data, type);
 		}
+		else if (data.containsKey("error")) {
+			return createRoomErrorMessage(body, data);
+		}
 		else if (data.containsKey("publishers")) {
 			return createRoomPublisherJoinedMessage(body, data, type, jsonb);
 		}
@@ -347,6 +386,11 @@ public class JanusMessageFactory {
 		// There are multiple room success messages with individual payloads.
 		if (data.containsKey("list")) {
 			return createRoomListMessage(body, data, type, jsonb);
+		}
+
+		switch (eventType) {
+			case DESTROYED:
+				return createRoomDestroyedMessage(body, data, type);
 		}
 
 		throw new NotSupportedException("Room event type not supported: " + eventType);

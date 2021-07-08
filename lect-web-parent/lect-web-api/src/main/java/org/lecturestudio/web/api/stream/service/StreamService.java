@@ -23,11 +23,12 @@ import java.util.List;
 import javax.inject.Inject;
 
 import org.eclipse.microprofile.rest.client.RestClientBuilder;
+import org.lecturestudio.web.api.client.MultipartBody;
 import org.lecturestudio.web.api.client.TokenProvider;
 import org.lecturestudio.web.api.service.ProviderService;
 import org.lecturestudio.web.api.service.ServiceParameters;
 import org.lecturestudio.web.api.stream.client.StreamRestClient;
-import org.lecturestudio.web.api.stream.model.Lecture;
+import org.lecturestudio.web.api.stream.model.Course;
 
 /**
  * Service implementation to manage streaming related information with streaming
@@ -56,12 +57,23 @@ public class StreamService extends ProviderService {
 	}
 
 	/**
-	 * Gets a list of all lectures associated with a user. The user must be
+	 * Gets a list of all courses associated with a user. The user must be
 	 * authenticated with a token to the API.
 	 *
-	 * @return A list of all lectures associated with a user.
+	 * @return A list of all courses associated with a user.
 	 */
-	public List<Lecture> getLectures() {
-		return streamRestClient.getLectures();
+	public List<Course> getCourses() {
+		return streamRestClient.getCourses();
+	}
+
+	/**
+	 * Uploads the provided multipart data.
+	 *
+	 * @param data The multipart data to upload.
+	 *
+	 * @return The file name, if successfully uploaded.
+	 */
+	public String uploadFile(MultipartBody data) {
+		return streamRestClient.uploadFile(data);
 	}
 }

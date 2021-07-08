@@ -18,6 +18,7 @@
 
 package org.lecturestudio.web.api.janus;
 
+import static java.util.Objects.nonNull;
 import static java.util.Objects.requireNonNull;
 
 import java.math.BigInteger;
@@ -29,6 +30,9 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
 
+import org.lecturestudio.core.ExecutableBase;
+import org.lecturestudio.core.ExecutableException;
+import org.lecturestudio.core.recording.LectureRecorder;
 import org.lecturestudio.web.api.janus.message.JanusErrorMessage;
 import org.lecturestudio.web.api.janus.message.JanusMessage;
 import org.lecturestudio.web.api.janus.message.JanusMessageType;
@@ -41,19 +45,22 @@ import org.lecturestudio.web.api.janus.message.JanusRoomRequest;
 import org.lecturestudio.web.api.janus.message.JanusRoomRequestType;
 import org.lecturestudio.web.api.janus.message.JanusSessionMessage;
 import org.lecturestudio.web.api.janus.message.JanusSessionTimeoutMessage;
+import org.lecturestudio.web.api.janus.state.DestroyRoomState;
 import org.lecturestudio.web.api.janus.state.InfoState;
 import org.lecturestudio.web.api.janus.state.JanusState;
 import org.lecturestudio.web.api.stream.config.WebRtcConfiguration;
 
-public class JanusHandler {
-
-	private final ScheduledExecutorService executorService;
+public class JanusHandler extends ExecutableBase {
 
 	private final JanusMessageTransmitter transmitter;
 
 	private final WebRtcConfiguration webRtcConfig;
 
-	private final Map<Class<? extends JanusMessage>, Consumer<? extends JanusMessage>> handlerMap;
+	private final LectureRecorder eventRecorder;
+
+	private ScheduledExecutorService executorService;
+
+	private Map<Class<? extends JanusMessage>, Consumer<? extends JanusMessage>> handlerMap;
 
 	private JanusPeerConnection peerConnection;
 
@@ -70,23 +77,11 @@ public class JanusHandler {
 	private String roomSecret;
 
 
-	public JanusHandler(JanusMessageTransmitter transmitter, WebRtcConfiguration webRtcConfig) {
+	public JanusHandler(JanusMessageTransmitter transmitter,
+			WebRtcConfiguration webRtcConfig, LectureRecorder lectureRecorder) {
 		this.transmitter = transmitter;
 		this.webRtcConfig = webRtcConfig;
-
-		executorService = Executors.newSingleThreadScheduledExecutor();
-		handlerMap = new HashMap<>();
-
-		registerHandler(JanusErrorMessage.class, this::handleError);
-		registerHandler(JanusSessionTimeoutMessage.class, this::handleSessionTimeout);
-		registerHandler(JanusRoomListMessage.class, this::handleRoomList);
-		registerHandler(JanusRoomPublisherJoinedMessage.class, this::handlePublisherJoined);
-		registerHandler(JanusRoomPublisherUnpublishedMessage.class, this::handlePublisherUnpublished);
-		registerHandler(JanusRoomPublisherLeftMessage.class, this::handlePublisherLeft);
-	}
-
-	public void start() {
-		setState(new InfoState());
+		this.eventRecorder = lectureRecorder;
 	}
 
 	public void createPeerConnection() {
@@ -193,6 +188,46 @@ public class JanusHandler {
 		roomSecret = secret;
 	}
 
+	@Override
+	protected void initInternal() throws ExecutableException {
+		executorService = Executors.newSingleThreadScheduledExecutor();
+		handlerMap = new HashMap<>();
+		eventRecorder.addRecordedActionConsumer(action -> {
+			if (nonNull(peerConnection)) {
+				try {
+					peerConnection.sendData(action.toByteArray());
+				}
+				catch (Exception e) {
+					logException(e, "Send event via data channel failed");
+				}
+			}
+		});
+
+		registerHandler(JanusErrorMessage.class, this::handleError);
+		registerHandler(JanusSessionTimeoutMessage.class, this::handleSessionTimeout);
+		registerHandler(JanusRoomListMessage.class, this::handleRoomList);
+		registerHandler(JanusRoomPublisherJoinedMessage.class, this::handlePublisherJoined);
+		registerHandler(JanusRoomPublisherUnpublishedMessage.class, this::handlePublisherUnpublished);
+		registerHandler(JanusRoomPublisherLeftMessage.class, this::handlePublisherLeft);
+	}
+
+	@Override
+	protected void startInternal() throws ExecutableException {
+		setState(new InfoState());
+	}
+
+	@Override
+	protected void stopInternal() throws ExecutableException {
+		setState(new DestroyRoomState());
+
+		executorService.shutdown();
+	}
+
+	@Override
+	protected void destroyInternal() throws ExecutableException {
+
+	}
+
 	private <T extends JanusMessage> void registerHandler(Class<T> msgClass, Consumer<T> handler) {
 		handlerMap.put(msgClass, handler);
 	}
@@ -205,7 +240,8 @@ public class JanusHandler {
 	}
 
 	private void handleError(JanusErrorMessage message) {
-
+		logErrorMessage("Janus error: {0} (error code: {1})",
+				message.getReason(), message.getCode());
 	}
 
 	private void handleSessionTimeout(JanusSessionTimeoutMessage message) {

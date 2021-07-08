@@ -16,84 +16,73 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package org.lecturestudio.web.api.janus.client;
+package org.lecturestudio.web.api.stream.client;
 
-import java.io.StringReader;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.WebSocket;
 import java.net.http.WebSocket.Builder;
 import java.net.http.WebSocket.Listener;
+import java.nio.ByteBuffer;
 import java.time.Duration;
 import java.time.temporal.ChronoUnit;
-import java.util.NoSuchElementException;
 import java.util.concurrent.CompletionStage;
 
-import javax.json.Json;
-import javax.json.JsonObject;
-import javax.json.bind.Jsonb;
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.TrustManager;
 import javax.net.ssl.X509TrustManager;
+import javax.ws.rs.core.HttpHeaders;
+import javax.ws.rs.core.MediaType;
 
 import org.lecturestudio.core.ExecutableBase;
 import org.lecturestudio.core.ExecutableException;
+import org.lecturestudio.core.model.Document;
 import org.lecturestudio.core.recording.LectureRecorder;
-import org.lecturestudio.web.api.data.bind.JsonConfigProvider;
-import org.lecturestudio.web.api.janus.JanusHandler;
-import org.lecturestudio.web.api.janus.JanusMessageTransmitter;
-import org.lecturestudio.web.api.janus.json.JanusMessageFactory;
-import org.lecturestudio.web.api.janus.message.JanusMessageType;
-import org.lecturestudio.web.api.janus.message.JanusMessage;
+import org.lecturestudio.web.api.client.MultipartBody;
 import org.lecturestudio.web.api.net.OwnTrustManager;
 import org.lecturestudio.web.api.service.ServiceParameters;
-import org.lecturestudio.web.api.stream.config.WebRtcConfiguration;
+import org.lecturestudio.web.api.stream.service.StreamService;
 
 /**
- * Janus WebSocket signaling client implementation. This client sends, receives,
- * decodes and encodes Janus JSON-formatted signaling messages.
+ * Streaming WebSocket client implementation. This client sends the current
+ * document and event state to the server. Clients joining the stream obtain the
+ * current state from the server.
  *
  * @author Alex Andres
  */
-public class JanusWebSocketClient extends ExecutableBase implements JanusMessageTransmitter {
+public class StreamWebSocketClient extends ExecutableBase {
 
 	private final ServiceParameters serviceParameters;
 
-	private final WebRtcConfiguration webRtcConfig;
+	private final LectureRecorder eventRecorder;
 
-	private final LectureRecorder lectureRecorder;
+	private final StreamService streamService;
 
 	private WebSocket webSocket;
 
-	private Jsonb jsonb;
 
-	private JanusHandler handler;
-
-
-	public JanusWebSocketClient(ServiceParameters parameters,
-			WebRtcConfiguration webRtcConfig, LectureRecorder lectureRecorder) {
+	public StreamWebSocketClient(ServiceParameters parameters,
+			LectureRecorder lectureRecorder, StreamService streamService) {
 		this.serviceParameters = parameters;
-		this.webRtcConfig = webRtcConfig;
-		this.lectureRecorder = lectureRecorder;
-	}
-
-	@Override
-	public void sendMessage(JanusMessage message) {
-		logTraceMessage("WebSocket ->: {0}", jsonb.toJson(message));
-
-		webSocket.sendText(jsonb.toJson(message), true)
-				.exceptionally(throwable -> {
-					logException(throwable, "Send Janus message failed");
-					return null;
-				});
+		this.eventRecorder = lectureRecorder;
+		this.streamService = streamService;
 	}
 
 	@Override
 	protected void initInternal() throws ExecutableException {
-		jsonb = new JsonConfigProvider().getContext(null);
-
-		handler = new JanusHandler(this, webRtcConfig, lectureRecorder);
-		handler.init();
+		eventRecorder.addDocumentConsumer(this::uploadDocument);
+		eventRecorder.addRecordedActionConsumer(action -> {
+			try {
+				webSocket.sendBinary(ByteBuffer.wrap(action.toByteArray()), true);
+			}
+			catch (Exception e) {
+				logException(e, "Send event state failed");
+			}
+		});
+		eventRecorder.init();
 	}
 
 	@Override
@@ -103,7 +92,8 @@ public class JanusWebSocketClient extends ExecutableBase implements JanusMessage
 				.build();
 
 		Builder webSocketBuilder = httpClient.newWebSocketBuilder();
-		webSocketBuilder.subprotocols("janus-protocol");
+		webSocketBuilder.header(HttpHeaders.AUTHORIZATION, "Bearer 8x7PsrLuldRfKjUCTUXeWQRalPJCnOeQ");
+		webSocketBuilder.subprotocols("state-protocol");
 		webSocketBuilder.connectTimeout(Duration.of(10, ChronoUnit.SECONDS));
 
 		webSocket = webSocketBuilder
@@ -111,19 +101,41 @@ public class JanusWebSocketClient extends ExecutableBase implements JanusMessage
 						new WebSocketListener())
 				.join();
 
-		handler.start();
+		eventRecorder.start();
 	}
 
 	@Override
 	protected void stopInternal() throws ExecutableException {
-		handler.stop();
+		eventRecorder.stop();
 
 		webSocket.sendClose(WebSocket.NORMAL_CLOSURE, "disconnect").join();
 	}
 
 	@Override
 	protected void destroyInternal() throws ExecutableException {
-		handler.destroy();
+		eventRecorder.destroy();
+	}
+
+	private void uploadDocument(Document document) {
+		String docFileName = document.getName() + ".pdf";
+		ByteArrayOutputStream docData = new ByteArrayOutputStream();
+
+		try {
+			document.toOutputStream(docData);
+		}
+		catch (IOException e) {
+			logException(e, "Convert document failed");
+			return;
+		}
+
+		MultipartBody body = new MultipartBody();
+		body.addFormData("file",
+				new ByteArrayInputStream(docData.toByteArray()),
+				MediaType.MULTIPART_FORM_DATA_TYPE, docFileName);
+
+		System.out.println(streamService.uploadFile(body));
+
+		webSocket.sendBinary(ByteBuffer.wrap(docFileName.getBytes()), true);
 	}
 
 	private static SSLContext createSSLContext() {
@@ -147,43 +159,14 @@ public class JanusWebSocketClient extends ExecutableBase implements JanusMessage
 
 	private class WebSocketListener implements Listener {
 
-		/** Accumulating message buffer. */
-		private StringBuffer buffer = new StringBuffer();
-
-
 		@Override
 		public void onError(WebSocket webSocket, Throwable error) {
 			logException(error, "WebSocket error");
 		}
 
 		@Override
-		public CompletionStage<?> onText(WebSocket webSocket, CharSequence data, boolean last) {
-			logTraceMessage("WebSocket <-: {0}", data);
-
-			webSocket.request(1);
-
-			buffer.append(data);
-
-			if (last) {
-				StringReader reader = new StringReader(buffer.toString());
-				JsonObject body = Json.createReader(reader).readObject();
-
-				try {
-					JanusMessageType type = JanusMessageType.fromString(body.getString("janus"));
-					JanusMessage message = JanusMessageFactory.createMessage(jsonb, body, type);
-
-					handler.handleMessage(message);
-				}
-				catch (NoSuchElementException e) {
-					logException(e, "Non existing Janus event type received");
-				}
-				catch (Exception e) {
-					logException(e, "Process Janus message failed");
-				}
-
-				buffer = new StringBuffer();
-			}
-
+		public CompletionStage<?> onText(WebSocket webSocket, CharSequence data,
+				boolean last) {
 			return null;
 		}
 	}

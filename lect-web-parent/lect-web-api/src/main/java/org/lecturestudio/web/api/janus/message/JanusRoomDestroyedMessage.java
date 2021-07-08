@@ -16,43 +16,40 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package org.lecturestudio.web.api.stream.model;
+package org.lecturestudio.web.api.janus.message;
 
-import java.util.StringJoiner;
+import java.math.BigInteger;
 
-public class Lecture {
+/**
+ * Response message used when a video room has been destroyed.
+ *
+ * @author Alex Andres
+ */
+public class JanusRoomDestroyedMessage extends JanusRoomMessage {
 
-	private Long id;
-
-	private Long roomId;
-
-	private String title;
-
-	private String description;
+	private final BigInteger roomId;
 
 
-	public Long getId() {
-		return id;
+	/**
+	 * Create a new {@code JanusRoomDestroyedMessage}.
+	 *
+	 * @param sessionId The unique integer session ID.
+	 * @param roomId    The unique numeric room ID.
+	 */
+	public JanusRoomDestroyedMessage(BigInteger sessionId, BigInteger roomId) {
+		super(sessionId);
+
+		this.roomId = roomId;
+
+		setRoomEventType(JanusRoomEventType.DESTROYED);
 	}
 
-	public Long getRoomId() {
+	/**
+	 * Get the unique numeric room ID of the destroyed room.
+	 *
+	 * @return The unique numeric room ID.
+	 */
+	public BigInteger getRoomId() {
 		return roomId;
-	}
-
-	public String getTitle() {
-		return title;
-	}
-
-	public String getDescription() {
-		return description;
-	}
-
-	@Override
-	public String toString() {
-		return new StringJoiner(", ", Lecture.class.getSimpleName() + "[", "]")
-				.add("id=" + id)
-				.add("title='" + title + "'")
-				.add("description='" + description + "'")
-				.toString();
 	}
 }

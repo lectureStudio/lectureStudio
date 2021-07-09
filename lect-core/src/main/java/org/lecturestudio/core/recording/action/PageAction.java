@@ -25,12 +25,12 @@ import org.lecturestudio.core.controller.ToolController;
 
 public class PageAction extends PlaybackAction {
 
-	private int documentId;
+	private long documentId;
 
 	private int pageNumber;
 
 
-	public PageAction(int documentId, int pageNumber) {
+	public PageAction(long documentId, int pageNumber) {
 		this.documentId = documentId;
 		this.pageNumber = pageNumber;
 	}
@@ -46,9 +46,9 @@ public class PageAction extends PlaybackAction {
 
 	@Override
 	public byte[] toByteArray() throws IOException {
-		ByteBuffer buffer = createBuffer(8);
+		ByteBuffer buffer = createBuffer(12);
 
-		buffer.putInt(documentId);
+		buffer.putLong(documentId);
 		buffer.putInt(pageNumber);
 
 		return buffer.array();
@@ -58,7 +58,7 @@ public class PageAction extends PlaybackAction {
 	public void parseFrom(byte[] input) throws IOException {
 		ByteBuffer buffer = createBuffer(input);
 
-		documentId = buffer.getInt();
+		documentId = buffer.getLong();
 		pageNumber = buffer.getInt();
 	}
 
@@ -67,4 +67,11 @@ public class PageAction extends PlaybackAction {
 		return ActionType.PAGE;
 	}
 
+	public int getPageNumber() {
+		return pageNumber;
+	}
+
+	public long getDocumentId() {
+		return documentId;
+	}
 }

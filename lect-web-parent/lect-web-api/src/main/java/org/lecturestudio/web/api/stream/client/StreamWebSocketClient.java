@@ -18,6 +18,8 @@
 
 package org.lecturestudio.web.api.stream.client;
 
+import static java.util.Objects.requireNonNull;
+
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -34,17 +36,23 @@ import java.util.concurrent.CompletionStage;
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.TrustManager;
 import javax.net.ssl.X509TrustManager;
-import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MediaType;
 
 import org.lecturestudio.core.ExecutableBase;
 import org.lecturestudio.core.ExecutableException;
 import org.lecturestudio.core.model.Document;
 import org.lecturestudio.core.recording.LectureRecorder;
+import org.lecturestudio.core.recording.action.DocumentCreateAction;
+import org.lecturestudio.core.recording.action.PageAction;
+import org.lecturestudio.core.recording.action.PlaybackAction;
+import org.lecturestudio.core.recording.action.StreamStartAction;
+import org.lecturestudio.core.service.DocumentService;
 import org.lecturestudio.web.api.client.MultipartBody;
 import org.lecturestudio.web.api.net.OwnTrustManager;
 import org.lecturestudio.web.api.service.ServiceParameters;
+import org.lecturestudio.web.api.stream.model.Course;
 import org.lecturestudio.web.api.stream.service.StreamService;
+import org.lecturestudio.web.api.websocket.WebSocketHeaderProvider;
 
 /**
  * Streaming WebSocket client implementation. This client sends the current
@@ -57,18 +65,36 @@ public class StreamWebSocketClient extends ExecutableBase {
 
 	private final ServiceParameters serviceParameters;
 
+	private final WebSocketHeaderProvider headerProvider;
+
 	private final LectureRecorder eventRecorder;
 
+	private final DocumentService documentService;
+
 	private final StreamService streamService;
+
+	private final Course course;
 
 	private WebSocket webSocket;
 
 
 	public StreamWebSocketClient(ServiceParameters parameters,
-			LectureRecorder lectureRecorder, StreamService streamService) {
+			WebSocketHeaderProvider headerProvider,
+			LectureRecorder eventRecorder, DocumentService documentService,
+			StreamService streamService, Course course) {
+		requireNonNull(parameters);
+		requireNonNull(headerProvider);
+		requireNonNull(eventRecorder);
+		requireNonNull(documentService);
+		requireNonNull(streamService);
+		requireNonNull(course);
+
 		this.serviceParameters = parameters;
-		this.eventRecorder = lectureRecorder;
+		this.headerProvider = headerProvider;
+		this.eventRecorder = eventRecorder;
+		this.documentService = documentService;
 		this.streamService = streamService;
+		this.course = course;
 	}
 
 	@Override
@@ -76,7 +102,7 @@ public class StreamWebSocketClient extends ExecutableBase {
 		eventRecorder.addDocumentConsumer(this::uploadDocument);
 		eventRecorder.addRecordedActionConsumer(action -> {
 			try {
-				webSocket.sendBinary(ByteBuffer.wrap(action.toByteArray()), true);
+				send(action);
 			}
 			catch (Exception e) {
 				logException(e, "Send event state failed");
@@ -92,14 +118,35 @@ public class StreamWebSocketClient extends ExecutableBase {
 				.build();
 
 		Builder webSocketBuilder = httpClient.newWebSocketBuilder();
-		webSocketBuilder.header(HttpHeaders.AUTHORIZATION, "Bearer 8x7PsrLuldRfKjUCTUXeWQRalPJCnOeQ");
 		webSocketBuilder.subprotocols("state-protocol");
 		webSocketBuilder.connectTimeout(Duration.of(10, ChronoUnit.SECONDS));
+
+		headerProvider.setHeaders(webSocketBuilder);
 
 		webSocket = webSocketBuilder
 				.buildAsync(URI.create(serviceParameters.getUrl()),
 						new WebSocketListener())
 				.join();
+
+		// Transmit initial document state.
+		Document document = documentService.getDocuments().getSelectedDocument();
+
+		String docFile = uploadDocument(document);
+
+		StreamStartAction startAction = new StreamStartAction(course.getId());
+		DocumentCreateAction documentAction = new DocumentCreateAction(
+				document.getType(), document.getName(), docFile);
+		PageAction pageAction = new PageAction(document.getType(),
+				document.hashCode(), document.getCurrentPageNumber());
+
+		try {
+			send(startAction);
+			send(documentAction);
+			send(pageAction);
+		}
+		catch (IOException e) {
+			throw new ExecutableException("Send action failed", e);
+		}
 
 		eventRecorder.start();
 	}
@@ -116,7 +163,11 @@ public class StreamWebSocketClient extends ExecutableBase {
 		eventRecorder.destroy();
 	}
 
-	private void uploadDocument(Document document) {
+	private void send(PlaybackAction action) throws IOException {
+		webSocket.sendBinary(ByteBuffer.wrap(action.toByteArray()), true);
+	}
+
+	private String uploadDocument(Document document) {
 		String docFileName = document.getName() + ".pdf";
 		ByteArrayOutputStream docData = new ByteArrayOutputStream();
 
@@ -125,7 +176,7 @@ public class StreamWebSocketClient extends ExecutableBase {
 		}
 		catch (IOException e) {
 			logException(e, "Convert document failed");
-			return;
+			return null;
 		}
 
 		MultipartBody body = new MultipartBody();
@@ -133,9 +184,7 @@ public class StreamWebSocketClient extends ExecutableBase {
 				new ByteArrayInputStream(docData.toByteArray()),
 				MediaType.MULTIPART_FORM_DATA_TYPE, docFileName);
 
-		System.out.println(streamService.uploadFile(body));
-
-		webSocket.sendBinary(ByteBuffer.wrap(docFileName.getBytes()), true);
+		return streamService.uploadFile(body);
 	}
 
 	private static SSLContext createSSLContext() {

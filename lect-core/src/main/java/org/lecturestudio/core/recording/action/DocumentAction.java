@@ -178,17 +178,6 @@ public abstract class DocumentAction extends PlaybackAction {
 		if (documentTitle == null) {
 			throw new IOException("Missing title for a document.");
 		}
-
-		if (documentType == DocumentType.PDF) {
-			if (documentFile == null) {
-				throw new IOException("Missing filename for a PDF document.");
-			}
-
-			if (documentChecksum == null) {
-				// TODO: check for doc-close-action
-				//throw new IOException("Missing checksum for a PDF document.");
-			}
-		}
 	}
 
 }

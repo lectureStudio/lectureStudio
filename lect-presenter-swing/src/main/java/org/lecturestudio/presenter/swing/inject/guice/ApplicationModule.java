@@ -20,11 +20,13 @@ package org.lecturestudio.presenter.swing.inject.guice;
 
 import com.google.inject.AbstractModule;
 import com.google.inject.Provides;
+import com.google.inject.name.Names;
 
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Paths;
 import java.util.Locale;
+import java.util.Properties;
 import java.util.ResourceBundle;
 
 import javax.inject.Singleton;
@@ -75,6 +77,18 @@ public class ApplicationModule extends AbstractModule {
 		bind(ApplicationContext.class).to(PresenterContext.class);
 		bind(CameraDriver.class).to(WebRtcDriver.class);
 		bind(ToolController.class).asEagerSingleton();
+
+		Properties streamProps = new Properties();
+
+		try {
+			streamProps.load(getClass().getClassLoader()
+					.getResourceAsStream("resources/stream.properties"));
+
+			Names.bindProperties(binder(), streamProps);
+		}
+		catch (IOException e) {
+			LOG.error("Load stream properties failed", e);
+		}
 	}
 
 	@Provides

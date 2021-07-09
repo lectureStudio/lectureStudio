@@ -64,6 +64,8 @@ public enum ActionType {
 	/*
 	 * Network related actions
 	 */
+	STREAM_START,
+
 	PAGE, PAGE_CREATED, PAGE_REMOVED,
 
 	DOCUMENT_CREATED, DOCUMENT_CLOSED, DOCUMENT_SELECTED;

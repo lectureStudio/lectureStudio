@@ -19,6 +19,7 @@
 package org.lecturestudio.presenter.api.service;
 
 import javax.inject.Inject;
+import javax.inject.Named;
 import javax.inject.Singleton;
 
 import org.lecturestudio.core.ExecutableBase;
@@ -31,12 +32,16 @@ import org.lecturestudio.presenter.api.config.PresenterConfiguration;
 import org.lecturestudio.presenter.api.config.StreamConfiguration;
 import org.lecturestudio.presenter.api.event.CameraStateEvent;
 import org.lecturestudio.presenter.api.event.StreamingStateEvent;
+import org.lecturestudio.web.api.client.TokenProvider;
 import org.lecturestudio.web.api.janus.client.JanusWebSocketClient;
 import org.lecturestudio.web.api.service.ServiceParameters;
 import org.lecturestudio.web.api.stream.client.StreamWebSocketClient;
 import org.lecturestudio.web.api.stream.config.WebRtcConfiguration;
 import org.lecturestudio.web.api.stream.config.WebRtcDefaultConfiguration;
+import org.lecturestudio.web.api.stream.model.Course;
 import org.lecturestudio.web.api.stream.service.StreamService;
+import org.lecturestudio.web.api.websocket.BearerTokenHeaderProvider;
+import org.lecturestudio.web.api.websocket.WebSocketHeaderProvider;
 
 /**
  * The {@code WebRtcStreamService} is the interface between user interface and
@@ -52,6 +57,18 @@ public class WebRtcStreamService extends ExecutableBase {
 
 	@Inject
 	private DocumentService documentService;
+
+	@Inject
+	@Named("stream.janus.websocket.url")
+	private String janusWebSocketUrl;
+
+	@Inject
+	@Named("stream.state.websocket.url")
+	private String streamStateWebSocketUrl;
+
+	@Inject
+	@Named("stream.publisher.api.url")
+	private String streamPublisherApiUrl;
 
 	private StreamWebSocketClient streamStateClient;
 
@@ -93,29 +110,36 @@ public class WebRtcStreamService extends ExecutableBase {
 				.getConfiguration();
 		StreamConfiguration streamConfig = config.getStreamConfig();
 
+		Course course = streamConfig.getCourse();
+
 		ServiceParameters janusWsParameters = new ServiceParameters();
-		janusWsParameters.setUrl("wss://lecturestudio.dek.e-technik.tu-darmstadt.de:8989");
+		janusWsParameters.setUrl(janusWebSocketUrl);
 
 		ServiceParameters stateWsParameters = new ServiceParameters();
-		stateWsParameters.setUrl("wss://lecturestudio.dek.e-technik.tu-darmstadt.de/api/publisher/course-state");
+		stateWsParameters.setUrl(streamStateWebSocketUrl);
 
 		ServiceParameters streamApiParameters = new ServiceParameters();
-		streamApiParameters.setUrl("https://lecturestudio.dek.e-technik.tu-darmstadt.de");
+		streamApiParameters.setUrl(streamPublisherApiUrl);
 
 		WebRtcConfiguration webRtcConfig = new WebRtcDefaultConfiguration();
-		webRtcConfig.setCourse(streamConfig.getCourse());
+		webRtcConfig.setCourse(course);
+
+		TokenProvider tokenProvider = streamConfig::getAccessToken;
 
 		StreamService streamService = new StreamService(streamApiParameters,
-				streamConfig::getAccessToken);
+				tokenProvider);
 
-		LectureRecorder lectureRecorder = new WebRtcStreamEventRecorder(
-				documentService);
+		LectureRecorder eventRecorder = new WebRtcStreamEventRecorder();
+
+		WebSocketHeaderProvider headerProvider = new BearerTokenHeaderProvider(
+				tokenProvider);
 
 		streamStateClient = new StreamWebSocketClient(stateWsParameters,
-				lectureRecorder, streamService);
+				headerProvider, eventRecorder, documentService, streamService,
+				course);
 
 		janusClient = new JanusWebSocketClient(janusWsParameters, webRtcConfig,
-				lectureRecorder);
+				eventRecorder);
 		janusClient.init();
 	}
 

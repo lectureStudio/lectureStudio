@@ -18,6 +18,7 @@
 
 package org.lecturestudio.presenter.api.service;
 
+import static java.util.Objects.isNull;
 import static java.util.Objects.nonNull;
 
 import com.google.common.eventbus.Subscribe;
@@ -42,7 +43,6 @@ import org.lecturestudio.core.recording.action.DocumentSelectAction;
 import org.lecturestudio.core.recording.action.PageAction;
 import org.lecturestudio.core.recording.action.PlaybackAction;
 import org.lecturestudio.core.recording.action.RemovePageAction;
-import org.lecturestudio.core.service.DocumentService;
 
 public class WebRtcStreamEventRecorder extends LectureRecorder {
 
@@ -64,18 +64,12 @@ public class WebRtcStreamEventRecorder extends LectureRecorder {
 		}
 	};
 
-	private final DocumentService documentService;
-
 	private long startTime = -1;
 
 	private long pauseTime;
 
 	private long halted = 0;
 
-
-	public WebRtcStreamEventRecorder(DocumentService documentService) {
-		this.documentService = documentService;
-	}
 
 	@Override
 	public long getElapsedTime() {
@@ -199,8 +193,6 @@ public class WebRtcStreamEventRecorder extends LectureRecorder {
 
 		pauseTime = 0;
 
-		notifyDocumentConsumers(documentService.getDocuments().getSelectedDocument());
-
 		ApplicationBus.register(this);
 	}
 
@@ -225,7 +217,7 @@ public class WebRtcStreamEventRecorder extends LectureRecorder {
 	}
 
 	private void addPlaybackAction(PlaybackAction action) {
-		if (!started() || action == null) {
+		if (!started() || isNull(action)) {
 			return;
 		}
 

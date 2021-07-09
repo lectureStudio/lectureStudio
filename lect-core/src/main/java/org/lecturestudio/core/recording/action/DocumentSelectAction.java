@@ -24,12 +24,13 @@ import org.lecturestudio.core.bus.ApplicationBus;
 import org.lecturestudio.core.bus.event.StreamDocumentEvent;
 import org.lecturestudio.core.bus.event.StreamDocumentSelectEvent;
 import org.lecturestudio.core.controller.ToolController;
+import org.lecturestudio.core.model.Document;
 import org.lecturestudio.core.model.DocumentType;
 
 public class DocumentSelectAction extends DocumentAction {
 
-	public DocumentSelectAction(DocumentType type, String documentTitle, String documentFileName) {
-		super(type, documentTitle, documentFileName);
+	public DocumentSelectAction(Document document) {
+		super(document);
 	}
 
 	public DocumentSelectAction(byte[] data) throws IOException {
@@ -42,7 +43,7 @@ public class DocumentSelectAction extends DocumentAction {
 		String docTitle = getDocumentTitle();
 
 		StreamDocumentEvent event = new StreamDocumentSelectEvent(docType, docTitle);
-		event.setDocumentFileName(getDocumentFileName());
+		event.setDocumentFileName(getDocumentFile());
 		event.setDocumentChecksum(getDocumentChecksum());
 
 		ApplicationBus.post(event);

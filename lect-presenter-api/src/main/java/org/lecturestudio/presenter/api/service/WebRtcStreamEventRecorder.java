@@ -31,7 +31,6 @@ import org.lecturestudio.core.bus.event.DocumentEvent;
 import org.lecturestudio.core.bus.event.PageEvent;
 import org.lecturestudio.core.bus.event.RecordActionEvent;
 import org.lecturestudio.core.model.Document;
-import org.lecturestudio.core.model.DocumentType;
 import org.lecturestudio.core.model.Page;
 import org.lecturestudio.core.model.listener.DocumentChangeListener;
 import org.lecturestudio.core.recording.LectureRecorder;
@@ -145,10 +144,10 @@ public class WebRtcStreamEventRecorder extends LectureRecorder {
 		DocumentAction action = null;
 
 		if (event.created()) {
-			action = new DocumentCreateAction(doc.getType(), doc.getName(), docFile);
+			action = new DocumentCreateAction(doc);
 		}
 		else if (event.closed()) {
-			action = new DocumentCloseAction(doc.getType(), doc.getName(), docFile);
+			action = new DocumentCloseAction(doc);
 		}
 		else if (event.selected()) {
 			Document oldDoc = event.getOldDocument();
@@ -159,7 +158,7 @@ public class WebRtcStreamEventRecorder extends LectureRecorder {
 
 			doc.addChangeListener(documentChangeListener);
 
-			action = new DocumentSelectAction(doc.getType(), doc.getName(), docFile);
+			action = new DocumentSelectAction(doc);
 		}
 
 		if (nonNull(action)) {
@@ -227,14 +226,12 @@ public class WebRtcStreamEventRecorder extends LectureRecorder {
 	}
 
 	private PageAction encodePage(Page page, int number) {
-		DocumentType type = page.getDocument().getType();
 		int docId = page.getDocument().hashCode();
 
-		return new PageAction(type, docId, number);
+		return new PageAction(docId, number);
 	}
 
 	private void updateDocument(Document document) {
-		String docFile = document.getName() + ".pdf";
 		String checksum = null;
 
 		try {
@@ -246,8 +243,8 @@ public class WebRtcStreamEventRecorder extends LectureRecorder {
 			logException(e, "Get document checksum failed");
 		}
 
-		DocumentAction action = new DocumentCreateAction(document.getType(),
-				document.getName(), docFile);
+		DocumentAction action = new DocumentCreateAction(document);
+		action.setDocumentFile(document.getName() + ".pdf");
 		action.setDocumentChecksum(checksum);
 
 		addPlaybackAction(action);

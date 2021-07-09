@@ -22,35 +22,54 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 
+import org.lecturestudio.core.model.Document;
 import org.lecturestudio.core.model.DocumentType;
 
 public abstract class DocumentAction extends PlaybackAction {
+
+	private long documentId;
 
 	private DocumentType documentType;
 
 	private String documentTitle;
 
-	private String documentName;
+	private String documentFile;
 
 	private String documentChecksum;
 
 
-	public DocumentAction(DocumentType type, String documentTitle, String documentFileName) {
-		this.documentType = type;
-		this.documentTitle = documentTitle;
-		this.documentName = documentFileName;
+	public DocumentAction(Document document) {
+		setDocumentId(document.hashCode());
+		setDocumentType(document.getType());
+		setDocumentTitle(document.getName());
 	}
 
 	public DocumentAction(byte[] input) throws IOException {
 		parseFrom(input);
 	}
 
+	public long getDocumentId() {
+		return documentId;
+	}
+
+	public void setDocumentId(long documentId) {
+		this.documentId = documentId;
+	}
+
 	public DocumentType getDocumentType() {
 		return documentType;
 	}
 
-	public String getDocumentFileName() {
-		return documentName;
+	public void setDocumentType(DocumentType documentType) {
+		this.documentType = documentType;
+	}
+
+	public String getDocumentFile() {
+		return documentFile;
+	}
+
+	public void setDocumentFile(String documentName) {
+		this.documentFile = documentName;
 	}
 
 	public String getDocumentChecksum() {
@@ -82,15 +101,15 @@ public abstract class DocumentAction extends PlaybackAction {
 		int titleLength = 0;
 		int fileNameLength = 0;
 		int checksumLength = 0;
-		int payloadLength = 0;
+		int payloadLength = 8;
 
 		if (documentTitle != null) {
 			titleBuffer = documentTitle.getBytes();
 			titleLength = titleBuffer.length;
 			payloadLength += titleBuffer.length;
 		}
-		if (documentName != null) {
-			String fileName = new File(documentName).getName();
+		if (documentFile != null) {
+			String fileName = new File(documentFile).getName();
 			fileNameBuffer = fileName.getBytes();
 			fileNameLength = fileNameBuffer.length;
 			payloadLength += fileNameBuffer.length;
@@ -107,6 +126,7 @@ public abstract class DocumentAction extends PlaybackAction {
 		buffer.put(actionType);
 		buffer.putInt(getTimestamp());
 
+		buffer.putLong(documentId);
 		buffer.put(docType);
 		buffer.putInt(titleLength);
 		buffer.putInt(fileNameLength);
@@ -129,6 +149,7 @@ public abstract class DocumentAction extends PlaybackAction {
 	public void parseFrom(byte[] input) throws IOException {
 		ByteBuffer buffer = ByteBuffer.wrap(input);
 
+		this.documentId = buffer.getLong();
 		this.documentType = DocumentType.values()[buffer.get()];
 
 		int titleLength = buffer.getInt();
@@ -145,7 +166,7 @@ public abstract class DocumentAction extends PlaybackAction {
 			byte[] nameBuffer = new byte[nameLength];
 			buffer.get(nameBuffer, 0, nameLength);
 
-			this.documentName = new String(nameBuffer);
+			this.documentFile = new String(nameBuffer);
 		}
 		if (checksumLength > 0) {
 			byte[] checksumBuffer = new byte[checksumLength];
@@ -159,7 +180,7 @@ public abstract class DocumentAction extends PlaybackAction {
 		}
 
 		if (documentType == DocumentType.PDF) {
-			if (documentName == null) {
+			if (documentFile == null) {
 				throw new IOException("Missing filename for a PDF document.");
 			}
 

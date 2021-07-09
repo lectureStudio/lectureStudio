@@ -24,12 +24,13 @@ import org.lecturestudio.core.bus.ApplicationBus;
 import org.lecturestudio.core.bus.event.StreamDocumentCloseEvent;
 import org.lecturestudio.core.bus.event.StreamDocumentEvent;
 import org.lecturestudio.core.controller.ToolController;
+import org.lecturestudio.core.model.Document;
 import org.lecturestudio.core.model.DocumentType;
 
 public class DocumentCloseAction extends DocumentAction {
 
-	public DocumentCloseAction(DocumentType type, String documentTitle, String documentFileName) {
-		super(type, documentTitle, documentFileName);
+	public DocumentCloseAction(Document document) {
+		super(document);
 	}
 
 	public DocumentCloseAction(byte[] input) throws IOException {
@@ -42,7 +43,7 @@ public class DocumentCloseAction extends DocumentAction {
 		String docTitle = getDocumentTitle();
 
 		StreamDocumentEvent event = new StreamDocumentCloseEvent(docType, docTitle);
-		event.setDocumentFileName(getDocumentFileName());
+		event.setDocumentFileName(getDocumentFile());
 		event.setDocumentChecksum(getDocumentChecksum());
 
 		ApplicationBus.post(event);

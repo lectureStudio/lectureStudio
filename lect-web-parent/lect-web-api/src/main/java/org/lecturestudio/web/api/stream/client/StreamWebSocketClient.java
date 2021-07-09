@@ -43,6 +43,7 @@ import org.lecturestudio.core.ExecutableException;
 import org.lecturestudio.core.model.Document;
 import org.lecturestudio.core.recording.LectureRecorder;
 import org.lecturestudio.core.recording.action.DocumentCreateAction;
+import org.lecturestudio.core.recording.action.DocumentSelectAction;
 import org.lecturestudio.core.recording.action.PageAction;
 import org.lecturestudio.core.recording.action.PlaybackAction;
 import org.lecturestudio.core.recording.action.StreamStartAction;
@@ -134,14 +135,19 @@ public class StreamWebSocketClient extends ExecutableBase {
 		String docFile = uploadDocument(document);
 
 		StreamStartAction startAction = new StreamStartAction(course.getId());
-		DocumentCreateAction documentAction = new DocumentCreateAction(
-				document.getType(), document.getName(), docFile);
-		PageAction pageAction = new PageAction(document.getType(),
-				document.hashCode(), document.getCurrentPageNumber());
+
+		DocumentCreateAction docCreateAction = new DocumentCreateAction(document);
+		docCreateAction.setDocumentFile(docFile);
+
+		DocumentSelectAction docSelectAction = new DocumentSelectAction(document);
+
+		PageAction pageAction = new PageAction(document.hashCode(),
+				document.getCurrentPageNumber());
 
 		try {
 			send(startAction);
-			send(documentAction);
+			send(docCreateAction);
+			send(docSelectAction);
 			send(pageAction);
 		}
 		catch (IOException e) {

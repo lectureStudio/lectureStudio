@@ -164,7 +164,7 @@ public class RtpEventServer extends ExecutableBase {
 			return;
 		}
 
-		String filePath = action.getDocumentFileName();
+		String filePath = action.getDocumentFile();
 		String checksum = action.getDocumentChecksum();
 		String foundChecksum = transmittedDocuments.get(filePath);
 

@@ -29,7 +29,6 @@ import java.util.Stack;
 import org.lecturestudio.core.app.ApplicationContext;
 import org.lecturestudio.core.controller.ToolController;
 import org.lecturestudio.core.model.Document;
-import org.lecturestudio.core.model.DocumentType;
 import org.lecturestudio.core.model.Page;
 import org.lecturestudio.core.recording.action.ActionType;
 import org.lecturestudio.core.recording.action.PageAction;
@@ -131,7 +130,7 @@ public class DocumentEventExecutor {
 
 	private Stack<PlaybackAction> getPlaybackActions(RecordedPage recPage) {
 		// Add page change event.
-		PlaybackAction action = new PageAction(DocumentType.PDF, 0, recPage.getNumber());
+		PlaybackAction action = new PageAction(0, recPage.getNumber());
 		action.setTimestamp(recPage.getTimestamp());
 
 		Stack<PlaybackAction> playbacks = new Stack<>();

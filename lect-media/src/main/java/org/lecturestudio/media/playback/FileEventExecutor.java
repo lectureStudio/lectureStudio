@@ -35,7 +35,6 @@ import org.lecturestudio.core.ExecutableException;
 import org.lecturestudio.core.ExecutableState;
 import org.lecturestudio.core.audio.SyncState;
 import org.lecturestudio.core.controller.ToolController;
-import org.lecturestudio.core.model.DocumentType;
 import org.lecturestudio.core.recording.EventExecutor;
 import org.lecturestudio.core.recording.RecordedPage;
 import org.lecturestudio.core.recording.action.PageAction;
@@ -240,7 +239,7 @@ public class FileEventExecutor extends EventExecutor {
 		RecordedPage recPage = recordedPages.get(pageNumber);
 
 		// Add page change event.
-		PlaybackAction action = new PageAction(DocumentType.PDF, 0, pageNumber);
+		PlaybackAction action = new PageAction(0, pageNumber);
 		action.setTimestamp(recPage.getTimestamp());
 
 		playbacks.clear();

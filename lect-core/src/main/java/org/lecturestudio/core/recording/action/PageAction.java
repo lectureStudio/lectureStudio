@@ -22,19 +22,15 @@ import java.io.IOException;
 import java.nio.ByteBuffer;
 
 import org.lecturestudio.core.controller.ToolController;
-import org.lecturestudio.core.model.DocumentType;
 
 public class PageAction extends PlaybackAction {
-
-	private DocumentType type;
 
 	private int documentId;
 
 	private int pageNumber;
 
 
-	public PageAction(DocumentType type, int documentId, int pageNumber) {
-		this.type = type;
+	public PageAction(int documentId, int pageNumber) {
 		this.documentId = documentId;
 		this.pageNumber = pageNumber;
 	}
@@ -50,9 +46,8 @@ public class PageAction extends PlaybackAction {
 
 	@Override
 	public byte[] toByteArray() throws IOException {
-		ByteBuffer buffer = createBuffer(9);
+		ByteBuffer buffer = createBuffer(8);
 
-		buffer.put((byte) type.ordinal());
 		buffer.putInt(documentId);
 		buffer.putInt(pageNumber);
 
@@ -63,7 +58,6 @@ public class PageAction extends PlaybackAction {
 	public void parseFrom(byte[] input) throws IOException {
 		ByteBuffer buffer = createBuffer(input);
 
-		type = DocumentType.values()[buffer.get()];
 		documentId = buffer.getInt();
 		pageNumber = buffer.getInt();
 	}

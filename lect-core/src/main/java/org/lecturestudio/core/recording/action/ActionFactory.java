@@ -95,6 +95,8 @@ public abstract class ActionFactory {
 				return new RubberAction(input);
 			case NEXT_PAGE:
 				return new NextPageAction();
+			case STREAM_START:
+				return new StreamStartAction(input);
 			case PAGE:
 				return new PageAction(input);
 			case PAGE_CREATED:

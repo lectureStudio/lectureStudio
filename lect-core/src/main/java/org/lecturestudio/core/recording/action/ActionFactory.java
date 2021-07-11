@@ -95,20 +95,8 @@ public abstract class ActionFactory {
 				return new RubberAction(input);
 			case NEXT_PAGE:
 				return new NextPageAction();
-			case STREAM_START:
-				return new StreamStartAction(input);
 			case PAGE:
 				return new PageAction(input);
-			case PAGE_CREATED:
-				return new CreatePageAction();
-			case PAGE_REMOVED:
-				return new RemovePageAction(input);
-			case DOCUMENT_CREATED:
-				return new DocumentCreateAction(input);
-			case DOCUMENT_CLOSED:
-				return new DocumentCloseAction(input);
-			case DOCUMENT_SELECTED:
-				return new DocumentSelectAction(input);
 			default:
 				throw new IOException("Action not defined: " + type);
 		}

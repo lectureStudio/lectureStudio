@@ -26,7 +26,6 @@ import org.lecturestudio.core.ExecutableBase;
 import org.lecturestudio.core.ExecutableException;
 import org.lecturestudio.core.ExecutableState;
 import org.lecturestudio.core.app.ApplicationContext;
-import org.lecturestudio.core.recording.LectureRecorder;
 import org.lecturestudio.core.service.DocumentService;
 import org.lecturestudio.presenter.api.config.PresenterConfiguration;
 import org.lecturestudio.presenter.api.config.StreamConfiguration;
@@ -35,12 +34,13 @@ import org.lecturestudio.presenter.api.event.StreamingStateEvent;
 import org.lecturestudio.web.api.client.TokenProvider;
 import org.lecturestudio.web.api.janus.client.JanusWebSocketClient;
 import org.lecturestudio.web.api.service.ServiceParameters;
+import org.lecturestudio.web.api.stream.StreamEventRecorder;
 import org.lecturestudio.web.api.stream.client.StreamWebSocketClient;
 import org.lecturestudio.web.api.stream.config.WebRtcConfiguration;
 import org.lecturestudio.web.api.stream.config.WebRtcDefaultConfiguration;
 import org.lecturestudio.web.api.stream.model.Course;
 import org.lecturestudio.web.api.stream.service.StreamService;
-import org.lecturestudio.web.api.websocket.BearerTokenHeaderProvider;
+import org.lecturestudio.web.api.websocket.WebSocketBearerTokenProvider;
 import org.lecturestudio.web.api.websocket.WebSocketHeaderProvider;
 
 /**
@@ -129,9 +129,9 @@ public class WebRtcStreamService extends ExecutableBase {
 		StreamService streamService = new StreamService(streamApiParameters,
 				tokenProvider);
 
-		LectureRecorder eventRecorder = new WebRtcStreamEventRecorder();
+		StreamEventRecorder eventRecorder = new WebRtcStreamEventRecorder();
 
-		WebSocketHeaderProvider headerProvider = new BearerTokenHeaderProvider(
+		WebSocketHeaderProvider headerProvider = new WebSocketBearerTokenProvider(
 				tokenProvider);
 
 		streamStateClient = new StreamWebSocketClient(stateWsParameters,

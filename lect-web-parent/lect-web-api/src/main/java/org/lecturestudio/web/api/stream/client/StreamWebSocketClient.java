@@ -41,16 +41,16 @@ import javax.ws.rs.core.MediaType;
 import org.lecturestudio.core.ExecutableBase;
 import org.lecturestudio.core.ExecutableException;
 import org.lecturestudio.core.model.Document;
-import org.lecturestudio.core.recording.LectureRecorder;
-import org.lecturestudio.core.recording.action.DocumentCreateAction;
-import org.lecturestudio.core.recording.action.DocumentSelectAction;
-import org.lecturestudio.core.recording.action.PageAction;
-import org.lecturestudio.core.recording.action.PlaybackAction;
-import org.lecturestudio.core.recording.action.StreamStartAction;
 import org.lecturestudio.core.service.DocumentService;
 import org.lecturestudio.web.api.client.MultipartBody;
 import org.lecturestudio.web.api.net.OwnTrustManager;
 import org.lecturestudio.web.api.service.ServiceParameters;
+import org.lecturestudio.web.api.stream.StreamEventRecorder;
+import org.lecturestudio.web.api.stream.action.StreamAction;
+import org.lecturestudio.web.api.stream.action.StreamDocumentCreateAction;
+import org.lecturestudio.web.api.stream.action.StreamDocumentSelectAction;
+import org.lecturestudio.web.api.stream.action.StreamPageSelectedAction;
+import org.lecturestudio.web.api.stream.action.StreamStartAction;
 import org.lecturestudio.web.api.stream.model.Course;
 import org.lecturestudio.web.api.stream.service.StreamService;
 import org.lecturestudio.web.api.websocket.WebSocketHeaderProvider;
@@ -68,7 +68,7 @@ public class StreamWebSocketClient extends ExecutableBase {
 
 	private final WebSocketHeaderProvider headerProvider;
 
-	private final LectureRecorder eventRecorder;
+	private final StreamEventRecorder eventRecorder;
 
 	private final DocumentService documentService;
 
@@ -81,7 +81,7 @@ public class StreamWebSocketClient extends ExecutableBase {
 
 	public StreamWebSocketClient(ServiceParameters parameters,
 			WebSocketHeaderProvider headerProvider,
-			LectureRecorder eventRecorder, DocumentService documentService,
+			StreamEventRecorder eventRecorder, DocumentService documentService,
 			StreamService streamService, Course course) {
 		requireNonNull(parameters);
 		requireNonNull(headerProvider);
@@ -136,19 +136,20 @@ public class StreamWebSocketClient extends ExecutableBase {
 
 		StreamStartAction startAction = new StreamStartAction(course.getId());
 
-		DocumentCreateAction docCreateAction = new DocumentCreateAction(document);
+		StreamDocumentCreateAction docCreateAction = new StreamDocumentCreateAction(document);
 		docCreateAction.setDocumentFile(docFile);
 
-		DocumentSelectAction docSelectAction = new DocumentSelectAction(document);
+		StreamDocumentSelectAction docSelectAction = new StreamDocumentSelectAction(document);
 
-		PageAction pageAction = new PageAction(document.hashCode(),
-				document.getCurrentPageNumber());
+		StreamPageSelectedAction pageAction = new StreamPageSelectedAction(
+				document.getCurrentPage());
 
 		try {
-			send(startAction);
-			send(docCreateAction);
-			send(docSelectAction);
-			send(pageAction);
+			send(startAction, docCreateAction, docSelectAction, pageAction);
+
+			for (var action : eventRecorder.getPreRecordedActions()) {
+				send(action);
+			}
 		}
 		catch (IOException e) {
 			throw new ExecutableException("Send action failed", e);
@@ -169,8 +170,14 @@ public class StreamWebSocketClient extends ExecutableBase {
 		eventRecorder.destroy();
 	}
 
-	private void send(PlaybackAction action) throws IOException {
+	private void send(StreamAction action) throws IOException {
 		webSocket.sendBinary(ByteBuffer.wrap(action.toByteArray()), true);
+	}
+
+	private void send(StreamAction... actions) throws IOException {
+		for (var action : actions) {
+			send(action);
+		}
 	}
 
 	private String uploadDocument(Document document) {

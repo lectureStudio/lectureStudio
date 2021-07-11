@@ -29,13 +29,13 @@ import org.lecturestudio.core.model.DocumentType;
 import org.lecturestudio.core.net.Sync;
 import org.lecturestudio.core.net.rtp.RtpPacket;
 import org.lecturestudio.core.recording.LectureRecorderListener;
-import org.lecturestudio.core.recording.action.DocumentAction;
 import org.lecturestudio.core.recording.action.PlaybackAction;
 import org.lecturestudio.media.net.StreamEventRecorder;
 import org.lecturestudio.web.api.connector.client.ClientConnector;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.lecturestudio.web.api.stream.action.StreamDocumentAction;
 
 /**
  * The {@code RtpEventServer} distributes the event stream to a group of
@@ -158,7 +158,7 @@ public class RtpEventServer extends ExecutableBase {
 		}
 	}
 	
-	private void transmitDocument(DocumentAction action) throws Exception {
+	private void transmitDocument(StreamDocumentAction action) throws Exception {
 		if (action.getDocumentType() == DocumentType.WHITEBOARD) {
 			// Whiteboards are created dynamically. No need to transmit.
 			return;
@@ -189,10 +189,10 @@ public class RtpEventServer extends ExecutableBase {
 		public void eventRecorded(PlaybackAction action) {
             try {
             	switch (action.getType()) {
-    				case DOCUMENT_CREATED:
-					case DOCUMENT_SELECTED:
-    					transmitDocument((DocumentAction) action);
-    					break;
+//    				case STREAM_DOCUMENT_CREATED:
+//					case STREAM_DOCUMENT_SELECTED:
+//    					transmitDocument((StreamDocumentAction) action);
+//    					break;
     				
     				default:
     					break;

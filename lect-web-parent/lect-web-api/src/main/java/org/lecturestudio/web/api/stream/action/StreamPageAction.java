@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2020 TU Darmstadt, Department of Computer Science,
+ * Copyright (C) 2021 TU Darmstadt, Department of Computer Science,
  * Embedded Systems and Applications Group.
  *
  * This program is free software: you can redistribute it and/or modify
@@ -16,35 +16,50 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package org.lecturestudio.core.recording.action;
+package org.lecturestudio.web.api.stream.action;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
 
-import org.lecturestudio.core.controller.ToolController;
+import org.lecturestudio.core.model.Page;
 
-public class RemovePageAction extends PlaybackAction {
+public abstract class StreamPageAction extends StreamAction {
+
+	private long documentId;
 
 	private int pageNumber;
 
 
-	public RemovePageAction(int number) {
-		this.pageNumber = number;
+	public StreamPageAction(Page page) {
+		setDocumentId(page.getDocument().hashCode());
+		setPageNumber(page.getDocument().getPageIndex(page));
 	}
 
-	public RemovePageAction(byte[] input) throws IOException {
+	public StreamPageAction(byte[] input) throws IOException {
 		parseFrom(input);
 	}
 
-	@Override
-	public void execute(ToolController controller) throws Exception {
-		controller.deleteWhiteboardPage(pageNumber);
+	public int getPageNumber() {
+		return pageNumber;
+	}
+
+	public void setPageNumber(int pageNumber) {
+		this.pageNumber = pageNumber;
+	}
+
+	public long getDocumentId() {
+		return documentId;
+	}
+
+	public void setDocumentId(long documentId) {
+		this.documentId = documentId;
 	}
 
 	@Override
-	public byte[] toByteArray() {
-		ByteBuffer buffer = createBuffer(4);
+	public byte[] toByteArray() throws IOException {
+		ByteBuffer buffer = createBuffer(12);
 
+		buffer.putLong(documentId);
 		buffer.putInt(pageNumber);
 
 		return buffer.array();
@@ -52,14 +67,9 @@ public class RemovePageAction extends PlaybackAction {
 
 	@Override
 	public void parseFrom(byte[] input) throws IOException {
-		ByteBuffer buffer = ByteBuffer.wrap(input);
+		ByteBuffer buffer = createBuffer(input);
 
+		documentId = buffer.getLong();
 		pageNumber = buffer.getInt();
 	}
-
-	@Override
-	public ActionType getType() {
-		return ActionType.PAGE_REMOVED;
-	}
-
 }

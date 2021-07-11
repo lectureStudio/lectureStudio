@@ -16,36 +16,24 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package org.lecturestudio.web.api.websocket;
+package org.lecturestudio.web.api.stream.action;
 
-import static java.util.Objects.nonNull;
+import java.io.IOException;
 
-import java.net.http.WebSocket.Builder;
+import org.lecturestudio.core.model.Page;
 
-import javax.ws.rs.core.HttpHeaders;
+public class StreamPageSelectedAction extends StreamPageAction {
 
-import org.lecturestudio.web.api.client.TokenProvider;
+	public StreamPageSelectedAction(Page page) {
+		super(page);
+	}
 
-/**
- * Bearer token authorization header provider.
- *
- * @author Alex Andres
- */
-public class BearerTokenHeaderProvider implements WebSocketHeaderProvider {
-
-	private final TokenProvider tokenProvider;
-
-
-	public BearerTokenHeaderProvider(TokenProvider tokenProvider) {
-		this.tokenProvider = tokenProvider;
+	public StreamPageSelectedAction(byte[] input) throws IOException {
+		super(input);
 	}
 
 	@Override
-	public void setHeaders(Builder builder) {
-		String token = tokenProvider.getToken();
-
-		if (nonNull(token)) {
-			builder.header(HttpHeaders.AUTHORIZATION, "Bearer " + token);
-		}
+	public StreamActionType getType() {
+		return StreamActionType.STREAM_PAGE_SELECTED;
 	}
 }

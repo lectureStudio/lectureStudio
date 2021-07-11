@@ -48,6 +48,10 @@ public class PendingActions {
 		return pendingActions.get(page);
 	}
 
+	public Map<Page, List<PlaybackAction>> getAllPendingActions() {
+		return pendingActions;
+	}
+
 	public void clear() {
 		pendingPage = null;
 		pendingActions = null;

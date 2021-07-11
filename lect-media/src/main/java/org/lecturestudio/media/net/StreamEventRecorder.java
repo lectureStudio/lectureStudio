@@ -24,6 +24,9 @@ import com.google.common.eventbus.Subscribe;
 
 import java.security.MessageDigest;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
 import org.lecturestudio.core.ExecutableState;
 import org.lecturestudio.core.bus.ApplicationBus;
 import org.lecturestudio.core.bus.event.DocumentEvent;
@@ -34,17 +37,17 @@ import org.lecturestudio.core.model.Page;
 import org.lecturestudio.core.model.listener.DocumentChangeListener;
 import org.lecturestudio.core.recording.LectureRecorder;
 import org.lecturestudio.core.recording.LectureRecorderListener;
-import org.lecturestudio.core.recording.action.CreatePageAction;
-import org.lecturestudio.core.recording.action.DocumentAction;
-import org.lecturestudio.core.recording.action.DocumentSelectAction;
-import org.lecturestudio.core.recording.action.DocumentCloseAction;
-import org.lecturestudio.core.recording.action.DocumentCreateAction;
 import org.lecturestudio.core.recording.action.PageAction;
 import org.lecturestudio.core.recording.action.PlaybackAction;
-import org.lecturestudio.core.recording.action.RemovePageAction;
-
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import org.lecturestudio.web.api.stream.action.StreamAction;
+import org.lecturestudio.web.api.stream.action.StreamDocumentAction;
+import org.lecturestudio.web.api.stream.action.StreamDocumentCloseAction;
+import org.lecturestudio.web.api.stream.action.StreamDocumentCreateAction;
+import org.lecturestudio.web.api.stream.action.StreamDocumentSelectAction;
+import org.lecturestudio.web.api.stream.action.StreamPageCreatedAction;
+import org.lecturestudio.web.api.stream.action.StreamPageDeletedAction;
+import org.lecturestudio.web.api.stream.action.StreamPagePlaybackAction;
+import org.lecturestudio.web.api.stream.action.StreamPageSelectedAction;
 
 public class StreamEventRecorder extends LectureRecorder {
 
@@ -68,8 +71,12 @@ public class StreamEventRecorder extends LectureRecorder {
 		}
 	};
 
+//	private PendingActions pendingActions;
+
+	private Page currentPage;
+
 	private LectureRecorderListener listener;
-	
+
 	private long startTime = -1;
 
 	private long pauseTime;
@@ -88,10 +95,9 @@ public class StreamEventRecorder extends LectureRecorder {
 		}
 		
 		PlaybackAction action = event.getAction();
-		
-		if (action != null) {
-			addPlaybackAction(action);
-		}
+		action.setTimestamp((int) getElapsedTime());
+
+		addPlaybackAction(new StreamPagePlaybackAction(currentPage, action));
 	}
 	
     @Subscribe
@@ -99,22 +105,22 @@ public class StreamEventRecorder extends LectureRecorder {
 		if (!started()) {
 			return;
 		}
-		
-		Page page = event.getPage();
-		
+
+		currentPage = event.getPage();
+
 		switch (event.getType()) {
 			case CREATED:
-				addPlaybackAction(new CreatePageAction());
+				addPlaybackAction(new StreamPageCreatedAction(currentPage));
 				break;
-				
+
 			case REMOVED:
-				addPlaybackAction(new RemovePageAction(page.getDocument().getPageIndex(page)));
+				addPlaybackAction(new StreamPageDeletedAction(currentPage));
 				break;
-				
+
 			case SELECTED:
-				addPlaybackAction(encodePage(page, page.getDocument().getPageIndex(page)));
+				addPlaybackAction(new StreamPageSelectedAction(currentPage));
 				break;
-				
+
 			default:
 				break;
 		}
@@ -140,14 +146,14 @@ public class StreamEventRecorder extends LectureRecorder {
 				LOG.error("Get document checksum failed.", e);
 			}
 		}
-		
-		DocumentAction action = null;
+
+		StreamDocumentAction action = null;
 		
 		if (event.created()) {
-			action = new DocumentCreateAction(doc);
+			action = new StreamDocumentCreateAction(doc);
 		}
 		else if (event.closed()) {
-			action = new DocumentCloseAction(doc);
+			action = new StreamDocumentCloseAction(doc);
 		}
 		else if (event.selected()) {
 			Document oldDoc = event.getOldDocument();
@@ -158,7 +164,7 @@ public class StreamEventRecorder extends LectureRecorder {
 
 			doc.addChangeListener(documentChangeListener);
 
-			action = new DocumentSelectAction(doc);
+			action = new StreamDocumentSelectAction(doc);
 		}
 
 		if (nonNull(action)) {
@@ -170,7 +176,7 @@ public class StreamEventRecorder extends LectureRecorder {
 			// Keep the state up to date and publish the current page.
 			if (event.selected()) {
 				Page page = doc.getCurrentPage();
-				addPlaybackAction(encodePage(page, page.getDocument().getPageIndex(page)));
+				addPlaybackAction(new StreamPageSelectedAction(page));
 			}
 		}
 	}
@@ -233,14 +239,12 @@ public class StreamEventRecorder extends LectureRecorder {
 		listener = null;
 	}
 
-	private void addPlaybackAction(PlaybackAction action) {
+	private void addPlaybackAction(StreamAction action) {
 		if (!started() || action == null) {
 			return;
 		}
 
-		action.setTimestamp((int) getElapsedTime());
-
-		listener.eventRecorded(action);
+		//listener.eventRecorded(action);
 	}
 
 	private PageAction encodePage(Page page, int number) {
@@ -262,15 +266,15 @@ public class StreamEventRecorder extends LectureRecorder {
 			LOG.error("Get document checksum failed.", e);
 		}
 
-		DocumentAction action = new DocumentCreateAction(document);
-		action.setDocumentFile(docFile);
+		StreamDocumentAction action = new StreamDocumentCreateAction(document);
+		action.setDocumentFile(document.getName() + ".pdf");
 		action.setDocumentChecksum(checksum);
 
 		addPlaybackAction(action);
 
 		// Keep the state up to date and publish the current page.
 		Page page = document.getCurrentPage();
-		addPlaybackAction(encodePage(page, page.getDocument().getPageIndex(page)));
+		addPlaybackAction(new StreamPageSelectedAction(page));
 	}
  	
 }

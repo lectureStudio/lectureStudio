@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2020 TU Darmstadt, Department of Computer Science,
+ * Copyright (C) 2021 TU Darmstadt, Department of Computer Science,
  * Embedded Systems and Applications Group.
  *
  * This program is free software: you can redistribute it and/or modify
@@ -16,7 +16,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package org.lecturestudio.core.recording.action;
+package org.lecturestudio.web.api.stream.action;
 
 import java.io.File;
 import java.io.IOException;
@@ -25,7 +25,7 @@ import java.nio.ByteBuffer;
 import org.lecturestudio.core.model.Document;
 import org.lecturestudio.core.model.DocumentType;
 
-public abstract class DocumentAction extends PlaybackAction {
+public abstract class StreamDocumentAction extends StreamAction {
 
 	private long documentId;
 
@@ -38,13 +38,13 @@ public abstract class DocumentAction extends PlaybackAction {
 	private String documentChecksum;
 
 
-	public DocumentAction(Document document) {
+	public StreamDocumentAction(Document document) {
 		setDocumentId(document.hashCode());
 		setDocumentType(document.getType());
 		setDocumentTitle(document.getName());
 	}
 
-	public DocumentAction(byte[] input) throws IOException {
+	public StreamDocumentAction(byte[] input) throws IOException {
 		parseFrom(input);
 	}
 
@@ -122,9 +122,8 @@ public abstract class DocumentAction extends PlaybackAction {
 
 		ByteBuffer buffer = ByteBuffer.allocate(22 + payloadLength);
 		// write header
-		buffer.putInt(18 + payloadLength);
+		buffer.putInt(14 + payloadLength);
 		buffer.put(actionType);
-		buffer.putInt(getTimestamp());
 
 		buffer.putLong(documentId);
 		buffer.put(docType);

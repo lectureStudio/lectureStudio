@@ -26,7 +26,7 @@ import io.netty.channel.ChannelHandlerContext;
 import java.nio.ByteBuffer;
 
 import org.lecturestudio.core.net.rtp.RtpPacket;
-import org.lecturestudio.core.recording.action.ActionType;
+import org.lecturestudio.web.api.stream.action.StreamActionType;
 
 @Sharable
 public class EventWriteHandler extends WriteHandler {
@@ -92,15 +92,15 @@ public class EventWriteHandler extends WriteHandler {
 		buffer.getInt();	// Length
 		int type = buffer.get();
 
-		ActionType actionType = ActionType.values()[type];
+		StreamActionType actionType = StreamActionType.values()[type];
 
 		switch (actionType) {
-			case PAGE:
+			case STREAM_PAGE_SELECTED:
 				lastPagePacket = packet;
 				break;
 
-			case DOCUMENT_CREATED:
-			case DOCUMENT_SELECTED:
+			case STREAM_DOCUMENT_CREATED:
+			case STREAM_DOCUMENT_SELECTED:
 				lastDocumentPacket = packet;
 				break;
 

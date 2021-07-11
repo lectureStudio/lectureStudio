@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2020 TU Darmstadt, Department of Computer Science,
+ * Copyright (C) 2021 TU Darmstadt, Department of Computer Science,
  * Embedded Systems and Applications Group.
  *
  * This program is free software: you can redistribute it and/or modify
@@ -16,35 +16,24 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package org.lecturestudio.core.recording.action;
+package org.lecturestudio.web.api.stream.action;
 
 import java.io.IOException;
-import java.nio.ByteBuffer;
 
-import org.lecturestudio.core.controller.ToolController;
+import org.lecturestudio.core.model.Page;
 
-public class CreatePageAction extends PlaybackAction {
+public class StreamPageCreatedAction extends StreamPageAction {
 
-	@Override
-	public void execute(ToolController controller) throws Exception {
-		controller.createWhiteboardPage();
+	public StreamPageCreatedAction(Page page) {
+		super(page);
+	}
+
+	public StreamPageCreatedAction(byte[] input) throws IOException {
+		super(input);
 	}
 
 	@Override
-	public byte[] toByteArray() throws IOException {
-		ByteBuffer buffer = createBuffer(0);
-
-		return buffer.array();
+	public StreamActionType getType() {
+		return StreamActionType.STREAM_PAGE_CREATED;
 	}
-
-	@Override
-	public void parseFrom(byte[] input) throws IOException {
-		
-	}
-
-	@Override
-	public ActionType getType() {
-		return ActionType.PAGE_CREATED;
-	}
-
 }

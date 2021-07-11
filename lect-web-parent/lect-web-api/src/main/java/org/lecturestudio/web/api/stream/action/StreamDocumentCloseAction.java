@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2021 TU Darmstadt, Department of Computer Science,
+ * Copyright (C) 2020 TU Darmstadt, Department of Computer Science,
  * Embedded Systems and Applications Group.
  *
  * This program is free software: you can redistribute it and/or modify
@@ -16,12 +16,25 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package org.lecturestudio.web.api.stream.model;
+package org.lecturestudio.web.api.stream.action;
 
-import java.nio.ByteBuffer;
+import java.io.IOException;
 
-public interface StreamMessage {
+import org.lecturestudio.core.model.Document;
 
-	ByteBuffer toByteBuffer();
+public class StreamDocumentCloseAction extends StreamDocumentAction {
+
+	public StreamDocumentCloseAction(Document document) {
+		super(document);
+	}
+
+	public StreamDocumentCloseAction(byte[] input) throws IOException {
+		super(input);
+	}
+
+	@Override
+	public StreamActionType getType() {
+		return StreamActionType.STREAM_DOCUMENT_CLOSED;
+	}
 
 }

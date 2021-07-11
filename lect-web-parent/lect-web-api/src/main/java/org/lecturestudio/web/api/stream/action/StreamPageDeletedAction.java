@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2020 TU Darmstadt, Department of Computer Science,
+ * Copyright (C) 2021 TU Darmstadt, Department of Computer Science,
  * Embedded Systems and Applications Group.
  *
  * This program is free software: you can redistribute it and/or modify
@@ -16,51 +16,24 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package org.lecturestudio.core.recording.action;
+package org.lecturestudio.web.api.stream.action;
 
-public enum ActionType {
+import java.io.IOException;
 
-	/*
-	 * Tool actions
-	 */
-	TOOL_BEGIN,
-	TOOL_EXECUTE,
-	TOOL_END,
+import org.lecturestudio.core.model.Page;
 
-	/*
-	 * Stroke actions
-	 */
-	PEN, HIGHLIGHTER, POINTER,
+public class StreamPageDeletedAction extends StreamPageAction {
 
-	/*
-	 * Form actions
-	 */
-	ARROW, LINE, RECTANGLE, ELLIPSE,
+	public StreamPageDeletedAction(Page page) {
+		super(page);
+	}
 
-	/*
-	 * Text actions
-	 */
-	TEXT, TEXT_CHANGE, TEXT_FONT_CHANGE, TEXT_LOCATION_CHANGE, TEXT_REMOVE, TEXT_SELECTION,
+	public StreamPageDeletedAction(byte[] input) throws IOException {
+		super(input);
+	}
 
-	LATEX, LATEX_FONT_CHANGE,
-
-	/*
-	 * Rearrangement actions
-	 */
-	UNDO, REDO, CLONE, SELECT, SELECT_GROUP, RUBBER, DELETE_ALL,
-
-	/*
-	 * Zoom actions
-	 */
-	PANNING, EXTEND_VIEW, ZOOM, ZOOM_OUT,
-
-	/*
-	 * Atomic actions
-	 */
-	NEXT_PAGE, KEY,
-
-	STATIC,
-
-	PAGE;
-
+	@Override
+	public StreamActionType getType() {
+		return StreamActionType.STREAM_PAGE_DELETED;
+	}
 }

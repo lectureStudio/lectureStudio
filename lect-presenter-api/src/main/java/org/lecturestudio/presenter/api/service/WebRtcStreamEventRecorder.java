@@ -24,6 +24,8 @@ import static java.util.Objects.nonNull;
 import com.google.common.eventbus.Subscribe;
 
 import java.security.MessageDigest;
+import java.util.ArrayList;
+import java.util.List;
 
 import org.lecturestudio.core.ExecutableState;
 import org.lecturestudio.core.bus.ApplicationBus;
@@ -33,17 +35,22 @@ import org.lecturestudio.core.bus.event.RecordActionEvent;
 import org.lecturestudio.core.model.Document;
 import org.lecturestudio.core.model.Page;
 import org.lecturestudio.core.model.listener.DocumentChangeListener;
-import org.lecturestudio.core.recording.LectureRecorder;
-import org.lecturestudio.core.recording.action.CreatePageAction;
-import org.lecturestudio.core.recording.action.DocumentAction;
-import org.lecturestudio.core.recording.action.DocumentCloseAction;
-import org.lecturestudio.core.recording.action.DocumentCreateAction;
-import org.lecturestudio.core.recording.action.DocumentSelectAction;
-import org.lecturestudio.core.recording.action.PageAction;
+import org.lecturestudio.core.recording.RecordedPage;
 import org.lecturestudio.core.recording.action.PlaybackAction;
-import org.lecturestudio.core.recording.action.RemovePageAction;
+import org.lecturestudio.presenter.api.recording.PendingActions;
+import org.lecturestudio.web.api.stream.StreamEventRecorder;
+import org.lecturestudio.web.api.stream.action.StreamAction;
+import org.lecturestudio.web.api.stream.action.StreamDocumentAction;
+import org.lecturestudio.web.api.stream.action.StreamDocumentCloseAction;
+import org.lecturestudio.web.api.stream.action.StreamDocumentCreateAction;
+import org.lecturestudio.web.api.stream.action.StreamDocumentSelectAction;
+import org.lecturestudio.web.api.stream.action.StreamPageActionsAction;
+import org.lecturestudio.web.api.stream.action.StreamPageCreatedAction;
+import org.lecturestudio.web.api.stream.action.StreamPageDeletedAction;
+import org.lecturestudio.web.api.stream.action.StreamPagePlaybackAction;
+import org.lecturestudio.web.api.stream.action.StreamPageSelectedAction;
 
-public class WebRtcStreamEventRecorder extends LectureRecorder {
+public class WebRtcStreamEventRecorder extends StreamEventRecorder {
 
 	private final DocumentChangeListener documentChangeListener = new DocumentChangeListener() {
 
@@ -62,6 +69,10 @@ public class WebRtcStreamEventRecorder extends LectureRecorder {
 
 		}
 	};
+
+	private PendingActions pendingActions;
+
+	private Page currentPage;
 
 	private long startTime = -1;
 
@@ -85,34 +96,64 @@ public class WebRtcStreamEventRecorder extends LectureRecorder {
 		return 0;
 	}
 
+	@Override
+	public List<StreamPageActionsAction> getPreRecordedActions() {
+		List<StreamPageActionsAction> actions = new ArrayList<>();
+
+		for (var entry : pendingActions.getAllPendingActions().entrySet()) {
+			Page page = entry.getKey();
+			Document document = page.getDocument();
+
+			int pageNumber = document.getPageIndex(page);
+			int documentId = page.getDocument().hashCode();
+
+			RecordedPage recordedPage = new RecordedPage();
+			recordedPage.setNumber(pageNumber);
+			recordedPage.getPlaybackActions().addAll(entry.getValue());
+
+			actions.add(new StreamPageActionsAction(documentId, recordedPage));
+		}
+
+		return actions;
+	}
+
 	@Subscribe
 	public void onEvent(final RecordActionEvent event) {
+		if (initialized() || suspended()) {
+			addPendingAction(event.getAction());
+		}
 		if (!started()) {
 			return;
 		}
 
-		addPlaybackAction(event.getAction());
+		PlaybackAction action = event.getAction();
+		action.setTimestamp((int) getElapsedTime());
+
+		addPlaybackAction(new StreamPagePlaybackAction(currentPage, action));
 	}
 
 	@Subscribe
 	public void onEvent(final PageEvent event) {
+		if (initialized() || suspended()) {
+			pendingActions.setPendingPage(event.getPage());
+		}
 		if (!started()) {
 			return;
 		}
 
-		Page page = event.getPage();
+		currentPage = event.getPage();
 
 		switch (event.getType()) {
 			case CREATED:
-				addPlaybackAction(new CreatePageAction());
+				addPlaybackAction(new StreamPageCreatedAction(currentPage));
 				break;
 
 			case REMOVED:
-				addPlaybackAction(new RemovePageAction(page.getDocument().getPageIndex(page)));
+				addPlaybackAction(new StreamPageDeletedAction(currentPage));
 				break;
 
 			case SELECTED:
-				addPlaybackAction(encodePage(page, page.getDocument().getPageIndex(page)));
+				addPlaybackAction(new StreamPageSelectedAction(currentPage));
 				break;
 
 			default:
@@ -122,12 +163,14 @@ public class WebRtcStreamEventRecorder extends LectureRecorder {
 
 	@Subscribe
 	public void onEvent(final DocumentEvent event) {
+		if (initialized() || suspended()) {
+			pendingActions.setPendingPage(event.getDocument().getCurrentPage());
+		}
 		if (!started()) {
 			return;
 		}
 
 		Document doc = event.getDocument();
-		String docFile = doc.getName() + ".pdf";
 		String checksum = null;
 
 		if (!event.closed()) {
@@ -141,13 +184,13 @@ public class WebRtcStreamEventRecorder extends LectureRecorder {
 			}
 		}
 
-		DocumentAction action = null;
+		StreamDocumentAction action = null;
 
 		if (event.created()) {
-			action = new DocumentCreateAction(doc);
+			action = new StreamDocumentCreateAction(doc);
 		}
 		else if (event.closed()) {
-			action = new DocumentCloseAction(doc);
+			action = new StreamDocumentCloseAction(doc);
 		}
 		else if (event.selected()) {
 			Document oldDoc = event.getOldDocument();
@@ -158,7 +201,7 @@ public class WebRtcStreamEventRecorder extends LectureRecorder {
 
 			doc.addChangeListener(documentChangeListener);
 
-			action = new DocumentSelectAction(doc);
+			action = new StreamDocumentSelectAction(doc);
 		}
 
 		if (nonNull(action)) {
@@ -169,14 +212,15 @@ public class WebRtcStreamEventRecorder extends LectureRecorder {
 			// Keep the state up to date and publish the current page.
 			if (event.selected()) {
 				Page page = doc.getCurrentPage();
-				addPlaybackAction(encodePage(page, page.getDocument().getPageIndex(page)));
+				addPlaybackAction(new StreamPageSelectedAction(page));
 			}
 		}
 	}
 
 	@Override
 	protected void initInternal() {
-
+		pendingActions = new PendingActions();
+		pendingActions.initialize();
 	}
 
 	@Override
@@ -215,20 +259,22 @@ public class WebRtcStreamEventRecorder extends LectureRecorder {
 
 	}
 
-	private void addPlaybackAction(PlaybackAction action) {
-		if (!started() || isNull(action)) {
+	private void addPendingAction(PlaybackAction action) {
+		if (isNull(action)) {
 			return;
 		}
 
 		action.setTimestamp((int) getElapsedTime());
 
-		notifyActionConsumers(action);
+		pendingActions.addPendingAction(action);
 	}
 
-	private PageAction encodePage(Page page, int number) {
-		int docId = page.getDocument().hashCode();
+	private void addPlaybackAction(StreamAction action) {
+		if (!started() || isNull(action)) {
+			return;
+		}
 
-		return new PageAction(docId, number);
+		notifyActionConsumers(action);
 	}
 
 	private void updateDocument(Document document) {
@@ -243,7 +289,7 @@ public class WebRtcStreamEventRecorder extends LectureRecorder {
 			logException(e, "Get document checksum failed");
 		}
 
-		DocumentAction action = new DocumentCreateAction(document);
+		StreamDocumentAction action = new StreamDocumentCreateAction(document);
 		action.setDocumentFile(document.getName() + ".pdf");
 		action.setDocumentChecksum(checksum);
 
@@ -251,6 +297,6 @@ public class WebRtcStreamEventRecorder extends LectureRecorder {
 
 		// Keep the state up to date and publish the current page.
 		Page page = document.getCurrentPage();
-		addPlaybackAction(encodePage(page, page.getDocument().getPageIndex(page)));
+		addPlaybackAction(new StreamPageSelectedAction(page));
 	}
 }

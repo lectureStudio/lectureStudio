@@ -16,36 +16,44 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package org.lecturestudio.core.recording.action;
+package org.lecturestudio.web.api.stream.action;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
 
-import org.lecturestudio.core.controller.ToolController;
+import org.lecturestudio.core.recording.RecordedPage;
 
-public class StreamStartAction extends PlaybackAction {
+public class StreamPageActionsAction extends StreamAction {
 
-	private long courseId;
+	private long documentId;
+
+	private RecordedPage recordedPage;
 
 
-	public StreamStartAction(long courseId) {
-		this.courseId = courseId;
+	public StreamPageActionsAction(long documentId, RecordedPage recordedPage) {
+		this.documentId = documentId;
+		this.recordedPage = recordedPage;
 	}
 
-	public StreamStartAction(byte[] input) throws IOException {
+	public StreamPageActionsAction(byte[] input) throws IOException {
 		parseFrom(input);
 	}
 
-	@Override
-	public void execute(ToolController controller) throws Exception {
+	public RecordedPage getRecordedPage() {
+		return recordedPage;
+	}
 
+	public long getDocumentId() {
+		return documentId;
 	}
 
 	@Override
 	public byte[] toByteArray() throws IOException {
-		ByteBuffer buffer = createBuffer(9);
+		byte[] pageData = recordedPage.toByteArray();
 
-		buffer.putLong(courseId);
+		ByteBuffer buffer = createBuffer(pageData.length + 8);
+		buffer.putLong(documentId);
+		buffer.put(pageData);
 
 		return buffer.array();
 	}
@@ -54,15 +62,18 @@ public class StreamStartAction extends PlaybackAction {
 	public void parseFrom(byte[] input) throws IOException {
 		ByteBuffer buffer = createBuffer(input);
 
-		courseId = buffer.getLong();
+		documentId = buffer.getLong();
+
+		int pageSize = buffer.remaining();
+		byte[] pageData = new byte[pageSize];
+
+		buffer.get(pageData);
+
+		recordedPage = new RecordedPage(pageData);
 	}
 
 	@Override
-	public ActionType getType() {
-		return ActionType.STREAM_START;
-	}
-
-	public long getCourseId() {
-		return courseId;
+	public StreamActionType getType() {
+		return StreamActionType.STREAM_PAGE_ACTIONS;
 	}
 }

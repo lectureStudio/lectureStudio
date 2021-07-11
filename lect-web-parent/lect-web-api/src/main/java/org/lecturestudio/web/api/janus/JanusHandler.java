@@ -32,7 +32,6 @@ import java.util.function.Consumer;
 
 import org.lecturestudio.core.ExecutableBase;
 import org.lecturestudio.core.ExecutableException;
-import org.lecturestudio.core.recording.LectureRecorder;
 import org.lecturestudio.web.api.janus.message.JanusErrorMessage;
 import org.lecturestudio.web.api.janus.message.JanusMessage;
 import org.lecturestudio.web.api.janus.message.JanusMessageType;
@@ -48,6 +47,7 @@ import org.lecturestudio.web.api.janus.message.JanusSessionTimeoutMessage;
 import org.lecturestudio.web.api.janus.state.DestroyRoomState;
 import org.lecturestudio.web.api.janus.state.InfoState;
 import org.lecturestudio.web.api.janus.state.JanusState;
+import org.lecturestudio.web.api.stream.StreamEventRecorder;
 import org.lecturestudio.web.api.stream.config.WebRtcConfiguration;
 
 public class JanusHandler extends ExecutableBase {
@@ -56,7 +56,7 @@ public class JanusHandler extends ExecutableBase {
 
 	private final WebRtcConfiguration webRtcConfig;
 
-	private final LectureRecorder eventRecorder;
+	private final StreamEventRecorder eventRecorder;
 
 	private ScheduledExecutorService executorService;
 
@@ -78,10 +78,10 @@ public class JanusHandler extends ExecutableBase {
 
 
 	public JanusHandler(JanusMessageTransmitter transmitter,
-			WebRtcConfiguration webRtcConfig, LectureRecorder lectureRecorder) {
+			WebRtcConfiguration webRtcConfig, StreamEventRecorder eventRecorder) {
 		this.transmitter = transmitter;
 		this.webRtcConfig = webRtcConfig;
-		this.eventRecorder = lectureRecorder;
+		this.eventRecorder = eventRecorder;
 	}
 
 	public void createPeerConnection() {

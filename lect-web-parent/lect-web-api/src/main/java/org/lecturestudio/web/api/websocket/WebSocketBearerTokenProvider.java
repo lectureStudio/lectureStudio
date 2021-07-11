@@ -16,12 +16,36 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package org.lecturestudio.core.recording;
+package org.lecturestudio.web.api.websocket;
 
-import org.lecturestudio.core.ExecutableBase;
+import static java.util.Objects.nonNull;
 
-public abstract class LectureRecorder extends ExecutableBase {
+import java.net.http.WebSocket.Builder;
 
-	abstract public long getElapsedTime();
+import javax.ws.rs.core.HttpHeaders;
 
+import org.lecturestudio.web.api.client.TokenProvider;
+
+/**
+ * Bearer token authorization header provider.
+ *
+ * @author Alex Andres
+ */
+public class WebSocketBearerTokenProvider implements WebSocketHeaderProvider {
+
+	private final TokenProvider tokenProvider;
+
+
+	public WebSocketBearerTokenProvider(TokenProvider tokenProvider) {
+		this.tokenProvider = tokenProvider;
+	}
+
+	@Override
+	public void setHeaders(Builder builder) {
+		String token = tokenProvider.getToken();
+
+		if (nonNull(token)) {
+			builder.header(HttpHeaders.AUTHORIZATION, "Bearer " + token);
+		}
+	}
 }

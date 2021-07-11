@@ -38,7 +38,6 @@ import javax.net.ssl.X509TrustManager;
 
 import org.lecturestudio.core.ExecutableBase;
 import org.lecturestudio.core.ExecutableException;
-import org.lecturestudio.core.recording.LectureRecorder;
 import org.lecturestudio.web.api.data.bind.JsonConfigProvider;
 import org.lecturestudio.web.api.janus.JanusHandler;
 import org.lecturestudio.web.api.janus.JanusMessageTransmitter;
@@ -47,6 +46,7 @@ import org.lecturestudio.web.api.janus.message.JanusMessageType;
 import org.lecturestudio.web.api.janus.message.JanusMessage;
 import org.lecturestudio.web.api.net.OwnTrustManager;
 import org.lecturestudio.web.api.service.ServiceParameters;
+import org.lecturestudio.web.api.stream.StreamEventRecorder;
 import org.lecturestudio.web.api.stream.config.WebRtcConfiguration;
 
 /**
@@ -61,7 +61,7 @@ public class JanusWebSocketClient extends ExecutableBase implements JanusMessage
 
 	private final WebRtcConfiguration webRtcConfig;
 
-	private final LectureRecorder lectureRecorder;
+	private final StreamEventRecorder eventRecorder;
 
 	private WebSocket webSocket;
 
@@ -71,10 +71,10 @@ public class JanusWebSocketClient extends ExecutableBase implements JanusMessage
 
 
 	public JanusWebSocketClient(ServiceParameters parameters,
-			WebRtcConfiguration webRtcConfig, LectureRecorder lectureRecorder) {
+			WebRtcConfiguration webRtcConfig, StreamEventRecorder eventRecorder) {
 		this.serviceParameters = parameters;
 		this.webRtcConfig = webRtcConfig;
-		this.lectureRecorder = lectureRecorder;
+		this.eventRecorder = eventRecorder;
 	}
 
 	@Override
@@ -92,7 +92,7 @@ public class JanusWebSocketClient extends ExecutableBase implements JanusMessage
 	protected void initInternal() throws ExecutableException {
 		jsonb = new JsonConfigProvider().getContext(null);
 
-		handler = new JanusHandler(this, webRtcConfig, lectureRecorder);
+		handler = new JanusHandler(this, webRtcConfig, eventRecorder);
 		handler.init();
 	}
 

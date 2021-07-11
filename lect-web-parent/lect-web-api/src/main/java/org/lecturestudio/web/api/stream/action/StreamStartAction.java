@@ -16,12 +16,45 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package org.lecturestudio.core.recording;
+package org.lecturestudio.web.api.stream.action;
 
-import org.lecturestudio.core.ExecutableBase;
+import java.io.IOException;
+import java.nio.ByteBuffer;
 
-public abstract class LectureRecorder extends ExecutableBase {
+public class StreamStartAction extends StreamAction {
 
-	abstract public long getElapsedTime();
+	private long courseId;
 
+
+	public StreamStartAction(long courseId) {
+		this.courseId = courseId;
+	}
+
+	public StreamStartAction(byte[] input) {
+		parseFrom(input);
+	}
+
+	public long getCourseId() {
+		return courseId;
+	}
+
+	@Override
+	public byte[] toByteArray() throws IOException {
+		ByteBuffer buffer = createBuffer(8);
+		buffer.putLong(courseId);
+
+		return buffer.array();
+	}
+
+	@Override
+	public void parseFrom(byte[] input) {
+		ByteBuffer buffer = createBuffer(input);
+
+		courseId = buffer.getLong();
+	}
+
+	@Override
+	public StreamActionType getType() {
+		return StreamActionType.STREAM_START;
+	}
 }

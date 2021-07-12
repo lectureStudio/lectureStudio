@@ -34,6 +34,8 @@ public class StreamActionFactory {
 		switch (type) {
 			case STREAM_START:
 				return new StreamStartAction(input);
+			case STREAM_PAGE_ACTION:
+				return new StreamPagePlaybackAction(input);
 			case STREAM_PAGE_ACTIONS:
 				return new StreamPageActionsAction(input);
 			case STREAM_PAGE_CREATED:

@@ -66,7 +66,7 @@ public abstract class StreamAction implements RecordedObject {
 		ByteBuffer buffer = ByteBuffer.allocate(length + 5);
 
 		// Write header.
-		buffer.putInt(length + 1);
+		buffer.putInt(length);
 		buffer.put((byte) getType().ordinal());
 
 		return buffer;

@@ -137,6 +137,7 @@ public class WebRtcStreamService extends ExecutableBase {
 		streamStateClient = new StreamWebSocketClient(stateWsParameters,
 				headerProvider, eventRecorder, documentService, streamService,
 				course);
+		streamStateClient.init();
 
 		janusClient = new JanusWebSocketClient(janusWsParameters, webRtcConfig,
 				eventRecorder);

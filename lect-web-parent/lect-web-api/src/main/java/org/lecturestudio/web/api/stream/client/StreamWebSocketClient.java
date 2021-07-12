@@ -134,7 +134,7 @@ public class StreamWebSocketClient extends ExecutableBase {
 
 		String docFile = uploadDocument(document);
 
-		StreamStartAction startAction = new StreamStartAction(course.getId());
+		StreamStartAction startAction = new StreamStartAction(course.getRoomId());
 
 		StreamDocumentCreateAction docCreateAction = new StreamDocumentCreateAction(document);
 		docCreateAction.setDocumentFile(docFile);
@@ -147,7 +147,11 @@ public class StreamWebSocketClient extends ExecutableBase {
 		try {
 			send(startAction, docCreateAction, docSelectAction, pageAction);
 
+			System.out.println(eventRecorder.getPreRecordedActions().size());
+
 			for (var action : eventRecorder.getPreRecordedActions()) {
+				System.out.println(action);
+
 				send(action);
 			}
 		}

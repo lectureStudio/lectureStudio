@@ -50,12 +50,14 @@ public class DLZSettingsPresenter extends Presenter<DLZSettingsView> {
             e.printStackTrace();
         }
 
-        messageservice = new DLZMessageService(uri, "!HfqjbRoQgfBsrHzWVn:chat.etit.tu-darmstadt.de");
+
+        messageservice = new DLZMessageService(uri);
         service = Executors.newSingleThreadScheduledExecutor();
 		service.scheduleAtFixedRate(() -> {
 
         try {
-            if (messageservice.hasNewMessages()) {
+
+            if (messageservice.hasNewMessages(config.getDlzRoom().getId())) {
                 List<DLZMessage> messages = messageservice.getNewMessages();
 
                 for (var message : messages) {
@@ -71,6 +73,10 @@ public class DLZSettingsPresenter extends Presenter<DLZSettingsView> {
                     showNotificationPopup("New DLZ Message", text);
                 }
             }
+        }
+        catch (NullPointerException e){
+            //do nothing in this case
+            //No Room selected
         }
         catch (Exception e) {
             handleException(e, "Get DLZ messages failed", "generic.error");

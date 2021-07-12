@@ -16,6 +16,7 @@ import java.util.List;
  */
 public class DLZMessageService {
 
+    static public boolean active = false;
     String roomId;
     RoomService roomClient;
     RoomEventFilter filter;
@@ -24,11 +25,11 @@ public class DLZMessageService {
     String start; //Start für den nächsten Aufruf
     ArrayList<String> messageIDs; //saves IDs of allready recived messages
 
-    public DLZMessageService(URI uri, String roomId){
+    public DLZMessageService(URI uri){
         filter = new RoomEventFilter();
         filter.getTypes().add("m.room.message");
         roomClient = new DLZService(uri).getRoomClient();
-        this.roomId = roomId;
+        //this.roomId = roomId;
         messageIDs = new ArrayList<>();
     }
 
@@ -42,18 +43,12 @@ public class DLZMessageService {
        messages = null;
        return out;
     }
-   /** public List<DLZMessage> getNewMessages(){
-        List<DLZMessage> list = new ArrayList<>();
-        DLZMessage mes = new DLZMessage();
-        mes.message = "testo";
-        list.add(mes);
-        DLZMessage meso = new DLZMessage();
-        meso.message = "x";
-        list.add(meso);
-        return list;
-    }**/
-    public boolean hasNewMessages(){
 
+    public boolean hasNewMessages(String roomId){
+
+        if(active == false){
+            return false;
+        }
         messages = new ArrayList<DLZMessage>();
         if(start == null) {
             chunks = roomClient.getMessages(roomId, "b", 5, filter);

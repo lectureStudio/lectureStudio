@@ -93,6 +93,7 @@ import org.lecturestudio.presenter.api.view.MenuView;
 import org.lecturestudio.presenter.api.view.MessengerWindow;
 import org.lecturestudio.web.api.model.Room;
 import org.lecturestudio.web.api.model.quiz.Quiz;
+import org.lecturestudio.web.api.service.DLZMessageService;
 
 public class MenuPresenter extends Presenter<MenuView> {
 
@@ -495,6 +496,7 @@ public class MenuPresenter extends Presenter<MenuView> {
 	}
 
 	public void startDLZ(){
+		DLZMessageService.active = true;
 		System.out.println("DLZ-Chat gestartet");
 		PresenterConfiguration config = (PresenterConfiguration) context.getConfiguration();
 		System.out.println(config.getDlzRoom().getName());
@@ -504,6 +506,7 @@ public class MenuPresenter extends Presenter<MenuView> {
 	}
 
 	public void stopDLZ(){
+		DLZMessageService.active = false;
 		System.out.println("DLZ-Chat gestoppt");
 		context.getEventBus().post(new DLZStateEvent(ExecutableState.Stopping));
 		context.getEventBus().post(new DLZStateEvent(ExecutableState.Stopped));

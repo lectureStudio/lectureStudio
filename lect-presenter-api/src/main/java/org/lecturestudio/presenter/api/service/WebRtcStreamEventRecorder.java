@@ -23,9 +23,10 @@ import static java.util.Objects.nonNull;
 
 import com.google.common.eventbus.Subscribe;
 
-import java.security.MessageDigest;
 import java.util.ArrayList;
 import java.util.List;
+
+import javax.inject.Singleton;
 
 import org.lecturestudio.core.ExecutableState;
 import org.lecturestudio.core.bus.ApplicationBus;
@@ -50,6 +51,7 @@ import org.lecturestudio.web.api.stream.action.StreamPageDeletedAction;
 import org.lecturestudio.web.api.stream.action.StreamPagePlaybackAction;
 import org.lecturestudio.web.api.stream.action.StreamPageSelectedAction;
 
+@Singleton
 public class WebRtcStreamEventRecorder extends StreamEventRecorder {
 
 	private final DocumentChangeListener documentChangeListener = new DocumentChangeListener() {
@@ -163,25 +165,14 @@ public class WebRtcStreamEventRecorder extends StreamEventRecorder {
 
 	@Subscribe
 	public void onEvent(final DocumentEvent event) {
+		Document doc = event.getDocument();
+
 		if (initialized() || suspended()) {
-			pendingActions.setPendingPage(event.getDocument().getCurrentPage());
+			currentPage = doc.getCurrentPage();
+			pendingActions.setPendingPage(doc.getCurrentPage());
 		}
 		if (!started()) {
 			return;
-		}
-
-		Document doc = event.getDocument();
-		String checksum = null;
-
-		if (!event.closed()) {
-			try {
-				MessageDigest digest = MessageDigest.getInstance("MD5");
-
-				checksum = doc.getChecksum(digest);
-			}
-			catch (Exception e) {
-				logException(e, "Get document checksum failed");
-			}
 		}
 
 		StreamDocumentAction action = null;
@@ -193,6 +184,8 @@ public class WebRtcStreamEventRecorder extends StreamEventRecorder {
 			action = new StreamDocumentCloseAction(doc);
 		}
 		else if (event.selected()) {
+			currentPage = doc.getCurrentPage();
+
 			Document oldDoc = event.getOldDocument();
 
 			if (nonNull(oldDoc)) {
@@ -205,8 +198,6 @@ public class WebRtcStreamEventRecorder extends StreamEventRecorder {
 		}
 
 		if (nonNull(action)) {
-			action.setDocumentChecksum(checksum);
-
 			addPlaybackAction(action);
 
 			// Keep the state up to date and publish the current page.
@@ -221,6 +212,8 @@ public class WebRtcStreamEventRecorder extends StreamEventRecorder {
 	protected void initInternal() {
 		pendingActions = new PendingActions();
 		pendingActions.initialize();
+
+		ApplicationBus.register(this);
 	}
 
 	@Override
@@ -235,8 +228,6 @@ public class WebRtcStreamEventRecorder extends StreamEventRecorder {
 		}
 
 		pauseTime = 0;
-
-		ApplicationBus.register(this);
 	}
 
 	@Override
@@ -248,15 +239,13 @@ public class WebRtcStreamEventRecorder extends StreamEventRecorder {
 
 	@Override
 	protected void stopInternal() {
-		ApplicationBus.unregister(this);
-
 		startTime = -1;
 		halted = 0;
 	}
 
 	@Override
 	protected void destroyInternal() {
-
+		ApplicationBus.unregister(this);
 	}
 
 	private void addPendingAction(PlaybackAction action) {
@@ -278,20 +267,8 @@ public class WebRtcStreamEventRecorder extends StreamEventRecorder {
 	}
 
 	private void updateDocument(Document document) {
-		String checksum = null;
-
-		try {
-			MessageDigest digest = MessageDigest.getInstance("MD5");
-
-			checksum = document.getChecksum(digest);
-		}
-		catch (Exception e) {
-			logException(e, "Get document checksum failed");
-		}
-
 		StreamDocumentAction action = new StreamDocumentCreateAction(document);
 		action.setDocumentFile(document.getName() + ".pdf");
-		action.setDocumentChecksum(checksum);
 
 		addPlaybackAction(action);
 

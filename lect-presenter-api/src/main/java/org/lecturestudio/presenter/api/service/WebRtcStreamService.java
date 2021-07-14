@@ -34,7 +34,6 @@ import org.lecturestudio.presenter.api.event.StreamingStateEvent;
 import org.lecturestudio.web.api.client.TokenProvider;
 import org.lecturestudio.web.api.janus.client.JanusWebSocketClient;
 import org.lecturestudio.web.api.service.ServiceParameters;
-import org.lecturestudio.web.api.stream.StreamEventRecorder;
 import org.lecturestudio.web.api.stream.client.StreamWebSocketClient;
 import org.lecturestudio.web.api.stream.config.WebRtcConfiguration;
 import org.lecturestudio.web.api.stream.config.WebRtcDefaultConfiguration;
@@ -52,11 +51,11 @@ import org.lecturestudio.web.api.websocket.WebSocketHeaderProvider;
 @Singleton
 public class WebRtcStreamService extends ExecutableBase {
 
-	@Inject
 	private ApplicationContext context;
 
-	@Inject
 	private DocumentService documentService;
+
+	private WebRtcStreamEventRecorder eventRecorder;
 
 	@Inject
 	@Named("stream.janus.websocket.url")
@@ -78,6 +77,18 @@ public class WebRtcStreamService extends ExecutableBase {
 
 	private ExecutableState cameraState;
 
+
+	@Inject
+	public WebRtcStreamService(ApplicationContext context,
+			DocumentService documentService,
+			WebRtcStreamEventRecorder eventRecorder)
+			throws ExecutableException {
+		this.context = context;
+		this.documentService = documentService;
+		this.eventRecorder = eventRecorder;
+
+		eventRecorder.init();
+	}
 
 	public void startCameraStream() throws ExecutableException {
 		if (cameraState == ExecutableState.Started) {
@@ -129,8 +140,6 @@ public class WebRtcStreamService extends ExecutableBase {
 		StreamService streamService = new StreamService(streamApiParameters,
 				tokenProvider);
 
-		StreamEventRecorder eventRecorder = new WebRtcStreamEventRecorder();
-
 		WebSocketHeaderProvider headerProvider = new WebSocketBearerTokenProvider(
 				tokenProvider);
 
@@ -152,6 +161,7 @@ public class WebRtcStreamService extends ExecutableBase {
 
 		setStreamState(ExecutableState.Starting);
 
+		eventRecorder.start();
 		streamStateClient.start();
 		janusClient.start();
 
@@ -166,6 +176,8 @@ public class WebRtcStreamService extends ExecutableBase {
 
 		setStreamState(ExecutableState.Stopping);
 
+		eventRecorder.stop();
+
 		streamStateClient.stop();
 		streamStateClient.destroy();
 
@@ -176,8 +188,8 @@ public class WebRtcStreamService extends ExecutableBase {
 	}
 
 	@Override
-	protected void destroyInternal() {
-
+	protected void destroyInternal() throws ExecutableException {
+		eventRecorder.destroy();
 	}
 
 	/**

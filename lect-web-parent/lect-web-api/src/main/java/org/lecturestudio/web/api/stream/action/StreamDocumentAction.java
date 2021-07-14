@@ -109,8 +109,7 @@ public abstract class StreamDocumentAction extends StreamAction {
 			payloadLength += titleBuffer.length;
 		}
 		if (documentFile != null) {
-			String fileName = new File(documentFile).getName();
-			fileNameBuffer = fileName.getBytes();
+			fileNameBuffer = documentFile.getBytes();
 			fileNameLength = fileNameBuffer.length;
 			payloadLength += fileNameBuffer.length;
 		}

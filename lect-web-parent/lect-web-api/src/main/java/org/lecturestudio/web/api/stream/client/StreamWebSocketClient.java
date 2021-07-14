@@ -109,7 +109,6 @@ public class StreamWebSocketClient extends ExecutableBase {
 				logException(e, "Send event state failed");
 			}
 		});
-		eventRecorder.init();
 	}
 
 	@Override
@@ -147,31 +146,23 @@ public class StreamWebSocketClient extends ExecutableBase {
 		try {
 			send(startAction, docCreateAction, docSelectAction, pageAction);
 
-			System.out.println(eventRecorder.getPreRecordedActions().size());
-
 			for (var action : eventRecorder.getPreRecordedActions()) {
-				System.out.println(action);
-
 				send(action);
 			}
 		}
 		catch (IOException e) {
 			throw new ExecutableException("Send action failed", e);
 		}
-
-		eventRecorder.start();
 	}
 
 	@Override
 	protected void stopInternal() throws ExecutableException {
-		eventRecorder.stop();
-
 		webSocket.sendClose(WebSocket.NORMAL_CLOSURE, "disconnect").join();
 	}
 
 	@Override
 	protected void destroyInternal() throws ExecutableException {
-		eventRecorder.destroy();
+
 	}
 
 	private void send(StreamAction action) throws IOException {

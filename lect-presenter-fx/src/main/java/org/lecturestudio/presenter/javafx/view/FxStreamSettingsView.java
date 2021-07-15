@@ -101,6 +101,11 @@ public class FxStreamSettingsView extends GridPane implements StreamSettingsView
 	}
 
 	@Override
+	public void setOnUpdateCourses(Action action) {
+
+	}
+
+	@Override
 	public void setStreamAudioFormat(ObjectProperty<AudioFormat> audioFormat) {
 		streamAudioFormatCombo.valueProperty().bindBidirectional(new LectObjectProperty<>(audioFormat));
 	}

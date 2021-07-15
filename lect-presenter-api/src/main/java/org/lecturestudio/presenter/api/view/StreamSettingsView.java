@@ -37,6 +37,8 @@ public interface StreamSettingsView extends SettingsBaseView {
 
 	void setCourses(List<Course> courses);
 
+	void setOnUpdateCourses(Action action);
+
 	void setStreamAudioFormat(ObjectProperty<AudioFormat> audioFormat);
 
 	void setStreamAudioFormats(List<AudioFormat> formats);

@@ -80,6 +80,8 @@ public class SwingStreamSettingsView extends JPanel implements StreamSettingsVie
 
 	private JTable profileTable;
 
+	private JButton updateCoursesButton;
+
 	private JButton addProfileButton;
 
 	private JButton closeButton;
@@ -124,6 +126,11 @@ public class SwingStreamSettingsView extends JPanel implements StreamSettingsVie
 	public void setCourses(List<Course> courses) {
 		SwingUtils.invoke(() -> courseCombo
 				.setModel(new DefaultComboBoxModel<>(new Vector<>(courses))));
+	}
+
+	@Override
+	public void setOnUpdateCourses(Action action) {
+		SwingUtils.bindAction(updateCoursesButton, action);
 	}
 
 	@Override

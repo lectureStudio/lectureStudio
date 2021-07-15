@@ -50,9 +50,12 @@ public class StreamSettingsPresenter extends Presenter<StreamSettingsView> {
 
 	private final DefaultConfiguration defaultConfig;
 
+	private StreamService streamService;
+
 
 	@Inject
-	public StreamSettingsPresenter(ApplicationContext context, StreamSettingsView view) {
+	public StreamSettingsPresenter(ApplicationContext context,
+			StreamSettingsView view) {
 		super(context, view);
 
 		this.defaultConfig = new DefaultConfiguration();
@@ -99,6 +102,7 @@ public class StreamSettingsPresenter extends Presenter<StreamSettingsView> {
 		setStreamAudioFormats(streamConfig.getAudioCodec());
 
 		view.setAccessToken(streamConfig.accessTokenProperty());
+		view.setOnUpdateCourses(this::updateCourses);
 		view.setStreamAudioFormat(streamConfig.audioFormatProperty());
 		view.setStreamAudioCodecNames(codecNames);
 		view.setStreamAudioCodecName(streamConfig.audioCodecProperty());
@@ -111,28 +115,10 @@ public class StreamSettingsPresenter extends Presenter<StreamSettingsView> {
 
 		view.setOnReset(this::reset);
 
-		try {
-			ServiceParameters parameters = new ServiceParameters();
-			parameters.setUrl("https://lecturestudio.dek.e-technik.tu-darmstadt.de");
+		ServiceParameters parameters = new ServiceParameters();
+		parameters.setUrl("https://lecturestudio.dek.e-technik.tu-darmstadt.de");
 
-			StreamService streamService = new StreamService(parameters, streamConfig::getAccessToken);
-			List<Course> courses = streamService.getCourses();
-			Course selectedCourse = streamConfig.getCourse();
-
-			if (isNull(selectedCourse) && !courses.isEmpty()) {
-				// Set first available lecture by default.
-				streamConfig.setCourse(courses.get(0));
-			}
-			else if (!courses.contains(selectedCourse)) {
-				streamConfig.setCourse(courses.get(0));
-			}
-
-			view.setCourses(courses);
-			view.setCourse(streamConfig.courseProperty());
-		}
-		catch (Exception e) {
-			//
-		}
+		streamService = new StreamService(parameters, streamConfig::getAccessToken);
 
 		netConfig.getBroadcastProfiles().addListener(new ListChangeListener<>() {
 
@@ -145,6 +131,8 @@ public class StreamSettingsPresenter extends Presenter<StreamSettingsView> {
 		streamConfig.audioCodecProperty().addListener((observable, oldCodec, newCodec) -> {
 			setStreamAudioFormats(newCodec);
 		});
+
+		updateCourses();
 	}
 
 	public void addBroadcastProfile() {
@@ -166,6 +154,32 @@ public class StreamSettingsPresenter extends Presenter<StreamSettingsView> {
 			NetworkConfiguration netConfig = config.getNetworkConfig();
 
 			netConfig.getBroadcastProfiles().remove(profile);
+		}
+	}
+
+	public void updateCourses() {
+		PresenterConfiguration config = (PresenterConfiguration) context.getConfiguration();
+		StreamConfiguration streamConfig = config.getStreamConfig();
+
+		try {
+			List<Course> courses = streamService.getCourses();
+			Course selectedCourse = streamConfig.getCourse();
+
+			if (isNull(selectedCourse) && !courses.isEmpty()) {
+				// Set first available lecture by default.
+				streamConfig.setCourse(courses.get(0));
+			}
+			else if (!courses.contains(selectedCourse)) {
+				streamConfig.setCourse(courses.get(0));
+			}
+
+			view.setCourses(courses);
+			view.setCourse(streamConfig.courseProperty());
+		}
+		catch (Exception e) {
+			view.setCourses(List.of());
+
+			streamConfig.setCourse(null);
 		}
 	}
 }

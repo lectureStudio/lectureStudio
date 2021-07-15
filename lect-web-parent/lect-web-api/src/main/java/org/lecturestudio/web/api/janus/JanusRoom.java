@@ -20,6 +20,7 @@ package org.lecturestudio.web.api.janus;
 
 import java.math.BigInteger;
 import java.util.List;
+import java.util.StringJoiner;
 
 import javax.json.bind.annotation.JsonbTypeAdapter;
 
@@ -184,5 +185,20 @@ public class JanusRoom {
 	 */
 	public int getPublisherCount() {
 		return num_participants;
+	}
+
+	@Override
+	public String toString() {
+		return new StringJoiner(", ", JanusRoom.class.getSimpleName() + "[",
+				"]").add("room=" + room)
+				.add("description='" + description + "'")
+				.add("pin_required=" + pin_required)
+				.add("max_publishers=" + max_publishers)
+				.add("bitrate=" + bitrate).add("bitrate_cap=" + bitrate_cap)
+				.add("fir_freq=" + fir_freq).add("audiocodec=" + audiocodec)
+				.add("videocodec=" + videocodec).add("record=" + record)
+				.add("record_dir='" + record_dir + "'")
+				.add("lock_record=" + lock_record)
+				.add("num_participants=" + num_participants).toString();
 	}
 }

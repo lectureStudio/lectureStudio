@@ -35,13 +35,9 @@ import org.lecturestudio.core.ExecutableException;
 import org.lecturestudio.web.api.janus.message.JanusErrorMessage;
 import org.lecturestudio.web.api.janus.message.JanusMessage;
 import org.lecturestudio.web.api.janus.message.JanusMessageType;
-import org.lecturestudio.web.api.janus.message.JanusPluginDataMessage;
-import org.lecturestudio.web.api.janus.message.JanusRoomListMessage;
 import org.lecturestudio.web.api.janus.message.JanusRoomPublisherJoinedMessage;
 import org.lecturestudio.web.api.janus.message.JanusRoomPublisherLeftMessage;
 import org.lecturestudio.web.api.janus.message.JanusRoomPublisherUnpublishedMessage;
-import org.lecturestudio.web.api.janus.message.JanusRoomRequest;
-import org.lecturestudio.web.api.janus.message.JanusRoomRequestType;
 import org.lecturestudio.web.api.janus.message.JanusSessionMessage;
 import org.lecturestudio.web.api.janus.message.JanusSessionTimeoutMessage;
 import org.lecturestudio.web.api.janus.state.DestroyRoomState;
@@ -95,17 +91,6 @@ public class JanusHandler extends ExecutableBase {
 
 	public WebRtcConfiguration getWebRtcConfig() {
 		return webRtcConfig;
-	}
-
-	public void listRooms() {
-		JanusRoomRequest request = new JanusRoomRequest();
-		request.setRequestType(JanusRoomRequestType.LIST);
-
-		var requestMessage = new JanusPluginDataMessage(sessionId, pluginId);
-		requestMessage.setTransaction(UUID.randomUUID().toString());
-		requestMessage.setBody(request);
-
-		sendMessage(requestMessage);
 	}
 
 	public void sendMessage(JanusMessage message) {
@@ -205,7 +190,6 @@ public class JanusHandler extends ExecutableBase {
 
 		registerHandler(JanusErrorMessage.class, this::handleError);
 		registerHandler(JanusSessionTimeoutMessage.class, this::handleSessionTimeout);
-		registerHandler(JanusRoomListMessage.class, this::handleRoomList);
 		registerHandler(JanusRoomPublisherJoinedMessage.class, this::handlePublisherJoined);
 		registerHandler(JanusRoomPublisherUnpublishedMessage.class, this::handlePublisherUnpublished);
 		registerHandler(JanusRoomPublisherLeftMessage.class, this::handlePublisherLeft);
@@ -246,10 +230,6 @@ public class JanusHandler extends ExecutableBase {
 
 	private void handleSessionTimeout(JanusSessionTimeoutMessage message) {
 
-	}
-
-	private void handleRoomList(JanusRoomListMessage message) {
-		System.out.println(message.getRooms());
 	}
 
 	private void handlePublisherJoined(JanusRoomPublisherJoinedMessage message) {

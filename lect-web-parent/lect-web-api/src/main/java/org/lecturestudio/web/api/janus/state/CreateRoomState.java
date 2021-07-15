@@ -21,13 +21,18 @@ package org.lecturestudio.web.api.janus.state;
 import static java.util.Objects.requireNonNull;
 
 import java.math.BigInteger;
+import java.util.Optional;
 import java.util.UUID;
 
 import org.lecturestudio.web.api.janus.JanusHandler;
+import org.lecturestudio.web.api.janus.JanusRoom;
 import org.lecturestudio.web.api.janus.message.JanusCreateRoomMessage;
 import org.lecturestudio.web.api.janus.message.JanusMessage;
 import org.lecturestudio.web.api.janus.message.JanusPluginDataMessage;
 import org.lecturestudio.web.api.janus.message.JanusRoomCreatedMessage;
+import org.lecturestudio.web.api.janus.message.JanusRoomListMessage;
+import org.lecturestudio.web.api.janus.message.JanusRoomRequest;
+import org.lecturestudio.web.api.janus.message.JanusRoomRequestType;
 import org.lecturestudio.web.api.stream.model.Course;
 
 /**
@@ -37,7 +42,7 @@ import org.lecturestudio.web.api.stream.model.Course;
  */
 public class CreateRoomState implements JanusState {
 
-	private JanusPluginDataMessage createRequest;
+	private JanusPluginDataMessage requestMessage;
 
 	private BigInteger roomId;
 
@@ -50,29 +55,38 @@ public class CreateRoomState implements JanusState {
 
 		logDebug("Creating Janus room for: %s", course.getTitle());
 
-		handler.setRoomSecret(UUID.randomUUID().toString());
+		JanusRoomRequest request = new JanusRoomRequest();
+		request.setRequestType(JanusRoomRequestType.LIST);
 
 		roomId = BigInteger.valueOf(course.getRoomId());
 
-		JanusCreateRoomMessage request = new JanusCreateRoomMessage();
-		request.setRoom(roomId);
-		request.setDescription(course.getTitle());
-		request.setPublishers(1);
-		request.setSecret(handler.getRoomSecret());
-
-		createRequest = new JanusPluginDataMessage(handler.getSessionId(),
+		requestMessage = new JanusPluginDataMessage(handler.getSessionId(),
 				handler.getPluginId());
-		createRequest.setTransaction(UUID.randomUUID().toString());
-		createRequest.setBody(request);
+		requestMessage.setTransaction(UUID.randomUUID().toString());
+		requestMessage.setBody(request);
 
-		handler.sendMessage(createRequest);
+		handler.sendMessage(requestMessage);
 	}
 
 	@Override
 	public void handleMessage(JanusHandler handler, JanusMessage message) {
-		checkTransaction(createRequest, message);
+		checkTransaction(requestMessage, message);
 
-		if (message instanceof JanusRoomCreatedMessage) {
+		if (message instanceof JanusRoomListMessage) {
+			JanusRoomListMessage roomsMessage = (JanusRoomListMessage) message;
+
+			Optional<JanusRoom> roomOpt = roomsMessage.getRooms().stream()
+					.filter(room -> room.getRoomId().equals(roomId))
+					.findFirst();
+
+			if (roomOpt.isEmpty()) {
+				createRoom(handler);
+			}
+			else {
+				joinRoom(handler);
+			}
+		}
+		else if (message instanceof JanusRoomCreatedMessage) {
 			JanusRoomCreatedMessage success = (JanusRoomCreatedMessage) message;
 
 			logDebug("Janus room created: %d", success.getRoomId());
@@ -81,8 +95,29 @@ public class CreateRoomState implements JanusState {
 				throw new IllegalStateException("Room IDs do not match");
 			}
 
-			handler.setRoomId(success.getRoomId());
-			handler.setState(new JoinRoomState());
+			joinRoom(handler);
 		}
+	}
+
+	private void joinRoom(JanusHandler handler) {
+		handler.setRoomId(roomId);
+		handler.setState(new JoinRoomState());
+	}
+
+	private void createRoom(JanusHandler handler) {
+		Course course = handler.getWebRtcConfig().getCourse();
+
+		JanusCreateRoomMessage request = new JanusCreateRoomMessage();
+		request.setRoom(roomId);
+		request.setDescription(course.getTitle());
+		request.setPublishers(1);
+		//request.setSecret(handler.getRoomSecret());
+
+		requestMessage = new JanusPluginDataMessage(handler.getSessionId(),
+				handler.getPluginId());
+		requestMessage.setTransaction(UUID.randomUUID().toString());
+		requestMessage.setBody(request);
+
+		handler.sendMessage(requestMessage);
 	}
 }

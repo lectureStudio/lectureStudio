@@ -21,10 +21,13 @@ module org.lecturestudio.web.api {
 	exports org.lecturestudio.web.api.message;
 	exports org.lecturestudio.web.api.model;
 	exports org.lecturestudio.web.api.model.quiz;
+	exports org.lecturestudio.web.api.service;
 	exports org.lecturestudio.web.api.stream;
 	exports org.lecturestudio.web.api.stream.action;
 	exports org.lecturestudio.web.api.stream.client;
 	exports org.lecturestudio.web.api.stream.config;
 	exports org.lecturestudio.web.api.stream.model;
+	exports org.lecturestudio.web.api.stream.service;
+	exports org.lecturestudio.web.api.websocket;
 
 }

@@ -51,11 +51,11 @@ import org.lecturestudio.web.api.websocket.WebSocketHeaderProvider;
 @Singleton
 public class WebRtcStreamService extends ExecutableBase {
 
-	private ApplicationContext context;
+	private final ApplicationContext context;
 
-	private DocumentService documentService;
+	private final DocumentService documentService;
 
-	private WebRtcStreamEventRecorder eventRecorder;
+	private final WebRtcStreamEventRecorder eventRecorder;
 
 	@Inject
 	@Named("stream.janus.websocket.url")

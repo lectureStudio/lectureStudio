@@ -176,6 +176,10 @@ public class StreamWebSocketClient extends ExecutableBase {
 	}
 
 	private String uploadDocument(Document document) {
+		if (!document.isPDF()) {
+			return null;
+		}
+
 		String docFileName = document.getName() + ".pdf";
 		ByteArrayOutputStream docData = new ByteArrayOutputStream();
 

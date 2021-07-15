@@ -24,11 +24,6 @@ public class StreamActionFactory {
 
 	public static StreamAction createAction(int actionType, byte[] input)
 			throws IOException {
-		return getAction(actionType, input);
-	}
-
-	private static StreamAction getAction(int actionType, byte[] input)
-			throws IOException {
 		StreamActionType type = StreamActionType.values()[actionType];
 
 		switch (type) {

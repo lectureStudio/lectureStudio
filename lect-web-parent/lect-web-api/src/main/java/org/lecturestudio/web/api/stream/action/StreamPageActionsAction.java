@@ -64,7 +64,7 @@ public class StreamPageActionsAction extends StreamAction {
 
 		documentId = buffer.getLong();
 
-		int pageSize = buffer.remaining();
+		int pageSize = buffer.getInt();
 		byte[] pageData = new byte[pageSize];
 
 		buffer.get(pageData);

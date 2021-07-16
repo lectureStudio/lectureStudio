@@ -18,6 +18,10 @@
 
 package org.lecturestudio.presenter.api.service;
 
+import dev.onvoid.webrtc.media.MediaDevices;
+import dev.onvoid.webrtc.media.audio.AudioDevice;
+import dev.onvoid.webrtc.media.video.VideoDevice;
+
 import javax.inject.Inject;
 import javax.inject.Named;
 import javax.inject.Singleton;
@@ -26,6 +30,7 @@ import org.lecturestudio.core.ExecutableBase;
 import org.lecturestudio.core.ExecutableException;
 import org.lecturestudio.core.ExecutableState;
 import org.lecturestudio.core.app.ApplicationContext;
+import org.lecturestudio.core.app.configuration.AudioConfiguration;
 import org.lecturestudio.core.service.DocumentService;
 import org.lecturestudio.presenter.api.config.PresenterConfiguration;
 import org.lecturestudio.presenter.api.config.StreamConfiguration;
@@ -119,6 +124,7 @@ public class WebRtcStreamService extends ExecutableBase {
 
 		PresenterConfiguration config = (PresenterConfiguration) context
 				.getConfiguration();
+		AudioConfiguration audioConfig = config.getAudioConfig();
 		StreamConfiguration streamConfig = config.getStreamConfig();
 
 		Course course = streamConfig.getCourse();
@@ -132,7 +138,22 @@ public class WebRtcStreamService extends ExecutableBase {
 		ServiceParameters streamApiParameters = new ServiceParameters();
 		streamApiParameters.setUrl(streamPublisherApiUrl);
 
+		AudioDevice audioCaptureDevice = MediaDevices.getNativeAudioCaptureDevices()
+				.stream()
+				.filter(device -> device.getName().equals(audioConfig.getInputDeviceName()))
+				.findFirst()
+				.orElse(null);
+
+		VideoDevice videoCaptureDevice = MediaDevices.getVideoCaptureDevices()
+				.stream()
+				.filter(device -> device.getName().equals(streamConfig.getCameraName()))
+				.findFirst()
+				.orElse(null);
+
 		WebRtcConfiguration webRtcConfig = new WebRtcDefaultConfiguration();
+		webRtcConfig.getAudioConfiguration().setRecordingDevice(audioCaptureDevice);
+//		webRtcConfig.getVideoConfiguration().setCaptureDevice(videoCaptureDevice);
+//		webRtcConfig.getVideoConfiguration().setCaptureCapability(new VideoCaptureCapability(1280, 720, 30));
 		webRtcConfig.setCourse(course);
 
 		TokenProvider tokenProvider = streamConfig::getAccessToken;

@@ -43,6 +43,8 @@ import dev.onvoid.webrtc.RTCSdpType;
 import dev.onvoid.webrtc.RTCSessionDescription;
 import dev.onvoid.webrtc.SetSessionDescriptionObserver;
 import dev.onvoid.webrtc.media.MediaStreamTrack;
+import dev.onvoid.webrtc.media.audio.AudioDevice;
+import dev.onvoid.webrtc.media.audio.AudioDeviceModule;
 import dev.onvoid.webrtc.media.audio.AudioOptions;
 import dev.onvoid.webrtc.media.audio.AudioSource;
 import dev.onvoid.webrtc.media.audio.AudioTrack;
@@ -62,6 +64,7 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutorService;
 import java.util.function.Consumer;
 
+import org.lecturestudio.web.api.stream.config.VideoConfiguration;
 import org.lecturestudio.web.api.stream.config.WebRtcConfiguration;
 
 public class JanusPeerConnection implements PeerConnectionObserver {
@@ -112,7 +115,16 @@ public class JanusPeerConnection implements PeerConnectionObserver {
 		this.queuedRemoteCandidates = new ArrayList<>();
 
 		executeAndWait(() -> {
-			factory = new PeerConnectionFactory();
+			AudioDevice recDevice = config.getAudioConfiguration().getRecordingDevice();
+			AudioDeviceModule audioModule = new AudioDeviceModule();
+
+			if (nonNull(recDevice)) {
+				audioModule.setRecordingDevice(recDevice);
+			}
+
+			audioModule.initRecording();
+
+			factory = new PeerConnectionFactory(audioModule);
 			peerConnection = factory.createPeerConnection(config.getRTCConfig(), this);
 		});
 	}
@@ -386,9 +398,9 @@ public class JanusPeerConnection implements PeerConnectionObserver {
 			return;
 		}
 
-		// TODO
-		VideoDevice device = null;
-		VideoCaptureCapability capability = null;
+		VideoConfiguration videoConfig = config.getVideoConfiguration();
+		VideoDevice device = videoConfig.getCaptureDevice();
+		VideoCaptureCapability capability = videoConfig.getCaptureCapability();
 
 		videoSource = new VideoDeviceSource();
 

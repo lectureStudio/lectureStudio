@@ -18,9 +18,13 @@
 
 package org.lecturestudio.presenter.api.service;
 
+import dev.onvoid.webrtc.media.Device;
 import dev.onvoid.webrtc.media.MediaDevices;
 import dev.onvoid.webrtc.media.audio.AudioDevice;
+import dev.onvoid.webrtc.media.video.VideoCaptureCapability;
 import dev.onvoid.webrtc.media.video.VideoDevice;
+
+import java.util.List;
 
 import javax.inject.Inject;
 import javax.inject.Named;
@@ -138,22 +142,17 @@ public class WebRtcStreamService extends ExecutableBase {
 		ServiceParameters streamApiParameters = new ServiceParameters();
 		streamApiParameters.setUrl(streamPublisherApiUrl);
 
-		AudioDevice audioCaptureDevice = MediaDevices.getNativeAudioCaptureDevices()
-				.stream()
-				.filter(device -> device.getName().equals(audioConfig.getInputDeviceName()))
-				.findFirst()
-				.orElse(null);
-
-		VideoDevice videoCaptureDevice = MediaDevices.getVideoCaptureDevices()
-				.stream()
-				.filter(device -> device.getName().equals(streamConfig.getCameraName()))
-				.findFirst()
-				.orElse(null);
+		AudioDevice audioCaptureDevice = getDeviceByName(
+				MediaDevices.getAudioCaptureDevices(),
+				audioConfig.getInputDeviceName());
+		VideoDevice videoCaptureDevice = getDeviceByName(
+				MediaDevices.getVideoCaptureDevices(),
+				streamConfig.getCameraName());
 
 		WebRtcConfiguration webRtcConfig = new WebRtcDefaultConfiguration();
 		webRtcConfig.getAudioConfiguration().setRecordingDevice(audioCaptureDevice);
-//		webRtcConfig.getVideoConfiguration().setCaptureDevice(videoCaptureDevice);
-//		webRtcConfig.getVideoConfiguration().setCaptureCapability(new VideoCaptureCapability(1280, 720, 30));
+		webRtcConfig.getVideoConfiguration().setCaptureDevice(videoCaptureDevice);
+		webRtcConfig.getVideoConfiguration().setCaptureCapability(new VideoCaptureCapability(1280, 720, 30));
 		webRtcConfig.setCourse(course);
 
 		TokenProvider tokenProvider = streamConfig::getAccessToken;
@@ -211,6 +210,22 @@ public class WebRtcStreamService extends ExecutableBase {
 	@Override
 	protected void destroyInternal() throws ExecutableException {
 		eventRecorder.destroy();
+	}
+
+	/**
+	 * Searches the provided list for a device with the provided name.
+	 *
+	 * @param devices The device list in which to search for the device.
+	 * @param name    The name of the device to search for.
+	 * @param <T>     The device type.
+	 *
+	 * @return The device with the specified name or {@code null} if not found.
+	 */
+	private <T extends Device> T getDeviceByName(List<T> devices, String name) {
+		return devices.stream()
+				.filter(device -> device.getName().equals(name))
+				.findFirst()
+				.orElse(null);
 	}
 
 	/**

@@ -119,6 +119,8 @@ public class JanusPeerConnection implements PeerConnectionObserver {
 			AudioDeviceModule audioModule = new AudioDeviceModule();
 
 			if (nonNull(recDevice)) {
+				LOGGER.log(Level.INFO, "Audio capture device: " + recDevice);
+
 				audioModule.setRecordingDevice(recDevice);
 			}
 
@@ -405,9 +407,13 @@ public class JanusPeerConnection implements PeerConnectionObserver {
 		videoSource = new VideoDeviceSource();
 
 		if (nonNull(device)) {
+			LOGGER.log(Level.INFO, "Video capture device: " + device);
+
 			videoSource.setVideoCaptureDevice(device);
 		}
 		if (nonNull(capability)) {
+			LOGGER.log(Level.INFO, "Video capture capability: " + capability);
+
 			videoSource.setVideoCaptureCapability(capability);
 		}
 
@@ -419,7 +425,12 @@ public class JanusPeerConnection implements PeerConnectionObserver {
 //
 //			videoTrack.addSink(sink);
 
-			videoSource.start();
+			try {
+				videoSource.start();
+			}
+			catch (Exception e) {
+				LOGGER.log(Level.ERROR, "Start video capture source failed", e);
+			}
 		}
 
 		peerConnection.addTrack(videoTrack, List.of("stream"));

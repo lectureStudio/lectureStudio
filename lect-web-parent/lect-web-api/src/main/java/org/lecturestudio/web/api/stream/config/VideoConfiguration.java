@@ -22,6 +22,7 @@ import dev.onvoid.webrtc.media.video.VideoCaptureCapability;
 import dev.onvoid.webrtc.media.video.VideoDevice;
 
 import org.lecturestudio.core.beans.BooleanProperty;
+import org.lecturestudio.core.beans.IntegerProperty;
 import org.lecturestudio.core.beans.ObjectProperty;
 
 public class VideoConfiguration {
@@ -29,6 +30,8 @@ public class VideoConfiguration {
 	private final ObjectProperty<VideoDevice> captureDevice;
 
 	private final ObjectProperty<VideoCaptureCapability> captureCapability;
+
+	private final IntegerProperty bitrate;
 
 	private final BooleanProperty receiveVideo;
 
@@ -38,6 +41,7 @@ public class VideoConfiguration {
 	public VideoConfiguration() {
 		captureDevice = new ObjectProperty<>();
 		captureCapability = new ObjectProperty<>();
+		bitrate = new IntegerProperty();
 		receiveVideo = new BooleanProperty();
 		sendVideo = new BooleanProperty();
 	}
@@ -64,6 +68,18 @@ public class VideoConfiguration {
 
 	public void setCaptureCapability(VideoCaptureCapability capability) {
 		captureCapability.set(capability);
+	}
+
+	public IntegerProperty bitrateProperty() {
+		return bitrate;
+	}
+
+	public int getBitrate() {
+		return bitrate.get();
+	}
+
+	public void setBitrate(int rate) {
+		bitrate.set(rate);
 	}
 
 	public BooleanProperty receiveVideoProperty() {

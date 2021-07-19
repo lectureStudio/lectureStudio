@@ -35,6 +35,7 @@ import org.lecturestudio.core.ExecutableException;
 import org.lecturestudio.core.ExecutableState;
 import org.lecturestudio.core.app.ApplicationContext;
 import org.lecturestudio.core.app.configuration.AudioConfiguration;
+import org.lecturestudio.core.codec.VideoCodecConfiguration;
 import org.lecturestudio.core.geometry.Rectangle2D;
 import org.lecturestudio.core.service.DocumentService;
 import org.lecturestudio.presenter.api.config.PresenterConfiguration;
@@ -243,8 +244,9 @@ public class WebRtcStreamService extends ExecutableBase {
 	private WebRtcConfiguration createWebRtcConfig(PresenterConfiguration config) {
 		AudioConfiguration audioConfig = config.getAudioConfig();
 		StreamConfiguration streamConfig = config.getStreamConfig();
+		VideoCodecConfiguration cameraConfig = streamConfig.getCameraCodecConfig();
 
-		Rectangle2D cameraViewRect = streamConfig.getCameraCodecConfig().getViewRect();
+		Rectangle2D cameraViewRect = cameraConfig.getViewRect();
 
 		AudioDevice audioCaptureDevice = getDeviceByName(
 				MediaDevices.getAudioCaptureDevices(),
@@ -260,6 +262,7 @@ public class WebRtcStreamService extends ExecutableBase {
 				new VideoCaptureCapability((int) cameraViewRect.getWidth(),
 						(int) cameraViewRect.getHeight(),
 						(int) streamConfig.getCameraFormat().getFrameRate()));
+		webRtcConfig.getVideoConfiguration().setBitrate(cameraConfig.getBitRate());
 		webRtcConfig.setCourse(streamConfig.getCourse());
 
 		return webRtcConfig;

@@ -33,6 +33,7 @@ import org.lecturestudio.web.api.janus.message.JanusRoomCreatedMessage;
 import org.lecturestudio.web.api.janus.message.JanusRoomListMessage;
 import org.lecturestudio.web.api.janus.message.JanusRoomRequest;
 import org.lecturestudio.web.api.janus.message.JanusRoomRequestType;
+import org.lecturestudio.web.api.stream.config.WebRtcConfiguration;
 import org.lecturestudio.web.api.stream.model.Course;
 
 /**
@@ -105,12 +106,14 @@ public class CreateRoomState implements JanusState {
 	}
 
 	private void createRoom(JanusHandler handler) {
-		Course course = handler.getWebRtcConfig().getCourse();
+		WebRtcConfiguration config = handler.getWebRtcConfig();
+		Course course = config.getCourse();
 
 		JanusCreateRoomMessage request = new JanusCreateRoomMessage();
 		request.setRoom(roomId);
 		request.setDescription(course.getTitle());
 		request.setPublishers(1);
+		request.setBitrate(config.getVideoConfiguration().getBitrate() * 1000);
 		//request.setSecret(handler.getRoomSecret());
 
 		requestMessage = new JanusPluginDataMessage(handler.getSessionId(),

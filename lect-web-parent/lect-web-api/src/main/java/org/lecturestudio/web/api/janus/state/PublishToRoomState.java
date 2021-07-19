@@ -39,6 +39,7 @@ import org.lecturestudio.web.api.janus.message.JanusPluginMessage;
 import org.lecturestudio.web.api.janus.message.JanusRoomPublishMessage;
 import org.lecturestudio.web.api.janus.message.JanusRoomPublishRequest;
 import org.lecturestudio.web.api.janus.message.JanusTrickleMessage;
+import org.lecturestudio.web.api.stream.config.WebRtcConfiguration;
 
 /**
  * This state starts publishing media (audio, video and data) to a joined
@@ -54,6 +55,7 @@ public class PublishToRoomState implements JanusState {
 
 	@Override
 	public void initialize(JanusHandler handler) {
+		WebRtcConfiguration webRtcConfig = handler.getWebRtcConfig();
 		JanusPeerConnection peerConnection = handler.getPeerConnection();
 
 		peerConnection.setOnLocalSessionDescription(description -> {
@@ -69,9 +71,13 @@ public class PublishToRoomState implements JanusState {
 		});
 
 		// Publishers are send-only.
-		var mediaDirection = RTCRtpTransceiverDirection.SEND_ONLY;
+		var audioDirection = RTCRtpTransceiverDirection.SEND_ONLY;
+		var videoDirection = webRtcConfig.getVideoConfiguration()
+				.getSendVideo() ?
+				RTCRtpTransceiverDirection.SEND_ONLY :
+				RTCRtpTransceiverDirection.INACTIVE;
 
-		peerConnection.setupConnection(mediaDirection, mediaDirection);
+		peerConnection.setupConnection(audioDirection, videoDirection);
 	}
 
 	@Override

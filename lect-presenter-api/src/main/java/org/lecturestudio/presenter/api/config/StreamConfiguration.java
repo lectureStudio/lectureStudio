@@ -19,6 +19,7 @@
 package org.lecturestudio.presenter.api.config;
 
 import org.lecturestudio.core.audio.AudioFormat;
+import org.lecturestudio.core.beans.BooleanProperty;
 import org.lecturestudio.core.beans.ObjectProperty;
 import org.lecturestudio.core.beans.StringProperty;
 import org.lecturestudio.core.camera.CameraFormat;
@@ -40,6 +41,8 @@ public class StreamConfiguration {
 	private final ObjectProperty<CameraFormat> cameraFormat = new ObjectProperty<>();
 
 	private final VideoCodecConfiguration cameraCodecConfig = new VideoCodecConfiguration();
+
+	private final BooleanProperty enableCamera = new BooleanProperty();
 
 
 	public String getAccessToken() {
@@ -145,4 +148,15 @@ public class StreamConfiguration {
 		return cameraCodecConfig;
 	}
 
+	public BooleanProperty enableCameraProperty() {
+		return enableCamera;
+	}
+
+	public boolean getCameraEnabled() {
+		return enableCamera.get();
+	}
+
+	public void setCameraEnabled(boolean enabled) {
+		enableCamera.set(enabled);
+	}
 }

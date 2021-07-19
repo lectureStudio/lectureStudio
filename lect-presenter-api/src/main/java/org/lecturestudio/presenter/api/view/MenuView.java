@@ -108,6 +108,8 @@ public interface MenuView extends View {
 
 	void setOnStopStreaming(Action action);
 
+	void bindEnableStreamingCamera(BooleanProperty enable);
+
 	void setOnStartMessenger(Action action);
 
 	void setOnStopMessenger(Action action);
@@ -147,8 +149,6 @@ public interface MenuView extends View {
 	void setOnControlMessengerWindow(ConsumerAction<Boolean> action);
 
 	void setOnControlMessengerSettings(Action action);
-
-	void setOnControlCamera(ConsumerAction<Boolean> action);
 
 	void setOnControlCameraSettings(Action action);
 

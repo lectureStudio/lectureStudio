@@ -114,6 +114,11 @@ public class JanusPeerConnection implements PeerConnectionObserver {
 		this.executor = executor;
 		this.queuedRemoteCandidates = new ArrayList<>();
 
+		config.getVideoConfiguration().sendVideoProperty()
+				.addListener((observable, oldValue, newValue) -> {
+					System.out.println(newValue);
+				});
+
 		executeAndWait(() -> {
 			AudioDevice recDevice = config.getAudioConfiguration().getRecordingDevice();
 			AudioDeviceModule audioModule = new AudioDeviceModule();
@@ -369,7 +374,7 @@ public class JanusPeerConnection implements PeerConnectionObserver {
 	}
 
 	private void addAudio(RTCRtpTransceiverDirection direction) {
-		if (direction == RTCRtpTransceiverDirection.INACTIVE) {
+		if (!sendMedia(direction)) {
 			return;
 		}
 
@@ -396,7 +401,7 @@ public class JanusPeerConnection implements PeerConnectionObserver {
 	}
 
 	private void addVideo(RTCRtpTransceiverDirection direction) {
-		if (direction == RTCRtpTransceiverDirection.INACTIVE) {
+		if (!sendMedia(direction)) {
 			return;
 		}
 
@@ -609,6 +614,11 @@ public class JanusPeerConnection implements PeerConnectionObserver {
 		catch (Exception e) {
 			LOGGER.log(Level.ERROR, "Execute task failed");
 		}
+	}
+
+	private static boolean sendMedia(RTCRtpTransceiverDirection direction) {
+		return direction == RTCRtpTransceiverDirection.SEND_RECV
+				|| direction == RTCRtpTransceiverDirection.SEND_ONLY;
 	}
 
 

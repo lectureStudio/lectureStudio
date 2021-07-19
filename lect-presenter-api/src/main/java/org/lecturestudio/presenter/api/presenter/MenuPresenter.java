@@ -363,15 +363,6 @@ public class MenuPresenter extends Presenter<MenuView> {
 		}
 	}
 
-	public void toggleCamera(boolean start) {
-		if (start) {
-			startCamera();
-		}
-		else {
-			stopCamera();
-		}
-	}
-
 	public void startRecording() {
 		try {
 			if (recordingService.started()) {
@@ -634,7 +625,7 @@ public class MenuPresenter extends Presenter<MenuView> {
 	@Override
 	public void initialize() {
 		PresenterContext ctx = (PresenterContext) context;
-		Configuration config = context.getConfiguration();
+		PresenterConfiguration config = (PresenterConfiguration) context.getConfiguration();
 
 		eventBus.register(this);
 
@@ -671,6 +662,7 @@ public class MenuPresenter extends Presenter<MenuView> {
 		view.setOnStopRecording(this::stopRecording);
 		view.setOnStartStreaming(this::startStreaming);
 		view.setOnStopStreaming(this::stopStreaming);
+		view.bindEnableStreamingCamera(config.getStreamConfig().enableCameraProperty());
 		view.setOnStartMessenger(this::startMessenger);
 		view.setOnStopMessenger(this::stopMessenger);
 		view.setOnShowMessengerWindow(this::showMessengerWindow);
@@ -678,7 +670,6 @@ public class MenuPresenter extends Presenter<MenuView> {
 		view.setOnShowNewQuizView(this::newQuiz);
 		view.setOnCloseQuiz(this::closeQuiz);
 
-		view.setOnControlCamera(this::toggleCamera);
 		view.setOnControlCameraSettings(this::showCameraSettings);
 		view.setOnControlMessenger(this::toggleMessenger);
 		view.setOnControlMessengerSettings(this::showMessengerSettings);
@@ -704,6 +695,10 @@ public class MenuPresenter extends Presenter<MenuView> {
 		// Bind configuration.
 		context.getConfiguration().advancedUIModeProperty().addListener((observable, oldValue, newValue) -> {
 			view.setAdvancedSettings(newValue);
+		});
+
+		config.getStreamConfig().enableCameraProperty().addListener((observable, oldValue, newValue) -> {
+			enableStreamingCamera(newValue);
 		});
 
 		// Register for page parameter change updates.
@@ -783,5 +778,25 @@ public class MenuPresenter extends Presenter<MenuView> {
 		}
 
 		handleException(error, errorMessage, title, message);
+	}
+
+	private void enableStreamingCamera(boolean enable) {
+		CompletableFuture.runAsync(() -> {
+			try {
+				if (enable) {
+					streamService.startCameraStream();
+				}
+				else {
+					streamService.stopCameraStream();
+				}
+			}
+			catch (ExecutableException e) {
+				throw new CompletionException(e);
+			}
+		})
+		.exceptionally(e -> {
+			handleException(e, "Handle stream camera failed", "stream.enable.camera.error");
+			return null;
+		});
 	}
 }

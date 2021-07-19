@@ -401,6 +401,11 @@ public class FxMenuView extends HBox implements MenuView {
 	}
 
 	@Override
+	public void bindEnableStreamingCamera(BooleanProperty enable) {
+
+	}
+
+	@Override
 	public void setOnStartMessenger(Action action) {
 		FxUtils.bindAction(startMessengerMenuItem, action);
 	}
@@ -523,11 +528,6 @@ public class FxMenuView extends HBox implements MenuView {
 	@Override
 	public void setOnControlMessengerWindow(ConsumerAction<Boolean> action) {
 //		serviceControlPane.setOnMessengerWindow(action);
-	}
-
-	@Override
-	public void setOnControlCamera(ConsumerAction<Boolean> action) {
-//		serviceControlPane.setOnCamera(action);
 	}
 
 	@Override

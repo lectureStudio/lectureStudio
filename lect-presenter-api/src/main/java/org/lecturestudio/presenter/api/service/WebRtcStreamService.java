@@ -18,6 +18,9 @@
 
 package org.lecturestudio.presenter.api.service;
 
+import dev.onvoid.webrtc.RTCBundlePolicy;
+import dev.onvoid.webrtc.RTCIceServer;
+import dev.onvoid.webrtc.RTCIceTransportPolicy;
 import dev.onvoid.webrtc.media.Device;
 import dev.onvoid.webrtc.media.MediaDevices;
 import dev.onvoid.webrtc.media.audio.AudioDevice;
@@ -25,6 +28,8 @@ import dev.onvoid.webrtc.media.video.VideoCaptureCapability;
 import dev.onvoid.webrtc.media.video.VideoDevice;
 
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.CompletionException;
 
 import javax.inject.Inject;
 import javax.inject.Named;
@@ -47,7 +52,6 @@ import org.lecturestudio.web.api.janus.client.JanusWebSocketClient;
 import org.lecturestudio.web.api.service.ServiceParameters;
 import org.lecturestudio.web.api.stream.client.StreamWebSocketClient;
 import org.lecturestudio.web.api.stream.config.WebRtcConfiguration;
-import org.lecturestudio.web.api.stream.config.WebRtcDefaultConfiguration;
 import org.lecturestudio.web.api.stream.service.StreamService;
 import org.lecturestudio.web.api.websocket.WebSocketBearerTokenProvider;
 import org.lecturestudio.web.api.websocket.WebSocketHeaderProvider;
@@ -79,6 +83,12 @@ public class WebRtcStreamService extends ExecutableBase {
 	@Named("stream.publisher.api.url")
 	private String streamPublisherApiUrl;
 
+	@Inject
+	@Named("stream.stun.servers")
+	private String streamStunServers;
+
+	private WebRtcConfiguration webRtcConfig;
+
 	private StreamWebSocketClient streamStateClient;
 
 	private JanusWebSocketClient janusClient;
@@ -101,12 +111,14 @@ public class WebRtcStreamService extends ExecutableBase {
 	}
 
 	public void startCameraStream() throws ExecutableException {
-		if (cameraState == ExecutableState.Started) {
+		if (streamState != ExecutableState.Started
+			|| cameraState == ExecutableState.Started) {
 			return;
 		}
 
 		setCameraState(ExecutableState.Starting);
 
+		webRtcConfig.getVideoConfiguration().setSendVideo(true);
 
 		setCameraState(ExecutableState.Started);
 	}
@@ -118,6 +130,7 @@ public class WebRtcStreamService extends ExecutableBase {
 
 		setCameraState(ExecutableState.Stopping);
 
+		webRtcConfig.getVideoConfiguration().setSendVideo(false);
 
 		setCameraState(ExecutableState.Stopped);
 	}
@@ -139,8 +152,9 @@ public class WebRtcStreamService extends ExecutableBase {
 		PresenterConfiguration config = (PresenterConfiguration) context
 				.getConfiguration();
 
+		webRtcConfig = createWebRtcConfig(config);
 		streamStateClient = createStreamStateClient(config);
-		janusClient = createJanusClient(createWebRtcConfig(config));
+		janusClient = createJanusClient(webRtcConfig);
 
 		eventRecorder.start();
 		streamStateClient.start();
@@ -255,14 +269,25 @@ public class WebRtcStreamService extends ExecutableBase {
 				MediaDevices.getVideoCaptureDevices(),
 				streamConfig.getCameraName());
 
-		WebRtcConfiguration webRtcConfig = new WebRtcDefaultConfiguration();
+		RTCIceServer iceServer = new RTCIceServer();
+		iceServer.urls.add(streamStunServers);
+
+		WebRtcConfiguration webRtcConfig = new WebRtcConfiguration();
+		webRtcConfig.getAudioConfiguration().setSendAudio(true);
 		webRtcConfig.getAudioConfiguration().setRecordingDevice(audioCaptureDevice);
+
+		webRtcConfig.getVideoConfiguration().setSendVideo(streamConfig.getCameraEnabled());
 		webRtcConfig.getVideoConfiguration().setCaptureDevice(videoCaptureDevice);
 		webRtcConfig.getVideoConfiguration().setCaptureCapability(
 				new VideoCaptureCapability((int) cameraViewRect.getWidth(),
 						(int) cameraViewRect.getHeight(),
 						(int) streamConfig.getCameraFormat().getFrameRate()));
 		webRtcConfig.getVideoConfiguration().setBitrate(cameraConfig.getBitRate());
+
+		webRtcConfig.getRTCConfig().iceTransportPolicy = RTCIceTransportPolicy.ALL;
+		webRtcConfig.getRTCConfig().bundlePolicy = RTCBundlePolicy.MAX_BUNDLE;
+		webRtcConfig.getRTCConfig().iceServers.add(iceServer);
+
 		webRtcConfig.setCourse(streamConfig.getCourse());
 
 		return webRtcConfig;

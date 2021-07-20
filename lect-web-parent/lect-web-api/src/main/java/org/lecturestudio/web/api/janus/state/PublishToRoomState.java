@@ -112,7 +112,7 @@ public class PublishToRoomState implements JanusState {
 	private void sendRequest(JanusHandler handler, String sdp) {
 		JanusRoomPublishRequest request = new JanusRoomPublishRequest();
 		request.setAudio(true);
-		request.setVideo(true);
+		request.setVideo(handler.getWebRtcConfig().getVideoConfiguration().getSendVideo());
 		request.setData(true);
 
 		publishRequest = new JanusRoomPublishMessage(handler.getSessionId(),

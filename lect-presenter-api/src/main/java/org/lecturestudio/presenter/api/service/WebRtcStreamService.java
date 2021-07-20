@@ -28,8 +28,6 @@ import dev.onvoid.webrtc.media.video.VideoCaptureCapability;
 import dev.onvoid.webrtc.media.video.VideoDevice;
 
 import java.util.List;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.CompletionException;
 
 import javax.inject.Inject;
 import javax.inject.Named;
@@ -152,6 +150,12 @@ public class WebRtcStreamService extends ExecutableBase {
 		PresenterConfiguration config = (PresenterConfiguration) context
 				.getConfiguration();
 
+		boolean streamCamera = config.getStreamConfig().getCameraEnabled();
+
+		if (streamCamera) {
+			setCameraState(ExecutableState.Starting);
+		}
+
 		webRtcConfig = createWebRtcConfig(config);
 		streamStateClient = createStreamStateClient(config);
 		janusClient = createJanusClient(webRtcConfig);
@@ -161,6 +165,10 @@ public class WebRtcStreamService extends ExecutableBase {
 		janusClient.start();
 
 		setStreamState(ExecutableState.Started);
+
+		if (streamCamera) {
+			setCameraState(ExecutableState.Started);
+		}
 	}
 
 	@Override

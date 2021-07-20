@@ -40,7 +40,7 @@ public class JanusRoomPublishRequest extends JanusRoomRequest {
 	 * Create a new {@code JanusJoinRoomRequest}.
 	 */
 	public JanusRoomPublishRequest() {
-		setRequestType(JanusRoomRequestType.PUBLISH);
+		setRequestType(JanusRoomRequestType.CONFIGURE);
 	}
 
 	/**

@@ -116,7 +116,9 @@ public class JanusPeerConnection implements PeerConnectionObserver {
 
 		config.getVideoConfiguration().sendVideoProperty()
 				.addListener((observable, oldValue, newValue) -> {
-					System.out.println(newValue);
+					execute(() -> {
+						enableCamera(newValue);
+					});
 				});
 
 		executeAndWait(() -> {
@@ -197,7 +199,7 @@ public class JanusPeerConnection implements PeerConnectionObserver {
 		if (nonNull(peerConnection.getRemoteDescription())) {
 			LOGGER.log(Level.INFO, "Renegotiation needed");
 
-//			createOffer();
+			createOffer();
 		}
 	}
 
@@ -208,7 +210,7 @@ public class JanusPeerConnection implements PeerConnectionObserver {
 
 	@Override
 	public void onIceConnectionChange(RTCIceConnectionState state) {
-//		System.out.println("onIceConnectionChange: " + state);
+		LOGGER.log(Level.INFO, "ICE connection state: " + state);
 	}
 
 	@Override
@@ -489,6 +491,38 @@ public class JanusPeerConnection implements PeerConnectionObserver {
 				});
 			}
 		});
+	}
+
+	private void enableCamera(boolean enable) {
+		RTCRtpTransceiverDirection camDirection;
+
+		if (enable) {
+			if (nonNull(videoSource)) {
+				videoSource.start();
+
+				camDirection = RTCRtpTransceiverDirection.SEND_ONLY;
+			}
+			else {
+				addVideo(RTCRtpTransceiverDirection.SEND_ONLY);
+				return;
+			}
+		}
+		else {
+			if (nonNull(videoSource)) {
+				videoSource.stop();
+			}
+
+			camDirection = RTCRtpTransceiverDirection.INACTIVE;
+		}
+
+		for (RTCRtpTransceiver transceiver : peerConnection.getTransceivers()) {
+			MediaStreamTrack track = transceiver.getSender().getTrack();
+
+			if (nonNull(track) && track.getKind().equals(MediaStreamTrack.VIDEO_TRACK_KIND)) {
+				transceiver.setDirection(camDirection);
+				break;
+			}
+		}
 	}
 
 	public void setSessionDescription(RTCSessionDescription description) {

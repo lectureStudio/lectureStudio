@@ -473,24 +473,6 @@ public class MenuPresenter extends Presenter<MenuView> {
 		}
 	}
 
-	public void startCamera() {
-		try {
-			streamService.startCameraStream();
-		}
-		catch (ExecutableException e) {
-			handleException(e, "Start camera stream failed", "stream.start.error");
-		}
-	}
-
-	public void stopCamera() {
-		try {
-			streamService.stopCameraStream();
-		}
-		catch (ExecutableException e) {
-			handleException(e, "Stop camera stream failed", "stream.start.error");
-		}
-	}
-
 	public void selectQuiz() {
 		eventBus.post(new ShowPresenterCommand<>(SelectQuizPresenter.class));
 	}
@@ -782,21 +764,30 @@ public class MenuPresenter extends Presenter<MenuView> {
 
 	private void enableStreamingCamera(boolean enable) {
 		CompletableFuture.runAsync(() -> {
-			try {
-				if (enable) {
-					streamService.startCameraStream();
-				}
-				else {
-					streamService.stopCameraStream();
-				}
+			if (enable) {
+				startCamera();
 			}
-			catch (ExecutableException e) {
-				throw new CompletionException(e);
+			else {
+				stopCamera();
 			}
-		})
-		.exceptionally(e -> {
-			handleException(e, "Handle stream camera failed", "stream.enable.camera.error");
-			return null;
 		});
+	}
+
+	private void startCamera() {
+		try {
+			streamService.startCameraStream();
+		}
+		catch (ExecutableException e) {
+			handleException(e, "Start camera stream failed", "stream.start.error");
+		}
+	}
+
+	private void stopCamera() {
+		try {
+			streamService.stopCameraStream();
+		}
+		catch (ExecutableException e) {
+			handleException(e, "Stop camera stream failed", "stream.start.error");
+		}
 	}
 }

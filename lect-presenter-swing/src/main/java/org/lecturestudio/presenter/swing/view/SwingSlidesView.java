@@ -79,7 +79,9 @@ public class SwingSlidesView extends JPanel implements SlidesView {
 
 	private Action deletePageAction;
 
-	private Action screenCapturePauseAction;
+	private Action startScreenCaptureAction;
+
+	private Action stopScreenCaptureAction;
 
 	private double notesDividerPosition;
 
@@ -144,8 +146,10 @@ public class SwingSlidesView extends JPanel implements SlidesView {
 			ThumbPanel thumbPanel;
 			switch (doc.getType()) {
 				case WHITEBOARD:
-				case SCREEN_CAPTURE:
 					thumbPanel = new EditableThumbnailPanel();
+					break;
+				case SCREEN_CAPTURE:
+					thumbPanel = new ScreenCaptureThumbnailPanel();
 					break;
 				default:
 					thumbPanel = new ThumbPanel();
@@ -164,12 +168,15 @@ public class SwingSlidesView extends JPanel implements SlidesView {
 			if (thumbPanel instanceof EditableThumbnailPanel) {
 				EditableThumbnailPanel editableThumbPanel = (EditableThumbnailPanel) thumbPanel;
 
-				editableThumbPanel.setOnNewPage(() -> {
-					executeAction(newPageAction);
-				});
-				editableThumbPanel.setOnDeletePage(() -> {
-					executeAction(deletePageAction);
-				});
+				editableThumbPanel.setOnNewPage(() -> executeAction(newPageAction));
+				editableThumbPanel.setOnDeletePage(() -> executeAction(deletePageAction));
+			}
+
+			if (thumbPanel instanceof ScreenCaptureThumbnailPanel) {
+				ScreenCaptureThumbnailPanel screenCaptureThumbnailPanel = (ScreenCaptureThumbnailPanel) thumbPanel;
+
+				screenCaptureThumbnailPanel.setOnStartRecording(() -> executeAction(startScreenCaptureAction));
+				screenCaptureThumbnailPanel.setOnStopRecording(() -> executeAction(stopScreenCaptureAction));
 			}
 
 			VerticalTab tab = new VerticalTab(tabPane.getTabPlacement());
@@ -181,6 +188,8 @@ public class SwingSlidesView extends JPanel implements SlidesView {
 	}
 
 	private String limitTitleLength(String title) {
+		if (title == null)
+			return "";
 		return title.length() > MAX_TITLE_LENGTH ? title.substring(0, MAX_TITLE_LENGTH) + "..." : title;
 	}
 
@@ -405,6 +414,16 @@ public class SwingSlidesView extends JPanel implements SlidesView {
 	@Override
 	public void setOnDeletePage(Action action) {
 		this.deletePageAction = action;
+	}
+
+	@Override
+	public void setOnStartScreenCapture(Action action) {
+		this.startScreenCaptureAction = action;
+	}
+
+	@Override
+	public void setOnStopScreenCapture(Action action) {
+		this.stopScreenCaptureAction = action;
 	}
 
 	@Override

@@ -18,19 +18,19 @@
 
 package org.lecturestudio.core.recording;
 
-import org.lecturestudio.core.screencapture.ScreenCaptureOutputStream;
+import org.lecturestudio.core.io.RandomAccessStream;
 
 import java.io.IOException;
 
 public class RecordedScreenCapture extends RecordedObjectBase {
 
-    private final ScreenCaptureOutputStream screenCaptureStream;
+    private final RandomAccessStream screenCaptureStream;
 
-    public RecordedScreenCapture(ScreenCaptureOutputStream outputStream) {
-        this.screenCaptureStream = outputStream;
+    public RecordedScreenCapture(RandomAccessStream screenCaptureStream) {
+        this.screenCaptureStream = screenCaptureStream;
     }
 
-    public ScreenCaptureOutputStream getScreenCaptureStream() {
+    public RandomAccessStream getScreenCaptureStream() {
         return screenCaptureStream;
     }
 

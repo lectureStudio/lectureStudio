@@ -19,26 +19,44 @@
 package org.lecturestudio.swing.components;
 
 import org.lecturestudio.core.view.Action;
+import org.lecturestudio.swing.AwtResourceLoader;
 import org.lecturestudio.swing.util.SwingUtils;
 
 import javax.swing.*;
 
 public class ScreenCaptureThumbnailPanel extends EditableThumbnailPanel {
 
-    private final JButton pauseCaptureButton;
+    private final RecordButton startRecordingButton;
+    private final JButton stopRecordingButton;
 
     public ScreenCaptureThumbnailPanel() {
         super();
 
-        pauseCaptureButton = new JButton("Pause");
-        container.add(pauseCaptureButton);
+        // Configure start recording button
+        startRecordingButton = new RecordButton();
+        startRecordingButton.setIcon(AwtResourceLoader.getIcon("record-tool.svg", 25));
+        startRecordingButton.setBlinkIcon(AwtResourceLoader.getIcon("record-blink-tool.svg", 25));
+        startRecordingButton.setPauseIcon(AwtResourceLoader.getIcon("record-pause-tool.svg", 25));
+        startRecordingButton.setPausedIcon(AwtResourceLoader.getIcon("record-resume-tool.svg", 25));
+        startRecordingButton.setContentAreaFilled(false);
+        startRecordingButton.setBorderPainted(false);
+
+        // Configure stop recording button
+        stopRecordingButton = new JButton();
+        stopRecordingButton.setIcon(AwtResourceLoader.getIcon("record-stop-tool.svg", 25));
+        stopRecordingButton.setEnabled(false);
+        stopRecordingButton.setContentAreaFilled(false);
+        stopRecordingButton.setBorderPainted(false);
+
+        container.add(startRecordingButton);
+        container.add(stopRecordingButton);
     }
 
-    public void setScreenCaptureRenderer() {
-
+    public void setOnStartRecording(Action action) {
+        SwingUtils.bindAction(startRecordingButton, action);
     }
 
-    public void setOnScreenCapturePause(Action action) {
-        SwingUtils.bindAction(pauseCaptureButton, action);
+    public void setOnStopRecording(Action action) {
+        SwingUtils.bindAction(stopRecordingButton, action);
     }
 }

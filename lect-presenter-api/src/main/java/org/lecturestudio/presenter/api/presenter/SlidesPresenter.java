@@ -330,6 +330,14 @@ public class SlidesPresenter extends Presenter<SlidesView> {
 		documentService.selectPreviousPage();
 	}
 
+	private void startScreenCapture() {
+		System.out.println("START SCREEN CAPTURE");
+	}
+
+	private void stopScreenCapture() {
+		System.out.println("STOP SCREEN CAPTURE");
+	}
+
 	private void registerShortcut(Shortcut shortcut, Action action) {
 		shortcutMap.put(shortcut.getKeyEvent(), action);
 	}
@@ -557,6 +565,8 @@ public class SlidesPresenter extends Presenter<SlidesView> {
 		view.setOnNewPage(this::newPage);
 		view.setOnDeletePage(this::deletePage);
 		view.setOnSelectPage(this::selectPage);
+		view.setOnStartScreenCapture(this::startScreenCapture);
+		view.setOnStopScreenCapture(this::stopScreenCapture);
 		view.setOnSelectDocument(this::selectDocument);
 		view.setOnViewTransform(this::setViewTransform);
 		view.setOnLaTeXText(this::setLaTeXText);

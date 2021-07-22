@@ -28,7 +28,6 @@ import org.lecturestudio.core.io.WaveOutputStream;
 import org.lecturestudio.core.model.Document;
 import org.lecturestudio.core.recording.*;
 import org.lecturestudio.core.recording.file.RecordingFileWriter;
-import org.lecturestudio.core.screencapture.ScreenCaptureOutputStream;
 import org.lecturestudio.core.util.AudioUtils;
 import org.lecturestudio.core.util.FileUtils;
 import org.lecturestudio.core.util.ProgressCallback;
@@ -110,7 +109,7 @@ public class RecordingBackup {
 		RecordingHeader fileHeader = new RecordingHeader();
 		fileHeader.setDuration(duration);
 
-		ScreenCaptureOutputStream screenCaptureStream = new ScreenCaptureOutputStream(screenCaptureFile);
+		RandomAccessStream screenCaptureStream = new RandomAccessStream(screenCaptureFile);
 		screenCaptureStream.reset();
 
 		Recording recording = new Recording();

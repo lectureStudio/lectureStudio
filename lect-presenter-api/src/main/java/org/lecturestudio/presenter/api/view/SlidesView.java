@@ -85,6 +85,10 @@ public interface SlidesView extends View {
 
 	void setOnDeletePage(Action action);
 
+	void setOnStartScreenCapture(Action action);
+
+	void setOnStopScreenCapture(Action action);
+
 	void setOnOutlineItem(ConsumerAction<DocumentOutlineItem> action);
 
 }

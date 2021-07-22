@@ -126,6 +126,8 @@ public class ScreenCaptureRecorder {
             int[] pixelBuffer = new int[buffer.remaining()];
             buffer.get(pixelBuffer);
 
+            System.out.println(frame.frameRect.x + " " + frame.frameRect.y);
+
             // Create buffered image from pixels
             BufferedImage image = PngEncoderBufferedImageConverter.createFromIntArgb(pixelBuffer, frame.frameSize.width, frame.frameSize.height);
 

@@ -20,11 +20,14 @@ package org.lecturestudio.core.recording.file;
 
 import org.lecturestudio.core.io.DigestRandomAccessFile;
 import org.lecturestudio.core.io.RandomAccessAudioStream;
+import org.lecturestudio.core.io.RandomAccessStream;
 import org.lecturestudio.core.recording.Recording;
 import org.lecturestudio.core.recording.RecordingHeader;
 import org.lecturestudio.core.util.ProgressCallback;
 
 import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
 
 public final class RecordingFileWriter {
 
@@ -46,11 +49,13 @@ public final class RecordingFileWriter {
 		byte[] eventData = recFile.getRecordedEvents().toByteArray();
 		byte[] docData = recFile.getRecordedDocument().toByteArray();
 
+		RandomAccessStream screenCaptureStream = recFile.getRecordedScreenCapture().getScreenCaptureStream();
+
 		int headerLength = header.getHeaderLength();
 		int eventsLength = eventData.length;
 		int documentLength = docData.length;
 		int audioLength = (int) audioStream.getLength();
-		int screenCaptureLength = (int) recFile.getRecordedScreenCapture().getScreenCaptureStream().getTotalBytesWritten();
+		int screenCaptureLength = screenCaptureStream.available();
 		int totalSize = headerLength + eventsLength + documentLength + audioLength + screenCaptureLength;
 
 		float written = headerLength;
@@ -71,21 +76,10 @@ public final class RecordingFileWriter {
 		setProgress(written / totalSize, progressCallback);
 
 		// Write audio.
-		byte[] audioBuffer = new byte[4096];
+		written = writeStream(raFile, audioStream, progressCallback, totalSize, written);
 
-		while (true) {
-			int bytesRead = audioStream.read(audioBuffer);
-			if (bytesRead == -1) {
-				break;
-			}
-
-			raFile.write(audioBuffer, 0, bytesRead);
-
-			written += bytesRead;
-			setProgress(written / totalSize, progressCallback);
-		}
-
-		audioStream.close();
+		// Write screen capture.
+		written = writeStream(raFile, screenCaptureStream, progressCallback, totalSize, written);
 
 		// Update file header.
 		byte[] checksum = raFile.getDigest();
@@ -109,6 +103,25 @@ public final class RecordingFileWriter {
 		setProgress(written / totalSize, progressCallback);
 
 		return totalSize;
+	}
+
+	private static float writeStream(DigestRandomAccessFile file, InputStream stream, ProgressCallback callback, int totalSize, float written) throws IOException {
+		byte[] buffer = new byte[4096];
+
+		while (true) {
+			int bytesRead = stream.read(buffer);
+			if (bytesRead == -1) {
+				break;
+			}
+
+			file.write(buffer, 0, bytesRead);
+
+			written += bytesRead;
+			setProgress(written / totalSize, callback);
+		}
+		stream.close();
+
+		return written;
 	}
 
 	private static void setProgress(float progress, ProgressCallback progressCallback) {

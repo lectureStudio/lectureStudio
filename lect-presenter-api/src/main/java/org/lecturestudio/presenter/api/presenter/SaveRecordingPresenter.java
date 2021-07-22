@@ -18,17 +18,6 @@
 
 package org.lecturestudio.presenter.api.presenter;
 
-import static java.util.Objects.isNull;
-import static java.util.Objects.nonNull;
-
-import java.io.File;
-import java.io.IOException;
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
-import java.util.Date;
-
-import javax.inject.Inject;
-
 import org.lecturestudio.core.ExecutableException;
 import org.lecturestudio.core.app.ApplicationContext;
 import org.lecturestudio.core.app.configuration.ConfigurationService;
@@ -46,6 +35,16 @@ import org.lecturestudio.core.view.ViewLayer;
 import org.lecturestudio.presenter.api.context.PresenterContext;
 import org.lecturestudio.presenter.api.service.RecordingService;
 import org.lecturestudio.presenter.api.view.SaveRecordingView;
+
+import javax.inject.Inject;
+import java.io.File;
+import java.io.IOException;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+
+import static java.util.Objects.isNull;
+import static java.util.Objects.nonNull;
 
 public class SaveRecordingPresenter extends Presenter<SaveRecordingView> {
 
@@ -106,7 +105,7 @@ public class SaveRecordingPresenter extends Presenter<SaveRecordingView> {
 		Dictionary dict = context.getDictionary();
 		Document doc = documentService.getDocuments().getSelectedDocument();
 		String date = dateFormat.format(new Date());
-		String fileName = doc.getName() + "-" + date;
+		String fileName = date + "-" + doc.getName();
 		File recordingDir = new File(recordingPath);
 
 		FileChooserView fileChooser = viewFactory.createFileChooserView();

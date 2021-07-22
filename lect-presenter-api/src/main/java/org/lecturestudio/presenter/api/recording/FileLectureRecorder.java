@@ -36,6 +36,7 @@ import org.lecturestudio.core.bus.event.DocumentEvent;
 import org.lecturestudio.core.bus.event.PageEvent;
 import org.lecturestudio.core.bus.event.RecordActionEvent;
 import org.lecturestudio.core.io.RandomAccessAudioStream;
+import org.lecturestudio.core.io.RandomAccessStream;
 import org.lecturestudio.core.model.Document;
 import org.lecturestudio.core.model.DocumentType;
 import org.lecturestudio.core.model.Page;
@@ -45,7 +46,6 @@ import org.lecturestudio.core.recording.action.StaticShapeAction;
 import org.lecturestudio.core.recording.file.RecordingFileWriter;
 import org.lecturestudio.core.screencapture.ScreenCaptureDocument;
 import org.lecturestudio.core.screencapture.ScreenCaptureFormat;
-import org.lecturestudio.core.screencapture.ScreenCaptureOutputStream;
 import org.lecturestudio.core.screencapture.ScreenCaptureRecorder;
 import org.lecturestudio.core.service.DocumentService;
 import org.lecturestudio.core.util.FileUtils;
@@ -190,7 +190,7 @@ public class FileLectureRecorder extends LectureRecorder {
 		audioStream.reset();
 
 		File screenCaptureFile = new File(backup.getScreenCaptureFile());
-		ScreenCaptureOutputStream screenCaptureStream = new ScreenCaptureOutputStream(screenCaptureFile);
+		RandomAccessStream screenCaptureStream = new RandomAccessStream(screenCaptureFile);
 		screenCaptureStream.reset();
 
 		RecordingHeader fileHeader = new RecordingHeader();

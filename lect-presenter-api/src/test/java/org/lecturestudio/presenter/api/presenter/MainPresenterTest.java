@@ -75,7 +75,7 @@ class MainPresenterTest extends PresenterTest {
 			public <T> T getInstance(Class<T> cls) {
 				if (cls == SlidesPresenter.class) {
 					ToolController toolController = new ToolController(context, documentService);
-					return (T) new SlidesPresenter(context, createProxy(SlidesView.class), null, toolController, null, null, null, new DocumentRecorder(context), null);
+					return (T) new SlidesPresenter(context, createProxy(SlidesView.class), null, toolController, null, null, null,  new DocumentRecorder(context), null, null);
 				}
 				else if (cls == SettingsPresenter.class) {
 					return (T) new SettingsPresenter(context, createProxy(SettingsView.class));

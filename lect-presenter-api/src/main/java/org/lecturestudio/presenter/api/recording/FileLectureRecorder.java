@@ -288,26 +288,26 @@ public class FileLectureRecorder extends LectureRecorder {
 
 			Document selectedDocument = documentService.getDocuments().getSelectedDocument();
 
-			try {
-				// Stop previously running screen capture recorder if exists
-				if (nonNull(screenCaptureRecorder)) {
-					screenCaptureRecorder.stop();
-				}
-
-				// Initialize new screen capture recorder
-				screenCaptureRecorder = new ScreenCaptureRecorder(new File(backup.getScreenCaptureFile()));
-				screenCaptureRecorder.setScreenCaptureFormat(screenCaptureFormat);
-
-				// Set capture source if selected document is screen capture
-				if (selectedDocument.isScreenCapture()) {
-					ScreenCaptureDocument scd = selectedDocument.getScreenCaptureDocument();
-					screenCaptureRecorder.setActiveSource(scd.getSource(), scd.getType());
-				}
-
-				screenCaptureRecorder.start();
-			} catch (IOException e) {
-				e.printStackTrace();
-			}
+//			try {
+//				// Stop previously running screen capture recorder if exists
+//				if (nonNull(screenCaptureRecorder)) {
+//					screenCaptureRecorder.stop();
+//				}
+//
+//				// Initialize new screen capture recorder
+//				screenCaptureRecorder = new ScreenCaptureRecorder(new File(backup.getScreenCaptureFile()));
+//				screenCaptureRecorder.setScreenCaptureFormat(screenCaptureFormat);
+//
+//				// Set capture source if selected document is screen capture
+//				if (selectedDocument.isScreenCapture()) {
+//					ScreenCaptureDocument scd = selectedDocument.getScreenCaptureDocument();
+//					screenCaptureRecorder.setActiveSource(scd.getSource(), scd.getType());
+//				}
+//
+//				screenCaptureRecorder.start();
+//			} catch (IOException e) {
+//				e.printStackTrace();
+//			}
 
 			// Record the first page.
 			Page firstPage = selectedDocument.getCurrentPage();

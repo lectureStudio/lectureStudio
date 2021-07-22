@@ -18,6 +18,7 @@
 
 package org.lecturestudio.swing.components;
 
+import org.lecturestudio.core.ExecutableState;
 import org.lecturestudio.core.view.Action;
 import org.lecturestudio.swing.AwtResourceLoader;
 import org.lecturestudio.swing.util.SwingUtils;
@@ -58,5 +59,12 @@ public class ScreenCaptureThumbnailPanel extends EditableThumbnailPanel {
 
     public void setOnStopRecording(Action action) {
         SwingUtils.bindAction(stopRecordingButton, action);
+    }
+
+    public void setRecordingState(ExecutableState state) {
+        boolean started = state == ExecutableState.Started || state == ExecutableState.Suspended;
+
+        startRecordingButton.setState(state);
+        stopRecordingButton.setEnabled(started);
     }
 }

@@ -297,14 +297,10 @@ public class SwingSlidesView extends JPanel implements SlidesView {
 
 	@Override
 	public void bindShowOutline(BooleanProperty showProperty) {
-		SwingUtils.invoke(() -> {
-			showOutline(showProperty.get());
-		});
+		SwingUtils.invoke(() -> showOutline(showProperty.get()));
 
 		showProperty.addListener((observable, oldValue, newValue) -> {
-			SwingUtils.invoke(() -> {
-				showOutline(showProperty.get());
-			});
+			SwingUtils.invoke(() -> showOutline(showProperty.get()));
 		});
 	}
 
@@ -430,6 +426,18 @@ public class SwingSlidesView extends JPanel implements SlidesView {
 	public void setOnOutlineItem(ConsumerAction<DocumentOutlineItem> action) {
 		this.outlineAction = action;
 	}
+
+	@Override
+	public void setScreenCaptureRecordingState(ExecutableState state) {
+		SwingUtils.invoke(() -> {
+			ThumbPanel thumbPanel = (ThumbPanel) tabPane.getSelectedComponent();
+			if (thumbPanel instanceof ScreenCaptureThumbnailPanel) {
+				ScreenCaptureThumbnailPanel screenCaptureThumbnailPanel = (ScreenCaptureThumbnailPanel) thumbPanel;
+				screenCaptureThumbnailPanel.setRecordingState(state);
+			}
+		});
+	}
+
 
 	private void buildOutlineTree(DocumentOutlineItem item, DefaultMutableTreeNode root) {
 		DefaultMutableTreeNode parent = new DefaultMutableTreeNode(item.getTitle());

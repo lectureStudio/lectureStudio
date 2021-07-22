@@ -91,4 +91,6 @@ public interface SlidesView extends View {
 
 	void setOnOutlineItem(ConsumerAction<DocumentOutlineItem> action);
 
+	void setScreenCaptureRecordingState(ExecutableState state);
+
 }

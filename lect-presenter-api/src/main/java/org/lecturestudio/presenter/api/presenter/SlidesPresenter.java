@@ -54,10 +54,12 @@ import org.lecturestudio.presenter.api.config.PresenterConfiguration;
 import org.lecturestudio.presenter.api.context.PresenterContext;
 import org.lecturestudio.presenter.api.event.MessengerStateEvent;
 import org.lecturestudio.presenter.api.event.QuizStateEvent;
+import org.lecturestudio.presenter.api.event.ScreenCaptureRecordingStateEvent;
 import org.lecturestudio.presenter.api.event.StreamingStateEvent;
 import org.lecturestudio.presenter.api.input.Shortcut;
 import org.lecturestudio.presenter.api.pdf.embedded.SlideNoteParser;
 import org.lecturestudio.presenter.api.service.RecordingService;
+import org.lecturestudio.presenter.api.service.ScreenCaptureRecordingService;
 import org.lecturestudio.presenter.api.stylus.StylusHandler;
 import org.lecturestudio.presenter.api.view.PageObjectRegistry;
 import org.lecturestudio.presenter.api.view.SlidesView;
@@ -112,6 +114,7 @@ public class SlidesPresenter extends Presenter<SlidesView> {
 
 	private final RecordingService recordingService;
 
+	private final ScreenCaptureRecordingService screenCaptureRecordingService;
 
 	@Inject
 	SlidesPresenter(ApplicationContext context, SlidesView view,
@@ -121,7 +124,8 @@ public class SlidesPresenter extends Presenter<SlidesView> {
 			RenderController renderController,
 			DocumentService documentService,
 			DocumentRecorder documentRecorder,
-			RecordingService recordingService) {
+			RecordingService recordingService,
+			ScreenCaptureRecordingService screenCaptureRecordingService) {
 		super(context, view);
 
 		this.viewFactory = viewFactory;
@@ -131,6 +135,7 @@ public class SlidesPresenter extends Presenter<SlidesView> {
 		this.documentRecorder = documentRecorder;
 		this.documentService = documentService;
 		this.recordingService = recordingService;
+		this.screenCaptureRecordingService = screenCaptureRecordingService;
 		this.eventBus = context.getEventBus();
 		this.shortcutMap = new HashMap<>();
 		this.pageObjectRegistry = new PageObjectRegistry();
@@ -197,6 +202,11 @@ public class SlidesPresenter extends Presenter<SlidesView> {
 		requireNonNull(message);
 
 		view.setMessengerMessage(message);
+	}
+
+	@Subscribe
+	public void onEvent(final ScreenCaptureRecordingStateEvent event) {
+		view.setScreenCaptureRecordingState(event.getState());
 	}
 
 	private void keyEvent(KeyEvent event) {
@@ -331,11 +341,23 @@ public class SlidesPresenter extends Presenter<SlidesView> {
 	}
 
 	private void startScreenCapture() {
-		System.out.println("START SCREEN CAPTURE");
+		try {
+			if (screenCaptureRecordingService.started()) {
+				screenCaptureRecordingService.suspend();
+			} else {
+				screenCaptureRecordingService.start();
+			}
+		} catch (ExecutableException e) {
+			e.printStackTrace();
+		}
 	}
 
 	private void stopScreenCapture() {
-		System.out.println("STOP SCREEN CAPTURE");
+		try {
+			screenCaptureRecordingService.stop();
+		} catch (ExecutableException e) {
+			e.printStackTrace();
+		}
 	}
 
 	private void registerShortcut(Shortcut shortcut, Action action) {
@@ -557,6 +579,8 @@ public class SlidesPresenter extends Presenter<SlidesView> {
 		view.setStylusHandler(stylusHandler);
 		view.setExtendedFullscreen(context.getConfiguration().getExtendedFullscreen());
 		view.setMessengerState(ExecutableState.Stopped);
+
+		view.setScreenCaptureRecordingState(ExecutableState.Stopped);
 
 		view.bindShowOutline(ctx.showOutlineProperty());
 		view.setOnOutlineItem(this::setOutlineItem);

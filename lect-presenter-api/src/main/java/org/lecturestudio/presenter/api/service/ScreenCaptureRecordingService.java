@@ -66,14 +66,15 @@ public class ScreenCaptureRecordingService extends ExecutableBase {
         if (prevState == ExecutableState.Initialized || prevState == ExecutableState.Stopped) {
             System.out.println("Start Screen Capture");
 
-            try {
-                recorder.start();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
+//            try {
+//                recorder.start();
+//            } catch (IOException e) {
+//                e.printStackTrace();
+//            }
         }
         else if (prevState == ExecutableState.Suspended) {
             System.out.println("Continue Screen Capture");
+
         }
     }
 
@@ -82,7 +83,7 @@ public class ScreenCaptureRecordingService extends ExecutableBase {
         if (getPreviousState() == ExecutableState.Started) {
             System.out.println("Suspend Screen Capture");
 
-            recorder.pause();
+            // recorder.pause();
         }
     }
 
@@ -90,11 +91,11 @@ public class ScreenCaptureRecordingService extends ExecutableBase {
     protected void stopInternal() {
         System.out.println("Stop Screen Capture");
 
-        try {
-            recorder.stop();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+//        try {
+//            recorder.stop();
+//        } catch (IOException e) {
+//            e.printStackTrace();
+//        }
     }
 
     @Override

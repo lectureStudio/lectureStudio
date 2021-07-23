@@ -113,6 +113,7 @@ public class SwingSlidesView extends JPanel implements SlidesView {
 
 	private int bottomTabIndex;
 
+	private ExecutableState recordingState;
 
 	SwingSlidesView() {
 		super();
@@ -222,6 +223,12 @@ public class SwingSlidesView extends JPanel implements SlidesView {
 					if (!thumbnailPanel.getDocument().equals(doc)) {
 						// Prevent tab switching for quiz reloading.
 						thumbnailPanel.setDocument(doc, null);
+					}
+
+					// Update screen capture thumb panel according to current recording state
+					if (thumbnailPanel instanceof ScreenCaptureThumbnailPanel) {
+						ScreenCaptureThumbnailPanel screenCaptureThumbnailPanel = (ScreenCaptureThumbnailPanel) thumbnailPanel;
+						screenCaptureThumbnailPanel.setRecordingState(recordingState);
 					}
 
 					tabPane.setSelectedIndex(i);
@@ -429,6 +436,8 @@ public class SwingSlidesView extends JPanel implements SlidesView {
 
 	@Override
 	public void setScreenCaptureRecordingState(ExecutableState state) {
+		recordingState = state;
+
 		SwingUtils.invoke(() -> {
 			ThumbPanel thumbPanel = (ThumbPanel) tabPane.getSelectedComponent();
 			if (thumbPanel instanceof ScreenCaptureThumbnailPanel) {

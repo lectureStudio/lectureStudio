@@ -302,6 +302,11 @@ public class SlidesPresenter extends Presenter<SlidesView> {
 	}
 
 	private void selectDocument(Document doc) {
+		// Stop recording if document is switched.
+		if (screenCaptureRecordingService.started()) {
+			stopScreenCapture();
+		}
+
 		documentService.selectDocument(doc);
 	}
 

@@ -83,5 +83,7 @@ public class ScreenCaptureThumbnailPanel extends EditableThumbnailPanel {
 
         pageRenderer.setSelectedBorderColor(borderColor);
         SwingUtils.invoke(list::repaint);
+
+        SwingUtils.invoke(this::repaint);
     }
 }

@@ -24,6 +24,7 @@ import org.lecturestudio.swing.AwtResourceLoader;
 import org.lecturestudio.swing.util.SwingUtils;
 
 import javax.swing.*;
+import java.awt.*;
 
 public class ScreenCaptureThumbnailPanel extends EditableThumbnailPanel {
 
@@ -66,5 +67,21 @@ public class ScreenCaptureThumbnailPanel extends EditableThumbnailPanel {
 
         startRecordingButton.setState(state);
         stopRecordingButton.setEnabled(started);
+
+        // Update border color of selected preview if recording
+        Color borderColor;
+        switch (state) {
+            case Started:
+                borderColor = Color.RED;
+                break;
+            case Suspended:
+                borderColor = Color.ORANGE;
+                break;
+            default:
+                borderColor = PageRenderer.DEFAULT_BORDER_COLOR;
+        }
+
+        pageRenderer.setSelectedBorderColor(borderColor);
+        SwingUtils.invoke(list::repaint);
     }
 }

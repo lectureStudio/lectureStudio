@@ -18,40 +18,6 @@
 
 package org.lecturestudio.swing.components;
 
-import static java.util.Objects.isNull;
-import static java.util.Objects.nonNull;
-
-import java.awt.BorderLayout;
-import java.awt.Color;
-import java.awt.Component;
-import java.awt.Dimension;
-import java.awt.Graphics;
-import java.awt.Graphics2D;
-import java.awt.GraphicsConfiguration;
-import java.awt.Rectangle;
-import java.awt.event.ComponentAdapter;
-import java.awt.event.ComponentEvent;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
-import java.awt.geom.AffineTransform;
-import java.awt.image.BufferedImage;
-import java.beans.PropertyChangeListener;
-import java.beans.PropertyChangeSupport;
-
-import javax.swing.BorderFactory;
-import javax.swing.DefaultListModel;
-import javax.swing.JComponent;
-import javax.swing.JList;
-import javax.swing.JMenuItem;
-import javax.swing.JPanel;
-import javax.swing.JPopupMenu;
-import javax.swing.JScrollBar;
-import javax.swing.JScrollPane;
-import javax.swing.JViewport;
-import javax.swing.ListCellRenderer;
-import javax.swing.ListSelectionModel;
-import javax.swing.SwingUtilities;
-
 import org.lecturestudio.core.PageMetrics;
 import org.lecturestudio.core.controller.RenderController;
 import org.lecturestudio.core.geometry.Dimension2D;
@@ -64,35 +30,43 @@ import org.lecturestudio.core.view.PresentationParameterProvider;
 import org.lecturestudio.core.view.SlideView;
 import org.lecturestudio.core.view.ViewType;
 
+import javax.swing.*;
+import java.awt.*;
+import java.awt.event.ComponentAdapter;
+import java.awt.event.ComponentEvent;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
+import java.awt.geom.AffineTransform;
+import java.awt.image.BufferedImage;
+import java.beans.PropertyChangeListener;
+import java.beans.PropertyChangeSupport;
+
+import static java.util.Objects.isNull;
+import static java.util.Objects.nonNull;
+
 public class ThumbPanel extends JPanel {
 
 	private final DocumentChangeListener docChangeListener = new DocumentChangeListener() {
 
 		@Override
 		public void documentChanged(Document document) {
-			SwingUtilities.invokeLater(() -> {
-				onDocumentChanged(document);
-			});
+			SwingUtilities.invokeLater(() -> onDocumentChanged(document));
 		}
 
 		@Override
 		public void pageRemoved(final Page page) {
-			SwingUtilities.invokeLater(() -> {
-				onPageRemoved(page);
-			});
+			SwingUtilities.invokeLater(() -> onPageRemoved(page));
 		}
 
 		@Override
 		public void pageAdded(final Page page) {
-			SwingUtilities.invokeLater(() -> {
-				onPageAdded(page);
-			});
+			SwingUtilities.invokeLater(() -> onPageAdded(page));
 		}
 	};
 
 	private final JScrollPane scrollPane;
 
-	private final JList<Page> list;
+	protected final JList<Page> list;
 
 	private final PropertyChangeSupport pcs;
 
@@ -100,7 +74,7 @@ public class ThumbPanel extends JPanel {
 
 	private RenderController renderController;
 
-	private PageRenderer pageRenderer;
+	protected PageRenderer pageRenderer;
 
 	private Page selectedPage;
 
@@ -343,7 +317,9 @@ public class ThumbPanel extends JPanel {
 
 
 
-	private static class PageRenderer extends JComponent implements ListCellRenderer<Page>, SlideView {
+	protected static class PageRenderer extends JComponent implements ListCellRenderer<Page>, SlideView {
+
+		protected final static Color DEFAULT_BORDER_COLOR = Color.BLUE;
 
 		private final static int BORDER_SIZE = 3;
 
@@ -354,6 +330,8 @@ public class ThumbPanel extends JPanel {
 		private Page page;
 
 		private boolean selected;
+
+		private Color selectedBorderColor = DEFAULT_BORDER_COLOR;
 
 
 		PageRenderer(RenderController renderController,
@@ -420,7 +398,7 @@ public class ThumbPanel extends JPanel {
 					transform.getTranslateY());
 
 			if (selected) {
-				g2d.setColor(Color.BLUE);
+				g2d.setColor(selectedBorderColor);
 				g2d.fillRect(0, 0, getWidth(), getHeight());
 			}
 			else {
@@ -451,6 +429,10 @@ public class ThumbPanel extends JPanel {
 				renderer.setPresentationParameter(ppProvider.getParameter(page));
 				renderer.setPage(page);
 			}
+		}
+
+		public void setSelectedBorderColor(Color borderColor) {
+			selectedBorderColor = borderColor;
 		}
 
 		private void renderPage() {

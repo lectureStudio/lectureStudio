@@ -16,12 +16,16 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package org.lecturestudio.core.screencapture;
+package org.lecturestudio.presenter.api.recording;
 
 import com.pngencoder.PngEncoder;
 import com.pngencoder.PngEncoderBufferedImageConverter;
 import dev.onvoid.webrtc.media.video.desktop.*;
-import org.lecturestudio.core.ExecutableState;
+import org.lecturestudio.core.ExecutableBase;
+import org.lecturestudio.core.bus.ApplicationBus;
+import org.lecturestudio.core.screencapture.ScreenCaptureFormat;
+import org.lecturestudio.core.screencapture.ScreenCaptureOutputStream;
+import org.lecturestudio.presenter.api.event.ScreenCaptureRecordingStateEvent;
 
 import java.awt.image.BufferedImage;
 import java.io.File;
@@ -32,80 +36,85 @@ import java.util.Timer;
 import java.util.TimerTask;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
-public class ScreenCaptureRecorder {
+public class ScreenCaptureRecorder extends ExecutableBase {
 
-    private final ScreenCaptureOutputStream stream;
     private final Queue<BufferedImage> frameQueue;
 
     private DesktopCapturer capturer;
 
+    private File backupFile;
+
+    private ScreenCaptureOutputStream stream;
     private ScreenCaptureTask captureTask;
     private ScreenCaptureFormat format;
 
     private FrameProcessor processor;
 
-    private ExecutableState state = ExecutableState.Stopped;
     private boolean initialized = false;
 
-    public ScreenCaptureRecorder(File outputFile) throws IOException {
-        stream = new ScreenCaptureOutputStream(outputFile);
+    private int activeChannelId;
+
+    public ScreenCaptureRecorder() {
         frameQueue = new ConcurrentLinkedQueue<>();
+    }
+
+    public void setBackupFile(File backupFile) throws IOException {
+        this.backupFile = backupFile;
     }
 
     public ScreenCaptureOutputStream getStream() {
         return stream;
     }
 
-    public boolean start() throws IOException {
-        if (state == ExecutableState.Started || !initialized) {
-            System.out.println("Screen Capture is already running or not initialized.");
-            return false;
+    @Override
+    protected void initInternal() {}
+
+    @Override
+    protected void startInternal() {
+        if (!initialized) {
+            System.out.println("Screen Capture is not initialized.");
+            return;
         }
 
-        System.out.println("Start recording of screen capture");
-
-        stream.setScreenCaptureFormat(format);
-        stream.reset();
+        try {
+            stream = new ScreenCaptureOutputStream(backupFile);
+            stream.setScreenCaptureFormat(format);
+            stream.setActiveChannelId(activeChannelId);
+            stream.reset();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
 
         processor = new FrameProcessor();
         new Thread(processor).start();
 
         captureTask = new ScreenCaptureTask(format.getFrameRate());
         captureTask.start();
-
-        state = ExecutableState.Started;
-
-        return true;
     }
 
-    public boolean pause() {
-        if (state != ExecutableState.Started) {
-            return false;
-        }
-
+    @Override
+    protected void suspendInternal() {
         captureTask.stop();
         processor.stop(false);
-
-        state = ExecutableState.Suspended;
-
-        return true;
     }
 
-    public boolean stop() throws IOException {
-        if (state == ExecutableState.Stopped) {
-            return false;
-        }
-
+    @Override
+    protected void stopInternal() {
         captureTask.stop();
         processor.stop(true);
+    }
 
-        state = ExecutableState.Stopped;
+    @Override
+    protected void destroyInternal() {}
 
-        return true;
+    @Override
+    protected void fireStateChanged() {
+        // Notify about change is screen capture recording state
+        ApplicationBus.post(new ScreenCaptureRecordingStateEvent(getState()));
     }
 
     public void setScreenCaptureFormat(ScreenCaptureFormat format) {
-        if (state != ExecutableState.Stopped) {
+        if (started() || suspended()) {
             throw new RuntimeException("Cannot update screen capture format, recording already started.");
         }
         this.format = format;
@@ -120,7 +129,8 @@ public class ScreenCaptureRecorder {
             capturer.selectSource(source);
             capturer.start(this::onScreenCaptureFrame);
 
-            stream.setActiveChannelId((int) source.id);
+            activeChannelId = (int) source.id;
+
             initialized = true;
         }
     }
@@ -132,8 +142,6 @@ public class ScreenCaptureRecorder {
             IntBuffer buffer = frame.buffer.asIntBuffer();
             int[] pixelBuffer = new int[buffer.remaining()];
             buffer.get(pixelBuffer);
-
-            System.out.println(frame.frameRect.x + " " + frame.frameRect.y);
 
             // Create buffered image from pixels
             BufferedImage image = PngEncoderBufferedImageConverter.createFromIntArgb(pixelBuffer, frame.frameSize.width, frame.frameSize.height);

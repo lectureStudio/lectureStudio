@@ -93,4 +93,6 @@ public interface SlidesView extends View {
 
 	void setScreenCaptureRecordingState(ExecutableState state);
 
+	void enableScreenCapture(boolean enable);
+
 }

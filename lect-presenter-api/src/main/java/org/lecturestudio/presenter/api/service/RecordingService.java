@@ -44,41 +44,40 @@ public class RecordingService extends ExecutableBase {
 
 	private final ApplicationContext context;
 
-	private final FileLectureRecorder recorder;
-
+	private final FileLectureRecorder fileLectureRecorder;
 	private IdleTimer recordingTimer;
 
 
 	@Inject
-	public RecordingService(ApplicationContext context, FileLectureRecorder recorder) {
+	public RecordingService(ApplicationContext context, FileLectureRecorder fileLectureRecorder) {
 		this.context = context;
-		this.recorder = recorder;
+		this.fileLectureRecorder = fileLectureRecorder;
 
 		setAudioFormat(context.getConfiguration().getAudioConfig().getRecordingFormat());
 		setScreenCaptureFormat(context.getConfiguration().getScreenCaptureConfig().getRecordingFormat());
 
 		PresenterConfiguration config = (PresenterConfiguration) context.getConfiguration();
 		config.getAudioConfig().recordingMasterVolumeProperty().addListener((observable, oldValue, newValue)
-				-> recorder.setAudioVolume(newValue.doubleValue()));
+				-> fileLectureRecorder.setAudioVolume(newValue.doubleValue()));
 		config.pageRecordingTimeoutProperty().addListener((o, oldValue, newValue) -> {
 			if (nonNull(newValue)) {
-				recorder.setPageRecordingTimeout(newValue);
+				fileLectureRecorder.setPageRecordingTimeout(newValue);
 			}
 		});
 	}
 
 	public void setAudioFormat(AudioFormat audioFormat) {
-		recorder.setAudioFormat(audioFormat);
+		fileLectureRecorder.setAudioFormat(audioFormat);
 	}
 
 	public void setScreenCaptureFormat(ScreenCaptureFormat format) {
-		recorder.setScreenCaptureFormat(format);
+		fileLectureRecorder.setScreenCaptureFormat(format);
 	}
 
 	public CompletableFuture<Void> writeRecording(File file, ProgressCallback callback) {
 		return CompletableFuture.runAsync(() -> {
 			try {
-				recorder.writeRecording(file, callback);
+				fileLectureRecorder.writeRecording(file, callback);
 			}
 			catch (Exception e) {
 				throw new CompletionException(e);
@@ -91,57 +90,69 @@ public class RecordingService extends ExecutableBase {
 			recordingTimer.stop();
 		}
 
-		if (recorder.started() || recorder.suspended()) {
-			recorder.stop();
+		if (fileLectureRecorder.started() || fileLectureRecorder.suspended()) {
+			fileLectureRecorder.stop();
 		}
 
-		recorder.discard();
+		fileLectureRecorder.discard();
+	}
+
+	public void startScreenCapture() throws ExecutableException {
+		if (fileLectureRecorder.started()) {
+			fileLectureRecorder.startScreenCapture();
+		}
+	}
+
+	public void stopScreenCapture() throws ExecutableException {
+		if (fileLectureRecorder.started()) {
+			fileLectureRecorder.stopScreenCapture();
+		}
 	}
 
 	@Override
 	protected void initInternal() throws ExecutableException {
-		recorder.init();
+		fileLectureRecorder.init();
 		recordingTimer = new IdleTimer();
 	}
 
 	@Override
 	protected void startInternal() throws ExecutableException {
-		if (!recorder.started()) {
-			if (recorder.error()) {
+		if (!fileLectureRecorder.started()) {
+			if (fileLectureRecorder.error()) {
 				// Recover from potential error.
-				recorder.stop();
+				fileLectureRecorder.stop();
 			}
 
-			recorder.start();
+			fileLectureRecorder.start();
 			recordingTimer.runTask();
 		}
 	}
 
 	@Override
 	protected void suspendInternal() throws ExecutableException {
-		if (recorder.started()) {
-			recorder.suspend();
+		if (fileLectureRecorder.started()) {
+			fileLectureRecorder.suspend();
 			recordingTimer.stop();
 		}
 	}
 
 	@Override
 	protected void stopInternal() throws ExecutableException {
-		if (recorder.started() || recorder.suspended()) {
+		if (fileLectureRecorder.started() || fileLectureRecorder.suspended()) {
 			recordingTimer.stop();
-			recorder.stop();
+			fileLectureRecorder.stop();
 		}
 	}
 
 	@Override
 	protected void destroyInternal() throws ExecutableException {
-		if (!recorder.destroyed()) {
-			recorder.destroy();
+		if (!fileLectureRecorder.destroyed()) {
+			fileLectureRecorder.destroy();
 		}
 	}
 
 	private void fireTimeChanged() {
-		Time time = new Time(recorder.getElapsedTime());
+		Time time = new Time(fileLectureRecorder.getElapsedTime());
 
 		context.getEventBus().post(new RecordingTimeEvent(time));
 	}

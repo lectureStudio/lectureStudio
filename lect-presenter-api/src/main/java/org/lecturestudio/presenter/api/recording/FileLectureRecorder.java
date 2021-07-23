@@ -46,7 +46,6 @@ import org.lecturestudio.core.recording.action.StaticShapeAction;
 import org.lecturestudio.core.recording.file.RecordingFileWriter;
 import org.lecturestudio.core.screencapture.ScreenCaptureDocument;
 import org.lecturestudio.core.screencapture.ScreenCaptureFormat;
-import org.lecturestudio.core.screencapture.ScreenCaptureRecorder;
 import org.lecturestudio.core.service.DocumentService;
 import org.lecturestudio.core.util.FileUtils;
 import org.lecturestudio.core.util.ProgressCallback;
@@ -85,11 +84,11 @@ public class FileLectureRecorder extends LectureRecorder {
 
 	private AudioFormat audioFormat;
 
+	private Document recordedDocument;
+
 	private ScreenCaptureRecorder screenCaptureRecorder;
 
 	private ScreenCaptureFormat screenCaptureFormat;
-
-	private Document recordedDocument;
 
 	private int bytesConsumed = 0;
 
@@ -105,6 +104,42 @@ public class FileLectureRecorder extends LectureRecorder {
 
 	public void setPageRecordingTimeout(int timeoutMs) {
 		pageRecordingTimeout = timeoutMs;
+	}
+
+	public void setScreenCaptureFormat(ScreenCaptureFormat format) {
+		screenCaptureFormat = format;
+	}
+
+	public void startScreenCapture() throws ExecutableException {
+		Document document = documentService.getDocuments().getSelectedDocument();
+		if (document != null && document.isScreenCapture()) {
+			ScreenCaptureDocument screenCaptureDocument = document.getScreenCaptureDocument();
+
+			// Create new screen capture recorder if not already exists
+			if (screenCaptureRecorder == null) {
+				try {
+					screenCaptureRecorder = new ScreenCaptureRecorder();
+					screenCaptureRecorder.setScreenCaptureFormat(screenCaptureFormat);
+					screenCaptureRecorder.setBackupFile(new File(backup.getScreenCaptureFile()));
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
+			}
+
+			// Suspend if recorder is currently running
+			if (screenCaptureRecorder.started()) {
+				screenCaptureRecorder.suspend();
+			} else {
+				screenCaptureRecorder.setActiveSource(screenCaptureDocument.getSource(), screenCaptureDocument.getType());
+				screenCaptureRecorder.start();
+			}
+		}
+	}
+
+	public void stopScreenCapture() throws ExecutableException {
+		if (screenCaptureRecorder != null && (screenCaptureRecorder.started() || screenCaptureRecorder.suspended())) {
+			screenCaptureRecorder.stop();
+		}
 	}
 
 	@Subscribe
@@ -156,11 +191,11 @@ public class FileLectureRecorder extends LectureRecorder {
 		if (event.selected()) {
 			addPage(currentPage, 0);
 
-			// Update source of screen capture recorder if needed
-			if (event.getDocument().isScreenCapture()) {
-				ScreenCaptureDocument scd = event.getDocument().getScreenCaptureDocument();
-				screenCaptureRecorder.setActiveSource(scd.getSource(), scd.getType());
-			}
+//			// Update source of screen capture recorder if needed
+//			if (event.getDocument().isScreenCapture()) {
+//				ScreenCaptureDocument scd = event.getDocument().getScreenCaptureDocument();
+//				screenCaptureRecorder.setActiveSource(scd.getSource(), scd.getType());
+//			}
 		}
 	}
 
@@ -223,9 +258,7 @@ public class FileLectureRecorder extends LectureRecorder {
 		}
 	}
 
-	public void setScreenCaptureFormat(ScreenCaptureFormat format) {
-		screenCaptureFormat = format;
-	}
+
 
 	@Override
 	protected void initInternal() {
@@ -327,11 +360,11 @@ public class FileLectureRecorder extends LectureRecorder {
 
 			audioRecorder.start();
 
-			try {
-				screenCaptureRecorder.start();
-			} catch (IOException e) {
-				e.printStackTrace();
-			}
+//			try {
+//				screenCaptureRecorder.start();
+//			} catch (IOException e) {
+//				e.printStackTrace();
+//			}
 		}
 	}
 
@@ -350,13 +383,13 @@ public class FileLectureRecorder extends LectureRecorder {
 				LOG.error("Close audio sink failed", e);
 			}
 		}
-		if (nonNull(screenCaptureRecorder)) {
-			try {
-				screenCaptureRecorder.stop();
-			} catch (IOException e) {
-				LOG.error("Close screen capture recorder failed", e);
-			}
-		}
+//		if (nonNull(screenCaptureRecorder)) {
+//			try {
+//				screenCaptureRecorder.stop();
+//			} catch (IOException e) {
+//				LOG.error("Close screen capture recorder failed", e);
+//			}
+//		}
 
 		backup.close();
 
@@ -367,7 +400,6 @@ public class FileLectureRecorder extends LectureRecorder {
 	protected void suspendInternal() {
 		if (getPreviousState() == ExecutableState.Started) {
 			audioRecorder.pause();
-			screenCaptureRecorder.pause();
 
 			pendingActions.setPendingPage(getLastRecordedPage());
 		}
@@ -383,6 +415,10 @@ public class FileLectureRecorder extends LectureRecorder {
 	@Override
 	protected void fireStateChanged() {
 		ApplicationBus.post(new RecordingStateEvent(getState()));
+	}
+
+	public RecordingBackup getBackup() {
+		return backup;
 	}
 
 	private void addPendingAction(PlaybackAction action) {

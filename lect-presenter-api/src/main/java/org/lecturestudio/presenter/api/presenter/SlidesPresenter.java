@@ -52,14 +52,10 @@ import org.lecturestudio.core.view.*;
 import org.lecturestudio.presenter.api.config.NetworkConfiguration;
 import org.lecturestudio.presenter.api.config.PresenterConfiguration;
 import org.lecturestudio.presenter.api.context.PresenterContext;
-import org.lecturestudio.presenter.api.event.MessengerStateEvent;
-import org.lecturestudio.presenter.api.event.QuizStateEvent;
-import org.lecturestudio.presenter.api.event.ScreenCaptureRecordingStateEvent;
-import org.lecturestudio.presenter.api.event.StreamingStateEvent;
+import org.lecturestudio.presenter.api.event.*;
 import org.lecturestudio.presenter.api.input.Shortcut;
 import org.lecturestudio.presenter.api.pdf.embedded.SlideNoteParser;
 import org.lecturestudio.presenter.api.service.RecordingService;
-import org.lecturestudio.presenter.api.service.ScreenCaptureRecordingService;
 import org.lecturestudio.presenter.api.stylus.StylusHandler;
 import org.lecturestudio.presenter.api.view.PageObjectRegistry;
 import org.lecturestudio.presenter.api.view.SlidesView;
@@ -114,8 +110,6 @@ public class SlidesPresenter extends Presenter<SlidesView> {
 
 	private final RecordingService recordingService;
 
-	private final ScreenCaptureRecordingService screenCaptureRecordingService;
-
 	@Inject
 	SlidesPresenter(ApplicationContext context, SlidesView view,
 			ViewContextFactory viewFactory,
@@ -124,8 +118,7 @@ public class SlidesPresenter extends Presenter<SlidesView> {
 			RenderController renderController,
 			DocumentService documentService,
 			DocumentRecorder documentRecorder,
-			RecordingService recordingService,
-			ScreenCaptureRecordingService screenCaptureRecordingService) {
+			RecordingService recordingService) {
 		super(context, view);
 
 		this.viewFactory = viewFactory;
@@ -135,7 +128,6 @@ public class SlidesPresenter extends Presenter<SlidesView> {
 		this.documentRecorder = documentRecorder;
 		this.documentService = documentService;
 		this.recordingService = recordingService;
-		this.screenCaptureRecordingService = screenCaptureRecordingService;
 		this.eventBus = context.getEventBus();
 		this.shortcutMap = new HashMap<>();
 		this.pageObjectRegistry = new PageObjectRegistry();
@@ -207,6 +199,16 @@ public class SlidesPresenter extends Presenter<SlidesView> {
 	@Subscribe
 	public void onEvent(final ScreenCaptureRecordingStateEvent event) {
 		view.setScreenCaptureRecordingState(event.getState());
+	}
+
+	@Subscribe
+	public void onEvent(final RecordingStateEvent event) {
+		ExecutableState state = event.getState();
+		if (state == ExecutableState.Started) {
+			view.enableScreenCapture(true);
+		} else if (state == ExecutableState.Suspended || state == ExecutableState.Stopped) {
+			view.enableScreenCapture(false);
+		}
 	}
 
 	private void keyEvent(KeyEvent event) {
@@ -303,10 +305,7 @@ public class SlidesPresenter extends Presenter<SlidesView> {
 
 	private void selectDocument(Document doc) {
 		// Stop recording if document is switched.
-		if (screenCaptureRecordingService.started()) {
-			stopScreenCapture();
-		}
-
+		stopScreenCapture();
 		documentService.selectDocument(doc);
 	}
 
@@ -318,7 +317,6 @@ public class SlidesPresenter extends Presenter<SlidesView> {
 				return;
 			case SCREEN_CAPTURE:
 				documentService.createScreenCapturePage();
-//				eventBus.post(new ShowPresenterCommand<>(ScreenCaptureSelectionPresenter.class));
 		}
 	}
 
@@ -347,11 +345,13 @@ public class SlidesPresenter extends Presenter<SlidesView> {
 
 	private void startScreenCapture() {
 		try {
-			if (screenCaptureRecordingService.started()) {
-				screenCaptureRecordingService.suspend();
-			} else {
-				screenCaptureRecordingService.start();
-			}
+			recordingService.startScreenCapture();
+//			ScreenCaptureRecorder recorder = recordingService.getScreenCaptureRecorder();
+//			if (recorder.started()) {
+//				recorder.suspend();
+//			} else {
+//				recorder.start();
+//			}
 		} catch (ExecutableException e) {
 			e.printStackTrace();
 		}
@@ -359,7 +359,7 @@ public class SlidesPresenter extends Presenter<SlidesView> {
 
 	private void stopScreenCapture() {
 		try {
-			screenCaptureRecordingService.stop();
+			recordingService.stopScreenCapture();
 		} catch (ExecutableException e) {
 			e.printStackTrace();
 		}

@@ -31,11 +31,14 @@ public class ScreenCaptureThumbnailPanel extends EditableThumbnailPanel {
     private final RecordButton startRecordingButton;
     private final JButton stopRecordingButton;
 
+    private boolean screenCaptureStarted = false;
+
     public ScreenCaptureThumbnailPanel() {
         super();
 
         // Configure start recording button
         startRecordingButton = new RecordButton();
+        startRecordingButton.setEnabled(false);
         startRecordingButton.setIcon(AwtResourceLoader.getIcon("record-tool.svg", 25));
         startRecordingButton.setBlinkIcon(AwtResourceLoader.getIcon("record-blink-tool.svg", 25));
         startRecordingButton.setPauseIcon(AwtResourceLoader.getIcon("record-pause-tool.svg", 25));
@@ -43,10 +46,11 @@ public class ScreenCaptureThumbnailPanel extends EditableThumbnailPanel {
         startRecordingButton.setContentAreaFilled(false);
         startRecordingButton.setBorderPainted(false);
 
+
         // Configure stop recording button
         stopRecordingButton = new JButton();
-        stopRecordingButton.setIcon(AwtResourceLoader.getIcon("record-stop-tool.svg", 25));
         stopRecordingButton.setEnabled(false);
+        stopRecordingButton.setIcon(AwtResourceLoader.getIcon("record-stop-tool.svg", 25));
         stopRecordingButton.setContentAreaFilled(false);
         stopRecordingButton.setBorderPainted(false);
 
@@ -62,11 +66,16 @@ public class ScreenCaptureThumbnailPanel extends EditableThumbnailPanel {
         SwingUtils.bindAction(stopRecordingButton, action);
     }
 
+    public void enableScreenCapture(boolean canRecord) {
+        startRecordingButton.setEnabled(canRecord);
+        stopRecordingButton.setEnabled(canRecord && screenCaptureStarted);
+    }
+
     public void setRecordingState(ExecutableState state) {
-        boolean started = state == ExecutableState.Started || state == ExecutableState.Suspended;
+        screenCaptureStarted = state == ExecutableState.Started || state == ExecutableState.Suspended;
 
         startRecordingButton.setState(state);
-        stopRecordingButton.setEnabled(started);
+        stopRecordingButton.setEnabled(screenCaptureStarted);
 
         // Update border color of selected preview if recording
         Color borderColor;
@@ -83,7 +92,6 @@ public class ScreenCaptureThumbnailPanel extends EditableThumbnailPanel {
 
         pageRenderer.setSelectedBorderColor(borderColor);
         SwingUtils.invoke(list::repaint);
-
         SwingUtils.invoke(this::repaint);
     }
 }

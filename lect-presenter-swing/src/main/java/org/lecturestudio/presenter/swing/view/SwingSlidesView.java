@@ -115,6 +115,8 @@ public class SwingSlidesView extends JPanel implements SlidesView {
 
 	private ExecutableState recordingState;
 
+	private boolean enableScreenCapture;
+
 	SwingSlidesView() {
 		super();
 	}
@@ -229,6 +231,7 @@ public class SwingSlidesView extends JPanel implements SlidesView {
 					if (thumbnailPanel instanceof ScreenCaptureThumbnailPanel) {
 						ScreenCaptureThumbnailPanel screenCaptureThumbnailPanel = (ScreenCaptureThumbnailPanel) thumbnailPanel;
 						screenCaptureThumbnailPanel.setRecordingState(recordingState);
+						screenCaptureThumbnailPanel.enableScreenCapture(enableScreenCapture);
 					}
 
 					tabPane.setSelectedIndex(i);
@@ -443,6 +446,19 @@ public class SwingSlidesView extends JPanel implements SlidesView {
 			if (thumbPanel instanceof ScreenCaptureThumbnailPanel) {
 				ScreenCaptureThumbnailPanel screenCaptureThumbnailPanel = (ScreenCaptureThumbnailPanel) thumbPanel;
 				screenCaptureThumbnailPanel.setRecordingState(state);
+			}
+		});
+	}
+
+	@Override
+	public void enableScreenCapture(boolean enable) {
+		enableScreenCapture = enable;
+
+		SwingUtils.invoke(() -> {
+			ThumbPanel thumbPanel = (ThumbPanel) tabPane.getSelectedComponent();
+			if (thumbPanel instanceof ScreenCaptureThumbnailPanel) {
+				ScreenCaptureThumbnailPanel screenCaptureThumbnailPanel = (ScreenCaptureThumbnailPanel) thumbPanel;
+				screenCaptureThumbnailPanel.enableScreenCapture(enable);
 			}
 		});
 	}

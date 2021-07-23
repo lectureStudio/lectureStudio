@@ -211,7 +211,7 @@ public class RecordingBackup {
 		Path dir = Paths.get(backupDir);
 		
 		// Read the recording directory by filtering the required extensions.
-		try (DirectoryStream<Path> stream = Files.newDirectoryStream(dir, "*.{dat,pdf,wav}")) {
+		try (DirectoryStream<Path> stream = Files.newDirectoryStream(dir, "*.{capture,dat,pdf,wav}")) {
 			for (Path entry : stream) {
 				Files.deleteIfExists(entry);
 			}

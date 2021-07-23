@@ -516,10 +516,12 @@ public class Document {
 	protected synchronized Page importPage(Page page, Rectangle2D pageRect)
 			throws IOException {
 
-		int pageIndex;
+		int pageIndex = -1;
 		if (isScreenCapture()) {
 			ScreenCaptureDocument screenCaptureDocument = page.getDocument().getScreenCaptureDocument();
-			pageIndex = screenCaptureDocument.importPage(screenCaptureDocument, page.getPageNumber(), pageRect);
+			if (screenCaptureDocument != null) {
+				pageIndex = screenCaptureDocument.importPage(screenCaptureDocument, page.getPageNumber(), pageRect);
+			}
 		}
 		else {
 			PdfDocument pagePdfDocument = page.getDocument().getPdfDocument();

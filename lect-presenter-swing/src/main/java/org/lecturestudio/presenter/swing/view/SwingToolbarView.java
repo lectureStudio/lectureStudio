@@ -36,6 +36,7 @@ import javax.swing.JToggleButton;
 import javax.swing.JToolBar;
 
 import org.lecturestudio.core.ExecutableState;
+import org.lecturestudio.core.beans.BooleanProperty;
 import org.lecturestudio.core.graphics.Color;
 import org.lecturestudio.core.model.Document;
 import org.lecturestudio.core.model.Page;
@@ -135,6 +136,10 @@ public class SwingToolbarView extends JToolBar implements ToolbarView {
 
 	private JButton stopRecordingButton;
 
+	private JToggleButton streamMicButton;
+
+	private JToggleButton streamCamButton;
+
 
 	SwingToolbarView() {
 		super();
@@ -200,6 +205,17 @@ public class SwingToolbarView extends JToolBar implements ToolbarView {
 
 			startRecordingButton.setState(state);
 			stopRecordingButton.setEnabled(started);
+		});
+	}
+
+	@Override
+	public void setStreamingState(ExecutableState state) {
+		SwingUtils.invoke(() -> {
+			boolean started = state == ExecutableState.Started ||
+					state == ExecutableState.Suspended;
+
+			streamMicButton.setEnabled(started);
+			streamCamButton.setEnabled(started);
 		});
 	}
 
@@ -441,6 +457,16 @@ public class SwingToolbarView extends JToolBar implements ToolbarView {
 				}
 			}
 		});
+	}
+
+	@Override
+	public void bindEnableStreamMicrophone(BooleanProperty enable) {
+		SwingUtils.bindBidirectional(streamMicButton, enable);
+	}
+
+	@Override
+	public void bindEnableStreamCamera(BooleanProperty enable) {
+		SwingUtils.bindBidirectional(streamCamButton, enable);
 	}
 
 	private void setButtonColor(AbstractButton button, Paint paint) {

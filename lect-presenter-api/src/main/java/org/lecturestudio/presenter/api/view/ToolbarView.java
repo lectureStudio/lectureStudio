@@ -19,6 +19,7 @@
 package org.lecturestudio.presenter.api.view;
 
 import org.lecturestudio.core.ExecutableState;
+import org.lecturestudio.core.beans.BooleanProperty;
 import org.lecturestudio.core.graphics.Color;
 import org.lecturestudio.core.model.Document;
 import org.lecturestudio.core.model.Page;
@@ -41,6 +42,8 @@ public interface ToolbarView extends View {
 	void setPresentationViewsVisible(boolean viewsVisible);
 
 	void setRecordingState(ExecutableState state);
+
+	void setStreamingState(ExecutableState state);
 
 	void showRecordNotification(boolean show);
 
@@ -113,5 +116,9 @@ public interface ToolbarView extends View {
 	void selectColorButton(ToolType toolType, PaintSettings settings);
 
 	void selectToolButton(ToolType toolType);
+
+	void bindEnableStreamMicrophone(BooleanProperty enable);
+
+	void bindEnableStreamCamera(BooleanProperty enable);
 
 }

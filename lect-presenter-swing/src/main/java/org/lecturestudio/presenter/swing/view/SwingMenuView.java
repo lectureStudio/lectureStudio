@@ -111,6 +111,8 @@ public class SwingMenuView extends JMenuBar implements MenuView {
 
 	private JMenuItem stopStreamingMenuItem;
 
+	private JCheckBoxMenuItem enableStreamingMicrophoneMenuItem;
+
 	private JCheckBoxMenuItem enableStreamingCameraMenuItem;
 
 	private JMenuItem startMessengerMenuItem;
@@ -341,6 +343,11 @@ public class SwingMenuView extends JMenuBar implements MenuView {
 	}
 
 	@Override
+	public void bindEnableStreamingMicrophone(BooleanProperty enable) {
+		SwingUtils.bindBidirectional(enableStreamingMicrophoneMenuItem, enable);
+	}
+
+	@Override
 	public void bindEnableStreamingCamera(BooleanProperty enable) {
 		SwingUtils.bindBidirectional(enableStreamingCameraMenuItem, enable);
 	}
@@ -426,6 +433,7 @@ public class SwingMenuView extends JMenuBar implements MenuView {
 		SwingUtils.invoke(() -> {
 			startStreamingMenuItem.setEnabled(!started);
 			stopStreamingMenuItem.setEnabled(started);
+			enableStreamingMicrophoneMenuItem.setEnabled(started);
 			enableStreamingCameraMenuItem.setEnabled(started);
 
 			setIndicatorState(streamIndicatorMenu, state);

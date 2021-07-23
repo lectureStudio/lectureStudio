@@ -281,7 +281,7 @@ public class WebRtcStreamService extends ExecutableBase {
 		iceServer.urls.add(streamStunServers);
 
 		WebRtcConfiguration webRtcConfig = new WebRtcConfiguration();
-		webRtcConfig.getAudioConfiguration().setSendAudio(true);
+		webRtcConfig.getAudioConfiguration().setSendAudio(streamConfig.getMicrophoneEnabled());
 		webRtcConfig.getAudioConfiguration().setRecordingDevice(audioCaptureDevice);
 
 		webRtcConfig.getVideoConfiguration().setSendVideo(streamConfig.getCameraEnabled());
@@ -297,6 +297,10 @@ public class WebRtcStreamService extends ExecutableBase {
 		webRtcConfig.getRTCConfig().iceServers.add(iceServer);
 
 		webRtcConfig.setCourse(streamConfig.getCourse());
+
+		streamConfig.enableMicrophoneProperty().addListener((o, oldValue, newValue) -> {
+			webRtcConfig.getAudioConfiguration().setSendAudio(newValue);
+		});
 
 		return webRtcConfig;
 	}

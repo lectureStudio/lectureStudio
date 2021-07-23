@@ -42,6 +42,8 @@ public class StreamConfiguration {
 
 	private final VideoCodecConfiguration cameraCodecConfig = new VideoCodecConfiguration();
 
+	private final BooleanProperty enableMicrophone = new BooleanProperty();
+
 	private final BooleanProperty enableCamera = new BooleanProperty();
 
 
@@ -146,6 +148,18 @@ public class StreamConfiguration {
 	 */
 	public VideoCodecConfiguration getCameraCodecConfig() {
 		return cameraCodecConfig;
+	}
+
+	public BooleanProperty enableMicrophoneProperty() {
+		return enableMicrophone;
+	}
+
+	public boolean getMicrophoneEnabled() {
+		return enableMicrophone.get();
+	}
+
+	public void setMicrophoneEnabled(boolean enabled) {
+		enableMicrophone.set(enabled);
 	}
 
 	public BooleanProperty enableCameraProperty() {

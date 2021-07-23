@@ -644,6 +644,7 @@ public class MenuPresenter extends Presenter<MenuView> {
 		view.setOnStopRecording(this::stopRecording);
 		view.setOnStartStreaming(this::startStreaming);
 		view.setOnStopStreaming(this::stopStreaming);
+		view.bindEnableStreamingMicrophone(config.getStreamConfig().enableMicrophoneProperty());
 		view.bindEnableStreamingCamera(config.getStreamConfig().enableCameraProperty());
 		view.setOnStartMessenger(this::startMessenger);
 		view.setOnStopMessenger(this::stopMessenger);

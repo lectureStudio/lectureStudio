@@ -114,6 +114,12 @@ public class JanusPeerConnection implements PeerConnectionObserver {
 		this.executor = executor;
 		this.queuedRemoteCandidates = new ArrayList<>();
 
+		config.getAudioConfiguration().sendAudioProperty()
+				.addListener((observable, oldValue, newValue) -> {
+					execute(() -> {
+						setMicrophoneActive(newValue);
+					});
+				});
 		config.getVideoConfiguration().sendVideoProperty()
 				.addListener((observable, oldValue, newValue) -> {
 					execute(() -> {
@@ -277,24 +283,6 @@ public class JanusPeerConnection implements PeerConnectionObserver {
 		}
 	}
 
-	public void setDesktopActive(boolean active) {
-		RTCRtpSender[] senders = peerConnection.getSenders();
-
-		if (nonNull(senders)) {
-			for (RTCRtpSender sender : senders) {
-				MediaStreamTrack track = sender.getTrack();
-
-				if (track.getKind().equals(MediaStreamTrack.VIDEO_TRACK_KIND) &&
-					track.getId().equals("desktopTrack")) {
-					track.setEnabled(active);
-
-					LOGGER.log(Level.INFO, "Track \"{0}\" set enabled to \"{1}\"",
-							track.getId(), active);
-				}
-			}
-		}
-	}
-
 	public void setMicrophoneActive(boolean active) {
 		RTCRtpSender[] senders = peerConnection.getSenders();
 
@@ -303,23 +291,6 @@ public class JanusPeerConnection implements PeerConnectionObserver {
 				MediaStreamTrack track = sender.getTrack();
 
 				if (track.getKind().equals(MediaStreamTrack.AUDIO_TRACK_KIND)) {
-					track.setEnabled(active);
-
-					LOGGER.log(Level.INFO, "Track \"{0}\" set enabled to \"{1}\"",
-							track.getId(), active);
-				}
-			}
-		}
-	}
-
-	public void setCameraActive(boolean active) {
-		RTCRtpSender[] senders = peerConnection.getSenders();
-
-		if (nonNull(senders)) {
-			for (RTCRtpSender sender : senders) {
-				MediaStreamTrack track = sender.getTrack();
-
-				if (track.getKind().equals(MediaStreamTrack.VIDEO_TRACK_KIND)) {
 					track.setEnabled(active);
 
 					LOGGER.log(Level.INFO, "Track \"{0}\" set enabled to \"{1}\"",
@@ -397,6 +368,9 @@ public class JanusPeerConnection implements PeerConnectionObserver {
 
 			if (nonNull(track) && track.getKind().equals(MediaStreamTrack.AUDIO_TRACK_KIND)) {
 				transceiver.setDirection(direction);
+
+				// Initialize with desired mute setting.
+				track.setEnabled(config.getAudioConfiguration().getSendAudio());
 				break;
 			}
 		}

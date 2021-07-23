@@ -34,6 +34,7 @@
 		<separator />
 		<menuitem id="startStreamingMenuItem" text="menu.streaming.start" enabled="false" />
 		<menuitem id="stopStreamingMenuItem" text="menu.streaming.stop" enabled="false" />
+		<checkboxmenuitem id="enableStreamingMicrophoneMenuItem" text="menu.streaming.enable.microphone" type="checkbox" selected="true" enabled="false" />
 		<checkboxmenuitem id="enableStreamingCameraMenuItem" text="menu.streaming.enable.camera" type="checkbox" selected="true" enabled="false" />
 		<separator />
 		<menuitem id="startMessengerMenuItem" text="menu.messenger.start" enabled="false" />

@@ -108,6 +108,8 @@ public interface MenuView extends View {
 
 	void setOnStopStreaming(Action action);
 
+	void bindEnableStreamingMicrophone(BooleanProperty enable);
+
 	void bindEnableStreamingCamera(BooleanProperty enable);
 
 	void setOnStartMessenger(Action action);

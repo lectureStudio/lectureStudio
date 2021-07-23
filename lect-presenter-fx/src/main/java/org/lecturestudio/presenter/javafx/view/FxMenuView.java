@@ -401,6 +401,11 @@ public class FxMenuView extends HBox implements MenuView {
 	}
 
 	@Override
+	public void bindEnableStreamingMicrophone(BooleanProperty enable) {
+
+	}
+
+	@Override
 	public void bindEnableStreamingCamera(BooleanProperty enable) {
 
 	}

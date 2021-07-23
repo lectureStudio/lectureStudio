@@ -52,6 +52,7 @@ import org.lecturestudio.core.view.PresentationParameterProvider;
 import org.lecturestudio.core.view.ViewType;
 import org.lecturestudio.presenter.api.config.PresenterConfiguration;
 import org.lecturestudio.presenter.api.event.RecordingStateEvent;
+import org.lecturestudio.presenter.api.event.StreamingStateEvent;
 import org.lecturestudio.presenter.api.service.RecordingService;
 import org.lecturestudio.presenter.api.view.ToolbarView;
 
@@ -129,6 +130,11 @@ public class ToolbarPresenter extends Presenter<ToolbarView> {
 		view.setRecordingState(event.getState());
 
 		recordNotifyState.setRecordingState(event.getState());
+	}
+
+	@Subscribe
+	public void onEvent(final StreamingStateEvent event) {
+		view.setStreamingState(event.getState());
 	}
 
 	@Subscribe
@@ -353,11 +359,14 @@ public class ToolbarPresenter extends Presenter<ToolbarView> {
 
 	@Override
 	public void initialize() {
+		PresenterConfiguration config = (PresenterConfiguration) context.getConfiguration();
+
 		eventBus.register(this);
 
 		view.setScreensAvailable(presentationController.getScreensAvailable());
 		view.setPresentationViewsVisible(presentationController.getPresentationViewsVisible());
 		view.setRecordingState(ExecutableState.Stopped);
+		view.setStreamingState(ExecutableState.Stopped);
 
 		view.setOnUndo(this::undo);
 		view.setOnRedo(this::redo);
@@ -396,6 +405,9 @@ public class ToolbarPresenter extends Presenter<ToolbarView> {
 
 		view.setOnStartRecording(this::startRecording);
 		view.setOnStopRecording(this::stopRecording);
+
+		view.bindEnableStreamMicrophone(config.getStreamConfig().enableMicrophoneProperty());
+		view.bindEnableStreamCamera(config.getStreamConfig().enableCameraProperty());
 
 		// Register for page parameter change updates.
 		PresentationParameterProvider ppProvider = context.getPagePropertyPropvider(ViewType.User);

@@ -56,9 +56,10 @@ public class ScreenCaptureRecorder {
         return stream;
     }
 
-    public void start() throws IOException {
+    public boolean start() throws IOException {
         if (state == ExecutableState.Started || !initialized) {
-            return;
+            System.out.println("Screen Capture is already running or not initialized.");
+            return false;
         }
 
         System.out.println("Start recording of screen capture");
@@ -73,28 +74,34 @@ public class ScreenCaptureRecorder {
         captureTask.start();
 
         state = ExecutableState.Started;
+
+        return true;
     }
 
-    public void pause() {
+    public boolean pause() {
         if (state != ExecutableState.Started) {
-            return;
+            return false;
         }
 
         captureTask.stop();
         processor.stop(false);
 
         state = ExecutableState.Suspended;
+
+        return true;
     }
 
-    public void stop() throws IOException {
+    public boolean stop() throws IOException {
         if (state == ExecutableState.Stopped) {
-            return;
+            return false;
         }
 
         captureTask.stop();
         processor.stop(true);
 
         state = ExecutableState.Stopped;
+
+        return true;
     }
 
     public void setScreenCaptureFormat(ScreenCaptureFormat format) {

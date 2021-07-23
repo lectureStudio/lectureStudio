@@ -22,6 +22,7 @@ import org.lecturestudio.core.ExecutableBase;
 import org.lecturestudio.core.ExecutableState;
 import org.lecturestudio.core.app.ApplicationContext;
 import org.lecturestudio.core.bus.ApplicationBus;
+import org.lecturestudio.core.model.Document;
 import org.lecturestudio.core.screencapture.ScreenCaptureRecorder;
 import org.lecturestudio.presenter.api.context.PresenterContext;
 import org.lecturestudio.presenter.api.event.ScreenCaptureRecordingStateEvent;
@@ -32,32 +33,35 @@ import javax.inject.Singleton;
 import java.io.File;
 import java.io.IOException;
 
+import static java.util.Objects.nonNull;
+
 @Singleton
 public class ScreenCaptureRecordingService extends ExecutableBase {
 
+    private final ApplicationContext context;
+
+    private RecordingBackup backup;
     private ScreenCaptureRecorder recorder;
 
     @Inject
     public ScreenCaptureRecordingService(ApplicationContext context) {
+        this.context = context;
+
         if (context instanceof PresenterContext) {
             PresenterContext presenterContext = (PresenterContext) context;
+
             try {
-                RecordingBackup backup = new RecordingBackup(presenterContext.getRecordingDirectory());
-                recorder = new ScreenCaptureRecorder(new File(backup.getScreenCaptureFile()));
+                backup = new RecordingBackup(presenterContext.getRecordingDirectory());
             } catch (IOException e) {
                 e.printStackTrace();
             }
-        }
-
-        if (recorder == null) {
-            throw new RuntimeException("Failed to initialize ScreenCaptureRecordingService.");
+        } else {
+            throw new RuntimeException("PresenterContext required to initialize ScreenCaptureRecordingService.");
         }
     }
 
     @Override
-    protected void initInternal() {
-
-    }
+    protected void initInternal() {}
 
     @Override
     protected void startInternal() {
@@ -66,15 +70,36 @@ public class ScreenCaptureRecordingService extends ExecutableBase {
         if (prevState == ExecutableState.Initialized || prevState == ExecutableState.Stopped) {
             System.out.println("Start Screen Capture");
 
-//            try {
-//                recorder.start();
-//            } catch (IOException e) {
-//                e.printStackTrace();
-//            }
+            backup.open();
+
+            try {
+                // Stop previously running screen capture recorder if exists
+                if (nonNull(recorder)) {
+                    recorder.stop();
+                }
+
+                recorder = new ScreenCaptureRecorder(new File(backup.getScreenCaptureFile()));
+                recorder.setScreenCaptureFormat(context.getConfiguration().getScreenCaptureConfig().getRecordingFormat());
+
+                // Configure desktop source for recorder if currently selected document is screen capture
+                Document document = context.getDocumentService().getDocuments().getSelectedDocument();
+                if (document != null && document.isScreenCapture()) {
+                    recorder.setActiveSource(document.getScreenCaptureDocument().getSource(), document.getScreenCaptureDocument().getType());
+                }
+
+                recorder.start();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
         }
         else if (prevState == ExecutableState.Suspended) {
             System.out.println("Continue Screen Capture");
 
+            try {
+                recorder.start();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
         }
     }
 
@@ -83,7 +108,7 @@ public class ScreenCaptureRecordingService extends ExecutableBase {
         if (getPreviousState() == ExecutableState.Started) {
             System.out.println("Suspend Screen Capture");
 
-            // recorder.pause();
+            recorder.pause();
         }
     }
 
@@ -91,17 +116,17 @@ public class ScreenCaptureRecordingService extends ExecutableBase {
     protected void stopInternal() {
         System.out.println("Stop Screen Capture");
 
-//        try {
-//            recorder.stop();
-//        } catch (IOException e) {
-//            e.printStackTrace();
-//        }
+        try {
+            recorder.stop();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        backup.close();
     }
 
     @Override
-    protected void destroyInternal() {
-
-    }
+    protected void destroyInternal() {}
 
     @Override
     protected void fireStateChanged() {

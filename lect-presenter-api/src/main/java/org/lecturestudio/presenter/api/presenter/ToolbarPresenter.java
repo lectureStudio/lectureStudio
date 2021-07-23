@@ -27,6 +27,7 @@ import javax.inject.Inject;
 import org.lecturestudio.core.ExecutableException;
 import org.lecturestudio.core.ExecutableState;
 import org.lecturestudio.core.app.ApplicationContext;
+import org.lecturestudio.core.app.configuration.ToolConfiguration;
 import org.lecturestudio.core.audio.AudioDeviceNotConnectedException;
 import org.lecturestudio.core.bus.EventBus;
 import org.lecturestudio.core.bus.event.DocumentEvent;
@@ -361,6 +362,8 @@ public class ToolbarPresenter extends Presenter<ToolbarView> {
 	public void initialize() {
 		PresenterConfiguration config = (PresenterConfiguration) context.getConfiguration();
 
+		ToolConfiguration toolConfig = context.getConfiguration().getToolConfig();
+
 		eventBus.register(this);
 
 		view.setScreensAvailable(presentationController.getScreensAvailable());
@@ -381,13 +384,20 @@ public class ToolbarPresenter extends Presenter<ToolbarView> {
 		view.setOnColor6(this::color6);
 
 		view.setOnPenTool(this::penTool);
+		view.setPenToolWidth(toolConfig.getPenSettings().widthProperty());
 		view.setOnHighlighterTool(this::highlighterTool);
+		view.setHighlighterToolWidth(toolConfig.getHighlighterSettings().widthProperty());
 		view.setOnPointerTool(this::pointerTool);
+		view.setPointerToolWidth(toolConfig.getPointerSettings().widthProperty());
 		view.setOnTextSelectTool(this::textSelectTool);
 		view.setOnLineTool(this::lineTool);
+		view.setLineToolWidth(toolConfig.getLineSettings().widthProperty());
 		view.setOnArrowTool(this::arrowTool);
+		view.setArrowToolWidth(toolConfig.getArrowSettings().widthProperty());
 		view.setOnRectangleTool(this::rectangleTool);
+		view.setRectangleToolWidth(toolConfig.getRectangleSettings().widthProperty());
 		view.setOnEllipseTool(this::ellipseTool);
+		view.setEllipseToolWidth(toolConfig.getEllipseSettings().widthProperty());
 		view.setOnSelectTool(this::selectTool);
 		view.setOnEraseTool(this::eraseTool);
 		view.setOnTextTool(this::textTool);

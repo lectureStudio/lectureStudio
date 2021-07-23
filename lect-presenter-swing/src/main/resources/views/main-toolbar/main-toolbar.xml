@@ -10,14 +10,14 @@
 	<ToggleButton id="colorButton4" accelerator="F5" name="colorGroup" />
 	<ToggleButton id="colorButton5" accelerator="F6" name="colorGroup" />
 	<Separator />
-	<ToggleButton id="penButton" accelerator="P" icon="pen-tool.svg, 30" tooltipText="toolbar.pen.tooltip" tool="PEN" name="toolGroup" />
-	<ToggleButton id="highlighterButton" accelerator="H" icon="highlighter-tool.svg, 30" tooltipText="toolbar.highlighter.tooltip" tool="HIGHLIGHTER" name="toolGroup" />
-	<ToggleButton id="pointerButton" accelerator="A" icon="pointer-tool.svg, 30" tooltipText="toolbar.pointer.tooltip" tool="POINTER" name="toolGroup" />
+	<ToolWidthPickerButton id="penButton" accelerator="P" icon="pen-tool.svg, 30" tooltipText="toolbar.pen.tooltip" tool="PEN" name="toolGroup" />
+	<ToolWidthPickerButton id="highlighterButton" accelerator="H" icon="highlighter-tool.svg, 30" tooltipText="toolbar.highlighter.tooltip" tool="HIGHLIGHTER" name="toolGroup" />
+	<ToolWidthPickerButton id="pointerButton" accelerator="A" icon="pointer-tool.svg, 30" tooltipText="toolbar.pointer.tooltip" tool="POINTER" name="toolGroup" />
 	<ToggleButton id="textSelectButton" accelerator="S" icon="text-select-tool.svg, 30" tooltipText="toolbar.text.select.tooltip" tool="TEXT_SELECTION" name="toolGroup" />
-	<ToggleButton id="lineButton" accelerator="I" icon="line-tool.svg, 30" tooltipText="toolbar.line.tooltip" tool="LINE" name="toolGroup" />
-	<ToggleButton id="arrowButton" accelerator="W" icon="arrow-tool.svg, 30" tooltipText="toolbar.arrow.tooltip" tool="ARROW" name="toolGroup" />
-	<ToggleButton id="rectangleButton" accelerator="R" icon="rectangle-tool.svg, 30" tooltipText="toolbar.rectangle.tooltip" tool="RECTANGLE" name="toolGroup" />
-	<ToggleButton id="ellipseButton" accelerator="C" icon="ellipse-tool.svg, 30" tooltipText="toolbar.ellipse.tooltip" tool="ELLIPSE" name="toolGroup" />
+	<ToolWidthPickerButton id="lineButton" accelerator="I" icon="line-tool.svg, 30" tooltipText="toolbar.line.tooltip" tool="LINE" name="toolGroup" />
+	<ToolWidthPickerButton id="arrowButton" accelerator="W" icon="arrow-tool.svg, 30" tooltipText="toolbar.arrow.tooltip" tool="ARROW" name="toolGroup" />
+	<ToolWidthPickerButton id="rectangleButton" accelerator="R" icon="rectangle-tool.svg, 30" tooltipText="toolbar.rectangle.tooltip" tool="RECTANGLE" name="toolGroup" />
+	<ToolWidthPickerButton id="ellipseButton" accelerator="C" icon="ellipse-tool.svg, 30" tooltipText="toolbar.ellipse.tooltip" tool="ELLIPSE" name="toolGroup" />
 	<ToolGroupButton id="selectButton" accelerator="O" copyIcon="clone-tool.svg, 30" selectIcon="select-tool.svg, 30" selectGroupIcon="select-group-tool.svg, 30" tooltipText="toolbar.select.tooltip" tool="SELECT, SELECT_GROUP, CLONE" name="toolGroup" />
 	<ToggleButton id="eraseButton" accelerator="E" icon="rubber-tool.svg, 30" tooltipText="toolbar.erase.tooltip" tool="RUBBER" name="toolGroup" />
 	<FontPickerButton id="textButton" accelerator="T" icon="text-tool.svg, 30" tooltipText="toolbar.text.tooltip" tool="TEXT" name="toolGroup" />

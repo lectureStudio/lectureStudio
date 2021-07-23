@@ -105,6 +105,9 @@ public class ToggleComboButton<T> extends JToggleButton {
 			@Override
 			public void mouseClicked(MouseEvent e) {
 				if (nonNull(content)) {
+					if (!popup.isEnabled()){
+						return;
+					}
 					if (popup.isVisible()) {
 						hidePopup();
 					}
@@ -166,6 +169,12 @@ public class ToggleComboButton<T> extends JToggleButton {
 	public void setEnabled(boolean enabled) {
 		if (nonNull(content)) {
 			content.setEnabled(enabled);
+		}
+		if (nonNull(popup)) {
+			popup.setEnabled(enabled);
+		}
+		if (nonNull(iconLabel)) {
+			iconLabel.setEnabled(enabled);
 		}
 
 		super.setEnabled(enabled);

@@ -147,6 +147,10 @@ public class ToolController extends Controller implements ToolContext {
 		toolConfig.getPenSettings().widthProperty().addListener((observable, oldValue, newValue) -> penSettings.setWidth(newValue));
 		toolConfig.getHighlighterSettings().widthProperty().addListener((observable, oldValue, newValue) -> highlighterSettings.setWidth(newValue));
 		toolConfig.getPointerSettings().widthProperty().addListener((observable, oldValue, newValue) -> pointerSettings.setWidth(newValue));
+		toolConfig.getArrowSettings().widthProperty().addListener((observable, oldValue, newValue) -> arrowSettings.setWidth(newValue));
+		toolConfig.getLineSettings().widthProperty().addListener((observable, oldValue, newValue) -> lineSettings.setWidth(newValue));
+		toolConfig.getRectangleSettings().widthProperty().addListener((observable, oldValue, newValue) -> rectangleSettings.setWidth(newValue));
+		toolConfig.getEllipseSettings().widthProperty().addListener((observable, oldValue, newValue) -> ellipseSettings.setWidth(newValue));
 
 		paintSettings = new HashMap<>();
 		paintSettings.put(ToolType.PEN, penSettings);

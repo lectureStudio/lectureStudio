@@ -21,6 +21,7 @@ package org.lecturestudio.swing.components;
 import static java.util.Objects.nonNull;
 
 import java.awt.BorderLayout;
+import java.awt.CardLayout;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.Dimension;
@@ -31,20 +32,30 @@ import java.awt.Point;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.ResourceBundle;
 
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
 import javax.swing.JComponent;
-import javax.swing.JLabel;
 import javax.swing.JPanel;
-import javax.swing.JSlider;
 import javax.swing.SwingUtilities;
 import javax.swing.border.Border;
 import javax.swing.border.EmptyBorder;
 import javax.swing.border.LineBorder;
 
 import org.lecturestudio.core.tool.Stroke;
+import org.lecturestudio.core.tool.ToolType;
+import org.lecturestudio.swing.components.previews.ArrowToolPreview;
+import org.lecturestudio.swing.components.previews.EllipseToolPreview;
+import org.lecturestudio.swing.components.previews.LineToolPreview;
+import org.lecturestudio.swing.components.previews.PenToolPreview;
+import org.lecturestudio.swing.components.previews.PointerToolPreview;
+import org.lecturestudio.swing.components.previews.RectangleToolPreview;
+import org.lecturestudio.swing.components.previews.TeXToolPreview;
+import org.lecturestudio.swing.components.previews.TextToolPreview;
+import org.lecturestudio.swing.components.previews.ToolPreview;
 import org.lecturestudio.swing.converter.ColorConverter;
 
 public class ToolColorChooser extends JPanel {
@@ -53,9 +64,9 @@ public class ToolColorChooser extends JPanel {
 
 	private ColorBox selectedLabel;
 
-	private JSlider toolWidthSlider;
+	private JPanel toolPreviewPanel;
 
-	private PenToolPreview toolPreview;
+	private Map<ToolType, ToolPreview> toolPreviewMap;
 
 	private HsbChooser hsbChooser;
 
@@ -64,6 +75,8 @@ public class ToolColorChooser extends JPanel {
 	private JButton cancelButton;
 
 	private Stroke stroke;
+
+	private ToolType toolType;
 
 
 	public ToolColorChooser(ResourceBundle resources) {
@@ -78,10 +91,15 @@ public class ToolColorChooser extends JPanel {
 
 		Color color = ColorConverter.INSTANCE.to(stroke.getColor());
 
-		toolPreview.setColor(color);
-		hsbChooser.setColor(color);
+		ToolPreview toolPreview = toolPreviewMap.get(toolType);
 
-		toolWidthSlider.setValue((int) stroke.getWidth());
+		if (nonNull(toolPreview)) {
+			toolPreview.setColor(color);
+		} else {
+			toolPreviewMap.get(null).setColor(color);
+		}
+
+		hsbChooser.setColor(color);
 
 		if (selectLabel) {
 			for (Component c : presetPanel.getComponents()) {
@@ -114,19 +132,9 @@ public class ToolColorChooser extends JPanel {
 				BorderFactory.createLineBorder(Color.lightGray),
 				BorderFactory.createEmptyBorder(10, 10, 10, 10)));
 
-		toolWidthSlider = new JSlider(JSlider.HORIZONTAL);
-		toolWidthSlider.setSnapToTicks(true);
-		toolWidthSlider.setMinimum(1);
-		toolWidthSlider.setMaximum(30);
-		toolWidthSlider.setMinorTickSpacing(1);
-		toolWidthSlider.setMajorTickSpacing(2);
-		toolWidthSlider.addChangeListener(e -> {
-			stroke.setWidth(toolWidthSlider.getValue());
-			toolPreview.setWidth(toolWidthSlider.getValue());
-		});
+		toolPreviewPanel = new JPanel(new CardLayout());
 
-		toolPreview = new PenToolPreview();
-		toolPreview.setPreferredSize(new Dimension(200, 80));
+		initializeToolPreviewMap();
 
 		hsbChooser = new HsbChooser();
 		hsbChooser.addChangeListener(e -> {
@@ -150,9 +158,7 @@ public class ToolColorChooser extends JPanel {
 
 		JPanel toolPanel = new JPanel();
 		toolPanel.setLayout(new BorderLayout(5, 5));
-		toolPanel.add(new JLabel(dict.getString("toolbar.paint.size")), BorderLayout.NORTH);
-		toolPanel.add(toolWidthSlider, BorderLayout.CENTER);
-		toolPanel.add(toolPreview, BorderLayout.SOUTH);
+		toolPanel.add(toolPreviewPanel, BorderLayout.SOUTH);
 
 		JPanel buttonPanel = new JPanel();
 		buttonPanel.setLayout(new FlowLayout(FlowLayout.RIGHT));
@@ -182,7 +188,68 @@ public class ToolColorChooser extends JPanel {
 		add(buttonPanel, BorderLayout.SOUTH);
 	}
 
+	private void initializeToolPreviewMap() {
+		toolPreviewMap = new HashMap<>();
 
+		toolPreviewMap.put(null, new PenToolPreview());
+		toolPreviewMap.put(ToolType.PEN, new PenToolPreview());
+		toolPreviewMap.put(ToolType.HIGHLIGHTER, new PenToolPreview());
+		toolPreviewMap.put(ToolType.POINTER, new PointerToolPreview());
+		toolPreviewMap.put(ToolType.LINE, new LineToolPreview());
+		toolPreviewMap.put(ToolType.ARROW, new ArrowToolPreview());
+		toolPreviewMap.put(ToolType.RECTANGLE, new RectangleToolPreview());
+		toolPreviewMap.put(ToolType.ELLIPSE, new EllipseToolPreview());
+		toolPreviewMap.put(ToolType.TEXT, new TextToolPreview());
+		toolPreviewMap.put(ToolType.LATEX, new TeXToolPreview());
+
+		initializeTool(null, 15f);
+		initializeTool(ToolType.PEN, 15f);
+		initializeTool(ToolType.HIGHLIGHTER, 15f);
+		initializeTool(ToolType.POINTER, 10f);
+		initializeTool(ToolType.LINE, 8f);
+		initializeTool(ToolType.ARROW, 6f);
+		initializeTool(ToolType.RECTANGLE, 8f);
+		initializeTool(ToolType.ELLIPSE, 8f);
+		initializeTool(ToolType.TEXT, 35f);
+		initializeTool(ToolType.LATEX, 25f);
+	}
+
+	private void initializeTool(ToolType toolType, float width) {
+		ToolPreview toolPreview = toolPreviewMap.get(toolType);
+		toolPreview.setPreferredSize(new Dimension(200, 80));
+		toolPreview.setWidth(width);
+
+		if (nonNull(toolType)) {
+			toolPreviewPanel.add(toolPreview, toolType.toString());
+		} else {
+			toolPreviewPanel.add(toolPreview, "");
+		}
+	}
+
+	/**
+	 * Set the selected tool type and display the corresponding tool preview.
+	 *
+	 * @param toolType The tool type.
+	 */
+	public void setToolType(ToolType toolType) {
+		if (this.toolType == toolType) {
+			return;
+		}
+		this.toolType = toolType;
+		if (nonNull(selectedLabel)) {
+			selectedLabel.select(false);
+			selectedLabel = null;
+		}
+
+		// Display the tool preview of the selected tool.
+		CardLayout toolPreviewPanelLayout = (CardLayout) toolPreviewPanel.getLayout();
+		ToolPreview toolPreview = toolPreviewMap.get(toolType);
+		if (nonNull(toolPreview)) {
+			toolPreviewPanelLayout.show(toolPreviewPanel, toolType.toString());
+		} else {
+			toolPreviewPanelLayout.show(toolPreviewPanel, "");
+		}
+	}
 
 	private class ColorBox extends JComponent {
 

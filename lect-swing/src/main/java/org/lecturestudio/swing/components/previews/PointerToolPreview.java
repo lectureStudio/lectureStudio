@@ -16,13 +16,11 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package org.lecturestudio.swing.components;
+package org.lecturestudio.swing.components.previews;
 
 import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
-
-import javax.swing.JComponent;
 
 import org.lecturestudio.core.geometry.PenPoint2D;
 import org.lecturestudio.core.model.shape.PointerShape;
@@ -30,7 +28,7 @@ import org.lecturestudio.core.tool.Stroke;
 import org.lecturestudio.swing.renderer.PointerRenderer;
 import org.lecturestudio.swing.converter.ColorConverter;
 
-public class PointerToolPreview extends JComponent {
+public class PointerToolPreview extends ToolPreview {
 
 	private final PointerRenderer renderer;
 
@@ -42,13 +40,15 @@ public class PointerToolPreview extends JComponent {
 		pointerShape = new PointerShape(new Stroke());
 	}
 
+	@Override
 	public void setColor(Color color) {
 		pointerShape.getStroke().setColor(ColorConverter.INSTANCE.from(color));
 		repaint();
 	}
 
+	@Override
 	public void setWidth(float width) {
-		pointerShape.getStroke().setWidth(width);
+		pointerShape.getStroke().setWidth(width * 4.5);
 		repaint();
 	}
 

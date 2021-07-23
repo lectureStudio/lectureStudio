@@ -47,8 +47,12 @@ import org.lecturestudio.swing.components.FontPickerButton;
 import org.lecturestudio.swing.components.IPTextField;
 import org.lecturestudio.swing.components.LevelMeter;
 import org.lecturestudio.swing.components.MessageView;
-import org.lecturestudio.swing.components.PenToolPreview;
-import org.lecturestudio.swing.components.PointerToolPreview;
+import org.lecturestudio.swing.components.previews.ArrowToolPreview;
+import org.lecturestudio.swing.components.previews.EllipseToolPreview;
+import org.lecturestudio.swing.components.previews.LineToolPreview;
+import org.lecturestudio.swing.components.previews.PenToolPreview;
+import org.lecturestudio.swing.components.previews.PointerToolPreview;
+import org.lecturestudio.swing.components.previews.RectangleToolPreview;
 import org.lecturestudio.swing.components.RecordButton;
 import org.lecturestudio.swing.components.SettingsTab;
 import org.lecturestudio.swing.components.SlideView;
@@ -57,6 +61,7 @@ import org.lecturestudio.swing.components.TitledSeparator;
 import org.lecturestudio.swing.components.ToggleComboButton;
 import org.lecturestudio.swing.components.ToolColorPickerButton;
 import org.lecturestudio.swing.components.ToolGroupButton;
+import org.lecturestudio.swing.components.ToolWidthPickerButton;
 import org.lecturestudio.swing.swixml.converter.IconConverter;
 import org.lecturestudio.swing.swixml.factory.AbstractButtonFactory;
 import org.lecturestudio.swing.swixml.factory.AbstractInjectButtonFactory;
@@ -89,17 +94,21 @@ public class ViewLoader<T extends Container> extends SwingEngine<T> {
 		converterLibrary.register(ImageIcon.class, new IconConverter());
 
 		TagLibrary tagLibrary = SwingTagLibrary.getInstance();
+		tagLibrary.registerTag("ArrowToolPreview", ArrowToolPreview.class);
 		tagLibrary.registerTag("CameraPreviewPanel", CameraPreviewPanel.class);
 		tagLibrary.registerTag("ColorChooserButton", ColorChooserButton.class);
 		tagLibrary.registerTag("ComboBox", new BeanFactory(JComboBox.class, new ComboBoxProcessor()));
 		tagLibrary.registerTag("DisplayPanel", DisplayPanel.class);
+		tagLibrary.registerTag("EllipseToolPreview", EllipseToolPreview.class);
 		tagLibrary.registerTag("IPTextField", IPTextField.class);
 		tagLibrary.registerTag("LevelMeter", LevelMeter.class);
+		tagLibrary.registerTag("LineToolPreview", LineToolPreview.class);
 		tagLibrary.registerTag("MessageView", MessageView.class);
 		tagLibrary.registerTag("Panel", new BeanFactory(JPanel.class, new PanelProcessor()));
 		tagLibrary.registerTag("PenToolPreview", PenToolPreview.class);
 		tagLibrary.registerTag("PointerToolPreview", PointerToolPreview.class);
 		tagLibrary.registerTag("RecordButton", RecordButton.class);
+		tagLibrary.registerTag("RectangleToolPreview", RectangleToolPreview.class);
 		tagLibrary.registerTag("SlideView", SlideView.class);
 		tagLibrary.registerTag("Tab", new BeanFactory(SettingsTab.class, new TabProcessor()));
 		tagLibrary.registerTag("TabbedPane", new BeanFactory(JTabbedPane.class, new TabbedPaneProcessor()));
@@ -143,6 +152,7 @@ public class ViewLoader<T extends Container> extends SwingEngine<T> {
 		tagLibrary.registerTag("FontPickerButton", new AbstractInjectButtonFactory(FontPickerButton.class, injector));
 		tagLibrary.registerTag("TeXFontPickerButton", new AbstractInjectButtonFactory(TeXFontPickerButton.class, injector));
 		tagLibrary.registerTag("ToolColorPickerButton", new AbstractInjectButtonFactory(ToolColorPickerButton.class, injector));
+		tagLibrary.registerTag("ToolWidthPickerButton", new AbstractInjectButtonFactory(ToolWidthPickerButton.class, injector));
 	}
 
 	@Override

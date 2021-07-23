@@ -37,6 +37,7 @@ import javax.swing.JToolBar;
 
 import org.lecturestudio.core.ExecutableState;
 import org.lecturestudio.core.beans.BooleanProperty;
+import org.lecturestudio.core.beans.DoubleProperty;
 import org.lecturestudio.core.graphics.Color;
 import org.lecturestudio.core.model.Document;
 import org.lecturestudio.core.model.Page;
@@ -49,11 +50,20 @@ import org.lecturestudio.core.view.Action;
 import org.lecturestudio.core.view.ConsumerAction;
 import org.lecturestudio.core.view.PresentationParameter;
 import org.lecturestudio.presenter.api.view.ToolbarView;
+import org.lecturestudio.presenter.swing.converter.ToolSizeConverter;
+import org.lecturestudio.swing.beans.ConvertibleNumberProperty;
 import org.lecturestudio.swing.components.FontPickerButton;
 import org.lecturestudio.swing.components.RecordButton;
 import org.lecturestudio.swing.components.TeXFontPickerButton;
 import org.lecturestudio.swing.components.ToolColorPickerButton;
 import org.lecturestudio.swing.components.ToolGroupButton;
+import org.lecturestudio.swing.components.ToolWidthPickerButton;
+import org.lecturestudio.swing.components.previews.ArrowToolPreview;
+import org.lecturestudio.swing.components.previews.EllipseToolPreview;
+import org.lecturestudio.swing.components.previews.LineToolPreview;
+import org.lecturestudio.swing.components.previews.PenToolPreview;
+import org.lecturestudio.swing.components.previews.PointerToolPreview;
+import org.lecturestudio.swing.components.previews.RectangleToolPreview;
 import org.lecturestudio.swing.converter.ColorConverter;
 import org.lecturestudio.swing.converter.FontConverter;
 import org.lecturestudio.swing.layout.WrapFlowLayout;
@@ -92,21 +102,21 @@ public class SwingToolbarView extends JToolBar implements ToolbarView {
 
 	private JToggleButton colorButton6;
 
-	private JToggleButton penButton;
+	private ToolWidthPickerButton penButton;
 
-	private JToggleButton highlighterButton;
+	private ToolWidthPickerButton highlighterButton;
 
-	private JToggleButton pointerButton;
+	private ToolWidthPickerButton pointerButton;
 
 	private JToggleButton textSelectButton;
 
-	private JToggleButton lineButton;
+	private ToolWidthPickerButton lineButton;
 
-	private JToggleButton arrowButton;
+	private ToolWidthPickerButton arrowButton;
 
-	private JToggleButton rectangleButton;
+	private ToolWidthPickerButton rectangleButton;
 
-	private JToggleButton ellipseButton;
+	private ToolWidthPickerButton ellipseButton;
 
 	private ToolGroupButton selectButton;
 
@@ -279,16 +289,37 @@ public class SwingToolbarView extends JToolBar implements ToolbarView {
 	@Override
 	public void setOnPenTool(Action action) {
 		SwingUtils.bindAction(penButton, action);
+		penButton.initialize(new PenToolPreview());
+	}
+
+	@Override
+	public void setPenToolWidth(DoubleProperty width) {
+		var highlightProperty = new ConvertibleNumberProperty<>(width, ToolSizeConverter.INSTANCE);
+		SwingUtils.bindBidirectional(penButton.getChooser().getToolWidthSlider(), highlightProperty);
 	}
 
 	@Override
 	public void setOnHighlighterTool(Action action) {
 		SwingUtils.bindAction(highlighterButton, action);
+		highlighterButton.initialize(new PenToolPreview());
+	}
+
+	@Override
+	public void setHighlighterToolWidth(DoubleProperty width) {
+		var highlightProperty = new ConvertibleNumberProperty<>(width, ToolSizeConverter.INSTANCE);
+		SwingUtils.bindBidirectional(highlighterButton.getChooser().getToolWidthSlider(), highlightProperty);
 	}
 
 	@Override
 	public void setOnPointerTool(Action action) {
 		SwingUtils.bindAction(pointerButton, action);
+		pointerButton.initialize(new PointerToolPreview());
+	}
+
+	@Override
+	public void setPointerToolWidth(DoubleProperty width) {
+		var highlightProperty = new ConvertibleNumberProperty<>(width, ToolSizeConverter.INSTANCE);
+		SwingUtils.bindBidirectional(pointerButton.getChooser().getToolWidthSlider(), highlightProperty);
 	}
 
 	@Override
@@ -299,21 +330,49 @@ public class SwingToolbarView extends JToolBar implements ToolbarView {
 	@Override
 	public void setOnLineTool(Action action) {
 		SwingUtils.bindAction(lineButton, action);
+		lineButton.initialize(new LineToolPreview());
+	}
+
+	@Override
+	public void setLineToolWidth(DoubleProperty width) {
+		var highlightProperty = new ConvertibleNumberProperty<>(width, ToolSizeConverter.INSTANCE);
+		SwingUtils.bindBidirectional(lineButton.getChooser().getToolWidthSlider(), highlightProperty);
 	}
 
 	@Override
 	public void setOnArrowTool(Action action) {
 		SwingUtils.bindAction(arrowButton, action);
+		arrowButton.initialize(new ArrowToolPreview());
+	}
+
+	@Override
+	public void setArrowToolWidth(DoubleProperty width) {
+		var highlightProperty = new ConvertibleNumberProperty<>(width, ToolSizeConverter.INSTANCE);
+		SwingUtils.bindBidirectional(arrowButton.getChooser().getToolWidthSlider(), highlightProperty);
 	}
 
 	@Override
 	public void setOnRectangleTool(Action action) {
 		SwingUtils.bindAction(rectangleButton, action);
+		rectangleButton.initialize(new RectangleToolPreview());
+	}
+
+	@Override
+	public void setRectangleToolWidth(DoubleProperty width) {
+		var highlightProperty = new ConvertibleNumberProperty<>(width, ToolSizeConverter.INSTANCE);
+		SwingUtils.bindBidirectional(rectangleButton.getChooser().getToolWidthSlider(), highlightProperty);
 	}
 
 	@Override
 	public void setOnEllipseTool(Action action) {
 		SwingUtils.bindAction(ellipseButton, action);
+		ellipseButton.initialize(new EllipseToolPreview());
+	}
+
+	@Override
+	public void setEllipseToolWidth(DoubleProperty width) {
+		var highlightProperty = new ConvertibleNumberProperty<>(width, ToolSizeConverter.INSTANCE);
+		SwingUtils.bindBidirectional(ellipseButton.getChooser().getToolWidthSlider(), highlightProperty);
 	}
 
 	@Override
@@ -457,6 +516,8 @@ public class SwingToolbarView extends JToolBar implements ToolbarView {
 				}
 			}
 		});
+
+		customColorButton.getChooser().setToolType(toolType);
 	}
 
 	@Override
@@ -470,7 +531,7 @@ public class SwingToolbarView extends JToolBar implements ToolbarView {
 	}
 
 	private void setButtonColor(AbstractButton button, Paint paint) {
-		int size = penButton.getIcon().getIconHeight();
+		int size = undoButton.getIcon().getIconHeight();
 		int paintSize = size / 2 + 1;
 		int paintOffset = paintSize / 2 - 1;
 

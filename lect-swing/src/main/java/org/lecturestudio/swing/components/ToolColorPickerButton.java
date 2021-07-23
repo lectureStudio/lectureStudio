@@ -42,4 +42,8 @@ public class ToolColorPickerButton extends ToggleComboButton<Stroke> {
 
 		setContent(chooser);
 	}
+
+	public ToolColorChooser getChooser() {
+		return chooser;
+	}
 }

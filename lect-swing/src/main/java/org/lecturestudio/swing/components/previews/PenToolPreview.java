@@ -16,7 +16,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package org.lecturestudio.swing.components;
+package org.lecturestudio.swing.components.previews;
 
 import java.awt.BasicStroke;
 import java.awt.Color;
@@ -27,9 +27,7 @@ import java.awt.RenderingHints;
 import java.awt.Stroke;
 import java.awt.geom.CubicCurve2D;
 
-import javax.swing.JComponent;
-
-public class PenToolPreview extends JComponent {
+public class PenToolPreview extends ToolPreview {
 
 	private Color color;
 
@@ -41,13 +39,15 @@ public class PenToolPreview extends JComponent {
 		setColor(Color.DARK_GRAY);
 	}
 
+	@Override
 	public void setColor(Color color) {
 		this.color = color;
 		repaint();
 	}
 
+	@Override
 	public void setWidth(float width) {
-		this.width = width;
+		this.width = width * 1.4f;
 		repaint();
 	}
 

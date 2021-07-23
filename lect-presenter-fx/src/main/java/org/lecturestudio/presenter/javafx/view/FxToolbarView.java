@@ -37,6 +37,7 @@ import javafx.scene.paint.Paint;
 
 import org.lecturestudio.core.ExecutableState;
 import org.lecturestudio.core.beans.BooleanProperty;
+import org.lecturestudio.core.beans.DoubleProperty;
 import org.lecturestudio.core.graphics.Color;
 import org.lecturestudio.core.model.Document;
 import org.lecturestudio.core.model.Page;
@@ -303,13 +304,28 @@ public class FxToolbarView extends FlowPane implements ToolbarView {
 	}
 
 	@Override
+	public void setPenToolWidth(DoubleProperty width) {
+		//TODO
+	}
+
+	@Override
 	public void setOnHighlighterTool(Action action) {
 		FxUtils.bindAction(highlighterButton, action);
 	}
 
 	@Override
+	public void setHighlighterToolWidth(DoubleProperty width) {
+		//TODO
+	}
+
+	@Override
 	public void setOnPointerTool(Action action) {
 		FxUtils.bindAction(pointerButton, action);
+	}
+
+	@Override
+	public void setPointerToolWidth(DoubleProperty width) {
+		//TODO
 	}
 
 	@Override
@@ -323,8 +339,18 @@ public class FxToolbarView extends FlowPane implements ToolbarView {
 	}
 
 	@Override
+	public void setLineToolWidth(DoubleProperty width) {
+		//TODO
+	}
+
+	@Override
 	public void setOnArrowTool(Action action) {
 		FxUtils.bindAction(arrowButton, action);
+	}
+
+	@Override
+	public void setArrowToolWidth(DoubleProperty width) {
+		//TODO
 	}
 
 	@Override
@@ -333,8 +359,18 @@ public class FxToolbarView extends FlowPane implements ToolbarView {
 	}
 
 	@Override
+	public void setRectangleToolWidth(DoubleProperty width) {
+		//TODO
+	}
+
+	@Override
 	public void setOnEllipseTool(Action action) {
 		FxUtils.bindAction(ellipseButton, action);
+	}
+
+	@Override
+	public void setEllipseToolWidth(DoubleProperty width) {
+		//TODO
 	}
 
 	@Override

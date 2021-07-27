@@ -289,6 +289,11 @@ public class SwingToolbarView extends JToolBar implements ToolbarView {
 	@Override
 	public void setOnPenTool(Action action) {
 		SwingUtils.bindAction(penButton, action);
+		penButton.addChangeListener(e -> {
+			if (penButton.isSelected()) {
+				setColorButtonsEnabled(true);
+			}
+		});
 		penButton.initialize(new PenToolPreview());
 	}
 
@@ -301,6 +306,11 @@ public class SwingToolbarView extends JToolBar implements ToolbarView {
 	@Override
 	public void setOnHighlighterTool(Action action) {
 		SwingUtils.bindAction(highlighterButton, action);
+		highlighterButton.addChangeListener(e -> {
+			if (highlighterButton.isSelected()) {
+				setColorButtonsEnabled(true);
+			}
+		});
 		highlighterButton.initialize(new PenToolPreview());
 	}
 
@@ -313,6 +323,11 @@ public class SwingToolbarView extends JToolBar implements ToolbarView {
 	@Override
 	public void setOnPointerTool(Action action) {
 		SwingUtils.bindAction(pointerButton, action);
+		pointerButton.addChangeListener(e -> {
+			if (pointerButton.isSelected()) {
+				setColorButtonsEnabled(true);
+			}
+		});
 		pointerButton.initialize(new PointerToolPreview());
 	}
 
@@ -330,6 +345,11 @@ public class SwingToolbarView extends JToolBar implements ToolbarView {
 	@Override
 	public void setOnLineTool(Action action) {
 		SwingUtils.bindAction(lineButton, action);
+		lineButton.addChangeListener(e -> {
+			if (lineButton.isSelected()) {
+				setColorButtonsEnabled(true);
+			}
+		});
 		lineButton.initialize(new LineToolPreview());
 	}
 
@@ -342,6 +362,11 @@ public class SwingToolbarView extends JToolBar implements ToolbarView {
 	@Override
 	public void setOnArrowTool(Action action) {
 		SwingUtils.bindAction(arrowButton, action);
+		arrowButton.addChangeListener(e -> {
+			if (arrowButton.isSelected()) {
+				setColorButtonsEnabled(true);
+			}
+		});
 		arrowButton.initialize(new ArrowToolPreview());
 	}
 
@@ -354,6 +379,11 @@ public class SwingToolbarView extends JToolBar implements ToolbarView {
 	@Override
 	public void setOnRectangleTool(Action action) {
 		SwingUtils.bindAction(rectangleButton, action);
+		rectangleButton.addChangeListener(e -> {
+			if (rectangleButton.isSelected()) {
+				setColorButtonsEnabled(true);
+			}
+		});
 		rectangleButton.initialize(new RectangleToolPreview());
 	}
 
@@ -366,6 +396,11 @@ public class SwingToolbarView extends JToolBar implements ToolbarView {
 	@Override
 	public void setOnEllipseTool(Action action) {
 		SwingUtils.bindAction(ellipseButton, action);
+		ellipseButton.addChangeListener(e -> {
+			if (ellipseButton.isSelected()) {
+				setColorButtonsEnabled(true);
+			}
+		});
 		ellipseButton.initialize(new EllipseToolPreview());
 	}
 
@@ -383,11 +418,21 @@ public class SwingToolbarView extends JToolBar implements ToolbarView {
 	@Override
 	public void setOnEraseTool(Action action) {
 		SwingUtils.bindAction(eraseButton, action);
+		eraseButton.addChangeListener(e -> {
+			if (eraseButton.isSelected()) {
+				setColorButtonsEnabled(false);
+			}
+		});
 	}
 
 	@Override
 	public void setOnTextTool(Action action) {
 		SwingUtils.bindAction(textButton, action);
+		textButton.addChangeListener(e -> {
+			if (textButton.isSelected()) {
+				setColorButtonsEnabled(true);
+			}
+		});
 	}
 
 	@Override
@@ -398,6 +443,11 @@ public class SwingToolbarView extends JToolBar implements ToolbarView {
 	@Override
 	public void setOnTeXTool(Action action) {
 		SwingUtils.bindAction(texButton, action);
+		texButton.addChangeListener(e -> {
+			if (texButton.isSelected()) {
+				setColorButtonsEnabled(true);
+			}
+		});
 	}
 
 	@Override
@@ -428,6 +478,11 @@ public class SwingToolbarView extends JToolBar implements ToolbarView {
 	@Override
 	public void setOnZoomInTool(Action action) {
 		SwingUtils.bindAction(zoomInButton, action);
+		zoomInButton.addChangeListener(e -> {
+			if (zoomInButton.isSelected()) {
+				setColorButtonsEnabled(false);
+			}
+		});
 	}
 
 	@Override
@@ -438,6 +493,11 @@ public class SwingToolbarView extends JToolBar implements ToolbarView {
 	@Override
 	public void setOnPanTool(Action action) {
 		SwingUtils.bindAction(panButton, action);
+		panButton.addChangeListener(e -> {
+			if (panButton.isSelected()) {
+				setColorButtonsEnabled(false);
+			}
+		});
 	}
 
 	@Override
@@ -528,6 +588,15 @@ public class SwingToolbarView extends JToolBar implements ToolbarView {
 	@Override
 	public void bindEnableStreamCamera(BooleanProperty enable) {
 		SwingUtils.bindBidirectional(streamCamButton, enable);
+	}
+
+	private void setColorButtonsEnabled(boolean enabled){
+		customColorButton.setEnabled(enabled);
+		colorButton1.setEnabled(enabled);
+		colorButton2.setEnabled(enabled);
+		colorButton3.setEnabled(enabled);
+		colorButton4.setEnabled(enabled);
+		colorButton5.setEnabled(enabled);
 	}
 
 	private void setButtonColor(AbstractButton button, Paint paint) {

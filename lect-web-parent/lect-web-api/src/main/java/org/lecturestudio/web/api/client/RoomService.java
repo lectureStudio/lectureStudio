@@ -10,6 +10,7 @@ import org.eclipse.microprofile.rest.client.annotation.RegisterProvider;
 import org.eclipse.microprofile.rest.client.annotation.RegisterProviders;
 import org.lecturestudio.core.beans.ObjectProperty;
 import org.lecturestudio.web.api.data.JsonbContextResolver;
+import org.lecturestudio.web.api.exception.MatrixException;
 import org.lecturestudio.web.api.filter.AuthorizationFilter;
 import org.lecturestudio.web.api.filter.LoggingFilter;
 import org.lecturestudio.web.api.filter.MatrixExceptionFilter;
@@ -36,6 +37,30 @@ public interface RoomService {
     @GET
     @Path("/joined_rooms")
     JoinedRooms getJoinedRooms();
+
+    /**
+     * Get the user's display name belonging to the specified user ID.
+     *
+     * @param userId The user's ID whose display name to get.
+     *
+     * @return The user's display name if set.
+     */
+    @GET
+    @Path("/profile/{userId}/displayname")
+    UserName getDisplayName(@PathParam("userId") String userId) throws MatrixException;
+
+
+    /**
+     * Get the combined profile information of a user with to the specified user ID.
+     *
+     * @param userId The user's ID whose profile information to get.
+     *
+     * @return The combined profile information for a user.
+     */
+    @GET
+    @Path("/profile/{userId}")
+    UserProfile getProfile(@PathParam("userId") String userId) throws MatrixException;
+
 
     /**
      *
@@ -65,4 +90,5 @@ public interface RoomService {
     @Path("/rooms/{roomId}/messages")
     chunk getMessages(@PathParam("roomId") String roomId, @QueryParam("from") String from,@QueryParam("dir") String dir,
                                     @QueryParam("limit") int limit, @QueryParam("filter") RoomEventFilter filter);
+
 }

@@ -25,12 +25,14 @@ public class DLZMessageService {
     String start; //Start für den nächsten Aufruf
     ArrayList<String> messageIDs; //saves IDs of allready recived messages
 
+
     public DLZMessageService(URI uri){
         filter = new RoomEventFilter();
         filter.getTypes().add("m.room.message");
         roomClient = new DLZService(uri).getRoomClient();
         //this.roomId = roomId;
         messageIDs = new ArrayList<>();
+
     }
 
     /**
@@ -51,10 +53,10 @@ public class DLZMessageService {
         }
         messages = new ArrayList<DLZMessage>();
         if(start == null) {
-            chunks = roomClient.getMessages(roomId, "b", 5, filter);
+            chunks = roomClient.getMessages(roomId, "b", 15, filter);
             start = chunks.start;
         }else {
-            chunks = roomClient.getMessages(roomId, "b", 3, filter);
+            chunks = roomClient.getMessages(roomId, "b", 5, filter);
             start = chunks.start;
         }
 
@@ -65,9 +67,13 @@ public class DLZMessageService {
                 DLZMessage nmessage = new DLZMessage();
                 nmessage.message = message.content.body;
                 nmessage.senderId = message.sender;
-                //nmessage.sender = abfragen
+                //UserName name = roomClient.getDisplayName(message.sender);
+                UserProfile name = roomClient.getProfile(message.sender);
+                nmessage.sender = name.getDisplayName();
+
                 nmessage.url = message.content.url;
-                messages.add(nmessage);
+                messages.add(0,nmessage);
+
             }
         }
         //);

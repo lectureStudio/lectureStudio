@@ -61,7 +61,6 @@ import org.lecturestudio.swing.components.TitledSeparator;
 import org.lecturestudio.swing.components.ToggleComboButton;
 import org.lecturestudio.swing.components.ToolColorPickerButton;
 import org.lecturestudio.swing.components.ToolGroupButton;
-import org.lecturestudio.swing.components.ToolWidthPickerButton;
 import org.lecturestudio.swing.swixml.converter.IconConverter;
 import org.lecturestudio.swing.swixml.factory.AbstractButtonFactory;
 import org.lecturestudio.swing.swixml.factory.AbstractInjectButtonFactory;
@@ -152,7 +151,6 @@ public class ViewLoader<T extends Container> extends SwingEngine<T> {
 		tagLibrary.registerTag("FontPickerButton", new AbstractInjectButtonFactory(FontPickerButton.class, injector));
 		tagLibrary.registerTag("TeXFontPickerButton", new AbstractInjectButtonFactory(TeXFontPickerButton.class, injector));
 		tagLibrary.registerTag("ToolColorPickerButton", new AbstractInjectButtonFactory(ToolColorPickerButton.class, injector));
-		tagLibrary.registerTag("ToolWidthPickerButton", new AbstractInjectButtonFactory(ToolWidthPickerButton.class, injector));
 	}
 
 	@Override

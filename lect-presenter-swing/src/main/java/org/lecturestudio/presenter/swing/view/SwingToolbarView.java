@@ -37,7 +37,6 @@ import javax.swing.JToolBar;
 
 import org.lecturestudio.core.ExecutableState;
 import org.lecturestudio.core.beans.BooleanProperty;
-import org.lecturestudio.core.beans.DoubleProperty;
 import org.lecturestudio.core.graphics.Color;
 import org.lecturestudio.core.model.Document;
 import org.lecturestudio.core.model.Page;
@@ -50,20 +49,11 @@ import org.lecturestudio.core.view.Action;
 import org.lecturestudio.core.view.ConsumerAction;
 import org.lecturestudio.core.view.PresentationParameter;
 import org.lecturestudio.presenter.api.view.ToolbarView;
-import org.lecturestudio.presenter.swing.converter.ToolSizeConverter;
-import org.lecturestudio.swing.beans.ConvertibleNumberProperty;
 import org.lecturestudio.swing.components.FontPickerButton;
 import org.lecturestudio.swing.components.RecordButton;
 import org.lecturestudio.swing.components.TeXFontPickerButton;
 import org.lecturestudio.swing.components.ToolColorPickerButton;
 import org.lecturestudio.swing.components.ToolGroupButton;
-import org.lecturestudio.swing.components.ToolWidthPickerButton;
-import org.lecturestudio.swing.components.previews.ArrowToolPreview;
-import org.lecturestudio.swing.components.previews.EllipseToolPreview;
-import org.lecturestudio.swing.components.previews.LineToolPreview;
-import org.lecturestudio.swing.components.previews.PenToolPreview;
-import org.lecturestudio.swing.components.previews.PointerToolPreview;
-import org.lecturestudio.swing.components.previews.RectangleToolPreview;
 import org.lecturestudio.swing.converter.ColorConverter;
 import org.lecturestudio.swing.converter.FontConverter;
 import org.lecturestudio.swing.layout.WrapFlowLayout;
@@ -102,21 +92,21 @@ public class SwingToolbarView extends JToolBar implements ToolbarView {
 
 	private JToggleButton colorButton6;
 
-	private ToolWidthPickerButton penButton;
+	private JToggleButton penButton;
 
-	private ToolWidthPickerButton highlighterButton;
+	private JToggleButton highlighterButton;
 
-	private ToolWidthPickerButton pointerButton;
+	private JToggleButton pointerButton;
 
 	private JToggleButton textSelectButton;
 
-	private ToolWidthPickerButton lineButton;
+	private JToggleButton lineButton;
 
-	private ToolWidthPickerButton arrowButton;
+	private JToggleButton arrowButton;
 
-	private ToolWidthPickerButton rectangleButton;
+	private JToggleButton rectangleButton;
 
-	private ToolWidthPickerButton ellipseButton;
+	private JToggleButton ellipseButton;
 
 	private ToolGroupButton selectButton;
 
@@ -294,13 +284,6 @@ public class SwingToolbarView extends JToolBar implements ToolbarView {
 				setColorButtonsEnabled(true);
 			}
 		});
-		penButton.initialize(new PenToolPreview());
-	}
-
-	@Override
-	public void setPenToolWidth(DoubleProperty width) {
-		var highlightProperty = new ConvertibleNumberProperty<>(width, ToolSizeConverter.INSTANCE);
-		SwingUtils.bindBidirectional(penButton.getChooser().getToolWidthSlider(), highlightProperty);
 	}
 
 	@Override
@@ -311,13 +294,6 @@ public class SwingToolbarView extends JToolBar implements ToolbarView {
 				setColorButtonsEnabled(true);
 			}
 		});
-		highlighterButton.initialize(new PenToolPreview());
-	}
-
-	@Override
-	public void setHighlighterToolWidth(DoubleProperty width) {
-		var highlightProperty = new ConvertibleNumberProperty<>(width, ToolSizeConverter.INSTANCE);
-		SwingUtils.bindBidirectional(highlighterButton.getChooser().getToolWidthSlider(), highlightProperty);
 	}
 
 	@Override
@@ -328,13 +304,6 @@ public class SwingToolbarView extends JToolBar implements ToolbarView {
 				setColorButtonsEnabled(true);
 			}
 		});
-		pointerButton.initialize(new PointerToolPreview());
-	}
-
-	@Override
-	public void setPointerToolWidth(DoubleProperty width) {
-		var highlightProperty = new ConvertibleNumberProperty<>(width, ToolSizeConverter.INSTANCE);
-		SwingUtils.bindBidirectional(pointerButton.getChooser().getToolWidthSlider(), highlightProperty);
 	}
 
 	@Override
@@ -350,13 +319,6 @@ public class SwingToolbarView extends JToolBar implements ToolbarView {
 				setColorButtonsEnabled(true);
 			}
 		});
-		lineButton.initialize(new LineToolPreview());
-	}
-
-	@Override
-	public void setLineToolWidth(DoubleProperty width) {
-		var highlightProperty = new ConvertibleNumberProperty<>(width, ToolSizeConverter.INSTANCE);
-		SwingUtils.bindBidirectional(lineButton.getChooser().getToolWidthSlider(), highlightProperty);
 	}
 
 	@Override
@@ -367,13 +329,6 @@ public class SwingToolbarView extends JToolBar implements ToolbarView {
 				setColorButtonsEnabled(true);
 			}
 		});
-		arrowButton.initialize(new ArrowToolPreview());
-	}
-
-	@Override
-	public void setArrowToolWidth(DoubleProperty width) {
-		var highlightProperty = new ConvertibleNumberProperty<>(width, ToolSizeConverter.INSTANCE);
-		SwingUtils.bindBidirectional(arrowButton.getChooser().getToolWidthSlider(), highlightProperty);
 	}
 
 	@Override
@@ -384,13 +339,6 @@ public class SwingToolbarView extends JToolBar implements ToolbarView {
 				setColorButtonsEnabled(true);
 			}
 		});
-		rectangleButton.initialize(new RectangleToolPreview());
-	}
-
-	@Override
-	public void setRectangleToolWidth(DoubleProperty width) {
-		var highlightProperty = new ConvertibleNumberProperty<>(width, ToolSizeConverter.INSTANCE);
-		SwingUtils.bindBidirectional(rectangleButton.getChooser().getToolWidthSlider(), highlightProperty);
 	}
 
 	@Override
@@ -401,13 +349,6 @@ public class SwingToolbarView extends JToolBar implements ToolbarView {
 				setColorButtonsEnabled(true);
 			}
 		});
-		ellipseButton.initialize(new EllipseToolPreview());
-	}
-
-	@Override
-	public void setEllipseToolWidth(DoubleProperty width) {
-		var highlightProperty = new ConvertibleNumberProperty<>(width, ToolSizeConverter.INSTANCE);
-		SwingUtils.bindBidirectional(ellipseButton.getChooser().getToolWidthSlider(), highlightProperty);
 	}
 
 	@Override

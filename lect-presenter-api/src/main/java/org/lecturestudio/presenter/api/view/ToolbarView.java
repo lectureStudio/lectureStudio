@@ -20,7 +20,6 @@ package org.lecturestudio.presenter.api.view;
 
 import org.lecturestudio.core.ExecutableState;
 import org.lecturestudio.core.beans.BooleanProperty;
-import org.lecturestudio.core.beans.DoubleProperty;
 import org.lecturestudio.core.graphics.Color;
 import org.lecturestudio.core.model.Document;
 import org.lecturestudio.core.model.Page;
@@ -70,33 +69,19 @@ public interface ToolbarView extends View {
 
 	void setOnPenTool(Action action);
 
-	void setPenToolWidth(DoubleProperty width);
-
 	void setOnHighlighterTool(Action action);
 
-	void setHighlighterToolWidth(DoubleProperty width);
-
 	void setOnPointerTool(Action action);
-
-	void setPointerToolWidth(DoubleProperty width);
 
 	void setOnTextSelectTool(Action action);
 
 	void setOnLineTool(Action action);
 
-	void setLineToolWidth(DoubleProperty width);
-
 	void setOnArrowTool(Action action);
-
-	void setArrowToolWidth(DoubleProperty width);
 
 	void setOnRectangleTool(Action action);
 
-	void setRectangleToolWidth(DoubleProperty width);
-
 	void setOnEllipseTool(Action action);
-
-	void setEllipseToolWidth(DoubleProperty width);
 
 	void setOnSelectTool(Action action);
 

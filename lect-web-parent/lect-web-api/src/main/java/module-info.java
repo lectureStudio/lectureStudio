@@ -1,6 +1,11 @@
 module org.lecturestudio.web.api {
 
-	requires io.netty.all;
+	requires io.netty.buffer;
+	requires io.netty.codec;
+	requires io.netty.codec.http;
+	requires io.netty.common;
+	requires io.netty.handler;
+	requires io.netty.transport;
 	requires jakarta.enterprise.cdi.api;
 	requires jakarta.inject.api;
 	requires java.json;

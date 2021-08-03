@@ -133,7 +133,7 @@ public class StreamWebSocketClient extends ExecutableBase {
 
 		String docFile = uploadDocument(document);
 
-		StreamStartAction startAction = new StreamStartAction(course.getRoomId());
+		StreamStartAction startAction = new StreamStartAction(course.getId());
 
 		StreamDocumentCreateAction docCreateAction = new StreamDocumentCreateAction(document);
 		docCreateAction.setDocumentFile(docFile);

@@ -59,7 +59,7 @@ public class CreateRoomState implements JanusState {
 		JanusRoomRequest request = new JanusRoomRequest();
 		request.setRequestType(JanusRoomRequestType.LIST);
 
-		roomId = BigInteger.valueOf(course.getRoomId());
+		roomId = BigInteger.valueOf(course.getId());
 
 		requestMessage = new JanusPluginDataMessage(handler.getSessionId(),
 				handler.getPluginId());

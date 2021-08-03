@@ -18,6 +18,7 @@
 
 package org.lecturestudio.web.api.stream.client;
 
+import static java.util.Objects.nonNull;
 import static java.util.Objects.requireNonNull;
 
 import java.io.ByteArrayInputStream;
@@ -131,12 +132,7 @@ public class StreamWebSocketClient extends ExecutableBase {
 		// Transmit initial document state.
 		Document document = documentService.getDocuments().getSelectedDocument();
 
-		String docFile = uploadDocument(document);
-
 		StreamStartAction startAction = new StreamStartAction(course.getId());
-
-		StreamDocumentCreateAction docCreateAction = new StreamDocumentCreateAction(document);
-		docCreateAction.setDocumentFile(docFile);
 
 		StreamDocumentSelectAction docSelectAction = new StreamDocumentSelectAction(document);
 
@@ -144,7 +140,18 @@ public class StreamWebSocketClient extends ExecutableBase {
 				document.getCurrentPage());
 
 		try {
-			send(startAction, docCreateAction, docSelectAction, pageAction);
+			send(startAction);
+
+			// Upload all opened PDF documents.
+			for (var doc : documentService.getDocuments().asList()) {
+				StreamDocumentCreateAction action = uploadDocument(doc);
+
+				if (nonNull(action)) {
+					send(action);
+				}
+			}
+
+			send(docSelectAction, pageAction);
 
 			for (var action : eventRecorder.getPreRecordedActions()) {
 				send(action);
@@ -175,9 +182,9 @@ public class StreamWebSocketClient extends ExecutableBase {
 		}
 	}
 
-	private String uploadDocument(Document document) {
+	private StreamDocumentCreateAction uploadDocument(Document document) {
 		if (!document.isPDF()) {
-			return null;
+			return new StreamDocumentCreateAction(document);
 		}
 
 		String docFileName = document.getName() + ".pdf";
@@ -196,7 +203,12 @@ public class StreamWebSocketClient extends ExecutableBase {
 				new ByteArrayInputStream(docData.toByteArray()),
 				MediaType.MULTIPART_FORM_DATA_TYPE, docFileName);
 
-		return streamService.uploadFile(body);
+		String remoteFile = streamService.uploadFile(body);
+
+		StreamDocumentCreateAction docCreateAction = new StreamDocumentCreateAction(document);
+		docCreateAction.setDocumentFile(remoteFile);
+
+		return docCreateAction;
 	}
 
 	private static SSLContext createSSLContext() {

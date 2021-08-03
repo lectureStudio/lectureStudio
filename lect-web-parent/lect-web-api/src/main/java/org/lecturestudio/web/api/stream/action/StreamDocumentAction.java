@@ -18,7 +18,6 @@
 
 package org.lecturestudio.web.api.stream.action;
 
-import java.io.File;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 

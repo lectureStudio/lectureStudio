@@ -1,55 +1,91 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Panel layout="GridBagLayout" border="EmptyBorder(20, 20, 20, 20)">
-	<ScrollPane border="EmptyBorder(0, 0, 0, 0)">
-		<gridbagconstraints gridx="0" gridy="0" weightx="1.0" weighty="1.0" fill="GridBagConstraints.BOTH" anchor="GridBagConstraints.WEST" insets="5,0,5,0" />
+    <ScrollPane border="EmptyBorder(0, 0, 0, 0)">
+        <gridbagconstraints gridx="0" gridy="0" weightx="1.0" weighty="1.0" fill="GridBagConstraints.BOTH" anchor="GridBagConstraints.WEST" insets="5,0,5,0"/>
+        <Panel layout="GridBagLayout">
+            <CheckBox id="scaleHighlighterCheckBox" text="tool.settings.highlighter.scale">
+                <gridbagconstraints gridx="0" gridy="0" gridwidth="2" anchor="GridBagConstraints.WEST" insets="5,0,5,0"/>
+            </CheckBox>
 
-		<Panel layout="GridBagLayout">
-			<CheckBox id="scaleHighlighterCheckBox" text="tool.settings.highlighter.scale">
-				<gridbagconstraints gridx="0" gridy="0" gridwidth="3" weightx="1.0" anchor="GridBagConstraints.WEST" insets="5,0,5,0" />
-			</CheckBox>
-			<Label text="tool.settings.highlighter.size">
-				<gridbagconstraints gridx="0" gridy="1" anchor="GridBagConstraints.WEST" insets="5,0,5,0" />
-			</Label>
-			<Slider id="highlighterSlider" minimum="1" maximum="50">
-				<gridbagconstraints gridx="1" gridy="1" anchor="GridBagConstraints.WEST" insets="5,10,5,10" />
-			</Slider>
-			<PenToolPreview id="highlighterPreview" preferredSize="200,80" minimumSize="200,80">
-				<gridbagconstraints gridx="2" gridy="1" anchor="GridBagConstraints.WEST" insets="5,0,5,0" />
-			</PenToolPreview>
-			<Label text="tool.settings.pen.size">
-				<gridbagconstraints gridx="0" gridy="2" anchor="GridBagConstraints.WEST" insets="5,0,5,0" />
-			</Label>
-			<Slider id="penSlider" minimum="1" maximum="30">
-				<gridbagconstraints gridx="1" gridy="2" anchor="GridBagConstraints.WEST" insets="5,10,5,10" />
-			</Slider>
-			<PenToolPreview id="penPreview" preferredSize="200,80" minimumSize="200,80">
-				<gridbagconstraints gridx="2" gridy="2" anchor="GridBagConstraints.WEST" insets="5,0,5,0" />
-			</PenToolPreview>
-			<Label text="tool.settings.pointer.size">
-				<gridbagconstraints gridx="0" gridy="3" anchor="GridBagConstraints.WEST" insets="5,0,5,0" />
-			</Label>
-			<Slider id="pointerSlider" minimum="1" maximum="25">
-				<gridbagconstraints gridx="1" gridy="3" anchor="GridBagConstraints.WEST" insets="5,10,5,10" />
-			</Slider>
-			<PointerToolPreview id="pointerPreview" preferredSize="80,80" minimumSize="80,80" color="red">
-				<gridbagconstraints gridx="2" gridy="3" anchor="GridBagConstraints.WEST" insets="5,0,5,0" />
-			</PointerToolPreview>
-			<box.vglue>
-				<gridbagconstraints gridx="0" gridy="4" weighty="1.0" />
-			</box.vglue>
-		</Panel>
-	</ScrollPane>
+            <Label text="tool.settings.highlighter.size">
+                <gridbagconstraints gridx="0" gridy="1" anchor="GridBagConstraints.WEST" insets="5,0,5,0"/>
+            </Label>
+            <Slider id="highlighterSlider" minimum="1" maximum="15">
+                <gridbagconstraints gridx="1" gridy="1" anchor="GridBagConstraints.WEST" insets="5,10,5,10"/>
+            </Slider>
+            <PenToolPreview id="highlighterPreview" preferredSize="200,80" minimumSize="200,80" color="orange">
+                <gridbagconstraints gridx="2" gridy="1" anchor="GridBagConstraints.WEST" insets="5,0,5,0"/>
+            </PenToolPreview>
 
-	<!--
-	<box.vglue>
-		<gridbagconstraints gridx="0" gridy="1" weighty="1.0" />
-	</box.vglue>
-	-->
+            <Label text="tool.settings.pen.size">
+                <gridbagconstraints gridx="0" gridy="2" anchor="GridBagConstraints.WEST" insets="5,0,5,0"/>
+            </Label>
+            <Slider id="penSlider" minimum="1" maximum="15">
+                <gridbagconstraints gridx="1" gridy="2" anchor="GridBagConstraints.WEST" insets="5,10,5,10"/>
+            </Slider>
+            <PenToolPreview id="penPreview" preferredSize="200,80" minimumSize="200,80" color="black">
+                <gridbagconstraints gridx="2" gridy="2" anchor="GridBagConstraints.WEST" insets="5,0,5,0"/>
+            </PenToolPreview>
 
-	<HBox gap="5">
-		<gridbagconstraints gridx="0" gridy="1" weightx="1.0" fill="GridBagConstraints.HORIZONTAL" />
-		<box.hglue />
-		<Button id="resetButton" text="button.reset"/>
-		<Button id="closeButton" text="button.close"/>
-	</HBox>
+            <Label text="tool.settings.pointer.size">
+                <gridbagconstraints gridx="0" gridy="3" anchor="GridBagConstraints.WEST" insets="5,0,5,0"/>
+            </Label>
+            <Slider id="pointerSlider" minimum="1" maximum="15">
+                <gridbagconstraints gridx="1" gridy="3" anchor="GridBagConstraints.WEST" insets="5,10,5,10"/>
+            </Slider>
+            <PointerToolPreview id="pointerPreview" preferredSize="80,80" minimumSize="80,80" color="red">
+                <gridbagconstraints gridx="2" gridy="3" anchor="GridBagConstraints.WEST" insets="5,0,5,0"/>
+            </PointerToolPreview>
+
+            <Label text="tool.settings.line.size">
+                <gridbagconstraints gridx="0" gridy="4" anchor="GridBagConstraints.WEST" insets="5,0,5,0"/>
+            </Label>
+            <Slider id="lineSlider" minimum="1" maximum="15">
+                <gridbagconstraints gridx="1" gridy="4" anchor="GridBagConstraints.WEST" insets="5,10,5,10"/>
+            </Slider>
+            <LineToolPreview id="linePreview" preferredSize="200,80" minimumSize="200,80">
+                <gridbagconstraints gridx="2" gridy="4" anchor="GridBagConstraints.WEST" insets="5,0,5,0"/>
+            </LineToolPreview>
+
+            <Label text="tool.settings.arrow.size">
+                <gridbagconstraints gridx="0" gridy="5" anchor="GridBagConstraints.WEST" insets="5,0,5,0"/>
+            </Label>
+            <Slider id="arrowSlider" minimum="1" maximum="15">
+                <gridbagconstraints gridx="1" gridy="5" anchor="GridBagConstraints.WEST" insets="5,10,5,10"/>
+            </Slider>
+            <ArrowToolPreview id="arrowPreview" preferredSize="200,80" minimumSize="200,80">
+                <gridbagconstraints gridx="2" gridy="5" anchor="GridBagConstraints.WEST" insets="5,0,5,0"/>
+            </ArrowToolPreview>
+
+            <Label text="tool.settings.rectangle.size">
+                <gridbagconstraints gridx="0" gridy="6" anchor="GridBagConstraints.WEST" insets="5,0,5,0"/>
+            </Label>
+            <Slider id="rectangleSlider" minimum="1" maximum="15">
+                <gridbagconstraints gridx="1" gridy="6" anchor="GridBagConstraints.WEST" insets="5,10,5,10"/>
+            </Slider>
+            <RectangleToolPreview id="rectanglePreview" preferredSize="200,80" minimumSize="200,80">
+                <gridbagconstraints gridx="2" gridy="6" anchor="GridBagConstraints.WEST" insets="5,0,5,0"/>
+            </RectangleToolPreview>
+
+            <Label text="tool.settings.ellipse.size">
+                <gridbagconstraints gridx="0" gridy="7" anchor="GridBagConstraints.WEST" insets="5,0,5,0"/>
+            </Label>
+            <Slider id="ellipseSlider" minimum="1" maximum="15">
+                <gridbagconstraints gridx="1" gridy="7" anchor="GridBagConstraints.WEST" insets="5,10,5,10"/>
+            </Slider>
+            <EllipseToolPreview id="ellipsePreview" preferredSize="200,80" minimumSize="200,80">
+                <gridbagconstraints gridx="2" gridy="7" anchor="GridBagConstraints.WEST" insets="5,0,5,0"/>
+            </EllipseToolPreview>
+            <box.vglue>
+                <gridbagconstraints gridx="0" gridy="4" weighty="1.0"/>
+            </box.vglue>
+        </Panel>
+    </ScrollPane>
+
+    <HBox gap="5">
+        <gridbagconstraints gridx="0" gridy="1" weightx="1.0" fill="GridBagConstraints.HORIZONTAL"/>
+        <box.hglue/>
+        <Button id="resetButton" text="button.reset"/>
+        <Button id="closeButton" text="button.close"/>
+    </HBox>
 </Panel>

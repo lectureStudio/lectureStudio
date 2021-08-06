@@ -31,4 +31,12 @@ public interface ToolSettingsView extends SettingsBaseView {
 
 	void setPointerWidth(DoubleProperty width);
 
+	void setLineWidth(DoubleProperty width);
+
+	void setArrowWidth(DoubleProperty width);
+
+	void setRectangleWidth(DoubleProperty width);
+
+	void setEllipseWidth(DoubleProperty width);
+
 }

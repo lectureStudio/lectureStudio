@@ -24,13 +24,17 @@ import javax.swing.JPanel;
 import javax.swing.JSlider;
 
 import org.lecturestudio.core.beans.BooleanProperty;
+import org.lecturestudio.core.beans.Converter;
 import org.lecturestudio.core.beans.DoubleProperty;
 import org.lecturestudio.core.view.Action;
 import org.lecturestudio.presenter.api.view.ToolSettingsView;
-import org.lecturestudio.presenter.swing.converter.ToolSizeConverter;
 import org.lecturestudio.swing.beans.ConvertibleNumberProperty;
+import org.lecturestudio.swing.components.previews.ArrowToolPreview;
+import org.lecturestudio.swing.components.previews.EllipseToolPreview;
+import org.lecturestudio.swing.components.previews.LineToolPreview;
 import org.lecturestudio.swing.components.previews.PenToolPreview;
 import org.lecturestudio.swing.components.previews.PointerToolPreview;
+import org.lecturestudio.swing.components.previews.RectangleToolPreview;
 import org.lecturestudio.swing.util.SwingUtils;
 import org.lecturestudio.swing.view.SwingView;
 import org.lecturestudio.swing.view.ViewPostConstruct;
@@ -46,11 +50,27 @@ public class SwingToolSettingsView extends JPanel implements ToolSettingsView {
 
 	private JSlider pointerSlider;
 
+	private JSlider lineSlider;
+
+	private JSlider arrowSlider;
+
+	private JSlider rectangleSlider;
+
+	private JSlider ellipseSlider;
+
 	private PenToolPreview highlighterPreview;
 
 	private PenToolPreview penPreview;
 
 	private PointerToolPreview pointerPreview;
+
+	private LineToolPreview linePreview;
+
+	private ArrowToolPreview arrowPreview;
+
+	private RectangleToolPreview rectanglePreview;
+
+	private EllipseToolPreview ellipsePreview;
 
 	private JButton closeButton;
 
@@ -75,16 +95,44 @@ public class SwingToolSettingsView extends JPanel implements ToolSettingsView {
 
 	@Override
 	public void setPenWidth(DoubleProperty width) {
-		var highlightProperty = new ConvertibleNumberProperty<>(width, ToolSizeConverter.INSTANCE);
-		SwingUtils.bindBidirectional(penSlider, highlightProperty);
+		var penProperty = new ConvertibleNumberProperty<>(width, ToolSizeConverter.INSTANCE);
+		SwingUtils.bindBidirectional(penSlider, penProperty);
 		penPreview.setWidth(penSlider.getValue());
 	}
 
 	@Override
 	public void setPointerWidth(DoubleProperty width) {
-		var highlightProperty = new ConvertibleNumberProperty<>(width, ToolSizeConverter.INSTANCE);
-		SwingUtils.bindBidirectional(pointerSlider, highlightProperty);
+		var pointerProperty = new ConvertibleNumberProperty<>(width, ToolSizeConverter.INSTANCE);
+		SwingUtils.bindBidirectional(pointerSlider, pointerProperty);
 		pointerPreview.setWidth(pointerSlider.getValue());
+	}
+
+	@Override
+	public void setLineWidth(DoubleProperty width) {
+		var lineProperty = new ConvertibleNumberProperty<>(width, ToolSizeConverter.INSTANCE);
+		SwingUtils.bindBidirectional(lineSlider, lineProperty);
+		linePreview.setWidth(lineSlider.getValue());
+	}
+
+	@Override
+	public void setArrowWidth(DoubleProperty width) {
+		var highlightProperty = new ConvertibleNumberProperty<>(width, ToolSizeConverter.INSTANCE);
+		SwingUtils.bindBidirectional(arrowSlider, highlightProperty);
+		arrowPreview.setWidth(arrowSlider.getValue());
+	}
+
+	@Override
+	public void setRectangleWidth(DoubleProperty width) {
+		var highlightProperty = new ConvertibleNumberProperty<>(width, ToolSizeConverter.INSTANCE);
+		SwingUtils.bindBidirectional(rectangleSlider, highlightProperty);
+		rectanglePreview.setWidth(rectangleSlider.getValue());
+	}
+
+	@Override
+	public void setEllipseWidth(DoubleProperty width) {
+		var highlightProperty = new ConvertibleNumberProperty<>(width, ToolSizeConverter.INSTANCE);
+		SwingUtils.bindBidirectional(ellipseSlider, highlightProperty);
+		ellipsePreview.setWidth(ellipseSlider.getValue());
 	}
 
 	@Override
@@ -99,29 +147,33 @@ public class SwingToolSettingsView extends JPanel implements ToolSettingsView {
 
 	@ViewPostConstruct
 	private void initialize() {
-		highlighterSlider.setSnapToTicks(true);
-		highlighterSlider.setMinimum(1);
-		highlighterSlider.setMaximum(15);
-		highlighterSlider.setMinorTickSpacing(1);
-		highlighterSlider.setMajorTickSpacing(2);
-		highlighterSlider.addChangeListener(e -> {
-			highlighterPreview.setWidth(highlighterSlider.getValue());
-		});
-		penSlider.setSnapToTicks(true);
-		penSlider.setMinimum(1);
-		penSlider.setMaximum(15);
-		penSlider.setMinorTickSpacing(1);
-		penSlider.setMajorTickSpacing(2);
-		penSlider.addChangeListener(e -> {
-			penPreview.setWidth(penSlider.getValue());
-		});
-		pointerSlider.setSnapToTicks(true);
-		pointerSlider.setMinimum(1);
-		pointerSlider.setMaximum(15);
-		pointerSlider.setMinorTickSpacing(1);
-		pointerSlider.setMajorTickSpacing(2);
-		pointerSlider.addChangeListener(e -> {
-			pointerPreview.setWidth(pointerSlider.getValue());
-		});
+		highlighterSlider.addChangeListener(e -> highlighterPreview.setWidth(highlighterSlider.getValue()));
+		penSlider.addChangeListener(e -> penPreview.setWidth(penSlider.getValue()));
+		pointerSlider.addChangeListener(e -> pointerPreview.setWidth(pointerSlider.getValue()));
+		lineSlider.addChangeListener(e -> linePreview.setWidth(lineSlider.getValue()));
+		arrowSlider.addChangeListener(e -> arrowPreview.setWidth(arrowSlider.getValue()));
+		rectangleSlider.addChangeListener(e -> rectanglePreview.setWidth(rectangleSlider.getValue()));
+		ellipseSlider.addChangeListener(e -> ellipsePreview.setWidth(ellipseSlider.getValue()));
+	}
+
+
+
+	/**
+	 * Tool size to slide space and vice-versa converter.
+	 */
+	private static class ToolSizeConverter implements Converter<Double, Integer> {
+
+		static final ToolSizeConverter INSTANCE = new ToolSizeConverter();
+
+
+		@Override
+		public Integer to(Double value) {
+			return (int) (value * 500);
+		}
+
+		@Override
+		public Double from(Integer value) {
+			return value / 500.d;
+		}
 	}
 }

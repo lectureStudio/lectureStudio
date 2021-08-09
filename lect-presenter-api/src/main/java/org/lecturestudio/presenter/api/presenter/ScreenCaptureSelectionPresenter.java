@@ -58,13 +58,11 @@ public class ScreenCaptureSelectionPresenter extends Presenter<ScreenCaptureSour
         view.setOnOk(this::confirmSelection);
         view.setOnClose(this::close);
 
-        System.out.println("Initialize");
+        eventBus.register(this);
 
         // Make sure to register listener only once
         screenCaptureService.removeScreenCaptureListener(this);
         screenCaptureService.addScreenCaptureListener(this);
-
-        eventBus.register(this);
 
         updateDesktopSources(screenCaptureService.getDesktopSources(DesktopSourceType.WINDOW), DesktopSourceType.WINDOW);
         updateDesktopSources(screenCaptureService.getDesktopSources(DesktopSourceType.SCREEN), DesktopSourceType.SCREEN);
@@ -72,7 +70,7 @@ public class ScreenCaptureSelectionPresenter extends Presenter<ScreenCaptureSour
 
     @Override
     public ViewLayer getViewLayer() {
-        return ViewLayer.Notification;
+        return ViewLayer.Dialog;
     }
 
     @Override
@@ -121,7 +119,8 @@ public class ScreenCaptureSelectionPresenter extends Presenter<ScreenCaptureSour
     private void confirmSelection() {
         ScreenCaptureSourceSelectionView.SelectedDesktopSource selectedSource = view.getSelectedDesktopSource();
         if (selectedSource != null) {
-            documentService.addScreenCapture(selectedSource.getSource(), selectedSource.getType()).join();
+            BufferedImage frame = selectedSource.getFrame();
+            documentService.addScreenCapture(selectedSource.getSource(), selectedSource.getType(), frame);
         }
         close();
     }

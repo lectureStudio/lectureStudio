@@ -18,17 +18,16 @@
 
 package org.lecturestudio.core.pdf.pdfbox;
 
-import java.awt.Color;
-import java.awt.Graphics2D;
-import java.awt.image.BufferedImage;
-import java.io.IOException;
-
 import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.rendering.PDFRenderer;
 import org.lecturestudio.core.geometry.Rectangle2D;
 import org.lecturestudio.core.model.Page;
 import org.lecturestudio.core.pdf.DocumentRenderer;
 import org.lecturestudio.core.view.PresentationParameter;
+
+import java.awt.*;
+import java.awt.image.BufferedImage;
+import java.io.IOException;
 
 public class PDFBoxRenderer implements DocumentRenderer {
 

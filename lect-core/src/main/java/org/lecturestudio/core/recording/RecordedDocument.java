@@ -18,12 +18,12 @@
 
 package org.lecturestudio.core.recording;
 
-import static java.util.Objects.nonNull;
+import org.lecturestudio.core.model.Document;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 
-import org.lecturestudio.core.model.Document;
+import static java.util.Objects.nonNull;
 
 public class RecordedDocument extends RecordedObjectBase {
 

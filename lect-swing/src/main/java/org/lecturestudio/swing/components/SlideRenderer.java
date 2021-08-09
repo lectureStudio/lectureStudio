@@ -18,19 +18,6 @@
 
 package org.lecturestudio.swing.components;
 
-import static java.util.Objects.isNull;
-
-import java.awt.Color;
-import java.awt.Dimension;
-import java.awt.Graphics;
-import java.awt.Graphics2D;
-import java.awt.GraphicsConfiguration;
-import java.awt.GraphicsEnvironment;
-import java.awt.geom.AffineTransform;
-import java.awt.image.BufferedImage;
-import java.util.ArrayList;
-import java.util.List;
-
 import org.lecturestudio.core.app.configuration.GridConfiguration;
 import org.lecturestudio.core.controller.RenderController;
 import org.lecturestudio.core.geometry.Dimension2D;
@@ -38,10 +25,20 @@ import org.lecturestudio.core.geometry.Rectangle2D;
 import org.lecturestudio.core.model.Document;
 import org.lecturestudio.core.model.Page;
 import org.lecturestudio.core.model.shape.GridShape;
+import org.lecturestudio.core.model.shape.ScreenCaptureShape;
 import org.lecturestudio.core.model.shape.Shape;
 import org.lecturestudio.core.swing.SwingGraphicsContext;
 import org.lecturestudio.core.view.PresentationParameter;
 import org.lecturestudio.core.view.ViewType;
+
+import java.awt.*;
+import java.awt.geom.AffineTransform;
+import java.awt.image.BufferedImage;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.stream.Collectors;
+
+import static java.util.Objects.isNull;
 
 public class SlideRenderer {
 
@@ -118,7 +115,10 @@ public class SlideRenderer {
 		}
 
 		Graphics2D g = currentImage.createGraphics();
-		refreshFrontImage(g, page.getShapes(), pParameter);
+
+		List<Shape> shapes = page.getShapes().stream().filter(shape -> !(shape instanceof ScreenCaptureShape)).collect(Collectors.toList());
+
+		refreshFrontImage(g, shapes, pParameter);
 		g.dispose();
 
 		bufferg2d.drawImage(currentImage, 0, 0, null);
@@ -240,6 +240,16 @@ public class SlideRenderer {
 			setBackImage(backImage);
 			return;
 		}
+		else if (isScreenCaptureSlide(page)) {
+			List<Shape> shapes = page.getShapes().stream().filter(shape -> shape instanceof ScreenCaptureShape).collect(Collectors.toList());
+			renderController.renderShapes(new SwingGraphicsContext(g2d), viewType, new Dimension2D(size.width, size.height), page, shapes);
+
+//			ScreenCaptureShape screenCaptureShape = (ScreenCaptureShape) page.getShapes().stream().filter(shape -> shape instanceof ScreenCaptureShape).findFirst().orElse(null);
+//			if (screenCaptureShape != null) {
+//				setBackImage(screenCaptureShape.getFrame());
+//			}
+			return;
+		}
 
 		g2d.dispose();
 
@@ -299,6 +309,10 @@ public class SlideRenderer {
 	private boolean isWhiteboardSlide(Page page) {
 		Document doc = page.getDocument();
 		return doc != null && doc.isWhiteboard();
+	}
+
+	private boolean isScreenCaptureSlide(Page page) {
+		return page.getShapes().stream().anyMatch(shape -> shape instanceof ScreenCaptureShape);
 	}
 	
 	void resizeBuffer(Dimension2D size) {

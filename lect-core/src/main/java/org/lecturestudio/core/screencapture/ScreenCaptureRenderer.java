@@ -22,7 +22,6 @@ import org.lecturestudio.core.model.Page;
 import org.lecturestudio.core.pdf.DocumentRenderer;
 import org.lecturestudio.core.view.PresentationParameter;
 
-import java.awt.*;
 import java.awt.geom.AffineTransform;
 import java.awt.image.AffineTransformOp;
 import java.awt.image.BufferedImage;
@@ -36,17 +35,17 @@ public class ScreenCaptureRenderer implements DocumentRenderer {
     public void render(Page page, PresentationParameter parameter, BufferedImage image) throws IOException {
         if (page.getDocument().isScreenCapture()) {
             synchronized (lock) {
-                ScreenCaptureDocument document = page.getDocument().getScreenCaptureDocument();
-                int pageNumber = page.getPageNumber();
-
-                // Get the frame of the page to be rendered from the document
-                BufferedImage pageFrame = document.getPageFrame(pageNumber);
-                if (pageFrame != null) {
-                    Graphics2D g = image.createGraphics();
-                    g.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BILINEAR);
-                    g.drawImage(pageFrame, 0, 0, image.getWidth(), image.getHeight(), 0, 0, pageFrame.getWidth(), pageFrame.getHeight(), null);
-                    g.dispose();
-                }
+//                ScreenCaptureDocument document = page.getDocument().getScreenCaptureDocument();
+//                int pageNumber = page.getPageNumber();
+//
+//                // Get the frame of the page to be rendered from the document
+//                BufferedImage pageFrame = document.getPageFrame(pageNumber);
+//                if (pageFrame != null) {
+//                    Graphics2D g = image.createGraphics();
+//                    g.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BILINEAR);
+//                    g.drawImage(pageFrame, 0, 0, image.getWidth(), image.getHeight(), 0, 0, pageFrame.getWidth(), pageFrame.getHeight(), null);
+//                    g.dispose();
+//                }
 
 //                DesktopSource captureSource = document.getScreenCaptureSource(pageNumber);
 //                System.out.println("Render screen capture for window: " + captureSource.title);

@@ -18,40 +18,19 @@
 
 package org.lecturestudio.core.pdf.pdfbox;
 
-import static java.util.Objects.isNull;
-import static java.util.Objects.nonNull;
-
-import java.awt.geom.AffineTransform;
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.lang.reflect.Constructor;
-import java.net.URI;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
 import org.apache.pdfbox.contentstream.operator.Operator;
-import org.apache.pdfbox.cos.COSArray;
-import org.apache.pdfbox.cos.COSBase;
-import org.apache.pdfbox.cos.COSDictionary;
-import org.apache.pdfbox.cos.COSFloat;
-import org.apache.pdfbox.cos.COSInteger;
-import org.apache.pdfbox.cos.COSName;
-import org.apache.pdfbox.cos.COSObject;
-import org.apache.pdfbox.cos.COSStream;
+import org.apache.pdfbox.cos.*;
 import org.apache.pdfbox.pdfparser.PDFStreamParser;
 import org.apache.pdfbox.pdfwriter.ContentStreamWriter;
 import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.pdmodel.PDDocumentCatalog;
 import org.apache.pdfbox.pdmodel.PDPage;
+import org.apache.pdfbox.pdmodel.PDPageContentStream;
 import org.apache.pdfbox.pdmodel.common.PDRectangle;
 import org.apache.pdfbox.pdmodel.common.PDStream;
 import org.apache.pdfbox.pdmodel.common.filespecification.PDFileSpecification;
+import org.apache.pdfbox.pdmodel.graphics.image.LosslessFactory;
+import org.apache.pdfbox.pdmodel.graphics.image.PDImageXObject;
 import org.apache.pdfbox.pdmodel.interactive.action.PDAction;
 import org.apache.pdfbox.pdmodel.interactive.action.PDActionLaunch;
 import org.apache.pdfbox.pdmodel.interactive.action.PDActionURI;
@@ -68,6 +47,19 @@ import org.lecturestudio.core.model.shape.Shape;
 import org.lecturestudio.core.pdf.DocumentAdapter;
 import org.lecturestudio.core.pdf.DocumentRenderer;
 import org.lecturestudio.core.pdf.PdfDocument;
+
+import java.awt.geom.AffineTransform;
+import java.awt.image.BufferedImage;
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.lang.reflect.Constructor;
+import java.net.URI;
+import java.util.*;
+
+import static java.util.Objects.isNull;
+import static java.util.Objects.nonNull;
 
 public class PDFBoxDocument implements DocumentAdapter {
 
@@ -274,6 +266,19 @@ public class PDFBoxDocument implements DocumentAdapter {
 	@Override
 	public void addPage(int width, int height) {
 		doc.addPage(new PDPage(new PDRectangle(width, height)));
+	}
+
+	public void addPage(int width, int height, BufferedImage image) throws IOException {
+		PDPage page = new PDPage(new PDRectangle(width, height));
+
+		PDPageContentStream content = new PDPageContentStream(doc, page);
+		PDImageXObject ximage = LosslessFactory.createFromImage(doc, image);
+
+		content.drawImage(ximage, 0, ximage.getHeight());
+
+		// content.transform(new Matrix(1, 0, 0, -1, 0, page.getMediaBox().getHeight()));
+
+		doc.addPage(page);
 	}
 
 	@Override

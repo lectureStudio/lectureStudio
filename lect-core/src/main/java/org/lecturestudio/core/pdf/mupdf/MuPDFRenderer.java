@@ -18,28 +18,20 @@
 
 package org.lecturestudio.core.pdf.mupdf;
 
-import com.artifex.mupdf.fitz.ColorSpace;
-import com.artifex.mupdf.fitz.DisplayList;
-import com.artifex.mupdf.fitz.DrawDevice;
-import com.artifex.mupdf.fitz.Matrix;
-import com.artifex.mupdf.fitz.Pixmap;
-import com.artifex.mupdf.fitz.Rect;
-import com.artifex.mupdf.fitz.RectI;
+import com.artifex.mupdf.fitz.*;
+import org.lecturestudio.core.geometry.Point2D;
+import org.lecturestudio.core.geometry.Rectangle2D;
+import org.lecturestudio.core.model.Page;
+import org.lecturestudio.core.pdf.DocumentRenderer;
+import org.lecturestudio.core.view.PresentationParameter;
 
-import java.awt.Color;
-import java.awt.Graphics2D;
+import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.awt.image.DataBufferInt;
 import java.awt.image.WritableRaster;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
-
-import org.lecturestudio.core.geometry.Point2D;
-import org.lecturestudio.core.geometry.Rectangle2D;
-import org.lecturestudio.core.model.Page;
-import org.lecturestudio.core.pdf.DocumentRenderer;
-import org.lecturestudio.core.view.PresentationParameter;
 
 public class MuPDFRenderer implements DocumentRenderer {
 

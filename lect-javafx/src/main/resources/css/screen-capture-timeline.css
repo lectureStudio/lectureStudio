@@ -1,0 +1,5 @@
+.screen-capture-timeline {
+    -fx-screen-capture-timeline-background: derive(-fx-background, -4%);
+    -fx-screen-capture-timeline-text-color: -fx-mid-text-color;
+    -fx-screen-capture-timeline-segment-mark-color: #73f565;
+}

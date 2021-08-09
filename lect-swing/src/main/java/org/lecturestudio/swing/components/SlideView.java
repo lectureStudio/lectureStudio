@@ -18,31 +18,6 @@
 
 package org.lecturestudio.swing.components;
 
-import static java.util.Objects.isNull;
-import static java.util.Objects.nonNull;
-
-import java.awt.Component;
-import java.awt.Dimension;
-import java.awt.Graphics;
-import java.awt.Graphics2D;
-import java.awt.GraphicsConfiguration;
-import java.awt.Insets;
-import java.awt.Rectangle;
-import java.awt.event.ComponentAdapter;
-import java.awt.event.ComponentEvent;
-import java.awt.geom.AffineTransform;
-import java.awt.image.BufferedImage;
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
-import java.util.concurrent.BlockingQueue;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.LinkedBlockingDeque;
-import java.util.concurrent.ThreadPoolExecutor;
-import java.util.concurrent.TimeUnit;
-
-import javax.swing.JComponent;
-
 import org.lecturestudio.core.PageMetrics;
 import org.lecturestudio.core.controller.RenderController;
 import org.lecturestudio.core.geometry.Dimension2D;
@@ -51,6 +26,7 @@ import org.lecturestudio.core.geometry.Rectangle2D;
 import org.lecturestudio.core.model.Page;
 import org.lecturestudio.core.model.listener.ParameterChangeListener;
 import org.lecturestudio.core.model.listener.ShapeListener;
+import org.lecturestudio.core.model.shape.ScreenCaptureShape;
 import org.lecturestudio.core.model.shape.Shape;
 import org.lecturestudio.core.swing.SwingGraphicsContext;
 import org.lecturestudio.core.tool.ShapeModifyEvent;
@@ -60,6 +36,21 @@ import org.lecturestudio.core.view.PageObjectView;
 import org.lecturestudio.core.view.PresentationParameter;
 import org.lecturestudio.core.view.SlideViewOverlay;
 import org.lecturestudio.core.view.ViewType;
+
+import javax.swing.*;
+import java.awt.*;
+import java.awt.event.ComponentAdapter;
+import java.awt.event.ComponentEvent;
+import java.awt.geom.AffineTransform;
+import java.awt.image.BufferedImage;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
+import java.util.concurrent.*;
+import java.util.stream.Collectors;
+
+import static java.util.Objects.isNull;
+import static java.util.Objects.nonNull;
 
 /**
  * SlideView class is responsible for viewing the slide images that are rendered
@@ -415,7 +406,9 @@ public class SlideView extends JComponent implements org.lecturestudio.core.view
 				if (OsInfo.isWindows() && page.hasShapes()) {
 					SwingGraphicsContext gc = new SwingGraphicsContext(g2d);
 
-					renderController.renderShapes(gc, getViewType(), imageRect, page, page.getShapes());
+					List<Shape> shapes = page.getShapes().stream().filter(shape -> !(shape instanceof ScreenCaptureShape)).collect(Collectors.toList());
+
+					renderController.renderShapes(gc, getViewType(), imageRect, page, shapes);
 				}
 			}
 		};
@@ -586,7 +579,31 @@ public class SlideView extends JComponent implements org.lecturestudio.core.view
 			frontImage = createBackImage(frontImage, width, height);
 		}
 
-		renderController.renderPage(backImage, page, getViewType());
+		if (isScreenCaptureSlide(page)) {
+
+			Graphics2D g2d = backImage.createGraphics();
+
+			// Clear background.
+			g2d.setBackground(Color.white);
+			g2d.clearRect(0, 0, width, height);
+
+			List<Shape> shapes = page.getShapes().stream().filter(shape -> shape instanceof ScreenCaptureShape).collect(Collectors.toList());
+			renderController.renderShapes(new SwingGraphicsContext(g2d), getViewType(), new Dimension2D(width, height), page, shapes);
+
+			g2d.dispose();
+
+//			ScreenCaptureShape screenCaptureShape = (ScreenCaptureShape) page.getShapes().stream().filter(shape -> shape instanceof ScreenCaptureShape).findFirst().orElse(null);
+//			if (screenCaptureShape != null) {
+//				setBackImage(screenCaptureShape.getFrame());
+//			}
+		}
+		else {
+			renderController.renderPage(backImage, page, getViewType());
+		}
+	}
+
+	private boolean isScreenCaptureSlide(Page page) {
+		return page.getShapes().stream().anyMatch(shape -> shape instanceof ScreenCaptureShape);
 	}
 
 	private void layoutOverlay(SlideViewOverlay overlay) {

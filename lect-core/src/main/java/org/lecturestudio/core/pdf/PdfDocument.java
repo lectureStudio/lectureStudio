@@ -18,16 +18,8 @@
 
 package org.lecturestudio.core.pdf;
 
-import java.awt.Graphics2D;
-import java.io.*;
-import java.net.URI;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.lecturestudio.core.geometry.Dimension2D;
 import org.lecturestudio.core.geometry.Rectangle2D;
 import org.lecturestudio.core.model.DocumentOutline;
@@ -35,8 +27,18 @@ import org.lecturestudio.core.model.shape.Shape;
 import org.lecturestudio.core.pdf.mupdf.MuPDFDocument;
 import org.lecturestudio.core.pdf.pdfbox.PDFBoxDocument;
 
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import java.awt.*;
+import java.awt.image.BufferedImage;
+import java.io.File;
+import java.io.IOException;
+import java.io.OutputStream;
+import java.net.URI;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class PdfDocument {
 
@@ -106,6 +108,27 @@ public class PdfDocument {
 
 		pdfBoxDocument.addPage((int) pageRect.getWidth(), (int) pageRect.getHeight());
 		muPDFDocument.addPage((int) pageRect.getWidth(), (int) pageRect.getHeight());
+
+		return getPageCount() - 1;
+	}
+
+	public int createPage(BufferedImage image) {
+		// Default page size is the size of the first page in the document.
+		Rectangle2D pageRect;
+
+		if (getPageCount() > 0) {
+			pageRect = getPageMediaBox(0);
+		}
+		else {
+			pageRect = new Rectangle2D(0, 0, 640, 460);
+		}
+
+		try {
+			pdfBoxDocument.addPage((int) pageRect.getWidth(), (int) pageRect.getHeight(), image);
+			muPDFDocument.addPage((int) pageRect.getWidth(), (int) pageRect.getHeight());
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
 
 		return getPageCount() - 1;
 	}

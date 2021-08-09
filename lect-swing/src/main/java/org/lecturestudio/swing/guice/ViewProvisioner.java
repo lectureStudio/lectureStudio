@@ -18,12 +18,21 @@
 
 package org.lecturestudio.swing.guice;
 
-import static java.util.Objects.isNull;
-import static java.util.Objects.nonNull;
-
 import com.google.inject.spi.ProvisionListener;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.lecturestudio.core.inject.Injector;
+import org.lecturestudio.core.presenter.Presenter;
+import org.lecturestudio.core.util.AggregateBundle;
+import org.lecturestudio.swing.swixml.ViewFactory;
+import org.lecturestudio.swing.swixml.ViewLoader;
+import org.lecturestudio.swing.view.SwingView;
+import org.lecturestudio.swing.view.ViewPostConstruct;
 
-import java.awt.Container;
+import javax.inject.Inject;
+import javax.inject.Provider;
+import javax.swing.*;
+import java.awt.*;
 import java.io.IOException;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
@@ -33,20 +42,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-import javax.inject.Inject;
-import javax.inject.Provider;
-import javax.swing.JComponent;
-
-import org.lecturestudio.core.inject.Injector;
-import org.lecturestudio.core.presenter.Presenter;
-import org.lecturestudio.core.util.AggregateBundle;
-import org.lecturestudio.swing.swixml.ViewFactory;
-import org.lecturestudio.swing.swixml.ViewLoader;
-import org.lecturestudio.swing.view.SwingView;
-import org.lecturestudio.swing.view.ViewPostConstruct;
-
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import static java.util.Objects.isNull;
+import static java.util.Objects.nonNull;
 
 public class ViewProvisioner implements ProvisionListener {
 

@@ -18,20 +18,32 @@
 
 package org.lecturestudio.core.recording;
 
-import org.lecturestudio.core.io.RandomAccessStream;
+import org.lecturestudio.core.screencapture.RandomAccessScreenCaptureStream;
 
+import java.awt.image.BufferedImage;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
 public class RecordedScreenCapture extends RecordedObjectBase {
 
-    private final RandomAccessStream screenCaptureStream;
+    private final RandomAccessScreenCaptureStream screenCaptureStream;
 
-    public RecordedScreenCapture(RandomAccessStream screenCaptureStream) {
+    public RecordedScreenCapture(RandomAccessScreenCaptureStream screenCaptureStream) {
         this.screenCaptureStream = screenCaptureStream;
     }
 
-    public RandomAccessStream getScreenCaptureStream() {
+    public RandomAccessScreenCaptureStream getScreenCaptureStream() {
         return screenCaptureStream;
+    }
+
+    public List<BufferedImage> getFrames() throws IOException {
+        List<BufferedImage> frames = new ArrayList<>();
+
+        byte[] bytes = screenCaptureStream.readAllBytes();
+        System.out.println("Bytes in Stream: " + bytes.length);
+
+        return frames;
     }
 
     @Override

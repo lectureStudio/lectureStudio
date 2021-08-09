@@ -147,9 +147,9 @@ public class DocumentList {
 		return documents.stream().filter(doc -> file.equals(doc.getFile())).findFirst();
 	}
 
-	public Optional<Document> getScreenCaptureById(long sourceId) {
-		return documents.stream().filter(doc -> doc.isScreenCapture() && doc.getScreenCaptureDocument().getId() == sourceId).findFirst();
-	}
+//	public Optional<Document> getScreenCaptureById(long sourceId) {
+//		return documents.stream().filter(doc -> doc.isScreenCapture() && doc.getScreenCaptureDocument().getId() == sourceId).findFirst();
+//	}
 
 	public int size() {
 		return documents.size();

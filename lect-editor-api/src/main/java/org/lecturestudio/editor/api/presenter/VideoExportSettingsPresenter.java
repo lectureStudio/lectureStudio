@@ -18,19 +18,14 @@
 
 package org.lecturestudio.editor.api.presenter;
 
-import static java.util.Objects.isNull;
-import static java.util.Objects.nonNull;
-
 import com.google.common.eventbus.Subscribe;
-
-import javax.inject.Inject;
-
 import org.lecturestudio.core.app.ApplicationContext;
 import org.lecturestudio.core.audio.AudioFormat;
 import org.lecturestudio.core.beans.ObjectProperty;
 import org.lecturestudio.core.bus.event.DocumentEvent;
 import org.lecturestudio.core.codec.CodecID;
 import org.lecturestudio.core.geometry.Dimension2D;
+import org.lecturestudio.core.geometry.Rectangle2D;
 import org.lecturestudio.core.model.Document;
 import org.lecturestudio.core.model.Page;
 import org.lecturestudio.core.presenter.Presenter;
@@ -44,6 +39,11 @@ import org.lecturestudio.media.config.RenderConfiguration;
 import org.lecturestudio.media.config.VideoRenderConfiguration;
 import org.lecturestudio.media.video.AVDefaults;
 import org.lecturestudio.media.video.VideoFormat;
+
+import javax.inject.Inject;
+
+import static java.util.Objects.isNull;
+import static java.util.Objects.nonNull;
 
 public class VideoExportSettingsPresenter extends Presenter<VideoExportSettingsView> {
 
@@ -152,9 +152,16 @@ public class VideoExportSettingsPresenter extends Presenter<VideoExportSettingsV
 		}
 
 		Page page = selectedDoc.getPage(0);
+		Rectangle2D pageRect = page.getPageRect();
 
-		double width = page.getPageRect().getWidth();
-		double height = page.getPageRect().getHeight();
+//		if (selectedDoc.isScreenCapture()) {
+//			pageRect = selectedDoc.getScreenCaptureDocument().getPageRect(0);
+//		} else {
+//			pageRect = page.getPageRect();
+//		}
+
+		double width = pageRect.getWidth();
+		double height = pageRect.getHeight();
 
 		return AVDefaults.getDimensions(width, height);
 	}

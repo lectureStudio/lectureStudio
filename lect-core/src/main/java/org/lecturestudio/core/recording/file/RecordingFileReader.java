@@ -18,17 +18,14 @@
 
 package org.lecturestudio.core.recording.file;
 
+import org.lecturestudio.core.io.RandomAccessAudioStream;
+import org.lecturestudio.core.io.RandomAccessStream;
+import org.lecturestudio.core.recording.*;
+import org.lecturestudio.core.screencapture.RandomAccessScreenCaptureStream;
+
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
-
-import org.lecturestudio.core.io.RandomAccessAudioStream;
-import org.lecturestudio.core.io.RandomAccessStream;
-import org.lecturestudio.core.recording.RecordedAudio;
-import org.lecturestudio.core.recording.RecordedDocument;
-import org.lecturestudio.core.recording.RecordedEvents;
-import org.lecturestudio.core.recording.Recording;
-import org.lecturestudio.core.recording.RecordingHeader;
 
 public class RecordingFileReader {
 
@@ -61,9 +58,15 @@ public class RecordingFileReader {
 
 		// Read audio data.
 		int audioLength = header.getAudioLength();
-		
+
+		// Read screen capture data.
+		int screenCaptureLength = header.getScreenCaptureLength();
+
 		RandomAccessStream raStream = new RandomAccessStream(srcFile, headerLength + eventsLength + docLength, audioLength);
 		RandomAccessAudioStream audioStream = new RandomAccessAudioStream(raStream);
+
+		RandomAccessStream randomAccessScreenCaptureStream = new RandomAccessStream(srcFile, headerLength + eventsLength + docLength + audioLength, screenCaptureLength);
+		RandomAccessScreenCaptureStream screenCaptureStream = new RandomAccessScreenCaptureStream(randomAccessScreenCaptureStream);
 
 		inputStream.close();
 
@@ -72,6 +75,7 @@ public class RecordingFileReader {
 		recording.setRecordedEvents(new RecordedEvents(eventData));
 		recording.setRecordedDocument(new RecordedDocument(documentData));
 		recording.setRecordedAudio(new RecordedAudio(audioStream));
+		recording.setRecordedScreenCapture(new RecordedScreenCapture(screenCaptureStream));
 		
 		return recording;
 	}

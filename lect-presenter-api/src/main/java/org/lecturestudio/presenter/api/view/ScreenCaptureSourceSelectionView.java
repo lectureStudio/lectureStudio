@@ -41,6 +41,7 @@ public interface ScreenCaptureSourceSelectionView extends View {
 
         DesktopSource getSource();
         DesktopSourceType getType();
+        BufferedImage getFrame();
 
     }
 }

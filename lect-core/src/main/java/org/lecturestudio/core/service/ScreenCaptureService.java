@@ -37,7 +37,7 @@ public class ScreenCaptureService {
     // Interval of the refresh timer to check for updates in the DesktopSources (in ms)
     private final static int SOURCE_REFRESH_INTERVAL = 3000;
 
-    private final Map<Long, ScreenCapture> screenCaptures = new HashMap<>();
+    private static final Map<Long, ScreenCapture> screenCaptures = new HashMap<>();
     private final EventBus eventBus;
 
     private final WindowCapturer windowCapturer = new WindowCapturer();
@@ -78,26 +78,14 @@ public class ScreenCaptureService {
         }
     }
 
-
-
     public void addScreenCaptureListener(ScreenCaptureCallback listener) {
         if (!listeners.contains(listener)) {
             listeners.add(listener);
         }
-
-//        ScreenCapture capture = screenCaptures.getOrDefault(source.id, new ScreenCapture(source, type));
-//        capture.addListener(listener);
-//        screenCaptures.put(source.id, capture);
     }
 
     public void removeScreenCaptureListener(ScreenCaptureCallback listener) {
         listeners.remove(listener);
-
-//        ScreenCapture capture = screenCaptures.getOrDefault(source.id, null);
-//        if (capture != null) {
-//            capture.removeListener(listener);
-//        }
-//        screenCaptures.put(source.id, capture);
     }
 
     public void requestFrame(DesktopSource source, DesktopSourceType type) {
@@ -107,15 +95,30 @@ public class ScreenCaptureService {
     }
 
     public void requestFrame(DesktopSource source, DesktopSourceType type, ScreenCaptureCallback callback) {
-        DesktopCapturer capturer = (type == DesktopSourceType.WINDOW) ? new WindowCapturer() : new ScreenCapturer();
-        capturer.selectSource(source);
-        capturer.start((result, frame) -> {
-            if (result == DesktopCapturer.Result.SUCCESS) {
-                BufferedImage image = ImageUtils.convertDesktopFrame(frame, frame.frameSize.width, frame.frameSize.height);
-                callback.onFrameCapture(source, image);
-            }
-        });
-        capturer.captureFrame();
+        ScreenCapture capture = screenCaptures.getOrDefault(source.id, new ScreenCapture(source, type));
+        capture.addListener(callback);
+        capture.requestFrame();
+
+//        DesktopCapturer capturer = (type == DesktopSourceType.WINDOW) ? new WindowCapturer() : new ScreenCapturer();
+//        capturer.selectSource(source);
+//        capturer.start((result, frame) -> {
+//            if (result == DesktopCapturer.Result.SUCCESS) {
+//
+//                // Convert frame buffer to int array
+//                IntBuffer buffer = frame.buffer.asIntBuffer();
+//                int[] pixelBuffer = new int[buffer.remaining()];
+//                buffer.get(pixelBuffer);
+//
+//                // Create buffered image from pixels
+//                BufferedImage image; //  = PngEncoderBufferedImageConverter.createFromIntArgb(pixelBuffer, frame.frameSize.width, frame.frameSize.height);
+//
+//                image = ImageUtils.createBufferedImage(frame.frameSize.width, frame.frameSize.height, Color.red);
+//
+//                callback.onFrameCapture(source, image);
+//            }
+//        });
+//
+//        CompletableFuture.runAsync(capturer::captureFrame);
     }
 
     private void setupSourceRefreshTimer() {
@@ -154,7 +157,7 @@ public class ScreenCaptureService {
 
 
 
-    private class ScreenCapture {
+    public class ScreenCapture {
 
         private final DesktopSource source;
         private final DesktopCapturer capturer;

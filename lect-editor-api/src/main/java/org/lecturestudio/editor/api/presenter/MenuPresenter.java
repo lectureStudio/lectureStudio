@@ -18,23 +18,7 @@
 
 package org.lecturestudio.editor.api.presenter;
 
-import static java.util.Objects.nonNull;
-
 import com.google.common.eventbus.Subscribe;
-
-import java.awt.Desktop;
-import java.io.ByteArrayOutputStream;
-import java.io.File;
-import java.io.IOException;
-import java.nio.file.Path;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.CompletionException;
-
-import javax.inject.Inject;
-
 import org.lecturestudio.core.ExecutableException;
 import org.lecturestudio.core.app.ApplicationContext;
 import org.lecturestudio.core.app.configuration.Configuration;
@@ -55,15 +39,25 @@ import org.lecturestudio.core.recording.Recording;
 import org.lecturestudio.core.service.DocumentService;
 import org.lecturestudio.core.service.RecentDocumentService;
 import org.lecturestudio.core.util.FileUtils;
-import org.lecturestudio.core.view.FileChooserView;
-import org.lecturestudio.core.view.ProgressDialogView;
-import org.lecturestudio.core.view.ProgressView;
-import org.lecturestudio.core.view.ViewContextFactory;
-import org.lecturestudio.core.view.ViewType;
+import org.lecturestudio.core.view.*;
 import org.lecturestudio.editor.api.context.EditorContext;
 import org.lecturestudio.editor.api.service.RecordingFileService;
 import org.lecturestudio.editor.api.view.MenuView;
 import org.lecturestudio.swing.renderer.PdfDocumentRenderer;
+
+import javax.inject.Inject;
+import java.awt.*;
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.IOException;
+import java.nio.file.Path;
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.CompletionException;
+
+import static java.util.Objects.nonNull;
 
 public class MenuPresenter extends Presenter<MenuView> {
 

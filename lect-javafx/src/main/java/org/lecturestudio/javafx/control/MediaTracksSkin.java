@@ -18,8 +18,6 @@
 
 package org.lecturestudio.javafx.control;
 
-import static java.util.Objects.nonNull;
-
 import javafx.beans.InvalidationListener;
 import javafx.beans.Observable;
 import javafx.beans.property.BooleanProperty;
@@ -47,11 +45,13 @@ import javafx.scene.shape.Line;
 import javafx.scene.shape.Rectangle;
 import javafx.scene.text.Text;
 import javafx.scene.transform.Affine;
-
 import org.lecturestudio.core.model.Time;
 import org.lecturestudio.media.track.AudioTrack;
 import org.lecturestudio.media.track.EventsTrack;
 import org.lecturestudio.media.track.MediaTrack;
+import org.lecturestudio.media.track.ScreenCaptureTrack;
+
+import static java.util.Objects.nonNull;
 
 public class MediaTracksSkin extends SkinBase<MediaTracks> {
 
@@ -295,6 +295,13 @@ public class MediaTracksSkin extends SkinBase<MediaTracks> {
 			eventTimeline.setMediaTrack((EventsTrack) track);
 
 			addMediaTrackControl(eventTimeline, "events-track-icon");
+		}
+		else if (track instanceof ScreenCaptureTrack) {
+			ScreenCaptureTimeline screenCaptureTimeline = new ScreenCaptureTimeline();
+			screenCaptureTimeline.durationProperty().bind(mediaTracks.durationProperty());
+			screenCaptureTimeline.setMediaTrack((ScreenCaptureTrack) track);
+
+			addMediaTrackControl(screenCaptureTimeline, "screen-capture-track-icon");
 		}
 	}
 

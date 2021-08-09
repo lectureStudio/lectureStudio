@@ -18,16 +18,6 @@
 
 package org.lecturestudio.swing.renderer;
 
-import static java.util.Objects.isNull;
-import static java.util.Objects.nonNull;
-
-import java.awt.geom.AffineTransform;
-import java.io.File;
-import java.io.FileOutputStream;
-import java.nio.file.Files;
-import java.util.List;
-import java.util.stream.Collectors;
-
 import org.lecturestudio.core.ExecutableBase;
 import org.lecturestudio.core.ExecutableException;
 import org.lecturestudio.core.geometry.Rectangle2D;
@@ -42,6 +32,16 @@ import org.lecturestudio.core.util.FileUtils;
 import org.lecturestudio.core.util.ProgressCallback;
 import org.lecturestudio.core.view.PresentationParameter;
 import org.lecturestudio.core.view.PresentationParameterProvider;
+
+import java.awt.geom.AffineTransform;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.nio.file.Files;
+import java.util.List;
+import java.util.stream.Collectors;
+
+import static java.util.Objects.isNull;
+import static java.util.Objects.nonNull;
 
 /**
  * Renders recorded documents and pages with annotations to a single PDF
@@ -152,6 +152,7 @@ public class PdfDocumentRenderer extends ExecutableBase {
 		renderService.registerRenderer(new StrokeRenderer());
 		renderService.registerRenderer(new RectangleRenderer());
 		renderService.registerRenderer(new TextSelectionRenderer());
+		renderService.registerRenderer(new ScreenCaptureShapeRenderer());
 	}
 
 	@Override

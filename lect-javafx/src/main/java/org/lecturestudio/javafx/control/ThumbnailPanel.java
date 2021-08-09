@@ -18,16 +18,9 @@
 
 package org.lecturestudio.javafx.control;
 
-import static java.util.Objects.isNull;
-import static java.util.Objects.nonNull;
-
-import java.util.ArrayList;
-import java.util.List;
-
 import javafx.application.Platform;
 import javafx.scene.control.ContextMenu;
 import javafx.scene.control.ListView;
-
 import org.lecturestudio.core.PageMetrics;
 import org.lecturestudio.core.controller.RenderController;
 import org.lecturestudio.core.model.Document;
@@ -36,6 +29,12 @@ import org.lecturestudio.core.model.listener.DocumentChangeListener;
 import org.lecturestudio.core.model.listener.PageSelectListener;
 import org.lecturestudio.core.view.PresentationParameterProvider;
 import org.lecturestudio.javafx.factory.PageCellFactory;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import static java.util.Objects.isNull;
+import static java.util.Objects.nonNull;
 
 public class ThumbnailPanel extends ListView<Page> {
 
@@ -137,15 +136,17 @@ public class ThumbnailPanel extends ListView<Page> {
 			return;
 		}
 
-		Page page = getDocument().getPage(0);
-		PageMetrics metrics = page.getPageMetrics();
+		if (!document.isScreenCapture()) {
+			Page page = getDocument().getPage(0);
+			PageMetrics metrics = page.getPageMetrics();
 
-		double width = getWidth();
-		double height = metrics.getHeight(width);
+			double width = getWidth();
+			double height = metrics.getHeight(width);
 
-		setFixedCellSize(height);
+			setFixedCellSize(height);
 
-		scrollToSelected();
+			scrollToSelected();
+		}
 	}
 
 	private void onDocumentChanged(Document document) {

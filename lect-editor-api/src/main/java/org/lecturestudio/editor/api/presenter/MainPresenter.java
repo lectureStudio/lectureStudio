@@ -18,24 +18,7 @@
 
 package org.lecturestudio.editor.api.presenter;
 
-import static java.util.Objects.isNull;
-import static java.util.Objects.nonNull;
-import static java.util.Objects.requireNonNull;
-
 import com.google.common.eventbus.Subscribe;
-
-import java.io.File;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.CompletionException;
-import java.util.function.Predicate;
-
-import javax.inject.Inject;
-
 import org.lecturestudio.core.app.ApplicationContext;
 import org.lecturestudio.core.app.configuration.Configuration;
 import org.lecturestudio.core.beans.BooleanProperty;
@@ -55,20 +38,23 @@ import org.lecturestudio.core.util.FileUtils;
 import org.lecturestudio.core.util.ObservableHashMap;
 import org.lecturestudio.core.util.ObservableMap;
 import org.lecturestudio.core.util.ShutdownHandler;
-import org.lecturestudio.core.view.NotificationPopupManager;
-import org.lecturestudio.core.view.NotificationPopupView;
-import org.lecturestudio.core.view.NotificationType;
-import org.lecturestudio.core.view.View;
-import org.lecturestudio.core.view.ViewContextFactory;
-import org.lecturestudio.core.view.ViewHandler;
-import org.lecturestudio.core.view.ViewLayer;
-import org.lecturestudio.media.recording.RecordingEvent;
+import org.lecturestudio.core.view.*;
 import org.lecturestudio.editor.api.input.Shortcut;
 import org.lecturestudio.editor.api.service.RecordingFileService;
 import org.lecturestudio.editor.api.util.SaveRecordingHandler;
 import org.lecturestudio.editor.api.view.MainView;
+import org.lecturestudio.media.recording.RecordingEvent;
 import org.lecturestudio.web.api.model.GitHubRelease;
 import org.lecturestudio.web.api.service.VersionChecker;
+
+import javax.inject.Inject;
+import java.io.File;
+import java.util.*;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.CompletionException;
+import java.util.function.Predicate;
+
+import static java.util.Objects.*;
 
 public class MainPresenter extends org.lecturestudio.core.presenter.MainPresenter<MainView> implements ViewHandler {
 

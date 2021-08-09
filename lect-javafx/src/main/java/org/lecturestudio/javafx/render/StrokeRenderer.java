@@ -18,14 +18,11 @@
 
 package org.lecturestudio.javafx.render;
 
-import java.util.List;
-
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.effect.BlendMode;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.StrokeLineCap;
 import javafx.scene.shape.StrokeLineJoin;
-
 import org.lecturestudio.core.geometry.PenPoint2D;
 import org.lecturestudio.core.geometry.PenStroker;
 import org.lecturestudio.core.geometry.Point2D;
@@ -34,6 +31,8 @@ import org.lecturestudio.core.model.shape.StrokeShape;
 import org.lecturestudio.core.render.Renderer;
 import org.lecturestudio.core.tool.Stroke;
 import org.lecturestudio.javafx.beans.converter.ColorConverter;
+
+import java.util.List;
 
 public class StrokeRenderer implements Renderer<GraphicsContext> {
 
@@ -50,6 +49,8 @@ public class StrokeRenderer implements Renderer<GraphicsContext> {
 		if (!shape.hasPoints()) {
 			return;
 		}
+
+		System.out.println("Stroke Renderer");
 
 		context.save();
 

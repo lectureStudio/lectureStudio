@@ -43,7 +43,7 @@ import java.util.Map;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-@SwingView(name = "screen-capture-selection", presenter = org.lecturestudio.presenter.api.presenter.ScreenCaptureSelectionPresenter.class)
+@SwingView(name = "screen-capture-selection")
 public class SwingScreenCaptureSourceSelectionView extends JPanel implements ScreenCaptureSourceSelectionView {
 
     private JLabel windowSelectionLabel;
@@ -273,6 +273,8 @@ public class SwingScreenCaptureSourceSelectionView extends JPanel implements Scr
         private ImageView imageView;
         private JLabel titleLabel;
 
+        private BufferedImage frame;
+
         public SourcePreview(DesktopSource source, DesktopSourceType type) {
             this.source = source;
             this.type = type;
@@ -285,6 +287,10 @@ public class SwingScreenCaptureSourceSelectionView extends JPanel implements Scr
 
         public DesktopSourceType getType() {
             return type;
+        }
+
+        public BufferedImage getFrame() {
+            return frame;
         }
 
         public void setType(DesktopSourceType type) {
@@ -302,14 +308,7 @@ public class SwingScreenCaptureSourceSelectionView extends JPanel implements Scr
 
         public void updateImage(BufferedImage image) {
             new UpdatePreviewTask(imageView, image).execute();
-//            SwingUtils.invoke(() -> {
-//                try {
-//                    BufferedImage croppedImage = ImageUtils.cropAndScale(image, PREVIEW_IMG_WIDTH, PREVIEW_IMG_HEIGHT);
-//
-//                } catch (IOException e) {
-//                    e.printStackTrace();
-//                }
-//            });
+            frame = image;
         }
 
         private void initialize() {

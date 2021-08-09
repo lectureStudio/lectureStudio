@@ -44,6 +44,7 @@ public class DefaultRenderContext extends RenderContext {
 		service.registerRenderer(new EllipseRenderer());
 		service.registerRenderer(new SelectRenderer());
 		service.registerRenderer(new GridRenderer());
+		service.registerRenderer(new ImageRenderer());
 
 		return service;
 	}
@@ -59,6 +60,7 @@ public class DefaultRenderContext extends RenderContext {
 		service.registerRenderer(new RectangleRenderer());
 		service.registerRenderer(new EllipseRenderer());
 		service.registerRenderer(new SelectRenderer());
+		service.registerRenderer(new ImageRenderer());
 
 		return service;
 	}
@@ -77,6 +79,7 @@ public class DefaultRenderContext extends RenderContext {
 		service.registerRenderer(new EllipseRenderer());
 		service.registerRenderer(new SelectRenderer());
 		service.registerRenderer(new GridRenderer());
+		service.registerRenderer(new ImageRenderer());
 
 		return service;
 	}

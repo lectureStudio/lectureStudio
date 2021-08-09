@@ -30,7 +30,7 @@ import org.lecturestudio.core.util.ScreenCaptureUtils;
 
 import java.awt.geom.AffineTransform;
 import java.awt.image.BufferedImage;
-import java.io.IOException;
+import java.io.*;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -49,6 +49,31 @@ public class ScreenCaptureDocument implements ScreenCaptureService.ScreenCapture
     private final List<ScreenCapturePage> pages = new ArrayList<>();
 
     private DocumentOutline outline;
+
+    public ScreenCaptureDocument(byte[] byteArray) {
+        ByteArrayInputStream bis = new ByteArrayInputStream(byteArray);
+        try {
+            ObjectInputStream objectInputStream = new ObjectInputStream(bis);
+            Object object = objectInputStream.readObject();
+
+            if (object instanceof ScreenCaptureDocument) {
+                ScreenCaptureDocument screenCaptureDocument = (ScreenCaptureDocument) object;
+                source = screenCaptureDocument.getSource();
+                type = screenCaptureDocument.getType();
+                renderer = screenCaptureDocument.renderer;
+
+                listeners.addAll(screenCaptureDocument.listeners);
+                pages.addAll(screenCaptureDocument.pages);
+
+                outline = screenCaptureDocument.outline;
+                return;
+            }
+        } catch (IOException | ClassNotFoundException e) {
+            e.printStackTrace();
+        }
+
+        throw new RuntimeException("Failed to serialize ScreenCaptureDocument from byte array.");
+    }
 
     public ScreenCaptureDocument(DesktopSource source, DesktopSourceType type) {
         this.source = source;
@@ -185,6 +210,16 @@ public class ScreenCaptureDocument implements ScreenCaptureService.ScreenCapture
     }
 
     public void close() {}
+
+    public void toOutputStream(OutputStream stream) {
+        try {
+            ObjectOutputStream outputStream = new ObjectOutputStream(stream);
+            outputStream.writeObject(this);
+            outputStream.flush();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
 
     @Override
     public void onFrameCapture(DesktopSource source, BufferedImage frame) {

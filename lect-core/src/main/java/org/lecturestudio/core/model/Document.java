@@ -23,11 +23,9 @@ import org.apache.logging.log4j.Logger;
 import org.lecturestudio.core.geometry.Dimension2D;
 import org.lecturestudio.core.geometry.Rectangle2D;
 import org.lecturestudio.core.model.listener.DocumentChangeListener;
-import org.lecturestudio.core.model.shape.ImageShape;
 import org.lecturestudio.core.model.shape.Shape;
 import org.lecturestudio.core.pdf.DocumentRenderer;
 import org.lecturestudio.core.pdf.PdfDocument;
-import org.lecturestudio.core.screencapture.ScreenCaptureDocument;
 import org.lecturestudio.core.util.FileUtils;
 
 import java.awt.image.BufferedImage;
@@ -54,6 +52,9 @@ import static java.util.Objects.nonNull;
  */
 public class Document {
 
+	private final static int DOCUMENT_FLAG_PDF = 0;
+	private final static int DOCUMENT_FLAG_SCREEN_CAPTURE = 1;
+
 	private static final Logger LOG = LogManager.getLogger(Document.class);
 	
 	private final List<DocumentChangeListener> changeListeners = new ArrayList<>();
@@ -70,7 +71,7 @@ public class Document {
 	/** The PDF document. */
 	private PdfDocument pdfDocument;
 
-	private ScreenCaptureDocument screenCaptureDocument;
+	// private ScreenCaptureDocument screenCaptureDocument;
 	
 	/** The title of the PDF document. */
 	private String title;
@@ -86,27 +87,57 @@ public class Document {
 		this(new PdfDocument(file));
 		this.file = file;
 	}
-	
-	public Document(byte[] byteArray) throws IOException {
-		this(new PdfDocument(byteArray));
-	}
-	
+
 	public Document(PdfDocument pdfDocument) {
 		initPDFDocument(pdfDocument);
 		setPageSize(new Dimension2D(640, 480));
 	}
 
-	public Document(ScreenCaptureDocument screenCaptureDocument) {
-		initScreenCapture(screenCaptureDocument);
-		setPageSize(new Dimension2D(1280, 960));
+//	public Document(ScreenCaptureDocument screenCaptureDocument) {
+//		initScreenCapture(screenCaptureDocument);
+//		setPageSize(new Dimension2D(1280, 960));
+//	}
+
+	public Document(byte[] bytes) throws IOException {
+		this(new PdfDocument(bytes));
+	}
+
+	public static Document FromByteArray(byte[] byteArray) throws IOException {
+//		ByteArrayInputStream bis = new ByteArrayInputStream(byteArray);
+//		ObjectInputStream inputStream = new ObjectInputStream(bis);
+//		try {
+//			Object o = inputStream.readObject();
+//			if (o instanceof Document) {
+//				return (Document) o;
+//			}
+//		} catch (ClassNotFoundException e) {
+//			e.printStackTrace();
+//		}
+
+//		ByteBuffer buffer = ByteBuffer.wrap(byteArray);
+//		int flag = buffer.getInt();
+//
+//		// Extract data bytes from array
+//		byte[] data = new byte[byteArray.length - 4];
+//		System.arraycopy(byteArray, 4, data, 0, data.length);
+
+//		if (flag == DOCUMENT_FLAG_PDF) {
+			return new Document(new PdfDocument(byteArray));
+//		} else if (flag == DOCUMENT_FLAG_SCREEN_CAPTURE) {
+//			return new Document(new ScreenCaptureDocument(data));
+//		}
+//
+//		return null;
 	}
 
 	public DocumentOutline getDocumentOutline() {
-		return isScreenCapture() ? screenCaptureDocument.getDocumentOutline() : pdfDocument.getDocumentOutline();
+		//return isScreenCapture() ? screenCaptureDocument.getDocumentOutline() : pdfDocument.getDocumentOutline();
+		return pdfDocument.getDocumentOutline();
 	}
 
 	public DocumentRenderer getDocumentRenderer() {
-		return isScreenCapture() ? screenCaptureDocument.getDocumentRenderer() : pdfDocument.getDocumentRenderer();
+		// return isScreenCapture() ? screenCaptureDocument.getDocumentRenderer() : pdfDocument.getDocumentRenderer();
+		return pdfDocument.getDocumentRenderer();
 	}
 
 	public void addChangeListener(DocumentChangeListener listener) {
@@ -139,10 +170,10 @@ public class Document {
 				LOG.error("Close document failed.", e);
 			}
 		}
-		if (screenCaptureDocument != null) {
-			screenCaptureDocument.close();
-			screenCaptureDocument = null;
-		}
+//		if (screenCaptureDocument != null) {
+//			screenCaptureDocument.close();
+//			screenCaptureDocument = null;
+//		}
 	}
 	
 	public void setPdfDocument(PdfDocument pdfDocument) {
@@ -151,22 +182,24 @@ public class Document {
 		fireDocumentChange();
 	}
 
-	public void setScreenCaptureDocument(ScreenCaptureDocument screenCaptureDocument) {
-		close();
-		initScreenCapture(screenCaptureDocument);
-		fireDocumentChange();
-	}
+//	public void setScreenCaptureDocument(ScreenCaptureDocument screenCaptureDocument) {
+//		close();
+//		initScreenCapture(screenCaptureDocument);
+//		fireDocumentChange();
+//	}
 
 	public void setPageSize(Dimension2D size) {
 		pageSize = size;
 	}
 
 	public Rectangle2D getPageRect(int pageIndex) {
-		return pdfDocument != null ? pdfDocument.getPageMediaBox(pageIndex) : screenCaptureDocument.getPageRect(pageIndex);
+		// return pdfDocument != null ? pdfDocument.getPageMediaBox(pageIndex) : screenCaptureDocument.getPageRect(pageIndex);
+		return pdfDocument.getPageMediaBox(pageIndex);
 	}
 
 	public String getPageText(int pageIndex) {
-		return pdfDocument != null ? pdfDocument.getPageText(pageIndex) : screenCaptureDocument.getPageText(pageIndex);
+		// return pdfDocument != null ? pdfDocument.getPageText(pageIndex) : screenCaptureDocument.getPageText(pageIndex);
+		return pdfDocument.getPageText(pageIndex);
 	}
 	
 	public List<Rectangle2D> getTextPositions(int pageIndex) {
@@ -275,7 +308,7 @@ public class Document {
 	 * at the given index.
 	 */
 	public Page getPage(int index) {
-		if (index < 0 || getPageCount() == 0)
+		if (index < 0 || index >= getPageCount())
 			return null;
 
 		return pages.get(index);
@@ -300,12 +333,12 @@ public class Document {
 		boolean isSelected = pageNumber == currentPageNumber;
 
 		if (pages.remove(page)) {
-			if (isPDF()) {
+//			if (isPDF()) {
 				pdfDocument.removePage(pageNumber);
-			}
-			else if (isScreenCapture()) {
-				screenCaptureDocument.removePage(pageNumber);
-			}
+//			}
+//			else if (isScreenCapture()) {
+//				screenCaptureDocument.removePage(pageNumber);
+//			}
 
 			if (isSelected) {
 				currentPageNumber = -1;
@@ -369,14 +402,23 @@ public class Document {
 	}
 
 	public Page createPage() {
-		int pageIndex = isScreenCapture() ? screenCaptureDocument.createPage(pageSize) : pdfDocument.createPage(pageSize);
+		int pageIndex = pdfDocument.createPage();
 
 		Page newPage = new Page(this, pageIndex);
 		addPage(newPage);
 		
 		return newPage;
 	}
-	
+
+	public Page createPage(BufferedImage image) {
+		int pageIndex = pdfDocument.createPage(image);
+
+		Page newPage = new Page(this, pageIndex);
+		addPage(newPage);
+
+		return newPage;
+	}
+
 	public Page createPage(Page page) throws IOException {
 		return importPage(page, null);
 	}
@@ -437,9 +479,9 @@ public class Document {
 		return pdfDocument;
 	}
 
-	public ScreenCaptureDocument getScreenCaptureDocument() {
-		return screenCaptureDocument;
-	}
+//	public ScreenCaptureDocument getScreenCaptureDocument() {
+//		return screenCaptureDocument;
+//	}
 	
 	public String getChecksum(MessageDigest digest) throws IOException {
 		ByteArrayOutputStream stream = new ByteArrayOutputStream();
@@ -513,42 +555,23 @@ public class Document {
 		fireAddChange(page);
 	}
 
-	protected synchronized Page importPage(Page page, Rectangle2D pageRect)
-			throws IOException {
-
-		int pageIndex = -1;
-		if (isScreenCapture()) {
-			ScreenCaptureDocument screenCaptureDocument = page.getDocument().getScreenCaptureDocument();
-			if (screenCaptureDocument != null) {
-				pageIndex = screenCaptureDocument.importPage(screenCaptureDocument, page.getPageNumber(), pageRect);
-			}
-		}
-		else {
-			PdfDocument pagePdfDocument = page.getDocument().getPdfDocument();
-			pageIndex = pdfDocument.importPage(pagePdfDocument, page.getPageNumber(), pageRect);
-		}
-
-		if (pageIndex == -1) {
-			return null;
-		}
+	protected synchronized Page importPage(Page page, Rectangle2D pageRect) throws IOException {
+		PdfDocument pagePdfDocument = page.getDocument().getPdfDocument();
+		int pageIndex = pdfDocument.importPage(pagePdfDocument, page.getPageNumber(), pageRect);
 
 		Page newPage = new Page(this, pageIndex);
+		newPage.addShapes(page.getShapes());
+
 		addPage(newPage);
 
 		return newPage;
 	}
 
 	public void replacePage(Page page, Page newPage) throws IOException {
-		if (isPDF()) {
-			PdfDocument newPdfDocument = newPage.getDocument().getPdfDocument();
-			int docIndex = newPage.getPageNumber();
+		PdfDocument newPdfDocument = newPage.getDocument().getPdfDocument();
+		int docIndex = newPage.getPageNumber();
 
-			pdfDocument.replacePage(page.getPageNumber(), newPdfDocument, docIndex);
-		}
-		else if (isScreenCapture()) {
-			ScreenCaptureDocument newScreenCaptureDocument = newPage.getDocument().getScreenCaptureDocument();
-			screenCaptureDocument.replacePage(page.getPageNumber(), newScreenCaptureDocument, newPage.getPageNumber());
-		}
+		pdfDocument.replacePage(page.getPageNumber(), newPdfDocument, docIndex);
 	}
 
 	protected void fireDocumentChange() {
@@ -583,20 +606,19 @@ public class Document {
 		loadPages();
 	}
 
-	private void initScreenCapture(ScreenCaptureDocument screenCaptureDocument) {
-		this.screenCaptureDocument = screenCaptureDocument;
-		setDocumentType(DocumentType.SCREEN_CAPTURE);
-		setTitle(screenCaptureDocument.getTitle());
-
-
-		loadPages();
-	}
+//	private void initScreenCapture(ScreenCaptureDocument screenCaptureDocument) {
+//		this.screenCaptureDocument = screenCaptureDocument;
+//		setDocumentType(DocumentType.SCREEN_CAPTURE);
+//		setTitle(screenCaptureDocument.getTitle());
+//
+//		loadPages();
+//	}
 
 	private void loadPages() {
 		pages.clear();
 
 		int pageCount;
-		if (isPDF()) {
+//		if (isPDF()) {
 			pageCount = pdfDocument.getPageCount();
 
 			for (int number = 0; number < pageCount; number++) {
@@ -612,23 +634,23 @@ public class Document {
 
 				pages.add(page);
 			}
-		}
-		else {
-			pageCount = screenCaptureDocument.getPageCount();
-			for (int i = 0; i < pageCount; i++) {
-				Page page = new Page(this, i);
-
-				// Load preview image and add it as shape
-				BufferedImage previewImage = screenCaptureDocument.getPageFrame(i);
-				if (previewImage != null)  {
-					ImageShape shape = new ImageShape();
-					shape.setImage(previewImage);
-					page.addShape(shape);
-				}
-
-				pages.add(page);
-			}
-		}
+//		}
+//		else {
+//			pageCount = screenCaptureDocument.getPageCount();
+//			for (int i = 0; i < pageCount; i++) {
+//				Page page = new Page(this, i);
+//
+//				// Load preview image and add it as shape
+//				BufferedImage previewImage = screenCaptureDocument.getPageFrame(i);
+//				if (previewImage != null)  {
+//					ImageShape shape = new ImageShape();
+//					shape.setImage(previewImage);
+//					page.addShape(shape);
+//				}
+//
+//				pages.add(page);
+//			}
+//		}
 
 		if (currentPageNumber > pageCount - 1) {
 			currentPageNumber = 0;

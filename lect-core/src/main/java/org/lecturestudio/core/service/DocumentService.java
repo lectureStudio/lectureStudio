@@ -29,10 +29,12 @@ import org.lecturestudio.core.bus.event.PageEvent;
 import org.lecturestudio.core.geometry.Dimension2D;
 import org.lecturestudio.core.geometry.Rectangle2D;
 import org.lecturestudio.core.model.*;
-import org.lecturestudio.core.screencapture.ScreenCaptureDocument;
+import org.lecturestudio.core.model.shape.ScreenCaptureShape;
+import org.lecturestudio.core.model.shape.Shape;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
+import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
 import java.util.Date;
@@ -138,20 +140,28 @@ public class DocumentService {
 	/**
 	 * Creates and selects a new screen capture.
 	 */
-	public CompletableFuture<Document> addScreenCapture(DesktopSource source, DesktopSourceType type) {
-		return CompletableFuture.supplyAsync(() -> {
-			// Try to get screen capture from documents list
-			Document document = documents.getScreenCaptureById(source.id).orElse(null);
+	public Document addScreenCapture(DesktopSource source, DesktopSourceType type, BufferedImage frame) {
+		Document screenCapture;
 
-			// Check whether the document already exists
-			if (document == null) {
-				document = createScreenCapture(source, type);
-				addDocument(document);
-			}
+		try {
+			screenCapture = createScreenCapture(source, type, frame);
+		} catch (IOException e) {
+			throw new RuntimeException("Failed to create screen capture.");
+		}
 
-			selectDocument(document);
-			return document;
-		});
+		// Try to get screen capture from documents list
+//			Document document = documents.getScreenCaptureById(source.id).orElse(null);
+
+		// Check whether the document already exists
+//			if (document == null) {
+//				document = createScreenCapture(source, type);
+//				addDocument(document);
+//			}
+
+		addDocument(screenCapture);
+		selectDocument(screenCapture);
+		return screenCapture;
+
 	}
 
 	/**
@@ -294,7 +304,28 @@ public class DocumentService {
 		Document selectedDocument = documents.getSelectedDocument();
 
 		if (nonNull(selectedDocument) && selectedDocument.isScreenCapture()) {
-			Page page = selectedDocument.createPage();
+			Page firstPage = selectedDocument.getPage(0);
+
+			ScreenCaptureShape screenCaptureShape = null;
+			for (Shape shape : firstPage.getShapes()) {
+				if (shape instanceof ScreenCaptureShape) {
+					screenCaptureShape = (ScreenCaptureShape) shape;
+					break;
+				}
+			}
+
+			if (screenCaptureShape != null) {
+				DesktopSourceType type = screenCaptureShape.getType();
+
+				Page page = selectedDocument.createPage(screenCaptureShape.getFrame());
+				screenCaptureService.requestFrame(screenCaptureShape.getSource(), screenCaptureShape.getType(), (source, frame) -> {
+					ScreenCaptureShape shape = new ScreenCaptureShape(source, type, frame);
+					page.addShape(shape);
+				});
+
+				selectPage(selectedDocument, page.getPageNumber());
+				return page;
+			}
 
 //			ScreenCaptureDocument screenCaptureDocument = selectedDocument.getScreenCaptureDocument();
 //			screenCaptureService.requestFrame(screenCaptureDocument.getSource(), screenCaptureDocument.getType(), (src, frame) -> {
@@ -304,8 +335,7 @@ public class DocumentService {
 //				context.getEventBus().post(new PageEvent(page, PageEvent.Type.CREATED));
 //			});
 
-			selectPage(selectedDocument, page.getPageNumber());
-			return page;
+			return null;
 		}
 
 		throw new IllegalArgumentException("No screen capture selected");
@@ -433,10 +463,58 @@ public class DocumentService {
 		return whiteboard;
 	}
 
-	private Document createScreenCapture(DesktopSource source, DesktopSourceType type) {
-		ScreenCaptureDocument screenCaptureDocument = new ScreenCaptureDocument(source, type);
-		Document document = new Document(screenCaptureDocument);
-		document.createPage();
+	private Document createScreenCapture(DesktopSource source, DesktopSourceType type, BufferedImage frame) throws IOException {
+
+		Document screenCapture = new Document();
+		screenCapture.setTitle(source.title);
+		screenCapture.setDocumentType(DocumentType.SCREEN_CAPTURE);
+
+//		WindowCapturer capturer = new WindowCapturer();
+//		capturer.selectSource(source);
+//		capturer.start((result, frame) -> {
+//			if (result == DesktopCapturer.Result.SUCCESS) {
+//				int width = frame.frameSize.width;
+//				int height = frame.frameSize.height;
+//
+//				BufferedImage image = ImageUtils.convertDesktopFrame(frame, width, height);
+//				screenCapture.setPageSize(new Dimension2D(width, height));
+//
+//				ImageShape shape = new ImageShape();
+//				shape.setImage(image);
+//				page.addShape(shape);
+//
+//				System.out.println("Capture");
+//			}
+//		});
+//		capturer.captureFrame();
+
+		// ScreenCaptureService.ScreenCapture capture = screenCaptureService.getScreenCaptures().getOrDefault(source.id, null);
+
+//		BufferedImage latestFrame = screenCaptureService.getFrameFromCache(source.id);
+//		if (latestFrame == null) {
+//			screenCaptureService.requestFrame(source, type);
+//			System.out.println("No frame in cache, requesting new one");
+//		}
+//
+
+		// TODO: Pass background image to createPage (BUG!)
+
+		Page page = screenCapture.createPage();
+		ScreenCaptureShape shape = new ScreenCaptureShape(source, type, frame);
+		page.addShape(shape);
+
+//		screenCaptureService.requestFrame(source, type, (src, frame) -> {
+//
+//			page.sendChangeEvent();
+//
+//			System.out.println("Add screen capture shape");
+//		});
+
+//		System.out.println("Create screen capture page");
+
+//		ScreenCaptureDocument screenCaptureDocument = new ScreenCaptureDocument(source, type);
+//		Document document = new Document(screenCaptureDocument);
+//		document.createPage();
 
 //		screenCaptureService.addScreenCaptureListener(screenCaptureDocument);
 //		screenCaptureService.requestFrame(source, type, (src, frame) -> {
@@ -451,7 +529,7 @@ public class DocumentService {
 //			}
 //		});
 
-		return document;
+		return screenCapture;
 	}
 
 	private void updateRecentDocuments(Document doc) {

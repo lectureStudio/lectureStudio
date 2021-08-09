@@ -426,7 +426,9 @@ public class ThumbPanel extends JPanel {
 			this.page = page;
 
 			if (nonNull(this.page)) {
-				renderer.setPresentationParameter(ppProvider.getParameter(page));
+				if (ppProvider != null) {
+					renderer.setPresentationParameter(ppProvider.getParameter(page));
+				}
 				renderer.setPage(page);
 			}
 		}

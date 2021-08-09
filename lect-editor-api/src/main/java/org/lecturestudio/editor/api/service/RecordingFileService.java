@@ -18,37 +18,19 @@
 
 package org.lecturestudio.editor.api.service;
 
-import static java.util.Objects.nonNull;
-
-import java.io.File;
-import java.io.FileOutputStream;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.CompletionException;
-
-import javax.inject.Inject;
-import javax.inject.Singleton;
-
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.lecturestudio.core.ExecutableException;
 import org.lecturestudio.core.app.ApplicationContext;
 import org.lecturestudio.core.bus.EventBus;
 import org.lecturestudio.core.io.RandomAccessAudioStream;
 import org.lecturestudio.core.model.Document;
-import org.lecturestudio.core.recording.RecordingEditException;
+import org.lecturestudio.core.recording.*;
 import org.lecturestudio.core.recording.edit.EditAction;
 import org.lecturestudio.core.recording.edit.ReplaceAudioAction;
-import org.lecturestudio.core.recording.RecordingChangeEvent;
-import org.lecturestudio.core.recording.RecordingChangeListener;
-import org.lecturestudio.core.recording.Recording;
 import org.lecturestudio.core.recording.file.RecordingFileReader;
 import org.lecturestudio.core.recording.file.RecordingFileWriter;
 import org.lecturestudio.core.recording.file.RecordingUtils;
-import org.lecturestudio.core.recording.RecordedAudio;
 import org.lecturestudio.core.service.DocumentService;
 import org.lecturestudio.core.util.ProgressCallback;
 import org.lecturestudio.editor.api.context.EditorContext;
@@ -58,8 +40,22 @@ import org.lecturestudio.editor.api.edit.InsertRecordingAction;
 import org.lecturestudio.editor.api.edit.ReplacePageAction;
 import org.lecturestudio.media.recording.RecordingEvent;
 
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import javax.inject.Inject;
+import javax.inject.Singleton;
+import java.awt.image.BufferedImage;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.CompletionException;
+
+import static java.util.Objects.nonNull;
 
 @Singleton
 public class RecordingFileService {
@@ -109,6 +105,14 @@ public class RecordingFileService {
 			eventBus.post(new RecordingEvent(recording, RecordingEvent.Type.CREATED));
 
 			documentService.addDocument(recording.getRecordedDocument().getDocument());
+
+			// TODO: Parse Screen Capture Stream
+
+			try {
+				List<BufferedImage> frames = recording.getRecordedScreenCapture().getFrames();
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
 
 			selectRecording(recording);
 

@@ -18,36 +18,35 @@
 
 package org.lecturestudio.editor.api.presenter;
 
-import static java.util.Objects.isNull;
-import static java.util.Objects.nonNull;
-
 import com.google.common.eventbus.Subscribe;
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.concurrent.CompletableFuture;
-
-import javax.inject.Inject;
-
 import org.lecturestudio.core.ExecutableException;
 import org.lecturestudio.core.app.ApplicationContext;
 import org.lecturestudio.core.model.Time;
 import org.lecturestudio.core.presenter.Presenter;
-import org.lecturestudio.core.recording.RecordingChangeEvent;
 import org.lecturestudio.core.recording.Recording;
+import org.lecturestudio.core.recording.RecordingChangeEvent;
 import org.lecturestudio.core.recording.RecordingEditException;
 import org.lecturestudio.core.recording.edit.RecordingEditManager;
 import org.lecturestudio.editor.api.context.EditorContext;
 import org.lecturestudio.editor.api.edit.AudioTrackOverlayAction;
-import org.lecturestudio.media.recording.RecordingEvent;
 import org.lecturestudio.editor.api.presenter.command.AdjustAudioCommand;
 import org.lecturestudio.editor.api.service.RecordingFileService;
 import org.lecturestudio.editor.api.service.RecordingPlaybackService;
 import org.lecturestudio.editor.api.view.MediaTracksView;
+import org.lecturestudio.media.recording.RecordingEvent;
 import org.lecturestudio.media.track.AudioTrack;
 import org.lecturestudio.media.track.EventsTrack;
 import org.lecturestudio.media.track.MediaTrack;
+import org.lecturestudio.media.track.ScreenCaptureTrack;
 import org.lecturestudio.media.track.control.AdjustAudioVolumeControl;
+
+import javax.inject.Inject;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.concurrent.CompletableFuture;
+
+import static java.util.Objects.isNull;
+import static java.util.Objects.nonNull;
 
 public class MediaTracksPresenter extends Presenter<MediaTracksView> {
 
@@ -141,11 +140,15 @@ public class MediaTracksPresenter extends Presenter<MediaTracksView> {
 				EventsTrack eventsTrack = new EventsTrack();
 				eventsTrack.setData(recording.getRecordedEvents().getRecordedPages());
 
+				ScreenCaptureTrack screenCaptureTrack = new ScreenCaptureTrack();
+				screenCaptureTrack.setData(recording.getRecordedScreenCapture().getScreenCaptureStream());
+
 				mediaTracks.add(audioTrack);
 				mediaTracks.add(eventsTrack);
+				mediaTracks.add(screenCaptureTrack);
 				mediaTracks.forEach(recording::addRecordingChangeListener);
 
-				view.setMediaTracks(eventsTrack, audioTrack);
+				view.setMediaTracks(screenCaptureTrack, eventsTrack, audioTrack);
 			})
 			.exceptionally(throwable -> {
 				handleException(throwable, "Create waveform failed", "open.recording.error");

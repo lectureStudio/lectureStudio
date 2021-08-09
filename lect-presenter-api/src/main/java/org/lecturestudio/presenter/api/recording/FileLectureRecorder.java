@@ -36,15 +36,16 @@ import org.lecturestudio.core.bus.event.DocumentEvent;
 import org.lecturestudio.core.bus.event.PageEvent;
 import org.lecturestudio.core.bus.event.RecordActionEvent;
 import org.lecturestudio.core.io.RandomAccessAudioStream;
-import org.lecturestudio.core.io.RandomAccessStream;
 import org.lecturestudio.core.model.Document;
 import org.lecturestudio.core.model.DocumentType;
 import org.lecturestudio.core.model.Page;
+import org.lecturestudio.core.model.shape.ScreenCaptureShape;
+import org.lecturestudio.core.model.shape.Shape;
 import org.lecturestudio.core.recording.*;
 import org.lecturestudio.core.recording.action.PlaybackAction;
 import org.lecturestudio.core.recording.action.StaticShapeAction;
 import org.lecturestudio.core.recording.file.RecordingFileWriter;
-import org.lecturestudio.core.screencapture.ScreenCaptureDocument;
+import org.lecturestudio.core.screencapture.RandomAccessScreenCaptureStream;
 import org.lecturestudio.core.screencapture.ScreenCaptureFormat;
 import org.lecturestudio.core.service.DocumentService;
 import org.lecturestudio.core.util.FileUtils;
@@ -113,7 +114,7 @@ public class FileLectureRecorder extends LectureRecorder {
 	public void startScreenCapture() throws ExecutableException {
 		Document document = documentService.getDocuments().getSelectedDocument();
 		if (document != null && document.isScreenCapture()) {
-			ScreenCaptureDocument screenCaptureDocument = document.getScreenCaptureDocument();
+			// ScreenCaptureDocument screenCaptureDocument = document.getScreenCaptureDocument();
 
 			// Create new screen capture recorder if not already exists
 			if (screenCaptureRecorder == null) {
@@ -130,8 +131,15 @@ public class FileLectureRecorder extends LectureRecorder {
 			if (screenCaptureRecorder.started()) {
 				screenCaptureRecorder.suspend();
 			} else {
-				screenCaptureRecorder.setActiveSource(screenCaptureDocument.getSource(), screenCaptureDocument.getType());
-				screenCaptureRecorder.start();
+				Page firstPage = document.getPage(0);
+				for (Shape shape : firstPage.getShapes()) {
+					if (shape instanceof ScreenCaptureShape) {
+						ScreenCaptureShape screenCaptureShape = (ScreenCaptureShape) shape;
+						screenCaptureRecorder.setActiveSource(screenCaptureShape.getSource(), screenCaptureShape.getType());
+						screenCaptureRecorder.start();
+						break;
+					}
+				}
 			}
 		}
 	}
@@ -224,10 +232,6 @@ public class FileLectureRecorder extends LectureRecorder {
 		RandomAccessAudioStream audioStream = new RandomAccessAudioStream(audioFile);
 		audioStream.reset();
 
-		File screenCaptureFile = new File(backup.getScreenCaptureFile());
-		RandomAccessStream screenCaptureStream = new RandomAccessStream(screenCaptureFile);
-		screenCaptureStream.reset();
-
 		RecordingHeader fileHeader = new RecordingHeader();
 		fileHeader.setDuration(duration);
 
@@ -236,7 +240,14 @@ public class FileLectureRecorder extends LectureRecorder {
 		recording.setRecordedAudio(new RecordedAudio(audioStream));
 		recording.setRecordedEvents(new RecordedEvents(recordedPages));
 		recording.setRecordedDocument(new RecordedDocument(recordedDocument));
-		recording.setRecordedScreenCapture(new RecordedScreenCapture(screenCaptureStream));
+
+		// Set screen capture stream if exists
+		File screenCaptureFile = new File(backup.getScreenCaptureFile());
+		if (screenCaptureFile.exists() && screenCaptureFile.isFile()) {
+			RandomAccessScreenCaptureStream screenCaptureStream = new RandomAccessScreenCaptureStream(screenCaptureFile);
+			screenCaptureStream.reset();
+			recording.setRecordedScreenCapture(new RecordedScreenCapture(screenCaptureStream));
+		}
 
 		RecordingFileWriter.write(recording, destFile, progressCallback);
 

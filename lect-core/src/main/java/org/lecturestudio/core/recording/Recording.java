@@ -29,7 +29,7 @@ import static java.util.Objects.nonNull;
 
 public class Recording {
 
-	public static final int FORMAT_VERSION = 3;
+	public static final int FORMAT_VERSION = 4;
 
 	public enum Content {
 		ALL, HEADER, AUDIO, DOCUMENT, EVENTS, SCREEN_CAPTURE

@@ -18,113 +18,69 @@
 
 package org.lecturestudio.core.screencapture;
 
-import org.lecturestudio.core.io.BitConverter;
+import dev.onvoid.webrtc.media.video.desktop.DesktopSource;
 
-import java.awt.image.BufferedImage;
-import java.awt.image.DataBufferByte;
 import java.io.File;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.channels.FileChannel;
+import java.nio.channels.SeekableByteChannel;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.StandardOpenOption;
 
 public class ScreenCaptureOutputStream {
 
     // Make sure to have a fixed number of characters for each header which matches the respective header size
-    private static final String FORMAT_HEADER = "FORM";
-    private static final String DATA_HEADER = "DATA";
-    private static final String CHANNEL_HEADER = "CHAN";
+    public static final String FORMAT_HEADER = "FORM";
+    public static final String CHANNEL_HEADER = "CHAN";
 
-    private final FileChannel channel;
+
+    // Byte Size: 4 * 2 bytes per header + 3 * 4 bytes per integer = 2 * 8 + 12 = 28 bytes
+    private static final int FORMAT_HEADER_SIZE = 8;
+
+    private final SeekableByteChannel channel;
+
     private ScreenCaptureFormat recordingFormat;
+    private DesktopSource source;
 
     private long totalBytesWritten = 0;
 
-    private int lastFrameChannelId = -1;
-    private int activeChannelId = 0;
-
     public ScreenCaptureOutputStream(File outputFile) throws IOException {
-        channel = FileChannel.open(outputFile.toPath(), StandardOpenOption.WRITE, StandardOpenOption.CREATE);
+        this(FileChannel.open(outputFile.toPath(), StandardOpenOption.WRITE, StandardOpenOption.CREATE));
     }
 
-    public void setScreenCaptureFormat(ScreenCaptureFormat format) {
+    public ScreenCaptureOutputStream(SeekableByteChannel channel) throws IOException {
+        this.channel = channel;
+        reset();
+    }
+
+    public void setScreenCaptureFormat(ScreenCaptureFormat format) throws IOException {
         this.recordingFormat = format;
+
+        // Update written header to match format
+        writeHeader();
+        reset();
     }
 
-    public ScreenCaptureOutputStream clone() {
-        // TODO: Implement actual clone
+    public void setDesktopSource(DesktopSource source) throws IOException {
+        this.source = source;
 
-        return this;
-    }
-
-    /**
-     * Set the id of the active channel. All frames written after will be associated with the active channel id.
-     *
-     * @param channelId the id of the channel.
-     */
-    public void setActiveChannelId(int channelId) {
-        this.activeChannelId = channelId;
+        writeChannelHeader();
     }
 
     public long getTotalBytesWritten() {
         return totalBytesWritten;
     }
 
-    public int writeFrameBuffer(ByteBuffer frameBuffer) throws IOException {
-        int writtenBytes = 0;
-        if (channel.isOpen()) {
-
-            // TODO: Find efficient way to compress screen capture frames
-            // BufferedImage compressedImage = ImageUtils.compress(image, 0.5f);
-
-//            byte[] frameBytes = new byte[frameBuffer.capacity()];
-//            frameBuffer.get(frameBytes);
-//
-//            byte[] compressedFrameBytes = ImageUtils.compress(frameBytes);
-//
-//            float compression = compressedFrameBytes.length / (float) frameBytes.length;
-//            System.out.println("Compressed from " + frameBytes.length + " to " + compressedFrameBytes.length + " " + compression);
-
-            int frameBufferSize = frameBuffer.capacity();
-
-            // Add offset + image data to byte buffer
-            ByteBuffer buffer = ByteBuffer.allocate(frameBufferSize + 4);
-            buffer.putInt(frameBufferSize);
-            buffer.put(frameBuffer);
-            buffer.flip();
-
-            // Handle change of channel id
-            if (activeChannelId != lastFrameChannelId) {
-                writeChannelHeader(activeChannelId);
-            }
-
-            lastFrameChannelId = activeChannelId;
-
-            // Repeat until buffer is completely written to the channel
-            while (buffer.hasRemaining()) {
-                writtenBytes += channel.write(buffer);
-            }
-        }
-
-        totalBytesWritten += writtenBytes;
-        return writtenBytes;
-    }
-
-    public int writeFrameBytes(byte[] frameBytes) throws IOException {
+    public int writeFrameBytes(byte[] frameBytes, long timestamp) throws IOException {
         int bytesWritten = 0;
         if (channel.isOpen()) {
             // Add offset + image data to byte buffer
-            ByteBuffer buffer = ByteBuffer.allocate(frameBytes.length + 4);
+            ByteBuffer buffer = ByteBuffer.allocate(frameBytes.length + 12);
             buffer.putInt(frameBytes.length);
+            buffer.putLong(timestamp);
             buffer.put(frameBytes);
             buffer.flip();
-
-            // Handle change of channel id
-            if (activeChannelId != lastFrameChannelId) {
-                writeChannelHeader(activeChannelId);
-            }
-            lastFrameChannelId = activeChannelId;
 
             // Repeat until buffer is completely written to the channel
             while (buffer.hasRemaining()) {
@@ -136,49 +92,42 @@ public class ScreenCaptureOutputStream {
         return bytesWritten;
     }
 
-    /**
-     * Writes a new frame to the output stream including its data size.
-     *
-     * @param image The image frame to be written.
-     * @return The number of bytes written to the stream.
-     */
-    public int writeFrame(BufferedImage image) throws IOException {
-        DataBufferByte imageBuffer = (DataBufferByte) image.getRaster().getDataBuffer();
-        return writeFrameBuffer(ByteBuffer.wrap(imageBuffer.getData()));
-    }
-
     public void reset() throws IOException {
         // Prevent header from being overwritten
-        channel.position(12);
+        channel.position(FORMAT_HEADER_SIZE);
     }
 
     public void close() throws IOException {
         writeHeader();
-        channel.force(true);
+
         channel.close();
     }
 
     /**
      * Inserts a channel header chunk into the output stream to indicate a channel switch.
-     *
-     * @param channelId The id of the channel to be switched to.
      */
-    private void writeChannelHeader(int channelId) throws IOException {
-        ByteBuffer header = ByteBuffer.allocate(8);
+    private void writeChannelHeader() throws IOException {
+        byte[] sourceTitleBytes = source.title.getBytes(StandardCharsets.UTF_8);
+
+        ByteBuffer header = ByteBuffer.allocate(16 + sourceTitleBytes.length);
         header.put(CHANNEL_HEADER.getBytes(StandardCharsets.UTF_8));
-        header.put(BitConverter.getLittleEndianBytes(channelId));
+        header.putLong(source.id);
+        header.putInt(sourceTitleBytes.length);
+        header.put(sourceTitleBytes);
         header.flip();
 
         channel.write(header);
     }
 
+    /**
+     * Writes the header containing the ScreenCaptureFormat to the channel.
+     */
     private void writeHeader() throws IOException {
         int frameRate = this.recordingFormat.getFrameRate();
 
-        ByteBuffer header = ByteBuffer.allocate(12);
+        ByteBuffer header = ByteBuffer.allocate(FORMAT_HEADER_SIZE);
         header.put(FORMAT_HEADER.getBytes(StandardCharsets.UTF_8));
-        header.put(BitConverter.getLittleEndianBytes(frameRate));
-        header.put(DATA_HEADER.getBytes(StandardCharsets.UTF_8));
+        header.putInt(frameRate);
         header.flip();
 
         // Write header at start of file

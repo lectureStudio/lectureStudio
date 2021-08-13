@@ -40,6 +40,7 @@ import org.lecturestudio.editor.api.service.RecordingFileService;
 import org.lecturestudio.editor.api.service.RecordingPlaybackService;
 import org.lecturestudio.editor.api.view.SlidesView;
 import org.lecturestudio.media.event.MediaPlayerProgressEvent;
+import org.lecturestudio.media.event.ScreenCaptureFrameEvent;
 
 import javax.inject.Inject;
 import java.util.HashMap;
@@ -148,6 +149,11 @@ public class SlidesPresenter extends Presenter<SlidesView> {
 		double progress = 1.0 * event.getCurrentTime().getMillis() / event.getTotalTime().getMillis();
 
 		editorContext.setPrimarySelection(progress);
+	}
+
+	@Subscribe
+	public void onEvent(final ScreenCaptureFrameEvent event) {
+		view.setScreenCaptureFrame(event.getFrame());
 	}
 
 	private void nextPage() {

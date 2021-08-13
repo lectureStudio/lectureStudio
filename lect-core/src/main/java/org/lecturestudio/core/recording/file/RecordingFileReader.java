@@ -59,14 +59,15 @@ public class RecordingFileReader {
 		// Read audio data.
 		int audioLength = header.getAudioLength();
 
-		// Read screen capture data.
-		int screenCaptureLength = header.getScreenCaptureLength();
-
 		RandomAccessStream raStream = new RandomAccessStream(srcFile, headerLength + eventsLength + docLength, audioLength);
 		RandomAccessAudioStream audioStream = new RandomAccessAudioStream(raStream);
 
-		RandomAccessStream randomAccessScreenCaptureStream = new RandomAccessStream(srcFile, headerLength + eventsLength + docLength + audioLength, screenCaptureLength);
-		RandomAccessScreenCaptureStream screenCaptureStream = new RandomAccessScreenCaptureStream(randomAccessScreenCaptureStream);
+		// Read screen capture data.
+		int screenCaptureLength = header.getScreenCaptureLength();
+		int screenCaptureOffset = headerLength + eventsLength + docLength + audioLength;
+
+		RandomAccessStream raScreenCaptureStream = new RandomAccessStream(srcFile, screenCaptureOffset, screenCaptureLength);
+		RandomAccessScreenCaptureStream screenCaptureStream = new RandomAccessScreenCaptureStream(raScreenCaptureStream);
 
 		inputStream.close();
 

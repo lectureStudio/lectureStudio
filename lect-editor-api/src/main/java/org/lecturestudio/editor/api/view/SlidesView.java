@@ -28,6 +28,8 @@ import org.lecturestudio.core.view.PresentationParameter;
 import org.lecturestudio.core.view.PresentationParameterProvider;
 import org.lecturestudio.core.view.View;
 
+import java.awt.image.BufferedImage;
+
 public interface SlidesView extends View {
 
 	void addDocument(Document doc, PresentationParameterProvider ppProvider);
@@ -51,5 +53,7 @@ public interface SlidesView extends View {
 	void setOnSelectPage(ConsumerAction<Page> action);
 
 	void setOnViewTransform(ConsumerAction<Matrix> action);
+
+	void setScreenCaptureFrame(BufferedImage frame);
 
 }

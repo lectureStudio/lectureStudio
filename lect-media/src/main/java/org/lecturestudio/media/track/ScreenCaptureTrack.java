@@ -22,8 +22,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.lecturestudio.core.recording.RecordingChangeEvent;
 import org.lecturestudio.core.screencapture.RandomAccessScreenCaptureStream;
-import org.lecturestudio.media.screencapture.ScreenCaptureData;
-import org.lecturestudio.media.screencapture.ScreenCaptureDataBuilder;
+import org.lecturestudio.core.screencapture.ScreenCaptureData;
 
 import java.io.IOException;
 
@@ -31,24 +30,10 @@ public class ScreenCaptureTrack extends MediaTrackBase<RandomAccessScreenCapture
 
     private static final Logger LOG = LogManager.getLogger(AudioTrack.class);
 
-    private final ScreenCaptureDataBuilder builder;
-
     private ScreenCaptureData screenCaptureData;
 
-
-    public ScreenCaptureTrack() {
-        builder = new ScreenCaptureDataBuilder();
-    }
-
-    @Override
-    public void setData(RandomAccessScreenCaptureStream stream) {
-        try {
-            screenCaptureData = builder.build(stream.getCaptureFormat(), stream.clone());
-        } catch (IOException e) {
-            LOG.error("Failed to create screen capture data.", e);
-        }
-
-        super.setData(stream);
+    public void setData(ScreenCaptureData screenCaptureData) {
+        this.screenCaptureData = screenCaptureData;
     }
 
     @Override
@@ -67,7 +52,7 @@ public class ScreenCaptureTrack extends MediaTrackBase<RandomAccessScreenCapture
             case ALL:
             case SCREEN_CAPTURE:
                 dispose();
-                setData(event.getRecording().getRecordedScreenCapture().getScreenCaptureStream().clone());
+                setData(event.getRecording().getRecordedScreenCapture().getScreenCaptureData());
                 break;
         }
     }

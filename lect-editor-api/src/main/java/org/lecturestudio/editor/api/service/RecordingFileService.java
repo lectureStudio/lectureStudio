@@ -42,10 +42,8 @@ import org.lecturestudio.media.recording.RecordingEvent;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
-import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.FileOutputStream;
-import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
@@ -105,14 +103,6 @@ public class RecordingFileService {
 			eventBus.post(new RecordingEvent(recording, RecordingEvent.Type.CREATED));
 
 			documentService.addDocument(recording.getRecordedDocument().getDocument());
-
-			// TODO: Parse Screen Capture Stream
-
-			try {
-				List<BufferedImage> frames = recording.getRecordedScreenCapture().getFrames();
-			} catch (IOException e) {
-				e.printStackTrace();
-			}
 
 			selectRecording(recording);
 

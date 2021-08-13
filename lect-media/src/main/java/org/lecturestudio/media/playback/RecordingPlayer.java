@@ -18,47 +18,42 @@
 
 package org.lecturestudio.media.playback;
 
-import static java.util.Objects.isNull;
-import static java.util.Objects.nonNull;
-
-import java.util.Iterator;
-
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.lecturestudio.core.ExecutableBase;
+import org.lecturestudio.core.ExecutableException;
+import org.lecturestudio.core.ExecutableState;
+import org.lecturestudio.core.app.ApplicationContext;
 import org.lecturestudio.core.app.configuration.AudioConfiguration;
-import org.lecturestudio.core.audio.AudioFormat;
-import org.lecturestudio.core.audio.AudioPlayer;
-import org.lecturestudio.core.audio.AudioUtils;
-import org.lecturestudio.media.avdev.AvdevAudioPlayer;
-import org.lecturestudio.core.audio.Player;
-import org.lecturestudio.core.audio.SyncState;
+import org.lecturestudio.core.audio.*;
 import org.lecturestudio.core.audio.bus.AudioBus;
-import org.lecturestudio.media.avdev.AVdevAudioOutputDevice;
 import org.lecturestudio.core.audio.device.AudioOutputDevice;
 import org.lecturestudio.core.audio.source.AudioInputStreamSource;
 import org.lecturestudio.core.bus.ApplicationBus;
 import org.lecturestudio.core.controller.ToolController;
 import org.lecturestudio.core.io.RandomAccessAudioStream;
-import org.lecturestudio.core.ExecutableException;
-import org.lecturestudio.core.ExecutableState;
-import org.lecturestudio.core.app.ApplicationContext;
 import org.lecturestudio.core.model.Document;
 import org.lecturestudio.core.model.Page;
 import org.lecturestudio.core.model.Time;
-import org.lecturestudio.core.recording.EventExecutor;
-import org.lecturestudio.core.recording.Recording;
-import org.lecturestudio.core.recording.RecordedAudio;
-import org.lecturestudio.core.recording.RecordedEvents;
-import org.lecturestudio.core.recording.RecordedPage;
+import org.lecturestudio.core.recording.*;
 import org.lecturestudio.core.recording.action.PlaybackAction;
 import org.lecturestudio.core.recording.action.StaticShapeAction;
+import org.lecturestudio.core.screencapture.ScreenCaptureData;
+import org.lecturestudio.core.screencapture.ScreenCaptureSequence;
 import org.lecturestudio.core.view.PresentationParameter;
 import org.lecturestudio.core.view.PresentationParameterProvider;
 import org.lecturestudio.core.view.ViewType;
+import org.lecturestudio.media.avdev.AVdevAudioOutputDevice;
+import org.lecturestudio.media.avdev.AvdevAudioPlayer;
 import org.lecturestudio.media.event.MediaPlayerProgressEvent;
 import org.lecturestudio.media.event.MediaPlayerStateEvent;
+import org.lecturestudio.media.event.ScreenCaptureFrameEvent;
 
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import java.awt.image.BufferedImage;
+import java.util.Iterator;
+
+import static java.util.Objects.isNull;
+import static java.util.Objects.nonNull;
 
 public class RecordingPlayer extends ExecutableBase {
 
@@ -258,7 +253,14 @@ public class RecordingPlayer extends ExecutableBase {
 		resetPages(pageNumber, previousPage);
 		
 		actionExecutor.seekByTime(seekTime);
-		
+
+		// TODO: Seek only at certain intervals to reduce number of posted events + seek operations
+
+		BufferedImage frame = seekScreenCaptureFrame(seekTime);
+		if (frame != null) {
+			ApplicationBus.post(new ScreenCaptureFrameEvent(frame));
+		}
+
 		previousPage = pageNumber;
 		
 		onAudioPlaybackProgress(new Time(timeMs), duration);
@@ -271,6 +273,17 @@ public class RecordingPlayer extends ExecutableBase {
 		super.fireStateChanged();
 
 		ApplicationBus.post(new MediaPlayerStateEvent(getState()));
+	}
+
+	private BufferedImage seekScreenCaptureFrame(long seekTime) {
+		ScreenCaptureData screenCaptureData = recording.getRecordedScreenCapture().getScreenCaptureData();
+		if (screenCaptureData != null) {
+			ScreenCaptureSequence sequence = screenCaptureData.seekSequence(seekTime);
+			if (sequence != null) {
+				return sequence.seekFrame(seekTime);
+			}
+		}
+		return null;
 	}
 
 	private void selectPage(int pageNumber, boolean startPlayback) throws Exception {
@@ -297,6 +310,12 @@ public class RecordingPlayer extends ExecutableBase {
 		if (startPlayback) {
 			start();
 		}
+	}
+
+	private void initScreenCapturePlayer(RecordedScreenCapture screenCapture) throws Exception {
+		// TODO: Implement screen capture player
+
+
 	}
 
 	private void initAudioPlayer(RecordedAudio audio) throws Exception {

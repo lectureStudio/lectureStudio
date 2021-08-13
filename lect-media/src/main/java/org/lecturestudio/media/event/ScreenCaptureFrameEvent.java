@@ -16,27 +16,19 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package org.lecturestudio.media.screencapture;
+package org.lecturestudio.media.event;
 
-public class ScreenCaptureData {
+import java.awt.image.BufferedImage;
 
-    public final ScreenCaptureSegment[] segments;
+public class ScreenCaptureFrameEvent {
 
-    public ScreenCaptureData(ScreenCaptureSegment[] segments) {
-        this.segments = segments;
+    private final BufferedImage frame;
+
+    public ScreenCaptureFrameEvent(BufferedImage frame) {
+        this.frame = frame;
     }
 
-    public static class ScreenCaptureSegment {
-
-        public final int timestamp;
-        public final int duration;
-        public final int sourceId;
-
-        public ScreenCaptureSegment(int timestamp, int duration, int sourceId) {
-            this.timestamp = timestamp;
-            this.duration = duration;
-            this.sourceId = sourceId;
-        }
+    public BufferedImage getFrame() {
+        return frame;
     }
 }
-

@@ -41,6 +41,7 @@ import org.lecturestudio.media.track.ScreenCaptureTrack;
 import org.lecturestudio.media.track.control.AdjustAudioVolumeControl;
 
 import javax.inject.Inject;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
@@ -140,8 +141,14 @@ public class MediaTracksPresenter extends Presenter<MediaTracksView> {
 				EventsTrack eventsTrack = new EventsTrack();
 				eventsTrack.setData(recording.getRecordedEvents().getRecordedPages());
 
+				try {
+					recording.getRecordedScreenCapture().parseStream();
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
+
 				ScreenCaptureTrack screenCaptureTrack = new ScreenCaptureTrack();
-				screenCaptureTrack.setData(recording.getRecordedScreenCapture().getScreenCaptureStream());
+				screenCaptureTrack.setData(recording.getRecordedScreenCapture().getScreenCaptureData());
 
 				mediaTracks.add(audioTrack);
 				mediaTracks.add(eventsTrack);

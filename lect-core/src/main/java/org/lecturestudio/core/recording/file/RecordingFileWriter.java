@@ -22,7 +22,6 @@ import org.lecturestudio.core.io.DigestRandomAccessFile;
 import org.lecturestudio.core.io.RandomAccessAudioStream;
 import org.lecturestudio.core.recording.Recording;
 import org.lecturestudio.core.recording.RecordingHeader;
-import org.lecturestudio.core.screencapture.RandomAccessScreenCaptureStream;
 import org.lecturestudio.core.util.ProgressCallback;
 
 import java.io.File;
@@ -50,7 +49,7 @@ public final class RecordingFileWriter {
 		byte[] docData = recFile.getRecordedDocument().toByteArray();
 
 		boolean hasScreenCapture = recFile.getRecordedScreenCapture() != null;
-		RandomAccessScreenCaptureStream screenCaptureStream = hasScreenCapture ? recFile.getRecordedScreenCapture().getScreenCaptureStream() : null;
+		InputStream screenCaptureStream = hasScreenCapture ? recFile.getRecordedScreenCapture().getScreenCaptureStream() : null;
 
 		int headerLength = header.getHeaderLength();
 		int eventsLength = eventData.length;

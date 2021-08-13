@@ -81,6 +81,18 @@ public class ScreenCaptureTimeline extends MediaTrackControlBase<ScreenCaptureTr
         return background;
     }
 
+    public Paint getTextColor() {
+        return textColor.get();
+    }
+
+    public void setTextColor(Paint value) {
+        textColor.set(value);
+    }
+
+    public StyleableObjectProperty<Paint> textColorProperty() {
+        return textColor;
+    }
+
     public void setSegmentMarkColor(Paint value) {
         segmentMarkColor.set(value);
     }

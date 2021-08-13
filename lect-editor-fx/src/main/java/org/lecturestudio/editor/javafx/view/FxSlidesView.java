@@ -18,28 +18,15 @@
 
 package org.lecturestudio.editor.javafx.view;
 
-import static java.util.Objects.isNull;
-import static java.util.Objects.nonNull;
-
-import java.util.ArrayList;
-import java.util.List;
-
 import javafx.beans.value.ChangeListener;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.scene.Node;
 import javafx.scene.Scene;
-import javafx.scene.control.ContextMenu;
-import javafx.scene.control.MenuItem;
-import javafx.scene.control.SplitPane;
-import javafx.scene.control.Tab;
-import javafx.scene.control.TabPane;
-import javafx.scene.control.TextField;
-import javafx.scene.control.TitledPane;
+import javafx.scene.control.*;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.VBox;
 import javafx.scene.transform.TransformChangedEvent;
-
 import org.lecturestudio.core.controller.RenderController;
 import org.lecturestudio.core.geometry.Matrix;
 import org.lecturestudio.core.model.Document;
@@ -54,6 +41,13 @@ import org.lecturestudio.javafx.control.SlideView;
 import org.lecturestudio.javafx.control.ThumbnailPanel;
 import org.lecturestudio.javafx.util.FxUtils;
 import org.lecturestudio.javafx.view.FxmlView;
+
+import java.awt.image.BufferedImage;
+import java.util.ArrayList;
+import java.util.List;
+
+import static java.util.Objects.isNull;
+import static java.util.Objects.nonNull;
 
 @FxmlView(name = "main-slides")
 public class FxSlidesView extends VBox implements SlidesView {
@@ -75,6 +69,8 @@ public class FxSlidesView extends VBox implements SlidesView {
 	private ConsumerAction<Page> selectPageAction;
 
 	private ConsumerAction<Matrix> viewTransformAction;
+
+	private ConsumerAction<BufferedImage> screenCaptureSequenceAction;
 
 	private RenderController pageRenderer;
 
@@ -206,6 +202,11 @@ public class FxSlidesView extends VBox implements SlidesView {
 	@Override
 	public void setOnViewTransform(ConsumerAction<Matrix> action) {
 		this.viewTransformAction = action;
+	}
+
+	@Override
+	public void setScreenCaptureFrame(BufferedImage frame) {
+		slideView.renderBufferedImage(frame);
 	}
 
 	@FXML

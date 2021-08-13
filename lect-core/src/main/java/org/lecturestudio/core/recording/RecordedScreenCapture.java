@@ -19,31 +19,41 @@
 package org.lecturestudio.core.recording;
 
 import org.lecturestudio.core.screencapture.RandomAccessScreenCaptureStream;
+import org.lecturestudio.core.screencapture.ScreenCaptureData;
+import org.lecturestudio.core.screencapture.ScreenCaptureDataParser;
 
-import java.awt.image.BufferedImage;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
 
 public class RecordedScreenCapture extends RecordedObjectBase {
 
-    private final RandomAccessScreenCaptureStream screenCaptureStream;
+    private RandomAccessScreenCaptureStream screenCaptureStream;
+    private ScreenCaptureData screenCaptureData;
 
     public RecordedScreenCapture(RandomAccessScreenCaptureStream screenCaptureStream) {
         this.screenCaptureStream = screenCaptureStream;
+    }
+
+    public void setScreenCaptureStream(RandomAccessScreenCaptureStream stream) throws IOException {
+        if (this.screenCaptureStream != null) {
+            this.screenCaptureStream.close();
+        }
+
+        this.screenCaptureStream = stream;
     }
 
     public RandomAccessScreenCaptureStream getScreenCaptureStream() {
         return screenCaptureStream;
     }
 
-    public List<BufferedImage> getFrames() throws IOException {
-        List<BufferedImage> frames = new ArrayList<>();
+    public void parseStream() throws IOException {
+        if (screenCaptureStream != null && screenCaptureStream.available() > 0) {
+            // TODO: Perform parsing in async thread
+            screenCaptureData = ScreenCaptureDataParser.parseStream(screenCaptureStream);
+        }
+    }
 
-        byte[] bytes = screenCaptureStream.readAllBytes();
-        System.out.println("Bytes in Stream: " + bytes.length);
-
-        return frames;
+    public ScreenCaptureData getScreenCaptureData() {
+        return screenCaptureData;
     }
 
     @Override
@@ -52,7 +62,5 @@ public class RecordedScreenCapture extends RecordedObjectBase {
     }
 
     @Override
-    public void parseFrom(byte[] input) throws IOException {
-
-    }
+    public void parseFrom(byte[] input) throws IOException {}
 }

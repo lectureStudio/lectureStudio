@@ -118,13 +118,8 @@ public class FileLectureRecorder extends LectureRecorder {
 
 			// Create new screen capture recorder if not already exists
 			if (screenCaptureRecorder == null) {
-				try {
-					screenCaptureRecorder = new ScreenCaptureRecorder();
-					screenCaptureRecorder.setScreenCaptureFormat(screenCaptureFormat);
-					screenCaptureRecorder.setBackupFile(new File(backup.getScreenCaptureFile()));
-				} catch (IOException e) {
-					e.printStackTrace();
-				}
+				screenCaptureRecorder = new ScreenCaptureRecorder(new File(backup.getScreenCaptureFile()));
+				screenCaptureRecorder.setScreenCaptureFormat(screenCaptureFormat);
 			}
 
 			// Suspend if recorder is currently running
@@ -135,6 +130,7 @@ public class FileLectureRecorder extends LectureRecorder {
 				for (Shape shape : firstPage.getShapes()) {
 					if (shape instanceof ScreenCaptureShape) {
 						ScreenCaptureShape screenCaptureShape = (ScreenCaptureShape) shape;
+						screenCaptureRecorder.setTimeOffset(getElapsedTime());
 						screenCaptureRecorder.setActiveSource(screenCaptureShape.getSource(), screenCaptureShape.getType());
 						screenCaptureRecorder.start();
 						break;
@@ -245,7 +241,6 @@ public class FileLectureRecorder extends LectureRecorder {
 		File screenCaptureFile = new File(backup.getScreenCaptureFile());
 		if (screenCaptureFile.exists() && screenCaptureFile.isFile()) {
 			RandomAccessScreenCaptureStream screenCaptureStream = new RandomAccessScreenCaptureStream(screenCaptureFile);
-			screenCaptureStream.reset();
 			recording.setRecordedScreenCapture(new RecordedScreenCapture(screenCaptureStream));
 		}
 

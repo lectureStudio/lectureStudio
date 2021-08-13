@@ -18,9 +18,9 @@
 
 package org.lecturestudio.core.recording;
 
-import java.io.IOException;
-
 import org.lecturestudio.core.io.RandomAccessAudioStream;
+
+import java.io.IOException;
 
 public class RecordedAudio extends RecordedObjectBase {
 
@@ -34,7 +34,6 @@ public class RecordedAudio extends RecordedObjectBase {
 	public void setAudioStream(RandomAccessAudioStream stream) throws IOException {
 		if (this.audioStream != null) {
 			this.audioStream.close();
-			this.audioStream = null;
 		}
 
 		this.audioStream = stream;

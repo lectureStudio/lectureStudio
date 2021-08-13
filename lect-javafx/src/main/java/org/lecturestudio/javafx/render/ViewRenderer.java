@@ -18,16 +18,19 @@
 
 package org.lecturestudio.javafx.render;
 
-import static java.util.Objects.isNull;
+import org.lecturestudio.core.app.configuration.GridConfiguration;
+import org.lecturestudio.core.controller.RenderController;
+import org.lecturestudio.core.geometry.Dimension2D;
+import org.lecturestudio.core.model.Document;
+import org.lecturestudio.core.model.Page;
+import org.lecturestudio.core.model.shape.Shape;
+import org.lecturestudio.core.model.shape.*;
+import org.lecturestudio.core.swing.SwingGraphicsContext;
+import org.lecturestudio.core.view.PresentationParameter;
+import org.lecturestudio.core.view.ViewType;
+import org.lecturestudio.swing.converter.RectangleConverter;
 
-import java.awt.BasicStroke;
-import java.awt.Color;
-import java.awt.Dimension;
-import java.awt.Graphics;
-import java.awt.Graphics2D;
-import java.awt.GraphicsConfiguration;
-import java.awt.GraphicsEnvironment;
-import java.awt.Rectangle;
+import java.awt.*;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
@@ -35,23 +38,7 @@ import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.lecturestudio.core.app.configuration.GridConfiguration;
-import org.lecturestudio.core.controller.RenderController;
-import org.lecturestudio.core.geometry.Dimension2D;
-import org.lecturestudio.core.model.Document;
-import org.lecturestudio.core.model.Page;
-import org.lecturestudio.core.model.shape.ArrowShape;
-import org.lecturestudio.core.model.shape.EllipseShape;
-import org.lecturestudio.core.model.shape.GridShape;
-import org.lecturestudio.core.model.shape.LineShape;
-import org.lecturestudio.core.model.shape.StrokeShape;
-import org.lecturestudio.core.model.shape.RectangleShape;
-import org.lecturestudio.core.model.shape.Shape;
-import org.lecturestudio.core.model.shape.TextSelectionShape;
-import org.lecturestudio.core.view.PresentationParameter;
-import org.lecturestudio.core.view.ViewType;
-import org.lecturestudio.core.swing.SwingGraphicsContext;
-import org.lecturestudio.swing.converter.RectangleConverter;
+import static java.util.Objects.isNull;
 
 public class ViewRenderer {
 

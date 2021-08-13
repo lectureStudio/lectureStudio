@@ -25,7 +25,8 @@ import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.transform.Affine;
 import org.lecturestudio.core.model.Time;
 import org.lecturestudio.core.screencapture.RandomAccessScreenCaptureStream;
-import org.lecturestudio.media.screencapture.ScreenCaptureData;
+import org.lecturestudio.core.screencapture.ScreenCaptureSequence;
+import org.lecturestudio.core.screencapture.ScreenCaptureData;
 import org.lecturestudio.media.track.ScreenCaptureTrack;
 
 import java.util.function.Consumer;
@@ -124,14 +125,20 @@ public class ScreenCaptureTimelineSkin extends MediaTrackControlSkinBase {
 
     private void paintScreenCaptures(GraphicsContext ctx, double height, double pixelPerSecond, double tx) {
         ctx.setStroke(screenCaptureTimeline.getSegmentMarkColor());
-        ctx.setLineWidth(5);
+        ctx.setLineWidth(height);
 
         ScreenCaptureData data = screenCaptureTimeline.getMediaTrack().getScreenCaptureData();
-        for (ScreenCaptureData.ScreenCaptureSegment segment : data.segments) {
-            double startX = pixelPerSecond * segment.timestamp / 1000 + tx;
-            double endX = pixelPerSecond * (segment.timestamp + segment.duration) / 1000 + tx;
+        for (ScreenCaptureSequence sequence : data.getSequences().values()) {
+            double startX = pixelPerSecond * sequence.getStartTime() / 1000 + tx;
+            double endX = pixelPerSecond * (sequence.getEndTime()) / 1000 + tx;
 
+            // Draw stroke
             ctx.strokeLine(snap(startX), height / 2, snap(endX), height / 2);
+
+            // Draw sequence title into stroke
+            ctx.setFill(screenCaptureTimeline.getTextColor());
+            ctx.setTextBaseline(VPos.CENTER);
+            ctx.fillText(sequence.getSource().title, snap(startX), height / 2);
         }
     }
 

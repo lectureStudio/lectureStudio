@@ -107,11 +107,11 @@ public class RecordingBackup {
 		RandomAccessAudioStream audioStream = new RandomAccessAudioStream(audioFile);
 		audioStream.reset();
 
-		RecordingHeader fileHeader = new RecordingHeader();
-		fileHeader.setDuration(duration);
-
 		RandomAccessScreenCaptureStream screenCaptureStream = new RandomAccessScreenCaptureStream(screenCaptureFile);
 		screenCaptureStream.reset();
+
+		RecordingHeader fileHeader = new RecordingHeader();
+		fileHeader.setDuration(duration);
 
 		Recording recording = new Recording();
 		recording.setRecordingHeader(fileHeader);

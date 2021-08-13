@@ -18,12 +18,6 @@
 
 package org.lecturestudio.javafx.control;
 
-import static java.util.Objects.isNull;
-
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.ReadOnlyObjectProperty;
 import javafx.beans.property.ReadOnlyObjectWrapper;
@@ -31,11 +25,7 @@ import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.value.WritableValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
-import javafx.css.CssMetaData;
-import javafx.css.StyleConverter;
-import javafx.css.Styleable;
-import javafx.css.StyleableObjectProperty;
-import javafx.css.StyleableProperty;
+import javafx.css.*;
 import javafx.css.converter.EnumConverter;
 import javafx.event.EventHandler;
 import javafx.geometry.Bounds;
@@ -45,7 +35,6 @@ import javafx.scene.control.Control;
 import javafx.scene.control.Skin;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.transform.Affine;
-
 import org.lecturestudio.core.controller.RenderController;
 import org.lecturestudio.core.geometry.Rectangle2D;
 import org.lecturestudio.core.model.Page;
@@ -54,6 +43,13 @@ import org.lecturestudio.core.view.PageObjectView;
 import org.lecturestudio.core.view.PresentationParameter;
 import org.lecturestudio.core.view.SlideViewOverlay;
 import org.lecturestudio.core.view.ViewType;
+
+import java.awt.image.BufferedImage;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+
+import static java.util.Objects.isNull;
 
 public class SlideView extends Control implements ParameterChangeListener {
 
@@ -277,7 +273,12 @@ public class SlideView extends Control implements ParameterChangeListener {
 
 		updateViewTransform();
 	}
-	
+
+	public void renderBufferedImage(BufferedImage image) {
+		SlideViewSkin skin = (SlideViewSkin) getSkin();
+		skin.renderScreenCaptureFrame(image);
+	}
+
 	/**
 	 * @return The CssMetaData associated with this class, which may include the
 	 *         CssMetaData of its super classes.

@@ -180,6 +180,10 @@ public class SlideViewSkin extends SkinBase<SlideView> {
 		}
 	}
 
+	public void renderScreenCaptureFrame(BufferedImage frame) {
+		renderThread.onTask(new FrameRenderTask(frame));
+	}
+
 	private void initLayout(SlideView control, ReadOnlyObjectWrapper<Bounds> canvasBounds) {
 		renderThread = executors.get(control.getViewType());
 
@@ -374,7 +378,7 @@ public class SlideViewSkin extends SkinBase<SlideView> {
 			renderer.renderPage(getSkinnable().getPage(), new Dimension(
 					(int) viewSize.getWidth(), (int) viewSize.getHeight()));
 
-			updateBuffer(null);
+			updateBuffer(null, renderer.getImage());
 		});
 	}
 
@@ -405,12 +409,13 @@ public class SlideViewSkin extends SkinBase<SlideView> {
 		renderThread.onTask(renderPageTask);
 	}
 
-	private void updateBuffer(final Rectangle clip) {
+	private void updateBuffer(final Rectangle clip, BufferedImage image) {
 		final Graphics2D g2d = slideImage.createGraphics();
 		if (nonNull(clip)) {
 			g2d.setClip(clip.x, clip.y, clip.width, clip.height);
 		}
-		g2d.drawImage(renderer.getImage(), 0, 0, null);
+
+		g2d.drawImage(image, 0, 0, null);
 		g2d.dispose();
 
 		Runnable fxRunnable = () -> {
@@ -507,7 +512,7 @@ public class SlideViewSkin extends SkinBase<SlideView> {
 		public void render() {
 			renderer.renderPage(getSkinnable().getPage(), new Dimension((int) viewSize.getWidth(), (int) viewSize.getHeight()));
 
-			updateBuffer(null);
+			updateBuffer(null, renderer.getImage());
 		}
 	}
 
@@ -536,7 +541,7 @@ public class SlideViewSkin extends SkinBase<SlideView> {
 
 				renderer.renderForeground();
 
-				updateBuffer(null);
+				updateBuffer(null, renderer.getImage());
 			}
 			else {
 				final Page page = event.getPage();
@@ -544,9 +549,23 @@ public class SlideViewSkin extends SkinBase<SlideView> {
 
 				renderer.render(page, shape, clip);
 
-				updateBuffer(clip);
+				updateBuffer(clip, renderer.getImage());
 			}
 		}
 	}
 
+	private class FrameRenderTask implements RenderThreadTask {
+
+		private final BufferedImage frame;
+
+		public FrameRenderTask(final BufferedImage frame) {
+			this.frame = frame;
+		}
+
+		@Override
+		public void render() throws Exception {
+			renderer.renderForeground();
+			updateBuffer(null, frame);
+		}
+	}
 }

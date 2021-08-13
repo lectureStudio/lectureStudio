@@ -29,7 +29,7 @@ public class RandomAccessScreenCaptureStream extends DynamicInputStream {
 
     private final DynamicInputStream inputStream;
 
-    private ScreenCaptureFormat captureFormat;
+    private ScreenCaptureFormat screenCaptureFormat;
 
     public RandomAccessScreenCaptureStream(File file) throws IOException {
         this(new RandomAccessStream(file));
@@ -41,12 +41,12 @@ public class RandomAccessScreenCaptureStream extends DynamicInputStream {
         this.inputStream = inputStream;
     }
 
-    public ScreenCaptureFormat getCaptureFormat() {
-        return captureFormat;
+    public ScreenCaptureFormat getScreenCaptureFormat() {
+        return screenCaptureFormat;
     }
 
-    public void setCaptureFormat(ScreenCaptureFormat captureFormat) {
-        this.captureFormat = captureFormat;
+    public void setScreenCaptureFormat(ScreenCaptureFormat screenCaptureFormat) {
+        this.screenCaptureFormat = screenCaptureFormat;
     }
 
     public void writeFrame(BufferedImage frame, int channelId) {

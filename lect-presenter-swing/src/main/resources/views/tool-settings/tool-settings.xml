@@ -77,7 +77,7 @@
                 <gridbagconstraints gridx="2" gridy="7" anchor="GridBagConstraints.WEST" insets="5,0,5,0"/>
             </EllipseToolPreview>
             <box.vglue>
-                <gridbagconstraints gridx="0" gridy="4" weighty="1.0"/>
+                <gridbagconstraints gridx="0" gridy="8" weightx="1.0" weighty="1.0" gridwidth="3"/>
             </box.vglue>
         </Panel>
     </ScrollPane>

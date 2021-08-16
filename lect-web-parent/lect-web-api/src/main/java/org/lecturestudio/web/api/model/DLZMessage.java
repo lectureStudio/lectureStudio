@@ -9,4 +9,5 @@ public class DLZMessage {
     public String sender;
     public String senderId;
     public String url;
+    public String type;
 }

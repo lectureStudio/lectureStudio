@@ -70,6 +70,7 @@ public class DLZMessageService {
                 //UserName name = roomClient.getDisplayName(message.sender);
                 UserProfile name = roomClient.getProfile(message.sender);
                 nmessage.sender = name.getDisplayName();
+                nmessage.type = message.content.msgtype;
 
                 nmessage.url = message.content.url;
                 messages.add(0,nmessage);

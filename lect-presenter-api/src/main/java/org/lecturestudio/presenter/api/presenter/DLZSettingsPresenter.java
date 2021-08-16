@@ -61,16 +61,19 @@ public class DLZSettingsPresenter extends Presenter<DLZSettingsView> {
                 List<DLZMessage> messages = messageservice.getNewMessages();
 
                 for (var message : messages) {
-                    String text = message.message;
+                    if(message.type == "m.text") {
+                        String text = message.message;
 
-                    MessengerMessage messengerMessage = new MessengerMessage();
-                    messengerMessage.setDate(new Date());
-                    messengerMessage.setMessage(new Message(text));
-                    messengerMessage.setRemoteAddress(message.sender);
+                        MessengerMessage messengerMessage = new MessengerMessage();
+                        messengerMessage.setDate(new Date());
+                        messengerMessage.setMessage(new Message(text));
+                        messengerMessage.setRemoteAddress(message.sender);
 
-                    context.getEventBus().post(messengerMessage);
+                        context.getEventBus().post(messengerMessage);
 
-                    showNotificationPopup("New DLZ Message", text);
+                        showNotificationPopup("New DLZ Message", text);
+                    }
+                    //TODO Ablauf für Bild einfügen
                 }
             }
         }

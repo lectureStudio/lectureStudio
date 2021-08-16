@@ -18,6 +18,7 @@
 
 package org.lecturestudio.web.api.message;
 
+import java.awt.image.BufferedImage;
 import java.util.Date;
 import java.util.Objects;
 
@@ -29,15 +30,23 @@ public class MessengerMessage extends WebMessage {
 
 	private Message message;
 
+	private BufferedImage picture;
 
 	public MessengerMessage() {
-		this(null, null, null);
+		this(null, null, null, null);
 	}
 
 	public MessengerMessage(Message message, String remoteAddress, Date date) {
 		setMessage(message);
 		setRemoteAddress(remoteAddress);
 		setDate(date);
+	}
+
+	public MessengerMessage(Message message, String remoteAddress, Date date, BufferedImage picture) {
+		setMessage(message);
+		setRemoteAddress(remoteAddress);
+		setDate(date);
+		setImage(picture);
 	}
 
 	/**
@@ -66,6 +75,14 @@ public class MessengerMessage extends WebMessage {
 	 */
 	public void setMessage(Message message) {
 		this.message = message;
+	}
+
+	public void setImage(BufferedImage picture){
+		this.picture = picture;
+	}
+
+	public BufferedImage getImage(){
+		return picture;
 	}
 
 	@Override

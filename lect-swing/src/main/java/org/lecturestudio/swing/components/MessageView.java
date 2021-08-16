@@ -20,18 +20,13 @@ package org.lecturestudio.swing.components;
 
 import static java.util.Objects.nonNull;
 
-import java.awt.BorderLayout;
-import java.awt.Color;
-import java.awt.GridBagConstraints;
-import java.awt.GridBagLayout;
+import java.awt.*;
+import java.awt.image.BufferedImage;
+import java.io.BufferedReader;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
-import javax.swing.BorderFactory;
-import javax.swing.JLabel;
-import javax.swing.JPanel;
-import javax.swing.JScrollPane;
-import javax.swing.JTextArea;
+import javax.swing.*;
 
 public class MessageView extends JPanel {
 
@@ -43,6 +38,9 @@ public class MessageView extends JPanel {
 
 	private JTextArea textArea;
 
+	private JComponent imageView;
+
+	private BufferedImage image;
 
 	public MessageView() {
 		super();
@@ -62,6 +60,10 @@ public class MessageView extends JPanel {
 		textArea.setText(message);
 	}
 
+	public void setImage(BufferedImage picture) {
+		image = picture;
+		repaint();
+	}
 	private void initialize() {
 		setLayout(new BorderLayout(1, 1));
 		setBackground(Color.WHITE);
@@ -95,12 +97,28 @@ public class MessageView extends JPanel {
 		textArea.setWrapStyleWord(true);
 		textArea.setFont(textArea.getFont().deriveFont(12f));
 
+		imageView = new JComponent() {
+
+			@Override
+			protected void paintComponent(Graphics g) {
+				if(image != null){
+					super.paintComponent(g);
+					g.drawImage(image, 0, 0, null);
+				}
+			}
+
+		};
+		imageView.setPreferredSize(new Dimension(200, 100));
+
 		JScrollPane scrollPane = new JScrollPane(textArea);
 		scrollPane.setBorder(BorderFactory.createEmptyBorder(2, 5, 2, 5));
 		scrollPane.setOpaque(false);
 		scrollPane.getViewport().setOpaque(false);
 
+
 		add(controlPanel, BorderLayout.NORTH);
 		add(scrollPane, BorderLayout.CENTER);
+		add(imageView, BorderLayout.SOUTH);
 	}
+
 }

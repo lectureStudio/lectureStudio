@@ -12,8 +12,9 @@ module org.lecturestudio.web.api {
 	requires org.apache.logging.log4j.core;
 	requires org.lecturestudio.core;
 	requires java.ws.rs;
+    requires java.desktop;
 
-	exports org.lecturestudio.web.api.client;
+    exports org.lecturestudio.web.api.client;
 	exports org.lecturestudio.web.api.service;
 	exports org.lecturestudio.web.api.data;
 	exports org.lecturestudio.web.api.filter;

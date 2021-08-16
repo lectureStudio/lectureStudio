@@ -332,7 +332,7 @@ public class MainPresenter extends org.lecturestudio.core.presenter.MainPresente
 		ExecutableState state = event.getState();
 
 		if (state == ExecutableState.Starting) {
-			showWaitingNotification("messenger.starting");
+			showWaitingNotification("dlzmessenger.starting");
 		}
 		else if (state == ExecutableState.Started) {
 			hideWaitingNotification();

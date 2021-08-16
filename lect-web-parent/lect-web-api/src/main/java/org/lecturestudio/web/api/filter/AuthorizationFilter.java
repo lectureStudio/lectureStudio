@@ -12,13 +12,13 @@ public class AuthorizationFilter implements ClientRequestFilter {
     private static final String BEARER = "Bearer ";
     private static String token;
 
-    /*public static void setToken(String Token) {
+    public static void setToken(String Token) {
         token = Token;
-    }*/
+    }
 
     @Override
     public void filter(ClientRequestContext requestContext) {
-        String token = System.getProperty("dlz.token");
+        //String token = System.getProperty("dlz.token");
 
         if (nonNull(token)) {
             requestContext.getHeaders().putSingle(AUTHORIZATION, BEARER + token);

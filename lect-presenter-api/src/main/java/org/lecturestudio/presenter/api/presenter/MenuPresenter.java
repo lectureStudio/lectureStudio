@@ -24,21 +24,20 @@ import static java.util.Objects.nonNull;
 import com.google.common.eventbus.Subscribe;
 
 import java.awt.Desktop;
+import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.net.URI;
 import java.nio.file.Path;
 import java.text.MessageFormat;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Timer;
-import java.util.TimerTask;
+import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionException;
 
+import javax.imageio.ImageIO;
 import javax.inject.Inject;
 
 import org.lecturestudio.core.ExecutableException;
@@ -91,7 +90,8 @@ import org.lecturestudio.presenter.api.service.StreamService;
 import org.lecturestudio.presenter.api.service.WebService;
 import org.lecturestudio.presenter.api.view.MenuView;
 import org.lecturestudio.presenter.api.view.MessengerWindow;
-import org.lecturestudio.web.api.model.Room;
+import org.lecturestudio.web.api.message.MessengerMessage;
+import org.lecturestudio.web.api.model.Message;
 import org.lecturestudio.web.api.model.quiz.Quiz;
 import org.lecturestudio.web.api.service.DLZMessageService;
 
@@ -430,6 +430,11 @@ public class MenuPresenter extends Presenter<MenuView> {
 		CompletableFuture.runAsync(() -> {
 			try {
 				streamService.start();
+				PresenterConfiguration config = (PresenterConfiguration) context.getConfiguration();
+				if(config.getDlzRoom() != null) {
+					String link = "http://127.0.0.1/stream";
+					org.lecturestudio.web.api.service.DLZSendMessageService.SendTextMessage("Live-Stream wurde gestartet " + link , config.getDlzRoom().getId());
+				}
 			}
 			catch (ExecutableException e) {
 				throw new CompletionException(e);
@@ -497,12 +502,34 @@ public class MenuPresenter extends Presenter<MenuView> {
 
 	public void startDLZ(){
 		DLZMessageService.active = true;
-		System.out.println("DLZ-Chat gestartet");
 		PresenterConfiguration config = (PresenterConfiguration) context.getConfiguration();
-		System.out.println(config.getDlzRoom().getName());
-		//org.lecturestudio.web.api.service.DLZSendMessageService.SendTextMessage("Test aus lectstudio" , config.getDlzRoom().getId());
 		context.getEventBus().post(new DLZStateEvent(ExecutableState.Starting));
+		//org.lecturestudio.web.api.service.DLZSendMessageService.SendTextMessage("Test aus lectstudio" , config.getDlzRoom().getId());
 		context.getEventBus().post(new DLZStateEvent(ExecutableState.Started));
+		try {
+			InputStream test;
+			test = org.lecturestudio.web.api.service.DLZPictureService.getPic();
+			BufferedImage imBuff = ImageIO.read(test);
+			System.out.println(imBuff);
+
+
+			MessengerMessage messengerMessage = new MessengerMessage();
+			messengerMessage.setDate(new Date());
+			messengerMessage.setImage(imBuff);
+			messengerMessage.setMessage(new Message("Test"));
+
+			context.getEventBus().post(messengerMessage);
+
+			showNotificationPopup("DLZ Bild");
+		}
+		catch (Exception e){
+			e.printStackTrace();
+		}
+		/*try {
+			org.lecturestudio.web.api.service.DLZPictureService.readUrl();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}*/
 	}
 
 	public void stopDLZ(){

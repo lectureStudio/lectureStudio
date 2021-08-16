@@ -11,7 +11,7 @@ import org.lecturestudio.presenter.api.presenter.MenuPresenter;
 import org.lecturestudio.presenter.api.view.DLZSettingsView;
 import org.lecturestudio.swing.util.SwingUtils;
 import org.lecturestudio.swing.view.SwingView;
-import org.lecturestudio.web.api.model.Room;
+import org.lecturestudio.web.api.model.DLZRoom;
 
 import javax.swing.*;
 import java.util.List;
@@ -20,7 +20,7 @@ import java.util.Vector;
 @SwingView(name = "dlz-settings", presenter = org.lecturestudio.presenter.api.presenter.DLZSettingsPresenter.class)
 public class SwingDLZSettingsView extends JPanel implements DLZSettingsView {
 
-    private JComboBox<Room> roomsCombo;
+    private JComboBox<DLZRoom> roomsCombo;
 
     private JTextField dlzAccessTokenTextField;
 
@@ -36,15 +36,19 @@ public class SwingDLZSettingsView extends JPanel implements DLZSettingsView {
 
 
     @Override
-    public void setRooms(List<Room> rooms) {
+    public void setRooms(List<DLZRoom> rooms) {
         SwingUtils.invoke(() -> roomsCombo
                 .setModel(new DefaultComboBoxModel<>(new Vector<>(rooms))));
         System.out.println(rooms);
     }
 
     @Override
-    public void setRoom(ObjectProperty<Room> room) { SwingUtils.bindBidirectional(roomsCombo, room);
+    public void setRoom(ObjectProperty<DLZRoom> room) {
+        SwingUtils.invoke(() -> {
+            SwingUtils.bindBidirectional(roomsCombo, room);
+        });
     }
+
 
     @Override
     public void setDLZAccessToken(ObjectProperty<String> AccessToken) {

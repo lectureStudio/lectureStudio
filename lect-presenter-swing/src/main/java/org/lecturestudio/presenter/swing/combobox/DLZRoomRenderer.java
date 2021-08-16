@@ -19,7 +19,7 @@
 package org.lecturestudio.presenter.swing.combobox;
 
 import org.lecturestudio.broadcast.config.BroadcastProfile;
-import org.lecturestudio.web.api.model.Room;
+import org.lecturestudio.web.api.model.DLZRoom;
 
 import javax.swing.*;
 import java.awt.*;
@@ -33,7 +33,7 @@ public class DLZRoomRenderer extends DefaultListCellRenderer {
 			int index, boolean isSelected, boolean cellHasFocus) {
 		super.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
 
-		Room room = (Room) value;
+		DLZRoom room = (DLZRoom) value;
 
 		if (nonNull(room)) {
 			setText(String.format("%s", room.getName()));

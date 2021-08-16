@@ -11,8 +11,8 @@ import org.lecturestudio.presenter.api.view.DLZSettingsView;
 import org.lecturestudio.web.api.client.RoomService;
 import org.lecturestudio.web.api.message.MessengerMessage;
 import org.lecturestudio.web.api.model.DLZMessage;
+import org.lecturestudio.web.api.model.DLZRoom;
 import org.lecturestudio.web.api.model.Message;
-import org.lecturestudio.web.api.model.Room;
 import org.lecturestudio.web.api.service.DLZMessageService;
 import org.lecturestudio.web.api.service.DLZRoomService;
 
@@ -20,7 +20,7 @@ import org.lecturestudio.web.api.service.DLZRoomService;
 import javax.inject.Inject;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.net.UnknownHostException;
+//import java.net.UnknownHostException;
 import java.util.Date;
 import java.util.List;
 import java.util.concurrent.Executors;
@@ -63,6 +63,7 @@ public class DLZSettingsPresenter extends Presenter<DLZSettingsView> {
                 for (var message : messages) {
                     String text = message.message;
 
+
                     MessengerMessage messengerMessage = new MessengerMessage();
                     messengerMessage.setDate(new Date());
                     messengerMessage.setMessage(new Message(text));
@@ -84,15 +85,15 @@ public class DLZSettingsPresenter extends Presenter<DLZSettingsView> {
         }
     }, 0, 3, TimeUnit.SECONDS);
 
-        view.setRoom(config.dlzRoomProperty());
         view.setRooms(setRoomList());
+        view.setRoom(config.dlzRoomProperty());
         view.setOnClose(this::close);
         view.setOnReset(this::reset);
         view.setDLZAccessToken(config.DLZAccessToken());
     }
 
-    public List<Room> setRoomList() {
-        List<Room> rooms = null;
+    public List<DLZRoom> setRoomList() {
+        List<DLZRoom> rooms = null;
         try {
             rooms = DLZRoomService.getRooms();
         } catch (Exception e) {
@@ -102,6 +103,7 @@ public class DLZSettingsPresenter extends Presenter<DLZSettingsView> {
     }
 
     public void reset() {
+
         PresenterConfiguration config = (PresenterConfiguration) context.getConfiguration();
     }
 

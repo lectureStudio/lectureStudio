@@ -26,7 +26,7 @@ import org.lecturestudio.web.api.model.*;
 })
 public interface RoomService {
 
-    public static ObjectProperty<Room> defaultRoom = new ObjectProperty<Room>();
+    public static ObjectProperty<DLZRoom> defaultRoom = new ObjectProperty<DLZRoom>();
 
     /**
      * Gets a list of the user's current rooms in which the user has {@code joined}

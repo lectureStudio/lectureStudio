@@ -23,7 +23,7 @@ import org.lecturestudio.core.beans.BooleanProperty;
 import org.lecturestudio.core.beans.IntegerProperty;
 import org.lecturestudio.core.beans.ObjectProperty;
 import org.lecturestudio.core.beans.StringProperty;
-import org.lecturestudio.web.api.model.Room;
+import org.lecturestudio.web.api.model.DLZRoom;
 
 public class PresenterConfiguration extends Configuration {
 
@@ -48,7 +48,7 @@ public class PresenterConfiguration extends Configuration {
 
 	private final NetworkConfiguration networkConfig = new NetworkConfiguration();
 
-	private final ObjectProperty<Room> dlzRoom = new ObjectProperty<>();
+	private final ObjectProperty<DLZRoom> dlzRoom = new ObjectProperty<>();
 
 	private final ObjectProperty<String> dlzAccessToken = new ObjectProperty<>();
 
@@ -172,15 +172,15 @@ public class PresenterConfiguration extends Configuration {
 		return quizConfig;
 	}
 
-	public Room getDlzRoom() {
+	public DLZRoom getDlzRoom() {
 		return dlzRoom.get();
 	}
 
-	public void setDlzRoom(Room room) {
+	public void setDlzRoom(DLZRoom room) {
 		dlzRoom.set(room);
 	}
 
-	public ObjectProperty<Room> dlzRoomProperty() {
+	public ObjectProperty<DLZRoom> dlzRoomProperty() {
 		return dlzRoom;
 	}
 
@@ -189,7 +189,7 @@ public class PresenterConfiguration extends Configuration {
 
 	public void setDlzAccessToken(String DLZAccessToken) {
 		dlzAccessToken.set(DLZAccessToken);
-		//org.lecturestudio.web.api.filter.AuthorizationFilter.setToken(DLZAccessToken);
+		org.lecturestudio.web.api.filter.AuthorizationFilter.setToken(DLZAccessToken);
 	}
 
 	public ObjectProperty<String> DLZAccessToken() {

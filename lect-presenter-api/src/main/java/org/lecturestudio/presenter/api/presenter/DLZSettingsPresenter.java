@@ -12,7 +12,7 @@ import org.lecturestudio.web.api.client.RoomService;
 import org.lecturestudio.web.api.message.MessengerMessage;
 import org.lecturestudio.web.api.model.DLZMessage;
 import org.lecturestudio.web.api.model.Message;
-import org.lecturestudio.web.api.model.Room;
+import org.lecturestudio.web.api.model.DLZRoom;
 import org.lecturestudio.web.api.service.DLZMessageService;
 import org.lecturestudio.web.api.service.DLZRoomService;
 
@@ -74,6 +74,9 @@ public class DLZSettingsPresenter extends Presenter<DLZSettingsView> {
                         showNotificationPopup("New DLZ Message", text);
                     }
                     //TODO Ablauf für Bild einfügen
+                    if(message.type == "m.image"){
+
+                    }
                 }
             }
         }
@@ -94,8 +97,8 @@ public class DLZSettingsPresenter extends Presenter<DLZSettingsView> {
         view.setDLZAccessToken(config.DLZAccessToken());
     }
 
-    public List<Room> setRoomList() {
-        List<Room> rooms = null;
+    public List<DLZRoom> setRoomList() {
+        List<DLZRoom> rooms = null;
         try {
             rooms = DLZRoomService.getRooms();
         } catch (Exception e) {

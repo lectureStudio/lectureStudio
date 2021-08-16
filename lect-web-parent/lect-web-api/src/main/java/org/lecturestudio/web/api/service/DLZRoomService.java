@@ -1,9 +1,8 @@
 package org.lecturestudio.web.api.service;
 
-import org.lecturestudio.web.api.exception.MatrixUnauthorizedException;
 import org.lecturestudio.web.api.model.DLZMessage;
 import org.lecturestudio.web.api.model.JoinedRooms;
-import org.lecturestudio.web.api.model.Room;
+import org.lecturestudio.web.api.model.DLZRoom;
 
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -12,9 +11,9 @@ import java.util.List;
 
 public class DLZRoomService {
 
-    public static List<Room> getRooms() {
+    public static List<DLZRoom> getRooms() {
         String domain = "https://chat.etit.tu-darmstadt.de";
-        List<Room> rooms = new ArrayList<Room>();
+        List<DLZRoom> rooms = new ArrayList<DLZRoom>();
 
         try {
             DLZService matrixClient = new DLZService(new URI(domain));
@@ -25,7 +24,7 @@ public class DLZRoomService {
             for (int i = 0; i < roomsId.getRoomIds().size(); i++) {
                 try{
                     JoinedRooms aliases = matrixClient.getRoomClient().getRoomAliases(roomsId.getRoomIds().get(i));
-                    rooms.add(new Room(roomsId.getRoomIds().get(i), aliases.getRoomName()));
+                    rooms.add(new DLZRoom(roomsId.getRoomIds().get(i), aliases.getRoomName()));
                     System.out.println(aliases.getRoomName());
                 }
                 catch (Exception e){

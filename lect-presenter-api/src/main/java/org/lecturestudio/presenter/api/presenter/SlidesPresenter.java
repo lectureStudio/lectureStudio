@@ -76,6 +76,7 @@ import org.lecturestudio.core.view.ViewType;
 import org.lecturestudio.presenter.api.config.NetworkConfiguration;
 import org.lecturestudio.presenter.api.config.PresenterConfiguration;
 import org.lecturestudio.presenter.api.context.PresenterContext;
+import org.lecturestudio.presenter.api.event.DLZStateEvent;
 import org.lecturestudio.presenter.api.event.MessengerStateEvent;
 import org.lecturestudio.presenter.api.event.QuizStateEvent;
 import org.lecturestudio.presenter.api.event.StreamingStateEvent;
@@ -200,6 +201,20 @@ public class SlidesPresenter extends Presenter<SlidesView> {
 
 	@Subscribe
 	public void onEvent(final MessengerStateEvent event) {
+		this.messengerState = event.getState();
+
+		view.setMessengerState(event.getState());
+
+		if (event.getState() == ExecutableState.Stopped) {
+			// Clear messenger view.
+			view.setMessengerMessage(null);
+		}
+
+		checkRemoteServiceState();
+	}
+
+	@Subscribe
+	public void onEvent(final DLZStateEvent event) {
 		this.messengerState = event.getState();
 
 		view.setMessengerState(event.getState());

@@ -20,11 +20,13 @@ package org.lecturestudio.web.api.model;
 
 import java.io.Serializable;
 import java.util.Objects;
+import java.awt.image.BufferedImage;
 
 public class Message extends ServiceModel implements Comparable<Message>, Cloneable, Serializable {
 
 	private String text;
 
+	private BufferedImage picture;
 
 	public Message() {
 		this(null);
@@ -40,6 +42,14 @@ public class Message extends ServiceModel implements Comparable<Message>, Clonea
 	
 	public void setText(String text) {
 		this.text = text;
+	}
+
+	public void setImage(BufferedImage picture){
+		this.picture = picture;
+	}
+
+	public BufferedImage getImage(){
+		return picture;
 	}
 	
 	@Override

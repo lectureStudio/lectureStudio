@@ -49,8 +49,8 @@ public class SwingMessengerWindow extends JFrame implements MessengerWindow {
 			messageView.setDate(message.getDate());
 			messageView.setHost(message.getRemoteAddress());
 			messageView.setMessage(message.getMessage().getText());
+			messageView.setImage(message.getImage());
 			messageView.setPreferredSize(new Dimension(250, 50));
-
 			container.add(messageView);
 			container.revalidate();
 		});
@@ -58,7 +58,6 @@ public class SwingMessengerWindow extends JFrame implements MessengerWindow {
 
 	@Override
 	public void setTextSize(double size) {
-
 	}
 
 	@Override

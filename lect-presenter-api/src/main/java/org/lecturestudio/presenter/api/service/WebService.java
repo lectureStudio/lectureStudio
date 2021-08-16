@@ -115,6 +115,11 @@ public class WebService extends ExecutableBase {
 
 		startService(new MessageWebService(context));
 
+		PresenterConfiguration config = (PresenterConfiguration) context.getConfiguration();
+		if(config.getDlzRoom() != null) {
+			String link = "http://127.0.0.1/message";
+			org.lecturestudio.web.api.service.DLZSendMessageService.SendTextMessage("Messenger wurde gestartet " + link , config.getDlzRoom().getId());
+		}
 		context.getEventBus().post(new MessengerStateEvent(ExecutableState.Started));
 	}
 
@@ -185,6 +190,12 @@ public class WebService extends ExecutableBase {
 		startService(service);
 
 		lastQuiz = quiz;
+
+		PresenterConfiguration config = (PresenterConfiguration) context.getConfiguration();
+		if(config.getDlzRoom() != null) {
+			String link = "http://127.0.0.1/quiz";
+			org.lecturestudio.web.api.service.DLZSendMessageService.SendTextMessage("Neues Quiz wurde veröffentlicht " + link , config.getDlzRoom().getId());
+		}
 
 		context.getEventBus().post(new QuizStateEvent(ExecutableState.Started));
 	}

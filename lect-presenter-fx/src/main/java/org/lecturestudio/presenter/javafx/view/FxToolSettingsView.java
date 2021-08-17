@@ -52,6 +52,18 @@ public class FxToolSettingsView extends GridPane implements ToolSettingsView {
 	private Slider pointerSlider;
 
 	@FXML
+	private Slider lineSlider;
+
+	@FXML
+	private Slider arrowSlider;
+
+	@FXML
+	private Slider rectangleSlider;
+
+	@FXML
+	private Slider ellipseSlider;
+
+	@FXML
 	private CubicCurve highlighterCurve;
 
 	@FXML
@@ -92,6 +104,30 @@ public class FxToolSettingsView extends GridPane implements ToolSettingsView {
 	public void setPointerWidth(DoubleProperty width) {
 		ConvertibleNumberProperty<Double, Double> pointerProperty = new ConvertibleNumberProperty<>(width, ToolSizeConverter.INSTANCE);
 		pointerSlider.valueProperty().bindBidirectional(pointerProperty);
+	}
+
+	@Override
+	public void setLineWidth(DoubleProperty width) {
+		ConvertibleNumberProperty<Double, Double> lineProperty = new ConvertibleNumberProperty<>(width, ToolSizeConverter.INSTANCE);
+		lineSlider.valueProperty().bindBidirectional(lineProperty);
+	}
+
+	@Override
+	public void setArrowWidth(DoubleProperty width) {
+		ConvertibleNumberProperty<Double, Double> arrowProperty = new ConvertibleNumberProperty<>(width, ToolSizeConverter.INSTANCE);
+		arrowSlider.valueProperty().bindBidirectional(arrowProperty);
+	}
+
+	@Override
+	public void setRectangleWidth(DoubleProperty width) {
+		ConvertibleNumberProperty<Double, Double> rectangleProperty = new ConvertibleNumberProperty<>(width, ToolSizeConverter.INSTANCE);
+		rectangleSlider.valueProperty().bindBidirectional(rectangleProperty);
+	}
+
+	@Override
+	public void setEllipseWidth(DoubleProperty width) {
+		ConvertibleNumberProperty<Double, Double> ellipseProperty = new ConvertibleNumberProperty<>(width, ToolSizeConverter.INSTANCE);
+		ellipseSlider.valueProperty().bindBidirectional(ellipseProperty);
 	}
 
 	@Override

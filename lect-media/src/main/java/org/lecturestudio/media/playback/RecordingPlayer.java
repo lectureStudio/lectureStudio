@@ -18,6 +18,7 @@
 
 package org.lecturestudio.media.playback;
 
+import com.google.common.eventbus.Subscribe;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.lecturestudio.core.ExecutableBase;
@@ -30,6 +31,7 @@ import org.lecturestudio.core.audio.bus.AudioBus;
 import org.lecturestudio.core.audio.device.AudioOutputDevice;
 import org.lecturestudio.core.audio.source.AudioInputStreamSource;
 import org.lecturestudio.core.bus.ApplicationBus;
+import org.lecturestudio.core.bus.event.ScreenCaptureDataEvent;
 import org.lecturestudio.core.controller.ToolController;
 import org.lecturestudio.core.io.RandomAccessAudioStream;
 import org.lecturestudio.core.model.Document;
@@ -47,7 +49,6 @@ import org.lecturestudio.media.avdev.AVdevAudioOutputDevice;
 import org.lecturestudio.media.avdev.AvdevAudioPlayer;
 import org.lecturestudio.media.event.MediaPlayerProgressEvent;
 import org.lecturestudio.media.event.MediaPlayerStateEvent;
-import org.lecturestudio.media.event.ScreenCaptureFrameEvent;
 
 import java.awt.image.BufferedImage;
 import java.util.Iterator;
@@ -75,6 +76,8 @@ public class RecordingPlayer extends ExecutableBase {
 
 	private Player audioPlayer;
 
+	private ScreenCapturePlayer screenCapturePlayer;
+
 	private ToolController toolController;
 
 	private int seekTime;
@@ -89,6 +92,8 @@ public class RecordingPlayer extends ExecutableBase {
 	public RecordingPlayer(ApplicationContext context, AudioConfiguration audioConfig) {
 		this.context = context;
 		this.audioConfig = audioConfig;
+
+		ApplicationBus.register(this);
 	}
 
 	public void setRecording(Recording recording) {
@@ -112,6 +117,17 @@ public class RecordingPlayer extends ExecutableBase {
 
 		actionExecutor = new FileEventExecutor(toolController, recording.getRecordedEvents().getRecordedPages(), syncState);
 		actionExecutor.init();
+
+		screenCapturePlayer = new ScreenCapturePlayer(syncState);
+
+//		try {
+//			recording.getRecordedScreenCapture().parseStream();
+//			screenCapturePlayer.setData(recording.getRecordedScreenCapture().getScreenCaptureData());
+//		} catch (IOException e) {
+//			e.printStackTrace();
+//		}
+
+		screenCapturePlayer.init();
 
 		try {
 			initAudioPlayer(recording.getRecordedAudio());
@@ -144,6 +160,7 @@ public class RecordingPlayer extends ExecutableBase {
 
 		actionExecutor.start();
 		audioPlayer.start();
+		screenCapturePlayer.start();
 
 		setSeeking(false);
 	}
@@ -155,6 +172,9 @@ public class RecordingPlayer extends ExecutableBase {
 		}
 		if (actionExecutor.getState() == ExecutableState.Suspended || actionExecutor.getState() == ExecutableState.Started) {
 			actionExecutor.stop();
+		}
+		if (screenCapturePlayer.getState() == ExecutableState.Suspended || screenCapturePlayer.getState() == ExecutableState.Started) {
+			screenCapturePlayer.stop();
 		}
 
 		setSeeking(false);
@@ -169,6 +189,9 @@ public class RecordingPlayer extends ExecutableBase {
 		if (actionExecutor.getState() == ExecutableState.Started) {
 			actionExecutor.suspend();
 		}
+		if (screenCapturePlayer.getState() == ExecutableState.Started) {
+			screenCapturePlayer.suspend();
+		}
 	}
 
 	@Override
@@ -178,6 +201,12 @@ public class RecordingPlayer extends ExecutableBase {
 		toolController.destroy();
 		audioPlayer.destroy();
 		actionExecutor.destroy();
+		screenCapturePlayer.destroy();
+	}
+
+	@Subscribe
+	public void onEvent(ScreenCaptureDataEvent event) {
+		screenCapturePlayer.setData(event.getData());
 	}
 
 	public RandomAccessAudioStream getAudioStream() {
@@ -254,12 +283,14 @@ public class RecordingPlayer extends ExecutableBase {
 		
 		actionExecutor.seekByTime(seekTime);
 
+		screenCapturePlayer.seek(seekTime);
+
 		// TODO: Seek only at certain intervals to reduce number of posted events + seek operations
 
-		BufferedImage frame = seekScreenCaptureFrame(seekTime);
-		if (frame != null) {
-			ApplicationBus.post(new ScreenCaptureFrameEvent(frame));
-		}
+//		BufferedImage frame = seekScreenCaptureFrame(seekTime);
+//		if (frame != null) {
+//			ApplicationBus.post(new ScreenCaptureFrameEvent(frame));
+//		}
 
 		previousPage = pageNumber;
 		
@@ -310,12 +341,6 @@ public class RecordingPlayer extends ExecutableBase {
 		if (startPlayback) {
 			start();
 		}
-	}
-
-	private void initScreenCapturePlayer(RecordedScreenCapture screenCapture) throws Exception {
-		// TODO: Implement screen capture player
-
-
 	}
 
 	private void initAudioPlayer(RecordedAudio audio) throws Exception {

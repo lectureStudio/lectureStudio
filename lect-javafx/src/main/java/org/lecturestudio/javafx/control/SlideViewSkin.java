@@ -28,10 +28,7 @@ import javafx.geometry.Pos;
 import javafx.geometry.VPos;
 import javafx.scene.Node;
 import javafx.scene.control.SkinBase;
-import javafx.scene.image.ImageView;
-import javafx.scene.image.PixelBuffer;
-import javafx.scene.image.PixelFormat;
-import javafx.scene.image.WritableImage;
+import javafx.scene.image.*;
 import javafx.stage.Screen;
 import org.lecturestudio.core.ExecutableException;
 import org.lecturestudio.core.PageMetrics;
@@ -556,6 +553,13 @@ public class SlideViewSkin extends SkinBase<SlideView> {
 
 	private class FrameRenderTask implements RenderThreadTask {
 
+		private final ColorModel colorModel = new DirectColorModel(32,
+				0x0000ff00,   // Red
+				0x00ff0000,   // Green
+				0xff000000,   // Blue
+				0x000000ff    // Alpha
+		);
+
 		private final BufferedImage frame;
 
 		public FrameRenderTask(final BufferedImage frame) {
@@ -564,8 +568,46 @@ public class SlideViewSkin extends SkinBase<SlideView> {
 
 		@Override
 		public void render() throws Exception {
-			renderer.renderForeground();
-			updateBuffer(null, frame);
+ 			imageView.setImage(toFXImage(frame));
+
+//			renderer.renderForeground();
+//			updateBuffer(null, frame);
+		}
+
+		public WritableImage toFXImage(BufferedImage frame) {
+			int bw = frame.getWidth();
+			int bh = frame.getHeight();
+
+			switch (frame.getType()) {
+				case BufferedImage.TYPE_INT_ARGB:
+				case BufferedImage.TYPE_INT_ARGB_PRE:
+					break;
+				default:
+					WritableRaster raster = colorModel.createCompatibleWritableRaster(frame.getWidth(), frame.getHeight());
+					BufferedImage converted = new BufferedImage(colorModel, raster, false, null);
+					Graphics2D g2d = converted.createGraphics();
+					g2d.drawImage(frame, 0, 0, null);
+					g2d.dispose();
+					frame = converted;
+					break;
+			}
+
+			WritableImage image = new WritableImage(frame.getWidth(), frame.getHeight());
+			PixelWriter pw = image.getPixelWriter();
+			DataBufferInt db = (DataBufferInt)frame.getRaster().getDataBuffer();
+			int data[] = db.getData();
+			int offset = frame.getRaster().getDataBuffer().getOffset();
+			int scan =  0;
+			SampleModel sm = frame.getRaster().getSampleModel();
+			if (sm instanceof SinglePixelPackedSampleModel) {
+				scan = ((SinglePixelPackedSampleModel)sm).getScanlineStride();
+			}
+
+			PixelFormat<IntBuffer> pf = (frame.isAlphaPremultiplied() ?
+					PixelFormat.getIntArgbPreInstance() :
+					PixelFormat.getIntArgbInstance());
+			pw.setPixels(0, 0, bw, bh, pf, data, offset, scan);
+			return image;
 		}
 	}
 }

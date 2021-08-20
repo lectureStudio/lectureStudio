@@ -32,7 +32,7 @@ import static java.util.Objects.requireNonNull;
 
 public class ScreenCaptureDataParser {
 
-    public static ScreenCaptureData parseStream(InputStream stream) throws IOException {
+    public static ScreenCaptureData parseStream(InputStream stream, ProgressCallback callback) throws IOException {
         requireNonNull(stream);
 
         // TODO: Load screen capture in chunks + asynchronous
@@ -47,6 +47,8 @@ public class ScreenCaptureDataParser {
         ScreenCaptureFormat screenCaptureFormat = new ScreenCaptureFormat(frameRate);
         ScreenCaptureData screenCaptureData = new ScreenCaptureData(screenCaptureFormat);
         ScreenCaptureSequence currentSequence = null;
+
+        long totalSize = buffer.capacity();
 
         // Process bytes while remaining in buffer
         while (buffer.hasRemaining()) {
@@ -89,12 +91,28 @@ public class ScreenCaptureDataParser {
 
                 // Parse buffered image
                 InputStream frameStream = new ByteArrayInputStream(frameBytes);
+
                 BufferedImage frame = ImageIO.read(frameStream);
+
+//                BufferedImage image = new BufferedImage(frame.getWidth(), frame.getHeight(), BufferedImage.TYPE_INT_BGR);
+//                Graphics2D g2d = image.createGraphics();
+//                g2d.drawImage(frame, 0, 0, null);
+//                g2d.dispose();
+
+               //  ImageIO.write(image, "png", new File("output.png"));
+
+//                IntBuffer intBuffer = ByteBuffer.wrap(frameBytes).asIntBuffer();
+//                int[] intArray = new int[intBuffer.remaining()];
+//                BufferedImage image = PngEncoderBufferedImageConverter.createFromIntArgb(intArray, frame.getWidth(), frame.getHeight());
+
                 frameStream.close();
 
                 // Add frame to sequence
                 currentSequence.addFrame(frame, frameTimestamp);
             }
+
+            long remainingBytes = buffer.remaining();
+            callback.onProgress(1 - (float) remainingBytes / buffer.capacity());
         }
 
         // Complete last sequence and add to list if exists
@@ -117,5 +135,10 @@ public class ScreenCaptureDataParser {
         }
 
         return frameRate;
+    }
+
+    public interface ProgressCallback {
+
+        void onProgress(float progress);
     }
 }

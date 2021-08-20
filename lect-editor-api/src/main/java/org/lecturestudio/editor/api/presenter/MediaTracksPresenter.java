@@ -141,8 +141,25 @@ public class MediaTracksPresenter extends Presenter<MediaTracksView> {
 				EventsTrack eventsTrack = new EventsTrack();
 				eventsTrack.setData(recording.getRecordedEvents().getRecordedPages());
 
+				mediaTracks.add(audioTrack);
+				mediaTracks.add(eventsTrack);
+
+				mediaTracks.forEach(recording::addRecordingChangeListener);
+
+				view.setMediaTracks(mediaTracks.toArray(new MediaTrack[0]));
+				// view.setMediaTracks(screenCaptureTrack, eventsTrack, audioTrack);
+			})
+			.exceptionally(throwable -> {
+				handleException(throwable, "Create waveform failed", "open.recording.error");
+				return null;
+			});
+
+			// Parse Screen Capture Stream async
+			CompletableFuture.runAsync(() -> {
 				try {
-					recording.getRecordedScreenCapture().parseStream();
+					recording.getRecordedScreenCapture().parseStream(progress
+							-> System.out.println("Parsing Progress: " + progress)
+					);
 				} catch (IOException e) {
 					e.printStackTrace();
 				}
@@ -150,16 +167,11 @@ public class MediaTracksPresenter extends Presenter<MediaTracksView> {
 				ScreenCaptureTrack screenCaptureTrack = new ScreenCaptureTrack();
 				screenCaptureTrack.setData(recording.getRecordedScreenCapture().getScreenCaptureData());
 
-				mediaTracks.add(audioTrack);
-				mediaTracks.add(eventsTrack);
-				mediaTracks.add(screenCaptureTrack);
-				mediaTracks.forEach(recording::addRecordingChangeListener);
+				// Add screen capture track as first track
+				mediaTracks.add(0, screenCaptureTrack);
 
-				view.setMediaTracks(screenCaptureTrack, eventsTrack, audioTrack);
-			})
-			.exceptionally(throwable -> {
-				handleException(throwable, "Create waveform failed", "open.recording.error");
-				return null;
+				recording.addRecordingChangeListener(screenCaptureTrack);
+				view.setMediaTracks(mediaTracks.toArray(new MediaTrack[0]));
 			});
 		}
 		else if (event.closed()) {

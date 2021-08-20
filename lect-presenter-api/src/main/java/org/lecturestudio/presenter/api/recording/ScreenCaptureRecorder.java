@@ -319,7 +319,6 @@ public class ScreenCaptureRecorder extends LectureRecorder {
         private void processFrame(BufferedImage frame, long timestamp) {
             // Compress frame and convert it to bytes array
             byte[] compressedImage = new PngEncoder().withBufferedImage(frame).toBytes();
-
             try {
                 int bytesWritten = stream.writeFrameBytes(compressedImage, timestamp);
                 System.out.println("Frame " + frameCounter + ": Bytes Processed: " + bytesWritten + " Total: " + stream.getTotalBytesWritten());

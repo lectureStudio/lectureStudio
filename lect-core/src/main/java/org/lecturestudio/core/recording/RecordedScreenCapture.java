@@ -18,6 +18,8 @@
 
 package org.lecturestudio.core.recording;
 
+import org.lecturestudio.core.bus.ApplicationBus;
+import org.lecturestudio.core.bus.event.ScreenCaptureDataEvent;
 import org.lecturestudio.core.screencapture.RandomAccessScreenCaptureStream;
 import org.lecturestudio.core.screencapture.ScreenCaptureData;
 import org.lecturestudio.core.screencapture.ScreenCaptureDataParser;
@@ -45,10 +47,11 @@ public class RecordedScreenCapture extends RecordedObjectBase {
         return screenCaptureStream;
     }
 
-    public void parseStream() throws IOException {
+    public void parseStream(ScreenCaptureDataParser.ProgressCallback callback) throws IOException {
         if (screenCaptureStream != null && screenCaptureStream.available() > 0) {
             // TODO: Perform parsing in async thread
-            screenCaptureData = ScreenCaptureDataParser.parseStream(screenCaptureStream);
+            screenCaptureData = ScreenCaptureDataParser.parseStream(screenCaptureStream, callback);
+            ApplicationBus.post(new ScreenCaptureDataEvent(screenCaptureData));
         }
     }
 

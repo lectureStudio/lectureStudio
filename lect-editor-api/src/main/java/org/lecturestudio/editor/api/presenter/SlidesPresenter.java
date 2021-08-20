@@ -41,6 +41,7 @@ import org.lecturestudio.editor.api.service.RecordingPlaybackService;
 import org.lecturestudio.editor.api.view.SlidesView;
 import org.lecturestudio.media.event.MediaPlayerProgressEvent;
 import org.lecturestudio.media.event.ScreenCaptureFrameEvent;
+import org.lecturestudio.media.event.ScreenCaptureSequenceEndEvent;
 
 import javax.inject.Inject;
 import java.util.HashMap;
@@ -154,6 +155,11 @@ public class SlidesPresenter extends Presenter<SlidesView> {
 	@Subscribe
 	public void onEvent(final ScreenCaptureFrameEvent event) {
 		view.setScreenCaptureFrame(event.getFrame());
+	}
+
+	@Subscribe
+	public void onEvent(final ScreenCaptureSequenceEndEvent event) {
+		System.out.println("End Sequence");
 	}
 
 	private void nextPage() {

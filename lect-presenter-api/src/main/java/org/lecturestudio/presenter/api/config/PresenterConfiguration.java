@@ -50,7 +50,7 @@ public class PresenterConfiguration extends Configuration {
 
 	private final ObjectProperty<DLZRoom> dlzRoom = new ObjectProperty<>();
 
-	private final ObjectProperty<String> dlzAccessToken = new ObjectProperty<>();
+	private final StringProperty DLZAccessToken = new StringProperty();
 
 	/**
 	 * @return the classroomName
@@ -184,8 +184,9 @@ public class PresenterConfiguration extends Configuration {
 		return dlzRoom;
 	}
 
-	public String getDLZAccessToken() {
-		return dlzAccessToken.get();}
+	/*public String getDLZAccessToken() {
+		return dlzAccessToken.get();
+	}
 
 	public void setDlzAccessToken(String DLZAccessToken) {
 		dlzAccessToken.set(DLZAccessToken);
@@ -194,6 +195,21 @@ public class PresenterConfiguration extends Configuration {
 
 	public ObjectProperty<String> DLZAccessToken() {
 		return dlzAccessToken;
+	}*/
+
+	public String getDLZAccessToken() {
+		return DLZAccessToken.get();
+	}
+
+	/**
+	 * @param DLZAccessToken the classroomName to set
+	 */
+	public void setDLZAccessToken(String DLZAccessToken) {
+		this.DLZAccessToken.set(DLZAccessToken);
+	}
+
+	public StringProperty DLZAccessToken() {
+		return DLZAccessToken;
 	}
 
 

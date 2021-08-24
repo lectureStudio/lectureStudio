@@ -151,4 +151,5 @@ public final class SwingUtils {
 
     public static void bindBidirectional(JTextField dlzAccessTokenTextField, String accessToken) {
     }
+
 }

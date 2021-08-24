@@ -18,8 +18,6 @@ public class AuthorizationFilter implements ClientRequestFilter {
 
     @Override
     public void filter(ClientRequestContext requestContext) {
-        //String token = System.getProperty("dlz.token");
-
         if (nonNull(token)) {
             requestContext.getHeaders().putSingle(AUTHORIZATION, BEARER + token);
         }

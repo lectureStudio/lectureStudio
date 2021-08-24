@@ -10,9 +10,12 @@
 	<Label text="dlz.settings.token">
 		<gridbagconstraints gridx="0" gridy="6" gridwidth="2" anchor="GridBagConstraints.WEST" insets="5,0,2,0" />
 	</Label>
-	<TextField id="dlzAccessTokenTextField">
+	<TextArea id="dlzAccessTokenTextField" lineWrap="true" wrapStyleWord="true">
 		<gridbagconstraints gridx="0" gridy="7" weightx="1" fill="GridBagConstraints.HORIZONTAL" anchor="GridBagConstraints.WEST" insets="5,0,15,0" />
-	</TextField>
+	</TextArea>
+	<Button id="refreshAccessTokenButton" text="Aktualisieren">
+		<gridbagconstraints gridx="1" gridy="7" anchor="GridBagConstraints.WEST" insets="5,5,15,0" />
+	</Button>
 	<box.vglue>
 		<gridbagconstraints gridx="0" gridy="8" weighty="1.0" />
 	</box.vglue>

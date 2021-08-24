@@ -9,6 +9,7 @@ import org.lecturestudio.presenter.api.config.PresenterConfiguration;
 import org.lecturestudio.presenter.api.view.DLZSettingsView;
 
 import org.lecturestudio.web.api.client.RoomService;
+import org.lecturestudio.web.api.exception.MatrixUnauthorizedException;
 import org.lecturestudio.web.api.message.MessengerMessage;
 import org.lecturestudio.web.api.model.DLZMessage;
 import org.lecturestudio.web.api.model.Message;
@@ -17,7 +18,10 @@ import org.lecturestudio.web.api.service.DLZMessageService;
 import org.lecturestudio.web.api.service.DLZRoomService;
 
 
+import javax.imageio.ImageIO;
 import javax.inject.Inject;
+import java.awt.image.BufferedImage;
+import java.io.InputStream;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.UnknownHostException;
@@ -29,10 +33,6 @@ import java.util.concurrent.TimeUnit;
 
 public class DLZSettingsPresenter extends Presenter<DLZSettingsView> {
 
-    private DLZMessageService messageservice;
-    private ScheduledExecutorService service; //Service for requesting Messages
-    private URI uri;
-
     @Inject
     DLZSettingsPresenter(ApplicationContext context, DLZSettingsView view) {
         super(context, view);
@@ -41,70 +41,42 @@ public class DLZSettingsPresenter extends Presenter<DLZSettingsView> {
     @Override
     public void initialize() {
         PresenterConfiguration config = (PresenterConfiguration) context.getConfiguration();
-        config.setDlzAccessToken(System.getProperty("dlz.token"));
+        org.lecturestudio.web.api.filter.AuthorizationFilter.setToken(config.getDLZAccessToken());
 
 
-        try{
-            uri = new URI("https://chat.etit.tu-darmstadt.de");
-        }catch (URISyntaxException e){
-            e.printStackTrace();
-        }
-
-
-        messageservice = new DLZMessageService(uri);
-        service = Executors.newSingleThreadScheduledExecutor();
-		service.scheduleAtFixedRate(() -> {
-
+        System.out.println(config.getDlzRoom());
+        view.setDLZAccessToken(config.DLZAccessToken());
         try {
-
-            if (messageservice.hasNewMessages(config.getDlzRoom().getId())) {
-                List<DLZMessage> messages = messageservice.getNewMessages();
-
-                for (var message : messages) {
-                    if(message.type == "m.text") {
-                        String text = message.message;
-
-                        MessengerMessage messengerMessage = new MessengerMessage();
-                        messengerMessage.setDate(new Date());
-                        messengerMessage.setMessage(new Message(text));
-                        messengerMessage.setRemoteAddress(message.sender);
-
-                        context.getEventBus().post(messengerMessage);
-
-                        showNotificationPopup("New DLZ Message", text);
-                    }
-                    //TODO Ablauf für Bild einfügen
-                    if(message.type == "m.image"){
-
-                    }
-                }
-            }
+           view.setRoom(config.dlzRoomProperty());
+           view.setRooms(setRoomList());
         }
-        catch (NullPointerException e){
-            //do nothing in this case
-            //No Room selected
+        catch (Exception e){
+            config.setDlzRoom(null);
+            view.setRoom(null);
         }
-        catch (Exception e) {
-            handleException(e, "Get DLZ messages failed", "generic.error");
-            service.shutdownNow();
-        }
-    }, 0, 3, TimeUnit.SECONDS);
-
-        view.setRoom(config.dlzRoomProperty());
-        view.setRooms(setRoomList());
         view.setOnClose(this::close);
         view.setOnReset(this::reset);
-        view.setDLZAccessToken(config.DLZAccessToken());
+        view.refreshaccesstoken(this::saveAccessToken);
     }
 
     public List<DLZRoom> setRoomList() {
-        List<DLZRoom> rooms = null;
+        List<DLZRoom> rooms = List.of();
         try {
             rooms = DLZRoomService.getRooms();
-        } catch (Exception e) {
+        } catch (MatrixUnauthorizedException e) {
+            PresenterConfiguration config = (PresenterConfiguration) context.getConfiguration();
+            config.setDlzRoom(null);
             handleException(e, "", e.getMessage());
         }
         return rooms;
+    }
+
+    public void saveAccessToken(){
+        PresenterConfiguration config = (PresenterConfiguration) context.getConfiguration();
+        String token = view.getDLZAccessTokenInField();
+        config.setDLZAccessToken(token);
+        org.lecturestudio.web.api.filter.AuthorizationFilter.setToken(config.getDLZAccessToken());
+        view.setRooms(setRoomList());
     }
 
     public void reset() {

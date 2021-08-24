@@ -3,11 +3,8 @@ package org.lecturestudio.presenter.swing.view;
 import org.lecturestudio.core.PageMetrics;
 import org.lecturestudio.core.beans.Converter;
 import org.lecturestudio.core.beans.ObjectProperty;
-import org.lecturestudio.core.beans.StringProperty;
 import org.lecturestudio.core.geometry.Dimension2D;
 import org.lecturestudio.core.view.Action;
-import org.lecturestudio.presenter.api.config.PresenterConfiguration;
-import org.lecturestudio.presenter.api.presenter.MenuPresenter;
 import org.lecturestudio.presenter.api.view.DLZSettingsView;
 import org.lecturestudio.swing.util.SwingUtils;
 import org.lecturestudio.swing.view.SwingView;
@@ -22,12 +19,13 @@ public class SwingDLZSettingsView extends JPanel implements DLZSettingsView {
 
     private JComboBox<DLZRoom> roomsCombo;
 
-    private JTextField dlzAccessTokenTextField;
+    private JTextArea dlzAccessTokenTextField;
 
     private JButton closeButton;
 
     private JButton resetButton;
 
+    private JButton refreshAccessTokenButton;
 
     SwingDLZSettingsView() {
         super();
@@ -37,9 +35,11 @@ public class SwingDLZSettingsView extends JPanel implements DLZSettingsView {
 
     @Override
     public void setRooms(List<DLZRoom> rooms) {
+        if(rooms == null){
+            return;
+        }
         SwingUtils.invoke(() -> roomsCombo
                 .setModel(new DefaultComboBoxModel<>(new Vector<>(rooms))));
-        System.out.println(rooms);
     }
 
     @Override
@@ -55,6 +55,10 @@ public class SwingDLZSettingsView extends JPanel implements DLZSettingsView {
         SwingUtils.bindBidirectional(dlzAccessTokenTextField, AccessToken);
     }
 
+    @Override
+    public void refreshaccesstoken(Action action) {
+        SwingUtils.bindAction(refreshAccessTokenButton, action);
+    }
 
     @Override
     public void setOnClose(org.lecturestudio.core.view.Action action) {
@@ -66,6 +70,10 @@ public class SwingDLZSettingsView extends JPanel implements DLZSettingsView {
         SwingUtils.bindAction(resetButton, action);
     }
 
+    @Override
+    public String getDLZAccessTokenInField(){
+        return dlzAccessTokenTextField.getText();
+    }
 
 
     /**

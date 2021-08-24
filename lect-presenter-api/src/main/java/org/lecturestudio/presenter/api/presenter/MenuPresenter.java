@@ -82,12 +82,7 @@ import org.lecturestudio.presenter.api.model.Bookmarks;
 import org.lecturestudio.presenter.api.model.BookmarksListener;
 import org.lecturestudio.presenter.api.pdf.embedded.QuizParser;
 import org.lecturestudio.presenter.api.presenter.command.ShowSettingsCommand;
-import org.lecturestudio.presenter.api.service.BookmarkService;
-import org.lecturestudio.presenter.api.service.MessageWebServiceState;
-import org.lecturestudio.presenter.api.service.QuizWebServiceState;
-import org.lecturestudio.presenter.api.service.RecordingService;
-import org.lecturestudio.presenter.api.service.StreamService;
-import org.lecturestudio.presenter.api.service.WebService;
+import org.lecturestudio.presenter.api.service.*;
 import org.lecturestudio.presenter.api.view.MenuView;
 import org.lecturestudio.presenter.api.view.MessengerWindow;
 import org.lecturestudio.web.api.message.MessengerMessage;
@@ -127,6 +122,8 @@ public class MenuPresenter extends Presenter<MenuView> {
 	@Inject
 	private WebService webService;
 
+	@Inject
+	private DLZService dlzService;
 
 	@Inject
 	MenuPresenter(ApplicationContext context, MenuView view) {
@@ -137,6 +134,7 @@ public class MenuPresenter extends Presenter<MenuView> {
 		this.timeFormatter = DateTimeFormatter.ofPattern("HH:mm", context.getConfiguration().getLocale());
 		this.timer = new Timer("MenuTime", true);
 	}
+
 
 	@Subscribe
 	public void onEvent(final DocumentEvent event) {
@@ -504,9 +502,10 @@ public class MenuPresenter extends Presenter<MenuView> {
 		DLZMessageService.active = true;
 		PresenterConfiguration config = (PresenterConfiguration) context.getConfiguration();
 		context.getEventBus().post(new DLZStateEvent(ExecutableState.Starting));
+		dlzService.start();
 		//org.lecturestudio.web.api.service.DLZSendMessageService.SendTextMessage("Test aus lectstudio" , config.getDlzRoom().getId());
 		context.getEventBus().post(new DLZStateEvent(ExecutableState.Started));
-		try {
+		/*try {
 			InputStream test;
 			test = org.lecturestudio.web.api.service.DLZPictureService.getPic();
 			BufferedImage imBuff = ImageIO.read(test);
@@ -524,11 +523,6 @@ public class MenuPresenter extends Presenter<MenuView> {
 		}
 		catch (Exception e){
 			e.printStackTrace();
-		}
-		/*try {
-			org.lecturestudio.web.api.service.DLZPictureService.readUrl();
-		} catch (Exception e) {
-			e.printStackTrace();
 		}*/
 	}
 
@@ -536,8 +530,8 @@ public class MenuPresenter extends Presenter<MenuView> {
 		DLZMessageService.active = false;
 		System.out.println("DLZ-Chat gestoppt");
 		context.getEventBus().post(new DLZStateEvent(ExecutableState.Stopping));
+		dlzService.stop();
 		context.getEventBus().post(new DLZStateEvent(ExecutableState.Stopped));
-
 	}
 
 	public void showDLZWindow(boolean show){

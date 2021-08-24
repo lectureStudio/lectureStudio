@@ -18,11 +18,9 @@
 
 package org.lecturestudio.presenter.api.presenter;
 
-import static java.util.Objects.isNull;
 import static java.util.Objects.nonNull;
 
 import java.util.Arrays;
-import java.util.List;
 
 import javax.inject.Inject;
 
@@ -43,7 +41,6 @@ import org.lecturestudio.presenter.api.config.PresenterConfiguration;
 import org.lecturestudio.presenter.api.config.StreamConfiguration;
 import org.lecturestudio.presenter.api.view.StreamSettingsView;
 import org.lecturestudio.web.api.service.ServiceParameters;
-import org.lecturestudio.web.api.stream.model.Course;
 import org.lecturestudio.web.api.stream.service.StreamService;
 
 public class StreamSettingsPresenter extends Presenter<StreamSettingsView> {
@@ -102,7 +99,7 @@ public class StreamSettingsPresenter extends Presenter<StreamSettingsView> {
 		setStreamAudioFormats(streamConfig.getAudioCodec());
 
 		view.setAccessToken(streamConfig.accessTokenProperty());
-		view.setOnUpdateCourses(this::updateCourses);
+		view.setOnCheckAccessToken(this::checkAccessToken);
 		view.setStreamAudioFormat(streamConfig.audioFormatProperty());
 		view.setStreamAudioCodecNames(codecNames);
 		view.setStreamAudioCodecName(streamConfig.audioCodecProperty());
@@ -132,7 +129,7 @@ public class StreamSettingsPresenter extends Presenter<StreamSettingsView> {
 			setStreamAudioFormats(newCodec);
 		});
 
-		updateCourses();
+		checkAccessToken();
 	}
 
 	public void addBroadcastProfile() {
@@ -157,29 +154,14 @@ public class StreamSettingsPresenter extends Presenter<StreamSettingsView> {
 		}
 	}
 
-	public void updateCourses() {
-		PresenterConfiguration config = (PresenterConfiguration) context.getConfiguration();
-		StreamConfiguration streamConfig = config.getStreamConfig();
-
+	public void checkAccessToken() {
 		try {
-			List<Course> courses = streamService.getCourses();
-			Course selectedCourse = streamConfig.getCourse();
+			streamService.getCourses();
 
-			if (isNull(selectedCourse) && !courses.isEmpty()) {
-				// Set first available lecture by default.
-				streamConfig.setCourse(courses.get(0));
-			}
-			else if (!courses.contains(selectedCourse)) {
-				streamConfig.setCourse(courses.get(0));
-			}
-
-			view.setCourses(courses);
-			view.setCourse(streamConfig.courseProperty());
+			view.setAccessTokenValid(true);
 		}
 		catch (Exception e) {
-			view.setCourses(List.of());
-
-			streamConfig.setCourse(null);
+			view.setAccessTokenValid(false);
 		}
 	}
 }

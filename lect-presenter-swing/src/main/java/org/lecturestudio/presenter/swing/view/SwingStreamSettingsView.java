@@ -20,6 +20,7 @@ package org.lecturestudio.presenter.swing.view;
 
 import static java.util.Objects.isNull;
 
+import java.awt.Color;
 import java.awt.event.ActionEvent;
 import java.text.MessageFormat;
 import java.util.List;
@@ -51,7 +52,6 @@ import org.lecturestudio.swing.components.IPTextField;
 import org.lecturestudio.swing.util.SwingUtils;
 import org.lecturestudio.swing.view.SwingView;
 import org.lecturestudio.swing.view.ViewPostConstruct;
-import org.lecturestudio.web.api.stream.model.Course;
 
 @SwingView(name = "stream-settings", presenter = org.lecturestudio.presenter.api.presenter.StreamSettingsPresenter.class)
 public class SwingStreamSettingsView extends JPanel implements StreamSettingsView {
@@ -59,8 +59,6 @@ public class SwingStreamSettingsView extends JPanel implements StreamSettingsVie
 	private final ResourceBundle resourceBundle;
 
 	private JTextField accessTokenTextField;
-
-	private JComboBox<Course> courseCombo;
 
 	private JComboBox<String> streamAudioCodecCombo;
 
@@ -116,20 +114,17 @@ public class SwingStreamSettingsView extends JPanel implements StreamSettingsVie
 	}
 
 	@Override
-	public void setCourse(ObjectProperty<Course> course) {
-		SwingUtils.invoke(() -> {
-			SwingUtils.bindBidirectional(courseCombo, course);
-		});
+	public void setAccessTokenValid(boolean valid) {
+		if (valid) {
+			accessTokenTextField.setBackground(Color.decode("#D1FAE5"));
+		}
+		else {
+			accessTokenTextField.setBackground(Color.decode("#FEE2E2"));
+		}
 	}
 
 	@Override
-	public void setCourses(List<Course> courses) {
-		SwingUtils.invoke(() -> courseCombo
-				.setModel(new DefaultComboBoxModel<>(new Vector<>(courses))));
-	}
-
-	@Override
-	public void setOnUpdateCourses(Action action) {
+	public void setOnCheckAccessToken(Action action) {
 		SwingUtils.bindAction(updateCoursesButton, action);
 	}
 

@@ -1,26 +1,19 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Panel layout="GridBagLayout" border="EmptyBorder(20, 20, 20, 20)">
-	<Panel layout="GridBagLayout">
+	<Panel layout="GridBagLayout" name="extendedUI">
 		<gridbagconstraints gridx="0" gridy="0" gridwidth="2" weightx="1.0" fill="GridBagConstraints.HORIZONTAL" />
 
-		<Label text="stream.settings.access.token" name="extendedUI">
+		<Label text="stream.settings.access.token">
 			<gridbagconstraints gridx="0" gridy="0" anchor="GridBagConstraints.WEST" insets="5,0,2,15" />
-		</Label>
-		<Label text="stream.settings.course">
-			<gridbagconstraints gridx="1" gridy="0" anchor="GridBagConstraints.WEST" insets="5,0,2,0" />
 		</Label>
 		<Label>
 			<gridbagconstraints gridx="2" gridy="0" anchor="GridBagConstraints.WEST" insets="5,0,2,0" />
 		</Label>
-		<TextField id="accessTokenTextField" columns="30" name="extendedUI">
-			<gridbagconstraints gridx="0" gridy="1" fill="GridBagConstraints.HORIZONTAL" anchor="GridBagConstraints.WEST" insets="5,0,15,15" />
+		<TextField id="accessTokenTextField" columns="30">
+			<gridbagconstraints gridx="0" gridy="1" fill="GridBagConstraints.HORIZONTAL" anchor="GridBagConstraints.WEST" insets="5,0,15,10" />
 		</TextField>
-		<ComboBox id="courseCombo" name="extendedUI">
-			<gridbagconstraints gridx="1" gridy="1" anchor="GridBagConstraints.WEST" insets="5,0,15,15" />
-			<renderer class="org.lecturestudio.presenter.swing.combobox.CourseRenderer" />
-		</ComboBox>
-		<Button id="updateCoursesButton" name="extendedUI" text="button.update">
-			<gridbagconstraints gridx="2" gridy="1" weightx="0.3" anchor="GridBagConstraints.WEST" insets="5,0,15,0" />
+		<Button id="updateCoursesButton" text="button.check">
+			<gridbagconstraints gridx="1" gridy="1" weightx="0.3" anchor="GridBagConstraints.WEST" insets="5,0,15,0" />
 		</Button>
 	</Panel>
 	<TitledSeparator text="stream.settings.audio" name="extendedUI">

@@ -86,6 +86,7 @@ import org.lecturestudio.presenter.api.model.Bookmarks;
 import org.lecturestudio.presenter.api.model.BookmarksListener;
 import org.lecturestudio.presenter.api.pdf.embedded.QuizParser;
 import org.lecturestudio.presenter.api.presenter.command.ShowSettingsCommand;
+import org.lecturestudio.presenter.api.presenter.command.StartStreamCommand;
 import org.lecturestudio.presenter.api.service.BookmarkService;
 import org.lecturestudio.presenter.api.service.MessageWebServiceState;
 import org.lecturestudio.presenter.api.service.QuizWebServiceState;
@@ -405,18 +406,20 @@ public class MenuPresenter extends Presenter<MenuView> {
 	}
 
 	public void startStreaming() {
-		CompletableFuture.runAsync(() -> {
-			try {
-				streamService.start();
-			}
-			catch (ExecutableException e) {
-				throw new CompletionException(e);
-			}
-		})
-		.exceptionally(e -> {
-			handleServiceError(e, "Start stream failed", "stream.start.error");
-			return null;
-		});
+		eventBus.post(new StartStreamCommand(() -> {
+			CompletableFuture.runAsync(() -> {
+					try {
+						streamService.start();
+					}
+					catch (ExecutableException e) {
+						throw new CompletionException(e);
+					}
+				})
+				.exceptionally(e -> {
+					handleServiceError(e, "Start stream failed", "stream.start.error");
+					return null;
+				});
+		}));
 	}
 
 	public void stopStreaming() {

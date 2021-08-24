@@ -40,7 +40,6 @@ import org.lecturestudio.javafx.beans.LectStringProperty;
 import org.lecturestudio.javafx.util.FxUtils;
 import org.lecturestudio.javafx.view.FxmlView;
 import org.lecturestudio.presenter.api.view.StreamSettingsView;
-import org.lecturestudio.web.api.stream.model.Course;
 
 @FxmlView(name = "stream-settings", presenter = org.lecturestudio.presenter.api.presenter.StreamSettingsPresenter.class)
 public class FxStreamSettingsView extends GridPane implements StreamSettingsView {
@@ -91,17 +90,12 @@ public class FxStreamSettingsView extends GridPane implements StreamSettingsView
 	}
 
 	@Override
-	public void setCourse(ObjectProperty<Course> course) {
+	public void setAccessTokenValid(boolean valid) {
 
 	}
 
 	@Override
-	public void setCourses(List<Course> courses) {
-
-	}
-
-	@Override
-	public void setOnUpdateCourses(Action action) {
+	public void setOnCheckAccessToken(Action action) {
 
 	}
 

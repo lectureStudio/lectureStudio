@@ -44,11 +44,19 @@ public class ToolSettingsPresenter extends Presenter<ToolSettingsView> {
 		StrokeSettings highlighterSettings = toolConfig.getHighlighterSettings();
 		StrokeSettings penSettings = toolConfig.getPenSettings();
 		StrokeSettings pointerSettings = toolConfig.getPointerSettings();
+		StrokeSettings lineSettings = toolConfig.getLineSettings();
+		StrokeSettings arrowSettings = toolConfig.getArrowSettings();
+		StrokeSettings rectangleSettings = toolConfig.getRectangleSettings();
+		StrokeSettings ellipseSettings = toolConfig.getEllipseSettings();
 
 		highlighterSettings.setScale(defaultConfig.getToolConfig().getHighlighterSettings().getScale());
 		highlighterSettings.setWidth(defaultConfig.getToolConfig().getHighlighterSettings().getWidth());
 		penSettings.setWidth(defaultConfig.getToolConfig().getPenSettings().getWidth());
 		pointerSettings.setWidth(defaultConfig.getToolConfig().getPointerSettings().getWidth());
+		lineSettings.setWidth(defaultConfig.getToolConfig().getLineSettings().getWidth());
+		arrowSettings.setWidth(defaultConfig.getToolConfig().getArrowSettings().getWidth());
+		rectangleSettings.setWidth(defaultConfig.getToolConfig().getRectangleSettings().getWidth());
+		ellipseSettings.setWidth(defaultConfig.getToolConfig().getEllipseSettings().getWidth());
 	}
 
 	@Override
@@ -59,6 +67,10 @@ public class ToolSettingsPresenter extends Presenter<ToolSettingsView> {
 		view.setHighlighterWidth(toolConfig.getHighlighterSettings().widthProperty());
 		view.setPenWidth(toolConfig.getPenSettings().widthProperty());
 		view.setPointerWidth(toolConfig.getPointerSettings().widthProperty());
+		view.setLineWidth(toolConfig.getLineSettings().widthProperty());
+		view.setArrowWidth(toolConfig.getArrowSettings().widthProperty());
+		view.setRectangleWidth(toolConfig.getRectangleSettings().widthProperty());
+		view.setEllipseWidth(toolConfig.getEllipseSettings().widthProperty());
 		view.setOnReset(this::reset);
 	}
 }

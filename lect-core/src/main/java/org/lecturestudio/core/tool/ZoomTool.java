@@ -84,11 +84,8 @@ public class ZoomTool extends StrokeTool<ZoomShape> {
 
 	@Override
 	protected Stroke createStroke() {
-		StrokeSettings settings = context.getPaintSettings(ToolType.RECTANGLE);
-
 		Stroke stroke = new Stroke();
-		stroke.setColor(settings.getColor().derive(settings.getAlpha()));
-		stroke.setWidth(settings.getWidth());
+		stroke.setWidth(0.002);
 		stroke.scale(context.getPageScale());
 
 		return stroke;

@@ -33,7 +33,7 @@ public abstract class ProviderService {
 	protected <T> T createProxy(Class<T> proxyClass, ServiceParameters parameters) {
 		this.parameters = parameters;
 
-		RestClientBuilder builder =createClientBuilder(parameters);
+		RestClientBuilder builder = createClientBuilder(parameters);
 		builder.register(JsonConfig.class);
 
 		return builder.build(proxyClass);

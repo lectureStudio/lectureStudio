@@ -21,6 +21,7 @@ module org.lecturestudio.web.api {
 	requires resteasy.multipart.provider;
 	requires webrtc.java;
 
+	exports org.lecturestudio.web.api.client;
 	exports org.lecturestudio.web.api.data;
 	exports org.lecturestudio.web.api.filter;
 	exports org.lecturestudio.web.api.message;

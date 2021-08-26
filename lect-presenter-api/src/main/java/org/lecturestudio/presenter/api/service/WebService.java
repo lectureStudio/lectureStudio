@@ -24,9 +24,9 @@ import static java.util.Objects.nonNull;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.UUID;
 
 import javax.inject.Inject;
+import javax.inject.Named;
 import javax.inject.Singleton;
 
 import org.lecturestudio.broadcast.config.BroadcastProfile;
@@ -39,14 +39,12 @@ import org.lecturestudio.core.util.NetUtils;
 import org.lecturestudio.core.util.ProgressCallback;
 import org.lecturestudio.presenter.api.config.NetworkConfiguration;
 import org.lecturestudio.presenter.api.config.PresenterConfiguration;
+import org.lecturestudio.presenter.api.config.StreamConfiguration;
 import org.lecturestudio.presenter.api.event.MessengerStateEvent;
 import org.lecturestudio.presenter.api.event.QuizStateEvent;
 import org.lecturestudio.presenter.api.net.LocalBroadcaster;
-import org.lecturestudio.web.api.model.AuthState;
-import org.lecturestudio.web.api.model.Classroom;
+import org.lecturestudio.web.api.client.TokenProvider;
 import org.lecturestudio.web.api.model.quiz.Quiz;
-import org.lecturestudio.web.api.service.AuthService;
-import org.lecturestudio.web.api.service.ClassroomProviderService;
 import org.lecturestudio.web.api.service.ServiceParameters;
 
 /**
@@ -66,13 +64,13 @@ public class WebService extends ExecutableBase {
 
 	private final DocumentService documentService;
 
-	private final List<WebServiceBase> startedServices;
+	private final List<FeatureServiceBase> startedServices;
+
+	@Inject
+	@Named("stream.publisher.api.url")
+	private String streamPublisherApiUrl;
 
 	private Quiz lastQuiz;
-
-	private String classroomId;
-
-	private ClassroomProviderService classroomWebService;
 
 
 	@Inject
@@ -103,17 +101,22 @@ public class WebService extends ExecutableBase {
 	 * @throws ExecutableException if the message service could not be started.
 	 */
 	public void startMessenger() throws ExecutableException {
-		var service = getService(MessageWebService.class);
+		var service = getService(MessageFeatureWebService.class);
 
 		if (nonNull(service) && service.started()) {
-			throw new ExecutableException("Message service is already running.");
+			throw new ExecutableException("Message service is already running");
 		}
 
 		context.getEventBus().post(new MessengerStateEvent(ExecutableState.Starting));
 
-		startLocalBroadcaster();
-
-		startService(new MessageWebService(context));
+		try {
+			startService(new MessageFeatureWebService(context,
+					createFeatureService(streamPublisherApiUrl,
+							MessageFeatureService.class)));
+		}
+		catch (Exception e) {
+			throw new ExecutableException("Message service could not be started");
+		}
 
 		context.getEventBus().post(new MessengerStateEvent(ExecutableState.Started));
 	}
@@ -125,7 +128,7 @@ public class WebService extends ExecutableBase {
 	 * @throws ExecutableException if the message service could not be stopped.
 	 */
 	public void stopMessenger() throws ExecutableException {
-		var service = getService(MessageWebService.class);
+		var service = getService(MessageFeatureWebService.class);
 
 		if (isNull(service)) {
 			return;
@@ -166,15 +169,20 @@ public class WebService extends ExecutableBase {
 	 * @throws ExecutableException if the quiz service could not be started.
 	 */
 	public void startQuiz(Quiz quiz) throws ExecutableException {
-		var service = getService(QuizWebService.class);
+		var service = getService(QuizFeatureWebService.class);
 
 		context.getEventBus().post(new QuizStateEvent(ExecutableState.Starting));
 
 		// Allow only one quiz running at a time.
 		if (isNull(service)) {
-			startLocalBroadcaster();
-
-			service = new QuizWebService(context, documentService);
+			try {
+				service = new QuizFeatureWebService(context,
+						createFeatureService(streamPublisherApiUrl,
+								QuizFeatureService.class), documentService);
+			}
+			catch (Exception e) {
+				throw new ExecutableException("Quiz service could not be started");
+			}
 		}
 		else {
 			service.stop();
@@ -196,7 +204,7 @@ public class WebService extends ExecutableBase {
 	 * @throws ExecutableException if the message service could not be stopped.
 	 */
 	public void stopQuiz() throws ExecutableException {
-		var service = getService(QuizWebService.class);
+		var service = getService(QuizFeatureWebService.class);
 
 		if (isNull(service)) {
 			return;
@@ -269,15 +277,14 @@ public class WebService extends ExecutableBase {
 		if (localBroadcaster.getState() == ExecutableState.Started) {
 			localBroadcaster.stop();
 			localBroadcaster.destroy();
-
-			classroomId = null;
 		}
 	}
 
-	private void startService(WebServiceBase service) throws ExecutableException {
-		updateClassroom();
+	private void startService(FeatureServiceBase service) throws ExecutableException {
+		PresenterConfiguration config = (PresenterConfiguration) context.getConfiguration();
+		StreamConfiguration streamConfig = config.getStreamConfig();
 
-		service.setClassroomId(classroomId);
+		service.setCourseId(streamConfig.getCourse().getId());
 		service.start();
 
 		if (!startedServices.contains(service)) {
@@ -285,7 +292,7 @@ public class WebService extends ExecutableBase {
 		}
 	}
 
-	private void stopService(WebServiceBase service) throws ExecutableException {
+	private void stopService(FeatureServiceBase service) throws ExecutableException {
 		service.stop();
 		service.destroy();
 
@@ -302,47 +309,17 @@ public class WebService extends ExecutableBase {
 				.orElse(null);
 	}
 
-	private void updateClassroom() {
+	private <T> T createFeatureService(String streamPublisherApiUrl,
+			Class<T> cls) throws Exception {
 		PresenterConfiguration config = (PresenterConfiguration) context.getConfiguration();
-		NetworkConfiguration netConfig = config.getNetworkConfig();
+		StreamConfiguration streamConfig = config.getStreamConfig();
 
-		Classroom classroom = new Classroom();
-		classroom.setName(config.getClassroomName());
-		classroom.setShortName(config.getClassroomShortName());
-		classroom.setIpFilterRules(netConfig.getIpFilter().getRules());
+		ServiceParameters streamApiParameters = new ServiceParameters();
+		streamApiParameters.setUrl(streamPublisherApiUrl);
 
-		if (isNull(classroomId)) {
-			createClassroomService();
+		TokenProvider tokenProvider = streamConfig::getAccessToken;
 
-			classroomId = classroomWebService.getClassrooms().stream()
-					.filter(room -> room.getShortName().equals(classroom.getShortName()))
-					.map(Classroom::getUuid).map(UUID::toString).findFirst()
-					.orElse(null);
-
-			if (isNull(classroomId)) {
-				classroomId = classroomWebService.createClassroom(classroom);
-			}
-		}
-		else {
-			classroom.setUuid(UUID.fromString(classroomId));
-
-			classroomWebService.updateClassroom(classroom);
-		}
-	}
-
-	private void createClassroomService() {
-		PresenterConfiguration config = (PresenterConfiguration) context.getConfiguration();
-		NetworkConfiguration netConfig = config.getNetworkConfig();
-		BroadcastProfile bastProfile = netConfig.getBroadcastProfile();
-		String broadcastAddress = bastProfile.getBroadcastAddress();
-		int broadcastPort = bastProfile.getBroadcastTlsPort();
-
-		ServiceParameters params = new ServiceParameters();
-		params.setUrl(String.format("https://%s:%d", broadcastAddress, broadcastPort));
-
-		AuthService authService = new AuthService(params);
-		AuthState.getInstance().setToken(authService.authenticate());
-
-		classroomWebService = new ClassroomProviderService(params);
+		return cls.getDeclaredConstructor()
+				.newInstance(streamApiParameters, tokenProvider);
 	}
 }

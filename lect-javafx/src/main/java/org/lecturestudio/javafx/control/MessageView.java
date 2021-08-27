@@ -20,9 +20,9 @@ package org.lecturestudio.javafx.control;
 
 import static java.util.Objects.isNull;
 
+import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Date;
 import java.util.List;
 
 import javafx.beans.property.ObjectProperty;
@@ -43,7 +43,7 @@ public class MessageView extends Control {
 
 	private static final String DEFAULT_STYLE_CLASS = "message-view";
 
-	private final ObjectProperty<Date> date = new SimpleObjectProperty<>();
+	private final ObjectProperty<ZonedDateTime> date = new SimpleObjectProperty<>();
 
 	private final StringProperty host = new SimpleStringProperty();
 
@@ -59,15 +59,15 @@ public class MessageView extends Control {
 	/**
 	 * @return the date
 	 */
-	public ObjectProperty<Date> dateProperty() {
+	public ObjectProperty<ZonedDateTime> dateProperty() {
 		return date;
 	}
 
-	public Date getDate() {
+	public ZonedDateTime getDate() {
 		return dateProperty().get();
 	}
 
-	public void setDate(Date date) {
+	public void setDate(ZonedDateTime date) {
 		dateProperty().set(date);
 	}
 

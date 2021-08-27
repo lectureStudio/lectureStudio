@@ -18,14 +18,15 @@
 
 package org.lecturestudio.swing.components;
 
-import static java.util.Objects.nonNull;
+import static java.util.Objects.isNull;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
-import java.text.SimpleDateFormat;
-import java.util.Date;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
 
 import javax.swing.BorderFactory;
 import javax.swing.JLabel;
@@ -34,8 +35,6 @@ import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 
 public class MessageView extends JPanel {
-
-	private final SimpleDateFormat dateFormat = new SimpleDateFormat("H:mm");
 
 	private JLabel fromLabel;
 
@@ -50,8 +49,15 @@ public class MessageView extends JPanel {
 		initialize();
 	}
 
-	public void setDate(Date date) {
-		timeLabel.setText(nonNull(date) ? dateFormat.format(date) : "");
+	public void setDate(ZonedDateTime date) {
+		if (isNull(date)) {
+			return;
+		}
+
+		ZonedDateTime dateUTC = date.withZoneSameInstant(ZoneId.systemDefault());
+		String formattedDate = dateUTC.format(DateTimeFormatter.ofPattern("H:mm"));
+
+		timeLabel.setText(formattedDate);
 	}
 
 	public void setHost(String host) {

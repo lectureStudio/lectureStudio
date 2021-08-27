@@ -22,7 +22,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import java.util.Date;
+import java.time.ZonedDateTime;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
 
@@ -71,7 +71,8 @@ class MessengerWindowPresenterTest extends PresenterTest {
 	@Test
 	void testOnMessage() {
 		AtomicReference<MessengerMessage> messageRef = new AtomicReference<>();
-		MessengerMessage message = new MessengerMessage(new Message("What?"), "127.0.0.1", new Date());
+		MessengerMessage message = new MessengerMessage(new Message("What?"), "127.0.0.1",
+				ZonedDateTime.now());
 
 		MessengerMockWindow window = new MessengerMockWindow() {
 			@Override

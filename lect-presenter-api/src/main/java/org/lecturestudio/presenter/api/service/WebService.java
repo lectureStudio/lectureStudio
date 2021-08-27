@@ -319,7 +319,7 @@ public class WebService extends ExecutableBase {
 
 		TokenProvider tokenProvider = streamConfig::getAccessToken;
 
-		return cls.getDeclaredConstructor()
+		return cls.getConstructor(ServiceParameters.class, TokenProvider.class)
 				.newInstance(streamApiParameters, tokenProvider);
 	}
 }

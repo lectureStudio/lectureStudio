@@ -16,6 +16,8 @@ public class MessageProviderService extends ReactiveProviderService {
 
 	@Inject
 	public MessageProviderService(ServiceParameters parameters) {
+		super(parameters);
+
 		providerClient = createProxy(MessageProviderClient.class, parameters);
 	}
 

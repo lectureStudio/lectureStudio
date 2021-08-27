@@ -2,15 +2,18 @@ package org.lecturestudio.web.api.service;
 
 import static java.util.Objects.nonNull;
 
-import java.security.cert.X509Certificate;
-
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.TrustManager;
 import javax.net.ssl.X509TrustManager;
 import javax.ws.rs.client.Client;
 import javax.ws.rs.client.ClientBuilder;
 
+import org.lecturestudio.web.api.client.TokenProvider;
+import org.lecturestudio.web.api.net.OwnTrustManager;
+
 public class WebClientBuilder {
+
+	private TokenProvider tokenProvider;
 
 	private Class<?>[] componentClasses;
 
@@ -20,6 +23,10 @@ public class WebClientBuilder {
 	public WebClientBuilder setTls(boolean tls) {
 		this.tls = tls;
 		return this;
+	}
+
+	public void setTokenProvider(TokenProvider provider) {
+		this.tokenProvider = provider;
 	}
 
 	public WebClientBuilder setComponentClasses(Class<?>... componentClasses) {
@@ -36,6 +43,10 @@ public class WebClientBuilder {
 			}
 		}
 
+		if (nonNull(tokenProvider)) {
+			builder.property(TokenProvider.class.getName(), tokenProvider);
+		}
+
 		if (tls) {
 			builder.sslContext(createSSLContext());
 			builder.hostnameVerifier((s, sslSession) -> true);
@@ -45,31 +56,14 @@ public class WebClientBuilder {
 	}
 
 	private static SSLContext createSSLContext() {
-		TrustManager[] noopTrustManager = new TrustManager[] {
-				new X509TrustManager() {
-
-					@Override
-					public X509Certificate[] getAcceptedIssuers() {
-						return null;
-					}
-
-					@Override
-					public void checkClientTrusted(X509Certificate[] certs,
-							String authType) {
-					}
-
-					@Override
-					public void checkServerTrusted(X509Certificate[] certs,
-							String authType) {
-					}
-				}
-		};
-
 		SSLContext sslContext;
 
 		try {
+			X509TrustManager trustManager = new OwnTrustManager("keystore.jks",
+					"mypassword");
+
 			sslContext = SSLContext.getInstance("TLSv1.2");
-			sslContext.init(null, noopTrustManager, null);
+			sslContext.init(null, new TrustManager[] { trustManager }, null);
 		}
 		catch (Exception e) {
 			throw new RuntimeException(e);

@@ -18,11 +18,14 @@
 
 package org.lecturestudio.presenter.api.util;
 
+import static java.util.Objects.nonNull;
+
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.OutputStreamWriter;
-import java.text.SimpleDateFormat;
-import java.util.Date;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -107,16 +110,16 @@ public class HtmlMessageLogger {
 	 * @param message
 	 *            the message to log
 	 */
-	public void logMessage(String host, Date date, String message) {
-		SimpleDateFormat dateFormat = new SimpleDateFormat("dd-MM-yyyy HH:mm");
-		String dateStr = dateFormat.format(date);
+	public void logMessage(String host, ZonedDateTime date, String message) {
+		ZonedDateTime dateUTC = date.withZoneSameInstant(ZoneId.of("Etc/UTC"));
+		String formattedDate = dateUTC.format(DateTimeFormatter.ofPattern("dd-MM-yyyy HH:mm"));
 
 		Element entryNode = doc.createElement("entry");
 		Element hostNode = doc.createElement("host");
-		hostNode.appendChild(doc.createTextNode(host));
+		hostNode.appendChild(doc.createTextNode(nonNull(host) ? host : ""));
 
 		Element dateNode = doc.createElement("date");
-		dateNode.appendChild(doc.createTextNode(dateStr));
+		dateNode.appendChild(doc.createTextNode(formattedDate));
 
 		Element messageNode = doc.createElement("message");
 		messageNode.appendChild(doc.createTextNode(message));

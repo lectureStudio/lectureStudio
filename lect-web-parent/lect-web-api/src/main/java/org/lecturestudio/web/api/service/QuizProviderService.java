@@ -17,6 +17,8 @@ public class QuizProviderService extends ReactiveProviderService {
 
 	@Inject
 	public QuizProviderService(ServiceParameters parameters) {
+		super(parameters);
+
 		providerClient = createProxy(QuizProviderClient.class, parameters);
 	}
 

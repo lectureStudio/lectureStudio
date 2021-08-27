@@ -18,7 +18,7 @@
 
 package org.lecturestudio.broadcast.service;
 
-import java.util.Date;
+import java.time.ZonedDateTime;
 
 import javax.annotation.security.PermitAll;
 import javax.annotation.security.RolesAllowed;
@@ -110,7 +110,8 @@ public class MessageResource extends ServiceBase {
 			String remoteAddress = request.getRemoteAddr();
 
 			// Notify service provider endpoint.
-			sendWebMessage(new MessengerMessage(message, remoteAddress, new Date()),
+			sendWebMessage(new MessengerMessage(message, remoteAddress,
+							ZonedDateTime.now()),
 					serviceId);
 		}
 

@@ -1,3 +1,21 @@
+/*
+ * Copyright (C) 2021 TU Darmstadt, Department of Computer Science,
+ * Embedded Systems and Applications Group.
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
 package org.lecturestudio.web.api.service;
 
 import java.util.Map;
@@ -10,35 +28,62 @@ import javax.ws.rs.client.Client;
 import javax.ws.rs.client.WebTarget;
 import javax.ws.rs.sse.SseEventSource;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
+import org.lecturestudio.web.api.client.AuthorizationFilter;
+import org.lecturestudio.web.api.client.TokenProvider;
 import org.lecturestudio.web.api.data.bind.JsonConfig;
 import org.lecturestudio.web.api.message.WebMessage;
 
 public abstract class ReactiveProviderService extends ProviderService {
+
+	private static final Logger LOG = LogManager.getLogger(ReactiveProviderService.class);
+
+	private final ServiceParameters parameters;
+
+	private final TokenProvider tokenProvider;
 
 	private final Map<Client, SseEventSource> eventSources;
 
 	private final Jsonb jsonb;
 
 
-	public ReactiveProviderService() {
-		eventSources = new ConcurrentHashMap<>();
-		jsonb = new JsonConfig().getContext(null);
+	public ReactiveProviderService(ServiceParameters parameters) {
+		this(parameters, null);
+	}
+
+	public ReactiveProviderService(ServiceParameters parameters, TokenProvider tokenProvider) {
+		this.parameters = parameters;
+		this.tokenProvider = tokenProvider;
+		this.eventSources = new ConcurrentHashMap<>();
+		this.jsonb = new JsonConfig().getContext(null);
 	}
 
 	protected <T extends WebMessage> void subscribeSse(String path, Class<T> cls,
 			Consumer<T> onEvent, Consumer<Throwable> onError) {
 		WebClientBuilder builder = new WebClientBuilder();
 		builder.setTls(true);
-		builder.setComponentClasses(JwtRequestFilter.class);
+		builder.setTokenProvider(tokenProvider);
+		builder.setComponentClasses(AuthorizationFilter.class);
 
 		Client client = builder.build();
 		WebTarget target = client.target(parameters.getUrl() + path);
 
 		SseEventSource eventSource = SseEventSource.target(target).build();
 		eventSource.register(sseEvent -> {
+			if (sseEvent.isEmpty()) {
+				return;
+			}
+
 			T message = jsonb.fromJson(sseEvent.readData(), cls);
 
-			onEvent.accept(message);
+			try {
+				onEvent.accept(message);
+			}
+			catch (Exception e) {
+				LOG.error("Consume event message failed", e);
+			}
 		}, onError);
 		eventSource.open();
 

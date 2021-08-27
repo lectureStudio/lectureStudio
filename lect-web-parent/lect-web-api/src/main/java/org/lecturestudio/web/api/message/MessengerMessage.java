@@ -18,14 +18,14 @@
 
 package org.lecturestudio.web.api.message;
 
-import java.util.Date;
+import java.time.ZonedDateTime;
 import java.util.Objects;
 
 import org.lecturestudio.web.api.model.Message;
 
 public class MessengerMessage extends WebMessage {
 
-	private Date date;
+	private ZonedDateTime date;
 
 	private Message message;
 
@@ -34,7 +34,7 @@ public class MessengerMessage extends WebMessage {
 		this(null, null, null);
 	}
 
-	public MessengerMessage(Message message, String remoteAddress, Date date) {
+	public MessengerMessage(Message message, String remoteAddress, ZonedDateTime date) {
 		setMessage(message);
 		setRemoteAddress(remoteAddress);
 		setDate(date);
@@ -43,14 +43,14 @@ public class MessengerMessage extends WebMessage {
 	/**
 	 * @return the date
 	 */
-	public Date getDate() {
+	public ZonedDateTime getDate() {
 		return date;
 	}
 
 	/**
 	 * @param date the Date to set
 	 */
-	public void setDate(Date date) {
+	public void setDate(ZonedDateTime date) {
 		this.date = date;
 	}
 

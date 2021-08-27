@@ -18,31 +18,27 @@
 
 package org.lecturestudio.web.api.data.bind;
 
-import javax.json.bind.Jsonb;
-import javax.json.bind.JsonbBuilder;
-import javax.json.bind.JsonbConfig;
-import javax.ws.rs.ext.ContextResolver;
-import javax.ws.rs.ext.Provider;
+import java.time.ZonedDateTime;
 
-@Provider
-public class JsonConfig implements ContextResolver<Jsonb> {
+import javax.json.JsonObject;
+import javax.json.bind.adapter.JsonbAdapter;
+
+import org.lecturestudio.web.api.message.MessengerMessage;
+import org.lecturestudio.web.api.model.Message;
+
+public class MessengerMessageAdapter implements JsonbAdapter<MessengerMessage, JsonObject> {
 
 	@Override
-	public Jsonb getContext(Class<?> aClass) {
-		JsonbConfig config = new JsonbConfig();
+	public JsonObject adaptToJson(MessengerMessage messengerMessage) {
+		return null;
+	}
 
-		config.withAdapters(
-				new MessengerMessageAdapter()
-		);
-		config.withSerializers(
-				new ClassroomServiceSerializer(),
-				new HttpResourceFileSerializer()
-		);
-		config.withDeserializers(
-				new ClassroomServiceDeserializer(),
-				new HttpResourceFileDeserializer()
-		);
+	@Override
+	public MessengerMessage adaptFromJson(JsonObject jsonObject) {
+		MessengerMessage message = new MessengerMessage();
+		message.setMessage(new Message(jsonObject.getString("text")));
+		message.setDate(ZonedDateTime.parse(jsonObject.getString("time")));
 
-		return JsonbBuilder.create(config);
+		return message;
 	}
 }

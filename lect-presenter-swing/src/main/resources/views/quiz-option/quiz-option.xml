@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <HBox border="EmptyBorder(0, 0, 5, 0)">
 	<HBox id="buttons" gap="5">
-		<Button id="moveUpButton" accelerator="Up" focusable="false" icon="arrow-up.svg, 20" tooltipText="quiz.option.up.tooltip" />
-		<Button id="moveDownButton" accelerator="Down" focusable="false" icon="arrow-down.svg, 20" tooltipText="quiz.option.down.tooltip" />
+		<Button id="moveUpButton" accelerator="UP" focusable="false" icon="arrow-up.svg, 20" tooltipText="quiz.option.up.tooltip" />
+		<Button id="moveDownButton" accelerator="DOWN" focusable="false" icon="arrow-down.svg, 20" tooltipText="quiz.option.down.tooltip" />
 		<Button id="removeButton" icon="delete.svg, 20" focusable="false" tooltipText="quiz.option.remove.tooltip" />
 	</HBox>
 </HBox>

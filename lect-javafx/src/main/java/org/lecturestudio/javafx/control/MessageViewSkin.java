@@ -18,13 +18,19 @@
 
 package org.lecturestudio.javafx.control;
 
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
+
 import javafx.geometry.HPos;
 import javafx.geometry.VPos;
 import javafx.scene.control.Label;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.control.SkinBase;
 import javafx.scene.layout.Region;
-import javafx.util.converter.DateStringConverter;
+import javafx.util.StringConverter;
+import javafx.util.converter.LocalDateTimeStringConverter;
+import javafx.util.converter.LocalTimeStringConverter;
 
 public class MessageViewSkin extends SkinBase<MessageView> {
 
@@ -103,7 +109,19 @@ public class MessageViewSkin extends SkinBase<MessageView> {
 			hostLabel.setManaged(!hostLabel.isVisible());
 		});
 
-		dateLabel.textProperty().bindBidirectional(control.dateProperty(), new DateStringConverter(control.getDateFormat()));
+		dateLabel.textProperty().bindBidirectional(control.dateProperty(), new StringConverter<>() {
+
+			@Override
+			public String toString(ZonedDateTime date) {
+				ZonedDateTime dateSystem = date.withZoneSameInstant(ZoneId.systemDefault());
+				return dateSystem.format(DateTimeFormatter.ofPattern(control.getDateFormat()));
+			}
+
+			@Override
+			public ZonedDateTime fromString(String string) {
+				return ZonedDateTime.parse(string);
+			}
+		});
 		hostLabel.textProperty().bind(control.hostProperty());
 
 		getChildren().addAll(icon, hostLabel, dateLabel, messagePane);

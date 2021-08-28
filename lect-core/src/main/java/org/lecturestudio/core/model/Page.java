@@ -87,7 +87,7 @@ public class Page {
 	private final Stack<ShapeAction> undoActions = new Stack<>();
 	private final Stack<ShapeAction> redoActions = new Stack<>();
 
-	private final int pageNumber;
+	private int pageNumber;
 
 
 	public Page(Document document, int pageNumber) {
@@ -107,6 +107,15 @@ public class Page {
 
 	public int getPageNumber() {
 		return pageNumber;
+	}
+
+	/**
+	 * Set the new page number.
+	 *
+	 * @param pageNumber The new page number.
+	 */
+	public void setPageNumber(int pageNumber) {
+		this.pageNumber = pageNumber;
 	}
 
 	public String getPageText() {

@@ -268,6 +268,10 @@ public class Document {
 		if (pages.remove(page)) {
 			pdfDocument.removePage(pageNumber);
 
+			for (int i = 0; i < pages.size(); i++) {
+				pages.get(i).setPageNumber(i);
+			}
+
 			if (isSelected) {
 				currentPageNumber = -1;
 			}

@@ -533,8 +533,13 @@ public class SlidesPresenter extends Presenter<SlidesView> {
 		toolController.selectPenTool();
 
 		pageEditedListener = (event) -> {
-			if (event.getType() == PageEditEvent.Type.SHAPE_ADDED) {
-				pageShapeAdded(event.getShape());
+			switch (event.getType()) {
+				case SHAPE_ADDED:
+					pageShapeAdded(event.getShape());
+					break;
+				case CLEAR:
+					setPage(event.getPage());
+					break;
 			}
 		};
 

@@ -32,6 +32,7 @@ import java.util.Enumeration;
 import java.util.Iterator;
 import java.util.List;
 
+import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
@@ -44,8 +45,6 @@ import javax.swing.SwingUtilities;
 import javax.swing.ToolTipManager;
 import javax.swing.event.AncestorEvent;
 import javax.swing.event.AncestorListener;
-import javax.swing.event.DocumentEvent;
-import javax.swing.event.DocumentListener;
 import javax.swing.text.JTextComponent;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeModel;
@@ -128,6 +127,8 @@ public class SwingSlidesView extends JPanel implements SlidesView {
 	private JTextArea notesTextArea;
 
 	private JTextArea latexTextArea;
+
+	private JButton latexCompileButton;
 
 	private int bottomTabIndex;
 
@@ -368,24 +369,8 @@ public class SwingSlidesView extends JPanel implements SlidesView {
 	}
 
 	@Override
-	public void setOnLaTeXText(ConsumerAction<String> action) {
-		latexTextArea.getDocument().addDocumentListener(new DocumentListener() {
-
-			@Override
-			public void insertUpdate(DocumentEvent e) {
-				changedUpdate(e);
-			}
-
-			@Override
-			public void removeUpdate(DocumentEvent e) {
-				changedUpdate(e);
-			}
-
-			@Override
-			public void changedUpdate(DocumentEvent e) {
-				executeAction(action, latexTextArea.getText());
-			}
-		});
+	public void setOnLaTeXCompile(ConsumerAction<String> action) {
+		latexCompileButton.addActionListener(e -> executeAction(action, latexTextArea.getText()));
 	}
 
 	@Override

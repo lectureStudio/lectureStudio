@@ -598,7 +598,7 @@ public class SlidesPresenter extends Presenter<SlidesView> {
 		view.setOnSelectPage(this::selectPage);
 		view.setOnSelectDocument(this::selectDocument);
 		view.setOnViewTransform(this::setViewTransform);
-		view.setOnLaTeXText(this::setLaTeXText);
+		view.setOnLaTeXCompile(this::setLaTeXText);
 
 		// Register shortcuts that are associated with the SlideView.
 		registerShortcut(Shortcut.SLIDE_NEXT_DOWN, this::nextPage);

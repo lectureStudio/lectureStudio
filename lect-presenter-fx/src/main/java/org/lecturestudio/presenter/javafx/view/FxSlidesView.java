@@ -50,6 +50,7 @@ import javafx.stage.Stage;
 import org.lecturestudio.core.beans.BooleanProperty;
 import org.lecturestudio.core.model.DocumentOutline;
 import org.lecturestudio.core.model.DocumentOutlineItem;
+import org.lecturestudio.javafx.control.ExtButton;
 import org.lecturestudio.presenter.javafx.input.StylusListener;
 
 import org.lecturestudio.core.ExecutableState;
@@ -144,6 +145,9 @@ public class FxSlidesView extends VBox implements SlidesView {
 
 	@FXML
 	private TextArea latexTextArea;
+
+	@FXML
+	private ExtButton latexCompileButton;
 
 
 	@Inject
@@ -382,10 +386,8 @@ public class FxSlidesView extends VBox implements SlidesView {
 	}
 
 	@Override
-	public void setOnLaTeXText(ConsumerAction<String> action) {
-		latexTextArea.textProperty().addListener(observable -> {
-			executeAction(action, latexTextArea.getText());
-		});
+	public void setOnLaTeXCompile(ConsumerAction<String> action) {
+		latexCompileButton.setOnAction(e -> executeAction(action, latexTextArea.getText()));
 	}
 
 	@Override

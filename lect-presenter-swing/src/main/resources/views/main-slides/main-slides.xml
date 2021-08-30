@@ -18,7 +18,10 @@
 					<TextArea id="notesTextArea" background="white" editable="false" focusTraversable="false" minimumSize="0,0" />
 				</Tab>
 				<Tab id="latexTab" name="latex" text="slides.latex" icon="latex-tool.svg, 24">
-					<TextArea id="latexTextArea" minimumSize="0,0" />
+					<SplitPane id="latexSplitPane" resizeWeight="1" orientation="JSplitPane.HORIZONTAL_SPLIT">
+						<TextArea id="latexTextArea" minimumSize="0,0" />
+						<Button id="latexCompileButton" text="slides.compile" />
+					</SplitPane>
 				</Tab>
 				<Tab id="messageTab" name="message" text="slides.message" icon="messenger-indicator.svg, 20">
 					<MessageView id="messageView" border="EmptyBorder" minimumSize="0,0" />

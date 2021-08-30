@@ -82,7 +82,7 @@ public interface SlidesView extends View {
 
 	void setOnKeyEvent(ConsumerAction<KeyEvent> action);
 
-	void setOnLaTeXText(ConsumerAction<String> action);
+	void setOnLaTeXCompile(ConsumerAction<String> action);
 
 	void setOnSelectDocument(ConsumerAction<Document> action);
 

@@ -119,6 +119,7 @@ public class MessageView extends JPanel {
 		add(controlPanel, BorderLayout.NORTH);
 		add(scrollPane, BorderLayout.CENTER);
 		add(imageView, BorderLayout.SOUTH);
+
 	}
 
 }

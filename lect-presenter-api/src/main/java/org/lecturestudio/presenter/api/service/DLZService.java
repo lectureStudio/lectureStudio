@@ -10,8 +10,11 @@ import org.lecturestudio.web.api.model.DLZMessage;
 import org.lecturestudio.web.api.model.Message;
 import org.lecturestudio.web.api.service.DLZMessageService;
 
+import javax.imageio.ImageIO;
 import javax.inject.Inject;
 import javax.inject.Singleton;
+import java.awt.image.BufferedImage;
+import java.io.InputStream;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.Date;
@@ -53,7 +56,7 @@ public class DLZService {
                         List<DLZMessage> messages = messageservice.getNewMessages();
 
                         for (var message : messages) {
-                            //if(message.type == "m.text") {
+                            if(message.getType().equals("m.text")) {
                             String text = message.message;
 
                             MessengerMessage messengerMessage = new MessengerMessage();
@@ -64,13 +67,15 @@ public class DLZService {
                             context.getEventBus().post(messengerMessage);
 
                             showNotificationPopup("New DLZ Message", text);
-                            //}
-                   /*
-                    if(message.type == "m.image"){
+                            }
+
+                    if(message.getType().equals("m.image")){
                         InputStream test;
                         String url = message.url;
 
-                        String mediaId = null;
+                        String[] split = url.split("/");
+
+                        String mediaId = split[3];
                         test = org.lecturestudio.web.api.service.DLZPictureService.getPic(mediaId);
                         BufferedImage imBuff = ImageIO.read(test);
                         System.out.println(imBuff);
@@ -83,8 +88,8 @@ public class DLZService {
 
                         context.getEventBus().post(messengerMessage);
 
-                        showNotificationPopup("DLZ Bild");
-                    }*/
+                        //showNotificationPopup("DLZ Bild", text);
+                    }
                         }
                     }
                 }

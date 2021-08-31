@@ -10,4 +10,8 @@ public class DLZMessage {
     public String senderId;
     public String url;
     public String type;
+
+    public String getType() {
+        return type;
+    }
 }

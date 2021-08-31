@@ -10,8 +10,10 @@ public class DLZMessage {
     public String senderId;
     public String url;
     public String type;
+    public long age;
 
     public String getType() {
         return type;
     }
+
 }

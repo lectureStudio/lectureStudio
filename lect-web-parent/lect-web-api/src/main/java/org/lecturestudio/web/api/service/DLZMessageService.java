@@ -71,6 +71,7 @@ public class DLZMessageService {
                 UserProfile name = roomClient.getProfile(message.sender);
                 nmessage.sender = name.getDisplayName();
                 nmessage.type = message.content.msgtype;
+                nmessage.age = message.origin_server_ts;
 
                 nmessage.url = message.content.url;
                 messages.add(0,nmessage);

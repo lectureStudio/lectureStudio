@@ -10,6 +10,7 @@ public class MatrixMessage {
     public content content;
     public String sender;
     public String event_id;
+    public long origin_server_ts;
 
 
     @Override

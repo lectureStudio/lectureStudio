@@ -52,6 +52,8 @@ public class PresenterConfiguration extends Configuration {
 
 	private final StringProperty DLZAccessToken = new StringProperty();
 
+
+
 	/**
 	 * @return the classroomName
 	 */

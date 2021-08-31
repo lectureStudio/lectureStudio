@@ -29,6 +29,7 @@ public class DLZService {
     private ScheduledExecutorService service; //Service for requesting Messages
     private URI uri;
     private ApplicationContext context;
+    private long dlzServiceStart;
 
     @Inject
     public DLZService(ApplicationContext context) {
@@ -42,6 +43,7 @@ public class DLZService {
         }catch (URISyntaxException e){
             e.printStackTrace();
         }
+        dlzServiceStart = System.currentTimeMillis();
 
 
         messageservice = new DLZMessageService(uri);
@@ -63,10 +65,11 @@ public class DLZService {
                             messengerMessage.setDate(new Date());
                             messengerMessage.setMessage(new Message(text));
                             messengerMessage.setRemoteAddress(message.sender);
-
                             context.getEventBus().post(messengerMessage);
+                            if(dlzServiceStart < message.age) {
+                                showNotificationPopup("New DLZ Message", text);
+                            }
 
-                            showNotificationPopup("New DLZ Message", text);
                             }
 
                     if(message.getType().equals("m.image")){

@@ -23,6 +23,7 @@ import static java.util.Objects.nonNull;
 
 import java.awt.Color;
 import java.awt.Component;
+import java.awt.Container;
 import java.awt.Dimension;
 import java.awt.KeyboardFocusManager;
 import java.awt.Rectangle;
@@ -123,7 +124,7 @@ public class SwingSlidesView extends JPanel implements SlidesView {
 
 	private JTabbedPane tabPane;
 
-	private MessageView messageView;
+	private Container messageViewContainer;
 
 	private JTabbedPane bottomTabPane;
 
@@ -350,9 +351,16 @@ public class SwingSlidesView extends JPanel implements SlidesView {
 		}
 
 		SwingUtils.invoke(() -> {
+			MessageView messageView = new MessageView();
 			messageView.setUserName(String.format("%s %s", message.getFirstName(), message.getFamilyName()));
 			messageView.setDate(message.getDate());
 			messageView.setMessage(message.getMessage().getText());
+			messageView.setPreferredSize(new Dimension(messageView.getPreferredSize().width, messageView.getPreferredSize().height));
+			messageView.setMaximumSize(new Dimension(messageView.getMaximumSize().width, messageView.getPreferredSize().height));
+			messageView.setMinimumSize(new Dimension(200, messageView.getPreferredSize().height));
+
+			messageViewContainer.add(messageView);
+			messageViewContainer.revalidate();
 		});
 	}
 

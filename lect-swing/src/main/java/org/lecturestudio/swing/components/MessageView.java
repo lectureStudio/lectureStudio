@@ -34,6 +34,8 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 
+import org.lecturestudio.swing.border.RoundedBorder;
+
 public class MessageView extends JPanel {
 
 	private JLabel fromLabel;
@@ -71,7 +73,7 @@ public class MessageView extends JPanel {
 	private void initialize() {
 		setLayout(new BorderLayout(1, 1));
 		setBackground(Color.WHITE);
-		setBorder(BorderFactory.createMatteBorder(1, 1, 1, 1, Color.GRAY));
+		setBorder(new RoundedBorder(Color.LIGHT_GRAY, 5));
 
 		GridBagConstraints constraints = new GridBagConstraints();
 		constraints.anchor = GridBagConstraints.WEST;

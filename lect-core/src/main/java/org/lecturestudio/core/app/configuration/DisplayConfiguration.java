@@ -126,7 +126,7 @@ public class DisplayConfiguration {
 	 * Check whether to automatically enable connected displays when the
 	 * application starts.
 	 *
-	 * @return true to automatically enable connected displays, false otherwise.
+	 * @return {@code true} to automatically enable connected displays, otherwise {@code false}.
 	 */
 	public Boolean getAutostart() {
 		return autostart.get();

@@ -26,7 +26,7 @@ import java.security.SecureRandom;
 import org.lecturestudio.core.crypto.GroupParameters;
 
 /**
- * {@code SRPContext} is the base class for client and server-side Secure Remote
+ * {@link SrpContext} is the base class for client and server-side Secure Remote
  * Password Protocol (SRP-6a) authentication.
  * 
  * @author Alex Andres
@@ -67,18 +67,16 @@ public abstract class SrpContext {
 	/**
 	 * Computes and returns the public value of the implemented context.
 	 *
-	 * @return the public value.
+	 * @return The public value.
 	 */
 	abstract public BigInteger computePublicValue();
 
 	/**
-	 * Check if the session key verifier of the counter part matches own
-	 * verifier.
+	 * Check if the session key verifier of the counter part matches own verifier.
 	 *
 	 * @param M The session key verifier of the counter part.
 	 *
-	 * @return true if own session key verifier matches the provided one, false
-	 * otherwise.
+	 * @return {@code true} if own session key verifier matches the provided one, otherwise {@code false}.
 	 */
 	abstract public boolean verifySessionKey(BigInteger M);
 
@@ -97,13 +95,11 @@ public abstract class SrpContext {
 	}
 
 	/**
-	 * Creates a new {@link SrpContext} with user's identity, desired group
-	 * parameters and hash function.
+	 * Creates a new {@link SrpContext} with user's identity, desired group parameters and hash function.
 	 *
 	 * @param identity     The user's identity.
 	 * @param params       The GroupParameters, N and g.
-	 * @param hashFunction The desired hash function to be used during
-	 *                     agreement.
+	 * @param hashFunction The desired hash function to be used during agreement.
 	 *
 	 * @throws NoSuchAlgorithmException If the hash function is not supported.
 	 */
@@ -118,7 +114,7 @@ public abstract class SrpContext {
 	/**
 	 * Returns user's identity, e.g. the user name.
 	 * 
-	 * @return user's identity.
+	 * @return User's identity.
 	 */
 	public String getIdentity() {
 		return identity;
@@ -127,7 +123,7 @@ public abstract class SrpContext {
 	/**
 	 * Get user's salt.
 	 *
-	 * @return the salt value.
+	 * @return The salt value.
 	 */
 	public BigInteger getSalt() {
 		return s;
@@ -136,7 +132,7 @@ public abstract class SrpContext {
 	/**
 	 * Returns the secret session key 'K'.
 	 * 
-	 * @return the secret session key.
+	 * @return The secret session key.
 	 */
 	public BigInteger getSessionKey() {
 		return K;
@@ -147,7 +143,7 @@ public abstract class SrpContext {
 	 * 
 	 * @param value The public value.
 	 * 
-	 * @return true if the public value % N != 0, false otherwise.
+	 * @return {@code true} if the public value % N != 0, otherwise {@code false}.
 	 */
 	public boolean verifyPublicValue(BigInteger value) {
 		return !value.mod(params.getPrime()).equals(BigInteger.ZERO);
@@ -157,7 +153,7 @@ public abstract class SrpContext {
 	 * Computes the evidence message M = H(H(N) xor H(g), H(I), s, A, B, K)
 	 * which is required to prove that the session keys of both parties match.
 	 * 
-	 * @return the evidence message.
+	 * @return The evidence message.
 	 */
 	public BigInteger computeEvidenceMessage() {
 		byte[] hashN = digest.digest(params.getPrime().toByteArray());
@@ -181,7 +177,7 @@ public abstract class SrpContext {
 	 * Computes the session key verifier H(A, M, K) which is required to prove
 	 * that the session keys of both parties match.
 	 * 
-	 * @return the session key verifier.
+	 * @return The session key verifier.
 	 */
 	public BigInteger computeSessionKeyVerifier() {
 		digest.update(A.toByteArray());
@@ -192,10 +188,9 @@ public abstract class SrpContext {
 	}
 
 	/**
-	 * Generates a random ephemeral private value with constraints 1 < value <
-	 * N.
+	 * Generates a random ephemeral private value with constraints 1 < value < N.
 	 * 
-	 * @return the ephemeral private value.
+	 * @return The ephemeral private value.
 	 */
 	BigInteger generatePrivateValue() {
 		BigInteger value = SrpFactory.generateRandomNumber(32);
@@ -228,7 +223,7 @@ public abstract class SrpContext {
 	/**
 	 * Returns the multiplier parameter k = H(N, g).
 	 * 
-	 * @return the multiplier parameter.
+	 * @return The multiplier parameter.
 	 */
 	BigInteger getMultiplier() {
 		digest.update(params.getPrime().toByteArray());
@@ -242,7 +237,7 @@ public abstract class SrpContext {
 	 * 
 	 * @param S The session key.
 	 * 
-	 * @return the hashed session key.
+	 * @return The hashed session key.
 	 */
 	BigInteger computeK(BigInteger S) {
 		return new BigInteger(1, digest.digest(S.toByteArray()));

@@ -20,6 +20,6 @@ package org.lecturestudio.core.io;
 
 public interface VideoSource extends MediaSource {
 
-	public void setSink(VideoSink videoSink);
+	void setSink(VideoSink videoSink);
 	
 }

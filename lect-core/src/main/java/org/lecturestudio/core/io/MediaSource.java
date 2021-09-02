@@ -22,12 +22,24 @@ import java.io.IOException;
 
 public interface MediaSource {
 
+	/**
+	 * Opens this media source.
+	 */
 	void open() throws IOException;
 
+	/**
+	 * Starts this media source.
+	 */
 	void start() throws IOException;
 
+	/**
+	 * Stops this media source.
+	 */
 	void stop() throws IOException;
 
+	/**
+	 * Closes this media source.
+	 */
 	void close() throws IOException;
 
 }

@@ -30,7 +30,7 @@ import org.lecturestudio.core.io.VideoSink;
 import org.lecturestudio.core.io.VideoSource;
 
 /**
- * The CameraSource captures video frames with an camera, encodes the captured
+ * The {@link CameraSource} captures video frames with an camera, encodes the captured
  * frames and writes them to a {@link VideoSink}.
  *
  * @author Alex Andres
@@ -45,7 +45,7 @@ public class CameraSource implements VideoSource, FrameGrabberCallback {
 	/** The video sink handler. */
 	private VideoEncoder videoEncoder;
 
-	/** The video frame capturer. */
+	/** The video frame captor. */
 	private FrameGrabber frameGrabber;
 
 	/** The video sink that receives captured frames. */
@@ -53,12 +53,11 @@ public class CameraSource implements VideoSource, FrameGrabberCallback {
 
 
 	/**
-	 * Create a new CameraSource with the specified camera, the capturing format
+	 * Create a new {@link CameraSource} with the specified camera, the capturing format
 	 * and video codec configuration.
 	 *
 	 * @param camera      The camera what captures the video frames.
-	 * @param format      The camera format that describes the format of the
-	 *                    frames.
+	 * @param format      The camera format that describes the format of the frames.
 	 * @param codecConfig The video encoder configuration.
 	 */
 	public CameraSource(Camera camera, CameraFormat format, VideoCodecConfiguration codecConfig) {
@@ -105,13 +104,19 @@ public class CameraSource implements VideoSource, FrameGrabberCallback {
 	 */
 	private class Handler implements Runnable {
 
+		/** The buffered image of the {@link Handler}. */
 		private BufferedImage image;
 
-
+		/**
+		 * Set a new image.
+		 *
+		 * @param image The new image.
+		 */
 		public void setImage(BufferedImage image) {
 			this.image = image;
 		}
 
+		@Override
 		public void run() {
 			videoSink.onVideoFrame(videoEncoder.encode(image));
 		}

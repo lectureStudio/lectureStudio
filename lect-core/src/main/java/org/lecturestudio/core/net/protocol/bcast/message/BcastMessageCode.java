@@ -41,7 +41,7 @@ public enum BcastMessageCode {
 
 
 	/**
-	 * Creates a new BcastMessageCode with the specified message type.
+	 * Creates a new {@link BcastMessageCode} with the specified message type.
 	 * 
 	 * @param type The message type.
 	 */
@@ -52,7 +52,7 @@ public enum BcastMessageCode {
 	/**
 	 * Returns the associated number that represents the message type.
 	 * 
-	 * @return the message type.
+	 * @return The message type.
 	 */
 	public int getId() {
 		return type;

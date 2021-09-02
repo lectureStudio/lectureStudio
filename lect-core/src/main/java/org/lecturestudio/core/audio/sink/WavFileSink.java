@@ -44,7 +44,7 @@ public class WavFileSink implements AudioSink {
 
 
 	/**
-	 * Create a new WavFileSink with the specified file that should be created
+	 * Create a new {@link WavFileSink} with the specified file that should be created
 	 * or overridden when the sink writes audio.
 	 *
 	 * @param file The file to which to write the audio.
@@ -58,7 +58,7 @@ public class WavFileSink implements AudioSink {
 	}
 
 	/**
-	 * Create a new WavFileSink with the specified data channel that receives
+	 * Create a new {@link WavFileSink} with the specified data channel that receives
 	 * the consumed audio samples.
 	 *
 	 * @param channel The data channel to write to.

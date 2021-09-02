@@ -22,6 +22,11 @@ import org.lecturestudio.core.model.Page;
 
 public interface PageSelectListener {
 
+	/**
+	 * Fired when a page has been selected.
+	 *
+	 * @param page The page.
+	 */
 	void pageSelected(Page page);
 	
 }

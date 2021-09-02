@@ -24,18 +24,38 @@ import java.util.Locale;
 
 public class IntegerStringConverter extends NumberStringConverter<Integer> {
 
+	/**
+	 * Creates a {@link IntegerStringConverter} with the default {@link Locale}.
+	 */
 	public IntegerStringConverter() {
 		this(Locale.getDefault());
 	}
 
+	/**
+	 * Creates a {@link IntegerStringConverter} with the specified locale. (The pattern will be {@code null})
+	 *
+	 * @param locale The locale.
+	 */
 	public IntegerStringConverter(Locale locale) {
 		this(locale, null);
 	}
 
+	/**
+	 * Creates a {@link IntegerStringConverter} with the specified pattern.
+	 * (The locale will be the default {@link Locale})
+	 *
+	 * @param pattern The pattern.
+	 */
 	public IntegerStringConverter(String pattern) {
 		this(Locale.getDefault(), pattern);
 	}
 
+	/**
+	 * Creates a {@link IntegerStringConverter} with the specified locale and pattern.
+	 *
+	 * @param locale The locale.
+	 * @param pattern The pattern.
+	 */
 	public IntegerStringConverter(Locale locale, String pattern) {
 		super(locale, pattern);
 	}

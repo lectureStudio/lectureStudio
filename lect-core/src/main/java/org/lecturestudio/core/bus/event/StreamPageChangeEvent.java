@@ -21,15 +21,27 @@ import org.lecturestudio.core.model.DocumentType;
 
 public class StreamPageChangeEvent extends ApplicationControllerEvent {
 
+	/** The type of the document. */
 	private DocumentType type;
-	
+
+	/** The id of the document. */
 	private int documentId;
-	
+
+	/** The page number. */
 	private int pageNumber;
-	
+
+	/** The page data. */
 	private Object data;
-	
-	
+
+	/**
+	 * Create the {@link StreamPageChangeEvent} with specified command, type, document id, page number and page data.
+	 *
+	 * @param command
+	 * @param type The type of the document.
+	 * @param documentId The id of the document.
+	 * @param pageNumber The page number.
+	 * @param data The page data.
+	 */
 	public StreamPageChangeEvent(String command, DocumentType type, int documentId, int pageNumber, Object data) {
 		super(command);
 		
@@ -38,19 +50,39 @@ public class StreamPageChangeEvent extends ApplicationControllerEvent {
 		this.pageNumber = pageNumber;
 		this.data = data;
 	}
-	
+
+	/**
+	 * Get the type of the document.
+	 *
+	 * @return The type of the document.
+	 */
 	public DocumentType getDocumentType() {
 		return type;
 	}
-	
+
+	/**
+	 * Get the id of the document.
+	 *
+	 * @return The id of the document.
+	 */
 	public int getDocumentID() {
 		return documentId;
 	}
-	
+
+	/**
+	 * Get the page number.
+	 *
+	 * @return The page number.
+	 */
 	public int getPageNumber() {
 		return pageNumber;
 	}
-	
+
+	/**
+	 * Get the page data.
+	 *
+	 * @return The page data.
+	 */
 	public Object getPageData() {
 		return data;
 	}

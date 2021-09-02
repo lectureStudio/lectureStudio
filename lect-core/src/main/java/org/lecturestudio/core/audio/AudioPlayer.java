@@ -39,6 +39,7 @@ import org.apache.logging.log4j.Logger;
  */
 public class AudioPlayer extends ExecutableBase implements Player {
 
+	/** Logger for {@link AudioPlayer} */
 	private static final Logger LOG = LogManager.getLogger(AudioPlayer.class);
 
 	/** The sync state that is shared with other media players. */
@@ -67,7 +68,7 @@ public class AudioPlayer extends ExecutableBase implements Player {
 
 
 	/**
-	 * Create an AudioPlayer with the specified playback device and source. The
+	 * Create an {@link AudioPlayer} with the specified playback device and source. The
 	 * sync state is shared with other media players to keep different media
 	 * sources in sync while playing.
 	 *

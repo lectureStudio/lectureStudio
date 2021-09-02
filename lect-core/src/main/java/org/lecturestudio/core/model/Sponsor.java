@@ -22,6 +22,7 @@ import java.util.Objects;
 
 public class Sponsor {
 
+	/** The name of the sponsor. */
 	public String name;
 
 

@@ -30,6 +30,9 @@ public class PTIPPage implements PTIPMessage {
 	 */
 	private final int documentId;
 
+	/**
+	 * The page number.
+	 */
 	private final int pageNumber;
 
 	/**
@@ -37,9 +40,20 @@ public class PTIPPage implements PTIPMessage {
 	 */
 	private final int type;
 
+	/**
+	 * The page data.
+	 */
 	private final byte[] data;
 
 
+	/**
+	 * Create a new {@link PTIPPage} with the specified parameters.
+	 *
+	 * @param documentId The documents unique id.
+	 * @param type The document type: 0 = PDF, 1 = Whiteboard, 2 = Quiz
+	 * @param pageNumber The page number.
+	 * @param data The page data.
+	 */
 	public PTIPPage(int documentId, int type, int pageNumber, byte[] data) {
 		this.documentId = documentId;
 		this.type = type;
@@ -48,22 +62,37 @@ public class PTIPPage implements PTIPMessage {
 	}
 
 	/**
-	 * Returns the unique id of the document.
+	 * Get the unique id of the document.
 	 * 
-	 * @return unique id of the document
+	 * @return The unique id of the document.
 	 */
 	public int getDocumentID() {
 		return documentId;
 	}
 
+	/**
+	 * Get the type of the document.
+	 *
+	 * @return The type of the document.
+	 */
 	public int getDocumentType() {
 		return type;
 	}
 
+	/**
+	 * Get the page number.
+	 *
+	 * @return The page number.
+	 */
 	public int getPageNumber() {
 		return pageNumber;
 	}
 
+	/**
+	 * Get the page data.
+	 *
+	 * @return The page data.
+	 */
 	public byte[] getPageData() {
 		return data;
 	}

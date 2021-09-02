@@ -33,15 +33,14 @@ public class ImmutableBooleanProperty extends ImmutableObjectProperty<Boolean> {
 
 
 	/**
-	 * Create a ImmutableBooleanProperty with the initial value set to {@code
-	 * false}.
+	 * Create an {@link ImmutableBooleanProperty} with the initial value set to {@code false}.
 	 */
 	public ImmutableBooleanProperty() {
 		this(false);
 	}
 
 	/**
-	 * Create a ImmutableBooleanProperty with the specified initial value.
+	 * Create an {@link ImmutableBooleanProperty} with the specified initial value.
 	 *
 	 * @param defaultValue The initial value.
 	 */
@@ -50,9 +49,9 @@ public class ImmutableBooleanProperty extends ImmutableObjectProperty<Boolean> {
 	}
 
 	/**
-	 * Get the immutable BooleanProperty.
+	 * Get the immutable {@link BooleanProperty}.
 	 *
-	 * @return the immutable BooleanProperty.
+	 * @return the immutable {@link BooleanProperty}.
 	 */
 	public BooleanProperty getImmutableProperty() {
 		if (isNull(immutableProperty)) {

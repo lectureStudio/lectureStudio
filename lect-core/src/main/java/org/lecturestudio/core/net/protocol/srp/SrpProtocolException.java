@@ -19,9 +19,8 @@
 package org.lecturestudio.core.net.protocol.srp;
 
 /**
- * The class {@code SRPProtocolException} is to be used during the
- * authentication process. This exception is thrown if inconsistencies occur
- * between the client and server while authenticating.
+ * The class {@link SrpProtocolException} is to be used during the authentication process.
+ * This exception is thrown if inconsistencies occur between the client and server while authenticating.
  * 
  * @author Alex Andres
  */
@@ -30,8 +29,7 @@ public class SrpProtocolException extends Exception {
 	private static final long serialVersionUID = -9113059457478171856L;
 
 	/**
-	 * Constructs a new protocol exception with {@code null} as its detail
-	 * message.
+	 * Constructs a new protocol exception with {@code null} as its detail message.
 	 */
 	public SrpProtocolException() {
 		super();
@@ -40,8 +38,7 @@ public class SrpProtocolException extends Exception {
 	/**
 	 * Constructs a new protocol exception with the specified detail message.
 	 *
-	 * @param message the detail message which is received by the {@link
-	 *                #getMessage()} method.
+	 * @param message The detail message which is received by the {@link #getMessage()} method.
 	 */
 	public SrpProtocolException(String message) {
 		super(message);

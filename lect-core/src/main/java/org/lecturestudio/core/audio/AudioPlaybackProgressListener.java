@@ -21,7 +21,7 @@ package org.lecturestudio.core.audio;
 import org.lecturestudio.core.model.Time;
 
 /**
- * The AudioPlaybackProgressListener is notified each time an audio player has
+ * The {@link AudioPlaybackProgressListener} is notified each time an audio player has
  * processed and pushed audio samples to a audio playback device.
  *
  * @author Alex Andres

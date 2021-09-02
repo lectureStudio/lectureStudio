@@ -22,7 +22,7 @@ import java.io.Serializable;
 import java.util.Objects;
 
 /**
- * The AudioFormat specifies a particular arrangement of audio data in a audio
+ * The {@link AudioFormat} specifies a particular arrangement of audio data in a audio
  * source or in a audio sink. Having an audio format gives the ability to
  * interpret the bits in the binary audio data stream.
  *
@@ -50,7 +50,7 @@ public class AudioFormat implements Serializable {
 		FLOAT32LE,
 		/** 32 Bit IEEE floating point, big endian, range -1.0 to 1.0 */
 		FLOAT32BE
-	};
+	}
 
 
 	/** The encoding of this audio format. */
@@ -64,14 +64,14 @@ public class AudioFormat implements Serializable {
 
 
 	/**
-	 * Creates an uninitialized AudioFormat.
+	 * Creates an uninitialized {@link AudioFormat}.
 	 */
 	public AudioFormat() {
 
 	}
 
 	/**
-	 * Creates an AudioFormat with the given parameters.
+	 * Creates an {@link AudioFormat} with the given parameters.
 	 *
 	 * @param encoding   The audio encoding.
 	 * @param sampleRate The number of samples per second.

@@ -56,9 +56,9 @@ public class ScreenConfiguration {
 	}
 
 	/**
-	 * Set the new Screen information.
+	 * Set the new screen information.
 	 *
-	 * @param screen The new Screen to set.
+	 * @param screen The new screen to set.
 	 */
 	public void setScreen(Screen screen) {
 		this.screen.set(screen);
@@ -76,7 +76,7 @@ public class ScreenConfiguration {
 	/**
 	 * Check whether the connected display should be activated or not.
 	 *
-	 * @return true to activate the display, false otherwise.
+	 * @return {@code true} to activate the display, otherwise {@code false}.
 	 */
 	public Boolean getEnabled() {
 		return enabled.get();

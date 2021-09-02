@@ -53,8 +53,7 @@ public class GridConfiguration {
 	/**
 	 * Check whether vertical lines of the grid are visible.
 	 *
-	 * @return true if vertical lines of the grid should be visible, false
-	 * otherwise.
+	 * @return {@code true} if vertical lines of the grid should be visible, otherwise {@code false}.
 	 */
 	public Boolean getVerticalLinesVisible() {
 		return verticalLinesVisible.get();
@@ -108,8 +107,7 @@ public class GridConfiguration {
 	/**
 	 * Check whether horizontal lines of the grid are visible.
 	 *
-	 * @return true if horizontal lines of the grid should be visible, false
-	 * otherwise.
+	 * @return {@code true} if horizontal lines of the grid should be visible, otherwise {@code false}.
 	 */
 	public Boolean getHorizontalLinesVisible() {
 		return horizontalLinesVisible.get();
@@ -190,7 +188,7 @@ public class GridConfiguration {
 	/**
 	 * Check whether to show the grid on connected displays.
 	 *
-	 * @return true to show the grid, false otherwise.
+	 * @return {@code true} to show the grid, otherwise {@code false}.
 	 */
 	public Boolean getShowGridOnDisplays() {
 		return showGridOnDisplays.get();

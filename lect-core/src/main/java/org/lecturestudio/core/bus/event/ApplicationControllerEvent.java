@@ -20,10 +20,18 @@ package org.lecturestudio.core.bus.event;
 
 public abstract class ApplicationControllerEvent extends ControllerEvent {
 
+	/**
+	 * Create the {@link ApplicationControllerEvent} with no data.
+	 */
 	public ApplicationControllerEvent() {
 		super(null);
 	}
 
+	/**
+	 * Create the {@link ApplicationControllerEvent} with specified data.
+	 *
+	 * @param data the data.
+	 */
 	public ApplicationControllerEvent(Object data) {
 		super(data);
 	}

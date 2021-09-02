@@ -29,7 +29,7 @@ import org.jtransforms.fft.FloatFFT_1D;
 public final class DSP {
 
 	/**
-	 * Compute the forward transform of the specified complex data set. The
+	 * Compute the forward or inverse transform of the specified complex data set. The
 	 * input is separated in two parts. The complex input number is stored as
 	 * two float values: the real and imaginary part. Same is applied for the
 	 * computed output values.
@@ -39,8 +39,9 @@ public final class DSP {
 	 * @param imagIn  The imaginary part of data to transform.
 	 * @param realOut The computed real part of the transform.
 	 * @param imagOut The computed imaginary part of the transform.
+	 * @param inverse True if inverse transform is to be used, false if forward transform is to be used
 	 */
-	public static void FFT(int samples, float[] realIn, float[] imagIn, float[] realOut, float[] imagOut) {
+	public static void FFT(int samples, float[] realIn, float[] imagIn, float[] realOut, float[] imagOut, boolean inverse) {
 		float[] work = new float[2 * samples];
 
 		for (int i = 0; i < 2 * samples; i += 2) {
@@ -49,40 +50,20 @@ public final class DSP {
 		}
 
 		FloatFFT_1D fft = new FloatFFT_1D(samples);
-		fft.complexForward(work);
+		if (inverse) {
+			fft.complexInverse(work, false);
 
-		for (int i = 0; i < 2 * samples; i += 2) {
-			realOut[i >> 1] = work[i];
-			imagOut[i >> 1] = work[i + 1];
-		}
-	}
+			for (int i = 0; i < 2 * samples; i += 2) {
+				realOut[i >> 1] = work[i] / samples;
+				imagOut[i >> 1] = work[i + 1] / samples;
+			}
+		} else {
+			fft.complexForward(work);
 
-	/**
-	 * Compute the inverse transform of the specified complex data set. The
-	 * input is separated in two parts. The complex input number is stored as
-	 * two float values: the real and imaginary part. Same is applied for the
-	 * computed output values.
-	 *
-	 * @param samples The number of samples.
-	 * @param realIn  The real part of data to transform.
-	 * @param imagIn  The imaginary part of data to transform.
-	 * @param realOut The computed real part of the transform.
-	 * @param imagOut The computed imaginary part of the transform.
-	 */
-	public static void IFFT(int samples, float[] realIn, float[] imagIn, float[] realOut, float[] imagOut) {
-		float[] work = new float[2 * samples];
-
-		for (int i = 0; i < 2 * samples; i += 2) {
-			work[i] = realIn[i >> 1];
-			work[i + 1] = (imagIn != null) ? imagIn[i >> 1] : 0;
-		}
-
-		FloatFFT_1D fft = new FloatFFT_1D(samples);
-		fft.complexInverse(work, false);
-
-		for (int i = 0; i < 2 * samples; i += 2) {
-			realOut[i >> 1] = (float) (work[i] / samples);
-			imagOut[i >> 1] = (float) (work[i + 1] / samples);
+			for (int i = 0; i < 2 * samples; i += 2) {
+				realOut[i >> 1] = work[i];
+				imagOut[i >> 1] = work[i + 1];
+			}
 		}
 	}
 

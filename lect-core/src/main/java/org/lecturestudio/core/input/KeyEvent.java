@@ -20,7 +20,8 @@ package org.lecturestudio.core.input;
 
 public class KeyEvent {
 
-	public enum EventType { PRESSED, RELEASED, TYPED };
+	/** Enum with the types of the key event. */
+	public enum EventType { PRESSED, RELEASED, TYPED }
 	
 	/** The Shift key modifier constant. */
 	public static final int SHIFT_MASK = 1 << 1;
@@ -34,44 +35,93 @@ public class KeyEvent {
 	/** The AltGraph key modifier constant. */
     public static final int ALT_GRAPH_MASK = 1 << 4;
 
-
+	/** The event type. */
     private final EventType eventType;
-    
+
+    /** The key code. */
     private final int keyCode;
-    
+
+    /** The modifiers. */
 	private final int modifiers;
 
-
+	/**
+	 * Creates a new instance of {@link KeyEvent} with the specified key code.
+	 * (Calls {@link #KeyEvent(int, int, EventType)} with {@code 0} as modifiers and
+	 * {@code EventType.PRESSED} as event type.)
+	 *
+	 * @param keyCode The key code.
+	 */
 	public KeyEvent(int keyCode) {
 		this(keyCode, 0, EventType.PRESSED);
 	}
 
+	/**
+	 * Creates a new instance of {@link KeyEvent} with the specified key code and modifiers.
+	 * (Calls {@link #KeyEvent(int, int, EventType)} with {@code EventType.PRESSED} as event type.)
+	 *
+	 * @param keyCode The key code.
+	 * @param modifiers The modifiers.
+	 */
 	public KeyEvent(int keyCode, int modifiers) {
 		this(keyCode, modifiers, EventType.PRESSED);
 	}
 
+	/**
+	 * Creates a new instance of {@link KeyEvent} with the specified modifiers and event type.
+	 * (Calls {@link #KeyEvent(int, int, EventType)} with {@code 0} as key code.)
+	 *
+	 * @param modifiers The modifiers.
+	 * @param eventType The event type.
+	 */
 	public KeyEvent(int modifiers, EventType eventType) {
 		this(0, modifiers, eventType);
 	}
-	
+
+	/**
+	 * Creates a new instance of {@link KeyEvent} with the specified key code, modifiers and event type.
+	 *
+	 * @param keyCode The key code.
+	 * @param modifiers The modifiers.
+	 * @param eventType The event type.
+	 */
 	public KeyEvent(int keyCode, int modifiers, EventType eventType) {
 		this.keyCode = keyCode;
 		this.modifiers = modifiers;
 		this.eventType = eventType;
 	}
-	
+
+	/**
+	 * Get the key code.
+	 *
+	 * @return The key code.
+	 */
 	public int getKeyCode() {
 		return keyCode;
 	}
-	
+
+	/**
+	 * Get the modifiers.
+	 *
+	 * @return The modifiers.
+	 */
 	public int getModifiers() {
 		return modifiers;
 	}
-	
+
+	/**
+	 * Get the event type.
+	 *
+	 * @return The event type.
+	 */
 	public EventType getEventType() {
 		return eventType;
 	}
-	
+
+	/**
+	 * Indicates whether the key was released.
+	 *
+	 * @return {@code true} if the event type equals {@code EventType.RELEASED}, otherwise {@code false}.
+	 */
 	public boolean isReleased() {
 		return eventType == EventType.RELEASED;
 	}
@@ -120,37 +170,22 @@ public class KeyEvent {
 		if (this == obj) {
 			return true;
 		}
-		if (obj == null) {
-			return false;
-		}
-		if (getClass() != obj.getClass()) {
+		if (obj == null || getClass() != obj.getClass()) {
 			return false;
 		}
 		
 		KeyEvent other = (KeyEvent) obj;
-		
-		if (eventType != other.eventType) {
-			return false;
-		}
-		if (keyCode != other.keyCode) {
-			return false;
-		}
-		if (modifiers != other.modifiers) {
-			return false;
-		}
-		return true;
+
+		return eventType == other.eventType && keyCode == other.keyCode && modifiers == other.modifiers;
 	}
 
 	@Override
 	public String toString() {
-		StringBuffer buffer = new StringBuffer();
-		buffer.append("KeyCode: " + keyCode + ", ");
-		buffer.append("EventType: " + eventType + ", ");
-		buffer.append("Shift: " + isShiftDown() + ", ");
-		buffer.append("Control: " + isControlDown() + ", ");
-		buffer.append("Alt: " + isAltDown() + ", ");
-		buffer.append("AltGraph: " + isAltGraphDown());
-
-		return buffer.toString();
+		return "KeyCode: " + keyCode + ", " +
+				"EventType: " + eventType + ", " +
+				"Shift: " + isShiftDown() + ", " +
+				"Control: " + isControlDown() + ", " +
+				"Alt: " + isAltDown() + ", " +
+				"AltGraph: " + isAltGraphDown();
 	}
 }

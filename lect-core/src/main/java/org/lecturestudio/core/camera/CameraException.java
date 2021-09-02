@@ -21,7 +21,7 @@ package org.lecturestudio.core.camera;
 import java.io.IOException;
 
 /**
- * The CameraException is thrown whenever a camera failed to function.
+ * The {@link CameraException} is thrown whenever a camera failed to function.
  *
  * @author Alex Andres
  */
@@ -31,7 +31,7 @@ public class CameraException extends IOException {
 
 
 	/**
-	 * Create an CameraException with the specified detail message.
+	 * Create a {@link CameraException} with the specified detail message.
 	 *
 	 * @param message The error detail message.
 	 */
@@ -40,7 +40,7 @@ public class CameraException extends IOException {
 	}
 
 	/**
-	 * Create an CameraException with the specified detail message and cause.
+	 * Create a {@link CameraException} with the specified detail message and cause.
 	 *
 	 * @param message The error detail message.
 	 * @param cause   The cause.

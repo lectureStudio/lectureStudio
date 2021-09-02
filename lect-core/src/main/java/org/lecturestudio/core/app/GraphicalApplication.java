@@ -19,7 +19,7 @@
 package org.lecturestudio.core.app;
 
 /**
- * Common interface to provide a consistent mechanism for creating an graphical
+ * Common interface to provide a consistent mechanism for creating a graphical
  * application.
  *
  * @author Alex Andres
@@ -27,10 +27,10 @@ package org.lecturestudio.core.app;
 public interface GraphicalApplication {
 
 	/**
-	 * Create the application specific {@code ApplicationFactory} to bootstrap
+	 * Create the application specific {@link ApplicationFactory} to bootstrap
 	 * the application.
 	 *
-	 * @return the ApplicationFactory.
+	 * @return the {@link ApplicationFactory}.
 	 */
 	ApplicationFactory createApplicationFactory();
 

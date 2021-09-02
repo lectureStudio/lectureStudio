@@ -33,10 +33,9 @@ public interface RtpDepacketizer {
 	 *
 	 * @param packet The incoming RTP packet to process.
 	 *
-	 * @return the payload data of the packet.
+	 * @return The payload data of the packet.
 	 *
-	 * @throws Exception If the packet could not be read because it was
-	 *                   malformed.
+	 * @throws Exception If the packet could not be read because it was malformed.
 	 */
 	byte[] processPacket(RtpPacket packet) throws Exception;
 

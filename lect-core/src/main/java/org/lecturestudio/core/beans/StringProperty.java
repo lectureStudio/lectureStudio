@@ -26,14 +26,14 @@ package org.lecturestudio.core.beans;
 public class StringProperty extends ObjectProperty<String> {
 
 	/**
-	 * Create a StringProperty with the initial value set to {@code null}.
+	 * Create a {@link StringProperty} with the initial value set to {@code null}.
 	 */
 	public StringProperty() {
 		super(null);
 	}
 
 	/**
-	 * Create a StringProperty with the specified initial value.
+	 * Create a {@link StringProperty} with the specified initial value.
 	 *
 	 * @param defaultValue The initial value.
 	 */

@@ -52,14 +52,14 @@ public class RingBuffer implements AudioSink, AudioSource {
 
 
 	/**
-	 * Creates an RingBuffer with a default buffer size of 1024 bytes.
+	 * Creates a {@link RingBuffer} with a default buffer size of 1024 bytes.
 	 */
 	public RingBuffer() {
 		this(1024);
 	}
 
 	/**
-	 * Creates an RingBuffer with the specified buffer size.
+	 * Creates a {@link RingBuffer} with the specified buffer size.
 	 *
 	 * @param capacity buffer size in bytes.
 	 */
@@ -74,8 +74,7 @@ public class RingBuffer implements AudioSink, AudioSource {
 	}
 
 	/**
-	 * Resets the read and write pointers. The internal buffer remains
-	 * unaffected.
+	 * Resets the read and write pointers. The internal buffer remains unaffected.
 	 */
 	public synchronized void clear() {
 		readPointer = writePointer = 0;

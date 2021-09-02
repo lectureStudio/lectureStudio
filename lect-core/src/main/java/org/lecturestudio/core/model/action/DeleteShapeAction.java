@@ -31,12 +31,24 @@ import org.lecturestudio.core.model.shape.Shape;
  */
 public class DeleteShapeAction extends ShapeAction {
 
+	/**
+	 * Create a {@link DeleteShapeAction} with the specified page and adds the specified shape to the list of shapes.
+	 *
+	 * @param page The page.
+	 * @param shape The shape.
+	 */
 	public DeleteShapeAction(Page page, Shape shape) {
 		super(page);
 
 		getShapes().add(shape);
 	}
 
+	/**
+	 * Create a {@link DeleteShapeAction} with the specified page and adds the specified shapes to the list of shapes.
+	 *
+	 * @param page The page.
+	 * @param shapes The shapes.
+	 */
 	public DeleteShapeAction(Page page, List<Shape> shapes) {
 		super(page);
 

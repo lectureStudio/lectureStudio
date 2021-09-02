@@ -41,7 +41,9 @@ public abstract class SrpEvidenceMessage extends SrpMessage {
 	}
 
 	/**
-	 * Returns the evidence.
+	 * Get the evidence.
+	 *
+	 * @return The evidence.
 	 */
 	public BigInteger getEvidence() {
 		return evidence;

@@ -21,7 +21,7 @@ package org.lecturestudio.core.camera;
 import org.lecturestudio.core.bus.event.BusEvent;
 
 /**
- * An CameraEvent is published whenever an camera gets connected or
+ * An {@link CameraEvent} is published whenever an camera gets connected or
  * disconnected.
  *
  * @author Alex Andres

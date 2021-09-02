@@ -27,8 +27,7 @@ import java.awt.image.BufferedImage;
 import java.awt.image.ColorModel;
 
 /**
- * This class extends the fundamental GraphicsConfiguration to be used by
- * PdfGraphics2DStream for PDF creation.
+ * This class extends the fundamental {@link GraphicsConfiguration} to be used by PdfGraphics2DStream for PDF creation.
  * 
  * @author Alex Andres
  */
@@ -37,7 +36,7 @@ public class PDFGraphicsConfiguration extends GraphicsConfiguration {
 	/** Use this to get a transparency color model. */
 	private static final BufferedImage BI_ARGB = new BufferedImage(1, 1, BufferedImage.TYPE_INT_ARGB);
 	
-	/** Use this to get a opaque color model. */
+	/** Use this to get an opaque color model. */
 	private static final BufferedImage BI_OPAQUE = new BufferedImage(1, 1, BufferedImage.TYPE_INT_RGB);
 
 	

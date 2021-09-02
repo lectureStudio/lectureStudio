@@ -37,33 +37,68 @@ public class DynamicInputStream extends InputStream implements Cloneable {
 
 	private long readPointer = 0;
 
-
+	/**
+	 * Creates a new instance of {@link DynamicInputStream} with the specified input stream.
+	 *
+	 * @param inputStream The input stream.
+	 */
 	public DynamicInputStream(InputStream inputStream) {
 		stream = inputStream;
 	}
 
+	/**
+	 * Associate an {@link Interval} with the specified filter in the {@link #filters} map.
+	 *
+	 * @param filter The filter with which the {@link Interval} should be associated.
+	 * @param interval The {@link Interval}
+	 */
 	public void setAudioFilter(AudioFilter filter, Interval<Long> interval) {
 		filters.put(filter, interval);
 	}
 
+	/**
+	 * Removes the specified filter from {@link #filters}.
+	 *
+	 * @param filter The filter to be removed.
+	 */
 	public void removeAudioFilter(AudioFilter filter) {
 		filters.remove(filter);
 	}
 
+	/**
+	 * Add the specified {@link Interval} to {@link #exclusions} and {@link #exclude}.
+	 *
+	 * @param interval The {@link Interval} to add.
+	 */
 	public void addExclusion(Interval<Long> interval) {
 		exclusions.add(interval);
 		exclude.add(interval);
 	}
 
+	/**
+	 * Remove the specified {@link Interval} from {@link #exclusions} and {@link #exclude}.
+	 *
+	 * @param interval The {@link Interval} to remove.
+	 */
 	public void removeExclusion(Interval<Long> interval) {
 		exclusions.remove(interval);
 		exclude.remove(interval);
 	}
 
+	/**
+	 * Get the position of the {@link DynamicInputStream}.
+	 *
+	 * @return The {@link #readPointer}.
+	 */
 	public long getPosition() {
 		return readPointer;
 	}
 
+	/**
+	 * Get the total length of all {@link Interval}s in {@link #exclusions}.
+	 *
+	 * @return The sum of the {@link Interval} lengths in {@link #exclusions}.
+	 */
 	public long getExcludedLength() {
 		long excluded = 0;
 
@@ -197,11 +232,17 @@ public class DynamicInputStream extends InputStream implements Cloneable {
 		return skipped - padding;
 	}
 
+	/**
+	 *
+	 *
+	 * @param interval
+	 * @param <T> The {@link Number} type of the specified {@link Interval}.
+	 * @return The calculated padding.
+	 */
 	public <T extends Number> long getPadding(Interval<T> interval) {
 		long padding = 0;
 
 		long start = interval.getStart().longValue();
-		long end = interval.getEnd().longValue();
 
 		for (Interval<Long> iv : exclusions) {
 			if (iv.getStart() <= (start + padding)) {
@@ -212,6 +253,13 @@ public class DynamicInputStream extends InputStream implements Cloneable {
 		return padding;
 	}
 
+	/**
+	 * Get the length to exclude.
+	 * (Sums up the length of every {@link Interval} in {@link #exclusions} that is not part of another
+	 * {@link Interval} of {@link #exclusions}.)
+	 *
+	 * @return The length to exclude.
+	 */
 	protected long getToExcludeLength() {
 		long toExclude = 0;
 

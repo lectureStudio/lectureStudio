@@ -19,8 +19,7 @@
 package org.lecturestudio.core.net.protocol;
 
 /**
- * The class {@code DecodeMessageException} should be used by packet decoders
- * to report errors while decoding messages.
+ * The class {@link DecodeMessageException} should be used by packet decoders to report errors while decoding messages.
  * 
  * @author Alex Andres
  * 
@@ -31,18 +30,16 @@ public class DecodeMessageException extends Exception {
 
 
 	/**
-	 * Creates a new {@code DecodeMessageException} with {@code null} as its detail message.
+	 * Creates a new {@link DecodeMessageException} with {@code null} as its detail message.
 	 */
 	public DecodeMessageException() {
 		super();
 	}
 
 	/**
-	 * Creates a new {@code DecodeMessageException} with the specified detail
-	 * message.
+	 * Creates a new {@link DecodeMessageException} with the specified detail message.
 	 * 
-	 * @param message
-	 *            the detail message.
+	 * @param message The detail message.
 	 */
 	public DecodeMessageException(String message) {
 		super(message);

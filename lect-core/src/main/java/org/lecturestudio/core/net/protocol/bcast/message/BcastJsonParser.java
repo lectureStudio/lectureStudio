@@ -35,7 +35,7 @@ public class BcastJsonParser {
 	 *
 	 * @param content The JSON string.
 	 *
-	 * @return a BcastMessage.
+	 * @return A {@link BcastMessage}.
 	 *
 	 * @throws Exception on JSON parse error.
 	 */
@@ -64,8 +64,14 @@ public class BcastJsonParser {
 		return (BcastMessage<?>) MAPPER.readValue(content, type);
 	}
 
-	public static byte[] getByteArray(BcastMessage<?> message)
-			throws JsonProcessingException {
+	/**
+	 * Convert the specified {@link BcastMessage} to a byte array.
+	 *
+	 * @param message The {@link BcastMessage}
+	 *
+	 * @return The resulting byte array.
+	 */
+	public static byte[] getByteArray(BcastMessage<?> message) throws JsonProcessingException {
 		return MAPPER.writeValueAsBytes(message);
 	}
 

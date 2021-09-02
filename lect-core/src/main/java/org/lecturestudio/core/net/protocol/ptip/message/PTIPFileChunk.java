@@ -24,7 +24,7 @@ import org.lecturestudio.core.net.protocol.ptip.PTIPMessage;
 import org.lecturestudio.core.net.protocol.ptip.PTIPMessageCode;
 
 /**
- * The {@code PTIPFileChunk} is used to transport pieces of loaded documents.
+ * The {@link PTIPFileChunk} is used to transport pieces of loaded documents.
  * The packet is defined as followed:
  * 
  * <pre>
@@ -60,8 +60,8 @@ public class PTIPFileChunk implements PTIPMessage {
 	/**
 	 * Creates a new {@link PTIPFileChunk} with specified parameters.
 	 * 
-	 * @param chunkData data of the chunk
-	 * @param documentId the documents unique id
+	 * @param chunkData The data of the chunk.
+	 * @param documentId The documents unique id.
 	 */
 	public PTIPFileChunk(byte[] chunkData, int documentId) {
 		this.chunkData = chunkData;
@@ -69,27 +69,27 @@ public class PTIPFileChunk implements PTIPMessage {
 	}
 
 	/**
-	 * Returns the unique id of the document.
+	 * Get the unique id of the document.
 	 * 
-	 * @return unique id of the document
+	 * @return The unique id of the document.
 	 */
 	public int getDocumentId() {
 		return documentId;
 	}
 
 	/**
-	 * Returns the length of the chunk.
+	 * Get the length of the chunk.
 	 * 
-	 * @return length of the chunk
+	 * @return The length of the chunk.
 	 */
 	public int getChunkDataLength() {
 		return chunkData.length;
 	}
 
 	/**
-	 * Returns the chunks data.
+	 * Get the chunks data.
 	 * 
-	 * @return data of the chunk
+	 * @return The data of the chunk.
 	 */
 	public byte[] getChunkData() {
 		return chunkData;

@@ -24,7 +24,7 @@ import org.lecturestudio.core.net.protocol.ptip.PTIPMessage;
 import org.lecturestudio.core.net.protocol.ptip.PTIPMessageCode;
 
 /**
- * The {@code PTIPChangeDocument} is used if the user opened a new document or
+ * The {@link PTIPChangeDocument} is used if the user opened a new document or
  * switched to a existing one. The packet is defined as followed:
  * 
  * <pre>
@@ -62,15 +62,12 @@ public class PTIPChangeDocument implements PTIPMessage {
 
 
 	/**
-	 * Creates a new {@link PTIPChangeDocument} message with specified
-	 * parameters.
-	 * 
-	 * @param documentId
-	 *            the documents unique id
-	 * @param documentSize
-	 *            the file size of the document, 0 if whiteboard
-	 * @param isWhiteboard
-	 *            true if whiteboard, false otherwise
+	 * Creates a new {@link PTIPChangeDocument} message with specified parameters.
+	 *
+	 * @param title The documents title.
+	 * @param documentId The documents unique id.
+	 * @param documentSize The file size of the document, 0 if whiteboard.
+	 * @param type The document type: 0 = PDF, 1 = Whiteboard, 2 = Quiz.
 	 */
 	public PTIPChangeDocument(String title, int documentId, int documentSize, int type) {
 		this.documentTitle = title;
@@ -80,36 +77,36 @@ public class PTIPChangeDocument implements PTIPMessage {
 	}
 
 	/**
-	 * Returns the unique id of the document.
+	 * Get the unique id of the document.
 	 * 
-	 * @return unique id of the document
+	 * @return The unique id of the document.
 	 */
 	public int getDocumentId() {
 		return documentId;
 	}
 	
 	/**
-	 * Returns the size of the document.
+	 * Get the size of the document.
 	 * 
-	 * @return the size of the document.
+	 * @return The size of the document.
 	 */
 	public int getDocumentSize() {
 		return documentSize;
 	}
 
 	/**
-	 * Returns the title of the document.
+	 * Get the title of the document.
 	 * 
-	 * @return title of the document.
+	 * @return The title of the document.
 	 */
 	public String getDocumentTitle() {
 		return documentTitle;
 	}
 	
 	/**
-	 * Returns true if document is whiteboard, false otherwise.
-	 * 
-	 * @return true if whiteboard, false otherwise
+	 * Get the type of the document.
+	 *
+	 * @return The type of the document.
 	 */
 	public int getDocumentType() {
 		return type;

@@ -23,9 +23,16 @@ import org.lecturestudio.core.presenter.NewVersionPresenter;
 
 public class NewVersionCommand extends ShowPresenterCommand<NewVersionPresenter> {
 
+	/** The new version. */
 	private final VersionInfo version;
 
 
+	/**
+	 * Create a new {@link NewVersionCommand} with the specified parameters.
+	 *
+	 * @param cls The presenter class.
+	 * @param version The new version.
+	 */
 	public NewVersionCommand(Class<NewVersionPresenter> cls, VersionInfo version) {
 		super(cls);
 

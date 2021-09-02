@@ -23,7 +23,7 @@ import org.lecturestudio.core.io.PlaybackBuffer;
 import org.lecturestudio.core.util.AudioUtils;
 
 /**
- * Audio PlaybackBuffer implementation used by streaming audio players.
+ * Audio {@link PlaybackBuffer} implementation used by streaming audio players.
  *
  * @author Alex Andres
  */

@@ -35,6 +35,12 @@ public class PDFBoxRenderer implements DocumentRenderer {
 	private final PDFRenderer renderer;
 
 
+	/**
+	 * Creates a new {@link PDFBoxRenderer} and uses the specified {@link PDDocument}
+	 * to initialize {@link #renderer} with a new {@link PDFRenderer}.
+	 *
+	 * @param doc The {@link PDDocument}.
+	 */
 	public PDFBoxRenderer(PDDocument doc) {
 		renderer = new PDFRenderer(doc);
 		renderer.setSubsamplingAllowed(true);

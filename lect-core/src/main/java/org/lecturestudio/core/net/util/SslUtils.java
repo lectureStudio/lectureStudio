@@ -56,16 +56,14 @@ public class SslUtils {
 	private static final String BC = org.bouncycastle.jce.provider.BouncyCastleProvider.PROVIDER_NAME;
 	
 	/**
-	 * Loads a KeyStore which is located in the specified path. If the KeyStore
-	 * exists then the password is needed to open it, otherwise a new KeyStore
-	 * is created.
+	 * Loads a {@link KeyStore} which is located in the specified path.
+	 * If the {@link KeyStore} exists then the password is needed to open it,
+	 * otherwise a new {@link KeyStore} is created.
 	 * 
-	 * @param ksLocation the path to the KeyStore file
-	 * @param ksPassword the password to open the KeyStore
+	 * @param ksLocation The path to the KeyStore file.
+	 * @param ksPassword The password to open the {@link KeyStore}.
 	 * 
-	 * @return the loaded KeyStore
-	 * 
-	 * @throws Exception
+	 * @return The loaded {@link KeyStore}.
 	 */
 	public static KeyStore getKeyStore(String ksLocation, String ksPassword) throws Exception {
 		File keystoreFile = new File(ksLocation);
@@ -90,10 +88,10 @@ public class SslUtils {
 	/**
 	 * Create a self-signed X.509 Certificate.
 	 * 
-	 * @param dn the X.509 Distinguished Name
-	 * @param pair the KeyPair, private and public key
-	 * @param days how many days from now the Certificate is valid
-	 * @param algorithm the signing algorithm, e.g. "SHA1withRSA"
+	 * @param dn The X.509 Distinguished Name.
+	 * @param pair The {@link KeyPair}, private and public key.
+	 * @param days The number of days the Certificate is valid from now.
+	 * @param algorithm The signing algorithm, e.g. "SHA1withRSA".
 	 */
 	public static X509Certificate generateCertificate(String dn, KeyPair pair, int days, String algorithm) {
 		X509Certificate cert = null;
@@ -124,6 +122,11 @@ public class SslUtils {
 		return cert;
 	}
 
+	/**
+	 *
+	 * @param ksLocation The {@link KeyStore} location.
+	 * @param ksPassword The {@link KeyStore} password.
+	 */
 	public static void createDefaultKeystore(String ksLocation, String ksPassword) throws Exception {
 		File ksFile = new File(ksLocation);
 
@@ -153,21 +156,21 @@ public class SslUtils {
 	/**
 	 * Creates a new Certificate with the specified parameters.
 	 * 
-	 * @param DN the X.509 Distinguished Name
-	 * @param certAlias the certificate alias within the KeyStore
-	 * @param certPassword the Certificate password in the KeyStore
-	 * @param keyAlgorithm the key algorithm, e.g. RSA
-	 * @param keyLength the key length, e.g. 2048 Bits
-	 * @param signAlgorithm the signing algorithm, e.g. "SHA1withRSA"
-	 * @param days how many days from now the Certificate is valid
-	 * @param ksLocation the KeyStore location
-	 * @param ksPassword the KeyStore password
+	 * @param DN The X.509 Distinguished Name.
+	 * @param certAlias The certificate alias within the {@link KeyStore}.
+	 * @param certPassword The Certificate password in the {@link KeyStore}.
+	 * @param keyAlgorithm The key algorithm, e.g. RSA.
+	 * @param keyLength The key length, e.g. 2048 Bits.
+	 * @param signAlgorithm The signing algorithm, e.g. "SHA1withRSA".
+	 * @param days The number of days the Certificate is valid from now.
+	 * @param ksLocation The {@link KeyStore} location.
+	 * @param ksPassword The {@link KeyStore} password.
 	 * 
-	 * @return the created Certificate
-	 * 
-	 * @throws Exception
+	 * @return The created Certificate.
 	 */
-	public static Certificate createUserCertificate(String DN, String certAlias, String certPassword, String keyAlgorithm, int keyLength, String signAlgorithm, int days, String ksLocation, String ksPassword) throws Exception {
+	public static Certificate createUserCertificate(String DN, String certAlias, String certPassword,
+													String keyAlgorithm, int keyLength, String signAlgorithm, int days,
+													String ksLocation, String ksPassword) throws Exception {
 		File ksFile = new File(ksLocation);
 
 		if (ksFile.exists()) {
@@ -194,21 +197,20 @@ public class SslUtils {
 	}
 
 	/**
-	 * Imports a Certificate from a file to a KeyStore which is found in the
-	 * specified location. The Certificate is identified by the alias in the
-	 * KeyStore. The key file is optional. If the key file is not specified then
-	 * a new random private key is generated and associated the the Certificate.
+	 * Imports a Certificate from a file to a {@link KeyStore} which is found in the specified location.
+	 * The Certificate is identified by the alias in the {@link KeyStore}.
+	 * The key file is optional.
+	 * If the key file is not specified then a new random private key is generated and associated the the Certificate.
 	 * 
-	 * @param certFile the Certificate file
-	 * @param keyFile the key file
-	 * @param certAlias the certificate alias within the KeyStore
-	 * @param certPassword the Certificate password in the KeyStore
-	 * @param ksLocation the KeyStore location
-	 * @param ksPassword the KeyStore password
-	 * 
-	 * @throws Exception
+	 * @param certFile The Certificate file.
+	 * @param keyFile The key file.
+	 * @param certAlias The certificate alias within the {@link KeyStore}.
+	 * @param certPassword The Certificate password in the {@link KeyStore}.
+	 * @param ksLocation The {@link KeyStore} location.
+	 * @param ksPassword The {@link KeyStore} password.
 	 */
-	public static void importCertificate(File certFile, File keyFile, String certAlias, String certPassword, String ksLocation, String ksPassword) throws Exception {
+	public static void importCertificate(File certFile, File keyFile, String certAlias, String certPassword,
+										 String ksLocation, String ksPassword) throws Exception {
 		PrivateKey privateKey = null;
 		// load Key
 		if (keyFile != null && keyFile.exists()) {
@@ -245,19 +247,18 @@ public class SslUtils {
 	}
 
 	/**
-	 * Imports a Certificate from a file to a KeyStore which is found in the
-	 * specified location. The Certificate is identified by the alias in the
-	 * KeyStore. If a KeyStore could not be loaded, then a new KeyStore is
-	 * created which contains the new Certificate.
+	 * Imports a Certificate from a file to a {@link KeyStore} which is found in the specified location.
+	 * The Certificate is identified by the alias in the {@link KeyStore}.
+	 * If a {@link KeyStore} could not be loaded,
+	 * then a new {@link KeyStore} is created which contains the new Certificate.
 	 * 
-	 * @param certFile the file in which the certificate is stored
-	 * @param certAlias the certificate alias within the KeyStore
-	 * @param ksLocation the location of the KeyStore
-	 * @param ksPassword the KeyStore password
-	 * 
-	 * @throws Exception
+	 * @param certFile The file in which the certificate is stored.
+	 * @param certAlias The certificate alias within the {@link KeyStore}.
+	 * @param ksLocation The location of the {@link KeyStore}.
+	 * @param ksPassword The {@link KeyStore} password.
 	 */
-	public static void importCertificate(File certFile, String certAlias, String ksLocation, String ksPassword) throws Exception {
+	public static void importCertificate(File certFile, String certAlias, String ksLocation, String ksPassword)
+			throws Exception {
 		CertificateFactory cf = CertificateFactory.getInstance("X.509");
 		FileInputStream certStream = new FileInputStream(certFile);
 		Certificate cert = cf.generateCertificate(certStream);
@@ -274,10 +275,8 @@ public class SslUtils {
 	/**
 	 * Exports the provided Certificate to the specified location.
 	 * 
-	 * @param cert a Certificate
-	 * @param location the location where the Certificate should be stored
-	 * 
-	 * @throws Exception
+	 * @param cert A Certificate.
+	 * @param location The location where the Certificate should be stored.
 	 */
 	public static void exportCertificate(Certificate cert, String location) throws Exception {
 		FileOutputStream fos = new FileOutputStream(location);
@@ -286,13 +285,11 @@ public class SslUtils {
 	}
 
 	/**
-	 * Writes a previously created KeyStore to a file.
+	 * Writes a previously created {@link KeyStore} to a file.
 	 * 
-	 * @param ks the KeyStore to write
-	 * @param ksLocation the new location of the KeyStore
-	 * @param ksPassword the KeyStore password
-	 * 
-	 * @throws Exception
+	 * @param ks The {@link KeyStore} to write.
+	 * @param ksLocation The new location of the {@link KeyStore}.
+	 * @param ksPassword The {@link KeyStore} password.
 	 */
 	public static void writeKeyStore(KeyStore ks, String ksLocation, String ksPassword) throws Exception {
 		FileOutputStream out = new FileOutputStream(ksLocation);
@@ -301,10 +298,10 @@ public class SslUtils {
 	}
 
 	/**
-	 * Prints the certificates within a KeyStore.
+	 * Prints the certificates within a {@link KeyStore}.
 	 * 
-	 * @param ksLocation the location of the KeyStore file
-	 * @param ksPassword the KeyStore password
+	 * @param ksLocation The location of the {@link KeyStore} file.
+	 * @param ksPassword The {@link KeyStore} password.
 	 */
 	public static void printDetails(String ksLocation, String ksPassword) {
 		try {

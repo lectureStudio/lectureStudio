@@ -25,7 +25,7 @@ import org.lecturestudio.core.model.Contributor;
 public class ContributorsYamlSource extends YamlSource<Contributor> {
 
 	/**
-	 * Create a new ContributorsYamlSource instance.
+	 * Create a new {@link ContributorsYamlSource} instance.
 	 *
 	 * @param resourcePath The path to the contributors resource file.
 	 */

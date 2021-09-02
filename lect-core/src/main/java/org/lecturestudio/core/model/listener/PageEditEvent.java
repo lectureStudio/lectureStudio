@@ -24,8 +24,9 @@ import org.lecturestudio.core.model.shape.Shape;
 
 public class PageEditEvent {
 
-	public enum Type { SHAPES_ADDED, SHAPE_ADDED, SHAPE_REMOVED, SHAPE_CHANGE, CLEAR }; 
-	
+	/** The possible types of page edit events. */
+	public enum Type { SHAPES_ADDED, SHAPE_ADDED, SHAPE_REMOVED, SHAPE_CHANGE, CLEAR }
+
 	private final Rectangle2D dirtyArea;
 	
 	private final Page page;
@@ -34,30 +35,63 @@ public class PageEditEvent {
 	
 	private final Type type;
 
-	
+
+	/**
+	 * Create a {@link PageEditEvent} with the specified page, shape, dirty area and type.
+	 *
+	 * @param page The page.
+	 * @param shape The shape.
+	 * @param dirtyArea The dirty area.
+	 * @param type The type.
+	 */
 	public PageEditEvent(Page page, Shape shape, Rectangle2D dirtyArea, Type type) {
 		this.page = page;
 		this.shape = shape;
 		this.dirtyArea = dirtyArea;
 		this.type = type;
 	}
-	
+
+	/**
+	 * Get the dirty area.
+	 *
+	 * @return The dirty area.
+	 */
 	public Rectangle2D getDirtyArea() {
 		return dirtyArea;
 	}
 
+	/**
+	 * Get the page.
+	 *
+	 * @return The page.
+	 */
 	public Page getPage() {
 		return page;
 	}
-	
+
+	/**
+	 * Get the shape.
+	 *
+	 * @return The shape.
+	 */
 	public Shape getShape() {
 		return shape;
 	}
 
+	/**
+	 * Get the type.
+	 *
+	 * @return The type.
+	 */
 	public Type getType() {
 		return type;
 	}
-	
+
+	/**
+	 * Specifies whether the shape changed.
+	 *
+	 * @return {@code true} if {@link #type} equals {@code Type.SHAPE_CHANGE}, otherwise {@code false}.
+	 */
 	public boolean shapedChanged() {
 		return type == Type.SHAPE_CHANGE;
 	}
@@ -77,13 +111,10 @@ public class PageEditEvent {
 		if (this == obj) {
 			return true;
 		}
-		if (obj == null) {
+		if (obj == null || getClass() != obj.getClass()) {
 			return false;
 		}
-		if (getClass() != obj.getClass()) {
-			return false;
-		}
-		
+
 		PageEditEvent other = (PageEditEvent) obj;
 		
 		if (page == null) {
@@ -102,11 +133,8 @@ public class PageEditEvent {
 		else if (!shape.equals(other.shape)) {
 			return false;
 		}
-		
-		if (type != other.type) {
-			return false;
-		}
-		return true;
+
+		return type == other.type;
 	}
 	
 }

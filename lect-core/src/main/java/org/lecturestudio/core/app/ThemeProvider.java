@@ -34,6 +34,7 @@ import org.apache.logging.log4j.Logger;
  */
 public class ThemeProvider {
 
+	/** Logger for {@link ThemeProvider} */
 	private final static Logger LOG = LogManager.getLogger(ThemeProvider.class);
 
 

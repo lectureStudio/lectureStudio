@@ -19,10 +19,9 @@
 package org.lecturestudio.core.net.rtp;
 
 /**
- * The interface {@code RtpPacketDecoder} is implemented by a specific class
- * that should decode incoming data. The method
- * {@link #decodeRtpPacket(RtpPacket)} throws an {@link RtpDecodeException} if
- * the packet could not be decoded.
+ * The interface {@link RtpPacketDecoder} is implemented by a specific class that should decode incoming data.
+ * The method {@link #decodeRtpPacket(RtpPacket)} throws an {@link RtpDecodeException}
+ * if the packet could not be decoded.
  * 
  * @author Alex Andres
  * 
@@ -30,15 +29,12 @@ package org.lecturestudio.core.net.rtp;
 public interface RtpPacketDecoder {
 
 	/**
-	 * Decodes incoming {@link RtpPacket} to a specific object that represents
-	 * the payload.
+	 * Decodes incoming {@link RtpPacket} to a specific object that represents the payload.
 	 * 
-	 * @param packet the RTP packet.
+	 * @param packet The RTP packet.
 	 * 
-	 * @return specific object
-	 * 
-	 * @throws RtpDecodeException
+	 * @return The specific object.
 	 */
-	public Object decodeRtpPacket(RtpPacket packet) throws RtpDecodeException;
+	Object decodeRtpPacket(RtpPacket packet) throws RtpDecodeException;
 
 }

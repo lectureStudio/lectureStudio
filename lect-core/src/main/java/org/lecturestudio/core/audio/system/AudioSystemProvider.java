@@ -23,7 +23,7 @@ import org.lecturestudio.core.audio.device.AudioOutputDevice;
 import org.lecturestudio.core.spi.ServiceProvider;
 
 /**
- * Audio system provider implementation. The AudioSystemProvider provides access
+ * Audio system provider implementation. The {@link AudioSystemProvider} provides access
  * implementation specific audio devices.
  *
  * @author Alex Andres

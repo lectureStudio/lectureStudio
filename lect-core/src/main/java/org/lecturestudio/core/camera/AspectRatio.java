@@ -31,6 +31,6 @@ public enum AspectRatio {
 	Standard,
 
 	/** Any widescreen aspect ratio, like 16:9, 16:10, etc. */
-	Widescreen;
+	Widescreen
 
 }

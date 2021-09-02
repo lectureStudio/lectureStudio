@@ -29,12 +29,17 @@ import org.lecturestudio.core.tool.ShapePaintEvent;
 public interface ShapeListener {
 
 	/**
-	 * Fired when sender has been edited and dirtyArea is invalidated.
+	 * Fired when shape has been painted.
 	 *
-	 * @param event
+	 * @param event The shape paint event.
 	 */
 	void shapePainted(ShapePaintEvent event);
 
+	/**
+	 * Fired when shape has been modified.
+	 *
+	 * @param event The shape modify event.
+	 */
 	void shapeModified(ShapeModifyEvent event);
 
 }

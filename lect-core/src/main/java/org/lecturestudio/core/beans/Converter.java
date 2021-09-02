@@ -18,10 +18,28 @@
 
 package org.lecturestudio.core.beans;
 
+/**
+ * Interface for converting objects between type {@link S} and type {@link T}.
+ *
+ * @param <S> first type
+ * @param <T> second type
+ */
 public interface Converter<S, T> {
 
+	/**
+	 * Converts {@code value} from type {@link S} to type {@link T}.
+	 *
+	 * @param value The value with type {@link S} to be converted.
+	 * @return The value with type {@link T}.
+	 */
 	T to(S value);
 
+	/**
+	 * Converts {@code value} from type {@link T} to type {@link S}.
+	 *
+	 * @param value The value with type {@link T} to be converted.
+	 * @return The value with type {@link S}.
+	 */
 	S from(T value);
 
 }

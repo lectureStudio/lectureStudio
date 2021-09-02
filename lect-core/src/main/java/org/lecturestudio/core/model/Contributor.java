@@ -24,10 +24,13 @@ import java.util.Objects;
 
 public class Contributor {
 
+	/** The name of the contributor. */
 	public String name;
 
+	/** The firm of the contributor. */
 	public String firm;
 
+	/** a list of contributions. */
 	public List<String> contributions = new ArrayList<>();
 
 

@@ -88,13 +88,11 @@ public class StreamSettingsPresenter extends Presenter<StreamSettingsView> {
 	@Override
 	public void initialize() {
 		PresenterConfiguration config = (PresenterConfiguration) context.getConfiguration();
-		AudioConfiguration audioConfig = config.getAudioConfig();
 		NetworkConfiguration netConfig = config.getNetworkConfig();
 		StreamConfiguration streamConfig = config.getStreamConfig();
 		VideoCodecConfiguration cameraConfig = streamConfig.getCameraCodecConfig();
 
-		String soundSystemName = audioConfig.getSoundSystem();
-		String[] codecNames = AudioUtils.getSupportedAudioCodecs(soundSystemName);
+		String[] codecNames = AudioUtils.getSupportedAudioCodecs();
 
 		setStreamAudioFormats(streamConfig.getAudioCodec());
 

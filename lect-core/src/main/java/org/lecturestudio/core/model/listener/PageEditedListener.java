@@ -28,7 +28,7 @@ public interface PageEditedListener {
 	/**
 	 * Fired when sender has been edited and dirtyArea is invalidated.
 	 * 
-	 * @param event
+	 * @param event The page edit event.
 	 */
 	void pageEdited(PageEditEvent event);
 

@@ -22,20 +22,38 @@ import org.lecturestudio.core.view.View;
 
 public class ViewVisibleEvent {
 
+	/** The view class. */
 	private final Class<? extends View> viewClass;
 
+	/** The visible truth value. */
 	private final boolean visible;
 
 
+	/**
+	 * Create the {@link ViewVisibleEvent} with specified view class and visible truth value.
+	 *
+	 * @param viewClass The view class.
+	 * @param visible The visible truth value.
+	 */
 	public ViewVisibleEvent(Class<? extends View> viewClass, boolean visible) {
 		this.viewClass = viewClass;
 		this.visible = visible;
 	}
 
+	/**
+	 * Get the view class.
+	 *
+	 * @return The view class.
+	 */
 	public Class<? extends View> getViewClass() {
 		return viewClass;
 	}
 
+	/**
+	 * Get the visible truth value.
+	 *
+	 * @return The visible truth value.
+	 */
 	public boolean isVisible() {
 		return visible;
 	}

@@ -20,18 +20,23 @@ package org.lecturestudio.core.model;
 
 public class SlideNote {
 
+	/** The text. */
 	private String text;
 
 	
 	/**
-	 * @return the text
+	 * Get the text.
+	 *
+	 * @return The text.
 	 */
 	public String getText() {
 		return text;
 	}
 
 	/**
-	 * @param text the text to set
+	 * Set a new text.
+	 *
+	 * @param text The text to set.
 	 */
 	public void setText(String text) {
 		this.text = text;

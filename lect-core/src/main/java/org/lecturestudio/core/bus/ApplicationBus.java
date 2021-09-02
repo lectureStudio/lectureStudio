@@ -19,7 +19,7 @@
 package org.lecturestudio.core.bus;
 
 /**
- * The ApplicationBus implements the publish-subscribe paradigm. It dispatches
+ * The {@link ApplicationBus} implements the publish-subscribe paradigm. It dispatches
  * application-related events to the subscribers.
  *
  * @author Alex Andres
@@ -41,9 +41,9 @@ public class ApplicationBus {
 	}
 
 	/**
-	 * Get the ApplicationBus singleton instance.
+	 * Get the {@link ApplicationBus} singleton instance.
 	 *
-	 * @return the ApplicationBus instance.
+	 * @return The {@link ApplicationBus} instance.
 	 */
 	public static ApplicationBus getInstance() {
 		if (INSTANCE == null) {
@@ -53,8 +53,7 @@ public class ApplicationBus {
 	}
 
 	/**
-	 * Register all subscriber methods on the subscriber to receive application
-	 * events.
+	 * Register all subscriber methods on the subscriber to receive application events.
 	 *
 	 * @param subscriber The subscriber to register.
 	 */
@@ -81,9 +80,9 @@ public class ApplicationBus {
 	}
 
 	/**
-	 * Get the EventBus instance used by this ApplicationBus.
+	 * Get the {@link EventBus} instance used by this {@link ApplicationBus}.
 	 *
-	 * @return the EventBus instance.
+	 * @return the {@link EventBus} instance.
 	 */
 	public static EventBus get() {
 		return getInstance().bus;

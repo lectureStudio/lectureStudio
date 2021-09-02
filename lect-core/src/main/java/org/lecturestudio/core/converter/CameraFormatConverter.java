@@ -26,7 +26,7 @@ import org.lecturestudio.core.camera.CameraFormat;
 import org.lecturestudio.core.geometry.Rectangle2D;
 
 /**
- * Rectangle2D to CameraFormat and vice-versa converter.
+ * {@link Rectangle2D} to {@link CameraFormat} and vice-versa converter.
  *
  * @author Alex Andres
  */

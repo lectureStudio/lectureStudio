@@ -25,6 +25,7 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.RandomAccessFile;
+import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 
@@ -34,21 +35,47 @@ public class DigestRandomAccessFile implements DataOutput, DataInput, Closeable 
 
 	private RandomAccessFile file;
 
-
-	public DigestRandomAccessFile(String name, String mode, String algorithm) throws FileNotFoundException,
-																			 NoSuchAlgorithmException {
-
+	/**
+	 *  Creates a new instance of {@link DigestRandomAccessFile} with a new {@link RandomAccessFile} as {@link #file}
+	 *  and a new {@link MessageDigest} returned by {@link java.security.MessageDigest#getInstance(String)}
+	 *  as {@link #digest}.
+	 *
+	 * @param name The system-dependent filename.
+	 *                (used for {@link java.io.RandomAccessFile#RandomAccessFile(String, String)})
+	 * @param mode The access mode.
+	 *                (used for {@link java.io.RandomAccessFile#RandomAccessFile(String, String)})
+	 * @param algorithm The name of the algorithm requested.
+	 *                  (used for {@link java.security.MessageDigest#getInstance(String)})
+	 */
+	public DigestRandomAccessFile(String name, String mode, String algorithm)
+			throws FileNotFoundException, NoSuchAlgorithmException {
 		this.file = new RandomAccessFile(name, mode);
 		this.digest = MessageDigest.getInstance(algorithm);
 	}
 
-	public DigestRandomAccessFile(File file, String mode, String algorithm) throws FileNotFoundException,
-																		   NoSuchAlgorithmException {
-
+	/**
+	 * Creates a new instance of {@link DigestRandomAccessFile} with a new {@link RandomAccessFile} as {@link #file}
+	 * and a new {@link MessageDigest} returned by {@link java.security.MessageDigest#getInstance(String)}
+	 * as {@link #digest}.
+	 *
+	 * @param file The file object.
+	 *                (used for {@link java.io.RandomAccessFile#RandomAccessFile(File, String)})
+	 * @param mode The access mode.
+	 *                (used for {@link java.io.RandomAccessFile#RandomAccessFile(File, String)})
+	 * @param algorithm The name of the algorithm requested.
+	 *                  (used for {@link java.security.MessageDigest#getInstance(String)})
+	 */
+	public DigestRandomAccessFile(File file, String mode, String algorithm)
+			throws FileNotFoundException, NoSuchAlgorithmException {
 		this.file = new RandomAccessFile(file, mode);
 		this.digest = MessageDigest.getInstance(algorithm);
 	}
 
+	/**
+	 * Calls {@link MessageDigest#digest()} on {@link #digest} and returns it.
+	 *
+	 * @see MessageDigest#digest()
+	 */
 	public byte[] getDigest() {
 		return digest.digest();
 	}
@@ -145,7 +172,7 @@ public class DigestRandomAccessFile implements DataOutput, DataInput, Closeable 
 		byte[] b = new byte[c.length];
 		for (int i = 0, j = 0; i < s.length(); i++) {
 			b[j++] = (byte) (c[i] >>> 8);
-			b[j++] = (byte) (c[i] >>> 0);
+			b[j++] = (byte) (c[i]);
 		}
 
 		digest.update(b);
@@ -155,7 +182,7 @@ public class DigestRandomAccessFile implements DataOutput, DataInput, Closeable 
 	public void writeUTF(String s) throws IOException {
 		file.writeUTF(s);
 
-		digest.update(s.getBytes("UTF-8"));
+		digest.update(s.getBytes(StandardCharsets.UTF_8));
 	}
 
 	@Override
@@ -249,19 +276,13 @@ public class DigestRandomAccessFile implements DataOutput, DataInput, Closeable 
 	private byte[] getShortBytes(int value) {
 		byte[] b = new byte[2];
 		b[0] = (byte) ((value >>> 8) & 0xFF);
-		b[1] = (byte) ((value >>> 0) & 0xFF);
+		b[1] = (byte) ((value) & 0xFF);
 
 		return b;
 	}
 
 	private byte[] getIntBytes(int value) {
-		byte[] b = new byte[4];
-		b[0] = (byte) ((value >>> 24) & 0xFF);
-		b[1] = (byte) ((value >>> 16) & 0xFF);
-		b[2] = (byte) ((value >>> 8) & 0xFF);
-		b[3] = (byte) (value & 0xFF);
-
-		return b;
+		return BitConverter.getBigEndianBytes(value);
 	}
 
 	private byte[] getLongBytes(long v) {
@@ -273,7 +294,7 @@ public class DigestRandomAccessFile implements DataOutput, DataInput, Closeable 
 		b[4] = (byte) ((int) (v >>> 24) & 0xFF);
 		b[5] = (byte) ((int) (v >>> 16) & 0xFF);
 		b[6] = (byte) ((int) (v >>> 8) & 0xFF);
-		b[7] = (byte) ((int) (v >>> 0) & 0xFF);
+		b[7] = (byte) ((int) (v) & 0xFF);
 
 		return null;
 	}

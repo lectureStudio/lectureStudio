@@ -25,10 +25,20 @@ public final class Synchronizer {
 	private static AtomicLong audioTime = new AtomicLong(0);
 
 
+	/**
+	 * Set a new audio time.
+	 *
+	 * @param time The new audio time.
+	 */
 	public static void setAudioTime(long time) {
 		audioTime.set(time);
 	}
 
+	/**
+	 * Get the audio time.
+	 *
+	 * @return The audio time.
+	 */
     public static long getAudioTime() {
         return audioTime.get();
     }

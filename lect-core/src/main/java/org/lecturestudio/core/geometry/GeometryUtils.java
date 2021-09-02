@@ -26,13 +26,12 @@ package org.lecturestudio.core.geometry;
 public abstract class GeometryUtils {
 
 	/**
-	 * Transform the specified dimension so that it has the same aspect ratio as
-	 * the specified ratio.
+	 * Transform the specified dimension so that it has the same aspect ratio as the specified ratio.
 	 *
 	 * @param in    The dimension to transform.
 	 * @param ratio The desired aspect ratio.
 	 *
-	 * @return the transformed dimension with the specified aspect ratio.
+	 * @return The transformed dimension with the specified aspect ratio.
 	 */
 	public static Dimension2D keepAspectRatio(Dimension2D in, Dimension2D ratio) {
 		double width = in.getWidth();

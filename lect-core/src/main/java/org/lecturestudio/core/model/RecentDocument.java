@@ -22,43 +22,86 @@ import java.util.Date;
 
 public class RecentDocument {
 
+	/** The name of the document. */
 	private String name;
 
+	/** The path of the document. */
 	private String path;
 
+	/** The date of the last modification. */
 	private Date lastModified;
 
 
+	/**
+	 * Create a new {@link RecentDocument}.
+	 */
 	public RecentDocument() {
 		
 	}
-	
+
+	/**
+	 * Create a new {@link RecentDocument} with the specified name, path and date of the last modification.
+	 *
+	 * @param name The name of the document.
+	 * @param path The path of the document.
+	 * @param opened The date of the last modification.
+	 */
 	public RecentDocument(String name, String path, Date opened) {
 		setDocumentName(name);
 		setDocumentPath(path);
 		setLastModified(opened);
 	}
-	
+
+	/**
+	 * Set a new date of the last modification.
+	 *
+	 * @param date The date of the last modification.
+	 */
 	public void setLastModified(Date date) {
 		this.lastModified = date;
 	}
 
+	/**
+	 * Get the date of the last modification.
+	 *
+	 * @return The date of the last modification.
+	 */
 	public Date getLastModified() {
 		return lastModified;
 	}
 
+	/**
+	 * Set a new name for the document.
+	 *
+	 * @param name The new name of the document.
+	 */
 	public void setDocumentName(String name) {
 		this.name = name;
 	}
 
+	/**
+	 * Set a new path for the document.
+	 *
+	 * @param path The new path of the document.
+	 */
 	public void setDocumentPath(String path) {
 		this.path = path;
 	}
 
+	/**
+	 * Get the name of the document.
+	 *
+	 * @return The name of the document.
+	 */
 	public String getDocumentName() {
 		return name;
 	}
 
+	/**
+	 * Get the path of the document.
+	 *
+	 * @return The path of the document.
+	 */
 	public String getDocumentPath() {
 		return path;
 	}

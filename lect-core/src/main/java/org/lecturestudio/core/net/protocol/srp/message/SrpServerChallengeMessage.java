@@ -21,9 +21,8 @@ package org.lecturestudio.core.net.protocol.srp.message;
 import java.math.BigInteger;
 
 /**
- * The {@code ServerChallengeMessage} is used in response on the identity lookup
- * request of the client. This message carries the public value of the server
- * and the user's salt.
+ * The {@link SrpServerChallengeMessage} is used in response on the identity lookup
+ * request of the client. This message carries the public value of the server and the user's salt.
  * 
  * @author Alex Andres
  */
@@ -32,23 +31,22 @@ public class SrpServerChallengeMessage extends SrpMessage {
 	/** The public value of the server. */
 	private final BigInteger publicValue;
 
-	/** User's salt. */
+	/** The user's salt. */
 	private final BigInteger salt;
 
 
 	/**
-	 * Creates a new SrpServerChallengeMessage.
+	 * Creates a new {@link SrpServerChallengeMessage}.
 	 */
 	public SrpServerChallengeMessage() {
 		this(null, null);
 	}
 
 	/**
-	 * Creates a new SrpServerChallengeMessage that contains the public value of
-	 * the server and the user's salt.
+	 * Creates a new {@link SrpServerChallengeMessage} that contains the public value of the server and the user's salt.
 	 *
 	 * @param B The public value.
-	 * @param s User's salt.
+	 * @param s The user's salt.
 	 */
 	public SrpServerChallengeMessage(BigInteger B, BigInteger s) {
 		this.publicValue = B;
@@ -58,14 +56,18 @@ public class SrpServerChallengeMessage extends SrpMessage {
 	}
 
 	/**
-	 * Returns the public value of the server.
+	 * Get the public value of the server.
+	 *
+	 * @return The public value of the server.
 	 */
 	public BigInteger getPublicValue() {
 		return publicValue;
 	}
 
 	/**
-	 * Returns the user's salt.
+	 * Get the user's salt.
+	 *
+	 * @return The user's salt.
 	 */
 	public BigInteger getSalt() {
 		return salt;

@@ -21,7 +21,7 @@ package org.lecturestudio.core.camera.bus;
 import org.lecturestudio.core.bus.EventBus;
 
 /**
- * The CameraBus implements the publish-subscribe paradigm. It dispatches camera
+ * The {@link CameraBus} implements the publish-subscribe paradigm. It dispatches camera
  * events to the subscribers.
  *
  * @author Alex Andres
@@ -43,9 +43,9 @@ public class CameraBus {
 	}
 
 	/**
-	 * Get the CameraBus singleton instance.
+	 * Get the {@link CameraBus} singleton instance.
 	 *
-	 * @return the CameraBus instance.
+	 * @return the {@link CameraBus} instance.
 	 */
 	private static CameraBus getInstance() {
 		if (INSTANCE == null) {
@@ -55,8 +55,7 @@ public class CameraBus {
 	}
 
 	/**
-	 * Register all subscriber methods on the subscriber to receive camera
-	 * events.
+	 * Register all subscriber methods on the subscriber to receive camera events.
 	 *
 	 * @param subscriber The subscriber to register.
 	 */
@@ -74,7 +73,7 @@ public class CameraBus {
 	}
 
 	/**
-	 * Publish an camera event to all registered subscribers.
+	 * Publish a camera event to all registered subscribers.
 	 *
 	 * @param event The event to publish.
 	 */

@@ -86,7 +86,7 @@ public abstract class AudioDevice {
 	/**
 	 * Check if the audio device is opened.
 	 *
-	 * @return true if the device is opened, false otherwise.
+	 * @return {@code true} if the device is opened, otherwise {@code false}.
 	 */
 	abstract public boolean isOpen();
 
@@ -111,7 +111,7 @@ public abstract class AudioDevice {
 	 *
 	 * @param format The audio format to check.
 	 *
-	 * @return true if the audio format is supported, false otherwise.
+	 * @return {@code true} if the audio format is supported, otherwise {@code false}.
 	 */
 	public boolean supportsAudioFormat(AudioFormat format) {
 		return getSupportedFormats().contains(format);
@@ -161,7 +161,7 @@ public abstract class AudioDevice {
 	/**
 	 * Check whether audio signal is muted or not.
 	 *
-	 * @return true if the audio signal is muted, false otherwise.
+	 * @return {@code true} if the audio signal is muted, otherwise {@code false}.
 	 */
 	public boolean isMuted() {
 		return mute;

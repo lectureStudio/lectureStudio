@@ -26,14 +26,14 @@ package org.lecturestudio.core.beans;
 public class DoubleProperty extends ObjectProperty<Double> {
 
 	/**
-	 * Create a DoubleProperty with the initial value set to {@code 0}.
+	 * Create a {@link DoubleProperty} with the initial value set to {@code 0}.
 	 */
 	public DoubleProperty() {
 		this(0);
 	}
 
 	/**
-	 * Create a DoubleProperty with the specified initial value.
+	 * Create a {@link DoubleProperty} with the specified initial value.
 	 *
 	 * @param defaultValue The initial value.
 	 */

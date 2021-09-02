@@ -19,23 +19,45 @@ package org.lecturestudio.core.bus.event;
 
 public abstract class BusEvent {
 
+	/** The {@link EventProcessedHandler} instance. */
 	private EventProcessedHandler processedHandler;
 
+	/** The {@link EventErrorHandler} instance. */
 	private EventErrorHandler errorHandler;
 
 
+	/**
+	 * Get the {@link #processedHandler}.
+	 *
+	 * @return The {@link #processedHandler}.
+	 */
 	public EventProcessedHandler getEventProcessedHandler() {
 		return processedHandler;
 	}
 
+	/**
+	 * Set the new {@link #processedHandler}.
+	 *
+	 * @param handler the new {@link EventProcessedHandler}.
+	 */
 	public void setEventProcessedHandler(EventProcessedHandler handler) {
 		this.processedHandler = handler;
 	}
 
+	/**
+	 * Get the {@link #errorHandler}.
+	 *
+	 * @return The {@link #errorHandler}.
+	 */
 	public EventErrorHandler getEventErrorHandler() {
 		return errorHandler;
 	}
 
+	/**
+	 * Set the new {@link #errorHandler}.
+	 *
+	 * @param errorHandler the new {@link EventErrorHandler}.
+	 */
 	public void setEventErrorHandler(EventErrorHandler errorHandler) {
 		this.errorHandler = errorHandler;
 	}

@@ -83,7 +83,7 @@ public class SlidesPresenter extends Presenter<SlidesView> {
 		view.setPageRenderer(renderController);
 
 		// Register for page parameter change updates.
-		PresentationParameterProvider ppProvider = context.getPagePropertyPropvider(ViewType.User);
+		PresentationParameterProvider ppProvider = context.getPagePropertyProvider(ViewType.User);
 		ppProvider.addParameterChangeListener(new ParameterChangeListener() {
 
 			@Override
@@ -188,7 +188,7 @@ public class SlidesPresenter extends Presenter<SlidesView> {
 	}
 
 	private void documentCreated(Document doc) {
-		PresentationParameterProvider ppProvider = context.getPagePropertyPropvider(ViewType.Preview);
+		PresentationParameterProvider ppProvider = context.getPagePropertyProvider(ViewType.Preview);
 
 		view.addDocument(doc, ppProvider);
 
@@ -212,7 +212,7 @@ public class SlidesPresenter extends Presenter<SlidesView> {
 	}
 
 	private void setPage(Page page) {
-		PresentationParameterProvider ppProvider = context.getPagePropertyPropvider(ViewType.User);
+		PresentationParameterProvider ppProvider = context.getPagePropertyProvider(ViewType.User);
 		PresentationParameter parameter = ppProvider.getParameter(page);
 
 		view.setPage(page, parameter);

@@ -22,13 +22,24 @@ import org.lecturestudio.core.presenter.Presenter;
 
 public class ClosePresenterCommand {
 
+	/** The presenter class. */
 	private final Class<? extends Presenter<?>> cls;
 
 
+	/**
+	 * Create a new {@link ClosePresenterCommand} with the specified presenter class.
+	 *
+	 * @param cls The presenter class.
+	 */
 	public ClosePresenterCommand(Class<? extends Presenter<?>> cls) {
 		this.cls = cls;
 	}
 
+	/**
+	 * Get the presenter class.
+	 *
+	 * @return The presenter class.
+	 */
 	public Class<? extends Presenter<?>> getPresenterClass() {
 		return cls;
 	}

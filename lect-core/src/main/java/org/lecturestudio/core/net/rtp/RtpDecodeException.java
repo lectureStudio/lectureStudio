@@ -19,7 +19,7 @@
 package org.lecturestudio.core.net.rtp;
 
 /**
- * The class {@code RtpDecodeException} is used by packet decoders to report
+ * The class {@link RtpDecodeException} is used by packet decoders to report
  * errors while decoding {@link org.lecturestudio.core.net.packet.Packet}s.
  *
  * @author Alex Andres
@@ -30,16 +30,14 @@ public class RtpDecodeException extends Exception {
 
 
 	/**
-	 * Creates a new {@link RtpDecodeException} with {@code null} as its detail
-	 * message.
+	 * Creates a new {@link RtpDecodeException} with {@code null} as its detail message.
 	 */
 	public RtpDecodeException() {
 		super();
 	}
 
 	/**
-	 * Creates a new {@link RtpDecodeException} with the specified detail
-	 * message.
+	 * Creates a new {@link RtpDecodeException} with the specified detail message.
 	 * 
 	 * @param message The detail message.
 	 */
@@ -48,8 +46,7 @@ public class RtpDecodeException extends Exception {
 	}
 
 	/**
-	 * Creates a new {@link RtpDecodeException} with the specified detail
-	 * message and cause.
+	 * Creates a new {@link RtpDecodeException} with the specified detail message and cause.
 	 * 
 	 * @param message The detail message.
 	 * @param cause The cause of this exception.

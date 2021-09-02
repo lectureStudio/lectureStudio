@@ -29,7 +29,7 @@ package org.lecturestudio.core.beans;
 public interface Property<T> {
 
 	/**
-	 * Returns the current value of this Property.
+	 * Returns the current value of this {@link Property}.
 	 *
 	 * @return The current value.
 	 */

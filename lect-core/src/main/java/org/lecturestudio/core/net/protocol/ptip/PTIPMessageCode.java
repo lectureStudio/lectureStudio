@@ -19,8 +19,7 @@
 package org.lecturestudio.core.net.protocol.ptip;
 
 /**
- * Enumeration of PTIP message codes. Each message has it's own message code
- * that identifies the message.
+ * Enumeration of PTIP message codes. Each message has it's own message code that identifies the message.
  * 
  * @author Alex Andres
  * 
@@ -43,8 +42,7 @@ public enum PTIPMessageCode {
 	/**
 	 * Creates a new {@link PTIPMessageCode} with the specified message type.
 	 * 
-	 * @param type
-	 *            the message type
+	 * @param type The message type.
 	 */
 	PTIPMessageCode(int type) {
 		this.type = type;
@@ -53,7 +51,7 @@ public enum PTIPMessageCode {
 	/**
 	 * Returns the associated number that represents the message type.
 	 * 
-	 * @return the message type
+	 * @return The message type.
 	 */
 	public int getID() {
 		return type;

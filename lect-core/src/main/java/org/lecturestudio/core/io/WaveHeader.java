@@ -102,12 +102,21 @@ public class WaveHeader {
 	private int audioDataSize;
 	
 	private int inputSize;
-	
-	
+
+	/**
+	 * Create a new instance of {@link WaveHeader} with the data of the specified input stream.
+	 *
+	 * @param inputStream The input stream.
+	 */
 	public WaveHeader(InputStream inputStream) throws IOException {
 		parse(inputStream);
 	}
-	
+
+	/**
+	 * Get the audio format depending on {@link #bitsPerSample}.
+	 *
+	 * @return The audio format.
+	 */
 	public AudioFormat getAudioFormat() {
 		AudioFormat.Encoding encoding = null;
 
@@ -129,10 +138,20 @@ public class WaveHeader {
 		return new AudioFormat(encoding, samplesPerSec, channels);
 	}
 
+	/**
+	 * Get the data length.
+	 *
+	 * @return The audio data size.
+	 */
 	public int getDataLength() {
 		return audioDataSize;
 	}
-	
+
+	/**
+	 * Get the header length.
+	 *
+	 * @return The header length.
+	 */
 	public int getHeaderLength() {
 		return inputSize - audioDataSize;
 	}
@@ -306,14 +325,14 @@ public class WaveHeader {
 		sb.append("\n");
 		sb.append(String.format("%20s:%15s", "Bits Per Sample", bitsPerSample));
 		sb.append("\n");
-		
+
 		if (!infoMap.isEmpty()) {
 			sb.append(String.format("%20s:", "Info"));
 			sb.append("\n");
-			
+
 			for (String infoKey : infoMap.keySet()) {
 				String infoValue = infoMap.get(infoKey);
-				
+
 				sb.append(String.format("%20s:%15s", infoDescription.get(infoKey), infoValue));
 				sb.append("\n");
 			}

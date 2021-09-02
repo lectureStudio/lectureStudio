@@ -21,7 +21,7 @@ package org.lecturestudio.core.camera;
 import java.util.Comparator;
 
 /**
- * CameraFormat comparator implementation. This {@code Comparator} compares the
+ * CameraFormat comparator implementation. This {@link Comparator} compares the
  * image width and height of the camera formats. The format with greater width
  * will be of higher order. If the width is equal, the format with greater
  * height will be of higher order.

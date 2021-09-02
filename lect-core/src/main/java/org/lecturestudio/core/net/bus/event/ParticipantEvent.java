@@ -23,13 +23,24 @@ import org.lecturestudio.core.net.Participant;
 
 public abstract class ParticipantEvent extends BusEvent {
 
+	/** The participant. */
 	private Participant participant;
 
 
+	/**
+	 * Create a new {@link ParticipantEvent} with the specified participant.
+	 *
+	 * @param participant The participant.
+	 */
 	public ParticipantEvent(Participant participant) {
 		this.participant = participant;
 	}
 
+	/**
+	 * Get the participant.
+	 *
+	 * @return The participant.
+	 */
 	public Participant getParticipant() {
 		return participant;
 	}

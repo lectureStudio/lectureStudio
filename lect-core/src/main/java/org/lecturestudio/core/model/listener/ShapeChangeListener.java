@@ -31,8 +31,8 @@ public interface ShapeChangeListener {
 	/**
 	 * Fired when the Shape sender has been edited and dirtyArea is invalidated.
 	 *
-	 * @param shape
-	 * @param dirtyArea
+	 * @param shape The shape.
+	 * @param dirtyArea The dirty area.
 	 */
 	void shapeChanged(Shape shape, Rectangle2D dirtyArea);
 

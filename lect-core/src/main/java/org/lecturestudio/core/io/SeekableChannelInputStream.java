@@ -34,7 +34,11 @@ public class SeekableChannelInputStream extends InputStream {
 
 	private byte[] b1;
 
-
+	/**
+	 * Create a new instance of {@link SeekableChannelInputStream} with the specified seekable byte channel.
+	 *
+	 * @param channel The seekable byte channel.
+	 */
 	public SeekableChannelInputStream(SeekableByteChannel channel) {
 		this.channel = channel;
 	}
@@ -114,6 +118,13 @@ public class SeekableChannelInputStream extends InputStream {
 		return true;
 	}
 
+	/**
+	 * Calls the {@link java.nio.channels.SeekableByteChannel#read(ByteBuffer)} method on {@link #channel} with the
+	 * specified byte buffer as parameter and returns the result.
+	 *
+	 * @param bb The byte buffer.
+	 * @return the value of the {@link java.nio.channels.SeekableByteChannel#read(ByteBuffer)} call.
+	 */
 	protected int read(ByteBuffer bb) throws IOException {
 		return channel.read(bb);
 	}

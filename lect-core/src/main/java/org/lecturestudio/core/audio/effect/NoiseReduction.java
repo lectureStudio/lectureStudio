@@ -32,7 +32,7 @@ import org.lecturestudio.core.audio.analysis.WindowFunction;
  * The first step would be running the {@link NoiseProfiler} and then running
  * this NoiseReduction.
  * <p>
- * The implementation is based on the SoX library (http://sox.sourceforge.net).
+ * The implementation is based on the SoX library (<a href="http://sox.sourceforge.net">http://sox.sourceforge.net</a>).
  *
  * @author Alex Andres
  */
@@ -119,10 +119,7 @@ public class NoiseReduction implements AudioEffect {
 				channelData.window[oldbuf + j] = inSamples[i + channels * j];
 			}
 
-			if (!wholeWindow) {
-				continue;
-			}
-			else {
+			if (wholeWindow) {
 				processWindow(i, channels, outSamples, (oldbuf + ncopy));
 			}
 		}
@@ -232,7 +229,7 @@ public class NoiseReduction implements AudioEffect {
 
 		System.arraycopy(window, 0, realIn, 0, WINDOW_SIZE);
 
-		DSP.FFT(WINDOW_SIZE, realIn, null, realOut, imagOut);
+		DSP.FFT(WINDOW_SIZE, realIn, null, realOut, imagOut, false);
 
 		System.arraycopy(window, 0, realIn, 0, WINDOW_SIZE);
 
@@ -278,7 +275,7 @@ public class NoiseReduction implements AudioEffect {
 			imagOut[j] *= smooth;
 		}
 
-		DSP.IFFT(WINDOW_SIZE, realOut, imagOut, realIn, imagIn);
+		DSP.FFT(WINDOW_SIZE, realOut, imagOut, realIn, imagIn, true);
 
 		windowFunction.apply(realIn);
 

@@ -20,8 +20,7 @@ package org.lecturestudio.core.net.protocol.srp.message;
 
 /**
  * Enumeration of message codes which are used during SRP authentication.
- * Each message has it's own message code that identifies the message and
- * it's content.
+ * Each message has it's own message code that identifies the message and it's content.
  * 
  * @author Alex Andres
  */
@@ -48,7 +47,7 @@ public enum SrpMessageCode {
 
 
 	/**
-	 * Creates a new SrpMessageCode with the specified message type.
+	 * Creates a new {@link SrpMessageCode} with the specified message type.
 	 *
 	 * @param type The message type.
 	 */
@@ -57,9 +56,9 @@ public enum SrpMessageCode {
 	}
 
 	/**
-	 * Returns the associated number that represents the message type.
+	 * Get the associated number that represents the message type.
 	 *
-	 * @return the message type.
+	 * @return The message type.
 	 */
 	public int getId() {
 		return type;

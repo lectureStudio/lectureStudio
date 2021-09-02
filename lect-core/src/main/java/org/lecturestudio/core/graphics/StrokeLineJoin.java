@@ -18,6 +18,9 @@
 
 package org.lecturestudio.core.graphics;
 
+/**
+ * Enum for describing the line join style.
+ */
 public enum StrokeLineJoin {
 
 	MITER, BEVEL, ROUND

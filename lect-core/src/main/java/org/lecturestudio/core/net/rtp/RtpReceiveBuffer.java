@@ -23,8 +23,8 @@ import java.util.List;
 import java.util.concurrent.PriorityBlockingQueue;
 
 /**
- * The {@code RtpReceiveBuffer} holds {@link RtpPacket}s for re-ordering
- * purposes. Packets that arrive too late are dropped.
+ * The {@link RtpReceiveBuffer} holds {@link RtpPacket}s for re-ordering purposes.
+ * Packets that arrive too late are dropped.
  * 
  * @author Alex Andres
  */
@@ -43,7 +43,7 @@ public class RtpReceiveBuffer {
 	/**
 	 * Creates a new {@link RtpReceiveBuffer} with specified size.
 	 * 
-	 * @param size the buffer size
+	 * @param size The buffer size.
 	 */
 	public RtpReceiveBuffer(int size) {
 		this.bufferSize = size;
@@ -53,7 +53,7 @@ public class RtpReceiveBuffer {
 	/**
 	 * Adds a new node to the buffer.
 	 * 
-	 * @param node new node
+	 * @param node The new node.
 	 */
 	public void addNode(RtpReceiveBufferNode node) {
 		if (lastNode != null) {
@@ -72,7 +72,7 @@ public class RtpReceiveBuffer {
 	/**
 	 * Flushes the buffer and returns the flushed nodes.
 	 * 
-	 * @return flushed nodes
+	 * @return The flushed nodes.
 	 */
 	public List<RtpReceiveBufferNode> flush() {
 		if (queue.isEmpty())

@@ -51,17 +51,21 @@ import org.apache.logging.log4j.Logger;
  */
 public class Document {
 
+	/** Logger for {@link Document}. */
 	private static final Logger LOG = LogManager.getLogger(Document.class);
 	
 	private final List<DocumentChangeListener> changeListeners = new ArrayList<>();
 
+	/** A list with all the pages of the document. */
 	private final List<Page> pages = new ArrayList<>();
 
 	/** The opened document file. May be null, if this document is not loaded from a file. */
 	private File file;
-	
+
+	/** The type of the document. */
 	private DocumentType type;
 
+	/** The size of the pages. */
 	private Dimension2D pageSize;
 
 	/** The PDF document. */
@@ -69,52 +73,106 @@ public class Document {
 	
 	/** The title of the PDF document. */
 	private String title;
-	
-	private int currentPageNumber = 0;
-	
 
+	/** The index of the current page. */
+	private int currentPageNumber = 0;
+
+
+	/**
+	 * Create a new {@link Document}.
+	 * (Calls {@link #Document(PdfDocument)} with a new {@link PdfDocument})
+	 */
 	public Document() throws IOException {
 		this(new PdfDocument());
 	}
-	
+
+	/**
+	 * Create a new {@link Document} with the specified file.
+	 * (Sets {@link #file} to the specified file and calls {@link #Document(PdfDocument)} with a
+	 * new {@link PdfDocument} by calling {@link PdfDocument#PdfDocument(File)} with the specified file)
+	 *
+	 * @param file The file.
+	 */
 	public Document(File file) throws IOException {
 		this(new PdfDocument(file));
 		this.file = file;
 	}
-	
+
+	/**
+	 * Create a new {@link Document} with the specified byte array.
+	 * (Calls {@link #Document(PdfDocument)} with a new {@link PdfDocument} by calling
+	 * {@link PdfDocument#PdfDocument(byte[])} with the specified file)
+	 *
+	 * @param byteArray The byte array.
+	 */
 	public Document(byte[] byteArray) throws IOException {
 		this(new PdfDocument(byteArray));
 	}
-	
+
+	/**
+	 * Create a new {@link Document} with the specified PDF document.
+	 * (Calls {@link #init(PdfDocument)} with the specified PDF document and
+	 * sets the page size to width = 640 and height = 480)
+	 *
+	 * @param pdfDocument The PDF document.
+	 */
 	public Document(PdfDocument pdfDocument) {
 		init(pdfDocument);
 		setPageSize(new Dimension2D(640, 480));
 	}
 
+	/**
+	 * Get the outline of the document.
+	 *
+	 * @return The document outline.
+	 */
 	public DocumentOutline getDocumentOutline() {
 		return pdfDocument.getDocumentOutline();
 	}
 
+	/**
+	 * Get the renderer of the document.
+	 *
+	 * @return The document renderer.
+	 */
 	public DocumentRenderer getDocumentRenderer() {
 		return pdfDocument.getDocumentRenderer();
 	}
 
+	/**
+	 * Adds the specified document change listener to {@link #changeListeners} if it is not already included.
+	 *
+	 * @param listener The document change listener to add.
+	 */
 	public void addChangeListener(DocumentChangeListener listener) {
 		if (!changeListeners.contains(listener)) {
 			changeListeners.add(listener);
 		}
 	}
 
+	/**
+	 * Removes the specified document change listener from {@link #changeListeners}.
+	 *
+	 * @param listener The document change listener to remove.
+	 */
 	public void removeChangeListener(DocumentChangeListener listener) {
 		changeListeners.remove(listener);
 	}
-	
+
+	/**
+	 * Closes the document and removes all the pages from {@link #pages}.
+	 */
 	public void close() {
 		closeDocument();
 
 		pages.clear();
 	}
-	
+
+	/**
+	 * Specifies whether the document is closed.
+	 *
+	 * @return {@code true} if {@link #pdfDocument} equals {@code null}, otherwise {@code false}.
+	 */
 	public boolean isClosed() {
 		return pdfDocument == null;
 	}
@@ -131,18 +189,44 @@ public class Document {
 		}
 	}
 
+	/**
+	 * Sets the page size.
+	 *
+	 * @param size The new page size.
+	 */
 	public void setPageSize(Dimension2D size) {
 		pageSize = size;
 	}
 
+	/**
+	 * Get the media box of the specified page.
+	 *
+	 * @param pageIndex The index of the page.
+	 *
+	 * @return The media box of the specified page.
+	 */
 	public Rectangle2D getPageRect(int pageIndex) {
 		return pdfDocument.getPageMediaBox(pageIndex);
 	}
 
+	/**
+	 * Get the page text of the specified page.
+	 *
+	 * @param pageIndex The index of the page.
+	 *
+	 * @return The page text of the specified page.
+	 */
 	public String getPageText(int pageIndex) {
 		return pdfDocument.getPageText(pageIndex);
 	}
-	
+
+	/**
+	 * Get the text positions of the specified page.
+	 *
+	 * @param pageIndex The index of the page.
+	 *
+	 * @return A list of the text positions.
+	 */
 	public List<Rectangle2D> getTextPositions(int pageIndex) {
 		try {
 			return pdfDocument.getNormalizedWordPositions(pageIndex);
@@ -152,7 +236,14 @@ public class Document {
 			return null;
 		}
 	}
-	
+
+	/**
+	 * Get the URI actions of the specified page.
+	 *
+	 * @param pageIndex The index of the page.
+	 *
+	 * @return A list of the URI actions.
+	 */
 	public List<URI> getUriActions(int pageIndex) {
 		List<URI> actions = null;
 		
@@ -165,7 +256,14 @@ public class Document {
 		
 		return actions;
 	}
-	
+
+	/**
+	 * Get the launch actions of the specified page.
+	 *
+	 * @param pageIndex The index of the page.
+	 *
+	 * @return A list of the launch actions.
+	 */
 	public List<File> getLaunchActions(int pageIndex) {
 		List<File> files = null;
 		
@@ -179,10 +277,20 @@ public class Document {
 		return files;
 	}
 
+	/**
+	 * Get the file.
+	 *
+	 * @return The file.
+	 */
 	public File getFile() {
 		return file;
 	}
-	
+
+	/**
+	 * Get the path of the file.
+	 *
+	 * @return The file of the path. (Could return {@code null} if {@link #file} equals {@code null})
+	 */
     public String getFilePath() {
     	String path = null;
     	
@@ -193,19 +301,39 @@ public class Document {
         return path;
     }
 
+	/**
+	 * Set a new title.
+	 *
+	 * @param title The new title.
+	 */
 	public void setTitle(String title) {
 		pdfDocument.setTitle(title);
 		this.title = title;
 	}
-	
+
+	/**
+	 * Get the title.
+	 *
+	 * @return The title.
+	 */
 	public String getTitle() {
 		return title;
 	}
-	
+
+	/**
+	 * Set a new author.
+	 *
+	 * @param author The new author.
+	 */
 	public void setAuthor(String author) {
 		pdfDocument.setAuthor(author);
 	}
-	
+
+	/**
+	 * Get the author.
+	 *
+	 * @return The author.
+	 */
 	public String getAuthor() {
 		return pdfDocument.getAuthor();
 	}
@@ -214,7 +342,7 @@ public class Document {
 	 * Either the filename is returned, if this document is backed by a file, or
 	 * the document title is returned.
 	 *
-	 * @return the name of this document.
+	 * @return The name of this document.
 	 */
 	public String getName() {
 		String name;
@@ -233,12 +361,11 @@ public class Document {
 	}
 
 	/**
-	 * Returns the page at the given index
+	 * Returns the page at the given index.
 	 * 
-	 * @param index the page index within the document.
+	 * @param index The page index within the document.
 	 *
-	 * @return the page at the given index, or null if there is no page
-	 * at the given index.
+	 * @return The page at the given index, or null if there is no page at the given index.
 	 */
 	public Page getPage(int index) {
 		if (index < 0 || getPageCount() == 0)
@@ -248,18 +375,18 @@ public class Document {
 	}
 
 	/**
-	 * Returns a list of all pages in this document
+	 * Returns a list of all pages in this document.
 	 * 
-	 * @return
+	 * @return A list of all pages in this document.
 	 */
 	public List<Page> getPages() {
 		return new ArrayList<>(pages);
 	}
 
 	/**
-	 * Removes the given page if it is part of this document
+	 * Removes the given page if it is part of this document.
 	 * 
-	 * @param page
+	 * @param page The page to remove.
 	 */
 	public boolean removePage(Page page) {
 		int pageNumber = getPageIndex(page);
@@ -281,54 +408,68 @@ public class Document {
 	}
 
 	/**
-	 * Adds a set of Pages
-	 * 
-	 * @param collection
+	 * Adds a set of pages.
+	 *
+	 * @param index The page index where to add the pages.
+	 * @param collection The set of pages to add.
 	 */
 	public void addPages(int index, Collection<? extends Page> collection) {
 		pages.addAll(index, collection);
 	}
 
 	/**
-	 * Returns the number of pages in this document
+	 * Returns the number of pages in this document.
 	 * 
-	 * @return
+	 * @return The number of pages in this document.
 	 */
 	public int getPageCount() {
 		return pages.size();
 	}
 
 	/**
-	 * Returns the page number of the current page in this document
+	 * Returns the page number of the current page in this document.
 	 * 
-	 * @return
+	 * @return The page number of the current page in this document.
 	 */
 	public int getCurrentPageNumber() {
 		return currentPageNumber;
 	}
 
 	/**
-	 * Sets the current page number
+	 * Sets the current page number.
 	 * 
-	 * @param pageNumber
+	 * @param pageNumber The new current page number.
+	 *
+	 * @return {@code false} if the specified page index is smaller than zero, bigger than the highest page index or
+	 * equal to the current page index, otherwise {@code true}.
 	 */
 	public boolean selectPage(int pageNumber) {
-		if (pageNumber < 0 || pageNumber > getPageCount() - 1) {
+		if (pageNumber < 0 || pageNumber > getPageCount() - 1 || this.currentPageNumber == pageNumber) {
 			return false;
 		}
-		if (this.currentPageNumber == pageNumber) {
-			return false;
-		}
-		
+
 		this.currentPageNumber = pageNumber;
 
 		return true;
 	}
-	
+
+	/**
+	 * Select the specified {@link Page} as the current page.
+	 *
+	 * @param page The page to be set as the current page.
+	 *
+	 * @return {@code false} if the index of the specified page is smaller than zero, bigger than the highest page index or
+	 * equal to the current page index, otherwise {@code true}.
+	 */
 	public boolean selectPage(Page page) {
 		return selectPage(getPageIndex(page));
 	}
 
+	/**
+	 * Creates a new {@link Page} and places it at the tail of {@link #pages}.
+	 *
+	 * @return The new page.
+	 */
 	public Page createPage() {
 		int pageIndex = pdfDocument.createPage(pageSize);
 
@@ -337,7 +478,7 @@ public class Document {
 		
 		return newPage;
 	}
-	
+
 	public Page createPage(Page page) throws IOException {
 		return importPage(page, null);
 	}
@@ -346,32 +487,57 @@ public class Document {
 		return importPage(page, pageRect);
 	}
 
+	/**
+	 * Set the type of the document.
+	 *
+	 * @param type The new type of the document.
+	 */
 	public void setDocumentType(DocumentType type) {
 		this.type = type;
 	}
-	
+
+	/**
+	 * Get the type of the document.
+	 *
+	 * @return The document type.
+	 */
 	public DocumentType getType() {
 		return type;
 	}
-	
+
+	/**
+	 * Specifies whether the document is a PDF.
+	 *
+	 * @return {@code true} if {@link #type} equals {@code DocumentType.PDF}, otherwise {@code false}.
+	 */
 	public boolean isPDF() {
 		return type == DocumentType.PDF;
 	}
-	
+
+	/**
+	 * Specifies whether the document is a whiteboard.
+	 *
+	 * @return {@code true} if {@link #type} equals {@code DocumentType.WHITEBOARD}, otherwise {@code false}.
+	 */
 	public boolean isWhiteboard() {
 		return type == DocumentType.WHITEBOARD;
 	}
-	
+
+	/**
+	 * Specifies whether the document is a quiz.
+	 *
+	 * @return {@code true} if {@link #type} equals {@code DocumentType.QUIZ}, otherwise {@code false}.
+	 */
 	public boolean isQuiz() {
 		return type == DocumentType.QUIZ;
 	}
 	
 	/**
-	 * Returns the index of the given page or -1 if the page isn't part of this
-	 * document
+	 * Returns the index of the given page or {@code -1} if the page isn't part of this document.
 	 * 
-	 * @param page
-	 * @return
+	 * @param page The page from which the index should be determined.
+	 *
+	 * @return The index of the given page or {@code -1} if the page isn't part of this document.
 	 */
 	public int getPageIndex(Page page) {
 		for (int i = 0; i < pages.size(); i++) {
@@ -382,18 +548,30 @@ public class Document {
 	}
 
 	/**
-	 * Returns the current page
+	 * Returns the current page.
 	 * 
-	 * @return
+	 * @return The current page.
 	 */
 	public Page getCurrentPage() {
 		return getPage(currentPageNumber);
 	}
-	
+
+	/**
+	 * Get the PDF document.
+	 *
+	 * @return The PDF document.
+	 */
 	public PdfDocument getPdfDocument() {
 		return pdfDocument;
 	}
-	
+
+	/**
+	 * Get the hash value of the PDF document.
+	 *
+	 * @param digest The {@link MessageDigest} used for the hash calculation.
+	 *
+	 * @return A hexadecimal representation of the hash value.
+	 */
 	public String getChecksum(MessageDigest digest) throws IOException {
 		ByteArrayOutputStream stream = new ByteArrayOutputStream();
 		pdfDocument.toOutputStream(stream);
@@ -414,7 +592,12 @@ public class Document {
 		
 		return new String(hex);
 	}
-	
+
+	/**
+	 * Converts the PDF document to the specified output stream.
+	 *
+	 * @param stream The output stream.
+	 */
 	public void toOutputStream(OutputStream stream) throws IOException {
 		if (pdfDocument != null) {
 			pdfDocument.toOutputStream(stream);
@@ -455,8 +638,7 @@ public class Document {
 	}
 	
 	/**
-	 * Adds a new page to this document. The page is placed at the tail of the
-	 * page list.
+	 * Adds a new page to this document. The page is placed at the tail of {@link #pages}.
 	 * 
 	 * @param page The new page.
 	 */
@@ -466,11 +648,9 @@ public class Document {
 		fireAddChange(page);
 	}
 
-	private synchronized Page importPage(Page page, Rectangle2D pageRect)
-			throws IOException {
+	private synchronized Page importPage(Page page, Rectangle2D pageRect) throws IOException {
 		PdfDocument pagePdfDocument = page.getDocument().getPdfDocument();
-		int pageIndex = pdfDocument.importPage(pagePdfDocument,
-				page.getPageNumber(), pageRect);
+		int pageIndex = pdfDocument.importPage(pagePdfDocument, page.getPageNumber(), pageRect);
 
 		if (pageIndex == -1) {
 			return null;
@@ -482,6 +662,12 @@ public class Document {
 		return newPage;
 	}
 
+	/**
+	 * Replaces the specified page with the new one.
+	 *
+	 * @param page The page to be replaced.
+	 * @param newPage The new page.
+	 */
 	public void replacePage(Page page, Page newPage) throws IOException {
 		PdfDocument newPdfDocument = newPage.getDocument().getPdfDocument();
 		int docIndex = newPage.getPageNumber();
@@ -507,6 +693,11 @@ public class Document {
 		}
 	}
 
+	/**
+	 * Initializes the document.
+	 *
+	 * @param pdfDocument The PDF document of the document.
+	 */
 	private void init(PdfDocument pdfDocument) {
 		this.pdfDocument = pdfDocument;
 		this.title = pdfDocument.getTitle();

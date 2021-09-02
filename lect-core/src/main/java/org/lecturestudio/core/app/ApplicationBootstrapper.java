@@ -42,6 +42,7 @@ import org.apache.logging.log4j.Logger;
  */
 public abstract class ApplicationBootstrapper<T> {
 
+	/** Logger for {@link ApplicationBootstrapper} */
 	private final static Logger LOG = LogManager.getLogger(ApplicationBootstrapper.class);
 
 	/** The list of Virtual Machine arguments. */

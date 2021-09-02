@@ -31,11 +31,17 @@ import org.lecturestudio.core.model.Interval;
 
 public class DynamicByteArrayInputStream extends DynamicInputStream {
 
+	/** Logger for {@link DynamicByteArrayInputStream} */
 	private static final Logger LOG = LogManager.getLogger(DynamicByteArrayInputStream.class);
-	
+
+	/** The data of the {@link DynamicByteArrayInputStream} */
 	private final byte[] data;
-	
-	
+
+	/**
+	 * Creates a new instance of {@link DynamicByteArrayInputStream} with the specified data.
+	 *
+	 * @param data The data.
+	 */
 	public DynamicByteArrayInputStream(byte[] data) throws UnsupportedAudioFileException, IOException {
 		super(AudioSystem.getAudioInputStream(new ByteArrayInputStream(data)));
 		

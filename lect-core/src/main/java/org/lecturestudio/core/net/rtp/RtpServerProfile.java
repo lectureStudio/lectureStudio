@@ -20,45 +20,50 @@ package org.lecturestudio.core.net.rtp;
 
 public class RtpServerProfile {
 
+	/**
+	 * The default value for {@link #maxSendQueueSize}.
+	 */
 	public final static int MAX_SEND_QUEUE_SIZE = 1000;
 
+	/**
+	 * The default value for {@link #maxPayloadSize}.
+	 */
 	public final static int MAX_PAYLOAD_SIZE = 1200;
 
+	/**
+	 * The default value for {@link #retransmissionTimeout}.
+	 */
 	public final static int RETRANSMISSION_TIMEOUT = 10;
 
 	/**
-	 * Number of RTP packets in the queue which are retransmitted after the
-	 * timeout
+	 * The number of RTP packets in the queue which are retransmitted after the timeout.
 	 */
 	private final int maxSendQueueSize;
 
 	/**
-	 * Maximum payload size in bytes of an RTP packet
+	 * The maximum payload size in bytes of a RTP packet.
 	 */
 	private final int maxPayloadSize;
 
 	/**
-	 * RTP packet retransmission timeout in milliseconds
+	 * The RTP packet retransmission timeout in milliseconds.
 	 */
 	private final int retransmissionTimeout;
 
 
 	/**
-	 * Creates an profile with default parameter values.
+	 * Creates a profile with default parameter values.
 	 */
 	public RtpServerProfile() {
 		this(MAX_SEND_QUEUE_SIZE, MAX_PAYLOAD_SIZE, RETRANSMISSION_TIMEOUT);
 	}
 
 	/**
-	 * Creates an profile with the specified parameter values.
+	 * Creates a profile with the specified parameter values.
 	 * 
-	 * @param maxSendQueueSize
-	 *            maximum number of packets in the send buffer
-	 * @param maxPayloadSize
-	 *            maximum payload size in bytes of an packet
-	 * @param retransmissionTimeout
-	 *            packet retransmission timeout
+	 * @param maxSendQueueSize The maximum number of packets in the send buffer.
+	 * @param maxPayloadSize The maximum payload size in bytes of a packet.
+	 * @param retransmissionTimeout The packet retransmission timeout.
 	 */
 	public RtpServerProfile(int maxSendQueueSize, int maxPayloadSize, int retransmissionTimeout) {
 		this.maxSendQueueSize = maxSendQueueSize;
@@ -67,21 +72,27 @@ public class RtpServerProfile {
 	}
 
 	/**
-	 * @return the maxSendQueueSize
+	 * Get the maximum number of packets in the send buffer.
+	 *
+	 * @return The maximum number of packets in the send buffer.
 	 */
 	public int getMaxSendQueueSize() {
 		return maxSendQueueSize;
 	}
 
 	/**
-	 * @return the maxPayloadSize
+	 * Get the maximum payload size in bytes of a packet.
+	 *
+	 * @return The maximum payload size in bytes of a packet.
 	 */
 	public int getMaxPayloadSize() {
 		return maxPayloadSize;
 	}
 
 	/**
-	 * @return the retransmissionTimeout
+	 * Get the packet retransmission timeout.
+	 *
+	 * @return The packet retransmission timeout.
 	 */
 	public int getRetransmissionTimeout() {
 		return retransmissionTimeout;

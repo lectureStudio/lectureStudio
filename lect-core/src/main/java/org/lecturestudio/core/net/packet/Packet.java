@@ -19,11 +19,9 @@
 package org.lecturestudio.core.net.packet;
 
 /**
- * The interface {@code Packet} should be implemented by classes that are
- * intended to be used by network protocols.
+ * The interface {@link Packet} should be implemented by classes that are intended to be used by network protocols.
  * 
  * @author Alex Andres
- * 
  */
 public interface Packet {
 

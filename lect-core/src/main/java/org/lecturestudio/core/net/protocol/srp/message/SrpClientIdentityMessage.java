@@ -21,9 +21,8 @@ package org.lecturestudio.core.net.protocol.srp.message;
 import java.math.BigInteger;
 
 /**
- * The {@code ClientIdentityMessage} is used to initiate the
- * password-authenticated key agreement. This message carries user's identity
- * and the public value of the client.
+ * The {@link SrpClientIdentityMessage} is used to initiate the  password-authenticated key agreement.
+ * This message carries user's identity and the public value of the client.
  * 
  * @author Alex Andres
  */
@@ -37,15 +36,14 @@ public class SrpClientIdentityMessage extends SrpMessage {
 
 
 	/**
-	 * Creates a new SrpClientIdentityMessage.
+	 * Creates a new {@link SrpClientIdentityMessage}.
 	 */
 	public SrpClientIdentityMessage() {
 		this(null, null);
 	}
 
 	/**
-	 * Creates a new SrpClientIdentityMessage that contains user's identity and
-	 * the public value of the client.
+	 * Creates a new {@link SrpClientIdentityMessage} that contains user's identity and the public value of the client.
 	 *
 	 * @param identity User's identity, e.g. user name, e-mail address etc.
 	 * @param A        The public value.
@@ -58,14 +56,18 @@ public class SrpClientIdentityMessage extends SrpMessage {
 	}
 
 	/**
-	 * Returns user's identity, e.g. user name, e-mail address etc.
+	 * Get the user's identity, e.g. user name, e-mail address etc.
+	 *
+	 * @return The user's identity, e.g. user name, e-mail address etc.
 	 */
 	public String getIdentity() {
 		return identity;
 	}
 
 	/**
-	 * Returns the public value of the client.
+	 * Get the public value of the client.
+	 *
+	 * @return The public value of the client.
 	 */
 	public BigInteger getPublicValue() {
 		return publicValue;

@@ -22,6 +22,11 @@ import org.lecturestudio.core.net.Participant;
 
 public class ParticipantJoinEvent extends ParticipantEvent {
 
+	/**
+	 * Create a new {@link ParticipantJoinEvent} with the specified participant.
+	 *
+	 * @param participant The participant.
+	 */
 	public ParticipantJoinEvent(Participant participant) {
 		super(participant);
 	}

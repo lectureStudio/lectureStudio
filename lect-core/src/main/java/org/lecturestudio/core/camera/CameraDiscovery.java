@@ -29,7 +29,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import org.lecturestudio.core.camera.bus.CameraBus;
 
 /**
- * The CameraDiscovery runs an background task to discover connected cameras and
+ * The {@link CameraDiscovery} runs an background task to discover connected cameras and
  * check if an camera got disconnected. If a camera got connected or
  * disconnected an {@link CameraEvent} will be published on the camera-bus.
  *
@@ -57,9 +57,9 @@ public final class CameraDiscovery {
 
 
 	/**
-	 * Start the camera discovery task with the specified CameraDriver.
+	 * Start the camera discovery task with the specified {@link CameraDriver}.
 	 *
-	 * @param driver The CameraDriver that observes connected cameras.
+	 * @param driver The {@link CameraDriver} that observes connected cameras.
 	 */
 	public void start(CameraDriver driver) {
 	  	if (open.compareAndSet(false, true)) {
@@ -85,7 +85,7 @@ public final class CameraDiscovery {
 	/**
 	 * Check if the camera discovery task is running or not.
 	 *
-	 * @return True if the task is running, false otherwise.
+	 * @return {@code true} if the task is running, otherwise {@code false}.
 	 */
 	public boolean isRunning() {
 		return open.get();

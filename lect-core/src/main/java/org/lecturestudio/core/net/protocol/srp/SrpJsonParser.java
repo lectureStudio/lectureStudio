@@ -39,7 +39,7 @@ public class SrpJsonParser {
 	 * 
 	 * @param content The JSON string.
 	 * 
-	 * @return a SrpMessage.
+	 * @return A {@link SrpMessage}.
 	 * 
 	 * @throws Exception on JSON parse error.
 	 */
@@ -74,6 +74,13 @@ public class SrpJsonParser {
 		return MAPPER.readValue(content, valueType);
 	}
 
+	/**
+	 * Convert the specified {@link SrpMessage} to a byte array.
+	 *
+	 * @param message The {@link SrpMessage}
+	 *
+	 * @return The resulting byte array.
+	 */
 	public static byte[] getByteArray(SrpMessage message) throws JsonProcessingException {
 		return MAPPER.writeValueAsBytes(message);
 	}

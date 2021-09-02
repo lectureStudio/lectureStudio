@@ -23,10 +23,25 @@ import org.lecturestudio.core.model.Page;
 
 public interface DocumentChangeListener {
 
+	/**
+	 * Fired when the document has changed.
+	 *
+	 * @param document The document.
+	 */
 	void documentChanged(Document document);
 
+	/**
+	 * Fired when a page has been added.
+	 *
+	 * @param page The page.
+	 */
 	void pageAdded(Page page);
-	
+
+	/**
+	 * Fired when a page has been removed.
+	 *
+	 * @param page The page.
+	 */
 	void pageRemoved(Page page);
 	
 }

@@ -24,7 +24,7 @@ import java.util.function.Consumer;
 import org.lecturestudio.core.geometry.Dimension2D;
 
 /**
- * A Camera is used to retrieve frames from an camera device for video encoding
+ * A {@link Camera} is used to retrieve frames from an camera device for video encoding
  * or showing a preview of the camera content to capture.
  *
  * @author Alex Andres
@@ -99,7 +99,7 @@ public interface Camera extends Comparable<Camera> {
 	/**
 	 * Check if the camera is opened and capturing.
 	 *
-	 * @return true if the camera is opened and capturing, false otherwise.
+	 * @return {@code true} if the camera is opened and capturing, otherwise {@code false}.
 	 */
 	boolean isOpened();
 

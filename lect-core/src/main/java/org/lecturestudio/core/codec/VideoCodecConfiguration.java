@@ -23,7 +23,7 @@ import org.lecturestudio.core.beans.ObjectProperty;
 import org.lecturestudio.core.geometry.Rectangle2D;
 
 /**
- * The VideoCodecConfiguration contains video codec related properties.
+ * The {@link VideoCodecConfiguration} contains video codec related properties.
  *
  * @author Alex Andres
  */
@@ -39,7 +39,7 @@ public class VideoCodecConfiguration extends CodecConfiguration {
 	/**
 	 * Get the bounding box of the encoded or decoded image.
 	 *
-	 * @return the image bounding box.
+	 * @return The image bounding box.
 	 */
 	public Rectangle2D getViewRect() {
 		return viewRect.get();
@@ -57,7 +57,7 @@ public class VideoCodecConfiguration extends CodecConfiguration {
 	/**
 	 * Get the image bounding box property.
 	 *
-	 * @return the image bounding box property.
+	 * @return The image bounding box property.
 	 */
 	public ObjectProperty<Rectangle2D> viewRectProperty() {
 		return viewRect;
@@ -66,7 +66,7 @@ public class VideoCodecConfiguration extends CodecConfiguration {
 	/**
 	 * Get the target framerate for the video encoder.
 	 *
-	 * @return the target framerate for the video encoder.
+	 * @return The target framerate for the video encoder.
 	 */
     public double getFrameRate() {
         return frameRate.get();
@@ -83,13 +83,11 @@ public class VideoCodecConfiguration extends CodecConfiguration {
 
 	@Override
 	public String toString() {
-		StringBuffer buffer = new StringBuffer();
-		buffer.append("View-Rect: " + getViewRect() + "\n");
-		buffer.append("Framerate: " + getFrameRate() + "\n");
-		buffer.append("Bitrate: " + getBitRate() + "\n");
-		buffer.append("Preset: " + getPreset());
 
-		return buffer.toString();
+		return "View-Rect: " + getViewRect() + "\n" +
+				"Framerate: " + getFrameRate() + "\n" +
+				"Bitrate: " + getBitRate() + "\n" +
+				"Preset: " + getPreset();
 	}
 
 }

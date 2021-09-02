@@ -21,19 +21,19 @@ package org.lecturestudio.core.exception;
 import org.apache.logging.log4j.Logger;
 
 /**
- * UncaughtExceptionHandler implementation for catching exceptions when a {@code
- * Thread} abruptly terminates due to an uncaught exception.
+ * {@link UncaughtExceptionHandler} implementation for catching exceptions when a {@link Thread}
+ * abruptly terminates due to an uncaught exception.
  *
  * @author Alex Andres
  */
 public class UncaughtExceptionHandler implements Thread.UncaughtExceptionHandler {
 
+	/** The logger that will log the exceptions. */
 	private final Logger LOGGER;
 
 
 	/**
-	 * Create an UncaughtExceptionHandler with the specified logger that will
-	 * log the exceptions.
+	 * Create an {@link UncaughtExceptionHandler} with the specified logger that will log the exceptions.
 	 *
 	 * @param logger The logger that will log the exceptions.
 	 */

@@ -21,7 +21,7 @@ package org.lecturestudio.core.crypto;
 import java.math.BigInteger;
 
 /**
- * The class {@code GroupParameters} consists of the fields safe prime (N) and
+ * The class {@link GroupParameters} consists of the fields safe prime (N) and
  * the corresponding generator (g). {@code N} is a prime of the form N=2q+1,
  * where q is also prime. The generator is a member of the group (1 to N-1)
  * under multiplication % N.
@@ -38,8 +38,7 @@ public class GroupParameters {
 
 
 	/**
-	 * Creates new instance of {@link GroupParameters} with provided prime and
-	 * the corresponding generator.
+	 * Creates new instance of {@link GroupParameters} with provided prime and the corresponding generator.
 	 *
 	 * @param N The safe prime.
 	 * @param g The corresponding generator.

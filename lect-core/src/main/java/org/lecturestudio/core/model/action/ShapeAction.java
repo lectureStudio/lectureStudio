@@ -32,23 +32,28 @@ import org.lecturestudio.core.model.shape.Shape;
  */
 public abstract class ShapeAction {
 
+	/** The list of shapes. */
 	private final List<Shape> shapes = new ArrayList<>();
 
+	/** The page. */
 	private final Page page;
 
-
+	/**
+	 * Create a {@link ShapeAction} with the specified page.
+	 *
+	 * @param page The page.
+	 */
 	public ShapeAction(Page page) {
 		this.page = page;
 	}
 
 	/**
-	 * Executes the action
+	 * Executes the action.
 	 */
 	public abstract void execute();
 
 	/**
-	 * Undoes the action. Should have exactly the reverse effect as
-	 * execute/redo.
+	 * Undoes the action. Should have exactly the reverse effect as execute/redo.
 	 */
 	public abstract void undo();
 
@@ -57,11 +62,20 @@ public abstract class ShapeAction {
 	 */
 	public abstract void redo();
 
-
+	/**
+	 * Get the page.
+	 *
+	 * @return The page.
+	 */
 	public Page getPage() {
 		return page;
 	}
 
+	/**
+	 * Get the shapes.
+	 *
+	 * @return The list of shapes.
+	 */
 	public List<Shape> getShapes() {
 		return shapes;
 	}

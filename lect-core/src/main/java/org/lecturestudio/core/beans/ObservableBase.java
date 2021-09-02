@@ -48,7 +48,7 @@ public abstract class ObservableBase<T> implements Observable<T> {
 	/**
 	 * Notify the change listeners that the observed value has changed.
 	 *
-	 * @param observable The observable that caused the event.
+	 * @param observable The {@link Observable} that caused the event.
 	 * @param oldValue   The old value.
 	 * @param newValue   The new value.
 	 */

@@ -34,10 +34,21 @@ import org.lecturestudio.core.tool.Stroke;
  */
 public class RectangleShape extends FormShape {
 
+	/**
+	 * Creates a new {@link RectangleShape} with the specified stroke.
+	 * (Calls {@link FormShape#FormShape(Stroke)} with the stroke.)
+	 *
+	 * @param stroke The stroke.
+	 */
 	public RectangleShape(Stroke stroke) {
 		super(stroke);
 	}
 
+	/**
+	 * Creates a new {@link RectangleShape} with the specified input byte array containing the data for a stroke.
+	 *
+	 * @param input The input byte array.
+	 */
 	public RectangleShape(byte[] input) throws IOException {
 		super(null);
 

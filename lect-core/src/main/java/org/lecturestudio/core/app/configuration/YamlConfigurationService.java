@@ -45,7 +45,7 @@ public class YamlConfigurationService<T> implements ConfigurationService<T> {
 
 
 	/**
-	 * Create a new YamlConfigurationService instance.
+	 * Create a new {@link YamlConfigurationService} instance.
 	 */
 	public YamlConfigurationService() {
 		mapper = new ObjectMapper(new YAMLFactory());
@@ -71,17 +71,9 @@ public class YamlConfigurationService<T> implements ConfigurationService<T> {
 
 			config = mapper.readValue(input, cls);
 		}
-		catch (IOException e) {
-			throw e;
-		}
 		finally {
 			if (input != null) {
-				try {
-					input.close();
-				}
-				catch (Exception e) {
-					throw e;
-				}
+				input.close();
 			}
 		}
 

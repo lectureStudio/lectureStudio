@@ -19,7 +19,7 @@
 package org.lecturestudio.core.beans;
 
 /**
- * An Observable allows to observe arbitrary content types for changes. Each
+ * An {@link Observable} allows to observe arbitrary content types for changes. Each
  * time the observed value changes the registered listeners will be notified.
  *
  * @param <T> The type of the observed data.
@@ -29,8 +29,8 @@ package org.lecturestudio.core.beans;
 public interface Observable<T> {
 
 	/**
-	 * Adds the given ChangeListener to be notified whenever the value of this
-	 * Observable has changed.
+	 * Adds the given {@link ChangeListener} to be notified whenever the value of this
+	 * {@link Observable} has changed.
 	 *
 	 * @param listener The listener to register.
 	 *
@@ -39,7 +39,7 @@ public interface Observable<T> {
 	void addListener(ChangeListener<? super T> listener);
 
 	/**
-	 * Removes the given ChangeListener from the listener list.
+	 * Removes the given {@link ChangeListener} from the listener list.
 	 *
 	 * @param listener The listener to remove.
 	 */

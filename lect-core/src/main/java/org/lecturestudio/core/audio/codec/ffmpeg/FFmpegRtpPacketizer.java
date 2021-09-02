@@ -68,6 +68,12 @@ public class FFmpegRtpPacketizer implements RtpPacketizer {
 		return packets;
 	}
 
+	/**
+	 * Sets the payload of {@link #rtpPacket}
+	 *
+	 * @param packetBytes The payload data to pack
+	 * @param payloadSize The length of the payload data
+	 */
 	private void packPacket(byte[] packetBytes, int payloadSize) {
 		byte[] payload = new byte[payloadSize];
 
@@ -76,6 +82,11 @@ public class FFmpegRtpPacketizer implements RtpPacketizer {
 		rtpPacket.setPayload(payload);
 	}
 
+	/**
+	 * Sets the sequence number and timestamp of {@link #rtpPacket}.
+	 *
+	 * @param timestamp The new timestamp of {@link #rtpPacket}
+	 */
 	private void updateRtpPacket(long timestamp) {
 		/* Increment RTP header flags */
 		rtpPacket.setSeqNumber(rtpPacket.getSeqNumber() + 1);

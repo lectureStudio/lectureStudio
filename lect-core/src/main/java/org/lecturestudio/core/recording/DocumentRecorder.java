@@ -188,7 +188,7 @@ public class DocumentRecorder extends ExecutableBase {
 		recordedPages = new ArrayList<>();
 
 		recParamProvider = new PresentationParameterProvider(context.getConfiguration());
-		paramProvider = context.getPagePropertyPropvider(ViewType.User);
+		paramProvider = context.getPagePropertyProvider(ViewType.User);
 	}
 
 	@Override

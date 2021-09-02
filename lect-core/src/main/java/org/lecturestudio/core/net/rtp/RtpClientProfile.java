@@ -20,40 +20,49 @@ package org.lecturestudio.core.net.rtp;
 
 public final class RtpClientProfile {
 
+	/**
+	 * The default maximum size of the receive buffer.
+	 */
 	public final static int MAX_RECEIVE_BUFFER_SIZE = 1000;
 
+	/**
+	 * The default timeout in milliseconds after which the receive buffer gets flushed.
+	 */
 	public final static int RECEIVE_BUFFER_TIMEOUT = 20;
 
 	/**
-	 * Number of decoded RTP packets in the receive queue
+	 * Number of decoded RTP packets in the receive queue.
 	 */
 	private final int maxReceiveBufferSize;
 
 	/**
-	 * Timeout in milliseconds after which the receive buffer gets flushed
+	 * Timeout in milliseconds after which the receive buffer gets flushed.
 	 */
 	private final int receiveBufferTimeout;
 
 
 	/**
-	 * Creates an profile with default parameter values.
+	 * Creates a profile with default parameter values.
 	 */
 	public RtpClientProfile() {
 		this(MAX_RECEIVE_BUFFER_SIZE, RECEIVE_BUFFER_TIMEOUT);
 	}
 
+	/**
+	 * Creates a profile with the specified timeout in milliseconds after which the receive buffer gets flushed and
+	 * the default maximum size of the receive buffer.
+	 *
+	 * @param receiveBufferTimeout The timeout in milliseconds after which the receive buffer gets flushed.
+	 */
 	public RtpClientProfile(int receiveBufferTimeout) {
 		this(MAX_RECEIVE_BUFFER_SIZE, receiveBufferTimeout);
 	}
 
 	/**
-	 * Creates an profile with the specified parameter values.
+	 * Creates a profile with the specified parameter values.
 	 * 
-	 * @param maxReceiveBufferSize
-	 *            maximum size of the receive buffer
-	 * @param receiveBufferTimeout
-	 *            timeout in milliseconds after which the receive buffer gets
-	 *            flushed
+	 * @param maxReceiveBufferSize The maximum size of the receive buffer.
+	 * @param receiveBufferTimeout The timeout in milliseconds after which the receive buffer gets flushed.
 	 */
 	public RtpClientProfile(int maxReceiveBufferSize, int receiveBufferTimeout) {
 		this.maxReceiveBufferSize = maxReceiveBufferSize;
@@ -61,14 +70,18 @@ public final class RtpClientProfile {
 	}
 
 	/**
-	 * @return the maxReceiveBufferSize
+	 * Get the {@link #maxReceiveBufferSize}.
+	 *
+	 * @return The {@link #maxReceiveBufferSize}.
 	 */
 	public int getMaxReceiveBufferSize() {
 		return maxReceiveBufferSize;
 	}
 
 	/**
-	 * @return the receiveBufferTimeout
+	 * Get the {@link #receiveBufferTimeout}.
+	 *
+	 * @return The {@link #receiveBufferTimeout}.
 	 */
 	public int getReceiveBufferTimeout() {
 		return receiveBufferTimeout;

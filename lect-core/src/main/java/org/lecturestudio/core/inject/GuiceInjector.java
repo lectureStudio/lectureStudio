@@ -29,6 +29,11 @@ public class GuiceInjector implements Injector {
 	private final com.google.inject.Injector injector;
 
 
+	/**
+	 * Creates a new instance of {@link GuiceInjector} with the specified modules.
+	 *
+	 * @param modules The modules.
+	 */
 	public GuiceInjector(Module... modules) {
 		List<Module> list = new ArrayList<>(List.of(modules));
 		list.add(binder -> binder.bind(Injector.class).toInstance(this));

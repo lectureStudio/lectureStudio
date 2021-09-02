@@ -31,9 +31,8 @@ import org.lecturestudio.core.net.protocol.srp.message.SrpServerChallengeMessage
 import org.lecturestudio.core.net.protocol.srp.message.SrpServerEvidenceMessage;
 
 /**
- * The {@code SRPServer} is a stateful server-side implementation that sends and
- * receives {@code SrpMessages} during the SRP password-authenticated key
- * agreement.
+ * The {@link SrpServer} is a stateful server-side implementation that sends and
+ * receives {@link SrpMessage}s during the SRP password-authenticated key  agreement.
  * 
  * @author Alex Andres
  */
@@ -73,7 +72,7 @@ public class SrpServer extends SrpNetworkTool {
 
 
 	/**
-	 * Creates a new SrpServer with the provided {@link SrpServerContext}.
+	 * Creates a new {@link SrpServer} with the provided {@link SrpServerContext}.
 	 *
 	 * @param context The server-side SRP context.
 	 */
@@ -106,15 +105,12 @@ public class SrpServer extends SrpNetworkTool {
 	}
 
 	/**
-	 * Processes the incoming message in the first round of the agreement. The
-	 * message should contain the identity and the public value of the client.
-	 * If the public value is not valid an {@link SrpAgreementException} is
-	 * thrown. On successful verification the servers public value is created
-	 * for transmission.
+	 * Processes the incoming message in the first round of the agreement.
+	 * The message should contain the identity and the public value of the client.
+	 * If the public value is not valid an {@link SrpAgreementException} is thrown.
+	 * On successful verification the servers public value is created for transmission.
 	 *
-	 * @param message The incoming SrpMessage.
-	 *
-	 * @throws SrpAgreementException
+	 * @param message The incoming {@link SrpMessage}.
 	 */
 	private void processRound1(SrpMessage message) throws SrpAgreementException {
 		SrpClientIdentityMessage identityMessage = (SrpClientIdentityMessage) message;
@@ -141,14 +137,12 @@ public class SrpServer extends SrpNetworkTool {
 	}
 
 	/**
-	 * Processes the incoming message in the second round of the agreement. The
-	 * message should contain the evidence of the client. On successful
-	 * verification the servers evidence is created for transmission and the
-	 * server-side agreement is completed.
+	 * Processes the incoming message in the second round of the agreement.
+	 * The message should contain the evidence of the client.
+	 * On successful verification the servers evidence is created for transmission and
+	 * the server-side agreement is completed.
 	 * 
-	 * @param message The incoming SrpMessage.
-	 * 
-	 * @throws SrpAgreementException
+	 * @param message The incoming {@link SrpMessage}.
 	 */
 	private void processRound2(SrpMessage message) throws SrpAgreementException {
 		SrpClientEvidenceMessage clientsEvidence = (SrpClientEvidenceMessage) message;

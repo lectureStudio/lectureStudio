@@ -46,10 +46,13 @@ import org.bytedeco.javacpp.BytePointer;
  */
 public class FFmpegAudioDecoder extends AudioDecoder {
 
+	/** The sample size in bytes. */
 	private static final int SAMPLE_SIZE = 2;
 
+	/** The internal FFmpeg decoder. */
 	private Decoder decoder;
 
+	/** The internal audio resampler */
 	private com.github.javaffmpeg.AudioResampler resampler;
 
 
@@ -132,7 +135,7 @@ public class FFmpegAudioDecoder extends AudioDecoder {
 		decFormat.setSampleFormat(decoder.getSampleFormat());
 		decFormat.setSampleRate(decoder.getSampleRate());
 
-		// in some cases the decoder chooses it's own parameters, e.g. OPUS
+		// in some cases the decoder chooses its own parameters, e.g. OPUS
 		if (!reqFormat.equals(decFormat)) {
 			int samples = sampleRate / 50;    // 20 ms audio
 			resampler = new AudioResampler();

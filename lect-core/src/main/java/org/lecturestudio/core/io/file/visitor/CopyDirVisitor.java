@@ -33,23 +33,54 @@ import org.lecturestudio.core.util.FileUtils;
 
 public class CopyDirVisitor extends SimpleFileVisitor<Path> {
 
+	/** The {@link Path} from where to copy. */
 	private final Path fromPath;
 
+	/** The {@link Path} to which to copy. */
 	private final Path toPath;
 
+	/** The copy option. */
 	private final StandardCopyOption copyOption;
 
+	/** The skip list. */
 	private final List<String> skipList;
 
-
+	/**
+	 * Creates a new instance of {@link CopyDirVisitor} with the specified {@link Path} from where to copy and
+	 * the {@link Path} to which to copy.
+	 * (Calls {@link #CopyDirVisitor(Path, Path, StandardCopyOption, List)} with
+	 * {@code StandardCopyOption.REPLACE_EXISTING} as copy option and {@code null} as skip list.)
+	 *
+	 * @param fromPath The {@link Path} from where to copy.
+	 * @param toPath The {@link Path} to which to copy.
+	 */
 	public CopyDirVisitor(Path fromPath, Path toPath) {
 		this(fromPath, toPath, StandardCopyOption.REPLACE_EXISTING, null);
 	}
 
+	/**
+	 * Creates a new instance of {@link CopyDirVisitor} with the specified {@link Path} from where to copy,
+	 * the {@link Path} to which to copy and the skip list.
+	 * (Calls {@link #CopyDirVisitor(Path, Path, StandardCopyOption, List)} with
+	 * {@code StandardCopyOption.REPLACE_EXISTING} as copy option.)
+	 *
+	 * @param fromPath The {@link Path} from where to copy.
+	 * @param toPath The {@link Path} to which to copy.
+	 * @param skipList The skip list.
+	 */
 	public CopyDirVisitor(Path fromPath, Path toPath, List<String> skipList) {
 		this(fromPath, toPath, StandardCopyOption.REPLACE_EXISTING, skipList);
 	}
 
+	/**
+	 * Creates a new instance of {@link CopyDirVisitor} with the specified {@link Path} from where to copy,
+	 * the {@link Path} to which to copy, the copy option and the skip list.
+	 *
+	 * @param fromPath The {@link Path} from where to copy.
+	 * @param toPath The {@link Path} to which to copy.
+	 * @param copyOption The copy option.
+	 * @param skipList The skip list.
+	 */
 	public CopyDirVisitor(Path fromPath, Path toPath, StandardCopyOption copyOption, List<String> skipList) {
 		this.fromPath = fromPath;
 		this.toPath = toPath;

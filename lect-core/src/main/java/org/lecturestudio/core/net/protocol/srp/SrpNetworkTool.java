@@ -23,9 +23,8 @@ import java.util.Stack;
 import org.lecturestudio.core.net.protocol.srp.message.SrpMessage;
 
 /**
- * The abstract class {@code SRPNetworkTool} provides basic functionalities for
- * {@code SrpMessage} handling. This class enables the storage and retrieval of
- * {@code SrpMessages} for further processing.
+ * The abstract class {@link SrpNetworkTool} provides basic functionalities for {@link SrpMessage} handling.
+ * This class enables the storage and retrieval of {@link SrpMessage}s for further processing.
  * 
  * @author Alex Andres
  */
@@ -36,8 +35,7 @@ public abstract class SrpNetworkTool implements SrpMessageHandler {
 	 * 
 	 * @param message The incoming message.
 	 * 
-	 * @return true if the message is received in the right state, false
-	 *         otherwise
+	 * @return {@code true} if the message is received in the right state, otherwise {@code false}.
 	 */
 	abstract protected boolean isValidState(SrpMessage message);
 
@@ -47,10 +45,10 @@ public abstract class SrpNetworkTool implements SrpMessageHandler {
 
 
 	/**
-	 * Creates an instance of {@code SRPNetworkTool}.
+	 * Creates an instance of {@link SrpNetworkTool}.
 	 */
 	public SrpNetworkTool() {
-		this.outgoingMessages = new Stack<SrpMessage>();
+		this.outgoingMessages = new Stack<>();
 	}
 
 	@Override
@@ -63,8 +61,8 @@ public abstract class SrpNetworkTool implements SrpMessageHandler {
 	}
 
 	/**
-	 * Puts a {@link SrpMessage} onto the message stack. The messages are
-	 * retrieved in the order in which they were added.
+	 * Puts a {@link SrpMessage} onto the message stack.
+	 * The messages are retrieved in the order in which they were added.
 	 *
 	 * @param message The new SrpMessage.
 	 */

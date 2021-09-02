@@ -21,7 +21,7 @@ package org.lecturestudio.core.camera;
 import java.awt.image.BufferedImage;
 
 /**
- * A FrameGrabberCallback receives captured images from a video camera.
+ * A {@link FrameGrabberCallback} receives captured images from a video camera.
  *
  * @author Alex Andres
  */

@@ -23,8 +23,7 @@ import java.math.BigInteger;
 import org.lecturestudio.core.crypto.GroupParameters;
 
 /**
- * The {@code SRPServerContext} handles server-side computing and storing of
- * SRP-6a values.
+ * The {@link SrpServerContext} handles server-side computing and storing of SRP-6a values.
  *
  * @author Alex Andres
  */
@@ -38,12 +37,10 @@ public class SrpServerContext extends SrpContext {
 
 
 	/**
-	 * Creates a new {@link SrpServerContext} for specified user and negotiated
-	 * group parameters.
+	 * Creates a new {@link SrpServerContext} for specified user and negotiated group parameters.
 	 *
-	 * @param entry  The triple {identity, verifier, salt} as {@code
-	 *               SRPUserEntry}.
-	 * @param params The GroupParameters, N and g.
+	 * @param entry  The triple {identity, verifier, salt} as {@link SrpUserEntry}.
+	 * @param params The {@link GroupParameters}, N and g.
 	 *
 	 * @throws Exception If the hash function is not supported.
 	 */
@@ -57,7 +54,7 @@ public class SrpServerContext extends SrpContext {
 	/**
 	 * Computes and returns the public value B = kv + g^b.
 	 *
-	 * @return the public value.
+	 * @return The public value.
 	 */
 	public BigInteger computePublicValue() {
 		BigInteger k = getMultiplier();
@@ -92,8 +89,7 @@ public class SrpServerContext extends SrpContext {
 	 *
 	 * @param M The session key verifier of the client.
 	 *
-	 * @return true if own session key verifier matches the provided one, false
-	 * otherwise.
+	 * @return {@code true} if own session key verifier matches the provided one, otherwise {@code false}.
 	 */
 	public boolean verifySessionKey(BigInteger M) {
 		BigInteger ownEvidence = computeEvidenceMessage();

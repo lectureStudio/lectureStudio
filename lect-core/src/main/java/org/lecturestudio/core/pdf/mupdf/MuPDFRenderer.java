@@ -50,6 +50,11 @@ public class MuPDFRenderer implements DocumentRenderer {
 	private final Map<Integer, Point2D> sizeMap = new HashMap<>();
 
 
+	/**
+	 * Create a new {@link MuPDFRenderer} with the specified {@link MuPDFDocument}.
+	 *
+	 * @param document The {@link MuPDFDocument}.
+	 */
 	public MuPDFRenderer(MuPDFDocument document) {
 		this.document = document;
 	}

@@ -21,6 +21,12 @@ import org.lecturestudio.core.model.DocumentType;
 
 public class StreamDocumentCreateEvent extends StreamDocumentEvent {
 
+	/**
+	 * Create the {@link StreamDocumentCreateEvent} with specified type and document title.
+	 *
+	 * @param type The type of the {@link StreamDocumentCreateEvent}.
+	 * @param documentTitle The document title.
+	 */
 	public StreamDocumentCreateEvent(DocumentType type, String documentTitle) {
 		super(type, documentTitle);
 	}

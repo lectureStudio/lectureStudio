@@ -94,7 +94,7 @@ import org.lecturestudio.core.view.PresentationParameterProvider;
 import org.lecturestudio.core.view.ViewType;
 
 /**
- * Controller for actions related to the current Page of the current Document.
+ * {@link Controller} for actions related to the current Page of the current Document.
  *
  * @author Alex Andres
  * @author Tobias
@@ -193,7 +193,7 @@ public class ToolController extends Controller implements ToolContext {
 			return;
 		}
 
-		PresentationParameterProvider ppProvider = getContext().getPagePropertyPropvider(ViewType.User);
+		PresentationParameterProvider ppProvider = getContext().getPagePropertyProvider(ViewType.User);
 
 		boolean hasZoom = ppProvider.getParameter(event.getPage()).isZoomMode();
 
@@ -282,7 +282,7 @@ public class ToolController extends Controller implements ToolContext {
 
 	@Override
 	public PresentationParameterProvider getPresentationParameterProvider(ViewType viewType) {
-		return getContext().getPagePropertyPropvider(viewType);
+		return getContext().getPagePropertyProvider(viewType);
 	}
 
 	/**
@@ -329,8 +329,7 @@ public class ToolController extends Controller implements ToolContext {
 	}
 
 	/**
-	 * Selects the LaTeX Tool and assigns the given handle to the created
-	 * LaTeXShape.
+	 * Selects the LaTeX Tool and assigns the given handle to the created LaTeXShape.
 	 *
 	 * @param handle The shape handle.
 	 */
@@ -346,8 +345,7 @@ public class ToolController extends Controller implements ToolContext {
 	}
 
 	/**
-	 * Select the text tool and assigns the given handle to the created
-	 * TextShape.
+	 * Select the text tool and assigns the given handle to the created TextShape.
 	 *
 	 * @param handle The shape handle.
 	 */
@@ -381,8 +379,7 @@ public class ToolController extends Controller implements ToolContext {
 	}
 
 	/**
-	 * Select the text-selection tool with predefined text bounding boxes to
-	 * select.
+	 * Select the text-selection tool with predefined text bounding boxes to select.
 	 *
 	 * @param textPositions The predefined text bounding boxes to select.
 	 */
@@ -488,8 +485,7 @@ public class ToolController extends Controller implements ToolContext {
 	}
 
 	/**
-	 * Select the delete-all tool to remove all annotations from the current
-	 * page.
+	 * Select the delete-all tool to remove all annotations from the current page.
 	 */
 	public void selectDeleteAllTool() {
 		setTool(new DeleteAllTool(this));
@@ -516,8 +512,7 @@ public class ToolController extends Controller implements ToolContext {
 	}
 
 	/**
-	 * Undo the last action on the current page. If the page contains no actions
-	 * the operation has no effect.
+	 * Undo the last action on the current page. If the page contains no actions the operation has no effect.
 	 */
 	public void undo() {
 		setTool(new UndoTool(this));
@@ -573,8 +568,7 @@ public class ToolController extends Controller implements ToolContext {
 	}
 
 	/**
-	 * Create a page on the active whiteboard. Does nothing if the active
-	 * document is not a whiteboard.
+	 * Create a page on the active whiteboard. Does nothing if the active document is not a whiteboard.
 	 */
 	public void createWhiteboardPage() {
 		Document selectedDocument = documentService.getDocuments().getSelectedDocument();
@@ -655,15 +649,15 @@ public class ToolController extends Controller implements ToolContext {
 		}
 
 		// Zoom on user view and presentation view
-		PresentationParameterProvider ppp = getContext().getPagePropertyPropvider(ViewType.User);
+		PresentationParameterProvider ppp = getContext().getPagePropertyProvider(ViewType.User);
 		PresentationParameter param = ppp.getParameter(page);
 		param.zoom(rect);
 
-		ppp = getContext().getPagePropertyPropvider(ViewType.Preview);
+		ppp = getContext().getPagePropertyProvider(ViewType.Preview);
 		param = ppp.getParameter(page);
 		param.zoom(rect);
 
-		ppp = getContext().getPagePropertyPropvider(ViewType.Presentation);
+		ppp = getContext().getPagePropertyProvider(ViewType.Presentation);
 		param = ppp.getParameter(page);
 		param.zoom(rect);
 	}
@@ -707,8 +701,7 @@ public class ToolController extends Controller implements ToolContext {
 	}
 
 	/**
-	 * Execute the paint action with the current PaintTool at the given
-	 * position.
+	 * Execute the paint action with the current PaintTool at the given position.
 	 *
 	 * @param point The location on the painting surface where to execute.
 	 */
@@ -874,7 +867,7 @@ public class ToolController extends Controller implements ToolContext {
 	public void toggleGrid() {
 		Document selectedDoc = documentService.getDocuments().getSelectedDocument();
 
-		PresentationParameterProvider provider = getContext().getPagePropertyPropvider(ViewType.User);
+		PresentationParameterProvider provider = getContext().getPagePropertyProvider(ViewType.User);
 		PresentationParameter param = provider.getParameter(selectedDoc.getCurrentPage());
 
 		// Toggle
@@ -885,7 +878,7 @@ public class ToolController extends Controller implements ToolContext {
 		GridConfiguration gridConfig = getConfig().getGridConfig();
 
 		if (gridConfig.getShowGridOnDisplays()) {
-			provider = getContext().getPagePropertyPropvider(ViewType.Presentation);
+			provider = getContext().getPagePropertyProvider(ViewType.Presentation);
 			param = provider.getParameter(selectedDoc.getCurrentPage());
 
 			// Sync with user's view.
@@ -957,7 +950,7 @@ public class ToolController extends Controller implements ToolContext {
 	/**
 	 * Get the type of the selected tool.
 	 *
-	 * @return the type of the selected tool.
+	 * @return The type of the selected tool.
 	 */
 	ToolType getSelectedToolType() {
 		return nonNull(selectedTool) ? selectedTool.getType() : null;
@@ -966,7 +959,7 @@ public class ToolController extends Controller implements ToolContext {
 	/**
 	 * Get the selected tool.
 	 *
-	 * @return the selected tool.
+	 * @return The selected tool.
 	 */
 	private Tool getSelectedTool() {
 		return selectedTool;
@@ -985,7 +978,9 @@ public class ToolController extends Controller implements ToolContext {
 	}
 
 	/**
-	 * Returns the scale for the user-view.
+	 * Get the scale for the user-view.
+	 *
+	 * @return The scale for the user-view.
 	 */
 	private double getScale() {
 		Document doc = documentService.getDocuments().getSelectedDocument();
@@ -994,7 +989,7 @@ public class ToolController extends Controller implements ToolContext {
 			return 1;
 		}
 
-		PresentationParameterProvider ppp = getContext().getPagePropertyPropvider(ViewType.User);
+		PresentationParameterProvider ppp = getContext().getPagePropertyProvider(ViewType.User);
 		PresentationParameter para = ppp.getParameter(doc.getCurrentPage());
 
 		return 1 / (1 / para.getPageRect().getWidth());
@@ -1024,7 +1019,9 @@ public class ToolController extends Controller implements ToolContext {
 	}
 
 	/**
-	 * Returns true if the selected page is zoomed on the user-view.
+	 * Returns if the the selected page is zoomed on the user-view.
+	 *
+	 * @return {@code true} if the selected page is zoomed on the user-view, otherwise {@code false}.
 	 */
 	private boolean isZoomMode() {
 		Document doc = documentService.getDocuments().getSelectedDocument();
@@ -1034,7 +1031,7 @@ public class ToolController extends Controller implements ToolContext {
 		}
 
 		Page page = doc.getCurrentPage();
-		PresentationParameterProvider ppp = getContext().getPagePropertyPropvider(ViewType.User);
+		PresentationParameterProvider ppp = getContext().getPagePropertyProvider(ViewType.User);
 		PresentationParameter para = ppp.getParameter(page);
 
 		return para.isZoomMode();

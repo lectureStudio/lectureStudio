@@ -27,7 +27,7 @@ import java.io.IOException;
 import java.util.Calendar;
 
 /**
- * Implementation of an {@link Calendar} JSON deserializer.
+ * Implementation of a {@link Calendar} JSON deserializer.
  *
  * @author Alex Andres
  */

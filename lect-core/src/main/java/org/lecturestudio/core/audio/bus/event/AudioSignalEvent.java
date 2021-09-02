@@ -33,7 +33,7 @@ public class AudioSignalEvent extends BusEvent {
 
 
 	/**
-	 * Create a AudioSignalEvent instance with the specified audio signal level
+	 * Create an {@link AudioSignalEvent} instance with the specified audio signal level
 	 * value. The value must be in the range of [0,1].
 	 *
 	 * @param value The audio signal level.

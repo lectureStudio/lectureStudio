@@ -41,7 +41,7 @@ public class JavaSoundOutputDevice extends AudioOutputDevice {
 	/** Minimal audio buffer size to use with Java. */
 	private static final int BUFFER_SIZE = 4096;
 
-	/** Internal Mixer.Info that represents information about an audio mixer. */
+	/** Internal {@link Mixer.Info} that represents information about an audio mixer. */
 	private final Mixer.Info mixerInfo;
 
 	/** Internal playback sink. */
@@ -49,7 +49,7 @@ public class JavaSoundOutputDevice extends AudioOutputDevice {
 
 
 	/**
-	 * Create a new JavaSoundOutputDevice instance with the specified {@code
+	 * Create a new {@link JavaSoundOutputDevice} instance with the specified {@link
 	 * Mixer.Info} that contains information about an audio mixer.
 	 *
 	 * @param mixerInfo The audio mixer info.

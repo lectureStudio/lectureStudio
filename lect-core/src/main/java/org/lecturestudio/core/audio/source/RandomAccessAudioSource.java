@@ -25,7 +25,7 @@ import org.lecturestudio.core.io.RandomAccessAudioStream;
 import org.lecturestudio.core.model.Interval;
 
 /**
- * Random access stream implementation of AudioSource.
+ * Random access stream implementation of {@link AudioSource}.
  *
  * @author Alex Andres
  */
@@ -36,7 +36,7 @@ public class RandomAccessAudioSource implements AudioSource {
 
 
 	/**
-	 * Create a RandomAccessAudioSource with the specified random access audio
+	 * Create a {@link RandomAccessAudioSource} with the specified random access audio
 	 * stream.
 	 *
 	 * @param stream The random access audio stream.

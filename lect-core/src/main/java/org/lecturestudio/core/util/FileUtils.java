@@ -160,8 +160,8 @@ public class FileUtils {
 	 * operation fails it may have succeeded in creating some of the necessary
 	 * parent directories.
 	 *
-	 * @return true if and only if the directory was created, along with all
-	 *         necessary parent directories, false otherwise.
+	 * @return {@code true} if and only if the directory was created, along with all
+	 *         necessary parent directories, otherwise {@code false}.
 	 */
 	public static boolean create(String path) {
 		File file = new File(path);

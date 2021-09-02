@@ -21,15 +21,22 @@ import org.lecturestudio.core.app.configuration.DisplayConfiguration;
 
 public class DisplayConfigEvent extends BusEvent {
 
+	/** The display configuration */
 	private DisplayConfiguration config;
-	
-	
+
+	/**
+	 * Create the {@link DisplayConfigEvent} with specified {@link DisplayConfiguration}.
+	 *
+	 * @param config The {@link DisplayConfiguration}.
+	 */
 	public DisplayConfigEvent(DisplayConfiguration config) {
 		this.config = config;
 	}
 
 	/**
-	 * @return the config
+	 * Get the display configuration.
+	 *
+	 * @return The display configuration.
 	 */
 	public DisplayConfiguration getConfig() {
 		return config;

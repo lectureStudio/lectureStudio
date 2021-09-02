@@ -26,14 +26,14 @@ package org.lecturestudio.core.beans;
 public class BooleanProperty extends ObjectProperty<Boolean> {
 
 	/**
-	 * Create a BooleanProperty with the initial value set to {@code false}.
+	 * Create a {@link BooleanProperty} with the initial value set to {@code false}.
 	 */
 	public BooleanProperty() {
 		this(false);
 	}
 
 	/**
-	 * Create a BooleanProperty with the specified initial value.
+	 * Create a {@link BooleanProperty} with the specified initial value.
 	 *
 	 * @param defaultValue The initial value.
 	 */

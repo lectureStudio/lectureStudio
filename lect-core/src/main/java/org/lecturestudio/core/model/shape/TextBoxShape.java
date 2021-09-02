@@ -24,14 +24,39 @@ import org.lecturestudio.core.text.TextAttributes;
 
 public interface TextBoxShape<T> {
 
+	/**
+	 * Set new text.
+	 *
+	 * @param text The new text.
+	 */
 	void setText(String text);
-	
+
+	/**
+	 * Set the new text attributes.
+	 *
+	 * @param attributes The new text attributes.
+	 */
 	void setTextAttributes(TextAttributes attributes);
-	
+
+	/**
+	 * Set the new font color.
+	 *
+	 * @param color The new font color.
+	 */
 	void setTextColor(Color color);
-	
+
+	/**
+	 * Set the new font.
+	 *
+	 * @param font The new font.
+	 */
 	void setFont(T font);
-	
+
+	/**
+	 * Set the new location of the bounding rectangle of the shape.
+	 *
+	 * @param location The new location of the bounding rectangle of the shape.
+	 */
 	void setLocation(Point2D location);
 	
 }

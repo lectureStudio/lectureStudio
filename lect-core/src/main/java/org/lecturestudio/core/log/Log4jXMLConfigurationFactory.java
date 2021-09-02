@@ -42,8 +42,7 @@ public class Log4jXMLConfigurationFactory extends ConfigurationFactory {
 	}
 
 	@Override
-	public Configuration getConfiguration(LoggerContext context,
-										  ConfigurationSource source) {
+	public Configuration getConfiguration(LoggerContext context, ConfigurationSource source) {
 		return new XmlConfiguration(context, source);
 	}
 

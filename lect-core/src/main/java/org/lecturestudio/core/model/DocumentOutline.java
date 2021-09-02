@@ -25,6 +25,10 @@ import java.util.List;
 
 public class DocumentOutline extends DocumentOutlineItem {
 
+	/**
+	 * Create a new {@link DocumentOutline}.
+	 * (Calls {@link DocumentOutlineItem#DocumentOutlineItem()})
+	 */
 	public DocumentOutline() {
 		super();
 	}
@@ -33,8 +37,7 @@ public class DocumentOutline extends DocumentOutlineItem {
 		return getOutlineItem(getChildren(), pageNumber);
 	}
 
-	private static DocumentOutlineItem getOutlineItem(
-			List<DocumentOutlineItem> itemList, Integer pageNumber) {
+	private static DocumentOutlineItem getOutlineItem(List<DocumentOutlineItem> itemList, Integer pageNumber) {
 		Iterator<DocumentOutlineItem> iterator = itemList.iterator();
 
 		if (iterator.hasNext()) {
@@ -63,8 +66,7 @@ public class DocumentOutline extends DocumentOutlineItem {
 					DocumentOutlineItem item = inRange ? item1 : item2;
 
 					if (!item.getChildren().isEmpty()) {
-						DocumentOutlineItem nested = getOutlineItem(
-								item.getChildren(), pageNumber);
+						DocumentOutlineItem nested = getOutlineItem(item.getChildren(), pageNumber);
 
 						if (nonNull(nested)) {
 							item = nested;

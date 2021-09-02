@@ -18,7 +18,6 @@
 
 package org.lecturestudio.core.io;
 
-import java.io.IOException;
 import java.io.InputStream;
 import java.net.URISyntaxException;
 import java.net.URL;
@@ -28,20 +27,26 @@ public abstract class ResourceLoader {
 	/**
 	 * Finds a resource of the specified name from the search path.
 	 * 
-	 * @param path the resource path.
+	 * @param path The resource path.
 	 * 
-	 * @return a {@code URL} for reading the resource, or {@code null} if the
-	 *         resource could not be found.
+	 * @return A {@link URL} for reading the resource, or {@code null} if the resource could not be found.
 	 */
 	public static URL getResourceURL(String path) {
 		return ClassLoader.getSystemResource(path);
 	}
 
+	/** @see java.lang.ClassLoader#getResourceAsStream(String)  */
 	public static InputStream getResourceAsStream(String path) {
 		return ResourceLoader.class.getClassLoader().getResourceAsStream(path);
 	}
-	
-	public static boolean isJarResource(URL url) throws IOException {
+
+	/**
+	 * Indicates whether the specified {@link URL} has the jar protocol.
+	 *
+	 * @param url The {@link URL}.
+	 * @return {@code true} if the protocol of the specified {@link URL} is the jar protocol, otherwise {@code false}.
+	 */
+	public static boolean isJarResource(URL url) {
 		return url.getProtocol().equals("jar");
 	}
 	

@@ -41,6 +41,7 @@ import org.apache.logging.log4j.Logger;
  */
 public class PropertyDictionary implements Dictionary {
 
+	/** Logger for {@link PropertyDictionary} */
 	private static final Logger LOG = LogManager.getLogger(PropertyDictionary.class);
 
 	/** The resource bundle containing locale-specific translations. */
@@ -54,7 +55,7 @@ public class PropertyDictionary implements Dictionary {
 
 
 	/**
-	 * Creates a new instance of {@code PropertyDictionary} and loads the
+	 * Creates a new instance of {@link PropertyDictionary} and loads the
 	 * dictionary file for the specified locale.
 	 *
 	 * @param locale         The dictionary localization.
@@ -137,7 +138,7 @@ public class PropertyDictionary implements Dictionary {
 		private final Map<String, Object> contents = new HashMap<>();
 
 		/**
-		 * Creates a new AggregateBundle with the contents of the specified
+		 * Creates a new {@link AggregateBundle} with the contents of the specified
 		 * resource bundles.
 		 *
 		 * @param bundles A list of bundles which shall be merged into this

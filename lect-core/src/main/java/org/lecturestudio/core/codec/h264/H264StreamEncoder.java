@@ -47,6 +47,7 @@ import org.apache.logging.log4j.Logger;
  */
 public class H264StreamEncoder implements VideoEncoder {
 
+	/** Logger for {@link H264StreamEncoder} */
 	private static final Logger LOG = LogManager.getLogger(H264StreamEncoder.class);
 
 	/** Internal FFmpeg video encoder. */
@@ -66,7 +67,7 @@ public class H264StreamEncoder implements VideoEncoder {
 
 
 	/**
-	 * Create an H264StreamEncoder with the specified encoder configuration.
+	 * Create an {@link H264StreamEncoder} with the specified encoder configuration.
 	 *
 	 * @param codecConfiguration The encoder configuration.
 	 */
@@ -101,7 +102,6 @@ public class H264StreamEncoder implements VideoEncoder {
 			MediaPacket packet = encoder.encodeVideo(frame);
 
             image.flush();
-            image = null;
 
 			if (packet != null) {
 				return packet.getData();
@@ -193,7 +193,6 @@ public class H264StreamEncoder implements VideoEncoder {
         }
 
         image.flush();
-        image = null;
 
         return croppedImage;
     }

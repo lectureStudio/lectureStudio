@@ -55,7 +55,7 @@ public class FFmpegAudioEncoder extends AudioEncoder {
 
 
 	/**
-	 * Create a FFmpegAudioEncoder with the specified codec ID. Based on the ID
+	 * Create a {@link FFmpegAudioEncoder} with the specified codec ID. Based on the ID
 	 * the corresponding FFmpeg encoder will be created.
 	 *
 	 * @param codecId The ID of the codec to use.
@@ -157,6 +157,9 @@ public class FFmpegAudioEncoder extends AudioEncoder {
 
 	}
 
+	/**
+	 * Assigns all supported audio formats to {@link #supportedFormats}.
+	 */
 	private void getInputFormats() {
 		if (encoder == null) {
 			return;

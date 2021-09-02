@@ -19,7 +19,7 @@
 package org.lecturestudio.core.crypto.srp;
 
 /**
- * The class {@code SRPAgreementException} is to be used during the
+ * The class {@link SrpAgreementException} is to be used during the
  * authentication process. This exception is thrown if inconsistencies occur
  * between the client and server while authenticating.
  *
@@ -31,8 +31,7 @@ public class SrpAgreementException extends Exception {
 
 
 	/**
-	 * Constructs a new agreement exception with {@code null} as its detail
-	 * message.
+	 * Constructs a new agreement exception with {@code null} as its detail message.
 	 */
 	public SrpAgreementException() {
 		super();
@@ -41,8 +40,7 @@ public class SrpAgreementException extends Exception {
 	/**
 	 * Constructs a new agreement exception with the specified detail message.
 	 *
-	 * @param message the detail message which is received by the {@link
-	 *                #getMessage()} method.
+	 * @param message the detail message which is received by the {@link #getMessage()} method.
 	 */
 	public SrpAgreementException(String message) {
 		super(message);

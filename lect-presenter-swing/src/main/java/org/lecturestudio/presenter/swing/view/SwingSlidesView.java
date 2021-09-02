@@ -31,6 +31,7 @@ import java.awt.event.MouseEvent;
 import java.util.Enumeration;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Objects;
 
 import javax.swing.JFrame;
 import javax.swing.JLabel;
@@ -83,6 +84,7 @@ import org.lecturestudio.swing.util.SwingUtils;
 import org.lecturestudio.swing.view.SwingView;
 import org.lecturestudio.swing.view.ViewPostConstruct;
 import org.lecturestudio.web.api.message.MessengerMessage;
+import org.scilab.forge.jlatexmath.ParseException;
 
 @SwingView(name = "main-slides")
 public class SwingSlidesView extends JPanel implements SlidesView {
@@ -383,7 +385,16 @@ public class SwingSlidesView extends JPanel implements SlidesView {
 
 			@Override
 			public void changedUpdate(DocumentEvent e) {
-				executeAction(action, latexTextArea.getText());
+				try {
+					executeAction(action, latexTextArea.getText());
+					latexTextArea.setBackground(Color.decode("#D1FAE5"));
+				} catch (ParseException exception) {
+					executeAction(action, "");
+					latexTextArea.setBackground(Color.decode("#FEE2E2"));
+				}
+				if (Objects.equals(latexTextArea.getText(), "")) {
+					latexTextArea.setBackground(Color.WHITE);
+				}
 			}
 		});
 	}

@@ -38,6 +38,8 @@ public class MessengerMessageAdapter implements JsonbAdapter<MessengerMessage, J
 		MessengerMessage message = new MessengerMessage();
 		message.setMessage(new Message(jsonObject.getString("text")));
 		message.setDate(ZonedDateTime.parse(jsonObject.getString("time")));
+		message.setFirstName(jsonObject.getString("firstName"));
+		message.setFamilyName(jsonObject.getString("familyName"));
 
 		return message;
 	}

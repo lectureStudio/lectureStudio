@@ -60,7 +60,7 @@ public class MessageView extends JPanel {
 		timeLabel.setText(formattedDate);
 	}
 
-	public void setHost(String host) {
+	public void setUserName(String host) {
 		fromLabel.setText(host);
 	}
 

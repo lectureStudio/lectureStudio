@@ -46,10 +46,12 @@ public class SwingMessengerWindow extends JFrame implements MessengerWindow {
 	public void addMessage(MessengerMessage message) {
 		SwingUtils.invoke(() -> {
 			MessageView messageView = new MessageView();
+			messageView.setUserName(String.format("%s %s", message.getFirstName(), message.getFamilyName()));
 			messageView.setDate(message.getDate());
-			messageView.setHost(message.getRemoteAddress());
 			messageView.setMessage(message.getMessage().getText());
-			messageView.setPreferredSize(new Dimension(250, 50));
+			messageView.setPreferredSize(new Dimension(messageView.getPreferredSize().width, messageView.getPreferredSize().height));
+			messageView.setMaximumSize(new Dimension(messageView.getMaximumSize().width, messageView.getPreferredSize().height));
+			messageView.setMinimumSize(new Dimension(200, messageView.getPreferredSize().height));
 
 			container.add(messageView);
 			container.revalidate();

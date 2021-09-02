@@ -18,6 +18,8 @@
 
 package org.lecturestudio.web.api.message;
 
+import static java.util.Objects.requireNonNullElse;
+
 public abstract class WebMessage {
 
 	private String remoteAddress;
@@ -27,7 +29,7 @@ public abstract class WebMessage {
 	 * @return the remoteAddress
 	 */
 	public String getRemoteAddress() {
-		return remoteAddress;
+		return requireNonNullElse(remoteAddress, "");
 	}
 
 	/**

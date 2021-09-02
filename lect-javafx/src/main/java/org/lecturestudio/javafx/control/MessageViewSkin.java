@@ -29,8 +29,6 @@ import javafx.scene.control.ScrollPane;
 import javafx.scene.control.SkinBase;
 import javafx.scene.layout.Region;
 import javafx.util.StringConverter;
-import javafx.util.converter.LocalDateTimeStringConverter;
-import javafx.util.converter.LocalTimeStringConverter;
 
 public class MessageViewSkin extends SkinBase<MessageView> {
 

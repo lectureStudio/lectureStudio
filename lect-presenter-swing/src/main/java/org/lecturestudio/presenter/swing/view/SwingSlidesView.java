@@ -345,12 +345,14 @@ public class SwingSlidesView extends JPanel implements SlidesView {
 
 	@Override
 	public void setMessengerMessage(MessengerMessage message) {
-		SwingUtils.invoke(() -> {
-			boolean nonNull = nonNull(message);
+		if (isNull(message)) {
+			return;
+		}
 
-			messageView.setDate(nonNull ? message.getDate() : null);
-			messageView.setHost(nonNull ? message.getRemoteAddress() : "");
-			messageView.setMessage(nonNull ? message.getMessage().getText() : "");
+		SwingUtils.invoke(() -> {
+			messageView.setUserName(String.format("%s %s", message.getFirstName(), message.getFamilyName()));
+			messageView.setDate(message.getDate());
+			messageView.setMessage(message.getMessage().getText());
 		});
 	}
 

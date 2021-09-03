@@ -250,7 +250,7 @@ public class WebRtcStreamService extends ExecutableBase {
 		WebSocketHeaderProvider headerProvider = new WebSocketBearerTokenProvider(
 				tokenProvider);
 
-		return new StreamWebSocketClient(stateWsParameters,
+		return new StreamWebSocketClient(context.getEventBus(), stateWsParameters,
 				headerProvider, eventRecorder, documentService, streamService,
 				streamConfig.getCourse());
 	}

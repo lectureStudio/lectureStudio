@@ -30,5 +30,4 @@ public abstract class SpeechBaseMessage extends WebMessage {
 	public void setRequestId(Long requestId) {
 		this.requestId = requestId;
 	}
-
 }

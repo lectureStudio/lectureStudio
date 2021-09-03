@@ -24,6 +24,8 @@ import static java.util.Objects.requireNonNull;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.lang.reflect.Field;
+import java.lang.reflect.Method;
 import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.WebSocket;
@@ -34,6 +36,10 @@ import java.time.Duration;
 import java.time.temporal.ChronoUnit;
 import java.util.concurrent.CompletionStage;
 
+import javax.json.bind.Jsonb;
+import javax.json.bind.JsonbBuilder;
+import javax.json.bind.JsonbConfig;
+import javax.json.bind.config.PropertyVisibilityStrategy;
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.TrustManager;
 import javax.net.ssl.X509TrustManager;
@@ -41,9 +47,12 @@ import javax.ws.rs.core.MediaType;
 
 import org.lecturestudio.core.ExecutableBase;
 import org.lecturestudio.core.ExecutableException;
+import org.lecturestudio.core.bus.EventBus;
 import org.lecturestudio.core.model.Document;
 import org.lecturestudio.core.service.DocumentService;
 import org.lecturestudio.web.api.client.MultipartBody;
+import org.lecturestudio.web.api.data.bind.SpeechMessageDeserializer;
+import org.lecturestudio.web.api.message.SpeechBaseMessage;
 import org.lecturestudio.web.api.net.OwnTrustManager;
 import org.lecturestudio.web.api.service.ServiceParameters;
 import org.lecturestudio.web.api.stream.StreamEventRecorder;
@@ -65,6 +74,8 @@ import org.lecturestudio.web.api.websocket.WebSocketHeaderProvider;
  */
 public class StreamWebSocketClient extends ExecutableBase {
 
+	private final EventBus eventBus;
+
 	private final ServiceParameters serviceParameters;
 
 	private final WebSocketHeaderProvider headerProvider;
@@ -80,10 +91,11 @@ public class StreamWebSocketClient extends ExecutableBase {
 	private WebSocket webSocket;
 
 
-	public StreamWebSocketClient(ServiceParameters parameters,
+	public StreamWebSocketClient(EventBus eventBus, ServiceParameters parameters,
 			WebSocketHeaderProvider headerProvider,
 			StreamEventRecorder eventRecorder, DocumentService documentService,
 			StreamService streamService, Course course) {
+		requireNonNull(eventBus);
 		requireNonNull(parameters);
 		requireNonNull(headerProvider);
 		requireNonNull(eventRecorder);
@@ -91,6 +103,7 @@ public class StreamWebSocketClient extends ExecutableBase {
 		requireNonNull(streamService);
 		requireNonNull(course);
 
+		this.eventBus = eventBus;
 		this.serviceParameters = parameters;
 		this.headerProvider = headerProvider;
 		this.eventRecorder = eventRecorder;
@@ -232,6 +245,31 @@ public class StreamWebSocketClient extends ExecutableBase {
 
 	private class WebSocketListener implements Listener {
 
+		private final Jsonb jsonb;
+
+		/** Accumulating message buffer. */
+		private StringBuffer buffer = new StringBuffer();
+
+
+		WebSocketListener() {
+			JsonbConfig config = new JsonbConfig()
+				.withDeserializers(new SpeechMessageDeserializer())
+				.withPropertyVisibilityStrategy(new PropertyVisibilityStrategy() {
+
+					@Override
+					public boolean isVisible(Method method) {
+						return false;
+					}
+
+					@Override
+					public boolean isVisible(Field field) {
+						return true;
+					}
+				});
+
+			jsonb = JsonbBuilder.create(config);
+		}
+
 		@Override
 		public void onError(WebSocket webSocket, Throwable error) {
 			logException(error, "WebSocket error");
@@ -240,6 +278,25 @@ public class StreamWebSocketClient extends ExecutableBase {
 		@Override
 		public CompletionStage<?> onText(WebSocket webSocket, CharSequence data,
 				boolean last) {
+			logTraceMessage("WebSocket <-: {0}", data);
+
+			webSocket.request(1);
+
+			buffer.append(data);
+
+			if (last) {
+				try {
+					var message = jsonb.fromJson(buffer.toString(), SpeechBaseMessage.class);
+
+					eventBus.post(message);
+				}
+				catch (Exception e) {
+					logException(e, "Process message failed");
+				}
+
+				buffer = new StringBuffer();
+			}
+
 			return null;
 		}
 	}

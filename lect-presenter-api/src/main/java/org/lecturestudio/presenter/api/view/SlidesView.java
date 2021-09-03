@@ -39,6 +39,8 @@ import org.lecturestudio.core.view.PresentationParameterProvider;
 import org.lecturestudio.core.view.View;
 import org.lecturestudio.presenter.api.stylus.StylusHandler;
 import org.lecturestudio.web.api.message.MessengerMessage;
+import org.lecturestudio.web.api.message.SpeechCancelMessage;
+import org.lecturestudio.web.api.message.SpeechRequestMessage;
 
 public interface SlidesView extends View {
 
@@ -77,6 +79,10 @@ public interface SlidesView extends View {
 	void setMessengerState(ExecutableState state);
 
 	void setMessengerMessage(MessengerMessage message);
+
+	void setSpeechRequestMessage(SpeechRequestMessage message, Action acceptAction, Action rejectAction);
+
+	void setSpeechCancelMessage(SpeechCancelMessage message);
 
 	void setSelectedToolType(ToolType type);
 

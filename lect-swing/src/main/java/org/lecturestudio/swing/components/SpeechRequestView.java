@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2020 TU Darmstadt, Department of Computer Science,
+ * Copyright (C) 2021 TU Darmstadt, Department of Computer Science,
  * Embedded Systems and Applications Group.
  *
  * This program is free software: you can redistribute it and/or modify
@@ -25,31 +25,70 @@ import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
+import java.text.MessageFormat;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 
 import javax.swing.BorderFactory;
+import javax.swing.Box;
+import javax.swing.BoxLayout;
+import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
-import javax.swing.JScrollPane;
-import javax.swing.JTextArea;
 
+import org.lecturestudio.core.app.dictionary.Dictionary;
+import org.lecturestudio.core.view.Action;
 import org.lecturestudio.swing.border.RoundedBorder;
+import org.lecturestudio.swing.util.SwingUtils;
 
-public class MessageView extends JPanel {
+public class SpeechRequestView extends JPanel {
+
+	private final Dictionary dict;
+
+	private long requestId;
+
+	private JPanel actionPane;
 
 	private JLabel fromLabel;
 
 	private JLabel timeLabel;
 
-	private JTextArea textArea;
+	private JButton acceptButton;
+
+	private JButton rejectButton;
 
 
-	public MessageView() {
+	public SpeechRequestView(Dictionary dict) {
 		super();
 
+		this.dict = dict;
+
 		initialize();
+	}
+
+	public void setOnAccept(Action action) {
+		SwingUtils.bindAction(acceptButton, action);
+	}
+
+	public void setOnReject(Action action) {
+		SwingUtils.bindAction(rejectButton, action);
+	}
+
+	public void setCanceled() {
+		setStatus(dict.get("speech.canceled"));
+	}
+
+	private void setRejected() {
+		setStatus(dict.get("speech.rejected"));
+	}
+
+	public long getRequestId() {
+		return requestId;
+	}
+
+	public void setRequestId(long id) {
+		requestId = id;
 	}
 
 	public void setDate(ZonedDateTime date) {
@@ -63,12 +102,8 @@ public class MessageView extends JPanel {
 		timeLabel.setText(formattedDate);
 	}
 
-	public void setUserName(String host) {
-		fromLabel.setText(host);
-	}
-
-	public void setMessage(String message) {
-		textArea.setText(message);
+	public void setUserName(String user) {
+		fromLabel.setText(MessageFormat.format(dict.get("speech.from"), user));
 	}
 
 	public void pack() {
@@ -103,19 +138,35 @@ public class MessageView extends JPanel {
 
 		controlPanel.add(timeLabel, constraints);
 
-		textArea = new JTextArea();
-		textArea.setOpaque(false);
-		textArea.setEditable(false);
-		textArea.setLineWrap(true);
-		textArea.setWrapStyleWord(true);
-		textArea.setFont(textArea.getFont().deriveFont(12f));
+		actionPane = new JPanel();
+		actionPane.setBorder(BorderFactory.createEmptyBorder(3, 5, 3, 5));
+		actionPane.setLayout(new BoxLayout(actionPane, BoxLayout.LINE_AXIS));
+		actionPane.setOpaque(false);
 
-		JScrollPane scrollPane = new JScrollPane(textArea);
-		scrollPane.setBorder(BorderFactory.createEmptyBorder(2, 5, 2, 5));
-		scrollPane.setOpaque(false);
-		scrollPane.getViewport().setOpaque(false);
+		acceptButton = new JButton(dict.get("speech.accept"));
+		acceptButton.setBackground(Color.decode("#D1FAE5"));
+
+		rejectButton = new JButton(dict.get("speech.reject"));
+		rejectButton.setBackground(Color.decode("#FEE2E2"));
+		rejectButton.addActionListener(e -> {
+			setRejected();
+		});
+
+		actionPane.add(rejectButton);
+		actionPane.add(Box.createHorizontalStrut(10));
+		actionPane.add(acceptButton);
 
 		add(controlPanel, BorderLayout.NORTH);
-		add(scrollPane, BorderLayout.CENTER);
+		add(actionPane, BorderLayout.CENTER);
+	}
+
+	private void setStatus(String status) {
+		JLabel statusLabel = new JLabel(status);
+		statusLabel.setForeground(Color.BLUE);
+
+		actionPane.removeAll();
+		actionPane.revalidate();
+		actionPane.repaint();
+		actionPane.add(statusLabel);
 	}
 }

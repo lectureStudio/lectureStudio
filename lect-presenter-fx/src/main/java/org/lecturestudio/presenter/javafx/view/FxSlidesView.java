@@ -77,6 +77,8 @@ import org.lecturestudio.presenter.api.view.SlidesView;
 import org.lecturestudio.presenter.javafx.control.EditableThumbnailPanel;
 import org.lecturestudio.stylus.javafx.JavaFxStylusManager;
 import org.lecturestudio.web.api.message.MessengerMessage;
+import org.lecturestudio.web.api.message.SpeechCancelMessage;
+import org.lecturestudio.web.api.message.SpeechRequestMessage;
 
 @FxmlView(name = "main-slides")
 public class FxSlidesView extends VBox implements SlidesView {
@@ -358,6 +360,16 @@ public class FxSlidesView extends VBox implements SlidesView {
 			messageView.setHost(message.getRemoteAddress());
 			messageView.setMessage(message.getMessage().getText());
 		});
+	}
+
+	@Override
+	public void setSpeechRequestMessage(SpeechRequestMessage message, Action acceptAction, Action rejectAction) {
+
+	}
+
+	@Override
+	public void setSpeechCancelMessage(SpeechCancelMessage message) {
+
 	}
 
 	@Override

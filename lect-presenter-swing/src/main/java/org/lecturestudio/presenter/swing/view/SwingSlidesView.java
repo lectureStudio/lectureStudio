@@ -34,6 +34,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Objects;
 
+import javax.inject.Inject;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
@@ -55,6 +56,7 @@ import javax.swing.tree.TreeNode;
 import javax.swing.tree.TreePath;
 
 import org.lecturestudio.core.ExecutableState;
+import org.lecturestudio.core.app.dictionary.Dictionary;
 import org.lecturestudio.core.beans.BooleanProperty;
 import org.lecturestudio.core.controller.RenderController;
 import org.lecturestudio.core.geometry.Matrix;
@@ -77,6 +79,7 @@ import org.lecturestudio.stylus.awt.AwtStylusManager;
 import org.lecturestudio.swing.components.EditableThumbnailPanel;
 import org.lecturestudio.swing.components.MessageView;
 import org.lecturestudio.swing.components.SlideView;
+import org.lecturestudio.swing.components.SpeechRequestView;
 import org.lecturestudio.swing.components.ThumbPanel;
 import org.lecturestudio.swing.components.VerticalTab;
 import org.lecturestudio.swing.converter.KeyEventConverter;
@@ -85,10 +88,14 @@ import org.lecturestudio.swing.util.SwingUtils;
 import org.lecturestudio.swing.view.SwingView;
 import org.lecturestudio.swing.view.ViewPostConstruct;
 import org.lecturestudio.web.api.message.MessengerMessage;
+import org.lecturestudio.web.api.message.SpeechCancelMessage;
+import org.lecturestudio.web.api.message.SpeechRequestMessage;
 import org.scilab.forge.jlatexmath.ParseException;
 
 @SwingView(name = "main-slides")
 public class SwingSlidesView extends JPanel implements SlidesView {
+
+	private final Dictionary dict;
 
 	private ConsumerAction<org.lecturestudio.core.input.KeyEvent> keyAction;
 
@@ -135,8 +142,11 @@ public class SwingSlidesView extends JPanel implements SlidesView {
 	private int bottomTabIndex;
 
 
-	SwingSlidesView() {
+	@Inject
+	SwingSlidesView(Dictionary dictionary) {
 		super();
+
+		this.dict = dictionary;
 	}
 
 	@Override
@@ -355,12 +365,42 @@ public class SwingSlidesView extends JPanel implements SlidesView {
 			messageView.setUserName(String.format("%s %s", message.getFirstName(), message.getFamilyName()));
 			messageView.setDate(message.getDate());
 			messageView.setMessage(message.getMessage().getText());
-			messageView.setPreferredSize(new Dimension(messageView.getPreferredSize().width, messageView.getPreferredSize().height));
-			messageView.setMaximumSize(new Dimension(messageView.getMaximumSize().width, messageView.getPreferredSize().height));
-			messageView.setMinimumSize(new Dimension(200, messageView.getPreferredSize().height));
+			messageView.pack();
 
 			messageViewContainer.add(messageView);
 			messageViewContainer.revalidate();
+		});
+	}
+
+	@Override
+	public void setSpeechRequestMessage(SpeechRequestMessage message, Action acceptAction, Action rejectAction) {
+		SwingUtils.invoke(() -> {
+			SpeechRequestView requestView = new SpeechRequestView(this.dict);
+			requestView.setRequestId(message.getRequestId());
+			requestView.setUserName(String.format("%s %s", message.getFirstName(), message.getFamilyName()));
+			requestView.setDate(message.getDate());
+			requestView.setOnAccept(acceptAction);
+			requestView.setOnReject(rejectAction);
+			requestView.pack();
+
+			messageViewContainer.add(requestView);
+			messageViewContainer.revalidate();
+		});
+	}
+
+	@Override
+	public void setSpeechCancelMessage(SpeechCancelMessage message) {
+		SwingUtils.invoke(() -> {
+			for (Component c : messageViewContainer.getComponents()) {
+				if (c instanceof SpeechRequestView) {
+					SpeechRequestView view = (SpeechRequestView) c;
+
+					if (view.getRequestId() == message.getRequestId()) {
+						view.setCanceled();
+						break;
+					}
+				}
+			}
 		});
 	}
 

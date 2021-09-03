@@ -18,20 +18,12 @@
 
 package org.lecturestudio.web.api.message;
 
-import static java.util.Objects.requireNonNullElse;
-
 import java.time.ZonedDateTime;
 import java.util.Objects;
 
 import org.lecturestudio.web.api.model.Message;
 
 public class MessengerMessage extends WebMessage {
-
-	private String firstName;
-
-	private String familyName;
-
-	private ZonedDateTime date;
 
 	private Message message;
 
@@ -44,36 +36,6 @@ public class MessengerMessage extends WebMessage {
 		setMessage(message);
 		setRemoteAddress(remoteAddress);
 		setDate(date);
-	}
-
-	public String getFirstName() {
-		return requireNonNullElse(firstName, "");
-	}
-
-	public void setFirstName(String firstName) {
-		this.firstName = firstName;
-	}
-
-	public String getFamilyName() {
-		return requireNonNullElse(familyName, "");
-	}
-
-	public void setFamilyName(String familyName) {
-		this.familyName = familyName;
-	}
-
-	/**
-	 * @return the date
-	 */
-	public ZonedDateTime getDate() {
-		return date;
-	}
-
-	/**
-	 * @param date the Date to set
-	 */
-	public void setDate(ZonedDateTime date) {
-		this.date = date;
 	}
 
 	/**
@@ -101,12 +63,12 @@ public class MessengerMessage extends WebMessage {
 
 		MessengerMessage other = (MessengerMessage) o;
 
-		return Objects.equals(date, other.date) && Objects.equals(message, other.message);
+		return Objects.equals(message, other.message);
 	}
 
 	@Override
 	public int hashCode() {
-		return Objects.hash(date, message);
+		return Objects.hash(message);
 	}
 
 	@Override

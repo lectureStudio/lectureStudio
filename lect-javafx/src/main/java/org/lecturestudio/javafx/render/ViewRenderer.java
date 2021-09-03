@@ -110,6 +110,11 @@ public class ViewRenderer {
 		renderForeground();
 	}
 
+	public synchronized void renderFrame(BufferedImage frame, Dimension size) {
+		updateBackImage(frame, size);
+		renderForeground();
+	}
+
 	public synchronized void renderForeground() {
 		if (page == null || parameter == null || currentImage == null)
 			return;
@@ -250,6 +255,23 @@ public class ViewRenderer {
 		}
 
 		renderController.renderPage(backImage, page, viewType);
+
+		setBackImage(backImage);
+	}
+
+	public synchronized void updateBackImage(BufferedImage frame, Dimension size) {
+		if (size == null) {
+			size = new Dimension(frame.getWidth(), frame.getHeight());
+		}
+		adjustImageRect(size);
+
+		backImage = createBackImage(backImage, size);
+		Graphics2D g2d = backImage.createGraphics();
+
+		g2d.setBackground(Color.white);
+		g2d.clearRect(0, 0, size.width, size.height);
+		g2d.drawImage(frame, 0, 0, null);
+		g2d.dispose();
 
 		setBackImage(backImage);
 	}

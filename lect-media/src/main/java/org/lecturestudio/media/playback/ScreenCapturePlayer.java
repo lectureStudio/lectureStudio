@@ -32,7 +32,8 @@ import java.awt.image.BufferedImage;
 
 public class ScreenCapturePlayer extends ExecutableBase {
 
-    private final static int UPDATE_INTERVAL_IN_MS = 1;
+    // Allow for up to 60 fps
+    private final static int UPDATE_INTERVAL_IN_MS = 16;
 
     private final SyncState syncState;
 
@@ -64,7 +65,7 @@ public class ScreenCapturePlayer extends ExecutableBase {
 
         if (sequence != null) {
             // Try to find frame if sequence is active
-            if (seekTime < sequence.getEndTime()) {
+            if (sequence.containsTime(seekTime)) {
                 BufferedImage frame = sequence.seekFrame(seekTime);
                 if (frame != null) {
                     ApplicationBus.post(new ScreenCaptureFrameEvent(frame));
@@ -109,13 +110,10 @@ public class ScreenCapturePlayer extends ExecutableBase {
 
         @Override
         public void run() {
-            ExecutableState state;
-
             long elapsedTime;
             long lastUpdate = 0;
 
             while (true) {
-                state = getState();
                 elapsedTime = getElapsedTime();
 
                 // Restrict loop to update interval to reduce CPU usage
@@ -123,7 +121,7 @@ public class ScreenCapturePlayer extends ExecutableBase {
                     continue;
                 }
 
-                if (state == ExecutableState.Started) {
+                if (started()) {
                     // Seek sequence if not currently set
                     if (sequence == null) {
                         sequence = data.seekSequence(elapsedTime);
@@ -140,7 +138,7 @@ public class ScreenCapturePlayer extends ExecutableBase {
                         sequence = null;
                     }
                 }
-                else if (state == ExecutableState.Suspended) {
+                else if (suspended()) {
                     synchronized (thread) {
                         try {
                             thread.wait();
@@ -148,7 +146,7 @@ public class ScreenCapturePlayer extends ExecutableBase {
                         catch (Exception ignored) {}
                     }
                 }
-                else if (state == ExecutableState.Stopped) {
+                else if (stopped()) {
                     return;
                 }
 

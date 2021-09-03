@@ -18,18 +18,7 @@
 
 package org.lecturestudio.editor.api.video;
 
-import static java.util.Objects.nonNull;
-
 import com.google.common.eventbus.Subscribe;
-
-import java.awt.image.BufferedImage;
-import java.util.Collections;
-import java.util.List;
-import java.util.Stack;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.CompletionException;
-import java.util.function.BiConsumer;
-
 import org.lecturestudio.core.ExecutableException;
 import org.lecturestudio.core.ExecutableState;
 import org.lecturestudio.core.bus.EventBus;
@@ -41,7 +30,20 @@ import org.lecturestudio.core.recording.EventExecutor;
 import org.lecturestudio.core.recording.RecordedPage;
 import org.lecturestudio.core.recording.action.NextPageAction;
 import org.lecturestudio.core.recording.action.PlaybackAction;
+import org.lecturestudio.core.screencapture.ScreenCaptureData;
+import org.lecturestudio.core.screencapture.ScreenCaptureSequence;
 import org.lecturestudio.editor.api.recording.RecordingRenderProgressEvent;
+import org.lecturestudio.media.event.ScreenCaptureFrameEvent;
+
+import java.awt.image.BufferedImage;
+import java.util.Collections;
+import java.util.List;
+import java.util.Stack;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.CompletionException;
+import java.util.function.BiConsumer;
+
+import static java.util.Objects.nonNull;
 
 public class VideoEventExecutor extends EventExecutor {
 
@@ -56,6 +58,8 @@ public class VideoEventExecutor extends EventExecutor {
 	private Document document;
 
 	private List<RecordedPage> recordedPages;
+
+	private ScreenCaptureData screenCaptureData;
 
 	private RecordingRenderProgressEvent progressEvent;
 
@@ -83,6 +87,10 @@ public class VideoEventExecutor extends EventExecutor {
 		this.recordedPages = pageList;
 	}
 
+	public void setScreenCaptureData(ScreenCaptureData screenCaptureData) {
+		this.screenCaptureData = screenCaptureData;
+	}
+
 	public void setDocument(Document document) {
 		this.document = document;
 	}
@@ -102,6 +110,11 @@ public class VideoEventExecutor extends EventExecutor {
 	@Subscribe
 	public void onEvent(final PageEvent event) {
 		renderView.setPage(event.getPage());
+	}
+
+	@Subscribe
+	public void onEvent(final ScreenCaptureFrameEvent event) {
+		renderView.setScreenCaptureFrame(event.getFrame());
 	}
 
 	@Override
@@ -177,6 +190,8 @@ public class VideoEventExecutor extends EventExecutor {
 		toolController.destroy();
 	}
 
+	private boolean wasScreenCapture = false;
+
 	@Override
 	protected void executeEvents() throws Exception {
 		int timeStep = (int) (1000 / frameRate);
@@ -186,6 +201,33 @@ public class VideoEventExecutor extends EventExecutor {
 
 			if (state == ExecutableState.Starting || state == ExecutableState.Started) {
 				long time = getElapsedTime();
+
+				// TODO: Add events for screen capture frames
+
+				ScreenCaptureSequence sequence = screenCaptureData.seekSequence(time);
+				if (sequence != null) {
+					BufferedImage frame = sequence.seekFrame(time);
+					if (frame != null) {
+						System.out.println("Frame to export found for time: " + time);
+
+						renderView.setScreenCaptureFrame(frame);
+						renderFrame(time);
+
+						this.time += timeStep;
+
+						// Relieve the CPU.
+						Thread.sleep(1);
+
+						wasScreenCapture = true;
+
+						continue;
+					}
+				}
+
+				if (wasScreenCapture) {
+					renderView.setScreenCaptureFrame(null);
+					wasScreenCapture = false;
+				}
 
 				synchronized (playbacks) {
 					// Execute all events for the current time period.

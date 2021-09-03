@@ -22,37 +22,62 @@ import org.lecturestudio.core.bus.ApplicationBus;
 import org.lecturestudio.core.bus.event.ScreenCaptureDataEvent;
 import org.lecturestudio.core.screencapture.RandomAccessScreenCaptureStream;
 import org.lecturestudio.core.screencapture.ScreenCaptureData;
-import org.lecturestudio.core.screencapture.ScreenCaptureDataParser;
+import org.lecturestudio.core.screencapture.ScreenCaptureFileReader;
+import org.lecturestudio.core.screencapture.ScreenCaptureSequence;
 
+import java.awt.image.BufferedImage;
 import java.io.IOException;
+import java.util.concurrent.CompletableFuture;
 
 public class RecordedScreenCapture extends RecordedObjectBase {
 
-    private RandomAccessScreenCaptureStream screenCaptureStream;
+    private final RandomAccessScreenCaptureStream stream;
+
     private ScreenCaptureData screenCaptureData;
 
-    public RecordedScreenCapture(RandomAccessScreenCaptureStream screenCaptureStream) {
-        this.screenCaptureStream = screenCaptureStream;
-    }
-
-    public void setScreenCaptureStream(RandomAccessScreenCaptureStream stream) throws IOException {
-        if (this.screenCaptureStream != null) {
-            this.screenCaptureStream.close();
-        }
-
-        this.screenCaptureStream = stream;
+    public RecordedScreenCapture(RandomAccessScreenCaptureStream stream) {
+        this.stream = stream;
+        // parseStreamAsync(null);
     }
 
     public RandomAccessScreenCaptureStream getScreenCaptureStream() {
-        return screenCaptureStream;
+        return stream;
     }
 
-    public void parseStream(ScreenCaptureDataParser.ProgressCallback callback) throws IOException {
-        if (screenCaptureStream != null && screenCaptureStream.available() > 0) {
-            // TODO: Perform parsing in async thread
-            screenCaptureData = ScreenCaptureDataParser.parseStream(screenCaptureStream, callback);
-            ApplicationBus.post(new ScreenCaptureDataEvent(screenCaptureData));
-        }
+    public void parseStreamAsync(ScreenCaptureFileReader.ProgressCallback callback) {
+        CompletableFuture.runAsync(() -> {
+            try {
+                ScreenCaptureFileReader.parseStream(stream, new ScreenCaptureFileReader.ProgressCallback() {
+                    @Override
+                    public void onScreenCaptureData(ScreenCaptureData data) {
+                        screenCaptureData = data;
+                        ApplicationBus.post(new ScreenCaptureDataEvent(data));
+
+                        if (callback != null)
+                            callback.onScreenCaptureData(data);
+                    }
+
+                    @Override
+                    public void onFrame(BufferedImage frame, long frameTime, long sequenceKey) {
+                        ScreenCaptureSequence sequence = screenCaptureData.getSequences().get(sequenceKey);
+                        sequence.addFrame(frame, frameTime);
+
+                        if (callback != null)
+                            callback.onFrame(frame, frameTime, sequenceKey);
+                    }
+
+                    @Override
+                    public void onFrameProgress(float progress) {
+                        System.out.println("Frame Progress: " + progress);
+
+                        if (callback != null)
+                            callback.onFrameProgress(progress);
+                    }
+                });
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        });
     }
 
     public ScreenCaptureData getScreenCaptureData() {

@@ -86,6 +86,7 @@ public class RecordingBackup {
 		File documentFile = new File(backupDir + File.separator + checkpointName + ".pdf");
 		File eventsFile = new File(backupDir + File.separator + checkpointName + ".dat");
 		File screenCaptureFile = new File(backupDir + File.separator + checkpointName + ".capture");
+		File screenCaptureFramesFile = new File(backupDir + File.separator + checkpointName + ".frames");
 
 		// Read WAV header.
 		InputStream audioFileStream = new RandomAccessStream(audioFile);
@@ -107,7 +108,7 @@ public class RecordingBackup {
 		RandomAccessAudioStream audioStream = new RandomAccessAudioStream(audioFile);
 		audioStream.reset();
 
-		RandomAccessScreenCaptureStream screenCaptureStream = new RandomAccessScreenCaptureStream(screenCaptureFile);
+		RandomAccessScreenCaptureStream screenCaptureStream = new RandomAccessScreenCaptureStream(screenCaptureFile, screenCaptureFramesFile);
 		screenCaptureStream.reset();
 
 		RecordingHeader fileHeader = new RecordingHeader();
@@ -212,7 +213,7 @@ public class RecordingBackup {
 		Path dir = Paths.get(backupDir);
 		
 		// Read the recording directory by filtering the required extensions.
-		try (DirectoryStream<Path> stream = Files.newDirectoryStream(dir, "*.{capture,dat,pdf,wav}")) {
+		try (DirectoryStream<Path> stream = Files.newDirectoryStream(dir, "*.{capture,frames,dat,pdf,wav}")) {
 			for (Path entry : stream) {
 				Files.deleteIfExists(entry);
 			}
@@ -228,6 +229,10 @@ public class RecordingBackup {
 
 	public String getScreenCaptureFile() {
 		return sessionPathPrefix + ".capture";
+	}
+
+	public String getScreenCaptureFramesFile() {
+		return sessionPathPrefix + ".frames";
 	}
 
 	private void initBackupDir(File dir) throws IOException {

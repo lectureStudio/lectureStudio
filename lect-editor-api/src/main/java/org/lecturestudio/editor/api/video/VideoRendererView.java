@@ -38,7 +38,6 @@ import java.awt.geom.AffineTransform;
 import java.awt.image.BufferedImage;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-import static java.util.Objects.isNull;
 import static java.util.Objects.nonNull;
 
 /**
@@ -68,6 +67,7 @@ public class VideoRendererView implements SlideView, ShapeListener, ParameterCha
 
 	private Page page;
 
+	private BufferedImage screenCaptureFrame;
 
 	public VideoRendererView(ApplicationContext context, Dimension2D pictureSize) {
 		width = (int) pictureSize.getWidth();
@@ -126,6 +126,11 @@ public class VideoRendererView implements SlideView, ShapeListener, ParameterCha
 		}
 	}
 
+	public void setScreenCaptureFrame(BufferedImage frame) {
+		screenCaptureFrame = frame;
+		updateBackImage();
+	}
+
 	@Override
 	public Page forPage() {
 		return page;
@@ -164,17 +169,24 @@ public class VideoRendererView implements SlideView, ShapeListener, ParameterCha
 
 		SwingGraphicsContext gc = new SwingGraphicsContext(g);
 
-		renderController.renderShapes(gc, viewType, size, page, page.getShapes());
+		if (screenCaptureFrame == null) {
+			renderController.renderShapes(gc, viewType, size, page, page.getShapes());
+		}
 	}
 
 	private void updateBackImage() {
-		if (isNull(page)) {
-			return;
+		if (screenCaptureFrame != null) {
+			updatePageTransform();
+
+			Graphics2D g2d = backImage.createGraphics();
+			g2d.drawImage(screenCaptureFrame, 0, 0, null);
+			g2d.scale(width / (double) screenCaptureFrame.getWidth(), height / (double) screenCaptureFrame.getHeight());
+			g2d.dispose();
 		}
-
-		updatePageTransform();
-
-		renderController.renderPage(backImage, page, viewType);
+		else if (page != null) {
+			updatePageTransform();
+			renderController.renderPage(backImage, page, viewType);
+		}
 
 		setPageChanged();
 		repaintView();

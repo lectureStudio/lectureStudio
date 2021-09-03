@@ -41,7 +41,6 @@ import org.lecturestudio.media.track.ScreenCaptureTrack;
 import org.lecturestudio.media.track.control.AdjustAudioVolumeControl;
 
 import javax.inject.Inject;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
@@ -141,37 +140,22 @@ public class MediaTracksPresenter extends Presenter<MediaTracksView> {
 				EventsTrack eventsTrack = new EventsTrack();
 				eventsTrack.setData(recording.getRecordedEvents().getRecordedPages());
 
-				mediaTracks.add(audioTrack);
-				mediaTracks.add(eventsTrack);
-
-				mediaTracks.forEach(recording::addRecordingChangeListener);
-
-				view.setMediaTracks(mediaTracks.toArray(new MediaTrack[0]));
-				// view.setMediaTracks(screenCaptureTrack, eventsTrack, audioTrack);
-			})
-			.exceptionally(throwable -> {
-				handleException(throwable, "Create waveform failed", "open.recording.error");
-				return null;
-			});
-
-			// Parse Screen Capture Stream async
-			CompletableFuture.runAsync(() -> {
-				try {
-					recording.getRecordedScreenCapture().parseStream(progress
-							-> System.out.println("Parsing Progress: " + progress)
-					);
-				} catch (IOException e) {
-					e.printStackTrace();
-				}
+				recording.getRecordedScreenCapture().parseStreamAsync(null);
 
 				ScreenCaptureTrack screenCaptureTrack = new ScreenCaptureTrack();
 				screenCaptureTrack.setData(recording.getRecordedScreenCapture().getScreenCaptureData());
 
-				// Add screen capture track as first track
-				mediaTracks.add(0, screenCaptureTrack);
+				mediaTracks.add(screenCaptureTrack);
+				mediaTracks.add(eventsTrack);
+				mediaTracks.add(audioTrack);
 
-				recording.addRecordingChangeListener(screenCaptureTrack);
+				mediaTracks.forEach(recording::addRecordingChangeListener);
+
 				view.setMediaTracks(mediaTracks.toArray(new MediaTrack[0]));
+			})
+			.exceptionally(throwable -> {
+				handleException(throwable, "Create waveform failed", "open.recording.error");
+				return null;
 			});
 		}
 		else if (event.closed()) {

@@ -18,18 +18,6 @@
 
 package org.lecturestudio.editor.api.video;
 
-import static java.util.Objects.nonNull;
-
-import java.awt.image.BufferedImage;
-import java.io.File;
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Paths;
-import java.security.SecureRandom;
-import java.util.Iterator;
-import java.util.List;
-import java.util.function.Consumer;
-
 import org.lecturestudio.core.ExecutableException;
 import org.lecturestudio.core.ExecutableState;
 import org.lecturestudio.core.app.ApplicationContext;
@@ -52,6 +40,18 @@ import org.lecturestudio.media.config.AudioRenderConfiguration;
 import org.lecturestudio.media.config.RenderConfiguration;
 import org.lecturestudio.media.config.VideoRenderConfiguration;
 import org.lecturestudio.swing.DefaultRenderContext;
+
+import java.awt.image.BufferedImage;
+import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.security.SecureRandom;
+import java.util.Iterator;
+import java.util.List;
+import java.util.function.Consumer;
+
+import static java.util.Objects.nonNull;
 
 public class VideoRenderer extends RecordingExport {
 
@@ -206,6 +206,7 @@ public class VideoRenderer extends RecordingExport {
 		eventExecutor = new VideoEventExecutor(renderView, toolController, renderContext.getEventBus());
 		eventExecutor.setDocument(documentService.getDocuments().getSelectedDocument());
 		eventExecutor.setRecordedPages(recording.getRecordedEvents().getRecordedPages());
+		eventExecutor.setScreenCaptureData(recording.getRecordedScreenCapture().getScreenCaptureData());
 		eventExecutor.setDuration((int) recording.getRecordedAudio().getAudioStream().getLengthInMillis());
 		eventExecutor.setFrameConsumer(this::onVideoFrame);
 		eventExecutor.setFrameRate(videoConfig.getFrameRate());

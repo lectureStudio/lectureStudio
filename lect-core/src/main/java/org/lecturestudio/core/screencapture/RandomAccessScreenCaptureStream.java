@@ -18,27 +18,21 @@
 
 package org.lecturestudio.core.screencapture;
 
-import org.lecturestudio.core.io.DynamicInputStream;
-import org.lecturestudio.core.io.RandomAccessStream;
+import java.io.*;
 
-import java.awt.image.BufferedImage;
-import java.io.File;
-import java.io.IOException;
-
-public class RandomAccessScreenCaptureStream extends DynamicInputStream {
-
-    private final DynamicInputStream inputStream;
+public class RandomAccessScreenCaptureStream extends BufferedInputStream {
 
     private ScreenCaptureFormat screenCaptureFormat;
+    private final long length;
 
-    public RandomAccessScreenCaptureStream(File file) throws IOException {
-        this(new RandomAccessStream(file));
+    public RandomAccessScreenCaptureStream(File detailsFile, File framesFile) throws FileNotFoundException {
+        super(new SequenceInputStream(new FileInputStream(detailsFile), new FileInputStream(framesFile)));
+        length = detailsFile.length() + framesFile.length();
     }
 
-    public RandomAccessScreenCaptureStream(DynamicInputStream inputStream) {
-        super(inputStream);
-
-        this.inputStream = inputStream;
+    public RandomAccessScreenCaptureStream(InputStream stream, long length) {
+        super(stream);
+        this.length = length;
     }
 
     public ScreenCaptureFormat getScreenCaptureFormat() {
@@ -49,21 +43,7 @@ public class RandomAccessScreenCaptureStream extends DynamicInputStream {
         this.screenCaptureFormat = screenCaptureFormat;
     }
 
-    public void writeFrame(BufferedImage frame, int channelId) {
-        // TODO: Finish implementing Screen Capture Access Stream
-    }
-
-    @Override
-    public RandomAccessScreenCaptureStream clone() {
-        RandomAccessScreenCaptureStream clone;
-
-        try {
-            clone = new RandomAccessScreenCaptureStream(inputStream.clone());
-        }
-        catch (Exception e) {
-            throw new RuntimeException(e);
-        }
-
-        return clone;
+    public long getLength() {
+        return length;
     }
 }

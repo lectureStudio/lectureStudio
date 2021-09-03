@@ -40,8 +40,6 @@ import org.lecturestudio.core.model.Time;
 import org.lecturestudio.core.recording.*;
 import org.lecturestudio.core.recording.action.PlaybackAction;
 import org.lecturestudio.core.recording.action.StaticShapeAction;
-import org.lecturestudio.core.screencapture.ScreenCaptureData;
-import org.lecturestudio.core.screencapture.ScreenCaptureSequence;
 import org.lecturestudio.core.view.PresentationParameter;
 import org.lecturestudio.core.view.PresentationParameterProvider;
 import org.lecturestudio.core.view.ViewType;
@@ -119,14 +117,7 @@ public class RecordingPlayer extends ExecutableBase {
 		actionExecutor.init();
 
 		screenCapturePlayer = new ScreenCapturePlayer(syncState);
-
-//		try {
-//			recording.getRecordedScreenCapture().parseStream();
-//			screenCapturePlayer.setData(recording.getRecordedScreenCapture().getScreenCaptureData());
-//		} catch (IOException e) {
-//			e.printStackTrace();
-//		}
-
+		screenCapturePlayer.setData(recording.getRecordedScreenCapture().getScreenCaptureData());
 		screenCapturePlayer.init();
 
 		try {
@@ -285,13 +276,6 @@ public class RecordingPlayer extends ExecutableBase {
 
 		screenCapturePlayer.seek(seekTime);
 
-		// TODO: Seek only at certain intervals to reduce number of posted events + seek operations
-
-//		BufferedImage frame = seekScreenCaptureFrame(seekTime);
-//		if (frame != null) {
-//			ApplicationBus.post(new ScreenCaptureFrameEvent(frame));
-//		}
-
 		previousPage = pageNumber;
 		
 		onAudioPlaybackProgress(new Time(timeMs), duration);
@@ -307,13 +291,13 @@ public class RecordingPlayer extends ExecutableBase {
 	}
 
 	private BufferedImage seekScreenCaptureFrame(long seekTime) {
-		ScreenCaptureData screenCaptureData = recording.getRecordedScreenCapture().getScreenCaptureData();
-		if (screenCaptureData != null) {
-			ScreenCaptureSequence sequence = screenCaptureData.seekSequence(seekTime);
-			if (sequence != null) {
-				return sequence.seekFrame(seekTime);
-			}
-		}
+//		ScreenCaptureData screenCaptureData = recording.getRecordedScreenCapture().getScreenCaptureData();
+//		if (screenCaptureData != null) {
+//			ScreenCaptureSequence sequence = screenCaptureData.seekSequence(seekTime);
+//			if (sequence != null) {
+//				return sequence.seekFrame(seekTime);
+//			}
+//		}
 		return null;
 	}
 

@@ -18,14 +18,8 @@
 
 package org.lecturestudio.editor.api.service;
 
-import static java.util.Objects.nonNull;
-
-import javax.inject.Inject;
-import javax.inject.Singleton;
-
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-
 import org.lecturestudio.core.ExecutableBase;
 import org.lecturestudio.core.ExecutableException;
 import org.lecturestudio.core.ExecutableState;
@@ -39,6 +33,11 @@ import org.lecturestudio.core.model.Time;
 import org.lecturestudio.core.recording.Recording;
 import org.lecturestudio.editor.api.context.EditorContext;
 import org.lecturestudio.media.playback.RecordingPlayer;
+
+import javax.inject.Inject;
+import javax.inject.Singleton;
+
+import static java.util.Objects.nonNull;
 
 @Singleton
 public class RecordingPlaybackService extends ExecutableBase {
@@ -152,6 +151,7 @@ public class RecordingPlaybackService extends ExecutableBase {
 		if (context.isSeeking()) {
 			return;
 		}
+
 		if (nonNull(recordingPlayer)) {
 			context.setSeeking(true);
 			recordingPlayer.seek(time);

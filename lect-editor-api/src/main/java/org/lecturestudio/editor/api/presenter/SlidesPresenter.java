@@ -159,6 +159,7 @@ public class SlidesPresenter extends Presenter<SlidesView> {
 
 	@Subscribe
 	public void onEvent(final ScreenCaptureSequenceEndEvent event) {
+		view.setScreenCaptureFrame(null);
 		System.out.println("End Sequence");
 	}
 

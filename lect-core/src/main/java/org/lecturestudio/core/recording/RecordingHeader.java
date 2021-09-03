@@ -115,6 +115,8 @@ public class RecordingHeader extends RecordedObjectBase {
 		return screenCaptureLength;
 	}
 
+
+
 	public int getHeaderLength() {
 		return CHECKSUM_LENGTH + 32;
 	}

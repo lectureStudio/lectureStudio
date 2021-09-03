@@ -22,6 +22,7 @@ import org.lecturestudio.core.io.DigestRandomAccessFile;
 import org.lecturestudio.core.io.RandomAccessAudioStream;
 import org.lecturestudio.core.recording.Recording;
 import org.lecturestudio.core.recording.RecordingHeader;
+import org.lecturestudio.core.screencapture.RandomAccessScreenCaptureStream;
 import org.lecturestudio.core.util.ProgressCallback;
 
 import java.io.File;
@@ -49,13 +50,17 @@ public final class RecordingFileWriter {
 		byte[] docData = recFile.getRecordedDocument().toByteArray();
 
 		boolean hasScreenCapture = recFile.getRecordedScreenCapture() != null;
-		InputStream screenCaptureStream = hasScreenCapture ? recFile.getRecordedScreenCapture().getScreenCaptureStream() : null;
+		RandomAccessScreenCaptureStream screenCaptureStream = null;
+
+		if (hasScreenCapture) {
+			screenCaptureStream = recFile.getRecordedScreenCapture().getScreenCaptureStream();
+		}
 
 		int headerLength = header.getHeaderLength();
 		int eventsLength = eventData.length;
 		int documentLength = docData.length;
 		int audioLength = (int) audioStream.getLength();
-		int screenCaptureLength = hasScreenCapture ? screenCaptureStream.available() : 0;
+		int screenCaptureLength = hasScreenCapture ? (int) screenCaptureStream.getLength() : 0;
 		int totalSize = headerLength + eventsLength + documentLength + audioLength + screenCaptureLength;
 
 		float written = headerLength;
@@ -81,6 +86,7 @@ public final class RecordingFileWriter {
 		// Write screen capture.
 		if (hasScreenCapture) {
 			written = writeStream(raFile, screenCaptureStream, progressCallback, totalSize, written);
+			// written = writeStream(raFile, screenCaptureFramesStream, progressCallback, totalSize, written);
 		}
 
 		// Update file header.

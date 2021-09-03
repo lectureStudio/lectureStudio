@@ -24,9 +24,8 @@ import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.transform.Affine;
 import org.lecturestudio.core.model.Time;
-import org.lecturestudio.core.screencapture.RandomAccessScreenCaptureStream;
-import org.lecturestudio.core.screencapture.ScreenCaptureSequence;
 import org.lecturestudio.core.screencapture.ScreenCaptureData;
+import org.lecturestudio.core.screencapture.ScreenCaptureSequence;
 import org.lecturestudio.media.track.ScreenCaptureTrack;
 
 import java.util.function.Consumer;
@@ -36,9 +35,7 @@ import static java.util.Objects.nonNull;
 
 public class ScreenCaptureTimelineSkin extends MediaTrackControlSkinBase {
 
-    private final Consumer<RandomAccessScreenCaptureStream> trackListener = stream -> {
-        updateControl();
-    };
+    private final Consumer<ScreenCaptureData> trackListener = stream -> updateControl();
 
     private final ScreenCaptureTimeline screenCaptureTimeline;
     private Canvas canvas;

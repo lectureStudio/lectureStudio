@@ -24,8 +24,8 @@ import dev.onvoid.webrtc.media.video.desktop.*;
 import org.lecturestudio.core.ExecutableState;
 import org.lecturestudio.core.bus.ApplicationBus;
 import org.lecturestudio.core.recording.LectureRecorder;
+import org.lecturestudio.core.screencapture.ScreenCaptureFileWriter;
 import org.lecturestudio.core.screencapture.ScreenCaptureFormat;
-import org.lecturestudio.core.screencapture.ScreenCaptureOutputStream;
 import org.lecturestudio.presenter.api.event.ScreenCaptureRecordingStateEvent;
 
 import java.awt.image.BufferedImage;
@@ -43,11 +43,13 @@ public class ScreenCaptureRecorder extends LectureRecorder {
     private final static Logger LOG = Logger.getLogger(ScreenCaptureRecorder.class.getName());
 
     private final Queue<CaptureEvent> eventQueue;
-    private final File outputFile;
+
+    private final File detailsFile;
+    private final File framesFile;
 
     private DesktopCapturer capturer;
 
-    private ScreenCaptureOutputStream stream;
+    private ScreenCaptureFileWriter writer;
     private ScreenCaptureTask captureTask;
     private ScreenCaptureFormat format;
 
@@ -61,10 +63,19 @@ public class ScreenCaptureRecorder extends LectureRecorder {
 
     private long timeOffset = 0;
 
+    public ScreenCaptureRecorder(File detailsFile, File framesFile) {
+        this.detailsFile = detailsFile;
+        this.framesFile = framesFile;
 
-    public ScreenCaptureRecorder(File outputFile) {
-        this.outputFile = outputFile;
         eventQueue = new ConcurrentLinkedQueue<>();
+    }
+
+    private void initScreenCaptureWriter() {
+        try {
+            writer = new ScreenCaptureFileWriter(detailsFile, framesFile);
+        } catch (IOException e) {
+            throw new RuntimeException("Failed to open screen capture files.");
+        }
     }
 
     @Override
@@ -81,9 +92,11 @@ public class ScreenCaptureRecorder extends LectureRecorder {
         if (state == ExecutableState.Initialized || state == ExecutableState.Stopped) {
             startTime = System.currentTimeMillis();
 
+            // Create new writer
+            initScreenCaptureWriter();
+
             try {
-                stream = new ScreenCaptureOutputStream(outputFile);
-                stream.setScreenCaptureFormat(format);
+                writer.setScreenCaptureFormat(format);
             } catch (IOException e) {
                 e.printStackTrace();
             }
@@ -182,7 +195,7 @@ public class ScreenCaptureRecorder extends LectureRecorder {
 
     private void onScreenCaptureFrame(DesktopCapturer.Result result, DesktopFrame frame) {
         // Add successfully captured frames to queue for further processing
-        if (result == DesktopCapturer.Result.SUCCESS) {
+        if (result == DesktopCapturer.Result.SUCCESS && started()) {
             // Convert frame buffer to int array
             IntBuffer buffer = frame.buffer.asIntBuffer();
             int[] pixelBuffer = new int[buffer.remaining()];
@@ -190,7 +203,14 @@ public class ScreenCaptureRecorder extends LectureRecorder {
 
             // Create buffered image from pixels
             BufferedImage image = PngEncoderBufferedImageConverter.createFromIntArgb(pixelBuffer, frame.frameSize.width, frame.frameSize.height);
-            FrameCaptureEvent event = new FrameCaptureEvent(image, getElapsedTime() + timeOffset);
+
+            long elapsedTime = getElapsedTime();
+            // Prevent frames with wrong timestamp at end of recording
+            if (elapsedTime == 0) {
+                return;
+            }
+
+            FrameCaptureEvent event = new FrameCaptureEvent(image, elapsedTime + timeOffset);
 
             // Add buffered image to queue
             if (!eventQueue.offer(event)) {
@@ -227,7 +247,7 @@ public class ScreenCaptureRecorder extends LectureRecorder {
         }
     }
 
-    private class CaptureEvent {
+    private static class CaptureEvent {
 
         private final long timestamp;
 
@@ -240,7 +260,7 @@ public class ScreenCaptureRecorder extends LectureRecorder {
         }
     }
 
-    private class SourceSwitchEvent extends CaptureEvent {
+    private static class SourceSwitchEvent extends CaptureEvent {
 
         private final DesktopSource source;
         private final DesktopSourceType type;
@@ -260,7 +280,7 @@ public class ScreenCaptureRecorder extends LectureRecorder {
         }
     }
 
-    private class FrameCaptureEvent extends CaptureEvent {
+    private static class FrameCaptureEvent extends CaptureEvent {
 
         private final BufferedImage frame;
 
@@ -302,7 +322,7 @@ public class ScreenCaptureRecorder extends LectureRecorder {
 
             if (closeStream) {
                 try {
-                    stream.close();
+                    writer.close();
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
@@ -320,8 +340,8 @@ public class ScreenCaptureRecorder extends LectureRecorder {
             // Compress frame and convert it to bytes array
             byte[] compressedImage = new PngEncoder().withBufferedImage(frame).toBytes();
             try {
-                int bytesWritten = stream.writeFrameBytes(compressedImage, timestamp);
-                System.out.println("Frame " + frameCounter + ": Bytes Processed: " + bytesWritten + " Total: " + stream.getTotalBytesWritten());
+                int bytesWritten = writer.writeFrameBytes(compressedImage, timestamp);
+                System.out.println("Frame " + frameCounter + ": Bytes Processed: " + bytesWritten + " Total: " + writer.getTotalBytesWritten() + " Timestamp: " + timestamp);
                 frameCounter++;
             } catch (IOException e) {
                 System.err.println("Failed to write frame to screen capture stream.");
@@ -331,7 +351,7 @@ public class ScreenCaptureRecorder extends LectureRecorder {
 
         private void processSourceSwitch(DesktopSource source) {
             try {
-                stream.setDesktopSource(source);
+                writer.setDesktopSource(source);
                 System.out.println("Screen Capture Switch Source To: " + source.title);
             } catch (IOException e) {
                 e.printStackTrace();

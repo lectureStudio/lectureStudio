@@ -58,8 +58,28 @@ public class ScreenCaptureSequence {
         return startTime;
     }
 
+    public void setStartTime(long startTime) {
+        this.startTime = startTime;
+    }
+
+    public boolean hasStartTime() {
+        return startTime < Long.MAX_VALUE;
+    }
+
     public long getEndTime() {
         return endTime;
+    }
+
+    public void setEndTime(long endTime) {
+        this.endTime = endTime;
+    }
+
+    public boolean hasEndTime() {
+        return endTime > Long.MIN_VALUE;
+    }
+
+    public boolean containsTime(long time) {
+        return time >= startTime && time <= endTime;
     }
 
     private void updateTimestamps(long frameTime) {

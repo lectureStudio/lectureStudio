@@ -18,32 +18,57 @@
 
 package org.lecturestudio.media.track;
 
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import org.lecturestudio.core.recording.RecordingChangeEvent;
-import org.lecturestudio.core.screencapture.RandomAccessScreenCaptureStream;
 import org.lecturestudio.core.screencapture.ScreenCaptureData;
 
-import java.io.IOException;
-
-public class ScreenCaptureTrack extends MediaTrackBase<RandomAccessScreenCaptureStream> {
-
-    private static final Logger LOG = LogManager.getLogger(AudioTrack.class);
+public class ScreenCaptureTrack extends MediaTrackBase<ScreenCaptureData> {
 
     private ScreenCaptureData screenCaptureData;
 
-    public void setData(ScreenCaptureData screenCaptureData) {
-        this.screenCaptureData = screenCaptureData;
+    @Override
+    public void setData(ScreenCaptureData data) {
+        screenCaptureData = data;
+
+//        // Parse screen capture stream asynchronously
+//        CompletableFuture.runAsync(() -> {
+//            try {
+//                ScreenCaptureFileReader.parseStream(data, new ScreenCaptureFileReader.ProgressCallback() {
+//                    @Override
+//                    public void onScreenCaptureData(ScreenCaptureData data) {
+//                        screenCaptureData = data;
+//                        ApplicationBus.post(new ScreenCaptureDataEvent(data));
+//                    }
+//
+//                    @Override
+//                    public void onFrame(BufferedImage frame, long frameTime, long sequenceKey) {
+//                        ScreenCaptureSequence sequence = screenCaptureData.getSequences().get(sequenceKey);
+//                        sequence.addFrame(frame, frameTime);
+//                    }
+//
+//                    @Override
+//                    public void onFrameProgress(float progress) {
+//                        // TODO: Display progress indicator in editor
+//
+//                    }
+//                });
+//            } catch (IOException e) {
+//                e.printStackTrace();
+//            }
+//        });
     }
+
+//    public void setData(ScreenCaptureData screenCaptureData) {
+//        this.screenCaptureData = screenCaptureData;
+//    }
 
     @Override
     public void dispose() {
-        try {
-            getData().close();
-        } catch (IOException e) {
-            LOG.error("Failed to close screen capture stream.", e);
-        }
-        super.dispose();
+//        try {
+//            getData().close();
+//        } catch (IOException e) {
+//            LOG.error("Failed to close screen capture stream.", e);
+//        }
+//        super.dispose();
     }
 
     @Override

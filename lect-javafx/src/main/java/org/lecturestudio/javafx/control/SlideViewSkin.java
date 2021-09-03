@@ -103,6 +103,7 @@ public class SlideViewSkin extends SkinBase<SlideView> {
 	private WritableImage fxBufferImage;
 
 	private BufferedImage slideImage;
+	private BufferedImage screenCaptureImage;
 
 	private ViewRenderer renderer;
 
@@ -178,6 +179,7 @@ public class SlideViewSkin extends SkinBase<SlideView> {
 	}
 
 	public void renderScreenCaptureFrame(BufferedImage frame) {
+		screenCaptureImage = frame;
 		renderThread.onTask(new FrameRenderTask(frame));
 	}
 
@@ -309,17 +311,21 @@ public class SlideViewSkin extends SkinBase<SlideView> {
 		renderer.adjustImageRect(new Dimension(imageWidth, imageHeight));
 
 		if (isNull(fxBufferImage) || imageWidth != fxBufferImage.getWidth() || imageHeight != fxBufferImage.getHeight()) {
-			slideImage = createImage(slideImage, imageWidth, imageHeight);
+			if (screenCaptureImage != null) {
+				renderScreenCaptureFrame(screenCaptureImage);
+			}
+			else {
+				slideImage = createImage(slideImage, imageWidth, imageHeight);
+				int[] viewBuffer = ((DataBufferInt) slideImage.getRaster().getDataBuffer()).getData();
 
-			int[] viewBuffer = ((DataBufferInt) slideImage.getRaster().getDataBuffer()).getData();
+				IntBuffer byteBuffer = IntBuffer.wrap(viewBuffer);
+				PixelFormat<IntBuffer> pixelFormat = PixelFormat.getIntArgbPreInstance();
 
-			IntBuffer byteBuffer = IntBuffer.wrap(viewBuffer);
-			PixelFormat<IntBuffer> pixelFormat = PixelFormat.getIntArgbPreInstance();
+				pixelBuffer = new PixelBuffer<>(imageWidth, imageHeight, byteBuffer, pixelFormat);
+				fxBufferImage = new WritableImage(pixelBuffer);
 
-			pixelBuffer = new PixelBuffer<>(imageWidth, imageHeight, byteBuffer, pixelFormat);
-			fxBufferImage = new WritableImage(pixelBuffer);
-
-            imageView.setImage(fxBufferImage);
+				imageView.setImage(fxBufferImage);
+			}
 		}
 	}
 
@@ -568,36 +574,111 @@ public class SlideViewSkin extends SkinBase<SlideView> {
 
 		@Override
 		public void render() throws Exception {
- 			imageView.setImage(toFXImage(frame));
+//			Image image = imageView.getImage();
+//
+//			if (image instanceof WritableImage) {
+//				WritableImage writableImage = (WritableImage) image;
+//				PixelWriter pw = writableImage.getPixelWriter();
+//
+//
+//			}
+
+			screenCaptureImage = frame;
+
+			if (frame == null) {
+				// Use default renderer
+				imageView.setImage(fxBufferImage);
+
+				// updateBuffer(null, renderer.getImage());
+			} else {
+
+//				Dimension size = new Dimension((int) viewSize.getWidth(), (int) viewSize.getHeight());
+//				renderer.renderFrame(frame, size);
+//				updateBuffer(null, renderer.getImage());
+
+//				BufferedImage converted = new BufferedImage(frame.getWidth(), frame.getHeight(), BufferedImage.TYPE_INT_ARGB);
+//				converted.getGraphics().drawImage(frame, 0, 0, null);
+//
+//				// Rectangle clip = new Rectangle(0, 0, frame.getWidth(), frame.getHeight());
+//				updateBuffer(null, converted);
+
+				// updateBuffer(null, convertImageType(frame));
+
+				// Use frame image
+				imageView.setImage(toFXImage(frame));
+
+//				int[] pixels = new int[frame.getWidth() * frame.getHeight()];
+//				frame.getRaster().getPixels(0, 0, frame.getWidth(), frame.getHeight(), pixels);
+//
+////				int pixel = (255 << 24) | (255 << 16) | (0 << 8) | 0 ;
+////				Arrays.fill(pixels, pixel);
+//
+//				frame.getRaster().setPixels(0, 0, frame.getWidth(), frame.getHeight(), pixels);
+//
+//				updateBuffer(null, frame);
+
+//				Image image = imageView.getImage();
+//				int width = (int) image.getWidth();
+//				int height = (int) image.getHeight();
+//
+//				WritableImage img = new WritableImage(width, height);
+//				PixelWriter pw = img.getPixelWriter();
+//
+//				int alpha = 255 ;
+//				int r = 255 ;
+//				int g = 0 ;
+//				int b = 0 ;
+//
+//				int pixel = (alpha << 24) | (r << 16) | (g << 8) | b ;
+//				int[] pixels = new int[width * height];
+//				Arrays.fill(pixels, pixel);
+//
+//				pw.setPixels(0, 0, width, height, PixelFormat.getIntArgbInstance(), pixels, 0, width);
+//				imageView.setImage(img);
+			}
 
 //			renderer.renderForeground();
 //			updateBuffer(null, frame);
 		}
 
-		public WritableImage toFXImage(BufferedImage frame) {
-			int bw = frame.getWidth();
-			int bh = frame.getHeight();
-
+		private BufferedImage convertImageType(BufferedImage frame) {
+			BufferedImage converted = frame;
 			switch (frame.getType()) {
 				case BufferedImage.TYPE_INT_ARGB:
 				case BufferedImage.TYPE_INT_ARGB_PRE:
 					break;
 				default:
 					WritableRaster raster = colorModel.createCompatibleWritableRaster(frame.getWidth(), frame.getHeight());
-					BufferedImage converted = new BufferedImage(colorModel, raster, false, null);
+					converted = new BufferedImage(colorModel, raster, false, null);
 					Graphics2D g2d = converted.createGraphics();
 					g2d.drawImage(frame, 0, 0, null);
 					g2d.dispose();
-					frame = converted;
 					break;
 			}
+			return converted;
+		}
+
+		public WritableImage toFXImage(BufferedImage frame) {
+			if (frame == null) {
+				return null;
+			}
+
+
+
+//			frame = convertImageType(frame);
 
 			WritableImage image = new WritableImage(frame.getWidth(), frame.getHeight());
+
+
+			long currentTime = System.currentTimeMillis();
+
 			PixelWriter pw = image.getPixelWriter();
-			DataBufferInt db = (DataBufferInt)frame.getRaster().getDataBuffer();
-			int data[] = db.getData();
+			DataBufferInt db = (DataBufferInt) frame.getRaster().getDataBuffer();
+
+			int[] data = db.getData();
 			int offset = frame.getRaster().getDataBuffer().getOffset();
 			int scan =  0;
+
 			SampleModel sm = frame.getRaster().getSampleModel();
 			if (sm instanceof SinglePixelPackedSampleModel) {
 				scan = ((SinglePixelPackedSampleModel)sm).getScanlineStride();
@@ -606,7 +687,10 @@ public class SlideViewSkin extends SkinBase<SlideView> {
 			PixelFormat<IntBuffer> pf = (frame.isAlphaPremultiplied() ?
 					PixelFormat.getIntArgbPreInstance() :
 					PixelFormat.getIntArgbInstance());
-			pw.setPixels(0, 0, bw, bh, pf, data, offset, scan);
+			pw.setPixels(0, 0, frame.getWidth(), frame.getHeight(), pf, data, offset, scan);
+
+			System.out.println("Transform Time: " + (System.currentTimeMillis() - currentTime) + "ms");
+
 			return image;
 		}
 	}

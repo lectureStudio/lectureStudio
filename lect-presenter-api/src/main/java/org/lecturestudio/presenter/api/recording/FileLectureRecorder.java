@@ -118,7 +118,7 @@ public class FileLectureRecorder extends LectureRecorder {
 
 			// Create new screen capture recorder if not already exists
 			if (screenCaptureRecorder == null) {
-				screenCaptureRecorder = new ScreenCaptureRecorder(new File(backup.getScreenCaptureFile()));
+				screenCaptureRecorder = new ScreenCaptureRecorder(new File(backup.getScreenCaptureFile()), new File(backup.getScreenCaptureFramesFile()));
 				screenCaptureRecorder.setScreenCaptureFormat(screenCaptureFormat);
 			}
 
@@ -239,8 +239,10 @@ public class FileLectureRecorder extends LectureRecorder {
 
 		// Set screen capture stream if exists
 		File screenCaptureFile = new File(backup.getScreenCaptureFile());
-		if (screenCaptureFile.exists() && screenCaptureFile.isFile()) {
-			RandomAccessScreenCaptureStream screenCaptureStream = new RandomAccessScreenCaptureStream(screenCaptureFile);
+		File screenCaptureFramesFile = new File(backup.getScreenCaptureFramesFile());
+
+		if (screenCaptureFile.exists() && screenCaptureFile.isFile() && screenCaptureFramesFile.exists() && screenCaptureFramesFile.isFile()) {
+			RandomAccessScreenCaptureStream screenCaptureStream = new RandomAccessScreenCaptureStream(screenCaptureFile, screenCaptureFramesFile);
 			recording.setRecordedScreenCapture(new RecordedScreenCapture(screenCaptureStream));
 		}
 

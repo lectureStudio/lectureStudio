@@ -56,6 +56,8 @@ public class RecordingFileReader {
 		byte[] documentData = new byte[docLength];
 		inputStream.read(documentData);
 
+		inputStream.close();
+
 		// Read audio data.
 		int audioLength = header.getAudioLength();
 
@@ -67,17 +69,20 @@ public class RecordingFileReader {
 		int screenCaptureOffset = headerLength + eventsLength + docLength + audioLength;
 
 		RandomAccessStream raScreenCaptureStream = new RandomAccessStream(srcFile, screenCaptureOffset, screenCaptureLength);
-		RandomAccessScreenCaptureStream screenCaptureStream = new RandomAccessScreenCaptureStream(raScreenCaptureStream);
-
-		inputStream.close();
+		RandomAccessScreenCaptureStream screenCaptureStream = new RandomAccessScreenCaptureStream(raScreenCaptureStream, screenCaptureLength);
 
 		Recording recording = new Recording();
 		recording.setRecordingHeader(header);
 		recording.setRecordedEvents(new RecordedEvents(eventData));
 		recording.setRecordedDocument(new RecordedDocument(documentData));
 		recording.setRecordedAudio(new RecordedAudio(audioStream));
-		recording.setRecordedScreenCapture(new RecordedScreenCapture(screenCaptureStream));
-		
+
+		RecordedScreenCapture recordedScreenCapture = new RecordedScreenCapture(screenCaptureStream);
+		recordedScreenCapture.parseStreamAsync(null);
+		recording.setRecordedScreenCapture(recordedScreenCapture);
+
+		System.out.println(header);
+
 		return recording;
 	}
 

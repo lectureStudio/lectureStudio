@@ -38,9 +38,8 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 
 import org.lecturestudio.core.app.dictionary.Dictionary;
-import org.lecturestudio.core.view.Action;
+import org.lecturestudio.core.view.ConsumerAction;
 import org.lecturestudio.swing.border.RoundedBorder;
-import org.lecturestudio.swing.util.SwingUtils;
 
 public class SpeechRequestView extends JPanel {
 
@@ -67,12 +66,16 @@ public class SpeechRequestView extends JPanel {
 		initialize();
 	}
 
-	public void setOnAccept(Action action) {
-		SwingUtils.bindAction(acceptButton, action);
+	public void setOnAccept(ConsumerAction<Long> action) {
+		acceptButton.addActionListener(e -> {
+			action.execute(requestId);
+		});
 	}
 
-	public void setOnReject(Action action) {
-		SwingUtils.bindAction(rejectButton, action);
+	public void setOnReject(ConsumerAction<Long> action) {
+		rejectButton.addActionListener(e -> {
+			action.execute(requestId);
+		});
 	}
 
 	public void setCanceled() {

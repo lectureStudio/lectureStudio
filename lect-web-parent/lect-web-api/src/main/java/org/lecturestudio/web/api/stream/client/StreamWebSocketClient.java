@@ -30,6 +30,7 @@ import java.net.http.WebSocket;
 import java.net.http.WebSocket.Builder;
 import java.net.http.WebSocket.Listener;
 import java.nio.ByteBuffer;
+import java.nio.charset.StandardCharsets;
 import java.time.Duration;
 import java.time.temporal.ChronoUnit;
 import java.util.concurrent.CompletionStage;
@@ -122,7 +123,7 @@ public class StreamWebSocketClient extends ExecutableBase {
 
 		logTraceMessage("WebSocket ->: {0}", messageTxt);
 
-		webSocket.sendText(messageTxt, true)
+		webSocket.sendBinary(ByteBuffer.wrap(messageTxt.getBytes(StandardCharsets.UTF_8)), true)
 				.exceptionally(throwable -> {
 					logException(throwable, "Send message failed");
 					return null;

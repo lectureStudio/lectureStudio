@@ -373,7 +373,9 @@ public class SwingSlidesView extends JPanel implements SlidesView {
 	}
 
 	@Override
-	public void setSpeechRequestMessage(SpeechRequestMessage message, Action acceptAction, Action rejectAction) {
+	public void setSpeechRequestMessage(SpeechRequestMessage message,
+			ConsumerAction<Long> acceptAction,
+			ConsumerAction<Long> rejectAction) {
 		SwingUtils.invoke(() -> {
 			SpeechRequestView requestView = new SpeechRequestView(this.dict);
 			requestView.setRequestId(message.getRequestId());

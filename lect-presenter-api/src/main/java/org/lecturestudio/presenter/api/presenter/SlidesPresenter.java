@@ -273,12 +273,12 @@ public class SlidesPresenter extends Presenter<SlidesView> {
 		}
 	}
 
-	private void onAcceptSpeech() {
-		eventBus.post(new SpeechAcceptMessage());
+	private void onAcceptSpeech(Long requestId) {
+		eventBus.post(new SpeechAcceptMessage(requestId));
 	}
 
-	private void onCancelSpeech() {
-		eventBus.post(new SpeechRejectMessage());
+	private void onCancelSpeech(Long requestId) {
+		eventBus.post(new SpeechRejectMessage(requestId));
 	}
 
 	private void toolChanged(ToolType toolType) {

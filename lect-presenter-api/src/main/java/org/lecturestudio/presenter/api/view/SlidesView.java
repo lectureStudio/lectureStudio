@@ -80,7 +80,9 @@ public interface SlidesView extends View {
 
 	void setMessengerMessage(MessengerMessage message);
 
-	void setSpeechRequestMessage(SpeechRequestMessage message, Action acceptAction, Action rejectAction);
+	void setSpeechRequestMessage(SpeechRequestMessage message,
+			ConsumerAction<Long> acceptAction,
+			ConsumerAction<Long> rejectAction);
 
 	void setSpeechCancelMessage(SpeechCancelMessage message);
 

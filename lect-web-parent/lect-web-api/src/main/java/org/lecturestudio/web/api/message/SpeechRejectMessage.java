@@ -20,4 +20,12 @@ package org.lecturestudio.web.api.message;
 
 public class SpeechRejectMessage extends SpeechBaseMessage {
 
+	public SpeechRejectMessage() {
+
+	}
+
+	public SpeechRejectMessage(Long requestId) {
+		setRequestId(requestId);
+	}
+
 }

@@ -87,6 +87,10 @@ import org.lecturestudio.presenter.api.stylus.StylusHandler;
 import org.lecturestudio.presenter.api.view.PageObjectRegistry;
 import org.lecturestudio.presenter.api.view.SlidesView;
 import org.lecturestudio.web.api.message.MessengerMessage;
+import org.lecturestudio.web.api.message.SpeechAcceptMessage;
+import org.lecturestudio.web.api.message.SpeechCancelMessage;
+import org.lecturestudio.web.api.message.SpeechRejectMessage;
+import org.lecturestudio.web.api.message.SpeechRequestMessage;
 
 public class SlidesPresenter extends Presenter<SlidesView> {
 
@@ -216,6 +220,8 @@ public class SlidesPresenter extends Presenter<SlidesView> {
 	public void onEvent(final StreamingStateEvent event) {
 		this.streamingState = event.getState();
 
+		view.setMessengerState(event.getState());
+
 		checkRemoteServiceState();
 	}
 
@@ -240,6 +246,20 @@ public class SlidesPresenter extends Presenter<SlidesView> {
 		view.setMessengerMessage(message);
 	}
 
+	@Subscribe
+	public void onEvent(SpeechRequestMessage message) {
+		requireNonNull(message);
+
+		view.setSpeechRequestMessage(message, this::onAcceptSpeech, this::onCancelSpeech);
+	}
+
+	@Subscribe
+	public void onEvent(SpeechCancelMessage message) {
+		requireNonNull(message);
+
+		view.setSpeechCancelMessage(message);
+	}
+
 	private void keyEvent(KeyEvent event) {
 		Action action = shortcutMap.get(event);
 
@@ -251,6 +271,14 @@ public class SlidesPresenter extends Presenter<SlidesView> {
 		else {
 			toolController.setKeyEvent(event);
 		}
+	}
+
+	private void onAcceptSpeech() {
+		eventBus.post(new SpeechAcceptMessage());
+	}
+
+	private void onCancelSpeech() {
+		eventBus.post(new SpeechRejectMessage());
 	}
 
 	private void toolChanged(ToolType toolType) {

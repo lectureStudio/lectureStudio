@@ -563,7 +563,7 @@ public class SwingSlidesView extends JPanel implements SlidesView {
 			minimizeBottomPane();
 		}
 		else if (isSameTab || bottomTabPane.getHeight() <= getBottomTabHeight()) {
-			notesSplitPane.setDividerLocation(0.85);
+			notesSplitPane.setDividerLocation(0.7);
 		}
 
 		bottomTabIndex = index;

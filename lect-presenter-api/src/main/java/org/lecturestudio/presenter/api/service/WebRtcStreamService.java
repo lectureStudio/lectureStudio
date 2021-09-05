@@ -18,6 +18,8 @@
 
 package org.lecturestudio.presenter.api.service;
 
+import com.google.common.eventbus.Subscribe;
+
 import dev.onvoid.webrtc.RTCBundlePolicy;
 import dev.onvoid.webrtc.RTCIceServer;
 import dev.onvoid.webrtc.RTCIceTransportPolicy;
@@ -47,6 +49,8 @@ import org.lecturestudio.presenter.api.event.CameraStateEvent;
 import org.lecturestudio.presenter.api.event.StreamingStateEvent;
 import org.lecturestudio.web.api.client.TokenProvider;
 import org.lecturestudio.web.api.janus.client.JanusWebSocketClient;
+import org.lecturestudio.web.api.message.SpeechAcceptMessage;
+import org.lecturestudio.web.api.message.SpeechRejectMessage;
 import org.lecturestudio.web.api.service.ServiceParameters;
 import org.lecturestudio.web.api.stream.client.StreamWebSocketClient;
 import org.lecturestudio.web.api.stream.config.WebRtcConfiguration;
@@ -108,6 +112,24 @@ public class WebRtcStreamService extends ExecutableBase {
 		eventRecorder.init();
 	}
 
+	@Subscribe
+	public void onEvent(SpeechAcceptMessage message) {
+		if (!started()) {
+			return;
+		}
+
+		streamStateClient.sendMessage(message);
+	}
+
+	@Subscribe
+	public void onEvent(SpeechRejectMessage message) {
+		if (!started()) {
+			return;
+		}
+
+		streamStateClient.sendMessage(message);
+	}
+
 	public void startCameraStream() throws ExecutableException {
 		if (streamState != ExecutableState.Started
 			|| cameraState == ExecutableState.Started) {
@@ -147,6 +169,8 @@ public class WebRtcStreamService extends ExecutableBase {
 
 		setStreamState(ExecutableState.Starting);
 
+		context.getEventBus().register(this);
+
 		PresenterConfiguration config = (PresenterConfiguration) context
 				.getConfiguration();
 
@@ -178,6 +202,8 @@ public class WebRtcStreamService extends ExecutableBase {
 		}
 
 		setStreamState(ExecutableState.Stopping);
+
+		context.getEventBus().unregister(this);
 
 		eventRecorder.stop();
 

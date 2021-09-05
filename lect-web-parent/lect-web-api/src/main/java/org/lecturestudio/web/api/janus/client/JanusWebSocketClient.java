@@ -32,6 +32,7 @@ import java.util.concurrent.CompletionStage;
 import javax.json.Json;
 import javax.json.JsonObject;
 import javax.json.bind.Jsonb;
+import javax.json.bind.JsonbBuilder;
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.TrustManager;
 import javax.net.ssl.X509TrustManager;
@@ -79,9 +80,11 @@ public class JanusWebSocketClient extends ExecutableBase implements JanusMessage
 
 	@Override
 	public void sendMessage(JanusMessage message) {
-		logTraceMessage("WebSocket ->: {0}", jsonb.toJson(message));
+		String messageTxt = jsonb.toJson(message);
 
-		webSocket.sendText(jsonb.toJson(message), true)
+		logTraceMessage("WebSocket ->: {0}", messageTxt);
+
+		webSocket.sendText(messageTxt, true)
 				.exceptionally(throwable -> {
 					logException(throwable, "Send Janus message failed");
 					return null;
@@ -90,7 +93,7 @@ public class JanusWebSocketClient extends ExecutableBase implements JanusMessage
 
 	@Override
 	protected void initInternal() throws ExecutableException {
-		jsonb = new JsonConfigProvider().getContext(null);
+		jsonb = JsonbBuilder.create(JsonConfigProvider.createConfig());
 
 		handler = new JanusHandler(this, webRtcConfig, eventRecorder);
 		handler.init();

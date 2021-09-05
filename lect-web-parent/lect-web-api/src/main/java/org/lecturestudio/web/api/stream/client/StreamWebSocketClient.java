@@ -24,8 +24,6 @@ import static java.util.Objects.requireNonNull;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.lang.reflect.Field;
-import java.lang.reflect.Method;
 import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.WebSocket;
@@ -39,7 +37,6 @@ import java.util.concurrent.CompletionStage;
 import javax.json.bind.Jsonb;
 import javax.json.bind.JsonbBuilder;
 import javax.json.bind.JsonbConfig;
-import javax.json.bind.config.PropertyVisibilityStrategy;
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.TrustManager;
 import javax.net.ssl.X509TrustManager;
@@ -51,7 +48,8 @@ import org.lecturestudio.core.bus.EventBus;
 import org.lecturestudio.core.model.Document;
 import org.lecturestudio.core.service.DocumentService;
 import org.lecturestudio.web.api.client.MultipartBody;
-import org.lecturestudio.web.api.data.bind.SpeechMessageDeserializer;
+import org.lecturestudio.web.api.data.bind.JsonConfigProvider;
+import org.lecturestudio.web.api.data.bind.SpeechMessageAdapter;
 import org.lecturestudio.web.api.message.SpeechBaseMessage;
 import org.lecturestudio.web.api.net.OwnTrustManager;
 import org.lecturestudio.web.api.service.ServiceParameters;
@@ -88,6 +86,8 @@ public class StreamWebSocketClient extends ExecutableBase {
 
 	private final Course course;
 
+	private final Jsonb jsonb;
+
 	private WebSocket webSocket;
 
 
@@ -110,6 +110,23 @@ public class StreamWebSocketClient extends ExecutableBase {
 		this.documentService = documentService;
 		this.streamService = streamService;
 		this.course = course;
+
+		JsonbConfig config = JsonConfigProvider.createConfig()
+				.withAdapters(new SpeechMessageAdapter());
+
+		this.jsonb = JsonbBuilder.create(config);
+	}
+
+	public void sendMessage(SpeechBaseMessage message) {
+		String messageTxt = jsonb.toJson(message);
+
+		logTraceMessage("WebSocket ->: {0}", messageTxt);
+
+		webSocket.sendText(messageTxt, true)
+				.exceptionally(throwable -> {
+					logException(throwable, "Send message failed");
+					return null;
+				});
 	}
 
 	@Override
@@ -245,30 +262,9 @@ public class StreamWebSocketClient extends ExecutableBase {
 
 	private class WebSocketListener implements Listener {
 
-		private final Jsonb jsonb;
-
 		/** Accumulating message buffer. */
 		private StringBuffer buffer = new StringBuffer();
 
-
-		WebSocketListener() {
-			JsonbConfig config = new JsonbConfig()
-				.withDeserializers(new SpeechMessageDeserializer())
-				.withPropertyVisibilityStrategy(new PropertyVisibilityStrategy() {
-
-					@Override
-					public boolean isVisible(Method method) {
-						return false;
-					}
-
-					@Override
-					public boolean isVisible(Field field) {
-						return true;
-					}
-				});
-
-			jsonb = JsonbBuilder.create(config);
-		}
 
 		@Override
 		public void onError(WebSocket webSocket, Throwable error) {

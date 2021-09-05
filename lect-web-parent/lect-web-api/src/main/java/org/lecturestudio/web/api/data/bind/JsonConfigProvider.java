@@ -15,20 +15,22 @@ public class JsonConfigProvider implements ContextResolver<Jsonb> {
 
 	@Override
 	public Jsonb getContext(Class<?> aClass) {
-		JsonbConfig config = new JsonbConfig()
-			.withPropertyVisibilityStrategy(new PropertyVisibilityStrategy() {
+		return JsonbBuilder.create(createConfig());
+	}
 
-				@Override
-				public boolean isVisible(Method method) {
-					return false;
-				}
+	public static JsonbConfig createConfig() {
+		return new JsonbConfig()
+				.withPropertyVisibilityStrategy(new PropertyVisibilityStrategy() {
 
-				@Override
-				public boolean isVisible(Field field) {
-					return true;
-				}
-			});
+					@Override
+					public boolean isVisible(Method method) {
+						return false;
+					}
 
-		return JsonbBuilder.create(config);
+					@Override
+					public boolean isVisible(Field field) {
+						return true;
+					}
+				});
 	}
 }

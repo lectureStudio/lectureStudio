@@ -21,7 +21,7 @@ package org.lecturestudio.web.api.janus.message;
 import java.math.BigInteger;
 
 /**
- * Message to send a JSEP offer with publish related data to the video room.
+ * Message to send a JSEP offer with publishing related data to the video room.
  *
  * @author Alex Andres
  */

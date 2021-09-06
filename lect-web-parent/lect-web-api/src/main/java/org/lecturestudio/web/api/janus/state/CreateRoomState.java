@@ -24,12 +24,13 @@ import java.math.BigInteger;
 import java.util.Optional;
 import java.util.UUID;
 
-import org.lecturestudio.web.api.janus.JanusHandler;
 import org.lecturestudio.web.api.janus.JanusRoom;
+import org.lecturestudio.web.api.janus.JanusStateHandler;
 import org.lecturestudio.web.api.janus.message.JanusCreateRoomMessage;
 import org.lecturestudio.web.api.janus.message.JanusMessage;
 import org.lecturestudio.web.api.janus.message.JanusPluginDataMessage;
-import org.lecturestudio.web.api.janus.message.JanusRoomCreatedMessage;
+import org.lecturestudio.web.api.janus.message.JanusRoomEventType;
+import org.lecturestudio.web.api.janus.message.JanusRoomStateMessage;
 import org.lecturestudio.web.api.janus.message.JanusRoomListMessage;
 import org.lecturestudio.web.api.janus.message.JanusRoomRequest;
 import org.lecturestudio.web.api.janus.message.JanusRoomRequestType;
@@ -49,7 +50,7 @@ public class CreateRoomState implements JanusState {
 
 
 	@Override
-	public void initialize(JanusHandler handler) {
+	public void initialize(JanusStateHandler handler) {
 		Course course = handler.getWebRtcConfig().getCourse();
 
 		requireNonNull(course);
@@ -70,7 +71,7 @@ public class CreateRoomState implements JanusState {
 	}
 
 	@Override
-	public void handleMessage(JanusHandler handler, JanusMessage message) {
+	public void handleMessage(JanusStateHandler handler, JanusMessage message) {
 		checkTransaction(requestMessage, message);
 
 		if (message instanceof JanusRoomListMessage) {
@@ -87,25 +88,27 @@ public class CreateRoomState implements JanusState {
 				joinRoom(handler);
 			}
 		}
-		else if (message instanceof JanusRoomCreatedMessage) {
-			JanusRoomCreatedMessage success = (JanusRoomCreatedMessage) message;
+		else if (message instanceof JanusRoomStateMessage) {
+			JanusRoomStateMessage stateMessage = (JanusRoomStateMessage) message;
 
-			logDebug("Janus room created: %d", success.getRoomId());
+			if (stateMessage.getRoomEventType() == JanusRoomEventType.CREATED) {
+				logDebug("Janus room created: %d", stateMessage.getRoomId());
 
-			if (!success.getRoomId().equals(roomId)) {
-				throw new IllegalStateException("Room IDs do not match");
+				if (!stateMessage.getRoomId().equals(roomId)) {
+					throw new IllegalStateException("Room IDs do not match");
+				}
+
+				joinRoom(handler);
 			}
-
-			joinRoom(handler);
 		}
 	}
 
-	private void joinRoom(JanusHandler handler) {
+	private void joinRoom(JanusStateHandler handler) {
 		handler.setRoomId(roomId);
 		handler.setState(new JoinRoomState());
 	}
 
-	private void createRoom(JanusHandler handler) {
+	private void createRoom(JanusStateHandler handler) {
 		WebRtcConfiguration config = handler.getWebRtcConfig();
 		Course course = config.getCourse();
 

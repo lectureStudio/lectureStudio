@@ -76,4 +76,23 @@ public class StreamService extends ProviderService {
 	public String uploadFile(MultipartBody data) {
 		return streamRestClient.uploadFile(data);
 	}
+
+	/**
+	 * Accept a speech request with the corresponding ID.
+	 *
+	 * @param requestId The request ID.
+	 */
+	public void acceptSpeechRequest(long requestId) {
+		streamRestClient.acceptSpeechRequest(requestId);
+	}
+
+	/**
+	 * Reject a speech request with the corresponding ID.
+	 *
+	 * @param requestId The request ID.
+	 */
+	public void rejectSpeechRequest(long requestId) {
+		streamRestClient.rejectSpeechRequest(requestId);
+	}
+
 }

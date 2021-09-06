@@ -30,27 +30,25 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
 
-import org.lecturestudio.core.ExecutableBase;
 import org.lecturestudio.core.ExecutableException;
+import org.lecturestudio.web.api.janus.message.JanusEditRoomMessage;
 import org.lecturestudio.web.api.janus.message.JanusErrorMessage;
 import org.lecturestudio.web.api.janus.message.JanusMessage;
 import org.lecturestudio.web.api.janus.message.JanusMessageType;
+import org.lecturestudio.web.api.janus.message.JanusPluginDataMessage;
 import org.lecturestudio.web.api.janus.message.JanusRoomPublisherJoinedMessage;
 import org.lecturestudio.web.api.janus.message.JanusRoomPublisherLeftMessage;
 import org.lecturestudio.web.api.janus.message.JanusRoomPublisherUnpublishedMessage;
 import org.lecturestudio.web.api.janus.message.JanusSessionMessage;
 import org.lecturestudio.web.api.janus.message.JanusSessionTimeoutMessage;
+import org.lecturestudio.web.api.janus.state.AttachPluginState;
 import org.lecturestudio.web.api.janus.state.DestroyRoomState;
 import org.lecturestudio.web.api.janus.state.InfoState;
-import org.lecturestudio.web.api.janus.state.JanusState;
+import org.lecturestudio.web.api.janus.state.SubscriberJoinRoomState;
 import org.lecturestudio.web.api.stream.StreamEventRecorder;
 import org.lecturestudio.web.api.stream.config.WebRtcConfiguration;
 
-public class JanusHandler extends ExecutableBase {
-
-	private final JanusMessageTransmitter transmitter;
-
-	private final WebRtcConfiguration webRtcConfig;
+public class JanusHandler extends JanusStateHandler {
 
 	private final StreamEventRecorder eventRecorder;
 
@@ -58,43 +56,31 @@ public class JanusHandler extends ExecutableBase {
 
 	private Map<Class<? extends JanusMessage>, Consumer<? extends JanusMessage>> handlerMap;
 
-	private JanusPeerConnection peerConnection;
-
-	private JanusState state;
-
-	private JanusInfo info;
-
-	private BigInteger sessionId;
-
-	private BigInteger pluginId;
-
-	private BigInteger roomId;
-
-	private String roomSecret;
+	private JanusSubHandler subHandler;
 
 
 	public JanusHandler(JanusMessageTransmitter transmitter,
-			WebRtcConfiguration webRtcConfig, StreamEventRecorder eventRecorder) {
-		this.transmitter = transmitter;
-		this.webRtcConfig = webRtcConfig;
+			WebRtcConfiguration webRtcConfig,
+			StreamEventRecorder eventRecorder) {
+		super(transmitter, webRtcConfig);
+
 		this.eventRecorder = eventRecorder;
 	}
 
-	public void createPeerConnection() {
-		peerConnection = new JanusPeerConnection(webRtcConfig,
-				Executors.newSingleThreadExecutor());
+	public void startRemoteSpeech() {
+		if (!started()) {
+			return;
+		}
+
+		editRoom(2);
 	}
 
-	public JanusPeerConnection getPeerConnection() {
-		return peerConnection;
-	}
+	public void stopRemoteSpeech() {
+		if (!started()) {
+			return;
+		}
 
-	public WebRtcConfiguration getWebRtcConfig() {
-		return webRtcConfig;
-	}
-
-	public void sendMessage(JanusMessage message) {
-		transmitter.sendMessage(message);
+		editRoom(1);
 	}
 
 	public <T extends JanusMessage> void handleMessage(T message) throws Exception {
@@ -107,70 +93,29 @@ public class JanusHandler extends ExecutableBase {
 			processMessage(message);
 		}
 		else {
-			requireNonNull(state);
+			super.handleMessage(message);
 
-			state.handleMessage(this, message);
+			if (nonNull(subHandler)) {
+				try {
+					subHandler.handleMessage(message);
+				}
+				catch (Exception e) {
+					e.printStackTrace();
+				}
+			}
 		}
 	}
 
-	public void setState(JanusState state) {
-		requireNonNull(state);
-
-		this.state = state;
-
-		state.initialize(this);
-	}
-
-	public void setInfo(JanusInfo info) {
-		requireNonNull(info);
-
-		this.info = info;
-	}
-
-	public BigInteger getSessionId() {
-		return sessionId;
-	}
-
+	@Override
 	public void setSessionId(BigInteger id) {
-		requireNonNull(info);
-		requireNonNull(id);
+		super.setSessionId(id);
 
-		sessionId = id;
+		requireNonNull(info);
 
 		// Trigger periodic keep-alive messages with half the session timeout.
 		long period = info.getSessionTimeout() / 2;
 		executorService.scheduleAtFixedRate(this::sendKeepAliveMessage, period,
 				period, TimeUnit.SECONDS);
-	}
-
-	public BigInteger getPluginId() {
-		return pluginId;
-	}
-
-	public void setPluginId(BigInteger id) {
-		requireNonNull(id);
-
-		pluginId = id;
-	}
-
-	public BigInteger getRoomId() {
-		return roomId;
-	}
-
-	public void setRoomId(BigInteger id) {
-		requireNonNull(id);
-
-		roomId = id;
-	}
-
-	public String getRoomSecret() {
-		return roomSecret;
-	}
-
-	public void setRoomSecret(String secret) {
-		requireNonNull(secret);
-
-		roomSecret = secret;
 	}
 
 	@Override
@@ -220,7 +165,9 @@ public class JanusHandler extends ExecutableBase {
 	private <T extends JanusMessage> void processMessage(T message) {
 		Consumer<T> handler = (Consumer<T>) handlerMap.get(message.getClass());
 
-		handler.accept(message);
+		if (nonNull(handler)) {
+			handler.accept(message);
+		}
 	}
 
 	private void handleError(JanusErrorMessage message) {
@@ -233,7 +180,13 @@ public class JanusHandler extends ExecutableBase {
 	}
 
 	private void handlePublisherJoined(JanusRoomPublisherJoinedMessage message) {
-		System.out.println(message.getPublisher());
+		JanusPublisher publisher = message.getPublisher();
+
+		subHandler = new JanusSubHandler(transmitter, webRtcConfig);
+		subHandler.setSessionId(getSessionId());
+		subHandler.setRoomId(getRoomId());
+		subHandler.setState(new AttachPluginState(
+				new SubscriberJoinRoomState(publisher.getId())));
 	}
 
 	private void handlePublisherUnpublished(JanusRoomPublisherUnpublishedMessage message) {
@@ -250,5 +203,19 @@ public class JanusHandler extends ExecutableBase {
 		message.setTransaction(UUID.randomUUID().toString());
 
 		sendMessage(message);
+	}
+
+	private void editRoom(int publishers) {
+		JanusEditRoomMessage request = new JanusEditRoomMessage();
+		request.setRoom(getRoomId());
+		request.setPublishers(publishers);
+		//request.setSecret(handler.getRoomSecret());
+
+		var requestMessage = new JanusPluginDataMessage(getSessionId(),
+				getPluginId());
+		requestMessage.setTransaction(UUID.randomUUID().toString());
+		requestMessage.setBody(request);
+
+		sendMessage(requestMessage);
 	}
 }

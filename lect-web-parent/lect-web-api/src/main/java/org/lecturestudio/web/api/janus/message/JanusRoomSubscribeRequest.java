@@ -21,31 +21,20 @@ package org.lecturestudio.web.api.janus.message;
 import java.math.BigInteger;
 
 /**
- * Response message used when a new video room has been successfully created.
+ * Room request to start subscribing media from a room.
  *
  * @author Alex Andres
  */
-public class JanusRoomCreatedMessage extends JanusRoomMessage {
+public class JanusRoomSubscribeRequest extends JanusRoomRequest {
 
-	private final BigInteger roomId;
-
-	private final Boolean permanent;
+	protected BigInteger room;
 
 
 	/**
-	 * Create a new {@code JanusRoomCreatedMessage}.
-	 *
-	 * @param sessionId The unique integer session ID.
-	 * @param roomId    The unique numeric room ID.
-	 * @param permanent True if saved to config file, false if not.
+	 * Create a new {@code JanusRoomSubscribeRequest}.
 	 */
-	public JanusRoomCreatedMessage(BigInteger sessionId, BigInteger roomId, Boolean permanent) {
-		super(sessionId);
-
-		this.roomId = roomId;
-		this.permanent = permanent;
-
-		setRoomEventType(JanusRoomEventType.CREATED);
+	public JanusRoomSubscribeRequest() {
+		setRequestType(JanusRoomRequestType.START);
 	}
 
 	/**
@@ -53,17 +42,16 @@ public class JanusRoomCreatedMessage extends JanusRoomMessage {
 	 *
 	 * @return The unique numeric room ID.
 	 */
-	public BigInteger getRoomId() {
-		return roomId;
+	public BigInteger getRoom() {
+		return room;
 	}
 
 	/**
-	 * Checks if the created room has been permanently saved to the config file
-	 * on the server side.
+	 * Set the unique numeric room ID. Optional, chosen by plugin if missing.
 	 *
-	 * @return True if saved to config file, false if not.
+	 * @param room the unique room ID.
 	 */
-	public Boolean getPermanent() {
-		return permanent;
+	public void setRoom(BigInteger room) {
+		this.room = room;
 	}
 }

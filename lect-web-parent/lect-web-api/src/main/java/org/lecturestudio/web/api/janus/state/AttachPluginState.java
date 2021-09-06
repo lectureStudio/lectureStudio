@@ -20,7 +20,7 @@ package org.lecturestudio.web.api.janus.state;
 
 import java.util.UUID;
 
-import org.lecturestudio.web.api.janus.JanusHandler;
+import org.lecturestudio.web.api.janus.JanusStateHandler;
 import org.lecturestudio.web.api.janus.message.JanusMessage;
 import org.lecturestudio.web.api.janus.message.JanusPluginAttachMessage;
 import org.lecturestudio.web.api.janus.message.JanusSessionSuccessMessage;
@@ -28,7 +28,7 @@ import org.lecturestudio.web.api.janus.message.JanusSessionSuccessMessage;
 /**
  * This state binds a Janus server plugin to a Janus session. This is the second
  * mandatory step for the session establishment with the Janus WebRTC server. By
- * default this state attaches to the Janus video-room plugin.
+ * default, this state attaches to the Janus video-room plugin.
  *
  * @author Alex Andres
  */
@@ -36,11 +36,17 @@ public class AttachPluginState implements JanusState {
 
 	private final static String PLUGIN = "janus.plugin.videoroom";
 
+	private final JanusState nextState;
+
 	private JanusMessage attachRequest;
 
 
+	public AttachPluginState(JanusState nextState) {
+		this.nextState = nextState;
+	}
+
 	@Override
-	public void initialize(JanusHandler handler) {
+	public void initialize(JanusStateHandler handler) {
 		attachRequest = new JanusPluginAttachMessage(handler.getSessionId(), PLUGIN);
 		attachRequest.setTransaction(UUID.randomUUID().toString());
 
@@ -48,7 +54,7 @@ public class AttachPluginState implements JanusState {
 	}
 
 	@Override
-	public void handleMessage(JanusHandler handler, JanusMessage message) {
+	public void handleMessage(JanusStateHandler handler, JanusMessage message) {
 		checkTransaction(attachRequest, message);
 
 		if (message instanceof JanusSessionSuccessMessage) {
@@ -57,7 +63,7 @@ public class AttachPluginState implements JanusState {
 			logDebug("Janus plugin handle created: %d", success.getSessionId());
 
 			handler.setPluginId(success.getSessionId());
-			handler.setState(new CreateRoomState());
+			handler.setState(nextState);
 		}
 	}
 }

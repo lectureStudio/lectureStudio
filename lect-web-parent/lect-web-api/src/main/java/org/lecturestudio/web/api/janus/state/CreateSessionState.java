@@ -20,7 +20,7 @@ package org.lecturestudio.web.api.janus.state;
 
 import java.util.UUID;
 
-import org.lecturestudio.web.api.janus.JanusHandler;
+import org.lecturestudio.web.api.janus.JanusStateHandler;
 import org.lecturestudio.web.api.janus.message.JanusMessageType;
 import org.lecturestudio.web.api.janus.message.JanusMessage;
 import org.lecturestudio.web.api.janus.message.JanusSessionSuccessMessage;
@@ -37,7 +37,7 @@ public class CreateSessionState implements JanusState {
 
 
 	@Override
-	public void initialize(JanusHandler handler) {
+	public void initialize(JanusStateHandler handler) {
 		createRequest = new JanusMessage();
 		createRequest.setEventType(JanusMessageType.CREATE);
 		createRequest.setTransaction(UUID.randomUUID().toString());
@@ -46,7 +46,7 @@ public class CreateSessionState implements JanusState {
 	}
 
 	@Override
-	public void handleMessage(JanusHandler handler, JanusMessage message) {
+	public void handleMessage(JanusStateHandler handler, JanusMessage message) {
 		checkTransaction(createRequest, message);
 
 		if (message instanceof JanusSessionSuccessMessage) {
@@ -55,7 +55,7 @@ public class CreateSessionState implements JanusState {
 			logDebug("Janus session created: %d", success.getSessionId());
 
 			handler.setSessionId(success.getSessionId());
-			handler.setState(new AttachPluginState());
+			handler.setState(new AttachPluginState(new CreateRoomState()));
 		}
 	}
 

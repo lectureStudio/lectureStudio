@@ -78,6 +78,22 @@ public class JanusWebSocketClient extends ExecutableBase implements JanusMessage
 		this.eventRecorder = eventRecorder;
 	}
 
+	public void startRemoteSpeech() {
+		if (!started()) {
+			return;
+		}
+
+		handler.startRemoteSpeech();
+	}
+
+	public void stopRemoteSpeech() {
+		if (!started()) {
+			return;
+		}
+
+		handler.stopRemoteSpeech();
+	}
+
 	@Override
 	public void sendMessage(JanusMessage message) {
 		String messageTxt = jsonb.toJson(message);

@@ -16,40 +16,35 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package org.lecturestudio.web.api.janus.message;
+package org.lecturestudio.web.api.janus;
 
-import java.math.BigInteger;
+import org.lecturestudio.core.ExecutableException;
+import org.lecturestudio.web.api.stream.config.WebRtcConfiguration;
 
-/**
- * Response message used when a video room has been destroyed.
- *
- * @author Alex Andres
- */
-public class JanusRoomDestroyedMessage extends JanusRoomMessage {
+public class JanusSubHandler extends JanusStateHandler {
 
-	private final BigInteger roomId;
-
-
-	/**
-	 * Create a new {@code JanusRoomDestroyedMessage}.
-	 *
-	 * @param sessionId The unique integer session ID.
-	 * @param roomId    The unique numeric room ID.
-	 */
-	public JanusRoomDestroyedMessage(BigInteger sessionId, BigInteger roomId) {
-		super(sessionId);
-
-		this.roomId = roomId;
-
-		setRoomEventType(JanusRoomEventType.DESTROYED);
+	public JanusSubHandler(JanusMessageTransmitter transmitter,
+			WebRtcConfiguration webRtcConfig) {
+		super(transmitter, webRtcConfig);
 	}
 
-	/**
-	 * Get the unique numeric room ID of the destroyed room.
-	 *
-	 * @return The unique numeric room ID.
-	 */
-	public BigInteger getRoomId() {
-		return roomId;
+	@Override
+	protected void initInternal() throws ExecutableException {
+
+	}
+
+	@Override
+	protected void startInternal() throws ExecutableException {
+
+	}
+
+	@Override
+	protected void stopInternal() throws ExecutableException {
+
+	}
+
+	@Override
+	protected void destroyInternal() throws ExecutableException {
+
 	}
 }

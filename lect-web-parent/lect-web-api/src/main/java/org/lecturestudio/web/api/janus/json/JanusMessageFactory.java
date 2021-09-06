@@ -38,8 +38,7 @@ import org.lecturestudio.web.api.janus.message.JanusMediaMessage;
 import org.lecturestudio.web.api.janus.message.JanusMessageType;
 import org.lecturestudio.web.api.janus.message.JanusInfoMessage;
 import org.lecturestudio.web.api.janus.message.JanusMessage;
-import org.lecturestudio.web.api.janus.message.JanusRoomCreatedMessage;
-import org.lecturestudio.web.api.janus.message.JanusRoomDestroyedMessage;
+import org.lecturestudio.web.api.janus.message.JanusRoomStateMessage;
 import org.lecturestudio.web.api.janus.message.JanusRoomEventType;
 import org.lecturestudio.web.api.janus.message.JanusRoomJoinedMessage;
 import org.lecturestudio.web.api.janus.message.JanusRoomListMessage;
@@ -103,11 +102,17 @@ public class JanusMessageFactory {
 						.fromString(responseStr);
 
 				switch (responseType) {
+					case ATTACHED:
+						return createAttachedMessage(body, data, type);
+
 					case CREATED:
 						return createRoomCreatedMessage(body, data, type);
 
 					case DESTROYED:
 						return createRoomDestroyedMessage(body, data, type);
+
+					case EDITED:
+						return createRoomEditedMessage(body, data, type);
 
 					case EVENT:
 						return createRoomEventMessage(body, data, type, jsonb);
@@ -214,13 +219,23 @@ public class JanusMessageFactory {
 		return message;
 	}
 
+	private static JanusMessage createAttachedMessage(JsonObject body,
+			JsonObject data, JanusMessageType type) {
+		if (!body.containsKey("jsep")) {
+			throw new NotSupportedException("Message missing JSEP");
+		}
+
+		return createJsepMessage(body, data, type);
+	}
+
 	private static JanusMessage createRoomCreatedMessage(JsonObject body,
 			JsonObject data, JanusMessageType type) {
 		var sessionId = body.getJsonNumber("session_id").bigIntegerValue();
 		var roomId = data.getJsonNumber("room").bigIntegerValue();
 		var permanent = data.getBoolean("permanent");
 
-		JanusRoomCreatedMessage message = new JanusRoomCreatedMessage(sessionId, roomId, permanent);
+		JanusRoomStateMessage message = new JanusRoomStateMessage(
+				JanusRoomEventType.CREATED, sessionId, roomId, permanent);
 		message.setEventType(type);
 		message.setTransaction(body.getString("transaction"));
 
@@ -232,7 +247,8 @@ public class JanusMessageFactory {
 		var sessionId = body.getJsonNumber("session_id").bigIntegerValue();
 		var roomId = data.getJsonNumber("room").bigIntegerValue();
 
-		JanusRoomDestroyedMessage message = new JanusRoomDestroyedMessage(sessionId, roomId);
+		JanusRoomStateMessage message = new JanusRoomStateMessage(
+				JanusRoomEventType.DESTROYED, sessionId, roomId, null);
 		message.setEventType(type);
 
 		// A destroyed event being sent to all the participants in the video
@@ -240,6 +256,20 @@ public class JanusMessageFactory {
 		if (body.containsKey("transaction")) {
 			message.setTransaction(body.getString("transaction"));
 		}
+
+		return message;
+	}
+
+	private static JanusMessage createRoomEditedMessage(JsonObject body,
+			JsonObject data, JanusMessageType type) {
+		var sessionId = body.getJsonNumber("session_id").bigIntegerValue();
+		var roomId = data.getJsonNumber("room").bigIntegerValue();
+		var permanent = data.getBoolean("permanent");
+
+		JanusRoomStateMessage message = new JanusRoomStateMessage(
+				JanusRoomEventType.EDITED, sessionId, roomId, permanent);
+		message.setEventType(type);
+		message.setTransaction(body.getString("transaction"));
 
 		return message;
 	}
@@ -321,7 +351,7 @@ public class JanusMessageFactory {
 		return message;
 	}
 
-	private static JanusMessage createJsepAnswerMessage(JsonObject body,
+	private static JanusMessage createJsepMessage(JsonObject body,
 			JsonObject data, JanusMessageType type) {
 		var sessionId = body.getJsonNumber("session_id").bigIntegerValue();
 		var handleId = body.getJsonNumber("sender").bigIntegerValue();
@@ -330,6 +360,7 @@ public class JanusMessageFactory {
 		JanusJsepMessage message = new JanusJsepMessage(sessionId, handleId);
 		message.setEventType(type);
 		message.setTransaction(body.getString("transaction"));
+		message.setJsepType(jsep.getString("type"));
 		message.setSdp(jsep.getString("sdp"));
 
 		return message;
@@ -341,7 +372,8 @@ public class JanusMessageFactory {
 
 		// There are multiple room events with individual payloads.
 		if (body.containsKey("jsep")) {
-			return createJsepAnswerMessage(body, data, type);
+			// JSEP answer message.
+			return createJsepMessage(body, data, type);
 		}
 		else if (data.containsKey("error")) {
 			return createRoomErrorMessage(body, data);
@@ -357,6 +389,28 @@ public class JanusMessageFactory {
 		}
 		else if (data.containsKey("leaving")) {
 			return createRoomPublisherLeftMessage(body, data, type);
+		}
+
+		if (eventType == JanusRoomEventType.EVENT) {
+			return createRoomSubscriberMessage(body, data, eventType);
+		}
+
+		throw new NotSupportedException("Room event type not supported: " + eventType);
+	}
+
+	private static JanusMessage createRoomSubscriberMessage(JsonObject body,
+			JsonObject data, JanusRoomEventType eventType) {
+		if (data.containsKey("started")) {
+			var sessionId = body.getJsonNumber("session_id").bigIntegerValue();
+			var roomId = data.getJsonNumber("room").bigIntegerValue();
+
+			JanusRoomJoinedMessage message = new JanusRoomJoinedMessage(sessionId,
+					roomId, null, null, null, null);
+			message.setEventType(JanusMessageType.EVENT);
+			message.setRoomEventType(JanusRoomEventType.JOINED);
+			message.setTransaction(body.getString("transaction"));
+
+			return message;
 		}
 
 		throw new NotSupportedException("Room event type not supported: " + eventType);

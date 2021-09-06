@@ -91,6 +91,8 @@ public class WebRtcStreamService extends ExecutableBase {
 
 	private WebRtcConfiguration webRtcConfig;
 
+	private StreamService streamService;
+
 	private StreamWebSocketClient streamStateClient;
 
 	private JanusWebSocketClient janusClient;
@@ -118,7 +120,8 @@ public class WebRtcStreamService extends ExecutableBase {
 			return;
 		}
 
-		streamStateClient.sendMessage(message);
+		janusClient.startRemoteSpeech();
+		streamService.acceptSpeechRequest(message.getRequestId());
 	}
 
 	@Subscribe
@@ -127,7 +130,7 @@ public class WebRtcStreamService extends ExecutableBase {
 			return;
 		}
 
-		streamStateClient.sendMessage(message);
+		streamService.rejectSpeechRequest(message.getRequestId());
 	}
 
 	public void startCameraStream() throws ExecutableException {
@@ -270,7 +273,7 @@ public class WebRtcStreamService extends ExecutableBase {
 
 		TokenProvider tokenProvider = streamConfig::getAccessToken;
 
-		StreamService streamService = new StreamService(streamApiParameters,
+		streamService = new StreamService(streamApiParameters,
 				tokenProvider);
 
 		WebSocketHeaderProvider headerProvider = new WebSocketBearerTokenProvider(

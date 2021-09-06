@@ -20,7 +20,8 @@ package org.lecturestudio.web.api.janus.state;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.lecturestudio.web.api.janus.JanusHandler;
+
+import org.lecturestudio.web.api.janus.JanusStateHandler;
 import org.lecturestudio.web.api.janus.message.JanusMessage;
 
 /**
@@ -28,7 +29,7 @@ import org.lecturestudio.web.api.janus.message.JanusMessage;
  * establishment and message signaling process with the Janus WebRTC server. A
  * concrete state handles state specific messages asynchronously. Once this
  * state has finished its signaling and message handling, it can transition to
- * another state by invoking {@link JanusHandler#setState(JanusState)}.
+ * another state by invoking {@link JanusStateHandler#setState(JanusState)}.
  * Transitioning to the next state will make this state inactive and it will no
  * longer receive messages.
  *
@@ -46,22 +47,22 @@ public interface JanusState {
 	 * Initialize this state with the provided {@code JanusHandler}. Usually
 	 * this is the point where the state sends specific messages to the Janus
 	 * WebRTC server. The response messages from the Janus server will be
-	 * provided to the {@link #handleMessage(JanusHandler, JanusMessage)}
+	 * provided to the {@link #handleMessage(JanusStateHandler, JanusMessage)}
 	 * method.
 	 *
-	 * @param handler The {@code JanusHandler}.
+	 * @param handler The {@code JanusStateHandler}.
 	 */
-	void initialize(JanusHandler handler);
+	void initialize(JanusStateHandler handler);
 
 	/**
 	 * Process state specific messages received from the Janus WebRTC server.
 	 * Once this state has finished its message handling, it can transition to
-	 * another state by invoking {@link JanusHandler#setState(JanusState)}.
+	 * another state by invoking {@link JanusStateHandler#setState(JanusState)}.
 	 *
-	 * @param handler The {@code JanusHandler}.
+	 * @param handler The {@code JanusStateHandler}.
 	 * @param message The message to process.
 	 */
-	void handleMessage(JanusHandler handler, JanusMessage message);
+	void handleMessage(JanusStateHandler handler, JanusMessage message);
 
 	/**
 	 * Check whether the transaction IDs of the messages match. Any response

@@ -21,12 +21,12 @@ package org.lecturestudio.web.api.janus.message;
 import java.math.BigInteger;
 
 /**
- * JSEP answer message received from the Janus instance in response to the
- * previously sent JSEP offer.
+ * Message to send a JSEP answer with subscription related data to the video
+ * room.
  *
  * @author Alex Andres
  */
-public class JanusJsepMessage extends JanusPluginMessage {
+public class JanusRoomSubscribeMessage extends JanusPluginDataMessage {
 
 	static class JSEP {
 		String type;
@@ -37,48 +37,23 @@ public class JanusJsepMessage extends JanusPluginMessage {
 
 
 	/**
-	 * Create a new {@code JanusPluginMessage} with the specified parameters.
+	 * Create a new {@code JanusPluginDataMessage}.
 	 *
 	 * @param sessionId The unique integer session ID.
 	 * @param handleId  The unique integer plugin handle ID.
 	 */
-	public JanusJsepMessage(BigInteger sessionId, BigInteger handleId) {
+	public JanusRoomSubscribeMessage(BigInteger sessionId,
+			BigInteger handleId) {
 		super(sessionId, handleId);
+
+		setEventType(JanusMessageType.MESSAGE);
+
+		jsep.type = "answer";
 	}
 
 	/**
-	 * Get the Session Description Protocol (SDP) type received from the Janus
-	 * instance. The type is either 'answer' or 'offer'.
-	 *
-	 * @return The JSEP type.
-	 */
-	public String getJsepType() {
-		return jsep.type;
-	}
-
-	/**
-	 * Set the Session Description Protocol (SDP) type received from the Janus
-	 * instance. The type is either 'answer' or 'offer'.
-	 *
-	 * @param type The JSEP type.
-	 */
-	public void setJsepType(String type) {
-		jsep.type = type;
-	}
-
-	/**
-	 * Get the Session Description Protocol (SDP) answer received from the Janus
-	 * instance.
-	 *
-	 * @return The SDP answer.
-	 */
-	public String getSdp() {
-		return jsep.sdp;
-	}
-
-	/**
-	 * Set the Session Description Protocol (SDP) answer received from the Janus
-	 * instance.
+	 * Set the Session Description Protocol (SDP) offer to start negotiating
+	 * session capabilities.
 	 *
 	 * @param sdp The SDP answer.
 	 */

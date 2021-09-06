@@ -24,6 +24,7 @@ import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 
@@ -71,5 +72,23 @@ public interface StreamRestClient {
 	@Produces(MediaType.TEXT_PLAIN)
 	@Path("/file/upload")
 	String uploadFile(@MultipartForm MultipartBody data);
+
+	/**
+	 * Accept a speech request with the corresponding ID.
+	 *
+	 * @param requestId The request ID.
+	 */
+	@POST
+	@Path("/speech/accept/{requestId}")
+	void acceptSpeechRequest(@PathParam("requestId") long requestId);
+
+	/**
+	 * Reject a speech request with the corresponding ID.
+	 *
+	 * @param requestId The request ID.
+	 */
+	@POST
+	@Path("/speech/reject/{requestId}")
+	void rejectSpeechRequest(@PathParam("requestId") long requestId);
 
 }

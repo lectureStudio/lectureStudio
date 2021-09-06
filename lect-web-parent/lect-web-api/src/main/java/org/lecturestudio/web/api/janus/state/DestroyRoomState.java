@@ -21,6 +21,7 @@ package org.lecturestudio.web.api.janus.state;
 import java.util.UUID;
 
 import org.lecturestudio.web.api.janus.JanusHandler;
+import org.lecturestudio.web.api.janus.JanusStateHandler;
 import org.lecturestudio.web.api.janus.message.JanusDestroyRoomMessage;
 import org.lecturestudio.web.api.janus.message.JanusMessage;
 import org.lecturestudio.web.api.janus.message.JanusMessageType;
@@ -39,7 +40,7 @@ public class DestroyRoomState implements JanusState {
 
 
 	@Override
-	public void initialize(JanusHandler handler) {
+	public void initialize(JanusStateHandler handler) {
 		logDebug("Destroying room");
 
 		JanusDestroyRoomMessage request = new JanusDestroyRoomMessage();
@@ -57,7 +58,7 @@ public class DestroyRoomState implements JanusState {
 	}
 
 	@Override
-	public void handleMessage(JanusHandler handler, JanusMessage message) {
+	public void handleMessage(JanusStateHandler handler, JanusMessage message) {
 //		// Destroy the session as well. Though, it will timeout anyway.
 //		JanusSessionMessage destroySessionMessage = new JanusSessionMessage(
 //				handler.getSessionId());

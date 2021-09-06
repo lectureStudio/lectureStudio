@@ -21,7 +21,6 @@ package org.lecturestudio.web.api.janus.state;
 import dev.onvoid.webrtc.RTCDataChannelBuffer;
 import dev.onvoid.webrtc.RTCIceCandidate;
 import dev.onvoid.webrtc.RTCIceGatheringState;
-import dev.onvoid.webrtc.RTCRtpTransceiverDirection;
 import dev.onvoid.webrtc.RTCSdpType;
 import dev.onvoid.webrtc.RTCSessionDescription;
 
@@ -37,8 +36,8 @@ import org.lecturestudio.web.api.janus.message.JanusMessage;
 import org.lecturestudio.web.api.janus.message.JanusMessageType;
 import org.lecturestudio.web.api.janus.message.JanusPluginMessage;
 import org.lecturestudio.web.api.janus.message.JanusRoomStateMessage;
-import org.lecturestudio.web.api.janus.message.JanusRoomPublishMessage;
-import org.lecturestudio.web.api.janus.message.JanusRoomPublishRequest;
+import org.lecturestudio.web.api.janus.message.JanusRoomSubscribeMessage;
+import org.lecturestudio.web.api.janus.message.JanusRoomSubscribeRequest;
 import org.lecturestudio.web.api.janus.message.JanusTrickleMessage;
 import org.lecturestudio.web.api.stream.config.WebRtcConfiguration;
 
@@ -49,13 +48,21 @@ import org.lecturestudio.web.api.stream.config.WebRtcConfiguration;
  *
  * @author Alex Andres
  */
-public class PublishToRoomState implements JanusState {
+public class SubscriberJoinedRoomState implements JanusState {
 
-	private JanusRoomPublishMessage publishRequest;
+	private final RTCSessionDescription offer;
 
+	private JanusRoomSubscribeMessage subscribeRequest;
+
+
+	public SubscriberJoinedRoomState(RTCSessionDescription offer) {
+		this.offer = offer;
+	}
 
 	@Override
 	public void initialize(JanusStateHandler handler) {
+		handler.createPeerConnection();
+
 		WebRtcConfiguration webRtcConfig = handler.getWebRtcConfig();
 		JanusPeerConnection peerConnection = handler.getPeerConnection();
 
@@ -71,14 +78,7 @@ public class PublishToRoomState implements JanusState {
 			}
 		});
 
-		// Publishers are send-only.
-		var audioDirection = RTCRtpTransceiverDirection.SEND_ONLY;
-		var videoDirection = webRtcConfig.getVideoConfiguration()
-				.getSendVideo() ?
-				RTCRtpTransceiverDirection.SEND_ONLY :
-				RTCRtpTransceiverDirection.INACTIVE;
-
-		peerConnection.setupConnection(audioDirection, videoDirection);
+		peerConnection.setSessionDescription(offer);
 	}
 
 	@Override
@@ -103,35 +103,24 @@ public class PublishToRoomState implements JanusState {
 		}
 
 		try {
-			checkTransaction(publishRequest, message);
+			checkTransaction(subscribeRequest, message);
 		}
 		catch (Exception e) {
 			return;
 		}
-
-		if (message instanceof JanusJsepMessage) {
-			JanusJsepMessage jsepMessage = (JanusJsepMessage) message;
-			String sdp = jsepMessage.getSdp();
-			RTCSessionDescription answer = new RTCSessionDescription(RTCSdpType.ANSWER, sdp);
-
-			handler.getPeerConnection().setSessionDescription(answer);
-			handler.getPeerConnection().setOnDataChannelBuffer(this::onDataChannelBuffer);
-		}
 	}
 
 	private void sendRequest(JanusStateHandler handler, String sdp) {
-		JanusRoomPublishRequest request = new JanusRoomPublishRequest();
-		request.setAudio(true);
-		request.setVideo(handler.getWebRtcConfig().getVideoConfiguration().getSendVideo());
-		request.setData(true);
+		JanusRoomSubscribeRequest request = new JanusRoomSubscribeRequest();
+		request.setRoom(handler.getRoomId());
 
-		publishRequest = new JanusRoomPublishMessage(handler.getSessionId(),
+		subscribeRequest = new JanusRoomSubscribeMessage(handler.getSessionId(),
 				handler.getPluginId());
-		publishRequest.setSdp(sdp);
-		publishRequest.setTransaction(UUID.randomUUID().toString());
-		publishRequest.setBody(request);
+		subscribeRequest.setTransaction(UUID.randomUUID().toString());
+		subscribeRequest.setSdp(sdp);
+		subscribeRequest.setBody(request);
 
-		handler.sendMessage(publishRequest);
+		handler.sendMessage(subscribeRequest);
 	}
 
 	private void sendIceCandidate(JanusStateHandler handler, RTCIceCandidate candidate) {
@@ -156,21 +145,5 @@ public class PublishToRoomState implements JanusState {
 		message.setTransaction(UUID.randomUUID().toString());
 
 		handler.sendMessage(message);
-	}
-
-	private void onDataChannelBuffer(RTCDataChannelBuffer buffer) {
-		ByteBuffer byteBuffer = buffer.data;
-		byte[] payload;
-
-		if (byteBuffer.hasArray()) {
-			payload = byteBuffer.array();
-		}
-		else {
-			payload = new byte[byteBuffer.limit()];
-
-			byteBuffer.get(payload);
-		}
-
-		System.out.println(new String(payload));
 	}
 }

@@ -18,32 +18,47 @@
 
 package org.lecturestudio.web.api.janus.state;
 
+import static java.util.Objects.requireNonNull;
+
+import dev.onvoid.webrtc.RTCSdpType;
+import dev.onvoid.webrtc.RTCSessionDescription;
+
+import java.math.BigInteger;
 import java.util.UUID;
 
 import org.lecturestudio.web.api.janus.JanusParticipantType;
 import org.lecturestudio.web.api.janus.JanusStateHandler;
-import org.lecturestudio.web.api.janus.message.JanusRoomJoinRequest;
+import org.lecturestudio.web.api.janus.message.JanusJsepMessage;
 import org.lecturestudio.web.api.janus.message.JanusMessage;
 import org.lecturestudio.web.api.janus.message.JanusPluginDataMessage;
-import org.lecturestudio.web.api.janus.message.JanusRoomJoinedMessage;
+import org.lecturestudio.web.api.janus.message.JanusRoomJoinRequest;
 
 /**
- * This state joins a previously created video-room on the Janus WebRTC server.
- * By default, this state joins the room as a publisher which makes you an
- * active send-only participant.
+ * This state joins a previously created feed in a video-room published on the
+ * Janus WebRTC server. This state joins the room as a subscriber which makes
+ * you an receive-only participant.
  *
  * @author Alex Andres
  */
-public class JoinRoomState implements JanusState {
+public class SubscriberJoinRoomState implements JanusState {
+
+	private final BigInteger publisherId;
 
 	private JanusPluginDataMessage joinRequest;
 
 
+	public SubscriberJoinRoomState(BigInteger publisherId) {
+		requireNonNull(publisherId);
+
+		this.publisherId = publisherId;
+	}
+
 	@Override
 	public void initialize(JanusStateHandler handler) {
 		JanusRoomJoinRequest request = new JanusRoomJoinRequest();
-		request.setParticipantType(JanusParticipantType.PUBLISHER);
+		request.setParticipantType(JanusParticipantType.SUBSCRIBER);
 		request.setRoomId(handler.getRoomId());
+		request.setPublisherId(publisherId);
 
 		joinRequest = new JanusPluginDataMessage(handler.getSessionId(),
 				handler.getPluginId());
@@ -57,14 +72,12 @@ public class JoinRoomState implements JanusState {
 	public void handleMessage(JanusStateHandler handler, JanusMessage message) {
 		checkTransaction(joinRequest, message);
 
-		if (message instanceof JanusRoomJoinedMessage) {
-			JanusRoomJoinedMessage joinedMessage = (JanusRoomJoinedMessage) message;
+		if (message instanceof JanusJsepMessage) {
+			JanusJsepMessage jsepMessage = (JanusJsepMessage) message;
+			String sdp = jsepMessage.getSdp();
+			RTCSessionDescription offer = new RTCSessionDescription(RTCSdpType.OFFER, sdp);
 
-			logDebug("Janus room joined: %d (%s)", joinedMessage.getRoomId(),
-					joinedMessage.getDescription());
-
-			handler.createPeerConnection();
-			handler.setState(new PublishToRoomState());
+			handler.setState(new SubscriberJoinedRoomState(offer));
 		}
 	}
 }

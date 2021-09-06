@@ -40,7 +40,7 @@ public class JanusRoomJoinRequest extends JanusRoomRequest {
 	@JsonbProperty("room")
 	private BigInteger roomId;
 
-	@JsonbProperty("id")
+	@JsonbProperty("feed")
 	private BigInteger publisherId;
 
 	@JsonbProperty("display")

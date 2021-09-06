@@ -53,7 +53,6 @@ import org.lecturestudio.core.model.DocumentOutlineItem;
 import org.lecturestudio.core.model.Page;
 import org.lecturestudio.core.model.SlideNote;
 import org.lecturestudio.core.model.listener.DocumentChangeListener;
-import org.lecturestudio.core.model.listener.PageEditEvent;
 import org.lecturestudio.core.model.listener.PageEditedListener;
 import org.lecturestudio.core.model.listener.ParameterChangeListener;
 import org.lecturestudio.core.model.shape.Shape;
@@ -561,8 +560,13 @@ public class SlidesPresenter extends Presenter<SlidesView> {
 		toolController.selectPenTool();
 
 		pageEditedListener = (event) -> {
-			if (event.getType() == PageEditEvent.Type.SHAPE_ADDED) {
-				pageShapeAdded(event.getShape());
+			switch (event.getType()) {
+				case SHAPE_ADDED:
+					pageShapeAdded(event.getShape());
+					break;
+				case CLEAR:
+					setPage(event.getPage());
+					break;
 			}
 		};
 

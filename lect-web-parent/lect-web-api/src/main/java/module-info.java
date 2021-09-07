@@ -23,6 +23,7 @@ module org.lecturestudio.web.api {
 
 	exports org.lecturestudio.web.api.client;
 	exports org.lecturestudio.web.api.data;
+	exports org.lecturestudio.web.api.event;
 	exports org.lecturestudio.web.api.filter;
 	exports org.lecturestudio.web.api.message;
 	exports org.lecturestudio.web.api.model;

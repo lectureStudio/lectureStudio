@@ -18,23 +18,28 @@
 
 package org.lecturestudio.web.api.janus.state;
 
-import dev.onvoid.webrtc.RTCDataChannelBuffer;
+import static java.util.Objects.nonNull;
+
 import dev.onvoid.webrtc.RTCIceCandidate;
+import dev.onvoid.webrtc.RTCIceConnectionState;
 import dev.onvoid.webrtc.RTCIceGatheringState;
-import dev.onvoid.webrtc.RTCSdpType;
 import dev.onvoid.webrtc.RTCSessionDescription;
 
-import java.nio.ByteBuffer;
+import java.math.BigInteger;
 import java.util.Map;
 import java.util.UUID;
+import java.util.function.Consumer;
 
+import org.lecturestudio.core.ExecutableState;
+import org.lecturestudio.web.api.event.PeerStateEvent;
+import org.lecturestudio.web.api.event.VideoFrameEvent;
 import org.lecturestudio.web.api.janus.JanusPeerConnection;
 import org.lecturestudio.web.api.janus.JanusStateHandler;
-import org.lecturestudio.web.api.janus.message.JanusJsepMessage;
 import org.lecturestudio.web.api.janus.message.JanusMediaMessage;
 import org.lecturestudio.web.api.janus.message.JanusMessage;
 import org.lecturestudio.web.api.janus.message.JanusMessageType;
 import org.lecturestudio.web.api.janus.message.JanusPluginMessage;
+import org.lecturestudio.web.api.janus.message.JanusRoomPublisherUnpublishedMessage;
 import org.lecturestudio.web.api.janus.message.JanusRoomStateMessage;
 import org.lecturestudio.web.api.janus.message.JanusRoomSubscribeMessage;
 import org.lecturestudio.web.api.janus.message.JanusRoomSubscribeRequest;
@@ -52,11 +57,22 @@ public class SubscriberJoinedRoomState implements JanusState {
 
 	private final RTCSessionDescription offer;
 
+	private final BigInteger peerId;
+
+	private final String userName;
+
+	private Consumer<PeerStateEvent> peerStateConsumer;
+
+	private Consumer<VideoFrameEvent> videoFrameConsumer;
+
 	private JanusRoomSubscribeMessage subscribeRequest;
 
 
-	public SubscriberJoinedRoomState(RTCSessionDescription offer) {
+	public SubscriberJoinedRoomState(RTCSessionDescription offer,
+			BigInteger peerId, String userName) {
 		this.offer = offer;
+		this.peerId = peerId;
+		this.userName = userName;
 	}
 
 	@Override
@@ -65,6 +81,9 @@ public class SubscriberJoinedRoomState implements JanusState {
 
 		WebRtcConfiguration webRtcConfig = handler.getWebRtcConfig();
 		JanusPeerConnection peerConnection = handler.getPeerConnection();
+
+		peerStateConsumer = webRtcConfig.getPeerStateConsumer();
+		videoFrameConsumer = webRtcConfig.getVideoFrameConsumer();
 
 		peerConnection.setOnLocalSessionDescription(description -> {
 			sendRequest(handler, description.sdp);
@@ -77,6 +96,19 @@ public class SubscriberJoinedRoomState implements JanusState {
 				sendEndOfCandidates(handler);
 			}
 		});
+		peerConnection.setOnIceConnectionState(state -> {
+			if (state == RTCIceConnectionState.CONNECTED) {
+				setPeerState(ExecutableState.Started);
+			}
+			else if (state == RTCIceConnectionState.DISCONNECTED) {
+				setPeerState(ExecutableState.Stopped);
+			}
+		});
+		peerConnection.setOnRemoteVideoFrame(videoFrame -> {
+			if (nonNull(videoFrameConsumer)) {
+				videoFrameConsumer.accept(new VideoFrameEvent(videoFrame, peerId.toString()));
+			}
+		});
 
 		peerConnection.setSessionDescription(offer);
 	}
@@ -86,7 +118,15 @@ public class SubscriberJoinedRoomState implements JanusState {
 		JanusMessageType type = message.getEventType();
 
 		if (type == JanusMessageType.WEBRTC_UP) {
-			logDebug("Janus WebRTC connection is up");
+			logDebug("Janus WebRTC connection is up (subscriber)");
+
+			//setPeerState(ExecutableState.Started);
+			return;
+		}
+		if (type == JanusMessageType.HANGUP) {
+			logDebug("Janus WebRTC connection hangup (subscriber)");
+
+			//setPeerState(ExecutableState.Stopped);
 			return;
 		}
 		else if (type == JanusMessageType.MEDIA) {
@@ -96,6 +136,13 @@ public class SubscriberJoinedRoomState implements JanusState {
 					(mediaMessage.isReceiving() ? "started" : "stopped"),
 					mediaMessage.getType());
 			return;
+		}
+		else if (message instanceof JanusRoomPublisherUnpublishedMessage) {
+			JanusRoomPublisherUnpublishedMessage unpubMessage = (JanusRoomPublisherUnpublishedMessage) message;
+
+			if (unpubMessage.getPublisherId().equals(peerId)) {
+//				setPeerState(ExecutableState.Stopped);
+			}
 		}
 		else if (message instanceof JanusRoomStateMessage) {
 			// Ignore.
@@ -145,5 +192,11 @@ public class SubscriberJoinedRoomState implements JanusState {
 		message.setTransaction(UUID.randomUUID().toString());
 
 		handler.sendMessage(message);
+	}
+
+	private void setPeerState(ExecutableState state) {
+		if (nonNull(peerStateConsumer)) {
+			peerStateConsumer.accept(new PeerStateEvent(userName, state));
+		}
 	}
 }

@@ -100,6 +100,8 @@ public class JanusPeerConnection implements PeerConnectionObserver {
 
 	private Consumer<RTCPeerConnectionState> onPeerConnectionState;
 
+	private Consumer<RTCIceConnectionState> onIceConnectionState;
+
 	private Consumer<RTCIceGatheringState> onIceGatheringState;
 
 	private Consumer<RTCDataChannelBuffer> onDataChannelBuffer;
@@ -124,6 +126,18 @@ public class JanusPeerConnection implements PeerConnectionObserver {
 				.addListener((observable, oldValue, newValue) -> {
 					execute(() -> {
 						enableCamera(newValue);
+					});
+				});
+		config.getAudioConfiguration().receiveAudioProperty()
+				.addListener((observable, oldValue, newValue) -> {
+					execute(() -> {
+						enableRemoteAudio(newValue);
+					});
+				});
+		config.getVideoConfiguration().receiveVideoProperty()
+				.addListener((observable, oldValue, newValue) -> {
+					execute(() -> {
+						enableRemoteVideo(newValue);
 					});
 				});
 
@@ -158,6 +172,10 @@ public class JanusPeerConnection implements PeerConnectionObserver {
 
 	public void setOnPeerConnectionState(Consumer<RTCPeerConnectionState> callback) {
 		onPeerConnectionState = callback;
+	}
+
+	public void setOnIceConnectionState(Consumer<RTCIceConnectionState> callback) {
+		onIceConnectionState = callback;
 	}
 
 	public void setOnDataChannelBuffer(Consumer<RTCDataChannelBuffer> callback) {
@@ -217,6 +235,8 @@ public class JanusPeerConnection implements PeerConnectionObserver {
 	@Override
 	public void onIceConnectionChange(RTCIceConnectionState state) {
 		LOGGER.log(Level.INFO, "ICE connection state: " + state);
+
+		notify(onIceConnectionState, state);
 	}
 
 	@Override
@@ -277,6 +297,8 @@ public class JanusPeerConnection implements PeerConnectionObserver {
 	@Override
 	public void onRemoveTrack(RTCRtpReceiver receiver) {
 		MediaStreamTrack track = receiver.getTrack();
+
+		System.out.println("on remove track: " + track);
 
 		if (track.getKind().equals(MediaStreamTrack.VIDEO_TRACK_KIND)) {
 			notify(onRemoteVideoStream, false);
@@ -494,6 +516,25 @@ public class JanusPeerConnection implements PeerConnectionObserver {
 
 			if (nonNull(track) && track.getKind().equals(MediaStreamTrack.VIDEO_TRACK_KIND)) {
 				transceiver.setDirection(camDirection);
+				break;
+			}
+		}
+	}
+
+	private void enableRemoteAudio(boolean enable) {
+		muteTrack(MediaStreamTrack.AUDIO_TRACK_KIND, enable);
+	}
+
+	private void enableRemoteVideo(boolean enable) {
+		muteTrack(MediaStreamTrack.VIDEO_TRACK_KIND, enable);
+	}
+
+	private void muteTrack(String type, boolean enable) {
+		for (RTCRtpReceiver receiver : peerConnection.getReceivers()) {
+			MediaStreamTrack track = receiver.getTrack();
+
+			if (nonNull(track) && track.getKind().equals(type)) {
+				track.setEnabled(enable);
 				break;
 			}
 		}

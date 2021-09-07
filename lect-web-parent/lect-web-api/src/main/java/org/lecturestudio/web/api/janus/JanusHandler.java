@@ -36,9 +36,8 @@ import org.lecturestudio.web.api.janus.message.JanusErrorMessage;
 import org.lecturestudio.web.api.janus.message.JanusMessage;
 import org.lecturestudio.web.api.janus.message.JanusMessageType;
 import org.lecturestudio.web.api.janus.message.JanusPluginDataMessage;
+import org.lecturestudio.web.api.janus.message.JanusRoomKickRequest;
 import org.lecturestudio.web.api.janus.message.JanusRoomPublisherJoinedMessage;
-import org.lecturestudio.web.api.janus.message.JanusRoomPublisherLeftMessage;
-import org.lecturestudio.web.api.janus.message.JanusRoomPublisherUnpublishedMessage;
 import org.lecturestudio.web.api.janus.message.JanusSessionMessage;
 import org.lecturestudio.web.api.janus.message.JanusSessionTimeoutMessage;
 import org.lecturestudio.web.api.janus.state.AttachPluginState;
@@ -58,6 +57,10 @@ public class JanusHandler extends JanusStateHandler {
 
 	private JanusSubHandler subHandler;
 
+	private String userName;
+
+	private BigInteger peerId;
+
 
 	public JanusHandler(JanusMessageTransmitter transmitter,
 			WebRtcConfiguration webRtcConfig,
@@ -67,20 +70,26 @@ public class JanusHandler extends JanusStateHandler {
 		this.eventRecorder = eventRecorder;
 	}
 
-	public void startRemoteSpeech() {
+	public void startRemoteSpeech(long requestId, String userName) {
 		if (!started()) {
 			return;
 		}
 
+		this.userName = userName;
+
 		editRoom(2);
 	}
 
-	public void stopRemoteSpeech() {
+	public void stopRemoteSpeech(long requestId) {
 		if (!started()) {
 			return;
 		}
 
 		editRoom(1);
+
+		if (nonNull(subHandler)) {
+			kickParticipant();
+		}
 	}
 
 	public <T extends JanusMessage> void handleMessage(T message) throws Exception {
@@ -136,8 +145,6 @@ public class JanusHandler extends JanusStateHandler {
 		registerHandler(JanusErrorMessage.class, this::handleError);
 		registerHandler(JanusSessionTimeoutMessage.class, this::handleSessionTimeout);
 		registerHandler(JanusRoomPublisherJoinedMessage.class, this::handlePublisherJoined);
-		registerHandler(JanusRoomPublisherUnpublishedMessage.class, this::handlePublisherUnpublished);
-		registerHandler(JanusRoomPublisherLeftMessage.class, this::handlePublisherLeft);
 	}
 
 	@Override
@@ -182,19 +189,27 @@ public class JanusHandler extends JanusStateHandler {
 	private void handlePublisherJoined(JanusRoomPublisherJoinedMessage message) {
 		JanusPublisher publisher = message.getPublisher();
 
+		peerId = publisher.getId();
+
 		subHandler = new JanusSubHandler(transmitter, webRtcConfig);
 		subHandler.setSessionId(getSessionId());
 		subHandler.setRoomId(getRoomId());
 		subHandler.setState(new AttachPluginState(
-				new SubscriberJoinRoomState(publisher.getId())));
+				new SubscriberJoinRoomState(publisher.getId(), userName)));
 	}
 
-	private void handlePublisherUnpublished(JanusRoomPublisherUnpublishedMessage message) {
+	private void kickParticipant() {
+		JanusRoomKickRequest request = new JanusRoomKickRequest();
+		request.setParticipantId(peerId);
+		request.setRoomId(getRoomId());
+		request.setSecret(getRoomSecret());
 
-	}
+		JanusPluginDataMessage message = new JanusPluginDataMessage(
+				getSessionId(), getPluginId());
+		message.setTransaction(UUID.randomUUID().toString());
+		message.setBody(request);
 
-	private void handlePublisherLeft(JanusRoomPublisherLeftMessage message) {
-
+		sendMessage(message);
 	}
 
 	private void sendKeepAliveMessage() {

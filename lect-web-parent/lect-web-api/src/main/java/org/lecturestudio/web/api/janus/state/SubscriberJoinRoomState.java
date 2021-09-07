@@ -44,13 +44,16 @@ public class SubscriberJoinRoomState implements JanusState {
 
 	private final BigInteger publisherId;
 
+	private final String userName;
+
 	private JanusPluginDataMessage joinRequest;
 
 
-	public SubscriberJoinRoomState(BigInteger publisherId) {
+	public SubscriberJoinRoomState(BigInteger publisherId, String userName) {
 		requireNonNull(publisherId);
 
 		this.publisherId = publisherId;
+		this.userName = userName;
 	}
 
 	@Override
@@ -77,7 +80,7 @@ public class SubscriberJoinRoomState implements JanusState {
 			String sdp = jsepMessage.getSdp();
 			RTCSessionDescription offer = new RTCSessionDescription(RTCSdpType.OFFER, sdp);
 
-			handler.setState(new SubscriberJoinedRoomState(offer));
+			handler.setState(new SubscriberJoinedRoomState(offer, publisherId, userName));
 		}
 	}
 }

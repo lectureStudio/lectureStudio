@@ -20,6 +20,10 @@ package org.lecturestudio.web.api.stream.config;
 
 import dev.onvoid.webrtc.RTCConfiguration;
 
+import java.util.function.Consumer;
+
+import org.lecturestudio.web.api.event.PeerStateEvent;
+import org.lecturestudio.web.api.event.VideoFrameEvent;
 import org.lecturestudio.web.api.stream.model.Course;
 
 public class WebRtcConfiguration {
@@ -31,6 +35,10 @@ public class WebRtcConfiguration {
 	private final DesktopCaptureConfiguration desktopCaptureConfig;
 
 	private final RTCConfiguration rtcConfig;
+
+	private Consumer<PeerStateEvent> peerStateConsumer;
+
+	private Consumer<VideoFrameEvent> videoFrameConsumer;
 
 	private Course course;
 
@@ -64,5 +72,21 @@ public class WebRtcConfiguration {
 
 	public void setCourse(Course course) {
 		this.course = course;
+	}
+
+	public Consumer<PeerStateEvent> getPeerStateConsumer() {
+		return peerStateConsumer;
+	}
+
+	public void setPeerStateConsumer(Consumer<PeerStateEvent> peerStateConsumer) {
+		this.peerStateConsumer = peerStateConsumer;
+	}
+
+	public Consumer<VideoFrameEvent> getVideoFrameConsumer() {
+		return videoFrameConsumer;
+	}
+
+	public void setOnRemoteVideoFrame(Consumer<VideoFrameEvent> callback) {
+		videoFrameConsumer = callback;
 	}
 }

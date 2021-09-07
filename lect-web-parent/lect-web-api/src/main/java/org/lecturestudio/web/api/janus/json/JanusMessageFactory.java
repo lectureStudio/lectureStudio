@@ -412,6 +412,16 @@ public class JanusMessageFactory {
 
 			return message;
 		}
+		else if (data.containsKey("kicked")) {
+			var sessionId = body.getJsonNumber("session_id").bigIntegerValue();
+			var roomId = data.getJsonNumber("room").bigIntegerValue();
+
+			JanusRoomStateMessage message = new JanusRoomStateMessage(
+					JanusRoomEventType.EDITED, sessionId, roomId, null);
+			message.setEventType(JanusMessageType.EVENT);
+
+			return message;
+		}
 
 		throw new NotSupportedException("Room event type not supported: " + eventType);
 	}
@@ -443,6 +453,9 @@ public class JanusMessageFactory {
 		}
 
 		switch (eventType) {
+			case SUCCESS:
+				return createRoomSuccessMessage(body, data, type);
+
 			case DESTROYED:
 				return createRoomDestroyedMessage(body, data, type);
 		}

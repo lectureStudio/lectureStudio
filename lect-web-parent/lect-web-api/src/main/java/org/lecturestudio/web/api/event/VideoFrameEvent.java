@@ -16,8 +16,27 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package org.lecturestudio.web.api.message;
+package org.lecturestudio.web.api.event;
 
-public class SpeechRejectMessage extends SpeechBaseMessage {
+import dev.onvoid.webrtc.media.video.VideoFrame;
 
+public class VideoFrameEvent {
+
+	private final VideoFrame frame;
+
+	private final String source;
+
+
+	public VideoFrameEvent(VideoFrame frame, String source) {
+		this.frame = frame;
+		this.source = source;
+	}
+
+	public VideoFrame getFrame() {
+		return frame;
+	}
+
+	public String getSource() {
+		return source;
+	}
 }

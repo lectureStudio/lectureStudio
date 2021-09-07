@@ -18,14 +18,12 @@
 
 package org.lecturestudio.web.api.janus.state;
 
-import dev.onvoid.webrtc.RTCDataChannelBuffer;
 import dev.onvoid.webrtc.RTCIceCandidate;
 import dev.onvoid.webrtc.RTCIceGatheringState;
 import dev.onvoid.webrtc.RTCRtpTransceiverDirection;
 import dev.onvoid.webrtc.RTCSdpType;
 import dev.onvoid.webrtc.RTCSessionDescription;
 
-import java.nio.ByteBuffer;
 import java.util.Map;
 import java.util.UUID;
 
@@ -86,7 +84,7 @@ public class PublishToRoomState implements JanusState {
 		JanusMessageType type = message.getEventType();
 
 		if (type == JanusMessageType.WEBRTC_UP) {
-			logDebug("Janus WebRTC connection is up");
+			logDebug("Janus WebRTC connection is up (publisher)");
 			return;
 		}
 		else if (type == JanusMessageType.MEDIA) {
@@ -115,7 +113,6 @@ public class PublishToRoomState implements JanusState {
 			RTCSessionDescription answer = new RTCSessionDescription(RTCSdpType.ANSWER, sdp);
 
 			handler.getPeerConnection().setSessionDescription(answer);
-			handler.getPeerConnection().setOnDataChannelBuffer(this::onDataChannelBuffer);
 		}
 	}
 
@@ -156,21 +153,5 @@ public class PublishToRoomState implements JanusState {
 		message.setTransaction(UUID.randomUUID().toString());
 
 		handler.sendMessage(message);
-	}
-
-	private void onDataChannelBuffer(RTCDataChannelBuffer buffer) {
-		ByteBuffer byteBuffer = buffer.data;
-		byte[] payload;
-
-		if (byteBuffer.hasArray()) {
-			payload = byteBuffer.array();
-		}
-		else {
-			payload = new byte[byteBuffer.limit()];
-
-			byteBuffer.get(payload);
-		}
-
-		System.out.println(new String(payload));
 	}
 }

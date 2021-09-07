@@ -16,8 +16,28 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package org.lecturestudio.web.api.message;
+package org.lecturestudio.web.api.event;
 
-public class SpeechRejectMessage extends SpeechBaseMessage {
+import org.lecturestudio.core.ExecutableState;
+import org.lecturestudio.core.bus.event.ExecutableEvent;
 
+public class PeerStateEvent extends ExecutableEvent {
+
+	private final String peerName;
+
+
+	/**
+	 * Create the {@link PeerStateEvent} with the specified state.
+	 *
+	 * @param state The state.
+	 */
+	public PeerStateEvent(String peerName, ExecutableState state) {
+		super(state);
+
+		this.peerName = peerName;
+	}
+
+	public String getPeerName() {
+		return peerName;
+	}
 }

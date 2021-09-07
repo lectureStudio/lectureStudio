@@ -48,11 +48,11 @@ import org.lecturestudio.swing.util.SwingUtils;
  */
 public class PeerView extends JComponent {
 
-	private JToggleButton muteAudioButton;
+	private final JToggleButton muteAudioButton;
 
-	private JToggleButton muteVideoButton;
+	private final JToggleButton muteVideoButton;
 
-	private JButton stopConnectionButton;
+	private final JButton stopConnectionButton;
 
 	private Image image;
 
@@ -111,11 +111,6 @@ public class PeerView extends JComponent {
 			return;
 		}
 
-		if (nonNull(this.image)) {
-			this.image.flush();
-			this.image = null;
-		}
-
 		this.image = image;
 
 		repaint();
@@ -139,12 +134,34 @@ public class PeerView extends JComponent {
 
 	@Override
 	public void paintComponent(Graphics g) {
+		Graphics2D g2 = (Graphics2D) g.create();
+
 		if (nonNull(image)) {
-			g.drawImage(image, 0, 0, null);
+			paintWithImage(g2);
 		}
 		else {
-			paintNoImage((Graphics2D) g);
+			paintNoImage(g2);
 		}
+
+		g2.dispose();
+	}
+
+	private void paintWithImage(Graphics2D g2) {
+		g2.drawImage(image, (getWidth() - image.getWidth(null)) / 2, 0, null);
+
+		if (isNull(peerName)) {
+			return;
+		}
+
+		g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+		g2.setFont(getFont().deriveFont(16.f));
+
+		FontMetrics metrics = g2.getFontMetrics(g2.getFont());
+		int w = metrics.stringWidth(peerName);
+		int h = metrics.getHeight();
+
+		g2.setColor(Color.WHITE);
+		g2.drawString(peerName, (getWidth() - w) / 2, getHeight() - h - 20);
 	}
 
 	private void paintNoImage(Graphics2D g2) {

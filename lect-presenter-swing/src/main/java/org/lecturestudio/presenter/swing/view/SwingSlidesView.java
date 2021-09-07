@@ -21,6 +21,11 @@ package org.lecturestudio.presenter.swing.view;
 import static java.util.Objects.isNull;
 import static java.util.Objects.nonNull;
 
+import dev.onvoid.webrtc.media.FourCC;
+import dev.onvoid.webrtc.media.video.VideoBufferConverter;
+import dev.onvoid.webrtc.media.video.VideoFrame;
+import dev.onvoid.webrtc.media.video.VideoFrameBuffer;
+
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.Container;
@@ -29,6 +34,8 @@ import java.awt.KeyboardFocusManager;
 import java.awt.Rectangle;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.awt.image.BufferedImage;
+import java.awt.image.DataBufferByte;
 import java.util.Enumeration;
 import java.util.Iterator;
 import java.util.List;
@@ -141,6 +148,8 @@ public class SwingSlidesView extends JPanel implements SlidesView {
 	private JTree outlineTree;
 
 	private SlideView slideView;
+
+	private BufferedImage peerViewImage;
 
 	private PeerView peerView;
 
@@ -488,8 +497,15 @@ public class SwingSlidesView extends JPanel implements SlidesView {
 			return;
 		}
 
+		try {
+			peerViewImage = convertVideoFrame(event.getFrame(), peerViewImage);
+		}
+		catch (Exception e) {
+			return;
+		}
+
 		SwingUtils.invoke(() -> {
-			System.out.println(event);
+			peerView.showImage(peerViewImage);
 		});
 	}
 
@@ -755,5 +771,32 @@ public class SwingSlidesView extends JPanel implements SlidesView {
 				minimizeBottomPane();
 			}
 		});
+	}
+
+	private BufferedImage convertVideoFrame(VideoFrame videoFrame, BufferedImage image) throws Exception {
+		VideoFrameBuffer buffer = videoFrame.buffer;
+		int width = buffer.getWidth();
+		int height = buffer.getHeight();
+
+		// Scale video frame down to the view size.
+		int viewHeight = peerView.getHeight();
+		double scale = viewHeight / (double) height;
+
+		buffer = buffer.cropAndScale(0, 0, width, height, (int) (width * scale), viewHeight);
+		width = buffer.getWidth();
+		height = buffer.getHeight();
+
+		if (isNull(image) || image.getWidth() != width || image.getHeight() != height) {
+			image = new BufferedImage(width, height, BufferedImage.TYPE_4BYTE_ABGR);
+		}
+
+		byte[] imageBuffer = ((DataBufferByte) image.getRaster().getDataBuffer()).getData();
+
+		VideoBufferConverter.convertFromI420(buffer, imageBuffer, FourCC.RGBA);
+
+		// Release resources.
+		buffer.release();
+
+		return image;
 	}
 }

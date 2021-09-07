@@ -358,9 +358,9 @@ public class WebRtcStreamService extends ExecutableBase {
 		webRtcConfig.setPeerStateConsumer(event -> {
 			context.getEventBus().post(event);
 		});
-//		webRtcConfig.setOnRemoteVideoFrame(videoFrame -> {
-//			context.getEventBus().post(videoFrame);
-//		});
+		webRtcConfig.setOnRemoteVideoFrame(videoFrame -> {
+			context.getEventBus().post(videoFrame);
+		});
 
 		streamConfig.enableMicrophoneProperty().addListener((o, oldValue, newValue) -> {
 			webRtcConfig.getAudioConfiguration().setSendAudio(newValue);

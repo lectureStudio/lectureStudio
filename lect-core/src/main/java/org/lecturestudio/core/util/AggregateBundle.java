@@ -25,8 +25,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.URISyntaxException;
 import java.net.URL;
-import java.net.URLDecoder;
-import java.nio.charset.StandardCharsets;
 import java.nio.file.Paths;
 import java.util.Enumeration;
 import java.util.HashMap;
@@ -41,7 +39,7 @@ import java.util.jar.JarFile;
 
 /**
  * A ResourceBundle whose content is aggregated from multiple bundles.
- * 
+ *
  * @author Alex Andres
  */
 public class AggregateBundle extends ResourceBundle {
@@ -54,10 +52,10 @@ public class AggregateBundle extends ResourceBundle {
 
 	/**
 	 * Creates a new AggregateBundle.
-	 * 
+	 *
 	 * @param locale The locale for this bundle.
 	 * @param bundleNames A list of bundles which shall be merged into this bundle.
-	 * 
+	 *
 	 * @throws IOException if one or more bundles could not be loaded.
 	 */
 	public AggregateBundle(Locale locale, String... bundleNames) throws IOException {
@@ -116,7 +114,7 @@ public class AggregateBundle extends ResourceBundle {
 			String protocol = url.getProtocol();
 
 			if (protocol.equals("file")) {
-				File parent = new File(URLDecoder.decode(url.getFile(), StandardCharsets.UTF_8));
+				File parent = new File(url.getFile());
 
 				if (parent.isDirectory()) {
 					String[] list = parent.list();
@@ -136,7 +134,7 @@ public class AggregateBundle extends ResourceBundle {
 								continue;
 							}
 
-							File resource = new File(URLDecoder.decode(url.getFile(), StandardCharsets.UTF_8) + "/" + name);
+							File resource = new File(url.getFile() + "/" + name);
 
 							loadBundle(resource.toURI().toURL().openStream());
 						}
@@ -145,7 +143,7 @@ public class AggregateBundle extends ResourceBundle {
 			}
 			else if (protocol.equals("jar")) {
 				String searchPath = path + "/" + baseName;
-				String urlPath = URLDecoder.decode(url.getPath(), StandardCharsets.UTF_8);
+				String urlPath = url.getPath();
 				urlPath = urlPath.substring(0, urlPath.indexOf("!"));
 
 				File jarFile;

@@ -22,7 +22,7 @@ import org.lecturestudio.core.ExecutableState;
 public class ExecutableEvent extends BusEvent {
 
 	/** The state of the {@link ExecutableEvent} */
-	private ExecutableState state;
+	private final ExecutableState state;
 
 	/**
 	 * Create the {@link ExecutableEvent} with the specified state.

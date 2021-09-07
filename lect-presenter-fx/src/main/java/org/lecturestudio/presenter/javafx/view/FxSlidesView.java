@@ -76,6 +76,8 @@ import org.lecturestudio.presenter.api.stylus.StylusHandler;
 import org.lecturestudio.presenter.api.view.SlidesView;
 import org.lecturestudio.presenter.javafx.control.EditableThumbnailPanel;
 import org.lecturestudio.stylus.javafx.JavaFxStylusManager;
+import org.lecturestudio.web.api.event.PeerStateEvent;
+import org.lecturestudio.web.api.event.VideoFrameEvent;
 import org.lecturestudio.web.api.message.MessengerMessage;
 import org.lecturestudio.web.api.message.SpeechCancelMessage;
 import org.lecturestudio.web.api.message.SpeechRequestMessage;
@@ -363,14 +365,47 @@ public class FxSlidesView extends VBox implements SlidesView {
 	}
 
 	@Override
-	public void setSpeechRequestMessage(SpeechRequestMessage message,
-			ConsumerAction<Long> acceptAction,
-			ConsumerAction<Long> rejectAction) {
+	public void setSpeechRequestMessage(SpeechRequestMessage message) {
 
 	}
 
 	@Override
 	public void setSpeechCancelMessage(SpeechCancelMessage message) {
+
+	}
+
+	@Override
+	public void setOnAcceptSpeech(ConsumerAction<SpeechRequestMessage> action) {
+
+	}
+
+	@Override
+	public void setOnRejectSpeech(ConsumerAction<SpeechRequestMessage> action) {
+
+	}
+
+	@Override
+	public void setPeerStateEvent(PeerStateEvent event) {
+
+	}
+
+	@Override
+	public void setOnMutePeerAudio(ConsumerAction<Boolean> action) {
+
+	}
+
+	@Override
+	public void setOnMutePeerVideo(ConsumerAction<Boolean> action) {
+
+	}
+
+	@Override
+	public void setOnStopPeerConnection(Action action) {
+
+	}
+
+	@Override
+	public void setVideoFrameEvent(VideoFrameEvent event) {
 
 	}
 

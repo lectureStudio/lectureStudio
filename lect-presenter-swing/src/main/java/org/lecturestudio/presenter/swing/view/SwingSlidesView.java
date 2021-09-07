@@ -78,6 +78,7 @@ import org.lecturestudio.presenter.swing.input.StylusListener;
 import org.lecturestudio.stylus.awt.AwtStylusManager;
 import org.lecturestudio.swing.components.EditableThumbnailPanel;
 import org.lecturestudio.swing.components.MessageView;
+import org.lecturestudio.swing.components.PeerView;
 import org.lecturestudio.swing.components.SlideView;
 import org.lecturestudio.swing.components.SpeechRequestView;
 import org.lecturestudio.swing.components.ThumbPanel;
@@ -87,6 +88,8 @@ import org.lecturestudio.swing.converter.MatrixConverter;
 import org.lecturestudio.swing.util.SwingUtils;
 import org.lecturestudio.swing.view.SwingView;
 import org.lecturestudio.swing.view.ViewPostConstruct;
+import org.lecturestudio.web.api.event.PeerStateEvent;
+import org.lecturestudio.web.api.event.VideoFrameEvent;
 import org.lecturestudio.web.api.message.MessengerMessage;
 import org.lecturestudio.web.api.message.SpeechCancelMessage;
 import org.lecturestudio.web.api.message.SpeechRequestMessage;
@@ -106,6 +109,16 @@ public class SwingSlidesView extends JPanel implements SlidesView {
 	private ConsumerAction<Page> selectPageAction;
 
 	private ConsumerAction<Matrix> viewTransformAction;
+
+	private ConsumerAction<SpeechRequestMessage> acceptSpeechRequestAction;
+
+	private ConsumerAction<SpeechRequestMessage> rejectSpeechRequestAction;
+
+	private ConsumerAction<Boolean> mutePeerAudioAction;
+
+	private ConsumerAction<Boolean> mutePeerVideoAction;
+
+	private Action stopPeerConnectionAction;
 
 	private Action newPageAction;
 
@@ -129,7 +142,11 @@ public class SwingSlidesView extends JPanel implements SlidesView {
 
 	private SlideView slideView;
 
+	private PeerView peerView;
+
 	private JTabbedPane tabPane;
+
+	private Container peerViewContainer;
 
 	private Container messageViewContainer;
 
@@ -373,16 +390,18 @@ public class SwingSlidesView extends JPanel implements SlidesView {
 	}
 
 	@Override
-	public void setSpeechRequestMessage(SpeechRequestMessage message,
-			ConsumerAction<Long> acceptAction,
-			ConsumerAction<Long> rejectAction) {
+	public void setSpeechRequestMessage(SpeechRequestMessage message) {
 		SwingUtils.invoke(() -> {
 			SpeechRequestView requestView = new SpeechRequestView(this.dict);
 			requestView.setRequestId(message.getRequestId());
 			requestView.setUserName(String.format("%s %s", message.getFirstName(), message.getFamilyName()));
 			requestView.setDate(message.getDate());
-			requestView.setOnAccept(acceptAction);
-			requestView.setOnReject(rejectAction);
+			requestView.setOnAccept(() -> {
+				acceptSpeechRequestAction.execute(message);
+			});
+			requestView.setOnReject(() -> {
+				rejectSpeechRequestAction.execute(message);
+			});
 			requestView.pack();
 
 			messageViewContainer.add(requestView);
@@ -403,6 +422,74 @@ public class SwingSlidesView extends JPanel implements SlidesView {
 					}
 				}
 			}
+		});
+	}
+
+	@Override
+	public void setOnAcceptSpeech(ConsumerAction<SpeechRequestMessage> action) {
+		acceptSpeechRequestAction = action;
+	}
+
+	@Override
+	public void setOnRejectSpeech(ConsumerAction<SpeechRequestMessage> action) {
+		rejectSpeechRequestAction = action;
+	}
+
+	@Override
+	public void setPeerStateEvent(PeerStateEvent event) {
+		SwingUtils.invoke(() -> {
+			ExecutableState state = event.getState();
+
+			if (state == ExecutableState.Started) {
+				if (peerViewContainer.getComponentCount() > 0) {
+					return;
+				}
+
+				peerView = new PeerView();
+				peerView.setMinimumSize(new Dimension(100, 150));
+				peerView.setPreferredSize(new Dimension(100, 150));
+				peerView.setPeerName(event.getPeerName());
+				peerView.setOnMuteAudio(mutePeerAudioAction);
+				peerView.setOnMuteVideo(mutePeerVideoAction);
+				peerView.setOnStopPeerConnection(stopPeerConnectionAction);
+
+				peerViewContainer.add(peerView);
+				peerViewContainer.revalidate();
+				peerViewContainer.repaint();
+			}
+			else if (state == ExecutableState.Stopped) {
+				peerView = null;
+
+				peerViewContainer.removeAll();
+				peerViewContainer.revalidate();
+				peerViewContainer.repaint();
+			}
+		});
+	}
+
+	@Override
+	public void setOnMutePeerAudio(ConsumerAction<Boolean> action) {
+		mutePeerAudioAction = action;
+	}
+
+	@Override
+	public void setOnMutePeerVideo(ConsumerAction<Boolean> action) {
+		mutePeerVideoAction = action;
+	}
+
+	@Override
+	public void setOnStopPeerConnection(Action action) {
+		stopPeerConnectionAction = action;
+	}
+
+	@Override
+	public void setVideoFrameEvent(VideoFrameEvent event) {
+		if (isNull(peerView)) {
+			return;
+		}
+
+		SwingUtils.invoke(() -> {
+			System.out.println(event);
 		});
 	}
 

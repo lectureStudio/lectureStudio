@@ -129,7 +129,7 @@ public class WebRtcStreamEventRecorder extends StreamEventRecorder {
 		}
 
 		PlaybackAction action = event.getAction();
-		action.setTimestamp((int) getElapsedTime());
+//		action.setTimestamps((int) getElapsedTime());
 
 		addPlaybackAction(new StreamPagePlaybackAction(currentPage, action));
 	}

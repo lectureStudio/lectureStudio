@@ -38,6 +38,8 @@ import org.lecturestudio.core.view.PresentationParameter;
 import org.lecturestudio.core.view.PresentationParameterProvider;
 import org.lecturestudio.core.view.View;
 import org.lecturestudio.presenter.api.stylus.StylusHandler;
+import org.lecturestudio.web.api.event.PeerStateEvent;
+import org.lecturestudio.web.api.event.VideoFrameEvent;
 import org.lecturestudio.web.api.message.MessengerMessage;
 import org.lecturestudio.web.api.message.SpeechCancelMessage;
 import org.lecturestudio.web.api.message.SpeechRequestMessage;
@@ -80,11 +82,23 @@ public interface SlidesView extends View {
 
 	void setMessengerMessage(MessengerMessage message);
 
-	void setSpeechRequestMessage(SpeechRequestMessage message,
-			ConsumerAction<Long> acceptAction,
-			ConsumerAction<Long> rejectAction);
+	void setSpeechRequestMessage(SpeechRequestMessage message);
 
 	void setSpeechCancelMessage(SpeechCancelMessage message);
+
+	void setOnAcceptSpeech(ConsumerAction<SpeechRequestMessage> action);
+
+	void setOnRejectSpeech(ConsumerAction<SpeechRequestMessage> action);
+
+	void setPeerStateEvent(PeerStateEvent event);
+
+	void setOnMutePeerAudio(ConsumerAction<Boolean> action);
+
+	void setOnMutePeerVideo(ConsumerAction<Boolean> action);
+
+	void setOnStopPeerConnection(Action action);
+
+	void setVideoFrameEvent(VideoFrameEvent event);
 
 	void setSelectedToolType(ToolType type);
 

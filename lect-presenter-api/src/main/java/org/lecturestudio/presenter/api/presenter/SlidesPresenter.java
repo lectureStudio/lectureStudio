@@ -82,9 +82,12 @@ import org.lecturestudio.presenter.api.event.StreamingStateEvent;
 import org.lecturestudio.presenter.api.input.Shortcut;
 import org.lecturestudio.presenter.api.pdf.embedded.SlideNoteParser;
 import org.lecturestudio.presenter.api.service.RecordingService;
+import org.lecturestudio.presenter.api.service.WebRtcStreamService;
 import org.lecturestudio.presenter.api.stylus.StylusHandler;
 import org.lecturestudio.presenter.api.view.PageObjectRegistry;
 import org.lecturestudio.presenter.api.view.SlidesView;
+import org.lecturestudio.web.api.event.PeerStateEvent;
+import org.lecturestudio.web.api.event.VideoFrameEvent;
 import org.lecturestudio.web.api.message.MessengerMessage;
 import org.lecturestudio.web.api.message.SpeechAcceptMessage;
 import org.lecturestudio.web.api.message.SpeechCancelMessage;
@@ -102,6 +105,8 @@ public class SlidesPresenter extends Presenter<SlidesView> {
 	private final DocumentChangeListener documentChangeListener;
 
 	private final DocumentRecorder documentRecorder;
+
+	private final WebRtcStreamService streamService;
 
 	private StylusHandler stylusHandler;
 
@@ -140,7 +145,8 @@ public class SlidesPresenter extends Presenter<SlidesView> {
 			RenderController renderController,
 			DocumentService documentService,
 			DocumentRecorder documentRecorder,
-			RecordingService recordingService) {
+			RecordingService recordingService,
+			WebRtcStreamService streamService) {
 		super(context, view);
 
 		this.viewFactory = viewFactory;
@@ -150,6 +156,7 @@ public class SlidesPresenter extends Presenter<SlidesView> {
 		this.documentRecorder = documentRecorder;
 		this.documentService = documentService;
 		this.recordingService = recordingService;
+		this.streamService = streamService;
 		this.eventBus = context.getEventBus();
 		this.shortcutMap = new HashMap<>();
 		this.pageObjectRegistry = new PageObjectRegistry();
@@ -249,7 +256,7 @@ public class SlidesPresenter extends Presenter<SlidesView> {
 	public void onEvent(SpeechRequestMessage message) {
 		requireNonNull(message);
 
-		view.setSpeechRequestMessage(message, this::onAcceptSpeech, this::onCancelSpeech);
+		view.setSpeechRequestMessage(message);
 	}
 
 	@Subscribe
@@ -257,6 +264,16 @@ public class SlidesPresenter extends Presenter<SlidesView> {
 		requireNonNull(message);
 
 		view.setSpeechCancelMessage(message);
+	}
+
+	@Subscribe
+	public void onEvent(PeerStateEvent event) {
+		view.setPeerStateEvent(event);
+	}
+
+	@Subscribe
+	public void onEvent(VideoFrameEvent event) {
+		view.setVideoFrameEvent(event);
 	}
 
 	private void keyEvent(KeyEvent event) {
@@ -272,12 +289,22 @@ public class SlidesPresenter extends Presenter<SlidesView> {
 		}
 	}
 
-	private void onAcceptSpeech(Long requestId) {
-		eventBus.post(new SpeechAcceptMessage(requestId));
+	private void onAcceptSpeech(SpeechRequestMessage message) {
+		var acceptMessage = new SpeechAcceptMessage();
+		acceptMessage.setRequestId(message.getRequestId());
+		acceptMessage.setFirstName(message.getFirstName());
+		acceptMessage.setFamilyName(message.getFamilyName());
+
+		eventBus.post(acceptMessage);
 	}
 
-	private void onCancelSpeech(Long requestId) {
-		eventBus.post(new SpeechRejectMessage(requestId));
+	private void onRejectSpeech(SpeechRequestMessage message) {
+		var rejectMessage = new SpeechRejectMessage();
+		rejectMessage.setRequestId(message.getRequestId());
+		rejectMessage.setFirstName(message.getFirstName());
+		rejectMessage.setFamilyName(message.getFamilyName());
+
+		eventBus.post(rejectMessage);
 	}
 
 	private void toolChanged(ToolType toolType) {
@@ -631,6 +658,12 @@ public class SlidesPresenter extends Presenter<SlidesView> {
 		view.setOnSelectDocument(this::selectDocument);
 		view.setOnViewTransform(this::setViewTransform);
 		view.setOnLaTeXText(this::setLaTeXText);
+
+		view.setOnAcceptSpeech(this::onAcceptSpeech);
+		view.setOnRejectSpeech(this::onRejectSpeech);
+		view.setOnMutePeerAudio(streamService::mutePeerAudio);
+		view.setOnMutePeerVideo(streamService::mutePeerVideo);
+		view.setOnStopPeerConnection(streamService::stopPeerConnection);
 
 		// Register shortcuts that are associated with the SlideView.
 		registerShortcut(Shortcut.SLIDE_NEXT_DOWN, this::nextPage);

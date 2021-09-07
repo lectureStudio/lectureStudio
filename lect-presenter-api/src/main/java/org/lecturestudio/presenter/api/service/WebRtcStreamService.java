@@ -120,7 +120,9 @@ public class WebRtcStreamService extends ExecutableBase {
 			return;
 		}
 
-		janusClient.startRemoteSpeech();
+		String userName = String.format("%s %s", message.getFirstName(), message.getFamilyName());
+
+		janusClient.startRemoteSpeech(message.getRequestId(), userName);
 		streamService.acceptSpeechRequest(message.getRequestId());
 	}
 
@@ -156,6 +158,30 @@ public class WebRtcStreamService extends ExecutableBase {
 		webRtcConfig.getVideoConfiguration().setSendVideo(false);
 
 		setCameraState(ExecutableState.Stopped);
+	}
+
+	public void mutePeerAudio(boolean mute) {
+		if (!started()) {
+			return;
+		}
+
+		webRtcConfig.getAudioConfiguration().setReceiveAudio(mute);
+	}
+
+	public void mutePeerVideo(boolean mute) {
+		if (!started()) {
+			return;
+		}
+
+		webRtcConfig.getVideoConfiguration().setReceiveVideo(mute);
+	}
+
+	public void stopPeerConnection() {
+		if (!started()) {
+			return;
+		}
+
+		janusClient.stopRemoteSpeech(0);
 	}
 
 	@Override
@@ -311,9 +337,11 @@ public class WebRtcStreamService extends ExecutableBase {
 
 		WebRtcConfiguration webRtcConfig = new WebRtcConfiguration();
 		webRtcConfig.getAudioConfiguration().setSendAudio(streamConfig.getMicrophoneEnabled());
+		webRtcConfig.getAudioConfiguration().setReceiveAudio(true);
 		webRtcConfig.getAudioConfiguration().setRecordingDevice(audioCaptureDevice);
 
 		webRtcConfig.getVideoConfiguration().setSendVideo(streamConfig.getCameraEnabled());
+		webRtcConfig.getVideoConfiguration().setReceiveVideo(true);
 		webRtcConfig.getVideoConfiguration().setCaptureDevice(videoCaptureDevice);
 		webRtcConfig.getVideoConfiguration().setCaptureCapability(
 				new VideoCaptureCapability((int) cameraViewRect.getWidth(),
@@ -326,6 +354,13 @@ public class WebRtcStreamService extends ExecutableBase {
 		webRtcConfig.getRTCConfig().iceServers.add(iceServer);
 
 		webRtcConfig.setCourse(streamConfig.getCourse());
+
+		webRtcConfig.setPeerStateConsumer(event -> {
+			context.getEventBus().post(event);
+		});
+//		webRtcConfig.setOnRemoteVideoFrame(videoFrame -> {
+//			context.getEventBus().post(videoFrame);
+//		});
 
 		streamConfig.enableMicrophoneProperty().addListener((o, oldValue, newValue) -> {
 			webRtcConfig.getAudioConfiguration().setSendAudio(newValue);

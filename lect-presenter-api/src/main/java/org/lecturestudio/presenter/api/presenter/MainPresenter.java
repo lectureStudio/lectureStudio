@@ -319,10 +319,10 @@ public class MainPresenter extends org.lecturestudio.core.presenter.MainPresente
 		else if (state == ExecutableState.Started) {
 			hideWaitingNotification();
 
-			display(createPresenter(MessengerWindowPresenter.class));
+//			display(createPresenter(MessengerWindowPresenter.class));
 		}
 		else if (state == ExecutableState.Stopped) {
-			destroyHandler(MessengerWindowPresenter.class);
+//			destroyHandler(MessengerWindowPresenter.class);
 		}
 	}
 

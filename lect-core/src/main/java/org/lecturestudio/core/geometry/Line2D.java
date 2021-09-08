@@ -21,7 +21,8 @@ package org.lecturestudio.core.geometry;
 import java.io.Serializable;
 
 /**
- * Line2D represents a line segment in 2D space with a start point and an end point.
+ * Line2D represents a line segment in 2D space with a start point and an end
+ * point.
  *
  * @author Alex Andres
  */
@@ -50,7 +51,8 @@ public class Line2D implements Cloneable, Serializable {
 	}
 
 	/**
-	 * Creates a new instance of {@link Line2D} with specified start and end point.
+	 * Creates a new instance of {@link Line2D} with specified start and end
+	 * point.
 	 *
 	 * @param start The start point of the line.
 	 * @param end   The end point of the line.
@@ -134,10 +136,16 @@ public class Line2D implements Cloneable, Serializable {
 	 *
 	 * @param line The line to check the intersection with.
 	 *
-	 * @return {@code true} if the lines intersect each other, otherwise {@code true}.
+	 * @return {@code true} if the lines intersect each other, otherwise {@code
+	 * true}.
 	 */
 	public boolean intersects(Line2D line) {
-		double d = (line.y2 - line.y1) * (x2 - x1) - (line.x2 - line.x1) * (y2 - y1);
+		double x3 = line.x1;
+		double x4 = line.x2;
+		double y3 = line.y1;
+		double y4 = line.y2;
+
+		double d = (y4 - y3) * (x2 - x1) - (x4 - x3) * (y2 - y1);
 
 		// Are the lines parallel.
 		if (d == 0) {
@@ -145,33 +153,52 @@ public class Line2D implements Cloneable, Serializable {
 		}
 
 		// Calculate the intermediate fractional point.
-		double a = (line.x2 - line.x1) * (y1 - line.y1) - (line.y2 - line.y1) * (x1 - line.x1);
-		double b = (x2 - x1) * (y1 - line.y1) - (y2 - y1) * (x1 - line.x1);
+		double a = (x4 - x3) * (y1 - y3) - (y4 - y3) * (x1 - x3);
+		double b = (x2 - x1) * (y1 - y3) - (y2 - y1) * (x1 - x3);
 		double ua = a / d;
 		double ub = b / d;
 
-		// Check for intersection along the the segments.
+		// Check for intersection along the segments.
 		return ua >= 0d && ua <= 1d && ub >= 0d && ub <= 1d;
 	}
 
 	/**
-	 * Find the intersection point of two lines. If the lines are parallel, the return value is {@code null}.
+	 * Find the intersection point of two lines. If the lines are parallel, the
+	 * return value is {@code null}.
 	 *
-	 * @param line The other line of which the intersection point should be found.
+	 * @param line The other line of which the intersection point should be
+	 *             found.
 	 *
-	 * @return The intersection point, or {@code null}, if the lines are parallel.
+	 * @return The intersection point, or {@code null}, if the lines are
+	 * parallel.
 	 */
 	public Point2D getIntersectionPoint(Line2D line) {
+		double x3 = line.x1;
+		double x4 = line.x2;
+		double y3 = line.y1;
+		double y4 = line.y2;
 
-		if (intersects(line)) {
-			double d = (line.y2 - line.y1) * (x2 - x1) - (line.x2 - line.x1) * (y2 - y1);
+		double d = (y4 - y3) * (x2 - x1) - (x4 - x3) * (y2 - y1);
 
+		// Are the lines parallel.
+		if (Math.abs(d) < 0.01) {
+			return null;
+		}
+
+		// Calculate the intermediate fractional point.
+		double a = (x4 - x3) * (y1 - y3) - (y4 - y3) * (x1 - x3);
+		double b = (x2 - x1) * (y1 - y3) - (y2 - y1) * (x1 - x3);
+		double ua = a / d;
+		double ub = b / d;
+
+		// Check for intersection along the the segments.
+		if (ua >= 0d && ua <= 1d && ub >= 0d && ub <= 1d) {
 			double A1 = y2 - y1;
 			double B1 = x1 - x2;
 			double C1 = A1 * x1 + B1 * y1;
-			double A2 = line.y2 - line.y1;
-			double B2 = line.x1 - line.x2;
-			double C2 = A2 * line.x1 + B2 * line.y1;
+			double A2 = y4 - y3;
+			double B2 = x3 - x4;
+			double C2 = A2 * x3 + B2 * y3;
 
 			return new Point2D((B2 * C1 - B1 * C2) / d, (A1 * C2 - A2 * C1) / d);
 		}

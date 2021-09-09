@@ -27,8 +27,6 @@ import java.math.BigInteger;
  */
 public class JanusRoomKickRequest extends JanusRoomRequest {
 
-	private BigInteger room;
-
 	private BigInteger id;
 
 	private String secret;
@@ -39,15 +37,6 @@ public class JanusRoomKickRequest extends JanusRoomRequest {
 	 */
 	public JanusRoomKickRequest() {
 		setRequestType(JanusRoomRequestType.KICK);
-	}
-
-	/**
-	 * Set the unique ID of the room from which to kick the participant.
-	 *
-	 * @param roomId The unique room ID.
-	 */
-	public void setRoomId(BigInteger roomId) {
-		room = roomId;
 	}
 
 	/**

@@ -18,7 +18,6 @@
 
 package org.lecturestudio.web.api.janus.message;
 
-import java.math.BigInteger;
 import java.util.List;
 
 /**
@@ -28,8 +27,6 @@ import java.util.List;
  */
 public class JanusCreateRoomMessage extends JanusRoomRequest {
 
-	private BigInteger room;
-
 	private Integer publishers;
 
 	private Integer bitrate;
@@ -37,6 +34,8 @@ public class JanusCreateRoomMessage extends JanusRoomRequest {
 	private Boolean permanent;
 
 	private Boolean is_private;
+
+	private Boolean notify_joining;
 
 	private Boolean record;
 
@@ -54,24 +53,6 @@ public class JanusCreateRoomMessage extends JanusRoomRequest {
 	 */
 	public JanusCreateRoomMessage() {
 		setRequestType(JanusRoomRequestType.CREATE);
-	}
-
-	/**
-	 * Get the unique numeric room ID, optional, chosen by plugin if missing.
-	 *
-	 * @return The unique numeric room ID.
-	 */
-	public BigInteger getRoom() {
-		return room;
-	}
-
-	/**
-	 * Set the unique numeric room ID. Optional, chosen by plugin if missing.
-	 *
-	 * @param room the unique room ID.
-	 */
-	public void setRoom(BigInteger room) {
-		this.room = room;
 	}
 
 	/**
@@ -238,5 +219,25 @@ public class JanusCreateRoomMessage extends JanusRoomRequest {
 	 */
 	public void setAllowed(List<String> allowed) {
 		this.allowed = allowed;
+	}
+
+	/**
+	 * Check whether to notify all participants when a new participant joins the
+	 * room.
+	 *
+	 * @return True to notify.
+	 */
+	public Boolean getNotifyJoining() {
+		return notify_joining;
+	}
+
+	/**
+	 * Set whether to notify all participants when a new participant joins the
+	 * room.
+	 *
+	 * @param notify True to notify.
+	 */
+	public void setNotifyJoining(Boolean notify) {
+		notify_joining = notify;
 	}
 }

@@ -18,6 +18,8 @@
 
 package org.lecturestudio.web.api.janus;
 
+import static java.util.Objects.nonNull;
+
 import org.lecturestudio.core.ExecutableException;
 import org.lecturestudio.web.api.janus.state.AttachPluginState;
 import org.lecturestudio.web.api.janus.state.CreateRoomState;
@@ -42,7 +44,9 @@ public class JanusPublisherHandler extends JanusStateHandler {
 
 	@Override
 	protected void stopInternal() throws ExecutableException {
-
+		if (nonNull(peerConnection)) {
+			peerConnection.close();
+		}
 	}
 
 	@Override

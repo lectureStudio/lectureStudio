@@ -18,7 +18,6 @@
 
 package org.lecturestudio.web.api.janus.message;
 
-import java.math.BigInteger;
 import java.util.List;
 
 /**
@@ -27,8 +26,6 @@ import java.util.List;
  * @author Alex Andres
  */
 public class JanusEditRoomMessage extends JanusRoomRequest {
-
-	private BigInteger room;
 
 	private Integer new_publishers;
 
@@ -50,24 +47,6 @@ public class JanusEditRoomMessage extends JanusRoomRequest {
 	 */
 	public JanusEditRoomMessage() {
 		setRequestType(JanusRoomRequestType.EDIT);
-	}
-
-	/**
-	 * Get the unique numeric room ID, optional, chosen by plugin if missing.
-	 *
-	 * @return The unique numeric room ID.
-	 */
-	public BigInteger getRoom() {
-		return room;
-	}
-
-	/**
-	 * Set the unique numeric room ID. Optional, chosen by plugin if missing.
-	 *
-	 * @param room the unique room ID.
-	 */
-	public void setRoom(BigInteger room) {
-		this.room = room;
 	}
 
 	/**

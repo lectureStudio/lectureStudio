@@ -18,16 +18,12 @@
 
 package org.lecturestudio.web.api.janus.message;
 
-import java.math.BigInteger;
-
 /**
  * Request container used to destroy a previously created video room.
  *
  * @author Alex Andres
  */
 public class JanusDestroyRoomMessage extends JanusRoomRequest {
-
-	private BigInteger room;
 
 	private Boolean permanent;
 
@@ -39,24 +35,6 @@ public class JanusDestroyRoomMessage extends JanusRoomRequest {
 	 */
 	public JanusDestroyRoomMessage() {
 		setRequestType(JanusRoomRequestType.DESTROY);
-	}
-
-	/**
-	 * Get the unique numeric room ID of the room to destroy.
-	 *
-	 * @return The unique numeric room ID.
-	 */
-	public BigInteger getRoom() {
-		return room;
-	}
-
-	/**
-	 * Set the unique numeric room ID. Optional, chosen by plugin if missing.
-	 *
-	 * @param room the unique room ID.
-	 */
-	public void setRoom(BigInteger room) {
-		this.room = room;
 	}
 
 	/**

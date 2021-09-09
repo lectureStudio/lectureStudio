@@ -18,17 +18,12 @@
 
 package org.lecturestudio.web.api.janus.message;
 
-import java.math.BigInteger;
-
 /**
  * Room request to start subscribing media from a room.
  *
  * @author Alex Andres
  */
 public class JanusRoomSubscribeRequest extends JanusRoomRequest {
-
-	protected BigInteger room;
-
 
 	/**
 	 * Create a new {@code JanusRoomSubscribeRequest}.
@@ -37,21 +32,4 @@ public class JanusRoomSubscribeRequest extends JanusRoomRequest {
 		setRequestType(JanusRoomRequestType.START);
 	}
 
-	/**
-	 * Get the unique numeric room ID, optional, chosen by plugin if missing.
-	 *
-	 * @return The unique numeric room ID.
-	 */
-	public BigInteger getRoom() {
-		return room;
-	}
-
-	/**
-	 * Set the unique numeric room ID. Optional, chosen by plugin if missing.
-	 *
-	 * @param room the unique room ID.
-	 */
-	public void setRoom(BigInteger room) {
-		this.room = room;
-	}
 }

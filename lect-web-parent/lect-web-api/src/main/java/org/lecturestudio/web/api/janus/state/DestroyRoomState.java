@@ -20,13 +20,10 @@ package org.lecturestudio.web.api.janus.state;
 
 import java.util.UUID;
 
-import org.lecturestudio.web.api.janus.JanusHandler;
 import org.lecturestudio.web.api.janus.JanusStateHandler;
 import org.lecturestudio.web.api.janus.message.JanusDestroyRoomMessage;
 import org.lecturestudio.web.api.janus.message.JanusMessage;
-import org.lecturestudio.web.api.janus.message.JanusMessageType;
 import org.lecturestudio.web.api.janus.message.JanusPluginDataMessage;
-import org.lecturestudio.web.api.janus.message.JanusSessionMessage;
 
 /**
  * This state destroys a previously created video-room on the Janus WebRTC
@@ -44,7 +41,7 @@ public class DestroyRoomState implements JanusState {
 		logDebug("Destroying room");
 
 		JanusDestroyRoomMessage request = new JanusDestroyRoomMessage();
-		request.setRoom(handler.getRoomId());
+		request.setRoomId(handler.getRoomId());
 		request.setSecret(handler.getRoomSecret());
 
 		destroyRoomRequest = new JanusPluginDataMessage(handler.getSessionId(),
@@ -53,8 +50,6 @@ public class DestroyRoomState implements JanusState {
 		destroyRoomRequest.setBody(request);
 
 		handler.sendMessage(destroyRoomRequest);
-
-		handler.getPeerConnection().close();
 	}
 
 	@Override

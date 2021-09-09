@@ -158,6 +158,10 @@ public class JanusHandler extends JanusStateHandler {
 	protected void stopInternal() throws ExecutableException {
 		setState(new DestroyRoomState());
 
+		for (JanusStateHandler handler : handlers) {
+			handler.stop();
+		}
+
 		executorService.shutdown();
 	}
 
@@ -275,7 +279,7 @@ public class JanusHandler extends JanusStateHandler {
 
 	private void editRoom(int publishers) {
 		JanusEditRoomMessage request = new JanusEditRoomMessage();
-		request.setRoom(getRoomId());
+		request.setRoomId(getRoomId());
 		request.setPublishers(publishers);
 		//request.setSecret(handler.getRoomSecret());
 

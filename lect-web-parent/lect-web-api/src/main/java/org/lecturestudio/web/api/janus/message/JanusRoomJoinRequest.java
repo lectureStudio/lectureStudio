@@ -37,9 +37,6 @@ public class JanusRoomJoinRequest extends JanusRoomRequest {
 	@JsonbTypeAdapter(ParticipantTypeAdapter.class)
 	private JanusParticipantType participantType;
 
-	@JsonbProperty("room")
-	private BigInteger roomId;
-
 	@JsonbProperty("feed")
 	private BigInteger publisherId;
 
@@ -65,15 +62,6 @@ public class JanusRoomJoinRequest extends JanusRoomRequest {
 	 */
 	public void setParticipantType(JanusParticipantType participantType) {
 		this.participantType = participantType;
-	}
-
-	/**
-	 * Set the unique ID of the room to join.
-	 *
-	 * @param id The unique room ID.
-	 */
-	public void setRoomId(BigInteger id) {
-		roomId = id;
 	}
 
 	/**

@@ -159,7 +159,7 @@ public class SubscriberJoinedRoomState implements JanusState {
 
 	private void sendRequest(JanusStateHandler handler, String sdp) {
 		JanusRoomSubscribeRequest request = new JanusRoomSubscribeRequest();
-		request.setRoom(handler.getRoomId());
+		request.setRoomId(handler.getRoomId());
 
 		subscribeRequest = new JanusRoomSubscribeMessage(handler.getSessionId(),
 				handler.getPluginId());

@@ -18,6 +18,8 @@
 
 package org.lecturestudio.web.api.janus.message;
 
+import java.math.BigInteger;
+
 import javax.json.bind.annotation.JsonbProperty;
 import javax.json.bind.annotation.JsonbTypeAdapter;
 
@@ -34,6 +36,9 @@ public class JanusRoomRequest {
 	@JsonbProperty("request")
 	@JsonbTypeAdapter(RoomRequestTypeAdapter.class)
 	private JanusRoomRequestType requestType;
+
+	@JsonbProperty("room")
+	private BigInteger room;
 
 
 	/**
@@ -52,5 +57,25 @@ public class JanusRoomRequest {
 	 */
 	public void setRequestType(JanusRoomRequestType requestType) {
 		this.requestType = requestType;
+	}
+
+	/**
+	 * Get the unique numeric room ID, optional, since not all requests require
+	 * this field.
+	 *
+	 * @return The unique numeric room ID.
+	 */
+	public BigInteger getRoomId() {
+		return room;
+	}
+
+	/**
+	 * Set the unique numeric room ID. Optional, since not all requests require
+	 * this field.
+	 *
+	 * @param room the unique room ID.
+	 */
+	public void setRoomId(BigInteger room) {
+		this.room = room;
 	}
 }

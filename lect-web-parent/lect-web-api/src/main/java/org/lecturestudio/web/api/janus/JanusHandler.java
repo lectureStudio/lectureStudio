@@ -23,8 +23,10 @@ import static java.util.Objects.requireNonNull;
 
 import java.math.BigInteger;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
@@ -53,9 +55,9 @@ public class JanusHandler extends JanusStateHandler {
 
 	private ScheduledExecutorService executorService;
 
-	private Map<Class<? extends JanusMessage>, Consumer<? extends JanusMessage>> handlerMap;
+	private Map<Class<? extends JanusMessage>, Consumer<? extends JanusMessage>> messageHandlers;
 
-	private JanusSubHandler subHandler;
+	private List<JanusStateHandler> handlers;
 
 	private String userName;
 
@@ -87,31 +89,30 @@ public class JanusHandler extends JanusStateHandler {
 
 		editRoom(1);
 
-		if (nonNull(subHandler)) {
-			kickParticipant();
-		}
+		kickParticipant();
 	}
 
-	public <T extends JanusMessage> void handleMessage(T message) throws Exception {
+	@Override
+	public void handleMessage(JanusMessage message) throws Exception {
 		if (message.getEventType() == JanusMessageType.ACK) {
 			// Do not process ack events.
 			return;
 		}
 
-		if (handlerMap.containsKey(message.getClass())) {
+		if (messageHandlers.containsKey(message.getClass())) {
 			processMessage(message);
 		}
 		else {
-			super.handleMessage(message);
-
-			if (nonNull(subHandler)) {
+			for (JanusStateHandler handler : handlers) {
 				try {
-					subHandler.handleMessage(message);
+					handler.handleMessage(message);
 				}
 				catch (Exception e) {
-					e.printStackTrace();
+					logException(e, "Handle Janus message failed");
 				}
 			}
+
+			super.handleMessage(message);
 		}
 	}
 
@@ -128,19 +129,20 @@ public class JanusHandler extends JanusStateHandler {
 	}
 
 	@Override
+	public void setPluginId(BigInteger id) {
+		super.setPluginId(id);
+
+		// Start publishing.
+		startPublisher();
+	}
+
+	@Override
 	protected void initInternal() throws ExecutableException {
 		executorService = Executors.newSingleThreadScheduledExecutor();
-		handlerMap = new HashMap<>();
-		eventRecorder.addRecordedActionConsumer(action -> {
-			if (nonNull(peerConnection)) {
-				try {
-					peerConnection.sendData(action.toByteArray());
-				}
-				catch (Exception e) {
-					logException(e, "Send event via data channel failed");
-				}
-			}
-		});
+		messageHandlers = new HashMap<>();
+		handlers = new CopyOnWriteArrayList<>();
+
+		setRoomId(BigInteger.valueOf(getWebRtcConfig().getCourse().getId()));
 
 		registerHandler(JanusErrorMessage.class, this::handleError);
 		registerHandler(JanusSessionTimeoutMessage.class, this::handleSessionTimeout);
@@ -164,13 +166,35 @@ public class JanusHandler extends JanusStateHandler {
 
 	}
 
+	private void addStateHandler(JanusStateHandler handler) {
+		try {
+			handler.start();
+
+			handlers.add(handler);
+		}
+		catch (ExecutableException e) {
+			logException(e, "Start Janus handler failed");
+		}
+	}
+
+	private void removeStateHandler(JanusStateHandler handler) {
+		handlers.remove(handler);
+
+		try {
+			handler.stop();
+		}
+		catch (ExecutableException e) {
+			logException(e, "Stop Janus handler failed");
+		}
+	}
+
 	private <T extends JanusMessage> void registerHandler(Class<T> msgClass, Consumer<T> handler) {
-		handlerMap.put(msgClass, handler);
+		messageHandlers.put(msgClass, handler);
 	}
 
 	@SuppressWarnings("unchecked")
 	private <T extends JanusMessage> void processMessage(T message) {
-		Consumer<T> handler = (Consumer<T>) handlerMap.get(message.getClass());
+		Consumer<T> handler = (Consumer<T>) messageHandlers.get(message.getClass());
 
 		if (nonNull(handler)) {
 			handler.accept(message);
@@ -191,11 +215,40 @@ public class JanusHandler extends JanusStateHandler {
 
 		peerId = publisher.getId();
 
-		subHandler = new JanusSubHandler(transmitter, webRtcConfig);
+		startSubscriber();
+	}
+
+	private void startPublisher() {
+		JanusStateHandler pubHandler = new JanusPublisherHandler(transmitter,
+				webRtcConfig);
+		pubHandler.setSessionId(getSessionId());
+		pubHandler.setRoomId(getRoomId());
+
+		eventRecorder.addRecordedActionConsumer(action -> {
+			JanusPeerConnection peerConnection = pubHandler.getPeerConnection();
+
+			if (nonNull(peerConnection)) {
+				try {
+					peerConnection.sendData(action.toByteArray());
+				}
+				catch (Exception e) {
+					logException(e, "Send event via data channel failed");
+				}
+			}
+		});
+
+		addStateHandler(pubHandler);
+	}
+
+	private void startSubscriber() {
+		JanusStateHandler subHandler = new JanusSubscriberHandler(transmitter,
+				webRtcConfig);
 		subHandler.setSessionId(getSessionId());
 		subHandler.setRoomId(getRoomId());
 		subHandler.setState(new AttachPluginState(
-				new SubscriberJoinRoomState(publisher.getId(), userName)));
+				new SubscriberJoinRoomState(peerId, userName)));
+
+		addStateHandler(subHandler);
 	}
 
 	private void kickParticipant() {

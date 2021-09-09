@@ -19,11 +19,13 @@
 package org.lecturestudio.web.api.janus;
 
 import org.lecturestudio.core.ExecutableException;
+import org.lecturestudio.web.api.janus.state.AttachPluginState;
+import org.lecturestudio.web.api.janus.state.CreateRoomState;
 import org.lecturestudio.web.api.stream.config.WebRtcConfiguration;
 
-public class JanusSubHandler extends JanusStateHandler {
+public class JanusPublisherHandler extends JanusStateHandler {
 
-	public JanusSubHandler(JanusMessageTransmitter transmitter,
+	public JanusPublisherHandler(JanusMessageTransmitter transmitter,
 			WebRtcConfiguration webRtcConfig) {
 		super(transmitter, webRtcConfig);
 	}
@@ -35,7 +37,7 @@ public class JanusSubHandler extends JanusStateHandler {
 
 	@Override
 	protected void startInternal() throws ExecutableException {
-
+		setState(new AttachPluginState(new CreateRoomState()));
 	}
 
 	@Override

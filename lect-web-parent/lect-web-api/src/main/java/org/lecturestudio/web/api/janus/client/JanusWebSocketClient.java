@@ -18,6 +18,8 @@
 
 package org.lecturestudio.web.api.janus.client;
 
+import static java.util.Objects.requireNonNull;
+
 import java.io.StringReader;
 import java.net.URI;
 import java.net.http.HttpClient;
@@ -110,6 +112,8 @@ public class JanusWebSocketClient extends ExecutableBase implements JanusMessage
 	@Override
 	protected void initInternal() throws ExecutableException {
 		jsonb = JsonbBuilder.create(JsonConfigProvider.createConfig());
+
+		requireNonNull(webRtcConfig.getCourse());
 
 		handler = new JanusHandler(this, webRtcConfig, eventRecorder);
 		handler.init();

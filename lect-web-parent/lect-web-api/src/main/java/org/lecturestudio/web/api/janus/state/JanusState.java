@@ -62,7 +62,8 @@ public interface JanusState {
 	 * @param handler The {@code JanusStateHandler}.
 	 * @param message The message to process.
 	 */
-	void handleMessage(JanusStateHandler handler, JanusMessage message);
+	void handleMessage(JanusStateHandler handler, JanusMessage message)
+			throws Exception;
 
 	/**
 	 * Check whether the transaction IDs of the messages match. Any response
@@ -76,7 +77,8 @@ public interface JanusState {
 	 */
 	default void checkTransaction(JanusMessage sent, JanusMessage received) {
 		if (!sent.getTransaction().equals(received.getTransaction())) {
-			throw new IllegalStateException("Transactions do not match");
+			throw new IllegalStateException("Transactions do not match "
+				+ sent.getTransaction() + " != " + received.getTransaction());
 		}
 	}
 

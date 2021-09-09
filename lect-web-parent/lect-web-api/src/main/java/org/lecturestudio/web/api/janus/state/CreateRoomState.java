@@ -18,9 +18,6 @@
 
 package org.lecturestudio.web.api.janus.state;
 
-import static java.util.Objects.requireNonNull;
-
-import java.math.BigInteger;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -46,21 +43,15 @@ public class CreateRoomState implements JanusState {
 
 	private JanusPluginDataMessage requestMessage;
 
-	private BigInteger roomId;
-
 
 	@Override
 	public void initialize(JanusStateHandler handler) {
 		Course course = handler.getWebRtcConfig().getCourse();
 
-		requireNonNull(course);
-
 		logDebug("Creating Janus room for: %s", course.getTitle());
 
 		JanusRoomRequest request = new JanusRoomRequest();
 		request.setRequestType(JanusRoomRequestType.LIST);
-
-		roomId = BigInteger.valueOf(course.getId());
 
 		requestMessage = new JanusPluginDataMessage(handler.getSessionId(),
 				handler.getPluginId());
@@ -78,7 +69,7 @@ public class CreateRoomState implements JanusState {
 			JanusRoomListMessage roomsMessage = (JanusRoomListMessage) message;
 
 			Optional<JanusRoom> roomOpt = roomsMessage.getRooms().stream()
-					.filter(room -> room.getRoomId().equals(roomId))
+					.filter(room -> room.getRoomId().equals(handler.getRoomId()))
 					.findFirst();
 
 			if (roomOpt.isEmpty()) {
@@ -94,7 +85,7 @@ public class CreateRoomState implements JanusState {
 			if (stateMessage.getRoomEventType() == JanusRoomEventType.CREATED) {
 				logDebug("Janus room created: %d", stateMessage.getRoomId());
 
-				if (!stateMessage.getRoomId().equals(roomId)) {
+				if (!stateMessage.getRoomId().equals(handler.getRoomId())) {
 					throw new IllegalStateException("Room IDs do not match");
 				}
 
@@ -104,7 +95,6 @@ public class CreateRoomState implements JanusState {
 	}
 
 	private void joinRoom(JanusStateHandler handler) {
-		handler.setRoomId(roomId);
 		handler.setState(new JoinRoomState());
 	}
 
@@ -113,7 +103,7 @@ public class CreateRoomState implements JanusState {
 		Course course = config.getCourse();
 
 		JanusCreateRoomMessage request = new JanusCreateRoomMessage();
-		request.setRoom(roomId);
+		request.setRoom(handler.getRoomId());
 		request.setDescription(course.getTitle());
 		request.setPublishers(1);
 		request.setBitrate(config.getVideoConfiguration().getBitrate() * 1000);

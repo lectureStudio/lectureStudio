@@ -116,31 +116,6 @@ public class JanusPeerConnection implements PeerConnectionObserver {
 		this.executor = executor;
 		this.queuedRemoteCandidates = new ArrayList<>();
 
-		config.getAudioConfiguration().sendAudioProperty()
-				.addListener((observable, oldValue, newValue) -> {
-					execute(() -> {
-						setMicrophoneActive(newValue);
-					});
-				});
-		config.getVideoConfiguration().sendVideoProperty()
-				.addListener((observable, oldValue, newValue) -> {
-					execute(() -> {
-						enableCamera(newValue);
-					});
-				});
-		config.getAudioConfiguration().receiveAudioProperty()
-				.addListener((observable, oldValue, newValue) -> {
-					execute(() -> {
-						enableRemoteAudio(newValue);
-					});
-				});
-		config.getVideoConfiguration().receiveVideoProperty()
-				.addListener((observable, oldValue, newValue) -> {
-					execute(() -> {
-						enableRemoteVideo(newValue);
-					});
-				});
-
 		executeAndWait(() -> {
 			AudioDevice recDevice = config.getAudioConfiguration().getRecordingDevice();
 			AudioDeviceModule audioModule = new AudioDeviceModule();
@@ -305,23 +280,6 @@ public class JanusPeerConnection implements PeerConnectionObserver {
 		}
 	}
 
-	public void setMicrophoneActive(boolean active) {
-		RTCRtpSender[] senders = peerConnection.getSenders();
-
-		if (nonNull(senders)) {
-			for (RTCRtpSender sender : senders) {
-				MediaStreamTrack track = sender.getTrack();
-
-				if (track.getKind().equals(MediaStreamTrack.AUDIO_TRACK_KIND)) {
-					track.setEnabled(active);
-
-					LOGGER.log(Level.INFO, "Track \"{0}\" set enabled to \"{1}\"",
-							track.getId(), active);
-				}
-			}
-		}
-	}
-
 	public CompletableFuture<Void> close() {
 		return CompletableFuture.runAsync(() -> {
 			if (nonNull(desktopSource)) {
@@ -365,6 +323,71 @@ public class JanusPeerConnection implements PeerConnectionObserver {
 			addDataChannel();
 
 			createOffer();
+		});
+	}
+
+	public void enableMicrophone(boolean enable) {
+		execute(() -> {
+			RTCRtpSender[] senders = peerConnection.getSenders();
+
+			if (nonNull(senders)) {
+				for (RTCRtpSender sender : senders) {
+					MediaStreamTrack track = sender.getTrack();
+
+					if (track.getKind().equals(MediaStreamTrack.AUDIO_TRACK_KIND)) {
+						track.setEnabled(enable);
+
+						LOGGER.log(Level.INFO, "Track \"{0}\" set enabled to \"{1}\"",
+								track.getId(), enable);
+					}
+				}
+			}
+		});
+	}
+
+	public void enableCamera(boolean enable) {
+		execute(() -> {
+			RTCRtpTransceiverDirection camDirection;
+
+			if (enable) {
+				if (nonNull(videoSource)) {
+					videoSource.start();
+
+					camDirection = RTCRtpTransceiverDirection.SEND_ONLY;
+				}
+				else {
+					addVideo(RTCRtpTransceiverDirection.SEND_ONLY);
+					return;
+				}
+			}
+			else {
+				if (nonNull(videoSource)) {
+					videoSource.stop();
+				}
+
+				camDirection = RTCRtpTransceiverDirection.INACTIVE;
+			}
+
+			for (RTCRtpTransceiver transceiver : peerConnection.getTransceivers()) {
+				MediaStreamTrack track = transceiver.getSender().getTrack();
+
+				if (nonNull(track) && track.getKind().equals(MediaStreamTrack.VIDEO_TRACK_KIND)) {
+					transceiver.setDirection(camDirection);
+					break;
+				}
+			}
+		});
+	}
+
+	public void enableRemoteAudio(boolean enable) {
+		execute(() -> {
+			muteTrack(MediaStreamTrack.AUDIO_TRACK_KIND, enable);
+		});
+	}
+
+	public void enableRemoteVideo(boolean enable) {
+		execute(() -> {
+			muteTrack(MediaStreamTrack.VIDEO_TRACK_KIND, enable);
 		});
 	}
 
@@ -487,46 +510,6 @@ public class JanusPeerConnection implements PeerConnectionObserver {
 				});
 			}
 		});
-	}
-
-	private void enableCamera(boolean enable) {
-		RTCRtpTransceiverDirection camDirection;
-
-		if (enable) {
-			if (nonNull(videoSource)) {
-				videoSource.start();
-
-				camDirection = RTCRtpTransceiverDirection.SEND_ONLY;
-			}
-			else {
-				addVideo(RTCRtpTransceiverDirection.SEND_ONLY);
-				return;
-			}
-		}
-		else {
-			if (nonNull(videoSource)) {
-				videoSource.stop();
-			}
-
-			camDirection = RTCRtpTransceiverDirection.INACTIVE;
-		}
-
-		for (RTCRtpTransceiver transceiver : peerConnection.getTransceivers()) {
-			MediaStreamTrack track = transceiver.getSender().getTrack();
-
-			if (nonNull(track) && track.getKind().equals(MediaStreamTrack.VIDEO_TRACK_KIND)) {
-				transceiver.setDirection(camDirection);
-				break;
-			}
-		}
-	}
-
-	private void enableRemoteAudio(boolean enable) {
-		muteTrack(MediaStreamTrack.AUDIO_TRACK_KIND, enable);
-	}
-
-	private void enableRemoteVideo(boolean enable) {
-		muteTrack(MediaStreamTrack.VIDEO_TRACK_KIND, enable);
 	}
 
 	private void muteTrack(String type, boolean enable) {

@@ -57,6 +57,15 @@ public class PublishToRoomState implements JanusState {
 		WebRtcConfiguration webRtcConfig = handler.getWebRtcConfig();
 		JanusPeerConnection peerConnection = handler.getPeerConnection();
 
+		webRtcConfig.getAudioConfiguration().sendAudioProperty()
+				.addListener((observable, oldValue, newValue) -> {
+					peerConnection.enableMicrophone(newValue);
+				});
+		webRtcConfig.getVideoConfiguration().sendVideoProperty()
+				.addListener((observable, oldValue, newValue) -> {
+					peerConnection.enableCamera(newValue);
+				});
+
 		peerConnection.setOnLocalSessionDescription(description -> {
 			sendRequest(handler, description.sdp);
 		});

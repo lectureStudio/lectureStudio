@@ -23,6 +23,7 @@ import org.lecturestudio.core.model.shape.Shape;
 
 import java.awt.*;
 import java.awt.geom.AffineTransform;
+import java.awt.image.BufferedImage;
 
 public class ScreenCaptureShapeRenderer extends BaseRenderer {
 
@@ -34,12 +35,40 @@ public class ScreenCaptureShapeRenderer extends BaseRenderer {
     @Override
     protected void renderPrivate(Shape shape, Graphics2D context) {
         ScreenCaptureShape screenCaptureShape = (ScreenCaptureShape) shape;
+        BufferedImage frame = screenCaptureShape.getFrame();
 
-        AffineTransform prev = context.getTransform();
+        AffineTransform canvasTransform = context.getTransform();
+        int canvasWidth = (int) canvasTransform.getScaleX();
+        int canvasHeight = (int) canvasTransform.getScaleY();
 
-        context.setTransform(new AffineTransform());
-        context.drawImage(screenCaptureShape.getFrame(), 0, 0, null);
+        double scaleX = canvasWidth / (float) frame.getWidth();
+        double scaleY = canvasHeight / (float) frame.getHeight();
 
-        context.setTransform(prev);
+        // Make sure to scale with same ratio
+        double scale = Math.min(scaleX, scaleY);
+
+        AffineTransform transform = new AffineTransform();
+        transform.scale(scale, scale);
+
+        int offsetX = 0;
+        int offsetY = 0;
+
+        if (scaleX != scale) {
+            offsetX = (int) ((canvasWidth - frame.getWidth() * scale) / 2f);
+        }
+
+        if (scaleY != scale) {
+            offsetY = (int) ((canvasHeight - frame.getHeight() * scale) / 2f);
+        }
+
+        context.setColor(Color.BLACK);
+        context.fillRect(0, 0, canvasWidth, canvasHeight);
+
+        // Set transform to scale frame
+        context.setTransform(transform);
+        context.drawImage(frame, offsetX, offsetY, null);
+
+        // Reset transform
+        context.setTransform(canvasTransform);
     }
 }

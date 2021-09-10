@@ -22,10 +22,8 @@ import dev.onvoid.webrtc.media.video.desktop.DesktopSource;
 
 import javax.imageio.ImageIO;
 import java.awt.*;
-import java.awt.image.BufferedImage;
-import java.awt.image.ColorModel;
-import java.awt.image.DirectColorModel;
-import java.awt.image.WritableRaster;
+import java.awt.color.ColorSpace;
+import java.awt.image.*;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -37,12 +35,14 @@ import static java.util.Objects.requireNonNull;
 
 public class ScreenCaptureFileReader {
 
-    private final static ColorModel colorModel = new DirectColorModel(32,
-            0x0000ff00,   // Red
-            0x00ff0000,   // Green
-            0xff000000,   // Blue
-            0x000000ff    // Alpha
-    );
+    private final static int[] BAND_OFFSETS = {2, 3, 0, 1}; // Indices: RGBA
+    private final static ColorModel COLOR_MODEL;
+
+    static {
+        ColorSpace cs = ColorSpace.getInstance(java.awt.color.ColorSpace.CS_sRGB);
+        int[] nBits = {8, 8, 8, 8};
+        COLOR_MODEL = new ComponentColorModel(cs, nBits, true, false, Transparency.TRANSLUCENT, DataBuffer.TYPE_BYTE);
+    }
 
     public static void parseStream(RandomAccessScreenCaptureStream stream, ProgressCallback callback) throws IOException {
         requireNonNull(stream);
@@ -119,7 +119,7 @@ public class ScreenCaptureFileReader {
 
                 // TODO: Fix color model during export to skip this step
                 // Convert frame to correct color model
-                frame = convertColorModel(frame);
+                frame = convertByteColorModel(frame, COLOR_MODEL, BAND_OFFSETS);
 
                 // Add frame to current sequence if frame belong to sequence
                 if (currentSequence.containsTime(frameTimestamp)) {
@@ -144,13 +144,21 @@ public class ScreenCaptureFileReader {
         }
     }
 
-    private static BufferedImage convertColorModel(BufferedImage image) {
-        WritableRaster raster = colorModel.createCompatibleWritableRaster(image.getWidth(), image.getHeight());
-        BufferedImage converted = new BufferedImage(colorModel, raster, colorModel.isAlphaPremultiplied(), null);
-        Graphics2D g2d = converted.createGraphics();
-        g2d.drawImage(image, 0, 0, null);
-        g2d.dispose();
-        return converted;
+    public static BufferedImage convertByteColorModel(BufferedImage image, ColorModel colorModel, int[] bandOffsets) {
+        // Get pixel data from image
+        byte[] imageData = ((DataBufferByte) image.getRaster().getDataBuffer()).getData();
+
+        // Create BufferedImage with new color model
+        WritableRaster raster = Raster.createInterleavedRaster(DataBuffer.TYPE_BYTE, image.getWidth(), image.getHeight(), image.getWidth() * 4, 4, bandOffsets, null);
+        BufferedImage newImage = new BufferedImage(colorModel, raster, colorModel.isAlphaPremultiplied(), null);
+
+        // Get reference to pixel data of new image
+        byte[] newImageData = ((DataBufferByte) raster.getDataBuffer()).getData();
+
+        // Copy pixel data to new raster
+        System.arraycopy(imageData, 0, newImageData, 0, imageData.length);
+
+        return newImage;
     }
 
     public interface ProgressCallback {

@@ -18,7 +18,6 @@
 
 package org.lecturestudio.presenter.api.recording;
 
-import com.pngencoder.PngEncoder;
 import com.pngencoder.PngEncoderBufferedImageConverter;
 import dev.onvoid.webrtc.media.video.desktop.*;
 import org.lecturestudio.core.ExecutableState;
@@ -338,9 +337,10 @@ public class ScreenCaptureRecorder extends LectureRecorder {
 
         private void processFrame(BufferedImage frame, long timestamp) {
             // Compress frame and convert it to bytes array
-            byte[] compressedImage = new PngEncoder().withBufferedImage(frame).toBytes();
+            // byte[] compressedImage = new PngEncoder().withBufferedImage(frame).toBytes();
             try {
-                int bytesWritten = writer.writeFrameBytes(compressedImage, timestamp);
+                // int bytesWritten = writer.writeFrameBytes(compressedImage, timestamp);
+                int bytesWritten = writer.writeFrame(frame, timestamp);
                 System.out.println("Frame " + frameCounter + ": Bytes Processed: " + bytesWritten + " Total: " + writer.getTotalBytesWritten() + " Timestamp: " + timestamp);
                 frameCounter++;
             } catch (IOException e) {

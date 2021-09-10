@@ -18,8 +18,10 @@
 
 package org.lecturestudio.core.screencapture;
 
+import com.pngencoder.PngEncoder;
 import dev.onvoid.webrtc.media.video.desktop.DesktopSource;
 
+import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
 import java.nio.ByteBuffer;
@@ -48,12 +50,16 @@ public class ScreenCaptureFileWriter {
     private ScreenCaptureSequence currentSequence;
     private ScreenCaptureFormat recordingFormat;
 
+    private final PngEncoder encoder;
+
     private long latestFrameTimestamp = 0;
     private long totalBytesWritten = 0;
 
     public ScreenCaptureFileWriter(File detailsFile, File framesFile) throws IOException {
         this.detailsChannel = FileChannel.open(detailsFile.toPath(), StandardOpenOption.APPEND, StandardOpenOption.CREATE);
         this.framesChannel = FileChannel.open(framesFile.toPath(), StandardOpenOption.APPEND, StandardOpenOption.CREATE);
+
+        encoder = new PngEncoder();
     }
 
     public void setScreenCaptureFormat(ScreenCaptureFormat format) throws IOException {
@@ -79,7 +85,22 @@ public class ScreenCaptureFileWriter {
     public long getTotalBytesWritten() {
         return totalBytesWritten;
     }
-    
+
+    public byte[] compressFrame(BufferedImage frame) {
+        return encoder.withBufferedImage(frame).toBytes();
+    }
+
+    public int writeFrame(BufferedImage frame, long timestamp) throws IOException {
+        long startTime = System.currentTimeMillis();
+
+        byte[] bytes = compressFrame(frame);
+        int bytesWritten = writeFrameBytes(bytes, timestamp);
+
+        System.out.println("Compression + Write Time: " + (System.currentTimeMillis() - startTime) + "ms");
+
+        return bytesWritten;
+    }
+
     public int writeFrameBytes(byte[] frameBytes, long timestamp) throws IOException {
         int bytesWritten = 0;
         if (framesChannel.isOpen()) {
@@ -162,7 +183,11 @@ public class ScreenCaptureFileWriter {
             throw new RuntimeException("Unable to write channel header, details channel is not open.");
         }
 
-        byte[] sourceTitleBytes = sequence.getSource().title.getBytes(StandardCharsets.UTF_8);
+        String sourceTitle = sequence.getSource().title;
+        if (sourceTitle == null)
+            sourceTitle = "";
+
+        byte[] sourceTitleBytes = sourceTitle.getBytes(StandardCharsets.UTF_8);
 
         ByteBuffer header = ByteBuffer.allocate(32 + sourceTitleBytes.length);
         header.putInt(CHANNEL_MARKER);

@@ -149,19 +149,10 @@ public class DocumentService {
 			throw new RuntimeException("Failed to create screen capture.");
 		}
 
-		// Try to get screen capture from documents list
-//			Document document = documents.getScreenCaptureById(source.id).orElse(null);
-
-		// Check whether the document already exists
-//			if (document == null) {
-//				document = createScreenCapture(source, type);
-//				addDocument(document);
-//			}
-
 		addDocument(screenCapture);
 		selectDocument(screenCapture);
-		return screenCapture;
 
+		return screenCapture;
 	}
 
 	/**
@@ -319,21 +310,13 @@ public class DocumentService {
 
 				Page page = selectedDocument.createPage(screenCaptureShape.getFrame());
 				screenCaptureService.requestFrame(screenCaptureShape.getSource(), screenCaptureShape.getType(), (source, frame) -> {
-					ScreenCaptureShape shape = new ScreenCaptureShape(source, type, frame);
+					ScreenCaptureShape shape = new ScreenCaptureShape(source, type, frame, page.getPageRect());
 					page.addShape(shape);
 				});
 
 				selectPage(selectedDocument, page.getPageNumber());
 				return page;
 			}
-
-//			ScreenCaptureDocument screenCaptureDocument = selectedDocument.getScreenCaptureDocument();
-//			screenCaptureService.requestFrame(screenCaptureDocument.getSource(), screenCaptureDocument.getType(), (src, frame) -> {
-//				ImageShape shape = new ImageShape();
-//				shape.setImage(frame);
-//				page.addShape(shape);
-//				context.getEventBus().post(new PageEvent(page, PageEvent.Type.CREATED));
-//			});
 
 			return null;
 		}
@@ -466,68 +449,19 @@ public class DocumentService {
 	private Document createScreenCapture(DesktopSource source, DesktopSourceType type, BufferedImage frame) throws IOException {
 
 		Document screenCapture = new Document();
-		screenCapture.setTitle(source.title);
+
+		String sourceTitle = source.title != null ? source.title : "";
+		if (type == DesktopSourceType.SCREEN) {
+			// TODO: Calculate screen number
+			sourceTitle = "Screen";
+		}
+
+		screenCapture.setTitle(sourceTitle);
 		screenCapture.setDocumentType(DocumentType.SCREEN_CAPTURE);
 
-//		WindowCapturer capturer = new WindowCapturer();
-//		capturer.selectSource(source);
-//		capturer.start((result, frame) -> {
-//			if (result == DesktopCapturer.Result.SUCCESS) {
-//				int width = frame.frameSize.width;
-//				int height = frame.frameSize.height;
-//
-//				BufferedImage image = ImageUtils.convertDesktopFrame(frame, width, height);
-//				screenCapture.setPageSize(new Dimension2D(width, height));
-//
-//				ImageShape shape = new ImageShape();
-//				shape.setImage(image);
-//				page.addShape(shape);
-//
-//				System.out.println("Capture");
-//			}
-//		});
-//		capturer.captureFrame();
-
-		// ScreenCaptureService.ScreenCapture capture = screenCaptureService.getScreenCaptures().getOrDefault(source.id, null);
-
-//		BufferedImage latestFrame = screenCaptureService.getFrameFromCache(source.id);
-//		if (latestFrame == null) {
-//			screenCaptureService.requestFrame(source, type);
-//			System.out.println("No frame in cache, requesting new one");
-//		}
-//
-
-		// TODO: Pass background image to createPage (BUG!)
-
 		Page page = screenCapture.createPage();
-		ScreenCaptureShape shape = new ScreenCaptureShape(source, type, frame);
+		ScreenCaptureShape shape = new ScreenCaptureShape(source, type, frame, page.getPageRect());
 		page.addShape(shape);
-
-//		screenCaptureService.requestFrame(source, type, (src, frame) -> {
-//
-//			page.sendChangeEvent();
-//
-//			System.out.println("Add screen capture shape");
-//		});
-
-//		System.out.println("Create screen capture page");
-
-//		ScreenCaptureDocument screenCaptureDocument = new ScreenCaptureDocument(source, type);
-//		Document document = new Document(screenCaptureDocument);
-//		document.createPage();
-
-//		screenCaptureService.addScreenCaptureListener(screenCaptureDocument);
-//		screenCaptureService.requestFrame(source, type, (src, frame) -> {
-//			Rectangle2D pageRect = page.getPageRect();
-//			try {
-//				BufferedImage croppedFrame = ImageUtils.cropAndScale(frame, (int) pageRect.getWidth(), (int) pageRect.getHeight());
-//				ImageShape shape = new ImageShape();
-//				shape.setImage(croppedFrame);
-//				page.addShape(shape);
-//			} catch (IOException e) {
-//				e.printStackTrace();
-//			}
-//		});
 
 		return screenCapture;
 	}

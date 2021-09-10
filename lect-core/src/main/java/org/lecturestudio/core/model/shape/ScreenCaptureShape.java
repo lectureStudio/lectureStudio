@@ -20,6 +20,7 @@ package org.lecturestudio.core.model.shape;
 
 import dev.onvoid.webrtc.media.video.desktop.DesktopSource;
 import dev.onvoid.webrtc.media.video.desktop.DesktopSourceType;
+import org.lecturestudio.core.geometry.Rectangle2D;
 
 import java.awt.*;
 import java.awt.image.BufferedImage;
@@ -34,10 +35,12 @@ public class ScreenCaptureShape extends Shape {
     private DesktopSource source;
     private DesktopSourceType type;
 
-    public ScreenCaptureShape(DesktopSource source, DesktopSourceType type, BufferedImage frame) {
+    public ScreenCaptureShape(DesktopSource source, DesktopSourceType type, BufferedImage frame, Rectangle2D pageBounds) {
         this.source = source;
         this.type = type;
         this.frame = frame;
+
+        setBounds(pageBounds);
     }
 
     public BufferedImage getFrame() {
@@ -60,7 +63,7 @@ public class ScreenCaptureShape extends Shape {
         g.drawImage(frame, 0, 0, null);
         g.dispose();
 
-        return new ScreenCaptureShape(new DesktopSource(source.title, source.id), type, clonedFrame);
+        return new ScreenCaptureShape(new DesktopSource(source.title, source.id), type, clonedFrame, getBounds());
     }
 
     @Override

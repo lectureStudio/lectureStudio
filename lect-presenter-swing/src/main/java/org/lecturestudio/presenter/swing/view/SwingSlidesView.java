@@ -407,9 +407,13 @@ public class SwingSlidesView extends JPanel implements SlidesView {
 			requestView.setDate(message.getDate());
 			requestView.setOnAccept(() -> {
 				acceptSpeechRequestAction.execute(message);
+
+				removeSpeechRequestView(requestView);
 			});
 			requestView.setOnReject(() -> {
 				rejectSpeechRequestAction.execute(message);
+
+				removeSpeechRequestView(requestView);
 			});
 			requestView.pack();
 
@@ -427,6 +431,8 @@ public class SwingSlidesView extends JPanel implements SlidesView {
 
 					if (view.getRequestId() == message.getRequestId()) {
 						view.setCanceled();
+
+						removeSpeechRequestView(view);
 						break;
 					}
 				}
@@ -771,6 +777,17 @@ public class SwingSlidesView extends JPanel implements SlidesView {
 				minimizeBottomPane();
 			}
 		});
+	}
+
+	private void removeSpeechRequestView(SpeechRequestView view) {
+		for (Component c : messageViewContainer.getComponents()) {
+			if (c == view) {
+				messageViewContainer.remove(view);
+				messageViewContainer.revalidate();
+				messageViewContainer.repaint();
+				break;
+			}
+		}
 	}
 
 	private BufferedImage convertVideoFrame(VideoFrame videoFrame, BufferedImage image) throws Exception {

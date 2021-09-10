@@ -328,20 +328,7 @@ public class JanusPeerConnection implements PeerConnectionObserver {
 
 	public void enableMicrophone(boolean enable) {
 		execute(() -> {
-			RTCRtpSender[] senders = peerConnection.getSenders();
-
-			if (nonNull(senders)) {
-				for (RTCRtpSender sender : senders) {
-					MediaStreamTrack track = sender.getTrack();
-
-					if (track.getKind().equals(MediaStreamTrack.AUDIO_TRACK_KIND)) {
-						track.setEnabled(enable);
-
-						LOGGER.log(Level.INFO, "Track \"{0}\" set enabled to \"{1}\"",
-								track.getId(), enable);
-					}
-				}
-			}
+			enableSenderTrack(MediaStreamTrack.AUDIO_TRACK_KIND, enable);
 		});
 	}
 
@@ -381,13 +368,13 @@ public class JanusPeerConnection implements PeerConnectionObserver {
 
 	public void enableRemoteAudio(boolean enable) {
 		execute(() -> {
-			muteTrack(MediaStreamTrack.AUDIO_TRACK_KIND, enable);
+			enableReceiverTrack(MediaStreamTrack.AUDIO_TRACK_KIND, enable);
 		});
 	}
 
 	public void enableRemoteVideo(boolean enable) {
 		execute(() -> {
-			muteTrack(MediaStreamTrack.VIDEO_TRACK_KIND, enable);
+			enableReceiverTrack(MediaStreamTrack.VIDEO_TRACK_KIND, enable);
 		});
 	}
 
@@ -512,12 +499,29 @@ public class JanusPeerConnection implements PeerConnectionObserver {
 		});
 	}
 
-	private void muteTrack(String type, boolean enable) {
+	private void enableReceiverTrack(String type, boolean enable) {
 		for (RTCRtpReceiver receiver : peerConnection.getReceivers()) {
 			MediaStreamTrack track = receiver.getTrack();
 
 			if (nonNull(track) && track.getKind().equals(type)) {
 				track.setEnabled(enable);
+
+				LOGGER.log(Level.INFO, "Receiver track \"{0}\" set enabled to \"{1}\"",
+						track.getId(), enable);
+				break;
+			}
+		}
+	}
+
+	private void enableSenderTrack(String type, boolean enable) {
+		for (RTCRtpSender sender : peerConnection.getSenders()) {
+			MediaStreamTrack track = sender.getTrack();
+
+			if (nonNull(track) && track.getKind().equals(type)) {
+				track.setEnabled(enable);
+
+				LOGGER.log(Level.INFO, "Sender track \"{0}\" set enabled to \"{1}\"",
+						track.getId(), enable);
 				break;
 			}
 		}

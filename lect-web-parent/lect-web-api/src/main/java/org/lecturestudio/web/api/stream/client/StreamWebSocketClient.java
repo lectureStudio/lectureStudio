@@ -60,7 +60,7 @@ import org.lecturestudio.web.api.stream.action.StreamDocumentSelectAction;
 import org.lecturestudio.web.api.stream.action.StreamPageSelectedAction;
 import org.lecturestudio.web.api.stream.action.StreamStartAction;
 import org.lecturestudio.web.api.stream.model.Course;
-import org.lecturestudio.web.api.stream.service.StreamService;
+import org.lecturestudio.web.api.stream.service.StreamProviderService;
 import org.lecturestudio.web.api.websocket.WebSocketHeaderProvider;
 
 /**
@@ -82,7 +82,7 @@ public class StreamWebSocketClient extends ExecutableBase {
 
 	private final DocumentService documentService;
 
-	private final StreamService streamService;
+	private final StreamProviderService streamProviderService;
 
 	private final Course course;
 
@@ -94,13 +94,13 @@ public class StreamWebSocketClient extends ExecutableBase {
 	public StreamWebSocketClient(EventBus eventBus, ServiceParameters parameters,
 			WebSocketHeaderProvider headerProvider,
 			StreamEventRecorder eventRecorder, DocumentService documentService,
-			StreamService streamService, Course course) {
+			StreamProviderService streamProviderService, Course course) {
 		requireNonNull(eventBus);
 		requireNonNull(parameters);
 		requireNonNull(headerProvider);
 		requireNonNull(eventRecorder);
 		requireNonNull(documentService);
-		requireNonNull(streamService);
+		requireNonNull(streamProviderService);
 		requireNonNull(course);
 
 		this.eventBus = eventBus;
@@ -108,7 +108,7 @@ public class StreamWebSocketClient extends ExecutableBase {
 		this.headerProvider = headerProvider;
 		this.eventRecorder = eventRecorder;
 		this.documentService = documentService;
-		this.streamService = streamService;
+		this.streamProviderService = streamProviderService;
 		this.course = course;
 
 		JsonbConfig config = JsonConfigProvider.createConfig()
@@ -221,7 +221,7 @@ public class StreamWebSocketClient extends ExecutableBase {
 				new ByteArrayInputStream(docData.toByteArray()),
 				MediaType.MULTIPART_FORM_DATA_TYPE, docFileName);
 
-		String remoteFile = streamService.uploadFile(body);
+		String remoteFile = streamProviderService.uploadFile(body);
 
 		StreamDocumentCreateAction docCreateAction = new StreamDocumentCreateAction(document);
 		docCreateAction.setDocumentFile(remoteFile);

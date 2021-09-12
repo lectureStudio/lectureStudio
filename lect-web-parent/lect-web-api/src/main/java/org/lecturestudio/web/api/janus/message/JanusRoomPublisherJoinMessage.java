@@ -23,11 +23,17 @@ import java.math.BigInteger;
 import org.lecturestudio.web.api.janus.JanusPublisher;
 
 /**
- * Event message received when a new publisher has joined the video room.
+ * Event message received when a new publisher is joining or already has joined
+ * the video room.
  *
  * @author Alex Andres
  */
-public class JanusRoomPublisherJoinedMessage extends JanusRoomPublisherJoinMessage {
+public abstract class JanusRoomPublisherJoinMessage extends JanusRoomMessage {
+
+	private final BigInteger roomId;
+
+	private final JanusPublisher publisher;
+
 
 	/**
 	 * Create a new {@code JanusRoomPublisherJoinedMessage}.
@@ -36,8 +42,29 @@ public class JanusRoomPublisherJoinedMessage extends JanusRoomPublisherJoinMessa
 	 * @param roomId    The unique numeric room ID.
 	 * @param publisher The new publisher who joined the room.
 	 */
-	public JanusRoomPublisherJoinedMessage(BigInteger sessionId,
+	public JanusRoomPublisherJoinMessage(BigInteger sessionId,
 			BigInteger roomId, JanusPublisher publisher) {
-		super(sessionId, roomId, publisher);
+		super(sessionId);
+
+		this.roomId = roomId;
+		this.publisher = publisher;
+	}
+
+	/**
+	 * Get the unique numeric room ID, optional, chosen by plugin if missing.
+	 *
+	 * @return The unique numeric room ID.
+	 */
+	public BigInteger getRoomId() {
+		return roomId;
+	}
+
+	/**
+	 * Get the active publisher who has joined the room.
+	 *
+	 * @return The publisher who joined the room.
+	 */
+	public JanusPublisher getPublisher() {
+		return publisher;
 	}
 }

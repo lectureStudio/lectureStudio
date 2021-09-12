@@ -37,7 +37,7 @@ import org.lecturestudio.web.api.stream.model.Course;
  *
  * @author Alex Andres
  */
-public class StreamService extends ProviderService {
+public class StreamProviderService extends ProviderService {
 
 	private final StreamRestClient streamRestClient;
 
@@ -49,7 +49,7 @@ public class StreamService extends ProviderService {
 	 * @param tokenProvider The access token provider.
 	 */
 	@Inject
-	public StreamService(ServiceParameters parameters, TokenProvider tokenProvider) {
+	public StreamProviderService(ServiceParameters parameters, TokenProvider tokenProvider) {
 		RestClientBuilder builder = createClientBuilder(parameters);
 		builder.property(TokenProvider.class.getName(), tokenProvider);
 

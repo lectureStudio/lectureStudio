@@ -38,6 +38,7 @@ import org.lecturestudio.web.api.janus.message.JanusMediaMessage;
 import org.lecturestudio.web.api.janus.message.JanusMessageType;
 import org.lecturestudio.web.api.janus.message.JanusInfoMessage;
 import org.lecturestudio.web.api.janus.message.JanusMessage;
+import org.lecturestudio.web.api.janus.message.JanusRoomPublisherJoiningMessage;
 import org.lecturestudio.web.api.janus.message.JanusRoomStateMessage;
 import org.lecturestudio.web.api.janus.message.JanusRoomEventType;
 import org.lecturestudio.web.api.janus.message.JanusRoomJoinedMessage;
@@ -392,38 +393,62 @@ public class JanusMessageFactory {
 		}
 
 		if (eventType == JanusRoomEventType.EVENT) {
-			return createRoomSubscriberMessage(body, data, eventType);
+			if (data.containsKey("started")) {
+				return createSubscriberJoinedRoomMessage(body, data);
+			}
+			else if (data.containsKey("kicked")) {
+				return createParticipantKickedMessage(body, data);
+			}
+			else if (data.containsKey("joining")) {
+				return createPublisherJoiningMessage(body, data, jsonb);
+			}
+
+			throw new NotSupportedException("Room event type not supported: " + eventType);
 		}
 
 		throw new NotSupportedException("Room event type not supported: " + eventType);
 	}
 
-	private static JanusMessage createRoomSubscriberMessage(JsonObject body,
-			JsonObject data, JanusRoomEventType eventType) {
-		if (data.containsKey("started")) {
-			var sessionId = body.getJsonNumber("session_id").bigIntegerValue();
-			var roomId = data.getJsonNumber("room").bigIntegerValue();
+	private static JanusMessage createPublisherJoiningMessage(JsonObject body,
+			JsonObject data, Jsonb jsonb) {
+		var sessionId = body.getJsonNumber("session_id").bigIntegerValue();
+		var roomId = data.getJsonNumber("room").bigIntegerValue();
 
-			JanusRoomJoinedMessage message = new JanusRoomJoinedMessage(sessionId,
-					roomId, null, null, null, null);
-			message.setEventType(JanusMessageType.EVENT);
-			message.setRoomEventType(JanusRoomEventType.JOINED);
-			message.setTransaction(body.getString("transaction"));
+		JanusPublisher publisher = jsonb.fromJson(data.getJsonObject("joining").toString(),
+				JanusPublisher.class);
 
-			return message;
-		}
-		else if (data.containsKey("kicked")) {
-			var sessionId = body.getJsonNumber("session_id").bigIntegerValue();
-			var roomId = data.getJsonNumber("room").bigIntegerValue();
+		JanusRoomPublisherJoiningMessage message = new JanusRoomPublisherJoiningMessage(
+				sessionId, roomId, publisher);
+		message.setEventType(JanusMessageType.EVENT);
+		message.setRoomEventType(JanusRoomEventType.JOINING);
 
-			JanusRoomStateMessage message = new JanusRoomStateMessage(
-					JanusRoomEventType.EDITED, sessionId, roomId, null);
-			message.setEventType(JanusMessageType.EVENT);
+		return message;
+	}
 
-			return message;
-		}
+	private static JanusMessage createSubscriberJoinedRoomMessage(JsonObject body,
+			JsonObject data) {
+		var sessionId = body.getJsonNumber("session_id").bigIntegerValue();
+		var roomId = data.getJsonNumber("room").bigIntegerValue();
 
-		throw new NotSupportedException("Room event type not supported: " + eventType);
+		JanusRoomJoinedMessage message = new JanusRoomJoinedMessage(sessionId,
+				roomId, null, null, null, null);
+		message.setEventType(JanusMessageType.EVENT);
+		message.setRoomEventType(JanusRoomEventType.JOINED);
+		message.setTransaction(body.getString("transaction"));
+
+		return message;
+	}
+
+	private static JanusMessage createParticipantKickedMessage(JsonObject body,
+			JsonObject data) {
+		var sessionId = body.getJsonNumber("session_id").bigIntegerValue();
+		var roomId = data.getJsonNumber("room").bigIntegerValue();
+
+		JanusRoomStateMessage message = new JanusRoomStateMessage(
+				JanusRoomEventType.EDITED, sessionId, roomId, null);
+		message.setEventType(JanusMessageType.EVENT);
+
+		return message;
 	}
 
 	private static JanusMessage createRoomListMessage(JsonObject body,

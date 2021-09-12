@@ -64,17 +64,22 @@ public enum JanusRoomEventType {
 	PARTICIPANTS("participants"),
 
 	/**
-	 * The user has joined a video room.
+	 * A publisher is joining a video room.
+	 */
+	JOINING("joining"),
+
+	/**
+	 * A publisher has joined a video room.
 	 */
 	JOINED("joined"),
 
 	/**
-	 * The publisher started talking.
+	 * A publisher started talking.
 	 */
 	TALKING("talking"),
 
 	/**
-	 * The publisher stopped talking.
+	 * A publisher stopped talking.
 	 */
 	STOPPED_TALKING("stopped-talking"),
 
@@ -96,7 +101,7 @@ public enum JanusRoomEventType {
 	// Subscribers
 
 	/**
-	 * User has joined a video room.
+	 * A participant has joined a video room.
 	 */
 	ATTACHED("attached"),
 

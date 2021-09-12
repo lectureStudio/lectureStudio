@@ -86,12 +86,10 @@ import org.lecturestudio.presenter.api.model.Bookmarks;
 import org.lecturestudio.presenter.api.model.BookmarksListener;
 import org.lecturestudio.presenter.api.pdf.embedded.QuizParser;
 import org.lecturestudio.presenter.api.presenter.command.ShowSettingsCommand;
-import org.lecturestudio.presenter.api.presenter.command.StartStreamCommand;
 import org.lecturestudio.presenter.api.service.BookmarkService;
 import org.lecturestudio.presenter.api.service.MessageWebServiceState;
 import org.lecturestudio.presenter.api.service.QuizWebServiceState;
 import org.lecturestudio.presenter.api.service.RecordingService;
-import org.lecturestudio.presenter.api.service.WebRtcStreamService;
 import org.lecturestudio.presenter.api.service.WebService;
 import org.lecturestudio.presenter.api.view.MenuView;
 import org.lecturestudio.presenter.api.view.MessengerWindow;
@@ -121,9 +119,6 @@ public class MenuPresenter extends Presenter<MenuView> {
 
 	@Inject
 	private RecordingService recordingService;
-
-	@Inject
-	private WebRtcStreamService streamService;
 
 	@Inject
 	private WebService webService;
@@ -346,15 +341,6 @@ public class MenuPresenter extends Presenter<MenuView> {
 		}
 	}
 
-	public void toggleStreaming(boolean start) {
-		if (start) {
-			startStreaming();
-		}
-		else {
-			stopStreaming();
-		}
-	}
-
 	public void toggleMessenger(boolean start) {
 		if (start) {
 			startMessenger();
@@ -403,38 +389,6 @@ public class MenuPresenter extends Presenter<MenuView> {
 				handleException(e, "Stop recording failed", "recording.stop.error");
 			}
 		}
-	}
-
-	public void startStreaming() {
-		eventBus.post(new StartStreamCommand(() -> {
-			CompletableFuture.runAsync(() -> {
-					try {
-						streamService.start();
-					}
-					catch (ExecutableException e) {
-						throw new CompletionException(e);
-					}
-				})
-				.exceptionally(e -> {
-					handleServiceError(e, "Start stream failed", "stream.start.error");
-					return null;
-				});
-		}));
-	}
-
-	public void stopStreaming() {
-		CompletableFuture.runAsync(() -> {
-			try {
-				streamService.stop();
-			}
-			catch (ExecutableException e) {
-				throw new CompletionException(e);
-			}
-		})
-		.exceptionally(e -> {
-			handleServiceError(e, "Stop stream failed", "stream.stop.error");
-			return null;
-		});
 	}
 
 	public void startMessenger() {
@@ -609,7 +563,7 @@ public class MenuPresenter extends Presenter<MenuView> {
 
 	@Override
 	public void initialize() {
-		PresenterContext ctx = (PresenterContext) context;
+		PresenterContext presenterContext = (PresenterContext) context;
 		PresenterConfiguration config = (PresenterConfiguration) context.getConfiguration();
 
 		eventBus.register(this);
@@ -633,9 +587,9 @@ public class MenuPresenter extends Presenter<MenuView> {
 		view.setOnRedo(this::redo);
 		view.setOnSettings(this::showSettingsView);
 
-		view.bindShowOutline(ctx.showOutlineProperty());
+		view.bindShowOutline(presenterContext.showOutlineProperty());
 		view.setAdvancedSettings(config.getAdvancedUIMode());
-		view.bindFullscreen(ctx.fullscreenProperty());
+		view.bindFullscreen(presenterContext.fullscreenProperty());
 		view.setOnAdvancedSettings(this::setAdvancedSettings);
 
 		view.setOnNewWhiteboard(this::newWhiteboard);
@@ -645,8 +599,7 @@ public class MenuPresenter extends Presenter<MenuView> {
 
 		view.setOnStartRecording(this::startRecording);
 		view.setOnStopRecording(this::stopRecording);
-		view.setOnStartStreaming(this::startStreaming);
-		view.setOnStopStreaming(this::stopStreaming);
+		view.bindEnableStream(presenterContext.streamStartedProperty());
 		view.bindEnableStreamingMicrophone(config.getStreamConfig().enableMicrophoneProperty());
 		view.bindEnableStreamingCamera(config.getStreamConfig().enableCameraProperty());
 		view.setOnStartMessenger(this::startMessenger);
@@ -662,7 +615,6 @@ public class MenuPresenter extends Presenter<MenuView> {
 		view.setOnControlMessengerWindow(this::showMessengerWindow);
 		view.setOnControlRecording(this::toggleRecording);
 		view.setOnControlRecordingSettings(this::showRecordingSettings);
-		view.setOnControlStreaming(this::toggleStreaming);
 		view.setOnControlStreamingSettings(this::showStreamingSettings);
 
 		view.setOnClearBookmarks(this::clearBookmarks);
@@ -681,10 +633,6 @@ public class MenuPresenter extends Presenter<MenuView> {
 		// Bind configuration.
 		context.getConfiguration().advancedUIModeProperty().addListener((observable, oldValue, newValue) -> {
 			view.setAdvancedSettings(newValue);
-		});
-
-		config.getStreamConfig().enableCameraProperty().addListener((observable, oldValue, newValue) -> {
-			enableStreamingCamera(newValue);
 		});
 
 		// Register for page parameter change updates.
@@ -764,34 +712,5 @@ public class MenuPresenter extends Presenter<MenuView> {
 		}
 
 		handleException(error, errorMessage, title, message);
-	}
-
-	private void enableStreamingCamera(boolean enable) {
-		CompletableFuture.runAsync(() -> {
-			if (enable) {
-				startCamera();
-			}
-			else {
-				stopCamera();
-			}
-		});
-	}
-
-	private void startCamera() {
-		try {
-			streamService.startCameraStream();
-		}
-		catch (ExecutableException e) {
-			handleException(e, "Start camera stream failed", "stream.start.error");
-		}
-	}
-
-	private void stopCamera() {
-		try {
-			streamService.stopCameraStream();
-		}
-		catch (ExecutableException e) {
-			handleException(e, "Stop camera stream failed", "stream.start.error");
-		}
 	}
 }

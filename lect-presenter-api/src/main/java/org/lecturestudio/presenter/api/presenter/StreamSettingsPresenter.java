@@ -26,7 +26,6 @@ import javax.inject.Inject;
 
 import org.lecturestudio.broadcast.config.BroadcastProfile;
 import org.lecturestudio.core.app.ApplicationContext;
-import org.lecturestudio.core.app.configuration.AudioConfiguration;
 import org.lecturestudio.core.audio.AudioFormat;
 import org.lecturestudio.core.audio.AudioUtils;
 import org.lecturestudio.core.audio.codec.AudioCodecLoader;
@@ -41,13 +40,13 @@ import org.lecturestudio.presenter.api.config.PresenterConfiguration;
 import org.lecturestudio.presenter.api.config.StreamConfiguration;
 import org.lecturestudio.presenter.api.view.StreamSettingsView;
 import org.lecturestudio.web.api.service.ServiceParameters;
-import org.lecturestudio.web.api.stream.service.StreamService;
+import org.lecturestudio.web.api.stream.service.StreamProviderService;
 
 public class StreamSettingsPresenter extends Presenter<StreamSettingsView> {
 
 	private final DefaultConfiguration defaultConfig;
 
-	private StreamService streamService;
+	private StreamProviderService streamProviderService;
 
 
 	@Inject
@@ -113,7 +112,7 @@ public class StreamSettingsPresenter extends Presenter<StreamSettingsView> {
 		ServiceParameters parameters = new ServiceParameters();
 		parameters.setUrl("https://lecturestudio.dek.e-technik.tu-darmstadt.de");
 
-		streamService = new StreamService(parameters, streamConfig::getAccessToken);
+		streamProviderService = new StreamProviderService(parameters, streamConfig::getAccessToken);
 
 		netConfig.getBroadcastProfiles().addListener(new ListChangeListener<>() {
 
@@ -154,7 +153,7 @@ public class StreamSettingsPresenter extends Presenter<StreamSettingsView> {
 
 	public void checkAccessToken() {
 		try {
-			streamService.getCourses();
+			streamProviderService.getCourses();
 
 			view.setAccessTokenValid(true);
 		}

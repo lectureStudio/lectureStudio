@@ -117,6 +117,8 @@ public interface ToolbarView extends View {
 
 	void selectToolButton(ToolType toolType);
 
+	void bindEnableStream(BooleanProperty enable);
+
 	void bindEnableStreamMicrophone(BooleanProperty enable);
 
 	void bindEnableStreamCamera(BooleanProperty enable);

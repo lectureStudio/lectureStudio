@@ -480,6 +480,11 @@ public class FxToolbarView extends FlowPane implements ToolbarView {
 	}
 
 	@Override
+	public void bindEnableStream(BooleanProperty enable) {
+
+	}
+
+	@Override
 	public void bindEnableStreamMicrophone(BooleanProperty enable) {
 
 	}

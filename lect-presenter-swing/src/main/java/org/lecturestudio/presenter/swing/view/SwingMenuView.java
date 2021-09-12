@@ -107,9 +107,7 @@ public class SwingMenuView extends JMenuBar implements MenuView {
 
 	private JMenuItem stopRecordingMenuItem;
 
-	private JMenuItem startStreamingMenuItem;
-
-	private JMenuItem stopStreamingMenuItem;
+	private JCheckBoxMenuItem enableStreamMenuItem;
 
 	private JCheckBoxMenuItem enableStreamingMicrophoneMenuItem;
 
@@ -174,7 +172,7 @@ public class SwingMenuView extends JMenuBar implements MenuView {
 			gotoBookmarkMenuItem.setEnabled(hasDocument);
 			previousBookmarkMenuItem.setEnabled(hasDocument);
 			startRecordingMenuItem.setEnabled(hasDocument);
-			startStreamingMenuItem.setEnabled(hasDocument);
+			enableStreamMenuItem.setEnabled(hasDocument);
 			startMessengerMenuItem.setEnabled(hasDocument);
 		});
 	}
@@ -333,13 +331,8 @@ public class SwingMenuView extends JMenuBar implements MenuView {
 	}
 
 	@Override
-	public void setOnStartStreaming(Action action) {
-		SwingUtils.bindAction(startStreamingMenuItem, action);
-	}
-
-	@Override
-	public void setOnStopStreaming(Action action) {
-		SwingUtils.bindAction(stopStreamingMenuItem, action);
+	public void bindEnableStream(BooleanProperty enable) {
+		SwingUtils.bindBidirectional(enableStreamMenuItem, enable);
 	}
 
 	@Override
@@ -431,8 +424,6 @@ public class SwingMenuView extends JMenuBar implements MenuView {
 		final boolean started = state == ExecutableState.Started;
 
 		SwingUtils.invoke(() -> {
-			startStreamingMenuItem.setEnabled(!started);
-			stopStreamingMenuItem.setEnabled(started);
 			enableStreamingMicrophoneMenuItem.setEnabled(started);
 			enableStreamingCameraMenuItem.setEnabled(started);
 

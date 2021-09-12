@@ -54,7 +54,7 @@ import org.lecturestudio.web.api.message.SpeechRejectMessage;
 import org.lecturestudio.web.api.service.ServiceParameters;
 import org.lecturestudio.web.api.stream.client.StreamWebSocketClient;
 import org.lecturestudio.web.api.stream.config.WebRtcConfiguration;
-import org.lecturestudio.web.api.stream.service.StreamService;
+import org.lecturestudio.web.api.stream.service.StreamProviderService;
 import org.lecturestudio.web.api.websocket.WebSocketBearerTokenProvider;
 import org.lecturestudio.web.api.websocket.WebSocketHeaderProvider;
 
@@ -91,7 +91,7 @@ public class WebRtcStreamService extends ExecutableBase {
 
 	private WebRtcConfiguration webRtcConfig;
 
-	private StreamService streamService;
+	private StreamProviderService streamProviderService;
 
 	private StreamWebSocketClient streamStateClient;
 
@@ -123,7 +123,7 @@ public class WebRtcStreamService extends ExecutableBase {
 		String userName = String.format("%s %s", message.getFirstName(), message.getFamilyName());
 
 		janusClient.startRemoteSpeech(message.getRequestId(), userName);
-		streamService.acceptSpeechRequest(message.getRequestId());
+		streamProviderService.acceptSpeechRequest(message.getRequestId());
 	}
 
 	@Subscribe
@@ -132,7 +132,7 @@ public class WebRtcStreamService extends ExecutableBase {
 			return;
 		}
 
-		streamService.rejectSpeechRequest(message.getRequestId());
+		streamProviderService.rejectSpeechRequest(message.getRequestId());
 	}
 
 	public void startCameraStream() throws ExecutableException {
@@ -299,14 +299,15 @@ public class WebRtcStreamService extends ExecutableBase {
 
 		TokenProvider tokenProvider = streamConfig::getAccessToken;
 
-		streamService = new StreamService(streamApiParameters,
+		streamProviderService = new StreamProviderService(streamApiParameters,
 				tokenProvider);
 
 		WebSocketHeaderProvider headerProvider = new WebSocketBearerTokenProvider(
 				tokenProvider);
 
 		return new StreamWebSocketClient(context.getEventBus(), stateWsParameters,
-				headerProvider, eventRecorder, documentService, streamService,
+				headerProvider, eventRecorder, documentService,
+				streamProviderService,
 				streamConfig.getCourse());
 	}
 

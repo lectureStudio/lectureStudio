@@ -24,6 +24,7 @@ import static java.util.Objects.nonNull;
 import java.util.List;
 
 import javax.inject.Inject;
+import javax.inject.Named;
 
 import org.lecturestudio.core.app.ApplicationContext;
 import org.lecturestudio.core.presenter.Presenter;
@@ -31,15 +32,20 @@ import org.lecturestudio.core.view.Action;
 import org.lecturestudio.core.view.ViewLayer;
 import org.lecturestudio.presenter.api.config.PresenterConfiguration;
 import org.lecturestudio.presenter.api.config.StreamConfiguration;
+import org.lecturestudio.presenter.api.context.PresenterContext;
 import org.lecturestudio.presenter.api.view.StartStreamView;
 import org.lecturestudio.web.api.service.ServiceParameters;
 import org.lecturestudio.web.api.stream.model.Course;
-import org.lecturestudio.web.api.stream.service.StreamService;
+import org.lecturestudio.web.api.stream.service.StreamProviderService;
 
 public class StartStreamPresenter extends Presenter<StartStreamView> {
 
 	/** The action that is executed when the saving process has been aborted. */
 	private Action startAction;
+
+	@Inject
+	@Named("stream.publisher.api.url")
+	private String streamPublisherApiUrl;
 
 
 	@Inject
@@ -56,6 +62,14 @@ public class StartStreamPresenter extends Presenter<StartStreamView> {
 	}
 
 	@Override
+	public void close() {
+		super.close();
+
+		PresenterContext presenterContext = (PresenterContext) context;
+		presenterContext.setStreamStarted(false);
+	}
+
+	@Override
 	public ViewLayer getViewLayer() {
 		return ViewLayer.Dialog;
 	}
@@ -65,7 +79,7 @@ public class StartStreamPresenter extends Presenter<StartStreamView> {
 	}
 
 	private void onStart() {
-		close();
+		super.close();
 
 		if (nonNull(startAction)) {
 			startAction.execute();
@@ -77,12 +91,13 @@ public class StartStreamPresenter extends Presenter<StartStreamView> {
 		StreamConfiguration streamConfig = config.getStreamConfig();
 
 		ServiceParameters parameters = new ServiceParameters();
-		parameters.setUrl("https://lecturestudio.dek.e-technik.tu-darmstadt.de");
+		parameters.setUrl(streamPublisherApiUrl);
 
-		StreamService streamService = new StreamService(parameters, streamConfig::getAccessToken);
+		StreamProviderService streamProviderService = new StreamProviderService(
+				parameters, streamConfig::getAccessToken);
 
 		try {
-			List<Course> courses = streamService.getCourses();
+			List<Course> courses = streamProviderService.getCourses();
 			Course selectedCourse = streamConfig.getCourse();
 
 			if (isNull(selectedCourse) && !courses.isEmpty()) {
@@ -95,6 +110,7 @@ public class StartStreamPresenter extends Presenter<StartStreamView> {
 
 			view.setCourses(courses);
 			view.setCourse(streamConfig.courseProperty());
+			view.setEnableCamera(config.getStreamConfig().enableCameraProperty());
 		}
 		catch (Exception e) {
 			view.setCourses(List.of());

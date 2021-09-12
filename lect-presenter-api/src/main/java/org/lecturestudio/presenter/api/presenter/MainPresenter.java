@@ -39,7 +39,6 @@ import javax.inject.Inject;
 
 import org.lecturestudio.core.ExecutableState;
 import org.lecturestudio.core.app.ApplicationContext;
-import org.lecturestudio.core.app.configuration.Configuration;
 import org.lecturestudio.core.app.dictionary.Dictionary;
 import org.lecturestudio.core.app.util.SaveConfigurationHandler;
 import org.lecturestudio.core.audio.bus.event.AudioDeviceHotplugEvent;
@@ -69,6 +68,7 @@ import org.lecturestudio.core.view.View;
 import org.lecturestudio.core.view.ViewContextFactory;
 import org.lecturestudio.core.view.ViewHandler;
 import org.lecturestudio.core.view.ViewLayer;
+import org.lecturestudio.presenter.api.config.PresenterConfiguration;
 import org.lecturestudio.presenter.api.context.PresenterContext;
 import org.lecturestudio.presenter.api.event.MessengerStateEvent;
 import org.lecturestudio.presenter.api.event.QuizStateEvent;
@@ -77,6 +77,7 @@ import org.lecturestudio.presenter.api.input.Shortcut;
 import org.lecturestudio.presenter.api.recording.RecordingBackup;
 import org.lecturestudio.presenter.api.service.BookmarkService;
 import org.lecturestudio.presenter.api.service.RecordingService;
+import org.lecturestudio.presenter.api.service.StreamService;
 import org.lecturestudio.presenter.api.util.SaveDocumentsHandler;
 import org.lecturestudio.presenter.api.util.SaveRecordingHandler;
 import org.lecturestudio.presenter.api.view.MainView;
@@ -105,6 +106,8 @@ public class MainPresenter extends org.lecturestudio.core.presenter.MainPresente
 
 	private final RecordingService recordingService;
 
+	private final StreamService streamService;
+
 	private SlidesPresenter slidesPresenter;
 
 	/** The waiting notification. */
@@ -118,7 +121,8 @@ public class MainPresenter extends org.lecturestudio.core.presenter.MainPresente
 			ViewContextFactory contextFactory,
 			DocumentService documentService,
 			BookmarkService bookmarkService,
-			RecordingService recordingService) {
+			RecordingService recordingService,
+			StreamService streamService) {
 		super(context, view);
 
 		this.presentationController = presentationController;
@@ -127,6 +131,7 @@ public class MainPresenter extends org.lecturestudio.core.presenter.MainPresente
 		this.documentService = documentService;
 		this.bookmarkService = bookmarkService;
 		this.recordingService = recordingService;
+		this.streamService = streamService;
 		this.viewMap = new ObservableHashMap<>();
 		this.shortcutMap = new HashMap<>();
 		this.contexts = new ArrayList<>();
@@ -150,6 +155,11 @@ public class MainPresenter extends org.lecturestudio.core.presenter.MainPresente
 		registerShortcut(Shortcut.PAUSE_RECORDING_P, this::pauseRecording);
 
 		PresenterContext presenterContext = (PresenterContext) context;
+		PresenterConfiguration config = (PresenterConfiguration) context.getConfiguration();
+
+		presenterContext.streamStartedProperty().addListener((observable, oldValue, newValue) -> {
+			streamService.enableStream(newValue);
+		});
 
 		addShutdownHandler(new SaveRecordingHandler(presenterContext));
 		addShutdownHandler(new SaveDocumentsHandler(presenterContext));
@@ -173,8 +183,6 @@ public class MainPresenter extends org.lecturestudio.core.presenter.MainPresente
 			}
 		});
 
-		Configuration config = context.getConfiguration();
-
 		context.setFullscreen(config.getStartFullscreen());
 		context.fullscreenProperty().addListener((observable, oldValue, newValue) -> {
 			setFullscreen(newValue);
@@ -186,6 +194,10 @@ public class MainPresenter extends org.lecturestudio.core.presenter.MainPresente
 
 		config.getAudioConfig().recordingFormatProperty().addListener((observable, oldFormat, newFormat) -> {
 			recordingService.setAudioFormat(newFormat);
+		});
+
+		config.getStreamConfig().enableCameraProperty().addListener((observable, oldValue, newValue) -> {
+			streamService.enableStreamCamera(newValue);
 		});
 
 		slidesPresenter = createPresenter(SlidesPresenter.class);

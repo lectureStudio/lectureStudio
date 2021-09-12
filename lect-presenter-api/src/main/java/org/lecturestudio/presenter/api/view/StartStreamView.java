@@ -20,6 +20,7 @@ package org.lecturestudio.presenter.api.view;
 
 import java.util.List;
 
+import org.lecturestudio.core.beans.BooleanProperty;
 import org.lecturestudio.core.beans.ObjectProperty;
 import org.lecturestudio.core.view.Action;
 import org.lecturestudio.core.view.View;
@@ -30,6 +31,8 @@ public interface StartStreamView extends View {
 	void setCourse(ObjectProperty<Course> course);
 
 	void setCourses(List<Course> courses);
+
+	void setEnableCamera(BooleanProperty enable);
 
 	void setError(String message);
 

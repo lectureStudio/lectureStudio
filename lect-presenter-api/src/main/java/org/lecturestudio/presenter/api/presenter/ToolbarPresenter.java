@@ -51,6 +51,7 @@ import org.lecturestudio.core.view.PresentationParameter;
 import org.lecturestudio.core.view.PresentationParameterProvider;
 import org.lecturestudio.core.view.ViewType;
 import org.lecturestudio.presenter.api.config.PresenterConfiguration;
+import org.lecturestudio.presenter.api.context.PresenterContext;
 import org.lecturestudio.presenter.api.event.RecordingStateEvent;
 import org.lecturestudio.presenter.api.event.StreamingStateEvent;
 import org.lecturestudio.presenter.api.service.RecordingService;
@@ -359,6 +360,7 @@ public class ToolbarPresenter extends Presenter<ToolbarView> {
 
 	@Override
 	public void initialize() {
+		PresenterContext presenterContext = (PresenterContext) context;
 		PresenterConfiguration config = (PresenterConfiguration) context.getConfiguration();
 
 		eventBus.register(this);
@@ -406,6 +408,7 @@ public class ToolbarPresenter extends Presenter<ToolbarView> {
 		view.setOnStartRecording(this::startRecording);
 		view.setOnStopRecording(this::stopRecording);
 
+		view.bindEnableStream(presenterContext.streamStartedProperty());
 		view.bindEnableStreamMicrophone(config.getStreamConfig().enableMicrophoneProperty());
 		view.bindEnableStreamCamera(config.getStreamConfig().enableCameraProperty());
 

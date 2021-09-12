@@ -46,6 +46,8 @@ public class PresenterContext extends ApplicationContext {
 	public static final String RECORDING_CONTEXT = "Recording";
 	public static final String RECORDING_EXTENSION = "presenter";
 
+	private final BooleanProperty streamStarted = new BooleanProperty();
+
 	private final BooleanProperty hasRecordedChanges = new BooleanProperty();
 
 	private final BooleanProperty showOutline = new BooleanProperty();
@@ -89,6 +91,18 @@ public class PresenterContext extends ApplicationContext {
 
 	public BooleanProperty hasRecordedChangesProperty() {
 		return hasRecordedChanges;
+	}
+
+	public void setStreamStarted(boolean started) {
+		streamStarted.set(started);
+	}
+
+	public boolean getStreamStarted() {
+		return streamStarted.get();
+	}
+
+	public BooleanProperty streamStartedProperty() {
+		return streamStarted;
 	}
 
 	public void setShowOutline(boolean show) {

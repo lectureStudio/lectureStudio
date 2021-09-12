@@ -124,7 +124,7 @@ class MainPresenterTest extends PresenterTest {
 			}
 		};
 
-		MainPresenter presenter = new MainPresenter(context, view, null, null, viewFactory, documentService, bookmarkService, recordingService);
+		MainPresenter presenter = new MainPresenter(context, view, null, null, viewFactory, documentService, bookmarkService, recordingService, null);
 		presenter.initialize();
 		presenter.showView(testView, ViewLayer.Content);
 	}
@@ -160,7 +160,7 @@ class MainPresenterTest extends PresenterTest {
 			}
 		};
 
-		MainPresenter presenter = new MainPresenter(context, view, null, null, viewFactory, documentService, bookmarkService, recordingService);
+		MainPresenter presenter = new MainPresenter(context, view, null, null, viewFactory, documentService, bookmarkService, recordingService, null);
 		presenter.initialize();
 		presenter.display(new TestPresenter(context, new TestView()));
 
@@ -209,7 +209,7 @@ class MainPresenterTest extends PresenterTest {
 			}
 		};
 
-		MainPresenter presenter = new MainPresenter(context, view, null, null, viewFactory, documentService, bookmarkService, recordingService);
+		MainPresenter presenter = new MainPresenter(context, view, null, null, viewFactory, documentService, bookmarkService, recordingService, null);
 		presenter.initialize();
 		presenter.display(new TestPresenter(context, new TestView()));
 
@@ -253,7 +253,7 @@ class MainPresenterTest extends PresenterTest {
 
 		TestPresenter testPresenter = new TestPresenter(context, new TestView());
 
-		MainPresenter presenter = new MainPresenter(context, view, null, null, viewFactory, documentService, bookmarkService, recordingService);
+		MainPresenter presenter = new MainPresenter(context, view, null, null, viewFactory, documentService, bookmarkService, recordingService, null);
 		presenter.initialize();
 		presenter.display(testPresenter);
 		presenter.destroy(testPresenter);
@@ -298,7 +298,7 @@ class MainPresenterTest extends PresenterTest {
 
 		TestPresenter testPresenter = new TestPresenter(context, new TestView());
 
-		MainPresenter presenter = new MainPresenter(context, view, null, null, viewFactory, documentService, bookmarkService, recordingService);
+		MainPresenter presenter = new MainPresenter(context, view, null, null, viewFactory, documentService, bookmarkService, recordingService, null);
 		presenter.initialize();
 		presenter.display(testPresenter);
 		presenter.destroy(testPresenter);
@@ -318,7 +318,7 @@ class MainPresenterTest extends PresenterTest {
 			}
 		};
 
-		MainPresenter presenter = new MainPresenter(context, view, null, null, viewFactory, documentService, bookmarkService, recordingService);
+		MainPresenter presenter = new MainPresenter(context, view, null, null, viewFactory, documentService, bookmarkService, recordingService, null);
 		presenter.initialize();
 		presenter.setFullscreen(true);
 
@@ -346,7 +346,7 @@ class MainPresenterTest extends PresenterTest {
 			}
 		};
 
-		MainPresenter presenter = new MainPresenter(context, view, null, null, viewFactory, documentService, bookmarkService, recordingService);
+		MainPresenter presenter = new MainPresenter(context, view, null, null, viewFactory, documentService, bookmarkService, recordingService, null);
 		presenter.initialize();
 
 		view.shownAction.execute();
@@ -366,7 +366,7 @@ class MainPresenterTest extends PresenterTest {
 			}
 		};
 
-		MainPresenter presenter = new MainPresenter(context, view, null, null, viewFactory, documentService, bookmarkService, recordingService);
+		MainPresenter presenter = new MainPresenter(context, view, null, null, viewFactory, documentService, bookmarkService, recordingService, null);
 		presenter.initialize();
 		presenter.addShutdownHandler(new ShutdownHandler() {
 
@@ -406,7 +406,7 @@ class MainPresenterTest extends PresenterTest {
 			}
 		};
 
-		MainPresenter presenter = new MainPresenter(context, view, null, null, viewFactory, documentService, bookmarkService, recordingService);
+		MainPresenter presenter = new MainPresenter(context, view, null, null, viewFactory, documentService, bookmarkService, recordingService, null);
 		presenter.initialize();
 		presenter.display(new TestPresenter(context, new TestView()));
 
@@ -431,7 +431,7 @@ class MainPresenterTest extends PresenterTest {
 			}
 		};
 
-		MainPresenter presenter = new MainPresenter(context, view, null, null, viewFactory, documentService, bookmarkService, recordingService);
+		MainPresenter presenter = new MainPresenter(context, view, null, null, viewFactory, documentService, bookmarkService, recordingService, null);
 		presenter.initialize();
 
 		recordingService.start();
@@ -465,7 +465,7 @@ class MainPresenterTest extends PresenterTest {
 			}
 		};
 
-		MainPresenter presenter = new MainPresenter(context, view, null, null, viewFactory, documentService, bookmarkService, recordingService);
+		MainPresenter presenter = new MainPresenter(context, view, null, null, viewFactory, documentService, bookmarkService, recordingService, null);
 		presenter.initialize();
 
 		ToolController toolController = new ToolController(context, documentService);

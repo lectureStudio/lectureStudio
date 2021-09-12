@@ -391,13 +391,8 @@ public class FxMenuView extends HBox implements MenuView {
 	}
 
 	@Override
-	public void setOnStartStreaming(Action action) {
-		FxUtils.bindAction(startStreamingMenuItem, action);
-	}
+	public void bindEnableStream(BooleanProperty enable) {
 
-	@Override
-	public void setOnStopStreaming(Action action) {
-		FxUtils.bindAction(stopStreamingMenuItem, action);
 	}
 
 	@Override

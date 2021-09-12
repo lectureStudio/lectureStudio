@@ -18,15 +18,18 @@
 
 package org.lecturestudio.presenter.swing.view;
 
+import java.awt.Container;
 import java.util.List;
 import java.util.Vector;
 
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.JButton;
+import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 
+import org.lecturestudio.core.beans.BooleanProperty;
 import org.lecturestudio.core.beans.ObjectProperty;
 import org.lecturestudio.core.view.Action;
 import org.lecturestudio.presenter.api.view.StartStreamView;
@@ -37,9 +40,11 @@ import org.lecturestudio.web.api.stream.model.Course;
 @SwingView(name = "start-stream")
 public class SwingStartStreamView extends JPanel implements StartStreamView {
 
+	private Container contentContainer;
+
 	private JComboBox<Course> courseCombo;
 
-	private JLabel courseLabel;
+	private JCheckBox cameraCheckBox;
 
 	private JLabel errorLabel;
 
@@ -68,13 +73,17 @@ public class SwingStartStreamView extends JPanel implements StartStreamView {
 	}
 
 	@Override
+	public void setEnableCamera(BooleanProperty enable) {
+		SwingUtils.bindBidirectional(cameraCheckBox, enable);
+	}
+
+	@Override
 	public void setError(String message) {
 		SwingUtils.invoke(() -> {
 			errorLabel.setText(message);
 			errorLabel.setVisible(true);
 
-			courseLabel.setVisible(false);
-			courseCombo.setVisible(false);
+			contentContainer.setVisible(false);
 			startButton.setVisible(false);
 		});
 	}

@@ -1,12 +1,15 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Panel layout="GridBagLayout" border="EmptyBorder(20, 20, 20, 20)">
-	<Label id="courseLabel" text="start.stream.choose.course">
+	<VBox id="contentContainer">
 		<gridbagconstraints gridx="0" gridy="0" insets="0,0,2,0" anchor="GridBagConstraints.WEST" />
-	</Label>
-	<ComboBox id="courseCombo" name="extendedUI">
-		<gridbagconstraints gridx="0" gridy="1" insets="5,0,0,0" anchor="GridBagConstraints.WEST" />
-		<renderer class="org.lecturestudio.presenter.swing.combobox.CourseRenderer" />
-	</ComboBox>
+
+		<Label text="start.stream.choose.course" border="EmptyBorder(0, 0, 5, 0)" />
+		<ComboBox id="courseCombo" name="extendedUI">
+			<renderer class="org.lecturestudio.presenter.swing.combobox.CourseRenderer" />
+		</ComboBox>
+
+		<CheckBox id="cameraCheckBox" text="start.stream.camera.enable" border="EmptyBorder(15, 0, 0, 0)" />
+	</VBox>
 
 	<Label id="errorLabel" visible="false">
 		<gridbagconstraints gridx="0" gridy="0" insets="5,0,2,0" anchor="GridBagConstraints.WEST" />

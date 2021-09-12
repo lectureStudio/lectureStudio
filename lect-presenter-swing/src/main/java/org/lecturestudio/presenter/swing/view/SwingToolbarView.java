@@ -136,6 +136,8 @@ public class SwingToolbarView extends JToolBar implements ToolbarView {
 
 	private JButton stopRecordingButton;
 
+	private JToggleButton streamEnableButton;
+
 	private JToggleButton streamMicButton;
 
 	private JToggleButton streamCamButton;
@@ -519,6 +521,11 @@ public class SwingToolbarView extends JToolBar implements ToolbarView {
 		});
 
 		customColorButton.getChooser().setToolType(toolType);
+	}
+
+	@Override
+	public void bindEnableStream(BooleanProperty enable) {
+		SwingUtils.bindBidirectional(streamEnableButton, enable);
 	}
 
 	@Override

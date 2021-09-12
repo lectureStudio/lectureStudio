@@ -20,6 +20,7 @@ package org.lecturestudio.web.api.stream.action;
 
 public enum StreamActionType {
 
+	STREAM_INIT,
 	STREAM_START,
 
 	STREAM_PAGE_ACTION,

@@ -21,26 +21,35 @@ package org.lecturestudio.web.api.stream.action;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 
-public class StreamStartAction extends StreamStateAction {
+public abstract class StreamStateAction extends StreamAction {
 
-	public StreamStartAction(long courseId) {
-		super(courseId);
+	private long courseId;
+
+
+	public StreamStateAction(long courseId) {
+		this.courseId = courseId;
 	}
 
-	public StreamStartAction(byte[] input) {
-		super(input);
+	public StreamStateAction(byte[] input) {
+		parseFrom(input);
+	}
+
+	public long getCourseId() {
+		return courseId;
 	}
 
 	@Override
 	public byte[] toByteArray() throws IOException {
 		ByteBuffer buffer = createBuffer(8);
-		buffer.putLong(getCourseId());
+		buffer.putLong(courseId);
 
 		return buffer.array();
 	}
 
 	@Override
-	public StreamActionType getType() {
-		return StreamActionType.STREAM_START;
+	public void parseFrom(byte[] input) {
+		ByteBuffer buffer = createBuffer(input);
+
+		courseId = buffer.getLong();
 	}
 }

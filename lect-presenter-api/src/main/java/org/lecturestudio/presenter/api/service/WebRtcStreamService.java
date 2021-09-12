@@ -213,6 +213,8 @@ public class WebRtcStreamService extends ExecutableBase {
 		streamStateClient = createStreamStateClient(config);
 		janusClient = createJanusClient(webRtcConfig);
 
+		webRtcConfig.setWebRtcUpCallback(streamStateClient::setWebRtcUp);
+
 		eventRecorder.start();
 		streamStateClient.start();
 		janusClient.start();

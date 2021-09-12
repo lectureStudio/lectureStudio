@@ -21,6 +21,8 @@ package org.lecturestudio.web.api.janus;
 import static java.util.Objects.nonNull;
 
 import org.lecturestudio.core.ExecutableException;
+import org.lecturestudio.web.api.janus.message.JanusMessage;
+import org.lecturestudio.web.api.janus.message.JanusMessageType;
 import org.lecturestudio.web.api.janus.state.AttachPluginState;
 import org.lecturestudio.web.api.janus.state.CreateRoomState;
 import org.lecturestudio.web.api.stream.config.WebRtcConfiguration;
@@ -30,6 +32,20 @@ public class JanusPublisherHandler extends JanusStateHandler {
 	public JanusPublisherHandler(JanusMessageTransmitter transmitter,
 			WebRtcConfiguration webRtcConfig) {
 		super(transmitter, webRtcConfig);
+	}
+
+	public <T extends JanusMessage> void handleMessage(T message) throws Exception {
+		JanusMessageType type = message.getEventType();
+
+		if (type == JanusMessageType.WEBRTC_UP) {
+			Runnable callback = webRtcConfig.getWebRtcUpCallback();
+
+			if (nonNull(callback)) {
+				callback.run();
+			}
+		}
+
+		super.handleMessage(message);
 	}
 
 	@Override

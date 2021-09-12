@@ -21,13 +21,13 @@ package org.lecturestudio.web.api.stream.action;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 
-public class StreamStartAction extends StreamStateAction {
+public class StreamInitAction extends StreamStateAction {
 
-	public StreamStartAction(long courseId) {
+	public StreamInitAction(long courseId) {
 		super(courseId);
 	}
 
-	public StreamStartAction(byte[] input) {
+	public StreamInitAction(byte[] input) {
 		super(input);
 	}
 
@@ -41,6 +41,6 @@ public class StreamStartAction extends StreamStateAction {
 
 	@Override
 	public StreamActionType getType() {
-		return StreamActionType.STREAM_START;
+		return StreamActionType.STREAM_INIT;
 	}
 }

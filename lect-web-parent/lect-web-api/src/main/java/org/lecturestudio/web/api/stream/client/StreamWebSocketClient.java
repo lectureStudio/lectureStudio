@@ -57,6 +57,7 @@ import org.lecturestudio.web.api.stream.StreamEventRecorder;
 import org.lecturestudio.web.api.stream.action.StreamAction;
 import org.lecturestudio.web.api.stream.action.StreamDocumentCreateAction;
 import org.lecturestudio.web.api.stream.action.StreamDocumentSelectAction;
+import org.lecturestudio.web.api.stream.action.StreamInitAction;
 import org.lecturestudio.web.api.stream.action.StreamPageSelectedAction;
 import org.lecturestudio.web.api.stream.action.StreamStartAction;
 import org.lecturestudio.web.api.stream.model.Course;
@@ -117,6 +118,19 @@ public class StreamWebSocketClient extends ExecutableBase {
 		this.jsonb = JsonbBuilder.create(config);
 	}
 
+	public void setWebRtcUp() {
+		if (!started()) {
+			return;
+		}
+
+		try {
+			send(new StreamStartAction(course.getId()));
+		}
+		catch (IOException e) {
+			logException(e, "Send event state failed");
+		}
+	}
+
 	@Override
 	protected void initInternal() throws ExecutableException {
 		eventRecorder.addDocumentConsumer(this::uploadDocument);
@@ -150,7 +164,7 @@ public class StreamWebSocketClient extends ExecutableBase {
 		// Transmit initial document state.
 		Document document = documentService.getDocuments().getSelectedDocument();
 
-		StreamStartAction startAction = new StreamStartAction(course.getId());
+		StreamInitAction initAction = new StreamInitAction(course.getId());
 
 		StreamDocumentSelectAction docSelectAction = new StreamDocumentSelectAction(document);
 
@@ -158,7 +172,7 @@ public class StreamWebSocketClient extends ExecutableBase {
 				document.getCurrentPage());
 
 		try {
-			send(startAction);
+			send(initAction);
 
 			// Upload all opened PDF documents.
 			for (var doc : documentService.getDocuments().asList()) {

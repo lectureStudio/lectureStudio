@@ -21,6 +21,7 @@ package org.lecturestudio.presenter.javafx.view;
 import static java.util.Objects.isNull;
 import static java.util.Objects.nonNull;
 
+import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -400,7 +401,7 @@ public class FxSlidesView extends VBox implements SlidesView {
 	}
 
 	@Override
-	public void setOnStopPeerConnection(Action action) {
+	public void setOnStopPeerConnection(ConsumerAction<BigInteger> action) {
 
 	}
 

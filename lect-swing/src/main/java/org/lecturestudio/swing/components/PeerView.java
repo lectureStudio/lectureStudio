@@ -28,6 +28,7 @@ import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Image;
 import java.awt.RenderingHints;
+import java.math.BigInteger;
 
 import javax.swing.Box;
 import javax.swing.JButton;
@@ -35,7 +36,6 @@ import javax.swing.JComponent;
 import javax.swing.JToggleButton;
 import javax.swing.border.EmptyBorder;
 
-import org.lecturestudio.core.view.Action;
 import org.lecturestudio.core.view.ConsumerAction;
 import org.lecturestudio.swing.AwtResourceLoader;
 import org.lecturestudio.swing.util.SwingUtils;
@@ -55,6 +55,8 @@ public class PeerView extends JComponent {
 	private final JButton stopConnectionButton;
 
 	private Image image;
+
+	private BigInteger peerId;
 
 	private String peerName;
 
@@ -97,8 +99,10 @@ public class PeerView extends JComponent {
 		SwingUtils.bindAction(muteVideoButton, action);
 	}
 
-	public void setOnStopPeerConnection(Action action) {
-		SwingUtils.bindAction(stopConnectionButton, action);
+	public void setOnStopPeerConnection(ConsumerAction<BigInteger> action) {
+		stopConnectionButton.addActionListener(e -> {
+			action.execute(peerId);
+		});
 	}
 
 	/**
@@ -121,6 +125,15 @@ public class PeerView extends JComponent {
 	 */
 	public void clearImage() {
 		this.image = null;
+	}
+
+	/**
+	 * Set the peer's unique ID.
+	 *
+	 * @param id The unique ID of the peer.
+	 */
+	public void setPeerId(BigInteger id) {
+		this.peerId = id;
 	}
 
 	/**

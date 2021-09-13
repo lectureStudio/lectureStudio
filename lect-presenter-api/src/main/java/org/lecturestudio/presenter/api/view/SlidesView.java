@@ -18,6 +18,7 @@
 
 package org.lecturestudio.presenter.api.view;
 
+import java.math.BigInteger;
 import java.util.List;
 
 import org.lecturestudio.core.ExecutableState;
@@ -96,7 +97,7 @@ public interface SlidesView extends View {
 
 	void setOnMutePeerVideo(ConsumerAction<Boolean> action);
 
-	void setOnStopPeerConnection(Action action);
+	void setOnStopPeerConnection(ConsumerAction<BigInteger> action);
 
 	void setVideoFrameEvent(VideoFrameEvent event);
 

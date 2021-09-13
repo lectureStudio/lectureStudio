@@ -29,6 +29,7 @@ import dev.onvoid.webrtc.media.audio.AudioDevice;
 import dev.onvoid.webrtc.media.video.VideoCaptureCapability;
 import dev.onvoid.webrtc.media.video.VideoDevice;
 
+import java.math.BigInteger;
 import java.util.List;
 
 import javax.inject.Inject;
@@ -176,12 +177,12 @@ public class WebRtcStreamService extends ExecutableBase {
 		webRtcConfig.getVideoConfiguration().setReceiveVideo(mute);
 	}
 
-	public void stopPeerConnection() {
+	public void stopPeerConnection(BigInteger peerId) {
 		if (!started()) {
 			return;
 		}
 
-		janusClient.stopRemoteSpeech(0);
+		janusClient.stopRemoteSpeech(peerId);
 	}
 
 	@Override

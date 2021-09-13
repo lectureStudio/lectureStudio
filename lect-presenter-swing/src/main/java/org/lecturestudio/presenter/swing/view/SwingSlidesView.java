@@ -36,6 +36,7 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.image.BufferedImage;
 import java.awt.image.DataBufferByte;
+import java.math.BigInteger;
 import java.util.Enumeration;
 import java.util.Iterator;
 import java.util.List;
@@ -125,7 +126,7 @@ public class SwingSlidesView extends JPanel implements SlidesView {
 
 	private ConsumerAction<Boolean> mutePeerVideoAction;
 
-	private Action stopPeerConnectionAction;
+	private ConsumerAction<BigInteger> stopPeerConnectionAction;
 
 	private Action newPageAction;
 
@@ -463,6 +464,7 @@ public class SwingSlidesView extends JPanel implements SlidesView {
 				peerView = new PeerView();
 				peerView.setMinimumSize(new Dimension(100, 150));
 				peerView.setPreferredSize(new Dimension(100, 150));
+				peerView.setPeerId(event.getPeerId());
 				peerView.setPeerName(event.getPeerName());
 				peerView.setOnMuteAudio(mutePeerAudioAction);
 				peerView.setOnMuteVideo(mutePeerVideoAction);
@@ -493,7 +495,7 @@ public class SwingSlidesView extends JPanel implements SlidesView {
 	}
 
 	@Override
-	public void setOnStopPeerConnection(Action action) {
+	public void setOnStopPeerConnection(ConsumerAction<BigInteger> action) {
 		stopPeerConnectionAction = action;
 	}
 

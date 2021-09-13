@@ -27,6 +27,8 @@ public class StreamActionFactory {
 		StreamActionType type = StreamActionType.values()[actionType];
 
 		switch (type) {
+			case STREAM_INIT:
+				return new StreamInitAction(input);
 			case STREAM_START:
 				return new StreamStartAction(input);
 			case STREAM_PAGE_ACTION:

@@ -22,18 +22,45 @@ import static java.util.Objects.nonNull;
 
 import org.lecturestudio.core.ExecutableException;
 import org.lecturestudio.core.beans.ChangeListener;
+import org.lecturestudio.web.api.janus.message.JanusMessage;
+import org.lecturestudio.web.api.janus.message.JanusPluginMessage;
+import org.lecturestudio.web.api.janus.state.AttachPluginState;
+import org.lecturestudio.web.api.janus.state.SubscriberJoinRoomState;
 import org.lecturestudio.web.api.stream.config.WebRtcConfiguration;
 
 public class JanusSubscriberHandler extends JanusStateHandler {
+
+	private final JanusPublisher publisher;
 
 	private ChangeListener<Boolean> enableMicListener;
 
 	private ChangeListener<Boolean> enableCamListener;
 
 
-	public JanusSubscriberHandler(JanusMessageTransmitter transmitter,
+	public JanusSubscriberHandler(JanusPublisher publisher,
+			JanusMessageTransmitter transmitter,
 			WebRtcConfiguration webRtcConfig) {
 		super(transmitter, webRtcConfig);
+
+		this.publisher = publisher;
+	}
+
+	public JanusPublisher getPublisher() {
+		return publisher;
+	}
+
+	@Override
+	public <T extends JanusMessage> void handleMessage(T message) throws Exception {
+		if (message instanceof JanusPluginMessage) {
+			JanusPluginMessage pluginMessage = (JanusPluginMessage) message;
+
+			// Accept only messages that are addressed to this handler.
+			if (!pluginMessage.getHandleId().equals(getPluginId())) {
+				return;
+			}
+		}
+
+		super.handleMessage(message);
 	}
 
 	@Override
@@ -61,7 +88,7 @@ public class JanusSubscriberHandler extends JanusStateHandler {
 
 	@Override
 	protected void startInternal() throws ExecutableException {
-
+		setState(new AttachPluginState(new SubscriberJoinRoomState(publisher)));
 	}
 
 	@Override

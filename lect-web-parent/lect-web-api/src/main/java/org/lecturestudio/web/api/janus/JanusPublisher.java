@@ -19,6 +19,7 @@
 package org.lecturestudio.web.api.janus;
 
 import java.math.BigInteger;
+import java.util.Objects;
 
 /**
  * A Janus WebRTC video room publisher.
@@ -46,12 +47,30 @@ public class JanusPublisher {
 	}
 
 	/**
-	 * Get the user friendly display name of the active publisher.
+	 * Set the publisher's unique ID.
+	 *
+	 * @param id The unique ID of publisher.
+	 */
+	public void setId(BigInteger id) {
+		this.id = id;
+	}
+
+	/**
+	 * Get the user-friendly display name of the active publisher.
 	 *
 	 * @return The display name of the publisher.
 	 */
 	public String getDisplayName() {
 		return display;
+	}
+
+	/**
+	 * Set the publisher's user-friendly display name.
+	 *
+	 * @param name The display name of the publisher.
+	 */
+	public void setDisplayName(String name) {
+		this.display = name;
 	}
 
 	/**
@@ -62,5 +81,34 @@ public class JanusPublisher {
 	 */
 	public Boolean isTalking() {
 		return talking;
+	}
+
+	/**
+	 * Set whether the publisher stream has audio activity or not.
+	 *
+	 * @param talking True if the publisher is currently talking.
+	 */
+	public void setIsTalking(boolean talking) {
+		this.talking = talking;
+	}
+
+	@Override
+	public boolean equals(Object o) {
+		if (this == o) {
+			return true;
+		}
+		if (!(o instanceof JanusPublisher)) {
+			return false;
+		}
+
+		JanusPublisher publisher = (JanusPublisher) o;
+
+		return Objects.equals(id, publisher.id)
+				&& Objects.equals(display, publisher.display);
+	}
+
+	@Override
+	public int hashCode() {
+		return Objects.hash(id, display);
 	}
 }

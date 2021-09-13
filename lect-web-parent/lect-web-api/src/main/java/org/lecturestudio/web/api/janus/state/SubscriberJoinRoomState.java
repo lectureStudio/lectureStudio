@@ -23,10 +23,10 @@ import static java.util.Objects.requireNonNull;
 import dev.onvoid.webrtc.RTCSdpType;
 import dev.onvoid.webrtc.RTCSessionDescription;
 
-import java.math.BigInteger;
 import java.util.UUID;
 
 import org.lecturestudio.web.api.janus.JanusParticipantType;
+import org.lecturestudio.web.api.janus.JanusPublisher;
 import org.lecturestudio.web.api.janus.JanusStateHandler;
 import org.lecturestudio.web.api.janus.message.JanusJsepMessage;
 import org.lecturestudio.web.api.janus.message.JanusMessage;
@@ -42,18 +42,15 @@ import org.lecturestudio.web.api.janus.message.JanusRoomJoinRequest;
  */
 public class SubscriberJoinRoomState implements JanusState {
 
-	private final BigInteger publisherId;
-
-	private final String userName;
+	private final JanusPublisher publisher;
 
 	private JanusPluginDataMessage joinRequest;
 
 
-	public SubscriberJoinRoomState(BigInteger publisherId, String userName) {
-		requireNonNull(publisherId);
+	public SubscriberJoinRoomState(JanusPublisher publisher) {
+		requireNonNull(publisher);
 
-		this.publisherId = publisherId;
-		this.userName = userName;
+		this.publisher = publisher;
 	}
 
 	@Override
@@ -61,7 +58,7 @@ public class SubscriberJoinRoomState implements JanusState {
 		JanusRoomJoinRequest request = new JanusRoomJoinRequest();
 		request.setParticipantType(JanusParticipantType.SUBSCRIBER);
 		request.setRoomId(handler.getRoomId());
-		request.setPublisherId(publisherId);
+		request.setPublisherId(publisher.getId());
 
 		joinRequest = new JanusPluginDataMessage(handler.getSessionId(),
 				handler.getPluginId());
@@ -80,7 +77,7 @@ public class SubscriberJoinRoomState implements JanusState {
 			String sdp = jsepMessage.getSdp();
 			RTCSessionDescription offer = new RTCSessionDescription(RTCSdpType.OFFER, sdp);
 
-			handler.setState(new SubscriberJoinedRoomState(offer, publisherId, userName));
+			handler.setState(new SubscriberJoinedRoomState(offer, publisher));
 		}
 	}
 }

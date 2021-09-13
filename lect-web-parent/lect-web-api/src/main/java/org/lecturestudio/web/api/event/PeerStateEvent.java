@@ -18,10 +18,14 @@
 
 package org.lecturestudio.web.api.event;
 
+import java.math.BigInteger;
+
 import org.lecturestudio.core.ExecutableState;
 import org.lecturestudio.core.bus.event.ExecutableEvent;
 
 public class PeerStateEvent extends ExecutableEvent {
+
+	private final BigInteger peerId;
 
 	private final String peerName;
 
@@ -29,14 +33,27 @@ public class PeerStateEvent extends ExecutableEvent {
 	/**
 	 * Create the {@link PeerStateEvent} with the specified state.
 	 *
-	 * @param state The state.
+	 * @param peerId   The unique ID of the peer.
+	 * @param peerName The display-name of the peer.
+	 * @param state    The state.
 	 */
-	public PeerStateEvent(String peerName, ExecutableState state) {
+	public PeerStateEvent(BigInteger peerId, String peerName, ExecutableState state) {
 		super(state);
 
+		this.peerId = peerId;
 		this.peerName = peerName;
 	}
 
+	/**
+	 * @return The unique ID of the peer.
+	 */
+	public BigInteger getPeerId() {
+		return peerId;
+	}
+
+	/**
+	 * @return The display-name of the peer.
+	 */
 	public String getPeerName() {
 		return peerName;
 	}

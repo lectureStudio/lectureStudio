@@ -38,6 +38,7 @@ import org.lecturestudio.web.api.janus.message.JanusMediaMessage;
 import org.lecturestudio.web.api.janus.message.JanusMessageType;
 import org.lecturestudio.web.api.janus.message.JanusInfoMessage;
 import org.lecturestudio.web.api.janus.message.JanusMessage;
+import org.lecturestudio.web.api.janus.message.JanusPluginMessage;
 import org.lecturestudio.web.api.janus.message.JanusRoomPublisherJoiningMessage;
 import org.lecturestudio.web.api.janus.message.JanusRoomStateMessage;
 import org.lecturestudio.web.api.janus.message.JanusRoomEventType;
@@ -72,10 +73,12 @@ public class JanusMessageFactory {
 			// Common Janus signaling messages.
 			switch (type) {
 				case ACK:
+					return createMessage(body, type);
+
 				case HANGUP:
 				case SLOW_LINK:
 				case WEBRTC_UP:
-					return createMessage(body, type);
+					return createPluginMessage(body, type);
 
 				case ERROR:
 					return createErrorMessage(body);
@@ -136,6 +139,20 @@ public class JanusMessageFactory {
 
 	private static JanusMessage createMessage(JsonObject body, JanusMessageType type) {
 		JanusMessage message = new JanusMessage();
+		message.setEventType(type);
+
+		if (body.containsKey("transaction")) {
+			message.setTransaction(body.getString("transaction"));
+		}
+
+		return message;
+	}
+
+	private static JanusMessage createPluginMessage(JsonObject body, JanusMessageType type) {
+		var sessionId = body.getJsonNumber("session_id").bigIntegerValue();
+		var handleId = body.getJsonNumber("sender").bigIntegerValue();
+
+		JanusPluginMessage message = new JanusPluginMessage(sessionId, handleId);
 		message.setEventType(type);
 
 		if (body.containsKey("transaction")) {

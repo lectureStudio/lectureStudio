@@ -18,6 +18,7 @@
 
 package org.lecturestudio.web.api.janus;
 
+import static java.util.Objects.isNull;
 import static java.util.Objects.nonNull;
 import static java.util.Objects.requireNonNull;
 
@@ -26,6 +27,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
@@ -42,10 +44,8 @@ import org.lecturestudio.web.api.janus.message.JanusRoomKickRequest;
 import org.lecturestudio.web.api.janus.message.JanusRoomPublisherJoinedMessage;
 import org.lecturestudio.web.api.janus.message.JanusSessionMessage;
 import org.lecturestudio.web.api.janus.message.JanusSessionTimeoutMessage;
-import org.lecturestudio.web.api.janus.state.AttachPluginState;
 import org.lecturestudio.web.api.janus.state.DestroyRoomState;
 import org.lecturestudio.web.api.janus.state.InfoState;
-import org.lecturestudio.web.api.janus.state.SubscriberJoinRoomState;
 import org.lecturestudio.web.api.stream.StreamEventRecorder;
 import org.lecturestudio.web.api.stream.config.WebRtcConfiguration;
 
@@ -57,11 +57,9 @@ public class JanusHandler extends JanusStateHandler {
 
 	private Map<Class<? extends JanusMessage>, Consumer<? extends JanusMessage>> messageHandlers;
 
+	private Map<Long, JanusPublisher> speechPublishers;
+
 	private List<JanusStateHandler> handlers;
-
-	private String userName;
-
-	private BigInteger peerId;
 
 
 	public JanusHandler(JanusMessageTransmitter transmitter,
@@ -77,19 +75,46 @@ public class JanusHandler extends JanusStateHandler {
 			return;
 		}
 
-		this.userName = userName;
+		JanusPublisher speechPublisher = new JanusPublisher();
+		speechPublisher.setDisplayName(userName);
+
+		speechPublishers.put(requestId, speechPublisher);
 
 		editRoom(2);
 	}
 
-	public void stopRemoteSpeech(long requestId) {
+	public void stopRemoteSpeech(BigInteger peerId) {
 		if (!started()) {
 			return;
 		}
 
 		editRoom(1);
 
-		kickParticipant();
+		var entry = speechPublishers.entrySet().stream()
+				.filter(e -> e.getValue().getId().equals(peerId))
+				.findFirst()
+				.orElse(null);
+
+		if (isNull(entry)) {
+			return;
+		}
+
+		JanusPublisher speechPublisher = speechPublishers.remove(entry.getKey());
+
+		if (nonNull(speechPublisher)) {
+			kickParticipant(speechPublisher);
+
+			for (JanusStateHandler handler : handlers) {
+				if (handler instanceof JanusSubscriberHandler) {
+					JanusSubscriberHandler subHandler = (JanusSubscriberHandler) handler;
+
+					if (subHandler.getPublisher().equals(speechPublisher)) {
+						removeStateHandler(handler);
+						break;
+					}
+				}
+			}
+		}
 	}
 
 	@Override
@@ -140,6 +165,7 @@ public class JanusHandler extends JanusStateHandler {
 	protected void initInternal() throws ExecutableException {
 		executorService = Executors.newSingleThreadScheduledExecutor();
 		messageHandlers = new HashMap<>();
+		speechPublishers = new ConcurrentHashMap<>();
 		handlers = new CopyOnWriteArrayList<>();
 
 		setRoomId(BigInteger.valueOf(getWebRtcConfig().getCourse().getId()));
@@ -213,15 +239,18 @@ public class JanusHandler extends JanusStateHandler {
 	}
 
 	private void handleSessionTimeout(JanusSessionTimeoutMessage message) {
-
+		logErrorMessage("Janus session '%s' timed out", message.getId());
 	}
 
 	private void handlePublisherJoined(JanusRoomPublisherJoinedMessage message) {
 		JanusPublisher publisher = message.getPublisher();
 
-		peerId = publisher.getId();
+		// Only one speech at a time.
+		JanusPublisher speechPublisher = speechPublishers.entrySet().iterator()
+				.next().getValue();
+		speechPublisher.setId(publisher.getId());
 
-		startSubscriber();
+		startSubscriber(speechPublisher);
 	}
 
 	private void startPublisher() {
@@ -233,20 +262,18 @@ public class JanusHandler extends JanusStateHandler {
 		addStateHandler(pubHandler);
 	}
 
-	private void startSubscriber() {
-		JanusStateHandler subHandler = new JanusSubscriberHandler(transmitter,
-				webRtcConfig);
+	private void startSubscriber(JanusPublisher publisher) {
+		JanusStateHandler subHandler = new JanusSubscriberHandler(publisher,
+				transmitter, webRtcConfig);
 		subHandler.setSessionId(getSessionId());
 		subHandler.setRoomId(getRoomId());
-		subHandler.setState(new AttachPluginState(
-				new SubscriberJoinRoomState(peerId, userName)));
 
 		addStateHandler(subHandler);
 	}
 
-	private void kickParticipant() {
+	private void kickParticipant(JanusPublisher publisher) {
 		JanusRoomKickRequest request = new JanusRoomKickRequest();
-		request.setParticipantId(peerId);
+		request.setParticipantId(publisher.getId());
 		request.setRoomId(getRoomId());
 		request.setSecret(getRoomSecret());
 
@@ -266,10 +293,10 @@ public class JanusHandler extends JanusStateHandler {
 		sendMessage(message);
 	}
 
-	private void editRoom(int publishers) {
+	private void editRoom(int publisherCount) {
 		JanusEditRoomMessage request = new JanusEditRoomMessage();
 		request.setRoomId(getRoomId());
-		request.setPublishers(publishers);
+		request.setPublishers(publisherCount);
 		//request.setSecret(handler.getRoomSecret());
 
 		var requestMessage = new JanusPluginDataMessage(getSessionId(),

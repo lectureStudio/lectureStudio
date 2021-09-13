@@ -24,6 +24,7 @@ import org.lecturestudio.core.ExecutableException;
 import org.lecturestudio.core.beans.ChangeListener;
 import org.lecturestudio.web.api.janus.message.JanusMessage;
 import org.lecturestudio.web.api.janus.message.JanusMessageType;
+import org.lecturestudio.web.api.janus.message.JanusPluginMessage;
 import org.lecturestudio.web.api.janus.state.AttachPluginState;
 import org.lecturestudio.web.api.janus.state.CreateRoomState;
 import org.lecturestudio.web.api.stream.StreamEventRecorder;
@@ -47,7 +48,17 @@ public class JanusPublisherHandler extends JanusStateHandler {
 		this.eventRecorder = eventRecorder;
 	}
 
+	@Override
 	public <T extends JanusMessage> void handleMessage(T message) throws Exception {
+		if (message instanceof JanusPluginMessage) {
+			JanusPluginMessage pluginMessage = (JanusPluginMessage) message;
+
+			// Accept only messages that are addressed to this handler.
+			if (!pluginMessage.getHandleId().equals(getPluginId())) {
+				return;
+			}
+		}
+
 		JanusMessageType type = message.getEventType();
 
 		if (type == JanusMessageType.WEBRTC_UP) {

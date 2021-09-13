@@ -21,6 +21,7 @@ package org.lecturestudio.web.api.janus.client;
 import static java.util.Objects.requireNonNull;
 
 import java.io.StringReader;
+import java.math.BigInteger;
 import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.WebSocket;
@@ -88,12 +89,12 @@ public class JanusWebSocketClient extends ExecutableBase implements JanusMessage
 		handler.startRemoteSpeech(requestId, userName);
 	}
 
-	public void stopRemoteSpeech(long requestId) {
+	public void stopRemoteSpeech(BigInteger peerId) {
 		if (!started()) {
 			return;
 		}
 
-		handler.stopRemoteSpeech(requestId);
+		handler.stopRemoteSpeech(peerId);
 	}
 
 	@Override

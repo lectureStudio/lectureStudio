@@ -129,6 +129,6 @@ public enum JanusRoomEventType {
 			}
 		}
 
-		throw new NoSuchElementException();
+		throw new NoSuchElementException("Not found: " + typeStr);
 	}
 }

@@ -21,11 +21,9 @@ package org.lecturestudio.web.api.janus.state;
 import static java.util.Objects.nonNull;
 
 import dev.onvoid.webrtc.RTCIceCandidate;
-import dev.onvoid.webrtc.RTCIceConnectionState;
 import dev.onvoid.webrtc.RTCIceGatheringState;
 import dev.onvoid.webrtc.RTCSessionDescription;
 
-import java.math.BigInteger;
 import java.util.Map;
 import java.util.UUID;
 import java.util.function.Consumer;
@@ -34,13 +32,12 @@ import org.lecturestudio.core.ExecutableState;
 import org.lecturestudio.web.api.event.PeerStateEvent;
 import org.lecturestudio.web.api.event.VideoFrameEvent;
 import org.lecturestudio.web.api.janus.JanusPeerConnection;
+import org.lecturestudio.web.api.janus.JanusPublisher;
 import org.lecturestudio.web.api.janus.JanusStateHandler;
 import org.lecturestudio.web.api.janus.message.JanusMediaMessage;
 import org.lecturestudio.web.api.janus.message.JanusMessage;
 import org.lecturestudio.web.api.janus.message.JanusMessageType;
 import org.lecturestudio.web.api.janus.message.JanusPluginMessage;
-import org.lecturestudio.web.api.janus.message.JanusRoomPublisherUnpublishedMessage;
-import org.lecturestudio.web.api.janus.message.JanusRoomStateMessage;
 import org.lecturestudio.web.api.janus.message.JanusRoomSubscribeMessage;
 import org.lecturestudio.web.api.janus.message.JanusRoomSubscribeRequest;
 import org.lecturestudio.web.api.janus.message.JanusTrickleMessage;
@@ -57,9 +54,7 @@ public class SubscriberJoinedRoomState implements JanusState {
 
 	private final RTCSessionDescription offer;
 
-	private final BigInteger peerId;
-
-	private final String userName;
+	private final JanusPublisher publisher;
 
 	private Consumer<PeerStateEvent> peerStateConsumer;
 
@@ -69,10 +64,9 @@ public class SubscriberJoinedRoomState implements JanusState {
 
 
 	public SubscriberJoinedRoomState(RTCSessionDescription offer,
-			BigInteger peerId, String userName) {
+			JanusPublisher publisher) {
 		this.offer = offer;
-		this.peerId = peerId;
-		this.userName = userName;
+		this.publisher = publisher;
 	}
 
 	@Override
@@ -95,16 +89,21 @@ public class SubscriberJoinedRoomState implements JanusState {
 			}
 		});
 		peerConnection.setOnIceConnectionState(state -> {
-			if (state == RTCIceConnectionState.CONNECTED) {
-				setPeerState(ExecutableState.Started);
-			}
-			else if (state == RTCIceConnectionState.DISCONNECTED) {
-				setPeerState(ExecutableState.Stopped);
+			switch (state) {
+				case CONNECTED:
+					setPeerState(ExecutableState.Started);
+					break;
+
+				case DISCONNECTED:
+				case CLOSED:
+					setPeerState(ExecutableState.Stopped);
+					break;
 			}
 		});
 		peerConnection.setOnRemoteVideoFrame(videoFrame -> {
 			if (nonNull(videoFrameConsumer)) {
-				videoFrameConsumer.accept(new VideoFrameEvent(videoFrame, peerId.toString()));
+				videoFrameConsumer.accept(new VideoFrameEvent(videoFrame,
+						publisher.getId().toString()));
 			}
 		});
 
@@ -117,15 +116,10 @@ public class SubscriberJoinedRoomState implements JanusState {
 
 		if (type == JanusMessageType.WEBRTC_UP) {
 			logDebug("Janus WebRTC connection is up (subscriber)");
-
-			//setPeerState(ExecutableState.Started);
 			return;
 		}
 		if (type == JanusMessageType.HANGUP) {
 			logDebug("Janus WebRTC connection hangup (subscriber)");
-
-			//setPeerState(ExecutableState.Stopped);
-			return;
 		}
 		else if (type == JanusMessageType.MEDIA) {
 			JanusMediaMessage mediaMessage = (JanusMediaMessage) message;
@@ -133,25 +127,6 @@ public class SubscriberJoinedRoomState implements JanusState {
 			logDebug("Janus %s receiving our %s",
 					(mediaMessage.isReceiving() ? "started" : "stopped"),
 					mediaMessage.getType());
-			return;
-		}
-		else if (message instanceof JanusRoomPublisherUnpublishedMessage) {
-			JanusRoomPublisherUnpublishedMessage unpubMessage = (JanusRoomPublisherUnpublishedMessage) message;
-
-			if (unpubMessage.getPublisherId().equals(peerId)) {
-//				setPeerState(ExecutableState.Stopped);
-			}
-		}
-		else if (message instanceof JanusRoomStateMessage) {
-			// Ignore.
-			return;
-		}
-
-		try {
-			checkTransaction(subscribeRequest, message);
-		}
-		catch (Exception e) {
-			return;
 		}
 	}
 
@@ -194,7 +169,8 @@ public class SubscriberJoinedRoomState implements JanusState {
 
 	private void setPeerState(ExecutableState state) {
 		if (nonNull(peerStateConsumer)) {
-			peerStateConsumer.accept(new PeerStateEvent(userName, state));
+			peerStateConsumer.accept(new PeerStateEvent(publisher.getId(),
+					publisher.getDisplayName(), state));
 		}
 	}
 }

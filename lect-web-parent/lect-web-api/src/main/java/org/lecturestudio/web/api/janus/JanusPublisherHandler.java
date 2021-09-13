@@ -21,17 +21,30 @@ package org.lecturestudio.web.api.janus;
 import static java.util.Objects.nonNull;
 
 import org.lecturestudio.core.ExecutableException;
+import org.lecturestudio.core.beans.ChangeListener;
 import org.lecturestudio.web.api.janus.message.JanusMessage;
 import org.lecturestudio.web.api.janus.message.JanusMessageType;
 import org.lecturestudio.web.api.janus.state.AttachPluginState;
 import org.lecturestudio.web.api.janus.state.CreateRoomState;
+import org.lecturestudio.web.api.stream.StreamEventRecorder;
+import org.lecturestudio.web.api.stream.action.StreamAction;
 import org.lecturestudio.web.api.stream.config.WebRtcConfiguration;
 
 public class JanusPublisherHandler extends JanusStateHandler {
 
+	private final StreamEventRecorder eventRecorder;
+
+	private ChangeListener<Boolean> enableMicListener;
+
+	private ChangeListener<Boolean> enableCamListener;
+
+
 	public JanusPublisherHandler(JanusMessageTransmitter transmitter,
-			WebRtcConfiguration webRtcConfig) {
+			WebRtcConfiguration webRtcConfig,
+			StreamEventRecorder eventRecorder) {
 		super(transmitter, webRtcConfig);
+
+		this.eventRecorder = eventRecorder;
 	}
 
 	public <T extends JanusMessage> void handleMessage(T message) throws Exception {
@@ -49,24 +62,65 @@ public class JanusPublisherHandler extends JanusStateHandler {
 	}
 
 	@Override
-	protected void initInternal() throws ExecutableException {
+	public JanusPeerConnection createPeerConnection() {
+		JanusPeerConnection peerConnection = super.createPeerConnection();
 
+		webRtcConfig.getAudioConfiguration().sendAudioProperty()
+				.addListener(enableMicListener);
+		webRtcConfig.getVideoConfiguration().sendVideoProperty()
+				.addListener(enableCamListener);
+
+		return peerConnection;
+	}
+
+	@Override
+	protected void initInternal() throws ExecutableException {
+		enableMicListener = (observable, oldValue, newValue) -> {
+			peerConnection.enableMicrophone(newValue);
+		};
+
+		enableCamListener = (observable, oldValue, newValue) -> {
+			peerConnection.enableCamera(newValue);
+		};
 	}
 
 	@Override
 	protected void startInternal() throws ExecutableException {
+		eventRecorder.addRecordedActionConsumer(this::handleStreamAction);
+
 		setState(new AttachPluginState(new CreateRoomState()));
 	}
 
 	@Override
 	protected void stopInternal() throws ExecutableException {
+		eventRecorder.removeRecordedActionConsumer(this::handleStreamAction);
+
+		webRtcConfig.getAudioConfiguration().sendAudioProperty()
+				.removeListener(enableMicListener);
+		webRtcConfig.getVideoConfiguration().sendVideoProperty()
+				.removeListener(enableCamListener);
+
 		if (nonNull(peerConnection)) {
 			peerConnection.close();
+			peerConnection = null;
 		}
 	}
 
 	@Override
 	protected void destroyInternal() throws ExecutableException {
 
+	}
+
+	private void handleStreamAction(StreamAction action) {
+		JanusPeerConnection peerConnection = getPeerConnection();
+
+		if (nonNull(peerConnection)) {
+			try {
+				peerConnection.sendData(action.toByteArray());
+			}
+			catch (Exception e) {
+				logException(e, "Send event via data channel failed");
+			}
+		}
 	}
 }

@@ -119,9 +119,11 @@ public abstract class JanusStateHandler extends ExecutableBase {
 		transmitter.sendMessage(message);
 	}
 
-	public void createPeerConnection() {
+	public JanusPeerConnection createPeerConnection() {
 		peerConnection = new JanusPeerConnection(webRtcConfig,
 				Executors.newSingleThreadExecutor());
+
+		return peerConnection;
 	}
 
 	public JanusPeerConnection getPeerConnection() {

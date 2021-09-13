@@ -45,6 +45,10 @@ public abstract class StreamEventRecorder extends LectureRecorder {
 		actionConsumers.add(consumer);
 	}
 
+	public void removeRecordedActionConsumer(Consumer<StreamAction> consumer) {
+		actionConsumers.remove(consumer);
+	}
+
 	protected void notifyDocumentConsumers(Document document) {
 		for (var consumer : documentConsumers) {
 			consumer.accept(document);

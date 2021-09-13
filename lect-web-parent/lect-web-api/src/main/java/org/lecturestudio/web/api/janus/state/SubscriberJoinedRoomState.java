@@ -77,19 +77,8 @@ public class SubscriberJoinedRoomState implements JanusState {
 
 	@Override
 	public void initialize(JanusStateHandler handler) {
-		handler.createPeerConnection();
-
 		WebRtcConfiguration webRtcConfig = handler.getWebRtcConfig();
-		JanusPeerConnection peerConnection = handler.getPeerConnection();
-
-		webRtcConfig.getAudioConfiguration().receiveAudioProperty()
-				.addListener((observable, oldValue, newValue) -> {
-					peerConnection.enableRemoteAudio(newValue);
-				});
-		webRtcConfig.getVideoConfiguration().receiveVideoProperty()
-				.addListener((observable, oldValue, newValue) -> {
-					peerConnection.enableRemoteVideo(newValue);
-				});
+		JanusPeerConnection peerConnection = handler.createPeerConnection();
 
 		peerStateConsumer = webRtcConfig.getPeerStateConsumer();
 		videoFrameConsumer = webRtcConfig.getVideoFrameConsumer();

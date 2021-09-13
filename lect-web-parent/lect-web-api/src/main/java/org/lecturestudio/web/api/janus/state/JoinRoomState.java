@@ -63,7 +63,6 @@ public class JoinRoomState implements JanusState {
 			logDebug("Janus room joined: %d (%s)", joinedMessage.getRoomId(),
 					joinedMessage.getDescription());
 
-			handler.createPeerConnection();
 			handler.setState(new PublishToRoomState());
 		}
 	}

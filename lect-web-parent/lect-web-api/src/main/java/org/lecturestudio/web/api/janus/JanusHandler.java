@@ -159,8 +159,10 @@ public class JanusHandler extends JanusStateHandler {
 		setState(new DestroyRoomState());
 
 		for (JanusStateHandler handler : handlers) {
-			handler.stop();
+			handler.destroy();
 		}
+
+		handlers.clear();
 
 		executorService.shutdown();
 	}
@@ -185,7 +187,7 @@ public class JanusHandler extends JanusStateHandler {
 		handlers.remove(handler);
 
 		try {
-			handler.stop();
+			handler.destroy();
 		}
 		catch (ExecutableException e) {
 			logException(e, "Stop Janus handler failed");
@@ -224,22 +226,9 @@ public class JanusHandler extends JanusStateHandler {
 
 	private void startPublisher() {
 		JanusStateHandler pubHandler = new JanusPublisherHandler(transmitter,
-				webRtcConfig);
+				webRtcConfig, eventRecorder);
 		pubHandler.setSessionId(getSessionId());
 		pubHandler.setRoomId(getRoomId());
-
-		eventRecorder.addRecordedActionConsumer(action -> {
-			JanusPeerConnection peerConnection = pubHandler.getPeerConnection();
-
-			if (nonNull(peerConnection)) {
-				try {
-					peerConnection.sendData(action.toByteArray());
-				}
-				catch (Exception e) {
-					logException(e, "Send event via data channel failed");
-				}
-			}
-		});
 
 		addStateHandler(pubHandler);
 	}

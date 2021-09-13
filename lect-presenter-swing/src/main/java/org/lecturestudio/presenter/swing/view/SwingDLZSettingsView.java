@@ -14,6 +14,10 @@ import javax.swing.*;
 import java.util.List;
 import java.util.Vector;
 
+/**
+ * @author Daniel Schröter
+ * implementation of the dlz settings functionalities into the graphical representation
+ */
 @SwingView(name = "dlz-settings", presenter = org.lecturestudio.presenter.api.presenter.DLZSettingsPresenter.class)
 public class SwingDLZSettingsView extends JPanel implements DLZSettingsView {
 
@@ -31,8 +35,10 @@ public class SwingDLZSettingsView extends JPanel implements DLZSettingsView {
         super();
     }
 
-
-
+    /**
+     * method to initialize the joined rooms combobox
+     * @param rooms list containing the users joined DLZRooms
+     */
     @Override
     public void setRooms(List<DLZRoom> rooms) {
         if(rooms == null){
@@ -42,6 +48,10 @@ public class SwingDLZSettingsView extends JPanel implements DLZSettingsView {
                 .setModel(new DefaultComboBoxModel<>(new Vector<>(rooms))));
     }
 
+    /**
+     * method to initialize the current selected DLZRoom in the joined rooms combobox
+     * @param room current DLZRoom
+     */
     @Override
     public void setRoom(ObjectProperty<DLZRoom> room) {
         SwingUtils.invoke(() -> {
@@ -49,12 +59,18 @@ public class SwingDLZSettingsView extends JPanel implements DLZSettingsView {
         });
     }
 
-
+    /**
+     * method to determine the DLZAccessToken
+     * @param AccessToken
+     */
     @Override
     public void setDLZAccessToken(ObjectProperty<String> AccessToken) {
         SwingUtils.bindBidirectional(dlzAccessTokenTextField, AccessToken);
     }
 
+    /**
+     * method to refresh the inserted DLZAccessToken
+     */
     @Override
     public void refreshaccesstoken(Action action) {
         SwingUtils.bindAction(refreshAccessTokenButton, action);

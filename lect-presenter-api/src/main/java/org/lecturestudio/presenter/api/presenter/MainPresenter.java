@@ -327,6 +327,10 @@ public class MainPresenter extends org.lecturestudio.core.presenter.MainPresente
 		}
 	}
 
+	/**
+	 * method to handle the dlz messenger events
+	 * @param event
+	 */
 	@Subscribe
 	public void onEvent(final DLZStateEvent event) {
 		ExecutableState state = event.getState();

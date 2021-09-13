@@ -18,7 +18,6 @@
 
 package org.lecturestudio.presenter.swing.combobox;
 
-import org.lecturestudio.broadcast.config.BroadcastProfile;
 import org.lecturestudio.web.api.model.DLZRoom;
 
 import javax.swing.*;
@@ -26,8 +25,14 @@ import java.awt.*;
 
 import static java.util.Objects.nonNull;
 
+/**
+ * class which initializes an combobox containing DLZRooms
+ */
 public class DLZRoomRenderer extends DefaultListCellRenderer {
 
+	/**
+	 * representing an entry of the combobox
+	 */
 	@Override
 	public Component getListCellRendererComponent(JList<?> list, Object value,
 			int index, boolean isSelected, boolean cellHasFocus) {

@@ -123,7 +123,7 @@ public class MenuPresenter extends Presenter<MenuView> {
 	private WebService webService;
 
 	@Inject
-	private DLZService dlzService;
+	private DLZService DLZService;
 
 	@Inject
 	MenuPresenter(ApplicationContext context, MenuView view) {
@@ -367,10 +367,10 @@ public class MenuPresenter extends Presenter<MenuView> {
 
 	public void toggleDLZ(boolean start){
 		if(start) {
-			startDLZ();
+			DLZStart();
 		}
 		else{
-			stopDLZ();
+			DLZStop();
 		}
 	}
 
@@ -498,43 +498,31 @@ public class MenuPresenter extends Presenter<MenuView> {
 		}
 	}
 
-	public void startDLZ(){
+	/**
+	 * method which initialises the dlz messenger
+	 */
+	public void DLZStart(){
 		DLZMessageService.active = true;
-		PresenterConfiguration config = (PresenterConfiguration) context.getConfiguration();
 		context.getEventBus().post(new DLZStateEvent(ExecutableState.Starting));
-		dlzService.start();
-		//org.lecturestudio.web.api.service.DLZSendMessageService.SendTextMessage("Test aus lectstudio" , config.getDlzRoom().getId());
+		DLZService.start();
 		context.getEventBus().post(new DLZStateEvent(ExecutableState.Started));
-		/*try {
-			InputStream test;
-			test = org.lecturestudio.web.api.service.DLZPictureService.getPic();
-			BufferedImage imBuff = ImageIO.read(test);
-			System.out.println(imBuff);
-
-
-			MessengerMessage messengerMessage = new MessengerMessage();
-			messengerMessage.setDate(new Date());
-			messengerMessage.setImage(imBuff);
-			messengerMessage.setMessage(new Message("Test"));
-
-			context.getEventBus().post(messengerMessage);
-
-			showNotificationPopup("DLZ Bild");
-		}
-		catch (Exception e){
-			e.printStackTrace();
-		}*/
 	}
 
-	public void stopDLZ(){
+	/**
+	 * method which terminates the dlz messenger
+	 */
+	public void DLZStop(){
 		DLZMessageService.active = false;
-		System.out.println("DLZ-Chat gestoppt");
 		context.getEventBus().post(new DLZStateEvent(ExecutableState.Stopping));
-		dlzService.stop();
+		DLZService.stop();
 		context.getEventBus().post(new DLZStateEvent(ExecutableState.Stopped));
 	}
 
-	public void showDLZWindow(boolean show){
+	/**
+	 * method to toggle the visibility of the dlz messenger window
+	 * @param show
+	 */
+	public void DLZShowWindow(boolean show){
 		if (show) {
 			eventBus.post(new ShowPresenterCommand<>(MessengerWindowPresenter.class));
 		}
@@ -742,9 +730,9 @@ public class MenuPresenter extends Presenter<MenuView> {
 		view.setOnShowSelectQuizView(this::selectQuiz);
 		view.setOnShowNewQuizView(this::newQuiz);
 		view.setOnCloseQuiz(this::closeQuiz);
-		view.setOnStartDLZ(this::startDLZ);
-		view.setOnStopDLZ(this::stopDLZ);
-		view.setOnShowDLZWindow(this::showDLZWindow);
+		view.setOnStartDLZ(this::DLZStart);
+		view.setOnStopDLZ(this::DLZStop);
+		view.setOnShowDLZWindow(this::DLZShowWindow);
 
 		view.setOnControlCamera(this::toggleCamera);
 		view.setOnControlCameraSettings(this::showCameraSettings);
@@ -757,7 +745,7 @@ public class MenuPresenter extends Presenter<MenuView> {
 		view.setOnControlStreamingSettings(this::showStreamingSettings);
 		view.setOnControlDLZ(this::toggleDLZ);
 		view.setOnControlDLZSettings(this::showDLZSettings);
-		view.setOnControlDLZWindow(this::showDLZWindow);
+		view.setOnControlDLZWindow(this::DLZShowWindow);
 
 		view.setOnClearBookmarks(this::clearBookmarks);
 		view.setOnShowNewBookmarkView(this::newBookmark);

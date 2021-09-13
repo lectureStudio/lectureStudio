@@ -18,7 +18,7 @@ public class DLZRoomService {
         List<DLZRoom> rooms = new ArrayList<DLZRoom>();
 
         try {
-            DLZService matrixClient = new DLZService(new URI(domain));
+            DLZWebService matrixClient = new DLZWebService(new URI(domain));
             JoinedRooms roomsId = matrixClient.getRoomClient().getJoinedRooms();
             for (int i = 0; i < roomsId.getRoomIds().size(); i++) {
                 try{

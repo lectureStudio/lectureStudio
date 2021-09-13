@@ -24,7 +24,7 @@ import org.lecturestudio.web.api.model.*;
         @RegisterProvider(LoggingFilter.class),
         @RegisterProvider(MatrixExceptionFilter.class),
 })
-public interface RoomService {
+public interface DLZRoomService {
 
     public static ObjectProperty<DLZRoom> defaultRoom = new ObjectProperty<DLZRoom>();
 

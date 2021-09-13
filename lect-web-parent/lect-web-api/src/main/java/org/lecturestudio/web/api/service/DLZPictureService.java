@@ -12,7 +12,7 @@ public class DLZPictureService {
     public static InputStream getPic(String mediaId) throws Exception{
         String domain = "https://chat.etit.tu-darmstadt.de";
 
-        DLZService matrixClient = new DLZService(new URI(domain));
+        DLZWebService matrixClient = new DLZWebService(new URI(domain));
         var test = matrixClient.getMessageClient().getPicture("chat.etit.tu-darmstadt.de", mediaId);
         return test;
     }

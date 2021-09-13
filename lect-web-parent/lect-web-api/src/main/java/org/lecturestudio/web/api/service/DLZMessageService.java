@@ -1,7 +1,7 @@
 package org.lecturestudio.web.api.service;
 
 import io.netty.buffer.search.KmpSearchProcessorFactory;
-import org.lecturestudio.web.api.client.RoomService;
+import org.lecturestudio.web.api.client.DLZRoomService;
 import org.lecturestudio.web.api.model.*;
 
 import javax.ws.rs.WebApplicationException;
@@ -17,7 +17,7 @@ import java.util.List;
 public class DLZMessageService {
 
     static public boolean active = false;
-    RoomService roomClient;
+    DLZRoomService roomClient;
     RoomEventFilter filter;
     chunk chunks;
     List<DLZMessage> messages;
@@ -28,7 +28,7 @@ public class DLZMessageService {
     public DLZMessageService(URI uri){
         filter = new RoomEventFilter();
         filter.getTypes().add("m.room.message");
-        roomClient = new DLZService(uri).getRoomClient();
+        roomClient = new DLZWebService(uri).getRoomClient();
         messageIDs = new ArrayList<>();
     }
 

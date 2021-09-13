@@ -11,7 +11,7 @@ public class DLZSendMessageService {
         String domain = "https://chat.etit.tu-darmstadt.de";
 
         try{
-            DLZService matrixClient = new DLZService(new URI(domain));
+            DLZWebService matrixClient = new DLZWebService(new URI(domain));
             DLZPushMessage PushMessage = new DLZPushMessage("m.text", Message);
             String eventType = "m.room.message";
             UUID txnId = UUID.randomUUID();

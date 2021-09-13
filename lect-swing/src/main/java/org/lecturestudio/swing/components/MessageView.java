@@ -60,10 +60,19 @@ public class MessageView extends JPanel {
 		textArea.setText(message);
 	}
 
+	/**
+	 * Method to either insert a picture from an incoming message or remove the reserved space
+	 * @param picture BufferedImage which should be displayed
+	 */
 	public void setImage(BufferedImage picture) {
 		image = picture;
+		if(image == null){
+			imageView.setPreferredSize(new Dimension(0, 0));
+		}
 		repaint();
 	}
+
+
 	private void initialize() {
 		setLayout(new BorderLayout(1, 1));
 		setBackground(Color.WHITE);
@@ -103,12 +112,12 @@ public class MessageView extends JPanel {
 			protected void paintComponent(Graphics g) {
 				if(image != null){
 					super.paintComponent(g);
-					g.drawImage(image, 0, 0, null);
+					g.drawImage(image, 0, 0,256, 144,  null);
 				}
 			}
-
 		};
-		imageView.setPreferredSize(new Dimension(200, 100));
+		imageView.setPreferredSize(new Dimension(256, 144));
+
 
 		JScrollPane scrollPane = new JScrollPane(textArea);
 		scrollPane.setBorder(BorderFactory.createEmptyBorder(2, 5, 2, 5));
@@ -121,5 +130,6 @@ public class MessageView extends JPanel {
 		add(imageView, BorderLayout.SOUTH);
 
 	}
+
 
 }

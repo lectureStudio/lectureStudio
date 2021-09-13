@@ -50,7 +50,10 @@ public class SwingMessengerWindow extends JFrame implements MessengerWindow {
 			messageView.setHost(message.getRemoteAddress());
 			messageView.setMessage(message.getMessage().getText());
 			messageView.setImage(message.getImage());
-			messageView.setPreferredSize(new Dimension(250, 50));
+			messageView.setPreferredSize(new Dimension(messageView.getPreferredSize().width, messageView.getPreferredSize().height));
+			messageView.setMaximumSize(new Dimension(messageView.getMaximumSize().width, messageView.getPreferredSize().height));
+			messageView.setMinimumSize(new Dimension(200, messageView.getPreferredSize().height));
+
 			container.add(messageView);
 			container.revalidate();
 		});

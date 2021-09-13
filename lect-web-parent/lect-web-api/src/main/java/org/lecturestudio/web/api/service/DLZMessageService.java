@@ -17,7 +17,6 @@ import java.util.List;
 public class DLZMessageService {
 
     static public boolean active = false;
-    String roomId;
     RoomService roomClient;
     RoomEventFilter filter;
     chunk chunks;
@@ -30,9 +29,7 @@ public class DLZMessageService {
         filter = new RoomEventFilter();
         filter.getTypes().add("m.room.message");
         roomClient = new DLZService(uri).getRoomClient();
-        //this.roomId = roomId;
         messageIDs = new ArrayList<>();
-
     }
 
     /**
@@ -47,7 +44,6 @@ public class DLZMessageService {
     }
 
     public boolean hasNewMessages(String roomId){
-
         if(active == false){
             return false;
         }
@@ -61,13 +57,11 @@ public class DLZMessageService {
         }
 
         for(MatrixMessage message : chunks.chunk){
-        //chunks.chunk.forEach(message -> {
             if(!isReceived(message.event_id)) {
                 messageIDs.add(message.event_id);
                 DLZMessage nmessage = new DLZMessage();
                 nmessage.message = message.content.body;
                 nmessage.senderId = message.sender;
-                //UserName name = roomClient.getDisplayName(message.sender);
                 UserProfile name = roomClient.getProfile(message.sender);
                 nmessage.sender = name.getDisplayName();
                 nmessage.type = message.content.msgtype;
@@ -78,14 +72,11 @@ public class DLZMessageService {
 
             }
         }
-        //);
         if(messages.size() != 0){
             return true;
         }else{
             return false;
         }
-
-
 
     }
 

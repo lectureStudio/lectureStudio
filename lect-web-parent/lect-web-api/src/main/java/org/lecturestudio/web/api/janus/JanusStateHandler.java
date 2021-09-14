@@ -21,6 +21,8 @@ package org.lecturestudio.web.api.janus;
 import static java.util.Objects.requireNonNull;
 
 import java.math.BigInteger;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.Executors;
 
 import org.lecturestudio.core.ExecutableBase;
@@ -29,6 +31,8 @@ import org.lecturestudio.web.api.janus.state.JanusState;
 import org.lecturestudio.web.api.stream.config.WebRtcConfiguration;
 
 public abstract class JanusStateHandler extends ExecutableBase {
+
+	private final List<JanusStateHandlerListener> listeners;
 
 	protected final JanusMessageTransmitter transmitter;
 
@@ -51,8 +55,13 @@ public abstract class JanusStateHandler extends ExecutableBase {
 
 	public JanusStateHandler(JanusMessageTransmitter transmitter,
 			WebRtcConfiguration webRtcConfig) {
+		this.listeners = new ArrayList<>();
 		this.transmitter = transmitter;
 		this.webRtcConfig = webRtcConfig;
+	}
+
+	public void addJanusStateHandlerListener(JanusStateHandlerListener listener) {
+		listeners.add(listener);
 	}
 
 	public void setState(JanusState state) {
@@ -132,5 +141,17 @@ public abstract class JanusStateHandler extends ExecutableBase {
 
 	public WebRtcConfiguration getWebRtcConfig() {
 		return webRtcConfig;
+	}
+
+	protected void setConnected() {
+		for (JanusStateHandlerListener listener : listeners) {
+			listener.connected();
+		}
+	}
+
+	protected void setDisconnected() {
+		for (JanusStateHandlerListener listener : listeners) {
+			listener.disconnected();
+		}
 	}
 }

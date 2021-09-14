@@ -28,8 +28,6 @@ import java.util.Map;
 import java.util.UUID;
 import java.util.function.Consumer;
 
-import org.lecturestudio.core.ExecutableState;
-import org.lecturestudio.web.api.event.PeerStateEvent;
 import org.lecturestudio.web.api.event.VideoFrameEvent;
 import org.lecturestudio.web.api.janus.JanusPeerConnection;
 import org.lecturestudio.web.api.janus.JanusPublisher;
@@ -56,8 +54,6 @@ public class SubscriberJoinedRoomState implements JanusState {
 
 	private final JanusPublisher publisher;
 
-	private Consumer<PeerStateEvent> peerStateConsumer;
-
 	private Consumer<VideoFrameEvent> videoFrameConsumer;
 
 	private JanusRoomSubscribeMessage subscribeRequest;
@@ -74,7 +70,6 @@ public class SubscriberJoinedRoomState implements JanusState {
 		WebRtcConfiguration webRtcConfig = handler.getWebRtcConfig();
 		JanusPeerConnection peerConnection = handler.createPeerConnection();
 
-		peerStateConsumer = webRtcConfig.getPeerStateConsumer();
 		videoFrameConsumer = webRtcConfig.getVideoFrameConsumer();
 
 		peerConnection.setOnLocalSessionDescription(description -> {
@@ -86,18 +81,6 @@ public class SubscriberJoinedRoomState implements JanusState {
 		peerConnection.setOnIceGatheringState(state -> {
 			if (state == RTCIceGatheringState.COMPLETE) {
 				sendEndOfCandidates(handler);
-			}
-		});
-		peerConnection.setOnIceConnectionState(state -> {
-			switch (state) {
-				case CONNECTED:
-					setPeerState(ExecutableState.Started);
-					break;
-
-				case DISCONNECTED:
-				case CLOSED:
-					setPeerState(ExecutableState.Stopped);
-					break;
 			}
 		});
 		peerConnection.setOnRemoteVideoFrame(videoFrame -> {
@@ -165,12 +148,5 @@ public class SubscriberJoinedRoomState implements JanusState {
 		message.setTransaction(UUID.randomUUID().toString());
 
 		handler.sendMessage(message);
-	}
-
-	private void setPeerState(ExecutableState state) {
-		if (nonNull(peerStateConsumer)) {
-			peerStateConsumer.accept(new PeerStateEvent(publisher.getId(),
-					publisher.getDisplayName(), state));
-		}
 	}
 }

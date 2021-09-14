@@ -67,6 +67,19 @@ public class JanusSubscriberHandler extends JanusStateHandler {
 	public JanusPeerConnection createPeerConnection() {
 		JanusPeerConnection peerConnection = super.createPeerConnection();
 
+		peerConnection.setOnIceConnectionState(state -> {
+			switch (state) {
+				case CONNECTED:
+					setConnected();
+					break;
+
+				case DISCONNECTED:
+				case CLOSED:
+					setDisconnected();
+					break;
+			}
+		});
+
 		webRtcConfig.getAudioConfiguration().receiveAudioProperty()
 				.addListener(enableMicListener);
 		webRtcConfig.getVideoConfiguration().receiveVideoProperty()

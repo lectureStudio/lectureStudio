@@ -35,6 +35,8 @@ import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
 
 import org.lecturestudio.core.ExecutableException;
+import org.lecturestudio.core.ExecutableState;
+import org.lecturestudio.web.api.event.PeerStateEvent;
 import org.lecturestudio.web.api.janus.message.JanusEditRoomMessage;
 import org.lecturestudio.web.api.janus.message.JanusErrorMessage;
 import org.lecturestudio.web.api.janus.message.JanusMessage;
@@ -258,6 +260,18 @@ public class JanusHandler extends JanusStateHandler {
 				webRtcConfig, eventRecorder);
 		pubHandler.setSessionId(getSessionId());
 		pubHandler.setRoomId(getRoomId());
+		pubHandler.addJanusStateHandlerListener(new JanusStateHandlerListener() {
+
+			@Override
+			public void connected() {
+				setConnected();
+			}
+
+			@Override
+			public void disconnected() {
+				setDisconnected();
+			}
+		});
 
 		addStateHandler(pubHandler);
 	}
@@ -267,8 +281,32 @@ public class JanusHandler extends JanusStateHandler {
 				transmitter, webRtcConfig);
 		subHandler.setSessionId(getSessionId());
 		subHandler.setRoomId(getRoomId());
+		subHandler.addJanusStateHandlerListener(new JanusStateHandlerListener() {
+
+			@Override
+			public void connected() {
+				setPeerState(publisher, ExecutableState.Started);
+			}
+
+			@Override
+			public void disconnected() {
+				setPeerState(publisher, ExecutableState.Stopped);
+
+				editRoom(1);
+				kickParticipant(publisher);
+			}
+		});
 
 		addStateHandler(subHandler);
+	}
+
+	private void setPeerState(JanusPublisher publisher, ExecutableState state) {
+		var peerStateConsumer = webRtcConfig.getPeerStateConsumer();
+
+		if (nonNull(peerStateConsumer)) {
+			peerStateConsumer.accept(new PeerStateEvent(publisher.getId(),
+					publisher.getDisplayName(), state));
+		}
 	}
 
 	private void kickParticipant(JanusPublisher publisher) {

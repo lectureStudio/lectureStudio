@@ -45,6 +45,7 @@ import org.lecturestudio.core.ExecutableException;
 import org.lecturestudio.web.api.data.bind.JsonConfigProvider;
 import org.lecturestudio.web.api.janus.JanusHandler;
 import org.lecturestudio.web.api.janus.JanusMessageTransmitter;
+import org.lecturestudio.web.api.janus.JanusStateHandlerListener;
 import org.lecturestudio.web.api.janus.json.JanusMessageFactory;
 import org.lecturestudio.web.api.janus.message.JanusMessageType;
 import org.lecturestudio.web.api.janus.message.JanusMessage;
@@ -71,6 +72,8 @@ public class JanusWebSocketClient extends ExecutableBase implements JanusMessage
 
 	private Jsonb jsonb;
 
+	private JanusStateHandlerListener handlerStateListener;
+
 	private JanusHandler handler;
 
 
@@ -79,6 +82,10 @@ public class JanusWebSocketClient extends ExecutableBase implements JanusMessage
 		this.serviceParameters = parameters;
 		this.webRtcConfig = webRtcConfig;
 		this.eventRecorder = eventRecorder;
+	}
+
+	public void setJanusStateHandlerListener(JanusStateHandlerListener listener) {
+		handlerStateListener = listener;
 	}
 
 	public void startRemoteSpeech(long requestId, String userName) {
@@ -117,6 +124,7 @@ public class JanusWebSocketClient extends ExecutableBase implements JanusMessage
 		requireNonNull(webRtcConfig.getCourse());
 
 		handler = new JanusHandler(this, webRtcConfig, eventRecorder);
+		handler.addJanusStateHandlerListener(handlerStateListener);
 		handler.init();
 	}
 

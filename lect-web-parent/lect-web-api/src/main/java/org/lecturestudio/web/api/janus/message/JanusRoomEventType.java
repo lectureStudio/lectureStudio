@@ -40,6 +40,12 @@ public enum JanusRoomEventType {
 	 */
 	SUCCESS("success"),
 
+	/**
+	 * Whether Janus is reporting trouble sending/receiving media on the
+	 * PeerConnection.
+	 */
+	SLOW_LINK("slow_link"),
+
 	// Publishers
 
 	/**

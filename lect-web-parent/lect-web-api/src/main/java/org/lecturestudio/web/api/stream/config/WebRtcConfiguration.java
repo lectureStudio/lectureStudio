@@ -40,8 +40,6 @@ public class WebRtcConfiguration {
 
 	private Consumer<VideoFrameEvent> videoFrameConsumer;
 
-	private Runnable webRtcUpCallback;
-
 	private Course course;
 
 
@@ -90,13 +88,5 @@ public class WebRtcConfiguration {
 
 	public void setOnRemoteVideoFrame(Consumer<VideoFrameEvent> callback) {
 		videoFrameConsumer = callback;
-	}
-
-	public Runnable getWebRtcUpCallback() {
-		return webRtcUpCallback;
-	}
-
-	public void setWebRtcUpCallback(Runnable callback) {
-		this.webRtcUpCallback = callback;
 	}
 }

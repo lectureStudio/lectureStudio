@@ -62,11 +62,7 @@ public class JanusPublisherHandler extends JanusStateHandler {
 		JanusMessageType type = message.getEventType();
 
 		if (type == JanusMessageType.WEBRTC_UP) {
-			Runnable callback = webRtcConfig.getWebRtcUpCallback();
-
-			if (nonNull(callback)) {
-				callback.run();
-			}
+			setConnected();
 		}
 
 		super.handleMessage(message);

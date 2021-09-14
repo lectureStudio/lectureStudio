@@ -40,6 +40,7 @@ import org.lecturestudio.web.api.janus.message.JanusInfoMessage;
 import org.lecturestudio.web.api.janus.message.JanusMessage;
 import org.lecturestudio.web.api.janus.message.JanusPluginMessage;
 import org.lecturestudio.web.api.janus.message.JanusRoomPublisherJoiningMessage;
+import org.lecturestudio.web.api.janus.message.JanusRoomSlowLinkMessage;
 import org.lecturestudio.web.api.janus.message.JanusRoomStateMessage;
 import org.lecturestudio.web.api.janus.message.JanusRoomEventType;
 import org.lecturestudio.web.api.janus.message.JanusRoomJoinedMessage;
@@ -126,6 +127,9 @@ public class JanusMessageFactory {
 
 					case SUCCESS:
 						return createRoomSuccessMessage(body, data, type, jsonb);
+
+					case SLOW_LINK:
+						return createRoomSlowLinkMessage(body, data, type);
 
 					default:
 						throw new NotSupportedException(
@@ -503,5 +507,17 @@ public class JanusMessageFactory {
 		}
 
 		throw new NotSupportedException("Room event type not supported: " + eventType);
+	}
+
+	private static JanusMessage createRoomSlowLinkMessage(JsonObject body,
+			JsonObject data, JanusMessageType type) {
+		var sessionId = body.getJsonNumber("session_id").bigIntegerValue();
+		var handleId = body.getJsonNumber("sender").bigIntegerValue();
+
+		JanusRoomSlowLinkMessage message = new JanusRoomSlowLinkMessage(sessionId, handleId);
+		message.setEventType(type);
+		message.setRoomEventType(JanusRoomEventType.SLOW_LINK);
+
+		return message;
 	}
 }

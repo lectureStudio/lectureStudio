@@ -34,6 +34,8 @@ public class DLZService {
     private URI uri;
     private ApplicationContext context;
 
+    private long dlzServiceStart;
+
     @Inject
     public DLZService(ApplicationContext context) {
         this.context = context;
@@ -51,6 +53,7 @@ public class DLZService {
             e.printStackTrace();
         }
 
+        dlzServiceStart = System.currentTimeMillis();
 
         messageservice = new DLZMessageService(uri);
         service = Executors.newSingleThreadScheduledExecutor();
@@ -71,7 +74,9 @@ public class DLZService {
 
                                 context.getEventBus().post(messengerMessage);
 
-                                showNotificationPopup("New DLZ Message", text);
+                                if(message.age > dlzServiceStart) {
+                                    showNotificationPopup("New DLZ Message", text);
+                                }
                             }
 
                             if(message.getType().equals("m.image")){
@@ -92,7 +97,9 @@ public class DLZService {
 
                                 context.getEventBus().post(messengerMessage);
 
-                                showNotificationPopup("DLZ Bild", text);
+                                if(message.age > dlzServiceStart) {
+                                    showNotificationPopup("DLZ Bild", text);
+                                }
                             }
                         }
                     }

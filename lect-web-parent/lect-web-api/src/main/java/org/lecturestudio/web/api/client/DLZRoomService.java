@@ -85,10 +85,10 @@ public interface DLZRoomService {
     @GET
     @Path("/rooms/{roomId}/messages")
     chunk getMessages(@PathParam("roomId") String roomId, @QueryParam("dir") String dir,
-                                    @QueryParam("limit") int limit, @QueryParam("filter") RoomEventFilter filter);
+                                    @QueryParam("limit") int limit, @QueryParam("filter") DLZRoomEventFilter filter);
     @GET
     @Path("/rooms/{roomId}/messages")
     chunk getMessages(@PathParam("roomId") String roomId, @QueryParam("from") String from,@QueryParam("dir") String dir,
-                                    @QueryParam("limit") int limit, @QueryParam("filter") RoomEventFilter filter);
+                                    @QueryParam("limit") int limit, @QueryParam("filter") DLZRoomEventFilter filter);
 
 }

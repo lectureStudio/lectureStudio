@@ -273,8 +273,6 @@ public class JanusPeerConnection implements PeerConnectionObserver {
 	public void onRemoveTrack(RTCRtpReceiver receiver) {
 		MediaStreamTrack track = receiver.getTrack();
 
-		System.out.println("on remove track: " + track);
-
 		if (track.getKind().equals(MediaStreamTrack.VIDEO_TRACK_KIND)) {
 			notify(onRemoteVideoStream, false);
 		}
@@ -376,6 +374,29 @@ public class JanusPeerConnection implements PeerConnectionObserver {
 		execute(() -> {
 			enableReceiverTrack(MediaStreamTrack.VIDEO_TRACK_KIND, enable);
 		});
+	}
+
+	public String getAudioMid() {
+		return getMid(MediaStreamTrack.AUDIO_TRACK_KIND);
+	}
+
+	public String getVideoMid() {
+		return getMid(MediaStreamTrack.VIDEO_TRACK_KIND);
+	}
+
+	private String getMid(String kind) {
+		String mid = null;
+
+		for (RTCRtpTransceiver transceiver : peerConnection.getTransceivers()) {
+			MediaStreamTrack track = transceiver.getSender().getTrack();
+
+			if (nonNull(track) && track.getKind().equals(kind)) {
+				mid = transceiver.getMid();
+				break;
+			}
+		}
+
+		return mid;
 	}
 
 	private void addAudio(RTCRtpTransceiverDirection direction) {

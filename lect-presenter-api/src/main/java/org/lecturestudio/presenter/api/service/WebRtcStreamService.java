@@ -49,6 +49,7 @@ import org.lecturestudio.presenter.api.config.StreamConfiguration;
 import org.lecturestudio.presenter.api.event.CameraStateEvent;
 import org.lecturestudio.presenter.api.event.StreamingStateEvent;
 import org.lecturestudio.web.api.client.TokenProvider;
+import org.lecturestudio.web.api.janus.JanusStateHandlerListener;
 import org.lecturestudio.web.api.janus.client.JanusWebSocketClient;
 import org.lecturestudio.web.api.message.SpeechAcceptMessage;
 import org.lecturestudio.web.api.message.SpeechRejectMessage;
@@ -213,8 +214,18 @@ public class WebRtcStreamService extends ExecutableBase {
 		webRtcConfig = createWebRtcConfig(config);
 		streamStateClient = createStreamStateClient(config);
 		janusClient = createJanusClient(webRtcConfig);
+		janusClient.setJanusStateHandlerListener(new JanusStateHandlerListener() {
 
-		webRtcConfig.setWebRtcUpCallback(streamStateClient::setWebRtcUp);
+			@Override
+			public void connected() {
+				streamStateClient.setWebRtcUp();
+			}
+
+			@Override
+			public void disconnected() {
+
+			}
+		});
 
 		eventRecorder.start();
 		streamStateClient.start();

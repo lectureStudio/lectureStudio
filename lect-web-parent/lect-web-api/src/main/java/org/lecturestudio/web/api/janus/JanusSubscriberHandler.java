@@ -92,10 +92,14 @@ public class JanusSubscriberHandler extends JanusStateHandler {
 	protected void initInternal() throws ExecutableException {
 		enableMicListener = (observable, oldValue, newValue) -> {
 			peerConnection.enableRemoteAudio(newValue);
+
+			System.out.println(peerConnection.getAudioMid());
 		};
 
 		enableCamListener = (observable, oldValue, newValue) -> {
 			peerConnection.enableRemoteVideo(newValue);
+
+			System.out.println(peerConnection.getVideoMid());
 		};
 	}
 

@@ -1,12 +1,12 @@
 package org.lecturestudio.web.api.exception;
 
-import org.lecturestudio.web.api.model.MatrixError;
+import org.lecturestudio.web.api.model.DLZMatrixError;
 
 public class MatrixUnauthorizedException extends MatrixException {
 
     public final String Message = "DLZ: Falscher access Token verwendet";
 
-    public MatrixUnauthorizedException(MatrixError error) {
+    public MatrixUnauthorizedException(DLZMatrixError error) {
         super(error);
     }
 

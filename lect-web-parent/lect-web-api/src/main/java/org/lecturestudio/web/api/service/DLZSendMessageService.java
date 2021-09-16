@@ -6,7 +6,17 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.UUID;
 
+/**
+ * @author Daniel Schröter
+ * Class for sending messages to the Matrix API
+ */
 public class DLZSendMessageService {
+
+    /**
+     * Sends a message to a dedicated Matrix room
+     * @param Message content of the message
+     * @param roomId roomId of the dedicated room
+     */
     public static void SendTextMessage(String Message, String roomId){
         String domain = "https://chat.etit.tu-darmstadt.de";
 

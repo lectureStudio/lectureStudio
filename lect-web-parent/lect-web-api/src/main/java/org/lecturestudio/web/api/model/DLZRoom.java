@@ -2,6 +2,10 @@ package org.lecturestudio.web.api.model;
 
 import java.util.Objects;
 
+/**
+ * @author Daniel Schröter,Michel Heidkamp
+ * Class which represents a DLZ-Room
+ */
 public class DLZRoom {
     private String id; //id des Raums
     private String name;//Anzeigename des Raums
@@ -9,6 +13,7 @@ public class DLZRoom {
     public DLZRoom(){
 
     }
+
 
     public DLZRoom(String id, String name) {
         this.id = id;

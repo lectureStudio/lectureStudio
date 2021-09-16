@@ -328,7 +328,7 @@ public class MainPresenter extends org.lecturestudio.core.presenter.MainPresente
 	}
 
 	/**
-	 * method to handle the dlz messenger events
+	 * Method to handle the dlz messenger events
 	 * @param event
 	 */
 	@Subscribe

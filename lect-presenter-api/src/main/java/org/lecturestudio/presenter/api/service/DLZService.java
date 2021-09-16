@@ -25,7 +25,7 @@ import java.util.concurrent.TimeUnit;
 
 /**
  * @author Michel Heidkamp, Daniel Schröter
- * class to control the DLZ Chat and incoming messages
+ * Class to control the DLZ Chat and incoming messages
  */
 @Singleton
 public class DLZService {
@@ -42,7 +42,7 @@ public class DLZService {
     }
 
     /**
-     * starts the period dlz message control and message processing by dividing into messages with
+     * Starts the period dlz message control and message processing by dividing into messages with
      * and without pictures
      */
     public void start(){
@@ -114,12 +114,17 @@ public class DLZService {
     }
 
     /**
-     * stops the periodic dlz message control
+     * Stops the periodic dlz message control
      */
     public void stop(){
         service.shutdown();
     }
 
+    /**
+     * Creates a Pop-Up message
+     * @param title title of the Pop-Up
+     * @param message content of the Pop-Up
+     */
     final protected void showNotificationPopup(String title, String message) {
         if (context.getDictionary().contains(title)) {
             title = context.getDictionary().get(title);

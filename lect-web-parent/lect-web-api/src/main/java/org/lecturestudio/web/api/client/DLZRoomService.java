@@ -16,7 +16,11 @@ import org.lecturestudio.web.api.filter.LoggingFilter;
 import org.lecturestudio.web.api.filter.MatrixExceptionFilter;
 import org.lecturestudio.web.api.model.*;
 
-
+/**
+ * @author Alex Andres, Daniel Schröter, Michel Heidkamp
+ * Blueprint for the RestClientBuilder
+ * implements serveral methods to fetch User information
+ */
 @Path("/_matrix/client/r0")
 @RegisterProviders({
         @RegisterProvider(JsonbContextResolver.class),
@@ -36,7 +40,7 @@ public interface DLZRoomService {
      */
     @GET
     @Path("/joined_rooms")
-    JoinedRooms getJoinedRooms();
+    DLZJoinedRooms getJoinedRooms();
 
     /**
      * Get the user's display name belonging to the specified user ID.
@@ -69,7 +73,7 @@ public interface DLZRoomService {
      */
     @GET
     @Path("/rooms/{roomId}/state/m.room.name/")
-    JoinedRooms getRoomAliases(@PathParam("roomId") String roomId);
+    DLZJoinedRooms getRoomAliases(@PathParam("roomId") String roomId);
 
 
     /**

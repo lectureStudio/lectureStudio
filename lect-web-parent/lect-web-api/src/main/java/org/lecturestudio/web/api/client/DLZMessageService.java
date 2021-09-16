@@ -17,7 +17,7 @@ import static javax.ws.rs.core.MediaType.APPLICATION_OCTET_STREAM;
 
 /**
  * @author Daniel Schröter
- * interface executing message sending and picture receiving dlz commands
+ * Interface executing message sending and picture receiving dlz commands
  */
 @Path("/_matrix")
 @RegisterProviders({
@@ -29,7 +29,7 @@ import static javax.ws.rs.core.MediaType.APPLICATION_OCTET_STREAM;
 public interface DLZMessageService {
 
     /**
-     * sends a message into a given room
+     * Sends a message into a given room
      *
      * @param roomId the id of the room
      * @param eventType type of the message which should be send
@@ -41,7 +41,7 @@ public interface DLZMessageService {
     void SendMessage(@PathParam("roomId") String roomId, @PathParam("eventType") String eventType, @PathParam("txnId") UUID txnId, DLZPushMessage message);
 
     /**
-     * requests the picture dedicated to a given mediaId
+     * Requests the picture dedicated to a given mediaId
      *
      * @param serverName the url of the server
      * @param mediaId id of the requested picture

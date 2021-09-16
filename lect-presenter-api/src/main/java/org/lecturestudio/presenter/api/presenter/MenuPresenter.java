@@ -499,7 +499,7 @@ public class MenuPresenter extends Presenter<MenuView> {
 	}
 
 	/**
-	 * method which initialises the dlz messenger
+	 * Method which initialises the dlz messenger
 	 */
 	public void DLZStart(){
 		DLZMessageService.active = true;
@@ -509,7 +509,7 @@ public class MenuPresenter extends Presenter<MenuView> {
 	}
 
 	/**
-	 * method which terminates the dlz messenger
+	 * Method which terminates the dlz messenger
 	 */
 	public void DLZStop(){
 		DLZMessageService.active = false;
@@ -519,7 +519,7 @@ public class MenuPresenter extends Presenter<MenuView> {
 	}
 
 	/**
-	 * method to toggle the visibility of the dlz messenger window
+	 * Method to toggle the visibility of the dlz messenger window
 	 * @param show
 	 */
 	public void DLZShowWindow(boolean show){

@@ -9,7 +9,7 @@ import java.util.List;
 
 /**
  * @author Michel Heidkamp
- * manages Messages for a given room
+ * Manages messages for a given room
  */
 public class DLZMessageService {
 
@@ -19,12 +19,12 @@ public class DLZMessageService {
     DLZRoomEventFilter filter;
     chunk chunks;
     List<DLZMessage> messages;
-    String start; //Start für den nächsten Aufruf
+    boolean start = false;
     ArrayList<String> messageIDs; //saves IDs of allready recived messages
 
 
     /**
-     * initialises the Service for receiving messages
+     * Initialises the service for receiving messages
      * @param uri The URL for the DLZ Server
      */
     public DLZMessageService(URI uri){
@@ -35,7 +35,7 @@ public class DLZMessageService {
     }
 
     /**
-     * giving the newly recieved messages
+     * Giving the newly received messages
      *
      * @return boolean for r
      */
@@ -46,7 +46,7 @@ public class DLZMessageService {
     }
 
     /**
-     * checks for new Messages through the Matrix API, loads them in a puffer Cache
+     * Checks for new messages through the Matrix API, loads them in a puffer Cache
      * @param roomId room for which messages should be received
      * @return boolean, if there are new messages
      */
@@ -55,15 +55,15 @@ public class DLZMessageService {
             return false;
         }
         messages = new ArrayList<DLZMessage>();
-        if(start == null) {
+        if(start == false) {
             chunks = roomClient.getMessages(roomId, "b", 15, filter);
-            start = chunks.start;
+            start = true;
         }else {
             chunks = roomClient.getMessages(roomId, "b", 5, filter);
-            start = chunks.start;
+
         }
 
-        for(MatrixMessage message : chunks.chunk){
+        for(DLZMatrixMessage message : chunks.chunk){
             if(!isReceived(message.event_id)) {
                 messageIDs.add(message.event_id);
                 DLZMessage nmessage = new DLZMessage();
@@ -88,7 +88,7 @@ public class DLZMessageService {
     }
 
     /**
-     * tests if a message was already received before
+     * Tests if a message was already received before
      *
      * @param id id of the message
      * @return message already received

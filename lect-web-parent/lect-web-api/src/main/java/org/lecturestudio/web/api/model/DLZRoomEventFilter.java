@@ -8,7 +8,7 @@ import javax.json.bind.JsonbBuilder;
 
 /**
  * @author Alex Andres, Michel Heidkamp
- * is used in the reciving of Messages from a Matrix client
+ * Is used in the reciving of Messages from a Matrix client
  * used in Interface Roomservice
  *
  */

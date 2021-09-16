@@ -14,7 +14,7 @@ import java.util.List;
 
 /**
  * @author Daniel Schröter
- * functional part of the dlz settings section
+ * Functional part of the dlz settings section
  */
 public class DLZSettingsPresenter extends Presenter<DLZSettingsView> {
 
@@ -23,9 +23,7 @@ public class DLZSettingsPresenter extends Presenter<DLZSettingsView> {
         super(context, view);
     }
 
-    /**
-     * method to initialize the functions
-     */
+
     @Override
     public void initialize() {
         PresenterConfiguration config = (PresenterConfiguration) context.getConfiguration();

@@ -2,7 +2,7 @@ package org.lecturestudio.web.api.filter;
 
 import org.eclipse.microprofile.rest.client.ext.ResponseExceptionMapper;
 import org.lecturestudio.web.api.exception.*;
-import org.lecturestudio.web.api.model.MatrixError;
+import org.lecturestudio.web.api.model.DLZMatrixError;
 
 import javax.ws.rs.core.Response;
 import javax.ws.rs.ext.Provider;
@@ -12,7 +12,7 @@ public class MatrixExceptionFilter implements ResponseExceptionMapper<MatrixExce
     @Override
     public MatrixException toThrowable(Response response) {
         int status = response.getStatus();
-        MatrixError error = response.readEntity(MatrixError.class);
+        DLZMatrixError error = response.readEntity(DLZMatrixError.class);
 
         switch (status) {
             case 415:

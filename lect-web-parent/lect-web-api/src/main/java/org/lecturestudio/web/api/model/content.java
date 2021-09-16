@@ -3,7 +3,7 @@ import java.util.StringJoiner;
 
 /**
  * @author Michel Heidkamp
- * Class is used in the recieving of Messages from a Room in the Matrix API via JSON
+ * Class is used in the recieving of messages from a Room in the Matrix API via JSON
  */
 public class content {
 

@@ -2,7 +2,7 @@ package org.lecturestudio.web.api.model;
 
 /**
  * @author Michel Heidkamp
- * an easy class to represent each Message send in a MatrixRoom
+ * An easy class to represent each Message send in a MatrixRoom
  */
 public class DLZMessage {
     public String message;

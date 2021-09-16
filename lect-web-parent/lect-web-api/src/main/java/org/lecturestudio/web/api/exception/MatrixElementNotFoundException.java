@@ -1,11 +1,11 @@
 package org.lecturestudio.web.api.exception;
 
-import org.lecturestudio.web.api.model.MatrixError;
+import org.lecturestudio.web.api.model.DLZMatrixError;
 
 public class MatrixElementNotFoundException extends MatrixException{
     public final String Message = "DLZ: Element nicht gefunden";
 
-    public MatrixElementNotFoundException(MatrixError error) {
+    public MatrixElementNotFoundException(DLZMatrixError error) {
         super(error);
     }
 

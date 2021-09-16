@@ -1,6 +1,6 @@
 package org.lecturestudio.web.api.service;
 
-import org.lecturestudio.web.api.model.JoinedRooms;
+import org.lecturestudio.web.api.model.DLZJoinedRooms;
 import org.lecturestudio.web.api.model.DLZRoom;
 
 import java.net.URI;
@@ -9,20 +9,25 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * manages the dlz room membership request
+ * @author Daniel Schröter
+ * Manages the dlz room membership request
  */
 public class DLZRoomService {
 
+    /**
+     * Fetches a List of joined DLZrooms
+     * @return List of DLZ_Rooms
+     */
     public static List<DLZRoom> getRooms() {
         String domain = "https://chat.etit.tu-darmstadt.de";
         List<DLZRoom> rooms = new ArrayList<DLZRoom>();
 
         try {
             DLZWebService matrixClient = new DLZWebService(new URI(domain));
-            JoinedRooms roomsId = matrixClient.getRoomClient().getJoinedRooms();
+            DLZJoinedRooms roomsId = matrixClient.getRoomClient().getJoinedRooms();
             for (int i = 0; i < roomsId.getRoomIds().size(); i++) {
                 try{
-                    JoinedRooms aliases = matrixClient.getRoomClient().getRoomAliases(roomsId.getRoomIds().get(i));
+                    DLZJoinedRooms aliases = matrixClient.getRoomClient().getRoomAliases(roomsId.getRoomIds().get(i));
                     rooms.add(new DLZRoom(roomsId.getRoomIds().get(i), aliases.getRoomName()));
                 }
                 catch (Exception e){

@@ -5,7 +5,7 @@ import org.lecturestudio.core.bus.event.ExecutableEvent;
 
 /**
  * @author Daniel Schröter
- * class which represents the messenger events relating to the dlz
+ * Class which represents the messenger events relating to the dlz
  */
 public class DLZStateEvent extends ExecutableEvent {
 

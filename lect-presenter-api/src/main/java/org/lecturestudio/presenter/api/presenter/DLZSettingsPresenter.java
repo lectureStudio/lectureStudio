@@ -34,16 +34,16 @@ public class DLZSettingsPresenter extends Presenter<DLZSettingsView> {
         view.setDLZAccessToken(config.DLZAccessToken());
         if(config.getDLZAccessToken().length() > 5) {
             try {
-                view.setRoom(config.dlzRoomProperty());
-                view.setRooms(DLZSetRoomList());
+                view.setDLZRoom(config.dlzRoomProperty());
+                view.setDLZRooms(DLZSetRoomList());
             } catch (Exception e) {
                 config.setDlzRoom(null);
-                view.setRoom(null);
+                view.setDLZRoom(null);
             }
         }
         view.setOnClose(this::close);
         view.setOnReset(this::reset);
-        view.refreshaccesstoken(this::DLZSaveAccessToken);
+        view.refreshDLZAccessToken(this::DLZSaveAccessToken);
     }
 
     private List<DLZRoom> DLZSetRoomList() {
@@ -63,7 +63,7 @@ public class DLZSettingsPresenter extends Presenter<DLZSettingsView> {
         String token = view.getDLZAccessTokenInField();
         config.setDLZAccessToken(token);
         org.lecturestudio.web.api.filter.AuthorizationFilter.setToken(config.getDLZAccessToken());
-        view.setRooms(DLZSetRoomList());
+        view.setDLZRooms(DLZSetRoomList());
     }
 
     private void reset() {

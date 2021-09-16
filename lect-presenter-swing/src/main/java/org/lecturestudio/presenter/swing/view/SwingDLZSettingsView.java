@@ -40,7 +40,7 @@ public class SwingDLZSettingsView extends JPanel implements DLZSettingsView {
      * @param rooms list containing the users joined DLZRooms
      */
     @Override
-    public void setRooms(List<DLZRoom> rooms) {
+    public void setDLZRooms(List<DLZRoom> rooms) {
         if(rooms == null){
             return;
         }
@@ -53,7 +53,7 @@ public class SwingDLZSettingsView extends JPanel implements DLZSettingsView {
      * @param room current DLZRoom
      */
     @Override
-    public void setRoom(ObjectProperty<DLZRoom> room) {
+    public void setDLZRoom(ObjectProperty<DLZRoom> room) {
         SwingUtils.invoke(() -> {
             SwingUtils.bindBidirectional(roomsCombo, room);
         });
@@ -72,7 +72,7 @@ public class SwingDLZSettingsView extends JPanel implements DLZSettingsView {
      * method to refresh the inserted DLZAccessToken
      */
     @Override
-    public void refreshaccesstoken(Action action) {
+    public void refreshDLZAccessToken(Action action) {
         SwingUtils.bindAction(refreshAccessTokenButton, action);
     }
 

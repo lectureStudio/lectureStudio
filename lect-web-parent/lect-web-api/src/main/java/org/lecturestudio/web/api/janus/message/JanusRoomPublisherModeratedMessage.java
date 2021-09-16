@@ -23,11 +23,18 @@ import java.math.BigInteger;
 import org.lecturestudio.web.api.janus.JanusPublisher;
 
 /**
- * Event message received when a new publisher has joined the video room.
+ * Event message received when a publisher has been moderated by an video room
+ * administrator. An administrator can (un)mute media (audio, video and data)
+ * distributed by any publisher.
  *
  * @author Alex Andres
  */
-public class JanusRoomPublisherJoinedMessage extends JanusRoomPublisherEventMessage {
+public class JanusRoomPublisherModeratedMessage extends JanusRoomPublisherEventMessage {
+
+	private String mediaType;
+
+	private String mediaState;
+
 
 	/**
 	 * Create a new {@code JanusRoomPublisherJoinedMessage}.
@@ -36,8 +43,44 @@ public class JanusRoomPublisherJoinedMessage extends JanusRoomPublisherEventMess
 	 * @param roomId    The unique numeric room ID.
 	 * @param publisher The new publisher who joined the room.
 	 */
-	public JanusRoomPublisherJoinedMessage(BigInteger sessionId,
+	public JanusRoomPublisherModeratedMessage(BigInteger sessionId,
 			BigInteger roomId, JanusPublisher publisher) {
 		super(sessionId, roomId, publisher);
+	}
+
+	/**
+	 * Get the media type (audio, video or data) that has been moderated.
+	 *
+	 * @return The media type.
+	 */
+	public String getMediaType() {
+		return mediaType;
+	}
+
+	/**
+	 * Set the media type (audio, video or data) that has been moderated.
+	 *
+	 * @param mediaType The media type.
+	 */
+	public void setMediaType(String mediaType) {
+		this.mediaType = mediaType;
+	}
+
+	/**
+	 * Get the state (muted or unmuted) of the media.
+	 *
+	 * @return The media state.
+	 */
+	public String getMediaState() {
+		return mediaState;
+	}
+
+	/**
+	 * Set the state (muted or unmuted) of the media.
+	 *
+	 * @param mediaState The media state.
+	 */
+	public void setMediaState(String mediaState) {
+		this.mediaState = mediaState;
 	}
 }

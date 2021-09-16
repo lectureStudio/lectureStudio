@@ -28,7 +28,7 @@ import org.lecturestudio.web.api.janus.JanusPublisher;
  *
  * @author Alex Andres
  */
-public abstract class JanusRoomPublisherJoinMessage extends JanusRoomMessage {
+public abstract class JanusRoomPublisherEventMessage extends JanusRoomMessage {
 
 	private final BigInteger roomId;
 
@@ -42,7 +42,7 @@ public abstract class JanusRoomPublisherJoinMessage extends JanusRoomMessage {
 	 * @param roomId    The unique numeric room ID.
 	 * @param publisher The new publisher who joined the room.
 	 */
-	public JanusRoomPublisherJoinMessage(BigInteger sessionId,
+	public JanusRoomPublisherEventMessage(BigInteger sessionId,
 			BigInteger roomId, JanusPublisher publisher) {
 		super(sessionId);
 

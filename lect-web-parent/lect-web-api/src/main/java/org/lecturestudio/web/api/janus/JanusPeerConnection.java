@@ -90,6 +90,8 @@ public class JanusPeerConnection implements PeerConnectionObserver {
 	 */
 	private List<RTCIceCandidate> queuedRemoteCandidates;
 
+	private AudioDeviceModule audioModule;
+
 	private VideoDesktopSource desktopSource;
 
 	private VideoDeviceSource videoSource;
@@ -118,7 +120,7 @@ public class JanusPeerConnection implements PeerConnectionObserver {
 
 		executeAndWait(() -> {
 			AudioDevice recDevice = config.getAudioConfiguration().getRecordingDevice();
-			AudioDeviceModule audioModule = new AudioDeviceModule();
+			audioModule = new AudioDeviceModule();
 
 			if (nonNull(recDevice)) {
 				LOGGER.log(Level.INFO, "Audio capture device: " + recDevice);
@@ -280,6 +282,10 @@ public class JanusPeerConnection implements PeerConnectionObserver {
 
 	public CompletableFuture<Void> close() {
 		return CompletableFuture.runAsync(() -> {
+			if (nonNull(audioModule)) {
+				audioModule.dispose();
+				audioModule = null;
+			}
 			if (nonNull(desktopSource)) {
 				desktopSource.stop();
 				desktopSource.dispose();

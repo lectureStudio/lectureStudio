@@ -29,7 +29,7 @@ import org.lecturestudio.web.api.janus.JanusPublisher;
  *
  * @author Alex Andres
  */
-public class JanusRoomPublisherJoiningMessage extends JanusRoomPublisherJoinMessage {
+public class JanusRoomPublisherJoiningMessage extends JanusRoomPublisherEventMessage {
 
 	/**
 	 * Create a new {@code JanusRoomPublisherJoiningMessage}.

@@ -33,7 +33,11 @@ public class JanusRoomModerateRequest extends JanusRoomRequest {
 
 	private String mid;
 
-	private Boolean mute;
+	private Boolean mute_audio;
+
+	private Boolean mute_video;
+
+	private Boolean mute_data;
 
 
 	/**
@@ -53,15 +57,6 @@ public class JanusRoomModerateRequest extends JanusRoomRequest {
 	}
 
 	/**
-	 * Get the secret required to moderate the room.
-	 *
-	 * @return The required secret to moderate the room.
-	 */
-	public String getSecret() {
-		return secret;
-	}
-
-	/**
 	 * Set the secret required to moderate the room. This setting is mandatory
 	 * if configured.
 	 *
@@ -69,15 +64,6 @@ public class JanusRoomModerateRequest extends JanusRoomRequest {
 	 */
 	public void setSecret(String secret) {
 		this.secret = secret;
-	}
-
-	/**
-	 * Get the mid of the media m-line to refer to for this moderate request.
-	 *
-	 * @return The mid of the media to moderate.
-	 */
-	public String getMid() {
-		return mid;
 	}
 
 	/**
@@ -90,20 +76,29 @@ public class JanusRoomModerateRequest extends JanusRoomRequest {
 	}
 
 	/**
-	 * Get whether the media addressed by the mid should be muted.
+	 * Set whether or not audio of the specified participant should be muted.
 	 *
-	 * @return True to mute the media.
+	 * @param mute True to mute audio.
 	 */
-	public Boolean getMute() {
-		return mute;
+	public void setMuteAudio(boolean mute) {
+		this.mute_audio = mute;
 	}
 
 	/**
-	 * Set whether the media addressed by the mid should be muted.
+	 * Set whether or not video of the specified participant should be muted.
 	 *
-	 * @param mute True to mute the media.
+	 * @param mute True to mute video.
 	 */
-	public void setMute(boolean mute) {
-		this.mute = mute;
+	public void setMuteVideo(boolean mute) {
+		this.mute_video = mute;
+	}
+
+	/**
+	 * Set whether or not data of the specified participant should be muted.
+	 *
+	 * @param mute True to mute data.
+	 */
+	public void setMuteData(boolean mute) {
+		this.mute_data = mute;
 	}
 }

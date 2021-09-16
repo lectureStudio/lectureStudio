@@ -36,6 +36,7 @@ import java.util.function.Consumer;
 
 import org.lecturestudio.core.ExecutableException;
 import org.lecturestudio.core.ExecutableState;
+import org.lecturestudio.core.net.MediaType;
 import org.lecturestudio.web.api.event.PeerStateEvent;
 import org.lecturestudio.web.api.janus.message.JanusEditRoomMessage;
 import org.lecturestudio.web.api.janus.message.JanusErrorMessage;
@@ -43,6 +44,7 @@ import org.lecturestudio.web.api.janus.message.JanusMessage;
 import org.lecturestudio.web.api.janus.message.JanusMessageType;
 import org.lecturestudio.web.api.janus.message.JanusPluginDataMessage;
 import org.lecturestudio.web.api.janus.message.JanusRoomKickRequest;
+import org.lecturestudio.web.api.janus.message.JanusRoomModerateRequest;
 import org.lecturestudio.web.api.janus.message.JanusRoomPublisherJoinedMessage;
 import org.lecturestudio.web.api.janus.message.JanusSessionMessage;
 import org.lecturestudio.web.api.janus.message.JanusSessionTimeoutMessage;
@@ -170,6 +172,25 @@ public class JanusHandler extends JanusStateHandler {
 		speechPublishers = new ConcurrentHashMap<>();
 		handlers = new CopyOnWriteArrayList<>();
 
+		webRtcConfig.getAudioConfiguration().receiveAudioProperty()
+				.addListener((observable, oldValue, newValue) -> {
+					JanusPublisher speechPublisher = speechPublishers.entrySet()
+							.iterator().next().getValue();
+
+					if (nonNull(speechPublisher)) {
+						muteParticipant(speechPublisher, !newValue, MediaType.Audio);
+					}
+				});
+		webRtcConfig.getVideoConfiguration().receiveVideoProperty()
+				.addListener((observable, oldValue, newValue) -> {
+					JanusPublisher speechPublisher = speechPublishers.entrySet()
+							.iterator().next().getValue();
+
+					if (nonNull(speechPublisher)) {
+						muteParticipant(speechPublisher, !newValue, MediaType.Camera);
+					}
+				});
+
 		setRoomId(BigInteger.valueOf(getWebRtcConfig().getCourse().getId()));
 
 		registerHandler(JanusErrorMessage.class, this::handleError);
@@ -277,6 +298,9 @@ public class JanusHandler extends JanusStateHandler {
 	}
 
 	private void startSubscriber(JanusPublisher publisher) {
+		webRtcConfig.getAudioConfiguration().setReceiveAudio(true);
+		webRtcConfig.getVideoConfiguration().setReceiveVideo(true);
+
 		JanusStateHandler subHandler = new JanusSubscriberHandler(publisher,
 				transmitter, webRtcConfig);
 		subHandler.setSessionId(getSessionId());
@@ -307,6 +331,32 @@ public class JanusHandler extends JanusStateHandler {
 			peerStateConsumer.accept(new PeerStateEvent(publisher.getId(),
 					publisher.getDisplayName(), state));
 		}
+	}
+
+	private void muteParticipant(JanusPublisher publisher, boolean mute, MediaType... types) {
+		JanusRoomModerateRequest request = new JanusRoomModerateRequest();
+		request.setParticipantId(publisher.getId());
+		request.setRoomId(getRoomId());
+		request.setSecret(getRoomSecret());
+
+		for (MediaType type : types) {
+			if (type == MediaType.Audio) {
+				request.setMuteAudio(mute);
+			}
+			else if (type == MediaType.Camera) {
+				request.setMuteVideo(mute);
+			}
+			if (type == MediaType.Event) {
+				request.setMuteData(mute);
+			}
+		}
+
+		JanusPluginDataMessage message = new JanusPluginDataMessage(
+				getSessionId(), getPluginId());
+		message.setTransaction(UUID.randomUUID().toString());
+		message.setBody(request);
+
+		sendMessage(message);
 	}
 
 	private void kickParticipant(JanusPublisher publisher) {

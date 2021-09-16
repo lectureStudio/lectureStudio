@@ -40,6 +40,7 @@ import org.lecturestudio.web.api.janus.message.JanusInfoMessage;
 import org.lecturestudio.web.api.janus.message.JanusMessage;
 import org.lecturestudio.web.api.janus.message.JanusPluginMessage;
 import org.lecturestudio.web.api.janus.message.JanusRoomPublisherJoiningMessage;
+import org.lecturestudio.web.api.janus.message.JanusRoomPublisherModeratedMessage;
 import org.lecturestudio.web.api.janus.message.JanusRoomSlowLinkMessage;
 import org.lecturestudio.web.api.janus.message.JanusRoomStateMessage;
 import org.lecturestudio.web.api.janus.message.JanusRoomEventType;
@@ -423,6 +424,14 @@ public class JanusMessageFactory {
 			else if (data.containsKey("joining")) {
 				return createPublisherJoiningMessage(body, data, jsonb);
 			}
+			else if (data.containsKey("audio-moderation")) {
+				return createPublisherModeratedMessage(body, data, "audio",
+					data.getString("audio-moderation"));
+			}
+			else if (data.containsKey("video-moderation")) {
+				return createPublisherModeratedMessage(body, data, "video",
+					data.getString("video-moderation"));
+			}
 
 			throw new NotSupportedException("Room event type not supported: " + eventType);
 		}
@@ -430,13 +439,32 @@ public class JanusMessageFactory {
 		throw new NotSupportedException("Room event type not supported: " + eventType);
 	}
 
+	private static JanusMessage createPublisherModeratedMessage(JsonObject body,
+			JsonObject data, String type, String state) {
+		var sessionId = body.getJsonNumber("session_id").bigIntegerValue();
+		var handleId = body.getJsonNumber("sender").bigIntegerValue();
+		var roomId = data.getJsonNumber("room").bigIntegerValue();
+
+		JanusPublisher publisher = new JanusPublisher();
+		publisher.setId(data.getJsonNumber("id").bigIntegerValue());
+
+		JanusRoomPublisherModeratedMessage message = new JanusRoomPublisherModeratedMessage(
+				sessionId, roomId, publisher);
+		message.setEventType(JanusMessageType.EVENT);
+		message.setRoomEventType(JanusRoomEventType.EVENT);
+		message.setMediaType(type);
+		message.setMediaState(state);
+
+		return message;
+	}
+
 	private static JanusMessage createPublisherJoiningMessage(JsonObject body,
-			JsonObject data, Jsonb jsonb) {
+															  JsonObject data, Jsonb jsonb) {
 		var sessionId = body.getJsonNumber("session_id").bigIntegerValue();
 		var roomId = data.getJsonNumber("room").bigIntegerValue();
 
 		JanusPublisher publisher = jsonb.fromJson(data.getJsonObject("joining").toString(),
-				JanusPublisher.class);
+												  JanusPublisher.class);
 
 		JanusRoomPublisherJoiningMessage message = new JanusRoomPublisherJoiningMessage(
 				sessionId, roomId, publisher);

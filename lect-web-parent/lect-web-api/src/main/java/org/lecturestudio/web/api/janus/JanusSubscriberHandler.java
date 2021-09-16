@@ -21,7 +21,6 @@ package org.lecturestudio.web.api.janus;
 import static java.util.Objects.nonNull;
 
 import org.lecturestudio.core.ExecutableException;
-import org.lecturestudio.core.beans.ChangeListener;
 import org.lecturestudio.web.api.janus.message.JanusMessage;
 import org.lecturestudio.web.api.janus.message.JanusPluginMessage;
 import org.lecturestudio.web.api.janus.state.AttachPluginState;
@@ -31,10 +30,6 @@ import org.lecturestudio.web.api.stream.config.WebRtcConfiguration;
 public class JanusSubscriberHandler extends JanusStateHandler {
 
 	private final JanusPublisher publisher;
-
-	private ChangeListener<Boolean> enableMicListener;
-
-	private ChangeListener<Boolean> enableCamListener;
 
 
 	public JanusSubscriberHandler(JanusPublisher publisher,
@@ -80,27 +75,12 @@ public class JanusSubscriberHandler extends JanusStateHandler {
 			}
 		});
 
-		webRtcConfig.getAudioConfiguration().receiveAudioProperty()
-				.addListener(enableMicListener);
-		webRtcConfig.getVideoConfiguration().receiveVideoProperty()
-				.addListener(enableCamListener);
-
 		return peerConnection;
 	}
 
 	@Override
 	protected void initInternal() throws ExecutableException {
-		enableMicListener = (observable, oldValue, newValue) -> {
-			peerConnection.enableRemoteAudio(newValue);
 
-			System.out.println(peerConnection.getAudioMid());
-		};
-
-		enableCamListener = (observable, oldValue, newValue) -> {
-			peerConnection.enableRemoteVideo(newValue);
-
-			System.out.println(peerConnection.getVideoMid());
-		};
 	}
 
 	@Override
@@ -110,11 +90,6 @@ public class JanusSubscriberHandler extends JanusStateHandler {
 
 	@Override
 	protected void stopInternal() throws ExecutableException {
-		webRtcConfig.getAudioConfiguration().receiveAudioProperty()
-				.removeListener(enableMicListener);
-		webRtcConfig.getVideoConfiguration().receiveVideoProperty()
-				.removeListener(enableCamListener);
-
 		if (nonNull(peerConnection)) {
 			peerConnection.close();
 			peerConnection = null;

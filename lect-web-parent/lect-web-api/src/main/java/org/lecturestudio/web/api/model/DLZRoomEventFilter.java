@@ -12,7 +12,7 @@ import javax.json.bind.JsonbBuilder;
  * used in Interface Roomservice
  *
  */
-public class RoomEventFilter {
+public class DLZRoomEventFilter {
 
     private final List<String> types = new ArrayList<>();
 

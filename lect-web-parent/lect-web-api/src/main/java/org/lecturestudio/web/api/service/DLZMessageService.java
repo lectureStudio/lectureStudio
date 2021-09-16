@@ -1,12 +1,9 @@
 package org.lecturestudio.web.api.service;
 
-import io.netty.buffer.search.KmpSearchProcessorFactory;
 import org.lecturestudio.web.api.client.DLZRoomService;
 import org.lecturestudio.web.api.model.*;
 
-import javax.ws.rs.WebApplicationException;
 import java.net.URI;
-import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -16,26 +13,31 @@ import java.util.List;
  */
 public class DLZMessageService {
 
-    static public boolean active = false;
+
+    static public boolean active = false; // changes if DLZis active
     DLZRoomService roomClient;
-    RoomEventFilter filter;
+    DLZRoomEventFilter filter;
     chunk chunks;
     List<DLZMessage> messages;
     String start; //Start für den nächsten Aufruf
     ArrayList<String> messageIDs; //saves IDs of allready recived messages
 
 
+    /**
+     * initialises the Service for receiving messages
+     * @param uri The URL for the DLZ Server
+     */
     public DLZMessageService(URI uri){
-        filter = new RoomEventFilter();
+        filter = new DLZRoomEventFilter();
         filter.getTypes().add("m.room.message");
         roomClient = new DLZWebService(uri).getRoomClient();
         messageIDs = new ArrayList<>();
     }
 
     /**
-     * Loads new Messages from the Matrix Server
+     * giving the newly recieved messages
      *
-     * @return List of DLZMessages
+     * @return boolean for r
      */
     public List<DLZMessage> getNewMessages(){
        List<DLZMessage> out = messages.subList(0, messages.size());
@@ -43,6 +45,11 @@ public class DLZMessageService {
        return out;
     }
 
+    /**
+     * checks for new Messages through the Matrix API, loads them in a puffer Cache
+     * @param roomId room for which messages should be received
+     * @return boolean, if there are new messages
+     */
     public boolean hasNewMessages(String roomId){
         if(active == false){
             return false;

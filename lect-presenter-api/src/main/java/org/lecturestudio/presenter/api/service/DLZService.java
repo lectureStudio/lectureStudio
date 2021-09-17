@@ -94,6 +94,7 @@ public class DLZService {
                                 messengerMessage.setDate(new Date());
                                 messengerMessage.setImage(imBuff);
                                 messengerMessage.setMessage(new Message(""));
+                                messengerMessage.setRemoteAddress(message.sender);
 
                                 context.getEventBus().post(messengerMessage);
 

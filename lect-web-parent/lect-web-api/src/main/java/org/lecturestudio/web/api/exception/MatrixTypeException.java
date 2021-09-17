@@ -2,6 +2,10 @@ package org.lecturestudio.web.api.exception;
 
 import org.lecturestudio.web.api.model.DLZMatrixError;
 
+/**
+ * @author Daniel Schröter
+ * Class which represents an MatrixTypeException
+ */
 public class MatrixTypeException extends MatrixException{
     public final String Message = "DLZ: Format wird nicht unterstützt";
 

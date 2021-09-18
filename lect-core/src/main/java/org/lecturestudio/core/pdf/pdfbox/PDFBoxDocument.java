@@ -270,13 +270,20 @@ public class PDFBoxDocument implements DocumentAdapter {
 
 	public void addPage(int width, int height, BufferedImage image) throws IOException {
 		PDPage page = new PDPage(new PDRectangle(width, height));
+		PDImageXObject xImage = LosslessFactory.createFromImage(doc, image);
+
+		float ratioX = width / (float) image.getWidth();
+		float ratioY = height / (float) image.getHeight();
+		float scale = Math.min(ratioX, ratioY);
+
+		float w = image.getWidth() * scale;
+		float h = image.getHeight() * scale;
+		float x = (width - w) / 2f;
+		float y = (height - h) / 2f;
 
 		PDPageContentStream content = new PDPageContentStream(doc, page);
-		PDImageXObject ximage = LosslessFactory.createFromImage(doc, image);
-
-		content.drawImage(ximage, 0, ximage.getHeight());
-
-		// content.transform(new Matrix(1, 0, 0, -1, 0, page.getMediaBox().getHeight()));
+		content.drawImage(xImage, x, y, w, h);
+		content.close();
 
 		doc.addPage(page);
 	}

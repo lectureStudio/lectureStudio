@@ -152,7 +152,7 @@ public class PdfDocumentRenderer extends ExecutableBase {
 		renderService.registerRenderer(new StrokeRenderer());
 		renderService.registerRenderer(new RectangleRenderer());
 		renderService.registerRenderer(new TextSelectionRenderer());
-		renderService.registerRenderer(new ScreenCaptureShapeRenderer());
+//		renderService.registerRenderer(new ScreenCaptureShapeRenderer());
 	}
 
 	@Override

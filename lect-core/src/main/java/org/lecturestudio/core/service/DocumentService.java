@@ -459,7 +459,7 @@ public class DocumentService {
 		screenCapture.setTitle(sourceTitle);
 		screenCapture.setDocumentType(DocumentType.SCREEN_CAPTURE);
 
-		Page page = screenCapture.createPage();
+		Page page = screenCapture.createPage(frame);
 		ScreenCaptureShape shape = new ScreenCaptureShape(source, type, frame, page.getPageRect());
 		page.addShape(shape);
 

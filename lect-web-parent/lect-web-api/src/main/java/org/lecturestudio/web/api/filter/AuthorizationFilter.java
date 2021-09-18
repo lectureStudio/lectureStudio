@@ -7,8 +7,9 @@ import javax.ws.rs.client.ClientRequestContext;
 import javax.ws.rs.client.ClientRequestFilter;
 
 /**
- * @author Daniel Schröter, Alex Andres
  * Implements an authorization filter which contains the DLZAccessToken
+ *
+ * @author Daniel Schröter
  */
 public class AuthorizationFilter implements ClientRequestFilter {
 

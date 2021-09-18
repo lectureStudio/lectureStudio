@@ -15,8 +15,9 @@ import java.util.List;
 import java.util.Vector;
 
 /**
- * @author Daniel Schröter
  * Implementation of the dlz settings functionalities into the graphical representation
+ *
+ * @author Daniel Schröter
  */
 @SwingView(name = "dlz-settings", presenter = org.lecturestudio.presenter.api.presenter.DLZSettingsPresenter.class)
 public class SwingDLZSettingsView extends JPanel implements DLZSettingsView {
@@ -59,9 +60,6 @@ public class SwingDLZSettingsView extends JPanel implements DLZSettingsView {
         SwingUtils.bindBidirectional(dlzAccessTokenTextField, AccessToken);
     }
 
-    /**
-     * Method to refresh the inserted DLZAccessToken
-     */
     @Override
     public void refreshDLZAccessToken(Action action) {
         SwingUtils.bindAction(refreshAccessTokenButton, action);

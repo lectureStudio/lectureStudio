@@ -9,14 +9,15 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * @author Daniel Schröter
  * Manages the dlz room membership request
+ *
+ * @author Daniel Schröter
  */
 public class DLZRoomService {
 
     /**
      * Fetches a List of joined DLZrooms
-     * @return List of DLZ_Rooms
+     * @return List of DLZ-Rooms
      */
     public static List<DLZRoom> getRooms() {
         String domain = "https://chat.etit.tu-darmstadt.de";

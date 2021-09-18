@@ -3,15 +3,15 @@ package org.lecturestudio.web.api.model;
 import java.util.Objects;
 
 /**
- * @author Daniel Schröter,Michel Heidkamp
  * Class which represents a DLZ-Room
+ *
+ * @author Daniel Schröter, Michel Heidkamp
  */
 public class DLZRoom {
     private String id; //id des Raums
     private String name;//Anzeigename des Raums
 
     public DLZRoom(){
-
     }
 
 

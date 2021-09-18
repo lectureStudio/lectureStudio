@@ -17,9 +17,10 @@ import org.lecturestudio.web.api.filter.MatrixExceptionFilter;
 import org.lecturestudio.web.api.model.*;
 
 /**
- * @author Alex Andres, Daniel Schröter, Michel Heidkamp
  * Blueprint for the RestClientBuilder
  * implements serveral methods to fetch User information
+ *
+ * @author Daniel Schröter, Michel Heidkamp
  */
 @Path("/_matrix/client/r0")
 @RegisterProviders({
@@ -55,7 +56,7 @@ public interface DLZRoomService {
 
 
     /**
-     * Get the combined profile information of a user with to the specified user ID.
+     * Gets the combined profile information of a user with to the specified user ID.
      *
      * @param userId The user's ID whose profile information to get.
      *
@@ -67,6 +68,7 @@ public interface DLZRoomService {
 
 
     /**
+     * Gets the room aliases
      *
      * @param roomId
      * @return Name pf the given RoomID
@@ -77,6 +79,7 @@ public interface DLZRoomService {
 
 
     /**
+     * Receives the Messages of the given room
      *
      * @param roomId the id of the room
      * @param dir in which direction the Messages should be given
@@ -84,12 +87,23 @@ public interface DLZRoomService {
      * @param filter a filter to filter the messages, often "m.room.message" filter
      * @return the messages of the room as a List in the class chunk
      *
-     * Receives the Messages of the given Room
      */
     @GET
     @Path("/rooms/{roomId}/messages")
     chunk getMessages(@PathParam("roomId") String roomId, @QueryParam("dir") String dir,
                                     @QueryParam("limit") int limit, @QueryParam("filter") DLZRoomEventFilter filter);
+
+    /**
+     * Receives the Messages of the given room from a certain point in time
+     *
+     * @param roomId the id of the room
+     * @param from point in time
+     * @param dir in which direction the Messages should be given
+     * @param limit how many messages should be received
+     * @param filter a filter to filter the messages, often "m.room.message" filter
+     * @return the messages of the room as a List in the class chunk
+     *
+     */
     @GET
     @Path("/rooms/{roomId}/messages")
     chunk getMessages(@PathParam("roomId") String roomId, @QueryParam("from") String from,@QueryParam("dir") String dir,

@@ -174,42 +174,50 @@ public class PresenterConfiguration extends Configuration {
 		return quizConfig;
 	}
 
+	/**
+	 * Getter-method to get the selected DLZRoom
+	 * @return DLZ-AccessToken
+	 */
 	public DLZRoom getDlzRoom() {
 		return dlzRoom.get();
 	}
 
+	/**
+	 * Setter-method to set the selected DLZRoom
+	 * @param room the DLZRoom to set
+	 */
 	public void setDlzRoom(DLZRoom room) {
 		dlzRoom.set(room);
 	}
 
+	/**
+	 * Method to manage the selected DLZRoom
+	 * @return selected DLZRoom
+	 */
 	public ObjectProperty<DLZRoom> dlzRoomProperty() {
 		return dlzRoom;
 	}
 
-	/*public String getDLZAccessToken() {
-		return dlzAccessToken.get();
-	}
-
-	public void setDlzAccessToken(String DLZAccessToken) {
-		dlzAccessToken.set(DLZAccessToken);
-		org.lecturestudio.web.api.filter.AuthorizationFilter.setToken(DLZAccessToken);
-	}
-
-	public ObjectProperty<String> DLZAccessToken() {
-		return dlzAccessToken;
-	}*/
-
+	/**
+	 * Getter-method to get the DLZAccessToken
+	 * @return DLZ-AccessToken
+	 */
 	public String getDLZAccessToken() {
 		return DLZAccessToken.get();
 	}
 
 	/**
-	 * @param DLZAccessToken the classroomName to set
+	 * Setter-method to set the DLZAccessToken
+	 * @param DLZAccessToken the DLZAccessToken to set
 	 */
 	public void setDLZAccessToken(String DLZAccessToken) {
 		this.DLZAccessToken.set(DLZAccessToken);
 	}
 
+	/**
+	 * Method to manage the DLZAccessToken
+	 * @return the DLZAccessToken as an StringProperty
+	 */
 	public StringProperty DLZAccessToken() {
 		return DLZAccessToken;
 	}

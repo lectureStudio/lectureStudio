@@ -7,6 +7,11 @@ import org.lecturestudio.web.api.model.DLZMatrixError;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.ext.Provider;
 
+/**
+ * Class which determines which Matrix Exception needs to be thrown concerning the given errorcode
+ *
+ * @author Michel Heidkamp, Daniel Schröter
+ */
 @Provider
 public class MatrixExceptionFilter implements ResponseExceptionMapper<MatrixException> {
     @Override

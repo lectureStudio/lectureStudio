@@ -2,8 +2,9 @@ package org.lecturestudio.web.api.model;
 
 
 /**
- * @author Daniel Schröter
  * Class which represents an outgoing push message
+ *
+ * @author Daniel Schröter
  */
 public class DLZPushMessage {
     private String msgtype;

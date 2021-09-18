@@ -7,8 +7,9 @@ import java.net.URISyntaxException;
 import java.util.UUID;
 
 /**
+ * Class for sending messages to the Matrix-API
+ *
  * @author Daniel Schröter
- * Class for sending messages to the Matrix API
  */
 public class DLZSendMessageService {
 

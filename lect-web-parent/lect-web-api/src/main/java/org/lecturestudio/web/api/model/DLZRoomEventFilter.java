@@ -7,9 +7,10 @@ import javax.json.bind.Jsonb;
 import javax.json.bind.JsonbBuilder;
 
 /**
- * @author Alex Andres, Michel Heidkamp
- * Is used in the reciving of Messages from a Matrix client
- * used in Interface Roomservice
+ * Is used in the reciving of messages from a Matrix client
+ * used in interface Roomservice
+ *
+ * @author Michel Heidkamp
  *
  */
 public class DLZRoomEventFilter {

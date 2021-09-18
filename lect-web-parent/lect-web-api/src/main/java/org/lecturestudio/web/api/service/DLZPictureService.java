@@ -4,8 +4,9 @@ import java.net.*;
 import java.io.*;
 
 /**
- * @author Daniel Schröter
  * Class which fetches a picture from a given URL
+ *
+ * @author Daniel Schröter
  */
 public class DLZPictureService {
 

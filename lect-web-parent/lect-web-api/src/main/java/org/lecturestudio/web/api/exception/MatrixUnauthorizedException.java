@@ -3,8 +3,9 @@ package org.lecturestudio.web.api.exception;
 import org.lecturestudio.web.api.model.DLZMatrixError;
 
 /**
- * @author Daniel Schröter
  * Class which represents an MatrixUnauthorizedException
+ *
+ * @author Daniel Schröter
  */
 public class MatrixUnauthorizedException extends MatrixException {
 

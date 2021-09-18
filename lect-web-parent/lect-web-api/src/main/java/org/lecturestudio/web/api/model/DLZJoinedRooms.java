@@ -3,8 +3,9 @@ package org.lecturestudio.web.api.model;
 import java.util.List;
 
 /**
+ * Class for getting RoomIds and room names
+ *
  * @author Michel Heidkamp
- * Class for getting RoomIds and Room Names
  */
 public class DLZJoinedRooms {
     private List<String> joined_rooms;
@@ -12,7 +13,7 @@ public class DLZJoinedRooms {
 
 
     /**
-     * getter for RoomIds
+     * Getter for RoomIds
      * @return roomIDs
      */
     public List<String> getRoomIds() {
@@ -20,7 +21,7 @@ public class DLZJoinedRooms {
     }
 
     /**
-     * getter Method for clear RoomNames
+     * Getter Method for clear RoomNames
      * @return Room Name
      */
     public String getRoomName(){

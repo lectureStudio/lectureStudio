@@ -7,8 +7,9 @@ import org.lecturestudio.web.api.client.DLZRoomService;
 import java.net.URI;
 
 /**
+ * Class which creates the Rest Client instances for the DLZ-Services
+ *
  * @author Daniel Schröter, Michel Heidkamp
- * Class which creates the Restclient instances for the DLZ-Services
  */
 public class DLZWebService {
 

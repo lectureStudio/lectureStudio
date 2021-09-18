@@ -3,8 +3,9 @@ package org.lecturestudio.web.api.model;
 import java.util.StringJoiner;
 
 /**
- * @author Daniel Schröter, Alex Andres
  * Class which represents an Matrix Error which is received after a faulty request
+ *
+ * @author Daniel Schröter
  */
 public class DLZMatrixError {
     private String errcode;

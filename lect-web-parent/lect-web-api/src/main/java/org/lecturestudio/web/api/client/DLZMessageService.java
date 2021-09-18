@@ -16,8 +16,8 @@ import java.util.UUID;
 import static javax.ws.rs.core.MediaType.APPLICATION_OCTET_STREAM;
 
 /**
- * @author Daniel Schröter
  * Interface executing message sending and picture receiving dlz commands
+ * @author Daniel Schröter
  */
 @Path("/_matrix")
 @RegisterProviders({

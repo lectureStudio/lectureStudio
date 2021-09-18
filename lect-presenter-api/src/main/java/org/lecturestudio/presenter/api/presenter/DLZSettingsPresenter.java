@@ -13,8 +13,9 @@ import javax.inject.Inject;
 import java.util.List;
 
 /**
- * @author Daniel Schröter
  * Functional part of the dlz settings section
+ *
+ * @author Daniel Schröter
  */
 public class DLZSettingsPresenter extends Presenter<DLZSettingsView> {
 

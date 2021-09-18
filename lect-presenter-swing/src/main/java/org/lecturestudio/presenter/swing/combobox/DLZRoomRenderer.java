@@ -26,13 +26,14 @@ import java.awt.*;
 import static java.util.Objects.nonNull;
 
 /**
- * @author Daniel Schröter, Alex Andres
  * Class which initializes an combobox containing DLZRooms
+ *
+ * @author Daniel Schröter
  */
 public class DLZRoomRenderer extends DefaultListCellRenderer {
 
 	/**
-	 * representing an entry of the combobox
+	 * Representing an entry of the combobox
 	 */
 	@Override
 	public Component getListCellRendererComponent(JList<?> list, Object value,

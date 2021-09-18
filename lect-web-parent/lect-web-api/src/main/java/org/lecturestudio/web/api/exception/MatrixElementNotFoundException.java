@@ -4,8 +4,9 @@ import org.lecturestudio.web.api.model.DLZMatrixError;
 
 
 /**
- * @author Daniel Schröter
  * Class which represents an MatrixElementNotFoundException
+ *
+ * @author Daniel Schröter
  */
 public class MatrixElementNotFoundException extends MatrixException{
     public final String Message = "DLZ: Element nicht gefunden";

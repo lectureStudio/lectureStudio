@@ -24,8 +24,9 @@ import java.util.concurrent.TimeUnit;
 
 
 /**
- * @author Michel Heidkamp, Daniel Schröter
  * Class to control the DLZ Chat and incoming messages
+ *
+ * @author Michel Heidkamp, Daniel Schröter
  */
 @Singleton
 public class DLZService {
@@ -123,6 +124,7 @@ public class DLZService {
 
     /**
      * Creates a Pop-Up message
+     *
      * @param title title of the Pop-Up
      * @param message content of the Pop-Up
      */

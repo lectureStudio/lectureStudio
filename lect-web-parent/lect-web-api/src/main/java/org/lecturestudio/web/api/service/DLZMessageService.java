@@ -8,8 +8,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * @author Michel Heidkamp
  * Manages messages for a given room
+ *
+ * @author Michel Heidkamp
  */
 public class DLZMessageService {
 
@@ -37,7 +38,7 @@ public class DLZMessageService {
     /**
      * Giving the newly received messages
      *
-     * @return boolean for r
+     * @return a list containing the new messages
      */
     public List<DLZMessage> getNewMessages(){
        List<DLZMessage> out = messages.subList(0, messages.size());

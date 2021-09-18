@@ -7,8 +7,9 @@ import org.lecturestudio.web.api.model.DLZRoom;
 import java.util.List;
 
 /**
- * @author Daniel Schröter
  * Represents connection between logical part and graphical part of the dlz settings
+ *
+ * @author Daniel Schröter
  */
 public interface DLZSettingsView extends SettingsBaseView {
 

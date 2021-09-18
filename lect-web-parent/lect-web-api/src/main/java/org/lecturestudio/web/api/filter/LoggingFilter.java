@@ -12,8 +12,9 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.ext.Provider;
 
 /**
- * @author Alex Andres
  * Class which implements an Logging Filter for easy error analysis
+ *
+ * @author Daniel Schröter, Michel Heidkamp
  */
 @Provider
 public class LoggingFilter implements ClientRequestFilter, ClientResponseFilter {

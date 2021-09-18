@@ -93,6 +93,50 @@ public class ImageUtils {
         return new BufferedImage(colorModel, wr, false, null);
     }
 
+    public static BufferedImage convertByteColorModel(BufferedImage image, ColorModel colorModel, int[] bandOffsets) {
+        // Get pixel data from image
+        byte[] imageData = ((DataBufferByte) image.getRaster().getDataBuffer()).getData();
+
+        // Create BufferedImage with new color model
+        WritableRaster raster = Raster.createInterleavedRaster(DataBuffer.TYPE_BYTE, image.getWidth(), image.getHeight(), image.getWidth() * 4, 4, bandOffsets, null);
+        BufferedImage newImage = new BufferedImage(colorModel, raster, colorModel.isAlphaPremultiplied(), null);
+
+        // Get reference to pixel data of new image
+        byte[] newImageData = ((DataBufferByte) raster.getDataBuffer()).getData();
+
+        // Copy pixel data to new raster
+        System.arraycopy(imageData, 0, newImageData, 0, imageData.length);
+
+        return newImage;
+    }
+
+    public static void renderImageWithBars(BufferedImage target, BufferedImage image) {
+        int width = target.getWidth();
+        int height = target.getHeight();
+
+        double scaleX = width / (double) image.getWidth();
+        double scaleY = height / (double) image.getHeight();
+
+        double scale = Math.min(scaleX, scaleY);
+
+        int offsetX = (scaleX > scale) ? (int) ((width - image.getWidth() * scale) / 2f) : 0;
+        int offsetY = (scaleY > scale) ? (int) ((height - image.getHeight() * scale) / 2f) : 0;
+
+        Graphics2D g = target.createGraphics();
+
+        // Draw background color
+        g.setColor(Color.BLACK);
+        g.fillRect(0, 0, width, height);
+
+        // Scale frame to video size with fixed ratio
+        AffineTransform transform = new AffineTransform();
+        transform.scale(scale, scale);
+
+        g.setTransform(transform);
+        g.drawImage(image, (int) (offsetX / scale), (int) (offsetY / scale), null);
+        g.dispose();
+    }
+
     public static BufferedImage convertDesktopFrame(DesktopFrame frame, int width, int height) {
         BufferedImage image = ImageUtils.createBufferedImage(width, height);
         DataBufferByte byteBuffer = (DataBufferByte) image.getRaster().getDataBuffer();

@@ -37,7 +37,6 @@ public class RecordedScreenCapture extends RecordedObjectBase {
 
     public RecordedScreenCapture(RandomAccessScreenCaptureStream stream) {
         this.stream = stream;
-        // parseStreamAsync(null);
     }
 
     public RandomAccessScreenCaptureStream getScreenCaptureStream() {
@@ -68,8 +67,6 @@ public class RecordedScreenCapture extends RecordedObjectBase {
 
                     @Override
                     public void onFrameProgress(float progress) {
-                        System.out.println("Frame Progress: " + progress);
-
                         if (callback != null)
                             callback.onFrameProgress(progress);
                     }

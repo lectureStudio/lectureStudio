@@ -28,6 +28,7 @@ import org.lecturestudio.core.model.listener.ShapeListener;
 import org.lecturestudio.core.swing.SwingGraphicsContext;
 import org.lecturestudio.core.tool.ShapeModifyEvent;
 import org.lecturestudio.core.tool.ShapePaintEvent;
+import org.lecturestudio.core.util.ImageUtils;
 import org.lecturestudio.core.view.PresentationParameter;
 import org.lecturestudio.core.view.PresentationParameterProvider;
 import org.lecturestudio.core.view.SlideView;
@@ -176,39 +177,14 @@ public class VideoRendererView implements SlideView, ShapeListener, ParameterCha
 	}
 
 	private void updateBackImage() {
+		updatePageTransform();
+
+		// Render screen capture if exists
 		if (screenCaptureFrame != null) {
-			// updatePageTransform();
-
-			double scaleX = width / (double) screenCaptureFrame.getWidth();
-			double scaleY = height / (double) screenCaptureFrame.getHeight();
-
-			double scale = Math.min(scaleX, scaleY);
-
-			int offsetX = 0;
-			int offsetY = 0;
-
-			if (scaleX != scale) {
-				offsetX = (int) ((width - screenCaptureFrame.getWidth() * scale) / 2f);
-			} else if (scaleY != scale) {
-				offsetY = (int) ((height - screenCaptureFrame.getHeight() * scale) / 2f);
-			}
-
-			AffineTransform transform = new AffineTransform();
-
-			// Scale frame to video size with fixed ratio
-			transform.scale(scale, scale);
-
-			Graphics2D g2d = backImage.createGraphics();
-
-			g2d.setColor(Color.BLACK);
-			g2d.fillRect(0, 0, width, height);
-
-			g2d.setTransform(transform);
-			g2d.drawImage(screenCaptureFrame, offsetX, offsetY, null);
-			g2d.dispose();
+			ImageUtils.renderImageWithBars(backImage, screenCaptureFrame);
 		}
+		// Render current page
 		else if (page != null) {
-			updatePageTransform();
 			renderController.renderPage(backImage, page, viewType);
 		}
 

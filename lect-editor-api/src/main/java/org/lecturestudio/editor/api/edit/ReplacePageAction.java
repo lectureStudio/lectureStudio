@@ -18,15 +18,20 @@
 
 package org.lecturestudio.editor.api.edit;
 
-import java.io.IOException;
-
 import org.lecturestudio.core.model.Document;
+import org.lecturestudio.core.model.Interval;
 import org.lecturestudio.core.model.Page;
 import org.lecturestudio.core.recording.RecordedDocument;
+import org.lecturestudio.core.recording.RecordedPage;
 import org.lecturestudio.core.recording.Recording;
 import org.lecturestudio.core.recording.Recording.Content;
 import org.lecturestudio.core.recording.RecordingEditException;
+import org.lecturestudio.core.recording.edit.DeleteScreenCaptureAction;
 import org.lecturestudio.core.recording.edit.EditAction;
+import org.lecturestudio.core.screencapture.ScreenCaptureSequence;
+
+import java.io.IOException;
+import java.util.List;
 
 /**
  * A {@code ReplacePageAction} replaces a page in the recording. This action
@@ -62,6 +67,11 @@ public class ReplacePageAction implements EditAction {
 	 */
 	private byte[] docStream;
 
+	/**
+	 * The action used to delete screen captures in page.
+	 */
+	private DeleteScreenCaptureAction screenCaptureAction;
+
 
 	/**
 	 * Creates a new {@code ReplacePageAction} with the provided parameters.
@@ -86,11 +96,21 @@ public class ReplacePageAction implements EditAction {
 		}
 
 		recording.fireChangeEvent(Content.DOCUMENT);
+
+		// Perform undo on screen capture action if exists
+		if (screenCaptureAction != null) {
+			screenCaptureAction.undo();
+		}
 	}
 
 	@Override
 	public void redo() throws RecordingEditException {
 		execute();
+
+		// Perform redo on screen capture action if exists
+		if (screenCaptureAction != null) {
+			screenCaptureAction.redo();
+		}
 	}
 
 	@Override
@@ -106,6 +126,29 @@ public class ReplacePageAction implements EditAction {
 
 		Page page = document.getPage(pageNumber);
 
+		List<RecordedPage> recPages = recording.getRecordedEvents().getRecordedPages();
+		if (pageNumber < recPages.size()) {
+			RecordedPage recPage = recPages.get(pageNumber);
+			int pageTime = recPage.getTimestamp();
+
+			ScreenCaptureSequence sequence = recording.getRecordedScreenCapture().getScreenCaptureData().seekSequence(pageTime);
+			if (sequence != null) {
+				System.out.println("Sequence Found: " + sequence);
+			}
+
+			int nextPageTime;
+
+			if (pageNumber + 1 < recPages.size()) {
+				RecordedPage nextPage = recPages.get(pageNumber + 1);
+				nextPageTime = nextPage.getTimestamp();
+			} else {
+				nextPageTime = (int) recording.getRecordingHeader().getDuration();
+			}
+
+			System.out.println("Page Time: " + pageTime + " Next Page Time: " + nextPageTime);
+			screenCaptureAction = new DeleteScreenCaptureAction(recording.getRecordedScreenCapture(), new Interval<>(pageTime, nextPageTime));
+		}
+
 		// Serialize and load changed document.
 		try {
 			document.replacePage(page, newDoc.getCurrentPage());
@@ -117,5 +160,10 @@ public class ReplacePageAction implements EditAction {
 		}
 
 		recording.fireChangeEvent(Content.DOCUMENT);
+
+		// Perform execute on screen capture action if exists
+		if (screenCaptureAction != null) {
+			screenCaptureAction.execute();
+		}
 	}
 }

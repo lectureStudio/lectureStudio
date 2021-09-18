@@ -29,47 +29,11 @@ public class ScreenCaptureTrack extends MediaTrackBase<ScreenCaptureData> {
     public void setData(ScreenCaptureData data) {
         screenCaptureData = data;
 
-//        // Parse screen capture stream asynchronously
-//        CompletableFuture.runAsync(() -> {
-//            try {
-//                ScreenCaptureFileReader.parseStream(data, new ScreenCaptureFileReader.ProgressCallback() {
-//                    @Override
-//                    public void onScreenCaptureData(ScreenCaptureData data) {
-//                        screenCaptureData = data;
-//                        ApplicationBus.post(new ScreenCaptureDataEvent(data));
-//                    }
-//
-//                    @Override
-//                    public void onFrame(BufferedImage frame, long frameTime, long sequenceKey) {
-//                        ScreenCaptureSequence sequence = screenCaptureData.getSequences().get(sequenceKey);
-//                        sequence.addFrame(frame, frameTime);
-//                    }
-//
-//                    @Override
-//                    public void onFrameProgress(float progress) {
-//                        // TODO: Display progress indicator in editor
-//
-//                    }
-//                });
-//            } catch (IOException e) {
-//                e.printStackTrace();
-//            }
-//        });
+        super.setData(data);
     }
-
-//    public void setData(ScreenCaptureData screenCaptureData) {
-//        this.screenCaptureData = screenCaptureData;
-//    }
 
     @Override
-    public void dispose() {
-//        try {
-//            getData().close();
-//        } catch (IOException e) {
-//            LOG.error("Failed to close screen capture stream.", e);
-//        }
-//        super.dispose();
-    }
+    public void dispose() {}
 
     @Override
     public void recordingChanged(RecordingChangeEvent event) {

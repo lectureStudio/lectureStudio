@@ -19,31 +19,132 @@
 package org.lecturestudio.core.screencapture;
 
 import dev.onvoid.webrtc.media.video.desktop.DesktopSource;
+import org.lecturestudio.core.model.Interval;
 
 import java.awt.image.BufferedImage;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 
+/**
+ * This class acts as container to store and search the frames captured during a screen capture session.
+ * It is related to exactly one {@link DesktopSource} and is meant for continuous screen captures.
+ *
+ * If one {@link DesktopSource} should be captured multiple times with interruptions in between,
+ * separate {@link ScreenCaptureSequence ScreenCaptureSequences} should be created.
+ *
+ * @author Maximilian Felix Ratzke
+ */
 public class ScreenCaptureSequence {
 
     private final DesktopSource source;
     private final TreeMap<Long, BufferedImage> frames = new TreeMap<>();
+    private final List<Interval<Integer>> exclusions = new ArrayList<>();
 
     private long startTime = Long.MAX_VALUE;
     private long endTime = Long.MIN_VALUE;
+
+    private long startPadding = 0;
+    private long endPadding = 0;
+
 
     public ScreenCaptureSequence(DesktopSource source) {
         this.source = source;
     }
 
+    /**
+     * Adds a frame to the sequence at a specific timestamp.
+     *
+     * @param frame The frame to add.
+     * @param timestamp The timestamp of the frame capture (in ms).
+     */
     public void addFrame(BufferedImage frame, long timestamp) {
         frames.put(timestamp, frame);
         updateTimestamps(timestamp);
     }
 
+    /**
+     * Search for a frame by a given timestamp.
+     *
+     * @param seekTime The search timestamp (in ms).
+     * @return The least frame with a timestamp less or equal the requested timestamp or null, if no such frame was found.
+     */
     public BufferedImage seekFrame(long seekTime) {
-        Map.Entry<Long, BufferedImage> entry = frames.floorEntry(seekTime);
+        if (!containsTime(seekTime)) {
+            return null;
+        }
+
+        long excludedSeekTime = getExcludedTime(seekTime);
+        Map.Entry<Long, BufferedImage> entry = frames.floorEntry(excludedSeekTime);
         return entry != null ? entry.getValue() : null;
+    }
+
+    /**
+     * Adds an exclusion interval to the {@link ScreenCaptureSequence}.
+     *
+     * These intervals are used to take section in the video stream into account which were cut during editing and
+     * should therefore be skipped during screen capture replay.
+     *
+     * @param exclusion The interval which should be excluded from the screen capture.
+     */
+    public void addExclusion(Interval<Integer> exclusion) {
+        // Only add exclusions which start before the sequence ends
+        if (exclusion.lengthLong() > 0 && exclusion.getStart() < getExcludedEndTime() && !exclusions.contains(exclusion)) {
+            exclusions.add(exclusion);
+
+            // Exclusion starts before sequence, we need to update the start padding
+//            if (exclusion.getStart() < getExcludedStartTime()) {
+//                long padding = Math.min(exclusion.getEnd(), getExcludedStartTime()) - exclusion.getStart();
+//                // Make sure to apply only positive paddings
+//                startPadding += Math.max(padding, 0);
+//            }
+
+            startPadding = getStartPadding();
+            endPadding = getEndPadding();
+
+            System.out.println(this);
+        }
+    }
+
+    /**
+     * Removes an exclusion interval from the {@link ScreenCaptureSequence} if exists.
+     *
+     * @param exclusion The exclusion interval to remove.
+     */
+    public void removeExclusion(Interval<Integer> exclusion) {
+        if (exclusions.remove(exclusion)) {
+
+            // Update paddings
+            startPadding = getStartPadding();
+            endPadding = getEndPadding();
+
+            System.out.println(this);
+        }
+    }
+
+    private long getStartPadding() {
+        long padding = 0;
+
+        for (Interval<Integer> exclusion : exclusions) {
+            if (exclusion.getStart() < startTime - padding) {
+                long start = Math.min(exclusion.getEnd(), startTime - padding) - exclusion.getStart();
+                padding += Math.max(start, 0);
+            }
+        }
+
+        return padding;
+    }
+
+    private long getEndPadding() {
+        long padding = 0;
+
+        for (Interval<Integer> exclusion : exclusions) {
+            long end = Math.min(exclusion.getEnd(), endTime - padding);
+            padding += Math.max(end - exclusion.getStart(), 0);
+        }
+
+        return padding;
     }
 
     public DesktopSource getSource() {
@@ -58,6 +159,16 @@ public class ScreenCaptureSequence {
         return startTime;
     }
 
+    /**
+     * Get the start time of the sequence with already subtracted exclusions
+     *
+     * @return The excluded start time
+     */
+    public long getExcludedStartTime() {
+        // System.out.println("StartTime: " + startTime + " padding: " + startPadding + " method: " + getStartPadding());
+        return startTime - startPadding;
+    }
+
     public void setStartTime(long startTime) {
         this.startTime = startTime;
     }
@@ -70,6 +181,15 @@ public class ScreenCaptureSequence {
         return endTime;
     }
 
+    /**
+     * Get the end time of the sequence with already subtracted exclusions.
+     *
+     * @return The excluded end time
+     */
+    public long getExcludedEndTime() {
+        return endTime - endPadding;
+    }
+
     public void setEndTime(long endTime) {
         this.endTime = endTime;
     }
@@ -78,8 +198,23 @@ public class ScreenCaptureSequence {
         return endTime > Long.MIN_VALUE;
     }
 
+    public long getLength() {
+        return Math.max(endTime, startTime);
+    }
+
+    public long getExcludedLength() {
+        return Math.max(getExcludedEndTime() - getExcludedStartTime(), 0);
+    }
+
+    /**
+     * Checks whether a given timestamp lies in the period of the {@link ScreenCaptureSequence}.
+     * This also takes potential exclusions into account.
+     *
+     * @param time The timestamp to check.
+     * @return True, if the timestamp lies in the period, otherwise false.
+     */
     public boolean containsTime(long time) {
-        return time >= startTime && time <= endTime;
+        return time >= getExcludedStartTime() && time <= getExcludedEndTime();
     }
 
     private void updateTimestamps(long frameTime) {
@@ -91,6 +226,28 @@ public class ScreenCaptureSequence {
         }
     }
 
+    /**
+     * Calculates and adds a padding to a given timestamp based on the registered exclusions.
+     */
+    private long getExcludedTime(long time) {
+        long padding = 0;
+        long skipped = 0;
+
+        // Calculate padding for all registered exclusions
+        for (Interval<Integer> exclusion : exclusions) {
+            long start = exclusion.getStart() + padding;
+
+            if (exclusion.getStart() < time) {
+                padding += exclusion.lengthLong() + skipped;
+                skipped = 0;
+            } else {
+                skipped += exclusion.lengthLong();
+            }
+        }
+
+        return time + padding;
+    }
+
     @Override
     public String toString() {
         return "ScreenCaptureSequence{" +
@@ -98,7 +255,9 @@ public class ScreenCaptureSequence {
                 ", sourceTitle=" + source.title +
                 ", frames=" + frames.size() +
                 ", startTime=" + startTime +
+                ", excludedStartTime=" + getExcludedStartTime() +
                 ", endTime=" + endTime +
+                ", excludedEndTime=" + getExcludedEndTime() +
                 '}';
     }
 }

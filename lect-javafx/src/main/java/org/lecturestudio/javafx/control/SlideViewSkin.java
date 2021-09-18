@@ -22,13 +22,17 @@ import javafx.application.Platform;
 import javafx.beans.property.ReadOnlyObjectWrapper;
 import javafx.beans.value.ChangeListener;
 import javafx.collections.ListChangeListener;
+import javafx.embed.swing.SwingFXUtils;
 import javafx.geometry.Bounds;
 import javafx.geometry.HPos;
 import javafx.geometry.Pos;
 import javafx.geometry.VPos;
 import javafx.scene.Node;
 import javafx.scene.control.SkinBase;
-import javafx.scene.image.*;
+import javafx.scene.image.ImageView;
+import javafx.scene.image.PixelBuffer;
+import javafx.scene.image.PixelFormat;
+import javafx.scene.image.WritableImage;
 import javafx.stage.Screen;
 import org.lecturestudio.core.ExecutableException;
 import org.lecturestudio.core.PageMetrics;
@@ -44,6 +48,7 @@ import org.lecturestudio.core.model.shape.TeXShape;
 import org.lecturestudio.core.model.shape.TextShape;
 import org.lecturestudio.core.render.RenderThread;
 import org.lecturestudio.core.render.RenderThreadTask;
+import org.lecturestudio.core.util.ImageUtils;
 import org.lecturestudio.core.view.PageObjectView;
 import org.lecturestudio.core.view.PresentationParameter;
 import org.lecturestudio.core.view.SlideViewOverlay;
@@ -574,15 +579,6 @@ public class SlideViewSkin extends SkinBase<SlideView> {
 
 		@Override
 		public void render() throws Exception {
-//			Image image = imageView.getImage();
-//
-//			if (image instanceof WritableImage) {
-//				WritableImage writableImage = (WritableImage) image;
-//				PixelWriter pw = writableImage.getPixelWriter();
-//
-//
-//			}
-
 			screenCaptureImage = frame;
 
 			if (frame == null) {
@@ -592,70 +588,17 @@ public class SlideViewSkin extends SkinBase<SlideView> {
 				// updateBuffer(null, renderer.getImage());
 			} else {
 
-//				Dimension size = new Dimension((int) viewSize.getWidth(), (int) viewSize.getHeight());
-//				renderer.renderFrame(frame, size);
-//				updateBuffer(null, renderer.getImage());
+				long currentTime = System.currentTimeMillis();
 
-//				BufferedImage converted = new BufferedImage(frame.getWidth(), frame.getHeight(), BufferedImage.TYPE_INT_ARGB);
-//				converted.getGraphics().drawImage(frame, 0, 0, null);
-//
-//				// Rectangle clip = new Rectangle(0, 0, frame.getWidth(), frame.getHeight());
-//				updateBuffer(null, converted);
+				int slideWidth = slideImage.getWidth();
+				int slideHeight = slideImage.getHeight();
 
-				// updateBuffer(null, convertImageType(frame));
+				BufferedImage canvas = new BufferedImage(slideWidth, slideHeight, BufferedImage.TYPE_INT_ARGB);
+				ImageUtils.renderImageWithBars(canvas, frame);
+				imageView.setImage(toFXImage(canvas));
 
-				// Use frame image
-				imageView.setImage(toFXImage(frame));
-
-//				int[] pixels = new int[frame.getWidth() * frame.getHeight()];
-//				frame.getRaster().getPixels(0, 0, frame.getWidth(), frame.getHeight(), pixels);
-//
-////				int pixel = (255 << 24) | (255 << 16) | (0 << 8) | 0 ;
-////				Arrays.fill(pixels, pixel);
-//
-//				frame.getRaster().setPixels(0, 0, frame.getWidth(), frame.getHeight(), pixels);
-//
-//				updateBuffer(null, frame);
-
-//				Image image = imageView.getImage();
-//				int width = (int) image.getWidth();
-//				int height = (int) image.getHeight();
-//
-//				WritableImage img = new WritableImage(width, height);
-//				PixelWriter pw = img.getPixelWriter();
-//
-//				int alpha = 255 ;
-//				int r = 255 ;
-//				int g = 0 ;
-//				int b = 0 ;
-//
-//				int pixel = (alpha << 24) | (r << 16) | (g << 8) | b ;
-//				int[] pixels = new int[width * height];
-//				Arrays.fill(pixels, pixel);
-//
-//				pw.setPixels(0, 0, width, height, PixelFormat.getIntArgbInstance(), pixels, 0, width);
-//				imageView.setImage(img);
+				// System.out.println("Render Time: " + (System.currentTimeMillis() - currentTime) + "ms");
 			}
-
-//			renderer.renderForeground();
-//			updateBuffer(null, frame);
-		}
-
-		private BufferedImage convertImageType(BufferedImage frame) {
-			BufferedImage converted = frame;
-			switch (frame.getType()) {
-				case BufferedImage.TYPE_INT_ARGB:
-				case BufferedImage.TYPE_INT_ARGB_PRE:
-					break;
-				default:
-					WritableRaster raster = colorModel.createCompatibleWritableRaster(frame.getWidth(), frame.getHeight());
-					converted = new BufferedImage(colorModel, raster, false, null);
-					Graphics2D g2d = converted.createGraphics();
-					g2d.drawImage(frame, 0, 0, null);
-					g2d.dispose();
-					break;
-			}
-			return converted;
 		}
 
 		public WritableImage toFXImage(BufferedImage frame) {
@@ -663,33 +606,8 @@ public class SlideViewSkin extends SkinBase<SlideView> {
 				return null;
 			}
 
-
-
-//			frame = convertImageType(frame);
-
 			WritableImage image = new WritableImage(frame.getWidth(), frame.getHeight());
-
-
-			long currentTime = System.currentTimeMillis();
-
-			PixelWriter pw = image.getPixelWriter();
-			DataBufferInt db = (DataBufferInt) frame.getRaster().getDataBuffer();
-
-			int[] data = db.getData();
-			int offset = frame.getRaster().getDataBuffer().getOffset();
-			int scan =  0;
-
-			SampleModel sm = frame.getRaster().getSampleModel();
-			if (sm instanceof SinglePixelPackedSampleModel) {
-				scan = ((SinglePixelPackedSampleModel)sm).getScanlineStride();
-			}
-
-			PixelFormat<IntBuffer> pf = (frame.isAlphaPremultiplied() ?
-					PixelFormat.getIntArgbPreInstance() :
-					PixelFormat.getIntArgbInstance());
-			pw.setPixels(0, 0, frame.getWidth(), frame.getHeight(), pf, data, offset, scan);
-
-			System.out.println("Transform Time: " + (System.currentTimeMillis() - currentTime) + "ms");
+			SwingFXUtils.toFXImage(frame, image);
 
 			return image;
 		}

@@ -105,7 +105,7 @@ public class SaveRecordingPresenter extends Presenter<SaveRecordingView> {
 		Dictionary dict = context.getDictionary();
 		Document doc = documentService.getDocuments().getSelectedDocument();
 		String date = dateFormat.format(new Date());
-		String fileName = date + "-" + doc.getName();
+		String fileName = date + "-" + FileUtils.createSecureFileName(doc.getName());
 		File recordingDir = new File(recordingPath);
 
 		FileChooserView fileChooser = viewFactory.createFileChooserView();

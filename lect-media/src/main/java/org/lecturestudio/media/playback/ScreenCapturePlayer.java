@@ -30,17 +30,21 @@ import org.lecturestudio.media.event.ScreenCaptureSequenceEndEvent;
 
 import java.awt.image.BufferedImage;
 
+/**
+ * This class handles the playback of a {@link ScreenCaptureData} instance.
+ */
 public class ScreenCapturePlayer extends ExecutableBase {
 
     // Allow for up to 60 fps
     private final static int UPDATE_INTERVAL_IN_MS = 16;
 
     private final SyncState syncState;
+    private final Object suspendLock = new Object();
 
     private ScreenCaptureData data;
-    private Thread thread;
+    private ScreenCaptureSequence previousSequence;
 
-    private ScreenCaptureSequence sequence;
+    private long lastUpdate;
 
     public ScreenCapturePlayer(SyncState syncState) {
         this.syncState = syncState;
@@ -54,28 +58,31 @@ public class ScreenCapturePlayer extends ExecutableBase {
         this.data = data;
     }
 
-    public void seek(int seekTime) {
+    public void seek(long seekTime) {
         if (data == null)
             return;
 
-        // Try to find sequence at given time
-        if (sequence == null) {
-            sequence = data.seekSequence(seekTime);
-        }
+        ScreenCaptureSequence sequence  = data.seekSequence(seekTime);
 
+        // Search for frame if sequence was found
         if (sequence != null) {
-            // Try to find frame if sequence is active
-            if (sequence.containsTime(seekTime)) {
-                BufferedImage frame = sequence.seekFrame(seekTime);
-                if (frame != null) {
-                    ApplicationBus.post(new ScreenCaptureFrameEvent(frame));
-                }
-            }
-            else {
-                ApplicationBus.post(new ScreenCaptureSequenceEndEvent(sequence));
-                sequence = null;
+            BufferedImage frame = sequence.seekFrame(seekTime);
+            if (frame != null) {
+                ApplicationBus.post(new ScreenCaptureFrameEvent(frame));
+                previousSequence = sequence;
+            } else {
+                notifySequenceEnd();
             }
         }
+        // Notify about end of sequence if previous sequence was present but
+        else if (previousSequence != null) {
+           notifySequenceEnd();
+        }
+    }
+
+    private void notifySequenceEnd() {
+        ApplicationBus.post(new ScreenCaptureSequenceEndEvent(previousSequence));
+        previousSequence = null;
     }
 
     @Override
@@ -85,33 +92,32 @@ public class ScreenCapturePlayer extends ExecutableBase {
 
     @Override
     protected void startInternal() throws ExecutableException {
+        // Notify suspend lock if reader task is already running
         if (getPreviousState() == ExecutableState.Suspended) {
-            synchronized (thread) {
-                thread.notify();
+            synchronized (suspendLock) {
+                lastUpdate = 0;
+                suspendLock.notifyAll();
             }
         }
+        // Create a new thread with reader task
         else {
-            thread = new Thread(new ScreenCaptureReaderTask());
+            Thread thread = new Thread(new ScreenCaptureReaderTask());
             thread.start();
         }
     }
 
     @Override
-    protected void stopInternal() throws ExecutableException {
-
-    }
+    protected void stopInternal() throws ExecutableException {}
 
     @Override
-    protected void destroyInternal() throws ExecutableException {
-
-    }
+    protected void destroyInternal() throws ExecutableException {}
 
     private class ScreenCaptureReaderTask implements Runnable {
 
         @Override
         public void run() {
             long elapsedTime;
-            long lastUpdate = 0;
+            lastUpdate = 0;
 
             while (true) {
                 elapsedTime = getElapsedTime();
@@ -122,35 +128,23 @@ public class ScreenCapturePlayer extends ExecutableBase {
                 }
 
                 if (started()) {
-                    // Seek sequence if not currently set
-                    if (sequence == null) {
-                        sequence = data.seekSequence(elapsedTime);
-                    }
-                    else if (elapsedTime < sequence.getEndTime()) {
-                        BufferedImage frame = sequence.seekFrame(elapsedTime);
-                        if (frame != null) {
-                            ApplicationBus.post(new ScreenCaptureFrameEvent(frame));
-                        }
-                    }
-                    // Sequence finished, reset to null
-                    else {
-                        ApplicationBus.post(new ScreenCaptureSequenceEndEvent(sequence));
-                        sequence = null;
-                    }
+                    seek(elapsedTime);
                 }
                 else if (suspended()) {
-                    synchronized (thread) {
-                        try {
-                            thread.wait();
+                    try {
+                        synchronized (suspendLock) {
+                            suspendLock.wait();
                         }
-                        catch (Exception ignored) {}
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
                     }
                 }
                 else if (stopped()) {
                     return;
                 }
 
-                lastUpdate = elapsedTime;
+                // Fetch elapsed time again to prevent wrong time if seek occurred during suspend time
+                lastUpdate = getElapsedTime();
             }
         }
     }

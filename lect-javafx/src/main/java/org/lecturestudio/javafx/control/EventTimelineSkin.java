@@ -18,23 +18,22 @@
 
 package org.lecturestudio.javafx.control;
 
-import static java.util.Objects.isNull;
-import static java.util.Objects.nonNull;
-
-import java.util.List;
-import java.util.function.Consumer;
-
 import javafx.geometry.HPos;
 import javafx.geometry.VPos;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.text.Text;
 import javafx.scene.transform.Affine;
-
 import org.lecturestudio.core.model.Time;
 import org.lecturestudio.core.recording.RecordedPage;
 import org.lecturestudio.core.recording.action.PlaybackAction;
 import org.lecturestudio.media.track.EventsTrack;
+
+import java.util.List;
+import java.util.function.Consumer;
+
+import static java.util.Objects.isNull;
+import static java.util.Objects.nonNull;
 
 public class EventTimelineSkin extends MediaTrackControlSkinBase {
 

@@ -48,7 +48,6 @@ import org.lecturestudio.media.avdev.AvdevAudioPlayer;
 import org.lecturestudio.media.event.MediaPlayerProgressEvent;
 import org.lecturestudio.media.event.MediaPlayerStateEvent;
 
-import java.awt.image.BufferedImage;
 import java.util.Iterator;
 
 import static java.util.Objects.isNull;
@@ -288,17 +287,6 @@ public class RecordingPlayer extends ExecutableBase {
 		super.fireStateChanged();
 
 		ApplicationBus.post(new MediaPlayerStateEvent(getState()));
-	}
-
-	private BufferedImage seekScreenCaptureFrame(long seekTime) {
-//		ScreenCaptureData screenCaptureData = recording.getRecordedScreenCapture().getScreenCaptureData();
-//		if (screenCaptureData != null) {
-//			ScreenCaptureSequence sequence = screenCaptureData.seekSequence(seekTime);
-//			if (sequence != null) {
-//				return sequence.seekFrame(seekTime);
-//			}
-//		}
-		return null;
 	}
 
 	private void selectPage(int pageNumber, boolean startPlayback) throws Exception {

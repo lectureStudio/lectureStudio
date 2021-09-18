@@ -18,34 +18,19 @@
 
 package org.lecturestudio.core.util;
 
-import static java.util.Objects.nonNull;
+import org.lecturestudio.core.app.configuration.Configuration;
 
-import java.io.ByteArrayInputStream;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.InputStream;
+import java.io.*;
 import java.net.URL;
-import java.nio.file.FileVisitResult;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.nio.file.SimpleFileVisitor;
-import java.nio.file.StandardCopyOption;
+import java.nio.file.*;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.security.MessageDigest;
-import java.util.ArrayList;
-import java.util.Enumeration;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.function.Predicate;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 
-import org.lecturestudio.core.app.configuration.Configuration;
+import static java.util.Objects.nonNull;
 
 public class FileUtils {
 
@@ -389,4 +374,18 @@ public class FileUtils {
 		return new String(shortPathArray);
 	}
 
+	/**
+	 * Removes all non-word characters in filename with whitespaces and replaces potentially
+	 * occurring multiple whitespaces with a single one.
+	 *
+	 * @param fileName The name of the file to secure.
+	 * @return The secured file name.
+	 */
+	public static String createSecureFileName(String fileName) {
+		// Replace all non-word characters with whitespaces
+		String name = fileName.replaceAll("[^\\w.-]", " ");
+		// Remove multiple whitespaces with single whitespace
+		name = name.trim().replaceAll(" +", " ");
+		return name;
+	}
 }

@@ -18,28 +18,18 @@
 
 package org.lecturestudio.editor.api.edit;
 
-import static java.util.Objects.nonNull;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.lecturestudio.core.model.Interval;
+import org.lecturestudio.core.recording.*;
+import org.lecturestudio.core.recording.edit.*;
 
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-
-import org.lecturestudio.core.model.Interval;
-import org.lecturestudio.core.recording.RecordedAudio;
-import org.lecturestudio.core.recording.RecordedDocument;
-import org.lecturestudio.core.recording.RecordedEvents;
-import org.lecturestudio.core.recording.RecordedPage;
-import org.lecturestudio.core.recording.Recording;
-import org.lecturestudio.core.recording.RecordingHeader;
-import org.lecturestudio.core.recording.edit.DeleteAudioAction;
-import org.lecturestudio.core.recording.edit.DeleteDocumentAction;
-import org.lecturestudio.core.recording.edit.DeleteEventsAction;
-import org.lecturestudio.core.recording.edit.EditAction;
-import org.lecturestudio.core.recording.edit.EditHeaderAction;
+import static java.util.Objects.nonNull;
 
 /**
  * A {@code CutAction} removes a portion of a recording specified by a time
@@ -71,6 +61,7 @@ public class CutAction extends RecordingAction {
 		RecordedAudio audio = recording.getRecordedAudio();
 		RecordedDocument doc = recording.getRecordedDocument();
 		RecordedEvents events = recording.getRecordedEvents();
+		RecordedScreenCapture screenCapture = recording.getRecordedScreenCapture();
 
 		long duration = audio.getAudioStream().getLengthInMillis();
 		double startRel = Math.min(start, end);
@@ -85,6 +76,7 @@ public class CutAction extends RecordingAction {
 		final DeleteEventsAction eventsAction = new DeleteEventsAction(events, editInterval);
 		final DeleteDocumentAction documentAction = new DeleteDocumentAction(doc);
 		final DeleteAudioAction audioAction = new DeleteAudioAction(audio, editInterval);
+		final DeleteScreenCaptureAction screenCaptureAction = new DeleteScreenCaptureAction(screenCapture, editInterval);
 
 		final Map<Integer, Integer> timetable = getPageChangeEvents(events);
 
@@ -151,7 +143,7 @@ public class CutAction extends RecordingAction {
 			}
 		}
 
-		return List.of(headerAction, documentAction, eventsAction, audioAction);
+		return List.of(headerAction, documentAction, eventsAction, audioAction, screenCaptureAction);
 	}
 
 	private static Map<Integer, Integer> getPageChangeEvents(RecordedEvents events) {

@@ -19,11 +19,15 @@
 package org.lecturestudio.core.screencapture;
 
 import dev.onvoid.webrtc.media.video.desktop.DesktopSource;
+import org.lecturestudio.core.util.ImageUtils;
 
 import javax.imageio.ImageIO;
 import java.awt.*;
 import java.awt.color.ColorSpace;
-import java.awt.image.*;
+import java.awt.image.BufferedImage;
+import java.awt.image.ColorModel;
+import java.awt.image.ComponentColorModel;
+import java.awt.image.DataBuffer;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -46,8 +50,6 @@ public class ScreenCaptureFileReader {
 
     public static void parseStream(RandomAccessScreenCaptureStream stream, ProgressCallback callback) throws IOException {
         requireNonNull(stream);
-
-        // TODO: Load screen capture in chunks to improve memory usage?
 
         // Read bytes from stream
         byte[] bytes = stream.readAllBytes();
@@ -117,9 +119,8 @@ public class ScreenCaptureFileReader {
                 BufferedImage frame = ImageIO.read(frameStream);
                 frameStream.close();
 
-                // TODO: Fix color model during export to skip this step
                 // Convert frame to correct color model
-                frame = convertByteColorModel(frame, COLOR_MODEL, BAND_OFFSETS);
+                frame = ImageUtils.convertByteColorModel(frame, COLOR_MODEL, BAND_OFFSETS);
 
                 // Add frame to current sequence if frame belong to sequence
                 if (currentSequence.containsTime(frameTimestamp)) {
@@ -142,23 +143,6 @@ public class ScreenCaptureFileReader {
 
             System.out.println("Frames: " + currentSequence.getFrames().size());
         }
-    }
-
-    public static BufferedImage convertByteColorModel(BufferedImage image, ColorModel colorModel, int[] bandOffsets) {
-        // Get pixel data from image
-        byte[] imageData = ((DataBufferByte) image.getRaster().getDataBuffer()).getData();
-
-        // Create BufferedImage with new color model
-        WritableRaster raster = Raster.createInterleavedRaster(DataBuffer.TYPE_BYTE, image.getWidth(), image.getHeight(), image.getWidth() * 4, 4, bandOffsets, null);
-        BufferedImage newImage = new BufferedImage(colorModel, raster, colorModel.isAlphaPremultiplied(), null);
-
-        // Get reference to pixel data of new image
-        byte[] newImageData = ((DataBufferByte) raster.getDataBuffer()).getData();
-
-        // Copy pixel data to new raster
-        System.arraycopy(imageData, 0, newImageData, 0, imageData.length);
-
-        return newImage;
     }
 
     public interface ProgressCallback {

@@ -33,11 +33,17 @@ import java.util.function.Consumer;
 import static java.util.Objects.isNull;
 import static java.util.Objects.nonNull;
 
+/**
+ * This class handles the visualization of {@link ScreenCaptureSequence ScreenCaptureSequences} in the media track view.
+ *
+ * @author Maximilian Felix Ratzke
+ */
 public class ScreenCaptureTimelineSkin extends MediaTrackControlSkinBase {
 
     private final Consumer<ScreenCaptureData> trackListener = stream -> updateControl();
 
     private final ScreenCaptureTimeline screenCaptureTimeline;
+
     private Canvas canvas;
 
     protected ScreenCaptureTimelineSkin(ScreenCaptureTimeline control) {
@@ -126,8 +132,19 @@ public class ScreenCaptureTimelineSkin extends MediaTrackControlSkinBase {
 
         ScreenCaptureData data = screenCaptureTimeline.getMediaTrack().getScreenCaptureData();
         for (ScreenCaptureSequence sequence : data.getSequences().values()) {
-            double startX = pixelPerSecond * sequence.getStartTime() / 1000 + tx;
-            double endX = pixelPerSecond * (sequence.getEndTime()) / 1000 + tx;
+
+            // Skip sequences with no length
+            if (sequence.getExcludedLength() <= 0)
+                return;
+
+            // Without this fix, the start and end of the displayed bar are not perfectly aligned with the sequence timestamps
+            // Not quite sure where the offset comes from, but setting it manually seems to fix the problem
+
+            int offsetFix = 10;
+            double startX = pixelPerSecond * sequence.getExcludedStartTime() / 1000 + tx + offsetFix;
+            double endX = pixelPerSecond * sequence.getExcludedEndTime() / 1000 + tx - offsetFix;
+
+            System.out.println("Start: " + sequence.getExcludedStartTime() + " End: " + sequence.getExcludedEndTime());
 
             // Draw stroke
             ctx.strokeLine(snap(startX), height / 2, snap(endX), height / 2);

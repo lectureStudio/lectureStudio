@@ -48,6 +48,7 @@ import org.lecturestudio.core.pdf.DocumentAdapter;
 import org.lecturestudio.core.pdf.DocumentRenderer;
 import org.lecturestudio.core.pdf.PdfDocument;
 
+import java.awt.*;
 import java.awt.geom.AffineTransform;
 import java.awt.image.BufferedImage;
 import java.io.File;
@@ -57,6 +58,7 @@ import java.io.OutputStream;
 import java.lang.reflect.Constructor;
 import java.net.URI;
 import java.util.*;
+import java.util.List;
 
 import static java.util.Objects.isNull;
 import static java.util.Objects.nonNull;
@@ -282,6 +284,13 @@ public class PDFBoxDocument implements DocumentAdapter {
 		float y = (height - h) / 2f;
 
 		PDPageContentStream content = new PDPageContentStream(doc, page);
+
+		// Draw black background
+		content.addRect(0, 0, width, height);
+		content.setNonStrokingColor(Color.BLACK);
+		content.fill();
+
+		// Draw frame image
 		content.drawImage(xImage, x, y, w, h);
 		content.close();
 

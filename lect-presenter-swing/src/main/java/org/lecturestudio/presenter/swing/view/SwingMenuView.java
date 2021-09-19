@@ -26,6 +26,8 @@ import java.io.File;
 import java.net.URI;
 import java.util.List;
 
+import javax.inject.Inject;
+import javax.swing.AbstractButton;
 import javax.swing.JCheckBoxMenuItem;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
@@ -35,6 +37,7 @@ import javax.swing.JSeparator;
 import javax.swing.KeyStroke;
 
 import org.lecturestudio.core.ExecutableState;
+import org.lecturestudio.core.app.dictionary.Dictionary;
 import org.lecturestudio.core.beans.BooleanProperty;
 import org.lecturestudio.core.beans.IntegerProperty;
 import org.lecturestudio.core.model.Document;
@@ -50,10 +53,13 @@ import org.lecturestudio.presenter.api.service.QuizWebServiceState;
 import org.lecturestudio.presenter.api.view.MenuView;
 import org.lecturestudio.swing.util.SwingUtils;
 import org.lecturestudio.swing.view.SwingView;
+import org.lecturestudio.swing.view.ViewPostConstruct;
 import org.lecturestudio.web.api.model.quiz.Quiz;
 
 @SwingView(name = "main-menu", presenter = org.lecturestudio.presenter.api.presenter.MenuPresenter.class)
 public class SwingMenuView extends JMenuBar implements MenuView {
+
+	private final Dictionary dict;
 
 	private ConsumerAction<Bookmark> openBookmarkAction;
 
@@ -109,13 +115,11 @@ public class SwingMenuView extends JMenuBar implements MenuView {
 
 	private JCheckBoxMenuItem enableStreamMenuItem;
 
-	private JCheckBoxMenuItem enableStreamingMicrophoneMenuItem;
+	private JCheckBoxMenuItem enableStreamMicrophoneMenuItem;
 
-	private JCheckBoxMenuItem enableStreamingCameraMenuItem;
+	private JCheckBoxMenuItem enableStreamCameraMenuItem;
 
-	private JMenuItem startMessengerMenuItem;
-
-	private JMenuItem stopMessengerMenuItem;
+	private JCheckBoxMenuItem enableMessengerMenuItem;
 
 	private JCheckBoxMenuItem showMessengerWindowMenuItem;
 
@@ -150,8 +154,11 @@ public class SwingMenuView extends JMenuBar implements MenuView {
 	private JMenu streamIndicatorMenu;
 
 
-	SwingMenuView() {
+	@Inject
+	SwingMenuView(Dictionary dict) {
 		super();
+
+		this.dict = dict;
 	}
 
 	@Override
@@ -175,7 +182,7 @@ public class SwingMenuView extends JMenuBar implements MenuView {
 			previousBookmarkMenuItem.setEnabled(hasDocument);
 			startRecordingMenuItem.setEnabled(hasDocument);
 			enableStreamMenuItem.setEnabled(hasDocument);
-			startMessengerMenuItem.setEnabled(hasDocument);
+			enableMessengerMenuItem.setEnabled(hasDocument);
 		});
 	}
 
@@ -339,22 +346,17 @@ public class SwingMenuView extends JMenuBar implements MenuView {
 
 	@Override
 	public void bindEnableStreamingMicrophone(BooleanProperty enable) {
-		SwingUtils.bindBidirectional(enableStreamingMicrophoneMenuItem, enable);
+		SwingUtils.bindBidirectional(enableStreamMicrophoneMenuItem, enable);
 	}
 
 	@Override
 	public void bindEnableStreamingCamera(BooleanProperty enable) {
-		SwingUtils.bindBidirectional(enableStreamingCameraMenuItem, enable);
+		SwingUtils.bindBidirectional(enableStreamCameraMenuItem, enable);
 	}
 
 	@Override
-	public void setOnStartMessenger(Action action) {
-		SwingUtils.bindAction(startMessengerMenuItem, action);
-	}
-
-	@Override
-	public void setOnStopMessenger(Action action) {
-		SwingUtils.bindAction(stopMessengerMenuItem, action);
+	public void bindEnableMessenger(BooleanProperty enable) {
+		SwingUtils.bindBidirectional(enableMessengerMenuItem, enable);
 	}
 
 	@Override
@@ -387,8 +389,6 @@ public class SwingMenuView extends JMenuBar implements MenuView {
 		final boolean started = state == ExecutableState.Started;
 
 		SwingUtils.invoke(() -> {
-			startMessengerMenuItem.setEnabled(!started);
-			stopMessengerMenuItem.setEnabled(started);
 			showMessengerWindowMenuItem.setEnabled(started);
 
 			setIndicatorState(messengerIndicatorMenu, state);
@@ -426,51 +426,11 @@ public class SwingMenuView extends JMenuBar implements MenuView {
 		final boolean started = state == ExecutableState.Started;
 
 		SwingUtils.invoke(() -> {
-			enableStreamingMicrophoneMenuItem.setEnabled(started);
-			enableStreamingCameraMenuItem.setEnabled(started);
+			enableStreamMicrophoneMenuItem.setEnabled(started);
+			enableStreamCameraMenuItem.setEnabled(started);
 
 			setIndicatorState(streamIndicatorMenu, state);
 		});
-	}
-
-	@Override
-	public void setOnControlRecording(ConsumerAction<Boolean> action) {
-
-	}
-
-	@Override
-	public void setOnControlRecordingSettings(Action action) {
-
-	}
-
-	@Override
-	public void setOnControlStreaming(ConsumerAction<Boolean> action) {
-
-	}
-
-	@Override
-	public void setOnControlStreamingSettings(Action action) {
-
-	}
-
-	@Override
-	public void setOnControlMessenger(ConsumerAction<Boolean> action) {
-
-	}
-
-	@Override
-	public void setOnControlMessengerWindow(ConsumerAction<Boolean> action) {
-
-	}
-
-	@Override
-	public void setOnControlMessengerSettings(Action action) {
-
-	}
-
-	@Override
-	public void setOnControlCameraSettings(Action action) {
-
 	}
 
 	@Override
@@ -685,6 +645,24 @@ public class SwingMenuView extends JMenuBar implements MenuView {
 	public void setQuizServiceState(QuizWebServiceState state) {
 		SwingUtils.invoke(() -> {
 			quizIndicatorMenu.setText(Long.toString(state.answerCount));
+		});
+	}
+
+	@ViewPostConstruct
+	private void initialize() {
+		setStateText(enableStreamMenuItem, dict.get("menu.stream.start"),
+				dict.get("menu.stream.stop"));
+		setStateText(enableMessengerMenuItem, dict.get("menu.messenger.start"),
+				dict.get("menu.messenger.stop"));
+		setStateText(enableStreamMicrophoneMenuItem, dict.get("menu.stream.microphone.start"),
+				dict.get("menu.stream.microphone.stop"));
+		setStateText(enableStreamCameraMenuItem, dict.get("menu.stream.camera.start"),
+				dict.get("menu.stream.camera.stop"));
+	}
+
+	private void setStateText(AbstractButton button, String start, String stop) {
+		button.addItemListener(e -> {
+			button.setText(button.isSelected() ? stop : start);
 		});
 	}
 

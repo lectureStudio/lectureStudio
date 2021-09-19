@@ -27,6 +27,7 @@ import javax.inject.Inject;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+
 import org.lecturestudio.core.ExecutableException;
 import org.lecturestudio.core.app.ApplicationContext;
 import org.lecturestudio.core.bus.EventBus;
@@ -46,12 +47,16 @@ public class StreamService {
 
 	private final WebRtcStreamService streamService;
 
+	private final WebService webService;
+
 
 	@Inject
-	StreamService(ApplicationContext context, WebRtcStreamService streamService) {
+	StreamService(ApplicationContext context, WebRtcStreamService streamService,
+			WebService webService) {
 		this.context = context;
 		this.eventBus = context.getEventBus();
 		this.streamService = streamService;
+		this.webService = webService;
 	}
 
 	public void enableStream(boolean enable) {
@@ -74,14 +79,30 @@ public class StreamService {
 		});
 	}
 
+	public void enableMessenger(boolean enable) {
+		CompletableFuture.runAsync(() -> {
+			if (enable) {
+				startMessenger();
+			}
+			else {
+				stopMessenger();
+			}
+		});
+	}
+
 	private void startStream() {
-		eventBus.post(new StartStreamCommand(() -> {
+		eventBus.post(new StartStreamCommand((startServices) -> {
 			CompletableFuture.runAsync(() -> {
 				try {
 					streamService.start();
 				}
 				catch (ExecutableException e) {
 					throw new CompletionException(e);
+				}
+
+				if (startServices.startMessenger.get()) {
+					PresenterContext presenterContext = (PresenterContext) context;
+					presenterContext.setMessengerStarted(true);
 				}
 			})
 			.exceptionally(e -> {
@@ -128,7 +149,25 @@ public class StreamService {
 			streamService.stopCameraStream();
 		}
 		catch (ExecutableException e) {
-			handleException(e, "Stop camera stream failed", "stream.start.error");
+			handleException(e, "Stop camera stream failed", "stream.stop.error");
+		}
+	}
+
+	private void startMessenger() {
+		try {
+			webService.startMessenger();
+		}
+		catch (ExecutableException e) {
+			handleServiceError(e, "Start messenger failed", "messenger.start.error");
+		}
+	}
+
+	private void stopMessenger() {
+		try {
+			webService.stopMessenger();
+		}
+		catch (ExecutableException e) {
+			handleServiceError(e, "Stop messenger failed", "messenger.stop.error");
 		}
 	}
 

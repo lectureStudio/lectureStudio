@@ -237,11 +237,6 @@ public class SlidesPresenter extends Presenter<SlidesView> {
 
 		view.setMessengerState(event.getState());
 
-		if (event.getState() == ExecutableState.Stopped) {
-			// Clear messenger view.
-			view.setMessengerMessage(null);
-		}
-
 		checkRemoteServiceState();
 	}
 

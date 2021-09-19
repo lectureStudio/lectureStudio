@@ -28,11 +28,12 @@ import javax.inject.Named;
 
 import org.lecturestudio.core.app.ApplicationContext;
 import org.lecturestudio.core.presenter.Presenter;
-import org.lecturestudio.core.view.Action;
+import org.lecturestudio.core.view.ConsumerAction;
 import org.lecturestudio.core.view.ViewLayer;
 import org.lecturestudio.presenter.api.config.PresenterConfiguration;
 import org.lecturestudio.presenter.api.config.StreamConfiguration;
 import org.lecturestudio.presenter.api.context.PresenterContext;
+import org.lecturestudio.presenter.api.model.StartServices;
 import org.lecturestudio.presenter.api.view.StartStreamView;
 import org.lecturestudio.web.api.service.ServiceParameters;
 import org.lecturestudio.web.api.stream.model.Course;
@@ -40,8 +41,11 @@ import org.lecturestudio.web.api.stream.service.StreamProviderService;
 
 public class StartStreamPresenter extends Presenter<StartStreamView> {
 
+	/** The services to start with the start-action. */
+	private StartServices startServices;
+
 	/** The action that is executed when the saving process has been aborted. */
-	private Action startAction;
+	private ConsumerAction<StartServices> startAction;
 
 	@Inject
 	@Named("stream.publisher.api.url")
@@ -55,6 +59,8 @@ public class StartStreamPresenter extends Presenter<StartStreamView> {
 
 	@Override
 	public void initialize() {
+		startServices = new StartServices();
+
 		loadCourses();
 
 		view.setOnStart(this::onStart);
@@ -74,19 +80,19 @@ public class StartStreamPresenter extends Presenter<StartStreamView> {
 		return ViewLayer.Dialog;
 	}
 
-	public void setOnStart(Action startAction) {
-		this.startAction = startAction;
+	public void setOnStart(ConsumerAction<StartServices> action) {
+		startAction = action;
 	}
 
 	private void onStart() {
 		super.close();
 
 		if (nonNull(startAction)) {
-			startAction.execute();
+			startAction.execute(startServices);
 		}
 	}
 
-	public void loadCourses() {
+	private void loadCourses() {
 		PresenterConfiguration config = (PresenterConfiguration) context.getConfiguration();
 		StreamConfiguration streamConfig = config.getStreamConfig();
 
@@ -110,7 +116,9 @@ public class StartStreamPresenter extends Presenter<StartStreamView> {
 
 			view.setCourses(courses);
 			view.setCourse(streamConfig.courseProperty());
+			view.setEnableMicrophone(config.getStreamConfig().enableMicrophoneProperty());
 			view.setEnableCamera(config.getStreamConfig().enableCameraProperty());
+			view.setEnableMessenger(startServices.startMessenger);
 		}
 		catch (Exception e) {
 			view.setCourses(List.of());

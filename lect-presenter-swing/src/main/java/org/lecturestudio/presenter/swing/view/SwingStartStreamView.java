@@ -44,7 +44,11 @@ public class SwingStartStreamView extends JPanel implements StartStreamView {
 
 	private JComboBox<Course> courseCombo;
 
+	private JCheckBox microphoneCheckBox;
+
 	private JCheckBox cameraCheckBox;
+
+	private JCheckBox messengerCheckBox;
 
 	private JLabel errorLabel;
 
@@ -73,8 +77,18 @@ public class SwingStartStreamView extends JPanel implements StartStreamView {
 	}
 
 	@Override
+	public void setEnableMicrophone(BooleanProperty enable) {
+		SwingUtils.bindBidirectional(microphoneCheckBox, enable);
+	}
+
+	@Override
 	public void setEnableCamera(BooleanProperty enable) {
 		SwingUtils.bindBidirectional(cameraCheckBox, enable);
+	}
+
+	@Override
+	public void setEnableMessenger(BooleanProperty enable) {
+		SwingUtils.bindBidirectional(messengerCheckBox, enable);
 	}
 
 	@Override

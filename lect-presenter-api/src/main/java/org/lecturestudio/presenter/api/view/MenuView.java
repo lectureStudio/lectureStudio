@@ -110,9 +110,7 @@ public interface MenuView extends View {
 
 	void bindEnableStreamingCamera(BooleanProperty enable);
 
-	void setOnStartMessenger(Action action);
-
-	void setOnStopMessenger(Action action);
+	void bindEnableMessenger(BooleanProperty enable);
 
 	void setOnShowMessengerWindow(ConsumerAction<Boolean> action);
 
@@ -131,26 +129,6 @@ public interface MenuView extends View {
 	void setRecordingState(ExecutableState state);
 
 	void setStreamingState(ExecutableState state);
-
-	/**
-	 * Services Menu
-	 */
-
-	void setOnControlRecording(ConsumerAction<Boolean> action);
-
-	void setOnControlRecordingSettings(Action action);
-
-	void setOnControlStreaming(ConsumerAction<Boolean> action);
-
-	void setOnControlStreamingSettings(Action action);
-
-	void setOnControlMessenger(ConsumerAction<Boolean> action);
-
-	void setOnControlMessengerWindow(ConsumerAction<Boolean> action);
-
-	void setOnControlMessengerSettings(Action action);
-
-	void setOnControlCameraSettings(Action action);
 
 	/**
 	 * Bookmarks Menu

@@ -85,10 +85,10 @@ import org.lecturestudio.presenter.api.model.BookmarkKeyException;
 import org.lecturestudio.presenter.api.model.Bookmarks;
 import org.lecturestudio.presenter.api.model.BookmarksListener;
 import org.lecturestudio.presenter.api.pdf.embedded.QuizParser;
-import org.lecturestudio.presenter.api.presenter.command.ShowSettingsCommand;
 import org.lecturestudio.presenter.api.service.BookmarkService;
 import org.lecturestudio.presenter.api.service.QuizWebServiceState;
 import org.lecturestudio.presenter.api.service.RecordingService;
+import org.lecturestudio.presenter.api.service.StreamService;
 import org.lecturestudio.presenter.api.service.WebService;
 import org.lecturestudio.presenter.api.view.MenuView;
 import org.lecturestudio.presenter.api.view.MessengerWindow;
@@ -121,6 +121,9 @@ public class MenuPresenter extends Presenter<MenuView> {
 
 	@Inject
 	private WebService webService;
+
+	@Inject
+	private StreamService streamService;
 
 
 	@Inject
@@ -326,24 +329,6 @@ public class MenuPresenter extends Presenter<MenuView> {
 		toolController.toggleGrid();
 	}
 
-	public void toggleRecording(boolean start) {
-		if (start) {
-			startRecording();
-		}
-		else {
-			stopRecording();
-		}
-	}
-
-	public void toggleMessenger(boolean start) {
-		if (start) {
-			startMessenger();
-		}
-		else {
-			stopMessenger();
-		}
-	}
-
 	public void startRecording() {
 		try {
 			if (recordingService.started()) {
@@ -383,36 +368,6 @@ public class MenuPresenter extends Presenter<MenuView> {
 				handleException(e, "Stop recording failed", "recording.stop.error");
 			}
 		}
-	}
-
-	public void startMessenger() {
-		CompletableFuture.runAsync(() -> {
-			try {
-				webService.startMessenger();
-			}
-			catch (ExecutableException e) {
-				throw new CompletionException(e);
-			}
-		})
-		.exceptionally(e -> {
-			handleServiceError(e, "Start messenger failed", "messenger.start.error");
-			return null;
-		});
-	}
-
-	public void stopMessenger() {
-		CompletableFuture.runAsync(() -> {
-			try {
-				webService.stopMessenger();
-			}
-			catch (ExecutableException e) {
-				throw new CompletionException(e);
-			}
-		})
-		.exceptionally(e -> {
-			handleServiceError(e, "Stop messenger failed", "messenger.stop.error");
-			return null;
-		});
 	}
 
 	public void showMessengerWindow(boolean show) {
@@ -475,22 +430,6 @@ public class MenuPresenter extends Presenter<MenuView> {
 
 	public void showAboutView() {
 		eventBus.post(new ShowPresenterCommand<>(AboutPresenter.class));
-	}
-
-	public void showCameraSettings() {
-		eventBus.post(new ShowSettingsCommand("camera"));
-	}
-
-	public void showMessengerSettings() {
-		eventBus.post(new ShowSettingsCommand("web-service"));
-	}
-
-	public void showRecordingSettings() {
-		eventBus.post(new ShowSettingsCommand("recording"));
-	}
-
-	public void showStreamingSettings() {
-		eventBus.post(new ShowSettingsCommand("live-stream"));
 	}
 
 	private void selectNewDocument() {
@@ -600,20 +539,11 @@ public class MenuPresenter extends Presenter<MenuView> {
 		view.bindEnableStream(presenterContext.streamStartedProperty());
 		view.bindEnableStreamingMicrophone(config.getStreamConfig().enableMicrophoneProperty());
 		view.bindEnableStreamingCamera(config.getStreamConfig().enableCameraProperty());
-		view.setOnStartMessenger(this::startMessenger);
-		view.setOnStopMessenger(this::stopMessenger);
+		view.bindEnableMessenger(presenterContext.messengerStartedProperty());
 		view.setOnShowMessengerWindow(this::showMessengerWindow);
 		view.setOnShowSelectQuizView(this::selectQuiz);
 		view.setOnShowNewQuizView(this::newQuiz);
 		view.setOnCloseQuiz(this::closeQuiz);
-
-		view.setOnControlCameraSettings(this::showCameraSettings);
-		view.setOnControlMessenger(this::toggleMessenger);
-		view.setOnControlMessengerSettings(this::showMessengerSettings);
-		view.setOnControlMessengerWindow(this::showMessengerWindow);
-		view.setOnControlRecording(this::toggleRecording);
-		view.setOnControlRecordingSettings(this::showRecordingSettings);
-		view.setOnControlStreamingSettings(this::showStreamingSettings);
 
 		view.setOnClearBookmarks(this::clearBookmarks);
 		view.setOnShowNewBookmarkView(this::newBookmark);

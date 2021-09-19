@@ -8,7 +8,9 @@
 			<renderer class="org.lecturestudio.presenter.swing.combobox.CourseRenderer" />
 		</ComboBox>
 
-		<CheckBox id="cameraCheckBox" text="start.stream.camera.enable" border="EmptyBorder(15, 0, 0, 0)" />
+		<CheckBox id="microphoneCheckBox" text="start.stream.microphone.enable" border="EmptyBorder(15, 0, 0, 0)" />
+		<CheckBox id="cameraCheckBox" text="start.stream.camera.enable" border="EmptyBorder(5, 0, 0, 0)" />
+		<CheckBox id="messengerCheckBox" text="start.stream.messenger.enable" border="EmptyBorder(5, 0, 0, 0)" />
 	</VBox>
 
 	<Label id="errorLabel" visible="false">

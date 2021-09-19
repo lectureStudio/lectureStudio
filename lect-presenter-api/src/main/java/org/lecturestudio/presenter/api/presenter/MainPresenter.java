@@ -160,6 +160,9 @@ public class MainPresenter extends org.lecturestudio.core.presenter.MainPresente
 		presenterContext.streamStartedProperty().addListener((observable, oldValue, newValue) -> {
 			streamService.enableStream(newValue);
 		});
+		presenterContext.messengerStartedProperty().addListener((observable, oldValue, newValue) -> {
+			streamService.enableMessenger(newValue);
+		});
 
 		addShutdownHandler(new SaveRecordingHandler(presenterContext));
 		addShutdownHandler(new SaveDocumentsHandler(presenterContext));

@@ -53,6 +53,8 @@ public class PresenterContext extends ApplicationContext {
 
 	private final IntegerProperty attendeesCount = new IntegerProperty();
 
+	private final BooleanProperty messengerStarted = new BooleanProperty();
+
 	private final BooleanProperty streamStarted = new BooleanProperty();
 
 	private final BooleanProperty hasRecordedChanges = new BooleanProperty();
@@ -146,6 +148,18 @@ public class PresenterContext extends ApplicationContext {
 
 	public BooleanProperty streamStartedProperty() {
 		return streamStarted;
+	}
+
+	public void setMessengerStarted(boolean started) {
+		messengerStarted.set(started);
+	}
+
+	public boolean getMessengerStarted() {
+		return messengerStarted.get();
+	}
+
+	public BooleanProperty messengerStartedProperty() {
+		return messengerStarted;
 	}
 
 	public void setShowOutline(boolean show) {

@@ -19,15 +19,16 @@
 package org.lecturestudio.presenter.api.presenter.command;
 
 import org.lecturestudio.core.presenter.command.ShowPresenterCommand;
-import org.lecturestudio.core.view.Action;
+import org.lecturestudio.core.view.ConsumerAction;
+import org.lecturestudio.presenter.api.model.StartServices;
 import org.lecturestudio.presenter.api.presenter.StartStreamPresenter;
 
 public class StartStreamCommand extends ShowPresenterCommand<StartStreamPresenter> {
 
-	private final Action startAction;
+	private final ConsumerAction<StartServices> startAction;
 
 
-	public StartStreamCommand(Action startAction) {
+	public StartStreamCommand(ConsumerAction<StartServices> startAction) {
 		super(StartStreamPresenter.class);
 
 		this.startAction = startAction;

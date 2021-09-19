@@ -32,12 +32,11 @@
 		<menuitem id="startRecordingMenuItem" text="menu.recording.start" enabled="false" />
 		<menuitem id="stopRecordingMenuItem" text="menu.recording.stop" enabled="false" />
 		<separator />
-		<checkboxmenuitem id="enableStreamMenuItem" text="menu.streaming.enable" enabled="false" />
-		<checkboxmenuitem id="enableStreamingMicrophoneMenuItem" text="menu.streaming.enable.microphone" type="checkbox" selected="true" enabled="false" />
-		<checkboxmenuitem id="enableStreamingCameraMenuItem" text="menu.streaming.enable.camera" type="checkbox" selected="true" enabled="false" />
+		<checkboxmenuitem id="enableStreamMenuItem" text="menu.stream.start" enabled="false" />
+		<checkboxmenuitem id="enableStreamMicrophoneMenuItem" text="menu.stream.microphone.start" type="checkbox" selected="true" enabled="false" />
+		<checkboxmenuitem id="enableStreamCameraMenuItem" text="menu.stream.camera.start" type="checkbox" selected="true" enabled="false" />
 		<separator />
-		<menuitem id="startMessengerMenuItem" text="menu.messenger.start" enabled="false" />
-		<menuitem id="stopMessengerMenuItem" text="menu.messenger.stop" enabled="false" />
+		<checkboxmenuitem id="enableMessengerMenuItem" text="menu.messenger.start" enabled="false" />
 		<checkboxmenuitem id="showMessengerWindowMenuItem" text="menu.messenger.window.visible" type="checkbox" selected="true" enabled="false" />
 		<separator />
 		<menuitem id="selectQuizMenuItem" text="menu.quiz.selection" accelerator="Z" enabled="false" />

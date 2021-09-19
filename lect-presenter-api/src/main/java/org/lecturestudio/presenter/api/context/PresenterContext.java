@@ -98,6 +98,10 @@ public class PresenterContext extends ApplicationContext {
 		messageCount.set(messageCount.get() - 1);
 	}
 
+	public void resetMessageCount() {
+		messageCount.set(0);
+	}
+
 	public IntegerProperty messageCountProperty() {
 		return messageCount;
 	}
@@ -110,6 +114,10 @@ public class PresenterContext extends ApplicationContext {
 		speechRequestCount.set(speechRequestCount.get() - 1);
 	}
 
+	public void resetSpeechRequestCount() {
+		speechRequestCount.set(0);
+	}
+
 	public IntegerProperty speechRequestCountProperty() {
 		return speechRequestCount;
 	}
@@ -120,6 +128,10 @@ public class PresenterContext extends ApplicationContext {
 
 	public void decreaseAttendeesCount() {
 		attendeesCount.set(attendeesCount.get() - 1);
+	}
+
+	public void resetAttendeesCount() {
+		attendeesCount.set(0);
 	}
 
 	public IntegerProperty attendeesCountProperty() {

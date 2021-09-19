@@ -85,6 +85,7 @@ import org.lecturestudio.presenter.api.view.SlidesView;
 import org.lecturestudio.presenter.swing.input.StylusListener;
 import org.lecturestudio.stylus.awt.AwtStylusManager;
 import org.lecturestudio.swing.components.EditableThumbnailPanel;
+import org.lecturestudio.swing.components.MessagePanel;
 import org.lecturestudio.swing.components.MessageView;
 import org.lecturestudio.swing.components.PeerView;
 import org.lecturestudio.swing.components.SlideView;
@@ -107,6 +108,10 @@ import org.scilab.forge.jlatexmath.ParseException;
 public class SwingSlidesView extends JPanel implements SlidesView {
 
 	private final Dictionary dict;
+
+	private ExecutableState streamState = ExecutableState.Stopped;
+
+	private ExecutableState messengerState = ExecutableState.Stopped;
 
 	private ConsumerAction<org.lecturestudio.core.input.KeyEvent> keyAction;
 
@@ -374,12 +379,44 @@ public class SwingSlidesView extends JPanel implements SlidesView {
 	}
 
 	@Override
-	public void setMessengerState(ExecutableState state) {
-		boolean started = state == ExecutableState.Started;
+	public void setStreamState(ExecutableState state) {
+		streamState = state;
+
+		boolean streamStarted = streamState == ExecutableState.Started;
+		boolean messengerStarted = messengerState == ExecutableState.Started;
 
 		SwingUtils.invoke(() -> {
-			setBottomTabEnabled(2, started);
-			setBottomTabSelected(2, started);
+			if (state == ExecutableState.Stopped && !messengerStarted) {
+				minimizeBottomPane();
+			}
+
+			setBottomTabEnabled(2, streamStarted || messengerStarted);
+			setBottomTabSelected(2, streamStarted || messengerStarted);
+
+			if (!streamStarted) {
+				removeMessageViews(SpeechRequestView.class);
+			}
+		});
+	}
+
+	@Override
+	public void setMessengerState(ExecutableState state) {
+		messengerState = state;
+
+		boolean streamStarted = streamState == ExecutableState.Started;
+		boolean messengerStarted = messengerState == ExecutableState.Started;
+
+		SwingUtils.invoke(() -> {
+			if (state == ExecutableState.Stopped && !streamStarted) {
+				minimizeBottomPane();
+			}
+
+			setBottomTabEnabled(2, streamStarted || messengerStarted);
+			setBottomTabSelected(2, streamStarted || messengerStarted);
+
+			if (!messengerStarted) {
+				removeMessageViews(MessageView.class);
+			}
 		});
 	}
 
@@ -798,6 +835,17 @@ public class SwingSlidesView extends JPanel implements SlidesView {
 				break;
 			}
 		}
+	}
+
+	private void removeMessageViews(Class<? extends MessagePanel> cls) {
+		for (Component c : messageViewContainer.getComponents()) {
+			if (cls.isAssignableFrom(c.getClass())) {
+				messageViewContainer.remove(c);
+			}
+		}
+
+		messageViewContainer.validate();
+		messageViewContainer.repaint();
 	}
 
 	private BufferedImage convertVideoFrame(VideoFrame videoFrame, BufferedImage image) throws Exception {

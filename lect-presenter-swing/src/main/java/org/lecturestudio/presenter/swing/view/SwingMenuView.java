@@ -430,6 +430,7 @@ public class SwingMenuView extends JMenuBar implements MenuView {
 			enableStreamCameraMenuItem.setEnabled(started);
 
 			setIndicatorState(streamIndicatorMenu, state);
+			setIndicatorState(speechIndicatorMenu, state);
 		});
 	}
 

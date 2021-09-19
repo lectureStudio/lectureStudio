@@ -79,6 +79,8 @@ public interface SlidesView extends View {
 
 	void setLaTeXText(String text);
 
+	void setStreamState(ExecutableState state);
+
 	void setMessengerState(ExecutableState state);
 
 	void setMessengerMessage(MessengerMessage message);

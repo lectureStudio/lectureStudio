@@ -217,23 +217,23 @@ public class SlidesPresenter extends Presenter<SlidesView> {
 
 	@Subscribe
 	public void onEvent(final QuizStateEvent event) {
-		this.quizState = event.getState();
+		quizState = event.getState();
 
 		checkRemoteServiceState();
 	}
 
 	@Subscribe
 	public void onEvent(final StreamingStateEvent event) {
-		this.streamingState = event.getState();
+		streamingState = event.getState();
 
-		view.setMessengerState(event.getState());
+		view.setStreamState(event.getState());
 
 		checkRemoteServiceState();
 	}
 
 	@Subscribe
 	public void onEvent(final MessengerStateEvent event) {
-		this.messengerState = event.getState();
+		messengerState = event.getState();
 
 		view.setMessengerState(event.getState());
 

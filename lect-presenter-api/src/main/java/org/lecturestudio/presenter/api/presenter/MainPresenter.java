@@ -337,6 +337,9 @@ public class MainPresenter extends org.lecturestudio.core.presenter.MainPresente
 //			display(createPresenter(MessengerWindowPresenter.class));
 		}
 		else if (state == ExecutableState.Stopped) {
+			PresenterContext presenterContext = (PresenterContext) context;
+			presenterContext.resetMessageCount();
+
 //			destroyHandler(MessengerWindowPresenter.class);
 		}
 	}
@@ -362,6 +365,11 @@ public class MainPresenter extends org.lecturestudio.core.presenter.MainPresente
 		}
 		else if (state == ExecutableState.Started) {
 			hideWaitingNotification();
+		}
+		else if (state == ExecutableState.Stopped) {
+			PresenterContext presenterContext = (PresenterContext) context;
+			presenterContext.resetAttendeesCount();
+			presenterContext.resetSpeechRequestCount();
 		}
 		else if (state == ExecutableState.Error) {
 			showError("stream.closed.by.remote.host.title", "stream.closed.by.remote.host");

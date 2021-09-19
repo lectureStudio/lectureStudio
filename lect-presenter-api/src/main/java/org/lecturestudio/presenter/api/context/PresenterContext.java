@@ -27,6 +27,7 @@ import org.lecturestudio.core.app.configuration.Configuration;
 import org.lecturestudio.core.app.configuration.ConfigurationService;
 import org.lecturestudio.core.app.dictionary.Dictionary;
 import org.lecturestudio.core.beans.BooleanProperty;
+import org.lecturestudio.core.beans.IntegerProperty;
 import org.lecturestudio.core.bus.EventBus;
 import org.lecturestudio.core.model.Document;
 import org.lecturestudio.presenter.api.config.PresenterConfigService;
@@ -45,6 +46,12 @@ public class PresenterContext extends ApplicationContext {
 
 	public static final String RECORDING_CONTEXT = "Recording";
 	public static final String RECORDING_EXTENSION = "presenter";
+
+	private final IntegerProperty messageCount = new IntegerProperty();
+
+	private final IntegerProperty speechRequestCount = new IntegerProperty();
+
+	private final IntegerProperty attendeesCount = new IntegerProperty();
 
 	private final BooleanProperty streamStarted = new BooleanProperty();
 
@@ -79,6 +86,42 @@ public class PresenterContext extends ApplicationContext {
 	public void saveConfiguration() throws Exception {
 		ConfigurationService<PresenterConfiguration> configService = new PresenterConfigService();
 		configService.save(configFile, (PresenterConfiguration) getConfiguration());
+	}
+
+	public void increaseMessageCount() {
+		messageCount.set(messageCount.get() + 1);
+	}
+
+	public void decreaseMessageCount() {
+		messageCount.set(messageCount.get() - 1);
+	}
+
+	public IntegerProperty messageCountProperty() {
+		return messageCount;
+	}
+
+	public void increaseSpeechRequestCount() {
+		speechRequestCount.set(speechRequestCount.get() + 1);
+	}
+
+	public void decreaseSpeechRequestCount() {
+		speechRequestCount.set(speechRequestCount.get() - 1);
+	}
+
+	public IntegerProperty speechRequestCountProperty() {
+		return speechRequestCount;
+	}
+
+	public void increaseAttendeesCount() {
+		attendeesCount.set(attendeesCount.get() + 1);
+	}
+
+	public void decreaseAttendeesCount() {
+		attendeesCount.set(attendeesCount.get() - 1);
+	}
+
+	public IntegerProperty attendeesCountProperty() {
+		return attendeesCount;
 	}
 
 	public void setHasRecordedChanges(boolean changes) {

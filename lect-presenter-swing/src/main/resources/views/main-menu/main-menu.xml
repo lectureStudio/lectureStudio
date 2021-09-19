@@ -63,5 +63,6 @@
 	<menu id="recordIndicatorMenu" icon="record-indicator.svg, 20" disabledicon="record-indicator.svg, 20" enabled="false" />
 	<menu id="quizIndicatorMenu" icon="quiz-indicator.svg, 20" disabledicon="quiz-indicator.svg, 20" enabled="false" />
 	<menu id="messengerIndicatorMenu" icon="messenger-indicator.svg, 20" disabledicon="messenger-indicator.svg, 20" enabled="false" />
+	<menu id="speechIndicatorMenu" icon="speech-indicator.svg, 20" disabledicon="speech-indicator.svg, 20" enabled="false" />
 	<menu id="streamIndicatorMenu" icon="stream-indicator.svg, 20" disabledicon="stream-indicator.svg, 20" enabled="false" />
 </menubar>

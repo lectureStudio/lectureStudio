@@ -23,6 +23,7 @@ import java.awt.Container;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 
+import javax.inject.Inject;
 import javax.swing.JFrame;
 
 import org.lecturestudio.core.app.dictionary.Dictionary;
@@ -43,6 +44,7 @@ public class SwingMessengerWindow extends JFrame implements MessengerWindow {
 	private Container messageViewContainer;
 
 
+	@Inject
 	SwingMessengerWindow(Dictionary dictionary) {
 		super();
 

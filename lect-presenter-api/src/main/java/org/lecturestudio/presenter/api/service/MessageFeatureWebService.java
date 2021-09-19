@@ -35,9 +35,6 @@ public class MessageFeatureWebService extends FeatureServiceBase {
 	/** A message logger. */
 	private HtmlMessageLogger logger;
 
-	/* The received message count. */
-	private long messageCount;
-
 
 	/**
 	 * Creates a new {@link MessageFeatureWebService}.
@@ -54,7 +51,7 @@ public class MessageFeatureWebService extends FeatureServiceBase {
 
 	@Override
 	protected void initInternal() {
-		messageCount = 0;
+
 	}
 
 	@Override
@@ -65,11 +62,8 @@ public class MessageFeatureWebService extends FeatureServiceBase {
 			webService.subscribe(message -> {
 				logMessage(message);
 
-				messageCount++;
-
 				// Forward message to UI.
 				context.getEventBus().post(message);
-				context.getEventBus().post(new MessageWebServiceState(getState(), messageCount));
 			}, error -> logException(error, "Message event failure"));
 		}
 		catch (Exception e) {

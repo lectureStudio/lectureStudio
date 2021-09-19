@@ -36,6 +36,7 @@ import javax.swing.KeyStroke;
 
 import org.lecturestudio.core.ExecutableState;
 import org.lecturestudio.core.beans.BooleanProperty;
+import org.lecturestudio.core.beans.IntegerProperty;
 import org.lecturestudio.core.model.Document;
 import org.lecturestudio.core.model.Page;
 import org.lecturestudio.core.model.RecentDocument;
@@ -45,7 +46,6 @@ import org.lecturestudio.core.view.ConsumerAction;
 import org.lecturestudio.core.view.PresentationParameter;
 import org.lecturestudio.presenter.api.model.Bookmark;
 import org.lecturestudio.presenter.api.model.Bookmarks;
-import org.lecturestudio.presenter.api.service.MessageWebServiceState;
 import org.lecturestudio.presenter.api.service.QuizWebServiceState;
 import org.lecturestudio.presenter.api.view.MenuView;
 import org.lecturestudio.swing.util.SwingUtils;
@@ -144,6 +144,8 @@ public class SwingMenuView extends JMenuBar implements MenuView {
 	private JMenu quizIndicatorMenu;
 
 	private JMenu messengerIndicatorMenu;
+
+	private JMenu speechIndicatorMenu;
 
 	private JMenu streamIndicatorMenu;
 
@@ -653,9 +655,29 @@ public class SwingMenuView extends JMenuBar implements MenuView {
 	}
 
 	@Override
-	public void setMessageServiceState(MessageWebServiceState state) {
-		SwingUtils.invoke(() -> {
-			messengerIndicatorMenu.setText(Long.toString(state.messageCount));
+	public void bindMessageCount(IntegerProperty count) {
+		count.addListener((observable, oldValue, newValue) -> {
+			SwingUtils.invoke(() -> {
+				messengerIndicatorMenu.setText(Integer.toString(newValue));
+			});
+		});
+	}
+
+	@Override
+	public void bindSpeechRequestCount(IntegerProperty count) {
+		count.addListener((observable, oldValue, newValue) -> {
+			SwingUtils.invoke(() -> {
+				speechIndicatorMenu.setText(Integer.toString(newValue));
+			});
+		});
+	}
+
+	@Override
+	public void bindAttendeesCount(IntegerProperty count) {
+		count.addListener((observable, oldValue, newValue) -> {
+			SwingUtils.invoke(() -> {
+				streamIndicatorMenu.setText(Integer.toString(newValue));
+			});
 		});
 	}
 

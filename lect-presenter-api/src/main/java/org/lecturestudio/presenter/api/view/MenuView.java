@@ -24,6 +24,7 @@ import java.util.List;
 
 import org.lecturestudio.core.ExecutableState;
 import org.lecturestudio.core.beans.BooleanProperty;
+import org.lecturestudio.core.beans.IntegerProperty;
 import org.lecturestudio.core.model.Document;
 import org.lecturestudio.core.model.Page;
 import org.lecturestudio.core.model.RecentDocument;
@@ -34,7 +35,6 @@ import org.lecturestudio.core.view.PresentationParameter;
 import org.lecturestudio.core.view.View;
 import org.lecturestudio.presenter.api.model.Bookmark;
 import org.lecturestudio.presenter.api.model.Bookmarks;
-import org.lecturestudio.presenter.api.service.MessageWebServiceState;
 import org.lecturestudio.presenter.api.service.QuizWebServiceState;
 import org.lecturestudio.web.api.model.quiz.Quiz;
 
@@ -212,7 +212,11 @@ public interface MenuView extends View {
 	 * Indicators
 	 */
 
-	void setMessageServiceState(MessageWebServiceState state);
+	void bindMessageCount(IntegerProperty count);
+
+	void bindSpeechRequestCount(IntegerProperty count);
+
+	void bindAttendeesCount(IntegerProperty count);
 
 	void setQuizServiceState(QuizWebServiceState state);
 }

@@ -249,6 +249,9 @@ public class SlidesPresenter extends Presenter<SlidesView> {
 	public void onEvent(MessengerMessage message) {
 		requireNonNull(message);
 
+		PresenterContext presenterContext = (PresenterContext) context;
+		presenterContext.increaseMessageCount();
+
 		view.setMessengerMessage(message);
 	}
 
@@ -256,12 +259,18 @@ public class SlidesPresenter extends Presenter<SlidesView> {
 	public void onEvent(SpeechRequestMessage message) {
 		requireNonNull(message);
 
+		PresenterContext presenterContext = (PresenterContext) context;
+		presenterContext.increaseSpeechRequestCount();
+
 		view.setSpeechRequestMessage(message);
 	}
 
 	@Subscribe
 	public void onEvent(SpeechCancelMessage message) {
 		requireNonNull(message);
+
+		PresenterContext presenterContext = (PresenterContext) context;
+		presenterContext.decreaseSpeechRequestCount();
 
 		view.setSpeechCancelMessage(message);
 	}
@@ -296,6 +305,9 @@ public class SlidesPresenter extends Presenter<SlidesView> {
 		acceptMessage.setFamilyName(message.getFamilyName());
 
 		eventBus.post(acceptMessage);
+
+		PresenterContext presenterContext = (PresenterContext) context;
+		presenterContext.decreaseSpeechRequestCount();
 	}
 
 	private void onRejectSpeech(SpeechRequestMessage message) {
@@ -305,6 +317,14 @@ public class SlidesPresenter extends Presenter<SlidesView> {
 		rejectMessage.setFamilyName(message.getFamilyName());
 
 		eventBus.post(rejectMessage);
+
+		PresenterContext presenterContext = (PresenterContext) context;
+		presenterContext.decreaseSpeechRequestCount();
+	}
+
+	private void onDiscardMessage(MessengerMessage message) {
+		PresenterContext presenterContext = (PresenterContext) context;
+		presenterContext.decreaseMessageCount();
 	}
 
 	private void toolChanged(ToolType toolType) {
@@ -661,6 +681,7 @@ public class SlidesPresenter extends Presenter<SlidesView> {
 
 		view.setOnAcceptSpeech(this::onAcceptSpeech);
 		view.setOnRejectSpeech(this::onRejectSpeech);
+		view.setOnDiscardMessage(this::onDiscardMessage);
 		view.setOnMutePeerAudio(streamService::mutePeerAudio);
 		view.setOnMutePeerVideo(streamService::mutePeerVideo);
 		view.setOnStopPeerConnection(streamService::stopPeerConnection);

@@ -40,9 +40,6 @@ public class MessageWebService extends WebServiceBase {
 	/** A message logger. */
 	private HtmlMessageLogger logger;
 
-	/* The received message count. */
-	private long messageCount;
-
 
 	/**
 	 * Creates a new {@link MessageWebService}.
@@ -55,8 +52,6 @@ public class MessageWebService extends WebServiceBase {
 
 	@Override
 	protected void initInternal() throws ExecutableException {
-		messageCount = 0;
-
 		try {
 			initSession();
 		}
@@ -73,11 +68,8 @@ public class MessageWebService extends WebServiceBase {
 			webService.subscribe(serviceId, message -> {
 				logMessage(message);
 
-				messageCount++;
-
 				// Forward message to UI.
 				context.getEventBus().post(message);
-				context.getEventBus().post(new MessageWebServiceState(getState(), messageCount));
 			}, error -> logException(error, "Message event failure"));
 		}
 		catch (Exception e) {

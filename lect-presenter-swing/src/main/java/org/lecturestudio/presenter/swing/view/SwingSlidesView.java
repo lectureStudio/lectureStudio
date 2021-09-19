@@ -118,6 +118,8 @@ public class SwingSlidesView extends JPanel implements SlidesView {
 
 	private ConsumerAction<Matrix> viewTransformAction;
 
+	private ConsumerAction<MessengerMessage> discardMessageAction;
+
 	private ConsumerAction<SpeechRequestMessage> acceptSpeechRequestAction;
 
 	private ConsumerAction<SpeechRequestMessage> rejectSpeechRequestAction;
@@ -389,6 +391,8 @@ public class SwingSlidesView extends JPanel implements SlidesView {
 			messageView.setDate(message.getDate());
 			messageView.setMessage(message.getMessage().getText());
 			messageView.setOnDiscard(() -> {
+				discardMessageAction.execute(message);
+
 				removeMessageView(messageView);
 			});
 			messageView.pack();
@@ -438,6 +442,11 @@ public class SwingSlidesView extends JPanel implements SlidesView {
 				}
 			}
 		});
+	}
+
+	@Override
+	public void setOnDiscardMessage(ConsumerAction<MessengerMessage> action) {
+		discardMessageAction = action;
 	}
 
 	@Override

@@ -376,6 +376,11 @@ public class FxSlidesView extends VBox implements SlidesView {
 	}
 
 	@Override
+	public void setOnDiscardMessage(ConsumerAction<MessengerMessage> action) {
+
+	}
+
+	@Override
 	public void setOnAcceptSpeech(ConsumerAction<SpeechRequestMessage> action) {
 
 	}

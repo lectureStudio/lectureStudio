@@ -45,6 +45,7 @@ import javafx.stage.Window;
 
 import org.lecturestudio.core.ExecutableState;
 import org.lecturestudio.core.beans.BooleanProperty;
+import org.lecturestudio.core.beans.IntegerProperty;
 import org.lecturestudio.core.model.Document;
 import org.lecturestudio.core.model.Page;
 import org.lecturestudio.core.model.RecentDocument;
@@ -57,7 +58,6 @@ import org.lecturestudio.javafx.util.FxUtils;
 import org.lecturestudio.javafx.view.FxmlView;
 import org.lecturestudio.presenter.api.model.Bookmark;
 import org.lecturestudio.presenter.api.model.Bookmarks;
-import org.lecturestudio.presenter.api.service.MessageWebServiceState;
 import org.lecturestudio.presenter.api.service.QuizWebServiceState;
 import org.lecturestudio.presenter.api.view.MenuView;
 import org.lecturestudio.web.api.model.quiz.Quiz;
@@ -733,16 +733,28 @@ public class FxMenuView extends HBox implements MenuView {
 		});
 	}
 
+	@Override
+	public void bindMessageCount(IntegerProperty count) {
+		count.addListener((observable, oldValue, newValue) -> {
+			FxUtils.invoke(() -> {
+				messengerIndicatorMenu.setText(Integer.toString(newValue));
+			});
+		});
+	}
+
+	@Override
+	public void bindSpeechRequestCount(IntegerProperty count) {
+
+	}
+
+	@Override
+	public void bindAttendeesCount(IntegerProperty count) {
+
+	}
+
 	/**
 	 * Indicators
 	 */
-
-	@Override
-	public void setMessageServiceState(MessageWebServiceState state) {
-		FxUtils.invoke(() -> {
-			messengerIndicatorMenu.setText(Long.toString(state.messageCount));
-		});
-	}
 
 	@Override
 	public void setQuizServiceState(QuizWebServiceState state) {

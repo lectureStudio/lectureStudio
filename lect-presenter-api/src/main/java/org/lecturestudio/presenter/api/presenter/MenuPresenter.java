@@ -87,7 +87,6 @@ import org.lecturestudio.presenter.api.model.BookmarksListener;
 import org.lecturestudio.presenter.api.pdf.embedded.QuizParser;
 import org.lecturestudio.presenter.api.presenter.command.ShowSettingsCommand;
 import org.lecturestudio.presenter.api.service.BookmarkService;
-import org.lecturestudio.presenter.api.service.MessageWebServiceState;
 import org.lecturestudio.presenter.api.service.QuizWebServiceState;
 import org.lecturestudio.presenter.api.service.RecordingService;
 import org.lecturestudio.presenter.api.service.WebService;
@@ -176,11 +175,6 @@ public class MenuPresenter extends Presenter<MenuView> {
 	@Subscribe
 	public void onEvent(final RecordingTimeEvent event) {
 		view.setRecordingTime(event.getTime());
-	}
-
-	@Subscribe
-	public void onEvent(final MessageWebServiceState state) {
-		view.setMessageServiceState(state);
 	}
 
 	@Subscribe
@@ -572,6 +566,10 @@ public class MenuPresenter extends Presenter<MenuView> {
 		view.setMessengerState(ExecutableState.Stopped);
 		view.setStreamingState(ExecutableState.Stopped);
 		view.setQuizState(ExecutableState.Stopped);
+
+		view.bindAttendeesCount(presenterContext.attendeesCountProperty());
+		view.bindMessageCount(presenterContext.messageCountProperty());
+		view.bindSpeechRequestCount(presenterContext.speechRequestCountProperty());
 
 		view.setDocument(null);
 		view.setPage(null, null);

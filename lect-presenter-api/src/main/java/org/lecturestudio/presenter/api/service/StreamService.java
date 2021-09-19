@@ -159,6 +159,9 @@ public class StreamService {
 		}
 		catch (ExecutableException e) {
 			handleServiceError(e, "Start messenger failed", "messenger.start.error");
+
+			PresenterContext presenterContext = (PresenterContext) context;
+			presenterContext.setMessengerStarted(false);
 		}
 	}
 

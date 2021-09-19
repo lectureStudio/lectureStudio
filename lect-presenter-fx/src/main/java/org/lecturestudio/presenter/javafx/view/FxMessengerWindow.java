@@ -38,6 +38,7 @@ import org.lecturestudio.javafx.control.MessageView;
 import org.lecturestudio.javafx.util.FxUtils;
 import org.lecturestudio.presenter.api.view.MessengerWindow;
 import org.lecturestudio.web.api.message.MessengerMessage;
+import org.lecturestudio.web.api.message.SpeechRequestMessage;
 
 public class FxMessengerWindow implements MessengerWindow {
 
@@ -78,7 +79,7 @@ public class FxMessengerWindow implements MessengerWindow {
 	}
 
 	@Override
-	public void addMessage(MessengerMessage message) {
+	public void setMessengerMessage(MessengerMessage message) {
 		FxUtils.invoke(() -> {
 			MessageView messageView = new MessageView();
 			messageView.setDate(message.getDate());
@@ -87,6 +88,11 @@ public class FxMessengerWindow implements MessengerWindow {
 
 			container.getChildren().add(messageView);
 		});
+	}
+
+	@Override
+	public void setSpeechRequestMessage(SpeechRequestMessage message) {
+
 	}
 
 	@Override

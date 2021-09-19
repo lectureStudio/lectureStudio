@@ -31,6 +31,7 @@ import org.lecturestudio.presenter.api.view.MessengerWindow;
 
 import org.junit.jupiter.api.Test;
 import org.lecturestudio.web.api.message.MessengerMessage;
+import org.lecturestudio.web.api.message.SpeechRequestMessage;
 import org.lecturestudio.web.api.model.Message;
 
 class MessengerWindowPresenterTest extends PresenterTest {
@@ -76,7 +77,7 @@ class MessengerWindowPresenterTest extends PresenterTest {
 
 		MessengerMockWindow window = new MessengerMockWindow() {
 			@Override
-			public void addMessage(MessengerMessage message) {
+			public void setMessengerMessage(MessengerMessage message) {
 				messageRef.set(message);
 			}
 		};
@@ -98,7 +99,12 @@ class MessengerWindowPresenterTest extends PresenterTest {
 
 
 		@Override
-		public void addMessage(MessengerMessage message) {
+		public void setMessengerMessage(MessengerMessage message) {
+
+		}
+
+		@Override
+		public void setSpeechRequestMessage(SpeechRequestMessage message) {
 
 		}
 

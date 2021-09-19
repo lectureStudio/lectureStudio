@@ -18,40 +18,71 @@
 
 package org.lecturestudio.presenter.swing.view;
 
+import java.awt.Component;
 import java.awt.Container;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 
 import javax.swing.JFrame;
 
+import org.lecturestudio.core.app.dictionary.Dictionary;
 import org.lecturestudio.core.view.Action;
 import org.lecturestudio.presenter.api.view.MessengerWindow;
 import org.lecturestudio.swing.components.MessageView;
+import org.lecturestudio.swing.components.SpeechRequestView;
 import org.lecturestudio.swing.util.SwingUtils;
 import org.lecturestudio.swing.view.SwingView;
 import org.lecturestudio.web.api.message.MessengerMessage;
+import org.lecturestudio.web.api.message.SpeechRequestMessage;
 
 @SwingView(name = "messenger-window")
 public class SwingMessengerWindow extends JFrame implements MessengerWindow {
 
-	private Container container;
+	private final Dictionary dict;
+
+	private Container messageViewContainer;
 
 
-	SwingMessengerWindow() {
+	SwingMessengerWindow(Dictionary dictionary) {
 		super();
+
+		this.dict = dictionary;
 	}
 
 	@Override
-	public void addMessage(MessengerMessage message) {
+	public void setMessengerMessage(MessengerMessage message) {
 		SwingUtils.invoke(() -> {
-			MessageView messageView = new MessageView();
+			MessageView messageView = new MessageView(this.dict);
 			messageView.setUserName(String.format("%s %s", message.getFirstName(), message.getFamilyName()));
 			messageView.setDate(message.getDate());
 			messageView.setMessage(message.getMessage().getText());
+			messageView.setOnDiscard(() -> {
+				removeMessageView(messageView);
+			});
 			messageView.pack();
 
-			container.add(messageView);
-			container.revalidate();
+			messageViewContainer.add(messageView);
+			messageViewContainer.revalidate();
+		});
+	}
+
+	@Override
+	public void setSpeechRequestMessage(SpeechRequestMessage message) {
+		SwingUtils.invoke(() -> {
+			SpeechRequestView requestView = new SpeechRequestView(this.dict);
+			requestView.setRequestId(message.getRequestId());
+			requestView.setUserName(String.format("%s %s", message.getFirstName(), message.getFamilyName()));
+			requestView.setDate(message.getDate());
+			requestView.setOnAccept(() -> {
+				removeMessageView(requestView);
+			});
+			requestView.setOnReject(() -> {
+				removeMessageView(requestView);
+			});
+			requestView.pack();
+
+			messageViewContainer.add(requestView);
+			messageViewContainer.revalidate();
 		});
 	}
 
@@ -82,5 +113,16 @@ public class SwingMessengerWindow extends JFrame implements MessengerWindow {
 				executeAction(action);
 			}
 		});
+	}
+
+	private void removeMessageView(Component view) {
+		for (Component c : messageViewContainer.getComponents()) {
+			if (c == view) {
+				messageViewContainer.remove(view);
+				messageViewContainer.validate();
+				messageViewContainer.repaint();
+				break;
+			}
+		}
 	}
 }

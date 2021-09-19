@@ -21,10 +21,13 @@ package org.lecturestudio.presenter.api.view;
 import org.lecturestudio.core.view.Action;
 import org.lecturestudio.core.view.View;
 import org.lecturestudio.web.api.message.MessengerMessage;
+import org.lecturestudio.web.api.message.SpeechRequestMessage;
 
 public interface MessengerWindow extends View {
 
-	void addMessage(MessengerMessage message);
+	void setMessengerMessage(MessengerMessage message);
+
+	void setSpeechRequestMessage(SpeechRequestMessage message);
 
 	void setTextSize(double size);
 

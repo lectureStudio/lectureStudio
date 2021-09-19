@@ -18,6 +18,8 @@
 
 package org.lecturestudio.presenter.api.presenter;
 
+import static java.util.Objects.requireNonNull;
+
 import com.google.common.eventbus.Subscribe;
 
 import javax.inject.Inject;
@@ -28,6 +30,7 @@ import org.lecturestudio.core.presenter.Presenter;
 import org.lecturestudio.core.view.ViewLayer;
 import org.lecturestudio.presenter.api.view.MessengerWindow;
 import org.lecturestudio.web.api.message.MessengerMessage;
+import org.lecturestudio.web.api.message.SpeechRequestMessage;
 
 public class MessengerWindowPresenter extends Presenter<MessengerWindow> {
 
@@ -75,7 +78,16 @@ public class MessengerWindowPresenter extends Presenter<MessengerWindow> {
 
 	@Subscribe
 	public void onEvent(MessengerMessage message) {
-		view.addMessage(message);
+		requireNonNull(message);
+
+		view.setMessengerMessage(message);
+	}
+
+	@Subscribe
+	public void onEvent(SpeechRequestMessage message) {
+		requireNonNull(message);
+
+		view.setSpeechRequestMessage(message);
 	}
 
 	public void closeWindow() {

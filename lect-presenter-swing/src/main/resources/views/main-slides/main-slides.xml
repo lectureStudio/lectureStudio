@@ -22,7 +22,7 @@
 				</Tab>
 				<Tab id="messageTab" name="message" text="slides.message" icon="messenger-indicator.svg, 20">
 					<ScrollPane>
-						<VBox id="messageViewContainer" gap="10" border="EmptyBorder(10,10,10,10)" />
+						<VBox id="messageViewContainer" border="EmptyBorder(10, 10, 10, 10)" />
 					</ScrollPane>
 				</Tab>
 			</TabbedPane>

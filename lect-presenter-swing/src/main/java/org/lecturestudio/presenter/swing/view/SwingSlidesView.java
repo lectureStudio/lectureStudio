@@ -383,15 +383,14 @@ public class SwingSlidesView extends JPanel implements SlidesView {
 
 	@Override
 	public void setMessengerMessage(MessengerMessage message) {
-		if (isNull(message)) {
-			return;
-		}
-
 		SwingUtils.invoke(() -> {
-			MessageView messageView = new MessageView();
+			MessageView messageView = new MessageView(this.dict);
 			messageView.setUserName(String.format("%s %s", message.getFirstName(), message.getFamilyName()));
 			messageView.setDate(message.getDate());
 			messageView.setMessage(message.getMessage().getText());
+			messageView.setOnDiscard(() -> {
+				removeMessageView(messageView);
+			});
 			messageView.pack();
 
 			messageViewContainer.add(messageView);
@@ -409,12 +408,12 @@ public class SwingSlidesView extends JPanel implements SlidesView {
 			requestView.setOnAccept(() -> {
 				acceptSpeechRequestAction.execute(message);
 
-				removeSpeechRequestView(requestView);
+				removeMessageView(requestView);
 			});
 			requestView.setOnReject(() -> {
 				rejectSpeechRequestAction.execute(message);
 
-				removeSpeechRequestView(requestView);
+				removeMessageView(requestView);
 			});
 			requestView.pack();
 
@@ -433,7 +432,7 @@ public class SwingSlidesView extends JPanel implements SlidesView {
 					if (view.getRequestId() == message.getRequestId()) {
 						view.setCanceled();
 
-						removeSpeechRequestView(view);
+						removeMessageView(view);
 						break;
 					}
 				}
@@ -781,11 +780,11 @@ public class SwingSlidesView extends JPanel implements SlidesView {
 		});
 	}
 
-	private void removeSpeechRequestView(SpeechRequestView view) {
+	private void removeMessageView(Component view) {
 		for (Component c : messageViewContainer.getComponents()) {
 			if (c == view) {
 				messageViewContainer.remove(view);
-				messageViewContainer.revalidate();
+				messageViewContainer.validate();
 				messageViewContainer.repaint();
 				break;
 			}

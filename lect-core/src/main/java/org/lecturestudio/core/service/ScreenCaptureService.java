@@ -23,27 +23,32 @@ import dev.onvoid.webrtc.media.video.desktop.*;
 import org.lecturestudio.core.app.ApplicationContext;
 import org.lecturestudio.core.bus.EventBus;
 import org.lecturestudio.core.bus.event.ScreenCaptureSourceEvent;
-import org.lecturestudio.core.screencapture.ScreenCaptureFormat;
 import org.lecturestudio.core.util.ImageUtils;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import java.awt.image.BufferedImage;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Timer;
+import java.util.TimerTask;
 
+/**
+ * This class provides methods to request screen capture frames as well as broadcasting events,
+ * if new {@link DesktopSource DesktopSources} are available.
+ *
+ * @author Maximilian Felix Ratzke
+ */
 @Singleton
 public class ScreenCaptureService {
 
     // Interval of the refresh timer to check for updates in the DesktopSources (in ms)
     private final static int SOURCE_REFRESH_INTERVAL = 3000;
 
-    private static final Map<Long, ScreenCapture> screenCaptures = new HashMap<>();
     private final EventBus eventBus;
 
     private final WindowCapturer windowCapturer = new WindowCapturer();
     private final ScreenCapturer screenCapturer = new ScreenCapturer();
-
-    private final List<ScreenCaptureCallback> listeners = new ArrayList<>();
 
     private List<DesktopSource> windowSources;
     private List<DesktopSource> screenSources;
@@ -61,64 +66,28 @@ public class ScreenCaptureService {
         setupSourceRefreshTimer();
     }
 
+    /**
+     * Returns a list of all available {@link DesktopSource DesktopSources} based on the given type.
+     *
+     * @param type The {@link DesktopSourceType} to get the sources for.
+     * @return A list of all available {@link DesktopSource DesktopSources}
+     */
     public List<DesktopSource> getDesktopSources(DesktopSourceType type) {
         return type == DesktopSourceType.WINDOW ? windowSources : screenSources;
     }
 
-    public void startCapture(DesktopSource source, DesktopSourceType type, ScreenCaptureFormat format) {
-        ScreenCapture capture = screenCaptures.getOrDefault(source.id, new ScreenCapture(source, type));
-        capture.startCapture(format);
-        screenCaptures.put(source.id, capture);
-    }
-
-    public void stopCapture(DesktopSource source) {
-        ScreenCapture capture = screenCaptures.getOrDefault(source.id, null);
-        if (capture != null) {
-            capture.stopCapture();
-        }
-    }
-
-    public void addScreenCaptureListener(ScreenCaptureCallback listener) {
-        if (!listeners.contains(listener)) {
-            listeners.add(listener);
-        }
-    }
-
-    public void removeScreenCaptureListener(ScreenCaptureCallback listener) {
-        listeners.remove(listener);
-    }
-
-    public void requestFrame(DesktopSource source, DesktopSourceType type) {
-        ScreenCapture capture = screenCaptures.getOrDefault(source.id, new ScreenCapture(source, type));
-        capture.requestFrame();
-        screenCaptures.put(source.id, capture);
-    }
-
+    /**
+     * Performs a frame request for a given {@link DesktopSource} and {@link DesktopSourceType}.
+     * The provided {@link ScreenCaptureCallback} will be called if the requested frame was captured.
+     *
+     * @param source The {@link DesktopSource} to capture the frame from.
+     * @param type The {@link DesktopSourceType} of the {@link DesktopSource}
+     * @param callback The {@link ScreenCaptureCallback} to notify about the capture.
+     */
     public void requestFrame(DesktopSource source, DesktopSourceType type, ScreenCaptureCallback callback) {
-        ScreenCapture capture = screenCaptures.getOrDefault(source.id, new ScreenCapture(source, type));
+        ScreenCapture capture = new ScreenCapture(source, type);
         capture.addListener(callback);
         capture.requestFrame();
-
-//        DesktopCapturer capturer = (type == DesktopSourceType.WINDOW) ? new WindowCapturer() : new ScreenCapturer();
-//        capturer.selectSource(source);
-//        capturer.start((result, frame) -> {
-//            if (result == DesktopCapturer.Result.SUCCESS) {
-//
-//                // Convert frame buffer to int array
-//                IntBuffer buffer = frame.buffer.asIntBuffer();
-//                int[] pixelBuffer = new int[buffer.remaining()];
-//                buffer.get(pixelBuffer);
-//
-//                // Create buffered image from pixels
-//                BufferedImage image; //  = PngEncoderBufferedImageConverter.createFromIntArgb(pixelBuffer, frame.frameSize.width, frame.frameSize.height);
-//
-//                image = ImageUtils.createBufferedImage(frame.frameSize.width, frame.frameSize.height, Color.red);
-//
-//                callback.onFrameCapture(source, image);
-//            }
-//        });
-//
-//        CompletableFuture.runAsync(capturer::captureFrame);
     }
 
     private void setupSourceRefreshTimer() {
@@ -143,31 +112,39 @@ public class ScreenCaptureService {
         }), 0, SOURCE_REFRESH_INTERVAL);
     }
 
-    private void notifyListeners(DesktopSource source, BufferedImage image) {
-        for (ScreenCaptureCallback listener : listeners) {
-            listener.onFrameCapture(source, image);
-        }
-    }
 
-
-
+    /**
+     * This interface is used to notify listeners about the progress of a screen capture.
+     */
     public interface ScreenCaptureCallback {
+
+        /**
+         * Provides the capture frame as well as the {@link DesktopSource} used for the capture.
+         * Needs to be implemented by listener.
+         *
+         * @param source The {@link DesktopSource} used for the capture.
+         * @param image The captured frame.
+         */
         void onFrameCapture(DesktopSource source, BufferedImage image);
     }
 
 
+    /**
+     * This class is used as a wrapper to simplify the handling of screen captures.
+     */
+    public static class ScreenCapture {
 
-    public class ScreenCapture {
+        private final List<ScreenCaptureCallback> listeners = new ArrayList<>();
 
         private final DesktopSource source;
         private final DesktopCapturer capturer;
 
-        private BufferedImage lastFrame;
-        private Timer timer;
-
-        private long lastFrameUpdate;
-        private boolean isCapturing;
-
+        /**
+         * Creates a new instance of a {@link ScreenCapture}.
+         *
+         * @param source The {@link DesktopSource} to be used for screen captures.
+         * @param type The {@link DesktopSourceType} of the {@link DesktopSource}.
+         */
         public ScreenCapture(DesktopSource source, DesktopSourceType type) {
             this.source = source;
 
@@ -180,42 +157,37 @@ public class ScreenCaptureService {
             initialize();
         }
 
+        /**
+         * Requests a new frame from the underlying {@link DesktopCapturer}.
+         */
         public void requestFrame() {
             capturer.captureFrame();
         }
 
-        public BufferedImage getLastFrame() {
-            return lastFrame;
-        }
-
-        public void startCapture(ScreenCaptureFormat format) {
-            if (!isCapturing) {
-                int frameDuration = 1000 / format.getFrameRate();
-                timer = new Timer();
-                timer.schedule(new TimerTask() {
-                    @Override
-                    public void run() {
-                        capturer.captureFrame();
-                    }
-                }, 0, frameDuration);
-                isCapturing = true;
-            }
-        }
-
-        public void stopCapture() {
-            if (isCapturing) {
-                timer.cancel();
-            }
-        }
-
+        /**
+         * Adds a {@link ScreenCaptureCallback} as listener to the {@link ScreenCapture}.
+         *
+         * @param listener The {@link ScreenCaptureCallback} used to notify about frame captures.
+         */
         public void addListener(ScreenCaptureCallback listener) {
             if (!listeners.contains(listener)) {
                 listeners.add(listener);
             }
         }
 
+        /**
+         * Removes an existing {@link ScreenCaptureCallback} from the {@link ScreenCapture}.
+         *
+         * @param listener The {@link ScreenCaptureCallback} to remove.
+         */
         public void removeListener(ScreenCaptureCallback listener) {
             listeners.remove(listener);
+        }
+
+        private void notifyListeners(DesktopSource source, BufferedImage image) {
+            for (ScreenCaptureCallback listener : listeners) {
+                listener.onFrameCapture(source, image);
+            }
         }
 
         private void initialize() {
@@ -224,9 +196,6 @@ public class ScreenCaptureService {
                 if (result == DesktopCapturer.Result.SUCCESS) {
                     BufferedImage image = ImageUtils.convertDesktopFrame(frame, frame.frameSize.width, frame.frameSize.height);
                     notifyListeners(source, image);
-
-                    lastFrame = image;
-                    lastFrameUpdate = System.currentTimeMillis();
                 }
             });
         }

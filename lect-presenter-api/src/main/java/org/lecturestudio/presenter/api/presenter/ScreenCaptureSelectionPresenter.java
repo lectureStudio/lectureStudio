@@ -35,6 +35,9 @@ import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * This class implements a {@link Presenter} for the {@link ScreenCaptureSourceSelectionView} and handles the selection of new screen capture sources.
+ */
 public class ScreenCaptureSelectionPresenter extends Presenter<ScreenCaptureSourceSelectionView> implements ScreenCaptureService.ScreenCaptureCallback {
 
     private final EventBus eventBus;
@@ -59,10 +62,6 @@ public class ScreenCaptureSelectionPresenter extends Presenter<ScreenCaptureSour
         view.setOnClose(this::close);
 
         eventBus.register(this);
-
-        // Make sure to register listener only once
-        screenCaptureService.removeScreenCaptureListener(this);
-        screenCaptureService.addScreenCaptureListener(this);
 
         updateDesktopSources(screenCaptureService.getDesktopSources(DesktopSourceType.WINDOW), DesktopSourceType.WINDOW);
         updateDesktopSources(screenCaptureService.getDesktopSources(DesktopSourceType.SCREEN), DesktopSourceType.SCREEN);
@@ -98,7 +97,7 @@ public class ScreenCaptureSelectionPresenter extends Presenter<ScreenCaptureSour
         // Add new sources to the view
         for (DesktopSource source : sourcesToAdd) {
             view.addDesktopSource(source, type);
-            screenCaptureService.requestFrame(source, type);
+            screenCaptureService.requestFrame(source, type, this);
         }
 
         // Find all sources which were closed since the last update

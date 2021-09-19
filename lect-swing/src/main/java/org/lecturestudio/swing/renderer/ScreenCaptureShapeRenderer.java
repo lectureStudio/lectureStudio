@@ -26,6 +26,11 @@ import java.awt.*;
 import java.awt.geom.AffineTransform;
 import java.awt.image.BufferedImage;
 
+/**
+ * This class is used to render a {@link ScreenCaptureShape} to a given graphics context.
+ *
+ * @author Maximilian Felix Ratzke
+ */
 public class ScreenCaptureShapeRenderer extends BaseRenderer {
 
     @Override

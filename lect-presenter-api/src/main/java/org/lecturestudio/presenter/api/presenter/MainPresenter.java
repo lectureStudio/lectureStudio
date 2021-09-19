@@ -338,7 +338,7 @@ public class MainPresenter extends org.lecturestudio.core.presenter.MainPresente
 		}
 		else if (state == ExecutableState.Stopped) {
 			PresenterContext presenterContext = (PresenterContext) context;
-			presenterContext.resetMessageCount();
+			presenterContext.getMessengerMessages().clear();
 
 //			destroyHandler(MessengerWindowPresenter.class);
 		}
@@ -368,8 +368,8 @@ public class MainPresenter extends org.lecturestudio.core.presenter.MainPresente
 		}
 		else if (state == ExecutableState.Stopped) {
 			PresenterContext presenterContext = (PresenterContext) context;
-			presenterContext.resetAttendeesCount();
-			presenterContext.resetSpeechRequestCount();
+//			presenterContext.resetAttendeesCount();
+			presenterContext.getSpeechRequests().clear();
 		}
 		else if (state == ExecutableState.Error) {
 			showError("stream.closed.by.remote.host.title", "stream.closed.by.remote.host");

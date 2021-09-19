@@ -30,12 +30,17 @@ import org.lecturestudio.core.beans.BooleanProperty;
 import org.lecturestudio.core.beans.IntegerProperty;
 import org.lecturestudio.core.bus.EventBus;
 import org.lecturestudio.core.model.Document;
+import org.lecturestudio.core.util.ListChangeListener;
+import org.lecturestudio.core.util.ObservableArrayList;
+import org.lecturestudio.core.util.ObservableList;
 import org.lecturestudio.presenter.api.config.PresenterConfigService;
 import org.lecturestudio.presenter.api.config.PresenterConfiguration;
 import org.lecturestudio.presenter.api.model.Bookmarks;
 import org.lecturestudio.presenter.api.service.BookmarkService;
 import org.lecturestudio.presenter.api.service.QuizDataSource;
 import org.lecturestudio.presenter.api.service.QuizService;
+import org.lecturestudio.web.api.message.MessengerMessage;
+import org.lecturestudio.web.api.message.SpeechRequestMessage;
 import org.lecturestudio.web.api.model.quiz.Quiz;
 
 public class PresenterContext extends ApplicationContext {
@@ -47,7 +52,11 @@ public class PresenterContext extends ApplicationContext {
 	public static final String RECORDING_CONTEXT = "Recording";
 	public static final String RECORDING_EXTENSION = "presenter";
 
+	private final ObservableList<MessengerMessage> messengerMessages = new ObservableArrayList<>();
+
 	private final IntegerProperty messageCount = new IntegerProperty();
+
+	private final ObservableList<SpeechRequestMessage> speechRequests = new ObservableArrayList<>();
 
 	private final IntegerProperty speechRequestCount = new IntegerProperty();
 
@@ -82,6 +91,22 @@ public class PresenterContext extends ApplicationContext {
 
 		this.configFile = configFile;
 		this.recordingDir = getDataLocator().toAppDataPath("recording");
+
+		messengerMessages.addListener(new ListChangeListener<>() {
+
+			@Override
+			public void listChanged(ObservableList<MessengerMessage> list) {
+				messageCount.set(list.size());
+			}
+		});
+
+		speechRequests.addListener(new ListChangeListener<>() {
+
+			@Override
+			public void listChanged(ObservableList<SpeechRequestMessage> list) {
+				speechRequestCount.set(list.size());
+			}
+		});
 	}
 
 	@Override
@@ -90,48 +115,20 @@ public class PresenterContext extends ApplicationContext {
 		configService.save(configFile, (PresenterConfiguration) getConfiguration());
 	}
 
-	public void increaseMessageCount() {
-		messageCount.set(messageCount.get() + 1);
+	public List<MessengerMessage> getMessengerMessages() {
+		return messengerMessages;
 	}
 
-	public void decreaseMessageCount() {
-		messageCount.set(messageCount.get() - 1);
-	}
-
-	public void resetMessageCount() {
-		messageCount.set(0);
+	public List<SpeechRequestMessage> getSpeechRequests() {
+		return speechRequests;
 	}
 
 	public IntegerProperty messageCountProperty() {
 		return messageCount;
 	}
 
-	public void increaseSpeechRequestCount() {
-		speechRequestCount.set(speechRequestCount.get() + 1);
-	}
-
-	public void decreaseSpeechRequestCount() {
-		speechRequestCount.set(speechRequestCount.get() - 1);
-	}
-
-	public void resetSpeechRequestCount() {
-		speechRequestCount.set(0);
-	}
-
 	public IntegerProperty speechRequestCountProperty() {
 		return speechRequestCount;
-	}
-
-	public void increaseAttendeesCount() {
-		attendeesCount.set(attendeesCount.get() + 1);
-	}
-
-	public void decreaseAttendeesCount() {
-		attendeesCount.set(attendeesCount.get() - 1);
-	}
-
-	public void resetAttendeesCount() {
-		attendeesCount.set(0);
 	}
 
 	public IntegerProperty attendeesCountProperty() {

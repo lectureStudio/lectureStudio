@@ -28,6 +28,7 @@ import java.net.SocketException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
 
 import javax.inject.Inject;
@@ -245,7 +246,7 @@ public class SlidesPresenter extends Presenter<SlidesView> {
 		requireNonNull(message);
 
 		PresenterContext presenterContext = (PresenterContext) context;
-		presenterContext.increaseMessageCount();
+		presenterContext.getMessengerMessages().add(message);
 
 		view.setMessengerMessage(message);
 	}
@@ -255,7 +256,7 @@ public class SlidesPresenter extends Presenter<SlidesView> {
 		requireNonNull(message);
 
 		PresenterContext presenterContext = (PresenterContext) context;
-		presenterContext.increaseSpeechRequestCount();
+		presenterContext.getSpeechRequests().add(message);
 
 		view.setSpeechRequestMessage(message);
 	}
@@ -265,7 +266,8 @@ public class SlidesPresenter extends Presenter<SlidesView> {
 		requireNonNull(message);
 
 		PresenterContext presenterContext = (PresenterContext) context;
-		presenterContext.decreaseSpeechRequestCount();
+		presenterContext.getSpeechRequests().removeIf(m -> Objects.equals(
+				m.getRequestId(), message.getRequestId()));
 
 		view.setSpeechCancelMessage(message);
 	}
@@ -302,7 +304,7 @@ public class SlidesPresenter extends Presenter<SlidesView> {
 		eventBus.post(acceptMessage);
 
 		PresenterContext presenterContext = (PresenterContext) context;
-		presenterContext.decreaseSpeechRequestCount();
+		presenterContext.getSpeechRequests().remove(message);
 	}
 
 	private void onRejectSpeech(SpeechRequestMessage message) {
@@ -314,12 +316,12 @@ public class SlidesPresenter extends Presenter<SlidesView> {
 		eventBus.post(rejectMessage);
 
 		PresenterContext presenterContext = (PresenterContext) context;
-		presenterContext.decreaseSpeechRequestCount();
+		presenterContext.getSpeechRequests().remove(message);
 	}
 
 	private void onDiscardMessage(MessengerMessage message) {
 		PresenterContext presenterContext = (PresenterContext) context;
-		presenterContext.decreaseMessageCount();
+		presenterContext.getMessengerMessages().remove(message);
 	}
 
 	private void toolChanged(ToolType toolType) {

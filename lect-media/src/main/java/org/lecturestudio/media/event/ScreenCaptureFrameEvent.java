@@ -20,6 +20,11 @@ package org.lecturestudio.media.event;
 
 import java.awt.image.BufferedImage;
 
+/**
+ * This event notifies about a new screen capture frame.
+ *
+ * @author Maximilian Felix Ratzke
+ */
 public class ScreenCaptureFrameEvent {
 
     private final BufferedImage frame;

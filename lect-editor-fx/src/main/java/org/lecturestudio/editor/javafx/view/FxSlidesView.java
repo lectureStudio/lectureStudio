@@ -70,8 +70,6 @@ public class FxSlidesView extends VBox implements SlidesView {
 
 	private ConsumerAction<Matrix> viewTransformAction;
 
-	private ConsumerAction<BufferedImage> screenCaptureSequenceAction;
-
 	private RenderController pageRenderer;
 
 	@FXML

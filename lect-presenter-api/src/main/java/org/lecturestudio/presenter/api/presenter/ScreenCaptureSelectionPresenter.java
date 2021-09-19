@@ -37,6 +37,8 @@ import java.util.List;
 
 /**
  * This class implements a {@link Presenter} for the {@link ScreenCaptureSourceSelectionView} and handles the selection of new screen capture sources.
+ *
+ * @author Maximilian Felix Ratzke
  */
 public class ScreenCaptureSelectionPresenter extends Presenter<ScreenCaptureSourceSelectionView> implements ScreenCaptureService.ScreenCaptureCallback {
 

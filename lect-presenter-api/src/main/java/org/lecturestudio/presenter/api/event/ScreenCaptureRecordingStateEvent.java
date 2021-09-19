@@ -21,6 +21,11 @@ package org.lecturestudio.presenter.api.event;
 import org.lecturestudio.core.ExecutableState;
 import org.lecturestudio.core.bus.event.ExecutableEvent;
 
+/**
+ * This event notifies about the current {@link ExecutableState} of the screen capture recording.
+ *
+ * @author Maximilian Felix Ratzke
+ */
 public class ScreenCaptureRecordingStateEvent extends ExecutableEvent {
 
     public ScreenCaptureRecordingStateEvent(ExecutableState state) {

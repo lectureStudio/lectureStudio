@@ -32,6 +32,8 @@ import java.awt.image.BufferedImage;
 
 /**
  * This class handles the playback of a {@link ScreenCaptureData} instance.
+ *
+ * @author Maximilian Felix Ratzke
  */
 public class ScreenCapturePlayer extends ExecutableBase {
 
@@ -50,6 +52,9 @@ public class ScreenCapturePlayer extends ExecutableBase {
         this.syncState = syncState;
     }
 
+    /**
+     * Returns the current time in the recording playback.
+     */
     public long getElapsedTime() {
         return syncState.getAudioTime();
     }
@@ -58,6 +63,12 @@ public class ScreenCapturePlayer extends ExecutableBase {
         this.data = data;
     }
 
+    /**
+     * Searches for screen capture frames at a given timestamp.
+     * Will post {@link ScreenCaptureFrameEvent} or {@link ScreenCaptureSequenceEndEvent} instances if needed.
+     *
+     * @param seekTime The timestamp to seek for.
+     */
     public void seek(long seekTime) {
         if (data == null)
             return;
@@ -86,9 +97,7 @@ public class ScreenCapturePlayer extends ExecutableBase {
     }
 
     @Override
-    protected void initInternal() throws ExecutableException {
-
-    }
+    protected void initInternal() throws ExecutableException {}
 
     @Override
     protected void startInternal() throws ExecutableException {
@@ -112,6 +121,11 @@ public class ScreenCapturePlayer extends ExecutableBase {
     @Override
     protected void destroyInternal() throws ExecutableException {}
 
+
+
+    /**
+     * This runnable is used to periodically search for screen capture frames based on the elapsed time.
+     */
     private class ScreenCaptureReaderTask implements Runnable {
 
         @Override

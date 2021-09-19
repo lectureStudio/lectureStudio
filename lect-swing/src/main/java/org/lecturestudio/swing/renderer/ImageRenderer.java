@@ -24,7 +24,7 @@ import org.lecturestudio.core.model.shape.Shape;
 import java.awt.*;
 
 /**
- * Renderer for ImageShape instances.
+ * Renderer for {@link ImageShape} instances.
  *
  * @author Maximilian Felix Ratzke
  */

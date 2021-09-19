@@ -23,6 +23,11 @@ import org.lecturestudio.core.screencapture.ScreenCaptureFormat;
 import javax.swing.*;
 import java.awt.*;
 
+/**
+ * This class is used to render the {@link ScreenCaptureFormat} in the settings page.
+ *
+ * @author Maximilian Felix Ratzke
+ */
 public class ScreenCaptureFormatRenderer extends DefaultListCellRenderer {
 
     @Override

@@ -20,6 +20,11 @@ package org.lecturestudio.media.event;
 
 import org.lecturestudio.core.screencapture.ScreenCaptureSequence;
 
+/**
+ * This event notifies about the end of a {@link ScreenCaptureSequence}.
+ *
+ * @author Maximilian Felix Ratzke
+ */
 public class ScreenCaptureSequenceEndEvent {
 
     private final ScreenCaptureSequence sequence;

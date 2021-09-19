@@ -21,6 +21,11 @@ package org.lecturestudio.media.track;
 import org.lecturestudio.core.recording.RecordingChangeEvent;
 import org.lecturestudio.core.screencapture.ScreenCaptureData;
 
+/**
+ * This class implements a media track for a {@link ScreenCaptureData} instance.
+ *
+ * @author Maximilian Felix Ratzke
+ */
 public class ScreenCaptureTrack extends MediaTrackBase<ScreenCaptureData> {
 
     private ScreenCaptureData screenCaptureData;

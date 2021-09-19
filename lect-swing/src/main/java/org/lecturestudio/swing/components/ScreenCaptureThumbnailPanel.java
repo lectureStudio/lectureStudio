@@ -26,6 +26,11 @@ import org.lecturestudio.swing.util.SwingUtils;
 import javax.swing.*;
 import java.awt.*;
 
+/**
+ * This class is used to visualize the screen capture previews in the slides view.
+ *
+ * @author Maximilian Felix Ratzke
+ */
 public class ScreenCaptureThumbnailPanel extends EditableThumbnailPanel {
 
     private final RecordButton startRecordingButton;
@@ -58,19 +63,34 @@ public class ScreenCaptureThumbnailPanel extends EditableThumbnailPanel {
         container.add(stopRecordingButton);
     }
 
+    /**
+     * Sets action to be performed when the recording starts.
+     */
     public void setOnStartRecording(Action action) {
         SwingUtils.bindAction(startRecordingButton, action);
     }
 
+    /**
+     * Sets action to be performed when the recording stops.
+     */
     public void setOnStopRecording(Action action) {
         SwingUtils.bindAction(stopRecordingButton, action);
     }
 
+    /**
+     * Enables the buttons to start and stop screen capture recordings.
+     *
+     * @param canRecord Flag whether a screen capture recording can be started.
+     */
     public void enableScreenCapture(boolean canRecord) {
         startRecordingButton.setEnabled(canRecord);
         stopRecordingButton.setEnabled(canRecord && screenCaptureStarted);
     }
 
+    /**
+     * Sets the {@link ExecutableState} of the recording.
+     * @param state The {@link ExecutableState} of the recording.
+     */
     public void setRecordingState(ExecutableState state) {
         screenCaptureStarted = state == ExecutableState.Started || state == ExecutableState.Suspended;
 

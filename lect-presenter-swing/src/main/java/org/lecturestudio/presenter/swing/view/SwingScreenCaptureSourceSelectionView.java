@@ -43,6 +43,11 @@ import java.util.Map;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.atomic.AtomicBoolean;
 
+/**
+ * This class implements the {@link ScreenCaptureSourceSelectionView} for Java Swing.
+ *
+ * @author Maximilian Felix Ratzke
+ */
 @SwingView(name = "screen-capture-selection")
 public class SwingScreenCaptureSourceSelectionView extends JPanel implements ScreenCaptureSourceSelectionView {
 

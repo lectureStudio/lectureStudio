@@ -34,6 +34,11 @@ import org.lecturestudio.media.track.ScreenCaptureTrack;
 
 import java.util.List;
 
+/**
+ * This class is used to visualize {@link org.lecturestudio.core.screencapture.ScreenCaptureSequence ScreenCaptureSequences} in the media track view.
+ *
+ * @author Maximilian Felix Ratzke
+ */
 public class ScreenCaptureTimeline extends MediaTrackControlBase<ScreenCaptureTrack> {
 
     private final static String DEFAULT_STYLE_CLASS = "screen-capture-timeline";

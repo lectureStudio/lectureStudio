@@ -37,6 +37,11 @@ import java.util.TimerTask;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.logging.Logger;
 
+/**
+ * This class handles the recording of screen capture data.
+ *
+ * @author Maximilian Felix Ratzke
+ */
 public class ScreenCaptureRecorder extends LectureRecorder {
 
     private final static Logger LOG = Logger.getLogger(ScreenCaptureRecorder.class.getName());
@@ -161,6 +166,10 @@ public class ScreenCaptureRecorder extends LectureRecorder {
         return 0;
     }
 
+    /**
+     * Sets the offset which is introduced due to the manual start of the screen capture recording during the overall recording.
+     * @param timeOffset The difference between overall startTime and the start of the screen capture recording.
+     */
     public void setTimeOffset(long timeOffset) {
         this.timeOffset = timeOffset;
     }
@@ -169,6 +178,9 @@ public class ScreenCaptureRecorder extends LectureRecorder {
         return timeOffset;
     }
 
+    /**
+     * Sets the {@link ScreenCaptureFormat} for the next recording. Can only be applied if the recording is not already running.
+     */
     public void setScreenCaptureFormat(ScreenCaptureFormat format) {
         if (started() || suspended()) {
             throw new RuntimeException("Cannot update screen capture format, recording already started.");
@@ -176,6 +188,10 @@ public class ScreenCaptureRecorder extends LectureRecorder {
         this.format = format;
     }
 
+    /**
+     * Sets the {@link DesktopSource} and {@link DesktopSourceType} used to capture frames.
+     * Will create a new internal {@link DesktopCapturer} and performs a source switch.
+     */
     public void setActiveSource(DesktopSource source, DesktopSourceType type) {
         if (source != null) {
             // Initialize desktop capturer
@@ -352,7 +368,7 @@ public class ScreenCaptureRecorder extends LectureRecorder {
         private void processSourceSwitch(DesktopSource source) {
             try {
                 writer.setDesktopSource(source);
-                System.out.println("Screen Capture Switch Source To: " + source.title);
+//                System.out.println("Screen Capture Switch Source To: " + source.title);
             } catch (IOException e) {
                 e.printStackTrace();
             }

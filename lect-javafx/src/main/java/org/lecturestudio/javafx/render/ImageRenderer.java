@@ -25,6 +25,11 @@ import org.lecturestudio.core.model.shape.ImageShape;
 import org.lecturestudio.core.model.shape.Shape;
 import org.lecturestudio.core.render.Renderer;
 
+/**
+ * This class implements a renderer for {@link ImageShape} instances.
+ *
+ * @author Maximilian Felix Ratzke
+ */
 public class ImageRenderer implements Renderer<GraphicsContext> {
 
     @Override
@@ -36,9 +41,6 @@ public class ImageRenderer implements Renderer<GraphicsContext> {
     public void render(Shape shape, GraphicsContext context) throws Exception {
         ImageShape imageShape = (ImageShape) shape;
         Image image = SwingFXUtils.toFXImage(imageShape.getImage(), null);
-
-        System.out.println("Render FX Image");
-
         context.drawImage(image, 0, 0);
     }
 }

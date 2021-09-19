@@ -25,18 +25,58 @@ import org.lecturestudio.core.view.View;
 
 import java.awt.image.BufferedImage;
 
+/**
+ * This interface defines required methods used for the selection view of screen capture sources.
+ *
+ * @author Maximilian Felix Ratzke
+ */
 public interface ScreenCaptureSourceSelectionView extends View {
 
+    /**
+     * Adds a new {@link DesktopSource} to the view.
+     *
+     * @param source The {@link DesktopSource} to add.
+     * @param type The {@link DesktopSourceType} of the source.
+     */
     void addDesktopSource(DesktopSource source, DesktopSourceType type);
+
+    /**
+     * Removes an existing {@link DesktopSource} from the view.
+     *
+     * @param source The {@link DesktopSource} to add.
+     * @param type The {@link DesktopSourceType} of the source.
+     */
     void removeDesktopSource(DesktopSource source, DesktopSourceType type);
+
+    /**
+     * Updates the preview image of a {@link DesktopSource} in the view.
+     *
+     * @param source The {@link DesktopSource} to update the preview image for.
+     * @param image The new preview image.
+     */
     void updateSourcePreviewImage(DesktopSource source, BufferedImage image);
 
+    /**
+     * Returns the currently selected source.
+     */
     SelectedDesktopSource getSelectedDesktopSource();
 
+    /**
+     * Sets the action which should be performed when the OK button is pressed.
+     * @param action The {@link Action} to perform.
+     */
     void setOnOk(Action action);
+
+    /**
+     * Sets the action which should be performed when the Close button is pressed.
+     * @param action The {@link Action} to perform.
+     */
     void setOnClose(Action action);
 
 
+    /**
+     * This interface provides required methods to represent a selected desktop source.
+     */
     interface SelectedDesktopSource {
 
         DesktopSource getSource();

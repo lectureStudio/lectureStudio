@@ -18,6 +18,7 @@
 
 package org.lecturestudio.swing.renderer;
 
+import org.lecturestudio.core.geometry.Rectangle2D;
 import org.lecturestudio.core.model.shape.ScreenCaptureShape;
 import org.lecturestudio.core.model.shape.Shape;
 
@@ -37,36 +38,34 @@ public class ScreenCaptureShapeRenderer extends BaseRenderer {
         ScreenCaptureShape screenCaptureShape = (ScreenCaptureShape) shape;
         BufferedImage frame = screenCaptureShape.getFrame();
 
-        AffineTransform canvasTransform = context.getTransform();
-        int canvasWidth = (int) canvasTransform.getScaleX();
-        int canvasHeight = (int) canvasTransform.getScaleY();
+        Rectangle2D pageRect = shape.getBounds();
+        double pageRatio = pageRect.getWidth() / pageRect.getHeight();
 
-        double scaleX = canvasWidth / (float) frame.getWidth();
-        double scaleY = canvasHeight / (float) frame.getHeight();
+        // Store current transform
+        AffineTransform canvasTransform = context.getTransform();
+
+        double width = canvasTransform.getScaleX();
+        double height = width / pageRatio;
+
+        double scaleX = width / frame.getWidth();
+        double scaleY = height / frame.getHeight();
 
         // Make sure to scale with same ratio
         double scale = Math.min(scaleX, scaleY);
 
+        int offsetX = (scaleX > scale) ? (int) ((width - frame.getWidth() * scale) / 2f) : 0;
+        int offsetY = (scaleY > scale) ? (int) ((height - frame.getHeight() * scale) / 2f) : 0;
+
+        // Draw background color
+        context.setColor(Color.BLACK);
+        context.fillRect(0, 0, (int) width, (int) height);
+
         AffineTransform transform = new AffineTransform();
         transform.scale(scale, scale);
 
-        int offsetX = 0;
-        int offsetY = 0;
-
-        if (scaleX != scale) {
-            offsetX = (int) ((canvasWidth - frame.getWidth() * scale) / 2f);
-        }
-
-        if (scaleY != scale) {
-            offsetY = (int) ((canvasHeight - frame.getHeight() * scale) / 2f);
-        }
-
-        context.setColor(Color.BLACK);
-        context.fillRect(0, 0, canvasWidth, canvasHeight);
-
         // Set transform to scale frame
         context.setTransform(transform);
-        context.drawImage(frame, offsetX, offsetY, null);
+        context.drawImage(frame, (int) (offsetX / scale), (int) (offsetY / scale), null);
 
         // Reset transform
         context.setTransform(canvasTransform);

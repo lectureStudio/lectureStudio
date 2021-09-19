@@ -447,7 +447,7 @@ public class DocumentService {
 	}
 
 	private Document createScreenCapture(DesktopSource source, DesktopSourceType type, BufferedImage frame) throws IOException {
-
+		Document prevDoc = getDocuments().getSelectedDocument();
 		Document screenCapture = new Document();
 
 		String sourceTitle = source.title != null ? source.title : "";
@@ -459,7 +459,18 @@ public class DocumentService {
 		screenCapture.setTitle(sourceTitle);
 		screenCapture.setDocumentType(DocumentType.SCREEN_CAPTURE);
 
+		// Set page size if previous document exists
+		if (nonNull(prevDoc)) {
+			Rectangle2D pageRect = prevDoc.getPage(0).getPageRect();
+			screenCapture.setPageSize(new Dimension2D(
+					pageRect.getWidth(),
+					pageRect.getHeight()
+			));
+		}
+
 		Page page = screenCapture.createPage(frame);
+
+		// Add shape to store information about DesktopSource and DesktopSourceType
 		ScreenCaptureShape shape = new ScreenCaptureShape(source, type, frame, page.getPageRect());
 		page.addShape(shape);
 

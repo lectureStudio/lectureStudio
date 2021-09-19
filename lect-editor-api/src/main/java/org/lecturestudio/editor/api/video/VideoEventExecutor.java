@@ -202,14 +202,10 @@ public class VideoEventExecutor extends EventExecutor {
 			if (state == ExecutableState.Starting || state == ExecutableState.Started) {
 				long time = getElapsedTime();
 
-				// TODO: Add events for screen capture frames
-
 				ScreenCaptureSequence sequence = screenCaptureData.seekSequence(time);
 				if (sequence != null) {
 					BufferedImage frame = sequence.seekFrame(time);
 					if (frame != null) {
-						System.out.println("Frame to export found for time: " + time);
-
 						renderView.setScreenCaptureFrame(frame);
 						renderFrame(time);
 

@@ -18,90 +18,50 @@
 
 package org.lecturestudio.swing.components;
 
-import static java.util.Objects.isNull;
-
 import java.awt.BorderLayout;
-import java.awt.Color;
-import java.awt.Dimension;
-import java.awt.GridBagConstraints;
-import java.awt.GridBagLayout;
-import java.time.ZoneId;
-import java.time.ZonedDateTime;
-import java.time.format.DateTimeFormatter;
 
 import javax.swing.BorderFactory;
-import javax.swing.JLabel;
+import javax.swing.Box;
+import javax.swing.JButton;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 
-import org.lecturestudio.swing.border.RoundedBorder;
+import org.lecturestudio.core.app.dictionary.Dictionary;
+import org.lecturestudio.core.view.Action;
+import org.lecturestudio.swing.util.SwingUtils;
 
-public class MessageView extends JPanel {
+public class MessageView extends MessagePanel {
 
-	private JLabel fromLabel;
-
-	private JLabel timeLabel;
+	private JButton discardButton;
 
 	private JTextArea textArea;
 
 
-	public MessageView() {
-		super();
-
-		initialize();
-	}
-
-	public void setDate(ZonedDateTime date) {
-		if (isNull(date)) {
-			return;
-		}
-
-		ZonedDateTime dateUTC = date.withZoneSameInstant(ZoneId.systemDefault());
-		String formattedDate = dateUTC.format(DateTimeFormatter.ofPattern("H:mm"));
-
-		timeLabel.setText(formattedDate);
-	}
-
-	public void setUserName(String host) {
-		fromLabel.setText(host);
+	public MessageView(Dictionary dict) {
+		super(dict);
 	}
 
 	public void setMessage(String message) {
 		textArea.setText(message);
 	}
 
-	public void pack() {
-		setPreferredSize(new Dimension(getPreferredSize().width, getPreferredSize().height));
-		setMaximumSize(new Dimension(getMaximumSize().width, getPreferredSize().height));
-		setMinimumSize(new Dimension(200, getPreferredSize().height));
+	public void setOnDiscard(Action action) {
+		SwingUtils.bindAction(discardButton, action);
 	}
 
-	private void initialize() {
-		setLayout(new BorderLayout(1, 1));
-		setBackground(Color.WHITE);
-		setBorder(new RoundedBorder(Color.LIGHT_GRAY, 5));
+	@Override
+	protected void createContent(JPanel content) {
+		discardButton = new JButton(dict.get("button.discard"));
 
-		GridBagConstraints constraints = new GridBagConstraints();
-		constraints.anchor = GridBagConstraints.WEST;
-		constraints.gridx = 0;
-		constraints.weightx = 1.D;
-
-		fromLabel = new JLabel();
-
-		JPanel controlPanel = new JPanel(new GridBagLayout());
+		Box controlPanel = Box.createHorizontalBox();
 		controlPanel.setBorder(BorderFactory.createEmptyBorder(2, 5, 2, 5));
 		controlPanel.setOpaque(false);
-		controlPanel.add(fromLabel, constraints);
-
-		constraints.anchor = GridBagConstraints.EAST;
-		constraints.weightx = 1.D;
-		constraints.gridx = 1;
-
-		timeLabel = new JLabel();
-		timeLabel.setForeground(Color.BLUE);
-
-		controlPanel.add(timeLabel, constraints);
+		controlPanel.add(fromLabel);
+		controlPanel.add(Box.createHorizontalGlue());
+		controlPanel.add(discardButton);
+		controlPanel.add(Box.createHorizontalStrut(10));
+		controlPanel.add(timeLabel);
 
 		textArea = new JTextArea();
 		textArea.setOpaque(false);
@@ -115,7 +75,7 @@ public class MessageView extends JPanel {
 		scrollPane.setOpaque(false);
 		scrollPane.getViewport().setOpaque(false);
 
-		add(controlPanel, BorderLayout.NORTH);
-		add(scrollPane, BorderLayout.CENTER);
+		content.add(controlPanel, BorderLayout.NORTH);
+		content.add(scrollPane, BorderLayout.CENTER);
 	}
 }

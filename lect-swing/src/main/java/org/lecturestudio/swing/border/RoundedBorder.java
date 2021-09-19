@@ -24,6 +24,7 @@ import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Insets;
 import java.awt.RenderingHints;
+import java.awt.Shape;
 import java.awt.geom.RoundRectangle2D;
 
 import javax.swing.border.AbstractBorder;
@@ -65,5 +66,10 @@ public class RoundedBorder extends AbstractBorder {
 	@Override
 	public boolean isBorderOpaque() {
 		return true;
+	}
+
+	public Shape getBorderShape(double width, double height) {
+		return new RoundRectangle2D.Double(0.5, 0.5, width - 1.5, height - 1.5,
+				radius, radius);
 	}
 }

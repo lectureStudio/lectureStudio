@@ -18,40 +18,23 @@
 
 package org.lecturestudio.swing.components;
 
-import static java.util.Objects.isNull;
-
 import java.awt.BorderLayout;
 import java.awt.Color;
-import java.awt.Dimension;
-import java.awt.GridBagConstraints;
-import java.awt.GridBagLayout;
-import java.text.MessageFormat;
-import java.time.ZoneId;
-import java.time.ZonedDateTime;
-import java.time.format.DateTimeFormatter;
 
 import javax.swing.BorderFactory;
 import javax.swing.Box;
-import javax.swing.BoxLayout;
 import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 
 import org.lecturestudio.core.app.dictionary.Dictionary;
 import org.lecturestudio.core.view.Action;
-import org.lecturestudio.swing.border.RoundedBorder;
 
-public class SpeechRequestView extends JPanel {
-
-	private final Dictionary dict;
+public class SpeechRequestView extends MessagePanel {
 
 	private long requestId;
 
-	private JPanel actionPane;
-
-	private JLabel fromLabel;
-
-	private JLabel timeLabel;
+	private JLabel stateLabel;
 
 	private JButton acceptButton;
 
@@ -59,11 +42,7 @@ public class SpeechRequestView extends JPanel {
 
 
 	public SpeechRequestView(Dictionary dict) {
-		super();
-
-		this.dict = dict;
-
-		initialize();
+		super(dict);
 	}
 
 	public void setOnAccept(Action action) {
@@ -83,15 +62,15 @@ public class SpeechRequestView extends JPanel {
 	}
 
 	private void setAccepted() {
-		setStatus(dict.get("speech.accepted"));
+		setState(dict.get("speech.accepted"));
 	}
 
 	public void setCanceled() {
-		setStatus(dict.get("speech.canceled"));
+		setState(dict.get("speech.canceled"));
 	}
 
 	private void setRejected() {
-		setStatus(dict.get("speech.rejected"));
+		setState(dict.get("speech.rejected"));
 	}
 
 	public long getRequestId() {
@@ -102,57 +81,11 @@ public class SpeechRequestView extends JPanel {
 		requestId = id;
 	}
 
-	public void setDate(ZonedDateTime date) {
-		if (isNull(date)) {
-			return;
-		}
-
-		ZonedDateTime dateUTC = date.withZoneSameInstant(ZoneId.systemDefault());
-		String formattedDate = dateUTC.format(DateTimeFormatter.ofPattern("H:mm"));
-
-		timeLabel.setText(formattedDate);
-	}
-
-	public void setUserName(String user) {
-		fromLabel.setText(MessageFormat.format(dict.get("speech.from"), user));
-	}
-
-	public void pack() {
-		setPreferredSize(new Dimension(getPreferredSize().width, getPreferredSize().height));
-		setMaximumSize(new Dimension(getMaximumSize().width, getPreferredSize().height));
-		setMinimumSize(new Dimension(200, getPreferredSize().height));
-	}
-
-	private void initialize() {
-		setLayout(new BorderLayout(1, 1));
-		setBackground(Color.WHITE);
-		setBorder(new RoundedBorder(Color.LIGHT_GRAY, 5));
-
-		GridBagConstraints constraints = new GridBagConstraints();
-		constraints.anchor = GridBagConstraints.WEST;
-		constraints.gridx = 0;
-		constraints.weightx = 1.D;
-
-		fromLabel = new JLabel();
-
-		JPanel controlPanel = new JPanel(new GridBagLayout());
-		controlPanel.setBorder(BorderFactory.createEmptyBorder(2, 5, 2, 5));
-		controlPanel.setOpaque(false);
-		controlPanel.add(fromLabel, constraints);
-
-		constraints.anchor = GridBagConstraints.EAST;
-		constraints.weightx = 1.D;
-		constraints.gridx = 1;
-
-		timeLabel = new JLabel();
-		timeLabel.setForeground(Color.BLUE);
-
-		controlPanel.add(timeLabel, constraints);
-
-		actionPane = new JPanel();
-		actionPane.setBorder(BorderFactory.createEmptyBorder(3, 5, 3, 5));
-		actionPane.setLayout(new BoxLayout(actionPane, BoxLayout.LINE_AXIS));
-		actionPane.setOpaque(false);
+	@Override
+	protected void createContent(JPanel content) {
+		stateLabel = new JLabel();
+		stateLabel.setBorder(BorderFactory.createEmptyBorder(0, 10, 0, 10));
+		stateLabel.setText(dict.get("speech.requested"));
 
 		acceptButton = new JButton(dict.get("speech.accept"));
 		acceptButton.setBackground(Color.decode("#D1FAE5"));
@@ -160,21 +93,23 @@ public class SpeechRequestView extends JPanel {
 		rejectButton = new JButton(dict.get("speech.reject"));
 		rejectButton.setBackground(Color.decode("#FEE2E2"));
 
-		actionPane.add(rejectButton);
-		actionPane.add(Box.createHorizontalStrut(10));
-		actionPane.add(acceptButton);
+		Box controlPanel = Box.createHorizontalBox();
+		controlPanel.setBorder(BorderFactory.createEmptyBorder(2, 5, 2, 5));
+		controlPanel.setOpaque(false);
+		controlPanel.add(fromLabel);
+		controlPanel.add(Box.createHorizontalGlue());
+		controlPanel.add(rejectButton);
+		controlPanel.add(Box.createHorizontalStrut(5));
+		controlPanel.add(acceptButton);
+		controlPanel.add(Box.createHorizontalStrut(10));
+		controlPanel.add(timeLabel);
 
-		add(controlPanel, BorderLayout.NORTH);
-		add(actionPane, BorderLayout.CENTER);
+		content.add(controlPanel, BorderLayout.NORTH);
+		content.add(stateLabel, BorderLayout.CENTER);
 	}
 
-	private void setStatus(String status) {
-		JLabel statusLabel = new JLabel(status);
-		statusLabel.setForeground(Color.BLUE);
-
-		actionPane.removeAll();
-		actionPane.revalidate();
-		actionPane.repaint();
-		actionPane.add(statusLabel);
+	private void setState(String state) {
+		stateLabel.setForeground(Color.BLUE);
+		stateLabel.setText(state);
 	}
 }

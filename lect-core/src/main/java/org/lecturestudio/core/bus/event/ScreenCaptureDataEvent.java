@@ -20,6 +20,11 @@ package org.lecturestudio.core.bus.event;
 
 import org.lecturestudio.core.screencapture.ScreenCaptureData;
 
+/**
+ * This event notifies about an update in the {@link ScreenCaptureData}.
+ *
+ * @author Maximilian Felix Ratzke
+ */
 public class ScreenCaptureDataEvent {
 
     private final ScreenCaptureData data;

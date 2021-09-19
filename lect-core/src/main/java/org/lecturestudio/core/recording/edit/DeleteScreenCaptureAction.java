@@ -23,6 +23,11 @@ import org.lecturestudio.core.recording.RecordedScreenCapture;
 import org.lecturestudio.core.recording.RecordingEditException;
 import org.lecturestudio.core.screencapture.ScreenCaptureData;
 
+/**
+ * This class provides methods to apply and undo a delete action on a screen capture recording.
+ *
+ * @author Maximilian Felix Ratzke
+ */
 public class DeleteScreenCaptureAction extends RecordedObjectAction<RecordedScreenCapture> {
 
     private final Interval<Integer> cutInterval;

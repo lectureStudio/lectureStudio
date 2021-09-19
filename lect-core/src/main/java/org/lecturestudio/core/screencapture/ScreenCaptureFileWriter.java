@@ -30,6 +30,11 @@ import java.nio.channels.SeekableByteChannel;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.StandardOpenOption;
 
+/**
+ * This class is used to write screen capture recordings to temporary files.
+ *
+ * @author Maximilian Felix Ratzke
+ */
 public class ScreenCaptureFileWriter {
 
     /** Header marker 'FORM' represented as integer value. */
@@ -55,6 +60,14 @@ public class ScreenCaptureFileWriter {
     private long latestFrameTimestamp = 0;
     private long totalBytesWritten = 0;
 
+    /**
+     * Creates a new {@link ScreenCaptureFileWriter} instance.
+     *
+     * @param detailsFile The file which should be used to write the metadata
+     * @param framesFile The file which should be used to write the frame data
+     *
+     * @throws IOException Thrown if one of the provided files could not be opened.
+     */
     public ScreenCaptureFileWriter(File detailsFile, File framesFile) throws IOException {
         this.detailsChannel = FileChannel.open(detailsFile.toPath(), StandardOpenOption.APPEND, StandardOpenOption.CREATE);
         this.framesChannel = FileChannel.open(framesFile.toPath(), StandardOpenOption.APPEND, StandardOpenOption.CREATE);
@@ -62,6 +75,13 @@ public class ScreenCaptureFileWriter {
         encoder = new PngEncoder();
     }
 
+    /**
+     * Sets the {@link ScreenCaptureFormat} of the export.
+     *
+     * @param format The format used for exporting
+     *
+     * @throws IOException Thrown if the file headers could not be written.
+     */
     public void setScreenCaptureFormat(ScreenCaptureFormat format) throws IOException {
         this.recordingFormat = format;
 
@@ -72,6 +92,13 @@ public class ScreenCaptureFileWriter {
         reset();
     }
 
+    /**
+     * Sets the {@link DesktopSource} of the screen capture to be exported.
+     *
+     * @param source The {@link DesktopSource} used for export.
+     *
+     * @throws IOException Thrown if the channel header could not be written.
+     */
     public void setDesktopSource(DesktopSource source) throws IOException {
         // Finish current sequence if exists
         if (currentSequence != null) {
@@ -82,26 +109,64 @@ public class ScreenCaptureFileWriter {
         currentSequence = new ScreenCaptureSequence(source);
     }
 
+    /**
+     * Returns the number of bytes which were written by the file writer so far.
+     */
     public long getTotalBytesWritten() {
         return totalBytesWritten;
     }
 
-    public byte[] compressFrame(BufferedImage frame) {
+    /**
+     * Create a frame data chunk and writes it to the temporary file.
+     *
+     * @param frame The {@link BufferedImage} to write.
+     * @param timestamp The timestamp of the frame during recording
+     * @return The number of written bytes.
+     *
+     * @throws IOException Thrown if the frame could not be written.
+     */
+    public int writeFrame(BufferedImage frame, long timestamp) throws IOException {
+
+        byte[] bytes = compressFrame(frame);
+
+        return writeFrameBytes(bytes, timestamp);
+    }
+
+    /**
+     * Resets the positions of the metadata and frames streams to the start.
+     *
+     * @throws IOException Thrown if the file channel position could not be updated.
+     */
+    public void reset() throws IOException {
+        // Prevent headers from being overwritten
+        detailsChannel.position(FORMAT_HEADER_SIZE);
+        framesChannel.position(DATA_HEADER_SIZE);
+    }
+
+    /**
+     * Closes the stream and writes the headers of the last sequence, if exists.
+     * @throws IOException Thrown if the files could not be written.
+     */
+    public void close() throws IOException {
+        writeFormatHeader();
+
+        // Finish current sequence
+        if (currentSequence != null) {
+            if (!currentSequence.hasEndTime()) {
+                currentSequence.setEndTime(latestFrameTimestamp);
+            }
+            writeChannelHeader(currentSequence);
+        }
+
+        detailsChannel.close();
+        framesChannel.close();
+    }
+
+    private byte[] compressFrame(BufferedImage frame) {
         return encoder.withBufferedImage(frame).toBytes();
     }
 
-    public int writeFrame(BufferedImage frame, long timestamp) throws IOException {
-        long startTime = System.currentTimeMillis();
-
-        byte[] bytes = compressFrame(frame);
-        int bytesWritten = writeFrameBytes(bytes, timestamp);
-
-        System.out.println("Compression + Write Time: " + (System.currentTimeMillis() - startTime) + "ms");
-
-        return bytesWritten;
-    }
-
-    public int writeFrameBytes(byte[] frameBytes, long timestamp) throws IOException {
+    private int writeFrameBytes(byte[] frameBytes, long timestamp) throws IOException {
         int bytesWritten = 0;
         if (framesChannel.isOpen()) {
             // Add offset + image data to byte buffer
@@ -125,27 +190,6 @@ public class ScreenCaptureFileWriter {
 
         totalBytesWritten += bytesWritten;
         return bytesWritten;
-    }
-
-    public void reset() throws IOException {
-        // Prevent headers from being overwritten
-        detailsChannel.position(FORMAT_HEADER_SIZE);
-        framesChannel.position(DATA_HEADER_SIZE);
-    }
-
-    public void close() throws IOException {
-        writeFormatHeader();
-
-        // Finish current sequence
-        if (currentSequence != null) {
-            if (!currentSequence.hasEndTime()) {
-                currentSequence.setEndTime(latestFrameTimestamp);
-            }
-            writeChannelHeader(currentSequence);
-        }
-
-        detailsChannel.close();
-        framesChannel.close();
     }
 
     /**

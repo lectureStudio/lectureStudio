@@ -29,6 +29,11 @@ import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.util.concurrent.CompletableFuture;
 
+/**
+ * This class is used as container to store the {@link RandomAccessScreenCaptureStream} as well as the parsed {@link ScreenCaptureData}.
+ *
+ * @author Maximilian Felix Ratzke
+ */
 public class RecordedScreenCapture extends RecordedObjectBase {
 
     private final RandomAccessScreenCaptureStream stream;
@@ -43,6 +48,10 @@ public class RecordedScreenCapture extends RecordedObjectBase {
         return stream;
     }
 
+    /**
+     * Starts an asynchronous process to parse the {@link RandomAccessScreenCaptureStream}.
+     * @param callback The {@link ScreenCaptureFileReader.ProgressCallback} used to notify about the progress.
+     */
     public void parseStreamAsync(ScreenCaptureFileReader.ProgressCallback callback) {
         CompletableFuture.runAsync(() -> {
             try {
@@ -77,6 +86,9 @@ public class RecordedScreenCapture extends RecordedObjectBase {
         });
     }
 
+    /**
+     * Returns the parsed {@link ScreenCaptureData}, can be null, if the {@link RandomAccessScreenCaptureStream} was not parsed yet.
+     */
     public ScreenCaptureData getScreenCaptureData() {
         return screenCaptureData;
     }

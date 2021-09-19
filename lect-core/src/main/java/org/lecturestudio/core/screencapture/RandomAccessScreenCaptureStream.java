@@ -20,29 +20,40 @@ package org.lecturestudio.core.screencapture;
 
 import java.io.*;
 
+/**
+ * This class is used as wrapper around the screen capture stream.
+ *
+ * @author Maximilian Felix Ratzke
+ */
 public class RandomAccessScreenCaptureStream extends BufferedInputStream {
 
-    private ScreenCaptureFormat screenCaptureFormat;
     private final long length;
 
+    /**
+     * Creates a {@link RandomAccessScreenCaptureStream} from a details and frames file
+     *
+     * @param detailsFile The file which contains the metadata of a screen capture.
+     * @param framesFile The file which contains the frame data of a screen capture.
+     */
     public RandomAccessScreenCaptureStream(File detailsFile, File framesFile) throws FileNotFoundException {
         super(new SequenceInputStream(new FileInputStream(detailsFile), new FileInputStream(framesFile)));
         length = detailsFile.length() + framesFile.length();
     }
 
+    /**
+     * Creates a {@link RandomAccessScreenCaptureStream} from an input stream.
+     *
+     * @param stream The input stream to get the data from
+     * @param length The length of the stream
+     */
     public RandomAccessScreenCaptureStream(InputStream stream, long length) {
         super(stream);
         this.length = length;
     }
 
-    public ScreenCaptureFormat getScreenCaptureFormat() {
-        return screenCaptureFormat;
-    }
-
-    public void setScreenCaptureFormat(ScreenCaptureFormat screenCaptureFormat) {
-        this.screenCaptureFormat = screenCaptureFormat;
-    }
-
+    /**
+     * Get the length of the stream.
+     */
     public long getLength() {
         return length;
     }

@@ -34,6 +34,11 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.Iterator;
 
+/**
+ * This class contains helper methods to related to image processing.
+ *
+ * @author Maximilian Felix Ratzke
+ */
 public class ImageUtils {
 
     private final static ImageWriter writer;
@@ -53,11 +58,6 @@ public class ImageUtils {
 
     /**
      * Creates a buffered image of a given width and height filled with a given color.
-     *
-     * @param width
-     * @param height
-     * @param color
-     * @return
      */
     public static BufferedImage createBufferedImage(int width, int height, Color color) {
         BufferedImage image = createBufferedImage(width, height);
@@ -72,10 +72,6 @@ public class ImageUtils {
 
     /**
      * Creates a buffered image with a given width and height.
-     *
-     * @param width
-     * @param height
-     * @return
      */
     public static BufferedImage createBufferedImage(int width, int height) {
         ColorSpace cs = ColorSpace.getInstance(ColorSpace.CS_sRGB);
@@ -93,6 +89,14 @@ public class ImageUtils {
         return new BufferedImage(colorModel, wr, false, null);
     }
 
+    /**
+     * Converts a {@link BufferedImage} with a byte based {@link ColorModel} to a new provided {@link ColorModel}.
+     *
+     * @param image The {@link BufferedImage} to convert.
+     * @param colorModel The requested {@link ColorModel}.
+     * @param bandOffsets The color band offsets as int array.
+     * @return The converted {@link BufferedImage}.
+     */
     public static BufferedImage convertByteColorModel(BufferedImage image, ColorModel colorModel, int[] bandOffsets) {
         // Get pixel data from image
         byte[] imageData = ((DataBufferByte) image.getRaster().getDataBuffer()).getData();
@@ -110,17 +114,24 @@ public class ImageUtils {
         return newImage;
     }
 
-    public static void renderImageWithBars(BufferedImage target, BufferedImage image) {
+    /**
+     * Scales a given image to the size of a target image while keeping the aspect ratio.
+     * This will also apply black bars to fill the target image.
+     *
+     * @param target The {@link BufferedImage} used as target. Should have the desired size.
+     * @param source The {@link BufferedImage} used as source.
+     */
+    public static void renderImageWithBars(BufferedImage target, BufferedImage source) {
         int width = target.getWidth();
         int height = target.getHeight();
 
-        double scaleX = width / (double) image.getWidth();
-        double scaleY = height / (double) image.getHeight();
+        double scaleX = width / (double) source.getWidth();
+        double scaleY = height / (double) source.getHeight();
 
         double scale = Math.min(scaleX, scaleY);
 
-        int offsetX = (scaleX > scale) ? (int) ((width - image.getWidth() * scale) / 2f) : 0;
-        int offsetY = (scaleY > scale) ? (int) ((height - image.getHeight() * scale) / 2f) : 0;
+        int offsetX = (scaleX > scale) ? (int) ((width - source.getWidth() * scale) / 2f) : 0;
+        int offsetY = (scaleY > scale) ? (int) ((height - source.getHeight() * scale) / 2f) : 0;
 
         Graphics2D g = target.createGraphics();
 
@@ -133,10 +144,17 @@ public class ImageUtils {
         transform.scale(scale, scale);
 
         g.setTransform(transform);
-        g.drawImage(image, (int) (offsetX / scale), (int) (offsetY / scale), null);
+        g.drawImage(source, (int) (offsetX / scale), (int) (offsetY / scale), null);
         g.dispose();
     }
 
+    /**
+     * Converts a {@link DesktopFrame} to a {@link BufferedImage} of the given size.
+     * @param frame The {@link DesktopFrame} to convert.
+     * @param width The width of the new {@link BufferedImage}.
+     * @param height The height of the new {@link BufferedImage}.
+     * @return The converted {@link BufferedImage}.
+     */
     public static BufferedImage convertDesktopFrame(DesktopFrame frame, int width, int height) {
         BufferedImage image = ImageUtils.createBufferedImage(width, height);
         DataBufferByte byteBuffer = (DataBufferByte) image.getRaster().getDataBuffer();
@@ -144,6 +162,12 @@ public class ImageUtils {
         return image;
     }
 
+    /**
+     * Compresses a {@link BufferedImage} represented as byte array using the default ImageIO compression.
+     *
+     * @param frameBytes The frame bytes to compress.
+     * @return The compressed bytes.
+     */
     public static byte[] compress(byte[] frameBytes) {
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
         try {
@@ -156,7 +180,14 @@ public class ImageUtils {
         return outputStream.toByteArray();
     }
 
-    // See http://www.java2s.com/example/java-utility-method/bufferedimage-compress/compress-bufferedimage-image-float-quality-e5d99.html
+    /**
+     * Compresses a {@link BufferedImage} using the default ImageIO compression.
+     * See http://www.java2s.com/example/java-utility-method/bufferedimage-compress/compress-bufferedimage-image-float-quality-e5d99.html
+     *
+     * @param image The {@link BufferedImage} to compress.
+     * @param quality The quality used for compression.
+     * @return The compressed {@link BufferedImage}
+     */
     public static BufferedImage compress(BufferedImage image, float quality) {
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
         try {
@@ -177,6 +208,14 @@ public class ImageUtils {
         return image;
     }
 
+    /**
+     * Crops a {@link BufferedImage} to the given width and height.
+     *
+     * @param src The {@link BufferedImage} used as source.
+     * @param width The width of the new image
+     * @param height The height of the new image.
+     * @return The new {@link BufferedImage}
+     */
     public static BufferedImage crop(BufferedImage src, int width, int height) {
         int x = src.getWidth() / 2 - width / 2;
         int y = src.getHeight()/2 - height/2;
@@ -190,7 +229,15 @@ public class ImageUtils {
         return croppedImage;
     }
 
-    public static BufferedImage scale(BufferedImage src, int width, int height) throws IOException {
+    /**
+     * Scales a {@link BufferedImage} to the given width and height.
+     *
+     * @param src The {@link BufferedImage} used as source.
+     * @param width The width of the new image
+     * @param height The height of the new image.
+     * @return The new {@link BufferedImage}
+     */
+    public static BufferedImage scale(BufferedImage src, int width, int height) {
         BufferedImage scaledImage = createBufferedImage(width, height);
         Graphics2D g = scaledImage.createGraphics();
         AffineTransform at = AffineTransform.getScaleInstance(
@@ -201,8 +248,16 @@ public class ImageUtils {
         return scaledImage;
     }
 
-    // See http://www.java2s.com/Code/Java/2D-Graphics-GUI/CropImage.htm for more information
-    public static BufferedImage cropAndScale(BufferedImage src, int width, int height) throws IOException {
+    /**
+     * Crops and scales a given image to the provided width and height.
+     * See http://www.java2s.com/Code/Java/2D-Graphics-GUI/CropImage.htm for more information
+     *
+     * @param src The {@link BufferedImage} used as source.
+     * @param width The width of the new image
+     * @param height The height of the new image.
+     * @return The new {@link BufferedImage}
+     */
+    public static BufferedImage cropAndScale(BufferedImage src, int width, int height) {
 
         float scale;
         if (src.getWidth() > src.getHeight()) {

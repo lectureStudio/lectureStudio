@@ -37,6 +37,11 @@ import java.util.Map;
 
 import static java.util.Objects.requireNonNull;
 
+/**
+ * This class contains static methods to parse a {@link RandomAccessScreenCaptureStream} into a {@link ScreenCaptureData} instance.
+ *
+ * @author Maximilian Felix Ratzke
+ */
 public class ScreenCaptureFileReader {
 
     private final static int[] BAND_OFFSETS = {2, 3, 0, 1}; // Indices: RGBA
@@ -48,6 +53,13 @@ public class ScreenCaptureFileReader {
         COLOR_MODEL = new ComponentColorModel(cs, nBits, true, false, Transparency.TRANSLUCENT, DataBuffer.TYPE_BYTE);
     }
 
+    /**
+     * Parses a {@link RandomAccessScreenCaptureStream} into a {@link ScreenCaptureData} instance.
+     * The provided {@link ProgressCallback} is used to notify about the progress.
+     *
+     * @param stream The stream to parse
+     * @param callback The callback used to notify
+     */
     public static void parseStream(RandomAccessScreenCaptureStream stream, ProgressCallback callback) throws IOException {
         requireNonNull(stream);
 
@@ -141,14 +153,34 @@ public class ScreenCaptureFileReader {
                 callback.onFrameProgress(1 - (float) buffer.remaining() / frameBytesLength);
             }
 
-            System.out.println("Frames: " + currentSequence.getFrames().size());
+            System.out.println("Completed parsing of Screen Capture Stream");
         }
     }
 
+    /**
+     * This interface provides methods to report the progress of a parsing request.
+     */
     public interface ProgressCallback {
 
+        /**
+         * This method is called when the metadata of the screen capture stream was parsed.
+         * @param data The {@link ScreenCaptureData} instance to store the parsed data in.
+         */
         void onScreenCaptureData(ScreenCaptureData data);
+
+        /**
+         * This method is called when a screen capture frame was parsed.
+         *
+         * @param frame The {@link BufferedImage} parsed from the stream
+         * @param frameTime The timestamp of the frame within the screen capture recording
+         * @param sequence The startTime of the {@link ScreenCaptureSequence} the frame belongs to
+         */
         void onFrame(BufferedImage frame, long frameTime, long sequence);
+
+        /**
+         * This method is called to report the total progress of the screen capture stream parsing.
+         * @param progress The progress of the parsing (in range 0.0 - 1.0)
+         */
         void onFrameProgress(float progress);
     }
 }

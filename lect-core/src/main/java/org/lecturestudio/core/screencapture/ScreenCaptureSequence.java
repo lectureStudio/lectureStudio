@@ -93,17 +93,9 @@ public class ScreenCaptureSequence {
         if (exclusion.lengthLong() > 0 && exclusion.getStart() < getExcludedEndTime() && !exclusions.contains(exclusion)) {
             exclusions.add(exclusion);
 
-            // Exclusion starts before sequence, we need to update the start padding
-//            if (exclusion.getStart() < getExcludedStartTime()) {
-//                long padding = Math.min(exclusion.getEnd(), getExcludedStartTime()) - exclusion.getStart();
-//                // Make sure to apply only positive paddings
-//                startPadding += Math.max(padding, 0);
-//            }
-
+            // Update paddings
             startPadding = getStartPadding();
             endPadding = getEndPadding();
-
-            System.out.println(this);
         }
     }
 
@@ -118,8 +110,6 @@ public class ScreenCaptureSequence {
             // Update paddings
             startPadding = getStartPadding();
             endPadding = getEndPadding();
-
-            System.out.println(this);
         }
     }
 
@@ -147,10 +137,17 @@ public class ScreenCaptureSequence {
         return padding;
     }
 
+    /**
+     * Returns the {@link DesktopSource} of the current {@link ScreenCaptureSequence}.
+     */
     public DesktopSource getSource() {
         return source;
     }
 
+    /**
+     * Returns all frames of the current {@link ScreenCaptureSequence}.
+     * The timestamp of each frame is used as key.
+     */
     public TreeMap<Long, BufferedImage> getFrames() {
         return frames;
     }
@@ -202,6 +199,9 @@ public class ScreenCaptureSequence {
         return Math.max(endTime, startTime);
     }
 
+    /**
+     * Returns the length of the {@link ScreenCaptureSequence} after all exclusions were applied.
+     */
     public long getExcludedLength() {
         return Math.max(getExcludedEndTime() - getExcludedStartTime(), 0);
     }

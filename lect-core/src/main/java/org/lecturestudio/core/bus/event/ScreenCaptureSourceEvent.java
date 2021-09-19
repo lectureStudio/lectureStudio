@@ -23,6 +23,11 @@ import dev.onvoid.webrtc.media.video.desktop.DesktopSourceType;
 
 import java.util.List;
 
+/**
+ * This event notifies about an update in the list of available {@link DesktopSource DesktopSources}.
+ *
+ * @author Maximilian Felix Ratzke
+ */
 public class ScreenCaptureSourceEvent extends BusEvent {
 
     private final List<DesktopSource> sources;

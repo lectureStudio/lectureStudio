@@ -45,18 +45,24 @@ public class ScreenCaptureData {
         this.format = format;
     }
 
+    /**
+     * Returns the {@link ScreenCaptureFormat} of this screen capture recording
+     */
     public ScreenCaptureFormat getFormat() {
         return format;
     }
 
+    /**
+     * Returns a treemap of all known sequences. The start time of each sequence is used as key.
+     */
     public TreeMap<Long, ScreenCaptureSequence> getSequences() {
         return sequences;
     }
 
     /**
-     * Adds a ScreenCaptureSequence to the ScreenCaptureData instance.
+     * Adds a {@link ScreenCaptureSequence} to the {@link ScreenCaptureData} instance.
      *
-     * @param sequence The ScreenCaptureSequence to add.
+     * @param sequence The {@link ScreenCaptureSequence} to add.
      */
     public void addSequence(ScreenCaptureSequence sequence) {
         // Add all previously added exclusions to sequence
@@ -68,7 +74,7 @@ public class ScreenCaptureData {
     }
 
     /**
-     * Searches the known ScreenCaptureSequence instances based on a given seek time (in ms)
+     * Searches the known {@link ScreenCaptureSequence} instances based on a given seek time (in ms)
      *
      * @param seekTime The timestamp since start of the recording to search for.
      * @return The sequence which has frame data during the seek time or null, if no matching sequence was found.

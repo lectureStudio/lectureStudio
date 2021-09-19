@@ -21,6 +21,11 @@ package org.lecturestudio.core.screencapture;
 import java.io.Serializable;
 import java.util.Objects;
 
+/**
+ * This class is used to store information about the recording format of a screen capture.
+ *
+ * @author Maximilian Felix Ratzke
+ */
 public class ScreenCaptureFormat implements Serializable {
 
     public final static int[] DEFAULT_FRAME_RATES = new int[]{ 10, 20, 24, 30, 60 };

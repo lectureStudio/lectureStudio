@@ -29,6 +29,11 @@ import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
 
+/**
+ * This class is used to store screen capture related data into {@link org.lecturestudio.core.model.Page Pages}.
+ *
+ * @author Maximilian Felix Ratzke
+ */
 public class ScreenCaptureShape extends Shape {
 
     private BufferedImage frame;

@@ -346,6 +346,16 @@ public class FxSlidesView extends VBox implements SlidesView {
 	}
 
 	@Override
+	public void setStreamState(ExecutableState state) {
+		boolean started = state == ExecutableState.Started;
+
+		FxUtils.invoke(() -> {
+			messageView.setVisible(started);
+			messageView.setManaged(started);
+		});
+	}
+
+	@Override
 	public void setMessengerState(ExecutableState state) {
 		boolean started = state == ExecutableState.Started;
 

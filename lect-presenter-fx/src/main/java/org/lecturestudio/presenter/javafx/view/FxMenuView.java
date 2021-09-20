@@ -406,13 +406,8 @@ public class FxMenuView extends HBox implements MenuView {
 	}
 
 	@Override
-	public void setOnStartMessenger(Action action) {
-		FxUtils.bindAction(startMessengerMenuItem, action);
-	}
+	public void bindEnableMessenger(BooleanProperty enable) {
 
-	@Override
-	public void setOnStopMessenger(Action action) {
-		FxUtils.bindAction(stopMessengerMenuItem, action);
 	}
 
 	@Override
@@ -489,50 +484,6 @@ public class FxMenuView extends HBox implements MenuView {
 
 			setIndicatorState(streamIndicatorMenu, state);
 		});
-	}
-
-	/**
-	 * Services Menu
-	 */
-
-	@Override
-	public void setOnControlRecording(ConsumerAction<Boolean> action) {
-//		serviceControlPane.setOnRecord(action);
-	}
-
-	@Override
-	public void setOnControlRecordingSettings(Action action) {
-//		serviceControlPane.setOnRecordSettings(action);
-	}
-
-	@Override
-	public void setOnControlStreaming(ConsumerAction<Boolean> action) {
-//		serviceControlPane.setOnStream(action);
-	}
-
-	@Override
-	public void setOnControlStreamingSettings(Action action) {
-//		serviceControlPane.setOnStreamSettings(action);
-	}
-
-	@Override
-	public void setOnControlMessenger(ConsumerAction<Boolean> action) {
-//		serviceControlPane.setOnMessenger(action);
-	}
-
-	@Override
-	public void setOnControlMessengerSettings(Action action) {
-//		serviceControlPane.setOnMessengerSettings(action);
-	}
-
-	@Override
-	public void setOnControlMessengerWindow(ConsumerAction<Boolean> action) {
-//		serviceControlPane.setOnMessengerWindow(action);
-	}
-
-	@Override
-	public void setOnControlCameraSettings(Action action) {
-//		serviceControlPane.setOnCameraSettings(action);
 	}
 
 	/**

@@ -25,15 +25,21 @@ import java.awt.Component;
 import java.awt.FlowLayout;
 import java.awt.Graphics2D;
 import java.awt.Paint;
+import java.awt.event.ActionEvent;
 import java.awt.image.BufferedImage;
 import java.util.Enumeration;
+import java.util.ResourceBundle;
 
+import javax.inject.Inject;
+import javax.swing.AbstractAction;
 import javax.swing.AbstractButton;
 import javax.swing.ButtonGroup;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
+import javax.swing.JComponent;
 import javax.swing.JToggleButton;
 import javax.swing.JToolBar;
+import javax.swing.KeyStroke;
 
 import org.lecturestudio.core.ExecutableState;
 import org.lecturestudio.core.beans.BooleanProperty;
@@ -49,6 +55,7 @@ import org.lecturestudio.core.view.Action;
 import org.lecturestudio.core.view.ConsumerAction;
 import org.lecturestudio.core.view.PresentationParameter;
 import org.lecturestudio.presenter.api.view.ToolbarView;
+import org.lecturestudio.swing.AwtResourceLoader;
 import org.lecturestudio.swing.components.FontPickerButton;
 import org.lecturestudio.swing.components.RecordButton;
 import org.lecturestudio.swing.components.TeXFontPickerButton;
@@ -63,6 +70,8 @@ import org.lecturestudio.swing.view.ViewPostConstruct;
 
 @SwingView(name = "main-toolbar", presenter = org.lecturestudio.presenter.api.presenter.ToolbarPresenter.class)
 public class SwingToolbarView extends JToolBar implements ToolbarView {
+
+	private final ResourceBundle resourceBundle;
 
 	private ConsumerAction<Color> paletteColorAction;
 
@@ -143,8 +152,11 @@ public class SwingToolbarView extends JToolBar implements ToolbarView {
 	private JToggleButton streamCamButton;
 
 
-	SwingToolbarView() {
+	@Inject
+	SwingToolbarView(ResourceBundle resourceBundle) {
 		super();
+
+		this.resourceBundle = resourceBundle;
 
 		setLayout(new WrapFlowLayout(FlowLayout.LEFT, 0, 0));
 	}
@@ -187,16 +199,12 @@ public class SwingToolbarView extends JToolBar implements ToolbarView {
 
 	@Override
 	public void setScreensAvailable(boolean screensAvailable) {
-		SwingUtils.invoke(() -> {
-			displaysButton.setEnabled(screensAvailable);
-		});
+		SwingUtils.invoke(() -> displaysButton.setEnabled(screensAvailable));
 	}
 
 	@Override
 	public void setPresentationViewsVisible(boolean viewsVisible) {
-		SwingUtils.invoke(() -> {
-			displaysButton.setSelected(viewsVisible);
-		});
+		SwingUtils.invoke(() -> displaysButton.setSelected(viewsVisible));
 	}
 
 	@Override
@@ -223,9 +231,7 @@ public class SwingToolbarView extends JToolBar implements ToolbarView {
 
 	@Override
 	public void showRecordNotification(boolean show) {
-		SwingUtils.invoke(() -> {
-			startRecordingButton.setBlink(show);
-		});
+		SwingUtils.invoke(() -> startRecordingButton.setBlink(show));
 	}
 
 	@Override
@@ -500,8 +506,7 @@ public class SwingToolbarView extends JToolBar implements ToolbarView {
 						toolGroup.setSelected(button.getModel(), true);
 						break;
 					}
-				}
-				else {
+				} else {
 					// Handle multiple type entries.
 					for (String type : types) {
 						ToolType buttonType = ToolType.valueOf(type.trim());
@@ -538,7 +543,7 @@ public class SwingToolbarView extends JToolBar implements ToolbarView {
 		SwingUtils.bindBidirectional(streamCamButton, enable);
 	}
 
-	private void setColorButtonsEnabled(boolean enabled){
+	private void setColorButtonsEnabled(boolean enabled) {
 		customColorButton.setEnabled(enabled);
 		colorButton1.setEnabled(enabled);
 		colorButton2.setEnabled(enabled);
@@ -564,8 +569,87 @@ public class SwingToolbarView extends JToolBar implements ToolbarView {
 		button.setIcon(new ImageIcon(image));
 	}
 
+	private AbstractButton initializeButton(AbstractButton button, String iconPath, String[] additionalIconPaths, String accelerator, String toolTipText, String name, ToolType... tools) {
+		if (nonNull(iconPath)) {
+			button.setIcon(AwtResourceLoader.getIcon(iconPath, 30));
+		}
+		if (nonNull(accelerator)) {
+			KeyStroke keyStroke = KeyStroke.getKeyStroke(accelerator);
+			button.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(keyStroke, keyStroke.toString());
+			button.getActionMap().put(keyStroke.toString(), new AbstractAction() {
+				@Override
+				public void actionPerformed(ActionEvent e) {
+					AbstractButton b = (AbstractButton) e.getSource();
+					b.doClick();
+				}
+			});
+		}
+		if (nonNull(toolTipText)) {
+			button.setToolTipText(resourceBundle.getString(toolTipText));
+		}
+		if (nonNull(name)) {
+			button.setName(name);
+		}
+		if (nonNull(tools) && tools.length > 0) {
+			for (ToolType tool : tools) {
+				button.putClientProperty("tool", tool);
+			}
+		}
+		if (nonNull(additionalIconPaths)) {
+			if (button instanceof ToolGroupButton) {
+				((ToolGroupButton) button).setCopyIcon(AwtResourceLoader.getIcon(additionalIconPaths[0], 30));
+				((ToolGroupButton) button).setSelectIcon(AwtResourceLoader.getIcon(additionalIconPaths[1], 30));
+				((ToolGroupButton) button).setSelectGroupIcon(AwtResourceLoader.getIcon(additionalIconPaths[2], 30));
+			} else if (button instanceof RecordButton) {
+				((RecordButton) button).setBlinkIcon(AwtResourceLoader.getIcon(additionalIconPaths[0], 30));
+				((RecordButton) button).setPauseIcon(AwtResourceLoader.getIcon(additionalIconPaths[1], 30));
+				((RecordButton) button).setPausedIcon(AwtResourceLoader.getIcon(additionalIconPaths[2], 30));
+			} else if (button instanceof JToggleButton) {
+				button.setSelectedIcon(AwtResourceLoader.getIcon(additionalIconPaths[0], 30));
+			}
+		}
+		return button;
+	}
+
+	private AbstractButton initializeButton(AbstractButton button, String iconPath, String accelerator, String toolTipText, String name, ToolType... tools) {
+		return initializeButton(button, iconPath, null, accelerator, toolTipText, name, tools);
+	}
+
 	@ViewPostConstruct
 	private void initialize() {
+		this.add(undoButton = (JButton) initializeButton(new JButton(), "undo-tool.svg", "ctrl Z", "toolbar.undo.tooltip", null));
+		this.add(redoButton = (JButton) initializeButton(new JButton(), "redo-tool.svg", "ctrl Y", "toolbar.redo.tooltip", null));
+		this.add(customColorButton = (ToolColorPickerButton) initializeButton(new ToolColorPickerButton(resourceBundle), null, null, "F1", null, "colorGroup"));
+		this.add(colorButton1 = (JToggleButton) initializeButton(new JToggleButton(), null, "F2", null, "colorGroup"));
+		this.add(colorButton2 = (JToggleButton) initializeButton(new JToggleButton(), null, "F3", null, "colorGroup"));
+		this.add(colorButton3 = (JToggleButton) initializeButton(new JToggleButton(), null, "F4", null, "colorGroup"));
+		this.add(colorButton4 = (JToggleButton) initializeButton(new JToggleButton(), null, "F5", null, "colorGroup"));
+		this.add(colorButton5 = (JToggleButton) initializeButton(new JToggleButton(), null, "F6", null, "colorGroup"));
+		this.add(penButton = (JToggleButton) initializeButton(new JToggleButton(), "pen-tool.svg", "P", "toolbar.pen.tooltip", "toolGroup", ToolType.PEN));
+		this.add(highlighterButton = (JToggleButton) initializeButton(new JToggleButton(), "highlighter-tool.svg", "H", "toolbar.highlighter.tooltip", "toolGroup", ToolType.HIGHLIGHTER));
+		this.add(pointerButton = (JToggleButton) initializeButton(new JToggleButton(), "pointer-tool.svg", "A", "toolbar.pointer.tooltip", "toolGroup", ToolType.POINTER));
+		this.add(textSelectButton = (JToggleButton) initializeButton(new JToggleButton(), "text-select-tool.svg", "S", "toolbar.text.select.tooltip", "toolGroup", ToolType.TEXT_SELECTION));
+		this.add(lineButton = (JToggleButton) initializeButton(new JToggleButton(), "line-tool.svg", "I", "toolbar.line.tooltip", "toolGroup", ToolType.LINE));
+		this.add(arrowButton = (JToggleButton) initializeButton(new JToggleButton(), "arrow-tool.svg", "W", "toolbar.arrow.tooltip", "toolGroup", ToolType.ARROW));
+		this.add(rectangleButton = (JToggleButton) initializeButton(new JToggleButton(), "rectangle-tool.svg", "R", "toolbar.rectangle.tooltip", "toolGroup", ToolType.RECTANGLE));
+		this.add(ellipseButton = (JToggleButton) initializeButton(new JToggleButton(), "ellipse-tool.svg", "C", "toolbar.ellipse.tooltip", "toolGroup", ToolType.ELLIPSE));
+		this.add(selectButton = (ToolGroupButton) initializeButton(new ToolGroupButton(), null, new String[]{"clone-tool.svg", "select-tool.svg", "select-group-tool.svg"}, "O", "toolbar.select.tooltip", "toolGroup", ToolType.SELECT, ToolType.SELECT_GROUP, ToolType.CLONE));
+		this.add(eraseButton = (JToggleButton) initializeButton(new JToggleButton(), "rubber-tool.svg", "E", "toolbar.erase.tooltip", "toolGroup", ToolType.RUBBER));
+		this.add(textButton = (FontPickerButton) initializeButton(new FontPickerButton(resourceBundle), "text-tool.svg", "T", "toolbar.text.tooltip", "toolGroup", ToolType.TEXT));
+		this.add(texButton = (TeXFontPickerButton) initializeButton(new TeXFontPickerButton(resourceBundle), "latex-tool.svg", "X", "toolbar.latex.tooltip", "toolGroup", ToolType.LATEX));
+		this.add(clearButton = (JButton) initializeButton(new JButton(), "clear-tool.svg", "ESCAPE", "toolbar.clear.tooltip", null));
+		this.add(gridButton = (JToggleButton) initializeButton(new JToggleButton(), "grid-tool.svg", "Q", "toolbar.grid.tooltip", null));
+		this.add(extendButton = (JToggleButton) initializeButton(new JToggleButton(), "extend-tool.svg", "F7", "toolbar.extend.tooltip", null));
+		this.add(whiteboardButton = (JToggleButton) initializeButton(new JToggleButton(), "whiteboard-tool.svg", "F8", "toolbar.whiteboard.tooltip", null));
+		this.add(displaysButton = (JToggleButton) initializeButton(new JToggleButton(), "display-tool.svg", null, "toolbar.displays.tooltip", null));
+		this.add(zoomInButton = (JToggleButton) initializeButton(new JToggleButton(), "zoom-in-tool.svg", "F10", "toolbar.zoom.in.tooltip", "toolGroup", ToolType.ZOOM));
+		this.add(panButton = (JToggleButton) initializeButton(new JToggleButton(), "pan-tool.svg", "F11", "toolbar.zoom.pan.tooltip", "toolGroup", ToolType.PANNING));
+		this.add(zoomOutButton = (JButton) initializeButton(new JButton(), "zoom-out-tool.svg", "F12", "toolbar.zoom.out.tooltip", null));
+		this.add(startRecordingButton = (RecordButton) initializeButton(new RecordButton(), "record-tool.svg", new String[]{"record-blink-tool.svg", "record-pause-tool.svg", "record-resume-tool.svg"}, null, "toolbar.recording.start.tooltip", null));
+		this.add(stopRecordingButton = (JButton) initializeButton(new JButton(), "record-stop-tool.svg", null, "toolbar.recording.stop.tooltip", null));
+		this.add(streamMicButton = (JToggleButton) initializeButton(new JToggleButton(), "microphone-off.svg", new String[]{"microphone.svg"}, null, "toolbar.stream.microphone.tooltip", null));
+		this.add(streamCamButton = (JToggleButton) initializeButton(new JToggleButton(), "camera-off.svg", new String[]{"camera.svg"}, null, "toolbar.stream.camera.tooltip", null));
+
 		colorGroup = new ButtonGroup();
 		toolGroup = new ButtonGroup();
 
@@ -575,8 +659,7 @@ public class SwingToolbarView extends JToolBar implements ToolbarView {
 			if (nonNull(name)) {
 				if (name.equals("colorGroup")) {
 					colorGroup.add((AbstractButton) c);
-				}
-				else if (name.equals("toolGroup")) {
+				} else if (name.equals("toolGroup")) {
 					toolGroup.add((AbstractButton) c);
 				}
 			}
@@ -588,11 +671,7 @@ public class SwingToolbarView extends JToolBar implements ToolbarView {
 			setButtonColor(customColorButton, ColorConverter.INSTANCE.to(color));
 			executeAction(paletteColorAction, color);
 		});
-		textButton.addItemChangeListener(font -> {
-			executeAction(textBoxFontAction, FontConverter.INSTANCE.from(font));
-		});
-		texButton.addItemChangeListener(font -> {
-			executeAction(texBoxFontAction, font);
-		});
+		textButton.addItemChangeListener(font -> executeAction(textBoxFontAction, FontConverter.INSTANCE.from(font)));
+		texButton.addItemChangeListener(font -> executeAction(texBoxFontAction, font));
 	}
 }

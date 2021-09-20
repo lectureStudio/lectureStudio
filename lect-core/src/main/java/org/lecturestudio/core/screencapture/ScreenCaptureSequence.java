@@ -231,17 +231,13 @@ public class ScreenCaptureSequence {
      */
     private long getExcludedTime(long time) {
         long padding = 0;
-        long skipped = 0;
 
         // Calculate padding for all registered exclusions
         for (Interval<Integer> exclusion : exclusions) {
             long start = exclusion.getStart() + padding;
 
-            if (exclusion.getStart() < time) {
-                padding += exclusion.lengthLong() + skipped;
-                skipped = 0;
-            } else {
-                skipped += exclusion.lengthLong();
+            if (start < time) {
+                padding += exclusion.lengthLong();
             }
         }
 

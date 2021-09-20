@@ -18,15 +18,14 @@
 
 package org.lecturestudio.core.render;
 
-import java.util.concurrent.BlockingDeque;
-import java.util.concurrent.LinkedBlockingDeque;
-import java.util.concurrent.atomic.AtomicBoolean;
-
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.lecturestudio.core.ExecutableBase;
 import org.lecturestudio.core.ExecutableException;
 
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import java.util.concurrent.BlockingDeque;
+import java.util.concurrent.LinkedBlockingDeque;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 public class RenderThread extends ExecutableBase {
 
@@ -50,6 +49,10 @@ public class RenderThread extends ExecutableBase {
 			queue.pollLast();
 			queue.offer(event);
 		}
+	}
+
+	public void clearTasks() {
+		queue.clear();
 	}
 
 	@Override

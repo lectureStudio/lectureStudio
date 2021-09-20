@@ -185,7 +185,13 @@ public class SlideViewSkin extends SkinBase<SlideView> {
 
 	public void renderScreenCaptureFrame(BufferedImage frame) {
 		screenCaptureImage = frame;
-		renderThread.onTask(new FrameRenderTask(frame));
+
+		if (frame == null) {
+			renderThread.clearTasks();
+			renderThread.onTask(renderPageTask);
+		} else {
+			renderThread.onTask(new FrameRenderTask(frame));
+		}
 	}
 
 	private void initLayout(SlideView control, ReadOnlyObjectWrapper<Bounds> canvasBounds) {
@@ -518,6 +524,8 @@ public class SlideViewSkin extends SkinBase<SlideView> {
 
 		@Override
 		public void render() {
+			imageView.setImage(fxBufferImage);
+
 			renderer.renderPage(getSkinnable().getPage(), new Dimension((int) viewSize.getWidth(), (int) viewSize.getHeight()));
 
 			updateBuffer(null, renderer.getImage());
@@ -564,13 +572,6 @@ public class SlideViewSkin extends SkinBase<SlideView> {
 
 	private class FrameRenderTask implements RenderThreadTask {
 
-		private final ColorModel colorModel = new DirectColorModel(32,
-				0x0000ff00,   // Red
-				0x00ff0000,   // Green
-				0xff000000,   // Blue
-				0x000000ff    // Alpha
-		);
-
 		private final BufferedImage frame;
 
 		public FrameRenderTask(final BufferedImage frame) {
@@ -579,26 +580,12 @@ public class SlideViewSkin extends SkinBase<SlideView> {
 
 		@Override
 		public void render() throws Exception {
-			screenCaptureImage = frame;
+			int slideWidth = slideImage.getWidth();
+			int slideHeight = slideImage.getHeight();
 
-			if (frame == null) {
-				// Use default renderer
-				imageView.setImage(fxBufferImage);
-
-				// updateBuffer(null, renderer.getImage());
-			} else {
-
-				long currentTime = System.currentTimeMillis();
-
-				int slideWidth = slideImage.getWidth();
-				int slideHeight = slideImage.getHeight();
-
-				BufferedImage canvas = new BufferedImage(slideWidth, slideHeight, BufferedImage.TYPE_INT_ARGB);
-				ImageUtils.renderImageWithBars(canvas, frame);
-				imageView.setImage(toFXImage(canvas));
-
-				// System.out.println("Render Time: " + (System.currentTimeMillis() - currentTime) + "ms");
-			}
+			BufferedImage canvas = new BufferedImage(slideWidth, slideHeight, BufferedImage.TYPE_INT_ARGB);
+			ImageUtils.renderImageWithBars(canvas, frame);
+			imageView.setImage(toFXImage(canvas));
 		}
 
 		public WritableImage toFXImage(BufferedImage frame) {

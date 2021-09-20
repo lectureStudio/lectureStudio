@@ -89,6 +89,7 @@ import org.lecturestudio.presenter.api.view.PageObjectRegistry;
 import org.lecturestudio.presenter.api.view.SlidesView;
 import org.lecturestudio.web.api.event.PeerStateEvent;
 import org.lecturestudio.web.api.event.VideoFrameEvent;
+import org.lecturestudio.web.api.message.CourseParticipantMessage;
 import org.lecturestudio.web.api.message.MessengerMessage;
 import org.lecturestudio.web.api.message.SpeechAcceptMessage;
 import org.lecturestudio.web.api.message.SpeechCancelMessage;
@@ -270,6 +271,18 @@ public class SlidesPresenter extends Presenter<SlidesView> {
 				m.getRequestId(), message.getRequestId()));
 
 		view.setSpeechCancelMessage(message);
+	}
+
+	@Subscribe
+	public void onEvent(CourseParticipantMessage message) {
+		PresenterContext presenterContext = (PresenterContext) context;
+
+		if (message.getConnected()) {
+			presenterContext.setAttendeesCount(presenterContext.getAttendeesCount() + 1);
+		}
+		else {
+			presenterContext.setAttendeesCount(presenterContext.getAttendeesCount() - 1);
+		}
 	}
 
 	@Subscribe

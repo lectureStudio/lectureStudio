@@ -135,6 +135,14 @@ public class PresenterContext extends ApplicationContext {
 		return attendeesCount;
 	}
 
+	public int getAttendeesCount() {
+		return attendeesCount.get();
+	}
+
+	public void setAttendeesCount(int count) {
+		attendeesCount.set(count);
+	}
+
 	public void setHasRecordedChanges(boolean changes) {
 		hasRecordedChanges.set(changes);
 	}

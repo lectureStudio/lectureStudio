@@ -368,7 +368,7 @@ public class MainPresenter extends org.lecturestudio.core.presenter.MainPresente
 		}
 		else if (state == ExecutableState.Stopped) {
 			PresenterContext presenterContext = (PresenterContext) context;
-//			presenterContext.resetAttendeesCount();
+			presenterContext.setAttendeesCount(0);
 			presenterContext.getSpeechRequests().clear();
 		}
 		else if (state == ExecutableState.Error) {

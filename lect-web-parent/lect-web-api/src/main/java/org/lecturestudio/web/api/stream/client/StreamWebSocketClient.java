@@ -24,6 +24,7 @@ import static java.util.Objects.requireNonNull;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.io.StringReader;
 import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.WebSocket;
@@ -34,6 +35,9 @@ import java.time.Duration;
 import java.time.temporal.ChronoUnit;
 import java.util.concurrent.CompletionStage;
 
+import javax.json.Json;
+import javax.json.JsonObject;
+import javax.json.JsonReader;
 import javax.json.bind.Jsonb;
 import javax.json.bind.JsonbBuilder;
 import javax.json.bind.JsonbConfig;
@@ -48,8 +52,10 @@ import org.lecturestudio.core.bus.EventBus;
 import org.lecturestudio.core.model.Document;
 import org.lecturestudio.core.service.DocumentService;
 import org.lecturestudio.web.api.client.MultipartBody;
+import org.lecturestudio.web.api.data.bind.CourseParticipantMessageAdapter;
 import org.lecturestudio.web.api.data.bind.JsonConfigProvider;
 import org.lecturestudio.web.api.data.bind.SpeechMessageAdapter;
+import org.lecturestudio.web.api.message.CourseParticipantMessage;
 import org.lecturestudio.web.api.message.SpeechBaseMessage;
 import org.lecturestudio.web.api.net.OwnTrustManager;
 import org.lecturestudio.web.api.service.ServiceParameters;
@@ -112,8 +118,9 @@ public class StreamWebSocketClient extends ExecutableBase {
 		this.streamProviderService = streamProviderService;
 		this.course = course;
 
-		JsonbConfig config = JsonConfigProvider.createConfig()
-				.withAdapters(new SpeechMessageAdapter());
+		JsonbConfig config = JsonConfigProvider.createConfig().withAdapters(
+				new SpeechMessageAdapter(),
+				new CourseParticipantMessageAdapter());
 
 		this.jsonb = JsonbBuilder.create(config);
 	}
@@ -284,9 +291,23 @@ public class StreamWebSocketClient extends ExecutableBase {
 
 			if (last) {
 				try {
-					var message = jsonb.fromJson(buffer.toString(), SpeechBaseMessage.class);
+					Object message = null;
+					String jsonData = buffer.toString();
 
-					eventBus.post(message);
+					JsonReader jsonReader = Json.createReader(new StringReader(jsonData));
+					JsonObject jsonObject = jsonReader.readObject();
+					String typeStr = jsonObject.getString("type");
+
+					if (typeStr.startsWith("Speech")) {
+						message = jsonb.fromJson(jsonData, SpeechBaseMessage.class);
+					}
+					else if (typeStr.startsWith("CourseParticipant")) {
+						message = jsonb.fromJson(jsonData, CourseParticipantMessage.class);
+					}
+
+					if (nonNull(message)) {
+						eventBus.post(message);
+					}
 				}
 				catch (Exception e) {
 					logException(e, "Process message failed");

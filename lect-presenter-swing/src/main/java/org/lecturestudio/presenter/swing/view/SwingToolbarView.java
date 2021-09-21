@@ -647,6 +647,7 @@ public class SwingToolbarView extends JToolBar implements ToolbarView {
 		this.add(zoomOutButton = (JButton) initializeButton(new JButton(), "zoom-out-tool.svg", "F12", "toolbar.zoom.out.tooltip", null));
 		this.add(startRecordingButton = (RecordButton) initializeButton(new RecordButton(), "record-tool.svg", new String[]{"record-blink-tool.svg", "record-pause-tool.svg", "record-resume-tool.svg"}, null, "toolbar.recording.start.tooltip", null));
 		this.add(stopRecordingButton = (JButton) initializeButton(new JButton(), "record-stop-tool.svg", null, "toolbar.recording.stop.tooltip", null));
+		this.add(streamEnableButton = (JToggleButton) initializeButton(new JToggleButton(), "stream-indicator.svg", null, "toolbar.stream.start.tooltip", null));
 		this.add(streamMicButton = (JToggleButton) initializeButton(new JToggleButton(), "microphone-off.svg", new String[]{"microphone.svg"}, null, "toolbar.stream.microphone.tooltip", null));
 		this.add(streamCamButton = (JToggleButton) initializeButton(new JToggleButton(), "camera-off.svg", new String[]{"camera.svg"}, null, "toolbar.stream.camera.tooltip", null));
 

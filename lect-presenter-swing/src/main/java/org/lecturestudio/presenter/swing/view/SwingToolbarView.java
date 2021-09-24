@@ -26,8 +26,12 @@ import java.awt.FlowLayout;
 import java.awt.Graphics2D;
 import java.awt.Paint;
 import java.awt.event.ActionEvent;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.awt.image.BufferedImage;
+import java.util.ArrayList;
 import java.util.Enumeration;
+import java.util.List;
 import java.util.ResourceBundle;
 
 import javax.inject.Inject;
@@ -37,6 +41,8 @@ import javax.swing.ButtonGroup;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JComponent;
+import javax.swing.JMenuItem;
+import javax.swing.JPopupMenu;
 import javax.swing.JToggleButton;
 import javax.swing.JToolBar;
 import javax.swing.KeyStroke;
@@ -150,6 +156,10 @@ public class SwingToolbarView extends JToolBar implements ToolbarView {
 	private JToggleButton streamMicButton;
 
 	private JToggleButton streamCamButton;
+
+	private List<Component> activatedComponents = new ArrayList<>();
+
+	private List<Component> deactivatedComponents = new ArrayList<>();;
 
 
 	@Inject
@@ -543,6 +553,12 @@ public class SwingToolbarView extends JToolBar implements ToolbarView {
 		SwingUtils.bindBidirectional(streamCamButton, enable);
 	}
 
+	@Override
+	public Component add(Component comp) {
+		activatedComponents.add(comp);
+		return super.add(comp);
+	}
+
 	private void setColorButtonsEnabled(boolean enabled) {
 		customColorButton.setEnabled(enabled);
 		colorButton1.setEnabled(enabled);
@@ -573,6 +589,7 @@ public class SwingToolbarView extends JToolBar implements ToolbarView {
 		if (nonNull(iconPath)) {
 			button.setIcon(AwtResourceLoader.getIcon(iconPath, 30));
 		}
+
 		if (nonNull(accelerator)) {
 			KeyStroke keyStroke = KeyStroke.getKeyStroke(accelerator);
 			button.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(keyStroke, keyStroke.toString());
@@ -584,17 +601,21 @@ public class SwingToolbarView extends JToolBar implements ToolbarView {
 				}
 			});
 		}
+
 		if (nonNull(toolTipText)) {
 			button.setToolTipText(resourceBundle.getString(toolTipText));
 		}
+
 		if (nonNull(name)) {
 			button.setName(name);
 		}
+
 		if (nonNull(tools) && tools.length > 0) {
 			for (ToolType tool : tools) {
 				button.putClientProperty("tool", tool);
 			}
 		}
+
 		if (nonNull(additionalIconPaths)) {
 			if (button instanceof ToolGroupButton) {
 				((ToolGroupButton) button).setCopyIcon(AwtResourceLoader.getIcon(additionalIconPaths[0], 30));
@@ -608,6 +629,24 @@ public class SwingToolbarView extends JToolBar implements ToolbarView {
 				button.setSelectedIcon(AwtResourceLoader.getIcon(additionalIconPaths[0], 30));
 			}
 		}
+
+		JPopupMenu popupMenu = new JPopupMenu();
+		popupMenu.add(new JMenuItem(new AbstractAction(resourceBundle.getString("toolbar.button.remove")) {
+			@Override
+			public void actionPerformed(ActionEvent ae) {
+				button.setVisible(false);
+				activatedComponents.remove(button);
+				deactivatedComponents.add(button);
+			}
+		}));
+		button.addMouseListener(new MouseAdapter() {
+			@Override
+			public void mouseReleased(MouseEvent me) {
+				if (me.isPopupTrigger())
+					popupMenu.show(me.getComponent(), me.getX(), me.getY());
+			}
+		});
+
 		return button;
 	}
 

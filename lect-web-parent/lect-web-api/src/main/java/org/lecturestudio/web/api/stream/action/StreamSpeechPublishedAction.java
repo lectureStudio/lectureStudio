@@ -21,7 +21,7 @@ package org.lecturestudio.web.api.stream.action;
 import java.io.IOException;
 import java.math.BigInteger;
 import java.nio.ByteBuffer;
-import java.util.Arrays;
+import java.nio.charset.StandardCharsets;
 
 public class StreamSpeechPublishedAction extends StreamAction {
 
@@ -42,9 +42,11 @@ public class StreamSpeechPublishedAction extends StreamAction {
 
 	@Override
 	public byte[] toByteArray() throws IOException {
-		byte[] payload = publisherId.toByteArray();
+		String idStr = publisherId.toString();
+		byte[] payload = idStr.getBytes(StandardCharsets.UTF_8);
 
-		ByteBuffer buffer = createBuffer(payload.length);
+		ByteBuffer buffer = createBuffer(payload.length + 4);
+		buffer.putInt(payload.length);
 		buffer.put(payload);
 
 		return buffer.array();
@@ -53,9 +55,12 @@ public class StreamSpeechPublishedAction extends StreamAction {
 	@Override
 	public void parseFrom(byte[] input) {
 		ByteBuffer buffer = createBuffer(input);
-		byte[] val = Arrays.copyOf(buffer.array(), buffer.limit());
+		int length = buffer.getInt();
 
-		publisherId = new BigInteger(val);
+		byte[] val = new byte[length];
+		buffer.get(val);
+
+		publisherId = new BigInteger(new String(val, StandardCharsets.UTF_8));
 	}
 
 	@Override

@@ -47,6 +47,8 @@ public class StreamActionFactory {
 				return new StreamDocumentCloseAction(input);
 			case STREAM_DOCUMENT_SELECTED:
 				return new StreamDocumentSelectAction(input);
+			case STREAM_SPEECH_PUBLISHED:
+				return new StreamSpeechPublishedAction(input);
 			default:
 				throw new IOException("Action not defined: " + type);
 		}

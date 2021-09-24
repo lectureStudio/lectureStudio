@@ -51,6 +51,7 @@ import org.lecturestudio.web.api.janus.message.JanusSessionTimeoutMessage;
 import org.lecturestudio.web.api.janus.state.DestroyRoomState;
 import org.lecturestudio.web.api.janus.state.InfoState;
 import org.lecturestudio.web.api.stream.StreamEventRecorder;
+import org.lecturestudio.web.api.stream.action.StreamSpeechPublishedAction;
 import org.lecturestudio.web.api.stream.config.WebRtcConfiguration;
 
 public class JanusHandler extends JanusStateHandler {
@@ -310,6 +311,15 @@ public class JanusHandler extends JanusStateHandler {
 			@Override
 			public void connected() {
 				setPeerState(publisher, ExecutableState.Started);
+
+				// Propagate "speech published" to passive participants.
+				for (JanusStateHandler handler : handlers) {
+					if (handler instanceof JanusPublisherHandler) {
+						JanusPublisherHandler pubHandler = (JanusPublisherHandler) handler;
+						pubHandler.sendStreamAction(new StreamSpeechPublishedAction(publisher.getId()));
+						break;
+					}
+				}
 			}
 
 			@Override

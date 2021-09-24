@@ -93,14 +93,14 @@ public class JanusPublisherHandler extends JanusStateHandler {
 
 	@Override
 	protected void startInternal() throws ExecutableException {
-		eventRecorder.addRecordedActionConsumer(this::handleStreamAction);
+		eventRecorder.addRecordedActionConsumer(this::sendStreamAction);
 
 		setState(new AttachPluginState(new CreateRoomState()));
 	}
 
 	@Override
 	protected void stopInternal() throws ExecutableException {
-		eventRecorder.removeRecordedActionConsumer(this::handleStreamAction);
+		eventRecorder.removeRecordedActionConsumer(this::sendStreamAction);
 
 		webRtcConfig.getAudioConfiguration().sendAudioProperty()
 				.removeListener(enableMicListener);
@@ -118,7 +118,7 @@ public class JanusPublisherHandler extends JanusStateHandler {
 
 	}
 
-	private void handleStreamAction(StreamAction action) {
+	public void sendStreamAction(StreamAction action) {
 		JanusPeerConnection peerConnection = getPeerConnection();
 
 		if (nonNull(peerConnection)) {

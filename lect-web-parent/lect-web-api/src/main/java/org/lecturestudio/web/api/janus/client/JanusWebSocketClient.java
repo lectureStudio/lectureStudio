@@ -198,9 +198,10 @@ public class JanusWebSocketClient extends ExecutableBase implements JanusMessage
 
 			if (last) {
 				StringReader reader = new StringReader(buffer.toString());
-				JsonObject body = Json.createReader(reader).readObject();
 
 				try {
+					JsonObject body = Json.createReader(reader).readObject();
+
 					JanusMessageType type = JanusMessageType.fromString(body.getString("janus"));
 					JanusMessage message = JanusMessageFactory.createMessage(jsonb, body, type);
 

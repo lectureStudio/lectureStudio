@@ -98,9 +98,9 @@ public class SwingCameraSettingsView extends JPanel implements CameraSettingsVie
 
 		SwingUtils.bindBidirectional(cameraResolutionsCombo, property);
 
-		cameraView.setListener(e -> viewRect.set(cameraView.getCaptureRect()));
-		viewRect.addListener((observable, oldValue, newValue) -> cameraView
-				.setCaptureRect(newValue));
+//		cameraView.setListener(e -> viewRect.set(cameraView.getCaptureRect()));
+//		viewRect.addListener((observable, oldValue, newValue) -> cameraView
+//				.setCaptureRect(newValue));
 	}
 
 	@Override

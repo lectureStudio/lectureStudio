@@ -22,6 +22,7 @@ import static java.util.Objects.isNull;
 import static java.util.Objects.nonNull;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import javax.inject.Inject;
@@ -127,6 +128,9 @@ public class CameraSettingsPresenter extends Presenter<CameraSettingsView> {
 
 			streamConfig.setCameraFormat(highestFormat);
 
+			setCameraAspectRatio(AspectRatio.Widescreen);
+
+			view.setCameraAspectRatio(AspectRatio.Widescreen);
 			view.setCamera(camera);
 
 			if (camera.isOpened()) {
@@ -170,13 +174,24 @@ public class CameraSettingsPresenter extends Presenter<CameraSettingsView> {
 		}
 
 		Rectangle2D viewRect = streamConfig.getCameraCodecConfig().getViewRect();
+		CameraFormat format = null;
 
-		CameraFormat format = formats[formats.length - 1];
+		if (nonNull(viewRect)) {
+			format = Arrays.stream(formats).filter(f -> {
+				return f.getWidth() == viewRect.getWidth()
+						&& f.getHeight() == viewRect.getHeight();
+			}).findFirst().orElse(null);
+		}
+
+		if (isNull(format)) {
+			format = formats[formats.length - 1];
+		}
 
 		double x = nonNull(viewRect) ? viewRect.getX() : 0;
 		double y = nonNull(viewRect) ? viewRect.getY() : 0;
 
-		streamConfig.getCameraCodecConfig().setViewRect(new Rectangle2D(x, y, format.getWidth(), format.getHeight()));
+		streamConfig.getCameraCodecConfig().setViewRect(new Rectangle2D(x, y,
+				format.getWidth(), format.getHeight()));
 	}
 
 	private CameraFormat[] filterCameraFormats(CameraFormat[] list, CameraFormat highest) {

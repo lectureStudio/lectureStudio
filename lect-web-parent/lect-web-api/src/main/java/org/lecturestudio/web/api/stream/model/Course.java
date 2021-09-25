@@ -18,6 +18,7 @@
 
 package org.lecturestudio.web.api.stream.model;
 
+import java.util.Objects;
 import java.util.StringJoiner;
 
 public class Course {
@@ -45,6 +46,28 @@ public class Course {
 
 	public String getDescription() {
 		return description;
+	}
+
+	@Override
+	public boolean equals(Object o) {
+		if (this == o) {
+			return true;
+		}
+		if (!(o instanceof Course)) {
+			return false;
+		}
+
+		Course course = (Course) o;
+
+		return Objects.equals(id, course.id)
+				&& Objects.equals(roomId, course.roomId)
+				&& Objects.equals(title, course.title)
+				&& Objects.equals(description, course.description);
+	}
+
+	@Override
+	public int hashCode() {
+		return Objects.hash(id, roomId, title, description);
 	}
 
 	@Override

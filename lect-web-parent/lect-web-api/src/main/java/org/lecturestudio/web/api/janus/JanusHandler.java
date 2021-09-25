@@ -236,6 +236,10 @@ public class JanusHandler extends JanusStateHandler {
 	private void removeStateHandler(JanusStateHandler handler) {
 		handlers.remove(handler);
 
+		if (handler.destroyed()) {
+			return;
+		}
+
 		try {
 			handler.destroy();
 		}
@@ -326,6 +330,7 @@ public class JanusHandler extends JanusStateHandler {
 			public void disconnected() {
 				setPeerState(publisher, ExecutableState.Stopped);
 
+				removeStateHandler(subHandler);
 				editRoom(1);
 				kickParticipant(publisher);
 			}

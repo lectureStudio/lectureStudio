@@ -25,7 +25,7 @@ public class Course {
 
 	private Long id;
 
-	private Long roomId;
+	private String roomId;
 
 	private String title;
 
@@ -36,7 +36,7 @@ public class Course {
 		return id;
 	}
 
-	public Long getRoomId() {
+	public String getRoomId() {
 		return roomId;
 	}
 

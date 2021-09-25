@@ -46,6 +46,8 @@ public class StreamConfiguration {
 
 	private final BooleanProperty enableCamera = new BooleanProperty();
 
+	private final BooleanProperty enableMessenger = new BooleanProperty();
+
 
 	public String getAccessToken() {
 		return accessToken.get();
@@ -172,5 +174,17 @@ public class StreamConfiguration {
 
 	public void setCameraEnabled(boolean enabled) {
 		enableCamera.set(enabled);
+	}
+
+	public boolean getMessengerEnabled() {
+		return enableMessenger.get();
+	}
+
+	public void setMessengerEnabled(boolean enabled) {
+		enableMessenger.set(enabled);
+	}
+
+	public BooleanProperty enableMessengerProperty() {
+		return enableMessenger;
 	}
 }

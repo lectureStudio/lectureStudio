@@ -59,7 +59,14 @@ public class StartStreamPresenter extends Presenter<StartStreamView> {
 
 	@Override
 	public void initialize() {
+		PresenterConfiguration config = (PresenterConfiguration) context.getConfiguration();
+		StreamConfiguration streamConfig = config.getStreamConfig();
+
 		startServices = new StartServices();
+		startServices.startMessenger.set(streamConfig.getMessengerEnabled());
+		startServices.startMessenger.addListener((observable, oldValue, newValue) -> {
+			streamConfig.setMessengerEnabled(newValue);
+		});
 
 		loadCourses();
 

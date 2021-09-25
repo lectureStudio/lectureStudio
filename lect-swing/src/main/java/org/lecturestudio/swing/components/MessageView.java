@@ -52,7 +52,7 @@ public class MessageView extends MessagePanel {
 
 	@Override
 	protected void createContent(JPanel content) {
-		discardButton = new JButton(dict.get("button.discard"));
+		discardButton = new JButton(dict.get("button.processed"));
 
 		Box controlPanel = Box.createHorizontalBox();
 		controlPanel.setBorder(BorderFactory.createEmptyBorder(2, 5, 2, 5));

@@ -361,7 +361,7 @@ public class SwingMenuView extends JMenuBar implements MenuView {
 
 	@Override
 	public void setOnShowMessengerWindow(ConsumerAction<Boolean> action) {
-		SwingUtils.bindAction(showMessengerWindowMenuItem, action);
+//		SwingUtils.bindAction(showMessengerWindowMenuItem, action);
 	}
 
 	@Override
@@ -381,7 +381,7 @@ public class SwingMenuView extends JMenuBar implements MenuView {
 
 	@Override
 	public void setMessengerWindowVisible(boolean visible) {
-		showMessengerWindowMenuItem.setSelected(visible);
+//		showMessengerWindowMenuItem.setSelected(visible);
 	}
 
 	@Override
@@ -389,7 +389,7 @@ public class SwingMenuView extends JMenuBar implements MenuView {
 		final boolean started = state == ExecutableState.Started;
 
 		SwingUtils.invoke(() -> {
-			showMessengerWindowMenuItem.setEnabled(started);
+//			showMessengerWindowMenuItem.setEnabled(started);
 
 			setIndicatorState(messengerIndicatorMenu, state);
 		});

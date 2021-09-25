@@ -37,7 +37,7 @@
 		<checkboxmenuitem id="enableStreamCameraMenuItem" text="menu.stream.camera.start" type="checkbox" selected="true" enabled="false" />
 		<separator />
 		<checkboxmenuitem id="enableMessengerMenuItem" text="menu.messenger.start" enabled="false" />
-		<checkboxmenuitem id="showMessengerWindowMenuItem" text="menu.messenger.window.visible" type="checkbox" selected="true" enabled="false" />
+<!--		<checkboxmenuitem id="showMessengerWindowMenuItem" text="menu.messenger.window.visible" type="checkbox" selected="true" enabled="false" />-->
 		<separator />
 		<menuitem id="selectQuizMenuItem" text="menu.quiz.selection" accelerator="Z" enabled="false" />
 		<menuitem id="newQuizMenuItem" text="menu.quiz.new" enabled="false" />

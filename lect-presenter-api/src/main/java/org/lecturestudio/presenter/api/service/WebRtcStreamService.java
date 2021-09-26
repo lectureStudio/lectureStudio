@@ -227,9 +227,14 @@ public class WebRtcStreamService extends ExecutableBase {
 			}
 		});
 
-		eventRecorder.start();
-		streamStateClient.start();
-		janusClient.start();
+		try {
+			eventRecorder.start();
+			streamStateClient.start();
+			janusClient.start();
+		}
+		catch (Exception e) {
+			throw new ExecutableException(e);
+		}
 
 		setStreamState(ExecutableState.Started);
 
@@ -248,13 +253,18 @@ public class WebRtcStreamService extends ExecutableBase {
 
 		context.getEventBus().unregister(this);
 
-		eventRecorder.stop();
+		try {
+			eventRecorder.stop();
 
-		streamStateClient.stop();
-		streamStateClient.destroy();
+			streamStateClient.stop();
+			streamStateClient.destroy();
 
-		janusClient.stop();
-		janusClient.destroy();
+			janusClient.stop();
+			janusClient.destroy();
+		}
+		catch (Exception e) {
+			throw new ExecutableException(e);
+		}
 
 		setStreamState(ExecutableState.Stopped);
 	}

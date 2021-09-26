@@ -121,24 +121,24 @@ public class WebRtcStreamEventRecorder extends StreamEventRecorder {
 
 	@Subscribe
 	public void onEvent(final RecordActionEvent event) {
-		if (initialized() || suspended()) {
+//		if (initialized() || suspended()) {
 			addPendingAction(event.getAction());
-		}
+//		}
 		if (!started()) {
 			return;
 		}
 
 		PlaybackAction action = event.getAction();
-//		action.setTimestamps((int) getElapsedTime());
+		action.setTimestamp((int) getElapsedTime());
 
 		addPlaybackAction(new StreamPagePlaybackAction(currentPage, action));
 	}
 
 	@Subscribe
 	public void onEvent(final PageEvent event) {
-		if (initialized() || suspended()) {
+//		if (initialized() || suspended()) {
 			pendingActions.setPendingPage(event.getPage());
-		}
+//		}
 		if (!started()) {
 			return;
 		}
@@ -167,10 +167,10 @@ public class WebRtcStreamEventRecorder extends StreamEventRecorder {
 	public void onEvent(final DocumentEvent event) {
 		Document doc = event.getDocument();
 
-		if (initialized() || suspended()) {
+//		if (initialized() || suspended()) {
 			currentPage = doc.getCurrentPage();
 			pendingActions.setPendingPage(doc.getCurrentPage());
-		}
+//		}
 		if (!started()) {
 			return;
 		}

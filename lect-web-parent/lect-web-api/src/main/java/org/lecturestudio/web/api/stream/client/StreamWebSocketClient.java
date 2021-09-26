@@ -33,6 +33,8 @@ import java.net.http.WebSocket.Listener;
 import java.nio.ByteBuffer;
 import java.time.Duration;
 import java.time.temporal.ChronoUnit;
+import java.util.Collection;
+import java.util.List;
 import java.util.concurrent.CompletionStage;
 
 import javax.json.Json;
@@ -190,13 +192,10 @@ public class StreamWebSocketClient extends ExecutableBase {
 				}
 			}
 
-			send(docSelectAction, pageAction);
-
-			for (var action : eventRecorder.getPreRecordedActions()) {
-				send(action);
-			}
+			send(List.of(docSelectAction, pageAction));
+			send(eventRecorder.getPreRecordedActions());
 		}
-		catch (IOException e) {
+		catch (Exception e) {
 			throw new ExecutableException("Send action failed", e);
 		}
 	}
@@ -215,7 +214,7 @@ public class StreamWebSocketClient extends ExecutableBase {
 		webSocket.sendBinary(ByteBuffer.wrap(action.toByteArray()), true);
 	}
 
-	private void send(StreamAction... actions) throws IOException {
+	private void send(Collection<? extends StreamAction> actions) throws IOException {
 		for (var action : actions) {
 			send(action);
 		}

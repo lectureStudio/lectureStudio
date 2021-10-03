@@ -40,7 +40,7 @@ public class ZoomTool extends StrokeTool<ZoomShape> {
 
 
 	public ZoomTool(ToolContext context) {
-		super(context);
+		super(context, null);
 	}
 
 	@Override

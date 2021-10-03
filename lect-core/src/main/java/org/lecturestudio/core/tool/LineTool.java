@@ -37,6 +37,10 @@ public class LineTool extends FormTool {
 		super(context);
 	}
 
+	public LineTool(ToolContext context, Integer shapeHandle) {
+		super(context, shapeHandle);
+	}
+
 	@Override
 	public ToolType getType() {
 		return ToolType.LINE;
@@ -58,6 +62,7 @@ public class LineTool extends FormTool {
 
 	@Override
 	protected PlaybackAction createPlaybackAction() {
-		return new LineAction(createStroke(), context.getKeyEvent());
+		return new LineAction(shape.getHandle(), createStroke(),
+				context.getKeyEvent());
 	}
 }

@@ -29,6 +29,10 @@ public abstract class FormTool extends StrokeTool<FormShape> {
 		super(context);
 	}
 
+	public FormTool(ToolContext context, Integer shapeHandle) {
+		super(context, shapeHandle);
+	}
+
 	@Override
 	protected void beginInternal(PenPoint2D point, Page page) {
 		shape.setStartPoint(point.clone());

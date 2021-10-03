@@ -22,14 +22,15 @@ import java.io.IOException;
 
 import org.lecturestudio.core.input.KeyEvent;
 import org.lecturestudio.core.controller.ToolController;
+import org.lecturestudio.core.tool.HighlighterTool;
 import org.lecturestudio.core.tool.Stroke;
 import org.lecturestudio.core.tool.StrokeSettings;
 import org.lecturestudio.core.tool.ToolType;
 
 public class HighlighterAction extends BaseStrokeAction {
 
-	public HighlighterAction(Stroke stroke, KeyEvent keyEvent) {
-		super(stroke, keyEvent);
+	public HighlighterAction(int shapeHandle, Stroke stroke, KeyEvent keyEvent) {
+		super(shapeHandle, stroke, keyEvent);
 	}
 
 	public HighlighterAction(byte[] input) throws IOException {
@@ -42,7 +43,7 @@ public class HighlighterAction extends BaseStrokeAction {
 		settings.setColor(stroke.getColor());
 		settings.setWidth(stroke.getWidth());
 
-		controller.selectHighlighterTool();
+		controller.setTool(new HighlighterTool(controller, shapeHandle));
 		controller.setKeyEvent(getKeyEvent());
 	}
 

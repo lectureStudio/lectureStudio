@@ -29,7 +29,7 @@ import org.lecturestudio.core.tool.ToolType;
 public class PointerAction extends BaseStrokeAction {
 
 	public PointerAction(Stroke stroke, KeyEvent keyEvent) {
-		super(stroke, keyEvent);
+		super(0, stroke, keyEvent);
 	}
 
 	public PointerAction(byte[] input) throws IOException {

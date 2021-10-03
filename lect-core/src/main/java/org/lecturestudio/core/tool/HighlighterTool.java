@@ -33,7 +33,11 @@ import org.lecturestudio.core.recording.action.PlaybackAction;
 public class HighlighterTool extends StrokeTool<StrokeShape> {
 
 	public HighlighterTool(ToolContext context) {
-		super(context);
+		super(context, null);
+	}
+
+	public HighlighterTool(ToolContext context, Integer shapeHandle) {
+		super(context, shapeHandle);
 	}
 
 	@Override
@@ -59,7 +63,8 @@ public class HighlighterTool extends StrokeTool<StrokeShape> {
 		// Highlighter should be smaller when zoomed in.
 		actionStroke.scale(context.getPageScale());
 
-		return new HighlighterAction(actionStroke, context.getKeyEvent());
+		return new HighlighterAction(shape.getHandle(), actionStroke,
+				context.getKeyEvent());
 	}
 
 	@Override

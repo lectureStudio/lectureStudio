@@ -93,6 +93,8 @@ public abstract class ActionFactory {
 				return new ZoomOutAction();
 			case RUBBER:
 				return new RubberAction(input);
+			case RUBBER_EXT:
+				return new RubberActionExt(input);
 			case NEXT_PAGE:
 				return new NextPageAction();
 			case PAGE:

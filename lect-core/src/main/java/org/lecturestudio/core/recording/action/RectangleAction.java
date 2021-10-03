@@ -22,14 +22,15 @@ import java.io.IOException;
 
 import org.lecturestudio.core.input.KeyEvent;
 import org.lecturestudio.core.controller.ToolController;
+import org.lecturestudio.core.tool.RectangleTool;
 import org.lecturestudio.core.tool.Stroke;
 import org.lecturestudio.core.tool.StrokeSettings;
 import org.lecturestudio.core.tool.ToolType;
 
 public class RectangleAction extends BaseStrokeAction {
 
-	public RectangleAction(Stroke stroke, KeyEvent keyEvent) {
-		super(stroke, keyEvent);
+	public RectangleAction(int shapeHandle, Stroke stroke, KeyEvent keyEvent) {
+		super(shapeHandle, stroke, keyEvent);
 	}
 
 	public RectangleAction(byte[] input) throws IOException {
@@ -42,7 +43,7 @@ public class RectangleAction extends BaseStrokeAction {
 		settings.setColor(stroke.getColor());
 		settings.setWidth(stroke.getWidth());
 
-		controller.selectRectangleTool();
+		controller.setTool(new RectangleTool(controller, shapeHandle));
 		controller.setKeyEvent(getKeyEvent());
 	}
 

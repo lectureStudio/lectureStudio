@@ -22,14 +22,15 @@ import java.io.IOException;
 
 import org.lecturestudio.core.input.KeyEvent;
 import org.lecturestudio.core.controller.ToolController;
+import org.lecturestudio.core.tool.EllipseTool;
 import org.lecturestudio.core.tool.Stroke;
 import org.lecturestudio.core.tool.StrokeSettings;
 import org.lecturestudio.core.tool.ToolType;
 
 public class EllipseAction extends BaseStrokeAction {
 
-	public EllipseAction(Stroke stroke, KeyEvent keyEvent) {
-		super(stroke, keyEvent);
+	public EllipseAction(int shapeHandle, Stroke stroke, KeyEvent keyEvent) {
+		super(shapeHandle, stroke, keyEvent);
 	}
 
 	public EllipseAction(byte[] input) throws IOException {
@@ -42,7 +43,7 @@ public class EllipseAction extends BaseStrokeAction {
 		settings.setColor(stroke.getColor());
 		settings.setWidth(stroke.getWidth());
 
-		controller.selectEllipseTool();
+		controller.setTool(new EllipseTool(controller, shapeHandle));
 		controller.setKeyEvent(getKeyEvent());
 	}
 

@@ -531,6 +531,21 @@ public class ToolController extends Controller implements ToolContext {
 	}
 
 	/**
+	 * Deletes a shape with the specified ID from the current page.
+	 *
+	 * @param shapeId The ID of the shape to delete.
+	 */
+	public void deleteShapeById(int shapeId) {
+		Document doc = documentService.getDocuments().getSelectedDocument();
+
+		if (nonNull(doc)) {
+			Page page = doc.getCurrentPage();
+
+			page.removeShape(shapeId);
+		}
+	}
+
+	/**
 	 * Select the next page in the selected document.
 	 */
 	public void selectNextPage() {
@@ -900,7 +915,7 @@ public class ToolController extends Controller implements ToolContext {
 	/**
 	 * Set the new painting tool.
 	 */
-	private void setTool(Tool tool) {
+	public void setTool(Tool tool) {
 		if (isNull(tool)) {
 			return;
 		}

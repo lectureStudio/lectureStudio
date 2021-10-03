@@ -37,6 +37,10 @@ public class ArrowTool extends FormTool {
 		super(context);
 	}
 
+	public ArrowTool(ToolContext context, Integer shapeHandle) {
+		super(context, shapeHandle);
+	}
+
 	@Override
 	public ToolType getType() {
 		return ToolType.ARROW;
@@ -61,6 +65,7 @@ public class ArrowTool extends FormTool {
 
 	@Override
 	protected PlaybackAction createPlaybackAction() {
-		return new ArrowAction(createStroke(), context.getKeyEvent());
+		return new ArrowAction(shape.getHandle(), createStroke(),
+				context.getKeyEvent());
 	}
 }

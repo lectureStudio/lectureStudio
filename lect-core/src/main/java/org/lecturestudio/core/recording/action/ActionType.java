@@ -61,6 +61,8 @@ public enum ActionType {
 
 	STATIC,
 
-	PAGE;
+	PAGE,
+
+	RUBBER_EXT, TEXT_SELECTION_EXT;
 
 }

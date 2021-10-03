@@ -37,6 +37,10 @@ public class RectangleTool extends FormTool {
 		super(context);
 	}
 
+	public RectangleTool(ToolContext context, Integer shapeHandle) {
+		super(context, shapeHandle);
+	}
+
 	@Override
 	public ToolType getType() {
 		return ToolType.RECTANGLE;
@@ -61,6 +65,7 @@ public class RectangleTool extends FormTool {
 
 	@Override
 	protected PlaybackAction createPlaybackAction() {
-		return new RectangleAction(createStroke(), context.getKeyEvent());
+		return new RectangleAction(shape.getHandle(), createStroke(),
+				context.getKeyEvent());
 	}
 }

@@ -30,7 +30,7 @@ public class PointerTool extends StrokeTool<PointerShape> {
 
 
 	public PointerTool(ToolContext context) {
-		super(context);
+		super(context, null);
 	}
 
 	@Override

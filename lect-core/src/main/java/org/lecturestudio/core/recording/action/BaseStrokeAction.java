@@ -30,12 +30,15 @@ import org.lecturestudio.core.tool.Stroke;
 
 public abstract class BaseStrokeAction extends PlaybackAction {
 
+	protected int shapeHandle;
+
 	protected Stroke stroke;
 
 
-	public BaseStrokeAction(Stroke stroke, KeyEvent keyEvent) {
+	public BaseStrokeAction(int shapeHandle, Stroke stroke, KeyEvent keyEvent) {
 		super(keyEvent);
 
+		this.shapeHandle = shapeHandle;
 		this.stroke = stroke;
 	}
 
@@ -45,9 +48,10 @@ public abstract class BaseStrokeAction extends PlaybackAction {
 
 	@Override
 	public byte[] toByteArray() throws IOException {
-		int length = nonNull(stroke) ? 13 : 0;
+		int length = nonNull(stroke) ? 17 : 4;
 
 		ByteBuffer buffer = createBuffer(length);
+		buffer.putInt(shapeHandle);
 
 		if (nonNull(stroke)) {
 			// Stroke data: 13 bytes.
@@ -62,6 +66,11 @@ public abstract class BaseStrokeAction extends PlaybackAction {
 	@Override
 	public void parseFrom(byte[] input) throws IOException {
 		ByteBuffer buffer = createBuffer(input);
+
+		if (buffer.remaining() >= 17) {
+			// For backwards compatibility.
+			shapeHandle = buffer.getInt();
+		}
 
 		if (buffer.remaining() >= 13) {
 			// Stroke

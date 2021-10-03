@@ -37,6 +37,10 @@ public class EllipseTool extends FormTool {
 		super(context);
 	}
 
+	public EllipseTool(ToolContext context, Integer shapeHandle) {
+		super(context, shapeHandle);
+	}
+
 	@Override
 	public ToolType getType() {
 		return ToolType.ELLIPSE;
@@ -61,6 +65,7 @@ public class EllipseTool extends FormTool {
 
 	@Override
 	protected PlaybackAction createPlaybackAction() {
-		return new EllipseAction(createStroke(), context.getKeyEvent());
+		return new EllipseAction(shape.getHandle(), createStroke(),
+				context.getKeyEvent());
 	}
 }

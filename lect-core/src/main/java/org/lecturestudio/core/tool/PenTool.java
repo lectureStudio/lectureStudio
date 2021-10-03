@@ -33,7 +33,11 @@ import org.lecturestudio.core.recording.action.PlaybackAction;
 public class PenTool extends StrokeTool<StrokeShape> {
 
 	public PenTool(ToolContext context) {
-		super(context);
+		super(context, null);
+	}
+
+	public PenTool(ToolContext context, Integer shapeHandle) {
+		super(context, shapeHandle);
 	}
 
 	@Override
@@ -55,7 +59,8 @@ public class PenTool extends StrokeTool<StrokeShape> {
 
 	@Override
 	protected PlaybackAction createPlaybackAction() {
-		return new PenAction(createStroke(), context.getKeyEvent());
+		return new PenAction(shape.getHandle(), createStroke(),
+				context.getKeyEvent());
 	}
 
 	@Override

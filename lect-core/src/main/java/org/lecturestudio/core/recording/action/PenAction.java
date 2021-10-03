@@ -22,14 +22,15 @@ import java.io.IOException;
 
 import org.lecturestudio.core.input.KeyEvent;
 import org.lecturestudio.core.controller.ToolController;
+import org.lecturestudio.core.tool.PenTool;
 import org.lecturestudio.core.tool.Stroke;
 import org.lecturestudio.core.tool.StrokeSettings;
 import org.lecturestudio.core.tool.ToolType;
 
 public class PenAction extends BaseStrokeAction {
 
-	public PenAction(Stroke stroke, KeyEvent keyEvent) {
-		super(stroke, keyEvent);
+	public PenAction(int shapeHandle, Stroke stroke, KeyEvent keyEvent) {
+		super(shapeHandle, stroke, keyEvent);
 	}
 
 	public PenAction(byte[] input) throws IOException {
@@ -42,7 +43,7 @@ public class PenAction extends BaseStrokeAction {
 		settings.setColor(stroke.getColor());
 		settings.setWidth(stroke.getWidth());
 
-		controller.selectPenTool();
+		controller.setTool(new PenTool(controller, shapeHandle));
 		controller.setKeyEvent(getKeyEvent());
 	}
 

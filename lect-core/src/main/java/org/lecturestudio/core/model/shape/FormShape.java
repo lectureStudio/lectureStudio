@@ -38,6 +38,7 @@ public abstract class FormShape extends PenShape {
 
 	private final Rectangle2D rect = new Rectangle2D();
 
+
 	/**
 	 * Creates a {@link FormShape} with the specified stroke.
 	 * (Calls {@link PenShape#PenShape(Stroke)} with the stroke.)

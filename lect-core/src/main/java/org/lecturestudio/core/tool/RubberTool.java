@@ -25,7 +25,7 @@ import org.lecturestudio.core.geometry.PenPoint2D;
 import org.lecturestudio.core.model.Page;
 import org.lecturestudio.core.model.action.DeleteShapeAction;
 import org.lecturestudio.core.model.shape.Shape;
-import org.lecturestudio.core.recording.action.RubberAction;
+import org.lecturestudio.core.recording.action.RubberActionExt;
 
 /**
  * PaintTool that deletes paintings near invocation positions.
@@ -44,10 +44,6 @@ public class RubberTool extends Tool {
 
 	@Override
 	public void begin(PenPoint2D point, Page page) {
-		recordAction(new RubberAction());
-
-		super.begin(point, page);
-
 		this.page = page;
 	}
 
@@ -57,6 +53,8 @@ public class RubberTool extends Tool {
 
 		for (Shape shape : page.getShapes()) {
 			if (shape.contains(point)) {
+				recordAction(new RubberActionExt(shape.getHandle()));
+
 				toDelete.add(shape);
 			}
 		}
@@ -64,10 +62,13 @@ public class RubberTool extends Tool {
 		if (!toDelete.isEmpty()) {
 			page.addAction(new DeleteShapeAction(page, toDelete));
 
-			super.execute(point);
-
 			fireToolEvent(new ShapeModifyEvent(toDelete));
 		}
+	}
+
+	@Override
+	public void end(PenPoint2D point) {
+		// Do nothing on purpose.
 	}
 
 	@Override

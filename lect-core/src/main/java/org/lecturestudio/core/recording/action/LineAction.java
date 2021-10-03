@@ -22,14 +22,15 @@ import java.io.IOException;
 
 import org.lecturestudio.core.input.KeyEvent;
 import org.lecturestudio.core.controller.ToolController;
+import org.lecturestudio.core.tool.LineTool;
 import org.lecturestudio.core.tool.Stroke;
 import org.lecturestudio.core.tool.StrokeSettings;
 import org.lecturestudio.core.tool.ToolType;
 
 public class LineAction extends BaseStrokeAction {
 
-	public LineAction(Stroke stroke, KeyEvent keyEvent) {
-		super(stroke, keyEvent);
+	public LineAction(int shapeHandle, Stroke stroke, KeyEvent keyEvent) {
+		super(shapeHandle, stroke, keyEvent);
 	}
 
 	public LineAction(byte[] input) throws IOException {
@@ -42,7 +43,7 @@ public class LineAction extends BaseStrokeAction {
 		settings.setColor(stroke.getColor());
 		settings.setWidth(stroke.getWidth());
 
-		controller.selectLineTool();
+		controller.setTool(new LineTool(controller, shapeHandle));
 		controller.setKeyEvent(getKeyEvent());
 	}
 

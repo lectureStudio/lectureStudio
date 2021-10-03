@@ -31,7 +31,7 @@ import org.lecturestudio.core.tool.ToolType;
 public class ZoomAction extends BaseStrokeAction {
 
 	public ZoomAction(Stroke stroke, KeyEvent keyEvent) {
-		super(stroke, keyEvent);
+		super(0, stroke, keyEvent);
 	}
 
 	public ZoomAction(byte[] input) throws IOException {

@@ -19,6 +19,7 @@
 package org.lecturestudio.core.tool;
 
 import static java.util.Objects.isNull;
+import static java.util.Objects.nonNull;
 
 import java.util.List;
 
@@ -27,17 +28,17 @@ import org.lecturestudio.core.geometry.Rectangle2D;
 import org.lecturestudio.core.model.Page;
 import org.lecturestudio.core.model.action.CreateShapeAction;
 import org.lecturestudio.core.model.shape.TextSelectionShape;
-import org.lecturestudio.core.recording.action.TextSelectionAction;
+import org.lecturestudio.core.recording.action.TextSelectionExtAction;
 
 public class TextSelectionTool extends Tool {
+
+	private Integer shapeHandle;
 
 	private List<Rectangle2D> textBoxes;
 
 	private Page page;
 
 	private PenPoint2D startPoint;
-
-	private TextSelectionAction action;
 
 	private TextSelectionShape shape;
 
@@ -46,10 +47,12 @@ public class TextSelectionTool extends Tool {
 		super(context);
 	}
 
-	public TextSelectionTool(ToolContext context, List<Rectangle2D> textBoxes) {
+	public TextSelectionTool(ToolContext context, List<Rectangle2D> textBoxes,
+			Integer shapeHandle) {
 		super(context);
 
 		this.textBoxes = textBoxes;
+		this.shapeHandle = shapeHandle;
 	}
 
 	@Override
@@ -61,9 +64,16 @@ public class TextSelectionTool extends Tool {
 			textBoxes = page.getTextPositions();
 		}
 
-		shape = createShape();
+		if (nonNull(shapeHandle)) {
+			shape = (TextSelectionShape) page.getShape(shapeHandle);
+		}
+		if (isNull(shape)) {
+			shape = createShape();
 
-		page.addShape(shape);
+			if (nonNull(shapeHandle)) {
+				shape.setHandle(shapeHandle);
+			}
+		}
 
 		addSelection(point);
 	}
@@ -79,17 +89,14 @@ public class TextSelectionTool extends Tool {
 
 	@Override
 	public void end(PenPoint2D point) {
-		super.end(point);
-
 		if (!shape.hasSelection()) {
 			page.removeShape(shape);
 		}
 		else {
-			fireToolEvent(new ShapePaintEvent(ToolEventType.END, shape, shape.getBounds()));
+			firePaintEvent(ToolEventType.END);
 		}
 
 		textBoxes = null;
-		action = null;
 	}
 
 	@Override
@@ -97,10 +104,11 @@ public class TextSelectionTool extends Tool {
 		return ToolType.TEXT_SELECTION;
 	}
 
-	private TextSelectionAction createPlaybackAction() {
+	private TextSelectionExtAction createPlaybackAction() {
 		TextSelectionSettings settings = context.getPaintSettings(getType());
 
-		return new TextSelectionAction(settings.getColor().derive(settings.getAlpha()));
+		return new TextSelectionExtAction(shape.getHandle(),
+				settings.getColor().derive(settings.getAlpha()));
 	}
 
 	private TextSelectionShape createShape() {
@@ -115,37 +123,35 @@ public class TextSelectionTool extends Tool {
 		xPoint.set(point.getX(), startPoint.getY());
 
 		for (Rectangle2D rect : textBoxes) {
-			if (rect.contains(xPoint)) {
-				Rectangle2D dirtyArea = shape.getBounds().clone();
+			if (!rect.contains(xPoint)) {
+				continue;
+			}
 
-				// Create an action only if there is at least one character selection.
-				if (!shape.hasSelection()) {
-					page.addAction(new CreateShapeAction(page, shape));
-					dirtyArea = rect.clone();
-				}
+			// Create an action only if there is at least one character selection.
+			if (!shape.hasSelection()) {
+				page.addAction(new CreateShapeAction(page, shape));
 
+				firePaintEvent(ToolEventType.BEGIN);
+			}
+
+			if (!shape.contains(xPoint)) {
 				shape.addPoint(point.clone());
 				shape.addSelection(rect);
 
-				dirtyArea.union(shape.getBounds());
-
-				if (isNull(action)) {
-					action = createPlaybackAction();
-
-					recordAction(action);
-
-					super.begin(point, page);
-
-					fireToolEvent(new ShapePaintEvent(ToolEventType.BEGIN, shape, shape.getBounds()));
-				}
+				TextSelectionExtAction action = createPlaybackAction();
 
 				if (action.addSelection(rect)) {
-					super.execute(point);
-
-					fireToolEvent(new ShapePaintEvent(ToolEventType.EXECUTE, shape, dirtyArea));
+					recordAction(action);
 				}
-				break;
+
+				firePaintEvent(ToolEventType.EXECUTE);
 			}
+
+			break;
 		}
+	}
+
+	private void firePaintEvent(ToolEventType type) {
+		fireToolEvent(new ShapePaintEvent(type, shape, shape.getBounds()));
 	}
 }

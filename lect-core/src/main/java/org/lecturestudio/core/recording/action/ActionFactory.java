@@ -77,6 +77,8 @@ public abstract class ActionFactory {
 				return new TextRemoveAction(input);
 			case TEXT_SELECTION:
 				return new TextSelectionAction(input);
+			case TEXT_SELECTION_EXT:
+				return new TextSelectionExtAction(input);
 			case TOOL_BEGIN:
 				return new ToolBeginAction(input);
 			case TOOL_EXECUTE:

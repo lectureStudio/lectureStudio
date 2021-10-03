@@ -24,7 +24,6 @@ import static java.util.Objects.nonNull;
 import com.google.common.eventbus.Subscribe;
 
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 import javax.inject.Inject;
@@ -376,15 +375,6 @@ public class ToolController extends Controller implements ToolContext {
 	 */
 	public void selectTextSelectionTool() {
 		setTool(new TextSelectionTool(this));
-	}
-
-	/**
-	 * Select the text-selection tool with predefined text bounding boxes to select.
-	 *
-	 * @param textPositions The predefined text bounding boxes to select.
-	 */
-	public void selectTextSelectionTool(List<Rectangle2D> textPositions) {
-		setTool(new TextSelectionTool(this, textPositions));
 	}
 
 	/**

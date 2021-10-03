@@ -54,8 +54,6 @@ public class RubberActionExt extends PlaybackAction {
 		ByteBuffer buffer = createBuffer(input);
 
 		this.shapeHandle = buffer.getInt();
-
-		System.out.println(shapeHandle);
 	}
 
 	@Override

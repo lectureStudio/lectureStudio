@@ -24,26 +24,30 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.lecturestudio.core.controller.ToolController;
+import org.lecturestudio.core.geometry.PenPoint2D;
 import org.lecturestudio.core.geometry.Rectangle2D;
 import org.lecturestudio.core.graphics.Color;
 import org.lecturestudio.core.tool.TextSelectionSettings;
 import org.lecturestudio.core.tool.TextSelectionTool;
 import org.lecturestudio.core.tool.ToolType;
 
-public class TextSelectionAction extends PlaybackAction {
+public class TextSelectionExtAction extends PlaybackAction {
 
 	private final List<Rectangle2D> selection = new ArrayList<>();
+
+	private int shapeHandle;
 
 	private Color color;
 
 
-	public TextSelectionAction(Color color) {
+	public TextSelectionExtAction(int shapeHandle, Color color) {
 		super();
 
+		this.shapeHandle = shapeHandle;
 		this.color = color;
 	}
 
-	public TextSelectionAction(byte[] input) throws IOException {
+	public TextSelectionExtAction(byte[] input) throws IOException {
 		parseFrom(input);
 	}
 
@@ -64,16 +68,28 @@ public class TextSelectionAction extends PlaybackAction {
 		TextSelectionSettings settings = controller.getPaintSettings(ToolType.TEXT_SELECTION);
 		settings.setColor(color);
 
-		controller.setTool(new TextSelectionTool(controller, selection, null));
+		controller.setTool(new TextSelectionTool(controller, selection, shapeHandle));
 		controller.setKeyEvent(getKeyEvent());
+
+		var it = selection.iterator();
+
+		if (it.hasNext()) {
+			Rectangle2D rect = it.next();
+			PenPoint2D point = new PenPoint2D(rect.getX(), rect.getY());
+
+			controller.beginToolAction(point);
+			controller.executeToolAction(point);
+			controller.endToolAction(point);
+		}
 	}
 
 	@Override
 	public byte[] toByteArray() throws IOException {
-		int length = 8 + selection.size() * 32;
+		int length = 12 + selection.size() * 32;
 
 		ByteBuffer buffer = createBuffer(length);
 
+		buffer.putInt(shapeHandle);
 		buffer.putInt(color.getRGBA());
 		buffer.putInt(selection.size());
 
@@ -93,6 +109,11 @@ public class TextSelectionAction extends PlaybackAction {
 	public void parseFrom(byte[] input) throws IOException {
 		ByteBuffer buffer = createBuffer(input);
 
+		if (buffer.remaining() >= 44) {
+			// For backwards compatibility.
+			shapeHandle = buffer.getInt();
+		}
+
 		color = new Color(buffer.getInt());
 
 		int count = buffer.getInt();
@@ -105,7 +126,7 @@ public class TextSelectionAction extends PlaybackAction {
 
 	@Override
 	public ActionType getType() {
-		return ActionType.TEXT_SELECTION;
+		return ActionType.TEXT_SELECTION_EXT;
 	}
 
 }

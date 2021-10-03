@@ -96,6 +96,7 @@ public class TextSelectionTool extends Tool {
 			firePaintEvent(ToolEventType.END);
 		}
 
+		shape = null;
 		textBoxes = null;
 	}
 

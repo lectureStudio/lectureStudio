@@ -61,9 +61,13 @@ public class PublishToRoomState implements JanusState {
 			sendRequest(handler, description.sdp);
 		});
 		peerConnection.setOnIceCandidate(iceCandidate -> {
+			logDebug("ICE Candidate: " + iceCandidate);
+
 			sendIceCandidate(handler, iceCandidate);
 		});
 		peerConnection.setOnIceGatheringState(state -> {
+			logDebug("ICE Gathering State: " + state);
+
 			if (state == RTCIceGatheringState.COMPLETE) {
 				sendEndOfCandidates(handler);
 			}

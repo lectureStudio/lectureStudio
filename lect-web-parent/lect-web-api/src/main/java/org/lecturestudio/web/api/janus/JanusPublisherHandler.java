@@ -23,7 +23,6 @@ import static java.util.Objects.nonNull;
 import org.lecturestudio.core.ExecutableException;
 import org.lecturestudio.core.beans.ChangeListener;
 import org.lecturestudio.web.api.janus.message.JanusMessage;
-import org.lecturestudio.web.api.janus.message.JanusMessageType;
 import org.lecturestudio.web.api.janus.message.JanusPluginMessage;
 import org.lecturestudio.web.api.janus.state.AttachPluginState;
 import org.lecturestudio.web.api.janus.state.CreateRoomState;
@@ -59,18 +58,25 @@ public class JanusPublisherHandler extends JanusStateHandler {
 			}
 		}
 
-		JanusMessageType type = message.getEventType();
-
-		if (type == JanusMessageType.WEBRTC_UP) {
-			setConnected();
-		}
-
 		super.handleMessage(message);
 	}
 
 	@Override
 	public JanusPeerConnection createPeerConnection() {
 		JanusPeerConnection peerConnection = super.createPeerConnection();
+
+		peerConnection.setOnIceConnectionState(state -> {
+			switch (state) {
+				case CONNECTED:
+					setConnected();
+					break;
+
+				case DISCONNECTED:
+				case CLOSED:
+					setDisconnected();
+					break;
+			}
+		});
 
 		webRtcConfig.getAudioConfiguration().sendAudioProperty()
 				.addListener(enableMicListener);

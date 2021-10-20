@@ -89,7 +89,7 @@ public class TextSelectionTool extends Tool {
 
 	@Override
 	public void end(PenPoint2D point) {
-		if (!shape.hasSelection()) {
+		if (nonNull(shape) && !shape.hasSelection()) {
 			page.removeShape(shape);
 		}
 		else {
@@ -153,6 +153,6 @@ public class TextSelectionTool extends Tool {
 	}
 
 	private void firePaintEvent(ToolEventType type) {
-		fireToolEvent(new ShapePaintEvent(type, shape, shape.getBounds()));
+		fireToolEvent(new ShapePaintEvent(type, shape, nonNull(shape) ? shape.getBounds() : null));
 	}
 }

@@ -118,6 +118,9 @@ public class FxMenuView extends HBox implements MenuView {
 	private CheckMenuItem advancedSettingsMenuItem;
 
 	@FXML
+	private CheckMenuItem customizeToolbarMenuItem;
+
+	@FXML
 	private MenuItem newWhiteboardMenuItem;
 
 	@FXML
@@ -350,6 +353,11 @@ public class FxMenuView extends HBox implements MenuView {
 	@Override
 	public void setOnAdvancedSettings(ConsumerAction<Boolean> action) {
 		FxUtils.bindAction(advancedSettingsMenuItem, action);
+	}
+
+	@Override
+	public void setOnCustomizeToolbar(Action action) {
+		FxUtils.bindAction(customizeToolbarMenuItem, action);
 	}
 
 	/**

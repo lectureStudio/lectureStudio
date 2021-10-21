@@ -906,13 +906,6 @@ public class ToolController extends Controller implements ToolContext {
 	 * Set the new painting tool.
 	 */
 	public void setTool(Tool tool) {
-		if (isNull(tool)) {
-			return;
-		}
-		if (nonNull(getSelectedTool()) && getSelectedTool() == tool) {
-			return;
-		}
-
 		setPreviousTool(getSelectedTool());
 
 		if (needDeselect(tool)) {
@@ -926,29 +919,33 @@ public class ToolController extends Controller implements ToolContext {
 
 		selectedTool = tool;
 
-		pushEvent(new ToolSelectionEvent(tool.getType(), getPaintSettings(tool.getType())));
+		if (nonNull(tool)) {
+			pushEvent(new ToolSelectionEvent(tool.getType(), getPaintSettings(tool.getType())));
+		} else {
+			pushEvent(new ToolSelectionEvent(null, getPaintSettings(null)));
+		}
 	}
 
 	private void setPreviousTool(Tool tool) {
-		if (isNull(tool)) {
-			return;
-		}
+		if (nonNull(tool)) {
+			switch (tool.getType()) {
+				// Don't remember simple tools.
+				case UNDO:
+				case REDO:
+				case ZOOM:
+				case ZOOM_OUT:
+				case PANNING:
+				case RUBBER:
+				case DELETE_ALL:
+				case EXTEND_VIEW:
+					return;
 
-		switch (tool.getType()) {
-			// Don't remember simple tools.
-			case UNDO:
-			case REDO:
-			case ZOOM:
-			case ZOOM_OUT:
-			case PANNING:
-			case RUBBER:
-			case DELETE_ALL:
-			case EXTEND_VIEW:
-				return;
-
-			default:
-				previousTool = tool;
-				break;
+				default:
+					previousTool = tool;
+					break;
+			}
+		} else {
+			previousTool = null;
 		}
 	}
 
@@ -971,6 +968,9 @@ public class ToolController extends Controller implements ToolContext {
 	}
 
 	private boolean needDeselect(Tool tool) {
+		if (isNull(tool)) {
+			return true;
+		}
 		switch (tool.getType()) {
 			case SELECT:
 			case SELECT_GROUP:
@@ -1024,7 +1024,7 @@ public class ToolController extends Controller implements ToolContext {
 	}
 
 	/**
-	 * Returns if the the selected page is zoomed on the user-view.
+	 * Returns if the selected page is zoomed on the user-view.
 	 *
 	 * @return {@code true} if the selected page is zoomed on the user-view, otherwise {@code false}.
 	 */

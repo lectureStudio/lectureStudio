@@ -101,6 +101,8 @@ public class SwingMenuView extends JMenuBar implements MenuView {
 
 	private JCheckBoxMenuItem advancedSettingsMenuItem;
 
+	private JMenuItem customizeToolbarMenuItem;
+
 	private JMenuItem newWhiteboardMenuItem;
 
 	private JMenuItem newWhiteboardPageMenuItem;
@@ -307,6 +309,11 @@ public class SwingMenuView extends JMenuBar implements MenuView {
 	@Override
 	public void setOnAdvancedSettings(ConsumerAction<Boolean> action) {
 		SwingUtils.bindAction(advancedSettingsMenuItem, action);
+	}
+
+	@Override
+	public void setOnCustomizeToolbar(Action action) {
+		SwingUtils.bindAction(customizeToolbarMenuItem, action);
 	}
 
 	@Override

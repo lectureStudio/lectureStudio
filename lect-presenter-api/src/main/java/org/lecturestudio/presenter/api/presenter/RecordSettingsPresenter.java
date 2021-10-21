@@ -76,7 +76,7 @@ public class RecordSettingsPresenter extends Presenter<RecordSettingsView> {
 	}
 
 	private void loadAudioFormats(String providerName, String deviceName) {
-		if (!AudioUtils.hasAudioCaptureDevice(providerName, deviceName)) {
+		if (!AudioUtils.hasCaptureDevice(providerName, deviceName)) {
 			// Select default device.
 			AudioInputDevice[] devices = AudioUtils.getAudioCaptureDevices(providerName);
 

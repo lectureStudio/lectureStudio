@@ -255,7 +255,7 @@ public class FileLectureRecorder extends LectureRecorder {
 		ExecutableState prevState = getPreviousState();
 
 		if (prevState == ExecutableState.Initialized || prevState == ExecutableState.Stopped) {
-			if (!AudioUtils.hasAudioCaptureDevice(audioConfig.getSoundSystem(), deviceName)) {
+			if (!AudioUtils.hasCaptureDevice(audioConfig.getSoundSystem(), deviceName)) {
 				throw new AudioDeviceNotConnectedException("Audio device %s is not connected", deviceName, deviceName);
 			}
 

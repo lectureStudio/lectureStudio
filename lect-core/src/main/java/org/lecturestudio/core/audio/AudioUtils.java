@@ -89,20 +89,42 @@ public class AudioUtils {
 	}
 
 	/**
-	 * Checks if an available audio capture devices of the {@link AudioSystemProvider} with the {@code providerName}
-	 * has the same name as the specified {@code deviceName}.
+	 * Checks if an available audio capture device of the {@link
+	 * AudioSystemProvider} with the {@code providerName} has the same name as
+	 * the specified {@code deviceName}.
 	 *
 	 * @param providerName The name of the {@link AudioSystemProvider}.
-	 * @param deviceName The name of the device.
-	 * @return {@code true} if an available audio capture device has the same name as the specified {@code deviceName},
-	 * otherwise {@code false}.
+	 * @param deviceName   The name of the device.
+	 *
+	 * @return {@code true} if an available audio capture device has the same
+	 * name as the specified {@code deviceName}, otherwise {@code false}.
 	 */
-	public static boolean hasAudioCaptureDevice(String providerName, String deviceName) {
+	public static boolean hasCaptureDevice(String providerName, String deviceName) {
 		if (isNull(deviceName)) {
 			return false;
 		}
 
 		return Arrays.stream(getAudioCaptureDevices(providerName))
+				.anyMatch(device -> device.getName().equals(deviceName));
+	}
+
+	/**
+	 * Checks if an available audio playback device of the {@link
+	 * AudioSystemProvider} with the {@code providerName} has the same name as
+	 * the specified {@code deviceName}.
+	 *
+	 * @param providerName The name of the {@link AudioSystemProvider}.
+	 * @param deviceName   The name of the device.
+	 *
+	 * @return {@code true} if an available audio playback device has the same
+	 * name as the specified {@code deviceName}, otherwise {@code false}.
+	 */
+	public static boolean hasPlaybackDevice(String providerName, String deviceName) {
+		if (isNull(deviceName)) {
+			return false;
+		}
+
+		return Arrays.stream(getAudioPlaybackDevices(providerName))
 				.anyMatch(device -> device.getName().equals(deviceName));
 	}
 

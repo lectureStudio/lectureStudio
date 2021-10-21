@@ -31,6 +31,7 @@ import javafx.scene.control.Hyperlink;
 import javafx.scene.layout.GridPane;
 
 import org.lecturestudio.core.audio.device.AudioInputDevice;
+import org.lecturestudio.core.audio.device.AudioOutputDevice;
 import org.lecturestudio.core.beans.BooleanProperty;
 import org.lecturestudio.core.beans.FloatProperty;
 import org.lecturestudio.core.beans.StringProperty;
@@ -40,10 +41,12 @@ import org.lecturestudio.javafx.beans.LectStringProperty;
 import org.lecturestudio.javafx.control.LevelMeter;
 import org.lecturestudio.javafx.util.FxUtils;
 import org.lecturestudio.javafx.view.FxmlView;
-import org.lecturestudio.presenter.api.view.MicrophoneSettingsView;
+import org.lecturestudio.presenter.api.presenter.SoundSettingsPresenter;
+import org.lecturestudio.presenter.api.view.SoundSettingsView;
 
-@FxmlView(name = "microphone-settings", presenter = org.lecturestudio.presenter.api.presenter.MicrophoneSettingsPresenter.class)
-public class FxMicrophoneSettingsView extends GridPane implements MicrophoneSettingsView {
+@FxmlView(name = "microphone-settings", presenter = SoundSettingsPresenter.class)
+public class FxMicrophoneSettingsView extends GridPane implements
+		SoundSettingsView {
 
 	@FXML
 	private ComboBox<String> audioCaptureDevicesCombo;
@@ -90,6 +93,16 @@ public class FxMicrophoneSettingsView extends GridPane implements MicrophoneSett
 	}
 
 	@Override
+	public void setAudioPlaybackDevice(StringProperty playbackDeviceName) {
+
+	}
+
+	@Override
+	public void setAudioPlaybackDevices(AudioOutputDevice[] playbackDevices) {
+
+	}
+
+	@Override
 	public void setAudioCaptureLevel(double value) {
 		FxUtils.invoke(() -> {
 			levelMeter.setLevel(value);
@@ -117,7 +130,7 @@ public class FxMicrophoneSettingsView extends GridPane implements MicrophoneSett
 	}
 
 	@Override
-	public void setOnTestPlayback(BooleanProperty playProperty) {
+	public void setOnTestCapturePlayback(BooleanProperty playProperty) {
 		throw new RuntimeException("Not implemented");
 	}
 

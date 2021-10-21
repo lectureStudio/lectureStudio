@@ -48,9 +48,9 @@ import org.lecturestudio.media.avdev.AvdevAudioPlayer;
 import org.lecturestudio.presenter.api.config.DefaultConfiguration;
 import org.lecturestudio.presenter.api.config.PresenterConfiguration;
 import org.lecturestudio.presenter.api.presenter.command.AdjustAudioCaptureLevelCommand;
-import org.lecturestudio.presenter.api.view.MicrophoneSettingsView;
+import org.lecturestudio.presenter.api.view.SoundSettingsView;
 
-public class MicrophoneSettingsPresenter extends Presenter<MicrophoneSettingsView> {
+public class SoundSettingsPresenter extends Presenter<SoundSettingsView> {
 
 	private final AudioConfiguration audioConfig;
 
@@ -78,7 +78,7 @@ public class MicrophoneSettingsPresenter extends Presenter<MicrophoneSettingsVie
 
 
 	@Inject
-	MicrophoneSettingsPresenter(ApplicationContext context, MicrophoneSettingsView view) {
+	SoundSettingsPresenter(ApplicationContext context, SoundSettingsView view) {
 		super(context, view);
 
 		PresenterConfiguration config = (PresenterConfiguration) context.getConfiguration();
@@ -89,7 +89,7 @@ public class MicrophoneSettingsPresenter extends Presenter<MicrophoneSettingsVie
 
 	@Override
 	public void initialize() {
-		setAudioCaptureDevices(soundSystem);
+		setAudioDevices(soundSystem);
 
 		testCapture = new BooleanProperty();
 		testPlayback = new BooleanProperty();
@@ -109,19 +109,24 @@ public class MicrophoneSettingsPresenter extends Presenter<MicrophoneSettingsVie
 		});
 
 		view.setAudioCaptureDevice(audioConfig.inputDeviceNameProperty());
+		view.setAudioPlaybackDevice(audioConfig.outputDeviceNameProperty());
 		view.bindAudioCaptureLevel(audioConfig.recordingMasterVolumeProperty());
 		view.setOnViewVisible(this::captureAudioLevel);
 		view.setOnAdjustAudioCaptureLevel(this::adjustAudioCaptureLevel);
 		view.bindTestCaptureEnabled(captureEnabled);
 		view.bindTestPlaybackEnabled(playbackEnabled);
 		view.setOnTestCapture(testCapture);
-		view.setOnTestPlayback(testPlayback);
+		view.setOnTestCapturePlayback(testPlayback);
 		view.setOnReset(this::reset);
 		view.setOnClose(this::close);
 
 		if (isNull(audioConfig.getInputDeviceName())) {
 			setDefaultCaptureDevice();
 		}
+		if (isNull(audioConfig.getOutputDeviceName())) {
+			setDefaultPlaybackDevice();
+		}
+
 		if (AudioUtils.getAudioCaptureDevices(soundSystem).length < 1) {
 			view.setViewEnabled(false);
 		}
@@ -136,9 +141,19 @@ public class MicrophoneSettingsPresenter extends Presenter<MicrophoneSettingsVie
 
 			recordingDeviceChanged(newDevice);
 		});
+		audioConfig.outputDeviceNameProperty().addListener((observable, oldDevice, newDevice) -> {
+			if (isNull(newDevice)) {
+				setDefaultPlaybackDevice();
+			}
+			else if (newDevice.equals(oldDevice)) {
+				return;
+			}
+
+			playbackDeviceChanged(newDevice);
+		});
 
 		audioConfig.soundSystemProperty().addListener((observable, oldSystem, newSystem) -> {
-			setAudioCaptureDevices(newSystem);
+			setAudioDevices(newSystem);
 		});
 
 		audioConfig.recordingMasterVolumeProperty().addListener((observable, oldValue, newValue) -> {
@@ -218,11 +233,10 @@ public class MicrophoneSettingsPresenter extends Presenter<MicrophoneSettingsVie
 			testPlaybackStream = new ByteArrayInputStream(testCaptureStream.toByteArray());
 
 			if (isNull(audioPlayer)) {
-				AudioOutputDevice device = AudioUtils.getDefaultAudioPlaybackDevice(soundSystem);
+				AVdevAudioOutputDevice device = createPlaybackDevice();
 
 				if (nonNull(device)) {
-					audioPlayer = new AvdevAudioPlayer(
-							(AVdevAudioOutputDevice) device,
+					audioPlayer = new AvdevAudioPlayer(device,
 							new TestAudioSource(), new SyncState());
 				}
 				else {
@@ -235,11 +249,13 @@ public class MicrophoneSettingsPresenter extends Presenter<MicrophoneSettingsVie
 		}
 		else {
 			audioPlayer.stop();
+			audioPlayer = null;
 		}
 	}
 
-	private void setAudioCaptureDevices(String soundSystem) {
+	private void setAudioDevices(String soundSystem) {
 		view.setAudioCaptureDevices(AudioUtils.getAudioCaptureDevices(soundSystem));
+		view.setAudioPlaybackDevices(AudioUtils.getAudioPlaybackDevices(soundSystem));
 	}
 
 	private void captureAudioLevel(boolean capture) {
@@ -269,11 +285,21 @@ public class MicrophoneSettingsPresenter extends Presenter<MicrophoneSettingsVie
 		}
 	}
 
+	private void setDefaultPlaybackDevice() {
+		AudioOutputDevice[] playbackDevices = AudioUtils.getAudioPlaybackDevices(soundSystem);
+
+		// Select first available playback device.
+		if (playbackDevices.length > 0) {
+			audioConfig.setOutputDeviceName(playbackDevices[0].getName());
+		}
+	}
+
 	private void reset() {
 		DefaultConfiguration defaultConfig = new DefaultConfiguration();
 
 		audioConfig.setSoundSystem(defaultConfig.getAudioConfig().getSoundSystem());
 		audioConfig.setInputDeviceName(defaultConfig.getAudioConfig().getInputDeviceName());
+		audioConfig.setOutputDeviceName(defaultConfig.getAudioConfig().getOutputDeviceName());
 		audioConfig.setDefaultRecordingVolume(defaultConfig.getAudioConfig().getDefaultRecordingVolume());
 		audioConfig.setMasterRecordingVolume(defaultConfig.getAudioConfig().getMasterRecordingVolume());
 		audioConfig.getRecordingVolumes().clear();
@@ -292,6 +318,10 @@ public class MicrophoneSettingsPresenter extends Presenter<MicrophoneSettingsVie
 
 		stopAudioLevelCapture();
 		startAudioLevelCapture();
+	}
+
+	private void playbackDeviceChanged(String name) {
+
 	}
 
 	private void startAudioLevelCapture() {
@@ -365,7 +395,7 @@ public class MicrophoneSettingsPresenter extends Presenter<MicrophoneSettingsVie
 		if (!soundSystem.equals("AVdev")) {
 			return null;
 		}
-		if (!AudioUtils.hasAudioCaptureDevice(soundSystem, inputDeviceName)) {
+		if (!AudioUtils.hasCaptureDevice(soundSystem, inputDeviceName)) {
 			// Select default device.
 			AudioInputDevice[] devices = AudioUtils.getAudioCaptureDevices(soundSystem);
 
@@ -391,6 +421,25 @@ public class MicrophoneSettingsPresenter extends Presenter<MicrophoneSettingsVie
 		device.setVolume(volume);
 
 		return device;
+	}
+
+	private AVdevAudioOutputDevice createPlaybackDevice() {
+		String playbackDeviceName = audioConfig.getOutputDeviceName();
+
+		if (!soundSystem.equals("AVdev")) {
+			return null;
+		}
+		if (!AudioUtils.hasPlaybackDevice(soundSystem, playbackDeviceName)) {
+			// Select default device.
+			AudioOutputDevice[] devices = AudioUtils.getAudioPlaybackDevices(soundSystem);
+
+			playbackDeviceName = (devices.length > 0) ? devices[0].getName() : null;
+		}
+		if (isNull(playbackDeviceName)) {
+			return null;
+		}
+
+		return (AVdevAudioOutputDevice) AudioUtils.getAudioOutputDevice(soundSystem, playbackDeviceName);
 	}
 
 

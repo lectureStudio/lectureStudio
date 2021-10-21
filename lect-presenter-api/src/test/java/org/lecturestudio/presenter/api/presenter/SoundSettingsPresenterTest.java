@@ -23,20 +23,21 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 import org.lecturestudio.core.app.configuration.AudioConfiguration;
 import org.lecturestudio.core.audio.device.AudioInputDevice;
+import org.lecturestudio.core.audio.device.AudioOutputDevice;
 import org.lecturestudio.core.beans.BooleanProperty;
 import org.lecturestudio.core.beans.FloatProperty;
 import org.lecturestudio.core.beans.StringProperty;
 import org.lecturestudio.core.view.Action;
 import org.lecturestudio.core.view.ConsumerAction;
 import org.lecturestudio.presenter.api.config.DefaultConfiguration;
-import org.lecturestudio.presenter.api.view.MicrophoneSettingsView;
+import org.lecturestudio.presenter.api.view.SoundSettingsView;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-class MicrophoneSettingsPresenterTest extends PresenterTest {
+class SoundSettingsPresenterTest extends PresenterTest {
 
-	private MicrophoneSettingsMockView view;
+	private SoundSettingsMockView view;
 
 
 	@BeforeEach
@@ -45,9 +46,9 @@ class MicrophoneSettingsPresenterTest extends PresenterTest {
 		config.setInputDeviceName("dummy");
 		config.setSoundSystem("dummy");
 
-		view = new MicrophoneSettingsMockView();
+		view = new SoundSettingsMockView();
 
-		MicrophoneSettingsPresenter presenter = new MicrophoneSettingsPresenter(context, view);
+		SoundSettingsPresenter presenter = new SoundSettingsPresenter(context, view);
 		presenter.initialize();
 	}
 
@@ -66,7 +67,7 @@ class MicrophoneSettingsPresenterTest extends PresenterTest {
 
 
 
-	private static class MicrophoneSettingsMockView implements MicrophoneSettingsView {
+	private static class SoundSettingsMockView implements SoundSettingsView {
 
 		Action resetAction;
 
@@ -83,6 +84,17 @@ class MicrophoneSettingsPresenterTest extends PresenterTest {
 
 		@Override
 		public void setAudioCaptureDevices(AudioInputDevice[] captureDevices) {
+
+		}
+
+		@Override
+		public void setAudioPlaybackDevice(StringProperty playbackDeviceName) {
+
+		}
+
+		@Override
+		public void setAudioPlaybackDevices(
+				AudioOutputDevice[] playbackDevices) {
 
 		}
 
@@ -112,7 +124,7 @@ class MicrophoneSettingsPresenterTest extends PresenterTest {
 		}
 
 		@Override
-		public void setOnTestPlayback(BooleanProperty playProperty) {
+		public void setOnTestCapturePlayback(BooleanProperty playProperty) {
 
 		}
 

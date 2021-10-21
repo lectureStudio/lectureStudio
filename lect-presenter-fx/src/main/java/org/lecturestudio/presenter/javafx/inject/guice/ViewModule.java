@@ -48,7 +48,7 @@ public class ViewModule extends AbstractModule {
 
 		bind(AboutView.class).to(FxAboutView.class);
 		bind(AdjustAudioCaptureLevelView.class).to(FxAdjustAudioCaptureLevelView.class);
-		bind(MicrophoneSettingsView.class).to(FxMicrophoneSettingsView.class);
+		bind(SoundSettingsView.class).to(FxMicrophoneSettingsView.class);
 		bind(CameraSettingsView.class).to(FxCameraSettingsView.class);
 		bind(CreateBookmarkView.class).to(FxCreateBookmarkView.class);
 		bind(CreateQuizView.class).to(FxCreateQuizView.class);

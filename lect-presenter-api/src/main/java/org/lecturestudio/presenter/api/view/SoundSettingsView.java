@@ -19,19 +19,24 @@
 package org.lecturestudio.presenter.api.view;
 
 import org.lecturestudio.core.audio.device.AudioInputDevice;
+import org.lecturestudio.core.audio.device.AudioOutputDevice;
 import org.lecturestudio.core.beans.BooleanProperty;
 import org.lecturestudio.core.beans.FloatProperty;
 import org.lecturestudio.core.beans.StringProperty;
 import org.lecturestudio.core.view.Action;
 import org.lecturestudio.core.view.ConsumerAction;
 
-public interface MicrophoneSettingsView extends SettingsBaseView {
+public interface SoundSettingsView extends SettingsBaseView {
 
 	void setViewEnabled(boolean enabled);
 
 	void setAudioCaptureDevice(StringProperty captureDeviceName);
 
 	void setAudioCaptureDevices(AudioInputDevice[] captureDevices);
+
+	void setAudioPlaybackDevice(StringProperty playbackDeviceName);
+
+	void setAudioPlaybackDevices(AudioOutputDevice[] playbackDevices);
 
 	void setAudioCaptureLevel(double value);
 
@@ -43,7 +48,7 @@ public interface MicrophoneSettingsView extends SettingsBaseView {
 
 	void setOnTestCapture(BooleanProperty recordProperty);
 
-	void setOnTestPlayback(BooleanProperty playProperty);
+	void setOnTestCapturePlayback(BooleanProperty playProperty);
 
 	void setOnAdjustAudioCaptureLevel(Action action);
 

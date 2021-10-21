@@ -28,22 +28,26 @@ import javax.swing.event.AncestorEvent;
 import javax.swing.event.AncestorListener;
 
 import org.lecturestudio.core.audio.device.AudioInputDevice;
+import org.lecturestudio.core.audio.device.AudioOutputDevice;
 import org.lecturestudio.core.beans.BooleanProperty;
 import org.lecturestudio.core.beans.FloatProperty;
 import org.lecturestudio.core.beans.StringProperty;
 import org.lecturestudio.core.converter.FloatIntegerConverter;
 import org.lecturestudio.core.view.Action;
 import org.lecturestudio.core.view.ConsumerAction;
-import org.lecturestudio.presenter.api.view.MicrophoneSettingsView;
+import org.lecturestudio.presenter.api.presenter.SoundSettingsPresenter;
+import org.lecturestudio.presenter.api.view.SoundSettingsView;
 import org.lecturestudio.swing.beans.ConvertibleNumberProperty;
 import org.lecturestudio.swing.components.LevelMeter;
 import org.lecturestudio.swing.util.SwingUtils;
 import org.lecturestudio.swing.view.SwingView;
 
-@SwingView(name = "microphone-settings", presenter = org.lecturestudio.presenter.api.presenter.MicrophoneSettingsPresenter.class)
-public class SwingMicrophoneSettingsView extends JPanel implements MicrophoneSettingsView {
+@SwingView(name = "sound-settings", presenter = SoundSettingsPresenter.class)
+public class SwingMicrophoneSettingsView extends JPanel implements SoundSettingsView {
 
 	private JComboBox<String> audioCaptureDevicesCombo;
+
+	private JComboBox<String> audioPlaybackDevicesCombo;
 
 	private LevelMeter levelMeter;
 
@@ -96,6 +100,26 @@ public class SwingMicrophoneSettingsView extends JPanel implements MicrophoneSet
 	}
 
 	@Override
+	public void setAudioPlaybackDevice(StringProperty playbackDeviceName) {
+		SwingUtils.invoke(() -> {
+			SwingUtils.bindBidirectional(audioPlaybackDevicesCombo, playbackDeviceName);
+		});
+	}
+
+	@Override
+	public void setAudioPlaybackDevices(AudioOutputDevice[] playbackDevices) {
+		DefaultComboBoxModel<String> model = new DefaultComboBoxModel<>();
+
+		for (AudioOutputDevice device : playbackDevices) {
+			model.addElement(device.getName());
+		}
+
+		SwingUtils.invoke(() -> {
+			audioPlaybackDevicesCombo.setModel(model);
+		});
+	}
+
+	@Override
 	public void setAudioCaptureLevel(double value) {
 		SwingUtils.invoke(() -> levelMeter.setLevel(value));
 	}
@@ -141,7 +165,7 @@ public class SwingMicrophoneSettingsView extends JPanel implements MicrophoneSet
 	}
 
 	@Override
-	public void setOnTestPlayback(BooleanProperty playProperty) {
+	public void setOnTestCapturePlayback(BooleanProperty playProperty) {
 		SwingUtils.bindBidirectional(playCaptureButton, playProperty);
 	}
 

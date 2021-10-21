@@ -18,8 +18,8 @@
 	<Tab name="recording" text="settings.recording" icon="recording-settings.svg, 24" size="120, 30">
 		<RecordSettingsView />
 	</Tab>
-	<Tab name="microphone" text="settings.microphone" icon="microphone-settings.svg, 24" size="120, 30">
-		<MicrophoneSettingsView />
+	<Tab name="sound" text="settings.sound" icon="sound-settings.svg, 24" size="120, 30">
+		<SoundSettingsView />
 	</Tab>
 	<Tab name="camera" text="settings.camera" icon="camera-settings.svg, 24" size="120, 30">
 		<CameraSettingsView />

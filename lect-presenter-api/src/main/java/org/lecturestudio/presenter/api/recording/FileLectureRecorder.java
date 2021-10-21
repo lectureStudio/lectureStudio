@@ -248,7 +248,7 @@ public class FileLectureRecorder extends LectureRecorder {
 
 	@Override
 	protected void startInternal() throws ExecutableException {
-		String deviceName = audioConfig.getInputDeviceName();
+		String deviceName = audioConfig.getCaptureDeviceName();
 
 		AudioBus.register(this);
 

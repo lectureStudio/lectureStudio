@@ -195,8 +195,8 @@ class ConfigurationTest {
 	@Test
 	final void testAudioConfig() throws IOException {
 		Configuration config = new Configuration();
-		config.getAudioConfig().setInputDeviceName("Integrated Microphone");
-		config.getAudioConfig().setOutputDeviceName("Speakers");
+		config.getAudioConfig().setCaptureDeviceName("Integrated Microphone");
+		config.getAudioConfig().setPlaybackDeviceName("Speakers");
 		config.getAudioConfig().setRecordingFormat(new AudioFormat(AudioFormat.Encoding.S16LE, 44100, 1));
 		config.getAudioConfig().setRecordingPath("/home/tmp");
 		config.getAudioConfig().setSoundSystem("Java");
@@ -207,8 +207,8 @@ class ConfigurationTest {
 		Configuration loadedConfig = manager.load(configFile, Configuration.class);
 		AudioConfiguration audioConfig = loadedConfig.getAudioConfig();
 
-		assertEquals("Integrated Microphone", audioConfig.getInputDeviceName());
-		assertEquals("Speakers", audioConfig.getOutputDeviceName());
+		assertEquals("Integrated Microphone", audioConfig.getCaptureDeviceName());
+		assertEquals("Speakers", audioConfig.getPlaybackDeviceName());
 		assertEquals(audioConfig.getRecordingFormat(), new AudioFormat(AudioFormat.Encoding.S16LE, 44100, 1));
 		assertEquals("/home/tmp", audioConfig.getRecordingPath());
 		assertEquals("Java", audioConfig.getSoundSystem());

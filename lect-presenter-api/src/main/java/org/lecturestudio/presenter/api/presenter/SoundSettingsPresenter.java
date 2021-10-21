@@ -108,8 +108,8 @@ public class SoundSettingsPresenter extends Presenter<SoundSettingsView> {
 			}
 		});
 
-		view.setAudioCaptureDevice(audioConfig.inputDeviceNameProperty());
-		view.setAudioPlaybackDevice(audioConfig.outputDeviceNameProperty());
+		view.setAudioCaptureDevice(audioConfig.captureDeviceNameProperty());
+		view.setAudioPlaybackDevice(audioConfig.playbackDeviceNameProperty());
 		view.bindAudioCaptureLevel(audioConfig.recordingMasterVolumeProperty());
 		view.setOnViewVisible(this::captureAudioLevel);
 		view.setOnAdjustAudioCaptureLevel(this::adjustAudioCaptureLevel);
@@ -120,10 +120,10 @@ public class SoundSettingsPresenter extends Presenter<SoundSettingsView> {
 		view.setOnReset(this::reset);
 		view.setOnClose(this::close);
 
-		if (isNull(audioConfig.getInputDeviceName())) {
+		if (isNull(audioConfig.getCaptureDeviceName())) {
 			setDefaultCaptureDevice();
 		}
-		if (isNull(audioConfig.getOutputDeviceName())) {
+		if (isNull(audioConfig.getPlaybackDeviceName())) {
 			setDefaultPlaybackDevice();
 		}
 
@@ -131,7 +131,7 @@ public class SoundSettingsPresenter extends Presenter<SoundSettingsView> {
 			view.setViewEnabled(false);
 		}
 
-		audioConfig.inputDeviceNameProperty().addListener((observable, oldDevice, newDevice) -> {
+		audioConfig.captureDeviceNameProperty().addListener((observable, oldDevice, newDevice) -> {
 			if (isNull(newDevice)) {
 				setDefaultCaptureDevice();
 			}
@@ -141,7 +141,7 @@ public class SoundSettingsPresenter extends Presenter<SoundSettingsView> {
 
 			recordingDeviceChanged(newDevice);
 		});
-		audioConfig.outputDeviceNameProperty().addListener((observable, oldDevice, newDevice) -> {
+		audioConfig.playbackDeviceNameProperty().addListener((observable, oldDevice, newDevice) -> {
 			if (isNull(newDevice)) {
 				setDefaultPlaybackDevice();
 			}
@@ -157,7 +157,7 @@ public class SoundSettingsPresenter extends Presenter<SoundSettingsView> {
 		});
 
 		audioConfig.recordingMasterVolumeProperty().addListener((observable, oldValue, newValue) -> {
-			String deviceName = audioConfig.getInputDeviceName();
+			String deviceName = audioConfig.getCaptureDeviceName();
 
 			if (nonNull(deviceName)) {
 				audioConfig.setRecordingVolume(deviceName, newValue);
@@ -278,7 +278,7 @@ public class SoundSettingsPresenter extends Presenter<SoundSettingsView> {
 
 		// Select first available capture device.
 		if (captureDevices.length > 0) {
-			audioConfig.setInputDeviceName(captureDevices[0].getName());
+			audioConfig.setCaptureDeviceName(captureDevices[0].getName());
 		}
 		else {
 			view.setViewEnabled(false);
@@ -290,7 +290,7 @@ public class SoundSettingsPresenter extends Presenter<SoundSettingsView> {
 
 		// Select first available playback device.
 		if (playbackDevices.length > 0) {
-			audioConfig.setOutputDeviceName(playbackDevices[0].getName());
+			audioConfig.setPlaybackDeviceName(playbackDevices[0].getName());
 		}
 	}
 
@@ -298,8 +298,8 @@ public class SoundSettingsPresenter extends Presenter<SoundSettingsView> {
 		DefaultConfiguration defaultConfig = new DefaultConfiguration();
 
 		audioConfig.setSoundSystem(defaultConfig.getAudioConfig().getSoundSystem());
-		audioConfig.setInputDeviceName(defaultConfig.getAudioConfig().getInputDeviceName());
-		audioConfig.setOutputDeviceName(defaultConfig.getAudioConfig().getOutputDeviceName());
+		audioConfig.setCaptureDeviceName(defaultConfig.getAudioConfig().getCaptureDeviceName());
+		audioConfig.setPlaybackDeviceName(defaultConfig.getAudioConfig().getPlaybackDeviceName());
 		audioConfig.setDefaultRecordingVolume(defaultConfig.getAudioConfig().getDefaultRecordingVolume());
 		audioConfig.setMasterRecordingVolume(defaultConfig.getAudioConfig().getMasterRecordingVolume());
 		audioConfig.getRecordingVolumes().clear();
@@ -390,7 +390,7 @@ public class SoundSettingsPresenter extends Presenter<SoundSettingsView> {
 	}
 
 	private AVdevAudioInputDevice createCaptureDevice() {
-		String inputDeviceName = audioConfig.getInputDeviceName();
+		String inputDeviceName = audioConfig.getCaptureDeviceName();
 
 		if (!soundSystem.equals("AVdev")) {
 			return null;
@@ -424,7 +424,7 @@ public class SoundSettingsPresenter extends Presenter<SoundSettingsView> {
 	}
 
 	private AVdevAudioOutputDevice createPlaybackDevice() {
-		String playbackDeviceName = audioConfig.getOutputDeviceName();
+		String playbackDeviceName = audioConfig.getPlaybackDeviceName();
 
 		if (!soundSystem.equals("AVdev")) {
 			return null;

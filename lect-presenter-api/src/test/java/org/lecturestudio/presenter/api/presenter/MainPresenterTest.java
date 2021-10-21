@@ -73,7 +73,7 @@ class MainPresenterTest extends PresenterTest {
 	@BeforeEach
 	void setup() throws IOException {
 		AudioConfiguration audioConfig = context.getConfiguration().getAudioConfig();
-		audioConfig.setInputDeviceName("dummy");
+		audioConfig.setCaptureDeviceName("dummy");
 		audioConfig.setSoundSystem("dummy");
 
 		documentService = context.getDocumentService();

@@ -35,10 +35,10 @@ import org.lecturestudio.core.util.ObservableMap;
 public class AudioConfiguration {
 
 	/** The capture device name. */
-	private final StringProperty inputDeviceName = new StringProperty();
+	private final StringProperty captureDeviceName = new StringProperty();
 
 	/** The playback device name. */
-	private final StringProperty outputDeviceName = new StringProperty();
+	private final StringProperty playbackDeviceName = new StringProperty();
 
 	/** The sound system name. */
 	private final StringProperty soundSystem = new StringProperty();
@@ -67,8 +67,8 @@ public class AudioConfiguration {
 	 *
 	 * @return the capture device name.
 	 */
-	public String getInputDeviceName() {
-		return inputDeviceName.get();
+	public String getCaptureDeviceName() {
+		return captureDeviceName.get();
 	}
 
 	/**
@@ -76,8 +76,8 @@ public class AudioConfiguration {
 	 *
 	 * @param deviceName the capture device name to set.
 	 */
-	public void setInputDeviceName(String deviceName) {
-		this.inputDeviceName.set(deviceName);
+	public void setCaptureDeviceName(String deviceName) {
+		this.captureDeviceName.set(deviceName);
 	}
 
 	/**
@@ -85,8 +85,8 @@ public class AudioConfiguration {
 	 *
 	 * @return the capture device name property.
 	 */
-	public StringProperty inputDeviceNameProperty() {
-		return inputDeviceName;
+	public StringProperty captureDeviceNameProperty() {
+		return captureDeviceName;
 	}
 
 	/**
@@ -94,8 +94,8 @@ public class AudioConfiguration {
 	 *
 	 * @return the playback device name.
 	 */
-	public String getOutputDeviceName() {
-		return outputDeviceName.get();
+	public String getPlaybackDeviceName() {
+		return playbackDeviceName.get();
 	}
 
 	/**
@@ -103,8 +103,8 @@ public class AudioConfiguration {
 	 *
 	 * @param deviceName the playback device name to set.
 	 */
-	public void setOutputDeviceName(String deviceName) {
-		this.outputDeviceName.set(deviceName);
+	public void setPlaybackDeviceName(String deviceName) {
+		this.playbackDeviceName.set(deviceName);
 	}
 
 	/**
@@ -112,8 +112,8 @@ public class AudioConfiguration {
 	 *
 	 * @return the playback device name property.
 	 */
-	public StringProperty outputDeviceNameProperty() {
-		return outputDeviceName;
+	public StringProperty playbackDeviceNameProperty() {
+		return playbackDeviceName;
 	}
 
 	/**

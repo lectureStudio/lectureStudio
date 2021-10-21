@@ -311,7 +311,7 @@ public class RecordingPlayer extends ExecutableBase {
 		AudioInputStreamSource audioSource = new AudioInputStreamSource(audioStream, targetFormat);
 		
 		String providerName = audioConfig.getSoundSystem();
-		String outputDeviceName = audioConfig.getOutputDeviceName();
+		String outputDeviceName = audioConfig.getPlaybackDeviceName();
 		
 		AudioOutputDevice outputDevice = AudioUtils.getAudioOutputDevice(providerName, outputDeviceName);
 		

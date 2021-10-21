@@ -53,7 +53,7 @@ class RestoreRecordingPresenterTest extends PresenterTest {
 	@BeforeEach
 	void setUp() throws IOException, ExecutableException {
 		AudioConfiguration audioConfig = context.getConfiguration().getAudioConfig();
-		audioConfig.setInputDeviceName("dummy");
+		audioConfig.setCaptureDeviceName("dummy");
 		audioConfig.setSoundSystem("dummy");
 
 		DocumentService documentService = context.getDocumentService();

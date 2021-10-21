@@ -58,7 +58,7 @@ public class RecordSettingsPresenter extends Presenter<RecordSettingsView> {
 		PresenterConfiguration config = (PresenterConfiguration) context.getConfiguration();
 
 		String soundSystemName = audioConfig.getSoundSystem();
-		String inputDeviceName = audioConfig.getInputDeviceName();
+		String inputDeviceName = audioConfig.getCaptureDeviceName();
 
 		loadAudioFormats(soundSystemName, inputDeviceName);
 
@@ -70,7 +70,7 @@ public class RecordSettingsPresenter extends Presenter<RecordSettingsView> {
 		view.setOnSelectRecordingPath(this::selectRecordingPath);
 		view.setOnReset(this::reset);
 
-		audioConfig.inputDeviceNameProperty().addListener((observable, oldDevice, newDevice) -> {
+		audioConfig.captureDeviceNameProperty().addListener((observable, oldDevice, newDevice) -> {
 			loadAudioFormats(soundSystemName, newDevice);
 		});
 	}

@@ -73,7 +73,7 @@ class SaveRecordingPresenterTest extends PresenterTest {
 		chooserRef = new AtomicReference<>();
 
 		AudioConfiguration audioConfig = context.getConfiguration().getAudioConfig();
-		audioConfig.setInputDeviceName("dummy");
+		audioConfig.setCaptureDeviceName("dummy");
 		audioConfig.setSoundSystem("dummy");
 
 		documentService = context.getDocumentService();

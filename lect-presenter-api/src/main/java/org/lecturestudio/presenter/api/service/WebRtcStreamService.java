@@ -352,7 +352,7 @@ public class WebRtcStreamService extends ExecutableBase {
 
 		AudioDevice audioCaptureDevice = getDeviceByName(
 				MediaDevices.getAudioCaptureDevices(),
-				audioConfig.getInputDeviceName());
+				audioConfig.getCaptureDeviceName());
 		VideoDevice videoCaptureDevice = getDeviceByName(
 				MediaDevices.getVideoCaptureDevices(),
 				streamConfig.getCameraName());

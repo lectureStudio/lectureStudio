@@ -49,7 +49,7 @@ class QuitRecordingPresenterTest extends PresenterTest {
 	@BeforeEach
 	void setup() throws IOException {
 		AudioConfiguration audioConfig = context.getConfiguration().getAudioConfig();
-		audioConfig.setInputDeviceName("dummy");
+		audioConfig.setCaptureDeviceName("dummy");
 		audioConfig.setSoundSystem("dummy");
 
 		DocumentService documentService = context.getDocumentService();

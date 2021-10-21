@@ -81,7 +81,7 @@ class RecordingServiceTest extends ServiceTest {
 	@BeforeEach
 	void setUp() throws IOException {
 		AudioConfiguration audioConfig = context.getConfiguration().getAudioConfig();
-		audioConfig.setInputDeviceName("dummy");
+		audioConfig.setCaptureDeviceName("dummy");
 		audioConfig.setSoundSystem("dummy");
 
 		FileLectureRecorder recorder = new FileLectureRecorder(documentService, audioConfig, recPath.toFile().getPath());

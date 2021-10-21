@@ -43,7 +43,7 @@ class SoundSettingsPresenterTest extends PresenterTest {
 	@BeforeEach
 	void setup() {
 		AudioConfiguration config = context.getConfiguration().getAudioConfig();
-		config.setInputDeviceName("dummy");
+		config.setCaptureDeviceName("dummy");
 		config.setSoundSystem("dummy");
 
 		view = new SoundSettingsMockView();
@@ -60,7 +60,7 @@ class SoundSettingsPresenterTest extends PresenterTest {
 		AudioConfiguration defaultConfig = new DefaultConfiguration().getAudioConfig();
 
 		assertEquals(defaultConfig.getSoundSystem(), config.getSoundSystem());
-		assertEquals(defaultConfig.getInputDeviceName(), config.getInputDeviceName());
+		assertEquals(defaultConfig.getCaptureDeviceName(), config.getCaptureDeviceName());
 		assertEquals(defaultConfig.getDefaultRecordingVolume(), config.getDefaultRecordingVolume());
 		assertEquals(defaultConfig.getRecordingVolumes(), config.getRecordingVolumes());
 	}

@@ -268,7 +268,7 @@ public class NoiseReductionSettingsPresenter extends Presenter<NoiseReductionSet
 		try {
 			Configuration config = context.getConfiguration();
 			String providerName = config.getAudioConfig().getSoundSystem();
-			String outputDeviceName = config.getAudioConfig().getOutputDeviceName();
+			String outputDeviceName = config.getAudioConfig().getPlaybackDeviceName();
 
 			AudioOutputDevice outputDevice = AudioUtils.getAudioOutputDevice(providerName, outputDeviceName);
 			outputDevice.setVolume(1);

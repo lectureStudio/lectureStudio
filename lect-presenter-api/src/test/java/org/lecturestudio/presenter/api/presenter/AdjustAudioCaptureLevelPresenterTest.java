@@ -41,7 +41,7 @@ class AdjustAudioCaptureLevelPresenterTest extends PresenterTest {
 	@BeforeEach
 	void setup() {
 		AudioConfiguration audioConfig = context.getConfiguration().getAudioConfig();
-		audioConfig.setInputDeviceName("dummy");
+		audioConfig.setCaptureDeviceName("dummy");
 		audioConfig.setSoundSystem("dummy");
 
 		view = new AdjustAudioCaptureLevelMockView();
@@ -64,7 +64,7 @@ class AdjustAudioCaptureLevelPresenterTest extends PresenterTest {
 
 		AudioConfiguration config = context.getConfiguration().getAudioConfig();
 
-		assertEquals(0.77, config.getRecordingVolume(config.getInputDeviceName()).doubleValue());
+		assertEquals(0.77, config.getRecordingVolume(config.getCaptureDeviceName()).doubleValue());
 	}
 
 

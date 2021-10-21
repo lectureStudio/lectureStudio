@@ -162,7 +162,7 @@ public class RtpAudioClient extends ExecutableBase implements MediaStreamClient<
 
 	private void initAudioPlayer() throws ExecutableException {
 		String providerName = audioConfig.getSoundSystem();
-		String outputDeviceName = audioConfig.getOutputDeviceName();
+		String outputDeviceName = audioConfig.getPlaybackDeviceName();
 
 		AudioOutputDevice outputDevice = AudioUtils.getAudioOutputDevice(providerName, outputDeviceName);
 

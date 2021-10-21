@@ -136,7 +136,7 @@ public class BasicRecordingTest {
 
 		AudioConfiguration audioConfig = context.getConfiguration().getAudioConfig();
 		audioConfig.setSoundSystem(soundSystem);
-		audioConfig.setInputDeviceName(AudioUtils.getDefaultAudioCaptureDevice(soundSystem).getName());
+		audioConfig.setCaptureDeviceName(AudioUtils.getDefaultAudioCaptureDevice(soundSystem).getName());
 
 		subscriber = new PageEventSubscriber();
 

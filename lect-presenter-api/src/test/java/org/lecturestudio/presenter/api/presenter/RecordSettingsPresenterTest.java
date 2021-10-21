@@ -47,7 +47,7 @@ class RecordSettingsPresenterTest extends PresenterTest {
 	@BeforeEach
 	void setup() {
 		AudioConfiguration config = context.getConfiguration().getAudioConfig();
-		config.setInputDeviceName("dummy");
+		config.setCaptureDeviceName("dummy");
 		config.setSoundSystem("dummy");
 		config.setRecordingPath(config.getRecordingPath());
 		config.setRecordingFormat(new AudioFormat(AudioFormat.Encoding.S32LE, 32000, 4));

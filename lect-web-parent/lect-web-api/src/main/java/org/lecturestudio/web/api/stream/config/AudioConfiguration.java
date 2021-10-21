@@ -25,7 +25,7 @@ import org.lecturestudio.core.beans.ObjectProperty;
 
 public class AudioConfiguration {
 
-	private final ObjectProperty<AudioDevice> playoutDevice;
+	private final ObjectProperty<AudioDevice> playbackDevice;
 
 	private final ObjectProperty<AudioDevice> recordingDevice;
 
@@ -35,22 +35,22 @@ public class AudioConfiguration {
 
 
 	public AudioConfiguration() {
-		playoutDevice = new ObjectProperty<>();
+		playbackDevice = new ObjectProperty<>();
 		recordingDevice = new ObjectProperty<>();
 		receiveAudio = new BooleanProperty();
 		sendAudio = new BooleanProperty();
 	}
 
-	public ObjectProperty<AudioDevice> playoutDeviceProperty() {
-		return playoutDevice;
+	public ObjectProperty<AudioDevice> playbackDeviceProperty() {
+		return playbackDevice;
 	}
 
-	public AudioDevice getPlayoutDevice() {
-		return playoutDevice.get();
+	public AudioDevice getPlaybackDevice() {
+		return playbackDevice.get();
 	}
 
-	public void setPlayoutDevice(AudioDevice device) {
-		playoutDevice.set(device);
+	public void setPlaybackDevice(AudioDevice device) {
+		playbackDevice.set(device);
 	}
 
 	public ObjectProperty<AudioDevice> recordingDeviceProperty() {

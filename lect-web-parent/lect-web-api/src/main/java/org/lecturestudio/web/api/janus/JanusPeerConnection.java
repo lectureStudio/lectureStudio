@@ -119,16 +119,24 @@ public class JanusPeerConnection implements PeerConnectionObserver {
 		this.queuedRemoteCandidates = new ArrayList<>();
 
 		executeAndWait(() -> {
-			AudioDevice recDevice = config.getAudioConfiguration().getRecordingDevice();
+			AudioDevice captureDevice = config.getAudioConfiguration().getRecordingDevice();
+			AudioDevice playbackDevice = config.getAudioConfiguration().getPlaybackDevice();
+
 			audioModule = new AudioDeviceModule();
 
-			if (nonNull(recDevice)) {
-				LOGGER.log(Level.INFO, "Audio capture device: " + recDevice);
+			if (nonNull(captureDevice)) {
+				LOGGER.log(Level.INFO, "Audio capture device: " + captureDevice);
 
-				audioModule.setRecordingDevice(recDevice);
+				audioModule.setRecordingDevice(captureDevice);
+			}
+			if (nonNull(playbackDevice)) {
+				LOGGER.log(Level.INFO, "Audio playback device: " + playbackDevice);
+
+				audioModule.setPlayoutDevice(playbackDevice);
 			}
 
 			audioModule.initRecording();
+			audioModule.initPlayout();
 
 			factory = new PeerConnectionFactory(audioModule);
 			peerConnection = factory.createPeerConnection(config.getRTCConfig(), this);

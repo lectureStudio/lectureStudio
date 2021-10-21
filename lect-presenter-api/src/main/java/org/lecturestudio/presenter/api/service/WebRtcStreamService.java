@@ -350,6 +350,9 @@ public class WebRtcStreamService extends ExecutableBase {
 
 		Rectangle2D cameraViewRect = cameraConfig.getViewRect();
 
+		AudioDevice audioPlaybackDevice = getDeviceByName(
+				MediaDevices.getAudioRenderDevices(),
+				audioConfig.getPlaybackDeviceName());
 		AudioDevice audioCaptureDevice = getDeviceByName(
 				MediaDevices.getAudioCaptureDevices(),
 				audioConfig.getCaptureDeviceName());
@@ -364,6 +367,7 @@ public class WebRtcStreamService extends ExecutableBase {
 		webRtcConfig.getAudioConfiguration().setSendAudio(streamConfig.getMicrophoneEnabled());
 		webRtcConfig.getAudioConfiguration().setReceiveAudio(true);
 		webRtcConfig.getAudioConfiguration().setRecordingDevice(audioCaptureDevice);
+		webRtcConfig.getAudioConfiguration().setPlaybackDevice(audioPlaybackDevice);
 
 		webRtcConfig.getVideoConfiguration().setSendVideo(streamConfig.getCameraEnabled());
 		webRtcConfig.getVideoConfiguration().setReceiveVideo(true);

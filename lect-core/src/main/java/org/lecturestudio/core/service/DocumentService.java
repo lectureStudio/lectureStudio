@@ -172,12 +172,20 @@ public class DocumentService {
 		}
 	}
 
-	public void removeDocument(Document doc) {
-		if (documents.remove(doc)) {
+	public boolean removeDocument(Document doc) {
+		boolean removed = documents.remove(doc);
+
+		if (removed) {
+			context.getEventBus().post(new DocumentEvent(doc, DocumentEvent.Type.CLOSED));
+		}
+
+		return removed;
+	}
+
+	public void removeAndCloseDocument(Document doc) {
+		if (removeDocument(doc)) {
 			// Release resources.
 			doc.close();
-
-			context.getEventBus().post(new DocumentEvent(doc, DocumentEvent.Type.CLOSED));
 		}
 	}
 
@@ -206,7 +214,7 @@ public class DocumentService {
 	}
 
 	public void closeSelectedDocument() {
-		removeDocument(documents.getSelectedDocument());
+		removeAndCloseDocument(documents.getSelectedDocument());
 		selectLastDocument();
 	}
 
@@ -215,7 +223,7 @@ public class DocumentService {
 			return;
 		}
 
-		removeDocument(document);
+		removeAndCloseDocument(document);
 
 		selectLastDocument();
 	}
@@ -226,7 +234,7 @@ public class DocumentService {
 		}
 
 		for (Document doc : documents) {
-			removeDocument(doc);
+			removeAndCloseDocument(doc);
 		}
 
 		selectLastDocument();

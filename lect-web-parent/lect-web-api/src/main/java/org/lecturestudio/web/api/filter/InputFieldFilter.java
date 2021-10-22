@@ -20,4 +20,7 @@ package org.lecturestudio.web.api.filter;
 
 public class InputFieldFilter extends StringFilter<InputFieldRule<String>> {
 
+	public InputFieldFilter() {
+		super();
+	}
 }

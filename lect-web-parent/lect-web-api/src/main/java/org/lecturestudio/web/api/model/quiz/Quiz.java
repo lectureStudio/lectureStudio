@@ -80,7 +80,7 @@ public class Quiz implements Cloneable, Serializable {
 	@OneToMany(cascade = { CascadeType.ALL })
 	private List<RegexRule> regexRules;
 
-	private transient InputFieldFilter filter = new InputFieldFilter();
+	private InputFieldFilter filter = new InputFieldFilter();
 
 
 	public Quiz() {

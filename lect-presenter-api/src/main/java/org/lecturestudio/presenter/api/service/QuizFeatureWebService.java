@@ -208,6 +208,8 @@ public class QuizFeatureWebService extends FeatureServiceBase {
 			webService.stopQuiz(courseId);
 			// Stop receiving quiz events.
 			webService.close();
+
+			documentService.removeDocument(quizDocument);
 		}
 		catch (Exception e) {
 			throw new ExecutableException(e);

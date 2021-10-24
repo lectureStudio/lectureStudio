@@ -27,6 +27,8 @@ import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Paint;
 import java.awt.event.ActionEvent;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.Enumeration;
@@ -659,6 +661,18 @@ public class SwingToolbarView extends JPanel implements ToolbarView {
 				button.setSelectedIcon(AwtResourceLoader.getIcon(additionalIconPaths[0], 30));
 			}
 		}
+
+		button.setBackground(null);
+		button.addMouseListener(new MouseAdapter() {
+			public void mouseEntered(MouseEvent evt) {
+				button.setBackground(java.awt.Color.decode("#D6D6D6"));
+			}
+
+			public void mouseExited(MouseEvent evt) {
+				button.setBackground(null);
+			}
+		});
+		button.setBorderPainted(false);
 
 		return button;
 	}

@@ -29,6 +29,7 @@
 package org.lecturestudio.swing.components.toolbar;
 
 import java.awt.AlphaComposite;
+import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
@@ -109,6 +110,7 @@ public class MockComponent extends JComponent {
 			b.putClientProperty(WAS_FOCUS_PAINTED, b.isFocusPainted());
 			b.setSelected(false);
 			b.setFocusPainted(false);
+			b.setBackground(Color.decode("#F0F0F0"));
 		}
 		if (!c.isEnabled()) {
 			c.putClientProperty(WAS_ENABLED, c.isEnabled());
@@ -137,6 +139,7 @@ public class MockComponent extends JComponent {
 				b.setFocusPainted((Boolean) b.getClientProperty(WAS_FOCUS_PAINTED));
 				b.putClientProperty(WAS_FOCUS_PAINTED, null);
 			}
+			b.setBackground(null);
 		}
 		if (c.getClientProperty(WAS_ENABLED) != null) {
 			c.setEnabled((Boolean) c.getClientProperty(WAS_ENABLED));

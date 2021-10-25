@@ -48,6 +48,7 @@ import org.lecturestudio.core.util.FileUtils;
 import org.lecturestudio.core.util.ProgressCallback;
 import org.lecturestudio.presenter.api.pdf.PdfFactory;
 import org.lecturestudio.presenter.api.quiz.QuizResultCsvWriter;
+import org.lecturestudio.web.api.message.QuizAnswerMessage;
 import org.lecturestudio.web.api.model.quiz.Quiz;
 import org.lecturestudio.web.api.model.quiz.QuizAnswer;
 import org.lecturestudio.web.api.model.quiz.QuizResult;
@@ -168,7 +169,7 @@ public class QuizFeatureWebService extends FeatureServiceBase {
 		try {
 			serviceId = webService.startQuiz(courseId, webQuiz);
 
-			webService.subscribe(message -> {
+			webService.addMessageListener(QuizAnswerMessage.class, message -> {
 				QuizAnswer answer = message.getQuizAnswer();
 
 				if (isNull(answer.getOptions())) {
@@ -183,7 +184,7 @@ public class QuizFeatureWebService extends FeatureServiceBase {
 
 					eventBus.post(new QuizWebServiceState(getState(), answerCount));
 				}
-			}, error -> logException(error, "Quiz event failure"));
+			});
 		}
 		catch (Exception e) {
 			throw new ExecutableException(e);

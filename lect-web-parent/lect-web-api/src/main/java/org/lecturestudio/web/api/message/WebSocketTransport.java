@@ -16,12 +16,13 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package org.lecturestudio.web.api.janus.client;
+package org.lecturestudio.web.api.message;
 
-import static java.util.Objects.requireNonNull;
+import static java.util.Objects.isNull;
+import static java.util.Objects.nonNull;
 
 import java.io.StringReader;
-import java.math.BigInteger;
+import java.lang.reflect.Type;
 import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.WebSocket;
@@ -29,104 +30,83 @@ import java.net.http.WebSocket.Builder;
 import java.net.http.WebSocket.Listener;
 import java.time.Duration;
 import java.time.temporal.ChronoUnit;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.concurrent.CompletionStage;
+import java.util.function.Consumer;
 
 import javax.json.Json;
 import javax.json.JsonObject;
 import javax.json.bind.Jsonb;
 import javax.json.bind.JsonbBuilder;
-import javax.net.ssl.SSLContext;
-import javax.net.ssl.TrustManager;
-import javax.net.ssl.X509TrustManager;
+import javax.json.bind.JsonbConfig;
 
 import org.lecturestudio.core.ExecutableBase;
 import org.lecturestudio.core.ExecutableException;
+import org.lecturestudio.web.api.data.bind.CourseParticipantMessageAdapter;
 import org.lecturestudio.web.api.data.bind.JsonConfigProvider;
-import org.lecturestudio.web.api.janus.JanusHandler;
-import org.lecturestudio.web.api.janus.JanusMessageTransmitter;
-import org.lecturestudio.web.api.janus.JanusStateHandlerListener;
-import org.lecturestudio.web.api.janus.json.JanusMessageFactory;
-import org.lecturestudio.web.api.janus.message.JanusMessageType;
-import org.lecturestudio.web.api.janus.message.JanusMessage;
-import org.lecturestudio.web.api.net.OwnTrustManager;
+import org.lecturestudio.web.api.data.bind.MessengerMessageAdapter;
+import org.lecturestudio.web.api.data.bind.SpeechMessageAdapter;
 import org.lecturestudio.web.api.net.SSLContextFactory;
 import org.lecturestudio.web.api.service.ServiceParameters;
-import org.lecturestudio.web.api.stream.StreamEventRecorder;
-import org.lecturestudio.web.api.stream.config.WebRtcConfiguration;
+import org.lecturestudio.web.api.websocket.WebSocketHeaderProvider;
 
-/**
- * Janus WebSocket signaling client implementation. This client sends, receives,
- * decodes and encodes Janus JSON-formatted signaling messages.
- *
- * @author Alex Andres
- */
-public class JanusWebSocketClient extends ExecutableBase implements JanusMessageTransmitter {
+public class WebSocketTransport extends ExecutableBase implements MessageTransport {
+
+	private final Map<Class<? extends WebMessage>, List<Consumer<? extends WebMessage>>> listenerMap;
 
 	private final ServiceParameters serviceParameters;
 
-	private final WebRtcConfiguration webRtcConfig;
-
-	private final StreamEventRecorder eventRecorder;
+	private final WebSocketHeaderProvider headerProvider;
 
 	private WebSocket webSocket;
 
 	private Jsonb jsonb;
 
-	private JanusStateHandlerListener handlerStateListener;
 
-	private JanusHandler handler;
-
-
-	public JanusWebSocketClient(ServiceParameters parameters,
-			WebRtcConfiguration webRtcConfig, StreamEventRecorder eventRecorder) {
-		this.serviceParameters = parameters;
-		this.webRtcConfig = webRtcConfig;
-		this.eventRecorder = eventRecorder;
-	}
-
-	public void setJanusStateHandlerListener(JanusStateHandlerListener listener) {
-		handlerStateListener = listener;
-	}
-
-	public void startRemoteSpeech(long requestId, String userName) {
-		if (!started()) {
-			return;
-		}
-
-		handler.startRemoteSpeech(requestId, userName);
-	}
-
-	public void stopRemoteSpeech(BigInteger peerId) {
-		if (!started()) {
-			return;
-		}
-
-		handler.stopRemoteSpeech(peerId);
+	public WebSocketTransport(ServiceParameters serviceParameters,
+			WebSocketHeaderProvider headerProvider) {
+		this.serviceParameters = serviceParameters;
+		this.headerProvider = headerProvider;
+		this.listenerMap = new HashMap<>();
 	}
 
 	@Override
-	public void sendMessage(JanusMessage message) {
-		String messageTxt = jsonb.toJson(message);
+	public void addListener(Class<? extends WebMessage> cls,
+			Consumer<? extends WebMessage> listener) {
+		List<Consumer<? extends WebMessage>> consumerList = listenerMap.get(cls);
 
-		logTraceMessage("WebSocket ->: {0}", messageTxt);
+		if (isNull(consumerList)) {
+			consumerList = new ArrayList<>();
 
-		webSocket.sendText(messageTxt, true)
-				.exceptionally(throwable -> {
-					logException(throwable, "Send Janus message failed");
-					return null;
-				});
+			listenerMap.put(cls, consumerList);
+		}
+
+		consumerList.add(listener);
+	}
+
+	public void removeListener(Class<? extends WebMessage> cls,
+			Consumer<? extends WebMessage> listener) {
+		List<Consumer<? extends WebMessage>> consumerList = listenerMap.get(cls);
+
+		if (nonNull(consumerList)) {
+			consumerList.remove(listener);
+		}
 	}
 
 	@Override
 	protected void initInternal() throws ExecutableException {
-		jsonb = JsonbBuilder.create(JsonConfigProvider.createConfig());
+		JsonbConfig jsonbConfig = JsonConfigProvider.createConfig();
+		jsonbConfig.withAdapters(
+				new CourseParticipantMessageAdapter(),
+				new MessengerMessageAdapter(),
+				new SpeechMessageAdapter()
+		);
 
-		requireNonNull(webRtcConfig.getCourse());
-
-		handler = new JanusHandler(this, webRtcConfig, eventRecorder);
-		handler.addJanusStateHandlerListener(handlerStateListener);
-		handler.init();
+		jsonb = JsonbBuilder.create(jsonbConfig);
 	}
 
 	@Override
@@ -136,27 +116,37 @@ public class JanusWebSocketClient extends ExecutableBase implements JanusMessage
 				.build();
 
 		Builder webSocketBuilder = httpClient.newWebSocketBuilder();
-		webSocketBuilder.subprotocols("janus-protocol");
+		webSocketBuilder.subprotocols("lecture-feature-protocol");
 		webSocketBuilder.connectTimeout(Duration.of(10, ChronoUnit.SECONDS));
+
+		headerProvider.setHeaders(webSocketBuilder);
 
 		webSocket = webSocketBuilder
 				.buildAsync(URI.create(serviceParameters.getUrl()),
 						new WebSocketListener())
 				.join();
-
-		handler.start();
 	}
 
 	@Override
 	protected void stopInternal() throws ExecutableException {
-		handler.stop();
-
 		webSocket.sendClose(WebSocket.NORMAL_CLOSURE, "disconnect").join();
 	}
 
 	@Override
 	protected void destroyInternal() throws ExecutableException {
-		handler.destroy();
+
+	}
+
+	@SuppressWarnings("unchecked")
+	private <T extends WebMessage> void handleMessage(T message) {
+		Class<? extends WebMessage> cls = message.getClass();
+		List<Consumer<? extends WebMessage>> consumerList = listenerMap.get(cls);
+
+		if (nonNull(consumerList)) {
+			for (var listener : consumerList) {
+//				listener.accept(message);
+			}
+		}
 	}
 
 
@@ -175,6 +165,7 @@ public class JanusWebSocketClient extends ExecutableBase implements JanusMessage
 		@Override
 		public CompletionStage<?> onText(WebSocket webSocket, CharSequence data, boolean last) {
 			logTraceMessage("WebSocket <-: {0}", data);
+			System.out.println("WebSocket <-: " + data);
 
 			webSocket.request(1);
 
@@ -186,22 +177,29 @@ public class JanusWebSocketClient extends ExecutableBase implements JanusMessage
 				try {
 					JsonObject body = Json.createReader(reader).readObject();
 
-					JanusMessageType type = JanusMessageType.fromString(body.getString("janus"));
-					JanusMessage message = JanusMessageFactory.createMessage(jsonb, body, type);
+					MessageType type = MessageType.fromString(body.getString("_type"));
+					WebMessage message = createMessage(reader, type.name());
 
-					handler.handleMessage(message);
+					handleMessage(message);
 				}
 				catch (NoSuchElementException e) {
 					logException(e, "Non existing Janus event type received");
 				}
 				catch (Exception e) {
-					logException(e, "Process Janus message failed");
+					logException(e, "Process message failed");
 				}
 
 				buffer = new StringBuffer();
 			}
 
 			return null;
+		}
+
+		protected <T extends WebMessage> T createMessage(StringReader reader, String type)
+				throws ClassNotFoundException {
+			String packageName = WebMessage.class.getPackageName();
+
+			return jsonb.fromJson(reader, (Type) Class.forName(packageName + "." + type));
 		}
 	}
 }

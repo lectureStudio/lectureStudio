@@ -34,6 +34,7 @@ import org.apache.logging.log4j.Logger;
 import org.lecturestudio.web.api.client.AuthorizationFilter;
 import org.lecturestudio.web.api.client.TokenProvider;
 import org.lecturestudio.web.api.data.bind.JsonConfig;
+import org.lecturestudio.web.api.message.MessageTransport;
 import org.lecturestudio.web.api.message.WebMessage;
 
 public abstract class ReactiveProviderService extends ProviderService {
@@ -44,20 +45,34 @@ public abstract class ReactiveProviderService extends ProviderService {
 
 	private final TokenProvider tokenProvider;
 
+	private final MessageTransport messageTransport;
+
 	private final Map<Client, SseEventSource> eventSources;
 
 	private final Jsonb jsonb;
 
 
 	public ReactiveProviderService(ServiceParameters parameters) {
-		this(parameters, null);
+		this(parameters, null, null);
 	}
 
-	public ReactiveProviderService(ServiceParameters parameters, TokenProvider tokenProvider) {
+	public ReactiveProviderService(ServiceParameters parameters,
+			TokenProvider tokenProvider, MessageTransport messageTransport) {
 		this.parameters = parameters;
 		this.tokenProvider = tokenProvider;
+		this.messageTransport = messageTransport;
 		this.eventSources = new ConcurrentHashMap<>();
 		this.jsonb = new JsonConfig().getContext(null);
+	}
+
+	public <T extends WebMessage> void addMessageListener(Class<T> cls,
+			Consumer<T> onEvent) {
+		messageTransport.addListener(cls, onEvent);
+	}
+
+	public <T extends WebMessage> void removeMessageListener(Class<T> cls,
+			Consumer<T> onEvent) {
+		messageTransport.removeListener(cls, onEvent);
 	}
 
 	protected <T extends WebMessage> void subscribeSse(String path, Class<T> cls,

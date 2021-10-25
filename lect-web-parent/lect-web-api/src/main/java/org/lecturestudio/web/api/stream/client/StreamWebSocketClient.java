@@ -43,9 +43,6 @@ import javax.json.JsonReader;
 import javax.json.bind.Jsonb;
 import javax.json.bind.JsonbBuilder;
 import javax.json.bind.JsonbConfig;
-import javax.net.ssl.SSLContext;
-import javax.net.ssl.TrustManager;
-import javax.net.ssl.X509TrustManager;
 import javax.ws.rs.core.MediaType;
 
 import org.lecturestudio.core.ExecutableBase;
@@ -59,7 +56,7 @@ import org.lecturestudio.web.api.data.bind.JsonConfigProvider;
 import org.lecturestudio.web.api.data.bind.SpeechMessageAdapter;
 import org.lecturestudio.web.api.message.CourseParticipantMessage;
 import org.lecturestudio.web.api.message.SpeechBaseMessage;
-import org.lecturestudio.web.api.net.OwnTrustManager;
+import org.lecturestudio.web.api.net.SSLContextFactory;
 import org.lecturestudio.web.api.service.ServiceParameters;
 import org.lecturestudio.web.api.stream.StreamEventRecorder;
 import org.lecturestudio.web.api.stream.action.StreamAction;
@@ -156,7 +153,7 @@ public class StreamWebSocketClient extends ExecutableBase {
 	@Override
 	protected void startInternal() throws ExecutableException {
 		HttpClient httpClient = HttpClient.newBuilder()
-				.sslContext(createSSLContext())
+				.sslContext(SSLContextFactory.createSSLContext())
 				.build();
 
 		Builder webSocketBuilder = httpClient.newWebSocketBuilder();
@@ -247,23 +244,6 @@ public class StreamWebSocketClient extends ExecutableBase {
 		docCreateAction.setDocumentFile(remoteFile);
 
 		return docCreateAction;
-	}
-
-	private static SSLContext createSSLContext() {
-		SSLContext sslContext;
-
-		try {
-			X509TrustManager trustManager = new OwnTrustManager("keystore.jks",
-					"mypassword");
-
-			sslContext = SSLContext.getInstance("TLSv1.2");
-			sslContext.init(null, new TrustManager[] { trustManager }, null);
-		}
-		catch (Exception e) {
-			throw new RuntimeException(e);
-		}
-
-		return sslContext;
 	}
 
 

@@ -566,7 +566,10 @@ public class SlideView extends JComponent implements org.lecturestudio.core.view
 		}
 
 		reference = (BufferedImage) surfaceView.createImage(width, height);
-		reference.setAccelerationPriority(1);
+
+		if (reference != null) {
+			reference.setAccelerationPriority(1);
+		}
 
 		return reference;
 	}
@@ -586,7 +589,9 @@ public class SlideView extends JComponent implements org.lecturestudio.core.view
 			frontImage = createBackImage(frontImage, width, height);
 		}
 
-		renderController.renderPage(backImage, page, getViewType());
+		if (nonNull(backImage)) {
+			renderController.renderPage(backImage, page, getViewType());
+		}
 	}
 
 	private void layoutOverlay(SlideViewOverlay overlay) {

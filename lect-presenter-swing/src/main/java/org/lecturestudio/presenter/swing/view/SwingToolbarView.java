@@ -165,10 +165,6 @@ public class SwingToolbarView extends JPanel implements ToolbarView {
 
 	private List<String> defaultToolbarButtonNames;
 
-	static {
-		CustomizedToolbar.resetAllPreferences();
-	}
-
 
 	@Inject
 	SwingToolbarView(ResourceBundle resourceBundle, ToolController toolController) {

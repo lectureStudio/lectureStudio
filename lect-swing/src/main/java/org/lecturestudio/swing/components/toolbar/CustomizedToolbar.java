@@ -70,7 +70,6 @@ import java.awt.event.MouseAdapter;
 import java.awt.image.BufferedImage;
 import java.lang.reflect.Array;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -569,8 +568,8 @@ public class CustomizedToolbar extends JPanel {
 		minimumHeight = getMinimumHeight(components);
 
 		setName(toolbarName);
+		String base = getName() + ".component";
 		if (isEmpty()) {
-			String base = getName() + ".component";
 			for (int a = 0; a < defaults.length; a++) {
 				if (defaults[a] == null)
 					throw new NullPointerException("defaults[" + a + "] is null");
@@ -580,14 +579,23 @@ public class CustomizedToolbar extends JPanel {
 		setMinimumSize(new Dimension(5, minimumHeight + componentInsets.top + componentInsets.bottom));
 		setPreferredSize(new Dimension(5, minimumHeight + componentInsets.top + componentInsets.bottom));
 		setMaximumSize(new Dimension(5, minimumHeight + componentInsets.top + componentInsets.bottom));
-		componentList = new JComponent[components.length];
-		System.arraycopy(components, 0, componentList, 0, components.length);
 
-		List<String> defaultsList = Arrays.asList(defaults);
+		componentList = new JComponent[components.length];
+		Map<String, JComponent> componentMap = new HashMap<>();
+		System.arraycopy(components, 0, componentList, 0, components.length);
 		for (JComponent component : componentList) {
-			if (!defaultsList.contains(component.getName())){
-				component.setVisible(false);
-			}
+			component.setVisible(false);
+			componentMap.put(component.getName(), component);
+		}
+
+		int ctr = 0;
+		String componentName = prefs.get(base + ctr, null);
+		while (componentName != null) {
+			JComponent component = componentMap.get(componentName);
+			if (component != null)
+				component.setVisible(true);
+			ctr++;
+			componentName = prefs.get(base + ctr, null);
 		}
 
 		// This listens possibly updates these components if the preferences change.

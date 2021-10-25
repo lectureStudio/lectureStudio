@@ -400,7 +400,7 @@ public class CustomizedToolbar extends JPanel {
 			boolean onlyToolInToolbar = false;
 			for (Iterator<AbstractButton> iterator = toolGroup.getElements().asIterator(); iterator.hasNext();) {
 				AbstractButton toolGroupElement = iterator.next();
-				if (toolGroupElement.isVisible() && !toolGroupElement.equals(draggedComponent)) {
+				if (toolGroupElement.isVisible() && toolGroupElement.isEnabled() && !toolGroupElement.equals(draggedComponent)) {
 					onlyToolInToolbar = false;
 					break;
 				}

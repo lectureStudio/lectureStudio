@@ -454,6 +454,9 @@ public class JanusPeerConnection implements PeerConnectionObserver {
 		AudioOptions audioOptions = new AudioOptions();
 		audioOptions.echoCancellation = true;
 		audioOptions.noiseSuppression = true;
+		audioOptions.highpassFilter = true;
+		audioOptions.typingDetection = true;
+		audioOptions.residualEchoDetector = true;
 
 		AudioSource audioSource = factory.createAudioSource(audioOptions);
 		AudioTrack audioTrack = factory.createAudioTrack("audioTrack", audioSource);

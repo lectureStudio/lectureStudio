@@ -41,6 +41,7 @@ import org.lecturestudio.core.ExecutableException;
 import org.lecturestudio.core.ExecutableState;
 import org.lecturestudio.core.app.ApplicationContext;
 import org.lecturestudio.core.app.configuration.AudioConfiguration;
+import org.lecturestudio.core.beans.ChangeListener;
 import org.lecturestudio.core.codec.VideoCodecConfiguration;
 import org.lecturestudio.core.geometry.Rectangle2D;
 import org.lecturestudio.core.service.DocumentService;
@@ -98,6 +99,10 @@ public class WebRtcStreamService extends ExecutableBase {
 	private StreamWebSocketClient streamStateClient;
 
 	private JanusWebSocketClient janusClient;
+
+	private ChangeListener<String> captureDeviceListener;
+
+	private ChangeListener<String> playbackDeviceListener;
 
 	private ExecutableState streamState;
 
@@ -204,8 +209,10 @@ public class WebRtcStreamService extends ExecutableBase {
 
 		PresenterConfiguration config = (PresenterConfiguration) context
 				.getConfiguration();
+		AudioConfiguration audioConfig = config.getAudioConfig();
+		StreamConfiguration streamConfig = config.getStreamConfig();
 
-		boolean streamCamera = config.getStreamConfig().getCameraEnabled();
+		boolean streamCamera = streamConfig.getCameraEnabled();
 
 		if (streamCamera) {
 			setCameraState(ExecutableState.Starting);
@@ -236,6 +243,24 @@ public class WebRtcStreamService extends ExecutableBase {
 			throw new ExecutableException(e);
 		}
 
+		captureDeviceListener = (observable, oldValue, newValue) -> {
+			AudioDevice captureDevice = getDeviceByName(
+					MediaDevices.getAudioCaptureDevices(),
+					audioConfig.getCaptureDeviceName());
+
+			webRtcConfig.getAudioConfiguration().setRecordingDevice(captureDevice);
+		};
+		playbackDeviceListener = (observable, oldValue, newValue) -> {
+			AudioDevice playbackDevice = getDeviceByName(
+					MediaDevices.getAudioRenderDevices(),
+					audioConfig.getPlaybackDeviceName());
+
+			webRtcConfig.getAudioConfiguration().setPlaybackDevice(playbackDevice);
+		};
+
+		audioConfig.captureDeviceNameProperty().addListener(captureDeviceListener);
+		audioConfig.playbackDeviceNameProperty().addListener(playbackDeviceListener);
+
 		setStreamState(ExecutableState.Started);
 
 		if (streamCamera) {
@@ -265,6 +290,13 @@ public class WebRtcStreamService extends ExecutableBase {
 		catch (Exception e) {
 			throw new ExecutableException(e);
 		}
+
+		PresenterConfiguration config = (PresenterConfiguration) context
+				.getConfiguration();
+		AudioConfiguration audioConfig = config.getAudioConfig();
+
+		audioConfig.captureDeviceNameProperty().removeListener(captureDeviceListener);
+		audioConfig.playbackDeviceNameProperty().removeListener(playbackDeviceListener);
 
 		setStreamState(ExecutableState.Stopped);
 	}

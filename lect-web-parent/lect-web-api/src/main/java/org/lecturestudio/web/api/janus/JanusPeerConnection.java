@@ -141,6 +141,39 @@ public class JanusPeerConnection implements PeerConnectionObserver {
 			factory = new PeerConnectionFactory(audioModule);
 			peerConnection = factory.createPeerConnection(config.getRTCConfig(), this);
 		});
+
+		config.getAudioConfiguration().playbackDeviceProperty().addListener((observable, oldValue, newValue) -> {
+			executeAndWait(() -> {
+				setPlaybackDevice(newValue);
+			});
+		});
+		config.getAudioConfiguration().recordingDeviceProperty().addListener((observable, oldValue, newValue) -> {
+			executeAndWait(() -> {
+				setRecordingDevice(newValue);
+			});
+		});
+	}
+
+	private void setPlaybackDevice(AudioDevice device) {
+		if (isNull(device) || isNull(audioModule)) {
+			return;
+		}
+
+		audioModule.stopPlayout();
+		audioModule.setPlayoutDevice(device);
+		audioModule.initPlayout();
+		audioModule.startPlayout();
+	}
+
+	private void setRecordingDevice(AudioDevice device) {
+		if (isNull(device) || isNull(audioModule)) {
+			return;
+		}
+
+		audioModule.stopRecording();
+		audioModule.setRecordingDevice(device);
+		audioModule.initRecording();
+		audioModule.startRecording();
 	}
 
 	public void setOnLocalSessionDescription(Consumer<RTCSessionDescription> callback) {
@@ -419,11 +452,8 @@ public class JanusPeerConnection implements PeerConnectionObserver {
 		}
 
 		AudioOptions audioOptions = new AudioOptions();
-
-		if (direction != RTCRtpTransceiverDirection.SEND_ONLY) {
-			audioOptions.echoCancellation = true;
-			audioOptions.noiseSuppression = true;
-		}
+		audioOptions.echoCancellation = true;
+		audioOptions.noiseSuppression = true;
 
 		AudioSource audioSource = factory.createAudioSource(audioOptions);
 		AudioTrack audioTrack = factory.createAudioTrack("audioTrack", audioSource);
@@ -683,7 +713,7 @@ public class JanusPeerConnection implements PeerConnectionObserver {
 			executor.submit(runnable).get();
 		}
 		catch (Exception e) {
-			LOGGER.log(Level.ERROR, "Execute task failed");
+			LOGGER.log(Level.ERROR, "Execute task failed", e);
 		}
 	}
 

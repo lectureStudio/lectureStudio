@@ -18,7 +18,7 @@
 	<menu text="menu.view">
 		<checkboxmenuitem id="outlineMenuItem" text="menu.contents" />
 		<checkboxmenuitem id="fullscreenMenuItem" text="menu.fullscreen" type="checkbox" accelerator="alt ENTER" />
-		<checkboxmenuitem id="advancedSettingsMenuItem" text="menu.advanced.settings" type="checkbox" />
+<!--		<checkboxmenuitem id="advancedSettingsMenuItem" text="menu.advanced.settings" type="checkbox" />-->
 	</menu>
 	<menu text="menu.whiteboard">
 		<menuitem id="newWhiteboardMenuItem" text="menu.whiteboard.new" />

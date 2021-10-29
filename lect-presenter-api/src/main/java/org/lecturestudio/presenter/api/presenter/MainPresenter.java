@@ -157,6 +157,8 @@ public class MainPresenter extends org.lecturestudio.core.presenter.MainPresente
 		PresenterContext presenterContext = (PresenterContext) context;
 		PresenterConfiguration config = (PresenterConfiguration) context.getConfiguration();
 
+		config.setAdvancedUIMode(true);
+
 		presenterContext.streamStartedProperty().addListener((observable, oldValue, newValue) -> {
 			streamService.enableStream(newValue);
 		});

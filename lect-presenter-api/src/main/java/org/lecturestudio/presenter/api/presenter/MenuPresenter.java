@@ -525,9 +525,9 @@ public class MenuPresenter extends Presenter<MenuView> {
 		view.setOnSettings(this::showSettingsView);
 
 		view.bindShowOutline(presenterContext.showOutlineProperty());
-		view.setAdvancedSettings(config.getAdvancedUIMode());
 		view.bindFullscreen(presenterContext.fullscreenProperty());
-		view.setOnAdvancedSettings(this::setAdvancedSettings);
+//		view.setAdvancedSettings(config.getAdvancedUIMode());
+//		view.setOnAdvancedSettings(this::setAdvancedSettings);
 
 		view.setOnNewWhiteboard(this::newWhiteboard);
 		view.setOnNewWhiteboardPage(this::newWhiteboardPage);

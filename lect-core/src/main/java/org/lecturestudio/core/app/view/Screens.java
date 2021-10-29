@@ -49,10 +49,7 @@ public final class Screens {
 		Screen[] screens = new Screen[devices.length];
 
 		for (int i = 0; i < screens.length; i++) {
-			GraphicsDevice device = devices[i];
-			Rectangle bounds = device.getDefaultConfiguration().getBounds();
-
-			screens[i] = new Screen(bounds.x, bounds.y, bounds.width, bounds.height);
+			screens[i] = createScreen(devices[i]);
 		}
 
 		return screens;
@@ -73,7 +70,7 @@ public final class Screens {
 			Rectangle bounds = device.getDefaultConfiguration().getBounds();
 
 			if (!bounds.equals(defaultBounds)) {
-				screens[c++] = new Screen(bounds.x, bounds.y, bounds.width, bounds.height);
+				screens[c++] = createScreen(device);
 			}
 		}
 
@@ -169,4 +166,13 @@ public final class Screens {
 		return new Rectangle((int) r.getX(), (int) r.getY(), (int) r.getWidth(), (int) r.getHeight());
 	}
 
+	private static Screen createScreen(GraphicsDevice device) {
+		GraphicsConfiguration deviceConfig = device.getDefaultConfiguration();
+		Rectangle bounds = deviceConfig.getBounds();
+
+		int screenWidth = (int) (bounds.width * deviceConfig.getDefaultTransform().getScaleX());
+		int screenHeight = (int) (bounds.height * deviceConfig.getDefaultTransform().getScaleY());
+
+		return new Screen(bounds.x, bounds.y, screenWidth, screenHeight);
+	}
 }

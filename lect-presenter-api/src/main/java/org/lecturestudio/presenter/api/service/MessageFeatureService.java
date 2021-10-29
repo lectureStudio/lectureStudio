@@ -18,12 +18,13 @@
 
 package org.lecturestudio.presenter.api.service;
 
-import org.eclipse.microprofile.rest.client.RestClientBuilder;
+import java.util.function.Consumer;
 
+import org.eclipse.microprofile.rest.client.RestClientBuilder;
 import org.lecturestudio.presenter.api.client.MessageFeatureClient;
 import org.lecturestudio.web.api.client.TokenProvider;
 import org.lecturestudio.web.api.data.bind.JsonConfig;
-import org.lecturestudio.web.api.message.MessageTransport;
+import org.lecturestudio.web.api.message.MessengerMessage;
 import org.lecturestudio.web.api.service.ReactiveProviderService;
 import org.lecturestudio.web.api.service.ServiceParameters;
 
@@ -32,9 +33,8 @@ public class MessageFeatureService extends ReactiveProviderService {
 	private final MessageFeatureClient featureClient;
 
 
-	public MessageFeatureService(ServiceParameters parameters,
-			TokenProvider tokenProvider, MessageTransport messageTransport) {
-		super(parameters, tokenProvider, messageTransport);
+	public MessageFeatureService(ServiceParameters parameters, TokenProvider tokenProvider) {
+		super(parameters, tokenProvider);
 
 		RestClientBuilder builder = createClientBuilder(parameters);
 		builder.property(TokenProvider.class.getName(), tokenProvider);
@@ -49,5 +49,11 @@ public class MessageFeatureService extends ReactiveProviderService {
 
 	public void stopMessenger(long courseId) {
 		featureClient.stopMessenger(courseId);
+	}
+
+	public void subscribe(Consumer<MessengerMessage> onEvent,
+			Consumer<Throwable> onError) {
+		subscribeSse("/api/publisher/events", MessengerMessage.class, onEvent,
+				onError);
 	}
 }

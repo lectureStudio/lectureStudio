@@ -27,13 +27,10 @@ import javax.inject.Inject;
 import org.lecturestudio.broadcast.config.BroadcastProfile;
 import org.lecturestudio.core.app.ApplicationContext;
 import org.lecturestudio.core.audio.AudioFormat;
-import org.lecturestudio.core.audio.AudioUtils;
 import org.lecturestudio.core.audio.codec.AudioCodecLoader;
 import org.lecturestudio.core.audio.codec.AudioCodecProvider;
 import org.lecturestudio.core.codec.VideoCodecConfiguration;
 import org.lecturestudio.core.presenter.Presenter;
-import org.lecturestudio.core.util.ListChangeListener;
-import org.lecturestudio.core.util.ObservableList;
 import org.lecturestudio.presenter.api.config.NetworkConfiguration;
 import org.lecturestudio.presenter.api.config.DefaultConfiguration;
 import org.lecturestudio.presenter.api.config.PresenterConfiguration;
@@ -91,21 +88,21 @@ public class StreamSettingsPresenter extends Presenter<StreamSettingsView> {
 		StreamConfiguration streamConfig = config.getStreamConfig();
 		VideoCodecConfiguration cameraConfig = streamConfig.getCameraCodecConfig();
 
-		String[] codecNames = AudioUtils.getSupportedAudioCodecs();
+//		String[] codecNames = AudioUtils.getSupportedAudioCodecs();
 
-		setStreamAudioFormats(streamConfig.getAudioCodec());
+//		setStreamAudioFormats(streamConfig.getAudioCodec());
 
 		view.setAccessToken(streamConfig.accessTokenProperty());
 		view.setOnCheckAccessToken(this::checkAccessToken);
-		view.setStreamAudioFormat(streamConfig.audioFormatProperty());
-		view.setStreamAudioCodecNames(codecNames);
-		view.setStreamAudioCodecName(streamConfig.audioCodecProperty());
+//		view.setStreamAudioFormat(streamConfig.audioFormatProperty());
+//		view.setStreamAudioCodecNames(codecNames);
+//		view.setStreamAudioCodecName(streamConfig.audioCodecProperty());
 		view.setStreamCameraBitrate(cameraConfig.bitRateProperty());
 
-		view.setBroadcastProfiles(netConfig.getBroadcastProfiles());
-		view.setBroadcastProfile(netConfig.broadcastProfileProperty());
-		view.setOnAddBroadcastProfile(this::addBroadcastProfile);
-		view.setOnDeleteBroadcastProfile(this::deleteBroadcastProfile);
+//		view.setBroadcastProfiles(netConfig.getBroadcastProfiles());
+//		view.setBroadcastProfile(netConfig.broadcastProfileProperty());
+//		view.setOnAddBroadcastProfile(this::addBroadcastProfile);
+//		view.setOnDeleteBroadcastProfile(this::deleteBroadcastProfile);
 
 		view.setOnReset(this::reset);
 
@@ -114,17 +111,17 @@ public class StreamSettingsPresenter extends Presenter<StreamSettingsView> {
 
 		streamProviderService = new StreamProviderService(parameters, streamConfig::getAccessToken);
 
-		netConfig.getBroadcastProfiles().addListener(new ListChangeListener<>() {
-
-			@Override
-			public void listChanged(ObservableList<BroadcastProfile> list) {
-				view.setBroadcastProfiles(netConfig.getBroadcastProfiles());
-			}
-		});
-
-		streamConfig.audioCodecProperty().addListener((observable, oldCodec, newCodec) -> {
-			setStreamAudioFormats(newCodec);
-		});
+//		netConfig.getBroadcastProfiles().addListener(new ListChangeListener<>() {
+//
+//			@Override
+//			public void listChanged(ObservableList<BroadcastProfile> list) {
+//				view.setBroadcastProfiles(netConfig.getBroadcastProfiles());
+//			}
+//		});
+//
+//		streamConfig.audioCodecProperty().addListener((observable, oldCodec, newCodec) -> {
+//			setStreamAudioFormats(newCodec);
+//		});
 
 		checkAccessToken();
 	}

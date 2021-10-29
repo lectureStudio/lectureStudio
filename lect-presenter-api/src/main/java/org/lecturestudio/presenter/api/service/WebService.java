@@ -44,12 +44,8 @@ import org.lecturestudio.presenter.api.event.MessengerStateEvent;
 import org.lecturestudio.presenter.api.event.QuizStateEvent;
 import org.lecturestudio.presenter.api.net.LocalBroadcaster;
 import org.lecturestudio.web.api.client.TokenProvider;
-import org.lecturestudio.web.api.message.MessageTransport;
-import org.lecturestudio.web.api.message.WebSocketTransport;
 import org.lecturestudio.web.api.model.quiz.Quiz;
 import org.lecturestudio.web.api.service.ServiceParameters;
-import org.lecturestudio.web.api.websocket.WebSocketBearerTokenProvider;
-import org.lecturestudio.web.api.websocket.WebSocketHeaderProvider;
 
 /**
  * The {@code WebService} maintains different web services, like {@link QuizWebService}
@@ -70,12 +66,6 @@ public class WebService extends ExecutableBase {
 
 	private final List<FeatureServiceBase> startedServices;
 
-	private final MessageTransport messageTransport;
-
-	@Inject
-	@Named("publisher.message.url")
-	private String publisherMessageApiUrl;
-
 	@Inject
 	@Named("stream.publisher.api.url")
 	private String streamPublisherApiUrl;
@@ -84,13 +74,10 @@ public class WebService extends ExecutableBase {
 
 
 	@Inject
-	public WebService(ApplicationContext context,
-			DocumentService documentService,
-			LocalBroadcaster localBroadcaster) {
+	public WebService(ApplicationContext context, DocumentService documentService, LocalBroadcaster localBroadcaster) {
 		this.context = context;
 		this.documentService = documentService;
 		this.localBroadcaster = localBroadcaster;
-		this.messageTransport = createMessageTransport();
 		this.startedServices = new ArrayList<>();
 
 		Runtime.getRuntime().addShutdownHook(new Thread(() -> {
@@ -294,10 +281,6 @@ public class WebService extends ExecutableBase {
 	}
 
 	private void startService(FeatureServiceBase service) throws ExecutableException {
-		if (messageTransport.getState() != ExecutableState.Started) {
-			messageTransport.start();
-		}
-
 		PresenterConfiguration config = (PresenterConfiguration) context.getConfiguration();
 		StreamConfiguration streamConfig = config.getStreamConfig();
 
@@ -314,10 +297,6 @@ public class WebService extends ExecutableBase {
 		service.destroy();
 
 		startedServices.remove(service);
-
-		if (startedServices.isEmpty()) {
-			messageTransport.stop();
-		}
 
 		//stopLocalBroadcaster();
 	}
@@ -340,23 +319,7 @@ public class WebService extends ExecutableBase {
 
 		TokenProvider tokenProvider = streamConfig::getAccessToken;
 
-		return cls.getConstructor(ServiceParameters.class, TokenProvider.class,
-						MessageTransport.class)
-				.newInstance(streamApiParameters, tokenProvider,
-						messageTransport);
-	}
-
-	private MessageTransport createMessageTransport() {
-		ServiceParameters messageApiParameters = new ServiceParameters();
-		messageApiParameters.setUrl(streamPublisherApiUrl);
-
-		PresenterConfiguration config = (PresenterConfiguration) context.getConfiguration();
-		StreamConfiguration streamConfig = config.getStreamConfig();
-		TokenProvider tokenProvider = streamConfig::getAccessToken;
-
-		WebSocketHeaderProvider headerProvider = new WebSocketBearerTokenProvider(
-				tokenProvider);
-
-		return new WebSocketTransport(messageApiParameters, headerProvider);
+		return cls.getConstructor(ServiceParameters.class, TokenProvider.class)
+				.newInstance(streamApiParameters, tokenProvider);
 	}
 }

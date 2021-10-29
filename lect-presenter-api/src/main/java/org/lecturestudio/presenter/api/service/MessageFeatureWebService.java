@@ -59,12 +59,12 @@ public class MessageFeatureWebService extends FeatureServiceBase {
 		try {
 			serviceId = webService.startMessenger(courseId);
 
-			webService.addMessageListener(MessengerMessage.class, message -> {
+			webService.subscribe(message -> {
 				logMessage(message);
 
 				// Forward message to UI.
 				context.getEventBus().post(message);
-			});
+			}, error -> logException(error, "Message event failure"));
 		}
 		catch (Exception e) {
 			throw new ExecutableException(e);

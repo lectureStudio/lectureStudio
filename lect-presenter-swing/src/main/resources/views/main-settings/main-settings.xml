@@ -15,22 +15,22 @@
 	<Tab name="whiteboard" text="settings.whiteboard" icon="whiteboard-settings.svg, 24" size="120, 30">
 		<WhiteboardSettingsView />
 	</Tab>
-	<Tab name="recording" text="settings.recording" icon="recording-settings.svg, 24" size="120, 30">
-		<RecordSettingsView />
-	</Tab>
 	<Tab name="sound" text="settings.sound" icon="sound-settings.svg, 24" size="120, 30">
 		<SoundSettingsView />
 	</Tab>
 	<Tab name="camera" text="settings.camera" icon="camera-settings.svg, 24" size="120, 30">
 		<CameraSettingsView />
 	</Tab>
+	<Tab name="recording" text="settings.recording" icon="recording-settings.svg, 24" size="120, 30">
+		<RecordSettingsView />
+	</Tab>
 	<Tab name="stream" text="settings.live.stream" icon="stream-settings.svg, 24" size="120, 30">
 		<StreamSettingsView />
 	</Tab>
-	<Tab name="web-service" text="settings.web.service" icon="webservice-settings.svg, 24" size="120, 30">
-		<WebServiceSettingsView />
-	</Tab>
-	<Tab name="network" text="settings.network" icon="network-settings.svg, 24" size="120, 30">
-		<NetworkSettingsView />
-	</Tab>
+<!--	<Tab name="web-service" text="settings.web.service" icon="webservice-settings.svg, 24" size="120, 30">-->
+<!--		<WebServiceSettingsView />-->
+<!--	</Tab>-->
+<!--	<Tab name="network" text="settings.network" icon="network-settings.svg, 24" size="120, 30">-->
+<!--		<NetworkSettingsView />-->
+<!--	</Tab>-->
 </TabbedPane>

@@ -24,10 +24,8 @@ import org.lecturestudio.core.Executable;
 
 public interface MessageTransport extends Executable {
 
-	void addListener(Class<? extends WebMessage> cls,
-			Consumer<? extends WebMessage> listener);
+	<T extends WebMessage> void addListener(Class<T> cls, Consumer<T> listener);
 
-	void removeListener(Class<? extends WebMessage> cls,
-			Consumer<? extends WebMessage> listener);
+	<T extends WebMessage> void removeListener(Class<T> cls, Consumer<T> listener);
 
 }

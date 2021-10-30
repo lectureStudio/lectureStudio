@@ -44,8 +44,12 @@ import org.lecturestudio.presenter.api.event.MessengerStateEvent;
 import org.lecturestudio.presenter.api.event.QuizStateEvent;
 import org.lecturestudio.presenter.api.net.LocalBroadcaster;
 import org.lecturestudio.web.api.client.TokenProvider;
+import org.lecturestudio.web.api.message.MessageTransport;
+import org.lecturestudio.web.api.message.WebSocketTransport;
 import org.lecturestudio.web.api.model.quiz.Quiz;
 import org.lecturestudio.web.api.service.ServiceParameters;
+import org.lecturestudio.web.api.websocket.WebSocketBearerTokenProvider;
+import org.lecturestudio.web.api.websocket.WebSocketHeaderProvider;
 
 /**
  * The {@code WebService} maintains different web services, like {@link QuizWebService}
@@ -66,6 +70,12 @@ public class WebService extends ExecutableBase {
 
 	private final List<FeatureServiceBase> startedServices;
 
+	private MessageTransport messageTransport;
+
+	@Inject
+	@Named("publisher.api.message.url")
+	private String publisherMessageApiUrl;
+
 	@Inject
 	@Named("stream.publisher.api.url")
 	private String streamPublisherApiUrl;
@@ -74,7 +84,9 @@ public class WebService extends ExecutableBase {
 
 
 	@Inject
-	public WebService(ApplicationContext context, DocumentService documentService, LocalBroadcaster localBroadcaster) {
+	public WebService(ApplicationContext context,
+			DocumentService documentService,
+			LocalBroadcaster localBroadcaster) {
 		this.context = context;
 		this.documentService = documentService;
 		this.localBroadcaster = localBroadcaster;
@@ -110,12 +122,14 @@ public class WebService extends ExecutableBase {
 		context.getEventBus().post(new MessengerStateEvent(ExecutableState.Starting));
 
 		try {
+			initMessageTransport();
+
 			startService(new MessageFeatureWebService(context,
 					createFeatureService(streamPublisherApiUrl,
 							MessageFeatureService.class)));
 		}
 		catch (Exception e) {
-			throw new ExecutableException("Message service could not be started");
+			throw new ExecutableException("Message service could not be started", e);
 		}
 
 		context.getEventBus().post(new MessengerStateEvent(ExecutableState.Started));
@@ -176,6 +190,8 @@ public class WebService extends ExecutableBase {
 		// Allow only one quiz running at a time.
 		if (isNull(service)) {
 			try {
+				initMessageTransport();
+
 				service = new QuizFeatureWebService(context,
 						createFeatureService(streamPublisherApiUrl,
 								QuizFeatureService.class), documentService);
@@ -281,6 +297,10 @@ public class WebService extends ExecutableBase {
 	}
 
 	private void startService(FeatureServiceBase service) throws ExecutableException {
+		if (messageTransport.getState() != ExecutableState.Started) {
+			messageTransport.start();
+		}
+
 		PresenterConfiguration config = (PresenterConfiguration) context.getConfiguration();
 		StreamConfiguration streamConfig = config.getStreamConfig();
 
@@ -297,6 +317,10 @@ public class WebService extends ExecutableBase {
 		service.destroy();
 
 		startedServices.remove(service);
+
+		if (startedServices.isEmpty()) {
+			messageTransport.stop();
+		}
 
 		//stopLocalBroadcaster();
 	}
@@ -319,7 +343,29 @@ public class WebService extends ExecutableBase {
 
 		TokenProvider tokenProvider = streamConfig::getAccessToken;
 
-		return cls.getConstructor(ServiceParameters.class, TokenProvider.class)
-				.newInstance(streamApiParameters, tokenProvider);
+		return cls.getConstructor(ServiceParameters.class, TokenProvider.class,
+						MessageTransport.class)
+				.newInstance(streamApiParameters, tokenProvider,
+						messageTransport);
+	}
+
+	private void initMessageTransport() {
+		if (isNull(messageTransport)) {
+			messageTransport = createMessageTransport();
+		}
+	}
+
+	private MessageTransport createMessageTransport() {
+		ServiceParameters messageApiParameters = new ServiceParameters();
+		messageApiParameters.setUrl(publisherMessageApiUrl);
+
+		PresenterConfiguration config = (PresenterConfiguration) context.getConfiguration();
+		StreamConfiguration streamConfig = config.getStreamConfig();
+		TokenProvider tokenProvider = streamConfig::getAccessToken;
+
+		WebSocketHeaderProvider headerProvider = new WebSocketBearerTokenProvider(
+				tokenProvider);
+
+		return new WebSocketTransport(messageApiParameters, headerProvider);
 	}
 }

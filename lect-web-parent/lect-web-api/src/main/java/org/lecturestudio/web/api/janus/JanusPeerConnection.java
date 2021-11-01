@@ -22,7 +22,6 @@ import static java.util.Objects.isNull;
 import static java.util.Objects.nonNull;
 
 import dev.onvoid.webrtc.CreateSessionDescriptionObserver;
-import dev.onvoid.webrtc.PeerConnectionFactory;
 import dev.onvoid.webrtc.PeerConnectionObserver;
 import dev.onvoid.webrtc.RTCAnswerOptions;
 import dev.onvoid.webrtc.RTCDataChannel;
@@ -43,8 +42,6 @@ import dev.onvoid.webrtc.RTCSdpType;
 import dev.onvoid.webrtc.RTCSessionDescription;
 import dev.onvoid.webrtc.SetSessionDescriptionObserver;
 import dev.onvoid.webrtc.media.MediaStreamTrack;
-import dev.onvoid.webrtc.media.audio.AudioDevice;
-import dev.onvoid.webrtc.media.audio.AudioDeviceModule;
 import dev.onvoid.webrtc.media.audio.AudioOptions;
 import dev.onvoid.webrtc.media.audio.AudioSource;
 import dev.onvoid.webrtc.media.audio.AudioTrack;
@@ -71,13 +68,13 @@ public class JanusPeerConnection implements PeerConnectionObserver {
 
 	private final static Logger LOGGER = System.getLogger(JanusPeerConnection.class.getName());
 
+	private final JanusPeerConnectionFactory factory;
+
 	private final ExecutorService executor;
 
 	private final WebRtcConfiguration config;
 
-	private PeerConnectionFactory factory;
-
-	private RTCPeerConnection peerConnection;
+	private final RTCPeerConnection peerConnection;
 
 	private RTCDataChannel dataChannel;
 
@@ -89,8 +86,6 @@ public class JanusPeerConnection implements PeerConnectionObserver {
 	 * remote peer after both local and remote description are set.
 	 */
 	private List<RTCIceCandidate> queuedRemoteCandidates;
-
-	private AudioDeviceModule audioModule;
 
 	private VideoDesktopSource desktopSource;
 
@@ -113,67 +108,12 @@ public class JanusPeerConnection implements PeerConnectionObserver {
 	private Consumer<VideoFrame> onRemoteVideoFrame;
 
 
-	public JanusPeerConnection(WebRtcConfiguration config, ExecutorService executor) {
-		this.config = config;
-		this.executor = executor;
+	public JanusPeerConnection(JanusPeerConnectionFactory factory) {
+		this.factory = factory;
+		this.config = factory.getConfig();
+		this.executor = factory.getExecutor();
 		this.queuedRemoteCandidates = new ArrayList<>();
-
-		executeAndWait(() -> {
-			AudioDevice captureDevice = config.getAudioConfiguration().getRecordingDevice();
-			AudioDevice playbackDevice = config.getAudioConfiguration().getPlaybackDevice();
-
-			audioModule = new AudioDeviceModule();
-
-			if (nonNull(captureDevice)) {
-				LOGGER.log(Level.INFO, "Audio capture device: " + captureDevice);
-
-				audioModule.setRecordingDevice(captureDevice);
-			}
-			if (nonNull(playbackDevice)) {
-				LOGGER.log(Level.INFO, "Audio playback device: " + playbackDevice);
-
-				audioModule.setPlayoutDevice(playbackDevice);
-			}
-
-			audioModule.initRecording();
-			audioModule.initPlayout();
-
-			factory = new PeerConnectionFactory(audioModule);
-			peerConnection = factory.createPeerConnection(config.getRTCConfig(), this);
-		});
-
-		config.getAudioConfiguration().playbackDeviceProperty().addListener((observable, oldValue, newValue) -> {
-			executeAndWait(() -> {
-				setPlaybackDevice(newValue);
-			});
-		});
-		config.getAudioConfiguration().recordingDeviceProperty().addListener((observable, oldValue, newValue) -> {
-			executeAndWait(() -> {
-				setRecordingDevice(newValue);
-			});
-		});
-	}
-
-	private void setPlaybackDevice(AudioDevice device) {
-		if (isNull(device) || isNull(audioModule)) {
-			return;
-		}
-
-		audioModule.stopPlayout();
-		audioModule.setPlayoutDevice(device);
-		audioModule.initPlayout();
-		audioModule.startPlayout();
-	}
-
-	private void setRecordingDevice(AudioDevice device) {
-		if (isNull(device) || isNull(audioModule)) {
-			return;
-		}
-
-		audioModule.stopRecording();
-		audioModule.setRecordingDevice(device);
-		audioModule.initRecording();
-		audioModule.startRecording();
+		this.peerConnection = factory.createPeerConnection(this);
 	}
 
 	public void setOnLocalSessionDescription(Consumer<RTCSessionDescription> callback) {
@@ -323,10 +263,6 @@ public class JanusPeerConnection implements PeerConnectionObserver {
 
 	public CompletableFuture<Void> close() {
 		return CompletableFuture.runAsync(() -> {
-			if (nonNull(audioModule)) {
-				audioModule.dispose();
-				audioModule = null;
-			}
 			if (nonNull(desktopSource)) {
 				desktopSource.stop();
 				desktopSource.dispose();
@@ -351,11 +287,6 @@ public class JanusPeerConnection implements PeerConnectionObserver {
 			}
 			if (nonNull(peerConnection)) {
 				peerConnection.close();
-				peerConnection = null;
-			}
-			if (nonNull(factory)) {
-				factory.dispose();
-				factory = null;
 			}
 		}, executor);
 	}
@@ -458,8 +389,8 @@ public class JanusPeerConnection implements PeerConnectionObserver {
 		audioOptions.typingDetection = true;
 		audioOptions.residualEchoDetector = true;
 
-		AudioSource audioSource = factory.createAudioSource(audioOptions);
-		AudioTrack audioTrack = factory.createAudioTrack("audioTrack", audioSource);
+		AudioSource audioSource = factory.getFactory().createAudioSource(audioOptions);
+		AudioTrack audioTrack = factory.getFactory().createAudioTrack("audioTrack", audioSource);
 
 		peerConnection.addTrack(audioTrack, List.of("stream"));
 
@@ -498,7 +429,7 @@ public class JanusPeerConnection implements PeerConnectionObserver {
 			videoSource.setVideoCaptureCapability(capability);
 		}
 
-		VideoTrack videoTrack = factory.createVideoTrack("videoTrack", videoSource);
+		VideoTrack videoTrack = factory.getFactory().createVideoTrack("videoTrack", videoSource);
 
 		if (direction == RTCRtpTransceiverDirection.SEND_ONLY ||
 			direction == RTCRtpTransceiverDirection.SEND_RECV) {

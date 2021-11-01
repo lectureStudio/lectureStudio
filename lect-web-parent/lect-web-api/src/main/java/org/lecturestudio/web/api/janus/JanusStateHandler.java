@@ -23,7 +23,6 @@ import static java.util.Objects.requireNonNull;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.Executors;
 
 import org.lecturestudio.core.ExecutableBase;
 import org.lecturestudio.web.api.janus.message.JanusMessage;
@@ -34,9 +33,9 @@ public abstract class JanusStateHandler extends ExecutableBase {
 
 	private final List<JanusStateHandlerListener> listeners;
 
-	protected final JanusMessageTransmitter transmitter;
+	protected final JanusPeerConnectionFactory peerConnectionFactory;
 
-	protected final WebRtcConfiguration webRtcConfig;
+	protected final JanusMessageTransmitter transmitter;
 
 	protected JanusState state;
 
@@ -53,11 +52,11 @@ public abstract class JanusStateHandler extends ExecutableBase {
 	protected String roomSecret;
 
 
-	public JanusStateHandler(JanusMessageTransmitter transmitter,
-			WebRtcConfiguration webRtcConfig) {
+	public JanusStateHandler(JanusPeerConnectionFactory factory,
+			JanusMessageTransmitter transmitter) {
 		this.listeners = new ArrayList<>();
+		this.peerConnectionFactory = factory;
 		this.transmitter = transmitter;
-		this.webRtcConfig = webRtcConfig;
 	}
 
 	public void addJanusStateHandlerListener(JanusStateHandlerListener listener) {
@@ -129,8 +128,7 @@ public abstract class JanusStateHandler extends ExecutableBase {
 	}
 
 	public JanusPeerConnection createPeerConnection() {
-		peerConnection = new JanusPeerConnection(webRtcConfig,
-				Executors.newSingleThreadExecutor());
+		peerConnection = new JanusPeerConnection(peerConnectionFactory);
 
 		return peerConnection;
 	}
@@ -140,7 +138,7 @@ public abstract class JanusStateHandler extends ExecutableBase {
 	}
 
 	public WebRtcConfiguration getWebRtcConfig() {
-		return webRtcConfig;
+		return peerConnectionFactory.getConfig();
 	}
 
 	protected void setConnected() {

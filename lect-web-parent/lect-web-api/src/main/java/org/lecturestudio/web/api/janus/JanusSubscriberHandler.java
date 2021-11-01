@@ -25,7 +25,6 @@ import org.lecturestudio.web.api.janus.message.JanusMessage;
 import org.lecturestudio.web.api.janus.message.JanusPluginMessage;
 import org.lecturestudio.web.api.janus.state.AttachPluginState;
 import org.lecturestudio.web.api.janus.state.SubscriberJoinRoomState;
-import org.lecturestudio.web.api.stream.config.WebRtcConfiguration;
 
 public class JanusSubscriberHandler extends JanusStateHandler {
 
@@ -33,9 +32,9 @@ public class JanusSubscriberHandler extends JanusStateHandler {
 
 
 	public JanusSubscriberHandler(JanusPublisher publisher,
-			JanusMessageTransmitter transmitter,
-			WebRtcConfiguration webRtcConfig) {
-		super(transmitter, webRtcConfig);
+			JanusPeerConnectionFactory factory,
+			JanusMessageTransmitter transmitter) {
+		super(factory, transmitter);
 
 		this.publisher = publisher;
 	}

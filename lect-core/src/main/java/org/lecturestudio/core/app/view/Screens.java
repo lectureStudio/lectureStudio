@@ -23,6 +23,7 @@ import java.awt.GraphicsConfiguration;
 import java.awt.GraphicsDevice;
 import java.awt.GraphicsEnvironment;
 import java.awt.Rectangle;
+import java.awt.geom.AffineTransform;
 
 import org.lecturestudio.core.geometry.Rectangle2D;
 import org.lecturestudio.core.view.Screen;
@@ -169,10 +170,13 @@ public final class Screens {
 	private static Screen createScreen(GraphicsDevice device) {
 		GraphicsConfiguration deviceConfig = device.getDefaultConfiguration();
 		Rectangle bounds = deviceConfig.getBounds();
+		AffineTransform transform = deviceConfig.getDefaultTransform();
 
-		int screenWidth = (int) (bounds.width * deviceConfig.getDefaultTransform().getScaleX());
-		int screenHeight = (int) (bounds.height * deviceConfig.getDefaultTransform().getScaleY());
+		int x = (int) (bounds.x * transform.getScaleX());
+		int y = (int) (bounds.y * transform.getScaleY());
+		int w = (int) (bounds.width * transform.getScaleX());
+		int h = (int) (bounds.height * transform.getScaleY());
 
-		return new Screen(bounds.x, bounds.y, screenWidth, screenHeight);
+		return new Screen(x, y, w, h);
 	}
 }

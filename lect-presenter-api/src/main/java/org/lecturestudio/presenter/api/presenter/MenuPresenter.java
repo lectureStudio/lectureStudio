@@ -559,9 +559,9 @@ public class MenuPresenter extends Presenter<MenuView> {
 		view.setOnOpenAbout(this::showAboutView);
 
 		// Bind configuration.
-		context.getConfiguration().advancedUIModeProperty().addListener((observable, oldValue, newValue) -> {
-			view.setAdvancedSettings(newValue);
-		});
+//		context.getConfiguration().advancedUIModeProperty().addListener((observable, oldValue, newValue) -> {
+//			view.setAdvancedSettings(newValue);
+//		});
 
 		// Register for page parameter change updates.
 		PresentationParameterProvider ppProvider = context.getPagePropertyProvider(ViewType.User);

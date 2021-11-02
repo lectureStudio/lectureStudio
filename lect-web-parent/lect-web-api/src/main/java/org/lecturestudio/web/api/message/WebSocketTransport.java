@@ -21,6 +21,7 @@ package org.lecturestudio.web.api.message;
 import static java.util.Objects.isNull;
 import static java.util.Objects.nonNull;
 
+import java.io.IOException;
 import java.io.StringReader;
 import java.lang.reflect.Type;
 import java.net.URI;
@@ -28,6 +29,7 @@ import java.net.http.HttpClient;
 import java.net.http.WebSocket;
 import java.net.http.WebSocket.Builder;
 import java.net.http.WebSocket.Listener;
+import java.nio.ByteBuffer;
 import java.time.Duration;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
@@ -53,11 +55,16 @@ import org.lecturestudio.web.api.data.bind.QuizAnswerMessageAdapter;
 import org.lecturestudio.web.api.data.bind.SpeechMessageAdapter;
 import org.lecturestudio.web.api.net.SSLContextFactory;
 import org.lecturestudio.web.api.service.ServiceParameters;
+import org.lecturestudio.web.api.stream.action.StreamAction;
+import org.lecturestudio.web.api.stream.action.StreamStartAction;
+import org.lecturestudio.web.api.stream.model.Course;
 import org.lecturestudio.web.api.websocket.WebSocketHeaderProvider;
 
 public class WebSocketTransport extends ExecutableBase implements MessageTransport {
 
 	private final Map<Class<? extends WebMessage>, List<Consumer<WebMessage>>> listenerMap;
+
+	private final Course course;
 
 	private final ServiceParameters serviceParameters;
 
@@ -69,9 +76,10 @@ public class WebSocketTransport extends ExecutableBase implements MessageTranspo
 
 
 	public WebSocketTransport(ServiceParameters serviceParameters,
-			WebSocketHeaderProvider headerProvider) {
+			WebSocketHeaderProvider headerProvider, Course course) {
 		this.serviceParameters = serviceParameters;
 		this.headerProvider = headerProvider;
+		this.course = course;
 		this.listenerMap = new HashMap<>();
 	}
 
@@ -128,6 +136,13 @@ public class WebSocketTransport extends ExecutableBase implements MessageTranspo
 				.buildAsync(URI.create(serviceParameters.getUrl()),
 						new WebSocketListener())
 				.join();
+
+		try {
+			send(new StreamStartAction(course.getId()));
+		}
+		catch (Exception e) {
+			throw new ExecutableException("Send action failed", e);
+		}
 	}
 
 	@Override
@@ -138,6 +153,10 @@ public class WebSocketTransport extends ExecutableBase implements MessageTranspo
 	@Override
 	protected void destroyInternal() throws ExecutableException {
 
+	}
+
+	private void send(StreamAction action) throws IOException {
+		webSocket.sendBinary(ByteBuffer.wrap(action.toByteArray()), true);
 	}
 
 	private void handleMessage(WebMessage message) {

@@ -48,6 +48,7 @@ import org.lecturestudio.web.api.message.MessageTransport;
 import org.lecturestudio.web.api.message.WebSocketTransport;
 import org.lecturestudio.web.api.model.quiz.Quiz;
 import org.lecturestudio.web.api.service.ServiceParameters;
+import org.lecturestudio.web.api.stream.model.Course;
 import org.lecturestudio.web.api.websocket.WebSocketBearerTokenProvider;
 import org.lecturestudio.web.api.websocket.WebSocketHeaderProvider;
 
@@ -363,9 +364,11 @@ public class WebService extends ExecutableBase {
 		StreamConfiguration streamConfig = config.getStreamConfig();
 		TokenProvider tokenProvider = streamConfig::getAccessToken;
 
+		Course course = streamConfig.getCourse();
+
 		WebSocketHeaderProvider headerProvider = new WebSocketBearerTokenProvider(
 				tokenProvider);
 
-		return new WebSocketTransport(messageApiParameters, headerProvider);
+		return new WebSocketTransport(messageApiParameters, headerProvider, course);
 	}
 }

@@ -36,6 +36,7 @@ import java.awt.event.HierarchyEvent;
 import java.awt.event.HierarchyListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
+import java.awt.geom.AffineTransform;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Deque;
@@ -392,11 +393,16 @@ public class SwingMainView extends JPanel implements MainView, KeyEventDispatche
 			}
 
 			private void updateBounds() {
+				final AffineTransform transform = window.getGraphicsConfiguration()
+						.getDefaultTransform();
 				final Rectangle bounds = window.getBounds();
 
+				double sx = transform.getScaleX();
+				double sy = transform.getScaleY();
+
 				executeAction(boundsAction,
-						new Rectangle2D(bounds.x, bounds.y,
-								bounds.width, bounds.height));
+						new Rectangle2D(bounds.x * sx, bounds.y * sy,
+								bounds.width * sx, bounds.height * sy));
 			}
 		});
 	}

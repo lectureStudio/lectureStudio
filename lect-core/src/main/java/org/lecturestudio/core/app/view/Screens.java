@@ -145,9 +145,18 @@ public final class Screens {
 	public static GraphicsConfiguration getGraphicsConfiguration(Screen screen) {
 		GraphicsDevice[] devices = GE.getScreenDevices();
 
+		Rectangle screenBounds = toAwtRectangle(screen.getBounds());
+
 		for (GraphicsDevice device : devices) {
-			Rectangle bounds = device.getDefaultConfiguration().getBounds();
-			Rectangle screenBounds = toAwtRectangle(screen.getBounds());
+			GraphicsConfiguration deviceConfig = device.getDefaultConfiguration();
+			Rectangle bounds = deviceConfig.getBounds();
+			AffineTransform transform = deviceConfig.getDefaultTransform();
+
+			bounds.setBounds(
+					(int) (bounds.x * transform.getScaleX()),
+					(int) (bounds.y * transform.getScaleY()),
+					(int) (bounds.width * transform.getScaleX()),
+					(int) (bounds.height * transform.getScaleY()));
 
 			if (bounds.equals(screenBounds)) {
 				return device.getDefaultConfiguration();

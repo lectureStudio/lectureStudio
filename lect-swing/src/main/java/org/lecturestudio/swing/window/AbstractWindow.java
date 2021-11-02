@@ -58,6 +58,7 @@ public abstract class AbstractWindow implements WindowView {
 
 	public AbstractWindow(ApplicationContext context, GraphicsConfiguration gc) {
 		this.context = context;
+
 		init(gc);
 	}
 

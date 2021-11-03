@@ -123,6 +123,15 @@ public class CameraPanel extends JPanel {
 		}
 	}
 
+	/**
+	 * Set the camera status message.
+	 *
+	 * @param message The status message.
+	 */
+	public void setStatusMessage(String message) {
+		canvas.setStatusMessage(message);
+	}
+
 	protected CameraFormat getCameraFormat() {
 		if (isNull(camera)) {
 			return null;

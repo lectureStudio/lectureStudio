@@ -53,7 +53,7 @@ public class PublishToRoomState implements JanusState {
 
 
 	@Override
-	public void initialize(JanusStateHandler handler) {
+	public void initialize(JanusStateHandler handler) throws Exception {
 		WebRtcConfiguration webRtcConfig = handler.getWebRtcConfig();
 		JanusPeerConnection peerConnection = handler.createPeerConnection();
 
@@ -80,7 +80,12 @@ public class PublishToRoomState implements JanusState {
 				RTCRtpTransceiverDirection.SEND_ONLY :
 				RTCRtpTransceiverDirection.INACTIVE;
 
-		peerConnection.setupConnection(audioDirection, videoDirection);
+		try {
+			peerConnection.setupConnection(audioDirection, videoDirection);
+		}
+		catch (Exception e) {
+			logError(e, "Start peer connection failed");
+		}
 	}
 
 	@Override

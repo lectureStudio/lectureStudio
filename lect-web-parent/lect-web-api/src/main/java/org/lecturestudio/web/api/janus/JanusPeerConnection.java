@@ -61,6 +61,7 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutorService;
 import java.util.function.Consumer;
 
+import org.lecturestudio.core.net.MediaType;
 import org.lecturestudio.web.api.stream.config.VideoConfiguration;
 import org.lecturestudio.web.api.stream.config.WebRtcConfiguration;
 
@@ -91,6 +92,8 @@ public class JanusPeerConnection implements PeerConnectionObserver {
 
 	private VideoDeviceSource videoSource;
 
+	private Consumer<JanusPeerConnectionException> onException;
+
 	private Consumer<RTCSessionDescription> onLocalSessionDescription;
 
 	private Consumer<RTCIceCandidate> onIceCandidate;
@@ -114,6 +117,10 @@ public class JanusPeerConnection implements PeerConnectionObserver {
 		this.executor = factory.getExecutor();
 		this.queuedRemoteCandidates = new ArrayList<>();
 		this.peerConnection = factory.createPeerConnection(this);
+	}
+
+	public void setOnException(Consumer<JanusPeerConnectionException> callback) {
+		onException = callback;
 	}
 
 	public void setOnLocalSessionDescription(Consumer<RTCSessionDescription> callback) {
@@ -430,18 +437,18 @@ public class JanusPeerConnection implements PeerConnectionObserver {
 		}
 
 		VideoTrack videoTrack = factory.getFactory().createVideoTrack("videoTrack", videoSource);
-
 		if (direction == RTCRtpTransceiverDirection.SEND_ONLY ||
 			direction == RTCRtpTransceiverDirection.SEND_RECV) {
-//			VideoTrackSink sink = frame -> publishFrame(peerConnectionContext.onLocalFrame, frame);
-//
-//			videoTrack.addSink(sink);
-
 			try {
 				videoSource.start();
 			}
-			catch (Exception e) {
-				LOGGER.log(Level.ERROR, "Start video capture source failed", e);
+			catch (Throwable e) {
+				videoSource.dispose();
+				videoSource = null;
+
+				notify(onException, new JanusPeerConnectionMediaException(
+						MediaType.Camera, "Start video capture source failed", e));
+				return;
 			}
 		}
 
@@ -455,8 +462,6 @@ public class JanusPeerConnection implements PeerConnectionObserver {
 				break;
 			}
 		}
-
-//		notify(peerConnectionContext.onLocalVideoStream, videoSource.getState() == State.LIVE);
 	}
 
 	private void addDataChannel() {
@@ -612,7 +617,7 @@ public class JanusPeerConnection implements PeerConnectionObserver {
 		}
 
 		frame.retain();
-		consumer.accept(frame);
+		notify(consumer, frame);
 		frame.release();
 	}
 

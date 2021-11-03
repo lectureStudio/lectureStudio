@@ -52,7 +52,7 @@ public interface JanusState {
 	 *
 	 * @param handler The {@code JanusStateHandler}.
 	 */
-	void initialize(JanusStateHandler handler);
+	void initialize(JanusStateHandler handler) throws Exception;
 
 	/**
 	 * Process state specific messages received from the Janus WebRTC server.

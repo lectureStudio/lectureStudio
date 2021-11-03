@@ -63,7 +63,7 @@ public class JanusPublisherHandler extends JanusStateHandler {
 	@Override
 	public JanusPeerConnection createPeerConnection() {
 		JanusPeerConnection peerConnection = super.createPeerConnection();
-
+		peerConnection.setOnException(this::setError);
 		peerConnection.setOnIceConnectionState(state -> {
 			switch (state) {
 				case CONNECTED:

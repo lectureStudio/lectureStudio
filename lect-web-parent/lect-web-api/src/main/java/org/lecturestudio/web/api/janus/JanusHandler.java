@@ -142,7 +142,12 @@ public class JanusHandler extends JanusStateHandler {
 				}
 			}
 
-			super.handleMessage(message);
+			try {
+				super.handleMessage(message);
+			}
+			catch (Exception e) {
+				logException(e, "Handle Janus message failed");
+			}
 		}
 	}
 
@@ -299,6 +304,11 @@ public class JanusHandler extends JanusStateHandler {
 			public void disconnected() {
 				setDisconnected();
 			}
+
+			@Override
+			public void error(Throwable throwable) {
+				setError(throwable);
+			}
 		});
 
 		addStateHandler(pubHandler);
@@ -335,6 +345,11 @@ public class JanusHandler extends JanusStateHandler {
 				removeStateHandler(subHandler);
 				editRoom(1);
 				kickParticipant(publisher);
+			}
+
+			@Override
+			public void error(Throwable throwable) {
+				setError(throwable);
 			}
 		});
 

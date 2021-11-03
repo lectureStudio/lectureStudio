@@ -68,7 +68,12 @@ public abstract class JanusStateHandler extends ExecutableBase {
 
 		this.state = state;
 
-		state.initialize(this);
+		try {
+			state.initialize(this);
+		}
+		catch (Exception e) {
+			logException(e, "Initialize state failed");
+		}
 	}
 
 	public BigInteger getSessionId() {
@@ -150,6 +155,12 @@ public abstract class JanusStateHandler extends ExecutableBase {
 	protected void setDisconnected() {
 		for (JanusStateHandlerListener listener : listeners) {
 			listener.disconnected();
+		}
+	}
+
+	protected void setError(Throwable throwable) {
+		for (JanusStateHandlerListener listener : listeners) {
+			listener.error(throwable);
 		}
 	}
 }

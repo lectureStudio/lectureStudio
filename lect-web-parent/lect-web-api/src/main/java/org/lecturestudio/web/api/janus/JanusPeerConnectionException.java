@@ -18,32 +18,17 @@
 
 package org.lecturestudio.web.api.janus;
 
-/**
- * A listener observing the {@link JanusStateHandler} connection state.
- *
- * @author Alex Andres
- */
-public interface JanusStateHandlerListener {
+public class JanusPeerConnectionException extends Exception {
 
-	/**
-	 * Invoked when the WebRTC peer connection is up and sending or receiving
-	 * media.
-	 */
-	void connected();
+	public JanusPeerConnectionException() {
+		super();
+	}
 
-	/**
-	 * Invoked when the WebRTC peer connection is closed and does not send or
-	 * receive media anymore.
-	 */
-	void disconnected();
+	public JanusPeerConnectionException(String message) {
+		super(message);
+	}
 
-	/**
-	 * Invoked whenever an error during state handling has occurred. This method
-	 * can be invoked multiple times without blocking or terminating the current
-	 * state.
-	 *
-	 * @param throwable Describing the cause of the error.
-	 */
-	void error(Throwable throwable);
-
+	public JanusPeerConnectionException(String message, Throwable e) {
+		super(message, e);
+	}
 }

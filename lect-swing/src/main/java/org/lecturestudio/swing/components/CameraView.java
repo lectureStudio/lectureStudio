@@ -87,6 +87,8 @@ public class CameraView extends JComponent {
 	 */
 	public void setStatusMessage(String message) {
 		this.statusMessage = message;
+
+		repaint();
 	}
 
 	@Override

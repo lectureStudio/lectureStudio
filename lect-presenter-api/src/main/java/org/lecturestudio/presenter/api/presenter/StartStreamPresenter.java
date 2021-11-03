@@ -22,14 +22,17 @@ import static java.util.Objects.isNull;
 import static java.util.Objects.nonNull;
 
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
 
 import javax.inject.Inject;
 import javax.inject.Named;
 
 import org.lecturestudio.core.app.ApplicationContext;
+import org.lecturestudio.core.camera.Camera;
 import org.lecturestudio.core.presenter.Presenter;
 import org.lecturestudio.core.view.ConsumerAction;
 import org.lecturestudio.core.view.ViewLayer;
+import org.lecturestudio.media.camera.CameraService;
 import org.lecturestudio.presenter.api.config.PresenterConfiguration;
 import org.lecturestudio.presenter.api.config.StreamConfiguration;
 import org.lecturestudio.presenter.api.context.PresenterContext;
@@ -41,6 +44,8 @@ import org.lecturestudio.web.api.stream.service.StreamProviderService;
 
 public class StartStreamPresenter extends Presenter<StartStreamView> {
 
+	private final CameraService camService;
+
 	/** The services to start with the start-action. */
 	private StartServices startServices;
 
@@ -51,10 +56,15 @@ public class StartStreamPresenter extends Presenter<StartStreamView> {
 	@Named("stream.publisher.api.url")
 	private String streamPublisherApiUrl;
 
+	private boolean capture;
+
 
 	@Inject
-	StartStreamPresenter(ApplicationContext context, StartStreamView view) {
+	StartStreamPresenter(ApplicationContext context, StartStreamView view,
+			CameraService camService) {
 		super(context, view);
+
+		this.camService = camService;
 	}
 
 	@Override
@@ -70,12 +80,17 @@ public class StartStreamPresenter extends Presenter<StartStreamView> {
 
 		loadCourses();
 
+		setViewCamera(streamConfig.getCameraName());
+		captureCamera(true);
+
 		view.setOnStart(this::onStart);
 		view.setOnClose(this::close);
 	}
 
 	@Override
 	public void close() {
+		captureCamera(false);
+
 		super.close();
 
 		PresenterContext presenterContext = (PresenterContext) context;
@@ -92,6 +107,8 @@ public class StartStreamPresenter extends Presenter<StartStreamView> {
 	}
 
 	private void onStart() {
+		captureCamera(false);
+
 		super.close();
 
 		if (nonNull(startAction)) {
@@ -132,6 +149,62 @@ public class StartStreamPresenter extends Presenter<StartStreamView> {
 			view.setError(context.getDictionary().get("start.stream.service.error"));
 
 			streamConfig.setCourse(null);
+		}
+	}
+
+	private void captureCamera(boolean capture) {
+		if (this.capture == capture) {
+			return;
+		}
+
+		this.capture = capture;
+
+		if (capture) {
+			startCameraPreview();
+		}
+		else {
+			stopCameraPreview();
+		}
+	}
+
+	private void startCameraPreview() {
+		CompletableFuture.runAsync(() -> {
+			try {
+				view.setCameraStatus(context.getDictionary()
+						.get("start.stream.camera.starting"));
+				view.startCameraPreview();
+				view.setCameraStatus(null);
+			}
+			catch (Throwable e) {
+				view.setCameraStatus(context.getDictionary()
+						.get("start.stream.camera.unavailable"));
+			}
+		});
+	}
+
+	private void stopCameraPreview() {
+		view.stopCameraPreview();
+	}
+
+	private void setViewCamera(String cameraName) {
+		if (capture) {
+			stopCameraPreview();
+		}
+
+		Camera camera = camService.getCamera(cameraName);
+
+		if (nonNull(camera)) {
+			view.setCamera(camera);
+
+			if (camera.isOpened()) {
+				return;
+			}
+
+			view.setCameraFormat(camera.getHighestFormat(30));
+
+			if (capture) {
+				startCameraPreview();
+			}
 		}
 	}
 }

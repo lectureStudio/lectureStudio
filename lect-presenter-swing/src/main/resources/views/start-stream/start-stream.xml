@@ -7,11 +7,22 @@
 		<ComboBox id="courseCombo" name="extendedUI">
 			<renderer class="org.lecturestudio.presenter.swing.combobox.CourseRenderer" />
 		</ComboBox>
-
-		<CheckBox id="microphoneCheckBox" text="start.stream.microphone.enable" border="EmptyBorder(15, 0, 0, 0)" />
-		<CheckBox id="cameraCheckBox" text="start.stream.camera.enable" border="EmptyBorder(5, 0, 0, 0)" />
-		<CheckBox id="messengerCheckBox" text="start.stream.messenger.enable" border="EmptyBorder(5, 0, 0, 0)" />
 	</VBox>
+	<Panel layout="GridBagLayout">
+		<gridbagconstraints gridx="0" gridy="1" insets="10,0,5,0" anchor="GridBagConstraints.WEST" />
+
+		<CameraPreviewPanel id="cameraView" preferredSize="200,150" maximumSize="200,150">
+			<gridbagconstraints gridx="0" gridy="0" gridheight="1" weightx="1.0" weighty="1.0" fill="GridBagConstraints.BOTH" anchor="GridBagConstraints.NORTH" insets="0,0,0,0" />
+		</CameraPreviewPanel>
+
+		<VBox>
+			<gridbagconstraints gridx="1" gridy="0" insets="0,10,0,10" anchor="GridBagConstraints.NORTH" />
+
+			<CheckBox id="microphoneCheckBox" text="start.stream.microphone.enable" border="EmptyBorder(0, 0, 0, 0)" />
+			<CheckBox id="cameraCheckBox" text="start.stream.camera.enable" border="EmptyBorder(5, 0, 0, 0)" />
+			<CheckBox id="messengerCheckBox" text="start.stream.messenger.enable" border="EmptyBorder(5, 0, 0, 0)" />
+		</VBox>
+	</Panel>
 
 	<Label id="errorLabel" visible="false">
 		<gridbagconstraints gridx="0" gridy="0" insets="5,0,2,0" anchor="GridBagConstraints.WEST" />

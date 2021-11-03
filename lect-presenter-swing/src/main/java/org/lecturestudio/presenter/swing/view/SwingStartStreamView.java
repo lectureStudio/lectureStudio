@@ -31,8 +31,11 @@ import javax.swing.JPanel;
 
 import org.lecturestudio.core.beans.BooleanProperty;
 import org.lecturestudio.core.beans.ObjectProperty;
+import org.lecturestudio.core.camera.Camera;
+import org.lecturestudio.core.camera.CameraFormat;
 import org.lecturestudio.core.view.Action;
 import org.lecturestudio.presenter.api.view.StartStreamView;
+import org.lecturestudio.swing.components.CameraPreviewPanel;
 import org.lecturestudio.swing.util.SwingUtils;
 import org.lecturestudio.swing.view.SwingView;
 import org.lecturestudio.web.api.stream.model.Course;
@@ -43,6 +46,8 @@ public class SwingStartStreamView extends JPanel implements StartStreamView {
 	private Container contentContainer;
 
 	private JComboBox<Course> courseCombo;
+
+	private CameraPreviewPanel cameraView;
 
 	private JCheckBox microphoneCheckBox;
 
@@ -89,6 +94,31 @@ public class SwingStartStreamView extends JPanel implements StartStreamView {
 	@Override
 	public void setEnableMessenger(BooleanProperty enable) {
 		SwingUtils.bindBidirectional(messengerCheckBox, enable);
+	}
+
+	@Override
+	public void setCamera(Camera camera) {
+		cameraView.setCamera(camera);
+	}
+
+	@Override
+	public void setCameraFormat(CameraFormat cameraFormat) {
+		cameraView.setCameraFormat(cameraFormat);
+	}
+
+	@Override
+	public void setCameraStatus(String statusMessage) {
+		cameraView.setStatusMessage(statusMessage);
+	}
+
+	@Override
+	public void startCameraPreview() {
+		cameraView.startCapture();
+	}
+
+	@Override
+	public void stopCameraPreview() {
+		cameraView.stopCapture();
 	}
 
 	@Override

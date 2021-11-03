@@ -145,6 +145,11 @@ public class FxCameraSettingsView extends GridPane implements CameraSettingsView
 	}
 
 	@Override
+	public void setCameraError(String errorMessage) {
+
+	}
+
+	@Override
 	public void startCameraPreview() {
 		cameraView.startCapture();
 	}

@@ -109,16 +109,31 @@ public class CameraSettingsPresenter extends Presenter<CameraSettingsView> {
 		this.capture = capture;
 
 		if (capture) {
-			view.startCameraPreview();
+			startCameraPreview();
 		}
 		else {
-			view.stopCameraPreview();
+			stopCameraPreview();
 		}
+	}
+
+	private void startCameraPreview() {
+		try {
+			view.startCameraPreview();
+			view.setCameraError(null);
+		}
+		catch (Throwable e) {
+			view.setCameraError(context.getDictionary()
+					.get("camera.settings.camera.unavailable"));
+		}
+	}
+
+	private void stopCameraPreview() {
+		view.stopCameraPreview();
 	}
 
 	private void setViewCamera(String cameraName) {
 		if (capture) {
-			view.stopCameraPreview();
+			stopCameraPreview();
 		}
 
 		Camera camera = camService.getCamera(cameraName);
@@ -140,7 +155,7 @@ public class CameraSettingsPresenter extends Presenter<CameraSettingsView> {
 			view.setCameraFormat(highestFormat);
 
 			if (capture) {
-				view.startCameraPreview();
+				startCameraPreview();
 			}
 		}
 	}

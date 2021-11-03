@@ -48,6 +48,8 @@ public interface CameraSettingsView extends SettingsBaseView {
 
 	void setCameraFormat(CameraFormat cameraFormat);
 
+	void setCameraError(String errorMessage);
+
 	void startCameraPreview();
 
 	void stopCameraPreview();

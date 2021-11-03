@@ -100,6 +100,8 @@ public class WebRtcStreamService extends ExecutableBase {
 
 	private JanusWebSocketClient janusClient;
 
+	private ChangeListener<String> cameraDeviceListener;
+
 	private ChangeListener<String> captureDeviceListener;
 
 	private ChangeListener<String> playbackDeviceListener;
@@ -232,6 +234,11 @@ public class WebRtcStreamService extends ExecutableBase {
 			public void disconnected() {
 
 			}
+
+			@Override
+			public void error(Throwable throwable) {
+				logException(throwable, "Janus state error");
+			}
 		});
 
 		try {
@@ -243,6 +250,13 @@ public class WebRtcStreamService extends ExecutableBase {
 			throw new ExecutableException(e);
 		}
 
+		cameraDeviceListener = (observable, oldValue, newValue) -> {
+			VideoDevice cameraDevice = getDeviceByName(
+					MediaDevices.getVideoCaptureDevices(),
+					streamConfig.getCameraName());
+
+			webRtcConfig.getVideoConfiguration().setCaptureDevice(cameraDevice);
+		};
 		captureDeviceListener = (observable, oldValue, newValue) -> {
 			AudioDevice captureDevice = getDeviceByName(
 					MediaDevices.getAudioCaptureDevices(),
@@ -258,6 +272,7 @@ public class WebRtcStreamService extends ExecutableBase {
 			webRtcConfig.getAudioConfiguration().setPlaybackDevice(playbackDevice);
 		};
 
+		streamConfig.cameraNameProperty().addListener(cameraDeviceListener);
 		audioConfig.captureDeviceNameProperty().addListener(captureDeviceListener);
 		audioConfig.playbackDeviceNameProperty().addListener(playbackDeviceListener);
 
@@ -294,7 +309,9 @@ public class WebRtcStreamService extends ExecutableBase {
 		PresenterConfiguration config = (PresenterConfiguration) context
 				.getConfiguration();
 		AudioConfiguration audioConfig = config.getAudioConfig();
+		StreamConfiguration streamConfig = config.getStreamConfig();
 
+		streamConfig.cameraNameProperty().addListener(cameraDeviceListener);
 		audioConfig.captureDeviceNameProperty().removeListener(captureDeviceListener);
 		audioConfig.playbackDeviceNameProperty().removeListener(playbackDeviceListener);
 

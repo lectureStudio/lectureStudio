@@ -49,7 +49,7 @@ public class DefaultConfiguration extends PresenterConfiguration {
 		setExtendPageDimension(new Dimension2D(1.3, 1.3));
 		setStartMaximized(true);
 		setTabletMode(false);
-		setSaveDocumentOnClose(false);
+		setSaveDocumentOnClose(true);
 		setClassroomName("Presenter Classroom");
 		setClassroomShortName("");
 		setAdvancedUIMode(false);

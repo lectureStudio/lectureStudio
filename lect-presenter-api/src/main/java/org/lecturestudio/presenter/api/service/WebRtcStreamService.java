@@ -50,6 +50,10 @@ import org.lecturestudio.presenter.api.config.StreamConfiguration;
 import org.lecturestudio.presenter.api.event.CameraStateEvent;
 import org.lecturestudio.presenter.api.event.StreamingStateEvent;
 import org.lecturestudio.web.api.client.TokenProvider;
+import org.lecturestudio.web.api.exception.StreamMediaException;
+import org.lecturestudio.web.api.janus.JanusHandlerException;
+import org.lecturestudio.web.api.janus.JanusHandlerException.Type;
+import org.lecturestudio.web.api.janus.JanusPeerConnectionMediaException;
 import org.lecturestudio.web.api.janus.JanusStateHandlerListener;
 import org.lecturestudio.web.api.janus.client.JanusWebSocketClient;
 import org.lecturestudio.web.api.message.SpeechAcceptMessage;
@@ -238,6 +242,20 @@ public class WebRtcStreamService extends ExecutableBase {
 			@Override
 			public void error(Throwable throwable) {
 				logException(throwable, "Janus state error");
+
+				if (throwable instanceof JanusHandlerException) {
+					Throwable cause = throwable.getCause();
+					var handlerException = (JanusHandlerException) throwable;
+
+					if (handlerException.getType() == Type.PUBLISHER
+							&& cause instanceof JanusPeerConnectionMediaException) {
+						var pcMediaException = (JanusPeerConnectionMediaException) cause;
+
+						context.getEventBus().post(new StreamMediaException(
+								pcMediaException.getMediaType(),
+								pcMediaException));
+					}
+				}
 			}
 		});
 

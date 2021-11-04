@@ -128,6 +128,9 @@ public class StreamService {
 			catch (ExecutableException e) {
 				throw new CompletionException(e);
 			}
+
+			PresenterContext presenterContext = (PresenterContext) context;
+			presenterContext.setMessengerStarted(false);
 		})
 		.exceptionally(e -> {
 			handleServiceError(e, "Stop stream failed", "stream.stop.error");

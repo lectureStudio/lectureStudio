@@ -38,6 +38,7 @@ import org.lecturestudio.core.ExecutableException;
 import org.lecturestudio.core.ExecutableState;
 import org.lecturestudio.core.net.MediaType;
 import org.lecturestudio.web.api.event.PeerStateEvent;
+import org.lecturestudio.web.api.janus.JanusHandlerException.Type;
 import org.lecturestudio.web.api.janus.message.JanusEditRoomMessage;
 import org.lecturestudio.web.api.janus.message.JanusErrorMessage;
 import org.lecturestudio.web.api.janus.message.JanusMessage;
@@ -307,7 +308,7 @@ public class JanusHandler extends JanusStateHandler {
 
 			@Override
 			public void error(Throwable throwable) {
-				setError(throwable);
+				setError(new JanusHandlerException(Type.PUBLISHER, throwable));
 			}
 		});
 
@@ -349,7 +350,7 @@ public class JanusHandler extends JanusStateHandler {
 
 			@Override
 			public void error(Throwable throwable) {
-				setError(throwable);
+				setError(new JanusHandlerException(Type.SUBSCRIBER, throwable));
 			}
 		});
 

@@ -124,27 +124,14 @@ public abstract class Presenter<T extends View> {
 		LOG.error(throwMessage, throwable);
 	}
 
-	final protected void showError(String title, String message, Object... messageParams) {
-		if (context.getDictionary().contains(message)) {
-			message = context.getDictionary().get(message);
-		}
-
-		message = MessageFormat.format(message, messageParams);
-
-		showError(title, message);
-	}
-
 	final protected void showError(String title, String message) {
 		requireNonNull(title);
 
-		if (context.getDictionary().contains(title)) {
-			title = context.getDictionary().get(title);
-		}
-		if (context.getDictionary().contains(message)) {
-			message = context.getDictionary().get(message);
-		}
+		showNotification(NotificationType.ERROR, title, message);
+	}
 
-		context.getEventBus().post(new NotificationCommand(NotificationType.ERROR, title, message));
+	final protected void showError(String title, String message, Object... messageParams) {
+		showNotification(NotificationType.ERROR, title, message, messageParams);
 	}
 
 	final protected void showNotification(NotificationType type, String title, String message) {
@@ -156,6 +143,16 @@ public abstract class Presenter<T extends View> {
 		}
 
 		context.getEventBus().post(new NotificationCommand(type, title, message));
+	}
+
+	final protected void showNotification(NotificationType type, String title, String message, Object... messageParams) {
+		if (context.getDictionary().contains(message)) {
+			message = context.getDictionary().get(message);
+		}
+
+		message = MessageFormat.format(message, messageParams);
+
+		showNotification(type, title, message);
 	}
 
 	final protected void showNotificationPopup(String title) {

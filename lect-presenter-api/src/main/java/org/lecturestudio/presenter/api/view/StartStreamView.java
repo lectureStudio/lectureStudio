@@ -20,8 +20,11 @@ package org.lecturestudio.presenter.api.view;
 
 import java.util.List;
 
+import org.lecturestudio.core.audio.device.AudioInputDevice;
+import org.lecturestudio.core.audio.device.AudioOutputDevice;
 import org.lecturestudio.core.beans.BooleanProperty;
 import org.lecturestudio.core.beans.ObjectProperty;
+import org.lecturestudio.core.beans.StringProperty;
 import org.lecturestudio.core.camera.Camera;
 import org.lecturestudio.core.camera.CameraFormat;
 import org.lecturestudio.core.view.Action;
@@ -33,6 +36,18 @@ public interface StartStreamView extends View {
 	void setCourse(ObjectProperty<Course> course);
 
 	void setCourses(List<Course> courses);
+
+	void setAudioCaptureDevice(StringProperty captureDeviceName);
+
+	void setAudioCaptureDevices(AudioInputDevice[] captureDevices);
+
+	void setAudioPlaybackDevice(StringProperty playbackDeviceName);
+
+	void setAudioPlaybackDevices(AudioOutputDevice[] playbackDevices);
+
+	void setCameraName(StringProperty cameraName);
+
+	void setCameraNames(String[] cameraNames);
 
 	void setEnableMicrophone(BooleanProperty enable);
 
@@ -51,6 +66,8 @@ public interface StartStreamView extends View {
 	void stopCameraPreview();
 
 	void setError(String message);
+
+	void setOnSettings(Action action);
 
 	void setOnClose(Action action);
 

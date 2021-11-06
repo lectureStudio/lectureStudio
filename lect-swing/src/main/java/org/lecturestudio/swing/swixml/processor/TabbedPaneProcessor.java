@@ -52,6 +52,7 @@ public class TabbedPaneProcessor implements TagProcessor, LogAware {
 		final Dimension size = tab.getSize();
 		final JLabel tabLabel = new JLabel(tab.getText(), tab.getIcon(),
 				SwingConstants.LEFT);
+		tabLabel.setName(tab.getName());
 
 		if (nonNull(size)) {
 			tabLabel.setMinimumSize(size);

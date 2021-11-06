@@ -24,6 +24,7 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionException;
 
 import javax.inject.Inject;
+import javax.inject.Singleton;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -37,6 +38,7 @@ import org.lecturestudio.core.view.NotificationType;
 import org.lecturestudio.presenter.api.context.PresenterContext;
 import org.lecturestudio.presenter.api.presenter.command.StartStreamCommand;
 
+@Singleton
 public class StreamService {
 
 	private final static Logger LOG = LogManager.getLogger(StreamService.class);
@@ -91,7 +93,7 @@ public class StreamService {
 	}
 
 	private void startStream() {
-		eventBus.post(new StartStreamCommand((startServices) -> {
+		eventBus.post(new StartStreamCommand((streamContext) -> {
 			CompletableFuture.runAsync(() -> {
 				try {
 					streamService.start();
@@ -100,7 +102,7 @@ public class StreamService {
 					throw new CompletionException(e);
 				}
 
-				if (startServices.startMessenger.get()) {
+				if (streamContext.getMessengerEnabled()) {
 					PresenterContext presenterContext = (PresenterContext) context;
 					presenterContext.setMessengerStarted(true);
 				}

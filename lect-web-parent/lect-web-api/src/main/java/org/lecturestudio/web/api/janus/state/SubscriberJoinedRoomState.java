@@ -39,7 +39,7 @@ import org.lecturestudio.web.api.janus.message.JanusPluginMessage;
 import org.lecturestudio.web.api.janus.message.JanusRoomSubscribeMessage;
 import org.lecturestudio.web.api.janus.message.JanusRoomSubscribeRequest;
 import org.lecturestudio.web.api.janus.message.JanusTrickleMessage;
-import org.lecturestudio.web.api.stream.config.WebRtcConfiguration;
+import org.lecturestudio.web.api.stream.StreamContext;
 
 /**
  * This state starts publishing media (audio, video and data) to a joined
@@ -67,10 +67,10 @@ public class SubscriberJoinedRoomState implements JanusState {
 
 	@Override
 	public void initialize(JanusStateHandler handler) {
-		WebRtcConfiguration webRtcConfig = handler.getWebRtcConfig();
+		StreamContext streamContext = handler.getStreamContext();
 		JanusPeerConnection peerConnection = handler.createPeerConnection();
 
-		videoFrameConsumer = webRtcConfig.getVideoFrameConsumer();
+		videoFrameConsumer = streamContext.getVideoFrameConsumer();
 
 		peerConnection.setOnLocalSessionDescription(description -> {
 			sendRequest(handler, description.sdp);

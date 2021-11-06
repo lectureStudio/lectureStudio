@@ -79,7 +79,7 @@ import org.lecturestudio.presenter.swing.view.SwingGridSettingsView;
 import org.lecturestudio.presenter.swing.view.SwingMainView;
 import org.lecturestudio.presenter.swing.view.SwingMenuView;
 import org.lecturestudio.presenter.swing.view.SwingMessengerWindow;
-import org.lecturestudio.presenter.swing.view.SwingMicrophoneSettingsView;
+import org.lecturestudio.presenter.swing.view.SwingSoundSettingsView;
 import org.lecturestudio.presenter.swing.view.SwingNetworkSettingsView;
 import org.lecturestudio.presenter.swing.view.SwingNewVersionView;
 import org.lecturestudio.presenter.swing.view.SwingQuitRecordingView;
@@ -134,7 +134,7 @@ public class ViewModule extends AbstractModule {
 		bind(MainView.class).to(SwingMainView.class);
 		bind(MenuView.class).to(SwingMenuView.class);
 		bind(MessengerWindow.class).to(SwingMessengerWindow.class);
-		bind(SoundSettingsView.class).to(SwingMicrophoneSettingsView.class);
+		bind(SoundSettingsView.class).to(SwingSoundSettingsView.class);
 		bind(NetworkSettingsView.class).to(SwingNetworkSettingsView.class);
 		bind(NewVersionView.class).to(SwingNewVersionView.class);
 		bind(NotificationView.class).to(SwingNotificationView.class);

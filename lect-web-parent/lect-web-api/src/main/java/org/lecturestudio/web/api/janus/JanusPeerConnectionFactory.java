@@ -33,8 +33,8 @@ import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-import org.lecturestudio.web.api.stream.config.AudioConfiguration;
-import org.lecturestudio.web.api.stream.config.WebRtcConfiguration;
+import org.lecturestudio.web.api.stream.StreamAudioContext;
+import org.lecturestudio.web.api.stream.StreamContext;
 
 public class JanusPeerConnectionFactory {
 
@@ -42,19 +42,19 @@ public class JanusPeerConnectionFactory {
 
 	private final ExecutorService executor = Executors.newSingleThreadExecutor();
 
-	private final WebRtcConfiguration config;
+	private final StreamContext context;
 
 	private final PeerConnectionFactory factory;
 
 	private final AudioDeviceModule audioModule;
 
 
-	public JanusPeerConnectionFactory(WebRtcConfiguration config) {
-		this.config = config;
+	public JanusPeerConnectionFactory(StreamContext context) {
+		this.context = context;
 
-		AudioConfiguration audioConfig = config.getAudioConfiguration();
-		AudioDevice recordingDevice = audioConfig.getRecordingDevice();
-		AudioDevice playbackDevice = audioConfig.getPlaybackDevice();
+		StreamAudioContext audioContext = context.getAudioContext();
+		AudioDevice recordingDevice = audioContext.getRecordingDevice();
+		AudioDevice playbackDevice = audioContext.getPlaybackDevice();
 
 		audioModule = executeAndGet(AudioDeviceModule::new);
 
@@ -67,20 +67,20 @@ public class JanusPeerConnectionFactory {
 			return new PeerConnectionFactory(audioModule);
 		});
 
-		audioConfig.playbackDeviceProperty().addListener((observable, oldValue, newValue) -> {
+		audioContext.playbackDeviceProperty().addListener((observable, oldValue, newValue) -> {
 			executeAndWait(() -> {
 				setPlaybackDevice(newValue, true);
 			});
 		});
-		audioConfig.recordingDeviceProperty().addListener((observable, oldValue, newValue) -> {
+		audioContext.recordingDeviceProperty().addListener((observable, oldValue, newValue) -> {
 			executeAndWait(() -> {
 				setRecordingDevice(newValue, true);
 			});
 		});
 	}
 
-	public WebRtcConfiguration getConfig() {
-		return config;
+	public StreamContext getStreamContext() {
+		return context;
 	}
 
 	public ExecutorService getExecutor() {
@@ -93,7 +93,7 @@ public class JanusPeerConnectionFactory {
 
 	public RTCPeerConnection createPeerConnection(PeerConnectionObserver observer) {
 		return executeAndGet(() -> {
-			return factory.createPeerConnection(config.getRTCConfig(), observer);
+			return factory.createPeerConnection(context.getRTCConfig(), observer);
 		});
 	}
 

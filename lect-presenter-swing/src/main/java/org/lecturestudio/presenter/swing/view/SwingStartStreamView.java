@@ -18,19 +18,27 @@
 
 package org.lecturestudio.presenter.swing.view;
 
+import static java.util.Objects.isNull;
+
+import java.awt.Color;
 import java.awt.Container;
 import java.util.List;
 import java.util.Vector;
 
+import javax.swing.AbstractButton;
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.JToggleButton;
 
+import org.lecturestudio.core.audio.device.AudioInputDevice;
+import org.lecturestudio.core.audio.device.AudioOutputDevice;
 import org.lecturestudio.core.beans.BooleanProperty;
 import org.lecturestudio.core.beans.ObjectProperty;
+import org.lecturestudio.core.beans.StringProperty;
 import org.lecturestudio.core.camera.Camera;
 import org.lecturestudio.core.camera.CameraFormat;
 import org.lecturestudio.core.view.Action;
@@ -38,6 +46,7 @@ import org.lecturestudio.presenter.api.view.StartStreamView;
 import org.lecturestudio.swing.components.CameraPreviewPanel;
 import org.lecturestudio.swing.util.SwingUtils;
 import org.lecturestudio.swing.view.SwingView;
+import org.lecturestudio.swing.view.ViewPostConstruct;
 import org.lecturestudio.web.api.stream.model.Course;
 
 @SwingView(name = "start-stream")
@@ -47,15 +56,23 @@ public class SwingStartStreamView extends JPanel implements StartStreamView {
 
 	private JComboBox<Course> courseCombo;
 
+	private JComboBox<String> audioCaptureDevicesCombo;
+
+	private JComboBox<String> audioPlaybackDevicesCombo;
+
+	private JComboBox<String> camerasCombo;
+
 	private CameraPreviewPanel cameraView;
 
-	private JCheckBox microphoneCheckBox;
+	private JToggleButton muteMicrophoneButton;
 
-	private JCheckBox cameraCheckBox;
+	private JToggleButton enableCameraButton;
 
 	private JCheckBox messengerCheckBox;
 
 	private JLabel errorLabel;
+
+	private JButton settingsButton;
 
 	private JButton closeButton;
 
@@ -82,13 +99,72 @@ public class SwingStartStreamView extends JPanel implements StartStreamView {
 	}
 
 	@Override
+	public void setAudioCaptureDevice(StringProperty captureDeviceName) {
+		SwingUtils.invoke(() -> {
+			SwingUtils.bindBidirectional(audioCaptureDevicesCombo, captureDeviceName);
+		});
+	}
+
+	@Override
+	public void setAudioCaptureDevices(AudioInputDevice[] captureDevices) {
+		DefaultComboBoxModel<String> model = new DefaultComboBoxModel<>();
+
+		for (AudioInputDevice device : captureDevices) {
+			model.addElement(device.getName());
+		}
+
+		SwingUtils.invoke(() -> {
+			audioCaptureDevicesCombo.setModel(model);
+		});
+	}
+
+	@Override
+	public void setAudioPlaybackDevice(StringProperty playbackDeviceName) {
+		SwingUtils.invoke(() -> {
+			SwingUtils.bindBidirectional(audioPlaybackDevicesCombo, playbackDeviceName);
+		});
+	}
+
+	@Override
+	public void setAudioPlaybackDevices(AudioOutputDevice[] playbackDevices) {
+		DefaultComboBoxModel<String> model = new DefaultComboBoxModel<>();
+
+		for (AudioOutputDevice device : playbackDevices) {
+			model.addElement(device.getName());
+		}
+
+		SwingUtils.invoke(() -> {
+			audioPlaybackDevicesCombo.setModel(model);
+		});
+	}
+
+	@Override
+	public void setCameraName(StringProperty cameraName) {
+		SwingUtils.bindBidirectional(camerasCombo, cameraName);
+	}
+
+	@Override
+	public void setCameraNames(String[] cameraNames) {
+		if (isNull(cameraNames)) {
+			return;
+		}
+
+		SwingUtils.invoke(() -> camerasCombo
+				.setModel(new DefaultComboBoxModel<>(cameraNames)));
+	}
+
+	@Override
 	public void setEnableMicrophone(BooleanProperty enable) {
-		SwingUtils.bindBidirectional(microphoneCheckBox, enable);
+		SwingUtils.bindBidirectional(muteMicrophoneButton, enable);
+
+		setComponentColor(muteMicrophoneButton);
 	}
 
 	@Override
 	public void setEnableCamera(BooleanProperty enable) {
-		SwingUtils.bindBidirectional(cameraCheckBox, enable);
+		SwingUtils.bindBidirectional(enableCameraButton, enable);
+
+		setComponentColor(enableCameraButton);
 	}
 
 	@Override
@@ -129,7 +205,13 @@ public class SwingStartStreamView extends JPanel implements StartStreamView {
 
 			contentContainer.setVisible(false);
 			startButton.setVisible(false);
+			settingsButton.setVisible(true);
 		});
+	}
+
+	@Override
+	public void setOnSettings(Action action) {
+		SwingUtils.bindAction(settingsButton, action);
 	}
 
 	@Override
@@ -140,5 +222,21 @@ public class SwingStartStreamView extends JPanel implements StartStreamView {
 	@Override
 	public void setOnStart(Action action) {
 		SwingUtils.bindAction(startButton, action);
+	}
+
+	@ViewPostConstruct
+	private void initialize() {
+		muteMicrophoneButton.addActionListener(e -> {
+			setComponentColor(muteMicrophoneButton);
+		});
+		enableCameraButton.addActionListener(e -> {
+			setComponentColor(enableCameraButton);
+		});
+	}
+
+	private void setComponentColor(AbstractButton button) {
+		button.setBackground(button.isSelected() ?
+				Color.decode("#D1FAE5") :
+				Color.decode("#FEE2E2"));
 	}
 }

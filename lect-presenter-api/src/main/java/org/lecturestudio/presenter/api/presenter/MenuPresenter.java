@@ -88,7 +88,6 @@ import org.lecturestudio.presenter.api.pdf.embedded.QuizParser;
 import org.lecturestudio.presenter.api.service.BookmarkService;
 import org.lecturestudio.presenter.api.service.QuizWebServiceState;
 import org.lecturestudio.presenter.api.service.RecordingService;
-import org.lecturestudio.presenter.api.service.StreamService;
 import org.lecturestudio.presenter.api.service.WebService;
 import org.lecturestudio.presenter.api.view.MenuView;
 import org.lecturestudio.presenter.api.view.MessengerWindow;
@@ -121,9 +120,6 @@ public class MenuPresenter extends Presenter<MenuView> {
 
 	@Inject
 	private WebService webService;
-
-	@Inject
-	private StreamService streamService;
 
 
 	@Inject

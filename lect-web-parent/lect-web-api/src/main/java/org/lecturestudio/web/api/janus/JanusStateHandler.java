@@ -27,7 +27,7 @@ import java.util.List;
 import org.lecturestudio.core.ExecutableBase;
 import org.lecturestudio.web.api.janus.message.JanusMessage;
 import org.lecturestudio.web.api.janus.state.JanusState;
-import org.lecturestudio.web.api.stream.config.WebRtcConfiguration;
+import org.lecturestudio.web.api.stream.StreamContext;
 
 public abstract class JanusStateHandler extends ExecutableBase {
 
@@ -142,8 +142,8 @@ public abstract class JanusStateHandler extends ExecutableBase {
 		return peerConnection;
 	}
 
-	public WebRtcConfiguration getWebRtcConfig() {
-		return peerConnectionFactory.getConfig();
+	public StreamContext getStreamContext() {
+		return peerConnectionFactory.getStreamContext();
 	}
 
 	protected void setConnected() {

@@ -31,7 +31,7 @@ import org.lecturestudio.web.api.janus.message.JanusRoomStateMessage;
 import org.lecturestudio.web.api.janus.message.JanusRoomListMessage;
 import org.lecturestudio.web.api.janus.message.JanusRoomRequest;
 import org.lecturestudio.web.api.janus.message.JanusRoomRequestType;
-import org.lecturestudio.web.api.stream.config.WebRtcConfiguration;
+import org.lecturestudio.web.api.stream.StreamContext;
 import org.lecturestudio.web.api.stream.model.Course;
 
 /**
@@ -46,7 +46,7 @@ public class CreateRoomState implements JanusState {
 
 	@Override
 	public void initialize(JanusStateHandler handler) {
-		Course course = handler.getWebRtcConfig().getCourse();
+		Course course = handler.getStreamContext().getCourse();
 
 		logDebug("Creating Janus room for: %s", course.getTitle());
 
@@ -99,14 +99,14 @@ public class CreateRoomState implements JanusState {
 	}
 
 	private void createRoom(JanusStateHandler handler) {
-		WebRtcConfiguration config = handler.getWebRtcConfig();
-		Course course = config.getCourse();
+		StreamContext context = handler.getStreamContext();
+		Course course = context.getCourse();
 
 		JanusCreateRoomMessage request = new JanusCreateRoomMessage();
 		request.setRoomId(handler.getRoomId());
 		request.setDescription(course.getTitle());
 		request.setPublishers(1);
-		request.setBitrate(config.getVideoConfiguration().getBitrate() * 1000);
+		request.setBitrate(context.getVideoContext().getBitrate() * 1000);
 		request.setNotifyJoining(true);
 		//request.setSecret(handler.getRoomSecret());
 

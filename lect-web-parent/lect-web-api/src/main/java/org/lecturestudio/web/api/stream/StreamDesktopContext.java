@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2021 TU Darmstadt, Department of Computer Science,
+ * Copyright (C) 2020 TU Darmstadt, Department of Computer Science,
  * Embedded Systems and Applications Group.
  *
  * This program is free software: you can redistribute it and/or modify
@@ -16,12 +16,28 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package org.lecturestudio.presenter.api.model;
+package org.lecturestudio.web.api.stream;
 
-import org.lecturestudio.core.beans.BooleanProperty;
+import org.lecturestudio.core.beans.IntegerProperty;
 
-public class StartServices {
+public class StreamDesktopContext {
 
-	public BooleanProperty startMessenger = new BooleanProperty();
+	private final IntegerProperty frameRate;
 
+
+	public StreamDesktopContext() {
+		frameRate = new IntegerProperty();
+	}
+
+	public IntegerProperty frameRateProperty() {
+		return frameRate;
+	}
+
+	public Integer getFrameRate() {
+		return frameRate.get();
+	}
+
+	public void setFrameRate(int rate) {
+		frameRate.set(rate);
+	}
 }

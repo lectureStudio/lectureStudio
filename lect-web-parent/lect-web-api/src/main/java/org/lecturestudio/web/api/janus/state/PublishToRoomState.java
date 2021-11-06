@@ -32,9 +32,9 @@ import org.lecturestudio.web.api.janus.message.JanusRoomPublishMessage;
 import org.lecturestudio.web.api.janus.message.JanusRoomPublishRequest;
 import org.lecturestudio.web.api.janus.message.JanusRoomStateMessage;
 import org.lecturestudio.web.api.janus.message.JanusTrickleMessage;
-import org.lecturestudio.web.api.stream.config.AudioConfiguration;
-import org.lecturestudio.web.api.stream.config.VideoConfiguration;
-import org.lecturestudio.web.api.stream.config.WebRtcConfiguration;
+import org.lecturestudio.web.api.stream.StreamAudioContext;
+import org.lecturestudio.web.api.stream.StreamVideoContext;
+import org.lecturestudio.web.api.stream.StreamContext;
 
 import dev.onvoid.webrtc.RTCIceCandidate;
 import dev.onvoid.webrtc.RTCIceGatheringState;
@@ -56,9 +56,9 @@ public class PublishToRoomState implements JanusState {
 
 	@Override
 	public void initialize(JanusStateHandler handler) throws Exception {
-		WebRtcConfiguration webRtcConfig = handler.getWebRtcConfig();
-		AudioConfiguration audioConfig = webRtcConfig.getAudioConfiguration();
-		VideoConfiguration videoConfig = webRtcConfig.getVideoConfiguration();
+		StreamContext streamContext = handler.getStreamContext();
+		StreamAudioContext audioContext = streamContext.getAudioContext();
+		StreamVideoContext videoContext = streamContext.getVideoContext();
 		JanusPeerConnection peerConnection = handler.createPeerConnection();
 
 		peerConnection.setOnLocalSessionDescription(description -> {
@@ -79,17 +79,17 @@ public class PublishToRoomState implements JanusState {
 
 		// Publishers are send-only.
 		var audioDirection = RTCRtpTransceiverDirection.SEND_ONLY;
-		var videoDirection = videoConfig.getSendVideo() ?
+		var videoDirection = videoContext.getSendVideo() ?
 				RTCRtpTransceiverDirection.SEND_ONLY :
 				RTCRtpTransceiverDirection.INACTIVE;
 
 		try {
-			peerConnection.setCameraCapability(videoConfig.getCaptureCapability());
-			peerConnection.setCameraDevice(videoConfig.getCaptureDevice());
+			peerConnection.setCameraCapability(videoContext.getCaptureCapability());
+			peerConnection.setCameraDevice(videoContext.getCaptureDevice());
 			peerConnection.setup(audioDirection, videoDirection);
 
 			// Initialize with desired mute setting.
-			peerConnection.setMicrophoneEnabled(audioConfig.getSendAudio());
+			peerConnection.setMicrophoneEnabled(audioContext.getSendAudio());
 		}
 		catch (Exception e) {
 			logError(e, "Start peer connection failed");
@@ -136,7 +136,7 @@ public class PublishToRoomState implements JanusState {
 	private void sendRequest(JanusStateHandler handler, String sdp) {
 		JanusRoomPublishRequest request = new JanusRoomPublishRequest();
 		request.setAudio(true);
-		request.setVideo(handler.getWebRtcConfig().getVideoConfiguration().getSendVideo());
+		request.setVideo(handler.getStreamContext().getVideoContext().getSendVideo());
 		request.setData(true);
 
 		publishRequest = new JanusRoomPublishMessage(handler.getSessionId(),

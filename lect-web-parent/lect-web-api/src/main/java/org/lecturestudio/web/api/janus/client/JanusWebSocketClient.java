@@ -49,7 +49,7 @@ import org.lecturestudio.web.api.janus.message.JanusMessage;
 import org.lecturestudio.web.api.net.SSLContextFactory;
 import org.lecturestudio.web.api.service.ServiceParameters;
 import org.lecturestudio.web.api.stream.StreamEventRecorder;
-import org.lecturestudio.web.api.stream.config.WebRtcConfiguration;
+import org.lecturestudio.web.api.stream.StreamContext;
 
 /**
  * Janus WebSocket signaling client implementation. This client sends, receives,
@@ -61,7 +61,7 @@ public class JanusWebSocketClient extends ExecutableBase implements JanusMessage
 
 	private final ServiceParameters serviceParameters;
 
-	private final WebRtcConfiguration webRtcConfig;
+	private final StreamContext streamContext;
 
 	private final StreamEventRecorder eventRecorder;
 
@@ -75,9 +75,9 @@ public class JanusWebSocketClient extends ExecutableBase implements JanusMessage
 
 
 	public JanusWebSocketClient(ServiceParameters parameters,
-			WebRtcConfiguration webRtcConfig, StreamEventRecorder eventRecorder) {
+			StreamContext streamContext, StreamEventRecorder eventRecorder) {
 		this.serviceParameters = parameters;
-		this.webRtcConfig = webRtcConfig;
+		this.streamContext = streamContext;
 		this.eventRecorder = eventRecorder;
 	}
 
@@ -118,9 +118,9 @@ public class JanusWebSocketClient extends ExecutableBase implements JanusMessage
 	protected void initInternal() throws ExecutableException {
 		jsonb = JsonbBuilder.create(JsonConfigProvider.createConfig());
 
-		requireNonNull(webRtcConfig.getCourse());
+		requireNonNull(streamContext.getCourse());
 
-		handler = new JanusHandler(this, webRtcConfig, eventRecorder);
+		handler = new JanusHandler(this, streamContext, eventRecorder);
 		handler.addJanusStateHandlerListener(handlerStateListener);
 		handler.init();
 	}

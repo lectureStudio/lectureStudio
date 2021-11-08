@@ -114,6 +114,7 @@ public class SwingStartStreamView extends JPanel implements StartStreamView {
 		}
 
 		SwingUtils.invoke(() -> {
+			audioCaptureDevicesCombo.setLightWeightPopupEnabled(false);
 			audioCaptureDevicesCombo.setModel(model);
 		});
 	}
@@ -134,6 +135,7 @@ public class SwingStartStreamView extends JPanel implements StartStreamView {
 		}
 
 		SwingUtils.invoke(() -> {
+			audioPlaybackDevicesCombo.setLightWeightPopupEnabled(false);
 			audioPlaybackDevicesCombo.setModel(model);
 		});
 	}
@@ -149,8 +151,10 @@ public class SwingStartStreamView extends JPanel implements StartStreamView {
 			return;
 		}
 
-		SwingUtils.invoke(() -> camerasCombo
-				.setModel(new DefaultComboBoxModel<>(cameraNames)));
+		SwingUtils.invoke(() -> {
+			camerasCombo.setLightWeightPopupEnabled(false);
+			camerasCombo.setModel(new DefaultComboBoxModel<>(cameraNames));
+		});
 	}
 
 	@Override

@@ -40,6 +40,7 @@ import org.lecturestudio.core.util.ProgressCallback;
 import org.lecturestudio.presenter.api.config.NetworkConfiguration;
 import org.lecturestudio.presenter.api.config.PresenterConfiguration;
 import org.lecturestudio.presenter.api.config.StreamConfiguration;
+import org.lecturestudio.presenter.api.context.PresenterContext;
 import org.lecturestudio.presenter.api.event.MessengerStateEvent;
 import org.lecturestudio.presenter.api.event.QuizStateEvent;
 import org.lecturestudio.presenter.api.net.LocalBroadcaster;
@@ -302,10 +303,9 @@ public class WebService extends ExecutableBase {
 			messageTransport.start();
 		}
 
-		PresenterConfiguration config = (PresenterConfiguration) context.getConfiguration();
-		StreamConfiguration streamConfig = config.getStreamConfig();
+		PresenterContext pContext = (PresenterContext) context;
 
-		service.setCourseId(streamConfig.getCourse().getId());
+		service.setCourseId(pContext.getCourse().getId());
 		service.start();
 
 		if (!startedServices.contains(service)) {
@@ -360,11 +360,12 @@ public class WebService extends ExecutableBase {
 		ServiceParameters messageApiParameters = new ServiceParameters();
 		messageApiParameters.setUrl(publisherMessageApiUrl);
 
+		PresenterContext pContext = (PresenterContext) context;
 		PresenterConfiguration config = (PresenterConfiguration) context.getConfiguration();
 		StreamConfiguration streamConfig = config.getStreamConfig();
 		TokenProvider tokenProvider = streamConfig::getAccessToken;
 
-		Course course = streamConfig.getCourse();
+		Course course = pContext.getCourse();
 
 		WebSocketHeaderProvider headerProvider = new WebSocketBearerTokenProvider(
 				tokenProvider);

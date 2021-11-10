@@ -45,6 +45,7 @@ import org.lecturestudio.core.geometry.Rectangle2D;
 import org.lecturestudio.core.service.DocumentService;
 import org.lecturestudio.presenter.api.config.PresenterConfiguration;
 import org.lecturestudio.presenter.api.config.StreamConfiguration;
+import org.lecturestudio.presenter.api.context.PresenterContext;
 import org.lecturestudio.presenter.api.event.CameraStateEvent;
 import org.lecturestudio.presenter.api.event.StreamingStateEvent;
 import org.lecturestudio.web.api.client.TokenProvider;
@@ -59,6 +60,7 @@ import org.lecturestudio.web.api.message.SpeechRejectMessage;
 import org.lecturestudio.web.api.service.ServiceParameters;
 import org.lecturestudio.web.api.stream.client.StreamWebSocketClient;
 import org.lecturestudio.web.api.stream.StreamContext;
+import org.lecturestudio.web.api.stream.model.Course;
 import org.lecturestudio.web.api.stream.service.StreamProviderService;
 import org.lecturestudio.web.api.websocket.WebSocketBearerTokenProvider;
 import org.lecturestudio.web.api.websocket.WebSocketHeaderProvider;
@@ -211,10 +213,12 @@ public class WebRtcStreamService extends ExecutableBase {
 
 		context.getEventBus().register(this);
 
+		PresenterContext pContext = (PresenterContext) context;
 		PresenterConfiguration config = (PresenterConfiguration) context
 				.getConfiguration();
 		AudioConfiguration audioConfig = config.getAudioConfig();
 		StreamConfiguration streamConfig = config.getStreamConfig();
+		Course course = pContext.getCourse();
 
 		boolean streamCamera = streamConfig.getCameraEnabled();
 
@@ -222,8 +226,8 @@ public class WebRtcStreamService extends ExecutableBase {
 			setCameraState(ExecutableState.Starting);
 		}
 
-		streamContext = createStreamContext(config);
-		streamStateClient = createStreamStateClient(config);
+		streamContext = createStreamContext(course, config);
+		streamStateClient = createStreamStateClient(course, config);
 		janusClient = createJanusClient(streamContext);
 		janusClient.setJanusStateHandlerListener(new JanusStateHandlerListener() {
 
@@ -377,7 +381,7 @@ public class WebRtcStreamService extends ExecutableBase {
 		context.getEventBus().post(new CameraStateEvent(cameraState));
 	}
 
-	private StreamWebSocketClient createStreamStateClient(PresenterConfiguration config) {
+	private StreamWebSocketClient createStreamStateClient(Course course, PresenterConfiguration config) {
 		StreamConfiguration streamConfig = config.getStreamConfig();
 
 		ServiceParameters stateWsParameters = new ServiceParameters();
@@ -397,7 +401,7 @@ public class WebRtcStreamService extends ExecutableBase {
 		return new StreamWebSocketClient(context.getEventBus(), stateWsParameters,
 				headerProvider, eventRecorder, documentService,
 				streamProviderService,
-				streamConfig.getCourse());
+				course);
 	}
 
 	private JanusWebSocketClient createJanusClient(StreamContext webRtcConfig) {
@@ -408,7 +412,7 @@ public class WebRtcStreamService extends ExecutableBase {
 				eventRecorder);
 	}
 
-	private StreamContext createStreamContext(PresenterConfiguration config) {
+	private StreamContext createStreamContext(Course course, PresenterConfiguration config) {
 		AudioConfiguration audioConfig = config.getAudioConfig();
 		StreamConfiguration streamConfig = config.getStreamConfig();
 		VideoCodecConfiguration cameraConfig = streamConfig.getCameraCodecConfig();
@@ -445,7 +449,7 @@ public class WebRtcStreamService extends ExecutableBase {
 
 		streamContext.getRTCConfig().iceServers.add(iceServer);
 
-		streamContext.setCourse(streamConfig.getCourse());
+		streamContext.setCourse(course);
 
 		streamContext.setPeerStateConsumer(event -> {
 			context.getEventBus().post(event);

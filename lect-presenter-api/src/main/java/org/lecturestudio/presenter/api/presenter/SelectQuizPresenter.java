@@ -21,21 +21,18 @@ package org.lecturestudio.presenter.api.presenter;
 import static java.util.Objects.nonNull;
 
 import java.io.IOException;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.CompletionException;
 
 import javax.inject.Inject;
 
-import org.lecturestudio.core.ExecutableException;
 import org.lecturestudio.core.app.ApplicationContext;
 import org.lecturestudio.core.model.Document;
 import org.lecturestudio.core.model.DocumentList;
 import org.lecturestudio.core.presenter.Presenter;
 import org.lecturestudio.core.service.DocumentService;
-import org.lecturestudio.core.util.NetUtils;
 import org.lecturestudio.core.view.ConsumerAction;
 import org.lecturestudio.presenter.api.presenter.command.EditQuizCommand;
 import org.lecturestudio.presenter.api.service.QuizService;
+import org.lecturestudio.presenter.api.service.StreamService;
 import org.lecturestudio.presenter.api.service.WebService;
 import org.lecturestudio.presenter.api.view.SelectQuizView;
 import org.lecturestudio.web.api.model.quiz.Quiz;
@@ -48,17 +45,20 @@ public class SelectQuizPresenter extends Presenter<SelectQuizView> {
 
 	private final WebService webService;
 
+	private final StreamService streamService;
+
 	private ConsumerAction<Quiz> editAction;
 
 
 	@Inject
 	SelectQuizPresenter(ApplicationContext context, SelectQuizView view,
 			DocumentService documentService, QuizService quizService,
-			WebService webService) {
+			StreamService streamService, WebService webService) {
 		super(context, view);
 
 		this.documentService = documentService;
 		this.quizService = quizService;
+		this.streamService = streamService;
 		this.webService = webService;
 	}
 
@@ -106,24 +106,7 @@ public class SelectQuizPresenter extends Presenter<SelectQuizView> {
 	}
 
 	private void startQuiz(Quiz quiz) {
-		CompletableFuture.runAsync(() -> {
-			try {
-				webService.startQuiz(quiz);
-			}
-			catch (ExecutableException e) {
-				throw new CompletionException(e);
-			}
-		})
-		.exceptionally(e -> {
-			String message = null;
-
-			if (NetUtils.isSocketTimeout(e.getCause())) {
-				message = "service.timeout.error";
-			}
-
-			handleException(e, "Start quiz failed", "quiz.start.error", message);
-			return null;
-		});
+		streamService.startQuiz(quiz);
 
 		close();
 	}

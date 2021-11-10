@@ -44,6 +44,7 @@ import org.lecturestudio.core.view.ConsumerAction;
 import org.lecturestudio.presenter.api.net.LocalBroadcaster;
 import org.lecturestudio.presenter.api.service.QuizDataSource;
 import org.lecturestudio.presenter.api.service.QuizService;
+import org.lecturestudio.presenter.api.service.StreamService;
 import org.lecturestudio.presenter.api.service.WebService;
 import org.lecturestudio.presenter.api.view.CreateQuizDefaultOptionView;
 import org.lecturestudio.presenter.api.view.CreateQuizNumericOptionView;
@@ -65,7 +66,7 @@ class CreateQuizPresenterTest extends PresenterTest {
 
 	private QuizService quizService;
 
-	private WebService webService;
+	private StreamService streamService;
 
 	private List<CreateQuizOptionMockView> optionViews;
 
@@ -87,7 +88,8 @@ class CreateQuizPresenterTest extends PresenterTest {
 
 		quizService = new QuizService(new QuizDataSource(new File(quizzesFile)), documentService);
 
-		webService = new WebService(context, documentService, new LocalBroadcaster(context));
+		WebService webService = new WebService(context, documentService, new LocalBroadcaster(context));
+		streamService = new StreamService(context, null, webService);
 
 		optionViews = new LinkedList<>();
 
@@ -140,7 +142,8 @@ class CreateQuizPresenterTest extends PresenterTest {
 			}
 		};
 
-		CreateQuizPresenter presenter = new CreateQuizPresenter(context, view, viewFactory, documentService, quizService, webService);
+		CreateQuizPresenter presenter = new CreateQuizPresenter(context, view,
+				viewFactory, documentService, quizService, streamService);
 		presenter.initialize();
 	}
 
@@ -148,7 +151,8 @@ class CreateQuizPresenterTest extends PresenterTest {
 	void testDocumentSelected() throws Exception {
 		CreateQuizMockView view = new CreateQuizMockView();
 
-		CreateQuizPresenter presenter = new CreateQuizPresenter(context, view, viewFactory, documentService, quizService, webService);
+		CreateQuizPresenter presenter = new CreateQuizPresenter(context, view,
+				viewFactory, documentService, quizService, streamService);
 		presenter.initialize();
 		presenter.getQuiz().setQuestion("Smart question");
 		presenter.getQuiz().setType(Quiz.QuizType.SINGLE);
@@ -182,7 +186,8 @@ class CreateQuizPresenterTest extends PresenterTest {
 			}
 		};
 
-		CreateQuizPresenter presenter = new CreateQuizPresenter(context, view, viewFactory, documentService, quizService, webService);
+		CreateQuizPresenter presenter = new CreateQuizPresenter(context, view,
+				viewFactory, documentService, quizService, streamService);
 		presenter.initialize();
 
 		for (Quiz.QuizType t : TYPES) {
@@ -198,7 +203,8 @@ class CreateQuizPresenterTest extends PresenterTest {
 	void testSaveQuiz() throws Exception {
 		CreateQuizMockView view = new CreateQuizMockView();
 
-		CreateQuizPresenter presenter = new CreateQuizPresenter(context, view, viewFactory, documentService, quizService, webService);
+		CreateQuizPresenter presenter = new CreateQuizPresenter(context, view,
+				viewFactory, documentService, quizService, streamService);
 		presenter.initialize();
 
 		view.setQuizText("HTML question content..");
@@ -220,7 +226,8 @@ class CreateQuizPresenterTest extends PresenterTest {
 	void testStartQuiz() throws Exception {
 		CreateQuizMockView view = new CreateQuizMockView();
 
-		CreateQuizPresenter presenter = new CreateQuizPresenter(context, view, viewFactory, documentService, quizService, webService);
+		CreateQuizPresenter presenter = new CreateQuizPresenter(context, view,
+				viewFactory, documentService, quizService, streamService);
 		presenter.initialize();
 
 		view.setQuizText("HTML question content..");
@@ -231,7 +238,8 @@ class CreateQuizPresenterTest extends PresenterTest {
 	void testRemoveQuizOption() throws Exception {
 		CreateQuizMockView view = new CreateQuizMockView();
 
-		CreateQuizPresenter presenter = new CreateQuizPresenter(context, view, viewFactory, documentService, quizService, webService);
+		CreateQuizPresenter presenter = new CreateQuizPresenter(context, view,
+				viewFactory, documentService, quizService, streamService);
 		presenter.initialize();
 
 		view.setQuizText("HTML question content..");
@@ -263,7 +271,8 @@ class CreateQuizPresenterTest extends PresenterTest {
 	void testMoveQuizOptionDown() throws Exception {
 		CreateQuizMockView view = new CreateQuizMockView();
 
-		CreateQuizPresenter presenter = new CreateQuizPresenter(context, view, viewFactory, documentService, quizService, webService);
+		CreateQuizPresenter presenter = new CreateQuizPresenter(context, view,
+				viewFactory, documentService, quizService, streamService);
 		presenter.initialize();
 
 		view.setQuizText("HTML question content..");
@@ -296,7 +305,8 @@ class CreateQuizPresenterTest extends PresenterTest {
 	void testMoveQuizOptionUp() throws Exception {
 		CreateQuizMockView view = new CreateQuizMockView();
 
-		CreateQuizPresenter presenter = new CreateQuizPresenter(context, view, viewFactory, documentService, quizService, webService);
+		CreateQuizPresenter presenter = new CreateQuizPresenter(context, view,
+				viewFactory, documentService, quizService, streamService);
 		presenter.initialize();
 
 		view.setQuizText("HTML question content..");

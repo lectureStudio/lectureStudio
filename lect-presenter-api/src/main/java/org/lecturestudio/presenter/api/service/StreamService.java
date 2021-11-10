@@ -33,10 +33,13 @@ import org.lecturestudio.core.ExecutableException;
 import org.lecturestudio.core.app.ApplicationContext;
 import org.lecturestudio.core.bus.EventBus;
 import org.lecturestudio.core.presenter.command.NotificationCommand;
+import org.lecturestudio.core.presenter.command.ShowPresenterCommand;
 import org.lecturestudio.core.util.NetUtils;
 import org.lecturestudio.core.view.NotificationType;
 import org.lecturestudio.presenter.api.context.PresenterContext;
+import org.lecturestudio.presenter.api.presenter.StartCourseFeaturePresenter;
 import org.lecturestudio.presenter.api.presenter.command.StartStreamCommand;
+import org.lecturestudio.web.api.model.quiz.Quiz;
 
 @Singleton
 public class StreamService {
@@ -53,7 +56,7 @@ public class StreamService {
 
 
 	@Inject
-	StreamService(ApplicationContext context, WebRtcStreamService streamService,
+	public StreamService(ApplicationContext context, WebRtcStreamService streamService,
 			WebService webService) {
 		this.context = context;
 		this.eventBus = context.getEventBus();
@@ -89,6 +92,53 @@ public class StreamService {
 			else {
 				stopMessenger();
 			}
+		});
+	}
+
+	public void startQuiz(Quiz quiz) {
+		if (streamService.started()) {
+			startQuizInternal(quiz);
+		}
+		else {
+			eventBus.post(new ShowPresenterCommand<>(StartCourseFeaturePresenter.class) {
+
+				@Override
+				public void execute(StartCourseFeaturePresenter presenter) {
+					presenter.setOnStart(() -> {
+						startQuizInternal(quiz);
+					});
+				}
+			});
+		}
+	}
+
+	public void stopQuiz() {
+		CompletableFuture.runAsync(() -> {
+			try {
+				webService.stopQuiz();
+			}
+			catch (ExecutableException e) {
+				throw new CompletionException(e);
+			}
+		})
+		.exceptionally(e -> {
+			handleServiceError(e, "Stop quiz failed", "quiz.stop.error");
+			return null;
+		});
+	}
+
+	private void startQuizInternal(Quiz quiz) {
+		CompletableFuture.runAsync(() -> {
+			try {
+				webService.startQuiz(quiz);
+			}
+			catch (ExecutableException e) {
+				throw new CompletionException(e);
+			}
+		})
+		.exceptionally(e -> {
+			handleServiceError(e, "Start quiz failed", "quiz.start.error");
+			return null;
 		});
 	}
 
@@ -159,6 +209,23 @@ public class StreamService {
 	}
 
 	private void startMessenger() {
+		if (streamService.started()) {
+			startMessengerInternal();
+		}
+		else {
+			eventBus.post(new ShowPresenterCommand<>(StartCourseFeaturePresenter.class) {
+
+				@Override
+				public void execute(StartCourseFeaturePresenter presenter) {
+					presenter.setOnStart(() -> {
+						startMessengerInternal();
+					});
+				}
+			});
+		}
+	}
+
+	private void startMessengerInternal() {
 		try {
 			webService.startMessenger();
 		}

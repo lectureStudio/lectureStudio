@@ -72,7 +72,6 @@ public class StreamSettingsPresenter extends Presenter<StreamSettingsView> {
 		streamConfig.setAudioCodec(defaultConfig.getStreamConfig().getAudioCodec());
 		streamConfig.setAudioFormat(defaultConfig.getStreamConfig().getAudioFormat());
 		streamConfig.setAccessToken(defaultConfig.getStreamConfig().getAccessToken());
-		streamConfig.setCourse(defaultConfig.getStreamConfig().getCourse());
 
 		cameraConfig.setBitRate(defaultConfig.getStreamConfig().getCameraCodecConfig().getBitRate());
 

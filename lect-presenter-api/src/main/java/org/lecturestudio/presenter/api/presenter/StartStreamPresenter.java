@@ -30,6 +30,7 @@ import javax.inject.Named;
 import org.lecturestudio.core.app.ApplicationContext;
 import org.lecturestudio.core.app.configuration.AudioConfiguration;
 import org.lecturestudio.core.audio.AudioUtils;
+import org.lecturestudio.core.beans.ChangeListener;
 import org.lecturestudio.core.camera.Camera;
 import org.lecturestudio.core.presenter.Presenter;
 import org.lecturestudio.core.view.ConsumerAction;
@@ -48,6 +49,8 @@ import org.lecturestudio.web.api.stream.service.StreamProviderService;
 public class StartStreamPresenter extends Presenter<StartStreamView> {
 
 	private final CameraService camService;
+
+	private ChangeListener<String> camListener;
 
 	/** The stream configuration context. */
 	private StreamContext streamContext;
@@ -72,6 +75,7 @@ public class StartStreamPresenter extends Presenter<StartStreamView> {
 
 	@Override
 	public void initialize() {
+		PresenterContext pContext = (PresenterContext) context;
 		PresenterConfiguration config = (PresenterConfiguration) context.getConfiguration();
 		StreamConfiguration streamConfig = config.getStreamConfig();
 
@@ -84,24 +88,30 @@ public class StartStreamPresenter extends Presenter<StartStreamView> {
 			view.setCourses(List.of());
 			view.setError(context.getDictionary().get("start.stream.service.error"));
 
-			streamConfig.setCourse(null);
+			pContext.setCourse(null);
 		}
 
 		if (nonNull(courses)) {
 			AudioConfiguration audioConfig = config.getAudioConfig();
 			String soundSystem = audioConfig.getSoundSystem();
-			Course selectedCourse = streamConfig.getCourse();
+			Course selectedCourse = pContext.getCourse();
 
 			if (isNull(selectedCourse) && !courses.isEmpty()) {
 				// Set first available lecture by default.
-				streamConfig.setCourse(courses.get(0));
+				pContext.setCourse(courses.get(0));
 			}
 			else if (!courses.contains(selectedCourse)) {
-				streamConfig.setCourse(courses.get(0));
+				pContext.setCourse(courses.get(0));
 			}
 
 			setViewCamera(streamConfig.getCameraName());
 			captureCamera(true);
+
+			camListener = (observable, oldCamera, newCamera) -> {
+				if (nonNull(newCamera)) {
+					setViewCamera(newCamera);
+				}
+			};
 
 			streamContext = new StreamContext();
 			streamContext.setMessengerEnabled(streamConfig.getMessengerEnabled());
@@ -110,7 +120,7 @@ public class StartStreamPresenter extends Presenter<StartStreamView> {
 			});
 
 			view.setCourses(courses);
-			view.setCourse(streamConfig.courseProperty());
+			view.setCourse(pContext.courseProperty());
 			view.setEnableMicrophone(config.getStreamConfig().enableMicrophoneProperty());
 			view.setEnableCamera(config.getStreamConfig().enableCameraProperty());
 			view.setEnableMessenger(streamContext.enableMessengerProperty());
@@ -120,6 +130,8 @@ public class StartStreamPresenter extends Presenter<StartStreamView> {
 			view.setAudioPlaybackDevice(audioConfig.playbackDeviceNameProperty());
 			view.setCameraNames(camService.getCameraNames());
 			view.setCameraName(streamConfig.cameraNameProperty());
+
+			streamConfig.cameraNameProperty().addListener(camListener);
 		}
 
 		view.setOnStart(this::onStart);
@@ -159,6 +171,10 @@ public class StartStreamPresenter extends Presenter<StartStreamView> {
 	}
 
 	private void dispose() {
+		PresenterConfiguration config = (PresenterConfiguration) context.getConfiguration();
+		StreamConfiguration streamConfig = config.getStreamConfig();
+		streamConfig.cameraNameProperty().removeListener(camListener);
+
 		captureCamera(false);
 
 		super.close();

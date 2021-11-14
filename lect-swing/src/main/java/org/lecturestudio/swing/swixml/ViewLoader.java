@@ -28,6 +28,7 @@ import javax.swing.Icon;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
+import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JRadioButton;
 import javax.swing.JTabbedPane;
@@ -65,6 +66,7 @@ import org.lecturestudio.swing.swixml.converter.IconConverter;
 import org.lecturestudio.swing.swixml.factory.AbstractButtonFactory;
 import org.lecturestudio.swing.swixml.factory.AbstractInjectButtonFactory;
 import org.lecturestudio.swing.swixml.factory.InjectViewFactory;
+import org.lecturestudio.swing.swixml.factory.LabelFactory;
 import org.lecturestudio.swing.swixml.processor.ComboBoxProcessor;
 import org.lecturestudio.swing.swixml.processor.PanelProcessor;
 import org.lecturestudio.swing.swixml.processor.TabProcessor;
@@ -144,6 +146,7 @@ public class ViewLoader<T extends Container> extends SwingEngine<T> {
 		}
 
 		TagLibrary tagLibrary = SwingTagLibrary.getInstance();
+		tagLibrary.registerTag("Label", new LabelFactory(JLabel.class));
 		tagLibrary.registerTag("Button", new AbstractButtonFactory(JButton.class));
 		tagLibrary.registerTag("ToggleButton", new AbstractButtonFactory(JToggleButton.class));
 		tagLibrary.registerTag("RadioButton", new AbstractButtonFactory(JRadioButton.class));

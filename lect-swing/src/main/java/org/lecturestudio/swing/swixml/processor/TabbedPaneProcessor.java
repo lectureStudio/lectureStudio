@@ -20,6 +20,8 @@ package org.lecturestudio.swing.swixml.processor;
 
 import static java.util.Objects.nonNull;
 
+import com.formdev.flatlaf.util.UIScale;
+
 import java.awt.Dimension;
 import java.awt.LayoutManager;
 
@@ -55,6 +57,10 @@ public class TabbedPaneProcessor implements TagProcessor, LogAware {
 		tabLabel.setName(tab.getName());
 
 		if (nonNull(size)) {
+			double scale = UIScale.getUserScaleFactor();
+
+			size.setSize(size.width * scale, size.height * scale);
+
 			tabLabel.setMinimumSize(size);
 			tabLabel.setPreferredSize(size);
 		}

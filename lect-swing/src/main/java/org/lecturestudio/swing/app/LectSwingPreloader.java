@@ -45,6 +45,8 @@ public class LectSwingPreloader extends SwingPreloader {
 	@Override
 	protected JComponent createView() throws Exception {
 		final BufferedImage image = readImage("resources/gfx/splash.png");
+		final int width = image.getWidth();
+		final int height = image.getHeight();
 
 		JPanel panel = new JPanel() {
 
@@ -69,8 +71,8 @@ public class LectSwingPreloader extends SwingPreloader {
 			}
 		};
 
-		panel.setSize(image.getWidth(), image.getHeight());
-		panel.setPreferredSize(new Dimension(image.getWidth(), image.getHeight()));
+		panel.setSize(width, height);
+		panel.setPreferredSize(new Dimension(width, height));
 
 		return panel;
 	}

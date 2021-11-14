@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Panel layout="BorderLayout" border="EmptyBorder(20, 20, 20, 20)">
 	<Panel layout="GridBagLayout" constraints="BorderLayout.CENTER">
-		<Label text="start.getting.started" font="Arial 16" border="EmptyBorder(0, 0, 10, 0)">
+		<Label text="start.getting.started" font-scale="1.25" border="EmptyBorder(0, 0, 10, 0)">
 			<gridbagconstraints gridx="0" gridy="0" anchor="GridBagConstraints.NORTHWEST"/>
 		</Label>
 		<Panel layout="GridLayout(1, 2, 5, 5)">

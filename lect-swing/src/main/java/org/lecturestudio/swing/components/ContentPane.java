@@ -22,6 +22,7 @@ import static java.util.Objects.isNull;
 
 import java.awt.BorderLayout;
 import java.awt.Component;
+import java.awt.Font;
 
 import javax.swing.JLabel;
 import javax.swing.JPanel;
@@ -79,8 +80,10 @@ public class ContentPane extends JPanel {
 		setLayout(new ContentLayout());
 
 		titleLabel = new JLabel();
-		titleLabel.setFont(titleLabel.getFont().deriveFont(20.f));
 		titleLabel.setBorder(new EmptyBorder(20, 20, 20, 20));
+
+		Font font = titleLabel.getFont();
+		titleLabel.setFont(font.deriveFont(font.getSize2D() * 1.5f));
 
 		add(titleLabel, BorderLayout.NORTH);
 	}

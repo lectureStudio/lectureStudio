@@ -8,18 +8,15 @@ LIBRARY_PATH=\$ROOTDIR/lib/app/lib/native
 
 app[0]=lecturePresenter
 app[1]=lectureEditor
-app[2]=lectureBroadcaster
 
 class[0]=org.lecturestudio.presenter.swing.PresenterApplication
 class[1]=org.lecturestudio.editor.javafx.EditorFxApplication
-class[2]=org.lecturestudio.broadcast.BroadcasterApplication
 
 icon[0]=${project.parent.parent.basedir}/lect-presenter-swing/src/main/resources/gfx/app-icon/128.png
 icon[1]=${project.parent.parent.basedir}/lect-editor-fx/src/main/resources/gfx/app-icon/128.png
 
 jar[0]=lect-presenter-swing.jar
 jar[1]=lect-editor-fx.jar
-jar[2]=lect-broadcast.jar
 
 mkdir "$PRODUCT_NAME"
 
@@ -27,7 +24,7 @@ mkdir "$PRODUCT_NAME"
 MODULES="jdk.localedata,java.security.jgss,java.security.sasl,jdk.crypto.cryptoki,jdk.crypto.ec,jdk.zipfs"
 
 # Retrieve modules.
-for value in {0..2}
+for value in {0..1}
 do
 	echo "Get ${app[$value]} modules"
 
@@ -61,7 +58,7 @@ jlink \
 	--add-modules="$MODULES" \
 	--output "runtime"
 
-for value in {0..2}
+for value in {0..1}
 do
 	app_name=${app[$value]}
 

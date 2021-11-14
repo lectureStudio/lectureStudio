@@ -9,19 +9,15 @@ set LIBRARY_PATH="$ROOTDIR/app/lib/native"
 
 set app[0]=lecturePresenter
 set app[1]=lectureEditor
-set app[2]=lecturePlayer
 
 set class[0]=org.lecturestudio.presenter.swing.PresenterApplication
 set class[1]=org.lecturestudio.editor.javafx.EditorFxApplication
-set class[2]=org.lecturestudio.player.javafx.PlayerFxApplication
 
 set icon[0]=${project.parent.parent.basedir}/lect-presenter-swing/src/main/resources/gfx/app-icon/128.ico
 set icon[1]=${project.parent.parent.basedir}/lect-editor-fx/src/main/resources/gfx/app-icon/128.ico
-set icon[2]=${project.parent.parent.basedir}/lect-player-fx/src/main/resources/gfx/app-icon/128.ico
 
 set jar[0]=lect-presenter-swing.jar
 set jar[1]=lect-editor-fx.jar
-set jar[2]=lect-player-fx.jar
 
 set MANIFEST_FILE="app.manifest"
 set MANIFEST_VERSION_VAR="${assembly.manifest.version}"
@@ -38,7 +34,7 @@ set MT_BIN="%WindowsSdkDir%\bin\%ProductVersion%.0\x64\mt"
 set MODULES="jdk.localedata,java.security.jgss,java.security.sasl,jdk.crypto.cryptoki,jdk.crypto.ec,jdk.zipfs"
 
 :: Retrieve modules.
-for /l %%n in (0,1,2) do (
+for /l %%n in (0,1,1) do (
 	echo Get !app[%%n]! modules
 	for /F %%i in ('jdeps ^
 					--class-path "${package.input.dir}\lib\*" ^
@@ -68,7 +64,7 @@ jlink ^
 	--add-modules="%MODULES%" ^
 	--output "%PRODUCT_NAME%\runtime"
 
-for /l %%n in (0,1,2) do (
+for /l %%n in (0,1,1) do (
 	echo Packaging !app[%%n]!
 
 	set app_path="%PRODUCT_NAME%\!app[%%n]!"

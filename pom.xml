@@ -67,6 +67,7 @@
 		<maven.build.timestamp.format>yyyy-MM-dd HH:mm</maven.build.timestamp.format>
 		<license.path>${project.basedir}/../</license.path>
 		<log4j.version>2.14.0</log4j.version>
+		<stylus.version>0.2.0-SNAPSHOT</stylus.version>
 	</properties>
 
 	<repositories>
@@ -74,14 +75,6 @@
 			<id>oss-sonatype</id>
 			<name>oss-sonatype</name>
 			<url>https://oss.sonatype.org/content/repositories/snapshots/</url>
-			<snapshots>
-				<enabled>true</enabled>
-			</snapshots>
-		</repository>
-		<repository>
-			<id>oss-sonatype-1</id>
-			<name>oss-sonatype-1</name>
-			<url>https://s01.oss.sonatype.org/content/repositories/snapshots/</url>
 			<snapshots>
 				<enabled>true</enabled>
 			</snapshots>

@@ -85,7 +85,7 @@
 		<dependency>
 			<groupId>org.lecturestudio.stylus</groupId>
 			<artifactId>stylus-awt</artifactId>
-			<version>0.2.0-SNAPSHOT</version>
+			<version>${stylus.version}</version>
 		</dependency>
 	</dependencies>
 </project>

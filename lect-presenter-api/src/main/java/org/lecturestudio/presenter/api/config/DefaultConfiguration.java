@@ -130,7 +130,7 @@ public class DefaultConfiguration extends PresenterConfiguration {
 		
 		getStreamConfig().setAudioCodec("OPUS");
 		getStreamConfig().setAudioFormat(new AudioFormat(AudioFormat.Encoding.S16LE, 24000, 1));
-		getStreamConfig().getCameraCodecConfig().setBitRate(2000);
+		getStreamConfig().getCameraCodecConfig().setBitRate(200);
 		getStreamConfig().getCameraCodecConfig().setPreset("ultrafast");
 		getStreamConfig().getCameraCodecConfig().setFrameRate(30);
 		

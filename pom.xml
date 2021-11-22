@@ -67,7 +67,7 @@
 		<maven.build.timestamp.format>yyyy-MM-dd HH:mm</maven.build.timestamp.format>
 		<license.path>${project.basedir}/../</license.path>
 		<log4j.version>2.14.0</log4j.version>
-		<stylus.version>0.2.0-SNAPSHOT</stylus.version>
+		<stylus.version>0.2.0</stylus.version>
 	</properties>
 
 	<repositories>

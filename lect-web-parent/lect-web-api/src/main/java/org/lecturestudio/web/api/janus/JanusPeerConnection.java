@@ -54,8 +54,8 @@ import dev.onvoid.webrtc.RTCSessionDescription;
 import dev.onvoid.webrtc.SetSessionDescriptionObserver;
 import dev.onvoid.webrtc.media.MediaStreamTrack;
 import dev.onvoid.webrtc.media.audio.AudioOptions;
-import dev.onvoid.webrtc.media.audio.AudioSource;
 import dev.onvoid.webrtc.media.audio.AudioTrack;
+import dev.onvoid.webrtc.media.audio.AudioTrackSource;
 import dev.onvoid.webrtc.media.video.VideoCaptureCapability;
 import dev.onvoid.webrtc.media.video.VideoDesktopSource;
 import dev.onvoid.webrtc.media.video.VideoDevice;
@@ -365,7 +365,7 @@ public class JanusPeerConnection implements PeerConnectionObserver {
 		audioOptions.typingDetection = true;
 		audioOptions.residualEchoDetector = true;
 
-		AudioSource audioSource = factory.getFactory().createAudioSource(audioOptions);
+		AudioTrackSource audioSource = factory.getFactory().createAudioSource(audioOptions);
 		AudioTrack audioTrack = factory.getFactory().createAudioTrack("audioTrack", audioSource);
 
 		peerConnection.addTrack(audioTrack, List.of("stream"));

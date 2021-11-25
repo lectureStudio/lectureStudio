@@ -4,7 +4,7 @@
 
 	<SplitPane id="tabSplitPane" resizeWeight="1" orientation="JSplitPane.HORIZONTAL_SPLIT" constraints="BorderLayout.CENTER">
 		<SplitPane id="notesSplitPane" resizeWeight="1" orientation="JSplitPane.VERTICAL_SPLIT">
-			<SplitPane id="docSplitPane" resizeWeight="0" orientation="JSplitPane.HORIZONTAL_SPLIT">
+			<SplitPane id="docSplitPane" resizeWeight="0" focusable="false" orientation="JSplitPane.HORIZONTAL_SPLIT">
 				<ScrollPane id="outlinePane">
 					<Tree id="outlineTree" name="tree" focusable="false" rootVisible="false" showsRootHandles="true">
 						<renderer class="org.lecturestudio.swing.tree.OutlineRenderer" />

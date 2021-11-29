@@ -138,6 +138,7 @@ public class WebRtcAudioPlayer extends ExecutableBase implements AudioPlayer {
 			deviceModule.setPlayoutDevice(playbackDevice);
 			deviceModule.setAudioSource(new dev.onvoid.webrtc.media.audio.AudioSource() {
 
+				boolean reading = true;
 				int bytesRead = 0;
 				int processResult;
 
@@ -172,14 +173,14 @@ public class WebRtcAudioPlayer extends ExecutableBase implements AudioPlayer {
 					if (bytesRead > 0) {
 						updateProgress();
 					}
-					else {
+					else if (reading) {
+						reading = false;
 						stopPlayback();
 					}
 
 					return bytesRead;
 				}
 			});
-			deviceModule.initPlayout();
 		}
 		catch (Throwable e) {
 			throw new ExecutableException(e);

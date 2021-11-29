@@ -22,6 +22,7 @@ import static java.util.Objects.isNull;
 import static java.util.Objects.nonNull;
 
 import com.formdev.flatlaf.FlatLightLaf;
+import com.formdev.flatlaf.util.UIScale;
 
 import java.awt.BorderLayout;
 import java.awt.Component;
@@ -366,6 +367,8 @@ public class SwingMainView extends JPanel implements MainView, KeyEventDispatche
 		window.setIconImages(icons);
 		window.setGlassPane(new GlassPane());
 		window.setDefaultCloseOperation(WindowConstants.DO_NOTHING_ON_CLOSE);
+
+		window.setPreferredSize(UIScale.scale(window.getPreferredSize()));
 
 		window.addWindowListener(new WindowAdapter() {
 

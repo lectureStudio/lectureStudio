@@ -363,6 +363,11 @@ public class FxToolbarView extends FlowPane implements ToolbarView {
 	}
 
 	@Override
+	public void setOnTeXBoxFont(ConsumerAction<TeXFont> action) {
+		this.texBoxFontAction = action;
+	}
+
+	@Override
 	public void setOnClearTool(Action action) {
 		FxUtils.bindAction(clearButton, action);
 	}

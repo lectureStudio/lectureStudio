@@ -23,6 +23,7 @@ import java.awt.GraphicsConfiguration;
 import java.awt.GraphicsDevice;
 import java.awt.GraphicsEnvironment;
 import java.awt.Rectangle;
+import java.awt.geom.AffineTransform;
 
 import org.lecturestudio.core.geometry.Rectangle2D;
 import org.lecturestudio.core.view.Screen;
@@ -49,10 +50,7 @@ public final class Screens {
 		Screen[] screens = new Screen[devices.length];
 
 		for (int i = 0; i < screens.length; i++) {
-			GraphicsDevice device = devices[i];
-			Rectangle bounds = device.getDefaultConfiguration().getBounds();
-
-			screens[i] = new Screen(bounds.x, bounds.y, bounds.width, bounds.height);
+			screens[i] = createScreen(devices[i]);
 		}
 
 		return screens;
@@ -73,7 +71,7 @@ public final class Screens {
 			Rectangle bounds = device.getDefaultConfiguration().getBounds();
 
 			if (!bounds.equals(defaultBounds)) {
-				screens[c++] = new Screen(bounds.x, bounds.y, bounds.width, bounds.height);
+				screens[c++] = createScreen(device);
 			}
 		}
 
@@ -147,9 +145,18 @@ public final class Screens {
 	public static GraphicsConfiguration getGraphicsConfiguration(Screen screen) {
 		GraphicsDevice[] devices = GE.getScreenDevices();
 
+		Rectangle screenBounds = toAwtRectangle(screen.getBounds());
+
 		for (GraphicsDevice device : devices) {
-			Rectangle bounds = device.getDefaultConfiguration().getBounds();
-			Rectangle screenBounds = toAwtRectangle(screen.getBounds());
+			GraphicsConfiguration deviceConfig = device.getDefaultConfiguration();
+			Rectangle bounds = deviceConfig.getBounds();
+			AffineTransform transform = deviceConfig.getDefaultTransform();
+
+			bounds.setBounds(
+					(int) (bounds.x * transform.getScaleX()),
+					(int) (bounds.y * transform.getScaleY()),
+					(int) (bounds.width * transform.getScaleX()),
+					(int) (bounds.height * transform.getScaleY()));
 
 			if (bounds.equals(screenBounds)) {
 				return device.getDefaultConfiguration();
@@ -169,4 +176,16 @@ public final class Screens {
 		return new Rectangle((int) r.getX(), (int) r.getY(), (int) r.getWidth(), (int) r.getHeight());
 	}
 
+	private static Screen createScreen(GraphicsDevice device) {
+		GraphicsConfiguration deviceConfig = device.getDefaultConfiguration();
+		Rectangle bounds = deviceConfig.getBounds();
+		AffineTransform transform = deviceConfig.getDefaultTransform();
+
+		int x = (int) (bounds.x * transform.getScaleX());
+		int y = (int) (bounds.y * transform.getScaleY());
+		int w = (int) (bounds.width * transform.getScaleX());
+		int h = (int) (bounds.height * transform.getScaleY());
+
+		return new Screen(x, y, w, h);
+	}
 }

@@ -37,4 +37,13 @@ public interface JanusStateHandlerListener {
 	 */
 	void disconnected();
 
+	/**
+	 * Invoked whenever an error during state handling has occurred. This method
+	 * can be invoked multiple times without blocking or terminating the current
+	 * state.
+	 *
+	 * @param throwable Describing the cause of the error.
+	 */
+	void error(Throwable throwable);
+
 }

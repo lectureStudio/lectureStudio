@@ -16,7 +16,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package org.lecturestudio.web.api.stream.config;
+package org.lecturestudio.web.api.stream;
 
 import dev.onvoid.webrtc.media.video.VideoCaptureCapability;
 import dev.onvoid.webrtc.media.video.VideoDevice;
@@ -25,7 +25,7 @@ import org.lecturestudio.core.beans.BooleanProperty;
 import org.lecturestudio.core.beans.IntegerProperty;
 import org.lecturestudio.core.beans.ObjectProperty;
 
-public class VideoConfiguration {
+public class StreamVideoContext {
 
 	private final ObjectProperty<VideoDevice> captureDevice;
 
@@ -38,7 +38,7 @@ public class VideoConfiguration {
 	private final BooleanProperty sendVideo;
 
 
-	public VideoConfiguration() {
+	public StreamVideoContext() {
 		captureDevice = new ObjectProperty<>();
 		captureCapability = new ObjectProperty<>();
 		bitrate = new IntegerProperty();

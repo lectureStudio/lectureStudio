@@ -43,6 +43,7 @@ import org.lecturestudio.core.view.ConsumerAction;
 import org.lecturestudio.presenter.api.net.LocalBroadcaster;
 import org.lecturestudio.presenter.api.service.QuizDataSource;
 import org.lecturestudio.presenter.api.service.QuizService;
+import org.lecturestudio.presenter.api.service.StreamService;
 import org.lecturestudio.presenter.api.service.WebService;
 import org.lecturestudio.presenter.api.view.SelectQuizView;
 import org.lecturestudio.web.api.model.quiz.Quiz;
@@ -56,6 +57,8 @@ class SelectQuizPresenterPresenter extends PresenterTest {
 	private QuizService quizService;
 
 	private WebService webService;
+
+	private StreamService streamService;
 
 
 	@BeforeEach
@@ -73,6 +76,8 @@ class SelectQuizPresenterPresenter extends PresenterTest {
 		quizService = new QuizService(new QuizDataSource(new File(quizzesFile)), documentService);
 
 		webService = new WebService(context, documentService, new LocalBroadcaster(context));
+
+		streamService = new StreamService(context, null, webService);
 	}
 
 	@AfterEach
@@ -118,7 +123,8 @@ class SelectQuizPresenterPresenter extends PresenterTest {
 			}
 		};
 
-		SelectQuizPresenter presenter = new SelectQuizPresenter(context, view, documentService, quizService, webService);
+		SelectQuizPresenter presenter = new SelectQuizPresenter(context, view,
+				documentService, quizService, streamService, webService);
 		presenter.initialize();
 
 		assertEquals(List.of(quiz1, quiz2), quizzesRef.get());
@@ -131,7 +137,8 @@ class SelectQuizPresenterPresenter extends PresenterTest {
 
 		SelectQuizMockView view = new SelectQuizMockView();
 
-		SelectQuizPresenter presenter = new SelectQuizPresenter(context, view, documentService, quizService, webService);
+		SelectQuizPresenter presenter = new SelectQuizPresenter(context, view,
+				documentService, quizService, streamService, webService);
 		presenter.initialize();
 		presenter.setOnClose(() -> closed.set(true));
 
@@ -151,7 +158,8 @@ class SelectQuizPresenterPresenter extends PresenterTest {
 			}
 		};
 
-		SelectQuizPresenter presenter = new SelectQuizPresenter(context, view, documentService, quizService, webService);
+		SelectQuizPresenter presenter = new SelectQuizPresenter(context, view,
+				documentService, quizService, streamService, webService);
 		presenter.initialize();
 
 		Quiz toDelete = quizService.getQuizzes().get(1);
@@ -169,7 +177,8 @@ class SelectQuizPresenterPresenter extends PresenterTest {
 
 		SelectQuizMockView view = new SelectQuizMockView();
 
-		SelectQuizPresenter presenter = new SelectQuizPresenter(context, view, documentService, quizService, webService);
+		SelectQuizPresenter presenter = new SelectQuizPresenter(context, view,
+				documentService, quizService, streamService, webService);
 		presenter.initialize();
 		presenter.setOnEdit(quizRef::set);
 

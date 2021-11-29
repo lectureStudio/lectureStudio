@@ -20,6 +20,8 @@ package org.lecturestudio.swing.components;
 
 import static java.util.Objects.isNull;
 
+import com.formdev.flatlaf.util.UIScale;
+
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Dimension;
@@ -75,7 +77,9 @@ public class Contributor extends JPanel {
 	}
 
 	private void initialize() {
-		Dimension size = new Dimension(200, 200);
+		double scale = UIScale.getUserScaleFactor();
+
+		Dimension size = new Dimension((int) (200 * scale), (int) (200 * scale));
 
 		setLayout(new BorderLayout());
 		//setBorder(new ShadowBorder(5, 5, 5, 5));

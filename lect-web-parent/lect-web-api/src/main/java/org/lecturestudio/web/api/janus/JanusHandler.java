@@ -38,6 +38,7 @@ import org.lecturestudio.core.ExecutableException;
 import org.lecturestudio.core.ExecutableState;
 import org.lecturestudio.core.net.MediaType;
 import org.lecturestudio.web.api.event.PeerStateEvent;
+import org.lecturestudio.web.api.janus.JanusHandlerException.Type;
 import org.lecturestudio.web.api.janus.message.JanusEditRoomMessage;
 import org.lecturestudio.web.api.janus.message.JanusErrorMessage;
 import org.lecturestudio.web.api.janus.message.JanusMessage;
@@ -52,7 +53,7 @@ import org.lecturestudio.web.api.janus.state.DestroyRoomState;
 import org.lecturestudio.web.api.janus.state.InfoState;
 import org.lecturestudio.web.api.stream.StreamEventRecorder;
 import org.lecturestudio.web.api.stream.action.StreamSpeechPublishedAction;
-import org.lecturestudio.web.api.stream.config.WebRtcConfiguration;
+import org.lecturestudio.web.api.stream.StreamContext;
 
 public class JanusHandler extends JanusStateHandler {
 
@@ -68,9 +69,9 @@ public class JanusHandler extends JanusStateHandler {
 
 
 	public JanusHandler(JanusMessageTransmitter transmitter,
-			WebRtcConfiguration webRtcConfig,
+			StreamContext streamContext,
 			StreamEventRecorder eventRecorder) {
-		super(transmitter, webRtcConfig);
+		super(new JanusPeerConnectionFactory(streamContext), transmitter);
 
 		this.eventRecorder = eventRecorder;
 	}
@@ -142,7 +143,12 @@ public class JanusHandler extends JanusStateHandler {
 				}
 			}
 
-			super.handleMessage(message);
+			try {
+				super.handleMessage(message);
+			}
+			catch (Exception e) {
+				logException(e, "Handle Janus message failed");
+			}
 		}
 	}
 
@@ -173,7 +179,7 @@ public class JanusHandler extends JanusStateHandler {
 		speechPublishers = new ConcurrentHashMap<>();
 		handlers = new CopyOnWriteArrayList<>();
 
-		webRtcConfig.getAudioConfiguration().receiveAudioProperty()
+		getStreamContext().getAudioContext().receiveAudioProperty()
 				.addListener((observable, oldValue, newValue) -> {
 					JanusPublisher speechPublisher = speechPublishers.entrySet()
 							.iterator().next().getValue();
@@ -182,7 +188,7 @@ public class JanusHandler extends JanusStateHandler {
 						muteParticipant(speechPublisher, !newValue, MediaType.Audio);
 					}
 				});
-		webRtcConfig.getVideoConfiguration().receiveVideoProperty()
+		getStreamContext().getVideoContext().receiveVideoProperty()
 				.addListener((observable, oldValue, newValue) -> {
 					JanusPublisher speechPublisher = speechPublishers.entrySet()
 							.iterator().next().getValue();
@@ -192,7 +198,7 @@ public class JanusHandler extends JanusStateHandler {
 					}
 				});
 
-		setRoomId(BigInteger.valueOf(getWebRtcConfig().getCourse().getId()));
+		setRoomId(BigInteger.valueOf(getStreamContext().getCourse().getId()));
 
 		registerHandler(JanusErrorMessage.class, this::handleError);
 		registerHandler(JanusSessionTimeoutMessage.class, this::handleSessionTimeout);
@@ -214,6 +220,7 @@ public class JanusHandler extends JanusStateHandler {
 
 		handlers.clear();
 
+		peerConnectionFactory.dispose();
 		executorService.shutdown();
 	}
 
@@ -282,8 +289,9 @@ public class JanusHandler extends JanusStateHandler {
 	}
 
 	private void startPublisher() {
-		JanusStateHandler pubHandler = new JanusPublisherHandler(transmitter,
-				webRtcConfig, eventRecorder);
+		JanusStateHandler pubHandler = new JanusPublisherHandler(
+				peerConnectionFactory,
+				transmitter, eventRecorder);
 		pubHandler.setSessionId(getSessionId());
 		pubHandler.setRoomId(getRoomId());
 		pubHandler.addJanusStateHandlerListener(new JanusStateHandlerListener() {
@@ -297,17 +305,22 @@ public class JanusHandler extends JanusStateHandler {
 			public void disconnected() {
 				setDisconnected();
 			}
+
+			@Override
+			public void error(Throwable throwable) {
+				setError(new JanusHandlerException(Type.PUBLISHER, throwable));
+			}
 		});
 
 		addStateHandler(pubHandler);
 	}
 
 	private void startSubscriber(JanusPublisher publisher) {
-		webRtcConfig.getAudioConfiguration().setReceiveAudio(true);
-		webRtcConfig.getVideoConfiguration().setReceiveVideo(true);
+		getStreamContext().getAudioContext().setReceiveAudio(true);
+		getStreamContext().getVideoContext().setReceiveVideo(true);
 
 		JanusStateHandler subHandler = new JanusSubscriberHandler(publisher,
-				transmitter, webRtcConfig);
+				peerConnectionFactory, transmitter);
 		subHandler.setSessionId(getSessionId());
 		subHandler.setRoomId(getRoomId());
 		subHandler.addJanusStateHandlerListener(new JanusStateHandlerListener() {
@@ -334,13 +347,18 @@ public class JanusHandler extends JanusStateHandler {
 				editRoom(1);
 				kickParticipant(publisher);
 			}
+
+			@Override
+			public void error(Throwable throwable) {
+				setError(new JanusHandlerException(Type.SUBSCRIBER, throwable));
+			}
 		});
 
 		addStateHandler(subHandler);
 	}
 
 	private void setPeerState(JanusPublisher publisher, ExecutableState state) {
-		var peerStateConsumer = webRtcConfig.getPeerStateConsumer();
+		var peerStateConsumer = getStreamContext().getPeerStateConsumer();
 
 		if (nonNull(peerStateConsumer)) {
 			peerStateConsumer.accept(new PeerStateEvent(publisher.getId(),

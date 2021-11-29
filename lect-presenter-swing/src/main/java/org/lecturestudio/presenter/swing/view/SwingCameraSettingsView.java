@@ -144,6 +144,13 @@ public class SwingCameraSettingsView extends JPanel implements CameraSettingsVie
 	}
 
 	@Override
+	public void setCameraError(String errorMessage) {
+		SwingUtils.invoke(() -> {
+			cameraView.setStatusMessage(errorMessage);
+		});
+	}
+
+	@Override
 	public void startCameraPreview() {
 		cameraView.startCapture();
 	}

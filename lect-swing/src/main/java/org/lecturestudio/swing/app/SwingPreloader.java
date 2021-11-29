@@ -53,7 +53,8 @@ public abstract class SwingPreloader implements Preloader {
 
 			window = new JWindow();
 			window.getContentPane().add(content);
-			window.setLocation((screenSize.width - content.getWidth()) >> 1,(screenSize.height - content.getHeight()) >> 1);
+			window.setLocation((screenSize.width - content.getWidth()) >> 1,
+					(screenSize.height - content.getHeight()) >> 1);
 			window.setSize(content.getWidth(), content.getHeight());
 			window.setPreferredSize(new Dimension(content.getWidth(), content.getHeight()));
 

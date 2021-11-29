@@ -43,7 +43,7 @@ import org.lecturestudio.swing.util.SwingUtils;
 import org.lecturestudio.swing.view.SwingView;
 
 @SwingView(name = "sound-settings", presenter = SoundSettingsPresenter.class)
-public class SwingMicrophoneSettingsView extends JPanel implements SoundSettingsView {
+public class SwingSoundSettingsView extends JPanel implements SoundSettingsView {
 
 	private JComboBox<String> audioCaptureDevicesCombo;
 
@@ -66,7 +66,7 @@ public class SwingMicrophoneSettingsView extends JPanel implements SoundSettings
 	private ConsumerAction<Boolean> viewVisibleAction;
 
 
-	SwingMicrophoneSettingsView() {
+	SwingSoundSettingsView() {
 		super();
 
 		initialize();

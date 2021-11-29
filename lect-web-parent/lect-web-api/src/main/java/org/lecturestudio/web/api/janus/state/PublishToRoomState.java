@@ -18,12 +18,6 @@
 
 package org.lecturestudio.web.api.janus.state;
 
-import dev.onvoid.webrtc.RTCIceCandidate;
-import dev.onvoid.webrtc.RTCIceGatheringState;
-import dev.onvoid.webrtc.RTCRtpTransceiverDirection;
-import dev.onvoid.webrtc.RTCSdpType;
-import dev.onvoid.webrtc.RTCSessionDescription;
-
 import java.util.Map;
 import java.util.UUID;
 
@@ -34,11 +28,19 @@ import org.lecturestudio.web.api.janus.message.JanusMediaMessage;
 import org.lecturestudio.web.api.janus.message.JanusMessage;
 import org.lecturestudio.web.api.janus.message.JanusMessageType;
 import org.lecturestudio.web.api.janus.message.JanusPluginMessage;
-import org.lecturestudio.web.api.janus.message.JanusRoomStateMessage;
 import org.lecturestudio.web.api.janus.message.JanusRoomPublishMessage;
 import org.lecturestudio.web.api.janus.message.JanusRoomPublishRequest;
+import org.lecturestudio.web.api.janus.message.JanusRoomStateMessage;
 import org.lecturestudio.web.api.janus.message.JanusTrickleMessage;
-import org.lecturestudio.web.api.stream.config.WebRtcConfiguration;
+import org.lecturestudio.web.api.stream.StreamAudioContext;
+import org.lecturestudio.web.api.stream.StreamVideoContext;
+import org.lecturestudio.web.api.stream.StreamContext;
+
+import dev.onvoid.webrtc.RTCIceCandidate;
+import dev.onvoid.webrtc.RTCIceGatheringState;
+import dev.onvoid.webrtc.RTCRtpTransceiverDirection;
+import dev.onvoid.webrtc.RTCSdpType;
+import dev.onvoid.webrtc.RTCSessionDescription;
 
 /**
  * This state starts publishing media (audio, video and data) to a joined
@@ -53,8 +55,10 @@ public class PublishToRoomState implements JanusState {
 
 
 	@Override
-	public void initialize(JanusStateHandler handler) {
-		WebRtcConfiguration webRtcConfig = handler.getWebRtcConfig();
+	public void initialize(JanusStateHandler handler) throws Exception {
+		StreamContext streamContext = handler.getStreamContext();
+		StreamAudioContext audioContext = streamContext.getAudioContext();
+		StreamVideoContext videoContext = streamContext.getVideoContext();
 		JanusPeerConnection peerConnection = handler.createPeerConnection();
 
 		peerConnection.setOnLocalSessionDescription(description -> {
@@ -75,12 +79,21 @@ public class PublishToRoomState implements JanusState {
 
 		// Publishers are send-only.
 		var audioDirection = RTCRtpTransceiverDirection.SEND_ONLY;
-		var videoDirection = webRtcConfig.getVideoConfiguration()
-				.getSendVideo() ?
+		var videoDirection = videoContext.getSendVideo() ?
 				RTCRtpTransceiverDirection.SEND_ONLY :
 				RTCRtpTransceiverDirection.INACTIVE;
 
-		peerConnection.setupConnection(audioDirection, videoDirection);
+		try {
+			peerConnection.setCameraCapability(videoContext.getCaptureCapability());
+			peerConnection.setCameraDevice(videoContext.getCaptureDevice());
+			peerConnection.setup(audioDirection, videoDirection);
+
+			// Initialize with desired mute setting.
+			peerConnection.setMicrophoneEnabled(audioContext.getSendAudio());
+		}
+		catch (Exception e) {
+			logError(e, "Start peer connection failed");
+		}
 	}
 
 	@Override
@@ -123,7 +136,7 @@ public class PublishToRoomState implements JanusState {
 	private void sendRequest(JanusStateHandler handler, String sdp) {
 		JanusRoomPublishRequest request = new JanusRoomPublishRequest();
 		request.setAudio(true);
-		request.setVideo(handler.getWebRtcConfig().getVideoConfiguration().getSendVideo());
+		request.setVideo(handler.getStreamContext().getVideoContext().getSendVideo());
 		request.setData(true);
 
 		publishRequest = new JanusRoomPublishMessage(handler.getSessionId(),

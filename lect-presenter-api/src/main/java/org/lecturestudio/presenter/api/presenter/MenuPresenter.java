@@ -35,8 +35,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Timer;
 import java.util.TimerTask;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.CompletionException;
 
 import javax.inject.Inject;
 
@@ -66,7 +64,6 @@ import org.lecturestudio.core.service.DocumentService;
 import org.lecturestudio.core.util.DesktopUtils;
 import org.lecturestudio.core.util.FileUtils;
 import org.lecturestudio.core.util.ListChangeListener;
-import org.lecturestudio.core.util.NetUtils;
 import org.lecturestudio.core.util.ObservableList;
 import org.lecturestudio.core.view.FileChooserView;
 import org.lecturestudio.core.view.PresentationParameter;
@@ -90,7 +87,6 @@ import org.lecturestudio.presenter.api.service.BookmarkService;
 import org.lecturestudio.presenter.api.service.QuizWebServiceState;
 import org.lecturestudio.presenter.api.service.RecordingService;
 import org.lecturestudio.presenter.api.service.StreamService;
-import org.lecturestudio.presenter.api.service.WebService;
 import org.lecturestudio.presenter.api.view.MenuView;
 import org.lecturestudio.presenter.api.view.MessengerWindow;
 import org.lecturestudio.web.api.model.quiz.Quiz;
@@ -119,9 +115,6 @@ public class MenuPresenter extends Presenter<MenuView> {
 
 	@Inject
 	private RecordingService recordingService;
-
-	@Inject
-	private WebService webService;
 
 	@Inject
 	private StreamService streamService;
@@ -260,18 +253,7 @@ public class MenuPresenter extends Presenter<MenuView> {
 	}
 
 	public void openPageQuiz(Quiz quiz) {
-		CompletableFuture.runAsync(() -> {
-			try {
-				webService.startQuiz(quiz);
-			}
-			catch (ExecutableException e) {
-				throw new CompletionException(e);
-			}
-		})
-		.exceptionally(e -> {
-			handleServiceError(e, "Start quiz failed", "quiz.start.error");
-			return null;
-		});
+		streamService.startQuiz(quiz);
 	}
 
 	public void openDocument(File documentFile) {
@@ -393,18 +375,7 @@ public class MenuPresenter extends Presenter<MenuView> {
 	}
 
 	public void closeQuiz() {
-		CompletableFuture.runAsync(() -> {
-			try {
-				webService.stopQuiz();
-			}
-			catch (ExecutableException e) {
-				throw new CompletionException(e);
-			}
-		})
-		.exceptionally(e -> {
-			handleServiceError(e, "Stop quiz failed", "quiz.stop.error");
-			return null;
-		});
+		streamService.stopQuiz();
 	}
 
 	public void clearBookmarks() {
@@ -530,10 +501,11 @@ public class MenuPresenter extends Presenter<MenuView> {
 		view.setOnSettings(this::showSettingsView);
 
 		view.bindShowOutline(presenterContext.showOutlineProperty());
-		view.setAdvancedSettings(config.getAdvancedUIMode());
 		view.bindFullscreen(presenterContext.fullscreenProperty());
-		view.setOnAdvancedSettings(this::setAdvancedSettings);
+
 		view.setOnCustomizeToolbar(this::customizeToolbar);
+//		view.setAdvancedSettings(config.getAdvancedUIMode());
+//		view.setOnAdvancedSettings(this::setAdvancedSettings);
 
 		view.setOnNewWhiteboard(this::newWhiteboard);
 		view.setOnNewWhiteboardPage(this::newWhiteboardPage);
@@ -565,9 +537,9 @@ public class MenuPresenter extends Presenter<MenuView> {
 		view.setOnOpenAbout(this::showAboutView);
 
 		// Bind configuration.
-		context.getConfiguration().advancedUIModeProperty().addListener((observable, oldValue, newValue) -> {
-			view.setAdvancedSettings(newValue);
-		});
+//		context.getConfiguration().advancedUIModeProperty().addListener((observable, oldValue, newValue) -> {
+//			view.setAdvancedSettings(newValue);
+//		});
 
 		// Register for page parameter change updates.
 		PresentationParameterProvider ppProvider = context.getPagePropertyProvider(ViewType.User);
@@ -636,15 +608,5 @@ public class MenuPresenter extends Presenter<MenuView> {
 				view.setCurrentTime(LocalDateTime.now().format(timeFormatter));
 			}
 		}, 0, 30000);
-	}
-
-	private void handleServiceError(Throwable error, String errorMessage, String title) {
-		String message = null;
-
-		if (NetUtils.isSocketTimeout(error.getCause())) {
-			message = "service.timeout.error";
-		}
-
-		handleException(error, errorMessage, title, message);
 	}
 }

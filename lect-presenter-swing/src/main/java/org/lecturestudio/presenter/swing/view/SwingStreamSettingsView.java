@@ -211,6 +211,6 @@ public class SwingStreamSettingsView extends JPanel implements StreamSettingsVie
 
 	@ViewPostConstruct
 	private void initialize() {
-		profileTable.setModel(new BroadcastProfileTableModel(profileTable.getColumnModel()));
+		// profileTable.setModel(new BroadcastProfileTableModel(profileTable.getColumnModel()));
 	}
 }

@@ -28,6 +28,7 @@ import org.lecturestudio.core.app.configuration.ConfigurationService;
 import org.lecturestudio.core.app.dictionary.Dictionary;
 import org.lecturestudio.core.beans.BooleanProperty;
 import org.lecturestudio.core.beans.IntegerProperty;
+import org.lecturestudio.core.beans.ObjectProperty;
 import org.lecturestudio.core.bus.EventBus;
 import org.lecturestudio.core.model.Document;
 import org.lecturestudio.core.util.ListChangeListener;
@@ -42,6 +43,7 @@ import org.lecturestudio.presenter.api.service.QuizService;
 import org.lecturestudio.web.api.message.MessengerMessage;
 import org.lecturestudio.web.api.message.SpeechRequestMessage;
 import org.lecturestudio.web.api.model.quiz.Quiz;
+import org.lecturestudio.web.api.stream.model.Course;
 
 public class PresenterContext extends ApplicationContext {
 
@@ -51,6 +53,8 @@ public class PresenterContext extends ApplicationContext {
 
 	public static final String RECORDING_CONTEXT = "Recording";
 	public static final String RECORDING_EXTENSION = "presenter";
+
+	private final ObjectProperty<Course> course = new ObjectProperty<>();
 
 	private final ObservableList<MessengerMessage> messengerMessages = new ObservableArrayList<>();
 
@@ -113,6 +117,18 @@ public class PresenterContext extends ApplicationContext {
 	public void saveConfiguration() throws Exception {
 		ConfigurationService<PresenterConfiguration> configService = new PresenterConfigService();
 		configService.save(configFile, (PresenterConfiguration) getConfiguration());
+	}
+
+	public Course getCourse() {
+		return course.get();
+	}
+
+	public void setCourse(Course course) {
+		this.course.set(course);
+	}
+
+	public ObjectProperty<Course> courseProperty() {
+		return course;
 	}
 
 	public List<MessengerMessage> getMessengerMessages() {

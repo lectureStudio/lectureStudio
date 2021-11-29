@@ -49,7 +49,7 @@ public class DefaultConfiguration extends PresenterConfiguration {
 		setExtendPageDimension(new Dimension2D(1.3, 1.3));
 		setStartMaximized(true);
 		setTabletMode(false);
-		setSaveDocumentOnClose(false);
+		setSaveDocumentOnClose(true);
 		setClassroomName("Presenter Classroom");
 		setClassroomShortName("");
 		setAdvancedUIMode(false);
@@ -130,7 +130,7 @@ public class DefaultConfiguration extends PresenterConfiguration {
 		
 		getStreamConfig().setAudioCodec("OPUS");
 		getStreamConfig().setAudioFormat(new AudioFormat(AudioFormat.Encoding.S16LE, 24000, 1));
-		getStreamConfig().getCameraCodecConfig().setBitRate(2000);
+		getStreamConfig().getCameraCodecConfig().setBitRate(200);
 		getStreamConfig().getCameraCodecConfig().setPreset("ultrafast");
 		getStreamConfig().getCameraCodecConfig().setFrameRate(30);
 		

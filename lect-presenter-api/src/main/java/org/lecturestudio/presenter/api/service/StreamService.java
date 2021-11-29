@@ -24,6 +24,7 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionException;
 
 import javax.inject.Inject;
+import javax.inject.Singleton;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -32,11 +33,15 @@ import org.lecturestudio.core.ExecutableException;
 import org.lecturestudio.core.app.ApplicationContext;
 import org.lecturestudio.core.bus.EventBus;
 import org.lecturestudio.core.presenter.command.NotificationCommand;
+import org.lecturestudio.core.presenter.command.ShowPresenterCommand;
 import org.lecturestudio.core.util.NetUtils;
 import org.lecturestudio.core.view.NotificationType;
 import org.lecturestudio.presenter.api.context.PresenterContext;
+import org.lecturestudio.presenter.api.presenter.StartCourseFeaturePresenter;
 import org.lecturestudio.presenter.api.presenter.command.StartStreamCommand;
+import org.lecturestudio.web.api.model.quiz.Quiz;
 
+@Singleton
 public class StreamService {
 
 	private final static Logger LOG = LogManager.getLogger(StreamService.class);
@@ -51,7 +56,7 @@ public class StreamService {
 
 
 	@Inject
-	StreamService(ApplicationContext context, WebRtcStreamService streamService,
+	public StreamService(ApplicationContext context, WebRtcStreamService streamService,
 			WebService webService) {
 		this.context = context;
 		this.eventBus = context.getEventBus();
@@ -90,8 +95,55 @@ public class StreamService {
 		});
 	}
 
+	public void startQuiz(Quiz quiz) {
+		if (streamService.started()) {
+			startQuizInternal(quiz);
+		}
+		else {
+			eventBus.post(new ShowPresenterCommand<>(StartCourseFeaturePresenter.class) {
+
+				@Override
+				public void execute(StartCourseFeaturePresenter presenter) {
+					presenter.setOnStart(() -> {
+						startQuizInternal(quiz);
+					});
+				}
+			});
+		}
+	}
+
+	public void stopQuiz() {
+		CompletableFuture.runAsync(() -> {
+			try {
+				webService.stopQuiz();
+			}
+			catch (ExecutableException e) {
+				throw new CompletionException(e);
+			}
+		})
+		.exceptionally(e -> {
+			handleServiceError(e, "Stop quiz failed", "quiz.stop.error");
+			return null;
+		});
+	}
+
+	private void startQuizInternal(Quiz quiz) {
+		CompletableFuture.runAsync(() -> {
+			try {
+				webService.startQuiz(quiz);
+			}
+			catch (ExecutableException e) {
+				throw new CompletionException(e);
+			}
+		})
+		.exceptionally(e -> {
+			handleServiceError(e, "Start quiz failed", "quiz.start.error");
+			return null;
+		});
+	}
+
 	private void startStream() {
-		eventBus.post(new StartStreamCommand((startServices) -> {
+		eventBus.post(new StartStreamCommand((streamContext) -> {
 			CompletableFuture.runAsync(() -> {
 				try {
 					streamService.start();
@@ -100,7 +152,7 @@ public class StreamService {
 					throw new CompletionException(e);
 				}
 
-				if (startServices.startMessenger.get()) {
+				if (streamContext.getMessengerEnabled()) {
 					PresenterContext presenterContext = (PresenterContext) context;
 					presenterContext.setMessengerStarted(true);
 				}
@@ -128,6 +180,9 @@ public class StreamService {
 			catch (ExecutableException e) {
 				throw new CompletionException(e);
 			}
+
+			PresenterContext presenterContext = (PresenterContext) context;
+			presenterContext.setMessengerStarted(false);
 		})
 		.exceptionally(e -> {
 			handleServiceError(e, "Stop stream failed", "stream.stop.error");
@@ -154,6 +209,23 @@ public class StreamService {
 	}
 
 	private void startMessenger() {
+		if (streamService.started()) {
+			startMessengerInternal();
+		}
+		else {
+			eventBus.post(new ShowPresenterCommand<>(StartCourseFeaturePresenter.class) {
+
+				@Override
+				public void execute(StartCourseFeaturePresenter presenter) {
+					presenter.setOnStart(() -> {
+						startMessengerInternal();
+					});
+				}
+			});
+		}
+	}
+
+	private void startMessengerInternal() {
 		try {
 			webService.startMessenger();
 		}

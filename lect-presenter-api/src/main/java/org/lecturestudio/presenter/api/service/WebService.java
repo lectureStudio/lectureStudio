@@ -40,6 +40,7 @@ import org.lecturestudio.core.util.ProgressCallback;
 import org.lecturestudio.presenter.api.config.NetworkConfiguration;
 import org.lecturestudio.presenter.api.config.PresenterConfiguration;
 import org.lecturestudio.presenter.api.config.StreamConfiguration;
+import org.lecturestudio.presenter.api.context.PresenterContext;
 import org.lecturestudio.presenter.api.event.MessengerStateEvent;
 import org.lecturestudio.presenter.api.event.QuizStateEvent;
 import org.lecturestudio.presenter.api.net.LocalBroadcaster;
@@ -48,6 +49,7 @@ import org.lecturestudio.web.api.message.MessageTransport;
 import org.lecturestudio.web.api.message.WebSocketTransport;
 import org.lecturestudio.web.api.model.quiz.Quiz;
 import org.lecturestudio.web.api.service.ServiceParameters;
+import org.lecturestudio.web.api.stream.model.Course;
 import org.lecturestudio.web.api.websocket.WebSocketBearerTokenProvider;
 import org.lecturestudio.web.api.websocket.WebSocketHeaderProvider;
 
@@ -70,10 +72,10 @@ public class WebService extends ExecutableBase {
 
 	private final List<FeatureServiceBase> startedServices;
 
-	private final MessageTransport messageTransport;
+	private MessageTransport messageTransport;
 
 	@Inject
-	@Named("publisher.message.url")
+	@Named("publisher.api.message.url")
 	private String publisherMessageApiUrl;
 
 	@Inject
@@ -90,7 +92,6 @@ public class WebService extends ExecutableBase {
 		this.context = context;
 		this.documentService = documentService;
 		this.localBroadcaster = localBroadcaster;
-		this.messageTransport = createMessageTransport();
 		this.startedServices = new ArrayList<>();
 
 		Runtime.getRuntime().addShutdownHook(new Thread(() -> {
@@ -123,12 +124,14 @@ public class WebService extends ExecutableBase {
 		context.getEventBus().post(new MessengerStateEvent(ExecutableState.Starting));
 
 		try {
+			initMessageTransport();
+
 			startService(new MessageFeatureWebService(context,
 					createFeatureService(streamPublisherApiUrl,
 							MessageFeatureService.class)));
 		}
 		catch (Exception e) {
-			throw new ExecutableException("Message service could not be started");
+			throw new ExecutableException("Message service could not be started", e);
 		}
 
 		context.getEventBus().post(new MessengerStateEvent(ExecutableState.Started));
@@ -189,6 +192,8 @@ public class WebService extends ExecutableBase {
 		// Allow only one quiz running at a time.
 		if (isNull(service)) {
 			try {
+				initMessageTransport();
+
 				service = new QuizFeatureWebService(context,
 						createFeatureService(streamPublisherApiUrl,
 								QuizFeatureService.class), documentService);
@@ -298,10 +303,9 @@ public class WebService extends ExecutableBase {
 			messageTransport.start();
 		}
 
-		PresenterConfiguration config = (PresenterConfiguration) context.getConfiguration();
-		StreamConfiguration streamConfig = config.getStreamConfig();
+		PresenterContext pContext = (PresenterContext) context;
 
-		service.setCourseId(streamConfig.getCourse().getId());
+		service.setCourseId(pContext.getCourse().getId());
 		service.start();
 
 		if (!startedServices.contains(service)) {
@@ -346,17 +350,26 @@ public class WebService extends ExecutableBase {
 						messageTransport);
 	}
 
+	private void initMessageTransport() {
+		if (isNull(messageTransport)) {
+			messageTransport = createMessageTransport();
+		}
+	}
+
 	private MessageTransport createMessageTransport() {
 		ServiceParameters messageApiParameters = new ServiceParameters();
-		messageApiParameters.setUrl(streamPublisherApiUrl);
+		messageApiParameters.setUrl(publisherMessageApiUrl);
 
+		PresenterContext pContext = (PresenterContext) context;
 		PresenterConfiguration config = (PresenterConfiguration) context.getConfiguration();
 		StreamConfiguration streamConfig = config.getStreamConfig();
 		TokenProvider tokenProvider = streamConfig::getAccessToken;
 
+		Course course = pContext.getCourse();
+
 		WebSocketHeaderProvider headerProvider = new WebSocketBearerTokenProvider(
 				tokenProvider);
 
-		return new WebSocketTransport(messageApiParameters, headerProvider);
+		return new WebSocketTransport(messageApiParameters, headerProvider, course);
 	}
 }

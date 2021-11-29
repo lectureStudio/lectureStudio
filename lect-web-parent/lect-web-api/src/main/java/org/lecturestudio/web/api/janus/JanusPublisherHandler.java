@@ -28,23 +28,37 @@ import org.lecturestudio.web.api.janus.state.AttachPluginState;
 import org.lecturestudio.web.api.janus.state.CreateRoomState;
 import org.lecturestudio.web.api.stream.StreamEventRecorder;
 import org.lecturestudio.web.api.stream.action.StreamAction;
-import org.lecturestudio.web.api.stream.config.WebRtcConfiguration;
+import org.lecturestudio.web.api.stream.StreamAudioContext;
+import org.lecturestudio.web.api.stream.StreamVideoContext;
+
+import dev.onvoid.webrtc.media.video.VideoCaptureCapability;
+import dev.onvoid.webrtc.media.video.VideoDevice;
 
 public class JanusPublisherHandler extends JanusStateHandler {
 
 	private final StreamEventRecorder eventRecorder;
 
+	private final StreamAudioContext audioContext;
+
+	private final StreamVideoContext videoContext;
+
 	private ChangeListener<Boolean> enableMicListener;
 
 	private ChangeListener<Boolean> enableCamListener;
 
+	private ChangeListener<VideoDevice> camListener;
 
-	public JanusPublisherHandler(JanusMessageTransmitter transmitter,
-			WebRtcConfiguration webRtcConfig,
+	private ChangeListener<VideoCaptureCapability> camCapabilityListener;
+
+
+	public JanusPublisherHandler(JanusPeerConnectionFactory factory,
+			JanusMessageTransmitter transmitter,
 			StreamEventRecorder eventRecorder) {
-		super(transmitter, webRtcConfig);
+		super(factory, transmitter);
 
 		this.eventRecorder = eventRecorder;
+		this.audioContext = getStreamContext().getAudioContext();
+		this.videoContext = getStreamContext().getVideoContext();
 	}
 
 	@Override
@@ -64,7 +78,7 @@ public class JanusPublisherHandler extends JanusStateHandler {
 	@Override
 	public JanusPeerConnection createPeerConnection() {
 		JanusPeerConnection peerConnection = super.createPeerConnection();
-
+		peerConnection.setOnException(this::setError);
 		peerConnection.setOnIceConnectionState(state -> {
 			switch (state) {
 				case CONNECTED:
@@ -78,10 +92,9 @@ public class JanusPublisherHandler extends JanusStateHandler {
 			}
 		});
 
-		webRtcConfig.getAudioConfiguration().sendAudioProperty()
-				.addListener(enableMicListener);
-		webRtcConfig.getVideoConfiguration().sendVideoProperty()
-				.addListener(enableCamListener);
+		audioContext.sendAudioProperty().addListener(enableMicListener);
+		videoContext.sendVideoProperty().addListener(enableCamListener);
+		videoContext.captureDeviceProperty().addListener(camListener);
 
 		return peerConnection;
 	}
@@ -89,11 +102,20 @@ public class JanusPublisherHandler extends JanusStateHandler {
 	@Override
 	protected void initInternal() throws ExecutableException {
 		enableMicListener = (observable, oldValue, newValue) -> {
-			peerConnection.enableMicrophone(newValue);
+			peerConnection.setMicrophoneEnabled(newValue);
 		};
 
 		enableCamListener = (observable, oldValue, newValue) -> {
-			peerConnection.enableCamera(newValue);
+			peerConnection.setCameraEnabled(newValue);
+		};
+
+		camListener = (observable, oldDevice, newDevice) -> {
+			peerConnection.setCameraDevice(newDevice);
+			peerConnection.setCameraEnabled(videoContext.getSendVideo());
+		};
+
+		camCapabilityListener = (observable, oldCapability, newCapability) -> {
+			peerConnection.setCameraCapability(newCapability);
 		};
 	}
 
@@ -108,10 +130,10 @@ public class JanusPublisherHandler extends JanusStateHandler {
 	protected void stopInternal() throws ExecutableException {
 		eventRecorder.removeRecordedActionConsumer(this::sendStreamAction);
 
-		webRtcConfig.getAudioConfiguration().sendAudioProperty()
-				.removeListener(enableMicListener);
-		webRtcConfig.getVideoConfiguration().sendVideoProperty()
-				.removeListener(enableCamListener);
+		audioContext.sendAudioProperty().removeListener(enableMicListener);
+		videoContext.sendVideoProperty().removeListener(enableCamListener);
+		videoContext.captureDeviceProperty().removeListener(camListener);
+		videoContext.captureCapabilityProperty().removeListener(camCapabilityListener);
 
 		if (nonNull(peerConnection)) {
 			peerConnection.close();

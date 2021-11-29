@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2020 TU Darmstadt, Department of Computer Science,
+ * Copyright (C) 2021 TU Darmstadt, Department of Computer Science,
  * Embedded Systems and Applications Group.
  *
  * This program is free software: you can redistribute it and/or modify
@@ -16,28 +16,30 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package org.lecturestudio.web.api.stream.config;
+package org.lecturestudio.web.api.janus;
 
-import org.lecturestudio.core.beans.IntegerProperty;
+import org.lecturestudio.core.net.MediaType;
 
-public class DesktopCaptureConfiguration {
+public class JanusPeerConnectionMediaException extends JanusPeerConnectionException {
 
-	private final IntegerProperty frameRate;
+	private final MediaType mediaType;
 
 
-	public DesktopCaptureConfiguration() {
-		frameRate = new IntegerProperty();
+	public JanusPeerConnectionMediaException(MediaType mediaType) {
+		this(mediaType, null);
 	}
 
-	public IntegerProperty frameRateProperty() {
-		return frameRate;
+	public JanusPeerConnectionMediaException(MediaType mediaType, String message) {
+		this(mediaType, message, null);
 	}
 
-	public Integer getFrameRate() {
-		return frameRate.get();
+	public JanusPeerConnectionMediaException(MediaType mediaType, String message, Throwable e) {
+		super(message, e);
+
+		this.mediaType = mediaType;
 	}
 
-	public void setFrameRate(int rate) {
-		frameRate.set(rate);
+	public MediaType getMediaType() {
+		return mediaType;
 	}
 }

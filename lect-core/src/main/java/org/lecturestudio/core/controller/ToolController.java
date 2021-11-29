@@ -362,6 +362,15 @@ public class ToolController extends Controller implements ToolContext {
 	}
 
 	/**
+	 * Set the font for the LaTeX tool.
+	 *
+	 * @param font The font to set.
+	 */
+	public void setTeXFont(TeXFont font) {
+		((LatexToolSettings) getPaintSettings(ToolType.LATEX)).setFont(font);
+	}
+
+	/**
 	 * Sets the text attributes for the text tool.
 	 *
 	 * @param attributes The text attributes to set.

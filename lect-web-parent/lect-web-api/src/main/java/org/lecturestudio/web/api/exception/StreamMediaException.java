@@ -16,48 +16,37 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package org.lecturestudio.web.api.message;
+package org.lecturestudio.web.api.exception;
 
-import java.util.NoSuchElementException;
+import org.lecturestudio.core.net.MediaType;
 
 /**
- * Event types used to classify messages when communicating with the web api
- * server.
+ * Exception thrown when a type of media cannot be used for a streaming session.
  *
  * @author Alex Andres
  */
-public enum MessageType {
+public class StreamMediaException extends Exception {
+
+	private final MediaType mediaType;
+
 
 	/**
-	 * Text message.
+	 * Creates a new StreamMediaException with the media type that is not
+	 * working and the cause for this exception,
+	 *
+	 * @param mediaType The type of media that is not working for streaming.
+	 * @param cause     The cause for this exception.
 	 */
-	TEXT("text"),
+	public StreamMediaException(MediaType mediaType, Throwable cause) {
+		super(cause);
+
+		this.mediaType = mediaType;
+	}
 
 	/**
-	 * Quiz answer with selected options.
+	 * @return The type of media that is not working for streaming.
 	 */
-	QUIZ_ANSWER("quiz_answer");
-
-
-	private final String type;
-
-
-	MessageType(String type) {
-		this.type = type;
+	public MediaType getMediaType() {
+		return mediaType;
 	}
-
-	public String getType() {
-		return type;
-	}
-
-	public static MessageType fromString(String typeStr) {
-		for (var value : MessageType.values()) {
-			if (value.getType().equals(typeStr)) {
-				return value;
-			}
-		}
-
-		throw new NoSuchElementException();
-	}
-
 }

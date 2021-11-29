@@ -50,6 +50,7 @@ import org.lecturestudio.core.geometry.Rectangle2D;
 import org.lecturestudio.core.input.KeyEvent;
 import org.lecturestudio.core.model.Document;
 import org.lecturestudio.core.model.VersionInfo;
+import org.lecturestudio.core.net.MediaType;
 import org.lecturestudio.core.presenter.NewVersionPresenter;
 import org.lecturestudio.core.presenter.NotificationPresenter;
 import org.lecturestudio.core.presenter.Presenter;
@@ -69,6 +70,7 @@ import org.lecturestudio.core.view.ViewContextFactory;
 import org.lecturestudio.core.view.ViewHandler;
 import org.lecturestudio.core.view.ViewLayer;
 import org.lecturestudio.presenter.api.config.PresenterConfiguration;
+import org.lecturestudio.presenter.api.config.StreamConfiguration;
 import org.lecturestudio.presenter.api.context.PresenterContext;
 import org.lecturestudio.presenter.api.event.MessengerStateEvent;
 import org.lecturestudio.presenter.api.event.QuizStateEvent;
@@ -81,6 +83,7 @@ import org.lecturestudio.presenter.api.service.StreamService;
 import org.lecturestudio.presenter.api.util.SaveDocumentsHandler;
 import org.lecturestudio.presenter.api.util.SaveRecordingHandler;
 import org.lecturestudio.presenter.api.view.MainView;
+import org.lecturestudio.web.api.exception.StreamMediaException;
 import org.lecturestudio.web.api.model.GitHubRelease;
 import org.lecturestudio.web.api.service.VersionChecker;
 
@@ -156,6 +159,8 @@ public class MainPresenter extends org.lecturestudio.core.presenter.MainPresente
 
 		PresenterContext presenterContext = (PresenterContext) context;
 		PresenterConfiguration config = (PresenterConfiguration) context.getConfiguration();
+
+		config.setAdvancedUIMode(true);
 
 		presenterContext.streamStartedProperty().addListener((observable, oldValue, newValue) -> {
 			streamService.enableStream(newValue);
@@ -281,6 +286,19 @@ public class MainPresenter extends org.lecturestudio.core.presenter.MainPresente
 			case Disconnected:
 				showNotificationPopup(MessageFormat.format(dict.get("audio.device.disconnected"), devName));
 				break;
+		}
+	}
+
+	@Subscribe
+	public void onStreamMediaException(StreamMediaException exception) {
+		if (exception.getMediaType() == MediaType.Camera) {
+			PresenterConfiguration config = (PresenterConfiguration) context.getConfiguration();
+			StreamConfiguration streamConfig = config.getStreamConfig();
+			streamConfig.setCameraEnabled(false);
+
+			showNotification(NotificationType.WARNING,
+					"stream.camera.error.title", "stream.camera.error.message",
+					streamConfig.getCameraName());
 		}
 	}
 

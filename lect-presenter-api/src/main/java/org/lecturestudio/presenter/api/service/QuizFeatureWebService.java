@@ -31,6 +31,7 @@ import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
+import java.util.function.Consumer;
 
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Element;
@@ -54,6 +55,8 @@ import org.lecturestudio.web.api.model.quiz.QuizAnswer;
 import org.lecturestudio.web.api.model.quiz.QuizResult;
 
 public class QuizFeatureWebService extends FeatureServiceBase {
+
+	private final Consumer<QuizAnswerMessage> messageConsumer = this::onMessage;
 
 	/** The web service client. */
 	private final QuizFeatureService webService;
@@ -169,22 +172,7 @@ public class QuizFeatureWebService extends FeatureServiceBase {
 		try {
 			serviceId = webService.startQuiz(courseId, webQuiz);
 
-			webService.addMessageListener(QuizAnswerMessage.class, message -> {
-				QuizAnswer answer = message.getQuizAnswer();
-
-				if (isNull(answer.getOptions())) {
-					// Handle malformed answer.
-					answer.setOptions(new String[0]);
-				}
-
-				if (quizResult.addAnswer(answer)) {
-					updateQuizDocumentAsync();
-
-					answerCount++;
-
-					eventBus.post(new QuizWebServiceState(getState(), answerCount));
-				}
-			});
+			webService.addMessageListener(QuizAnswerMessage.class, messageConsumer);
 		}
 		catch (Exception e) {
 			throw new ExecutableException(e);
@@ -206,11 +194,10 @@ public class QuizFeatureWebService extends FeatureServiceBase {
 	@Override
 	protected void stopInternal() throws ExecutableException {
 		try {
+			webService.removeMessageListener(QuizAnswerMessage.class, messageConsumer);
 			webService.stopQuiz(courseId);
 			// Stop receiving quiz events.
 			webService.close();
-
-			documentService.removeDocument(quizDocument);
 		}
 		catch (Exception e) {
 			throw new ExecutableException(e);
@@ -219,7 +206,26 @@ public class QuizFeatureWebService extends FeatureServiceBase {
 
 	@Override
 	protected void destroyInternal() {
+		documentService.removeDocument(quizDocument);
+
 		executorService.shutdown();
+	}
+
+	private void onMessage(QuizAnswerMessage message) {
+		QuizAnswer answer = message.getQuizAnswer();
+
+		if (isNull(answer.getOptions())) {
+			// Handle malformed answer.
+			answer.setOptions(new String[0]);
+		}
+
+		if (quizResult.addAnswer(answer)) {
+			updateQuizDocumentAsync();
+
+			answerCount++;
+
+			eventBus.post(new QuizWebServiceState(getState(), answerCount));
+		}
 	}
 
 	private Document createQuizDocument(final QuizResult result) throws ExecutableException {

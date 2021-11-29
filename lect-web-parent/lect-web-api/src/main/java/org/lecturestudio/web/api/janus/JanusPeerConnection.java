@@ -21,8 +21,18 @@ package org.lecturestudio.web.api.janus;
 import static java.util.Objects.isNull;
 import static java.util.Objects.nonNull;
 
+import java.lang.System.Logger;
+import java.lang.System.Logger.Level;
+import java.nio.ByteBuffer;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Objects;
+import java.util.concurrent.ExecutorService;
+import java.util.function.Consumer;
+
+import org.lecturestudio.core.net.MediaType;
+
 import dev.onvoid.webrtc.CreateSessionDescriptionObserver;
-import dev.onvoid.webrtc.PeerConnectionFactory;
 import dev.onvoid.webrtc.PeerConnectionObserver;
 import dev.onvoid.webrtc.RTCAnswerOptions;
 import dev.onvoid.webrtc.RTCDataChannel;
@@ -43,11 +53,9 @@ import dev.onvoid.webrtc.RTCSdpType;
 import dev.onvoid.webrtc.RTCSessionDescription;
 import dev.onvoid.webrtc.SetSessionDescriptionObserver;
 import dev.onvoid.webrtc.media.MediaStreamTrack;
-import dev.onvoid.webrtc.media.audio.AudioDevice;
-import dev.onvoid.webrtc.media.audio.AudioDeviceModule;
 import dev.onvoid.webrtc.media.audio.AudioOptions;
-import dev.onvoid.webrtc.media.audio.AudioSource;
 import dev.onvoid.webrtc.media.audio.AudioTrack;
+import dev.onvoid.webrtc.media.audio.AudioTrackSource;
 import dev.onvoid.webrtc.media.video.VideoCaptureCapability;
 import dev.onvoid.webrtc.media.video.VideoDesktopSource;
 import dev.onvoid.webrtc.media.video.VideoDevice;
@@ -55,29 +63,15 @@ import dev.onvoid.webrtc.media.video.VideoDeviceSource;
 import dev.onvoid.webrtc.media.video.VideoFrame;
 import dev.onvoid.webrtc.media.video.VideoTrack;
 
-import java.lang.System.Logger;
-import java.lang.System.Logger.Level;
-import java.nio.ByteBuffer;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.ExecutorService;
-import java.util.function.Consumer;
-
-import org.lecturestudio.web.api.stream.config.VideoConfiguration;
-import org.lecturestudio.web.api.stream.config.WebRtcConfiguration;
-
 public class JanusPeerConnection implements PeerConnectionObserver {
 
 	private final static Logger LOGGER = System.getLogger(JanusPeerConnection.class.getName());
 
+	private final JanusPeerConnectionFactory factory;
+
 	private final ExecutorService executor;
 
-	private final WebRtcConfiguration config;
-
-	private PeerConnectionFactory factory;
-
-	private RTCPeerConnection peerConnection;
+	private final RTCPeerConnection peerConnection;
 
 	private RTCDataChannel dataChannel;
 
@@ -90,11 +84,15 @@ public class JanusPeerConnection implements PeerConnectionObserver {
 	 */
 	private List<RTCIceCandidate> queuedRemoteCandidates;
 
-	private AudioDeviceModule audioModule;
-
 	private VideoDesktopSource desktopSource;
 
-	private VideoDeviceSource videoSource;
+	private VideoDeviceSource cameraSource;
+
+	private VideoDevice cameraDevice;
+
+	private VideoCaptureCapability cameraCapability;
+
+	private Consumer<JanusPeerConnectionException> onException;
 
 	private Consumer<RTCSessionDescription> onLocalSessionDescription;
 
@@ -113,34 +111,15 @@ public class JanusPeerConnection implements PeerConnectionObserver {
 	private Consumer<VideoFrame> onRemoteVideoFrame;
 
 
-	public JanusPeerConnection(WebRtcConfiguration config, ExecutorService executor) {
-		this.config = config;
-		this.executor = executor;
+	public JanusPeerConnection(JanusPeerConnectionFactory factory) {
+		this.factory = factory;
+		this.executor = factory.getExecutor();
 		this.queuedRemoteCandidates = new ArrayList<>();
+		this.peerConnection = factory.createPeerConnection(this);
+	}
 
-		executeAndWait(() -> {
-			AudioDevice captureDevice = config.getAudioConfiguration().getRecordingDevice();
-			AudioDevice playbackDevice = config.getAudioConfiguration().getPlaybackDevice();
-
-			audioModule = new AudioDeviceModule();
-
-			if (nonNull(captureDevice)) {
-				LOGGER.log(Level.INFO, "Audio capture device: " + captureDevice);
-
-				audioModule.setRecordingDevice(captureDevice);
-			}
-			if (nonNull(playbackDevice)) {
-				LOGGER.log(Level.INFO, "Audio playback device: " + playbackDevice);
-
-				audioModule.setPlayoutDevice(playbackDevice);
-			}
-
-			audioModule.initRecording();
-			audioModule.initPlayout();
-
-			factory = new PeerConnectionFactory(audioModule);
-			peerConnection = factory.createPeerConnection(config.getRTCConfig(), this);
-		});
+	public void setOnException(Consumer<JanusPeerConnectionException> callback) {
+		onException = callback;
 	}
 
 	public void setOnLocalSessionDescription(Consumer<RTCSessionDescription> callback) {
@@ -173,24 +152,6 @@ public class JanusPeerConnection implements PeerConnectionObserver {
 
 	public void setOnRemoteVideoFrame(Consumer<VideoFrame> callback) {
 		onRemoteVideoFrame = callback;
-	}
-
-	public boolean hasLocalVideoStream() {
-		return nonNull(videoSource);
-	}
-
-	public boolean hasRemoteVideoStream() {
-		RTCRtpReceiver[] receivers = peerConnection.getReceivers();
-
-		if (nonNull(receivers)) {
-			for (RTCRtpReceiver receiver : receivers) {
-				if (receiver.getTrack().getKind().equals(MediaStreamTrack.VIDEO_TRACK_KIND)) {
-					return true;
-				}
-			}
-		}
-
-		return false;
 	}
 
 	public void sendData(byte[] data) throws Exception {
@@ -252,22 +213,6 @@ public class JanusPeerConnection implements PeerConnectionObserver {
 	}
 
 	@Override
-	public void onIceCandidatesRemoved(RTCIceCandidate[] candidates) {
-		if (isNull(peerConnection)) {
-			LOGGER.log(Level.ERROR, "PeerConnection was not initialized");
-			return;
-		}
-
-		// TODO
-		try {
-//			signalingClient.send(contact, candidates);
-		}
-		catch (Exception e) {
-			LOGGER.log(Level.ERROR, "Send removed RTCIceCandidates failed", e);
-		}
-	}
-
-	@Override
 	public void onTrack(RTCRtpTransceiver transceiver) {
 		MediaStreamTrack track = transceiver.getReceiver().getTrack();
 
@@ -285,280 +230,6 @@ public class JanusPeerConnection implements PeerConnectionObserver {
 
 		if (track.getKind().equals(MediaStreamTrack.VIDEO_TRACK_KIND)) {
 			notify(onRemoteVideoStream, false);
-		}
-	}
-
-	public CompletableFuture<Void> close() {
-		return CompletableFuture.runAsync(() -> {
-			if (nonNull(audioModule)) {
-				audioModule.dispose();
-				audioModule = null;
-			}
-			if (nonNull(desktopSource)) {
-				desktopSource.stop();
-				desktopSource.dispose();
-				desktopSource = null;
-			}
-			if (nonNull(videoSource)) {
-				videoSource.stop();
-				videoSource.dispose();
-				videoSource = null;
-			}
-			if (nonNull(dataChannel)) {
-				dataChannel.unregisterObserver();
-				dataChannel.close();
-				dataChannel.dispose();
-				dataChannel = null;
-			}
-			if (nonNull(remoteDataChannel)) {
-				remoteDataChannel.unregisterObserver();
-				remoteDataChannel.close();
-				remoteDataChannel.dispose();
-				remoteDataChannel = null;
-			}
-			if (nonNull(peerConnection)) {
-				peerConnection.close();
-				peerConnection = null;
-			}
-			if (nonNull(factory)) {
-				factory.dispose();
-				factory = null;
-			}
-		}, executor);
-	}
-
-	public void setupConnection(RTCRtpTransceiverDirection audio,
-			RTCRtpTransceiverDirection video) {
-		execute(() -> {
-			addAudio(audio);
-			addVideo(video);
-			addDataChannel();
-
-			createOffer();
-		});
-	}
-
-	public void enableMicrophone(boolean enable) {
-		execute(() -> {
-			enableSenderTrack(MediaStreamTrack.AUDIO_TRACK_KIND, enable);
-		});
-	}
-
-	public void enableCamera(boolean enable) {
-		execute(() -> {
-			RTCRtpTransceiverDirection camDirection;
-
-			if (enable) {
-				if (nonNull(videoSource)) {
-					videoSource.start();
-
-					camDirection = RTCRtpTransceiverDirection.SEND_ONLY;
-				}
-				else {
-					addVideo(RTCRtpTransceiverDirection.SEND_ONLY);
-					return;
-				}
-			}
-			else {
-				if (nonNull(videoSource)) {
-					videoSource.stop();
-				}
-
-				camDirection = RTCRtpTransceiverDirection.INACTIVE;
-			}
-
-			for (RTCRtpTransceiver transceiver : peerConnection.getTransceivers()) {
-				MediaStreamTrack track = transceiver.getSender().getTrack();
-
-				if (nonNull(track) && track.getKind().equals(MediaStreamTrack.VIDEO_TRACK_KIND)) {
-					transceiver.setDirection(camDirection);
-					break;
-				}
-			}
-		});
-	}
-
-	public void enableRemoteAudio(boolean enable) {
-		execute(() -> {
-			enableReceiverTrack(MediaStreamTrack.AUDIO_TRACK_KIND, enable);
-		});
-	}
-
-	public void enableRemoteVideo(boolean enable) {
-		execute(() -> {
-			enableReceiverTrack(MediaStreamTrack.VIDEO_TRACK_KIND, enable);
-		});
-	}
-
-	public String getAudioMid() {
-		return getMid(MediaStreamTrack.AUDIO_TRACK_KIND);
-	}
-
-	public String getVideoMid() {
-		return getMid(MediaStreamTrack.VIDEO_TRACK_KIND);
-	}
-
-	private String getMid(String kind) {
-		String mid = null;
-
-		for (RTCRtpTransceiver transceiver : peerConnection.getTransceivers()) {
-			MediaStreamTrack track = transceiver.getSender().getTrack();
-
-			if (nonNull(track) && track.getKind().equals(kind)) {
-				mid = transceiver.getMid();
-				break;
-			}
-		}
-
-		return mid;
-	}
-
-	private void addAudio(RTCRtpTransceiverDirection direction) {
-		if (!sendMedia(direction)) {
-			return;
-		}
-
-		AudioOptions audioOptions = new AudioOptions();
-
-		if (direction != RTCRtpTransceiverDirection.SEND_ONLY) {
-			audioOptions.echoCancellation = true;
-			audioOptions.noiseSuppression = true;
-		}
-
-		AudioSource audioSource = factory.createAudioSource(audioOptions);
-		AudioTrack audioTrack = factory.createAudioTrack("audioTrack", audioSource);
-
-		peerConnection.addTrack(audioTrack, List.of("stream"));
-
-		for (RTCRtpTransceiver transceiver : peerConnection.getTransceivers()) {
-			MediaStreamTrack track = transceiver.getSender().getTrack();
-
-			if (nonNull(track) && track.getKind().equals(MediaStreamTrack.AUDIO_TRACK_KIND)) {
-				transceiver.setDirection(direction);
-
-				// Initialize with desired mute setting.
-				track.setEnabled(config.getAudioConfiguration().getSendAudio());
-				break;
-			}
-		}
-	}
-
-	private void addVideo(RTCRtpTransceiverDirection direction) {
-		if (!sendMedia(direction)) {
-			return;
-		}
-
-		VideoConfiguration videoConfig = config.getVideoConfiguration();
-		VideoDevice device = videoConfig.getCaptureDevice();
-		VideoCaptureCapability capability = videoConfig.getCaptureCapability();
-
-		videoSource = new VideoDeviceSource();
-
-		if (nonNull(device)) {
-			LOGGER.log(Level.INFO, "Video capture device: " + device);
-
-			videoSource.setVideoCaptureDevice(device);
-		}
-		if (nonNull(capability)) {
-			LOGGER.log(Level.INFO, "Video capture capability: " + capability);
-
-			videoSource.setVideoCaptureCapability(capability);
-		}
-
-		VideoTrack videoTrack = factory.createVideoTrack("videoTrack", videoSource);
-
-		if (direction == RTCRtpTransceiverDirection.SEND_ONLY ||
-			direction == RTCRtpTransceiverDirection.SEND_RECV) {
-//			VideoTrackSink sink = frame -> publishFrame(peerConnectionContext.onLocalFrame, frame);
-//
-//			videoTrack.addSink(sink);
-
-			try {
-				videoSource.start();
-			}
-			catch (Exception e) {
-				LOGGER.log(Level.ERROR, "Start video capture source failed", e);
-			}
-		}
-
-		peerConnection.addTrack(videoTrack, List.of("stream"));
-
-		for (RTCRtpTransceiver transceiver : peerConnection.getTransceivers()) {
-			MediaStreamTrack track = transceiver.getSender().getTrack();
-
-			if (nonNull(track) && track.getKind().equals(MediaStreamTrack.VIDEO_TRACK_KIND)) {
-				transceiver.setDirection(direction);
-				break;
-			}
-		}
-
-//		notify(peerConnectionContext.onLocalVideoStream, videoSource.getState() == State.LIVE);
-	}
-
-	private void addDataChannel() {
-		RTCDataChannelInit dict = new RTCDataChannelInit();
-		dict.protocol = "stream-messaging";
-
-		dataChannel = peerConnection.createDataChannel("data", dict);
-	}
-
-	private void initDataChannel(final RTCDataChannel channel) {
-		channel.registerObserver(new RTCDataChannelObserver() {
-
-			@Override
-			public void onBufferedAmountChange(long previousAmount) {
-				execute(() -> {
-					LOGGER.log(Level.INFO, "RTCDataChannel \"{0}\" buffered amount changed to {1}",
-							channel.getLabel(),
-							previousAmount);
-				});
-			}
-
-			@Override
-			public void onStateChange() {
-				execute(() -> {
-					LOGGER.log(Level.INFO, "RTCDataChannel \"{0}\" state: {1}",
-							channel.getLabel(),
-							channel.getState());
-				});
-			}
-
-			@Override
-			public void onMessage(RTCDataChannelBuffer buffer) {
-				execute(() -> {
-					if (nonNull(onDataChannelBuffer)) {
-						onDataChannelBuffer.accept(buffer);
-					}
-				});
-			}
-		});
-	}
-
-	private void enableReceiverTrack(String type, boolean enable) {
-		for (RTCRtpReceiver receiver : peerConnection.getReceivers()) {
-			MediaStreamTrack track = receiver.getTrack();
-
-			if (nonNull(track) && track.getKind().equals(type)) {
-				track.setEnabled(enable);
-
-				LOGGER.log(Level.INFO, "Receiver track \"{0}\" set enabled to \"{1}\"",
-						track.getId(), enable);
-				break;
-			}
-		}
-	}
-
-	private void enableSenderTrack(String type, boolean enable) {
-		for (RTCRtpSender sender : peerConnection.getSenders()) {
-			MediaStreamTrack track = sender.getTrack();
-
-			if (nonNull(track) && track.getKind().equals(type)) {
-				track.setEnabled(enable);
-
-				LOGGER.log(Level.INFO, "Sender track \"{0}\" set enabled to \"{1}\"",
-						track.getId(), enable);
-				break;
-			}
 		}
 	}
 
@@ -601,6 +272,235 @@ public class JanusPeerConnection implements PeerConnectionObserver {
 
 			peerConnection.removeIceCandidates(candidates);
 		});
+	}
+
+	public void close() {
+		execute(() -> {
+			disposeCameraSource();
+			disposeDataChannel();
+			disposeDesktopSource();
+			disposePeerConnection();
+		});
+	}
+
+	public void setup(RTCRtpTransceiverDirection audio,
+			RTCRtpTransceiverDirection video) {
+		execute(() -> {
+			addAudio(audio);
+			addVideo(video);
+			addDataChannel();
+
+			createOffer();
+		});
+	}
+
+	public void setMicrophoneEnabled(boolean enable) {
+		execute(() -> {
+			setSenderTrackEnabled(MediaStreamTrack.AUDIO_TRACK_KIND, enable);
+		});
+	}
+
+	public void setCameraEnabled(boolean enable) {
+		execute(() -> {
+			RTCRtpTransceiverDirection direction = enable ?
+					RTCRtpTransceiverDirection.SEND_ONLY :
+					RTCRtpTransceiverDirection.INACTIVE;
+
+			if (enable) {
+				if (nonNull(cameraSource)) {
+					try {
+						cameraSource.start();
+					}
+					catch (Throwable e) {
+						notify(onException, new JanusPeerConnectionMediaException(
+								MediaType.Camera, "Start video capture source failed", e));
+						return;
+					}
+				}
+				else {
+					addVideo(direction);
+					return;
+				}
+			}
+			else {
+				if (nonNull(cameraSource)) {
+					cameraSource.stop();
+				}
+			}
+
+			setTransceiverDirection(direction, MediaStreamTrack.VIDEO_TRACK_KIND);
+		});
+	}
+
+	public void setCameraDevice(VideoDevice device) {
+		Objects.requireNonNull(device);
+
+		if (Objects.equals(cameraDevice, device)) {
+			return;
+		}
+
+		disposeCameraSource();
+		removeTrack("cameraTrack");
+
+		this.cameraDevice = device;
+	}
+
+	public void setCameraCapability(VideoCaptureCapability capability) {
+		if (Objects.equals(cameraCapability, capability)) {
+			return;
+		}
+
+		this.cameraCapability = capability;
+	}
+
+	private void addAudio(RTCRtpTransceiverDirection direction) {
+		if (!sendMedia(direction)) {
+			return;
+		}
+
+		AudioOptions audioOptions = new AudioOptions();
+		audioOptions.echoCancellation = true;
+		audioOptions.noiseSuppression = true;
+		audioOptions.highpassFilter = true;
+		audioOptions.typingDetection = true;
+		audioOptions.residualEchoDetector = true;
+
+		AudioTrackSource audioSource = factory.getFactory().createAudioSource(audioOptions);
+		AudioTrack audioTrack = factory.getFactory().createAudioTrack("audioTrack", audioSource);
+
+		peerConnection.addTrack(audioTrack, List.of("stream"));
+
+		setTransceiverDirection(direction, MediaStreamTrack.AUDIO_TRACK_KIND);
+	}
+
+	private void addVideo(RTCRtpTransceiverDirection direction) {
+		if (!sendMedia(direction)) {
+			return;
+		}
+
+		cameraSource = new VideoDeviceSource();
+
+		if (nonNull(cameraDevice)) {
+			LOGGER.log(Level.INFO, "Video capture device: " + cameraDevice);
+
+			cameraSource.setVideoCaptureDevice(cameraDevice);
+		}
+		if (nonNull(cameraCapability)) {
+			LOGGER.log(Level.INFO, "Video capture capability: " + cameraCapability);
+
+			cameraSource.setVideoCaptureCapability(cameraCapability);
+		}
+
+		VideoTrack videoTrack = factory.getFactory().createVideoTrack("cameraTrack",
+				cameraSource);
+
+		try {
+			cameraSource.start();
+		}
+		catch (Throwable e) {
+			cameraSource.dispose();
+			cameraSource = null;
+
+			notify(onException, new JanusPeerConnectionMediaException(
+					MediaType.Camera, "Start video capture source failed", e));
+			return;
+		}
+
+		peerConnection.addTrack(videoTrack, List.of("stream"));
+
+		setTransceiverDirection(direction, MediaStreamTrack.VIDEO_TRACK_KIND);
+	}
+
+	private void addDataChannel() {
+		RTCDataChannelInit dict = new RTCDataChannelInit();
+		dict.protocol = "stream-messaging";
+
+		dataChannel = peerConnection.createDataChannel("data", dict);
+	}
+
+	private void initDataChannel(final RTCDataChannel channel) {
+		channel.registerObserver(new RTCDataChannelObserver() {
+
+			@Override
+			public void onBufferedAmountChange(long previousAmount) {
+				execute(() -> {
+					LOGGER.log(Level.INFO, "RTCDataChannel \"{0}\" buffered amount changed to {1}",
+							channel.getLabel(),
+							previousAmount);
+				});
+			}
+
+			@Override
+			public void onStateChange() {
+				execute(() -> {
+					LOGGER.log(Level.INFO, "RTCDataChannel \"{0}\" state: {1}",
+							channel.getLabel(),
+							channel.getState());
+				});
+			}
+
+			@Override
+			public void onMessage(RTCDataChannelBuffer buffer) {
+				execute(() -> {
+					if (nonNull(onDataChannelBuffer)) {
+						onDataChannelBuffer.accept(buffer);
+					}
+				});
+			}
+		});
+	}
+
+	private void setReceiverTrackEnabled(String type, boolean enable) {
+		for (RTCRtpReceiver receiver : peerConnection.getReceivers()) {
+			MediaStreamTrack track = receiver.getTrack();
+
+			if (nonNull(track) && track.getKind().equals(type)) {
+				track.setEnabled(enable);
+
+				LOGGER.log(Level.INFO, "Receiver track \"{0}\" set enabled to \"{1}\"",
+						track.getId(), enable);
+				break;
+			}
+		}
+	}
+
+	private void setSenderTrackEnabled(String type, boolean enable) {
+		for (RTCRtpSender sender : peerConnection.getSenders()) {
+			MediaStreamTrack track = sender.getTrack();
+
+			if (nonNull(track) && track.getKind().equals(type)) {
+				track.setEnabled(enable);
+
+				LOGGER.log(Level.INFO, "Sender track \"{0}\" set enabled to \"{1}\"",
+						track.getId(), enable);
+				break;
+			}
+		}
+	}
+
+	private void setTransceiverDirection(RTCRtpTransceiverDirection direction,
+			String kind) {
+		for (RTCRtpTransceiver transceiver : peerConnection.getTransceivers()) {
+			MediaStreamTrack track = transceiver.getSender().getTrack();
+
+			if (nonNull(track) && track.getKind().equals(kind)) {
+				transceiver.setDirection(direction);
+				break;
+			}
+		}
+	}
+
+	private void removeTrack(String trackName) {
+		for (RTCRtpSender sender : peerConnection.getSenders()) {
+			MediaStreamTrack track = sender.getTrack();
+
+			if (nonNull(track) && track.getId().equals(trackName)) {
+				peerConnection.removeTrack(sender);
+
+				LOGGER.log(Level.INFO, "Removed track \"{0}\"", track.getId());
+				break;
+			}
+		}
 	}
 
 	private void drainIceCandidates() {
@@ -648,19 +548,9 @@ public class JanusPeerConnection implements PeerConnectionObserver {
 		}
 
 		frame.retain();
-		consumer.accept(frame);
+		notify(consumer, frame);
 		frame.release();
 	}
-
-//	private void publishFrame(BiConsumer<Contact, VideoFrame> consumer, VideoFrame frame) {
-//		if (isNull(consumer)) {
-//			return;
-//		}
-//
-//		frame.retain();
-//		consumer.accept(contact, frame);
-//		frame.release();
-//	}
 
 	private <T> void notify(Consumer<T> consumer, T value) {
 		if (nonNull(consumer)) {
@@ -668,28 +558,50 @@ public class JanusPeerConnection implements PeerConnectionObserver {
 		}
 	}
 
-//	private <T> void notify(BiConsumer<Contact, T> consumer, T value) {
-//		if (nonNull(consumer)) {
-//			execute(() -> consumer.accept(contact, value));
-//		}
-//	}
-
 	private void execute(Runnable runnable) {
 		executor.execute(runnable);
-	}
-
-	private void executeAndWait(Runnable runnable) {
-		try {
-			executor.submit(runnable).get();
-		}
-		catch (Exception e) {
-			LOGGER.log(Level.ERROR, "Execute task failed");
-		}
 	}
 
 	private static boolean sendMedia(RTCRtpTransceiverDirection direction) {
 		return direction == RTCRtpTransceiverDirection.SEND_RECV
 				|| direction == RTCRtpTransceiverDirection.SEND_ONLY;
+	}
+
+	private void disposeCameraSource() {
+		if (nonNull(cameraSource)) {
+			cameraSource.stop();
+			cameraSource.dispose();
+			cameraSource = null;
+		}
+	}
+
+	private void disposeDataChannel() {
+		if (nonNull(dataChannel)) {
+			dataChannel.unregisterObserver();
+			dataChannel.close();
+			dataChannel.dispose();
+			dataChannel = null;
+		}
+		if (nonNull(remoteDataChannel)) {
+			remoteDataChannel.unregisterObserver();
+			remoteDataChannel.close();
+			remoteDataChannel.dispose();
+			remoteDataChannel = null;
+		}
+	}
+
+	private void disposeDesktopSource() {
+		if (nonNull(desktopSource)) {
+			desktopSource.stop();
+			desktopSource.dispose();
+			desktopSource = null;
+		}
+	}
+
+	private void disposePeerConnection() {
+		if (nonNull(peerConnection)) {
+			peerConnection.close();
+		}
 	}
 
 

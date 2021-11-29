@@ -18,6 +18,10 @@
 
 package org.lecturestudio.swing.swixml.converter;
 
+import static java.util.Objects.nonNull;
+
+import com.formdev.flatlaf.util.UIScale;
+
 import javax.swing.ImageIcon;
 
 import org.lecturestudio.swing.AwtResourceLoader;
@@ -41,6 +45,10 @@ public class IconConverter extends ImageIconConverter {
 		}
 
 		try {
+			if (nonNull(size)) {
+				size = (int) (size * UIScale.getUserScaleFactor());
+			}
+
 			icon = (ImageIcon) AwtResourceLoader.getIcon(iconPath, size);
 		}
 		catch (Exception e) {

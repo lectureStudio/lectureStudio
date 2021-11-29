@@ -3,19 +3,23 @@
 	<Panel layout="GridBagLayout" name="extendedUI">
 		<gridbagconstraints gridx="0" gridy="0" gridwidth="2" weightx="1.0" fill="GridBagConstraints.HORIZONTAL" />
 
+		<TitledSeparator text="stream.settings.web.api" name="extendedUI">
+			<gridbagconstraints gridx="0" gridy="0" gridwidth="2" anchor="GridBagConstraints.WEST" weightx="1.0" fill="GridBagConstraints.HORIZONTAL" insets="5,0,5,0" />
+		</TitledSeparator>
 		<Label text="stream.settings.access.token">
-			<gridbagconstraints gridx="0" gridy="0" anchor="GridBagConstraints.WEST" insets="5,0,2,15" />
+			<gridbagconstraints gridx="0" gridy="1" anchor="GridBagConstraints.WEST" insets="5,0,2,15" />
 		</Label>
 		<Label>
-			<gridbagconstraints gridx="2" gridy="0" anchor="GridBagConstraints.WEST" insets="5,0,2,0" />
+			<gridbagconstraints gridx="2" gridy="1" anchor="GridBagConstraints.WEST" insets="5,0,2,0" />
 		</Label>
 		<TextField id="accessTokenTextField" columns="30">
-			<gridbagconstraints gridx="0" gridy="1" fill="GridBagConstraints.HORIZONTAL" anchor="GridBagConstraints.WEST" insets="5,0,15,10" />
+			<gridbagconstraints gridx="0" gridy="2" fill="GridBagConstraints.HORIZONTAL" anchor="GridBagConstraints.WEST" insets="5,0,15,10" />
 		</TextField>
 		<Button id="updateCoursesButton" text="button.check">
-			<gridbagconstraints gridx="1" gridy="1" weightx="0.3" anchor="GridBagConstraints.WEST" insets="5,0,15,0" />
+			<gridbagconstraints gridx="1" gridy="2" weightx="0.3" anchor="GridBagConstraints.WEST" insets="5,0,15,0" />
 		</Button>
 	</Panel>
+	<!--
 	<TitledSeparator text="stream.settings.audio" name="extendedUI">
 		<gridbagconstraints gridx="0" gridy="1" gridwidth="2" anchor="GridBagConstraints.WEST" weightx="1.0" fill="GridBagConstraints.HORIZONTAL" insets="5,0,5,0" />
 	</TitledSeparator>
@@ -32,16 +36,18 @@
 		<gridbagconstraints gridx="1" gridy="3" anchor="GridBagConstraints.WEST" insets="5,0,15,0" />
 		<renderer class="org.lecturestudio.swing.combobox.AudioFormatRenderer" />
 	</ComboBox>
+	-->
 	<TitledSeparator text="stream.settings.camera" name="extendedUI">
-		<gridbagconstraints gridx="0" gridy="4" gridwidth="2" anchor="GridBagConstraints.WEST" weightx="1.0" fill="GridBagConstraints.HORIZONTAL" insets="5,0,5,0" />
+		<gridbagconstraints gridx="0" gridy="2" gridwidth="2" anchor="GridBagConstraints.WEST" weightx="1.0" fill="GridBagConstraints.HORIZONTAL" insets="5,0,5,0" />
 	</TitledSeparator>
 	<Label text="stream.settings.camera.bitrate" name="extendedUI">
-		<gridbagconstraints gridx="0" gridy="5" anchor="GridBagConstraints.WEST" insets="5,0,2,0" />
+		<gridbagconstraints gridx="0" gridy="3" anchor="GridBagConstraints.WEST" insets="5,0,2,0" />
 	</Label>
 	<TextField id="cameraBitrateTextField" name="extendedUI">
-		<gridbagconstraints gridx="0" gridy="6" anchor="GridBagConstraints.WEST" insets="5,0,15,0" />
+		<gridbagconstraints gridx="0" gridy="4" anchor="GridBagConstraints.WEST" insets="5,0,15,0" />
 		<Filter class="org.lecturestudio.swing.filter.IntFilter" />
 	</TextField>
+	<!--
 	<TitledSeparator text="stream.settings.broadcast">
 		<gridbagconstraints gridx="0" gridy="7" gridwidth="2" anchor="GridBagConstraints.WEST" weightx="1.0" fill="GridBagConstraints.HORIZONTAL" insets="5,0,5,0" />
 	</TitledSeparator>
@@ -64,11 +70,12 @@
 			</TableColumn>
 		</Table>
 	</ScrollPane>
+	-->
 	<box.vglue>
-		<gridbagconstraints gridx="0" gridy="10" weighty="1.0" />
+		<gridbagconstraints gridx="0" gridy="5" weighty="1.0" />
 	</box.vglue>
 	<HBox gap="5">
-		<gridbagconstraints gridx="0" gridy="11" gridwidth="2" weightx="1.0" fill="GridBagConstraints.HORIZONTAL" />
+		<gridbagconstraints gridx="0" gridy="6" gridwidth="2" weightx="1.0" fill="GridBagConstraints.HORIZONTAL" />
 		<box.hglue />
 		<Button id="resetButton" text="button.reset"/>
 		<Button id="closeButton" text="button.close"/>

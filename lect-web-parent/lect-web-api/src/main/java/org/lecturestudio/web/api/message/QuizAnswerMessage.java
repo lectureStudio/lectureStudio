@@ -18,6 +18,8 @@
 
 package org.lecturestudio.web.api.message;
 
+import java.time.ZonedDateTime;
+
 import org.lecturestudio.web.api.model.quiz.QuizAnswer;
 
 public class QuizAnswerMessage extends WebMessage {
@@ -26,12 +28,13 @@ public class QuizAnswerMessage extends WebMessage {
 	
 
 	public QuizAnswerMessage() {
-		this(null, null);
+		this(null, null, null);
 	}
-	
-	public QuizAnswerMessage(QuizAnswer answer, String remoteAddress) {
+
+	public QuizAnswerMessage(QuizAnswer answer, String remoteAddress, ZonedDateTime date) {
 		setQuizAnswer(answer);
 		setRemoteAddress(remoteAddress);
+		setDate(date);
 	}
 	
 	/**

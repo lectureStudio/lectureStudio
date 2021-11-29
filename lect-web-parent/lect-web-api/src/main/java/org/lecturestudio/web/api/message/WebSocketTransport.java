@@ -21,6 +21,7 @@ package org.lecturestudio.web.api.message;
 import static java.util.Objects.isNull;
 import static java.util.Objects.nonNull;
 
+import java.io.IOException;
 import java.io.StringReader;
 import java.lang.reflect.Type;
 import java.net.URI;
@@ -28,6 +29,7 @@ import java.net.http.HttpClient;
 import java.net.http.WebSocket;
 import java.net.http.WebSocket.Builder;
 import java.net.http.WebSocket.Listener;
+import java.nio.ByteBuffer;
 import java.time.Duration;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
@@ -49,14 +51,20 @@ import org.lecturestudio.core.ExecutableException;
 import org.lecturestudio.web.api.data.bind.CourseParticipantMessageAdapter;
 import org.lecturestudio.web.api.data.bind.JsonConfigProvider;
 import org.lecturestudio.web.api.data.bind.MessengerMessageAdapter;
+import org.lecturestudio.web.api.data.bind.QuizAnswerMessageAdapter;
 import org.lecturestudio.web.api.data.bind.SpeechMessageAdapter;
 import org.lecturestudio.web.api.net.SSLContextFactory;
 import org.lecturestudio.web.api.service.ServiceParameters;
+import org.lecturestudio.web.api.stream.action.StreamAction;
+import org.lecturestudio.web.api.stream.action.StreamStartAction;
+import org.lecturestudio.web.api.stream.model.Course;
 import org.lecturestudio.web.api.websocket.WebSocketHeaderProvider;
 
 public class WebSocketTransport extends ExecutableBase implements MessageTransport {
 
-	private final Map<Class<? extends WebMessage>, List<Consumer<? extends WebMessage>>> listenerMap;
+	private final Map<Class<? extends WebMessage>, List<Consumer<WebMessage>>> listenerMap;
+
+	private final Course course;
 
 	private final ServiceParameters serviceParameters;
 
@@ -68,16 +76,17 @@ public class WebSocketTransport extends ExecutableBase implements MessageTranspo
 
 
 	public WebSocketTransport(ServiceParameters serviceParameters,
-			WebSocketHeaderProvider headerProvider) {
+			WebSocketHeaderProvider headerProvider, Course course) {
 		this.serviceParameters = serviceParameters;
 		this.headerProvider = headerProvider;
+		this.course = course;
 		this.listenerMap = new HashMap<>();
 	}
 
 	@Override
-	public void addListener(Class<? extends WebMessage> cls,
-			Consumer<? extends WebMessage> listener) {
-		List<Consumer<? extends WebMessage>> consumerList = listenerMap.get(cls);
+	public <T extends WebMessage> void addListener(Class<T> cls,
+			Consumer<T> listener) {
+		List<Consumer<WebMessage>> consumerList = listenerMap.get(cls);
 
 		if (isNull(consumerList)) {
 			consumerList = new ArrayList<>();
@@ -85,12 +94,13 @@ public class WebSocketTransport extends ExecutableBase implements MessageTranspo
 			listenerMap.put(cls, consumerList);
 		}
 
-		consumerList.add(listener);
+		consumerList.add((Consumer<WebMessage>) listener);
 	}
 
-	public void removeListener(Class<? extends WebMessage> cls,
-			Consumer<? extends WebMessage> listener) {
-		List<Consumer<? extends WebMessage>> consumerList = listenerMap.get(cls);
+	@Override
+	public <T extends WebMessage> void removeListener(Class<T> cls,
+			Consumer<T> listener) {
+		List<Consumer<WebMessage>> consumerList = listenerMap.get(cls);
 
 		if (nonNull(consumerList)) {
 			consumerList.remove(listener);
@@ -103,6 +113,7 @@ public class WebSocketTransport extends ExecutableBase implements MessageTranspo
 		jsonbConfig.withAdapters(
 				new CourseParticipantMessageAdapter(),
 				new MessengerMessageAdapter(),
+				new QuizAnswerMessageAdapter(),
 				new SpeechMessageAdapter()
 		);
 
@@ -125,6 +136,13 @@ public class WebSocketTransport extends ExecutableBase implements MessageTranspo
 				.buildAsync(URI.create(serviceParameters.getUrl()),
 						new WebSocketListener())
 				.join();
+
+		try {
+			send(new StreamStartAction(course.getId()));
+		}
+		catch (Exception e) {
+			throw new ExecutableException("Send action failed", e);
+		}
 	}
 
 	@Override
@@ -137,14 +155,17 @@ public class WebSocketTransport extends ExecutableBase implements MessageTranspo
 
 	}
 
-	@SuppressWarnings("unchecked")
-	private <T extends WebMessage> void handleMessage(T message) {
+	private void send(StreamAction action) throws IOException {
+		webSocket.sendBinary(ByteBuffer.wrap(action.toByteArray()), true);
+	}
+
+	private void handleMessage(WebMessage message) {
 		Class<? extends WebMessage> cls = message.getClass();
-		List<Consumer<? extends WebMessage>> consumerList = listenerMap.get(cls);
+		List<Consumer<WebMessage>> consumerList = listenerMap.get(cls);
 
 		if (nonNull(consumerList)) {
-			for (var listener : consumerList) {
-//				listener.accept(message);
+			for (Consumer<WebMessage> listener : consumerList) {
+				listener.accept(message);
 			}
 		}
 	}
@@ -165,7 +186,6 @@ public class WebSocketTransport extends ExecutableBase implements MessageTranspo
 		@Override
 		public CompletionStage<?> onText(WebSocket webSocket, CharSequence data, boolean last) {
 			logTraceMessage("WebSocket <-: {0}", data);
-			System.out.println("WebSocket <-: " + data);
 
 			webSocket.request(1);
 
@@ -176,9 +196,10 @@ public class WebSocketTransport extends ExecutableBase implements MessageTranspo
 
 				try {
 					JsonObject body = Json.createReader(reader).readObject();
+					reader.reset();
 
-					MessageType type = MessageType.fromString(body.getString("_type"));
-					WebMessage message = createMessage(reader, type.name());
+					String type = body.getString("_type");
+					WebMessage message = createMessage(reader, type);
 
 					handleMessage(message);
 				}

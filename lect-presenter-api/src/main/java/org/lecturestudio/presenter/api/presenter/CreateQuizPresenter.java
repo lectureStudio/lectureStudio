@@ -25,22 +25,18 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.CompletionException;
 
 import javax.inject.Inject;
 
-import org.lecturestudio.core.ExecutableException;
 import org.lecturestudio.core.app.ApplicationContext;
 import org.lecturestudio.core.model.Document;
 import org.lecturestudio.core.model.DocumentList;
 import org.lecturestudio.core.presenter.Presenter;
 import org.lecturestudio.core.service.DocumentService;
-import org.lecturestudio.core.util.NetUtils;
 import org.lecturestudio.core.view.Action;
 import org.lecturestudio.core.view.ViewContextFactory;
 import org.lecturestudio.presenter.api.service.QuizService;
-import org.lecturestudio.presenter.api.service.WebService;
+import org.lecturestudio.presenter.api.service.StreamService;
 import org.lecturestudio.presenter.api.view.CreateQuizDefaultOptionView;
 import org.lecturestudio.presenter.api.view.CreateQuizNumericOptionView;
 import org.lecturestudio.presenter.api.view.CreateQuizOptionView;
@@ -60,7 +56,7 @@ public class CreateQuizPresenter extends Presenter<CreateQuizView> {
 
 	private final QuizService quizService;
 
-	private final WebService webService;
+	private final StreamService streamService;
 
 	/** The Quiz created by the user. */
 	private Quiz quiz = new Quiz();
@@ -77,14 +73,15 @@ public class CreateQuizPresenter extends Presenter<CreateQuizView> {
 
 
 	@Inject
-	CreateQuizPresenter(ApplicationContext context, CreateQuizView view, ViewContextFactory viewFactory,
-			DocumentService documentService, QuizService quizService, WebService webService) {
+	CreateQuizPresenter(ApplicationContext context, CreateQuizView view,
+			ViewContextFactory viewFactory, DocumentService documentService,
+			QuizService quizService, StreamService streamService) {
 		super(context, view);
 
 		this.viewFactory = viewFactory;
 		this.documentService = documentService;
 		this.quizService = quizService;
-		this.webService = webService;
+		this.streamService = streamService;
 		this.optionContextList = new ArrayList<>();
 	}
 
@@ -170,24 +167,7 @@ public class CreateQuizPresenter extends Presenter<CreateQuizView> {
 	private void startQuiz() {
 		createQuiz();
 
-		CompletableFuture.runAsync(() -> {
-			try {
-				webService.startQuiz(quiz);
-			}
-			catch (ExecutableException e) {
-				throw new CompletionException(e);
-			}
-		})
-		.exceptionally(e -> {
-			String message = null;
-
-			if (NetUtils.isSocketTimeout(e.getCause())) {
-				message = "service.timeout.error";
-			}
-
-			handleException(e, "Start quiz failed", "quiz.start.error", message);
-			return null;
-		});
+		streamService.startQuiz(quiz);
 
 		close();
 

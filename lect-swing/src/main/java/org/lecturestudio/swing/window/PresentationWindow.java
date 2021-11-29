@@ -171,10 +171,8 @@ public class PresentationWindow extends AbstractWindow implements SlidePresentat
 	}
 
 	protected void init(Screen screen) {
-		Rectangle screenBounds = RectangleConverter.INSTANCE.to(screen.getBounds());
 		Color background = getContext().getConfiguration().getDisplayConfig().getBackgroundColor();
-
-		transformScreenBounds(screenBounds);
+		Rectangle screenBounds = transformScreenBounds(screen);
 
 		setBackground(ColorConverter.INSTANCE.to(background));
 		setBounds(screenBounds);
@@ -221,14 +219,15 @@ public class PresentationWindow extends AbstractWindow implements SlidePresentat
 		slideView.setPage(page);
 	}
 
-	private void transformScreenBounds(Rectangle screenBounds) {
+	private Rectangle transformScreenBounds(Screen screen) {
+		Rectangle screenBounds = RectangleConverter.INSTANCE.to(screen.getBounds());
+
 		GraphicsDevice dev = Screens.getDefaultScreenDevice();
 		AffineTransform defaultTx = dev.getDefaultConfiguration().getDefaultTransform();
-		AffineTransform windowTx = getWindow().getGraphicsConfiguration().getDefaultTransform();
 
 		// Main screen / current screen scale ratio.
-		double sx = defaultTx.getScaleX() / windowTx.getScaleX();
-		double sy = defaultTx.getScaleY() / windowTx.getScaleY();
+		double sx = defaultTx.getScaleX();
+		double sy = defaultTx.getScaleY();
 
 		// Scale current screen size.
 		double x = screenBounds.getX() / sx;
@@ -237,6 +236,8 @@ public class PresentationWindow extends AbstractWindow implements SlidePresentat
 		double h = screenBounds.getHeight() / sy;
 
 		screenBounds.setRect(x, y, w, h);
+
+		return screenBounds;
 	}
 
 	private void centerSlideView() {

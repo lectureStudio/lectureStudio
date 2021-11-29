@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2020 TU Darmstadt, Department of Computer Science,
+ * Copyright (C) 2021 TU Darmstadt, Department of Computer Science,
  * Embedded Systems and Applications Group.
  *
  * This program is free software: you can redistribute it and/or modify
@@ -16,27 +16,19 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package org.lecturestudio.swing.components;
+package org.lecturestudio.web.api.janus;
 
-import java.awt.Font;
+public class JanusPeerConnectionException extends Exception {
 
-import javax.swing.JLabel;
-
-public class HeadSeparator extends JLabel {
-
-	private static final long serialVersionUID = -2294021363591856408L;
-
-	public HeadSeparator(String text) {
-		this();
-		setText(text);
+	public JanusPeerConnectionException() {
+		super();
 	}
 
-	public HeadSeparator() {
-		init();
+	public JanusPeerConnectionException(String message) {
+		super(message);
 	}
 
-	private void init() {
-		setFont(getFont().deriveFont(Font.BOLD));
+	public JanusPeerConnectionException(String message, Throwable e) {
+		super(message, e);
 	}
-
 }

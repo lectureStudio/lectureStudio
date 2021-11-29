@@ -39,7 +39,9 @@ public class TitledSeparator extends JComponent {
 		super();
 
 		label = new JLabel();
-		label.setFont(label.getFont().deriveFont(Font.BOLD, 13));
+
+		Font font = label.getFont();
+		label.setFont(font.deriveFont(Font.BOLD, font.getSize2D()));
 
 		gapFiller = (Box.Filler) Box.createHorizontalStrut(5);
 

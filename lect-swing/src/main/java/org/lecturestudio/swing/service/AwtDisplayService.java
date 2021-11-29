@@ -96,7 +96,7 @@ public class AwtDisplayService implements DisplayService {
 	}
 
 	private void listenForScreens() {
-		Screen[] screens = Screens.getConnectedScreens();
+		Screen[] screens = Screens.getAllScreens();
 
 		int count = screens.length;
 		if (count == screenList.size()) {

@@ -16,12 +16,27 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package org.lecturestudio.presenter.api.model;
+package org.lecturestudio.presenter.api.view;
 
-import org.lecturestudio.core.beans.BooleanProperty;
+import java.util.List;
 
-public class StartServices {
+import org.lecturestudio.core.beans.ObjectProperty;
+import org.lecturestudio.core.view.Action;
+import org.lecturestudio.core.view.View;
+import org.lecturestudio.web.api.stream.model.Course;
 
-	public BooleanProperty startMessenger = new BooleanProperty();
+public interface StartCourseFeatureView extends View {
+
+	void setCourse(ObjectProperty<Course> course);
+
+	void setCourses(List<Course> courses);
+
+	void setError(String message);
+
+	void setOnSettings(Action action);
+
+	void setOnClose(Action action);
+
+	void setOnStart(Action action);
 
 }

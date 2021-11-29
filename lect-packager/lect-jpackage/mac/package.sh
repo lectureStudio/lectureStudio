@@ -125,23 +125,18 @@ LIBRARY_PATH=\$ROOTDIR/app/lib/native
 
 app[0]=lecturePresenter
 app[1]=lectureEditor
-app[2]=lecturePlayer
 
 class[0]=org.lecturestudio.presenter.swing.PresenterApplication
 class[1]=org.lecturestudio.editor.javafx.EditorFxApplication
-class[2]=org.lecturestudio.player.javafx.PlayerFxApplication
 
 icon[0]=${project.parent.parent.basedir}/lect-presenter-swing/src/main/resources/gfx/app-icon/128.icns
 icon[1]=${project.parent.parent.basedir}/lect-editor-fx/src/main/resources/gfx/app-icon/128.icns
-icon[2]=${project.parent.parent.basedir}/lect-player-fx/src/main/resources/gfx/app-icon/128.icns
 
 jar[0]=lect-presenter-swing.jar
 jar[1]=lect-editor-fx.jar
-jar[2]=lect-player-fx.jar
 
 assoc[0]=
 assoc[1]="--file-associations rec-file.association"
-assoc[2]=
 
 mkdir $PRODUCT_NAME
 
@@ -149,7 +144,7 @@ mkdir $PRODUCT_NAME
 MODULES="jdk.localedata,java.security.jgss,java.security.sasl,jdk.crypto.cryptoki,jdk.crypto.ec,jdk.zipfs"
 
 # Retrieve modules.
-for value in {0..2}
+for value in {0..1}
 do
 	echo "Get ${app[$value]} modules"
 
@@ -183,7 +178,7 @@ echo "Create Runtime"
 	--add-modules="$MODULES" \
 	--output "$PRODUCT_NAME/runtime/Contents/Home"
 
-for value in {0..2}
+for value in {0..1}
 do
 	app_name=${app[$value]}
 	app_path=$PRODUCT_NAME/$app_name
@@ -265,7 +260,7 @@ else
 	signJarFiles "$PRODUCT_NAME/app/lib/*.jar"
 
 	# Sign all apps.
-	for value in {0..2}
+	for value in {0..1}
 	do
 		app_path=$PRODUCT_NAME/${app[$value]}
 

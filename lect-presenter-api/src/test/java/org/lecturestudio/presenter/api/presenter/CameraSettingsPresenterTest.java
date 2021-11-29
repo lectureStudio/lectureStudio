@@ -136,6 +136,11 @@ class CameraSettingsPresenterTest extends PresenterTest {
 		}
 
 		@Override
+		public void setCameraError(String errorMessage) {
+
+		}
+
+		@Override
 		public void startCameraPreview() {
 
 		}

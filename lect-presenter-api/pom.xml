@@ -70,7 +70,7 @@
 		<dependency>
 			<groupId>org.lecturestudio.stylus</groupId>
 			<artifactId>stylus</artifactId>
-			<version>0.1.0</version>
+			<version>${stylus.version}</version>
 		</dependency>
 
 		<!-- Used to bootstrap the embedded broadcaster -->

@@ -218,6 +218,11 @@ public class ImmutableObservableList<T> implements ObservableList<T> {
 		return this;
 	}
 
+	@Override
+	public String toString() {
+		return list.toString();
+	}
+
 	private ListIterator<T> getListIterator(int index) {
 		return new ListIterator<>() {
 

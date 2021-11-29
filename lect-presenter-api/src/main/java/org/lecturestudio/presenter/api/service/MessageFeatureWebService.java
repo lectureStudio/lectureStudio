@@ -21,6 +21,7 @@ package org.lecturestudio.presenter.api.service;
 import java.io.File;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.function.Consumer;
 
 import org.lecturestudio.core.ExecutableException;
 import org.lecturestudio.core.app.ApplicationContext;
@@ -28,6 +29,9 @@ import org.lecturestudio.presenter.api.util.HtmlMessageLogger;
 import org.lecturestudio.web.api.message.MessengerMessage;
 
 public class MessageFeatureWebService extends FeatureServiceBase {
+
+	/** Received message consumer. */
+	private final Consumer<MessengerMessage> messageConsumer = this::onMessage;
 
 	/** The web service client. */
 	private final MessageFeatureService webService;
@@ -59,12 +63,7 @@ public class MessageFeatureWebService extends FeatureServiceBase {
 		try {
 			serviceId = webService.startMessenger(courseId);
 
-			webService.addMessageListener(MessengerMessage.class, message -> {
-				logMessage(message);
-
-				// Forward message to UI.
-				context.getEventBus().post(message);
-			});
+			webService.addMessageListener(MessengerMessage.class, messageConsumer);
 		}
 		catch (Exception e) {
 			throw new ExecutableException(e);
@@ -76,6 +75,7 @@ public class MessageFeatureWebService extends FeatureServiceBase {
 	@Override
 	protected void stopInternal() throws ExecutableException {
 		try {
+			webService.removeMessageListener(MessengerMessage.class, messageConsumer);
 			webService.stopMessenger(courseId);
 			// Stop receiving message events.
 			webService.close();
@@ -88,6 +88,13 @@ public class MessageFeatureWebService extends FeatureServiceBase {
 	@Override
 	protected void destroyInternal() {
 
+	}
+
+	private void onMessage(MessengerMessage message) {
+		logMessage(message);
+
+		// Forward message to UI.
+		context.getEventBus().post(message);
 	}
 
 	/**
@@ -106,7 +113,7 @@ public class MessageFeatureWebService extends FeatureServiceBase {
 
 	/**
 	 * Adds a message to the log file.
-	 * 
+	 *
 	 * @param message The descriptive message.
 	 */
 	private void logMessage(MessengerMessage message) {

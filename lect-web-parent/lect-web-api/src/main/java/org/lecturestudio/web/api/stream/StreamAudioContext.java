@@ -16,14 +16,14 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package org.lecturestudio.web.api.stream.config;
+package org.lecturestudio.web.api.stream;
 
 import dev.onvoid.webrtc.media.audio.AudioDevice;
 
 import org.lecturestudio.core.beans.BooleanProperty;
 import org.lecturestudio.core.beans.ObjectProperty;
 
-public class AudioConfiguration {
+public class StreamAudioContext {
 
 	private final ObjectProperty<AudioDevice> playbackDevice;
 
@@ -34,7 +34,7 @@ public class AudioConfiguration {
 	private final BooleanProperty sendAudio;
 
 
-	public AudioConfiguration() {
+	public StreamAudioContext() {
 		playbackDevice = new ObjectProperty<>();
 		recordingDevice = new ObjectProperty<>();
 		receiveAudio = new BooleanProperty();

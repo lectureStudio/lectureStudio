@@ -76,4 +76,73 @@ public interface Executable {
 	 */
 	ExecutableState getState();
 
+	/**
+	 * Indicates whether this component has been created.
+	 *
+	 * @return {@code true} if this component has been created, otherwise {@code
+	 * false}.
+	 */
+	default boolean created() {
+		return getState() == ExecutableState.Created;
+	}
+
+	/**
+	 * Indicates whether this component has been initialized.
+	 *
+	 * @return {@code true} if this component has been initialized, otherwise
+	 * {@code false}.
+	 */
+	default boolean initialized() {
+		return getState() == ExecutableState.Initialized;
+	}
+
+	/**
+	 * Indicates whether this component has been started.
+	 *
+	 * @return {@code true} if this component has been started, otherwise {@code
+	 * false}.
+	 */
+	default boolean started() {
+		return getState() == ExecutableState.Started;
+	}
+
+	/**
+	 * Indicates whether this component has been stopped.
+	 *
+	 * @return {@code true} if this component has been stopped, otherwise {@code
+	 * false}.
+	 */
+	default boolean stopped() {
+		return getState() == ExecutableState.Stopped;
+	}
+
+	/**
+	 * Indicates whether this component has been suspended.
+	 *
+	 * @return {@code true} if this component has been suspended, otherwise
+	 * {@code false}.
+	 */
+	default boolean suspended() {
+		return getState() == ExecutableState.Suspended;
+	}
+
+	/**
+	 * Indicates whether this component has been destroyed.
+	 *
+	 * @return {@code true} if this component has been destroyed, otherwise
+	 * {@code false}.
+	 */
+	default boolean destroyed() {
+		return getState() == ExecutableState.Destroyed;
+	}
+
+	/**
+	 * Indicates whether an error has occurred during a state transition of this
+	 * component.
+	 *
+	 * @return {@code true} if an error has occurred, otherwise {@code false}.
+	 */
+	default boolean error() {
+		return getState() == ExecutableState.Error;
+	}
 }

@@ -25,17 +25,18 @@ import java.awt.Component;
 import java.awt.Container;
 import java.awt.Dimension;
 import java.awt.Font;
+import java.awt.FontMetrics;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Insets;
 import java.awt.ItemSelectable;
 import java.awt.LayoutManager2;
+import java.awt.Rectangle;
 import java.awt.RenderingHints;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import java.awt.geom.AffineTransform;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -85,6 +86,14 @@ public class DisplayPanel extends JPanel implements ItemSelectable {
 
 		virtualArea.setRect(0, 0, 0, 0);
 
+		removeAll();
+		addScreens(screens);
+
+		revalidate();
+		repaint();
+	}
+
+	private void addScreens(List<ScreenConfiguration> screens) {
 		for (int i = 0; i < screens.size(); i++) {
 			final ScreenConfiguration screenConfig = screens.get(i);
 
@@ -109,9 +118,6 @@ public class DisplayPanel extends JPanel implements ItemSelectable {
 
 			add(screenComponent);
 		}
-
-		revalidate();
-		repaint();
 	}
 
 	private void initialize() {
@@ -139,18 +145,32 @@ public class DisplayPanel extends JPanel implements ItemSelectable {
 		protected void paintComponent(Graphics g) {
 			super.paintComponent(g);
 
-			AffineTransform transform = getGraphicsConfiguration().getDefaultTransform();
+			Graphics2D g2d = (Graphics2D) g;
+			g2d.setColor(isSelected() ? Color.WHITE : Color.LIGHT_GRAY);
+			g2d.fillRect(0, 0, getWidth(), getHeight());
+
+			// Draw screen id.
+			g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+
+			FontMetrics metrics = g.getFontMetrics();
+			Rectangle rect = getBounds();
+
+			float x = (rect.width - metrics.stringWidth(getText())) >> 1;
+			float y = ((rect.height - metrics.getHeight()) >> 1) + metrics.getAscent();
+
+			g2d.setColor(Color.DARK_GRAY);
+			g2d.drawString(getText(), x, y);
+
+			// Draw screen dimension.
 			Rectangle2D screenBounds = screenConfig.getScreen().getBounds();
 			Font font = g.getFont().deriveFont(g.getFont().getSize2D() / 2);
-			double width = screenBounds.getWidth() * transform.getScaleX();
-			double height = screenBounds.getHeight() * transform.getScaleY();
-			float x = 10;
-			float y = 10 + font.getSize2D();
+			double width = screenBounds.getWidth();
+			double height = screenBounds.getHeight();
+			x = 10;
+			y = 10 + font.getSize2D();
 
-			Graphics2D g2d = (Graphics2D) g;
-			g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
 			g2d.setFont(font);
-			g2d.setColor(Color.GRAY);
+			g2d.setColor(Color.DARK_GRAY);
 			g2d.drawString(String.format("%.0fx%.0f", width, height), x, y);
 		}
 	}

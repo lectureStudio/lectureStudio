@@ -32,6 +32,8 @@ import java.awt.Container;
 import java.awt.Dimension;
 import java.awt.KeyboardFocusManager;
 import java.awt.Rectangle;
+import java.awt.event.ComponentAdapter;
+import java.awt.event.ComponentEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.image.BufferedImage;
@@ -156,6 +158,8 @@ public class SwingSlidesView extends JPanel implements SlidesView {
 	private JTree outlineTree;
 
 	private SlideView slideView;
+
+	private StylusListener stylusListener;
 
 	private BufferedImage peerViewImage;
 
@@ -368,7 +372,8 @@ public class SwingSlidesView extends JPanel implements SlidesView {
 
 	@Override
 	public void setStylusHandler(StylusHandler handler) {
-		StylusListener stylusListener = new StylusListener(handler, slideView);
+		stylusListener = new StylusListener(handler, slideView);
+
 		AwtStylusManager manager = AwtStylusManager.getInstance();
 		manager.attachStylusListener(slideView, stylusListener);
 	}
@@ -811,6 +816,15 @@ public class SwingSlidesView extends JPanel implements SlidesView {
 
 			@Override
 			public void ancestorAdded(AncestorEvent event) {
+				JFrame window = (JFrame) SwingUtilities.getWindowAncestor(SwingSlidesView.this);
+				window.addComponentListener(new ComponentAdapter() {
+
+					@Override
+					public void componentShown(ComponentEvent e) {
+						AwtStylusManager manager = AwtStylusManager.getInstance();
+						manager.attachStylusListener(slideView, stylusListener);
+					}
+				});
 			}
 
 			@Override

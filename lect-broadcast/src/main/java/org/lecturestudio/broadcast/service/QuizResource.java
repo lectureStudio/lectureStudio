@@ -18,6 +18,7 @@
 
 package org.lecturestudio.broadcast.service;
 
+import java.time.ZonedDateTime;
 import java.util.List;
 
 import javax.annotation.security.PermitAll;
@@ -124,7 +125,7 @@ public class QuizResource extends ServiceBase {
 			service.getHosts().add(remoteAddress.hashCode());
 
 			// Notify service provider endpoint.
-			sendWebMessage(new QuizAnswerMessage(quizAnswer, remoteAddress),
+			sendWebMessage(new QuizAnswerMessage(quizAnswer, remoteAddress, ZonedDateTime.now()),
 					serviceId);
 		}
 

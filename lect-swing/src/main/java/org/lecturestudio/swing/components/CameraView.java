@@ -87,6 +87,8 @@ public class CameraView extends JComponent {
 	 */
 	public void setStatusMessage(String message) {
 		this.statusMessage = message;
+
+		repaint();
 	}
 
 	@Override
@@ -135,7 +137,6 @@ public class CameraView extends JComponent {
 		int h = metrics.getHeight();
 
 		g2.setColor(Color.WHITE);
-		g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_OFF);
 		g2.drawString(statusMessage, (getWidth() - w) / 2, cy - h);
 	}
 

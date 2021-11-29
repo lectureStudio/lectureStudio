@@ -31,6 +31,7 @@ import dev.onvoid.webrtc.media.audio.AudioDeviceModule;
 import java.io.IOException;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.lecturestudio.core.ExecutableBase;
 import org.lecturestudio.core.ExecutableException;
@@ -49,6 +50,8 @@ import org.lecturestudio.core.audio.AudioPlayer;
  * @author Alex Andres
  */
 public class WebRtcAudioPlayer extends ExecutableBase implements AudioPlayer {
+
+	private final AtomicBoolean reading = new AtomicBoolean();
 
 	private AudioDeviceModule deviceModule;
 
@@ -138,7 +141,6 @@ public class WebRtcAudioPlayer extends ExecutableBase implements AudioPlayer {
 			deviceModule.setPlayoutDevice(playbackDevice);
 			deviceModule.setAudioSource(new dev.onvoid.webrtc.media.audio.AudioSource() {
 
-				boolean reading = true;
 				int bytesRead = 0;
 				int processResult;
 
@@ -173,8 +175,7 @@ public class WebRtcAudioPlayer extends ExecutableBase implements AudioPlayer {
 					if (bytesRead > 0) {
 						updateProgress();
 					}
-					else if (reading) {
-						reading = false;
+					else if (reading.compareAndSet(true, false)) {
 						stopPlayback();
 					}
 
@@ -199,6 +200,8 @@ public class WebRtcAudioPlayer extends ExecutableBase implements AudioPlayer {
 
 	@Override
 	protected void startInternal() throws ExecutableException {
+		reading.set(true);
+
 		try {
 			deviceModule.initPlayout();
 

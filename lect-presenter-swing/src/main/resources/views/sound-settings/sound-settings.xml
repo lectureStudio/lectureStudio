@@ -9,6 +9,7 @@
 			</Label>
 			<ComboBox id="audioCaptureDevicesCombo">
 				<gridbagconstraints gridx="0" gridy="1" anchor="GridBagConstraints.WEST" insets="5,0,15,0" />
+				<renderer class="org.lecturestudio.swing.combobox.DefaultStringRenderer" />
 			</ComboBox>
 			<Label text="sound.settings.level">
 				<gridbagconstraints gridx="0" gridy="2" anchor="GridBagConstraints.WEST" insets="5,0,2,0" />
@@ -47,6 +48,7 @@
 			</Label>
 			<ComboBox id="audioPlaybackDevicesCombo">
 				<gridbagconstraints gridx="0" gridy="1" anchor="GridBagConstraints.WEST" insets="5,0,15,0" />
+				<renderer class="org.lecturestudio.swing.combobox.DefaultStringRenderer" />
 			</ComboBox>
 			<box.vglue>
 				<gridbagconstraints gridx="0" gridy="2" weighty="1.0" />

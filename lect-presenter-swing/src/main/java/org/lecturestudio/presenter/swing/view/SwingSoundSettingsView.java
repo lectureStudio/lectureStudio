@@ -18,6 +18,8 @@
 
 package org.lecturestudio.presenter.swing.view;
 
+import com.formdev.flatlaf.util.UIScale;
+
 import java.util.List;
 import java.util.ResourceBundle;
 
@@ -217,6 +219,8 @@ public class SwingSoundSettingsView extends JPanel implements SoundSettingsView 
 	private void initialize() {
 		noiseSuppressionCombo.setRenderer(new NoiseSuppressionLevelRenderer(
 				resources, "sound.settings.noise.suppression."));
+
+		levelMeter.setPreferredSize(UIScale.scale(levelMeter.getPreferredSize()));
 
 		addAncestorListener(new AncestorListener() {
 

@@ -34,6 +34,7 @@
 				</Label>
 				<ComboBox id="audioCaptureDevicesCombo">
 					<gridbagconstraints gridx="0" gridy="1" weightx="1.0" fill="GridBagConstraints.HORIZONTAL" insets="0,0,0,0" />
+					<renderer class="org.lecturestudio.swing.combobox.DefaultStringRenderer" />
 				</ComboBox>
 				<ToggleButton id="muteMicrophoneButton" text="" icon="microphone-off.svg, 18" selectedIcon="microphone.svg, 18" tooltipText="toolbar.stream.microphone.tooltip">
 					<gridbagconstraints gridx="1" gridy="1" insets="0,0,0,0" />
@@ -44,6 +45,7 @@
 				</Label>
 				<ComboBox id="audioPlaybackDevicesCombo">
 					<gridbagconstraints refid="gbc_audio" gridx="0" gridy="3" weightx="1.0" fill="GridBagConstraints.HORIZONTAL" insets="0,0,0,0" />
+					<renderer class="org.lecturestudio.swing.combobox.DefaultStringRenderer" />
 				</ComboBox>
 
 				<Label text="start.stream.test.title">

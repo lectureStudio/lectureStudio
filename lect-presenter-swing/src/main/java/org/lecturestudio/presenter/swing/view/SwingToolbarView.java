@@ -21,6 +21,8 @@ package org.lecturestudio.presenter.swing.view;
 import static java.util.Objects.isNull;
 import static java.util.Objects.nonNull;
 
+import com.formdev.flatlaf.util.UIScale;
+
 import java.awt.FlowLayout;
 import java.awt.Graphics2D;
 import java.awt.GridBagConstraints;
@@ -605,7 +607,8 @@ public class SwingToolbarView extends JPanel implements ToolbarView {
 											String accelerator, String toolTipText, String group, String name,
 											boolean defaultToolbarButton, ToolType... tools) {
 		if (nonNull(iconPath)) {
-			button.setIcon(AwtResourceLoader.getIcon(iconPath, 30));
+			button.setIcon(AwtResourceLoader.getIcon(iconPath,
+					(int) (30 * UIScale.getUserScaleFactor())));
 		}
 
 		if (nonNull(accelerator)) {

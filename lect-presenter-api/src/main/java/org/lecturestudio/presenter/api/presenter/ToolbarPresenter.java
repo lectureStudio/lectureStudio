@@ -29,6 +29,7 @@ import org.lecturestudio.core.ExecutableState;
 import org.lecturestudio.core.app.ApplicationContext;
 import org.lecturestudio.core.audio.AudioDeviceNotConnectedException;
 import org.lecturestudio.core.bus.EventBus;
+import org.lecturestudio.core.bus.event.CustomizeToolbarEvent;
 import org.lecturestudio.core.bus.event.DocumentEvent;
 import org.lecturestudio.core.bus.event.PageEvent;
 import org.lecturestudio.core.bus.event.ToolSelectionEvent;
@@ -142,6 +143,11 @@ public class ToolbarPresenter extends Presenter<ToolbarView> {
 	@Subscribe
 	public void onEvent(final ToolSelectionEvent event) {
 		toolChanged(event.getToolType(), event.getPaintSettings());
+	}
+
+	@Subscribe
+	public void onEvent(final CustomizeToolbarEvent event) {
+		view.openCustomizeToolbarDialog();
 	}
 
 	public void undo() {

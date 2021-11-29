@@ -244,7 +244,7 @@ public class ToolColorChooser extends JPanel {
 		// Display the tool preview of the selected tool.
 		CardLayout toolPreviewPanelLayout = (CardLayout) toolPreviewPanel.getLayout();
 		ToolPreview toolPreview = toolPreviewMap.get(toolType);
-		if (nonNull(toolPreview)) {
+		if (nonNull(toolPreview) && nonNull(toolType)) {
 			toolPreviewPanelLayout.show(toolPreviewPanel, toolType.toString());
 		} else {
 			toolPreviewPanelLayout.show(toolPreviewPanel, "");

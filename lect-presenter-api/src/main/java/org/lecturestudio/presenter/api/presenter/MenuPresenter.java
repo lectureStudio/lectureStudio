@@ -45,6 +45,7 @@ import org.lecturestudio.core.app.configuration.Configuration;
 import org.lecturestudio.core.app.dictionary.Dictionary;
 import org.lecturestudio.core.audio.AudioDeviceNotConnectedException;
 import org.lecturestudio.core.bus.EventBus;
+import org.lecturestudio.core.bus.event.CustomizeToolbarEvent;
 import org.lecturestudio.core.bus.event.DocumentEvent;
 import org.lecturestudio.core.bus.event.PageEvent;
 import org.lecturestudio.core.bus.event.ViewVisibleEvent;
@@ -295,6 +296,10 @@ public class MenuPresenter extends Presenter<MenuView> {
 		context.getConfiguration().setAdvancedUIMode(selected);
 	}
 
+	public void customizeToolbar() {
+		eventBus.post(new CustomizeToolbarEvent());
+	}
+
 	public void newWhiteboard() {
 		documentService.addWhiteboard();
 	}
@@ -497,6 +502,8 @@ public class MenuPresenter extends Presenter<MenuView> {
 
 		view.bindShowOutline(presenterContext.showOutlineProperty());
 		view.bindFullscreen(presenterContext.fullscreenProperty());
+
+		view.setOnCustomizeToolbar(this::customizeToolbar);
 //		view.setAdvancedSettings(config.getAdvancedUIMode());
 //		view.setOnAdvancedSettings(this::setAdvancedSettings);
 

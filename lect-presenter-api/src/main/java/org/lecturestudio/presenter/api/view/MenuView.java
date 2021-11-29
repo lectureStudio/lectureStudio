@@ -84,6 +84,8 @@ public interface MenuView extends View {
 
 	void setOnAdvancedSettings(ConsumerAction<Boolean> action);
 
+	void setOnCustomizeToolbar(Action action);
+
 	/**
 	 * Whiteboard Menu
 	 */

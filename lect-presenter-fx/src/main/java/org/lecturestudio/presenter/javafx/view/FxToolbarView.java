@@ -485,6 +485,11 @@ public class FxToolbarView extends FlowPane implements ToolbarView {
 	}
 
 	@Override
+	public void openCustomizeToolbarDialog() {
+
+	}
+
+	@Override
 	public void bindEnableStream(BooleanProperty enable) {
 
 	}

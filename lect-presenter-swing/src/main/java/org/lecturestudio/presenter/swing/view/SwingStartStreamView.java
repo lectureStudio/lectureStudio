@@ -67,6 +67,10 @@ public class SwingStartStreamView extends JPanel implements StartStreamView {
 
 	private JToggleButton enableCameraButton;
 
+	private JToggleButton testCaptureButton;
+
+	private JToggleButton playCaptureButton;
+
 	private JCheckBox messengerCheckBox;
 
 	private JLabel errorLabel;
@@ -137,6 +141,46 @@ public class SwingStartStreamView extends JPanel implements StartStreamView {
 			audioPlaybackDevicesCombo.setLightWeightPopupEnabled(false);
 			audioPlaybackDevicesCombo.setModel(model);
 		});
+	}
+
+	@Override
+	public void setAudioTestCaptureEnabled(BooleanProperty enable) {
+		boolean enabled = enable.get();
+
+		if (!enabled) {
+			SwingUtils.invoke(() -> {
+				testCaptureButton.setSelected(false);
+				testCaptureButton.setEnabled(false);
+			});
+		}
+
+		enable.addListener((observable, oldValue, newValue) ->
+				testCaptureButton.setEnabled(newValue));
+	}
+
+	@Override
+	public void setAudioTestPlaybackEnabled(BooleanProperty enable) {
+		boolean enabled = enable.get();
+
+		if (!enabled) {
+			SwingUtils.invoke(() -> {
+				playCaptureButton.setSelected(false);
+				playCaptureButton.setEnabled(false);
+			});
+		}
+
+		enable.addListener((observable, oldValue, newValue) ->
+				playCaptureButton.setEnabled(newValue));
+	}
+
+	@Override
+	public void setOnAudioTestCapture(BooleanProperty recordProperty) {
+		SwingUtils.bindBidirectional(testCaptureButton, recordProperty);
+	}
+
+	@Override
+	public void setOnAudioTestCapturePlayback(BooleanProperty playProperty) {
+		SwingUtils.bindBidirectional(playCaptureButton, playProperty);
 	}
 
 	@Override

@@ -21,15 +21,23 @@ package org.lecturestudio.presenter.api.presenter;
 import static java.util.Objects.isNull;
 import static java.util.Objects.nonNull;
 
+import java.io.ByteArrayInputStream;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
 import javax.inject.Inject;
 import javax.inject.Named;
 
-import org.lecturestudio.core.app.ApplicationContext;
+import org.lecturestudio.core.Executable;
+import org.lecturestudio.core.ExecutableState;
 import org.lecturestudio.core.app.configuration.AudioConfiguration;
+import org.lecturestudio.core.audio.AudioPlayer;
+import org.lecturestudio.core.audio.AudioRecorder;
 import org.lecturestudio.core.audio.AudioSystemProvider;
+import org.lecturestudio.core.audio.sink.AudioSink;
+import org.lecturestudio.core.audio.sink.ByteArrayAudioSink;
+import org.lecturestudio.core.audio.source.ByteArrayAudioSource;
+import org.lecturestudio.core.beans.BooleanProperty;
 import org.lecturestudio.core.beans.ChangeListener;
 import org.lecturestudio.core.camera.Camera;
 import org.lecturestudio.core.presenter.Presenter;
@@ -50,6 +58,10 @@ public class StartStreamPresenter extends Presenter<StartStreamView> {
 
 	private final AudioSystemProvider audioSystemProvider;
 
+	private final AudioConfiguration audioConfig;
+
+	private final StreamConfiguration streamConfig;
+
 	private final CameraService camService;
 
 	private ChangeListener<String> camListener;
@@ -64,24 +76,58 @@ public class StartStreamPresenter extends Presenter<StartStreamView> {
 	@Named("stream.publisher.api.url")
 	private String streamPublisherApiUrl;
 
+	private AudioRecorder testRecorder;
+
+	private AudioPlayer audioPlayer;
+
+	private AudioSink testAudioSink;
+
+	private BooleanProperty testCapture;
+
+	private BooleanProperty testPlayback;
+
+	private BooleanProperty captureEnabled;
+
+	private BooleanProperty playbackEnabled;
+
 	private boolean capture;
 
 
 	@Inject
-	StartStreamPresenter(ApplicationContext context, StartStreamView view,
+	StartStreamPresenter(PresenterContext context, StartStreamView view,
 			AudioSystemProvider audioSystemProvider, CameraService camService) {
 		super(context, view);
 
 		this.audioSystemProvider = audioSystemProvider;
 		this.camService = camService;
+
+		PresenterConfiguration config = (PresenterConfiguration) context.getConfiguration();
+		this.audioConfig = config.getAudioConfig();
+		this.streamConfig = config.getStreamConfig();
 	}
 
 	@Override
 	public void initialize() {
-		PresenterContext pContext = (PresenterContext) context;
-		PresenterConfiguration config = (PresenterConfiguration) context.getConfiguration();
-		StreamConfiguration streamConfig = config.getStreamConfig();
+		testCapture = new BooleanProperty();
+		testPlayback = new BooleanProperty();
+		captureEnabled = new BooleanProperty(true);
+		playbackEnabled = new BooleanProperty();
 
+		testCapture.addListener((observable, oldValue, newValue) -> {
+			recordCaptureTest(newValue);
+		});
+		testPlayback.addListener((observable, oldValue, newValue) -> {
+			try {
+				playCaptureTest(newValue);
+			}
+			catch (Exception e) {
+				handleException(e, "Test playback failed",
+						"microphone.settings.test.playback.error",
+						"microphone.settings.test.playback.error.message");
+			}
+		});
+
+		PresenterContext pContext = (PresenterContext) context;
 		List<Course> courses = null;
 
 		try {
@@ -95,7 +141,6 @@ public class StartStreamPresenter extends Presenter<StartStreamView> {
 		}
 
 		if (nonNull(courses)) {
-			AudioConfiguration audioConfig = config.getAudioConfig();
 			Course selectedCourse = pContext.getCourse();
 
 			if (isNull(selectedCourse) && !courses.isEmpty()) {
@@ -123,13 +168,17 @@ public class StartStreamPresenter extends Presenter<StartStreamView> {
 
 			view.setCourses(courses);
 			view.setCourse(pContext.courseProperty());
-			view.setEnableMicrophone(config.getStreamConfig().enableMicrophoneProperty());
-			view.setEnableCamera(config.getStreamConfig().enableCameraProperty());
+			view.setEnableMicrophone(streamConfig.enableMicrophoneProperty());
+			view.setEnableCamera(streamConfig.enableCameraProperty());
 			view.setEnableMessenger(streamContext.enableMessengerProperty());
 			view.setAudioCaptureDevices(audioSystemProvider.getRecordingDevices());
 			view.setAudioCaptureDevice(audioConfig.captureDeviceNameProperty());
 			view.setAudioPlaybackDevices(audioSystemProvider.getPlaybackDevices());
 			view.setAudioPlaybackDevice(audioConfig.playbackDeviceNameProperty());
+			view.setAudioTestCaptureEnabled(captureEnabled);
+			view.setAudioTestPlaybackEnabled(playbackEnabled);
+			view.setOnAudioTestCapture(testCapture);
+			view.setOnAudioTestCapturePlayback(testPlayback);
 			view.setCameraNames(camService.getCameraNames());
 			view.setCameraName(streamConfig.cameraNameProperty());
 
@@ -173,19 +222,15 @@ public class StartStreamPresenter extends Presenter<StartStreamView> {
 	}
 
 	private void dispose() {
-		PresenterConfiguration config = (PresenterConfiguration) context.getConfiguration();
-		StreamConfiguration streamConfig = config.getStreamConfig();
 		streamConfig.cameraNameProperty().removeListener(camListener);
 
+		stopAudioCapture();
 		captureCamera(false);
 
 		super.close();
 	}
 
 	private List<Course> loadCourses() {
-		PresenterConfiguration config = (PresenterConfiguration) context.getConfiguration();
-		StreamConfiguration streamConfig = config.getStreamConfig();
-
 		ServiceParameters parameters = new ServiceParameters();
 		parameters.setUrl(streamPublisherApiUrl);
 
@@ -249,5 +294,106 @@ public class StartStreamPresenter extends Presenter<StartStreamView> {
 				startCameraPreview();
 			}
 		}
+	}
+
+	private void recordCaptureTest(boolean capture) {
+		playbackEnabled.set(!capture);
+
+		if (capture) {
+			testAudioSink = new ByteArrayAudioSink();
+			testAudioSink.setAudioFormat(audioConfig.getRecordingFormat());
+
+			testRecorder = createAudioRecorder();
+			testRecorder.setAudioSink(testAudioSink);
+			testRecorder.setAudioProcessingSettings(
+					audioConfig.getRecordingProcessingSettings());
+
+			startAudioExecutable(testRecorder);
+		}
+		else {
+			stopAudioExecutable(testRecorder);
+		}
+	}
+
+	private void playCaptureTest(boolean play) {
+		captureEnabled.set(!play);
+
+		if (play) {
+			if (isNull(audioPlayer)) {
+				audioPlayer = createAudioPlayer();
+			}
+
+			startAudioExecutable(audioPlayer);
+		}
+		else {
+			stopAudioExecutable(audioPlayer);
+
+			audioPlayer = null;
+		}
+	}
+
+	private void stopAudioCapture() {
+		if (nonNull(testRecorder) && testRecorder.started()) {
+			// This will update the view and the model.
+			testCapture.set(false);
+		}
+	}
+
+	private void startAudioExecutable(Executable executable) {
+		try {
+			executable.start();
+		}
+		catch (Exception e) {
+			logException(e, "Start audio executable failed");
+		}
+	}
+
+	private void stopAudioExecutable(Executable executable) {
+		if (executable.started() || executable.suspended()) {
+			try {
+				executable.stop();
+				executable.destroy();
+			}
+			catch (Exception e) {
+				logException(e, "Stop audio executable failed");
+			}
+		}
+	}
+
+	private AudioRecorder createAudioRecorder() {
+		String inputDeviceName = audioConfig.getCaptureDeviceName();
+		double volume = audioConfig.getMasterRecordingVolume();
+		Double devVolume = audioConfig.getRecordingVolume(inputDeviceName);
+
+		if (nonNull(devVolume)) {
+			volume = devVolume;
+		}
+
+		AudioRecorder recorder = audioSystemProvider.createAudioRecorder();
+		recorder.setAudioDeviceName(inputDeviceName);
+		recorder.setAudioVolume(volume);
+
+		return recorder;
+	}
+
+	private AudioPlayer createAudioPlayer() {
+		ByteArrayAudioSink sink = (ByteArrayAudioSink) testAudioSink;
+		ByteArrayInputStream inputStream = new ByteArrayInputStream(
+				sink.toByteArray());
+
+		ByteArrayAudioSource source = new ByteArrayAudioSource(inputStream,
+				audioConfig.getRecordingFormat());
+
+		AudioPlayer player = audioSystemProvider.createAudioPlayer();
+		player.setAudioDeviceName(audioConfig.getPlaybackDeviceName());
+		player.setAudioVolume(1.0);
+		player.setAudioSource(source);
+		player.addStateListener((oldState, newState) -> {
+			if (newState == ExecutableState.Stopped) {
+				testPlayback.set(false);
+			}
+		});
+
+		return player;
 	}
 }

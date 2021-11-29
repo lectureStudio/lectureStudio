@@ -44,6 +44,14 @@ public interface StartStreamView extends View {
 
 	void setAudioPlaybackDevices(AudioDevice[] playbackDevices);
 
+	void setAudioTestCaptureEnabled(BooleanProperty enable);
+
+	void setAudioTestPlaybackEnabled(BooleanProperty enable);
+
+	void setOnAudioTestCapture(BooleanProperty recordProperty);
+
+	void setOnAudioTestCapturePlayback(BooleanProperty playProperty);
+
 	void setCameraName(StringProperty cameraName);
 
 	void setCameraNames(String[] cameraNames);

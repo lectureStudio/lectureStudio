@@ -34,6 +34,7 @@
 }
 .media-track-controls > .zoom-slider {
 	-fx-padding: 0 0.3em;
+	-fx-pref-width: 10em;
 }
 .media-track-controls .undo-icon {
 	-fx-icon-content: "M380.931 512c56.863-103.016 66.444-260.153-156.931-254.912v126.912l-192-192 192-192v124.186c267.481-6.971 297.285 236.107 156.931 387.814z";

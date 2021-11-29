@@ -1,5 +1,5 @@
 .main-slides .left-tabs {
-	-fx-pref-width: 320;
+	-fx-pref-width: 26em;
 }
 .main-slides .left-tabs .content-pane > .title {
 	-fx-font-size: 1em;

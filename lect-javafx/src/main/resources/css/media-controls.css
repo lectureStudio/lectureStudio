@@ -31,6 +31,9 @@
 	-fx-background-color: -fx-color;
 	-fx-border-color: derive(-fx-outer-border, 50%);
 }
+.media-controls > .volume-controls > .volume-slider {
+	-fx-pref-width: 10em;
+}
 .media-controls > .media-buttons SvgIcon {
 	-fx-icon-content-width: 24;
 	-fx-icon-content-height: 24;
@@ -50,6 +53,7 @@
 	-fx-max-height: -button-size;
 }
 .media-controls > .volume-controls {
+	-fx-padding: 0 0 0 0.5em;
 	-fx-spacing: 0.5em;
 }
 

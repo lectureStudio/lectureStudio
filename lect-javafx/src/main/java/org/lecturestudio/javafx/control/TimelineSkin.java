@@ -86,7 +86,7 @@ public class TimelineSkin extends MediaTrackControlSkinBase {
 			ctx.setStroke(timeline.getTickColor());
 
 			if (s % secondStep == 0) {
-				time.setMillis(s * 1000);
+				time.setMillis(s * 1000L);
 
 				ctx.strokeLine(x, 0, x, 10);
 

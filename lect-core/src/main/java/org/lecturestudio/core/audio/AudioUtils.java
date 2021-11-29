@@ -18,15 +18,10 @@
 
 package org.lecturestudio.core.audio;
 
-import static java.util.Objects.isNull;
+import java.util.ArrayList;
+import java.util.List;
 
-import java.util.Arrays;
-
-import org.lecturestudio.core.audio.codec.AudioCodecLoader;
-import org.lecturestudio.core.audio.device.AudioInputDevice;
-import org.lecturestudio.core.audio.device.AudioOutputDevice;
-import org.lecturestudio.core.audio.system.AudioSystemLoader;
-import org.lecturestudio.core.audio.system.AudioSystemProvider;
+import org.lecturestudio.core.audio.AudioFormat.Encoding;
 
 /**
  * Audio-related utility methods.
@@ -35,165 +30,31 @@ import org.lecturestudio.core.audio.system.AudioSystemProvider;
  */
 public class AudioUtils {
 
-	/** the singleton instance of {@link AudioSystemLoader} */
-	private static final AudioSystemLoader LOADER = AudioSystemLoader.getInstance();
+	/** An array of all available sample rates to support. */
+	public static final int[] SUPPORTED_SAMPLE_RATES = new int[] {
+			8000, 11025, 12000, 16000, 22050, 24000, 32000, 44100, 48000, 96000
+	};
+
 
 	/**
-	 * Get default audio capture device of the {@link AudioSystemProvider} with the specified name.
+	 * Returns all supported {@code AudioFormat}s which can be used for audio
+	 * playback or recording.
 	 *
-	 * @param providerName The name of the {@link AudioSystemProvider}.
-	 * @return The default audio capture device of the {@link AudioSystemProvider}
-	 * or null if the{@link AudioSystemProvider} could not be found.
+	 * @return A list of all supported {@code AudioFormat}s.
 	 */
-	public static AudioInputDevice getDefaultAudioCaptureDevice(String providerName) {
-		AudioSystemProvider provider = LOADER.getProvider(providerName);
+	public static List<AudioFormat> getAudioFormats() {
+		List<AudioFormat> formats = new ArrayList<>();
 
-		return isNull(provider) ? null : provider.getDefaultInputDevice();
-	}
-
-	/**
-	 * Get default audio playback device of the {@link AudioSystemProvider} with the specified name.
-	 *
-	 * @param providerName The name of the {@link AudioSystemProvider}.
-	 * @return The default audio playback device of the {@link AudioSystemProvider}
-	 * or null if the{@link AudioSystemProvider} could not be found..
-	 */
-	public static AudioOutputDevice getDefaultAudioPlaybackDevice(String providerName) {
-		AudioSystemProvider provider = LOADER.getProvider(providerName);
-
-		return isNull(provider) ? null : provider.getDefaultOutputDevice();
-	}
-
-	/**
-	 * Get all available audio capture devices of the {@link AudioSystemProvider} with the specified name.
-	 *
-	 * @param providerName The name of the {@link AudioSystemProvider}.
-	 * @return All available audio capture devices of the {@link AudioSystemProvider}.
-	 */
-	public static AudioInputDevice[] getAudioCaptureDevices(String providerName) {
-		AudioSystemProvider provider = LOADER.getProvider(providerName);
-
-		return isNull(provider) ? new AudioInputDevice[0] : provider.getInputDevices();
-	}
-
-	/**
-	 * Get all available audio playback devices of the {@link AudioSystemProvider} with the specified name.
-	 *
-	 * @param providerName The name of the {@link AudioSystemProvider}.
-	 * @return All available audio playback devices of the {@link AudioSystemProvider}.
-	 */
-	public static AudioOutputDevice[] getAudioPlaybackDevices(String providerName) {
-		AudioSystemProvider provider = LOADER.getProvider(providerName);
-
-		return isNull(provider) ? new AudioOutputDevice[0] : provider.getOutputDevices();
-	}
-
-	/**
-	 * Checks if an available audio capture device of the {@link
-	 * AudioSystemProvider} with the {@code providerName} has the same name as
-	 * the specified {@code deviceName}.
-	 *
-	 * @param providerName The name of the {@link AudioSystemProvider}.
-	 * @param deviceName   The name of the device.
-	 *
-	 * @return {@code true} if an available audio capture device has the same
-	 * name as the specified {@code deviceName}, otherwise {@code false}.
-	 */
-	public static boolean hasCaptureDevice(String providerName, String deviceName) {
-		if (isNull(deviceName)) {
-			return false;
+		for (int sampleRate : SUPPORTED_SAMPLE_RATES) {
+			formats.add(new AudioFormat(Encoding.S16LE, sampleRate, 1));
 		}
 
-		return Arrays.stream(getAudioCaptureDevices(providerName))
-				.anyMatch(device -> device.getName().equals(deviceName));
+		return formats;
 	}
 
 	/**
-	 * Checks if an available audio playback device of the {@link
-	 * AudioSystemProvider} with the {@code providerName} has the same name as
-	 * the specified {@code deviceName}.
-	 *
-	 * @param providerName The name of the {@link AudioSystemProvider}.
-	 * @param deviceName   The name of the device.
-	 *
-	 * @return {@code true} if an available audio playback device has the same
-	 * name as the specified {@code deviceName}, otherwise {@code false}.
-	 */
-	public static boolean hasPlaybackDevice(String providerName, String deviceName) {
-		if (isNull(deviceName)) {
-			return false;
-		}
-
-		return Arrays.stream(getAudioPlaybackDevices(providerName))
-				.anyMatch(device -> device.getName().equals(deviceName));
-	}
-
-	/**
-	 * Get an {@link AudioInputDevice} with the specified device name that is registered
-	 * with the given audio system provider.
-	 *
-	 * @param providerName The audio system provider name.
-	 * @param deviceName   The audio capture device name.
-	 *
-	 * @return the retrieved {@link AudioInputDevice} or null if the capture device could not be found.
-	 */
-	public static AudioInputDevice getAudioInputDevice(String providerName, String deviceName) {
-		AudioSystemProvider provider = LOADER.getProvider(providerName);
-
-		if (isNull(provider)) {
-			throw new NullPointerException("Audio provider is not available: " + providerName);
-		}
-
-		AudioInputDevice inputDevice = provider.getInputDevice(deviceName);
-
-		if (isNull(inputDevice)) {
-			throw new NullPointerException("Audio device is not available: " + deviceName);
-		}
-
-		return inputDevice;
-	}
-
-	/**
-	 * Get an {@link AudioOutputDevice} with the specified device name that is
-	 * registered with the given audio system provider.
-	 *
-	 * @param providerName The audio system provider name.
-	 * @param deviceName   The audio playback device name.
-	 *
-	 * @return the retrieved {@link AudioOutputDevice} or null if the playback device could not be found.
-	 */
-	public static AudioOutputDevice getAudioOutputDevice(String providerName, String deviceName) {
-		AudioSystemProvider provider = LOADER.getProvider(providerName);
-
-		if (isNull(provider)) {
-			provider = LOADER.getProvider("Java Sound");
-		}
-
-		AudioOutputDevice outputDevice = provider.getOutputDevice(deviceName);
-
-		if (outputDevice == null) {
-			// Get next best device.
-			for (AudioOutputDevice device : provider.getOutputDevices()) {
-				if (device != null) {
-					return device;
-				}
-			}
-		}
-
-		return outputDevice;
-	}
-
-	/**
-	 * Retrieve all supported audio codecs by the system.
-	 *
-	 * @return an array of names of supported audio codecs.
-	 */
-	public static String[] getSupportedAudioCodecs() {
-		return AudioCodecLoader.getInstance().getProviderNames();
-	}
-
-	/**
-	 * Compute the number of bytes per second that the specified audio format will require.
+	 * Computes the number of bytes per second that the specified audio format
+	 * will require.
 	 *
 	 * @param audioFormat The audio format.
 	 *
@@ -205,7 +66,8 @@ public class AudioUtils {
 	}
 
 	/**
-	 * Pack two sequential bytes into a {@code short} value according to the specified endianness.
+	 * Pack two sequential bytes into a {@code short} value according to the
+	 * specified endianness.
 	 *
 	 * @param bytes     The bytes to pack, must of size 2.
 	 * @param bigEndian True to pack with big-endian order, false to pack with
@@ -238,15 +100,17 @@ public class AudioUtils {
 	}
 
 	/**
-	 * Convert the specified integer value to a normalized float value in the range of [0,1].
+	 * Convert the specified integer value to a normalized float value in the
+	 * range of [0,1].
 	 *
-	 * @param value The integer value to convert.
+	 * @param value     The integer value to convert.
 	 * @param frameSize The sample size in bytes.
-	 * @param signed True to respect the sign bit, false otherwise.
+	 * @param signed    True to respect the sign bit, false otherwise.
 	 *
 	 * @return a normalized float value.
 	 */
-	public static float getNormalizedSampleValue(int value, int frameSize, boolean signed) {
+	public static float getNormalizedSampleValue(int value, int frameSize,
+			boolean signed) {
 		float relValue;
 		int maxValue;
 

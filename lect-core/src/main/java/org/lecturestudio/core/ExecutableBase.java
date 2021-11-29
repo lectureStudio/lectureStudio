@@ -51,7 +51,7 @@ public abstract class ExecutableBase implements Executable {
 
 
 	/**
-	 * Add a ExecutableStateListener listener to this component.
+	 * Adds an {@code ExecutableStateListener} to this component.
 	 *
 	 * @param listener The listener to add.
 	 */
@@ -60,7 +60,7 @@ public abstract class ExecutableBase implements Executable {
 	}
 
 	/**
-	 * Remove a ExecutableStateListener listener from this component.
+	 * Removes an {@code ExecutableStateListener} from this component.
 	 *
 	 * @param listener The listener to remove.
 	 */

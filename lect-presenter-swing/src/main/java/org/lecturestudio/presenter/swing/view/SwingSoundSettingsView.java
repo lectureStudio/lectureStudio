@@ -18,6 +18,10 @@
 
 package org.lecturestudio.presenter.swing.view;
 
+import java.util.List;
+import java.util.ResourceBundle;
+
+import javax.inject.Inject;
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
@@ -27,27 +31,34 @@ import javax.swing.JToggleButton;
 import javax.swing.event.AncestorEvent;
 import javax.swing.event.AncestorListener;
 
-import org.lecturestudio.core.audio.device.AudioInputDevice;
-import org.lecturestudio.core.audio.device.AudioOutputDevice;
+import org.lecturestudio.core.audio.AudioProcessingSettings.NoiseSuppressionLevel;
+import org.lecturestudio.core.audio.device.AudioDevice;
 import org.lecturestudio.core.beans.BooleanProperty;
 import org.lecturestudio.core.beans.FloatProperty;
+import org.lecturestudio.core.beans.ObjectProperty;
 import org.lecturestudio.core.beans.StringProperty;
 import org.lecturestudio.core.converter.FloatIntegerConverter;
 import org.lecturestudio.core.view.Action;
 import org.lecturestudio.core.view.ConsumerAction;
 import org.lecturestudio.presenter.api.presenter.SoundSettingsPresenter;
 import org.lecturestudio.presenter.api.view.SoundSettingsView;
+import org.lecturestudio.presenter.swing.combobox.NoiseSuppressionLevelRenderer;
 import org.lecturestudio.swing.beans.ConvertibleNumberProperty;
 import org.lecturestudio.swing.components.LevelMeter;
 import org.lecturestudio.swing.util.SwingUtils;
 import org.lecturestudio.swing.view.SwingView;
+import org.lecturestudio.swing.view.ViewPostConstruct;
 
 @SwingView(name = "sound-settings", presenter = SoundSettingsPresenter.class)
 public class SwingSoundSettingsView extends JPanel implements SoundSettingsView {
 
+	private final ResourceBundle resources;
+
 	private JComboBox<String> audioCaptureDevicesCombo;
 
 	private JComboBox<String> audioPlaybackDevicesCombo;
+
+	private JComboBox<NoiseSuppressionLevel> noiseSuppressionCombo;
 
 	private LevelMeter levelMeter;
 
@@ -66,10 +77,11 @@ public class SwingSoundSettingsView extends JPanel implements SoundSettingsView 
 	private ConsumerAction<Boolean> viewVisibleAction;
 
 
-	SwingSoundSettingsView() {
+	@Inject
+	SwingSoundSettingsView(ResourceBundle resources) {
 		super();
 
-		initialize();
+		this.resources = resources;
 	}
 
 	@Override
@@ -87,10 +99,10 @@ public class SwingSoundSettingsView extends JPanel implements SoundSettingsView 
 	}
 
 	@Override
-	public void setAudioCaptureDevices(AudioInputDevice[] captureDevices) {
+	public void setAudioCaptureDevices(AudioDevice[] captureDevices) {
 		DefaultComboBoxModel<String> model = new DefaultComboBoxModel<>();
 
-		for (AudioInputDevice device : captureDevices) {
+		for (AudioDevice device : captureDevices) {
 			model.addElement(device.getName());
 		}
 
@@ -107,15 +119,27 @@ public class SwingSoundSettingsView extends JPanel implements SoundSettingsView 
 	}
 
 	@Override
-	public void setAudioPlaybackDevices(AudioOutputDevice[] playbackDevices) {
+	public void setAudioPlaybackDevices(AudioDevice[] playbackDevices) {
 		DefaultComboBoxModel<String> model = new DefaultComboBoxModel<>();
 
-		for (AudioOutputDevice device : playbackDevices) {
+		for (AudioDevice device : playbackDevices) {
 			model.addElement(device.getName());
 		}
 
 		SwingUtils.invoke(() -> {
 			audioPlaybackDevicesCombo.setModel(model);
+		});
+	}
+
+	@Override
+	public void setAudioCaptureNoiseSuppressionLevel(ObjectProperty<NoiseSuppressionLevel> level) {
+		SwingUtils.invoke(() -> {
+			DefaultComboBoxModel<NoiseSuppressionLevel> model = new DefaultComboBoxModel<>();
+			model.addAll(List.of(NoiseSuppressionLevel.values()));
+
+			noiseSuppressionCombo.setModel(model);
+
+			SwingUtils.bindBidirectional(noiseSuppressionCombo, level);
 		});
 	}
 
@@ -189,7 +213,11 @@ public class SwingSoundSettingsView extends JPanel implements SoundSettingsView 
 		SwingUtils.bindAction(resetButton, action);
 	}
 
+	@ViewPostConstruct
 	private void initialize() {
+		noiseSuppressionCombo.setRenderer(new NoiseSuppressionLevelRenderer(
+				resources, "sound.settings.noise.suppression."));
+
 		addAncestorListener(new AncestorListener() {
 
 			@Override

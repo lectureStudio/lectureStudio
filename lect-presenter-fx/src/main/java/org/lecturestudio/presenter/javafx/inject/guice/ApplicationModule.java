@@ -38,10 +38,10 @@ import org.lecturestudio.core.app.LocaleProvider;
 import org.lecturestudio.core.app.configuration.Configuration;
 import org.lecturestudio.core.app.configuration.ConfigurationService;
 import org.lecturestudio.core.app.dictionary.Dictionary;
+import org.lecturestudio.core.audio.AudioSystemProvider;
 import org.lecturestudio.core.audio.bus.AudioBus;
 import org.lecturestudio.core.bus.ApplicationBus;
 import org.lecturestudio.core.bus.EventBus;
-import org.lecturestudio.core.camera.CameraDriver;
 import org.lecturestudio.core.controller.PresentationController;
 import org.lecturestudio.core.controller.RenderController;
 import org.lecturestudio.core.controller.ToolController;
@@ -51,7 +51,6 @@ import org.lecturestudio.core.util.AggregateBundle;
 import org.lecturestudio.core.util.DirUtils;
 import org.lecturestudio.core.view.PresentationViewFactory;
 import org.lecturestudio.javafx.service.FxDisplayService;
-import org.lecturestudio.media.avdev.AVdevDriver;
 import org.lecturestudio.presenter.api.config.DefaultConfiguration;
 import org.lecturestudio.presenter.api.config.PresenterConfigService;
 import org.lecturestudio.presenter.api.config.PresenterConfiguration;
@@ -72,15 +71,16 @@ public class ApplicationModule extends AbstractModule {
 
 	@Override
 	protected void configure() {
-		bind(CameraDriver.class).to(AVdevDriver.class);
 		bind(ToolController.class).asEagerSingleton();
 	}
 
 	@Provides
 	@Singleton
-	FileLectureRecorder createFileLectureRecorder(DocumentService documentService, ApplicationContext context) throws IOException {
-		return new FileLectureRecorder(
-				documentService,
+	FileLectureRecorder createFileLectureRecorder(
+			AudioSystemProvider audioSystemProvider,
+			DocumentService documentService, ApplicationContext context)
+			throws IOException {
+		return new FileLectureRecorder(audioSystemProvider, documentService,
 				context.getConfiguration().getAudioConfig(),
 				((PresenterContext) context).getRecordingDirectory());
 	}

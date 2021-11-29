@@ -27,9 +27,7 @@ import org.lecturestudio.core.ExecutableException;
 import org.lecturestudio.core.ExecutableState;
 import org.lecturestudio.core.audio.AudioFormat;
 import org.lecturestudio.core.audio.AudioUtils;
-import org.lecturestudio.core.audio.device.AudioInputDevice;
-import org.lecturestudio.media.avdev.AVdevAudioInputDevice;
-import org.lecturestudio.media.avdev.AvdevAudioRecorder;
+import org.lecturestudio.core.audio.AudioRecorder;
 import org.lecturestudio.core.audio.RingBuffer;
 import org.lecturestudio.core.audio.bus.AudioBus;
 import org.lecturestudio.core.audio.bus.event.AudioVolumeEvent;
@@ -40,6 +38,7 @@ import org.lecturestudio.core.audio.codec.AudioEncoderListener;
 import org.lecturestudio.core.net.Sync;
 import org.lecturestudio.core.net.rtp.RtpPacket;
 import org.lecturestudio.core.net.rtp.RtpPacketizer;
+import org.lecturestudio.media.webrtc.WebRtcAudioRecorder;
 import org.lecturestudio.media.config.AudioStreamConfig;
 import org.lecturestudio.web.api.connector.client.ClientConnector;
 
@@ -68,7 +67,7 @@ public class RtpAudioServer extends ExecutableBase {
 	/** The audio reader reads recorded audio from buffer and calls the encoder. */
 	private AudioReader audioReader;
 	
-	private AvdevAudioRecorder audioRecorder;
+	private AudioRecorder audioRecorder;
 
 	private final AudioStreamConfig audioStreamConfig;
 
@@ -110,18 +109,13 @@ public class RtpAudioServer extends ExecutableBase {
 
 		AudioCodecProvider codecProvider = AudioCodecLoader.getInstance().getProvider(audioStreamConfig.codec);
 		AudioFormat audioFormat = audioStreamConfig.format;
-		AudioInputDevice inputDevice = AudioUtils.getAudioInputDevice(audioStreamConfig.system, audioStreamConfig.captureDeviceName);
-
-		if (inputDevice == null) {
-			throw new NullPointerException("Could not get audio capture device");
-		}
 
 		ringBuffer = new RingBuffer(1024 * 1024);
 
-		audioRecorder = new AvdevAudioRecorder((AVdevAudioInputDevice) inputDevice);
-		audioRecorder.setAudioFormat(audioFormat);
+		audioRecorder = new WebRtcAudioRecorder();
+		audioRecorder.setAudioDeviceName(audioStreamConfig.captureDeviceName);
 		audioRecorder.setAudioVolume(1);
-		audioRecorder.setSink((data, length) -> ringBuffer.write(data, 0, length));
+		audioRecorder.setAudioSink(ringBuffer);
 
 		encoder = codecProvider.getAudioEncoder();
 		encoder.addListener(new EncoderListener(codecProvider.getRtpPacketizer()));

@@ -32,6 +32,7 @@ import org.lecturestudio.core.ExecutableState;
 import org.lecturestudio.core.ExecutableStateListener;
 import org.lecturestudio.core.app.ApplicationContext;
 import org.lecturestudio.core.app.configuration.AudioConfiguration;
+import org.lecturestudio.core.audio.AudioSystemProvider;
 import org.lecturestudio.core.audio.filter.AudioFilter;
 import org.lecturestudio.core.model.Interval;
 import org.lecturestudio.core.model.Page;
@@ -44,6 +45,8 @@ import org.lecturestudio.media.playback.RecordingPlayer;
 public class RecordingPlaybackService extends ExecutableBase {
 
 	private final static Logger LOG = LogManager.getLogger(RecordingPlaybackService.class);
+
+	private final AudioSystemProvider audioSystemProvider;
 
 	private final EditorContext context;
 
@@ -62,7 +65,8 @@ public class RecordingPlaybackService extends ExecutableBase {
 
 
 	@Inject
-	RecordingPlaybackService(ApplicationContext context) {
+	RecordingPlaybackService(ApplicationContext context, AudioSystemProvider audioSystemProvider) {
+		this.audioSystemProvider = audioSystemProvider;
 		this.context = (EditorContext) context;
 		this.context.primarySelectionProperty().addListener((o, oldValue, newValue) -> {
 			if (initialized() || suspended()) {
@@ -93,7 +97,9 @@ public class RecordingPlaybackService extends ExecutableBase {
 			closeRecording();
 		}
 
-		recordingPlayer = new RecordingPlayer(context, context.getConfiguration().getAudioConfig());
+		recordingPlayer = new RecordingPlayer(context,
+				context.getConfiguration().getAudioConfig(),
+				audioSystemProvider);
 		recordingPlayer.setRecording(recording);
 
 		try {

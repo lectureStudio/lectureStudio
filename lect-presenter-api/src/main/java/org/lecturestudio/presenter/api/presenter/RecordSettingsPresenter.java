@@ -18,19 +18,15 @@
 
 package org.lecturestudio.presenter.api.presenter;
 
-import static java.util.Objects.isNull;
 import static java.util.Objects.nonNull;
 
 import java.io.File;
-import java.util.List;
 
 import javax.inject.Inject;
 
 import org.lecturestudio.core.app.ApplicationContext;
 import org.lecturestudio.core.app.configuration.AudioConfiguration;
-import org.lecturestudio.core.audio.AudioFormat;
 import org.lecturestudio.core.audio.AudioUtils;
-import org.lecturestudio.core.audio.device.AudioInputDevice;
 import org.lecturestudio.core.presenter.Presenter;
 import org.lecturestudio.core.view.DirectoryChooserView;
 import org.lecturestudio.core.view.ViewContextFactory;
@@ -57,43 +53,15 @@ public class RecordSettingsPresenter extends Presenter<RecordSettingsView> {
 	public void initialize() {
 		PresenterConfiguration config = (PresenterConfiguration) context.getConfiguration();
 
-		String soundSystemName = audioConfig.getSoundSystem();
-		String inputDeviceName = audioConfig.getCaptureDeviceName();
-
-		loadAudioFormats(soundSystemName, inputDeviceName);
-
 		view.setNotifyToRecord(config.notifyToRecordProperty());
 		view.setConfirmStopRecording(config.confirmStopRecordingProperty());
 		view.setPageRecordingTimeout(config.pageRecordingTimeoutProperty());
+		view.setRecordingAudioFormats(AudioUtils.getAudioFormats());
 		view.setRecordingAudioFormat(audioConfig.recordingFormatProperty());
 		view.setRecordingPath(audioConfig.recordingPathProperty());
 		view.setOnSelectRecordingPath(this::selectRecordingPath);
 		view.setOnReset(this::reset);
 
-		audioConfig.captureDeviceNameProperty().addListener((observable, oldDevice, newDevice) -> {
-			loadAudioFormats(soundSystemName, newDevice);
-		});
-	}
-
-	private void loadAudioFormats(String providerName, String deviceName) {
-		if (!AudioUtils.hasCaptureDevice(providerName, deviceName)) {
-			// Select default device.
-			AudioInputDevice[] devices = AudioUtils.getAudioCaptureDevices(providerName);
-
-			deviceName = (devices.length > 0) ? devices[0].getName() : null;
-		}
-		if (isNull(deviceName)) {
-			view.setRecordingAudioFormats(List.of());
-			return;
-		}
-
-		AudioInputDevice captureDevice = AudioUtils.getAudioInputDevice(providerName, deviceName);
-
-		if (nonNull(captureDevice)) {
-			List<AudioFormat> formats = captureDevice.getSupportedFormats();
-
-			view.setRecordingAudioFormats(formats);
-		}
 	}
 
 	private void selectRecordingPath() {

@@ -21,6 +21,7 @@ package org.lecturestudio.core.audio.source;
 import java.io.IOException;
 
 import org.lecturestudio.core.audio.AudioFormat;
+import org.lecturestudio.core.audio.AudioUtils;
 import org.lecturestudio.core.io.RandomAccessAudioStream;
 import org.lecturestudio.core.model.Interval;
 
@@ -48,6 +49,17 @@ public class RandomAccessAudioSource implements AudioSource {
 	@Override
 	public long skip(long n) throws IOException {
 		return stream.skip(n);
+	}
+
+	@Override
+	public int seekMs(int timeMs) throws IOException {
+		float bytesPerSecond = AudioUtils.getBytesPerSecond(getAudioFormat());
+		int skipBytes = Math.round(bytesPerSecond * timeMs / 1000F);
+
+		reset();
+		skip(skipBytes);
+
+		return skipBytes;
 	}
 
 	@Override

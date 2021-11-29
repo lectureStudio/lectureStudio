@@ -36,6 +36,7 @@ import org.lecturestudio.core.app.AppDataLocator;
 import org.lecturestudio.core.app.ApplicationContext;
 import org.lecturestudio.core.app.configuration.Configuration;
 import org.lecturestudio.core.app.dictionary.Dictionary;
+import org.lecturestudio.core.audio.AudioSystemProvider;
 import org.lecturestudio.core.bus.EventBus;
 import org.lecturestudio.core.model.Document;
 import org.lecturestudio.core.presenter.NotificationPresenter;
@@ -53,12 +54,15 @@ import org.lecturestudio.presenter.api.context.PresenterContext;
 
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
+import org.lecturestudio.presenter.audio.DummyAudioSystemProvider;
 
 abstract class PresenterTest {
 
 	Path testPath;
 
 	PresenterContext context;
+
+	AudioSystemProvider audioSystemProvider;
 
 	ViewContextFactory viewFactory;
 
@@ -122,6 +126,8 @@ abstract class PresenterTest {
 		context.getDocumentService().selectDocument(document);
 
 		viewFactory = new ViewContextMockFactory();
+
+		audioSystemProvider = new DummyAudioSystemProvider();
 	}
 
 	@AfterEach

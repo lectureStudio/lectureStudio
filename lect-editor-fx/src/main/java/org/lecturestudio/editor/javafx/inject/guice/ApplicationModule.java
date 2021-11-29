@@ -36,6 +36,7 @@ import org.lecturestudio.core.app.configuration.Configuration;
 import org.lecturestudio.core.app.configuration.ConfigurationService;
 import org.lecturestudio.core.app.configuration.JsonConfigurationService;
 import org.lecturestudio.core.app.dictionary.Dictionary;
+import org.lecturestudio.core.audio.AudioSystemProvider;
 import org.lecturestudio.core.audio.bus.AudioBus;
 import org.lecturestudio.core.bus.ApplicationBus;
 import org.lecturestudio.core.bus.EventBus;
@@ -49,6 +50,7 @@ import org.lecturestudio.core.util.DirUtils;
 import org.lecturestudio.editor.api.config.DefaultConfiguration;
 import org.lecturestudio.editor.api.config.EditorConfiguration;
 import org.lecturestudio.editor.api.context.EditorContext;
+import org.lecturestudio.media.webrtc.WebRtcAudioSystemProvider;
 import org.lecturestudio.swing.DefaultRenderContext;
 
 import org.apache.logging.log4j.LogManager;
@@ -66,6 +68,7 @@ public class ApplicationModule extends AbstractModule {
 	@Override
 	protected void configure() {
 		bind(ToolController.class).asEagerSingleton();
+		bind(AudioSystemProvider.class).to(WebRtcAudioSystemProvider.class);
 	}
 
 	@Provides

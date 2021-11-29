@@ -18,6 +18,7 @@
 
 package org.lecturestudio.media.net.client;
 
+import java.io.IOException;
 import java.util.List;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
@@ -29,22 +30,19 @@ import org.lecturestudio.core.ExecutableBase;
 import org.lecturestudio.core.ExecutableException;
 import org.lecturestudio.core.app.configuration.AudioConfiguration;
 import org.lecturestudio.core.audio.AudioFormat;
-import org.lecturestudio.core.audio.AudioPlayerExt;
-import org.lecturestudio.core.audio.AudioUtils;
-import org.lecturestudio.core.audio.Player;
 import org.lecturestudio.core.audio.codec.AudioCodecProvider;
 import org.lecturestudio.core.audio.codec.AudioDecoder;
 import org.lecturestudio.core.audio.codec.AudioDecoderListener;
-import org.lecturestudio.core.audio.device.AudioOutputDevice;
 import org.lecturestudio.core.audio.io.AudioPlaybackBuffer;
+import org.lecturestudio.core.audio.source.AudioSource;
 import org.lecturestudio.core.io.PlaybackData;
 import org.lecturestudio.core.net.MediaType;
 import org.lecturestudio.core.net.rtp.RtpDepacketizer;
 import org.lecturestudio.core.net.rtp.RtpPacket;
 import org.lecturestudio.core.net.rtp.RtpReceiveBuffer;
 import org.lecturestudio.core.net.rtp.RtpReceiveBufferNode;
-import org.lecturestudio.media.avdev.AVdevAudioOutputDevice;
-import org.lecturestudio.media.avdev.AvdevAudioPlayerExt;
+import org.lecturestudio.core.audio.AudioPlayer;
+import org.lecturestudio.media.webrtc.WebRtcAudioPlayer;
 
 /**
  * The {@code RtpAudioClient} receives the audio stream from a server. This
@@ -73,7 +71,7 @@ public class RtpAudioClient extends ExecutableBase implements MediaStreamClient<
 	private final RtpDepacketizer depacketizer;
 
 	/** The audio player. */
-	private Player audioPlayer;
+	private AudioPlayer audioPlayer;
 
 	/** The receive buffer to re-order packets. */
 	private RtpReceiveBuffer receiveBuffer;
@@ -101,7 +99,7 @@ public class RtpAudioClient extends ExecutableBase implements MediaStreamClient<
 			return;
 		}
 		
-		audioPlayer.setVolume(volume);
+		audioPlayer.setAudioVolume(volume);
 	}
 	
 	@Override
@@ -160,26 +158,54 @@ public class RtpAudioClient extends ExecutableBase implements MediaStreamClient<
 		playbackBuffer = null;
 	}
 
-	private void initAudioPlayer() throws ExecutableException {
-		String providerName = audioConfig.getSoundSystem();
+	private void initAudioPlayer() {
 		String outputDeviceName = audioConfig.getPlaybackDeviceName();
-
-		AudioOutputDevice outputDevice = AudioUtils.getAudioOutputDevice(providerName, outputDeviceName);
 
 		playbackBuffer = new AudioPlaybackBuffer();
 		playbackBuffer.setAudioFormat(audioFormat);
-		
-		try {
-			if (providerName.equals("AVdev")) {
-				audioPlayer = new AvdevAudioPlayerExt((AVdevAudioOutputDevice) outputDevice, playbackBuffer);
+
+		audioPlayer = new WebRtcAudioPlayer();
+		audioPlayer.setAudioSource(new AudioSource() {
+
+			@Override
+			public int read(byte[] data, int offset, int length)
+					throws IOException {
+				return 0;
 			}
-			else {
-				audioPlayer = new AudioPlayerExt(outputDevice, playbackBuffer);
+
+			@Override
+			public void close() throws IOException {
+
 			}
-		}
-		catch (Exception e) {
-			throw new ExecutableException(e);
-		}
+
+			@Override
+			public void reset() throws IOException {
+				playbackBuffer.reset();
+			}
+
+			@Override
+			public long skip(long n) throws IOException {
+				return 0;
+			}
+
+			@Override
+			public int seekMs(int timeMs) throws IOException {
+				playbackBuffer.skip(timeMs);
+				return timeMs;
+			}
+
+			@Override
+			public long getInputSize() throws IOException {
+				return 0;
+			}
+
+			@Override
+			public AudioFormat getAudioFormat() {
+				return playbackBuffer.getAudioFormat();
+			}
+		});
+		audioPlayer.setAudioVolume(1.0);
+		audioPlayer.setAudioDeviceName(outputDeviceName);
 	}
 
 

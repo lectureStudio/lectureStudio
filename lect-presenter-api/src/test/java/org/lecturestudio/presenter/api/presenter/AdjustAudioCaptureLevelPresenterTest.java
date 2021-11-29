@@ -42,7 +42,6 @@ class AdjustAudioCaptureLevelPresenterTest extends PresenterTest {
 	void setup() {
 		AudioConfiguration audioConfig = context.getConfiguration().getAudioConfig();
 		audioConfig.setCaptureDeviceName("dummy");
-		audioConfig.setSoundSystem("dummy");
 
 		view = new AdjustAudioCaptureLevelMockView();
 

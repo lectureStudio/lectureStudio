@@ -34,8 +34,7 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JToggleButton;
 
-import org.lecturestudio.core.audio.device.AudioInputDevice;
-import org.lecturestudio.core.audio.device.AudioOutputDevice;
+import org.lecturestudio.core.audio.device.AudioDevice;
 import org.lecturestudio.core.beans.BooleanProperty;
 import org.lecturestudio.core.beans.ObjectProperty;
 import org.lecturestudio.core.beans.StringProperty;
@@ -106,10 +105,10 @@ public class SwingStartStreamView extends JPanel implements StartStreamView {
 	}
 
 	@Override
-	public void setAudioCaptureDevices(AudioInputDevice[] captureDevices) {
+	public void setAudioCaptureDevices(AudioDevice[] captureDevices) {
 		DefaultComboBoxModel<String> model = new DefaultComboBoxModel<>();
 
-		for (AudioInputDevice device : captureDevices) {
+		for (AudioDevice device : captureDevices) {
 			model.addElement(device.getName());
 		}
 
@@ -127,10 +126,10 @@ public class SwingStartStreamView extends JPanel implements StartStreamView {
 	}
 
 	@Override
-	public void setAudioPlaybackDevices(AudioOutputDevice[] playbackDevices) {
+	public void setAudioPlaybackDevices(AudioDevice[] playbackDevices) {
 		DefaultComboBoxModel<String> model = new DefaultComboBoxModel<>();
 
-		for (AudioOutputDevice device : playbackDevices) {
+		for (AudioDevice device : playbackDevices) {
 			model.addElement(device.getName());
 		}
 

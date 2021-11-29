@@ -22,6 +22,7 @@ import java.io.IOException;
 import java.io.InputStream;
 
 import org.lecturestudio.core.audio.AudioFormat;
+import org.lecturestudio.core.audio.AudioUtils;
 
 /**
  * Audio input stream implementation of {@link AudioSource}.
@@ -77,6 +78,17 @@ public class AudioInputStreamSource implements AudioSource {
 	@Override
 	public long skip(long n) throws IOException {
 		return audioStream.skip(n);
+	}
+
+	@Override
+	public int seekMs(int timeMs) throws IOException {
+		float bytesPerSecond = AudioUtils.getBytesPerSecond(getAudioFormat());
+		int skipBytes = Math.round(bytesPerSecond * timeMs / 1000F);
+
+		reset();
+		skip(skipBytes);
+
+		return skipBytes;
 	}
 
 	@Override

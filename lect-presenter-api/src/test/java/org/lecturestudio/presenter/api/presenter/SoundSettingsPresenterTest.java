@@ -22,10 +22,11 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 import org.lecturestudio.core.app.configuration.AudioConfiguration;
-import org.lecturestudio.core.audio.device.AudioInputDevice;
-import org.lecturestudio.core.audio.device.AudioOutputDevice;
+import org.lecturestudio.core.audio.AudioProcessingSettings.NoiseSuppressionLevel;
+import org.lecturestudio.core.audio.device.AudioDevice;
 import org.lecturestudio.core.beans.BooleanProperty;
 import org.lecturestudio.core.beans.FloatProperty;
+import org.lecturestudio.core.beans.ObjectProperty;
 import org.lecturestudio.core.beans.StringProperty;
 import org.lecturestudio.core.view.Action;
 import org.lecturestudio.core.view.ConsumerAction;
@@ -44,11 +45,10 @@ class SoundSettingsPresenterTest extends PresenterTest {
 	void setup() {
 		AudioConfiguration config = context.getConfiguration().getAudioConfig();
 		config.setCaptureDeviceName("dummy");
-		config.setSoundSystem("dummy");
 
 		view = new SoundSettingsMockView();
 
-		SoundSettingsPresenter presenter = new SoundSettingsPresenter(context, view);
+		SoundSettingsPresenter presenter = new SoundSettingsPresenter(context, view, audioSystemProvider);
 		presenter.initialize();
 	}
 
@@ -59,7 +59,6 @@ class SoundSettingsPresenterTest extends PresenterTest {
 		AudioConfiguration config = context.getConfiguration().getAudioConfig();
 		AudioConfiguration defaultConfig = new DefaultConfiguration().getAudioConfig();
 
-		assertEquals(defaultConfig.getSoundSystem(), config.getSoundSystem());
 		assertEquals(defaultConfig.getCaptureDeviceName(), config.getCaptureDeviceName());
 		assertEquals(defaultConfig.getDefaultRecordingVolume(), config.getDefaultRecordingVolume());
 		assertEquals(defaultConfig.getRecordingVolumes(), config.getRecordingVolumes());
@@ -83,7 +82,7 @@ class SoundSettingsPresenterTest extends PresenterTest {
 		}
 
 		@Override
-		public void setAudioCaptureDevices(AudioInputDevice[] captureDevices) {
+		public void setAudioCaptureDevices(AudioDevice[] captureDevices) {
 
 		}
 
@@ -93,8 +92,13 @@ class SoundSettingsPresenterTest extends PresenterTest {
 		}
 
 		@Override
-		public void setAudioPlaybackDevices(
-				AudioOutputDevice[] playbackDevices) {
+		public void setAudioPlaybackDevices(AudioDevice[] playbackDevices) {
+
+		}
+
+		@Override
+		public void setAudioCaptureNoiseSuppressionLevel(
+				ObjectProperty<NoiseSuppressionLevel> level) {
 
 		}
 

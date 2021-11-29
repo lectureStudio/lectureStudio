@@ -71,6 +71,16 @@ public interface AudioSource {
 	long skip(long n) throws IOException;
 
 	/**
+	 * Jump to the specified time position in the audio playback stream.
+	 *
+	 * @param timeMs The absolute time in milliseconds to jump to.
+	 *
+	 * @throws IOException If the playback stream failed to read the start of
+	 *                     the specified position.
+	 */
+	int seekMs(int timeMs) throws IOException;
+
+	/**
 	 * Get the number of bytes the audio source has available to read.
 	 *
 	 * @return the available number of bytes of the source.

@@ -195,7 +195,6 @@ public class ChannelStreamService extends ExecutableBase {
 		audioStreamConfig.codec = config.getStreamConfig().getAudioCodec();
 		audioStreamConfig.format = config.getStreamConfig().getAudioFormat();
 		audioStreamConfig.captureDeviceName = config.getAudioConfig().getCaptureDeviceName();
-		audioStreamConfig.system = config.getAudioConfig().getSoundSystem();
 
 		return audioStreamConfig;
 	}

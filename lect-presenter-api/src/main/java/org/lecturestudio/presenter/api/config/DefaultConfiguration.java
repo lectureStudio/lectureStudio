@@ -25,6 +25,8 @@ import java.util.Locale;
 import org.lecturestudio.broadcast.config.BroadcastProfile;
 import org.lecturestudio.core.app.Theme;
 import org.lecturestudio.core.audio.AudioFormat;
+import org.lecturestudio.core.audio.AudioProcessingSettings;
+import org.lecturestudio.core.audio.AudioProcessingSettings.NoiseSuppressionLevel;
 import org.lecturestudio.core.geometry.Dimension2D;
 import org.lecturestudio.core.geometry.Position;
 import org.lecturestudio.core.graphics.Color;
@@ -122,12 +124,17 @@ public class DefaultConfiguration extends PresenterConfiguration {
 		getNetworkConfig().getBroadcastProfiles().add(localProfile);
 		getNetworkConfig().getBroadcastProfiles().add(etitProfile);
 
+		AudioProcessingSettings processingSettings = new AudioProcessingSettings();
+		processingSettings.setHighpassFilterEnabled(true);
+		processingSettings.setNoiseSuppressionEnabled(true);
+		processingSettings.setNoiseSuppressionLevel(NoiseSuppressionLevel.MODERATE);
+
 		getAudioConfig().setRecordingFormat(new AudioFormat(AudioFormat.Encoding.S16LE, 44100, 1));
-		getAudioConfig().setSoundSystem("AVdev");
 		getAudioConfig().setRecordingPath(System.getProperty("user.home"));
+		getAudioConfig().setRecordingProcessingSettings(processingSettings);
 		getAudioConfig().setDefaultRecordingVolume(1.0f);
 		getAudioConfig().setMasterRecordingVolume(1.0f);
-		
+
 		getStreamConfig().setAudioCodec("OPUS");
 		getStreamConfig().setAudioFormat(new AudioFormat(AudioFormat.Encoding.S16LE, 24000, 1));
 		getStreamConfig().getCameraCodecConfig().setBitRate(200);

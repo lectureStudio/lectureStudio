@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<fx:root styleClass="sound-settings" type="GridPane" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1">
+	<columnConstraints>
+		<ColumnConstraints/>
+		<ColumnConstraints/>
+	</columnConstraints>
+	<rowConstraints>
+		<RowConstraints/>
+		<RowConstraints/>
+		<RowConstraints vgrow="ALWAYS"/>
+	</rowConstraints>
+
+	<Label text="%sound.settings.playback.device" />
+	<ComboBox fx:id="playbackDeviceCombo" GridPane.rowIndex="1" GridPane.hgrow="ALWAYS" />
+
+	<HBox alignment="BOTTOM_RIGHT" spacing="5" GridPane.columnSpan="2" GridPane.rowIndex="2">
+		<Button fx:id="resetButton" text="%button.reset"/>
+		<Button fx:id="closeButton" text="%button.close"/>
+	</HBox>
+</fx:root>

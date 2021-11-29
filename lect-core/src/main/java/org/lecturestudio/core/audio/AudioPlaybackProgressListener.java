@@ -21,8 +21,8 @@ package org.lecturestudio.core.audio;
 import org.lecturestudio.core.model.Time;
 
 /**
- * The {@link AudioPlaybackProgressListener} is notified each time an audio player has
- * processed and pushed audio samples to a audio playback device.
+ * The {@link AudioPlaybackProgressListener} is notified each time an audio
+ * player has processed and pushed audio samples to a audio playback device.
  *
  * @author Alex Andres
  */
@@ -30,11 +30,11 @@ import org.lecturestudio.core.model.Time;
 public interface AudioPlaybackProgressListener {
 
 	/**
-	 * Called when progress of the current playing audio changes.
+	 * Called when progress of the playing audio changes.
 	 *
 	 * @param progressMs The current progress in milliseconds.
 	 * @param durationMs The total duration of audio in milliseconds.
 	 */
 	void onAudioProgress(Time progressMs, Time durationMs);
-	
+
 }

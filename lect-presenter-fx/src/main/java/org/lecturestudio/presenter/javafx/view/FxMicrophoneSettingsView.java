@@ -30,10 +30,11 @@ import javafx.scene.control.ComboBox;
 import javafx.scene.control.Hyperlink;
 import javafx.scene.layout.GridPane;
 
-import org.lecturestudio.core.audio.device.AudioInputDevice;
-import org.lecturestudio.core.audio.device.AudioOutputDevice;
+import org.lecturestudio.core.audio.AudioProcessingSettings.NoiseSuppressionLevel;
+import org.lecturestudio.core.audio.device.AudioDevice;
 import org.lecturestudio.core.beans.BooleanProperty;
 import org.lecturestudio.core.beans.FloatProperty;
+import org.lecturestudio.core.beans.ObjectProperty;
 import org.lecturestudio.core.beans.StringProperty;
 import org.lecturestudio.core.view.Action;
 import org.lecturestudio.core.view.ConsumerAction;
@@ -81,12 +82,12 @@ public class FxMicrophoneSettingsView extends GridPane implements
 	}
 
 	@Override
-	public void setAudioCaptureDevices(AudioInputDevice[] captureDevices) {
+	public void setAudioCaptureDevices(AudioDevice[] captureDevices) {
 		FxUtils.invoke(() -> {
 			ObservableList<String> deviceList = audioCaptureDevicesCombo.getItems();
 			deviceList.clear();
 
-			for (AudioInputDevice device : captureDevices) {
+			for (AudioDevice device : captureDevices) {
 				deviceList.add(device.getName());
 			}
 		});
@@ -98,7 +99,13 @@ public class FxMicrophoneSettingsView extends GridPane implements
 	}
 
 	@Override
-	public void setAudioPlaybackDevices(AudioOutputDevice[] playbackDevices) {
+	public void setAudioPlaybackDevices(AudioDevice[] playbackDevices) {
+
+	}
+
+	@Override
+	public void setAudioCaptureNoiseSuppressionLevel(
+			ObjectProperty<NoiseSuppressionLevel> level) {
 
 	}
 

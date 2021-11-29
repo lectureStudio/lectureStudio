@@ -1,11 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import javafx.geometry.*?>
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 <?import org.lecturestudio.javafx.factory.*?>
 
-<fx:root type="GridPane" hgap="10" vgap="10" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1">
+<fx:root styleClass="general-settings" type="GridPane" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1">
 	<columnConstraints>
 		<ColumnConstraints/>
 		<ColumnConstraints/>
@@ -39,8 +38,4 @@
 		<Button fx:id="resetButton" text="%button.reset"/>
 		<Button fx:id="closeButton" text="%button.close"/>
 	</HBox>
-
-	<padding>
-		<Insets bottom="20" left="20" right="20" top="20"/>
-	</padding>
 </fx:root>

@@ -89,6 +89,11 @@ public class WavFileSink implements AudioSink {
 	}
 
 	@Override
+	public AudioFormat getAudioFormat() {
+		return format;
+	}
+
+	@Override
 	public void setAudioFormat(AudioFormat format) {
 		this.format = format;
 	}

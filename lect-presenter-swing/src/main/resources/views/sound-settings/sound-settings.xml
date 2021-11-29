@@ -16,20 +16,26 @@
 			<LevelMeter id="levelMeter" orientation="HORIZONTAL" preferredSize="200,10">
 				<gridbagconstraints gridx="0" gridy="3" anchor="GridBagConstraints.WEST" insets="5,0,15,0" />
 			</LevelMeter>
-			<Label text="sound.settings.volume">
+			<Label text="sound.settings.noise.suppression">
 				<gridbagconstraints gridx="0" gridy="4" anchor="GridBagConstraints.WEST" insets="5,0,2,0" />
 			</Label>
-			<Slider id="volumeSlider" minimum="0" maximum="100">
+			<ComboBox id="noiseSuppressionCombo">
 				<gridbagconstraints gridx="0" gridy="5" anchor="GridBagConstraints.WEST" insets="5,0,15,0" />
+			</ComboBox>
+			<Label text="sound.settings.volume">
+				<gridbagconstraints gridx="0" gridy="6" anchor="GridBagConstraints.WEST" insets="5,0,2,0" />
+			</Label>
+			<Slider id="volumeSlider" minimum="0" maximum="100">
+				<gridbagconstraints gridx="0" gridy="7" anchor="GridBagConstraints.WEST" insets="5,0,15,0" />
 			</Slider>
 			<Button id="adjustAudioInputLevelButton" text="sound.settings.auto.level">
-				<gridbagconstraints gridx="0" gridy="6" anchor="GridBagConstraints.WEST" insets="5,0,15,0" />
+				<gridbagconstraints gridx="0" gridy="8" anchor="GridBagConstraints.WEST" insets="5,0,15,0" />
 			</Button>
 			<TitledSeparator text="sound.settings.test.title">
-				<gridbagconstraints gridx="0" gridy="7" anchor="GridBagConstraints.WEST" gridwidth="2" weightx="1.0" fill="GridBagConstraints.HORIZONTAL" insets="5,0,5,0" />
+				<gridbagconstraints gridx="0" gridy="9" anchor="GridBagConstraints.WEST" gridwidth="2" weightx="1.0" fill="GridBagConstraints.HORIZONTAL" insets="5,0,5,0" />
 			</TitledSeparator>
 			<ToolBar floatable="false">
-				<gridbagconstraints gridx="0" gridy="8" anchor="GridBagConstraints.WEST" insets="5,0,15,0" />
+				<gridbagconstraints gridx="0" gridy="10" anchor="GridBagConstraints.WEST" insets="5,0,15,0" />
 				<ToggleButton id="testCaptureButton" text="sound.settings.test.capture" icon="record-tool.svg, 20" selectedIcon="record-stop-tool.svg, 20" />
 				<ToggleButton id="playCaptureButton" text="sound.settings.test.playback" icon="play.svg, 20" selectedIcon="stop.svg, 20" />
 			</ToolBar>

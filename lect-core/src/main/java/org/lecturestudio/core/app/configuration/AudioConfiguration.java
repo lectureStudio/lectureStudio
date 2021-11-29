@@ -19,6 +19,7 @@
 package org.lecturestudio.core.app.configuration;
 
 import org.lecturestudio.core.audio.AudioFormat;
+import org.lecturestudio.core.audio.AudioProcessingSettings;
 import org.lecturestudio.core.beans.DoubleProperty;
 import org.lecturestudio.core.beans.FloatProperty;
 import org.lecturestudio.core.beans.ObjectProperty;
@@ -40,9 +41,6 @@ public class AudioConfiguration {
 	/** The playback device name. */
 	private final StringProperty playbackDeviceName = new StringProperty();
 
-	/** The sound system name. */
-	private final StringProperty soundSystem = new StringProperty();
-
 	/** The path where the recordings are stored at. */
 	private final StringProperty recordingPath = new StringProperty();
 
@@ -60,6 +58,9 @@ public class AudioConfiguration {
 
 	/** The audio format of the recording. */
 	private final ObjectProperty<AudioFormat> recordingFormat = new ObjectProperty<>();
+
+	/** The audio processing settings for recording. */
+	private final ObjectProperty<AudioProcessingSettings> recordingProcessingSettings = new ObjectProperty<>();
 
 
 	/**
@@ -114,33 +115,6 @@ public class AudioConfiguration {
 	 */
 	public StringProperty playbackDeviceNameProperty() {
 		return playbackDeviceName;
-	}
-
-	/**
-	 * Obtain the sound system name.
-	 *
-	 * @return the sound system name.
-	 */
-	public String getSoundSystem() {
-		return soundSystem.get();
-	}
-
-	/**
-	 * Set the sound system name.
-	 *
-	 * @param soundSystem sound system name to set.
-	 */
-	public void setSoundSystem(String soundSystem) {
-		this.soundSystem.set(soundSystem);
-	}
-
-	/**
-	 * Obtain the sound system property.
-	 *
-	 * @return the sound system property.
-	 */
-	public StringProperty soundSystemProperty() {
-		return soundSystem;
 	}
 
 	/**
@@ -314,4 +288,32 @@ public class AudioConfiguration {
 		return recordingFormat;
 	}
 
+	/**
+	 * Obtain the {@code AudioProcessingSettings} for audio recording.
+	 *
+	 * @return the {@code AudioProcessingSettings} for recording.
+	 */
+	public AudioProcessingSettings getRecordingProcessingSettings() {
+		return recordingProcessingSettings.get();
+	}
+
+	/**
+	 * Set the {@code AudioProcessingSettings} to be applied when recording
+	 * audio.
+	 *
+	 * @param settings The new {@code AudioProcessingSettings}.
+	 */
+	public void setRecordingProcessingSettings(AudioProcessingSettings settings) {
+		this.recordingProcessingSettings.set(settings);
+	}
+
+	/**
+	 * Get the {@code AudioProcessingSettings} which are applied for audio
+	 * recordings.
+	 *
+	 * @return The {@code AudioProcessingSettings}.
+	 */
+	public ObjectProperty<AudioProcessingSettings> recordingProcessingSettingsProperty() {
+		return recordingProcessingSettings;
+	}
 }

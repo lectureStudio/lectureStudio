@@ -27,7 +27,6 @@ import org.lecturestudio.core.camera.Camera;
 import org.lecturestudio.core.camera.CameraDiscovery;
 import org.lecturestudio.core.camera.CameraDriver;
 import org.lecturestudio.core.camera.CameraException;
-import org.lecturestudio.media.avdev.AVdevDriver;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -67,7 +66,7 @@ public final class CameraService {
 	 */
 	public static CameraService get() {
 		if (instance == null) {
-			instance = new CameraService(new AVdevDriver());
+			instance = new CameraService(null);
 		}
 
 		return instance;

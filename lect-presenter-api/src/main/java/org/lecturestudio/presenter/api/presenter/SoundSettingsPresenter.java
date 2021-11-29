@@ -22,31 +22,29 @@ import static java.util.Objects.isNull;
 import static java.util.Objects.nonNull;
 
 import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.util.concurrent.CompletableFuture;
+import java.util.Arrays;
 
 import javax.inject.Inject;
 
-import org.lecturestudio.avdev.AudioSink;
+import org.lecturestudio.core.Executable;
+import org.lecturestudio.core.ExecutableState;
 import org.lecturestudio.core.app.ApplicationContext;
 import org.lecturestudio.core.app.configuration.AudioConfiguration;
 import org.lecturestudio.core.audio.AudioFormat;
-import org.lecturestudio.core.audio.AudioUtils;
-import org.lecturestudio.core.audio.SyncState;
-import org.lecturestudio.core.audio.bus.event.AudioSignalEvent;
-import org.lecturestudio.core.audio.device.AudioInputDevice;
-import org.lecturestudio.core.audio.device.AudioOutputDevice;
-import org.lecturestudio.core.audio.source.AudioSource;
+import org.lecturestudio.core.audio.AudioProcessingSettings;
+import org.lecturestudio.core.audio.AudioProcessingSettings.NoiseSuppressionLevel;
+import org.lecturestudio.core.audio.AudioSystemProvider;
+import org.lecturestudio.core.audio.device.AudioDevice;
+import org.lecturestudio.core.audio.sink.AudioSink;
+import org.lecturestudio.core.audio.sink.ByteArrayAudioSink;
+import org.lecturestudio.core.audio.source.ByteArrayAudioSource;
 import org.lecturestudio.core.beans.BooleanProperty;
 import org.lecturestudio.core.presenter.Presenter;
 import org.lecturestudio.core.util.MapChangeListener;
 import org.lecturestudio.core.util.ObservableMap;
-import org.lecturestudio.media.avdev.AVdevAudioInputDevice;
-import org.lecturestudio.media.avdev.AVdevAudioOutputDevice;
-import org.lecturestudio.media.avdev.AvdevAudioPlayer;
+import org.lecturestudio.core.audio.AudioPlayer;
+import org.lecturestudio.core.audio.AudioRecorder;
 import org.lecturestudio.presenter.api.config.DefaultConfiguration;
-import org.lecturestudio.presenter.api.config.PresenterConfiguration;
 import org.lecturestudio.presenter.api.presenter.command.AdjustAudioCaptureLevelCommand;
 import org.lecturestudio.presenter.api.view.SoundSettingsView;
 
@@ -54,17 +52,15 @@ public class SoundSettingsPresenter extends Presenter<SoundSettingsView> {
 
 	private final AudioConfiguration audioConfig;
 
-	private final String soundSystem;
+	private final AudioSystemProvider audioSystemProvider;
 
-	private AvdevAudioPlayer audioPlayer;
+	private AudioPlayer audioPlayer;
 
-	private AVdevAudioInputDevice levelDevice;
+	private AudioRecorder levelRecorder;
 
-	private AVdevAudioInputDevice testDevice;
+	private AudioRecorder testRecorder;
 
-	private ByteArrayInputStream testPlaybackStream;
-
-	private ByteArrayOutputStream testCaptureStream;
+	private AudioSink testAudioSink;
 
 	private BooleanProperty testCapture;
 
@@ -78,19 +74,16 @@ public class SoundSettingsPresenter extends Presenter<SoundSettingsView> {
 
 
 	@Inject
-	SoundSettingsPresenter(ApplicationContext context, SoundSettingsView view) {
+	SoundSettingsPresenter(ApplicationContext context, SoundSettingsView view,
+			AudioSystemProvider audioSystemProvider) {
 		super(context, view);
 
-		PresenterConfiguration config = (PresenterConfiguration) context.getConfiguration();
-
-		audioConfig = config.getAudioConfig();
-		soundSystem = audioConfig.getSoundSystem();
+		this.audioConfig = context.getConfiguration().getAudioConfig();
+		this.audioSystemProvider = audioSystemProvider;
 	}
 
 	@Override
 	public void initialize() {
-		setAudioDevices(soundSystem);
-
 		testCapture = new BooleanProperty();
 		testPlayback = new BooleanProperty();
 		captureEnabled = new BooleanProperty(true);
@@ -104,14 +97,36 @@ public class SoundSettingsPresenter extends Presenter<SoundSettingsView> {
 				playCaptureTest(newValue);
 			}
 			catch (Exception e) {
-				handleException(e, "Test playback failed", "microphone.settings.test.playback.error");
+				handleException(e, "Test playback failed",
+						"microphone.settings.test.playback.error",
+						"microphone.settings.test.playback.error.message");
 			}
 		});
 
+		if (isNull(audioConfig.getCaptureDeviceName())) {
+			setDefaultRecordingDevice();
+		}
+		if (isNull(audioConfig.getPlaybackDeviceName())) {
+			setDefaultPlaybackDevice();
+		}
+		if (isNull(audioConfig.getRecordingProcessingSettings())) {
+			AudioProcessingSettings processingSettings = new AudioProcessingSettings();
+			processingSettings.setHighpassFilterEnabled(true);
+			processingSettings.setNoiseSuppressionEnabled(true);
+			processingSettings.setNoiseSuppressionLevel(NoiseSuppressionLevel.MODERATE);
+
+			audioConfig.setRecordingProcessingSettings(processingSettings);
+		}
+
+		view.setAudioCaptureDevices(audioSystemProvider.getRecordingDevices());
+		view.setAudioPlaybackDevices(audioSystemProvider.getPlaybackDevices());
 		view.setAudioCaptureDevice(audioConfig.captureDeviceNameProperty());
 		view.setAudioPlaybackDevice(audioConfig.playbackDeviceNameProperty());
 		view.bindAudioCaptureLevel(audioConfig.recordingMasterVolumeProperty());
-		view.setOnViewVisible(this::captureAudioLevel);
+		view.setAudioCaptureNoiseSuppressionLevel(
+				audioConfig.getRecordingProcessingSettings()
+						.noiseSuppressionLevelProperty());
+		view.setOnViewVisible(this::onViewVisible);
 		view.setOnAdjustAudioCaptureLevel(this::adjustAudioCaptureLevel);
 		view.bindTestCaptureEnabled(captureEnabled);
 		view.bindTestPlaybackEnabled(playbackEnabled);
@@ -120,20 +135,13 @@ public class SoundSettingsPresenter extends Presenter<SoundSettingsView> {
 		view.setOnReset(this::reset);
 		view.setOnClose(this::close);
 
-		if (isNull(audioConfig.getCaptureDeviceName())) {
-			setDefaultCaptureDevice();
-		}
-		if (isNull(audioConfig.getPlaybackDeviceName())) {
-			setDefaultPlaybackDevice();
-		}
-
-		if (AudioUtils.getAudioCaptureDevices(soundSystem).length < 1) {
+		if (audioSystemProvider.getRecordingDevices().length < 1) {
 			view.setViewEnabled(false);
 		}
 
 		audioConfig.captureDeviceNameProperty().addListener((observable, oldDevice, newDevice) -> {
 			if (isNull(newDevice)) {
-				setDefaultCaptureDevice();
+				setDefaultRecordingDevice();
 			}
 			else if (newDevice.equals(oldDevice)) {
 				return;
@@ -152,21 +160,17 @@ public class SoundSettingsPresenter extends Presenter<SoundSettingsView> {
 			playbackDeviceChanged(newDevice);
 		});
 
-		audioConfig.soundSystemProperty().addListener((observable, oldSystem, newSystem) -> {
-			setAudioDevices(newSystem);
-		});
-
 		audioConfig.recordingMasterVolumeProperty().addListener((observable, oldValue, newValue) -> {
 			String deviceName = audioConfig.getCaptureDeviceName();
 
 			if (nonNull(deviceName)) {
 				audioConfig.setRecordingVolume(deviceName, newValue);
 			}
-			if (nonNull(levelDevice)) {
-				levelDevice.setVolume(newValue.doubleValue());
+			if (nonNull(levelRecorder)) {
+				levelRecorder.setAudioVolume(newValue.doubleValue());
 			}
-			if (nonNull(testDevice)) {
-				testDevice.setVolume(newValue.doubleValue());
+			if (nonNull(testRecorder)) {
+				testRecorder.setAudioVolume(newValue.doubleValue());
 			}
 		});
 
@@ -174,8 +178,8 @@ public class SoundSettingsPresenter extends Presenter<SoundSettingsView> {
 
 			@Override
 			public void mapChanged(ObservableMap<String, Double> map) {
-				Double deviceVolume = nonNull(levelDevice) ?
-						map.get(levelDevice.getName()) :
+				Double deviceVolume = nonNull(levelRecorder) ?
+						map.get(audioConfig.getCaptureDeviceName()) :
 						null;
 
 				if (nonNull(deviceVolume)) {
@@ -188,19 +192,20 @@ public class SoundSettingsPresenter extends Presenter<SoundSettingsView> {
 	private void adjustAudioCaptureLevel() {
 		context.getEventBus().post(new AdjustAudioCaptureLevelCommand(() -> {
 			// When determining a new microphone level, do it with the maximum volume.
-			if (nonNull(levelDevice)) {
-				levelDevice.setVolume(1);
+			if (nonNull(levelRecorder)) {
+				levelRecorder.setAudioVolume(1);
 			}
 		}, () -> {
 			// Reset capture volume, when canceled.
-			if (nonNull(levelDevice)) {
-				Double devVolume = audioConfig.getRecordingVolume(levelDevice.getName());
+			if (nonNull(levelRecorder)) {
+				Double devVolume = audioConfig.getRecordingVolume(audioConfig
+						.getCaptureDeviceName());
 
 				if (isNull(devVolume)) {
 					devVolume = (double) audioConfig.getMasterRecordingVolume();
 				}
 
-				levelDevice.setVolume(devVolume);
+				levelRecorder.setAudioVolume(devVolume);
 			}
 		}));
 	}
@@ -209,56 +214,39 @@ public class SoundSettingsPresenter extends Presenter<SoundSettingsView> {
 		playbackEnabled.set(!capture);
 
 		if (capture) {
-			testCaptureStream = new ByteArrayOutputStream();
-			testDevice = createCaptureDevice();
+			testAudioSink = new ByteArrayAudioSink();
+			testAudioSink.setAudioFormat(audioConfig.getRecordingFormat());
 
-			if (isNull(testDevice)) {
-				logException(new NullPointerException(), "Create audio capture device failed");
-				return;
-			}
+			testRecorder = createAudioRecorder();
+			testRecorder.setAudioSink(testAudioSink);
+			testRecorder.setAudioProcessingSettings(
+					audioConfig.getRecordingProcessingSettings());
 
-			testDevice.setSink((data, length) -> testCaptureStream.write(data, 0, length));
-
-			startDevice(testDevice);
+			startAudioExecutable(testRecorder);
 		}
 		else {
-			stopDevice(testDevice);
+			stopAudioExecutable(testRecorder);
 		}
 	}
 
-	private void playCaptureTest(boolean play) throws Exception {
+	private void playCaptureTest(boolean play) {
 		captureEnabled.set(!play);
 
 		if (play) {
-			testPlaybackStream = new ByteArrayInputStream(testCaptureStream.toByteArray());
-
 			if (isNull(audioPlayer)) {
-				AVdevAudioOutputDevice device = createPlaybackDevice();
-
-				if (nonNull(device)) {
-					audioPlayer = new AvdevAudioPlayer(device,
-							new TestAudioSource(), new SyncState());
-				}
-				else {
-					showError("microphone.settings.test.playback.error",
-							"microphone.settings.test.playback.error.message");
-				}
+				audioPlayer = createAudioPlayer();
 			}
 
-			audioPlayer.start();
+			startAudioExecutable(audioPlayer);
 		}
 		else {
-			audioPlayer.stop();
+			stopAudioExecutable(audioPlayer);
+
 			audioPlayer = null;
 		}
 	}
 
-	private void setAudioDevices(String soundSystem) {
-		view.setAudioCaptureDevices(AudioUtils.getAudioCaptureDevices(soundSystem));
-		view.setAudioPlaybackDevices(AudioUtils.getAudioPlaybackDevices(soundSystem));
-	}
-
-	private void captureAudioLevel(boolean capture) {
+	private void onViewVisible(boolean capture) {
 		if (captureAudio == capture) {
 			return;
 		}
@@ -266,6 +254,15 @@ public class SoundSettingsPresenter extends Presenter<SoundSettingsView> {
 		captureAudio = capture;
 
 		if (capture) {
+			if (!hasDevice(audioSystemProvider.getRecordingDevices(),
+					audioConfig.getCaptureDeviceName())) {
+				setDefaultRecordingDevice();
+			}
+			if (!hasDevice(audioSystemProvider.getPlaybackDevices(),
+					audioConfig.getPlaybackDeviceName())) {
+				setDefaultPlaybackDevice();
+			}
+
 			startAudioLevelCapture();
 		}
 		else {
@@ -273,12 +270,12 @@ public class SoundSettingsPresenter extends Presenter<SoundSettingsView> {
 		}
 	}
 
-	private void setDefaultCaptureDevice() {
-		AudioInputDevice[] captureDevices = AudioUtils.getAudioCaptureDevices(soundSystem);
+	private void setDefaultRecordingDevice() {
+		AudioDevice captureDevice = audioSystemProvider.getDefaultRecordingDevice();
 
 		// Select first available capture device.
-		if (captureDevices.length > 0) {
-			audioConfig.setCaptureDeviceName(captureDevices[0].getName());
+		if (nonNull(captureDevice)) {
+			audioConfig.setCaptureDeviceName(captureDevice.getName());
 		}
 		else {
 			view.setViewEnabled(false);
@@ -286,30 +283,28 @@ public class SoundSettingsPresenter extends Presenter<SoundSettingsView> {
 	}
 
 	private void setDefaultPlaybackDevice() {
-		AudioOutputDevice[] playbackDevices = AudioUtils.getAudioPlaybackDevices(soundSystem);
+		AudioDevice playbackDevice = audioSystemProvider.getDefaultPlaybackDevice();
 
 		// Select first available playback device.
-		if (playbackDevices.length > 0) {
-			audioConfig.setPlaybackDeviceName(playbackDevices[0].getName());
+		if (nonNull(playbackDevice)) {
+			audioConfig.setPlaybackDeviceName(playbackDevice.getName());
 		}
 	}
 
 	private void reset() {
 		DefaultConfiguration defaultConfig = new DefaultConfiguration();
+		AudioConfiguration defaultAudioConfig = defaultConfig.getAudioConfig();
+		AudioProcessingSettings defaultProcSettings = defaultAudioConfig.getRecordingProcessingSettings();
 
-		audioConfig.setSoundSystem(defaultConfig.getAudioConfig().getSoundSystem());
-		audioConfig.setCaptureDeviceName(defaultConfig.getAudioConfig().getCaptureDeviceName());
-		audioConfig.setPlaybackDeviceName(defaultConfig.getAudioConfig().getPlaybackDeviceName());
-		audioConfig.setDefaultRecordingVolume(defaultConfig.getAudioConfig().getDefaultRecordingVolume());
-		audioConfig.setMasterRecordingVolume(defaultConfig.getAudioConfig().getMasterRecordingVolume());
+		audioConfig.getRecordingProcessingSettings().setNoiseSuppressionLevel(defaultProcSettings.getNoiseSuppressionLevel());
+		audioConfig.setCaptureDeviceName(defaultAudioConfig.getCaptureDeviceName());
+		audioConfig.setPlaybackDeviceName(defaultAudioConfig.getPlaybackDeviceName());
+		audioConfig.setDefaultRecordingVolume(defaultAudioConfig.getDefaultRecordingVolume());
+		audioConfig.setMasterRecordingVolume(defaultAudioConfig.getMasterRecordingVolume());
 		audioConfig.getRecordingVolumes().clear();
 	}
 
 	private void recordingDeviceChanged(String name) {
-		if (nonNull(levelDevice) && levelDevice.getName().equals(name)) {
-			return;
-		}
-
 		Double deviceVolume = audioConfig.getRecordingVolume(name);
 
 		if (nonNull(deviceVolume)) {
@@ -325,23 +320,33 @@ public class SoundSettingsPresenter extends Presenter<SoundSettingsView> {
 	}
 
 	private void startAudioLevelCapture() {
-		levelDevice = createCaptureDevice();
-
-		if (isNull(levelDevice)) {
-			logException(new NullPointerException(), "Create audio capture device failed");
-			return;
-		}
-
-		levelDevice.setSink(new AudioSink() {
+		levelRecorder = createAudioRecorder();
+		levelRecorder.setAudioSink(new AudioSink() {
 
 			@Override
-			public void write(byte[] data, int length) {
-				double level = getSignalPowerLevel(data);
+			public void open() {}
 
+			@Override
+			public void reset() {}
+
+			@Override
+			public void close() {}
+
+			@Override
+			public int write(byte[] data, int offset, int length) {
+				double level = getSignalPowerLevel(data);
 				view.setAudioCaptureLevel(level);
 
-				context.getAudioBus().post(new AudioSignalEvent(level));
+				return 0;
 			}
+
+			@Override
+			public AudioFormat getAudioFormat() {
+				return audioConfig.getRecordingFormat();
+			}
+
+			@Override
+			public void setAudioFormat(AudioFormat format) {}
 
 			private double getSignalPowerLevel(byte[] buffer) {
 				int max = 0;
@@ -356,58 +361,42 @@ public class SoundSettingsPresenter extends Presenter<SoundSettingsView> {
 			}
 		});
 
-		startDevice(levelDevice);
+		startAudioExecutable(levelRecorder);
 	}
 
 	private void stopAudioLevelCapture() {
-		if (nonNull(levelDevice) && levelDevice.isOpen()) {
-			stopDevice(levelDevice);
+		if (nonNull(levelRecorder) && levelRecorder.started()) {
+			stopAudioExecutable(levelRecorder);
 		}
-		if (nonNull(testDevice) && testDevice.isOpen()) {
+		if (nonNull(testRecorder) && testRecorder.started()) {
 			// This will update the view and the model.
 			testCapture.set(false);
 		}
 	}
 
-	private void startDevice(AVdevAudioInputDevice device) {
+	private void startAudioExecutable(Executable executable) {
 		try {
-			device.open();
-			device.start();
+			executable.start();
 		}
 		catch (Exception e) {
-			logException(e, "Start audio capture device failed");
+			logException(e, "Start audio executable failed");
 		}
 	}
 
-	private void stopDevice(AVdevAudioInputDevice device) {
-		try {
-			device.stop();
-			device.close();
-		}
-		catch (Exception e) {
-			logException(e, "Stop audio capture device failed");
+	private void stopAudioExecutable(Executable executable) {
+		if (executable.started() || executable.suspended()) {
+			try {
+				executable.stop();
+				executable.destroy();
+			}
+			catch (Exception e) {
+				logException(e, "Stop audio executable failed");
+			}
 		}
 	}
 
-	private AVdevAudioInputDevice createCaptureDevice() {
+	private AudioRecorder createAudioRecorder() {
 		String inputDeviceName = audioConfig.getCaptureDeviceName();
-
-		if (!soundSystem.equals("AVdev")) {
-			return null;
-		}
-		if (!AudioUtils.hasCaptureDevice(soundSystem, inputDeviceName)) {
-			// Select default device.
-			AudioInputDevice[] devices = AudioUtils.getAudioCaptureDevices(soundSystem);
-
-			inputDeviceName = (devices.length > 0) ? devices[0].getName() : null;
-		}
-		if (isNull(inputDeviceName)) {
-			return null;
-		}
-
-		AudioFormat format = audioConfig.getRecordingFormat();
-		AudioInputDevice inputDevice = AudioUtils.getAudioInputDevice(soundSystem, inputDeviceName);
-
 		double volume = audioConfig.getMasterRecordingVolume();
 		Double devVolume = audioConfig.getRecordingVolume(inputDeviceName);
 
@@ -415,70 +404,36 @@ public class SoundSettingsPresenter extends Presenter<SoundSettingsView> {
 			volume = devVolume;
 		}
 
-		AVdevAudioInputDevice device = (AVdevAudioInputDevice) inputDevice;
-		device.setAudioFormat(format);
-		device.setMute(false);
-		device.setVolume(volume);
+		AudioRecorder recorder = audioSystemProvider.createAudioRecorder();
+		recorder.setAudioDeviceName(inputDeviceName);
+		recorder.setAudioVolume(volume);
 
-		return device;
+		return recorder;
 	}
 
-	private AVdevAudioOutputDevice createPlaybackDevice() {
-		String playbackDeviceName = audioConfig.getPlaybackDeviceName();
+	private AudioPlayer createAudioPlayer() {
+		ByteArrayAudioSink sink = (ByteArrayAudioSink) testAudioSink;
+		ByteArrayInputStream inputStream = new ByteArrayInputStream(
+				sink.toByteArray());
 
-		if (!soundSystem.equals("AVdev")) {
-			return null;
-		}
-		if (!AudioUtils.hasPlaybackDevice(soundSystem, playbackDeviceName)) {
-			// Select default device.
-			AudioOutputDevice[] devices = AudioUtils.getAudioPlaybackDevices(soundSystem);
+		ByteArrayAudioSource source = new ByteArrayAudioSource(inputStream,
+				audioConfig.getRecordingFormat());
 
-			playbackDeviceName = (devices.length > 0) ? devices[0].getName() : null;
-		}
-		if (isNull(playbackDeviceName)) {
-			return null;
-		}
-
-		return (AVdevAudioOutputDevice) AudioUtils.getAudioOutputDevice(soundSystem, playbackDeviceName);
-	}
-
-
-
-	private class TestAudioSource implements AudioSource {
-
-		@Override
-		public int read(byte[] data, int offset, int length) {
-			int read = testPlaybackStream.read(data, offset, length);
-			if (read < 0) {
-				CompletableFuture.runAsync(() -> testPlayback.set(false));
+		AudioPlayer player = audioSystemProvider.createAudioPlayer();
+		player.setAudioDeviceName(audioConfig.getPlaybackDeviceName());
+		player.setAudioVolume(1.0);
+		player.setAudioSource(source);
+		player.addStateListener((oldState, newState) -> {
+			if (newState == ExecutableState.Stopped) {
+				testPlayback.set(false);
 			}
+		});
 
-			return read;
-		}
+		return player;
+	}
 
-		@Override
-		public void close() throws IOException {
-			testPlaybackStream.close();
-		}
-
-		@Override
-		public void reset() {
-			testPlaybackStream.reset();
-		}
-
-		@Override
-		public long skip(long n) {
-			return testPlaybackStream.skip(n);
-		}
-
-		@Override
-		public long getInputSize() {
-			return testPlaybackStream.available();
-		}
-
-		@Override
-		public AudioFormat getAudioFormat() {
-			return audioConfig.getRecordingFormat();
-		}
+	private boolean hasDevice(AudioDevice[] devices, String name) {
+		return Arrays.stream(devices)
+				.anyMatch(device -> device.getName().equals(name));
 	}
 }

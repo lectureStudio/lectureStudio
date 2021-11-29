@@ -18,6 +18,8 @@
 
 package org.lecturestudio.editor.javafx;
 
+import dev.onvoid.webrtc.logging.Logging;
+
 import org.lecturestudio.core.app.ApplicationFactory;
 import org.lecturestudio.javafx.app.JavaFxApplication;
 
@@ -30,6 +32,8 @@ public class EditorFxApplication extends JavaFxApplication {
 	 * @param args the main method's arguments.
 	 */
 	public static void main(String[] args) {
+		Logging.logThreads(true);
+
 		// Start with pre-loader.
 		EditorFxApplication.launch(args, EditorFxPreloader.class);
 	}

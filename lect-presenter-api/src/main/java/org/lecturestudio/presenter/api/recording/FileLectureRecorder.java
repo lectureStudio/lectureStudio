@@ -25,6 +25,7 @@ import com.google.common.eventbus.Subscribe;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -44,10 +45,11 @@ import org.lecturestudio.core.ExecutableState;
 import org.lecturestudio.core.app.configuration.AudioConfiguration;
 import org.lecturestudio.core.audio.AudioDeviceNotConnectedException;
 import org.lecturestudio.core.audio.AudioFormat;
+import org.lecturestudio.core.audio.AudioSystemProvider;
 import org.lecturestudio.core.audio.AudioUtils;
 import org.lecturestudio.core.audio.bus.AudioBus;
-import org.lecturestudio.core.audio.device.AudioInputDevice;
 import org.lecturestudio.core.audio.sink.AudioSink;
+import org.lecturestudio.core.audio.sink.ProxyAudioSink;
 import org.lecturestudio.core.audio.sink.WavFileSink;
 import org.lecturestudio.core.bus.ApplicationBus;
 import org.lecturestudio.core.bus.event.DocumentEvent;
@@ -69,8 +71,7 @@ import org.lecturestudio.core.recording.action.StaticShapeAction;
 import org.lecturestudio.core.service.DocumentService;
 import org.lecturestudio.core.util.FileUtils;
 import org.lecturestudio.core.util.ProgressCallback;
-import org.lecturestudio.media.avdev.AVdevAudioInputDevice;
-import org.lecturestudio.media.avdev.AvdevAudioRecorder;
+import org.lecturestudio.core.audio.AudioRecorder;
 import org.lecturestudio.presenter.api.event.RecordingStateEvent;
 
 public class FileLectureRecorder extends LectureRecorder {
@@ -85,6 +86,8 @@ public class FileLectureRecorder extends LectureRecorder {
 
 	private final RecordingBackup backup;
 
+	private final AudioSystemProvider audioSystemProvider;
+
 	private final AudioConfiguration audioConfig;
 
 	private final DocumentService documentService;
@@ -93,7 +96,7 @@ public class FileLectureRecorder extends LectureRecorder {
 
 	private IdleTimer idleTimer;
 
-	private AvdevAudioRecorder audioRecorder;
+	private AudioRecorder audioRecorder;
 
 	private AudioSink audioSink;
 
@@ -106,7 +109,10 @@ public class FileLectureRecorder extends LectureRecorder {
 	private int pageRecordingTimeout = 2000;
 
 
-	public FileLectureRecorder(DocumentService documentService, AudioConfiguration audioConfig, String recDir) throws IOException {
+	public FileLectureRecorder(AudioSystemProvider audioSystemProvider,
+			DocumentService documentService, AudioConfiguration audioConfig,
+			String recDir) throws IOException {
+		this.audioSystemProvider = audioSystemProvider;
 		this.documentService = documentService;
 		this.audioConfig = audioConfig;
 		this.backup = new RecordingBackup(recDir);
@@ -254,9 +260,12 @@ public class FileLectureRecorder extends LectureRecorder {
 
 		ExecutableState prevState = getPreviousState();
 
-		if (prevState == ExecutableState.Initialized || prevState == ExecutableState.Stopped) {
-			if (!AudioUtils.hasCaptureDevice(audioConfig.getSoundSystem(), deviceName)) {
-				throw new AudioDeviceNotConnectedException("Audio device %s is not connected", deviceName, deviceName);
+		if (prevState == ExecutableState.Initialized ||
+			prevState == ExecutableState.Stopped) {
+			if (!hasRecordingDevice(deviceName)) {
+				throw new AudioDeviceNotConnectedException(
+						"Audio device %s is not connected", deviceName,
+						deviceName);
 			}
 
 			clear();
@@ -267,7 +276,6 @@ public class FileLectureRecorder extends LectureRecorder {
 			try {
 				audioSink = new WavFileSink(new File(backup.getAudioFile()));
 				audioSink.setAudioFormat(audioFormat);
-				audioSink.open();
 			}
 			catch (IOException e) {
 				throw new ExecutableException("Could not create audio sink.", e);
@@ -281,20 +289,27 @@ public class FileLectureRecorder extends LectureRecorder {
 			}
 
 			if (nonNull(audioRecorder)) {
-				audioRecorder.stop();
+				audioRecorder.destroy();
 			}
 
-			AudioInputDevice inputDevice = AudioUtils.getAudioInputDevice(audioConfig.getSoundSystem(), deviceName);
 			Double deviceVolume = audioConfig.getRecordingVolume(deviceName);
 			double masterVolume = audioConfig.getMasterRecordingVolume();
 			double volume = nonNull(deviceVolume) ? deviceVolume : masterVolume;
 
-			audioRecorder = new AvdevAudioRecorder((AVdevAudioInputDevice) inputDevice);
-			audioRecorder.setAudioFormat(audioFormat);
+			audioRecorder = audioSystemProvider.createAudioRecorder();
+			audioRecorder.setAudioProcessingSettings(
+					audioConfig.getRecordingProcessingSettings());
+			audioRecorder.setAudioDeviceName(deviceName);
 			audioRecorder.setAudioVolume(volume);
-			audioRecorder.setSink((data, length) -> {
-				audioSink.write(data, 0, length);
-				bytesConsumed += length;
+			audioRecorder.setAudioSink(new ProxyAudioSink(audioSink) {
+
+				@Override
+				public int write(byte[] data, int offset, int length)
+						throws IOException {
+					bytesConsumed += length;
+
+					return super.write(data, offset, length);
+				}
 			});
 			audioRecorder.start();
 
@@ -319,19 +334,11 @@ public class FileLectureRecorder extends LectureRecorder {
 	}
 
 	@Override
-	protected void stopInternal() {
+	protected void stopInternal() throws ExecutableException {
 		AudioBus.unregister(this);
 
 		if (nonNull(audioRecorder)) {
 			audioRecorder.stop();
-		}
-		if (nonNull(audioSink)) {
-			try {
-				audioSink.close();
-			}
-			catch (IOException e) {
-				LOG.error("Close audio sink failed", e);
-			}
 		}
 
 		backup.close();
@@ -340,9 +347,9 @@ public class FileLectureRecorder extends LectureRecorder {
 	}
 
 	@Override
-	protected void suspendInternal() {
+	protected void suspendInternal() throws ExecutableException {
 		if (getPreviousState() == ExecutableState.Started) {
-			audioRecorder.pause();
+			audioRecorder.suspend();
 
 			pendingActions.setPendingPage(getLastRecordedPage());
 		}
@@ -505,6 +512,15 @@ public class FileLectureRecorder extends LectureRecorder {
 
 	private boolean isDuplicate(Page page) {
 		return page.equals(getLastRecordedPage());
+	}
+
+	private boolean hasRecordingDevice(String deviceName) {
+		if (isNull(deviceName)) {
+			return false;
+		}
+
+		return Arrays.stream(audioSystemProvider.getRecordingDevices())
+				.anyMatch(device -> device.getName().equals(deviceName));
 	}
 
 	private void runIdleTimer() {

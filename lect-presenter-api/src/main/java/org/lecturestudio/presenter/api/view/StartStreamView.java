@@ -20,8 +20,7 @@ package org.lecturestudio.presenter.api.view;
 
 import java.util.List;
 
-import org.lecturestudio.core.audio.device.AudioInputDevice;
-import org.lecturestudio.core.audio.device.AudioOutputDevice;
+import org.lecturestudio.core.audio.device.AudioDevice;
 import org.lecturestudio.core.beans.BooleanProperty;
 import org.lecturestudio.core.beans.ObjectProperty;
 import org.lecturestudio.core.beans.StringProperty;
@@ -39,11 +38,11 @@ public interface StartStreamView extends View {
 
 	void setAudioCaptureDevice(StringProperty captureDeviceName);
 
-	void setAudioCaptureDevices(AudioInputDevice[] captureDevices);
+	void setAudioCaptureDevices(AudioDevice[] captureDevices);
 
 	void setAudioPlaybackDevice(StringProperty playbackDeviceName);
 
-	void setAudioPlaybackDevices(AudioOutputDevice[] playbackDevices);
+	void setAudioPlaybackDevices(AudioDevice[] playbackDevices);
 
 	void setCameraName(StringProperty cameraName);
 

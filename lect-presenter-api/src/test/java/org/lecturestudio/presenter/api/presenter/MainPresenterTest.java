@@ -74,13 +74,12 @@ class MainPresenterTest extends PresenterTest {
 	void setup() throws IOException {
 		AudioConfiguration audioConfig = context.getConfiguration().getAudioConfig();
 		audioConfig.setCaptureDeviceName("dummy");
-		audioConfig.setSoundSystem("dummy");
 
 		documentService = context.getDocumentService();
 
 		bookmarkService = context.getBookmarkService();
 
-		FileLectureRecorder recorder = new FileLectureRecorder(documentService, audioConfig, context.getRecordingDirectory());
+		FileLectureRecorder recorder = new FileLectureRecorder(audioSystemProvider, documentService, audioConfig, context.getRecordingDirectory());
 
 		recordingService = new RecordingService(context, recorder);
 

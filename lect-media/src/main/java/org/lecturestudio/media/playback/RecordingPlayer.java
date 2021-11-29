@@ -27,13 +27,9 @@ import org.lecturestudio.core.ExecutableBase;
 import org.lecturestudio.core.app.configuration.AudioConfiguration;
 import org.lecturestudio.core.audio.AudioFormat;
 import org.lecturestudio.core.audio.AudioPlayer;
-import org.lecturestudio.core.audio.AudioUtils;
-import org.lecturestudio.media.avdev.AvdevAudioPlayer;
-import org.lecturestudio.core.audio.Player;
+import org.lecturestudio.core.audio.AudioSystemProvider;
 import org.lecturestudio.core.audio.SyncState;
 import org.lecturestudio.core.audio.bus.AudioBus;
-import org.lecturestudio.media.avdev.AVdevAudioOutputDevice;
-import org.lecturestudio.core.audio.device.AudioOutputDevice;
 import org.lecturestudio.core.audio.source.AudioInputStreamSource;
 import org.lecturestudio.core.bus.ApplicationBus;
 import org.lecturestudio.core.controller.ToolController;
@@ -68,6 +64,8 @@ public class RecordingPlayer extends ExecutableBase {
 
 	private final AudioConfiguration audioConfig;
 
+	private final AudioSystemProvider audioSystemProvider;
+
 	private final SyncState syncState = new SyncState();
 
 	private RandomAccessAudioStream audioStream;
@@ -78,7 +76,7 @@ public class RecordingPlayer extends ExecutableBase {
 
 	private EventExecutor actionExecutor;
 
-	private Player audioPlayer;
+	private AudioPlayer audioPlayer;
 
 	private ToolController toolController;
 
@@ -91,9 +89,12 @@ public class RecordingPlayer extends ExecutableBase {
 	private MediaPlayerProgressEvent progressEvent;
 
 
-	public RecordingPlayer(ApplicationContext context, AudioConfiguration audioConfig) {
+	public RecordingPlayer(ApplicationContext context,
+			AudioConfiguration audioConfig,
+			AudioSystemProvider audioSystemProvider) {
 		this.context = context;
 		this.audioConfig = audioConfig;
+		this.audioSystemProvider = audioSystemProvider;
 	}
 
 	public void setRecording(Recording recording) {
@@ -156,10 +157,10 @@ public class RecordingPlayer extends ExecutableBase {
 
 	@Override
 	protected void stopInternal() throws ExecutableException {
-		if (audioPlayer.getState() == ExecutableState.Suspended || audioPlayer.getState() == ExecutableState.Started) {
+		if (audioPlayer.suspended() || audioPlayer.started()) {
 			audioPlayer.stop();
 		}
-		if (actionExecutor.getState() == ExecutableState.Suspended || actionExecutor.getState() == ExecutableState.Started) {
+		if (actionExecutor.suspended() || actionExecutor.started()) {
 			actionExecutor.stop();
 		}
 
@@ -169,10 +170,10 @@ public class RecordingPlayer extends ExecutableBase {
 
 	@Override
 	protected void suspendInternal() throws ExecutableException {
-		if (audioPlayer.getState() == ExecutableState.Started) {
+		if (audioPlayer.started()) {
 			audioPlayer.suspend();
 		}
-		if (actionExecutor.getState() == ExecutableState.Started) {
+		if (actionExecutor.started()) {
 			actionExecutor.suspend();
 		}
 	}
@@ -194,16 +195,12 @@ public class RecordingPlayer extends ExecutableBase {
 		return duration;
 	}
 
-	public Recording getRecordingFile() {
-		return recording;
-	}
-
 	public void setVolume(float volume) {
 		if (isNull(audioPlayer)) {
 			throw new NullPointerException("Audio player not initialized");
 		}
 
-		audioPlayer.setVolume(volume);
+		audioPlayer.setAudioVolume(volume);
 	}
 
 	public void selectNextPage() throws Exception {
@@ -309,21 +306,18 @@ public class RecordingPlayer extends ExecutableBase {
 		audioStream.setAudioFormat(targetFormat);
 		
 		AudioInputStreamSource audioSource = new AudioInputStreamSource(audioStream, targetFormat);
-		
-		String providerName = audioConfig.getSoundSystem();
 		String outputDeviceName = audioConfig.getPlaybackDeviceName();
-		
-		AudioOutputDevice outputDevice = AudioUtils.getAudioOutputDevice(providerName, outputDeviceName);
-		
-		if (providerName.equals("AVdev")) {
-			audioPlayer = new AvdevAudioPlayer((AVdevAudioOutputDevice) outputDevice, audioSource, syncState);
+
+		if (isNull(outputDeviceName)) {
+			outputDeviceName = audioSystemProvider.getDefaultPlaybackDevice().getName();
 		}
-		else {
-			audioPlayer = new AudioPlayer(outputDevice, audioSource, syncState);
-		}
-		
-		audioPlayer.setProgressListener(this::onAudioPlaybackProgress);
-		audioPlayer.setStateListener(this::onAudioStateChange);
+
+		audioPlayer = audioSystemProvider.createAudioPlayer();
+		audioPlayer.setAudioVolume(1.0);
+		audioPlayer.setAudioDeviceName(outputDeviceName);
+		audioPlayer.setAudioSource(audioSource);
+		audioPlayer.setAudioProgressListener(this::onAudioPlaybackProgress);
+		audioPlayer.addStateListener(this::onAudioStateChange);
 		audioPlayer.init();
 	}
 	
@@ -347,7 +341,9 @@ public class RecordingPlayer extends ExecutableBase {
 
 		int pageNumber = document.getCurrentPageNumber() + 1;
 		int pageCount = document.getPageCount();
-		
+
+		syncState.setAudioTime(progress.getMillis());
+
 		progressEvent.setCurrentTime(progress);
 		progressEvent.setTotalTime(this.duration);
 		progressEvent.setPageNumber(pageNumber);

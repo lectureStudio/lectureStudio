@@ -29,7 +29,7 @@ import javax.inject.Named;
 
 import org.lecturestudio.core.app.ApplicationContext;
 import org.lecturestudio.core.app.configuration.AudioConfiguration;
-import org.lecturestudio.core.audio.AudioUtils;
+import org.lecturestudio.core.audio.AudioSystemProvider;
 import org.lecturestudio.core.beans.ChangeListener;
 import org.lecturestudio.core.camera.Camera;
 import org.lecturestudio.core.presenter.Presenter;
@@ -47,6 +47,8 @@ import org.lecturestudio.web.api.stream.model.Course;
 import org.lecturestudio.web.api.stream.service.StreamProviderService;
 
 public class StartStreamPresenter extends Presenter<StartStreamView> {
+
+	private final AudioSystemProvider audioSystemProvider;
 
 	private final CameraService camService;
 
@@ -67,9 +69,10 @@ public class StartStreamPresenter extends Presenter<StartStreamView> {
 
 	@Inject
 	StartStreamPresenter(ApplicationContext context, StartStreamView view,
-			CameraService camService) {
+			AudioSystemProvider audioSystemProvider, CameraService camService) {
 		super(context, view);
 
+		this.audioSystemProvider = audioSystemProvider;
 		this.camService = camService;
 	}
 
@@ -93,7 +96,6 @@ public class StartStreamPresenter extends Presenter<StartStreamView> {
 
 		if (nonNull(courses)) {
 			AudioConfiguration audioConfig = config.getAudioConfig();
-			String soundSystem = audioConfig.getSoundSystem();
 			Course selectedCourse = pContext.getCourse();
 
 			if (isNull(selectedCourse) && !courses.isEmpty()) {
@@ -124,9 +126,9 @@ public class StartStreamPresenter extends Presenter<StartStreamView> {
 			view.setEnableMicrophone(config.getStreamConfig().enableMicrophoneProperty());
 			view.setEnableCamera(config.getStreamConfig().enableCameraProperty());
 			view.setEnableMessenger(streamContext.enableMessengerProperty());
-			view.setAudioCaptureDevices(AudioUtils.getAudioCaptureDevices(soundSystem));
+			view.setAudioCaptureDevices(audioSystemProvider.getRecordingDevices());
 			view.setAudioCaptureDevice(audioConfig.captureDeviceNameProperty());
-			view.setAudioPlaybackDevices(AudioUtils.getAudioPlaybackDevices(soundSystem));
+			view.setAudioPlaybackDevices(audioSystemProvider.getPlaybackDevices());
 			view.setAudioPlaybackDevice(audioConfig.playbackDeviceNameProperty());
 			view.setCameraNames(camService.getCameraNames());
 			view.setCameraName(streamConfig.cameraNameProperty());

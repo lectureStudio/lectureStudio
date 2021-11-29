@@ -82,9 +82,8 @@ class RecordingServiceTest extends ServiceTest {
 	void setUp() throws IOException {
 		AudioConfiguration audioConfig = context.getConfiguration().getAudioConfig();
 		audioConfig.setCaptureDeviceName("dummy");
-		audioConfig.setSoundSystem("dummy");
 
-		FileLectureRecorder recorder = new FileLectureRecorder(documentService, audioConfig, recPath.toFile().getPath());
+		FileLectureRecorder recorder = new FileLectureRecorder(audioSystemProvider, documentService, audioConfig, recPath.toFile().getPath());
 
 		recordingService = new RecordingService(context, recorder);
 		recordingService.setAudioFormat(new AudioFormat(AudioFormat.Encoding.S16BE, 24000, 1));

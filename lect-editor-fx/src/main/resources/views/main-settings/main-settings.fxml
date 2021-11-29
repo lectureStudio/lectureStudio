@@ -11,6 +11,12 @@
 			<SvgIcon styleClass="settings-general-icon" />
 		</graphic>
 	</Tab>
+	<Tab id="video" text="%settings.sound">
+		<FxSoundSettingsView />
+		<graphic>
+			<SvgIcon styleClass="settings-sound-icon" />
+		</graphic>
+	</Tab>
 	<Tab id="video" text="%settings.video">
 		<FxVideoSettingsView />
 		<graphic>

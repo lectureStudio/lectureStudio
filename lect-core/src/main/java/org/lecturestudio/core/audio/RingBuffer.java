@@ -206,6 +206,11 @@ public class RingBuffer implements AudioSink, AudioSource {
 	}
 
 	@Override
+	public int seekMs(int timeMs) {
+		return 0;
+	}
+
+	@Override
 	public long getInputSize() {
 		return 0;
 	}

@@ -70,9 +70,17 @@ public interface AudioSink {
 	int write(byte[] data, int offset, int length) throws IOException;
 
 	/**
-	 * Set the audio format of audio samples the sink is ready to receive.
+	 * Get the audio format of audio samples for this sink.
 	 *
-	 * @param format The audio format of samples to receive.
+	 * @return The audio format of samples to write.
+	 */
+	AudioFormat getAudioFormat();
+
+	/**
+	 * Sets the {@code AudioFormat} of samples which will be provided to this
+	 * {@code AudioSink}.
+	 *
+	 * @param format The audio format of audio samples.
 	 */
 	void setAudioFormat(AudioFormat format);
 

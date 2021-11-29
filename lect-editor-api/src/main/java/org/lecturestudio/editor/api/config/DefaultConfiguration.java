@@ -81,7 +81,6 @@ public class DefaultConfiguration extends EditorConfiguration {
 
 		getToolConfig().getPresetColors().addAll(new ArrayList<>(6));
 
-		getAudioConfig().setSoundSystem("Java Sound");
 		getAudioConfig().setPlaybackVolume(1);
 	}
 

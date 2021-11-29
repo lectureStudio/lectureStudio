@@ -199,7 +199,6 @@ class ConfigurationTest {
 		config.getAudioConfig().setPlaybackDeviceName("Speakers");
 		config.getAudioConfig().setRecordingFormat(new AudioFormat(AudioFormat.Encoding.S16LE, 44100, 1));
 		config.getAudioConfig().setRecordingPath("/home/tmp");
-		config.getAudioConfig().setSoundSystem("Java");
 		config.getAudioConfig().setRecordingVolume("Microphone", 0.7f);
 
 		manager.save(configFile, config);
@@ -211,7 +210,6 @@ class ConfigurationTest {
 		assertEquals("Speakers", audioConfig.getPlaybackDeviceName());
 		assertEquals(audioConfig.getRecordingFormat(), new AudioFormat(AudioFormat.Encoding.S16LE, 44100, 1));
 		assertEquals("/home/tmp", audioConfig.getRecordingPath());
-		assertEquals("Java", audioConfig.getSoundSystem());
 		assertEquals(Double.valueOf(0.7f), audioConfig.getRecordingVolume("Microphone"));
 	}
 

@@ -45,7 +45,6 @@ import org.lecturestudio.core.app.configuration.Configuration;
 import org.lecturestudio.core.app.dictionary.Dictionary;
 import org.lecturestudio.core.audio.AudioFormat;
 import org.lecturestudio.core.audio.AudioFormat.Encoding;
-import org.lecturestudio.core.audio.AudioUtils;
 import org.lecturestudio.core.audio.bus.AudioBus;
 import org.lecturestudio.core.bus.ApplicationBus;
 import org.lecturestudio.core.bus.EventBus;
@@ -55,6 +54,7 @@ import org.lecturestudio.core.recording.DocumentRecorder;
 import org.lecturestudio.core.service.DocumentService;
 import org.lecturestudio.presenter.api.config.DefaultConfiguration;
 import org.lecturestudio.presenter.api.context.PresenterContext;
+import org.lecturestudio.presenter.audio.DummyAudioSystemProvider;
 
 public class BasicRecordingTest {
 
@@ -132,11 +132,9 @@ public class BasicRecordingTest {
 		};
 
 		int pageRecTimeout = 0;
-		String soundSystem = "Dummy";
 
 		AudioConfiguration audioConfig = context.getConfiguration().getAudioConfig();
-		audioConfig.setSoundSystem(soundSystem);
-		audioConfig.setCaptureDeviceName(AudioUtils.getDefaultAudioCaptureDevice(soundSystem).getName());
+		audioConfig.setCaptureDeviceName("dummy");
 
 		subscriber = new PageEventSubscriber();
 
@@ -144,7 +142,9 @@ public class BasicRecordingTest {
 
 		documentService = context.getDocumentService();
 
-		recorder = new FileLectureRecorder(documentService, audioConfig, context.getRecordingDirectory());
+		DummyAudioSystemProvider audioSystemProvider = new DummyAudioSystemProvider();
+
+		recorder = new FileLectureRecorder(audioSystemProvider, documentService, audioConfig, context.getRecordingDirectory());
 		recorder.setAudioFormat(new AudioFormat(Encoding.S16LE, 44100, 1));
 		recorder.setPageRecordingTimeout(pageRecTimeout);
 

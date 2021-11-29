@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2020 TU Darmstadt, Department of Computer Science,
+ * Copyright (C) 2021 TU Darmstadt, Department of Computer Science,
  * Embedded Systems and Applications Group.
  *
  * This program is free software: you can redistribute it and/or modify
@@ -18,257 +18,70 @@
 
 package org.lecturestudio.core.audio;
 
-import static java.util.Objects.isNull;
-import static java.util.Objects.nonNull;
-
-import org.lecturestudio.core.ExecutableBase;
-import org.lecturestudio.core.ExecutableException;
-import org.lecturestudio.core.ExecutableState;
+import org.lecturestudio.core.Executable;
 import org.lecturestudio.core.ExecutableStateListener;
-import org.lecturestudio.core.audio.device.AudioOutputDevice;
 import org.lecturestudio.core.audio.source.AudioSource;
-import org.lecturestudio.core.model.Time;
-
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 
 /**
- * Default audio player implementation.
+ * An AudioPlayer manages the audio resources to play audio on an audio output
+ * device, e.g. a speaker or headset.
  *
  * @author Alex Andres
  */
-public class AudioPlayer extends ExecutableBase implements Player {
-
-	/** Logger for {@link AudioPlayer} */
-	private static final Logger LOG = LogManager.getLogger(AudioPlayer.class);
-
-	/** The sync state that is shared with other media players. */
-	private final SyncState syncState;
-
-	/** The audio playback device. */
-	private final AudioOutputDevice playbackDevice;
-
-	/** The audio source. */
-	private final AudioSource audioSource;
-
-	/** The audio source size. */
-	private final long inputSize;
-
-	/** The playback progress listener. */
-	private AudioPlaybackProgressListener progressListener;
-
-	/** The player state listener. */
-	private ExecutableStateListener stateListener;
-
-	/** The playback thread. */
-	private Thread thread;
-
-	/** The current audio source reading position. */
-	private long inputPos;
-
+public interface AudioPlayer extends Executable {
 
 	/**
-	 * Create an {@link AudioPlayer} with the specified playback device and source. The
-	 * sync state is shared with other media players to keep different media
-	 * sources in sync while playing.
+	 * Sets the device name of the audio playback device which will play audio
+	 * for this player.
 	 *
-	 * @param device    The audio playback device.
-	 * @param source    The audio source.
-	 * @param syncState The shared sync state.
-	 *
-	 * @throws Exception If the audio player failed to initialize.
+	 * @param deviceName The audio output device name.
 	 */
-	public AudioPlayer(AudioOutputDevice device, AudioSource source, SyncState syncState) throws Exception {
-		if (isNull(device)) {
-			throw new NullPointerException("Missing audio playback device.");
-		}
-		if (isNull(source)) {
-			throw new NullPointerException("Missing audio source.");
-		}
-		
-		this.playbackDevice = device;
-		this.audioSource = source;
-		this.syncState = syncState;
-		this.inputSize = source.getInputSize();
-	}
+	void setAudioDeviceName(String deviceName);
 
-	@Override
-	public void setVolume(float volume) {
-		if (volume < 0 || volume > 1) {
-			return;
-		}
+	/**
+	 * Sets the {@code AudioSource} that will read the audio samples to play.
+	 *
+	 * @param source The audio source to set.
+	 */
+	void setAudioSource(AudioSource source);
 
-		playbackDevice.setVolume(volume);
-	}
+	/**
+	 * Sets the recording audio volume. The value must be in the range of
+	 * [0,1].
+	 *
+	 * @param volume The recording audio volume.
+	 */
+	void setAudioVolume(double volume);
 
-	@Override
-	public void seek(int timeMs) throws Exception {
-		AudioFormat format = audioSource.getAudioFormat();
+	/**
+	 * Set the playback progress listener.
+	 *
+	 * @param listener The listener to set.
+	 */
+	void setAudioProgressListener(AudioPlaybackProgressListener listener);
 
-		float bytesPerSecond = AudioUtils.getBytesPerSecond(format);
-		int skipBytes = Math.round(bytesPerSecond * timeMs / 1000F);
+	/**
+	 * Jump to the specified time position in the audio playback stream.
+	 *
+	 * @param timeMs The absolute time in milliseconds to jump to.
+	 *
+	 * @throws Exception If the playback stream failed to read the start of the
+	 *                   specified position.
+	 */
+	void seek(int timeMs) throws Exception;
 
-		audioSource.reset();
-		audioSource.skip(skipBytes);
+	/**
+	 * Add an {@code ExecutableStateListener} to this player.
+	 *
+	 * @param listener The listener to add.
+	 */
+	void addStateListener(ExecutableStateListener listener);
 
-		inputPos = skipBytes;
-
-		syncState.setAudioTime((long) (inputPos / (bytesPerSecond / 1000f)));
-	}
-
-	@Override
-	public void setProgressListener(AudioPlaybackProgressListener listener) {
-		this.progressListener = listener;
-	}
-
-	@Override
-	public void setStateListener(ExecutableStateListener listener) {
-		this.stateListener = listener;
-	}
-
-    @Override
-	protected void initInternal() throws ExecutableException {
-    	try {
-			audioSource.reset();
-		}
-		catch (Exception e) {
-			throw new ExecutableException("Audio device could not be initialized.", e);
-		}
-
-		if (!playbackDevice.supportsAudioFormat(audioSource.getAudioFormat())) {
-			throw new ExecutableException("Audio device does not support the needed audio format.");
-		}
-
-		try {
-			playbackDevice.setAudioFormat(audioSource.getAudioFormat());
-			playbackDevice.open();
-			playbackDevice.start();
-		}
-		catch (Exception e) {
-			throw new ExecutableException("Audio device could not be initialized.", e);
-		}
-	}
-
-	@Override
-	protected void startInternal() throws ExecutableException {
-		if (getPreviousState() == ExecutableState.Suspended) {
-			synchronized (thread) {
-				thread.notify();
-			}
-		}
-		else {
-			thread = new Thread(new AudioReaderTask(), getClass().getSimpleName());
-			thread.start();
-		}
-	}
-
-	@Override
-	protected void stopInternal() throws ExecutableException {
-		try {
-			audioSource.reset();
-		}
-		catch (Exception e) {
-			throw new ExecutableException(e);
-		}
-
-		inputPos = 0;
-		syncState.reset();
-	}
-
-	@Override
-	protected void destroyInternal() throws ExecutableException {
-		try {
-			playbackDevice.close();
-			audioSource.close();
-		}
-		catch (Exception e) {
-			throw new ExecutableException(e);
-		}
-	}
-
-	@Override
-	protected void fireStateChanged() {
-		if (nonNull(stateListener)) {
-			stateListener.onExecutableStateChange(getPreviousState(), getState());
-		}
-	}
-
-	private void onProgress(Time progress, Time duration, long progressMs) {
-		if (nonNull(syncState)) {
-			syncState.setAudioTime(progressMs);
-		}
-		if (nonNull(progressListener) && started()) {
-			progress.setMillis(progressMs);
-
-			progressListener.onAudioProgress(progress, duration);
-		}
-	}
-
-
-
-	private class AudioReaderTask implements Runnable {
-
-		@Override
-		public void run() {
-			byte[] buffer = new byte[playbackDevice.getBufferSize()];
-			int bytesRead;
-
-			// Calculate bytes per millisecond.
-			float bpms = AudioUtils.getBytesPerSecond(audioSource.getAudioFormat()) / 1000f;
-
-			Time progress = new Time(0);
-			Time duration = new Time((long) (inputSize / bpms));
-
-			ExecutableState state;
-
-			while (true) {
-				state = getState();
-
-				if (state == ExecutableState.Started) {
-					try {
-						bytesRead = audioSource.read(buffer, 0, buffer.length);
-
-						if (bytesRead > 0) {
-							playbackDevice.write(buffer, 0, bytesRead);
-
-							inputPos += bytesRead;
-
-							onProgress(progress, duration, (long) (inputPos / bpms));
-						}
-						else if (bytesRead == -1) {
-							// EOM
-							break;
-						}
-					}
-					catch (Exception e) {
-						LOG.error("Play audio failed.", e);
-						break;
-					}
-				}
-				else if (state == ExecutableState.Suspended) {
-					synchronized (thread) {
-						try {
-							thread.wait();
-						}
-						catch (Exception e) {
-							// Ignore
-						}
-					}
-				}
-				else if (state == ExecutableState.Stopped) {
-					return;
-				}
-			}
-
-			// EOM
-			try {
-				stop();
-			}
-			catch (ExecutableException e) {
-				LOG.error("Stop " + getClass().getName() + " failed.", e);
-			}
-		}
-
-	}
+	/**
+	 * Removes an {@code ExecutableStateListener} from this player.
+	 *
+	 * @param listener The listener to remove.
+	 */
+	void removeStateListener(ExecutableStateListener listener);
 
 }

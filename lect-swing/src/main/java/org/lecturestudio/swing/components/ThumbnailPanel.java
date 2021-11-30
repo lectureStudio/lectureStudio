@@ -29,40 +29,32 @@ import javax.swing.border.CompoundBorder;
 import javax.swing.border.EmptyBorder;
 import javax.swing.border.MatteBorder;
 
-import org.lecturestudio.core.view.Action;
-import org.lecturestudio.swing.util.SwingUtils;
+public class ThumbnailPanel extends ThumbPanel {
 
-public class EditableThumbnailPanel extends ThumbPanel {
-
-	private final JButton addPageButton;
-
-	private final JButton deletePageButton;
+	private final JPanel buttonContainer;
 
 
-	public EditableThumbnailPanel() {
+	public ThumbnailPanel() {
 		super();
 
-		addPageButton = new JButton("+");
-		deletePageButton = new JButton("-");
-
-		JPanel container = new JPanel();
-		container.setBorder(new CompoundBorder(
+		buttonContainer = new JPanel();
+		buttonContainer.setBorder(new CompoundBorder(
 				new MatteBorder(1, 0, 0, 0, Color.LIGHT_GRAY),
 				new EmptyBorder(5, 0, 5, 0)));
-		container.setLayout(new FlowLayout(FlowLayout.LEFT, 0, 0));
-		container.setOpaque(false);
-		container.add(addPageButton);
-		container.add(Box.createHorizontalStrut(5));
-		container.add(deletePageButton);
-
-		add(container, BorderLayout.SOUTH);
+		buttonContainer.setLayout(new FlowLayout(FlowLayout.LEFT, 0, 0));
+		buttonContainer.setOpaque(false);
 	}
 
-	public void setOnNewPage(Action action) {
-		SwingUtils.bindAction(addPageButton, action);
-	}
+	public void addButton(JButton button) {
+		int compCount = buttonContainer.getComponentCount();
 
-	public void setOnDeletePage(Action action) {
-		SwingUtils.bindAction(deletePageButton, action);
+		if (compCount == 0) {
+			add(buttonContainer, BorderLayout.SOUTH);
+		}
+		else if (compCount > 0) {
+			buttonContainer.add(Box.createHorizontalStrut(5));
+		}
+
+		buttonContainer.add(button);
 	}
 }

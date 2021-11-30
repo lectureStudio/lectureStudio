@@ -137,6 +137,17 @@ public class StreamWebSocketClient extends ExecutableBase {
 		}
 	}
 
+	public void shareDocument(Document document) throws IOException {
+		sendDocument(document);
+
+		StreamAction docSelectAction = new StreamDocumentSelectAction(document);
+
+		StreamAction pageAction = new StreamPageSelectedAction(
+				document.getCurrentPage());
+
+		send(List.of(docSelectAction, pageAction));
+	}
+
 	@Override
 	protected void initInternal() throws ExecutableException {
 		eventRecorder.addDocumentConsumer(this::uploadDocument);
@@ -182,11 +193,7 @@ public class StreamWebSocketClient extends ExecutableBase {
 
 			// Upload all opened PDF documents.
 			for (var doc : documentService.getDocuments().asList()) {
-				StreamDocumentCreateAction action = uploadDocument(doc);
-
-				if (nonNull(action)) {
-					send(action);
-				}
+				sendDocument(doc);
 			}
 
 			send(List.of(docSelectAction, pageAction));
@@ -213,6 +220,14 @@ public class StreamWebSocketClient extends ExecutableBase {
 
 	private void send(Collection<? extends StreamAction> actions) throws IOException {
 		for (var action : actions) {
+			send(action);
+		}
+	}
+
+	private void sendDocument(Document document) throws IOException {
+		StreamDocumentCreateAction action = uploadDocument(document);
+
+		if (nonNull(action)) {
 			send(action);
 		}
 	}

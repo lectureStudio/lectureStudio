@@ -24,6 +24,7 @@ import static java.util.Objects.requireNonNull;
 
 import com.google.common.eventbus.Subscribe;
 
+import java.io.IOException;
 import java.net.SocketException;
 import java.util.HashMap;
 import java.util.List;
@@ -417,6 +418,22 @@ public class SlidesPresenter extends Presenter<SlidesView> {
 		view.setLaTeXText(texText);
 	}
 
+	private void shareQuiz() {
+		Document doc = documentService.getDocuments().getSelectedDocument();
+
+		if (!doc.isQuiz()) {
+			logException(new IllegalStateException(),
+					"Selected document is not a quiz");
+		}
+
+		try {
+			streamService.shareDocument(doc);
+		}
+		catch (IOException e) {
+			logException(e, "Share document failed");
+		}
+	}
+
 	private void selectDocument(Document doc) {
 		documentService.selectDocument(doc);
 	}
@@ -682,6 +699,7 @@ public class SlidesPresenter extends Presenter<SlidesView> {
 		view.setOnOutlineItem(this::setOutlineItem);
 
 		view.setOnKeyEvent(this::keyEvent);
+		view.setOnShareQuiz(this::shareQuiz);
 		view.setOnNewPage(this::newWhiteboardPage);
 		view.setOnDeletePage(this::deleteWhiteboardPage);
 		view.setOnSelectPage(this::selectPage);

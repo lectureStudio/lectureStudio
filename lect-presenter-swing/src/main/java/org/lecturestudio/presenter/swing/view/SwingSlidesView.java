@@ -142,6 +142,8 @@ public class SwingSlidesView extends JPanel implements SlidesView {
 
 	private Action deletePageAction;
 
+	private Action shareQuizAction;
+
 	private double notesDividerPosition;
 
 	private boolean extendedFullscreen;

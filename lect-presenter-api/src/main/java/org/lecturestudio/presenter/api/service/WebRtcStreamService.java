@@ -27,6 +27,7 @@ import dev.onvoid.webrtc.media.audio.AudioDevice;
 import dev.onvoid.webrtc.media.video.VideoCaptureCapability;
 import dev.onvoid.webrtc.media.video.VideoDevice;
 
+import java.io.IOException;
 import java.math.BigInteger;
 import java.util.List;
 
@@ -42,6 +43,7 @@ import org.lecturestudio.core.app.configuration.AudioConfiguration;
 import org.lecturestudio.core.beans.ChangeListener;
 import org.lecturestudio.core.codec.VideoCodecConfiguration;
 import org.lecturestudio.core.geometry.Rectangle2D;
+import org.lecturestudio.core.model.Document;
 import org.lecturestudio.core.service.DocumentService;
 import org.lecturestudio.presenter.api.config.PresenterConfiguration;
 import org.lecturestudio.presenter.api.config.StreamConfiguration;
@@ -195,6 +197,12 @@ public class WebRtcStreamService extends ExecutableBase {
 		}
 
 		janusClient.stopRemoteSpeech(peerId);
+	}
+
+	public void shareDocument(Document document) throws IOException {
+		if (streamState == ExecutableState.Started) {
+			streamStateClient.shareDocument(document);
+		}
 	}
 
 	@Override

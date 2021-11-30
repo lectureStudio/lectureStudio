@@ -45,6 +45,7 @@ import java.util.List;
 import java.util.Objects;
 
 import javax.inject.Inject;
+import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
@@ -86,7 +87,7 @@ import org.lecturestudio.presenter.api.stylus.StylusHandler;
 import org.lecturestudio.presenter.api.view.SlidesView;
 import org.lecturestudio.presenter.swing.input.StylusListener;
 import org.lecturestudio.stylus.awt.AwtStylusManager;
-import org.lecturestudio.swing.components.EditableThumbnailPanel;
+import org.lecturestudio.swing.components.ThumbnailPanel;
 import org.lecturestudio.swing.components.MessagePanel;
 import org.lecturestudio.swing.components.MessageView;
 import org.lecturestudio.swing.components.PeerView;
@@ -210,8 +211,8 @@ public class SwingSlidesView extends JPanel implements SlidesView {
 	@Override
 	public void addDocument(Document doc, PresentationParameterProvider ppProvider) {
 		SwingUtils.invoke(() -> {
-			// Create the ThumbnailPanel for the TabPane.
-			ThumbPanel thumbPanel = doc.isWhiteboard() ? new EditableThumbnailPanel() : new ThumbPanel();
+			// Create a ThumbnailPanel for each document.
+			ThumbnailPanel thumbPanel = new ThumbnailPanel();
 			thumbPanel.setRenderController(pageRenderer);
 			thumbPanel.setDocument(doc, ppProvider);
 			thumbPanel.addSelectedSlideChangedListener(event -> {
@@ -222,15 +223,28 @@ public class SwingSlidesView extends JPanel implements SlidesView {
 				}
 			});
 
-			if (thumbPanel instanceof EditableThumbnailPanel) {
-				EditableThumbnailPanel editableThumbPanel = (EditableThumbnailPanel) thumbPanel;
+			if (doc.isWhiteboard()) {
+				JButton addPageButton = new JButton("+");
+				JButton deletePageButton = new JButton("-");
 
-				editableThumbPanel.setOnNewPage(() -> {
+				SwingUtils.bindAction(addPageButton, () -> {
 					executeAction(newPageAction);
 				});
-				editableThumbPanel.setOnDeletePage(() -> {
+				SwingUtils.bindAction(deletePageButton, () -> {
 					executeAction(deletePageAction);
 				});
+
+				thumbPanel.addButton(addPageButton);
+				thumbPanel.addButton(deletePageButton);
+			}
+			if (doc.isQuiz()) {
+				JButton shareQuizButton = new JButton(dict.get("slides.share.quiz"));
+
+				SwingUtils.bindAction(shareQuizButton, () -> {
+					executeAction(shareQuizAction);
+				});
+
+				thumbPanel.addButton(shareQuizButton);
 			}
 
 			VerticalTab tab = new VerticalTab(tabPane.getTabPlacement());
@@ -635,6 +649,11 @@ public class SwingSlidesView extends JPanel implements SlidesView {
 	@Override
 	public void setOnDeletePage(Action action) {
 		this.deletePageAction = action;
+	}
+
+	@Override
+	public void setOnShareQuiz(Action action) {
+		this.shareQuizAction = action;
 	}
 
 	@Override

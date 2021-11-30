@@ -479,6 +479,11 @@ public class FxSlidesView extends VBox implements SlidesView {
 	}
 
 	@Override
+	public void setOnShareQuiz(Action action) {
+
+	}
+
+	@Override
 	public void setOnOutlineItem(ConsumerAction<DocumentOutlineItem> action) {
 
 	}

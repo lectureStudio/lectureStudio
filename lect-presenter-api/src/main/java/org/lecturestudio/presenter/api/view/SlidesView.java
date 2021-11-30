@@ -121,6 +121,8 @@ public interface SlidesView extends View {
 
 	void setOnDeletePage(Action action);
 
+	void setOnShareQuiz(Action action);
+
 	void setOnOutlineItem(ConsumerAction<DocumentOutlineItem> action);
 
 }

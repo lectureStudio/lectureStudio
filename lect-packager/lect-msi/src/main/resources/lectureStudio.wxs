@@ -88,7 +88,7 @@
 		<DirectoryRef Id="ApplicationProgramsFolder">
 			<Component Id="AppStartMenuShortcut" Guid="3A0F9C66-2C52-481E-80A3-E0EE3E1FD2DF">
 				<Shortcut Id="PresenterStartMenuShortcut" Name="lecturePresenter" Description="${package.name} Presenter" Target="[BIN_DIR_REF]lecturePresenter.exe" WorkingDirectory="APPLICATION_ROOT_DIRECTORY" />
-				<Shortcut Id="PlayerStartMenuShortcut" Name="lecturePlayer" Description="${package.name} Player" Target="[BIN_DIR_REF]lecturePlayer.exe" WorkingDirectory="APPLICATION_ROOT_DIRECTORY" />
+<!-- 				<Shortcut Id="PlayerStartMenuShortcut" Name="lecturePlayer" Description="${package.name} Player" Target="[BIN_DIR_REF]lecturePlayer.exe" WorkingDirectory="APPLICATION_ROOT_DIRECTORY" /> -->
 				<Shortcut Id="EditorStartMenuShortcut" Name="lectureEditor" Description="${package.name} Editor" Target="[BIN_DIR_REF]lectureEditor.exe" WorkingDirectory="APPLICATION_ROOT_DIRECTORY" />
 				<RemoveFolder Id="ApplicationProgramsFolder" On="uninstall"/>
 				<RegistryValue Root="HKCU" Key="Software\${package.vendor}\${package.name}" Name="startmenu.shortcuts" Type="integer" Value="1" KeyPath="yes"/>
@@ -101,7 +101,7 @@
 		<ComponentGroup Id="AppGroupDesktopShortcut">
 			<Component Id="ComponentDesktopShortcut" Guid="3366119F-AC43-4959-95B1-CEF68E6E46C1" Directory="DesktopFolder">
 				<Shortcut Id="PresenterDesktopShortcut" Name="lecturePresenter" Description="${package.name} Presenter" Directory="DesktopFolder" Target="[BIN_DIR_REF]lecturePresenter.exe" WorkingDirectory="APPLICATION_ROOT_DIRECTORY" />
-				<Shortcut Id="PlayerDesktopShortcut" Name="lecturePlayer" Description="${package.name} Player" Directory="DesktopFolder" Target="[BIN_DIR_REF]lecturePlayer.exe" WorkingDirectory="APPLICATION_ROOT_DIRECTORY" />
+<!-- 				<Shortcut Id="PlayerDesktopShortcut" Name="lecturePlayer" Description="${package.name} Player" Directory="DesktopFolder" Target="[BIN_DIR_REF]lecturePlayer.exe" WorkingDirectory="APPLICATION_ROOT_DIRECTORY" /> -->
 				<Shortcut Id="EditorDesktopShortcut" Name="lectureEditor" Description="${package.name} Editor" Directory="DesktopFolder" Target="[BIN_DIR_REF]lectureEditor.exe" WorkingDirectory="APPLICATION_ROOT_DIRECTORY" />
 				<RemoveFolder Id="DesktopFolder" On="uninstall"/>
 				<RegistryValue Root="HKCU" Key="Software\${package.vendor}\${package.name}" Name="desktop.shortcuts" Type="integer" Value="1" KeyPath="yes" />

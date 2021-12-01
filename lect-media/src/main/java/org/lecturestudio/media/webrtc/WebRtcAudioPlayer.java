@@ -92,6 +92,23 @@ public class WebRtcAudioPlayer extends ExecutableBase implements AudioPlayer {
 	public void setAudioDeviceName(String deviceName) {
 		playbackDevice = getDeviceByName(MediaDevices.getAudioRenderDevices(),
 				deviceName);
+
+		if (started() || suspended()) {
+			try {
+				deviceModule.stopPlayout();
+				deviceModule.setPlayoutDevice(playbackDevice);
+				deviceModule.initPlayout();
+
+				setAudioModuleVolume();
+
+				if (started()) {
+					deviceModule.startPlayout();
+				}
+			}
+			catch (Throwable e) {
+				logException(e, "Change playback device failed");
+			}
+		}
 	}
 
 	@Override

@@ -119,12 +119,7 @@ public class RecordingPlayer extends ExecutableBase {
 		actionExecutor = new FileEventExecutor(toolController, recording.getRecordedEvents().getRecordedPages(), syncState);
 		actionExecutor.init();
 
-		try {
-			initAudioPlayer(recording.getRecordedAudio());
-		}
-		catch (Exception e) {
-			throw new ExecutableException(e);
-		}
+		initAudioPlayer(recording.getRecordedAudio());
 
 		preloadDocument(getDocument(), recording.getRecordedEvents());
 
@@ -134,6 +129,10 @@ public class RecordingPlayer extends ExecutableBase {
 		progressEvent.setPageNumber(1);
 		progressEvent.setPageCount(recording.getRecordedEvents().getRecordedPages().size());
 		progressEvent.setEventNumber(0);
+
+		audioConfig.playbackDeviceNameProperty().addListener((observable, oldDevice, newDevice) -> {
+			audioPlayer.setAudioDeviceName(newDevice);
+		});
 
 		AudioBus.register(this);
 	}
@@ -297,11 +296,13 @@ public class RecordingPlayer extends ExecutableBase {
 		}
 	}
 
-	private void initAudioPlayer(RecordedAudio audio) throws Exception {
+	private void initAudioPlayer(RecordedAudio audio)
+			throws ExecutableException {
 		audioStream = audio.getAudioStream().clone();
 
 		AudioFormat sourceFormat = audioStream.getAudioFormat();
-		AudioFormat targetFormat = new AudioFormat(AudioFormat.Encoding.S16LE, sourceFormat.getSampleRate(), sourceFormat.getChannels());
+		AudioFormat targetFormat = new AudioFormat(AudioFormat.Encoding.S16LE,
+				sourceFormat.getSampleRate(), sourceFormat.getChannels());
 
 		audioStream.setAudioFormat(targetFormat);
 		

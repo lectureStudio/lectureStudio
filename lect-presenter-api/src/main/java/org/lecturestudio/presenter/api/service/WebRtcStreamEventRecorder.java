@@ -20,14 +20,21 @@ package org.lecturestudio.presenter.api.service;
 
 import static java.util.Objects.isNull;
 import static java.util.Objects.nonNull;
+import static java.util.Objects.requireNonNull;
 
 import com.google.common.eventbus.Subscribe;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.inject.Inject;
 import javax.inject.Singleton;
+import javax.ws.rs.core.MediaType;
 
+import org.lecturestudio.core.ExecutableException;
 import org.lecturestudio.core.ExecutableState;
 import org.lecturestudio.core.bus.ApplicationBus;
 import org.lecturestudio.core.bus.event.DocumentEvent;
@@ -35,46 +42,38 @@ import org.lecturestudio.core.bus.event.PageEvent;
 import org.lecturestudio.core.bus.event.RecordActionEvent;
 import org.lecturestudio.core.model.Document;
 import org.lecturestudio.core.model.Page;
-import org.lecturestudio.core.model.listener.DocumentChangeListener;
 import org.lecturestudio.core.recording.RecordedPage;
 import org.lecturestudio.core.recording.action.PlaybackAction;
+import org.lecturestudio.core.service.DocumentService;
 import org.lecturestudio.presenter.api.recording.PendingActions;
+import org.lecturestudio.web.api.client.MultipartBody;
 import org.lecturestudio.web.api.stream.StreamEventRecorder;
 import org.lecturestudio.web.api.stream.action.StreamAction;
 import org.lecturestudio.web.api.stream.action.StreamDocumentAction;
 import org.lecturestudio.web.api.stream.action.StreamDocumentCloseAction;
 import org.lecturestudio.web.api.stream.action.StreamDocumentCreateAction;
 import org.lecturestudio.web.api.stream.action.StreamDocumentSelectAction;
+import org.lecturestudio.web.api.stream.action.StreamInitAction;
 import org.lecturestudio.web.api.stream.action.StreamPageActionsAction;
 import org.lecturestudio.web.api.stream.action.StreamPageCreatedAction;
 import org.lecturestudio.web.api.stream.action.StreamPageDeletedAction;
 import org.lecturestudio.web.api.stream.action.StreamPagePlaybackAction;
 import org.lecturestudio.web.api.stream.action.StreamPageSelectedAction;
+import org.lecturestudio.web.api.stream.model.Course;
+import org.lecturestudio.web.api.stream.service.StreamProviderService;
 
 @Singleton
 public class WebRtcStreamEventRecorder extends StreamEventRecorder {
 
-	private final DocumentChangeListener documentChangeListener = new DocumentChangeListener() {
+	private final DocumentService documentService;
 
-		@Override
-		public void documentChanged(Document document) {
-			updateDocument(document);
-		}
-
-		@Override
-		public void pageAdded(Page page) {
-
-		}
-
-		@Override
-		public void pageRemoved(Page page) {
-
-		}
-	};
+	private StreamProviderService streamProviderService;
 
 	private PendingActions pendingActions;
 
 	private Page currentPage;
+
+	private Course course;
 
 	private long startTime = -1;
 
@@ -82,6 +81,26 @@ public class WebRtcStreamEventRecorder extends StreamEventRecorder {
 
 	private long halted = 0;
 
+
+	@Inject
+	public WebRtcStreamEventRecorder(DocumentService documentService) {
+		this.documentService = documentService;
+	}
+
+	public void setCourse(Course course) {
+		this.course = course;
+	}
+
+	public void setStreamProviderService(StreamProviderService streamService) {
+		this.streamProviderService = streamService;
+	}
+
+	public void shareDocument(Document document) throws IOException {
+		sendDocument(document);
+
+		addPlaybackAction(new StreamDocumentSelectAction(document));
+		addPlaybackAction(new StreamPageSelectedAction(document.getCurrentPage()));
+	}
 
 	@Override
 	public long getElapsedTime() {
@@ -121,9 +140,8 @@ public class WebRtcStreamEventRecorder extends StreamEventRecorder {
 
 	@Subscribe
 	public void onEvent(final RecordActionEvent event) {
-//		if (initialized() || suspended()) {
-			addPendingAction(event.getAction());
-//		}
+		addPendingAction(event.getAction());
+
 		if (!started()) {
 			return;
 		}
@@ -136,9 +154,8 @@ public class WebRtcStreamEventRecorder extends StreamEventRecorder {
 
 	@Subscribe
 	public void onEvent(final PageEvent event) {
-//		if (initialized() || suspended()) {
-			pendingActions.setPendingPage(event.getPage());
-//		}
+		pendingActions.setPendingPage(event.getPage());
+
 		if (!started()) {
 			return;
 		}
@@ -167,10 +184,9 @@ public class WebRtcStreamEventRecorder extends StreamEventRecorder {
 	public void onEvent(final DocumentEvent event) {
 		Document doc = event.getDocument();
 
-//		if (initialized() || suspended()) {
-			currentPage = doc.getCurrentPage();
-			pendingActions.setPendingPage(doc.getCurrentPage());
-//		}
+		currentPage = doc.getCurrentPage();
+		pendingActions.setPendingPage(doc.getCurrentPage());
+
 		if (!started()) {
 			return;
 		}
@@ -178,21 +194,18 @@ public class WebRtcStreamEventRecorder extends StreamEventRecorder {
 		StreamDocumentAction action = null;
 
 		if (event.created()) {
-			action = new StreamDocumentCreateAction(doc);
+			try {
+				action = uploadDocument(doc);
+			}
+			catch (IOException e) {
+				logException(e, "Transmit document failed");
+			}
 		}
 		else if (event.closed()) {
 			action = new StreamDocumentCloseAction(doc);
 		}
 		else if (event.selected()) {
 			currentPage = doc.getCurrentPage();
-
-			Document oldDoc = event.getOldDocument();
-
-			if (nonNull(oldDoc)) {
-				oldDoc.removeChangeListener(documentChangeListener);
-			}
-
-			doc.addChangeListener(documentChangeListener);
 
 			action = new StreamDocumentSelectAction(doc);
 		}
@@ -209,7 +222,7 @@ public class WebRtcStreamEventRecorder extends StreamEventRecorder {
 	}
 
 	@Override
-	protected void initInternal() {
+	protected void initInternal() throws ExecutableException {
 		pendingActions = new PendingActions();
 		pendingActions.initialize();
 
@@ -217,7 +230,29 @@ public class WebRtcStreamEventRecorder extends StreamEventRecorder {
 	}
 
 	@Override
-	protected void startInternal() {
+	protected void startInternal() throws ExecutableException {
+		requireNonNull(course, "Course must be set");
+
+		// Transmit initial document state.
+		Document document = documentService.getDocuments().getSelectedDocument();
+
+		addPlaybackAction(new StreamInitAction(course.getId()));
+
+		try {
+			// Upload all opened PDF documents.
+			for (var doc : documentService.getDocuments().asList()) {
+				sendDocument(doc);
+			}
+
+			addPlaybackAction(new StreamDocumentSelectAction(document));
+			addPlaybackAction(new StreamPageSelectedAction(document.getCurrentPage()));
+
+			getPreRecordedActions().forEach(this::addPlaybackAction);
+		}
+		catch (Exception e) {
+			throw new ExecutableException("Send action failed", e);
+		}
+
 		ExecutableState prevState = getPreviousState();
 
 		if (prevState == ExecutableState.Initialized || prevState == ExecutableState.Stopped) {
@@ -259,21 +294,40 @@ public class WebRtcStreamEventRecorder extends StreamEventRecorder {
 	}
 
 	private void addPlaybackAction(StreamAction action) {
-		if (!started() || isNull(action)) {
+		if (isNull(action) || !(started() || getState() == ExecutableState.Starting)) {
 			return;
 		}
 
 		notifyActionConsumers(action);
 	}
 
-	private void updateDocument(Document document) {
-		StreamDocumentAction action = new StreamDocumentCreateAction(document);
-		action.setDocumentFile(document.getName() + ".pdf");
+	private void sendDocument(Document document) throws IOException {
+		StreamDocumentCreateAction action = uploadDocument(document);
 
 		addPlaybackAction(action);
+	}
 
-		// Keep the state up to date and publish the current page.
-		Page page = document.getCurrentPage();
-		addPlaybackAction(new StreamPageSelectedAction(page));
+	private StreamDocumentCreateAction uploadDocument(Document document)
+			throws IOException {
+		if (document.isWhiteboard()) {
+			return new StreamDocumentCreateAction(document);
+		}
+
+		String docFileName = document.getName() + ".pdf";
+		ByteArrayOutputStream docData = new ByteArrayOutputStream();
+
+		document.toOutputStream(docData);
+
+		MultipartBody body = new MultipartBody();
+		body.addFormData("file",
+				new ByteArrayInputStream(docData.toByteArray()),
+				MediaType.MULTIPART_FORM_DATA_TYPE, docFileName);
+
+		String remoteFile = streamProviderService.uploadFile(body);
+
+		StreamDocumentCreateAction docCreateAction = new StreamDocumentCreateAction(document);
+		docCreateAction.setDocumentFile(remoteFile);
+
+		return docCreateAction;
 	}
 }

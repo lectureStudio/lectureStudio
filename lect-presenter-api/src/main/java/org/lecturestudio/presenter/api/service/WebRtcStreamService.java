@@ -44,7 +44,6 @@ import org.lecturestudio.core.beans.ChangeListener;
 import org.lecturestudio.core.codec.VideoCodecConfiguration;
 import org.lecturestudio.core.geometry.Rectangle2D;
 import org.lecturestudio.core.model.Document;
-import org.lecturestudio.core.service.DocumentService;
 import org.lecturestudio.presenter.api.config.PresenterConfiguration;
 import org.lecturestudio.presenter.api.config.StreamConfiguration;
 import org.lecturestudio.presenter.api.context.PresenterContext;
@@ -77,8 +76,6 @@ import org.lecturestudio.web.api.websocket.WebSocketHeaderProvider;
 public class WebRtcStreamService extends ExecutableBase {
 
 	private final ApplicationContext context;
-
-	private final DocumentService documentService;
 
 	private final WebRtcStreamEventRecorder eventRecorder;
 
@@ -119,11 +116,9 @@ public class WebRtcStreamService extends ExecutableBase {
 
 	@Inject
 	public WebRtcStreamService(ApplicationContext context,
-			DocumentService documentService,
 			WebRtcStreamEventRecorder eventRecorder)
 			throws ExecutableException {
 		this.context = context;
-		this.documentService = documentService;
 		this.eventRecorder = eventRecorder;
 
 		eventRecorder.init();
@@ -135,7 +130,8 @@ public class WebRtcStreamService extends ExecutableBase {
 			return;
 		}
 
-		String userName = String.format("%s %s", message.getFirstName(), message.getFamilyName());
+		String userName = String.format("%s %s", message.getFirstName(),
+				message.getFamilyName());
 
 		janusClient.startRemoteSpeech(message.getRequestId(), userName);
 		streamProviderService.acceptSpeechRequest(message.getRequestId());
@@ -201,7 +197,7 @@ public class WebRtcStreamService extends ExecutableBase {
 
 	public void shareDocument(Document document) throws IOException {
 		if (streamState == ExecutableState.Started) {
-			streamStateClient.shareDocument(document);
+			eventRecorder.shareDocument(document);
 		}
 	}
 
@@ -269,10 +265,16 @@ public class WebRtcStreamService extends ExecutableBase {
 			}
 		});
 
+		eventRecorder.setCourse(course);
+		eventRecorder.setStreamProviderService(streamProviderService);
+
 		try {
-			eventRecorder.start();
 			streamStateClient.start();
 			janusClient.start();
+
+			// As of now, it's mandatory to start the event-recorder after the
+			// clients started.
+			eventRecorder.start();
 		}
 		catch (Exception e) {
 			throw new ExecutableException(e);
@@ -389,7 +391,8 @@ public class WebRtcStreamService extends ExecutableBase {
 		context.getEventBus().post(new CameraStateEvent(cameraState));
 	}
 
-	private StreamWebSocketClient createStreamStateClient(Course course, PresenterConfiguration config) {
+	private StreamWebSocketClient createStreamStateClient(Course course,
+			PresenterConfiguration config) {
 		StreamConfiguration streamConfig = config.getStreamConfig();
 
 		ServiceParameters stateWsParameters = new ServiceParameters();
@@ -406,10 +409,8 @@ public class WebRtcStreamService extends ExecutableBase {
 		WebSocketHeaderProvider headerProvider = new WebSocketBearerTokenProvider(
 				tokenProvider);
 
-		return new StreamWebSocketClient(context.getEventBus(), stateWsParameters,
-				headerProvider, eventRecorder, documentService,
-				streamProviderService,
-				course);
+		return new StreamWebSocketClient(context.getEventBus(),
+				stateWsParameters, headerProvider, eventRecorder, course);
 	}
 
 	private JanusWebSocketClient createJanusClient(StreamContext webRtcConfig) {

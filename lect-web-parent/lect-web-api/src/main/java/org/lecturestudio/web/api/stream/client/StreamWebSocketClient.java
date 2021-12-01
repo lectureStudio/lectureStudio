@@ -21,8 +21,6 @@ package org.lecturestudio.web.api.stream.client;
 import static java.util.Objects.nonNull;
 import static java.util.Objects.requireNonNull;
 
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.StringReader;
 import java.net.URI;
@@ -33,8 +31,6 @@ import java.net.http.WebSocket.Listener;
 import java.nio.ByteBuffer;
 import java.time.Duration;
 import java.time.temporal.ChronoUnit;
-import java.util.Collection;
-import java.util.List;
 import java.util.concurrent.CompletionStage;
 
 import javax.json.Json;
@@ -43,14 +39,10 @@ import javax.json.JsonReader;
 import javax.json.bind.Jsonb;
 import javax.json.bind.JsonbBuilder;
 import javax.json.bind.JsonbConfig;
-import javax.ws.rs.core.MediaType;
 
 import org.lecturestudio.core.ExecutableBase;
 import org.lecturestudio.core.ExecutableException;
 import org.lecturestudio.core.bus.EventBus;
-import org.lecturestudio.core.model.Document;
-import org.lecturestudio.core.service.DocumentService;
-import org.lecturestudio.web.api.client.MultipartBody;
 import org.lecturestudio.web.api.data.bind.CourseParticipantMessageAdapter;
 import org.lecturestudio.web.api.data.bind.JsonConfigProvider;
 import org.lecturestudio.web.api.data.bind.SpeechMessageAdapter;
@@ -60,13 +52,8 @@ import org.lecturestudio.web.api.net.SSLContextFactory;
 import org.lecturestudio.web.api.service.ServiceParameters;
 import org.lecturestudio.web.api.stream.StreamEventRecorder;
 import org.lecturestudio.web.api.stream.action.StreamAction;
-import org.lecturestudio.web.api.stream.action.StreamDocumentCreateAction;
-import org.lecturestudio.web.api.stream.action.StreamDocumentSelectAction;
-import org.lecturestudio.web.api.stream.action.StreamInitAction;
-import org.lecturestudio.web.api.stream.action.StreamPageSelectedAction;
 import org.lecturestudio.web.api.stream.action.StreamStartAction;
 import org.lecturestudio.web.api.stream.model.Course;
-import org.lecturestudio.web.api.stream.service.StreamProviderService;
 import org.lecturestudio.web.api.websocket.WebSocketHeaderProvider;
 
 /**
@@ -86,10 +73,6 @@ public class StreamWebSocketClient extends ExecutableBase {
 
 	private final StreamEventRecorder eventRecorder;
 
-	private final DocumentService documentService;
-
-	private final StreamProviderService streamProviderService;
-
 	private final Course course;
 
 	private final Jsonb jsonb;
@@ -97,24 +80,21 @@ public class StreamWebSocketClient extends ExecutableBase {
 	private WebSocket webSocket;
 
 
-	public StreamWebSocketClient(EventBus eventBus, ServiceParameters parameters,
+	public StreamWebSocketClient(EventBus eventBus,
+			ServiceParameters parameters,
 			WebSocketHeaderProvider headerProvider,
-			StreamEventRecorder eventRecorder, DocumentService documentService,
-			StreamProviderService streamProviderService, Course course) {
+			StreamEventRecorder eventRecorder,
+			Course course) {
 		requireNonNull(eventBus);
 		requireNonNull(parameters);
 		requireNonNull(headerProvider);
 		requireNonNull(eventRecorder);
-		requireNonNull(documentService);
-		requireNonNull(streamProviderService);
 		requireNonNull(course);
 
 		this.eventBus = eventBus;
 		this.serviceParameters = parameters;
 		this.headerProvider = headerProvider;
 		this.eventRecorder = eventRecorder;
-		this.documentService = documentService;
-		this.streamProviderService = streamProviderService;
 		this.course = course;
 
 		JsonbConfig config = JsonConfigProvider.createConfig().withAdapters(
@@ -137,20 +117,8 @@ public class StreamWebSocketClient extends ExecutableBase {
 		}
 	}
 
-	public void shareDocument(Document document) throws IOException {
-		sendDocument(document);
-
-		StreamAction docSelectAction = new StreamDocumentSelectAction(document);
-
-		StreamAction pageAction = new StreamPageSelectedAction(
-				document.getCurrentPage());
-
-		send(List.of(docSelectAction, pageAction));
-	}
-
 	@Override
 	protected void initInternal() throws ExecutableException {
-		eventRecorder.addDocumentConsumer(this::uploadDocument);
 		eventRecorder.addRecordedActionConsumer(action -> {
 			try {
 				send(action);
@@ -177,31 +145,6 @@ public class StreamWebSocketClient extends ExecutableBase {
 				.buildAsync(URI.create(serviceParameters.getUrl()),
 						new WebSocketListener())
 				.join();
-
-		// Transmit initial document state.
-		Document document = documentService.getDocuments().getSelectedDocument();
-
-		StreamInitAction initAction = new StreamInitAction(course.getId());
-
-		StreamDocumentSelectAction docSelectAction = new StreamDocumentSelectAction(document);
-
-		StreamPageSelectedAction pageAction = new StreamPageSelectedAction(
-				document.getCurrentPage());
-
-		try {
-			send(initAction);
-
-			// Upload all opened PDF documents.
-			for (var doc : documentService.getDocuments().asList()) {
-				sendDocument(doc);
-			}
-
-			send(List.of(docSelectAction, pageAction));
-			send(eventRecorder.getPreRecordedActions());
-		}
-		catch (Exception e) {
-			throw new ExecutableException("Send action failed", e);
-		}
 	}
 
 	@Override
@@ -216,49 +159,6 @@ public class StreamWebSocketClient extends ExecutableBase {
 
 	private void send(StreamAction action) throws IOException {
 		webSocket.sendBinary(ByteBuffer.wrap(action.toByteArray()), true);
-	}
-
-	private void send(Collection<? extends StreamAction> actions) throws IOException {
-		for (var action : actions) {
-			send(action);
-		}
-	}
-
-	private void sendDocument(Document document) throws IOException {
-		StreamDocumentCreateAction action = uploadDocument(document);
-
-		if (nonNull(action)) {
-			send(action);
-		}
-	}
-
-	private StreamDocumentCreateAction uploadDocument(Document document) {
-		if (!document.isPDF()) {
-			return new StreamDocumentCreateAction(document);
-		}
-
-		String docFileName = document.getName() + ".pdf";
-		ByteArrayOutputStream docData = new ByteArrayOutputStream();
-
-		try {
-			document.toOutputStream(docData);
-		}
-		catch (IOException e) {
-			logException(e, "Convert document failed");
-			return null;
-		}
-
-		MultipartBody body = new MultipartBody();
-		body.addFormData("file",
-				new ByteArrayInputStream(docData.toByteArray()),
-				MediaType.MULTIPART_FORM_DATA_TYPE, docFileName);
-
-		String remoteFile = streamProviderService.uploadFile(body);
-
-		StreamDocumentCreateAction docCreateAction = new StreamDocumentCreateAction(document);
-		docCreateAction.setDocumentFile(remoteFile);
-
-		return docCreateAction;
 	}
 
 

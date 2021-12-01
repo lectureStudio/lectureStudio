@@ -22,7 +22,6 @@ import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.function.Consumer;
 
-import org.lecturestudio.core.model.Document;
 import org.lecturestudio.core.recording.LectureRecorder;
 import org.lecturestudio.web.api.stream.action.StreamAction;
 import org.lecturestudio.web.api.stream.action.StreamPageActionsAction;
@@ -31,15 +30,9 @@ public abstract class StreamEventRecorder extends LectureRecorder {
 
 	protected final List<Consumer<StreamAction>> actionConsumers = new CopyOnWriteArrayList<>();
 
-	protected final List<Consumer<Document>> documentConsumers = new CopyOnWriteArrayList<>();
-
 
 	abstract public List<StreamPageActionsAction> getPreRecordedActions();
 
-
-	public void addDocumentConsumer(Consumer<Document> consumer) {
-		documentConsumers.add(consumer);
-	}
 
 	public void addRecordedActionConsumer(Consumer<StreamAction> consumer) {
 		actionConsumers.add(consumer);
@@ -47,12 +40,6 @@ public abstract class StreamEventRecorder extends LectureRecorder {
 
 	public void removeRecordedActionConsumer(Consumer<StreamAction> consumer) {
 		actionConsumers.remove(consumer);
-	}
-
-	protected void notifyDocumentConsumers(Document document) {
-		for (var consumer : documentConsumers) {
-			consumer.accept(document);
-		}
 	}
 
 	protected void notifyActionConsumers(StreamAction action) {

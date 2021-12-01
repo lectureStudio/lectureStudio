@@ -34,6 +34,7 @@ import org.lecturestudio.core.audio.AudioFormat;
 import org.lecturestudio.core.audio.AudioProcessingSettings;
 import org.lecturestudio.core.audio.AudioProcessingSettings.NoiseSuppressionLevel;
 import org.lecturestudio.core.audio.AudioSystemProvider;
+import org.lecturestudio.core.audio.bus.event.AudioSignalEvent;
 import org.lecturestudio.core.audio.device.AudioDevice;
 import org.lecturestudio.core.audio.sink.AudioSink;
 import org.lecturestudio.core.audio.sink.ByteArrayAudioSink;
@@ -336,6 +337,8 @@ public class SoundSettingsPresenter extends Presenter<SoundSettingsView> {
 			public int write(byte[] data, int offset, int length) {
 				double level = getSignalPowerLevel(data);
 				view.setAudioCaptureLevel(level);
+
+				context.getAudioBus().post(new AudioSignalEvent(level));
 
 				return 0;
 			}

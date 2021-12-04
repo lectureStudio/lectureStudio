@@ -609,7 +609,7 @@ public class Document {
 	public int hashCode() {
 		final int prime = 31;
 		int result = 1;
-		result = prime * result + ((title == null) ? 0 : title.hashCode());
+		result = prime * result + ((getName() == null) ? 0 : getName().hashCode());
 		result = prime * result + ((type == null) ? 0 : type.name().hashCode());
 		return result;
 	}
@@ -625,7 +625,7 @@ public class Document {
 
 		Document other = (Document) o;
 
-		boolean eqTitle = Objects.equals(title, other.title);
+		boolean eqTitle = Objects.equals(getName(), other.getName());
 		boolean eqType = type == other.type;
 		boolean eqPdf = Objects.equals(pdfDocument, other.pdfDocument);
 

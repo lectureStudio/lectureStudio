@@ -188,6 +188,9 @@ public class WebRtcStreamEventRecorder extends StreamEventRecorder {
 		pendingActions.setPendingPage(doc.getCurrentPage());
 
 		if (!started()) {
+			if (event.closed()) {
+				removeActionsForDocument(doc);
+			}
 			return;
 		}
 
@@ -299,6 +302,10 @@ public class WebRtcStreamEventRecorder extends StreamEventRecorder {
 		}
 
 		notifyActionConsumers(action);
+	}
+
+	private void removeActionsForDocument(Document document) {
+		document.getPages().forEach(pendingActions::clearPendingActions);
 	}
 
 	private void sendDocument(Document document) throws IOException {

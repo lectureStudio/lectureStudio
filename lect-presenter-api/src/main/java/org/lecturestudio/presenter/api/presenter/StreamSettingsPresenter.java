@@ -18,17 +18,12 @@
 
 package org.lecturestudio.presenter.api.presenter;
 
-import static java.util.Objects.nonNull;
-
-import java.util.Arrays;
+import java.io.IOException;
+import java.util.Properties;
 
 import javax.inject.Inject;
 
-import org.lecturestudio.broadcast.config.BroadcastProfile;
 import org.lecturestudio.core.app.ApplicationContext;
-import org.lecturestudio.core.audio.AudioFormat;
-import org.lecturestudio.core.audio.codec.AudioCodecLoader;
-import org.lecturestudio.core.audio.codec.AudioCodecProvider;
 import org.lecturestudio.core.codec.VideoCodecConfiguration;
 import org.lecturestudio.core.presenter.Presenter;
 import org.lecturestudio.presenter.api.config.NetworkConfiguration;
@@ -54,15 +49,6 @@ public class StreamSettingsPresenter extends Presenter<StreamSettingsView> {
 		this.defaultConfig = new DefaultConfiguration();
 	}
 
-	public void setStreamAudioFormats(String codecName) {
-		AudioCodecProvider codecProvider = AudioCodecLoader.getInstance().getProvider(codecName);
-		AudioFormat[] audioFormats = codecProvider.getAudioEncoder().getSupportedFormats();
-
-		if (nonNull(audioFormats)) {
-			view.setStreamAudioFormats(Arrays.asList(audioFormats));
-		}
-	}
-
 	public void reset() {
 		PresenterConfiguration config = (PresenterConfiguration) context.getConfiguration();
 		NetworkConfiguration netConfig = config.getNetworkConfig();
@@ -83,68 +69,35 @@ public class StreamSettingsPresenter extends Presenter<StreamSettingsView> {
 	@Override
 	public void initialize() {
 		PresenterConfiguration config = (PresenterConfiguration) context.getConfiguration();
-		NetworkConfiguration netConfig = config.getNetworkConfig();
 		StreamConfiguration streamConfig = config.getStreamConfig();
 		VideoCodecConfiguration cameraConfig = streamConfig.getCameraCodecConfig();
 
-//		String[] codecNames = AudioUtils.getSupportedAudioCodecs();
-
-//		setStreamAudioFormats(streamConfig.getAudioCodec());
-
 		view.setAccessToken(streamConfig.accessTokenProperty());
 		view.setOnCheckAccessToken(this::checkAccessToken);
-//		view.setStreamAudioFormat(streamConfig.audioFormatProperty());
-//		view.setStreamAudioCodecNames(codecNames);
-//		view.setStreamAudioCodecName(streamConfig.audioCodecProperty());
 		view.setStreamCameraBitrate(cameraConfig.bitRateProperty());
-
-//		view.setBroadcastProfiles(netConfig.getBroadcastProfiles());
-//		view.setBroadcastProfile(netConfig.broadcastProfileProperty());
-//		view.setOnAddBroadcastProfile(this::addBroadcastProfile);
-//		view.setOnDeleteBroadcastProfile(this::deleteBroadcastProfile);
-
 		view.setOnReset(this::reset);
 
+		// Retrieve properties here since named injection does not work.
+		Properties streamProps = new Properties();
+
+		try {
+			streamProps.load(getClass().getClassLoader()
+					.getResourceAsStream("resources/stream.properties"));
+		}
+		catch (IOException e) {
+			logException(e, "Load stream properties failed");
+		}
+
+		String streamPublisherApiUrl = streamProps.getProperty(
+				"stream.publisher.api.url");
+
 		ServiceParameters parameters = new ServiceParameters();
-		parameters.setUrl("https://lecturestudio.dek.e-technik.tu-darmstadt.de");
+		parameters.setUrl(streamPublisherApiUrl);
 
-		streamProviderService = new StreamProviderService(parameters, streamConfig::getAccessToken);
-
-//		netConfig.getBroadcastProfiles().addListener(new ListChangeListener<>() {
-//
-//			@Override
-//			public void listChanged(ObservableList<BroadcastProfile> list) {
-//				view.setBroadcastProfiles(netConfig.getBroadcastProfiles());
-//			}
-//		});
-//
-//		streamConfig.audioCodecProperty().addListener((observable, oldCodec, newCodec) -> {
-//			setStreamAudioFormats(newCodec);
-//		});
+		streamProviderService = new StreamProviderService(parameters,
+				streamConfig::getAccessToken);
 
 		checkAccessToken();
-	}
-
-	public void addBroadcastProfile() {
-		PresenterConfiguration config = (PresenterConfiguration) context.getConfiguration();
-		NetworkConfiguration netConfig = config.getNetworkConfig();
-
-		BroadcastProfile profile = new BroadcastProfile();
-		profile.setName(context.getDictionary().get("stream.profile.new"));
-		profile.setBroadcastAddress("0.0.0.0");
-		profile.setBroadcastPort(80);
-		profile.setBroadcastTlsPort(433);
-
-		netConfig.getBroadcastProfiles().add(profile);
-	}
-
-	public void deleteBroadcastProfile(BroadcastProfile profile) {
-		if (nonNull(profile)) {
-			PresenterConfiguration config = (PresenterConfiguration) context.getConfiguration();
-			NetworkConfiguration netConfig = config.getNetworkConfig();
-
-			netConfig.getBroadcastProfiles().remove(profile);
-		}
 	}
 
 	public void checkAccessToken() {

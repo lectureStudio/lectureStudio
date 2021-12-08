@@ -184,7 +184,7 @@ public abstract class ExecutableBase implements Executable {
     }
 
 	/**
-	 * @throws ExecutableException if the sub-class fails to destroy this
+	 * @throws ExecutableException if the subclass fails to destroy this
 	 *                             component.
 	 */
 	protected abstract void destroyInternal() throws ExecutableException;
@@ -229,7 +229,7 @@ public abstract class ExecutableBase implements Executable {
 
 	/**
 	 * Notify state listeners about the new state. This method can be overridden
-	 * by sub-classes in order to use a custom state notification.
+	 * by subclasses in order to use a custom state notification.
 	 */
 	protected void fireStateChanged() {
 		for (ExecutableStateListener listener : stateListeners) {

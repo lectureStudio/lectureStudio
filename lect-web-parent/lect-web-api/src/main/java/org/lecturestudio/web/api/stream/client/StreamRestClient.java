@@ -33,7 +33,7 @@ import org.eclipse.microprofile.rest.client.annotation.RegisterProviders;
 
 import org.jboss.resteasy.annotations.providers.multipart.MultipartForm;
 
-import org.lecturestudio.web.api.client.AuthorizationFilter;
+import org.lecturestudio.web.api.client.ApiKeyFilter;
 import org.lecturestudio.web.api.client.MultipartBody;
 import org.lecturestudio.web.api.data.bind.JsonConfigProvider;
 import org.lecturestudio.web.api.stream.model.Course;
@@ -46,7 +46,7 @@ import org.lecturestudio.web.api.stream.model.Course;
  */
 @Path("/api/publisher")
 @RegisterProviders({
-	@RegisterProvider(AuthorizationFilter.class),
+	@RegisterProvider(ApiKeyFilter.class),
 	@RegisterProvider(JsonConfigProvider.class)
 })
 public interface StreamRestClient {

@@ -31,7 +31,7 @@ import javax.ws.rs.sse.SseEventSource;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import org.lecturestudio.web.api.client.AuthorizationFilter;
+import org.lecturestudio.web.api.client.ApiKeyFilter;
 import org.lecturestudio.web.api.client.TokenProvider;
 import org.lecturestudio.web.api.data.bind.JsonConfig;
 import org.lecturestudio.web.api.message.MessageTransport;
@@ -80,7 +80,7 @@ public abstract class ReactiveProviderService extends ProviderService {
 		WebClientBuilder builder = new WebClientBuilder();
 		builder.setTls(true);
 		builder.setTokenProvider(tokenProvider);
-		builder.setComponentClasses(AuthorizationFilter.class);
+		builder.setComponentClasses(ApiKeyFilter.class);
 
 		Client client = builder.build();
 		WebTarget target = client.target(parameters.getUrl() + path);

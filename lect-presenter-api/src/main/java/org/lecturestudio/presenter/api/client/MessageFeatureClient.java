@@ -27,12 +27,12 @@ import javax.ws.rs.core.MediaType;
 import org.eclipse.microprofile.rest.client.annotation.RegisterProvider;
 import org.eclipse.microprofile.rest.client.annotation.RegisterProviders;
 
-import org.lecturestudio.web.api.client.AuthorizationFilter;
+import org.lecturestudio.web.api.client.ApiKeyFilter;
 import org.lecturestudio.web.api.data.bind.JsonConfigProvider;
 
 @Path("/api/publisher")
 @RegisterProviders({
-		@RegisterProvider(AuthorizationFilter.class),
+		@RegisterProvider(ApiKeyFilter.class),
 		@RegisterProvider(JsonConfigProvider.class)
 })
 public interface MessageFeatureClient {

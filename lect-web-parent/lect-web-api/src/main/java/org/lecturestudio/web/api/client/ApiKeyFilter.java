@@ -16,36 +16,36 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package org.lecturestudio.web.api.websocket;
+package org.lecturestudio.web.api.client;
 
+import static java.util.Objects.isNull;
 import static java.util.Objects.nonNull;
 
-import java.net.http.WebSocket.Builder;
+import java.io.IOException;
 
-import org.lecturestudio.web.api.client.TokenProvider;
+import javax.ws.rs.client.ClientRequestContext;
+import javax.ws.rs.client.ClientRequestFilter;
+import javax.ws.rs.ext.Provider;
 
-/**
- * Bearer token authorization header provider.
- *
- * @author Alex Andres
- */
-public class WebSocketBearerTokenProvider implements WebSocketHeaderProvider {
+@Provider
+public class ApiKeyFilter implements ClientRequestFilter {
 
 	private static final String API_KEY_HEADER = "ApiKey";
 
-	private final TokenProvider tokenProvider;
-
-
-	public WebSocketBearerTokenProvider(TokenProvider tokenProvider) {
-		this.tokenProvider = tokenProvider;
-	}
 
 	@Override
-	public void setHeaders(Builder builder) {
+	public void filter(ClientRequestContext requestContext) throws IOException {
+		TokenProvider tokenProvider = (TokenProvider) requestContext
+				.getConfiguration().getProperty(TokenProvider.class.getName());
+
+		if (isNull(tokenProvider)) {
+			return;
+		}
+
 		String token = tokenProvider.getToken();
 
 		if (nonNull(token)) {
-			builder.header(API_KEY_HEADER, token);
+			requestContext.getHeaders().putSingle(API_KEY_HEADER, token);
 		}
 	}
 }

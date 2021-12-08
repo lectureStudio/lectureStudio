@@ -32,6 +32,7 @@ import java.nio.ByteBuffer;
 import java.time.Duration;
 import java.time.temporal.ChronoUnit;
 import java.util.concurrent.CompletionStage;
+import java.util.function.Consumer;
 
 import javax.json.Json;
 import javax.json.JsonObject;
@@ -64,6 +65,8 @@ import org.lecturestudio.web.api.websocket.WebSocketHeaderProvider;
  * @author Alex Andres
  */
 public class StreamWebSocketClient extends ExecutableBase {
+
+	private final Consumer<StreamAction> actionConsumer = this::send;
 
 	private final EventBus eventBus;
 
@@ -109,24 +112,12 @@ public class StreamWebSocketClient extends ExecutableBase {
 			return;
 		}
 
-		try {
-			send(new StreamStartAction(course.getId()));
-		}
-		catch (IOException e) {
-			logException(e, "Send event state failed");
-		}
+		send(new StreamStartAction(course.getId()));
 	}
 
 	@Override
 	protected void initInternal() throws ExecutableException {
-		eventRecorder.addRecordedActionConsumer(action -> {
-			try {
-				send(action);
-			}
-			catch (Exception e) {
-				logException(e, "Send event state failed");
-			}
-		});
+		eventRecorder.addRecordedActionConsumer(actionConsumer);
 	}
 
 	@Override
@@ -149,6 +140,8 @@ public class StreamWebSocketClient extends ExecutableBase {
 
 	@Override
 	protected void stopInternal() throws ExecutableException {
+		eventRecorder.removeRecordedActionConsumer(actionConsumer);
+
 		webSocket.sendClose(WebSocket.NORMAL_CLOSURE, "disconnect").join();
 	}
 
@@ -157,8 +150,13 @@ public class StreamWebSocketClient extends ExecutableBase {
 
 	}
 
-	private void send(StreamAction action) throws IOException {
-		webSocket.sendBinary(ByteBuffer.wrap(action.toByteArray()), true);
+	private void send(StreamAction action) {
+		try {
+			webSocket.sendBinary(ByteBuffer.wrap(action.toByteArray()), true);
+		}
+		catch (IOException e) {
+			logException(e, "Send event state failed");
+		}
 	}
 
 
@@ -171,7 +169,7 @@ public class StreamWebSocketClient extends ExecutableBase {
 
 		@Override
 		public void onError(WebSocket webSocket, Throwable error) {
-			logException(error, "WebSocket error");
+			logException(error, "Stream WebSocket error");
 		}
 
 		@Override

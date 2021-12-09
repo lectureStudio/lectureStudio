@@ -65,8 +65,6 @@ public class HTMLEditorPane extends JPanel
 
     private static final String INVALID_TAGS[] = {"html", "head", "body", "title"};
 
-    private static final int MAXIMUM_BUTTON_SIZE = UIUtils.ICON_SIZE+4;
-
     private JEditorPane wysEditor;
     private JComboBox<?> paragraphCombo;
     private JToolBar formatToolBar;
@@ -223,9 +221,9 @@ public class HTMLEditorPane extends JPanel
                 ((DefaultAction)o).addPropertyChangeListener(propLst);
         }
         paragraphCombo = new JComboBox(toArray(blockActs));
-        paragraphCombo.setPreferredSize(new Dimension(120, MAXIMUM_BUTTON_SIZE));
-        paragraphCombo.setMinimumSize(new Dimension(120, MAXIMUM_BUTTON_SIZE));
-        paragraphCombo.setMaximumSize(new Dimension(120, MAXIMUM_BUTTON_SIZE));
+        paragraphCombo.setPreferredSize(new Dimension(120, UIUtils.BUTTON_SIZE));
+        paragraphCombo.setMinimumSize(new Dimension(120, UIUtils.BUTTON_SIZE));
+        paragraphCombo.setMaximumSize(new Dimension(120, UIUtils.BUTTON_SIZE));
         paragraphCombo.addActionListener(paragraphComboHandler);
         paragraphCombo.setRenderer(new ParagraphComboRenderer());
 
@@ -356,9 +354,9 @@ public class HTMLEditorPane extends JPanel
         button.setText(null);
         button.setMnemonic(0);
         button.setMargin(new Insets(1, 1, 1, 1));
-        button.setMaximumSize(new Dimension(MAXIMUM_BUTTON_SIZE, MAXIMUM_BUTTON_SIZE));
-        button.setMinimumSize(new Dimension(MAXIMUM_BUTTON_SIZE, MAXIMUM_BUTTON_SIZE));
-        button.setPreferredSize(new Dimension(MAXIMUM_BUTTON_SIZE, MAXIMUM_BUTTON_SIZE));
+        button.setMaximumSize(new Dimension(UIUtils.BUTTON_SIZE, UIUtils.BUTTON_SIZE));
+        button.setMinimumSize(new Dimension(UIUtils.BUTTON_SIZE, UIUtils.BUTTON_SIZE));
+        button.setPreferredSize(new Dimension(UIUtils.BUTTON_SIZE, UIUtils.BUTTON_SIZE));
         button.setFocusable(false);
         button.setFocusPainted(false);
         button.setName("toolbar.button");

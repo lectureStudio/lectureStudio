@@ -150,7 +150,7 @@ public class BGColorPanel extends JPanel
         if(colorButton == null)
         {
             colorButton = new JButton();
-            colorButton.setIcon(UIUtils.getIcon("color.svg")); //$NON-NLS-1$
+            colorButton.setIcon(UIUtils.getIcon("color.svg", 20)); //$NON-NLS-1$
             colorButton.setPreferredSize(new java.awt.Dimension(20,20));
             colorButton.addActionListener(new java.awt.event.ActionListener()
             {

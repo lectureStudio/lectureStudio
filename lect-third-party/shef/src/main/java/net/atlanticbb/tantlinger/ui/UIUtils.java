@@ -34,16 +34,31 @@ public class UIUtils {
     public static final int ICON_SIZE = (int) (30 * UIScale.getUserScaleFactor());
 
     /**
+     * The button size
+     */
+    public static final int BUTTON_SIZE = ICON_SIZE+4;
+
+    /**
      * The icons' path
      */
     private static final String ICONS_PATH = "resources/gfx/icons/";
 
     /**
-     * Gets the icon with the specified name.
-     *
-     * @return The icon, or null if the icon doesn't exist
+     * Gets the icon with the specified name
+     * @param iconName Icon's filename
+     * @return Icon, or null if it doesn't exist
      */
     public static ImageIcon getIcon(String iconName) {
+        return getIcon(iconName, ICON_SIZE);
+    }
+
+    /**
+     * Gets the icon with the specified name and size
+     * @param iconName Icon filename
+     * @param size Icon's size
+     * @return Icon, or null if it doesn't exist
+     */
+    public static ImageIcon getIcon(String iconName, int size) {
         final String filePath = ICONS_PATH + iconName;
         try {
             URL url = ClassLoader.getSystemResource(filePath);
@@ -53,7 +68,7 @@ public class UIUtils {
             svgicon.setAutosize(SVGIcon.AUTOSIZE_STRETCH);
             svgicon.setSvgURI(url.toURI());
 
-            svgicon.setPreferredSize(new Dimension(ICON_SIZE, ICON_SIZE));
+            svgicon.setPreferredSize(new Dimension(size, size));
 
             return svgicon;
         } catch (Exception e) {

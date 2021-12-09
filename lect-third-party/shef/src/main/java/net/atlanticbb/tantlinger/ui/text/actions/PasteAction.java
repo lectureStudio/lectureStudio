@@ -28,35 +28,35 @@ import org.bushe.swing.action.ShouldBeEnabledDelegate;
 public class PasteAction extends HTMLTextEditAction
 {
     /**
-     * 
+     *
      */
     private static final long serialVersionUID = 1L;
-        
+
     public PasteAction()
     {
         super(i18n.str("paste"));
-        putValue(SMALL_ICON, UIUtils.getIcon(UIUtils.X16, "paste.png"));
-        putValue(ActionManager.LARGE_ICON, UIUtils.getIcon(UIUtils.X24, "paste.png"));
+        putValue(SMALL_ICON, UIUtils.getIcon("paste.png"));
+        putValue(ActionManager.LARGE_ICON, UIUtils.getIcon("paste.png"));
 		putValue(ACCELERATOR_KEY,
 			KeyStroke.getKeyStroke(KeyEvent.VK_V, InputEvent.CTRL_DOWN_MASK));
         addShouldBeEnabledDelegate(new ShouldBeEnabledDelegate()
         {
             public boolean shouldBeEnabled(Action a)
-            {                          
+            {
                 //return getCurrentEditor() != null &&
                 //    Toolkit.getDefaultToolkit().getSystemClipboard().getContents(PasteAction.this) != null;
                 return true;
             }
         });
-        
+
         putValue(Action.SHORT_DESCRIPTION, getValue(Action.NAME));
     }
-    
+
     protected void updateWysiwygContextState(JEditorPane wysEditor)
     {
         this.updateEnabledState();
     }
-    
+
     protected void updateSourceContextState(JEditorPane srcEditor)
     {
         this.updateEnabledState();
@@ -67,31 +67,31 @@ public class PasteAction extends HTMLTextEditAction
      */
     protected void sourceEditPerformed(ActionEvent e, JEditorPane editor)
     {
-        editor.paste();        
+        editor.paste();
     }
 
     /* (non-Javadoc)
      * @see net.atlanticbb.tantlinger.ui.text.actions.HTMLTextEditAction#wysiwygEditPerformed(java.awt.event.ActionEvent, javax.swing.JEditorPane)
      */
     protected void wysiwygEditPerformed(ActionEvent e, JEditorPane editor)
-    {        
+    {
         HTMLEditorKit ekit = (HTMLEditorKit)editor.getEditorKit();
-        HTMLDocument document = (HTMLDocument)editor.getDocument();        
+        HTMLDocument document = (HTMLDocument)editor.getDocument();
         Clipboard clip = Toolkit.getDefaultToolkit().getSystemClipboard();
-        
-        try 
+
+        try
         {
             CompoundUndoManager.beginCompoundEdit(document);
-            Transferable content = clip.getContents(this);                           
+            Transferable content = clip.getContents(this);
             String txt = content.getTransferData(
                 new DataFlavor(String.class, "String")).toString();
-        
+
             document.replace(editor.getSelectionStart(),
                 editor.getSelectionEnd() - editor.getSelectionStart(),
                 txt, ekit.getInputAttributes());
-            
-        } 
-        catch(Exception ex) 
+
+        }
+        catch(Exception ex)
         {
             //ex.printStackTrace();
         }
@@ -99,5 +99,5 @@ public class PasteAction extends HTMLTextEditAction
         {
             CompoundUndoManager.endCompoundEdit(document);
         }
-    }    
+    }
 }

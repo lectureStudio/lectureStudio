@@ -23,42 +23,42 @@ import net.atlanticbb.tantlinger.ui.text.HTMLUtils;
 
 /**
  * Action which aligns HTML elements
- * 
+ *
  * @author Bob Tantlinger
  *
  */
 public class HTMLAlignAction extends HTMLTextEditAction
-{        
+{
     /**
-     * 
+     *
      */
     private static final long serialVersionUID = 1L;
-    public static final int LEFT = 0;    
+    public static final int LEFT = 0;
     public static final int CENTER = 1;
     public static final int RIGHT = 2;
     public static final int JUSTIFY = 3;
-    
+
     public static final String ALIGNMENT_NAMES[] =
     {
-        i18n.str("left"),  
-        i18n.str("center"), 
-        i18n.str("right"), 
+        i18n.str("left"),
+        i18n.str("center"),
+        i18n.str("right"),
         i18n.str("justify")
     };
-    
+
     public static final String ALIGNMENTS[] =
     {
         "left", "center", "right", "justify"
     };
-    
+
     private static final String IMGS[] =
     {
-        "al_left.png",  "al_center.png", "al_right.png", "al_just.png"
+        "al_left.svg",  "al_center.svg", "al_right.svg", "al_just.svg"
     };
-    
+
     private int align;
-        
-    
+
+
     /**
      * Creates a new HTMLAlignAction
      * @param al LEFT, RIGHT, CENTER, or JUSTIFY
@@ -69,75 +69,75 @@ public class HTMLAlignAction extends HTMLTextEditAction
         super("");
         if(al < 0 || al >= ALIGNMENTS.length)
             throw new IllegalArgumentException("Illegal Argument");
-        
+
         //String pkg = getClass().getPackage().getName();
         putValue(NAME, (ALIGNMENT_NAMES[al]));
-        
-        putValue(SMALL_ICON, UIUtils.getIcon(UIUtils.X16, IMGS[al]));
+
+        putValue(SMALL_ICON, UIUtils.getIcon(IMGS[al]));
         putValue(ActionManager.BUTTON_TYPE, ActionManager.BUTTON_TYPE_VALUE_RADIO);
-        
+
         align = al;
     }
-    
+
     protected void updateWysiwygContextState(JEditorPane ed)
-    {        
+    {
         setSelected(shouldBeSelected(ed));
     }
-    
+
     private boolean shouldBeSelected(JEditorPane ed)
     {
-        HTMLDocument document = (HTMLDocument)ed.getDocument();        
+        HTMLDocument document = (HTMLDocument)ed.getDocument();
         Element elem = document.getParagraphElement(ed.getCaretPosition());
         if(HTMLUtils.isImplied(elem))
             elem = elem.getParentElement();
-        
+
         AttributeSet at = elem.getAttributes();
         return at.containsAttribute(HTML.Attribute.ALIGN, ALIGNMENTS[align]);
     }
-    
+
     protected void updateSourceContextState(JEditorPane ed)
     {
         setSelected(false);
     }
-    
+
     protected void wysiwygEditPerformed(ActionEvent e, JEditorPane editor)
-    {        
-        HTMLDocument doc = (HTMLDocument)editor.getDocument();        
+    {
+        HTMLDocument doc = (HTMLDocument)editor.getDocument();
         Element curE = doc.getParagraphElement(editor.getSelectionStart());
         Element endE = doc.getParagraphElement(editor.getSelectionEnd());
-        
-        CompoundUndoManager.beginCompoundEdit(doc);        
+
+        CompoundUndoManager.beginCompoundEdit(doc);
         while(true)
-        {            
+        {
             alignElement(curE);
             if(curE.getEndOffset() >= endE.getEndOffset()
                 || curE.getEndOffset() >= doc.getLength())
-                break;            
-            curE = doc.getParagraphElement(curE.getEndOffset() + 1);            
-        }        
-        CompoundUndoManager.endCompoundEdit(doc);        
+                break;
+            curE = doc.getParagraphElement(curE.getEndOffset() + 1);
+        }
+        CompoundUndoManager.endCompoundEdit(doc);
     }
-    
+
     private void alignElement(Element elem)
     {
         HTMLDocument doc = (HTMLDocument)elem.getDocument();
-        
+
         if(HTMLUtils.isImplied(elem))
-        {           
+        {
             HTML.Tag tag = HTML.getTag(elem.getParentElement().getName());
             //System.out.println(tag);
             //pre tag doesn't support an align attribute
             //http://www.w3.org/TR/REC-html32#pre
-            if(tag != null && (!tag.equals(HTML.Tag.BODY)) && 
+            if(tag != null && (!tag.equals(HTML.Tag.BODY)) &&
                 (!tag.isPreformatted() && !tag.equals(HTML.Tag.DD)))
             {
                 SimpleAttributeSet as = new SimpleAttributeSet(elem.getAttributes());
-                as.removeAttribute("align");                
+                as.removeAttribute("align");
                 as.addAttribute("align", ALIGNMENTS[align]);
-                
+
                 Element parent = elem.getParentElement();
                 String html = HTMLUtils.getElementHTML(elem, false);
-                html = HTMLUtils.createTag(tag, as, html);  
+                html = HTMLUtils.createTag(tag, as, html);
                 String snipet = "";
                 for(int i = 0; i < parent.getElementCount(); i++)
                 {
@@ -145,9 +145,9 @@ public class HTMLAlignAction extends HTMLTextEditAction
                     if(el == elem)
                         snipet += html;
                     else
-                        snipet += HTMLUtils.getElementHTML(el, true);                    
-                }            
-                
+                        snipet += HTMLUtils.getElementHTML(el, true);
+                }
+
                 try
                 {
                     doc.setOuterHTML(parent, snipet);
@@ -155,7 +155,7 @@ public class HTMLAlignAction extends HTMLTextEditAction
                 catch(Exception ex)
                 {
                     ex.printStackTrace();
-                }                
+                }
             }
         }
         else
@@ -170,7 +170,7 @@ public class HTMLAlignAction extends HTMLTextEditAction
             doc.setParagraphAttributes(start, length - 1, set, true);
         }
     }
-    
+
     protected void sourceEditPerformed(ActionEvent e, JEditorPane editor)
     {
         String prefix = "<p align=\"" + ALIGNMENTS[align] + "\">";
@@ -179,15 +179,15 @@ public class HTMLAlignAction extends HTMLTextEditAction
         if(sel == null)
         {
             editor.replaceSelection(prefix + postfix);
-            
+
             int pos = editor.getCaretPosition() - postfix.length();
             if(pos >= 0)
-            	editor.setCaretPosition(pos);                    		  
+            	editor.setCaretPosition(pos);
         }
         else
         {
             sel = prefix + sel + postfix;
-            editor.replaceSelection(sel);                
+            editor.replaceSelection(sel);
         }
     }
 }

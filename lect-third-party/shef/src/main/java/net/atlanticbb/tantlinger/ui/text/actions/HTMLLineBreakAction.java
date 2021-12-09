@@ -4,7 +4,6 @@
  */
 package net.atlanticbb.tantlinger.ui.text.actions;
 
-import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.InputEvent;
 import java.awt.event.KeyEvent;
@@ -20,37 +19,37 @@ import net.atlanticbb.tantlinger.ui.UIUtils;
 
 
 /**
- * 
+ *
  */
 public class HTMLLineBreakAction extends HTMLTextEditAction
 {
     //private final String RES = TBGlobals.RESOURCES;
 
     /**
-     * 
+     *
      */
     private static final long serialVersionUID = 1L;
 
     public HTMLLineBreakAction()
     {
         super(i18n.str("line_break"));
-        putValue(SMALL_ICON, UIUtils.getIcon(UIUtils.X16, "br.png"));
-        putValue(ACCELERATOR_KEY, 
+        putValue(SMALL_ICON, UIUtils.getIcon("br.svg"));
+        putValue(ACCELERATOR_KEY,
         	KeyStroke.getKeyStroke(KeyEvent.VK_ENTER, InputEvent.SHIFT_DOWN_MASK));
         putValue(Action.SHORT_DESCRIPTION, getValue(Action.NAME));
-    }    
+    }
 
-    
+
     protected void sourceEditPerformed(ActionEvent e, JEditorPane editor)
     {
         editor.replaceSelection("<br>\n");
     }
-    
+
     protected void wysiwygEditPerformed(ActionEvent e, JEditorPane editor)
     {
 		HTMLDocument document = (HTMLDocument)editor.getDocument();
 		int pos = editor.getCaretPosition();
-        
+
         String elName =
 			document
 				.getParagraphElement(pos)

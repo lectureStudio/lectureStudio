@@ -25,23 +25,23 @@ public class CutAction extends BasicEditAction
 {
 
     /**
-     * 
+     *
      */
     private static final long serialVersionUID = 1L;
 
-    
+
     public CutAction()
     {
         super("");
         putValue(Action.NAME, i18n.str("cut"));
-        putValue(Action.SMALL_ICON, UIUtils.getIcon(UIUtils.X16, "cut.png"));
-        putValue(ActionManager.LARGE_ICON, UIUtils.getIcon(UIUtils.X24, "cut.png"));
+        putValue(Action.SMALL_ICON, UIUtils.getIcon("cut.png"));
+        putValue(ActionManager.LARGE_ICON, UIUtils.getIcon("cut.png"));
         putValue(Action.ACCELERATOR_KEY,
             KeyStroke.getKeyStroke(KeyEvent.VK_X, InputEvent.CTRL_DOWN_MASK));
         addShouldBeEnabledDelegate(new ShouldBeEnabledDelegate()
         {
             public boolean shouldBeEnabled(Action a)
-            {                          
+            {
             	JEditorPane ed = getCurrentEditor();
             	return ed != null &&
             		ed.getSelectionStart() != ed.getSelectionEnd();
@@ -58,7 +58,7 @@ public class CutAction extends BasicEditAction
     {
         editor.cut();
     }
-    
+
     protected void contextChanged()
     {
     	super.contextChanged();

@@ -20,7 +20,7 @@ import net.atlanticbb.tantlinger.ui.text.dialogs.SpecialCharDialog;
 public class SpecialCharAction extends BasicEditAction
 {
     /**
-     * 
+     *
      */
     private static final long serialVersionUID = 1L;
     SpecialCharDialog dialog;
@@ -28,35 +28,35 @@ public class SpecialCharAction extends BasicEditAction
     public SpecialCharAction()
     {
         super(i18n.str("special_character_"));  //$NON-NLS-1$
-        putValue(SMALL_ICON, UIUtils.getIcon(UIUtils.X16, "copyright.png")); //$NON-NLS-1$
+        putValue(SMALL_ICON, UIUtils.getIcon("copyright.png")); //$NON-NLS-1$
         putValue(Action.SHORT_DESCRIPTION, getValue(Action.NAME));
     }
-    
+
     protected void doEdit(ActionEvent e, JEditorPane ed)
     {
-        Component c = SwingUtilities.getWindowAncestor(ed);  
+        Component c = SwingUtilities.getWindowAncestor(ed);
         if(dialog == null)
         {
             if(c instanceof Frame)
-            {           
+            {
                 dialog = new SpecialCharDialog((Frame)c, ed);
             }
             else if(c instanceof Dialog)
-            {           
+            {
                 dialog = new SpecialCharDialog((Dialog)c, ed);
             }
-            else 
+            else
                 return;
         }
-        
-        dialog.setInsertEntity(getEditMode() == SOURCE);   
+
+        dialog.setInsertEntity(getEditMode() == SOURCE);
         if(!dialog.isVisible())
         {
             dialog.setLocationRelativeTo(c);
             dialog.setVisible(true);
         }
     }
-    
+
     protected void updateContextState(JEditorPane editor)
     {
         if(dialog != null)

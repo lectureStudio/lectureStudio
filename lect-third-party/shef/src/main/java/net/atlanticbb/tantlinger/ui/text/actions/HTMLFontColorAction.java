@@ -21,22 +21,22 @@ import net.atlanticbb.tantlinger.ui.text.HTMLUtils;
 
 /**
  * Action which edits HTML font color
- * 
+ *
  * @author Bob Tantlinger
  *
  */
 public class HTMLFontColorAction extends HTMLTextEditAction
 {
-            
+
     /**
-     * 
+     *
      */
     private static final long serialVersionUID = 1L;
 
     public HTMLFontColorAction()
     {
         super(i18n.str("color"));
-        this.putValue(SMALL_ICON, UIUtils.getIcon(UIUtils.X16, "color.png"));        
+        this.putValue(SMALL_ICON, UIUtils.getIcon("color.svg"));
     }
 
     protected void sourceEditPerformed(ActionEvent e, JEditorPane editor)
@@ -44,22 +44,22 @@ public class HTMLFontColorAction extends HTMLTextEditAction
         Color c = getColorFromUser(editor);
         if(c == null)
             return;
-        
+
         String prefix = "<font color=" + HTMLUtils.colorToHex(c) + ">";
         String postfix = "</font>";
         String sel = editor.getSelectedText();
         if(sel == null)
         {
             editor.replaceSelection(prefix + postfix);
-            
+
             int pos = editor.getCaretPosition() - postfix.length();
             if(pos >= 0)
-            	editor.setCaretPosition(pos);                    		  
+            	editor.setCaretPosition(pos);
         }
         else
         {
             sel = prefix + sel + postfix;
-            editor.replaceSelection(sel);                
+            editor.replaceSelection(sel);
         }
     }
 
@@ -72,13 +72,13 @@ public class HTMLFontColorAction extends HTMLTextEditAction
 		    a.actionPerformed(e);
 		}
     }
-    
+
     private Color getColorFromUser(Component c)
-    {	
+    {
         Window win = SwingUtilities.getWindowAncestor(c);
         if(win != null)
             c = win;
-        Color color = 
+        Color color =
 			JColorChooser.showDialog(c, "Color", Color.black);	 //$NON-NLS-1$
 		return color;
     }

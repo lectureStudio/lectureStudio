@@ -19,21 +19,21 @@ import net.atlanticbb.tantlinger.ui.UIUtils;
 
 /**
  * Action which inserts a horizontal rule
- * 
+ *
  * @author Bob Tantlinger
  *
  */
 public class HTMLHorizontalRuleAction extends HTMLTextEditAction
 {
     /**
-     * 
+     *
      */
     private static final long serialVersionUID = 1L;
 
     public HTMLHorizontalRuleAction()
     {
         super(i18n.str("horizontal_rule"));
-        putValue(SMALL_ICON, UIUtils.getIcon(UIUtils.X16, "hrule.png")); 
+        putValue(SMALL_ICON, UIUtils.getIcon("ruler.svg"));
         putValue(Action.SHORT_DESCRIPTION, getValue(Action.NAME));
     }
 
@@ -41,7 +41,7 @@ public class HTMLHorizontalRuleAction extends HTMLTextEditAction
     {
         editor.replaceSelection("<hr>");
     }
-    
+
     protected void wysiwygEditPerformed(ActionEvent e, JEditorPane editor)
     {
         HTMLDocument document = (HTMLDocument)editor.getDocument();

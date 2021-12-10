@@ -25,23 +25,23 @@ public class CopyAction extends BasicEditAction
 {
 
     /**
-     * 
+     *
      */
     private static final long serialVersionUID = 1L;
 
-    
+
     public CopyAction()
     {
         super("");
         putValue(Action.NAME, i18n.str("copy"));
-        putValue(Action.SMALL_ICON, UIUtils.getIcon(UIUtils.X16, "copy.png"));
-        putValue(ActionManager.LARGE_ICON, UIUtils.getIcon(UIUtils.X24, "copy.png"));
+        putValue(Action.SMALL_ICON, UIUtils.getIcon("copy.png"));
+        putValue(ActionManager.LARGE_ICON, UIUtils.getIcon("copy.png"));
         putValue(Action.ACCELERATOR_KEY,
             KeyStroke.getKeyStroke(KeyEvent.VK_C, InputEvent.CTRL_DOWN_MASK));
         addShouldBeEnabledDelegate(new ShouldBeEnabledDelegate()
         {
         	public boolean shouldBeEnabled(Action a)
-            {                          
+            {
             	JEditorPane ed = getCurrentEditor();
             	return ed != null && ed.getSelectionStart() != ed.getSelectionEnd();
                 //return true;
@@ -57,7 +57,7 @@ public class CopyAction extends BasicEditAction
     {
         editor.copy();
     }
-    
+
     protected void contextChanged()
     {
     	super.contextChanged();

@@ -20,12 +20,12 @@ import net.atlanticbb.tantlinger.ui.text.HTMLUtils;
 public class BGColorPanel extends JPanel
 {
     /**
-     * 
+     *
      */
     private static final long serialVersionUID = 1L;
 
     private static final I18n i18n = I18n.getInstance("net.atlanticbb.tantlinger.ui.text.dialogs");
-    
+
     private JCheckBox bgColorCB = null;
     private JPanel colorPanel = null;
     private JButton colorButton = null;
@@ -39,32 +39,32 @@ public class BGColorPanel extends JPanel
         super();
         initialize();
     }
-    
+
     public void setSelected(boolean sel)
     {
         bgColorCB.setSelected(sel);
         colorButton.setEnabled(sel);
     }
-    
+
     public boolean isSelected()
     {
         return bgColorCB.isSelected();
     }
-    
+
     public String getColor()
     {
         return HTMLUtils.colorToHex(selColor);
     }
-    
+
     public void setColor(String hexColor)
-    {        
+    {
         selColor = HTMLUtils.stringToColor(hexColor);
         colorPanel.setBackground(selColor);
     }
 
     /**
      * This method initializes this
-     * 
+     *
      * @return void
      */
     private void initialize()
@@ -92,14 +92,14 @@ public class BGColorPanel extends JPanel
         this.add(getBgColorCB(), gridBagConstraints);
         this.add(getColorPanel(), gridBagConstraints1);
         this.add(getColorButton(), gridBagConstraints2);
-        
+
         colorButton.setEnabled(bgColorCB.isSelected());
     }
 
     /**
-     * This method initializes bgColorCB	
-     * 	
-     * @return javax.swing.JCheckBox	
+     * This method initializes bgColorCB
+     *
+     * @return javax.swing.JCheckBox
      */
     private JCheckBox getBgColorCB()
     {
@@ -107,7 +107,7 @@ public class BGColorPanel extends JPanel
         {
             bgColorCB = new JCheckBox();
             bgColorCB.setText(i18n.str("background")); //$NON-NLS-1$
-            
+
             bgColorCB.addItemListener(new java.awt.event.ItemListener()
             {
                 public void itemStateChanged(java.awt.event.ItemEvent e)
@@ -124,9 +124,9 @@ public class BGColorPanel extends JPanel
     }
 
     /**
-     * This method initializes colorPanel	
-     * 	
-     * @return javax.swing.JPanel	
+     * This method initializes colorPanel
+     *
+     * @return javax.swing.JPanel
      */
     private JPanel getColorPanel()
     {
@@ -135,27 +135,27 @@ public class BGColorPanel extends JPanel
             colorPanel = new JPanel();
             colorPanel.setPreferredSize(new java.awt.Dimension(50,20));
             colorPanel.setBorder(javax.swing.BorderFactory.createBevelBorder(javax.swing.border.BevelBorder.LOWERED));
-            
+
         }
         return colorPanel;
     }
 
     /**
-     * This method initializes colorButton	
-     * 	
-     * @return javax.swing.JButton	
+     * This method initializes colorButton
+     *
+     * @return javax.swing.JButton
      */
     private JButton getColorButton()
     {
         if(colorButton == null)
         {
             colorButton = new JButton();
-            colorButton.setIcon(UIUtils.getIcon(UIUtils.X16, "color.png")); //$NON-NLS-1$
+            colorButton.setIcon(UIUtils.getIcon("color.svg", 20)); //$NON-NLS-1$
             colorButton.setPreferredSize(new java.awt.Dimension(20,20));
             colorButton.addActionListener(new java.awt.event.ActionListener()
             {
                 public void actionPerformed(java.awt.event.ActionEvent e)
-                {                   
+                {
                     Color c = JColorChooser.showDialog(BGColorPanel.this, i18n.str("color"), selColor); //$NON-NLS-1$
                     if(c != null)
                     {

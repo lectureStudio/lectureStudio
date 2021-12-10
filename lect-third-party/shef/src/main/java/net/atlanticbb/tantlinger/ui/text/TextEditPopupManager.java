@@ -38,29 +38,29 @@ import net.atlanticbb.tantlinger.ui.UIUtils;
  * popup menu, which provides options to undo, redo, cut, copy, paste, and
  * select-all. The popup manager is a singleton and must be retrieved with the
  * getInstance() method:
- * 
+ *
  * <pre><code>
  * JTextField textField = new JTextField(20);
  * TextEditPopupManager.getInstance().registerJTextComponent(textField);
  * </code></pre>
- * 
- * @author Bob Tantlinger 
+ *
+ * @author Bob Tantlinger
  * TODO Internationalize, add mnemonics, etc
  */
 
 public class TextEditPopupManager
-{    
+{
     private static final I18n i18n = I18n.getInstance("net.atlanticbb.tantlinger.ui.text");
-    
+
     private static TextEditPopupManager singleton = null;
-    
+
     public static final String CUT = "cut";
     public static final String COPY = "copy";
     public static final String PASTE = "paste";
     public static final String SELECT_ALL = "selectAll";
     public static final String UNDO = "undo";
     public static final String REDO = "redo";
-    
+
     private HashMap actions = new HashMap();
 
     // The actions we add to the popup menu
@@ -70,7 +70,7 @@ public class TextEditPopupManager
     private Action selectAll = new NSelectAllAction();
     private Action undo = new UndoAction();
     private Action redo = new RedoAction();
-    
+
     // maintains a list of the currently registered JTextComponents
     private List textComps = new Vector();
     private List undoers = new Vector();
@@ -88,15 +88,15 @@ public class TextEditPopupManager
     private JPopupMenu popup = new JPopupMenu();// The one and only popup menu
 
     private TextEditPopupManager()
-    {               
+    {
         cut.putValue(Action.NAME, i18n.str("cut"));
-        cut.putValue(Action.SMALL_ICON, UIUtils.getIcon(UIUtils.X16, "cut.png"));
+        cut.putValue(Action.SMALL_ICON, UIUtils.getIcon("cut.png"));
         copy.putValue(Action.NAME, i18n.str("copy"));
-        copy.putValue(Action.SMALL_ICON, UIUtils.getIcon(UIUtils.X16, "copy.png"));
+        copy.putValue(Action.SMALL_ICON, UIUtils.getIcon("copy.png"));
         paste.putValue(Action.NAME, i18n.str("paste"));
-        paste.putValue(Action.SMALL_ICON, UIUtils.getIcon(UIUtils.X16, "paste.png"));
+        paste.putValue(Action.SMALL_ICON, UIUtils.getIcon("paste.png"));
         selectAll.putValue(Action.ACCELERATOR_KEY, null);
-        
+
         popup.add(undo);
         popup.add(redo);
         popup.addSeparator();
@@ -105,19 +105,19 @@ public class TextEditPopupManager
         popup.add(paste);
         popup.addSeparator();
         popup.add(selectAll);
-        
+
         actions.put(CUT, cut);
         actions.put(COPY, copy);
         actions.put(PASTE, paste);
         actions.put(SELECT_ALL, selectAll);
         actions.put(UNDO, undo);
-        actions.put(REDO, redo);       
-        
+        actions.put(REDO, redo);
+
     }
 
     /**
      * Gets the singleton instance of TextEditPopupManager
-     * 
+     *
      * @return The one and only TextEditPopupManager
      */
     public static TextEditPopupManager getInstance()
@@ -126,7 +126,7 @@ public class TextEditPopupManager
             singleton = new TextEditPopupManager();
         return singleton;
     }
-    
+
     public Action getAction(String name)
     {
         return (Action)actions.get(name);
@@ -137,7 +137,7 @@ public class TextEditPopupManager
      * document of the JTextComponent, you should unregister it with method
      * unregisterJTextComponent, and then re-register it with this method.
      * e.g...
-     * 
+     *
      * <pre><code>
      * TextEditPopupManager.getInstance().registerJTextComponent(comp);
      * ...
@@ -146,7 +146,7 @@ public class TextEditPopupManager
      * comp.setDocument(new PlainDocument());
      * TextEditPopupManager.getInstance().registerJTextComponent(comp);
      * </code></pre>
-     * 
+     *
      * @param tc The JTextComponent to register
      * @throws IllegalArgumentException If the component is null, or already
      * registered
@@ -159,7 +159,7 @@ public class TextEditPopupManager
     /**
      * Registers a JTextComponent and UndoManager with the manager. This is
      * useful if you wish to supply a custom UndoManager
-     * 
+     *
      * @param tc The JTextComponent to register
      * @param um The UndoManger to register
      * @throws IllegalArgumentException If the component is null, or already
@@ -184,7 +184,7 @@ public class TextEditPopupManager
 
     /**
      * Unregisters a JTextComponent from the manager.
-     * 
+     *
      * @param tc The JTextComponent to unregister
      */
     public void unregisterJTextComponent(JTextComponent tc)
@@ -204,7 +204,7 @@ public class TextEditPopupManager
 
     /**
      * Gets the index of a registered JTextComponent
-     * 
+     *
      * @param tc
      * @return
      */
@@ -282,13 +282,13 @@ public class TextEditPopupManager
      * Undo and redo actions
      */
     private class RedoAction extends AbstractAction
-    {        
+    {
         private static final long serialVersionUID = 1L;
 
         public RedoAction()
         {
-            super(i18n.str("redo"), 
-                UIUtils.getIcon(UIUtils.X16, "redo.png"));
+            super(i18n.str("redo"),
+                UIUtils.getIcon("redo-tool.svg"));
         }
 
         public void actionPerformed(ActionEvent e)
@@ -311,11 +311,11 @@ public class TextEditPopupManager
     private class UndoAction extends AbstractAction
     {
         private static final long serialVersionUID = 1L;
-        
+
         public UndoAction()
         {
-            super(i18n.str("undo"), 
-                UIUtils.getIcon(UIUtils.X16, "undo.png"));
+            super(i18n.str("undo"),
+                UIUtils.getIcon("undo-tool.svg"));
         }
 
         public void actionPerformed(ActionEvent e)
@@ -341,7 +341,7 @@ public class TextEditPopupManager
     private class NSelectAllAction extends TextAction
     {
         private static final long serialVersionUID = 1L;
-        
+
         public NSelectAllAction()
         {
             super(i18n.str("select_all"));

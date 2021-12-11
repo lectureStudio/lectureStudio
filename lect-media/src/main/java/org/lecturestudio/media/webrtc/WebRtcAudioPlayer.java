@@ -93,7 +93,7 @@ public class WebRtcAudioPlayer extends ExecutableBase implements AudioPlayer {
 		playbackDevice = getDeviceByName(MediaDevices.getAudioRenderDevices(),
 				deviceName);
 
-		if (started() || suspended()) {
+		if (initialized() || started() || suspended()) {
 			try {
 				deviceModule.stopPlayout();
 				deviceModule.setPlayoutDevice(playbackDevice);

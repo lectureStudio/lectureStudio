@@ -85,6 +85,7 @@ import org.lecturestudio.presenter.api.input.Shortcut;
 import org.lecturestudio.presenter.api.pdf.embedded.SlideNoteParser;
 import org.lecturestudio.presenter.api.service.RecordingService;
 import org.lecturestudio.presenter.api.service.WebRtcStreamService;
+import org.lecturestudio.presenter.api.service.WebService;
 import org.lecturestudio.presenter.api.stylus.StylusHandler;
 import org.lecturestudio.presenter.api.view.PageObjectRegistry;
 import org.lecturestudio.presenter.api.view.SlidesView;
@@ -108,6 +109,8 @@ public class SlidesPresenter extends Presenter<SlidesView> {
 	private final DocumentChangeListener documentChangeListener;
 
 	private final DocumentRecorder documentRecorder;
+
+	private final WebService webService;
 
 	private final WebRtcStreamService streamService;
 
@@ -149,6 +152,7 @@ public class SlidesPresenter extends Presenter<SlidesView> {
 			DocumentService documentService,
 			DocumentRecorder documentRecorder,
 			RecordingService recordingService,
+			WebService webService,
 			WebRtcStreamService streamService) {
 		super(context, view);
 
@@ -159,6 +163,7 @@ public class SlidesPresenter extends Presenter<SlidesView> {
 		this.documentRecorder = documentRecorder;
 		this.documentService = documentService;
 		this.recordingService = recordingService;
+		this.webService = webService;
 		this.streamService = streamService;
 		this.eventBus = context.getEventBus();
 		this.shortcutMap = new HashMap<>();
@@ -221,6 +226,8 @@ public class SlidesPresenter extends Presenter<SlidesView> {
 	@Subscribe
 	public void onEvent(final QuizStateEvent event) {
 		quizState = event.getState();
+
+		view.setQuizState(event.getState());
 
 		checkRemoteServiceState();
 	}
@@ -431,6 +438,15 @@ public class SlidesPresenter extends Presenter<SlidesView> {
 		}
 		catch (IOException e) {
 			logException(e, "Share document failed");
+		}
+	}
+
+	private void stopQuiz() {
+		try {
+			webService.stopQuiz();
+		}
+		catch (ExecutableException e) {
+			logException(e, "Stop quiz failed");
 		}
 	}
 
@@ -700,6 +716,7 @@ public class SlidesPresenter extends Presenter<SlidesView> {
 
 		view.setOnKeyEvent(this::keyEvent);
 		view.setOnShareQuiz(this::shareQuiz);
+		view.setOnStopQuiz(this::stopQuiz);
 		view.setOnNewPage(this::newWhiteboardPage);
 		view.setOnDeletePage(this::deleteWhiteboardPage);
 		view.setOnSelectPage(this::selectPage);

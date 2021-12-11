@@ -152,7 +152,7 @@ public class WebService extends ExecutableBase {
 
 		context.getEventBus().post(new MessengerStateEvent(ExecutableState.Stopping));
 
-		stopService(service);
+		stopService(service, true);
 
 		context.getEventBus().post(new MessengerStateEvent(ExecutableState.Stopped));
 	}
@@ -202,7 +202,7 @@ public class WebService extends ExecutableBase {
 				throw new ExecutableException("Quiz service could not be started");
 			}
 		}
-		else {
+		else if (!service.stopped()) {
 			service.stop();
 		}
 
@@ -232,7 +232,7 @@ public class WebService extends ExecutableBase {
 
 		lastQuiz = null;
 
-		stopService(service);
+		stopService(service, false);
 
 		context.getEventBus().post(new QuizStateEvent(ExecutableState.Stopped));
 	}
@@ -313,11 +313,15 @@ public class WebService extends ExecutableBase {
 		}
 	}
 
-	private void stopService(FeatureServiceBase service) throws ExecutableException {
+	private void stopService(FeatureServiceBase service, boolean destroy)
+			throws ExecutableException {
 		service.stop();
-		service.destroy();
 
-		startedServices.remove(service);
+		if (destroy) {
+			service.destroy();
+
+			startedServices.remove(service);
+		}
 
 		if (startedServices.isEmpty()) {
 			messageTransport.stop();

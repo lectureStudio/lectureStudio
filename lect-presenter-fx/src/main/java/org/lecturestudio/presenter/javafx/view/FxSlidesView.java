@@ -356,6 +356,11 @@ public class FxSlidesView extends VBox implements SlidesView {
 	}
 
 	@Override
+	public void setQuizState(ExecutableState state) {
+
+	}
+
+	@Override
 	public void setMessengerState(ExecutableState state) {
 		boolean started = state == ExecutableState.Started;
 
@@ -480,6 +485,11 @@ public class FxSlidesView extends VBox implements SlidesView {
 
 	@Override
 	public void setOnShareQuiz(Action action) {
+
+	}
+
+	@Override
+	public void setOnStopQuiz(Action action) {
 
 	}
 

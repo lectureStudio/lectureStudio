@@ -185,7 +185,8 @@ public class DocumentService {
 	public void removeAndCloseDocument(Document doc) {
 		if (removeDocument(doc)) {
 			// Release resources.
-			doc.close();
+			// NOTE: do not close due to "save documents on app close".
+			// doc.close();
 		}
 	}
 

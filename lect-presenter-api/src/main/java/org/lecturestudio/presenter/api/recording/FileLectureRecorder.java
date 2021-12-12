@@ -169,7 +169,7 @@ public class FileLectureRecorder extends LectureRecorder {
 		if (!started()) {
 			return;
 		}
-		if (event.selected()) {
+		if (event.selected() || event.replaced()) {
 			addPage(currentPage, 0);
 		}
 	}

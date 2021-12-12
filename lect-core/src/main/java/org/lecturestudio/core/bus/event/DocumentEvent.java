@@ -33,22 +33,25 @@ public class DocumentEvent extends BusEvent {
 	/** the {@link Type} of the {@link DocumentEvent}. */
 	private final Type type;
 
+
 	/**
-	 * Create the {@link DocumentEvent} with specified document and type ({@link #oldDocument} will be {@code null}).
+	 * Create the {@link DocumentEvent} with specified document and type ({@link
+	 * #oldDocument} will be {@code null}).
 	 *
 	 * @param document The document.
-	 * @param type The type of the {@link DocumentEvent}.
+	 * @param type     The type of the {@link DocumentEvent}.
 	 */
 	public DocumentEvent(Document document, Type type) {
 		this(null, document, type);
 	}
 
 	/**
-	 *  Create the {@link DocumentEvent} with specified old document, document and type.
+	 * Create the {@link DocumentEvent} with specified old document, document
+	 * and type.
 	 *
 	 * @param oldDocument The old document.
-	 * @param document The document.
-	 * @param type The type of the {@link DocumentEvent}.
+	 * @param document    The document.
+	 * @param type        The type of the {@link DocumentEvent}.
 	 */
 	public DocumentEvent(Document oldDocument, Document document, Type type) {
 		this.oldDocument = oldDocument;
@@ -84,29 +87,38 @@ public class DocumentEvent extends BusEvent {
 	}
 
 	/**
-	 * Indicates whether {@link DocumentEvent} is created.
+	 * Indicates whether a document was created.
 	 *
-	 * @return {@code true} if the {@link #type} equals {@code Type.CREATED}, otherwise {@code false}.
+	 * @return {@code true} if the document was created.
 	 */
 	public boolean created() {
 		return type == Type.CREATED;
 	}
 
 	/**
-	 * Indicates whether {@link DocumentEvent} is closed.
+	 * Indicates whether a document was closed.
 	 *
-	 * @return {@code true} if the {@link #type} equals {@code Type.CLOSED}, otherwise {@code false}.
+	 * @return {@code true} if the document was closed.
 	 */
 	public boolean closed() {
 		return type == Type.CLOSED;
 	}
 
 	/**
-	 * Indicates whether {@link DocumentEvent} is selected.
+	 * Indicates whether a document was selected.
 	 *
-	 * @return {@code true} if the {@link #type} equals {@code Type.SELECTED}, otherwise {@code false}.
+	 * @return {@code true} if the document was selected.
 	 */
 	public boolean selected() {
 		return type == Type.SELECTED;
+	}
+
+	/**
+	 * Indicates whether a document was replaced.
+	 *
+	 * @return {@code true} if the document was replaced.
+	 */
+	public boolean replaced() {
+		return type == Type.REPLACED;
 	}
 }

@@ -216,6 +216,12 @@ public class DocumentRecorder extends ExecutableBase {
 		// Nothing to do.
 	}
 
+	private void setHasChanges() {
+		if (nonNull(hasChangesProperty)) {
+			hasChangesProperty.set(true);
+		}
+	}
+
 	private void insertPage(Page page) {
 		Document pageDoc = page.getDocument();
 		Document recDocument = documentMap.get(pageDoc);
@@ -234,6 +240,10 @@ public class DocumentRecorder extends ExecutableBase {
 					recDocument.setTitle(pageDoc.getName());
 
 					documentMap.put(pageDoc, recDocument);
+
+					if (documentMap.size() > 1) {
+						setHasChanges();
+					}
 				}
 				catch (IOException e) {
 					LOG.error("Record document failed", e);
@@ -356,9 +366,7 @@ public class DocumentRecorder extends ExecutableBase {
 					break;
 			}
 
-			if (nonNull(hasChangesProperty)) {
-				hasChangesProperty.set(true);
-			}
+			setHasChanges();
 		}
 	}
 

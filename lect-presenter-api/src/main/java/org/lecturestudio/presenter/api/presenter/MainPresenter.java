@@ -686,7 +686,19 @@ public class MainPresenter extends org.lecturestudio.core.presenter.MainPresente
 
 	private void documentClosed(Document doc) {
 		if (documentService.getDocuments().asList().isEmpty()) {
-			display(createPresenter(StartPresenter.class));
+			StartPresenter presenter = createPresenter(StartPresenter.class);
+
+			if (nonNull(presenter)) {
+				destroyHandler(presenter.getClass());
+
+				Class<? extends View> viewClass = getViewInterface(presenter.getView().getClass());
+
+				if (isNull(viewMap.get(viewClass))) {
+					setViewHidden(viewClass);
+				}
+
+				display(presenter);
+			}
 		}
 
 		// Remove bookmarks for the closed document.

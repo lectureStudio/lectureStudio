@@ -57,7 +57,8 @@ public class StartPresenter extends Presenter<StartView> {
 	public void openDocument(File documentFile) {
 		documentService.openDocument(documentFile)
 			.exceptionally(throwable -> {
-				handleException(throwable, "Open document failed", "open.document.error", documentFile.getPath());
+				handleException(throwable, "Open document failed",
+						"open.document.error", documentFile.getPath());
 				return null;
 			});
 	}
@@ -97,7 +98,8 @@ public class StartPresenter extends Presenter<StartView> {
 
 	@Override
 	public void initialize() {
-		ObservableList<RecentDocument> recentDocuments = context.getConfiguration().getRecentDocuments();
+		ObservableList<RecentDocument> recentDocuments = context.getConfiguration()
+				.getRecentDocuments();
 		recentDocuments.addListener(new ListChangeListener<>() {
 
 			@Override

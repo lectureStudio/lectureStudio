@@ -212,6 +212,17 @@ public class WebRtcStreamEventRecorder extends StreamEventRecorder {
 
 			action = new StreamDocumentSelectAction(doc);
 		}
+		else if (event.replaced()) {
+			if (doc.isQuiz() && doc.getPageCount() == 1) {
+				// Transmit quiz documents only in initial state.
+				try {
+					shareDocument(doc);
+				}
+				catch (IOException e) {
+					logException(e, "Transmit document failed");
+				}
+			}
+		}
 
 		if (nonNull(action)) {
 			addPlaybackAction(action);
@@ -331,6 +342,8 @@ public class WebRtcStreamEventRecorder extends StreamEventRecorder {
 				MediaType.MULTIPART_FORM_DATA_TYPE, docFileName);
 
 		String remoteFile = streamProviderService.uploadFile(body);
+
+		System.out.println("uploaded: " + remoteFile);
 
 		StreamDocumentCreateAction docCreateAction = new StreamDocumentCreateAction(document);
 		docCreateAction.setDocumentFile(remoteFile);

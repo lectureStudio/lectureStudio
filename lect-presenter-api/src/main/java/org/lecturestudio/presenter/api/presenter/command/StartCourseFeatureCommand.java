@@ -19,27 +19,26 @@
 package org.lecturestudio.presenter.api.presenter.command;
 
 import org.lecturestudio.core.presenter.command.ShowPresenterCommand;
-import org.lecturestudio.core.view.ConsumerAction;
-import org.lecturestudio.presenter.api.presenter.StartStreamPresenter;
-import org.lecturestudio.web.api.stream.StreamContext;
+import org.lecturestudio.core.view.Action;
+import org.lecturestudio.presenter.api.presenter.StartCourseFeaturePresenter;
 import org.lecturestudio.web.api.stream.model.Course;
 
-public class StartStreamCommand extends ShowPresenterCommand<StartStreamPresenter> {
+public class StartCourseFeatureCommand extends ShowPresenterCommand<StartCourseFeaturePresenter> {
+
+	private final Action startAction;
 
 	private final Course course;
 
-	private final ConsumerAction<StreamContext> startAction;
 
-
-	public StartStreamCommand(Course course, ConsumerAction<StreamContext> startAction) {
-		super(StartStreamPresenter.class);
+	public StartCourseFeatureCommand(Course course, Action startAction) {
+		super(StartCourseFeaturePresenter.class);
 
 		this.course = course;
 		this.startAction = startAction;
 	}
 
 	@Override
-	public void execute(StartStreamPresenter presenter) {
+	public void execute(StartCourseFeaturePresenter presenter) {
 		presenter.setCourse(course);
 		presenter.setOnStart(startAction);
 	}

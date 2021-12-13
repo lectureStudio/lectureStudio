@@ -41,6 +41,8 @@ import org.lecturestudio.web.api.stream.service.StreamProviderService;
 
 public class StartCourseFeaturePresenter extends Presenter<StartCourseFeatureView> {
 
+	private Course course;
+
 	/** The action that is executed when the saving process has been aborted. */
 	private Action startAction;
 
@@ -70,14 +72,21 @@ public class StartCourseFeaturePresenter extends Presenter<StartCourseFeatureVie
 		}
 
 		if (nonNull(courses)) {
-			Course selectedCourse = pContext.getCourse();
-
-			if (isNull(selectedCourse) && !courses.isEmpty()) {
-				// Set first available lecture by default.
-				pContext.setCourse(courses.get(0));
+			if (nonNull(course)) {
+				// Restrict to only one course that has a feature started by
+				// the running app-instance.
+				courses = List.of(course);
 			}
-			else if (!courses.contains(selectedCourse)) {
-				pContext.setCourse(courses.get(0));
+			else {
+				Course selectedCourse = pContext.getCourse();
+
+				if (isNull(selectedCourse) && !courses.isEmpty()) {
+					// Set first available lecture by default.
+					pContext.setCourse(courses.get(0));
+				}
+				else if (!courses.contains(selectedCourse)) {
+					pContext.setCourse(courses.get(0));
+				}
 			}
 
 			view.setCourses(courses);
@@ -100,6 +109,10 @@ public class StartCourseFeaturePresenter extends Presenter<StartCourseFeatureVie
 	@Override
 	public ViewLayer getViewLayer() {
 		return ViewLayer.Dialog;
+	}
+
+	public void setCourse(Course course) {
+		this.course = course;
 	}
 
 	public void setOnStart(Action action) {

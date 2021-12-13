@@ -30,23 +30,22 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import org.lecturestudio.core.ExecutableException;
-import org.lecturestudio.core.app.ApplicationContext;
 import org.lecturestudio.core.bus.EventBus;
 import org.lecturestudio.core.presenter.command.NotificationCommand;
-import org.lecturestudio.core.presenter.command.ShowPresenterCommand;
 import org.lecturestudio.core.util.NetUtils;
 import org.lecturestudio.core.view.NotificationType;
 import org.lecturestudio.presenter.api.context.PresenterContext;
-import org.lecturestudio.presenter.api.presenter.StartCourseFeaturePresenter;
+import org.lecturestudio.presenter.api.presenter.command.StartCourseFeatureCommand;
 import org.lecturestudio.presenter.api.presenter.command.StartStreamCommand;
 import org.lecturestudio.web.api.model.quiz.Quiz;
+import org.lecturestudio.web.api.stream.model.Course;
 
 @Singleton
 public class StreamService {
 
 	private final static Logger LOG = LogManager.getLogger(StreamService.class);
 
-	private final ApplicationContext context;
+	private final PresenterContext context;
 
 	private final EventBus eventBus;
 
@@ -56,7 +55,7 @@ public class StreamService {
 
 
 	@Inject
-	public StreamService(ApplicationContext context, WebRtcStreamService streamService,
+	public StreamService(PresenterContext context, WebRtcStreamService streamService,
 			WebService webService) {
 		this.context = context;
 		this.eventBus = context.getEventBus();
@@ -100,15 +99,13 @@ public class StreamService {
 			startQuizInternal(quiz);
 		}
 		else {
-			eventBus.post(new ShowPresenterCommand<>(StartCourseFeaturePresenter.class) {
+			Course course = webService.hasActiveService() ?
+					context.getCourse() :
+					null;
 
-				@Override
-				public void execute(StartCourseFeaturePresenter presenter) {
-					presenter.setOnStart(() -> {
-						startQuizInternal(quiz);
-					});
-				}
-			});
+			eventBus.post(new StartCourseFeatureCommand(course, () -> {
+				startQuizInternal(quiz);
+			}));
 		}
 	}
 
@@ -143,7 +140,11 @@ public class StreamService {
 	}
 
 	private void startStream() {
-		eventBus.post(new StartStreamCommand((streamContext) -> {
+		Course course = webService.hasActiveService() ?
+				context.getCourse() :
+				null;
+
+		eventBus.post(new StartStreamCommand(course, (streamContext) -> {
 			CompletableFuture.runAsync(() -> {
 				try {
 					streamService.start();
@@ -153,15 +154,13 @@ public class StreamService {
 				}
 
 				if (streamContext.getMessengerEnabled()) {
-					PresenterContext presenterContext = (PresenterContext) context;
-					presenterContext.setMessengerStarted(true);
+					context.setMessengerStarted(true);
 				}
 			})
 			.exceptionally(e -> {
 				handleServiceError(e, "Start stream failed", "stream.start.error");
 
-				PresenterContext presenterContext = (PresenterContext) context;
-				presenterContext.setStreamStarted(false);
+				context.setStreamStarted(false);
 
 				return null;
 			});
@@ -181,8 +180,7 @@ public class StreamService {
 				throw new CompletionException(e);
 			}
 
-			PresenterContext presenterContext = (PresenterContext) context;
-			presenterContext.setMessengerStarted(false);
+			context.setMessengerStarted(false);
 		})
 		.exceptionally(e -> {
 			handleServiceError(e, "Stop stream failed", "stream.stop.error");
@@ -213,15 +211,13 @@ public class StreamService {
 			startMessengerInternal();
 		}
 		else {
-			eventBus.post(new ShowPresenterCommand<>(StartCourseFeaturePresenter.class) {
+			Course course = webService.hasActiveService() ?
+					context.getCourse() :
+					null;
 
-				@Override
-				public void execute(StartCourseFeaturePresenter presenter) {
-					presenter.setOnStart(() -> {
-						startMessengerInternal();
-					});
-				}
-			});
+			eventBus.post(new StartCourseFeatureCommand(course, () -> {
+				startMessengerInternal();
+			}));
 		}
 	}
 
@@ -232,8 +228,7 @@ public class StreamService {
 		catch (ExecutableException e) {
 			handleServiceError(e, "Start messenger failed", "messenger.start.error");
 
-			PresenterContext presenterContext = (PresenterContext) context;
-			presenterContext.setMessengerStarted(false);
+			context.setMessengerStarted(false);
 		}
 	}
 

@@ -238,12 +238,27 @@ public class WebService extends ExecutableBase {
 	}
 
 	/**
-	 * Get's the started and active quiz.
+	 * Gets the started and active quiz.
 	 *
 	 * @return the active quiz.
 	 */
 	public Quiz getStartedQuiz() {
 		return lastQuiz;
+	}
+
+	/**
+	 * Check whether a web-service is active.
+	 *
+	 * @return {@code true} if at least one web-service is active.
+	 */
+	public boolean hasActiveService() {
+		for (var webService : startedServices) {
+			if (webService.started()) {
+				return true;
+			}
+		}
+
+		return false;
 	}
 
 	@Override

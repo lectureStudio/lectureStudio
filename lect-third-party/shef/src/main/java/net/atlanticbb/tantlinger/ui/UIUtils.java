@@ -17,7 +17,6 @@ import javax.swing.JToolBar;
 import javax.swing.KeyStroke;
 
 import com.formdev.flatlaf.util.UIScale;
-
 import com.kitfox.svg.app.beans.SVGIcon;
 
 import org.bushe.swing.action.ActionUIFactory;
@@ -31,7 +30,7 @@ public class UIUtils {
     /**
      * The icon size
      */
-    public static final int ICON_SIZE = (int) (30 * UIScale.getUserScaleFactor());
+    public static final int ICON_SIZE = (int) (20 * UIScale.getUserScaleFactor());
 
     /**
      * The button size

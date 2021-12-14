@@ -52,6 +52,10 @@ public interface ToolbarView extends View {
 
 	void setOnRedo(Action action);
 
+	void setOnPreviousSlide(Action action);
+
+	void setOnNextSlide(Action action);
+
 	void setOnCustomPaletteColor(ConsumerAction<Color> action);
 
 	void setOnCustomColor(Action action);

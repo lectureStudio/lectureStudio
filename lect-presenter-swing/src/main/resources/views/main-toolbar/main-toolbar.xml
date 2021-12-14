@@ -2,6 +2,8 @@
 <Panel layout="GridBagLayout" floatable="false">
 	<Button id="undoButton" accelerator="ctrl Z" icon="undo-tool.svg, 30" tooltipText="toolbar.undo.tooltip" />
 	<Button id="redoButton" accelerator="ctrl Y" icon="redo-tool.svg, 30" tooltipText="toolbar.redo.tooltip" />
+	<Button id="prevSlideButton" icon="prev-slide-tool.svg, 30" tooltipText="toolbar.slide.prev.tooltip" />
+	<Button id="nextSlideButton" icon="next-slide-tool.svg, 30" tooltipText="toolbar.slide.next.tooltip" />
 	<ToolColorPickerButton id="customColorButton" accelerator="F1" group="colorGroup" />
 	<ToggleButton id="colorButton1" accelerator="F2" group="colorGroup" />
 	<ToggleButton id="colorButton2" accelerator="F3" group="colorGroup" />

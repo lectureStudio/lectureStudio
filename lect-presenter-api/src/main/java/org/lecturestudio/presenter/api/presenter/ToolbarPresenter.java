@@ -384,6 +384,9 @@ public class ToolbarPresenter extends Presenter<ToolbarView> {
 		view.setOnUndo(this::undo);
 		view.setOnRedo(this::redo);
 
+		view.setOnPreviousSlide(toolController::selectPreviousPage);
+		view.setOnNextSlide(toolController::selectNextPage);
+
 		view.setOnCustomPaletteColor(this::customPaletteColor);
 		view.setOnCustomColor(this::customColor);
 		view.setOnColor1(this::color1);

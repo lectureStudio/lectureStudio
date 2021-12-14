@@ -91,6 +91,10 @@ public class SwingToolbarView extends JPanel implements ToolbarView {
 
 	private JButton redoButton;
 
+	private JButton prevSlideButton;
+
+	private JButton nextSlideButton;
+
 	private ToolColorPickerButton customColorButton;
 
 	private JToggleButton colorButton1;
@@ -248,6 +252,16 @@ public class SwingToolbarView extends JPanel implements ToolbarView {
 	@Override
 	public void setOnRedo(Action action) {
 		SwingUtils.bindAction(redoButton, action);
+	}
+
+	@Override
+	public void setOnPreviousSlide(Action action) {
+		SwingUtils.bindAction(prevSlideButton, action);
+	}
+
+	@Override
+	public void setOnNextSlide(Action action) {
+		SwingUtils.bindAction(nextSlideButton, action);
 	}
 
 	@Override
@@ -602,7 +616,8 @@ public class SwingToolbarView extends JPanel implements ToolbarView {
 		List<String> defaultToolbarButtonNames = new ArrayList<>();
 
 		var components = getComponents();
-		var jComponents = Arrays.copyOf(components, components.length, JComponent[].class);
+		var jComponents = Arrays.copyOf(components, components.length,
+				JComponent[].class);
 
 		for (JComponent component : jComponents) {
 			String group = (String) component.getClientProperty("group");

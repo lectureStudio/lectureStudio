@@ -545,6 +545,19 @@ public class ToolController extends Controller implements ToolContext {
 	}
 
 	/**
+	 * Select the previous page in the selected document.
+	 */
+	public void selectPreviousPage() {
+		Document doc = documentService.getDocuments().getSelectedDocument();
+
+		if (nonNull(doc)) {
+			int currentPage = doc.getCurrentPageNumber();
+
+			selectPage(doc, currentPage - 1);
+		}
+	}
+
+	/**
 	 * Select the next page in the selected document.
 	 */
 	public void selectNextPage() {

@@ -258,6 +258,16 @@ public class FxToolbarView extends FlowPane implements ToolbarView {
 	}
 
 	@Override
+	public void setOnPreviousSlide(Action action) {
+
+	}
+
+	@Override
+	public void setOnNextSlide(Action action) {
+
+	}
+
+	@Override
 	public void setOnCustomPaletteColor(ConsumerAction<Color> action) {
 		this.paletteColorAction = action;
 	}

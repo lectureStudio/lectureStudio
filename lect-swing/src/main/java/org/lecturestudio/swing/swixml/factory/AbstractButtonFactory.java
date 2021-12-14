@@ -65,6 +65,12 @@ public class AbstractButtonFactory extends BeanFactory implements LogAware {
 			}
 		}
 
+		node = element.getAttributeNode("id");
+
+		if (nonNull(node)) {
+			button.putClientProperty("id", node.getNodeValue());
+		}
+
 		return button;
 	}
 }

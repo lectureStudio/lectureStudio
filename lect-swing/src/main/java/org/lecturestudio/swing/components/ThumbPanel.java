@@ -164,6 +164,11 @@ public class ThumbPanel extends JPanel {
 		});
 	}
 
+	@Override
+	public void setEnabled(boolean enabled) {
+		list.setEnabled(enabled);
+	}
+
 	public void setRenderController(RenderController renderController) {
 		this.renderController = renderController;
 	}

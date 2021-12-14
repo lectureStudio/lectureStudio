@@ -50,6 +50,8 @@ public class QuizThumbnailPanel extends ThumbnailPanel {
 
 		addButton(shareQuizButton);
 		addButton(stopQuizButton);
+
+		setEnabled(false);
 	}
 
 	public void setOnShareQuiz(Action action) {
@@ -64,6 +66,11 @@ public class QuizThumbnailPanel extends ThumbnailPanel {
 		if (state == ExecutableState.Started) {
 			stopQuizButton.setEnabled(true);
 			shareQuizButton.setEnabled(false);
+
+			setEnabled(false);
+		}
+		else if (state == ExecutableState.Stopped) {
+			setEnabled(true);
 		}
 	}
 }

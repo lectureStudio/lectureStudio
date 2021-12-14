@@ -343,8 +343,6 @@ public class WebRtcStreamEventRecorder extends StreamEventRecorder {
 
 		String remoteFile = streamProviderService.uploadFile(body);
 
-		System.out.println("uploaded: " + remoteFile);
-
 		StreamDocumentCreateAction docCreateAction = new StreamDocumentCreateAction(document);
 		docCreateAction.setDocumentFile(remoteFile);
 

@@ -247,7 +247,7 @@ public class QuizWebService extends WebServiceBase {
 		try {
 			quizDocument = createQuizDocument(quizResult);
 
-			documentService.replace(quizDocument);
+			documentService.replaceDocument(quizDocument);
 		}
 		catch (Exception e) {
 			logException(e, "Create quiz document failed");

@@ -362,7 +362,7 @@ public class RecordingFileService {
 		double prevDuration = playbackService.getDuration().getMillis();
 		double scale = prevDuration / recording.getRecordedAudio().getAudioStream().getLengthInMillis();
 
-		documentService.replace(document);
+		documentService.replaceDocument(document);
 		playbackService.setRecording(recording);
 
 		updateEditState(recording);

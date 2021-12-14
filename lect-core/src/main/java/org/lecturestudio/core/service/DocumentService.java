@@ -93,9 +93,9 @@ public class DocumentService {
 	}
 
 	/**
-	 * Opens a whiteboard document. If no whiteboards are present, a new whiteboard
-	 * is created. If more than one whiteboard is present, then the first whiteboard
-	 * in the document list will be opened.
+	 * Opens a whiteboard document. If no whiteboards are present, a new
+	 * whiteboard is created. If more than one whiteboard is present, then the
+	 * first whiteboard in the document list will be opened.
 	 */
 	public CompletableFuture<Document> openWhiteboard() {
 		return CompletableFuture.supplyAsync(() -> {
@@ -168,7 +168,8 @@ public class DocumentService {
 
 	public void addDocument(Document doc) {
 		if (documents.add(doc)) {
-			context.getEventBus().post(new DocumentEvent(doc, DocumentEvent.Type.CREATED));
+			context.getEventBus().post(new DocumentEvent(doc,
+					DocumentEvent.Type.CREATED));
 		}
 	}
 
@@ -176,7 +177,8 @@ public class DocumentService {
 		boolean removed = documents.remove(doc);
 
 		if (removed) {
-			context.getEventBus().post(new DocumentEvent(doc, DocumentEvent.Type.CLOSED));
+			context.getEventBus().post(new DocumentEvent(doc,
+					DocumentEvent.Type.CLOSED));
 		}
 
 		return removed;
@@ -190,11 +192,14 @@ public class DocumentService {
 		}
 	}
 
-	public void replace(Document newDoc) {
-		Document oldDoc = documents.getSelectedDocument();
+	public void replaceDocument(Document newDoc) {
+		replaceDocument(documents.getSelectedDocument(), newDoc);
+	}
 
+	public void replaceDocument(Document oldDoc, Document newDoc) {
 		if (documents.replace(oldDoc, newDoc)) {
-			context.getEventBus().post(new DocumentEvent(oldDoc, newDoc, DocumentEvent.Type.REPLACED));
+			context.getEventBus().post(new DocumentEvent(oldDoc, newDoc,
+					DocumentEvent.Type.REPLACED));
 		}
 	}
 
@@ -202,7 +207,8 @@ public class DocumentService {
 		Document oldDoc = documents.getSelectedDocument();
 
 		if (documents.select(doc)) {
-			context.getEventBus().post(new DocumentEvent(oldDoc, doc, DocumentEvent.Type.SELECTED));
+			context.getEventBus().post(new DocumentEvent(oldDoc, doc,
+					DocumentEvent.Type.SELECTED));
 		}
 	}
 
@@ -263,8 +269,8 @@ public class DocumentService {
 
 	/**
 	 * Removes the selected page on the active whiteboard. Does nothing if the
-	 * selected Document is not a whiteboard. If this would lead to an empty whiteboard,
-	 * a new blank page is set as the first page of the whiteboard.
+	 * selected Document is not a whiteboard. If this would lead to an empty
+	 * whiteboard, a new blank page is set as the first page of the whiteboard.
 	 */
 	public void deleteWhiteboardPage() {
 		Document selectedDocument = documents.getSelectedDocument();
@@ -277,7 +283,8 @@ public class DocumentService {
 			Page selectedPage = selectedDocument.getCurrentPage();
 
 			if (selectedDocument.removePage(selectedPage)) {
-				context.getEventBus().post(new PageEvent(selectedPage, PageEvent.Type.REMOVED));
+				context.getEventBus().post(new PageEvent(selectedPage,
+						PageEvent.Type.REMOVED));
 
 				// Check if the removed page was selected.
 				int pageNumber = selectedPage.getPageNumber();
@@ -348,7 +355,8 @@ public class DocumentService {
 			Page oldPage = document.getPage(currentPageNumber);
 			Page newPage = document.getPage(pageNumber);
 
-			context.getEventBus().post(new PageEvent(newPage, oldPage, PageEvent.Type.SELECTED));
+			context.getEventBus().post(new PageEvent(newPage, oldPage,
+					PageEvent.Type.SELECTED));
 		}
 	}
 

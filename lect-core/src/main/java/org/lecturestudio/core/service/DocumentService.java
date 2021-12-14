@@ -196,8 +196,31 @@ public class DocumentService {
 		replaceDocument(documents.getSelectedDocument(), newDoc);
 	}
 
+	public void replaceDocument(Document newDoc, boolean copyAnnotations) {
+		replaceDocument(documents.getSelectedDocument(), newDoc, copyAnnotations);
+	}
+
 	public void replaceDocument(Document oldDoc, Document newDoc) {
 		if (documents.replace(oldDoc, newDoc)) {
+			context.getEventBus().post(new DocumentEvent(oldDoc, newDoc,
+					DocumentEvent.Type.REPLACED));
+		}
+	}
+
+	public void replaceDocument(Document oldDoc, Document newDoc,
+			boolean copyAnnotations) {
+		if (documents.replace(oldDoc, newDoc)) {
+			if (copyAnnotations) {
+				int pageCount = Math.min(oldDoc.getPageCount(), newDoc.getPageCount());
+
+				for (int i = 0; i < pageCount; i++) {
+					Page newPage = newDoc.getPage(i);
+					Page oldPage = oldDoc.getPage(i);
+
+					newPage.copy(oldPage);
+				}
+			}
+
 			context.getEventBus().post(new DocumentEvent(oldDoc, newDoc,
 					DocumentEvent.Type.REPLACED));
 		}

@@ -202,7 +202,7 @@ public class QuizFeatureWebService extends FeatureServiceBase {
 		}
 		else {
 			// Replace quiz document in silent-mode.
-			updateQuizDocument();
+			updateQuizDocument(false);
 		}
 	}
 
@@ -262,11 +262,11 @@ public class QuizFeatureWebService extends FeatureServiceBase {
 		return doc;
 	}
 
-	private void updateQuizDocument() {
+	private void updateQuizDocument(boolean copyAnnotations) {
 		try {
 			quizDocument = createQuizDocument(quizResult);
 
-			documentService.replaceDocument(quizDocument);
+			documentService.replaceDocument(quizDocument, copyAnnotations);
 		}
 		catch (Exception e) {
 			logException(e, "Create quiz document failed");
@@ -277,7 +277,7 @@ public class QuizFeatureWebService extends FeatureServiceBase {
 		try {
 			executorService.execute(() -> {
 				if (started()) {
-					updateQuizDocument();
+					updateQuizDocument(true);
 				}
 			});
 		}

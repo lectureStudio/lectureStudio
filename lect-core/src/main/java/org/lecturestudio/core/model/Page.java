@@ -188,22 +188,44 @@ public class Page {
 	}
 
 	/**
+	 * Copies the annotations and the undo/redo stack of the provided page to
+	 * this page.
+	 *
+	 * @param page The page to copy.
+	 */
+	public void copy(Page page) {
+		if (page == null || page.equals(this)) {
+			return;
+		}
+
+		for (Shape shape : page.getShapes()) {
+			addShape(shape.clone());
+		}
+
+		undoActions.addAll(page.getUndoActions());
+		redoActions.addAll(page.getRedoActions());
+	}
+
+	/**
 	 * Adopt shapes of provided page if the pages have equal page labels.
 	 * Adoption is only performed if this page is the successor of the provided page.
 	 *
 	 * @param page The page to adopt to.
 	 */
 	public void adoptNoLabel(Page page) {
-		if (page == null || page.equals(this))
+		if (page == null || page.equals(this)) {
 			return;
+		}
 		
 		// No backward adoption.
-		if (pageNumber < page.getPageNumber())
+		if (pageNumber < page.getPageNumber()) {
 			return;
+		}
 		
 		// Perform only within same document.
-		if (!document.equals(page.getDocument()))
+		if (!document.equals(page.getDocument())) {
 			return;
+		}
 		
 		for (Shape shape : page.getShapes()) {
 			addShape(shape.clone());

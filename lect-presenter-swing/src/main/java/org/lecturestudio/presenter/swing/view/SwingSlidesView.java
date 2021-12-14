@@ -228,6 +228,7 @@ public class SwingSlidesView extends JPanel implements SlidesView {
 			}
 			else if (doc.isQuiz()) {
 				QuizThumbnailPanel quizThumbPanel = new QuizThumbnailPanel(dict);
+				quizThumbPanel.setStreamState(streamState);
 				quizThumbPanel.setOnShareQuiz(shareQuizAction);
 				quizThumbPanel.setOnStopQuiz(stopQuizAction);
 
@@ -399,13 +400,12 @@ public class SwingSlidesView extends JPanel implements SlidesView {
 
 	@Override
 	public void setQuizState(ExecutableState state) {
-		int tabCount = tabPane.getTabCount();
-
-		for (int i = 0; i < tabCount; i++) {
+		for (int i = 0; i < tabPane.getTabCount(); i++) {
 			ThumbPanel thumbnailPanel = (ThumbPanel) tabPane.getComponentAt(i);
 
 			if (thumbnailPanel instanceof QuizThumbnailPanel) {
-				((QuizThumbnailPanel) thumbnailPanel).setQuizState(state);
+				QuizThumbnailPanel quizPanel = (QuizThumbnailPanel) thumbnailPanel;
+				quizPanel.setQuizState(state);
 				break;
 			}
 		}
@@ -428,6 +428,16 @@ public class SwingSlidesView extends JPanel implements SlidesView {
 
 			if (!streamStarted) {
 				removeMessageViews(SpeechRequestView.class);
+			}
+
+			for (int i = 0; i < tabPane.getTabCount(); i++) {
+				ThumbPanel thumbnailPanel = (ThumbPanel) tabPane.getComponentAt(i);
+
+				if (thumbnailPanel instanceof QuizThumbnailPanel) {
+					QuizThumbnailPanel quizPanel = (QuizThumbnailPanel) thumbnailPanel;
+					quizPanel.setStreamState(state);
+					break;
+				}
 			}
 		});
 	}

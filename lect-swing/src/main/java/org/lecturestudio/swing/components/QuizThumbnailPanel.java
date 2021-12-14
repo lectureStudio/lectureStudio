@@ -31,6 +31,8 @@ public class QuizThumbnailPanel extends ThumbnailPanel {
 
 	private final JButton stopQuizButton;
 
+	private ExecutableState streamState;
+
 
 	public QuizThumbnailPanel(Dictionary dict) {
 		super();
@@ -66,6 +68,7 @@ public class QuizThumbnailPanel extends ThumbnailPanel {
 		if (state == ExecutableState.Started) {
 			stopQuizButton.setEnabled(true);
 			shareQuizButton.setEnabled(false);
+			shareQuizButton.setVisible(streamState == ExecutableState.Started);
 
 			setEnabled(false);
 		}
@@ -75,5 +78,14 @@ public class QuizThumbnailPanel extends ThumbnailPanel {
 
 			setEnabled(true);
 		}
+	}
+
+	public void setStreamState(ExecutableState state) {
+		streamState = state;
+
+		boolean started = state == ExecutableState.Started;
+
+		shareQuizButton.setVisible(started);
+		shareQuizButton.setEnabled(started && shareQuizButton.isEnabled());
 	}
 }

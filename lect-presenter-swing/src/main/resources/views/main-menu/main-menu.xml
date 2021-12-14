@@ -42,7 +42,7 @@
 		<separator />
 		<menuitem id="selectQuizMenuItem" text="menu.quiz.selection" accelerator="Z" enabled="false" />
 		<menuitem id="newQuizMenuItem" text="menu.quiz.new" enabled="false" />
-		<menuitem id="closeQuizMenuItem" text="menu.quiz.close" enabled="false" />
+		<menuitem id="closeQuizMenuItem" text="menu.quiz.stop" enabled="false" />
 	</menu>
 	<menu id="bookmarksMenu" text="menu.bookmarks">
 		<menuitem id="clearBookmarksMenuItem" text="menu.bookmarks.clear" enabled="false" />

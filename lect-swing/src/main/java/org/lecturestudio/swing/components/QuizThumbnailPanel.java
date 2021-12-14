@@ -70,6 +70,9 @@ public class QuizThumbnailPanel extends ThumbnailPanel {
 			setEnabled(false);
 		}
 		else if (state == ExecutableState.Stopped) {
+			stopQuizButton.setEnabled(false);
+			shareQuizButton.setEnabled(true);
+
 			setEnabled(true);
 		}
 	}

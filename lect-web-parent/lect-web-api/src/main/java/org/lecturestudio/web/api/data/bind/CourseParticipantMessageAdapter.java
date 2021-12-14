@@ -32,6 +32,9 @@ public class CourseParticipantMessageAdapter implements JsonbAdapter<CourseParti
 		JsonObjectBuilder builder = Json.createObjectBuilder();
 		builder.add("type", message.getClass().getSimpleName());
 		builder.add("connected", message.getConnected());
+		builder.add("firstName", message.getFirstName());
+		builder.add("familyName", message.getFamilyName());
+		builder.add("username", message.getUsername());
 
 		return builder.build();
 	}
@@ -44,6 +47,9 @@ public class CourseParticipantMessageAdapter implements JsonbAdapter<CourseParti
 
 		CourseParticipantMessage message = (CourseParticipantMessage) cls.getConstructor().newInstance();
 		message.setConnected(jsonObject.getBoolean("connected"));
+		message.setFirstName(jsonObject.getString("firstName"));
+		message.setFamilyName(jsonObject.getString("familyName"));
+		message.setUsername(jsonObject.getString("username"));
 
 		return message;
 	}

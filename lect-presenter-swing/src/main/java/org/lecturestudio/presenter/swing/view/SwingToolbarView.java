@@ -159,6 +159,8 @@ public class SwingToolbarView extends JPanel implements ToolbarView {
 
 	private JToggleButton streamCamButton;
 
+	private JButton selectQuizButton;
+
 	private CustomizedToolbar customizedToolbar;
 
 
@@ -580,6 +582,11 @@ public class SwingToolbarView extends JPanel implements ToolbarView {
 	@Override
 	public void bindEnableStreamCamera(BooleanProperty enable) {
 		SwingUtils.bindBidirectional(streamCamButton, enable);
+	}
+
+	@Override
+	public void setOnSelectQuiz(Action action) {
+		SwingUtils.bindAction(selectQuizButton, action);
 	}
 
 	private void setColorButtonsEnabled(boolean enabled) {

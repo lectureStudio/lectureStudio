@@ -328,6 +328,10 @@ public class ToolbarPresenter extends Presenter<ToolbarView> {
 		}
 	}
 
+	private void selectQuiz() {
+		eventBus.post(new ShowPresenterCommand<>(SelectQuizPresenter.class));
+	}
+
 	private void pageParameterChanged(Page page, PresentationParameter parameter) {
 		view.setPage(page, parameter);
 	}
@@ -426,6 +430,8 @@ public class ToolbarPresenter extends Presenter<ToolbarView> {
 		view.bindEnableStream(presenterContext.streamStartedProperty());
 		view.bindEnableStreamMicrophone(config.getStreamConfig().enableMicrophoneProperty());
 		view.bindEnableStreamCamera(config.getStreamConfig().enableCameraProperty());
+
+		view.setOnSelectQuiz(this::selectQuiz);
 
 		// Register for page parameter change updates.
 		PresentationParameterProvider ppProvider = context.getPagePropertyProvider(ViewType.User);

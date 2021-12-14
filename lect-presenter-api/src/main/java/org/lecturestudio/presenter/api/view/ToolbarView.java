@@ -132,4 +132,6 @@ public interface ToolbarView extends View {
 
 	void bindEnableStreamCamera(BooleanProperty enable);
 
+	void setOnSelectQuiz(Action action);
+
 }

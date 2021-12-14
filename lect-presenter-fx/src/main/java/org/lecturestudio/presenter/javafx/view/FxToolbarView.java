@@ -514,6 +514,11 @@ public class FxToolbarView extends FlowPane implements ToolbarView {
 
 	}
 
+	@Override
+	public void setOnSelectQuiz(Action action) {
+
+	}
+
 	@FXML
 	private void initialize() {
 		// Disable button focus.

@@ -81,6 +81,18 @@ public class JanusHandler extends JanusStateHandler {
 			return;
 		}
 
+		JanusPublisher activePublisher = getFirstPublisher();
+
+		if (nonNull(activePublisher)) {
+			if (isNull(activePublisher.getId())) {
+				speechPublishers.values()
+						.removeIf(value -> value.equals(activePublisher));
+			}
+			else {
+				stopRemoteSpeech(activePublisher.getId());
+			}
+		}
+
 		JanusPublisher speechPublisher = new JanusPublisher();
 		speechPublisher.setDisplayName(userName);
 
@@ -181,8 +193,7 @@ public class JanusHandler extends JanusStateHandler {
 
 		getStreamContext().getAudioContext().receiveAudioProperty()
 				.addListener((observable, oldValue, newValue) -> {
-					JanusPublisher speechPublisher = speechPublishers.entrySet()
-							.iterator().next().getValue();
+					JanusPublisher speechPublisher = getFirstPublisher();
 
 					if (nonNull(speechPublisher)) {
 						muteParticipant(speechPublisher, !newValue, MediaType.Audio);
@@ -190,8 +201,7 @@ public class JanusHandler extends JanusStateHandler {
 				});
 		getStreamContext().getVideoContext().receiveVideoProperty()
 				.addListener((observable, oldValue, newValue) -> {
-					JanusPublisher speechPublisher = speechPublishers.entrySet()
-							.iterator().next().getValue();
+					JanusPublisher speechPublisher = getFirstPublisher();
 
 					if (nonNull(speechPublisher)) {
 						muteParticipant(speechPublisher, !newValue, MediaType.Camera);
@@ -281,8 +291,7 @@ public class JanusHandler extends JanusStateHandler {
 		JanusPublisher publisher = message.getPublisher();
 
 		// Only one speech at a time.
-		JanusPublisher speechPublisher = speechPublishers.entrySet().iterator()
-				.next().getValue();
+		JanusPublisher speechPublisher = getFirstPublisher();
 		speechPublisher.setId(publisher.getId());
 
 		startSubscriber(speechPublisher);
@@ -364,6 +373,14 @@ public class JanusHandler extends JanusStateHandler {
 			peerStateConsumer.accept(new PeerStateEvent(publisher.getId(),
 					publisher.getDisplayName(), state));
 		}
+	}
+
+	private JanusPublisher getFirstPublisher() {
+		if (speechPublishers.isEmpty()) {
+			return null;
+		}
+
+		return speechPublishers.entrySet().iterator().next().getValue();
 	}
 
 	private void muteParticipant(JanusPublisher publisher, boolean mute, MediaType... types) {

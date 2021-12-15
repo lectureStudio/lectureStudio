@@ -126,11 +126,12 @@ public class WebRtcStreamService extends ExecutableBase {
 			return;
 		}
 
+		long requestId = message.getRequestId();
 		String userName = String.format("%s %s", message.getFirstName(),
 				message.getFamilyName());
 
-		janusClient.startRemoteSpeech(message.getRequestId(), userName);
-		streamProviderService.acceptSpeechRequest(message.getRequestId());
+		janusClient.startRemoteSpeech(requestId, userName);
+		streamProviderService.acceptSpeechRequest(requestId);
 	}
 
 	public void rejectSpeechRequest(SpeechRequestMessage message) {

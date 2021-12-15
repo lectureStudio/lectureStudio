@@ -283,6 +283,8 @@ public class SlidesPresenter extends Presenter<SlidesView> {
 	public void onEvent(CourseParticipantMessage message) {
 		PresenterContext presenterContext = (PresenterContext) context;
 
+		view.setParticipantMessage(message);
+
 		if (message.getConnected()) {
 			presenterContext.setAttendeesCount(presenterContext.getAttendeesCount() + 1);
 		}

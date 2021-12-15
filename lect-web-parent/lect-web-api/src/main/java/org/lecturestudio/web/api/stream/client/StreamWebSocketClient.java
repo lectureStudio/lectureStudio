@@ -185,6 +185,7 @@ public class StreamWebSocketClient extends ExecutableBase {
 				try {
 					Object message = null;
 					String jsonData = buffer.toString();
+					System.out.println(jsonData);
 
 					JsonReader jsonReader = Json.createReader(new StringReader(jsonData));
 					JsonObject jsonObject = jsonReader.readObject();
@@ -195,6 +196,8 @@ public class StreamWebSocketClient extends ExecutableBase {
 					}
 					else if (typeStr.startsWith("CourseParticipant")) {
 						message = jsonb.fromJson(jsonData, CourseParticipantMessage.class);
+						CourseParticipantMessage mess = (CourseParticipantMessage) message;
+						System.out.println(mess.getConnected());
 					}
 
 					if (nonNull(message)) {

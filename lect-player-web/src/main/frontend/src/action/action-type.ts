@@ -39,7 +39,11 @@ enum ActionType {
 	 */
 	NEXT_PAGE, KEY,
 
-	STATIC
+	STATIC,
+
+	PAGE,
+
+	RUBBER_EXT, TEXT_SELECTION_EXT
 
 }
 

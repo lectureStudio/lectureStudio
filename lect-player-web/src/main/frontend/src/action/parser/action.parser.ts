@@ -204,13 +204,14 @@ class ActionParser {
 	}
 
 	private static toolBrushAction<T>(dataView: ProgressiveDataView, type: { new(brush: Brush): T }): T {
+		const shapeHandle = dataView.getInt32();
 		const rgba = dataView.getInt32();
 		const lineCap = dataView.getInt8();
 		const brushWidth = dataView.getFloat64();
 
 		const color = Color.fromRGBNumber(rgba);
 		const brush = new Brush(color, brushWidth);
-		const action = new type(brush);
+		const action = new type(shapeHandle, brush);
 
 		return action;
 	}

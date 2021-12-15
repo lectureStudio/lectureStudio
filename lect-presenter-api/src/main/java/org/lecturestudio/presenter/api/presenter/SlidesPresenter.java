@@ -93,9 +93,7 @@ import org.lecturestudio.web.api.event.PeerStateEvent;
 import org.lecturestudio.web.api.event.VideoFrameEvent;
 import org.lecturestudio.web.api.message.CourseParticipantMessage;
 import org.lecturestudio.web.api.message.MessengerMessage;
-import org.lecturestudio.web.api.message.SpeechAcceptMessage;
 import org.lecturestudio.web.api.message.SpeechCancelMessage;
-import org.lecturestudio.web.api.message.SpeechRejectMessage;
 import org.lecturestudio.web.api.message.SpeechRequestMessage;
 
 public class SlidesPresenter extends Presenter<SlidesView> {
@@ -317,24 +315,14 @@ public class SlidesPresenter extends Presenter<SlidesView> {
 	}
 
 	private void onAcceptSpeech(SpeechRequestMessage message) {
-		var acceptMessage = new SpeechAcceptMessage();
-		acceptMessage.setRequestId(message.getRequestId());
-		acceptMessage.setFirstName(message.getFirstName());
-		acceptMessage.setFamilyName(message.getFamilyName());
-
-		eventBus.post(acceptMessage);
+		streamService.acceptSpeechRequest(message);
 
 		PresenterContext presenterContext = (PresenterContext) context;
 		presenterContext.getSpeechRequests().remove(message);
 	}
 
 	private void onRejectSpeech(SpeechRequestMessage message) {
-		var rejectMessage = new SpeechRejectMessage();
-		rejectMessage.setRequestId(message.getRequestId());
-		rejectMessage.setFirstName(message.getFirstName());
-		rejectMessage.setFamilyName(message.getFamilyName());
-
-		eventBus.post(rejectMessage);
+		streamService.rejectSpeechRequest(message);
 
 		PresenterContext presenterContext = (PresenterContext) context;
 		presenterContext.getSpeechRequests().remove(message);

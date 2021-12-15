@@ -18,8 +18,6 @@
 
 package org.lecturestudio.presenter.api.service;
 
-import com.google.common.eventbus.Subscribe;
-
 import dev.onvoid.webrtc.RTCIceServer;
 import dev.onvoid.webrtc.media.Device;
 import dev.onvoid.webrtc.media.MediaDevices;
@@ -56,8 +54,7 @@ import org.lecturestudio.web.api.janus.JanusHandlerException.Type;
 import org.lecturestudio.web.api.janus.JanusPeerConnectionMediaException;
 import org.lecturestudio.web.api.janus.JanusStateHandlerListener;
 import org.lecturestudio.web.api.janus.client.JanusWebSocketClient;
-import org.lecturestudio.web.api.message.SpeechAcceptMessage;
-import org.lecturestudio.web.api.message.SpeechRejectMessage;
+import org.lecturestudio.web.api.message.SpeechRequestMessage;
 import org.lecturestudio.web.api.service.ServiceParameters;
 import org.lecturestudio.web.api.stream.client.StreamWebSocketClient;
 import org.lecturestudio.web.api.stream.StreamContext;
@@ -124,8 +121,7 @@ public class WebRtcStreamService extends ExecutableBase {
 		eventRecorder.init();
 	}
 
-	@Subscribe
-	public void onEvent(SpeechAcceptMessage message) {
+	public void acceptSpeechRequest(SpeechRequestMessage message) {
 		if (!started()) {
 			return;
 		}
@@ -137,8 +133,7 @@ public class WebRtcStreamService extends ExecutableBase {
 		streamProviderService.acceptSpeechRequest(message.getRequestId());
 	}
 
-	@Subscribe
-	public void onEvent(SpeechRejectMessage message) {
+	public void rejectSpeechRequest(SpeechRequestMessage message) {
 		if (!started()) {
 			return;
 		}
@@ -214,8 +209,6 @@ public class WebRtcStreamService extends ExecutableBase {
 		}
 
 		setStreamState(ExecutableState.Starting);
-
-		context.getEventBus().register(this);
 
 		PresenterContext pContext = (PresenterContext) context;
 		PresenterConfiguration config = (PresenterConfiguration) context
@@ -320,8 +313,6 @@ public class WebRtcStreamService extends ExecutableBase {
 		}
 
 		setStreamState(ExecutableState.Stopping);
-
-		context.getEventBus().unregister(this);
 
 		try {
 			eventRecorder.stop();

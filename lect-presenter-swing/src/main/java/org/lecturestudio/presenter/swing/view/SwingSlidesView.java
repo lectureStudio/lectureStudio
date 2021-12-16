@@ -254,6 +254,30 @@ public class SwingSlidesView extends JPanel implements SlidesView {
 				}
 			});
 
+			if (doc.isWhiteboard()) {
+				JButton addPageButton = new JButton("+");
+				JButton deletePageButton = new JButton("-");
+
+				SwingUtils.bindAction(addPageButton, () -> {
+					executeAction(newPageAction);
+				});
+				SwingUtils.bindAction(deletePageButton, () -> {
+					executeAction(deletePageAction);
+				});
+
+				thumbPanel.addButton(addPageButton);
+				thumbPanel.addButton(deletePageButton);
+			}
+			if (doc.isQuiz()) {
+				JButton shareQuizButton = new JButton(dict.get("slides.share.quiz"));
+
+				SwingUtils.bindAction(shareQuizButton, () -> {
+					executeAction(shareQuizAction);
+				});
+
+				thumbPanel.addButton(shareQuizButton);
+			}
+
 			VerticalTab tab = new VerticalTab(tabPane.getTabPlacement());
 			tab.setText(doc.getName());
 

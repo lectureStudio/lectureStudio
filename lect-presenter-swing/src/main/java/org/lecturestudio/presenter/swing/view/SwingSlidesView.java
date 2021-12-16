@@ -412,6 +412,7 @@ public class SwingSlidesView extends JPanel implements SlidesView {
 
 			if (!streamStarted) {
 				removeMessageViews(SpeechRequestView.class);
+				removeParticipantsView(ParticipantsView.class);
 			}
 		});
 	}
@@ -908,6 +909,17 @@ public class SwingSlidesView extends JPanel implements SlidesView {
 
 		messageViewContainer.validate();
 		messageViewContainer.repaint();
+	}
+
+	private void removeParticipantsView(Class<? extends ParticipantsPanel> cls) {
+		for (Component c : participantViewContainer.getComponents()) {
+			if (cls.isAssignableFrom(cls)) {
+				participantViewContainer.remove(c);
+			}
+		}
+
+		participantViewContainer.validate();
+		participantViewContainer.repaint();
 	}
 
 	private BufferedImage convertVideoFrame(VideoFrame videoFrame, BufferedImage image) throws Exception {

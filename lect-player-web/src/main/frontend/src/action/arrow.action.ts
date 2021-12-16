@@ -6,6 +6,7 @@ class ArrowAction extends BrushAction {
 
 	execute(executor: ActionExecutor): void {
 		const tool = new ArrowTool();
+		tool.shapeHandle = this.shapeHandle;
 		tool.brush = this.brush;
 
 		executor.setKeyEvent(this.keyEvent);

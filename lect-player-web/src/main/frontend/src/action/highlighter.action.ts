@@ -6,6 +6,7 @@ class HighlighterAction extends BrushAction {
 
 	execute(executor: ActionExecutor): void {
 		const tool = new HighlighterTool();
+		tool.shapeHandle = this.shapeHandle;
 		tool.brush = this.brush;
 
 		executor.setTool(tool);

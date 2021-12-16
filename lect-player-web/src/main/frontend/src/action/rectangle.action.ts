@@ -6,6 +6,7 @@ class RectangleAction extends BrushAction {
 
 	execute(executor: ActionExecutor): void {
 		const tool = new RectangleTool();
+		tool.shapeHandle = this.shapeHandle;
 		tool.brush = this.brush;
 
 		executor.setKeyEvent(this.keyEvent);

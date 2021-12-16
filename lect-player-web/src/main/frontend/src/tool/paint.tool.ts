@@ -5,6 +5,8 @@ import { PenPoint } from "../geometry/pen-point";
 
 abstract class PaintTool implements Tool {
 
+	shapeHandle: number;
+	
 	brush: Brush;
 
 

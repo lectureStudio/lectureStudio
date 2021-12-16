@@ -6,6 +6,7 @@ class EllipseAction extends BrushAction {
 
 	execute(executor: ActionExecutor): void {
 		const tool = new EllipseTool();
+		tool.shapeHandle = this.shapeHandle;
 		tool.brush = this.brush;
 
 		executor.setKeyEvent(this.keyEvent);

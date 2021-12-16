@@ -11,6 +11,7 @@ class PenTool extends PaintTool {
 
 	begin(point: PenPoint, context: ToolContext): void {
 		this.shape = new PenShape(this.brush);
+		this.shape.setHandle(this.shapeHandle);
 		this.shape.addPoint(point);
 
 		context.page.addAction(new AddShapeAction([this.shape]));

@@ -12,6 +12,8 @@ abstract class Shape {
 
 	private readonly changeEvent = new TypedEvent<ShapeEvent>();
 
+	private shapeHandle: number;
+
 	private selected: boolean;
 
 	private keyEvent: KeyboardEvent;
@@ -19,6 +21,14 @@ abstract class Shape {
 
 	protected abstract updateBounds(): void;
 
+
+	getHandle(): number {
+		return this.shapeHandle;
+	}
+
+	setHandle(handle: number): void {
+		this.shapeHandle = handle;
+	}
 
 	addPoint(point: PenPoint): boolean {
 		const count = this._points.length;

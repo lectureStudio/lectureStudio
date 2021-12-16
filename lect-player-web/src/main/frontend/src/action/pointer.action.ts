@@ -6,6 +6,7 @@ class PointerAction extends BrushAction {
 
 	execute(executor: ActionExecutor): void {
 		const tool = new PointerTool();
+		tool.shapeHandle = this.shapeHandle;
 		tool.brush = this.brush;
 
 		executor.setTool(tool);

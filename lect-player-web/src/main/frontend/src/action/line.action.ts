@@ -6,6 +6,7 @@ class LineAction extends BrushAction {
 
 	execute(executor: ActionExecutor): void {
 		const tool = new LineTool();
+		tool.shapeHandle = this.shapeHandle;
 		tool.brush = this.brush;
 
 		executor.setKeyEvent(this.keyEvent);

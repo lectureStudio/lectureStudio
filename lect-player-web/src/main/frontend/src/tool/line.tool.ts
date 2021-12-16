@@ -15,6 +15,7 @@ class LineTool extends PaintTool {
 		this.context = context;
 
 		this.shape = new LineShape(this.brush);
+		this.shape.setHandle(this.shapeHandle);
 		this.shape.setP0(point);
 
 		context.page.addAction(new AddShapeAction([this.shape]));

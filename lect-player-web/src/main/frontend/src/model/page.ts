@@ -45,6 +45,16 @@ class Page {
 		this.changeEvent.unsubscribe(listener);
 	}
 
+	getShapeByHandle(handle: number): Shape {
+		for (const shape of this.shapes) {
+			if (shape.getHandle() === handle) {
+				return shape;
+			}
+		}
+
+		return null;
+	}
+
 	addShape(shape: Shape) {
 		const prevCount = this.shapes.length;
 

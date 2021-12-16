@@ -6,6 +6,7 @@ class PenAction extends BrushAction {
 
 	execute(executor: ActionExecutor): void {
 		const tool = new PenTool();
+		tool.shapeHandle = this.shapeHandle;
 		tool.brush = this.brush;
 
 		executor.setTool(tool);

@@ -15,6 +15,7 @@ class EllipseTool extends PaintTool {
 		this.context = context;
 
 		this.shape = new EllipseShape(this.brush);
+		this.shape.setHandle(this.shapeHandle);
 		this.shape.setP0(point);
 
 		context.page.addAction(new AddShapeAction([this.shape]));

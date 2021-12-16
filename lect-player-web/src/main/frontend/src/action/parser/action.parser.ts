@@ -27,6 +27,7 @@ import { Rectangle } from "../../geometry/rectangle";
 import { ZoomAction } from "../zoom.action";
 import { ZoomOutAction } from "../zoom-out.action";
 import { RubberAction } from "../rubber.action";
+import { RubberActionExt } from "../rubber.action-ext";
 import { TextAction } from "../text.action";
 import { TextFontAction } from "../text-font.action";
 import { TextChangeAction } from "../text-change.action";
@@ -35,6 +36,7 @@ import { Point } from "../../geometry/point";
 import { TextRemoveAction } from "../text-remove.action";
 import { Font } from "../../paint/font";
 import { TextHighlightAction } from "../text-highlight.action";
+import { TextHighlightActionExt } from "../text-highlight.action-ext";
 import { LatexAction } from "../latex.action";
 import { LatexFontAction } from "../latex-font.action";
 
@@ -115,6 +117,9 @@ class ActionParser {
 			case ActionType.TEXT_SELECTION:
 				action = this.textHighlightAction(dataView);
 				break;
+			case ActionType.TEXT_SELECTION_EXT:
+				action = this.textHighlightExtAction(dataView);
+				break;
 			case ActionType.TOOL_BEGIN:
 				action = this.toolDragAction(dataView, ToolBeginAction);
 				break;
@@ -143,6 +148,9 @@ class ActionParser {
 				break;
 			case ActionType.RUBBER:
 				action = this.atomicAction(dataView, RubberAction);
+				break;
+			case ActionType.RUBBER_EXT:
+				action = this.rubberAction(dataView);
 				break;
 		}
 
@@ -203,7 +211,7 @@ class ActionParser {
 		return new type();
 	}
 
-	private static toolBrushAction<T>(dataView: ProgressiveDataView, type: { new(brush: Brush): T }): T {
+	private static toolBrushAction<T>(dataView: ProgressiveDataView, type: { new(shapeHandle:number, brush: Brush): T }): T {
 		const shapeHandle = dataView.getInt32();
 		const rgba = dataView.getInt32();
 		const lineCap = dataView.getInt8();
@@ -214,6 +222,12 @@ class ActionParser {
 		const action = new type(shapeHandle, brush);
 
 		return action;
+	}
+
+	private static rubberAction(dataView: ProgressiveDataView): RubberActionExt {
+		const shapeHandle = dataView.getInt32();
+
+		return new RubberActionExt(shapeHandle);
 	}
 
 	private static toolDragAction<T>(dataView: ProgressiveDataView, type: { new(point: PenPoint): T }): T {
@@ -277,6 +291,26 @@ class ActionParser {
 		}
 
 		return new TextHighlightAction(color, textBounds);
+	}
+
+	private static textHighlightExtAction(dataView: ProgressiveDataView): TextHighlightActionExt {
+		const handle = dataView.getInt32();
+		const rgba = dataView.getInt32();
+		const count = dataView.getInt32();
+
+		const color = Color.fromRGBNumber(rgba);
+		const textBounds = new Array<Rectangle>();
+
+		for (let i = 0; i < count; i++) {
+			const x = dataView.getFloat64();
+			const y = dataView.getFloat64();
+			const w = dataView.getFloat64();
+			const h = dataView.getFloat64();
+
+			textBounds.push(new Rectangle(x, y, w, h));
+		}
+
+		return new TextHighlightActionExt(handle, color, textBounds);
 	}
 
 	private static textFontAction(dataView: ProgressiveDataView): TextFontAction {

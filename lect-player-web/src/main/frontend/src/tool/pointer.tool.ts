@@ -15,6 +15,7 @@ class PointerTool extends PaintTool {
 		this.page = context.page;
 
 		this.shape = new PointerShape(this.brush);
+		this.shape.setHandle(this.shapeHandle);
 		this.shape.addPoint(point);
 
 		this.page.addShape(this.shape);

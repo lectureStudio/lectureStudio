@@ -41,6 +41,7 @@ import org.lecturestudio.core.view.View;
 import org.lecturestudio.presenter.api.stylus.StylusHandler;
 import org.lecturestudio.web.api.event.PeerStateEvent;
 import org.lecturestudio.web.api.event.VideoFrameEvent;
+import org.lecturestudio.web.api.message.CourseParticipantMessage;
 import org.lecturestudio.web.api.message.MessengerMessage;
 import org.lecturestudio.web.api.message.SpeechCancelMessage;
 import org.lecturestudio.web.api.message.SpeechRequestMessage;
@@ -84,6 +85,8 @@ public interface SlidesView extends View {
 	void setMessengerState(ExecutableState state);
 
 	void setMessengerMessage(MessengerMessage message);
+
+	void setParticipantMessage(CourseParticipantMessage message);
 
 	void setSpeechRequestMessage(SpeechRequestMessage message);
 

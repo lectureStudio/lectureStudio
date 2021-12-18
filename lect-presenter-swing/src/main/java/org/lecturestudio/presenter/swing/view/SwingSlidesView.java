@@ -87,14 +87,7 @@ import org.lecturestudio.presenter.api.stylus.StylusHandler;
 import org.lecturestudio.presenter.api.view.SlidesView;
 import org.lecturestudio.presenter.swing.input.StylusListener;
 import org.lecturestudio.stylus.awt.AwtStylusManager;
-import org.lecturestudio.swing.components.ThumbnailPanel;
-import org.lecturestudio.swing.components.MessagePanel;
-import org.lecturestudio.swing.components.MessageView;
-import org.lecturestudio.swing.components.PeerView;
-import org.lecturestudio.swing.components.SlideView;
-import org.lecturestudio.swing.components.SpeechRequestView;
-import org.lecturestudio.swing.components.ThumbPanel;
-import org.lecturestudio.swing.components.VerticalTab;
+import org.lecturestudio.swing.components.*;
 import org.lecturestudio.swing.converter.KeyEventConverter;
 import org.lecturestudio.swing.converter.MatrixConverter;
 import org.lecturestudio.swing.util.SwingUtils;
@@ -102,6 +95,7 @@ import org.lecturestudio.swing.view.SwingView;
 import org.lecturestudio.swing.view.ViewPostConstruct;
 import org.lecturestudio.web.api.event.PeerStateEvent;
 import org.lecturestudio.web.api.event.VideoFrameEvent;
+import org.lecturestudio.web.api.message.CourseParticipantMessage;
 import org.lecturestudio.web.api.message.MessengerMessage;
 import org.lecturestudio.web.api.message.SpeechCancelMessage;
 import org.lecturestudio.web.api.message.SpeechRequestMessage;
@@ -173,6 +167,8 @@ public class SwingSlidesView extends JPanel implements SlidesView {
 	private Container peerViewContainer;
 
 	private Container messageViewContainer;
+
+	private Container participantViewContainer;
 
 	private JTabbedPane bottomTabPane;
 
@@ -416,6 +412,7 @@ public class SwingSlidesView extends JPanel implements SlidesView {
 
 			if (!streamStarted) {
 				removeMessageViews(SpeechRequestView.class);
+				removeParticipantsView(ParticipantsView.class);
 			}
 		});
 	}
@@ -458,6 +455,22 @@ public class SwingSlidesView extends JPanel implements SlidesView {
 			messageViewContainer.add(messageView);
 			messageViewContainer.revalidate();
 		});
+	}
+
+	@Override
+	public void setParticipantMessage(CourseParticipantMessage message) {
+			SwingUtils.invoke(() -> {
+				ParticipantsView participantsView = new ParticipantsView(this.dict, message.getUsername());
+				participantsView.setParticipantNameLabel(String.format("%s %s", message.getFirstName(), message.getFamilyName()));
+				participantsView.pack();
+				if (message.getConnected()) {
+					participantViewContainer.add(participantsView);
+					participantViewContainer.revalidate();
+				}
+				else {
+					removeParticipantMessageView(participantsView);
+				}
+			});
 	}
 
 	@Override
@@ -872,6 +885,21 @@ public class SwingSlidesView extends JPanel implements SlidesView {
 		}
 	}
 
+	private void removeParticipantMessageView(Component view) {
+		for (Component c : participantViewContainer.getComponents()) {
+			ParticipantsView consideredView = null;
+			if (c instanceof ParticipantsView) {
+				consideredView = (ParticipantsView) c;
+			}
+			if (consideredView != null && consideredView.equals(view)) {
+				participantViewContainer.remove(c);
+				participantViewContainer.validate();
+				participantViewContainer.repaint();
+				break;
+			}
+		}
+	}
+
 	private void removeMessageViews(Class<? extends MessagePanel> cls) {
 		for (Component c : messageViewContainer.getComponents()) {
 			if (cls.isAssignableFrom(c.getClass())) {
@@ -881,6 +909,17 @@ public class SwingSlidesView extends JPanel implements SlidesView {
 
 		messageViewContainer.validate();
 		messageViewContainer.repaint();
+	}
+
+	private void removeParticipantsView(Class<? extends ParticipantsPanel> cls) {
+		for (Component c : participantViewContainer.getComponents()) {
+			if (cls.isAssignableFrom(cls)) {
+				participantViewContainer.remove(c);
+			}
+		}
+
+		participantViewContainer.validate();
+		participantViewContainer.repaint();
 	}
 
 	private BufferedImage convertVideoFrame(VideoFrame videoFrame, BufferedImage image) throws Exception {

@@ -88,17 +88,6 @@ import org.lecturestudio.presenter.api.view.SlidesView;
 import org.lecturestudio.presenter.swing.input.StylusListener;
 import org.lecturestudio.stylus.awt.AwtStylusManager;
 import org.lecturestudio.swing.components.*;
-import org.lecturestudio.swing.components.QuizThumbnailPanel;
-import org.lecturestudio.swing.components.ThumbnailPanel;
-import org.lecturestudio.swing.components.MessagePanel;
-import org.lecturestudio.swing.components.MessageView;
-import org.lecturestudio.swing.components.PeerView;
-import org.lecturestudio.swing.components.SlideView;
-import org.lecturestudio.swing.components.SpeechRequestView;
-import org.lecturestudio.swing.components.ThumbPanel;
-import org.lecturestudio.swing.components.VerticalTab;
-import org.lecturestudio.swing.components.WhiteboardThumbnailPanel;
-import org.lecturestudio.swing.components.*;
 import org.lecturestudio.swing.converter.KeyEventConverter;
 import org.lecturestudio.swing.converter.MatrixConverter;
 import org.lecturestudio.swing.util.SwingUtils;
@@ -946,20 +935,6 @@ public class SwingSlidesView extends JPanel implements SlidesView {
 		}
 	}
 
-	private void removeParticipantMessageView(Component view) {
-		for (Component c : participantViewContainer.getComponents()) {
-			ParticipantsView consideredView = null;
-			if (c instanceof ParticipantsView) {
-				consideredView = (ParticipantsView) c;
-			}
-			if (consideredView != null && consideredView.equals(view)) {
-				participantViewContainer.remove(c);
-				participantViewContainer.validate();
-				participantViewContainer.repaint();
-				break;
-			}
-		}
-	}
 
 	private void removeParticipantMessageView(Component view) {
 		for (Component c : participantViewContainer.getComponents()) {

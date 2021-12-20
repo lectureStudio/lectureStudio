@@ -155,7 +155,7 @@ public class StartStreamPresenter extends Presenter<StartStreamView> {
 					// Set first available lecture by default.
 					pContext.setCourse(courses.get(0));
 				}
-				else if (!courses.contains(selectedCourse)) {
+				else if (!courses.isEmpty() && !courses.contains(selectedCourse)) {
 					pContext.setCourse(courses.get(0));
 				}
 			}

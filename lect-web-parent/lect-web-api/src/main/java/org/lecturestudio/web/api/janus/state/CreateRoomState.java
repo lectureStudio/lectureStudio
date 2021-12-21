@@ -105,7 +105,7 @@ public class CreateRoomState implements JanusState {
 		JanusCreateRoomMessage request = new JanusCreateRoomMessage();
 		request.setRoomId(handler.getRoomId());
 		request.setDescription(course.getTitle());
-		request.setPublishers(1);
+		request.setPublishers(3);
 		request.setBitrate(context.getVideoContext().getBitrate() * 1000);
 		request.setNotifyJoining(true);
 		//request.setSecret(handler.getRoomSecret());

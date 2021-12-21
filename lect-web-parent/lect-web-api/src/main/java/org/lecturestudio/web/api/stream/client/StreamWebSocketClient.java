@@ -41,6 +41,7 @@ import javax.json.bind.Jsonb;
 import javax.json.bind.JsonbBuilder;
 import javax.json.bind.JsonbConfig;
 
+import org.lecturestudio.core.Executable;
 import org.lecturestudio.core.ExecutableBase;
 import org.lecturestudio.core.ExecutableException;
 import org.lecturestudio.core.bus.EventBus;
@@ -115,6 +116,10 @@ public class StreamWebSocketClient extends ExecutableBase {
 		send(new StreamStartAction(course.getId()));
 	}
 
+	public Executable getReconnectExecutable() {
+		return new Reconnect();
+	}
+
 	@Override
 	protected void initInternal() throws ExecutableException {
 		eventRecorder.addRecordedActionConsumer(actionConsumer);
@@ -123,20 +128,7 @@ public class StreamWebSocketClient extends ExecutableBase {
 	@Override
 	protected void startInternal() throws ExecutableException {
 		try {
-			HttpClient httpClient = HttpClient.newBuilder()
-					.sslContext(SSLContextFactory.createSSLContext())
-					.build();
-
-			Builder webSocketBuilder = httpClient.newWebSocketBuilder();
-			webSocketBuilder.subprotocols("state-protocol");
-			webSocketBuilder.connectTimeout(Duration.of(10, ChronoUnit.SECONDS));
-
-			headerProvider.setHeaders(webSocketBuilder);
-
-			webSocket = webSocketBuilder
-					.buildAsync(URI.create(serviceParameters.getUrl()),
-							new WebSocketListener())
-					.join();
+			createWebsocket();
 		}
 		catch (Throwable e) {
 			throw new ExecutableException(e);
@@ -158,12 +150,57 @@ public class StreamWebSocketClient extends ExecutableBase {
 
 	}
 
+	private void createWebsocket() {
+		HttpClient httpClient = HttpClient.newBuilder()
+				.sslContext(SSLContextFactory.createSSLContext()).build();
+
+		Builder webSocketBuilder = httpClient.newWebSocketBuilder();
+		webSocketBuilder.subprotocols("state-protocol");
+		webSocketBuilder.connectTimeout(Duration.of(10, ChronoUnit.SECONDS));
+
+		headerProvider.setHeaders(webSocketBuilder);
+
+		webSocket = webSocketBuilder.buildAsync(
+				URI.create(serviceParameters.getUrl()), new WebSocketListener())
+				.join();
+	}
+
 	private void send(StreamAction action) {
 		try {
 			webSocket.sendBinary(ByteBuffer.wrap(action.toByteArray()), true);
 		}
 		catch (IOException e) {
 			logException(e, "Send event state failed");
+		}
+	}
+
+
+
+	private class Reconnect extends ExecutableBase {
+
+		@Override
+		protected void initInternal() throws ExecutableException {
+
+		}
+
+		@Override
+		protected void startInternal() throws ExecutableException {
+			try {
+				createWebsocket();
+			}
+			catch (Throwable e) {
+				throw new ExecutableException(e);
+			}
+		}
+
+		@Override
+		protected void stopInternal() throws ExecutableException {
+
+		}
+
+		@Override
+		protected void destroyInternal() throws ExecutableException {
+
 		}
 	}
 
@@ -178,25 +215,17 @@ public class StreamWebSocketClient extends ExecutableBase {
 		@Override
 		public void onOpen(WebSocket webSocket) {
 			webSocket.request(1);
-
-			System.out.println("state websocket connected");
-
-//			clientFailover.removeTask(failoverTask);
 		}
 
 		@Override
 		public CompletionStage<?> onClose(WebSocket webSocket, int statusCode,
 				String reason) {
-			System.out.println("state websocket closed: " + statusCode);
-
 			return null;
 		}
 
 		@Override
 		public void onError(WebSocket webSocket, Throwable error) {
 			logException(error, "Stream WebSocket error");
-
-			System.out.println("state websocket error");
 		}
 
 		@Override

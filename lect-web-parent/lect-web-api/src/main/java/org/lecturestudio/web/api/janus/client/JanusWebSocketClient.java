@@ -114,17 +114,16 @@ public class JanusWebSocketClient extends ExecutableBase implements JanusMessage
 
 		webSocket.sendText(messageTxt, true)
 				.exceptionally(throwable -> {
-//					logException(throwable, "Send Janus message failed");
+					logException(throwable, "Send Janus message failed");
 					return null;
 				});
 	}
 
 	@Override
 	protected void initInternal() throws ExecutableException {
-		jsonb = JsonbBuilder.create(JsonConfigProvider.createConfig());
-
 		requireNonNull(streamContext.getCourse());
 
+		jsonb = JsonbBuilder.create(JsonConfigProvider.createConfig());
 	}
 
 	@Override

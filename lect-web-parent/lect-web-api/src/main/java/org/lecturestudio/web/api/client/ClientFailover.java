@@ -71,15 +71,13 @@ public class ClientFailover extends ExecutableBase {
 
 				try {
 					executable.stop();
-
-					System.out.println("stopped: " + executable.getClass().getSimpleName());
 				}
 				catch (ExecutableException e) {
 					e.printStackTrace();
 				}
 			}
 
-			future = scheduler.scheduleAtFixedRate(this::runTasks, DELAY_S,
+			future = scheduler.scheduleWithFixedDelay(this::runTasks, DELAY_S,
 					DELAY_S, TimeUnit.SECONDS);
 		});
 	}
@@ -98,8 +96,6 @@ public class ClientFailover extends ExecutableBase {
 		int count = 0;
 
 		for (Executable executable : executables) {
-			System.out.println("starting: " + executable.getClass().getSimpleName());
-
 			try {
 				executable.start();
 

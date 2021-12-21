@@ -33,6 +33,7 @@ import javax.inject.Inject;
 import javax.inject.Named;
 import javax.inject.Singleton;
 
+import org.lecturestudio.core.Executable;
 import org.lecturestudio.core.ExecutableBase;
 import org.lecturestudio.core.ExecutableException;
 import org.lecturestudio.core.ExecutableState;
@@ -282,7 +283,7 @@ public class WebRtcStreamService extends ExecutableBase {
 		eventRecorder.setStreamProviderService(streamProviderService);
 
 		clientFailover.addExecutable(janusClient);
-		clientFailover.addExecutable(streamStateClient);
+		clientFailover.addExecutable(streamStateClient.getReconnectExecutable());
 
 		try {
 			streamStateClient.start();
@@ -340,20 +341,9 @@ public class WebRtcStreamService extends ExecutableBase {
 		try {
 			eventRecorder.stop();
 
-			if (!clientFailover.stopped()) {
-				clientFailover.stop();
-			}
-			clientFailover.destroy();
-
-			if (!streamStateClient.stopped()) {
-				streamStateClient.stop();
-			}
-			streamStateClient.destroy();
-
-			if (!janusClient.stopped()) {
-				janusClient.stop();
-			}
-			janusClient.destroy();
+			disposeExecutable(clientFailover);
+			disposeExecutable(streamStateClient);
+			disposeExecutable(janusClient);
 		}
 		catch (Exception e) {
 			throw new ExecutableException(e);
@@ -364,7 +354,7 @@ public class WebRtcStreamService extends ExecutableBase {
 		AudioConfiguration audioConfig = config.getAudioConfig();
 		StreamConfiguration streamConfig = config.getStreamConfig();
 
-		streamConfig.cameraNameProperty().addListener(cameraDeviceListener);
+		streamConfig.cameraNameProperty().removeListener(cameraDeviceListener);
 		audioConfig.captureDeviceNameProperty().removeListener(captureDeviceListener);
 		audioConfig.playbackDeviceNameProperty().removeListener(playbackDeviceListener);
 
@@ -412,6 +402,15 @@ public class WebRtcStreamService extends ExecutableBase {
 		this.cameraState = state;
 
 		context.getEventBus().post(new CameraStateEvent(cameraState));
+	}
+
+	private void disposeExecutable(Executable executable) throws ExecutableException {
+		if (executable.started()) {
+			executable.stop();
+		}
+		if (executable.stopped()) {
+			executable.destroy();
+		}
 	}
 
 	private StreamWebSocketClient createStreamStateClient(Course course,

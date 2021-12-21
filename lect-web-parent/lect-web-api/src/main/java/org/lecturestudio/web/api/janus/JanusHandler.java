@@ -53,7 +53,6 @@ import org.lecturestudio.web.api.janus.message.JanusSessionMessage;
 import org.lecturestudio.web.api.janus.message.JanusSessionTimeoutMessage;
 import org.lecturestudio.web.api.janus.state.DestroyRoomState;
 import org.lecturestudio.web.api.janus.state.InfoState;
-import org.lecturestudio.web.api.janus.state.JoinRoomState;
 import org.lecturestudio.web.api.stream.StreamEventRecorder;
 import org.lecturestudio.web.api.stream.action.StreamSpeechPublishedAction;
 import org.lecturestudio.web.api.stream.StreamContext;
@@ -312,14 +311,6 @@ public class JanusHandler extends JanusStateHandler {
 	}
 
 	private void startPublisher() {
-		if (JoinRoomState.ID != null) {
-			// Kick ourselves.
-			JanusPublisher publisher = new JanusPublisher();
-			publisher.setId(JoinRoomState.ID);
-
-			kickParticipant(publisher);
-		}
-
 		JanusStateHandler pubHandler = new JanusPublisherHandler(
 				peerConnectionFactory,
 				transmitter, eventRecorder);

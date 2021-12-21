@@ -63,7 +63,7 @@ public class CreateRoomState implements JanusState {
 
 	@Override
 	public void handleMessage(JanusStateHandler handler, JanusMessage message) {
-		checkTransaction(requestMessage, message);
+//		checkTransaction(requestMessage, message);
 
 		if (message instanceof JanusRoomListMessage) {
 			JanusRoomListMessage roomsMessage = (JanusRoomListMessage) message;

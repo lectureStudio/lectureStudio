@@ -39,6 +39,7 @@ import javax.json.bind.JsonbBuilder;
 
 import org.lecturestudio.core.ExecutableBase;
 import org.lecturestudio.core.ExecutableException;
+import org.lecturestudio.web.api.client.ClientFailover;
 import org.lecturestudio.web.api.data.bind.JsonConfigProvider;
 import org.lecturestudio.web.api.janus.JanusHandler;
 import org.lecturestudio.web.api.janus.JanusMessageTransmitter;
@@ -65,6 +66,8 @@ public class JanusWebSocketClient extends ExecutableBase implements JanusMessage
 
 	private final StreamEventRecorder eventRecorder;
 
+	private final ClientFailover clientFailover;
+
 	private WebSocket webSocket;
 
 	private Jsonb jsonb;
@@ -75,10 +78,12 @@ public class JanusWebSocketClient extends ExecutableBase implements JanusMessage
 
 
 	public JanusWebSocketClient(ServiceParameters parameters,
-			StreamContext streamContext, StreamEventRecorder eventRecorder) {
+			StreamContext streamContext, StreamEventRecorder eventRecorder,
+			ClientFailover clientFailover) {
 		this.serviceParameters = parameters;
 		this.streamContext = streamContext;
 		this.eventRecorder = eventRecorder;
+		this.clientFailover = clientFailover;
 	}
 
 	public void setJanusStateHandlerListener(JanusStateHandlerListener listener) {
@@ -109,7 +114,7 @@ public class JanusWebSocketClient extends ExecutableBase implements JanusMessage
 
 		webSocket.sendText(messageTxt, true)
 				.exceptionally(throwable -> {
-					logException(throwable, "Send Janus message failed");
+//					logException(throwable, "Send Janus message failed");
 					return null;
 				});
 	}
@@ -120,34 +125,43 @@ public class JanusWebSocketClient extends ExecutableBase implements JanusMessage
 
 		requireNonNull(streamContext.getCourse());
 
-		handler = new JanusHandler(this, streamContext, eventRecorder);
-		handler.addJanusStateHandlerListener(handlerStateListener);
-		handler.init();
 	}
 
 	@Override
 	protected void startInternal() throws ExecutableException {
-		HttpClient httpClient = HttpClient.newBuilder()
-				.sslContext(SSLContextFactory.createSSLContext())
-				.build();
+		try {
+			HttpClient httpClient = HttpClient.newBuilder()
+					.sslContext(SSLContextFactory.createSSLContext())
+					.build();
 
-		Builder webSocketBuilder = httpClient.newWebSocketBuilder();
-		webSocketBuilder.subprotocols("janus-protocol");
-		webSocketBuilder.connectTimeout(Duration.of(10, ChronoUnit.SECONDS));
+			Builder webSocketBuilder = httpClient.newWebSocketBuilder();
+			webSocketBuilder.subprotocols("janus-protocol");
+			webSocketBuilder.connectTimeout(Duration.of(10, ChronoUnit.SECONDS));
 
-		webSocket = webSocketBuilder
-				.buildAsync(URI.create(serviceParameters.getUrl()),
-						new WebSocketListener())
-				.join();
+			webSocket = webSocketBuilder.buildAsync(
+					URI.create(serviceParameters.getUrl()),
+					new WebSocketListener()).join();
 
-		handler.start();
+			handler = new JanusHandler(this, streamContext, eventRecorder, clientFailover);
+			handler.addJanusStateHandlerListener(handlerStateListener);
+			handler.init();
+			handler.start();
+		}
+		catch (Throwable e) {
+			throw new ExecutableException(e);
+		}
 	}
 
 	@Override
 	protected void stopInternal() throws ExecutableException {
-		handler.stop();
+		if (!handler.stopped()) {
+			handler.stop();
+		}
 
-		webSocket.sendClose(WebSocket.NORMAL_CLOSURE, "disconnect").join();
+		if (!webSocket.isOutputClosed()) {
+			webSocket.sendClose(WebSocket.NORMAL_CLOSURE, "disconnect").join();
+			webSocket.abort();
+		}
 	}
 
 	@Override
@@ -164,7 +178,14 @@ public class JanusWebSocketClient extends ExecutableBase implements JanusMessage
 
 
 		@Override
-		public void onError(WebSocket webSocket, Throwable error) {
+		public void onOpen(WebSocket webSocket) {
+			webSocket.request(1);
+
+			System.out.println("janus websocket connected");
+		}
+
+		@Override
+		public void onError(WebSocket socket, Throwable error) {
 			logException(error, "WebSocket error");
 		}
 

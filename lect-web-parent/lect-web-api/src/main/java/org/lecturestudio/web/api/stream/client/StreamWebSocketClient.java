@@ -122,27 +122,35 @@ public class StreamWebSocketClient extends ExecutableBase {
 
 	@Override
 	protected void startInternal() throws ExecutableException {
-		HttpClient httpClient = HttpClient.newBuilder()
-				.sslContext(SSLContextFactory.createSSLContext())
-				.build();
+		try {
+			HttpClient httpClient = HttpClient.newBuilder()
+					.sslContext(SSLContextFactory.createSSLContext())
+					.build();
 
-		Builder webSocketBuilder = httpClient.newWebSocketBuilder();
-		webSocketBuilder.subprotocols("state-protocol");
-		webSocketBuilder.connectTimeout(Duration.of(10, ChronoUnit.SECONDS));
+			Builder webSocketBuilder = httpClient.newWebSocketBuilder();
+			webSocketBuilder.subprotocols("state-protocol");
+			webSocketBuilder.connectTimeout(Duration.of(10, ChronoUnit.SECONDS));
 
-		headerProvider.setHeaders(webSocketBuilder);
+			headerProvider.setHeaders(webSocketBuilder);
 
-		webSocket = webSocketBuilder
-				.buildAsync(URI.create(serviceParameters.getUrl()),
-						new WebSocketListener())
-				.join();
+			webSocket = webSocketBuilder
+					.buildAsync(URI.create(serviceParameters.getUrl()),
+							new WebSocketListener())
+					.join();
+		}
+		catch (Throwable e) {
+			throw new ExecutableException(e);
+		}
 	}
 
 	@Override
 	protected void stopInternal() throws ExecutableException {
 		eventRecorder.removeRecordedActionConsumer(actionConsumer);
 
-		webSocket.sendClose(WebSocket.NORMAL_CLOSURE, "disconnect").join();
+		if (!webSocket.isOutputClosed()) {
+			webSocket.sendClose(WebSocket.NORMAL_CLOSURE, "disconnect").join();
+			webSocket.abort();
+		}
 	}
 
 	@Override
@@ -168,8 +176,27 @@ public class StreamWebSocketClient extends ExecutableBase {
 
 
 		@Override
+		public void onOpen(WebSocket webSocket) {
+			webSocket.request(1);
+
+			System.out.println("state websocket connected");
+
+//			clientFailover.removeTask(failoverTask);
+		}
+
+		@Override
+		public CompletionStage<?> onClose(WebSocket webSocket, int statusCode,
+				String reason) {
+			System.out.println("state websocket closed: " + statusCode);
+
+			return null;
+		}
+
+		@Override
 		public void onError(WebSocket webSocket, Throwable error) {
 			logException(error, "Stream WebSocket error");
+
+			System.out.println("state websocket error");
 		}
 
 		@Override

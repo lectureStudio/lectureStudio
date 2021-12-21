@@ -18,6 +18,7 @@
 
 package org.lecturestudio.web.api.janus.state;
 
+import java.math.BigInteger;
 import java.util.UUID;
 
 import org.lecturestudio.web.api.janus.JanusParticipantType;
@@ -38,12 +39,18 @@ public class JoinRoomState implements JanusState {
 
 	private JanusPluginDataMessage joinRequest;
 
+	public static BigInteger ID;
+
 
 	@Override
 	public void initialize(JanusStateHandler handler) {
 		JanusRoomJoinRequest request = new JanusRoomJoinRequest();
 		request.setParticipantType(JanusParticipantType.PUBLISHER);
 		request.setRoomId(handler.getRoomId());
+
+		if (ID != null) {
+			request.setPublisherId(ID);
+		}
 
 		joinRequest = new JanusPluginDataMessage(handler.getSessionId(),
 				handler.getPluginId());
@@ -62,6 +69,8 @@ public class JoinRoomState implements JanusState {
 
 			logDebug("Janus room joined: %d (%s)", joinedMessage.getRoomId(),
 					joinedMessage.getDescription());
+
+			ID = joinedMessage.getId();
 
 			handler.setState(new PublishToRoomState());
 		}

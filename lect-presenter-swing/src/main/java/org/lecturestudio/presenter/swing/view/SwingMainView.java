@@ -234,7 +234,8 @@ public class SwingMainView extends JPanel implements MainView, KeyEventDispatche
 					Character.isSpaceChar(event.getKeyCode());
 
 			if (isTextComponent && isAlphaNum) {
-				return !event.isControlDown();
+				return !event.isControlDown() && !event.isShiftDown()
+						&& !event.isAltDown() && !event.isMetaDown();
 			}
 		}
 

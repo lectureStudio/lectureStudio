@@ -31,12 +31,14 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
 
 import org.lecturestudio.core.ExecutableException;
 import org.lecturestudio.core.ExecutableState;
 import org.lecturestudio.core.net.MediaType;
+import org.lecturestudio.web.api.client.ClientFailover;
 import org.lecturestudio.web.api.event.PeerStateEvent;
 import org.lecturestudio.web.api.janus.JanusHandlerException.Type;
 import org.lecturestudio.web.api.janus.message.JanusEditRoomMessage;
@@ -59,7 +61,11 @@ public class JanusHandler extends JanusStateHandler {
 
 	private final StreamEventRecorder eventRecorder;
 
+	private final ClientFailover clientFailover;
+
 	private ScheduledExecutorService executorService;
+
+	private ScheduledFuture<?> timeoutFuture;
 
 	private Map<Class<? extends JanusMessage>, Consumer<? extends JanusMessage>> messageHandlers;
 
@@ -70,10 +76,11 @@ public class JanusHandler extends JanusStateHandler {
 
 	public JanusHandler(JanusMessageTransmitter transmitter,
 			StreamContext streamContext,
-			StreamEventRecorder eventRecorder) {
+			StreamEventRecorder eventRecorder, ClientFailover clientFailover) {
 		super(new JanusPeerConnectionFactory(streamContext), transmitter);
 
 		this.eventRecorder = eventRecorder;
+		this.clientFailover = clientFailover;
 	}
 
 	public void startRemoteSpeech(long requestId, String userName) {
@@ -172,7 +179,8 @@ public class JanusHandler extends JanusStateHandler {
 
 		// Trigger periodic keep-alive messages with half the session timeout.
 		long period = info.getSessionTimeout() / 2;
-		executorService.scheduleAtFixedRate(this::sendKeepAliveMessage, period,
+
+		timeoutFuture = executorService.scheduleAtFixedRate(this::sendKeepAliveMessage, period,
 				period, TimeUnit.SECONDS);
 	}
 
@@ -231,7 +239,11 @@ public class JanusHandler extends JanusStateHandler {
 		handlers.clear();
 
 		peerConnectionFactory.dispose();
-		executorService.shutdown();
+
+		if (nonNull(timeoutFuture) && !timeoutFuture.isCancelled()) {
+			timeoutFuture.cancel(true);
+		}
+		executorService.shutdownNow();
 	}
 
 	@Override
@@ -265,7 +277,8 @@ public class JanusHandler extends JanusStateHandler {
 		}
 	}
 
-	private <T extends JanusMessage> void registerHandler(Class<T> msgClass, Consumer<T> handler) {
+	private <T extends JanusMessage> void registerHandler(Class<T> msgClass,
+			Consumer<T> handler) {
 		messageHandlers.put(msgClass, handler);
 	}
 
@@ -307,11 +320,30 @@ public class JanusHandler extends JanusStateHandler {
 
 			@Override
 			public void connected() {
+				if (clientFailover.started()) {
+					try {
+						clientFailover.stop();
+					}
+					catch (ExecutableException e) {
+						logException(e, "Stop connection failover failed");
+					}
+				}
+
 				setConnected();
 			}
 
 			@Override
 			public void disconnected() {
+				if (started()) {
+					// Upon unexpected disruption start recover process.
+					try {
+						clientFailover.start();
+					}
+					catch (ExecutableException e) {
+						logException(e, "Start connection failover failed");
+					}
+				}
+
 				setDisconnected();
 			}
 
@@ -410,6 +442,8 @@ public class JanusHandler extends JanusStateHandler {
 	}
 
 	private void kickParticipant(JanusPublisher publisher) {
+		System.out.println("kick participant: " + getRoomId());
+
 		JanusRoomKickRequest request = new JanusRoomKickRequest();
 		request.setParticipantId(publisher.getId());
 		request.setRoomId(getRoomId());

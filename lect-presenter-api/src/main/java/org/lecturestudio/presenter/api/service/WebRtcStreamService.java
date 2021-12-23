@@ -33,6 +33,7 @@ import javax.inject.Inject;
 import javax.inject.Named;
 import javax.inject.Singleton;
 
+import org.lecturestudio.core.Executable;
 import org.lecturestudio.core.ExecutableBase;
 import org.lecturestudio.core.ExecutableException;
 import org.lecturestudio.core.ExecutableState;
@@ -42,11 +43,15 @@ import org.lecturestudio.core.beans.ChangeListener;
 import org.lecturestudio.core.codec.VideoCodecConfiguration;
 import org.lecturestudio.core.geometry.Rectangle2D;
 import org.lecturestudio.core.model.Document;
+import org.lecturestudio.core.presenter.command.ClosePresenterCommand;
+import org.lecturestudio.core.presenter.command.ShowPresenterCommand;
 import org.lecturestudio.presenter.api.config.PresenterConfiguration;
 import org.lecturestudio.presenter.api.config.StreamConfiguration;
 import org.lecturestudio.presenter.api.context.PresenterContext;
 import org.lecturestudio.presenter.api.event.CameraStateEvent;
 import org.lecturestudio.presenter.api.event.StreamingStateEvent;
+import org.lecturestudio.presenter.api.presenter.ReconnectStreamPresenter;
+import org.lecturestudio.web.api.client.ClientFailover;
 import org.lecturestudio.web.api.client.TokenProvider;
 import org.lecturestudio.web.api.exception.StreamMediaException;
 import org.lecturestudio.web.api.janus.JanusHandlerException;
@@ -75,6 +80,8 @@ public class WebRtcStreamService extends ExecutableBase {
 	private final ApplicationContext context;
 
 	private final WebRtcStreamEventRecorder eventRecorder;
+
+	private final ClientFailover clientFailover;
 
 	@Inject
 	@Named("stream.janus.websocket.url")
@@ -117,6 +124,19 @@ public class WebRtcStreamService extends ExecutableBase {
 			throws ExecutableException {
 		this.context = context;
 		this.eventRecorder = eventRecorder;
+		this.clientFailover = new ClientFailover();
+		this.clientFailover.addStateListener((oldState, newState) -> {
+			System.out.println("fail-over: " + newState);
+
+			if (newState == ExecutableState.Started) {
+				context.getEventBus().post(new ShowPresenterCommand<>(
+						ReconnectStreamPresenter.class));
+			}
+			else if (newState == ExecutableState.Stopped) {
+				context.getEventBus().post(new ClosePresenterCommand(
+						ReconnectStreamPresenter.class));
+			}
+		});
 
 		eventRecorder.init();
 	}
@@ -262,6 +282,9 @@ public class WebRtcStreamService extends ExecutableBase {
 		eventRecorder.setCourse(course);
 		eventRecorder.setStreamProviderService(streamProviderService);
 
+		clientFailover.addExecutable(janusClient);
+		clientFailover.addExecutable(streamStateClient.getReconnectExecutable());
+
 		try {
 			streamStateClient.start();
 			janusClient.start();
@@ -318,11 +341,9 @@ public class WebRtcStreamService extends ExecutableBase {
 		try {
 			eventRecorder.stop();
 
-			streamStateClient.stop();
-			streamStateClient.destroy();
-
-			janusClient.stop();
-			janusClient.destroy();
+			disposeExecutable(clientFailover);
+			disposeExecutable(streamStateClient);
+			disposeExecutable(janusClient);
 		}
 		catch (Exception e) {
 			throw new ExecutableException(e);
@@ -333,7 +354,7 @@ public class WebRtcStreamService extends ExecutableBase {
 		AudioConfiguration audioConfig = config.getAudioConfig();
 		StreamConfiguration streamConfig = config.getStreamConfig();
 
-		streamConfig.cameraNameProperty().addListener(cameraDeviceListener);
+		streamConfig.cameraNameProperty().removeListener(cameraDeviceListener);
 		audioConfig.captureDeviceNameProperty().removeListener(captureDeviceListener);
 		audioConfig.playbackDeviceNameProperty().removeListener(playbackDeviceListener);
 
@@ -383,6 +404,15 @@ public class WebRtcStreamService extends ExecutableBase {
 		context.getEventBus().post(new CameraStateEvent(cameraState));
 	}
 
+	private void disposeExecutable(Executable executable) throws ExecutableException {
+		if (executable.started()) {
+			executable.stop();
+		}
+		if (executable.stopped()) {
+			executable.destroy();
+		}
+	}
+
 	private StreamWebSocketClient createStreamStateClient(Course course,
 			PresenterConfiguration config) {
 		StreamConfiguration streamConfig = config.getStreamConfig();
@@ -410,7 +440,7 @@ public class WebRtcStreamService extends ExecutableBase {
 		janusWsParameters.setUrl(janusWebSocketUrl);
 
 		return new JanusWebSocketClient(janusWsParameters, webRtcConfig,
-				eventRecorder);
+				eventRecorder, clientFailover);
 	}
 
 	private StreamContext createStreamContext(Course course, PresenterConfiguration config) {

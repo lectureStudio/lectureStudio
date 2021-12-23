@@ -55,7 +55,7 @@ public class AttachPluginState implements JanusState {
 
 	@Override
 	public void handleMessage(JanusStateHandler handler, JanusMessage message) {
-		checkTransaction(attachRequest, message);
+//		checkTransaction(attachRequest, message);
 
 		if (message instanceof JanusSessionSuccessMessage) {
 			JanusSessionSuccessMessage success = (JanusSessionSuccessMessage) message;

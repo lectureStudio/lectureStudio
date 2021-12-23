@@ -29,7 +29,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 /**
- * Sub-classes may extend this executable base class by only implementing the
+ * Subclasses may extend this executable base class by only implementing the
  * internal life cycle methods. This base implementation of the {@link
  * Executable} interface handles the proper state transition rules for the life
  * cycle methods.
@@ -269,6 +269,7 @@ public abstract class ExecutableBase implements Executable {
 						ExecutableState.Error);
 
 			case Initialized:
+			case Stopped:
 				return isAllowed(nextState,
 						ExecutableState.Starting,
 						ExecutableState.Destroying);
@@ -290,17 +291,13 @@ public abstract class ExecutableBase implements Executable {
 						ExecutableState.Stopped,
 						ExecutableState.Error);
 
-			case Stopped:
-				return isAllowed(nextState,
-						ExecutableState.Starting,
-						ExecutableState.Destroying);
-
 			case Suspending:
 				return isAllowed(nextState,
 						ExecutableState.Suspended,
 						ExecutableState.Error);
 
 			case Suspended:
+			case Error:	// Allow recovering from previous operation failure.
 				return isAllowed(nextState,
 						ExecutableState.Starting,
 						ExecutableState.Stopping,
@@ -314,13 +311,6 @@ public abstract class ExecutableBase implements Executable {
 			case Destroyed:
 				return isAllowed(nextState,
 						ExecutableState.Initializing);
-
-			case Error:
-				// Allow to recover from previous operation failure.
-				return isAllowed(nextState,
-						ExecutableState.Starting,
-						ExecutableState.Stopping,
-						ExecutableState.Destroying);
 
 			default:
 				return false;

@@ -41,6 +41,7 @@ import javax.json.bind.Jsonb;
 import javax.json.bind.JsonbBuilder;
 import javax.json.bind.JsonbConfig;
 
+import org.lecturestudio.core.Executable;
 import org.lecturestudio.core.ExecutableBase;
 import org.lecturestudio.core.ExecutableException;
 import org.lecturestudio.core.bus.EventBus;
@@ -115,6 +116,10 @@ public class StreamWebSocketClient extends ExecutableBase {
 		send(new StreamStartAction(course.getId()));
 	}
 
+	public Executable getReconnectExecutable() {
+		return new Reconnect();
+	}
+
 	@Override
 	protected void initInternal() throws ExecutableException {
 		eventRecorder.addRecordedActionConsumer(actionConsumer);
@@ -122,9 +127,32 @@ public class StreamWebSocketClient extends ExecutableBase {
 
 	@Override
 	protected void startInternal() throws ExecutableException {
+		try {
+			createWebsocket();
+		}
+		catch (Throwable e) {
+			throw new ExecutableException(e);
+		}
+	}
+
+	@Override
+	protected void stopInternal() throws ExecutableException {
+		eventRecorder.removeRecordedActionConsumer(actionConsumer);
+
+		if (!webSocket.isOutputClosed()) {
+			webSocket.sendClose(WebSocket.NORMAL_CLOSURE, "disconnect").join();
+			webSocket.abort();
+		}
+	}
+
+	@Override
+	protected void destroyInternal() throws ExecutableException {
+
+	}
+
+	private void createWebsocket() {
 		HttpClient httpClient = HttpClient.newBuilder()
-				.sslContext(SSLContextFactory.createSSLContext())
-				.build();
+				.sslContext(SSLContextFactory.createSSLContext()).build();
 
 		Builder webSocketBuilder = httpClient.newWebSocketBuilder();
 		webSocketBuilder.subprotocols("state-protocol");
@@ -132,22 +160,9 @@ public class StreamWebSocketClient extends ExecutableBase {
 
 		headerProvider.setHeaders(webSocketBuilder);
 
-		webSocket = webSocketBuilder
-				.buildAsync(URI.create(serviceParameters.getUrl()),
-						new WebSocketListener())
+		webSocket = webSocketBuilder.buildAsync(
+				URI.create(serviceParameters.getUrl()), new WebSocketListener())
 				.join();
-	}
-
-	@Override
-	protected void stopInternal() throws ExecutableException {
-		eventRecorder.removeRecordedActionConsumer(actionConsumer);
-
-		webSocket.sendClose(WebSocket.NORMAL_CLOSURE, "disconnect").join();
-	}
-
-	@Override
-	protected void destroyInternal() throws ExecutableException {
-
 	}
 
 	private void send(StreamAction action) {
@@ -161,11 +176,52 @@ public class StreamWebSocketClient extends ExecutableBase {
 
 
 
+	private class Reconnect extends ExecutableBase {
+
+		@Override
+		protected void initInternal() throws ExecutableException {
+
+		}
+
+		@Override
+		protected void startInternal() throws ExecutableException {
+			try {
+				createWebsocket();
+			}
+			catch (Throwable e) {
+				throw new ExecutableException(e);
+			}
+		}
+
+		@Override
+		protected void stopInternal() throws ExecutableException {
+
+		}
+
+		@Override
+		protected void destroyInternal() throws ExecutableException {
+
+		}
+	}
+
+
+
 	private class WebSocketListener implements Listener {
 
 		/** Accumulating message buffer. */
 		private StringBuffer buffer = new StringBuffer();
 
+
+		@Override
+		public void onOpen(WebSocket webSocket) {
+			webSocket.request(1);
+		}
+
+		@Override
+		public CompletionStage<?> onClose(WebSocket webSocket, int statusCode,
+				String reason) {
+			return null;
+		}
 
 		@Override
 		public void onError(WebSocket webSocket, Throwable error) {

@@ -112,11 +112,13 @@ public class CameraPanel extends JPanel {
 	 */
 	public void stopCapture() {
 		if (started.compareAndSet(true, false)) {
-			try {
-				camera.close();
-			}
-			catch (Exception e) {
-				throw new RuntimeException(e);
+			if (nonNull(camera)) {
+				try {
+					camera.close();
+				}
+				catch (Exception e) {
+					throw new RuntimeException(e);
+				}
 			}
 
 			canvas.clearImage();

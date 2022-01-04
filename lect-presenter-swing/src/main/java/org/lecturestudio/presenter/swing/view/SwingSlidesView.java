@@ -32,10 +32,7 @@ import java.awt.Container;
 import java.awt.Dimension;
 import java.awt.KeyboardFocusManager;
 import java.awt.Rectangle;
-import java.awt.event.ComponentAdapter;
-import java.awt.event.ComponentEvent;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
+import java.awt.event.*;
 import java.awt.image.BufferedImage;
 import java.awt.image.DataBufferByte;
 import java.math.BigInteger;
@@ -106,112 +103,117 @@ import org.lecturestudio.web.api.message.SpeechRequestMessage;
 @SwingView(name = "main-slides")
 public class SwingSlidesView extends JPanel implements SlidesView {
 
-	private final Dictionary dict;
+    private final Dictionary dict;
 
-	private ExecutableState streamState = ExecutableState.Stopped;
+    private ExecutableState streamState = ExecutableState.Stopped;
 
-	private ExecutableState messengerState = ExecutableState.Stopped;
+    private ExecutableState messengerState = ExecutableState.Stopped;
 
-	private ConsumerAction<org.lecturestudio.core.input.KeyEvent> keyAction;
+    private ConsumerAction<org.lecturestudio.core.input.KeyEvent> keyAction;
 
-	private ConsumerAction<Document> selectDocumentAction;
+    private ConsumerAction<Document> selectDocumentAction;
 
-	private ConsumerAction<DocumentOutlineItem> outlineAction;
+    private ConsumerAction<DocumentOutlineItem> outlineAction;
 
-	private ConsumerAction<Page> selectPageAction;
+    private ConsumerAction<Page> selectPageAction;
 
-	private ConsumerAction<Matrix> viewTransformAction;
+    private ConsumerAction<Matrix> viewTransformAction;
 
-	private ConsumerAction<MessengerMessage> discardMessageAction;
+    private ConsumerAction<MessengerMessage> discardMessageAction;
 
-	private ConsumerAction<SpeechRequestMessage> acceptSpeechRequestAction;
+    private ConsumerAction<SpeechRequestMessage> acceptSpeechRequestAction;
 
-	private ConsumerAction<SpeechRequestMessage> rejectSpeechRequestAction;
+    private ConsumerAction<SpeechRequestMessage> rejectSpeechRequestAction;
 
-	private ConsumerAction<Boolean> mutePeerAudioAction;
+    private ConsumerAction<Boolean> mutePeerAudioAction;
 
-	private ConsumerAction<Boolean> mutePeerVideoAction;
+    private ConsumerAction<Boolean> mutePeerVideoAction;
 
-	private ConsumerAction<BigInteger> stopPeerConnectionAction;
+    private ConsumerAction<BigInteger> stopPeerConnectionAction;
 
-	private Action newPageAction;
+    private Action newPageAction;
 
-	private Action deletePageAction;
+    private Action deletePageAction;
 
-	private Action shareQuizAction;
+    private Action shareQuizAction;
 
-	private Action stopQuizAction;
+    private Action stopQuizAction;
 
-	private double notesDividerPosition;
+    private double notesDividerPosition;
 
-	private boolean extendedFullscreen;
+    private boolean extendedFullscreen;
 
-	private RenderController pageRenderer;
+    private RenderController pageRenderer;
 
-	private JSplitPane tabSplitPane;
+    private JSplitPane tabSplitPane;
 
-	private JSplitPane notesSplitPane;
+    private JSplitPane notesSplitPane;
 
-	private JSplitPane docSplitPane;
+    private JSplitPane docSplitPane;
 
-	private JScrollPane outlinePane;
+    private JScrollPane outlinePane;
 
-	private JTree outlineTree;
+    private JTree outlineTree;
 
-	private SlideView slideView;
+    private SlideView slideView;
 
-	private StylusListener stylusListener;
+    private StylusListener stylusListener;
 
-	private BufferedImage peerViewImage;
+    private BufferedImage peerViewImage;
 
-	private PeerView peerView;
+    private PeerView peerView;
 
-	private JTabbedPane tabPane;
+    private JTabbedPane tabPane;
 
-	private Container peerViewContainer;
+    private Container peerViewContainer;
 
-	private Container messageViewContainer;
+    private Container messageViewContainer;
 
-	private JTabbedPane bottomTabPane;
+    private JTabbedPane bottomTabPane;
 
-//	private JTextArea notesTextArea;
+    //	private JTextArea notesTextArea;
 
-//	private JTextArea latexTextArea;
+    //	private JTextArea latexTextArea;
 
-	private int bottomTabIndex;
+    private int bottomTabIndex;
 
+    private double oldNotesDividerRatio;
 
-	@Inject
-	SwingSlidesView(Dictionary dictionary) {
-		super();
+    private int tabIndex;
 
-		this.dict = dictionary;
-	}
+    private double oldTabDividerRatio;
 
-	@Override
-	public void addPageObjectView(PageObjectView<?> objectView) {
-		slideView.addPageObjectView(objectView);
-	}
+    @Inject
+    SwingSlidesView(Dictionary dictionary) {
+        super();
 
-	@Override
-	public void removePageObjectView(PageObjectView<?> objectView) {
-		slideView.removePageObjectView(objectView);
-	}
+        this.dict = dictionary;
+    }
 
-	@Override
-	public void removeAllPageObjectViews() {
-		slideView.removeAllPageObjectViews();
-	}
+    @Override
+    public void addPageObjectView(PageObjectView<?> objectView) {
+        slideView.addPageObjectView(objectView);
+    }
 
-	@Override
-	public List<PageObjectView<?>> getPageObjectViews() {
-		return slideView.getPageObjectViews();
-	}
+    @Override
+    public void removePageObjectView(PageObjectView<?> objectView) {
+        slideView.removePageObjectView(objectView);
+    }
 
-	@Override
-	public void addDocument(Document doc, PresentationParameterProvider ppProvider) {
-		SwingUtils.invoke(() -> {
-			// Select document tab.
+    @Override
+    public void removeAllPageObjectViews() {
+        slideView.removeAllPageObjectViews();
+    }
+
+    @Override
+    public List<PageObjectView<?>> getPageObjectViews() {
+        return slideView.getPageObjectViews();
+    }
+
+    @Override
+    public void addDocument(Document doc, PresentationParameterProvider ppProvider) {
+        SwingUtils.invoke(() -> {
+            // Select document tab.
 			int tabCount = tabPane.getTabCount();
 
 			for (int i = 0; i < tabCount; i++) {
@@ -228,723 +230,802 @@ public class SwingSlidesView extends JPanel implements SlidesView {
 			}
 
 			// Create a ThumbnailPanel for each document.
-			ThumbnailPanel thumbPanel;
-
-			if (doc.isWhiteboard()) {
-				WhiteboardThumbnailPanel wbThumbPanel = new WhiteboardThumbnailPanel(dict);
-				wbThumbPanel.setOnAddPage(newPageAction);
-				wbThumbPanel.setOnRemovePage(deletePageAction);
-
-				thumbPanel = wbThumbPanel;
-			}
-			else if (doc.isQuiz()) {
-				QuizThumbnailPanel quizThumbPanel = new QuizThumbnailPanel(dict);
-				quizThumbPanel.setStreamState(streamState);
-				quizThumbPanel.setOnShareQuiz(shareQuizAction);
-				quizThumbPanel.setOnStopQuiz(stopQuizAction);
-
-				thumbPanel = quizThumbPanel;
-			}
-			else {
-				thumbPanel = new ThumbnailPanel();
-			}
-
-			thumbPanel.setRenderController(pageRenderer);
-			thumbPanel.setDocument(doc, ppProvider);
-			thumbPanel.addSelectedSlideChangedListener(event -> {
-				if (event.getNewValue() instanceof Page) {
-					Page page = (Page) event.getNewValue();
-
-					executeAction(selectPageAction, page);
-				}
-			});
-
-			VerticalTab tab = new VerticalTab(tabPane.getTabPlacement());
-			tab.setText(doc.getName());
-
-			tabPane.addTab(null, thumbPanel);
-			tabPane.setTabComponentAt(tabPane.getTabCount() - 1, tab);
-		});
-	}
-
-	@Override
-	public void removeDocument(Document doc) {
-		// Remove document tab.
-		int tabCount = tabPane.getTabCount();
-
-		for (int i = 0; i < tabCount; i++) {
-			ThumbPanel thumbnailPanel = (ThumbPanel) tabPane.getComponentAt(i);
-
-			if (thumbnailPanel.getDocument().equals(doc)) {
-				tabPane.remove(i);
-				break;
-			}
-		}
-	}
-
-	@Override
-	public void selectDocument(Document doc, PresentationParameterProvider ppProvider) {
-		SwingUtils.invoke(() -> {
-			// Select document tab.
-			int tabCount = tabPane.getTabCount();
-
-			for (int i = 0; i < tabCount; i++) {
-				ThumbPanel thumbnailPanel = (ThumbPanel) tabPane.getComponentAt(i);
-
-				if (thumbnailPanel.getDocument().getName().equals(doc.getName())) {
-					// Reload if document has changed.
-					if (!thumbnailPanel.getDocument().equals(doc)) {
-						// Prevent tab switching for quiz reloading.
-						thumbnailPanel.setDocument(doc, ppProvider);
-					}
-
-					tabPane.setSelectedIndex(i);
-					break;
-				}
-			}
-
-			// Set document outline.
-			setOutline(doc.getDocumentOutline());
-		});
-	}
-
-	@Override
-	public Page getPage() {
-		return slideView.getPage();
-	}
-
-	@Override
-	public void setPage(Page page, PresentationParameter parameter) {
-		SwingUtils.invoke(() -> {
-			slideView.parameterChanged(page, parameter);
-			slideView.setPage(page);
-
-			// Select page on the thumbnail panel.
-			ThumbPanel thumbPanel = (ThumbPanel) tabPane.getSelectedComponent();
-			thumbPanel.selectPage(page);
-
-			selectOutlineItem(page);
-		});
-	}
-
-	@Override
-	public void setPageRenderer(RenderController pageRenderer) {
-		this.pageRenderer = pageRenderer;
-
-		slideView.setPageRenderer(pageRenderer);
-	}
-
-	@Override
-	public void setPageNotes(List<SlideNote> notes) {
-		StringBuilder buffer = new StringBuilder();
-
-		if (nonNull(notes)) {
-			for (Iterator<SlideNote> notesIter = notes.iterator(); notesIter.hasNext();) {
-				buffer.append(notesIter.next().getText());
-
-				if (notesIter.hasNext()) {
-					buffer.append("\n");
-				}
-			}
-
-			// Show red highlight, if notes-view is hidden and page notes are available.
-			if (bottomTabPane.getSelectedIndex() != 0 && !notes.isEmpty()) {
-				bottomTabPane.setBackgroundAt(0, new Color(255, 182, 193));
-			}
-		}
-
-//		notesTextArea.setText(buffer.toString());
-	}
-
-	@Override
-	public void setOutline(DocumentOutline outline) {
-		SwingUtils.invoke(() -> {
-			DefaultMutableTreeNode root = new DefaultMutableTreeNode("root");
-
-			for (var child : outline.getChildren()) {
-				buildOutlineTree(child, root);
-			}
-
-			outlineTree.setModel(new DefaultTreeModel(root));
-		});
-	}
-
-	@Override
-	public void bindShowOutline(BooleanProperty showProperty) {
-		SwingUtils.invoke(() -> {
-			showOutline(showProperty.get());
-		});
-
-		showProperty.addListener((observable, oldValue, newValue) -> {
-			SwingUtils.invoke(() -> {
-				showOutline(showProperty.get());
-			});
-		});
-	}
-
-	@Override
-	public void setExtendedFullscreen(boolean extended) {
-		extendedFullscreen = extended;
-
-		if (isNull(getParent())) {
-			return;
-		}
-
-		JFrame window = (JFrame) SwingUtilities.getWindowAncestor(this);
-		boolean show = !window.isUndecorated() || !extendedFullscreen;
-
-		bottomTabPane.setVisible(show);
-	}
-
-	@Override
-	public void setStylusHandler(StylusHandler handler) {
-		stylusListener = new StylusListener(handler, slideView);
-
-		AwtStylusManager manager = AwtStylusManager.getInstance();
-		manager.attachStylusListener(slideView, stylusListener);
-	}
-
-	@Override
-	public void setLaTeXText(String text) {
-//		SwingUtils.invoke(() -> latexTextArea.setText(text));
-	}
-
-	@Override
-	public void setQuizState(ExecutableState state) {
-		for (int i = 0; i < tabPane.getTabCount(); i++) {
-			ThumbPanel thumbnailPanel = (ThumbPanel) tabPane.getComponentAt(i);
-
-			if (thumbnailPanel instanceof QuizThumbnailPanel) {
-				QuizThumbnailPanel quizPanel = (QuizThumbnailPanel) thumbnailPanel;
-				quizPanel.setQuizState(state);
-				break;
-			}
-		}
-	}
-
-	@Override
-	public void setStreamState(ExecutableState state) {
-		streamState = state;
-
-		boolean streamStarted = streamState == ExecutableState.Started;
-		boolean messengerStarted = messengerState == ExecutableState.Started;
-
-		SwingUtils.invoke(() -> {
-			if (state == ExecutableState.Stopped && !messengerStarted) {
-				minimizeBottomPane();
-			}
-
-			setBottomTabEnabled(bottomTabPane.getTabCount() - 1, streamStarted || messengerStarted);
-			setBottomTabSelected(bottomTabPane.getTabCount() - 1, streamStarted || messengerStarted);
-
-			if (!streamStarted) {
-				removeMessageViews(SpeechRequestView.class);
-			}
-
-			for (int i = 0; i < tabPane.getTabCount(); i++) {
-				ThumbPanel thumbnailPanel = (ThumbPanel) tabPane.getComponentAt(i);
-
-				if (thumbnailPanel instanceof QuizThumbnailPanel) {
-					QuizThumbnailPanel quizPanel = (QuizThumbnailPanel) thumbnailPanel;
-					quizPanel.setStreamState(state);
-					break;
-				}
-			}
-		});
-	}
-
-	@Override
-	public void setMessengerState(ExecutableState state) {
-		messengerState = state;
-
-		boolean streamStarted = streamState == ExecutableState.Started;
-		boolean messengerStarted = messengerState == ExecutableState.Started;
-
-		SwingUtils.invoke(() -> {
-			if (state == ExecutableState.Stopped && !streamStarted) {
-				minimizeBottomPane();
-			}
-
-			setBottomTabEnabled(bottomTabPane.getTabCount() - 1, streamStarted || messengerStarted);
-			setBottomTabSelected(bottomTabPane.getTabCount() - 1, streamStarted || messengerStarted);
-
-			if (!messengerStarted) {
-				removeMessageViews(MessageView.class);
-			}
-		});
-	}
-
-	@Override
-	public void setMessengerMessage(MessengerMessage message) {
-		SwingUtils.invoke(() -> {
-			MessageView messageView = new MessageView(this.dict);
-			messageView.setUserName(String.format("%s %s", message.getFirstName(), message.getFamilyName()));
-			messageView.setDate(message.getDate());
-			messageView.setMessage(message.getMessage().getText());
-			messageView.setOnDiscard(() -> {
-				discardMessageAction.execute(message);
-
-				removeMessageView(messageView);
-			});
-			messageView.pack();
-
-			messageViewContainer.add(messageView);
-			messageViewContainer.revalidate();
-		});
-	}
-
-	@Override
-	public void setSpeechRequestMessage(SpeechRequestMessage message) {
-		SwingUtils.invoke(() -> {
-			SpeechRequestView requestView = new SpeechRequestView(this.dict);
-			requestView.setRequestId(message.getRequestId());
-			requestView.setUserName(String.format("%s %s", message.getFirstName(), message.getFamilyName()));
-			requestView.setDate(message.getDate());
-			requestView.setOnAccept(() -> {
-				acceptSpeechRequestAction.execute(message);
-
-				removeMessageView(requestView);
-			});
-			requestView.setOnReject(() -> {
-				rejectSpeechRequestAction.execute(message);
-
-				removeMessageView(requestView);
-			});
-			requestView.pack();
-
-			messageViewContainer.add(requestView);
-			messageViewContainer.revalidate();
-		});
-	}
-
-	@Override
-	public void setSpeechCancelMessage(SpeechCancelMessage message) {
-		SwingUtils.invoke(() -> {
-			for (Component c : messageViewContainer.getComponents()) {
-				if (c instanceof SpeechRequestView) {
-					SpeechRequestView view = (SpeechRequestView) c;
-
-					if (view.getRequestId() == message.getRequestId()) {
-						view.setCanceled();
-
-						removeMessageView(view);
-						break;
-					}
-				}
-			}
-		});
-	}
-
-	@Override
-	public void setOnDiscardMessage(ConsumerAction<MessengerMessage> action) {
-		discardMessageAction = action;
-	}
-
-	@Override
-	public void setOnAcceptSpeech(ConsumerAction<SpeechRequestMessage> action) {
-		acceptSpeechRequestAction = action;
-	}
-
-	@Override
-	public void setOnRejectSpeech(ConsumerAction<SpeechRequestMessage> action) {
-		rejectSpeechRequestAction = action;
-	}
-
-	@Override
-	public void setPeerStateEvent(PeerStateEvent event) {
-		SwingUtils.invoke(() -> {
-			ExecutableState state = event.getState();
-
-			if (state == ExecutableState.Started) {
-				if (peerViewContainer.getComponentCount() > 0) {
-					return;
-				}
-
-				peerView = new PeerView();
-				peerView.setMinimumSize(new Dimension(100, 150));
-				peerView.setPreferredSize(new Dimension(100, 150));
-				peerView.setPeerId(event.getPeerId());
-				peerView.setPeerName(event.getPeerName());
-				peerView.setOnMuteAudio(mutePeerAudioAction);
-				peerView.setOnMuteVideo(mutePeerVideoAction);
-				peerView.setOnStopPeerConnection(stopPeerConnectionAction);
-
-				peerViewContainer.add(peerView);
-				peerViewContainer.revalidate();
-				peerViewContainer.repaint();
-			}
-			else if (state == ExecutableState.Stopped) {
-				peerView = null;
-
-				peerViewContainer.removeAll();
-				peerViewContainer.revalidate();
-				peerViewContainer.repaint();
-			}
-		});
-	}
-
-	@Override
-	public void setOnMutePeerAudio(ConsumerAction<Boolean> action) {
-		mutePeerAudioAction = action;
-	}
-
-	@Override
-	public void setOnMutePeerVideo(ConsumerAction<Boolean> action) {
-		mutePeerVideoAction = action;
-	}
-
-	@Override
-	public void setOnStopPeerConnection(ConsumerAction<BigInteger> action) {
-		stopPeerConnectionAction = action;
-	}
-
-	@Override
-	public void setVideoFrameEvent(VideoFrameEvent event) {
-		if (isNull(peerView)) {
-			return;
-		}
-
-		try {
-			peerViewImage = convertVideoFrame(event.getFrame(), peerViewImage);
-		}
-		catch (Exception e) {
-			return;
-		}
-
-		SwingUtils.invoke(() -> {
-			peerView.showImage(peerViewImage);
-		});
-	}
-
-	@Override
-	public void setSelectedToolType(ToolType type) {
-//		SwingUtils.invoke(() -> {
-//			boolean isTeXTool = type == ToolType.LATEX;
+            ThumbnailPanel thumbPanel;
+
+            if (doc.isWhiteboard()) {
+                WhiteboardThumbnailPanel wbThumbPanel = new WhiteboardThumbnailPanel(dict);
+                wbThumbPanel.setOnAddPage(newPageAction);
+                wbThumbPanel.setOnRemovePage(deletePageAction);
+
+                thumbPanel = wbThumbPanel;
+            } else if (doc.isQuiz()) {
+                QuizThumbnailPanel quizThumbPanel = new QuizThumbnailPanel(dict);
+                quizThumbPanel.setStreamState(streamState);
+                quizThumbPanel.setOnShareQuiz(shareQuizAction);
+                quizThumbPanel.setOnStopQuiz(stopQuizAction);
+
+                thumbPanel = quizThumbPanel;
+            } else {
+                thumbPanel = new ThumbnailPanel();
+            }
+
+            thumbPanel.setRenderController(pageRenderer);
+            thumbPanel.setDocument(doc, ppProvider);
+            thumbPanel.addSelectedSlideChangedListener(event -> {
+                if (event.getNewValue() instanceof Page) {
+                    Page page = (Page) event.getNewValue();
+
+                    executeAction(selectPageAction, page);
+                }
+            });
+
+            VerticalTab tab = new VerticalTab(tabPane.getTabPlacement());
+            tab.setText(doc.getName());
+
+            tabPane.addTab(null, thumbPanel);
+            tabPane.setTabComponentAt(tabPane.getTabCount() - 1, tab);
+            tabPane.setSelectedIndex(tabPane.getTabCount() - 1);
+            updateTabIndex();
+            tabPane.setMinimumSize(new Dimension(getTabWidth(), 0));
+        });
+    }
+
+    @Override
+    public void removeDocument(Document doc) {
+        // Remove document tab.
+        int tabCount = tabPane.getTabCount();
+
+        for (int i = 0; i < tabCount; i++) {
+            ThumbPanel thumbnailPanel = (ThumbPanel) tabPane.getComponentAt(i);
+
+            if (thumbnailPanel.getDocument().equals(doc)) {
+                tabPane.remove(i);
+                break;
+            }
+        }
+        updateTabIndex();
+    }
+
+    private void updateTabIndex() {
+        tabIndex = tabPane.getSelectedIndex();
+    }
+
+    @Override
+    public void selectDocument(Document doc, PresentationParameterProvider ppProvider) {
+        SwingUtils.invoke(() -> {
+            // Select document tab.
+            int tabCount = tabPane.getTabCount();
+
+            for (int i = 0; i < tabCount; i++) {
+                ThumbPanel thumbnailPanel = (ThumbPanel) tabPane.getComponentAt(i);
+
+                if (thumbnailPanel.getDocument().getName().equals(doc.getName())) {
+                    // Reload if document has changed.
+                    if (!thumbnailPanel.getDocument().equals(doc)) {
+                        // Prevent tab switching for quiz reloading.
+                        thumbnailPanel.setDocument(doc, ppProvider);
+                    }
+
+                    tabPane.setSelectedIndex(i);
+                    break;
+                }
+            }
+
+            // Set document outline.
+            setOutline(doc.getDocumentOutline());
+        });
+    }
+
+    @Override
+    public Page getPage() {
+        return slideView.getPage();
+    }
+
+    @Override
+    public void setPage(Page page, PresentationParameter parameter) {
+        SwingUtils.invoke(() -> {
+            slideView.parameterChanged(page, parameter);
+            slideView.setPage(page);
+
+            // Select page on the thumbnail panel.
+            ThumbPanel thumbPanel = (ThumbPanel) tabPane.getSelectedComponent();
+            thumbPanel.selectPage(page);
+
+            selectOutlineItem(page);
+        });
+    }
+
+    @Override
+    public void setPageRenderer(RenderController pageRenderer) {
+        this.pageRenderer = pageRenderer;
+
+        slideView.setPageRenderer(pageRenderer);
+    }
+
+    @Override
+    public void setPageNotes(List<SlideNote> notes) {
+        StringBuilder buffer = new StringBuilder();
+
+        if (nonNull(notes)) {
+            for (Iterator<SlideNote> notesIter = notes.iterator(); notesIter.hasNext(); ) {
+                buffer.append(notesIter.next().getText());
+
+                if (notesIter.hasNext()) {
+                    buffer.append("\n");
+                }
+            }
+
+            // Show red highlight, if notes-view is hidden and page notes are available.
+            if (bottomTabPane.getSelectedIndex() != 0 && !notes.isEmpty()) {
+                bottomTabPane.setBackgroundAt(0, new Color(255, 182, 193));
+            }
+        }
+
+        //notesTextArea.setText(buffer.toString());
+    }
+
+    @Override
+    public void setOutline(DocumentOutline outline) {
+        SwingUtils.invoke(() -> {
+            DefaultMutableTreeNode root = new DefaultMutableTreeNode("root");
+
+            for (var child : outline.getChildren()) {
+                buildOutlineTree(child, root);
+            }
+
+            outlineTree.setModel(new DefaultTreeModel(root));
+        });
+    }
+
+    @Override
+    public void bindShowOutline(BooleanProperty showProperty) {
+        SwingUtils.invoke(() -> {
+            showOutline(showProperty.get());
+        });
+
+        showProperty.addListener((observable, oldValue, newValue) -> {
+            SwingUtils.invoke(() -> {
+                showOutline(showProperty.get());
+            });
+        });
+    }
+
+    @Override
+    public void setExtendedFullscreen(boolean extended) {
+        extendedFullscreen = extended;
+
+        if (isNull(getParent())) {
+            return;
+        }
+
+        JFrame window = (JFrame) SwingUtilities.getWindowAncestor(this);
+        boolean show = !window.isUndecorated() || !extendedFullscreen;
+
+        bottomTabPane.setVisible(show);
+    }
+
+    @Override
+    public void setStylusHandler(StylusHandler handler) {
+        stylusListener = new StylusListener(handler, slideView);
+
+        AwtStylusManager manager = AwtStylusManager.getInstance();
+        manager.attachStylusListener(slideView, stylusListener);
+    }
+
+    @Override
+    public void setLaTeXText(String text) {
+        //SwingUtils.invoke(() -> latexTextArea.setText(text));
+    }
+
+    @Override
+    public void setQuizState(ExecutableState state) {
+        for (int i = 0; i < tabPane.getTabCount(); i++) {
+            ThumbPanel thumbnailPanel = (ThumbPanel) tabPane.getComponentAt(i);
+
+            if (thumbnailPanel instanceof QuizThumbnailPanel) {
+                QuizThumbnailPanel quizPanel = (QuizThumbnailPanel) thumbnailPanel;
+                quizPanel.setQuizState(state);
+                break;
+            }
+        }
+    }
+
+    @Override
+    public void setStreamState(ExecutableState state) {
+        streamState = state;
+
+        boolean streamStarted = streamState == ExecutableState.Started;
+        boolean messengerStarted = messengerState == ExecutableState.Started;
+
+        SwingUtils.invoke(() -> {
+            if (state == ExecutableState.Stopped && !messengerStarted) {
+                minimizeBottomPane();
+            }
+
+            setBottomTabEnabled(bottomTabPane.getTabCount() - 1, streamStarted || messengerStarted);
+            setBottomTabSelected(bottomTabPane.getTabCount() - 1, streamStarted || messengerStarted);
+
+            if (!streamStarted) {
+                removeMessageViews(SpeechRequestView.class);
+            }
+
+            for (int i = 0; i < tabPane.getTabCount(); i++) {
+                ThumbPanel thumbnailPanel = (ThumbPanel) tabPane.getComponentAt(i);
+
+                if (thumbnailPanel instanceof QuizThumbnailPanel) {
+                    QuizThumbnailPanel quizPanel = (QuizThumbnailPanel) thumbnailPanel;
+                    quizPanel.setStreamState(state);
+                    break;
+                }
+            }
+        });
+    }
+
+    @Override
+    public void setMessengerState(ExecutableState state) {
+        messengerState = state;
+
+        boolean streamStarted = streamState == ExecutableState.Started;
+        boolean messengerStarted = messengerState == ExecutableState.Started;
+
+        SwingUtils.invoke(() -> {
+            if (state == ExecutableState.Stopped && !streamStarted) {
+                minimizeBottomPane();
+            }
+
+            setBottomTabEnabled(bottomTabPane.getTabCount() - 1, streamStarted || messengerStarted);
+            setBottomTabSelected(bottomTabPane.getTabCount() - 1, streamStarted || messengerStarted);
+
+            if (!messengerStarted) {
+                removeMessageViews(MessageView.class);
+            }
+        });
+    }
+
+    @Override
+    public void setMessengerMessage(MessengerMessage message) {
+        SwingUtils.invoke(() -> {
+            MessageView messageView = new MessageView(this.dict);
+            messageView.setUserName(String.format("%s %s", message.getFirstName(), message.getFamilyName()));
+            messageView.setDate(message.getDate());
+            messageView.setMessage(message.getMessage().getText());
+            messageView.setOnDiscard(() -> {
+                discardMessageAction.execute(message);
+
+                removeMessageView(messageView);
+            });
+            messageView.pack();
+
+            messageViewContainer.add(messageView);
+            messageViewContainer.revalidate();
+        });
+    }
+
+    @Override
+    public void setSpeechRequestMessage(SpeechRequestMessage message) {
+        SwingUtils.invoke(() -> {
+            SpeechRequestView requestView = new SpeechRequestView(this.dict);
+            requestView.setRequestId(message.getRequestId());
+            requestView.setUserName(String.format("%s %s", message.getFirstName(), message.getFamilyName()));
+            requestView.setDate(message.getDate());
+            requestView.setOnAccept(() -> {
+                acceptSpeechRequestAction.execute(message);
+
+                removeMessageView(requestView);
+            });
+            requestView.setOnReject(() -> {
+                rejectSpeechRequestAction.execute(message);
+
+                removeMessageView(requestView);
+            });
+            requestView.pack();
+
+            messageViewContainer.add(requestView);
+            messageViewContainer.revalidate();
+        });
+    }
+
+    @Override
+    public void setSpeechCancelMessage(SpeechCancelMessage message) {
+        SwingUtils.invoke(() -> {
+            for (Component c : messageViewContainer.getComponents()) {
+                if (c instanceof SpeechRequestView) {
+                    SpeechRequestView view = (SpeechRequestView) c;
+
+                    if (view.getRequestId() == message.getRequestId()) {
+                        view.setCanceled();
+
+                        removeMessageView(view);
+                        break;
+                    }
+                }
+            }
+        });
+    }
+
+    @Override
+    public void setOnDiscardMessage(ConsumerAction<MessengerMessage> action) {
+        discardMessageAction = action;
+    }
+
+    @Override
+    public void setOnAcceptSpeech(ConsumerAction<SpeechRequestMessage> action) {
+        acceptSpeechRequestAction = action;
+    }
+
+    @Override
+    public void setOnRejectSpeech(ConsumerAction<SpeechRequestMessage> action) {
+        rejectSpeechRequestAction = action;
+    }
+
+    @Override
+    public void setPeerStateEvent(PeerStateEvent event) {
+        SwingUtils.invoke(() -> {
+            ExecutableState state = event.getState();
+
+            if (state == ExecutableState.Started) {
+                if (peerViewContainer.getComponentCount() > 0) {
+                    return;
+                }
+
+                peerView = new PeerView();
+                peerView.setMinimumSize(new Dimension(100, 150));
+                peerView.setPreferredSize(new Dimension(100, 150));
+                peerView.setPeerId(event.getPeerId());
+                peerView.setPeerName(event.getPeerName());
+                peerView.setOnMuteAudio(mutePeerAudioAction);
+                peerView.setOnMuteVideo(mutePeerVideoAction);
+                peerView.setOnStopPeerConnection(stopPeerConnectionAction);
+
+                peerViewContainer.setVisible(true);
+                peerViewContainer.add(peerView);
+                peerViewContainer.revalidate();
+                peerViewContainer.repaint();
+            } else if (state == ExecutableState.Stopped) {
+                peerView = null;
+
+                peerViewContainer.setVisible(false);
+                peerViewContainer.removeAll();
+                peerViewContainer.revalidate();
+                peerViewContainer.repaint();
+            }
+        });
+    }
+
+    @Override
+    public void setOnMutePeerAudio(ConsumerAction<Boolean> action) {
+        mutePeerAudioAction = action;
+    }
+
+    @Override
+    public void setOnMutePeerVideo(ConsumerAction<Boolean> action) {
+        mutePeerVideoAction = action;
+    }
+
+    @Override
+    public void setOnStopPeerConnection(ConsumerAction<BigInteger> action) {
+        stopPeerConnectionAction = action;
+    }
+
+    @Override
+    public void setVideoFrameEvent(VideoFrameEvent event) {
+        if (isNull(peerView)) {
+            return;
+        }
+
+        try {
+            peerViewImage = convertVideoFrame(event.getFrame(), peerViewImage);
+        } catch (Exception e) {
+            return;
+        }
+
+        SwingUtils.invoke(() -> {
+            peerView.showImage(peerViewImage);
+        });
+    }
+
+    @Override
+    public void setSelectedToolType(ToolType type) {
+        //SwingUtils.invoke(() -> {
+            //			boolean isTeXTool = type == ToolType.LATEX;
 //
-//			setBottomTabEnabled(0, isTeXTool);
-//			setBottomTabSelected(0, isTeXTool);
-//		});
-	}
+            //			setBottomTabEnabled(0, isTeXTool);
+            //			setBottomTabSelected(0, isTeXTool);
+        //});
+    }
 
-	@Override
-	public void setOnKeyEvent(ConsumerAction<KeyEvent> action) {
-		this.keyAction = action;
-	}
+    @Override
+    public void setOnKeyEvent(ConsumerAction<KeyEvent> action) {
+        this.keyAction = action;
+    }
 
-	@Override
-	public void setOnLaTeXText(ConsumerAction<String> action) {
-//		latexTextArea.getDocument().addDocumentListener(new DocumentListener() {
+    @Override
+    public void setOnLaTeXText(ConsumerAction<String> action) {
+        //		latexTextArea.getDocument().addDocumentListener(new DocumentListener() {
 //
-//			@Override
-//			public void insertUpdate(DocumentEvent e) {
-//				changedUpdate(e);
-//			}
+            //@Override
+            //public void insertUpdate(DocumentEvent e) {
+                //changedUpdate(e);
+            //			}
 //
-//			@Override
-//			public void removeUpdate(DocumentEvent e) {
-//				changedUpdate(e);
-//			}
+            //@Override
+            //public void removeUpdate(DocumentEvent e) {
+                //changedUpdate(e);
+            //			}
 //
-//			@Override
-//			public void changedUpdate(DocumentEvent e) {
-//				try {
-//					executeAction(action, latexTextArea.getText());
-//					latexTextArea.setBackground(Color.decode("#D1FAE5"));
-//				} catch (ParseException exception) {
-//					executeAction(action, "");
-//					latexTextArea.setBackground(Color.decode("#FEE2E2"));
-//				}
-//				if (Objects.equals(latexTextArea.getText(), "")) {
-//					latexTextArea.setBackground(Color.WHITE);
-//				}
-//			}
-//		});
-	}
+            //@Override
+            //public void changedUpdate(DocumentEvent e) {
+                //try {
+                    //executeAction(action, latexTextArea.getText());
+                    //latexTextArea.setBackground(Color.decode("#D1FAE5"));
+                //} catch (ParseException exception) {
+                    //executeAction(action, "");
+                    //latexTextArea.setBackground(Color.decode("#FEE2E2"));
+                //}
+                //if (Objects.equals(latexTextArea.getText(), "")) {
+                    //latexTextArea.setBackground(Color.WHITE);
+                //}
+            //}
+        //});
+    }
 
-	@Override
-	public void setOnSelectDocument(ConsumerAction<Document> action) {
-		this.selectDocumentAction = action;
-	}
+    @Override
+    public void setOnSelectDocument(ConsumerAction<Document> action) {
+        this.selectDocumentAction = action;
+    }
 
-	@Override
-	public void setOnSelectPage(ConsumerAction<Page> action) {
-		this.selectPageAction = action;
-	}
+    @Override
+    public void setOnSelectPage(ConsumerAction<Page> action) {
+        this.selectPageAction = action;
+    }
 
-	@Override
-	public void setOnViewTransform(ConsumerAction<Matrix> action) {
-		this.viewTransformAction = action;
-	}
+    @Override
+    public void setOnViewTransform(ConsumerAction<Matrix> action) {
+        this.viewTransformAction = action;
+    }
 
-	@Override
-	public void setOnNewPage(Action action) {
-		this.newPageAction = action;
-	}
+    @Override
+    public void setOnNewPage(Action action) {
+        this.newPageAction = action;
+    }
 
-	@Override
-	public void setOnDeletePage(Action action) {
-		this.deletePageAction = action;
-	}
+    @Override
+    public void setOnDeletePage(Action action) {
+        this.deletePageAction = action;
+    }
 
-	@Override
-	public void setOnShareQuiz(Action action) {
-		this.shareQuizAction = action;
-	}
+    @Override
+    public void setOnShareQuiz(Action action) {
+        this.shareQuizAction = action;
+    }
 
-	@Override
-	public void setOnStopQuiz(Action action) {
-		this.stopQuizAction = action;
-	}
+    @Override
+    public void setOnStopQuiz(Action action) {
+        this.stopQuizAction = action;
+    }
 
-	@Override
-	public void setOnOutlineItem(ConsumerAction<DocumentOutlineItem> action) {
-		this.outlineAction = action;
-	}
+    @Override
+    public void setOnOutlineItem(ConsumerAction<DocumentOutlineItem> action) {
+        this.outlineAction = action;
+    }
 
-	private void buildOutlineTree(DocumentOutlineItem item, DefaultMutableTreeNode root) {
-		DefaultMutableTreeNode parent = new DefaultMutableTreeNode(item.getTitle());
-		parent.setUserObject(item);
+    private void buildOutlineTree(DocumentOutlineItem item, DefaultMutableTreeNode root) {
+        DefaultMutableTreeNode parent = new DefaultMutableTreeNode(item.getTitle());
+        parent.setUserObject(item);
 
-		root.add(parent);
+        root.add(parent);
 
-		for (var child : item.getChildren()) {
-			buildOutlineTree(child, parent);
-		}
-	}
+        for (var child : item.getChildren()) {
+            buildOutlineTree(child, parent);
+        }
+    }
 
-	private void showOutline(boolean show) {
-		outlinePane.setVisible(show);
-		docSplitPane.setDividerLocation(0.2);
-	}
+    private void showOutline(boolean show) {
+        outlinePane.setVisible(show);
+        docSplitPane.setDividerLocation(0.2);
+    }
 
-	private void selectOutlineItem(Page page) {
-		DocumentOutlineItem outlineItem = page.getDocument()
-				.getDocumentOutline().getOutlineItem(page.getPageNumber());
+    private void selectOutlineItem(Page page) {
+        DocumentOutlineItem outlineItem = page.getDocument()
+                .getDocumentOutline().getOutlineItem(page.getPageNumber());
 
-		DefaultTreeModel model = (DefaultTreeModel) outlineTree.getModel();
-		DefaultMutableTreeNode root = (DefaultMutableTreeNode) model.getRoot();
-		DefaultMutableTreeNode node;
+        DefaultTreeModel model = (DefaultTreeModel) outlineTree.getModel();
+        DefaultMutableTreeNode root = (DefaultMutableTreeNode) model.getRoot();
+        DefaultMutableTreeNode node;
 
-		Enumeration<TreeNode> e = root.breadthFirstEnumeration();
+        Enumeration<TreeNode> e = root.breadthFirstEnumeration();
 
-		while (e.hasMoreElements()) {
-			node = (DefaultMutableTreeNode) e.nextElement();
-			Object userObject = node.getUserObject();
+        while (e.hasMoreElements()) {
+            node = (DefaultMutableTreeNode) e.nextElement();
+            Object userObject = node.getUserObject();
 
-			if (nonNull(userObject) && userObject.equals(outlineItem)) {
-				TreePath path = new TreePath(node.getPath());
-				Rectangle bounds = outlineTree.getPathBounds(path);
+            if (nonNull(userObject) && userObject.equals(outlineItem)) {
+                TreePath path = new TreePath(node.getPath());
+                Rectangle bounds = outlineTree.getPathBounds(path);
 
-				outlineTree.setSelectionPath(path);
+                outlineTree.setSelectionPath(path);
 
-				if (nonNull(bounds)) {
-					bounds.x = 0;
-					//bounds.height = outlineTree.getVisibleRect().height / 2;
+                if (nonNull(bounds)) {
+                    bounds.x = 0;
+                    //bounds.height = outlineTree.getVisibleRect().height / 2;
 
-					outlineTree.scrollRectToVisible(bounds);
-				}
-				break;
-			}
-		}
-	}
+                    outlineTree.scrollRectToVisible(bounds);
+                }
+                break;
+            }
+        }
+    }
 
-	private void setBottomTabEnabled(int index, boolean enable) {
-		JLabel label = (JLabel) bottomTabPane.getTabComponentAt(index);
-		label.setEnabled(enable);
+    private void setBottomTabEnabled(int index, boolean enable) {
+        JLabel label = (JLabel) bottomTabPane.getTabComponentAt(index);
+        label.setEnabled(enable);
 
-		bottomTabPane.setEnabledAt(index, enable);
-	}
+        bottomTabPane.setEnabledAt(index, enable);
+    }
 
-	private void setBottomTabSelected(int index, boolean select) {
-		if (select) {
-			bottomTabPane.setSelectedIndex(index);
-		}
-		if (!select && bottomTabPane.getSelectedIndex() == index) {
-			bottomTabPane.setSelectedIndex(-1);
-		}
-	}
+    private void setBottomTabSelected(int index, boolean select) {
+        if (select) {
+            bottomTabPane.setSelectedIndex(index);
+        }
+        if (!select && bottomTabPane.getSelectedIndex() == index) {
+            bottomTabPane.setSelectedIndex(-1);
+        }
+    }
 
-	private void minimizeBottomPane() {
-		int tabHeight = getBottomTabHeight();
-		int location = notesSplitPane.getHeight() - notesSplitPane.getDividerSize() - tabHeight;
+    private void minimizeBottomPane() {
+        if (bottomTabPane.getHeight() <= getBottomTabHeight()) {
+            return;
+        }
 
-		notesSplitPane.setDividerLocation(location);
-	}
+        int tabHeight = getBottomTabHeight();
+        int location = notesSplitPane.getHeight() - notesSplitPane.getDividerSize() - tabHeight;
 
-	private void toggleBottomTab(int index) {
-		if (index < 0 || index > bottomTabPane.getTabCount() - 1) {
-			return;
-		}
-		if (!bottomTabPane.isEnabledAt(index)) {
-			return;
-		}
+        if (oldNotesDividerRatio <= 0) {
+            resetOldNotesDividerRatio();
+        } else {
+            oldNotesDividerRatio = getNotesDividerRatio();
+        }
 
-		boolean isSameTab = index == bottomTabIndex;
+        notesSplitPane.setDividerLocation(location);
+    }
 
-		if (isSameTab && bottomTabPane.getHeight() > getBottomTabHeight()) {
-			minimizeBottomPane();
-		}
-		else if (isSameTab || bottomTabPane.getHeight() <= getBottomTabHeight()) {
-			notesSplitPane.setDividerLocation(0.7);
-		}
+    private void resetOldNotesDividerRatio() {
+        oldNotesDividerRatio = 0.75;
+    }
 
-		bottomTabIndex = index;
-	}
+    private double getNotesDividerRatio() {
+        return (notesSplitPane.getDividerLocation() - notesSplitPane.getDividerSize()) / (double)notesSplitPane.getHeight();
+    }
 
-	private int getBottomTabHeight() {
-		return bottomTabPane.getUI().getTabBounds(bottomTabPane, 0).height + 1;
-	}
+    private void minimizeTabPane() {
+        if (tabPane.getWidth() <= getTabWidth()) {
+            return;
+        }
 
-	@ViewPostConstruct
-	private void initialize() {
-		KeyboardFocusManager keyboardManager = KeyboardFocusManager.getCurrentKeyboardFocusManager();
-		keyboardManager.addKeyEventDispatcher(event -> {
-			Component focusOwner = event.getComponent();
+        int tabWidth = getTabWidth();
+        int location = tabSplitPane.getWidth() - tabSplitPane.getDividerSize() - tabWidth;
 
-			if (nonNull(focusOwner) && focusOwner.isShowing()) {
-				if (focusOwner instanceof JTextComponent) {
-					return false;
-				}
-			}
-			if (event.getID() == java.awt.event.KeyEvent.KEY_PRESSED) {
-				executeAction(keyAction, KeyEventConverter.INSTANCE.from(event));
-			}
-			return false;
-		});
+        oldTabDividerRatio = getTabDividerRatio();
 
-		ToolTipManager.sharedInstance().registerComponent(outlineTree);
+        tabSplitPane.setDividerLocation(location);
+    }
 
-		// Use one-way tree selection.
-		outlineTree.addMouseListener(new MouseAdapter() {
+    private double getTabDividerRatio() {
+        return tabSplitPane.getDividerLocation() / (double)tabSplitPane.getWidth();
+    }
 
-			@Override
-			public void mousePressed(MouseEvent e) {
-				TreePath selPath = outlineTree
-						.getPathForLocation(e.getX(), e.getY());
+    private void toggleBottomTab(int index) {
+        if (index < 0 || index >= bottomTabPane.getTabCount() || !bottomTabPane.isEnabledAt(index)) {
+            return;
+        }
 
-				if (isNull(selPath)) {
-					return;
-				}
+        boolean isSameTab = index == bottomTabIndex;
 
-				DefaultMutableTreeNode node = (DefaultMutableTreeNode) selPath
-						.getLastPathComponent();
+        if (isSameTab && bottomTabPane.getHeight() > getBottomTabHeight()) {
+            minimizeBottomPane();
+        } else if (isSameTab || bottomTabPane.getHeight() <= getBottomTabHeight()) {
+            final int dividerLocation = (int) (oldNotesDividerRatio * notesSplitPane.getHeight());
 
-				if (isNull(node)) {
-					// Nothing is selected.
-					return;
-				}
+            if (dividerLocation >= notesSplitPane.getHeight() - getBottomTabHeight()) {
+                resetOldNotesDividerRatio();
+            }
+            notesSplitPane.setDividerLocation(dividerLocation);
+        }
 
-				Object userObject = node.getUserObject();
+        bottomTabIndex = index;
+    }
 
-				if (nonNull(userObject)) {
-					DocumentOutlineItem item = (DocumentOutlineItem) userObject;
+    private void toggleTab(int index) {
+        if (index < 0 || index >= tabPane.getTabCount() || !tabPane.isEnabledAt(index)) {
+            return;
+        }
 
-					executeAction(outlineAction, item);
-				}
-			}
-		});
+        boolean isSameTab = index == tabIndex;
 
-		slideView.addPropertyChangeListener("transform", e -> {
-			if (nonNull(viewTransformAction)) {
-				viewTransformAction.execute(MatrixConverter.INSTANCE
-						.from(slideView.getPageTransform()));
-			}
-		});
+        if (isSameTab && tabPane.getWidth() > getTabWidth()) {
+            minimizeTabPane();
+        } else if (isSameTab && tabPane.getWidth() <= getTabWidth()) {
+            final int dividerLocation = (int) (tabSplitPane.getWidth() * oldTabDividerRatio);
 
-		tabPane.getModel().addChangeListener(e -> {
-			ThumbPanel thumbPanel = (ThumbPanel) tabPane.getSelectedComponent();
+            if (dividerLocation >= tabSplitPane.getWidth() - getTabWidth()) {
+                oldTabDividerRatio = 0.8;
+            }
+            tabSplitPane.setDividerLocation(dividerLocation);
+        }
 
-			if (nonNull(thumbPanel)) {
-				executeAction(selectDocumentAction, thumbPanel.getDocument());
-			}
-		});
+        tabIndex = index;
+    }
 
-		bottomTabPane.setMinimumSize(new Dimension(0, getBottomTabHeight()));
-		bottomTabPane.addMouseListener(new MouseAdapter() {
+    private int getBottomTabHeight() {
+        return bottomTabPane.getUI().getTabBounds(bottomTabPane, 0).height + 4;
+    }
 
-			@Override
-			public void mousePressed(MouseEvent e) {
-				int tabIndex = bottomTabPane.getUI().tabForCoordinate(
-						bottomTabPane, e.getX(), e.getY());
+    private int getTabWidth() {
+        return tabPane.getUI().getTabBounds(tabPane, 0).width + 4;
+    }
 
-				toggleBottomTab(tabIndex);
-			}
-		});
+    @ViewPostConstruct
+    private void initialize() {
+        KeyboardFocusManager keyboardManager = KeyboardFocusManager.getCurrentKeyboardFocusManager();
+        keyboardManager.addKeyEventDispatcher(event -> {
+            Component focusOwner = event.getComponent();
 
-		addAncestorListener(new AncestorListener() {
+            if (nonNull(focusOwner) && focusOwner.isShowing()) {
+                if (focusOwner instanceof JTextComponent) {
+                    return false;
+                }
+            }
+            if (event.getID() == java.awt.event.KeyEvent.KEY_PRESSED) {
+                executeAction(keyAction, KeyEventConverter.INSTANCE.from(event));
+            }
+            return false;
+        });
 
-			@Override
-			public void ancestorAdded(AncestorEvent event) {
-				JFrame window = (JFrame) SwingUtilities.getWindowAncestor(SwingSlidesView.this);
-				window.addComponentListener(new ComponentAdapter() {
+        ToolTipManager.sharedInstance().registerComponent(outlineTree);
 
-					@Override
-					public void componentShown(ComponentEvent e) {
-						AwtStylusManager manager = AwtStylusManager.getInstance();
-						manager.attachStylusListener(slideView, stylusListener);
-					}
-				});
-			}
+        // Use one-way tree selection.
+        outlineTree.addMouseListener(new MouseAdapter() {
 
-			@Override
-			public void ancestorRemoved(AncestorEvent event) {
-			}
+            @Override
+            public void mousePressed(MouseEvent e) {
+                TreePath selPath = outlineTree
+                        .getPathForLocation(e.getX(), e.getY());
+
+                if (isNull(selPath)) {
+                    return;
+                }
+
+                DefaultMutableTreeNode node = (DefaultMutableTreeNode) selPath
+                        .getLastPathComponent();
+
+                if (isNull(node)) {
+                    // Nothing is selected.
+                    return;
+                }
+
+                Object userObject = node.getUserObject();
+
+                if (nonNull(userObject)) {
+                    DocumentOutlineItem item = (DocumentOutlineItem) userObject;
+
+                    executeAction(outlineAction, item);
+                }
+            }
+        });
+
+        slideView.addPropertyChangeListener("transform", e -> {
+            if (nonNull(viewTransformAction)) {
+                viewTransformAction.execute(MatrixConverter.INSTANCE
+                        .from(slideView.getPageTransform()));
+            }
+        });
+
+        tabPane.getModel().addChangeListener(e -> {
+            ThumbPanel thumbPanel = (ThumbPanel) tabPane.getSelectedComponent();
+
+            if (nonNull(thumbPanel)) {
+                executeAction(selectDocumentAction, thumbPanel.getDocument());
+            }
+        });
+
+        bottomTabPane.setMinimumSize(new Dimension(0, getBottomTabHeight()));
+        bottomTabPane.addMouseListener(new MouseAdapter() {
+
+            @Override
+            public void mouseClicked(MouseEvent e) {
+                if (SwingUtilities.isLeftMouseButton(e)) {
+                    int tabIndex = bottomTabPane.getUI().tabForCoordinate(bottomTabPane, e.getX(), e.getY());
+
+                    toggleBottomTab(tabIndex);
+                }
+            }
+        });
+
+        tabPane.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseClicked(MouseEvent e) {
+                if (SwingUtilities.isLeftMouseButton(e)) {
+                    int tabIndex = tabPane.getUI().tabForCoordinate(tabPane, e.getX(), e.getY());
+
+                    toggleTab(tabIndex);
+                }
+            }
+        });
+
+        addAncestorListener(new AncestorListener() {
+
+            @Override
+            public void ancestorAdded(AncestorEvent event) {
+                JFrame window = (JFrame) SwingUtilities.getWindowAncestor(SwingSlidesView.this);
+                window.addComponentListener(new ComponentAdapter() {
+
+                    @Override
+                    public void componentShown(ComponentEvent e) {
+                        AwtStylusManager manager = AwtStylusManager.getInstance();
+                        manager.attachStylusListener(slideView, stylusListener);
+                    }
+                });
+            }
+
+            @Override
+            public void ancestorRemoved(AncestorEvent event) {
+            }
 
 			@Override
 			public void ancestorMoved(AncestorEvent event) {
 				removeAncestorListener(this);
 
-				minimizeBottomPane();
+                minimizeBottomPane();
 			}
 		});
 	}
 
-	private void removeMessageView(Component view) {
-		for (Component c : messageViewContainer.getComponents()) {
-			if (c == view) {
-				messageViewContainer.remove(view);
-				messageViewContainer.validate();
-				messageViewContainer.repaint();
-				break;
-			}
-		}
-	}
+    private void removeMessageView(Component view) {
+        for (Component c : messageViewContainer.getComponents()) {
+            if (c == view) {
+                messageViewContainer.remove(view);
+                messageViewContainer.validate();
+                messageViewContainer.repaint();
+                break;
+            }
+        }
+    }
 
-	private void removeMessageViews(Class<? extends MessagePanel> cls) {
-		for (Component c : messageViewContainer.getComponents()) {
-			if (cls.isAssignableFrom(c.getClass())) {
-				messageViewContainer.remove(c);
-			}
-		}
+    private void removeMessageViews(Class<? extends MessagePanel> cls) {
+        for (Component c : messageViewContainer.getComponents()) {
+            if (cls.isAssignableFrom(c.getClass())) {
+                messageViewContainer.remove(c);
+            }
+        }
 
-		messageViewContainer.validate();
-		messageViewContainer.repaint();
-	}
+        messageViewContainer.validate();
+        messageViewContainer.repaint();
+    }
 
-	private BufferedImage convertVideoFrame(VideoFrame videoFrame, BufferedImage image) throws Exception {
-		VideoFrameBuffer buffer = videoFrame.buffer;
-		int width = buffer.getWidth();
-		int height = buffer.getHeight();
+    private BufferedImage convertVideoFrame(VideoFrame videoFrame, BufferedImage image) throws Exception {
+        VideoFrameBuffer buffer = videoFrame.buffer;
+        int width = buffer.getWidth();
+        int height = buffer.getHeight();
 
-		// Scale video frame down to the view size.
-		int viewHeight = peerView.getHeight();
-		double scale = viewHeight / (double) height;
+        // Scale video frame down to the view size.
+        int viewHeight = peerView.getHeight();
+        double scale = viewHeight / (double) height;
 
-		buffer = buffer.cropAndScale(0, 0, width, height, (int) (width * scale), viewHeight);
-		width = buffer.getWidth();
-		height = buffer.getHeight();
+        buffer = buffer.cropAndScale(0, 0, width, height, (int) (width * scale), viewHeight);
+        width = buffer.getWidth();
+        height = buffer.getHeight();
 
-		if (isNull(image) || image.getWidth() != width || image.getHeight() != height) {
-			image = new BufferedImage(width, height, BufferedImage.TYPE_4BYTE_ABGR);
-		}
+        if (isNull(image) || image.getWidth() != width || image.getHeight() != height) {
+            image = new BufferedImage(width, height, BufferedImage.TYPE_4BYTE_ABGR);
+        }
 
-		byte[] imageBuffer = ((DataBufferByte) image.getRaster().getDataBuffer()).getData();
+        byte[] imageBuffer = ((DataBufferByte) image.getRaster().getDataBuffer()).getData();
 
-		VideoBufferConverter.convertFromI420(buffer, imageBuffer, FourCC.RGBA);
+        VideoBufferConverter.convertFromI420(buffer, imageBuffer, FourCC.RGBA);
 
-		// Release resources.
-		buffer.release();
+        // Release resources.
+        buffer.release();
 
-		return image;
-	}
+        return image;
+    }
 }

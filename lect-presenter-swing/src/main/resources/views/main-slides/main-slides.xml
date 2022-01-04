@@ -29,7 +29,7 @@
 		</SplitPane>
 
 		<VBox>
-			<Panel layout="BorderLayout" id="peerViewContainer" />
+			<Panel layout="BorderLayout" id="peerViewContainer" visible="false" />
 			<TabbedPane id="tabPane" tabPlacement="JTabbedPane.RIGHT" focusTraversable="false" />
 		</VBox>
 	</SplitPane>

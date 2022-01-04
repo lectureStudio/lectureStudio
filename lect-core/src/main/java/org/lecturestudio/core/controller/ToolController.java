@@ -877,10 +877,8 @@ public class ToolController extends Controller implements ToolContext {
 	 * Remove a text shape that has the specified shape handle.
 	 *
 	 * @param handle The handle of a shape to remove.
-	 *
-	 * @throws Exception If the text shape could not be found.
 	 */
-	public void removeText(int handle) throws Exception {
+	public void removeText(int handle) {
 		Document selectedDoc = documentService.getDocuments().getSelectedDocument();
 		Page page = selectedDoc.getCurrentPage();
 		getTextShape(handle);
@@ -1033,13 +1031,14 @@ public class ToolController extends Controller implements ToolContext {
 		selectPreviousTool();
 	}
 
-	private TextBoxShape<?> getTextShape(int handle) throws Exception {
+	private TextBoxShape<?> getTextShape(int handle) {
 		Document selectedDoc = documentService.getDocuments().getSelectedDocument();
 		Page page = selectedDoc.getCurrentPage();
 		Shape shape = page.getShape(handle);
 
 		if (isNull(shape) || !(shape instanceof TextBoxShape)) {
-			throw new Exception("No text shape with given handle found.");
+			logErrorMessage("No text shape with given handle found");
+			return null;
 		}
 
 		return (TextBoxShape<?>) shape;

@@ -22,6 +22,7 @@ import static java.util.Objects.isNull;
 import static java.util.Objects.nonNull;
 
 import java.io.ByteArrayInputStream;
+import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
@@ -39,7 +40,12 @@ import org.lecturestudio.core.audio.sink.ByteArrayAudioSink;
 import org.lecturestudio.core.audio.source.ByteArrayAudioSource;
 import org.lecturestudio.core.beans.BooleanProperty;
 import org.lecturestudio.core.beans.ChangeListener;
+import org.lecturestudio.core.camera.AspectRatio;
 import org.lecturestudio.core.camera.Camera;
+import org.lecturestudio.core.camera.CameraProfile;
+import org.lecturestudio.core.camera.CameraProfiles;
+import org.lecturestudio.core.codec.VideoCodecConfiguration;
+import org.lecturestudio.core.geometry.Rectangle2D;
 import org.lecturestudio.core.presenter.Presenter;
 import org.lecturestudio.core.view.ConsumerAction;
 import org.lecturestudio.core.view.ViewLayer;
@@ -301,12 +307,34 @@ public class StartStreamPresenter extends Presenter<StartStreamView> {
 				return;
 			}
 
-			view.setCameraFormat(camera.getHighestFormat(30));
+			VideoCodecConfiguration cameraConfig = streamConfig.getCameraCodecConfig();
+			AspectRatio ratio = AspectRatio.forRect(cameraConfig.getViewRect());
+			CameraProfile[] profiles = CameraProfiles.forRatio(ratio);
+			CameraProfile profile = getCameraProfile(profiles);
+
+			if (isNull(profile)) {
+				profile = profiles[profiles.length - 1];
+			}
+
+			view.setCameraFormat(profile.getFormat());
 
 			if (capture) {
 				startCameraPreview();
 			}
 		}
+	}
+
+	private CameraProfile getCameraProfile(CameraProfile[] profiles) {
+		Rectangle2D rect = streamConfig.getCameraCodecConfig().getViewRect();
+
+		if (isNull(rect)) {
+			return null;
+		}
+
+		return Arrays.stream(profiles).filter(p -> {
+			return p.getFormat().getWidth() == rect.getWidth()
+					&& p.getFormat().getHeight() == rect.getHeight();
+		}).findFirst().orElse(null);
 	}
 
 	private void recordCaptureTest(boolean capture) {

@@ -29,7 +29,7 @@ import org.lecturestudio.core.geometry.Rectangle2D;
  */
 public class VideoCodecConfiguration extends CodecConfiguration {
 
-	/** The framerate for an video encoder. */
+	/** The frame rate for a video encoder. */
     private final DoubleProperty frameRate = new DoubleProperty();
 
 	/** The bounding box of the encoded or decoded image. */

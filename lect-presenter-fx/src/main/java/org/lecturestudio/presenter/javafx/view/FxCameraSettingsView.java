@@ -34,6 +34,7 @@ import org.lecturestudio.core.beans.StringProperty;
 import org.lecturestudio.core.camera.AspectRatio;
 import org.lecturestudio.core.camera.Camera;
 import org.lecturestudio.core.camera.CameraFormat;
+import org.lecturestudio.core.camera.CameraProfile;
 import org.lecturestudio.core.geometry.Rectangle2D;
 import org.lecturestudio.core.view.Action;
 import org.lecturestudio.core.view.ConsumerAction;
@@ -57,7 +58,7 @@ public class FxCameraSettingsView extends GridPane implements CameraSettingsView
 	private ComboBox<AspectRatio> cameraFormatsCombo;
 
 	@FXML
-	private ComboBox<CameraFormat> cameraResolutionsCombo;
+	private ComboBox<CameraProfile> cameraResolutionsCombo;
 
 	@FXML
 	private CameraView cameraView;
@@ -92,9 +93,14 @@ public class FxCameraSettingsView extends GridPane implements CameraSettingsView
 	}
 
 	@Override
-	public void setCameraFormats(CameraFormat[] cameraFormats) {
+	public void setCameraProfile(CameraProfile cameraProfile) {
+
+	}
+
+	@Override
+	public void setCameraProfiles(CameraProfile[] cameraProfiles) {
 		FxUtils.invoke(() -> {
-			cameraResolutionsCombo.getItems().setAll(cameraFormats);
+			cameraResolutionsCombo.getItems().setAll(cameraProfiles);
 		});
 	}
 
@@ -103,7 +109,7 @@ public class FxCameraSettingsView extends GridPane implements CameraSettingsView
 		Converter<Rectangle2D, CameraFormat> cameraFormatConv = new CameraFormatConverter(viewRect);
 		ConvertibleObjectProperty<Rectangle2D, CameraFormat> property = new ConvertibleObjectProperty<>(viewRect, cameraFormatConv);
 
-		cameraResolutionsCombo.valueProperty().bindBidirectional(property);
+//		cameraResolutionsCombo.valueProperty().bindBidirectional(property);
 
 		cameraView.captureRectProperty().bindBidirectional(new LectObjectProperty<>(viewRect));
 	}
@@ -123,10 +129,15 @@ public class FxCameraSettingsView extends GridPane implements CameraSettingsView
 	}
 
 	@Override
-	public void setOnCameraAspectRatioChanged(ConsumerAction<AspectRatio> action) {
+	public void setOnCameraAspectRatio(ConsumerAction<AspectRatio> action) {
 		cameraFormatsCombo.valueProperty().addListener((observable, oldRatio, newRatio) -> {
 			executeAction(action, newRatio);
 		});
+	}
+
+	@Override
+	public void setOnCameraProfile(ConsumerAction<CameraProfile> action) {
+
 	}
 
 	@Override

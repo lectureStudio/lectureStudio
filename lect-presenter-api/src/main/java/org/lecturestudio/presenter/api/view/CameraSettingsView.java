@@ -23,6 +23,7 @@ import org.lecturestudio.core.beans.StringProperty;
 import org.lecturestudio.core.camera.AspectRatio;
 import org.lecturestudio.core.camera.Camera;
 import org.lecturestudio.core.camera.CameraFormat;
+import org.lecturestudio.core.camera.CameraProfile;
 import org.lecturestudio.core.geometry.Rectangle2D;
 import org.lecturestudio.core.view.ConsumerAction;
 
@@ -32,7 +33,9 @@ public interface CameraSettingsView extends SettingsBaseView {
 
 	void setCameraNames(String[] cameraNames);
 
-	void setCameraFormats(CameraFormat[] cameraFormats);
+	void setCameraProfile(CameraProfile cameraProfile);
+
+	void setCameraProfiles(CameraProfile[] cameraProfiles);
 
 	void setCameraViewRect(ObjectProperty<Rectangle2D> viewRect);
 
@@ -40,7 +43,9 @@ public interface CameraSettingsView extends SettingsBaseView {
 
 	void setCameraAspectRatios(AspectRatio[] ratios);
 
-	void setOnCameraAspectRatioChanged(ConsumerAction<AspectRatio> action);
+	void setOnCameraAspectRatio(ConsumerAction<AspectRatio> action);
+
+	void setOnCameraProfile(ConsumerAction<CameraProfile> action);
 
 	void setOnViewVisible(ConsumerAction<Boolean> action);
 

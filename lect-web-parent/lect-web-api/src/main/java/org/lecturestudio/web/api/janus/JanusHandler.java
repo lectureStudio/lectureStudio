@@ -105,7 +105,7 @@ public class JanusHandler extends JanusStateHandler {
 
 		speechPublishers.put(requestId, speechPublisher);
 
-		editRoom(2);
+		editRoom(3);
 	}
 
 	public void stopRemoteSpeech(BigInteger peerId) {
@@ -113,7 +113,7 @@ public class JanusHandler extends JanusStateHandler {
 			return;
 		}
 
-		editRoom(1);
+		editRoom(3);
 
 		var entry = speechPublishers.entrySet().stream()
 				.filter(e -> e.getValue().getId().equals(peerId))
@@ -385,7 +385,7 @@ public class JanusHandler extends JanusStateHandler {
 				setPeerState(publisher, ExecutableState.Stopped);
 
 				removeStateHandler(subHandler);
-				editRoom(1);
+				editRoom(3);
 				kickParticipant(publisher);
 			}
 

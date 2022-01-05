@@ -30,6 +30,7 @@ import org.lecturestudio.core.camera.AspectRatio;
 import org.lecturestudio.core.camera.Camera;
 import org.lecturestudio.core.camera.CameraDriver;
 import org.lecturestudio.core.camera.CameraFormat;
+import org.lecturestudio.core.camera.CameraProfile;
 import org.lecturestudio.core.geometry.Rectangle2D;
 import org.lecturestudio.core.view.Action;
 import org.lecturestudio.core.view.ConsumerAction;
@@ -96,7 +97,12 @@ class CameraSettingsPresenterTest extends PresenterTest {
 		}
 
 		@Override
-		public void setCameraFormats(CameraFormat[] cameraFormats) {
+		public void setCameraProfile(CameraProfile cameraProfile) {
+
+		}
+
+		@Override
+		public void setCameraProfiles(CameraProfile[] cameraProfiles) {
 
 		}
 
@@ -116,7 +122,12 @@ class CameraSettingsPresenterTest extends PresenterTest {
 		}
 
 		@Override
-		public void setOnCameraAspectRatioChanged(ConsumerAction<AspectRatio> action) {
+		public void setOnCameraAspectRatio(ConsumerAction<AspectRatio> action) {
+
+		}
+
+		@Override
+		public void setOnCameraProfile(ConsumerAction<CameraProfile> action) {
 
 		}
 

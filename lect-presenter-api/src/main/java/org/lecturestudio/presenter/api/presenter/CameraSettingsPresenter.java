@@ -21,9 +21,7 @@ package org.lecturestudio.presenter.api.presenter;
 import static java.util.Objects.isNull;
 import static java.util.Objects.nonNull;
 
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.List;
 
 import javax.inject.Inject;
 
@@ -31,7 +29,8 @@ import org.lecturestudio.core.app.ApplicationContext;
 import org.lecturestudio.core.camera.AspectRatio;
 import org.lecturestudio.core.camera.Camera;
 import org.lecturestudio.core.camera.CameraFormat;
-import org.lecturestudio.core.camera.CameraFormats;
+import org.lecturestudio.core.camera.CameraProfile;
+import org.lecturestudio.core.camera.CameraProfiles;
 import org.lecturestudio.core.codec.VideoCodecConfiguration;
 import org.lecturestudio.core.geometry.Rectangle2D;
 import org.lecturestudio.core.presenter.Presenter;
@@ -71,7 +70,7 @@ public class CameraSettingsPresenter extends Presenter<CameraSettingsView> {
 			setDefaultCameraName();
 		}
 
-		AspectRatio aspectRatio = getAspectRatio(cameraConfig.getViewRect());
+		AspectRatio aspectRatio = AspectRatio.forRect(cameraConfig.getViewRect());
 		Camera camera = camService.getCamera(streamConfig.getCameraName());
 
 		setCameraAspectRatio(aspectRatio);
@@ -80,8 +79,10 @@ public class CameraSettingsPresenter extends Presenter<CameraSettingsView> {
 		view.setCameraName(streamConfig.cameraNameProperty());
 		view.setCameraAspectRatios(AspectRatio.values());
 		view.setCameraAspectRatio(aspectRatio);
+		view.setCameraProfile(getCameraProfile(CameraProfiles.forRatio(aspectRatio)));
 		view.setCameraViewRect(cameraConfig.viewRectProperty());
-		view.setOnCameraAspectRatioChanged(this::setCameraAspectRatio);
+		view.setOnCameraAspectRatio(this::setCameraAspectRatio);
+		view.setOnCameraProfile(this::setCameraProfile);
 		view.setOnReset(this::reset);
 
 		if (isNull(camera) || !camera.isOpened()) {
@@ -143,16 +144,22 @@ public class CameraSettingsPresenter extends Presenter<CameraSettingsView> {
 
 			streamConfig.setCameraFormat(highestFormat);
 
-			setCameraAspectRatio(AspectRatio.Widescreen);
-
-			view.setCameraAspectRatio(AspectRatio.Widescreen);
 			view.setCamera(camera);
 
 			if (camera.isOpened()) {
 				return;
 			}
 
-			view.setCameraFormat(highestFormat);
+			VideoCodecConfiguration cameraConfig = streamConfig.getCameraCodecConfig();
+			AspectRatio ratio = AspectRatio.forRect(cameraConfig.getViewRect());
+			CameraProfile[] profiles = CameraProfiles.forRatio(ratio);
+			CameraProfile profile = getCameraProfile(profiles);
+
+			if (isNull(profile)) {
+				profile = profiles[profiles.length - 1];
+			}
+
+			view.setCameraFormat(profile.getFormat());
 
 			if (capture) {
 				startCameraPreview();
@@ -160,83 +167,55 @@ public class CameraSettingsPresenter extends Presenter<CameraSettingsView> {
 		}
 	}
 
-	private CameraFormat[] getCameraFormats(AspectRatio ratio) {
-		CameraFormat[] formats = null;
-
-		if (ratio == AspectRatio.Standard) {
-			formats = CameraFormats.Standard;
-		}
-		else if (ratio == AspectRatio.Widescreen) {
-			formats = CameraFormats.Widescreen;
-		}
-
-		CameraFormat highestFormat = streamConfig.getCameraFormat();
-
-		return filterCameraFormats(formats, highestFormat);
-	}
-
 	private void setCameraAspectRatio(AspectRatio ratio) {
-		CameraFormat[] formats = getCameraFormats(ratio);
+		CameraProfile[] profiles = CameraProfiles.forRatio(ratio);
 
-		view.setCameraFormats(formats);
+		view.setCameraProfiles(profiles);
 
-		updateViewRect(formats);
+		updateViewRect(profiles);
 	}
 
-	private void updateViewRect(CameraFormat[] formats) {
-		if (isNull(formats) || formats.length < 1) {
-			return;
-		}
-
-		Rectangle2D viewRect = streamConfig.getCameraCodecConfig().getViewRect();
-		CameraFormat format = null;
-
-		if (nonNull(viewRect)) {
-			format = Arrays.stream(formats).filter(f -> {
-				return f.getWidth() == viewRect.getWidth()
-						&& f.getHeight() == viewRect.getHeight();
-			}).findFirst().orElse(null);
-		}
-
-		if (isNull(format)) {
-			format = formats[formats.length - 1];
-		}
+	private void setCameraProfile(CameraProfile profile) {
+		VideoCodecConfiguration cameraConfig = streamConfig.getCameraCodecConfig();
+		Rectangle2D viewRect = cameraConfig.getViewRect();
 
 		double x = nonNull(viewRect) ? viewRect.getX() : 0;
 		double y = nonNull(viewRect) ? viewRect.getY() : 0;
 
-		streamConfig.getCameraCodecConfig().setViewRect(new Rectangle2D(x, y,
-				format.getWidth(), format.getHeight()));
+		cameraConfig.setBitRate(profile.getBitrate());
+		cameraConfig.setViewRect(new Rectangle2D(x, y,
+				profile.getFormat().getWidth(),
+				profile.getFormat().getHeight()));
 	}
 
-	private CameraFormat[] filterCameraFormats(CameraFormat[] list, CameraFormat highest) {
-		if (isNull(highest)) {
-			return list;
+	private void updateViewRect(CameraProfile[] profiles) {
+		if (isNull(profiles) || profiles.length < 1) {
+			return;
 		}
 
-		List<CameraFormat> formatList = new ArrayList<>();
+		CameraProfile profile = getCameraProfile(profiles);
 
-		if (nonNull(list)) {
-			for (CameraFormat format : list) {
-				if (highest.getWidth() >= format.getWidth() && highest.getHeight() >= format.getHeight()) {
-					formatList.add(format);
-				}
-			}
+		if (isNull(profile)) {
+			profile = profiles[profiles.length - 1];
 		}
 
-		return formatList.toArray(new CameraFormat[0]);
+		setCameraProfile(profile);
+
+		view.setCameraProfile(profile);
+		view.setCameraFormat(profile.getFormat());
 	}
 
-	private AspectRatio getAspectRatio(Rectangle2D rect) {
-		AspectRatio ratio = AspectRatio.Standard;
+	private CameraProfile getCameraProfile(CameraProfile[] profiles) {
+		Rectangle2D rect = streamConfig.getCameraCodecConfig().getViewRect();
 
-		if (nonNull(rect)) {
-			if (rect.getHeight() / rect.getWidth() < 0.75) {
-				ratio = AspectRatio.Widescreen;
-			}
+		if (isNull(rect)) {
+			return null;
 		}
 
-		return ratio;
+		return Arrays.stream(profiles).filter(p -> {
+			return p.getFormat().getWidth() == rect.getWidth()
+					&& p.getFormat().getHeight() == rect.getHeight();
+			}).findFirst().orElse(null);
 	}
 
 	private void setDefaultCameraName() {
@@ -251,7 +230,7 @@ public class CameraSettingsPresenter extends Presenter<CameraSettingsView> {
 	private void setDefaultViewRect() {
 		view.setCameraAspectRatio(AspectRatio.Standard);
 
-		updateViewRect(getCameraFormats(AspectRatio.Standard));
+		updateViewRect(CameraProfiles.forRatio(AspectRatio.Standard));
 	}
 
 	public void reset() {

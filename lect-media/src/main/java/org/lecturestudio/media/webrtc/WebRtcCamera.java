@@ -113,7 +113,7 @@ public class WebRtcCamera extends AbstractCamera {
 					}
 				}
 				catch (Exception e) {
-					e.printStackTrace();
+					throw new RuntimeException("Scale camera frame failed", e);
 				}
 			});
 

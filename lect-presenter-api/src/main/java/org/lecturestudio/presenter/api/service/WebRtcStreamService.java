@@ -126,8 +126,6 @@ public class WebRtcStreamService extends ExecutableBase {
 		this.eventRecorder = eventRecorder;
 		this.clientFailover = new ClientFailover();
 		this.clientFailover.addStateListener((oldState, newState) -> {
-			System.out.println("fail-over: " + newState);
-
 			if (newState == ExecutableState.Started) {
 				context.getEventBus().post(new ShowPresenterCommand<>(
 						ReconnectStreamPresenter.class));

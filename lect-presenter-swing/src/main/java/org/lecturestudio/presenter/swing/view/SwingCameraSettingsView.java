@@ -22,7 +22,9 @@ import static java.util.Objects.isNull;
 import static java.util.Objects.nonNull;
 
 import java.awt.event.ItemEvent;
+import java.util.ResourceBundle;
 
+import javax.inject.Inject;
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
@@ -36,24 +38,29 @@ import org.lecturestudio.core.beans.StringProperty;
 import org.lecturestudio.core.camera.AspectRatio;
 import org.lecturestudio.core.camera.Camera;
 import org.lecturestudio.core.camera.CameraFormat;
+import org.lecturestudio.core.camera.CameraProfile;
 import org.lecturestudio.core.converter.CameraFormatConverter;
 import org.lecturestudio.core.geometry.Rectangle2D;
 import org.lecturestudio.core.view.Action;
 import org.lecturestudio.core.view.ConsumerAction;
 import org.lecturestudio.presenter.api.view.CameraSettingsView;
 import org.lecturestudio.swing.beans.ConvertibleObjectProperty;
+import org.lecturestudio.swing.combobox.CameraProfileRenderer;
 import org.lecturestudio.swing.components.CameraPreviewPanel;
 import org.lecturestudio.swing.util.SwingUtils;
 import org.lecturestudio.swing.view.SwingView;
+import org.lecturestudio.swing.view.ViewPostConstruct;
 
 @SwingView(name = "camera-settings", presenter = org.lecturestudio.presenter.api.presenter.CameraSettingsPresenter.class)
 public class SwingCameraSettingsView extends JPanel implements CameraSettingsView {
+
+	private final ResourceBundle resources;
 
 	private JComboBox<String> camerasCombo;
 
 	private JComboBox<AspectRatio> cameraFormatsCombo;
 
-	private JComboBox<CameraFormat> cameraResolutionsCombo;
+	private JComboBox<CameraProfile> cameraProfileCombo;
 
 	private CameraPreviewPanel cameraView;
 
@@ -64,10 +71,11 @@ public class SwingCameraSettingsView extends JPanel implements CameraSettingsVie
 	private ConsumerAction<Boolean> viewVisibleAction;
 
 
-	SwingCameraSettingsView() {
+	@Inject
+	SwingCameraSettingsView(ResourceBundle resources) {
 		super();
 
-		initialize();
+		this.resources = resources;
 	}
 
 	@Override
@@ -86,9 +94,16 @@ public class SwingCameraSettingsView extends JPanel implements CameraSettingsVie
 	}
 
 	@Override
-	public void setCameraFormats(CameraFormat[] cameraFormats) {
-		SwingUtils.invoke(() -> cameraResolutionsCombo
-				.setModel(new DefaultComboBoxModel<>(cameraFormats)));
+	public void setCameraProfile(CameraProfile cameraProfile) {
+		SwingUtils.invoke(() -> {
+			cameraProfileCombo.getModel().setSelectedItem(cameraProfile);
+		});
+	}
+
+	@Override
+	public void setCameraProfiles(CameraProfile[] cameraProfiles) {
+		SwingUtils.invoke(() -> cameraProfileCombo
+				.setModel(new DefaultComboBoxModel<>(cameraProfiles)));
 	}
 
 	@Override
@@ -96,7 +111,7 @@ public class SwingCameraSettingsView extends JPanel implements CameraSettingsVie
 		Converter<Rectangle2D, CameraFormat> converter = new CameraFormatRectConverter(viewRect);
 		ConvertibleObjectProperty<Rectangle2D, CameraFormat> property = new ConvertibleObjectProperty<>(viewRect, converter);
 
-		SwingUtils.bindBidirectional(cameraResolutionsCombo, property);
+//		SwingUtils.bindBidirectional(cameraResolutionsCombo, property);
 
 //		cameraView.setListener(e -> viewRect.set(cameraView.getCaptureRect()));
 //		viewRect.addListener((observable, oldValue, newValue) -> cameraView
@@ -117,13 +132,25 @@ public class SwingCameraSettingsView extends JPanel implements CameraSettingsVie
 	}
 
 	@Override
-	public void setOnCameraAspectRatioChanged(ConsumerAction<AspectRatio> action) {
+	public void setOnCameraAspectRatio(ConsumerAction<AspectRatio> action) {
 		cameraFormatsCombo.addItemListener(e -> {
 			int stateChange = e.getStateChange();
 
 			if (stateChange == ItemEvent.SELECTED) {
 				executeAction(action, cameraFormatsCombo.getModel()
 						.getElementAt(cameraFormatsCombo.getSelectedIndex()));
+			}
+		});
+	}
+
+	@Override
+	public void setOnCameraProfile(ConsumerAction<CameraProfile> action) {
+		cameraProfileCombo.addItemListener(e -> {
+			int stateChange = e.getStateChange();
+
+			if (stateChange == ItemEvent.SELECTED) {
+				executeAction(action, cameraProfileCombo.getModel()
+						.getElementAt(cameraProfileCombo.getSelectedIndex()));
 			}
 		});
 	}
@@ -170,7 +197,11 @@ public class SwingCameraSettingsView extends JPanel implements CameraSettingsVie
 		SwingUtils.bindAction(resetButton, action);
 	}
 
+	@ViewPostConstruct
 	private void initialize() {
+		cameraProfileCombo.setRenderer(new CameraProfileRenderer(resources,
+				"camera.settings.quality."));
+
 		addAncestorListener(new AncestorListener() {
 
 			@Override

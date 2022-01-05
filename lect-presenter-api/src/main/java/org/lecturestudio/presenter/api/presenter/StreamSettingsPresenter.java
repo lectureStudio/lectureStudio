@@ -74,7 +74,7 @@ public class StreamSettingsPresenter extends Presenter<StreamSettingsView> {
 
 		view.setAccessToken(streamConfig.accessTokenProperty());
 		view.setOnCheckAccessToken(this::checkAccessToken);
-		view.setStreamCameraBitrate(cameraConfig.bitRateProperty());
+//		view.setStreamCameraBitrate(cameraConfig.bitRateProperty());
 		view.setOnReset(this::reset);
 
 		// Retrieve properties here since named injection does not work.

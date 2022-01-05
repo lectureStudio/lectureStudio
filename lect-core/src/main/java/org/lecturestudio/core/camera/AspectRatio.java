@@ -18,6 +18,10 @@
 
 package org.lecturestudio.core.camera;
 
+import static java.util.Objects.nonNull;
+
+import org.lecturestudio.core.geometry.Rectangle2D;
+
 /**
  * The aspect ratio of an image the camera should capture. The aspect ratio can
  * be used to select the desired camera format that has the same proportional
@@ -31,6 +35,18 @@ public enum AspectRatio {
 	Standard,
 
 	/** Any widescreen aspect ratio, like 16:9, 16:10, etc. */
-	Widescreen
+	Widescreen;
 
+
+	public static AspectRatio forRect(Rectangle2D rect) {
+		AspectRatio ratio = AspectRatio.Standard;
+
+		if (nonNull(rect)) {
+			if (rect.getHeight() / rect.getWidth() < 0.75) {
+				ratio = AspectRatio.Widescreen;
+			}
+		}
+
+		return ratio;
+	}
 }

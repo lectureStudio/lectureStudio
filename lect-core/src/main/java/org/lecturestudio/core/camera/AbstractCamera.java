@@ -49,11 +49,27 @@ public abstract class AbstractCamera implements Camera {
 
 	@Override
 	public void setFormat(CameraFormat format) {
-		if (open.get()) {
-			throw new RuntimeException(new CameraException("Cannot set format while camera is opened."));
+		final boolean opened = open.get();
+
+		if (opened) {
+			try {
+				close();
+			}
+			catch (CameraException e) {
+				throw new RuntimeException(e);
+			}
 		}
 
 		this.format = format;
+
+		if (opened) {
+			try {
+				open();
+			}
+			catch (CameraException e) {
+				throw new RuntimeException(e);
+			}
+		}
 	}
 
 	@Override

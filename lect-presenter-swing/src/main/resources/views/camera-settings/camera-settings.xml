@@ -12,12 +12,11 @@
 	<ComboBox id="cameraFormatsCombo">
 		<gridbagconstraints gridx="0" gridy="3" anchor="GridBagConstraints.WEST" insets="5,0,15,0" />
 	</ComboBox>
-	<Label text="camera.settings.resolution">
+	<Label text="camera.settings.quality">
 		<gridbagconstraints gridx="0" gridy="4" anchor="GridBagConstraints.WEST" insets="5,0,2,0" />
 	</Label>
-	<ComboBox id="cameraResolutionsCombo">
+	<ComboBox id="cameraProfileCombo">
 		<gridbagconstraints gridx="0" gridy="5" anchor="GridBagConstraints.WEST" insets="5,0,15,0" />
-		<renderer class="org.lecturestudio.swing.combobox.CameraFormatRenderer" />
 	</ComboBox>
 	<CameraPreviewPanel id="cameraView" preferredSize="400,300" maximumSize="400,300">
 		<gridbagconstraints gridx="1" gridy="0" gridheight="7" weightx="1.0" weighty="1.0" fill="GridBagConstraints.BOTH" anchor="GridBagConstraints.NORTH" insets="5,10,5,0" />

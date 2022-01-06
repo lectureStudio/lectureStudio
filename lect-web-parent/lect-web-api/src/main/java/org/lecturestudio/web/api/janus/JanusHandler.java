@@ -386,7 +386,6 @@ public class JanusHandler extends JanusStateHandler {
 
 				removeStateHandler(subHandler);
 				editRoom(3);
-				kickParticipant(publisher);
 			}
 
 			@Override

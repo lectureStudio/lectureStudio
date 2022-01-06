@@ -70,7 +70,12 @@ public class SubscriberJoinRoomState implements JanusState {
 
 	@Override
 	public void handleMessage(JanusStateHandler handler, JanusMessage message) {
-		checkTransaction(joinRequest, message);
+		try {
+			checkTransaction(joinRequest, message);
+		}
+		catch (IllegalStateException e) {
+			return;
+		}
 
 		if (message instanceof JanusJsepMessage) {
 			JanusJsepMessage jsepMessage = (JanusJsepMessage) message;

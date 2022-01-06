@@ -104,7 +104,9 @@ public class WebRtcCamera extends AbstractCamera {
 				VideoFrameBuffer buffer = frame.buffer;
 
 				try {
-					VideoFrameBuffer scaled = buffer.cropAndScale(0, 0, width, height, imageWidth, imageHeight);
+					VideoFrameBuffer scaled = buffer.cropAndScale(0, 0,
+							buffer.getWidth(), buffer.getHeight(),
+							imageWidth, imageHeight);
 					VideoBufferConverter.convertFromI420(scaled, imageBuffer, FourCC.ARGB);
 					scaled.release();
 

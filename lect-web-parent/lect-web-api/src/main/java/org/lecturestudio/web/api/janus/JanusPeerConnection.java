@@ -23,8 +23,11 @@ import static java.util.Objects.nonNull;
 
 import java.lang.System.Logger;
 import java.lang.System.Logger.Level;
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.ExecutorService;
@@ -52,6 +55,7 @@ import dev.onvoid.webrtc.RTCRtpTransceiverDirection;
 import dev.onvoid.webrtc.RTCSdpType;
 import dev.onvoid.webrtc.RTCSessionDescription;
 import dev.onvoid.webrtc.SetSessionDescriptionObserver;
+import dev.onvoid.webrtc.media.MediaDevices;
 import dev.onvoid.webrtc.media.MediaStreamTrack;
 import dev.onvoid.webrtc.media.audio.AudioOptions;
 import dev.onvoid.webrtc.media.audio.AudioTrack;
@@ -386,9 +390,12 @@ public class JanusPeerConnection implements PeerConnectionObserver {
 			cameraSource.setVideoCaptureDevice(cameraDevice);
 		}
 		if (nonNull(cameraCapability)) {
-			LOGGER.log(Level.INFO, "Video capture capability: " + cameraCapability);
+			var nearestCapability = getNearestSupportedCameraCapability(cameraCapability);
 
-			cameraSource.setVideoCaptureCapability(cameraCapability);
+			LOGGER.log(Level.INFO, "Video capture capability: " + cameraCapability);
+			LOGGER.log(Level.INFO, "Video capture nearest capability: " + nearestCapability);
+
+			cameraSource.setVideoCaptureCapability(nearestCapability);
 		}
 
 		VideoTrack videoTrack = factory.getFactory().createVideoTrack("cameraTrack",
@@ -448,6 +455,57 @@ public class JanusPeerConnection implements PeerConnectionObserver {
 				});
 			}
 		});
+	}
+
+	private List<VideoCaptureCapability> getCameraCapabilitiesForRatio(BigDecimal ratio) {
+		var capabilities = MediaDevices.getVideoCaptureCapabilities(cameraDevice);
+		List<VideoCaptureCapability> ratioCapabilities = new ArrayList<>();
+
+		for (VideoCaptureCapability capability : capabilities) {
+			float r = capability.width / (float) capability.height;
+			BigDecimal rt = BigDecimal.valueOf(r).setScale(3, RoundingMode.HALF_UP);
+
+			if (rt.equals(ratio)) {
+				ratioCapabilities.add(capability);
+			}
+		}
+
+		ratioCapabilities.sort((c1, c2) -> {
+			if (c1 == null && c2 == null) {
+				return 0;
+			}
+			if (c1.width == c2.width) {
+				return Integer.compare(c1.height, c2.height);
+			}
+
+			return Integer.compare(c1.width, c2.width);
+		});
+
+		return ratioCapabilities;
+	}
+
+	private VideoCaptureCapability getNearestSupportedCameraCapability(VideoCaptureCapability capability) {
+		int width = capability.width;
+		int height = capability.height;
+		float ratio = width / (float) height;
+
+		BigDecimal ratioT = BigDecimal.valueOf(ratio).setScale(3, RoundingMode.HALF_UP);
+		List<VideoCaptureCapability> ratioCapabilities = getCameraCapabilitiesForRatio(ratioT);
+		VideoCaptureCapability bestCapability = null;
+
+		for (VideoCaptureCapability cap : ratioCapabilities) {
+			if (cap.equals(capability)) {
+				return capability;
+			}
+			if (cap.width == width && cap.height < height) {
+				bestCapability = cap;
+			}
+			else if (cap.width < width) {
+				bestCapability = cap;
+			}
+		}
+
+		return bestCapability;
 	}
 
 	private void setReceiverTrackEnabled(String type, boolean enable) {

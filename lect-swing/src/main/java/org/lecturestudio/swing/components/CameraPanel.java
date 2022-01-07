@@ -84,7 +84,7 @@ public class CameraPanel extends JPanel {
 	 */
 	public void setCameraFormat(CameraFormat format) {
 		if (nonNull(camera)) {
-			boolean capturing = started.get();
+			boolean capturing = started.get() && camera.isOpened();
 
 			if (capturing) {
 				stopCapture();

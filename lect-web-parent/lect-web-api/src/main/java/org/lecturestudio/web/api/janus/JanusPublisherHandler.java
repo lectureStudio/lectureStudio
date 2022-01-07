@@ -95,6 +95,7 @@ public class JanusPublisherHandler extends JanusStateHandler {
 		audioContext.sendAudioProperty().addListener(enableMicListener);
 		videoContext.sendVideoProperty().addListener(enableCamListener);
 		videoContext.captureDeviceProperty().addListener(camListener);
+		videoContext.captureCapabilityProperty().addListener(camCapabilityListener);
 
 		return peerConnection;
 	}
@@ -116,6 +117,7 @@ public class JanusPublisherHandler extends JanusStateHandler {
 
 		camCapabilityListener = (observable, oldCapability, newCapability) -> {
 			peerConnection.setCameraCapability(newCapability);
+			peerConnection.setCameraEnabled(videoContext.getSendVideo());
 		};
 	}
 

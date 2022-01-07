@@ -107,6 +107,8 @@ public class WebRtcStreamService extends ExecutableBase {
 
 	private JanusWebSocketClient janusClient;
 
+	private ChangeListener<Rectangle2D> cameraFormatListener;
+
 	private ChangeListener<String> cameraDeviceListener;
 
 	private ChangeListener<String> captureDeviceListener;
@@ -295,6 +297,15 @@ public class WebRtcStreamService extends ExecutableBase {
 			throw new ExecutableException(e);
 		}
 
+		cameraFormatListener = (observable, oldValue, newValue) -> {
+			streamContext.getVideoContext().setCaptureCapability(
+					new VideoCaptureCapability((int) newValue.getWidth(),
+							(int) newValue.getHeight(),
+							(int) streamConfig.getCameraFormat()
+									.getFrameRate()));
+			streamContext.getVideoContext().setBitrate(
+					streamConfig.getCameraCodecConfig().getBitRate());
+		};
 		cameraDeviceListener = (observable, oldValue, newValue) -> {
 			VideoDevice cameraDevice = getDeviceByName(
 					MediaDevices.getVideoCaptureDevices(),
@@ -317,6 +328,7 @@ public class WebRtcStreamService extends ExecutableBase {
 			streamContext.getAudioContext().setPlaybackDevice(playbackDevice);
 		};
 
+		streamConfig.getCameraCodecConfig().viewRectProperty().addListener(cameraFormatListener);
 		streamConfig.cameraNameProperty().addListener(cameraDeviceListener);
 		audioConfig.captureDeviceNameProperty().addListener(captureDeviceListener);
 		audioConfig.playbackDeviceNameProperty().addListener(playbackDeviceListener);
@@ -352,6 +364,7 @@ public class WebRtcStreamService extends ExecutableBase {
 		AudioConfiguration audioConfig = config.getAudioConfig();
 		StreamConfiguration streamConfig = config.getStreamConfig();
 
+		streamConfig.getCameraCodecConfig().viewRectProperty().removeListener(cameraFormatListener);
 		streamConfig.cameraNameProperty().removeListener(cameraDeviceListener);
 		audioConfig.captureDeviceNameProperty().removeListener(captureDeviceListener);
 		audioConfig.playbackDeviceNameProperty().removeListener(playbackDeviceListener);

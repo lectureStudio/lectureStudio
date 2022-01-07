@@ -27,7 +27,6 @@ import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
-import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.ExecutorService;
@@ -353,6 +352,9 @@ public class JanusPeerConnection implements PeerConnectionObserver {
 		if (Objects.equals(cameraCapability, capability)) {
 			return;
 		}
+
+		disposeCameraSource();
+		removeTrack("cameraTrack");
 
 		this.cameraCapability = capability;
 	}

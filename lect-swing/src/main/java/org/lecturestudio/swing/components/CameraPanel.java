@@ -83,6 +83,9 @@ public class CameraPanel extends JPanel {
 	 * @param format the camera capture format.
 	 */
 	public void setCameraFormat(CameraFormat format) {
+		if (nonNull(format)) {
+			setCanvasSize(format);
+		}
 		if (nonNull(camera)) {
 			boolean capturing = started.get() && camera.isOpened();
 
@@ -103,7 +106,7 @@ public class CameraPanel extends JPanel {
 	 */
 	public void startCapture() {
 		if (started.compareAndSet(false, true)) {
-			setCanvasSize();
+			setCanvasSize(getCameraFormat());
 
 			camera.setImageSize(new Dimension2D(canvas.getWidth(), canvas.getHeight()));
 			camera.setImageConsumer(image -> canvas.showImage(image));
@@ -155,11 +158,10 @@ public class CameraPanel extends JPanel {
 	 * Fit canvas size to panel's preferred size, no matter how large the
 	 * camera image is.
 	 */
-    private void setCanvasSize() {
+    private void setCanvasSize(CameraFormat format) {
 		// Set correct aspect ratio to capture format.
-		CameraFormat captureFormat = getCameraFormat();
 		int width = getPreferredSize().width;
-		int height = (int) (captureFormat.getHeight() / (float) captureFormat.getWidth() * width);
+		int height = (int) (format.getHeight() / (float) format.getWidth() * width);
 		Dimension size = new Dimension(width, height);
 
 		setPreferredSize(size);

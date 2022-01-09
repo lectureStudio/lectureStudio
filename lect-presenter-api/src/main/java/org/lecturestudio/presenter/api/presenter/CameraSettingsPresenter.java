@@ -38,6 +38,7 @@ import org.lecturestudio.media.camera.CameraService;
 import org.lecturestudio.presenter.api.config.DefaultConfiguration;
 import org.lecturestudio.presenter.api.config.PresenterConfiguration;
 import org.lecturestudio.presenter.api.config.StreamConfiguration;
+import org.lecturestudio.presenter.api.context.PresenterContext;
 import org.lecturestudio.presenter.api.view.CameraSettingsView;
 
 public class CameraSettingsPresenter extends Presenter<CameraSettingsView> {
@@ -118,6 +119,13 @@ public class CameraSettingsPresenter extends Presenter<CameraSettingsView> {
 	}
 
 	private void startCameraPreview() {
+		PresenterContext presenterContext = (PresenterContext) context;
+
+		if (presenterContext.getStreamStarted()) {
+			// Do not interfere with the running stream.
+			return;
+		}
+
 		try {
 			view.startCameraPreview();
 			view.setCameraError(null);
@@ -129,6 +137,13 @@ public class CameraSettingsPresenter extends Presenter<CameraSettingsView> {
 	}
 
 	private void stopCameraPreview() {
+		PresenterContext presenterContext = (PresenterContext) context;
+
+		if (presenterContext.getStreamStarted()) {
+			// Do not interfere with the running stream.
+			return;
+		}
+
 		view.stopCameraPreview();
 	}
 

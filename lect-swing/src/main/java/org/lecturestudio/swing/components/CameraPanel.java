@@ -84,6 +84,7 @@ public class CameraPanel extends JPanel {
 	 */
 	public void setCameraFormat(CameraFormat format) {
 		if (nonNull(format)) {
+			canvas.clearImage();
 			setCanvasSize(format);
 		}
 		if (nonNull(camera)) {

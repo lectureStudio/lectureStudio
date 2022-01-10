@@ -27,6 +27,7 @@ import java.awt.FontMetrics;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Image;
+import java.awt.Rectangle;
 import java.awt.RenderingHints;
 
 import javax.swing.JComponent;
@@ -78,6 +79,8 @@ public class CameraView extends JComponent {
 	 */
 	public void clearImage() {
 		this.image = null;
+
+		repaint();
 	}
 
 	/**
@@ -88,7 +91,7 @@ public class CameraView extends JComponent {
 	public void setStatusMessage(String message) {
 		this.statusMessage = message;
 
-		repaint();
+		paintImmediately(new Rectangle(getWidth(), getHeight()));
 	}
 
 	@Override

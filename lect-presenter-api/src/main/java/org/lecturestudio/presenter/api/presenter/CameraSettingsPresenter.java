@@ -22,6 +22,7 @@ import static java.util.Objects.isNull;
 import static java.util.Objects.nonNull;
 
 import java.util.Arrays;
+import java.util.concurrent.CompletableFuture;
 
 import javax.inject.Inject;
 
@@ -123,10 +124,15 @@ public class CameraSettingsPresenter extends Presenter<CameraSettingsView> {
 
 		if (presenterContext.getStreamStarted()) {
 			// Do not interfere with the running stream.
+			view.setCameraError(context.getDictionary()
+					.get("camera.settings.camera.unavailable"));
 			return;
 		}
 
 		try {
+			view.setCameraError(context.getDictionary()
+					.get("camera.settings.camera.starting"));
+
 			view.startCameraPreview();
 			view.setCameraError(null);
 		}
@@ -147,47 +153,59 @@ public class CameraSettingsPresenter extends Presenter<CameraSettingsView> {
 		view.stopCameraPreview();
 	}
 
-	private void setViewCamera(String cameraName) {
-		if (capture) {
-			stopCameraPreview();
-		}
-
-		Camera camera = camService.getCamera(cameraName);
-
-		if (nonNull(camera)) {
-			CameraFormat highestFormat = camera.getHighestFormat(30);
-
-			streamConfig.setCameraFormat(highestFormat);
-
-			view.setCamera(camera);
-
-			if (camera.isOpened()) {
-				return;
+	private void setViewCamera(final String cameraName) {
+		CompletableFuture.runAsync(() -> {
+			if (capture) {
+				stopCameraPreview();
 			}
 
-			VideoCodecConfiguration cameraConfig = streamConfig.getCameraCodecConfig();
-			AspectRatio ratio = AspectRatio.forRect(cameraConfig.getViewRect());
+			Camera camera = camService.getCamera(cameraName);
+
+			if (nonNull(camera)) {
+				CameraFormat highestFormat = camera.getHighestFormat(30);
+
+				streamConfig.setCameraFormat(highestFormat);
+
+				view.setCamera(camera);
+
+				if (camera.isOpened()) {
+					return;
+				}
+
+				VideoCodecConfiguration cameraConfig = streamConfig.getCameraCodecConfig();
+				AspectRatio ratio = AspectRatio.forRect(cameraConfig.getViewRect());
+				CameraProfile[] profiles = CameraProfiles.forRatio(ratio);
+				CameraProfile profile = getCameraProfile(profiles);
+
+				if (isNull(profile)) {
+					profile = profiles[profiles.length - 1];
+				}
+
+				view.setCameraFormat(profile.getFormat());
+
+				if (capture) {
+					startCameraPreview();
+				}
+			}
+		});
+	}
+
+	private void setCameraAspectRatio(AspectRatio ratio) {
+		CompletableFuture.runAsync(() -> {
+			if (capture) {
+				stopCameraPreview();
+			}
+
 			CameraProfile[] profiles = CameraProfiles.forRatio(ratio);
-			CameraProfile profile = getCameraProfile(profiles);
 
-			if (isNull(profile)) {
-				profile = profiles[profiles.length - 1];
-			}
+			view.setCameraProfiles(profiles);
 
-			view.setCameraFormat(profile.getFormat());
+			updateViewRect(profiles);
 
 			if (capture) {
 				startCameraPreview();
 			}
-		}
-	}
-
-	private void setCameraAspectRatio(AspectRatio ratio) {
-		CameraProfile[] profiles = CameraProfiles.forRatio(ratio);
-
-		view.setCameraProfiles(profiles);
-
-		updateViewRect(profiles);
+		});
 	}
 
 	private void setCameraProfile(CameraProfile profile) {

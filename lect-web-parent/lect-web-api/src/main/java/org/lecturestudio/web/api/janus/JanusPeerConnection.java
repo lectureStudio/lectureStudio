@@ -331,6 +331,7 @@ public class JanusPeerConnection implements PeerConnectionObserver {
 			}
 
 			setTransceiverDirection(direction, MediaStreamTrack.VIDEO_TRACK_KIND);
+			setSenderTrackEnabled(MediaStreamTrack.VIDEO_TRACK_KIND, enable);
 		});
 	}
 
@@ -341,10 +342,17 @@ public class JanusPeerConnection implements PeerConnectionObserver {
 			return;
 		}
 
-		disposeCameraSource();
-		removeTrack("cameraTrack");
-
 		this.cameraDevice = device;
+
+		if (nonNull(cameraSource)) {
+			try {
+				cameraSource.setVideoCaptureDevice(cameraDevice);
+			}
+			catch (Throwable e) {
+				notify(onException, new JanusPeerConnectionMediaException(
+						MediaType.Camera, "Set video capture source failed", e));
+			}
+		}
 	}
 
 	public void setCameraCapability(VideoCaptureCapability capability) {
@@ -353,6 +361,27 @@ public class JanusPeerConnection implements PeerConnectionObserver {
 		}
 
 		this.cameraCapability = capability;
+
+		if (nonNull(cameraCapability) && nonNull(cameraDevice)) {
+			var nearestCapability = getNearestCameraFormat(cameraCapability);
+
+			LOGGER.log(Level.INFO, "Video capture capability: " + cameraCapability);
+			LOGGER.log(Level.INFO, "Video capture nearest capability: " + nearestCapability);
+
+			if (nonNull(cameraSource)) {
+				cameraSource.setVideoCaptureCapability(nearestCapability);
+
+				cameraSource.stop();
+
+				try {
+					cameraSource.start();
+				}
+				catch (Throwable e) {
+					notify(onException, new JanusPeerConnectionMediaException(
+							MediaType.Camera, "Start video capture source failed", e));
+				}
+			}
+		}
 	}
 
 	private void addAudio(RTCRtpTransceiverDirection direction) {

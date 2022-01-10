@@ -23,8 +23,6 @@ import static java.util.Objects.nonNull;
 
 import java.lang.System.Logger;
 import java.lang.System.Logger.Level;
-import java.math.BigDecimal;
-import java.math.RoundingMode;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.List;
@@ -32,6 +30,7 @@ import java.util.Objects;
 import java.util.concurrent.ExecutorService;
 import java.util.function.Consumer;
 
+import org.lecturestudio.core.geometry.Point2D;
 import org.lecturestudio.core.net.MediaType;
 
 import dev.onvoid.webrtc.CreateSessionDescriptionObserver;
@@ -353,9 +352,6 @@ public class JanusPeerConnection implements PeerConnectionObserver {
 			return;
 		}
 
-		disposeCameraSource();
-		removeTrack("cameraTrack");
-
 		this.cameraCapability = capability;
 	}
 
@@ -392,7 +388,7 @@ public class JanusPeerConnection implements PeerConnectionObserver {
 			cameraSource.setVideoCaptureDevice(cameraDevice);
 		}
 		if (nonNull(cameraCapability)) {
-			var nearestCapability = getNearestSupportedCameraCapability(cameraCapability);
+			var nearestCapability = getNearestCameraFormat(cameraCapability);
 
 			LOGGER.log(Level.INFO, "Video capture capability: " + cameraCapability);
 			LOGGER.log(Level.INFO, "Video capture nearest capability: " + nearestCapability);
@@ -459,55 +455,52 @@ public class JanusPeerConnection implements PeerConnectionObserver {
 		});
 	}
 
-	private List<VideoCaptureCapability> getCameraCapabilitiesForRatio(BigDecimal ratio) {
-		var capabilities = MediaDevices.getVideoCaptureCapabilities(cameraDevice);
-		List<VideoCaptureCapability> ratioCapabilities = new ArrayList<>();
-
-		for (VideoCaptureCapability capability : capabilities) {
-			float r = capability.width / (float) capability.height;
-			BigDecimal rt = BigDecimal.valueOf(r).setScale(3, RoundingMode.HALF_UP);
-
-			if (rt.equals(ratio)) {
-				ratioCapabilities.add(capability);
-			}
-		}
-
-		ratioCapabilities.sort((c1, c2) -> {
-			if (c1 == null && c2 == null) {
-				return 0;
-			}
-			if (c1.width == c2.width) {
-				return Integer.compare(c1.height, c2.height);
-			}
-
-			return Integer.compare(c1.width, c2.width);
-		});
-
-		return ratioCapabilities;
-	}
-
-	private VideoCaptureCapability getNearestSupportedCameraCapability(VideoCaptureCapability capability) {
+	private VideoCaptureCapability getNearestCameraFormat(VideoCaptureCapability capability) {
 		int width = capability.width;
 		int height = capability.height;
-		float ratio = width / (float) height;
+		var capabilities = MediaDevices.getVideoCaptureCapabilities(cameraDevice);
+		VideoCaptureCapability nearest = null;
 
-		BigDecimal ratioT = BigDecimal.valueOf(ratio).setScale(3, RoundingMode.HALF_UP);
-		List<VideoCaptureCapability> ratioCapabilities = getCameraCapabilitiesForRatio(ratioT);
-		VideoCaptureCapability bestCapability = null;
+		Point2D formatPoint = new Point2D(width, height);
+		Point2D tempPoint = new Point2D();
+		Point2D tempPoint2 = new Point2D();
 
-		for (VideoCaptureCapability cap : ratioCapabilities) {
-			if (cap.equals(capability)) {
-				return capability;
+		double formatRatio = height / (double) width;
+
+		double pointDistance = Double.MAX_VALUE;
+		double ratioDistance = Double.MAX_VALUE;
+
+		for (VideoCaptureCapability cap : capabilities) {
+			tempPoint.set(cap.width, cap.height);
+
+			double d = formatPoint.distance(tempPoint);
+			double r = cap.height / (double) cap.width;
+			double rd = Math.abs(formatRatio - r);
+
+			if (d == 0) {
+				// Perfect match.
+				nearest = cap;
+				break;
 			}
-			if (cap.width == width && cap.height < height) {
-				bestCapability = cap;
+			if (pointDistance > d && rd == 0) {
+				// Best match within the same aspect ratio.
+				pointDistance = d;
+				nearest = cap;
 			}
-			else if (cap.width < width) {
-				bestCapability = cap;
+			else {
+				// Compare point-ratio distance.
+				tempPoint2.set(d, rd);
+
+				double prd = tempPoint2.distance(new Point2D());
+
+				if (ratioDistance > prd) {
+					ratioDistance = prd;
+					nearest = cap;
+				}
 			}
 		}
 
-		return bestCapability;
+		return nearest;
 	}
 
 	private void setReceiverTrackEnabled(String type, boolean enable) {

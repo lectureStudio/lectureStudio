@@ -36,9 +36,6 @@ import java.awt.image.DataBuffer;
 import java.awt.image.DataBufferByte;
 import java.awt.image.Raster;
 import java.awt.image.WritableRaster;
-import java.math.BigDecimal;
-import java.math.RoundingMode;
-import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -46,7 +43,7 @@ import java.util.Set;
 import org.lecturestudio.core.camera.AbstractCamera;
 import org.lecturestudio.core.camera.CameraException;
 import org.lecturestudio.core.camera.CameraFormat;
-import org.lecturestudio.core.camera.CameraFormatComparator;
+import org.lecturestudio.core.geometry.Point2D;
 
 /**
  * WebRTC camera implementation.
@@ -99,7 +96,7 @@ public class WebRtcCamera extends AbstractCamera {
 			final int imageWidth = nonNull(imageSize) ? (int) imageSize.getWidth() : width;
 			final int imageHeight = nonNull(imageSize) ? (int) imageSize.getHeight() : height;
 
-			CameraFormat nearestFormat = getNearestSupportedCameraFormat(getFormat());
+			CameraFormat nearestFormat = getNearestCameraFormat(getFormat());
 
 			if (nonNull(nearestFormat)) {
 				width = nearestFormat.getWidth();
@@ -178,46 +175,50 @@ public class WebRtcCamera extends AbstractCamera {
 		return set.toArray(new CameraFormat[0]);
 	}
 
-	private List<CameraFormat> getCameraFormatsForRatio(BigDecimal ratio) {
+	private CameraFormat getNearestCameraFormat(CameraFormat format) {
 		CameraFormat[] formats = getSupportedFormats();
-		List<CameraFormat> ratioFormats = new ArrayList<>();
+		CameraFormat nearest = null;
 
-		for (CameraFormat format : formats) {
-			float r = format.getWidth() / (float) format.getHeight();
-			BigDecimal rt = BigDecimal.valueOf(r).setScale(3, RoundingMode.HALF_UP);
+		Point2D formatPoint = new Point2D(format.getWidth(), format.getHeight());
+		Point2D tempPoint = new Point2D();
+		Point2D tempPoint2 = new Point2D();
 
-			if (rt.equals(ratio)) {
-				ratioFormats.add(format);
+		double formatRatio = format.getHeight() / (double) format.getWidth();
+
+		double pointDistance = Double.MAX_VALUE;
+		double ratioDistance = Double.MAX_VALUE;
+
+		for (CameraFormat f : formats) {
+			tempPoint.set(f.getWidth(), f.getHeight());
+
+			double d = formatPoint.distance(tempPoint);
+			double r = f.getHeight() / (double) f.getWidth();
+			double rd = Math.abs(formatRatio - r);
+
+			if (d == 0) {
+				// Perfect match.
+				nearest = f;
+				break;
+			}
+			if (pointDistance > d && rd == 0) {
+				// Best match within the same aspect ratio.
+				pointDistance = d;
+				nearest = f;
+			}
+			else {
+				// Compare point-ratio distance.
+				tempPoint2.set(d, rd);
+
+				double prd = tempPoint2.distance(new Point2D());
+
+				if (ratioDistance > prd) {
+					ratioDistance = prd;
+					nearest = f;
+				}
 			}
 		}
 
-		ratioFormats.sort(new CameraFormatComparator());
-
-		return ratioFormats;
-	}
-
-	private CameraFormat getNearestSupportedCameraFormat(CameraFormat format) {
-		int width = format.getWidth();
-		int height = format.getHeight();
-		float ratio = width / (float) height;
-
-		BigDecimal ratioT = BigDecimal.valueOf(ratio).setScale(3, RoundingMode.HALF_UP);
-		List<CameraFormat> ratioFormats = getCameraFormatsForRatio(ratioT);
-		CameraFormat bestFormat = null;
-
-		for (CameraFormat cf : ratioFormats) {
-			if (cf.equals(format)) {
-				return format;
-			}
-			if (cf.getWidth() == width && cf.getHeight() < height) {
-				bestFormat = cf;
-			}
-			else if (cf.getWidth() < width) {
-				bestFormat = cf;
-			}
-		}
-
-		return bestFormat;
+		return nearest;
 	}
 
 	private void createBufferedImage(int width, int height) {

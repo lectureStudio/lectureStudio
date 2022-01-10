@@ -74,4 +74,7 @@ public class ToolBeginAction extends PlaybackAction {
 		return ActionType.TOOL_BEGIN;
 	}
 
+	public void setPoint(PenPoint2D point) {
+		this.point = point;
+	}
 }

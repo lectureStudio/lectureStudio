@@ -74,4 +74,7 @@ public class ToolExecuteAction extends PlaybackAction {
 		return ActionType.TOOL_EXECUTE;
 	}
 
+	public PenPoint2D getPoint() {
+		return point;
+	}
 }

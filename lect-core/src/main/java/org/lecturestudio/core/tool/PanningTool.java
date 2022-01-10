@@ -54,16 +54,12 @@ public class PanningTool extends Tool {
 
 		this.page = page;
 
-		start = null;
+		start = point;
 		delta = null;
 	}
 
 	@Override
 	public void execute(PenPoint2D point) {
-		if (start == null) {
-			start = point;
-		}
-
 		delta = new Point2D(start.getX() - point.getX(), start.getY() - point.getY());
 
 		// Only temporary while in action.

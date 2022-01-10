@@ -18,16 +18,25 @@
 
 package org.lecturestudio.core.recording;
 
+import static java.util.Objects.nonNull;
+
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.ListIterator;
 
 import org.lecturestudio.core.model.Interval;
 import org.lecturestudio.core.model.Time;
 import org.lecturestudio.core.recording.action.ActionFactory;
+import org.lecturestudio.core.recording.action.ActionType;
+import org.lecturestudio.core.recording.action.BaseStrokeAction;
+import org.lecturestudio.core.recording.action.PanningAction;
 import org.lecturestudio.core.recording.action.PlaybackAction;
 import org.lecturestudio.core.recording.action.StaticShapeAction;
+import org.lecturestudio.core.recording.action.ToolBeginAction;
+import org.lecturestudio.core.recording.action.ToolEndAction;
+import org.lecturestudio.core.recording.action.ToolExecuteAction;
 
 public class RecordedPage implements RecordedObject, Cloneable {
 
@@ -197,7 +206,70 @@ public class RecordedPage implements RecordedObject, Cloneable {
 	}
 
 	public void cut(Interval<Integer> interval) {
-		playback.removeIf(action -> interval.contains(action.getTimestamp()));
+		ListIterator<PlaybackAction> iter = playback.listIterator();
+
+		PlaybackAction toolAction = null;
+		ToolBeginAction toolBeginAction = null;
+		ToolExecuteAction toolExecAction = null;
+		int insertIndex = -1;
+
+		while (iter.hasNext()) {
+			PlaybackAction action = iter.next();
+
+			boolean contains = interval.contains(action.getTimestamp());
+
+			if (contains) {
+				// Look ahead to determine the action tool type.
+				int nextIndex = iter.nextIndex();
+
+				PlaybackAction nextAction = nextIndex < playback.size() - 1 ?
+						playback.get(nextIndex) :
+						null;
+
+				boolean isStrokeAction = action instanceof BaseStrokeAction;
+				boolean isPanAction = action instanceof PanningAction;
+
+				// Do not remove actions that are mandatory to execute the
+				// corresponding tool.
+				if (isStrokeAction || isPanAction && nonNull(nextAction)
+						&& nextAction instanceof ToolBeginAction) {
+					// Save tool state.
+					toolAction = action;
+					toolBeginAction = (ToolBeginAction) nextAction;
+				}
+				else if (action instanceof ToolEndAction) {
+					// Cut-interval encloses complete tool action. Reset state.
+					toolAction = null;
+					toolBeginAction = null;
+				}
+
+				insertIndex = iter.nextIndex() - 1;
+
+				iter.remove();
+			}
+			else if (action.getTimestamp() > interval.getEnd()) {
+				if (action instanceof ToolExecuteAction) {
+					toolExecAction = (ToolExecuteAction) action;
+				}
+
+				// Done removing actions.
+				break;
+			}
+		}
+
+		if (nonNull(toolAction)) {
+			// Adjust tool action state.
+			toolAction.setTimestamp(interval.getEnd());
+			toolBeginAction.setTimestamp(interval.getEnd());
+
+			if (toolAction.getType() != ActionType.ZOOM &&
+				toolAction.getType() != ActionType.PANNING) {
+				toolBeginAction.setPoint(toolExecAction.getPoint());
+			}
+
+			playback.add(insertIndex, toolAction);
+			playback.add(insertIndex + 1, toolBeginAction);
+		}
 	}
 
 	public void shift(Interval<Integer> interval) {

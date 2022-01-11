@@ -105,24 +105,29 @@ public class CameraSettingsPresenter extends Presenter<CameraSettingsView> {
 	}
 
 	private void captureCamera(boolean capture) {
-		if (this.capture == capture) {
-			return;
-		}
+		CompletableFuture.runAsync(() -> {
+			if (this.capture == capture) {
+				return;
+			}
 
-		this.capture = capture;
+			this.capture = capture;
 
-		if (capture) {
-			startCameraPreview();
-		}
-		else {
-			stopCameraPreview();
-		}
+			if (capture) {
+				startCameraPreview();
+			}
+			else {
+				stopCameraPreview();
+			}
+		});
 	}
 
 	private void startCameraPreview() {
 		PresenterContext presenterContext = (PresenterContext) context;
+		PresenterConfiguration config = (PresenterConfiguration) context.getConfiguration();
+		boolean camEnabled = presenterContext.getStreamStarted() &&
+				config.getStreamConfig().getCameraEnabled();
 
-		if (presenterContext.getStreamStarted()) {
+		if (camEnabled) {
 			// Do not interfere with the running stream.
 			view.setCameraError(context.getDictionary()
 					.get("camera.settings.camera.unavailable"));
@@ -144,8 +149,11 @@ public class CameraSettingsPresenter extends Presenter<CameraSettingsView> {
 
 	private void stopCameraPreview() {
 		PresenterContext presenterContext = (PresenterContext) context;
+		PresenterConfiguration config = (PresenterConfiguration) context.getConfiguration();
+		boolean camEnabled = presenterContext.getStreamStarted() &&
+				config.getStreamConfig().getCameraEnabled();
 
-		if (presenterContext.getStreamStarted()) {
+		if (camEnabled) {
 			// Do not interfere with the running stream.
 			return;
 		}

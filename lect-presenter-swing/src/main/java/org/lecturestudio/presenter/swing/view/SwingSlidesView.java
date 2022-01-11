@@ -42,7 +42,6 @@ import java.math.BigInteger;
 import java.util.Enumeration;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Objects;
 
 import javax.inject.Inject;
 import javax.swing.JFrame;
@@ -51,14 +50,11 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JSplitPane;
 import javax.swing.JTabbedPane;
-import javax.swing.JTextArea;
 import javax.swing.JTree;
 import javax.swing.SwingUtilities;
 import javax.swing.ToolTipManager;
 import javax.swing.event.AncestorEvent;
 import javax.swing.event.AncestorListener;
-import javax.swing.event.DocumentEvent;
-import javax.swing.event.DocumentListener;
 import javax.swing.text.JTextComponent;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeModel;
@@ -106,7 +102,6 @@ import org.lecturestudio.web.api.event.VideoFrameEvent;
 import org.lecturestudio.web.api.message.MessengerMessage;
 import org.lecturestudio.web.api.message.SpeechCancelMessage;
 import org.lecturestudio.web.api.message.SpeechRequestMessage;
-import org.scilab.forge.jlatexmath.ParseException;
 
 @SwingView(name = "main-slides")
 public class SwingSlidesView extends JPanel implements SlidesView {
@@ -179,9 +174,9 @@ public class SwingSlidesView extends JPanel implements SlidesView {
 
 	private JTabbedPane bottomTabPane;
 
-	private JTextArea notesTextArea;
+//	private JTextArea notesTextArea;
 
-	private JTextArea latexTextArea;
+//	private JTextArea latexTextArea;
 
 	private int bottomTabIndex;
 
@@ -342,7 +337,7 @@ public class SwingSlidesView extends JPanel implements SlidesView {
 			}
 		}
 
-		notesTextArea.setText(buffer.toString());
+//		notesTextArea.setText(buffer.toString());
 	}
 
 	@Override
@@ -395,7 +390,7 @@ public class SwingSlidesView extends JPanel implements SlidesView {
 
 	@Override
 	public void setLaTeXText(String text) {
-		SwingUtils.invoke(() -> latexTextArea.setText(text));
+//		SwingUtils.invoke(() -> latexTextArea.setText(text));
 	}
 
 	@Override
@@ -423,8 +418,8 @@ public class SwingSlidesView extends JPanel implements SlidesView {
 				minimizeBottomPane();
 			}
 
-			setBottomTabEnabled(2, streamStarted || messengerStarted);
-			setBottomTabSelected(2, streamStarted || messengerStarted);
+			setBottomTabEnabled(bottomTabPane.getTabCount() - 1, streamStarted || messengerStarted);
+			setBottomTabSelected(bottomTabPane.getTabCount() - 1, streamStarted || messengerStarted);
 
 			if (!streamStarted) {
 				removeMessageViews(SpeechRequestView.class);
@@ -454,8 +449,8 @@ public class SwingSlidesView extends JPanel implements SlidesView {
 				minimizeBottomPane();
 			}
 
-			setBottomTabEnabled(2, streamStarted || messengerStarted);
-			setBottomTabSelected(2, streamStarted || messengerStarted);
+			setBottomTabEnabled(bottomTabPane.getTabCount() - 1, streamStarted || messengerStarted);
+			setBottomTabSelected(bottomTabPane.getTabCount() - 1, streamStarted || messengerStarted);
 
 			if (!messengerStarted) {
 				removeMessageViews(MessageView.class);
@@ -607,12 +602,12 @@ public class SwingSlidesView extends JPanel implements SlidesView {
 
 	@Override
 	public void setSelectedToolType(ToolType type) {
-		SwingUtils.invoke(() -> {
-			boolean isTeXTool = type == ToolType.LATEX;
-
-			setBottomTabEnabled(1, isTeXTool);
-			setBottomTabSelected(1, isTeXTool);
-		});
+//		SwingUtils.invoke(() -> {
+//			boolean isTeXTool = type == ToolType.LATEX;
+//
+//			setBottomTabEnabled(0, isTeXTool);
+//			setBottomTabSelected(0, isTeXTool);
+//		});
 	}
 
 	@Override
@@ -622,32 +617,32 @@ public class SwingSlidesView extends JPanel implements SlidesView {
 
 	@Override
 	public void setOnLaTeXText(ConsumerAction<String> action) {
-		latexTextArea.getDocument().addDocumentListener(new DocumentListener() {
-
-			@Override
-			public void insertUpdate(DocumentEvent e) {
-				changedUpdate(e);
-			}
-
-			@Override
-			public void removeUpdate(DocumentEvent e) {
-				changedUpdate(e);
-			}
-
-			@Override
-			public void changedUpdate(DocumentEvent e) {
-				try {
-					executeAction(action, latexTextArea.getText());
-					latexTextArea.setBackground(Color.decode("#D1FAE5"));
-				} catch (ParseException exception) {
-					executeAction(action, "");
-					latexTextArea.setBackground(Color.decode("#FEE2E2"));
-				}
-				if (Objects.equals(latexTextArea.getText(), "")) {
-					latexTextArea.setBackground(Color.WHITE);
-				}
-			}
-		});
+//		latexTextArea.getDocument().addDocumentListener(new DocumentListener() {
+//
+//			@Override
+//			public void insertUpdate(DocumentEvent e) {
+//				changedUpdate(e);
+//			}
+//
+//			@Override
+//			public void removeUpdate(DocumentEvent e) {
+//				changedUpdate(e);
+//			}
+//
+//			@Override
+//			public void changedUpdate(DocumentEvent e) {
+//				try {
+//					executeAction(action, latexTextArea.getText());
+//					latexTextArea.setBackground(Color.decode("#D1FAE5"));
+//				} catch (ParseException exception) {
+//					executeAction(action, "");
+//					latexTextArea.setBackground(Color.decode("#FEE2E2"));
+//				}
+//				if (Objects.equals(latexTextArea.getText(), "")) {
+//					latexTextArea.setBackground(Color.WHITE);
+//				}
+//			}
+//		});
 	}
 
 	@Override

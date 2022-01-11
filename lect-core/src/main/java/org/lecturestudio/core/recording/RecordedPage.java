@@ -23,20 +23,25 @@ import static java.util.Objects.nonNull;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.ListIterator;
+import java.util.Objects;
 
 import org.lecturestudio.core.model.Interval;
 import org.lecturestudio.core.model.Time;
 import org.lecturestudio.core.recording.action.ActionFactory;
-import org.lecturestudio.core.recording.action.ActionType;
 import org.lecturestudio.core.recording.action.BaseStrokeAction;
+import org.lecturestudio.core.recording.action.ExtendViewAction;
 import org.lecturestudio.core.recording.action.PanningAction;
 import org.lecturestudio.core.recording.action.PlaybackAction;
 import org.lecturestudio.core.recording.action.StaticShapeAction;
 import org.lecturestudio.core.recording.action.ToolBeginAction;
 import org.lecturestudio.core.recording.action.ToolEndAction;
 import org.lecturestudio.core.recording.action.ToolExecuteAction;
+import org.lecturestudio.core.recording.action.ZoomAction;
+import org.lecturestudio.core.recording.action.ZoomOutAction;
 
 public class RecordedPage implements RecordedObject, Cloneable {
 
@@ -208,10 +213,14 @@ public class RecordedPage implements RecordedObject, Cloneable {
 	public void cut(Interval<Integer> interval) {
 		ListIterator<PlaybackAction> iter = playback.listIterator();
 
-		PlaybackAction toolAction = null;
-		ToolBeginAction toolBeginAction = null;
-		ToolExecuteAction toolExecAction = null;
 		int insertIndex = -1;
+
+		// States for degraded actions to be restored at the end.
+		ExtendViewState extendViewState = null;
+		StrokeState strokeState = null;
+		ZoomState zoomState = null;
+
+		LinkedList<ToolState> zoomStateStack = new LinkedList<>();
 
 		while (iter.hasNext()) {
 			PlaybackAction action = iter.next();
@@ -219,28 +228,40 @@ public class RecordedPage implements RecordedObject, Cloneable {
 			boolean contains = interval.contains(action.getTimestamp());
 
 			if (contains) {
-				// Look ahead to determine the action tool type.
-				int nextIndex = iter.nextIndex();
+				if (action instanceof ZoomAction) {
+					zoomState = new ZoomState(action);
 
-				PlaybackAction nextAction = nextIndex < playback.size() - 1 ?
-						playback.get(nextIndex) :
-						null;
-
-				boolean isStrokeAction = action instanceof BaseStrokeAction;
-				boolean isPanAction = action instanceof PanningAction;
-
-				// Do not remove actions that are mandatory to execute the
-				// corresponding tool.
-				if (isStrokeAction || isPanAction && nonNull(nextAction)
-						&& nextAction instanceof ToolBeginAction) {
-					// Save tool state.
-					toolAction = action;
-					toolBeginAction = (ToolBeginAction) nextAction;
+					zoomStateStack.add(zoomState);
 				}
-				else if (action instanceof ToolEndAction) {
-					// Cut-interval encloses complete tool action. Reset state.
-					toolAction = null;
-					toolBeginAction = null;
+				else if (action instanceof PanningAction) {
+					zoomState = new ZoomState(action);
+
+					zoomStateStack.add(zoomState);
+				}
+				else if (action instanceof BaseStrokeAction) {
+					strokeState = new StrokeState(action);
+				}
+				else if (action instanceof ExtendViewAction) {
+					zoomStateStack.clear();
+
+					if (nonNull(extendViewState)) {
+						extendViewState = null;
+					}
+					else {
+						extendViewState = new ExtendViewState(action);
+
+						zoomStateStack.add(extendViewState);
+					}
+				}
+				else if (action instanceof ZoomOutAction) {
+					zoomStateStack.add(new ZoomOutState(action));
+				}
+
+				if (nonNull(strokeState) && !strokeState.isComplete()) {
+					strokeState.setAction(action);
+				}
+				if (nonNull(zoomState) && !zoomState.isComplete()) {
+					zoomState.setAction(action);
 				}
 
 				insertIndex = iter.nextIndex() - 1;
@@ -248,27 +269,29 @@ public class RecordedPage implements RecordedObject, Cloneable {
 				iter.remove();
 			}
 			else if (action.getTimestamp() > interval.getEnd()) {
-				if (action instanceof ToolExecuteAction) {
-					toolExecAction = (ToolExecuteAction) action;
-				}
-
 				// Done removing actions.
 				break;
 			}
 		}
 
-		if (nonNull(toolAction)) {
-			// Adjust tool action state.
-			toolAction.setTimestamp(interval.getEnd());
-			toolBeginAction.setTimestamp(interval.getEnd());
+		// Restore degraded actions that are mandatory to represent a consistent
+		// state.
+		if (!zoomStateStack.isEmpty()) {
+			while (!zoomStateStack.isEmpty()) {
+				ToolState state = zoomStateStack.removeFirst();
+				List<PlaybackAction> stateActions = state.getActions();
 
-			if (toolAction.getType() != ActionType.ZOOM &&
-				toolAction.getType() != ActionType.PANNING) {
-				toolBeginAction.setPoint(toolExecAction.getPoint());
+				state.setTimestamp(interval.getEnd());
+
+				playback.addAll(insertIndex, stateActions);
+
+				insertIndex += stateActions.size();
 			}
+		}
+		if (nonNull(strokeState) && !strokeState.isComplete()) {
+			strokeState.setTimestamp(interval.getEnd());
 
-			playback.add(insertIndex, toolAction);
-			playback.add(insertIndex + 1, toolBeginAction);
+			playback.addAll(insertIndex, strokeState.getActions());
 		}
 	}
 
@@ -339,4 +362,99 @@ public class RecordedPage implements RecordedObject, Cloneable {
 		return sb.toString();
 	}
 
+
+
+	private static abstract class ToolState {
+
+		protected PlaybackAction toolAction;
+		protected ToolBeginAction toolBeginAction;
+		protected ToolExecuteAction toolExecAction;
+		protected ToolEndAction toolEndAction;
+
+
+		ToolState(PlaybackAction action) {
+			toolAction = action;
+		}
+
+		boolean isComplete() {
+			return nonNull(toolEndAction);
+		}
+
+		List<PlaybackAction> getActions() {
+			List<PlaybackAction> actions = new ArrayList<>(Arrays.asList(
+					toolAction, toolBeginAction, toolExecAction, toolEndAction));
+			actions.removeIf(Objects::isNull);
+
+			return actions;
+		}
+
+		void setAction(PlaybackAction action) {
+			if (action instanceof ToolBeginAction) {
+				toolBeginAction = (ToolBeginAction) action;
+			}
+			else if (action instanceof ToolExecuteAction) {
+				toolExecAction = (ToolExecuteAction) action;
+			}
+			else if (action instanceof ToolEndAction) {
+				toolEndAction = (ToolEndAction) action;
+			}
+		}
+
+		void setTimestamp(int time) {
+			for (PlaybackAction action : getActions()) {
+				action.setTimestamp(time);
+			}
+		}
+	}
+
+	private static class ExtendViewState extends ToolState {
+
+		ExtendViewState(PlaybackAction action) {
+			super(action);
+		}
+
+		@Override
+		void setTimestamp(int time) {
+			toolAction.setTimestamp(time);
+		}
+	}
+
+	private static class StrokeState extends ToolState {
+
+		StrokeState(PlaybackAction action) {
+			super(action);
+		}
+
+		@Override
+		void setTimestamp(int time) {
+			if (isComplete()) {
+				return;
+			}
+
+			super.setTimestamp(time);
+
+			if (nonNull(toolBeginAction) && nonNull(toolExecAction)) {
+				toolBeginAction.setPoint(toolExecAction.getPoint());
+			}
+		}
+	}
+
+	private static class ZoomState extends ToolState {
+
+		ZoomState(PlaybackAction action) {
+			super(action);
+		}
+	}
+
+	private static class ZoomOutState extends ZoomState {
+
+		ZoomOutState(PlaybackAction action) {
+			super(action);
+		}
+
+		@Override
+		void setTimestamp(int time) {
+			toolAction.setTimestamp(time);
+		}
+	}
 }

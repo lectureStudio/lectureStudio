@@ -52,7 +52,7 @@
 								<TextIntegerFormatter />
 							</textFormatter>
 						</TextField>
-						<CheckBox fx:id="twoPassCheckbox" maxWidth="1.7976931348623157E308" text="%video.export.settings.two.pass" GridPane.columnSpan="2147483647" GridPane.rowIndex="3" />
+<!--						<CheckBox fx:id="twoPassCheckbox" maxWidth="1.7976931348623157E308" text="%video.export.settings.two.pass" GridPane.columnSpan="2147483647" GridPane.rowIndex="3" />-->
 					</GridPane>
 				</ScrollPane>
 			</TitledPane>

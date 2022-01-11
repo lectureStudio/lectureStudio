@@ -66,8 +66,8 @@ public class FxVideoExportSettingsView extends ContentPane implements VideoExpor
 	@FXML
 	private CheckBox audioVbrCheckbox;
 
-	@FXML
-	private CheckBox twoPassCheckbox;
+//	@FXML
+//	private CheckBox twoPassCheckbox;
 
 	@FXML
 	private Button createButton;
@@ -122,7 +122,7 @@ public class FxVideoExportSettingsView extends ContentPane implements VideoExpor
 
 	@Override
 	public void bindTwoPassEncoding(BooleanProperty enable) {
-		twoPassCheckbox.selectedProperty().bindBidirectional(new LectBooleanProperty(enable));
+//		twoPassCheckbox.selectedProperty().bindBidirectional(new LectBooleanProperty(enable));
 	}
 
 	@Override

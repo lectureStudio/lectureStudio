@@ -131,7 +131,7 @@ public class SwingToolbarView extends JPanel implements ToolbarView {
 
 	private FontPickerButton textButton;
 
-	private TeXFontPickerButton texButton;
+//	private TeXFontPickerButton texButton;
 
 	private JButton clearButton;
 
@@ -413,12 +413,13 @@ public class SwingToolbarView extends JPanel implements ToolbarView {
 
 	@Override
 	public void setOnTeXTool(Action action) {
-		SwingUtils.bindAction(texButton, action);
-		texButton.addChangeListener(e -> {
-			if (texButton.isSelected()) {
-				setColorButtonsEnabled(true);
-			}
-		});
+//		SwingUtils.bindAction(texButton, action);
+//
+//		texButton.addChangeListener(e -> {
+//			if (texButton.isSelected()) {
+//				setColorButtonsEnabled(true);
+//			}
+//		});
 	}
 
 	@Override
@@ -680,9 +681,9 @@ public class SwingToolbarView extends JPanel implements ToolbarView {
 		textButton.addItemChangeListener(font -> {
 			executeAction(textBoxFontAction, FontConverter.INSTANCE.from(font));
 		});
-		texButton.addItemChangeListener(font -> {
-			executeAction(texBoxFontAction, font);
-		});
+//		texButton.addItemChangeListener(font -> {
+//			executeAction(texBoxFontAction, font);
+//		});
 	}
 
 }

@@ -21,7 +21,7 @@
 	<ToolGroupButton id="selectButton" accelerator="O" copyIcon="clone-tool.svg, 30" selectIcon="select-tool.svg, 30" selectGroupIcon="select-group-tool.svg, 30" tooltipText="toolbar.select.tooltip" tool="SELECT, SELECT_GROUP, CLONE" group="toolGroup" />
 	<ToggleButton id="eraseButton" accelerator="E" icon="rubber-tool.svg, 30" tooltipText="toolbar.erase.tooltip" tool="RUBBER" group="toolGroup" />
 	<FontPickerButton id="textButton" accelerator="T" icon="text-tool.svg, 30" tooltipText="toolbar.text.tooltip" tool="TEXT" group="toolGroup" visible="false" />
-	<TeXFontPickerButton id="texButton" accelerator="X" icon="latex-tool.svg, 30" tooltipText="toolbar.latex.tooltip" tool="LATEX" group="toolGroup" visible="false" />
+<!--	<TeXFontPickerButton id="texButton" accelerator="X" icon="latex-tool.svg, 30" tooltipText="toolbar.latex.tooltip" tool="LATEX" group="toolGroup" visible="false" />-->
 	<Button id="clearButton" accelerator="ESCAPE" icon="clear-tool.svg, 30" tooltipText="toolbar.clear.tooltip" />
 	<ToggleButton id="gridButton" accelerator="Q" icon="grid-tool.svg, 30" tooltipText="toolbar.grid.tooltip" />
 	<ToggleButton id="extendButton" accelerator="F7" icon="extend-tool.svg, 30" tooltipText="toolbar.extend.tooltip" />

@@ -219,6 +219,7 @@ public class RecordedPage implements RecordedObject, Cloneable {
 		ExtendViewState extendViewState = null;
 		StrokeState strokeState = null;
 		ZoomState zoomState = null;
+		ZoomState zoomStateCut = null;
 
 		LinkedList<ToolState> zoomStateStack = new LinkedList<>();
 
@@ -263,6 +264,9 @@ public class RecordedPage implements RecordedObject, Cloneable {
 				if (nonNull(zoomState) && !zoomState.isComplete()) {
 					zoomState.setAction(action);
 				}
+				if (nonNull(zoomStateCut) && !zoomStateCut.isComplete()) {
+					zoomStateCut.setAction(action);
+				}
 
 				insertIndex = iter.nextIndex() - 1;
 
@@ -271,6 +275,11 @@ public class RecordedPage implements RecordedObject, Cloneable {
 			else if (action.getTimestamp() > interval.getEnd()) {
 				// Done removing actions.
 				break;
+			}
+			else {
+				if (action instanceof ZoomAction || action instanceof PanningAction) {
+					zoomStateCut = new ZoomState(null);
+				}
 			}
 		}
 
@@ -287,6 +296,11 @@ public class RecordedPage implements RecordedObject, Cloneable {
 
 				insertIndex += stateActions.size();
 			}
+		}
+		if (nonNull(zoomStateCut) && zoomStateCut.isComplete()) {
+			zoomStateCut.setTimestamp(interval.getStart());
+
+			playback.addAll(insertIndex, zoomStateCut.getActions());
 		}
 		if (nonNull(strokeState) && !strokeState.isComplete()) {
 			strokeState.setTimestamp(interval.getEnd());

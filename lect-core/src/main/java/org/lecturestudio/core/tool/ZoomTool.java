@@ -67,6 +67,8 @@ public class ZoomTool extends StrokeTool<ZoomShape> {
 
 	@Override
 	protected void endInternal(PenPoint2D point) {
+		shape.setEndPoint(point.clone());
+
 		page.removeShape(shape);
 
 		zoom(shape.getBounds());

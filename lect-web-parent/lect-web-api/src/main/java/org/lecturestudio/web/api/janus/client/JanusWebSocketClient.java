@@ -39,6 +39,7 @@ import javax.json.bind.JsonbBuilder;
 
 import org.lecturestudio.core.ExecutableBase;
 import org.lecturestudio.core.ExecutableException;
+import org.lecturestudio.core.bus.EventBus;
 import org.lecturestudio.web.api.client.ClientFailover;
 import org.lecturestudio.web.api.data.bind.JsonConfigProvider;
 import org.lecturestudio.web.api.janus.JanusHandler;
@@ -68,6 +69,8 @@ public class JanusWebSocketClient extends ExecutableBase implements JanusMessage
 
 	private final ClientFailover clientFailover;
 
+	private final EventBus eventBus;
+
 	private WebSocket webSocket;
 
 	private Jsonb jsonb;
@@ -77,13 +80,14 @@ public class JanusWebSocketClient extends ExecutableBase implements JanusMessage
 	private JanusHandler handler;
 
 
-	public JanusWebSocketClient(ServiceParameters parameters,
+	public JanusWebSocketClient(EventBus eventBus, ServiceParameters parameters,
 			StreamContext streamContext, StreamEventRecorder eventRecorder,
 			ClientFailover clientFailover) {
 		this.serviceParameters = parameters;
 		this.streamContext = streamContext;
 		this.eventRecorder = eventRecorder;
 		this.clientFailover = clientFailover;
+		this.eventBus = eventBus;
 	}
 
 	public void setJanusStateHandlerListener(JanusStateHandlerListener listener) {
@@ -141,7 +145,7 @@ public class JanusWebSocketClient extends ExecutableBase implements JanusMessage
 					URI.create(serviceParameters.getUrl()),
 					new WebSocketListener()).join();
 
-			handler = new JanusHandler(this, streamContext, eventRecorder, clientFailover);
+			handler = new JanusHandler(this, streamContext, eventRecorder, clientFailover, eventBus);
 			handler.addJanusStateHandlerListener(handlerStateListener);
 			handler.init();
 			handler.start();

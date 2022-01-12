@@ -450,8 +450,8 @@ public class WebRtcStreamService extends ExecutableBase {
 		ServiceParameters janusWsParameters = new ServiceParameters();
 		janusWsParameters.setUrl(janusWebSocketUrl);
 
-		return new JanusWebSocketClient(janusWsParameters, webRtcConfig,
-				eventRecorder, clientFailover);
+		return new JanusWebSocketClient(context.getEventBus(), janusWsParameters,
+				webRtcConfig, eventRecorder, clientFailover);
 	}
 
 	private StreamContext createStreamContext(Course course, PresenterConfiguration config) {

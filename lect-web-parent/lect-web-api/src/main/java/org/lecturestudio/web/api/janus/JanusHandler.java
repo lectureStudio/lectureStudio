@@ -37,6 +37,7 @@ import java.util.function.Consumer;
 
 import org.lecturestudio.core.ExecutableException;
 import org.lecturestudio.core.ExecutableState;
+import org.lecturestudio.core.bus.EventBus;
 import org.lecturestudio.core.net.MediaType;
 import org.lecturestudio.web.api.client.ClientFailover;
 import org.lecturestudio.web.api.event.PeerStateEvent;
@@ -49,6 +50,8 @@ import org.lecturestudio.web.api.janus.message.JanusPluginDataMessage;
 import org.lecturestudio.web.api.janus.message.JanusRoomKickRequest;
 import org.lecturestudio.web.api.janus.message.JanusRoomModerateRequest;
 import org.lecturestudio.web.api.janus.message.JanusRoomPublisherJoinedMessage;
+import org.lecturestudio.web.api.janus.message.JanusRoomPublisherJoiningMessage;
+import org.lecturestudio.web.api.janus.message.JanusRoomPublisherLeftMessage;
 import org.lecturestudio.web.api.janus.message.JanusSessionMessage;
 import org.lecturestudio.web.api.janus.message.JanusSessionTimeoutMessage;
 import org.lecturestudio.web.api.janus.state.DestroyRoomState;
@@ -63,11 +66,15 @@ public class JanusHandler extends JanusStateHandler {
 
 	private final ClientFailover clientFailover;
 
+	private final EventBus eventBus;
+
 	private ScheduledExecutorService executorService;
 
 	private ScheduledFuture<?> timeoutFuture;
 
 	private Map<Class<? extends JanusMessage>, Consumer<? extends JanusMessage>> messageHandlers;
+
+	private Map<BigInteger, JanusPublisher> participants;
 
 	private Map<Long, JanusPublisher> speechPublishers;
 
@@ -76,11 +83,13 @@ public class JanusHandler extends JanusStateHandler {
 
 	public JanusHandler(JanusMessageTransmitter transmitter,
 			StreamContext streamContext,
-			StreamEventRecorder eventRecorder, ClientFailover clientFailover) {
+			StreamEventRecorder eventRecorder, ClientFailover clientFailover,
+			EventBus eventBus) {
 		super(new JanusPeerConnectionFactory(streamContext), transmitter);
 
 		this.eventRecorder = eventRecorder;
 		this.clientFailover = clientFailover;
+		this.eventBus = eventBus;
 	}
 
 	public void startRemoteSpeech(long requestId, String userName) {
@@ -197,6 +206,7 @@ public class JanusHandler extends JanusStateHandler {
 		executorService = Executors.newSingleThreadScheduledExecutor();
 		messageHandlers = new HashMap<>();
 		speechPublishers = new ConcurrentHashMap<>();
+		participants = new ConcurrentHashMap<>();
 		handlers = new CopyOnWriteArrayList<>();
 
 		getStreamContext().getAudioContext().receiveAudioProperty()
@@ -220,7 +230,9 @@ public class JanusHandler extends JanusStateHandler {
 
 		registerHandler(JanusErrorMessage.class, this::handleError);
 		registerHandler(JanusSessionTimeoutMessage.class, this::handleSessionTimeout);
+		registerHandler(JanusRoomPublisherJoiningMessage.class, this::handlePublisherJoining);
 		registerHandler(JanusRoomPublisherJoinedMessage.class, this::handlePublisherJoined);
+		registerHandler(JanusRoomPublisherLeftMessage.class, this::handlePublisherLeft);
 	}
 
 	@Override
@@ -300,6 +312,14 @@ public class JanusHandler extends JanusStateHandler {
 		logErrorMessage("Janus session '%s' timed out", message.getId());
 	}
 
+	private void handlePublisherJoining(JanusRoomPublisherJoiningMessage message) {
+		JanusPublisher participant = message.getPublisher();
+
+		participants.put(participant.getId(), participant);
+
+		System.out.println("Joined: " + participant.getDisplayName());
+	}
+
 	private void handlePublisherJoined(JanusRoomPublisherJoinedMessage message) {
 		JanusPublisher publisher = message.getPublisher();
 
@@ -308,6 +328,15 @@ public class JanusHandler extends JanusStateHandler {
 		speechPublisher.setId(publisher.getId());
 
 		startSubscriber(speechPublisher);
+	}
+
+	private void handlePublisherLeft(JanusRoomPublisherLeftMessage message) {
+		JanusPublisher participant = participants.remove(message.getPublisherId());
+
+		if (nonNull(participant)) {
+
+			System.out.println("Left: " + participant.getDisplayName());
+		}
 	}
 
 	private void startPublisher() {

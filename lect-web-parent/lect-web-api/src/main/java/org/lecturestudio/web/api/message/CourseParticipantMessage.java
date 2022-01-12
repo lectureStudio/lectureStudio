@@ -24,7 +24,7 @@ package org.lecturestudio.web.api.message;
  *
  * @author Alex Andres
  */
-public class CourseParticipantMessage {
+public class CourseParticipantMessage extends WebMessage {
 
 	private boolean connected;
 

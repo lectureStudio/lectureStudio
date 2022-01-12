@@ -371,14 +371,16 @@ public class JanusPeerConnection implements PeerConnectionObserver {
 			if (nonNull(cameraSource)) {
 				cameraSource.setVideoCaptureCapability(nearestCapability);
 
-				cameraSource.stop();
+				if (getSenderTrackEnabled("cameraTrack")) {
+					cameraSource.stop();
 
-				try {
-					cameraSource.start();
-				}
-				catch (Throwable e) {
-					notify(onException, new JanusPeerConnectionMediaException(
-							MediaType.Camera, "Start video capture source failed", e));
+					try {
+						cameraSource.start();
+					}
+					catch (Throwable e) {
+						notify(onException, new JanusPeerConnectionMediaException(
+								MediaType.Camera, "Start video capture source failed", e));
+					}
 				}
 			}
 		}
@@ -558,6 +560,18 @@ public class JanusPeerConnection implements PeerConnectionObserver {
 				break;
 			}
 		}
+	}
+
+	private boolean getSenderTrackEnabled(String trackId) {
+		for (RTCRtpSender sender : peerConnection.getSenders()) {
+			MediaStreamTrack track = sender.getTrack();
+
+			if (nonNull(track) && track.getId().equals(trackId)) {
+				return track.isEnabled();
+			}
+		}
+
+		return false;
 	}
 
 	private void setTransceiverDirection(RTCRtpTransceiverDirection direction,

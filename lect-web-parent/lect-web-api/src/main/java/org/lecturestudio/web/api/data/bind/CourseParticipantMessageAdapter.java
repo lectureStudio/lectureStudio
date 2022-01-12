@@ -18,6 +18,8 @@
 
 package org.lecturestudio.web.api.data.bind;
 
+import static java.util.Objects.nonNull;
+
 import javax.json.Json;
 import javax.json.JsonObject;
 import javax.json.JsonObjectBuilder;
@@ -33,6 +35,13 @@ public class CourseParticipantMessageAdapter implements JsonbAdapter<CourseParti
 		builder.add("type", message.getClass().getSimpleName());
 		builder.add("connected", message.getConnected());
 
+		if (nonNull(message.getFirstName())) {
+			builder.add("firstName", message.getFirstName());
+		}
+		if (nonNull(message.getFamilyName())) {
+			builder.add("familyName", message.getFamilyName());
+		}
+
 		return builder.build();
 	}
 
@@ -43,6 +52,8 @@ public class CourseParticipantMessageAdapter implements JsonbAdapter<CourseParti
 		Class<?> cls = Class.forName(className);
 
 		CourseParticipantMessage message = (CourseParticipantMessage) cls.getConstructor().newInstance();
+		message.setFirstName(jsonObject.getString("firstName"));
+		message.setFamilyName(jsonObject.getString("familyName"));
 		message.setConnected(jsonObject.getBoolean("connected"));
 
 		return message;

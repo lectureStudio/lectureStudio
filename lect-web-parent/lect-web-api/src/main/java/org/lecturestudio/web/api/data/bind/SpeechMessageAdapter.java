@@ -42,10 +42,10 @@ public class SpeechMessageAdapter implements JsonbAdapter<SpeechBaseMessage, Jso
 		if (nonNull(message.getDate())) {
 			builder.add("time", message.getDate().toString());
 		}
-		if (nonNull(message.getRequestId())) {
+		if (nonNull(message.getFirstName())) {
 			builder.add("firstName", message.getFirstName());
 		}
-		if (nonNull(message.getRequestId())) {
+		if (nonNull(message.getFamilyName())) {
 			builder.add("familyName", message.getFamilyName());
 		}
 

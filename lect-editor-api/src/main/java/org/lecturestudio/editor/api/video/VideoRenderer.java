@@ -18,6 +18,7 @@
 
 package org.lecturestudio.editor.api.video;
 
+import static java.util.Objects.isNull;
 import static java.util.Objects.nonNull;
 
 import java.awt.image.BufferedImage;
@@ -43,6 +44,8 @@ import org.lecturestudio.core.model.Time;
 import org.lecturestudio.core.recording.RecordedEvents;
 import org.lecturestudio.core.recording.RecordedPage;
 import org.lecturestudio.core.recording.Recording;
+import org.lecturestudio.core.recording.action.PlaybackAction;
+import org.lecturestudio.core.recording.action.StaticShapeAction;
 import org.lecturestudio.core.service.DocumentService;
 import org.lecturestudio.editor.api.context.EditorContext;
 import org.lecturestudio.editor.api.recording.RecordingExport;
@@ -188,17 +191,12 @@ public class VideoRenderer extends RecordingExport {
 		Document recDocument = recording.getRecordedDocument().getDocument();
 		Document document = new Document(recDocument.getPdfDocument());
 
-		for (int i = 0; i < recDocument.getPageCount(); i++) {
-			Page recPage = recDocument.getPage(i);
-			Page page = document.getPage(i);
-
-			page.addShapes(recPage.getShapes());
-		}
-
 		DocumentService documentService = new DocumentService(renderContext);
 		documentService.getDocuments().add(document);
 
 		ToolController toolController = new ToolController(renderContext, documentService);
+
+		preloadDocument(document, recording.getRecordedEvents(), toolController);
 
 		VideoRendererView renderView = new VideoRendererView(renderContext, videoConfig.getDimension());
 		renderView.setRenderController(new RenderController(renderContext, new DefaultRenderContext()));
@@ -215,6 +213,43 @@ public class VideoRenderer extends RecordingExport {
 			}
 		});
 		eventExecutor.start();
+	}
+
+	private void preloadDocument(Document document, RecordedEvents actions,
+			ToolController toolController) {
+		for (RecordedPage recPage : actions.getRecordedPages()) {
+			Page page = document.getPage(recPage.getNumber());
+
+			if (isNull(page)) {
+				continue;
+			}
+
+			Iterator<StaticShapeAction> iter = recPage.getStaticActions().iterator();
+
+			if (iter.hasNext()) {
+				// Remember currently selected page.
+				int lastPageNumber = document.getCurrentPageNumber();
+
+				// Select the page to which to add static actions.
+				document.selectPage(recPage.getNumber());
+
+				while (iter.hasNext()) {
+					StaticShapeAction staticAction = iter.next();
+					PlaybackAction action = staticAction.getAction();
+
+					// Execute static action on selected page.
+					try {
+						action.execute(toolController);
+					}
+					catch (Exception e) {
+						LOG.error("Execute static action failed", e);
+					}
+				}
+
+				// Go back to the page which was selected prior preloading.
+				document.selectPage(lastPageNumber);
+			}
+		}
 	}
 
 	private void renderAudio() throws Exception {

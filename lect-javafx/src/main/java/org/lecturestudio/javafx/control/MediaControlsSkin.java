@@ -86,6 +86,12 @@ public class MediaControlsSkin extends SkinBase<MediaControls> {
 	}
 
 	@Override
+	protected double computeMinWidth(double height, double topInset,
+			double rightInset, double bottomInset, double leftInset) {
+		return 10;
+	}
+
+	@Override
 	protected void layoutChildren(final double contentX, final double contentY,
 								  final double contentWidth,
 								  final double contentHeight) {

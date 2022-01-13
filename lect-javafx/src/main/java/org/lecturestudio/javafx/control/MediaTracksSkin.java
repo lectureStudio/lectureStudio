@@ -97,6 +97,12 @@ public class MediaTracksSkin extends SkinBase<MediaTracks> {
 	}
 
 	@Override
+	protected double computeMinWidth(double height, double topInset,
+			double rightInset, double bottomInset, double leftInset) {
+		return 10;
+	}
+
+	@Override
 	protected double computeMinHeight(double width, double topInset, double rightInset, double bottomInset, double leftInset) {
 		final double sliderPaneHeight = sliderPane.prefHeight(-1);
 		final double timelineHeight = timeline.prefHeight(-1);

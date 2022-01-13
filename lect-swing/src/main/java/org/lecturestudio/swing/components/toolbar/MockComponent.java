@@ -81,6 +81,7 @@ public class MockComponent extends JComponent {
 
 		c.paint(g);
 		g.dispose();
+
 		setPreferredSize(d);
 		setMinimumSize(d);
 		setMaximumSize(d);
@@ -108,7 +109,7 @@ public class MockComponent extends JComponent {
 			AbstractButton b = (AbstractButton) c;
 			b.putClientProperty(WAS_SELECTED, b.isSelected());
 			b.putClientProperty(WAS_FOCUS_PAINTED, b.isFocusPainted());
-			b.setSelected(false);
+//			b.setSelected(false);
 			b.setFocusPainted(false);
 			b.setBackground(Color.decode("#F0F0F0"));
 		}
@@ -132,7 +133,7 @@ public class MockComponent extends JComponent {
 		if (c instanceof AbstractButton) {
 			AbstractButton b = (AbstractButton) c;
 			if (b.getClientProperty(WAS_SELECTED) != null) {
-				b.setSelected((Boolean) b.getClientProperty(WAS_SELECTED));
+//				b.setSelected((Boolean) b.getClientProperty(WAS_SELECTED));
 				b.putClientProperty(WAS_SELECTED, null);
 			}
 			if (b.getClientProperty(WAS_FOCUS_PAINTED) != null) {

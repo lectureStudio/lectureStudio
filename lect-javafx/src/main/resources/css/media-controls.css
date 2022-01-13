@@ -44,7 +44,7 @@
 }
 .media-controls > .media-buttons > .play {
 	-fx-font-size: 2em;
-	-button-size: 3em;
+	-button-size: 2em;
 	-fx-pref-width: -button-size;
 	-fx-pref-height: -button-size;
 	-fx-min-width: -button-size;

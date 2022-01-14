@@ -30,6 +30,7 @@
 
 	<Loggers>
 		<Logger name="org.lecturestudio" level="error" />
+		<Logger name="org.jboss" level="error" />
 
 		<Root level="info">
 			<AppenderRef ref="STDOUT" />

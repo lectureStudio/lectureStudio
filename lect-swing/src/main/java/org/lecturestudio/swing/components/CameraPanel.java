@@ -21,6 +21,8 @@ package org.lecturestudio.swing.components;
 import static java.util.Objects.isNull;
 import static java.util.Objects.nonNull;
 
+import com.formdev.flatlaf.util.UIScale;
+
 import java.awt.Dimension;
 import java.util.concurrent.atomic.AtomicBoolean;
 
@@ -161,7 +163,7 @@ public class CameraPanel extends JPanel {
 	 */
     private void setCanvasSize(CameraFormat format) {
 		// Set correct aspect ratio to capture format.
-		int width = getPreferredSize().width;
+		int width = (int) (getMaximumSize().width * UIScale.getUserScaleFactor());
 		int height = (int) (format.getHeight() / (float) format.getWidth() * width);
 		Dimension size = new Dimension(width, height);
 

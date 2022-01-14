@@ -27,18 +27,19 @@ import dev.onvoid.webrtc.RTCPeerConnection;
 import dev.onvoid.webrtc.media.audio.AudioDevice;
 import dev.onvoid.webrtc.media.audio.AudioDeviceModule;
 
-import java.lang.System.Logger;
-import java.lang.System.Logger.Level;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import org.lecturestudio.web.api.stream.StreamAudioContext;
 import org.lecturestudio.web.api.stream.StreamContext;
 
 public class JanusPeerConnectionFactory {
 
-	private final static Logger LOGGER = System.getLogger(JanusPeerConnectionFactory.class.getName());
+	private static final Logger LOGGER = LogManager.getLogger(JanusPeerConnectionFactory.class);
 
 	private final ExecutorService executor = Executors.newSingleThreadExecutor();
 
@@ -113,7 +114,7 @@ public class JanusPeerConnectionFactory {
 			return;
 		}
 
-		LOGGER.log(Level.INFO, "Audio playback device: " + device);
+		LOGGER.debug("Audio playback device: {}", device);
 
 		audioModule.stopPlayout();
 		audioModule.setPlayoutDevice(device);
@@ -129,7 +130,7 @@ public class JanusPeerConnectionFactory {
 			return;
 		}
 
-		LOGGER.log(Level.INFO, "Audio recording device: " + device);
+		LOGGER.debug("Audio recording device: {}", device);
 
 		audioModule.stopRecording();
 		audioModule.setRecordingDevice(device);
@@ -145,7 +146,7 @@ public class JanusPeerConnectionFactory {
 			return executor.submit(callable).get();
 		}
 		catch (Exception e) {
-			LOGGER.log(Level.ERROR, "Execute task failed", e);
+			LOGGER.error("Execute task failed", e);
 		}
 
 		return null;
@@ -156,7 +157,7 @@ public class JanusPeerConnectionFactory {
 			executor.submit(runnable).get();
 		}
 		catch (Exception e) {
-			LOGGER.log(Level.ERROR, "Execute task failed", e);
+			LOGGER.error("Execute task failed", e);
 		}
 	}
 }

@@ -21,14 +21,15 @@ package org.lecturestudio.web.api.janus;
 import static java.util.Objects.isNull;
 import static java.util.Objects.nonNull;
 
-import java.lang.System.Logger;
-import java.lang.System.Logger.Level;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.ExecutorService;
 import java.util.function.Consumer;
+
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import org.lecturestudio.core.geometry.Point2D;
 import org.lecturestudio.core.net.MediaType;
@@ -67,7 +68,7 @@ import dev.onvoid.webrtc.media.video.VideoTrack;
 
 public class JanusPeerConnection implements PeerConnectionObserver {
 
-	private final static Logger LOGGER = System.getLogger(JanusPeerConnection.class.getName());
+	private static final Logger LOGGER = LogManager.getLogger(JanusPeerConnection.class);
 
 	private final JanusPeerConnectionFactory factory;
 
@@ -169,7 +170,7 @@ public class JanusPeerConnection implements PeerConnectionObserver {
 	@Override
 	public void onRenegotiationNeeded() {
 		if (nonNull(peerConnection.getRemoteDescription())) {
-			LOGGER.log(Level.INFO, "Renegotiation needed");
+			LOGGER.debug("Renegotiation needed");
 
 			createOffer();
 		}
@@ -182,7 +183,7 @@ public class JanusPeerConnection implements PeerConnectionObserver {
 
 	@Override
 	public void onIceConnectionChange(RTCIceConnectionState state) {
-		LOGGER.log(Level.INFO, "ICE connection state: " + state);
+		LOGGER.debug("ICE connection state: " + state);
 
 		notify(onIceConnectionState, state);
 	}
@@ -202,7 +203,7 @@ public class JanusPeerConnection implements PeerConnectionObserver {
 	@Override
 	public void onIceCandidate(RTCIceCandidate candidate) {
 		if (isNull(peerConnection)) {
-			LOGGER.log(Level.ERROR, "PeerConnection was not initialized");
+			LOGGER.error("PeerConnection was not initialized");
 			return;
 		}
 
@@ -210,7 +211,7 @@ public class JanusPeerConnection implements PeerConnectionObserver {
 			notify(onIceCandidate, candidate);
 		}
 		catch (Exception e) {
-			LOGGER.log(Level.ERROR, "Send RTCIceCandidate failed", e);
+			LOGGER.error("Send RTCIceCandidate failed", e);
 		}
 	}
 
@@ -365,8 +366,8 @@ public class JanusPeerConnection implements PeerConnectionObserver {
 		if (nonNull(cameraCapability) && nonNull(cameraDevice)) {
 			var nearestCapability = getNearestCameraFormat(cameraCapability);
 
-			LOGGER.log(Level.INFO, "Video capture capability: " + cameraCapability);
-			LOGGER.log(Level.INFO, "Video capture nearest capability: " + nearestCapability);
+			LOGGER.debug("Video capture capability: " + cameraCapability);
+			LOGGER.debug("Video capture nearest capability: " + nearestCapability);
 
 			if (nonNull(cameraSource)) {
 				cameraSource.setVideoCaptureCapability(nearestCapability);
@@ -414,15 +415,15 @@ public class JanusPeerConnection implements PeerConnectionObserver {
 		cameraSource = new VideoDeviceSource();
 
 		if (nonNull(cameraDevice)) {
-			LOGGER.log(Level.INFO, "Video capture device: " + cameraDevice);
+			LOGGER.debug("Video capture device: " + cameraDevice);
 
 			cameraSource.setVideoCaptureDevice(cameraDevice);
 		}
 		if (nonNull(cameraCapability)) {
 			var nearestCapability = getNearestCameraFormat(cameraCapability);
 
-			LOGGER.log(Level.INFO, "Video capture capability: " + cameraCapability);
-			LOGGER.log(Level.INFO, "Video capture nearest capability: " + nearestCapability);
+			LOGGER.debug("Video capture capability: " + cameraCapability);
+			LOGGER.debug("Video capture nearest capability: " + nearestCapability);
 
 			cameraSource.setVideoCaptureCapability(nearestCapability);
 		}
@@ -460,7 +461,7 @@ public class JanusPeerConnection implements PeerConnectionObserver {
 			@Override
 			public void onBufferedAmountChange(long previousAmount) {
 				execute(() -> {
-					LOGGER.log(Level.INFO, "RTCDataChannel \"{0}\" buffered amount changed to {1}",
+					LOGGER.debug("RTCDataChannel \"{}\" buffered amount changed to {}",
 							channel.getLabel(),
 							previousAmount);
 				});
@@ -469,7 +470,7 @@ public class JanusPeerConnection implements PeerConnectionObserver {
 			@Override
 			public void onStateChange() {
 				execute(() -> {
-					LOGGER.log(Level.INFO, "RTCDataChannel \"{0}\" state: {1}",
+					LOGGER.debug("RTCDataChannel \"{}\" state: {}",
 							channel.getLabel(),
 							channel.getState());
 				});
@@ -541,7 +542,7 @@ public class JanusPeerConnection implements PeerConnectionObserver {
 			if (nonNull(track) && track.getKind().equals(type)) {
 				track.setEnabled(enable);
 
-				LOGGER.log(Level.INFO, "Receiver track \"{0}\" set enabled to \"{1}\"",
+				LOGGER.debug("Receiver track \"{}\" set enabled to \"{}\"",
 						track.getId(), enable);
 				break;
 			}
@@ -555,7 +556,7 @@ public class JanusPeerConnection implements PeerConnectionObserver {
 			if (nonNull(track) && track.getKind().equals(type)) {
 				track.setEnabled(enable);
 
-				LOGGER.log(Level.INFO, "Sender track \"{0}\" set enabled to \"{1}\"",
+				LOGGER.debug("Sender track \"{}\" set enabled to \"{}\"",
 						track.getId(), enable);
 				break;
 			}
@@ -593,7 +594,7 @@ public class JanusPeerConnection implements PeerConnectionObserver {
 			if (nonNull(track) && track.getId().equals(trackName)) {
 				peerConnection.removeTrack(sender);
 
-				LOGGER.log(Level.INFO, "Removed track \"{0}\"", track.getId());
+				LOGGER.debug("Removed track \"{}\"", track.getId());
 				break;
 			}
 		}
@@ -601,7 +602,7 @@ public class JanusPeerConnection implements PeerConnectionObserver {
 
 	private void drainIceCandidates() {
 		if (nonNull(queuedRemoteCandidates)) {
-			LOGGER.log(Level.INFO, "Add " + queuedRemoteCandidates.size() + " remote candidates");
+			LOGGER.debug("Add " + queuedRemoteCandidates.size() + " remote candidates");
 
 			queuedRemoteCandidates.forEach(peerConnection::addIceCandidate);
 			queuedRemoteCandidates = null;
@@ -631,7 +632,7 @@ public class JanusPeerConnection implements PeerConnectionObserver {
 					JanusPeerConnection.this.notify(onLocalSessionDescription, description);
 				}
 				catch (Exception e) {
-					LOGGER.log(Level.ERROR, "Send RTCSessionDescription failed", e);
+					LOGGER.error("Send RTCSessionDescription failed", e);
 				}
 			}
 
@@ -712,7 +713,7 @@ public class JanusPeerConnection implements PeerConnectionObserver {
 		@Override
 		public void onFailure(String error) {
 			execute(() -> {
-				LOGGER.log(Level.ERROR, "Create RTCSessionDescription failed: " + error);
+				LOGGER.error("Create RTCSessionDescription failed: " + error);
 			});
 		}
 
@@ -735,7 +736,7 @@ public class JanusPeerConnection implements PeerConnectionObserver {
 		@Override
 		public void onFailure(String error) {
 			execute(() -> {
-				LOGGER.log(Level.ERROR, "Set RTCSessionDescription failed: " + error);
+				LOGGER.error("Set RTCSessionDescription failed: " + error);
 			});
 		}
 	}

@@ -150,6 +150,7 @@ public class ViewLoader<T extends Container> extends SwingEngine<T> {
 		tagLibrary.registerTag("Button", new AbstractButtonFactory(JButton.class));
 		tagLibrary.registerTag("ToggleButton", new AbstractButtonFactory(JToggleButton.class));
 		tagLibrary.registerTag("RadioButton", new AbstractButtonFactory(JRadioButton.class));
+		tagLibrary.registerTag("RecordButton", new AbstractButtonFactory(RecordButton.class));
 		tagLibrary.registerTag("HTMLEditor", new InjectViewFactory(HTMLEditorPane.class, injector));
 		tagLibrary.registerTag("FontPickerButton", new AbstractInjectButtonFactory(FontPickerButton.class, injector));
 		tagLibrary.registerTag("TeXFontPickerButton", new AbstractInjectButtonFactory(TeXFontPickerButton.class, injector));

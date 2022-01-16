@@ -183,8 +183,6 @@ public class JanusWebSocketClient extends ExecutableBase implements JanusMessage
 		@Override
 		public void onOpen(WebSocket webSocket) {
 			webSocket.request(1);
-
-			System.out.println("janus websocket connected");
 		}
 
 		@Override

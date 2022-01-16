@@ -31,6 +31,7 @@ import java.util.Arrays;
 import java.util.Enumeration;
 import java.util.List;
 import java.util.ResourceBundle;
+import java.util.function.Predicate;
 
 import javax.inject.Inject;
 import javax.swing.AbstractButton;
@@ -40,6 +41,7 @@ import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JComponent;
 import javax.swing.JPanel;
+import javax.swing.JSeparator;
 import javax.swing.JToggleButton;
 
 import org.lecturestudio.core.ExecutableState;
@@ -59,7 +61,6 @@ import org.lecturestudio.core.view.PresentationParameter;
 import org.lecturestudio.presenter.api.view.ToolbarView;
 import org.lecturestudio.swing.components.FontPickerButton;
 import org.lecturestudio.swing.components.RecordButton;
-import org.lecturestudio.swing.components.TeXFontPickerButton;
 import org.lecturestudio.swing.components.ToolColorPickerButton;
 import org.lecturestudio.swing.components.ToolGroupButton;
 import org.lecturestudio.swing.components.toolbar.CustomizedToolbar;
@@ -125,7 +126,7 @@ public class SwingToolbarView extends JPanel implements ToolbarView {
 
 	private JToggleButton ellipseButton;
 
-	private ToolGroupButton selectButton;
+//	private ToolGroupButton selectButton;
 
 	private JToggleButton eraseButton;
 
@@ -204,7 +205,7 @@ public class SwingToolbarView extends JPanel implements ToolbarView {
 		redoButton.setEnabled(hasRedo);
 		extendButton.setSelected(extended);
 		gridButton.setSelected(hasGrid);
-		selectButton.setEnabled(hasUndo);
+//		selectButton.setEnabled(hasUndo);
 		panButton.setEnabled(zoomedIn);
 		zoomOutButton.setEnabled(zoomedIn);
 	}
@@ -383,7 +384,7 @@ public class SwingToolbarView extends JPanel implements ToolbarView {
 
 	@Override
 	public void setOnSelectTool(Action action) {
-		SwingUtils.bindAction(selectButton, action);
+//		SwingUtils.bindAction(selectButton, action);
 	}
 
 	@Override
@@ -621,7 +622,7 @@ public class SwingToolbarView extends JPanel implements ToolbarView {
 		colorGroup = new ButtonGroup();
 		toolGroup = new ButtonGroup();
 
-		List<String> defaultToolbarButtonNames = new ArrayList<>();
+		List<String> defaultToolNames = new ArrayList<>();
 
 		var components = getComponents();
 		var jComponents = Arrays.copyOf(components, components.length,
@@ -630,12 +631,13 @@ public class SwingToolbarView extends JPanel implements ToolbarView {
 		for (JComponent component : jComponents) {
 			String group = (String) component.getClientProperty("group");
 			String id = (String) component.getClientProperty("id");
+			String defaultTool = (String) component.getClientProperty("defaultTool");
 
 			if (nonNull(id)) {
 				component.setName(id);
 
-				if (component.getClientProperty("tool") != null) {
-					defaultToolbarButtonNames.add(id);
+				if (nonNull(defaultTool)) {
+					defaultToolNames.add(id);
 				}
 			}
 
@@ -654,12 +656,23 @@ public class SwingToolbarView extends JPanel implements ToolbarView {
 					}
 				}
 			}
+			else if (component instanceof JSeparator) {
+				String type = (String) component.getClientProperty("type");
+
+				if (nonNull(type) && nonNull(defaultTool)) {
+					defaultToolNames.add(type.replace("t", "\t"));
+				}
+			}
 		}
 
 		removeAll();
 
+		jComponents = Arrays.stream(jComponents)
+				.filter(Predicate.not(JSeparator.class::isInstance))
+				.toArray(JComponent[]::new);
+
 		customizedToolbar = new CustomizedToolbar(jComponents,
-				defaultToolbarButtonNames.toArray(new String[0]), "default",
+				defaultToolNames.toArray(new String[0]), "default",
 				resourceBundle, toolController, colorGroup, toolGroup);
 
 		GridBagConstraints c = new GridBagConstraints();

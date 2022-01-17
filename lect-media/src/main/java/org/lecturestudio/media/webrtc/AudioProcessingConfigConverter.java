@@ -46,7 +46,6 @@ public class AudioProcessingConfigConverter implements
 		settings.setGainControlEnabled(config.gainControl.enabled);
 		settings.setHighpassFilterEnabled(config.highPassFilter.enabled);
 		settings.setNoiseSuppressionEnabled(config.noiseSuppression.enabled);
-		settings.setLevelEstimationEnabled(config.levelEstimation.enabled);
 		settings.setVoiceDetectionEnabled(config.voiceDetection.enabled);
 
 		NoiseSuppression.Level nsLevel = config.noiseSuppression.level;
@@ -68,7 +67,6 @@ public class AudioProcessingConfigConverter implements
 		config.noiseSuppression.enabled = settings.isNoiseSuppressionEnabled();
 		config.residualEchoDetector.enabled = settings.isEchoCancellerEnabled();
 		config.transientSuppression.enabled = settings.isNoiseSuppressionEnabled();
-		config.levelEstimation.enabled = settings.isLevelEstimationEnabled();
 		config.voiceDetection.enabled = settings.isVoiceDetectionEnabled();
 
 		NoiseSuppressionLevel nsLevel = settings.getNoiseSuppressionLevel();

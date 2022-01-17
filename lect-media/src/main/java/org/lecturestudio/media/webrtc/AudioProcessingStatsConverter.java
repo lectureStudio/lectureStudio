@@ -37,7 +37,6 @@ public class AudioProcessingStatsConverter implements
 	public org.lecturestudio.core.audio.AudioProcessingStats to(AudioProcessingStats stats) {
 		var audioStats = new org.lecturestudio.core.audio.AudioProcessingStats();
 		audioStats.delayMs = stats.delayMs;
-		audioStats.outputRmsDbfs = stats.outputRmsDbfs;
 		audioStats.voiceDetected = stats.voiceDetected;
 
 		return audioStats;

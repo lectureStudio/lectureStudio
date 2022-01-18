@@ -137,6 +137,12 @@
 			<groupId>org.lecturestudio.web.api</groupId>
 			<artifactId>lect-web-api</artifactId>
 			<version>1.0.0</version>
+			<exclusions>
+				<exclusion>
+					<groupId>dev.onvoid.webrtc</groupId>
+					<artifactId>webrtc-java</artifactId>
+				</exclusion>
+			</exclusions>
 		</dependency>
 		<dependency>
 			<groupId>org.lecturestudio.web.frontend</groupId>

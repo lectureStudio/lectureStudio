@@ -46,6 +46,13 @@ public class PresenterConfiguration extends Configuration {
 
 	private final NetworkConfiguration networkConfig = new NetworkConfiguration();
 
+	private final ExternalWindowConfiguration externalMessagesConfig = new ExternalWindowConfiguration();
+
+	private final ExternalWindowConfiguration externalSlidePreviewConfig = new ExternalWindowConfiguration();
+
+	private final ExternalWindowConfiguration externalSpeechConfig = new ExternalWindowConfiguration();
+
+	private final MessageBarConfiguration messageBarConfiguration = new MessageBarConfiguration();
 
 	/**
 	 * @return the classroomName
@@ -60,7 +67,7 @@ public class PresenterConfiguration extends Configuration {
 	public void setClassroomName(String classroomName) {
 		this.classroomName.set(classroomName);
 	}
-	
+
 	public StringProperty classroomNameProperty() {
 		return classroomName;
 	}
@@ -78,7 +85,7 @@ public class PresenterConfiguration extends Configuration {
 	public void setClassroomShortName(String classroomShortName) {
 		this.classroomShortName.set(classroomShortName);
 	}
-	
+
 	public StringProperty classroomShortNameProperty() {
 		return classroomShortName;
 	}
@@ -141,11 +148,11 @@ public class PresenterConfiguration extends Configuration {
 	public void setSaveDocumentOnClose(Boolean saveDocOnClose) {
 		this.saveDocOnClose.set(saveDocOnClose);
 	}
-	
+
 	public BooleanProperty saveDocOnCloseProperty() {
 		return saveDocOnClose;
 	}
-	
+
 	/**
 	 * @return the streamConfig
 	 */
@@ -161,10 +168,42 @@ public class PresenterConfiguration extends Configuration {
 	}
 
 	/**
+	 *
+	 * @return External messages configuration
+	 */
+	public ExternalWindowConfiguration getExternalMessagesConfig() {
+		return externalMessagesConfig;
+	}
+
+	/**
+	 *
+	 * @return External slide preview configuration
+	 */
+	public ExternalWindowConfiguration getExternalSlidePreviewConfig() {
+		return externalSlidePreviewConfig;
+	}
+
+	/**
+	 *
+	 * @return External speech configuration
+	 */
+	public ExternalWindowConfiguration getExternalSpeechConfig() {
+		return externalSpeechConfig;
+	}
+
+	/**
+	 *
+	 * @return Message bar configuration
+	 */
+	public MessageBarConfiguration getMessageBarConfiguration() {
+		return messageBarConfiguration;
+	}
+
+	/**
 	 * @return the quizConfig
 	 */
 	public QuizConfiguration getQuizConfig() {
 		return quizConfig;
 	}
-	
+
 }

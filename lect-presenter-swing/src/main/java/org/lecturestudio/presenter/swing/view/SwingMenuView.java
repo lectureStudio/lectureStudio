@@ -27,14 +27,7 @@ import java.net.URI;
 import java.util.List;
 
 import javax.inject.Inject;
-import javax.swing.AbstractButton;
-import javax.swing.JCheckBoxMenuItem;
-import javax.swing.JMenu;
-import javax.swing.JMenuBar;
-import javax.swing.JMenuItem;
-import javax.swing.JPopupMenu;
-import javax.swing.JSeparator;
-import javax.swing.KeyStroke;
+import javax.swing.*;
 
 import org.lecturestudio.core.ExecutableState;
 import org.lecturestudio.core.app.dictionary.Dictionary;
@@ -59,641 +52,745 @@ import org.lecturestudio.web.api.model.quiz.Quiz;
 @SwingView(name = "main-menu", presenter = org.lecturestudio.presenter.api.presenter.MenuPresenter.class)
 public class SwingMenuView extends JMenuBar implements MenuView {
 
-	private final Dictionary dict;
+    private final Dictionary dict;
 
-	private ConsumerAction<Bookmark> openBookmarkAction;
+    private ConsumerAction<Bookmark> openBookmarkAction;
 
-	private ConsumerAction<File> openDocumentAction;
+    private ConsumerAction<File> openDocumentAction;
 
-	private ConsumerAction<Quiz> openEmbeddedQuizAction;
+    private ConsumerAction<Quiz> openEmbeddedQuizAction;
 
-	private ConsumerAction<URI> openPageUriAction;
+    private ConsumerAction<URI> openPageUriAction;
 
-	private ConsumerAction<File> openPageFileLinkAction;
+    private ConsumerAction<File> openPageFileLinkAction;
 
-	private JMenu fileMenu;
+    private JMenu fileMenu;
 
-	private JMenu bookmarksMenu;
+    private JMenu bookmarksMenu;
 
-	private JMenu pageActionsMenu;
+    private JMenu pageActionsMenu;
 
-	private JMenu embeddedQuizMenu;
+    private JMenu embeddedQuizMenu;
 
-	private JMenuItem openDocumentMenuItem;
+    private JMenuItem openDocumentMenuItem;
 
-	private JMenuItem closeDocumentMenuItem;
+    private JMenuItem closeDocumentMenuItem;
 
-	private JMenuItem saveDocumentsMenuItem;
+    private JMenuItem saveDocumentsMenuItem;
 
-	private JMenuItem saveQuizMenuItem;
+    private JMenuItem saveQuizMenuItem;
 
-	private JMenuItem exitMenuItem;
+    private JMenuItem exitMenuItem;
 
-	private JMenuItem undoMenuItem;
+    private JMenuItem undoMenuItem;
 
-	private JMenuItem redoMenuItem;
+    private JMenuItem redoMenuItem;
 
-	private JMenuItem settingsMenuItem;
+    private JMenuItem settingsMenuItem;
 
-	private JCheckBoxMenuItem outlineMenuItem;
+    private JCheckBoxMenuItem outlineMenuItem;
 
-	private JCheckBoxMenuItem fullscreenMenuItem;
+    private JCheckBoxMenuItem fullscreenMenuItem;
 
-	private JCheckBoxMenuItem advancedSettingsMenuItem;
+    private JCheckBoxMenuItem advancedSettingsMenuItem;
 
-	private JMenuItem customizeToolbarMenuItem;
+    private JMenuItem customizeToolbarMenuItem;
 
-	private JMenuItem newWhiteboardMenuItem;
+    private JMenu externalWindowsMenu;
 
-	private JMenuItem newWhiteboardPageMenuItem;
+    private JCheckBoxMenuItem externalMessagesMenuItem;
 
-	private JMenuItem deleteWhiteboardPageMenuItem;
+    private JCheckBoxMenuItem externalSlidePreviewMenuItem;
 
-	private JCheckBoxMenuItem gridMenuItem;
+    private JCheckBoxMenuItem externalSpeechMenuItem;
 
-	private JMenuItem startRecordingMenuItem;
+    private JMenu messagesPositionMenu;
 
-	private JMenuItem stopRecordingMenuItem;
+    private JRadioButtonMenuItem messagesPositionAutoMenuItem;
 
-	private JCheckBoxMenuItem enableStreamMenuItem;
+    private JRadioButtonMenuItem messagesPositionLeftMenuItem;
 
-	private JCheckBoxMenuItem enableStreamMicrophoneMenuItem;
+    private JRadioButtonMenuItem messagesPositionBottomMenuItem;
 
-	private JCheckBoxMenuItem enableStreamCameraMenuItem;
+    private JRadioButtonMenuItem messagesPositionRightMenuItem;
 
-	private JCheckBoxMenuItem enableMessengerMenuItem;
+    private JMenuItem newWhiteboardMenuItem;
 
-	private JCheckBoxMenuItem showMessengerWindowMenuItem;
+    private JMenuItem newWhiteboardPageMenuItem;
 
-	private JMenuItem selectQuizMenuItem;
+    private JMenuItem deleteWhiteboardPageMenuItem;
 
-	private JMenuItem newQuizMenuItem;
+    private JCheckBoxMenuItem gridMenuItem;
 
-	private JMenuItem closeQuizMenuItem;
+    private JMenuItem startRecordingMenuItem;
 
-	private JMenuItem clearBookmarksMenuItem;
+    private JMenuItem stopRecordingMenuItem;
 
-	private JMenuItem newBookmarkMenuItem;
+    private JCheckBoxMenuItem enableStreamMenuItem;
 
-	private JMenuItem gotoBookmarkMenuItem;
+    private JCheckBoxMenuItem enableStreamMicrophoneMenuItem;
 
-	private JMenuItem previousBookmarkMenuItem;
+    private JCheckBoxMenuItem enableStreamCameraMenuItem;
 
-	private JMenuItem logMenuItem;
+    private JCheckBoxMenuItem enableMessengerMenuItem;
 
-	private JMenuItem aboutMenuItem;
+    private JCheckBoxMenuItem showMessengerWindowMenuItem;
 
-	private JMenu timeMenu;
+    private JMenuItem selectQuizMenuItem;
 
-	private JMenu recordIndicatorMenu;
+    private JMenuItem newQuizMenuItem;
 
-	private JMenu quizIndicatorMenu;
+    private JMenuItem closeQuizMenuItem;
 
-	private JMenu messengerIndicatorMenu;
+    private JMenuItem clearBookmarksMenuItem;
 
-	private JMenu speechIndicatorMenu;
+    private JMenuItem newBookmarkMenuItem;
 
-	private JMenu streamIndicatorMenu;
+    private JMenuItem gotoBookmarkMenuItem;
 
+    private JMenuItem previousBookmarkMenuItem;
 
-	@Inject
-	SwingMenuView(Dictionary dict) {
-		super();
+    private JMenuItem logMenuItem;
 
-		this.dict = dict;
-	}
-
-	@Override
-	public void setDocument(Document doc) {
-		final boolean hasDocument = nonNull(doc);
-		final boolean isPdf = nonNull(doc) && doc.isPDF();
-		final boolean isWhiteboard = nonNull(doc) && doc.isWhiteboard();
-
-		SwingUtils.invoke(() -> {
-			closeDocumentMenuItem.setEnabled(hasDocument);
-			saveDocumentsMenuItem.setEnabled(hasDocument);
-			outlineMenuItem.setEnabled(isPdf);
-			newWhiteboardPageMenuItem.setEnabled(isWhiteboard);
-			deleteWhiteboardPageMenuItem.setEnabled(isWhiteboard);
-			gridMenuItem.setEnabled(isWhiteboard);
-			selectQuizMenuItem.setEnabled(hasDocument);
-			newQuizMenuItem.setEnabled(hasDocument);
-			clearBookmarksMenuItem.setEnabled(hasDocument);
-			newBookmarkMenuItem.setEnabled(hasDocument);
-			gotoBookmarkMenuItem.setEnabled(hasDocument);
-			previousBookmarkMenuItem.setEnabled(hasDocument);
-			startRecordingMenuItem.setEnabled(hasDocument);
-			enableStreamMenuItem.setEnabled(hasDocument);
-			enableMessengerMenuItem.setEnabled(hasDocument);
-		});
-	}
-
-	@Override
-	public void setPage(Page page, PresentationParameter parameter) {
-		SwingUtils.invoke(() -> {
-			boolean hasUndo = false;
-			boolean hasRedo = false;
-			boolean hasGrid = false;
-
-			if (nonNull(page)) {
-				hasUndo = page.hasUndoActions();
-				hasRedo = page.hasRedoActions();
-			}
-			if (nonNull(parameter)) {
-				hasGrid = parameter.showGrid();
-			}
-
-			undoMenuItem.setEnabled(hasUndo);
-			redoMenuItem.setEnabled(hasRedo);
-			gridMenuItem.setSelected(hasGrid);
-		});
-	}
-
-	@Override
-	public void setRecentDocuments(List<RecentDocument> recentDocs) {
-		// Remove recent document items.
-		for (Component item : fileMenu.getMenuComponents()) {
-			if (nonNull(item)) {
-				String name = item.getName();
-
-				if (nonNull(name) && name.equals("recent-doc")) {
-					fileMenu.remove(item);
-				}
-			}
-		}
-
-		int offset = List.of(fileMenu.getMenuComponents()).indexOf(saveQuizMenuItem) + 1;
-
-		if (!recentDocs.isEmpty()) {
-			JSeparator separator = new JPopupMenu.Separator();
-			separator.setName("recent-doc");
-
-			fileMenu.add(separator, offset++);
-		}
-
-		for (RecentDocument recentDoc : recentDocs) {
-			File file = new File(recentDoc.getDocumentPath());
-
-			JMenuItem docItem = new JMenuItem(file.getName());
-			docItem.setName("recent-doc");
-			docItem.addActionListener(event -> {
-				if (nonNull(openDocumentAction)) {
-					openDocumentAction.execute(file);
-				}
-			});
-
-			fileMenu.add(docItem, offset++);
-		}
-	}
-
-	@Override
-	public void setOnOpenDocument(Action action) {
-		SwingUtils.bindAction(openDocumentMenuItem, action);
-	}
-
-	@Override
-	public void setOnOpenDocument(ConsumerAction<File> action) {
-		this.openDocumentAction = action;
-	}
-
-	@Override
-	public void setOnCloseDocument(Action action) {
-		SwingUtils.bindAction(closeDocumentMenuItem, action);
-	}
-
-	@Override
-	public void setOnSaveDocuments(Action action) {
-		SwingUtils.bindAction(saveDocumentsMenuItem, action);
-	}
-
-	@Override
-	public void setOnSaveQuizResults(Action action) {
-		SwingUtils.bindAction(saveQuizMenuItem, action);
-	}
-
-	@Override
-	public void setOnExit(Action action) {
-		SwingUtils.bindAction(exitMenuItem, action);
-	}
-
-	@Override
-	public void setOnUndo(Action action) {
-		SwingUtils.bindAction(undoMenuItem, action);
-	}
-
-	@Override
-	public void setOnRedo(Action action) {
-		SwingUtils.bindAction(redoMenuItem, action);
-	}
-
-	@Override
-	public void setOnSettings(Action action) {
-		SwingUtils.bindAction(settingsMenuItem, action);
-	}
-
-	@Override
-	public void bindShowOutline(BooleanProperty showProperty) {
-		SwingUtils.bindBidirectional(outlineMenuItem, showProperty);
-	}
-
-	@Override
-	public void setAdvancedSettings(boolean selected) {
-		advancedSettingsMenuItem.setSelected(selected);
-	}
-
-	@Override
-	public void bindFullscreen(BooleanProperty fullscreen) {
-		SwingUtils.bindBidirectional(fullscreenMenuItem, fullscreen);
-	}
-
-	@Override
-	public void setOnAdvancedSettings(ConsumerAction<Boolean> action) {
-		SwingUtils.bindAction(advancedSettingsMenuItem, action);
-	}
-
-	@Override
-	public void setOnCustomizeToolbar(Action action) {
-		SwingUtils.bindAction(customizeToolbarMenuItem, action);
-	}
-
-	@Override
-	public void setOnNewWhiteboard(Action action) {
-		SwingUtils.bindAction(newWhiteboardMenuItem, action);
-	}
-
-	@Override
-	public void setOnNewWhiteboardPage(Action action) {
-		SwingUtils.bindAction(newWhiteboardPageMenuItem, action);
-	}
-
-	@Override
-	public void setOnDeleteWhiteboardPage(Action action) {
-		SwingUtils.bindAction(deleteWhiteboardPageMenuItem, action);
-	}
-
-	@Override
-	public void setOnShowGrid(ConsumerAction<Boolean> action) {
-		SwingUtils.bindAction(gridMenuItem, action);
-	}
-
-	@Override
-	public void setOnStartRecording(Action action) {
-		SwingUtils.bindAction(startRecordingMenuItem, action);
-	}
-
-	@Override
-	public void setOnStopRecording(Action action) {
-		SwingUtils.bindAction(stopRecordingMenuItem, action);
-	}
-
-	@Override
-	public void bindEnableStream(BooleanProperty enable) {
-		SwingUtils.bindBidirectional(enableStreamMenuItem, enable);
-	}
-
-	@Override
-	public void bindEnableStreamingMicrophone(BooleanProperty enable) {
-		SwingUtils.bindBidirectional(enableStreamMicrophoneMenuItem, enable);
-	}
-
-	@Override
-	public void bindEnableStreamingCamera(BooleanProperty enable) {
-		SwingUtils.bindBidirectional(enableStreamCameraMenuItem, enable);
-	}
-
-	@Override
-	public void bindEnableMessenger(BooleanProperty enable) {
-		SwingUtils.bindBidirectional(enableMessengerMenuItem, enable);
-	}
-
-	@Override
-	public void setOnShowMessengerWindow(ConsumerAction<Boolean> action) {
+    private JMenuItem aboutMenuItem;
+
+    private JMenu timeMenu;
+
+    private JMenu recordIndicatorMenu;
+
+    private JMenu quizIndicatorMenu;
+
+    private JMenu messengerIndicatorMenu;
+
+    private JMenu speechIndicatorMenu;
+
+    private JMenu streamIndicatorMenu;
+
+
+    @Inject
+    SwingMenuView(Dictionary dict) {
+        super();
+
+        this.dict = dict;
+    }
+
+    @Override
+    public void setDocument(Document doc) {
+        final boolean hasDocument = nonNull(doc);
+        final boolean isPdf = nonNull(doc) && doc.isPDF();
+        final boolean isWhiteboard = nonNull(doc) && doc.isWhiteboard();
+
+        // TODO: Einträge ausgrauen anzeigen
+        SwingUtils.invoke(() -> {
+            closeDocumentMenuItem.setEnabled(hasDocument);
+            saveDocumentsMenuItem.setEnabled(hasDocument);
+            customizeToolbarMenuItem.setEnabled(hasDocument);
+            outlineMenuItem.setEnabled(isPdf);
+            newWhiteboardPageMenuItem.setEnabled(isWhiteboard);
+            deleteWhiteboardPageMenuItem.setEnabled(isWhiteboard);
+            gridMenuItem.setEnabled(isWhiteboard);
+            selectQuizMenuItem.setEnabled(hasDocument);
+            newQuizMenuItem.setEnabled(hasDocument);
+            clearBookmarksMenuItem.setEnabled(hasDocument);
+            newBookmarkMenuItem.setEnabled(hasDocument);
+            gotoBookmarkMenuItem.setEnabled(hasDocument);
+            previousBookmarkMenuItem.setEnabled(hasDocument);
+            startRecordingMenuItem.setEnabled(hasDocument);
+            enableStreamMenuItem.setEnabled(hasDocument);
+            enableMessengerMenuItem.setEnabled(hasDocument);
+            externalWindowsMenu.setEnabled(hasDocument);
+            messagesPositionMenu.setEnabled(hasDocument);
+        });
+    }
+
+    @Override
+    public void setPage(Page page, PresentationParameter parameter) {
+        SwingUtils.invoke(() -> {
+            boolean hasUndo = false;
+            boolean hasRedo = false;
+            boolean hasGrid = false;
+
+            if (nonNull(page)) {
+                hasUndo = page.hasUndoActions();
+                hasRedo = page.hasRedoActions();
+            }
+            if (nonNull(parameter)) {
+                hasGrid = parameter.showGrid();
+            }
+
+            undoMenuItem.setEnabled(hasUndo);
+            redoMenuItem.setEnabled(hasRedo);
+            gridMenuItem.setSelected(hasGrid);
+        });
+    }
+
+    @Override
+    public void setRecentDocuments(List<RecentDocument> recentDocs) {
+        // Remove recent document items.
+        for (Component item : fileMenu.getMenuComponents()) {
+            if (nonNull(item)) {
+                String name = item.getName();
+
+                if (nonNull(name) && name.equals("recent-doc")) {
+                    fileMenu.remove(item);
+                }
+            }
+        }
+
+        int offset = List.of(fileMenu.getMenuComponents()).indexOf(saveQuizMenuItem) + 1;
+
+        if (!recentDocs.isEmpty()) {
+            JSeparator separator = new JPopupMenu.Separator();
+            separator.setName("recent-doc");
+
+            fileMenu.add(separator, offset++);
+        }
+
+        for (RecentDocument recentDoc : recentDocs) {
+            File file = new File(recentDoc.getDocumentPath());
+
+            JMenuItem docItem = new JMenuItem(file.getName());
+            docItem.setName("recent-doc");
+            docItem.addActionListener(event -> {
+                if (nonNull(openDocumentAction)) {
+                    openDocumentAction.execute(file);
+                }
+            });
+
+            fileMenu.add(docItem, offset++);
+        }
+    }
+
+    @Override
+    public void setOnOpenDocument(Action action) {
+        SwingUtils.bindAction(openDocumentMenuItem, action);
+    }
+
+    @Override
+    public void setOnOpenDocument(ConsumerAction<File> action) {
+        openDocumentAction = action;
+    }
+
+    @Override
+    public void setOnCloseDocument(Action action) {
+        SwingUtils.bindAction(closeDocumentMenuItem, action);
+    }
+
+    @Override
+    public void setOnSaveDocuments(Action action) {
+        SwingUtils.bindAction(saveDocumentsMenuItem, action);
+    }
+
+    @Override
+    public void setOnSaveQuizResults(Action action) {
+        SwingUtils.bindAction(saveQuizMenuItem, action);
+    }
+
+    @Override
+    public void setOnExit(Action action) {
+        SwingUtils.bindAction(exitMenuItem, action);
+    }
+
+    @Override
+    public void setOnUndo(Action action) {
+        SwingUtils.bindAction(undoMenuItem, action);
+    }
+
+    @Override
+    public void setOnRedo(Action action) {
+        SwingUtils.bindAction(redoMenuItem, action);
+    }
+
+    @Override
+    public void setOnSettings(Action action) {
+        SwingUtils.bindAction(settingsMenuItem, action);
+    }
+
+    @Override
+    public void bindShowOutline(BooleanProperty showProperty) {
+        SwingUtils.bindBidirectional(outlineMenuItem, showProperty);
+    }
+
+    @Override
+    public void setAdvancedSettings(boolean selected) {
+        advancedSettingsMenuItem.setSelected(selected);
+    }
+
+    @Override
+    public void bindFullscreen(BooleanProperty fullscreen) {
+        SwingUtils.bindBidirectional(fullscreenMenuItem, fullscreen);
+    }
+
+    @Override
+    public void setOnAdvancedSettings(ConsumerAction<Boolean> action) {
+        SwingUtils.bindAction(advancedSettingsMenuItem, action);
+    }
+
+    @Override
+    public void setOnCustomizeToolbar(Action action) {
+        SwingUtils.bindAction(customizeToolbarMenuItem, action);
+    }
+
+    @Override
+    public void setExternalMessages(boolean selected, boolean show) {
+        externalMessagesMenuItem.setSelected(selected);
+        externalMessagesMenuItem.setText(
+                !selected || show ? dict.get("menu.external.messages") :
+                        dict.get("menu.external.messages.disconnected"));
+    }
+
+    @Override
+    public void setOnExternalMessages(ConsumerAction<Boolean> action) {
+        SwingUtils.bindAction(externalMessagesMenuItem, action);
+    }
+
+    @Override
+    public void setExternalSlidePreview(boolean selected, boolean show) {
+        externalSlidePreviewMenuItem.setSelected(selected);
+        externalSlidePreviewMenuItem.setText(
+                !selected || show ? dict.get("menu.external.slide.preview") :
+                        dict.get("menu.external.slide.preview.disconnected"));
+    }
+
+    @Override
+    public void setOnExternalSlidePreview(ConsumerAction<Boolean> action) {
+        SwingUtils.bindAction(externalSlidePreviewMenuItem, action);
+    }
+
+    @Override
+    public void setExternalSpeech(boolean selected, boolean show) {
+        externalSpeechMenuItem.setSelected(selected);
+        externalSpeechMenuItem.setText(
+                !selected || show ? dict.get("menu.external.speech") : dict.get("menu.external.speech.disconnected"));
+    }
+
+    @Override
+    public void setOnExternalSpeech(ConsumerAction<Boolean> action) {
+        SwingUtils.bindAction(externalSpeechMenuItem, action);
+    }
+
+    @Override
+    public void setOnMessagesPositionAuto(Action action) {
+        SwingUtils.bindAction(messagesPositionAutoMenuItem, action);
+    }
+
+    @Override
+    public void setMessagesPositionAuto() {
+        messagesPositionAutoMenuItem.setSelected(true);
+    }
+
+    @Override
+    public void setOnMessagesPositionLeft(Action action) {
+        SwingUtils.bindAction(messagesPositionLeftMenuItem, action);
+    }
+
+    @Override
+    public void setMessagesPositionLeft() {
+        messagesPositionLeftMenuItem.setSelected(true);
+    }
+
+    @Override
+    public void setOnMessagesPositionBottom(Action action) {
+        SwingUtils.bindAction(messagesPositionBottomMenuItem, action);
+    }
+
+    @Override
+    public void setMessagesPositionBottom() {
+        messagesPositionBottomMenuItem.setSelected(true);
+    }
+
+    @Override
+    public void setOnMessagesPositionRight(Action action) {
+        SwingUtils.bindAction(messagesPositionRightMenuItem, action);
+    }
+
+    @Override
+    public void setMessagesPositionRight() {
+        messagesPositionRightMenuItem.setSelected(true);
+    }
+
+    @Override
+    public void setOnNewWhiteboard(Action action) {
+        SwingUtils.bindAction(newWhiteboardMenuItem, action);
+    }
+
+    @Override
+    public void setOnNewWhiteboardPage(Action action) {
+        SwingUtils.bindAction(newWhiteboardPageMenuItem, action);
+    }
+
+    @Override
+    public void setOnDeleteWhiteboardPage(Action action) {
+        SwingUtils.bindAction(deleteWhiteboardPageMenuItem, action);
+    }
+
+    @Override
+    public void setOnShowGrid(ConsumerAction<Boolean> action) {
+        SwingUtils.bindAction(gridMenuItem, action);
+    }
+
+    @Override
+    public void setOnStartRecording(Action action) {
+        SwingUtils.bindAction(startRecordingMenuItem, action);
+    }
+
+    @Override
+    public void setOnStopRecording(Action action) {
+        SwingUtils.bindAction(stopRecordingMenuItem, action);
+    }
+
+    @Override
+    public void bindEnableStream(BooleanProperty enable) {
+        SwingUtils.bindBidirectional(enableStreamMenuItem, enable);
+    }
+
+    @Override
+    public void bindEnableStreamingMicrophone(BooleanProperty enable) {
+        SwingUtils.bindBidirectional(enableStreamMicrophoneMenuItem, enable);
+    }
+
+    @Override
+    public void bindEnableStreamingCamera(BooleanProperty enable) {
+        SwingUtils.bindBidirectional(enableStreamCameraMenuItem, enable);
+    }
+
+    @Override
+    public void bindEnableMessenger(BooleanProperty enable) {
+        SwingUtils.bindBidirectional(enableMessengerMenuItem, enable);
+    }
+
+    @Override
+    public void setOnShowMessengerWindow(ConsumerAction<Boolean> action) {
 //		SwingUtils.bindAction(showMessengerWindowMenuItem, action);
-	}
+    }
 
-	@Override
-	public void setOnShowSelectQuizView(Action action) {
-		SwingUtils.bindAction(selectQuizMenuItem, action);
-	}
+    @Override
+    public void setOnShowSelectQuizView(Action action) {
+        SwingUtils.bindAction(selectQuizMenuItem, action);
+    }
 
-	@Override
-	public void setOnShowNewQuizView(Action action) {
-		SwingUtils.bindAction(newQuizMenuItem, action);
-	}
+    @Override
+    public void setOnShowNewQuizView(Action action) {
+        SwingUtils.bindAction(newQuizMenuItem, action);
+    }
 
-	@Override
-	public void setOnCloseQuiz(Action action) {
-		SwingUtils.bindAction(closeQuizMenuItem, action);
-	}
+    @Override
+    public void setOnCloseQuiz(Action action) {
+        SwingUtils.bindAction(closeQuizMenuItem, action);
+    }
 
-	@Override
-	public void setMessengerWindowVisible(boolean visible) {
+    @Override
+    public void setMessengerWindowVisible(boolean visible) {
 //		showMessengerWindowMenuItem.setSelected(visible);
-	}
+    }
 
-	@Override
-	public void setMessengerState(ExecutableState state) {
-		final boolean started = state == ExecutableState.Started;
+    @Override
+    public void setMessengerState(ExecutableState state) {
+        final boolean started = state == ExecutableState.Started;
 
-		SwingUtils.invoke(() -> {
+        SwingUtils.invoke(() -> {
 //			showMessengerWindowMenuItem.setEnabled(started);
 
-			setIndicatorState(messengerIndicatorMenu, state);
-		});
-	}
+            setIndicatorState(messengerIndicatorMenu, state);
+        });
+    }
 
-	@Override
-	public void setQuizState(ExecutableState state) {
-		final boolean started = state == ExecutableState.Started;
+    @Override
+    public void setQuizState(ExecutableState state) {
+        final boolean started = state == ExecutableState.Started;
 
-		SwingUtils.invoke(() -> {
-			saveQuizMenuItem.setEnabled(started);
-			closeQuizMenuItem.setEnabled(started);
+        SwingUtils.invoke(() -> {
+            saveQuizMenuItem.setEnabled(started);
+            closeQuizMenuItem.setEnabled(started);
 
-			setIndicatorState(quizIndicatorMenu, state);
-		});
-	}
+            setIndicatorState(quizIndicatorMenu, state);
+        });
+    }
 
-	@Override
-	public void setRecordingState(ExecutableState state) {
-		final boolean started = state == ExecutableState.Started;
+    @Override
+    public void setRecordingState(ExecutableState state) {
+        final boolean started = state == ExecutableState.Started;
 
-		SwingUtils.invoke(() -> {
-			startRecordingMenuItem.setEnabled(!started && closeDocumentMenuItem.isEnabled());
-			stopRecordingMenuItem.setEnabled(started);
+        SwingUtils.invoke(() -> {
+            startRecordingMenuItem.setEnabled(!started && closeDocumentMenuItem.isEnabled());
+            stopRecordingMenuItem.setEnabled(started);
 
-			updateRecTimeLabel(state);
+            updateRecTimeLabel(state);
 
-			setIndicatorState(recordIndicatorMenu, state);
-		});
-	}
+            setIndicatorState(recordIndicatorMenu, state);
+        });
+    }
 
-	@Override
-	public void setStreamingState(ExecutableState state) {
-		final boolean started = state == ExecutableState.Started;
+    @Override
+    public void setStreamingState(ExecutableState state) {
+        final boolean started = state == ExecutableState.Started;
 
-		SwingUtils.invoke(() -> {
-			enableStreamMicrophoneMenuItem.setEnabled(started);
-			enableStreamCameraMenuItem.setEnabled(started);
+        SwingUtils.invoke(() -> {
+            enableStreamMicrophoneMenuItem.setEnabled(started);
+            enableStreamCameraMenuItem.setEnabled(started);
 
-			setIndicatorState(streamIndicatorMenu, state);
-			setIndicatorState(speechIndicatorMenu, state);
-		});
-	}
+            setIndicatorState(streamIndicatorMenu, state);
+            setIndicatorState(speechIndicatorMenu, state);
+        });
+    }
 
-	@Override
-	public void setBookmarks(Bookmarks bookmarks) {
-		SwingUtils.invoke(() -> {
-			List<Bookmark> bookmarkList = bookmarks.getAllBookmarks();
-			int fixedMenuItems = 5;
+    @Override
+    public void setBookmarks(Bookmarks bookmarks) {
+        SwingUtils.invoke(() -> {
+            List<Bookmark> bookmarkList = bookmarks.getAllBookmarks();
+            int fixedMenuItems = 5;
 
-			// Remove all bookmark menu items.
-			if (bookmarksMenu.getItemCount() > fixedMenuItems) {
-				int pos = 0;
+            // Remove all bookmark menu items.
+            if (bookmarksMenu.getItemCount() > fixedMenuItems) {
+                int pos = 0;
 
-				while (pos < bookmarksMenu.getItemCount() - fixedMenuItems) {
-					bookmarksMenu.remove(pos);
-				}
-			}
+                while (pos < bookmarksMenu.getItemCount() - fixedMenuItems) {
+                    bookmarksMenu.remove(pos);
+                }
+            }
 
-			if (bookmarksMenu.getItemCount() == fixedMenuItems && bookmarkList.size() > 0) {
-				bookmarksMenu.add(new JPopupMenu.Separator(), 0);
-			}
+            if (bookmarksMenu.getItemCount() == fixedMenuItems && bookmarkList.size() > 0) {
+                bookmarksMenu.add(new JPopupMenu.Separator(), 0);
+            }
 
-			int count = 0;
+            int count = 0;
 
-			for (Bookmark bookmark : bookmarkList) {
-				Document doc = bookmark.getPage().getDocument();
-				String docName = doc.getName();
-				String text = docName + ": " + (doc.getPageIndex(bookmark.getPage()) + 1);
+            for (Bookmark bookmark : bookmarkList) {
+                Document doc = bookmark.getPage().getDocument();
+                String docName = doc.getName();
+                String text = docName + ": " + (doc.getPageIndex(bookmark.getPage()) + 1);
 
-				JMenuItem bookmarkItem = new JMenuItem(text);
-				bookmarkItem.setAccelerator(KeyStroke.getKeyStroke(bookmark.getShortcut()));
-				bookmarkItem.addActionListener(event -> {
-					if (nonNull(openBookmarkAction)) {
-						openBookmarkAction.execute(bookmark);
-					}
-				});
+                JMenuItem bookmarkItem = new JMenuItem(text);
+                bookmarkItem.setAccelerator(KeyStroke.getKeyStroke(bookmark.getShortcut()));
+                bookmarkItem.addActionListener(event -> {
+                    if (nonNull(openBookmarkAction)) {
+                        openBookmarkAction.execute(bookmark);
+                    }
+                });
 
-				bookmarksMenu.add(bookmarkItem, count++);
-			}
-		});
-	}
+                bookmarksMenu.add(bookmarkItem, count++);
+            }
+        });
+    }
 
-	@Override
-	public void setOnClearBookmarks(Action action) {
-		SwingUtils.bindAction(clearBookmarksMenuItem, action);
-	}
+    @Override
+    public void setOnClearBookmarks(Action action) {
+        SwingUtils.bindAction(clearBookmarksMenuItem, action);
+    }
 
-	@Override
-	public void setOnShowNewBookmarkView(Action action) {
-		SwingUtils.bindAction(newBookmarkMenuItem, action);
-	}
+    @Override
+    public void setOnShowNewBookmarkView(Action action) {
+        SwingUtils.bindAction(newBookmarkMenuItem, action);
+    }
 
-	@Override
-	public void setOnShowGotoBookmarkView(Action action) {
-		SwingUtils.bindAction(gotoBookmarkMenuItem, action);
-	}
+    @Override
+    public void setOnShowGotoBookmarkView(Action action) {
+        SwingUtils.bindAction(gotoBookmarkMenuItem, action);
+    }
 
-	@Override
-	public void setOnPreviousBookmark(Action action) {
-		SwingUtils.bindAction(previousBookmarkMenuItem, action);
-	}
+    @Override
+    public void setOnPreviousBookmark(Action action) {
+        SwingUtils.bindAction(previousBookmarkMenuItem, action);
+    }
 
-	@Override
-	public void setOnOpenBookmark(ConsumerAction<Bookmark> action) {
-		this.openBookmarkAction = action;
-	}
+    @Override
+    public void setOnOpenBookmark(ConsumerAction<Bookmark> action) {
+        this.openBookmarkAction = action;
+    }
 
-	@Override
-	public void setPageURIs(List<URI> uris) {
-		SwingUtils.invoke(() -> {
-			for (int i = 0; i < pageActionsMenu.getItemCount(); i++) {
-				JMenuItem item = pageActionsMenu.getItem(i);
+    @Override
+    public void setPageURIs(List<URI> uris) {
+        SwingUtils.invoke(() -> {
+            for (int i = 0; i < pageActionsMenu.getItemCount(); i++) {
+                JMenuItem item = pageActionsMenu.getItem(i);
 
-				if (item.getActionCommand().equals("pageURI")) {
-					pageActionsMenu.remove(item);
-				}
-			}
+                if (item.getActionCommand().equals("pageURI")) {
+                    pageActionsMenu.remove(item);
+                }
+            }
 
-			if (nonNull(uris) && !uris.isEmpty()) {
-				for (final URI uri : uris) {
-					JMenuItem uriItem = new JMenuItem(uri.toString());
-					uriItem.setActionCommand("pageURI");
-					uriItem.addActionListener(event -> {
-						if (nonNull(openPageUriAction)) {
-							openPageUriAction.execute(uri);
-						}
-					});
+            if (nonNull(uris) && !uris.isEmpty()) {
+                for (final URI uri : uris) {
+                    JMenuItem uriItem = new JMenuItem(uri.toString());
+                    uriItem.setActionCommand("pageURI");
+                    uriItem.addActionListener(event -> {
+                        if (nonNull(openPageUriAction)) {
+                            openPageUriAction.execute(uri);
+                        }
+                    });
 
-					pageActionsMenu.add(uriItem);
-				}
-			}
+                    pageActionsMenu.add(uriItem);
+                }
+            }
 
-			pageActionsMenu.setVisible(pageActionsMenu.getItemCount() > 0);
-		});
-	}
+            pageActionsMenu.setVisible(pageActionsMenu.getItemCount() > 0);
+        });
+    }
 
-	@Override
-	public void setPageFileLinks(List<File> fileLinks) {
-		SwingUtils.invoke(() -> {
-			for (int i = 0; i < pageActionsMenu.getItemCount(); i++) {
-				JMenuItem item = pageActionsMenu.getItem(i);
+    @Override
+    public void setPageFileLinks(List<File> fileLinks) {
+        SwingUtils.invoke(() -> {
+            for (int i = 0; i < pageActionsMenu.getItemCount(); i++) {
+                JMenuItem item = pageActionsMenu.getItem(i);
 
-				if (item.getActionCommand().equals("pageFileLink")) {
-					pageActionsMenu.remove(item);
-				}
-			}
+                if (item.getActionCommand().equals("pageFileLink")) {
+                    pageActionsMenu.remove(item);
+                }
+            }
 
-			if (nonNull(fileLinks) && !fileLinks.isEmpty()) {
-				for (final File file : fileLinks) {
-					JMenuItem fileItem = new JMenuItem(file.getPath());
-					fileItem.setActionCommand("pageFileLink");
-					fileItem.addActionListener(event -> {
-						if (nonNull(openPageFileLinkAction)) {
-							openPageFileLinkAction.execute(file);
-						}
-					});
+            if (nonNull(fileLinks) && !fileLinks.isEmpty()) {
+                for (final File file : fileLinks) {
+                    JMenuItem fileItem = new JMenuItem(file.getPath());
+                    fileItem.setActionCommand("pageFileLink");
+                    fileItem.addActionListener(event -> {
+                        if (nonNull(openPageFileLinkAction)) {
+                            openPageFileLinkAction.execute(file);
+                        }
+                    });
 
-					pageActionsMenu.add(fileItem);
-				}
-			}
+                    pageActionsMenu.add(fileItem);
+                }
+            }
 
-			pageActionsMenu.setVisible(pageActionsMenu.getItemCount() > 0);
-		});
-	}
+            pageActionsMenu.setVisible(pageActionsMenu.getItemCount() > 0);
+        });
+    }
 
-	@Override
-	public void setOnOpenPageURI(ConsumerAction<URI> action) {
-		this.openPageUriAction = action;
-	}
+    @Override
+    public void setOnOpenPageURI(ConsumerAction<URI> action) {
+        this.openPageUriAction = action;
+    }
 
-	@Override
-	public void setOnOpenPageFileLink(ConsumerAction<File> action) {
-		this.openPageFileLinkAction = action;
-	}
+    @Override
+    public void setOnOpenPageFileLink(ConsumerAction<File> action) {
+        this.openPageFileLinkAction = action;
+    }
 
-	@Override
-	public void setPageQuizzes(List<Quiz> quizzes) {
-		SwingUtils.invoke(() -> {
-			embeddedQuizMenu.removeAll();
+    @Override
+    public void setPageQuizzes(List<Quiz> quizzes) {
+        SwingUtils.invoke(() -> {
+            embeddedQuizMenu.removeAll();
 
-			boolean hasQuizzes = nonNull(quizzes) && !quizzes.isEmpty();
+            boolean hasQuizzes = nonNull(quizzes) && !quizzes.isEmpty();
 
-			if (hasQuizzes) {
-				for (final Quiz quiz : quizzes) {
-					JMenuItem quizItem = new JMenuItem(quiz.getQuestion());
-					quizItem.addActionListener(event -> {
-						if (nonNull(openEmbeddedQuizAction)) {
-							openEmbeddedQuizAction.execute(quiz);
-						}
-					});
+            if (hasQuizzes) {
+                for (final Quiz quiz : quizzes) {
+                    JMenuItem quizItem = new JMenuItem(quiz.getQuestion());
+                    quizItem.addActionListener(event -> {
+                        if (nonNull(openEmbeddedQuizAction)) {
+                            openEmbeddedQuizAction.execute(quiz);
+                        }
+                    });
 
-					embeddedQuizMenu.add(quizItem);
-				}
-			}
+                    embeddedQuizMenu.add(quizItem);
+                }
+            }
 
-			embeddedQuizMenu.setVisible(hasQuizzes);
-		});
-	}
+            embeddedQuizMenu.setVisible(hasQuizzes);
+        });
+    }
 
-	@Override
-	public void setOnOpenPageQuiz(ConsumerAction<Quiz> action) {
-		this.openEmbeddedQuizAction = action;
-	}
+    @Override
+    public void setOnOpenPageQuiz(ConsumerAction<Quiz> action) {
+        this.openEmbeddedQuizAction = action;
+    }
 
-	@Override
-	public void setOnOpenLog(Action action) {
-		SwingUtils.bindAction(logMenuItem, action);
-	}
+    @Override
+    public void setOnOpenLog(Action action) {
+        SwingUtils.bindAction(logMenuItem, action);
+    }
 
-	@Override
-	public void setOnOpenAbout(Action action) {
-		SwingUtils.bindAction(aboutMenuItem, action);
-	}
+    @Override
+    public void setOnOpenAbout(Action action) {
+        SwingUtils.bindAction(aboutMenuItem, action);
+    }
 
-	@Override
-	public void setCurrentTime(String time) {
-		SwingUtils.invoke(() -> timeMenu.setText(time));
-	}
+    @Override
+    public void setCurrentTime(String time) {
+        SwingUtils.invoke(() -> timeMenu.setText(time));
+    }
 
-	@Override
-	public void setRecordingTime(Time time) {
-		SwingUtils.invoke(() -> recordIndicatorMenu.setText(time.toString()));
-	}
+    @Override
+    public void setRecordingTime(Time time) {
+        SwingUtils.invoke(() -> recordIndicatorMenu.setText(time.toString()));
+    }
 
-	@Override
-	public void bindMessageCount(IntegerProperty count) {
-		count.addListener((observable, oldValue, newValue) -> {
-			SwingUtils.invoke(() -> {
-				messengerIndicatorMenu.setText(Integer.toString(newValue));
-			});
-		});
-	}
+    @Override
+    public void bindMessageCount(IntegerProperty count) {
+        count.addListener((observable, oldValue, newValue) -> {
+            SwingUtils.invoke(() -> {
+                messengerIndicatorMenu.setText(Integer.toString(newValue));
+            });
+        });
+    }
 
-	@Override
-	public void bindSpeechRequestCount(IntegerProperty count) {
-		count.addListener((observable, oldValue, newValue) -> {
-			SwingUtils.invoke(() -> {
-				speechIndicatorMenu.setText(Integer.toString(newValue));
-			});
-		});
-	}
+    @Override
+    public void bindSpeechRequestCount(IntegerProperty count) {
+        count.addListener((observable, oldValue, newValue) -> {
+            SwingUtils.invoke(() -> {
+                speechIndicatorMenu.setText(Integer.toString(newValue));
+            });
+        });
+    }
 
-	@Override
-	public void bindAttendeesCount(IntegerProperty count) {
-		count.addListener((observable, oldValue, newValue) -> {
-			SwingUtils.invoke(() -> {
-				streamIndicatorMenu.setText(Integer.toString(newValue));
-			});
-		});
-	}
+    @Override
+    public void bindAttendeesCount(IntegerProperty count) {
+        count.addListener((observable, oldValue, newValue) -> {
+            SwingUtils.invoke(() -> {
+                streamIndicatorMenu.setText(Integer.toString(newValue));
+            });
+        });
+    }
 
-	@Override
-	public void setQuizServiceState(QuizWebServiceState state) {
-		SwingUtils.invoke(() -> {
-			quizIndicatorMenu.setText(Long.toString(state.answerCount));
-		});
-	}
+    @Override
+    public void setQuizServiceState(QuizWebServiceState state) {
+        SwingUtils.invoke(() -> {
+            quizIndicatorMenu.setText(Long.toString(state.answerCount));
+        });
+    }
 
-	@ViewPostConstruct
-	private void initialize() {
-		setStateText(enableStreamMenuItem, dict.get("menu.stream.start"),
-				dict.get("menu.stream.stop"));
-		setStateText(enableMessengerMenuItem, dict.get("menu.messenger.start"),
-				dict.get("menu.messenger.stop"));
-		setStateText(enableStreamMicrophoneMenuItem, dict.get("menu.stream.microphone.start"),
-				dict.get("menu.stream.microphone.stop"));
-		setStateText(enableStreamCameraMenuItem, dict.get("menu.stream.camera.start"),
-				dict.get("menu.stream.camera.stop"));
-	}
+    @ViewPostConstruct
+    private void initialize() {
+        setStateText(enableStreamMenuItem, dict.get("menu.stream.start"),
+                dict.get("menu.stream.stop"));
+        setStateText(enableMessengerMenuItem, dict.get("menu.messenger.start"),
+                dict.get("menu.messenger.stop"));
+        setStateText(enableStreamMicrophoneMenuItem, dict.get("menu.stream.microphone.start"),
+                dict.get("menu.stream.microphone.stop"));
+        setStateText(enableStreamCameraMenuItem, dict.get("menu.stream.camera.start"),
+                dict.get("menu.stream.camera.stop"));
 
-	private void setStateText(AbstractButton button, String start, String stop) {
-		button.addItemListener(e -> {
-			button.setText(button.isSelected() ? stop : start);
-		});
-	}
+        final ButtonGroup messagesPositionButtonGroup = new ButtonGroup();
+        messagesPositionButtonGroup.add(messagesPositionAutoMenuItem);
+        messagesPositionButtonGroup.add(messagesPositionLeftMenuItem);
+        messagesPositionButtonGroup.add(messagesPositionBottomMenuItem);
+        messagesPositionButtonGroup.add(messagesPositionRightMenuItem);
+    }
 
-	private void setIndicatorState(JMenuItem styleable, ExecutableState state) {
-		if (state == ExecutableState.Started) {
-			styleable.setOpaque(true);
-			styleable.setBackground(new Color(210, 210, 210));
-		}
-		else if (state == ExecutableState.Suspended) {
-			styleable.setOpaque(true);
-			styleable.setBackground(new Color(245, 138, 0));
-		}
-		else if (state == ExecutableState.Stopped || state == ExecutableState.Error) {
-			styleable.setOpaque(false);
-			styleable.setBackground(null);
-			styleable.setText("");
-			styleable.setText(null);
-		}
-	}
+    private void setStateText(AbstractButton button, String start, String stop) {
+        button.addItemListener(e -> {
+            button.setText(button.isSelected() ? stop : start);
+        });
+    }
 
-	private void updateRecTimeLabel(ExecutableState state) {
-		if (state == ExecutableState.Stopped) {
-			recordIndicatorMenu.setText(null);
-		}
-	}
+    private void setIndicatorState(JMenuItem styleable, ExecutableState state) {
+        if (state == ExecutableState.Started) {
+            styleable.setOpaque(true);
+            styleable.setBackground(new Color(210, 210, 210));
+        } else if (state == ExecutableState.Suspended) {
+            styleable.setOpaque(true);
+            styleable.setBackground(new Color(245, 138, 0));
+        } else if (state == ExecutableState.Stopped || state == ExecutableState.Error) {
+            styleable.setOpaque(false);
+            styleable.setBackground(null);
+            styleable.setText("");
+            styleable.setText(null);
+        }
+    }
+
+    private void updateRecTimeLabel(ExecutableState state) {
+        if (state == ExecutableState.Stopped) {
+            recordIndicatorMenu.setText(null);
+        }
+    }
 }

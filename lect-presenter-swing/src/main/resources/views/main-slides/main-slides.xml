@@ -21,14 +21,14 @@
 <!--					<TextArea id="latexTextArea" minimumSize="0,0" />-->
 <!--				</Tab>-->
 				<Tab id="messageTab" name="message" text="slides.message" icon="messenger-indicator.svg, 20">
-					<ScrollPane>
+					<ScrollPane id="messagesPane">
 						<VBox id="messageViewContainer" border="EmptyBorder(10, 10, 10, 10)" />
 					</ScrollPane>
 				</Tab>
 			</TabbedPane>
 		</SplitPane>
 
-		<VBox>
+		<VBox id="rightVbox">
 			<Panel layout="BorderLayout" id="peerViewContainer" visible="false" />
 			<TabbedPane id="tabPane" tabPlacement="JTabbedPane.RIGHT" focusTraversable="false" />
 		</VBox>

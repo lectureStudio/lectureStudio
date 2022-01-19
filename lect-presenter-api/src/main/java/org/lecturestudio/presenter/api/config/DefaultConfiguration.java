@@ -35,6 +35,7 @@ import org.lecturestudio.core.text.TeXFont;
 import org.lecturestudio.core.text.TextAttributes;
 import org.lecturestudio.core.tool.PresetColor;
 import org.lecturestudio.core.util.OsInfo;
+import org.lecturestudio.presenter.api.model.MessageBarPosition;
 import org.lecturestudio.web.api.filter.IpFilter;
 import org.lecturestudio.web.api.filter.IpRangeRule;
 import org.lecturestudio.web.api.filter.RegexFilter;
@@ -66,9 +67,9 @@ public class DefaultConfiguration extends PresenterConfiguration {
 		getGridConfig().setHorizontalLinesInterval(0.5);
 		getGridConfig().setColor(new Color(230, 230, 230));
 		getGridConfig().setShowGridOnDisplays(false);
-		
+
 		getWhiteboardConfig().setBackgroundColor(Color.WHITE);
-		
+
 		getDisplayConfig().setAutostart(false);
 		getDisplayConfig().setBackgroundColor(Color.WHITE);
 		getDisplayConfig().setIpPosition(Position.BOTTOM_CENTER);
@@ -101,7 +102,7 @@ public class DefaultConfiguration extends PresenterConfiguration {
 		getToolConfig().getPresetColors().addAll(new ArrayList<>(6));
 
 		Collections.fill(getToolConfig().getPresetColors(), Color.WHITE);
-		
+
 		IpFilter filter = new IpFilter();
 		filter.registerRule(new IpRangeRule("127.0.0.1", "127.0.0.1"));
 		filter.registerRule(new IpRangeRule("192.168.0.1", "192.168.0.254"));
@@ -124,6 +125,12 @@ public class DefaultConfiguration extends PresenterConfiguration {
 		getNetworkConfig().getBroadcastProfiles().add(localProfile);
 		getNetworkConfig().getBroadcastProfiles().add(etitProfile);
 
+		getExternalMessagesConfig().setEnabled(false);
+		getExternalSlidePreviewConfig().setEnabled(false);
+		getExternalSpeechConfig().setEnabled(false);
+
+		getMessageBarConfiguration().setMessageBarPosition(MessageBarPosition.AUTO);
+
 		AudioProcessingSettings processingSettings = new AudioProcessingSettings();
 		processingSettings.setHighpassFilterEnabled(true);
 		processingSettings.setNoiseSuppressionEnabled(true);
@@ -140,13 +147,13 @@ public class DefaultConfiguration extends PresenterConfiguration {
 		getStreamConfig().getCameraCodecConfig().setBitRate(200);
 		getStreamConfig().getCameraCodecConfig().setPreset("ultrafast");
 		getStreamConfig().getCameraCodecConfig().setFrameRate(30);
-		
+
 		RegexFilter inputFilter = new RegexFilter();
 		inputFilter.registerRule(new RegexRule("^(1337)+"));
 		inputFilter.registerRule(new RegexRule("^(42)+"));
 		inputFilter.registerRule(new RegexRule("^(666)+"));
-		
+
 		getQuizConfig().setInputFilter(inputFilter);
 	}
-	
+
 }

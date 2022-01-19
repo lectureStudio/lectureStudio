@@ -19,6 +19,17 @@
 		<checkboxmenuitem id="outlineMenuItem" text="menu.contents" />
 		<checkboxmenuitem id="fullscreenMenuItem" text="menu.fullscreen" type="checkbox" accelerator="alt ENTER" />
 		<menuitem id="customizeToolbarMenuItem" text="menu.toolbar.customize" />
+		<menu id="externalWindowsMenu" text="menu.external.windows">
+			<checkboxmenuitem id="externalMessagesMenuItem" text="menu.external.messages" />
+			<checkboxmenuitem id="externalSlidePreviewMenuItem" text="menu.external.slide.preview" />
+			<checkboxmenuitem id="externalSpeechMenuItem" text="menu.external.speech" />
+		</menu>
+		<menu id="messagesPositionMenu" text="menu.messages.position">
+			<radiobuttonmenuitem id="messagesPositionAutoMenuItem" text="menu.auto" />
+			<radiobuttonmenuitem id="messagesPositionLeftMenuItem" text="menu.left" />
+			<radiobuttonmenuitem id="messagesPositionBottomMenuItem" text="menu.bottom" />
+			<radiobuttonmenuitem id="messagesPositionRightMenuItem" text="menu.right" />
+		</menu>
 <!--		<checkboxmenuitem id="advancedSettingsMenuItem" text="menu.advanced.settings" type="checkbox" />-->
 	</menu>
 	<menu text="menu.whiteboard">

@@ -176,7 +176,7 @@ public final class Screens {
 		return new Rectangle((int) r.getX(), (int) r.getY(), (int) r.getWidth(), (int) r.getHeight());
 	}
 
-	private static Screen createScreen(GraphicsDevice device) {
+	public static Screen createScreen(GraphicsDevice device) {
 		GraphicsConfiguration deviceConfig = device.getDefaultConfiguration();
 		Rectangle bounds = deviceConfig.getBounds();
 		AffineTransform transform = deviceConfig.getDefaultTransform();

@@ -8,94 +8,106 @@
 <?import javafx.scene.control.SeparatorMenuItem?>
 <?import javafx.scene.layout.HBox?>
 <?import org.lecturestudio.javafx.control.SvgIcon?>
+<?import javafx.scene.control.RadioMenuItem?>
 
 <fx:root type="HBox" maxHeight="-Infinity" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1">
-	<MenuBar HBox.hgrow="ALWAYS">
-		<Menu fx:id="fileMenu" text="%menu.file">
-			<MenuItem fx:id="openDocumentMenuItem" accelerator="shortcut+o" text="%menu.open" />
-			<MenuItem fx:id="closeDocumentMenuItem" accelerator="shortcut+f4" text="%menu.close" />
-			<SeparatorMenuItem />
-			<MenuItem fx:id="saveDocumentsMenuItem" text="%menu.save.documents" />
-			<MenuItem fx:id="saveQuizMenuItem" text="%menu.save.quiz.results" />
-			<SeparatorMenuItem />
-			<MenuItem fx:id="exitMenuItem" accelerator="shortcut+q" text="%menu.exit" />
-		</Menu>
-		<Menu text="%menu.edit">
-			<MenuItem fx:id="undoMenuItem" accelerator="shortcut+z" text="%menu.undo" />
-			<MenuItem fx:id="redoMenuItem" accelerator="shortcut+y" text="%menu.redo" />
-			<SeparatorMenuItem />
-			<CheckMenuItem fx:id="settingsMenuItem" text="%menu.options" />
-		</Menu>
-		<Menu text="%menu.view">
-			<CheckMenuItem fx:id="fullscreenMenuItem" accelerator="alt+enter" text="%menu.fullscreen" />
-			<CheckMenuItem fx:id="advancedSettingsMenuItem" text="%menu.advanced.settings" />
-		</Menu>
-		<Menu text="%menu.whiteboard">
-			<MenuItem fx:id="newWhiteboardMenuItem" text="%menu.whiteboard.new" />
-			<SeparatorMenuItem />
-			<MenuItem fx:id="newWhiteboardPageMenuItem" accelerator="f9" text="%menu.slide.new" />
-			<MenuItem fx:id="deleteWhiteboardPageMenuItem" accelerator="shortcut+d" text="%menu.slide.delete" />
-			<SeparatorMenuItem />
-			<CheckMenuItem fx:id="gridMenuItem" accelerator="q" text="%menu.grid" />
-		</Menu>
-		<Menu text="%menu.presentation">
-			<MenuItem fx:id="startRecordingMenuItem" text="%menu.recording.start" />
-			<MenuItem fx:id="stopRecordingMenuItem" text="%menu.recording.stop" />
-			<SeparatorMenuItem />
-			<MenuItem fx:id="startStreamingMenuItem" text="%menu.streaming.start" />
-			<MenuItem fx:id="stopStreamingMenuItem" text="%menu.streaming.stop" />
-			<SeparatorMenuItem />
-			<MenuItem fx:id="startMessengerMenuItem" text="%menu.messenger.start" />
-			<MenuItem fx:id="stopMessengerMenuItem" text="%menu.messenger.stop" />
-			<CheckMenuItem fx:id="showMessengerWindowMenuItem" selected="true" text="%menu.messenger.window.visible" />
-			<SeparatorMenuItem />
-			<MenuItem fx:id="selectQuizMenuItem" accelerator="z" text="%menu.quiz.selection" />
-			<MenuItem fx:id="newQuizMenuItem" text="%menu.quiz.new" />
-			<MenuItem fx:id="closeQuizMenuItem" text="%menu.quiz.close" />
-		</Menu>
-		<Menu fx:id="bookmarksMenu" text="%menu.bookmarks">
-			<MenuItem fx:id="clearBookmarksMenuItem" text="%menu.bookmarks.clear" />
-			<MenuItem fx:id="newBookmarkMenuItem" accelerator="b" text="%menu.bookmarks.add" />
-			<SeparatorMenuItem />
-			<MenuItem fx:id="gotoBookmarkMenuItem" accelerator="g" text="%menu.bookmarks.goto" />
-			<MenuItem fx:id="previousBookmarkMenuItem" accelerator="k" text="%menu.bookmarks.previous" />
-		</Menu>
-		<Menu fx:id="pageActionsMenu" visible="false" text="%menu.slide.actions" />
-		<Menu fx:id="embeddedQuizMenu" visible="false" text="%menu.quiz.embedded" />
-		<Menu text="%menu.info">
-			<MenuItem fx:id="logMenuItem" text="%menu.log"/>
-			<MenuItem fx:id="aboutMenuItem" text="%menu.about"/>
-		</Menu>
-	</MenuBar>
-	<MenuBar styleClass="indicator">
-		<Menu fx:id="timeMenu" disable="true">
-			<graphic>
-				<SvgIcon styleClass="clock-icon"/>
-			</graphic>
-		</Menu>
-		<Menu fx:id="recordIndicatorMenu" disable="true">
-			<graphic>
-				<Label fx:id="recordTimeLabel">
-					<graphic>
-						<SvgIcon styleClass="record-indicator-icon"/>
-					</graphic>
-				</Label>
-			</graphic>
-		</Menu>
-		<Menu fx:id="quizIndicatorMenu" disable="true">
-			<graphic>
-				<SvgIcon styleClass="quiz-indicator-icon"/>
-			</graphic>
-		</Menu>
-		<Menu fx:id="messengerIndicatorMenu" disable="true">
-			<graphic>
-				<SvgIcon styleClass="messenger-indicator-icon"/>
-			</graphic>
-		</Menu>
-		<Menu fx:id="streamIndicatorMenu" disable="true">
-			<graphic>
-				<SvgIcon styleClass="stream-indicator-icon"/>
-			</graphic>
-		</Menu>
-	</MenuBar>
+    <MenuBar HBox.hgrow="ALWAYS">
+        <Menu fx:id="fileMenu" text="%menu.file">
+            <MenuItem fx:id="openDocumentMenuItem" accelerator="shortcut+o" text="%menu.open"/>
+            <MenuItem fx:id="closeDocumentMenuItem" accelerator="shortcut+f4" text="%menu.close"/>
+            <SeparatorMenuItem/>
+            <MenuItem fx:id="saveDocumentsMenuItem" text="%menu.save.documents"/>
+            <MenuItem fx:id="saveQuizMenuItem" text="%menu.save.quiz.results"/>
+            <SeparatorMenuItem/>
+            <MenuItem fx:id="exitMenuItem" accelerator="shortcut+q" text="%menu.exit"/>
+        </Menu>
+        <Menu text="%menu.edit">
+            <MenuItem fx:id="undoMenuItem" accelerator="shortcut+z" text="%menu.undo"/>
+            <MenuItem fx:id="redoMenuItem" accelerator="shortcut+y" text="%menu.redo"/>
+            <SeparatorMenuItem/>
+            <CheckMenuItem fx:id="settingsMenuItem" text="%menu.options"/>
+        </Menu>
+        <Menu text="%menu.view">
+            <CheckMenuItem fx:id="fullscreenMenuItem" accelerator="alt+enter" text="%menu.fullscreen"/>
+            <CheckMenuItem fx:id="advancedSettingsMenuItem" text="%menu.advanced.settings"/>
+            <Menu text="%menu.external.windows">
+                <CheckMenuItem fx:id="externalMessagesMenuItem" text="%menu.external.messages"/>
+                <CheckMenuItem fx:id="externalSlidePreviewMenuItem" text="%menu.external.slide.preview"/>
+                <CheckMenuItem fx:id="externalSpeechMenuItem" text="%menu.external.speech"/>
+            </Menu>
+            <Menu text="%menu.messages.position">
+                <RadioMenuItem fx:id="messagesPositionAutoMenuItem" text="%menu.auto" visible="false"/>
+                <RadioMenuItem fx:id="messagesPositionLeftMenuItem" text="%menu.left"/>
+                <RadioMenuItem fx:id="messagesPositionBottomMenuItem" text="%menu.bottom"/>
+                <RadioMenuItem fx:id="messagesPositionRightMenuItem" text="%menu.right"/>
+            </Menu>
+        </Menu>
+        <Menu text="%menu.whiteboard">
+            <MenuItem fx:id="newWhiteboardMenuItem" text="%menu.whiteboard.new"/>
+            <SeparatorMenuItem/>
+            <MenuItem fx:id="newWhiteboardPageMenuItem" accelerator="f9" text="%menu.slide.new"/>
+            <MenuItem fx:id="deleteWhiteboardPageMenuItem" accelerator="shortcut+d" text="%menu.slide.delete"/>
+            <SeparatorMenuItem/>
+            <CheckMenuItem fx:id="gridMenuItem" accelerator="q" text="%menu.grid"/>
+        </Menu>
+        <Menu text="%menu.presentation">
+            <MenuItem fx:id="startRecordingMenuItem" text="%menu.recording.start"/>
+            <MenuItem fx:id="stopRecordingMenuItem" text="%menu.recording.stop"/>
+            <SeparatorMenuItem/>
+            <MenuItem fx:id="startStreamingMenuItem" text="%menu.streaming.start"/>
+            <MenuItem fx:id="stopStreamingMenuItem" text="%menu.streaming.stop"/>
+            <SeparatorMenuItem/>
+            <MenuItem fx:id="startMessengerMenuItem" text="%menu.messenger.start"/>
+            <MenuItem fx:id="stopMessengerMenuItem" text="%menu.messenger.stop"/>
+            <CheckMenuItem fx:id="showMessengerWindowMenuItem" selected="true" text="%menu.messenger.window.visible"/>
+            <SeparatorMenuItem/>
+            <MenuItem fx:id="selectQuizMenuItem" accelerator="z" text="%menu.quiz.selection"/>
+            <MenuItem fx:id="newQuizMenuItem" text="%menu.quiz.new"/>
+            <MenuItem fx:id="closeQuizMenuItem" text="%menu.quiz.close"/>
+        </Menu>
+        <Menu fx:id="bookmarksMenu" text="%menu.bookmarks">
+            <MenuItem fx:id="clearBookmarksMenuItem" text="%menu.bookmarks.clear"/>
+            <MenuItem fx:id="newBookmarkMenuItem" accelerator="b" text="%menu.bookmarks.add"/>
+            <SeparatorMenuItem/>
+            <MenuItem fx:id="gotoBookmarkMenuItem" accelerator="g" text="%menu.bookmarks.goto"/>
+            <MenuItem fx:id="previousBookmarkMenuItem" accelerator="k" text="%menu.bookmarks.previous"/>
+        </Menu>
+        <Menu fx:id="pageActionsMenu" visible="false" text="%menu.slide.actions"/>
+        <Menu fx:id="embeddedQuizMenu" visible="false" text="%menu.quiz.embedded"/>
+        <Menu text="%menu.info">
+            <MenuItem fx:id="logMenuItem" text="%menu.log"/>
+            <MenuItem fx:id="aboutMenuItem" text="%menu.about"/>
+        </Menu>
+    </MenuBar>
+    <MenuBar styleClass="indicator">
+        <Menu fx:id="timeMenu" disable="true">
+            <graphic>
+                <SvgIcon styleClass="clock-icon"/>
+            </graphic>
+        </Menu>
+        <Menu fx:id="recordIndicatorMenu" disable="true">
+            <graphic>
+                <Label fx:id="recordTimeLabel">
+                    <graphic>
+                        <SvgIcon styleClass="record-indicator-icon"/>
+                    </graphic>
+                </Label>
+            </graphic>
+        </Menu>
+        <Menu fx:id="quizIndicatorMenu" disable="true">
+            <graphic>
+                <SvgIcon styleClass="quiz-indicator-icon"/>
+            </graphic>
+        </Menu>
+        <Menu fx:id="messengerIndicatorMenu" disable="true">
+            <graphic>
+                <SvgIcon styleClass="messenger-indicator-icon"/>
+            </graphic>
+        </Menu>
+        <Menu fx:id="streamIndicatorMenu" disable="true">
+            <graphic>
+                <SvgIcon styleClass="stream-indicator-icon"/>
+            </graphic>
+        </Menu>
+    </MenuBar>
 </fx:root>

@@ -126,9 +126,6 @@ public class FxMenuView extends HBox implements MenuView {
 	private CheckMenuItem externalSpeechMenuItem;
 
 	@FXML
-	private RadioMenuItem messagesPositionAutoMenuItem;
-
-	@FXML
 	private RadioMenuItem messagesPositionLeftMenuItem;
 
 	@FXML
@@ -405,16 +402,6 @@ public class FxMenuView extends HBox implements MenuView {
 	@Override
 	public void setOnExternalSpeech(Action action) {
 		FxUtils.bindAction(externalSpeechMenuItem, action);
-	}
-
-	@Override
-	public void setOnMessagesPositionAuto(Action action) {
-		FxUtils.bindAction(messagesPositionAutoMenuItem, action);
-	}
-
-	@Override
-	public void setMessagesPositionAuto() {
-		this.messagesPositionAutoMenuItem.setSelected(true);
 	}
 
 	@Override
@@ -826,7 +813,6 @@ public class FxMenuView extends HBox implements MenuView {
 		});
 
 		final ToggleGroup messagesPositionToggleGroup = new ToggleGroup();
-		messagesPositionAutoMenuItem.setToggleGroup(messagesPositionToggleGroup);
 		messagesPositionLeftMenuItem.setToggleGroup(messagesPositionToggleGroup);
 		messagesPositionBottomMenuItem.setToggleGroup(messagesPositionToggleGroup);
 		messagesPositionRightMenuItem.setToggleGroup(messagesPositionToggleGroup);

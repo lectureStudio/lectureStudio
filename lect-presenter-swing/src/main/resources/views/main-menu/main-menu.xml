@@ -25,7 +25,6 @@
 			<checkboxmenuitem id="externalSpeechMenuItem" text="menu.external.speech" />
 		</menu>
 		<menu id="messagesPositionMenu" text="menu.messages.position">
-			<radiobuttonmenuitem id="messagesPositionAutoMenuItem" text="menu.auto" />
 			<radiobuttonmenuitem id="messagesPositionLeftMenuItem" text="menu.left" />
 			<radiobuttonmenuitem id="messagesPositionBottomMenuItem" text="menu.bottom" />
 			<radiobuttonmenuitem id="messagesPositionRightMenuItem" text="menu.right" />

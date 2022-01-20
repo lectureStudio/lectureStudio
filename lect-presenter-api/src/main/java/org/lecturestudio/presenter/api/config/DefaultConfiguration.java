@@ -129,7 +129,7 @@ public class DefaultConfiguration extends PresenterConfiguration {
 		getExternalSlidePreviewConfig().setEnabled(false);
 		getExternalSpeechConfig().setEnabled(false);
 
-		getMessageBarConfiguration().setMessageBarPosition(MessageBarPosition.AUTO);
+		getMessageBarConfiguration().setMessageBarPosition(MessageBarPosition.BOTTOM);
 
 		AudioProcessingSettings processingSettings = new AudioProcessingSettings();
 		processingSettings.setHighpassFilterEnabled(true);

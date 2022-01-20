@@ -4,7 +4,7 @@ import org.lecturestudio.core.beans.ObjectProperty;
 import org.lecturestudio.presenter.api.model.MessageBarPosition;
 
 public class MessageBarConfiguration {
-    private final ObjectProperty<MessageBarPosition> messageBarPosition = new ObjectProperty<>(MessageBarPosition.AUTO);
+    private final ObjectProperty<MessageBarPosition> messageBarPosition = new ObjectProperty<>(MessageBarPosition.BOTTOM);
 
     /**
      *

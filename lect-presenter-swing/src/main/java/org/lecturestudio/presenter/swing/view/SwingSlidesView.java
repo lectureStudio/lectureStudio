@@ -21,6 +21,7 @@ package org.lecturestudio.presenter.swing.view;
 import static java.util.Objects.isNull;
 import static java.util.Objects.nonNull;
 
+import com.formdev.flatlaf.util.UIScale;
 import dev.onvoid.webrtc.media.FourCC;
 import dev.onvoid.webrtc.media.video.VideoBufferConverter;
 import dev.onvoid.webrtc.media.video.VideoFrame;
@@ -576,6 +577,7 @@ public class SwingSlidesView extends JPanel implements SlidesView {
                 peerView = new PeerView();
                 peerView.setMinimumSize(new Dimension(100, 150));
                 peerView.setPreferredSize(new Dimension(100, 150));
+                peerViewContainer.setMaximumSize(new Dimension(Integer.MAX_VALUE, 150));
                 peerView.setPeerId(event.getPeerId());
                 peerView.setPeerName(event.getPeerName());
                 peerView.setOnMuteAudio(mutePeerAudioAction);
@@ -588,7 +590,12 @@ public class SwingSlidesView extends JPanel implements SlidesView {
                 peerViewContainer.repaint();
 
                 currentSpeech = true;
+
                 externalSpeechFrame.showBody();
+
+                if (externalSlidePreviewFrame.isVisible() && !externalSpeechFrame.isVisible()) {
+                    maximizeTabPane();
+                }
             } else if (state == ExecutableState.Stopped) {
                 peerView = null;
 
@@ -598,7 +605,12 @@ public class SwingSlidesView extends JPanel implements SlidesView {
                 peerViewContainer.repaint();
 
                 currentSpeech = false;
+
                 externalSpeechFrame.hideBody();
+
+                if (externalSlidePreviewFrame.isVisible() && !externalSpeechFrame.isVisible()) {
+                    minimizeTabPaneCompletely();
+                }
             }
         });
     }
@@ -826,7 +838,9 @@ public class SwingSlidesView extends JPanel implements SlidesView {
             return;
         }
 
-        minimizeTabPaneCompletely();
+        if (!currentSpeech) {
+            minimizeTabPaneCompletely();
+        }
 
         removeComponentAndUpdate(rightVbox, tabPane);
 
@@ -855,6 +869,10 @@ public class SwingSlidesView extends JPanel implements SlidesView {
             return;
         }
 
+        if (externalSlidePreviewFrame.isVisible()) {
+            minimizeTabPaneCompletely();
+        }
+
         removeComponentAndUpdate(rightVbox, peerViewContainer);
 
         peerViewContainer.setVisible(true);
@@ -867,6 +885,10 @@ public class SwingSlidesView extends JPanel implements SlidesView {
     public void hideExternalSpeech() {
         if (!externalSpeechFrame.isVisible()) {
             return;
+        }
+
+        if (externalSlidePreviewFrame.isVisible()) {
+            maximizeTabPane();
         }
 
         externalSpeechFrame.setVisible(false);
@@ -963,6 +985,10 @@ public class SwingSlidesView extends JPanel implements SlidesView {
     }
 
     private void minimizeBottomPane() {
+        minimizeBottomPane(false);
+    }
+
+    private void minimizeBottomPane(boolean saveOldRatio) {
         if (bottomTabPane.getHeight() <= getBottomTabHeight()) {
             return;
         }
@@ -970,7 +996,9 @@ public class SwingSlidesView extends JPanel implements SlidesView {
         int tabHeight = getBottomTabHeight();
         int location = notesSplitPane.getHeight() - notesSplitPane.getDividerSize() - tabHeight;
 
-        oldNotesDividerRatio = getNotesDividerRatio();
+        if (saveOldRatio) {
+            oldNotesDividerRatio = getNotesDividerRatio();
+        }
 
         notesSplitPane.setDividerLocation(location);
     }
@@ -982,8 +1010,7 @@ public class SwingSlidesView extends JPanel implements SlidesView {
     }
 
     private double getNotesDividerRatio() {
-        return (notesSplitPane.getDividerLocation() - notesSplitPane.getDividerSize()) /
-                (double) notesSplitPane.getHeight();
+        return notesSplitPane.getDividerLocation() / (double) notesSplitPane.getHeight();
     }
 
     private void minimizeTabPane() {
@@ -1021,7 +1048,7 @@ public class SwingSlidesView extends JPanel implements SlidesView {
         boolean isSameTab = index == bottomTabIndex;
 
         if (isSameTab && bottomTabPane.getHeight() > getBottomTabHeight()) {
-            minimizeBottomPane();
+            minimizeBottomPane(true);
         } else if (isSameTab || bottomTabPane.getHeight() <= getBottomTabHeight()) {
             maximizeBottomPane();
         }
@@ -1046,11 +1073,11 @@ public class SwingSlidesView extends JPanel implements SlidesView {
     }
 
     private int getBottomTabHeight() {
-        return bottomTabPane.getUI().getTabBounds(bottomTabPane, 0).height + 4;
+        return bottomTabPane.getUI().getTabBounds(bottomTabPane, 0).height + 1;
     }
 
     private int getTabWidth() {
-        return tabPane.getUI().getTabBounds(tabPane, 0).width + 4;
+        return tabPane.getUI().getTabBounds(tabPane, 0).width + 1;
     }
 
     @ViewPostConstruct

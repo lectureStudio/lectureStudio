@@ -36,7 +36,6 @@
                 <CheckMenuItem fx:id="externalSpeechMenuItem" text="%menu.external.speech"/>
             </Menu>
             <Menu text="%menu.messages.position">
-                <RadioMenuItem fx:id="messagesPositionAutoMenuItem" text="%menu.auto" visible="false"/>
                 <RadioMenuItem fx:id="messagesPositionLeftMenuItem" text="%menu.left"/>
                 <RadioMenuItem fx:id="messagesPositionBottomMenuItem" text="%menu.bottom"/>
                 <RadioMenuItem fx:id="messagesPositionRightMenuItem" text="%menu.right"/>

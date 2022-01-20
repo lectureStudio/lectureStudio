@@ -106,8 +106,6 @@ public class SwingMenuView extends JMenuBar implements MenuView {
 
     private JMenu messagesPositionMenu;
 
-    private JRadioButtonMenuItem messagesPositionAutoMenuItem;
-
     private JRadioButtonMenuItem messagesPositionLeftMenuItem;
 
     private JRadioButtonMenuItem messagesPositionBottomMenuItem;
@@ -367,16 +365,6 @@ public class SwingMenuView extends JMenuBar implements MenuView {
     @Override
     public void setOnExternalSpeech(ConsumerAction<Boolean> action) {
         SwingUtils.bindAction(externalSpeechMenuItem, action);
-    }
-
-    @Override
-    public void setOnMessagesPositionAuto(Action action) {
-        SwingUtils.bindAction(messagesPositionAutoMenuItem, action);
-    }
-
-    @Override
-    public void setMessagesPositionAuto() {
-        messagesPositionAutoMenuItem.setSelected(true);
     }
 
     @Override
@@ -761,7 +749,6 @@ public class SwingMenuView extends JMenuBar implements MenuView {
                 dict.get("menu.stream.camera.stop"));
 
         final ButtonGroup messagesPositionButtonGroup = new ButtonGroup();
-        messagesPositionButtonGroup.add(messagesPositionAutoMenuItem);
         messagesPositionButtonGroup.add(messagesPositionLeftMenuItem);
         messagesPositionButtonGroup.add(messagesPositionBottomMenuItem);
         messagesPositionButtonGroup.add(messagesPositionRightMenuItem);

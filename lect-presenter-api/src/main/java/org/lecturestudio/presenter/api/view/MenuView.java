@@ -98,10 +98,6 @@ public interface MenuView extends View {
 
 	void setOnExternalSpeech(ConsumerAction<Boolean> action);
 
-	void setOnMessagesPositionAuto(Action action);
-
-	void setMessagesPositionAuto();
-
 	void setOnMessagesPositionLeft(Action action);
 
 	void setMessagesPositionLeft();

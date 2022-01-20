@@ -311,10 +311,6 @@ public class MenuPresenter extends Presenter<MenuView> {
         eventBus.post(new ExternalSpeechViewEvent(selected));
     }
 
-    public void positionAutoMessages() {
-        getPresenterConfig().getMessageBarConfiguration().setMessageBarPosition(MessageBarPosition.AUTO);
-    }
-
     public void positionLeftMessages() {
         getPresenterConfig().getMessageBarConfiguration().setMessageBarPosition(MessageBarPosition.LEFT);
     }
@@ -548,9 +544,6 @@ public class MenuPresenter extends Presenter<MenuView> {
         view.setOnExternalSpeech(this::externalSpeech);
 
         switch (config.getMessageBarConfiguration().getMessageBarPosition()) {
-            case AUTO:
-                view.setMessagesPositionAuto();
-                break;
             case LEFT:
                 view.setMessagesPositionLeft();
                 break;
@@ -562,7 +555,6 @@ public class MenuPresenter extends Presenter<MenuView> {
                 break;
         }
 
-        view.setOnMessagesPositionAuto(this::positionAutoMessages);
         view.setOnMessagesPositionLeft(this::positionLeftMessages);
         view.setOnMessagesPositionBottom(this::positionBottomMessages);
         view.setOnMessagesPositionRight(this::positionRightMessages);

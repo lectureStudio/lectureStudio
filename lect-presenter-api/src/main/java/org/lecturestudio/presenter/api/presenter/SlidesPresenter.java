@@ -313,7 +313,11 @@ public class SlidesPresenter extends Presenter<SlidesView> {
     @Subscribe
     public void onEvent(ExternalMessagesViewEvent event) {
         if (event.isEnabled()) {
-            viewShowExternalMessages(event.isPersistent());
+            if (event.isShow()) {
+                viewShowExternalMessages(event.isPersistent());
+            } else {
+                view.hideExternalMessages();
+            }
         } else {
             viewHideExternalMessages(event.isPersistent());
         }
@@ -322,7 +326,11 @@ public class SlidesPresenter extends Presenter<SlidesView> {
     @Subscribe
     public void onEvent(ExternalSlidePreviewViewEvent event) {
         if (event.isEnabled()) {
-            viewShowExternalSlidePreview(event.isPersistent());
+            if (event.isShow()) {
+                viewShowExternalSlidePreview(event.isPersistent());
+            } else {
+                view.hideExternalSlidePreview();
+            }
         } else {
             viewHideExternalSlidePreview(event.isPersistent());
         }
@@ -331,7 +339,11 @@ public class SlidesPresenter extends Presenter<SlidesView> {
     @Subscribe
     public void onEvent(ExternalSpeechViewEvent event) {
         if (event.isEnabled()) {
-            viewShowExternalSpeech(event.isPersistent());
+            if (event.isShow()) {
+                viewShowExternalSpeech(event.isPersistent());
+            } else {
+                view.hideExternalSpeech();
+            }
         } else {
             viewHideExternalSpeech(event.isPersistent());
         }

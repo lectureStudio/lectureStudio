@@ -237,6 +237,8 @@ public class SlidesPresenter extends Presenter<SlidesView> {
         view.setStreamState(event.getState());
 
         checkRemoteServiceState();
+
+        updateMessagesPlaceholder();
     }
 
     @Subscribe
@@ -246,6 +248,8 @@ public class SlidesPresenter extends Presenter<SlidesView> {
         view.setMessengerState(event.getState());
 
         checkRemoteServiceState();
+
+        updateMessagesPlaceholder();
     }
 
     @Subscribe
@@ -256,6 +260,8 @@ public class SlidesPresenter extends Presenter<SlidesView> {
         presenterContext.getMessengerMessages().add(message);
 
         view.setMessengerMessage(message);
+
+        updateMessagesPlaceholder();
     }
 
     @Subscribe
@@ -266,6 +272,8 @@ public class SlidesPresenter extends Presenter<SlidesView> {
         presenterContext.getSpeechRequests().add(message);
 
         view.setSpeechRequestMessage(message);
+
+        updateMessagesPlaceholder();
     }
 
     @Subscribe
@@ -277,6 +285,8 @@ public class SlidesPresenter extends Presenter<SlidesView> {
                 m.getRequestId(), message.getRequestId()));
 
         view.setSpeechCancelMessage(message);
+
+        updateMessagesPlaceholder();
     }
 
     @Subscribe
@@ -389,6 +399,8 @@ public class SlidesPresenter extends Presenter<SlidesView> {
 
         PresenterContext presenterContext = (PresenterContext) context;
         presenterContext.getSpeechRequests().remove(message);
+
+        updateMessagesPlaceholder();
     }
 
     private void onRejectSpeech(SpeechRequestMessage message) {
@@ -396,11 +408,26 @@ public class SlidesPresenter extends Presenter<SlidesView> {
 
         PresenterContext presenterContext = (PresenterContext) context;
         presenterContext.getSpeechRequests().remove(message);
+
+        updateMessagesPlaceholder();
     }
 
     private void onDiscardMessage(MessengerMessage message) {
         PresenterContext presenterContext = (PresenterContext) context;
         presenterContext.getMessengerMessages().remove(message);
+
+        updateMessagesPlaceholder();
+    }
+
+    private void updateMessagesPlaceholder() {
+        final PresenterContext presenterContext = (PresenterContext) context;
+
+        if (presenterContext.messageCountProperty().get() > 0 ||
+                presenterContext.speechRequestCountProperty().get() > 0) {
+            view.hideMessagesPlaceholder();
+        } else {
+            view.showMessagesPlaceholder();
+        }
     }
 
     private void toolChanged(ToolType toolType) {

@@ -28,11 +28,11 @@ public class ExternalFrame extends JFrame {
 
     public ExternalFrame(String name, Component body, Dimension minimumSize,
                          Consumer<ExternalWindowPosition> positionChangedAction, Runnable closedAction,
-                         Consumer<Dimension> sizeChangedAction, Component placeholder) {
+                         Consumer<Dimension> sizeChangedAction, String placeholderText) {
         super(nonNull(name) ? name : "");
 
         this.body = body;
-        this.placeholder = placeholder;
+        this.placeholder = new JLabel(placeholderText, SwingConstants.CENTER);
 
         final List<Image> icons = new ArrayList<>();
         icons.add(AwtResourceLoader.getImage("gfx/app-icon/24.png"));
@@ -58,14 +58,9 @@ public class ExternalFrame extends JFrame {
 
     @Override
     public void setVisible(boolean visible) {
-        if (visible) {
-            if (showBody) {
+        if (visible && showBody) {
                 removePlaceholder();
                 add(body);
-            } else {
-                remove(body);
-                addPlaceholder();
-            }
         } else {
             remove(body);
             addPlaceholder();
@@ -86,10 +81,12 @@ public class ExternalFrame extends JFrame {
         if (isVisible()) {
             removePlaceholder();
             add(body);
+
+            revalidate();
+            repaint();
         }
 
-        revalidate();
-        repaint();
+
 
         showBody = true;
     }
@@ -102,12 +99,16 @@ public class ExternalFrame extends JFrame {
         if (isVisible()) {
             remove(body);
             addPlaceholder();
+
+            revalidate();
+            repaint();
         }
 
-        revalidate();
-        repaint();
-
         showBody = false;
+    }
+
+    public boolean isShowBody() {
+        return showBody;
     }
 
     private void addPlaceholder() {
@@ -182,7 +183,7 @@ public class ExternalFrame extends JFrame {
 
         private Consumer<Dimension> sizeChangedAction;
 
-        private Component placeholder;
+        private String placeholderText;
 
         public Builder setName(String name) {
             this.name = name;
@@ -214,14 +215,14 @@ public class ExternalFrame extends JFrame {
             return this;
         }
 
-        public Builder setPlaceholder(Component placeholder) {
-            this.placeholder = placeholder;
+        public Builder setPlaceholderText(String placeholderText) {
+            this.placeholderText = placeholderText;
             return this;
         }
 
         public ExternalFrame build() {
             return new ExternalFrame(name, body, minimumSize, positionChangedAction, closedAction, sizeChangedAction,
-                    placeholder);
+                    placeholderText);
         }
     }
 }

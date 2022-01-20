@@ -21,9 +21,11 @@
 <!--					<TextArea id="latexTextArea" minimumSize="0,0" />-->
 <!--				</Tab>-->
 				<Tab id="messageTab" name="message" text="slides.message" icon="messenger-indicator.svg, 20">
-					<ScrollPane id="messagesPane">
-						<VBox id="messageViewContainer" border="EmptyBorder(10, 10, 10, 10)" />
-					</ScrollPane>
+					<Panel id="messagesPanel" layout="BorderLayout">
+						<ScrollPane id="messagesPane">
+							<VBox id="messageViewContainer" border="EmptyBorder(10, 10, 10, 10)" />
+						</ScrollPane>
+					</Panel>
 				</Tab>
 			</TabbedPane>
 		</SplitPane>

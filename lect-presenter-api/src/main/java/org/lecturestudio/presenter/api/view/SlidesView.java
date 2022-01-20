@@ -154,5 +154,9 @@ public interface SlidesView extends View {
 
     void showExternalSpeech(Screen screen, Point position, Dimension size);
 
+    void showMessagesPlaceholder();
+
+    void hideMessagesPlaceholder();
+
     void hideExternalSpeech();
 }

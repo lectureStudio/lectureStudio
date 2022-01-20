@@ -171,6 +171,8 @@ public class SwingSlidesView extends JPanel implements SlidesView {
 
     private JTabbedPane bottomTabPane;
 
+    private JPanel messagesPanel;
+
     //	private JTextArea notesTextArea;
 
     //	private JTextArea latexTextArea;
@@ -192,6 +194,9 @@ public class SwingSlidesView extends JPanel implements SlidesView {
     private double oldTabDividerRatio = 0.9;
 
     private boolean currentSpeech = false;
+
+    private JLabel messagesPlaceholder;
+
 
     @Inject
     SwingSlidesView(Dictionary dictionary) {
@@ -469,6 +474,10 @@ public class SwingSlidesView extends JPanel implements SlidesView {
 
             setBottomTabEnabled(bottomTabPane.getTabCount() - 1, streamStarted || messengerStarted);
             setBottomTabSelected(bottomTabPane.getTabCount() - 1, streamStarted || messengerStarted);
+
+            if (!streamStarted && !messengerStarted) {
+                showMessagesPlaceholder();
+            }
 
             if (!messengerStarted) {
                 removeMessageViews(MessageView.class);
@@ -770,7 +779,6 @@ public class SwingSlidesView extends JPanel implements SlidesView {
 
         externalMessagesPane.getViewport().add(messageViewContainer);
 
-        externalMessagesFrame.showBody();
         externalMessagesFrame.updatePosition(screen, position, size);
         externalMessagesFrame.setVisible(true);
     }
@@ -782,7 +790,7 @@ public class SwingSlidesView extends JPanel implements SlidesView {
         }
 
         externalMessagesPane.getViewport().remove(messageViewContainer);
-        externalMessagesFrame.hideBody();
+
         externalMessagesFrame.setVisible(false);
 
         messagesPane.getViewport().add(messageViewContainer);
@@ -790,6 +798,26 @@ public class SwingSlidesView extends JPanel implements SlidesView {
         addComponentAndUpdate(notesSplitPane, bottomTabPane);
 
         setBottomTabVisible(0, true);
+    }
+
+    @Override
+    public void showMessagesPlaceholder() {
+        externalMessagesFrame.hideBody();
+
+        messagesPanel.remove(messagesPane);
+        messagesPanel.add(messagesPlaceholder);
+        bottomTabPane.revalidate();
+        bottomTabPane.repaint();
+    }
+
+    @Override
+    public void hideMessagesPlaceholder() {
+        externalMessagesFrame.showBody();
+
+        messagesPanel.remove(messagesPlaceholder);
+        messagesPanel.add(messagesPane);
+        bottomTabPane.revalidate();
+        bottomTabPane.repaint();
     }
 
     @Override
@@ -852,8 +880,8 @@ public class SwingSlidesView extends JPanel implements SlidesView {
 
     private void removeComponentAndUpdate(JComponent component, Component componentToRemove) {
         component.remove(componentToRemove);
-        revalidate();
-        repaint();
+        component.revalidate();
+        component.repaint();
     }
 
     private void addComponentAndUpdate(JComponent component, JComponent componentToAdd) {
@@ -862,8 +890,8 @@ public class SwingSlidesView extends JPanel implements SlidesView {
 
     private void addComponentAndUpdate(JComponent component, Component componentToAdd, int index) {
         component.add(componentToAdd, index);
-        revalidate();
-        repaint();
+        component.revalidate();
+        component.repaint();
     }
 
     private void buildOutlineTree(DocumentOutlineItem item, DefaultMutableTreeNode root) {
@@ -1114,8 +1142,11 @@ public class SwingSlidesView extends JPanel implements SlidesView {
             }
         });
 
+        messagesPlaceholder = new JLabel(dict.get("slides.no.messages"), SwingConstants.CENTER);
+
         externalMessagesFrame =
                 new ExternalFrame.Builder().setName(dict.get("slides.messages")).setBody(externalMessagesPane)
+                        .setPlaceholderText(dict.get("slides.no.messages"))
                         .setPositionChangedAction(
                                 position -> executeAction(externalMessagesPositionChangedAction, position))
                         .setClosedAction(() -> executeAction(externalMessagesClosedAction))
@@ -1131,7 +1162,7 @@ public class SwingSlidesView extends JPanel implements SlidesView {
                         .setMinimumSize(new Dimension(500, 700)).build();
 
         externalSpeechFrame = new ExternalFrame.Builder().setName(dict.get("slides.speech")).setBody(peerViewContainer)
-                .setPlaceholder(new JLabel(dict.get("slides.currently.no.speech"), SwingConstants.CENTER))
+                .setPlaceholderText(dict.get("slides.currently.no.speech"))
                 .setPositionChangedAction(position -> executeAction(externalSpeechPositionChangedAction, position))
                 .setClosedAction(() -> executeAction(externalSpeechClosedAction))
                 .setSizeChangedAction(size -> executeAction(externalSpeechSizeChangedAction, size))
@@ -1159,8 +1190,6 @@ public class SwingSlidesView extends JPanel implements SlidesView {
             @Override
             public void ancestorMoved(AncestorEvent event) {
                 removeAncestorListener(this);
-
-                minimizeBottomPane();
             }
         });
     }

@@ -37,6 +37,7 @@ import org.lecturestudio.web.api.client.ApiKeyFilter;
 import org.lecturestudio.web.api.client.MultipartBody;
 import org.lecturestudio.web.api.data.bind.JsonConfigProvider;
 import org.lecturestudio.web.api.stream.model.Course;
+import org.lecturestudio.web.api.stream.model.User;
 
 /**
  * Streaming API REST client implementation. The user must be authenticated with
@@ -50,6 +51,10 @@ import org.lecturestudio.web.api.stream.model.Course;
 	@RegisterProvider(JsonConfigProvider.class)
 })
 public interface StreamRestClient {
+
+	@GET
+	@Path("/user")
+	User getUser();
 
 	/**
 	 * Gets a list of all courses associated with a user.

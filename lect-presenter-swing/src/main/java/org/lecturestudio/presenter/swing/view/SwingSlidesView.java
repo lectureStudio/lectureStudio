@@ -45,17 +45,7 @@ import java.util.List;
 import java.util.Objects;
 
 import javax.inject.Inject;
-import javax.swing.JButton;
-import javax.swing.JFrame;
-import javax.swing.JLabel;
-import javax.swing.JPanel;
-import javax.swing.JScrollPane;
-import javax.swing.JSplitPane;
-import javax.swing.JTabbedPane;
-import javax.swing.JTextArea;
-import javax.swing.JTree;
-import javax.swing.SwingUtilities;
-import javax.swing.ToolTipManager;
+import javax.swing.*;
 import javax.swing.event.AncestorEvent;
 import javax.swing.event.AncestorListener;
 import javax.swing.event.DocumentEvent;
@@ -69,6 +59,7 @@ import javax.swing.tree.TreePath;
 import org.lecturestudio.core.ExecutableState;
 import org.lecturestudio.core.app.dictionary.Dictionary;
 import org.lecturestudio.core.beans.BooleanProperty;
+import org.lecturestudio.core.beans.StringProperty;
 import org.lecturestudio.core.controller.RenderController;
 import org.lecturestudio.core.geometry.Matrix;
 import org.lecturestudio.core.input.KeyEvent;
@@ -170,6 +161,10 @@ public class SwingSlidesView extends JPanel implements SlidesView {
 
 	private Container messageViewContainer;
 
+	private Container messageSendContainer;
+
+	private Container messageContainer;
+
 	private Container participantViewContainer;
 
 	private JTabbedPane bottomTabPane;
@@ -177,6 +172,10 @@ public class SwingSlidesView extends JPanel implements SlidesView {
 	private JTextArea notesTextArea;
 
 	private JTextArea latexTextArea;
+
+	private JTextField sendTextField;
+
+	private JButton sendButton;
 
 	private int bottomTabIndex;
 
@@ -998,5 +997,20 @@ public class SwingSlidesView extends JPanel implements SlidesView {
 		buffer.release();
 
 		return image;
+	}
+
+	@Override
+	public void setMessageSendContainerMaxHeight(int height) {
+		this.messageSendContainer.setMaximumSize(new Dimension(this.messageSendContainer.getPreferredSize().width, height));
+	}
+
+	@Override
+	public void setMessageToSend(StringProperty messageValue) {
+		SwingUtils.bindBidirectional(this.sendTextField, messageValue);
+	}
+
+	@Override
+	public void setOnSend(Action action) {
+		SwingUtils.bindAction(this.sendButton, action);
 	}
 }

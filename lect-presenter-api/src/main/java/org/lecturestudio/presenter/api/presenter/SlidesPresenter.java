@@ -26,6 +26,7 @@ import com.google.common.eventbus.Subscribe;
 
 import java.io.IOException;
 import java.net.SocketException;
+import java.time.ZonedDateTime;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -33,6 +34,7 @@ import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
 
 import javax.inject.Inject;
+import javax.inject.Named;
 
 import org.lecturestudio.broadcast.config.BroadcastProfile;
 import org.lecturestudio.core.ExecutableException;
@@ -40,6 +42,7 @@ import org.lecturestudio.core.ExecutableState;
 import org.lecturestudio.core.app.ApplicationContext;
 import org.lecturestudio.core.app.configuration.DisplayConfiguration;
 import org.lecturestudio.core.app.configuration.GridConfiguration;
+import org.lecturestudio.core.beans.StringProperty;
 import org.lecturestudio.core.bus.EventBus;
 import org.lecturestudio.core.bus.event.DocumentEvent;
 import org.lecturestudio.core.bus.event.PageEvent;
@@ -76,6 +79,7 @@ import org.lecturestudio.core.view.ViewContextFactory;
 import org.lecturestudio.core.view.ViewType;
 import org.lecturestudio.presenter.api.config.NetworkConfiguration;
 import org.lecturestudio.presenter.api.config.PresenterConfiguration;
+import org.lecturestudio.presenter.api.config.StreamConfiguration;
 import org.lecturestudio.presenter.api.context.PresenterContext;
 import org.lecturestudio.presenter.api.event.MessengerStateEvent;
 import org.lecturestudio.presenter.api.event.QuizStateEvent;
@@ -95,8 +99,18 @@ import org.lecturestudio.web.api.message.CourseParticipantMessage;
 import org.lecturestudio.web.api.message.MessengerMessage;
 import org.lecturestudio.web.api.message.SpeechCancelMessage;
 import org.lecturestudio.web.api.message.SpeechRequestMessage;
+import org.lecturestudio.web.api.model.Message;
+import org.lecturestudio.web.api.service.ServiceParameters;
+import org.lecturestudio.web.api.stream.model.User;
+import org.lecturestudio.web.api.stream.service.StreamProviderService;
 
 public class SlidesPresenter extends Presenter<SlidesView> {
+
+	@Inject
+	@Named("stream.publisher.api.url")
+	private String streamPublisherApiUrl;
+
+	private StreamProviderService streamProviderService;
 
 	private final EventBus eventBus;
 
@@ -139,6 +153,8 @@ public class SlidesPresenter extends Presenter<SlidesView> {
 	private final DocumentService documentService;
 
 	private final RecordingService recordingService;
+
+	private StringProperty messageToSendProperty;
 
 
 	@Inject
@@ -696,6 +712,9 @@ public class SlidesPresenter extends Presenter<SlidesView> {
 			view.setExtendedFullscreen(newValue);
 		});
 
+		this.messageToSendProperty = new StringProperty();
+		view.setMessageToSend(this.messageToSendProperty);
+
 		view.setPageRenderer(renderController);
 		view.setStylusHandler(stylusHandler);
 		view.setExtendedFullscreen(context.getConfiguration().getExtendedFullscreen());
@@ -713,6 +732,7 @@ public class SlidesPresenter extends Presenter<SlidesView> {
 		view.setOnSelectDocument(this::selectDocument);
 		view.setOnViewTransform(this::setViewTransform);
 		view.setOnLaTeXText(this::setLaTeXText);
+		view.setOnSend(this::sendMessage);
 
 		view.setOnAcceptSpeech(this::onAcceptSpeech);
 		view.setOnRejectSpeech(this::onRejectSpeech);
@@ -744,6 +764,17 @@ public class SlidesPresenter extends Presenter<SlidesView> {
 		catch (ExecutableException e) {
 			throw new RuntimeException(e);
 		}
+
+		view.setMessageSendContainerMaxHeight(10);
+
+		PresenterConfiguration config = (PresenterConfiguration) context.getConfiguration();
+		StreamConfiguration streamConfig = config.getStreamConfig();
+
+		ServiceParameters parameters = new ServiceParameters();
+		parameters.setUrl(streamPublisherApiUrl);
+
+		this.streamProviderService = new StreamProviderService(
+				parameters, streamConfig::getAccessToken);
 	}
 
 	private void recordPage(Page page) {
@@ -833,6 +864,21 @@ public class SlidesPresenter extends Presenter<SlidesView> {
 		@Override
 		public void pageRemoved(Page page) {
 
+		}
+	}
+
+	private void sendMessage() {
+		Message message = new Message(messageToSendProperty.get());
+		User user = this.streamProviderService.getUser();
+		MessengerMessage messengerMessage = new MessengerMessage(message, user.getUsername(), ZonedDateTime.now());
+		messengerMessage.setFamilyName(user.getFamilyName());
+		messengerMessage.setFirstName(user.getFirstName());
+		messengerMessage.setRemoteAddress(user.getUsername());
+		try {
+			this.webService.sendMessengerMessage(messengerMessage);
+		}
+		catch (ExecutableException exc) {
+			exc.printStackTrace();
 		}
 	}
 }

@@ -18,6 +18,9 @@
 
 package org.lecturestudio.web.api.websocket;
 
+import org.springframework.messaging.simp.stomp.StompHeaders;
+import org.springframework.web.socket.WebSocketHttpHeaders;
+
 import java.net.http.WebSocket;
 
 /**
@@ -33,5 +36,9 @@ public interface WebSocketHeaderProvider {
 	 * @param builder The WebSocket builder.
 	 */
 	void setHeaders(WebSocket.Builder builder);
+
+	WebSocketHttpHeaders getHeaders();
+
+	StompHeaders addHeadersForStomp(StompHeaders headers);
 
 }

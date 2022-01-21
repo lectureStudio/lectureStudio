@@ -23,6 +23,7 @@ import java.util.List;
 
 import org.lecturestudio.core.ExecutableState;
 import org.lecturestudio.core.beans.BooleanProperty;
+import org.lecturestudio.core.beans.StringProperty;
 import org.lecturestudio.core.controller.RenderController;
 import org.lecturestudio.core.geometry.Matrix;
 import org.lecturestudio.core.input.KeyEvent;
@@ -132,4 +133,9 @@ public interface SlidesView extends View {
 
 	void setOnOutlineItem(ConsumerAction<DocumentOutlineItem> action);
 
+	void setMessageSendContainerMaxHeight(int height);
+
+	void setMessageToSend(StringProperty messageValue);
+
+	void setOnSend(Action action);
 }

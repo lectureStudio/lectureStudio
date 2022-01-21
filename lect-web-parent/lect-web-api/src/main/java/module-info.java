@@ -20,8 +20,11 @@ module org.lecturestudio.web.api {
 	requires org.lecturestudio.core;
 	requires resteasy.multipart.provider;
 	requires webrtc.java;
+	requires spring.websocket;
+	requires spring.messaging;
+    requires spring.core;
 
-	exports org.lecturestudio.web.api.client;
+    exports org.lecturestudio.web.api.client;
 	exports org.lecturestudio.web.api.data;
 	exports org.lecturestudio.web.api.event;
 	exports org.lecturestudio.web.api.filter;

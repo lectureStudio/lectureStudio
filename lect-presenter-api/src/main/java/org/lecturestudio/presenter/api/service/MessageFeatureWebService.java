@@ -63,7 +63,8 @@ public class MessageFeatureWebService extends FeatureServiceBase {
 		try {
 			serviceId = webService.startMessenger(courseId);
 
-			webService.addMessageListener(MessengerMessage.class, messageConsumer);
+			//webService.addMessageListener(MessengerMessage.class, messageConsumer);
+			webService.addStompMessageListener(MessengerMessage.class, messageConsumer);
 		}
 		catch (Exception e) {
 			throw new ExecutableException(e);

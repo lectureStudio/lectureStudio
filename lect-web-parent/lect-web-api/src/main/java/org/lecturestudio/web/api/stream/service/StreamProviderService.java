@@ -29,6 +29,7 @@ import org.lecturestudio.web.api.service.ProviderService;
 import org.lecturestudio.web.api.service.ServiceParameters;
 import org.lecturestudio.web.api.stream.client.StreamRestClient;
 import org.lecturestudio.web.api.stream.model.Course;
+import org.lecturestudio.web.api.stream.model.User;
 
 /**
  * Service implementation to manage streaming related information with streaming
@@ -54,6 +55,10 @@ public class StreamProviderService extends ProviderService {
 		builder.property(TokenProvider.class.getName(), tokenProvider);
 
 		streamRestClient = builder.build(StreamRestClient.class);
+	}
+
+	public User getUser() {
+		return streamRestClient.getUser();
 	}
 
 	/**

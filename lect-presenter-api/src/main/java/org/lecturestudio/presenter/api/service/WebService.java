@@ -46,6 +46,8 @@ import org.lecturestudio.presenter.api.event.QuizStateEvent;
 import org.lecturestudio.presenter.api.net.LocalBroadcaster;
 import org.lecturestudio.web.api.client.TokenProvider;
 import org.lecturestudio.web.api.message.MessageTransport;
+import org.lecturestudio.web.api.message.MessengerMessage;
+import org.lecturestudio.web.api.message.WebSocketSTOMPTransport;
 import org.lecturestudio.web.api.message.WebSocketTransport;
 import org.lecturestudio.web.api.model.quiz.Quiz;
 import org.lecturestudio.web.api.service.ServiceParameters;
@@ -73,6 +75,8 @@ public class WebService extends ExecutableBase {
 	private final List<FeatureServiceBase> startedServices;
 
 	private MessageTransport messageTransport;
+
+	private MessageTransport stompMessageTransport;
 
 	@Inject
 	@Named("publisher.api.message.url")
@@ -125,6 +129,7 @@ public class WebService extends ExecutableBase {
 
 		try {
 			initMessageTransport();
+			initStompMessageTransport();
 
 			startService(new MessageFeatureWebService(context,
 					createFeatureService(streamPublisherApiUrl,
@@ -135,6 +140,12 @@ public class WebService extends ExecutableBase {
 		}
 
 		context.getEventBus().post(new MessengerStateEvent(ExecutableState.Started));
+	}
+
+	private void initStompMessageTransport() {
+		if (isNull(stompMessageTransport)) {
+			stompMessageTransport = createStompMessageTransport();
+		}
 	}
 
 	/**
@@ -155,6 +166,19 @@ public class WebService extends ExecutableBase {
 		stopService(service);
 
 		context.getEventBus().post(new MessengerStateEvent(ExecutableState.Stopped));
+	}
+
+	public void sendMessengerMessage(MessengerMessage message) throws ExecutableException {
+		var service = getService(MessageFeatureWebService.class);
+
+		if (isNull(service)) {
+			return;
+		}
+
+		WebSocketSTOMPTransport stompTransport = (WebSocketSTOMPTransport) this.stompMessageTransport;
+		if (nonNull(stompTransport)) {
+			stompTransport.sendMessage(message);
+		}
 	}
 
 	/**
@@ -316,6 +340,9 @@ public class WebService extends ExecutableBase {
 	private void startService(FeatureServiceBase service) throws ExecutableException {
 		if (messageTransport.getState() != ExecutableState.Started) {
 			messageTransport.start();
+			if (service instanceof MessageFeatureWebService) {
+				stompMessageTransport.start();
+			}
 		}
 
 		PresenterContext pContext = (PresenterContext) context;
@@ -337,6 +364,9 @@ public class WebService extends ExecutableBase {
 
 		if (startedServices.isEmpty()) {
 			messageTransport.stop();
+			if (service instanceof MessageFeatureWebService) {
+				stompMessageTransport.stop();
+			}
 		}
 
 		//stopLocalBroadcaster();
@@ -361,9 +391,9 @@ public class WebService extends ExecutableBase {
 		TokenProvider tokenProvider = streamConfig::getAccessToken;
 
 		return cls.getConstructor(ServiceParameters.class, TokenProvider.class,
-						MessageTransport.class)
+						MessageTransport.class, MessageTransport.class)
 				.newInstance(streamApiParameters, tokenProvider,
-						messageTransport);
+						messageTransport, stompMessageTransport);
 	}
 
 	private void initMessageTransport() {
@@ -387,5 +417,22 @@ public class WebService extends ExecutableBase {
 				tokenProvider);
 
 		return new WebSocketTransport(messageApiParameters, headerProvider, course);
+	}
+
+	private MessageTransport createStompMessageTransport() {
+		ServiceParameters messageApiParameters = new ServiceParameters();
+		messageApiParameters.setUrl(streamPublisherApiUrl + "/messenger/");
+
+		PresenterContext pContext = (PresenterContext) context;
+		PresenterConfiguration config = (PresenterConfiguration) context.getConfiguration();
+		StreamConfiguration streamConfig = config.getStreamConfig();
+		TokenProvider tokenProvider = streamConfig::getAccessToken;
+
+		Course course = pContext.getCourse();
+
+		WebSocketHeaderProvider headerProvider = new WebSocketBearerTokenProvider(
+				tokenProvider);
+
+		return new WebSocketSTOMPTransport(messageApiParameters, headerProvider, course);
 	}
 }

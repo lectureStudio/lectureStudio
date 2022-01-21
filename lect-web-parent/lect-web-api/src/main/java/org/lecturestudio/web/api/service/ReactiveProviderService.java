@@ -47,22 +47,25 @@ public abstract class ReactiveProviderService extends ProviderService {
 
 	private final MessageTransport messageTransport;
 
+	private final MessageTransport stompMessageTransport;
+
 	private final Map<Client, SseEventSource> eventSources;
 
 	private final Jsonb jsonb;
 
 
 	public ReactiveProviderService(ServiceParameters parameters) {
-		this(parameters, null, null);
+		this(parameters, null, null, null);
 	}
 
 	public ReactiveProviderService(ServiceParameters parameters,
-			TokenProvider tokenProvider, MessageTransport messageTransport) {
+			TokenProvider tokenProvider, MessageTransport messageTransport, MessageTransport stompMessageTransport) {
 		this.parameters = parameters;
 		this.tokenProvider = tokenProvider;
 		this.messageTransport = messageTransport;
 		this.eventSources = new ConcurrentHashMap<>();
 		this.jsonb = new JsonConfig().getContext(null);
+		this.stompMessageTransport = stompMessageTransport;
 	}
 
 	public <T extends WebMessage> void addMessageListener(Class<T> cls,
@@ -73,6 +76,16 @@ public abstract class ReactiveProviderService extends ProviderService {
 	public <T extends WebMessage> void removeMessageListener(Class<T> cls,
 			Consumer<T> onEvent) {
 		messageTransport.removeListener(cls, onEvent);
+	}
+
+	public <T extends WebMessage> void addStompMessageListener(Class<T> cls,
+														  Consumer<T> onEvent) {
+		stompMessageTransport.addListener(cls, onEvent);
+	}
+
+	public <T extends WebMessage> void removeStompMessageListener(Class<T> cls,
+															 Consumer<T> onEvent) {
+		stompMessageTransport.removeListener(cls, onEvent);
 	}
 
 	protected <T extends WebMessage> void subscribeSse(String path, Class<T> cls,

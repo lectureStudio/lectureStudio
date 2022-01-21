@@ -23,6 +23,8 @@ import static java.util.Objects.nonNull;
 import java.net.http.WebSocket.Builder;
 
 import org.lecturestudio.web.api.client.TokenProvider;
+import org.springframework.messaging.simp.stomp.StompHeaders;
+import org.springframework.web.socket.WebSocketHttpHeaders;
 
 /**
  * Bearer token authorization header provider.
@@ -47,5 +49,28 @@ public class WebSocketBearerTokenProvider implements WebSocketHeaderProvider {
 		if (nonNull(token)) {
 			builder.header(API_KEY_HEADER, token);
 		}
+	}
+
+	@Override
+	public WebSocketHttpHeaders getHeaders() {
+		String token = tokenProvider.getToken();
+		WebSocketHttpHeaders headers = new WebSocketHttpHeaders();
+
+		if (nonNull(token)) {
+			headers.add(API_KEY_HEADER, token);
+		}
+
+		return headers;
+	}
+
+	@Override
+	public StompHeaders addHeadersForStomp(StompHeaders headers) {
+		String token = tokenProvider.getToken();
+
+		if (nonNull(token)) {
+			headers.add(API_KEY_HEADER, token);
+		}
+
+		return headers;
 	}
 }

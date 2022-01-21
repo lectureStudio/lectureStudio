@@ -34,8 +34,8 @@ public class QuizFeatureService extends ReactiveProviderService {
 
 
 	public QuizFeatureService(ServiceParameters parameters,
-			TokenProvider tokenProvider, MessageTransport messageTransport) {
-		super(parameters, tokenProvider, messageTransport);
+			TokenProvider tokenProvider, MessageTransport messageTransport, MessageTransport stompMessageTransport) {
+		super(parameters, tokenProvider, messageTransport, stompMessageTransport);
 
 		RestClientBuilder builder = createClientBuilder(parameters);
 		builder.property(TokenProvider.class.getName(), tokenProvider);

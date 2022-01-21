@@ -20,17 +20,40 @@ package org.lecturestudio.web.api.data.bind;
 
 import java.time.ZonedDateTime;
 
+import javax.json.Json;
 import javax.json.JsonObject;
+import javax.json.JsonObjectBuilder;
 import javax.json.bind.adapter.JsonbAdapter;
 
 import org.lecturestudio.web.api.message.MessengerMessage;
 import org.lecturestudio.web.api.model.Message;
 
+import static java.util.Objects.nonNull;
+
 public class MessengerMessageAdapter implements JsonbAdapter<MessengerMessage, JsonObject> {
 
 	@Override
 	public JsonObject adaptToJson(MessengerMessage messengerMessage) {
-		return null;
+		JsonObjectBuilder builder = Json.createObjectBuilder();
+		builder.add("type", messengerMessage.getClass().getSimpleName());
+
+		if (nonNull(messengerMessage.getMessage())) {
+			builder.add("message", messengerMessage.getMessage().getText());
+		}
+		if (nonNull(messengerMessage.getFirstName())) {
+			builder.add("firstName", messengerMessage.getFirstName());
+		}
+		if (nonNull(messengerMessage.getFamilyName())) {
+			builder.add("familyName", messengerMessage.getFamilyName());
+		}
+		if (nonNull(messengerMessage.getRemoteAddress())) {
+			builder.add("remoteAddress", messengerMessage.getRemoteAddress());
+		}
+		if (nonNull(messengerMessage.getDate())) {
+			builder.add("date", messengerMessage.getDate().toString());
+		}
+
+		return builder.build();
 	}
 
 	@Override

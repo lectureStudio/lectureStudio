@@ -32,7 +32,7 @@
 								</Button>
 							</Panel>
 						</HBox>
-						<ScrollPane>
+						<ScrollPane id="messageViewContainerContainer">
 							<VBox id="messageViewContainer" border="EmptyBorder(10, 10, 10, 10)" />
 						</ScrollPane>
 					</VBox>

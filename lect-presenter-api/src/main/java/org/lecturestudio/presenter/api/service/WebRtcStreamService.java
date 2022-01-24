@@ -251,7 +251,7 @@ public class WebRtcStreamService extends ExecutableBase {
 
 			@Override
 			public void connected() {
-				streamStateClient.setWebRtcUp();
+
 			}
 
 			@Override

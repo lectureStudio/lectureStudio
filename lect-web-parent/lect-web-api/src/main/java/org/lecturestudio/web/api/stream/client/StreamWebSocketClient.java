@@ -108,14 +108,6 @@ public class StreamWebSocketClient extends ExecutableBase {
 		this.jsonb = JsonbBuilder.create(config);
 	}
 
-	public void setWebRtcUp() {
-		if (!started()) {
-			return;
-		}
-
-		send(new StreamStartAction(course.getId()));
-	}
-
 	public Executable getReconnectExecutable() {
 		return new Reconnect();
 	}

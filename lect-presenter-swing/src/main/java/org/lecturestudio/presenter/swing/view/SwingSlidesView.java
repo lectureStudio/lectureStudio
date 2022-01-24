@@ -175,7 +175,7 @@ public class SwingSlidesView extends JPanel implements SlidesView {
 
 	private JTextField sendTextField;
 
-	private JButton sendButton;
+	private JButton sendMessengerMessageButton;
 
 	private int bottomTabIndex;
 
@@ -475,6 +475,7 @@ public class SwingSlidesView extends JPanel implements SlidesView {
 
 			setBottomTabEnabled(2, streamStarted || messengerStarted);
 			setBottomTabSelected(2, streamStarted || messengerStarted);
+			setSendMessengerMessageButtonEnabled(messengerStarted);
 
 			if (!messengerStarted) {
 				removeMessageViews(MessageView.class);
@@ -1011,6 +1012,11 @@ public class SwingSlidesView extends JPanel implements SlidesView {
 
 	@Override
 	public void setOnSend(Action action) {
-		SwingUtils.bindAction(this.sendButton, action);
+		SwingUtils.bindAction(this.sendMessengerMessageButton, action);
+	}
+
+	@Override
+	public void setSendMessengerMessageButtonEnabled(boolean enable) {
+		this.sendMessengerMessageButton.setEnabled(enable);
 	}
 }

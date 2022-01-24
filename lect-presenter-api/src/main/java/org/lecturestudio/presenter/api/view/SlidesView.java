@@ -138,4 +138,6 @@ public interface SlidesView extends View {
 	void setMessageToSend(StringProperty messageValue);
 
 	void setOnSend(Action action);
+
+    void setSendMessengerMessageButtonEnabled(boolean enable);
 }

@@ -478,6 +478,10 @@ public class SwingSlidesView extends JPanel implements SlidesView {
 
 			if (!messengerStarted) {
 				removeMessageViews(MessageView.class);
+				sendButton.setEnabled(false);
+			}
+			else {
+				sendButton.setEnabled(true);
 			}
 		});
 	}

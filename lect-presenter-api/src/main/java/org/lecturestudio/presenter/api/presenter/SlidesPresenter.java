@@ -185,6 +185,8 @@ public class SlidesPresenter extends Presenter<SlidesView> {
 		this.documentChangeListener = new DocumentChangeHandler();
 	}
 
+
+
 	@Subscribe
 	public void onEvent(DocumentEvent event) {
 		Document doc = event.getDocument();

@@ -147,7 +147,6 @@ public class WebSocketSTOMPTransport extends ExecutableBase implements MessageTr
                     StompSession ftr = this.session.getSessionFuture().get();
                     headers.setSession(ftr.getSessionId());
                     ftr.send(headers, messageAsJson);
-                    System.out.println(this.session.getSessionId());
                 } catch (Exception exc) {
                     exc.printStackTrace();
                 }

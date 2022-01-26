@@ -67,7 +67,7 @@ public class MessageFeatureWebService extends FeatureServiceBase {
 		try {
 			serviceId = webService.startMessenger(courseId, config.getMessengerMode());
 
-			//webService.addMessageListener(MessengerMessage.class, messageConsumer);
+			webService.addMessageListener(MessengerMessage.class, messageConsumer);
 			webService.addStompMessageListener(MessengerMessage.class, messageConsumer);
 		}
 		catch (Exception e) {
@@ -81,6 +81,7 @@ public class MessageFeatureWebService extends FeatureServiceBase {
 	protected void stopInternal() throws ExecutableException {
 		try {
 			webService.removeMessageListener(MessengerMessage.class, messageConsumer);
+			webService.removeStompMessageListener(MessengerMessage.class, messageConsumer);
 			webService.stopMessenger(courseId);
 			// Stop receiving message events.
 			webService.close();

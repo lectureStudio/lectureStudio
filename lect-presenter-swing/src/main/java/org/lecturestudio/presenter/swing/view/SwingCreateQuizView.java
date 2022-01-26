@@ -381,19 +381,14 @@ public class SwingCreateQuizView extends ContentPane implements CreateQuizView {
 
 			if (nonNull(source) && source.isShowing()) {
 				boolean isTextComponent = source instanceof JTextComponent;
-				boolean isAlphaNum = Character.isLetterOrDigit(event.getKeyCode());
+				boolean isAlphaNum = Character.isLetterOrDigit(event.getKeyCode()) |
+						Character.isSpaceChar(event.getKeyCode());
 
 				if (isTextComponent && isAlphaNum) {
-					event.consume();
-					return false;
+					return !event.isControlDown() && !event.isShiftDown()
+							&& !event.isAltDown() && !event.isMetaDown();
 				}
 			}
-
-			KeyStroke keystroke = KeyStroke.getKeyStroke(event.getKeyCode(), event.getModifiersEx());
-//			if (e.getID() == KeyEvent.KEY_PRESSED && keystroke.equals(Shortcut.SAVE_QUIZ.getKeyStroke())) {
-//				saveQuizButton.doClick();
-//				return super.dispatchKeyEvent(e);
-//			}
 
 			if (event.getID() != KeyEvent.KEY_PRESSED) {
 				return super.dispatchKeyEvent(event);

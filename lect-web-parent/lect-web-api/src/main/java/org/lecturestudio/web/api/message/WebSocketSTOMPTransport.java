@@ -8,6 +8,7 @@ import org.lecturestudio.web.api.stream.model.Course;
 import org.lecturestudio.web.api.websocket.WebSocketHeaderProvider;
 import org.lecturestudio.web.api.websocket.stomp.MessengerStompSessionHandler;
 import org.springframework.messaging.converter.MappingJackson2MessageConverter;
+import org.springframework.messaging.simp.stomp.DefaultStompSession;
 import org.springframework.messaging.simp.stomp.StompHeaders;
 import org.springframework.messaging.simp.stomp.StompSession;
 import org.springframework.messaging.simp.stomp.StompSessionHandler;
@@ -46,7 +47,7 @@ public class WebSocketSTOMPTransport extends ExecutableBase implements MessageTr
 
     private Jsonb jsonb;
 
-    private StompSession session;
+    private DefaultStompSession session;
 
     public WebSocketSTOMPTransport(ServiceParameters serviceParameters,
                                    WebSocketHeaderProvider headerProvider,
@@ -97,7 +98,6 @@ public class WebSocketSTOMPTransport extends ExecutableBase implements MessageTr
         if (isNull(this.stompClient)) {
             StandardWebSocketClient simpleWebSocketClient = new StandardWebSocketClient();
 
-
             List<Transport> transports = new ArrayList();
             transports.add(new org.springframework.web.socket.sockjs.client.WebSocketTransport(simpleWebSocketClient));
 
@@ -112,7 +112,7 @@ public class WebSocketSTOMPTransport extends ExecutableBase implements MessageTr
             stompClient.setMessageConverter(new MappingJackson2MessageConverter());
             ListenableFuture<StompSession> listenableSession = stompClient.connect(this.serviceParameters.getUrl(), headers, sessionHandler);
             try {
-                this.session = listenableSession.get();
+                this.session = (DefaultStompSession) listenableSession.get();
             } catch (ExecutionException e) {
                 e.printStackTrace();
             } catch (InterruptedException e) {
@@ -141,8 +141,16 @@ public class WebSocketSTOMPTransport extends ExecutableBase implements MessageTr
                 String messageAsJson = jsonb.toJson(message, message.getClass());
                 StompHeaders headers = new StompHeaders();
                 headerProvider.addHeadersForStomp(headers);
-                headers.setDestination("/app/publisher/message/" +  this.course.getId());
-                this.session.send(headers, messageAsJson);
+
+                headers.setDestination("/app/message/publisher/" +  this.course.getId());
+                try {
+                    StompSession ftr = this.session.getSessionFuture().get();
+                    headers.setSession(ftr.getSessionId());
+                    ftr.send(headers, messageAsJson);
+                    System.out.println(this.session.getSessionId());
+                } catch (Exception exc) {
+                    exc.printStackTrace();
+                }
             }
         }
     }

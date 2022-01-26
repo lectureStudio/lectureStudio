@@ -49,6 +49,7 @@ import org.lecturestudio.web.api.message.MessageTransport;
 import org.lecturestudio.web.api.message.MessengerMessage;
 import org.lecturestudio.web.api.message.WebSocketSTOMPTransport;
 import org.lecturestudio.web.api.message.WebSocketTransport;
+import org.lecturestudio.web.api.model.messenger.MessengerConfig;
 import org.lecturestudio.web.api.model.quiz.Quiz;
 import org.lecturestudio.web.api.service.ServiceParameters;
 import org.lecturestudio.web.api.stream.model.Course;
@@ -118,7 +119,7 @@ public class WebService extends ExecutableBase {
 	 *
 	 * @throws ExecutableException if the message service could not be started.
 	 */
-	public void startMessenger() throws ExecutableException {
+	public void startMessenger(MessengerConfig config) throws ExecutableException {
 		var service = getService(MessageFeatureWebService.class);
 
 		if (nonNull(service) && service.started()) {
@@ -133,7 +134,7 @@ public class WebService extends ExecutableBase {
 
 			startService(new MessageFeatureWebService(context,
 					createFeatureService(streamPublisherApiUrl,
-							MessageFeatureService.class)));
+							MessageFeatureService.class), config));
 		}
 		catch (Exception e) {
 			throw new ExecutableException("Message service could not be started", e);

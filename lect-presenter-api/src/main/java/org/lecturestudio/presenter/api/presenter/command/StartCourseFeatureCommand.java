@@ -21,6 +21,7 @@ package org.lecturestudio.presenter.api.presenter.command;
 import org.lecturestudio.core.presenter.command.ShowPresenterCommand;
 import org.lecturestudio.core.view.Action;
 import org.lecturestudio.presenter.api.presenter.StartCourseFeaturePresenter;
+import org.lecturestudio.presenter.api.service.FeatureServiceBase;
 import org.lecturestudio.web.api.stream.model.Course;
 
 public class StartCourseFeatureCommand extends ShowPresenterCommand<StartCourseFeaturePresenter> {
@@ -29,17 +30,21 @@ public class StartCourseFeatureCommand extends ShowPresenterCommand<StartCourseF
 
 	private final Course course;
 
+	private final Class<? extends FeatureServiceBase> feature;
 
-	public StartCourseFeatureCommand(Course course, Action startAction) {
+
+	public StartCourseFeatureCommand(Course course, Action startAction, Class<? extends FeatureServiceBase> feature) {
 		super(StartCourseFeaturePresenter.class);
 
 		this.course = course;
 		this.startAction = startAction;
+		this.feature = feature;
 	}
 
 	@Override
 	public void execute(StartCourseFeaturePresenter presenter) {
 		presenter.setCourse(course);
 		presenter.setOnStart(startAction);
+		presenter.setFeature(feature);
 	}
 }

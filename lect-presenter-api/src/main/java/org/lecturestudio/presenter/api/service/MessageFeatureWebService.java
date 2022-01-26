@@ -27,6 +27,7 @@ import org.lecturestudio.core.ExecutableException;
 import org.lecturestudio.core.app.ApplicationContext;
 import org.lecturestudio.presenter.api.util.HtmlMessageLogger;
 import org.lecturestudio.web.api.message.MessengerMessage;
+import org.lecturestudio.web.api.model.messenger.MessengerConfig;
 
 public class MessageFeatureWebService extends FeatureServiceBase {
 
@@ -39,6 +40,8 @@ public class MessageFeatureWebService extends FeatureServiceBase {
 	/** A message logger. */
 	private HtmlMessageLogger logger;
 
+	private MessengerConfig config;
+
 
 	/**
 	 * Creates a new {@link MessageFeatureWebService}.
@@ -47,10 +50,11 @@ public class MessageFeatureWebService extends FeatureServiceBase {
 	 * @param featureService The message web feature service.
 	 */
 	public MessageFeatureWebService(ApplicationContext context,
-			MessageFeatureService featureService) {
+									MessageFeatureService featureService, MessengerConfig config) {
 		super(context);
 
 		this.webService = featureService;
+		this.config = config;
 	}
 
 	@Override
@@ -61,7 +65,7 @@ public class MessageFeatureWebService extends FeatureServiceBase {
 	@Override
 	protected void startInternal() throws ExecutableException {
 		try {
-			serviceId = webService.startMessenger(courseId);
+			serviceId = webService.startMessenger(courseId, config.getMessengerMode());
 
 			//webService.addMessageListener(MessengerMessage.class, messageConsumer);
 			webService.addStompMessageListener(MessengerMessage.class, messageConsumer);

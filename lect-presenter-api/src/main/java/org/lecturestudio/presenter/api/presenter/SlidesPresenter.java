@@ -485,15 +485,7 @@ public class SlidesPresenter extends Presenter<SlidesView> {
 	}
 
 	private void documentReplaced(Document oldDoc, Document doc) {
-		if (nonNull(oldDoc)) {
-			oldDoc.removeChangeListener(documentChangeListener);
-		}
-
-		doc.addChangeListener(documentChangeListener);
-
-		view.selectDocument(doc, context.getPagePropertyProvider(ViewType.Preview));
-
-		setPage(doc.getCurrentPage());
+		view.addDocument(doc, context.getPagePropertyProvider(ViewType.Preview));
 	}
 
 	private void documentSelected(Document oldDoc, Document doc) {

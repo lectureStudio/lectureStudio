@@ -332,7 +332,7 @@ public class DocumentService {
 	public void selectPage(Page page) {
 		Document selectedDocument = documents.getSelectedDocument();
 
-		if (nonNull(selectedDocument)) {
+		if (nonNull(selectedDocument) && page.getDocument() == selectedDocument) {
 			selectPage(selectedDocument, page.getPageNumber());
 		}
 	}

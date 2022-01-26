@@ -264,9 +264,10 @@ public class QuizFeatureWebService extends FeatureServiceBase {
 
 	private void updateQuizDocument(boolean copyAnnotations) {
 		try {
+			Document oldDoc = quizDocument;
 			quizDocument = createQuizDocument(quizResult);
 
-			documentService.replaceDocument(quizDocument, copyAnnotations);
+			documentService.replaceDocument(oldDoc, quizDocument, copyAnnotations);
 		}
 		catch (Exception e) {
 			logException(e, "Create quiz document failed");

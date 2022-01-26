@@ -44,7 +44,7 @@ public class MessageFeatureService extends ReactiveProviderService {
 	}
 
 	public String startMessenger(long courseId, MessengerConfig.MessengerMode mode) {
-		return featureClient.startMessenger(courseId, mode);
+		return featureClient.startMessenger(courseId, mode.toString());
 	}
 
 	public void stopMessenger(long courseId) {

@@ -825,6 +825,8 @@ public class SwingSlidesView extends JPanel implements SlidesView {
 
 		addComponentAndUpdate(notesSplitPane, bottomTabPane);
 
+		minimizeBottomPane();
+
 		setBottomTabVisible(0, true);
 	}
 
@@ -1005,12 +1007,13 @@ public class SwingSlidesView extends JPanel implements SlidesView {
 	}
 
 	private void minimizeBottomPane(boolean saveOldRatio) {
-		if (bottomTabPane.getHeight() <= getBottomTabHeight()) {
+		int tabHeight = getBottomTabHeight();
+
+		if (bottomTabPane.getHeight() <= tabHeight && saveOldRatio) {
 			return;
 		}
 
-		int tabHeight = getBottomTabHeight();
-		int location = notesSplitPane.getHeight() - notesSplitPane.getDividerSize() - tabHeight;
+		int location = notesSplitPane.getHeight() - notesSplitPane.getDividerSize() - tabHeight - 3;
 
 		if (saveOldRatio) {
 			oldNotesDividerRatio = getNotesDividerRatio();
@@ -1030,12 +1033,13 @@ public class SwingSlidesView extends JPanel implements SlidesView {
 	}
 
 	private void minimizeTabPane() {
-		if (tabPane.getWidth() <= getTabWidth()) {
+		int tabWidth = getTabWidth();
+
+		if (tabPane.getWidth() <= tabWidth) {
 			return;
 		}
 
-		int tabWidth = getTabWidth();
-		int location = tabSplitPane.getWidth() - tabSplitPane.getDividerSize() - tabWidth;
+		int location = tabSplitPane.getWidth() - tabSplitPane.getDividerSize() - tabWidth - 3;
 
 		oldTabDividerRatio = getTabDividerRatio();
 
@@ -1233,6 +1237,14 @@ public class SwingSlidesView extends JPanel implements SlidesView {
 			@Override
 			public void ancestorMoved(AncestorEvent event) {
 				removeAncestorListener(this);
+			}
+		});
+
+		notesSplitPane.addComponentListener(new ComponentAdapter() {
+			@Override
+			public void componentResized(ComponentEvent e) {
+				notesSplitPane.removeComponentListener(this);
+				minimizeBottomPane();
 			}
 		});
 	}

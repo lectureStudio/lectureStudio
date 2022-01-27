@@ -100,6 +100,7 @@ import org.lecturestudio.web.api.message.MessengerMessage;
 import org.lecturestudio.web.api.message.SpeechCancelMessage;
 import org.lecturestudio.web.api.message.SpeechRequestMessage;
 import org.lecturestudio.web.api.model.Message;
+import org.lecturestudio.web.api.model.messenger.MessengerConfig;
 import org.lecturestudio.web.api.service.ServiceParameters;
 import org.lecturestudio.web.api.stream.model.User;
 import org.lecturestudio.web.api.stream.service.StreamProviderService;
@@ -262,6 +263,10 @@ public class SlidesPresenter extends Presenter<SlidesView> {
 		messengerState = event.getState();
 
 		view.setMessengerState(event.getState());
+
+		PresenterContext pContext = (PresenterContext) context;
+
+		view.setOnMessengerMode(pContext.getMessengerModeProperty());
 
 		checkRemoteServiceState();
 	}

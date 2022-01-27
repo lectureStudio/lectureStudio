@@ -22,6 +22,8 @@ import static java.util.Objects.isNull;
 import static java.util.Objects.nonNull;
 
 import java.util.Arrays;
+import java.util.HashSet;
+import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 
 import javax.inject.Inject;
@@ -72,16 +74,10 @@ public class CameraSettingsPresenter extends Presenter<CameraSettingsView> {
 			setDefaultCameraName();
 		}
 
-		AspectRatio aspectRatio = AspectRatio.forRect(cameraConfig.getViewRect());
 		Camera camera = camService.getCamera(streamConfig.getCameraName());
-
-		setCameraAspectRatio(aspectRatio);
 
 		view.setCameraNames(camService.getCameraNames());
 		view.setCameraName(streamConfig.cameraNameProperty());
-		view.setCameraAspectRatios(AspectRatio.values());
-		view.setCameraAspectRatio(aspectRatio);
-		view.setCameraProfile(getCameraProfile(CameraProfiles.forRatio(aspectRatio)));
 		view.setCameraViewRect(cameraConfig.viewRectProperty());
 		view.setOnCameraAspectRatio(this::setCameraAspectRatio);
 		view.setOnCameraProfile(this::setCameraProfile);
@@ -170,6 +166,20 @@ public class CameraSettingsPresenter extends Presenter<CameraSettingsView> {
 			Camera camera = camService.getCamera(cameraName);
 
 			if (nonNull(camera)) {
+				VideoCodecConfiguration cameraConfig = streamConfig.getCameraCodecConfig();
+				Set<AspectRatio> ratioSet = getSupportedRatios(camera);
+				AspectRatio ratio = AspectRatio.forRect(cameraConfig.getViewRect());
+
+				if (!ratioSet.contains(ratio)) {
+					ratio = ratioSet.iterator().next();
+				}
+
+				setCameraAspectRatio(ratio);
+
+				view.setCameraAspectRatios(ratioSet.toArray(AspectRatio[]::new));
+				view.setCameraAspectRatio(ratio);
+				view.setCameraProfile(getCameraProfile(CameraProfiles.forRatio(ratio)));
+
 				CameraFormat highestFormat = camera.getHighestFormat(30);
 
 				streamConfig.setCameraFormat(highestFormat);
@@ -180,8 +190,6 @@ public class CameraSettingsPresenter extends Presenter<CameraSettingsView> {
 					return;
 				}
 
-				VideoCodecConfiguration cameraConfig = streamConfig.getCameraCodecConfig();
-				AspectRatio ratio = AspectRatio.forRect(cameraConfig.getViewRect());
 				CameraProfile[] profiles = CameraProfiles.forRatio(ratio);
 				CameraProfile profile = getCameraProfile(profiles);
 
@@ -196,6 +204,21 @@ public class CameraSettingsPresenter extends Presenter<CameraSettingsView> {
 				}
 			}
 		});
+	}
+
+	private Set<AspectRatio> getSupportedRatios(Camera camera) {
+		Set<AspectRatio> ratioSet = new HashSet<>();
+
+		if (nonNull(camera)) {
+			for (var format : camera.getSupportedFormats()) {
+				AspectRatio ratio = AspectRatio.forRect(
+						new Rectangle2D(0, 0, format.getWidth(), format.getHeight()));
+
+				ratioSet.add(ratio);
+			}
+		}
+
+		return ratioSet;
 	}
 
 	private void setCameraAspectRatio(AspectRatio ratio) {

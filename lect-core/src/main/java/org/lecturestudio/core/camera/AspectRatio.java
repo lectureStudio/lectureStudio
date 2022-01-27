@@ -31,7 +31,7 @@ import org.lecturestudio.core.geometry.Rectangle2D;
  */
 public enum AspectRatio {
 
-	/** The default, and old, 4:3 aspect ratio. */
+	/** The default and old 4:3 aspect ratio. */
 	Standard,
 
 	/** Any widescreen aspect ratio, like 16:9, 16:10, etc. */

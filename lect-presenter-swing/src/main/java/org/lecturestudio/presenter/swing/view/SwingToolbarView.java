@@ -25,10 +25,7 @@ import java.awt.FlowLayout;
 import java.awt.Graphics2D;
 import java.awt.GridBagConstraints;
 import java.awt.Paint;
-import java.awt.event.ItemEvent;
-import java.awt.event.ItemListener;
 import java.awt.image.BufferedImage;
-import java.beans.PropertyChangeListener;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Enumeration;
@@ -622,36 +619,6 @@ public class SwingToolbarView extends JPanel implements ToolbarView {
 
 	@ViewPostConstruct
 	private void initialize() {
-		ItemListener toggleListener = ev -> {
-			JToggleButton button = (JToggleButton) ev.getSource();
-
-			if (ev.getStateChange() == ItemEvent.SELECTED && button.isEnabled()) {
-				button.setBackground(java.awt.Color.decode("#D1FAE5"));
-			}
-			else if (ev.getStateChange() == ItemEvent.DESELECTED) {
-				button.setBackground(null);
-			}
-		};
-
-		PropertyChangeListener enabledListener = ev -> {
-			JToggleButton button = (JToggleButton) ev.getSource();
-
-			if (button.isSelected() && button.isEnabled()) {
-				button.setBackground(java.awt.Color.decode("#D1FAE5"));
-			}
-			else {
-				button.setBackground(null);
-			}
-		};
-
-		streamEnableButton.addPropertyChangeListener("enabled", enabledListener);
-		streamMicButton.addPropertyChangeListener("enabled", enabledListener);
-		streamCamButton.addPropertyChangeListener("enabled", enabledListener);
-
-		streamEnableButton.addItemListener(toggleListener);
-		streamMicButton.addItemListener(toggleListener);
-		streamCamButton.addItemListener(toggleListener);
-
 		colorGroup = new ButtonGroup();
 		toolGroup = new ButtonGroup();
 

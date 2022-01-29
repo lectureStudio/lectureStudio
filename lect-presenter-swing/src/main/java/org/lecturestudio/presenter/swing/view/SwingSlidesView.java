@@ -38,10 +38,10 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.image.BufferedImage;
 import java.awt.image.DataBufferByte;
-import java.math.BigInteger;
 import java.util.Enumeration;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Objects;
 
 import javax.inject.Inject;
 import javax.swing.JFrame;
@@ -132,7 +132,7 @@ public class SwingSlidesView extends JPanel implements SlidesView {
 
 	private ConsumerAction<Boolean> mutePeerVideoAction;
 
-	private ConsumerAction<BigInteger> stopPeerConnectionAction;
+	private ConsumerAction<Long> stopPeerConnectionAction;
 
 	private Action newPageAction;
 
@@ -555,16 +555,13 @@ public class SwingSlidesView extends JPanel implements SlidesView {
 		SwingUtils.invoke(() -> {
 			ExecutableState state = event.getState();
 
-			if (state == ExecutableState.Started) {
-				if (peerViewContainer.getComponentCount() > 0) {
-					return;
-				}
-
-				peerView = new PeerView();
+			if (state == ExecutableState.Starting) {
+				peerView = new PeerView(dict);
 				peerView.setMinimumSize(new Dimension(100, 150));
 				peerView.setPreferredSize(new Dimension(100, 150));
-				peerView.setPeerId(event.getPeerId());
+				peerView.setRequestId(event.getRequestId());
 				peerView.setPeerName(event.getPeerName());
+				peerView.setState(state);
 				peerView.setOnMuteAudio(mutePeerAudioAction);
 				peerView.setOnMuteVideo(mutePeerVideoAction);
 				peerView.setOnStopPeerConnection(stopPeerConnectionAction);
@@ -572,6 +569,17 @@ public class SwingSlidesView extends JPanel implements SlidesView {
 				peerViewContainer.add(peerView);
 				peerViewContainer.revalidate();
 				peerViewContainer.repaint();
+			}
+			else if (state == ExecutableState.Started) {
+				for (var component : peerViewContainer.getComponents()) {
+					if (component instanceof PeerView) {
+						PeerView peerView = (PeerView) component;
+
+						if (Objects.equals(peerView.getRequestId(), event.getRequestId())) {
+							peerView.setState(state);
+						}
+					}
+				}
 			}
 			else if (state == ExecutableState.Stopped) {
 				peerView = null;
@@ -594,7 +602,7 @@ public class SwingSlidesView extends JPanel implements SlidesView {
 	}
 
 	@Override
-	public void setOnStopPeerConnection(ConsumerAction<BigInteger> action) {
+	public void setOnStopPeerConnection(ConsumerAction<Long> action) {
 		stopPeerConnectionAction = action;
 	}
 
@@ -612,7 +620,9 @@ public class SwingSlidesView extends JPanel implements SlidesView {
 		}
 
 		SwingUtils.invoke(() -> {
-			peerView.showImage(peerViewImage);
+			if (nonNull(peerView)) {
+				peerView.showImage(peerViewImage);
+			}
 		});
 	}
 

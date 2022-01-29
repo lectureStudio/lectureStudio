@@ -319,6 +319,15 @@ public class SlidesPresenter extends Presenter<SlidesView> {
 
 		PresenterContext presenterContext = (PresenterContext) context;
 		presenterContext.getSpeechRequests().remove(message);
+
+		Long requestId = message.getRequestId();
+		String userName = String.format("%s %s", message.getFirstName(),
+				message.getFamilyName());
+
+		PeerStateEvent event = new PeerStateEvent(requestId, userName,
+				ExecutableState.Starting);
+
+		view.setPeerStateEvent(event);
 	}
 
 	private void onRejectSpeech(SpeechRequestMessage message) {

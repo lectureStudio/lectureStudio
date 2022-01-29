@@ -103,7 +103,7 @@ public interface SlidesView extends View {
 
 	void setOnMutePeerVideo(ConsumerAction<Boolean> action);
 
-	void setOnStopPeerConnection(ConsumerAction<BigInteger> action);
+	void setOnStopPeerConnection(ConsumerAction<Long> action);
 
 	void setVideoFrameEvent(VideoFrameEvent event);
 

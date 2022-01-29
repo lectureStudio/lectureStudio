@@ -26,6 +26,7 @@ import java.math.BigInteger;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
@@ -97,15 +98,17 @@ public class JanusHandler extends JanusStateHandler {
 			return;
 		}
 
-		JanusPublisher activePublisher = getFirstPublisher();
+		Map.Entry<Long, JanusPublisher> entry = getFirstPublisherEntry();
 
-		if (nonNull(activePublisher)) {
+		if (nonNull(entry)) {
+			JanusPublisher activePublisher = entry.getValue();
+
 			if (isNull(activePublisher.getId())) {
 				speechPublishers.values()
 						.removeIf(value -> value.equals(activePublisher));
 			}
 			else {
-				stopRemoteSpeech(activePublisher.getId());
+				stopRemoteSpeech(entry.getKey());
 			}
 		}
 
@@ -117,26 +120,20 @@ public class JanusHandler extends JanusStateHandler {
 		editRoom(3);
 	}
 
-	public void stopRemoteSpeech(BigInteger peerId) {
+	public void stopRemoteSpeech(Long requestId) {
 		if (!started()) {
 			return;
 		}
 
 		editRoom(3);
 
-		var entry = speechPublishers.entrySet().stream()
-				.filter(e -> e.getValue().getId().equals(peerId))
-				.findFirst()
-				.orElse(null);
-
-		if (isNull(entry)) {
-			return;
-		}
-
-		JanusPublisher speechPublisher = speechPublishers.remove(entry.getKey());
+		JanusPublisher speechPublisher = speechPublishers.get(requestId);
 
 		if (nonNull(speechPublisher)) {
 			kickParticipant(speechPublisher);
+			setPeerState(speechPublisher, ExecutableState.Stopped);
+
+			speechPublishers.remove(requestId);
 
 			for (JanusStateHandler handler : handlers) {
 				if (handler instanceof JanusSubscriberHandler) {
@@ -325,9 +322,16 @@ public class JanusHandler extends JanusStateHandler {
 
 		// Only one speech at a time.
 		JanusPublisher speechPublisher = getFirstPublisher();
-		speechPublisher.setId(publisher.getId());
 
-		startSubscriber(speechPublisher);
+		if (nonNull(speechPublisher)) {
+			speechPublisher.setId(publisher.getId());
+
+			startSubscriber(speechPublisher);
+		}
+		else {
+			// Handle non-authorized publisher.
+			kickParticipant(publisher);
+		}
 	}
 
 	private void handlePublisherLeft(JanusRoomPublisherLeftMessage message) {
@@ -430,8 +434,19 @@ public class JanusHandler extends JanusStateHandler {
 		var peerStateConsumer = getStreamContext().getPeerStateConsumer();
 
 		if (nonNull(peerStateConsumer)) {
-			peerStateConsumer.accept(new PeerStateEvent(publisher.getId(),
-					publisher.getDisplayName(), state));
+			var pubEntry = speechPublishers.entrySet().stream()
+					.filter(entry -> Objects.equals(publisher.getId(), entry.getValue().getId()))
+					.findFirst();
+
+			if (pubEntry.isEmpty()) {
+				pubEntry = speechPublishers.entrySet().stream()
+						.filter(entry -> Objects.equals(publisher.getDisplayName(), entry.getValue().getDisplayName()))
+						.findFirst();
+			}
+
+			pubEntry.ifPresent(entry -> peerStateConsumer.accept(
+					new PeerStateEvent(entry.getKey(),
+							publisher.getDisplayName(), state)));
 		}
 	}
 
@@ -441,6 +456,14 @@ public class JanusHandler extends JanusStateHandler {
 		}
 
 		return speechPublishers.entrySet().iterator().next().getValue();
+	}
+
+	private Map.Entry<Long, JanusPublisher> getFirstPublisherEntry() {
+		if (speechPublishers.isEmpty()) {
+			return null;
+		}
+
+		return speechPublishers.entrySet().iterator().next();
 	}
 
 	private void muteParticipant(JanusPublisher publisher, boolean mute, MediaType... types) {
@@ -470,7 +493,11 @@ public class JanusHandler extends JanusStateHandler {
 	}
 
 	private void kickParticipant(JanusPublisher publisher) {
-		System.out.println("kick participant: " + getRoomId());
+		if (isNull(publisher.getId())) {
+			return;
+		}
+
+		logDebugMessage("Kick participant from room: " + getRoomId());
 
 		JanusRoomKickRequest request = new JanusRoomKickRequest();
 		request.setParticipantId(publisher.getId());

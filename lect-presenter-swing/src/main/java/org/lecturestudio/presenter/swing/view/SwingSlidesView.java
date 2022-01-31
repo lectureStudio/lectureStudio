@@ -559,9 +559,9 @@ public class SwingSlidesView extends JPanel implements SlidesView {
 				peerView = new PeerView(dict);
 				peerView.setMinimumSize(new Dimension(100, 150));
 				peerView.setPreferredSize(new Dimension(100, 150));
+				peerView.setState(state);
 				peerView.setRequestId(event.getRequestId());
 				peerView.setPeerName(event.getPeerName());
-				peerView.setState(state);
 				peerView.setOnMuteAudio(mutePeerAudioAction);
 				peerView.setOnMuteVideo(mutePeerVideoAction);
 				peerView.setOnStopPeerConnection(stopPeerConnectionAction);
@@ -577,6 +577,7 @@ public class SwingSlidesView extends JPanel implements SlidesView {
 
 						if (Objects.equals(peerView.getRequestId(), event.getRequestId())) {
 							peerView.setState(state);
+							peerView.setHasVideo(event.hasVideo());
 						}
 					}
 				}

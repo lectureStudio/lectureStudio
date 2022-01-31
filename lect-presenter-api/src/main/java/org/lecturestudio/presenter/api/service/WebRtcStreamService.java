@@ -446,12 +446,12 @@ public class WebRtcStreamService extends ExecutableBase {
 				stateWsParameters, headerProvider, eventRecorder, course);
 	}
 
-	private JanusWebSocketClient createJanusClient(StreamContext webRtcConfig) {
+	private JanusWebSocketClient createJanusClient(StreamContext streamContext) {
 		ServiceParameters janusWsParameters = new ServiceParameters();
 		janusWsParameters.setUrl(janusWebSocketUrl);
 
 		return new JanusWebSocketClient(context.getEventBus(), janusWsParameters,
-				webRtcConfig, eventRecorder, clientFailover);
+				streamContext, eventRecorder, clientFailover);
 	}
 
 	private StreamContext createStreamContext(Course course, PresenterConfiguration config) {

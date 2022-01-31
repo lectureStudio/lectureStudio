@@ -938,7 +938,8 @@ public class SwingSlidesView extends JPanel implements SlidesView {
 		int height = buffer.getHeight();
 
 		// Scale video frame down to the view size.
-		int viewHeight = peerView.getHeight();
+		double uiScale = getGraphicsConfiguration().getDefaultTransform().getScaleX();
+		int viewHeight = (int) (peerView.getHeight() * uiScale);
 		double scale = viewHeight / (double) height;
 
 		buffer = buffer.cropAndScale(0, 0, width, height, (int) (width * scale), viewHeight);

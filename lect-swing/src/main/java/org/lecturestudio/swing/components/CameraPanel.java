@@ -109,9 +109,12 @@ public class CameraPanel extends JPanel {
 	 */
 	public void startCapture() {
 		if (started.compareAndSet(false, true)) {
+			double uiScale = getGraphicsConfiguration().getDefaultTransform().getScaleX();
+
 			setCanvasSize(getCameraFormat());
 
-			camera.setImageSize(new Dimension2D(canvas.getWidth(), canvas.getHeight()));
+			camera.setImageSize(new Dimension2D(canvas.getWidth() * uiScale,
+					canvas.getHeight() * uiScale));
 			camera.setImageConsumer(image -> canvas.showImage(image));
 
 			try {

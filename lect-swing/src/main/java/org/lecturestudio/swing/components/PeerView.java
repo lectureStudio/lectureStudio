@@ -28,8 +28,8 @@ import java.awt.Graphics2D;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Image;
-import java.awt.RenderingHints;
 import java.awt.event.ItemEvent;
+import java.awt.geom.AffineTransform;
 
 import javax.swing.Box;
 import javax.swing.JButton;
@@ -257,9 +257,12 @@ public class PeerView extends JComponent {
 	}
 
 	private void paintWithImage(Graphics2D g2) {
-		g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-		g2.setRenderingHint(RenderingHints.KEY_RENDERING, RenderingHints.VALUE_RENDER_QUALITY);
+		AffineTransform transform = g2.getTransform();
+		AffineTransform imageTransform = new AffineTransform();
+		imageTransform.translate(transform.getTranslateX(), transform.getTranslateY());
 
-		g2.drawImage(image, (getWidth() - image.getWidth(null)) / 2, 0, null);
+		g2.setTransform(imageTransform);
+		g2.drawImage(image, (int) ((getWidth() * transform.getScaleX() - image.getWidth(null)) / 2), 0, null);
+		g2.setTransform(transform);
 	}
 }

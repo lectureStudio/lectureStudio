@@ -29,6 +29,7 @@ import java.awt.Graphics2D;
 import java.awt.Image;
 import java.awt.Rectangle;
 import java.awt.RenderingHints;
+import java.awt.geom.AffineTransform;
 
 import javax.swing.JComponent;
 import javax.swing.border.EmptyBorder;
@@ -96,11 +97,19 @@ public class CameraView extends JComponent {
 
 	@Override
 	public void paintComponent(Graphics g) {
+		Graphics2D g2 = (Graphics2D) g;
+
 		if (nonNull(image)) {
-			g.drawImage(image, 0, 0, null);
+			AffineTransform transform = g2.getTransform();
+			AffineTransform imageTransform = new AffineTransform();
+			imageTransform.translate(transform.getTranslateX(), transform.getTranslateY());
+
+			g2.setTransform(imageTransform);
+			g2.drawImage(image, 0, 0, null);
+			g2.setTransform(transform);
 		}
 		else {
-			paintNoImage((Graphics2D) g);
+			paintNoImage(g2);
 		}
 	}
 

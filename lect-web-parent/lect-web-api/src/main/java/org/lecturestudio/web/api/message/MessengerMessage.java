@@ -38,6 +38,11 @@ public class MessengerMessage extends WebMessage {
 		setDate(date);
 	}
 
+	public MessengerMessage(Message message, String remoteAddress, ZonedDateTime date, String messageId) {
+		this(message, remoteAddress, date);
+		setMessageId(messageId);
+	}
+
 	/**
 	 * @return the message
 	 */

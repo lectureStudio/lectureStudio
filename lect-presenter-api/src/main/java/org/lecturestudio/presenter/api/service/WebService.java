@@ -422,7 +422,7 @@ public class WebService extends ExecutableBase {
 
 	private MessageTransport createStompMessageTransport() {
 		ServiceParameters messageApiParameters = new ServiceParameters();
-		messageApiParameters.setUrl(streamPublisherApiUrl + "/messenger/");
+		messageApiParameters.setUrl(streamPublisherApiUrl + "/api/publisher/messenger/");
 
 		PresenterContext pContext = (PresenterContext) context;
 		PresenterConfiguration config = (PresenterConfiguration) context.getConfiguration();

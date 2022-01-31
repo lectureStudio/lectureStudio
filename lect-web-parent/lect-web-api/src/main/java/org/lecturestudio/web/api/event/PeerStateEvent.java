@@ -31,6 +31,8 @@ public class PeerStateEvent extends ExecutableEvent {
 
 	private final Long requestId;
 
+	private boolean hasVideo;
+
 
 	/**
 	 * Create the {@link PeerStateEvent} with the specified state.
@@ -88,5 +90,21 @@ public class PeerStateEvent extends ExecutableEvent {
 	 */
 	public Long getRequestId() {
 		return requestId;
+	}
+
+	/**
+	 * @return True if the peer is sending video.
+	 */
+	public boolean hasVideo() {
+		return hasVideo;
+	}
+
+	/**
+	 * Sets whether the peer is sending video.
+	 *
+	 * @param active True if the peer is sending video.
+	 */
+	public void setHasVideo(boolean active) {
+		this.hasVideo = active;
 	}
 }

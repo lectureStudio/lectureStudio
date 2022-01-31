@@ -314,7 +314,7 @@ public class JanusHandler extends JanusStateHandler {
 
 		participants.put(participant.getId(), participant);
 
-		System.out.println("Joined: " + participant.getDisplayName());
+		// Left empty for now.
 	}
 
 	private void handlePublisherJoined(JanusRoomPublisherJoinedMessage message) {
@@ -338,8 +338,7 @@ public class JanusHandler extends JanusStateHandler {
 		JanusPublisher participant = participants.remove(message.getPublisherId());
 
 		if (nonNull(participant)) {
-
-			System.out.println("Left: " + participant.getDisplayName());
+			// Left empty for now.
 		}
 	}
 
@@ -401,7 +400,10 @@ public class JanusHandler extends JanusStateHandler {
 
 			@Override
 			public void connected() {
-				setPeerState(publisher, ExecutableState.Started);
+				JanusPeerConnection peerConnection = subHandler.getPeerConnection();
+				boolean hasVideo = peerConnection.isReceivingVideo();
+
+				setPeerState(publisher, ExecutableState.Started, hasVideo);
 
 				// Propagate "speech published" to passive participants.
 				for (JanusStateHandler handler : handlers) {
@@ -430,23 +432,34 @@ public class JanusHandler extends JanusStateHandler {
 		addStateHandler(subHandler);
 	}
 
-	private void setPeerState(JanusPublisher publisher, ExecutableState state) {
+	private void sendPeerState(PeerStateEvent event) {
 		var peerStateConsumer = getStreamContext().getPeerStateConsumer();
 
 		if (nonNull(peerStateConsumer)) {
-			var pubEntry = speechPublishers.entrySet().stream()
-					.filter(entry -> Objects.equals(publisher.getId(), entry.getValue().getId()))
-					.findFirst();
+			peerStateConsumer.accept(event);
+		}
+	}
 
-			if (pubEntry.isEmpty()) {
-				pubEntry = speechPublishers.entrySet().stream()
-						.filter(entry -> Objects.equals(publisher.getDisplayName(), entry.getValue().getDisplayName()))
-						.findFirst();
-			}
+	private void setPeerState(JanusPublisher publisher, ExecutableState state, boolean hasVideo) {
+		var entry = getPublisherEntry(publisher);
 
-			pubEntry.ifPresent(entry -> peerStateConsumer.accept(
-					new PeerStateEvent(entry.getKey(),
-							publisher.getDisplayName(), state)));
+		if (nonNull(entry)) {
+			var event = new PeerStateEvent(entry.getKey(),
+					publisher.getDisplayName(), state);
+			event.setHasVideo(hasVideo);
+
+			sendPeerState(event);
+		}
+	}
+
+	private void setPeerState(JanusPublisher publisher, ExecutableState state) {
+		var entry = getPublisherEntry(publisher);
+
+		if (nonNull(entry)) {
+			var event = new PeerStateEvent(entry.getKey(),
+					publisher.getDisplayName(), state);
+
+			sendPeerState(event);
 		}
 	}
 
@@ -456,6 +469,20 @@ public class JanusHandler extends JanusStateHandler {
 		}
 
 		return speechPublishers.entrySet().iterator().next().getValue();
+	}
+
+	private Map.Entry<Long, JanusPublisher> getPublisherEntry(JanusPublisher publisher) {
+		var pubEntry = speechPublishers.entrySet().stream()
+				.filter(entry -> Objects.equals(publisher.getId(), entry.getValue().getId()))
+				.findFirst();
+
+		if (pubEntry.isEmpty()) {
+			pubEntry = speechPublishers.entrySet().stream()
+					.filter(entry -> Objects.equals(publisher.getDisplayName(), entry.getValue().getDisplayName()))
+					.findFirst();
+		}
+
+		return pubEntry.orElse(null);
 	}
 
 	private Map.Entry<Long, JanusPublisher> getFirstPublisherEntry() {

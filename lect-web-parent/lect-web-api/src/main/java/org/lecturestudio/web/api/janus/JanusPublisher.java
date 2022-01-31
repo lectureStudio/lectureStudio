@@ -20,6 +20,7 @@ package org.lecturestudio.web.api.janus;
 
 import java.math.BigInteger;
 import java.util.Objects;
+import java.util.StringJoiner;
 
 /**
  * A Janus WebRTC video room publisher.
@@ -110,5 +111,12 @@ public class JanusPublisher {
 	@Override
 	public int hashCode() {
 		return Objects.hash(id, display);
+	}
+
+	@Override
+	public String toString() {
+		return new StringJoiner(", ",
+				JanusPublisher.class.getSimpleName() + "[", "]").add("id=" + id)
+				.add("display='" + display + "'").toString();
 	}
 }

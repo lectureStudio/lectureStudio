@@ -28,6 +28,8 @@ import java.awt.Graphics2D;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Image;
+import java.awt.RenderingHints;
+import java.awt.event.ItemEvent;
 
 import javax.swing.Box;
 import javax.swing.JButton;
@@ -66,6 +68,8 @@ public class PeerView extends JComponent {
 
 	private final Box buttonsBox;
 
+	private ExecutableState peerState;
+
 	private Image image;
 
 	private Long requestId;
@@ -88,12 +92,17 @@ public class PeerView extends JComponent {
 		muteAudioButton.setSelectedIcon(AwtResourceLoader.getIcon("microphone.svg", 22));
 		muteAudioButton.setContentAreaFilled(false);
 		muteAudioButton.setSelected(true);
+		muteAudioButton.setEnabled(false);
 
 		muteVideoButton = new JToggleButton();
 		muteVideoButton.setIcon(AwtResourceLoader.getIcon("camera-off.svg", 22));
 		muteVideoButton.setSelectedIcon(AwtResourceLoader.getIcon("camera.svg", 22));
 		muteVideoButton.setContentAreaFilled(false);
 		muteVideoButton.setSelected(true);
+		muteVideoButton.setEnabled(false);
+		muteVideoButton.addItemListener(e -> {
+			setHasVideoIcon(e.getStateChange() == ItemEvent.SELECTED);
+		});
 
 		stopConnectionButton = new JButton(dict.get("button.end"));
 		stopConnectionButton.setBackground(Color.decode("#FEE2E2"));
@@ -143,7 +152,7 @@ public class PeerView extends JComponent {
 	 * @param image The image to display.
 	 */
 	public void showImage(Image image) {
-		if (isNull(image)) {
+		if (isNull(image) || !muteVideoButton.isSelected()) {
 			return;
 		}
 
@@ -157,21 +166,52 @@ public class PeerView extends JComponent {
 	 */
 	public void clearImage() {
 		this.image = null;
+
+		repaint();
 	}
 
 	public void setState(ExecutableState state) {
+		this.peerState = state;
+
 		String stateText = null;
 
 		if (state == ExecutableState.Starting) {
 			stateText = dict.get("speech.waiting");
 		}
 		else if (state == ExecutableState.Started) {
+			muteAudioButton.setEnabled(true);
+
 			stateText = "";
 		}
 
 		if (nonNull(stateText)) {
 			stateLabel.setText(stateText);
 		}
+	}
+
+	public void setHasVideo(boolean hasVideo) {
+		if (peerState != ExecutableState.Started) {
+			return;
+		}
+
+		muteVideoButton.setEnabled(hasVideo);
+
+		setHasVideoIcon(hasVideo);
+	}
+
+	public void setHasVideoIcon(boolean hasVideo) {
+		if (peerState != ExecutableState.Started) {
+			return;
+		}
+
+		if (!hasVideo) {
+			stateLabel.setIcon(AwtResourceLoader.getIcon("user.svg", 50));
+		}
+		else {
+			stateLabel.setIcon(null);
+		}
+
+		clearImage();
 	}
 
 	/**
@@ -217,6 +257,9 @@ public class PeerView extends JComponent {
 	}
 
 	private void paintWithImage(Graphics2D g2) {
+		g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+		g2.setRenderingHint(RenderingHints.KEY_RENDERING, RenderingHints.VALUE_RENDER_QUALITY);
+
 		g2.drawImage(image, (getWidth() - image.getWidth(null)) / 2, 0, null);
 	}
 }

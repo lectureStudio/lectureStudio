@@ -127,13 +127,15 @@ public class JanusHandler extends JanusStateHandler {
 
 		editRoom(3);
 
-		JanusPublisher speechPublisher = speechPublishers.get(requestId);
+		JanusPublisher speechPublisher = speechPublishers.remove(requestId);
 
 		if (nonNull(speechPublisher)) {
 			kickParticipant(speechPublisher);
-			setPeerState(speechPublisher, ExecutableState.Stopped);
 
-			speechPublishers.remove(requestId);
+			var event = new PeerStateEvent(requestId,
+					speechPublisher.getDisplayName(), ExecutableState.Stopped);
+
+			sendPeerState(event);
 
 			for (JanusStateHandler handler : handlers) {
 				if (handler instanceof JanusSubscriberHandler) {
@@ -321,12 +323,12 @@ public class JanusHandler extends JanusStateHandler {
 		JanusPublisher publisher = message.getPublisher();
 
 		// Only one speech at a time.
-		JanusPublisher speechPublisher = getFirstPublisher();
+		var entry = getPublisherEntry(publisher);
 
-		if (nonNull(speechPublisher)) {
-			speechPublisher.setId(publisher.getId());
+		if (nonNull(entry)) {
+			entry.getValue().setId(publisher.getId());
 
-			startSubscriber(speechPublisher);
+			startSubscriber(entry.getValue());
 		}
 		else {
 			// Handle non-authorized publisher.

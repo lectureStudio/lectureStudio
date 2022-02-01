@@ -53,6 +53,10 @@ public class MessengerMessageAdapter implements JsonbAdapter<MessengerMessage, J
 			builder.add("date", messengerMessage.getDate().toString());
 		}
 
+		if (nonNull(messengerMessage.getMessageId())) {
+			builder.add("messageId", messengerMessage.getMessageId().toString());
+		}
+
 		return builder.build();
 	}
 
@@ -63,6 +67,8 @@ public class MessengerMessageAdapter implements JsonbAdapter<MessengerMessage, J
 		message.setDate(ZonedDateTime.parse(jsonObject.getString("time")));
 		message.setFirstName(jsonObject.getString("firstName"));
 		message.setFamilyName(jsonObject.getString("familyName"));
+		message.setRemoteAddress(jsonObject.getString("remoteAddress"));
+		message.setMessageId(jsonObject.getString("messageId"));
 
 		return message;
 	}

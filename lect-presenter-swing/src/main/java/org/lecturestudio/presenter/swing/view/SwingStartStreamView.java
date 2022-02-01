@@ -33,6 +33,8 @@ import javax.swing.JComboBox;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JToggleButton;
+import javax.swing.event.AncestorEvent;
+import javax.swing.event.AncestorListener;
 
 import org.lecturestudio.core.audio.device.AudioDevice;
 import org.lecturestudio.core.beans.BooleanProperty;
@@ -41,6 +43,7 @@ import org.lecturestudio.core.beans.StringProperty;
 import org.lecturestudio.core.camera.Camera;
 import org.lecturestudio.core.camera.CameraFormat;
 import org.lecturestudio.core.view.Action;
+import org.lecturestudio.core.view.ConsumerAction;
 import org.lecturestudio.presenter.api.view.StartStreamView;
 import org.lecturestudio.swing.components.CameraPreviewPanel;
 import org.lecturestudio.swing.util.SwingUtils;
@@ -50,6 +53,8 @@ import org.lecturestudio.web.api.stream.model.Course;
 
 @SwingView(name = "start-stream")
 public class SwingStartStreamView extends JPanel implements StartStreamView {
+
+	private ConsumerAction<Boolean> viewVisibleAction;
 
 	private Container contentContainer;
 
@@ -271,6 +276,11 @@ public class SwingStartStreamView extends JPanel implements StartStreamView {
 		SwingUtils.bindAction(startButton, action);
 	}
 
+	@Override
+	public void setOnViewVisible(ConsumerAction<Boolean> action) {
+		this.viewVisibleAction = action;
+	}
+
 	@ViewPostConstruct
 	private void initialize() {
 		muteMicrophoneButton.addActionListener(e -> {
@@ -278,6 +288,23 @@ public class SwingStartStreamView extends JPanel implements StartStreamView {
 		});
 		enableCameraButton.addActionListener(e -> {
 			setComponentColor(enableCameraButton);
+		});
+
+		addAncestorListener(new AncestorListener() {
+
+			@Override
+			public void ancestorAdded(AncestorEvent event) {
+				executeAction(viewVisibleAction, true);
+			}
+
+			@Override
+			public void ancestorRemoved(AncestorEvent event) {
+				executeAction(viewVisibleAction, false);
+			}
+
+			@Override
+			public void ancestorMoved(AncestorEvent event) {
+			}
 		});
 	}
 

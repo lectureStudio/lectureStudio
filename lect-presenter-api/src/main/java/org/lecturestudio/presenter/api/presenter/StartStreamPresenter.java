@@ -166,9 +166,6 @@ public class StartStreamPresenter extends Presenter<StartStreamView> {
 				}
 			}
 
-			setViewCamera(streamConfig.getCameraName());
-			captureCamera(true);
-
 			camListener = (observable, oldCamera, newCamera) -> {
 				if (nonNull(newCamera)) {
 					setViewCamera(newCamera);
@@ -194,10 +191,13 @@ public class StartStreamPresenter extends Presenter<StartStreamView> {
 			view.setAudioTestPlaybackEnabled(playbackEnabled);
 			view.setOnAudioTestCapture(testCapture);
 			view.setOnAudioTestCapturePlayback(testPlayback);
+			view.setOnViewVisible(this::captureCamera);
 			view.setCameraNames(camService.getCameraNames());
 			view.setCameraName(streamConfig.cameraNameProperty());
 
 			streamConfig.cameraNameProperty().addListener(camListener);
+
+			setViewCamera(streamConfig.getCameraName());
 		}
 
 		view.setOnStart(this::onStart);
@@ -260,33 +260,37 @@ public class StartStreamPresenter extends Presenter<StartStreamView> {
 	}
 
 	private void captureCamera(boolean capture) {
-		if (this.capture == capture) {
-			return;
-		}
+		CompletableFuture.runAsync(() -> {
+			if (this.capture == capture) {
+				return;
+			}
 
-		this.capture = capture;
+			this.capture = capture;
 
-		if (capture) {
-			startCameraPreview();
-		}
-		else {
-			stopCameraPreview();
-		}
+			if (capture) {
+				startCameraPreview();
+			}
+			else {
+				stopCameraPreview();
+			}
+		})
+		.exceptionally(e -> {
+			logException(e, "Start/stop camera failed");
+			return null;
+		});
 	}
 
 	private void startCameraPreview() {
-		CompletableFuture.runAsync(() -> {
-			try {
-				view.setCameraStatus(context.getDictionary()
-						.get("start.stream.camera.starting"));
-				view.startCameraPreview();
-				view.setCameraStatus(null);
-			}
-			catch (Throwable e) {
-				view.setCameraStatus(context.getDictionary()
-						.get("start.stream.camera.unavailable"));
-			}
-		});
+		try {
+			view.setCameraStatus(context.getDictionary()
+					.get("start.stream.camera.starting"));
+			view.startCameraPreview();
+			view.setCameraStatus(null);
+		}
+		catch (Throwable e) {
+			view.setCameraStatus(context.getDictionary()
+					.get("start.stream.camera.unavailable"));
+		}
 	}
 
 	private void stopCameraPreview() {
@@ -294,34 +298,40 @@ public class StartStreamPresenter extends Presenter<StartStreamView> {
 	}
 
 	private void setViewCamera(String cameraName) {
-		if (capture) {
-			stopCameraPreview();
-		}
-
-		Camera camera = camService.getCamera(cameraName);
-
-		if (nonNull(camera)) {
-			view.setCamera(camera);
-
-			if (camera.isOpened()) {
-				return;
-			}
-
-			VideoCodecConfiguration cameraConfig = streamConfig.getCameraCodecConfig();
-			AspectRatio ratio = AspectRatio.forRect(cameraConfig.getViewRect());
-			CameraProfile[] profiles = CameraProfiles.forRatio(ratio);
-			CameraProfile profile = getCameraProfile(profiles);
-
-			if (isNull(profile)) {
-				profile = profiles[profiles.length - 1];
-			}
-
-			view.setCameraFormat(profile.getFormat());
-
+		CompletableFuture.runAsync(() -> {
 			if (capture) {
-				startCameraPreview();
+				stopCameraPreview();
 			}
-		}
+
+			Camera camera = camService.getCamera(cameraName);
+
+			if (nonNull(camera)) {
+				view.setCamera(camera);
+
+				if (camera.isOpened()) {
+					return;
+				}
+
+				VideoCodecConfiguration cameraConfig = streamConfig.getCameraCodecConfig();
+				AspectRatio ratio = AspectRatio.forRect(cameraConfig.getViewRect());
+				CameraProfile[] profiles = CameraProfiles.forRatio(ratio);
+				CameraProfile profile = getCameraProfile(profiles);
+
+				if (isNull(profile)) {
+					profile = profiles[profiles.length - 1];
+				}
+
+				view.setCameraFormat(profile.getFormat());
+
+				if (capture) {
+					startCameraPreview();
+				}
+			}
+		})
+		.exceptionally(e -> {
+			logException(e, "Start camera failed");
+			return null;
+		});
 	}
 
 	private CameraProfile getCameraProfile(CameraProfile[] profiles) {

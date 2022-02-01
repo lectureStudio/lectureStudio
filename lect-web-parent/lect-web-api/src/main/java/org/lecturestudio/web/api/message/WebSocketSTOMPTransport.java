@@ -127,6 +127,7 @@ public class WebSocketSTOMPTransport extends ExecutableBase implements MessageTr
     protected void stopInternal() throws ExecutableException {
         if (this.stompClient.isRunning()) {
             this.stompClient.stop();
+            this.stompClient = null;
         }
     }
 

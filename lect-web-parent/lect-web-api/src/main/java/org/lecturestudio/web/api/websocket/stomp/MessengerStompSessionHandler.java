@@ -69,12 +69,12 @@ public class MessengerStompSessionHandler implements StompSessionHandler {
 
     @Override
     public void handleFrame(StompHeaders stompHeaders, Object o) {
-        System.out.println("Hello");
         LinkedHashMap map = (LinkedHashMap) o;
         if (map.get("_type").equals("MessengerMessage")) {
             MessengerMessage message = new MessengerMessage(new Message((String) map.get("text")), (String) map.get("username"), ZonedDateTime.parse( (String) map.get("time")));
             message.setFirstName((String) map.get("firstName"));
             message.setFamilyName((String) map.get("familyName"));
+            message.setMessageId((String) map.get("messageId"));
             handleMessage(message);
         }
     }

@@ -367,6 +367,7 @@ public class WebService extends ExecutableBase {
 			messageTransport.stop();
 			if (service instanceof MessageFeatureWebService) {
 				stompMessageTransport.stop();
+				stompMessageTransport = null;
 			}
 		}
 

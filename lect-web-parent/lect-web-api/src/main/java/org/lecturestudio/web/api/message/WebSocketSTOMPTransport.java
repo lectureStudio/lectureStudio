@@ -86,6 +86,7 @@ public class WebSocketSTOMPTransport extends ExecutableBase implements MessageTr
         jsonbConfig.withAdapters(
                 new CourseParticipantMessageAdapter(),
                 new MessengerMessageAdapter(),
+                new MessengerReplyMessageAdapter(),
                 new QuizAnswerMessageAdapter(),
                 new SpeechMessageAdapter()
         );
@@ -136,10 +137,11 @@ public class WebSocketSTOMPTransport extends ExecutableBase implements MessageTr
         //no-op
     }
 
-    public void sendMessage(MessengerMessage message) {
+    public void sendMessage(WebMessage message) {
         if (super.started()) {
             if (nonNull(this.session)) {
                 String messageAsJson = jsonb.toJson(message, message.getClass());
+                System.out.println(messageAsJson);
                 StompHeaders headers = new StompHeaders();
                 headerProvider.addHeadersForStomp(headers);
 

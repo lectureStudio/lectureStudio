@@ -45,10 +45,7 @@ import org.lecturestudio.presenter.api.event.MessengerStateEvent;
 import org.lecturestudio.presenter.api.event.QuizStateEvent;
 import org.lecturestudio.presenter.api.net.LocalBroadcaster;
 import org.lecturestudio.web.api.client.TokenProvider;
-import org.lecturestudio.web.api.message.MessageTransport;
-import org.lecturestudio.web.api.message.MessengerMessage;
-import org.lecturestudio.web.api.message.WebSocketSTOMPTransport;
-import org.lecturestudio.web.api.message.WebSocketTransport;
+import org.lecturestudio.web.api.message.*;
 import org.lecturestudio.web.api.model.messenger.MessengerConfig;
 import org.lecturestudio.web.api.model.quiz.Quiz;
 import org.lecturestudio.web.api.service.ServiceParameters;
@@ -170,6 +167,19 @@ public class WebService extends ExecutableBase {
 	}
 
 	public void sendMessengerMessage(MessengerMessage message) throws ExecutableException {
+		var service = getService(MessageFeatureWebService.class);
+
+		if (isNull(service)) {
+			return;
+		}
+
+		WebSocketSTOMPTransport stompTransport = (WebSocketSTOMPTransport) this.stompMessageTransport;
+		if (nonNull(stompTransport)) {
+			stompTransport.sendMessage(message);
+		}
+	}
+
+	public void sendReplyMessage(MessengerReplyMessage message) throws ExecutableException {
 		var service = getService(MessageFeatureWebService.class);
 
 		if (isNull(service)) {

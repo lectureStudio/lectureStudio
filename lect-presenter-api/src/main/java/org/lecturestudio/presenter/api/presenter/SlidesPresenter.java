@@ -889,14 +889,15 @@ public class SlidesPresenter extends Presenter<SlidesView> {
 	}
 
 	private boolean sendMessageReplyMessage(MessengerMessage toReply) {
-		MessengerReplyMessage replyMessage = new MessengerReplyMessage(toReply);
-
+		MessengerReplyMessage message = new MessengerReplyMessage(toReply);
 		User user = this.streamProviderService.getUser();
-		replyMessage.setFamilyName(user.getFamilyName());
-		replyMessage.setFirstName(user.getFirstName());
-		replyMessage.setRemoteAddress(user.getUsername());
+
+		message.setFirstName(user.getFirstName());
+		message.setFamilyName(user.getFamilyName());
+		message.setRemoteAddress(user.getUsername());
+		message.setDate(ZonedDateTime.now());
 		try {
-			this.webService.sendMessengerMessage(replyMessage);
+			this.webService.sendReplyMessage(message);
 			return true;
 		}
 		catch (ExecutableException exc) {

@@ -4,20 +4,19 @@ import org.lecturestudio.web.api.model.Message;
 
 import java.time.ZonedDateTime;
 
-public class MessengerReplyMessage extends MessengerMessage {
+public class MessengerReplyMessage extends WebMessage {
 
     private String repliedMessageId;
 
     public MessengerReplyMessage(MessengerMessage toReply) {
-        this(toReply, new Message(), null, null);
+        this(toReply, null, null, null);
     }
 
-    public MessengerReplyMessage(MessengerMessage toReply, Message message, String remoteAddress, ZonedDateTime date) {
-        this(toReply, message, remoteAddress, date, null);
+    public MessengerReplyMessage(MessengerMessage toReply, String remoteAddress, ZonedDateTime date) {
+        this(toReply, remoteAddress, date, null);
     }
 
-    public MessengerReplyMessage(MessengerMessage toReply, Message message, String remoteAddress, ZonedDateTime date, String messageId) {
-        setMessage(message);
+    public MessengerReplyMessage(MessengerMessage toReply, String remoteAddress, ZonedDateTime date, String messageId) {
         setRemoteAddress(remoteAddress);
         setDate(date);
         setMessageId(messageId);

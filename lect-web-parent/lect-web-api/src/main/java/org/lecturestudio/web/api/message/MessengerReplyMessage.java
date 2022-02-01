@@ -9,7 +9,7 @@ public class MessengerReplyMessage extends MessengerMessage {
     private String repliedMessageId;
 
     public MessengerReplyMessage(MessengerMessage toReply) {
-        this(toReply, null, null, null);
+        this(toReply, new Message(), null, null);
     }
 
     public MessengerReplyMessage(MessengerMessage toReply, Message message, String remoteAddress, ZonedDateTime date) {

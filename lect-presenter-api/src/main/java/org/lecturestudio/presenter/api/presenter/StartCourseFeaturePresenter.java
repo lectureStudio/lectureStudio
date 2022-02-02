@@ -67,9 +67,6 @@ public class StartCourseFeaturePresenter extends Presenter<StartCourseFeatureVie
 	public void initialize() {
 		PresenterContext pContext = (PresenterContext) context;
 
-		List<MessengerConfig.MessengerMode> modes = null;
-		modes = Arrays.asList(MessengerConfig.MessengerMode.values());
-
 		List<Course> courses = null;
 
 		try {
@@ -99,10 +96,6 @@ public class StartCourseFeaturePresenter extends Presenter<StartCourseFeatureVie
 					pContext.setCourse(courses.get(0));
 				}
 			}
-
-			view.setMessengerModes(modes);
-			view.setMessengerMode(pContext.messengerModePropertyProperty());
-			pContext.setMessengerModeProperty(MessengerConfig.MessengerMode.BIDIRECTIONAL);
 			view.setCourses(courses);
 			view.setCourse(pContext.courseProperty());
 			view.setCourseSelectionSettingsVisible(! pContext.getStreamStarted());
@@ -132,12 +125,6 @@ public class StartCourseFeaturePresenter extends Presenter<StartCourseFeatureVie
 
 	public void setFeature(Class<? extends FeatureServiceBase> feature) {
 		this.feature = feature;
-		if (feature == MessageFeatureWebService.class) {
-			view.setMessengerExclusiveSettingsVisible(true);
-		}
-		else if (feature == QuizFeatureWebService.class) {
-			view.setMessengerExclusiveSettingsVisible(false);
-		}
 	}
 
 	public void setOnStart(Action action) {

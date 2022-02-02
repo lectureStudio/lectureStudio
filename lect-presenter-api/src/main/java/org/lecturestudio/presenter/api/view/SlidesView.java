@@ -72,8 +72,6 @@ public interface SlidesView extends View {
 
 	void setPageNotes(List<SlideNote> notes);
 
-    void setMessengerFormVisible(boolean visible);
-
     void setOutline(DocumentOutline outline);
 
 	void bindShowOutline(BooleanProperty showProperty);
@@ -89,8 +87,6 @@ public interface SlidesView extends View {
 	void setQuizState(ExecutableState state);
 
 	void setMessengerState(ExecutableState state);
-
-	void setOnMessengerMode(MessengerConfig.MessengerMode mode);
 
 	void setMessengerSendButtonEnabled(boolean enabled);
 

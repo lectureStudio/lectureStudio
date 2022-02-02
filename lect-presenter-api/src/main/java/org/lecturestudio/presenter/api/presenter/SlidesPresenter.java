@@ -263,8 +263,6 @@ public class SlidesPresenter extends Presenter<SlidesView> {
 
 		PresenterContext pContext = (PresenterContext) context;
 
-		view.setOnMessengerMode(pContext.getMessengerModeProperty());
-
 		checkRemoteServiceState();
 	}
 

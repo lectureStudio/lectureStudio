@@ -44,7 +44,5 @@ public interface StartCourseFeatureView extends View {
 
     void setMessengerMode(ObjectProperty<MessengerConfig.MessengerMode> messengerModePropertyProperty);
 
-    void setMessengerExclusiveSettingsVisible(boolean b);
-
 	void setCourseSelectionSettingsVisible(boolean b);
 }

@@ -219,8 +219,7 @@ public class StreamService {
 
 	private void startMessengerInternal() {
 		try {
-			MessengerConfig config = new MessengerConfig(context.getMessengerModeProperty() == MessengerConfig.MessengerMode.BIDIRECTIONAL ? MessengerConfig.MessengerMode.BIDIRECTIONAL : MessengerConfig.MessengerMode.UNIDIRECTIONAL);
-			webService.startMessenger(config);
+			webService.startMessenger();
 		}
 		catch (ExecutableException e) {
 			handleServiceError(e, "Start messenger failed", "messenger.start.error");

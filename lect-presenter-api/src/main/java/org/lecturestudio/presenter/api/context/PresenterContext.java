@@ -69,8 +69,6 @@ public class PresenterContext extends ApplicationContext {
 
 	private final BooleanProperty messengerStarted = new BooleanProperty();
 
-	private final ObjectProperty<MessengerConfig.MessengerMode> messengerModeProperty = new ObjectProperty<>();
-
 	private final BooleanProperty streamStarted = new BooleanProperty();
 
 	private final BooleanProperty hasRecordedChanges = new BooleanProperty();
@@ -190,14 +188,6 @@ public class PresenterContext extends ApplicationContext {
 		messengerStarted.set(started);
 	}
 
-	public void setMessengerModeProperty(MessengerConfig.MessengerMode mode) {
-		messengerModeProperty.set(mode);
-	}
-
-	public MessengerConfig.MessengerMode getMessengerModeProperty() {
-		return messengerModeProperty.get();
-	}
-
 	public boolean getMessengerStarted() {
 		return messengerStarted.get();
 	}
@@ -205,8 +195,6 @@ public class PresenterContext extends ApplicationContext {
 	public BooleanProperty messengerStartedProperty() {
 		return messengerStarted;
 	}
-
-	public ObjectProperty<MessengerConfig.MessengerMode> messengerModePropertyProperty() { return messengerModeProperty;}
 
 	public void setShowOutline(boolean show) {
 		showOutline.set(show);

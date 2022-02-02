@@ -43,8 +43,8 @@ public class MessageFeatureService extends ReactiveProviderService {
 		featureClient = builder.build(MessageFeatureClient.class);
 	}
 
-	public String startMessenger(long courseId, MessengerConfig.MessengerMode mode) {
-		return featureClient.startMessenger(courseId, mode);
+	public String startMessenger(long courseId) {
+		return featureClient.startMessenger(courseId);
 	}
 
 	public void stopMessenger(long courseId) {

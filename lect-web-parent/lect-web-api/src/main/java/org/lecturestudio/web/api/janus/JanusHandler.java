@@ -26,7 +26,6 @@ import java.math.BigInteger;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
@@ -323,12 +322,12 @@ public class JanusHandler extends JanusStateHandler {
 		JanusPublisher publisher = message.getPublisher();
 
 		// Only one speech at a time.
-		var entry = getPublisherEntry(publisher);
+		var entry = getFirstPublisherEntry();
 
 		if (nonNull(entry)) {
 			entry.getValue().setId(publisher.getId());
 
-			startSubscriber(entry.getValue());
+			startSubscriber(entry.getValue(), entry.getKey());
 		}
 		else {
 			// Handle non-authorized publisher.
@@ -390,11 +389,11 @@ public class JanusHandler extends JanusStateHandler {
 		addStateHandler(pubHandler);
 	}
 
-	private void startSubscriber(JanusPublisher publisher) {
+	private void startSubscriber(final JanusPublisher publisher, final long requestId) {
 		getStreamContext().getAudioContext().setReceiveAudio(true);
 		getStreamContext().getVideoContext().setReceiveVideo(true);
 
-		JanusStateHandler subHandler = new JanusSubscriberHandler(publisher,
+		JanusSubscriberHandler subHandler = new JanusSubscriberHandler(publisher,
 				peerConnectionFactory, transmitter);
 		subHandler.setSessionId(getSessionId());
 		subHandler.setRoomId(getRoomId());
@@ -405,7 +404,12 @@ public class JanusHandler extends JanusStateHandler {
 				JanusPeerConnection peerConnection = subHandler.getPeerConnection();
 				boolean hasVideo = peerConnection.isReceivingVideo();
 
-				setPeerState(publisher, ExecutableState.Started, hasVideo);
+				var event = new PeerStateEvent(requestId,
+						subHandler.getPublisher().getDisplayName(),
+						ExecutableState.Started);
+				event.setHasVideo(hasVideo);
+
+				sendPeerState(event);
 
 				// Propagate "speech published" to passive participants.
 				for (JanusStateHandler handler : handlers) {
@@ -419,7 +423,11 @@ public class JanusHandler extends JanusStateHandler {
 
 			@Override
 			public void disconnected() {
-				setPeerState(publisher, ExecutableState.Stopped);
+				var event = new PeerStateEvent(requestId,
+						subHandler.getPublisher().getDisplayName(),
+						ExecutableState.Stopped);
+
+				sendPeerState(event);
 
 				removeStateHandler(subHandler);
 				editRoom(3);
@@ -442,49 +450,12 @@ public class JanusHandler extends JanusStateHandler {
 		}
 	}
 
-	private void setPeerState(JanusPublisher publisher, ExecutableState state, boolean hasVideo) {
-		var entry = getPublisherEntry(publisher);
-
-		if (nonNull(entry)) {
-			var event = new PeerStateEvent(entry.getKey(),
-					publisher.getDisplayName(), state);
-			event.setHasVideo(hasVideo);
-
-			sendPeerState(event);
-		}
-	}
-
-	private void setPeerState(JanusPublisher publisher, ExecutableState state) {
-		var entry = getPublisherEntry(publisher);
-
-		if (nonNull(entry)) {
-			var event = new PeerStateEvent(entry.getKey(),
-					publisher.getDisplayName(), state);
-
-			sendPeerState(event);
-		}
-	}
-
 	private JanusPublisher getFirstPublisher() {
 		if (speechPublishers.isEmpty()) {
 			return null;
 		}
 
 		return speechPublishers.entrySet().iterator().next().getValue();
-	}
-
-	private Map.Entry<Long, JanusPublisher> getPublisherEntry(JanusPublisher publisher) {
-		var pubEntry = speechPublishers.entrySet().stream()
-				.filter(entry -> Objects.equals(publisher.getId(), entry.getValue().getId()))
-				.findFirst();
-
-		if (pubEntry.isEmpty()) {
-			pubEntry = speechPublishers.entrySet().stream()
-					.filter(entry -> Objects.equals(publisher.getDisplayName(), entry.getValue().getDisplayName()))
-					.findFirst();
-		}
-
-		return pubEntry.orElse(null);
 	}
 
 	private Map.Entry<Long, JanusPublisher> getFirstPublisherEntry() {

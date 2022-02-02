@@ -583,11 +583,19 @@ public class SwingSlidesView extends JPanel implements SlidesView {
 				}
 			}
 			else if (state == ExecutableState.Stopped) {
-				peerView = null;
+				for (var component : peerViewContainer.getComponents()) {
+					if (component instanceof PeerView) {
+						PeerView peerView = (PeerView) component;
 
-				peerViewContainer.removeAll();
-				peerViewContainer.revalidate();
-				peerViewContainer.repaint();
+						if (Objects.equals(peerView.getRequestId(), event.getRequestId())) {
+							this.peerView = null;
+
+							peerViewContainer.remove(peerView);
+							peerViewContainer.revalidate();
+							peerViewContainer.repaint();
+						}
+					}
+				}
 			}
 		});
 	}

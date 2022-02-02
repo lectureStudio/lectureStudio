@@ -87,6 +87,7 @@ import org.lecturestudio.web.api.message.CourseParticipantMessage;
 import org.lecturestudio.web.api.message.MessengerMessage;
 import org.lecturestudio.web.api.message.SpeechCancelMessage;
 import org.lecturestudio.web.api.message.SpeechRequestMessage;
+import org.lecturestudio.web.api.model.messenger.MessengerConfig;
 import org.scilab.forge.jlatexmath.ParseException;
 
 @SwingView(name = "main-slides")
@@ -474,10 +475,34 @@ public class SwingSlidesView extends JPanel implements SlidesView {
 
 			setBottomTabEnabled(2, streamStarted || messengerStarted);
 			setBottomTabSelected(2, streamStarted || messengerStarted);
-
+			this.messageSendContainer.setVisible(messengerStarted);
+			this.sendButton.setEnabled(messengerStarted);
 			if (!messengerStarted) {
 				removeMessageViews(MessageView.class);
 			}
+		});
+	}
+
+	@Override
+	public void setOnMessengerMode(MessengerConfig.MessengerMode mode) {
+		boolean bidirectional = mode == MessengerConfig.MessengerMode.BIDIRECTIONAL;
+		SwingUtils.invoke(() -> {
+			this.sendButton.setEnabled(bidirectional);
+			this.messageSendContainer.setVisible(bidirectional);
+		});
+	}
+
+	@Override
+	public void setMessengerFormVisible(boolean visible) {
+		SwingUtils.invoke(() -> {
+			this.messageSendContainer.setVisible(visible);
+		});
+	}
+
+	@Override
+	public void setMessengerSendButtonEnabled(boolean enabled) {
+		SwingUtils.invoke(() -> {
+			this.sendButton.setEnabled(enabled);
 		});
 	}
 

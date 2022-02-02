@@ -42,6 +42,7 @@ import org.lecturestudio.presenter.api.service.QuizDataSource;
 import org.lecturestudio.presenter.api.service.QuizService;
 import org.lecturestudio.web.api.message.MessengerMessage;
 import org.lecturestudio.web.api.message.SpeechRequestMessage;
+import org.lecturestudio.web.api.model.messenger.MessengerConfig;
 import org.lecturestudio.web.api.model.quiz.Quiz;
 import org.lecturestudio.web.api.stream.model.Course;
 
@@ -67,6 +68,8 @@ public class PresenterContext extends ApplicationContext {
 	private final IntegerProperty attendeesCount = new IntegerProperty();
 
 	private final BooleanProperty messengerStarted = new BooleanProperty();
+
+	private final ObjectProperty<MessengerConfig.MessengerMode> messengerModeProperty = new ObjectProperty<>();
 
 	private final BooleanProperty streamStarted = new BooleanProperty();
 
@@ -187,6 +190,14 @@ public class PresenterContext extends ApplicationContext {
 		messengerStarted.set(started);
 	}
 
+	public void setMessengerModeProperty(MessengerConfig.MessengerMode mode) {
+		messengerModeProperty.set(mode);
+	}
+
+	public MessengerConfig.MessengerMode getMessengerModeProperty() {
+		return messengerModeProperty.get();
+	}
+
 	public boolean getMessengerStarted() {
 		return messengerStarted.get();
 	}
@@ -194,6 +205,8 @@ public class PresenterContext extends ApplicationContext {
 	public BooleanProperty messengerStartedProperty() {
 		return messengerStarted;
 	}
+
+	public ObjectProperty<MessengerConfig.MessengerMode> messengerModePropertyProperty() { return messengerModeProperty;}
 
 	public void setShowOutline(boolean show) {
 		showOutline.set(show);

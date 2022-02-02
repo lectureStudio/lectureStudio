@@ -95,11 +95,9 @@ import org.lecturestudio.presenter.api.view.PageObjectRegistry;
 import org.lecturestudio.presenter.api.view.SlidesView;
 import org.lecturestudio.web.api.event.PeerStateEvent;
 import org.lecturestudio.web.api.event.VideoFrameEvent;
-import org.lecturestudio.web.api.message.CourseParticipantMessage;
-import org.lecturestudio.web.api.message.MessengerMessage;
-import org.lecturestudio.web.api.message.SpeechCancelMessage;
-import org.lecturestudio.web.api.message.SpeechRequestMessage;
+import org.lecturestudio.web.api.message.*;
 import org.lecturestudio.web.api.model.Message;
+import org.lecturestudio.web.api.model.messenger.MessengerConfig;
 import org.lecturestudio.web.api.service.ServiceParameters;
 import org.lecturestudio.web.api.stream.model.User;
 import org.lecturestudio.web.api.stream.service.StreamProviderService;
@@ -185,6 +183,8 @@ public class SlidesPresenter extends Presenter<SlidesView> {
 		this.documentChangeListener = new DocumentChangeHandler();
 	}
 
+
+
 	@Subscribe
 	public void onEvent(DocumentEvent event) {
 		Document doc = event.getDocument();
@@ -260,6 +260,10 @@ public class SlidesPresenter extends Presenter<SlidesView> {
 		messengerState = event.getState();
 
 		view.setMessengerState(event.getState());
+
+		PresenterContext pContext = (PresenterContext) context;
+
+		view.setOnMessengerMode(pContext.getMessengerModeProperty());
 
 		checkRemoteServiceState();
 	}
@@ -346,8 +350,10 @@ public class SlidesPresenter extends Presenter<SlidesView> {
 	}
 
 	private void onDiscardMessage(MessengerMessage message) {
-		PresenterContext presenterContext = (PresenterContext) context;
-		presenterContext.getMessengerMessages().remove(message);
+		if (this.sendMessageReplyMessage(message)) {
+			PresenterContext presenterContext = (PresenterContext) context;
+			presenterContext.getMessengerMessages().remove(message);
+		}
 	}
 
 	private void toolChanged(ToolType toolType) {
@@ -866,7 +872,7 @@ public class SlidesPresenter extends Presenter<SlidesView> {
 		}
 	}
 
-	private void sendMessage() {
+	private boolean sendMessage() {
 		Message message = new Message(messageToSendProperty.get());
 		User user = this.streamProviderService.getUser();
 		MessengerMessage messengerMessage = new MessengerMessage(message, user.getUsername(), ZonedDateTime.now());
@@ -876,9 +882,27 @@ public class SlidesPresenter extends Presenter<SlidesView> {
 		try {
 			this.webService.sendMessengerMessage(messengerMessage);
 			messageToSendProperty.set("");
+			return true;
 		}
 		catch (ExecutableException exc) {
-			exc.printStackTrace();
+			return false;
+		}
+	}
+
+	private boolean sendMessageReplyMessage(MessengerMessage toReply) {
+		MessengerReplyMessage message = new MessengerReplyMessage(toReply);
+		User user = this.streamProviderService.getUser();
+
+		message.setFirstName(user.getFirstName());
+		message.setFamilyName(user.getFamilyName());
+		message.setRemoteAddress(user.getUsername());
+		message.setDate(ZonedDateTime.now());
+		try {
+			this.webService.sendReplyMessage(message);
+			return true;
+		}
+		catch (ExecutableException exc) {
+			return false;
 		}
 	}
 }

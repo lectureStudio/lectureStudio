@@ -3,10 +3,18 @@
 	<VBox id="contentContainer">
 		<gridbagconstraints gridx="0" gridy="0" insets="0,0,2,0" anchor="GridBagConstraints.WEST" />
 
-		<Label text="start.course.feature.choose.course" border="EmptyBorder(0, 0, 5, 0)" />
-		<ComboBox id="courseCombo" name="extendedUI">
-			<renderer class="org.lecturestudio.presenter.swing.combobox.CourseRenderer" />
-		</ComboBox>
+		<VBox id="courseSelectionSettings">
+			<Label text="start.course.feature.choose.course" border="EmptyBorder(0, 0, 5, 0)" />
+			<ComboBox id="courseCombo" name="extendedUI">
+				<renderer class="org.lecturestudio.presenter.swing.combobox.CourseRenderer" />
+			</ComboBox>
+		</VBox>
+		<VBox id="messengerExclusiveSettings">
+			<Label text="start.course.feature.choose.messenger.mode" border="EmptyBorder(5, 0, 5, 0)" />
+			<ComboBox id="messengerModeCombo" name="extendedUI">
+				<renderer class="org.lecturestudio.presenter.swing.combobox.MessengerModeRenderer" />
+			</ComboBox>
+		</VBox>
 	</VBox>
 
 	<Label id="errorLabel" visible="false">

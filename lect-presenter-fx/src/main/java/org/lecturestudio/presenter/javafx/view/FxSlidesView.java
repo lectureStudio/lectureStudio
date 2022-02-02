@@ -49,6 +49,7 @@ import javafx.scene.transform.TransformChangedEvent;
 import javafx.stage.Stage;
 
 import org.lecturestudio.core.beans.BooleanProperty;
+import org.lecturestudio.core.beans.StringProperty;
 import org.lecturestudio.core.model.DocumentOutline;
 import org.lecturestudio.core.model.DocumentOutlineItem;
 import org.lecturestudio.presenter.javafx.input.StylusListener;
@@ -79,9 +80,11 @@ import org.lecturestudio.presenter.javafx.control.EditableThumbnailPanel;
 import org.lecturestudio.stylus.javafx.JavaFxStylusManager;
 import org.lecturestudio.web.api.event.PeerStateEvent;
 import org.lecturestudio.web.api.event.VideoFrameEvent;
+import org.lecturestudio.web.api.message.CourseParticipantMessage;
 import org.lecturestudio.web.api.message.MessengerMessage;
 import org.lecturestudio.web.api.message.SpeechCancelMessage;
 import org.lecturestudio.web.api.message.SpeechRequestMessage;
+import org.lecturestudio.web.api.model.messenger.MessengerConfig;
 
 @FxmlView(name = "main-slides")
 public class FxSlidesView extends VBox implements SlidesView {
@@ -299,6 +302,11 @@ public class FxSlidesView extends VBox implements SlidesView {
 	}
 
 	@Override
+	public void setMessengerFormVisible(boolean visible) {
+
+	}
+
+	@Override
 	public void setOutline(DocumentOutline outline) {
 
 	}
@@ -371,6 +379,16 @@ public class FxSlidesView extends VBox implements SlidesView {
 	}
 
 	@Override
+	public void setOnMessengerMode(MessengerConfig.MessengerMode mode) {
+
+	}
+
+	@Override
+	public void setMessengerSendButtonEnabled(boolean enabled) {
+
+	}
+
+	@Override
 	public void setMessengerMessage(MessengerMessage message) {
 		// Run in pending runnable to avoid UI blocking.
 		Platform.runLater(() -> {
@@ -378,6 +396,11 @@ public class FxSlidesView extends VBox implements SlidesView {
 			messageView.setHost(message.getRemoteAddress());
 			messageView.setMessage(message.getMessage().getText());
 		});
+	}
+
+	@Override
+	public void setParticipantMessage(CourseParticipantMessage message) {
+
 	}
 
 	@Override
@@ -495,6 +518,21 @@ public class FxSlidesView extends VBox implements SlidesView {
 
 	@Override
 	public void setOnOutlineItem(ConsumerAction<DocumentOutlineItem> action) {
+
+	}
+
+	@Override
+	public void setMessageSendContainerMaxHeight(int height) {
+
+	}
+
+	@Override
+	public void setMessageToSend(StringProperty messageValue) {
+
+	}
+
+	@Override
+	public void setOnSend(Action action) {
 
 	}
 

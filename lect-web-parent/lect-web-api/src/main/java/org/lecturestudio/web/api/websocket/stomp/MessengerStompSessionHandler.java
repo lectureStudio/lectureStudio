@@ -48,8 +48,8 @@ public class MessengerStompSessionHandler implements StompSessionHandler {
 
     @Override
     public void afterConnected(StompSession stompSession, StompHeaders stompHeaders) {
-        System.out.println("Connected to STOMP endpoint!");
         stompSession.subscribe("/topic/chat/" + course.getId(), this);
+        stompSession.subscribe("/user/queue/chat/" + course.getId(), this);
     }
 
     @Override
@@ -74,6 +74,7 @@ public class MessengerStompSessionHandler implements StompSessionHandler {
             MessengerMessage message = new MessengerMessage(new Message((String) map.get("text")), (String) map.get("username"), ZonedDateTime.parse( (String) map.get("time")));
             message.setFirstName((String) map.get("firstName"));
             message.setFamilyName((String) map.get("familyName"));
+            message.setMessageId((String) map.get("messageId"));
             handleMessage(message);
         }
     }

@@ -45,10 +45,8 @@ import org.lecturestudio.presenter.api.event.MessengerStateEvent;
 import org.lecturestudio.presenter.api.event.QuizStateEvent;
 import org.lecturestudio.presenter.api.net.LocalBroadcaster;
 import org.lecturestudio.web.api.client.TokenProvider;
-import org.lecturestudio.web.api.message.MessageTransport;
-import org.lecturestudio.web.api.message.MessengerMessage;
-import org.lecturestudio.web.api.message.WebSocketSTOMPTransport;
-import org.lecturestudio.web.api.message.WebSocketTransport;
+import org.lecturestudio.web.api.message.*;
+import org.lecturestudio.web.api.model.messenger.MessengerConfig;
 import org.lecturestudio.web.api.model.quiz.Quiz;
 import org.lecturestudio.web.api.service.ServiceParameters;
 import org.lecturestudio.web.api.stream.model.Course;
@@ -118,7 +116,7 @@ public class WebService extends ExecutableBase {
 	 *
 	 * @throws ExecutableException if the message service could not be started.
 	 */
-	public void startMessenger() throws ExecutableException {
+	public void startMessenger(MessengerConfig config) throws ExecutableException {
 		var service = getService(MessageFeatureWebService.class);
 
 		if (nonNull(service) && service.started()) {
@@ -133,7 +131,7 @@ public class WebService extends ExecutableBase {
 
 			startService(new MessageFeatureWebService(context,
 					createFeatureService(streamPublisherApiUrl,
-							MessageFeatureService.class)));
+							MessageFeatureService.class), config));
 		}
 		catch (Exception e) {
 			throw new ExecutableException("Message service could not be started", e);
@@ -169,6 +167,19 @@ public class WebService extends ExecutableBase {
 	}
 
 	public void sendMessengerMessage(MessengerMessage message) throws ExecutableException {
+		var service = getService(MessageFeatureWebService.class);
+
+		if (isNull(service)) {
+			return;
+		}
+
+		WebSocketSTOMPTransport stompTransport = (WebSocketSTOMPTransport) this.stompMessageTransport;
+		if (nonNull(stompTransport)) {
+			stompTransport.sendMessage(message);
+		}
+	}
+
+	public void sendReplyMessage(MessengerReplyMessage message) throws ExecutableException {
 		var service = getService(MessageFeatureWebService.class);
 
 		if (isNull(service)) {
@@ -366,6 +377,7 @@ public class WebService extends ExecutableBase {
 			messageTransport.stop();
 			if (service instanceof MessageFeatureWebService) {
 				stompMessageTransport.stop();
+				stompMessageTransport = null;
 			}
 		}
 
@@ -421,7 +433,7 @@ public class WebService extends ExecutableBase {
 
 	private MessageTransport createStompMessageTransport() {
 		ServiceParameters messageApiParameters = new ServiceParameters();
-		messageApiParameters.setUrl(streamPublisherApiUrl + "/messenger/");
+		messageApiParameters.setUrl(streamPublisherApiUrl + "/api/publisher/messenger/");
 
 		PresenterContext pContext = (PresenterContext) context;
 		PresenterConfiguration config = (PresenterConfiguration) context.getConfiguration();

@@ -21,6 +21,7 @@ package org.lecturestudio.presenter.api.presenter;
 import static java.util.Objects.isNull;
 import static java.util.Objects.nonNull;
 
+import java.util.Arrays;
 import java.util.List;
 
 import javax.inject.Inject;
@@ -34,7 +35,11 @@ import org.lecturestudio.presenter.api.config.PresenterConfiguration;
 import org.lecturestudio.presenter.api.config.StreamConfiguration;
 import org.lecturestudio.presenter.api.context.PresenterContext;
 import org.lecturestudio.presenter.api.presenter.command.ShowSettingsCommand;
+import org.lecturestudio.presenter.api.service.FeatureServiceBase;
+import org.lecturestudio.presenter.api.service.MessageFeatureWebService;
+import org.lecturestudio.presenter.api.service.QuizFeatureWebService;
 import org.lecturestudio.presenter.api.view.StartCourseFeatureView;
+import org.lecturestudio.web.api.model.messenger.MessengerConfig;
 import org.lecturestudio.web.api.service.ServiceParameters;
 import org.lecturestudio.web.api.stream.model.Course;
 import org.lecturestudio.web.api.stream.service.StreamProviderService;
@@ -45,6 +50,8 @@ public class StartCourseFeaturePresenter extends Presenter<StartCourseFeatureVie
 
 	/** The action that is executed when the saving process has been aborted. */
 	private Action startAction;
+
+	private Class<? extends FeatureServiceBase> feature;
 
 	@Inject
 	@Named("stream.publisher.api.url")
@@ -59,6 +66,10 @@ public class StartCourseFeaturePresenter extends Presenter<StartCourseFeatureVie
 	@Override
 	public void initialize() {
 		PresenterContext pContext = (PresenterContext) context;
+
+		List<MessengerConfig.MessengerMode> modes = null;
+		modes = Arrays.asList(MessengerConfig.MessengerMode.values());
+
 		List<Course> courses = null;
 
 		try {
@@ -89,8 +100,12 @@ public class StartCourseFeaturePresenter extends Presenter<StartCourseFeatureVie
 				}
 			}
 
+			view.setMessengerModes(modes);
+			view.setMessengerMode(pContext.messengerModePropertyProperty());
+			pContext.setMessengerModeProperty(MessengerConfig.MessengerMode.BIDIRECTIONAL);
 			view.setCourses(courses);
 			view.setCourse(pContext.courseProperty());
+			view.setCourseSelectionSettingsVisible(! pContext.getStreamStarted());
 		}
 
 		view.setOnStart(this::onStart);
@@ -113,6 +128,16 @@ public class StartCourseFeaturePresenter extends Presenter<StartCourseFeatureVie
 
 	public void setCourse(Course course) {
 		this.course = course;
+	}
+
+	public void setFeature(Class<? extends FeatureServiceBase> feature) {
+		this.feature = feature;
+		if (feature == MessageFeatureWebService.class) {
+			view.setMessengerExclusiveSettingsVisible(true);
+		}
+		else if (feature == QuizFeatureWebService.class) {
+			view.setMessengerExclusiveSettingsVisible(false);
+		}
 	}
 
 	public void setOnStart(Action action) {

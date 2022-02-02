@@ -21,7 +21,6 @@ package org.lecturestudio.presenter.swing.view;
 import static java.util.Objects.isNull;
 import static java.util.Objects.nonNull;
 
-import com.formdev.flatlaf.util.UIScale;
 import dev.onvoid.webrtc.media.FourCC;
 import dev.onvoid.webrtc.media.video.VideoBufferConverter;
 import dev.onvoid.webrtc.media.video.VideoFrame;
@@ -59,6 +58,8 @@ import org.lecturestudio.core.model.SlideNote;
 import org.lecturestudio.core.tool.ToolType;
 import org.lecturestudio.core.view.*;
 import org.lecturestudio.core.view.Action;
+import org.lecturestudio.presenter.api.model.MessageBarPosition;
+import org.lecturestudio.presenter.api.model.TabData;
 import org.lecturestudio.swing.model.ExternalWindowPosition;
 import org.lecturestudio.presenter.api.stylus.StylusHandler;
 import org.lecturestudio.presenter.api.view.SlidesView;
@@ -198,6 +199,17 @@ public class SwingSlidesView extends JPanel implements SlidesView {
 
 	private JLabel messagesPlaceholder;
 
+	private final Map<String, TabData> removedBottomTabs = new HashMap<>();
+
+	private static final String MESSAGE_LABEL_KEY = "slides.message";
+
+	private static final String NO_MESSAGES_LABEL_KEY = "slides.no.messages";
+
+	private static final String SLIDES_PREVIEW_LABEL_KEY = "slides.slide.preview";
+
+	private static final String SPEECH_LABEL_KEY = "slides.speech";
+
+	private static final String CURRENTLY_NO_SPEECH_LABEL_KEY = "slides.currently.no.speech";
 
 	@Inject
 	SwingSlidesView(Dictionary dictionary) {
@@ -280,8 +292,7 @@ public class SwingSlidesView extends JPanel implements SlidesView {
 
 			tabPane.addTab(null, thumbPanel);
 			tabPane.setTabComponentAt(tabPane.getTabCount() - 1, tab);
-			tabPane.setSelectedIndex(tabPane.getTabCount() - 1);
-			updateTabIndex();
+			setTabSelected(tabPane.getTabCount() - 1);
 			tabPane.setMinimumSize(new Dimension(getTabWidth(), 0));
 		});
 	}
@@ -306,6 +317,10 @@ public class SwingSlidesView extends JPanel implements SlidesView {
 		tabIndex = tabPane.getSelectedIndex();
 	}
 
+	private void updateBottomTabIndex() {
+		bottomTabIndex = bottomTabPane.getSelectedIndex();
+	}
+
 	@Override
 	public void selectDocument(Document doc, PresentationParameterProvider ppProvider) {
 		SwingUtils.invoke(() -> {
@@ -322,7 +337,7 @@ public class SwingSlidesView extends JPanel implements SlidesView {
 						thumbnailPanel.setDocument(doc, ppProvider);
 					}
 
-					tabPane.setSelectedIndex(i);
+					setTabSelected(i);
 					break;
 				}
 			}
@@ -372,12 +387,27 @@ public class SwingSlidesView extends JPanel implements SlidesView {
 			}
 
 			// Show red highlight, if notes-view is hidden and page notes are available.
-			if (bottomTabPane.getSelectedIndex() != 0 && !notes.isEmpty()) {
-				bottomTabPane.setBackgroundAt(0, new Color(255, 182, 193));
+			final int notesIndex = getTabIndex(bottomTabPane, dict.get("slides.notes"));
+			if (bottomTabPane.getSelectedIndex() != notesIndex && !notes.isEmpty()) {
+				bottomTabPane.setBackgroundAt(notesIndex, new Color(255, 182, 193));
 			}
 		}
 
 		//notesTextArea.setText(buffer.toString());
+	}
+
+	private int getTabIndex(JTabbedPane pane, String labelText) {
+		int index = -1;
+
+		for (int i = 0; i < pane.getTabCount(); i++) {
+			JLabel label = (JLabel) bottomTabPane.getTabComponentAt(i);
+			if (label.getText().equals(labelText)) {
+				index = i;
+				break;
+			}
+		}
+
+		return index;
 	}
 
 	@Override
@@ -458,8 +488,9 @@ public class SwingSlidesView extends JPanel implements SlidesView {
 				minimizeBottomPane();
 			}
 
-			setBottomTabEnabled(bottomTabPane.getTabCount() - 1, streamStarted || messengerStarted);
-			setBottomTabSelected(bottomTabPane.getTabCount() - 1, streamStarted || messengerStarted);
+			final int messagesIndex = getTabIndex(bottomTabPane, dict.get(MESSAGE_LABEL_KEY));
+			setBottomTabEnabled(messagesIndex, streamStarted || messengerStarted);
+			setBottomTabSelected(messagesIndex, streamStarted || messengerStarted);
 
 			if (!streamStarted) {
 				removeMessageViews(SpeechRequestView.class);
@@ -489,8 +520,9 @@ public class SwingSlidesView extends JPanel implements SlidesView {
 				minimizeBottomPane();
 			}
 
-			setBottomTabEnabled(bottomTabPane.getTabCount() - 1, streamStarted || messengerStarted);
-			setBottomTabSelected(bottomTabPane.getTabCount() - 1, streamStarted || messengerStarted);
+			final int messagesIndex = getTabIndex(bottomTabPane, dict.get(MESSAGE_LABEL_KEY));
+			setBottomTabEnabled(messagesIndex, streamStarted || messengerStarted);
+			setBottomTabSelected(messagesIndex, streamStarted || messengerStarted);
 
 			if (!streamStarted && !messengerStarted) {
 				showMessagesPlaceholder();
@@ -799,9 +831,7 @@ public class SwingSlidesView extends JPanel implements SlidesView {
 			return;
 		}
 
-		removeComponentAndUpdate(notesSplitPane, bottomTabPane);
-
-		setBottomTabVisible(0, false);
+		setBottomTabVisible(dict.get(MESSAGE_LABEL_KEY), false);
 
 		messagesPane.getViewport().remove(messageViewContainer);
 
@@ -823,11 +853,7 @@ public class SwingSlidesView extends JPanel implements SlidesView {
 
 		messagesPane.getViewport().add(messageViewContainer);
 
-		addComponentAndUpdate(notesSplitPane, bottomTabPane);
-
-		minimizeBottomPane();
-
-		setBottomTabVisible(0, true);
+		setBottomTabVisible(dict.get(MESSAGE_LABEL_KEY), true);
 	}
 
 	@Override
@@ -918,6 +944,19 @@ public class SwingSlidesView extends JPanel implements SlidesView {
 		}
 	}
 
+	@Override
+	public void setMessageBarPosition(MessageBarPosition position) {
+		switch (position) {
+			case LEFT:
+
+				break;
+			case BOTTOM:
+				break;
+			case RIGHT:
+				break;
+		}
+	}
+
 	private void removeComponentAndUpdate(JComponent component, Component componentToRemove) {
 		component.remove(componentToRemove);
 		component.revalidate();
@@ -981,9 +1020,36 @@ public class SwingSlidesView extends JPanel implements SlidesView {
 		}
 	}
 
-	private void setBottomTabVisible(int index, boolean visible) {
-		JLabel label = (JLabel) bottomTabPane.getTabComponentAt(index);
-		label.setVisible(visible);
+	private void setBottomTabVisible(String labelText, boolean visible) {
+		final int oldTabCount = bottomTabPane.getTabCount();
+
+		if (visible) {
+			final TabData tabData = removedBottomTabs.remove(labelText);
+			bottomTabPane.insertTab(null, null, tabData.tab, null, tabData.index);
+			bottomTabPane.setTabComponentAt(tabData.index, tabData.tabComponent);
+			updateBottomTabIndex();
+
+			if (oldTabCount == 0) {
+				addComponentAndUpdate(notesSplitPane, bottomTabPane);
+				minimizeBottomPane();
+			}
+		} else {
+			final int removeTabIndex = getTabIndex(bottomTabPane, labelText);
+			final int oldSelectedIndex = bottomTabPane.getSelectedIndex();
+
+			removedBottomTabs.put(labelText, new TabData(
+					removeTabIndex, bottomTabPane.getComponentAt(removeTabIndex),
+					bottomTabPane.getTabComponentAt(removeTabIndex)));
+			bottomTabPane.remove(removeTabIndex);
+			updateBottomTabIndex();
+
+			if (oldTabCount == 1) {
+				removeComponentAndUpdate(notesSplitPane, bottomTabPane);
+			} else if (oldSelectedIndex == removeTabIndex) {
+				minimizeBottomPane();
+			}
+
+		}
 	}
 
 	private void setBottomTabEnabled(int index, boolean enable) {
@@ -1000,6 +1066,12 @@ public class SwingSlidesView extends JPanel implements SlidesView {
 		if (!select && bottomTabPane.getSelectedIndex() == index) {
 			bottomTabPane.setSelectedIndex(-1);
 		}
+		updateBottomTabIndex();
+	}
+
+	private void setTabSelected(int index) {
+		tabPane.setSelectedIndex(index);
+		updateTabIndex();
 	}
 
 	private void minimizeBottomPane() {
@@ -1189,11 +1261,11 @@ public class SwingSlidesView extends JPanel implements SlidesView {
 			}
 		});
 
-		messagesPlaceholder = new JLabel(dict.get("slides.no.messages"), SwingConstants.CENTER);
+		messagesPlaceholder = new JLabel(dict.get(NO_MESSAGES_LABEL_KEY), SwingConstants.CENTER);
 
 		externalMessagesFrame =
-				new ExternalFrame.Builder().setName(dict.get("slides.messages")).setBody(externalMessagesPane)
-						.setPlaceholderText(dict.get("slides.no.messages"))
+				new ExternalFrame.Builder().setName(dict.get(MESSAGE_LABEL_KEY)).setBody(externalMessagesPane)
+						.setPlaceholderText(dict.get(NO_MESSAGES_LABEL_KEY))
 						.setPositionChangedAction(
 								position -> executeAction(externalMessagesPositionChangedAction, position))
 						.setClosedAction(() -> executeAction(externalMessagesClosedAction))
@@ -1201,15 +1273,15 @@ public class SwingSlidesView extends JPanel implements SlidesView {
 						.setMinimumSize(new Dimension(500, 400)).build();
 
 		externalSlidePreviewFrame =
-				new ExternalFrame.Builder().setName(dict.get("slides.slide.preview")).setBody(tabPane)
+				new ExternalFrame.Builder().setName(dict.get(SLIDES_PREVIEW_LABEL_KEY)).setBody(tabPane)
 						.setPositionChangedAction(
 								position -> executeAction(externalSlidePreviewPositionChangedAction, position))
 						.setClosedAction(() -> executeAction(externalSlidePreviewClosedAction))
 						.setSizeChangedAction(size -> executeAction(externalSlidePreviewSizeChangedAction, size))
 						.setMinimumSize(new Dimension(500, 700)).build();
 
-		externalSpeechFrame = new ExternalFrame.Builder().setName(dict.get("slides.speech")).setBody(peerViewContainer)
-				.setPlaceholderText(dict.get("slides.currently.no.speech"))
+		externalSpeechFrame = new ExternalFrame.Builder().setName(dict.get(SPEECH_LABEL_KEY)).setBody(peerViewContainer)
+				.setPlaceholderText(dict.get(CURRENTLY_NO_SPEECH_LABEL_KEY))
 				.setPositionChangedAction(position -> executeAction(externalSpeechPositionChangedAction, position))
 				.setClosedAction(() -> executeAction(externalSpeechClosedAction))
 				.setSizeChangedAction(size -> executeAction(externalSpeechSizeChangedAction, size))

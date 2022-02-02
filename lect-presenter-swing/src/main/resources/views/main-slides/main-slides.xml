@@ -1,38 +1,39 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Panel layout="BorderLayout">
 	<ToolbarView constraints="BorderLayout.NORTH"/>
+		<SplitPane id="tabSplitPane" resizeWeight="1" orientation="JSplitPane.HORIZONTAL_SPLIT" constraints="BorderLayout.CENTER">
+			<SplitPane id="notesSplitPane" resizeWeight="1" orientation="JSplitPane.VERTICAL_SPLIT">
+				<SplitPane id="docSplitPane" resizeWeight="0" focusable="false" orientation="JSplitPane.HORIZONTAL_SPLIT">
+					<Vbox id="leftVbox">
+						<ScrollPane id="outlinePane">
+							<Tree id="outlineTree" name="tree" focusable="false" rootVisible="false" showsRootHandles="true">
+								<renderer class="org.lecturestudio.swing.tree.OutlineRenderer" />
+							</Tree>
+						</ScrollPane>
+					</Vbox>
+					<SlideView id="slideView" />
+				</SplitPane>
 
-	<SplitPane id="tabSplitPane" resizeWeight="1" orientation="JSplitPane.HORIZONTAL_SPLIT" constraints="BorderLayout.CENTER">
-		<SplitPane id="notesSplitPane" resizeWeight="1" orientation="JSplitPane.VERTICAL_SPLIT">
-			<SplitPane id="docSplitPane" resizeWeight="0" focusable="false" orientation="JSplitPane.HORIZONTAL_SPLIT">
-				<ScrollPane id="outlinePane">
-					<Tree id="outlineTree" name="tree" focusable="false" rootVisible="false" showsRootHandles="true">
-						<renderer class="org.lecturestudio.swing.tree.OutlineRenderer" />
-					</Tree>
-				</ScrollPane>
-				<SlideView id="slideView" />
-			</SplitPane>
-
-			<TabbedPane id="bottomTabPane" tabPlacement="JTabbedPane.BOTTOM">
+				<TabbedPane id="bottomTabPane" tabPlacement="JTabbedPane.BOTTOM">
 <!--				<Tab id="notesTab" name="notes" text="slides.notes" icon="notes.svg, 20">-->
 <!--					<TextArea id="notesTextArea" background="white" editable="false" focusTraversable="false" minimumSize="0,0" />-->
 <!--				</Tab>-->
-<!--				<Tab id="latexTab" name="latex" text="slides.latex" icon="latex-tool.svg, 24">-->
-<!--					<TextArea id="latexTextArea" minimumSize="0,0" />-->
-<!--				</Tab>-->
-				<Tab id="messageTab" name="message" text="slides.message" icon="messenger-indicator.svg, 20">
-					<Panel id="messagesPanel" layout="BorderLayout">
-						<ScrollPane id="messagesPane">
-							<VBox id="messageViewContainer" border="EmptyBorder(10, 10, 10, 10)" />
-						</ScrollPane>
-					</Panel>
-				</Tab>
-			</TabbedPane>
-		</SplitPane>
+					<!--				<Tab id="latexTab" name="latex" text="slides.latex" icon="latex-tool.svg, 24">-->
+					<!--					<TextArea id="latexTextArea" minimumSize="0,0" />-->
+					<!--				</Tab>-->
+					<Tab id="messageTab" name="message" text="slides.message" icon="messenger-indicator.svg, 20">
+						<Panel id="messagesPanel" layout="BorderLayout">
+							<ScrollPane id="messagesPane">
+								<VBox id="messageViewContainer" border="EmptyBorder(10, 10, 10, 10)" />
+							</ScrollPane>
+						</Panel>
+					</Tab>
+				</TabbedPane>
+			</SplitPane>
 
-		<VBox id="rightVbox">
-			<Panel layout="BorderLayout" id="peerViewContainer" visible="false" />
-			<TabbedPane id="tabPane" tabPlacement="JTabbedPane.RIGHT" focusTraversable="false" />
-		</VBox>
-	</SplitPane>
+			<VBox id="rightVbox">
+				<Panel layout="BorderLayout" id="peerViewContainer" visible="false" />
+				<TabbedPane id="tabPane" tabPlacement="JTabbedPane.RIGHT" focusTraversable="false" />
+			</VBox>
+		</SplitPane>
 </Panel>

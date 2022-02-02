@@ -76,6 +76,7 @@ import org.lecturestudio.presenter.api.config.PresenterConfiguration;
 import org.lecturestudio.presenter.api.context.PresenterContext;
 import org.lecturestudio.presenter.api.event.*;
 import org.lecturestudio.presenter.api.input.Shortcut;
+import org.lecturestudio.presenter.api.model.MessageBarPosition;
 import org.lecturestudio.swing.model.ExternalWindowPosition;
 import org.lecturestudio.presenter.api.pdf.embedded.SlideNoteParser;
 import org.lecturestudio.presenter.api.service.RecordingService;
@@ -347,6 +348,15 @@ public class SlidesPresenter extends Presenter<SlidesView> {
 		} else {
 			viewHideExternalSpeech(event.isPersistent());
 		}
+	}
+
+	@Subscribe
+	public void onEvent(MessageBarPositionEvent event) {
+		final MessageBarPosition position = event.position;
+
+		view.setMessageBarPosition(position);
+
+		getPresenterConfig().getMessageBarConfiguration().setMessageBarPosition(position);
 	}
 
 	private void externalMessagesPositionChanged(ExternalWindowPosition position) {

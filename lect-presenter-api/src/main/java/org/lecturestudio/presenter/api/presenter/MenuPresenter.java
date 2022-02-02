@@ -311,16 +311,8 @@ public class MenuPresenter extends Presenter<MenuView> {
 		eventBus.post(new ExternalSpeechViewEvent(selected));
 	}
 
-	public void positionLeftMessages() {
-		getPresenterConfig().getMessageBarConfiguration().setMessageBarPosition(MessageBarPosition.LEFT);
-	}
-
-	public void positionBottomMessages() {
-		getPresenterConfig().getMessageBarConfiguration().setMessageBarPosition(MessageBarPosition.BOTTOM);
-	}
-
-	public void positionRightMessages() {
-		getPresenterConfig().getMessageBarConfiguration().setMessageBarPosition(MessageBarPosition.RIGHT);
+	public void positionMessages(MessageBarPosition position) {
+		eventBus.post(new MessageBarPositionEvent(position));
 	}
 
 	public void newWhiteboard() {
@@ -490,18 +482,6 @@ public class MenuPresenter extends Presenter<MenuView> {
 		return (PresenterConfiguration) context.getConfiguration();
 	}
 
-	private ExternalWindowConfiguration getExternalMessagesConfig() {
-		return getPresenterConfig().getExternalMessagesConfig();
-	}
-
-	private ExternalWindowConfiguration getExternalSlidePreviewConfig() {
-		return getPresenterConfig().getExternalSlidePreviewConfig();
-	}
-
-	private ExternalWindowConfiguration getExternalSpeechConfig() {
-		return getPresenterConfig().getExternalSpeechConfig();
-	}
-
 	@Override
 	public void initialize() {
 		final PresenterContext presenterContext = (PresenterContext) context;
@@ -555,10 +535,9 @@ public class MenuPresenter extends Presenter<MenuView> {
 				break;
 		}
 
-		view.setOnMessagesPositionLeft(this::positionLeftMessages);
-		view.setOnMessagesPositionBottom(this::positionBottomMessages);
-		view.setOnMessagesPositionRight(this::positionRightMessages);
-
+		view.setOnMessagesPositionLeft(() -> positionMessages(MessageBarPosition.LEFT));
+		view.setOnMessagesPositionBottom(() -> positionMessages(MessageBarPosition.BOTTOM));
+		view.setOnMessagesPositionRight(() -> positionMessages(MessageBarPosition.RIGHT));
 
 		view.setOnNewWhiteboard(this::newWhiteboard);
 		view.setOnNewWhiteboardPage(this::newWhiteboardPage);
@@ -614,7 +593,7 @@ public class MenuPresenter extends Presenter<MenuView> {
 		ObservableList<RecentDocument> recentDocs = getPresenterConfig().getRecentDocuments();
 
 		// Add new (sorted) recent document items.
-		if (recentDocs.size() > 0) {
+		if (!recentDocs.isEmpty()) {
 			Iterator<RecentDocument> iter = recentDocs.iterator();
 
 			while (iter.hasNext()) {
@@ -661,9 +640,5 @@ public class MenuPresenter extends Presenter<MenuView> {
 				view.setCurrentTime(LocalDateTime.now().format(timeFormatter));
 			}
 		}, 0, 30000);
-	}
-
-	private boolean checkIfScreenInList(List<Screen> screens, Screen screen) {
-		return screens.stream().anyMatch(scrn -> scrn.equals(screen));
 	}
 }

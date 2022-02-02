@@ -34,6 +34,7 @@ import org.lecturestudio.core.model.Page;
 import org.lecturestudio.core.model.SlideNote;
 import org.lecturestudio.core.tool.ToolType;
 import org.lecturestudio.core.view.*;
+import org.lecturestudio.presenter.api.model.MessageBarPosition;
 import org.lecturestudio.swing.model.ExternalWindowPosition;
 import org.lecturestudio.presenter.api.stylus.StylusHandler;
 import org.lecturestudio.web.api.event.PeerStateEvent;
@@ -159,4 +160,6 @@ public interface SlidesView extends View {
 	void hideMessagesPlaceholder();
 
 	void hideExternalSpeech();
+
+	void setMessageBarPosition(MessageBarPosition position);
 }

@@ -881,6 +881,7 @@ public class SlidesPresenter extends Presenter<SlidesView> {
 		messengerMessage.setRemoteAddress(user.getUsername());
 		try {
 			this.webService.sendMessengerMessage(messengerMessage);
+			messageToSendProperty.set("");
 			return true;
 		}
 		catch (ExecutableException exc) {

@@ -32,10 +32,7 @@ import java.awt.Container;
 import java.awt.Dimension;
 import java.awt.KeyboardFocusManager;
 import java.awt.Rectangle;
-import java.awt.event.ComponentAdapter;
-import java.awt.event.ComponentEvent;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
+import java.awt.event.*;
 import java.awt.image.BufferedImage;
 import java.awt.image.DataBufferByte;
 import java.math.BigInteger;
@@ -161,6 +158,8 @@ public class SwingSlidesView extends JPanel implements SlidesView {
 	private Container peerViewContainer;
 
 	private Container messageViewContainer;
+
+	private JScrollPane messageViewContainerContainer;
 
 	private Container messageSendContainer;
 
@@ -523,6 +522,11 @@ public class SwingSlidesView extends JPanel implements SlidesView {
 
 			messageViewContainer.add(messageView);
 			messageViewContainer.revalidate();
+			SwingUtilities.invokeLater(() -> {
+				JScrollBar messengerScrollBar = this.messageViewContainerContainer.getVerticalScrollBar();
+				messengerScrollBar.setValue(messengerScrollBar.getMaximum() + messageView.getHeight());
+				messengerScrollBar.revalidate();
+			});
 		});
 	}
 

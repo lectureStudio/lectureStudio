@@ -116,7 +116,7 @@ public class WebService extends ExecutableBase {
 	 *
 	 * @throws ExecutableException if the message service could not be started.
 	 */
-	public void startMessenger(MessengerConfig config) throws ExecutableException {
+	public void startMessenger() throws ExecutableException {
 		var service = getService(MessageFeatureWebService.class);
 
 		if (nonNull(service) && service.started()) {
@@ -131,7 +131,7 @@ public class WebService extends ExecutableBase {
 
 			startService(new MessageFeatureWebService(context,
 					createFeatureService(streamPublisherApiUrl,
-							MessageFeatureService.class), config));
+							MessageFeatureService.class)));
 		}
 		catch (Exception e) {
 			throw new ExecutableException("Message service could not be started", e);

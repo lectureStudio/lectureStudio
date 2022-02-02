@@ -40,8 +40,6 @@ public class MessageFeatureWebService extends FeatureServiceBase {
 	/** A message logger. */
 	private HtmlMessageLogger logger;
 
-	private MessengerConfig config;
-
 
 	/**
 	 * Creates a new {@link MessageFeatureWebService}.
@@ -50,11 +48,10 @@ public class MessageFeatureWebService extends FeatureServiceBase {
 	 * @param featureService The message web feature service.
 	 */
 	public MessageFeatureWebService(ApplicationContext context,
-									MessageFeatureService featureService, MessengerConfig config) {
+									MessageFeatureService featureService) {
 		super(context);
 
 		this.webService = featureService;
-		this.config = config;
 	}
 
 	@Override
@@ -65,7 +62,7 @@ public class MessageFeatureWebService extends FeatureServiceBase {
 	@Override
 	protected void startInternal() throws ExecutableException {
 		try {
-			serviceId = webService.startMessenger(courseId, config.getMessengerMode());
+			serviceId = webService.startMessenger(courseId);
 
 			webService.addMessageListener(MessengerMessage.class, messageConsumer);
 			webService.addStompMessageListener(MessengerMessage.class, messageConsumer);

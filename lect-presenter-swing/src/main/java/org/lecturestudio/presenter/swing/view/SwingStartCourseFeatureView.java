@@ -53,8 +53,6 @@ public class SwingStartCourseFeatureView extends JPanel implements StartCourseFe
 
 	private JButton startButton;
 
-	private Container messengerExclusiveSettings;
-
 	private Container courseSelectionSettings;
 
 
@@ -116,13 +114,6 @@ public class SwingStartCourseFeatureView extends JPanel implements StartCourseFe
 	public void setMessengerMode(ObjectProperty<MessengerConfig.MessengerMode> messengerMode) {
 		SwingUtils.invoke(() -> {
 			SwingUtils.bindBidirectional(messengerModeCombo, messengerMode);
-		});
-	}
-
-	@Override
-	public void setMessengerExclusiveSettingsVisible(boolean b) {
-		SwingUtils.invoke(() -> {
-			messengerExclusiveSettings.setVisible(b);
 		});
 	}
 

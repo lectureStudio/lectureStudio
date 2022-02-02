@@ -38,7 +38,7 @@ public interface MessageFeatureClient {
 	@Path("/messenger/start/{courseId}")
 	@POST
 	@Consumes(MediaType.APPLICATION_JSON)
-	String startMessenger(@PathParam("courseId") long courseId, @QueryParam("mode") MessengerConfig.MessengerMode mode);
+	String startMessenger(@PathParam("courseId") long courseId);
 
 	@Path("/messenger/stop/{courseId}")
 	@POST

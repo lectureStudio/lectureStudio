@@ -9,12 +9,6 @@
 				<renderer class="org.lecturestudio.presenter.swing.combobox.CourseRenderer" />
 			</ComboBox>
 		</VBox>
-		<VBox id="messengerExclusiveSettings">
-			<Label text="start.course.feature.choose.messenger.mode" border="EmptyBorder(5, 0, 5, 0)" />
-			<ComboBox id="messengerModeCombo" name="extendedUI">
-				<renderer class="org.lecturestudio.presenter.swing.combobox.MessengerModeRenderer" />
-			</ComboBox>
-		</VBox>
 	</VBox>
 
 	<Label id="errorLabel" visible="false">

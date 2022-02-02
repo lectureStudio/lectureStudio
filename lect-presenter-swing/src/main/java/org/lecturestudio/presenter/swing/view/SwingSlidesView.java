@@ -484,22 +484,6 @@ public class SwingSlidesView extends JPanel implements SlidesView {
 	}
 
 	@Override
-	public void setOnMessengerMode(MessengerConfig.MessengerMode mode) {
-		boolean bidirectional = mode == MessengerConfig.MessengerMode.BIDIRECTIONAL;
-		SwingUtils.invoke(() -> {
-			this.sendButton.setEnabled(bidirectional);
-			this.messageSendContainer.setVisible(bidirectional);
-		});
-	}
-
-	@Override
-	public void setMessengerFormVisible(boolean visible) {
-		SwingUtils.invoke(() -> {
-			this.messageSendContainer.setVisible(visible);
-		});
-	}
-
-	@Override
 	public void setMessengerSendButtonEnabled(boolean enabled) {
 		SwingUtils.invoke(() -> {
 			this.sendButton.setEnabled(enabled);

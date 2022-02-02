@@ -23,6 +23,7 @@ import java.util.List;
 import org.lecturestudio.core.beans.ObjectProperty;
 import org.lecturestudio.core.view.Action;
 import org.lecturestudio.core.view.View;
+import org.lecturestudio.web.api.model.messenger.MessengerConfig;
 import org.lecturestudio.web.api.stream.model.Course;
 
 public interface StartCourseFeatureView extends View {
@@ -30,6 +31,8 @@ public interface StartCourseFeatureView extends View {
 	void setCourse(ObjectProperty<Course> course);
 
 	void setCourses(List<Course> courses);
+
+	void setMessengerModes(List<MessengerConfig.MessengerMode> modes);
 
 	void setError(String message);
 
@@ -39,4 +42,9 @@ public interface StartCourseFeatureView extends View {
 
 	void setOnStart(Action action);
 
+    void setMessengerMode(ObjectProperty<MessengerConfig.MessengerMode> messengerModePropertyProperty);
+
+    void setMessengerExclusiveSettingsVisible(boolean b);
+
+	void setCourseSelectionSettingsVisible(boolean b);
 }

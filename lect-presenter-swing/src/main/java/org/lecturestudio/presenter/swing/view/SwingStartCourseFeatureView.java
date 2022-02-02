@@ -33,6 +33,7 @@ import org.lecturestudio.core.view.Action;
 import org.lecturestudio.presenter.api.view.StartCourseFeatureView;
 import org.lecturestudio.swing.util.SwingUtils;
 import org.lecturestudio.swing.view.SwingView;
+import org.lecturestudio.web.api.model.messenger.MessengerConfig;
 import org.lecturestudio.web.api.stream.model.Course;
 
 @SwingView(name = "start-course-feature")
@@ -42,6 +43,8 @@ public class SwingStartCourseFeatureView extends JPanel implements StartCourseFe
 
 	private JComboBox<Course> courseCombo;
 
+	private JComboBox<MessengerConfig.MessengerMode> messengerModeCombo;
+
 	private JLabel errorLabel;
 
 	private JButton settingsButton;
@@ -49,6 +52,10 @@ public class SwingStartCourseFeatureView extends JPanel implements StartCourseFe
 	private JButton closeButton;
 
 	private JButton startButton;
+
+	private Container messengerExclusiveSettings;
+
+	private Container courseSelectionSettings;
 
 
 	SwingStartCourseFeatureView() {
@@ -67,6 +74,14 @@ public class SwingStartCourseFeatureView extends JPanel implements StartCourseFe
 		SwingUtils.invoke(() -> {
 			courseCombo.setLightWeightPopupEnabled(false);
 			courseCombo.setModel(new DefaultComboBoxModel<>(new Vector<>(courses)));
+		});
+	}
+
+	@Override
+	public void setMessengerModes(List<MessengerConfig.MessengerMode> modes) {
+		SwingUtils.invoke(() -> {
+			messengerModeCombo.setLightWeightPopupEnabled(false);
+			messengerModeCombo.setModel(new DefaultComboBoxModel<>(new Vector<>(modes)));
 		});
 	}
 
@@ -95,5 +110,26 @@ public class SwingStartCourseFeatureView extends JPanel implements StartCourseFe
 	@Override
 	public void setOnStart(Action action) {
 		SwingUtils.bindAction(startButton, action);
+	}
+
+	@Override
+	public void setMessengerMode(ObjectProperty<MessengerConfig.MessengerMode> messengerMode) {
+		SwingUtils.invoke(() -> {
+			SwingUtils.bindBidirectional(messengerModeCombo, messengerMode);
+		});
+	}
+
+	@Override
+	public void setMessengerExclusiveSettingsVisible(boolean b) {
+		SwingUtils.invoke(() -> {
+			messengerExclusiveSettings.setVisible(b);
+		});
+	}
+
+	@Override
+	public void setCourseSelectionSettingsVisible(boolean b) {
+		SwingUtils.invoke(() -> {
+			courseSelectionSettings.setVisible(b);
+		});
 	}
 }

@@ -46,6 +46,7 @@ import org.lecturestudio.web.api.message.CourseParticipantMessage;
 import org.lecturestudio.web.api.message.MessengerMessage;
 import org.lecturestudio.web.api.message.SpeechCancelMessage;
 import org.lecturestudio.web.api.message.SpeechRequestMessage;
+import org.lecturestudio.web.api.model.messenger.MessengerConfig;
 
 public interface SlidesView extends View {
 
@@ -71,7 +72,9 @@ public interface SlidesView extends View {
 
 	void setPageNotes(List<SlideNote> notes);
 
-	void setOutline(DocumentOutline outline);
+    void setMessengerFormVisible(boolean visible);
+
+    void setOutline(DocumentOutline outline);
 
 	void bindShowOutline(BooleanProperty showProperty);
 
@@ -86,6 +89,10 @@ public interface SlidesView extends View {
 	void setQuizState(ExecutableState state);
 
 	void setMessengerState(ExecutableState state);
+
+	void setOnMessengerMode(MessengerConfig.MessengerMode mode);
+
+	void setMessengerSendButtonEnabled(boolean enabled);
 
 	void setMessengerMessage(MessengerMessage message);
 

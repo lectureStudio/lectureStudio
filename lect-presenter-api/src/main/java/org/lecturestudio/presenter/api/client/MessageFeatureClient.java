@@ -18,10 +18,7 @@
 
 package org.lecturestudio.presenter.api.client;
 
-import javax.ws.rs.Consumes;
-import javax.ws.rs.POST;
-import javax.ws.rs.Path;
-import javax.ws.rs.PathParam;
+import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 
 import org.eclipse.microprofile.rest.client.annotation.RegisterProvider;
@@ -29,6 +26,7 @@ import org.eclipse.microprofile.rest.client.annotation.RegisterProviders;
 
 import org.lecturestudio.web.api.client.ApiKeyFilter;
 import org.lecturestudio.web.api.data.bind.JsonConfigProvider;
+import org.lecturestudio.web.api.model.messenger.MessengerConfig;
 
 @Path("/api/publisher")
 @RegisterProviders({
@@ -40,7 +38,7 @@ public interface MessageFeatureClient {
 	@Path("/messenger/start/{courseId}")
 	@POST
 	@Consumes(MediaType.APPLICATION_JSON)
-	String startMessenger(@PathParam("courseId") long courseId);
+	String startMessenger(@PathParam("courseId") long courseId, @QueryParam("mode") MessengerConfig.MessengerMode mode);
 
 	@Path("/messenger/stop/{courseId}")
 	@POST

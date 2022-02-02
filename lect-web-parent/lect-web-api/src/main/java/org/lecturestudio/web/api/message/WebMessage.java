@@ -32,6 +32,8 @@ public abstract class WebMessage {
 
 	private ZonedDateTime date;
 
+	private String messageId;
+
 
 	public String getFirstName() {
 		return requireNonNullElse(firstName, "");
@@ -75,5 +77,13 @@ public abstract class WebMessage {
 	 */
 	public void setDate(ZonedDateTime date) {
 		this.date = date;
+	}
+
+	public String getMessageId() {
+		return messageId;
+	}
+
+	public void setMessageId(String messageId) {
+		this.messageId = messageId;
 	}
 }

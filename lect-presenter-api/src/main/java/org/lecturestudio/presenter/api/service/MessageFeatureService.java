@@ -24,6 +24,7 @@ import org.lecturestudio.presenter.api.client.MessageFeatureClient;
 import org.lecturestudio.web.api.client.TokenProvider;
 import org.lecturestudio.web.api.data.bind.JsonConfig;
 import org.lecturestudio.web.api.message.MessageTransport;
+import org.lecturestudio.web.api.model.messenger.MessengerConfig;
 import org.lecturestudio.web.api.service.ReactiveProviderService;
 import org.lecturestudio.web.api.service.ServiceParameters;
 
@@ -42,8 +43,8 @@ public class MessageFeatureService extends ReactiveProviderService {
 		featureClient = builder.build(MessageFeatureClient.class);
 	}
 
-	public String startMessenger(long courseId) {
-		return featureClient.startMessenger(courseId);
+	public String startMessenger(long courseId, MessengerConfig.MessengerMode mode) {
+		return featureClient.startMessenger(courseId, mode);
 	}
 
 	public void stopMessenger(long courseId) {

@@ -37,6 +37,7 @@ import org.lecturestudio.core.view.NotificationType;
 import org.lecturestudio.presenter.api.context.PresenterContext;
 import org.lecturestudio.presenter.api.presenter.command.StartCourseFeatureCommand;
 import org.lecturestudio.presenter.api.presenter.command.StartStreamCommand;
+import org.lecturestudio.web.api.model.messenger.MessengerConfig;
 import org.lecturestudio.web.api.model.quiz.Quiz;
 import org.lecturestudio.web.api.stream.model.Course;
 
@@ -105,7 +106,7 @@ public class StreamService {
 
 			eventBus.post(new StartCourseFeatureCommand(course, () -> {
 				startQuizInternal(quiz);
-			}));
+			}, QuizFeatureWebService.class));
 		}
 	}
 
@@ -207,23 +208,19 @@ public class StreamService {
 	}
 
 	private void startMessenger() {
-		if (streamService.started()) {
-			startMessengerInternal();
-		}
-		else {
-			Course course = webService.hasActiveService() ?
-					context.getCourse() :
-					null;
+		Course course = webService.hasActiveService() ?
+				context.getCourse() :
+				null;
 
-			eventBus.post(new StartCourseFeatureCommand(course, () -> {
-				startMessengerInternal();
-			}));
-		}
+		eventBus.post(new StartCourseFeatureCommand(course, () -> {
+			startMessengerInternal();
+		}, MessageFeatureWebService.class));
 	}
 
 	private void startMessengerInternal() {
 		try {
-			webService.startMessenger();
+			MessengerConfig config = new MessengerConfig(context.getMessengerModeProperty() == MessengerConfig.MessengerMode.BIDIRECTIONAL ? MessengerConfig.MessengerMode.BIDIRECTIONAL : MessengerConfig.MessengerMode.UNIDIRECTIONAL);
+			webService.startMessenger(config);
 		}
 		catch (ExecutableException e) {
 			handleServiceError(e, "Start messenger failed", "messenger.start.error");

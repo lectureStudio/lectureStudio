@@ -80,6 +80,8 @@ public class JanusHandler extends JanusStateHandler {
 
 	private List<JanusStateHandler> handlers;
 
+	private Consumer<Long> rejectedConsumer;
+
 
 	public JanusHandler(JanusMessageTransmitter transmitter,
 			StreamContext streamContext,
@@ -90,6 +92,10 @@ public class JanusHandler extends JanusStateHandler {
 		this.eventRecorder = eventRecorder;
 		this.clientFailover = clientFailover;
 		this.eventBus = eventBus;
+	}
+
+	public void setRejectedConsumer(Consumer<Long> consumer) {
+		this.rejectedConsumer = consumer;
 	}
 
 	public void startRemoteSpeech(long requestId, String userName) {
@@ -103,8 +109,11 @@ public class JanusHandler extends JanusStateHandler {
 			JanusPublisher activePublisher = entry.getValue();
 
 			if (isNull(activePublisher.getId())) {
-				speechPublishers.values()
-						.removeIf(value -> value.equals(activePublisher));
+				speechPublishers.remove(entry.getKey());
+
+				if (nonNull(rejectedConsumer)) {
+					rejectedConsumer.accept(entry.getKey());
+				}
 			}
 			else {
 				stopRemoteSpeech(entry.getKey());

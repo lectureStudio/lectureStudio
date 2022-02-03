@@ -532,6 +532,8 @@ public class SwingSlidesView extends JPanel implements SlidesView {
 					}
 				}
 			}
+
+			removePeerView(message.getRequestId());
 		});
 	}
 
@@ -566,6 +568,7 @@ public class SwingSlidesView extends JPanel implements SlidesView {
 				peerView.setOnMuteVideo(mutePeerVideoAction);
 				peerView.setOnStopPeerConnection(stopPeerConnectionAction);
 
+				peerViewContainer.removeAll();
 				peerViewContainer.add(peerView);
 				peerViewContainer.revalidate();
 				peerViewContainer.repaint();
@@ -583,19 +586,7 @@ public class SwingSlidesView extends JPanel implements SlidesView {
 				}
 			}
 			else if (state == ExecutableState.Stopped) {
-				for (var component : peerViewContainer.getComponents()) {
-					if (component instanceof PeerView) {
-						PeerView peerView = (PeerView) component;
-
-						if (Objects.equals(peerView.getRequestId(), event.getRequestId())) {
-							this.peerView = null;
-
-							peerViewContainer.remove(peerView);
-							peerViewContainer.revalidate();
-							peerViewContainer.repaint();
-						}
-					}
-				}
+				removePeerView(event.getRequestId());
 			}
 		});
 	}
@@ -718,6 +709,24 @@ public class SwingSlidesView extends JPanel implements SlidesView {
 	@Override
 	public void setOnOutlineItem(ConsumerAction<DocumentOutlineItem> action) {
 		this.outlineAction = action;
+	}
+
+	private void removePeerView(long requestId) {
+		for (var component : peerViewContainer.getComponents()) {
+			if (!(component instanceof PeerView)) {
+				continue;
+			}
+
+			PeerView peerView = (PeerView) component;
+
+			if (Objects.equals(peerView.getRequestId(), requestId)) {
+				this.peerView = null;
+
+				peerViewContainer.remove(peerView);
+				peerViewContainer.revalidate();
+				peerViewContainer.repaint();
+			}
+		}
 	}
 
 	private void buildOutlineTree(DocumentOutlineItem item, DefaultMutableTreeNode root) {

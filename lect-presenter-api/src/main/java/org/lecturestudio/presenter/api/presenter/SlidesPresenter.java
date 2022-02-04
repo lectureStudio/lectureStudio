@@ -428,6 +428,7 @@ public class SlidesPresenter extends Presenter<SlidesView> {
 		if (!doc.isQuiz()) {
 			logException(new IllegalStateException(),
 					"Selected document is not a quiz");
+			return;
 		}
 
 		try {
@@ -445,6 +446,8 @@ public class SlidesPresenter extends Presenter<SlidesView> {
 		catch (ExecutableException e) {
 			logException(e, "Stop quiz failed");
 		}
+
+		shareQuiz();
 	}
 
 	private void selectDocument(Document doc) {
@@ -704,7 +707,6 @@ public class SlidesPresenter extends Presenter<SlidesView> {
 		view.setOnOutlineItem(this::setOutlineItem);
 
 		view.setOnKeyEvent(this::keyEvent);
-		view.setOnShareQuiz(this::shareQuiz);
 		view.setOnStopQuiz(this::stopQuiz);
 		view.setOnNewPage(this::newWhiteboardPage);
 		view.setOnDeletePage(this::deleteWhiteboardPage);

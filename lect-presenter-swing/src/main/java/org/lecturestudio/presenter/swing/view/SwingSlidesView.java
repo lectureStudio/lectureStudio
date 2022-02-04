@@ -138,8 +138,6 @@ public class SwingSlidesView extends JPanel implements SlidesView {
 
 	private Action deletePageAction;
 
-	private Action shareQuizAction;
-
 	private Action stopQuizAction;
 
 	private double notesDividerPosition;
@@ -239,8 +237,6 @@ public class SwingSlidesView extends JPanel implements SlidesView {
 			}
 			else if (doc.isQuiz()) {
 				QuizThumbnailPanel quizThumbPanel = new QuizThumbnailPanel(dict);
-				quizThumbPanel.setStreamState(streamState);
-				quizThumbPanel.setOnShareQuiz(shareQuizAction);
 				quizThumbPanel.setOnStopQuiz(stopQuizAction);
 
 				thumbPanel = quizThumbPanel;
@@ -439,16 +435,6 @@ public class SwingSlidesView extends JPanel implements SlidesView {
 
 			if (!streamStarted) {
 				removeMessageViews(SpeechRequestView.class);
-			}
-
-			for (int i = 0; i < tabPane.getTabCount(); i++) {
-				ThumbPanel thumbnailPanel = (ThumbPanel) tabPane.getComponentAt(i);
-
-				if (thumbnailPanel instanceof QuizThumbnailPanel) {
-					QuizThumbnailPanel quizPanel = (QuizThumbnailPanel) thumbnailPanel;
-					quizPanel.setStreamState(state);
-					break;
-				}
 			}
 		});
 	}
@@ -694,11 +680,6 @@ public class SwingSlidesView extends JPanel implements SlidesView {
 	@Override
 	public void setOnDeletePage(Action action) {
 		this.deletePageAction = action;
-	}
-
-	@Override
-	public void setOnShareQuiz(Action action) {
-		this.shareQuizAction = action;
 	}
 
 	@Override

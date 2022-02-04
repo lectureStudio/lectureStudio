@@ -18,6 +18,8 @@
 
 package org.lecturestudio.swing.components;
 
+import java.awt.Color;
+
 import javax.swing.JButton;
 
 import org.lecturestudio.core.ExecutableState;
@@ -27,37 +29,22 @@ import org.lecturestudio.swing.util.SwingUtils;
 
 public class QuizThumbnailPanel extends ThumbnailPanel {
 
-	private final JButton shareQuizButton;
-
 	private final JButton stopQuizButton;
-
-	private ExecutableState streamState;
 
 
 	public QuizThumbnailPanel(Dictionary dict) {
 		super();
 
-		shareQuizButton = new JButton(dict.get("slides.quiz.share"));
 		stopQuizButton = new JButton(dict.get("slides.quiz.stop"));
+		stopQuizButton.setBackground(Color.decode("#FEE2E2"));
 
-		shareQuizButton.setEnabled(false);
-
-		SwingUtils.bindAction(shareQuizButton, () -> {
-			shareQuizButton.setEnabled(false);    // One-time action.
-		});
 		SwingUtils.bindAction(stopQuizButton, () -> {
 			stopQuizButton.setEnabled(false);    // One-time action.
-			shareQuizButton.setEnabled(true);
 		});
 
-		addButton(shareQuizButton);
 		addButton(stopQuizButton);
 
 		setEnabled(false);
-	}
-
-	public void setOnShareQuiz(Action action) {
-		SwingUtils.bindAction(shareQuizButton, action);
 	}
 
 	public void setOnStopQuiz(Action action) {
@@ -67,25 +54,13 @@ public class QuizThumbnailPanel extends ThumbnailPanel {
 	public void setQuizState(ExecutableState state) {
 		if (state == ExecutableState.Started) {
 			stopQuizButton.setEnabled(true);
-			shareQuizButton.setEnabled(false);
-			shareQuizButton.setVisible(streamState == ExecutableState.Started);
 
 			setEnabled(false);
 		}
 		else if (state == ExecutableState.Stopped) {
 			stopQuizButton.setEnabled(false);
-			shareQuizButton.setEnabled(true);
 
 			setEnabled(true);
 		}
-	}
-
-	public void setStreamState(ExecutableState state) {
-		streamState = state;
-
-		boolean started = state == ExecutableState.Started;
-
-		shareQuizButton.setVisible(started);
-		shareQuizButton.setEnabled(started && shareQuizButton.isEnabled());
 	}
 }

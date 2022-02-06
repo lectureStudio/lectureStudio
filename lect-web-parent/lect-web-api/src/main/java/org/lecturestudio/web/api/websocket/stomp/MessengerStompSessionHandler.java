@@ -16,6 +16,7 @@ import java.time.ZonedDateTime;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.function.Consumer;
 
 import static java.util.Objects.nonNull;
@@ -54,12 +55,10 @@ public class MessengerStompSessionHandler implements StompSessionHandler {
 
     @Override
     public void handleException(StompSession stompSession, StompCommand stompCommand, StompHeaders stompHeaders, byte[] bytes, Throwable throwable) {
-        throwable.printStackTrace();
     }
 
     @Override
     public void handleTransportError(StompSession stompSession, Throwable throwable) {
-        throwable.printStackTrace();
     }
 
     @Override
@@ -69,13 +68,15 @@ public class MessengerStompSessionHandler implements StompSessionHandler {
 
     @Override
     public void handleFrame(StompHeaders stompHeaders, Object o) {
-        LinkedHashMap map = (LinkedHashMap) o;
-        if (map.get("_type").equals("MessengerMessage")) {
-            MessengerMessage message = new MessengerMessage(new Message((String) map.get("text")), (String) map.get("username"), ZonedDateTime.parse( (String) map.get("time")));
-            message.setFirstName((String) map.get("firstName"));
-            message.setFamilyName((String) map.get("familyName"));
-            message.setMessageId((String) map.get("messageId"));
-            handleMessage(message);
+        if (! Objects.isNull(o)) {
+            LinkedHashMap map = (LinkedHashMap) o;
+            if (map.get("_type").equals("MessengerMessage")) {
+                MessengerMessage message = new MessengerMessage(new Message((String) map.get("text")), (String) map.get("username"), ZonedDateTime.parse( (String) map.get("time")));
+                message.setFirstName((String) map.get("firstName"));
+                message.setFamilyName((String) map.get("familyName"));
+                message.setMessageId((String) map.get("messageId"));
+                handleMessage(message);
+            }
         }
     }
 }

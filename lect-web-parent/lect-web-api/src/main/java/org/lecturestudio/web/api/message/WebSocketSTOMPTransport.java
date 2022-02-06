@@ -105,19 +105,20 @@ public class WebSocketSTOMPTransport extends ExecutableBase implements MessageTr
             WebSocketClient webSocketClient = new SockJsClient(transports);
             WebSocketHttpHeaders headers = headerProvider.getHeaders();
 
+            StompHeaders stompHeaders = new StompHeaders();
+            stompHeaders.add("courseId", this.course.getId().toString());
+
 
             MessengerStompSessionHandler sessionHandler = new MessengerStompSessionHandler(this.course, this.jsonb, this.listenerMap);
 
 
             this.stompClient = new WebSocketStompClient(webSocketClient);
             stompClient.setMessageConverter(new MappingJackson2MessageConverter());
-            ListenableFuture<StompSession> listenableSession = stompClient.connect(this.serviceParameters.getUrl(), headers, sessionHandler);
+            ListenableFuture<StompSession> listenableSession = stompClient.connect(this.serviceParameters.getUrl(), headers, stompHeaders, sessionHandler);
             try {
                 this.session = (DefaultStompSession) listenableSession.get();
-            } catch (ExecutionException e) {
-                e.printStackTrace();
-            } catch (InterruptedException e) {
-                e.printStackTrace();
+            } catch (ExecutionException | InterruptedException e) {
+                throw new ExecutableException("Messenger could not be started. Connection to STOMP endpoint cannot be established!");
             }
         } else if (! this.stompClient.isRunning()) {
             this.stompClient.start();

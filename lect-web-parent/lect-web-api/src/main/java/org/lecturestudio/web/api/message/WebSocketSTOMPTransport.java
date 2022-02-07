@@ -23,10 +23,7 @@ import org.springframework.web.socket.sockjs.client.Transport;
 import javax.json.bind.Jsonb;
 import javax.json.bind.JsonbBuilder;
 import javax.json.bind.JsonbConfig;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.ExecutionException;
 import java.util.function.Consumer;
 
@@ -130,6 +127,10 @@ public class WebSocketSTOMPTransport extends ExecutableBase implements MessageTr
         if (this.stompClient.isRunning()) {
             this.stompClient.stop();
             this.stompClient = null;
+        }
+        if (! Objects.isNull(this.session)) {
+            this.session.disconnect();
+            this.session = null;
         }
     }
 

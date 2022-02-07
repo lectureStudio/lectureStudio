@@ -4,10 +4,7 @@ import org.lecturestudio.web.api.message.MessengerMessage;
 import org.lecturestudio.web.api.message.WebMessage;
 import org.lecturestudio.web.api.model.Message;
 import org.lecturestudio.web.api.stream.model.Course;
-import org.springframework.messaging.simp.stomp.StompCommand;
-import org.springframework.messaging.simp.stomp.StompHeaders;
-import org.springframework.messaging.simp.stomp.StompSession;
-import org.springframework.messaging.simp.stomp.StompSessionHandler;
+import org.springframework.messaging.simp.stomp.*;
 
 import javax.json.JsonObject;
 import javax.json.bind.Jsonb;
@@ -49,8 +46,15 @@ public class MessengerStompSessionHandler implements StompSessionHandler {
 
     @Override
     public void afterConnected(StompSession stompSession, StompHeaders stompHeaders) {
-        stompSession.subscribe("/topic/chat/" + course.getId(), this);
-        stompSession.subscribe("/user/queue/chat/" + course.getId(), this);
+        StompHeaders headersPublic = new StompHeaders();
+        headersPublic.setDestination("/topic/chat/" + this.course.getId());
+        headersPublic.add("courseId", this.course.getId().toString());
+        stompSession.subscribe(headersPublic, this);
+
+        StompHeaders headersPrivate = new StompHeaders();
+        headersPrivate.setDestination("/user/queue/chat/" + course.getId());
+        headersPrivate.add("courseId", this.course.getId().toString());
+        stompSession.subscribe(headersPrivate, this);
     }
 
     @Override

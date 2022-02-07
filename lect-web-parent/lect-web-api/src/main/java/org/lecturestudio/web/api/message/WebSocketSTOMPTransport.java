@@ -143,9 +143,9 @@ public class WebSocketSTOMPTransport extends ExecutableBase implements MessageTr
         if (super.started()) {
             if (nonNull(this.session)) {
                 String messageAsJson = jsonb.toJson(message, message.getClass());
-                System.out.println(messageAsJson);
                 StompHeaders headers = new StompHeaders();
                 headerProvider.addHeadersForStomp(headers);
+                headers.add("courseId", this.course.getId().toString());
 
                 headers.setDestination("/app/message/publisher/" +  this.course.getId());
                 try {

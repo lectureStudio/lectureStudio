@@ -19,6 +19,7 @@
 package org.lecturestudio.web.api.stream.service;
 
 import java.util.List;
+import java.util.Set;
 
 import javax.inject.Inject;
 
@@ -59,6 +60,10 @@ public class StreamProviderService extends ProviderService {
 
 	public User getUser() {
 		return streamRestClient.getUser();
+	}
+
+	public Set<User> getMessengerUsers(long courseId) {
+		return streamRestClient.getMessengerUsers(courseId);
 	}
 
 	/**

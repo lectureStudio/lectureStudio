@@ -19,6 +19,7 @@
 package org.lecturestudio.web.api.stream.client;
 
 import java.util.List;
+import java.util.Set;
 
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
@@ -64,6 +65,10 @@ public interface StreamRestClient {
 	@GET
 	@Path("/courses")
 	List<Course> getCourses();
+
+	@GET
+	@Path("/messenger/users/{courseId}")
+	Set<User> getMessengerUsers(@PathParam("courseId") long courseId);
 
 	/**
 	 * Uploads the provided multipart data.

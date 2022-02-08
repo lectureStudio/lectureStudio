@@ -29,6 +29,7 @@ import org.lecturestudio.core.app.configuration.Configuration;
 import org.lecturestudio.core.presenter.Presenter;
 import org.lecturestudio.core.view.ViewLayer;
 import org.lecturestudio.presenter.api.view.MessengerWindow;
+import org.lecturestudio.web.api.message.MessengerDirectMessage;
 import org.lecturestudio.web.api.message.MessengerMessage;
 import org.lecturestudio.web.api.message.SpeechRequestMessage;
 
@@ -82,6 +83,14 @@ public class MessengerWindowPresenter extends Presenter<MessengerWindow> {
 
 		view.setMessengerMessage(message);
 	}
+
+	@Subscribe
+	public void onEvent(MessengerDirectMessage message) {
+		requireNonNull(message);
+
+		view.setMessengerDirectMessage(message);
+	}
+
 
 	@Subscribe
 	public void onEvent(SpeechRequestMessage message) {

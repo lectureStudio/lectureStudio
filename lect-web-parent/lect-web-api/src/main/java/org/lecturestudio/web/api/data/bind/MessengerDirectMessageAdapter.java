@@ -6,6 +6,7 @@ import org.lecturestudio.web.api.model.Message;
 import javax.json.Json;
 import javax.json.JsonObject;
 import javax.json.JsonObjectBuilder;
+import javax.json.JsonValue;
 import javax.json.bind.adapter.JsonbAdapter;
 
 import java.time.ZonedDateTime;
@@ -52,16 +53,33 @@ public class MessengerDirectMessageAdapter implements JsonbAdapter<MessengerDire
 
     @Override
     public MessengerDirectMessage adaptFromJson(JsonObject jsonObject) throws Exception {
-        String messageDestinationUsername = jsonObject.getString("messageDestinationUsername");
+        String messageDestinationUsername = null;
+        if (jsonObject.get("messageDestinationUsername").getValueType() != JsonValue.ValueType.NULL) {
+            messageDestinationUsername = jsonObject.getString("messageDestinationUsername");
+        }
         MessengerDirectMessage directMessage = new MessengerDirectMessage(messageDestinationUsername);
 
-        directMessage.setMessage(new Message(jsonObject.getString("text")));
-        directMessage.setDate(ZonedDateTime.parse(jsonObject.getString("time")));
-        directMessage.setFirstName(jsonObject.getString("firstName"));
-        directMessage.setFamilyName(jsonObject.getString("familyName"));
-        directMessage.setRemoteAddress(jsonObject.getString("remoteAddress"));
-        directMessage.setMessageId(jsonObject.getString("messageId"));
-        directMessage.setReply(jsonObject.getBoolean("reply"));
+        if (jsonObject.get("text").getValueType() != JsonValue.ValueType.NULL) {
+            directMessage.setMessage(new Message(jsonObject.getString("text")));
+        }
+        if (jsonObject.get("time").getValueType() != JsonValue.ValueType.NULL) {
+            directMessage.setDate(ZonedDateTime.parse(jsonObject.getString("time")));
+        }
+        if (jsonObject.get("firstName").getValueType() != JsonValue.ValueType.NULL) {
+            directMessage.setFirstName(jsonObject.getString("firstName"));
+        }
+        if (jsonObject.get("familyName").getValueType() != JsonValue.ValueType.NULL) {
+            directMessage.setFamilyName(jsonObject.getString("familyName"));
+        }
+        if (jsonObject.get("username").getValueType() != JsonValue.ValueType.NULL) {
+            directMessage.setRemoteAddress(jsonObject.getString("username"));
+        }
+        if (jsonObject.get("messageId").getValueType() != JsonValue.ValueType.NULL) {
+            directMessage.setMessageId(jsonObject.getString("messageId"));
+        }
+        if (jsonObject.get("reply").getValueType() != JsonValue.ValueType.NULL) {
+            directMessage.setReply(jsonObject.getBoolean("reply"));
+        }
 
         return directMessage;
     }

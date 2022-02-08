@@ -23,6 +23,7 @@ import org.springframework.web.socket.sockjs.client.Transport;
 import javax.json.bind.Jsonb;
 import javax.json.bind.JsonbBuilder;
 import javax.json.bind.JsonbConfig;
+import java.nio.charset.StandardCharsets;
 import java.util.*;
 import java.util.concurrent.ExecutionException;
 import java.util.function.Consumer;
@@ -83,6 +84,7 @@ public class WebSocketSTOMPTransport extends ExecutableBase implements MessageTr
         jsonbConfig.withAdapters(
                 new CourseParticipantMessageAdapter(),
                 new MessengerMessageAdapter(),
+                new MessengerDirectMessageAdapter(),
                 new MessengerReplyMessageAdapter(),
                 new QuizAnswerMessageAdapter(),
                 new SpeechMessageAdapter()
@@ -110,7 +112,7 @@ public class WebSocketSTOMPTransport extends ExecutableBase implements MessageTr
 
 
             this.stompClient = new WebSocketStompClient(webSocketClient);
-            stompClient.setMessageConverter(new MappingJackson2MessageConverter());
+            //stompClient.setMessageConverter(new MappingJackson2MessageConverter());
             ListenableFuture<StompSession> listenableSession = stompClient.connect(this.serviceParameters.getUrl(), headers, stompHeaders, sessionHandler);
             try {
                 this.session = (DefaultStompSession) listenableSession.get();
@@ -147,11 +149,23 @@ public class WebSocketSTOMPTransport extends ExecutableBase implements MessageTr
                 headerProvider.addHeadersForStomp(headers);
                 headers.add("courseId", this.course.getId().toString());
 
+                if (message instanceof MessengerMessage) {
+                    headers.add("messageType", "public");
+                }
+                else if (message instanceof MessengerDirectMessage) {
+                    headers.add("messageType", "user");
+                    headers.add("username", ((MessengerDirectMessage) message).getMessageDestinationUsername());
+                }
+                else if (message instanceof MessengerReplyMessage) {
+                    headers.add("messageType", "reply");
+                }
+
+
                 headers.setDestination("/app/message/publisher/" +  this.course.getId());
                 try {
                     StompSession ftr = this.session.getSessionFuture().get();
                     headers.setSession(ftr.getSessionId());
-                    ftr.send(headers, messageAsJson);
+                    ftr.send(headers, messageAsJson.getBytes(StandardCharsets.UTF_8));
                 } catch (Exception exc) {
                     exc.printStackTrace();
                 }

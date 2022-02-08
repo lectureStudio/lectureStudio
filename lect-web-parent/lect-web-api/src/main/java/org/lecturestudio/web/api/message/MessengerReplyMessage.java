@@ -8,15 +8,15 @@ public class MessengerReplyMessage extends WebMessage {
 
     private String repliedMessageId;
 
-    public MessengerReplyMessage(MessengerMessage toReply) {
+    public MessengerReplyMessage(WebMessage toReply) {
         this(toReply, null, null, null);
     }
 
-    public MessengerReplyMessage(MessengerMessage toReply, String remoteAddress, ZonedDateTime date) {
+    public MessengerReplyMessage(WebMessage toReply, String remoteAddress, ZonedDateTime date) {
         this(toReply, remoteAddress, date, null);
     }
 
-    public MessengerReplyMessage(MessengerMessage toReply, String remoteAddress, ZonedDateTime date, String messageId) {
+    public MessengerReplyMessage(WebMessage toReply, String remoteAddress, ZonedDateTime date, String messageId) {
         setRemoteAddress(remoteAddress);
         setDate(date);
         setMessageId(messageId);

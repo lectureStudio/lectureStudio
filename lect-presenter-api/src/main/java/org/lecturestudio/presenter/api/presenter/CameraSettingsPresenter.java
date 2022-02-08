@@ -25,13 +25,13 @@ import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import javax.inject.Inject;
 
 import org.lecturestudio.core.app.ApplicationContext;
 import org.lecturestudio.core.camera.AspectRatio;
 import org.lecturestudio.core.camera.Camera;
-import org.lecturestudio.core.camera.CameraFormat;
 import org.lecturestudio.core.camera.CameraProfile;
 import org.lecturestudio.core.camera.CameraProfiles;
 import org.lecturestudio.core.codec.VideoCodecConfiguration;
@@ -50,6 +50,8 @@ public class CameraSettingsPresenter extends Presenter<CameraSettingsView> {
 
 	private final StreamConfiguration streamConfig;
 
+	private final AtomicBoolean configure;
+
 	private boolean capture;
 
 
@@ -61,6 +63,7 @@ public class CameraSettingsPresenter extends Presenter<CameraSettingsView> {
 
 		this.camService = camService;
 		this.streamConfig = config.getStreamConfig();
+		this.configure = new AtomicBoolean();
 	}
 
 	@Override
@@ -159,6 +162,8 @@ public class CameraSettingsPresenter extends Presenter<CameraSettingsView> {
 
 	private void setViewCamera(final String cameraName) {
 		CompletableFuture.runAsync(() -> {
+			configure.set(true);
+
 			if (capture) {
 				stopCameraPreview();
 			}
@@ -174,23 +179,23 @@ public class CameraSettingsPresenter extends Presenter<CameraSettingsView> {
 					ratio = ratioSet.iterator().next();
 				}
 
-				setCameraAspectRatio(ratio);
+				CameraProfile[] profiles = CameraProfiles.forRatio(ratio);
+				view.setCameraProfiles(profiles);
+
+				updateViewRect(profiles);
 
 				view.setCameraAspectRatios(ratioSet.toArray(AspectRatio[]::new));
 				view.setCameraAspectRatio(ratio);
-				view.setCameraProfile(getCameraProfile(CameraProfiles.forRatio(ratio)));
 
-				CameraFormat highestFormat = camera.getHighestFormat(30);
-
-				streamConfig.setCameraFormat(highestFormat);
+				streamConfig.setCameraFormat(camera.getHighestFormat(30));
 
 				view.setCamera(camera);
 
 				if (camera.isOpened()) {
+					configure.set(false);
 					return;
 				}
 
-				CameraProfile[] profiles = CameraProfiles.forRatio(ratio);
 				CameraProfile profile = getCameraProfile(profiles);
 
 				if (isNull(profile)) {
@@ -203,6 +208,8 @@ public class CameraSettingsPresenter extends Presenter<CameraSettingsView> {
 					startCameraPreview();
 				}
 			}
+
+			configure.set(false);
 		});
 	}
 
@@ -222,6 +229,10 @@ public class CameraSettingsPresenter extends Presenter<CameraSettingsView> {
 	}
 
 	private void setCameraAspectRatio(AspectRatio ratio) {
+		if (configure.get()) {
+			return;
+		}
+
 		CompletableFuture.runAsync(() -> {
 			if (capture) {
 				stopCameraPreview();

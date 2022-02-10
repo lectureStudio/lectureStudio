@@ -83,10 +83,7 @@ import org.lecturestudio.swing.view.SwingView;
 import org.lecturestudio.swing.view.ViewPostConstruct;
 import org.lecturestudio.web.api.event.PeerStateEvent;
 import org.lecturestudio.web.api.event.VideoFrameEvent;
-import org.lecturestudio.web.api.message.CourseParticipantMessage;
-import org.lecturestudio.web.api.message.MessengerMessage;
-import org.lecturestudio.web.api.message.SpeechCancelMessage;
-import org.lecturestudio.web.api.message.SpeechRequestMessage;
+import org.lecturestudio.web.api.message.*;
 import org.lecturestudio.web.api.model.messenger.MessengerConfig;
 import org.scilab.forge.jlatexmath.ParseException;
 
@@ -109,7 +106,7 @@ public class SwingSlidesView extends JPanel implements SlidesView {
 
 	private ConsumerAction<Matrix> viewTransformAction;
 
-	private ConsumerAction<MessengerMessage> discardMessageAction;
+	private ConsumerAction<WebMessage> discardMessageAction;
 
 	private ConsumerAction<SpeechRequestMessage> acceptSpeechRequestAction;
 
@@ -515,6 +512,30 @@ public class SwingSlidesView extends JPanel implements SlidesView {
 	}
 
 	@Override
+	public void setMessengerDirectMessage(MessengerDirectMessage message) {
+		SwingUtils.invoke(() -> {
+			MessageView messageView = new MessageView(this.dict);
+			messageView.setUserName(String.format("%s %s", message.getFirstName(), message.getFamilyName()));
+			messageView.setDate(message.getDate());
+			messageView.setMessage(message.getMessage().getText());
+			messageView.setOnDiscard(() -> {
+				discardMessageAction.execute(message);
+
+				removeMessageView(messageView);
+			});
+			messageView.pack();
+
+			messageViewContainer.add(messageView);
+			messageViewContainer.revalidate();
+			SwingUtilities.invokeLater(() -> {
+				JScrollBar messengerScrollBar = this.messageViewContainerContainer.getVerticalScrollBar();
+				messengerScrollBar.setValue(messengerScrollBar.getMaximum() + messageView.getHeight());
+				messengerScrollBar.revalidate();
+			});
+		});
+	}
+
+	@Override
 	public void setParticipantMessage(CourseParticipantMessage message) {
 			SwingUtils.invoke(() -> {
 				ParticipantsView participantsView = new ParticipantsView(this.dict, message.getUsername());
@@ -528,6 +549,11 @@ public class SwingSlidesView extends JPanel implements SlidesView {
 					removeParticipantMessageView(participantsView);
 				}
 			});
+	}
+
+	@Override
+	public void setMessengerParticipantMessage(CourseFeatureMessengerParticipantMessage message) {
+
 	}
 
 	@Override
@@ -573,7 +599,7 @@ public class SwingSlidesView extends JPanel implements SlidesView {
 	}
 
 	@Override
-	public void setOnDiscardMessage(ConsumerAction<MessengerMessage> action) {
+	public void setOnDiscardMessage(ConsumerAction<WebMessage> action) {
 		discardMessageAction = action;
 	}
 

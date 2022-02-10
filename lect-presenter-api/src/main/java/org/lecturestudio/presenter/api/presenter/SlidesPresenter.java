@@ -277,6 +277,16 @@ public class SlidesPresenter extends Presenter<SlidesView> {
 	}
 
 	@Subscribe
+	public void onEvent(MessengerDirectMessage message) {
+		requireNonNull(message);
+
+		PresenterContext presenterContext = (PresenterContext) context;
+		//presenterContext.getMessengerMessages().add(message);
+
+		view.setMessengerDirectMessage(message);
+	}
+
+	@Subscribe
 	public void onEvent(SpeechRequestMessage message) {
 		requireNonNull(message);
 
@@ -308,6 +318,10 @@ public class SlidesPresenter extends Presenter<SlidesView> {
 		else {
 			presenterContext.setAttendeesCount(presenterContext.getAttendeesCount() - 1);
 		}
+	}
+
+	@Subscribe
+	public void onEvent(CourseFeatureMessengerParticipantMessage message) {
 	}
 
 	@Subscribe
@@ -347,7 +361,7 @@ public class SlidesPresenter extends Presenter<SlidesView> {
 		presenterContext.getSpeechRequests().remove(message);
 	}
 
-	private void onDiscardMessage(MessengerMessage message) {
+	private void onDiscardMessage(WebMessage message) {
 		if (this.sendMessageReplyMessage(message)) {
 			PresenterContext presenterContext = (PresenterContext) context;
 			presenterContext.getMessengerMessages().remove(message);
@@ -887,7 +901,7 @@ public class SlidesPresenter extends Presenter<SlidesView> {
 		}
 	}
 
-	private boolean sendMessageReplyMessage(MessengerMessage toReply) {
+	private boolean sendMessageReplyMessage(WebMessage toReply) {
 		MessengerReplyMessage message = new MessengerReplyMessage(toReply);
 		User user = this.streamProviderService.getUser();
 

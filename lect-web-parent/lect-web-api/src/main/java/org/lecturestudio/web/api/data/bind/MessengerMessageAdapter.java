@@ -19,10 +19,12 @@
 package org.lecturestudio.web.api.data.bind;
 
 import java.time.ZonedDateTime;
+import java.util.Objects;
 
 import javax.json.Json;
 import javax.json.JsonObject;
 import javax.json.JsonObjectBuilder;
+import javax.json.JsonValue;
 import javax.json.bind.adapter.JsonbAdapter;
 
 import org.lecturestudio.web.api.message.MessengerMessage;
@@ -67,14 +69,27 @@ public class MessengerMessageAdapter implements JsonbAdapter<MessengerMessage, J
 	@Override
 	public MessengerMessage adaptFromJson(JsonObject jsonObject) {
 		MessengerMessage message = new MessengerMessage();
-		message.setMessage(new Message(jsonObject.getString("text")));
-		message.setDate(ZonedDateTime.parse(jsonObject.getString("time")));
-		message.setFirstName(jsonObject.getString("firstName"));
-		message.setFamilyName(jsonObject.getString("familyName"));
-		message.setRemoteAddress(jsonObject.getString("remoteAddress"));
-		message.setMessageId(jsonObject.getString("messageId"));
-		message.setReply(jsonObject.getBoolean("reply"));
-
+		if (jsonObject.get("text").getValueType() != JsonValue.ValueType.NULL) {
+			message.setMessage(new Message(jsonObject.getString("text")));
+		}
+		if (jsonObject.get("time").getValueType() != JsonValue.ValueType.NULL) {
+			message.setDate(ZonedDateTime.parse(jsonObject.getString("time")));
+		}
+		if (jsonObject.get("firstName").getValueType() != JsonValue.ValueType.NULL) {
+			message.setFirstName(jsonObject.getString("firstName"));
+		}
+		if (jsonObject.get("familyName").getValueType() != JsonValue.ValueType.NULL) {
+			message.setFamilyName(jsonObject.getString("familyName"));
+		}
+		if (jsonObject.get("username").getValueType() != JsonValue.ValueType.NULL) {
+			message.setRemoteAddress(jsonObject.getString("username"));
+		}
+		if (jsonObject.get("messageId").getValueType() != JsonValue.ValueType.NULL) {
+			message.setMessageId(jsonObject.getString("messageId"));
+		}
+		if (jsonObject.get("reply").getValueType() != JsonValue.ValueType.NULL) {
+			message.setReply(jsonObject.getBoolean("reply"));
+		}
 		return message;
 	}
 }

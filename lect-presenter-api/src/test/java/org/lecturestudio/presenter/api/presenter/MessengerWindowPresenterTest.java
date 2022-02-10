@@ -30,6 +30,7 @@ import org.lecturestudio.core.view.Action;
 import org.lecturestudio.presenter.api.view.MessengerWindow;
 
 import org.junit.jupiter.api.Test;
+import org.lecturestudio.web.api.message.MessengerDirectMessage;
 import org.lecturestudio.web.api.message.MessengerMessage;
 import org.lecturestudio.web.api.message.SpeechRequestMessage;
 import org.lecturestudio.web.api.model.Message;
@@ -100,6 +101,11 @@ class MessengerWindowPresenterTest extends PresenterTest {
 
 		@Override
 		public void setMessengerMessage(MessengerMessage message) {
+
+		}
+
+		@Override
+		public void setMessengerDirectMessage(MessengerDirectMessage message) {
 
 		}
 

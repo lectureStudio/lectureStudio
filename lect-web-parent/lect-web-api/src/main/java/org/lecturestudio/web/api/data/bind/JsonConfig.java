@@ -33,7 +33,8 @@ public class JsonConfig implements ContextResolver<Jsonb> {
 
 		config.withAdapters(
 				new MessengerReplyMessageAdapter(),
-				new MessengerMessageAdapter()
+				new MessengerMessageAdapter(),
+				new MessengerDirectMessageAdapter()
 		);
 		config.withSerializers(
 				new ClassroomServiceSerializer(),

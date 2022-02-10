@@ -1,21 +1,21 @@
 package org.lecturestudio.web.api.websocket.stomp;
 
+import org.lecturestudio.web.api.message.MessengerDirectMessage;
 import org.lecturestudio.web.api.message.MessengerMessage;
 import org.lecturestudio.web.api.message.WebMessage;
 import org.lecturestudio.web.api.model.Message;
 import org.lecturestudio.web.api.stream.model.Course;
-import org.springframework.messaging.simp.stomp.StompCommand;
-import org.springframework.messaging.simp.stomp.StompHeaders;
-import org.springframework.messaging.simp.stomp.StompSession;
-import org.springframework.messaging.simp.stomp.StompSessionHandler;
+import org.springframework.messaging.simp.stomp.*;
 
 import javax.json.JsonObject;
 import javax.json.bind.Jsonb;
 import java.lang.reflect.Type;
+import java.nio.charset.StandardCharsets;
 import java.time.ZonedDateTime;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.function.Consumer;
 
 import static java.util.Objects.nonNull;
@@ -48,8 +48,15 @@ public class MessengerStompSessionHandler implements StompSessionHandler {
 
     @Override
     public void afterConnected(StompSession stompSession, StompHeaders stompHeaders) {
-        stompSession.subscribe("/topic/chat/" + course.getId(), this);
-        stompSession.subscribe("/user/queue/chat/" + course.getId(), this);
+        StompHeaders headersPublic = new StompHeaders();
+        headersPublic.setDestination("/topic/chat/" + this.course.getId());
+        headersPublic.add("courseId", this.course.getId().toString());
+        stompSession.subscribe(headersPublic, this);
+
+        StompHeaders headersPrivate = new StompHeaders();
+        headersPrivate.setDestination("/user/queue/chat/" + course.getId());
+        headersPrivate.add("courseId", this.course.getId().toString());
+        stompSession.subscribe(headersPrivate, this);
     }
 
     @Override
@@ -69,13 +76,21 @@ public class MessengerStompSessionHandler implements StompSessionHandler {
 
     @Override
     public void handleFrame(StompHeaders stompHeaders, Object o) {
-        LinkedHashMap map = (LinkedHashMap) o;
-        if (map.get("_type").equals("MessengerMessage")) {
-            MessengerMessage message = new MessengerMessage(new Message((String) map.get("text")), (String) map.get("username"), ZonedDateTime.parse( (String) map.get("time")));
-            message.setFirstName((String) map.get("firstName"));
-            message.setFamilyName((String) map.get("familyName"));
-            message.setMessageId((String) map.get("messageId"));
-            handleMessage(message);
+        if (! Objects.isNull(o)) {
+            String payloadType = stompHeaders.get("payloadType").get(0);
+            String payloadJson = new String((byte[]) o, StandardCharsets.UTF_8);
+            WebMessage deserialized = null;
+            switch(payloadType) {
+                case "MessengerMessage":
+                    deserialized = jsonb.fromJson(payloadJson, MessengerMessage.class);
+                    break;
+                case "MessengerDirectMessage":
+                    deserialized = jsonb.fromJson(payloadJson, MessengerDirectMessage.class);
+                    break;
+                case "MessengerReplyMessage":
+                    return;
+            }
+            handleMessage(deserialized);
         }
     }
 }

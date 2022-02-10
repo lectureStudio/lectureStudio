@@ -80,10 +80,7 @@ import org.lecturestudio.presenter.javafx.control.EditableThumbnailPanel;
 import org.lecturestudio.stylus.javafx.JavaFxStylusManager;
 import org.lecturestudio.web.api.event.PeerStateEvent;
 import org.lecturestudio.web.api.event.VideoFrameEvent;
-import org.lecturestudio.web.api.message.CourseParticipantMessage;
-import org.lecturestudio.web.api.message.MessengerMessage;
-import org.lecturestudio.web.api.message.SpeechCancelMessage;
-import org.lecturestudio.web.api.message.SpeechRequestMessage;
+import org.lecturestudio.web.api.message.*;
 import org.lecturestudio.web.api.model.messenger.MessengerConfig;
 
 @FxmlView(name = "main-slides")
@@ -301,10 +298,6 @@ public class FxSlidesView extends VBox implements SlidesView {
 		notesTextArea.setText(buffer.toString());
 	}
 
-	@Override
-	public void setMessengerFormVisible(boolean visible) {
-
-	}
 
 	@Override
 	public void setOutline(DocumentOutline outline) {
@@ -379,11 +372,6 @@ public class FxSlidesView extends VBox implements SlidesView {
 	}
 
 	@Override
-	public void setOnMessengerMode(MessengerConfig.MessengerMode mode) {
-
-	}
-
-	@Override
 	public void setMessengerSendButtonEnabled(boolean enabled) {
 
 	}
@@ -399,7 +387,17 @@ public class FxSlidesView extends VBox implements SlidesView {
 	}
 
 	@Override
+	public void setMessengerDirectMessage(MessengerDirectMessage message) {
+
+	}
+
+	@Override
 	public void setParticipantMessage(CourseParticipantMessage message) {
+
+	}
+
+	@Override
+	public void setMessengerParticipantMessage(CourseFeatureMessengerParticipantMessage message) {
 
 	}
 
@@ -414,7 +412,7 @@ public class FxSlidesView extends VBox implements SlidesView {
 	}
 
 	@Override
-	public void setOnDiscardMessage(ConsumerAction<MessengerMessage> action) {
+	public void setOnDiscardMessage(ConsumerAction<WebMessage> action) {
 
 	}
 

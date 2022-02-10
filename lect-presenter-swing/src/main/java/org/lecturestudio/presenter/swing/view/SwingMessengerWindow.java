@@ -33,8 +33,10 @@ import org.lecturestudio.swing.components.MessageView;
 import org.lecturestudio.swing.components.SpeechRequestView;
 import org.lecturestudio.swing.util.SwingUtils;
 import org.lecturestudio.swing.view.SwingView;
+import org.lecturestudio.web.api.message.MessengerDirectMessage;
 import org.lecturestudio.web.api.message.MessengerMessage;
 import org.lecturestudio.web.api.message.SpeechRequestMessage;
+import org.lecturestudio.web.api.message.WebMessage;
 
 @SwingView(name = "messenger-window")
 public class SwingMessengerWindow extends JFrame implements MessengerWindow {
@@ -53,6 +55,23 @@ public class SwingMessengerWindow extends JFrame implements MessengerWindow {
 
 	@Override
 	public void setMessengerMessage(MessengerMessage message) {
+		SwingUtils.invoke(() -> {
+			MessageView messageView = new MessageView(this.dict);
+			messageView.setUserName(String.format("%s %s", message.getFirstName(), message.getFamilyName()));
+			messageView.setDate(message.getDate());
+			messageView.setMessage(message.getMessage().getText());
+			messageView.setOnDiscard(() -> {
+				removeMessageView(messageView);
+			});
+			messageView.pack();
+
+			messageViewContainer.add(messageView);
+			messageViewContainer.revalidate();
+		});
+	}
+
+	@Override
+	public void setMessengerDirectMessage(MessengerDirectMessage message) {
 		SwingUtils.invoke(() -> {
 			MessageView messageView = new MessageView(this.dict);
 			messageView.setUserName(String.format("%s %s", message.getFirstName(), message.getFamilyName()));

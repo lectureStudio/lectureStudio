@@ -40,7 +40,7 @@ public class CourseFeatureMessengerParticipantMessageAdapter implements JsonbAda
         }
 
         if (nonNull(message.getConnected())) {
-            builder.add("reply", message.getConnected());
+            builder.add("connected", message.getConnected());
         }
 
         return builder.build();

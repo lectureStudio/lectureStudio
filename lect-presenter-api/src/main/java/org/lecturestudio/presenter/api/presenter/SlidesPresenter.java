@@ -322,8 +322,6 @@ public class SlidesPresenter extends Presenter<SlidesView> {
 
 	@Subscribe
 	public void onEvent(CourseFeatureMessengerParticipantMessage message) {
-		System.out.println(message.getConnected());
-		System.out.println(message.getRemoteAddress());
 	}
 
 	@Subscribe

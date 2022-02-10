@@ -25,27 +25,4 @@ public class CourseFeatureMessengerParticipantMessage extends WebMessage {
         this.connected = connected;
     }
 
-    public String getUsername() {
-        return getRemoteAddress();
-    }
-
-    public void setUsername(String username) {
-        setRemoteAddress(username);
-    }
-
-    public String getFirstName() {
-        return getFirstName();
-    }
-
-    public String getFamilyName() {
-        return getFamilyName();
-    }
-
-    public void setFirstName(String firstName) {
-        setFirstName(firstName);
-    }
-
-    public void setFamilyName(String familyName) {
-        setFamilyName(familyName);
-    }
 }

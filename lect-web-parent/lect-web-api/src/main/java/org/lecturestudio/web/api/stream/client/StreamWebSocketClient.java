@@ -200,9 +200,6 @@ public class StreamWebSocketClient extends ExecutableBase {
 						message = jsonb.fromJson(jsonData, CourseParticipantMessage.class);
 						CourseParticipantMessage mess = (CourseParticipantMessage) message;
 					}
-					else if (typeStr.startsWith("CourseFeatureMessengerParticipant")) {
-						message = jsonb.fromJson(jsonData, CourseFeatureMessengerParticipantMessage.class);
-					}
 
 					if (nonNull(message)) {
 						eventBus.post(message);

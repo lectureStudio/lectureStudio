@@ -1,9 +1,6 @@
 package org.lecturestudio.web.api.message;
 
-public class CourseFeatureMessengerParticipantMessage {
-
-    private String firstName, familyName;
-    private String username;
+public class CourseFeatureMessengerParticipantMessage extends WebMessage {
 
     private boolean connected;
 
@@ -29,26 +26,26 @@ public class CourseFeatureMessengerParticipantMessage {
     }
 
     public String getUsername() {
-        return username;
+        return getRemoteAddress();
     }
 
     public void setUsername(String username) {
-        this.username = username;
+        setRemoteAddress(username);
     }
 
     public String getFirstName() {
-        return firstName;
+        return getFirstName();
     }
 
     public String getFamilyName() {
-        return familyName;
+        return getFamilyName();
     }
 
     public void setFirstName(String firstName) {
-        this.firstName = firstName;
+        setFirstName(firstName);
     }
 
     public void setFamilyName(String familyName) {
-        this.familyName = familyName;
+        setFamilyName(familyName);
     }
 }

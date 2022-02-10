@@ -26,6 +26,7 @@ import java.util.function.Consumer;
 import org.lecturestudio.core.ExecutableException;
 import org.lecturestudio.core.app.ApplicationContext;
 import org.lecturestudio.presenter.api.util.HtmlMessageLogger;
+import org.lecturestudio.web.api.message.CourseFeatureMessengerParticipantMessage;
 import org.lecturestudio.web.api.message.MessengerDirectMessage;
 import org.lecturestudio.web.api.message.MessengerMessage;
 import org.lecturestudio.web.api.model.messenger.MessengerConfig;
@@ -36,6 +37,9 @@ public class MessageFeatureWebService extends FeatureServiceBase {
 	private final Consumer<MessengerMessage> messageConsumer = this::onMessengerMessage;
 
 	private final Consumer<MessengerDirectMessage> directMessageConsumer = this::onMessengerDirectMessage;
+
+	private final Consumer<CourseFeatureMessengerParticipantMessage> courseFeatureMessengerParticipantMessageConsumer = this::onCourseFeatureMessengerParticipantMessage;
+
 
 	/** The web service client. */
 	private final MessageFeatureService webService;
@@ -71,6 +75,7 @@ public class MessageFeatureWebService extends FeatureServiceBase {
 			webService.addStompMessageListener(MessengerMessage.class, messageConsumer);
 			webService.addMessageListener(MessengerDirectMessage.class, directMessageConsumer);
 			webService.addStompMessageListener(MessengerDirectMessage.class, directMessageConsumer);
+			webService.addMessageListener(CourseFeatureMessengerParticipantMessage.class, courseFeatureMessengerParticipantMessageConsumer);
 		}
 		catch (Exception e) {
 			throw new ExecutableException(e);
@@ -86,6 +91,7 @@ public class MessageFeatureWebService extends FeatureServiceBase {
 			webService.removeStompMessageListener(MessengerMessage.class, messageConsumer);
 			webService.removeMessageListener(MessengerDirectMessage.class, directMessageConsumer);
 			webService.removeStompMessageListener(MessengerDirectMessage.class, directMessageConsumer);
+			webService.removeMessageListener(CourseFeatureMessengerParticipantMessage.class, courseFeatureMessengerParticipantMessageConsumer);
 			webService.stopMessenger(courseId);
 			// Stop receiving message events.
 			webService.close();
@@ -108,7 +114,10 @@ public class MessageFeatureWebService extends FeatureServiceBase {
 	}
 
 	private void onMessengerDirectMessage(MessengerDirectMessage message) {
-		System.out.println(message.getClass());
+		context.getEventBus().post(message);
+	}
+
+	private void onCourseFeatureMessengerParticipantMessage(CourseFeatureMessengerParticipantMessage message) {
 		context.getEventBus().post(message);
 	}
 

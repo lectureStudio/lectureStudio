@@ -44,9 +44,11 @@ import javax.json.bind.JsonbConfig;
 import org.lecturestudio.core.ExecutableBase;
 import org.lecturestudio.core.ExecutableException;
 import org.lecturestudio.core.bus.EventBus;
+import org.lecturestudio.web.api.data.bind.CourseFeatureMessengerParticipantMessageAdapter;
 import org.lecturestudio.web.api.data.bind.CourseParticipantMessageAdapter;
 import org.lecturestudio.web.api.data.bind.JsonConfigProvider;
 import org.lecturestudio.web.api.data.bind.SpeechMessageAdapter;
+import org.lecturestudio.web.api.message.CourseFeatureMessengerParticipantMessage;
 import org.lecturestudio.web.api.message.CourseParticipantMessage;
 import org.lecturestudio.web.api.message.SpeechBaseMessage;
 import org.lecturestudio.web.api.net.SSLContextFactory;
@@ -102,7 +104,8 @@ public class StreamWebSocketClient extends ExecutableBase {
 
 		JsonbConfig config = JsonConfigProvider.createConfig().withAdapters(
 				new SpeechMessageAdapter(),
-				new CourseParticipantMessageAdapter());
+				new CourseParticipantMessageAdapter(),
+				new CourseFeatureMessengerParticipantMessageAdapter());
 
 		this.jsonb = JsonbBuilder.create(config);
 	}
@@ -196,6 +199,9 @@ public class StreamWebSocketClient extends ExecutableBase {
 					else if (typeStr.startsWith("CourseParticipant")) {
 						message = jsonb.fromJson(jsonData, CourseParticipantMessage.class);
 						CourseParticipantMessage mess = (CourseParticipantMessage) message;
+					}
+					else if (typeStr.startsWith("CourseFeatureMessengerParticipant")) {
+						message = jsonb.fromJson(jsonData, CourseFeatureMessengerParticipantMessage.class);
 					}
 
 					if (nonNull(message)) {

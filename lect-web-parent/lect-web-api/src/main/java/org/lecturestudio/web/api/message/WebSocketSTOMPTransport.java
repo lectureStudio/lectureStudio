@@ -83,6 +83,7 @@ public class WebSocketSTOMPTransport extends ExecutableBase implements MessageTr
         JsonbConfig jsonbConfig = JsonConfigProvider.createConfig();
         jsonbConfig.withAdapters(
                 new CourseParticipantMessageAdapter(),
+                new CourseFeatureMessengerParticipantMessageAdapter(),
                 new MessengerMessageAdapter(),
                 new MessengerDirectMessageAdapter(),
                 new MessengerReplyMessageAdapter(),
@@ -102,37 +103,43 @@ public class WebSocketSTOMPTransport extends ExecutableBase implements MessageTr
             transports.add(new org.springframework.web.socket.sockjs.client.WebSocketTransport(simpleWebSocketClient));
 
             WebSocketClient webSocketClient = new SockJsClient(transports);
-            WebSocketHttpHeaders headers = headerProvider.getHeaders();
-
-            StompHeaders stompHeaders = new StompHeaders();
-            stompHeaders.add("courseId", this.course.getId().toString());
-
-
-            MessengerStompSessionHandler sessionHandler = new MessengerStompSessionHandler(this.course, this.jsonb, this.listenerMap);
-
 
             this.stompClient = new WebSocketStompClient(webSocketClient);
             //stompClient.setMessageConverter(new MappingJackson2MessageConverter());
-            ListenableFuture<StompSession> listenableSession = stompClient.connect(this.serviceParameters.getUrl(), headers, stompHeaders, sessionHandler);
-            try {
-                this.session = (DefaultStompSession) listenableSession.get();
-            } catch (ExecutionException | InterruptedException e) {
-                throw new ExecutableException("Messenger could not be started. Connection to STOMP endpoint cannot be established!");
-            }
         } else if (! this.stompClient.isRunning()) {
             this.stompClient.start();
         }
     }
 
+    public void connect() {
+        WebSocketHttpHeaders headers = headerProvider.getHeaders();
+
+        StompHeaders stompHeaders = new StompHeaders();
+        stompHeaders.add("courseId", this.course.getId().toString());
+
+        MessengerStompSessionHandler sessionHandler = new MessengerStompSessionHandler(this.course, this.jsonb, this.listenerMap);
+
+        ListenableFuture<StompSession> listenableSession = stompClient.connect(this.serviceParameters.getUrl(), headers, stompHeaders, sessionHandler);
+        try {
+            this.session = (DefaultStompSession) listenableSession.get();
+        } catch (InterruptedException | ExecutionException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void disconnect() {
+        if (nonNull(this.session)) {
+            this.session.disconnect();
+            this.session = null;
+        }
+    }
+
     @Override
     protected void stopInternal() throws ExecutableException {
+        this.disconnect();
         if (this.stompClient.isRunning()) {
             this.stompClient.stop();
             this.stompClient = null;
-        }
-        if (! Objects.isNull(this.session)) {
-            this.session.disconnect();
-            this.session = null;
         }
     }
 

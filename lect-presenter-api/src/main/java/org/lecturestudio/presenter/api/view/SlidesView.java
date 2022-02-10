@@ -93,6 +93,8 @@ public interface SlidesView extends View {
 
 	void setParticipantMessage(CourseParticipantMessage message);
 
+	void setMessengerParticipantMessage(CourseFeatureMessengerParticipantMessage message);
+
 	void setSpeechRequestMessage(SpeechRequestMessage message);
 
 	void setSpeechCancelMessage(SpeechCancelMessage message);

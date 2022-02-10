@@ -132,6 +132,10 @@ public class WebService extends ExecutableBase {
 			startService(new MessageFeatureWebService(context,
 					createFeatureService(streamPublisherApiUrl,
 							MessageFeatureService.class)));
+
+			if (nonNull(stompMessageTransport)) {
+				((WebSocketSTOMPTransport) this.stompMessageTransport).connect();
+			}
 		}
 		catch (Exception e) {
 			throw new ExecutableException("Message service could not be started", e);

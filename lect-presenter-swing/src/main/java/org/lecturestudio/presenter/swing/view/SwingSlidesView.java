@@ -552,6 +552,11 @@ public class SwingSlidesView extends JPanel implements SlidesView {
 	}
 
 	@Override
+	public void setMessengerParticipantMessage(CourseFeatureMessengerParticipantMessage message) {
+
+	}
+
+	@Override
 	public void setSpeechRequestMessage(SpeechRequestMessage message) {
 		SwingUtils.invoke(() -> {
 			SpeechRequestView requestView = new SpeechRequestView(this.dict);

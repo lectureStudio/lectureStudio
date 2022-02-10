@@ -20,6 +20,8 @@ public class CourseFeatureMessengerParticipantMessageAdapter implements JsonbAda
     public JsonObject adaptToJson(CourseFeatureMessengerParticipantMessage message) {
         JsonObjectBuilder builder = Json.createObjectBuilder();
 
+        builder.add("_type", message.getClass().getSimpleName());
+
         if (nonNull(message.getFirstName())) {
             builder.add("firstName", message.getFirstName());
         }

@@ -24,13 +24,16 @@ import com.formdev.flatlaf.util.UIScale;
 
 import java.awt.Dimension;
 import java.awt.LayoutManager;
+import java.util.StringTokenizer;
 
 import javax.swing.JLabel;
 import javax.swing.JTabbedPane;
 import javax.swing.SwingConstants;
 
+import org.bytedeco.javacpp.tools.ParserException;
 import org.lecturestudio.swing.components.SettingsTab;
 
+import org.lecturestudio.swing.components.VerticalTab;
 import org.swixml.LogAware;
 import org.swixml.Parser;
 import org.swixml.processor.TagProcessor;
@@ -40,7 +43,7 @@ public class TabbedPaneProcessor implements TagProcessor, LogAware {
 
 	@Override
 	public boolean process(Parser parser, Object parent, Element child,
-			LayoutManager layoutMgr) throws Exception {
+						   LayoutManager layoutMgr) throws Exception {
 		if (!"Tab".equalsIgnoreCase(child.getLocalName())) {
 			return false;
 		}
@@ -52,8 +55,24 @@ public class TabbedPaneProcessor implements TagProcessor, LogAware {
 		final JTabbedPane tabbedPane = (JTabbedPane) parent;
 		final SettingsTab tab = (SettingsTab) parser.getSwing(child, null);
 		final Dimension size = tab.getSize();
-		final JLabel tabLabel = new JLabel(tab.getText(), tab.getIcon(),
-				SwingConstants.LEFT);
+
+		final JLabel tabLabel;
+
+		if (child.hasAttribute("tabPlacement")) {
+			final StringTokenizer st = new StringTokenizer(child.getAttribute("tabPlacement"), ".");
+
+			if (!st.nextToken().equals("SwingConstants")) {
+				throw new ParserException("tabPlacement must be a value of SwingConstants");
+			}
+
+			final int tabPlacement = SwingConstants.class.getDeclaredField(st.nextToken()).getInt(null);
+
+			tabLabel = VerticalTab.fromText(tab.getText(), tabPlacement, tab.getIcon());
+		} else {
+			tabLabel = new JLabel(tab.getText(), tab.getIcon(),
+					SwingConstants.LEFT);
+		}
+
 		tabLabel.setName(tab.getName());
 
 		if (nonNull(size)) {

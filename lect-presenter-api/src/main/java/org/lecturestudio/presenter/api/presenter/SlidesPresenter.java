@@ -71,6 +71,7 @@ import org.lecturestudio.core.util.NetUtils;
 import org.lecturestudio.core.util.ObservableList;
 import org.lecturestudio.core.view.*;
 import org.lecturestudio.presenter.api.config.ExternalWindowConfiguration;
+import org.lecturestudio.presenter.api.config.MessageBarConfiguration;
 import org.lecturestudio.presenter.api.config.NetworkConfiguration;
 import org.lecturestudio.presenter.api.config.PresenterConfiguration;
 import org.lecturestudio.presenter.api.context.PresenterContext;
@@ -738,6 +739,10 @@ public class SlidesPresenter extends Presenter<SlidesView> {
 		return (PresenterConfiguration) context.getConfiguration();
 	}
 
+	private MessageBarConfiguration getMessageBarConfig() {
+		return getPresenterConfig().getMessageBarConfiguration();
+	}
+
 	private ExternalWindowConfiguration getExternalMessagesConfig() {
 		return getPresenterConfig().getExternalMessagesConfig();
 	}
@@ -880,6 +885,8 @@ public class SlidesPresenter extends Presenter<SlidesView> {
 		registerShortcut(Shortcut.COPY_OVERLAY_NEXT_PAGE_CTRL, this::copyNextOverlay);
 		registerShortcut(Shortcut.COPY_OVERLAY_NEXT_PAGE_SHIFT, this::copyNextOverlay);
 
+		setMessageBarPosition();
+
 		try {
 			recordingService.init();
 
@@ -903,6 +910,10 @@ public class SlidesPresenter extends Presenter<SlidesView> {
 				action.accept(config.isEnabled(), checkIfScreenInList(list, config.getScreen()));
 			}
 		});
+	}
+
+	private void setMessageBarPosition() {
+		view.setMessageBarPosition(getMessageBarConfig().getMessageBarPosition());
 	}
 
 	private void showExternalScreens() {

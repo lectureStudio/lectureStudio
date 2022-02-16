@@ -18,7 +18,7 @@
 
 package org.lecturestudio.swing.components;
 
-import javax.swing.JLabel;
+import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 
 import org.lecturestudio.swing.ui.VerticalLabelUI;
@@ -32,4 +32,18 @@ public class VerticalTab extends JLabel {
 		setBorder(new EmptyBorder(0, 10, 0, 10));
 	}
 
+	public static VerticalTab fromJLabel(JLabel label, int tabPlacement) {
+		return fromText(label.getText(), tabPlacement, label.getIcon());
+	}
+
+	public static VerticalTab fromText(String text, int tabPlacement) {
+		return fromText(text, tabPlacement, null);
+	}
+
+	public static VerticalTab fromText(String text, int tabPlacement, Icon icon) {
+		final VerticalTab tab = new VerticalTab(tabPlacement);
+		tab.setText(text);
+		tab.setIcon(icon);
+		return tab;
+	}
 }

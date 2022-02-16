@@ -66,7 +66,6 @@ import org.lecturestudio.core.util.FileUtils;
 import org.lecturestudio.core.util.ListChangeListener;
 import org.lecturestudio.core.util.ObservableList;
 import org.lecturestudio.core.view.*;
-import org.lecturestudio.presenter.api.config.ExternalWindowConfiguration;
 import org.lecturestudio.presenter.api.config.PresenterConfiguration;
 import org.lecturestudio.presenter.api.context.PresenterContext;
 import org.lecturestudio.presenter.api.event.*;

@@ -1004,20 +1004,16 @@ public class SwingSlidesView extends JPanel implements SlidesView {
 	public void showMessagesPlaceholder() {
 		externalMessagesFrame.hideBody();
 
-		messagesPanel.remove(messagesPane);
+		messagesPanel.removeAll();
 		messagesPanel.add(messagesPlaceholder);
-		bottomTabPane.revalidate();
-		bottomTabPane.repaint();
 	}
 
 	@Override
 	public void hideMessagesPlaceholder() {
 		externalMessagesFrame.showBody();
 
-		messagesPanel.remove(messagesPlaceholder);
+		messagesPanel.removeAll();
 		messagesPanel.add(messagesPane);
-		bottomTabPane.revalidate();
-		bottomTabPane.repaint();
 	}
 
 	@Override

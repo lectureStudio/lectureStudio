@@ -37,7 +37,7 @@
 		"concurrently": "^6.0.0",
 		"css-loader": "^5.1.0",
 		"html-webpack-plugin": "^4.5.2",
-		"node-sass": "^5.0.0",
+		"node-sass": "^7.0.0",
 		"postcss": "^8.2.6",
 		"postcss-loader": "^5.0.0",
 		"resize-observer-polyfill": "^1.5.1",

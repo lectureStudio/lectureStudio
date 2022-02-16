@@ -29,6 +29,21 @@ public class PeerStateEvent extends ExecutableEvent {
 
 	private final String peerName;
 
+	private final Long requestId;
+
+	private boolean hasVideo;
+
+
+	/**
+	 * Create the {@link PeerStateEvent} with the specified state.
+	 *
+	 * @param requestId   The unique request ID of the peer.
+	 * @param peerName The display-name of the peer.
+	 * @param state    The state.
+	 */
+	public PeerStateEvent(Long requestId, String peerName, ExecutableState state) {
+		this(null, requestId, peerName, state);
+	}
 
 	/**
 	 * Create the {@link PeerStateEvent} with the specified state.
@@ -38,9 +53,21 @@ public class PeerStateEvent extends ExecutableEvent {
 	 * @param state    The state.
 	 */
 	public PeerStateEvent(BigInteger peerId, String peerName, ExecutableState state) {
+		this(peerId, null, peerName, state);
+	}
+
+	/**
+	 * Create the {@link PeerStateEvent} with the specified state.
+	 *
+	 * @param peerId   The unique ID of the peer.
+	 * @param peerName The display-name of the peer.
+	 * @param state    The state.
+	 */
+	public PeerStateEvent(BigInteger peerId, Long requestId, String peerName, ExecutableState state) {
 		super(state);
 
 		this.peerId = peerId;
+		this.requestId = requestId;
 		this.peerName = peerName;
 	}
 
@@ -56,5 +83,28 @@ public class PeerStateEvent extends ExecutableEvent {
 	 */
 	public String getPeerName() {
 		return peerName;
+	}
+
+	/**
+	 * @return The unique request ID of the peer.
+	 */
+	public Long getRequestId() {
+		return requestId;
+	}
+
+	/**
+	 * @return True if the peer is sending video.
+	 */
+	public boolean hasVideo() {
+		return hasVideo;
+	}
+
+	/**
+	 * Sets whether the peer is sending video.
+	 *
+	 * @param active True if the peer is sending video.
+	 */
+	public void setHasVideo(boolean active) {
+		this.hasVideo = active;
 	}
 }

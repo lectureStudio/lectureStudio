@@ -30,7 +30,6 @@ import java.awt.*;
 import java.awt.event.*;
 import java.awt.image.BufferedImage;
 import java.awt.image.DataBufferByte;
-import java.math.BigInteger;
 import java.util.*;
 import java.util.List;
 import java.util.function.Consumer;
@@ -38,6 +37,7 @@ import java.util.function.IntSupplier;
 import java.util.function.Supplier;
 import java.util.function.UnaryOperator;
 import java.util.stream.IntStream;
+import java.util.Objects;
 
 import javax.inject.Inject;
 import javax.swing.*;
@@ -125,7 +125,7 @@ public class SwingSlidesView extends JPanel implements SlidesView {
 
 	private ConsumerAction<Boolean> mutePeerVideoAction;
 
-	private ConsumerAction<BigInteger> stopPeerConnectionAction;
+	private ConsumerAction<Long> stopPeerConnectionAction;
 
 	private ConsumerAction<ExternalWindowPosition> externalMessagesPositionChangedAction;
 
@@ -148,8 +148,6 @@ public class SwingSlidesView extends JPanel implements SlidesView {
 	private Action newPageAction;
 
 	private Action deletePageAction;
-
-	private Action shareQuizAction;
 
 	private Action stopQuizAction;
 
@@ -299,8 +297,6 @@ public class SwingSlidesView extends JPanel implements SlidesView {
 				thumbPanel = wbThumbPanel;
 			} else if (doc.isQuiz()) {
 				QuizThumbnailPanel quizThumbPanel = new QuizThumbnailPanel(dict);
-				quizThumbPanel.setStreamState(streamState);
-				quizThumbPanel.setOnShareQuiz(shareQuizAction);
 				quizThumbPanel.setOnStopQuiz(stopQuizAction);
 
 				thumbPanel = quizThumbPanel;
@@ -554,17 +550,6 @@ public class SwingSlidesView extends JPanel implements SlidesView {
 			if (!streamStarted) {
 				removeMessageViews(SpeechRequestView.class);
 			}
-
-			for (int i = 0; i < getSlidesTabPane().getTabCount(); i++) {
-				final Component tabComponent = getSlidesTabPane().getComponentAt(i);
-				if (!(tabComponent instanceof QuizThumbnailPanel)) {
-					continue;
-				}
-
-				QuizThumbnailPanel quizPanel = (QuizThumbnailPanel) tabComponent;
-				quizPanel.setStreamState(state);
-				break;
-			}
 		});
 	}
 
@@ -654,6 +639,8 @@ public class SwingSlidesView extends JPanel implements SlidesView {
 					}
 				}
 			}
+
+			removePeerView(message.getRequestId());
 		});
 	}
 
@@ -677,22 +664,20 @@ public class SwingSlidesView extends JPanel implements SlidesView {
 		SwingUtils.invoke(() -> {
 			ExecutableState state = event.getState();
 
-			if (state == ExecutableState.Started) {
-				if (peerViewContainer.getComponentCount() > 0) {
-					return;
-				}
-
-				peerView = new PeerView();
+			if (state == ExecutableState.Starting) {
+				peerView = new PeerView(dict);
 				peerView.setMinimumSize(new Dimension(100, 150));
 				peerView.setPreferredSize(new Dimension(100, 150));
 				peerViewContainer.setMaximumSize(new Dimension(Integer.MAX_VALUE, 150));
-				peerView.setPeerId(event.getPeerId());
+				peerView.setState(state);
+				peerView.setRequestId(event.getRequestId());
 				peerView.setPeerName(event.getPeerName());
 				peerView.setOnMuteAudio(mutePeerAudioAction);
 				peerView.setOnMuteVideo(mutePeerVideoAction);
 				peerView.setOnStopPeerConnection(stopPeerConnectionAction);
 
 				peerViewContainer.setVisible(true);
+				peerViewContainer.removeAll();
 				peerViewContainer.add(peerView);
 				peerViewContainer.revalidate();
 				peerViewContainer.repaint();
@@ -704,17 +689,21 @@ public class SwingSlidesView extends JPanel implements SlidesView {
 				if (getNumberOfVisibleTabs(rightTabPane) == 0 && !externalSpeechFrame.isVisible()) {
 					maximizeRightTabPane();
 				}
-			} else if (state == ExecutableState.Stopped) {
-				peerView = null;
+			}
+			else if (state == ExecutableState.Started) {
+				for (var component : peerViewContainer.getComponents()) {
+					if (component instanceof PeerView) {
+						PeerView peerView = (PeerView) component;
 
-				peerViewContainer.setVisible(false);
-				peerViewContainer.removeAll();
-				peerViewContainer.revalidate();
-				peerViewContainer.repaint();
-
-				currentSpeech = false;
-
-				externalSpeechFrame.hideBody();
+						if (Objects.equals(peerView.getRequestId(), event.getRequestId())) {
+							peerView.setState(state);
+							peerView.setHasVideo(event.hasVideo());
+						}
+					}
+				}
+			}
+			else if (state == ExecutableState.Stopped) {
+				removePeerView(event.getRequestId());
 			}
 		});
 	}
@@ -730,7 +719,7 @@ public class SwingSlidesView extends JPanel implements SlidesView {
 	}
 
 	@Override
-	public void setOnStopPeerConnection(ConsumerAction<BigInteger> action) {
+	public void setOnStopPeerConnection(ConsumerAction<Long> action) {
 		stopPeerConnectionAction = action;
 	}
 
@@ -747,7 +736,9 @@ public class SwingSlidesView extends JPanel implements SlidesView {
 		}
 
 		SwingUtils.invoke(() -> {
-			peerView.showImage(peerViewImage);
+			if (nonNull(peerView)) {
+				peerView.showImage(peerViewImage);
+			}
 		});
 	}
 
@@ -819,11 +810,6 @@ public class SwingSlidesView extends JPanel implements SlidesView {
 	@Override
 	public void setOnDeletePage(Action action) {
 		deletePageAction = action;
-	}
-
-	@Override
-	public void setOnShareQuiz(Action action) {
-		shareQuizAction = action;
 	}
 
 	@Override
@@ -1089,6 +1075,29 @@ public class SwingSlidesView extends JPanel implements SlidesView {
 		component.add(componentToAdd, index);
 		component.revalidate();
 		component.repaint();
+	}
+
+	private void removePeerView(long requestId) {
+		for (var component : peerViewContainer.getComponents()) {
+			if (!(component instanceof PeerView)) {
+				continue;
+			}
+
+			PeerView peerView = (PeerView) component;
+
+			if (Objects.equals(peerView.getRequestId(), requestId)) {
+				this.peerView = null;
+
+				peerViewContainer.setVisible(false);
+				peerViewContainer.remove(peerView);
+				peerViewContainer.revalidate();
+				peerViewContainer.repaint();
+
+				currentSpeech = false;
+
+				externalSpeechFrame.hideBody();
+			}
+		}
 	}
 
 	private void buildOutlineTree(DocumentOutlineItem item, DefaultMutableTreeNode root) {
@@ -1735,7 +1744,8 @@ public class SwingSlidesView extends JPanel implements SlidesView {
 		int height = buffer.getHeight();
 
 		// Scale video frame down to the view size.
-		int viewHeight = peerView.getHeight();
+		double uiScale = getGraphicsConfiguration().getDefaultTransform().getScaleX();
+		int viewHeight = (int) (peerView.getHeight() * uiScale);
 		double scale = viewHeight / (double) height;
 
 		buffer = buffer.cropAndScale(0, 0, width, height, (int) (width * scale), viewHeight);

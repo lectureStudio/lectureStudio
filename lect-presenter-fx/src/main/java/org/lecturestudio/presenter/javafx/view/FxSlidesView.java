@@ -421,7 +421,7 @@ public class FxSlidesView extends VBox implements SlidesView {
 	}
 
 	@Override
-	public void setOnStopPeerConnection(ConsumerAction<BigInteger> action) {
+	public void setOnStopPeerConnection(ConsumerAction<Long> action) {
 
 	}
 

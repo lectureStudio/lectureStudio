@@ -21,7 +21,6 @@ package org.lecturestudio.web.api.janus.client;
 import static java.util.Objects.requireNonNull;
 
 import java.io.StringReader;
-import java.math.BigInteger;
 import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.WebSocket;
@@ -31,6 +30,7 @@ import java.time.Duration;
 import java.time.temporal.ChronoUnit;
 import java.util.NoSuchElementException;
 import java.util.concurrent.CompletionStage;
+import java.util.function.Consumer;
 
 import javax.json.Json;
 import javax.json.JsonObject;
@@ -75,6 +75,8 @@ public class JanusWebSocketClient extends ExecutableBase implements JanusMessage
 
 	private Jsonb jsonb;
 
+	private Consumer<Long> rejectedConsumer;
+
 	private JanusStateHandlerListener handlerStateListener;
 
 	private JanusHandler handler;
@@ -94,6 +96,10 @@ public class JanusWebSocketClient extends ExecutableBase implements JanusMessage
 		handlerStateListener = listener;
 	}
 
+	public void setRejectedConsumer(Consumer<Long> consumer) {
+		rejectedConsumer = consumer;
+	}
+
 	public void startRemoteSpeech(long requestId, String userName) {
 		if (!started()) {
 			return;
@@ -102,12 +108,12 @@ public class JanusWebSocketClient extends ExecutableBase implements JanusMessage
 		handler.startRemoteSpeech(requestId, userName);
 	}
 
-	public void stopRemoteSpeech(BigInteger peerId) {
+	public void stopRemoteSpeech(Long requestId) {
 		if (!started()) {
 			return;
 		}
 
-		handler.stopRemoteSpeech(peerId);
+		handler.stopRemoteSpeech(requestId);
 	}
 
 	@Override
@@ -147,6 +153,7 @@ public class JanusWebSocketClient extends ExecutableBase implements JanusMessage
 
 			handler = new JanusHandler(this, streamContext, eventRecorder, clientFailover, eventBus);
 			handler.addJanusStateHandlerListener(handlerStateListener);
+			handler.setRejectedConsumer(rejectedConsumer);
 			handler.init();
 			handler.start();
 		}

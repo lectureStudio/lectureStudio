@@ -27,6 +27,7 @@ import org.lecturestudio.core.beans.StringProperty;
 import org.lecturestudio.core.camera.Camera;
 import org.lecturestudio.core.camera.CameraFormat;
 import org.lecturestudio.core.view.Action;
+import org.lecturestudio.core.view.ConsumerAction;
 import org.lecturestudio.core.view.View;
 import org.lecturestudio.web.api.stream.model.Course;
 
@@ -79,5 +80,7 @@ public interface StartStreamView extends View {
 	void setOnClose(Action action);
 
 	void setOnStart(Action action);
+
+	void setOnViewVisible(ConsumerAction<Boolean> action);
 
 }

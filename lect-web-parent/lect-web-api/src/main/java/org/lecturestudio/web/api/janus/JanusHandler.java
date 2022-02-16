@@ -80,6 +80,8 @@ public class JanusHandler extends JanusStateHandler {
 
 	private List<JanusStateHandler> handlers;
 
+	private Consumer<Long> rejectedConsumer;
+
 
 	public JanusHandler(JanusMessageTransmitter transmitter,
 			StreamContext streamContext,
@@ -92,20 +94,29 @@ public class JanusHandler extends JanusStateHandler {
 		this.eventBus = eventBus;
 	}
 
+	public void setRejectedConsumer(Consumer<Long> consumer) {
+		this.rejectedConsumer = consumer;
+	}
+
 	public void startRemoteSpeech(long requestId, String userName) {
 		if (!started()) {
 			return;
 		}
 
-		JanusPublisher activePublisher = getFirstPublisher();
+		Map.Entry<Long, JanusPublisher> entry = getFirstPublisherEntry();
 
-		if (nonNull(activePublisher)) {
+		if (nonNull(entry)) {
+			JanusPublisher activePublisher = entry.getValue();
+
 			if (isNull(activePublisher.getId())) {
-				speechPublishers.values()
-						.removeIf(value -> value.equals(activePublisher));
+				speechPublishers.remove(entry.getKey());
+
+				if (nonNull(rejectedConsumer)) {
+					rejectedConsumer.accept(entry.getKey());
+				}
 			}
 			else {
-				stopRemoteSpeech(activePublisher.getId());
+				stopRemoteSpeech(entry.getKey());
 			}
 		}
 
@@ -117,26 +128,22 @@ public class JanusHandler extends JanusStateHandler {
 		editRoom(3);
 	}
 
-	public void stopRemoteSpeech(BigInteger peerId) {
+	public void stopRemoteSpeech(Long requestId) {
 		if (!started()) {
 			return;
 		}
 
 		editRoom(3);
 
-		var entry = speechPublishers.entrySet().stream()
-				.filter(e -> e.getValue().getId().equals(peerId))
-				.findFirst()
-				.orElse(null);
-
-		if (isNull(entry)) {
-			return;
-		}
-
-		JanusPublisher speechPublisher = speechPublishers.remove(entry.getKey());
+		JanusPublisher speechPublisher = speechPublishers.remove(requestId);
 
 		if (nonNull(speechPublisher)) {
 			kickParticipant(speechPublisher);
+
+			var event = new PeerStateEvent(requestId,
+					speechPublisher.getDisplayName(), ExecutableState.Stopped);
+
+			sendPeerState(event);
 
 			for (JanusStateHandler handler : handlers) {
 				if (handler instanceof JanusSubscriberHandler) {
@@ -317,25 +324,31 @@ public class JanusHandler extends JanusStateHandler {
 
 		participants.put(participant.getId(), participant);
 
-		System.out.println("Joined: " + participant.getDisplayName());
+		// Left empty for now.
 	}
 
 	private void handlePublisherJoined(JanusRoomPublisherJoinedMessage message) {
 		JanusPublisher publisher = message.getPublisher();
 
 		// Only one speech at a time.
-		JanusPublisher speechPublisher = getFirstPublisher();
-		speechPublisher.setId(publisher.getId());
+		var entry = getFirstPublisherEntry();
 
-		startSubscriber(speechPublisher);
+		if (nonNull(entry)) {
+			entry.getValue().setId(publisher.getId());
+
+			startSubscriber(entry.getValue(), entry.getKey());
+		}
+		else {
+			// Handle non-authorized publisher.
+			kickParticipant(publisher);
+		}
 	}
 
 	private void handlePublisherLeft(JanusRoomPublisherLeftMessage message) {
 		JanusPublisher participant = participants.remove(message.getPublisherId());
 
 		if (nonNull(participant)) {
-
-			System.out.println("Left: " + participant.getDisplayName());
+			// Left empty for now.
 		}
 	}
 
@@ -385,11 +398,11 @@ public class JanusHandler extends JanusStateHandler {
 		addStateHandler(pubHandler);
 	}
 
-	private void startSubscriber(JanusPublisher publisher) {
+	private void startSubscriber(final JanusPublisher publisher, final long requestId) {
 		getStreamContext().getAudioContext().setReceiveAudio(true);
 		getStreamContext().getVideoContext().setReceiveVideo(true);
 
-		JanusStateHandler subHandler = new JanusSubscriberHandler(publisher,
+		JanusSubscriberHandler subHandler = new JanusSubscriberHandler(publisher,
 				peerConnectionFactory, transmitter);
 		subHandler.setSessionId(getSessionId());
 		subHandler.setRoomId(getRoomId());
@@ -397,7 +410,15 @@ public class JanusHandler extends JanusStateHandler {
 
 			@Override
 			public void connected() {
-				setPeerState(publisher, ExecutableState.Started);
+				JanusPeerConnection peerConnection = subHandler.getPeerConnection();
+				boolean hasVideo = peerConnection.isReceivingVideo();
+
+				var event = new PeerStateEvent(requestId,
+						subHandler.getPublisher().getDisplayName(),
+						ExecutableState.Started);
+				event.setHasVideo(hasVideo);
+
+				sendPeerState(event);
 
 				// Propagate "speech published" to passive participants.
 				for (JanusStateHandler handler : handlers) {
@@ -411,7 +432,11 @@ public class JanusHandler extends JanusStateHandler {
 
 			@Override
 			public void disconnected() {
-				setPeerState(publisher, ExecutableState.Stopped);
+				var event = new PeerStateEvent(requestId,
+						subHandler.getPublisher().getDisplayName(),
+						ExecutableState.Stopped);
+
+				sendPeerState(event);
 
 				removeStateHandler(subHandler);
 				editRoom(3);
@@ -426,12 +451,11 @@ public class JanusHandler extends JanusStateHandler {
 		addStateHandler(subHandler);
 	}
 
-	private void setPeerState(JanusPublisher publisher, ExecutableState state) {
+	private void sendPeerState(PeerStateEvent event) {
 		var peerStateConsumer = getStreamContext().getPeerStateConsumer();
 
 		if (nonNull(peerStateConsumer)) {
-			peerStateConsumer.accept(new PeerStateEvent(publisher.getId(),
-					publisher.getDisplayName(), state));
+			peerStateConsumer.accept(event);
 		}
 	}
 
@@ -441,6 +465,14 @@ public class JanusHandler extends JanusStateHandler {
 		}
 
 		return speechPublishers.entrySet().iterator().next().getValue();
+	}
+
+	private Map.Entry<Long, JanusPublisher> getFirstPublisherEntry() {
+		if (speechPublishers.isEmpty()) {
+			return null;
+		}
+
+		return speechPublishers.entrySet().iterator().next();
 	}
 
 	private void muteParticipant(JanusPublisher publisher, boolean mute, MediaType... types) {
@@ -470,7 +502,11 @@ public class JanusHandler extends JanusStateHandler {
 	}
 
 	private void kickParticipant(JanusPublisher publisher) {
-		System.out.println("kick participant: " + getRoomId());
+		if (isNull(publisher.getId())) {
+			return;
+		}
+
+		logDebugMessage("Kick participant from room: " + getRoomId());
 
 		JanusRoomKickRequest request = new JanusRoomKickRequest();
 		request.setParticipantId(publisher.getId());

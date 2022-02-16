@@ -23,19 +23,25 @@ import static java.util.Objects.nonNull;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
-import java.awt.FontMetrics;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
 import java.awt.Image;
-import java.awt.RenderingHints;
-import java.math.BigInteger;
+import java.awt.event.ItemEvent;
+import java.awt.geom.AffineTransform;
 
 import javax.swing.Box;
 import javax.swing.JButton;
 import javax.swing.JComponent;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
 import javax.swing.JToggleButton;
+import javax.swing.SwingConstants;
 import javax.swing.border.EmptyBorder;
 
+import org.lecturestudio.core.ExecutableState;
+import org.lecturestudio.core.app.dictionary.Dictionary;
 import org.lecturestudio.core.view.ConsumerAction;
 import org.lecturestudio.swing.AwtResourceLoader;
 import org.lecturestudio.swing.util.SwingUtils;
@@ -48,46 +54,81 @@ import org.lecturestudio.swing.util.SwingUtils;
  */
 public class PeerView extends JComponent {
 
+	private final Dictionary dict;
+
+	private final JLabel nameLabel;
+
+	private final JLabel stateLabel;
+
 	private final JToggleButton muteAudioButton;
 
 	private final JToggleButton muteVideoButton;
 
 	private final JButton stopConnectionButton;
 
+	private final Box buttonsBox;
+
+	private ExecutableState peerState;
+
 	private Image image;
 
-	private BigInteger peerId;
-
-	private String peerName;
+	private Long requestId;
 
 
 	/**
-	 * Create a new PeerView.
+	 * Creates a new PeerView.
 	 */
-	public PeerView() {
+	public PeerView(Dictionary dict) {
+		this.dict = dict;
+
 		setBorder(new EmptyBorder(0, 0, 0, 0));
 		setLayout(new BorderLayout());
 
+		nameLabel = new JLabel();
+		nameLabel.setFont(nameLabel.getFont().deriveFont(14.f));
+
 		muteAudioButton = new JToggleButton();
-		muteAudioButton.setIcon(AwtResourceLoader.getIcon("microphone-off.svg", 20));
-		muteAudioButton.setSelectedIcon(AwtResourceLoader.getIcon("microphone.svg", 20));
+		muteAudioButton.setIcon(AwtResourceLoader.getIcon("microphone-off.svg", 22));
+		muteAudioButton.setSelectedIcon(AwtResourceLoader.getIcon("microphone.svg", 22));
+		muteAudioButton.setContentAreaFilled(false);
 		muteAudioButton.setSelected(true);
+		muteAudioButton.setEnabled(false);
 
 		muteVideoButton = new JToggleButton();
-		muteVideoButton.setIcon(AwtResourceLoader.getIcon("camera-off.svg", 20));
-		muteVideoButton.setSelectedIcon(AwtResourceLoader.getIcon("camera.svg", 20));
+		muteVideoButton.setIcon(AwtResourceLoader.getIcon("camera-off.svg", 22));
+		muteVideoButton.setSelectedIcon(AwtResourceLoader.getIcon("camera.svg", 22));
+		muteVideoButton.setContentAreaFilled(false);
 		muteVideoButton.setSelected(true);
+		muteVideoButton.setEnabled(false);
+		muteVideoButton.addItemListener(e -> {
+			setHasVideoIcon(e.getStateChange() == ItemEvent.SELECTED);
+		});
 
-		stopConnectionButton = new JButton("Stop");
+		stopConnectionButton = new JButton(dict.get("button.end"));
+		stopConnectionButton.setBackground(Color.decode("#FEE2E2"));
 
-		Box buttonsBox = Box.createHorizontalBox();
-		buttonsBox.setBorder(new EmptyBorder(0, 5, 5, 5));
+		buttonsBox = Box.createHorizontalBox();
+		buttonsBox.setBorder(new EmptyBorder(0, 5, 0, 5));
+		buttonsBox.add(nameLabel);
 		buttonsBox.add(Box.createHorizontalGlue());
 		buttonsBox.add(muteAudioButton);
-		buttonsBox.add(stopConnectionButton);
 		buttonsBox.add(muteVideoButton);
-		buttonsBox.add(Box.createHorizontalGlue());
+		buttonsBox.add(stopConnectionButton);
 
+		stateLabel = new JLabel();
+		stateLabel.setHorizontalAlignment(SwingConstants.CENTER);
+		stateLabel.setFont(nameLabel.getFont().deriveFont(16.f));
+		stateLabel.setForeground(Color.DARK_GRAY);
+
+		GridBagConstraints c = new GridBagConstraints();
+
+		JPanel labelBox = new JPanel(new GridBagLayout());
+		labelBox.setOpaque(false);
+
+		c.gridy = 0;
+		labelBox.add(stateLabel, c);
+
+		add(labelBox, BorderLayout.CENTER);
 		add(buttonsBox, BorderLayout.SOUTH);
 	}
 
@@ -99,9 +140,9 @@ public class PeerView extends JComponent {
 		SwingUtils.bindAction(muteVideoButton, action);
 	}
 
-	public void setOnStopPeerConnection(ConsumerAction<BigInteger> action) {
+	public void setOnStopPeerConnection(ConsumerAction<Long> action) {
 		stopConnectionButton.addActionListener(e -> {
-			action.execute(peerId);
+			action.execute(requestId);
 		});
 	}
 
@@ -111,7 +152,7 @@ public class PeerView extends JComponent {
 	 * @param image The image to display.
 	 */
 	public void showImage(Image image) {
-		if (isNull(image)) {
+		if (isNull(image) || !muteVideoButton.isSelected()) {
 			return;
 		}
 
@@ -125,15 +166,68 @@ public class PeerView extends JComponent {
 	 */
 	public void clearImage() {
 		this.image = null;
+
+		repaint();
+	}
+
+	public void setState(ExecutableState state) {
+		this.peerState = state;
+
+		String stateText = null;
+
+		if (state == ExecutableState.Starting) {
+			stateText = dict.get("speech.waiting");
+		}
+		else if (state == ExecutableState.Started) {
+			muteAudioButton.setEnabled(true);
+
+			stateText = "";
+		}
+
+		if (nonNull(stateText)) {
+			stateLabel.setText(stateText);
+		}
+	}
+
+	public void setHasVideo(boolean hasVideo) {
+		if (peerState != ExecutableState.Started) {
+			return;
+		}
+
+		muteVideoButton.setEnabled(hasVideo);
+
+		setHasVideoIcon(hasVideo);
+	}
+
+	public void setHasVideoIcon(boolean hasVideo) {
+		if (peerState != ExecutableState.Started) {
+			return;
+		}
+
+		if (!hasVideo) {
+			stateLabel.setIcon(AwtResourceLoader.getIcon("user.svg", 50));
+		}
+		else {
+			stateLabel.setIcon(null);
+		}
+
+		clearImage();
 	}
 
 	/**
-	 * Set the peer's unique ID.
-	 *
-	 * @param id The unique ID of the peer.
+	 * @return The unique request ID of the peer.
 	 */
-	public void setPeerId(BigInteger id) {
-		this.peerId = id;
+	public Long getRequestId() {
+		return requestId;
+	}
+
+	/**
+	 * Set the peer's unique request ID.
+	 *
+	 * @param id The unique request ID of the peer.
+	 */
+	public void setRequestId(Long id) {
+		this.requestId = id;
 	}
 
 	/**
@@ -142,58 +236,33 @@ public class PeerView extends JComponent {
 	 * @param name The name of the remote peer.
 	 */
 	public void setPeerName(String name) {
-		this.peerName = name;
+		nameLabel.setText(name);
 	}
 
 	@Override
 	public void paintComponent(Graphics g) {
+		final int bottomHeight = buttonsBox.getHeight();
+
 		Graphics2D g2 = (Graphics2D) g.create();
+		g2.setPaint(new Color(228, 228, 231));
+		g2.fillRect(0, 0, getWidth(), getHeight());
 
 		if (nonNull(image)) {
 			paintWithImage(g2);
 		}
-		else {
-			paintNoImage(g2);
-		}
 
+		g2.setPaint(new Color(228, 228, 231, 215));
+		g2.fillRect(0, getHeight() - bottomHeight, getWidth(), bottomHeight);
 		g2.dispose();
 	}
 
 	private void paintWithImage(Graphics2D g2) {
-		g2.drawImage(image, (getWidth() - image.getWidth(null)) / 2, 0, null);
+		AffineTransform transform = g2.getTransform();
+		AffineTransform imageTransform = new AffineTransform();
+		imageTransform.translate(transform.getTranslateX(), transform.getTranslateY());
 
-		if (isNull(peerName)) {
-			return;
-		}
-
-		g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-		g2.setFont(getFont().deriveFont(16.f));
-
-		FontMetrics metrics = g2.getFontMetrics(g2.getFont());
-		int w = metrics.stringWidth(peerName);
-		int h = metrics.getHeight();
-
-		g2.setColor(Color.WHITE);
-		g2.drawString(peerName, (getWidth() - w) / 2, getHeight() - h - 20);
+		g2.setTransform(imageTransform);
+		g2.drawImage(image, (int) ((getWidth() * transform.getScaleX() - image.getWidth(null)) / 2), 0, null);
+		g2.setTransform(transform);
 	}
-
-	private void paintNoImage(Graphics2D g2) {
-		g2.setPaint(Color.LIGHT_GRAY);
-		g2.fillRect(0, 0, getWidth(), getHeight());
-
-		if (isNull(peerName)) {
-			return;
-		}
-
-		g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-		g2.setFont(getFont().deriveFont(20.f));
-
-		FontMetrics metrics = g2.getFontMetrics(g2.getFont());
-		int w = metrics.stringWidth(peerName);
-		int h = metrics.getHeight();
-
-		g2.setColor(Color.DARK_GRAY);
-		g2.drawString(peerName, (getWidth() - w) / 2, (getHeight() - h) / 2);
-	}
-
 }

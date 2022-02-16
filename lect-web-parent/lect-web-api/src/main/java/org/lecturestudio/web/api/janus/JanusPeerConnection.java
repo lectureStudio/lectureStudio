@@ -297,6 +297,20 @@ public class JanusPeerConnection implements PeerConnectionObserver {
 		});
 	}
 
+	public boolean isReceivingVideo() {
+		for (RTCRtpReceiver receiver : peerConnection.getReceivers()) {
+			MediaStreamTrack track = receiver.getTrack();
+
+			if (nonNull(track) && track.getKind().equals(MediaStreamTrack.VIDEO_TRACK_KIND)) {
+				if (track.isEnabled()) {
+					return true;
+				}
+			}
+		}
+
+		return false;
+	}
+
 	public void setMicrophoneEnabled(boolean enable) {
 		execute(() -> {
 			setSenderTrackEnabled(MediaStreamTrack.AUDIO_TRACK_KIND, enable);

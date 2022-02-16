@@ -88,7 +88,7 @@ public class WebRtcCamera extends AbstractCamera {
 
 	@Override
 	public void open() throws CameraException {
-		if (!open.get()) {
+		if (open.compareAndSet(false, true)) {
 			int width = getFormat().getWidth();
 			int height = getFormat().getHeight();
 			int frameRate = (int) getFormat().getFrameRate();
@@ -135,8 +135,6 @@ public class WebRtcCamera extends AbstractCamera {
 			catch (Exception e) {
 				throw new CameraException(e.getMessage(), e.getCause());
 			}
-
-			open.set(true);
 		}
 	}
 

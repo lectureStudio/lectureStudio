@@ -218,6 +218,7 @@ public class RecordedPage implements RecordedObject, Cloneable {
 		// States for degraded actions to be restored at the end.
 		ExtendViewState extendViewState = null;
 		StrokeState strokeState = null;
+		StrokeEndState strokeEndState = null;
 		ZoomState zoomState = null;
 		ZoomState zoomStateCut = null;
 
@@ -258,15 +259,10 @@ public class RecordedPage implements RecordedObject, Cloneable {
 					zoomStateStack.add(new ZoomOutState(action));
 				}
 
-				if (nonNull(strokeState) && !strokeState.isComplete()) {
-					strokeState.setAction(action);
-				}
-				if (nonNull(zoomState) && !zoomState.isComplete()) {
-					zoomState.setAction(action);
-				}
-				if (nonNull(zoomStateCut) && !zoomStateCut.isComplete()) {
-					zoomStateCut.setAction(action);
-				}
+				setStateAction(strokeState, action);
+				setStateAction(strokeEndState, action);
+				setStateAction(zoomState, action);
+				setStateAction(zoomStateCut, action);
 
 				insertIndex = iter.nextIndex() - 1;
 
@@ -279,6 +275,9 @@ public class RecordedPage implements RecordedObject, Cloneable {
 			else {
 				if (action instanceof ZoomAction || action instanceof PanningAction) {
 					zoomStateCut = new ZoomState(null);
+				}
+				else if (action instanceof BaseStrokeAction) {
+					strokeEndState = new StrokeEndState();
 				}
 			}
 		}
@@ -306,6 +305,17 @@ public class RecordedPage implements RecordedObject, Cloneable {
 			strokeState.setTimestamp(interval.getEnd());
 
 			playback.addAll(insertIndex, strokeState.getActions());
+		}
+		if (nonNull(strokeEndState) && strokeEndState.isComplete()) {
+			strokeEndState.setTimestamp(interval.getStart());
+
+			playback.addAll(insertIndex, strokeEndState.getActions());
+		}
+	}
+
+	private void setStateAction(ToolState state, PlaybackAction action) {
+		if (nonNull(state) && !state.isComplete()) {
+			state.setAction(action);
 		}
 	}
 
@@ -449,6 +459,20 @@ public class RecordedPage implements RecordedObject, Cloneable {
 
 			if (nonNull(toolBeginAction) && nonNull(toolExecAction)) {
 				toolBeginAction.setPoint(toolExecAction.getPoint());
+			}
+		}
+	}
+
+	private static class StrokeEndState extends ToolState {
+
+		StrokeEndState() {
+			super(null);
+		}
+
+		@Override
+		void setAction(PlaybackAction action) {
+			if (action instanceof ToolEndAction) {
+				toolEndAction = (ToolEndAction) action;
 			}
 		}
 	}

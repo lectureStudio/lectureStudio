@@ -101,7 +101,7 @@ public interface SlidesView extends View {
 
 	void setOnMutePeerVideo(ConsumerAction<Boolean> action);
 
-	void setOnStopPeerConnection(ConsumerAction<BigInteger> action);
+	void setOnStopPeerConnection(ConsumerAction<Long> action);
 
 	void setVideoFrameEvent(VideoFrameEvent event);
 
@@ -120,8 +120,6 @@ public interface SlidesView extends View {
 	void setOnNewPage(Action action);
 
 	void setOnDeletePage(Action action);
-
-	void setOnShareQuiz(Action action);
 
 	void setOnStopQuiz(Action action);
 

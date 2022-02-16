@@ -26,7 +26,6 @@ import dev.onvoid.webrtc.media.video.VideoCaptureCapability;
 import dev.onvoid.webrtc.media.video.VideoDevice;
 
 import java.io.IOException;
-import java.math.BigInteger;
 import java.util.List;
 
 import javax.inject.Inject;
@@ -203,12 +202,13 @@ public class WebRtcStreamService extends ExecutableBase {
 		streamContext.getVideoContext().setReceiveVideo(mute);
 	}
 
-	public void stopPeerConnection(BigInteger peerId) {
+	public void stopPeerConnection(Long requestId) {
 		if (!started()) {
 			return;
 		}
 
-		janusClient.stopRemoteSpeech(peerId);
+		streamProviderService.rejectSpeechRequest(requestId);
+		janusClient.stopRemoteSpeech(requestId);
 	}
 
 	public void shareDocument(Document document) throws IOException {
@@ -446,12 +446,12 @@ public class WebRtcStreamService extends ExecutableBase {
 				stateWsParameters, headerProvider, eventRecorder, course);
 	}
 
-	private JanusWebSocketClient createJanusClient(StreamContext webRtcConfig) {
+	private JanusWebSocketClient createJanusClient(StreamContext streamContext) {
 		ServiceParameters janusWsParameters = new ServiceParameters();
 		janusWsParameters.setUrl(janusWebSocketUrl);
 
 		return new JanusWebSocketClient(context.getEventBus(), janusWsParameters,
-				webRtcConfig, eventRecorder, clientFailover);
+				streamContext, eventRecorder, clientFailover);
 	}
 
 	private StreamContext createStreamContext(Course course, PresenterConfiguration config) {

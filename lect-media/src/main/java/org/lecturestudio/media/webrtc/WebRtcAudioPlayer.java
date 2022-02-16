@@ -247,12 +247,14 @@ public class WebRtcAudioPlayer extends ExecutableBase implements AudioPlayer {
 
 	@Override
 	protected void destroyInternal() throws ExecutableException {
-		try {
-			deviceModule.dispose();
-			deviceModule = null;
-		}
-		catch (Throwable e) {
-			throw new ExecutableException(e);
+		if (nonNull(deviceModule)) {
+			try {
+				deviceModule.dispose();
+				deviceModule = null;
+			}
+			catch (Throwable e) {
+				throw new ExecutableException(e);
+			}
 		}
 
 		try {

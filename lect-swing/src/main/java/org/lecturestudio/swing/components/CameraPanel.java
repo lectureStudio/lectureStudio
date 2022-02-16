@@ -65,7 +65,7 @@ public class CameraPanel extends JPanel {
 	 *
 	 * @param camera the camera to capture.
 	 */
-	public void setCamera(Camera camera) {
+	public synchronized void setCamera(Camera camera) {
 		if (isNull(camera)) {
 			throw new NullPointerException();
 		}
@@ -84,7 +84,7 @@ public class CameraPanel extends JPanel {
 	 *
 	 * @param format the camera capture format.
 	 */
-	public void setCameraFormat(CameraFormat format) {
+	public synchronized void setCameraFormat(CameraFormat format) {
 		if (nonNull(format)) {
 			canvas.clearImage();
 			setCanvasSize(format);
@@ -107,11 +107,14 @@ public class CameraPanel extends JPanel {
 	/**
 	 * Start camera capturing.
 	 */
-	public void startCapture() {
+	public synchronized void startCapture() {
 		if (started.compareAndSet(false, true)) {
+			double uiScale = getGraphicsConfiguration().getDefaultTransform().getScaleX();
+
 			setCanvasSize(getCameraFormat());
 
-			camera.setImageSize(new Dimension2D(canvas.getWidth(), canvas.getHeight()));
+			camera.setImageSize(new Dimension2D(canvas.getWidth() * uiScale,
+					canvas.getHeight() * uiScale));
 			camera.setImageConsumer(image -> canvas.showImage(image));
 
 			try {
@@ -126,7 +129,7 @@ public class CameraPanel extends JPanel {
 	/**
 	 * Stop camera capturing.
 	 */
-	public void stopCapture() {
+	public synchronized void stopCapture() {
 		if (started.compareAndSet(true, false)) {
 			if (nonNull(camera)) {
 				try {

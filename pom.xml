@@ -48,7 +48,7 @@
 		<module>lect-javafx</module>
 		<module>lect-broadcast</module>
 		<module>lect-presenter-api</module>
-		<module>lect-presenter-fx</module>
+<!--		<module>lect-presenter-fx</module>-->
 		<module>lect-presenter-swing</module>
 		<module>lect-player-api</module>
 		<module>lect-player-fx</module>

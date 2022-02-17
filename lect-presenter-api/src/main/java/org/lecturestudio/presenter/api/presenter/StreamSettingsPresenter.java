@@ -26,7 +26,6 @@ import javax.inject.Inject;
 import org.lecturestudio.core.app.ApplicationContext;
 import org.lecturestudio.core.codec.VideoCodecConfiguration;
 import org.lecturestudio.core.presenter.Presenter;
-import org.lecturestudio.presenter.api.config.NetworkConfiguration;
 import org.lecturestudio.presenter.api.config.DefaultConfiguration;
 import org.lecturestudio.presenter.api.config.PresenterConfiguration;
 import org.lecturestudio.presenter.api.config.StreamConfiguration;
@@ -51,7 +50,6 @@ public class StreamSettingsPresenter extends Presenter<StreamSettingsView> {
 
 	public void reset() {
 		PresenterConfiguration config = (PresenterConfiguration) context.getConfiguration();
-		NetworkConfiguration netConfig = config.getNetworkConfig();
 		StreamConfiguration streamConfig = config.getStreamConfig();
 		VideoCodecConfiguration cameraConfig = streamConfig.getCameraCodecConfig();
 
@@ -60,21 +58,15 @@ public class StreamSettingsPresenter extends Presenter<StreamSettingsView> {
 		streamConfig.setAccessToken(defaultConfig.getStreamConfig().getAccessToken());
 
 		cameraConfig.setBitRate(defaultConfig.getStreamConfig().getCameraCodecConfig().getBitRate());
-
-		netConfig.getBroadcastProfiles().clear();
-		netConfig.getBroadcastProfiles().addAll(defaultConfig.getNetworkConfig().getBroadcastProfiles());
-		netConfig.setBroadcastProfile(defaultConfig.getNetworkConfig().getBroadcastProfile());
 	}
 
 	@Override
 	public void initialize() {
 		PresenterConfiguration config = (PresenterConfiguration) context.getConfiguration();
 		StreamConfiguration streamConfig = config.getStreamConfig();
-		VideoCodecConfiguration cameraConfig = streamConfig.getCameraCodecConfig();
 
 		view.setAccessToken(streamConfig.accessTokenProperty());
 		view.setOnCheckAccessToken(this::checkAccessToken);
-//		view.setStreamCameraBitrate(cameraConfig.bitRateProperty());
 		view.setOnReset(this::reset);
 
 		// Retrieve properties here since named injection does not work.

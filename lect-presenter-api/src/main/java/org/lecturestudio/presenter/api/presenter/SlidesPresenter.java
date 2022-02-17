@@ -25,7 +25,6 @@ import static java.util.Objects.requireNonNull;
 import com.google.common.eventbus.Subscribe;
 
 import java.io.IOException;
-import java.net.SocketException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -34,7 +33,6 @@ import java.util.concurrent.CompletableFuture;
 
 import javax.inject.Inject;
 
-import org.lecturestudio.broadcast.config.BroadcastProfile;
 import org.lecturestudio.core.ExecutableException;
 import org.lecturestudio.core.ExecutableState;
 import org.lecturestudio.core.app.ApplicationContext;
@@ -64,7 +62,6 @@ import org.lecturestudio.core.presenter.Presenter;
 import org.lecturestudio.core.recording.DocumentRecorder;
 import org.lecturestudio.core.service.DocumentService;
 import org.lecturestudio.core.tool.ToolType;
-import org.lecturestudio.core.util.NetUtils;
 import org.lecturestudio.core.view.Action;
 import org.lecturestudio.core.view.PageObjectView;
 import org.lecturestudio.core.view.PresentationParameter;
@@ -74,7 +71,6 @@ import org.lecturestudio.core.view.TeXBoxView;
 import org.lecturestudio.core.view.TextBoxView;
 import org.lecturestudio.core.view.ViewContextFactory;
 import org.lecturestudio.core.view.ViewType;
-import org.lecturestudio.presenter.api.config.NetworkConfiguration;
 import org.lecturestudio.presenter.api.config.PresenterConfiguration;
 import org.lecturestudio.presenter.api.context.PresenterContext;
 import org.lecturestudio.presenter.api.event.MessengerStateEvent;
@@ -776,37 +772,9 @@ public class SlidesPresenter extends Presenter<SlidesView> {
 	private SlideViewAddressOverlay createRemoteAddressOverlay() {
 		PresenterConfiguration config = (PresenterConfiguration) context.getConfiguration();
 		DisplayConfiguration displayConfig = config.getDisplayConfig();
-		NetworkConfiguration netConfig = config.getNetworkConfig();
-		BroadcastProfile profile = netConfig.getBroadcastProfile();
-
-		String broadcastAddress = profile.getBroadcastAddress();
-		Integer broadcastPort = profile.getBroadcastPort();
-
-		boolean isLocal = NetUtils.isLocalAddress(broadcastAddress, broadcastPort);
-
-		if (isLocal) {
-			// Get local address.
-			String adapter = config.getNetworkConfig().getAdapter();
-
-			if (isNull(adapter)) {
-				adapter = NetUtils.getNetworkInterfaces().get(0).getName();
-			}
-
-			try {
-				broadcastAddress = NetUtils.getHostAddress(adapter, java.net.Inet4Address.class);
-			}
-			catch (SocketException e) {
-				logException(e, "Unknown Host");
-			}
-		}
-
-		// Show only non-standard port.
-		if (broadcastPort != 80) {
-			broadcastAddress += ":" + broadcastPort;
-		}
 
 		SlideViewAddressOverlay overlay = viewFactory.getInstance(SlideViewAddressOverlay.class);
-		overlay.setAddress(broadcastAddress);
+//		overlay.setAddress(broadcastAddress);
 		overlay.setPosition(displayConfig.getIpPosition());
 		overlay.setTextColor(Color.BLACK);
 		overlay.setBackgroundColor(Color.WHITE);

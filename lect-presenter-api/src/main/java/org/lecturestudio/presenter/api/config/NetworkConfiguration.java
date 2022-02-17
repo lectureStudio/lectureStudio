@@ -18,21 +18,13 @@
 
 package org.lecturestudio.presenter.api.config;
 
-import org.lecturestudio.broadcast.config.BroadcastProfile;
 import org.lecturestudio.core.beans.ObjectProperty;
 import org.lecturestudio.core.beans.StringProperty;
-import org.lecturestudio.core.util.ObservableArrayList;
-import org.lecturestudio.core.util.ObservableList;
 import org.lecturestudio.web.api.filter.IpFilter;
 
 public class NetworkConfiguration {
 
 	private final StringProperty adapter = new StringProperty();
-
-	private final ObjectProperty<BroadcastProfile> bcastProfile = new ObjectProperty<>();
-
-	/** The list of available broadcast profiles. */
-	private final ObservableList<BroadcastProfile> bcastProfiles = new ObservableArrayList<>();
 
 	private final ObjectProperty<IpFilter> ipFilter = new ObjectProperty<>();
 
@@ -53,35 +45,6 @@ public class NetworkConfiguration {
 	
 	public StringProperty adapterProperty() {
 		return adapter;
-	}
-
-	/**
-	 * @return the adapter
-	 */
-	public BroadcastProfile getBroadcastProfile() {
-		return bcastProfile.get();
-	}
-
-	/**
-	 * @param adapter the adapter to set
-	 */
-	public void setBroadcastProfile(BroadcastProfile adapter) {
-		this.bcastProfile.set(adapter);
-	}
-
-	public ObjectProperty<BroadcastProfile> broadcastProfileProperty() {
-		return bcastProfile;
-	}
-
-	/**
-	 * Get the list of available broadcast profiles.
-	 *
-	 * @return All broadcast profiles.
-	 *
-	 * @see BroadcastProfile
-	 */
-	public ObservableList<BroadcastProfile> getBroadcastProfiles() {
-		return bcastProfiles;
 	}
 
 	/**

@@ -18,13 +18,11 @@
 
 package org.lecturestudio.presenter.api.view;
 
-import org.lecturestudio.broadcast.config.BroadcastProfile;
 import org.lecturestudio.core.audio.AudioFormat;
 import org.lecturestudio.core.beans.IntegerProperty;
 import org.lecturestudio.core.beans.ObjectProperty;
 import org.lecturestudio.core.beans.StringProperty;
 import org.lecturestudio.core.view.Action;
-import org.lecturestudio.core.view.ConsumerAction;
 
 import java.util.List;
 
@@ -45,13 +43,5 @@ public interface StreamSettingsView extends SettingsBaseView {
 	void setStreamAudioCodecNames(String[] codecNames);
 
 	void setStreamCameraBitrate(IntegerProperty bitrate);
-
-	void setBroadcastProfile(ObjectProperty<BroadcastProfile> profile);
-
-	void setBroadcastProfiles(List<BroadcastProfile> profiles);
-
-	void setOnAddBroadcastProfile(Action action);
-
-	void setOnDeleteBroadcastProfile(ConsumerAction<BroadcastProfile> action);
 
 }

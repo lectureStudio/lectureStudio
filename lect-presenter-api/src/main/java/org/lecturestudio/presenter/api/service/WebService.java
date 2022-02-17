@@ -29,15 +29,12 @@ import javax.inject.Inject;
 import javax.inject.Named;
 import javax.inject.Singleton;
 
-import org.lecturestudio.broadcast.config.BroadcastProfile;
 import org.lecturestudio.core.ExecutableBase;
 import org.lecturestudio.core.ExecutableException;
 import org.lecturestudio.core.ExecutableState;
 import org.lecturestudio.core.app.ApplicationContext;
 import org.lecturestudio.core.service.DocumentService;
-import org.lecturestudio.core.util.NetUtils;
 import org.lecturestudio.core.util.ProgressCallback;
-import org.lecturestudio.presenter.api.config.NetworkConfiguration;
 import org.lecturestudio.presenter.api.config.PresenterConfiguration;
 import org.lecturestudio.presenter.api.config.StreamConfiguration;
 import org.lecturestudio.presenter.api.context.PresenterContext;
@@ -54,10 +51,11 @@ import org.lecturestudio.web.api.websocket.WebSocketBearerTokenProvider;
 import org.lecturestudio.web.api.websocket.WebSocketHeaderProvider;
 
 /**
- * The {@code WebService} maintains different web services, like {@link QuizWebService}
- * or {@link MessageWebService}. This class is the interface between the UI and the HTTP
- * application server. The {@link LocalBroadcaster} allows to run the web services on
- * a local machine and act as an standalone server.
+ * The {@code WebService} maintains different web services, like {@link
+ * QuizFeatureWebService} or {@link MessageFeatureWebService}. This class is the
+ * interface between the UI and the HTTP application server. The {@link
+ * LocalBroadcaster} allows to run the web services on a local machine and act
+ * as an standalone server.
  *
  * @author Alex Andres
  */
@@ -169,7 +167,7 @@ public class WebService extends ExecutableBase {
 	 * @throws NullPointerException if no quiz service is running.
 	 */
 	public void saveQuizResult(List<String> files, ProgressCallback callback) throws IOException {
-		var service = getService(QuizWebService.class);
+		var service = getService(QuizFeatureWebService.class);
 
 		if (isNull(service)) {
 			throw new NullPointerException("Quiz service is not running");
@@ -289,21 +287,6 @@ public class WebService extends ExecutableBase {
 		}
 
 		startedServices.clear();
-	}
-
-	private void startLocalBroadcaster() throws ExecutableException {
-		PresenterConfiguration config = (PresenterConfiguration) context.getConfiguration();
-		NetworkConfiguration netConfig = config.getNetworkConfig();
-		BroadcastProfile bastProfile = netConfig.getBroadcastProfile();
-		String broadcastAddress = bastProfile.getBroadcastAddress();
-		Integer broadcastPort = bastProfile.getBroadcastPort();
-
-		if (NetUtils.isLocalAddress(broadcastAddress, broadcastPort)) {
-			localBroadcaster.start();
-		}
-		else {
-			stopLocalBroadcaster();
-		}
 	}
 
 	private void stopLocalBroadcaster() throws ExecutableException {

@@ -18,17 +18,12 @@
 
 package org.lecturestudio.presenter.swing.view;
 
-import static java.util.Objects.isNull;
-
 import java.awt.Color;
-import java.awt.event.ActionEvent;
-import java.text.MessageFormat;
 import java.util.List;
 import java.util.ResourceBundle;
 import java.util.Vector;
 
 import javax.inject.Inject;
-import javax.swing.AbstractAction;
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
@@ -37,21 +32,17 @@ import javax.swing.JPanel;
 import javax.swing.JTable;
 import javax.swing.JTextField;
 
-import org.lecturestudio.broadcast.config.BroadcastProfile;
 import org.lecturestudio.core.audio.AudioFormat;
 import org.lecturestudio.core.beans.IntegerProperty;
 import org.lecturestudio.core.beans.ObjectProperty;
 import org.lecturestudio.core.beans.StringProperty;
 import org.lecturestudio.core.converter.IntegerStringConverter;
 import org.lecturestudio.core.view.Action;
-import org.lecturestudio.core.view.ConsumerAction;
 import org.lecturestudio.presenter.api.view.StreamSettingsView;
-import org.lecturestudio.presenter.swing.view.model.BroadcastProfileTableModel;
 import org.lecturestudio.swing.beans.ConvertibleObjectProperty;
 import org.lecturestudio.swing.components.IPTextField;
 import org.lecturestudio.swing.util.SwingUtils;
 import org.lecturestudio.swing.view.SwingView;
-import org.lecturestudio.swing.view.ViewPostConstruct;
 
 @SwingView(name = "stream-settings", presenter = org.lecturestudio.presenter.api.presenter.StreamSettingsPresenter.class)
 public class SwingStreamSettingsView extends JPanel implements StreamSettingsView {
@@ -85,20 +76,6 @@ public class SwingStreamSettingsView extends JPanel implements StreamSettingsVie
 	private JButton closeButton;
 
 	private JButton resetButton;
-
-	private ConsumerAction<BroadcastProfile> deleteProfileAction;
-
-	public javax.swing.Action deleteAction = new AbstractAction() {
-
-		@Override
-		public void actionPerformed(ActionEvent e) {
-			int row = Integer.parseInt(e.getActionCommand());
-			BroadcastProfileTableModel model = (BroadcastProfileTableModel) profileTable.getModel();
-			BroadcastProfile profile = model.getItem(row);
-
-			executeAction(deleteProfileAction, profile);
-		}
-	};
 
 
 	@Inject
@@ -160,46 +137,6 @@ public class SwingStreamSettingsView extends JPanel implements StreamSettingsVie
 	}
 
 	@Override
-	public void setBroadcastProfile(ObjectProperty<BroadcastProfile> profile) {
-		SwingUtils.invoke(() -> {
-			SwingUtils.bindBidirectional(profileTable, profile);
-		});
-
-		profile.addListener((observable, oldValue, newValue) -> {
-			SwingUtils.invoke(() -> {
-				if (isNull(newValue)) {
-					return;
-				}
-
-				String message = resourceBundle.getString("stream.settings.broadcast.profile.selected");
-				selectedProfileLabel.setText(MessageFormat.format(message,
-						String.format("%s - %s : %d : %d", newValue.getName(),
-								newValue.getBroadcastAddress(),
-								newValue.getBroadcastPort(),
-								newValue.getBroadcastTlsPort())));
-			});
-		});
-	}
-
-	@Override
-	public void setBroadcastProfiles(List<BroadcastProfile> profiles) {
-		SwingUtils.invoke(() -> {
-			BroadcastProfileTableModel model = (BroadcastProfileTableModel) profileTable.getModel();
-			model.setItems(profiles);
-		});
-	}
-
-	@Override
-	public void setOnAddBroadcastProfile(Action action) {
-		SwingUtils.bindAction(addProfileButton, action);
-	}
-
-	@Override
-	public void setOnDeleteBroadcastProfile(ConsumerAction<BroadcastProfile> action) {
-		this.deleteProfileAction = action;
-	}
-
-	@Override
 	public void setOnClose(Action action) {
 		SwingUtils.bindAction(closeButton, action);
 	}
@@ -207,10 +144,5 @@ public class SwingStreamSettingsView extends JPanel implements StreamSettingsVie
 	@Override
 	public void setOnReset(Action action) {
 		SwingUtils.bindAction(resetButton, action);
-	}
-
-	@ViewPostConstruct
-	private void initialize() {
-		// profileTable.setModel(new BroadcastProfileTableModel(profileTable.getColumnModel()));
 	}
 }

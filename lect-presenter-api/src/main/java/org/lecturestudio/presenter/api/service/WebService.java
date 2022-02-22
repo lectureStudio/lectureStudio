@@ -170,7 +170,7 @@ public class WebService extends ExecutableBase {
 		context.getEventBus().post(new MessengerStateEvent(ExecutableState.Stopped));
 	}
 
-	public void sendMessengerMessage(MessengerMessage message) throws ExecutableException {
+	public void sendMessengerMessage(WebMessage message) throws ExecutableException {
 		var service = getService(MessageFeatureWebService.class);
 
 		if (isNull(service)) {

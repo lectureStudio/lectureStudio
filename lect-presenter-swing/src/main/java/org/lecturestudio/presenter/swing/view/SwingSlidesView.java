@@ -43,10 +43,7 @@ import java.util.Objects;
 
 import javax.inject.Inject;
 import javax.swing.*;
-import javax.swing.event.AncestorEvent;
-import javax.swing.event.AncestorListener;
-import javax.swing.event.DocumentEvent;
-import javax.swing.event.DocumentListener;
+import javax.swing.event.*;
 import javax.swing.text.JTextComponent;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeModel;
@@ -84,7 +81,6 @@ import org.lecturestudio.swing.view.ViewPostConstruct;
 import org.lecturestudio.web.api.event.PeerStateEvent;
 import org.lecturestudio.web.api.event.VideoFrameEvent;
 import org.lecturestudio.web.api.message.*;
-import org.lecturestudio.web.api.model.messenger.MessengerConfig;
 import org.scilab.forge.jlatexmath.ParseException;
 
 @SwingView(name = "main-slides")
@@ -125,6 +121,8 @@ public class SwingSlidesView extends JPanel implements SlidesView {
 	private Action shareQuizAction;
 
 	private Action stopQuizAction;
+
+	private ConsumerAction<String> directMessageRequestAction;
 
 	private double notesDividerPosition;
 
@@ -173,6 +171,8 @@ public class SwingSlidesView extends JPanel implements SlidesView {
 	private JTextField sendTextField;
 
 	private JButton sendButton;
+
+	private JButton cancelDirectMessageButton;
 
 	private int bottomTabIndex;
 
@@ -443,7 +443,7 @@ public class SwingSlidesView extends JPanel implements SlidesView {
 
 			if (!streamStarted) {
 				removeMessageViews(SpeechRequestView.class);
-				removeParticipantsView(ParticipantsView.class);
+				//removeParticipantsView(ParticipantsView.class);
 			}
 
 			for (int i = 0; i < tabPane.getTabCount(); i++) {
@@ -536,23 +536,130 @@ public class SwingSlidesView extends JPanel implements SlidesView {
 	}
 
 	@Override
-	public void setParticipantMessage(CourseParticipantMessage message) {
+	public void setOnDirectMessageRequest(ConsumerAction<String> action) {
+		this.directMessageRequestAction = action;
+	}
+
+	@Override
+	public void addParticipantMessage(CourseParticipantMessage message) {
+		if (message.getConnected()) {
 			SwingUtils.invoke(() -> {
 				ParticipantsView participantsView = new ParticipantsView(this.dict, message.getUsername());
+				participantsView.setOnDirectMessage(() -> {
+					this.directMessageRequestAction.execute(message.getUsername());
+				});
 				participantsView.setParticipantNameLabel(String.format("%s %s", message.getFirstName(), message.getFamilyName()));
+				participantsView.setParticipantsUsernameLabel(message.getUsername());
+				participantsView.setStreamingIconVisible(true);
 				participantsView.pack();
-				if (message.getConnected()) {
-					participantViewContainer.add(participantsView);
-					participantViewContainer.revalidate();
-				}
-				else {
-					removeParticipantMessageView(participantsView);
-				}
+				participantViewContainer.add(participantsView);
+				participantViewContainer.revalidate();
 			});
+		}
+	}
+
+	@Override
+	public void addParticipantMessage(CourseFeatureMessengerParticipantMessage message) {
+		if (message.getConnected()) {
+			SwingUtils.invoke(() -> {
+				ParticipantsView participantsView = new ParticipantsView(this.dict, message.getRemoteAddress());
+				participantsView.setOnDirectMessage(() -> {
+					this.directMessageRequestAction.execute(message.getRemoteAddress());
+				});
+				participantsView.setParticipantNameLabel(String.format("%s %s", message.getFirstName(), message.getFamilyName()));
+				participantsView.setParticipantsUsernameLabel(message.getRemoteAddress());
+				participantsView.setMessengerIconVisible(true);
+				participantsView.pack();
+				participantViewContainer.add(participantsView);
+				participantViewContainer.revalidate();
+			});
+		}
+	}
+
+	@Override
+	public void updateParticipantMessage(CourseParticipantMessage message) {
+		ParticipantsView view = null;
+		for (Component c : participantViewContainer.getComponents()) {
+			if (c instanceof ParticipantsView) {
+				ParticipantsView con = (ParticipantsView) c;
+				if (con.getUserId().equals(message.getUsername())) {
+					view = con;
+					break;
+				}
+			}
+		}
+		if (nonNull(view)) {
+			ParticipantsView finalView = view;
+			SwingUtils.invoke(() -> {
+				finalView.setStreamingIconVisible(message.getConnected());
+			});
+		}
+	}
+
+	@Override
+	public void updateParticipantMessage(CourseFeatureMessengerParticipantMessage message) {
+		ParticipantsView view = null;
+		for (Component c : participantViewContainer.getComponents()) {
+			if (c instanceof ParticipantsView) {
+				ParticipantsView con = (ParticipantsView) c;
+				if (con.getUserId().equals(message.getRemoteAddress())) {
+					view = con;
+					break;
+				}
+			}
+		}
+		if (nonNull(view)) {
+			ParticipantsView finalView = view;
+			SwingUtils.invoke(() -> {
+				finalView.setMessengerIconVisible(message.getConnected());
+			});
+		}
+	}
+
+	@Override
+	public void removeParticipantMessageView(String username) {
+		SwingUtils.invoke(() -> {
+			for (Component c : participantViewContainer.getComponents()) {
+				ParticipantsView consideredView = null;
+				if (c instanceof ParticipantsView) {
+					consideredView = (ParticipantsView) c;
+				}
+				if (nonNull(consideredView) && consideredView.getUserId().equals(username)) {
+					participantViewContainer.remove(c);
+					participantViewContainer.validate();
+					participantViewContainer.repaint();
+					break;
+				}
+			}
+		});
+	}
+
+	@Override
+	public void removeParticipantMessageViews() {
+		SwingUtils.invoke(() -> {
+			participantViewContainer.removeAll();
+			participantViewContainer.revalidate();
+			participantViewContainer.repaint();
+		});
+	}
+
+	@Override
+	public void setStreamConnectedIcon(CourseParticipantMessage message) {
+
+	}
+
+	@Override
+	public void setParticipantMessage(CourseParticipantMessage message) {
+
 	}
 
 	@Override
 	public void setMessengerParticipantMessage(CourseFeatureMessengerParticipantMessage message) {
+
+	}
+
+	@Override
+	public void setMessengerConnectedIcon(CourseFeatureMessengerParticipantMessage message) {
 
 	}
 
@@ -973,22 +1080,6 @@ public class SwingSlidesView extends JPanel implements SlidesView {
 		}
 	}
 
-
-	private void removeParticipantMessageView(Component view) {
-		for (Component c : participantViewContainer.getComponents()) {
-			ParticipantsView consideredView = null;
-			if (c instanceof ParticipantsView) {
-				consideredView = (ParticipantsView) c;
-			}
-			if (consideredView != null && consideredView.equals(view)) {
-				participantViewContainer.remove(c);
-				participantViewContainer.validate();
-				participantViewContainer.repaint();
-				break;
-			}
-		}
-	}
-
 	private void removeMessageViews(Class<? extends MessagePanel> cls) {
 		for (Component c : messageViewContainer.getComponents()) {
 			if (cls.isAssignableFrom(c.getClass())) {
@@ -1051,5 +1142,78 @@ public class SwingSlidesView extends JPanel implements SlidesView {
 	@Override
 	public void setOnSend(Action action) {
 		SwingUtils.bindAction(this.sendButton, action);
+	}
+
+	@Override
+	public void setOnCancelDirectMessage(Action action) {
+		SwingUtils.bindAction(this.cancelDirectMessageButton, action);
+	}
+
+	private void setDirectMessageCancelButtonActive(boolean active) {
+			if (active) {
+				this.cancelDirectMessageButton.setEnabled(true);
+				this.cancelDirectMessageButton.setVisible(true);
+			}
+			else {
+				this.cancelDirectMessageButton.setEnabled(false);
+				this.cancelDirectMessageButton.setVisible(false);
+				messageSendContainer.revalidate();
+				messageSendContainer.repaint();
+			}
+	}
+
+	private void setSendMessageButtonOnDirectMessageRequest(String username) {
+		SwingUtils.invoke(() -> {
+			this.sendButton.setText(this.dict.get("slides.message.send.direct") + " " + username);
+			this.messageSendContainer.revalidate();
+			this.messageSendContainer.repaint();
+		});
+	}
+
+	private void resetSendMessageButton() {
+		SwingUtils.invoke(() -> {
+			this.sendButton.setText(this.dict.get("slides.message.send"));
+			this.messageSendContainer.revalidate();
+			this.messageSendContainer.repaint();
+		});
+	}
+
+	@Override
+	public void onRequestDirectMessage(String username) {
+		SwingUtils.invoke(() -> {
+			this.setBottomTabSelected(2, true);
+			this.setSendMessageButtonOnDirectMessageRequest(username);
+			this.setDirectMessageCancelButtonActive(true);
+			this.setSendTextFieldFocused();
+		});
+	}
+
+	@Override
+	public void onRequestDirectMessageCancel() {
+		SwingUtils.invoke(() -> {
+			this.resetSendMessageButton();
+			this.setDirectMessageCancelButtonActive(false);
+		});
+	}
+
+	@Override
+	public void setOnSendTextFieldFocusLost(Action action) {
+		sendTextField.addFocusListener(new FocusListener() {
+			@Override
+			public void focusGained(FocusEvent e) {
+
+			}
+
+			@Override
+			public void focusLost(FocusEvent e) {
+				action.execute();
+			}
+		});
+	}
+
+	private void setSendTextFieldFocused() {
+		SwingUtils.invoke(() -> {
+			this.sendTextField.requestFocus();
+		});
 	}
 }

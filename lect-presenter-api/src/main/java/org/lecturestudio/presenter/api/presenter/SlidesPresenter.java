@@ -27,10 +27,7 @@ import com.google.common.eventbus.Subscribe;
 import java.io.IOException;
 import java.net.SocketException;
 import java.time.ZonedDateTime;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
 import java.util.concurrent.CompletableFuture;
 
 import javax.inject.Inject;
@@ -42,6 +39,7 @@ import org.lecturestudio.core.ExecutableState;
 import org.lecturestudio.core.app.ApplicationContext;
 import org.lecturestudio.core.app.configuration.DisplayConfiguration;
 import org.lecturestudio.core.app.configuration.GridConfiguration;
+import org.lecturestudio.core.beans.BooleanProperty;
 import org.lecturestudio.core.beans.StringProperty;
 import org.lecturestudio.core.bus.EventBus;
 import org.lecturestudio.core.bus.event.DocumentEvent;
@@ -97,7 +95,7 @@ import org.lecturestudio.web.api.event.PeerStateEvent;
 import org.lecturestudio.web.api.event.VideoFrameEvent;
 import org.lecturestudio.web.api.message.*;
 import org.lecturestudio.web.api.model.Message;
-import org.lecturestudio.web.api.model.messenger.MessengerConfig;
+import org.lecturestudio.web.api.model.UserConnectionState;
 import org.lecturestudio.web.api.service.ServiceParameters;
 import org.lecturestudio.web.api.stream.model.User;
 import org.lecturestudio.web.api.stream.service.StreamProviderService;
@@ -154,6 +152,14 @@ public class SlidesPresenter extends Presenter<SlidesView> {
 
 	private StringProperty messageToSendProperty;
 
+	private BooleanProperty sendDirectMessage;
+
+	private StringProperty directMessageDestinationUsernameProperty;
+
+
+
+	private final HashMap<String, UserConnectionState> userConnections;
+
 
 	@Inject
 	SlidesPresenter(ApplicationContext context, SlidesView view,
@@ -181,6 +187,7 @@ public class SlidesPresenter extends Presenter<SlidesView> {
 		this.shortcutMap = new HashMap<>();
 		this.pageObjectRegistry = new PageObjectRegistry();
 		this.documentChangeListener = new DocumentChangeHandler();
+		this.userConnections = new HashMap<>();
 	}
 
 
@@ -250,6 +257,11 @@ public class SlidesPresenter extends Presenter<SlidesView> {
 	public void onEvent(final StreamingStateEvent event) {
 		streamingState = event.getState();
 
+		if (streamingState.equals(ExecutableState.Stopped)) {
+			this.userConnections.clear();
+			view.removeParticipantMessageViews();
+		}
+
 		view.setStreamState(event.getState());
 
 		checkRemoteServiceState();
@@ -259,9 +271,18 @@ public class SlidesPresenter extends Presenter<SlidesView> {
 	public void onEvent(final MessengerStateEvent event) {
 		messengerState = event.getState();
 
-		view.setMessengerState(event.getState());
+		if (messengerState.equals(ExecutableState.Stopped)) {
+			for (var entry : this.userConnections.entrySet()) {
+				if (entry.getValue().isMessengerConnected()) {
+					CourseFeatureMessengerParticipantMessage disconnect = new CourseFeatureMessengerParticipantMessage();
+					disconnect.setConnected(false);
+					disconnect.setRemoteAddress(entry.getKey());
+					this.onEvent(disconnect);
+				}
+			}
+		}
 
-		PresenterContext pContext = (PresenterContext) context;
+		view.setMessengerState(event.getState());
 
 		checkRemoteServiceState();
 	}
@@ -309,8 +330,39 @@ public class SlidesPresenter extends Presenter<SlidesView> {
 
 	@Subscribe
 	public void onEvent(CourseParticipantMessage message) {
+		System.out.println(message.getConnected());
 		PresenterContext presenterContext = (PresenterContext) context;
-		view.setParticipantMessage(message);
+
+		String username = message.getUsername();
+		UserConnectionState connectionState = this.userConnections.get(username);
+		if (isNull(connectionState)) {
+			if (message.getConnected()) {
+				connectionState = new UserConnectionState(false, false);
+				this.userConnections.put(username, connectionState);
+			}
+			else {
+				return;
+			}
+		}
+
+		if (message.getConnected()) {
+			if (connectionState.isNotConnected()) {
+				view.addParticipantMessage(message);
+			}
+			else {
+				view.updateParticipantMessage(message);
+			}
+			connectionState.setStreamConnected(true);
+ 		}
+		else {
+			connectionState.setStreamConnected(false);
+			if (connectionState.isNotConnected()) {
+				view.removeParticipantMessageView(username);
+			}
+			else {
+				view.updateParticipantMessage(message);
+			}
+		}
 
 		if (message.getConnected()) {
 			presenterContext.setAttendeesCount(presenterContext.getAttendeesCount() + 1);
@@ -322,6 +374,38 @@ public class SlidesPresenter extends Presenter<SlidesView> {
 
 	@Subscribe
 	public void onEvent(CourseFeatureMessengerParticipantMessage message) {
+		PresenterContext presenterContext = (PresenterContext) context;
+
+		String username = message.getRemoteAddress();
+		UserConnectionState connectionState = this.userConnections.get(username);
+		if (isNull(connectionState)) {
+			if (message.getConnected()) {
+				connectionState = new UserConnectionState(false, false);
+				this.userConnections.put(username, connectionState);
+			}
+			else {
+				return;
+			}
+		}
+
+		if (message.getConnected()) {
+			if (connectionState.isNotConnected()) {
+				view.addParticipantMessage(message);
+			}
+			else {
+				view.updateParticipantMessage(message);
+			}
+			connectionState.setMessengerConnected(true);
+		}
+		else {
+			connectionState.setMessengerConnected(false);
+			if (connectionState.isNotConnected()) {
+				view.removeParticipantMessageView(username);
+			}
+			else {
+				view.updateParticipantMessage(message);
+			}
+		}
 	}
 
 	@Subscribe
@@ -730,6 +814,10 @@ public class SlidesPresenter extends Presenter<SlidesView> {
 		});
 
 		this.messageToSendProperty = new StringProperty();
+		this.directMessageDestinationUsernameProperty = new StringProperty();
+		this.sendDirectMessage = new BooleanProperty();
+		this.sendDirectMessage.set(false);
+
 		view.setMessageToSend(this.messageToSendProperty);
 
 		view.setPageRenderer(renderController);
@@ -750,6 +838,8 @@ public class SlidesPresenter extends Presenter<SlidesView> {
 		view.setOnViewTransform(this::setViewTransform);
 		view.setOnLaTeXText(this::setLaTeXText);
 		view.setOnSend(this::sendMessage);
+		view.setOnDirectMessageRequest(this::requestDirectMessage);
+		view.setOnCancelDirectMessage(this::cancelDirectMessage);
 
 		view.setOnAcceptSpeech(this::onAcceptSpeech);
 		view.setOnRejectSpeech(this::onRejectSpeech);
@@ -757,6 +847,7 @@ public class SlidesPresenter extends Presenter<SlidesView> {
 		view.setOnMutePeerAudio(streamService::mutePeerAudio);
 		view.setOnMutePeerVideo(streamService::mutePeerVideo);
 		view.setOnStopPeerConnection(streamService::stopPeerConnection);
+		//view.setOnSendTextFieldFocusLost(this::onMessengerTabTabbedOut);
 
 		// Register shortcuts that are associated with the SlideView.
 		registerShortcut(Shortcut.SLIDE_NEXT_DOWN, this::nextPage);
@@ -885,14 +976,29 @@ public class SlidesPresenter extends Presenter<SlidesView> {
 	}
 
 	private boolean sendMessage() {
+		System.out.println(this.sendDirectMessage.get());
+		System.out.println(this.directMessageDestinationUsernameProperty.get());
+
 		Message message = new Message(messageToSendProperty.get());
 		User user = this.streamProviderService.getUser();
-		MessengerMessage messengerMessage = new MessengerMessage(message, user.getUsername(), ZonedDateTime.now());
-		messengerMessage.setFamilyName(user.getFamilyName());
-		messengerMessage.setFirstName(user.getFirstName());
-		messengerMessage.setRemoteAddress(user.getUsername());
+
+		WebMessage toSend = null;
+		if (this.sendDirectMessage.get()) {
+			String destinationUsername = this.directMessageDestinationUsernameProperty.get();
+
+			MessengerDirectMessage messengerDirectMessage = new MessengerDirectMessage(destinationUsername, message, user.getUsername(), ZonedDateTime.now());
+			toSend = messengerDirectMessage;
+		}
+		else {
+			MessengerMessage messengerMessage = new MessengerMessage(message, user.getUsername(), ZonedDateTime.now());
+			toSend = messengerMessage;
+		}
+
+		toSend.setFamilyName(user.getFamilyName());
+		toSend.setFirstName(user.getFirstName());
+
 		try {
-			this.webService.sendMessengerMessage(messengerMessage);
+			this.webService.sendMessengerMessage(toSend);
 			messageToSendProperty.set("");
 			return true;
 		}
@@ -916,5 +1022,21 @@ public class SlidesPresenter extends Presenter<SlidesView> {
 		catch (ExecutableException exc) {
 			return false;
 		}
+	}
+
+	private void requestDirectMessage(String username) {
+		this.sendDirectMessage.set(true);
+		this.directMessageDestinationUsernameProperty.set(username);
+		view.onRequestDirectMessage(username);
+	}
+
+	private void cancelDirectMessage() {
+		this.sendDirectMessage.set(false);
+		this.directMessageDestinationUsernameProperty.set("");
+		view.onRequestDirectMessageCancel();
+	}
+
+	private void onMessengerTabTabbedOut() {
+		this.cancelDirectMessage();
 	}
 }

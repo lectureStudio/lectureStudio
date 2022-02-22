@@ -26,9 +26,13 @@
 							<Panel layout="GridBagLayout" border="EmptyBorder(1, 5, 1, 5)" >
 								<TextField id="sendTextField">
 									<gridbagconstraints gridx="0" gridy="4" weightx="1" fill="GridBagConstraints.HORIZONTAL" anchor="GridBagConstraints.WEST" insets="5,0,15,0" />
+
 								</TextField>
-								<Button id="sendButton" text="slides.message.send" enabled="false">
+								<Button id="cancelDirectMessageButton" text="slides.message.cancel" enabled="false" visible="false">
 									<gridbagconstraints gridx="1" gridy="4" anchor="GridBagConstraints.WEST" insets="5,5,15,0" />
+								</Button>
+								<Button id="sendButton" text="slides.message.send" enabled="false">
+									<gridbagconstraints gridx="2" gridy="4" anchor="GridBagConstraints.WEST" insets="5,5,15,0" />
 								</Button>
 							</Panel>
 						</HBox>

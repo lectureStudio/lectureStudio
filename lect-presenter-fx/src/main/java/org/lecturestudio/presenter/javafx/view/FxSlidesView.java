@@ -81,7 +81,6 @@ import org.lecturestudio.stylus.javafx.JavaFxStylusManager;
 import org.lecturestudio.web.api.event.PeerStateEvent;
 import org.lecturestudio.web.api.event.VideoFrameEvent;
 import org.lecturestudio.web.api.message.*;
-import org.lecturestudio.web.api.model.messenger.MessengerConfig;
 
 @FxmlView(name = "main-slides")
 public class FxSlidesView extends VBox implements SlidesView {
@@ -392,12 +391,57 @@ public class FxSlidesView extends VBox implements SlidesView {
 	}
 
 	@Override
+	public void setOnDirectMessageRequest(ConsumerAction<String> action) {
+
+	}
+
+	@Override
+	public void addParticipantMessage(CourseParticipantMessage message) {
+
+	}
+
+	@Override
+	public void addParticipantMessage(CourseFeatureMessengerParticipantMessage message) {
+
+	}
+
+	@Override
+	public void updateParticipantMessage(CourseParticipantMessage message) {
+
+	}
+
+	@Override
+	public void updateParticipantMessage(CourseFeatureMessengerParticipantMessage message) {
+
+	}
+
+	@Override
+	public void removeParticipantMessageView(String username) {
+
+	}
+
+	@Override
+	public void removeParticipantMessageViews() {
+
+	}
+
+	@Override
+	public void setStreamConnectedIcon(CourseParticipantMessage message) {
+
+	}
+
+	@Override
 	public void setParticipantMessage(CourseParticipantMessage message) {
 
 	}
 
 	@Override
 	public void setMessengerParticipantMessage(CourseFeatureMessengerParticipantMessage message) {
+
+	}
+
+	@Override
+	public void setMessengerConnectedIcon(CourseFeatureMessengerParticipantMessage message) {
 
 	}
 
@@ -531,6 +575,11 @@ public class FxSlidesView extends VBox implements SlidesView {
 
 	@Override
 	public void setOnSend(Action action) {
+
+	}
+
+	@Override
+	public void setOnCancelDirectMessage(Action action) {
 
 	}
 

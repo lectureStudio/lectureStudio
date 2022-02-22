@@ -43,7 +43,6 @@ import org.lecturestudio.presenter.api.stylus.StylusHandler;
 import org.lecturestudio.web.api.event.PeerStateEvent;
 import org.lecturestudio.web.api.event.VideoFrameEvent;
 import org.lecturestudio.web.api.message.*;
-import org.lecturestudio.web.api.model.messenger.MessengerConfig;
 
 public interface SlidesView extends View {
 
@@ -91,9 +90,27 @@ public interface SlidesView extends View {
 
 	void setMessengerDirectMessage(MessengerDirectMessage message);
 
+    void setOnDirectMessageRequest(ConsumerAction<String> action);
+
+    void addParticipantMessage(CourseParticipantMessage message);
+
+	void addParticipantMessage(CourseFeatureMessengerParticipantMessage message);
+
+	void updateParticipantMessage(CourseParticipantMessage message);
+
+	void updateParticipantMessage(CourseFeatureMessengerParticipantMessage message);
+
+	void removeParticipantMessageView(String username);
+
+	void removeParticipantMessageViews();
+
+	void setStreamConnectedIcon(CourseParticipantMessage message);
+
 	void setParticipantMessage(CourseParticipantMessage message);
 
 	void setMessengerParticipantMessage(CourseFeatureMessengerParticipantMessage message);
+
+	void setMessengerConnectedIcon(CourseFeatureMessengerParticipantMessage message);
 
 	void setSpeechRequestMessage(SpeechRequestMessage message);
 
@@ -142,4 +159,12 @@ public interface SlidesView extends View {
 	void setMessageToSend(StringProperty messageValue);
 
 	void setOnSend(Action action);
+
+	void setOnCancelDirectMessage(Action action);
+
+	void onRequestDirectMessage(String username);
+
+	void onRequestDirectMessageCancel();
+
+	void setOnSendTextFieldFocusLost(Action action);
 }

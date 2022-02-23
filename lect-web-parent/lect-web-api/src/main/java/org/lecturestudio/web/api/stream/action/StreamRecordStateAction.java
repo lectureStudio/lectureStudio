@@ -36,6 +36,10 @@ public class StreamRecordStateAction extends StreamStateAction {
 		super(input);
 	}
 
+	public boolean isRecorded() {
+		return isRecorded;
+	}
+
 	@Override
 	public byte[] toByteArray() throws IOException {
 		ByteBuffer buffer = createBuffer(9);

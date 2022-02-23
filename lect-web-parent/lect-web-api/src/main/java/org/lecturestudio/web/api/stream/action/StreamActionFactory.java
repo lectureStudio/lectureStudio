@@ -31,6 +31,8 @@ public class StreamActionFactory {
 				return new StreamInitAction(input);
 			case STREAM_START:
 				return new StreamStartAction(input);
+			case STREAM_RECORDED:
+				return new StreamRecordStateAction(input);
 			case STREAM_PAGE_ACTION:
 				return new StreamPagePlaybackAction(input);
 			case STREAM_PAGE_ACTIONS:

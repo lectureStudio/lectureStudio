@@ -45,6 +45,7 @@ import org.lecturestudio.core.model.Page;
 import org.lecturestudio.core.recording.RecordedPage;
 import org.lecturestudio.core.recording.action.PlaybackAction;
 import org.lecturestudio.core.service.DocumentService;
+import org.lecturestudio.presenter.api.event.RecordingStateEvent;
 import org.lecturestudio.presenter.api.recording.PendingActions;
 import org.lecturestudio.web.api.client.MultipartBody;
 import org.lecturestudio.web.api.stream.StreamEventRecorder;
@@ -59,6 +60,7 @@ import org.lecturestudio.web.api.stream.action.StreamPageCreatedAction;
 import org.lecturestudio.web.api.stream.action.StreamPageDeletedAction;
 import org.lecturestudio.web.api.stream.action.StreamPagePlaybackAction;
 import org.lecturestudio.web.api.stream.action.StreamPageSelectedAction;
+import org.lecturestudio.web.api.stream.action.StreamRecordStateAction;
 import org.lecturestudio.web.api.stream.action.StreamStartAction;
 import org.lecturestudio.web.api.stream.model.Course;
 import org.lecturestudio.web.api.stream.service.StreamProviderService;
@@ -75,6 +77,8 @@ public class WebRtcStreamEventRecorder extends StreamEventRecorder {
 	private Page currentPage;
 
 	private Course course;
+
+	private boolean isRecorded;
 
 	private long startTime = -1;
 
@@ -137,6 +141,17 @@ public class WebRtcStreamEventRecorder extends StreamEventRecorder {
 		}
 
 		return actions;
+	}
+
+	@Subscribe
+	public void onEvent(final RecordingStateEvent event) {
+		isRecorded = event.started();
+
+		if (!started()) {
+			return;
+		}
+
+		addPlaybackAction(new StreamRecordStateAction(course.getId(), isRecorded));
 	}
 
 	@Subscribe
@@ -264,6 +279,10 @@ public class WebRtcStreamEventRecorder extends StreamEventRecorder {
 
 			getPreRecordedActions().forEach(this::addPlaybackAction);
 
+			if (isRecorded) {
+				addPlaybackAction(new StreamRecordStateAction(course.getId(),
+						isRecorded));
+			}
 			addPlaybackAction(new StreamStartAction(course.getId()));
 		}
 		catch (Exception e) {
@@ -272,7 +291,8 @@ public class WebRtcStreamEventRecorder extends StreamEventRecorder {
 
 		ExecutableState prevState = getPreviousState();
 
-		if (prevState == ExecutableState.Initialized || prevState == ExecutableState.Stopped) {
+		if (prevState == ExecutableState.Initialized
+				|| prevState == ExecutableState.Stopped) {
 			startTime = System.currentTimeMillis();
 		}
 		else if (prevState == ExecutableState.Suspended) {

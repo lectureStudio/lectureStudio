@@ -23,7 +23,7 @@ import java.nio.ByteBuffer;
 
 public abstract class StreamStateAction extends StreamAction {
 
-	private long courseId;
+	protected long courseId;
 
 
 	public StreamStateAction(long courseId) {

@@ -18,22 +18,43 @@
 
 package org.lecturestudio.web.api.stream.action;
 
-public enum StreamActionType {
+import java.io.IOException;
+import java.nio.ByteBuffer;
 
-	STREAM_INIT,
-	STREAM_START,
-	STREAM_RECORDED,
+public class StreamRecordStateAction extends StreamStateAction {
 
-	STREAM_PAGE_ACTION,
-	STREAM_PAGE_ACTIONS,
-	STREAM_PAGE_CREATED,
-	STREAM_PAGE_DELETED,
-	STREAM_PAGE_SELECTED,
+	private boolean isRecorded;
 
-	STREAM_DOCUMENT_CREATED,
-	STREAM_DOCUMENT_CLOSED,
-	STREAM_DOCUMENT_SELECTED,
 
-	STREAM_SPEECH_PUBLISHED;
+	public StreamRecordStateAction(long courseId, boolean recorded) {
+		super(courseId);
 
+		this.isRecorded = recorded;
+	}
+
+	public StreamRecordStateAction(byte[] input) {
+		super(input);
+	}
+
+	@Override
+	public byte[] toByteArray() throws IOException {
+		ByteBuffer buffer = createBuffer(9);
+		buffer.putLong(getCourseId());
+		buffer.put((byte) (isRecorded ? 1 : 0));
+
+		return buffer.array();
+	}
+
+	@Override
+	public void parseFrom(byte[] input) {
+		ByteBuffer buffer = createBuffer(input);
+
+		courseId = buffer.getLong();
+		isRecorded = buffer.get() == 1;
+	}
+
+	@Override
+	public StreamActionType getType() {
+		return StreamActionType.STREAM_RECORDED;
+	}
 }

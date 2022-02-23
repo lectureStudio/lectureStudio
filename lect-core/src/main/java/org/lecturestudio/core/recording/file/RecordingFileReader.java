@@ -46,7 +46,7 @@ public class RecordingFileReader {
 		if (header.getVersion() != Recording.FORMAT_VERSION) {
 			inputStream.close();
 			
-			throw new IncompatibleFileFormatException("Incompatible file format.");
+			throw new IncompatibleFileFormatException("Incompatible file format");
 		}
 		
 		// Read events.
@@ -77,4 +77,34 @@ public class RecordingFileReader {
 		return recording;
 	}
 
+	public static RecordedAudio getRecordedAudio(File srcFile)
+			throws IOException, IncompatibleFileFormatException {
+		try (FileInputStream inputStream = new FileInputStream(srcFile)) {
+			RecordingHeader header = new RecordingHeader();
+
+			int headerLength = header.getHeaderLength();
+			byte[] headerData = new byte[headerLength];
+			inputStream.read(headerData);
+
+			header.parseFrom(headerData);
+
+			if (header.getVersion() != Recording.FORMAT_VERSION) {
+				inputStream.close();
+
+				throw new IncompatibleFileFormatException(
+						"Incompatible file format");
+			}
+
+			int eventsLength = header.getEventsLength();
+			int docLength = header.getDocumentLength();
+			int audioLength = header.getAudioLength();
+
+			RandomAccessStream raStream = new RandomAccessStream(srcFile,
+					headerLength + eventsLength + docLength, audioLength);
+			RandomAccessAudioStream audioStream = new RandomAccessAudioStream(
+					raStream);
+
+			return new RecordedAudio(audioStream);
+		}
+	}
 }

@@ -68,6 +68,7 @@ public class RecordingFileReader {
 		inputStream.close();
 
 		Recording recording = new Recording();
+		recording.setSourceFile(srcFile);
 		recording.setRecordingHeader(header);
 		recording.setRecordedEvents(new RecordedEvents(eventData));
 		recording.setRecordedDocument(new RecordedDocument(documentData));

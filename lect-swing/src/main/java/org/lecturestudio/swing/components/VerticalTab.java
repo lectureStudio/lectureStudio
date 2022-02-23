@@ -32,6 +32,10 @@ public class VerticalTab extends JLabel {
 		setBorder(new EmptyBorder(0, 10, 0, 10));
 	}
 
+	public boolean isClockwise() {
+		return ((VerticalLabelUI) getUI()).isClockwise();
+	}
+
 	public static VerticalTab fromJLabel(JLabel label, int tabPlacement) {
 		return fromText(label.getText(), tabPlacement, label.getIcon());
 	}

@@ -34,9 +34,6 @@ import java.util.*;
 import java.util.List;
 import java.util.function.Consumer;
 import java.util.function.IntSupplier;
-import java.util.function.Supplier;
-import java.util.function.UnaryOperator;
-import java.util.stream.IntStream;
 import java.util.Objects;
 
 import javax.inject.Inject;
@@ -64,9 +61,8 @@ import org.lecturestudio.core.tool.ToolType;
 import org.lecturestudio.core.view.*;
 import org.lecturestudio.core.view.Action;
 import org.lecturestudio.presenter.api.model.MessageBarPosition;
-import org.lecturestudio.presenter.api.model.MessageTabData;
-import org.lecturestudio.presenter.api.model.SlidesTabData;
-import org.lecturestudio.presenter.api.model.TabData;
+import org.lecturestudio.swing.model.AdaptiveTab;
+import org.lecturestudio.swing.model.AdaptiveTabType;
 import org.lecturestudio.swing.model.ExternalWindowPosition;
 import org.lecturestudio.presenter.api.stylus.StylusHandler;
 import org.lecturestudio.presenter.api.view.SlidesView;
@@ -96,6 +92,8 @@ public class SwingSlidesView extends JPanel implements SlidesView {
 	private static final String SPEECH_LABEL_KEY = "slides.speech";
 
 	private static final String CURRENTLY_NO_SPEECH_LABEL_KEY = "slides.currently.no.speech";
+
+	private static final String MENU_LABEL_KEY = "menu.contents";
 
 	private static final int TAB_OFFSET = 3;
 
@@ -177,7 +175,7 @@ public class SwingSlidesView extends JPanel implements SlidesView {
 
 	private Box rightVbox;
 
-	private JTabbedPane rightTabPane;
+	private AdaptiveTabbedPane rightTabPane;
 
 	private Container peerViewContainer;
 
@@ -187,11 +185,11 @@ public class SwingSlidesView extends JPanel implements SlidesView {
 
 	private Box messageViewContainer;
 
-	private JTabbedPane bottomTabPane;
+	private AdaptiveTabbedPane bottomTabPane;
 
 	private JPanel messagesPanel;
 
-	private final JTabbedPane leftTabPane = new JTabbedPane(SwingConstants.LEFT);
+	private AdaptiveTabbedPane leftTabPane;
 
 	//	private JTextArea notesTextArea;
 
@@ -221,15 +219,7 @@ public class SwingSlidesView extends JPanel implements SlidesView {
 
 	private JLabel messagesPlaceholder;
 
-	private final JTabbedPane externalSlidePreviewTabPane = new JTabbedPane(SwingConstants.RIGHT);
-
-	private final ArrayList<TabData> leftTabs = new ArrayList<>();
-
-	private final ArrayList<TabData> bottomTabs = new ArrayList<>();
-
-	private final ArrayList<TabData> rightTabs = new ArrayList<>();
-
-	private final ArrayList<TabData> externalSlideTabs = new ArrayList<>();
+	private final AdaptiveTabbedPane externalSlidePreviewTabPane = new AdaptiveTabbedPane(SwingConstants.RIGHT);
 
 	private MessageBarPosition messageBarPosition = MessageBarPosition.BOTTOM;
 
@@ -263,7 +253,7 @@ public class SwingSlidesView extends JPanel implements SlidesView {
 	@Override
 	public void addDocument(Document doc, PresentationParameterProvider ppProvider) {
 		SwingUtils.invoke(() -> {
-			final JTabbedPane slidesTabPane = getSlidesTabPane();
+			final AdaptiveTabbedPane slidesTabPane = getSlidesTabPane();
 
 			// Select document tab.
 			int tabCount = slidesTabPane.getTabCount();
@@ -314,36 +304,25 @@ public class SwingSlidesView extends JPanel implements SlidesView {
 				}
 			});
 
-			VerticalTab tab = VerticalTab.fromText(doc.getName(), slidesTabPane.getTabPlacement());
-			addTabToSlidesPane(thumbPanel, tab, this::updateSlidesTabs);
+			VerticalTab tab = VerticalTab.fromText(doc.getName(), getSlidesTabPane().getTabPlacement());
+			getSlidesTabPane().addTabBefore(new AdaptiveTab(AdaptiveTabType.SLIDE, tab, thumbPanel),
+					AdaptiveTabType.MESSAGE);
 		});
-	}
-
-	private void addTabToSlidesPane(Component component, JLabel tabComponent, Runnable updateTabsFunc) {
-		final ArrayList<TabData> slidesTabs = getSlidesTabs();
-
-		final int index = IntStream.range(0, slidesTabs.size()).filter(i -> slidesTabs.get(i) instanceof MessageTabData)
-				.findFirst().orElse(slidesTabs.size());
-
-		slidesTabs.add(index, new SlidesTabData(component, tabComponent, true, true));
-
-		updateTabsFunc.run();
 	}
 
 	@Override
 	public void removeDocument(Document doc) {
-		final ArrayList<TabData> slidesTabs = getSlidesTabs();
+		final AdaptiveTabbedPane slidesTabPane = getSlidesTabPane();
 
 		// Remove document tab.
-		for (final TabData tab : slidesTabs) {
-			if (!(tab.component instanceof ThumbPanel)) {
+		for (final AdaptiveTab tab : slidesTabPane.getTabs()) {
+			if (!(tab.getComponent() instanceof ThumbPanel)) {
 				continue;
 			}
 
-			ThumbPanel thumbnailPanel = (ThumbPanel) tab.component;
+			ThumbPanel thumbnailPanel = (ThumbPanel) tab.getComponent();
 			if (thumbnailPanel.getDocument().equals(doc)) {
-				slidesTabs.remove(tab);
-				updateSlidesTabs();
+				slidesTabPane.removeTab(tab.getLabel().getText());
 				break;
 			}
 		}
@@ -364,7 +343,7 @@ public class SwingSlidesView extends JPanel implements SlidesView {
 	@Override
 	public void selectDocument(Document doc, PresentationParameterProvider ppProvider) {
 		SwingUtils.invoke(() -> {
-			final JTabbedPane slidesTabPane = getSlidesTabPane();
+			final AdaptiveTabbedPane slidesTabPane = getSlidesTabPane();
 
 			// Select document tab.
 			int tabCount = slidesTabPane.getTabCount();
@@ -383,7 +362,6 @@ public class SwingSlidesView extends JPanel implements SlidesView {
 						// Prevent tab switching for quiz reloading.
 						thumbnailPanel.setDocument(doc, ppProvider);
 					}
-					slidesTabPane.setSelectedIndex(i);
 					break;
 				}
 			}
@@ -436,31 +414,13 @@ public class SwingSlidesView extends JPanel implements SlidesView {
 			}
 
 			// Show red highlight, if notes-view is hidden and page notes are available.
-			final int notesIndex = getTabIndex(bottomTabPane, dict.get("slides.notes"));
+			final int notesIndex = bottomTabPane.getTabIndex(dict.get("slides.notes"));
 			if (bottomTabPane.getSelectedIndex() != notesIndex && !notes.isEmpty()) {
 				bottomTabPane.setBackgroundAt(notesIndex, new Color(255, 182, 193));
 			}
 		}
 
 		//notesTextArea.setText(buffer.toString());
-	}
-
-	private TabData getTabByLabel(ArrayList<TabData> tabs, String labelText) {
-		return tabs.stream().filter(tab -> tab.getTabComponent().getText().equals(labelText)).findFirst().orElse(null);
-	}
-
-	private int getTabIndex(JTabbedPane pane, String labelText) {
-		int index = -1;
-
-		for (int i = 0; i < pane.getTabCount(); i++) {
-			JLabel label = (JLabel) pane.getTabComponentAt(i);
-			if (label.getText().equals(labelText)) {
-				index = i;
-				break;
-			}
-		}
-
-		return index;
 	}
 
 	@Override
@@ -518,13 +478,15 @@ public class SwingSlidesView extends JPanel implements SlidesView {
 
 	@Override
 	public void setQuizState(ExecutableState state) {
-		for (int i = 0; i < getSlidesTabPane().getTabCount(); i++) {
-			final Component tabComponent = getSlidesTabPane().getComponentAt(i);
+		final AdaptiveTabbedPane slidesTabPane = getSlidesTabPane();
+
+		for (int i = 0; i < slidesTabPane.getTabCount(); i++) {
+			final Component tabComponent = slidesTabPane.getComponentAt(i);
 			if (!(tabComponent instanceof QuizThumbnailPanel)) {
 				continue;
 			}
 
-			QuizThumbnailPanel quizPanel = (QuizThumbnailPanel) getSlidesTabPane().getComponentAt(i);
+			QuizThumbnailPanel quizPanel = (QuizThumbnailPanel) slidesTabPane.getComponentAt(i);
 			quizPanel.setQuizState(state);
 			break;
 
@@ -545,7 +507,6 @@ public class SwingSlidesView extends JPanel implements SlidesView {
 
 			final boolean streamOrMessengerStarted = streamStarted || messengerStarted;
 			setMessageBarTabEnabled(dict.get(MESSAGE_LABEL_KEY), streamOrMessengerStarted);
-			setMessageBarTabSelected(dict.get(MESSAGE_LABEL_KEY), streamOrMessengerStarted);
 
 			if (!streamStarted) {
 				removeMessageViews(SpeechRequestView.class);
@@ -567,7 +528,6 @@ public class SwingSlidesView extends JPanel implements SlidesView {
 
 			final boolean streamOrMessengerStarted = streamStarted || messengerStarted;
 			setMessageBarTabEnabled(dict.get(MESSAGE_LABEL_KEY), streamOrMessengerStarted);
-			setMessageBarTabSelected(dict.get(MESSAGE_LABEL_KEY), streamOrMessengerStarted);
 
 			if (!streamStarted && !messengerStarted) {
 				showMessagesPlaceholder();
@@ -686,11 +646,10 @@ public class SwingSlidesView extends JPanel implements SlidesView {
 
 				externalSpeechFrame.showBody();
 
-				if (getNumberOfVisibleTabs(rightTabPane) == 0 && !externalSpeechFrame.isVisible()) {
+				if (rightTabPane.getVisibleTabCount() == 0 && !externalSpeechFrame.isVisible()) {
 					maximizeRightTabPane();
 				}
-			}
-			else if (state == ExecutableState.Started) {
+			} else if (state == ExecutableState.Started) {
 				for (var component : peerViewContainer.getComponents()) {
 					if (component instanceof PeerView) {
 						PeerView peerView = (PeerView) component;
@@ -701,8 +660,7 @@ public class SwingSlidesView extends JPanel implements SlidesView {
 						}
 					}
 				}
-			}
-			else if (state == ExecutableState.Stopped) {
+			} else if (state == ExecutableState.Stopped) {
 				removePeerView(event.getRequestId());
 			}
 		});
@@ -908,7 +866,7 @@ public class SwingSlidesView extends JPanel implements SlidesView {
 		externalSlidePreviewFrame.showBody();
 		externalSlidePreviewFrame.setVisible(true);
 
-		moveSlideTabsToExternalTabPane();
+		externalSlidePreviewTabPane.addTabs(rightTabPane.removeTabsByType(AdaptiveTabType.SLIDE));
 	}
 
 	@Override
@@ -920,50 +878,12 @@ public class SwingSlidesView extends JPanel implements SlidesView {
 		externalSlidePreviewFrame.hideBody();
 		externalSlidePreviewFrame.setVisible(false);
 
-		moveSlideTabsToRightTabPane();
+		rightTabPane.addTabsBefore(externalSlidePreviewTabPane.removeTabsByType(AdaptiveTabType.SLIDE),
+				AdaptiveTabType.MESSAGE);
 	}
 
-	private ArrayList<TabData> getSlidesTabs() {
-		return externalSlidePreviewFrame.isVisible() ? externalSlideTabs : rightTabs;
-	}
-
-	private JTabbedPane getSlidesTabPane() {
+	private AdaptiveTabbedPane getSlidesTabPane() {
 		return externalSlidePreviewFrame.isVisible() ? externalSlidePreviewTabPane : rightTabPane;
-	}
-
-	private void moveSlideTabsToExternalTabPane() {
-		moveSlidesTabsFromTo(rightTabs, externalSlideTabs);
-		updateRightTabs();
-		updateExternalSlideTabs();
-	}
-
-	private void moveSlideTabsToRightTabPane() {
-		moveSlidesTabsFromTo(externalSlideTabs, rightTabs);
-		updateExternalSlideTabs();
-		updateRightTabs();
-	}
-
-	private void moveSlidesTabsFromTo(ArrayList<TabData> from, ArrayList<TabData> to) {
-		final ArrayList<TabData> tabsToAdd = new ArrayList<>();
-
-		final Iterator<TabData> iter = from.iterator();
-
-		while (iter.hasNext()) {
-			final TabData tab = iter.next();
-
-			if (!(tab instanceof SlidesTabData)) {
-				continue;
-			}
-
-			tabsToAdd.add(tab);
-			iter.remove();
-		}
-
-		final int index =
-				IntStream.range(0, to.size()).filter(i -> to.get(i) instanceof MessageTabData).findFirst()
-						.orElse(to.size());
-
-		to.addAll(index, tabsToAdd);
 	}
 
 	@Override
@@ -972,7 +892,9 @@ public class SwingSlidesView extends JPanel implements SlidesView {
 			return;
 		}
 
-		removeComponentAndUpdate(rightVbox, peerViewContainer);
+		rightVbox.remove(peerViewContainer);
+		rightVbox.revalidate();
+		rightVbox.repaint();
 
 		peerViewContainer.setVisible(true);
 
@@ -986,14 +908,15 @@ public class SwingSlidesView extends JPanel implements SlidesView {
 			return;
 		}
 
-		if (getNumberOfVisibleTabs(rightTabPane) == 0) {
+		if (rightTabPane.getVisibleTabCount() == 0) {
 			maximizeRightTabPane();
 		}
 
 		externalSpeechFrame.setVisible(false);
 
-
-		addComponentAndUpdate(rightVbox, peerViewContainer, 0);
+		rightVbox.add(peerViewContainer, 0);
+		rightVbox.revalidate();
+		rightVbox.repaint();
 
 		if (!currentSpeech) {
 			peerViewContainer.setVisible(false);
@@ -1038,7 +961,7 @@ public class SwingSlidesView extends JPanel implements SlidesView {
 			return;
 		}
 
-		moveMessageBarTabsToBottom();
+		bottomTabPane.addTabs(removeMessageBarTabs());
 	}
 
 	private void showMessageBarLeft() {
@@ -1046,7 +969,7 @@ public class SwingSlidesView extends JPanel implements SlidesView {
 			return;
 		}
 
-		moveMessageBarTabsToLeft();
+		leftTabPane.addTabs(removeMessageBarTabs());
 	}
 
 	private void showMessageBarRight() {
@@ -1054,23 +977,7 @@ public class SwingSlidesView extends JPanel implements SlidesView {
 			return;
 		}
 
-		moveMessageBarTabsToRight();
-	}
-
-	private void removeComponentAndUpdate(JComponent component, Component componentToRemove) {
-		component.remove(componentToRemove);
-		component.revalidate();
-		component.repaint();
-	}
-
-	private void addComponentAndUpdate(JComponent component, Component componentToAdd) {
-		addComponentAndUpdate(component, componentToAdd, -1);
-	}
-
-	private void addComponentAndUpdate(JComponent component, Component componentToAdd, int index) {
-		component.add(componentToAdd, index);
-		component.revalidate();
-		component.repaint();
+		rightTabPane.addTabs(removeMessageBarTabs());
 	}
 
 	private void removePeerView(long requestId) {
@@ -1108,7 +1015,7 @@ public class SwingSlidesView extends JPanel implements SlidesView {
 	}
 
 	private void showOutline(boolean show) {
-		setLeftTabVisible(dict.get("menu.contents"), show);
+		setLeftTabVisible(dict.get(MENU_LABEL_KEY), show);
 	}
 
 	private void selectOutlineItem(Page page) {
@@ -1156,146 +1063,55 @@ public class SwingSlidesView extends JPanel implements SlidesView {
 	}
 
 	private void setLeftTabVisible(String labelText, boolean visible) {
-		setTabVisible(leftTabs, labelText, visible, this::updateLeftTabs);
+		setTabVisible(leftTabPane, labelText, visible, this::minimizeLeftTabPane);
 	}
 
 	private void setBottomTabVisible(String labelText, boolean visible) {
-		setTabVisible(bottomTabs, labelText, visible, this::updateBottomTabs);
+		setTabVisible(bottomTabPane, labelText, visible, this::minimizeBottomTabPane);
 	}
 
 	private void setRightTabVisible(String labelText, boolean visible) {
-		setTabVisible(rightTabs, labelText, visible, this::updateRightTabs);
+		setTabVisible(rightTabPane, labelText, visible, this::minimizeRightTabPane);
 	}
 
-	private void setTabVisible(ArrayList<TabData> tabs, String labelText, boolean visible, Runnable updateTabsFunc) {
-		tabs.stream().filter(tabData1 -> tabData1.getTabComponent().getText().equals(labelText)).findFirst()
-				.ifPresent(tabData -> {
-					tabData.setVisible(visible);
-					updateTabsFunc.run();
-				});
-	}
+	private void setTabVisible(AdaptiveTabbedPane tabbedPane, String labelText, boolean visible,
+							   Runnable minimizeFunc) {
+		final int prevVisibleTabCount = tabbedPane.getVisibleTabCount();
 
-	private int getNumberOfVisibleTabs(JTabbedPane pane) {
-		int numberOfVisible = 0;
+		tabbedPane.setTabVisible(labelText, visible);
 
-		for (int i = 0; i < pane.getTabCount(); i++) {
-			if (pane.getTabComponentAt(i).isVisible()) {
-				numberOfVisible++;
-			}
+		final int visibleTabCount = tabbedPane.getVisibleTabCount();
+
+		if (visibleTabCount == 0 || (prevVisibleTabCount == 0 && visibleTabCount >= 1)) {
+			minimizeFunc.run();
 		}
-
-		return numberOfVisible;
 	}
 
-	private void moveMessageBarTabsToLeft() {
-		final LinkedList<TabData> tabs = removeMessageBarTabs();
-		addMessageBarTabs(leftTabs, tabs, tab -> VerticalTab.fromJLabel(tab, SwingConstants.LEFT),
-				this::updateLeftTabs);
-	}
-
-	private void moveMessageBarTabsToBottom() {
-		final LinkedList<TabData> tabs = removeMessageBarTabs();
-		addMessageBarTabs(bottomTabs, tabs, tab -> new JLabel(tab.getText(), tab.getIcon(), SwingConstants.LEFT),
-				this::updateBottomTabs);
-	}
-
-	private void moveMessageBarTabsToRight() {
-		final LinkedList<TabData> tabs = removeMessageBarTabs();
-		addMessageBarTabs(rightTabs, tabs, tab -> VerticalTab.fromJLabel(tab, SwingConstants.RIGHT),
-				this::updateRightTabs);
-	}
-
-	private void addMessageBarTabs(ArrayList<TabData> tabs, LinkedList<TabData> tabsToAdd,
-								   UnaryOperator<JLabel> transformTabFunc, Runnable updateTabsFunc) {
-		for (final TabData tabToAdd : tabsToAdd) {
-			tabToAdd.setTabComponent(transformTabFunc.apply(tabToAdd.getTabComponent()));
-			tabs.add(tabToAdd);
-		}
-
-		updateTabsFunc.run();
-	}
-
-	private LinkedList<TabData> removeMessageBarTabs() {
+	private List<AdaptiveTab> removeMessageBarTabs() {
 		switch (messageBarPosition) {
 			case BOTTOM:
-				return removeMessageBarTabs(bottomTabs, this::updateBottomTabs);
+				return bottomTabPane.removeTabsByType(AdaptiveTabType.MESSAGE);
 			case LEFT:
-				return removeMessageBarTabs(leftTabs, this::updateLeftTabs);
+				return leftTabPane.removeTabsByType(AdaptiveTabType.MESSAGE);
 			case RIGHT:
-				return removeMessageBarTabs(rightTabs, this::updateRightTabs);
+				return rightTabPane.removeTabsByType(AdaptiveTabType.MESSAGE);
 		}
 
-		return new LinkedList<>();
-	}
-
-	private LinkedList<TabData> removeMessageBarTabs(ArrayList<TabData> tabs, Runnable updateTabsFunc) {
-		final LinkedList<TabData> removedTabs = new LinkedList<>();
-
-		final Iterator<TabData> iter = tabs.iterator();
-
-		while (iter.hasNext()) {
-			final TabData tab = iter.next();
-
-			if (!(tab instanceof MessageTabData)) {
-				continue;
-			}
-
-			removedTabs.add(tab);
-			iter.remove();
-		}
-
-		updateTabsFunc.run();
-
-		return removedTabs;
+		return new ArrayList<>();
 	}
 
 	private void setMessageBarTabEnabled(String labelText, boolean enable) {
 		switch (messageBarPosition) {
 			case BOTTOM:
-				setTabEnabled(bottomTabs, labelText, enable, this::updateBottomTabs);
+				bottomTabPane.setTabEnabled(labelText, enable);
 				break;
 			case LEFT:
-				setTabEnabled(leftTabs, labelText, enable, this::updateLeftTabs);
+				leftTabPane.setTabEnabled(labelText, enable);
 				break;
 			case RIGHT:
-				setTabEnabled(rightTabs, labelText, enable, this::updateRightTabs);
+				rightTabPane.setTabEnabled(labelText, enable);
 				break;
 		}
-	}
-
-	private void setTabEnabled(ArrayList<TabData> tabs, String labelText, boolean enabled, Runnable updateTabsFunc) {
-		final TabData tab = getTabByLabel(tabs, labelText);
-
-		if (tab != null) {
-			tab.setEnabled(enabled);
-
-			updateTabsFunc.run();
-		}
-	}
-
-	private void setMessageBarTabSelected(String labelText, boolean select) {
-		switch (messageBarPosition) {
-			case BOTTOM:
-				setTabSelected(bottomTabPane, labelText, select, this::updateBottomTabPaneIndex);
-				break;
-			case LEFT:
-				setTabSelected(leftTabPane, labelText, select, this::updateLeftTabPaneIndex);
-				break;
-			case RIGHT:
-				setTabSelected(rightTabPane, labelText, select, this::updateRightTabPaneIndex);
-				break;
-		}
-	}
-
-	private void setTabSelected(JTabbedPane pane, String labelText, boolean select, Runnable updateTabIndexFunc) {
-		final int index = getTabIndex(pane, labelText);
-		if (select) {
-			pane.setSelectedIndex(index);
-		}
-		if (!select && pane.getSelectedIndex() == index) {
-			pane.setSelectedIndex(-1);
-		}
-		updateTabIndexFunc.run();
 	}
 
 	private void updateLeftTabPaneIndex() {
@@ -1310,84 +1126,6 @@ public class SwingSlidesView extends JPanel implements SlidesView {
 		rightTabPrevSelectedIndex = rightTabPane.getSelectedIndex();
 	}
 
-	private void updateLeftTabs() {
-		updateTabs(leftTabPane, leftTabs, this::minimizeLeftTabPane, this::updateLeftTabPaneIndex,
-				() -> new Dimension(getLeftTabWidth(), 0));
-	}
-
-	private void updateBottomTabs() {
-		updateTabs(bottomTabPane, bottomTabs, this::minimizeBottomTabPane, this::updateBottomTabPaneIndex,
-				() -> new Dimension(0, getBottomTabHeight()));
-	}
-
-	private void updateRightTabs() {
-		updateTabs(rightTabPane, rightTabs, this::minimizeRightTabPane, this::updateRightTabPaneIndex,
-				() -> new Dimension(getRightTabWidth(), 0));
-	}
-
-	private void updateExternalSlideTabs() {
-		updateTabs(externalSlidePreviewTabPane, externalSlideTabs, () -> {
-		}, () -> {
-		}, () -> new Dimension(0, 0));
-	}
-
-	private void updateSlidesTabs() {
-		if (externalSlidePreviewFrame.isVisible()) {
-			updateExternalSlideTabs();
-		} else {
-			updateRightTabs();
-		}
-		checkIfThumbSelected();
-	}
-
-	private void updateTabs(JTabbedPane tabPane, ArrayList<TabData> tabs, Runnable minimizeFunc,
-							Runnable updateIndexFunc, Supplier<Dimension> minimumDimensionFunc) {
-		final int numberOfPrevVisible = getNumberOfVisibleTabs(tabPane);
-		int numberOfVisible = 0;
-
-		final int oldSelectedIndex = tabPane.getSelectedIndex();
-		final String selectedLabel = oldSelectedIndex >= 0 && oldSelectedIndex < tabPane.getTabCount() ?
-				((JLabel) tabPane.getTabComponentAt(oldSelectedIndex)).getText() : "";
-
-		tabPane.removeAll();
-
-		int selectedIndex = -1;
-
-		for (final TabData tab : tabs) {
-			if (!tab.isVisible()) {
-				continue;
-			}
-
-			tabPane.addTab(null, tab.component);
-
-			final int index = tabPane.getTabCount() - 1;
-
-			tab.getTabComponent().setEnabled(tab.isEnabled());
-			tabPane.setTabComponentAt(index, tab.getTabComponent());
-			tabPane.setEnabledAt(index, tab.isEnabled());
-
-			if (tab.getTabComponent().getText().equals(selectedLabel)) {
-				selectedIndex = index;
-			}
-
-			numberOfVisible++;
-		}
-
-		tabPane.setSelectedIndex(selectedIndex >= 0 ? selectedIndex : tabPane.getTabCount() - 1);
-
-		tabPane.setMinimumSize(minimumDimensionFunc.get());
-		updateIndexFunc.run();
-
-		if (numberOfVisible >= 1 && numberOfPrevVisible == 0) {
-			tabPane.setVisible(true);
-			minimizeFunc.run();
-		}
-		if (numberOfVisible == 0) {
-			tabPane.setVisible(false);
-			minimizeFunc.run();
-		}
-	}
-
 	private void maximizeLeftTabPane() {
 		maximizePane(docSplitPane, oldDocSplitPaneDividerRatio, docSplitPane::getWidth);
 	}
@@ -1397,7 +1135,7 @@ public class SwingSlidesView extends JPanel implements SlidesView {
 	}
 
 	private void minimizeLeftTabPane(boolean saveOldRatio) {
-		minimizePane(docSplitPane, this::getLeftTabWidth, leftTabPane::getWidth,
+		minimizePane(docSplitPane, leftTabPane::getTabSize, leftTabPane::getWidth,
 				(pane, tabSize, tabOffset) -> tabSize,
 				() -> oldDocSplitPaneDividerRatio = getDocSplitPaneDividerRatio(), saveOldRatio);
 	}
@@ -1407,7 +1145,7 @@ public class SwingSlidesView extends JPanel implements SlidesView {
 	}
 
 	private void minimizeBottomTabPane(boolean saveOldRatio) {
-		minimizePane(notesSplitPane, this::getBottomTabHeight, bottomTabPane::getHeight,
+		minimizePane(notesSplitPane, bottomTabPane::getTabSize, bottomTabPane::getHeight,
 				(pane, tabSize, tabOffset) -> pane.getHeight() - pane.getDividerSize() - tabSize - tabOffset,
 				() -> oldNotesSplitPaneDividerRatio = getNotesSplitPaneDividerRatio(), saveOldRatio);
 	}
@@ -1421,7 +1159,7 @@ public class SwingSlidesView extends JPanel implements SlidesView {
 	}
 
 	private void minimizeRightTabPane(boolean saveOldRatio) {
-		minimizePane(tabSplitPane, this::getRightTabWidth, tabSplitPane::getWidth,
+		minimizePane(tabSplitPane, rightTabPane::getTabSize, tabSplitPane::getWidth,
 				(pane, tabSize, tabOffset) -> pane.getWidth() - pane.getDividerSize() - tabSize - tabOffset,
 				() -> oldTabSplitPaneDividerRatio = getTabSplitPaneDividerRatio(), saveOldRatio);
 	}
@@ -1469,21 +1207,22 @@ public class SwingSlidesView extends JPanel implements SlidesView {
 	}
 
 	private void toggleLeftTab(int index) {
-		toggleTab(index, leftTabPane, leftTabPane::getWidth, this::getLeftTabWidth, this::minimizeLeftTabPane,
+		toggleTab(index, leftTabPane, leftTabPane::getWidth, leftTabPane::getTabSize, this::minimizeLeftTabPane,
 				this::maximizeLeftTabPane, leftTabPrevSelectedIndex, this::updateLeftTabPaneIndex);
 	}
 
 	private void toggleBottomTab(int index) {
-		toggleTab(index, bottomTabPane, bottomTabPane::getHeight, this::getBottomTabHeight, this::minimizeBottomTabPane,
+		toggleTab(index, bottomTabPane, bottomTabPane::getHeight, bottomTabPane::getTabSize,
+				this::minimizeBottomTabPane,
 				this::maximizeBottomTabPane, bottomTabPrevSelectedIndex, this::updateBottomTabPaneIndex);
 	}
 
 	private void toggleRightTab(int index) {
-		toggleTab(index, rightTabPane, rightTabPane::getWidth, this::getRightTabWidth, this::minimizeRightTabPane,
+		toggleTab(index, rightTabPane, rightTabPane::getWidth, rightTabPane::getTabSize, this::minimizeRightTabPane,
 				this::maximizeRightTabPane, rightTabPrevSelectedIndex, this::updateRightTabPaneIndex);
 	}
 
-	private void toggleTab(int index, JTabbedPane tabPane, IntSupplier tabPaneSizeFunc, IntSupplier tabSizeFunc,
+	private void toggleTab(int index, AdaptiveTabbedPane tabPane, IntSupplier tabPaneSizeFunc, IntSupplier tabSizeFunc,
 						   Consumer<Boolean> minimizeFunc, Runnable maximizeFunc, int tabIndex,
 						   Runnable updateTabIndexFunc) {
 		if (index < 0 || index >= tabPane.getTabCount() || !tabPane.isEnabledAt(index)) {
@@ -1504,30 +1243,6 @@ public class SwingSlidesView extends JPanel implements SlidesView {
 		}
 
 		updateTabIndexFunc.run();
-	}
-
-	private int getLeftTabWidth() {
-		try {
-			return leftTabPane.getUI().getTabBounds(leftTabPane, 0).width + 1;
-		} catch (Exception ignored) {
-			return 0;
-		}
-	}
-
-	private int getBottomTabHeight() {
-		try {
-			return bottomTabPane.getUI().getTabBounds(bottomTabPane, 0).height + 1;
-		} catch (Exception ignored) {
-			return 0;
-		}
-	}
-
-	private int getRightTabWidth() {
-		try {
-			return rightTabPane.getUI().getTabBounds(rightTabPane, 0).width + 1;
-		} catch (Exception ignored) {
-			return 0;
-		}
 	}
 
 	@ViewPostConstruct
@@ -1583,14 +1298,13 @@ public class SwingSlidesView extends JPanel implements SlidesView {
 			}
 		});
 
-		bottomTabPane.setMinimumSize(new Dimension(0, getBottomTabHeight()));
+		bottomTabPane.setMinimumSize(new Dimension(0, bottomTabPane.getTabSize()));
 		bottomTabPane.addMouseListener(new MouseAdapter() {
 
 			@Override
 			public void mousePressed(MouseEvent e) {
 				if (SwingUtilities.isLeftMouseButton(e)) {
-					final int clickedTabIndex =
-							bottomTabPane.getUI().tabForCoordinate(bottomTabPane, e.getX(), e.getY());
+					final int clickedTabIndex = bottomTabPane.getTabIndexForCoordinate(e.getX(), e.getY());
 
 					toggleBottomTab(clickedTabIndex);
 				}
@@ -1601,7 +1315,7 @@ public class SwingSlidesView extends JPanel implements SlidesView {
 			@Override
 			public void mousePressed(MouseEvent e) {
 				if (SwingUtilities.isLeftMouseButton(e)) {
-					final int clickedTabIndex = leftTabPane.getUI().tabForCoordinate(leftTabPane, e.getX(), e.getY());
+					final int clickedTabIndex = leftTabPane.getTabIndexForCoordinate(e.getX(), e.getY());
 
 					toggleLeftTab(clickedTabIndex);
 				}
@@ -1612,7 +1326,7 @@ public class SwingSlidesView extends JPanel implements SlidesView {
 			@Override
 			public void mousePressed(MouseEvent e) {
 				if (SwingUtilities.isLeftMouseButton(e)) {
-					final int clickedTabIndex = rightTabPane.getUI().tabForCoordinate(rightTabPane, e.getX(), e.getY());
+					final int clickedTabIndex = rightTabPane.getTabIndexForCoordinate(e.getX(), e.getY());
 
 					toggleRightTab(clickedTabIndex);
 
@@ -1656,9 +1370,6 @@ public class SwingSlidesView extends JPanel implements SlidesView {
 				.setSizeChangedAction(size -> executeAction(externalSpeechSizeChangedAction, size))
 				.setMinimumSize(new Dimension(1000, 500)).build();
 
-		saveLeftTabBarTabs();
-		saveBottomTabBarTabs();
-
 		addAncestorListener(new AncestorListener() {
 
 			@Override
@@ -1691,25 +1402,6 @@ public class SwingSlidesView extends JPanel implements SlidesView {
 				minimizeBottomTabPane();
 			}
 		});
-	}
-
-	private void saveLeftTabBarTabs() {
-		for (int i = 0; i < leftTabPane.getTabCount(); i++) {
-			final Component component = leftTabPane.getComponent(i);
-			final JLabel tabComponent = (JLabel) leftTabPane.getTabComponentAt(i);
-
-			leftTabs.add(new TabData(component, tabComponent, true, tabComponent.isEnabled()));
-		}
-	}
-
-	private void saveBottomTabBarTabs() {
-		for (int i = 0; i < bottomTabPane.getTabCount(); i++) {
-			final Component component = bottomTabPane.getComponent(i);
-			final JLabel tabComponent = (JLabel) bottomTabPane.getTabComponentAt(i);
-
-			bottomTabs.add(new MessageTabData(component, tabComponent, true, tabComponent.isEnabled()));
-		}
-
 	}
 
 	private void removeMessageView(Component view) {

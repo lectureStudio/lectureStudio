@@ -1020,6 +1020,9 @@ public class SlidesPresenter extends Presenter<SlidesView> {
 	}
 
 	private boolean checkIfScreenInList(List<Screen> screens, Screen screen) {
+		if (screen == null) {
+			return true;
+		}
 		return screens.stream().anyMatch(scrn -> scrn.equals(screen));
 	}
 

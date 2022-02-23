@@ -47,10 +47,15 @@ public class VerticalLabelUI extends BasicLabelUI {
 		clockwise = tabPlacement == SwingConstants.RIGHT;
 	}
 
+	@Override
 	public Dimension getPreferredSize(JComponent c) {
 		Dimension size = super.getPreferredSize(c);
 		// Use inverted height & width.
 		return new Dimension(size.height, size.width);
+	}
+
+	public boolean isClockwise() {
+		return clockwise;
 	}
 
 	@Override

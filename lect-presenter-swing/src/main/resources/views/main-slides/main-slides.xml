@@ -4,19 +4,19 @@
 		<SplitPane id="tabSplitPane" resizeWeight="1" orientation="JSplitPane.HORIZONTAL_SPLIT" constraints="BorderLayout.CENTER">
 			<SplitPane id="notesSplitPane" resizeWeight="1" orientation="JSplitPane.VERTICAL_SPLIT">
 				<SplitPane id="docSplitPane" resizeWeight="0" focusable="false" orientation="JSplitPane.HORIZONTAL_SPLIT">
-					<TabbedPane id="leftTabPane" tabPlacement="JTabbedPane.LEFT">
-						<Tab id="outlineTab" name="outline" text="menu.contents" tabPlacement="SwingConstants.LEFT">
+					<AdaptiveTabbedPane id="leftTabPane" tabPlacement="JTabbedPane.LEFT">
+						<Tab id="outlineTab" name="outline" text="menu.contents">
 							<ScrollPane id="outlinePane">
 								<Tree id="outlineTree" name="tree" focusable="false" rootVisible="false" showsRootHandles="true">
 									<renderer class="org.lecturestudio.swing.tree.OutlineRenderer" />
 								</Tree>
 							</ScrollPane>
 						</Tab>
-					</TabbedPane>
+					</AdaptiveTabbedPane>
 					<SlideView id="slideView" />
 				</SplitPane>
 
-				<TabbedPane id="bottomTabPane" tabPlacement="JTabbedPane.BOTTOM">
+				<AdaptiveTabbedPane id="bottomTabPane" tabPlacement="JTabbedPane.BOTTOM" defaultTabType="AdaptiveTabType.MESSAGE">
 <!--				<Tab id="notesTab" name="notes" text="slides.notes" icon="notes.svg, 20">-->
 <!--					<TextArea id="notesTextArea" background="white" editable="false" focusTraversable="false" minimumSize="0,0" />-->
 <!--				</Tab>-->
@@ -30,12 +30,12 @@
 							</ScrollPane>
 						</Panel>
 					</Tab>
-				</TabbedPane>
+				</AdaptiveTabbedPane>
 			</SplitPane>
 
 			<VBox id="rightVbox">
 				<Panel layout="BorderLayout" id="peerViewContainer" visible="false" />
-				<TabbedPane id="rightTabPane" tabPlacement="JTabbedPane.RIGHT" focusTraversable="false" />
+				<AdaptiveTabbedPane id="rightTabPane" tabPlacement="JTabbedPane.RIGHT" defaultTabType="AdaptiveTabType.SLIDE" focusTraversable="false" />
 			</VBox>
 		</SplitPane>
 </Panel>

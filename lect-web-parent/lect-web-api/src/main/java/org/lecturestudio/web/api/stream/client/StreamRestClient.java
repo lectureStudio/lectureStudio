@@ -91,4 +91,9 @@ public interface StreamRestClient {
 	@Path("/speech/reject/{requestId}")
 	void rejectSpeechRequest(@PathParam("requestId") long requestId);
 
+	@POST
+	@Path("/course/recorded/{courseId}/{recorded}")
+	void setCourseRecordingState(@PathParam("courseId") long courseId,
+			@PathParam("recorded") boolean recorded);
+
 }

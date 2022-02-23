@@ -77,7 +77,7 @@ public class WebRtcStreamEventRecorder extends StreamEventRecorder {
 
 	private Course course;
 
-	private boolean isRecorded;
+	private ExecutableState recordState;
 
 	private long startTime = -1;
 
@@ -144,13 +144,19 @@ public class WebRtcStreamEventRecorder extends StreamEventRecorder {
 
 	@Subscribe
 	public void onEvent(final RecordingStateEvent event) {
-		isRecorded = event.started();
+		if (recordState == event.getState()) {
+			return;
+		}
+
+		recordState = event.getState();
 
 		if (!started()) {
 			return;
 		}
 
-		streamProviderService.setCourseRecordingState(course.getId(), isRecorded);
+		if (event.started() || event.stopped()) {
+			sendRecordingState(recordState == ExecutableState.Started);
+		}
 	}
 
 	@Subscribe
@@ -284,9 +290,9 @@ public class WebRtcStreamEventRecorder extends StreamEventRecorder {
 			throw new ExecutableException("Send action failed", e);
 		}
 
+		boolean isRecorded = recordState == ExecutableState.Started;
 		if (isRecorded) {
-			streamProviderService.setCourseRecordingState(course.getId(),
-					isRecorded);
+			sendRecordingState(isRecorded);
 		}
 
 		ExecutableState prevState = getPreviousState();
@@ -318,6 +324,16 @@ public class WebRtcStreamEventRecorder extends StreamEventRecorder {
 	@Override
 	protected void destroyInternal() {
 		ApplicationBus.unregister(this);
+	}
+
+	private void sendRecordingState(boolean isRecorded) {
+		try {
+			streamProviderService.setCourseRecordingState(course.getId(),
+					isRecorded);
+		}
+		catch (Throwable e) {
+			logException(e, "Set course recording state failed");
+		}
 	}
 
 	private void addPendingAction(PlaybackAction action) {

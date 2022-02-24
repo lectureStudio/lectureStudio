@@ -11,17 +11,30 @@ import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.util.*;
 import java.util.List;
+import java.util.function.BiConsumer;
+import java.util.function.Consumer;
 import java.util.stream.IntStream;
 
 public class AdaptiveTabbedPane extends JComponent {
-	public static final int TAB_SIZE_OFFSET = 1;
+	public static final int TAB_SIZE_OFFSET = 3;
+
 	private AdaptiveTabType defaultTabType = AdaptiveTabType.NORMAL;
 
 	private final ArrayList<AdaptiveTab> tabs = new ArrayList<>();
+
 	private final JTabbedPane tabbedPane = new JTabbedPane();
+
+	private final List<Consumer<Boolean>> visibilityChangedListeners = new ArrayList<>();
+
+	private final List<BiConsumer<AdaptiveTab, Boolean>> sameTabClickedListeners = new ArrayList<>();
+
+	private final List<Runnable> noTabsEnabledListeners = new ArrayList<>();
 
 	private String selectedLabelText = "";
 
+	/**
+	 * Constructs an adaptive tab pane. Used by SWIXML, don't remove
+	 */
 	public AdaptiveTabbedPane() {
 		this(SwingConstants.NORTH);
 	}
@@ -30,7 +43,6 @@ public class AdaptiveTabbedPane extends JComponent {
 		setBorder(new EmptyBorder(0, 0, 0, 0));
 		setLayout(new BorderLayout());
 		tabbedPane.setTabPlacement(tabPlacement);
-		setVisible(false);
 		add(tabbedPane);
 		tabbedPane.addMouseListener(new MouseAdapter() {
 			@Override
@@ -41,17 +53,68 @@ public class AdaptiveTabbedPane extends JComponent {
 						return;
 					}
 
-					final JLabel selectedLabel = (JLabel) tabbedPane.getTabComponentAt(clickedTabIndex);
-					if (!selectedLabel.isEnabled()) {
+					final String selectedTabLabelText =
+							((JLabel) tabbedPane.getTabComponentAt(clickedTabIndex)).getText();
+					final AdaptiveTab selectedTab = getTab(selectedTabLabelText);
+					if (selectedTab == null || !selectedTab.isEnabled()) {
 						return;
 					}
 
-					selectedLabelText = selectedLabel.getText();
+					final String newSelectedLabelText = selectedTab.getLabel().getText();
+
+					tabSelected(selectedTab, Objects.equals(selectedLabelText, newSelectedLabelText));
+
+					selectedLabelText = newSelectedLabelText;
 				}
 			}
 		});
 	}
 
+	public AdaptiveTab getTab(String labelText) {
+		return tabs.stream().filter(tab -> tab.getLabel().getText().equals(labelText)).findFirst().orElse(null);
+	}
+
+	public void addVisibilityChangedListener(Consumer<Boolean> listener) {
+		visibilityChangedListeners.add(listener);
+	}
+
+	public void removeVisibilityChangedListener(Consumer<Boolean> listener) {
+		visibilityChangedListeners.remove(listener);
+	}
+
+	private void visibilityChanged(boolean visibility) {
+		visibilityChangedListeners.forEach(listener -> listener.accept(visibility));
+	}
+
+	public void addSelectedTabChangedListener(BiConsumer<AdaptiveTab, Boolean> listener) {
+		sameTabClickedListeners.add(listener);
+	}
+
+	public void removeSelectedTabChangedListener(BiConsumer<AdaptiveTab, Boolean> listener) {
+		sameTabClickedListeners.remove(listener);
+	}
+
+	private void tabSelected(AdaptiveTab selectedTab, boolean sameTab) {
+		sameTabClickedListeners.forEach(listener -> listener.accept(selectedTab, sameTab));
+	}
+
+	public void addNoTabsEnabledListener(Runnable listener) {
+		noTabsEnabledListeners.add(listener);
+	}
+
+	public void removeNoTabsEnabledListener(Runnable listener) {
+		noTabsEnabledListeners.remove(listener);
+	}
+
+	private void noTabsEnabled() {
+		noTabsEnabledListeners.forEach(Runnable::run);
+	}
+
+	/**
+	 * Set tab placement. Used by SWIXML, dont remove
+	 *
+	 * @param tabPlacement Tab placement to set
+	 */
 	public void setTabPlacement(int tabPlacement) {
 		tabbedPane.setTabPlacement(tabPlacement);
 	}
@@ -60,12 +123,28 @@ public class AdaptiveTabbedPane extends JComponent {
 		return tabbedPane.getTabPlacement();
 	}
 
+	/**
+	 * Sets the default tab type. Used by SWIXML, don't remove
+	 *
+	 * @param defaultTabType Default tab type to set
+	 */
 	public void setDefaultTabType(AdaptiveTabType defaultTabType) {
 		this.defaultTabType = defaultTabType;
 	}
 
 	public AdaptiveTabType getDefaultTabType() {
 		return defaultTabType;
+	}
+
+	public void setTabSelected(String labelText) {
+		final int index = getTabIndex(labelText);
+
+		if (isIndexError(index)) {
+			return;
+		}
+
+		tabbedPane.setSelectedIndex(index);
+		selectedLabelText = labelText;
 	}
 
 	public int getSelectedIndex() {
@@ -106,7 +185,6 @@ public class AdaptiveTabbedPane extends JComponent {
 		}
 
 		tabs.get(index).setEnabled(enabled);
-		tabs.get(index).getLabel().setEnabled(enabled);
 		rebuild();
 	}
 
@@ -186,7 +264,10 @@ public class AdaptiveTabbedPane extends JComponent {
 				.findFirst().orElse(tabs.size());
 
 		tabs.add(index, tab);
-		selectedLabelText = tab.getLabel().getText();
+		if (tab.isVisible() && tab.isEnabled()) {
+			selectedLabelText = tab.getLabel().getText();
+		}
+
 		rebuild();
 	}
 
@@ -202,7 +283,7 @@ public class AdaptiveTabbedPane extends JComponent {
 				.findFirst().orElse(this.tabs.size());
 
 		this.tabs.addAll(index, tabs);
-		selectedLabelText = tabs.get(tabs.size() - 1).getLabel().getText();
+		selectedLabelText = getLastVisibleAndEnabledTabLabelText();
 		rebuild();
 	}
 
@@ -214,7 +295,9 @@ public class AdaptiveTabbedPane extends JComponent {
 	public void addTab(AdaptiveTab tab) {
 		convertTabLabel(tab);
 		tabs.add(tab);
-		selectedLabelText = "";
+		if (tab.isVisible() && tab.isEnabled()) {
+			selectedLabelText = tab.getLabel().getText();
+		}
 		rebuild();
 	}
 
@@ -226,7 +309,7 @@ public class AdaptiveTabbedPane extends JComponent {
 	public void addTabs(List<AdaptiveTab> tabs) {
 		tabs.forEach(this::convertTabLabel);
 		this.tabs.addAll(tabs);
-		selectedLabelText = "";
+		selectedLabelText = getLastVisibleAndEnabledTabLabelText();
 		rebuild();
 	}
 
@@ -248,11 +331,22 @@ public class AdaptiveTabbedPane extends JComponent {
 		if (isIndexError(index)) {
 			return;
 		}
-		if (Objects.equals(tabs.get(index).getLabel().getText(), selectedLabelText)) {
-			selectedLabelText = "";
-		}
+		final AdaptiveTab tabToRemove = tabs.get(index);
 		tabs.remove(index);
+		if (Objects.equals(tabToRemove.getLabel().getText(), selectedLabelText)) {
+			selectedLabelText = getLastVisibleAndEnabledTabLabelText();
+		}
 		rebuild();
+	}
+
+	private String getLastVisibleAndEnabledTabLabelText() {
+		final AdaptiveTab tab =
+				tabs.stream().filter(tab1 -> tab1.isVisible() && tab1.isEnabled()).reduce((first, second) -> second)
+						.orElse(null);
+		if (tab == null) {
+			return "";
+		}
+		return tab.getLabel().getText();
 	}
 
 	/**
@@ -266,6 +360,8 @@ public class AdaptiveTabbedPane extends JComponent {
 
 		final Iterator<AdaptiveTab> iter = tabs.iterator();
 
+		boolean selectedLabelRemoved = false;
+
 		while (iter.hasNext()) {
 			final AdaptiveTab tab = iter.next();
 			if (tab.type == tabType) {
@@ -273,8 +369,12 @@ public class AdaptiveTabbedPane extends JComponent {
 				iter.remove();
 			}
 			if (Objects.equals(tab.getLabel().getText(), selectedLabelText)) {
-				selectedLabelText = "";
+				selectedLabelRemoved = true;
 			}
+		}
+
+		if (selectedLabelRemoved) {
+			selectedLabelText = getLastVisibleAndEnabledTabLabelText();
 		}
 
 		rebuild();
@@ -307,7 +407,9 @@ public class AdaptiveTabbedPane extends JComponent {
 	private synchronized void rebuild() {
 		tabbedPane.removeAll();
 
-		int selectedIndex = -1;
+		boolean selectedIndexSet = false;
+
+		boolean noTabsEnabled = true;
 
 		for (final AdaptiveTab tab : tabs) {
 			if (!tab.isVisible()) {
@@ -325,20 +427,35 @@ public class AdaptiveTabbedPane extends JComponent {
 			tabbedPane.getTabComponentAt(index).setEnabled(tab.isEnabled());
 			tabbedPane.setEnabledAt(index, tab.isEnabled());
 
+			if (tab.isEnabled()) {
+				noTabsEnabled = false;
+			}
+
 			if (Objects.equals(selectedLabelText, label.getText()) && tab.isVisible()) {
-				selectedIndex = index;
+				tabbedPane.setSelectedIndex(index);
+				tabSelected(tab, false);
+				selectedIndexSet = true;
 			}
 		}
 
-		final int tabCount = tabbedPane.getTabCount();
-		if (selectedIndex == -1 && tabCount > 0) {
-			tabbedPane.setSelectedIndex(tabCount - 1);
-		} else if (!isIndexError(tabCount - 1)) {
-			tabbedPane.setSelectedIndex(selectedIndex);
+		final int lastTabIndex = tabbedPane.getTabCount() - 1;
+		if (!selectedIndexSet && !isIndexError(lastTabIndex)) {
+			tabbedPane.setSelectedIndex(lastTabIndex);
 		}
 
-		setVisible(getVisibleTabCount() != 0);
-
 		tabbedPane.setMinimumSize(getMinimumDimension());
+
+		final boolean oldVisibility = isVisible();
+		final boolean newVisibility = getVisibleTabCount() != 0;
+
+		setVisible(newVisibility);
+
+		if (oldVisibility != newVisibility) {
+			visibilityChanged(newVisibility);
+		}
+
+		if (noTabsEnabled) {
+			this.noTabsEnabled();
+		}
 	}
 }

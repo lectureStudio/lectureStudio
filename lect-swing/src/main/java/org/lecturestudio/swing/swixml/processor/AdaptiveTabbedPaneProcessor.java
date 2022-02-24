@@ -18,21 +18,15 @@
 
 package org.lecturestudio.swing.swixml.processor;
 
-import static java.util.Objects.nonNull;
-
-import com.formdev.flatlaf.util.UIScale;
-
-import java.awt.Dimension;
 import java.awt.LayoutManager;
 
-import javax.swing.JLabel;
-import javax.swing.SwingConstants;
+import javax.swing.*;
 
 import org.lecturestudio.swing.components.AdaptiveTabbedPane;
 import org.lecturestudio.swing.components.SettingsTab;
 
-import org.lecturestudio.swing.components.VerticalTab;
 import org.lecturestudio.swing.model.AdaptiveTab;
+import org.lecturestudio.swing.util.TabLabelTransformer;
 import org.swixml.LogAware;
 import org.swixml.Parser;
 import org.swixml.processor.TagProcessor;
@@ -53,27 +47,8 @@ public class AdaptiveTabbedPaneProcessor implements TagProcessor, LogAware {
 
 		final AdaptiveTabbedPane tabbedPane = (AdaptiveTabbedPane) parent;
 		final SettingsTab tab = (SettingsTab) parser.getSwing(child, null);
-		final Dimension size = tab.getSize();
 
-		final int tabPlacement = tabbedPane.getTabPlacement();
-		final JLabel tabLabel;
-
-		if (tabPlacement == SwingConstants.LEFT || tabPlacement == SwingConstants.RIGHT) {
-			tabLabel = VerticalTab.fromText(tab.getText(), tabPlacement, tab.getIcon());
-		} else {
-			tabLabel = new JLabel(tab.getText(), tab.getIcon(), SwingConstants.LEFT);
-		}
-
-		tabLabel.setName(tab.getName());
-
-		if (nonNull(size)) {
-			double scale = UIScale.getUserScaleFactor();
-
-			size.setSize(size.width * scale, size.height * scale);
-
-			tabLabel.setMinimumSize(size);
-			tabLabel.setPreferredSize(size);
-		}
+		final JLabel tabLabel = TabLabelTransformer.transformTabLabel(tab, tabbedPane.getTabPlacement());
 
 		AdaptiveTab adaptiveTab = new AdaptiveTab(tabbedPane.getDefaultTabType(), tabLabel, tab.getContent());
 

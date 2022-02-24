@@ -18,23 +18,7 @@
 
 package org.lecturestudio.presenter.api.presenter;
 
-import static java.util.Objects.isNull;
-import static java.util.Objects.nonNull;
-import static java.util.Objects.requireNonNull;
-
 import com.google.common.eventbus.Subscribe;
-
-import java.awt.*;
-import java.io.IOException;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.concurrent.CompletableFuture;
-import java.util.function.BiConsumer;
-
-import javax.inject.Inject;
-
 import org.lecturestudio.core.ExecutableException;
 import org.lecturestudio.core.ExecutableState;
 import org.lecturestudio.core.app.ApplicationContext;
@@ -65,18 +49,15 @@ import org.lecturestudio.core.recording.DocumentRecorder;
 import org.lecturestudio.core.service.DocumentService;
 import org.lecturestudio.core.tool.ToolType;
 import org.lecturestudio.core.util.ListChangeListener;
-import org.lecturestudio.core.util.NetUtils;
 import org.lecturestudio.core.util.ObservableList;
 import org.lecturestudio.core.view.*;
 import org.lecturestudio.presenter.api.config.ExternalWindowConfiguration;
 import org.lecturestudio.presenter.api.config.MessageBarConfiguration;
-import org.lecturestudio.presenter.api.config.NetworkConfiguration;
 import org.lecturestudio.presenter.api.config.PresenterConfiguration;
 import org.lecturestudio.presenter.api.context.PresenterContext;
 import org.lecturestudio.presenter.api.event.*;
 import org.lecturestudio.presenter.api.input.Shortcut;
 import org.lecturestudio.presenter.api.model.MessageBarPosition;
-import org.lecturestudio.swing.model.ExternalWindowPosition;
 import org.lecturestudio.presenter.api.pdf.embedded.SlideNoteParser;
 import org.lecturestudio.presenter.api.service.RecordingService;
 import org.lecturestudio.presenter.api.service.WebRtcStreamService;
@@ -84,12 +65,25 @@ import org.lecturestudio.presenter.api.service.WebService;
 import org.lecturestudio.presenter.api.stylus.StylusHandler;
 import org.lecturestudio.presenter.api.view.PageObjectRegistry;
 import org.lecturestudio.presenter.api.view.SlidesView;
+import org.lecturestudio.swing.model.ExternalWindowPosition;
 import org.lecturestudio.web.api.event.PeerStateEvent;
 import org.lecturestudio.web.api.event.VideoFrameEvent;
 import org.lecturestudio.web.api.message.CourseParticipantMessage;
 import org.lecturestudio.web.api.message.MessengerMessage;
 import org.lecturestudio.web.api.message.SpeechCancelMessage;
 import org.lecturestudio.web.api.message.SpeechRequestMessage;
+
+import javax.inject.Inject;
+import java.awt.*;
+import java.io.IOException;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.concurrent.CompletableFuture;
+import java.util.function.BiConsumer;
+
+import static java.util.Objects.*;
 
 public class SlidesPresenter extends Presenter<SlidesView> {
 

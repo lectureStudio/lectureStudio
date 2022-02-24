@@ -1,17 +1,10 @@
 module org.lecturestudio.web.api {
 
-	requires io.netty.buffer;
-	requires io.netty.codec;
-	requires io.netty.codec.http;
-	requires io.netty.common;
-	requires io.netty.handler;
-	requires io.netty.transport;
-	requires jakarta.enterprise.cdi.api;
-	requires jakarta.inject.api;
+	requires jakarta.inject;
+	requires jakarta.persistence;
 	requires java.json;
 	requires java.json.bind;
 	requires java.net.http;
-	requires java.persistence;
 	requires java.ws.rs;
 	requires maven.artifact;
 	requires microprofile.rest.client.api;
@@ -22,7 +15,7 @@ module org.lecturestudio.web.api {
 	requires webrtc.java;
 
 	exports org.lecturestudio.web.api.client;
-	exports org.lecturestudio.web.api.data;
+	exports org.lecturestudio.web.api.data.bind;
 	exports org.lecturestudio.web.api.event;
 	exports org.lecturestudio.web.api.filter;
 	exports org.lecturestudio.web.api.message;

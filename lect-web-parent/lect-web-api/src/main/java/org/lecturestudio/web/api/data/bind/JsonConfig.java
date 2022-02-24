@@ -35,11 +35,9 @@ public class JsonConfig implements ContextResolver<Jsonb> {
 				new MessengerMessageAdapter()
 		);
 		config.withSerializers(
-				new ClassroomServiceSerializer(),
 				new HttpResourceFileSerializer()
 		);
 		config.withDeserializers(
-				new ClassroomServiceDeserializer(),
 				new HttpResourceFileDeserializer()
 		);
 

@@ -23,9 +23,6 @@ import java.util.concurrent.atomic.AtomicInteger;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
-import org.lecturestudio.broadcast.Broadcaster;
-import org.lecturestudio.broadcast.config.BroadcastProfile;
-import org.lecturestudio.broadcast.config.Configuration;
 import org.lecturestudio.core.Executable;
 import org.lecturestudio.core.ExecutableException;
 import org.lecturestudio.core.ExecutableState;
@@ -44,7 +41,7 @@ public class LocalBroadcaster implements Executable {
     private ExecutableState state = ExecutableState.Created;
 	
     /** The broadcaster component. */
-	private Broadcaster broadcaster;
+//	private Broadcaster broadcaster;
 
 
 	@Inject
@@ -55,14 +52,14 @@ public class LocalBroadcaster implements Executable {
 	@Override
 	public final synchronized void init() throws ExecutableException {
 		PresenterConfiguration pConfig = (PresenterConfiguration) context.getConfiguration();
-		BroadcastProfile bcastProfile = pConfig.getNetworkConfig().getBroadcastProfile();
+//		BroadcastProfile bcastProfile = pConfig.getNetworkConfig().getBroadcastProfile();
+//
+//		Configuration config = new Configuration();
+//		config.port = bcastProfile.getBroadcastPort();
+//		config.tlsPort = bcastProfile.getBroadcastTlsPort();
 
-		Configuration config = new Configuration();
-		config.port = bcastProfile.getBroadcastPort();
-		config.tlsPort = bcastProfile.getBroadcastTlsPort();
-
-		broadcaster = new Broadcaster(config);
-		broadcaster.init();
+//		broadcaster = new Broadcaster(config);
+//		broadcaster.init();
 
 		setState(ExecutableState.Initialized);
 	}
@@ -78,7 +75,7 @@ public class LocalBroadcaster implements Executable {
             init();
         }
 		
-		broadcaster.start();
+//		broadcaster.start();
 		
 		startCount.incrementAndGet();
 		
@@ -94,7 +91,7 @@ public class LocalBroadcaster implements Executable {
 			return;
 		}
 		
-		broadcaster.stop();
+//		broadcaster.stop();
 		
 		setState(ExecutableState.Stopped);
 	}
@@ -110,7 +107,7 @@ public class LocalBroadcaster implements Executable {
             return;
         }
 		
-		broadcaster.destroy();
+//		broadcaster.destroy();
 		
 		setState(ExecutableState.Destroyed);
 	}

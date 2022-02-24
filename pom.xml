@@ -46,12 +46,12 @@
 		<module>lect-core</module>
 		<module>lect-swing</module>
 		<module>lect-javafx</module>
-		<module>lect-broadcast</module>
+<!--		<module>lect-broadcast</module>-->
 		<module>lect-presenter-api</module>
 <!--		<module>lect-presenter-fx</module>-->
 		<module>lect-presenter-swing</module>
-		<module>lect-player-api</module>
-		<module>lect-player-fx</module>
+<!--		<module>lect-player-api</module>-->
+<!--		<module>lect-player-fx</module>-->
 		<module>lect-player-web</module>
 		<module>lect-editor-api</module>
 		<module>lect-editor-fx</module>

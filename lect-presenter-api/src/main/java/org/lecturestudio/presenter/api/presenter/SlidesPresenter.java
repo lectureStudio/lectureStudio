@@ -26,7 +26,6 @@ import com.google.common.eventbus.Subscribe;
 
 import java.awt.*;
 import java.io.IOException;
-import java.net.SocketException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -36,7 +35,6 @@ import java.util.function.BiConsumer;
 
 import javax.inject.Inject;
 
-import org.lecturestudio.broadcast.config.BroadcastProfile;
 import org.lecturestudio.core.ExecutableException;
 import org.lecturestudio.core.ExecutableState;
 import org.lecturestudio.core.app.ApplicationContext;
@@ -1052,38 +1050,11 @@ public class SlidesPresenter extends Presenter<SlidesView> {
 	}
 
 	private SlideViewAddressOverlay createRemoteAddressOverlay() {
-		final PresenterConfiguration config = getPresenterConfig();
-		final DisplayConfiguration displayConfig = config.getDisplayConfig();
-		final NetworkConfiguration netConfig = config.getNetworkConfig();
-		final BroadcastProfile profile = netConfig.getBroadcastProfile();
-
-		String broadcastAddress = profile.getBroadcastAddress();
-		Integer broadcastPort = profile.getBroadcastPort();
-
-		boolean isLocal = NetUtils.isLocalAddress(broadcastAddress, broadcastPort);
-
-		if (isLocal) {
-			// Get local address.
-			String adapter = config.getNetworkConfig().getAdapter();
-
-			if (isNull(adapter)) {
-				adapter = NetUtils.getNetworkInterfaces().get(0).getName();
-			}
-
-			try {
-				broadcastAddress = NetUtils.getHostAddress(adapter, java.net.Inet4Address.class);
-			} catch (SocketException e) {
-				logException(e, "Unknown Host");
-			}
-		}
-
-		// Show only non-standard port.
-		if (broadcastPort != 80) {
-			broadcastAddress += ":" + broadcastPort;
-		}
+		PresenterConfiguration config = getPresenterConfig();
+		DisplayConfiguration displayConfig = config.getDisplayConfig();
 
 		SlideViewAddressOverlay overlay = viewFactory.getInstance(SlideViewAddressOverlay.class);
-		overlay.setAddress(broadcastAddress);
+//		overlay.setAddress(broadcastAddress);
 		overlay.setPosition(displayConfig.getIpPosition());
 		overlay.setTextColor(Color.BLACK);
 		overlay.setBackgroundColor(Color.WHITE);

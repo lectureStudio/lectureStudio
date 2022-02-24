@@ -21,7 +21,7 @@
 	"author": "Alex Andres",
 	"license": "Apache-2.0",
 	"devDependencies": {
-		"@babel/cli": "^7.2.3",
+		"@babel/cli": "^7.12.7",
 		"@babel/core": "^7.13.8",
 		"@babel/plugin-proposal-class-properties": "^7.13.0",
 		"@babel/plugin-proposal-decorators": "^7.13.5",
@@ -37,7 +37,6 @@
 		"concurrently": "^6.0.0",
 		"css-loader": "^5.1.0",
 		"html-webpack-plugin": "^4.5.2",
-		"node-sass": "^5.0.0",
 		"postcss": "^8.2.6",
 		"postcss-loader": "^5.0.0",
 		"resize-observer-polyfill": "^1.5.1",
@@ -49,7 +48,7 @@
 		"typescript": "^3.9.9",
 		"webpack": "^5.24.2",
 		"webpack-cli": "^4.5.0",
-		"webpack-dev-server": "^3.11.2",
+		"webpack-dev-server": "^4.7.4",
 		"webpack-merge": "^5.7.3",
 		"worker-loader": "^3.0.8"
 	},

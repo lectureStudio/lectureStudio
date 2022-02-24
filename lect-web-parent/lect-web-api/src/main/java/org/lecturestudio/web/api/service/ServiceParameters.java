@@ -1,8 +1,5 @@
 package org.lecturestudio.web.api.service;
 
-import javax.enterprise.context.Dependent;
-
-@Dependent
 public class ServiceParameters {
 
 	private String url;

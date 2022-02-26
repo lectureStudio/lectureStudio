@@ -244,7 +244,8 @@ public class MenuPresenter extends Presenter<MenuView> {
 		Dictionary dict = context.getDictionary();
 		Path dirPath = FileUtils.getContextPath(config, pathContext);
 
-		String title = recordingService.getSelectedRecording().getRecordedDocument().getDocument().getTitle();
+		String title = FileUtils.stripExtension(recordingService
+				.getSelectedRecording().getSourceFile().getName());
 		String fileName = title + "-edit";
 
 		FileChooserView fileChooser = viewFactory.createFileChooserView();

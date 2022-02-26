@@ -45,6 +45,7 @@ import org.lecturestudio.core.model.Page;
 import org.lecturestudio.core.recording.RecordedPage;
 import org.lecturestudio.core.recording.action.PlaybackAction;
 import org.lecturestudio.core.service.DocumentService;
+import org.lecturestudio.presenter.api.event.RecordingStateEvent;
 import org.lecturestudio.presenter.api.recording.PendingActions;
 import org.lecturestudio.web.api.client.MultipartBody;
 import org.lecturestudio.web.api.stream.StreamEventRecorder;
@@ -75,6 +76,8 @@ public class WebRtcStreamEventRecorder extends StreamEventRecorder {
 	private Page currentPage;
 
 	private Course course;
+
+	private ExecutableState recordState;
 
 	private long startTime = -1;
 
@@ -137,6 +140,23 @@ public class WebRtcStreamEventRecorder extends StreamEventRecorder {
 		}
 
 		return actions;
+	}
+
+	@Subscribe
+	public void onEvent(final RecordingStateEvent event) {
+		if (recordState == event.getState()) {
+			return;
+		}
+
+		recordState = event.getState();
+
+		if (!started()) {
+			return;
+		}
+
+		if (event.started() || event.stopped()) {
+			sendRecordingState(recordState == ExecutableState.Started);
+		}
 	}
 
 	@Subscribe
@@ -270,9 +290,15 @@ public class WebRtcStreamEventRecorder extends StreamEventRecorder {
 			throw new ExecutableException("Send action failed", e);
 		}
 
+		boolean isRecorded = recordState == ExecutableState.Started;
+		if (isRecorded) {
+			sendRecordingState(isRecorded);
+		}
+
 		ExecutableState prevState = getPreviousState();
 
-		if (prevState == ExecutableState.Initialized || prevState == ExecutableState.Stopped) {
+		if (prevState == ExecutableState.Initialized
+				|| prevState == ExecutableState.Stopped) {
 			startTime = System.currentTimeMillis();
 		}
 		else if (prevState == ExecutableState.Suspended) {
@@ -298,6 +324,16 @@ public class WebRtcStreamEventRecorder extends StreamEventRecorder {
 	@Override
 	protected void destroyInternal() {
 		ApplicationBus.unregister(this);
+	}
+
+	private void sendRecordingState(boolean isRecorded) {
+		try {
+			streamProviderService.setCourseRecordingState(course.getId(),
+					isRecorded);
+		}
+		catch (Throwable e) {
+			logException(e, "Set course recording state failed");
+		}
 	}
 
 	private void addPendingAction(PlaybackAction action) {

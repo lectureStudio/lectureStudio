@@ -300,6 +300,11 @@ public class RecordingFileService {
 
 				newAudioStream.close();
 
+				if (file.equals(recording.getSourceFile())) {
+					// File overwritten. Need to update the audio stream.
+					recording.setRecordedAudio(RecordingFileReader.getRecordedAudio(file));
+				}
+
 				recordingStateMap.put(recording, recording.getStateHash());
 			}
 			catch (Exception e) {

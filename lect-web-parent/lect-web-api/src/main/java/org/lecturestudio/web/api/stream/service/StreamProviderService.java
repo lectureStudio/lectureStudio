@@ -95,4 +95,13 @@ public class StreamProviderService extends ProviderService {
 		streamRestClient.rejectSpeechRequest(requestId);
 	}
 
+	/**
+	 * Sets the current recording state of the course.
+	 *
+	 * @param courseId The unique course ID.
+	 * @param recorded True if course is being recorded.
+	 */
+	public void setCourseRecordingState(long courseId, boolean recorded) {
+		streamRestClient.setCourseRecordingState(courseId, recorded);
+	}
 }

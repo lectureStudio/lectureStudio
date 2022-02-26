@@ -20,6 +20,7 @@ package org.lecturestudio.core.recording;
 
 import static java.util.Objects.nonNull;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -39,6 +40,9 @@ public class Recording {
 
 	private final RecordingEditManager editManager = new RecordingEditManager();
 
+	/** The source file. */
+	private File sourceFile;
+
 	private RecordingHeader header;
 
 	private RecordedAudio audio;
@@ -50,6 +54,14 @@ public class Recording {
 
 	public Recording() {
 		header = new RecordingHeader();
+	}
+
+	public File getSourceFile() {
+		return sourceFile;
+	}
+
+	public void setSourceFile(File file) {
+		this.sourceFile = file;
 	}
 
 	public RecordingEditManager getEditManager() {

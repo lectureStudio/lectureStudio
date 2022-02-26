@@ -54,10 +54,6 @@ public class VerticalLabelUI extends BasicLabelUI {
 		return new Dimension(size.height, size.width);
 	}
 
-	public boolean isClockwise() {
-		return clockwise;
-	}
-
 	@Override
 	public void paint(Graphics g, JComponent c) {
 		JLabel label = (JLabel) c;

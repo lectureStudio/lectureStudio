@@ -26,6 +26,10 @@ public class AdaptiveTab {
 		return component;
 	}
 
+	public String getLabelText() {
+		return label.getText();
+	}
+
 	public JLabel getLabel() {
 		return label;
 	}

@@ -114,6 +114,8 @@ public class SwingSlidesView extends JPanel implements SlidesView {
 
 	private ConsumerAction<MessengerMessage> discardMessageAction;
 
+	private ConsumerAction<MessengerMessage> createMessageSlideAction;
+
 	private ConsumerAction<SpeechRequestMessage> acceptSpeechRequestAction;
 
 	private ConsumerAction<SpeechRequestMessage> rejectSpeechRequestAction;
@@ -551,6 +553,11 @@ public class SwingSlidesView extends JPanel implements SlidesView {
 
 				removeMessageView(messageView);
 			});
+			messageView.setOnCreateSlide(() -> {
+				createMessageSlideAction.execute(message);
+
+				removeMessageView(messageView);
+			});
 			messageView.pack();
 
 			messageViewContainer.add(messageView);
@@ -607,6 +614,11 @@ public class SwingSlidesView extends JPanel implements SlidesView {
 	@Override
 	public void setOnDiscardMessage(ConsumerAction<MessengerMessage> action) {
 		discardMessageAction = action;
+	}
+
+	@Override
+	public void setOnCreateMessageSlide(ConsumerAction<MessengerMessage> action) {
+		createMessageSlideAction = action;
 	}
 
 	@Override

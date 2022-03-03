@@ -324,6 +324,10 @@ public class DocumentService {
 		}
 	}
 
+	public void createMessagePage(String message) {
+//		Document selectedDocument
+	}
+
 	/**
 	 * Selects the given page in the selected document.
 	 *

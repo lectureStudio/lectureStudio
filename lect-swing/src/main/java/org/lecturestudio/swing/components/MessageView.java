@@ -37,6 +37,8 @@ public class MessageView extends MessagePanel {
 
 	private JTextArea textArea;
 
+	private JButton createSlideButton;
+
 
 	public MessageView(Dictionary dict) {
 		super(dict);
@@ -50,15 +52,22 @@ public class MessageView extends MessagePanel {
 		SwingUtils.bindAction(discardButton, action);
 	}
 
+	public void setOnCreateSlide(Action action) {
+		SwingUtils.bindAction(createSlideButton, action);
+	}
+
 	@Override
 	protected void createContent(JPanel content) {
 		discardButton = new JButton(dict.get("button.processed"));
+		createSlideButton = new JButton(dict.get("button.create.slide"));
 
 		Box controlPanel = Box.createHorizontalBox();
 		controlPanel.setBorder(BorderFactory.createEmptyBorder(2, 5, 2, 5));
 		controlPanel.setOpaque(false);
 		controlPanel.add(fromLabel);
 		controlPanel.add(Box.createHorizontalGlue());
+		controlPanel.add(createSlideButton);
+		controlPanel.add(Box.createHorizontalStrut(10));
 		controlPanel.add(discardButton);
 		controlPanel.add(Box.createHorizontalStrut(10));
 		controlPanel.add(timeLabel);

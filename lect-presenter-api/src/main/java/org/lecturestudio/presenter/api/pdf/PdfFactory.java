@@ -60,7 +60,7 @@ import org.lecturestudio.web.api.model.quiz.QuizResult;
 
 /**
  * PDF document factory.
- * 
+ *
  * @author Alex Andres
  */
 public class PdfFactory {
@@ -90,10 +90,24 @@ public class PdfFactory {
 			for (String filePath : listing) {
 				fontManager.addFontFile(filePath);
 			}
-		}
-		catch (Exception e) {
+		} catch (Exception e) {
 			throw new RuntimeException("Load LaTeX fonts failed", e);
 		}
+	}
+
+	public static PdfDocument createMessageDocument(final String message) throws Exception {
+		final PdfDocument pdfDocument = new PdfDocument();
+
+		createTextPage(pdfDocument, message);
+
+		final ByteArrayOutputStream stream = new ByteArrayOutputStream();
+		pdfDocument.toOutputStream(stream);
+		stream.flush();
+		stream.close();
+
+		pdfDocument.close();
+
+		return new PdfDocument(stream.toByteArray());
 	}
 
 	public static PdfDocument createQuizDocument(Dictionary dict, QuizResult result) throws Exception {
@@ -143,13 +157,13 @@ public class PdfFactory {
 			Map<String, CategorySeries> seriesMap = catChart.getSeriesMap();
 			double yMax = 0;
 
-		    for (String key : seriesMap.keySet()) {
-		    	CategorySeries series = seriesMap.get(key);
+			for (String key : seriesMap.keySet()) {
+				CategorySeries series = seriesMap.get(key);
 
-		    	yMax = Math.max(yMax, series.getYMax());
-		    }
+				yMax = Math.max(yMax, series.getYMax());
+			}
 
-		    int ySpacing = (int) Math.max(PAGE_HEIGHT / 10.0, PAGE_HEIGHT / yMax);
+			int ySpacing = (int) Math.max(PAGE_HEIGHT / 10.0, PAGE_HEIGHT / yMax);
 
 			catChart.getStyler().setYAxisTickMarkSpacingHint(ySpacing);
 		}
@@ -157,6 +171,14 @@ public class PdfFactory {
 		PDFGraphics2D g2dStream = (PDFGraphics2D) document.createPageGraphics2D(pageIndex);
 		g2dStream.translate(0, textEndY);
 		chart.paint(g2dStream, PAGE_WIDTH, (int) (PAGE_HEIGHT - margin - textEndY));
+		g2dStream.close();
+	}
+
+	private static void createTextPage(final PdfDocument document, final String text) {
+		int pageIndex = document.createPage();
+
+		PDFGraphics2D g2dStream = (PDFGraphics2D) document.createPageGraphics2D(pageIndex);
+		renderTextPage(g2dStream, text, FONT_SIZE, CONTENT_X, CONTENT_Y);
 		g2dStream.close();
 	}
 
@@ -202,12 +224,12 @@ public class PdfFactory {
 	private static CategoryChart createBarChart(Dictionary dict, QuizResult result) {
 		CategoryChart chart = new CategoryChartBuilder().theme(ChartTheme.XChart).build();
 		chart.setXAxisTitle(dict.get("quiz.options"));
-	    chart.setYAxisTitle(dict.get("quiz.answers"));
-	    chart.getStyler().setOverlapped(true);
-	    chart.getStyler().setChartBackgroundColor(Color.WHITE);
-	    chart.getStyler().setLegendBorderColor(Color.WHITE);
-	    chart.getStyler().setXAxisTicksVisible(false);
-	    chart.getStyler().setSeriesColors(new GGPlot2Theme().getSeriesColors());
+		chart.setYAxisTitle(dict.get("quiz.answers"));
+		chart.getStyler().setOverlapped(true);
+		chart.getStyler().setChartBackgroundColor(Color.WHITE);
+		chart.getStyler().setLegendBorderColor(Color.WHITE);
+		chart.getStyler().setXAxisTicksVisible(false);
+		chart.getStyler().setSeriesColors(new GGPlot2Theme().getSeriesColors());
 
 		Map<QuizAnswer, Integer> resultMap = result.getResult();
 		int[] xValues = new int[resultMap.size()];
@@ -234,12 +256,12 @@ public class PdfFactory {
 
 		CategoryChart chart = new CategoryChartBuilder().theme(ChartTheme.XChart).build();
 		chart.setXAxisTitle(dict.get("quiz.options"));
-	    chart.setYAxisTitle(dict.get("quiz.answers"));
-	    chart.getStyler().setOverlapped(true);
-	    chart.getStyler().setChartBackgroundColor(Color.WHITE);
-	    chart.getStyler().setLegendBorderColor(Color.WHITE);
-	    chart.getStyler().setXAxisTicksVisible(false);
-	    chart.getStyler().setSeriesColors(new GGPlot2Theme().getSeriesColors());
+		chart.setYAxisTitle(dict.get("quiz.answers"));
+		chart.getStyler().setOverlapped(true);
+		chart.getStyler().setChartBackgroundColor(Color.WHITE);
+		chart.getStyler().setLegendBorderColor(Color.WHITE);
+		chart.getStyler().setXAxisTicksVisible(false);
+		chart.getStyler().setSeriesColors(new GGPlot2Theme().getSeriesColors());
 
 		Map<QuizAnswer, Integer> resultMap = result.getResult();
 		Map<String, Integer> chartMap = new HashMap<>();
@@ -259,8 +281,7 @@ public class PdfFactory {
 
 					chartMap.put(key, count);
 				}
-			}
-			else {
+			} else {
 				String key = "{ }";
 				Integer count = resultMap.get(answer);
 				Integer value = chartMap.get(key);
@@ -275,9 +296,8 @@ public class PdfFactory {
 
 		if (chartMap.isEmpty()) {
 			// Create an empty chart.
-			chart.addSeries(" ", new int[] { 0 }, new int[] { 0 });
-		}
-		else {
+			chart.addSeries(" ", new int[]{0}, new int[]{0});
+		} else {
 			int[] xValues = new int[chartMap.size()];
 			int index = 0;
 
@@ -298,6 +318,13 @@ public class PdfFactory {
 		return chart;
 	}
 
+	private static void renderTextPage(final Graphics2D context, final String text, int fontSize, int x, int y) {
+		org.jsoup.nodes.Document jdoc = Jsoup.parseBodyFragment(text);
+		jdoc.outputSettings().prettyPrint(false);
+
+		renderHtml(jdoc.html(), context, x, y);
+	}
+
 	private static void renderQuestionPage(Graphics2D context, Quiz quiz, int fontSize, int x, int y) {
 		String question = quiz.getQuestion();
 
@@ -313,7 +340,7 @@ public class PdfFactory {
 
 			for (int i = 0; i < options.size(); i++) {
 				if (quiz.getType() != QuizType.NUMERIC) {
-					prefix = quiz.getOptionAlpha(i+"") + ")&nbsp;";
+					prefix = quiz.getOptionAlpha(i + "") + ")&nbsp;";
 				}
 
 				dl.append("<p>" + prefix + options.get(i) + "</p>");
@@ -360,7 +387,6 @@ public class PdfFactory {
 	}
 
 
-
 	private static class MyViewFactory extends HTMLEditorKit.HTMLFactory {
 		@Override
 		public View create(javax.swing.text.Element e) {
@@ -368,8 +394,7 @@ public class PdfFactory {
 
 			if (view instanceof ImageView) {
 				((ImageView) view).setLoadsSynchronously(true);
-			}
-			else if (view instanceof InlineView) {
+			} else if (view instanceof InlineView) {
 				// Letter wrap for HTML in JEditorPane.
 				return new InlineView(e) {
 					@Override
@@ -403,8 +428,7 @@ public class PdfFactory {
 										}
 										p1++;
 									}
-								}
-								catch (BadLocationException e) {
+								} catch (BadLocationException e) {
 									e.printStackTrace();
 								}
 							}
@@ -414,8 +438,7 @@ public class PdfFactory {
 						return this;
 					}
 				};
-			}
-			else if (view instanceof ParagraphView) {
+			} else if (view instanceof ParagraphView) {
 				// Letter wrap for HTML in JEditorPane.
 				return new ParagraphView(e) {
 					@Override
@@ -440,7 +463,6 @@ public class PdfFactory {
 			return view;
 		}
 	}
-
 
 
 	private static class MyHTMLEditorKit extends HTMLEditorKit {

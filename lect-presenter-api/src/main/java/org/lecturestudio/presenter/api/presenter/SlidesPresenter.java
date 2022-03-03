@@ -38,6 +38,7 @@ import org.lecturestudio.core.ExecutableState;
 import org.lecturestudio.core.app.ApplicationContext;
 import org.lecturestudio.core.app.configuration.DisplayConfiguration;
 import org.lecturestudio.core.app.configuration.GridConfiguration;
+import org.lecturestudio.core.app.dictionary.Dictionary;
 import org.lecturestudio.core.bus.EventBus;
 import org.lecturestudio.core.bus.event.DocumentEvent;
 import org.lecturestudio.core.bus.event.PageEvent;
@@ -48,16 +49,14 @@ import org.lecturestudio.core.controller.ToolController;
 import org.lecturestudio.core.geometry.Matrix;
 import org.lecturestudio.core.graphics.Color;
 import org.lecturestudio.core.input.KeyEvent;
-import org.lecturestudio.core.model.Document;
-import org.lecturestudio.core.model.DocumentOutlineItem;
-import org.lecturestudio.core.model.Page;
-import org.lecturestudio.core.model.SlideNote;
+import org.lecturestudio.core.model.*;
 import org.lecturestudio.core.model.listener.DocumentChangeListener;
 import org.lecturestudio.core.model.listener.PageEditedListener;
 import org.lecturestudio.core.model.listener.ParameterChangeListener;
 import org.lecturestudio.core.model.shape.Shape;
 import org.lecturestudio.core.model.shape.TeXShape;
 import org.lecturestudio.core.model.shape.TextShape;
+import org.lecturestudio.core.pdf.PdfDocument;
 import org.lecturestudio.core.presenter.Presenter;
 import org.lecturestudio.core.recording.DocumentRecorder;
 import org.lecturestudio.core.service.DocumentService;
@@ -78,6 +77,7 @@ import org.lecturestudio.presenter.api.event.QuizStateEvent;
 import org.lecturestudio.presenter.api.event.RecordingStateEvent;
 import org.lecturestudio.presenter.api.event.StreamingStateEvent;
 import org.lecturestudio.presenter.api.input.Shortcut;
+import org.lecturestudio.presenter.api.pdf.PdfFactory;
 import org.lecturestudio.presenter.api.pdf.embedded.SlideNoteParser;
 import org.lecturestudio.presenter.api.service.RecordingService;
 import org.lecturestudio.presenter.api.service.WebRtcStreamService;
@@ -91,6 +91,7 @@ import org.lecturestudio.web.api.message.CourseParticipantMessage;
 import org.lecturestudio.web.api.message.MessengerMessage;
 import org.lecturestudio.web.api.message.SpeechCancelMessage;
 import org.lecturestudio.web.api.message.SpeechRequestMessage;
+import org.lecturestudio.web.api.model.quiz.QuizResult;
 
 public class SlidesPresenter extends Presenter<SlidesView> {
 
@@ -136,18 +137,20 @@ public class SlidesPresenter extends Presenter<SlidesView> {
 
 	private final RecordingService recordingService;
 
+	private Document messageDocument;
+
 
 	@Inject
 	SlidesPresenter(ApplicationContext context, SlidesView view,
-			ViewContextFactory viewFactory,
-			ToolController toolController,
-			PresentationController presentationController,
-			RenderController renderController,
-			DocumentService documentService,
-			DocumentRecorder documentRecorder,
-			RecordingService recordingService,
-			WebService webService,
-			WebRtcStreamService streamService) {
+					ViewContextFactory viewFactory,
+					ToolController toolController,
+					PresentationController presentationController,
+					RenderController renderController,
+					DocumentService documentService,
+					DocumentRecorder documentRecorder,
+					RecordingService recordingService,
+					WebService webService,
+					WebRtcStreamService streamService) {
 		super(context, view);
 
 		this.viewFactory = viewFactory;
@@ -206,8 +209,7 @@ public class SlidesPresenter extends Presenter<SlidesView> {
 			Document doc = documentService.getDocuments().getSelectedDocument();
 
 			recordPage(doc.getCurrentPage());
-		}
-		catch (Exception e) {
+		} catch (Exception e) {
 			logException(e, "Restart document recording failed");
 		}
 	}
@@ -281,8 +283,7 @@ public class SlidesPresenter extends Presenter<SlidesView> {
 
 		if (message.getConnected()) {
 			presenterContext.setAttendeesCount(presenterContext.getAttendeesCount() + 1);
-		}
-		else {
+		} else {
 			presenterContext.setAttendeesCount(presenterContext.getAttendeesCount() - 1);
 		}
 	}
@@ -304,8 +305,7 @@ public class SlidesPresenter extends Presenter<SlidesView> {
 		// the key-event will be distributed.
 		if (nonNull(action)) {
 			action.execute();
-		}
-		else {
+		} else {
 			toolController.setKeyEvent(event);
 		}
 	}
@@ -336,6 +336,48 @@ public class SlidesPresenter extends Presenter<SlidesView> {
 	private void onDiscardMessage(MessengerMessage message) {
 		PresenterContext presenterContext = (PresenterContext) context;
 		presenterContext.getMessengerMessages().remove(message);
+	}
+
+	private void onCreateMessageSlide(MessengerMessage message) {
+		onDiscardMessage(message);
+		try {
+			messageDocument = createMessageDocument(message.getMessage().getText());
+
+			Document prevMessageDocument = null;
+
+			for (Document doc : documentService.getDocuments().asList()) {
+				if (doc.isMessage()) {
+					prevMessageDocument = doc;
+				}
+			}
+
+			if (nonNull(prevMessageDocument)) {
+				documentService.replaceDocument(prevMessageDocument, messageDocument);
+			} else {
+				documentService.addDocument(messageDocument);
+			}
+
+			documentService.selectDocument(messageDocument);
+		} catch (ExecutableException e) {
+			handleException(e, "Create message slide failed", "message.slide.create.error");
+		}
+	}
+
+	private Document createMessageDocument(final String message) throws ExecutableException {
+		Document doc;
+
+		try {
+			PdfDocument pdfDoc = PdfFactory.createMessageDocument(message);
+			pdfDoc.setTitle("Message");
+			pdfDoc.setAuthor(System.getProperty("user.name"));
+
+			doc = new Document(pdfDoc);
+			doc.setDocumentType(DocumentType.MESSAGE);
+		} catch (Exception e) {
+			throw new ExecutableException("Create message document failed.", e);
+		}
+
+		return doc;
 	}
 
 	private void toolChanged(ToolType toolType) {
@@ -429,8 +471,7 @@ public class SlidesPresenter extends Presenter<SlidesView> {
 
 		try {
 			streamService.shareDocument(doc);
-		}
-		catch (IOException e) {
+		} catch (IOException e) {
 			logException(e, "Share document failed");
 		}
 	}
@@ -438,8 +479,7 @@ public class SlidesPresenter extends Presenter<SlidesView> {
 	private void stopQuiz() {
 		try {
 			webService.stopQuiz();
-		}
-		catch (ExecutableException e) {
+		} catch (ExecutableException e) {
 			logException(e, "Stop quiz failed");
 		}
 
@@ -558,20 +598,21 @@ public class SlidesPresenter extends Presenter<SlidesView> {
 			return;
 		}
 
-		Class<? extends PageObjectView<? extends Shape>> viewClass = pageObjectRegistry.getPageObjectViewClass(toolType);
+		Class<? extends PageObjectView<? extends Shape>> viewClass =
+				pageObjectRegistry.getPageObjectViewClass(toolType);
 
 		try {
 			PageObjectView<?> objectView = createPageObjectView(shape, viewClass);
 			objectView.setFocus(view.getPageObjectViews().stream().noneMatch(PageObjectView::isCopying));
-		}
-		catch (Exception e) {
+		} catch (Exception e) {
 			logException(e, "Create PageObjectView failed");
 		}
 	}
 
 	private void loadPageObjectViews(Page page) {
 		if (pageObjectRegistry.containsViewShapes(toolType, page)) {
-			Class<? extends PageObjectView<? extends Shape>> viewClass = pageObjectRegistry.getPageObjectViewClass(toolType);
+			Class<? extends PageObjectView<? extends Shape>> viewClass =
+					pageObjectRegistry.getPageObjectViewClass(toolType);
 			Class<? extends Shape> shapeClass = pageObjectRegistry.getShapeClass(toolType);
 
 			for (Shape shape : page.getShapes()) {
@@ -582,7 +623,8 @@ public class SlidesPresenter extends Presenter<SlidesView> {
 		}
 	}
 
-	private PageObjectView<? extends Shape> createPageObjectView(Shape shape, Class<? extends PageObjectView<? extends Shape>> viewClass) {
+	private PageObjectView<? extends Shape> createPageObjectView(Shape shape,
+																 Class<? extends PageObjectView<? extends Shape>> viewClass) {
 		PageObjectView<Shape> objectView = (PageObjectView<Shape>) viewFactory.getInstance(viewClass);
 		objectView.setPageShape(shape);
 		objectView.setOnClose(() -> {
@@ -677,8 +719,7 @@ public class SlidesPresenter extends Presenter<SlidesView> {
 			if (!newValue) {
 				// Hide grid if previously enabled.
 				pProvider.getAllPresentationParameters().forEach(param -> param.setShowGrid(newValue));
-			}
-			else {
+			} else {
 				// Sync with user's view.
 				PresentationParameterProvider uProvider = context.getPagePropertyProvider(ViewType.User);
 
@@ -714,6 +755,7 @@ public class SlidesPresenter extends Presenter<SlidesView> {
 		view.setOnAcceptSpeech(this::onAcceptSpeech);
 		view.setOnRejectSpeech(this::onRejectSpeech);
 		view.setOnDiscardMessage(this::onDiscardMessage);
+		view.setOnCreateMessageSlide(this::onCreateMessageSlide);
 		view.setOnMutePeerAudio(streamService::mutePeerAudio);
 		view.setOnMutePeerVideo(streamService::mutePeerVideo);
 		view.setOnStopPeerConnection(streamService::stopPeerConnection);
@@ -730,15 +772,14 @@ public class SlidesPresenter extends Presenter<SlidesView> {
 
 		registerShortcut(Shortcut.COPY_OVERLAY, this::copyOverlay);
 		registerShortcut(Shortcut.COPY_OVERLAY_NEXT_PAGE_CTRL, this::copyNextOverlay);
-		registerShortcut(Shortcut.COPY_OVERLAY_NEXT_PAGE_SHIFT,this::copyNextOverlay);
+		registerShortcut(Shortcut.COPY_OVERLAY_NEXT_PAGE_SHIFT, this::copyNextOverlay);
 
 		try {
 			recordingService.init();
 
 			documentRecorder.setHasChangesProperty(ctx.hasRecordedChangesProperty());
 			documentRecorder.start();
-		}
-		catch (ExecutableException e) {
+		} catch (ExecutableException e) {
 			throw new RuntimeException(e);
 		}
 	}
@@ -746,8 +787,7 @@ public class SlidesPresenter extends Presenter<SlidesView> {
 	private void recordPage(Page page) {
 		try {
 			documentRecorder.recordPage(page);
-		}
-		catch (ExecutableException e) {
+		} catch (ExecutableException e) {
 			logException(e, "Record page failed");
 		}
 	}
@@ -782,7 +822,6 @@ public class SlidesPresenter extends Presenter<SlidesView> {
 
 		return overlay;
 	}
-
 
 
 	private class DocumentChangeHandler implements DocumentChangeListener {

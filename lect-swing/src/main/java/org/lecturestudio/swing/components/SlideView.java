@@ -64,7 +64,7 @@ import org.lecturestudio.core.view.ViewType;
 /**
  * SlideView class is responsible for viewing the slide images that are rendered
  * by a PDF adapter.
- * 
+ *
  * @author Alex
  */
 public class SlideView extends JComponent implements org.lecturestudio.core.view.SlideView, ShapeListener, ParameterChangeListener {
@@ -557,6 +557,10 @@ public class SlideView extends JComponent implements org.lecturestudio.core.view
 	private BufferedImage frontImage;
 
 	private BufferedImage createBackImage(BufferedImage reference, int width, int height) {
+		if (width <= 0 || height <= 0) {
+			return reference;
+		}
+
 		if (reference != null) {
 			if (width == reference.getWidth() && height == reference.getHeight()) {
 				return reference;

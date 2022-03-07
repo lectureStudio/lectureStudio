@@ -23,7 +23,7 @@ import static java.util.Objects.nonNull;
 
 import com.google.common.eventbus.Subscribe;
 
-import java.awt.Desktop;
+import java.awt.*;
 import java.io.File;
 import java.io.IOException;
 import java.net.URI;
@@ -65,23 +65,11 @@ import org.lecturestudio.core.util.DesktopUtils;
 import org.lecturestudio.core.util.FileUtils;
 import org.lecturestudio.core.util.ListChangeListener;
 import org.lecturestudio.core.util.ObservableList;
-import org.lecturestudio.core.view.FileChooserView;
-import org.lecturestudio.core.view.PresentationParameter;
-import org.lecturestudio.core.view.PresentationParameterProvider;
-import org.lecturestudio.core.view.View;
-import org.lecturestudio.core.view.ViewContextFactory;
-import org.lecturestudio.core.view.ViewType;
+import org.lecturestudio.core.view.*;
 import org.lecturestudio.presenter.api.config.PresenterConfiguration;
 import org.lecturestudio.presenter.api.context.PresenterContext;
-import org.lecturestudio.presenter.api.event.MessengerStateEvent;
-import org.lecturestudio.presenter.api.event.QuizStateEvent;
-import org.lecturestudio.presenter.api.event.RecordingStateEvent;
-import org.lecturestudio.presenter.api.event.RecordingTimeEvent;
-import org.lecturestudio.presenter.api.event.StreamingStateEvent;
-import org.lecturestudio.presenter.api.model.Bookmark;
-import org.lecturestudio.presenter.api.model.BookmarkKeyException;
-import org.lecturestudio.presenter.api.model.Bookmarks;
-import org.lecturestudio.presenter.api.model.BookmarksListener;
+import org.lecturestudio.presenter.api.event.*;
+import org.lecturestudio.presenter.api.model.*;
 import org.lecturestudio.presenter.api.pdf.embedded.QuizParser;
 import org.lecturestudio.presenter.api.service.BookmarkService;
 import org.lecturestudio.presenter.api.service.QuizWebServiceState;
@@ -126,7 +114,7 @@ public class MenuPresenter extends Presenter<MenuView> {
 
 		this.eventBus = context.getEventBus();
 		this.quizParser = new QuizParser();
-		this.timeFormatter = DateTimeFormatter.ofPattern("HH:mm", context.getConfiguration().getLocale());
+		this.timeFormatter = DateTimeFormatter.ofPattern("HH:mm", getPresenterConfig().getLocale());
 		this.timer = new Timer("MenuTime", true);
 	}
 
@@ -150,8 +138,7 @@ public class MenuPresenter extends Presenter<MenuView> {
 
 		if (event.isRemoved()) {
 			page.removePageEditedListener(this::pageEdited);
-		}
-		else if (event.isSelected()) {
+		} else if (event.isSelected()) {
 			Page oldPage = event.getOldPage();
 
 			if (nonNull(oldPage)) {
@@ -204,14 +191,27 @@ public class MenuPresenter extends Presenter<MenuView> {
 		}
 	}
 
+	@Subscribe
+	public void onEvent(final ExternalMessagesViewEvent event) {
+		view.setExternalMessages(event.isEnabled(), event.isShow());
+	}
+
+	@Subscribe
+	public void onEvent(final ExternalSlidePreviewViewEvent event) {
+		view.setExternalSlidePreview(event.isEnabled(), event.isShow());
+	}
+
+	@Subscribe
+	public void onEvent(final ExternalSpeechViewEvent event) {
+		view.setExternalSpeech(event.isEnabled(), event.isShow());
+	}
+
 	public void openBookmark(Bookmark bookmark) {
 		try {
 			bookmarkService.gotoBookmark(bookmark);
-		}
-		catch (BookmarkKeyException e) {
+		} catch (BookmarkKeyException e) {
 			showError("bookmark.goto.error", "bookmark.key.not.existing", bookmark.getShortcut());
-		}
-		catch (Exception e) {
+		} catch (Exception e) {
 			handleException(e, "Go to bookmark failed", "bookmark.goto.error");
 		}
 	}
@@ -219,8 +219,7 @@ public class MenuPresenter extends Presenter<MenuView> {
 	public void openPageURI(URI uri) {
 		try {
 			DesktopUtils.browseURI(uri);
-		}
-		catch (Exception e) {
+		} catch (Exception e) {
 			handleException(e, "Open page uri failed", "error", "open.page.uri.error");
 		}
 	}
@@ -246,8 +245,7 @@ public class MenuPresenter extends Presenter<MenuView> {
 
 		try {
 			DesktopUtils.openFile(fileLink);
-		}
-		catch (Exception e) {
+		} catch (Exception e) {
 			handleException(e, "Open page file link failed", "error", "open.page.file.error");
 		}
 	}
@@ -258,10 +256,10 @@ public class MenuPresenter extends Presenter<MenuView> {
 
 	public void openDocument(File documentFile) {
 		documentService.openDocument(documentFile)
-			.exceptionally(throwable -> {
-				handleException(throwable, "Open document failed", "open.document.error", documentFile.getPath());
-				return null;
-			});
+				.exceptionally(throwable -> {
+					handleException(throwable, "Open document failed", "open.document.error", documentFile.getPath());
+					return null;
+				});
 	}
 
 	public void closeSelectedDocument() {
@@ -293,11 +291,27 @@ public class MenuPresenter extends Presenter<MenuView> {
 	}
 
 	public void setAdvancedSettings(boolean selected) {
-		context.getConfiguration().setAdvancedUIMode(selected);
+		getPresenterConfig().setAdvancedUIMode(selected);
 	}
 
 	public void customizeToolbar() {
 		eventBus.post(new CustomizeToolbarEvent());
+	}
+
+	public void externalMessages(boolean selected) {
+		eventBus.post(new ExternalMessagesViewEvent(selected));
+	}
+
+	public void externalSlidePreview(boolean selected) {
+		eventBus.post(new ExternalSlidePreviewViewEvent(selected));
+	}
+
+	public void externalSpeech(boolean selected) {
+		eventBus.post(new ExternalSpeechViewEvent(selected));
+	}
+
+	public void positionMessages(MessageBarPosition position) {
+		eventBus.post(new MessageBarPositionEvent(position));
 	}
 
 	public void newWhiteboard() {
@@ -320,38 +334,33 @@ public class MenuPresenter extends Presenter<MenuView> {
 		try {
 			if (recordingService.started()) {
 				recordingService.suspend();
-			}
-			else {
+			} else {
 				recordingService.start();
 			}
-		}
-		catch (ExecutableException e) {
+		} catch (ExecutableException e) {
 			Throwable cause = nonNull(e.getCause()) ? e.getCause().getCause() : null;
 
 			if (cause instanceof AudioDeviceNotConnectedException) {
 				var ex = (AudioDeviceNotConnectedException) cause;
 				showError("recording.start.error", "recording.start.device.error", ex.getDeviceName());
 				logException(e, "Start recording failed");
-			}
-			else {
+			} else {
 				handleException(e, "Start recording failed", "recording.start.error");
 			}
 		}
 	}
 
 	public void stopRecording() {
-		PresenterConfiguration config = (PresenterConfiguration) context.getConfiguration();
+		PresenterConfiguration config = getPresenterConfig();
 
 		if (config.getConfirmStopRecording()) {
 			eventBus.post(new ShowPresenterCommand<>(ConfirmStopRecordingPresenter.class));
-		}
-		else {
+		} else {
 			try {
 				recordingService.stop();
 
 				eventBus.post(new ShowPresenterCommand<>(SaveRecordingPresenter.class));
-			}
-			catch (ExecutableException e) {
+			} catch (ExecutableException e) {
 				handleException(e, "Stop recording failed", "recording.stop.error");
 			}
 		}
@@ -360,8 +369,7 @@ public class MenuPresenter extends Presenter<MenuView> {
 	public void showMessengerWindow(boolean show) {
 		if (show) {
 			eventBus.post(new ShowPresenterCommand<>(MessengerWindowPresenter.class));
-		}
-		else {
+		} else {
 			eventBus.post(new ClosePresenterCommand(MessengerWindowPresenter.class));
 		}
 	}
@@ -398,8 +406,7 @@ public class MenuPresenter extends Presenter<MenuView> {
 		try {
 			Desktop.getDesktop().open(new File(
 					context.getDataLocator().getAppDataPath()));
-		}
-		catch (IOException e) {
+		} catch (IOException e) {
 			handleException(e, "Open log path failed", "generic.error");
 		}
 	}
@@ -410,7 +417,7 @@ public class MenuPresenter extends Presenter<MenuView> {
 
 	private void selectNewDocument() {
 		final String pathContext = PresenterContext.SLIDES_CONTEXT;
-		Configuration config = context.getConfiguration();
+		Configuration config = getPresenterConfig();
 		Dictionary dict = context.getDictionary();
 		Map<String, String> contextPaths = config.getContextPaths();
 		Path dirPath = FileUtils.getContextPath(config, pathContext);
@@ -470,10 +477,14 @@ public class MenuPresenter extends Presenter<MenuView> {
 		view.setPage(page, parameter);
 	}
 
+	private PresenterConfiguration getPresenterConfig() {
+		return (PresenterConfiguration) context.getConfiguration();
+	}
+
 	@Override
 	public void initialize() {
-		PresenterContext presenterContext = (PresenterContext) context;
-		PresenterConfiguration config = (PresenterConfiguration) context.getConfiguration();
+		final PresenterContext presenterContext = (PresenterContext) context;
+		final PresenterConfiguration config = getPresenterConfig();
 
 		eventBus.register(this);
 
@@ -507,6 +518,26 @@ public class MenuPresenter extends Presenter<MenuView> {
 //		view.setAdvancedSettings(config.getAdvancedUIMode());
 //		view.setOnAdvancedSettings(this::setAdvancedSettings);
 
+		view.setOnExternalMessages(this::externalMessages);
+		view.setOnExternalSlidePreview(this::externalSlidePreview);
+		view.setOnExternalSpeech(this::externalSpeech);
+
+		switch (config.getMessageBarConfiguration().getMessageBarPosition()) {
+			case LEFT:
+				view.setMessagesPositionLeft();
+				break;
+			case BOTTOM:
+				view.setMessagesPositionBottom();
+				break;
+			case RIGHT:
+				view.setMessagesPositionRight();
+				break;
+		}
+
+		view.setOnMessagesPositionLeft(() -> positionMessages(MessageBarPosition.LEFT));
+		view.setOnMessagesPositionBottom(() -> positionMessages(MessageBarPosition.BOTTOM));
+		view.setOnMessagesPositionRight(() -> positionMessages(MessageBarPosition.RIGHT));
+
 		view.setOnNewWhiteboard(this::newWhiteboard);
 		view.setOnNewWhiteboardPage(this::newWhiteboardPage);
 		view.setOnDeleteWhiteboardPage(this::deleteWhiteboardPage);
@@ -537,7 +568,7 @@ public class MenuPresenter extends Presenter<MenuView> {
 		view.setOnOpenAbout(this::showAboutView);
 
 		// Bind configuration.
-//		context.getConfiguration().advancedUIModeProperty().addListener((observable, oldValue, newValue) -> {
+//		getPresenterConfig().advancedUIModeProperty().addListener((observable, oldValue, newValue) -> {
 //			view.setAdvancedSettings(newValue);
 //		});
 
@@ -558,10 +589,10 @@ public class MenuPresenter extends Presenter<MenuView> {
 		});
 
 		// Set file menu.
-		ObservableList<RecentDocument> recentDocs = context.getConfiguration().getRecentDocuments();
+		ObservableList<RecentDocument> recentDocs = getPresenterConfig().getRecentDocuments();
 
 		// Add new (sorted) recent document items.
-		if (recentDocs.size() > 0) {
+		if (!recentDocs.isEmpty()) {
 			Iterator<RecentDocument> iter = recentDocs.iterator();
 
 			while (iter.hasNext()) {

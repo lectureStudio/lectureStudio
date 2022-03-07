@@ -86,6 +86,30 @@ public interface MenuView extends View {
 
 	void setOnCustomizeToolbar(Action action);
 
+	void setExternalMessages(boolean selected, boolean show);
+
+	void setOnExternalMessages(ConsumerAction<Boolean> action);
+
+	void setExternalSlidePreview(boolean selected, boolean show);
+
+	void setOnExternalSlidePreview(ConsumerAction<Boolean> action);
+
+	void setExternalSpeech(boolean selected, boolean show);
+
+	void setOnExternalSpeech(ConsumerAction<Boolean> action);
+
+	void setOnMessagesPositionLeft(Action action);
+
+	void setMessagesPositionLeft();
+
+	void setOnMessagesPositionBottom(Action action);
+
+	void setMessagesPositionBottom();
+
+	void setOnMessagesPositionRight(Action action);
+
+	void setMessagesPositionRight();
+
 	/**
 	 * Whiteboard Menu
 	 */

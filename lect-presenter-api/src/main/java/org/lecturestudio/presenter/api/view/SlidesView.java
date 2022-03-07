@@ -18,6 +18,7 @@
 
 package org.lecturestudio.presenter.api.view;
 
+import java.awt.*;
 import java.math.BigInteger;
 import java.util.List;
 
@@ -32,12 +33,9 @@ import org.lecturestudio.core.model.DocumentOutlineItem;
 import org.lecturestudio.core.model.Page;
 import org.lecturestudio.core.model.SlideNote;
 import org.lecturestudio.core.tool.ToolType;
-import org.lecturestudio.core.view.Action;
-import org.lecturestudio.core.view.ConsumerAction;
-import org.lecturestudio.core.view.PageObjectView;
-import org.lecturestudio.core.view.PresentationParameter;
-import org.lecturestudio.core.view.PresentationParameterProvider;
-import org.lecturestudio.core.view.View;
+import org.lecturestudio.core.view.*;
+import org.lecturestudio.presenter.api.model.MessageBarPosition;
+import org.lecturestudio.swing.model.ExternalWindowPosition;
 import org.lecturestudio.presenter.api.stylus.StylusHandler;
 import org.lecturestudio.web.api.event.PeerStateEvent;
 import org.lecturestudio.web.api.event.VideoFrameEvent;
@@ -127,4 +125,39 @@ public interface SlidesView extends View {
 
 	void setOnOutlineItem(ConsumerAction<DocumentOutlineItem> action);
 
+	void setOnExternalMessagesPositionChanged(ConsumerAction<ExternalWindowPosition> action);
+
+	void setOnExternalMessagesSizeChanged(ConsumerAction<Dimension> action);
+
+	void setOnExternalMessagesClosed(Action action);
+
+	void setOnExternalSlidePreviewPositionChanged(ConsumerAction<ExternalWindowPosition> action);
+
+	void setOnExternalSlidePreviewSizeChanged(ConsumerAction<Dimension> action);
+
+	void setOnExternalSlidePreviewClosed(Action action);
+
+	void setOnExternalSpeechPositionChanged(ConsumerAction<ExternalWindowPosition> action);
+
+	void setOnExternalSpeechSizeChanged(ConsumerAction<Dimension> action);
+
+	void setOnExternalSpeechClosed(Action action);
+
+	void showExternalMessages(Screen screen, Point position, Dimension size);
+
+	void hideExternalMessages();
+
+	void showExternalSlidePreview(Screen screen, Point position, Dimension size);
+
+	void hideExternalSlidePreview();
+
+	void showExternalSpeech(Screen screen, Point position, Dimension size);
+
+	void showMessagesPlaceholder();
+
+	void hideMessagesPlaceholder();
+
+	void hideExternalSpeech();
+
+	void setMessageBarPosition(MessageBarPosition position);
 }

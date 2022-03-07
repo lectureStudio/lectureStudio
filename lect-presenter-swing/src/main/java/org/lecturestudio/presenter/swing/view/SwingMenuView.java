@@ -27,14 +27,7 @@ import java.net.URI;
 import java.util.List;
 
 import javax.inject.Inject;
-import javax.swing.AbstractButton;
-import javax.swing.JCheckBoxMenuItem;
-import javax.swing.JMenu;
-import javax.swing.JMenuBar;
-import javax.swing.JMenuItem;
-import javax.swing.JPopupMenu;
-import javax.swing.JSeparator;
-import javax.swing.KeyStroke;
+import javax.swing.*;
 
 import org.lecturestudio.core.ExecutableState;
 import org.lecturestudio.core.app.dictionary.Dictionary;
@@ -103,6 +96,22 @@ public class SwingMenuView extends JMenuBar implements MenuView {
 
 	private JMenuItem customizeToolbarMenuItem;
 
+	private JMenu externalWindowsMenu;
+
+	private JCheckBoxMenuItem externalMessagesMenuItem;
+
+	private JCheckBoxMenuItem externalSlidePreviewMenuItem;
+
+	private JCheckBoxMenuItem externalSpeechMenuItem;
+
+	private JMenu messagesPositionMenu;
+
+	private JRadioButtonMenuItem messagesPositionLeftMenuItem;
+
+	private JRadioButtonMenuItem messagesPositionBottomMenuItem;
+
+	private JRadioButtonMenuItem messagesPositionRightMenuItem;
+
 	private JMenuItem newWhiteboardMenuItem;
 
 	private JMenuItem newWhiteboardPageMenuItem;
@@ -169,9 +178,11 @@ public class SwingMenuView extends JMenuBar implements MenuView {
 		final boolean isPdf = nonNull(doc) && doc.isPDF();
 		final boolean isWhiteboard = nonNull(doc) && doc.isWhiteboard();
 
+		// TODO: Einträge ausgrauen anzeigen
 		SwingUtils.invoke(() -> {
 			closeDocumentMenuItem.setEnabled(hasDocument);
 			saveDocumentsMenuItem.setEnabled(hasDocument);
+			customizeToolbarMenuItem.setEnabled(hasDocument);
 			outlineMenuItem.setEnabled(isPdf);
 			newWhiteboardPageMenuItem.setEnabled(isWhiteboard);
 			deleteWhiteboardPageMenuItem.setEnabled(isWhiteboard);
@@ -185,6 +196,8 @@ public class SwingMenuView extends JMenuBar implements MenuView {
 			startRecordingMenuItem.setEnabled(hasDocument);
 			enableStreamMenuItem.setEnabled(hasDocument);
 			enableMessengerMenuItem.setEnabled(hasDocument);
+			externalWindowsMenu.setEnabled(hasDocument);
+			messagesPositionMenu.setEnabled(hasDocument);
 		});
 	}
 
@@ -253,7 +266,7 @@ public class SwingMenuView extends JMenuBar implements MenuView {
 
 	@Override
 	public void setOnOpenDocument(ConsumerAction<File> action) {
-		this.openDocumentAction = action;
+		openDocumentAction = action;
 	}
 
 	@Override
@@ -314,6 +327,74 @@ public class SwingMenuView extends JMenuBar implements MenuView {
 	@Override
 	public void setOnCustomizeToolbar(Action action) {
 		SwingUtils.bindAction(customizeToolbarMenuItem, action);
+	}
+
+	@Override
+	public void setExternalMessages(boolean selected, boolean show) {
+		externalMessagesMenuItem.setSelected(selected);
+		externalMessagesMenuItem.setText(
+				!selected || show ? dict.get("menu.external.messages") :
+						dict.get("menu.external.messages.disconnected"));
+	}
+
+	@Override
+	public void setOnExternalMessages(ConsumerAction<Boolean> action) {
+		SwingUtils.bindAction(externalMessagesMenuItem, action);
+	}
+
+	@Override
+	public void setExternalSlidePreview(boolean selected, boolean show) {
+		externalSlidePreviewMenuItem.setSelected(selected);
+		externalSlidePreviewMenuItem.setText(
+				!selected || show ? dict.get("menu.external.slide.preview") :
+						dict.get("menu.external.slide.preview.disconnected"));
+	}
+
+	@Override
+	public void setOnExternalSlidePreview(ConsumerAction<Boolean> action) {
+		SwingUtils.bindAction(externalSlidePreviewMenuItem, action);
+	}
+
+	@Override
+	public void setExternalSpeech(boolean selected, boolean show) {
+		externalSpeechMenuItem.setSelected(selected);
+		externalSpeechMenuItem.setText(
+				!selected || show ? dict.get("menu.external.speech") : dict.get("menu.external.speech.disconnected"));
+	}
+
+	@Override
+	public void setOnExternalSpeech(ConsumerAction<Boolean> action) {
+		SwingUtils.bindAction(externalSpeechMenuItem, action);
+	}
+
+	@Override
+	public void setOnMessagesPositionLeft(Action action) {
+		SwingUtils.bindAction(messagesPositionLeftMenuItem, action);
+	}
+
+	@Override
+	public void setMessagesPositionLeft() {
+		messagesPositionLeftMenuItem.setSelected(true);
+	}
+
+	@Override
+	public void setOnMessagesPositionBottom(Action action) {
+		SwingUtils.bindAction(messagesPositionBottomMenuItem, action);
+	}
+
+	@Override
+	public void setMessagesPositionBottom() {
+		messagesPositionBottomMenuItem.setSelected(true);
+	}
+
+	@Override
+	public void setOnMessagesPositionRight(Action action) {
+		SwingUtils.bindAction(messagesPositionRightMenuItem, action);
+	}
+
+	@Override
+	public void setMessagesPositionRight() {
+		messagesPositionRightMenuItem.setSelected(true);
 	}
 
 	@Override
@@ -666,6 +747,11 @@ public class SwingMenuView extends JMenuBar implements MenuView {
 				dict.get("menu.stream.microphone.stop"));
 		setStateText(enableStreamCameraMenuItem, dict.get("menu.stream.camera.start"),
 				dict.get("menu.stream.camera.stop"));
+
+		final ButtonGroup messagesPositionButtonGroup = new ButtonGroup();
+		messagesPositionButtonGroup.add(messagesPositionLeftMenuItem);
+		messagesPositionButtonGroup.add(messagesPositionBottomMenuItem);
+		messagesPositionButtonGroup.add(messagesPositionRightMenuItem);
 	}
 
 	private void setStateText(AbstractButton button, String start, String stop) {
@@ -678,12 +764,10 @@ public class SwingMenuView extends JMenuBar implements MenuView {
 		if (state == ExecutableState.Started) {
 			styleable.setOpaque(true);
 			styleable.setBackground(new Color(210, 210, 210));
-		}
-		else if (state == ExecutableState.Suspended) {
+		} else if (state == ExecutableState.Suspended) {
 			styleable.setOpaque(true);
 			styleable.setBackground(new Color(245, 138, 0));
-		}
-		else if (state == ExecutableState.Stopped || state == ExecutableState.Error) {
+		} else if (state == ExecutableState.Stopped || state == ExecutableState.Error) {
 			styleable.setOpaque(false);
 			styleable.setBackground(null);
 			styleable.setText("");

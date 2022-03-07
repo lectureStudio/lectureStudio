@@ -24,57 +24,27 @@ import java.awt.Container;
 import java.util.Locale;
 import java.util.ResourceBundle;
 
-import javax.swing.Icon;
-import javax.swing.ImageIcon;
-import javax.swing.JButton;
-import javax.swing.JComboBox;
-import javax.swing.JLabel;
-import javax.swing.JPanel;
-import javax.swing.JRadioButton;
-import javax.swing.JTabbedPane;
-import javax.swing.JTable;
-import javax.swing.JTextField;
-import javax.swing.JToggleButton;
-import javax.swing.JTree;
+import javax.swing.*;
 import javax.swing.table.TableColumn;
 
 import net.atlanticbb.tantlinger.shef.HTMLEditorPane;
 
 import org.lecturestudio.core.inject.Injector;
-import org.lecturestudio.swing.components.CameraPreviewPanel;
-import org.lecturestudio.swing.components.ColorChooserButton;
-import org.lecturestudio.swing.components.DisplayPanel;
-import org.lecturestudio.swing.components.FontPickerButton;
-import org.lecturestudio.swing.components.IPTextField;
-import org.lecturestudio.swing.components.LevelMeter;
-import org.lecturestudio.swing.components.MessageView;
+import org.lecturestudio.swing.components.*;
 import org.lecturestudio.swing.components.previews.ArrowToolPreview;
 import org.lecturestudio.swing.components.previews.EllipseToolPreview;
 import org.lecturestudio.swing.components.previews.LineToolPreview;
 import org.lecturestudio.swing.components.previews.PenToolPreview;
 import org.lecturestudio.swing.components.previews.PointerToolPreview;
 import org.lecturestudio.swing.components.previews.RectangleToolPreview;
-import org.lecturestudio.swing.components.RecordButton;
-import org.lecturestudio.swing.components.SettingsTab;
-import org.lecturestudio.swing.components.SlideView;
-import org.lecturestudio.swing.components.TeXFontPickerButton;
-import org.lecturestudio.swing.components.TitledSeparator;
-import org.lecturestudio.swing.components.ToggleComboButton;
-import org.lecturestudio.swing.components.ToolColorPickerButton;
-import org.lecturestudio.swing.components.ToolGroupButton;
+import org.lecturestudio.swing.model.AdaptiveTabType;
 import org.lecturestudio.swing.swixml.converter.IconConverter;
+import org.lecturestudio.swing.swixml.converter.AdaptiveTabTypeConverter;
 import org.lecturestudio.swing.swixml.factory.AbstractButtonFactory;
 import org.lecturestudio.swing.swixml.factory.AbstractInjectButtonFactory;
 import org.lecturestudio.swing.swixml.factory.InjectViewFactory;
 import org.lecturestudio.swing.swixml.factory.LabelFactory;
-import org.lecturestudio.swing.swixml.processor.ComboBoxProcessor;
-import org.lecturestudio.swing.swixml.processor.PanelProcessor;
-import org.lecturestudio.swing.swixml.processor.TabProcessor;
-import org.lecturestudio.swing.swixml.processor.TabbedPaneProcessor;
-import org.lecturestudio.swing.swixml.processor.TableColumnProcessor;
-import org.lecturestudio.swing.swixml.processor.TableProcessor;
-import org.lecturestudio.swing.swixml.processor.TextFieldProcessor;
-import org.lecturestudio.swing.swixml.processor.TreeProcessor;
+import org.lecturestudio.swing.swixml.processor.*;
 import org.lecturestudio.swing.table.ButtonEditor;
 import org.lecturestudio.swing.table.ButtonRenderer;
 
@@ -93,6 +63,7 @@ public class ViewLoader<T extends Container> extends SwingEngine<T> {
 		ConverterLibrary converterLibrary = ConverterLibrary.getInstance();
 		converterLibrary.register(Icon.class, new IconConverter());
 		converterLibrary.register(ImageIcon.class, new IconConverter());
+		converterLibrary.register(AdaptiveTabType.class, new AdaptiveTabTypeConverter());
 
 		TagLibrary tagLibrary = SwingTagLibrary.getInstance();
 		tagLibrary.registerTag("ArrowToolPreview", ArrowToolPreview.class);
@@ -112,6 +83,7 @@ public class ViewLoader<T extends Container> extends SwingEngine<T> {
 		tagLibrary.registerTag("RectangleToolPreview", RectangleToolPreview.class);
 		tagLibrary.registerTag("SlideView", SlideView.class);
 		tagLibrary.registerTag("Tab", new BeanFactory(SettingsTab.class, new TabProcessor()));
+		tagLibrary.registerTag("AdaptiveTabbedPane", new BeanFactory(AdaptiveTabbedPane.class, new AdaptiveTabbedPaneProcessor()));
 		tagLibrary.registerTag("TabbedPane", new BeanFactory(JTabbedPane.class, new TabbedPaneProcessor()));
 		tagLibrary.registerTag("Table", new BeanFactory(JTable.class, new TableProcessor()));
 		tagLibrary.registerTag("TableColumn", new BeanFactory(TableColumn.class, new TableColumnProcessor()));

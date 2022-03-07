@@ -32,11 +32,7 @@ import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.geometry.Insets;
 import javafx.scene.Scene;
-import javafx.scene.control.CheckMenuItem;
-import javafx.scene.control.Label;
-import javafx.scene.control.Menu;
-import javafx.scene.control.MenuItem;
-import javafx.scene.control.SeparatorMenuItem;
+import javafx.scene.control.*;
 import javafx.scene.input.KeyCombination;
 import javafx.scene.layout.HBox;
 import javafx.scene.text.Text;
@@ -119,6 +115,24 @@ public class FxMenuView extends HBox implements MenuView {
 
 	@FXML
 	private CheckMenuItem customizeToolbarMenuItem;
+
+	@FXML
+	private CheckMenuItem externalMessagesMenuItem;
+
+	@FXML
+	private CheckMenuItem externalSlidePreviewMenuItem;
+
+	@FXML
+	private CheckMenuItem externalSpeechMenuItem;
+
+	@FXML
+	private RadioMenuItem messagesPositionLeftMenuItem;
+
+	@FXML
+	private RadioMenuItem messagesPositionBottomMenuItem;
+
+	@FXML
+	private RadioMenuItem messagesPositionRightMenuItem;
 
 	@FXML
 	private MenuItem newWhiteboardMenuItem;
@@ -358,6 +372,66 @@ public class FxMenuView extends HBox implements MenuView {
 	@Override
 	public void setOnCustomizeToolbar(Action action) {
 		FxUtils.bindAction(customizeToolbarMenuItem, action);
+	}
+
+	@Override
+	public void setExternalMessages(boolean selected) {
+		this.externalMessagesMenuItem.setSelected(selected);
+	}
+
+	@Override
+	public void setOnExternalMessages(Action action) {
+		FxUtils.bindAction(externalMessagesMenuItem, action);
+	}
+
+	@Override
+	public void setExternalSlidePreview(boolean selected) {
+		this.externalSlidePreviewMenuItem.setSelected(selected);
+	}
+
+	@Override
+	public void setOnExternalSlidePreview(Action action) {
+		FxUtils.bindAction(externalSlidePreviewMenuItem, action);
+	}
+
+	@Override
+	public void setExternalSpeech(boolean selected) {
+		this.externalSpeechMenuItem.setSelected(selected);
+	}
+
+	@Override
+	public void setOnExternalSpeech(Action action) {
+		FxUtils.bindAction(externalSpeechMenuItem, action);
+	}
+
+	@Override
+	public void setOnMessagesPositionLeft(Action action) {
+		FxUtils.bindAction(messagesPositionLeftMenuItem, action);
+	}
+
+	@Override
+	public void setMessagesPositionLeft() {
+		this.messagesPositionLeftMenuItem.setSelected(true);
+	}
+
+	@Override
+	public void setOnMessagesPositionBottom(Action action) {
+		FxUtils.bindAction(messagesPositionBottomMenuItem, action);
+	}
+
+	@Override
+	public void setMessagesPositionBottom() {
+		this.messagesPositionBottomMenuItem.setSelected(true);
+	}
+
+	@Override
+	public void setOnMessagesPositionRight(Action action) {
+		FxUtils.bindAction(messagesPositionRightMenuItem, action);
+	}
+
+	@Override
+	public void setMessagesPositionRight() {
+		this.messagesPositionRightMenuItem.setSelected(true);
 	}
 
 	/**
@@ -737,6 +811,11 @@ public class FxMenuView extends HBox implements MenuView {
 				}
 			}
 		});
+
+		final ToggleGroup messagesPositionToggleGroup = new ToggleGroup();
+		messagesPositionLeftMenuItem.setToggleGroup(messagesPositionToggleGroup);
+		messagesPositionBottomMenuItem.setToggleGroup(messagesPositionToggleGroup);
+		messagesPositionRightMenuItem.setToggleGroup(messagesPositionToggleGroup);
 	}
 
 	private void setIndicatorState(MenuItem styleable, ExecutableState state) {

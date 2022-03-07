@@ -22,15 +22,17 @@ import java.awt.LayoutManager;
 
 import javax.swing.*;
 
+import org.lecturestudio.swing.components.AdaptiveTabbedPane;
 import org.lecturestudio.swing.components.SettingsTab;
 
+import org.lecturestudio.swing.model.AdaptiveTab;
 import org.lecturestudio.swing.util.TabLabelTransformer;
 import org.swixml.LogAware;
 import org.swixml.Parser;
 import org.swixml.processor.TagProcessor;
 import org.w3c.dom.Element;
 
-public class TabbedPaneProcessor implements TagProcessor, LogAware {
+public class AdaptiveTabbedPaneProcessor implements TagProcessor, LogAware {
 
 	@Override
 	public boolean process(Parser parser, Object parent, Element child,
@@ -38,18 +40,19 @@ public class TabbedPaneProcessor implements TagProcessor, LogAware {
 		if (!"Tab".equalsIgnoreCase(child.getLocalName())) {
 			return false;
 		}
-		if (!(parent instanceof JTabbedPane)) {
-			logger.warning("Tab tag is valid only inside JTabbedPane tag. Ignored!");
+		if (!(parent instanceof AdaptiveTabbedPane)) {
+			logger.warning("Tab tag is valid only inside AdaptiveTabbedPane tag. Ignored!");
 			return false;
 		}
 
-		final JTabbedPane tabbedPane = (JTabbedPane) parent;
+		final AdaptiveTabbedPane tabbedPane = (AdaptiveTabbedPane) parent;
 		final SettingsTab tab = (SettingsTab) parser.getSwing(child, null);
 
 		final JLabel tabLabel = TabLabelTransformer.transformTabLabel(tab, tabbedPane.getTabPlacement());
 
-		tabbedPane.addTab(null, tab.getContent());
-		tabbedPane.setTabComponentAt(tabbedPane.getTabCount() - 1, tabLabel);
+		AdaptiveTab adaptiveTab = new AdaptiveTab(tabbedPane.getDefaultTabType(), tabLabel, tab.getContent());
+
+		tabbedPane.addTab(adaptiveTab);
 
 		return true;
 	}

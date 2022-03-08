@@ -23,11 +23,12 @@ import java.awt.LayoutManager;
 import javax.swing.*;
 
 import org.lecturestudio.swing.components.SettingsTab;
-
 import org.lecturestudio.swing.util.TabLabelTransformer;
+
 import org.swixml.LogAware;
 import org.swixml.Parser;
 import org.swixml.processor.TagProcessor;
+
 import org.w3c.dom.Element;
 
 public class TabbedPaneProcessor implements TagProcessor, LogAware {
@@ -45,8 +46,10 @@ public class TabbedPaneProcessor implements TagProcessor, LogAware {
 
 		final JTabbedPane tabbedPane = (JTabbedPane) parent;
 		final SettingsTab tab = (SettingsTab) parser.getSwing(child, null);
-
-		final JLabel tabLabel = TabLabelTransformer.transformTabLabel(tab, tabbedPane.getTabPlacement());
+		final String paneName = tabbedPane.getName();
+		final int tabPlacement = tabbedPane.getTabPlacement();
+		final JLabel tabLabel = TabLabelTransformer.transformTabLabel(tab,
+				tabPlacement, paneName);
 
 		tabbedPane.addTab(null, tab.getContent());
 		tabbedPane.setTabComponentAt(tabbedPane.getTabCount() - 1, tabLabel);

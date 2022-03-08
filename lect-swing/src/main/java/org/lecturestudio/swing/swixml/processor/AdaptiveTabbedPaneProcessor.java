@@ -48,9 +48,11 @@ public class AdaptiveTabbedPaneProcessor implements TagProcessor, LogAware {
 		final AdaptiveTabbedPane tabbedPane = (AdaptiveTabbedPane) parent;
 		final SettingsTab tab = (SettingsTab) parser.getSwing(child, null);
 
-		final JLabel tabLabel = TabLabelTransformer.transformTabLabel(tab, tabbedPane.getTabPlacement());
+		final JLabel tabLabel = TabLabelTransformer.transformTabLabel(tab,
+				tabbedPane.getTabPlacement(), null);
 
-		AdaptiveTab adaptiveTab = new AdaptiveTab(tabbedPane.getDefaultTabType(), tabLabel, tab.getContent());
+		AdaptiveTab adaptiveTab = new AdaptiveTab(
+				tabbedPane.getDefaultTabType(), tabLabel, tab.getContent());
 
 		tabbedPane.addTab(adaptiveTab);
 

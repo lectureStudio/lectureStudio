@@ -10,17 +10,21 @@ import java.awt.*;
 import static java.util.Objects.nonNull;
 
 public class TabLabelTransformer {
+
 	private TabLabelTransformer() {
 	}
 
-	public static JLabel transformTabLabel(SettingsTab tab, int tabPlacement) {
+	public static JLabel transformTabLabel(SettingsTab tab, int tabPlacement,
+			String paneName) {
 		final Dimension size = tab.getSize();
 
 		final JLabel tabLabel;
 
-		if (tabPlacement == SwingConstants.LEFT || tabPlacement == SwingConstants.RIGHT) {
+		if (paneName == null && (tabPlacement == SwingConstants.LEFT
+				|| tabPlacement == SwingConstants.RIGHT)) {
 			tabLabel = VerticalTab.fromText(tab.getText(), tabPlacement, tab.getIcon());
-		} else {
+		}
+		else {
 			tabLabel = new JLabel(tab.getText(), tab.getIcon(), SwingConstants.LEFT);
 		}
 

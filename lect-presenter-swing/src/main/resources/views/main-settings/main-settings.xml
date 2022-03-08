@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<TabbedPane tabPlacement="JTabbedPane.LEFT">
+<TabbedPane name="settings" tabPlacement="JTabbedPane.LEFT">
 	<Tab name="general" text="settings.general" icon="general-settings.svg, 24" size="120, 30">
 		<GeneralSettingsView />
 	</Tab>

@@ -178,7 +178,7 @@ public class PdfFactory {
 		int pageIndex = document.createPage();
 
 		PDFGraphics2D g2dStream = (PDFGraphics2D) document.createPageGraphics2D(pageIndex);
-		renderTextPage(g2dStream, text, FONT_SIZE, CONTENT_X, CONTENT_Y);
+		renderTextPage(g2dStream, text);
 		g2dStream.close();
 	}
 
@@ -318,11 +318,11 @@ public class PdfFactory {
 		return chart;
 	}
 
-	private static void renderTextPage(final Graphics2D context, final String text, int fontSize, int x, int y) {
-		org.jsoup.nodes.Document jdoc = Jsoup.parseBodyFragment(text);
+	private static void renderTextPage(final Graphics2D context, final String text) {
+		org.jsoup.nodes.Document jdoc = Jsoup.parseBodyFragment(String.format("<div style=\"text-align: center; margin-right: 50px;\">%s</div>", text));
 		jdoc.outputSettings().prettyPrint(false);
 
-		renderHtml(jdoc.html(), context, x, y);
+		renderHtml(jdoc.html(), context, CONTENT_X, CONTENT_Y);
 	}
 
 	private static void renderQuestionPage(Graphics2D context, Quiz quiz, int fontSize, int x, int y) {
@@ -367,11 +367,13 @@ public class PdfFactory {
 
 		StyleSheet styleSheet = new StyleSheet();
 		styleSheet.addStyleSheet(defStyleSheet);
-		styleSheet.addRule("body {color:#000; font-family:Arial; font-size:" + FONT_SIZE + "px; margin: 0px; }");
+		styleSheet.addRule(
+				String.format("body { color:#000; font-family:Arial; font-size: %dpx; margin: 0px; }", FONT_SIZE));
 		styleSheet.addRule("ol { padding:5px; }");
 		styleSheet.addRule("ul p { margin-left: 50px; }");
-		styleSheet.addRule("tt {font-size:" + (FONT_SIZE - 2) + "px; }");
-		styleSheet.addRule("code {background: #DAE6E6; font-size:" + (FONT_SIZE - 2) + "px; font-family:Monospace; }");
+		styleSheet.addRule(String.format("tt {font-size: %dpx; }", FONT_SIZE - 2));
+		styleSheet.addRule(
+				String.format("code {background: #DAE6E6; font-size: %dpx; font-family:Monospace; }", FONT_SIZE - 2));
 
 		kit.setStyleSheet(styleSheet);
 
@@ -408,6 +410,7 @@ public class PdfFactory {
 							checkPainter();
 
 							int p1 = getGlyphPainter().getBoundedPosition(this, p0, pos, len);
+							final int constBreak = p1 - 6;
 							if (p0 == getStartOffset() && p1 == getEndOffset()) {
 								return this;
 							}
@@ -426,10 +429,10 @@ public class PdfFactory {
 
 											foundWhitespace = strChar.equals("\u00a0") || strChar.equals(" ");
 										}
-										p1++;
 									}
 								} catch (BadLocationException e) {
 									e.printStackTrace();
+									p1 = constBreak;
 								}
 							}
 

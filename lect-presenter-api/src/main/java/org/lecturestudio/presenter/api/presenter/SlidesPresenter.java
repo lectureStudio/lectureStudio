@@ -34,16 +34,14 @@ import org.lecturestudio.core.controller.ToolController;
 import org.lecturestudio.core.geometry.Matrix;
 import org.lecturestudio.core.graphics.Color;
 import org.lecturestudio.core.input.KeyEvent;
-import org.lecturestudio.core.model.Document;
-import org.lecturestudio.core.model.DocumentOutlineItem;
-import org.lecturestudio.core.model.Page;
-import org.lecturestudio.core.model.SlideNote;
+import org.lecturestudio.core.model.*;
 import org.lecturestudio.core.model.listener.DocumentChangeListener;
 import org.lecturestudio.core.model.listener.PageEditedListener;
 import org.lecturestudio.core.model.listener.ParameterChangeListener;
 import org.lecturestudio.core.model.shape.Shape;
 import org.lecturestudio.core.model.shape.TeXShape;
 import org.lecturestudio.core.model.shape.TextShape;
+import org.lecturestudio.core.pdf.PdfDocument;
 import org.lecturestudio.core.presenter.Presenter;
 import org.lecturestudio.core.recording.DocumentRecorder;
 import org.lecturestudio.core.service.DocumentService;
@@ -58,6 +56,7 @@ import org.lecturestudio.presenter.api.context.PresenterContext;
 import org.lecturestudio.presenter.api.event.*;
 import org.lecturestudio.presenter.api.input.Shortcut;
 import org.lecturestudio.presenter.api.model.MessageBarPosition;
+import org.lecturestudio.presenter.api.pdf.PdfFactory;
 import org.lecturestudio.presenter.api.pdf.embedded.SlideNoteParser;
 import org.lecturestudio.presenter.api.service.RecordingService;
 import org.lecturestudio.presenter.api.service.WebRtcStreamService;
@@ -179,7 +178,8 @@ public class SlidesPresenter extends Presenter<SlidesView> {
 
 		if (documentService.getDocuments().size() > 0) {
 			showExternalScreens();
-		} else {
+		}
+		else {
 			hideExternalScreens();
 		}
 	}
@@ -454,6 +454,53 @@ public class SlidesPresenter extends Presenter<SlidesView> {
 		} else {
 			view.showMessagesPlaceholder();
 		}
+	}
+
+	private void onCreateMessageSlide(MessengerMessage message) {
+		onDiscardMessage(message);
+
+		try {
+			Document messageDocument = createMessageDocument(message.getMessage().getText());
+
+			Document prevMessageDocument = null;
+
+			for (Document doc : documentService.getDocuments().asList()) {
+				if (doc.isMessage()) {
+					prevMessageDocument = doc;
+					break;
+				}
+			}
+
+			if (nonNull(prevMessageDocument)) {
+				documentService.replaceDocument(prevMessageDocument, messageDocument);
+			}
+			else {
+				documentService.addDocument(messageDocument);
+			}
+
+			documentService.selectDocument(messageDocument);
+		}
+		catch (ExecutableException e) {
+			handleException(e, "Create message slide failed", "message.slide.create.error");
+		}
+	}
+
+	private Document createMessageDocument(final String message) throws ExecutableException {
+		Document doc;
+
+		try {
+			PdfDocument pdfDoc = PdfFactory.createMessageDocument(message);
+			pdfDoc.setTitle(context.getDictionary().get("slides.message"));
+			pdfDoc.setAuthor(System.getProperty("user.name"));
+
+			doc = new Document(pdfDoc);
+			doc.setDocumentType(DocumentType.MESSAGE);
+		}
+		catch (Exception e) {
+			throw new ExecutableException("Create message document failed.", e);
+		}
+
+		return doc;
 	}
 
 	private void toolChanged(ToolType toolType) {
@@ -872,6 +919,7 @@ public class SlidesPresenter extends Presenter<SlidesView> {
 		view.setOnAcceptSpeech(this::onAcceptSpeech);
 		view.setOnRejectSpeech(this::onRejectSpeech);
 		view.setOnDiscardMessage(this::onDiscardMessage);
+		view.setOnCreateMessageSlide(this::onCreateMessageSlide);
 		view.setOnMutePeerAudio(streamService::mutePeerAudio);
 		view.setOnMutePeerVideo(streamService::mutePeerVideo);
 		view.setOnStopPeerConnection(streamService::stopPeerConnection);

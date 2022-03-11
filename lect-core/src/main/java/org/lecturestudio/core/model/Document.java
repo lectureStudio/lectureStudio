@@ -46,14 +46,14 @@ import org.apache.logging.log4j.Logger;
  * This class represents a document. Documents consist of a list Pages and can
  * be Whiteboard-Documents or normal Documents. Documents have a handle so that
  * the PDF-API can associate its specific information with the document.
- * 
+ *
  * @author Alex Andres
  */
 public class Document {
 
 	/** Logger for {@link Document}. */
 	private static final Logger LOG = LogManager.getLogger(Document.class);
-	
+
 	private final List<DocumentChangeListener> changeListeners = new ArrayList<>();
 
 	/** A list with all the pages of the document. */
@@ -70,7 +70,7 @@ public class Document {
 
 	/** The PDF document. */
 	private PdfDocument pdfDocument;
-	
+
 	/** The title of the PDF document. */
 	private String title;
 
@@ -176,7 +176,7 @@ public class Document {
 	public boolean isClosed() {
 		return pdfDocument == null;
 	}
-	
+
 	private void closeDocument() {
 		if (pdfDocument != null) {
 			try {
@@ -246,14 +246,14 @@ public class Document {
 	 */
 	public List<URI> getUriActions(int pageIndex) {
 		List<URI> actions = null;
-		
+
 		try {
 			actions = pdfDocument.getUriActions(pageIndex);
 		}
 		catch (IOException e) {
 			LOG.error("Get URI actions failed.", e);
 		}
-		
+
 		return actions;
 	}
 
@@ -266,14 +266,14 @@ public class Document {
 	 */
 	public List<File> getLaunchActions(int pageIndex) {
 		List<File> files = null;
-		
+
 		try {
 			files = pdfDocument.getLaunchActions(pageIndex);
 		}
 		catch (IOException e) {
 			LOG.error("Get launch actions failed.", e);
 		}
-		
+
 		return files;
 	}
 
@@ -293,11 +293,11 @@ public class Document {
 	 */
     public String getFilePath() {
     	String path = null;
-    	
+
     	if (file != null) {
     		path = file.getPath();
     	}
-    	
+
         return path;
     }
 
@@ -349,20 +349,20 @@ public class Document {
 
     	if (nonNull(file)) {
     		name = file.getName();
-    		
+
     		// Strip file extension.
     		name = FileUtils.stripExtension(name);
     	}
     	else {
     		name = getTitle();
     	}
-    	
+
         return name;
 	}
 
 	/**
 	 * Returns the page at the given index.
-	 * 
+	 *
 	 * @param index The page index within the document.
 	 *
 	 * @return The page at the given index, or null if there is no page at the given index.
@@ -376,7 +376,7 @@ public class Document {
 
 	/**
 	 * Returns a list of all pages in this document.
-	 * 
+	 *
 	 * @return A list of all pages in this document.
 	 */
 	public List<Page> getPages() {
@@ -385,13 +385,13 @@ public class Document {
 
 	/**
 	 * Removes the given page if it is part of this document.
-	 * 
+	 *
 	 * @param page The page to remove.
 	 */
 	public boolean removePage(Page page) {
 		int pageNumber = getPageIndex(page);
 		boolean isSelected = pageNumber == currentPageNumber;
-		
+
 		if (pages.remove(page)) {
 			pdfDocument.removePage(pageNumber);
 
@@ -419,7 +419,7 @@ public class Document {
 
 	/**
 	 * Returns the number of pages in this document.
-	 * 
+	 *
 	 * @return The number of pages in this document.
 	 */
 	public int getPageCount() {
@@ -428,7 +428,7 @@ public class Document {
 
 	/**
 	 * Returns the page number of the current page in this document.
-	 * 
+	 *
 	 * @return The page number of the current page in this document.
 	 */
 	public int getCurrentPageNumber() {
@@ -437,7 +437,7 @@ public class Document {
 
 	/**
 	 * Sets the current page number.
-	 * 
+	 *
 	 * @param pageNumber The new current page number.
 	 *
 	 * @return {@code false} if the specified page index is smaller than zero, bigger than the highest page index or
@@ -475,7 +475,7 @@ public class Document {
 
 		Page newPage = new Page(this, pageIndex);
 		addPage(newPage);
-		
+
 		return newPage;
 	}
 
@@ -531,10 +531,19 @@ public class Document {
 	public boolean isQuiz() {
 		return type == DocumentType.QUIZ;
 	}
-	
+
+	/**
+	 * Specifies whether the document is a message.
+	 *
+	 * @return {@code true} if {@link #type} equals {@code DocumentType.MESSAGE}, otherwise {@code false}.
+	 */
+	public boolean isMessage() {
+		return type == DocumentType.MESSAGE;
+	}
+
 	/**
 	 * Returns the index of the given page or {@code -1} if the page isn't part of this document.
-	 * 
+	 *
 	 * @param page The page from which the index should be determined.
 	 *
 	 * @return The index of the given page or {@code -1} if the page isn't part of this document.
@@ -549,7 +558,7 @@ public class Document {
 
 	/**
 	 * Returns the current page.
-	 * 
+	 *
 	 * @return The current page.
 	 */
 	public Page getCurrentPage() {
@@ -576,20 +585,20 @@ public class Document {
 		ByteArrayOutputStream stream = new ByteArrayOutputStream();
 		pdfDocument.toOutputStream(stream);
 		stream.flush();
-		
+
 		digest.update(stream.toByteArray());
-		
+
 		byte[] bytes = digest.digest();
 		char[] hex = new char[bytes.length << 1];
 
 		final char[] HEX_DIGITS = { '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'a', 'b', 'c', 'd', 'e', 'f' };
-		
+
 		// Convert it to hexadecimal format.
 		for (int i = 0, j = 0; i < bytes.length; i++) {
 			hex[j++] = HEX_DIGITS[(0xF0 & bytes[i]) >>> 4];
 			hex[j++] = HEX_DIGITS[0x0F & bytes[i]];
 		}
-		
+
 		return new String(hex);
 	}
 
@@ -604,7 +613,7 @@ public class Document {
 			stream.flush();
 		}
 	}
-	
+
 	@Override
 	public int hashCode() {
 		final int prime = 31;
@@ -636,15 +645,15 @@ public class Document {
 	public String toString() {
 		return getName();
 	}
-	
+
 	/**
 	 * Adds a new page to this document. The page is placed at the tail of {@link #pages}.
-	 * 
+	 *
 	 * @param page The new page.
 	 */
 	private void addPage(Page page) {
 		pages.add(page);
-		
+
 		fireAddChange(page);
 	}
 
@@ -701,14 +710,14 @@ public class Document {
 	private void init(PdfDocument pdfDocument) {
 		this.pdfDocument = pdfDocument;
 		this.title = pdfDocument.getTitle();
-		
+
 		if (title == null && file != null) {
 			// Use filename as title.
 			title = file.getName();
 		}
-		
+
 		setDocumentType(DocumentType.PDF);
-		
+
 		loadPages();
 	}
 

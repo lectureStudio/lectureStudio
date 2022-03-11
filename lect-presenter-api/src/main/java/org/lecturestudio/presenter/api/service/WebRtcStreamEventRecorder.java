@@ -234,6 +234,14 @@ public class WebRtcStreamEventRecorder extends StreamEventRecorder {
 			action = new StreamDocumentSelectAction(doc);
 		}
 		else if (event.replaced()) {
+			if (doc.isMessage()) {
+				try {
+					shareDocument(doc);
+				}
+				catch (IOException e) {
+					logException(e, "Transmit document failed");
+				}
+			}
 			if (doc.isQuiz() && doc.getPageCount() == 1) {
 				// Transmit quiz documents only in initial state.
 				try {

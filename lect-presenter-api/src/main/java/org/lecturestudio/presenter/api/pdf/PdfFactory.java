@@ -39,6 +39,7 @@ import javax.swing.text.html.StyleSheet;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
+
 import org.knowm.xchart.CategoryChart;
 import org.knowm.xchart.CategoryChartBuilder;
 import org.knowm.xchart.CategorySeries;
@@ -47,7 +48,7 @@ import org.knowm.xchart.PieChartBuilder;
 import org.knowm.xchart.internal.chartpart.Chart;
 import org.knowm.xchart.style.PieStyler.AnnotationType;
 import org.knowm.xchart.style.Styler.ChartTheme;
-import org.knowm.xchart.style.theme.GGPlot2Theme;
+import org.knowm.xchart.style.colors.SeriesColors;
 
 import org.lecturestudio.core.app.dictionary.Dictionary;
 import org.lecturestudio.core.pdf.PdfDocument;
@@ -225,6 +226,7 @@ public class PdfFactory {
 		chart.getStyler().setAnnotationDistance(1.1);
 		chart.getStyler().setPlotContentSize(0.75);
 		chart.getStyler().setPlotBackgroundColor(Color.WHITE);
+		chart.getStyler().setSeriesColors(new ChartColors().getSeriesColors());
 
 		Map<QuizAnswer, Integer> resultMap = result.getResult();
 
@@ -243,7 +245,7 @@ public class PdfFactory {
 	    chart.getStyler().setChartBackgroundColor(Color.WHITE);
 	    chart.getStyler().setLegendBorderColor(Color.WHITE);
 	    chart.getStyler().setXAxisTicksVisible(false);
-	    chart.getStyler().setSeriesColors(new GGPlot2Theme().getSeriesColors());
+	    chart.getStyler().setSeriesColors(new ChartColors().getSeriesColors());
 
 		Map<QuizAnswer, Integer> resultMap = result.getResult();
 		int[] xValues = new int[resultMap.size()];
@@ -275,7 +277,7 @@ public class PdfFactory {
 	    chart.getStyler().setChartBackgroundColor(Color.WHITE);
 	    chart.getStyler().setLegendBorderColor(Color.WHITE);
 	    chart.getStyler().setXAxisTicksVisible(false);
-	    chart.getStyler().setSeriesColors(new GGPlot2Theme().getSeriesColors());
+	    chart.getStyler().setSeriesColors(new ChartColors().getSeriesColors());
 
 		Map<QuizAnswer, Integer> resultMap = result.getResult();
 		Map<String, Integer> chartMap = new HashMap<>();
@@ -396,6 +398,30 @@ public class PdfFactory {
 		kit.setStyleSheet(defStyleSheet);
 
 		context.translate((float) -x, (float) -y);
+	}
+
+
+
+	private static class ChartColors implements SeriesColors {
+
+		public static final Color C1 = Color.decode("#003f5c");
+		public static final Color C2 = Color.decode("#665191");
+		public static final Color C3 = Color.decode("#a05195");
+		public static final Color C4 = Color.decode("#d45087");
+		public static final Color C5 = Color.decode("#ff7c43");
+		public static final Color C6 = Color.decode("#ffa600");
+
+		private final Color[] seriesColors;
+
+
+		public ChartColors() {
+			seriesColors = new Color[] { C1, C2, C3, C4, C5, C6 };
+		}
+
+		@Override
+		public Color[] getSeriesColors() {
+			return seriesColors;
+		}
 	}
 
 

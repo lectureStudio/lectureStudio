@@ -37,6 +37,7 @@ import javax.swing.text.html.ParagraphView;
 import javax.swing.text.html.StyleSheet;
 
 import org.jsoup.Jsoup;
+import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.knowm.xchart.CategoryChart;
 import org.knowm.xchart.CategoryChartBuilder;
@@ -131,11 +132,11 @@ public class PdfFactory {
 			return;
 		}
 
+		int chartHeight = PAGE_HEIGHT - PAGE_HEIGHT / 4;
 		int pageIndex = document.createPage();
 
 		// Draw chart below last text line.
-		double textEndY = 0;
-		double margin = 20;
+		int margin = 20;
 
 		// Set (bar)chart y-axis tick spacing.
 		if (chart instanceof CategoryChart) {
@@ -149,15 +150,50 @@ public class PdfFactory {
 		    	yMax = Math.max(yMax, series.getYMax());
 		    }
 
-		    int ySpacing = (int) Math.max(PAGE_HEIGHT / 10.0, PAGE_HEIGHT / yMax);
+		    int ySpacing = (int) Math.max(chartHeight / 10.0, chartHeight / yMax);
 
 			catChart.getStyler().setYAxisTickMarkSpacingHint(ySpacing);
 		}
 
 		PDFGraphics2D g2dStream = (PDFGraphics2D) document.createPageGraphics2D(pageIndex);
-		g2dStream.translate(0, textEndY);
-		chart.paint(g2dStream, PAGE_WIDTH, (int) (PAGE_HEIGHT - margin - textEndY));
+		g2dStream.translate(0, 0);
+		chart.paint(g2dStream, PAGE_WIDTH, chartHeight - margin);
+
+		renderChartQuestions(g2dStream, result.getQuiz(), 0, chartHeight - margin);
+
 		g2dStream.close();
+	}
+
+	private static void renderChartQuestions(Graphics2D context, Quiz quiz, int x, int y) {
+		List<String> options = quiz.getOptions();
+
+		if (options.size() < 1) {
+			return;
+		}
+
+		// Add options below question.
+		Document jdoc = Document.createShell("");
+		jdoc.outputSettings().prettyPrint(false);
+
+		Element table = jdoc.body().appendElement("table");
+		Element row = null;
+		String prefix = "";
+
+		for (int i = 0; i < options.size(); i++) {
+			if (i % 2 == 0) {
+				row = table.appendElement("tr");
+			}
+
+			Element data = row.appendElement("td");
+
+			if (quiz.getType() != QuizType.NUMERIC) {
+				prefix = quiz.getOptionAlpha(i + "") + ")&nbsp;";
+			}
+
+			data.append("<span>" + prefix + options.get(i) + "</span>");
+		}
+
+		renderHtml(jdoc.html(), context, x, y);
 	}
 
 	private static void createQuestionPage(PdfDocument document, Quiz quiz) {
@@ -345,6 +381,9 @@ public class PdfFactory {
 		styleSheet.addRule("ul { margin-left: 10px; padding: 0px; }");
 		styleSheet.addRule("tt {font-size:" + (FONT_SIZE - 2) + "px; }");
 		styleSheet.addRule("code {background: #DAE6E6; font-size:" + (FONT_SIZE - 2) + "px; font-family:Monospace; }");
+		styleSheet.addRule("table {width: 100%; }");
+		styleSheet.addRule("tr {width: 50%; }");
+		styleSheet.addRule("td {width: 50%; }");
 
 		kit.setStyleSheet(styleSheet);
 

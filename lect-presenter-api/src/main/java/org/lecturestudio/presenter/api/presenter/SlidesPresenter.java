@@ -24,7 +24,6 @@ import org.lecturestudio.core.ExecutableState;
 import org.lecturestudio.core.app.ApplicationContext;
 import org.lecturestudio.core.app.configuration.DisplayConfiguration;
 import org.lecturestudio.core.app.configuration.GridConfiguration;
-import org.lecturestudio.core.app.dictionary.Dictionary;
 import org.lecturestudio.core.bus.EventBus;
 import org.lecturestudio.core.bus.event.DocumentEvent;
 import org.lecturestudio.core.bus.event.PageEvent;
@@ -72,7 +71,6 @@ import org.lecturestudio.web.api.message.CourseParticipantMessage;
 import org.lecturestudio.web.api.message.MessengerMessage;
 import org.lecturestudio.web.api.message.SpeechCancelMessage;
 import org.lecturestudio.web.api.message.SpeechRequestMessage;
-import org.lecturestudio.web.api.model.quiz.QuizResult;
 
 import javax.inject.Inject;
 import java.awt.*;
@@ -130,8 +128,6 @@ public class SlidesPresenter extends Presenter<SlidesView> {
 
 	private final RecordingService recordingService;
 
-	private Document messageDocument;
-
 
 	@Inject
 	SlidesPresenter(ApplicationContext context, SlidesView view,
@@ -182,7 +178,8 @@ public class SlidesPresenter extends Presenter<SlidesView> {
 
 		if (documentService.getDocuments().size() > 0) {
 			showExternalScreens();
-		} else {
+		}
+		else {
 			hideExternalScreens();
 		}
 	}
@@ -461,25 +458,29 @@ public class SlidesPresenter extends Presenter<SlidesView> {
 
 	private void onCreateMessageSlide(MessengerMessage message) {
 		onDiscardMessage(message);
+
 		try {
-			messageDocument = createMessageDocument(message.getMessage().getText());
+			Document messageDocument = createMessageDocument(message.getMessage().getText());
 
 			Document prevMessageDocument = null;
 
 			for (Document doc : documentService.getDocuments().asList()) {
 				if (doc.isMessage()) {
 					prevMessageDocument = doc;
+					break;
 				}
 			}
 
 			if (nonNull(prevMessageDocument)) {
 				documentService.replaceDocument(prevMessageDocument, messageDocument);
-			} else {
+			}
+			else {
 				documentService.addDocument(messageDocument);
 			}
 
 			documentService.selectDocument(messageDocument);
-		} catch (ExecutableException e) {
+		}
+		catch (ExecutableException e) {
 			handleException(e, "Create message slide failed", "message.slide.create.error");
 		}
 	}
@@ -489,12 +490,13 @@ public class SlidesPresenter extends Presenter<SlidesView> {
 
 		try {
 			PdfDocument pdfDoc = PdfFactory.createMessageDocument(message);
-			pdfDoc.setTitle("Message");
+			pdfDoc.setTitle(context.getDictionary().get("slides.message"));
 			pdfDoc.setAuthor(System.getProperty("user.name"));
 
 			doc = new Document(pdfDoc);
 			doc.setDocumentType(DocumentType.MESSAGE);
-		} catch (Exception e) {
+		}
+		catch (Exception e) {
 			throw new ExecutableException("Create message document failed.", e);
 		}
 

@@ -38,8 +38,12 @@ public abstract class StreamDocumentAction extends StreamAction {
 
 
 	public StreamDocumentAction(Document document) {
+		DocumentType type = document.getType() == DocumentType.WHITEBOARD ?
+				DocumentType.WHITEBOARD :
+				DocumentType.PDF;
+
 		setDocumentId(document.hashCode());
-		setDocumentType(document.getType());
+		setDocumentType(type);
 		setDocumentTitle(document.getName());
 	}
 

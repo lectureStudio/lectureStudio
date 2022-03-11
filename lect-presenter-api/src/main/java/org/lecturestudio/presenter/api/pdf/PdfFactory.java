@@ -326,10 +326,10 @@ public class PdfFactory {
 	private static void renderHtml(String html, Graphics2D context, int x, int y) {
 		context.translate((float) x, (float) y);
 
+		HTMLEditorKit kit = new MyHTMLEditorKit();
+
 		JEditorPane editorPane = new JEditorPane();
 		editorPane.setSize(PAGE_WIDTH - 2 * x, PAGE_HEIGHT);
-
-		HTMLEditorKit kit = new MyHTMLEditorKit();
 		editorPane.setEditorKitForContentType("text/html", kit);
 		editorPane.setContentType("text/html");
 
@@ -340,9 +340,9 @@ public class PdfFactory {
 
 		StyleSheet styleSheet = new StyleSheet();
 		styleSheet.addStyleSheet(defStyleSheet);
-		styleSheet.addRule("body {color:#000; font-family:Arial; font-size:" + FONT_SIZE + "px; margin: 0px; }");
-		styleSheet.addRule("ol { padding:5px; }");
-		styleSheet.addRule("ul p { margin-left: 50px; }");
+		styleSheet.addRule("body {background: #ffffff; color:#000; font-family:Arial; font-size:" + FONT_SIZE + "px; margin: 0px; }");
+		styleSheet.addRule("* {background: #ffffff; color:#000; }");
+		styleSheet.addRule("ul { margin-left: 10px; padding: 0px; }");
 		styleSheet.addRule("tt {font-size:" + (FONT_SIZE - 2) + "px; }");
 		styleSheet.addRule("code {background: #DAE6E6; font-size:" + (FONT_SIZE - 2) + "px; font-family:Monospace; }");
 

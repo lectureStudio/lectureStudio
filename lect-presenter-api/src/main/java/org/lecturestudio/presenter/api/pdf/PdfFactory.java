@@ -85,15 +85,15 @@ public class PdfFactory {
 		PdfFontManager fontManager = PdfFontManager.getInstance();
 
 		try {
-			String[] listing = FileUtils
-					.getResourceListing("org/scilab/forge/jlatexmath/fonts",
-							(name) -> name.endsWith(".ttf"));
+			String[] listing = FileUtils.getResourceListing(
+					"org/scilab/forge/jlatexmath/fonts",
+					(name) -> name.endsWith(".ttf"));
 
 			for (String filePath : listing) {
 				fontManager.addFontFile(filePath);
 			}
 		}
-    catch (Exception e) {
+		catch (Exception e) {
 			throw new RuntimeException("Load LaTeX fonts failed", e);
 		}
 	}
@@ -166,7 +166,7 @@ public class PdfFactory {
 				yMax = Math.max(yMax, series.getYMax());
 			}
 
-      int ySpacing = (int) Math.max(chartHeight / 10.0, chartHeight / yMax);
+			int ySpacing = (int) Math.max(chartHeight / 10.0, chartHeight / yMax);
 
 			catChart.getStyler().setYAxisTickMarkSpacingHint(ySpacing);
 		}
@@ -183,10 +183,15 @@ public class PdfFactory {
 	private static void createTextPage(final PdfDocument document, final String text) {
 		int pageIndex = document.createPage();
 
+		Document jdoc = Document.createShell("");
+		jdoc.outputSettings().prettyPrint(false);
+		jdoc.body().addClass("chat-message");
+		jdoc.body().text(text);
+
 		PDFGraphics2D g2dStream = (PDFGraphics2D) document.createPageGraphics2D(pageIndex);
-		renderTextPage(g2dStream, text);
+		renderHtml(jdoc.html(), g2dStream, CONTENT_X, CONTENT_Y);
 		g2dStream.close();
-  }
+	}
 
 	private static void renderChartQuestions(Graphics2D context, Quiz quiz, int x, int y) {
 		List<String> options = quiz.getOptions();
@@ -263,12 +268,12 @@ public class PdfFactory {
 	private static CategoryChart createBarChart(Dictionary dict, QuizResult result) {
 		CategoryChart chart = new CategoryChartBuilder().theme(ChartTheme.XChart).build();
 		chart.setXAxisTitle(dict.get("quiz.options"));
-    chart.setYAxisTitle(dict.get("quiz.answers"));
-    chart.getStyler().setOverlapped(true);
-    chart.getStyler().setChartBackgroundColor(Color.WHITE);
-    chart.getStyler().setLegendBorderColor(Color.WHITE);
-    chart.getStyler().setXAxisTicksVisible(false);
-    chart.getStyler().setSeriesColors(new ChartColors().getSeriesColors());
+		chart.setYAxisTitle(dict.get("quiz.answers"));
+		chart.getStyler().setOverlapped(true);
+		chart.getStyler().setChartBackgroundColor(Color.WHITE);
+		chart.getStyler().setLegendBorderColor(Color.WHITE);
+		chart.getStyler().setXAxisTicksVisible(false);
+		chart.getStyler().setSeriesColors(new ChartColors().getSeriesColors());
 
 		Map<QuizAnswer, Integer> resultMap = result.getResult();
 		int[] xValues = new int[resultMap.size()];
@@ -295,12 +300,12 @@ public class PdfFactory {
 
 		CategoryChart chart = new CategoryChartBuilder().theme(ChartTheme.XChart).build();
 		chart.setXAxisTitle(dict.get("quiz.options"));
-    chart.setYAxisTitle(dict.get("quiz.answers"));
-    chart.getStyler().setOverlapped(true);
-    chart.getStyler().setChartBackgroundColor(Color.WHITE);
-    chart.getStyler().setLegendBorderColor(Color.WHITE);
-    chart.getStyler().setXAxisTicksVisible(false);
-    chart.getStyler().setSeriesColors(new ChartColors().getSeriesColors());
+		chart.setYAxisTitle(dict.get("quiz.answers"));
+		chart.getStyler().setOverlapped(true);
+		chart.getStyler().setChartBackgroundColor(Color.WHITE);
+		chart.getStyler().setLegendBorderColor(Color.WHITE);
+		chart.getStyler().setXAxisTicksVisible(false);
+		chart.getStyler().setSeriesColors(new ChartColors().getSeriesColors());
 
 		Map<QuizAnswer, Integer> resultMap = result.getResult();
 		Map<String, Integer> chartMap = new HashMap<>();
@@ -321,7 +326,7 @@ public class PdfFactory {
 					chartMap.put(key, count);
 				}
 			}
-      else {
+			else {
 				String key = "{ }";
 				Integer count = resultMap.get(answer);
 				Integer value = chartMap.get(key);
@@ -336,9 +341,9 @@ public class PdfFactory {
 
 		if (chartMap.isEmpty()) {
 			// Create an empty chart.
-			chart.addSeries(" ", new int[]{0}, new int[]{0});
+			chart.addSeries(" ", new int[] { 0 }, new int[] { 0 });
 		}
-    else {
+		else {
 			int[] xValues = new int[chartMap.size()];
 			int index = 0;
 
@@ -357,13 +362,6 @@ public class PdfFactory {
 		}
 
 		return chart;
-	}
-
-	private static void renderTextPage(final Graphics2D context, final String text) {
-		org.jsoup.nodes.Document jdoc = Jsoup.parseBodyFragment(String.format("<div style=\"text-align: center; margin-right: 50px;\">%s</div>", text));
-		jdoc.outputSettings().prettyPrint(false);
-
-		renderHtml(jdoc.html(), context, CONTENT_X, CONTENT_Y);
 	}
 
 	private static void renderQuestionPage(Graphics2D context, Quiz quiz, int fontSize, int x, int y) {
@@ -408,7 +406,7 @@ public class PdfFactory {
 
 		StyleSheet styleSheet = new StyleSheet();
 		styleSheet.addStyleSheet(defStyleSheet);
-		styleSheet.addRule("body {background: #ffffff; color:#000; font-family:Arial; font-size:" + FONT_SIZE + "px; margin: 0px; }");
+		styleSheet.addRule("body {background: #ffffff; color:#000; font-family:Arial; font-size:" + (FONT_SIZE * 6) + "px; margin: 0px; }");
 		styleSheet.addRule("* {background: #ffffff; color:#000; }");
 		styleSheet.addRule("ul { margin-left: 10px; padding: 0px; }");
 		styleSheet.addRule("tt {font-size:" + (FONT_SIZE - 2) + "px; }");
@@ -416,6 +414,7 @@ public class PdfFactory {
 		styleSheet.addRule("table {width: 100%; }");
 		styleSheet.addRule("tr {width: 50%; }");
 		styleSheet.addRule("td {width: 50%; }");
+		styleSheet.addRule(".chat-message { margin-top: 50px; vertical-align: middle; text-align: center; }");
 
 		kit.setStyleSheet(styleSheet);
 
@@ -457,15 +456,18 @@ public class PdfFactory {
 
 
 	private static class MyViewFactory extends HTMLEditorKit.HTMLFactory {
+
 		@Override
 		public View create(javax.swing.text.Element e) {
 			View view = super.create(e);
 
 			if (view instanceof ImageView) {
 				((ImageView) view).setLoadsSynchronously(true);
-			} else if (view instanceof InlineView) {
+			}
+			else if (view instanceof InlineView) {
 				// Letter wrap for HTML in JEditorPane.
 				return new InlineView(e) {
+
 					@Override
 					public int getBreakWeight(int axis, float pos, float len) {
 						return GoodBreakWeight;
@@ -497,7 +499,8 @@ public class PdfFactory {
 											foundWhitespace = strChar.equals("\u00a0") || strChar.equals(" ");
 										}
 									}
-								} catch (BadLocationException e) {
+								}
+								catch (BadLocationException e) {
 									e.printStackTrace();
 									p1 = constBreak;
 								}
@@ -509,10 +512,10 @@ public class PdfFactory {
 					}
 				};
 			}
-      else if (view instanceof ParagraphView) {
+			else if (view instanceof ParagraphView) {
 				// Letter wrap for HTML in JEditorPane.
 				return new ParagraphView(e) {
-          
+
 					@Override
 					protected SizeRequirements calculateMinorAxisRequirements(int axis, SizeRequirements r) {
 						if (r == null) {
@@ -527,7 +530,7 @@ public class PdfFactory {
 						r.preferred = Math.max(r.minimum, (int) pref);
 						r.maximum = Integer.MAX_VALUE;
 						r.alignment = 0.5f;
-            
+
 						return r;
 					}
 				};
@@ -538,7 +541,9 @@ public class PdfFactory {
 	}
 
 
+
 	private static class MyHTMLEditorKit extends HTMLEditorKit {
+
 		private static final long serialVersionUID = -3654502936136295085L;
 
 		@Override

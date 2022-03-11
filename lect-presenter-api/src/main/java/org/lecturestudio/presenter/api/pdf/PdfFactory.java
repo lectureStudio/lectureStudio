@@ -37,7 +37,9 @@ import javax.swing.text.html.ParagraphView;
 import javax.swing.text.html.StyleSheet;
 
 import org.jsoup.Jsoup;
+import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
+
 import org.knowm.xchart.CategoryChart;
 import org.knowm.xchart.CategoryChartBuilder;
 import org.knowm.xchart.CategorySeries;
@@ -46,7 +48,7 @@ import org.knowm.xchart.PieChartBuilder;
 import org.knowm.xchart.internal.chartpart.Chart;
 import org.knowm.xchart.style.PieStyler.AnnotationType;
 import org.knowm.xchart.style.Styler.ChartTheme;
-import org.knowm.xchart.style.theme.GGPlot2Theme;
+import org.knowm.xchart.style.colors.SeriesColors;
 
 import org.lecturestudio.core.app.dictionary.Dictionary;
 import org.lecturestudio.core.pdf.PdfDocument;
@@ -90,7 +92,8 @@ public class PdfFactory {
 			for (String filePath : listing) {
 				fontManager.addFontFile(filePath);
 			}
-		} catch (Exception e) {
+		}
+    catch (Exception e) {
 			throw new RuntimeException("Load LaTeX fonts failed", e);
 		}
 	}
@@ -145,11 +148,11 @@ public class PdfFactory {
 			return;
 		}
 
+		int chartHeight = PAGE_HEIGHT - PAGE_HEIGHT / 4;
 		int pageIndex = document.createPage();
 
 		// Draw chart below last text line.
-		double textEndY = 0;
-		double margin = 20;
+		int margin = 20;
 
 		// Set (bar)chart y-axis tick spacing.
 		if (chart instanceof CategoryChart) {
@@ -163,14 +166,17 @@ public class PdfFactory {
 				yMax = Math.max(yMax, series.getYMax());
 			}
 
-			int ySpacing = (int) Math.max(PAGE_HEIGHT / 10.0, PAGE_HEIGHT / yMax);
+      int ySpacing = (int) Math.max(chartHeight / 10.0, chartHeight / yMax);
 
 			catChart.getStyler().setYAxisTickMarkSpacingHint(ySpacing);
 		}
 
 		PDFGraphics2D g2dStream = (PDFGraphics2D) document.createPageGraphics2D(pageIndex);
-		g2dStream.translate(0, textEndY);
-		chart.paint(g2dStream, PAGE_WIDTH, (int) (PAGE_HEIGHT - margin - textEndY));
+		g2dStream.translate(0, 0);
+		chart.paint(g2dStream, PAGE_WIDTH, chartHeight - margin);
+
+		renderChartQuestions(g2dStream, result.getQuiz(), 0, chartHeight - margin);
+
 		g2dStream.close();
 	}
 
@@ -180,6 +186,38 @@ public class PdfFactory {
 		PDFGraphics2D g2dStream = (PDFGraphics2D) document.createPageGraphics2D(pageIndex);
 		renderTextPage(g2dStream, text);
 		g2dStream.close();
+  }
+
+	private static void renderChartQuestions(Graphics2D context, Quiz quiz, int x, int y) {
+		List<String> options = quiz.getOptions();
+
+		if (options.size() < 1) {
+			return;
+		}
+
+		// Add options below question.
+		Document jdoc = Document.createShell("");
+		jdoc.outputSettings().prettyPrint(false);
+
+		Element table = jdoc.body().appendElement("table");
+		Element row = null;
+		String prefix = "";
+
+		for (int i = 0; i < options.size(); i++) {
+			if (i % 2 == 0) {
+				row = table.appendElement("tr");
+			}
+
+			Element data = row.appendElement("td");
+
+			if (quiz.getType() != QuizType.NUMERIC) {
+				prefix = quiz.getOptionAlpha(i + "") + ")&nbsp;";
+			}
+
+			data.append("<span>" + prefix + options.get(i) + "</span>");
+		}
+
+		renderHtml(jdoc.html(), context, x, y);
 	}
 
 	private static void createQuestionPage(PdfDocument document, Quiz quiz) {
@@ -211,6 +249,7 @@ public class PdfFactory {
 		chart.getStyler().setAnnotationDistance(1.1);
 		chart.getStyler().setPlotContentSize(0.75);
 		chart.getStyler().setPlotBackgroundColor(Color.WHITE);
+		chart.getStyler().setSeriesColors(new ChartColors().getSeriesColors());
 
 		Map<QuizAnswer, Integer> resultMap = result.getResult();
 
@@ -224,12 +263,12 @@ public class PdfFactory {
 	private static CategoryChart createBarChart(Dictionary dict, QuizResult result) {
 		CategoryChart chart = new CategoryChartBuilder().theme(ChartTheme.XChart).build();
 		chart.setXAxisTitle(dict.get("quiz.options"));
-		chart.setYAxisTitle(dict.get("quiz.answers"));
-		chart.getStyler().setOverlapped(true);
-		chart.getStyler().setChartBackgroundColor(Color.WHITE);
-		chart.getStyler().setLegendBorderColor(Color.WHITE);
-		chart.getStyler().setXAxisTicksVisible(false);
-		chart.getStyler().setSeriesColors(new GGPlot2Theme().getSeriesColors());
+    chart.setYAxisTitle(dict.get("quiz.answers"));
+    chart.getStyler().setOverlapped(true);
+    chart.getStyler().setChartBackgroundColor(Color.WHITE);
+    chart.getStyler().setLegendBorderColor(Color.WHITE);
+    chart.getStyler().setXAxisTicksVisible(false);
+    chart.getStyler().setSeriesColors(new ChartColors().getSeriesColors());
 
 		Map<QuizAnswer, Integer> resultMap = result.getResult();
 		int[] xValues = new int[resultMap.size()];
@@ -256,12 +295,12 @@ public class PdfFactory {
 
 		CategoryChart chart = new CategoryChartBuilder().theme(ChartTheme.XChart).build();
 		chart.setXAxisTitle(dict.get("quiz.options"));
-		chart.setYAxisTitle(dict.get("quiz.answers"));
-		chart.getStyler().setOverlapped(true);
-		chart.getStyler().setChartBackgroundColor(Color.WHITE);
-		chart.getStyler().setLegendBorderColor(Color.WHITE);
-		chart.getStyler().setXAxisTicksVisible(false);
-		chart.getStyler().setSeriesColors(new GGPlot2Theme().getSeriesColors());
+    chart.setYAxisTitle(dict.get("quiz.answers"));
+    chart.getStyler().setOverlapped(true);
+    chart.getStyler().setChartBackgroundColor(Color.WHITE);
+    chart.getStyler().setLegendBorderColor(Color.WHITE);
+    chart.getStyler().setXAxisTicksVisible(false);
+    chart.getStyler().setSeriesColors(new ChartColors().getSeriesColors());
 
 		Map<QuizAnswer, Integer> resultMap = result.getResult();
 		Map<String, Integer> chartMap = new HashMap<>();
@@ -281,7 +320,8 @@ public class PdfFactory {
 
 					chartMap.put(key, count);
 				}
-			} else {
+			}
+      else {
 				String key = "{ }";
 				Integer count = resultMap.get(answer);
 				Integer value = chartMap.get(key);
@@ -297,7 +337,8 @@ public class PdfFactory {
 		if (chartMap.isEmpty()) {
 			// Create an empty chart.
 			chart.addSeries(" ", new int[]{0}, new int[]{0});
-		} else {
+		}
+    else {
 			int[] xValues = new int[chartMap.size()];
 			int index = 0;
 
@@ -353,10 +394,10 @@ public class PdfFactory {
 	private static void renderHtml(String html, Graphics2D context, int x, int y) {
 		context.translate((float) x, (float) y);
 
+		HTMLEditorKit kit = new MyHTMLEditorKit();
+
 		JEditorPane editorPane = new JEditorPane();
 		editorPane.setSize(PAGE_WIDTH - 2 * x, PAGE_HEIGHT);
-
-		HTMLEditorKit kit = new MyHTMLEditorKit();
 		editorPane.setEditorKitForContentType("text/html", kit);
 		editorPane.setContentType("text/html");
 
@@ -367,13 +408,14 @@ public class PdfFactory {
 
 		StyleSheet styleSheet = new StyleSheet();
 		styleSheet.addStyleSheet(defStyleSheet);
-		styleSheet.addRule(
-				String.format("body { color:#000; font-family:Arial; font-size: %dpx; margin: 0px; }", FONT_SIZE));
-		styleSheet.addRule("ol { padding:5px; }");
-		styleSheet.addRule("ul p { margin-left: 50px; }");
-		styleSheet.addRule(String.format("tt {font-size: %dpx; }", FONT_SIZE - 2));
-		styleSheet.addRule(
-				String.format("code {background: #DAE6E6; font-size: %dpx; font-family:Monospace; }", FONT_SIZE - 2));
+		styleSheet.addRule("body {background: #ffffff; color:#000; font-family:Arial; font-size:" + FONT_SIZE + "px; margin: 0px; }");
+		styleSheet.addRule("* {background: #ffffff; color:#000; }");
+		styleSheet.addRule("ul { margin-left: 10px; padding: 0px; }");
+		styleSheet.addRule("tt {font-size:" + (FONT_SIZE - 2) + "px; }");
+		styleSheet.addRule("code {background: #DAE6E6; font-size:" + (FONT_SIZE - 2) + "px; font-family:Monospace; }");
+		styleSheet.addRule("table {width: 100%; }");
+		styleSheet.addRule("tr {width: 50%; }");
+		styleSheet.addRule("td {width: 50%; }");
 
 		kit.setStyleSheet(styleSheet);
 
@@ -387,6 +429,31 @@ public class PdfFactory {
 
 		context.translate((float) -x, (float) -y);
 	}
+
+
+
+	private static class ChartColors implements SeriesColors {
+
+		public static final Color C1 = Color.decode("#003f5c");
+		public static final Color C2 = Color.decode("#665191");
+		public static final Color C3 = Color.decode("#a05195");
+		public static final Color C4 = Color.decode("#d45087");
+		public static final Color C5 = Color.decode("#ff7c43");
+		public static final Color C6 = Color.decode("#ffa600");
+
+		private final Color[] seriesColors;
+
+
+		public ChartColors() {
+			seriesColors = new Color[] { C1, C2, C3, C4, C5, C6 };
+		}
+
+		@Override
+		public Color[] getSeriesColors() {
+			return seriesColors;
+		}
+	}
+
 
 
 	private static class MyViewFactory extends HTMLEditorKit.HTMLFactory {
@@ -441,9 +508,11 @@ public class PdfFactory {
 						return this;
 					}
 				};
-			} else if (view instanceof ParagraphView) {
+			}
+      else if (view instanceof ParagraphView) {
 				// Letter wrap for HTML in JEditorPane.
 				return new ParagraphView(e) {
+          
 					@Override
 					protected SizeRequirements calculateMinorAxisRequirements(int axis, SizeRequirements r) {
 						if (r == null) {
@@ -458,6 +527,7 @@ public class PdfFactory {
 						r.preferred = Math.max(r.minimum, (int) pref);
 						r.maximum = Integer.MAX_VALUE;
 						r.alignment = 0.5f;
+            
 						return r;
 					}
 				};

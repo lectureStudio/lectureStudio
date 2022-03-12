@@ -174,9 +174,10 @@ public class PdfFactory {
 		PDFGraphics2D g2dStream = (PDFGraphics2D) document.createPageGraphics2D(pageIndex);
 		g2dStream.translate(0, 0);
 		chart.paint(g2dStream, PAGE_WIDTH, chartHeight - margin);
+		g2dStream.close();
 
+		g2dStream = (PDFGraphics2D) document.createAppendablePageGraphics2D(pageIndex);
 		renderChartQuestions(g2dStream, result.getQuiz(), 0, chartHeight - margin);
-
 		g2dStream.close();
 	}
 

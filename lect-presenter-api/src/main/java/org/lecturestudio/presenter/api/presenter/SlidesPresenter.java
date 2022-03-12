@@ -289,7 +289,8 @@ public class SlidesPresenter extends Presenter<SlidesView> {
 
 		if (message.getConnected()) {
 			presenterContext.setAttendeesCount(presenterContext.getAttendeesCount() + 1);
-		} else {
+		}
+		else {
 			presenterContext.setAttendeesCount(presenterContext.getAttendeesCount() - 1);
 		}
 	}
@@ -309,10 +310,12 @@ public class SlidesPresenter extends Presenter<SlidesView> {
 		if (event.isEnabled()) {
 			if (event.isShow()) {
 				viewShowExternalMessages(event.isPersistent());
-			} else {
+			}
+			else {
 				view.hideExternalMessages();
 			}
-		} else {
+		}
+		else {
 			viewHideExternalMessages(event.isPersistent());
 		}
 	}
@@ -322,10 +325,12 @@ public class SlidesPresenter extends Presenter<SlidesView> {
 		if (event.isEnabled()) {
 			if (event.isShow()) {
 				viewShowExternalSlidePreview(event.isPersistent());
-			} else {
+			}
+			else {
 				view.hideExternalSlidePreview();
 			}
-		} else {
+		}
+		else {
 			viewHideExternalSlidePreview(event.isPersistent());
 		}
 	}
@@ -335,10 +340,12 @@ public class SlidesPresenter extends Presenter<SlidesView> {
 		if (event.isEnabled()) {
 			if (event.isShow()) {
 				viewShowExternalSpeech(event.isPersistent());
-			} else {
+			}
+			else {
 				view.hideExternalSpeech();
 			}
-		} else {
+		}
+		else {
 			viewHideExternalSpeech(event.isPersistent());
 		}
 	}
@@ -404,7 +411,8 @@ public class SlidesPresenter extends Presenter<SlidesView> {
 		// the key-event will be distributed.
 		if (nonNull(action)) {
 			action.execute();
-		} else {
+		}
+		else {
 			toolController.setKeyEvent(event);
 		}
 	}
@@ -414,8 +422,6 @@ public class SlidesPresenter extends Presenter<SlidesView> {
 
 		PresenterContext presenterContext = (PresenterContext) context;
 		presenterContext.getSpeechRequests().remove(message);
-
-
 
 		Long requestId = message.getRequestId();
 		String userName = String.format("%s %s", message.getFirstName(),
@@ -451,7 +457,8 @@ public class SlidesPresenter extends Presenter<SlidesView> {
 		if (presenterContext.messageCountProperty().get() > 0 ||
 				presenterContext.speechRequestCountProperty().get() > 0) {
 			view.hideMessagesPlaceholder();
-		} else {
+		}
+		else {
 			view.showMessagesPlaceholder();
 		}
 	}
@@ -594,7 +601,8 @@ public class SlidesPresenter extends Presenter<SlidesView> {
 
 		try {
 			streamService.shareDocument(doc);
-		} catch (IOException e) {
+		}
+		catch (IOException e) {
 			logException(e, "Share document failed");
 		}
 	}
@@ -602,7 +610,8 @@ public class SlidesPresenter extends Presenter<SlidesView> {
 	private void stopQuiz() {
 		try {
 			webService.stopQuiz();
-		} catch (ExecutableException e) {
+		}
+		catch (ExecutableException e) {
 			logException(e, "Stop quiz failed");
 		}
 
@@ -729,7 +738,8 @@ public class SlidesPresenter extends Presenter<SlidesView> {
 		try {
 			PageObjectView<?> objectView = createPageObjectView(shape, viewClass);
 			objectView.setFocus(view.getPageObjectViews().stream().noneMatch(PageObjectView::isCopying));
-		} catch (Exception e) {
+		}
+		catch (Exception e) {
 			logException(e, "Create PageObjectView failed");
 		}
 	}
@@ -749,7 +759,7 @@ public class SlidesPresenter extends Presenter<SlidesView> {
 	}
 
 	private PageObjectView<? extends Shape> createPageObjectView(Shape shape,
-																 Class<? extends PageObjectView<? extends Shape>> viewClass) {
+			Class<? extends PageObjectView<? extends Shape>> viewClass) {
 		PageObjectView<Shape> objectView = (PageObjectView<Shape>) viewFactory.getInstance(viewClass);
 		objectView.setPageShape(shape);
 		objectView.setOnClose(() -> {
@@ -865,7 +875,8 @@ public class SlidesPresenter extends Presenter<SlidesView> {
 			if (!newValue) {
 				// Hide grid if previously enabled.
 				pProvider.getAllPresentationParameters().forEach(param -> param.setShowGrid(newValue));
-			} else {
+			}
+			else {
 				// Sync with user's view.
 				PresentationParameterProvider uProvider = context.getPagePropertyProvider(ViewType.User);
 
@@ -945,7 +956,8 @@ public class SlidesPresenter extends Presenter<SlidesView> {
 
 			documentRecorder.setHasChangesProperty(ctx.hasRecordedChangesProperty());
 			documentRecorder.start();
-		} catch (ExecutableException e) {
+		}
+		catch (ExecutableException e) {
 			throw new RuntimeException(e);
 		}
 	}
@@ -1069,7 +1081,8 @@ public class SlidesPresenter extends Presenter<SlidesView> {
 	private void recordPage(Page page) {
 		try {
 			documentRecorder.recordPage(page);
-		} catch (ExecutableException e) {
+		}
+		catch (ExecutableException e) {
 			logException(e, "Record page failed");
 		}
 	}
@@ -1096,7 +1109,6 @@ public class SlidesPresenter extends Presenter<SlidesView> {
 		DisplayConfiguration displayConfig = config.getDisplayConfig();
 
 		SlideViewAddressOverlay overlay = viewFactory.getInstance(SlideViewAddressOverlay.class);
-//		overlay.setAddress(broadcastAddress);
 		overlay.setPosition(displayConfig.getIpPosition());
 		overlay.setTextColor(Color.BLACK);
 		overlay.setBackgroundColor(Color.WHITE);

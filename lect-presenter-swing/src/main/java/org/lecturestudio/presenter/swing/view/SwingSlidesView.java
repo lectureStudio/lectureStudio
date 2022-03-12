@@ -192,10 +192,6 @@ public class SwingSlidesView extends JPanel implements SlidesView {
 
 	private AdaptiveTabbedPane leftTabPane;
 
-	//	private JTextArea notesTextArea;
-
-	//	private JTextArea latexTextArea;
-
 	private ExternalFrame externalMessagesFrame;
 
 	private ExternalFrame externalSlidePreviewFrame;
@@ -219,6 +215,7 @@ public class SwingSlidesView extends JPanel implements SlidesView {
 	private MessageBarPosition messageBarPosition = MessageBarPosition.BOTTOM;
 
 	private String selectedSlideLabelText = "";
+
 
 	@Inject
 	SwingSlidesView(Dictionary dictionary) {
@@ -282,12 +279,14 @@ public class SwingSlidesView extends JPanel implements SlidesView {
 				wbThumbPanel.setOnRemovePage(deletePageAction);
 
 				thumbPanel = wbThumbPanel;
-			} else if (doc.isQuiz()) {
+			}
+			else if (doc.isQuiz()) {
 				QuizThumbnailPanel quizThumbPanel = new QuizThumbnailPanel(dict);
 				quizThumbPanel.setOnStopQuiz(stopQuizAction);
 
 				thumbPanel = quizThumbPanel;
-			} else {
+			}
+			else {
 				thumbPanel = new ThumbnailPanel();
 			}
 
@@ -349,6 +348,7 @@ public class SwingSlidesView extends JPanel implements SlidesView {
 
 			for (int i = 0; i < tabCount; i++) {
 				final Component tabComponent = slidesTabPane.getPaneComponentAt(i);
+
 				if (!(tabComponent instanceof ThumbPanel)) {
 					continue;
 				}
@@ -360,7 +360,8 @@ public class SwingSlidesView extends JPanel implements SlidesView {
 					if (!thumbnailPanel.getDocument().equals(doc)) {
 						// Prevent tab switching for quiz reloading.
 						thumbnailPanel.setDocument(doc, ppProvider);
-					} else {
+					}
+					else {
 						slidesTabPane.setPaneTabSelected(doc.getName());
 						selectedSlideLabelText = doc.getName();
 					}
@@ -666,7 +667,8 @@ public class SwingSlidesView extends JPanel implements SlidesView {
 				if (rightTabPane.getPaneTabCount() == 0 && !externalSpeechFrame.isVisible()) {
 					maximizeRightTabPane();
 				}
-			} else if (state == ExecutableState.Started) {
+			}
+			else if (state == ExecutableState.Started) {
 				for (var component : peerViewContainer.getComponents()) {
 					if (component instanceof PeerView) {
 						PeerView peerView = (PeerView) component;
@@ -677,7 +679,8 @@ public class SwingSlidesView extends JPanel implements SlidesView {
 						}
 					}
 				}
-			} else if (state == ExecutableState.Stopped) {
+			}
+			else if (state == ExecutableState.Stopped) {
 				removePeerView(event.getRequestId());
 			}
 		});
@@ -706,7 +709,8 @@ public class SwingSlidesView extends JPanel implements SlidesView {
 
 		try {
 			peerViewImage = convertVideoFrame(event.getFrame(), peerViewImage);
-		} catch (Exception e) {
+		}
+		catch (Exception e) {
 			return;
 		}
 
@@ -719,12 +723,7 @@ public class SwingSlidesView extends JPanel implements SlidesView {
 
 	@Override
 	public void setSelectedToolType(ToolType type) {
-		//SwingUtils.invoke(() -> {
-		//			boolean isTeXTool = type == ToolType.LATEX;
-//
-		//			setBottomTabEnabled(0, isTeXTool);
-		//			setBottomTabSelected(0, isTeXTool);
-		//});
+		// Remove
 	}
 
 	@Override
@@ -734,32 +733,7 @@ public class SwingSlidesView extends JPanel implements SlidesView {
 
 	@Override
 	public void setOnLaTeXText(ConsumerAction<String> action) {
-		//		latexTextArea.getDocument().addDocumentListener(new DocumentListener() {
-//
-		//@Override
-		//public void insertUpdate(DocumentEvent e) {
-		//changedUpdate(e);
-		//			}
-//
-		//@Override
-		//public void removeUpdate(DocumentEvent e) {
-		//changedUpdate(e);
-		//			}
-//
-		//@Override
-		//public void changedUpdate(DocumentEvent e) {
-		//try {
-		//executeAction(action, latexTextArea.getText());
-		//latexTextArea.setBackground(Color.decode("#D1FAE5"));
-		//} catch (ParseException exception) {
-		//executeAction(action, "");
-		//latexTextArea.setBackground(Color.decode("#FEE2E2"));
-		//}
-		//if (Objects.equals(latexTextArea.getText(), "")) {
-		//latexTextArea.setBackground(Color.WHITE);
-		//}
-		//}
-		//});
+		// Remove
 	}
 
 	@Override
@@ -988,6 +962,7 @@ public class SwingSlidesView extends JPanel implements SlidesView {
 
 		final boolean prevMinimized = isBottomTabPaneMinimized();
 		bottomTabPane.addTabs(removeMessageBarTabs());
+
 		if (prevMinimized) {
 			minimizeBottomTabPane();
 		}
@@ -1000,6 +975,7 @@ public class SwingSlidesView extends JPanel implements SlidesView {
 
 		final boolean prevMinimized = isLeftTabPaneMinimized();
 		leftTabPane.addTabs(removeMessageBarTabs());
+
 		if (prevMinimized) {
 			minimizeLeftTabPane();
 		}
@@ -1012,6 +988,7 @@ public class SwingSlidesView extends JPanel implements SlidesView {
 
 		final boolean prevMinimized = isRightTabPaneMinimized();
 		rightTabPane.addTabs(removeMessageBarTabs());
+
 		if (prevMinimized) {
 			minimizeRightTabPane();
 		}
@@ -1102,6 +1079,7 @@ public class SwingSlidesView extends JPanel implements SlidesView {
 	private void setLeftTabVisible(String labelText, boolean visible) {
 		final boolean prevMinimized = isLeftTabPaneMinimized();
 		setTabVisible(leftTabPane, labelText, visible, this::minimizeLeftTabPane);
+
 		if (prevMinimized) {
 			minimizeLeftTabPane();
 		}
@@ -1110,6 +1088,7 @@ public class SwingSlidesView extends JPanel implements SlidesView {
 	private void setBottomTabVisible(String labelText, boolean visible) {
 		final boolean prevMinimized = isBottomTabPaneMinimized();
 		setTabVisible(bottomTabPane, labelText, visible, this::minimizeBottomTabPane);
+
 		if (prevMinimized) {
 			minimizeBottomTabPane();
 		}
@@ -1118,13 +1097,14 @@ public class SwingSlidesView extends JPanel implements SlidesView {
 	private void setRightTabVisible(String labelText, boolean visible) {
 		final boolean prevMinimized = isRightTabPaneMinimized();
 		setTabVisible(rightTabPane, labelText, visible, this::minimizeRightTabPane);
+
 		if (prevMinimized) {
 			minimizeRightTabPane();
 		}
 	}
 
-	private void setTabVisible(AdaptiveTabbedPane tabbedPane, String labelText, boolean visible,
-							   Runnable minimizeFunc) {
+	private void setTabVisible(AdaptiveTabbedPane tabbedPane, String labelText,
+			boolean visible, Runnable minimizeFunc) {
 		final int prevVisibleTabCount = tabbedPane.getPaneTabCount();
 
 		tabbedPane.setTabVisible(labelText, visible);
@@ -1138,8 +1118,8 @@ public class SwingSlidesView extends JPanel implements SlidesView {
 
 	private List<AdaptiveTab> removeMessageBarTabs() {
 		final ArrayList<AdaptiveTab> removedTabs = new ArrayList<>();
-
 		final boolean prevMinimized;
+
 		switch (messageBarPosition) {
 			case BOTTOM:
 				prevMinimized = isBottomTabPaneMinimized();
@@ -1216,6 +1196,7 @@ public class SwingSlidesView extends JPanel implements SlidesView {
 		if (currentSpeech && !externalSpeechFrame.isVisible()) {
 			return;
 		}
+
 		minimizePane(tabSplitPane, isRightTabPaneMinimized(),
 				tabSplitPane.getWidth() - tabSplitPane.getDividerSize() - rightTabPane.getPaneMainAxisSize(),
 				() -> oldTabSplitPaneDividerRatio = getTabSplitPaneDividerRatio(), saveOldRatio);
@@ -1426,7 +1407,8 @@ public class SwingSlidesView extends JPanel implements SlidesView {
 			public void onVisibilityChanged(boolean visible) {
 				if (visible) {
 					maximizeRightTabPane();
-				} else {
+				}
+				else {
 					minimizeRightTabPane();
 				}
 			}
@@ -1536,6 +1518,7 @@ public class SwingSlidesView extends JPanel implements SlidesView {
 
 	private BufferedImage convertVideoFrame(VideoFrame videoFrame, BufferedImage image) throws Exception {
 		VideoFrameBuffer buffer = videoFrame.buffer;
+		buffer.retain();
 		int width = buffer.getWidth();
 		int height = buffer.getHeight();
 

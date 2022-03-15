@@ -46,15 +46,15 @@ This project is financially supported by:
 <img src="doc/readme/logo-maki.png" height="70">
 
 
-**TU Darmstadt &ndash; Department of Electrical Engineering and Information Technology (FB18)**
+**Technical University of Darmstadt**
 <br>
-<a href="https://www.es.tu-darmstadt.de/en/es" target="_blank">Real-Time Systems Lab (ES)</a>
+<a href="https://www.etit.tu-darmstadt.de" target="_blank">Department of Electrical Engineering and Information Technology (FB18)</a>
 <br>
 <img src="doc/readme/logo-fb18.png" height="70">
 
 
-**TU Darmstadt &ndash; Computer Science Department (FB20)**
+**Technical University of Darmstadt**
 <br>
-<a href="https://www.esa.informatik.tu-darmstadt.de" target="_blank">Embedded Systems & Applications Group (ESA)</a>
+<a href="https://www.informatik.tu-darmstadt.de" target="_blank">Computer Science Department (FB20)</a>
 <br>
 <img src="doc/readme/logo-fb20.png" height="70">

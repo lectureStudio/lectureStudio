@@ -46,7 +46,6 @@ import org.knowm.xchart.CategorySeries;
 import org.knowm.xchart.PieChart;
 import org.knowm.xchart.PieChartBuilder;
 import org.knowm.xchart.internal.chartpart.Chart;
-import org.knowm.xchart.style.PieStyler.AnnotationType;
 import org.knowm.xchart.style.Styler.ChartTheme;
 import org.knowm.xchart.style.colors.SeriesColors;
 
@@ -217,10 +216,10 @@ public class PdfFactory {
 			Element data = row.appendElement("td");
 
 			if (quiz.getType() != QuizType.NUMERIC) {
-				prefix = quiz.getOptionAlpha(i + "") + ")&nbsp;";
+				prefix = quiz.getOptionAlpha(i + "") + ") ";
 			}
 
-			data.append("<span>" + prefix + options.get(i) + "</span>");
+			data.text(prefix + options.get(i));
 		}
 
 		renderHtml(jdoc.html(), context, x, y);
@@ -251,8 +250,6 @@ public class PdfFactory {
 
 	private static PieChart createPieChart(Dictionary dict, QuizResult result) {
 		PieChart chart = new PieChartBuilder().theme(ChartTheme.GGPlot2).build();
-		chart.getStyler().setAnnotationType(AnnotationType.LabelAndPercentage);
-		chart.getStyler().setAnnotationDistance(1.1);
 		chart.getStyler().setPlotContentSize(0.75);
 		chart.getStyler().setPlotBackgroundColor(Color.WHITE);
 		chart.getStyler().setSeriesColors(new ChartColors().getSeriesColors());
@@ -413,6 +410,7 @@ public class PdfFactory {
 		styleSheet.addRule("tt {font-size:" + (FONT_SIZE - 2) + "px; }");
 		styleSheet.addRule("code {background: #DAE6E6; font-size:" + (FONT_SIZE - 2) + "px; font-family:Monospace; }");
 		styleSheet.addRule("table {width: 100%; }");
+		styleSheet.addRule("table td {background: #ffffff; }");
 		styleSheet.addRule("tr {width: 50%; }");
 		styleSheet.addRule("td {width: 50%; }");
 		styleSheet.addRule(".chat-message { margin-top: 50px; vertical-align: middle; text-align: center; }");

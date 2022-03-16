@@ -14,9 +14,11 @@
 			</Tab>
 			<Tab text="about.contributors">
 				<Panel layout="BorderLayout">
-					<Panel id="sponsorPane" constraints="BorderLayout.NORTH" />
 					<Panel id="contributorPane" constraints="BorderLayout.CENTER" />
 				</Panel>
+			</Tab>
+			<Tab text="about.sponsors">
+				<VBox id="sponsorsPane" border="EmptyBorder(10, 10, 10, 10)" />
 			</Tab>
 			<Tab text="about.system">
 				<VBox border="EmptyBorder(10, 10, 10, 10)">

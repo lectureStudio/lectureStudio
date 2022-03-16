@@ -20,28 +20,20 @@ package org.lecturestudio.swing;
 
 import static java.util.Objects.nonNull;
 
+import com.formdev.flatlaf.util.ScaledImageIcon;
+
 import java.awt.Dimension;
 import java.awt.Image;
-import java.awt.image.BaseMultiResolutionImage;
 import java.awt.image.BufferedImage;
 import java.io.FileInputStream;
 import java.io.InputStream;
-import java.net.URI;
-import java.net.URISyntaxException;
 import java.net.URL;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Comparator;
-import java.util.List;
 
 import javax.imageio.ImageIO;
 import javax.swing.Icon;
 import javax.swing.ImageIcon;
 
 import org.lecturestudio.core.io.ResourceLoader;
-import org.lecturestudio.core.util.FileUtils;
 
 /**
  * A convenience class for loading resources such as images.
@@ -55,18 +47,6 @@ public abstract class AwtResourceLoader extends ResourceLoader {
 	 */
 	private static final String RESOURCE_PATH = "resources/";
 
-
-	/**
-	 * Returns an {@code URI} of an {@code Icon}.
-	 *
-	 * @param path the relative path where the image is located.
-	 *
-	 * @return the URI of the icon.
-	 */
-	public static URI getIconURI(String path) throws URISyntaxException {
-		String filePath = RESOURCE_PATH + "gfx/icons/" + path;
-		return ClassLoader.getSystemResource(filePath).toURI();
-	}
 
 	/**
 	 * Returns an {@code Icon} that is loaded from the specified path.
@@ -113,7 +93,19 @@ public abstract class AwtResourceLoader extends ResourceLoader {
 		}
 		else {
 			try {
-				image = loadMultiresolutionImage(filePath);
+				image = readImage(filePath);
+
+				if (nonNull(iconSize) && nonNull(image)) {
+					int imageWidth = image.getWidth(null);
+					int imageHeight = image.getHeight(null);
+					int imageSize = Math.min(imageWidth, imageHeight);
+					double scale = iconSize.doubleValue() / imageSize;
+					int scaleWidth = (int) (imageWidth * scale);
+					int scaleHeight = (int) (imageHeight * scale);
+
+					image = image.getScaledInstance(scaleWidth, scaleHeight,
+							Image.SCALE_AREA_AVERAGING);
+				}
 			}
 			catch (Exception e) {
 				throw new RuntimeException(e);
@@ -121,45 +113,10 @@ public abstract class AwtResourceLoader extends ResourceLoader {
 		}
 
 		if (nonNull(image)) {
-			icon = new ImageIcon(image);
+			icon = new ScaledImageIcon(new ImageIcon(image));
 		}
 
 		return icon;
-	}
-
-	/**
-	 * Returns an {@code BufferedImage} that is loaded from the specified path
-	 * that points to a SVG.
-	 *
-	 * @param path     the relative path where the SVG is located.
-	 * @param iconSize the size of the rendered image.
-	 *
-	 * @return the loaded image.
-	 */
-	public static BufferedImage getSVGImage(String path, Integer iconSize) {
-		if (!path.endsWith(".svg")) {
-			return null;
-		}
-
-		String filePath = RESOURCE_PATH + path;
-
-		try {
-			URL url = ClassLoader.getSystemResource(filePath);
-
-			SVGIcon svgicon = new SVGIcon();
-			svgicon.setAntiAlias(true);
-			svgicon.setAutosize(SVGIcon.AUTOSIZE_STRETCH);
-			svgicon.setSvgURI(url.toURI());
-
-			if (nonNull(iconSize)) {
-				svgicon.setPreferredSize(new Dimension(iconSize, iconSize));
-			}
-
-			return (BufferedImage) svgicon.getImage();
-		}
-		catch (Exception e) {
-			throw new RuntimeException(e);
-		}
 	}
 
 	/**
@@ -201,49 +158,6 @@ public abstract class AwtResourceLoader extends ResourceLoader {
 		}
 		
 		return image;
-	}
-
-	public static Image loadMultiresolutionImage(String fileName) throws Exception {
-		Path parent = Paths.get(fileName).getParent();
-		String parentPath = parent.toString().replace("\\", "/");
-
-		String ext = FileUtils.getExtension(fileName);
-		String name = FileUtils.stripExtension(FileUtils.toPlatformPath(fileName));
-
-		String[] listing = FileUtils.getResourceListing(parentPath, (filePath) -> {
-			filePath = FileUtils.toPlatformPath(filePath);
-
-			// Common prefix index.
-			int index = filePath.indexOf(name);
-			if (index == -1) {
-				return false;
-			}
-
-			filePath = filePath.substring(filePath.indexOf(name));
-
-			return filePath.matches(name.replace("\\", "\\\\") + "(-(\\d+)x(\\d+))?." + ext);
-		});
-
-		if (listing.length == 0) {
-			return null;
-		}
-
-		List<String> files = Arrays.asList(listing);
-
-		// TODO: use correct comparator
-		files.sort(Comparator.reverseOrder());
-
-		List<Image> images = new ArrayList<>();
-
-		for (String imagePath : files) {
-			Image image = readImage(imagePath);
-
-			if (nonNull(image)) {
-				images.add(image);
-			}
-		}
-
-		return new BaseMultiResolutionImage(images.toArray(new Image[0]));
 	}
 
 }

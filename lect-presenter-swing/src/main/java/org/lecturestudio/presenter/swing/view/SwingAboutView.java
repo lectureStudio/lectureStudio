@@ -22,7 +22,6 @@ import java.awt.Container;
 import java.awt.Cursor;
 import java.awt.Desktop;
 import java.awt.FlowLayout;
-import java.awt.Font;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
@@ -43,6 +42,7 @@ import org.lecturestudio.core.view.AboutView;
 import org.lecturestudio.core.view.Action;
 import org.lecturestudio.presenter.swing.view.model.SystemPropertyTableModel;
 import org.lecturestudio.swing.components.ContentPane;
+import org.lecturestudio.swing.components.SponsorPane;
 import org.lecturestudio.swing.layout.WrapFlowLayout;
 import org.lecturestudio.swing.util.SwingUtils;
 import org.lecturestudio.swing.view.SwingView;
@@ -63,7 +63,7 @@ public class SwingAboutView extends ContentPane implements AboutView {
 
 	private Container contributorPane;
 
-	private Container sponsorPane;
+	private Container sponsorsPane;
 
 	private JButton closeButton;
 
@@ -126,10 +126,12 @@ public class SwingAboutView extends ContentPane implements AboutView {
 	public void setSponsors(List<Sponsor> sponsors) {
 		SwingUtils.invoke(() -> {
 			for (Sponsor sponsor : sponsors) {
-				JLabel label = new JLabel(sponsor.name);
-				label.setFont(label.getFont().deriveFont(Font.BOLD));
+				SponsorPane pane = new SponsorPane();
+				pane.setOrganization(sponsor.organization);
+				pane.setOrganizationLink(sponsor.link.name, sponsor.link.url);
+				pane.setOrganizationImage(sponsor.logo);
 
-				sponsorPane.add(label);
+				sponsorsPane.add(pane);
 			}
 		});
 	}
@@ -181,7 +183,6 @@ public class SwingAboutView extends ContentPane implements AboutView {
 		issueLabel.addMouseListener(clickListener);
 
 		contributorPane.setLayout(new WrapFlowLayout(FlowLayout.LEFT, 10, 10));
-		sponsorPane.setLayout(new WrapFlowLayout(FlowLayout.LEFT, 10, 10));
 
 		systemPropertiesTable.setModel(new SystemPropertyTableModel(
 				systemPropertiesTable.getColumnModel()));

@@ -18,7 +18,10 @@
 				</Panel>
 			</Tab>
 			<Tab text="about.sponsors">
-				<VBox id="sponsorsPane" border="EmptyBorder(10, 10, 10, 10)" />
+				<VBox border="EmptyBorder(10, 10, 10, 10)">
+					<Label text="about.sponsors.description" />
+					<VBox id="sponsorsPane" border="EmptyBorder(10, 0, 0, 0)" />
+				</VBox>
 			</Tab>
 			<Tab text="about.system">
 				<VBox border="EmptyBorder(10, 10, 10, 10)">

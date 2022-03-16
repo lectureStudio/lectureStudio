@@ -1,1 +1,15 @@
-- name: "Entwickelt mit Unterstützung der TU Darmstadt"
+- organization: "Sonderforschungsbereich 1053"
+  link:
+    name: "MAKI – Multi-Mechanismen-Adaption für das k\u00FCnftige Internet"
+    url: "https://www.maki.tu-darmstadt.de"
+  logo: "logo-maki.png"
+- organization: "Technische Universit\u00e4t Darmstadt"
+  link:
+    name: "Fachbereich Elektrotechnik und Informationstechnik (FB18)"
+    url: "https://www.etit.tu-darmstadt.de"
+  logo: "logo-fb18.png"
+- organization: "Technische Universit\u00e4t Darmstadt"
+  link:
+    name: "Fachbereich Informatik (FB20)"
+    url: "https://www.informatik.tu-darmstadt.de"
+  logo: "logo-fb20.png"

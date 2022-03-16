@@ -22,8 +22,14 @@ import java.util.Objects;
 
 public class Sponsor {
 
-	/** The name of the sponsor. */
-	public String name;
+	/** The name of the organization. */
+	public String organization;
+
+	/** The path of the logo. */
+	public String logo;
+
+	/** The link for the organization. */
+	public Link link;
 
 
 	@Override
@@ -35,18 +41,25 @@ public class Sponsor {
 			return false;
 		}
 
-		Sponsor other = (Sponsor) o;
+		Sponsor sponsor = (Sponsor) o;
 
-		return Objects.equals(name, other.name);
+		return Objects.equals(organization, sponsor.organization)
+				&& Objects.equals(logo, sponsor.logo)
+				&& Objects.equals(link, sponsor.link);
 	}
 
 	@Override
 	public int hashCode() {
-		return Objects.hash(name);
+		return Objects.hash(organization, logo, link);
 	}
 
-	@Override
-	public String toString() {
-		return "Sponsor{" + "name='" + name + "'}";
+
+
+	public static class Link {
+
+		public String name;
+
+		public String url;
+
 	}
 }

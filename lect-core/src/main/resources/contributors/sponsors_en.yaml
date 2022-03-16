@@ -1,1 +1,15 @@
-- name: "Developed with the support of TU Darmstadt"
+- organization: "Collaborative Research Centre 1053"
+  link:
+    name: "MAKI – Multi-Mechanisms Adaptation for the Future Internet"
+    url: "https://www.maki.tu-darmstadt.de"
+  logo: "logo-maki.png"
+- organization: "Technical University of Darmstadt"
+  link:
+    name: "Department of Electrical Engineering and Information Technology (FB18)"
+    url: "https://www.etit.tu-darmstadt.de"
+  logo: "logo-fb18.png"
+- organization: "Technical University of Darmstadt"
+  link:
+    name: "Computer Science Department (FB20)"
+    url: "https://www.informatik.tu-darmstadt.de"
+  logo: "logo-fb20.png"

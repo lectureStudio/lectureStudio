@@ -186,7 +186,15 @@ public class PdfFactory {
 		Document jdoc = Document.createShell("");
 		jdoc.outputSettings().prettyPrint(false);
 		jdoc.body().addClass("chat-message");
-		jdoc.body().text(text);
+
+		String[] parts = text.split("\n");
+
+		for (String part : parts) {
+			if (!part.equals("\n")) {
+				Element div = jdoc.body().appendElement("div");
+				div.text(part);
+			}
+		}
 
 		PDFGraphics2D g2dStream = (PDFGraphics2D) document.createPageGraphics2D(pageIndex);
 		renderHtml(jdoc.html(), g2dStream, CONTENT_X, CONTENT_Y);

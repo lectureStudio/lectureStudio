@@ -18,6 +18,10 @@
 
 package org.lecturestudio.presenter.api.pdf;
 
+import com.linkedin.urls.Url;
+import com.linkedin.urls.detection.UrlDetector;
+import com.linkedin.urls.detection.UrlDetectorOptions;
+
 import java.awt.Color;
 import java.awt.Graphics2D;
 import java.io.ByteArrayOutputStream;
@@ -190,9 +194,41 @@ public class PdfFactory {
 		String[] parts = text.split("\n");
 
 		for (String part : parts) {
-			if (!part.equals("\n")) {
-				Element div = jdoc.body().appendElement("div");
+			if (part.equals("\n")) {
+				continue;
+			}
+
+			// Search for URLs in the text.
+			UrlDetector parser = new UrlDetector(part, UrlDetectorOptions.Default);
+			List<Url> found = parser.detect();
+
+			// Each line is encapsulated in a <div>.
+			Element div = jdoc.body().appendElement("div");
+
+			if (found.isEmpty()) {
 				div.text(part);
+			}
+			else {
+				for (Url url : found) {
+					String orig = url.getOriginalUrl();
+					int origIndex = part.indexOf(orig);
+					String s = part.substring(0, origIndex);
+					part = part.substring(origIndex + orig.length());
+
+					// Raw text belongs into a <span> element.
+					div.appendElement("span").text(s);
+
+					// Create the link.
+					Element a = div.appendElement("a");
+					a.attr("href", orig);
+					a.attr("target", "_blank");
+					a.text(orig);
+				}
+
+				// Add remaining raw text.
+				if (!part.isEmpty() || !part.isBlank()) {
+					div.appendElement("span").text(part);
+				}
 			}
 		}
 
@@ -414,6 +450,7 @@ public class PdfFactory {
 		styleSheet.addStyleSheet(defStyleSheet);
 		styleSheet.addRule("body {background: #ffffff; color:#000; font-family:Arial; font-size:" + (FONT_SIZE * 6) + "px; margin: 0px; }");
 		styleSheet.addRule("* {background: #ffffff; color:#000; }");
+		styleSheet.addRule("a { margin: 0px; padding: 0px; }");
 		styleSheet.addRule("ul { margin-left: 10px; padding: 0px; }");
 		styleSheet.addRule("tt {font-size:" + (FONT_SIZE - 2) + "px; }");
 		styleSheet.addRule("code {background: #DAE6E6; font-size:" + (FONT_SIZE - 2) + "px; font-family:Monospace; }");
@@ -421,7 +458,7 @@ public class PdfFactory {
 		styleSheet.addRule("table td {background: #ffffff; }");
 		styleSheet.addRule("tr {width: 50%; }");
 		styleSheet.addRule("td {width: 50%; }");
-		styleSheet.addRule(".chat-message { margin-top: 50px; vertical-align: middle; text-align: center; }");
+		styleSheet.addRule(".chat-message { margin-top: 50px; text-align: center; }");
 
 		kit.setStyleSheet(styleSheet);
 

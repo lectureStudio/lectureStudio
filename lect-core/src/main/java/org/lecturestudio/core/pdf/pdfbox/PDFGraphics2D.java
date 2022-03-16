@@ -440,9 +440,6 @@ public class PDFGraphics2D extends Graphics2D {
 					if (color.getAlpha() == 0) {
 						return;
 					}
-
-					// Create alpha painting command.
-					applyAlpha(color);
 				}
 				
 				stream.setStrokingColor(getBackground());

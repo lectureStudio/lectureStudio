@@ -37,6 +37,8 @@ public interface SelectQuizView extends View {
 
 	void setOnClose(Action action);
 
+	void setOnCreateQuiz(Action action);
+
 	void setOnDeleteQuiz(ConsumerAction<Quiz> action);
 
 	void setOnEditQuiz(ConsumerAction<Quiz> action);

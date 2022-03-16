@@ -53,6 +53,8 @@ public class SwingSelectQuizView extends ContentPane implements SelectQuizView {
 
 	private JButton closeButton;
 
+	private JButton createQuizButton;
+
 	private JButton startQuizButton;
 
 	public javax.swing.Action deleteAction = new AbstractAction() {
@@ -142,6 +144,11 @@ public class SwingSelectQuizView extends ContentPane implements SelectQuizView {
 	}
 
 	@Override
+	public void setOnCreateQuiz(Action action) {
+		SwingUtils.bindAction(createQuizButton, action);
+	}
+
+	@Override
 	public void setOnDeleteQuiz(ConsumerAction<Quiz> action) {
 		deleteQuizAction = action;
 	}
@@ -153,9 +160,7 @@ public class SwingSelectQuizView extends ContentPane implements SelectQuizView {
 
 	@Override
 	public void setOnStartQuiz(ConsumerAction<Quiz> action) {
-		startQuizButton.addActionListener(event -> {
-			executeAction(action, selectedQuizProperty.get());
-		});
+		startQuizButton.addActionListener(event -> executeAction(action, selectedQuizProperty.get()));
 	}
 
 	@ViewPostConstruct
@@ -172,9 +177,8 @@ public class SwingSelectQuizView extends ContentPane implements SelectQuizView {
 			}
 		});
 
-		selectedQuizProperty.addListener((observable, oldValue, newValue) -> {
-			startQuizButton.setEnabled(nonNull(newValue));
-		});
+		selectedQuizProperty.addListener(
+				(observable, oldValue, newValue) -> startQuizButton.setEnabled(nonNull(newValue)));
 	}
 
 }

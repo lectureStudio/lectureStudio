@@ -30,6 +30,7 @@ import org.lecturestudio.core.model.DocumentList;
 import org.lecturestudio.core.presenter.Presenter;
 import org.lecturestudio.core.service.DocumentService;
 import org.lecturestudio.core.view.ConsumerAction;
+import org.lecturestudio.presenter.api.presenter.command.CreateQuizCommand;
 import org.lecturestudio.presenter.api.presenter.command.EditQuizCommand;
 import org.lecturestudio.presenter.api.service.QuizService;
 import org.lecturestudio.presenter.api.service.StreamService;
@@ -52,8 +53,8 @@ public class SelectQuizPresenter extends Presenter<SelectQuizView> {
 
 	@Inject
 	SelectQuizPresenter(ApplicationContext context, SelectQuizView view,
-			DocumentService documentService, QuizService quizService,
-			StreamService streamService, WebService webService) {
+						DocumentService documentService, QuizService quizService,
+						StreamService streamService, WebService webService) {
 		super(context, view);
 
 		this.documentService = documentService;
@@ -64,13 +65,13 @@ public class SelectQuizPresenter extends Presenter<SelectQuizView> {
 
 	@Override
 	public void initialize() throws IOException {
-		setOnEdit((quiz) -> {
-			// Copy quiz. No in-place editing.
-			context.getEventBus().post(new EditQuizCommand(quiz.clone(), this::close, this::viewUpdateQuiz));
-		});
+		// Copy quiz. No in-place editing.
+		setOnEdit(quiz -> context.getEventBus()
+				.post(new EditQuizCommand(quiz.clone(), this::close, this::viewUpdateQuiz)));
 
 		viewUpdateQuiz();
 		view.setOnClose(this::close);
+		view.setOnCreateQuiz(this::createQuiz);
 		view.setOnDeleteQuiz(this::deleteQuiz);
 		view.setOnEditQuiz(this::editQuiz);
 		view.setOnStartQuiz(this::startQuiz);
@@ -80,12 +81,15 @@ public class SelectQuizPresenter extends Presenter<SelectQuizView> {
 		this.editAction = ConsumerAction.concatenate(editAction, action);
 	}
 
+	private void createQuiz() {
+		context.getEventBus().post(new CreateQuizCommand(this::close, this::viewUpdateQuiz));
+	}
+
 	private void deleteQuiz(Quiz quiz) {
 		try {
 			quizService.deleteQuiz(quiz);
 			view.removeQuiz(quiz);
-		}
-		catch (IOException e) {
+		} catch (IOException e) {
 			handleException(e, "Delete quiz failed", "quiz.delete.error");
 		}
 	}

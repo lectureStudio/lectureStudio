@@ -48,7 +48,7 @@ import org.lecturestudio.presenter.api.service.WebService;
 import org.lecturestudio.presenter.api.view.SelectQuizView;
 import org.lecturestudio.web.api.model.quiz.Quiz;
 
-class SelectQuizPresenterPresenter extends PresenterTest {
+class SelectQuizPresenterTest extends PresenterTest {
 
 	private Path quizzesCopyPath;
 
@@ -193,6 +193,8 @@ class SelectQuizPresenterPresenter extends PresenterTest {
 
 	private static class SelectQuizMockView implements SelectQuizView {
 
+		Action createAction;
+
 		ConsumerAction<Quiz> startAction;
 
 		ConsumerAction<Quiz> editAction;
@@ -223,6 +225,11 @@ class SelectQuizPresenterPresenter extends PresenterTest {
 		@Override
 		public void setOnClose(Action action) {
 
+		}
+
+		@Override
+		public void setOnCreateQuiz(Action action) {
+			createAction = action;
 		}
 
 		@Override

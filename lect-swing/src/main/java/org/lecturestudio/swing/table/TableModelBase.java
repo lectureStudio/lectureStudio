@@ -20,9 +20,7 @@ package org.lecturestudio.swing.table;
 
 import static java.util.Objects.isNull;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
@@ -35,24 +33,33 @@ public abstract class TableModelBase<T> extends AbstractTableModel {
 
 	private final List<T> data;
 
+	private final Map<Integer, Class<?>> explicitColumnTypes;
+
 
 	public TableModelBase() {
-		this(new ArrayList<>(), new ArrayList<>());
+		this(new ArrayList<>(), new ArrayList<>(), new HashMap<>());
 	}
 
 	public TableModelBase(TableColumnModel columnModel) {
 		this(Collections.list(columnModel.getColumns()).stream()
 				.map(c -> (String) c.getHeaderValue())
-				.collect(Collectors.toList()));
+				.collect(Collectors.toList()), new HashMap<>());
 	}
 
-	public TableModelBase(List<String> columnNames) {
-		this(new ArrayList<>(), columnNames);
+	public TableModelBase(TableColumnModel columnModel, Map<Integer, Class<?>> explicitColumnTypes) {
+		this(Collections.list(columnModel.getColumns()).stream()
+				.map(c -> (String) c.getHeaderValue())
+				.collect(Collectors.toList()), explicitColumnTypes);
 	}
 
-	public TableModelBase(List<T> data, List<String> columnNames) {
+	public TableModelBase(List<String> columnNames, Map<Integer, Class<?>> explicitColumnTypes) {
+		this(new ArrayList<>(), columnNames, explicitColumnTypes);
+	}
+
+	public TableModelBase(List<T> data, List<String> columnNames, Map<Integer, Class<?>> explicitColumnTypes) {
 		this.data = data;
 		this.columnNames = columnNames;
+		this.explicitColumnTypes = explicitColumnTypes;
 	}
 
 	public void addItem(T item) {
@@ -122,6 +129,10 @@ public abstract class TableModelBase<T> extends AbstractTableModel {
 
 	@Override
 	public Class<?> getColumnClass(int columnIndex) {
+		if (explicitColumnTypes.containsKey(columnIndex)) {
+			return explicitColumnTypes.get(columnIndex);
+		}
+
 		Object value = getValueAt(0, columnIndex);
 
 		if (isNull(value)) {

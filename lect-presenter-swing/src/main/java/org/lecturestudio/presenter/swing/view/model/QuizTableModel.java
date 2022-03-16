@@ -29,6 +29,8 @@ import org.lecturestudio.web.api.model.quiz.Quiz;
 import org.lecturestudio.web.api.model.quiz.Quiz.QuizSet;
 import org.lecturestudio.web.api.model.quiz.Quiz.QuizType;
 
+import java.util.Map;
+
 public class QuizTableModel extends TableModelBase<Quiz> {
 
 	private static final Icon DOC_TYPE = AwtResourceLoader.getIcon("doc-type.svg", 20);
@@ -41,7 +43,7 @@ public class QuizTableModel extends TableModelBase<Quiz> {
 
 
 	public QuizTableModel(TableColumnModel columnModel) {
-		super(columnModel);
+		super(columnModel, Map.of(0, Icon.class));
 	}
 
 	@Override
@@ -57,9 +59,9 @@ public class QuizTableModel extends TableModelBase<Quiz> {
 
 			case 2:
 				return getTypeIcon(quiz.getType());
+			default:
+				return null;
 		}
-
-		return null;
 	}
 
 	@Override
@@ -68,13 +70,10 @@ public class QuizTableModel extends TableModelBase<Quiz> {
 	}
 
 	private static Icon getSetIcon(QuizSet set) {
-		switch (set) {
-			case DOCUMENT_SPECIFIC:
-				return DOC_TYPE;
-
-			default:
-				return null;
+		if (set == QuizSet.DOCUMENT_SPECIFIC) {
+			return DOC_TYPE;
 		}
+		return null;
 	}
 
 	private static Icon getTypeIcon(QuizType type) {

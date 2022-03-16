@@ -1,0 +1,9 @@
+.sponsor {
+	-fx-padding: 0;
+}
+.sponsor .sponsor-container {
+	-fx-padding: 0 0 1.5em 0;
+}
+.sponsor .sponsor-organization {
+	-fx-font-weight: bold;
+}

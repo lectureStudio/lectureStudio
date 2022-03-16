@@ -41,8 +41,13 @@
 		</Tab>
 		<Tab text="%about.contributors">
 			<VBox styleClass="tab-content" spacing="10.0">
-				<FlowPane fx:id="sponsorList" styleClass="sponsors-container" hgap="10.0" vgap="10.0" />
 				<FlowPane fx:id="contributorList" styleClass="developers-container" hgap="10.0" vgap="10.0" />
+			</VBox>
+		</Tab>
+		<Tab text="%about.sponsors">
+			<VBox styleClass="tab-content" spacing="10.0">
+				<Label text="%about.sponsors.description" />
+				<VBox fx:id="sponsorsList" styleClass="sponsors-container" spacing="10.0" />
 			</VBox>
 		</Tab>
 		<Tab text="%about.system">

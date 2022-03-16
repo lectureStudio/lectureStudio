@@ -66,7 +66,7 @@ public class FxAboutView extends ContentPane implements AboutView {
 	private Pane contributorList;
 
 	@FXML
-	private Pane sponsorList;
+	private Pane sponsorsList;
 
 	@FXML
 	private Button closeButton;
@@ -129,9 +129,12 @@ public class FxAboutView extends ContentPane implements AboutView {
 	public void setSponsors(List<Sponsor> sponsors) {
 		FxUtils.invoke(() -> {
 			for (Sponsor sponsor : sponsors) {
-				Label label = new Label(sponsor.name);
+				org.lecturestudio.javafx.control.Sponsor s = new org.lecturestudio.javafx.control.Sponsor();
+				s.setOrganization(sponsor.organization);
+				s.setOrganizationLink(sponsor.link.name, sponsor.link.url);
+				s.setOrganizationImage(sponsor.logo);
 
-				sponsorList.getChildren().add(label);
+				sponsorsList.getChildren().add(s);
 			}
 		});
 	}

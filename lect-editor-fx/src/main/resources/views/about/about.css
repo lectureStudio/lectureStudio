@@ -4,9 +4,6 @@
 .about .developers-container {
 	-fx-padding: 0 0 1.25em 0;
 }
-.about .sponsors-container {
-	-fx-font-weight: bold;
-}
 .about .properties-table .table-column {
     -fx-alignment: CENTER-LEFT;
 }

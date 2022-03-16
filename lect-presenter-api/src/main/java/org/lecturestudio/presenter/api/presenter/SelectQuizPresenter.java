@@ -64,21 +64,12 @@ public class SelectQuizPresenter extends Presenter<SelectQuizView> {
 
 	@Override
 	public void initialize() throws IOException {
-		DocumentList docList = documentService.getDocuments();
-		Document doc = docList.getSelectedDocument();
-
-		if (doc.isQuiz()) {
-			doc = docList.getLastNonWhiteboard();
-		}
-
 		setOnEdit((quiz) -> {
 			// Copy quiz. No in-place editing.
-			context.getEventBus().post(new EditQuizCommand(quiz.clone(), this::close));
+			context.getEventBus().post(new EditQuizCommand(quiz.clone(), this::close, this::viewUpdateQuiz));
 		});
 
-		view.setQuizzes(quizService.getQuizzes());
-		view.setDocumentQuizzes(quizService.getQuizzes(doc));
-		view.selectQuiz(webService.getStartedQuiz());
+		viewUpdateQuiz();
 		view.setOnClose(this::close);
 		view.setOnDeleteQuiz(this::deleteQuiz);
 		view.setOnEditQuiz(this::editQuiz);
@@ -109,5 +100,23 @@ public class SelectQuizPresenter extends Presenter<SelectQuizView> {
 		streamService.startQuiz(quiz);
 
 		close();
+	}
+
+	private void viewUpdateQuiz() {
+		DocumentList docList = documentService.getDocuments();
+		Document doc = docList.getSelectedDocument();
+
+		if (doc.isQuiz()) {
+			doc = docList.getLastNonWhiteboard();
+		}
+
+
+		try {
+			view.setQuizzes(quizService.getQuizzes());
+			view.setDocumentQuizzes(quizService.getQuizzes(doc));
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		view.selectQuiz(webService.getStartedQuiz());
 	}
 }

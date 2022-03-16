@@ -163,10 +163,12 @@ public class SwingSelectQuizView extends ContentPane implements SelectQuizView {
 		quizTableView.setModel(new QuizTableModel(quizTableView.getColumnModel()));
 		quizTableView.getSelectionModel().addListSelectionListener(e -> {
 			QuizTableModel model = (QuizTableModel) quizTableView.getModel();
-			Quiz selectedQuiz = model.getItem(quizTableView.getSelectedRow());
 
-			if (nonNull(selectedQuiz)) {
-				selectedQuizProperty.set(selectedQuiz);
+			final int selectedRow = quizTableView.getSelectedRow();
+			if (selectedRow >= 0 && selectedRow < model.getRowCount()) {
+				selectedQuizProperty.set(model.getItem(selectedRow));
+			} else {
+				selectedQuizProperty.set(null);
 			}
 		});
 

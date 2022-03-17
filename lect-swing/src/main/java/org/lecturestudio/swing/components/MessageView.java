@@ -32,6 +32,7 @@ import javax.swing.JTextArea;
 
 import org.lecturestudio.core.app.dictionary.Dictionary;
 import org.lecturestudio.core.view.Action;
+import org.lecturestudio.swing.AwtResourceLoader;
 import org.lecturestudio.swing.util.SwingUtils;
 
 public class MessageView extends MessagePanel {
@@ -61,16 +62,19 @@ public class MessageView extends MessagePanel {
 
 	@Override
 	protected void createContent(JPanel content) {
-		discardButton = new JButton(dict.get("button.processed"));
-		createSlideButton = new JButton(dict.get("button.create.slide"));
+		discardButton = new JButton(AwtResourceLoader.getIcon("message-check.svg", 18));
+		discardButton.setToolTipText(dict.get("button.processed"));
+		createSlideButton = new JButton(AwtResourceLoader.getIcon("message-slide.svg", 18));
+		createSlideButton.setToolTipText(dict.get("button.create.slide"));
 
 		Box controlPanel = Box.createHorizontalBox();
 		controlPanel.setBorder(BorderFactory.createEmptyBorder(2, 5, 2, 5));
 		controlPanel.setOpaque(false);
 		controlPanel.add(fromLabel);
 		controlPanel.add(Box.createHorizontalGlue());
+		controlPanel.add(Box.createHorizontalStrut(5));
 		controlPanel.add(createSlideButton);
-		controlPanel.add(Box.createHorizontalStrut(10));
+		controlPanel.add(Box.createHorizontalStrut(5));
 		controlPanel.add(discardButton);
 		controlPanel.add(Box.createHorizontalStrut(10));
 		controlPanel.add(timeLabel);

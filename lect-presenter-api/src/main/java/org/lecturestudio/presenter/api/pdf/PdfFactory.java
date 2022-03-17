@@ -101,19 +101,55 @@ public class PdfFactory {
 		}
 	}
 
-	public static PdfDocument createMessageDocument(final String message) throws Exception {
-		final PdfDocument pdfDocument = new PdfDocument();
+	public static void createMessagePage(PdfDocument doc, final String message) {
+		Document jdoc = Document.createShell("");
+		jdoc.outputSettings().prettyPrint(false);
+		jdoc.body().addClass("chat-message");
 
-		createTextPage(pdfDocument, message);
+		String[] parts = message.split("\n");
 
-		final ByteArrayOutputStream stream = new ByteArrayOutputStream();
-		pdfDocument.toOutputStream(stream);
-		stream.flush();
-		stream.close();
+		for (String part : parts) {
+			if (part.equals("\n")) {
+				continue;
+			}
 
-		pdfDocument.close();
+			// Search for URLs in the text.
+			UrlDetector parser = new UrlDetector(part, UrlDetectorOptions.Default);
+			List<Url> found = parser.detect();
 
-		return new PdfDocument(stream.toByteArray());
+			// Each line is encapsulated in a <div>.
+			Element div = jdoc.body().appendElement("div");
+
+			if (found.isEmpty()) {
+				div.text(part);
+			}
+			else {
+				for (Url url : found) {
+					String orig = url.getOriginalUrl();
+					int origIndex = part.indexOf(orig);
+					String s = part.substring(0, origIndex);
+					part = part.substring(origIndex + orig.length());
+
+					// Raw text belongs into a <span> element.
+					div.appendElement("span").text(s);
+
+					// Create the link.
+					Element a = div.appendElement("a");
+					a.attr("href", orig);
+					a.attr("target", "_blank");
+					a.text(orig);
+				}
+
+				// Add remaining raw text.
+				if (!part.isEmpty() || !part.isBlank()) {
+					div.appendElement("span").text(part);
+				}
+			}
+		}
+
+		PDFGraphics2D g2dStream = (PDFGraphics2D) doc.createPageGraphics2D(0);
+		renderHtml(jdoc.html(), g2dStream, CONTENT_X, CONTENT_Y);
+		g2dStream.close();
 	}
 
 	public static PdfDocument createQuizDocument(Dictionary dict, QuizResult result) throws Exception {
@@ -181,59 +217,6 @@ public class PdfFactory {
 
 		g2dStream = (PDFGraphics2D) document.createAppendablePageGraphics2D(pageIndex);
 		renderChartQuestions(g2dStream, result.getQuiz(), 0, chartHeight - margin);
-		g2dStream.close();
-	}
-
-	private static void createTextPage(final PdfDocument document, final String text) {
-		int pageIndex = document.createPage();
-
-		Document jdoc = Document.createShell("");
-		jdoc.outputSettings().prettyPrint(false);
-		jdoc.body().addClass("chat-message");
-
-		String[] parts = text.split("\n");
-
-		for (String part : parts) {
-			if (part.equals("\n")) {
-				continue;
-			}
-
-			// Search for URLs in the text.
-			UrlDetector parser = new UrlDetector(part, UrlDetectorOptions.Default);
-			List<Url> found = parser.detect();
-
-			// Each line is encapsulated in a <div>.
-			Element div = jdoc.body().appendElement("div");
-
-			if (found.isEmpty()) {
-				div.text(part);
-			}
-			else {
-				for (Url url : found) {
-					String orig = url.getOriginalUrl();
-					int origIndex = part.indexOf(orig);
-					String s = part.substring(0, origIndex);
-					part = part.substring(origIndex + orig.length());
-
-					// Raw text belongs into a <span> element.
-					div.appendElement("span").text(s);
-
-					// Create the link.
-					Element a = div.appendElement("a");
-					a.attr("href", orig);
-					a.attr("target", "_blank");
-					a.text(orig);
-				}
-
-				// Add remaining raw text.
-				if (!part.isEmpty() || !part.isBlank()) {
-					div.appendElement("span").text(part);
-				}
-			}
-		}
-
-		PDFGraphics2D g2dStream = (PDFGraphics2D) document.createPageGraphics2D(pageIndex);
-		renderHtml(jdoc.html(), g2dStream, CONTENT_X, CONTENT_Y);
 		g2dStream.close();
 	}
 

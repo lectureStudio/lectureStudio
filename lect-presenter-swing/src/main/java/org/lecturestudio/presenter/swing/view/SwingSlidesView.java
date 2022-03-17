@@ -559,11 +559,6 @@ public class SwingSlidesView extends JPanel implements SlidesView {
 
 				removeMessageView(messageView);
 			});
-			messageView.setOnCreateSlide(() -> {
-				createMessageSlideAction.execute(message);
-
-				removeMessageView(messageView);
-			});
 			messageView.pack();
 
 			messageViewContainer.add(messageView);

@@ -31,7 +31,9 @@ import org.lecturestudio.core.bus.event.ToolSelectionEvent;
 import org.lecturestudio.core.controller.PresentationController;
 import org.lecturestudio.core.controller.RenderController;
 import org.lecturestudio.core.controller.ToolController;
+import org.lecturestudio.core.geometry.Dimension2D;
 import org.lecturestudio.core.geometry.Matrix;
+import org.lecturestudio.core.geometry.Rectangle2D;
 import org.lecturestudio.core.graphics.Color;
 import org.lecturestudio.core.input.KeyEvent;
 import org.lecturestudio.core.model.*;
@@ -41,7 +43,6 @@ import org.lecturestudio.core.model.listener.ParameterChangeListener;
 import org.lecturestudio.core.model.shape.Shape;
 import org.lecturestudio.core.model.shape.TeXShape;
 import org.lecturestudio.core.model.shape.TextShape;
-import org.lecturestudio.core.pdf.PdfDocument;
 import org.lecturestudio.core.presenter.Presenter;
 import org.lecturestudio.core.recording.DocumentRecorder;
 import org.lecturestudio.core.service.DocumentService;
@@ -487,25 +488,26 @@ public class SlidesPresenter extends Presenter<SlidesView> {
 
 			documentService.selectDocument(messageDocument);
 		}
-		catch (ExecutableException e) {
+		catch (Throwable e) {
 			handleException(e, "Create message slide failed", "message.slide.create.error");
 		}
 	}
 
-	private Document createMessageDocument(final String message) throws ExecutableException {
-		Document doc;
+	private Document createMessageDocument(final String message) throws Exception {
+		Document prevDoc = documentService.getDocuments().getSelectedDocument();
 
-		try {
-			PdfDocument pdfDoc = PdfFactory.createMessageDocument(message);
-			pdfDoc.setTitle(context.getDictionary().get("slides.message"));
-			pdfDoc.setAuthor(System.getProperty("user.name"));
+		Document doc = new Document();
+		doc.setTitle(context.getDictionary().get("slides.message"));
+		doc.setDocumentType(DocumentType.MESSAGE);
 
-			doc = new Document(pdfDoc);
-			doc.setDocumentType(DocumentType.MESSAGE);
+		if (nonNull(prevDoc)) {
+			Rectangle2D rect = prevDoc.getPage(0).getPageRect();
+			doc.setPageSize(new Dimension2D(rect.getWidth(), rect.getHeight()));
 		}
-		catch (Exception e) {
-			throw new ExecutableException("Create message document failed.", e);
-		}
+
+		doc.createPage();
+		PdfFactory.createMessagePage(doc.getPdfDocument(), message);
+		doc.reload();
 
 		return doc;
 	}

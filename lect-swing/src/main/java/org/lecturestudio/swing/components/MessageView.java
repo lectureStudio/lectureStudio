@@ -19,12 +19,15 @@
 package org.lecturestudio.swing.components;
 
 import java.awt.BorderLayout;
+import java.awt.Dimension;
+import java.awt.Insets;
+import java.awt.event.ComponentAdapter;
+import java.awt.event.ComponentEvent;
 
 import javax.swing.BorderFactory;
 import javax.swing.Box;
 import javax.swing.JButton;
 import javax.swing.JPanel;
-import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 
 import org.lecturestudio.core.app.dictionary.Dictionary;
@@ -79,12 +82,31 @@ public class MessageView extends MessagePanel {
 		textArea.setWrapStyleWord(true);
 		textArea.setFont(textArea.getFont().deriveFont(12f));
 
-		JScrollPane scrollPane = new JScrollPane(textArea);
-		scrollPane.setBorder(BorderFactory.createEmptyBorder(2, 5, 2, 5));
-		scrollPane.setOpaque(false);
-		scrollPane.getViewport().setOpaque(false);
-
 		content.add(controlPanel, BorderLayout.NORTH);
-		content.add(scrollPane, BorderLayout.CENTER);
+		content.add(textArea, BorderLayout.CENTER);
+
+		content.addComponentListener(new ComponentAdapter() {
+
+			@Override
+			public void componentResized(ComponentEvent e) {
+				SwingUtils.invoke(() -> {
+					Insets insets = getInsets();
+					Insets cInsets = content.getInsets();
+					Dimension size = getPreferredSize();
+					Dimension textSize = textArea.getPreferredSize();
+
+					int height = controlPanel.getPreferredSize().height;
+					height += textSize.height;
+					height += insets.top + insets.bottom + cInsets.top + cInsets.bottom;
+
+					setSize(new Dimension(size.width, height));
+					setPreferredSize(new Dimension(size.width, height));
+					setMaximumSize(new Dimension(Integer.MAX_VALUE, height));
+
+					revalidate();
+					repaint();
+				});
+			}
+		});
 	}
 }

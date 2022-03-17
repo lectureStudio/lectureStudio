@@ -162,6 +162,8 @@ public class CreateQuizPresenter extends Presenter<CreateQuizView> {
 		catch (IOException e) {
 			handleException(e, "Save quiz failed", "quiz.save.error");
 		}
+
+		showNotificationPopup(context.getDictionary().get("create.quiz.saved"));
 	}
 
 	private void startQuiz() {

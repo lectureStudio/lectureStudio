@@ -614,6 +614,23 @@ public class Document {
 		}
 	}
 
+	/**
+	 * Reloads the backing document structure that may have changed due to
+	 * adding new pages, etc. Document reloading is mandatory if the internal
+	 * document structure has changed and the document is about to be rendered.
+	 *
+	 * @throws IOException If the internal document structure could not be
+	 *                     reloaded.
+	 */
+	public void reload() throws IOException {
+		final ByteArrayOutputStream stream = new ByteArrayOutputStream();
+		toOutputStream(stream);
+		stream.close();
+
+		pdfDocument.close();
+		pdfDocument = new PdfDocument(stream.toByteArray());
+	}
+
 	@Override
 	public int hashCode() {
 		final int prime = 31;

@@ -193,6 +193,8 @@ class SelectQuizPresenterPresenter extends PresenterTest {
 
 	private static class SelectQuizMockView implements SelectQuizView {
 
+		Action createAction;
+
 		ConsumerAction<Quiz> startAction;
 
 		ConsumerAction<Quiz> editAction;
@@ -223,6 +225,11 @@ class SelectQuizPresenterPresenter extends PresenterTest {
 		@Override
 		public void setOnClose(Action action) {
 
+		}
+
+		@Override
+		public void setOnCreateQuiz(Action action) {
+			createAction = action;
 		}
 
 		@Override

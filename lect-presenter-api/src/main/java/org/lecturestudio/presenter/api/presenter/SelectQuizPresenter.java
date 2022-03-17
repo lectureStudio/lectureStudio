@@ -81,6 +81,7 @@ public class SelectQuizPresenter extends Presenter<SelectQuizView> {
 		view.setDocumentQuizzes(quizService.getQuizzes(doc));
 		view.selectQuiz(webService.getStartedQuiz());
 		view.setOnClose(this::close);
+		view.setOnCreateQuiz(this::createQuiz);
 		view.setOnDeleteQuiz(this::deleteQuiz);
 		view.setOnEditQuiz(this::editQuiz);
 		view.setOnStartQuiz(this::startQuiz);
@@ -88,6 +89,11 @@ public class SelectQuizPresenter extends Presenter<SelectQuizView> {
 
 	public void setOnEdit(ConsumerAction<Quiz> action) {
 		this.editAction = ConsumerAction.concatenate(editAction, action);
+	}
+
+	private void createQuiz() {
+		context.getEventBus().post(new EditQuizCommand(null, this::close,
+				this::reload));
 	}
 
 	private void deleteQuiz(Quiz quiz) {

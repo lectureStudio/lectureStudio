@@ -53,6 +53,8 @@ public class SwingSelectQuizView extends ContentPane implements SelectQuizView {
 
 	private JButton closeButton;
 
+	private JButton createQuizButton;
+
 	private JButton startQuizButton;
 
 	public javax.swing.Action deleteAction = new AbstractAction() {
@@ -137,6 +139,11 @@ public class SwingSelectQuizView extends ContentPane implements SelectQuizView {
 	@Override
 	public void setOnClose(Action action) {
 		SwingUtils.bindAction(closeButton, action);
+	}
+
+	@Override
+	public void setOnCreateQuiz(Action action) {
+		SwingUtils.bindAction(createQuizButton, action);
 	}
 
 	@Override

@@ -21,6 +21,7 @@
 			<gridbagconstraints gridx="0" gridy="1" fill="GridBagConstraints.HORIZONTAL" />
 			<box.hglue />
 			<Button id="closeButton" text="button.close" tooltipText="select.quiz.cancel.tooltip" />
+			<Button id="createQuizButton" text="select.quiz.create" tooltipText="select.quiz.create" />
 			<Button id="startQuizButton" text="select.quiz.start" tooltipText="select.quiz.start" enabled="false" />
 		</HBox>
 	</Panel>

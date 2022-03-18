@@ -19,7 +19,6 @@
 package org.lecturestudio.presenter.api.view;
 
 import java.awt.*;
-import java.math.BigInteger;
 import java.util.List;
 
 import org.lecturestudio.core.ExecutableState;
@@ -154,10 +153,6 @@ public interface SlidesView extends View {
 	void hideExternalSlidePreview();
 
 	void showExternalSpeech(Screen screen, Point position, Dimension size);
-
-	void showMessagesPlaceholder();
-
-	void hideMessagesPlaceholder();
 
 	void hideExternalSpeech();
 

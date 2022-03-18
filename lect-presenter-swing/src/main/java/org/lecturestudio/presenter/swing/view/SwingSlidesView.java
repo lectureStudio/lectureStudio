@@ -98,10 +98,6 @@ public class SwingSlidesView extends JPanel implements SlidesView {
 
 	private final Dictionary dict;
 
-	private ExecutableState streamState = ExecutableState.Stopped;
-
-	private ExecutableState messengerState = ExecutableState.Stopped;
-
 	private ConsumerAction<org.lecturestudio.core.input.KeyEvent> keyAction;
 
 	private ConsumerAction<Document> selectDocumentAction;
@@ -498,20 +494,11 @@ public class SwingSlidesView extends JPanel implements SlidesView {
 
 	@Override
 	public void setStreamState(ExecutableState state) {
-		streamState = state;
-
-		boolean streamStarted = streamState == ExecutableState.Started;
-		boolean messengerStarted = messengerState == ExecutableState.Started;
-
 		SwingUtils.invoke(() -> {
-			if (state == ExecutableState.Stopped && !messengerStarted) {
-				minimizeBottomTabPane();
+			if (state == ExecutableState.Started) {
+				setMessageBarTabEnabled(dict.get(MESSAGE_LABEL_KEY), true);
 			}
-
-			final boolean streamOrMessengerStarted = streamStarted || messengerStarted;
-			setMessageBarTabEnabled(dict.get(MESSAGE_LABEL_KEY), streamOrMessengerStarted);
-
-			if (!streamStarted) {
+			else {
 				removeMessageViews(SpeechRequestView.class);
 			}
 		});
@@ -519,25 +506,10 @@ public class SwingSlidesView extends JPanel implements SlidesView {
 
 	@Override
 	public void setMessengerState(ExecutableState state) {
-		messengerState = state;
-
-		boolean streamStarted = streamState == ExecutableState.Started;
-		boolean messengerStarted = messengerState == ExecutableState.Started;
-
 		SwingUtils.invoke(() -> {
-			if (state == ExecutableState.Stopped && !streamStarted) {
-				minimizeBottomTabPane();
-			}
-
-			final boolean streamOrMessengerStarted = streamStarted || messengerStarted;
-			setMessageBarTabEnabled(dict.get(MESSAGE_LABEL_KEY), streamOrMessengerStarted);
-
-			if (!streamStarted && !messengerStarted) {
-				showMessagesPlaceholder();
-			}
-
-			if (!messengerStarted) {
+			if (state == ExecutableState.Started) {
 				removeMessageViews(MessageView.class);
+				setMessageBarTabEnabled(dict.get(MESSAGE_LABEL_KEY), true);
 			}
 		});
 	}
@@ -561,9 +533,7 @@ public class SwingSlidesView extends JPanel implements SlidesView {
 			});
 			messageView.pack();
 
-			messageViewContainer.add(messageView);
-			messageViewContainer.revalidate();
-			messageViewContainer.repaint();
+			addMessageView(messageView);
 		});
 	}
 
@@ -586,9 +556,7 @@ public class SwingSlidesView extends JPanel implements SlidesView {
 			});
 			requestView.pack();
 
-			messageViewContainer.add(requestView);
-			messageViewContainer.revalidate();
-			messageViewContainer.repaint();
+			addMessageView(requestView);
 		});
 	}
 
@@ -914,26 +882,6 @@ public class SwingSlidesView extends JPanel implements SlidesView {
 	}
 
 	@Override
-	public void showMessagesPlaceholder() {
-		externalMessagesFrame.hideBody();
-
-		messagesPanel.removeAll();
-		messagesPanel.add(messagesPlaceholder);
-		messagesPanel.revalidate();
-		messagesPanel.repaint();
-	}
-
-	@Override
-	public void hideMessagesPlaceholder() {
-		externalMessagesFrame.showBody();
-
-		messagesPanel.removeAll();
-		messagesPanel.add(messagesPane);
-		messagesPanel.revalidate();
-		messagesPanel.repaint();
-	}
-
-	@Override
 	public void setMessageBarPosition(MessageBarPosition position) {
 		switch (position) {
 			case BOTTOM:
@@ -948,6 +896,24 @@ public class SwingSlidesView extends JPanel implements SlidesView {
 		}
 
 		messageBarPosition = position;
+	}
+
+	private void showMessagesPlaceholder() {
+		externalMessagesFrame.hideBody();
+
+		messagesPanel.removeAll();
+		messagesPanel.add(messagesPlaceholder);
+		messagesPanel.revalidate();
+		messagesPanel.repaint();
+	}
+
+	private void hideMessagesPlaceholder() {
+		externalMessagesFrame.showBody();
+
+		messagesPanel.removeAll();
+		messagesPanel.add(messagesPane);
+		messagesPanel.revalidate();
+		messagesPanel.repaint();
 	}
 
 	private void showMessageBarBottom() {
@@ -1489,6 +1455,16 @@ public class SwingSlidesView extends JPanel implements SlidesView {
 		});
 	}
 
+	private void addMessageView(Component view) {
+		messageViewContainer.add(view);
+		messageViewContainer.revalidate();
+		messageViewContainer.repaint();
+
+		if (messageViewContainer.getComponentCount() == 1) {
+			hideMessagesPlaceholder();
+		}
+	}
+
 	private void removeMessageView(Component view) {
 		for (Component c : messageViewContainer.getComponents()) {
 			if (c == view) {
@@ -1497,6 +1473,10 @@ public class SwingSlidesView extends JPanel implements SlidesView {
 				messageViewContainer.repaint();
 				break;
 			}
+		}
+
+		if (messageViewContainer.getComponentCount() == 0) {
+			showMessagesPlaceholder();
 		}
 	}
 
@@ -1509,6 +1489,10 @@ public class SwingSlidesView extends JPanel implements SlidesView {
 
 		messageViewContainer.validate();
 		messageViewContainer.repaint();
+
+		if (messageViewContainer.getComponentCount() == 0) {
+			showMessagesPlaceholder();
+		}
 	}
 
 	private BufferedImage convertVideoFrame(VideoFrame videoFrame, BufferedImage image) throws Exception {

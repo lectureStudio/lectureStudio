@@ -29,17 +29,21 @@ public class EditQuizCommand extends ShowPresenterCommand<CreateQuizPresenter> {
 
 	private final Action startAction;
 
+	private final Action closeAction;
 
-	public EditQuizCommand(Quiz quiz, Action startAction) {
+
+	public EditQuizCommand(Quiz quiz, Action startAction, Action closeAction) {
 		super(CreateQuizPresenter.class);
 
 		this.quiz = quiz;
 		this.startAction = startAction;
+		this.closeAction = closeAction;
 	}
 
 	@Override
 	public void execute(CreateQuizPresenter presenter) {
 		presenter.setQuiz(quiz);
+		presenter.setOnClose(closeAction);
 		presenter.setOnStartQuiz(startAction);
 	}
 }

@@ -73,7 +73,8 @@ public class SelectQuizPresenter extends Presenter<SelectQuizView> {
 
 		setOnEdit((quiz) -> {
 			// Copy quiz. No in-place editing.
-			context.getEventBus().post(new EditQuizCommand(quiz.clone(), this::close));
+			context.getEventBus().post(new EditQuizCommand(quiz.clone(),
+					this::close, this::reload));
 		});
 
 		view.setQuizzes(quizService.getQuizzes());
@@ -109,5 +110,23 @@ public class SelectQuizPresenter extends Presenter<SelectQuizView> {
 		streamService.startQuiz(quiz);
 
 		close();
+	}
+
+	private void reload() {
+		DocumentList docList = documentService.getDocuments();
+		Document doc = docList.getSelectedDocument();
+
+		if (doc.isQuiz()) {
+			doc = docList.getLastNonWhiteboard();
+		}
+
+		try {
+			view.setQuizzes(quizService.getQuizzes());
+			view.setDocumentQuizzes(quizService.getQuizzes(doc));
+			view.selectQuiz(webService.getStartedQuiz());
+		}
+		catch (IOException e) {
+			handleException(e, "Load quiz set failed", "quiz.edit.error");
+		}
 	}
 }

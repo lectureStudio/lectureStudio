@@ -29,6 +29,7 @@ import javax.swing.JPanel;
 
 import org.lecturestudio.core.app.dictionary.Dictionary;
 import org.lecturestudio.core.view.Action;
+import org.lecturestudio.swing.AwtResourceLoader;
 
 public class SpeechRequestView extends MessagePanel {
 
@@ -87,11 +88,13 @@ public class SpeechRequestView extends MessagePanel {
 		stateLabel.setBorder(BorderFactory.createEmptyBorder(0, 10, 0, 10));
 		stateLabel.setText(dict.get("speech.requested"));
 
-		acceptButton = new JButton(dict.get("speech.accept"));
-		acceptButton.setBackground(Color.decode("#D1FAE5"));
+		acceptButton = new JButton(AwtResourceLoader.getIcon("speech-accept.svg", 18));
+//		acceptButton.setBackground(Color.decode("#D1FAE5"));
+		acceptButton.setToolTipText(dict.get("speech.accept"));
 
-		rejectButton = new JButton(dict.get("speech.reject"));
-		rejectButton.setBackground(Color.decode("#FEE2E2"));
+		rejectButton = new JButton(AwtResourceLoader.getIcon("speech-decline.svg", 18));
+//		rejectButton.setBackground(Color.decode("#FEE2E2"));
+		rejectButton.setToolTipText(dict.get("speech.reject"));
 
 		Box controlPanel = Box.createHorizontalBox();
 		controlPanel.setBorder(BorderFactory.createEmptyBorder(2, 5, 2, 5));

@@ -120,20 +120,7 @@ public class CreateQuizPresenter extends Presenter<CreateQuizView> {
 		view.setOnQuizType(this::setQuizType);
 
 		if (nonNull(quizEdit)) {
-			this.quiz = quizEdit;
-
-			final Quiz oldQuiz = quiz.clone();
-
-			view.setOnSaveQuiz(() -> {
-				Document quizDoc = (selectedDoc == genericDoc) ? null : selectedDoc;
-
-				try {
-					quizService.replaceQuiz(oldQuiz, quiz, quizDoc);
-				}
-				catch (IOException e) {
-					handleException(e, "Replace quiz failed", "quiz.edit.error");
-				}
-			});
+			this.quiz = quizEdit.clone();
 
 			fillForm();
 		}
@@ -157,7 +144,12 @@ public class CreateQuizPresenter extends Presenter<CreateQuizView> {
 		Document quizDoc = (selectedDoc == genericDoc) ? null : selectedDoc;
 
 		try {
-			quizService.saveQuiz(quiz, quizDoc);
+			if (nonNull(quizEdit)) {
+				quizService.replaceQuiz(quizEdit, quiz, quizDoc);
+			}
+			else {
+				quizService.saveQuiz(quiz, quizDoc);
+			}
 		}
 		catch (IOException e) {
 			handleException(e, "Save quiz failed", "quiz.save.error");

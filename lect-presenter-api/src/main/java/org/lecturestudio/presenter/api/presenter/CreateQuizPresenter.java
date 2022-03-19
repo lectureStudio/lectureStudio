@@ -175,8 +175,25 @@ public class CreateQuizPresenter extends Presenter<CreateQuizView> {
 	private void setQuizType(Quiz.QuizType type) {
 		quiz.setType(type);
 
+		// Re-create option elements for the new type.
+		List<CreateQuizOptionView> optionViews = new ArrayList<>();
+
+		for (CreateQuizOptionView currentView : optionContextList) {
+			CreateQuizOptionView newView = createOption();
+			newView.setOptionText(currentView.getOptionText());
+
+			if (newView instanceof CreateQuizNumericOptionView) {
+				CreateQuizNumericOptionView numericView = (CreateQuizNumericOptionView) newView;
+				numericView.setMinValue(0);
+				numericView.setMaxValue(0);
+			}
+
+			optionViews.add(newView);
+		}
+
 		clearOptions();
-		newOption();
+
+		optionViews.forEach(view -> addOptionView(view, false));
 	}
 
 	private void documentSelected(Document doc) {
@@ -194,27 +211,28 @@ public class CreateQuizPresenter extends Presenter<CreateQuizView> {
 
 	private void clearOptions() {
 		view.clearOptions();
-
 		optionContextList.clear();
 	}
 
-	private void newOption() {
+	private CreateQuizOptionView createOption() {
 		switch (quiz.getType()) {
 			case MULTIPLE:
 			case SINGLE:
-				addOptionView(viewFactory.getInstance(CreateQuizDefaultOptionView.class));
-				break;
+				return viewFactory.getInstance(CreateQuizDefaultOptionView.class);
 
 			case NUMERIC:
-				addOptionView(viewFactory.getInstance(CreateQuizNumericOptionView.class));
-				break;
+				return viewFactory.getInstance(CreateQuizNumericOptionView.class);
 
 			default:
-				break;
+				throw new RuntimeException("Unknown quiz type");
 		}
 	}
 
-	private void addOptionView(CreateQuizOptionView optionView) {
+	private void newOption() {
+		addOptionView(createOption(), true);
+	}
+
+	private void addOptionView(CreateQuizOptionView optionView, boolean focus) {
 		view.addQuizOptionView(optionView);
 
 		optionView.setOnMoveDown(() -> moveOptionDown(optionView));
@@ -222,7 +240,10 @@ public class CreateQuizPresenter extends Presenter<CreateQuizView> {
 		optionView.setOnRemove(() -> removeOption(optionView));
 		optionView.setOnEnterKey(() -> enterKey(optionView));
 		optionView.setOnTabKey(() -> tabKey(optionView));
-		optionView.focus();
+
+		if (focus) {
+			optionView.focus();
+		}
 
 		optionContextList.add(optionView);
 	}
@@ -333,7 +354,7 @@ public class CreateQuizPresenter extends Presenter<CreateQuizView> {
 						CreateQuizOptionView optionView = viewFactory.getInstance(CreateQuizDefaultOptionView.class);
 						optionView.setOptionText(optionText);
 
-						addOptionView(optionView);
+						addOptionView(optionView, false);
 						break;
 					}
 					case NUMERIC: {
@@ -344,7 +365,7 @@ public class CreateQuizPresenter extends Presenter<CreateQuizView> {
 						optionView.setMinValue(rule.getMin());
 						optionView.setMaxValue(rule.getMax());
 
-						addOptionView(optionView);
+						addOptionView(optionView, false);
 						break;
 					}
 				}

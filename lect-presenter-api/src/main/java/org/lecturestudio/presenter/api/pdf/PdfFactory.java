@@ -461,17 +461,19 @@ public class PdfFactory {
 	private static class ChartColors implements SeriesColors {
 
 		public static final Color C1 = Color.decode("#003f5c");
-		public static final Color C2 = Color.decode("#665191");
-		public static final Color C3 = Color.decode("#a05195");
+		public static final Color C2 = Color.decode("#008861");
+		public static final Color C3 = Color.decode("#77afaf");
 		public static final Color C4 = Color.decode("#d45087");
 		public static final Color C5 = Color.decode("#ff7c43");
 		public static final Color C6 = Color.decode("#ffa600");
+		public static final Color C7 = Color.decode("#aaa900");
+		public static final Color C8 = Color.decode("#7e38ff");
 
 		private final Color[] seriesColors;
 
 
 		public ChartColors() {
-			seriesColors = new Color[] { C1, C2, C3, C4, C5, C6 };
+			seriesColors = new Color[] { C1, C2, C3, C4, C5, C6, C7, C8 };
 		}
 
 		@Override

@@ -68,7 +68,11 @@ public class QuizService {
 
 	public void deleteQuiz(Quiz quiz) throws IOException {
 		quizDataSource.deleteQuiz(quiz, null);
-		quizDataSource.deleteQuiz(quiz, documentService.getDocuments().getSelectedDocument());
+
+		// Find and delete the quiz for any opened document.
+		for (var document : documentService.getDocuments().asList()) {
+			quizDataSource.deleteQuiz(quiz, document);
+		}
 	}
 
 	public void replaceQuiz(Quiz oldQuiz, Quiz newQuiz) throws IOException {

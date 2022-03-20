@@ -67,6 +67,17 @@ public class QuizTableModel extends TableModelBase<Quiz> {
 		return col > 2;
 	}
 
+	@Override
+	public int getRow(Quiz item) {
+		for (int i = 0; i < getRowCount(); i++) {
+			if (item.equals(getItem(i))) {
+				return i;
+			}
+		}
+
+		return -1;
+	}
+
 	private static Icon getSetIcon(QuizSet set) {
 		switch (set) {
 			case DOCUMENT_SPECIFIC:

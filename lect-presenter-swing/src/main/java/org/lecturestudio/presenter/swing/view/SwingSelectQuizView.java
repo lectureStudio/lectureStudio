@@ -97,8 +97,6 @@ public class SwingSelectQuizView extends ContentPane implements SelectQuizView {
 	@Override
 	public void selectQuiz(Quiz quiz) {
 		SwingUtils.invoke(() -> {
-			selectedQuizProperty.set(quiz);
-
 			if (nonNull(quiz)) {
 				QuizTableModel model = (QuizTableModel) quizTableView.getModel();
 				int row = model.getRow(quiz);
@@ -167,9 +165,7 @@ public class SwingSelectQuizView extends ContentPane implements SelectQuizView {
 			QuizTableModel model = (QuizTableModel) quizTableView.getModel();
 			Quiz selectedQuiz = selectedRow > -1 ? model.getItem(selectedRow) : null;
 
-			if (nonNull(selectedQuiz)) {
-				selectedQuizProperty.set(selectedQuiz);
-			}
+			selectedQuizProperty.set(selectedQuiz);
 		});
 
 		selectedQuizProperty.addListener((observable, oldValue, newValue) -> {

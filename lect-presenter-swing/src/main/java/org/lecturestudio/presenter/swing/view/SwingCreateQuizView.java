@@ -18,6 +18,7 @@
 
 package org.lecturestudio.presenter.swing.view;
 
+import static java.util.Map.entry;
 import static java.util.Objects.isNull;
 import static java.util.Objects.nonNull;
 
@@ -37,13 +38,7 @@ import java.util.ResourceBundle;
 import java.util.Vector;
 
 import javax.inject.Inject;
-import javax.swing.AbstractAction;
-import javax.swing.DefaultComboBoxModel;
-import javax.swing.JButton;
-import javax.swing.JComboBox;
-import javax.swing.JComponent;
-import javax.swing.JRadioButton;
-import javax.swing.KeyStroke;
+import javax.swing.*;
 import javax.swing.text.JTextComponent;
 
 import net.atlanticbb.tantlinger.shef.HTMLEditorPane;
@@ -60,8 +55,7 @@ import org.lecturestudio.swing.view.SwingView;
 import org.lecturestudio.swing.view.ViewPostConstruct;
 import org.lecturestudio.web.api.model.quiz.Quiz.QuizType;
 
-@SwingView(name = "create-quiz")
-public class SwingCreateQuizView extends ContentPane implements CreateQuizView {
+@SwingView(name = "create-quiz") public class SwingCreateQuizView extends ContentPane implements CreateQuizView {
 
 	private final ResourceBundle resources;
 
@@ -77,6 +71,8 @@ public class SwingCreateQuizView extends ContentPane implements CreateQuizView {
 
 	private JComboBox<Document> docSetComboBox;
 
+	private JPanel mainPanel;
+
 	private JRadioButton multipleTypeRadioButton;
 
 	private JRadioButton singleTypeRadioButton;
@@ -90,6 +86,8 @@ public class SwingCreateQuizView extends ContentPane implements CreateQuizView {
 	private JButton newOptionButton;
 
 	private JButton closeButton;
+
+	private JButton overwriteQuizButton;
 
 	private JButton saveQuizButton;
 
@@ -198,6 +196,21 @@ public class SwingCreateQuizView extends ContentPane implements CreateQuizView {
 	}
 
 	@Override
+	public void setTitleText(String value) {
+		mainPanel.setName(value);
+	}
+
+	@Override
+	public void setOverwriteQuiEnabled(boolean visible) {
+		overwriteQuizButton.setEnabled(visible);
+	}
+
+	@Override
+	public void setOnOverwriteQuiz(Action action) {
+		SwingUtils.bindAction(overwriteQuizButton, action);
+	}
+
+	@Override
 	public String getQuizText() {
 		return htmlEditor.getText();
 	}
@@ -209,8 +222,7 @@ public class SwingCreateQuizView extends ContentPane implements CreateQuizView {
 
 	@Override
 	public void setDocuments(List<Document> documents) {
-		SwingUtils.invoke(() -> docSetComboBox.setModel(
-				new DefaultComboBoxModel<>(new Vector<>(documents))));
+		SwingUtils.invoke(() -> docSetComboBox.setModel(new DefaultComboBoxModel<>(new Vector<>(documents))));
 	}
 
 	@Override
@@ -241,8 +253,7 @@ public class SwingCreateQuizView extends ContentPane implements CreateQuizView {
 			int stateChange = e.getStateChange();
 
 			if (stateChange == ItemEvent.SELECTED) {
-				executeAction(action, docSetComboBox.getModel()
-						.getElementAt(docSetComboBox.getSelectedIndex()));
+				executeAction(action, docSetComboBox.getModel().getElementAt(docSetComboBox.getSelectedIndex()));
 			}
 		});
 	}
@@ -281,8 +292,7 @@ public class SwingCreateQuizView extends ContentPane implements CreateQuizView {
 			if (e.getChangeFlags() == HierarchyEvent.PARENT_CHANGED) {
 				if (isNull(e.getComponent().getParent())) {
 					KeyboardFocusManager.setCurrentKeyboardFocusManager(oldKFM);
-				}
-				else {
+				} else {
 					KeyboardFocusManager.setCurrentKeyboardFocusManager(null);
 					KeyboardFocusManager focusManager = KeyboardFocusManager.getCurrentKeyboardFocusManager();
 					focusManager.addKeyEventDispatcher(new KeyboardManager());
@@ -292,26 +302,21 @@ public class SwingCreateQuizView extends ContentPane implements CreateQuizView {
 
 		toolbarContainer.add(htmlEditor.getFormatToolBar());
 
-		optionTooltip = createMultilineTooltip(new LinkedHashMap<>() {
-			{
-				put(resources.getString("create.quiz.option.next.tooltip"),
-						KeyUtils.getDisplayText(KeyStroke.getKeyStroke("TAB")));
-				put(resources.getString("create.quiz.option.up.tooltip"),
-						KeyUtils.getDisplayText(KeyStroke.getKeyStroke("UP")));
-				put(resources.getString("create.quiz.option.down.tooltip"),
-						KeyUtils.getDisplayText(KeyStroke.getKeyStroke("DOWN")));
-			}
-		});
-		lastOptionTooltip = createMultilineTooltip(new LinkedHashMap<>() {
-			{
-				put(resources.getString("create.quiz.option.add.tooltip"),
-						KeyUtils.getDisplayText(KeyStroke.getKeyStroke("TAB")));
-				put(resources.getString("create.quiz.start"),
-						KeyUtils.getDisplayText(KeyStroke.getKeyStroke("ENTER")));
-				put(resources.getString("create.quiz.option.up.tooltip"),
-						KeyUtils.getDisplayText(KeyStroke.getKeyStroke("UP")));
-			}
-		});
+		optionTooltip = createMultilineTooltip(Map.ofEntries(
+				entry(resources.getString("create.quiz.option.next.tooltip"),
+						KeyUtils.getDisplayText(KeyStroke.getKeyStroke("TAB"))),
+				entry(resources.getString("create.quiz.option.up.tooltip"),
+						KeyUtils.getDisplayText(KeyStroke.getKeyStroke("UP"))),
+				entry(resources.getString("create.quiz.option.down.tooltip"),
+						KeyUtils.getDisplayText(KeyStroke.getKeyStroke("DOWN")))));
+
+		lastOptionTooltip = createMultilineTooltip(Map.ofEntries(
+				entry(resources.getString("create.quiz.option.add.tooltip"),
+						KeyUtils.getDisplayText(KeyStroke.getKeyStroke("TAB"))),
+				entry(resources.getString("create.quiz.start"),
+						KeyUtils.getDisplayText(KeyStroke.getKeyStroke("ENTER"))),
+				entry(resources.getString("create.quiz.option.up.tooltip"),
+						KeyUtils.getDisplayText(KeyStroke.getKeyStroke("UP")))));
 	}
 
 	private String createMultilineTooltip(Map<String, String> data) {
@@ -354,23 +359,20 @@ public class SwingCreateQuizView extends ContentPane implements CreateQuizView {
 				JComponent c = (JComponent) component.getComponent(i);
 				updateOptionProperties(c, row, rowCount);
 			}
-		}
-		else {
+		} else {
 			String name = component.getName();
 
 			if (nonNull(name) && name.equalsIgnoreCase("last-input")) {
 				if (row == rowCount - 1) {
 					component.putClientProperty("option", "last");
 					component.setToolTipText(lastOptionTooltip);
-				}
-				else {
+				} else {
 					component.putClientProperty("option", null);
 					component.setToolTipText(optionTooltip);
 				}
 			}
 		}
 	}
-
 
 
 	private class KeyboardManager extends DefaultKeyboardFocusManager {
@@ -381,12 +383,11 @@ public class SwingCreateQuizView extends ContentPane implements CreateQuizView {
 
 			if (nonNull(source) && source.isShowing()) {
 				boolean isTextComponent = source instanceof JTextComponent;
-				boolean isAlphaNum = Character.isLetterOrDigit(event.getKeyCode()) |
-						Character.isSpaceChar(event.getKeyCode());
+				boolean isAlphaNum =
+						Character.isLetterOrDigit(event.getKeyCode()) | Character.isSpaceChar(event.getKeyCode());
 
 				if (isTextComponent && isAlphaNum) {
-					return !event.isControlDown() && !event.isShiftDown()
-							&& !event.isAltDown() && !event.isMetaDown();
+					return !event.isControlDown() && !event.isShiftDown() && !event.isAltDown() && !event.isMetaDown();
 				}
 			}
 
@@ -400,8 +401,7 @@ public class SwingCreateQuizView extends ContentPane implements CreateQuizView {
 			if (event.getKeyCode() == KeyEvent.VK_TAB && lastField) {
 				newOptionButton.doClick();
 				return true;
-			}
-			else if (event.getKeyCode() == KeyEvent.VK_ENTER) {
+			} else if (event.getKeyCode() == KeyEvent.VK_ENTER) {
 				if ((event.getModifiersEx() & KeyEvent.CTRL_DOWN_MASK) != 0 || lastField) {
 					startQuizButton.doClick();
 				}

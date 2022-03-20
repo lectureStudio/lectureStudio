@@ -94,13 +94,10 @@ public class QuizService {
 		quizDataSource.deleteQuiz(oldQuiz, null);
 
 		// Refresh within the same set.
-		if (selectedDoc.equals(doc)) {
-			quizDataSource.saveQuiz(oldQuiz, newQuiz, doc);
-		}
-		else {
+		if (!selectedDoc.equals(doc)) {
 			// Remove from current set, since it has been moved to another set.
 			quizDataSource.deleteQuiz(oldQuiz, selectedDoc);
-			quizDataSource.saveQuiz(oldQuiz, newQuiz, doc);
 		}
+		quizDataSource.saveQuiz(oldQuiz, newQuiz, doc);
 	}
 }

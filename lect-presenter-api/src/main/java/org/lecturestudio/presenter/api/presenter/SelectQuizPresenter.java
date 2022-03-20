@@ -18,6 +18,7 @@
 
 package org.lecturestudio.presenter.api.presenter;
 
+import static java.util.Objects.isNull;
 import static java.util.Objects.nonNull;
 
 import java.io.IOException;
@@ -65,9 +66,7 @@ public class SelectQuizPresenter extends Presenter<SelectQuizView> {
 
 	@Override
 	public void initialize() throws IOException {
-		// Copy quiz. No in-place editing.
-		setOnEdit(quiz -> context.getEventBus()
-				.post(new EditQuizCommand(quiz.clone(), this::close, this::viewUpdateQuiz)));
+		setOnEdit(quiz -> context.getEventBus().post(new EditQuizCommand(quiz, this::close, this::viewUpdateQuiz)));
 
 		viewUpdateQuiz();
 		view.setOnClose(this::close);

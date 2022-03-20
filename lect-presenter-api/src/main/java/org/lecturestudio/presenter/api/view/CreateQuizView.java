@@ -38,6 +38,8 @@ public interface CreateQuizView extends View {
 
 	void moveQuizOptionViewDown(CreateQuizOptionView optionView);
 
+	void setTitleText(String title);
+
 	String getQuizText();
 
 	void setQuizText(String text);
@@ -59,5 +61,9 @@ public interface CreateQuizView extends View {
 	void setOnStartQuiz(Action action);
 
 	void setOnQuizType(ConsumerAction<Quiz.QuizType> action);
+
+	void setOverwriteQuiEnabled(boolean enabled);
+
+	void setOnOverwriteQuiz(Action action);
 
 }

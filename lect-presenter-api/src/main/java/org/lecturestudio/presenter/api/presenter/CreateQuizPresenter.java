@@ -116,24 +116,15 @@ public class CreateQuizPresenter extends Presenter<CreateQuizView> {
 		view.setOnDocumentSelected(this::documentSelected);
 		view.setOnNewOption(this::newOption);
 		view.setOnSaveQuiz(this::saveQuiz);
+		view.setOnOverwriteQuiz(this::overwriteQuiz);
 		view.setOnStartQuiz(this::startQuiz);
 		view.setOnQuizType(this::setQuizType);
 
 		if (nonNull(quizEdit)) {
-			this.quiz = quizEdit;
+			view.setTitleText(context.getDictionary().get("create.quiz.edit.title"));
+			view.setOverwriteQuiEnabled(true);
 
-			final Quiz oldQuiz = quiz.clone();
-
-			view.setOnSaveQuiz(() -> {
-				Document quizDoc = (selectedDoc == genericDoc) ? null : selectedDoc;
-
-				try {
-					quizService.replaceQuiz(oldQuiz, quiz, quizDoc);
-				}
-				catch (IOException e) {
-					handleException(e, "Replace quiz failed", "quiz.edit.error");
-				}
-			});
+			this.quiz = quizEdit.clone();
 
 			fillForm();
 		}
@@ -163,7 +154,26 @@ public class CreateQuizPresenter extends Presenter<CreateQuizView> {
 			handleException(e, "Save quiz failed", "quiz.save.error");
 		}
 
+		quizEdit = quiz.clone();
+		view.setOverwriteQuiEnabled(true);
+
 		showNotificationPopup(context.getDictionary().get("create.quiz.saved"));
+	}
+
+	private void overwriteQuiz() {
+		createQuiz();
+
+		Document quizDoc = (selectedDoc == genericDoc) ? null : selectedDoc;
+
+		try {
+			quizService.deleteQuiz(quizEdit);
+			quizService.saveQuiz(quiz, quizDoc);
+		}
+		catch (IOException e) {
+			handleException(e, "Overwriting quiz failed", "quiz.overwrite.error");
+		}
+
+		showNotificationPopup(context.getDictionary().get("create.quiz.overwritten"));
 	}
 
 	private void startQuiz() {

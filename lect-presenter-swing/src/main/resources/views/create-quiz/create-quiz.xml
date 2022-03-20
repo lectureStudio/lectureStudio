@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<Panel name="create.quiz.title">
+<Panel id="mainPanel" name="create.quiz.title">
 	<Panel layout="GridBagLayout" border="EmptyBorder(0, 20, 20, 20)">
 		<Label text="create.quiz.question" border="EmptyBorder(0, 0, 5, 0)">
 			<gridbagconstraints gridx="0" gridy="0" gridwidth="4" fill="GridBagConstraints.BOTH" />
@@ -38,6 +38,7 @@
 			<gridbagconstraints gridx="0" gridy="6" gridwidth="4" fill="GridBagConstraints.HORIZONTAL" />
 			<box.hglue />
 			<Button id="closeButton" text="button.close" tooltipText="create.quiz.cancel.tooltip"/>
+			<Button id="overwriteQuizButton" text="create.quiz.overwrite" tooltipText="create.quiz.overwrite.tooltip" enabled="false"/>
 			<Button id="saveQuizButton" text="create.quiz.save" tooltipText="create.quiz.save.tooltip" accelerator="ctrl ENTER"/>
 			<Button id="startQuizButton" text="create.quiz.start" tooltipText="create.quiz.start"/>
 		</HBox>

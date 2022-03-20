@@ -64,12 +64,14 @@ public class Quiz implements Cloneable, Serializable {
 
 	private QuizType type;
 
-	/** This is only used to identify where to store this quiz. */
+	/**
+	 * This is only used to identify where to store this quiz.
+	 */
 	private QuizSet set;
 
 	private String question;
 
-	@OneToMany(cascade = { CascadeType.ALL })
+	@OneToMany(cascade = {CascadeType.ALL})
 	private List<HttpResourceFile> questionResources = new ArrayList<>();
 
 	@ElementCollection
@@ -77,7 +79,7 @@ public class Quiz implements Cloneable, Serializable {
 	@Column(name = "option")
 	private List<String> options = new ArrayList<>();
 
-	@OneToMany(cascade = { CascadeType.ALL })
+	@OneToMany(cascade = {CascadeType.ALL})
 	private List<RegexRule> regexRules;
 
 	private InputFieldFilter filter = new InputFieldFilter();
@@ -99,8 +101,7 @@ public class Quiz implements Cloneable, Serializable {
 	public String getOptionAlpha(String o) {
 		if (getType() == QuizType.NUMERIC) {
 			return o;
-		}
-		else {
+		} else {
 			return Character.toString((char) (65 + Integer.parseInt(o)));
 		}
 	}
@@ -196,7 +197,8 @@ public class Quiz implements Cloneable, Serializable {
 
 		final Quiz other = (Quiz) obj;
 
-		boolean a = Objects.equals(question, other.question);
+		// The replacement of the newlines is a workaround because the QuizWriter removes them
+		boolean a = Objects.equals(question.replaceAll("[ \\n]", ""), other.question.replaceAll("[ \\n]", ""));
 		boolean b = Objects.equals(type, other.type);
 		boolean c = Objects.equals(options, other.options);
 		boolean d = Objects.equals(filter, other.filter);

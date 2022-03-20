@@ -369,10 +369,21 @@ class CreateQuizPresenterTest extends PresenterTest {
 
 		Action startQuizAction;
 
+		Action overwriteQuizAction;
+
 		ConsumerAction<Quiz.QuizType> quizTypeAction;
 
 		String question;
 
+		@Override
+		public void setOverwriteQuiEnabled(boolean enabled) {
+
+		}
+
+		@Override
+		public void setTitleText(String title) {
+
+		}
 
 		@Override
 		public void clearOptions() {
@@ -462,6 +473,11 @@ class CreateQuizPresenterTest extends PresenterTest {
 			assertNotNull(action);
 
 			quizTypeAction = action;
+		}
+
+		@Override
+		public void setOnOverwriteQuiz(Action action) {
+			overwriteQuizAction = action;
 		}
 	}
 

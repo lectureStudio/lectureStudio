@@ -33,10 +33,7 @@ import org.lecturestudio.core.text.Font;
 import org.lecturestudio.core.text.TeXFont;
 import org.lecturestudio.core.text.TextAttributes;
 import org.lecturestudio.core.tool.PresetColor;
-import org.lecturestudio.core.util.OsInfo;
 import org.lecturestudio.presenter.api.model.MessageBarPosition;
-import org.lecturestudio.web.api.filter.IpFilter;
-import org.lecturestudio.web.api.filter.IpRangeRule;
 import org.lecturestudio.web.api.filter.RegexFilter;
 import org.lecturestudio.web.api.filter.RegexRule;
 
@@ -102,18 +99,14 @@ public class DefaultConfiguration extends PresenterConfiguration {
 
 		Collections.fill(getToolConfig().getPresetColors(), Color.WHITE);
 
-		IpFilter filter = new IpFilter();
-		filter.registerRule(new IpRangeRule("127.0.0.1", "127.0.0.1"));
-		filter.registerRule(new IpRangeRule("192.168.0.1", "192.168.0.254"));
-		filter.registerRule(new IpRangeRule("130.83.0.0", "130.83.255.254"));
-
-		getNetworkConfig().setIpFilter(filter);
-
 		getExternalMessagesConfig().setEnabled(false);
 		getExternalSlidePreviewConfig().setEnabled(false);
 		getExternalSpeechConfig().setEnabled(false);
 
-		getMessageBarConfiguration().setMessageBarPosition(MessageBarPosition.BOTTOM);
+		getSlideViewConfiguration().setBottomSliderPosition(0.7);
+		getSlideViewConfiguration().setLeftSliderPosition(0.375);
+		getSlideViewConfiguration().setRightSliderPosition(0.8);
+		getSlideViewConfiguration().setMessageBarPosition(MessageBarPosition.BOTTOM);
 
 		AudioProcessingSettings processingSettings = new AudioProcessingSettings();
 		processingSettings.setHighpassFilterEnabled(true);

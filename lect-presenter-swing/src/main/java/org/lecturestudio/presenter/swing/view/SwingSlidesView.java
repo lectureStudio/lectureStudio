@@ -40,6 +40,8 @@ import javax.inject.Inject;
 import javax.swing.*;
 import javax.swing.event.AncestorEvent;
 import javax.swing.event.AncestorListener;
+import javax.swing.plaf.basic.BasicSplitPaneDivider;
+import javax.swing.plaf.basic.BasicSplitPaneUI;
 import javax.swing.text.JTextComponent;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeModel;
@@ -49,6 +51,7 @@ import javax.swing.tree.TreePath;
 import org.lecturestudio.core.ExecutableState;
 import org.lecturestudio.core.app.dictionary.Dictionary;
 import org.lecturestudio.core.beans.BooleanProperty;
+import org.lecturestudio.core.beans.DoubleProperty;
 import org.lecturestudio.core.controller.RenderController;
 import org.lecturestudio.core.geometry.Matrix;
 import org.lecturestudio.core.input.KeyEvent;
@@ -61,6 +64,7 @@ import org.lecturestudio.core.tool.ToolType;
 import org.lecturestudio.core.view.*;
 import org.lecturestudio.core.view.Action;
 import org.lecturestudio.presenter.api.model.MessageBarPosition;
+import org.lecturestudio.presenter.api.config.SlideViewConfiguration;
 import org.lecturestudio.swing.model.AdaptiveTab;
 import org.lecturestudio.swing.model.AdaptiveTabType;
 import org.lecturestudio.swing.model.ExternalWindowPosition;
@@ -84,6 +88,7 @@ import org.lecturestudio.web.api.message.SpeechRequestMessage;
 
 @SwingView(name = "main-slides")
 public class SwingSlidesView extends JPanel implements SlidesView {
+
 	private static final String MESSAGE_LABEL_KEY = "slides.message";
 
 	private static final String NO_MESSAGES_LABEL_KEY = "slides.no.messages";
@@ -218,6 +223,21 @@ public class SwingSlidesView extends JPanel implements SlidesView {
 		super();
 
 		this.dict = dictionary;
+	}
+
+	@Override
+	public void setSlideViewConfig(SlideViewConfiguration viewConfig) {
+		docSplitPane.setDividerLocation(viewConfig.getLeftSliderPosition());
+		tabSplitPane.setDividerLocation(viewConfig.getRightSliderPosition());
+		notesSplitPane.setDividerLocation(viewConfig.getBottomSliderPosition());
+
+		oldNotesSplitPaneDividerRatio = viewConfig.getBottomSliderPosition();
+		oldDocSplitPaneDividerRatio = viewConfig.getLeftSliderPosition();
+		oldTabSplitPaneDividerRatio = viewConfig.getRightSliderPosition();
+
+		observeDividerLocation(docSplitPane, viewConfig.leftSliderPositionProperty());
+		observeDividerLocation(tabSplitPane, viewConfig.rightSliderPositionProperty());
+		observeDividerLocation(notesSplitPane, viewConfig.bottomSliderPositionProperty());
 	}
 
 	@Override
@@ -1112,12 +1132,21 @@ public class SwingSlidesView extends JPanel implements SlidesView {
 		switch (messageBarPosition) {
 			case BOTTOM:
 				bottomTabPane.setTabEnabled(labelText, enable);
+				if (enable) {
+					maximizeBottomTabPane();
+				}
 				break;
 			case LEFT:
 				leftTabPane.setTabEnabled(labelText, enable);
+				if (enable) {
+					maximizeLeftTabPane();
+				}
 				break;
 			case RIGHT:
 				rightTabPane.setTabEnabled(labelText, enable);
+				if (enable) {
+					maximizeRightTabPane();
+				}
 				break;
 		}
 	}
@@ -1233,7 +1262,8 @@ public class SwingSlidesView extends JPanel implements SlidesView {
 		if (sameTab) {
 			if (tabPaneSize > tabSize) {
 				minimizeFunc.accept(true);
-			} else {
+			}
+			else {
 				maximizeFunc.run();
 			}
 		}
@@ -1451,6 +1481,25 @@ public class SwingSlidesView extends JPanel implements SlidesView {
 			public void componentResized(ComponentEvent e) {
 				notesSplitPane.removeComponentListener(this);
 				minimizeBottomTabPane();
+			}
+		});
+
+		showMessagesPlaceholder();
+	}
+
+	private void observeDividerLocation(final JSplitPane pane,
+			final DoubleProperty property) {
+		BasicSplitPaneUI ui = (BasicSplitPaneUI) pane.getUI();
+		BasicSplitPaneDivider divider = ui.getDivider();
+
+		divider.addMouseMotionListener(new MouseAdapter() {
+
+			@Override
+			public void mouseDragged(MouseEvent e) {
+				double paneWidth = pane.getWidth();
+				double value = pane.getDividerLocation() / paneWidth;
+
+				property.set(value);
 			}
 		});
 	}

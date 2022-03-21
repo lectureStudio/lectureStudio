@@ -51,7 +51,6 @@ import org.lecturestudio.core.util.ListChangeListener;
 import org.lecturestudio.core.util.ObservableList;
 import org.lecturestudio.core.view.*;
 import org.lecturestudio.presenter.api.config.ExternalWindowConfiguration;
-import org.lecturestudio.presenter.api.config.MessageBarConfiguration;
 import org.lecturestudio.presenter.api.config.PresenterConfiguration;
 import org.lecturestudio.presenter.api.context.PresenterContext;
 import org.lecturestudio.presenter.api.event.*;
@@ -347,7 +346,7 @@ public class SlidesPresenter extends Presenter<SlidesView> {
 
 		view.setMessageBarPosition(position);
 
-		getPresenterConfig().getMessageBarConfiguration().setMessageBarPosition(position);
+		getPresenterConfig().getSlideViewConfiguration().setMessageBarPosition(position);
 	}
 
 	private void externalMessagesPositionChanged(ExternalWindowPosition position) {
@@ -776,10 +775,6 @@ public class SlidesPresenter extends Presenter<SlidesView> {
 		return (PresenterConfiguration) context.getConfiguration();
 	}
 
-	private MessageBarConfiguration getMessageBarConfig() {
-		return getPresenterConfig().getMessageBarConfiguration();
-	}
-
 	private ExternalWindowConfiguration getExternalMessagesConfig() {
 		return getPresenterConfig().getExternalMessagesConfig();
 	}
@@ -889,6 +884,7 @@ public class SlidesPresenter extends Presenter<SlidesView> {
 		view.setExtendedFullscreen(config.getExtendedFullscreen());
 		view.setMessengerState(ExecutableState.Stopped);
 
+		view.setSlideViewConfig(config.getSlideViewConfiguration());
 		view.bindShowOutline(ctx.showOutlineProperty());
 		view.setOnOutlineItem(this::setOutlineItem);
 
@@ -923,7 +919,9 @@ public class SlidesPresenter extends Presenter<SlidesView> {
 		registerShortcut(Shortcut.COPY_OVERLAY_NEXT_PAGE_CTRL, this::copyNextOverlay);
 		registerShortcut(Shortcut.COPY_OVERLAY_NEXT_PAGE_SHIFT, this::copyNextOverlay);
 
-		setMessageBarPosition();
+		view.setMessageBarPosition(
+				getPresenterConfig().getSlideViewConfiguration()
+						.getMessageBarPosition());
 
 		try {
 			recordingService.init();
@@ -949,10 +947,6 @@ public class SlidesPresenter extends Presenter<SlidesView> {
 				action.accept(config.isEnabled(), checkIfScreenInList(list, config.getScreen()));
 			}
 		});
-	}
-
-	private void setMessageBarPosition() {
-		view.setMessageBarPosition(getMessageBarConfig().getMessageBarPosition());
 	}
 
 	private void showExternalScreens() {

@@ -515,14 +515,12 @@ public class MenuPresenter extends Presenter<MenuView> {
 		view.bindFullscreen(presenterContext.fullscreenProperty());
 
 		view.setOnCustomizeToolbar(this::customizeToolbar);
-//		view.setAdvancedSettings(config.getAdvancedUIMode());
-//		view.setOnAdvancedSettings(this::setAdvancedSettings);
 
 		view.setOnExternalMessages(this::externalMessages);
 		view.setOnExternalSlidePreview(this::externalSlidePreview);
 		view.setOnExternalSpeech(this::externalSpeech);
 
-		switch (config.getMessageBarConfiguration().getMessageBarPosition()) {
+		switch (config.getSlideViewConfiguration().getMessageBarPosition()) {
 			case LEFT:
 				view.setMessagesPositionLeft();
 				break;

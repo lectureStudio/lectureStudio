@@ -52,7 +52,8 @@ public class PresenterConfiguration extends Configuration {
 
 	private final ExternalWindowConfiguration externalSpeechConfig = new ExternalWindowConfiguration();
 
-	private final MessageBarConfiguration messageBarConfiguration = new MessageBarConfiguration();
+	private final SlideViewConfiguration slideViewConfiguration = new SlideViewConfiguration();
+
 
 	/**
 	 * @return the classroomName
@@ -192,18 +193,13 @@ public class PresenterConfiguration extends Configuration {
 	}
 
 	/**
-	 *
-	 * @return Message bar configuration
-	 */
-	public MessageBarConfiguration getMessageBarConfiguration() {
-		return messageBarConfiguration;
-	}
-
-	/**
 	 * @return the quizConfig
 	 */
 	public QuizConfiguration getQuizConfig() {
 		return quizConfig;
 	}
 
+	public SlideViewConfiguration getSlideViewConfiguration() {
+		return slideViewConfiguration;
+	}
 }

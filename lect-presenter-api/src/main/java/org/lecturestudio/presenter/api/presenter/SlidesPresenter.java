@@ -639,6 +639,8 @@ public class SlidesPresenter extends Presenter<SlidesView> {
 
 	private void documentReplaced(Document oldDoc, Document doc) {
 		view.addDocument(doc, context.getPagePropertyProvider(ViewType.Preview));
+
+		setPage(doc.getCurrentPage());
 	}
 
 	private void documentSelected(Document oldDoc, Document doc) {

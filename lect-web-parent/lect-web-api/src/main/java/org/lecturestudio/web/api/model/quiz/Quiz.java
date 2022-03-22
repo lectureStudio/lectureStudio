@@ -78,7 +78,7 @@ public class Quiz implements Cloneable, Serializable {
 	private List<String> options = new ArrayList<>();
 
 	@OneToMany(cascade = { CascadeType.ALL })
-	private List<RegexRule> regexRules;
+	private List<RegexRule> regexRules = new ArrayList<>();
 
 	private InputFieldFilter filter = new InputFieldFilter();
 

@@ -1,6 +1,8 @@
 module org.lecturestudio.web.api {
 
 	requires com.fasterxml.jackson.annotation;
+	requires com.fasterxml.jackson.jaxrs.base;
+	requires com.fasterxml.jackson.jaxrs.json;
 	requires jakarta.inject;
 	requires jakarta.persistence;
 	requires java.json;

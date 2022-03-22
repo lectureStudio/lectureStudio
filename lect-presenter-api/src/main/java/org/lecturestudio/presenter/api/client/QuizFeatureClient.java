@@ -28,13 +28,13 @@ import org.eclipse.microprofile.rest.client.annotation.RegisterProvider;
 import org.eclipse.microprofile.rest.client.annotation.RegisterProviders;
 
 import org.lecturestudio.web.api.client.ApiKeyFilter;
-import org.lecturestudio.web.api.data.bind.JsonConfigProvider;
+import org.lecturestudio.web.api.data.bind.ClientJsonMapper;
 import org.lecturestudio.web.api.model.quiz.Quiz;
 
 @Path("/api/publisher")
 @RegisterProviders({
 		@RegisterProvider(ApiKeyFilter.class),
-		@RegisterProvider(JsonConfigProvider.class)
+		@RegisterProvider(ClientJsonMapper.class)
 })
 public interface QuizFeatureClient {
 

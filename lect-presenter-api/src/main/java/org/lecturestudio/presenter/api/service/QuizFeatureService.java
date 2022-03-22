@@ -22,7 +22,6 @@ import org.eclipse.microprofile.rest.client.RestClientBuilder;
 
 import org.lecturestudio.presenter.api.client.QuizFeatureClient;
 import org.lecturestudio.web.api.client.TokenProvider;
-import org.lecturestudio.web.api.data.bind.JsonConfig;
 import org.lecturestudio.web.api.message.MessageTransport;
 import org.lecturestudio.web.api.model.quiz.Quiz;
 import org.lecturestudio.web.api.service.ReactiveProviderService;
@@ -39,7 +38,6 @@ public class QuizFeatureService extends ReactiveProviderService {
 
 		RestClientBuilder builder = createClientBuilder(parameters);
 		builder.property(TokenProvider.class.getName(), tokenProvider);
-		builder.register(JsonConfig.class);
 
 		featureClient = builder.build(QuizFeatureClient.class);
 	}

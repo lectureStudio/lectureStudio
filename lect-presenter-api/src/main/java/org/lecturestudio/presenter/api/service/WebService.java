@@ -320,6 +320,7 @@ public class WebService extends ExecutableBase {
 
 		if (startedServices.isEmpty()) {
 			messageTransport.stop();
+			messageTransport.destroy();
 		}
 
 		//stopLocalBroadcaster();
@@ -350,7 +351,7 @@ public class WebService extends ExecutableBase {
 	}
 
 	private void initMessageTransport() {
-		if (isNull(messageTransport)) {
+		if (isNull(messageTransport) || messageTransport.destroyed()) {
 			messageTransport = createMessageTransport();
 		}
 	}

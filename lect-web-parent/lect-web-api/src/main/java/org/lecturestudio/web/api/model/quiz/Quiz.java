@@ -25,24 +25,12 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
-import jakarta.persistence.CascadeType;
-import jakarta.persistence.CollectionTable;
-import jakarta.persistence.Column;
-import jakarta.persistence.ElementCollection;
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.OneToMany;
-import jakarta.persistence.SequenceGenerator;
-
 import org.lecturestudio.web.api.filter.FilterRule;
 import org.lecturestudio.web.api.filter.InputFieldFilter;
 import org.lecturestudio.web.api.filter.InputFieldRule;
 import org.lecturestudio.web.api.filter.RegexRule;
 import org.lecturestudio.web.api.model.HttpResourceFile;
 
-@Entity
 public class Quiz implements Cloneable, Serializable {
 
 	private static final long serialVersionUID = -2922040254601147407L;
@@ -57,11 +45,6 @@ public class Quiz implements Cloneable, Serializable {
 	}
 
 
-	@Id
-	@SequenceGenerator(name = "QuizGen", sequenceName = "quiz_seq", allocationSize = 1)
-	@GeneratedValue(generator = "QuizGen")
-	private long id;
-
 	private QuizType type;
 
 	/** This is only used to identify where to store this quiz. */
@@ -69,15 +52,10 @@ public class Quiz implements Cloneable, Serializable {
 
 	private String question;
 
-	@OneToMany(cascade = { CascadeType.ALL })
 	private List<HttpResourceFile> questionResources = new ArrayList<>();
 
-	@ElementCollection
-	@CollectionTable(name = "QuizOptions", joinColumns = @JoinColumn(name = "id"))
-	@Column(name = "option")
 	private List<String> options = new ArrayList<>();
 
-	@OneToMany(cascade = { CascadeType.ALL })
 	private List<RegexRule> regexRules = new ArrayList<>();
 
 	private InputFieldFilter filter = new InputFieldFilter();

@@ -18,8 +18,21 @@
 
 package org.lecturestudio.web.api.filter;
 
+import com.fasterxml.jackson.annotation.JsonSubTypes;
+import com.fasterxml.jackson.annotation.JsonSubTypes.Type;
+import com.fasterxml.jackson.annotation.JsonTypeInfo;
+import com.fasterxml.jackson.annotation.JsonTypeInfo.Id;
+
 import java.io.Serializable;
 
+@JsonTypeInfo(
+		use = Id.NAME,
+		property = "type")
+@JsonSubTypes({
+		@Type(value = IpRangeRule.class, name = "ip-range"),
+		@Type(value = MinMaxRule.class, name = "min-max"),
+		@Type(value = RegexRule.class, name = "regex")
+})
 public interface FilterRule<T> extends Serializable {
 
 	boolean isAllowed(T value);

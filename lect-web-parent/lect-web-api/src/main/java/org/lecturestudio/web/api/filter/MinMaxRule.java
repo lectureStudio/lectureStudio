@@ -25,13 +25,17 @@ public class MinMaxRule implements InputFieldRule<String>, Serializable {
 
 	private static final long serialVersionUID = 827184938853275192L;
 
-	private final int min;
+	private int min;
 
-	private final int max;
+	private int max;
 
 	/** Bind input field to this rule. */
-	private final int fieldId;
+	private int fieldId;
 
+
+	public MinMaxRule() {
+
+	}
 
 	public MinMaxRule(int min, int max, int fieldId) {
 		this.min = min;
@@ -39,12 +43,24 @@ public class MinMaxRule implements InputFieldRule<String>, Serializable {
 		this.fieldId = fieldId;
 	}
 
+	public void setMin(int min) {
+		this.min = min;
+	}
+
 	public int getMin() {
 		return min;
 	}
 
+	public void setMax(int max) {
+		this.max = max;
+	}
+
 	public int getMax() {
 		return max;
+	}
+
+	public void setFieldId(int fieldId) {
+		this.fieldId = fieldId;
 	}
 
 	public int getFieldId() {

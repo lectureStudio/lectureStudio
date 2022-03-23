@@ -1496,10 +1496,12 @@ public class SwingSlidesView extends JPanel implements SlidesView {
 
 			@Override
 			public void mouseDragged(MouseEvent e) {
-				double paneWidth = pane.getWidth();
-				double value = pane.getDividerLocation() / paneWidth;
-
-				property.set(value);
+				if (pane.getOrientation() == JSplitPane.HORIZONTAL_SPLIT) {
+					property.set(pane.getDividerLocation() / (double) pane.getWidth());
+				}
+				else {
+					property.set(pane.getDividerLocation() / (double) pane.getHeight());
+				}
 			}
 		});
 	}

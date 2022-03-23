@@ -440,8 +440,11 @@ public class PDFGraphics2D extends Graphics2D {
 					if (color.getAlpha() == 0) {
 						return;
 					}
+
+					// Create alpha painting command.
+					applyAlpha(color);
 				}
-				
+
 				stream.setStrokingColor(getBackground());
 				stream.setNonStrokingColor(getColor());
 
@@ -973,8 +976,8 @@ public class PDFGraphics2D extends Graphics2D {
 		// Create blending graphics state.
 		PDExtendedGraphicsState extGState = new PDExtendedGraphicsState();
 		extGState.getCOSObject().setName(COSName.BM, COSName.MULTIPLY.getName());
-		extGState.setStrokingAlphaConstant(alpha / 255f);
-		extGState.setNonStrokingAlphaConstant(alpha / 255f);
+//		extGState.setStrokingAlphaConstant(alpha / 255f);
+//		extGState.setNonStrokingAlphaConstant(alpha / 255f);
 
 		try {
 			stream.setGraphicsStateParameters(extGState);

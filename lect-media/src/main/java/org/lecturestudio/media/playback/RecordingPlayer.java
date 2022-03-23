@@ -21,7 +21,9 @@ package org.lecturestudio.media.playback;
 import static java.util.Objects.isNull;
 import static java.util.Objects.nonNull;
 
+import java.util.Arrays;
 import java.util.Iterator;
+import java.util.Optional;
 
 import org.lecturestudio.core.ExecutableBase;
 import org.lecturestudio.core.app.configuration.AudioConfiguration;
@@ -30,6 +32,7 @@ import org.lecturestudio.core.audio.AudioPlayer;
 import org.lecturestudio.core.audio.AudioSystemProvider;
 import org.lecturestudio.core.audio.SyncState;
 import org.lecturestudio.core.audio.bus.AudioBus;
+import org.lecturestudio.core.audio.device.AudioDevice;
 import org.lecturestudio.core.audio.source.AudioInputStreamSource;
 import org.lecturestudio.core.bus.ApplicationBus;
 import org.lecturestudio.core.controller.ToolController;
@@ -305,10 +308,19 @@ public class RecordingPlayer extends ExecutableBase {
 				sourceFormat.getSampleRate(), sourceFormat.getChannels());
 
 		audioStream.setAudioFormat(targetFormat);
-		
+
 		AudioInputStreamSource audioSource = new AudioInputStreamSource(audioStream, targetFormat);
 		String outputDeviceName = audioConfig.getPlaybackDeviceName();
 
+		Optional<AudioDevice> opt = Arrays.stream(audioSystemProvider
+						.getPlaybackDevices())
+				.filter(audioDevice -> audioDevice.getName()
+						.equals(audioConfig.getPlaybackDeviceName()))
+				.findFirst();
+
+		if (opt.isEmpty()) {
+			outputDeviceName = null;
+		}
 		if (isNull(outputDeviceName)) {
 			outputDeviceName = audioSystemProvider.getDefaultPlaybackDevice().getName();
 		}

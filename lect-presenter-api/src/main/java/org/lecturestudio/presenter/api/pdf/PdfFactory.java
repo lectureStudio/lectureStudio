@@ -234,6 +234,8 @@ public class PdfFactory {
 		Element table = jdoc.body().appendElement("table");
 		Element row = null;
 		String prefix = "";
+		String suffix = "";
+		int maxLength = 45;
 
 		for (int i = 0; i < options.size(); i++) {
 			if (i % 2 == 0) {
@@ -241,12 +243,18 @@ public class PdfFactory {
 			}
 
 			Element data = row.appendElement("td");
+			String text = options.get(i);
+			int textLength = text.length();
 
 			if (quiz.getType() != QuizType.NUMERIC) {
-				prefix = quiz.getOptionAlpha(i + "") + ") ";
+				prefix = quiz.getOptionAlpha(i + "");
+			}
+			if (textLength > maxLength) {
+				text = text.substring(0, maxLength);
+				suffix = "...";
 			}
 
-			data.text(prefix + options.get(i));
+			data.text(String.format("%s) %s%s", prefix, text, suffix));
 		}
 
 		renderHtml(jdoc.html(), context, x, y);

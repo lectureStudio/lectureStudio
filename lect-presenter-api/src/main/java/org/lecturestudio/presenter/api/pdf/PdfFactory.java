@@ -235,7 +235,12 @@ public class PdfFactory {
 		Element row = null;
 		String prefix = "";
 		String suffix = "";
-		int maxLength = 45;
+		int maxLength = 45;	// Option text not longer than one line.
+
+		if (options.size() < 7) {
+			// Allow option text to be two lines long.
+			maxLength = 95;
+		}
 
 		for (int i = 0; i < options.size(); i++) {
 			if (i % 2 == 0) {

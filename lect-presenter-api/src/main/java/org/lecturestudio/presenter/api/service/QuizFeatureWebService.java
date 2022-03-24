@@ -28,6 +28,7 @@ import java.net.URI;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.ThreadPoolExecutor;
@@ -182,6 +183,7 @@ public class QuizFeatureWebService extends FeatureServiceBase {
 		if (isNull(quizDocument)) {
 			// Add quiz document.
 			quizDocument = createQuizDocument(quizResult);
+			quizDocument.setUid(UUID.randomUUID());
 
 			Document prevQuizDoc = null;
 
@@ -266,6 +268,7 @@ public class QuizFeatureWebService extends FeatureServiceBase {
 		try {
 			Document oldDoc = quizDocument;
 			quizDocument = createQuizDocument(quizResult);
+			quizDocument.setUid(copyAnnotations ? oldDoc.getUid() : UUID.randomUUID());
 
 			documentService.replaceDocument(oldDoc, quizDocument, copyAnnotations);
 		}

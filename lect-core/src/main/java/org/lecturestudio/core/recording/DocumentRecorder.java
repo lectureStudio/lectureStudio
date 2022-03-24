@@ -238,6 +238,7 @@ public class DocumentRecorder extends ExecutableBase {
 					recDocument.setAuthor(pageDoc.getAuthor());
 					recDocument.setDocumentType(pageDoc.getType());
 					recDocument.setTitle(pageDoc.getName());
+					recDocument.setUid(pageDoc.getUid());
 
 					documentMap.put(pageDoc, recDocument);
 
@@ -248,6 +249,21 @@ public class DocumentRecorder extends ExecutableBase {
 				catch (IOException e) {
 					LOG.error("Record document failed", e);
 					return;
+				}
+			}
+			else {
+				boolean hasRecUid = nonNull(recDocument.getUid());
+				boolean hasDocUid = nonNull(pageDoc.getUid());
+
+				if (pageDoc.isQuiz() && hasRecUid && hasDocUid
+						&& recDocument.getUid().equals(pageDoc.getUid())
+						&& pageDoc.getPageIndex(page) == 0) {
+					// Do not record duplicate pages.
+					return;
+				}
+				if (pageDoc.isQuiz() && pageDoc.getPageIndex(page) == 0) {
+					// Change uid to record pages from different document source.
+					recDocument.setUid(pageDoc.getUid());
 				}
 			}
 		}

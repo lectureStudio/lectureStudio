@@ -668,6 +668,12 @@ public class SlidesPresenter extends Presenter<SlidesView> {
 	}
 
 	private void setPage(Page page) {
+		Document doc = documentService.getDocuments().getSelectedDocument();
+
+		if (nonNull(page) && page.getDocument() != doc) {
+			return;
+		}
+
 		PresentationParameterProvider ppProvider = context.getPagePropertyProvider(ViewType.User);
 		PresentationParameter parameter = ppProvider.getParameter(page);
 

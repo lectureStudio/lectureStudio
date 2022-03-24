@@ -30,8 +30,6 @@ import org.lecturestudio.core.model.Document;
 import org.lecturestudio.core.model.DocumentOutline;
 import org.lecturestudio.core.model.DocumentOutlineItem;
 import org.lecturestudio.core.model.Page;
-import org.lecturestudio.core.model.SlideNote;
-import org.lecturestudio.core.tool.ToolType;
 import org.lecturestudio.core.view.*;
 import org.lecturestudio.presenter.api.model.MessageBarPosition;
 import org.lecturestudio.presenter.api.config.SlideViewConfiguration;
@@ -66,8 +64,6 @@ public interface SlidesView extends View {
 	void setPage(Page page, PresentationParameter parameter);
 
 	void setPageRenderer(RenderController pageRenderer);
-
-	void setPageNotes(List<SlideNote> notes);
 
 	void setOutline(DocumentOutline outline);
 
@@ -109,11 +105,7 @@ public interface SlidesView extends View {
 
 	void setVideoFrameEvent(VideoFrameEvent event);
 
-	void setSelectedToolType(ToolType type);
-
 	void setOnKeyEvent(ConsumerAction<KeyEvent> action);
-
-	void setOnLaTeXText(ConsumerAction<String> action);
 
 	void setOnSelectDocument(ConsumerAction<Document> action);
 

@@ -59,8 +59,6 @@ import org.lecturestudio.core.model.Document;
 import org.lecturestudio.core.model.DocumentOutline;
 import org.lecturestudio.core.model.DocumentOutlineItem;
 import org.lecturestudio.core.model.Page;
-import org.lecturestudio.core.model.SlideNote;
-import org.lecturestudio.core.tool.ToolType;
 import org.lecturestudio.core.view.*;
 import org.lecturestudio.core.view.Action;
 import org.lecturestudio.presenter.api.model.MessageBarPosition;
@@ -420,29 +418,6 @@ public class SwingSlidesView extends JPanel implements SlidesView {
 	}
 
 	@Override
-	public void setPageNotes(List<SlideNote> notes) {
-		StringBuilder buffer = new StringBuilder();
-
-		if (nonNull(notes)) {
-			for (Iterator<SlideNote> notesIter = notes.iterator(); notesIter.hasNext(); ) {
-				buffer.append(notesIter.next().getText());
-
-				if (notesIter.hasNext()) {
-					buffer.append("\n");
-				}
-			}
-
-			// Show red highlight, if notes-view is hidden and page notes are available.
-			final int notesIndex = bottomTabPane.getPaneTabIndex(dict.get("slides.notes"));
-			if (bottomTabPane.getPaneSelectedIndex() != notesIndex && !notes.isEmpty()) {
-				bottomTabPane.setPaneBackgroundAt(notesIndex, new Color(255, 182, 193));
-			}
-		}
-
-		//notesTextArea.setText(buffer.toString());
-	}
-
-	@Override
 	public void setOutline(DocumentOutline outline) {
 		SwingUtils.invoke(() -> {
 			DefaultMutableTreeNode root = new DefaultMutableTreeNode("root");
@@ -705,18 +680,8 @@ public class SwingSlidesView extends JPanel implements SlidesView {
 	}
 
 	@Override
-	public void setSelectedToolType(ToolType type) {
-		// Remove
-	}
-
-	@Override
 	public void setOnKeyEvent(ConsumerAction<KeyEvent> action) {
 		keyAction = action;
-	}
-
-	@Override
-	public void setOnLaTeXText(ConsumerAction<String> action) {
-		// Remove
 	}
 
 	@Override

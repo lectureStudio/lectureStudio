@@ -57,7 +57,6 @@ import org.lecturestudio.presenter.api.event.*;
 import org.lecturestudio.presenter.api.input.Shortcut;
 import org.lecturestudio.presenter.api.model.MessageBarPosition;
 import org.lecturestudio.presenter.api.pdf.PdfFactory;
-import org.lecturestudio.presenter.api.pdf.embedded.SlideNoteParser;
 import org.lecturestudio.presenter.api.service.RecordingService;
 import org.lecturestudio.presenter.api.service.WebRtcStreamService;
 import org.lecturestudio.presenter.api.service.WebService;
@@ -101,8 +100,6 @@ public class SlidesPresenter extends Presenter<SlidesView> {
 	private final WebRtcStreamService streamService;
 
 	private StylusHandler stylusHandler;
-
-	private PageObjectView<?> lastFocusedObjectView;
 
 	private PageEditedListener pageEditedListener;
 
@@ -490,7 +487,6 @@ public class SlidesPresenter extends Presenter<SlidesView> {
 		setFocusedTeXView(null);
 
 		view.removeAllPageObjectViews();
-		view.setSelectedToolType(toolType);
 
 		loadPageObjectViews(view.getPage());
 	}
@@ -558,8 +554,6 @@ public class SlidesPresenter extends Presenter<SlidesView> {
 		if (nonNull(teXBoxView)) {
 			texText = teXBoxView.getText();
 		}
-
-		lastFocusedObjectView = teXBoxView;
 
 		view.setLaTeXText(texText);
 	}
@@ -677,15 +671,6 @@ public class SlidesPresenter extends Presenter<SlidesView> {
 		PresentationParameterProvider ppProvider = context.getPagePropertyProvider(ViewType.User);
 		PresentationParameter parameter = ppProvider.getParameter(page);
 
-		List<SlideNote> embeddedNotes = null;
-
-		if (nonNull(page)) {
-			SlideNoteParser parser = new SlideNoteParser();
-			parser.parse(page.getPageText());
-
-			embeddedNotes = parser.getSlideNotes();
-		}
-
 		stylusHandler.setPresentationParameter(parameter);
 
 		if (nonNull(view.getPage())) {
@@ -700,7 +685,6 @@ public class SlidesPresenter extends Presenter<SlidesView> {
 
 		view.removeAllPageObjectViews();
 		view.setPage(page, parameter);
-		view.setPageNotes(embeddedNotes);
 
 		loadPageObjectViews(page);
 
@@ -757,15 +741,6 @@ public class SlidesPresenter extends Presenter<SlidesView> {
 		view.addPageObjectView(objectView);
 
 		return objectView;
-	}
-
-	private void setLaTeXText(String text) {
-		if (isNull(lastFocusedObjectView)) {
-			return;
-		}
-
-		TeXBoxView teXBoxView = (TeXBoxView) lastFocusedObjectView;
-		teXBoxView.setText(text);
 	}
 
 	private void setViewTransform(Matrix matrix) {
@@ -904,7 +879,6 @@ public class SlidesPresenter extends Presenter<SlidesView> {
 		view.setOnSelectPage(this::selectPage);
 		view.setOnSelectDocument(this::selectDocument);
 		view.setOnViewTransform(this::setViewTransform);
-		view.setOnLaTeXText(this::setLaTeXText);
 
 		view.setOnAcceptSpeech(this::onAcceptSpeech);
 		view.setOnRejectSpeech(this::onRejectSpeech);

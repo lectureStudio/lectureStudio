@@ -157,7 +157,7 @@ public class SlideView extends JComponent implements org.lecturestudio.core.view
 			renderer.setPresentationParameter(pParameter);
 			renderer.setPage(page);
 
-			setBounds(getBounds());
+			onBoundsChanged(getBounds());
 			renderPage();
 		}
 	}
@@ -355,7 +355,8 @@ public class SlideView extends JComponent implements org.lecturestudio.core.view
 
 		Dimension2D size = getViewSize(new Rectangle(x, y, width, height));
 
-		if (size.getWidth() == canvasBounds.getWidth() || size.getHeight() == canvasBounds.getHeight()) {
+		if (size.getWidth() == canvasBounds.getWidth()
+				&& size.getHeight() == canvasBounds.getHeight()) {
 			return;
 		}
 

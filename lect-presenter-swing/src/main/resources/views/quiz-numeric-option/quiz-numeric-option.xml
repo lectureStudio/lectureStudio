@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Panel layout="BorderLayout(10, 0)">
-	<Label text="quiz.default.option.description" constraints="BorderLayout.WEST" />
+	<Label text="quiz.numeric.option.description" constraints="BorderLayout.WEST" />
 	<Panel layout="BorderLayout(10, 0)" constraints="BorderLayout.CENTER">
 		<TextField id="optionTextField" text="" constraints="BorderLayout.CENTER" />
 		<HBox constraints="BorderLayout.EAST">

@@ -78,14 +78,20 @@ public class QuizTableModel extends TableModelBase<Quiz> {
 		return -1;
 	}
 
-	private static Icon getSetIcon(QuizSet set) {
-		switch (set) {
-			case DOCUMENT_SPECIFIC:
-				return DOC_TYPE;
-
-			default:
-				return null;
+	@Override
+	public Class<?> getColumnClass(int columnIndex) {
+		if (columnIndex == 0) {
+			return Icon.class;
 		}
+
+		return super.getColumnClass(columnIndex);
+	}
+
+	private static Icon getSetIcon(QuizSet set) {
+		if (set == QuizSet.DOCUMENT_SPECIFIC) {
+			return DOC_TYPE;
+		}
+		return null;
 	}
 
 	private static Icon getTypeIcon(QuizType type) {

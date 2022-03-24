@@ -205,7 +205,8 @@ public class SlidesPresenter extends Presenter<SlidesView> {
 			Document doc = documentService.getDocuments().getSelectedDocument();
 
 			recordPage(doc.getCurrentPage());
-		} catch (Exception e) {
+		}
+		catch (Exception e) {
 			logException(e, "Restart document recording failed");
 		}
 	}

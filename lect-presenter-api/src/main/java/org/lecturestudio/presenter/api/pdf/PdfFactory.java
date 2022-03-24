@@ -252,14 +252,14 @@ public class PdfFactory {
 			int textLength = text.length();
 
 			if (quiz.getType() != QuizType.NUMERIC) {
-				prefix = quiz.getOptionAlpha(i + "");
+				prefix = quiz.getOptionAlpha(i + "") + ")";
 			}
 			if (textLength > maxLength) {
 				text = text.substring(0, maxLength);
 				suffix = "...";
 			}
 
-			data.text(String.format("%s) %s%s", prefix, text, suffix));
+			data.text(String.format("%s %s%s", prefix, text, suffix));
 		}
 
 		renderHtml(jdoc.html(), context, x, y);

@@ -30,6 +30,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
+import java.util.UUID;
 
 import org.lecturestudio.core.geometry.Dimension2D;
 import org.lecturestudio.core.geometry.Rectangle2D;
@@ -77,6 +78,9 @@ public class Document {
 	/** The index of the current page. */
 	private int currentPageNumber = 0;
 
+	/** The unique ID of this document. */
+	private UUID uid;
+
 
 	/**
 	 * Create a new {@link Document}.
@@ -119,6 +123,26 @@ public class Document {
 	public Document(PdfDocument pdfDocument) {
 		init(pdfDocument);
 		setPageSize(new Dimension2D(640, 480));
+	}
+
+	/**
+	 * Get unique document ID. The unique ID can be used to differentiate
+	 * documents of same type but with different internal content.
+	 *
+	 * @return The unique document ID.
+	 */
+	public UUID getUid() {
+		return uid;
+	}
+
+	/**
+	 * Set unique document ID. The unique ID can be used to differentiate
+	 * documents of same type but with different internal content.
+	 *
+	 * @param uid The unique document ID.
+	 */
+	public void setUid(UUID uid) {
+		this.uid = uid;
 	}
 
 	/**

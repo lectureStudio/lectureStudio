@@ -221,6 +221,15 @@ public class ThumbPanel extends JPanel {
 
 		Dimension size = getThumbSize(scrollPane.getViewport().getWidth());
 
+		// First pass.
+		list.setFixedCellHeight(size.height);
+		list.setFixedCellWidth(size.width);
+
+		scrollPane.validate();
+
+		// Second pass, to take the scroll-bar into account.
+		size = getThumbSize(scrollPane.getViewport().getWidth());
+
 		pageRenderer.setPreferredSize(size);
 
 		list.setFixedCellHeight(size.height);

@@ -1513,7 +1513,6 @@ public class SwingSlidesView extends JPanel implements SlidesView {
 
 	private BufferedImage convertVideoFrame(VideoFrame videoFrame, BufferedImage image) throws Exception {
 		VideoFrameBuffer buffer = videoFrame.buffer;
-		buffer.retain();
 		int width = buffer.getWidth();
 		int height = buffer.getHeight();
 

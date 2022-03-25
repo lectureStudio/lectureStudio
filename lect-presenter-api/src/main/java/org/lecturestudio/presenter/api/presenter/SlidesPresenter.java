@@ -463,18 +463,11 @@ public class SlidesPresenter extends Presenter<SlidesView> {
 	}
 
 	private Document createMessageDocument(final String message) throws Exception {
-		Document prevDoc = documentService.getDocuments().getSelectedDocument();
-
 		Document doc = new Document();
 		doc.setTitle(context.getDictionary().get("slides.message"));
 		doc.setDocumentType(DocumentType.MESSAGE);
-
-		if (nonNull(prevDoc)) {
-			Rectangle2D rect = prevDoc.getPage(0).getPageRect();
-			doc.setPageSize(new Dimension2D(rect.getWidth(), rect.getHeight()));
-		}
-
 		doc.createPage();
+
 		PdfFactory.createMessagePage(doc.getPdfDocument(), message);
 		doc.reload();
 

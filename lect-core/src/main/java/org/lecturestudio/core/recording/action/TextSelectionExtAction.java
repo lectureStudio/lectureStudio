@@ -75,7 +75,8 @@ public class TextSelectionExtAction extends PlaybackAction {
 
 		if (it.hasNext()) {
 			Rectangle2D rect = it.next();
-			PenPoint2D point = new PenPoint2D(rect.getX(), rect.getY());
+			PenPoint2D point = new PenPoint2D(rect.getX() + rect.getWidth() / 2,
+					rect.getY() + rect.getHeight() / 2);
 
 			controller.beginToolAction(point);
 			controller.executeToolAction(point);

@@ -351,8 +351,9 @@ public class JanusPeerConnection implements PeerConnectionObserver {
 	}
 
 	public void setCameraDevice(VideoDevice device) {
-		Objects.requireNonNull(device);
-
+		if (isNull(device)) {
+			return;
+		}
 		if (Objects.equals(cameraDevice, device)) {
 			return;
 		}

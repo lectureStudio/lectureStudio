@@ -327,6 +327,11 @@ public class CustomizedToolbar extends JPanel {
 				String[] contents = getContents(p);
 				updateContents(contents);
 				dtde.acceptDrag(DnDConstants.ACTION_MOVE);
+
+				JComponent component = getComponent(draggingComponent);
+				if (component != null) {
+					component.setVisible(true);
+				}
 			}
 		}
 

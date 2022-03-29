@@ -18,15 +18,17 @@
 
 package org.lecturestudio.core.model;
 
+import static java.util.Objects.nonNull;
+
+import java.io.IOException;
 import java.net.URL;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.Enumeration;
 import java.util.Objects;
 import java.util.jar.Attributes;
 import java.util.jar.JarFile;
 import java.util.jar.Manifest;
-
-import org.lecturestudio.core.io.ResourceLoader;
 
 /**
  * Version information container.
@@ -59,7 +61,8 @@ public class VersionInfo {
 	/**
 	 * Retrieves the version of the running application. The version of deployed
 	 * applications will be retrieved from the {@code Package-Version} entry in
-	 * the application's manifest. The default value is {@code 999.999.999-snapshot}.
+	 * the application's manifest. The default value is {@code
+	 * 999.999.999-snapshot}.
 	 *
 	 * @return The application version.
 	 */
@@ -67,9 +70,7 @@ public class VersionInfo {
 		String version;
 
 		try {
-			Manifest manifest = new Manifest(ResourceLoader.getResourceAsStream(JarFile.MANIFEST_NAME));
-			Attributes attr = manifest.getMainAttributes();
-			version = attr.getValue("Package-Version");
+			version = getManifestValue("Package-Version");
 
 			Objects.requireNonNull(version);
 		}
@@ -84,7 +85,8 @@ public class VersionInfo {
 	/**
 	 * Retrieves the application publish date. The date of deployed applications
 	 * will be retrieved from the {@code Build-Date} entry in the application's
-	 * manifest. The default value is the current date-time from the system clock.
+	 * manifest. The default value is the current date-time from the system
+	 * clock.
 	 *
 	 * @return The application publish date.
 	 */
@@ -92,9 +94,7 @@ public class VersionInfo {
 		LocalDateTime date;
 
 		try {
-			Manifest manifest = new Manifest(ResourceLoader.getResourceAsStream(JarFile.MANIFEST_NAME));
-			Attributes attr = manifest.getMainAttributes();
-			String pkgBuildDate = attr.getValue("Build-Date");
+			String pkgBuildDate = getManifestValue("Build-Date");
 
 			DateTimeFormatter pkgDateFormatter = DateTimeFormatter
 					.ofPattern("yyyy-MM-dd HH:mm");
@@ -107,5 +107,30 @@ public class VersionInfo {
 		}
 
 		return date;
+	}
+
+	private static String getManifestValue(String key) throws IOException {
+		String value = null;
+		Enumeration<URL> resources = VersionInfo.class.getClassLoader()
+				.getResources(JarFile.MANIFEST_NAME);
+
+		while (resources.hasMoreElements()) {
+			try {
+				Manifest manifest = new Manifest(resources.nextElement()
+						.openStream());
+
+				Attributes attr = manifest.getMainAttributes();
+				value = attr.getValue(key);
+
+				if (nonNull(value)) {
+					break;
+				}
+			}
+			catch (Exception e) {
+				// Ignore.
+			}
+		}
+
+		return value;
 	}
 }

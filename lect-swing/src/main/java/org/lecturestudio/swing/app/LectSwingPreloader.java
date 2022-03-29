@@ -18,7 +18,6 @@
 
 package org.lecturestudio.swing.app;
 
-import static java.util.Objects.isNull;
 import static java.util.Objects.nonNull;
 
 import java.awt.Color;
@@ -32,13 +31,12 @@ import java.awt.image.BufferedImage;
 import java.io.FileInputStream;
 import java.io.InputStream;
 import java.net.URL;
-import java.util.jar.Attributes;
-import java.util.jar.JarFile;
-import java.util.jar.Manifest;
 
 import javax.imageio.ImageIO;
 import javax.swing.JComponent;
 import javax.swing.JPanel;
+
+import org.lecturestudio.core.model.VersionInfo;
 
 public class LectSwingPreloader extends SwingPreloader {
 
@@ -58,7 +56,7 @@ public class LectSwingPreloader extends SwingPreloader {
 				Graphics2D g2 = (Graphics2D) g;
 
 				StringBuilder builder = new StringBuilder();
-				builder.append(getVersion());
+				builder.append(VersionInfo.getAppVersion());
 
 				FontMetrics fontMetrics = g2.getFontMetrics(versionFont);
 				int width = fontMetrics.stringWidth(builder.toString());
@@ -75,26 +73,6 @@ public class LectSwingPreloader extends SwingPreloader {
 		panel.setPreferredSize(new Dimension(width, height));
 
 		return panel;
-	}
-
-	private static String getVersion() {
-		String version = null;
-
-		try {
-			Manifest manifest = new Manifest(SwingPreloader.class.getClassLoader().getResourceAsStream(JarFile.MANIFEST_NAME));
-			Attributes attr = manifest.getMainAttributes();
-			version = attr.getValue("Package-Version");
-		}
-		catch (Exception e) {
-			// Ignore
-		}
-
-		if (isNull(version)) {
-			// Set default version.
-			version = "1.0";
-		}
-
-		return version;
 	}
 
 	/**

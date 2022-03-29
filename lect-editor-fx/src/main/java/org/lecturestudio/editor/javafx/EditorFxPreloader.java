@@ -18,16 +18,10 @@
 
 package org.lecturestudio.editor.javafx;
 
-import static java.util.Objects.isNull;
-
-import java.util.jar.Attributes;
-import java.util.jar.JarFile;
-import java.util.jar.Manifest;
-
 import javafx.scene.Node;
 import javafx.scene.Scene;
 
-import org.lecturestudio.core.io.ResourceLoader;
+import org.lecturestudio.core.model.VersionInfo;
 import org.lecturestudio.javafx.app.JavaFxPreloader;
 import org.lecturestudio.javafx.control.Splash;
 
@@ -38,29 +32,9 @@ public class EditorFxPreloader extends JavaFxPreloader {
 		scene.getStylesheets().add("resources/css/splash.css");
 
 		Splash splash = new Splash();
-		splash.setVersion(getVersion());
+		splash.setVersion(VersionInfo.getAppVersion());
 
 		return splash;
-	}
-
-	private String getVersion() {
-		String version = null;
-
-		try {
-			Manifest manifest = new Manifest(ResourceLoader.getResourceAsStream(JarFile.MANIFEST_NAME));
-			Attributes attr = manifest.getMainAttributes();
-			version = attr.getValue("Package-Version");
-		}
-		catch (Exception e) {
-			// Ignore
-		}
-
-		if (isNull(version)) {
-			// Set default version.
-			version = "1.0";
-		}
-
-		return version;
 	}
 
 }

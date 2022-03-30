@@ -24,7 +24,6 @@ import static java.util.Objects.nonNull;
 import java.util.List;
 
 import javax.inject.Inject;
-import javax.inject.Named;
 
 import org.lecturestudio.core.app.ApplicationContext;
 import org.lecturestudio.core.presenter.Presenter;
@@ -34,6 +33,7 @@ import org.lecturestudio.presenter.api.config.PresenterConfiguration;
 import org.lecturestudio.presenter.api.config.StreamConfiguration;
 import org.lecturestudio.presenter.api.context.PresenterContext;
 import org.lecturestudio.presenter.api.presenter.command.ShowSettingsCommand;
+import org.lecturestudio.presenter.api.service.WebServiceInfo;
 import org.lecturestudio.presenter.api.view.StartCourseFeatureView;
 import org.lecturestudio.web.api.service.ServiceParameters;
 import org.lecturestudio.web.api.stream.model.Course;
@@ -41,19 +41,20 @@ import org.lecturestudio.web.api.stream.service.StreamProviderService;
 
 public class StartCourseFeaturePresenter extends Presenter<StartCourseFeatureView> {
 
+	private final WebServiceInfo webServiceInfo;
+
 	private Course course;
 
 	/** The action that is executed when the saving process has been aborted. */
 	private Action startAction;
 
-	@Inject
-	@Named("stream.publisher.api.url")
-	private String streamPublisherApiUrl;
-
 
 	@Inject
-	StartCourseFeaturePresenter(ApplicationContext context, StartCourseFeatureView view) {
+	StartCourseFeaturePresenter(ApplicationContext context,
+			StartCourseFeatureView view, WebServiceInfo webServiceInfo) {
 		super(context, view);
+
+		this.webServiceInfo = webServiceInfo;
 	}
 
 	@Override
@@ -142,7 +143,7 @@ public class StartCourseFeaturePresenter extends Presenter<StartCourseFeatureVie
 		StreamConfiguration streamConfig = config.getStreamConfig();
 
 		ServiceParameters parameters = new ServiceParameters();
-		parameters.setUrl(streamPublisherApiUrl);
+		parameters.setUrl(webServiceInfo.getStreamPublisherApiUrl());
 
 		StreamProviderService streamProviderService = new StreamProviderService(
 				parameters, streamConfig::getAccessToken);

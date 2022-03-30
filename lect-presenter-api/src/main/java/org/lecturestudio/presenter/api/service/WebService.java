@@ -26,7 +26,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import javax.inject.Inject;
-import javax.inject.Named;
 import javax.inject.Singleton;
 
 import org.lecturestudio.core.ExecutableBase;
@@ -68,17 +67,11 @@ public class WebService extends ExecutableBase {
 
 	private final DocumentService documentService;
 
+	private final WebServiceInfo webServiceInfo;
+
 	private final List<FeatureServiceBase> startedServices;
 
 	private MessageTransport messageTransport;
-
-	@Inject
-	@Named("publisher.api.message.url")
-	private String publisherMessageApiUrl;
-
-	@Inject
-	@Named("stream.publisher.api.url")
-	private String streamPublisherApiUrl;
 
 	private Quiz lastQuiz;
 
@@ -86,10 +79,12 @@ public class WebService extends ExecutableBase {
 	@Inject
 	public WebService(ApplicationContext context,
 			DocumentService documentService,
-			LocalBroadcaster localBroadcaster) {
+			LocalBroadcaster localBroadcaster,
+			WebServiceInfo webServiceInfo) {
 		this.context = context;
 		this.documentService = documentService;
 		this.localBroadcaster = localBroadcaster;
+		this.webServiceInfo = webServiceInfo;
 		this.startedServices = new ArrayList<>();
 
 		Runtime.getRuntime().addShutdownHook(new Thread(() -> {
@@ -125,7 +120,7 @@ public class WebService extends ExecutableBase {
 			initMessageTransport();
 
 			startService(new MessageFeatureWebService(context,
-					createFeatureService(streamPublisherApiUrl,
+					createFeatureService(webServiceInfo.getStreamPublisherApiUrl(),
 							MessageFeatureService.class)));
 		}
 		catch (Exception e) {
@@ -193,7 +188,7 @@ public class WebService extends ExecutableBase {
 				initMessageTransport();
 
 				service = new QuizFeatureWebService(context,
-						createFeatureService(streamPublisherApiUrl,
+						createFeatureService(webServiceInfo.getStreamPublisherApiUrl(),
 								QuizFeatureService.class), documentService);
 			}
 			catch (Exception e) {
@@ -358,7 +353,7 @@ public class WebService extends ExecutableBase {
 
 	private MessageTransport createMessageTransport() {
 		ServiceParameters messageApiParameters = new ServiceParameters();
-		messageApiParameters.setUrl(publisherMessageApiUrl);
+		messageApiParameters.setUrl(webServiceInfo.getStreamMessageApiUrl());
 
 		PresenterContext pContext = (PresenterContext) context;
 		PresenterConfiguration config = (PresenterConfiguration) context.getConfiguration();

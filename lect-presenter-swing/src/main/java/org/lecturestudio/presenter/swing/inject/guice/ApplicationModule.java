@@ -61,6 +61,7 @@ import org.lecturestudio.presenter.api.config.PresenterConfiguration;
 import org.lecturestudio.presenter.api.context.PresenterContext;
 import org.lecturestudio.presenter.api.recording.FileLectureRecorder;
 import org.lecturestudio.presenter.api.service.QuizDataSource;
+import org.lecturestudio.presenter.api.service.WebServiceInfo;
 import org.lecturestudio.swing.AwtPresentationViewFactory;
 import org.lecturestudio.swing.DefaultRenderContext;
 import org.lecturestudio.swing.service.AwtDisplayService;
@@ -218,4 +219,23 @@ public class ApplicationModule extends AbstractModule {
 		};
 	}
 
+	@Provides
+	@Singleton
+	WebServiceInfo provideWebServiceInfo(Configuration config) {
+		PresenterConfiguration pConfig = (PresenterConfiguration) config;
+		Properties streamProps = new Properties();
+
+		try {
+			streamProps.load(getClass().getClassLoader()
+					.getResourceAsStream("resources/stream.properties"));
+		}
+		catch (IOException e) {
+			LOG.error("Load stream properties failed", e);
+		}
+
+		WebServiceInfo webServiceInfo = new WebServiceInfo(streamProps);
+		webServiceInfo.setServerName(pConfig.getStreamConfig().serverNameProperty());
+
+		return webServiceInfo;
+	}
 }

@@ -20,7 +20,6 @@ package org.lecturestudio.presenter.swing.view;
 
 import java.awt.Color;
 import java.util.List;
-import java.util.ResourceBundle;
 import java.util.Vector;
 
 import javax.inject.Inject;
@@ -47,7 +46,7 @@ import org.lecturestudio.swing.view.SwingView;
 @SwingView(name = "stream-settings", presenter = org.lecturestudio.presenter.api.presenter.StreamSettingsPresenter.class)
 public class SwingStreamSettingsView extends JPanel implements StreamSettingsView {
 
-	private final ResourceBundle resourceBundle;
+	private JTextField serverNameTextField;
 
 	private JTextField accessTokenTextField;
 
@@ -79,10 +78,8 @@ public class SwingStreamSettingsView extends JPanel implements StreamSettingsVie
 
 
 	@Inject
-	SwingStreamSettingsView(ResourceBundle resourceBundle) {
+	SwingStreamSettingsView() {
 		super();
-
-		this.resourceBundle = resourceBundle;
 	}
 
 	@Override
@@ -98,6 +95,11 @@ public class SwingStreamSettingsView extends JPanel implements StreamSettingsVie
 		else {
 			accessTokenTextField.setBackground(Color.decode("#FEE2E2"));
 		}
+	}
+
+	@Override
+	public void setServerName(StringProperty serverName) {
+		SwingUtils.bindBidirectional(serverNameTextField, serverName);
 	}
 
 	@Override

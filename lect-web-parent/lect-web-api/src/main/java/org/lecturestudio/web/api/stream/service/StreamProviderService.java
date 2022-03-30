@@ -49,7 +49,8 @@ public class StreamProviderService extends ProviderService {
 	 * @param tokenProvider The access token provider.
 	 */
 	@Inject
-	public StreamProviderService(ServiceParameters parameters, TokenProvider tokenProvider) {
+	public StreamProviderService(ServiceParameters parameters,
+			TokenProvider tokenProvider) {
 		RestClientBuilder builder = createClientBuilder(parameters);
 		builder.property(TokenProvider.class.getName(), tokenProvider);
 

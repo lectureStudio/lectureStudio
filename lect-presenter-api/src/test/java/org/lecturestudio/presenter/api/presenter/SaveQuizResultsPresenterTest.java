@@ -22,8 +22,10 @@ import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.io.File;
+import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.Properties;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.atomic.AtomicReference;
 
@@ -35,6 +37,7 @@ import org.lecturestudio.core.view.FileChooserView;
 import org.lecturestudio.core.view.View;
 import org.lecturestudio.presenter.api.net.LocalBroadcaster;
 import org.lecturestudio.presenter.api.service.WebService;
+import org.lecturestudio.presenter.api.service.WebServiceInfo;
 import org.lecturestudio.presenter.api.view.SaveQuizResultsView;
 
 import org.junit.jupiter.api.BeforeEach;
@@ -119,14 +122,21 @@ class SaveQuizResultsPresenterTest extends PresenterTest {
 	}
 
 	@Test
-	void testNoQuizResult() throws InterruptedException {
+	void testNoQuizResult() throws InterruptedException, IOException {
 		AtomicReference<String> errorRef = new AtomicReference<>();
 		CountDownLatch errorLatch = new CountDownLatch(1);
 
 		SaveQuizResultsMockView view = new SaveQuizResultsMockView();
 
 		LocalBroadcaster localBroadcaster = new LocalBroadcaster(context);
-		WebService webService = new WebService(context, context.getDocumentService(), localBroadcaster);
+
+		Properties streamProps = new Properties();
+		streamProps.load(getClass().getClassLoader()
+				.getResourceAsStream("resources/stream.properties"));
+
+		WebServiceInfo webServiceInfo = new WebServiceInfo(streamProps);
+
+		WebService webService = new WebService(context, context.getDocumentService(), localBroadcaster, webServiceInfo);
 
 		SaveQuizResultsPresenter presenter = new SaveQuizResultsPresenter(context, view, viewFactory, webService);
 		presenter.initialize();

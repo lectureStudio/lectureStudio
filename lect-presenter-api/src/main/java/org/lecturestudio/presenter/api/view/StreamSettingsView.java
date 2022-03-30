@@ -32,6 +32,8 @@ public interface StreamSettingsView extends SettingsBaseView {
 
 	void setAccessTokenValid(boolean valid);
 
+	void setServerName(StringProperty serverName);
+
 	void setOnCheckAccessToken(Action action);
 
 	void setStreamAudioFormat(ObjectProperty<AudioFormat> audioFormat);

@@ -28,6 +28,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
 import java.util.List;
+import java.util.Properties;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
@@ -45,6 +46,7 @@ import org.lecturestudio.presenter.api.service.QuizDataSource;
 import org.lecturestudio.presenter.api.service.QuizService;
 import org.lecturestudio.presenter.api.service.StreamService;
 import org.lecturestudio.presenter.api.service.WebService;
+import org.lecturestudio.presenter.api.service.WebServiceInfo;
 import org.lecturestudio.presenter.api.view.SelectQuizView;
 import org.lecturestudio.web.api.model.quiz.Quiz;
 
@@ -75,7 +77,13 @@ class SelectQuizPresenterPresenter extends PresenterTest {
 
 		quizService = new QuizService(new QuizDataSource(new File(quizzesFile)), documentService);
 
-		webService = new WebService(context, documentService, new LocalBroadcaster(context));
+		Properties streamProps = new Properties();
+		streamProps.load(getClass().getClassLoader()
+				.getResourceAsStream("resources/stream.properties"));
+
+		WebServiceInfo webServiceInfo = new WebServiceInfo(streamProps);
+
+		webService = new WebService(context, documentService, new LocalBroadcaster(context), webServiceInfo);
 
 		streamService = new StreamService(context, null, webService);
 	}

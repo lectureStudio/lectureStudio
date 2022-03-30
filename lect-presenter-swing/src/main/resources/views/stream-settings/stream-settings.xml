@@ -6,71 +6,23 @@
 		<TitledSeparator text="stream.settings.web.api" name="extendedUI">
 			<gridbagconstraints gridx="0" gridy="0" gridwidth="2" anchor="GridBagConstraints.WEST" weightx="1.0" fill="GridBagConstraints.HORIZONTAL" insets="5,0,5,0" />
 		</TitledSeparator>
-		<Label text="stream.settings.access.token">
-			<gridbagconstraints gridx="0" gridy="1" anchor="GridBagConstraints.WEST" insets="5,0,2,15" />
+		<Label text="stream.settings.server.name">
+			<gridbagconstraints gridx="0" gridy="1" gridwidth="2" anchor="GridBagConstraints.WEST" insets="5,0,2,15" />
 		</Label>
-		<Label>
-			<gridbagconstraints gridx="2" gridy="1" anchor="GridBagConstraints.WEST" insets="5,0,2,0" />
-		</Label>
-		<TextField id="accessTokenTextField" columns="30">
+		<TextField id="serverNameTextField" columns="30">
 			<gridbagconstraints gridx="0" gridy="2" fill="GridBagConstraints.HORIZONTAL" anchor="GridBagConstraints.WEST" insets="5,0,15,10" />
 		</TextField>
+		<Label text="stream.settings.access.token">
+			<gridbagconstraints gridx="0" gridy="3" gridwidth="2" anchor="GridBagConstraints.WEST" insets="5,0,2,15" />
+		</Label>
+		<TextField id="accessTokenTextField" columns="30">
+			<gridbagconstraints gridx="0" gridy="4" fill="GridBagConstraints.HORIZONTAL" anchor="GridBagConstraints.WEST" insets="5,0,15,10" />
+		</TextField>
 		<Button id="updateCoursesButton" text="button.check">
-			<gridbagconstraints gridx="1" gridy="2" weightx="0.3" anchor="GridBagConstraints.WEST" insets="5,0,15,0" />
+			<gridbagconstraints gridx="1" gridy="4" weightx="0.3" anchor="GridBagConstraints.WEST" insets="5,0,15,0" />
 		</Button>
 	</Panel>
-	<!--
-	<TitledSeparator text="stream.settings.audio" name="extendedUI">
-		<gridbagconstraints gridx="0" gridy="1" gridwidth="2" anchor="GridBagConstraints.WEST" weightx="1.0" fill="GridBagConstraints.HORIZONTAL" insets="5,0,5,0" />
-	</TitledSeparator>
-	<Label text="stream.settings.audio.codec" name="extendedUI">
-		<gridbagconstraints gridx="0" gridy="2" anchor="GridBagConstraints.WEST" insets="5,0,2,15" />
-	</Label>
-	<ComboBox id="streamAudioCodecCombo" name="extendedUI">
-		<gridbagconstraints gridx="0" gridy="3" anchor="GridBagConstraints.WEST" insets="5,0,15,15" />
-	</ComboBox>
-	<Label text="stream.settings.audio.format" name="extendedUI">
-		<gridbagconstraints gridx="1" gridy="2" anchor="GridBagConstraints.WEST" insets="5,0,2,0" />
-	</Label>
-	<ComboBox id="streamAudioFormatCombo" name="extendedUI">
-		<gridbagconstraints gridx="1" gridy="3" anchor="GridBagConstraints.WEST" insets="5,0,15,0" />
-		<renderer class="org.lecturestudio.swing.combobox.AudioFormatRenderer" />
-	</ComboBox>
 
-	<TitledSeparator text="stream.settings.camera" name="extendedUI">
-		<gridbagconstraints gridx="0" gridy="2" gridwidth="2" anchor="GridBagConstraints.WEST" weightx="1.0" fill="GridBagConstraints.HORIZONTAL" insets="5,0,5,0" />
-	</TitledSeparator>
-	<Label text="stream.settings.camera.bitrate" name="extendedUI">
-		<gridbagconstraints gridx="0" gridy="3" anchor="GridBagConstraints.WEST" insets="5,0,2,0" />
-	</Label>
-	<TextField id="cameraBitrateTextField" name="extendedUI">
-		<gridbagconstraints gridx="0" gridy="4" anchor="GridBagConstraints.WEST" insets="5,0,15,0" />
-		<Filter class="org.lecturestudio.swing.filter.IntFilter" />
-	</TextField>
-
-	<TitledSeparator text="stream.settings.broadcast">
-		<gridbagconstraints gridx="0" gridy="7" gridwidth="2" anchor="GridBagConstraints.WEST" weightx="1.0" fill="GridBagConstraints.HORIZONTAL" insets="5,0,5,0" />
-	</TitledSeparator>
-	<HBox gap="5">
-		<gridbagconstraints gridx="0" gridy="8" gridwidth="2" weightx="1.0" fill="GridBagConstraints.HORIZONTAL" />
-		<Label id="selectedProfileLabel" text="stream.settings.broadcast.profile.selected" name="extendedUI" />
-		<box.hglue />
-		<Button id="addProfileButton" name="extendedUI" icon="add.svg, 20" text="button.new" />
-	</HBox>
-	<ScrollPane name="extendedUI">
-		<gridbagconstraints gridx="0" gridy="9" gridwidth="2" weightx="1" weighty="0.6" fill="GridBagConstraints.BOTH" anchor="GridBagConstraints.WEST" insets="5,0,5,0" />
-		<Table id="profileTable" autoCreateColumnsFromModel="false" fillsViewportHeight="true" rowHeight="25" selectionMode="ListSelectionModel.SINGLE_SELECTION">
-			<TableColumn headerValue="stream.settings.broadcast.name" />
-			<TableColumn headerValue="stream.settings.broadcast.address" />
-			<TableColumn headerValue="stream.settings.broadcast.port" maxWidth="150" />
-			<TableColumn headerValue="stream.settings.broadcast.port.tls" maxWidth="150" />
-			<TableColumn maxWidth="35">
-				<TableButtonRenderer icon="delete.svg, 20" toolTipText="stream.settings.broadcast.profile.delete" />
-				<TableButtonEditor icon="delete.svg, 20" action="deleteAction" />
-			</TableColumn>
-		</Table>
-	</ScrollPane>
-	-->
 	<box.vglue>
 		<gridbagconstraints gridx="0" gridy="5" weighty="1.0" />
 	</box.vglue>

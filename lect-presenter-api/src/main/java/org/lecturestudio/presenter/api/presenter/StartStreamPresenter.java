@@ -27,7 +27,6 @@ import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
 import javax.inject.Inject;
-import javax.inject.Named;
 
 import org.lecturestudio.core.Executable;
 import org.lecturestudio.core.ExecutableState;
@@ -54,6 +53,7 @@ import org.lecturestudio.presenter.api.config.PresenterConfiguration;
 import org.lecturestudio.presenter.api.config.StreamConfiguration;
 import org.lecturestudio.presenter.api.context.PresenterContext;
 import org.lecturestudio.presenter.api.presenter.command.ShowSettingsCommand;
+import org.lecturestudio.presenter.api.service.WebServiceInfo;
 import org.lecturestudio.presenter.api.view.StartStreamView;
 import org.lecturestudio.web.api.service.ServiceParameters;
 import org.lecturestudio.web.api.stream.StreamContext;
@@ -70,6 +70,8 @@ public class StartStreamPresenter extends Presenter<StartStreamView> {
 
 	private final CameraService camService;
 
+	private final WebServiceInfo webServiceInfo;
+
 	private Course course;
 
 	private ChangeListener<String> camListener;
@@ -79,10 +81,6 @@ public class StartStreamPresenter extends Presenter<StartStreamView> {
 
 	/** The action that is executed when the saving process has been aborted. */
 	private ConsumerAction<StreamContext> startAction;
-
-	@Inject
-	@Named("stream.publisher.api.url")
-	private String streamPublisherApiUrl;
 
 	private AudioRecorder testRecorder;
 
@@ -103,11 +101,13 @@ public class StartStreamPresenter extends Presenter<StartStreamView> {
 
 	@Inject
 	StartStreamPresenter(PresenterContext context, StartStreamView view,
-			AudioSystemProvider audioSystemProvider, CameraService camService) {
+			AudioSystemProvider audioSystemProvider, CameraService camService,
+			WebServiceInfo webServiceInfo) {
 		super(context, view);
 
 		this.audioSystemProvider = audioSystemProvider;
 		this.camService = camService;
+		this.webServiceInfo = webServiceInfo;
 
 		PresenterConfiguration config = (PresenterConfiguration) context.getConfiguration();
 		this.audioConfig = config.getAudioConfig();
@@ -251,7 +251,7 @@ public class StartStreamPresenter extends Presenter<StartStreamView> {
 
 	private List<Course> loadCourses() {
 		ServiceParameters parameters = new ServiceParameters();
-		parameters.setUrl(streamPublisherApiUrl);
+		parameters.setUrl(webServiceInfo.getStreamPublisherApiUrl());
 
 		StreamProviderService streamProviderService = new StreamProviderService(
 				parameters, streamConfig::getAccessToken);

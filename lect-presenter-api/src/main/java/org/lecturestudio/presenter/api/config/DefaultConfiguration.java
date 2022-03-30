@@ -119,6 +119,7 @@ public class DefaultConfiguration extends PresenterConfiguration {
 		getAudioConfig().setDefaultRecordingVolume(1.0f);
 		getAudioConfig().setMasterRecordingVolume(1.0f);
 
+		getStreamConfig().setServerName("lect.stream");
 		getStreamConfig().setAudioCodec("OPUS");
 		getStreamConfig().setAudioFormat(new AudioFormat(AudioFormat.Encoding.S16LE, 24000, 1));
 		getStreamConfig().getCameraCodecConfig().setBitRate(200);

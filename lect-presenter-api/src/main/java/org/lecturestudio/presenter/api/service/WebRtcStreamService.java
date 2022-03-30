@@ -28,10 +28,10 @@ import dev.onvoid.webrtc.media.video.VideoCaptureCapability;
 import dev.onvoid.webrtc.media.video.VideoDevice;
 
 import java.io.IOException;
+import java.text.MessageFormat;
 import java.util.List;
 
 import javax.inject.Inject;
-import javax.inject.Named;
 import javax.inject.Singleton;
 
 import org.lecturestudio.core.Executable;
@@ -86,21 +86,7 @@ public class WebRtcStreamService extends ExecutableBase {
 
 	private final ClientFailover clientFailover;
 
-	@Inject
-	@Named("stream.janus.websocket.url")
-	private String janusWebSocketUrl;
-
-	@Inject
-	@Named("stream.state.websocket.url")
-	private String streamStateWebSocketUrl;
-
-	@Inject
-	@Named("stream.publisher.api.url")
-	private String streamPublisherApiUrl;
-
-	@Inject
-	@Named("stream.stun.servers")
-	private String streamStunServers;
+	private final WebServiceInfo webServiceInfo;
 
 	private StreamContext streamContext;
 
@@ -125,9 +111,11 @@ public class WebRtcStreamService extends ExecutableBase {
 
 	@Inject
 	public WebRtcStreamService(ApplicationContext context,
+			WebServiceInfo webServiceInfo,
 			WebRtcStreamEventRecorder eventRecorder)
 			throws ExecutableException {
 		this.context = context;
+		this.webServiceInfo = webServiceInfo;
 		this.eventRecorder = eventRecorder;
 		this.clientFailover = new ClientFailover();
 		this.clientFailover.addStateListener((oldState, newState) -> {
@@ -433,10 +421,10 @@ public class WebRtcStreamService extends ExecutableBase {
 		StreamConfiguration streamConfig = config.getStreamConfig();
 
 		ServiceParameters stateWsParameters = new ServiceParameters();
-		stateWsParameters.setUrl(streamStateWebSocketUrl);
+		stateWsParameters.setUrl(webServiceInfo.getStreamStateWebSocketUrl());
 
 		ServiceParameters streamApiParameters = new ServiceParameters();
-		streamApiParameters.setUrl(streamPublisherApiUrl);
+		streamApiParameters.setUrl(webServiceInfo.getStreamPublisherApiUrl());
 
 		TokenProvider tokenProvider = streamConfig::getAccessToken;
 
@@ -451,8 +439,12 @@ public class WebRtcStreamService extends ExecutableBase {
 	}
 
 	private JanusWebSocketClient createJanusClient(StreamContext streamContext) {
+		PresenterConfiguration config = (PresenterConfiguration) context.getConfiguration();
+		StreamConfiguration streamConfig = config.getStreamConfig();
+
 		ServiceParameters janusWsParameters = new ServiceParameters();
-		janusWsParameters.setUrl(janusWebSocketUrl);
+		janusWsParameters.setUrl(MessageFormat.format(webServiceInfo.getJanusWebSocketUrl(),
+				streamConfig.getServerName()));
 
 		return new JanusWebSocketClient(context.getEventBus(), janusWsParameters,
 				streamContext, eventRecorder, clientFailover);
@@ -497,7 +489,7 @@ public class WebRtcStreamService extends ExecutableBase {
 		}
 
 		RTCIceServer iceServer = new RTCIceServer();
-		iceServer.urls.add(streamStunServers);
+		iceServer.urls.add(webServiceInfo.getStreamStunServers());
 
 		streamContext.getRTCConfig().iceServers.add(iceServer);
 

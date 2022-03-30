@@ -27,6 +27,8 @@ import org.lecturestudio.core.codec.VideoCodecConfiguration;
 
 public class StreamConfiguration {
 
+	private final StringProperty serverName = new StringProperty();
+
 	private final StringProperty accessToken = new StringProperty();
 
 	private final ObjectProperty<AudioFormat> audioFormat = new ObjectProperty<>();
@@ -45,6 +47,18 @@ public class StreamConfiguration {
 
 	private final BooleanProperty enableMessenger = new BooleanProperty();
 
+
+	public String getServerName() {
+		return serverName.get();
+	}
+
+	public void setServerName(String name) {
+		this.serverName.set(name);
+	}
+
+	public StringProperty serverNameProperty() {
+		return serverName;
+	}
 
 	public String getAccessToken() {
 		return accessToken.get();

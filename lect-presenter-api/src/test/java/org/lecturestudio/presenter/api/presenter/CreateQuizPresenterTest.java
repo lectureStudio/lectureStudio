@@ -30,6 +30,7 @@ import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.ListIterator;
+import java.util.Properties;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
 
@@ -46,6 +47,7 @@ import org.lecturestudio.presenter.api.service.QuizDataSource;
 import org.lecturestudio.presenter.api.service.QuizService;
 import org.lecturestudio.presenter.api.service.StreamService;
 import org.lecturestudio.presenter.api.service.WebService;
+import org.lecturestudio.presenter.api.service.WebServiceInfo;
 import org.lecturestudio.presenter.api.view.CreateQuizDefaultOptionView;
 import org.lecturestudio.presenter.api.view.CreateQuizNumericOptionView;
 import org.lecturestudio.presenter.api.view.CreateQuizOptionView;
@@ -88,7 +90,13 @@ class CreateQuizPresenterTest extends PresenterTest {
 
 		quizService = new QuizService(new QuizDataSource(new File(quizzesFile)), documentService);
 
-		WebService webService = new WebService(context, documentService, new LocalBroadcaster(context));
+		Properties streamProps = new Properties();
+		streamProps.load(getClass().getClassLoader()
+				.getResourceAsStream("resources/stream.properties"));
+
+		WebServiceInfo webServiceInfo = new WebServiceInfo(streamProps);
+
+		WebService webService = new WebService(context, documentService, new LocalBroadcaster(context), webServiceInfo);
 		streamService = new StreamService(context, null, webService);
 
 		optionViews = new LinkedList<>();

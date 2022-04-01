@@ -20,18 +20,7 @@ package org.lecturestudio.web.api.filter;
 
 import java.util.Objects;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.Id;
-import jakarta.persistence.SequenceGenerator;
-
-@Entity
 public class IpRangeRule implements FilterRule<String> {
-
-	@Id
-	@SequenceGenerator(name = "ipRangeRuleSeq", sequenceName = "iprangerule_id_seq", allocationSize = 1, initialValue = 1)
-	@GeneratedValue(generator = "ipRangeRuleSeq")
-	private Long id;
 
 	private String fromIp;
 
@@ -45,10 +34,6 @@ public class IpRangeRule implements FilterRule<String> {
 	public IpRangeRule(String fromIp, String toIp) {
 		setFromIp(fromIp);
 		setToIp(toIp);
-	}
-
-	public Long getId() {
-		return id;
 	}
 
 	public String getFromIp() {

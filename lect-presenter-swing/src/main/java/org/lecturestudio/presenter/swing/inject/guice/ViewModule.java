@@ -48,7 +48,6 @@ import org.lecturestudio.presenter.api.view.MenuView;
 import org.lecturestudio.presenter.api.view.MessengerWindow;
 import org.lecturestudio.presenter.api.view.ReconnectStreamView;
 import org.lecturestudio.presenter.api.view.SoundSettingsView;
-import org.lecturestudio.presenter.api.view.NetworkSettingsView;
 import org.lecturestudio.core.view.NewVersionView;
 import org.lecturestudio.presenter.api.view.QuitRecordingView;
 import org.lecturestudio.presenter.api.view.RecordSettingsView;
@@ -66,7 +65,6 @@ import org.lecturestudio.presenter.api.view.StartView;
 import org.lecturestudio.presenter.api.view.StreamSettingsView;
 import org.lecturestudio.presenter.api.view.ToolSettingsView;
 import org.lecturestudio.presenter.api.view.ToolbarView;
-import org.lecturestudio.presenter.api.view.WebServiceSettingsView;
 import org.lecturestudio.presenter.api.view.WhiteboardSettingsView;
 import org.lecturestudio.presenter.swing.view.SwingAboutView;
 import org.lecturestudio.presenter.swing.view.SwingAdjustAudioCaptureLevelView;
@@ -83,7 +81,6 @@ import org.lecturestudio.presenter.swing.view.SwingMenuView;
 import org.lecturestudio.presenter.swing.view.SwingMessengerWindow;
 import org.lecturestudio.presenter.swing.view.SwingReconnectStreamView;
 import org.lecturestudio.presenter.swing.view.SwingSoundSettingsView;
-import org.lecturestudio.presenter.swing.view.SwingNetworkSettingsView;
 import org.lecturestudio.presenter.swing.view.SwingNewVersionView;
 import org.lecturestudio.presenter.swing.view.SwingQuitRecordingView;
 import org.lecturestudio.presenter.swing.view.SwingQuizDefaultOptionView;
@@ -104,7 +101,6 @@ import org.lecturestudio.presenter.swing.view.SwingStartView;
 import org.lecturestudio.presenter.swing.view.SwingStreamSettingsView;
 import org.lecturestudio.presenter.swing.view.SwingToolSettingsView;
 import org.lecturestudio.presenter.swing.view.SwingToolbarView;
-import org.lecturestudio.presenter.swing.view.SwingWebServiceSettingsView;
 import org.lecturestudio.presenter.swing.view.SwingWhiteboardSettingsView;
 import org.lecturestudio.swing.view.SwingDirectoryChooserView;
 import org.lecturestudio.swing.view.SwingFileChooserView;
@@ -139,7 +135,6 @@ public class ViewModule extends AbstractModule {
 		bind(MenuView.class).to(SwingMenuView.class);
 		bind(MessengerWindow.class).to(SwingMessengerWindow.class);
 		bind(SoundSettingsView.class).to(SwingSoundSettingsView.class);
-		bind(NetworkSettingsView.class).to(SwingNetworkSettingsView.class);
 		bind(NewVersionView.class).to(SwingNewVersionView.class);
 		bind(NotificationView.class).to(SwingNotificationView.class);
 		bind(NotificationPopupView.class).to(SwingNotificationPopupView.class);
@@ -165,7 +160,6 @@ public class ViewModule extends AbstractModule {
 		bind(TeXBoxView.class).to(SwingTeXBoxView.class);
 		bind(ToolbarView.class).to(SwingToolbarView.class);
 		bind(ToolSettingsView.class).to(SwingToolSettingsView.class);
-		bind(WebServiceSettingsView.class).to(SwingWebServiceSettingsView.class);
 		bind(WhiteboardSettingsView.class).to(SwingWhiteboardSettingsView.class);
 	}
 }

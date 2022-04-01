@@ -21,15 +21,8 @@ package org.lecturestudio.presenter.api.config;
 import org.lecturestudio.core.app.configuration.Configuration;
 import org.lecturestudio.core.beans.BooleanProperty;
 import org.lecturestudio.core.beans.IntegerProperty;
-import org.lecturestudio.core.beans.StringProperty;
 
 public class PresenterConfiguration extends Configuration {
-
-	/** The name of the classroom. */
-	private final StringProperty classroomName = new StringProperty();
-
-	/** The short name of the classroom which is used mainly for URLs. */
-	private final StringProperty classroomShortName = new StringProperty();
 
 	/** Show a reminder notification, if desired, to start lecture recording. */
 	private final BooleanProperty notifyToRecord = new BooleanProperty();
@@ -40,11 +33,7 @@ public class PresenterConfiguration extends Configuration {
 
 	private final BooleanProperty saveDocOnClose = new BooleanProperty();
 
-	private final QuizConfiguration quizConfig = new QuizConfiguration();
-
 	private final StreamConfiguration streamConfig = new StreamConfiguration();
-
-	private final NetworkConfiguration networkConfig = new NetworkConfiguration();
 
 	private final ExternalWindowConfiguration externalMessagesConfig = new ExternalWindowConfiguration();
 
@@ -54,42 +43,6 @@ public class PresenterConfiguration extends Configuration {
 
 	private final SlideViewConfiguration slideViewConfiguration = new SlideViewConfiguration();
 
-
-	/**
-	 * @return the classroomName
-	 */
-	public String getClassroomName() {
-		return classroomName.get();
-	}
-
-	/**
-	 * @param classroomName the classroomName to set
-	 */
-	public void setClassroomName(String classroomName) {
-		this.classroomName.set(classroomName);
-	}
-
-	public StringProperty classroomNameProperty() {
-		return classroomName;
-	}
-
-	/**
-	 * @return the classroomShortName
-	 */
-	public String getClassroomShortName() {
-		return classroomShortName.get();
-	}
-
-	/**
-	 * @param classroomShortName the classroomShortName to set
-	 */
-	public void setClassroomShortName(String classroomShortName) {
-		this.classroomShortName.set(classroomShortName);
-	}
-
-	public StringProperty classroomShortNameProperty() {
-		return classroomShortName;
-	}
 
 	/**
 	 * @return the notifyToRecord
@@ -162,13 +115,6 @@ public class PresenterConfiguration extends Configuration {
 	}
 
 	/**
-	 * @return the networkConfig
-	 */
-	public NetworkConfiguration getNetworkConfig() {
-		return networkConfig;
-	}
-
-	/**
 	 *
 	 * @return External messages configuration
 	 */
@@ -190,13 +136,6 @@ public class PresenterConfiguration extends Configuration {
 	 */
 	public ExternalWindowConfiguration getExternalSpeechConfig() {
 		return externalSpeechConfig;
-	}
-
-	/**
-	 * @return the quizConfig
-	 */
-	public QuizConfiguration getQuizConfig() {
-		return quizConfig;
 	}
 
 	public SlideViewConfiguration getSlideViewConfiguration() {

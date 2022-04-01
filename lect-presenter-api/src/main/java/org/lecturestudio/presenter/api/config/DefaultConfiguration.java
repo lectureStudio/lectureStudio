@@ -34,8 +34,6 @@ import org.lecturestudio.core.text.TeXFont;
 import org.lecturestudio.core.text.TextAttributes;
 import org.lecturestudio.core.tool.PresetColor;
 import org.lecturestudio.presenter.api.model.MessageBarPosition;
-import org.lecturestudio.web.api.filter.RegexFilter;
-import org.lecturestudio.web.api.filter.RegexRule;
 
 public class DefaultConfiguration extends PresenterConfiguration {
 
@@ -49,9 +47,7 @@ public class DefaultConfiguration extends PresenterConfiguration {
 		setStartMaximized(true);
 		setTabletMode(false);
 		setSaveDocumentOnClose(true);
-		setClassroomName("Presenter Classroom");
-		setClassroomShortName("");
-		setAdvancedUIMode(false);
+		setAdvancedUIMode(true);
 		setExtendedFullscreen(true);
 		setNotifyToRecord(false);
 		setConfirmStopRecording(true);
@@ -125,13 +121,6 @@ public class DefaultConfiguration extends PresenterConfiguration {
 		getStreamConfig().getCameraCodecConfig().setBitRate(200);
 		getStreamConfig().getCameraCodecConfig().setPreset("ultrafast");
 		getStreamConfig().getCameraCodecConfig().setFrameRate(30);
-
-		RegexFilter inputFilter = new RegexFilter();
-		inputFilter.registerRule(new RegexRule("^(1337)+"));
-		inputFilter.registerRule(new RegexRule("^(42)+"));
-		inputFilter.registerRule(new RegexRule("^(666)+"));
-
-		getQuizConfig().setInputFilter(inputFilter);
 	}
 
 }

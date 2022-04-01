@@ -23,18 +23,7 @@ import static java.util.Objects.nonNull;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.Id;
-import jakarta.persistence.SequenceGenerator;
-
-@Entity
 public class RegexRule implements FilterRule<String> {
-
-	@Id
-	@SequenceGenerator(name = "RegexRuleGen", sequenceName = "regex_rule_seq", allocationSize = 1)
-	@GeneratedValue(generator = "RegexRuleGen")
-	private long id;
 
 	private transient Pattern pattern;
 

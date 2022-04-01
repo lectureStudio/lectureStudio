@@ -19,14 +19,12 @@
 package org.lecturestudio.presenter.api.config;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.File;
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.Arrays;
 import java.util.Objects;
 
 import org.junit.jupiter.api.AfterEach;
@@ -38,8 +36,6 @@ import org.lecturestudio.core.audio.AudioFormat;
 import org.lecturestudio.core.camera.CameraFormat;
 import org.lecturestudio.core.geometry.Rectangle2D;
 import org.lecturestudio.core.io.file.visitor.DeleteDirVisitor;
-import org.lecturestudio.web.api.filter.RegexFilter;
-import org.lecturestudio.web.api.filter.RegexRule;
 
 class ConfigurationTest {
 
@@ -99,23 +95,6 @@ class ConfigurationTest {
 		assertEquals(0, Double.compare(30, streamConfig.getCameraCodecConfig().getFrameRate()));
 		assertEquals("high", streamConfig.getCameraCodecConfig().getPreset());
 		assertEquals(new Rectangle2D(20, 20, 640, 480), streamConfig.getCameraCodecConfig().getViewRect());
-	}
-
-	@Test
-	final void testQuizConfig() throws IOException {
-		RegexFilter filter = new RegexFilter();
-		filter.registerRule(new RegexRule("##"));
-		filter.registerRule(new RegexRule("(.*)"));
-
-		PresenterConfiguration config = new PresenterConfiguration();
-		config.getQuizConfig().setInputFilter(filter);
-
-		manager.save(configFile, config);
-
-		PresenterConfiguration loadedConfig = manager.load(configFile, PresenterConfiguration.class);
-		RegexFilter loadedFilter = loadedConfig.getQuizConfig().getInputFilter();
-
-		assertTrue(Arrays.deepEquals(filter.getRules().toArray(), loadedFilter.getRules().toArray()));
 	}
 
 	Path getResourcePath(String path) throws URISyntaxException {

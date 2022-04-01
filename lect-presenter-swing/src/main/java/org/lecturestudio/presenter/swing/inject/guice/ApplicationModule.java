@@ -175,8 +175,8 @@ public class ApplicationModule extends AbstractModule {
 
 	@Provides
 	@Singleton
-	Configuration provideConfiguration(ConfigurationService<PresenterConfiguration> configService) {
-		Configuration configuration = null;
+	Configuration provideConfiguration(PresenterConfigService configService) {
+		PresenterConfiguration configuration = null;
 
 		try {
 			DirUtils.createIfNotExists(Paths.get(LOCATOR.getAppDataPath()));
@@ -185,10 +185,12 @@ public class ApplicationModule extends AbstractModule {
 				// Create configuration with default values.
 				configuration = new DefaultConfiguration();
 
-				configService.save(CONFIG_FILE, (DefaultConfiguration) configuration);
+				configService.save(CONFIG_FILE, configuration);
 			}
 			else {
 				configuration = configService.load(CONFIG_FILE, PresenterConfiguration.class);
+
+				configService.validate(configuration);
 			}
 
 			// Set system default locale.

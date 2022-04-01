@@ -127,6 +127,16 @@ public class JsonConfigurationService<T> implements ConfigurationService<T> {
 	}
 
 	/**
+	 * Validate the provided configuration. Can be used in order to check for
+	 * mandatory properties and set them accordingly.
+	 *
+	 * @param config The config to validate.
+	 */
+	public void validate(T config) {
+
+	}
+
+	/**
 	 * Meant to be overridden by sub-classes to add custom modules to the object
 	 * mapper.
 	 *

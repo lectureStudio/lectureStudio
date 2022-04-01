@@ -18,6 +18,8 @@
 
 package org.lecturestudio.presenter.api.config;
 
+import static java.util.Objects.isNull;
+
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.module.SimpleModule;
 
@@ -38,4 +40,19 @@ public class PresenterConfigService extends JsonConfigurationService<PresenterCo
 		mapper.registerModule(module);
 	}
 
+	@Override
+	public void validate(PresenterConfiguration config) {
+		DefaultConfiguration defaultConfig = new DefaultConfiguration();
+
+		if (isNull(config.getApplicationName())) {
+			config.setApplicationName(defaultConfig.getApplicationName());
+		}
+		if (isNull(config.getLocale())) {
+			config.setLocale(defaultConfig.getLocale());
+		}
+		if (isNull(config.getStreamConfig().getServerName())) {
+			config.getStreamConfig().setServerName(defaultConfig
+					.getStreamConfig().getServerName());
+		}
+	}
 }

@@ -27,11 +27,11 @@ public class SlideViewConfiguration {
 	private final ObjectProperty<MessageBarPosition> messageBarPosition =
 			new ObjectProperty<>(MessageBarPosition.BOTTOM);
 
-	private final DoubleProperty leftSliderPosition = new DoubleProperty();
+	private final DoubleProperty leftSliderPosition = new DoubleProperty(0.375);
 
-	private final DoubleProperty rightSliderPosition = new DoubleProperty();
+	private final DoubleProperty rightSliderPosition = new DoubleProperty(0.8);
 
-	private final DoubleProperty bottomSliderPosition = new DoubleProperty();
+	private final DoubleProperty bottomSliderPosition = new DoubleProperty(0.7);
 
 
 	public DoubleProperty leftSliderPositionProperty() {

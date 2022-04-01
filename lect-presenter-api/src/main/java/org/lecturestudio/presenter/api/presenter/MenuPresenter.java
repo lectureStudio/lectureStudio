@@ -270,10 +270,6 @@ public class MenuPresenter extends Presenter<MenuView> {
 		eventBus.post(new ShowPresenterCommand<>(SaveDocumentsPresenter.class));
 	}
 
-	public void saveQuizResults() {
-		eventBus.post(new ShowPresenterCommand<>(SaveQuizResultsPresenter.class));
-	}
-
 	public void exit() {
 		eventBus.post(new CloseApplicationCommand());
 	}
@@ -504,7 +500,6 @@ public class MenuPresenter extends Presenter<MenuView> {
 		view.setOnOpenDocument(this::openDocument);
 		view.setOnCloseDocument(this::closeSelectedDocument);
 		view.setOnSaveDocuments(this::saveDocuments);
-		view.setOnSaveQuizResults(this::saveQuizResults);
 		view.setOnExit(this::exit);
 
 		view.setOnUndo(this::undo);

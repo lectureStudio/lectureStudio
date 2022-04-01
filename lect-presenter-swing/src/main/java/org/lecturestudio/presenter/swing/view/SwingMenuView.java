@@ -78,8 +78,6 @@ public class SwingMenuView extends JMenuBar implements MenuView {
 
 	private JMenuItem saveDocumentsMenuItem;
 
-	private JMenuItem saveQuizMenuItem;
-
 	private JMenuItem exitMenuItem;
 
 	private JMenuItem undoMenuItem;
@@ -235,7 +233,7 @@ public class SwingMenuView extends JMenuBar implements MenuView {
 			}
 		}
 
-		int offset = List.of(fileMenu.getMenuComponents()).indexOf(saveQuizMenuItem) + 1;
+		int offset = List.of(fileMenu.getMenuComponents()).indexOf(saveDocumentsMenuItem) + 1;
 
 		if (!recentDocs.isEmpty()) {
 			JSeparator separator = new JPopupMenu.Separator();
@@ -277,11 +275,6 @@ public class SwingMenuView extends JMenuBar implements MenuView {
 	@Override
 	public void setOnSaveDocuments(Action action) {
 		SwingUtils.bindAction(saveDocumentsMenuItem, action);
-	}
-
-	@Override
-	public void setOnSaveQuizResults(Action action) {
-		SwingUtils.bindAction(saveQuizMenuItem, action);
 	}
 
 	@Override
@@ -488,7 +481,6 @@ public class SwingMenuView extends JMenuBar implements MenuView {
 		final boolean started = state == ExecutableState.Started;
 
 		SwingUtils.invoke(() -> {
-			saveQuizMenuItem.setEnabled(started);
 			closeQuizMenuItem.setEnabled(started);
 
 			setIndicatorState(quizIndicatorMenu, state);

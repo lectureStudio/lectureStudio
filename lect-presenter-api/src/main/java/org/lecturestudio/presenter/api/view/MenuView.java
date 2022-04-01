@@ -58,8 +58,6 @@ public interface MenuView extends View {
 
 	void setOnSaveDocuments(Action action);
 
-	void setOnSaveQuizResults(Action action);
-
 	void setOnExit(Action action);
 
 	/**

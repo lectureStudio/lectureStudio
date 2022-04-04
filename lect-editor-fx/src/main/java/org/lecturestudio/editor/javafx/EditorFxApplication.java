@@ -19,6 +19,7 @@
 package org.lecturestudio.editor.javafx;
 
 import dev.onvoid.webrtc.logging.Logging;
+import dev.onvoid.webrtc.media.MediaDevices;
 
 import org.lecturestudio.core.app.ApplicationFactory;
 import org.lecturestudio.javafx.app.JavaFxApplication;
@@ -33,6 +34,7 @@ public class EditorFxApplication extends JavaFxApplication {
 	 */
 	public static void main(String[] args) {
 		Logging.logThreads(true);
+		MediaDevices.getAudioRenderDevices();
 
 		// Start with pre-loader.
 		EditorFxApplication.launch(args, EditorFxPreloader.class);

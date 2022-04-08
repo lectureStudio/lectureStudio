@@ -68,12 +68,12 @@ public class JanusPeerConnectionFactory {
 			return new PeerConnectionFactory(audioModule);
 		});
 
-		audioContext.playbackDeviceProperty().addListener((observable, oldValue, newValue) -> {
+		audioContext.playbackDeviceProperty().addListener((o, oldValue, newValue) -> {
 			executeAndWait(() -> {
 				setPlaybackDevice(newValue, true);
 			});
 		});
-		audioContext.recordingDeviceProperty().addListener((observable, oldValue, newValue) -> {
+		audioContext.recordingDeviceProperty().addListener((o, oldValue, newValue) -> {
 			executeAndWait(() -> {
 				setRecordingDevice(newValue, true);
 			});

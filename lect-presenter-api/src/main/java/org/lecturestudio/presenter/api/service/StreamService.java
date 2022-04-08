@@ -55,8 +55,8 @@ public class StreamService {
 
 
 	@Inject
-	public StreamService(PresenterContext context, WebRtcStreamService streamService,
-			WebService webService) {
+	public StreamService(PresenterContext context,
+			WebRtcStreamService streamService, WebService webService) {
 		this.context = context;
 		this.eventBus = context.getEventBus();
 		this.streamService = streamService;

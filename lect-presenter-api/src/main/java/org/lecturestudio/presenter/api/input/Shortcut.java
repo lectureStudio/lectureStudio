@@ -54,7 +54,7 @@ public enum Shortcut {
 	ERASE_ALL						(KeyCode.ESCAPE),
 	FULLSCREEN						(KeyCode.ENTER, KeyEvent.ALT_MASK),
 	SHOW_GRID						(KeyCode.G, KeyEvent.CTRL_MASK),
-    SHOW_GRID_LECTURER				(KeyCode.Q),
+	SHOW_GRID_LECTURER				(KeyCode.Q),
 	TEXT							(KeyCode.T),
 	PEN								(KeyCode.P),
 	HIGHLIGHTER						(KeyCode.H),
@@ -68,8 +68,8 @@ public enum Shortcut {
 	PAUSE_RECORDING					(KeyCode.PAUSE, KeyEvent.CTRL_MASK),
 	PAUSE_RECORDING_P				(KeyCode.P, KeyEvent.CTRL_MASK),
 
-    BOOKMARK_NEW					(KeyCode.B),
-    BOOKMARK_GOTO					(KeyCode.G),
+	BOOKMARK_NEW					(KeyCode.B),
+	BOOKMARK_GOTO					(KeyCode.G),
 
 	COLOR_CUSTOM					(KeyCode.F1),
 	COLOR_1							(KeyCode.F2),
@@ -82,11 +82,11 @@ public enum Shortcut {
 	private final KeyEvent keyEvent;
 
 
-	private Shortcut(KeyCode code) {
+	Shortcut(KeyCode code) {
 		this.keyEvent = new KeyEvent(code.getCode());
 	}
 
-	private Shortcut(KeyCode code, int modifiers) {
+	Shortcut(KeyCode code, int modifiers) {
 		this.keyEvent = new KeyEvent(code.getCode(), modifiers);
 	}
 
@@ -97,5 +97,4 @@ public enum Shortcut {
 	public boolean match(KeyEvent event) {
 		return keyEvent.equals(event);
 	}
-
 }

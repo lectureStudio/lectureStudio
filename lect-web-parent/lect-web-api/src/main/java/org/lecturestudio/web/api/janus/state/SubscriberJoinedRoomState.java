@@ -28,6 +28,7 @@ import java.util.Map;
 import java.util.UUID;
 import java.util.function.Consumer;
 
+import org.lecturestudio.core.audio.AudioFrame;
 import org.lecturestudio.web.api.event.VideoFrameEvent;
 import org.lecturestudio.web.api.janus.JanusPeerConnection;
 import org.lecturestudio.web.api.janus.JanusPublisher;
@@ -39,7 +40,9 @@ import org.lecturestudio.web.api.janus.message.JanusPluginMessage;
 import org.lecturestudio.web.api.janus.message.JanusRoomSubscribeMessage;
 import org.lecturestudio.web.api.janus.message.JanusRoomSubscribeRequest;
 import org.lecturestudio.web.api.janus.message.JanusTrickleMessage;
+import org.lecturestudio.web.api.stream.StreamAudioContext;
 import org.lecturestudio.web.api.stream.StreamContext;
+import org.lecturestudio.web.api.stream.StreamVideoContext;
 
 /**
  * This state starts publishing media (audio, video and data) to a joined
@@ -53,6 +56,8 @@ public class SubscriberJoinedRoomState implements JanusState {
 	private final RTCSessionDescription offer;
 
 	private final JanusPublisher publisher;
+
+	private Consumer<AudioFrame> audioFrameConsumer;
 
 	private Consumer<VideoFrameEvent> videoFrameConsumer;
 
@@ -68,9 +73,12 @@ public class SubscriberJoinedRoomState implements JanusState {
 	@Override
 	public void initialize(JanusStateHandler handler) {
 		StreamContext streamContext = handler.getStreamContext();
+		StreamAudioContext audioContext = streamContext.getAudioContext();
+		StreamVideoContext videoContext = streamContext.getVideoContext();
 		JanusPeerConnection peerConnection = handler.createPeerConnection();
 
-		videoFrameConsumer = streamContext.getVideoFrameConsumer();
+		audioFrameConsumer = audioContext.getFrameConsumer();
+		videoFrameConsumer = videoContext.getFrameConsumer();
 
 		peerConnection.setOnLocalSessionDescription(description -> {
 			sendRequest(handler, description.sdp);
@@ -87,6 +95,12 @@ public class SubscriberJoinedRoomState implements JanusState {
 			if (nonNull(videoFrameConsumer)) {
 				videoFrameConsumer.accept(new VideoFrameEvent(videoFrame,
 						publisher.getId().toString()));
+			}
+		});
+		peerConnection.setAudioTrackSink((data, bitsPerSample, sampleRate, channels, frames) -> {
+			if (nonNull(audioFrameConsumer)) {
+				audioFrameConsumer.accept(new AudioFrame(data, bitsPerSample,
+						sampleRate, channels, frames));
 			}
 		});
 

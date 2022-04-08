@@ -20,6 +20,9 @@ package org.lecturestudio.web.api.stream;
 
 import dev.onvoid.webrtc.media.audio.AudioDevice;
 
+import java.util.function.Consumer;
+
+import org.lecturestudio.core.audio.AudioFrame;
 import org.lecturestudio.core.beans.BooleanProperty;
 import org.lecturestudio.core.beans.ObjectProperty;
 
@@ -32,6 +35,8 @@ public class StreamAudioContext {
 	private final BooleanProperty receiveAudio;
 
 	private final BooleanProperty sendAudio;
+
+	private Consumer<AudioFrame> frameConsumer;
 
 
 	public StreamAudioContext() {
@@ -69,7 +74,7 @@ public class StreamAudioContext {
 		return receiveAudio;
 	}
 
-	public boolean getAudioVideo() {
+	public boolean getReceiveAudio() {
 		return receiveAudio.get();
 	}
 
@@ -87,5 +92,13 @@ public class StreamAudioContext {
 
 	public void setSendAudio(boolean send) {
 		sendAudio.set(send);
+	}
+
+	public Consumer<AudioFrame> getFrameConsumer() {
+		return frameConsumer;
+	}
+
+	public void setFrameConsumer(Consumer<AudioFrame> consumer) {
+		this.frameConsumer = consumer;
 	}
 }

@@ -40,13 +40,11 @@ import dev.onvoid.webrtc.RTCAnswerOptions;
 import dev.onvoid.webrtc.RTCDataChannel;
 import dev.onvoid.webrtc.RTCDataChannelBuffer;
 import dev.onvoid.webrtc.RTCDataChannelInit;
-import dev.onvoid.webrtc.RTCDataChannelObserver;
 import dev.onvoid.webrtc.RTCIceCandidate;
 import dev.onvoid.webrtc.RTCIceConnectionState;
 import dev.onvoid.webrtc.RTCIceGatheringState;
 import dev.onvoid.webrtc.RTCOfferOptions;
 import dev.onvoid.webrtc.RTCPeerConnection;
-import dev.onvoid.webrtc.RTCPeerConnectionState;
 import dev.onvoid.webrtc.RTCRtpReceiver;
 import dev.onvoid.webrtc.RTCRtpSender;
 import dev.onvoid.webrtc.RTCRtpTransceiver;
@@ -58,6 +56,7 @@ import dev.onvoid.webrtc.media.MediaDevices;
 import dev.onvoid.webrtc.media.MediaStreamTrack;
 import dev.onvoid.webrtc.media.audio.AudioOptions;
 import dev.onvoid.webrtc.media.audio.AudioTrack;
+import dev.onvoid.webrtc.media.audio.AudioTrackSink;
 import dev.onvoid.webrtc.media.audio.AudioTrackSource;
 import dev.onvoid.webrtc.media.video.VideoCaptureCapability;
 import dev.onvoid.webrtc.media.video.VideoDesktopSource;
@@ -101,17 +100,15 @@ public class JanusPeerConnection implements PeerConnectionObserver {
 
 	private Consumer<RTCIceCandidate> onIceCandidate;
 
-	private Consumer<RTCPeerConnectionState> onPeerConnectionState;
-
 	private Consumer<RTCIceConnectionState> onIceConnectionState;
 
 	private Consumer<RTCIceGatheringState> onIceGatheringState;
 
-	private Consumer<RTCDataChannelBuffer> onDataChannelBuffer;
-
 	private Consumer<Boolean> onRemoteVideoStream;
 
 	private Consumer<VideoFrame> onRemoteVideoFrame;
+
+	private AudioTrackSink audioTrackSink;
 
 
 	public JanusPeerConnection(JanusPeerConnectionFactory factory) {
@@ -137,16 +134,8 @@ public class JanusPeerConnection implements PeerConnectionObserver {
 		onIceGatheringState = callback;
 	}
 
-	public void setOnPeerConnectionState(Consumer<RTCPeerConnectionState> callback) {
-		onPeerConnectionState = callback;
-	}
-
 	public void setOnIceConnectionState(Consumer<RTCIceConnectionState> callback) {
 		onIceConnectionState = callback;
-	}
-
-	public void setOnDataChannelBuffer(Consumer<RTCDataChannelBuffer> callback) {
-		onDataChannelBuffer = callback;
 	}
 
 	public void setOnRemoteVideoStream(Consumer<Boolean> callback) {
@@ -155,6 +144,10 @@ public class JanusPeerConnection implements PeerConnectionObserver {
 
 	public void setOnRemoteVideoFrame(Consumer<VideoFrame> callback) {
 		onRemoteVideoFrame = callback;
+	}
+
+	public void setAudioTrackSink(AudioTrackSink sink) {
+		audioTrackSink = sink;
 	}
 
 	public void sendData(byte[] data) throws Exception {
@@ -177,11 +170,6 @@ public class JanusPeerConnection implements PeerConnectionObserver {
 	}
 
 	@Override
-	public void onConnectionChange(RTCPeerConnectionState state) {
-		notify(onPeerConnectionState, state);
-	}
-
-	@Override
 	public void onIceConnectionChange(RTCIceConnectionState state) {
 		LOGGER.debug("ICE connection state: " + state);
 
@@ -196,8 +184,6 @@ public class JanusPeerConnection implements PeerConnectionObserver {
 	@Override
 	public void onDataChannel(RTCDataChannel channel) {
 		remoteDataChannel = channel;
-
-		initDataChannel(channel);
 	}
 
 	@Override
@@ -218,8 +204,13 @@ public class JanusPeerConnection implements PeerConnectionObserver {
 	@Override
 	public void onTrack(RTCRtpTransceiver transceiver) {
 		MediaStreamTrack track = transceiver.getReceiver().getTrack();
+		String kind = track.getKind();
 
-		if (track.getKind().equals(MediaStreamTrack.VIDEO_TRACK_KIND)) {
+		if (kind.equals(MediaStreamTrack.AUDIO_TRACK_KIND) && nonNull(audioTrackSink)) {
+			AudioTrack audioTrack = (AudioTrack) track;
+			audioTrack.addSink(audioTrackSink);
+		}
+		if (kind.equals(MediaStreamTrack.VIDEO_TRACK_KIND)) {
 			VideoTrack videoTrack = (VideoTrack) track;
 			videoTrack.addSink(frame -> publishFrame(onRemoteVideoFrame, frame));
 
@@ -468,38 +459,6 @@ public class JanusPeerConnection implements PeerConnectionObserver {
 		dict.protocol = "stream-messaging";
 
 		dataChannel = peerConnection.createDataChannel("data", dict);
-	}
-
-	private void initDataChannel(final RTCDataChannel channel) {
-		channel.registerObserver(new RTCDataChannelObserver() {
-
-			@Override
-			public void onBufferedAmountChange(long previousAmount) {
-				execute(() -> {
-					LOGGER.debug("RTCDataChannel \"{}\" buffered amount changed to {}",
-							channel.getLabel(),
-							previousAmount);
-				});
-			}
-
-			@Override
-			public void onStateChange() {
-				execute(() -> {
-					LOGGER.debug("RTCDataChannel \"{}\" state: {}",
-							channel.getLabel(),
-							channel.getState());
-				});
-			}
-
-			@Override
-			public void onMessage(RTCDataChannelBuffer buffer) {
-				execute(() -> {
-					if (nonNull(onDataChannelBuffer)) {
-						onDataChannelBuffer.accept(buffer);
-					}
-				});
-			}
-		});
 	}
 
 	private VideoCaptureCapability getNearestCameraFormat(VideoCaptureCapability capability) {

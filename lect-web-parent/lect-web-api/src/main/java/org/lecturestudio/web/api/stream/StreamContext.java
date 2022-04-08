@@ -26,7 +26,6 @@ import java.util.function.Consumer;
 
 import org.lecturestudio.core.beans.BooleanProperty;
 import org.lecturestudio.web.api.event.PeerStateEvent;
-import org.lecturestudio.web.api.event.VideoFrameEvent;
 import org.lecturestudio.web.api.stream.model.Course;
 
 public class StreamContext {
@@ -42,8 +41,6 @@ public class StreamContext {
 	private final BooleanProperty enableMessenger;
 
 	private Consumer<PeerStateEvent> peerStateConsumer;
-
-	private Consumer<VideoFrameEvent> videoFrameConsumer;
 
 	private Course course;
 
@@ -101,13 +98,5 @@ public class StreamContext {
 
 	public void setPeerStateConsumer(Consumer<PeerStateEvent> peerStateConsumer) {
 		this.peerStateConsumer = peerStateConsumer;
-	}
-
-	public Consumer<VideoFrameEvent> getVideoFrameConsumer() {
-		return videoFrameConsumer;
-	}
-
-	public void setOnRemoteVideoFrame(Consumer<VideoFrameEvent> callback) {
-		videoFrameConsumer = callback;
 	}
 }

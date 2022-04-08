@@ -33,6 +33,7 @@ import org.lecturestudio.core.ExecutableBase;
 import org.lecturestudio.core.ExecutableException;
 import org.lecturestudio.core.app.ApplicationContext;
 import org.lecturestudio.core.audio.AudioFormat;
+import org.lecturestudio.core.audio.AudioFrame;
 import org.lecturestudio.core.model.Time;
 import org.lecturestudio.core.util.ProgressCallback;
 import org.lecturestudio.presenter.api.config.PresenterConfiguration;
@@ -67,6 +68,10 @@ public class RecordingService extends ExecutableBase {
 		});
 	}
 
+	public void addAudioFrame(final AudioFrame event) {
+		recorder.addPeerAudio(event);
+	}
+
 	public void setAudioFormat(AudioFormat audioFormat) {
 		recorder.setAudioFormat(audioFormat);
 	}
@@ -75,7 +80,8 @@ public class RecordingService extends ExecutableBase {
 		return recorder.getBestRecordingName();
 	}
 
-	public CompletableFuture<Void> writeRecording(File file, ProgressCallback callback) {
+	public CompletableFuture<Void> writeRecording(File file,
+			ProgressCallback callback) {
 		return CompletableFuture.runAsync(() -> {
 			try {
 				recorder.writeRecording(file, callback);

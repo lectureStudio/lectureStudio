@@ -18,11 +18,13 @@
 
 package org.lecturestudio.presenter.api.service;
 
+import static java.util.Objects.isNull;
 import static java.util.Objects.nonNull;
 
 import dev.onvoid.webrtc.RTCIceServer;
 import dev.onvoid.webrtc.media.Device;
 import dev.onvoid.webrtc.media.MediaDevices;
+import dev.onvoid.webrtc.media.audio.AudioConverter;
 import dev.onvoid.webrtc.media.audio.AudioDevice;
 import dev.onvoid.webrtc.media.video.VideoCaptureCapability;
 import dev.onvoid.webrtc.media.video.VideoDevice;
@@ -40,6 +42,8 @@ import org.lecturestudio.core.ExecutableException;
 import org.lecturestudio.core.ExecutableState;
 import org.lecturestudio.core.app.ApplicationContext;
 import org.lecturestudio.core.app.configuration.AudioConfiguration;
+import org.lecturestudio.core.audio.AudioFormat;
+import org.lecturestudio.core.audio.AudioFrame;
 import org.lecturestudio.core.beans.ChangeListener;
 import org.lecturestudio.core.codec.VideoCodecConfiguration;
 import org.lecturestudio.core.geometry.Rectangle2D;
@@ -88,6 +92,8 @@ public class WebRtcStreamService extends ExecutableBase {
 
 	private final WebServiceInfo webServiceInfo;
 
+	private final RecordingService recordingService;
+
 	private StreamContext streamContext;
 
 	private StreamProviderService streamProviderService;
@@ -95,6 +101,8 @@ public class WebRtcStreamService extends ExecutableBase {
 	private StreamWebSocketClient streamStateClient;
 
 	private JanusWebSocketClient janusClient;
+
+	private AudioFrameProcessor audioProcessor;
 
 	private ChangeListener<Rectangle2D> cameraFormatListener;
 
@@ -112,11 +120,13 @@ public class WebRtcStreamService extends ExecutableBase {
 	@Inject
 	public WebRtcStreamService(ApplicationContext context,
 			WebServiceInfo webServiceInfo,
-			WebRtcStreamEventRecorder eventRecorder)
+			WebRtcStreamEventRecorder eventRecorder,
+			RecordingService recordingService)
 			throws ExecutableException {
 		this.context = context;
 		this.webServiceInfo = webServiceInfo;
 		this.eventRecorder = eventRecorder;
+		this.recordingService = recordingService;
 		this.clientFailover = new ClientFailover();
 		this.clientFailover.addStateListener((oldState, newState) -> {
 			if (newState == ExecutableState.Started) {
@@ -235,6 +245,9 @@ public class WebRtcStreamService extends ExecutableBase {
 		if (streamCamera) {
 			setCameraState(ExecutableState.Starting);
 		}
+
+		audioProcessor = new AudioFrameProcessor(config.getAudioConfig()
+				.getRecordingFormat());
 
 		streamContext = createStreamContext(course, config);
 		streamStateClient = createStreamStateClient(course, config);
@@ -475,11 +488,15 @@ public class WebRtcStreamService extends ExecutableBase {
 		audioContext.setReceiveAudio(true);
 		audioContext.setRecordingDevice(audioCaptureDevice);
 		audioContext.setPlaybackDevice(audioPlaybackDevice);
+		audioContext.setFrameConsumer(this::processAudioFrame);
 
 		videoContext.setSendVideo(streamConfig.getCameraEnabled());
 		videoContext.setReceiveVideo(true);
 		videoContext.setCaptureDevice(videoCaptureDevice);
 		videoContext.setBitrate(cameraConfig.getBitRate());
+		videoContext.setFrameConsumer(videoFrame -> {
+			context.getEventBus().post(videoFrame);
+		});
 
 		if (nonNull(streamConfig.getCameraFormat())) {
 			videoContext.setCaptureCapability(new VideoCaptureCapability(
@@ -498,14 +515,64 @@ public class WebRtcStreamService extends ExecutableBase {
 		streamContext.setPeerStateConsumer(event -> {
 			context.getEventBus().post(event);
 		});
-		streamContext.setOnRemoteVideoFrame(videoFrame -> {
-			context.getEventBus().post(videoFrame);
-		});
 
 		streamConfig.enableMicrophoneProperty().addListener((o, oldValue, newValue) -> {
 			audioContext.setSendAudio(newValue);
 		});
 
 		return streamContext;
+	}
+
+	private void processAudioFrame(final AudioFrame frame) {
+		audioProcessor.onAudioFrame(frame);
+	}
+
+
+
+	private class AudioFrameProcessor {
+
+		private final AudioFormat audioFormat;
+
+		private AudioConverter audioConverter;
+
+		private int lastSampleRate;
+
+		private int lastChannels;
+
+
+		public AudioFrameProcessor(AudioFormat audioFormat) {
+			this.audioFormat = audioFormat;
+		}
+
+		public void onAudioFrame(AudioFrame frame) {
+			final int sampleRate = frame.getSampleRate();
+			final int channels = frame.getChannels();
+
+			if (nonNull(audioConverter) && (lastSampleRate != sampleRate
+					|| lastChannels != channels)) {
+				audioConverter.dispose();
+				audioConverter = null;
+			}
+			if (isNull(audioConverter)) {
+				lastSampleRate = sampleRate;
+				lastChannels = channels;
+
+				audioConverter = new AudioConverter(sampleRate, channels,
+						audioFormat.getSampleRate(), audioFormat.getChannels());
+			}
+
+			byte[] buffer = new byte[audioConverter.getTargetBufferSize()];
+
+			try {
+				int converted = audioConverter.convert(frame.getData(), buffer);
+
+				recordingService.addAudioFrame(new AudioFrame(buffer,
+						audioFormat.getBitsPerSample(), audioFormat.getSampleRate(),
+						audioFormat.getChannels(), converted));
+			}
+			catch (Throwable e) {
+				logException(e, "Convert peer audio failed");
+			}
+		}
 	}
 }

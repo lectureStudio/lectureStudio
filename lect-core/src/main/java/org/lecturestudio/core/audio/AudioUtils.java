@@ -18,6 +18,7 @@
 
 package org.lecturestudio.core.audio;
 
+import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -69,7 +70,7 @@ public class AudioUtils {
 	 * Pack two sequential bytes into a {@code short} value according to the
 	 * specified endianness.
 	 *
-	 * @param bytes     The bytes to pack, must of size 2.
+	 * @param bytes     The bytes to pack, must be of size 2.
 	 * @param bigEndian True to pack with big-endian order, false to pack with
 	 *                  little-endian order.
 	 *
@@ -126,4 +127,35 @@ public class AudioUtils {
 		return relValue;
 	}
 
+	/**
+	 * Mix two audio PCM buffers into one output buffer. Mixing is performed by
+	 * summing up the samples and clip them to 16-bit signed values. Thus, it is
+	 * expected that the input buffers contain 16-bit signed PCM audio data.
+	 *
+	 * @param buffer1 The first audio input buffer.
+	 * @param buffer2 The second audio input buffer.
+	 * @param output The mixed audio output buffer.
+	 */
+	public static void mixAudio(ByteBuffer buffer1, ByteBuffer buffer2,
+			byte[] output) {
+		int pos = 0;
+
+		while (buffer1.hasRemaining()) {
+			int value = Short.reverseBytes(buffer1.getShort());
+
+			if (buffer2.hasRemaining()) {
+				value += Short.reverseBytes(buffer2.getShort());
+			}
+
+			if (value > Short.MAX_VALUE) {
+				value = Short.MAX_VALUE;
+			}
+			else if (value < Short.MIN_VALUE) {
+				value = Short.MIN_VALUE;
+			}
+
+			output[pos++] = (byte) (value & 0xFF);
+			output[pos++] = (byte) ((value >> 8) & 0xFF);
+		}
+	}
 }

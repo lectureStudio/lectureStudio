@@ -86,7 +86,7 @@ public class RingBuffer implements AudioSink, AudioSource {
 	 * Return the readable amount of bytes in buffer. Note: It is not
 	 * necessarily valid when data is written to the buffer or read from the
 	 * buffer. Another thread might have filled the buffer or emptied it in the
-	 * mean time.
+	 * meantime.
 	 *
 	 * @return currently available bytes to read.
 	 */

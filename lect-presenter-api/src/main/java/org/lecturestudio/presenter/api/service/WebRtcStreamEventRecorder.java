@@ -144,11 +144,16 @@ public class WebRtcStreamEventRecorder extends StreamEventRecorder {
 
 	@Subscribe
 	public void onEvent(final RecordingStateEvent event) {
-		if (recordState == event.getState()) {
+		final ExecutableState state = event.getState();
+
+		if (recordState == state || state.name().contains("ing")) {
+			return;
+		}
+		if (event.started() && recordState == ExecutableState.Suspended) {
 			return;
 		}
 
-		recordState = event.getState();
+		recordState = state;
 
 		if (!started()) {
 			return;

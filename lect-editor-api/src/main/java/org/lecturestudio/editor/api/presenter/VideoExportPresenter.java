@@ -104,7 +104,10 @@ public class VideoExportPresenter extends Presenter<VideoExportView> {
 		File initDirectory = new File(targetDirectory.get());
 
 		DirectoryChooserView dirChooser = viewFactory.createDirectoryChooserView();
-		dirChooser.setInitialDirectory(initDirectory);
+
+		if (initDirectory.exists()) {
+			dirChooser.setInitialDirectory(initDirectory);
+		}
 
 		File selectedFile = dirChooser.show(view);
 

@@ -22,6 +22,7 @@ import static java.util.Objects.isNull;
 import static java.util.Objects.nonNull;
 
 import java.io.File;
+import java.io.IOException;
 import java.nio.file.Path;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -29,6 +30,8 @@ import java.util.Date;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionException;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import javax.inject.Inject;
 
@@ -38,6 +41,7 @@ import org.lecturestudio.core.app.configuration.Configuration;
 import org.lecturestudio.core.app.dictionary.Dictionary;
 import org.lecturestudio.core.beans.StringProperty;
 import org.lecturestudio.core.model.Document;
+import org.lecturestudio.core.model.Page;
 import org.lecturestudio.core.presenter.Presenter;
 import org.lecturestudio.core.presenter.ProgressPresenter;
 import org.lecturestudio.core.presenter.command.ShowPresenterCommand;
@@ -47,6 +51,7 @@ import org.lecturestudio.core.view.FileChooserView;
 import org.lecturestudio.core.view.ProgressView;
 import org.lecturestudio.core.view.ViewContextFactory;
 import org.lecturestudio.presenter.api.context.PresenterContext;
+import org.lecturestudio.presenter.api.util.PDFMessageWriter;
 import org.lecturestudio.presenter.api.view.SaveDocumentOptionView;
 import org.lecturestudio.presenter.api.view.SaveDocumentsView;
 import org.lecturestudio.swing.renderer.PdfDocumentRenderer;
@@ -63,6 +68,8 @@ public class SaveDocumentsPresenter extends Presenter<SaveDocumentsView> {
 
 	private final StringProperty savePath;
 
+	private Document messagesDoc;
+
 
 	@Inject
 	SaveDocumentsPresenter(ApplicationContext context, SaveDocumentsView view,
@@ -78,6 +85,25 @@ public class SaveDocumentsPresenter extends Presenter<SaveDocumentsView> {
 
 	@Override
 	public void initialize() {
+		PresenterContext pContext = (PresenterContext) context;
+		PDFMessageWriter pdfMessageWriter = new PDFMessageWriter();
+
+		// Load text-messages into a document.
+		try {
+			messagesDoc = pdfMessageWriter.createDocument(
+					pContext.getMessengerMessages(), context.getDictionary());
+
+			if (nonNull(messagesDoc)) {
+				SaveDocumentOptionView optionView = createDocumentOptionView(messagesDoc);
+
+				view.addDocumentOptionView(optionView);
+			}
+		}
+		catch (IOException e) {
+			logException(e, "Create text message document failed");
+		}
+
+		// Load all recorded/visited documents.
 		for (Document doc : documentRecorder.getRecordedDocuments()) {
 			SaveDocumentOptionView optionView = createDocumentOptionView(doc);
 
@@ -198,9 +224,19 @@ public class SaveDocumentsPresenter extends Presenter<SaveDocumentsView> {
 
 	private void saveAsync(ProgressView progressView, List<Document> documents, File file) {
 		CompletableFuture.runAsync(() -> {
+			boolean hasMessages = nonNull(messagesDoc) && documents.contains(messagesDoc);
+
+			List<Page> pages = documentRecorder.getRecordedPages();
+
+			if (hasMessages) {
+				// Use unrecorded message pages as well.
+				pages = Stream.concat(pages.stream(), messagesDoc.getPages().stream())
+						.collect(Collectors.toList());
+			}
+
 			PdfDocumentRenderer documentRenderer = new PdfDocumentRenderer();
 			documentRenderer.setDocuments(documents);
-			documentRenderer.setPages(documentRecorder.getRecordedPages());
+			documentRenderer.setPages(pages);
 			documentRenderer.setParameterProvider(documentRecorder.getRecordedParamProvider());
 			documentRenderer.setProgressCallback(progressView::setProgress);
 			documentRenderer.setOutputFile(file);

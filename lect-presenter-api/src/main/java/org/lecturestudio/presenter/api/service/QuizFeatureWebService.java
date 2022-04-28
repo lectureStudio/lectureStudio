@@ -22,8 +22,6 @@ import static java.util.Objects.isNull;
 import static java.util.Objects.nonNull;
 
 import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
 import java.net.URI;
 import java.nio.file.Paths;
 import java.util.ArrayList;
@@ -47,10 +45,7 @@ import org.lecturestudio.core.model.Document;
 import org.lecturestudio.core.model.DocumentType;
 import org.lecturestudio.core.pdf.PdfDocument;
 import org.lecturestudio.core.service.DocumentService;
-import org.lecturestudio.core.util.FileUtils;
-import org.lecturestudio.core.util.ProgressCallback;
 import org.lecturestudio.presenter.api.pdf.PdfFactory;
-import org.lecturestudio.presenter.api.quiz.QuizResultCsvWriter;
 import org.lecturestudio.web.api.message.QuizAnswerMessage;
 import org.lecturestudio.web.api.model.quiz.Quiz;
 import org.lecturestudio.web.api.model.quiz.QuizAnswer;
@@ -107,51 +102,10 @@ public class QuizFeatureWebService extends FeatureServiceBase {
 		this.quizResult = new QuizResult(quiz);
 	}
 
-	/**
-	 * Writes quiz results to the provided file paths. Each file may have its own
-	 * individual file format. If the file format is not supported, the file will
-	 * be skipped.
-	 *
-	 * @param files The files to write to with individual file formats.
-	 * @param callback The callback to be invoked on write progress.
-	 *
-	 * @throws IOException if the quiz results could not be written to the files.
-	 * @throws NullPointerException if no quiz result was created.
-	 */
-	public void saveQuizResult(List<String> files, ProgressCallback callback) throws IOException {
-		if (isNull(quizResult)) {
-			throw new NullPointerException("No quiz result created");
-		}
-
-		int total = files.size();
-		int count = 0;
-
-		for (String file : files) {
-			String ext = FileUtils.getExtension(file);
-			switch (ext) {
-				case "csv":
-					QuizResultCsvWriter csvWriter = new QuizResultCsvWriter(',');
-					csvWriter.write(quizResult, new File(file));
-					break;
-
-				case "pdf":
-					FileOutputStream fileStream = new FileOutputStream(file);
-					quizDocument.toOutputStream(fileStream);
-					fileStream.close();
-					break;
-
-				default:
-					break;
-			}
-
-			callback.onProgress(1.f * ++count / total);
-		}
-	}
-
 	@Override
 	protected void initInternal() throws ExecutableException {
 		if (isNull(quiz)) {
-			throw new NullPointerException("No quiz provided.");
+			throw new ExecutableException("No quiz provided");
 		}
 
 		executorService = new ThreadPoolExecutor(1, 1, 0L,
@@ -161,7 +115,7 @@ public class QuizFeatureWebService extends FeatureServiceBase {
 	@Override
 	protected void startInternal() throws ExecutableException {
 		if (isNull(quizResult)) {
-			throw new NullPointerException("No quiz result created.");
+			throw new ExecutableException("No quiz result created");
 		}
 
 		answerCount = 0;
@@ -223,8 +177,6 @@ public class QuizFeatureWebService extends FeatureServiceBase {
 
 	@Override
 	protected void destroyInternal() {
-//		documentService.removeDocument(quizDocument);
-
 		executorService.shutdown();
 	}
 

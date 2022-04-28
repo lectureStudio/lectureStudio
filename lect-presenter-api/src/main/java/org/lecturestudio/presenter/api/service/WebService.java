@@ -21,7 +21,6 @@ package org.lecturestudio.presenter.api.service;
 import static java.util.Objects.isNull;
 import static java.util.Objects.nonNull;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -33,7 +32,6 @@ import org.lecturestudio.core.ExecutableException;
 import org.lecturestudio.core.ExecutableState;
 import org.lecturestudio.core.app.ApplicationContext;
 import org.lecturestudio.core.service.DocumentService;
-import org.lecturestudio.core.util.ProgressCallback;
 import org.lecturestudio.presenter.api.config.PresenterConfiguration;
 import org.lecturestudio.presenter.api.config.StreamConfiguration;
 import org.lecturestudio.presenter.api.context.PresenterContext;
@@ -148,27 +146,6 @@ public class WebService extends ExecutableBase {
 		stopService(service);
 
 		context.getEventBus().post(new MessengerStateEvent(ExecutableState.Stopped));
-	}
-
-	/**
-	 * Writes quiz results to the provided file paths. Each file may have its own
-	 * individual file format. If the file format is not supported, the file will
-	 * be skipped.
-	 *
-	 * @param files The files to write to with individual file formats.
-	 * @param callback The callback to be invoked on write progress.
-	 *
-	 * @throws IOException if the quiz results could not be written to the files.
-	 * @throws NullPointerException if no quiz service is running.
-	 */
-	public void saveQuizResult(List<String> files, ProgressCallback callback) throws IOException {
-		var service = getService(QuizFeatureWebService.class);
-
-		if (isNull(service)) {
-			throw new NullPointerException("Quiz service is not running");
-		}
-
-		service.saveQuizResult(files, callback);
 	}
 
 	/**

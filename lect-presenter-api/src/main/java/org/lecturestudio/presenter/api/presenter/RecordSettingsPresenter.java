@@ -55,6 +55,7 @@ public class RecordSettingsPresenter extends Presenter<RecordSettingsView> {
 
 		view.setNotifyToRecord(config.notifyToRecordProperty());
 		view.setConfirmStopRecording(config.confirmStopRecordingProperty());
+		view.setMixAudioStreams(audioConfig.mixAudioStreamsProperty());
 		view.setPageRecordingTimeout(config.pageRecordingTimeoutProperty());
 		view.setRecordingAudioFormats(AudioUtils.getAudioFormats());
 		view.setRecordingAudioFormat(audioConfig.recordingFormatProperty());
@@ -86,5 +87,6 @@ public class RecordSettingsPresenter extends Presenter<RecordSettingsView> {
 		config.setPageRecordingTimeout(defaultConfig.getPageRecordingTimeout());
 		audioConfig.setRecordingFormat(defaultConfig.getAudioConfig().getRecordingFormat());
 		audioConfig.setRecordingPath(defaultConfig.getAudioConfig().getRecordingPath());
+		audioConfig.setMixAudioStreams(defaultConfig.getAudioConfig().getMixAudioStreams());
 	}
 }

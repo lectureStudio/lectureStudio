@@ -25,10 +25,6 @@ import com.google.common.eventbus.Subscribe;
 
 import java.io.File;
 import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.nio.file.StandardCopyOption;
 import java.util.Arrays;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -54,9 +50,7 @@ import org.lecturestudio.core.audio.AudioMixer;
 import org.lecturestudio.core.audio.AudioSystemProvider;
 import org.lecturestudio.core.audio.AudioUtils;
 import org.lecturestudio.core.audio.bus.AudioBus;
-import org.lecturestudio.core.audio.sink.AudioSink;
 import org.lecturestudio.core.audio.sink.ProxyAudioSink;
-import org.lecturestudio.core.audio.sink.WavFileSink;
 import org.lecturestudio.core.bus.ApplicationBus;
 import org.lecturestudio.core.bus.event.DocumentEvent;
 import org.lecturestudio.core.bus.event.PageEvent;
@@ -103,8 +97,6 @@ public class FileLectureRecorder extends LectureRecorder {
 	private IdleTimer idleTimer;
 
 	private AudioRecorder audioRecorder;
-
-	private AudioSink audioSink;
 
 	private AudioMixer audioMixer;
 
@@ -235,18 +227,6 @@ public class FileLectureRecorder extends LectureRecorder {
 
 		RecordingFileWriter.write(recording, destFile, progressCallback);
 
-		try {
-			String peerMixPath = FileUtils.stripExtension(destFile).getAbsolutePath();
-
-			Path source = Paths.get(audioMixer.getOutputFile().getAbsolutePath());
-			Path target = Paths.get(peerMixPath + "+peers.wav");
-
-			Files.move(source, target, StandardCopyOption.REPLACE_EXISTING);
-		}
-		catch (Exception e) {
-			logException(e, "Save peer audio failed");
-		}
-
 		// Delete backup files since they are not needed anymore.
 		discard();
 	}
@@ -277,6 +257,13 @@ public class FileLectureRecorder extends LectureRecorder {
 	protected void initInternal() {
 		pendingActions.initialize();
 
+		audioConfig.mixAudioStreamsProperty()
+				.addListener((o, oldValue, newValue) -> {
+					if (nonNull(audioMixer)) {
+						audioMixer.setMixAudio(newValue);
+					}
+				});
+
 		ApplicationBus.register(this);
 	}
 
@@ -301,24 +288,15 @@ public class FileLectureRecorder extends LectureRecorder {
 			backup.open();
 
 			try {
-				String filePath = backup.getSessionPathPrefix();
-
 				audioMixer = new AudioMixer();
 				audioMixer.setAudioFormat(audioFormat);
-				audioMixer.setOutputFile(new File(filePath + "+peers.wav"));
+				audioMixer.setOutputFile(new File(backup.getAudioFile()));
+				audioMixer.setMixAudio(audioConfig.getMixAudioStreams());
 				audioMixer.init();
 			}
 			catch (Exception e) {
 				logException(e, "Could not create audio mixer");
-			}
-
-			// need to create a new sink
-			try {
-				audioSink = new WavFileSink(new File(backup.getAudioFile()));
-				audioSink.setAudioFormat(audioFormat);
-			}
-			catch (IOException e) {
-				throw new ExecutableException("Could not create audio sink.", e);
+				throw new ExecutableException("Could not create audio mixer", e);
 			}
 
 			try {
@@ -348,14 +326,12 @@ public class FileLectureRecorder extends LectureRecorder {
 					audioConfig.getRecordingProcessingSettings());
 			audioRecorder.setAudioDeviceName(deviceName);
 			audioRecorder.setAudioVolume(volume);
-			audioRecorder.setAudioSink(new ProxyAudioSink(audioSink) {
+			audioRecorder.setAudioSink(new ProxyAudioSink(audioMixer) {
 
 				@Override
 				public int write(byte[] data, int offset, int length)
 						throws IOException {
 					bytesConsumed += length;
-
-					audioMixer.write(data, offset, length);
 
 					return super.write(data, offset, length);
 				}

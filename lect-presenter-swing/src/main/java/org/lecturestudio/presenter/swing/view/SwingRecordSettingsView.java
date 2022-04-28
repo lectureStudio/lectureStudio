@@ -47,6 +47,8 @@ public class SwingRecordSettingsView extends JPanel implements RecordSettingsVie
 
 	private JCheckBox confirmStopRecordingCheckBox;
 
+	private JCheckBox mixAudioStreamsCheckBox;
+
 	private JTextField pageTimeoutTextField;
 
 	private JComboBox<AudioFormat> recordingFormatCombo;
@@ -72,6 +74,11 @@ public class SwingRecordSettingsView extends JPanel implements RecordSettingsVie
 	@Override
 	public void setConfirmStopRecording(BooleanProperty confirm) {
 		SwingUtils.bindBidirectional(confirmStopRecordingCheckBox, confirm);
+	}
+
+	@Override
+	public void setMixAudioStreams(BooleanProperty mix) {
+		SwingUtils.bindBidirectional(mixAudioStreamsCheckBox, mix);
 	}
 
 	@Override

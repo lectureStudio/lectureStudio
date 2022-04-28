@@ -33,6 +33,8 @@ public interface RecordSettingsView extends SettingsBaseView {
 
 	void setConfirmStopRecording(BooleanProperty confirm);
 
+	void setMixAudioStreams(BooleanProperty mix);
+
 	void setPageRecordingTimeout(IntegerProperty timeout);
 
 	void setRecordingAudioFormat(ObjectProperty<AudioFormat> audioFormat);

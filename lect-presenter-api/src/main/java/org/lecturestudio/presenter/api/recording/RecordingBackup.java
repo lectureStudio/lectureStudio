@@ -233,10 +233,6 @@ public class RecordingBackup {
 		return sessionPathPrefix + ".wav";
 	}
 
-	public String getSessionPathPrefix() {
-		return sessionPathPrefix;
-	}
-
 	private void initBackupDir(File dir) throws IOException {
 		if (!dir.exists() && !dir.mkdirs()) {
 			throw new IOException("Couldn't create backup directory: "

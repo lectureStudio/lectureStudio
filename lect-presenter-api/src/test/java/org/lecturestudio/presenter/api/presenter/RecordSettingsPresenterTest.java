@@ -142,6 +142,11 @@ class RecordSettingsPresenterTest extends PresenterTest {
 		}
 
 		@Override
+		public void setMixAudioStreams(BooleanProperty mix) {
+
+		}
+
+		@Override
 		public void setPageRecordingTimeout(IntegerProperty timeout) {
 
 		}

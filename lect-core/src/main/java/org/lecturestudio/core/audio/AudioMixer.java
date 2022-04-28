@@ -42,6 +42,17 @@ public class AudioMixer extends ExecutableBase {
 
 	private File outputFile;
 
+	private volatile boolean mix;
+
+
+	/**
+	 * Get the audio format of audio samples for this sink.
+	 *
+	 * @return The audio format of samples to write.
+	 */
+	public AudioFormat getAudioFormat() {
+		return audioFormat;
+	}
 
 	/**
 	 * @param audioFormat The audio format of the mixed audio stream.
@@ -66,10 +77,17 @@ public class AudioMixer extends ExecutableBase {
 	}
 
 	/**
+	 * @param mix True to mix all audio streams into the target stream.
+	 */
+	public void setMixAudio(boolean mix) {
+		this.mix = mix;
+	}
+
+	/**
 	 * @param frame The audio frame that should be mixed into the target stream.
 	 */
 	public void addAudioFrame(final AudioFrame frame) {
-		if (!started()) {
+		if (!started() || !mix) {
 			return;
 		}
 
@@ -90,6 +108,10 @@ public class AudioMixer extends ExecutableBase {
 	 * @throws IOException If the audio data could not be mixed.
 	 */
 	public int write(byte[] data, int offset, int length) throws IOException {
+		if (!mix) {
+			return audioSink.write(data, offset, length);
+		}
+
 		byte[] buffer = new byte[length];
 
 		if (ringBuffer.available() > 1) {

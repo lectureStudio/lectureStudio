@@ -21,6 +21,7 @@ package org.lecturestudio.core.audio.sink;
 import java.io.IOException;
 
 import org.lecturestudio.core.audio.AudioFormat;
+import org.lecturestudio.core.audio.AudioMixer;
 
 /**
  * AudioSink proxy implementation which redirects all calls to a specified
@@ -30,26 +31,36 @@ import org.lecturestudio.core.audio.AudioFormat;
  */
 public class ProxyAudioSink implements AudioSink {
 
-	private final AudioSink proxy;
+	private final AudioMixer proxy;
 
 
-	public ProxyAudioSink(AudioSink proxy) {
+	public ProxyAudioSink(AudioMixer proxy) {
 		this.proxy = proxy;
 	}
 
 	@Override
 	public void open() throws IOException {
-		proxy.open();
+//		try {
+//			proxy.start();
+//		}
+//		catch (Exception e) {
+//			throw new IOException("Open audio mixer failed", e);
+//		}
 	}
 
 	@Override
 	public void reset() throws IOException {
-		proxy.reset();
+
 	}
 
 	@Override
 	public void close() throws IOException {
-		proxy.close();
+//		try {
+//			proxy.stop();
+//		}
+//		catch (Exception e) {
+//			throw new IOException("Close audio mixer failed", e);
+//		}
 	}
 
 	@Override

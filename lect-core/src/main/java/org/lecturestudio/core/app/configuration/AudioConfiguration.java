@@ -20,6 +20,7 @@ package org.lecturestudio.core.app.configuration;
 
 import org.lecturestudio.core.audio.AudioFormat;
 import org.lecturestudio.core.audio.AudioProcessingSettings;
+import org.lecturestudio.core.beans.BooleanProperty;
 import org.lecturestudio.core.beans.DoubleProperty;
 import org.lecturestudio.core.beans.FloatProperty;
 import org.lecturestudio.core.beans.ObjectProperty;
@@ -43,6 +44,9 @@ public class AudioConfiguration {
 
 	/** The path where the recordings are stored at. */
 	private final StringProperty recordingPath = new StringProperty();
+
+	/** Whether to mix audio streams of all participants. */
+	private final BooleanProperty mixAudioStreams = new BooleanProperty();
 
 	/** The capture device recording volume. */
 	private final FloatProperty recordingVolume = new FloatProperty();
@@ -142,6 +146,35 @@ public class AudioConfiguration {
 	 */
 	public StringProperty recordingPathProperty() {
 		return recordingPath;
+	}
+
+	/**
+	 * Get whether to mix audio streams of all participants into the recorded
+	 * audio.
+	 *
+	 * @return true to mix all audio streams.
+	 */
+	public Boolean getMixAudioStreams() {
+		return mixAudioStreams.get();
+	}
+
+	/**
+	 * Set whether to mix audio streams of all participants into the recorded
+	 * audio.
+	 *
+	 * @param mix true to mix all audio streams.
+	 */
+	public void setMixAudioStreams(Boolean mix) {
+		this.mixAudioStreams.set(mix);
+	}
+
+	/**
+	 * Obtain the mix audio property.
+	 *
+	 * @return the mix audio property.
+	 */
+	public BooleanProperty mixAudioStreamsProperty() {
+		return mixAudioStreams;
 	}
 
 	/**

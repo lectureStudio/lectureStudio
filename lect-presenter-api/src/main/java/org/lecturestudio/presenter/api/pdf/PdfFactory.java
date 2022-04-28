@@ -191,7 +191,8 @@ public class PdfFactory {
 		int pageIndex = document.createPage();
 
 		// Draw chart below last text line.
-		int margin = 20;
+		int marginX = 50;
+		int marginY = 35;
 
 		// Set (bar)chart y-axis tick spacing.
 		if (chart instanceof CategoryChart) {
@@ -211,12 +212,12 @@ public class PdfFactory {
 		}
 
 		PDFGraphics2D g2dStream = (PDFGraphics2D) document.createPageGraphics2D(pageIndex);
-		g2dStream.translate(0, 0);
-		chart.paint(g2dStream, PAGE_WIDTH, chartHeight - margin);
+		g2dStream.translate(marginX, marginY);
+		chart.paint(g2dStream, PAGE_WIDTH - 2 * marginX, chartHeight - 2 * marginY);
 		g2dStream.close();
 
 		g2dStream = (PDFGraphics2D) document.createAppendablePageGraphics2D(pageIndex);
-		renderChartQuestions(g2dStream, result.getQuiz(), 0, chartHeight - margin);
+		renderChartQuestions(g2dStream, result.getQuiz(), 0, chartHeight - marginY);
 		g2dStream.close();
 	}
 

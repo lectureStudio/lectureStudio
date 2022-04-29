@@ -78,7 +78,7 @@ public class PdfFactory {
 
 	private static final int CONTENT_X = 30;
 
-	private static final int CONTENT_Y = 10;
+	private static final int CONTENT_Y = 35;
 
 	private static final int FONT_SIZE = 16;
 
@@ -312,6 +312,7 @@ public class PdfFactory {
 		chart.getStyler().setChartBackgroundColor(Color.WHITE);
 		chart.getStyler().setLegendBorderColor(Color.WHITE);
 		chart.getStyler().setXAxisTicksVisible(false);
+		chart.getStyler().setAxisTicksLineVisible(false);
 		chart.getStyler().setSeriesColors(new ChartColors().getSeriesColors());
 
 		Map<QuizAnswer, Integer> resultMap = result.getResult();
@@ -344,6 +345,7 @@ public class PdfFactory {
 		chart.getStyler().setChartBackgroundColor(Color.WHITE);
 		chart.getStyler().setLegendBorderColor(Color.WHITE);
 		chart.getStyler().setXAxisTicksVisible(false);
+		chart.getStyler().setAxisTicksLineVisible(false);
 		chart.getStyler().setSeriesColors(new ChartColors().getSeriesColors());
 
 		Map<QuizAnswer, Integer> resultMap = result.getResult();

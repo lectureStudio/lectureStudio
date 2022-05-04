@@ -25,9 +25,11 @@ import com.linkedin.urls.detection.UrlDetectorOptions;
 import java.awt.Color;
 import java.awt.Graphics2D;
 import java.io.ByteArrayOutputStream;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.TreeMap;
 
 import javax.swing.JEditorPane;
 import javax.swing.SizeRequirements;
@@ -58,6 +60,7 @@ import org.lecturestudio.core.pdf.PdfDocument;
 import org.lecturestudio.core.pdf.PdfFontManager;
 import org.lecturestudio.core.pdf.pdfbox.PDFGraphics2D;
 import org.lecturestudio.core.util.FileUtils;
+import org.lecturestudio.presenter.api.util.NumericStringComparator;
 import org.lecturestudio.web.api.model.quiz.Quiz;
 import org.lecturestudio.web.api.model.quiz.Quiz.QuizType;
 import org.lecturestudio.web.api.model.quiz.QuizAnswer;
@@ -69,6 +72,8 @@ import org.lecturestudio.web.api.model.quiz.QuizResult;
  * @author Alex Andres
  */
 public class PdfFactory {
+
+	private static final NumericStringComparator NS_COMPARATOR = new NumericStringComparator();
 
 	public static StyleSheet CUSTOM_STYLESHEET = new StyleSheet();
 
@@ -296,8 +301,9 @@ public class PdfFactory {
 		chart.getStyler().setSeriesColors(new ChartColors().getSeriesColors());
 
 		Map<QuizAnswer, Integer> resultMap = result.getResult();
+		Collection<QuizAnswer> answers = getSortedAnswers(result);
 
-		for (QuizAnswer answer : resultMap.keySet()) {
+		for (QuizAnswer answer : answers) {
 			chart.addSeries(result.getAnswerText(answer), resultMap.get(answer));
 		}
 
@@ -323,7 +329,9 @@ public class PdfFactory {
 			xValues[i] = i;
 		}
 
-		for (QuizAnswer answer : resultMap.keySet()) {
+		Collection<QuizAnswer> answers = getSortedAnswers(result);
+
+		for (QuizAnswer answer : answers) {
 			int[] yValues = new int[resultMap.size()];
 			yValues[index] = resultMap.get(answer);
 
@@ -403,6 +411,23 @@ public class PdfFactory {
 		}
 
 		return chart;
+	}
+
+	private static Collection<QuizAnswer> getSortedAnswers(QuizResult result) {
+		Map<QuizAnswer, Integer> resultMap = result.getResult();
+
+		if (result.getQuiz().getType() == QuizType.NUMERIC) {
+			// Sort options.
+			Map<String, QuizAnswer> sortedMap = new TreeMap<>(NS_COMPARATOR);
+
+			for (QuizAnswer answer : resultMap.keySet()) {
+				sortedMap.put(result.getAnswerText(answer), answer);
+			}
+
+			return sortedMap.values();
+		}
+
+		return resultMap.keySet();
 	}
 
 	private static void renderQuestionPage(Graphics2D context, Quiz quiz, int fontSize, int x, int y) {

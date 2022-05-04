@@ -59,10 +59,10 @@ public class QuizAnswer extends ServiceModel implements Comparable<QuizAnswer>, 
 		StringBuilder b = new StringBuilder();
 
 		for (String opt : getOptions()) {
-			a.append(opt);
+			a.append(opt).append("-");
 		}
 		for (String opt : answer.getOptions()) {
-			b.append(opt);
+			b.append(opt).append("-");
 		}
 
 		return a.toString().compareToIgnoreCase(b.toString());
@@ -79,8 +79,11 @@ public class QuizAnswer extends ServiceModel implements Comparable<QuizAnswer>, 
 
 		QuizAnswer other = (QuizAnswer) o;
 
-		return getServiceId().equals(other.getServiceId()) && Arrays
-				.equals(options, other.options);
+		if (!Objects.equals(getServiceId(), other.getServiceId())) {
+			return false;
+		}
+
+		return Arrays.equals(options, other.options);
 	}
 
 	@Override

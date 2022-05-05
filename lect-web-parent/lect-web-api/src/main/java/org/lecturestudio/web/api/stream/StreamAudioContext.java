@@ -24,26 +24,26 @@ import java.util.function.Consumer;
 
 import org.lecturestudio.core.audio.AudioFrame;
 import org.lecturestudio.core.beans.BooleanProperty;
+import org.lecturestudio.core.beans.DoubleProperty;
 import org.lecturestudio.core.beans.ObjectProperty;
 
 public class StreamAudioContext {
 
-	private final ObjectProperty<AudioDevice> playbackDevice;
+	private final ObjectProperty<AudioDevice> playbackDevice = new ObjectProperty<>();
 
-	private final ObjectProperty<AudioDevice> recordingDevice;
+	private final ObjectProperty<AudioDevice> recordingDevice = new ObjectProperty<>();
 
-	private final BooleanProperty receiveAudio;
+	private final BooleanProperty receiveAudio = new BooleanProperty();
 
-	private final BooleanProperty sendAudio;
+	private final BooleanProperty sendAudio = new BooleanProperty();
+
+	private final DoubleProperty playbackVolume = new DoubleProperty();
 
 	private Consumer<AudioFrame> frameConsumer;
 
 
 	public StreamAudioContext() {
-		playbackDevice = new ObjectProperty<>();
-		recordingDevice = new ObjectProperty<>();
-		receiveAudio = new BooleanProperty();
-		sendAudio = new BooleanProperty();
+
 	}
 
 	public ObjectProperty<AudioDevice> playbackDeviceProperty() {
@@ -56,6 +56,18 @@ public class StreamAudioContext {
 
 	public void setPlaybackDevice(AudioDevice device) {
 		playbackDevice.set(device);
+	}
+
+	public double getPlaybackVolume() {
+		return playbackVolume.get();
+	}
+
+	public void setPlaybackVolume(double volume) {
+		this.playbackVolume.set(volume);
+	}
+
+	public DoubleProperty playbackVolumeProperty() {
+		return playbackVolume;
 	}
 
 	public ObjectProperty<AudioDevice> recordingDeviceProperty() {

@@ -127,6 +127,10 @@ public class TextSelectionTool extends Tool {
 			if (!rect.contains(xPoint)) {
 				continue;
 			}
+			if (checkCollision(xPoint)) {
+				// Try next text part.
+				continue;
+			}
 
 			// Create an action only if there is at least one character selection.
 			if (!shape.hasSelection()) {
@@ -150,6 +154,22 @@ public class TextSelectionTool extends Tool {
 
 			break;
 		}
+	}
+
+	private boolean checkCollision(PenPoint2D point) {
+		// Get all selection shapes on the page and check for collisions.
+		var equalShapes = page.getShapes(TextSelectionShape.class);
+
+		for (var s : equalShapes) {
+			TextSelectionShape other = (TextSelectionShape) s;
+
+			if (shape != other && other.contains(point)) {
+				// Other shape already marked this part.
+				return true;
+			}
+		}
+
+		return false;
 	}
 
 	private void firePaintEvent(ToolEventType type) {

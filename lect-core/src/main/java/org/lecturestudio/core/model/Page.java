@@ -25,6 +25,7 @@ import java.util.Set;
 import java.util.Stack;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.stream.Collectors;
 
 import org.lecturestudio.core.PageMetrics;
 import org.lecturestudio.core.geometry.Rectangle2D;
@@ -403,20 +404,23 @@ public class Page {
 	 *
 	 * @param shape The shape to check.
 	 *
-	 * @return {@code true} if {@link #shapes} contains the specified shape, otherwise {@code false}.
+	 * @return {@code true} if {@link #shapes} contains the specified shape,
+	 * otherwise {@code false}.
 	 */
 	public boolean contains(Shape shape) {
 		return shapes.contains(shape);
 	}
 
 	/**
-	 * Specifies whether the specified {@link Class} is either the same as, or is a superclass or superinterface of,
-	 * the class or interface from one of the shapes in {@link #shapes}.
+	 * Specifies whether the specified {@link Class} is either the same as, or
+	 * is a superclass or superinterface of, the class or interface from one of
+	 * the shapes in {@link #shapes}.
 	 *
 	 * @param shapeClass The {@link Class}.
 	 *
-	 * @return {@code true} if the specified {@link Class} is either the same as, or is a superclass or
-	 * superinterface of, the class or interface from one of the shapes in {@link #shapes}, otherwise {@code false}.
+	 * @return {@code true} if the specified {@link Class} is either the same
+	 * as, or is a superclass or superinterface of, the class or interface from
+	 * one of the shapes in {@link #shapes}, otherwise {@code false}.
 	 */
 	public boolean contains(Class<? extends Shape> shapeClass) {
 		for (Shape shape : shapes) {
@@ -426,6 +430,19 @@ public class Page {
 		}
 
 		return false;
+	}
+
+	/**
+	 * Retrieves all shapes on the page with the specified class type.
+	 *
+	 * @param shapeClass The class of shapes to search for.
+	 *
+	 * @return A list of all shapes with the specified class.
+	 */
+	public List<? extends Shape> getShapes(Class<? extends Shape> shapeClass) {
+		return shapes.stream()
+				.filter(s -> shapeClass.isAssignableFrom(s.getClass()))
+				.collect(Collectors.toList());
 	}
 
 	/**

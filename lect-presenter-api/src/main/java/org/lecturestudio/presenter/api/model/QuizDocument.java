@@ -18,13 +18,8 @@
 
 package org.lecturestudio.presenter.api.model;
 
-import com.openhtmltopdf.extend.FSDOMMutator;
-import com.openhtmltopdf.outputdevice.helper.BaseRendererBuilder.PageSizeUnits;
-import com.openhtmltopdf.pdfboxout.PdfRendererBuilder;
-
 import java.awt.Color;
 import java.awt.geom.AffineTransform;
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.Collection;
 import java.util.HashMap;
@@ -36,7 +31,6 @@ import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.pdmodel.PDPage;
 
 import org.jsoup.Jsoup;
-import org.jsoup.helper.W3CDom;
 import org.jsoup.nodes.Element;
 
 import org.knowm.xchart.CategoryChart;
@@ -49,7 +43,6 @@ import org.knowm.xchart.style.Styler.ChartTheme;
 import org.knowm.xchart.style.colors.SeriesColors;
 
 import org.lecturestudio.core.app.dictionary.Dictionary;
-import org.lecturestudio.core.model.Document;
 import org.lecturestudio.core.model.DocumentType;
 import org.lecturestudio.core.pdf.PdfDocument;
 import org.lecturestudio.core.pdf.pdfbox.PDFGraphics2D;
@@ -59,22 +52,15 @@ import org.lecturestudio.web.api.model.quiz.Quiz.QuizType;
 import org.lecturestudio.web.api.model.quiz.QuizAnswer;
 import org.lecturestudio.web.api.model.quiz.QuizResult;
 
-import org.w3c.dom.Node;
-import org.w3c.dom.NodeList;
-
 /**
  * PDF-based quiz document that contains the quiz question and charts showing
  * the result of all received quiz answers.
  *
  * @author Alex Andres
  */
-public class QuizDocument extends Document {
+public class QuizDocument extends HtmlToPdfDocument {
 
 	private static final NumericStringComparator NS_COMPARATOR = new NumericStringComparator();
-
-	private static final int PAGE_WIDTH = 640;
-
-	private static final int PAGE_HEIGHT = 480;
 
 
 	public QuizDocument(Dictionary dict, QuizResult result) throws IOException {
@@ -109,15 +95,7 @@ public class QuizDocument extends Document {
 			}
 		}
 
-		ByteArrayOutputStream stream = new ByteArrayOutputStream();
-
-		doc.save(stream);
-		doc.close();
-
-		stream.flush();
-		stream.close();
-
-		return new PdfDocument(stream.toByteArray());
+		return createPdfDocument(doc);
 	}
 
 	private static void renderQuestion(PDDocument pdDocument, Quiz quiz)
@@ -237,64 +215,6 @@ public class QuizDocument extends Document {
 		g2dStream.translate(marginX, marginY);
 		chart.paint(g2dStream, PAGE_WIDTH - 2 * marginX, chartHeight - 2 * marginY);
 		g2dStream.close();
-	}
-
-	private static void renderHtmlPage(org.jsoup.nodes.Document jdoc, PDDocument pdDoc)
-			throws IOException {
-		System.out.println(jdoc.html());
-
-		FSDOMMutator domChanger = (doc) -> {
-			NodeList fontTags = doc.getElementsByTagName("font");
-
-			for (int i = 0; i < fontTags.getLength(); i++) {
-				org.w3c.dom.Element fontTag = (org.w3c.dom.Element) fontTags.item(i);
-
-				if (fontTag.hasAttribute("color")) {
-					String color = fontTag.getAttribute("color");
-
-					if (!fontTag.hasAttribute("style")) {
-						fontTag.setAttribute("style", "color: " + color + ';');
-					}
-					else {
-						String oldStyle = fontTag.getAttribute("style");
-						String newStyle = oldStyle + "; color: " + color + ';';
-
-						fontTag.setAttribute("style", newStyle);
-					}
-				}
-			}
-		};
-
-		FSDOMMutator domChanger2 = (doc) -> {
-			NodeList divs = doc.getElementsByTagName("div");
-
-			for (int i = 0; i < divs.getLength(); i++) {
-				org.w3c.dom.Element div = (org.w3c.dom.Element) divs.item(i);
-
-				if (div.getChildNodes().getLength() == 1) {
-					org.w3c.dom.Node node = div.getChildNodes().item(0);
-
-					if (node.getNodeType() == Node.TEXT_NODE
-							&& node.getTextContent().trim().isEmpty()) {
-						div.setAttribute("style", "height: 20px;");
-					}
-				}
-			}
-		};
-
-		PdfRendererBuilder builder = new PdfRendererBuilder();
-		builder.withW3cDocument(new W3CDom().fromJsoup(jdoc), "/");
-		builder.withProducer("lecturePresenter");
-		builder.addDOMMutator(domChanger);
-		builder.addDOMMutator(domChanger2);
-		builder.usePDDocument(pdDoc);
-		builder.useDefaultPageSize(PAGE_WIDTH / 72f, PAGE_HEIGHT / 72f,
-				PageSizeUnits.INCHES);
-
-		var buildPdfRenderer = builder.buildPdfRenderer();
-		buildPdfRenderer.layout();
-		buildPdfRenderer.createPDFWithoutClosing();
-		buildPdfRenderer.close();
 	}
 
 	private static PieChart createPieChart(Dictionary dict, QuizResult result) {

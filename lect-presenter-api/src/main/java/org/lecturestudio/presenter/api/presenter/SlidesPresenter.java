@@ -19,6 +19,7 @@
 package org.lecturestudio.presenter.api.presenter;
 
 import com.google.common.eventbus.Subscribe;
+
 import org.lecturestudio.core.ExecutableException;
 import org.lecturestudio.core.ExecutableState;
 import org.lecturestudio.core.app.ApplicationContext;
@@ -54,7 +55,7 @@ import org.lecturestudio.presenter.api.context.PresenterContext;
 import org.lecturestudio.presenter.api.event.*;
 import org.lecturestudio.presenter.api.input.Shortcut;
 import org.lecturestudio.presenter.api.model.MessageBarPosition;
-import org.lecturestudio.presenter.api.pdf.PdfFactory;
+import org.lecturestudio.presenter.api.model.MessageDocument;
 import org.lecturestudio.presenter.api.service.RecordingService;
 import org.lecturestudio.presenter.api.service.WebRtcStreamService;
 import org.lecturestudio.presenter.api.service.WebService;
@@ -435,7 +436,8 @@ public class SlidesPresenter extends Presenter<SlidesView> {
 		onDiscardMessage(message);
 
 		try {
-			Document messageDocument = createMessageDocument(message.getMessage().getText());
+			Document messageDocument = new MessageDocument(context.getDictionary(),
+					message.getMessage().getText());
 
 			Document prevMessageDocument = null;
 
@@ -458,18 +460,6 @@ public class SlidesPresenter extends Presenter<SlidesView> {
 		catch (Throwable e) {
 			handleException(e, "Create message slide failed", "message.slide.create.error");
 		}
-	}
-
-	private Document createMessageDocument(final String message) throws Exception {
-		Document doc = new Document();
-		doc.setTitle(context.getDictionary().get("slides.message"));
-		doc.setDocumentType(DocumentType.MESSAGE);
-		doc.createPage();
-
-		PdfFactory.createMessagePage(doc.getPdfDocument(), message);
-		doc.reload();
-
-		return doc;
 	}
 
 	private void toolChanged(ToolType toolType) {

@@ -30,12 +30,12 @@ public class UIUtils {
     /**
      * The icon size
      */
-    public static final int ICON_SIZE = (int) (20 * UIScale.getUserScaleFactor());
+    public static final int ICON_SIZE = (int) (16 * UIScale.getUserScaleFactor());
 
     /**
      * The button size
      */
-    public static final int BUTTON_SIZE = ICON_SIZE+4;
+    public static final int BUTTON_SIZE = ICON_SIZE + 14;
 
     /**
      * The icons' path
@@ -66,7 +66,6 @@ public class UIUtils {
             svgicon.setAntiAlias(true);
             svgicon.setAutosize(SVGIcon.AUTOSIZE_STRETCH);
             svgicon.setSvgURI(url.toURI());
-
             svgicon.setPreferredSize(new Dimension(size, size));
 
             return svgicon;

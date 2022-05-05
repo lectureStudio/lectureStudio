@@ -226,8 +226,8 @@ public class CompoundUndoManager implements UndoableEditListener
         public UndoAction()
         {
             super(i18n.str("undo"));
+
             putValue(Action.SMALL_ICON, UIUtils.getIcon("undo-tool.svg"));
-            putValue(ActionManager.LARGE_ICON, UIUtils.getIcon("undo-tool.svg"));
 
             setEnabled(false);
             putValue(
@@ -265,7 +265,6 @@ public class CompoundUndoManager implements UndoableEditListener
         {
             super(i18n.str("redo"));
             putValue(Action.SMALL_ICON, UIUtils.getIcon("redo-tool.svg"));
-            putValue(ActionManager.LARGE_ICON, UIUtils.getIcon("redo-tool.svg"));
 
             setEnabled(false);
             putValue(Action.ACCELERATOR_KEY, KeyStroke.getKeyStroke(

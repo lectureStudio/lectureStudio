@@ -151,7 +151,7 @@ public class HTMLInlineAction extends HTMLTextEditAction
                 tag = HTML.Tag.STRONG;
                 break;
             case CODE:
-                tag = HTML.Tag.CODE;
+                tag = HTML.Tag.PRE;
                 break;
             case SUP:
                 tag = HTML.Tag.SUP;

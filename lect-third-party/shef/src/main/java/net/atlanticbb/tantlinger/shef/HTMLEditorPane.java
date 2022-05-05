@@ -214,13 +214,14 @@ public class HTMLEditorPane extends JPanel
                 }
             }
         };
-        for(Iterator it = blockActs.iterator(); it.hasNext();)
-        {
+
+        for (Iterator it = blockActs.iterator(); it.hasNext();) {
             Object o = it.next();
             if(o instanceof DefaultAction)
                 ((DefaultAction)o).addPropertyChangeListener(propLst);
         }
-        paragraphCombo = new JComboBox(toArray(blockActs));
+
+        paragraphCombo = new JComboBox<>(toArray(blockActs));
         paragraphCombo.setPreferredSize(new Dimension(120, UIUtils.BUTTON_SIZE));
         paragraphCombo.setMinimumSize(new Dimension(120, UIUtils.BUTTON_SIZE));
         paragraphCombo.setMaximumSize(new Dimension(120, UIUtils.BUTTON_SIZE));
@@ -266,12 +267,6 @@ public class HTMLEditorPane extends JPanel
         act = new HTMLInlineAction(HTMLInlineAction.CODE);
         act.putValue(ActionManager.BUTTON_TYPE, ActionManager.BUTTON_TYPE_VALUE_TOGGLE);
         act.putValue(Action.SMALL_ICON, UIUtils.getIcon("code.svg"));
-        actionList.add(act);
-        addToToolBar(formatToolBar, act);
-
-        act = new HTMLInlineAction(HTMLInlineAction.SPAN);
-        act.putValue(ActionManager.BUTTON_TYPE, ActionManager.BUTTON_TYPE_VALUE_TOGGLE);
-        act.putValue(Action.SMALL_ICON, UIUtils.getIcon("template.svg"));
         actionList.add(act);
         addToToolBar(formatToolBar, act);
 

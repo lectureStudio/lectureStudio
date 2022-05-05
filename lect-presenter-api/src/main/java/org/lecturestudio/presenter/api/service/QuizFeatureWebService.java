@@ -249,7 +249,7 @@ public class QuizFeatureWebService extends FeatureServiceBase {
 		// Add a whitespace within empty div's.
 		for (Element element : doc.select("div")) {
 			if (!element.hasText() && element.isBlock()) {
-				element.html("&nbsp;");
+				element.appendElement("br");
 			}
 		}
 

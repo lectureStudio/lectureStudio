@@ -28,6 +28,8 @@ import java.io.IOException;
 import org.apache.pdfbox.pdmodel.PDDocument;
 
 import org.jsoup.helper.W3CDom;
+import org.jsoup.nodes.Document.OutputSettings;
+import org.jsoup.nodes.Entities.EscapeMode;
 
 import org.lecturestudio.core.model.Document;
 import org.lecturestudio.core.pdf.PdfDocument;
@@ -66,7 +68,11 @@ public abstract class HtmlToPdfDocument extends Document {
 
 	protected static void renderHtmlPage(org.jsoup.nodes.Document jdoc,
 			PDDocument pdDoc) throws IOException {
-		System.out.println(jdoc.html());
+		OutputSettings outputSettings = new OutputSettings();
+		outputSettings.prettyPrint(false);
+		outputSettings.escapeMode(EscapeMode.xhtml);
+
+		jdoc.outputSettings(outputSettings);
 
 		var builder = new PdfRendererBuilder();
 		builder.withW3cDocument(new W3CDom().fromJsoup(jdoc), "/");
@@ -99,15 +105,8 @@ public abstract class HtmlToPdfDocument extends Document {
 
 					if (node.getNodeType() == Node.TEXT_NODE
 							&& node.getTextContent().trim().isEmpty()) {
-						if (div.hasAttribute("style")) {
-							String oldStyle = div.getAttribute("style");
-							String newStyle = oldStyle + "; height: 20px;";
-
-							div.setAttribute("style", newStyle);
-						}
-						else {
-							div.setAttribute("style", "height: 20px;");
-						}
+						org.w3c.dom.Document d = div.getOwnerDocument();
+						div.appendChild(d.createElement("br"));
 					}
 				}
 			}

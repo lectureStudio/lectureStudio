@@ -43,9 +43,8 @@ import org.lecturestudio.core.app.dictionary.Dictionary;
 import org.lecturestudio.core.bus.EventBus;
 import org.lecturestudio.core.model.Document;
 import org.lecturestudio.core.model.DocumentType;
-import org.lecturestudio.core.pdf.PdfDocument;
 import org.lecturestudio.core.service.DocumentService;
-import org.lecturestudio.presenter.api.pdf.PdfFactory;
+import org.lecturestudio.presenter.api.model.QuizDocument;
 import org.lecturestudio.web.api.message.QuizAnswerMessage;
 import org.lecturestudio.web.api.model.quiz.Quiz;
 import org.lecturestudio.web.api.model.quiz.QuizAnswer;
@@ -202,11 +201,8 @@ public class QuizFeatureWebService extends FeatureServiceBase {
 
 		try {
 			Dictionary dict = context.getDictionary();
-			PdfDocument pdfDoc = PdfFactory.createQuizDocument(dict, result);
-			pdfDoc.setTitle("Quiz");
-			pdfDoc.setAuthor(System.getProperty("user.name"));
 
-			doc = new Document(pdfDoc);
+			doc = new QuizDocument(dict, result);
 			doc.setDocumentType(DocumentType.QUIZ);
 		}
 		catch (Exception e) {

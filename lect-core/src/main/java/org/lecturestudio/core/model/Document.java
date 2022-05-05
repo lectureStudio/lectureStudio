@@ -748,7 +748,7 @@ public class Document {
 	 *
 	 * @param pdfDocument The PDF document of the document.
 	 */
-	private void init(PdfDocument pdfDocument) {
+	protected void init(PdfDocument pdfDocument) {
 		this.pdfDocument = pdfDocument;
 		this.title = pdfDocument.getTitle();
 

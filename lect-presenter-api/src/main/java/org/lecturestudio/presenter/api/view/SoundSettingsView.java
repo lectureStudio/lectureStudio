@@ -21,6 +21,7 @@ package org.lecturestudio.presenter.api.view;
 import org.lecturestudio.core.audio.AudioProcessingSettings.NoiseSuppressionLevel;
 import org.lecturestudio.core.audio.device.AudioDevice;
 import org.lecturestudio.core.beans.BooleanProperty;
+import org.lecturestudio.core.beans.DoubleProperty;
 import org.lecturestudio.core.beans.FloatProperty;
 import org.lecturestudio.core.beans.ObjectProperty;
 import org.lecturestudio.core.beans.StringProperty;
@@ -45,6 +46,8 @@ public interface SoundSettingsView extends SettingsBaseView {
 
 	void bindAudioCaptureLevel(FloatProperty levelProperty);
 
+	void bindAudioPlaybackLevel(DoubleProperty levelProperty);
+
 	void bindTestCaptureEnabled(BooleanProperty enable);
 
 	void bindTestPlaybackEnabled(BooleanProperty enable);
@@ -52,6 +55,8 @@ public interface SoundSettingsView extends SettingsBaseView {
 	void setOnTestCapture(BooleanProperty recordProperty);
 
 	void setOnTestCapturePlayback(BooleanProperty playProperty);
+
+	void setOnTestSpeakerPlayback(BooleanProperty playProperty);
 
 	void setOnAdjustAudioCaptureLevel(Action action);
 

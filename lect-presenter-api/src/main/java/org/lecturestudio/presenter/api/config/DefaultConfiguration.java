@@ -112,6 +112,7 @@ public class DefaultConfiguration extends PresenterConfiguration {
 		getAudioConfig().setRecordingFormat(new AudioFormat(AudioFormat.Encoding.S16LE, 44100, 1));
 		getAudioConfig().setRecordingPath(System.getProperty("user.home"));
 		getAudioConfig().setRecordingProcessingSettings(processingSettings);
+		getAudioConfig().setPlaybackVolume(1.0);
 		getAudioConfig().setDefaultRecordingVolume(1.0f);
 		getAudioConfig().setMasterRecordingVolume(1.0f);
 		getAudioConfig().setMixAudioStreams(false);

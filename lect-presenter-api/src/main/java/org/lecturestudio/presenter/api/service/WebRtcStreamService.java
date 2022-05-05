@@ -112,6 +112,8 @@ public class WebRtcStreamService extends ExecutableBase {
 
 	private ChangeListener<String> playbackDeviceListener;
 
+	private ChangeListener<Double> playbackVolumeListener;
+
 	private ExecutableState streamState;
 
 	private ExecutableState cameraState;
@@ -302,7 +304,7 @@ public class WebRtcStreamService extends ExecutableBase {
 			throw new ExecutableException(e);
 		}
 
-		cameraFormatListener = (observable, oldValue, newValue) -> {
+		cameraFormatListener = (o, oldValue, newValue) -> {
 			streamContext.getVideoContext().setCaptureCapability(
 					new VideoCaptureCapability((int) newValue.getWidth(),
 							(int) newValue.getHeight(),
@@ -311,32 +313,36 @@ public class WebRtcStreamService extends ExecutableBase {
 			streamContext.getVideoContext().setBitrate(
 					streamConfig.getCameraCodecConfig().getBitRate());
 		};
-		cameraDeviceListener = (observable, oldValue, newValue) -> {
+		cameraDeviceListener = (o, oldValue, newValue) -> {
 			VideoDevice cameraDevice = getDeviceByName(
 					MediaDevices.getVideoCaptureDevices(),
 					streamConfig.getCameraName());
 
 			streamContext.getVideoContext().setCaptureDevice(cameraDevice);
 		};
-		captureDeviceListener = (observable, oldValue, newValue) -> {
+		captureDeviceListener = (o, oldValue, newValue) -> {
 			AudioDevice captureDevice = getDeviceByName(
 					MediaDevices.getAudioCaptureDevices(),
 					audioConfig.getCaptureDeviceName());
 
 			streamContext.getAudioContext().setRecordingDevice(captureDevice);
 		};
-		playbackDeviceListener = (observable, oldValue, newValue) -> {
+		playbackDeviceListener = (o, oldValue, newValue) -> {
 			AudioDevice playbackDevice = getDeviceByName(
 					MediaDevices.getAudioRenderDevices(),
 					audioConfig.getPlaybackDeviceName());
 
 			streamContext.getAudioContext().setPlaybackDevice(playbackDevice);
 		};
+		playbackVolumeListener = (o, oldValue, newValue) -> {
+			streamContext.getAudioContext().setPlaybackVolume(newValue);
+		};
 
 		streamConfig.getCameraCodecConfig().viewRectProperty().addListener(cameraFormatListener);
 		streamConfig.cameraNameProperty().addListener(cameraDeviceListener);
 		audioConfig.captureDeviceNameProperty().addListener(captureDeviceListener);
 		audioConfig.playbackDeviceNameProperty().addListener(playbackDeviceListener);
+		audioConfig.playbackVolumeProperty().addListener(playbackVolumeListener);
 
 		setStreamState(ExecutableState.Started);
 
@@ -373,6 +379,7 @@ public class WebRtcStreamService extends ExecutableBase {
 		streamConfig.cameraNameProperty().removeListener(cameraDeviceListener);
 		audioConfig.captureDeviceNameProperty().removeListener(captureDeviceListener);
 		audioConfig.playbackDeviceNameProperty().removeListener(playbackDeviceListener);
+		audioConfig.playbackVolumeProperty().removeListener(playbackVolumeListener);
 
 		setStreamState(ExecutableState.Stopped);
 	}
@@ -488,6 +495,7 @@ public class WebRtcStreamService extends ExecutableBase {
 		audioContext.setReceiveAudio(true);
 		audioContext.setRecordingDevice(audioCaptureDevice);
 		audioContext.setPlaybackDevice(audioPlaybackDevice);
+		audioContext.setPlaybackVolume(audioConfig.getPlaybackVolume());
 		audioContext.setFrameConsumer(this::processAudioFrame);
 
 		videoContext.setSendVideo(streamConfig.getCameraEnabled());

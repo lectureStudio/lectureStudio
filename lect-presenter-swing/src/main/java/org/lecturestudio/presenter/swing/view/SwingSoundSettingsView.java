@@ -36,9 +36,11 @@ import javax.swing.event.AncestorListener;
 import org.lecturestudio.core.audio.AudioProcessingSettings.NoiseSuppressionLevel;
 import org.lecturestudio.core.audio.device.AudioDevice;
 import org.lecturestudio.core.beans.BooleanProperty;
+import org.lecturestudio.core.beans.DoubleProperty;
 import org.lecturestudio.core.beans.FloatProperty;
 import org.lecturestudio.core.beans.ObjectProperty;
 import org.lecturestudio.core.beans.StringProperty;
+import org.lecturestudio.core.converter.DoubleIntegerConverter;
 import org.lecturestudio.core.converter.FloatIntegerConverter;
 import org.lecturestudio.core.view.Action;
 import org.lecturestudio.core.view.ConsumerAction;
@@ -70,7 +72,11 @@ public class SwingSoundSettingsView extends JPanel implements SoundSettingsView 
 
 	private JToggleButton playCaptureButton;
 
-	private JSlider volumeSlider;
+	private JToggleButton testSpeakerSoundButton;
+
+	private JSlider micVolumeSlider;
+
+	private JSlider speakerVolumeSlider;
 
 	private JButton closeButton;
 
@@ -90,7 +96,8 @@ public class SwingSoundSettingsView extends JPanel implements SoundSettingsView 
 	public void setViewEnabled(boolean enabled) {
 		SwingUtils.invoke(() -> SwingUtils.setEnabled(enabled,
 				audioCaptureDevicesCombo, adjustAudioInputLevelButton,
-				testCaptureButton, playCaptureButton, volumeSlider));
+				testCaptureButton, playCaptureButton, testSpeakerSoundButton,
+				micVolumeSlider, speakerVolumeSlider));
 	}
 
 	@Override
@@ -152,9 +159,18 @@ public class SwingSoundSettingsView extends JPanel implements SoundSettingsView 
 
 	@Override
 	public void bindAudioCaptureLevel(FloatProperty level) {
-		var levelProperty = new ConvertibleNumberProperty<>(level, new FloatIntegerConverter(100));
+		var levelProperty = new ConvertibleNumberProperty<>(level,
+				new FloatIntegerConverter(100));
 
-		SwingUtils.bindBidirectional(volumeSlider, levelProperty);
+		SwingUtils.bindBidirectional(micVolumeSlider, levelProperty);
+	}
+
+	@Override
+	public void bindAudioPlaybackLevel(DoubleProperty level) {
+		var levelProperty = new ConvertibleNumberProperty<>(level,
+				new DoubleIntegerConverter(100));
+
+		SwingUtils.bindBidirectional(speakerVolumeSlider, levelProperty);
 	}
 
 	@Override
@@ -168,7 +184,7 @@ public class SwingSoundSettingsView extends JPanel implements SoundSettingsView 
 			});
 		}
 
-		enable.addListener((observable, oldValue, newValue) -> testCaptureButton.setEnabled(newValue));
+		enable.addListener((o, oldValue, newValue) -> testCaptureButton.setEnabled(newValue));
 	}
 
 	@Override
@@ -193,6 +209,11 @@ public class SwingSoundSettingsView extends JPanel implements SoundSettingsView 
 	@Override
 	public void setOnTestCapturePlayback(BooleanProperty playProperty) {
 		SwingUtils.bindBidirectional(playCaptureButton, playProperty);
+	}
+
+	@Override
+	public void setOnTestSpeakerPlayback(BooleanProperty playProperty) {
+		SwingUtils.bindBidirectional(testSpeakerSoundButton, playProperty);
 	}
 
 	@Override

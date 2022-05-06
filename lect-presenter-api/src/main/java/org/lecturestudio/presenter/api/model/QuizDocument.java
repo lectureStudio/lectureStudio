@@ -100,7 +100,9 @@ public class QuizDocument extends HtmlToPdfDocument {
 
 	private static void renderQuestion(PDDocument pdDocument, Quiz quiz)
 			throws IOException {
-		var jdoc = Jsoup.parseBodyFragment(quiz.getQuestion());
+		String question = quiz.getQuestion().replaceAll("&nbsp;", " ");
+
+		var jdoc = Jsoup.parseBodyFragment(question);
 		jdoc.body().attr("style", "font-family: Helvetica, Sans-Serif;");
 		jdoc.outputSettings().prettyPrint(true);
 

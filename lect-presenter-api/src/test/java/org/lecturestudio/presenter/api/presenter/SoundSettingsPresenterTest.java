@@ -25,6 +25,7 @@ import org.lecturestudio.core.app.configuration.AudioConfiguration;
 import org.lecturestudio.core.audio.AudioProcessingSettings.NoiseSuppressionLevel;
 import org.lecturestudio.core.audio.device.AudioDevice;
 import org.lecturestudio.core.beans.BooleanProperty;
+import org.lecturestudio.core.beans.DoubleProperty;
 import org.lecturestudio.core.beans.FloatProperty;
 import org.lecturestudio.core.beans.ObjectProperty;
 import org.lecturestudio.core.beans.StringProperty;
@@ -113,6 +114,11 @@ class SoundSettingsPresenterTest extends PresenterTest {
 		}
 
 		@Override
+		public void bindAudioPlaybackLevel(DoubleProperty levelProperty) {
+
+		}
+
+		@Override
 		public void bindTestCaptureEnabled(BooleanProperty enable) {
 
 		}
@@ -129,6 +135,11 @@ class SoundSettingsPresenterTest extends PresenterTest {
 
 		@Override
 		public void setOnTestCapturePlayback(BooleanProperty playProperty) {
+
+		}
+
+		@Override
+		public void setOnTestSpeakerPlayback(BooleanProperty playProperty) {
 
 		}
 

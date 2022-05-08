@@ -21,6 +21,7 @@ package org.lecturestudio.presenter.api.model;
 import com.openhtmltopdf.extend.FSDOMMutator;
 import com.openhtmltopdf.outputdevice.helper.BaseRendererBuilder.PageSizeUnits;
 import com.openhtmltopdf.pdfboxout.PdfRendererBuilder;
+import com.openhtmltopdf.util.XRLog;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -51,6 +52,7 @@ public abstract class HtmlToPdfDocument extends Document {
 
 
 	public HtmlToPdfDocument() throws IOException {
+		XRLog.setLoggingEnabled(false);
 	}
 
 	protected static PdfDocument createPdfDocument(PDDocument doc)

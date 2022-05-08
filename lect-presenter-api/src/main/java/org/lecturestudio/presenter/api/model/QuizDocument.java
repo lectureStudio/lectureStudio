@@ -19,8 +19,17 @@
 package org.lecturestudio.presenter.api.model;
 
 import java.awt.Color;
+import java.awt.Dimension;
+import java.awt.Font;
+import java.awt.font.FontRenderContext;
+import java.awt.font.LineBreakMeasurer;
+import java.awt.font.TextAttribute;
+import java.awt.font.TextLayout;
 import java.awt.geom.AffineTransform;
 import java.io.IOException;
+import java.text.AttributedCharacterIterator;
+import java.text.AttributedString;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
@@ -126,6 +135,45 @@ public class QuizDocument extends HtmlToPdfDocument {
 		renderHtmlPage(jdoc, pdDocument);
 	}
 
+	private static boolean textFits(String text, Dimension areaToFit) {
+		Font font = new Font("Helvetica", Font.PLAIN, 12);
+
+		AttributedString as = new AttributedString(text);
+		as.addAttribute(TextAttribute.FONT, font);
+
+		AttributedCharacterIterator aci = as.getIterator();
+
+		int start = aci.getBeginIndex();
+		int end = aci.getEndIndex();
+
+		LineBreakMeasurer lineBreakMeasurer = new LineBreakMeasurer(aci,
+				new FontRenderContext(null, false, false));
+
+		float width = (float) areaToFit.width;
+		float height = 0;
+		lineBreakMeasurer.setPosition(start);
+
+		while (lineBreakMeasurer.getPosition() < end) {
+			TextLayout textLayout = lineBreakMeasurer.nextLayout(width);
+			height += textLayout.getAscent();
+			height += textLayout.getDescent() + textLayout.getLeading();
+		}
+
+		return height <= areaToFit.getHeight();
+	}
+
+	private static String makeTextFit(String text, Dimension areaToFit) {
+		if (!textFits(text, areaToFit)) {
+			// Remove last word and try again.
+			List<String> words = new ArrayList<>(List.of(text.split("\\s+")));
+			words.remove(words.size() - 1);
+
+			return makeTextFit(String.join(" ", words), areaToFit);
+		}
+
+		return text;
+	}
+
 	private static void renderChartQuestions(PDDocument pdDocument, Quiz quiz)
 			throws IOException {
 		List<String> options = quiz.getOptions();
@@ -139,20 +187,19 @@ public class QuizDocument extends HtmlToPdfDocument {
 		jdoc.outputSettings().prettyPrint(true);
 
 		Element div = jdoc.body().appendElement("div");
-		div.attr("style", "padding-top: 400px;");
+		div.attr("style", "padding-top: 380px;");
 
 		Element table = div.appendElement("table");
 		table.attr("style", "width: 100%; border-collapse: collapse;");
 
 		Element row = null;
 
-		String prefix = "";
-		String suffix = "";
-		int maxLength = 40;	// Option text not longer than one line.
+		int maxWidth = 260;
+		int maxHeight = 16;    // Option text not longer than one line.
 
 		if (options.size() < 7) {
 			// Allow option text to be two lines long.
-			maxLength = 95;
+			maxHeight = 32;
 		}
 
 		for (int i = 0; i < options.size(); i++) {
@@ -161,20 +208,26 @@ public class QuizDocument extends HtmlToPdfDocument {
 			}
 
 			Element data = row.appendElement("td");
-			data.attr("style", "padding: 0 0.7em 0.7em 0;");
+			data.attr("style", "padding: 0 0.7em 0.7em 0; vertical-align: top;");
 
+			Element tdDiv = data.appendElement("div");
+			tdDiv.attr("style", "max-height: 2.3em; overflow: hidden;");
+
+			String prefix = "";
 			String text = options.get(i);
-			int textLength = text.length();
 
 			if (quiz.getType() != QuizType.NUMERIC) {
 				prefix = quiz.getOptionAlpha(i + "") + ")";
 			}
-			if (textLength > maxLength) {
-				text = text.substring(0, maxLength);
-				suffix = "...";
+
+			Dimension textSize = new Dimension(maxWidth, maxHeight);
+
+			if (!textFits(text, textSize)) {
+				text = makeTextFit(text, textSize);
+				text = text.substring(0, text.length() - 3) + "...";
 			}
 
-			data.text(String.format("%s %s%s", prefix, text, suffix));
+			tdDiv.text(String.format("%s %s", prefix, text));
 		}
 
 		renderHtmlPage(jdoc, pdDocument);

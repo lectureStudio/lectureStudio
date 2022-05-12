@@ -85,6 +85,15 @@ public class DynamicInputStream extends InputStream implements Cloneable {
 		exclude.remove(interval);
 	}
 
+	public void clearExclusions() {
+		exclusions.clear();
+		exclude.clear();
+	}
+
+	public List<Interval<Long>> getExclusions() {
+		return exclusions;
+	}
+
 	/**
 	 * Get the position of the {@link DynamicInputStream}.
 	 *
@@ -233,10 +242,10 @@ public class DynamicInputStream extends InputStream implements Cloneable {
 	}
 
 	/**
-	 *
-	 *
 	 * @param interval
-	 * @param <T> The {@link Number} type of the specified {@link Interval}.
+	 * @param <T>      The {@link Number} type of the specified
+	 *                 {@link Interval}.
+	 *
 	 * @return The calculated padding.
 	 */
 	public <T extends Number> long getPadding(Interval<T> interval) {
@@ -251,6 +260,32 @@ public class DynamicInputStream extends InputStream implements Cloneable {
 		}
 
 		return padding;
+	}
+
+	public Interval<Long> getEnclosedPadding(Interval<Long> interval) {
+		long start = interval.getStart();
+		long end = interval.getEnd();
+
+		Iterator<Interval<Long>> iter = exclusions.iterator();
+
+		while (iter.hasNext()) {
+			Interval<Long> iv = iter.next();
+
+			if (interval.contains(iv)) {
+				end += iv.lengthLong();
+
+				iter.remove();
+				break;
+			}
+			else if (interval.contains(iv.getStart())) {
+				end = start + interval.lengthLong() + iv.lengthLong();
+
+				iter.remove();
+				break;
+			}
+		}
+
+		return new Interval<>(start, end);
 	}
 
 	/**
@@ -290,7 +325,7 @@ public class DynamicInputStream extends InputStream implements Cloneable {
 
 		return toExclude;
 	}
-	
+
 	private synchronized int readInterval(byte[] buffer, int offset, int length) throws IOException {
 		long lpos = readPointer;
 		long rpos = lpos + length;
@@ -307,8 +342,6 @@ public class DynamicInputStream extends InputStream implements Cloneable {
 				foundGap = true;
 
 				iter.remove();
-
-				read += readInterval(buffer, offset, length);
 				break;
 			}
 			else if (lpos < iv.getStart() && rpos > iv.getEnd() || iv.contains(rpos)) {
@@ -323,8 +356,6 @@ public class DynamicInputStream extends InputStream implements Cloneable {
 				foundGap = true;
 
 				iter.remove();
-
-				read += readInterval(buffer, offset + len, length - len);
 				break;
 			}
 		}

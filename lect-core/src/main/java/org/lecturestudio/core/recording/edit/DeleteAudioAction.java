@@ -19,6 +19,7 @@
 package org.lecturestudio.core.recording.edit;
 
 import java.io.IOException;
+import java.util.List;
 
 import org.lecturestudio.core.audio.AudioFormat;
 import org.lecturestudio.core.io.RandomAccessAudioStream;
@@ -29,20 +30,31 @@ import org.lecturestudio.core.util.AudioUtils;
 
 public class DeleteAudioAction extends RecordedObjectAction<RecordedAudio> {
 
-	private final Interval<Long> cutInterval;
+	private final Interval<Integer> interval;
+
+	private final List<Interval<Long>> exclusions;
 
 
 	public DeleteAudioAction(RecordedAudio lectureObject, Interval<Integer> interval) {
 		super(lectureObject);
 
-		cutInterval = getCutInterval(interval);
+		RandomAccessAudioStream stream = getRecordedObject().getAudioStream();
+		RandomAccessAudioStream audioStream = stream.clone();
+
+		exclusions = audioStream.getExclusions();
+
+		this.interval = interval;
 	}
 
 	@Override
 	public void undo() throws RecordingEditException {
 		RecordedAudio recordedAudio = getRecordedObject();
 		RandomAccessAudioStream audioStream = recordedAudio.getAudioStream().clone();
-		audioStream.removeExclusion(cutInterval);
+		audioStream.clearExclusions();
+
+		for (var iv : exclusions) {
+			audioStream.addExclusion(iv);
+		}
 
 		try {
 			recordedAudio.setAudioStream(audioStream);
@@ -59,9 +71,11 @@ public class DeleteAudioAction extends RecordedObjectAction<RecordedAudio> {
 
 	@Override
 	public void execute() throws RecordingEditException {
+		var iv = getCutInterval(interval);
+
 		RandomAccessAudioStream stream = getRecordedObject().getAudioStream();
 		RandomAccessAudioStream audioStream = stream.clone();
-		audioStream.addExclusion(cutInterval);
+		audioStream.addExclusion(iv);
 
 		try {
 			getRecordedObject().setAudioStream(audioStream);
@@ -81,6 +95,10 @@ public class DeleteAudioAction extends RecordedObjectAction<RecordedAudio> {
 		// Handle padding created by previous exclusions.
 		long padding = stream.getPadding(new Interval<>(startBytePosition, endBytePosition));
 
-		return new Interval<>(padding + startBytePosition, padding + endBytePosition);
+		Interval<Long> enclosing = stream.getEnclosedPadding(
+				new Interval<>(padding + startBytePosition,
+						padding + endBytePosition));
+
+		return new Interval<>(enclosing.getStart(), enclosing.getEnd());
 	}
 }

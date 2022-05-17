@@ -77,7 +77,7 @@ public class MediaTrackControlsPresenter extends Presenter<MediaTrackControlsVie
 		this.recordingService = recordingService;
 		this.playbackService = playbackService;
 		this.searchService = searchService;
-		this.zoomConstraints = new ZoomConstraints(1, 10);
+		this.zoomConstraints = new ZoomConstraints(1, 25);
 	}
 
 	@Override

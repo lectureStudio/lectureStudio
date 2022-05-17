@@ -194,6 +194,9 @@ public class RandomAccessAudioStream extends DynamicInputStream {
 		if (interval.lengthLong() == 0) {
 			return;
 		}
+		if (interval.getStart() < 70) {
+			interval.set(72L, interval.getEnd());
+		}
 		if (interval.getEnd() > streamLength) {
 			interval.set(interval.getStart(), streamLength);
 		}

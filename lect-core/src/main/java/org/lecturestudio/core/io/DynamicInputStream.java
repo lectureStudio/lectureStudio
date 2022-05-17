@@ -283,6 +283,13 @@ public class DynamicInputStream extends InputStream implements Cloneable {
 				iter.remove();
 				break;
 			}
+			else if (interval.contains(iv.getEnd())) {
+				start = iv.getStart();
+				end -= iv.getEnd() - interval.getStart();
+
+				iter.remove();
+				break;
+			}
 		}
 
 		return new Interval<>(start, end);

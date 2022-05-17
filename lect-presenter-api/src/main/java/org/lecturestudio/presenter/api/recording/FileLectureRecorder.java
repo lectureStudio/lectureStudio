@@ -550,7 +550,25 @@ public class FileLectureRecorder extends LectureRecorder {
 	}
 
 	private boolean isDuplicate(Page page) {
-		return page.equals(getLastRecordedPage());
+		Page lastRecorded = getLastRecordedPage();
+		boolean same = page.equals(lastRecorded);
+
+		if (!same) {
+			Document lastPageDoc = lastRecorded.getDocument();
+			Document pageDoc = page.getDocument();
+
+			boolean hasRecUid = nonNull(lastPageDoc.getUid());
+			boolean hasDocUid = nonNull(pageDoc.getUid());
+
+			if (pageDoc.isQuiz() && hasRecUid && hasDocUid
+					&& lastPageDoc.getUid().equals(pageDoc.getUid())
+					&& pageDoc.getPageIndex(page) == 0) {
+				// Do not record duplicate pages.
+				same = true;
+			}
+		}
+
+		return same;
 	}
 
 	private boolean hasRecordingDevice(String deviceName) {

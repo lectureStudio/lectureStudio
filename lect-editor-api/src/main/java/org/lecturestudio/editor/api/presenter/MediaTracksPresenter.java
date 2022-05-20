@@ -25,7 +25,6 @@ import com.google.common.eventbus.Subscribe;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.CompletableFuture;
 
 import javax.inject.Inject;
 
@@ -33,6 +32,7 @@ import org.lecturestudio.core.ExecutableException;
 import org.lecturestudio.core.app.ApplicationContext;
 import org.lecturestudio.core.model.Time;
 import org.lecturestudio.core.presenter.Presenter;
+import org.lecturestudio.core.recording.RecordedAudio;
 import org.lecturestudio.core.recording.RecordingChangeEvent;
 import org.lecturestudio.core.recording.Recording;
 import org.lecturestudio.core.recording.RecordingEditException;
@@ -73,6 +73,14 @@ public class MediaTracksPresenter extends Presenter<MediaTracksView> {
 	public void initialize() {
 		EditorContext editorContext = (EditorContext) context;
 
+		// Init with empty tracks to display them in advance.
+		AudioTrack audioTrack = new AudioTrack();
+		EventsTrack eventsTrack = new EventsTrack();
+
+		mediaTracks.add(audioTrack);
+		mediaTracks.add(eventsTrack);
+
+		view.setMediaTracks(eventsTrack, audioTrack);
 		view.bindPrimarySelection(editorContext.primarySelectionProperty());
 		view.bindLeftSelection(editorContext.leftSelectionProperty());
 		view.bindRightSelection(editorContext.rightSelectionProperty());
@@ -122,7 +130,8 @@ public class MediaTracksPresenter extends Presenter<MediaTracksView> {
 		if (event.selected()) {
 			final Recording recording = event.getRecording();
 			final Recording prevRecording = event.getOldRecording();
-			final Time duration = new Time(recording.getRecordedAudio().getAudioStream().getLengthInMillis());
+			final RecordedAudio recAudio = recording.getRecordedAudio();
+			final Time duration = new Time(recAudio.getAudioStream().getLengthInMillis());
 
 			if (nonNull(prevRecording)) {
 				mediaTracks.forEach(prevRecording::removeRecordingChangeListener);
@@ -134,23 +143,17 @@ public class MediaTracksPresenter extends Presenter<MediaTracksView> {
 
 			view.setDuration(duration);
 
-			CompletableFuture.runAsync(() -> {
-				AudioTrack audioTrack = new AudioTrack();
-				audioTrack.setData(recording.getRecordedAudio().getAudioStream());
+			AudioTrack audioTrack = new AudioTrack();
+			audioTrack.setData(recording.getRecordedAudio().getAudioStream());
 
-				EventsTrack eventsTrack = new EventsTrack();
-				eventsTrack.setData(recording.getRecordedEvents().getRecordedPages());
+			EventsTrack eventsTrack = new EventsTrack();
+			eventsTrack.setData(recording.getRecordedEvents().getRecordedPages());
 
-				mediaTracks.add(audioTrack);
-				mediaTracks.add(eventsTrack);
-				mediaTracks.forEach(recording::addRecordingChangeListener);
+			mediaTracks.add(audioTrack);
+			mediaTracks.add(eventsTrack);
+			mediaTracks.forEach(recording::addRecordingChangeListener);
 
-				view.setMediaTracks(eventsTrack, audioTrack);
-			})
-			.exceptionally(throwable -> {
-				handleException(throwable, "Create waveform failed", "open.recording.error");
-				return null;
-			});
+			view.setMediaTracks(eventsTrack, audioTrack);
 		}
 		else if (event.closed()) {
 			Recording recording = event.getRecording();

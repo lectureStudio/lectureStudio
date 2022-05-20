@@ -36,6 +36,7 @@ import javafx.scene.transform.Affine;
 import org.lecturestudio.core.io.RandomAccessAudioStream;
 import org.lecturestudio.core.util.ListChangeListener;
 import org.lecturestudio.core.util.ObservableList;
+import org.lecturestudio.javafx.util.FxUtils;
 import org.lecturestudio.media.audio.WaveformData;
 import org.lecturestudio.media.track.AudioTrack;
 import org.lecturestudio.media.track.control.AdjustAudioVolumeControl;
@@ -74,6 +75,25 @@ public class WaveformSkin extends MediaTrackControlSkinBase {
 
 	@Override
 	protected void updateControl() {
+		FxUtils.invoke(this::render);
+	}
+
+	@Override
+	protected double computeMinHeight(double width, double topInset, double rightInset, double bottomInset, double leftInset) {
+		return topInset + bottomInset + 120;
+	}
+
+	@Override
+	protected double computePrefHeight(double width, double topInset, double rightInset, double bottomInset, double leftInset) {
+		return computeMinHeight(width, topInset, rightInset, bottomInset, leftInset);
+	}
+
+	@Override
+	protected double computeMinWidth(double height, double topInset, double rightInset, double bottomInset, double leftInset) {
+		return leftInset + rightInset + 10;
+	}
+
+	protected void render() {
 		final WaveformData data = waveform.getMediaTrack().getWaveformData();
 		final Affine transform = waveform.getTransform();
 		final double width = canvas.getWidth();
@@ -152,21 +172,6 @@ public class WaveformSkin extends MediaTrackControlSkinBase {
 		ctx.setStroke(waveform.getWaveCenterColor());
 
 		ctx.strokeLine(0, half, width, half);
-	}
-
-	@Override
-	protected double computeMinHeight(double width, double topInset, double rightInset, double bottomInset, double leftInset) {
-		return topInset + bottomInset + 120;
-	}
-
-	@Override
-	protected double computePrefHeight(double width, double topInset, double rightInset, double bottomInset, double leftInset) {
-		return computeMinHeight(width, topInset, rightInset, bottomInset, leftInset);
-	}
-
-	@Override
-	protected double computeMinWidth(double height, double topInset, double rightInset, double bottomInset, double leftInset) {
-		return leftInset + rightInset + 10;
 	}
 
 	private void addMediaTrackControl(MediaTrackControl control) {

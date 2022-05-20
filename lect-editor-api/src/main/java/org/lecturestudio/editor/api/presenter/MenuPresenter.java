@@ -411,6 +411,6 @@ public class MenuPresenter extends Presenter<MenuView> {
 				.exceptionally(throwable -> {
 					handleException(throwable, "Delete page failed", "delete.page.error");
 					return null;
-				});
+				}).join();
 	}
 }

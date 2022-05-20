@@ -24,6 +24,7 @@ import com.google.common.eventbus.Subscribe;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 import javax.inject.Inject;
 
@@ -77,7 +78,7 @@ public class SlidesPresenter extends Presenter<SlidesView> {
 		this.playbackService = playbackService;
 		this.eventBus = context.getEventBus();
 		this.shortcutMap = new HashMap<>();
-		this.docExecMap = new HashMap<>();
+		this.docExecMap = new ConcurrentHashMap<>();
 	}
 
 	@Override
@@ -185,7 +186,7 @@ public class SlidesPresenter extends Presenter<SlidesView> {
 				.exceptionally(throwable -> {
 					handleException(throwable, "Delete page failed", "delete.page.error");
 					return null;
-				});
+				}).join();
 	}
 
 	private void selectPage(Page page) {
@@ -277,15 +278,15 @@ public class SlidesPresenter extends Presenter<SlidesView> {
 		view.setPage(page, parameter);
 	}
 
-	private Document getProxyDocument(Document document) {
+	private synchronized Document getProxyDocument(Document document) {
 		return docExecMap.get(document).getDocument();
 	}
 
-	private void setProxyDocument(Document document, DocumentEventExecutor docEventExecutor) {
+	private synchronized void setProxyDocument(Document document, DocumentEventExecutor docEventExecutor) {
 		docExecMap.put(document, docEventExecutor);
 	}
 
-	private void removeProxyDocument(Document document) {
+	private synchronized void removeProxyDocument(Document document) {
 		docExecMap.remove(document);
 	}
 }

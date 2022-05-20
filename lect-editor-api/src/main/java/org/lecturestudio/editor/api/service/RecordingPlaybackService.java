@@ -92,7 +92,7 @@ public class RecordingPlaybackService extends ExecutableBase {
 		recordingPlayer.getAudioStream().removeAudioFilter(filter);
 	}
 
-	public void setRecording(Recording recording) {
+	public synchronized void setRecording(Recording recording) {
 		if (nonNull(recordingPlayer)) {
 			closeRecording();
 		}
@@ -110,7 +110,7 @@ public class RecordingPlaybackService extends ExecutableBase {
 		}
 	}
 
-	public void closeRecording() {
+	public synchronized void closeRecording() {
 		if (nonNull(recordingPlayer) && !recordingPlayer.destroyed()) {
 			try {
 				destroy();
@@ -121,37 +121,37 @@ public class RecordingPlaybackService extends ExecutableBase {
 		}
 	}
 
-	public void selectPreviousPage() throws Exception {
+	public synchronized void selectPreviousPage() throws Exception {
 		context.setSeeking(true);
 		recordingPlayer.selectPreviousPage();
 		context.setSeeking(false);
 	}
 
-	public void selectNextPage() throws Exception {
+	public synchronized void selectNextPage() throws Exception {
 		context.setSeeking(true);
 		recordingPlayer.selectNextPage();
 		context.setSeeking(false);
 	}
 
-	public void selectPage(int pageNumber) throws Exception {
+	public synchronized void selectPage(int pageNumber) throws Exception {
 		context.setSeeking(true);
 		recordingPlayer.selectPage(pageNumber);
 		context.setSeeking(false);
 	}
 
-	public void selectPage(Page page) throws Exception {
+	public synchronized void selectPage(Page page) throws Exception {
 		context.setSeeking(true);
 		recordingPlayer.selectPage(page);
 		context.setSeeking(false);
 	}
 
-	public void setVolume(float volume) {
+	public synchronized void setVolume(float volume) {
 		if (nonNull(recordingPlayer)) {
 			recordingPlayer.setVolume(volume);
 		}
 	}
 
-	public void seek(double time) throws ExecutableException {
+	public synchronized void seek(double time) throws ExecutableException {
 		if (started() || destroyed()) {
 			return;
 		}
@@ -166,7 +166,7 @@ public class RecordingPlaybackService extends ExecutableBase {
 	}
 
 	@Override
-	protected void initInternal() throws ExecutableException {
+	protected synchronized void initInternal() throws ExecutableException {
 		if (!recordingPlayer.initialized()) {
 			AudioConfiguration audioConfig = context.getConfiguration().getAudioConfig();
 
@@ -177,28 +177,28 @@ public class RecordingPlaybackService extends ExecutableBase {
 	}
 
 	@Override
-	protected void startInternal() throws ExecutableException {
+	protected synchronized void startInternal() throws ExecutableException {
 		if (!recordingPlayer.started()) {
 			recordingPlayer.start();
 		}
 	}
 
 	@Override
-	protected void stopInternal() throws ExecutableException {
+	protected synchronized void stopInternal() throws ExecutableException {
 		if (recordingPlayer.started() || recordingPlayer.suspended()) {
 			recordingPlayer.stop();
 		}
 	}
 
 	@Override
-	protected void suspendInternal() throws ExecutableException {
+	protected synchronized void suspendInternal() throws ExecutableException {
 		if (recordingPlayer.started()) {
 			recordingPlayer.suspend();
 		}
 	}
 
 	@Override
-	protected void destroyInternal() throws ExecutableException {
+	protected synchronized void destroyInternal() throws ExecutableException {
 		if (!recordingPlayer.created() && !recordingPlayer.destroyed()) {
 			recordingPlayer.removeStateListener(playbackStateListener);
 			recordingPlayer.destroy();

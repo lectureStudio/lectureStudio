@@ -184,7 +184,7 @@ public class MediaTrackControlsPresenter extends Presenter<MediaTrackControlsVie
 				.exceptionally(throwable -> {
 					handleException(throwable, "Delete page failed", "delete.page.error");
 					return null;
-				});
+				}).join();
 	}
 
 	private void replacePage() {

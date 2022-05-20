@@ -20,6 +20,7 @@ package org.lecturestudio.javafx.control;
 
 import static java.util.Objects.nonNull;
 
+import javafx.application.Platform;
 import javafx.beans.InvalidationListener;
 import javafx.beans.Observable;
 import javafx.beans.property.BooleanProperty;
@@ -178,9 +179,9 @@ public class MediaTracksSkin extends SkinBase<MediaTracks> {
 		sliderTime.setVisible(false);
 		sliderTime.setMouseTransparent(true);
 
-		primarySlider = new PrimaryTimeSlider();
-		leftSlider = new SecondaryTimeSlider(HPos.LEFT);
-		rightSlider = new SecondaryTimeSlider(HPos.RIGHT);
+		primarySlider = new PrimaryTimeSlider(control);
+		leftSlider = new SecondaryTimeSlider(control, HPos.LEFT);
+		rightSlider = new SecondaryTimeSlider(control, HPos.RIGHT);
 
 		primarySlider.setOnUpdateValue(this::updatePrimarySliderValue);
 		leftSlider.setOnUpdateValue(this::updateLeftSliderValue);
@@ -217,9 +218,11 @@ public class MediaTracksSkin extends SkinBase<MediaTracks> {
 		trackInfoContainer = new VBox();
 		trackInfoContainer.getStyleClass().add("track-info-pane");
 
-		Line primaryLine = primarySlider.createLine(control);
-		Line leftLine = leftSlider.createLine(control);
-		Line rightLine = rightSlider.createLine(control);
+		Line primaryLine = primarySlider.getLine();
+		Line leftLine = leftSlider.getLine();
+		Line rightLine = rightSlider.getLine();
+
+		showSliders(false);
 
 		getChildren().addAll(sliderPane, timeline, placeholder,
 				rightPlaceholder, trackInfoContainer, trackContainer,
@@ -286,6 +289,18 @@ public class MediaTracksSkin extends SkinBase<MediaTracks> {
 		registerChangeListener(control.rightSelectionProperty(), o -> {
 			changeSliderValue(rightSlider, (Double) o.getValue());
 		});
+
+		Platform.runLater(() -> {
+			updateSliderPos();
+
+			showSliders(true);
+		});
+	}
+
+	private void showSliders(boolean show) {
+		primarySlider.setVisible(show);
+		leftSlider.setVisible(show);
+		rightSlider.setVisible(show);
 	}
 
 	private void addTrack(MediaTrack<?> track) {
@@ -465,8 +480,13 @@ public class MediaTracksSkin extends SkinBase<MediaTracks> {
 
 	private class PrimaryTimeSlider extends TimeSlider {
 
-		PrimaryTimeSlider() {
-			super();
+		PrimaryTimeSlider(MediaTracks parent) {
+			super(parent);
+
+			Line line = getLine();
+			line.getStyleClass().add("primary-line");
+			line.startYProperty().unbind();
+			line.startYProperty().bind(timeline.layoutYProperty());
 
 			SvgIcon thumbShadow = new SvgIcon();
 			thumbShadow.getStyleClass().add("slider-thumb-shadow");
@@ -474,16 +494,6 @@ public class MediaTracksSkin extends SkinBase<MediaTracks> {
 
 			getStyleClass().add("primary-slider");
 			getChildren().add(1, thumbShadow);
-		}
-
-		@Override
-		Line createLine(MediaTracks parent) {
-			Line line = super.createLine(parent);
-			line.getStyleClass().add("primary-line");
-			line.startYProperty().unbind();
-			line.startYProperty().bind(timeline.layoutYProperty());
-
-			return line;
 		}
 
 		@Override
@@ -507,8 +517,8 @@ public class MediaTracksSkin extends SkinBase<MediaTracks> {
 		private final BooleanProperty stick = new SimpleBooleanProperty();
 
 
-		SecondaryTimeSlider(HPos position) {
-			super();
+		SecondaryTimeSlider(MediaTracks parent, HPos position) {
+			super(parent);
 
 			getStyleClass().add("secondary-slider");
 
@@ -555,6 +565,8 @@ public class MediaTracksSkin extends SkinBase<MediaTracks> {
 
 		private final DoubleProperty lineX;
 
+		private final Line line;
+
 		private HPos lineAnchor;
 
 		private boolean valueChanging;
@@ -564,13 +576,15 @@ public class MediaTracksSkin extends SkinBase<MediaTracks> {
 		private DoubleProperty valueProperty;
 
 
-		TimeSlider() {
+		TimeSlider(MediaTracks parent) {
 			getStyleClass().add("time-slider");
 			setManaged(false);
 			setLayoutX(0);
 			setLayoutY(0);
 
 			lineX = new SimpleDoubleProperty();
+
+			line = createLine(parent);
 
 			thumb = new SvgIcon();
 			thumb.getStyleClass().add("slider-thumb");
@@ -602,6 +616,7 @@ public class MediaTracksSkin extends SkinBase<MediaTracks> {
 			Line line = new Line();
 			line.getStyleClass().add("slider-line");
 			line.setManaged(false);
+			line.visibleProperty().bind(visibleProperty());
 			line.startYProperty().bind(timeline.layoutYProperty()
 					.add(timeline.heightProperty()));
 			line.endYProperty().bind(parent.heightProperty()
@@ -610,6 +625,10 @@ public class MediaTracksSkin extends SkinBase<MediaTracks> {
 			line.endXProperty().bind(lineX);
 			line.layoutXProperty().bind(layoutXProperty());
 
+			return line;
+		}
+
+		Line getLine() {
 			return line;
 		}
 

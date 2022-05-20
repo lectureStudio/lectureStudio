@@ -218,9 +218,12 @@ public class WaveformSkin extends MediaTrackControlSkinBase {
 
 		getChildren().add(canvas);
 
-		if (nonNull(track.getWaveformData())) {
+		if (nonNull(track)) {
 			track.addChangeListener(trackListener);
-			updateControl();
+
+			if (nonNull(track.getWaveformData())) {
+				updateControl();
+			}
 		}
 		if (track.getControls().size() > 1) {
 			updateTrackControls(track);

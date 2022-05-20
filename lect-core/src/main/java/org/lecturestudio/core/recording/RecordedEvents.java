@@ -21,8 +21,8 @@ package org.lecturestudio.core.recording;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.nio.ByteBuffer;
-import java.util.LinkedList;
 import java.util.List;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 public class RecordedEvents extends RecordedObjectBase {
 
@@ -77,7 +77,7 @@ public class RecordedEvents extends RecordedObjectBase {
 	public void parseFrom(byte[] input) throws IOException {
 		ByteBuffer buffer = ByteBuffer.wrap(input);
 
-		recordedPages = new LinkedList<>();
+		recordedPages = new CopyOnWriteArrayList<>();
 
 		while (buffer.hasRemaining()) {
 			// Read the page data size.

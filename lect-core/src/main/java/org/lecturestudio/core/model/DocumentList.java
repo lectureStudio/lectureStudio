@@ -24,6 +24,7 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.stream.Collectors;
 
 import org.lecturestudio.core.model.listener.DocumentListChangeListener;
@@ -31,9 +32,9 @@ import org.lecturestudio.core.model.listener.DocumentListChangeListener;
 public class DocumentList {
 
 	/** The list of documents. */
-	private final List<Document> documents = new ArrayList<>();
+	private final List<Document> documents = new CopyOnWriteArrayList<>();
 
-	private final transient List<DocumentListChangeListener> listeners = new ArrayList<>();
+	private final transient List<DocumentListChangeListener> listeners = new CopyOnWriteArrayList<>();
 
 
 	/**
@@ -62,7 +63,8 @@ public class DocumentList {
 	 *
 	 * @param doc The document to remove.
 	 *
-	 * @return {@code true} if the document has been removed successfully, otherwise {@code false}.
+	 * @return {@code true} if the document has been removed successfully,
+	 * otherwise {@code false}.
 	 */
 	public boolean remove(Document doc) {
 		boolean removed = documents.remove(doc);
@@ -80,7 +82,8 @@ public class DocumentList {
 	 * @param oldDoc The document to be replaced.
 	 * @param newDoc The new document.
 	 *
-	 * @return {@code false} if the document to be replaced is not part of {@link #documents}, otherwise {@code true}.
+	 * @return {@code false} if the document to be replaced is not part of
+	 * {@link #documents}, otherwise {@code true}.
 	 */
 	public boolean replace(Document oldDoc, Document newDoc) {
 		int index = documents.indexOf(oldDoc);
@@ -95,11 +98,13 @@ public class DocumentList {
 	}
 
 	/**
-	 * Selects the specified document by moving it to the tail of {@link #documents}.
+	 * Selects the specified document by moving it to the tail of
+	 * {@link #documents}.
 	 *
 	 * @param doc The document that should be selected.
 	 *
-	 * @return {@code false} if the document is null or is not part of {@link #documents}, otherwise {@code true}.
+	 * @return {@code false} if the document is null or is not part of
+	 * {@link #documents}, otherwise {@code true}.
 	 */
 	public boolean select(Document doc) {
 		if (isNull(doc)) {
@@ -123,7 +128,8 @@ public class DocumentList {
 	 *
 	 * @param doc The document.
 	 *
-	 * @return {@code true} if {@link #documents} contains the specified document, otherwise {@code false}.
+	 * @return {@code true} if {@link #documents} contains the specified
+	 * document, otherwise {@code false}.
 	 */
 	public boolean contains(Document doc) {
 		return documents.contains(doc);
@@ -158,7 +164,8 @@ public class DocumentList {
 	 * {@code null} if no such document was found.
 	 */
 	public Document getFirstWhiteboard() {
-		return documents.stream().filter(Document::isWhiteboard).findFirst().orElse(null);
+		return documents.stream().filter(Document::isWhiteboard)
+				.findFirst().orElse(null);
 	}
 
 	/**
@@ -168,22 +175,27 @@ public class DocumentList {
 	 * {@code null} if no such document was found.
 	 */
 	public Document getLastNonWhiteboard() {
-		return documents.stream().filter(Document::isPDF).reduce((first, second) -> second).orElse(null);
+		return documents.stream().filter(Document::isPDF)
+				.reduce((first, second) -> second).orElse(null);
 	}
 
 	/**
-	 * Get a list of all the documents in {@link #documents} that are PDF documents.
+	 * Get a list of all the documents in {@link #documents} that are PDF
+	 * documents.
 	 *
-	 * @return a list of all the documents in {@link #documents} that are PDF documents.
+	 * @return a list of all the documents in {@link #documents} that are PDF
+	 * documents.
 	 */
 	public List<Document> getPdfDocuments() {
-		return documents.stream().filter(Document::isPDF).collect(Collectors.toList());
+		return documents.stream().filter(Document::isPDF)
+				.collect(Collectors.toList());
 	}
 
 	/**
 	 * Get the number of documents in {@link #documents} that are whiteboards.
 	 *
-	 * @return the number of documents in {@link #documents} that are whiteboards.
+	 * @return the number of documents in {@link #documents} that are
+	 * whiteboards.
 	 */
 	public int getWhiteboardCount() {
 		long count = documents.stream().filter(Document::isWhiteboard).count();
@@ -199,7 +211,8 @@ public class DocumentList {
 	 * @return The first document whose file equals the specified file.
 	 */
 	public Optional<Document> getDocumentByFile(File file) {
-		return documents.stream().filter(doc -> file.equals(doc.getFile())).findFirst();
+		return documents.stream().filter(doc -> file.equals(doc.getFile()))
+				.findFirst();
 	}
 
 	/**

@@ -933,7 +933,10 @@ public class ToolController extends Controller implements ToolContext {
 
 			if (nonNull(doc)) {
 				Page page = doc.getCurrentPage();
-				page.deselectShapes();
+
+				if (nonNull(page)) {
+					page.deselectShapes();
+				}
 			}
 		}
 
@@ -941,7 +944,8 @@ public class ToolController extends Controller implements ToolContext {
 
 		if (nonNull(tool)) {
 			pushEvent(new ToolSelectionEvent(tool.getType(), getPaintSettings(tool.getType())));
-		} else {
+		}
+		else {
 			pushEvent(new ToolSelectionEvent(null, getPaintSettings(null)));
 		}
 	}
@@ -964,7 +968,8 @@ public class ToolController extends Controller implements ToolContext {
 					previousTool = tool;
 					break;
 			}
-		} else {
+		}
+		else {
 			previousTool = null;
 		}
 	}

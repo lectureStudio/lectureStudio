@@ -28,6 +28,7 @@ import javafx.scene.text.Text;
 import javafx.scene.transform.Affine;
 
 import org.lecturestudio.core.model.Time;
+import org.lecturestudio.javafx.util.FxUtils;
 
 public class TimelineSkin extends MediaTrackControlSkinBase {
 
@@ -53,55 +54,17 @@ public class TimelineSkin extends MediaTrackControlSkinBase {
 
 	@Override
 	protected void updateControl() {
-		final Affine transform = timeline.getTransform();
-		final Time duration = timeline.getDuration();
-
-		if (isNull(duration) || isNull(transform)) {
-			return;
-		}
-
-		final double width = canvas.getWidth();
-		final double height = canvas.getHeight();
-
-		final Time time = new Time(0);
-		final GraphicsContext ctx = canvas.getGraphicsContext2D();
-
-		final Text text = new Text(new Time(0, true).toString());
-		text.setFont(ctx.getFont());
-
-		double sx = transform.getMxx();
-		double tx = transform.getTx() * width;
-		double seconds = duration.getMillis() / 1000D;
-		double pixelPerSecond = width * sx / seconds;
-		double textWidth = text.getLayoutBounds().getWidth() + 20;
-		int secondStep = (int) Math.ceil(seconds / (width * sx / textWidth));
-
-		ctx.setFill(timeline.getBackgroundColor());
-		ctx.fillRect(0, 0, width + 0.5, height + 0.5);
-		ctx.strokeLine(0, 0, width, 0);
-
-		for (int s = 0; s < seconds; s++) {
-			double x = s * pixelPerSecond + tx;
-
-			ctx.setStroke(timeline.getTickColor());
-
-			if (s % secondStep == 0) {
-				time.setMillis(s * 1000L);
-
-				ctx.strokeLine(x, 0, x, 10);
-
-				ctx.setFill(timeline.getTextColor());
-				ctx.fillText(time.toString(), x, 23);
-			}
-			else {
-				ctx.strokeLine(x, 0, x, 6);
-			}
-		}
+		FxUtils.invoke(this::render);
 	}
 
 	@Override
 	protected double computeMinHeight(double width, double topInset, double rightInset, double bottomInset, double leftInset) {
 		return topInset + bottomInset + 30;
+	}
+
+	@Override
+	protected double computePrefHeight(double width, double topInset, double rightInset, double bottomInset, double leftInset) {
+		return computeMinHeight(width, topInset, rightInset, bottomInset, leftInset);
 	}
 
 	@Override
@@ -128,5 +91,51 @@ public class TimelineSkin extends MediaTrackControlSkinBase {
 		registerChangeListener(control.durationProperty(), value -> updateControl());
 
 		updateControl();
+	}
+
+	private void render() {
+		final Affine transform = timeline.getTransform();
+		final Time duration = timeline.getDuration();
+
+		if (isNull(duration) || isNull(transform)) {
+			return;
+		}
+
+		final double width = canvas.getWidth();
+		final double height = canvas.getHeight();
+
+		final Time time = new Time(0);
+		final GraphicsContext ctx = canvas.getGraphicsContext2D();
+
+		final Text text = new Text(new Time(0, true).toString());
+		text.setFont(ctx.getFont());
+
+		double sx = transform.getMxx();
+		double tx = transform.getTx() * width;
+		double seconds = duration.getMillis() / 1000D;
+		double pixelPerSecond = width * sx / seconds;
+		double textWidth = text.getLayoutBounds().getWidth() + 20;
+		double secondStep = seconds / (width * sx / textWidth);
+		double tickWidth = secondStep * pixelPerSecond / 10;
+
+		ctx.setFill(timeline.getBackgroundColor());
+		ctx.fillRect(0, 0, width + 0.5, height + 0.5);
+		ctx.strokeLine(0, 0, width, 0);
+
+		for (double s = 0; s < seconds; s += secondStep) {
+			double x = s * pixelPerSecond + tx;
+
+			time.setMillis((long) (s * 1000L));
+
+			ctx.setStroke(timeline.getTickColor());
+			ctx.strokeLine(x, 0, x, 10);
+
+			for (int t = 1; t < 10; t++) {
+				ctx.strokeLine(x + t * tickWidth, 0, x + t * tickWidth, 6);
+			}
+
+			ctx.setFill(timeline.getTextColor());
+			ctx.fillText(time.toString(), x, 23);
+		}
 	}
 }

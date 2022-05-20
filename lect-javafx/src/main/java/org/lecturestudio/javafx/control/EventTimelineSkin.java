@@ -34,6 +34,7 @@ import javafx.scene.transform.Affine;
 import org.lecturestudio.core.model.Time;
 import org.lecturestudio.core.recording.RecordedPage;
 import org.lecturestudio.core.recording.action.PlaybackAction;
+import org.lecturestudio.javafx.util.FxUtils;
 import org.lecturestudio.media.track.EventsTrack;
 
 public class EventTimelineSkin extends MediaTrackControlSkinBase {
@@ -64,28 +65,7 @@ public class EventTimelineSkin extends MediaTrackControlSkinBase {
 
 	@Override
 	protected void updateControl() {
-		final Affine transform = eventTimeline.getTransform();
-		final List<RecordedPage> events = eventTimeline.getMediaTrack().getData();
-
-		if (isNull(events)) {
-			return;
-		}
-
-		final double width = canvas.getWidth();
-		final double height = canvas.getHeight();
-
-		final Time duration = eventTimeline.getDuration();
-		final GraphicsContext ctx = canvas.getGraphicsContext2D();
-
-		ctx.setFill(eventTimeline.getBackgroundColor());
-		ctx.fillRect(0, 0, width + 0.5, height + 0.5);
-
-		double sx = transform.getMxx();
-		double tx = transform.getTx() * width;
-		final double pixelPerSecond = width * sx / (duration.getMillis() / 1000D);
-
-		paintEvents(ctx, height, pixelPerSecond, tx);
-		paintPageEvents(ctx, height, pixelPerSecond, tx);
+		FxUtils.invoke(this::render);
 	}
 
 	@Override
@@ -135,6 +115,31 @@ public class EventTimelineSkin extends MediaTrackControlSkinBase {
 				updateControl();
 			}
 		});
+	}
+
+	private void render() {
+		final Affine transform = eventTimeline.getTransform();
+		final List<RecordedPage> events = eventTimeline.getMediaTrack().getData();
+
+		if (isNull(events)) {
+			return;
+		}
+
+		final double width = canvas.getWidth();
+		final double height = canvas.getHeight();
+
+		final Time duration = eventTimeline.getDuration();
+		final GraphicsContext ctx = canvas.getGraphicsContext2D();
+
+		ctx.setFill(eventTimeline.getBackgroundColor());
+		ctx.fillRect(0, 0, width + 0.5, height + 0.5);
+
+		double sx = transform.getMxx();
+		double tx = transform.getTx() * width;
+		final double pixelPerSecond = width * sx / (duration.getMillis() / 1000D);
+
+		paintEvents(ctx, height, pixelPerSecond, tx);
+		paintPageEvents(ctx, height, pixelPerSecond, tx);
 	}
 
 	private void paintPageEvents(GraphicsContext ctx, double height, double pixelPerSecond, double tx) {

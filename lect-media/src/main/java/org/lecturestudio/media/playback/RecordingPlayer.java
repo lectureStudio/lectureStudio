@@ -21,6 +21,7 @@ package org.lecturestudio.media.playback;
 import static java.util.Objects.isNull;
 import static java.util.Objects.nonNull;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Iterator;
 import java.util.Optional;
@@ -100,7 +101,7 @@ public class RecordingPlayer extends ExecutableBase {
 		this.audioSystemProvider = audioSystemProvider;
 	}
 
-	public void setRecording(Recording recording) {
+	public synchronized void setRecording(Recording recording) {
 		if (!created() && !destroyed()) {
 			throw new IllegalStateException("Recording player must have clean state");
 		}
@@ -110,7 +111,7 @@ public class RecordingPlayer extends ExecutableBase {
 	}
 
 	@Override
-	protected void initInternal() throws ExecutableException {
+	protected synchronized void initInternal() throws ExecutableException {
 		seekTime = -1;
 		previousPage = 0;
 		seeking = false;
@@ -119,7 +120,9 @@ public class RecordingPlayer extends ExecutableBase {
 		toolController = new ToolController(context, context.getDocumentService());
 		toolController.start();
 
-		actionExecutor = new FileEventExecutor(toolController, recording.getRecordedEvents().getRecordedPages(), syncState);
+		var pages = new ArrayList<>(recording.getRecordedEvents().getRecordedPages());
+
+		actionExecutor = new FileEventExecutor(toolController, pages, syncState);
 		actionExecutor.init();
 
 		initAudioPlayer(recording.getRecordedAudio());
@@ -141,7 +144,7 @@ public class RecordingPlayer extends ExecutableBase {
 	}
 
 	@Override
-	protected void startInternal() throws ExecutableException {
+	protected synchronized void startInternal() throws ExecutableException {
 		if (seekTime > -1) {
 			try {
 				audioPlayer.seek(seekTime);
@@ -158,7 +161,7 @@ public class RecordingPlayer extends ExecutableBase {
 	}
 
 	@Override
-	protected void stopInternal() throws ExecutableException {
+	protected synchronized void stopInternal() throws ExecutableException {
 		if (audioPlayer.suspended() || audioPlayer.started()) {
 			audioPlayer.stop();
 		}
@@ -171,7 +174,7 @@ public class RecordingPlayer extends ExecutableBase {
 	}
 
 	@Override
-	protected void suspendInternal() throws ExecutableException {
+	protected synchronized void suspendInternal() throws ExecutableException {
 		if (audioPlayer.started()) {
 			audioPlayer.suspend();
 		}
@@ -181,7 +184,7 @@ public class RecordingPlayer extends ExecutableBase {
 	}
 
 	@Override
-	protected void destroyInternal() throws ExecutableException {
+	protected synchronized void destroyInternal() throws ExecutableException {
 		AudioBus.unregister(this);
 
 		toolController.destroy();
@@ -387,8 +390,10 @@ public class RecordingPlayer extends ExecutableBase {
 			int lastPageNumber = doc.getCurrentPageNumber();
 			
 			// Select the page to which to add static actions.
-			doc.selectPage(recPage.getNumber());
-			
+			if (!doc.selectPage(recPage.getNumber())) {
+				return;
+			}
+
 			while (iter.hasNext()) {
 				StaticShapeAction staticAction = iter.next();
 				PlaybackAction action = staticAction.getAction();

@@ -101,39 +101,9 @@ public class AudioUtils {
 		return Math.round(audioFormat.getSampleRate() * audioFormat.getBytesPerSample() * audioFormat.getChannels());
 	}
 
-	public static float getSampleValue(byte[] data, int[] indices, boolean bigEndian, boolean signed) {
-		short value;
-		int maxValue;
+	public static float getSampleValue(byte[] data, int index) {
+		short value = (short) ((data[index + 1] << 8) | data[index]);
 
-		byte highByte = bigEndian ? data[indices[0]] : data[indices[1]];
-		byte lowByte = bigEndian ? data[indices[1]] : data[indices[0]];
-
-		if (signed) {
-			maxValue = (indices.length == 2) ? Short.MAX_VALUE : Byte.MAX_VALUE;
-			value = highByte;
-			value = (short) ((value << 8) | lowByte);
-		}
-		else {
-			maxValue = (indices.length == 2) ? 0xffff : 0xff;
-			value = (short) ((highByte << 8) | lowByte);
-		}
-
-		return (float) value / maxValue;
-	}
-
-	public static void scaleSampleValues(byte[] data, int length, int sampleSize, float scalar) {
-		int[] indices = new int[sampleSize];
-
-		for (int i = 0; i < length; i += sampleSize) {
-			// Get one sample.
-			indices[0] = i;
-			indices[1] = i + 1;
-
-			float value = AudioUtils.getSampleValue(data, indices, false, true) * scalar;
-			short sample = (short) (value * Short.MAX_VALUE);
-
-			data[indices[0]] = (byte) ((sample >> 8) & 0xFF);
-			data[indices[1]] = (byte) (sample & 0xFF);
-		}
+		return (float) value / Short.MAX_VALUE;
 	}
 }

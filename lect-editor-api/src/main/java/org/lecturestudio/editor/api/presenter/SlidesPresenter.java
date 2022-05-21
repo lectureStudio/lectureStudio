@@ -264,7 +264,7 @@ public class SlidesPresenter extends Presenter<SlidesView> {
 
 			setProxyDocument(doc, docEventExecutor);
 
-			documentSelected(doc);
+			view.selectDocument(getProxyDocument(doc));
 		}
 		catch (Exception e) {
 			logException(e, "Execute recorded events failed");

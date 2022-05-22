@@ -7,9 +7,12 @@
 	-fx-padding: 1em;
 }
 .page-replace > .content > .header {
-	-fx-font-size: 1.15em;
+	-fx-font-size: 1.3em;
 	-fx-font-weight: bold;
 	-fx-padding: 0 0 1.25em 0;
+}
+.page-replace .header {
+	-fx-font-weight: bold;
 }
 .page-replace ImageView {
 	-fx-effect: dropshadow( gaussian , rgba(0,0,0,0.5) , 0,0,0,1 );

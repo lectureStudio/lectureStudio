@@ -11,11 +11,11 @@
 		<Label styleClass="header" text="%page.replace.title"/>
 
 		<HBox VBox.vgrow="ALWAYS">
-			<VBox HBox.hgrow="ALWAYS">
+			<VBox HBox.hgrow="ALWAYS" prefWidth="300" prefHeight="250">
 				<Label styleClass="header" text="%page.replace.page.new"/>
 				<SlideView fx:id="newPageView" alignment="CENTER" VBox.vgrow="ALWAYS" minWidth="300" prefWidth="300" />
 			</VBox>
-			<VBox HBox.hgrow="ALWAYS">
+			<VBox HBox.hgrow="ALWAYS" prefWidth="300" prefHeight="250">
 				<Label styleClass="header" text="%page.replace.page.current"/>
 				<SlideView fx:id="currentPageView" alignment="CENTER" VBox.vgrow="ALWAYS" minWidth="300" prefWidth="300" />
 			</VBox>

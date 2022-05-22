@@ -18,17 +18,21 @@
 
 package org.lecturestudio.core.recording.file;
 
+import static java.util.Objects.isNull;
+
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 
 import org.lecturestudio.core.io.RandomAccessAudioStream;
 import org.lecturestudio.core.io.RandomAccessStream;
+import org.lecturestudio.core.model.Document;
 import org.lecturestudio.core.recording.RecordedAudio;
 import org.lecturestudio.core.recording.RecordedDocument;
 import org.lecturestudio.core.recording.RecordedEvents;
 import org.lecturestudio.core.recording.Recording;
 import org.lecturestudio.core.recording.RecordingHeader;
+import org.lecturestudio.core.util.FileUtils;
 
 public class RecordingFileReader {
 
@@ -73,7 +77,13 @@ public class RecordingFileReader {
 		recording.setRecordedEvents(new RecordedEvents(eventData));
 		recording.setRecordedDocument(new RecordedDocument(documentData));
 		recording.setRecordedAudio(new RecordedAudio(audioStream));
-		
+
+		Document document = recording.getRecordedDocument().getDocument();
+
+		if (isNull(document.getName())) {
+			document.setTitle(FileUtils.stripExtension(srcFile.getName()));
+		}
+
 		return recording;
 	}
 

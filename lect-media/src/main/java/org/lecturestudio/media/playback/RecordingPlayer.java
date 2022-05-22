@@ -447,7 +447,7 @@ public class RecordingPlayer extends ExecutableBase {
 
 		preloadDocument(document, recording.getRecordedEvents());
 
-		toolController.selectPage(0);
+//		toolController.selectPage(0);
 
 		previousPage = 0;
 	}

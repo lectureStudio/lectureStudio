@@ -37,9 +37,6 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-
 import org.lecturestudio.core.ExecutableException;
 import org.lecturestudio.core.ExecutableState;
 import org.lecturestudio.core.app.configuration.AudioConfiguration;
@@ -75,8 +72,6 @@ import org.lecturestudio.core.audio.AudioRecorder;
 import org.lecturestudio.presenter.api.event.RecordingStateEvent;
 
 public class FileLectureRecorder extends LectureRecorder {
-
-	private static final Logger LOG = LogManager.getLogger(FileLectureRecorder.class);
 
 	private final ExecutorService executor = Executors.newSingleThreadExecutor();
 
@@ -511,7 +506,7 @@ public class FileLectureRecorder extends LectureRecorder {
 					recordedDocument.createPage(page);
 				}
 				catch (Exception e) {
-					LOG.error("Create page failed", e);
+					logException(e, "Create page failed");
 					return;
 				}
 
@@ -522,8 +517,13 @@ public class FileLectureRecorder extends LectureRecorder {
 				recordedPages.push(recPage);
 
 				// Write backup.
-				backup.writeDocument(recordedDocument);
-				backup.writePages(recordedPages);
+				try {
+					backup.writeDocument(recordedDocument);
+					backup.writePages(recordedPages);
+				}
+				catch (Throwable e) {
+					logException(e, "Write backup failed");
+				}
 			}
 		}, executor).join();
 	}

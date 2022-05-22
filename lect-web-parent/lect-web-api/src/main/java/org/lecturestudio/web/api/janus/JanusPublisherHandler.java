@@ -155,7 +155,7 @@ public class JanusPublisherHandler extends JanusStateHandler {
 				peerConnection.sendData(action.toByteArray());
 			}
 			catch (Exception e) {
-				logException(e, "Send event via data channel failed");
+				logDebugMessage("Send event via data channel failed");
 			}
 		}
 	}

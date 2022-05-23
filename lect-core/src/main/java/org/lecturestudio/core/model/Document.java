@@ -20,14 +20,11 @@ package org.lecturestudio.core.model;
 
 import static java.util.Objects.nonNull;
 
-import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.net.URI;
-import java.security.MessageDigest;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
@@ -164,7 +161,8 @@ public class Document {
 	}
 
 	/**
-	 * Adds the specified document change listener to {@link #changeListeners} if it is not already included.
+	 * Adds the specified document change listener to {@link #changeListeners}
+	 * if it is not already included.
 	 *
 	 * @param listener The document change listener to add.
 	 */
@@ -175,7 +173,8 @@ public class Document {
 	}
 
 	/**
-	 * Removes the specified document change listener from {@link #changeListeners}.
+	 * Removes the specified document change listener from
+	 * {@link #changeListeners}.
 	 *
 	 * @param listener The document change listener to remove.
 	 */
@@ -195,7 +194,8 @@ public class Document {
 	/**
 	 * Specifies whether the document is closed.
 	 *
-	 * @return {@code true} if {@link #pdfDocument} equals {@code null}, otherwise {@code false}.
+	 * @return {@code true} if {@link #pdfDocument} equals {@code null},
+	 * otherwise {@code false}.
 	 */
 	public boolean isClosed() {
 		return pdfDocument == null;
@@ -313,17 +313,18 @@ public class Document {
 	/**
 	 * Get the path of the file.
 	 *
-	 * @return The file of the path. (Could return {@code null} if {@link #file} equals {@code null})
+	 * @return The file of the path. (Could return {@code null} if {@link #file}
+	 * equals {@code null})
 	 */
-    public String getFilePath() {
-    	String path = null;
+	public String getFilePath() {
+		String path = null;
 
-    	if (file != null) {
-    		path = file.getPath();
-    	}
+		if (file != null) {
+			path = file.getPath();
+		}
 
-        return path;
-    }
+		return path;
+	}
 
 	/**
 	 * Set a new title.
@@ -389,11 +390,13 @@ public class Document {
 	 *
 	 * @param index The page index within the document.
 	 *
-	 * @return The page at the given index, or null if there is no page at the given index.
+	 * @return The page at the given index, or null if there is no page at the
+	 * given index.
 	 */
 	public Page getPage(int index) {
-		if (index < 0 || getPageCount() == 0)
+		if (index < 0 || index > getPageCount() - 1) {
 			return null;
+		}
 
 		return pages.get(index);
 	}
@@ -432,16 +435,6 @@ public class Document {
 	}
 
 	/**
-	 * Adds a set of pages.
-	 *
-	 * @param index The page index where to add the pages.
-	 * @param collection The set of pages to add.
-	 */
-	public void addPages(int index, Collection<? extends Page> collection) {
-		pages.addAll(index, collection);
-	}
-
-	/**
 	 * Returns the number of pages in this document.
 	 *
 	 * @return The number of pages in this document.
@@ -464,11 +457,13 @@ public class Document {
 	 *
 	 * @param pageNumber The new current page number.
 	 *
-	 * @return {@code false} if the specified page index is smaller than zero, bigger than the highest page index or
-	 * equal to the current page index, otherwise {@code true}.
+	 * @return {@code false} if the specified page index is smaller than zero,
+	 * bigger than the highest page index or equal to the current page index,
+	 * otherwise {@code true}.
 	 */
 	public boolean selectPage(int pageNumber) {
-		if (pageNumber < 0 || pageNumber > getPageCount() - 1 || this.currentPageNumber == pageNumber) {
+		if (pageNumber < 0 || pageNumber > getPageCount() - 1
+				|| this.currentPageNumber == pageNumber) {
 			return false;
 		}
 
@@ -482,8 +477,9 @@ public class Document {
 	 *
 	 * @param page The page to be set as the current page.
 	 *
-	 * @return {@code false} if the index of the specified page is smaller than zero, bigger than the highest page index or
-	 * equal to the current page index, otherwise {@code true}.
+	 * @return {@code false} if the index of the specified page is smaller than
+	 * zero, bigger than the highest page index or equal to the current page
+	 * index, otherwise {@code true}.
 	 */
 	public boolean selectPage(Page page) {
 		return selectPage(getPageIndex(page));
@@ -532,7 +528,8 @@ public class Document {
 	/**
 	 * Specifies whether the document is a PDF.
 	 *
-	 * @return {@code true} if {@link #type} equals {@code DocumentType.PDF}, otherwise {@code false}.
+	 * @return {@code true} if {@link #type} equals {@code DocumentType.PDF},
+	 * otherwise {@code false}.
 	 */
 	public boolean isPDF() {
 		return type == DocumentType.PDF;
@@ -541,7 +538,8 @@ public class Document {
 	/**
 	 * Specifies whether the document is a whiteboard.
 	 *
-	 * @return {@code true} if {@link #type} equals {@code DocumentType.WHITEBOARD}, otherwise {@code false}.
+	 * @return {@code true} if {@link #type} equals
+	 * {@code DocumentType.WHITEBOARD}, otherwise {@code false}.
 	 */
 	public boolean isWhiteboard() {
 		return type == DocumentType.WHITEBOARD;
@@ -550,7 +548,8 @@ public class Document {
 	/**
 	 * Specifies whether the document is a quiz.
 	 *
-	 * @return {@code true} if {@link #type} equals {@code DocumentType.QUIZ}, otherwise {@code false}.
+	 * @return {@code true} if {@link #type} equals {@code DocumentType.QUIZ},
+	 * otherwise {@code false}.
 	 */
 	public boolean isQuiz() {
 		return type == DocumentType.QUIZ;
@@ -559,23 +558,27 @@ public class Document {
 	/**
 	 * Specifies whether the document is a message.
 	 *
-	 * @return {@code true} if {@link #type} equals {@code DocumentType.MESSAGE}, otherwise {@code false}.
+	 * @return {@code true} if {@link #type} equals
+	 * {@code DocumentType.MESSAGE}, otherwise {@code false}.
 	 */
 	public boolean isMessage() {
 		return type == DocumentType.MESSAGE;
 	}
 
 	/**
-	 * Returns the index of the given page or {@code -1} if the page isn't part of this document.
+	 * Returns the index of the given page or {@code -1} if the page isn't part
+	 * of this document.
 	 *
 	 * @param page The page from which the index should be determined.
 	 *
-	 * @return The index of the given page or {@code -1} if the page isn't part of this document.
+	 * @return The index of the given page or {@code -1} if the page isn't part
+	 * of this document.
 	 */
 	public int getPageIndex(Page page) {
 		for (int i = 0; i < pages.size(); i++) {
-			if (pages.get(i) == page)
+			if (pages.get(i) == page) {
 				return i;
+			}
 		}
 		return -1;
 	}
@@ -596,34 +599,6 @@ public class Document {
 	 */
 	public PdfDocument getPdfDocument() {
 		return pdfDocument;
-	}
-
-	/**
-	 * Get the hash value of the PDF document.
-	 *
-	 * @param digest The {@link MessageDigest} used for the hash calculation.
-	 *
-	 * @return A hexadecimal representation of the hash value.
-	 */
-	public String getChecksum(MessageDigest digest) throws IOException {
-		ByteArrayOutputStream stream = new ByteArrayOutputStream();
-		pdfDocument.toOutputStream(stream);
-		stream.flush();
-
-		digest.update(stream.toByteArray());
-
-		byte[] bytes = digest.digest();
-		char[] hex = new char[bytes.length << 1];
-
-		final char[] HEX_DIGITS = { '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'a', 'b', 'c', 'd', 'e', 'f' };
-
-		// Convert it to hexadecimal format.
-		for (int i = 0, j = 0; i < bytes.length; i++) {
-			hex[j++] = HEX_DIGITS[(0xF0 & bytes[i]) >>> 4];
-			hex[j++] = HEX_DIGITS[0x0F & bytes[i]];
-		}
-
-		return new String(hex);
 	}
 
 	/**
@@ -671,7 +646,8 @@ public class Document {
 	}
 
 	/**
-	 * Adds a new page to this document. The page is placed at the tail of {@link #pages}.
+	 * Adds a new page to this document. The page is placed at the tail of
+	 * {@link #pages}.
 	 *
 	 * @param page The new page.
 	 */
@@ -681,9 +657,11 @@ public class Document {
 		fireAddChange(page);
 	}
 
-	private synchronized Page importPage(Page page, Rectangle2D pageRect) throws IOException {
+	private synchronized Page importPage(Page page, Rectangle2D pageRect)
+			throws IOException {
 		PdfDocument pagePdfDocument = page.getDocument().getPdfDocument();
-		int pageIndex = pdfDocument.importPage(pagePdfDocument, page.getPageNumber(), pageRect);
+		int pageIndex = pdfDocument.importPage(pagePdfDocument,
+				page.getPageNumber(), pageRect);
 
 		if (pageIndex == -1) {
 			return null;

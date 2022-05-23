@@ -43,6 +43,7 @@ import org.lecturestudio.core.app.dictionary.Dictionary;
 import org.lecturestudio.core.bus.EventBus;
 import org.lecturestudio.core.model.Document;
 import org.lecturestudio.core.model.DocumentType;
+import org.lecturestudio.core.model.Page;
 import org.lecturestudio.core.service.DocumentService;
 import org.lecturestudio.presenter.api.model.QuizDocument;
 import org.lecturestudio.web.api.message.QuizAnswerMessage;
@@ -138,6 +139,10 @@ public class QuizFeatureWebService extends FeatureServiceBase {
 			quizDocument = createQuizDocument(quizResult);
 			quizDocument.setUid(UUID.randomUUID());
 
+			for (var page : quizDocument.getPages()) {
+				page.setUid(UUID.randomUUID());
+			}
+
 			Document prevQuizDoc = null;
 
 			for (Document doc : documentService.getDocuments().asList()) {
@@ -214,9 +219,18 @@ public class QuizFeatureWebService extends FeatureServiceBase {
 
 	private void updateQuizDocument(boolean copyAnnotations) {
 		try {
-			Document oldDoc = quizDocument;
+			final Document oldDoc = quizDocument;
 			quizDocument = createQuizDocument(quizResult);
 			quizDocument.setUid(copyAnnotations ? oldDoc.getUid() : UUID.randomUUID());
+
+			for (int i = 0; i < quizDocument.getPageCount(); i++) {
+				Page page = quizDocument.getPage(i);
+				Page oldPage = oldDoc.getPage(i);
+
+				if (nonNull(oldPage)) {
+					page.setUid(copyAnnotations ? oldPage.getUid() : null);
+				}
+			}
 
 			documentService.replaceDocument(oldDoc, quizDocument, copyAnnotations);
 		}

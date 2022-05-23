@@ -33,6 +33,7 @@ import java.util.Set;
 import java.util.Stack;
 import java.util.Timer;
 import java.util.TimerTask;
+import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -554,15 +555,10 @@ public class FileLectureRecorder extends LectureRecorder {
 		boolean same = page.equals(lastRecorded);
 
 		if (!same) {
-			Document lastPageDoc = lastRecorded.getDocument();
-			Document pageDoc = page.getDocument();
+			UUID lastId = lastRecorded.getUid();
+			UUID pageId = page.getUid();
 
-			boolean hasRecUid = nonNull(lastPageDoc.getUid());
-			boolean hasDocUid = nonNull(pageDoc.getUid());
-
-			if (pageDoc.isQuiz() && hasRecUid && hasDocUid
-					&& lastPageDoc.getUid().equals(pageDoc.getUid())
-					&& pageDoc.getPageIndex(page) == 0) {
+			if (nonNull(lastId) && nonNull(pageId) && lastId.equals(pageId)) {
 				// Do not record duplicate pages.
 				same = true;
 			}

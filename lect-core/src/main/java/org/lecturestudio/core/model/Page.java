@@ -23,6 +23,7 @@ import java.net.URI;
 import java.util.List;
 import java.util.Set;
 import java.util.Stack;
+import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.stream.Collectors;
@@ -40,13 +41,15 @@ import org.lecturestudio.core.tool.ShapeModifyEvent;
 import org.lecturestudio.core.tool.ShapePaintEvent;
 
 /**
- * This class is the representation of a {@link Page} in a {@link Document}. It has a background shape,
- * that can either be empty (white board page) or a SlideShape holding a PDF-Slide.
- * The foreground of the page consists of an arbitrary number of shapes.
- * Adding or removing shapes should be done by actions only, so they can be un- and redone.
- * 
- * The positions and sizes of shapes are in page metrics, e.g. a normal background shape has width 4 and height 3.
- * 
+ * This class is the representation of a {@link Page} in a {@link Document}. It
+ * has a background shape, that can either be empty (white board page) or a
+ * SlideShape holding a PDF-Slide. The foreground of the page consists of an
+ * arbitrary number of shapes. Adding or removing shapes should be done by
+ * actions only, so they can be un- and redone.
+ * <p>
+ * The positions and sizes of shapes are in page metrics, e.g. a normal
+ * background shape has width 4 and height 3.
+ *
  * @author Alex Andres
  * @author Tobias
  */
@@ -95,6 +98,9 @@ public class Page {
 	/** The page number of this page. */
 	private final int pageNumber;
 
+	/** The unique ID of this document. */
+	private UUID uid;
+
 
 	/**
 	 * Create a new Page with the specified document and page number.
@@ -105,6 +111,26 @@ public class Page {
 	public Page(Document document, int pageNumber) {
 		this.document = document;
 		this.pageNumber = pageNumber;
+	}
+
+	/**
+	 * Get unique document ID. The unique ID can be used to differentiate
+	 * documents of same type but with different internal content.
+	 *
+	 * @return The unique document ID.
+	 */
+	public UUID getUid() {
+		return uid;
+	}
+
+	/**
+	 * Set unique document ID. The unique ID can be used to differentiate
+	 * documents of same type but with different internal content.
+	 *
+	 * @param uid The unique document ID.
+	 */
+	public void setUid(UUID uid) {
+		this.uid = uid;
 	}
 
 	/**
@@ -209,7 +235,8 @@ public class Page {
 
 	/**
 	 * Adopt shapes of provided page if the pages have equal page labels.
-	 * Adoption is only performed if this page is the successor of the provided page.
+	 * Adoption is only performed if this page is the successor of the provided
+	 * page.
 	 *
 	 * @param page The page to adopt to.
 	 */
@@ -241,11 +268,12 @@ public class Page {
 	public List<Shape> getShapes() {
 		return new CopyOnWriteArrayList<>(shapes);
 	}
-	
+
 	/**
 	 * Specifies whether this page has undoable actions.
-	 * 
-	 * @return {@code true} if this page has undoable actions, otherwise {@code false}.
+	 *
+	 * @return {@code true} if this page has undoable actions, otherwise
+	 * {@code false}.
 	 */
 	public boolean hasUndoActions() {
 		return !undoActions.empty();
@@ -253,8 +281,9 @@ public class Page {
 
 	/**
 	 * Specifies whether this page has re-doable actions.
-	 * 
-	 * @return {@code true} if this page has re-doable actions, otherwise {@code false}.
+	 *
+	 * @return {@code true} if this page has re-doable actions, otherwise
+	 * {@code false}.
 	 */
 	public boolean hasRedoActions() {
 		return !redoActions.empty();
@@ -263,8 +292,8 @@ public class Page {
 	/**
 	 * Specifies whether this page has annotations.
 	 *
-	 * @return {@code true} if this page has re-doable actions, undoable actions or
-	 * contains {@link Shape}s, otherwise {@code false}.
+	 * @return {@code true} if this page has re-doable actions, undoable actions
+	 * or contains {@link Shape}s, otherwise {@code false}.
 	 */
 	public boolean hasAnnotations() {
 		return hasShapes() || hasRedoActions() || hasUndoActions();
@@ -349,21 +378,23 @@ public class Page {
 
 	/**
 	 * Specifies whether are shapes placed in the foreground of the page.
-	 * 
-	 * @return {@code true} if this page contains {@link Shape}s, otherwise {@code false}.
+	 *
+	 * @return {@code true} if this page contains {@link Shape}s, otherwise
+	 * {@code false}.
 	 */
 	public boolean hasShapes() {
 		return !shapes.isEmpty();
 	}
 
 	/**
-	 * Adds a shape to this page (just calling this won't result in an undoable action! Use CreateAction instead).
-	 * 
+	 * Adds a shape to this page (just calling this won't result in an undoable
+	 * action! Use CreateAction instead).
+	 *
 	 * @param shape The shape to add.
 	 */
 	public void addShape(Shape shape) {
 		boolean inserted = insertShape(shape);
-		
+
 		if (inserted) {
 			firePageEdited(shape, null, PageEditEvent.Type.SHAPE_ADDED);
 		}
@@ -381,11 +412,13 @@ public class Page {
 	}
 
 	/**
-	 * Adds the specified shape to {@link #shapes} if it is not already included.
+	 * Adds the specified shape to {@link #shapes} if it is not already
+	 * included.
 	 *
 	 * @param shape The shape to add.
 	 *
-	 * @return {@code false} if {@link #shapes} already contained the shape, otherwise {@code true}.
+	 * @return {@code false} if {@link #shapes} already contained the shape,
+	 * otherwise {@code true}.
 	 */
 	private boolean insertShape(Shape shape) {
 		if (contains(shape)) {
@@ -446,27 +479,13 @@ public class Page {
 	}
 
 	/**
-	 * Gets the shape at the given index.
-	 * 
-	 * @param index The index of the shape to retrieve.
-	 *
-	 * @return The shape at the given index.
-	 */
-	public Shape getShapeAt(int index) {
-		if (index < 0 || index >= shapes.size()) {
-			throw new IllegalArgumentException("Index out of Bounds: " + index);
-		}
-
-		return shapes.get(index);
-	}
-
-	/**
-	 * Get the first shape in {@link #shapes} whose handle equals the specified handle.
+	 * Get the first shape in {@link #shapes} whose handle equals the specified
+	 * handle.
 	 *
 	 * @param handle The handle of the searched shape.
 	 *
-	 * @return The first shape in {@link #shapes} whose handle equals the specified handle or
-	 * {@code null} if no such shape was found.
+	 * @return The first shape in {@link #shapes} whose handle equals the
+	 * specified handle or {@code null} if no such shape was found.
 	 */
 	public Shape getShape(int handle) {
 		for (Shape shape : shapes) {
@@ -480,7 +499,7 @@ public class Page {
 
 	/**
 	 * Remove the shape from this page.
-	 * 
+	 *
 	 * @param shape The shape to remove.
 	 */
 	public void removeShape(Shape shape) {
@@ -491,35 +510,8 @@ public class Page {
 	}
 
 	/**
-	 * Get the number of shapes.
-	 *
-	 * @return The size of {@link #shapes}.
-	 */
-	public int getShapeCount() {
-		return shapes.size();
-	}
-
-	/**
-	 * Removes the shape at the given index.
-	 * 
-	 * @param index The index of the shape to remove.
-	 */
-	public void removeShapeAt(int index) {
-		if (index < 0 || index >= shapes.size()) {
-			throw new IllegalArgumentException("Index out of Bounds: " + index);
-		}
-
-		Shape removed = shapes.remove(index);
-
-		if (removed != null) {
-			removed.removeShapeChangedListener(psc);
-			firePageEdited(removed, null, PageEditEvent.Type.SHAPE_REMOVED);
-		}
-	}
-
-	/**
-	 * Creates a {@link DeleteShapeAction} with this page and
-	 * the first shape in {@link #shapes} whose handle equals the specified handle.
+	 * Creates a {@link DeleteShapeAction} with this page and the first shape in
+	 * {@link #shapes} whose handle equals the specified handle.
 	 *
 	 * @param handle The handle of the shape to delete.
 	 */
@@ -537,7 +529,8 @@ public class Page {
 	}
 
 	/**
-	 * Adds a listener that is notified whenever the page is edited, e.g. a shape on the page is edited.
+	 * Adds a listener that is notified whenever the page is edited, e.g. a
+	 * shape on the page is edited.
 	 *
 	 * @param listener The listener to add.
 	 */
@@ -573,8 +566,9 @@ public class Page {
 	}
 
 	/**
-	 * Calls {@link ShapeListener#shapePainted(ShapePaintEvent)} on every listener in {@link #shapeListeners} with
-	 * the specified shape paint event.
+	 * Calls {@link ShapeListener#shapePainted(ShapePaintEvent)} on every
+	 * listener in {@link #shapeListeners} with the specified shape paint
+	 * event.
 	 *
 	 * @param event The shape paint event.
 	 */
@@ -585,8 +579,9 @@ public class Page {
 	}
 
 	/**
-	 * Calls {@link ShapeListener#shapeModified(ShapeModifyEvent)} on every listener in {@link #shapeListeners} with
-	 * the specified shape modify event.
+	 * Calls {@link ShapeListener#shapeModified(ShapeModifyEvent)} on every
+	 * listener in {@link #shapeListeners} with the specified shape modify
+	 * event.
 	 *
 	 * @param event The shape modify event.
 	 */
@@ -597,22 +592,26 @@ public class Page {
 	}
 
 	/**
-	 * Calls {@link #firePageEdited(Shape, Rectangle2D, PageEditEvent.Type)} with {@code null} as shape and dirty area
-	 * and {@code PageEditEvent.Type.SHAPES_ADDED} as page edit event type.
+	 * Calls {@link #firePageEdited(Shape, Rectangle2D, PageEditEvent.Type)}
+	 * with {@code null} as shape and dirty area and
+	 * {@code PageEditEvent.Type.SHAPES_ADDED} as page edit event type.
 	 */
 	public void sendChangeEvent() {
 		firePageEdited(null, null, PageEditEvent.Type.SHAPES_ADDED);
 	}
 
 	/**
-	 * Calls {@link PageEditedListener#pageEdited(PageEditEvent)} on every listener in {@link #listeners} with a newly
-	 * created {@link PageEditEvent} using this page and the specified shape, dirty area and page edit event type.
+	 * Calls {@link PageEditedListener#pageEdited(PageEditEvent)} on every
+	 * listener in {@link #listeners} with a newly created {@link PageEditEvent}
+	 * using this page and the specified shape, dirty area and page edit event
+	 * type.
 	 *
-	 * @param shape The shape.
+	 * @param shape     The shape.
 	 * @param dirtyArea The dirty area.
-	 * @param type The page edit event type.
+	 * @param type      The page edit event type.
 	 */
-	protected void firePageEdited(Shape shape, Rectangle2D dirtyArea, PageEditEvent.Type type) {
+	protected void firePageEdited(Shape shape, Rectangle2D dirtyArea,
+			PageEditEvent.Type type) {
 		for (PageEditedListener l : listeners) {
 			l.pageEdited(new PageEditEvent(this, shape, dirtyArea, type));
 		}
@@ -628,7 +627,8 @@ public class Page {
 	}
 
 	/**
-	 * Initializes the page to its original state, only the background shape is kept.
+	 * Initializes the page to its original state, only the background shape is
+	 * kept.
 	 */
 	public void reset() {
 		clear();

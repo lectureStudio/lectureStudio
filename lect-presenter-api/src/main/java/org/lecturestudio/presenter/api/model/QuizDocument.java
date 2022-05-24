@@ -120,7 +120,7 @@ public class QuizDocument extends HtmlToPdfDocument {
 		// Add options below question.
 		if (options.size() > 0) {
 			Element uList = jdoc.body().appendElement("ul");
-			uList.attr("style", "padding-top: 10px;");
+			uList.attr("style", "padding-top: 10px; padding-left: 0;");
 			String prefix = "";
 
 			for (int i = 0; i < options.size(); i++) {

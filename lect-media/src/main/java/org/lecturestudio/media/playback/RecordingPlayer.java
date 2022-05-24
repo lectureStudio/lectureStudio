@@ -388,11 +388,9 @@ public class RecordingPlayer extends ExecutableBase {
 		if (iter.hasNext()) {
 			// Remember currently selected page.
 			int lastPageNumber = doc.getCurrentPageNumber();
-			
+
 			// Select the page to which to add static actions.
-			if (!doc.selectPage(recPage.getNumber())) {
-				return;
-			}
+			doc.selectPage(recPage.getNumber());
 
 			while (iter.hasNext()) {
 				StaticShapeAction staticAction = iter.next();

@@ -19,12 +19,19 @@
 package org.lecturestudio.presenter.api.model;
 
 import com.openhtmltopdf.extend.FSDOMMutator;
+import com.openhtmltopdf.extend.FSStream;
+import com.openhtmltopdf.extend.FSStreamFactory;
 import com.openhtmltopdf.outputdevice.helper.BaseRendererBuilder.PageSizeUnits;
 import com.openhtmltopdf.pdfboxout.PdfRendererBuilder;
 import com.openhtmltopdf.util.XRLog;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.Reader;
+import java.net.URI;
+import java.nio.charset.StandardCharsets;
 
 import org.apache.pdfbox.pdmodel.PDDocument;
 
@@ -76,14 +83,16 @@ public abstract class HtmlToPdfDocument extends Document {
 
 		jdoc.outputSettings(outputSettings);
 
-		var builder = new PdfRendererBuilder();
-		builder.withW3cDocument(new W3CDom().fromJsoup(jdoc), "/");
-		builder.withProducer("lecturePresenter");
-		builder.addDOMMutator(new EmptyDivMutator());
-		builder.addDOMMutator(new FontColorMutator());
-		builder.usePDDocument(pdDoc);
-		builder.useDefaultPageSize(PAGE_WIDTH / 72f, PAGE_HEIGHT / 72f,
-				PageSizeUnits.INCHES);
+		var builder = new PdfRendererBuilder()
+				.withW3cDocument(new W3CDom().fromJsoup(jdoc), "classpath:/html/")
+				.withProducer("lecturePresenter")
+				.addDOMMutator(new EmptyDivMutator())
+				.addDOMMutator(new FontColorMutator())
+				.usePDDocument(pdDoc)
+				.useDefaultPageSize(PAGE_WIDTH / 72f, PAGE_HEIGHT / 72f,
+						PageSizeUnits.INCHES)
+				.useProtocolsStreamImplementation(new ClassPathStreamFactory(),
+						"classpath");
 
 		var buildPdfRenderer = builder.buildPdfRenderer();
 		buildPdfRenderer.layout();
@@ -139,6 +148,56 @@ public abstract class HtmlToPdfDocument extends Document {
 						fontTag.setAttribute("style", newStyle);
 					}
 				}
+			}
+		}
+	}
+
+
+
+	private static class ClassPathStreamFactory implements FSStreamFactory {
+
+		@Override
+		public FSStream getUrl(String uri) {
+			try {
+				final URI fullUri = new URI(uri);
+				return new PDFClassPathStream(fullUri.getPath());
+			}
+			catch (Throwable ex) {
+				throw new RuntimeException(ex);
+			}
+		}
+
+	}
+
+
+
+	public static class PDFClassPathStream implements FSStream {
+
+		private final String uri;
+
+
+		public PDFClassPathStream(String uri) {
+			this.uri = "resources" + uri;
+		}
+
+		@Override
+		public InputStream getStream() {
+			try {
+				final ClassLoader classLoader = getClass().getClassLoader();
+				return classLoader.getResourceAsStream(uri);
+			}
+			catch (Throwable e) {
+				throw new RuntimeException(e);
+			}
+		}
+
+		@Override
+		public Reader getReader() {
+			try {
+				return new InputStreamReader(getStream(), StandardCharsets.UTF_8);
+			}
+			catch (Throwable ex) {
+				throw new RuntimeException(ex);
 			}
 		}
 	}

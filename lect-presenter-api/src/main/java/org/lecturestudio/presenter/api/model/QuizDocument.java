@@ -112,7 +112,7 @@ public class QuizDocument extends HtmlToPdfDocument {
 		String question = quiz.getQuestion().replaceAll("&nbsp;", " ");
 
 		var jdoc = Jsoup.parseBodyFragment(question);
-		jdoc.body().attr("style", "font-family: Helvetica, Sans-Serif;");
+		jdoc.head().append("<link rel=\"stylesheet\" href=\"quiz.css\">");
 		jdoc.outputSettings().prettyPrint(true);
 
 		List<String> options = quiz.getOptions();
@@ -120,15 +120,17 @@ public class QuizDocument extends HtmlToPdfDocument {
 		// Add options below question.
 		if (options.size() > 0) {
 			Element uList = jdoc.body().appendElement("ul");
-			uList.attr("style", "padding-top: 10px; padding-left: 0;");
+			uList.addClass("options");
+
 			String prefix = "";
 
 			for (int i = 0; i < options.size(); i++) {
 				if (quiz.getType() != QuizType.NUMERIC) {
-					prefix = quiz.getOptionAlpha(i + "") + ")&nbsp;";
+					prefix = quiz.getOptionAlpha(i + "") + ") ";
 				}
 
-				uList.append("<p>" + prefix + options.get(i) + "</p>");
+				Element item = uList.appendElement("p");
+				item.text(prefix + options.get(i));
 			}
 		}
 
@@ -183,15 +185,13 @@ public class QuizDocument extends HtmlToPdfDocument {
 		}
 
 		var jdoc = Jsoup.parseBodyFragment("");
-		jdoc.body().attr("style", "font-family: Helvetica, Sans-Serif;");
+		jdoc.head().append("<link rel=\"stylesheet\" href=\"quiz.css\">");
 		jdoc.outputSettings().prettyPrint(true);
 
 		Element div = jdoc.body().appendElement("div");
-		div.attr("style", "padding-top: 380px;");
+		div.addClass("chart");
 
 		Element table = div.appendElement("table");
-		table.attr("style", "width: 100%; border-collapse: collapse;");
-
 		Element row = null;
 
 		int maxWidth = 260;
@@ -208,10 +208,7 @@ public class QuizDocument extends HtmlToPdfDocument {
 			}
 
 			Element data = row.appendElement("td");
-			data.attr("style", "padding: 0 0.7em 0.7em 0; vertical-align: top;");
-
 			Element tdDiv = data.appendElement("div");
-			tdDiv.attr("style", "max-height: 2.3em; overflow: hidden;");
 
 			String prefix = "";
 			String text = options.get(i);
@@ -238,7 +235,7 @@ public class QuizDocument extends HtmlToPdfDocument {
 			return;
 		}
 
-		int chartHeight = (int) (PAGE_HEIGHT * 0.75);
+		int chartHeight = (int) (PAGE_HEIGHT * 0.725);
 		int pageIndex = pdDocument.getNumberOfPages() - 1;
 
 		// Draw chart below last text line.

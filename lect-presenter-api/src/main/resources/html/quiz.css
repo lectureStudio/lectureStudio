@@ -1,0 +1,28 @@
+body {
+	font-family: Helvetica, Sans-Serif;
+	line-height: 1.4;
+}
+
+ol li,
+ul li {
+	margin: 10px 0;
+}
+ul.options {
+	padding-left: 0;
+}
+
+.chart {
+	padding-top: 370px;
+}
+.chart table {
+	width: 100%;
+	border-collapse: collapse;
+}
+.chart table td {
+	padding: 0 0.7em 0.7em 0;
+	vertical-align: top;
+}
+.chart table td div {
+	max-height: 2.5em;
+	overflow: hidden;
+}

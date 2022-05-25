@@ -28,7 +28,6 @@ import java.awt.Graphics2D;
 import java.awt.GraphicsConfiguration;
 import java.awt.GraphicsEnvironment;
 import java.awt.Rectangle;
-import java.awt.geom.AffineTransform;
 import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
@@ -69,12 +68,9 @@ public class ViewRenderer {
 	private BufferedImage currentImage;
 	private BufferedImage backImage;
 	private BufferedImage frontImage;
-	private BufferedImage watermark;
 
 	private BufferedImage bufferImage;
 	private Graphics2D bufferg2d;
-
-	private AffineTransform deviceTransform;
 
 	private Shape lastShape;
 
@@ -89,16 +85,8 @@ public class ViewRenderer {
 		this.renderController = renderController;
 	}
 
-	public void setDeviceTransform(AffineTransform transform) {
-		this.deviceTransform = transform;
-	}
-
 	public BufferedImage getImage() {
 		return bufferImage;
-	}
-
-	public Dimension2D getImageRect() {
-		return imageRect;
 	}
 
 	public void setPage(Page page) {
@@ -107,11 +95,6 @@ public class ViewRenderer {
 
 	public void setParameter(PresentationParameter parameter) {
 		this.parameter = parameter;
-	}
-
-	public synchronized void renderPage(Page page, Dimension size, Point2D pan) {
-		panPage(page, size, pan);
-		renderForeground();
 	}
 
 	public synchronized void renderPage(Page page, Dimension size) {
@@ -257,16 +240,6 @@ public class ViewRenderer {
 		}
 	}
 
-	public synchronized void panPage(Page page, Dimension size, Point2D pan) {
-		if (isWhiteboardSlide(page)) {
-			return;
-		}
-
-		renderController.renderPage(backImage, page, viewType);
-
-		setBackImage(backImage);
-	}
-
 	/**
 	 * Updates the background image. This method is called when the background
 	 * image need to be re-rendered.
@@ -286,20 +259,6 @@ public class ViewRenderer {
 		size = new Dimension((int)imageRect.getWidth(), (int)imageRect.getHeight());
 
 		backImage = createBackImage(backImage, size);
-
-		Graphics2D g2d = backImage.createGraphics();
-
-		// Clear background.
-		g2d.setBackground(Color.white);
-		g2d.clearRect(0, 0, size.width, size.height);
-
-		if (isWhiteboardSlide(page)) {
-			g2d.dispose();
-			setBackImage(backImage);
-			return;
-		}
-
-		g2d.dispose();
 
 		renderController.renderPage(backImage, page, viewType);
 

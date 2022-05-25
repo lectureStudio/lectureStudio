@@ -25,7 +25,6 @@ import java.awt.Dimension;
 import java.awt.Graphics2D;
 import java.awt.Rectangle;
 import java.awt.color.ColorSpace;
-import java.awt.geom.AffineTransform;
 import java.awt.image.BufferedImage;
 import java.awt.image.ColorModel;
 import java.awt.image.DataBuffer;
@@ -182,13 +181,7 @@ public class SlideViewSkin extends SkinBase<SlideView> {
 	private void initLayout(SlideView control, ReadOnlyObjectWrapper<Bounds> canvasBounds) {
 		renderThread = executors.get(control.getViewType());
 
-		Screen primary = Screen.getPrimary();
-
 		renderer = new ViewRenderer(control.getViewType());
-		renderer.setDeviceTransform(AffineTransform.getScaleInstance(
-				primary.getOutputScaleX(),
-				primary.getOutputScaleY()
-		));
 
 		if (isNull(renderThread)) {
 			renderThread = new RenderThread();

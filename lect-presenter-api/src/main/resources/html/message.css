@@ -1,0 +1,26 @@
+body {
+	font-family: Helvetica, Sans-Serif;
+	font-size: 1.5em;
+	line-height: 1.4;
+	margin-top: 70px;
+	text-align: center;
+}
+
+.speech-bubble {
+	position: relative;
+	margin: 0 auto;
+	padding: 1rem;
+	border-radius: 15px;
+	background-color: #D6EBEB;
+}
+.speech-bubble:before {
+	content: '';
+	position: absolute;
+	width: 0;
+	height: 0;
+	left: 28px;
+	bottom: -17px;
+	border-left: 14px solid transparent;
+	border-right: 14px solid transparent;
+	border-top: 17px solid #D6EBEB;
+}

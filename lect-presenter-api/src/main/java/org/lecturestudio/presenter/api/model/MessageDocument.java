@@ -60,7 +60,7 @@ public class MessageDocument extends HtmlToPdfDocument {
 	private static void createMessagePage(PDDocument doc, String message)
 			throws IOException {
 		var jdoc = Jsoup.parseBodyFragment("");
-		jdoc.body().attr("style", "font-family: Helvetica, Sans-Serif; margin-top: 70px; text-align: center;");
+		jdoc.head().append("<link rel=\"stylesheet\" href=\"message.css\">");
 
 		String[] parts = message.split("\n");
 
@@ -75,6 +75,7 @@ public class MessageDocument extends HtmlToPdfDocument {
 
 			// Each line is encapsulated in a <div>.
 			Element div = jdoc.body().appendElement("div");
+			div.addClass("speech-bubble");
 
 			if (found.isEmpty()) {
 				div.text(part);

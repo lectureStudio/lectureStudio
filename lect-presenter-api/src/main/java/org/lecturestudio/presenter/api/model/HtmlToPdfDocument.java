@@ -18,6 +18,8 @@
 
 package org.lecturestudio.presenter.api.model;
 
+import static java.util.Objects.nonNull;
+
 import com.openhtmltopdf.extend.FSDOMMutator;
 import com.openhtmltopdf.extend.FSStream;
 import com.openhtmltopdf.extend.FSStreamFactory;
@@ -26,12 +28,15 @@ import com.openhtmltopdf.pdfboxout.PdfRendererBuilder;
 import com.openhtmltopdf.util.XRLog;
 
 import java.io.ByteArrayOutputStream;
+import java.io.FileInputStream;
+import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.Reader;
 import java.net.URI;
 import java.nio.charset.StandardCharsets;
+import java.util.Map;
 
 import org.apache.pdfbox.pdmodel.PDDocument;
 
@@ -77,6 +82,12 @@ public abstract class HtmlToPdfDocument extends Document {
 
 	protected static void renderHtmlPage(org.jsoup.nodes.Document jdoc,
 			PDDocument pdDoc) throws IOException {
+		renderHtmlPage(jdoc, pdDoc, null);
+	}
+
+	protected static void renderHtmlPage(org.jsoup.nodes.Document jdoc,
+			PDDocument pdDoc, Map<String, String> resourceMap)
+			throws IOException {
 		OutputSettings outputSettings = new OutputSettings();
 		outputSettings.prettyPrint(false);
 		outputSettings.escapeMode(EscapeMode.xhtml);
@@ -84,15 +95,15 @@ public abstract class HtmlToPdfDocument extends Document {
 		jdoc.outputSettings(outputSettings);
 
 		var builder = new PdfRendererBuilder()
-				.withW3cDocument(new W3CDom().fromJsoup(jdoc), "classpath:/html/")
+				.withW3cDocument(new W3CDom().fromJsoup(jdoc), "classpath:/")
 				.withProducer("lecturePresenter")
 				.addDOMMutator(new EmptyDivMutator())
 				.addDOMMutator(new FontColorMutator())
 				.usePDDocument(pdDoc)
 				.useDefaultPageSize(PAGE_WIDTH / 72f, PAGE_HEIGHT / 72f,
 						PageSizeUnits.INCHES)
-				.useProtocolsStreamImplementation(new ClassPathStreamFactory(),
-						"classpath");
+				.useProtocolsStreamImplementation(
+						new ClassPathStreamFactory(resourceMap), "classpath");
 
 		var buildPdfRenderer = builder.buildPdfRenderer();
 		buildPdfRenderer.layout();
@@ -156,11 +167,29 @@ public abstract class HtmlToPdfDocument extends Document {
 
 	private static class ClassPathStreamFactory implements FSStreamFactory {
 
+		final Map<String, String> resourceMap;
+
+
+		ClassPathStreamFactory(Map<String, String> resourceMap) {
+			this.resourceMap = resourceMap;
+		}
+
 		@Override
 		public FSStream getUrl(String uri) {
 			try {
 				final URI fullUri = new URI(uri);
-				return new PDFClassPathStream(fullUri.getPath());
+				final String path = fullUri.getPath();
+				final String replacement = resourceMap.get(path.substring(1));
+
+				if (nonNull(replacement)) {
+					URI repUri = new URI(replacement);
+
+					if (repUri.getScheme().equals("file")) {
+						return new PDFFileStream(repUri);
+					}
+				}
+
+				return new PDFClassPathStream(path);
 			}
 			catch (Throwable ex) {
 				throw new RuntimeException(ex);
@@ -195,6 +224,38 @@ public abstract class HtmlToPdfDocument extends Document {
 		public Reader getReader() {
 			try {
 				return new InputStreamReader(getStream(), StandardCharsets.UTF_8);
+			}
+			catch (Throwable ex) {
+				throw new RuntimeException(ex);
+			}
+		}
+	}
+
+
+
+	public static class PDFFileStream implements FSStream {
+
+		private final URI uri;
+
+
+		public PDFFileStream(URI uri) {
+			this.uri = uri;
+		}
+
+		@Override
+		public InputStream getStream() {
+			try {
+				return new FileInputStream(uri.getPath());
+			}
+			catch (Throwable e) {
+				throw new RuntimeException(e);
+			}
+		}
+
+		@Override
+		public Reader getReader() {
+			try {
+				return new FileReader(uri.getPath());
 			}
 			catch (Throwable ex) {
 				throw new RuntimeException(ex);

@@ -26,7 +26,10 @@ import java.awt.font.LineBreakMeasurer;
 import java.awt.font.TextAttribute;
 import java.awt.font.TextLayout;
 import java.awt.geom.AffineTransform;
+import java.io.File;
 import java.io.IOException;
+import java.net.URI;
+import java.nio.file.Paths;
 import java.text.AttributedCharacterIterator;
 import java.text.AttributedString;
 import java.util.ArrayList;
@@ -42,6 +45,7 @@ import org.apache.pdfbox.pdmodel.PDPage;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Element;
 
+import org.jsoup.select.Elements;
 import org.knowm.xchart.CategoryChart;
 import org.knowm.xchart.CategoryChartBuilder;
 import org.knowm.xchart.CategorySeries;
@@ -112,8 +116,23 @@ public class QuizDocument extends HtmlToPdfDocument {
 		String question = quiz.getQuestion().replaceAll("&nbsp;", " ");
 
 		var jdoc = Jsoup.parseBodyFragment(question);
-		jdoc.head().append("<link rel=\"stylesheet\" href=\"quiz.css\">");
+		jdoc.head().append("<link rel=\"stylesheet\" href=\"html/quiz.css\">");
 		jdoc.outputSettings().prettyPrint(true);
+
+		Map<String, String> resourceMap = new HashMap<>();
+
+		Elements images = jdoc.getElementsByTag("img");
+		for (Element e : images) {
+			String src = e.absUrl("src");
+			File imgFile = new File(URI.create(src).getPath());
+			String newPath = Paths.get("quiz", imgFile.getName()).toString()
+					.replaceAll("\\\\", "/");
+
+			// Replace by new relative web-root path.
+			e.attr("src", newPath);
+
+			resourceMap.put(newPath, src);
+		}
 
 		List<String> options = quiz.getOptions();
 
@@ -134,7 +153,7 @@ public class QuizDocument extends HtmlToPdfDocument {
 			}
 		}
 
-		renderHtmlPage(jdoc, pdDocument);
+		renderHtmlPage(jdoc, pdDocument, resourceMap);
 	}
 
 	private static boolean textFits(String text, Dimension areaToFit) {
@@ -185,7 +204,7 @@ public class QuizDocument extends HtmlToPdfDocument {
 		}
 
 		var jdoc = Jsoup.parseBodyFragment("");
-		jdoc.head().append("<link rel=\"stylesheet\" href=\"quiz.css\">");
+		jdoc.head().append("<link rel=\"stylesheet\" href=\"html/quiz.css\">");
 		jdoc.outputSettings().prettyPrint(true);
 
 		Element div = jdoc.body().appendElement("div");

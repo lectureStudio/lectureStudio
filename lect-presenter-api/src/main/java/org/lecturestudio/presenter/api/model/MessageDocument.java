@@ -60,7 +60,7 @@ public class MessageDocument extends HtmlToPdfDocument {
 	private static void createMessagePage(PDDocument doc, String message)
 			throws IOException {
 		var jdoc = Jsoup.parseBodyFragment("");
-		jdoc.head().append("<link rel=\"stylesheet\" href=\"message.css\">");
+		jdoc.head().append("<link rel=\"stylesheet\" href=\"html/message.css\">");
 
 		String[] parts = message.split("\n");
 

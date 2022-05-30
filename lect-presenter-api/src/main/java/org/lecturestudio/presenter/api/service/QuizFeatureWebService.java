@@ -22,16 +22,23 @@ import static java.util.Objects.isNull;
 import static java.util.Objects.nonNull;
 
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
 import java.net.URI;
+import java.nio.file.Files;
 import java.nio.file.Paths;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
+
+import javax.ws.rs.core.MediaType;
+
+import org.apache.commons.io.FilenameUtils;
 
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Element;
@@ -46,6 +53,7 @@ import org.lecturestudio.core.model.DocumentType;
 import org.lecturestudio.core.model.Page;
 import org.lecturestudio.core.service.DocumentService;
 import org.lecturestudio.presenter.api.model.QuizDocument;
+import org.lecturestudio.web.api.client.MultipartBody;
 import org.lecturestudio.web.api.message.QuizAnswerMessage;
 import org.lecturestudio.web.api.model.quiz.Quiz;
 import org.lecturestudio.web.api.model.quiz.QuizAnswer;
@@ -123,10 +131,11 @@ public class QuizFeatureWebService extends FeatureServiceBase {
 		// Create a copy, since the markup of the question gets changed for the web view.
 		Quiz webQuiz = quiz.clone();
 
-		List<File> files = loadQuizContent(webQuiz);
-
 		try {
-			serviceId = webService.startQuiz(courseId, webQuiz);
+			MultipartBody data = getQuizResources(webQuiz);
+			data.addFormData("quiz", webQuiz, MediaType.APPLICATION_JSON_TYPE);
+
+			serviceId = webService.startQuiz(courseId, data);
 
 			webService.addMessageListener(QuizAnswerMessage.class, messageConsumer);
 		}
@@ -135,30 +144,7 @@ public class QuizFeatureWebService extends FeatureServiceBase {
 		}
 
 		if (isNull(quizDocument)) {
-			// Add quiz document.
-			quizDocument = createQuizDocument(quizResult);
-			quizDocument.setUid(UUID.randomUUID());
-
-			for (var page : quizDocument.getPages()) {
-				page.setUid(UUID.randomUUID());
-			}
-
-			Document prevQuizDoc = null;
-
-			for (Document doc : documentService.getDocuments().asList()) {
-				if (doc.isQuiz()) {
-					prevQuizDoc = doc;
-				}
-			}
-
-			if (nonNull(prevQuizDoc)) {
-				documentService.replaceDocument(prevQuizDoc, quizDocument);
-			}
-			else {
-				documentService.addDocument(quizDocument);
-			}
-
-			documentService.selectDocument(quizDocument);
+			updateQuizDocument();
 		}
 		else {
 			// Replace quiz document in silent-mode.
@@ -217,6 +203,34 @@ public class QuizFeatureWebService extends FeatureServiceBase {
 		return doc;
 	}
 
+	private void updateQuizDocument() throws ExecutableException {
+		// Add quiz document.
+		quizDocument = createQuizDocument(quizResult);
+		quizDocument.setUid(UUID.randomUUID());
+
+		for (var page : quizDocument.getPages()) {
+			page.setUid(UUID.randomUUID());
+		}
+
+		Document prevQuizDoc = null;
+
+		// Find old quiz document.
+		for (Document doc : documentService.getDocuments().asList()) {
+			if (doc.isQuiz()) {
+				prevQuizDoc = doc;
+			}
+		}
+
+		if (nonNull(prevQuizDoc)) {
+			documentService.replaceDocument(prevQuizDoc, quizDocument);
+		}
+		else {
+			documentService.addDocument(quizDocument);
+		}
+
+		documentService.selectDocument(quizDocument);
+	}
+
 	private void updateQuizDocument(boolean copyAnnotations) {
 		try {
 			final Document oldDoc = quizDocument;
@@ -253,7 +267,30 @@ public class QuizFeatureWebService extends FeatureServiceBase {
 		}
 	}
 
-	private List<File> loadQuizContent(Quiz quiz) {
+	private MultipartBody getQuizResources(Quiz quiz) throws IOException {
+		MultipartBody body = new MultipartBody();
+		Map<File, String> files = loadQuizContent(quiz);
+
+		for (var entry : files.entrySet()) {
+			File file = entry.getKey();
+			String mimeType = Files.probeContentType(file.toPath());
+
+			if (isNull(mimeType)) {
+				mimeType = "*/*";
+			}
+
+			logDebugMessage("Upload quiz resource: %s as %s", file, mimeType);
+
+			body.addFormData("files", new FileInputStream(file),
+					MediaType.valueOf(mimeType), entry.getValue());
+		}
+
+		return body;
+	}
+
+	private Map<File, String> loadQuizContent(Quiz quiz) {
+		Map<File, String> fileMap = new HashMap<>();
+
 		// Parse template and pretty print
 		String html = quiz.getQuestion();
 		org.jsoup.nodes.Document doc = Jsoup.parse(html);
@@ -267,25 +304,26 @@ public class QuizFeatureWebService extends FeatureServiceBase {
 			}
 		}
 
-		List<File> includeFiles = new ArrayList<>();
-
 		// Get all elements with image tag.
 		Elements img = doc.getElementsByTag("img");
 		for (Element e : img) {
 			String src = e.absUrl("src");
 			File imgFile = new File(URI.create(src).getPath());
 
-			includeFiles.add(imgFile);
+			String generatedName = UUID.randomUUID() + "."
+					+ FilenameUtils.getExtension(imgFile.getName());
+
+			fileMap.put(imgFile, generatedName);
 
 			// Replace by new relative web-root path.
-			e.attr("src", Paths.get("classrooms", imgFile.getName()).toString()
-					.replaceAll("\\\\", "/"));
+			e.attr("src", Paths.get(Long.toString(courseId), "quiz", "resource",
+					generatedName).toString().replaceAll("\\\\", "/"));
 		}
 
 		html = doc.body().html();
 
 		quiz.setQuestion(html);
 
-		return includeFiles;
+		return fileMap;
 	}
 }

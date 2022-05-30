@@ -21,9 +21,9 @@ package org.lecturestudio.presenter.api.service;
 import org.eclipse.microprofile.rest.client.RestClientBuilder;
 
 import org.lecturestudio.presenter.api.client.QuizFeatureClient;
+import org.lecturestudio.web.api.client.MultipartBody;
 import org.lecturestudio.web.api.client.TokenProvider;
 import org.lecturestudio.web.api.message.MessageTransport;
-import org.lecturestudio.web.api.model.quiz.Quiz;
 import org.lecturestudio.web.api.service.ReactiveProviderService;
 import org.lecturestudio.web.api.service.ServiceParameters;
 
@@ -42,8 +42,8 @@ public class QuizFeatureService extends ReactiveProviderService {
 		featureClient = builder.build(QuizFeatureClient.class);
 	}
 
-	public String startQuiz(long courseId, Quiz quiz) {
-		return featureClient.startQuiz(courseId, quiz);
+	public String startQuiz(long courseId, MultipartBody data) {
+		return featureClient.startQuiz(courseId, data);
 	}
 
 	public void stopQuiz(long courseId) {

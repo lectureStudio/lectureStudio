@@ -27,9 +27,11 @@ import javax.ws.rs.core.MediaType;
 import org.eclipse.microprofile.rest.client.annotation.RegisterProvider;
 import org.eclipse.microprofile.rest.client.annotation.RegisterProviders;
 
+import org.jboss.resteasy.annotations.providers.multipart.MultipartForm;
+
 import org.lecturestudio.web.api.client.ApiKeyFilter;
+import org.lecturestudio.web.api.client.MultipartBody;
 import org.lecturestudio.web.api.data.bind.ClientJsonMapper;
-import org.lecturestudio.web.api.model.quiz.Quiz;
 
 @Path("/api/publisher")
 @RegisterProviders({
@@ -38,10 +40,11 @@ import org.lecturestudio.web.api.model.quiz.Quiz;
 })
 public interface QuizFeatureClient {
 
-	@Path("/quiz/start/{courseId}")
+	@Path("/v2/quiz/start/{courseId}")
 	@POST
-	@Consumes(MediaType.APPLICATION_JSON)
-	String startQuiz(@PathParam("courseId") long courseId, Quiz quiz);
+	@Consumes(MediaType.MULTIPART_FORM_DATA)
+	String startQuiz(@PathParam("courseId") long courseId,
+			@MultipartForm MultipartBody data);
 
 	@Path("/quiz/stop/{courseId}")
 	@POST

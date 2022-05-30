@@ -246,7 +246,7 @@ public class QuizDocument extends HtmlToPdfDocument {
 			tdDiv.text(String.format("%s %s", prefix, text));
 		}
 
-		renderHtmlPage(jdoc, pdDocument);
+		renderHtmlPage(jdoc, pdDocument, Map.of());
 	}
 
 	private static void renderChart(PDDocument pdDocument, QuizResult result, Chart<?, ?> chart) {

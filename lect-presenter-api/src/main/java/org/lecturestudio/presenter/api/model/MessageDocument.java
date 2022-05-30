@@ -24,6 +24,7 @@ import com.linkedin.urls.detection.UrlDetectorOptions;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.Map;
 
 import org.apache.pdfbox.pdmodel.PDDocument;
 import org.jsoup.Jsoup;
@@ -104,6 +105,6 @@ public class MessageDocument extends HtmlToPdfDocument {
 			}
 		}
 
-		renderHtmlPage(jdoc, doc);
+		renderHtmlPage(jdoc, doc, Map.of());
 	}
 }

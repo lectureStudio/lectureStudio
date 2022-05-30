@@ -81,11 +81,6 @@ public abstract class HtmlToPdfDocument extends Document {
 	}
 
 	protected static void renderHtmlPage(org.jsoup.nodes.Document jdoc,
-			PDDocument pdDoc) throws IOException {
-		renderHtmlPage(jdoc, pdDoc, null);
-	}
-
-	protected static void renderHtmlPage(org.jsoup.nodes.Document jdoc,
 			PDDocument pdDoc, Map<String, String> resourceMap)
 			throws IOException {
 		OutputSettings outputSettings = new OutputSettings();

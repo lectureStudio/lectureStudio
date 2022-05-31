@@ -250,7 +250,7 @@ public class ViewRenderer {
 			return;
 		}
 
-		if (imageRect.getWidth() == 0 || imageRect.getHeight() == 0) {
+		if (imageRect.getWidth() <= 0 || imageRect.getHeight() <= 0) {
 			if (!adjustImageRect(size)) {
 				return;
 			}

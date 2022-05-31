@@ -28,8 +28,17 @@ public class PathValidator extends TextInputValidator {
 
 	public void bind(TextInputControl control) {
 		bind(control, text -> {
-			Path path = Paths.get(text);
-			return Files.exists(path);
+			if (text.isEmpty() || text.isBlank()) {
+				return false;
+			}
+
+			try {
+				Path path = Paths.get(text);
+				return Files.exists(path);
+			}
+			catch (Throwable e) {
+				return false;
+			}
 		});
 	}
 

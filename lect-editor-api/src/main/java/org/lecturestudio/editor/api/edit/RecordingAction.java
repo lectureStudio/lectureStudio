@@ -65,7 +65,7 @@ public abstract class RecordingAction implements EditAction {
 			action.undo();
 		}
 
-		recording.fireChangeEvent(Content.ALL, duration);
+		fireChangeEvent(duration);
 	}
 
 	@Override
@@ -76,7 +76,7 @@ public abstract class RecordingAction implements EditAction {
 			action.redo();
 		}
 
-		recording.fireChangeEvent(Content.ALL, duration);
+		fireChangeEvent(duration);
 	}
 
 	@Override
@@ -87,17 +87,21 @@ public abstract class RecordingAction implements EditAction {
 			action.execute();
 		}
 
-		recording.fireChangeEvent(Content.ALL, duration);
+		fireChangeEvent(duration);
 	}
 
 	/**
 	 * Returns the duration this action comprises. This method is meant to be
-	 * overridden by sub-classes to provide specific duration. By default {@code
-	 * null} is returned to indicate to ignore this value.
+	 * overridden by sub-classes to provide specific duration. By default
+	 * {@code null} is returned to indicate to ignore this value.
 	 *
 	 * @return The duration this action comprises.
 	 */
 	protected Interval<Double> getEditDuration() {
 		return null;
+	}
+
+	protected void fireChangeEvent(Interval<Double> duration) {
+		recording.fireChangeEvent(Content.ALL, duration);
 	}
 }

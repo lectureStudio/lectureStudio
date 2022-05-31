@@ -38,15 +38,15 @@
 						<SvgIcon styleClass="noise-reduction-icon" />
 					</graphic>
 				</Tab>
-<!--				<Tab id="events">-->
-<!--					<FxPageEventsView />-->
-<!--					<tooltip>-->
-<!--						<Tooltip text="%slides.page.events" />-->
-<!--					</tooltip>-->
-<!--					<graphic>-->
-<!--						<SvgIcon styleClass="page-events-icon" />-->
-<!--					</graphic>-->
-<!--				</Tab>-->
+				<Tab id="events">
+					<FxPageEventsView />
+					<tooltip>
+						<Tooltip text="%slides.page.events" />
+					</tooltip>
+					<graphic>
+						<SvgIcon styleClass="page-events-icon" />
+					</graphic>
+				</Tab>
 			</TabPane>
 			<SlideView fx:id="slideView" HBox.hgrow="ALWAYS"/>
 		</HBox>

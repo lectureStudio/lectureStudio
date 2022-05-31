@@ -146,9 +146,10 @@ public class MediaControlsPresenter extends Presenter<MediaControlsView> {
 		switch (event.getContentType()) {
 			case ALL:
 			case HEADER:
-				final Document doc = event.getRecording().getRecordedDocument().getDocument();
+				final Recording recording = event.getRecording();
+				final Document doc = recording.getRecordedDocument().getDocument();
 
-				view.setDuration(new Time(event.getRecording().getRecordedAudio().getAudioStream().getLengthInMillis()));
+				view.setDuration(new Time(recording.getRecordedAudio().getAudioStream().getLengthInMillis()));
 				view.setCurrentPage(doc.getCurrentPageNumber() + 1, doc.getPageCount());
 				break;
 		}

@@ -30,14 +30,17 @@ import org.lecturestudio.core.beans.ObjectProperty;
 import org.lecturestudio.core.model.Document;
 import org.lecturestudio.core.model.Page;
 import org.lecturestudio.core.presenter.Presenter;
+import org.lecturestudio.core.recording.Recording.Content;
+import org.lecturestudio.core.recording.RecordingEditException;
 import org.lecturestudio.core.recording.action.ActionType;
-import org.lecturestudio.core.recording.edit.DeleteEventAction;
 import org.lecturestudio.core.recording.RecordingChangeEvent;
 import org.lecturestudio.core.recording.Recording;
-import org.lecturestudio.core.recording.RecordedEvents;
 import org.lecturestudio.core.recording.RecordedPage;
 import org.lecturestudio.core.recording.action.PlaybackAction;
+import org.lecturestudio.core.recording.edit.EditAction;
 import org.lecturestudio.core.service.DocumentService;
+import org.lecturestudio.editor.api.context.EditorContext;
+import org.lecturestudio.editor.api.edit.DeletePageEventAction;
 import org.lecturestudio.media.recording.RecordingEvent;
 import org.lecturestudio.editor.api.service.RecordingFileService;
 import org.lecturestudio.editor.api.view.PageEventsView;
@@ -86,7 +89,8 @@ public class PageEventsPresenter extends Presenter<PageEventsView> {
 
 	@Subscribe
 	public void onEvent(RecordingChangeEvent event) {
-		if (event.getContentType() == Recording.Content.EVENTS) {
+		if (event.getContentType() == Recording.Content.EVENTS
+				|| event.getContentType() == Content.ALL) {
 			loadSelectedPageEvents();
 		}
 	}
@@ -100,17 +104,12 @@ public class PageEventsPresenter extends Presenter<PageEventsView> {
 
 	private void deletePageEvent(PageEvent event) {
 		Recording recording = recordingService.getSelectedRecording();
-		RecordedEvents lectureEvents = recording.getRecordedEvents();
 		PlaybackAction action = event.getPlaybackAction();
 		int pageNumber = event.getPageNumber();
 
 		try {
-			DeleteEventAction deleteAction = new DeleteEventAction(lectureEvents, action, pageNumber);
-			deleteAction.execute();
-
-			lectureEvents.addEditAction(deleteAction);
-
-			recording.fireChangeEvent(Recording.Content.EVENTS);
+			addEditAction(recording, new DeletePageEventAction(recording,
+					action, pageNumber));
 		}
 		catch (Exception e) {
 			handleException(e, "Remove event failed", "page.events.delete.error");
@@ -124,7 +123,8 @@ public class PageEventsPresenter extends Presenter<PageEventsView> {
 
 	private void loadPageEvents(Page page) {
 		Recording recording = recordingService.getSelectedRecording();
-		RecordedPage recordedPage = recording.getRecordedEvents().getRecordedPage(page.getPageNumber());
+		RecordedPage recordedPage = recording.getRecordedEvents()
+				.getRecordedPage(page.getPageNumber());
 
 		List<PageEvent> eventList = new ArrayList<>();
 
@@ -142,5 +142,19 @@ public class PageEventsPresenter extends Presenter<PageEventsView> {
 		}
 
 		view.setPageEvents(eventList);
+	}
+
+	private void addEditAction(Recording recording, EditAction action)
+			throws RecordingEditException {
+		recording.getEditManager().addEditAction(action);
+
+		updateEditState(recording);
+	}
+
+	private void updateEditState(Recording recording) {
+		EditorContext editorContext = (EditorContext) context;
+
+		editorContext.setCanRedo(recording.getEditManager().hasRedoActions());
+		editorContext.setCanUndo(recording.getEditManager().hasUndoActions());
 	}
 }

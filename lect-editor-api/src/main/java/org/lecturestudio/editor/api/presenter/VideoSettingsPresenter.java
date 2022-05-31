@@ -82,7 +82,10 @@ public class VideoSettingsPresenter extends Presenter<VideoSettingsView> {
 		File initDirectory = new File(config.getVideoExportPath());
 
 		DirectoryChooserView dirChooser = viewFactory.createDirectoryChooserView();
-		dirChooser.setInitialDirectory(initDirectory);
+
+		if (initDirectory.exists()) {
+			dirChooser.setInitialDirectory(initDirectory);
+		}
 
 		File selectedFile = dirChooser.show(view);
 
@@ -99,8 +102,30 @@ public class VideoSettingsPresenter extends Presenter<VideoSettingsView> {
 	}
 
 	private long getUsableSpace(String targetPath) throws IOException {
-		Path path = Paths.get(targetPath);
-		FileStore store = Files.getFileStore(path.toRealPath());
+		if (isNull(targetPath) || targetPath.isEmpty() || targetPath.isBlank()) {
+			return 0;
+		}
+
+		FileStore store;
+
+		try {
+			Path path = Paths.get(targetPath);
+
+			if (Files.exists(path)) {
+				store = Files.getFileStore(path.toRealPath());
+			}
+			else {
+				if (nonNull(path.getRoot())) {
+					store = Files.getFileStore(path.getRoot());
+				}
+				else {
+					return 0;
+				}
+			}
+		}
+		catch (Throwable e) {
+			return 0;
+		}
 
 		return store.getUsableSpace();
 	}

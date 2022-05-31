@@ -32,6 +32,7 @@ import org.lecturestudio.core.view.Action;
 import org.lecturestudio.editor.api.view.VideoSettingsView;
 import org.lecturestudio.javafx.beans.LectStringProperty;
 import org.lecturestudio.javafx.util.FxUtils;
+import org.lecturestudio.javafx.util.PathValidator;
 import org.lecturestudio.javafx.view.FxmlView;
 
 @FxmlView(name = "video-settings", presenter = org.lecturestudio.editor.api.presenter.VideoSettingsPresenter.class)
@@ -85,5 +86,11 @@ public class FxVideoSettingsView extends GridPane implements VideoSettingsView {
 	@Override
 	public void setOnSelectTargetDirectory(Action action) {
 		FxUtils.bindAction(browseButton, action);
+	}
+
+	@FXML
+	private void initialize() {
+		PathValidator pathValidator = new PathValidator();
+		pathValidator.bind(targetPathField);
 	}
 }

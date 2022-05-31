@@ -238,7 +238,6 @@ public class CreateQuizPresenter extends Presenter<CreateQuizView> {
 		optionView.setOnMoveDown(() -> moveOptionDown(optionView));
 		optionView.setOnMoveUp(() -> moveOptionUp(optionView));
 		optionView.setOnRemove(() -> removeOption(optionView));
-		optionView.setOnEnterKey(() -> enterKey(optionView));
 		optionView.setOnTabKey(() -> tabKey(optionView));
 
 		if (focus) {
@@ -278,14 +277,6 @@ public class CreateQuizPresenter extends Presenter<CreateQuizView> {
 		view.moveQuizOptionViewDown(optionView);
 
 		Collections.swap(optionContextList, index, newIndex);
-	}
-
-	private void enterKey(CreateQuizOptionView optionView) {
-		if (!isLastOption(optionView)) {
-			return;
-		}
-
-		startQuiz();
 	}
 
 	private void tabKey(CreateQuizOptionView optionView) {

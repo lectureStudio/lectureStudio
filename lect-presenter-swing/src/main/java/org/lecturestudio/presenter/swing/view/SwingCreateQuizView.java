@@ -306,8 +306,6 @@ public class SwingCreateQuizView extends ContentPane implements CreateQuizView {
 			{
 				put(resources.getString("create.quiz.option.add.tooltip"),
 						KeyUtils.getDisplayText(KeyStroke.getKeyStroke("TAB")));
-				put(resources.getString("create.quiz.start"),
-						KeyUtils.getDisplayText(KeyStroke.getKeyStroke("ENTER")));
 				put(resources.getString("create.quiz.option.up.tooltip"),
 						KeyUtils.getDisplayText(KeyStroke.getKeyStroke("UP")));
 			}
@@ -400,11 +398,6 @@ public class SwingCreateQuizView extends ContentPane implements CreateQuizView {
 			if (event.getKeyCode() == KeyEvent.VK_TAB && lastField) {
 				newOptionButton.doClick();
 				return true;
-			}
-			else if (event.getKeyCode() == KeyEvent.VK_ENTER) {
-				if ((event.getModifiersEx() & KeyEvent.CTRL_DOWN_MASK) != 0 || lastField) {
-					startQuizButton.doClick();
-				}
 			}
 
 			return super.dispatchKeyEvent(event);

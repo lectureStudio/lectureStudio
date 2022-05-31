@@ -117,28 +117,39 @@ public class VideoExportPresenter extends Presenter<VideoExportView> {
 	}
 
 	private void create() {
-		Stack<RecordingExport> exportStack = createExportStack();
+		try {
+			Stack<RecordingExport> exportStack = createExportStack();
 
-		close();
+			close();
 
-		context.getEventBus().post(new ExportRecordingCommand(exportStack));
+			context.getEventBus().post(new ExportRecordingCommand(exportStack));
+		}
+		catch (Throwable e) {
+			handleException(e, "Set output path failed", "video.export.failed");
+		}
+		finally {
+			close();
+		}
 	}
 
-	private RecordingExport createWebVectorExport(Recording recording, RenderConfiguration config) {
+	private RecordingExport createWebVectorExport(Recording recording,
+			RenderConfiguration config) {
 		WebVectorExport vectorExport = new WebVectorExport(recording, config);
 		vectorExport.setTitle("Web Player");
 
 		return vectorExport;
 	}
 
-	private RecordingExport createWebVideoExport(Recording recording, RenderConfiguration config) {
-		WebVideoExport webExport = new WebVideoExport(context, recording, config);
+	private RecordingExport createWebVideoExport(Recording recording,
+			RenderConfiguration config) {
+		WebVideoExport webExport = new WebVideoExport(context, recording,
+				config);
 		webExport.setTitle("Web Player");
 
 		return webExport;
 	}
 
-	private Stack<RecordingExport> createExportStack() {
+	private Stack<RecordingExport> createExportStack() throws IOException {
 		setOutputPath();
 
 		Recording recording = recordingService.getSelectedRecording();
@@ -158,7 +169,7 @@ public class VideoExportPresenter extends Presenter<VideoExportView> {
 		return stack;
 	}
 
-	private void setOutputPath() {
+	private void setOutputPath() throws IOException {
 		// Create a common folder.
 		String name = targetName.get();
 		String extension = renderConfig.getFileFormat();
@@ -166,7 +177,7 @@ public class VideoExportPresenter extends Presenter<VideoExportView> {
 
 		if (!outputFolder.exists()) {
 			if (!outputFolder.mkdirs()) {
-				logException(new IOException(), "Create output folder failed");
+				throw new IOException("Create output folder failed");
 			}
 		}
 

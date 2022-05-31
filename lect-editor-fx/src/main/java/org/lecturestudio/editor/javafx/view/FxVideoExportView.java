@@ -34,7 +34,9 @@ import org.lecturestudio.editor.api.view.VideoExportView;
 import org.lecturestudio.javafx.beans.LectBooleanProperty;
 import org.lecturestudio.javafx.beans.LectObjectProperty;
 import org.lecturestudio.javafx.beans.LectStringProperty;
+import org.lecturestudio.javafx.util.FileNameValidator;
 import org.lecturestudio.javafx.util.FxUtils;
+import org.lecturestudio.javafx.util.PathValidator;
 import org.lecturestudio.javafx.view.FxmlView;
 
 @FxmlView(name = "video-export", presenter = VideoExportPresenter.class)
@@ -117,6 +119,14 @@ public class FxVideoExportView extends StackPane implements VideoExportView {
 					});
 		}
 
-		createButton.disableProperty().bind(anySelected.lessThanOrEqualTo(0));
+		FileNameValidator nameValidator = new FileNameValidator();
+		nameValidator.bind(targetNameField);
+
+		PathValidator pathValidator = new PathValidator();
+		pathValidator.bind(targetPathField);
+
+		createButton.disableProperty().bind(anySelected.lessThanOrEqualTo(0)
+				.or(nameValidator.validProperty().not())
+				.or(pathValidator.validProperty().not()));
 	}
 }

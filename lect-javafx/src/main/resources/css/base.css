@@ -86,6 +86,15 @@
 	-fx-font-size: 0.9em;
 }
 
+.text-input:error {
+	-fx-control-inner-background: #FEF2F2;
+	-fx-text-box-border: #F87171;
+}
+.text-input:error:focused {
+	-fx-focus-color: #DC2626;
+	-fx-faint-focus-color: #DC262622;
+}
+
 /*******************************************************************************
  *                                                                             *
  * TableView                                                                   *

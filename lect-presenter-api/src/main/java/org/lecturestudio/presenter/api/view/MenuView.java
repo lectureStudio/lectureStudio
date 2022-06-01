@@ -19,7 +19,6 @@
 package org.lecturestudio.presenter.api.view;
 
 import java.io.File;
-import java.net.URI;
 import java.util.List;
 
 import org.lecturestudio.core.ExecutableState;
@@ -36,7 +35,6 @@ import org.lecturestudio.core.view.View;
 import org.lecturestudio.presenter.api.model.Bookmark;
 import org.lecturestudio.presenter.api.model.Bookmarks;
 import org.lecturestudio.presenter.api.service.QuizWebServiceState;
-import org.lecturestudio.web.api.model.quiz.Quiz;
 
 public interface MenuView extends View {
 
@@ -169,26 +167,6 @@ public interface MenuView extends View {
 	void setOnPreviousBookmark(Action action);
 
 	void setOnOpenBookmark(ConsumerAction<Bookmark> action);
-
-	/**
-	 * Embedded Actions
-	 */
-
-	void setPageURIs(List<URI> uris);
-
-	void setPageFileLinks(List<File> fileLinks);
-
-	void setOnOpenPageURI(ConsumerAction<URI> action);
-
-	void setOnOpenPageFileLink(ConsumerAction<File> action);
-
-	/**
-	 * Embedded Quizzes
-	 */
-
-	void setPageQuizzes(List<Quiz> quizzes);
-
-	void setOnOpenPageQuiz(ConsumerAction<Quiz> action);
 
 	/**
 	 * Info Menu

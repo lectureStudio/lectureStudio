@@ -29,7 +29,6 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 import javax.inject.Inject;
 
-import org.lecturestudio.core.app.ApplicationContext;
 import org.lecturestudio.core.camera.AspectRatio;
 import org.lecturestudio.core.camera.Camera;
 import org.lecturestudio.core.camera.CameraProfile;
@@ -56,13 +55,11 @@ public class CameraSettingsPresenter extends Presenter<CameraSettingsView> {
 
 
 	@Inject
-	CameraSettingsPresenter(ApplicationContext context, CameraSettingsView view, CameraService camService) {
+	CameraSettingsPresenter(PresenterContext context, CameraSettingsView view, CameraService camService) {
 		super(context, view);
 
-		PresenterConfiguration config = (PresenterConfiguration) context.getConfiguration();
-
 		this.camService = camService;
-		this.streamConfig = config.getStreamConfig();
+		this.streamConfig = context.getConfiguration().getStreamConfig();
 		this.configure = new AtomicBoolean();
 	}
 

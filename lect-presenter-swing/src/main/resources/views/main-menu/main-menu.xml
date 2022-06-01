@@ -28,7 +28,6 @@
 			<radiobuttonmenuitem id="messagesPositionBottomMenuItem" text="menu.bottom" />
 			<radiobuttonmenuitem id="messagesPositionRightMenuItem" text="menu.right" />
 		</menu>
-<!--		<checkboxmenuitem id="advancedSettingsMenuItem" text="menu.advanced.settings" type="checkbox" />-->
 	</menu>
 	<menu text="menu.whiteboard">
 		<menuitem id="newWhiteboardMenuItem" text="menu.whiteboard.new" />
@@ -60,8 +59,6 @@
 		<menuitem id="gotoBookmarkMenuItem" text="menu.bookmarks.goto" accelerator="G" enabled="false" />
 		<menuitem id="previousBookmarkMenuItem" text="menu.bookmarks.previous" accelerator="L" enabled="false" />
 	</menu>
-	<menu id="pageActionsMenu" text="menu.slide.actions" visible="false" />
-	<menu id="embeddedQuizMenu" text="menu.quiz.embedded" visible="false" />
 	<menu text="menu.info">
 		<menuitem id="logMenuItem" text="menu.log" />
 		<menuitem id="aboutMenuItem" text="menu.about" />

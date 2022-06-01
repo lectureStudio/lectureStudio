@@ -26,12 +26,10 @@ import com.google.common.eventbus.Subscribe;
 import java.awt.*;
 import java.io.File;
 import java.io.IOException;
-import java.net.URI;
 import java.nio.file.Path;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Iterator;
-import java.util.List;
 import java.util.Map;
 import java.util.Timer;
 import java.util.TimerTask;
@@ -61,7 +59,6 @@ import org.lecturestudio.core.presenter.command.CloseApplicationCommand;
 import org.lecturestudio.core.presenter.command.ClosePresenterCommand;
 import org.lecturestudio.core.presenter.command.ShowPresenterCommand;
 import org.lecturestudio.core.service.DocumentService;
-import org.lecturestudio.core.util.DesktopUtils;
 import org.lecturestudio.core.util.FileUtils;
 import org.lecturestudio.core.util.ListChangeListener;
 import org.lecturestudio.core.util.ObservableList;
@@ -77,7 +74,6 @@ import org.lecturestudio.presenter.api.service.RecordingService;
 import org.lecturestudio.presenter.api.service.StreamService;
 import org.lecturestudio.presenter.api.view.MenuView;
 import org.lecturestudio.presenter.api.view.MessengerWindow;
-import org.lecturestudio.web.api.model.quiz.Quiz;
 
 public class MenuPresenter extends Presenter<MenuView> {
 
@@ -216,44 +212,6 @@ public class MenuPresenter extends Presenter<MenuView> {
 		}
 	}
 
-	public void openPageURI(URI uri) {
-		try {
-			DesktopUtils.browseURI(uri);
-		} catch (Exception e) {
-			handleException(e, "Open page uri failed", "error", "open.page.uri.error");
-		}
-	}
-
-	public void openPageFileLink(File file) {
-		File fileLink = file;
-
-		if (!fileLink.exists()) {
-			// Try relative path of the opened document.
-			Document selectedDoc = documentService.getDocuments().getSelectedDocument();
-			String docPath = selectedDoc.getFilePath();
-
-			if (nonNull(docPath) && !docPath.isEmpty()) {
-				docPath = docPath.substring(0, docPath.lastIndexOf(File.separator));
-
-				fileLink = new File(docPath + File.separator + file.getPath());
-
-				if (!fileLink.exists()) {
-					fileLink = new File(docPath + File.separator + file.getName());
-				}
-			}
-		}
-
-		try {
-			DesktopUtils.openFile(fileLink);
-		} catch (Exception e) {
-			handleException(e, "Open page file link failed", "error", "open.page.file.error");
-		}
-	}
-
-	public void openPageQuiz(Quiz quiz) {
-		streamService.startQuiz(quiz);
-	}
-
 	public void openDocument(File documentFile) {
 		documentService.openDocument(documentFile)
 				.exceptionally(throwable -> {
@@ -284,10 +242,6 @@ public class MenuPresenter extends Presenter<MenuView> {
 
 	public void showSettingsView() {
 		eventBus.post(new ShowPresenterCommand<>(SettingsPresenter.class));
-	}
-
-	public void setAdvancedSettings(boolean selected) {
-		getPresenterConfig().setAdvancedUIMode(selected);
 	}
 
 	public void customizeToolbar() {
@@ -434,26 +388,13 @@ public class MenuPresenter extends Presenter<MenuView> {
 
 	private void pageChanged(Page page) {
 		PresentationParameter parameter = null;
-		List<Quiz> embeddedQuizzes = null;
-		List<URI> embeddedUriActions = null;
-		List<File> embeddedFileActions = null;
 
 		if (nonNull(page)) {
 			PresentationParameterProvider ppProvider = context.getPagePropertyProvider(ViewType.User);
 			parameter = ppProvider.getParameter(page);
-
-			String text = page.getPageText();
-			embeddedQuizzes = quizParser.parse(text);
-
-			embeddedUriActions = page.getUriActions();
-			embeddedFileActions = page.getLaunchActions();
-
 		}
 
 		view.setPage(page, parameter);
-		view.setPageFileLinks(embeddedFileActions);
-		view.setPageURIs(embeddedUriActions);
-		view.setPageQuizzes(embeddedQuizzes);
 	}
 
 	private void pageEdited(final PageEditEvent event) {
@@ -553,17 +494,8 @@ public class MenuPresenter extends Presenter<MenuView> {
 		view.setOnPreviousBookmark(this::previousBookmark);
 		view.setOnOpenBookmark(this::openBookmark);
 
-		view.setOnOpenPageFileLink(this::openPageFileLink);
-		view.setOnOpenPageURI(this::openPageURI);
-		view.setOnOpenPageQuiz(this::openPageQuiz);
-
 		view.setOnOpenLog(this::showLog);
 		view.setOnOpenAbout(this::showAboutView);
-
-		// Bind configuration.
-//		getPresenterConfig().advancedUIModeProperty().addListener((observable, oldValue, newValue) -> {
-//			view.setAdvancedSettings(newValue);
-//		});
 
 		// Register for page parameter change updates.
 		PresentationParameterProvider ppProvider = context.getPagePropertyProvider(ViewType.User);

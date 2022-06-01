@@ -23,7 +23,6 @@ import static java.util.Objects.nonNull;
 import java.awt.Color;
 import java.awt.Component;
 import java.io.File;
-import java.net.URI;
 import java.util.List;
 
 import javax.inject.Inject;
@@ -47,7 +46,6 @@ import org.lecturestudio.presenter.api.view.MenuView;
 import org.lecturestudio.swing.util.SwingUtils;
 import org.lecturestudio.swing.view.SwingView;
 import org.lecturestudio.swing.view.ViewPostConstruct;
-import org.lecturestudio.web.api.model.quiz.Quiz;
 
 @SwingView(name = "main-menu", presenter = org.lecturestudio.presenter.api.presenter.MenuPresenter.class)
 public class SwingMenuView extends JMenuBar implements MenuView {
@@ -58,19 +56,9 @@ public class SwingMenuView extends JMenuBar implements MenuView {
 
 	private ConsumerAction<File> openDocumentAction;
 
-	private ConsumerAction<Quiz> openEmbeddedQuizAction;
-
-	private ConsumerAction<URI> openPageUriAction;
-
-	private ConsumerAction<File> openPageFileLinkAction;
-
 	private JMenu fileMenu;
 
 	private JMenu bookmarksMenu;
-
-	private JMenu pageActionsMenu;
-
-	private JMenu embeddedQuizMenu;
 
 	private JMenuItem openDocumentMenuItem;
 
@@ -576,103 +564,6 @@ public class SwingMenuView extends JMenuBar implements MenuView {
 	@Override
 	public void setOnOpenBookmark(ConsumerAction<Bookmark> action) {
 		this.openBookmarkAction = action;
-	}
-
-	@Override
-	public void setPageURIs(List<URI> uris) {
-		SwingUtils.invoke(() -> {
-			for (int i = 0; i < pageActionsMenu.getItemCount(); i++) {
-				JMenuItem item = pageActionsMenu.getItem(i);
-
-				if (item.getActionCommand().equals("pageURI")) {
-					pageActionsMenu.remove(item);
-				}
-			}
-
-			if (nonNull(uris) && !uris.isEmpty()) {
-				for (final URI uri : uris) {
-					JMenuItem uriItem = new JMenuItem(uri.toString());
-					uriItem.setActionCommand("pageURI");
-					uriItem.addActionListener(event -> {
-						if (nonNull(openPageUriAction)) {
-							openPageUriAction.execute(uri);
-						}
-					});
-
-					pageActionsMenu.add(uriItem);
-				}
-			}
-
-			pageActionsMenu.setVisible(pageActionsMenu.getItemCount() > 0);
-		});
-	}
-
-	@Override
-	public void setPageFileLinks(List<File> fileLinks) {
-		SwingUtils.invoke(() -> {
-			for (int i = 0; i < pageActionsMenu.getItemCount(); i++) {
-				JMenuItem item = pageActionsMenu.getItem(i);
-
-				if (item.getActionCommand().equals("pageFileLink")) {
-					pageActionsMenu.remove(item);
-				}
-			}
-
-			if (nonNull(fileLinks) && !fileLinks.isEmpty()) {
-				for (final File file : fileLinks) {
-					JMenuItem fileItem = new JMenuItem(file.getPath());
-					fileItem.setActionCommand("pageFileLink");
-					fileItem.addActionListener(event -> {
-						if (nonNull(openPageFileLinkAction)) {
-							openPageFileLinkAction.execute(file);
-						}
-					});
-
-					pageActionsMenu.add(fileItem);
-				}
-			}
-
-			pageActionsMenu.setVisible(pageActionsMenu.getItemCount() > 0);
-		});
-	}
-
-	@Override
-	public void setOnOpenPageURI(ConsumerAction<URI> action) {
-		this.openPageUriAction = action;
-	}
-
-	@Override
-	public void setOnOpenPageFileLink(ConsumerAction<File> action) {
-		this.openPageFileLinkAction = action;
-	}
-
-	@Override
-	public void setPageQuizzes(List<Quiz> quizzes) {
-		SwingUtils.invoke(() -> {
-			embeddedQuizMenu.removeAll();
-
-			boolean hasQuizzes = nonNull(quizzes) && !quizzes.isEmpty();
-
-			if (hasQuizzes) {
-				for (final Quiz quiz : quizzes) {
-					JMenuItem quizItem = new JMenuItem(quiz.getQuestion());
-					quizItem.addActionListener(event -> {
-						if (nonNull(openEmbeddedQuizAction)) {
-							openEmbeddedQuizAction.execute(quiz);
-						}
-					});
-
-					embeddedQuizMenu.add(quizItem);
-				}
-			}
-
-			embeddedQuizMenu.setVisible(hasQuizzes);
-		});
-	}
-
-	@Override
-	public void setOnOpenPageQuiz(ConsumerAction<Quiz> action) {
-		this.openEmbeddedQuizAction = action;
 	}
 
 	@Override

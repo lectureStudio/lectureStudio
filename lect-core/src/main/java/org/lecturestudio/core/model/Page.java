@@ -114,18 +114,18 @@ public class Page {
 	}
 
 	/**
-	 * Get unique document ID. The unique ID can be used to differentiate
-	 * documents of same type but with different internal content.
+	 * Get unique page ID. The unique ID can be used to differentiate pages with
+	 * same index but with different internal content.
 	 *
-	 * @return The unique document ID.
+	 * @return The unique page ID.
 	 */
 	public UUID getUid() {
 		return uid;
 	}
 
 	/**
-	 * Set unique document ID. The unique ID can be used to differentiate
-	 * documents of same type but with different internal content.
+	 * Set unique page ID. The unique ID can be used to differentiate pages with
+	 * same index but with different internal content.
 	 *
 	 * @param uid The unique document ID.
 	 */

@@ -37,8 +37,10 @@ public class DynamicInputStream extends InputStream implements Cloneable {
 
 	private long readPointer = 0;
 
+
 	/**
-	 * Creates a new instance of {@link DynamicInputStream} with the specified input stream.
+	 * Creates a new instance of {@link DynamicInputStream} with the specified
+	 * input stream.
 	 *
 	 * @param inputStream The input stream.
 	 */
@@ -47,9 +49,11 @@ public class DynamicInputStream extends InputStream implements Cloneable {
 	}
 
 	/**
-	 * Associate an {@link Interval} with the specified filter in the {@link #filters} map.
+	 * Associate an {@link Interval} with the specified filter in the
+	 * {@link #filters} map.
 	 *
-	 * @param filter The filter with which the {@link Interval} should be associated.
+	 * @param filter   The filter with which the {@link Interval} should be
+	 *                 associated.
 	 * @param interval The {@link Interval}
 	 */
 	public void setAudioFilter(AudioFilter filter, Interval<Long> interval) {
@@ -66,7 +70,8 @@ public class DynamicInputStream extends InputStream implements Cloneable {
 	}
 
 	/**
-	 * Add the specified {@link Interval} to {@link #exclusions} and {@link #exclude}.
+	 * Add the specified {@link Interval} to {@link #exclusions} and
+	 * {@link #exclude}.
 	 *
 	 * @param interval The {@link Interval} to add.
 	 */
@@ -76,7 +81,8 @@ public class DynamicInputStream extends InputStream implements Cloneable {
 	}
 
 	/**
-	 * Remove the specified {@link Interval} from {@link #exclusions} and {@link #exclude}.
+	 * Remove the specified {@link Interval} from {@link #exclusions} and
+	 * {@link #exclude}.
 	 *
 	 * @param interval The {@link Interval} to remove.
 	 */
@@ -296,9 +302,9 @@ public class DynamicInputStream extends InputStream implements Cloneable {
 	}
 
 	/**
-	 * Get the length to exclude.
-	 * (Sums up the length of every {@link Interval} in {@link #exclusions} that is not part of another
-	 * {@link Interval} of {@link #exclusions}.)
+	 * Get the length to exclude. (Sums up the length of every {@link Interval}
+	 * in {@link #exclusions} that is not part of another {@link Interval} of
+	 * {@link #exclusions}.)
 	 *
 	 * @return The length to exclude.
 	 */
@@ -385,6 +391,7 @@ public class DynamicInputStream extends InputStream implements Cloneable {
 
 		for (var entry : filters.entrySet()) {
 			Interval<Long> iv = entry.getValue();
+			AudioFilter filter = entry.getKey();
 
 			if (iv.contains(lpos)) {
 				if (rpos <= iv.getEnd()) {
@@ -394,7 +401,7 @@ public class DynamicInputStream extends InputStream implements Cloneable {
 
 				int processLength = (int) Math.min(rpos, iv.getEnd());
 
-				entry.getKey().process(buffer, offset, processLength);
+				filter.process(buffer, offset, processLength);
 
 				offset += processLength;
 			}
@@ -403,8 +410,9 @@ public class DynamicInputStream extends InputStream implements Cloneable {
 				done = true;
 
 				int processLength = (int) (rpos - iv.getStart());
+				int processOffset = offset + length - processLength;
 
-				entry.getKey().process(buffer, offset + length - processLength, processLength);
+				filter.process(buffer, processOffset, processLength);
 
 				offset += processLength;
 			}
@@ -413,7 +421,7 @@ public class DynamicInputStream extends InputStream implements Cloneable {
 				int processOffset = (int) (iv.getStart() - lpos);
 				int processLength = (int) (iv.getEnd() - iv.getStart());
 
-				entry.getKey().process(buffer, processOffset, processLength);
+				filter.process(buffer, processOffset, processLength);
 
 				offset += processLength;
 			}

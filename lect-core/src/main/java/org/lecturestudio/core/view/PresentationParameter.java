@@ -163,10 +163,6 @@ public class PresentationParameter {
 		}
 	}
 
-	public void firePropertyChange(String property) {
-		pcs.firePropertyChange(property, null, null);
-	}
-
 	/**
 	 * Sets the translation
 	 * 

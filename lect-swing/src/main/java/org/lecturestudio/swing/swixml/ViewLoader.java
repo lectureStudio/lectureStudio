@@ -71,6 +71,7 @@ public class ViewLoader<T extends Container> extends SwingEngine<T> {
 		tagLibrary.registerTag("ColorChooserButton", ColorChooserButton.class);
 		tagLibrary.registerTag("ComboBox", new BeanFactory(JComboBox.class, new ComboBoxProcessor()));
 		tagLibrary.registerTag("DisplayPanel", DisplayPanel.class);
+		tagLibrary.registerTag("DocumentPreview", DocumentPreview.class);
 		tagLibrary.registerTag("EllipseToolPreview", EllipseToolPreview.class);
 		tagLibrary.registerTag("IPTextField", IPTextField.class);
 		tagLibrary.registerTag("LevelMeter", LevelMeter.class);

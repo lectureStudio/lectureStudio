@@ -20,13 +20,9 @@ package org.lecturestudio.core.pdf;
 
 import java.awt.Graphics2D;
 import java.io.*;
-import java.net.URI;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 import org.lecturestudio.core.geometry.Dimension2D;
 import org.lecturestudio.core.geometry.Rectangle2D;
@@ -42,15 +38,7 @@ public class PdfDocument {
 
 	private static final Logger LOG = LogManager.getLogger(PdfDocument.class);
 
-	private static final String REGEX_HTTP = "((([A-Za-z]{3,9}:(?:\\/\\/)?)"
-			+ "(?:[-;:&=\\+\\$,\\w]+@)?"
-			+ "[A-Za-z0-9.-]+|(?:www.|[-;:&=\\+\\$,\\w]+@)[A-Za-z0-9.-]+)"
-			+ "((?:\\/[\\+~%\\/.\\w-_]*)?" + "\\??(?:[-\\+=&;%@.\\w_]*)#?"
-			+ "(?:[.\\!\\/\\\\w]*))?)";
-
 	public static final String EMBEDDED_SHAPES_KEY = "PresenterShapes";
-
-	private final Pattern httpPattern = Pattern.compile(REGEX_HTTP);
 
 	private final PDFBoxDocument pdfBoxDocument;
 
@@ -315,38 +303,6 @@ public class PdfDocument {
 		return pdfBoxDocument.getPageTextBounds(pageIndex);
 	}
 	
-	public List<URI> getUriActions(int pageIndex) throws IOException {
-		List<URI> list = new ArrayList<>(muPDFDocument.getLinks(pageIndex));
-
-		// Extract URIs from raw page text.
-		String text = getPageText(pageIndex);
-		Matcher matcher = httpPattern.matcher(text);
-		String uriStr;
-
-		while (matcher.find()) {
-			uriStr = matcher.group().toLowerCase();
-			uriStr = uriStr.replaceAll("/$", "");
-
-			// Some special treatment.
-			if (uriStr.startsWith("www"))
-				uriStr = "http://" + uriStr;
-			if (uriStr.startsWith("file://"))
-				uriStr = "file:///" + uriStr.substring(7);
-
-			URI uri = URI.create(uriStr);
-
-			if (!list.contains(uri)) {
-				list.add(uri);
-			}
-		}
-		
-		return list;
-	}
-	
-	public List<File> getLaunchActions(int pageIndex) throws IOException {
-		return new ArrayList<>(muPDFDocument.getLaunchActions(pageIndex));
-	}
-
 	/**
 	 * Get the editable shapes of the page that has the specified page index.
 	 *

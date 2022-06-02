@@ -18,8 +18,6 @@
 
 package org.lecturestudio.core.model;
 
-import java.io.File;
-import java.net.URI;
 import java.util.List;
 import java.util.Set;
 import java.util.Stack;
@@ -72,12 +70,6 @@ public class Page {
 	
 	/** Cached page text layer. */
 	private List<Rectangle2D> textLayer;
-	
-	/** Cached page URIs. */
-	private List<URI> pageUris;
-	
-	/** Cached page file launch actions. */
-	private List<File> pageLaunchFiles;
 
 	/** The shapes of this page. */
 	private final List<Shape> shapes = new CopyOnWriteArrayList<>();
@@ -186,32 +178,6 @@ public class Page {
 		}
 
 		return textLayer;
-	}
-
-	/**
-	 * Get the URI actions of this page.
-	 *
-	 * @return The URI actions of this page.
-	 */
-	public List<URI> getUriActions() {
-		if (pageUris == null) {
-			pageUris = getDocument().getUriActions(pageNumber);
-		}
-
-		return pageUris;
-	}
-
-	/**
-	 * Get the launch actions of this page.
-	 *
-	 * @return The launch actions of this page.
-	 */
-	public List<File> getLaunchActions() {
-		if (pageLaunchFiles == null) {
-			pageLaunchFiles = getDocument().getLaunchActions(pageNumber);
-		}
-
-		return pageLaunchFiles;
 	}
 
 	/**

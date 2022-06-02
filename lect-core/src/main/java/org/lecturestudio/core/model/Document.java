@@ -23,7 +23,6 @@ import static java.util.Objects.nonNull;
 import java.io.File;
 import java.io.IOException;
 import java.io.OutputStream;
-import java.net.URI;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -50,7 +49,7 @@ import org.apache.logging.log4j.Logger;
 public class Document {
 
 	/** Logger for {@link Document}. */
-	private static final Logger LOG = LogManager.getLogger(Document.class);
+	protected static final Logger LOG = LogManager.getLogger(Document.class);
 
 	private final List<DocumentChangeListener> changeListeners = new ArrayList<>();
 
@@ -259,46 +258,6 @@ public class Document {
 			LOG.error("Get text words failed.", e);
 			return null;
 		}
-	}
-
-	/**
-	 * Get the URI actions of the specified page.
-	 *
-	 * @param pageIndex The index of the page.
-	 *
-	 * @return A list of the URI actions.
-	 */
-	public List<URI> getUriActions(int pageIndex) {
-		List<URI> actions = null;
-
-		try {
-			actions = pdfDocument.getUriActions(pageIndex);
-		}
-		catch (IOException e) {
-			LOG.error("Get URI actions failed.", e);
-		}
-
-		return actions;
-	}
-
-	/**
-	 * Get the launch actions of the specified page.
-	 *
-	 * @param pageIndex The index of the page.
-	 *
-	 * @return A list of the launch actions.
-	 */
-	public List<File> getLaunchActions(int pageIndex) {
-		List<File> files = null;
-
-		try {
-			files = pdfDocument.getLaunchActions(pageIndex);
-		}
-		catch (IOException e) {
-			LOG.error("Get launch actions failed.", e);
-		}
-
-		return files;
 	}
 
 	/**
@@ -684,12 +643,6 @@ public class Document {
 		int docIndex = newPage.getPageNumber();
 
 		pdfDocument.replacePage(page.getPageNumber(), newPdfDocument, docIndex);
-	}
-
-	private void fireDocumentChange() {
-		for (DocumentChangeListener listener : changeListeners) {
-			listener.documentChanged(this);
-		}
 	}
 
 	private void fireAddChange(Page page) {

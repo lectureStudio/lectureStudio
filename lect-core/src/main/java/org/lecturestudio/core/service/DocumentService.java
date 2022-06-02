@@ -47,6 +47,7 @@ import org.lecturestudio.core.model.DocumentList;
 import org.lecturestudio.core.model.DocumentType;
 import org.lecturestudio.core.model.Page;
 import org.lecturestudio.core.model.RecentDocument;
+import org.lecturestudio.core.model.TemplateDocument;
 
 @Singleton
 public class DocumentService {
@@ -82,7 +83,32 @@ public class DocumentService {
 				whiteboard = createWhiteboard();
 			}
 			catch (Exception e) {
-				throw new RuntimeException("Create whiteboard failed");
+				throw new CompletionException("Create whiteboard failed", e);
+			}
+
+			addDocument(whiteboard);
+			selectDocument(whiteboard);
+
+			return whiteboard;
+		});
+	}
+
+	/**
+	 * Creates and selects a new whiteboard.
+	 *
+	 * @param templatePath The file path of the template document.
+	 */
+	public CompletableFuture<Document> addWhiteboard(String templatePath) {
+		final File file = new File(nonNull(templatePath) ? templatePath : "");
+
+		return CompletableFuture.supplyAsync(() -> {
+			Document whiteboard;
+
+			try {
+				whiteboard = createWhiteboard(file);
+			}
+			catch (Exception e) {
+				throw new CompletionException("Create whiteboard failed", e);
 			}
 
 			addDocument(whiteboard);
@@ -385,6 +411,32 @@ public class DocumentService {
 			context.getEventBus().post(new PageEvent(newPage, oldPage,
 					PageEvent.Type.SELECTED));
 		}
+	}
+
+	/**
+	 * Creates a new whiteboard from a template document.
+	 *
+	 * @param templateFile The file path of the template document.
+	 *
+	 * @return a newly created whiteboard document.
+	 *
+	 * @throws IOException if the whiteboard could not be created.
+	 */
+	private Document createWhiteboard(File templateFile) throws IOException {
+		String name = "Whiteboard-" + documents.getWhiteboardCount();
+		Document whiteboard;
+
+		if (templateFile.exists()) {
+			whiteboard = new TemplateDocument(templateFile);
+			whiteboard.setTitle(name);
+			whiteboard.setDocumentType(DocumentType.WHITEBOARD);
+			whiteboard.createPage();
+		}
+		else {
+			whiteboard = createWhiteboard();
+		}
+
+		return whiteboard;
 	}
 
 	/**

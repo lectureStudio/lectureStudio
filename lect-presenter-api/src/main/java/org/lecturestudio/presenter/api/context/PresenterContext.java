@@ -24,7 +24,6 @@ import java.util.List;
 import org.lecturestudio.core.app.AppDataLocator;
 import org.lecturestudio.core.app.ApplicationContext;
 import org.lecturestudio.core.app.configuration.Configuration;
-import org.lecturestudio.core.app.configuration.ConfigurationService;
 import org.lecturestudio.core.app.dictionary.Dictionary;
 import org.lecturestudio.core.beans.BooleanProperty;
 import org.lecturestudio.core.beans.IntegerProperty;
@@ -113,10 +112,14 @@ public class PresenterContext extends ApplicationContext {
 		});
 	}
 
+	public PresenterConfiguration getConfiguration() {
+		return (PresenterConfiguration) super.getConfiguration();
+	}
+
 	@Override
 	public void saveConfiguration() throws Exception {
-		ConfigurationService<PresenterConfiguration> configService = new PresenterConfigService();
-		configService.save(configFile, (PresenterConfiguration) getConfiguration());
+		var configService = new PresenterConfigService();
+		configService.save(configFile, getConfiguration());
 	}
 
 	public Course getCourse() {

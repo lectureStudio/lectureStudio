@@ -35,6 +35,8 @@ public class PresenterConfiguration extends Configuration {
 
 	private final StreamConfiguration streamConfig = new StreamConfiguration();
 
+	private final TemplateConfiguration templateConfig = new TemplateConfiguration();
+
 	private final ExternalWindowConfiguration externalMessagesConfig = new ExternalWindowConfiguration();
 
 	private final ExternalWindowConfiguration externalSlidePreviewConfig = new ExternalWindowConfiguration();
@@ -112,6 +114,10 @@ public class PresenterConfiguration extends Configuration {
 	 */
 	public StreamConfiguration getStreamConfig() {
 		return streamConfig;
+	}
+
+	public TemplateConfiguration getTemplateConfig() {
+		return templateConfig;
 	}
 
 	/**

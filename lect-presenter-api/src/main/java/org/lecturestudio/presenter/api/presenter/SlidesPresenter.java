@@ -72,6 +72,7 @@ import org.lecturestudio.web.api.message.SpeechRequestMessage;
 
 import javax.inject.Inject;
 import java.awt.*;
+import java.io.File;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
@@ -435,9 +436,15 @@ public class SlidesPresenter extends Presenter<SlidesView> {
 	private void onCreateMessageSlide(MessengerMessage message) {
 		onDiscardMessage(message);
 
+		PresenterContext presenterContext = (PresenterContext) context;
+		String template = presenterContext.getConfiguration()
+				.getTemplateConfig().getChatMessageTemplatePath();
+
 		try {
-			Document messageDocument = new MessageDocument(context.getDictionary(),
-					message.getMessage().getText());
+			File file = new File(nonNull(template) ? template : "");
+
+			Document messageDocument = new MessageDocument(file,
+					context.getDictionary(), message.getMessage().getText());
 
 			Document prevMessageDocument = null;
 

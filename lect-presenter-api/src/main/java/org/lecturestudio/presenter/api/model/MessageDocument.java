@@ -18,10 +18,13 @@
 
 package org.lecturestudio.presenter.api.model;
 
+import static java.util.Objects.nonNull;
+
 import com.linkedin.urls.Url;
 import com.linkedin.urls.detection.UrlDetector;
 import com.linkedin.urls.detection.UrlDetectorOptions;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.List;
 import java.util.Map;
@@ -42,24 +45,36 @@ import org.lecturestudio.core.pdf.PdfDocument;
  */
 public class MessageDocument extends HtmlToPdfDocument {
 
-	public MessageDocument(Dictionary dict, String message) throws IOException {
-		init(createDocument(message));
+	public MessageDocument(File templateFile, Dictionary dict, String message)
+			throws IOException {
+		init(createDocument(templateFile, message));
 		setDocumentType(DocumentType.MESSAGE);
 		setTitle(dict.get("slides.message"));
 	}
 
-	private static PdfDocument createDocument(String message)
+	private static PdfDocument createDocument(File templateFile, String message)
 			throws IOException {
+		PDDocument tplDoc = templateFile.exists() ?
+				PDDocument.load(templateFile) :
+				null;
 		PDDocument doc = new PDDocument();
 
 		// Create the first page with the message on it.
-		createMessagePage(doc, message);
+		createMessagePage(tplDoc, doc, message);
 
-		return createPdfDocument(doc);
+		PdfDocument pdfDocument = createPdfDocument(doc);
+
+		if (nonNull(tplDoc)) {
+			tplDoc.close();
+		}
+
+		doc.close();
+
+		return pdfDocument;
 	}
 
-	private static void createMessagePage(PDDocument doc, String message)
-			throws IOException {
+	private static void createMessagePage(PDDocument tplDoc, PDDocument doc,
+			String message) throws IOException {
 		var jdoc = Jsoup.parseBodyFragment("");
 		jdoc.head().append("<link rel=\"stylesheet\" href=\"html/message.css\">");
 
@@ -105,6 +120,6 @@ public class MessageDocument extends HtmlToPdfDocument {
 			}
 		}
 
-		renderHtmlPage(jdoc, doc, Map.of());
+		renderHtmlPage(jdoc, tplDoc, doc, Map.of());
 	}
 }

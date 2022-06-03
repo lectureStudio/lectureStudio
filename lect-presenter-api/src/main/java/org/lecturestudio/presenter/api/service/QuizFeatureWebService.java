@@ -45,13 +45,13 @@ import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
 import org.lecturestudio.core.ExecutableException;
-import org.lecturestudio.core.app.ApplicationContext;
 import org.lecturestudio.core.app.dictionary.Dictionary;
 import org.lecturestudio.core.bus.EventBus;
 import org.lecturestudio.core.model.Document;
 import org.lecturestudio.core.model.DocumentType;
 import org.lecturestudio.core.model.Page;
 import org.lecturestudio.core.service.DocumentService;
+import org.lecturestudio.presenter.api.context.PresenterContext;
 import org.lecturestudio.presenter.api.model.QuizDocument;
 import org.lecturestudio.web.api.client.MultipartBody;
 import org.lecturestudio.web.api.message.QuizAnswerMessage;
@@ -90,7 +90,7 @@ public class QuizFeatureWebService extends FeatureServiceBase {
 	 * @param featureService  The quiz web feature service.
 	 * @param documentService The document service.
 	 */
-	public QuizFeatureWebService(ApplicationContext context,
+	public QuizFeatureWebService(PresenterContext context,
 			QuizFeatureService featureService,
 			DocumentService documentService) {
 		super(context);
@@ -192,8 +192,11 @@ public class QuizFeatureWebService extends FeatureServiceBase {
 
 		try {
 			Dictionary dict = context.getDictionary();
+			String template = context.getConfiguration().getTemplateConfig()
+					.getQuizTemplatePath();
+			File file = new File(nonNull(template) ? template : "");
 
-			doc = new QuizDocument(dict, result);
+			doc = new QuizDocument(file, dict, result);
 			doc.setDocumentType(DocumentType.QUIZ);
 		}
 		catch (Exception e) {
@@ -279,7 +282,7 @@ public class QuizFeatureWebService extends FeatureServiceBase {
 				mimeType = "*/*";
 			}
 
-			logDebugMessage("Upload quiz resource: %s as %s", file, mimeType);
+			logDebugMessage("Add quiz resource: %s as %s", file, mimeType);
 
 			body.addFormData("files", new FileInputStream(file),
 					MediaType.valueOf(mimeType), entry.getValue());

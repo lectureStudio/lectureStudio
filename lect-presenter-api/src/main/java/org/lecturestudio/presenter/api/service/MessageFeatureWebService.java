@@ -21,7 +21,7 @@ package org.lecturestudio.presenter.api.service;
 import java.util.function.Consumer;
 
 import org.lecturestudio.core.ExecutableException;
-import org.lecturestudio.core.app.ApplicationContext;
+import org.lecturestudio.presenter.api.context.PresenterContext;
 import org.lecturestudio.web.api.message.MessengerMessage;
 
 public class MessageFeatureWebService extends FeatureServiceBase {
@@ -39,7 +39,7 @@ public class MessageFeatureWebService extends FeatureServiceBase {
 	 * @param context        The application context.
 	 * @param featureService The message web feature service.
 	 */
-	public MessageFeatureWebService(ApplicationContext context,
+	public MessageFeatureWebService(PresenterContext context,
 			MessageFeatureService featureService) {
 		super(context);
 

@@ -39,6 +39,8 @@ import java.nio.charset.StandardCharsets;
 import java.util.Map;
 
 import org.apache.pdfbox.pdmodel.PDDocument;
+import org.apache.pdfbox.pdmodel.PDPage;
+import org.apache.pdfbox.pdmodel.common.PDRectangle;
 
 import org.jsoup.helper.W3CDom;
 import org.jsoup.nodes.Document.OutputSettings;
@@ -81,13 +83,24 @@ public abstract class HtmlToPdfDocument extends Document {
 	}
 
 	protected static void renderHtmlPage(org.jsoup.nodes.Document jdoc,
-			PDDocument pdDoc, Map<String, String> resourceMap)
-			throws IOException {
+			PDDocument tplDoc, PDDocument pdDoc,
+			Map<String, String> resourceMap) throws IOException {
 		OutputSettings outputSettings = new OutputSettings();
 		outputSettings.prettyPrint(false);
 		outputSettings.escapeMode(EscapeMode.xhtml);
 
 		jdoc.outputSettings(outputSettings);
+
+		final PDPage tplPage = nonNull(tplDoc) ? tplDoc.getPage(0) : null;
+		float pageWidth = PAGE_WIDTH;
+		float pageHeight = PAGE_HEIGHT;
+
+		if (nonNull(tplDoc)) {
+			PDRectangle mediaBox = tplPage.getMediaBox();
+
+			pageWidth = mediaBox.getWidth();
+			pageHeight = mediaBox.getHeight();
+		}
 
 		var builder = new PdfRendererBuilder()
 				.withW3cDocument(new W3CDom().fromJsoup(jdoc), "classpath:/")
@@ -95,10 +108,27 @@ public abstract class HtmlToPdfDocument extends Document {
 				.addDOMMutator(new EmptyDivMutator())
 				.addDOMMutator(new FontColorMutator())
 				.usePDDocument(pdDoc)
-				.useDefaultPageSize(PAGE_WIDTH / 72f, PAGE_HEIGHT / 72f,
+				.useDefaultPageSize(pageWidth / 72f, pageHeight / 72f,
 						PageSizeUnits.INCHES)
 				.useProtocolsStreamImplementation(
 						new ClassPathStreamFactory(resourceMap), "classpath");
+
+		if (nonNull(tplPage)) {
+			builder.usePageSupplier((doc, pWidth, pHeight, pNumber, shadowPageNumber) -> {
+				PDPage imported;
+
+				try {
+					imported = doc.importPage(tplPage);
+				}
+				catch (IOException e) {
+					throw new RuntimeException(e);
+				}
+
+				imported.setResources(tplPage.getResources());
+
+				return imported;
+			});
+		}
 
 		var buildPdfRenderer = builder.buildPdfRenderer();
 		buildPdfRenderer.layout();

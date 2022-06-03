@@ -19,7 +19,7 @@
 package org.lecturestudio.presenter.api.service;
 
 import org.lecturestudio.core.ExecutableBase;
-import org.lecturestudio.core.app.ApplicationContext;
+import org.lecturestudio.presenter.api.context.PresenterContext;
 
 /**
  * Web service base class with convenience methods and common fields. Web
@@ -30,7 +30,7 @@ import org.lecturestudio.core.app.ApplicationContext;
  */
 public abstract class FeatureServiceBase extends ExecutableBase {
 
-	protected final ApplicationContext context;
+	protected final PresenterContext context;
 
 	/**
 	 * The course ID to which this service belongs to.
@@ -48,7 +48,7 @@ public abstract class FeatureServiceBase extends ExecutableBase {
 	 *
 	 * @param context       The application context.
 	 */
-	public FeatureServiceBase(ApplicationContext context) {
+	public FeatureServiceBase(PresenterContext context) {
 		this.context = context;
 	}
 

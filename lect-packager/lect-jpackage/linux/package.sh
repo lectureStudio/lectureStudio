@@ -73,7 +73,7 @@ do
 		--type app-image \
 		--input "${package.input.dir}" \
 		--runtime-image "runtime" \
-		--java-options -Xmx2048m \
+		--java-options -Xmx4096m \
 		--java-options -Djava.library.path="$LIBRARY_PATH" \
 		--app-version "$VERSION" \
 		--name $app_name \

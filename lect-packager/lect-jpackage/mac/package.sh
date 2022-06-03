@@ -191,7 +191,7 @@ do
 		--input "${package.input.dir}" \
 		--runtime-image "$PRODUCT_NAME/runtime/Contents/Home" \
 		--dest "$PRODUCT_NAME" \
-		--java-options -Xmx2048m \
+		--java-options -Xmx4096m \
 		--java-options -Djava.library.path="$LIBRARY_PATH" \
 		--app-version $VERSION \
 		--name $app_name \

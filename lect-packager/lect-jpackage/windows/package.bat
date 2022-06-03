@@ -76,7 +76,7 @@ for /l %%n in (0,1,1) do (
 		--input "${package.input.dir}" ^
 		--runtime-image "%PRODUCT_NAME%\runtime" ^
 		--dest "%PRODUCT_NAME%" ^
-		--java-options -Xmx2048m ^
+		--java-options -Xmx4096m ^
 		--java-options -Djava.library.path=%LIBRARY_PATH% ^
 		--app-version %VERSION% ^
 		--name !app[%%n]! ^

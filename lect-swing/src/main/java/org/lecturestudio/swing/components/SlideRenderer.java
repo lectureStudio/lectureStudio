@@ -20,7 +20,6 @@ package org.lecturestudio.swing.components;
 
 import static java.util.Objects.isNull;
 
-import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
@@ -28,14 +27,11 @@ import java.awt.GraphicsConfiguration;
 import java.awt.GraphicsEnvironment;
 import java.awt.geom.AffineTransform;
 import java.awt.image.BufferedImage;
-import java.util.ArrayList;
 import java.util.List;
 
 import org.lecturestudio.core.app.configuration.GridConfiguration;
 import org.lecturestudio.core.controller.RenderController;
 import org.lecturestudio.core.geometry.Dimension2D;
-import org.lecturestudio.core.geometry.Rectangle2D;
-import org.lecturestudio.core.model.Document;
 import org.lecturestudio.core.model.Page;
 import org.lecturestudio.core.model.shape.GridShape;
 import org.lecturestudio.core.model.shape.Shape;
@@ -64,7 +60,6 @@ public class SlideRenderer {
 	private Graphics2D bufferg2d;
 
 	private AffineTransform deviceTransform;
-	private AffineTransform pageTransform;
 
 	private RenderController renderController;
 
@@ -86,17 +81,8 @@ public class SlideRenderer {
 		deviceTransform = transform;
 	}
 
-	public void setPageTransform(AffineTransform transform) {
-		pageTransform = (AffineTransform) transform.clone();
-		pageTransform.scale(deviceTransform.getScaleX(), deviceTransform.getScaleY());
-	}
-
 	public BufferedImage getImage() {
 		return bufferImage;
-	}
-
-	public Dimension2D getImageRect() {
-		return imageRect;
 	}
 
 	public void setPage(Page page) {
@@ -124,68 +110,6 @@ public class SlideRenderer {
 		bufferg2d.drawImage(currentImage, 0, 0, null);
 	}
 
-	public synchronized void renderShapes(Rectangle2D clip) {
-		if (page == null || pParameter == null || currentImage == null) {
-			return;
-		}
-		if (isNull(clip) || clip.isEmpty()) {
-			renderShapes();
-			return;
-		}
-
-		int x = (int) (clip.getX() * pageTransform.getScaleX());
-		int y = (int) (clip.getY() * pageTransform.getScaleY());
-		int w = (int) (clip.getWidth() * pageTransform.getScaleX());
-		int h = (int) (clip.getHeight() * pageTransform.getScaleY());
-
-		Graphics2D g = currentImage.createGraphics();
-		g.setClip(x, y, w, h);
-		refreshFrontImage(g, page.getShapes(), pParameter);
-		g.dispose();
-
-		g = (Graphics2D) bufferg2d.create();
-		g.setClip(x, y, w, h);
-		g.drawImage(currentImage, 0, 0, null);
-		g.dispose();
-	}
-
-	public synchronized void renderShape(Shape shape, Rectangle2D clip) {
-		if (isNull(clip) || clip.isEmpty()) {
-			renderShapes();
-			return;
-		}
-
-		int x = (int) (clip.getX() * pageTransform.getScaleX());
-		int y = (int) (clip.getY() * pageTransform.getScaleY());
-		int w = (int) (clip.getWidth() * pageTransform.getScaleX());
-		int h = (int) (clip.getHeight() * pageTransform.getScaleY());
-
-		Graphics2D g = currentImage.createGraphics();
-
-		Graphics2D gc = (Graphics2D) g.create();
-		gc.setClip(x, y, w, h);
-		gc.drawImage(frontImage, 0, 0, null);
-		gc.dispose();
-
-		if (page.hasShapes()) {
-			drawShape(g, shape, clip);
-		}
-
-		g.dispose();
-
-		gc = (Graphics2D) bufferg2d.create();
-		gc.setClip(x, y, w, h);
-		gc.drawImage(currentImage, 0, 0, null);
-		gc.dispose();
-	}
-
-	/**
-	 * Removes the slide image from the view.
-	 */
-	public void removeSlideImage() {
-		backImage = null;
-	}
-	
 	/**
 	 * Sets the new background image and repaints the component.
 	 *
@@ -229,39 +153,9 @@ public class SlideRenderer {
 
 		backImage = createBackImage(backImage, size);
 
-		Graphics2D g2d = backImage.createGraphics();
-		
-		// Clear background.
-		g2d.setBackground(Color.white);
-		g2d.clearRect(0, 0, size.width, size.height);
-		
-		if (isWhiteboardSlide(page)) {
-			g2d.dispose();
-			setBackImage(backImage);
-			return;
-		}
-
-		g2d.dispose();
-
 		renderController.renderPage(backImage, page, viewType);
 
 		setBackImage(backImage);
-	}
-	
-	/**
-	 * Updates the front image. The front image only gets the shapes of the page
-	 * rendered.
-	 * 
-	 * @param g The graphics context.
-	 * @param shape The new or modified shape.
-	 */
-	private void drawShape(final Graphics2D g, Shape shape, org.lecturestudio.core.geometry.Rectangle2D clip) {
-		List<Shape> shapes = new ArrayList<>();
-		shapes.add(shape);
-		
-		SwingGraphicsContext gc = new SwingGraphicsContext(g);
-
-		renderController.renderShapes(gc, viewType, imageRect, page, shapes);
 	}
 	
 	private void drawShapes(final Graphics2D g, List<Shape> shapes) {
@@ -269,10 +163,12 @@ public class SlideRenderer {
 
 		renderController.renderShapes(gc, viewType, imageRect, page, shapes);
 	}
-	
-	private synchronized void refreshFrontImage(Graphics g, List<Shape> shapes, PresentationParameter parameter) {
-		if (frontImage == null)
+
+	private synchronized void refreshFrontImage(Graphics g, List<Shape> shapes,
+			PresentationParameter parameter) {
+		if (frontImage == null) {
 			return;
+		}
 
 		if (parameter.showGrid()) {
 			GridConfiguration gridConfig = parameter.getGridConfiguration();
@@ -295,12 +191,7 @@ public class SlideRenderer {
 		
 		g.drawImage(frontImage, 0, 0, null);
 	}
-	
-	private boolean isWhiteboardSlide(Page page) {
-		Document doc = page.getDocument();
-		return doc != null && doc.isWhiteboard();
-	}
-	
+
 	void resizeBuffer(Dimension2D size) {
 		if (size.getWidth() < 1 || size.getHeight() < 1) {
 			return;

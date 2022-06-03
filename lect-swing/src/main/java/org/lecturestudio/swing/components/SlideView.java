@@ -181,8 +181,6 @@ public class SlideView extends JComponent implements org.lecturestudio.core.view
 			}
 		}
 
-		renderer.setPageTransform(transform);
-
 		firePropertyChange("transform", oldTransform, pageTransform);
 	}
 

@@ -167,6 +167,8 @@ public class PdfDocument {
 	}
 	
 	public int importPage(PdfDocument pdfDocument, int pageIndex, Rectangle2D pageRect) throws IOException {
+		muPDFDocument.importPage(pdfDocument.muPDFDocument, pageIndex);
+
 		return pdfBoxDocument.importPage(pdfDocument.pdfBoxDocument, pageIndex, pageRect);
 	}
 

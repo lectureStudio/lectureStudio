@@ -26,7 +26,6 @@ import com.artifex.mupdf.fitz.Pixmap;
 import com.artifex.mupdf.fitz.Rect;
 import com.artifex.mupdf.fitz.RectI;
 
-import java.awt.Color;
 import java.awt.Graphics2D;
 import java.awt.image.BufferedImage;
 import java.awt.image.DataBufferInt;
@@ -51,7 +50,8 @@ public class MuPDFRenderer implements DocumentRenderer {
 
 
 	/**
-	 * Create a new {@link MuPDFRenderer} with the specified {@link MuPDFDocument}.
+	 * Create a new {@link MuPDFRenderer} with the specified
+	 * {@link MuPDFDocument}.
 	 *
 	 * @param document The {@link MuPDFDocument}.
 	 */
@@ -60,58 +60,51 @@ public class MuPDFRenderer implements DocumentRenderer {
 	}
 
 	@Override
-	public void render(Page page, PresentationParameter parameter, BufferedImage image) throws IOException {
+	public void render(Page page, PresentationParameter parameter,
+			BufferedImage image) throws IOException {
 		int imageWidth = image.getWidth();
 		int imageHeight = image.getHeight();
 
-		if (page.getDocument().isWhiteboard()) {
-			Graphics2D g = image.createGraphics();
-			g.setColor(new Color(parameter.getBackgroundColor().getRGBA()));
-			g.fillRect(0, 0, imageWidth, imageHeight);
-			g.dispose();
-		}
-		else {
-			synchronized (lock) {
-				Rectangle2D pageRect = parameter.getViewRect();
-				int pageNumber = page.getPageNumber();
+		synchronized (lock) {
+			Rectangle2D pageRect = parameter.getViewRect();
+			int pageNumber = page.getPageNumber();
 
-				double sx = imageWidth / pageRect.getWidth();
-				double sy = imageHeight / pageRect.getHeight();
+			double sx = imageWidth / pageRect.getWidth();
+			double sy = imageHeight / pageRect.getHeight();
 
-				int x = (int) (pageRect.getX() * sx);
-				int y = (int) (pageRect.getY() * sy);
+			int x = (int) (pageRect.getX() * sx);
+			int y = (int) (pageRect.getY() * sy);
 
-				DisplayList displayList = document.getDisplayList(pageNumber);
+			DisplayList displayList = document.getDisplayList(pageNumber);
 
-				com.artifex.mupdf.fitz.Page p = document.getPage(pageNumber);
-				Rect bounds = p.getBounds();
+			com.artifex.mupdf.fitz.Page p = document.getPage(pageNumber);
+			Rect bounds = p.getBounds();
 
-				float scale = (float) (1.D / pageRect.getWidth());
-				float pageSx = imageWidth / (bounds.x1 - bounds.x0);
-				float pageSy = imageHeight / (bounds.y1 - bounds.y0);
+			float scale = (float) (1.D / pageRect.getWidth());
+			float pageSx = imageWidth / (bounds.x1 - bounds.x0);
+			float pageSy = imageHeight / (bounds.y1 - bounds.y0);
 
-				Matrix ctm = new Matrix();
-				ctm.translate(-x, -y);
-				ctm.scale(pageSx * scale, pageSy * scale);
+			Matrix ctm = new Matrix();
+			ctm.translate(-x, -y);
+			ctm.scale(pageSx * scale, pageSy * scale);
 
-				int px = (int) (pageRect.getX() * pageSx);
-				int py = (int) (pageRect.getY() * pageSy);
+			int px = (int) (pageRect.getX() * pageSx);
+			int py = (int) (pageRect.getY() * pageSy);
 
-				Matrix stm = new Matrix();
-				stm.translate(-px, -py);
-				stm.scale(pageSx, pageSy);
+			Matrix stm = new Matrix();
+			stm.translate(-px, -py);
+			stm.scale(pageSx, pageSy);
 
-				if (parameter.isTranslation()) {
-					renderPan(parameter, image, displayList, bounds, ctm, stm);
-				}
-				else {
-					RectI scissor = new RectI(bounds).transform(stm);
-					Rect pixmapBounds = new Rect(0, 0, imageWidth, imageHeight);
+			if (parameter.isTranslation()) {
+				renderPan(parameter, image, displayList, bounds, ctm, stm);
+			}
+			else {
+				RectI scissor = new RectI(bounds).transform(stm);
+				Rect pixmapBounds = new Rect(0, 0, imageWidth, imageHeight);
 
-					renderImage(image, displayList, pixmapBounds, ctm, scissor);
+				renderImage(image, displayList, pixmapBounds, ctm, scissor);
 
-					sizeMap.put(imageWidth, new Point2D(x, y));
-				}
+				sizeMap.put(imageWidth, new Point2D(x, y));
 			}
 		}
 	}

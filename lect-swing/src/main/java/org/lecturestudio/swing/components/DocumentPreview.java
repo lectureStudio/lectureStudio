@@ -18,18 +18,36 @@
 
 package org.lecturestudio.swing.components;
 
+import static java.util.Objects.isNull;
+
+import java.awt.Color;
+import java.awt.Rectangle;
+import java.awt.event.ComponentAdapter;
+import java.awt.event.ComponentEvent;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
+
 import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
+import javax.swing.JComponent;
 import javax.swing.JPanel;
+import javax.swing.SwingUtilities;
+import javax.swing.border.EmptyBorder;
 
+import org.lecturestudio.core.beans.ObjectProperty;
 import org.lecturestudio.core.controller.RenderController;
+import org.lecturestudio.core.geometry.Rectangle2D;
 import org.lecturestudio.core.model.Page;
 import org.lecturestudio.core.view.PresentationParameter;
 import org.lecturestudio.core.view.ViewType;
 
 public class DocumentPreview extends JPanel {
 
+	private static final Color OVERLAY_COLOR = new Color(226, 232, 240, 170);
+
 	private SlideView slideView;
+
+	private Resizable resizable;
 
 
 	public DocumentPreview() {
@@ -48,6 +66,85 @@ public class DocumentPreview extends JPanel {
 		slideView.setPageRenderer(renderer);
 	}
 
+	public void setOverlayBounds(ObjectProperty<Rectangle2D> bounds) {
+		setResizableBounds(bounds.get());
+
+		// Bind bi-directional.
+		resizable.addComponentListener(new ComponentAdapter() {
+
+			@Override
+			public void componentResized(ComponentEvent e) {
+				setPropertyBounds(resizable.getBounds(), bounds);
+			}
+
+			@Override
+			public void componentMoved(ComponentEvent e) {
+				setPropertyBounds(resizable.getBounds(), bounds);
+			}
+		});
+
+		bounds.addListener((o, oldValue, newValue) -> {
+			setResizableBounds(newValue);
+		});
+	}
+
+	public void showOverlay(boolean show) {
+		resizable.setVisible(show);
+	}
+
+	private void setPropertyBounds(Rectangle bounds,
+			ObjectProperty<Rectangle2D> property) {
+		property.set(convertToPageBounds(bounds));
+	}
+
+	private void setResizableBounds(Rectangle2D bounds) {
+		SwingUtilities.invokeLater(() -> {
+			resizable.setBounds(convertToViewBounds(bounds));
+			resizable.repaint();
+		});
+	}
+
+	private Rectangle2D convertToPageBounds(Rectangle bounds) {
+		Rectangle parentBounds = getBounds();
+
+		if (parentBounds.isEmpty()) {
+			parentBounds.setSize(getPreferredSize());
+		}
+
+		Rectangle2D pageRect = slideView.getPage().getPageRect();
+		double scale = Math.floor(pageRect.getWidth()) / parentBounds.getWidth();
+		double x = Math.round(bounds.getX() * scale);
+		double y = Math.round(bounds.getY() * scale);
+		double w = Math.round(bounds.getWidth() * scale);
+		double h = Math.round(bounds.getHeight() * scale);
+
+		return new Rectangle2D(x, y, w, h);
+	}
+
+	private Rectangle convertToViewBounds(Rectangle2D bounds) {
+		Rectangle parentBounds = getBounds();
+
+		if (parentBounds.isEmpty()) {
+			parentBounds.setSize(getPreferredSize());
+		}
+
+		if (isNull(bounds)) {
+			return parentBounds;
+		}
+
+		Rectangle2D pageRect = slideView.getPage().getPageRect();
+		double scale = parentBounds.getWidth() / Math.floor(pageRect.getWidth());
+		double x = Math.round(bounds.getX() * scale);
+		double y = Math.round(bounds.getY() * scale);
+		double w = Math.round(bounds.getWidth() * scale);
+		double h = Math.round(bounds.getHeight() * scale);
+
+		Rectangle viewBounds = new Rectangle();
+		viewBounds.setFrame(x, y, w, h);
+
+		return viewBounds;
+	}
+
 	private void initialize() {
 		setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
 		setBorder(BorderFactory.createEmptyBorder(0, 0, 0, 0));
@@ -55,6 +152,34 @@ public class DocumentPreview extends JPanel {
 		slideView = new SlideView();
 		slideView.setViewType(ViewType.User);
 
-		add(slideView);
+		JPanel overlay = new JPanel();
+		overlay.setBackground(OVERLAY_COLOR);
+
+		resizable = new Resizable(overlay);
+
+		JPanel viewPanel = new JPanel(null);
+		viewPanel.setBorder(new EmptyBorder(10, 10, 10, 10));
+		viewPanel.add(resizable);
+		viewPanel.add(slideView);
+		viewPanel.addComponentListener(new ComponentAdapter() {
+
+			@Override
+			public void componentResized(ComponentEvent e) {
+				JComponent component = (JComponent) e.getComponent();
+
+				slideView.setBounds(component.getBounds());
+			}
+		});
+
+		addMouseListener(new MouseAdapter() {
+
+			@Override
+			public void mousePressed(MouseEvent me) {
+				requestFocus();
+				resizable.repaint();
+			}
+		});
+
+		add(viewPanel);
 	}
 }

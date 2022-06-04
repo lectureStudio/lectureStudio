@@ -18,64 +18,37 @@
 
 package org.lecturestudio.presenter.api.config;
 
-import org.lecturestudio.core.beans.StringProperty;
+import java.util.List;
 
 public class TemplateConfiguration {
 
-	private final StringProperty quizTemplatePath = new StringProperty();
+	private final DocumentTemplateConfiguration quizTemplateConfig = new DocumentTemplateConfiguration();
 
-	private final StringProperty chatMessageTemplatePath = new StringProperty();
+	private final DocumentTemplateConfiguration chatMessageTemplateConfig = new DocumentTemplateConfiguration();
 
-	private final StringProperty hallMessageTemplatePath = new StringProperty();
+	private final DocumentTemplateConfiguration hallMessageTemplateConfig = new DocumentTemplateConfiguration();
 
-	private final StringProperty whiteboardTemplatePath = new StringProperty();
+	private final DocumentTemplateConfiguration whiteboardTemplateConfig = new DocumentTemplateConfiguration();
 
 
-	public String getQuizTemplatePath() {
-		return quizTemplatePath.get();
+	public DocumentTemplateConfiguration getQuizTemplateConfig() {
+		return quizTemplateConfig;
 	}
 
-	public void setQuizTemplatePath(String path) {
-		quizTemplatePath.set(path);
+	public DocumentTemplateConfiguration getChatMessageTemplateConfig() {
+		return chatMessageTemplateConfig;
 	}
 
-	public StringProperty quizTemplatePathProperty() {
-		return quizTemplatePath;
+	public DocumentTemplateConfiguration getHallMessageTemplateConfig() {
+		return hallMessageTemplateConfig;
 	}
 
-	public String getChatMessageTemplatePath() {
-		return chatMessageTemplatePath.get();
+	public DocumentTemplateConfiguration getWhiteboardTemplateConfig() {
+		return whiteboardTemplateConfig;
 	}
 
-	public void setChatMessageTemplatePath(String path) {
-		chatMessageTemplatePath.set(path);
-	}
-
-	public StringProperty chatMessageTemplatePathProperty() {
-		return chatMessageTemplatePath;
-	}
-
-	public String getHallMessageTemplatePath() {
-		return hallMessageTemplatePath.get();
-	}
-
-	public void setHallMessageTemplatePath(String path) {
-		hallMessageTemplatePath.set(path);
-	}
-
-	public StringProperty hallMessageTemplatePathProperty() {
-		return hallMessageTemplatePath;
-	}
-
-	public String getWhiteboardTemplatePath() {
-		return whiteboardTemplatePath.get();
-	}
-
-	public void setWhiteboardTemplatePath(String path) {
-		whiteboardTemplatePath.set(path);
-	}
-
-	public StringProperty whiteboardTemplatePathProperty() {
-		return whiteboardTemplatePath;
+	public List<DocumentTemplateConfiguration> getAll() {
+		return List.of(quizTemplateConfig, chatMessageTemplateConfig,
+				hallMessageTemplateConfig, whiteboardTemplateConfig);
 	}
 }

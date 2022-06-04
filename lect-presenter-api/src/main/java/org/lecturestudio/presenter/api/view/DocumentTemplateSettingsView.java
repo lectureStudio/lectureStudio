@@ -18,6 +18,8 @@
 
 package org.lecturestudio.presenter.api.view;
 
+import org.lecturestudio.core.beans.ObjectProperty;
+import org.lecturestudio.core.geometry.Rectangle2D;
 import org.lecturestudio.core.model.Page;
 import org.lecturestudio.core.view.Action;
 import org.lecturestudio.core.view.PresentationParameter;
@@ -31,6 +33,12 @@ public interface DocumentTemplateSettingsView extends SettingsBaseView {
 	void setQuizPage(Page page, PresentationParameter parameter);
 
 	void setWhiteboardPage(Page page, PresentationParameter parameter);
+
+	void bindChatMessageBounds(ObjectProperty<Rectangle2D> bounds);
+
+	void bindHallMessageBounds(ObjectProperty<Rectangle2D> bounds);
+
+	void bindQuizBounds(ObjectProperty<Rectangle2D> bounds);
 
 	void setOnSelectChatMessageTemplatePath(Action action);
 

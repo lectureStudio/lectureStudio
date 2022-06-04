@@ -38,6 +38,7 @@ import org.lecturestudio.core.view.PresentationParameterProvider;
 import org.lecturestudio.core.view.ViewContextFactory;
 import org.lecturestudio.core.view.ViewType;
 import org.lecturestudio.presenter.api.config.DefaultConfiguration;
+import org.lecturestudio.presenter.api.config.DocumentTemplateConfiguration;
 import org.lecturestudio.presenter.api.config.TemplateConfiguration;
 import org.lecturestudio.presenter.api.context.PresenterContext;
 import org.lecturestudio.presenter.api.view.DocumentTemplateSettingsView;
@@ -60,10 +61,10 @@ public class DocumentTemplateSettingsPresenter extends Presenter<DocumentTemplat
 
 	@Override
 	public void initialize() {
-		String chatTemplate = templateConfig.getChatMessageTemplatePath();
-		String hallTemplate = templateConfig.getHallMessageTemplatePath();
-		String quizTemplate = templateConfig.getQuizTemplatePath();
-		String whiteboardTemplate = templateConfig.getWhiteboardTemplatePath();
+		var chatConfig = templateConfig.getChatMessageTemplateConfig();
+		var hallConfig = templateConfig.getHallMessageTemplateConfig();
+		var quizConfig = templateConfig.getQuizTemplateConfig();
+		var whiteboardConfig = templateConfig.getWhiteboardTemplateConfig();
 
 		view.setOnSelectChatMessageTemplatePath(this::selectChatMessageTemplatePath);
 		view.setOnSelectHallMessageTemplatePath(this::selectHallMessageTemplatePath);
@@ -71,31 +72,29 @@ public class DocumentTemplateSettingsPresenter extends Presenter<DocumentTemplat
 		view.setOnSelectWhiteboardTemplatePath(this::selectWhiteboardTemplatePath);
 		view.setOnReset(this::reset);
 
-		setTemplate(chatTemplate, view::setChatMessagePage);
-		setTemplate(hallTemplate, view::setHallMessagePage);
-		setTemplate(quizTemplate, view::setQuizPage);
-		setTemplate(whiteboardTemplate, view::setWhiteboardPage);
+		bindTemplate(chatConfig, view::setChatMessagePage);
+		bindTemplate(hallConfig, view::setHallMessagePage);
+		bindTemplate(quizConfig, view::setQuizPage);
+		bindTemplate(whiteboardConfig, view::setWhiteboardPage);
+	}
 
-		templateConfig.chatMessageTemplatePathProperty().addListener((o, oldValue, newValue) -> {
-			setTemplate(newValue, view::setChatMessagePage);
-		});
-		templateConfig.hallMessageTemplatePathProperty().addListener((o, oldValue, newValue) -> {
-			setTemplate(newValue, view::setHallMessagePage);
-		});
-		templateConfig.quizTemplatePathProperty().addListener((o, oldValue, newValue) -> {
-			setTemplate(newValue, view::setQuizPage);
-		});
-		templateConfig.whiteboardTemplatePathProperty().addListener((o, oldValue, newValue) -> {
-			setTemplate(newValue, view::setWhiteboardPage);
+	private void bindTemplate(DocumentTemplateConfiguration config,
+			BiConsumer<Page, PresentationParameter> consumer) {
+		setTemplate(config.getTemplatePath(), consumer);
+
+		config.templatePathProperty().addListener((o, oldValue, newValue) -> {
+			setTemplate(newValue, consumer);
 		});
 	}
 
-	private void setTemplate(String path, BiConsumer<Page, PresentationParameter> consumer) {
+	private void setTemplate(String path,
+			BiConsumer<Page, PresentationParameter> consumer) {
 		try {
 			Document document = getDocument(path);
 
 			Page page = document.getCurrentPage();
-			PresentationParameterProvider provider = context.getPagePropertyProvider(ViewType.User);
+			PresentationParameterProvider provider = context
+					.getPagePropertyProvider(ViewType.User);
 
 			consumer.accept(page, provider.getParameter(page));
 		}
@@ -106,19 +105,19 @@ public class DocumentTemplateSettingsPresenter extends Presenter<DocumentTemplat
 	}
 
 	private void selectChatMessageTemplatePath() {
-		selectTemplate(templateConfig.chatMessageTemplatePathProperty());
+		selectTemplate(templateConfig.getChatMessageTemplateConfig().templatePathProperty());
 	}
 
 	private void selectHallMessageTemplatePath() {
-		selectTemplate(templateConfig.hallMessageTemplatePathProperty());
+		selectTemplate(templateConfig.getHallMessageTemplateConfig().templatePathProperty());
 	}
 
 	private void selectQuizTemplatePath() {
-		selectTemplate(templateConfig.quizTemplatePathProperty());
+		selectTemplate(templateConfig.getQuizTemplateConfig().templatePathProperty());
 	}
 
 	private void selectWhiteboardTemplatePath() {
-		selectTemplate(templateConfig.whiteboardTemplatePathProperty());
+		selectTemplate(templateConfig.getWhiteboardTemplateConfig().templatePathProperty());
 	}
 
 	private void selectTemplate(StringProperty property) {
@@ -165,9 +164,15 @@ public class DocumentTemplateSettingsPresenter extends Presenter<DocumentTemplat
 		DefaultConfiguration defaultConfig = new DefaultConfiguration();
 		TemplateConfiguration defaultTemplateConfig = defaultConfig.getTemplateConfig();
 
-		templateConfig.setChatMessageTemplatePath(defaultTemplateConfig.getChatMessageTemplatePath());
-		templateConfig.setHallMessageTemplatePath(defaultTemplateConfig.getHallMessageTemplatePath());
-		templateConfig.setQuizTemplatePath(defaultTemplateConfig.getQuizTemplatePath());
-		templateConfig.setWhiteboardTemplatePath(defaultTemplateConfig.getWhiteboardTemplatePath());
+		var defaultList = defaultTemplateConfig.getAll();
+		var configList = defaultTemplateConfig.getAll();
+
+		for (int i = 0; i < configList.size(); i++) {
+			var defaultTplConf = defaultList.get(i);
+			var tplConf = configList.get(i);
+
+			tplConf.setTemplatePath(defaultTplConf.getTemplatePath());
+			tplConf.setBounds(defaultTplConf.getBounds());
+		}
 	}
 }

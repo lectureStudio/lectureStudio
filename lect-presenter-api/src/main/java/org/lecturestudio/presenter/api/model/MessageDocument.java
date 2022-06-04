@@ -34,6 +34,7 @@ import org.jsoup.Jsoup;
 import org.jsoup.nodes.Element;
 
 import org.lecturestudio.core.app.dictionary.Dictionary;
+import org.lecturestudio.core.geometry.Rectangle2D;
 import org.lecturestudio.core.model.DocumentType;
 import org.lecturestudio.core.pdf.PdfDocument;
 
@@ -45,22 +46,22 @@ import org.lecturestudio.core.pdf.PdfDocument;
  */
 public class MessageDocument extends HtmlToPdfDocument {
 
-	public MessageDocument(File templateFile, Dictionary dict, String message)
-			throws IOException {
-		init(createDocument(templateFile, message));
+	public MessageDocument(File templateFile, Rectangle2D contentBounds,
+			Dictionary dict, String message) throws IOException {
+		init(createDocument(templateFile, contentBounds, message));
 		setDocumentType(DocumentType.MESSAGE);
 		setTitle(dict.get("slides.message"));
 	}
 
-	private static PdfDocument createDocument(File templateFile, String message)
-			throws IOException {
+	private static PdfDocument createDocument(File templateFile,
+			Rectangle2D contentBounds, String message) throws IOException {
 		PDDocument tplDoc = templateFile.exists() ?
 				PDDocument.load(templateFile) :
 				null;
 		PDDocument doc = new PDDocument();
 
 		// Create the first page with the message on it.
-		createMessagePage(tplDoc, doc, message);
+		createMessagePage(tplDoc, doc, contentBounds, message);
 
 		PdfDocument pdfDocument = createPdfDocument(doc);
 
@@ -74,7 +75,7 @@ public class MessageDocument extends HtmlToPdfDocument {
 	}
 
 	private static void createMessagePage(PDDocument tplDoc, PDDocument doc,
-			String message) throws IOException {
+			Rectangle2D contentBounds, String message) throws IOException {
 		var jdoc = Jsoup.parseBodyFragment("");
 		jdoc.head().append("<link rel=\"stylesheet\" href=\"html/message.css\">");
 
@@ -120,6 +121,6 @@ public class MessageDocument extends HtmlToPdfDocument {
 			}
 		}
 
-		renderHtmlPage(jdoc, tplDoc, doc, Map.of());
+		renderHtmlPage(jdoc, tplDoc, doc, contentBounds, Map.of());
 	}
 }

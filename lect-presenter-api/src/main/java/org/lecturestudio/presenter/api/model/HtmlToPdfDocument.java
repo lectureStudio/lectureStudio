@@ -46,6 +46,7 @@ import org.jsoup.helper.W3CDom;
 import org.jsoup.nodes.Document.OutputSettings;
 import org.jsoup.nodes.Entities.EscapeMode;
 
+import org.lecturestudio.core.geometry.Rectangle2D;
 import org.lecturestudio.core.model.Document;
 import org.lecturestudio.core.pdf.PdfDocument;
 
@@ -74,7 +75,6 @@ public abstract class HtmlToPdfDocument extends Document {
 		ByteArrayOutputStream stream = new ByteArrayOutputStream();
 
 		doc.save(stream);
-		doc.close();
 
 		stream.flush();
 		stream.close();
@@ -83,7 +83,7 @@ public abstract class HtmlToPdfDocument extends Document {
 	}
 
 	protected static void renderHtmlPage(org.jsoup.nodes.Document jdoc,
-			PDDocument tplDoc, PDDocument pdDoc,
+			PDDocument tplDoc, PDDocument pdDoc, Rectangle2D contentBounds,
 			Map<String, String> resourceMap) throws IOException {
 		OutputSettings outputSettings = new OutputSettings();
 		outputSettings.prettyPrint(false);
@@ -100,6 +100,18 @@ public abstract class HtmlToPdfDocument extends Document {
 
 			pageWidth = mediaBox.getWidth();
 			pageHeight = mediaBox.getHeight();
+		}
+
+		if (nonNull(contentBounds)) {
+			int marginLeft = (int) contentBounds.getX();
+			int marginTop = (int) contentBounds.getY();
+			int marginRight = (int) (pageWidth - (contentBounds.getX() + contentBounds.getWidth()));
+			int marginBottom = (int) (pageHeight - (contentBounds.getY() + contentBounds.getHeight()));
+
+			var head = jdoc.head();
+			var style = head.appendElement("style");
+			style.text(String.format("@page { margin: %dpx %dpx %dpx %dpx; }",
+					marginTop, marginRight, marginBottom, marginLeft));
 		}
 
 		var builder = new PdfRendererBuilder()

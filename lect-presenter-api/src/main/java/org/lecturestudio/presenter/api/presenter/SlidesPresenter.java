@@ -33,6 +33,7 @@ import org.lecturestudio.core.controller.PresentationController;
 import org.lecturestudio.core.controller.RenderController;
 import org.lecturestudio.core.controller.ToolController;
 import org.lecturestudio.core.geometry.Matrix;
+import org.lecturestudio.core.geometry.Rectangle2D;
 import org.lecturestudio.core.graphics.Color;
 import org.lecturestudio.core.input.KeyEvent;
 import org.lecturestudio.core.model.*;
@@ -49,6 +50,7 @@ import org.lecturestudio.core.tool.ToolType;
 import org.lecturestudio.core.util.ListChangeListener;
 import org.lecturestudio.core.util.ObservableList;
 import org.lecturestudio.core.view.*;
+import org.lecturestudio.presenter.api.config.DocumentTemplateConfiguration;
 import org.lecturestudio.presenter.api.config.ExternalWindowConfiguration;
 import org.lecturestudio.presenter.api.config.PresenterConfiguration;
 import org.lecturestudio.presenter.api.context.PresenterContext;
@@ -437,13 +439,15 @@ public class SlidesPresenter extends Presenter<SlidesView> {
 		onDiscardMessage(message);
 
 		PresenterContext presenterContext = (PresenterContext) context;
-		String template = presenterContext.getConfiguration()
-				.getTemplateConfig().getChatMessageTemplatePath();
+		DocumentTemplateConfiguration templateConfig = presenterContext.getConfiguration()
+				.getTemplateConfig().getChatMessageTemplateConfig();
+		String template = templateConfig.getTemplatePath();
+		Rectangle2D templateBounds = templateConfig.getBounds();
 
 		try {
 			File file = new File(nonNull(template) ? template : "");
 
-			Document messageDocument = new MessageDocument(file,
+			Document messageDocument = new MessageDocument(file, templateBounds,
 					context.getDictionary(), message.getMessage().getText());
 
 			Document prevMessageDocument = null;

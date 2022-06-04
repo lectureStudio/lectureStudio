@@ -24,7 +24,9 @@ import javax.inject.Inject;
 import javax.swing.JButton;
 import javax.swing.JPanel;
 
+import org.lecturestudio.core.beans.ObjectProperty;
 import org.lecturestudio.core.controller.RenderController;
+import org.lecturestudio.core.geometry.Rectangle2D;
 import org.lecturestudio.core.model.Page;
 import org.lecturestudio.core.view.Action;
 import org.lecturestudio.core.view.PresentationParameter;
@@ -92,6 +94,21 @@ public class SwingDocumentTemplateSettingsView extends JPanel implements Documen
 	}
 
 	@Override
+	public void bindChatMessageBounds(ObjectProperty<Rectangle2D> bounds) {
+		chatMessagePreview.setOverlayBounds(bounds);
+	}
+
+	@Override
+	public void bindHallMessageBounds(ObjectProperty<Rectangle2D> bounds) {
+		hallMessagePreview.setOverlayBounds(bounds);
+	}
+
+	@Override
+	public void bindQuizBounds(ObjectProperty<Rectangle2D> bounds) {
+		quizPreview.setOverlayBounds(bounds);
+	}
+
+	@Override
 	public void setOnSelectChatMessageTemplatePath(Action action) {
 		SwingUtils.bindAction(selectChatMessagePathButton, action);
 	}
@@ -127,6 +144,7 @@ public class SwingDocumentTemplateSettingsView extends JPanel implements Documen
 		hallMessagePreview.setRenderController(renderer);
 		quizPreview.setRenderController(renderer);
 		whiteboardPreview.setRenderController(renderer);
+		whiteboardPreview.showOverlay(false);
 
 		container.setLayout(new WrapFlowLayout(FlowLayout.LEFT));
 	}

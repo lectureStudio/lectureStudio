@@ -58,6 +58,7 @@ import org.knowm.xchart.style.Styler.ChartTheme;
 import org.knowm.xchart.style.colors.SeriesColors;
 
 import org.lecturestudio.core.app.dictionary.Dictionary;
+import org.lecturestudio.core.geometry.Rectangle2D;
 import org.lecturestudio.core.model.DocumentType;
 import org.lecturestudio.core.pdf.PdfDocument;
 import org.lecturestudio.core.pdf.pdfbox.PDFGraphics2D;
@@ -78,15 +79,16 @@ public class QuizDocument extends HtmlToPdfDocument {
 	private static final NumericStringComparator NS_COMPARATOR = new NumericStringComparator();
 
 
-	public QuizDocument(File templateFile, Dictionary dict, QuizResult result)
-			throws IOException {
-		init(createDocument(templateFile, dict, result));
+	public QuizDocument(File templateFile, Rectangle2D contentBounds,
+			Dictionary dict, QuizResult result) throws IOException {
+		init(createDocument(templateFile, contentBounds, dict, result));
 		setDocumentType(DocumentType.QUIZ);
-		setTitle("Quiz");
+		setTitle(dict.get("quiz"));
 	}
 
 	private static PdfDocument createDocument(File templateFile,
-			Dictionary dict, QuizResult result) throws IOException {
+			Rectangle2D contentBounds, Dictionary dict, QuizResult result)
+			throws IOException {
 		PDDocument tplDoc = templateFile.exists() ?
 				PDDocument.load(templateFile) :
 				null;
@@ -96,20 +98,20 @@ public class QuizDocument extends HtmlToPdfDocument {
 		QuizType type = quiz.getType();
 
 		// Create the first page with the question on it.
-		renderQuestion(tplDoc, doc, quiz);
+		renderQuestion(tplDoc, doc, contentBounds, quiz);
 
 		if (!result.getResult().isEmpty()) {
 			// Create a new page with the bar-chart.
-			renderChartQuestions(tplDoc, doc, quiz);
+			renderChartQuestions(tplDoc, doc, contentBounds, quiz);
 			renderChart(doc, result, createBarChart(dict, result));
 
 			// Create a new page with the pie-chart.
-			renderChartQuestions(tplDoc, doc, quiz);
+			renderChartQuestions(tplDoc, doc, contentBounds, quiz);
 			renderChart(doc, result, createPieChart(dict, result));
 
 			if (type == QuizType.MULTIPLE) {
 				// Create a new page with the statistics bar-chart.
-				renderChartQuestions(tplDoc, doc, quiz);
+				renderChartQuestions(tplDoc, doc, contentBounds, quiz);
 				renderChart(doc, result, createBarChartAnswerStats(dict, result));
 			}
 		}
@@ -126,7 +128,7 @@ public class QuizDocument extends HtmlToPdfDocument {
 	}
 
 	private static void renderQuestion(PDDocument tplDoc, PDDocument doc,
-			Quiz quiz) throws IOException {
+			Rectangle2D contentBounds, Quiz quiz) throws IOException {
 		String question = quiz.getQuestion().replaceAll("&nbsp;", " ");
 
 		var jdoc = Jsoup.parseBodyFragment(question);
@@ -167,7 +169,7 @@ public class QuizDocument extends HtmlToPdfDocument {
 			}
 		}
 
-		renderHtmlPage(jdoc, tplDoc, doc, resourceMap);
+		renderHtmlPage(jdoc, tplDoc, doc, contentBounds, resourceMap);
 	}
 
 	private static boolean textFits(String text, Dimension areaToFit) {
@@ -210,7 +212,7 @@ public class QuizDocument extends HtmlToPdfDocument {
 	}
 
 	private static void renderChartQuestions(PDDocument tplDoc, PDDocument doc,
-			Quiz quiz) throws IOException {
+			Rectangle2D contentBounds, Quiz quiz) throws IOException {
 		List<String> options = quiz.getOptions();
 
 		if (options.isEmpty()) {
@@ -260,7 +262,7 @@ public class QuizDocument extends HtmlToPdfDocument {
 			tdDiv.text(String.format("%s %s", prefix, text));
 		}
 
-		renderHtmlPage(jdoc, tplDoc, doc, Map.of());
+		renderHtmlPage(jdoc, tplDoc, doc, contentBounds, Map.of());
 	}
 
 	private static void renderChart(PDDocument pdDocument, QuizResult result,

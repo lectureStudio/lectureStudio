@@ -66,7 +66,8 @@ public class StartPresenter extends Presenter<StartView> {
 
 	public void openWhiteboard() {
 		PresenterConfiguration config = (PresenterConfiguration) context.getConfiguration();
-		String template = config.getTemplateConfig().getWhiteboardTemplatePath();
+		String template = config.getTemplateConfig()
+				.getWhiteboardTemplateConfig().getTemplatePath();
 
 		documentService.addWhiteboard(template);
 	}

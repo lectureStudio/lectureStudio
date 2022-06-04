@@ -47,10 +47,12 @@ import org.jsoup.select.Elements;
 import org.lecturestudio.core.ExecutableException;
 import org.lecturestudio.core.app.dictionary.Dictionary;
 import org.lecturestudio.core.bus.EventBus;
+import org.lecturestudio.core.geometry.Rectangle2D;
 import org.lecturestudio.core.model.Document;
 import org.lecturestudio.core.model.DocumentType;
 import org.lecturestudio.core.model.Page;
 import org.lecturestudio.core.service.DocumentService;
+import org.lecturestudio.presenter.api.config.DocumentTemplateConfiguration;
 import org.lecturestudio.presenter.api.context.PresenterContext;
 import org.lecturestudio.presenter.api.model.QuizDocument;
 import org.lecturestudio.web.api.client.MultipartBody;
@@ -192,11 +194,13 @@ public class QuizFeatureWebService extends FeatureServiceBase {
 
 		try {
 			Dictionary dict = context.getDictionary();
-			String template = context.getConfiguration().getTemplateConfig()
-					.getQuizTemplatePath();
+			DocumentTemplateConfiguration templateConfig = context.getConfiguration()
+					.getTemplateConfig().getQuizTemplateConfig();
+			String template = templateConfig.getTemplatePath();
+			Rectangle2D templateBounds = templateConfig.getBounds();
 			File file = new File(nonNull(template) ? template : "");
 
-			doc = new QuizDocument(file, dict, result);
+			doc = new QuizDocument(file, templateBounds, dict, result);
 			doc.setDocumentType(DocumentType.QUIZ);
 		}
 		catch (Exception e) {

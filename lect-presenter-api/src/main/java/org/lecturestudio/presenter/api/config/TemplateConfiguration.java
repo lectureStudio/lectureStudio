@@ -18,6 +18,7 @@
 
 package org.lecturestudio.presenter.api.config;
 
+import java.beans.Transient;
 import java.util.List;
 
 public class TemplateConfiguration {
@@ -47,6 +48,7 @@ public class TemplateConfiguration {
 		return whiteboardTemplateConfig;
 	}
 
+	@Transient
 	public List<DocumentTemplateConfiguration> getAll() {
 		return List.of(quizTemplateConfig, chatMessageTemplateConfig,
 				hallMessageTemplateConfig, whiteboardTemplateConfig);

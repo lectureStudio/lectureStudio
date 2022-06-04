@@ -66,16 +66,19 @@ public class DocumentTemplateSettingsPresenter extends Presenter<DocumentTemplat
 		var quizConfig = templateConfig.getQuizTemplateConfig();
 		var whiteboardConfig = templateConfig.getWhiteboardTemplateConfig();
 
+		bindTemplate(chatConfig, view::setChatMessagePage);
+		bindTemplate(hallConfig, view::setHallMessagePage);
+		bindTemplate(quizConfig, view::setQuizPage);
+		bindTemplate(whiteboardConfig, view::setWhiteboardPage);
+
+		view.bindChatMessageBounds(chatConfig.boundsProperty());
+		view.bindHallMessageBounds(hallConfig.boundsProperty());
+		view.bindQuizBounds(quizConfig.boundsProperty());
 		view.setOnSelectChatMessageTemplatePath(this::selectChatMessageTemplatePath);
 		view.setOnSelectHallMessageTemplatePath(this::selectHallMessageTemplatePath);
 		view.setOnSelectQuizTemplatePath(this::selectQuizTemplatePath);
 		view.setOnSelectWhiteboardTemplatePath(this::selectWhiteboardTemplatePath);
 		view.setOnReset(this::reset);
-
-		bindTemplate(chatConfig, view::setChatMessagePage);
-		bindTemplate(hallConfig, view::setHallMessagePage);
-		bindTemplate(quizConfig, view::setQuizPage);
-		bindTemplate(whiteboardConfig, view::setWhiteboardPage);
 	}
 
 	private void bindTemplate(DocumentTemplateConfiguration config,

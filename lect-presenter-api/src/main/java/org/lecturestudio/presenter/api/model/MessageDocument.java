@@ -92,7 +92,6 @@ public class MessageDocument extends HtmlToPdfDocument {
 
 			// Each line is encapsulated in a <div>.
 			Element div = jdoc.body().appendElement("div");
-			div.addClass("speech-bubble");
 
 			if (found.isEmpty()) {
 				div.text(part);

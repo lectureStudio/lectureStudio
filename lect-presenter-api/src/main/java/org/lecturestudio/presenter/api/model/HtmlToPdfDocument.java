@@ -108,6 +108,11 @@ public abstract class HtmlToPdfDocument extends Document {
 			int marginRight = (int) (pageWidth - (contentBounds.getX() + contentBounds.getWidth()));
 			int marginBottom = (int) (pageHeight - (contentBounds.getY() + contentBounds.getHeight()));
 
+			marginLeft = (int) (marginLeft * 1.5);
+			marginTop = (int) (marginTop * 1.5);
+			marginRight = (int) (marginRight * 1.5);
+			marginBottom = (int) (marginBottom * 1.5);
+
 			var head = jdoc.head();
 			var style = head.appendElement("style");
 			style.text(String.format("@page { margin: %dpx %dpx %dpx %dpx; }",

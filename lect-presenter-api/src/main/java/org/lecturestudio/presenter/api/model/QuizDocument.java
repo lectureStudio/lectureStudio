@@ -103,16 +103,19 @@ public class QuizDocument extends HtmlToPdfDocument {
 		if (!result.getResult().isEmpty()) {
 			// Create a new page with the bar-chart.
 			renderChartQuestions(tplDoc, doc, contentBounds, quiz);
-			renderChart(doc, result, createBarChart(dict, result));
+			renderChart(doc, result, createBarChart(dict, result),
+					contentBounds);
 
 			// Create a new page with the pie-chart.
 			renderChartQuestions(tplDoc, doc, contentBounds, quiz);
-			renderChart(doc, result, createPieChart(dict, result));
+			renderChart(doc, result, createPieChart(dict, result),
+					contentBounds);
 
 			if (type == QuizType.MULTIPLE) {
 				// Create a new page with the statistics bar-chart.
 				renderChartQuestions(tplDoc, doc, contentBounds, quiz);
-				renderChart(doc, result, createBarChartAnswerStats(dict, result));
+				renderChart(doc, result,
+						createBarChartAnswerStats(dict, result), contentBounds);
 			}
 		}
 
@@ -219,17 +222,20 @@ public class QuizDocument extends HtmlToPdfDocument {
 			return;
 		}
 
+		int descHeight = (int) (contentBounds.getHeight() / 1.9 * 1.5);
+
 		var jdoc = Jsoup.parseBodyFragment("");
 		jdoc.head().append("<link rel=\"stylesheet\" href=\"html/quiz.css\">");
 		jdoc.outputSettings().prettyPrint(true);
 
 		Element div = jdoc.body().appendElement("div");
 		div.addClass("chart");
+		div.attr("style", String.format("padding-top: %dpx;", descHeight));
 
 		Element table = div.appendElement("table");
 		Element row = null;
 
-		int maxWidth = 260;
+		int maxWidth = (int) (contentBounds.getWidth() / 2);
 		int maxHeight = 16;    // Option text not longer than one line.
 
 		if (options.size() < 7) {
@@ -266,17 +272,17 @@ public class QuizDocument extends HtmlToPdfDocument {
 	}
 
 	private static void renderChart(PDDocument pdDocument, QuizResult result,
-			Chart<?, ?> chart) {
+			Chart<?, ?> chart, Rectangle2D contentBounds) {
 		if (result.getResult().isEmpty()) {
 			return;
 		}
 
-		int chartHeight = (int) (PAGE_HEIGHT * 0.725);
 		int pageIndex = pdDocument.getNumberOfPages() - 1;
 
-		// Draw chart below last text line.
-		int marginX = 50;
-		int marginY = 35;
+		int marginX = (int) contentBounds.getX();
+		int marginY = (int) contentBounds.getY();
+		int chartWidth = (int) (contentBounds.getWidth());
+		int chartHeight = (int) (contentBounds.getHeight() / 1.75);
 
 		// Set (bar)chart y-axis tick spacing.
 		if (chart instanceof CategoryChart) {
@@ -301,7 +307,7 @@ public class QuizDocument extends HtmlToPdfDocument {
 		// Move to top-left corner.
 		g2dStream.transform(new AffineTransform(1, 0, 0, -1, 0, pdPage.getMediaBox().getHeight()));
 		g2dStream.translate(marginX, marginY);
-		chart.paint(g2dStream, PAGE_WIDTH - 2 * marginX, chartHeight - 2 * marginY);
+		chart.paint(g2dStream, chartWidth, chartHeight);
 		g2dStream.close();
 	}
 

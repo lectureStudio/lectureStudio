@@ -294,16 +294,36 @@ public class MuPDFDocument implements DocumentAdapter {
 		PDFObject contents = srcPage.get("Contents");
 
 		if (nonNull(mediaBox)) {
-			dstPage.put("MediaBox", graftMap.graftObject(mediaBox));
+			try {
+				dstPage.put("MediaBox", graftMap.graftObject(mediaBox));
+			}
+			catch (Throwable e) {
+				// Ignore
+			}
 		}
 		if (nonNull(rotate)) {
-			dstPage.put("Rotate", graftMap.graftObject(rotate));
+			try {
+				dstPage.put("Rotate", graftMap.graftObject(rotate));
+			}
+			catch (Throwable e) {
+				// Ignore
+			}
 		}
 		if (nonNull(resources)) {
-			dstPage.put("Resources", graftMap.graftObject(resources));
+			try {
+				dstPage.put("Resources", graftMap.graftObject(resources));
+			}
+			catch (Throwable e) {
+				dstPage.put("Resources", doc.newDictionary());
+			}
 		}
 		if (nonNull(contents)) {
-			dstPage.put("Contents", graftMap.graftObject(contents));
+			try {
+				dstPage.put("Contents", graftMap.graftObject(contents));
+			}
+			catch (Throwable e) {
+				dstPage.put("Contents", doc.newDictionary());
+			}
 		}
 
 		doc.insertPage(-1, doc.addObject(dstPage));

@@ -30,7 +30,6 @@ import java.awt.Insets;
 import java.awt.Rectangle;
 import java.awt.Shape;
 import java.awt.event.MouseEvent;
-import java.awt.geom.Rectangle2D;
 
 public class ResizableBorder implements Border {
 

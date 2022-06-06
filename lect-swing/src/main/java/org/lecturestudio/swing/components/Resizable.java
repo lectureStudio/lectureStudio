@@ -18,6 +18,8 @@
 
 package org.lecturestudio.swing.components;
 
+import static java.util.Objects.isNull;
+
 import javax.swing.JComponent;
 import javax.swing.event.MouseInputAdapter;
 import javax.swing.event.MouseInputListener;
@@ -57,9 +59,11 @@ public class Resizable extends JComponent {
 			}
 			if (width < 30) {
 				width = 30;
+				x = getX();
 			}
 			if (height < 30) {
 				height = 30;
+				y = getY();
 			}
 			if (x + width > pBounds.x + pBounds.width) {
 				width = getWidth();
@@ -116,63 +120,65 @@ public class Resizable extends JComponent {
 
 		@Override
 		public void mouseDragged(MouseEvent me) {
-			if (startPos != null) {
-				int x = getX();
-				int y = getY();
-				int w = getWidth();
-				int h = getHeight();
-
-				int dx = me.getX() - startPos.x;
-				int dy = me.getY() - startPos.y;
-
-				switch (cursor) {
-					case Cursor.N_RESIZE_CURSOR -> {
-						setBounds(x, y + dy, w, h - dy);
-						resize();
-					}
-					case Cursor.S_RESIZE_CURSOR -> {
-						setBounds(x, y, w, h + dy);
-						startPos = me.getPoint();
-						resize();
-					}
-					case Cursor.W_RESIZE_CURSOR -> {
-						setBounds(x + dx, y, w - dx, h);
-						resize();
-					}
-					case Cursor.E_RESIZE_CURSOR -> {
-						setBounds(x, y, w + dx, h);
-						startPos = me.getPoint();
-						resize();
-					}
-					case Cursor.NW_RESIZE_CURSOR -> {
-						setBounds(x + dx, y + dy, w - dx, h - dy);
-						resize();
-					}
-					case Cursor.NE_RESIZE_CURSOR -> {
-						setBounds(x, y + dy, w + dx, h - dy);
-						startPos = new Point(me.getX(), startPos.y);
-						resize();
-					}
-					case Cursor.SW_RESIZE_CURSOR -> {
-						setBounds(x + dx, y, w - dx, h + dy);
-						startPos = new Point(startPos.x, me.getY());
-						resize();
-					}
-					case Cursor.SE_RESIZE_CURSOR -> {
-						setBounds(x, y, w + dx, h + dy);
-						startPos = me.getPoint();
-						resize();
-					}
-					case Cursor.MOVE_CURSOR -> {
-						var bounds = getBounds();
-						bounds.translate(dx, dy);
-						setBounds(bounds);
-						resize();
-					}
-				}
-
-				setCursor(Cursor.getPredefinedCursor(cursor));
+			if (isNull(startPos)) {
+				return;
 			}
+
+			int x = getX();
+			int y = getY();
+			int w = getWidth();
+			int h = getHeight();
+
+			int dx = me.getX() - startPos.x;
+			int dy = me.getY() - startPos.y;
+
+			switch (cursor) {
+				case Cursor.N_RESIZE_CURSOR -> {
+					setBounds(x, y + dy, w, h - dy);
+					resize();
+				}
+				case Cursor.S_RESIZE_CURSOR -> {
+					setBounds(x, y, w, h + dy);
+					startPos = me.getPoint();
+					resize();
+				}
+				case Cursor.W_RESIZE_CURSOR -> {
+					setBounds(x + dx, y, w - dx, h);
+					resize();
+				}
+				case Cursor.E_RESIZE_CURSOR -> {
+					setBounds(x, y, w + dx, h);
+					startPos = me.getPoint();
+					resize();
+				}
+				case Cursor.NW_RESIZE_CURSOR -> {
+					setBounds(x + dx, y + dy, w - dx, h - dy);
+					resize();
+				}
+				case Cursor.NE_RESIZE_CURSOR -> {
+					setBounds(x, y + dy, w + dx, h - dy);
+					startPos = new Point(me.getX(), startPos.y);
+					resize();
+				}
+				case Cursor.SW_RESIZE_CURSOR -> {
+					setBounds(x + dx, y, w - dx, h + dy);
+					startPos = new Point(startPos.x, me.getY());
+					resize();
+				}
+				case Cursor.SE_RESIZE_CURSOR -> {
+					setBounds(x, y, w + dx, h + dy);
+					startPos = me.getPoint();
+					resize();
+				}
+				case Cursor.MOVE_CURSOR -> {
+					var bounds = getBounds();
+					bounds.translate(dx, dy);
+					setBounds(bounds);
+					resize();
+				}
+			}
+
+			setCursor(Cursor.getPredefinedCursor(cursor));
 		}
 	};
 }

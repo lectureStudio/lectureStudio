@@ -123,7 +123,9 @@ public class DocumentService {
 	 * whiteboard is created. If more than one whiteboard is present, then the
 	 * first whiteboard in the document list will be opened.
 	 */
-	public CompletableFuture<Document> openWhiteboard() {
+	public CompletableFuture<Document> openWhiteboard(String templatePath) {
+		final File file = new File(nonNull(templatePath) ? templatePath : "");
+
 		return CompletableFuture.supplyAsync(() -> {
 			// Search for a opened whiteboard.
 			Document whiteboard = documents.getFirstWhiteboard();
@@ -131,7 +133,7 @@ public class DocumentService {
 			// If there isn't any whiteboard, then create one.
 			if (isNull(whiteboard)) {
 				try {
-					whiteboard = createWhiteboard();
+					whiteboard = createWhiteboard(file);
 				}
 				catch (IOException e) {
 					throw new CompletionException("Create whiteboard failed", e);
@@ -154,7 +156,7 @@ public class DocumentService {
 		Document selectedDocument = documents.getSelectedDocument();
 
 		if (isNull(selectedDocument) || !selectedDocument.isWhiteboard()) {
-			openWhiteboard().join();
+			openWhiteboard("").join();
 		}
 		else {
 			selectDocument(documents.getLastNonWhiteboard());

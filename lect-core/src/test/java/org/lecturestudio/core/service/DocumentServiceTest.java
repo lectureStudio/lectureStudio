@@ -167,7 +167,7 @@ class DocumentServiceTest extends CoreTest {
 
 	@Test
 	void testOpenWhiteboard() throws Exception {
-		documentService.openWhiteboard().get();
+		documentService.openWhiteboard("").get();
 
 		DocumentList documentList = documentService.getDocuments();
 		Document doc = documentList.getSelectedDocument();
@@ -179,8 +179,8 @@ class DocumentServiceTest extends CoreTest {
 
 	@Test
 	void testAddOpenWhiteboard() throws Exception {
-		documentService.addWhiteboard().get();
-		documentService.openWhiteboard().get();
+		documentService.addWhiteboard("").get();
+		documentService.openWhiteboard("").get();
 
 		DocumentList documentList = documentService.getDocuments();
 		Document doc = documentList.getSelectedDocument();
@@ -217,7 +217,7 @@ class DocumentServiceTest extends CoreTest {
 			documentService.createWhiteboardPage();
 		});
 
-		Document doc = documentService.openWhiteboard().get();
+		Document doc = documentService.openWhiteboard("").get();
 		documentService.createWhiteboardPage();
 		Page page = documentService.createWhiteboardPage();
 
@@ -231,7 +231,7 @@ class DocumentServiceTest extends CoreTest {
 			documentService.deleteWhiteboardPage();
 		});
 
-		Document doc = documentService.openWhiteboard().get();
+		Document doc = documentService.openWhiteboard("").get();
 		Page page1 = doc.getCurrentPage();
 		Page page2 = documentService.createWhiteboardPage();
 		documentService.createWhiteboardPage();

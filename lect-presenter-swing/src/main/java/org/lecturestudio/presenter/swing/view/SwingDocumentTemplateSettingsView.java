@@ -142,6 +142,7 @@ public class SwingDocumentTemplateSettingsView extends JPanel implements Documen
 	private void initialize() {
 		chatMessagePreview.setRenderController(renderer);
 		hallMessagePreview.setRenderController(renderer);
+		hallMessagePreview.showOverlay(false);
 		quizPreview.setRenderController(renderer);
 		whiteboardPreview.setRenderController(renderer);
 		whiteboardPreview.showOverlay(false);

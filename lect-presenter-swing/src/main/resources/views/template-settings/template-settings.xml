@@ -6,22 +6,22 @@
 		<Panel id="container">
 			<VBox gap="5" border="EmptyBorder(0, 0, 10, 10)">
 				<TitledSeparator text="template.settings.whiteboard" />
-				<DocumentPreview id="whiteboardPreview" preferredSize="240, 180" />
+				<DocumentPreview id="whiteboardPreview" preferredSize="320, 240" />
 				<Button id="selectWhiteboardPathButton" text="button.browse" />
 			</VBox>
 			<VBox gap="5" border="EmptyBorder(0, 0, 10, 10)">
 				<TitledSeparator text="template.settings.quiz" />
-				<DocumentPreview id="quizPreview" preferredSize="240, 180" />
+				<DocumentPreview id="quizPreview" preferredSize="320, 240" />
 				<Button id="selectQuizPathButton" text="button.browse" />
 			</VBox>
 			<VBox gap="5" border="EmptyBorder(0, 0, 10, 10)">
 				<TitledSeparator text="template.settings.chat.message" />
-				<DocumentPreview id="chatMessagePreview" preferredSize="240, 180" />
+				<DocumentPreview id="chatMessagePreview" preferredSize="320, 240" />
 				<Button id="selectChatMessagePathButton" text="button.browse" />
 			</VBox>
 			<VBox gap="5" border="EmptyBorder(0, 0, 10, 10)">
 				<TitledSeparator text="template.settings.hall.message" />
-				<DocumentPreview id="hallMessagePreview" preferredSize="240, 180" />
+				<DocumentPreview id="hallMessagePreview" preferredSize="320, 240" />
 				<Button id="selectHallMessagePathButton" text="button.browse" />
 			</VBox>
 		</Panel>

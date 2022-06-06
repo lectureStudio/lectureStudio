@@ -265,7 +265,11 @@ public class MenuPresenter extends Presenter<MenuView> {
 	}
 
 	public void newWhiteboard() {
-		documentService.addWhiteboard();
+		PresenterConfiguration config = getPresenterConfig();
+		String template = config.getTemplateConfig()
+				.getWhiteboardTemplateConfig().getTemplatePath();
+
+		documentService.addWhiteboard(template);
 	}
 
 	public void newWhiteboardPage() {

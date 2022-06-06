@@ -168,7 +168,7 @@ public class DocumentTemplateSettingsPresenter extends Presenter<DocumentTemplat
 		TemplateConfiguration defaultTemplateConfig = defaultConfig.getTemplateConfig();
 
 		var defaultList = defaultTemplateConfig.getAll();
-		var configList = defaultTemplateConfig.getAll();
+		var configList = templateConfig.getAll();
 
 		for (int i = 0; i < configList.size(); i++) {
 			var defaultTplConf = defaultList.get(i);

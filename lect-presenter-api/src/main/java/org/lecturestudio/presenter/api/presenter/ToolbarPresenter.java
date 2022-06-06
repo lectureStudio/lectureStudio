@@ -18,6 +18,7 @@
 
 package org.lecturestudio.presenter.api.presenter;
 
+import static java.util.Objects.isNull;
 import static java.util.Objects.nonNull;
 
 import com.google.common.eventbus.Subscribe;
@@ -37,6 +38,7 @@ import org.lecturestudio.core.controller.PresentationController;
 import org.lecturestudio.core.controller.ToolController;
 import org.lecturestudio.core.graphics.Color;
 import org.lecturestudio.core.model.Document;
+import org.lecturestudio.core.model.DocumentList;
 import org.lecturestudio.core.model.Page;
 import org.lecturestudio.core.model.listener.PageEditEvent;
 import org.lecturestudio.core.model.listener.PageEditedListener;
@@ -261,7 +263,19 @@ public class ToolbarPresenter extends Presenter<ToolbarView> {
 	}
 
 	public void openWhiteboard() {
-		documentService.toggleWhiteboard();
+		DocumentList documents = documentService.getDocuments();
+		Document selectedDocument = documents.getSelectedDocument();
+
+		if (isNull(selectedDocument) || !selectedDocument.isWhiteboard()) {
+			PresenterConfiguration config = (PresenterConfiguration) context.getConfiguration();
+			String template = config.getTemplateConfig()
+					.getWhiteboardTemplateConfig().getTemplatePath();
+
+			documentService.openWhiteboard(template).join();
+		}
+		else {
+			documentService.selectDocument(documents.getLastNonWhiteboard());
+		}
 	}
 
 	public void enableDisplays(boolean enable) {

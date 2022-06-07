@@ -21,6 +21,7 @@ package org.lecturestudio.swing.components;
 import static java.util.Objects.isNull;
 
 import java.awt.Color;
+import java.awt.Dimension;
 import java.awt.Rectangle;
 import java.awt.event.ComponentAdapter;
 import java.awt.event.ComponentEvent;
@@ -32,7 +33,6 @@ import javax.swing.BoxLayout;
 import javax.swing.JComponent;
 import javax.swing.JPanel;
 import javax.swing.SwingUtilities;
-import javax.swing.border.EmptyBorder;
 
 import org.lecturestudio.core.beans.ObjectProperty;
 import org.lecturestudio.core.controller.RenderController;
@@ -57,6 +57,12 @@ public class DocumentPreview extends JPanel {
 	}
 
 	public void setPage(Page page, PresentationParameter parameter) {
+		// Set size to fit the slide-view without empty space around.
+		Dimension size = getPreferredSize();
+		double width = size.getWidth();
+		size.setSize(width, page.getPageMetrics().getHeight(width));
+		setPreferredSize(size);
+
 		slideView.parameterChanged(page, parameter);
 		slideView.setPage(page);
 		slideView.renderPage();
@@ -100,6 +106,7 @@ public class DocumentPreview extends JPanel {
 	private void setResizableBounds(Rectangle2D bounds) {
 		SwingUtilities.invokeLater(() -> {
 			resizable.setBounds(convertToViewBounds(bounds));
+			resizable.revalidate();
 			resizable.repaint();
 		});
 	}
@@ -112,11 +119,12 @@ public class DocumentPreview extends JPanel {
 		}
 
 		Rectangle2D pageRect = slideView.getPage().getPageRect();
-		double scale = Math.floor(pageRect.getWidth()) / parentBounds.getWidth();
-		double x = Math.round(bounds.getX() * scale);
-		double y = Math.round(bounds.getY() * scale);
-		double w = Math.round(bounds.getWidth() * scale);
-		double h = Math.round(bounds.getHeight() * scale);
+		double sx = pageRect.getWidth() / parentBounds.getWidth();
+		double sy = pageRect.getHeight() / parentBounds.getHeight();
+		double x = Math.round(bounds.getX() * sx);
+		double y = Math.round(bounds.getY() * sy);
+		double w = Math.round(bounds.getWidth() * sx);
+		double h = Math.round(bounds.getHeight() * sy);
 
 		return new Rectangle2D(x, y, w, h);
 	}
@@ -127,17 +135,18 @@ public class DocumentPreview extends JPanel {
 		if (parentBounds.isEmpty()) {
 			parentBounds.setSize(getPreferredSize());
 		}
-
 		if (isNull(bounds)) {
+			parentBounds.setLocation(0, 0);
 			return parentBounds;
 		}
 
 		Rectangle2D pageRect = slideView.getPage().getPageRect();
-		double scale = parentBounds.getWidth() / Math.floor(pageRect.getWidth());
-		double x = Math.round(bounds.getX() * scale);
-		double y = Math.round(bounds.getY() * scale);
-		double w = Math.round(bounds.getWidth() * scale);
-		double h = Math.round(bounds.getHeight() * scale);
+		double sx = parentBounds.getWidth() / pageRect.getWidth();
+		double sy = parentBounds.getHeight() / pageRect.getHeight();
+		double x = Math.round(bounds.getX() * sx);
+		double y = Math.round(bounds.getY() * sy);
+		double w = Math.round(bounds.getWidth() * sx);
+		double h = Math.round(bounds.getHeight() * sy);
 
 		Rectangle viewBounds = new Rectangle();
 		viewBounds.setFrame(x, y, w, h);
@@ -158,7 +167,6 @@ public class DocumentPreview extends JPanel {
 		resizable = new Resizable(overlay);
 
 		JPanel viewPanel = new JPanel(null);
-		viewPanel.setBorder(new EmptyBorder(10, 10, 10, 10));
 		viewPanel.add(resizable);
 		viewPanel.add(slideView);
 		viewPanel.addComponentListener(new ComponentAdapter() {

@@ -42,6 +42,7 @@ import org.lecturestudio.core.bus.event.PageEvent;
 import org.lecturestudio.core.bus.event.RecordActionEvent;
 import org.lecturestudio.core.model.Document;
 import org.lecturestudio.core.model.Page;
+import org.lecturestudio.core.model.TemplateDocument;
 import org.lecturestudio.core.recording.RecordedPage;
 import org.lecturestudio.core.recording.action.PlaybackAction;
 import org.lecturestudio.core.service.DocumentService;
@@ -379,7 +380,7 @@ public class WebRtcStreamEventRecorder extends StreamEventRecorder {
 
 	private StreamDocumentCreateAction uploadDocument(Document document)
 			throws IOException {
-		if (document.isWhiteboard()) {
+		if (document.isWhiteboard() && !(document instanceof TemplateDocument)) {
 			return new StreamDocumentCreateAction(document);
 		}
 

@@ -69,6 +69,8 @@ public class PresenterContext extends ApplicationContext {
 
 	private final BooleanProperty streamStarted = new BooleanProperty();
 
+	private final BooleanProperty recordingStarted = new BooleanProperty();
+
 	private final BooleanProperty hasRecordedChanges = new BooleanProperty();
 
 	private final BooleanProperty showOutline = new BooleanProperty();
@@ -196,6 +198,18 @@ public class PresenterContext extends ApplicationContext {
 
 	public BooleanProperty messengerStartedProperty() {
 		return messengerStarted;
+	}
+
+	public void setRecordingStarted(boolean started) {
+		recordingStarted.set(started);
+	}
+
+	public boolean getRecordingStarted() {
+		return recordingStarted.get();
+	}
+
+	public BooleanProperty recordingStartedProperty() {
+		return recordingStarted;
 	}
 
 	public void setShowOutline(boolean show) {

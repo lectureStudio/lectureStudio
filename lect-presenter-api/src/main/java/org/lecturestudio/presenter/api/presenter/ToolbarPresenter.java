@@ -25,6 +25,8 @@ import com.google.common.eventbus.Subscribe;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.CompletionException;
 
 import javax.inject.Inject;
 
@@ -64,6 +66,7 @@ import org.lecturestudio.presenter.api.config.PresenterConfiguration;
 import org.lecturestudio.presenter.api.context.PresenterContext;
 import org.lecturestudio.presenter.api.event.RecordingStateEvent;
 import org.lecturestudio.presenter.api.event.StreamingStateEvent;
+import org.lecturestudio.presenter.api.presenter.command.StartRecordingCommand;
 import org.lecturestudio.presenter.api.service.RecordingService;
 import org.lecturestudio.presenter.api.view.ToolbarView;
 
@@ -312,21 +315,33 @@ public class ToolbarPresenter extends Presenter<ToolbarView> {
 			if (recordingService.started()) {
 				recordingService.suspend();
 			}
-			else {
+			else if (recordingService.suspended()) {
 				recordingService.start();
+			}
+			else {
+				eventBus.post(new StartRecordingCommand(() -> {
+					PresenterContext pContext = (PresenterContext) context;
+
+					CompletableFuture.runAsync(() -> {
+						try {
+							recordingService.start();
+						}
+						catch (ExecutableException e) {
+							throw new CompletionException(e);
+						}
+
+						pContext.setRecordingStarted(true);
+					})
+					.exceptionally(e -> {
+						handleRecordingStateError(e);
+						pContext.setRecordingStarted(false);
+						return null;
+					});
+				}));
 			}
 		}
 		catch (ExecutableException e) {
-			Throwable cause = nonNull(e.getCause()) ? e.getCause().getCause() : null;
-
-			if (cause instanceof AudioDeviceNotConnectedException) {
-				var ex = (AudioDeviceNotConnectedException) cause;
-				showError("recording.start.error", "recording.start.device.error", ex.getDeviceName());
-				logException(e, "Start recording failed");
-			}
-			else {
-				handleException(e, "Start recording failed", "recording.start.error");
-			}
+			handleRecordingStateError(e);
 		}
 	}
 
@@ -423,6 +438,19 @@ public class ToolbarPresenter extends Presenter<ToolbarView> {
 
 		// Update color palette for the selected tool.
 		view.selectColorButton(toolType, settings);
+	}
+
+	private void handleRecordingStateError(Throwable e) {
+		Throwable cause = nonNull(e.getCause()) ? e.getCause().getCause() : null;
+
+		if (cause instanceof AudioDeviceNotConnectedException) {
+			var ex = (AudioDeviceNotConnectedException) cause;
+			showError("recording.start.error", "recording.start.device.error", ex.getDeviceName());
+			logException(e, "Start recording failed");
+		}
+		else {
+			handleException(e, "Start recording failed", "recording.start.error");
+		}
 	}
 
 	@Override

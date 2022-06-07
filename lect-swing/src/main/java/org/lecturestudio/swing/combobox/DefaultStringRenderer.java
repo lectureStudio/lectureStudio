@@ -27,7 +27,7 @@ import javax.swing.JList;
 
 public class DefaultStringRenderer extends DefaultListCellRenderer {
 
-	private final int length = 32;
+	private final int MAX_LENGTH = 128;
 
 
 	@Override
@@ -37,9 +37,9 @@ public class DefaultStringRenderer extends DefaultListCellRenderer {
 
 		if (nonNull(value)) {
 			String s = value.toString();
-			boolean truncate = s.length() > length;
+			boolean truncate = s.length() > MAX_LENGTH;
 
-			setText(s.substring(0, Math.min(s.length(), length)) + (truncate ? "..." : ""));
+			setText(s.substring(0, Math.min(s.length(), MAX_LENGTH)) + (truncate ? "..." : ""));
 		}
 		else {
 			setText("");

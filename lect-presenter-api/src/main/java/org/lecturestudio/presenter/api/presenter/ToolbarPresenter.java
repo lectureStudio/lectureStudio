@@ -23,11 +23,15 @@ import static java.util.Objects.nonNull;
 
 import com.google.common.eventbus.Subscribe;
 
+import java.io.File;
+import java.io.IOException;
+
 import javax.inject.Inject;
 
 import org.lecturestudio.core.ExecutableException;
 import org.lecturestudio.core.ExecutableState;
 import org.lecturestudio.core.app.ApplicationContext;
+import org.lecturestudio.core.app.dictionary.Dictionary;
 import org.lecturestudio.core.audio.AudioDeviceNotConnectedException;
 import org.lecturestudio.core.bus.EventBus;
 import org.lecturestudio.core.bus.event.CustomizeToolbarEvent;
@@ -39,7 +43,9 @@ import org.lecturestudio.core.controller.ToolController;
 import org.lecturestudio.core.graphics.Color;
 import org.lecturestudio.core.model.Document;
 import org.lecturestudio.core.model.DocumentList;
+import org.lecturestudio.core.model.DocumentType;
 import org.lecturestudio.core.model.Page;
+import org.lecturestudio.core.model.TemplateDocument;
 import org.lecturestudio.core.model.listener.PageEditEvent;
 import org.lecturestudio.core.model.listener.PageEditedListener;
 import org.lecturestudio.core.model.listener.ParameterChangeListener;
@@ -346,6 +352,38 @@ public class ToolbarPresenter extends Presenter<ToolbarView> {
 		eventBus.post(new ShowPresenterCommand<>(SelectQuizPresenter.class));
 	}
 
+	private void showAudienceMessageTemplate() {
+		PresenterConfiguration config = (PresenterConfiguration) context.getConfiguration();
+		Dictionary dict = context.getDictionary();
+		String template = config.getTemplateConfig()
+				.getHallMessageTemplateConfig().getTemplatePath();
+		File templateFile = new File(nonNull(template) ? template : "");
+
+		Document document = null;
+
+		try {
+			if (templateFile.exists()) {
+				document = new TemplateDocument(templateFile);
+			}
+			else {
+				document = new Document();
+			}
+		}
+		catch (IOException e) {
+			handleException(e, "Create whiteboard failed", "error",
+					"generic.error");
+		}
+
+		if (nonNull(document)) {
+			document.setTitle(dict.get("slides.audience.message"));
+			document.setDocumentType(DocumentType.MESSAGE);
+			document.createPage();
+
+			documentService.addDocument(document);
+			documentService.selectDocument(document);
+		}
+	}
+
 	private void pageParameterChanged(Page page, PresentationParameter parameter) {
 		view.setPage(page, parameter);
 	}
@@ -446,6 +484,7 @@ public class ToolbarPresenter extends Presenter<ToolbarView> {
 		view.bindEnableStreamCamera(config.getStreamConfig().enableCameraProperty());
 
 		view.setOnSelectQuiz(this::selectQuiz);
+		view.setOnAudienceMessage(this::showAudienceMessageTemplate);
 
 		// Register for page parameter change updates.
 		PresentationParameterProvider ppProvider = context.getPagePropertyProvider(ViewType.User);

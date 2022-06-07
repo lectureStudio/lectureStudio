@@ -41,4 +41,5 @@
 	<ToggleButton id="streamMicButton" icon="microphone-off.svg, 30" selectedIcon="microphone.svg, 30" tooltipText="toolbar.stream.microphone.tooltip" />
 	<ToggleButton id="streamCamButton" icon="camera-off.svg, 30" selectedIcon="camera.svg, 30" tooltipText="toolbar.stream.camera.tooltip" />
 	<Button id="selectQuizButton" icon="quiz-indicator.svg, 30" tooltipText="toolbar.select.quiz.tooltip" />
+	<Button id="audienceMessageButton" icon="audience-message.svg, 30" tooltipText="toolbar.audience.message.tooltip" />
 </Panel>

@@ -134,4 +134,6 @@ public interface ToolbarView extends View {
 
 	void setOnSelectQuiz(Action action);
 
+	void setOnAudienceMessage(Action action);
+
 }

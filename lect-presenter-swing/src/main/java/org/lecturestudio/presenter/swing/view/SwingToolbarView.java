@@ -162,6 +162,8 @@ public class SwingToolbarView extends JPanel implements ToolbarView {
 
 	private JButton selectQuizButton;
 
+	private JButton audienceMessageButton;
+
 	private CustomizedToolbar customizedToolbar;
 
 
@@ -589,6 +591,11 @@ public class SwingToolbarView extends JPanel implements ToolbarView {
 	@Override
 	public void setOnSelectQuiz(Action action) {
 		SwingUtils.bindAction(selectQuizButton, action);
+	}
+
+	@Override
+	public void setOnAudienceMessage(Action action) {
+		SwingUtils.bindAction(audienceMessageButton, action);
 	}
 
 	private void setColorButtonsEnabled(boolean enabled) {

@@ -111,9 +111,6 @@ public class StartRecordingPresenter extends Presenter<StartRecordingView> {
 	@Override
 	public void close() {
 		dispose();
-
-		PresenterContext presenterContext = (PresenterContext) context;
-		presenterContext.setStreamStarted(false);
 	}
 
 	@Override

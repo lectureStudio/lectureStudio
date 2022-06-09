@@ -18,13 +18,15 @@
 
 package org.lecturestudio.presenter.api.presenter;
 
+import static java.util.Objects.*;
+
 import com.google.common.eventbus.Subscribe;
 
 import org.lecturestudio.core.ExecutableException;
 import org.lecturestudio.core.ExecutableState;
 import org.lecturestudio.core.app.ApplicationContext;
 import org.lecturestudio.core.app.configuration.DisplayConfiguration;
-import org.lecturestudio.core.app.configuration.GridConfiguration;
+import org.lecturestudio.core.app.configuration.WhiteboardConfiguration;
 import org.lecturestudio.core.bus.EventBus;
 import org.lecturestudio.core.bus.event.DocumentEvent;
 import org.lecturestudio.core.bus.event.PageEvent;
@@ -82,8 +84,6 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
 import java.util.function.BiConsumer;
-
-import static java.util.Objects.*;
 
 public class SlidesPresenter extends Presenter<SlidesView> {
 
@@ -775,7 +775,7 @@ public class SlidesPresenter extends Presenter<SlidesView> {
 		final PresenterContext ctx = (PresenterContext) context;
 		final PresenterConfiguration config = getPresenterConfig();
 		final DisplayConfiguration displayConfig = config.getDisplayConfig();
-		final GridConfiguration gridConfig = config.getGridConfig();
+		final WhiteboardConfiguration wbConfig = config.getWhiteboardConfig();
 
 		// Set default tool.
 		toolController.selectPenTool();
@@ -813,7 +813,7 @@ public class SlidesPresenter extends Presenter<SlidesView> {
 			checkRemoteServiceState();
 		});
 
-		gridConfig.showGridOnDisplaysProperty().addListener((observable, oldValue, newValue) -> {
+		wbConfig.showGridOnDisplaysProperty().addListener((observable, oldValue, newValue) -> {
 			// Update grid parameter.
 			PresentationParameterProvider pProvider = context.getPagePropertyProvider(ViewType.Presentation);
 

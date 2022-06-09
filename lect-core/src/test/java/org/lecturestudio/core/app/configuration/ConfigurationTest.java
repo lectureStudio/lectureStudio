@@ -96,30 +96,14 @@ class ConfigurationTest {
 	}
 
 	@Test
-	final void testGridConfig() throws IOException {
-		Configuration config = new Configuration();
-		config.getGridConfig().setVerticalLinesVisible(false);
-		config.getGridConfig().setVerticalLinesInterval(10);
-		config.getGridConfig().setHorizontalLinesVisible(true);
-		config.getGridConfig().setHorizontalLinesInterval(15);
-		config.getGridConfig().setColor(Color.BLACK);
-
-		manager.save(configFile, config);
-
-		Configuration loadedConfig = manager.load(configFile, Configuration.class);
-		GridConfiguration gridConfig = loadedConfig.getGridConfig();
-
-		assertEquals(false, gridConfig.getVerticalLinesVisible());
-		assertEquals(10, gridConfig.getVerticalLinesInterval().intValue());
-		assertEquals(true, gridConfig.getHorizontalLinesVisible());
-		assertEquals(15, gridConfig.getHorizontalLinesInterval().intValue());
-		assertEquals(Color.BLACK, gridConfig.getColor());
-	}
-
-	@Test
 	final void testWhiteboardConfig() throws IOException {
 		Configuration config = new Configuration();
 		config.getWhiteboardConfig().setBackgroundColor(new Color(120, 90, 60));
+		config.getWhiteboardConfig().setVerticalLinesVisible(false);
+		config.getWhiteboardConfig().setVerticalLinesInterval(10);
+		config.getWhiteboardConfig().setHorizontalLinesVisible(true);
+		config.getWhiteboardConfig().setHorizontalLinesInterval(15);
+		config.getWhiteboardConfig().setGridColor(Color.BLACK);
 
 		manager.save(configFile, config);
 
@@ -127,6 +111,11 @@ class ConfigurationTest {
 		WhiteboardConfiguration whiteboardConfig = loadedConfig.getWhiteboardConfig();
 
 		assertEquals(new Color(120, 90, 60), whiteboardConfig.getBackgroundColor());
+		assertEquals(false, whiteboardConfig.getVerticalLinesVisible());
+		assertEquals(10, whiteboardConfig.getVerticalLinesInterval().intValue());
+		assertEquals(true, whiteboardConfig.getHorizontalLinesVisible());
+		assertEquals(15, whiteboardConfig.getHorizontalLinesInterval().intValue());
+		assertEquals(Color.BLACK, whiteboardConfig.getGridColor());
 	}
 
 	@Test

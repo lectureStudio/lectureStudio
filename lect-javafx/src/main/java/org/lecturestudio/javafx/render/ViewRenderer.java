@@ -34,7 +34,7 @@ import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.lecturestudio.core.app.configuration.GridConfiguration;
+import org.lecturestudio.core.app.configuration.WhiteboardConfiguration;
 import org.lecturestudio.core.controller.RenderController;
 import org.lecturestudio.core.geometry.Dimension2D;
 import org.lecturestudio.core.model.Document;
@@ -292,15 +292,15 @@ public class ViewRenderer {
 			return;
 
 		if (parameter.showGrid()) {
-			GridConfiguration gridConfig = parameter.getGridConfiguration();
+			WhiteboardConfiguration wbConfig = parameter.getWhiteboardConfig();
 
 			GridShape gridShape = new GridShape();
 			gridShape.setViewRatio(new Dimension2D(4.0, 3.0));
-			gridShape.setColor(gridConfig.getColor());
-			gridShape.setHorizontalLinesInterval(gridConfig.getHorizontalLinesInterval());
-			gridShape.setHorizontalLinesVisible(gridConfig.getHorizontalLinesVisible());
-			gridShape.setVerticalLinesInterval(gridConfig.getVerticalLinesInterval());
-			gridShape.setVerticalLinesVisible(gridConfig.getVerticalLinesVisible());
+			gridShape.setColor(wbConfig.getGridColor());
+			gridShape.setHorizontalLinesInterval(wbConfig.getHorizontalLinesInterval());
+			gridShape.setHorizontalLinesVisible(wbConfig.getHorizontalLinesVisible());
+			gridShape.setVerticalLinesInterval(wbConfig.getVerticalLinesInterval());
+			gridShape.setVerticalLinesVisible(wbConfig.getVerticalLinesVisible());
 
 			shapes.add(0, gridShape);
 		}

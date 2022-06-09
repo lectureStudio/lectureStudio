@@ -78,9 +78,6 @@ public class Configuration {
 	/** The mapping of a filesystem path to a related context. */
 	private final ObservableHashMap<String, String> contextPaths = new ObservableHashMap<>();
 
-	/** The grid configuration containing all grid related properties. */
-	private final GridConfiguration gridConfig = new GridConfiguration();
-
 	/** The whiteboard configuration containing all whiteboard related properties. */
 	private final WhiteboardConfiguration whiteboardConfig = new WhiteboardConfiguration();
 
@@ -433,15 +430,6 @@ public class Configuration {
 	 */
 	public ObservableHashMap<String, String> getContextPaths() {
 		return contextPaths;
-	}
-
-	/**
-	 * Obtain the grid configuration containing all grid related properties.
-	 *
-	 * @return the grid configuration.
-	 */
-	public GridConfiguration getGridConfig() {
-		return gridConfig;
 	}
 
 	/**

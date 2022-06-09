@@ -42,14 +42,13 @@ public class DefaultConfiguration extends EditorConfiguration {
 		setExtendedFullscreen(false);
 		setVideoExportPath(new File(System.getProperty("user.home"), "Desktop").getAbsolutePath());
 
-		getGridConfig().setVerticalLinesVisible(false);
-		getGridConfig().setVerticalLinesInterval(10);
-		getGridConfig().setHorizontalLinesVisible(false);
-		getGridConfig().setHorizontalLinesInterval(10);
-		getGridConfig().setColor(new Color(230, 230, 230));
-		getGridConfig().setShowGridOnDisplays(false);
-
 		getWhiteboardConfig().setBackgroundColor(Color.WHITE);
+		getWhiteboardConfig().setVerticalLinesVisible(false);
+		getWhiteboardConfig().setVerticalLinesInterval(10);
+		getWhiteboardConfig().setHorizontalLinesVisible(false);
+		getWhiteboardConfig().setHorizontalLinesInterval(10);
+		getWhiteboardConfig().setGridColor(new Color(230, 230, 230));
+		getWhiteboardConfig().setShowGridOnDisplays(false);
 
 		getDisplayConfig().setAutostart(true);
 		getDisplayConfig().setBackgroundColor(Color.WHITE);

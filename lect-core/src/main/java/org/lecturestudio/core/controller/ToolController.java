@@ -31,8 +31,8 @@ import javax.inject.Singleton;
 
 import org.lecturestudio.core.ExecutableException;
 import org.lecturestudio.core.app.ApplicationContext;
-import org.lecturestudio.core.app.configuration.GridConfiguration;
 import org.lecturestudio.core.app.configuration.ToolConfiguration;
+import org.lecturestudio.core.app.configuration.WhiteboardConfiguration;
 import org.lecturestudio.core.bus.event.BusEvent;
 import org.lecturestudio.core.bus.event.DocumentEvent;
 import org.lecturestudio.core.bus.event.PageEvent;
@@ -900,7 +900,7 @@ public class ToolController extends Controller implements ToolContext {
 
 		param.setShowGrid(showGrid);
 
-		GridConfiguration gridConfig = getConfig().getGridConfig();
+		WhiteboardConfiguration gridConfig = getConfig().getWhiteboardConfig();
 
 		if (gridConfig.getShowGridOnDisplays()) {
 			provider = getContext().getPagePropertyProvider(ViewType.Presentation);

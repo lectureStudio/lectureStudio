@@ -6,9 +6,6 @@
 	<Tab name="displays" text="settings.displays" icon="display-settings.svg, 24" size="120, 30">
 		<DisplaySettingsView />
 	</Tab>
-	<Tab name="grid" text="settings.grid" icon="grid-settings.svg, 24" size="120, 30">
-		<GridSettingsView />
-	</Tab>
 	<Tab name="tools" text="settings.tools" icon="tool-settings.svg, 24" size="120, 30">
 		<ToolSettingsView />
 	</Tab>

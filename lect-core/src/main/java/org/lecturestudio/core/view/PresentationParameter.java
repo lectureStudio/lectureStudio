@@ -23,7 +23,7 @@ import java.beans.PropertyChangeListenerProxy;
 import java.beans.PropertyChangeSupport;
 
 import org.lecturestudio.core.app.configuration.Configuration;
-import org.lecturestudio.core.app.configuration.GridConfiguration;
+import org.lecturestudio.core.app.configuration.WhiteboardConfiguration;
 import org.lecturestudio.core.geometry.Dimension2D;
 import org.lecturestudio.core.geometry.Point2D;
 import org.lecturestudio.core.geometry.Rectangle2D;
@@ -59,14 +59,16 @@ public class PresentationParameter {
 	public PresentationParameter(Configuration config, Page page) {
 		this.config = config;
 		this.page = page;
+
+		setShowGrid(getWhiteboardConfig().getShowGridAutomatically());
 	}
 
 	public Color getBackgroundColor() {
 		return config.getWhiteboardConfig().getBackgroundColor();
 	}
 
-	public GridConfiguration getGridConfiguration() {
-		return config.getGridConfig();
+	public WhiteboardConfiguration getWhiteboardConfig() {
+		return config.getWhiteboardConfig();
 	}
 
 	/**

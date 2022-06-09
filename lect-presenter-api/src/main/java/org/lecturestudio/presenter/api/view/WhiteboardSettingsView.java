@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2020 TU Darmstadt, Department of Computer Science,
+ * Copyright (C) 2022 TU Darmstadt, Department of Computer Science,
  * Embedded Systems and Applications Group.
  *
  * This program is free software: you can redistribute it and/or modify
@@ -18,11 +18,29 @@
 
 package org.lecturestudio.presenter.api.view;
 
+import org.lecturestudio.core.beans.BooleanProperty;
+import org.lecturestudio.core.beans.DoubleProperty;
 import org.lecturestudio.core.beans.ObjectProperty;
 import org.lecturestudio.core.graphics.Color;
+import org.lecturestudio.core.model.Page;
+import org.lecturestudio.core.view.PresentationParameter;
 
 public interface WhiteboardSettingsView extends SettingsBaseView {
 
 	void setBackgroundColor(ObjectProperty<Color> color);
+
+	void setGridColor(ObjectProperty<Color> color);
+
+	void setGridInterval(DoubleProperty interval);
+
+	void setShowGridAutomatically(BooleanProperty show);
+
+	void setShowGridOnDisplays(BooleanProperty show);
+
+	void setShowVerticalGridLines(BooleanProperty show);
+
+	void setShowHorizontalGridLines(BooleanProperty show);
+
+	void setWhiteboardPage(Page page, PresentationParameter parameter);
 
 }

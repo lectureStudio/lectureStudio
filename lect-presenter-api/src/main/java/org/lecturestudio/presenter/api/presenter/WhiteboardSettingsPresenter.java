@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2020 TU Darmstadt, Department of Computer Science,
+ * Copyright (C) 2022 TU Darmstadt, Department of Computer Science,
  * Embedded Systems and Applications Group.
  *
  * This program is free software: you can redistribute it and/or modify
@@ -18,41 +18,100 @@
 
 package org.lecturestudio.presenter.api.presenter;
 
+import java.io.IOException;
+
 import javax.inject.Inject;
 
 import org.lecturestudio.core.app.ApplicationContext;
-import org.lecturestudio.core.app.configuration.Configuration;
 import org.lecturestudio.core.app.configuration.WhiteboardConfiguration;
+import org.lecturestudio.core.model.Document;
+import org.lecturestudio.core.model.DocumentType;
+import org.lecturestudio.core.model.Page;
+import org.lecturestudio.core.model.listener.ParameterChangeListener;
 import org.lecturestudio.core.presenter.Presenter;
+import org.lecturestudio.core.view.PresentationParameter;
+import org.lecturestudio.core.view.PresentationParameterProvider;
+import org.lecturestudio.core.view.ViewType;
 import org.lecturestudio.presenter.api.config.DefaultConfiguration;
-import org.lecturestudio.presenter.api.config.PresenterConfiguration;
 import org.lecturestudio.presenter.api.view.WhiteboardSettingsView;
 
 public class WhiteboardSettingsPresenter extends Presenter<WhiteboardSettingsView> {
 
-	private final DefaultConfiguration defaultConfig;
-
-	private final PresenterConfiguration config;
+	private final WhiteboardConfiguration config;
 
 
 	@Inject
-	public WhiteboardSettingsPresenter(ApplicationContext context, WhiteboardSettingsView view) {
+	public WhiteboardSettingsPresenter(ApplicationContext context,
+			WhiteboardSettingsView view) {
 		super(context, view);
 
-		this.config = (PresenterConfiguration) context.getConfiguration();
-		this.defaultConfig = new DefaultConfiguration();
-	}
-
-	public void reset() {
-		config.getWhiteboardConfig().setBackgroundColor(defaultConfig.getWhiteboardConfig().getBackgroundColor());
+		config = context.getConfiguration().getWhiteboardConfig();
 	}
 
 	@Override
 	public void initialize() {
-		Configuration config = context.getConfiguration();
-		WhiteboardConfiguration whiteboardConfig = config.getWhiteboardConfig();
-
-		view.setBackgroundColor(whiteboardConfig.backgroundColorProperty());
+		view.setBackgroundColor(config.backgroundColorProperty());
+		view.setGridColor(config.gridColorProperty());
+		view.setGridInterval(config.verticalLinesIntervalProperty());
+		view.setShowGridAutomatically(config.showGridAutomaticallyProperty());
+		view.setShowGridOnDisplays(config.showGridOnDisplaysProperty());
+		view.setShowHorizontalGridLines(config.horizontalLinesVisibleProperty());
+		view.setShowVerticalGridLines(config.verticalLinesVisibleProperty());
 		view.setOnReset(this::reset);
+
+		initWhiteboard();
+
+		config.verticalLinesIntervalProperty().addListener((o, oldValue, newValue) -> {
+			config.setHorizontalLinesInterval(newValue);
+		});
+	}
+
+	public void reset() {
+		WhiteboardConfiguration defaultConfig = new DefaultConfiguration().getWhiteboardConfig();
+
+		config.setBackgroundColor(defaultConfig.getBackgroundColor());
+		config.setShowGridAutomatically(defaultConfig.getShowGridAutomatically());
+		config.setShowGridOnDisplays(defaultConfig.getShowGridOnDisplays());
+		config.setGridColor(defaultConfig.getGridColor());
+		config.setVerticalLinesVisible(defaultConfig.getVerticalLinesVisible());
+		config.setVerticalLinesInterval(defaultConfig.getVerticalLinesInterval());
+		config.setHorizontalLinesVisible(defaultConfig.getHorizontalLinesVisible());
+		config.setHorizontalLinesInterval(defaultConfig.getHorizontalLinesInterval());
+	}
+
+	private void initWhiteboard() {
+		Document whiteboard;
+
+		try {
+			whiteboard = new Document();
+			whiteboard.setDocumentType(DocumentType.WHITEBOARD);
+			whiteboard.createPage();
+			//whiteboard.close();
+
+			Page page = whiteboard.getCurrentPage();
+
+			PresentationParameterProvider ppProvider = context.getPagePropertyProvider(
+					ViewType.User);
+			ppProvider.addParameterChangeListener(new ParameterChangeListener() {
+
+				@Override
+				public Page forPage() {
+					return page;
+				}
+
+				@Override
+				public void parameterChanged(Page page, PresentationParameter parameter) {
+					view.setWhiteboardPage(page, parameter);
+				}
+			});
+
+			PresentationParameter parameter = ppProvider.getParameter(page);
+			parameter.setShowGrid(true);
+
+			view.setWhiteboardPage(page, parameter);
+		}
+		catch (IOException e) {
+			logException(e, "Create whiteboard document failed");
+		}
 	}
 }

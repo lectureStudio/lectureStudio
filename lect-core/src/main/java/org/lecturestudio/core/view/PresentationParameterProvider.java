@@ -64,12 +64,11 @@ public class PresentationParameterProvider implements PropertyChangeListener {
 			notifyAllParameterChangeListeners();
 		};
 
-		config.getGridConfig().colorProperty().addListener(colorListener);
-		config.getGridConfig().horizontalLinesIntervalProperty().addListener(gridIntervalListener);
-		config.getGridConfig().horizontalLinesVisibleProperty().addListener(gridLineListener);
-		config.getGridConfig().verticalLinesIntervalProperty().addListener(gridIntervalListener);
-		config.getGridConfig().verticalLinesVisibleProperty().addListener(gridLineListener);
-
+		config.getWhiteboardConfig().gridColorProperty().addListener(colorListener);
+		config.getWhiteboardConfig().horizontalLinesIntervalProperty().addListener(gridIntervalListener);
+		config.getWhiteboardConfig().horizontalLinesVisibleProperty().addListener(gridLineListener);
+		config.getWhiteboardConfig().verticalLinesIntervalProperty().addListener(gridIntervalListener);
+		config.getWhiteboardConfig().verticalLinesVisibleProperty().addListener(gridLineListener);
 		config.getWhiteboardConfig().backgroundColorProperty().addListener(colorListener);
 	}
 

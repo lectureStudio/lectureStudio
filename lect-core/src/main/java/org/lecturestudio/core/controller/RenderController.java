@@ -26,7 +26,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import org.lecturestudio.core.app.ApplicationContext;
-import org.lecturestudio.core.app.configuration.GridConfiguration;
+import org.lecturestudio.core.app.configuration.WhiteboardConfiguration;
 import org.lecturestudio.core.geometry.Dimension2D;
 import org.lecturestudio.core.geometry.Rectangle2D;
 import org.lecturestudio.core.graphics.GraphicsContext;
@@ -123,15 +123,15 @@ public class RenderController extends Controller {
 	private void renderGrid(BufferedImage image, PresentationParameter parameter, ViewType viewType) throws Exception {
 		if (parameter.showGrid()) {
 			Rectangle2D pageRect = parameter.getViewRect();
-			GridConfiguration gridConfig = parameter.getGridConfiguration();
+			WhiteboardConfiguration wbConfig = parameter.getWhiteboardConfig();
 
 			GridShape gridShape = new GridShape();
 			gridShape.setViewRatio(new Dimension2D(4.0, 3.0));
-			gridShape.setColor(gridConfig.getColor());
-			gridShape.setHorizontalLinesInterval(gridConfig.getHorizontalLinesInterval());
-			gridShape.setHorizontalLinesVisible(gridConfig.getHorizontalLinesVisible());
-			gridShape.setVerticalLinesInterval(gridConfig.getVerticalLinesInterval());
-			gridShape.setVerticalLinesVisible(gridConfig.getVerticalLinesVisible());
+			gridShape.setColor(wbConfig.getGridColor());
+			gridShape.setHorizontalLinesInterval(wbConfig.getHorizontalLinesInterval());
+			gridShape.setHorizontalLinesVisible(wbConfig.getHorizontalLinesVisible());
+			gridShape.setVerticalLinesInterval(wbConfig.getVerticalLinesInterval());
+			gridShape.setVerticalLinesVisible(wbConfig.getVerticalLinesVisible());
 
 			double sx = image.getWidth() / pageRect.getWidth();
 

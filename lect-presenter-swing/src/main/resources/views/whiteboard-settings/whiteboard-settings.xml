@@ -6,11 +6,41 @@
 	<ColorChooserButton id="colorChooserButton" preferredSize="20,20">
 		<gridbagconstraints gridx="1" gridy="0" anchor="GridBagConstraints.WEST" insets="5,5,5,5" />
 	</ColorChooserButton>
+	<TitledSeparator text="whiteboard.settings.grid">
+		<gridbagconstraints gridx="0" gridy="1" gridwidth="2" anchor="GridBagConstraints.WEST" fill="GridBagConstraints.HORIZONTAL" insets="15,0,5,0" />
+	</TitledSeparator>
+	<Label text="whiteboard.settings.grid.color">
+		<gridbagconstraints gridx="0" gridy="2" anchor="GridBagConstraints.WEST" insets="5,0,5,0" />
+	</Label>
+	<ColorChooserButton id="gridColorPicker" preferredSize="20,20">
+		<gridbagconstraints gridx="1" gridy="2" anchor="GridBagConstraints.WEST" insets="5,5,5,5" />
+	</ColorChooserButton>
+	<CheckBox id="showGridAutoCheckBox" text="whiteboard.settings.grid.show.auto">
+		<gridbagconstraints gridx="0" gridy="3" gridwidth="2" anchor="GridBagConstraints.WEST" insets="5,0,5,0" />
+	</CheckBox>
+	<CheckBox id="showGridExternCheckBox" text="whiteboard.settings.grid.show.extern">
+		<gridbagconstraints gridx="0" gridy="4" gridwidth="2" anchor="GridBagConstraints.WEST" insets="5,0,5,0" />
+	</CheckBox>
+	<Label text="whiteboard.settings.grid.space">
+		<gridbagconstraints gridx="0" gridy="5" anchor="GridBagConstraints.WEST" insets="5,0,5,0" />
+	</Label>
+	<Slider id="gridLinesSlider" minimum="1" maximum="100">
+		<gridbagconstraints gridx="1" gridy="5" anchor="GridBagConstraints.WEST" insets="5,0,5,0" />
+	</Slider>
+	<CheckBox id="gridVerticalLinesCheckBox" text="whiteboard.settings.grid.vertical.lines">
+		<gridbagconstraints gridx="0" gridy="6" gridwidth="2" anchor="GridBagConstraints.WEST" insets="5,0,5,0" />
+	</CheckBox>
+	<CheckBox id="griHorizontalLinesCheckBox" text="whiteboard.settings.grid.horizontal.lines">
+		<gridbagconstraints gridx="0" gridy="7" gridwidth="2" anchor="GridBagConstraints.WEST" insets="5,0,5,0" />
+	</CheckBox>
+	<SlideView id="whiteboardSlideView">
+		<gridbagconstraints gridx="2" gridy="0" gridheight="9" weightx="1.0" weighty="1.0" fill="GridBagConstraints.BOTH" anchor="GridBagConstraints.NORTH" insets="5,10,5,0" />
+	</SlideView>
 	<box.vglue>
-		<gridbagconstraints gridx="0" gridy="1" weighty="1.0" />
+		<gridbagconstraints gridx="0" gridy="8" weighty="1.0" />
 	</box.vglue>
 	<HBox gap="5">
-		<gridbagconstraints gridx="0" gridy="2" gridwidth="3" weightx="1.0" fill="GridBagConstraints.HORIZONTAL" />
+		<gridbagconstraints gridx="0" gridy="9" gridwidth="3" weightx="1.0" fill="GridBagConstraints.HORIZONTAL" />
 		<box.hglue />
 		<Button id="resetButton" text="button.reset"/>
 		<Button id="closeButton" text="button.close"/>

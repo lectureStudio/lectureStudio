@@ -53,14 +53,13 @@ public class DefaultConfiguration extends PresenterConfiguration {
 		setConfirmStopRecording(true);
 		setPageRecordingTimeout(2000);
 
-		getGridConfig().setVerticalLinesVisible(true);
-		getGridConfig().setVerticalLinesInterval(0.5);
-		getGridConfig().setHorizontalLinesVisible(true);
-		getGridConfig().setHorizontalLinesInterval(0.5);
-		getGridConfig().setColor(new Color(230, 230, 230));
-		getGridConfig().setShowGridOnDisplays(false);
-
 		getWhiteboardConfig().setBackgroundColor(Color.WHITE);
+		getWhiteboardConfig().setVerticalLinesVisible(true);
+		getWhiteboardConfig().setVerticalLinesInterval(0.5);
+		getWhiteboardConfig().setHorizontalLinesVisible(true);
+		getWhiteboardConfig().setHorizontalLinesInterval(0.5);
+		getWhiteboardConfig().setGridColor(new Color(230, 230, 230));
+		getWhiteboardConfig().setShowGridOnDisplays(false);
 
 		getDisplayConfig().setAutostart(false);
 		getDisplayConfig().setBackgroundColor(Color.WHITE);

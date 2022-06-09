@@ -27,11 +27,9 @@ import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.WebSocket;
 import java.net.http.WebSocket.Builder;
-import java.net.http.WebSocket.Listener;
 import java.nio.ByteBuffer;
 import java.time.Duration;
 import java.time.temporal.ChronoUnit;
-import java.util.concurrent.CompletionStage;
 import java.util.function.Consumer;
 
 import javax.json.Json;
@@ -152,7 +150,7 @@ public class StreamWebSocketClient extends ExecutableBase {
 		headerProvider.setHeaders(webSocketBuilder);
 
 		webSocket = webSocketBuilder.buildAsync(
-				URI.create(serviceParameters.getUrl()), new WebSocketListener())
+				URI.create(serviceParameters.getUrl()), new WebSocketHandler())
 				.join();
 	}
 
@@ -197,65 +195,33 @@ public class StreamWebSocketClient extends ExecutableBase {
 
 
 
-	private class WebSocketListener implements Listener {
-
-		/** Accumulating message buffer. */
-		private StringBuffer buffer = new StringBuffer();
-
+	private class WebSocketHandler extends WebSocketClientHandler {
 
 		@Override
-		public void onOpen(WebSocket webSocket) {
-			webSocket.request(1);
-		}
+		protected void onText(WebSocket webSocket, String text) {
+			StringReader reader = new StringReader(text);
 
-		@Override
-		public CompletionStage<?> onClose(WebSocket webSocket, int statusCode,
-				String reason) {
-			return null;
-		}
+			try {
+				Object message = null;
 
-		@Override
-		public void onError(WebSocket webSocket, Throwable error) {
-			logException(error, "Stream WebSocket error");
-		}
+				JsonReader jsonReader = Json.createReader(reader);
+				JsonObject jsonObject = jsonReader.readObject();
+				String typeStr = jsonObject.getString("type");
 
-		@Override
-		public CompletionStage<?> onText(WebSocket webSocket, CharSequence data,
-				boolean last) {
-			logTraceMessage("WebSocket <-: {0}", data);
-
-			webSocket.request(1);
-
-			buffer.append(data);
-
-			if (last) {
-				try {
-					Object message = null;
-					String jsonData = buffer.toString();
-
-					JsonReader jsonReader = Json.createReader(new StringReader(jsonData));
-					JsonObject jsonObject = jsonReader.readObject();
-					String typeStr = jsonObject.getString("type");
-
-					if (typeStr.startsWith("Speech")) {
-						message = jsonb.fromJson(jsonData, SpeechBaseMessage.class);
-					}
-					else if (typeStr.startsWith("CourseParticipant")) {
-						message = jsonb.fromJson(jsonData, CourseParticipantMessage.class);
-					}
-
-					if (nonNull(message)) {
-						eventBus.post(message);
-					}
+				if (typeStr.startsWith("Speech")) {
+					message = jsonb.fromJson(text, SpeechBaseMessage.class);
 				}
-				catch (Exception e) {
-					logException(e, "Process message failed");
+				else if (typeStr.startsWith("CourseParticipant")) {
+					message = jsonb.fromJson(text, CourseParticipantMessage.class);
 				}
 
-				buffer = new StringBuffer();
+				if (nonNull(message)) {
+					eventBus.post(message);
+				}
 			}
-
-			return null;
+			catch (Exception e) {
+				logException(e, "Process message failed");
+			}
 		}
 	}
 }

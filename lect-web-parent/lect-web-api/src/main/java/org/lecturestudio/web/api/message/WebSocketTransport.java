@@ -28,7 +28,6 @@ import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.WebSocket;
 import java.net.http.WebSocket.Builder;
-import java.net.http.WebSocket.Listener;
 import java.nio.ByteBuffer;
 import java.time.Duration;
 import java.time.temporal.ChronoUnit;
@@ -37,7 +36,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
-import java.util.concurrent.CompletionStage;
 import java.util.function.Consumer;
 
 import javax.json.Json;
@@ -57,6 +55,7 @@ import org.lecturestudio.web.api.net.SSLContextFactory;
 import org.lecturestudio.web.api.service.ServiceParameters;
 import org.lecturestudio.web.api.stream.action.StreamAction;
 import org.lecturestudio.web.api.stream.action.StreamStartAction;
+import org.lecturestudio.web.api.stream.client.WebSocketClientHandler;
 import org.lecturestudio.web.api.stream.model.Course;
 import org.lecturestudio.web.api.websocket.WebSocketHeaderProvider;
 
@@ -134,7 +133,7 @@ public class WebSocketTransport extends ExecutableBase implements MessageTranspo
 
 		webSocket = webSocketBuilder
 				.buildAsync(URI.create(serviceParameters.getUrl()),
-						new WebSocketListener())
+						new WebSocketHandler())
 				.join();
 
 		try {
@@ -172,55 +171,35 @@ public class WebSocketTransport extends ExecutableBase implements MessageTranspo
 
 
 
-	private class WebSocketListener implements Listener {
-
-		/** Accumulating message buffer. */
-		private StringBuffer buffer = new StringBuffer();
-
+	private class WebSocketHandler extends WebSocketClientHandler {
 
 		@Override
-		public void onError(WebSocket webSocket, Throwable error) {
-			logException(error, "WebSocket error");
-		}
+		protected void onText(WebSocket webSocket, String text) {
+			StringReader reader = new StringReader(text);
 
-		@Override
-		public CompletionStage<?> onText(WebSocket webSocket, CharSequence data, boolean last) {
-			logTraceMessage("WebSocket <-: {0}", data);
+			try {
+				JsonObject body = Json.createReader(reader).readObject();
+				reader.reset();
 
-			webSocket.request(1);
+				String type = body.getString("_type");
+				WebMessage message = createMessage(reader, type);
 
-			buffer.append(data);
-
-			if (last) {
-				StringReader reader = new StringReader(buffer.toString());
-
-				try {
-					JsonObject body = Json.createReader(reader).readObject();
-					reader.reset();
-
-					String type = body.getString("_type");
-					WebMessage message = createMessage(reader, type);
-
-					handleMessage(message);
-				}
-				catch (NoSuchElementException e) {
-					logException(e, "Non existing Janus event type received");
-				}
-				catch (Exception e) {
-					logException(e, "Process message failed");
-				}
-
-				buffer = new StringBuffer();
+				handleMessage(message);
 			}
-
-			return null;
+			catch (NoSuchElementException e) {
+				logException(e, "Non existing Janus event type received");
+			}
+			catch (Exception e) {
+				logException(e, "Process message failed");
+			}
 		}
 
-		protected <T extends WebMessage> T createMessage(StringReader reader, String type)
-				throws ClassNotFoundException {
+		protected <T extends WebMessage> T createMessage(StringReader reader,
+				String type) throws ClassNotFoundException {
 			String packageName = WebMessage.class.getPackageName();
 
-			return jsonb.fromJson(reader, (Type) Class.forName(packageName + "." + type));
+			return jsonb.fromJson(reader,
+					(Type) Class.forName(packageName + "." + type));
 		}
 	}
 }

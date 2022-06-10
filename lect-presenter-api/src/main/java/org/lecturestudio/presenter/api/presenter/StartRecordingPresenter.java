@@ -22,6 +22,7 @@ import static java.util.Objects.isNull;
 import static java.util.Objects.nonNull;
 
 import java.io.ByteArrayInputStream;
+import java.util.Arrays;
 
 import javax.inject.Inject;
 
@@ -31,6 +32,7 @@ import org.lecturestudio.core.app.configuration.AudioConfiguration;
 import org.lecturestudio.core.audio.AudioPlayer;
 import org.lecturestudio.core.audio.AudioRecorder;
 import org.lecturestudio.core.audio.AudioSystemProvider;
+import org.lecturestudio.core.audio.device.AudioDevice;
 import org.lecturestudio.core.audio.sink.AudioSink;
 import org.lecturestudio.core.audio.sink.ByteArrayAudioSink;
 import org.lecturestudio.core.audio.source.ByteArrayAudioSource;
@@ -95,6 +97,9 @@ public class StartRecordingPresenter extends Presenter<StartRecordingView> {
 			}
 		});
 
+		validateMicrophone();
+		validateSpeaker();
+
 		view.setAudioCaptureDevices(audioSystemProvider.getRecordingDevices());
 		view.setAudioCaptureDevice(audioConfig.captureDeviceNameProperty());
 		view.setAudioPlaybackDevices(audioSystemProvider.getPlaybackDevices());
@@ -103,7 +108,6 @@ public class StartRecordingPresenter extends Presenter<StartRecordingView> {
 		view.setAudioTestPlaybackEnabled(playbackEnabled);
 		view.setOnAudioTestCapture(testCapture);
 		view.setOnAudioTestCapturePlayback(testPlayback);
-//		view.setOnViewVisible(this::stopAudioCapture);
 		view.setOnStart(this::onStart);
 		view.setOnClose(this::close);
 	}
@@ -134,6 +138,51 @@ public class StartRecordingPresenter extends Presenter<StartRecordingView> {
 		stopAudioCapture();
 
 		super.close();
+	}
+
+	private void validateMicrophone() {
+		var devices = audioSystemProvider.getRecordingDevices();
+
+		// Check if the recently used microphone is connected.
+		if (missingDevice(devices, audioConfig.getCaptureDeviceName())) {
+			var device = audioSystemProvider.getDefaultRecordingDevice();
+
+			if (nonNull(device)) {
+				// Select the system's default microphone.
+				audioConfig.setCaptureDeviceName(device.getName());
+			}
+			else if (devices.length > 0) {
+				// Select the first available microphone.
+				audioConfig.setCaptureDeviceName(devices[0].getName());
+			}
+		}
+	}
+
+	private void validateSpeaker() {
+		var devices = audioSystemProvider.getPlaybackDevices();
+
+		// Check if the recently used speaker is connected.
+		if (missingDevice(devices, audioConfig.getPlaybackDeviceName())) {
+			var device = audioSystemProvider.getDefaultPlaybackDevice();
+
+			if (nonNull(device)) {
+				// Select the system's default speaker.
+				audioConfig.setPlaybackDeviceName(device.getName());
+			}
+			else if (devices.length > 0) {
+				// Select the first available speaker.
+				audioConfig.setPlaybackDeviceName(devices[0].getName());
+			}
+		}
+	}
+
+	private boolean missingDevice(AudioDevice[] devices, String deviceName) {
+		if (isNull(deviceName)) {
+			return true;
+		}
+
+		return Arrays.stream(devices)
+				.noneMatch(device -> device.getName().equals(deviceName));
 	}
 
 	private void recordCaptureTest(boolean capture) {

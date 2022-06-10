@@ -34,6 +34,7 @@ import org.lecturestudio.core.app.configuration.AudioConfiguration;
 import org.lecturestudio.core.audio.AudioPlayer;
 import org.lecturestudio.core.audio.AudioRecorder;
 import org.lecturestudio.core.audio.AudioSystemProvider;
+import org.lecturestudio.core.audio.device.AudioDevice;
 import org.lecturestudio.core.audio.sink.AudioSink;
 import org.lecturestudio.core.audio.sink.ByteArrayAudioSink;
 import org.lecturestudio.core.audio.source.ByteArrayAudioSource;
@@ -134,6 +135,9 @@ public class StartStreamPresenter extends Presenter<StartStreamView> {
 						"microphone.settings.test.playback.error.message");
 			}
 		});
+
+		validateMicrophone();
+		validateSpeaker();
 
 		PresenterContext pContext = (PresenterContext) context;
 		List<Course> courses = null;
@@ -409,6 +413,51 @@ public class StartStreamPresenter extends Presenter<StartStreamView> {
 				logException(e, "Stop audio executable failed");
 			}
 		}
+	}
+
+	private void validateMicrophone() {
+		var devices = audioSystemProvider.getRecordingDevices();
+
+		// Check if the recently used microphone is connected.
+		if (missingDevice(devices, audioConfig.getCaptureDeviceName())) {
+			var device = audioSystemProvider.getDefaultRecordingDevice();
+
+			if (nonNull(device)) {
+				// Select the system's default microphone.
+				audioConfig.setCaptureDeviceName(device.getName());
+			}
+			else if (devices.length > 0) {
+				// Select the first available microphone.
+				audioConfig.setCaptureDeviceName(devices[0].getName());
+			}
+		}
+	}
+
+	private void validateSpeaker() {
+		var devices = audioSystemProvider.getPlaybackDevices();
+
+		// Check if the recently used speaker is connected.
+		if (missingDevice(devices, audioConfig.getPlaybackDeviceName())) {
+			var device = audioSystemProvider.getDefaultPlaybackDevice();
+
+			if (nonNull(device)) {
+				// Select the system's default speaker.
+				audioConfig.setPlaybackDeviceName(device.getName());
+			}
+			else if (devices.length > 0) {
+				// Select the first available speaker.
+				audioConfig.setPlaybackDeviceName(devices[0].getName());
+			}
+		}
+	}
+
+	private boolean missingDevice(AudioDevice[] devices, String deviceName) {
+		if (isNull(deviceName)) {
+			return true;
+		}
+
+		return Arrays.stream(devices)
+				.noneMatch(device -> device.getName().equals(deviceName));
 	}
 
 	private AudioRecorder createAudioRecorder() {

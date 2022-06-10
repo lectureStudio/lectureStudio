@@ -89,10 +89,6 @@ public class QuizDataSource {
 	public void saveQuiz(Quiz quiz, Document doc) throws IOException {
 		requireNonNull(quiz);
 
-		if (quiz.getQuestion().isEmpty() || quiz.getOptions().isEmpty()) {
-			return;
-		}
-
 		QuizReader reader = getQuizReader(doc);
 		QuizWriter writer = getQuizWriter(doc);
 

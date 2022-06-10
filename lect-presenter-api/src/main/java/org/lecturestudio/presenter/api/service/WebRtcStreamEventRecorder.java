@@ -380,8 +380,27 @@ public class WebRtcStreamEventRecorder extends StreamEventRecorder {
 
 	private StreamDocumentCreateAction uploadDocument(Document document)
 			throws IOException {
-		if (document.isWhiteboard() && !(document instanceof TemplateDocument)) {
-			return new StreamDocumentCreateAction(document);
+		if (document.isWhiteboard()) {
+			if (!(document instanceof TemplateDocument)) {
+				// Do not send document data for plain whiteboards.
+				return new StreamDocumentCreateAction(document);
+			}
+			else {
+				// Copy whiteboard document.
+				ByteArrayOutputStream data = new ByteArrayOutputStream();
+
+				document.toOutputStream(data);
+
+				Document whiteboard = new TemplateDocument(data.toByteArray());
+				whiteboard.setTitle(document.getName());
+				whiteboard.setDocumentType(document.getType());
+
+				for (int i = 0; i < 100; i++) {
+					whiteboard.createPage();
+				}
+
+				document = whiteboard;
+			}
 		}
 
 		String docFileName = document.getName() + ".pdf";

@@ -18,6 +18,7 @@
 
 package org.lecturestudio.presenter.api.quiz.exception;
 
+@Deprecated
 public interface QuizParseException {
 
 	String getMessage();

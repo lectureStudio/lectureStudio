@@ -33,6 +33,7 @@ import org.lecturestudio.web.api.model.quiz.Quiz;
 import org.lecturestudio.web.api.model.quiz.Quiz.QuizSet;
 import org.lecturestudio.web.api.model.quiz.Quiz.QuizType;
 
+@Deprecated
 public class QuizFileReader implements QuizReader {
 
 	private final File file;
@@ -48,7 +49,7 @@ public class QuizFileReader implements QuizReader {
 	@Override
 	public List<Quiz> readQuizzes() throws IOException {
 		if (file == null || !file.exists()) {
-			return null;
+			return List.of();
 		}
 
 		List<Quiz> quizzes = new ArrayList<>();

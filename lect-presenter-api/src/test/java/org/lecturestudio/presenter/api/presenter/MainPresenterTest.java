@@ -77,7 +77,7 @@ class MainPresenterTest extends PresenterTest {
 
 		documentService = context.getDocumentService();
 
-		bookmarkService = context.getBookmarkService();
+		bookmarkService = new BookmarkService(documentService);
 
 		FileLectureRecorder recorder = new FileLectureRecorder(audioSystemProvider, documentService, audioConfig, context.getRecordingDirectory());
 

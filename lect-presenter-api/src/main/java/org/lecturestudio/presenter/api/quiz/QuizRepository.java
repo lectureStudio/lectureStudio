@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2020 TU Darmstadt, Department of Computer Science,
+ * Copyright (C) 2022 TU Darmstadt, Department of Computer Science,
  * Embedded Systems and Applications Group.
  *
  * This program is free software: you can redistribute it and/or modify
@@ -19,13 +19,21 @@
 package org.lecturestudio.presenter.api.quiz;
 
 import java.io.IOException;
+import java.util.Collection;
+import java.util.List;
 
 import org.lecturestudio.web.api.model.quiz.Quiz;
 
-public interface QuizWriter {
+public interface QuizRepository {
 
-	void writeQuiz(Quiz quiz) throws IOException;
+	List<Quiz> findAll() throws IOException;
 
-	void clear();
+	void save(Quiz quiz) throws IOException;
+
+	void saveAll(Collection<Quiz> quizzes) throws IOException;
+
+	void delete(Quiz quiz) throws IOException;
+
+	void deleteAll() throws IOException;
 
 }

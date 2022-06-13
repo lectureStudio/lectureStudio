@@ -23,6 +23,7 @@ import java.util.List;
 
 import org.lecturestudio.web.api.model.quiz.Quiz;
 
+@Deprecated
 public interface QuizReader {
 
 	List<Quiz> readQuizzes() throws IOException;

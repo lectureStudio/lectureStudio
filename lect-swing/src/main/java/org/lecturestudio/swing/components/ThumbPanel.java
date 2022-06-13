@@ -253,27 +253,28 @@ public class ThumbPanel extends JPanel {
 		list.setPrototypeCellValue(listModel.getElementAt(0));
 	}
 
-	private void setSelectedThumbnail(Page selectedSlide) {
-		if (this.document != selectedSlide.getDocument()) {
+	private void setSelectedThumbnail(Page page) {
+		if (this.document != page.getDocument()) {
 			return;
 		}
-		if (this.selectedPage != selectedSlide) {
+
+		DefaultListModel<Page> listModel = getModel();;
+		int index = document.getPageIndex(page);
+
+		if (listModel.getSize() <= index) {
+			return;
+		}
+
+		if (this.selectedPage != page && listModel.contains(page)) {
 			if (nonNull(selectedPage)) {
 				selectedPage.removePageEditedListener(pageEditedHandler);
 			}
 
-			selectedSlide.addPageEditedListener(pageEditedHandler);
+			page.addPageEditedListener(pageEditedHandler);
 
-			DefaultListModel<Page> listModel = (DefaultListModel<Page>) list.getModel();
-			int index = document.getPageIndex(selectedSlide);
+			this.selectedPage = page;
 
-			if (listModel.getSize() <= index) {
-				return;
-			}
-
-			this.selectedPage = selectedSlide;
-
-			list.setSelectedValue(selectedSlide, false);
+			list.setSelectedValue(page, false);
 
 			scrollToSelected();
 		}
@@ -347,7 +348,7 @@ public class ThumbPanel extends JPanel {
 	}
 
 	private void onPageAdded(Page page) {
-		DefaultListModel<Page> model = (DefaultListModel<Page>) list.getModel();
+		DefaultListModel<Page> model = getModel();
 		model.addElement(page);
 
 		SwingUtilities.invokeLater(() -> {
@@ -357,10 +358,16 @@ public class ThumbPanel extends JPanel {
 	}
 
 	private void onPageRemoved(Page page) {
-		DefaultListModel<Page> model = (DefaultListModel<Page>) list.getModel();
+		DefaultListModel<Page> model = getModel();
 		model.removeElement(page);
 
+		page.removePageEditedListener(pageEditedHandler);
+
 		SwingUtilities.invokeLater(this::resizeContent);
+	}
+
+	private DefaultListModel<Page> getModel() {
+		return (DefaultListModel<Page>) list.getModel();
 	}
 
 

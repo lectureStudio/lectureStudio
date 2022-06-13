@@ -320,7 +320,7 @@ public class DocumentService {
 
 	/**
 	 * Removes the selected page on the active whiteboard. Does nothing if the
-	 * selected Document is not a whiteboard. If this would lead to an empty
+	 * selected Document is not a whiteboard. If this leaded to an empty
 	 * whiteboard, a new blank page is set as the first page of the whiteboard.
 	 */
 	public void deleteWhiteboardPage() {
@@ -330,30 +330,31 @@ public class DocumentService {
 			throw new IllegalArgumentException("No whiteboard selected");
 		}
 
-		if (selectedDocument.getPageCount() > 1) {
+		if (selectedDocument.getPageCount() > 0) {
 			Page selectedPage = selectedDocument.getCurrentPage();
+			int pageNumber = selectedPage.getPageNumber();
 
 			if (selectedDocument.removePage(selectedPage)) {
 				context.getEventBus().post(new PageEvent(selectedPage,
 						PageEvent.Type.REMOVED));
 
 				// Check if the removed page was selected.
-				int pageNumber = selectedPage.getPageNumber();
-
 				if (pageNumber == selectedDocument.getPages().size()) {
 					pageNumber--;
+				}
+
+				if (selectedDocument.getPageCount() == 0) {
+					Page page = selectedDocument.createPage();
+
+					context.getEventBus().post(new PageEvent(page,
+							PageEvent.Type.CREATED));
+
+					pageNumber = page.getPageNumber();
 				}
 
 				selectPage(selectedDocument, pageNumber);
 			}
 		}
-		else {
-			selectedDocument.getCurrentPage().reset();
-		}
-	}
-
-	public void createMessagePage(String message) {
-//		Document selectedDocument
 	}
 
 	/**

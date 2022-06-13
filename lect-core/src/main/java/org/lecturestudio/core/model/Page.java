@@ -88,7 +88,7 @@ public class Page {
 	private final Stack<ShapeAction> redoActions = new Stack<>();
 
 	/** The page number of this page. */
-	private final int pageNumber;
+	private int pageNumber;
 
 	/** The unique ID of this document. */
 	private UUID uid;
@@ -152,6 +152,11 @@ public class Page {
 	 */
 	public int getPageNumber() {
 		return pageNumber;
+	}
+
+	@Deprecated
+	public void setPageNumber(int number) {
+		this.pageNumber = number;
 	}
 
 	/**

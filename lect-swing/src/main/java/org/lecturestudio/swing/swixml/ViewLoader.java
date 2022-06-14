@@ -121,6 +121,7 @@ public class ViewLoader<T extends Container> extends SwingEngine<T> {
 		TagLibrary tagLibrary = SwingTagLibrary.getInstance();
 		tagLibrary.registerTag("Label", new LabelFactory(JLabel.class));
 		tagLibrary.registerTag("Button", new AbstractButtonFactory(JButton.class));
+		tagLibrary.registerTag("DocumentPreview", new InjectViewFactory(DocumentPreview.class, injector));
 		tagLibrary.registerTag("ToggleButton", new AbstractButtonFactory(JToggleButton.class));
 		tagLibrary.registerTag("RadioButton", new AbstractButtonFactory(JRadioButton.class));
 		tagLibrary.registerTag("RecordButton", new AbstractButtonFactory(RecordButton.class));

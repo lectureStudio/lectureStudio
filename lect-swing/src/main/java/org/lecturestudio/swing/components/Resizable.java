@@ -50,6 +50,7 @@ public class Resizable extends JComponent {
 	public void setBounds(int x, int y, int width, int height) {
 		if (getParent() != null && !getParent().getBounds().isEmpty()) {
 			Rectangle pBounds = getParent().getBounds();
+			pBounds.setLocation(0, 0);
 
 			if (x < pBounds.x) {
 				x = pBounds.x;

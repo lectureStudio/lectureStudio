@@ -27,41 +27,64 @@ import java.awt.event.ComponentAdapter;
 import java.awt.event.ComponentEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.util.ResourceBundle;
 
+import javax.inject.Inject;
 import javax.swing.BorderFactory;
+import javax.swing.Box;
 import javax.swing.BoxLayout;
+import javax.swing.JButton;
 import javax.swing.JComponent;
 import javax.swing.JPanel;
 import javax.swing.SwingUtilities;
+import javax.swing.border.EmptyBorder;
 
 import org.lecturestudio.core.beans.ObjectProperty;
 import org.lecturestudio.core.controller.RenderController;
 import org.lecturestudio.core.geometry.Rectangle2D;
 import org.lecturestudio.core.model.Page;
+import org.lecturestudio.core.view.Action;
 import org.lecturestudio.core.view.PresentationParameter;
 import org.lecturestudio.core.view.ViewType;
+import org.lecturestudio.swing.AwtResourceLoader;
+import org.lecturestudio.swing.util.SwingUtils;
 
 public class DocumentPreview extends JPanel {
 
-	private static final Color OVERLAY_COLOR = new Color(226, 232, 240, 170);
+	private static final Color OVERLAY_COLOR = new Color(20, 184, 166, 170);
 
 	private SlideView slideView;
 
 	private Resizable resizable;
 
+	private JPanel viewPanel;
 
-	public DocumentPreview() {
+	private JPanel buttonPanel;
+
+	private JButton openButton;
+
+
+	@Inject
+	public DocumentPreview(ResourceBundle bundle) {
 		super();
 
-		initialize();
+		initialize(bundle);
+	}
+
+	public void setOpenTemplateAction(Action action) {
+		SwingUtils.bindAction(openButton, action);
 	}
 
 	public void setPage(Page page, PresentationParameter parameter) {
 		// Set size to fit the slide-view without empty space around.
 		Dimension size = getPreferredSize();
-		double width = size.getWidth();
-		size.setSize(width, page.getPageMetrics().getHeight(width));
-		setPreferredSize(size);
+		double height = size.getHeight() - buttonPanel.getPreferredSize().getHeight();
+		size.setSize(page.getPageMetrics().getWidth(height), height);
+
+		viewPanel.setPreferredSize(size);
+		viewPanel.setSize(size);
+		viewPanel.setMaximumSize(size);
+		viewPanel.revalidate();
 
 		slideView.parameterChanged(page, parameter);
 		slideView.setPage(page);
@@ -112,10 +135,10 @@ public class DocumentPreview extends JPanel {
 	}
 
 	private Rectangle2D convertToPageBounds(Rectangle bounds) {
-		Rectangle parentBounds = getBounds();
+		Rectangle parentBounds = viewPanel.getBounds();
 
 		if (parentBounds.isEmpty()) {
-			parentBounds.setSize(getPreferredSize());
+			parentBounds.setSize(viewPanel.getPreferredSize());
 		}
 
 		Rectangle2D pageRect = slideView.getPage().getPageRect();
@@ -130,10 +153,10 @@ public class DocumentPreview extends JPanel {
 	}
 
 	private Rectangle convertToViewBounds(Rectangle2D bounds) {
-		Rectangle parentBounds = getBounds();
+		Rectangle parentBounds = viewPanel.getBounds();
 
 		if (parentBounds.isEmpty()) {
-			parentBounds.setSize(getPreferredSize());
+			parentBounds.setSize(viewPanel.getPreferredSize());
 		}
 		if (isNull(bounds)) {
 			parentBounds.setLocation(0, 0);
@@ -154,7 +177,7 @@ public class DocumentPreview extends JPanel {
 		return viewBounds;
 	}
 
-	private void initialize() {
+	private void initialize(ResourceBundle bundle) {
 		setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
 		setBorder(BorderFactory.createEmptyBorder(0, 0, 0, 0));
 
@@ -166,7 +189,7 @@ public class DocumentPreview extends JPanel {
 
 		resizable = new Resizable(overlay);
 
-		JPanel viewPanel = new JPanel(null);
+		viewPanel = new JPanel(null);
 		viewPanel.add(resizable);
 		viewPanel.add(slideView);
 		viewPanel.addComponentListener(new ComponentAdapter() {
@@ -179,6 +202,16 @@ public class DocumentPreview extends JPanel {
 			}
 		});
 
+		openButton = new JButton(bundle.getString("button.browse"));
+		openButton.setIcon(AwtResourceLoader.getIcon("folder-open.svg", 20));
+		openButton.setToolTipText(bundle.getString("button.browse"));
+
+		buttonPanel = new JPanel();
+		buttonPanel.setLayout(new BoxLayout(buttonPanel, BoxLayout.X_AXIS));
+		buttonPanel.setBorder(new EmptyBorder(5, 0, 0, 0));
+		buttonPanel.add(Box.createHorizontalGlue());
+		buttonPanel.add(openButton);
+
 		addMouseListener(new MouseAdapter() {
 
 			@Override
@@ -187,7 +220,15 @@ public class DocumentPreview extends JPanel {
 				resizable.repaint();
 			}
 		});
+		addComponentListener(new ComponentAdapter() {
+
+			@Override
+			public void componentResized(ComponentEvent e) {
+				slideView.renderPage();
+			}
+		});
 
 		add(viewPanel);
+		add(buttonPanel);
 	}
 }

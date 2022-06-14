@@ -53,14 +53,6 @@ public class SwingDocumentTemplateSettingsView extends JPanel implements Documen
 
 	private DocumentPreview whiteboardPreview;
 
-	private JButton selectChatMessagePathButton;
-
-	private JButton selectHallMessagePathButton;
-
-	private JButton selectQuizPathButton;
-
-	private JButton selectWhiteboardPathButton;
-
 	private JButton closeButton;
 
 	private JButton resetButton;
@@ -110,22 +102,22 @@ public class SwingDocumentTemplateSettingsView extends JPanel implements Documen
 
 	@Override
 	public void setOnSelectChatMessageTemplatePath(Action action) {
-		SwingUtils.bindAction(selectChatMessagePathButton, action);
+		chatMessagePreview.setOpenTemplateAction(action);
 	}
 
 	@Override
 	public void setOnSelectHallMessageTemplatePath(Action action) {
-		SwingUtils.bindAction(selectHallMessagePathButton, action);
+		hallMessagePreview.setOpenTemplateAction(action);
 	}
 
 	@Override
 	public void setOnSelectQuizTemplatePath(Action action) {
-		SwingUtils.bindAction(selectQuizPathButton, action);
+		quizPreview.setOpenTemplateAction(action);
 	}
 
 	@Override
 	public void setOnSelectWhiteboardTemplatePath(Action action) {
-		SwingUtils.bindAction(selectWhiteboardPathButton, action);
+		whiteboardPreview.setOpenTemplateAction(action);
 	}
 
 	@Override

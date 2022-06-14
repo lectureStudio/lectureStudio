@@ -56,7 +56,10 @@ public class Document {
 	/** A list with all the pages of the document. */
 	private final List<Page> pages = new ArrayList<>();
 
-	/** The opened document file. May be null, if this document is not loaded from a file. */
+	/**
+	 * The opened document file. May be null, if this document is not loaded
+	 * from a file.
+	 */
 	private File file;
 
 	/** The type of the document. */
@@ -87,9 +90,10 @@ public class Document {
 	}
 
 	/**
-	 * Create a new {@link Document} with the specified file.
-	 * (Sets {@link #file} to the specified file and calls {@link #Document(PdfDocument)} with a
-	 * new {@link PdfDocument} by calling {@link PdfDocument#PdfDocument(File)} with the specified file)
+	 * Create a new {@link Document} with the specified file. (Sets
+	 * {@link #file} to the specified file and calls
+	 * {@link #Document(PdfDocument)} with a new {@link PdfDocument} by calling
+	 * {@link PdfDocument#PdfDocument(File)} with the specified file)
 	 *
 	 * @param file The file.
 	 */
@@ -99,8 +103,8 @@ public class Document {
 	}
 
 	/**
-	 * Create a new {@link Document} with the specified byte array.
-	 * (Calls {@link #Document(PdfDocument)} with a new {@link PdfDocument} by calling
+	 * Create a new {@link Document} with the specified byte array. (Calls
+	 * {@link #Document(PdfDocument)} with a new {@link PdfDocument} by calling
 	 * {@link PdfDocument#PdfDocument(byte[])} with the specified file)
 	 *
 	 * @param byteArray The byte array.
@@ -118,6 +122,7 @@ public class Document {
 	 */
 	public Document(PdfDocument pdfDocument) {
 		init(pdfDocument);
+		setUid(UUID.randomUUID());
 		setPageSize(new Dimension2D(640, 480));
 	}
 

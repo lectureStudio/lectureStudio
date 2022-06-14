@@ -161,18 +161,10 @@ public class SlidesPresenter extends Presenter<SlidesView> {
 		Document doc = event.getDocument();
 
 		switch (event.getType()) {
-			case CREATED:
-				documentCreated(doc);
-				break;
-			case CLOSED:
-				documentClosed(doc);
-				break;
-			case SELECTED:
-				documentSelected(event.getOldDocument(), doc);
-				break;
-			case REPLACED:
-				documentReplaced(event.getOldDocument(), doc);
-				break;
+			case CREATED -> documentCreated(doc);
+			case CLOSED -> documentClosed(doc);
+			case SELECTED -> documentSelected(event.getOldDocument(), doc);
+			case REPLACED -> documentReplaced(event.getOldDocument(), doc);
 		}
 
 		if (documentService.getDocuments().size() > 0) {
@@ -782,12 +774,8 @@ public class SlidesPresenter extends Presenter<SlidesView> {
 
 		pageEditedListener = (event) -> {
 			switch (event.getType()) {
-				case SHAPE_ADDED:
-					pageShapeAdded(event.getShape());
-					break;
-				case CLEAR:
-					setPage(event.getPage());
-					break;
+				case SHAPE_ADDED -> pageShapeAdded(event.getShape());
+				case CLEAR -> setPage(event.getPage());
 			}
 		};
 

@@ -190,20 +190,11 @@ public class WebRtcStreamEventRecorder extends StreamEventRecorder {
 		currentPage = event.getPage();
 
 		switch (event.getType()) {
-			case CREATED:
-				addPlaybackAction(new StreamPageCreatedAction(currentPage));
-				break;
-
-			case REMOVED:
-				addPlaybackAction(new StreamPageDeletedAction(currentPage));
-				break;
-
-			case SELECTED:
-				addPlaybackAction(new StreamPageSelectedAction(currentPage));
-				break;
-
-			default:
-				break;
+			case CREATED -> addPlaybackAction(new StreamPageCreatedAction(currentPage));
+			case REMOVED -> addPlaybackAction(new StreamPageDeletedAction(currentPage));
+			case SELECTED -> addPlaybackAction(new StreamPageSelectedAction(currentPage));
+			default -> {
+			}
 		}
 	}
 
@@ -403,7 +394,7 @@ public class WebRtcStreamEventRecorder extends StreamEventRecorder {
 			}
 		}
 
-		String docFileName = document.getName() + ".pdf";
+		String docFileName = document.getUid().toString() + ".pdf";
 		ByteArrayOutputStream docData = new ByteArrayOutputStream();
 
 		document.toOutputStream(docData);

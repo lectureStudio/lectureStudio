@@ -108,7 +108,7 @@ public class SwingGeneralSettingsView extends JPanel implements GeneralSettingsV
 
 	@Override
 	public void setTabletMode(BooleanProperty tabletMode) {
-		SwingUtils.bindBidirectional(tabletCheckBox, tabletMode);
+//		SwingUtils.bindBidirectional(tabletCheckBox, tabletMode);
 	}
 
 	@Override
@@ -118,7 +118,7 @@ public class SwingGeneralSettingsView extends JPanel implements GeneralSettingsV
 
 	@Override
 	public void setExtendedFullscreen(BooleanProperty extended) {
-		SwingUtils.bindBidirectional(fullscreenModeCheckBox, extended);
+//		SwingUtils.bindBidirectional(fullscreenModeCheckBox, extended);
 	}
 
 	@Override

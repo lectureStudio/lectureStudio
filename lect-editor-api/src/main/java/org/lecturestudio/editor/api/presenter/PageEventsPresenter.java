@@ -22,6 +22,8 @@ import com.google.common.eventbus.Subscribe;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.CompletionException;
 
 import javax.inject.Inject;
 
@@ -41,6 +43,7 @@ import org.lecturestudio.core.recording.edit.EditAction;
 import org.lecturestudio.core.service.DocumentService;
 import org.lecturestudio.editor.api.context.EditorContext;
 import org.lecturestudio.editor.api.edit.DeletePageEventAction;
+import org.lecturestudio.editor.api.service.RecordingPlaybackService;
 import org.lecturestudio.media.recording.RecordingEvent;
 import org.lecturestudio.editor.api.service.RecordingFileService;
 import org.lecturestudio.editor.api.view.PageEventsView;
@@ -50,6 +53,8 @@ public class PageEventsPresenter extends Presenter<PageEventsView> {
 
 	private final RecordingFileService recordingService;
 
+	private final RecordingPlaybackService playbackService;
+
 	private final DocumentService documentService;
 
 	private ObjectProperty<PageEvent> pageEventProperty;
@@ -57,11 +62,13 @@ public class PageEventsPresenter extends Presenter<PageEventsView> {
 
 	@Inject
 	PageEventsPresenter(ApplicationContext context, PageEventsView view,
-						DocumentService documentService,
-						RecordingFileService recordingService) {
+			DocumentService documentService,
+			RecordingPlaybackService playbackService,
+			RecordingFileService recordingService) {
 		super(context, view);
 
 		this.documentService = documentService;
+		this.playbackService = playbackService;
 		this.recordingService = recordingService;
 	}
 
@@ -103,17 +110,33 @@ public class PageEventsPresenter extends Presenter<PageEventsView> {
 	}
 
 	private void deletePageEvent(PageEvent event) {
-		Recording recording = recordingService.getSelectedRecording();
-		PlaybackAction action = event.getPlaybackAction();
-		int pageNumber = event.getPageNumber();
+		CompletableFuture.runAsync(() -> {
+			try {
+				PlaybackAction action = event.getPlaybackAction();
+				int pageNumber = event.getPageNumber();
 
-		try {
-			addEditAction(recording, new DeletePageEventAction(recording,
-					action, pageNumber));
+				deletePageEvent(action, pageNumber);
+			}
+			catch (Exception e) {
+				throw new CompletionException(e);
+			}
+		}).exceptionally(throwable -> {
+			handleException(throwable, "Remove action failed",
+					"page.events.delete.error");
+			return null;
+		}).join();
+	}
+
+	private void deletePageEvent(PlaybackAction action, int pageNumber)
+			throws Exception {
+		if (playbackService.started()) {
+			playbackService.suspend();
 		}
-		catch (Exception e) {
-			handleException(e, "Remove event failed", "page.events.delete.error");
-		}
+
+		Recording recording = recordingService.getSelectedRecording();
+
+		addEditAction(recording, new DeletePageEventAction(recording, action,
+				pageNumber));
 	}
 
 	private void loadSelectedPageEvents() {

@@ -101,6 +101,13 @@ public class QuizDocument extends HtmlToPdfDocument {
 		renderQuestion(tplDoc, doc, contentBounds, quiz);
 
 		if (!result.getResult().isEmpty()) {
+			if (type == QuizType.MULTIPLE) {
+				// Create a new page with the statistics bar-chart.
+				renderChartQuestions(tplDoc, doc, contentBounds, quiz);
+				renderChart(doc, result, createBarChartAnswerStats(dict, result),
+						contentBounds);
+			}
+
 			// Create a new page with the bar-chart.
 			renderChartQuestions(tplDoc, doc, contentBounds, quiz);
 			renderChart(doc, result, createBarChart(dict, result),
@@ -110,13 +117,6 @@ public class QuizDocument extends HtmlToPdfDocument {
 			renderChartQuestions(tplDoc, doc, contentBounds, quiz);
 			renderChart(doc, result, createPieChart(dict, result),
 					contentBounds);
-
-			if (type == QuizType.MULTIPLE) {
-				// Create a new page with the statistics bar-chart.
-				renderChartQuestions(tplDoc, doc, contentBounds, quiz);
-				renderChart(doc, result,
-						createBarChartAnswerStats(dict, result), contentBounds);
-			}
 		}
 
 		PdfDocument pdfDocument = createPdfDocument(doc);

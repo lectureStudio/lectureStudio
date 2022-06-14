@@ -42,27 +42,13 @@ public class TeXFontListCell extends ListCell<TeXFont.Type> {
 
 		if (nonNull(item)) {
 			switch (item) {
-				case SERIF:
-					setText(resourceBundle.getString("font.serif"));
-					break;
-				case SANSSERIF:
-					setText(resourceBundle.getString("font.sans-serif"));
-					break;
-				case BOLD:
-					setText(resourceBundle.getString("font.bold"));
-					break;
-				case ITALIC:
-					setText(resourceBundle.getString("font.italic"));
-					break;
-				case BOLD_ITALIC:
-					setText(resourceBundle.getString("font.bold-italic"));
-					break;
-				case ROMAN:
-					setText(resourceBundle.getString("font.roman"));
-					break;
-				case TYPEWRITER:
-					setText(resourceBundle.getString("font.typewriter"));
-					break;
+				case SERIF -> setText(resourceBundle.getString("font.serif"));
+				case SANSSERIF -> setText(resourceBundle.getString("font.sans-serif"));
+				case BOLD -> setText(resourceBundle.getString("font.bold"));
+				case ITALIC -> setText(resourceBundle.getString("font.italic"));
+				case BOLD_ITALIC -> setText(resourceBundle.getString("font.bold-italic"));
+				case ROMAN -> setText(resourceBundle.getString("font.roman"));
+				case TYPEWRITER -> setText(resourceBundle.getString("font.typewriter"));
 			}
 		}
 		if (isNull(item) || empty) {

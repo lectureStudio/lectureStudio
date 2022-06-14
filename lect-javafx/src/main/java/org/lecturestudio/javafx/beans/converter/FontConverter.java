@@ -76,97 +76,45 @@ public class FontConverter implements Converter<org.lecturestudio.core.text.Font
 	}
 
 	private static FontPosture fromLectFontPosture(org.lecturestudio.core.text.FontPosture posture) {
-		switch (posture) {
-			case REGULAR:
-				return FontPosture.REGULAR;
-
-			case ITALIC:
-				return FontPosture.ITALIC;
-
-			default:
-				return FontPosture.REGULAR;
-		}
+		return switch (posture) {
+			case REGULAR -> FontPosture.REGULAR;
+			case ITALIC -> FontPosture.ITALIC;
+		};
 	}
 
 	private static org.lecturestudio.core.text.FontPosture toLectFontPosture(FontPosture posture) {
-		switch (posture) {
-			case REGULAR:
-				return org.lecturestudio.core.text.FontPosture.REGULAR;
-
-			case ITALIC:
-				return org.lecturestudio.core.text.FontPosture.ITALIC;
-
-			default:
-				return org.lecturestudio.core.text.FontPosture.REGULAR;
-		}
+		return switch (posture) {
+			case REGULAR -> org.lecturestudio.core.text.FontPosture.REGULAR;
+			case ITALIC -> org.lecturestudio.core.text.FontPosture.ITALIC;
+		};
 	}
 
 	private static FontWeight fromLectFontWeight(org.lecturestudio.core.text.FontWeight weight) {
-		switch (weight) {
-			case THIN:
-				return FontWeight.THIN;
-
-			case EXTRA_LIGHT:
-				return FontWeight.EXTRA_LIGHT;
-
-			case LIGHT:
-				return FontWeight.LIGHT;
-
-			case NORMAL:
-				return FontWeight.NORMAL;
-
-			case MEDIUM:
-				return FontWeight.MEDIUM;
-
-			case SEMI_BOLD:
-				return FontWeight.SEMI_BOLD;
-
-			case BOLD:
-				return FontWeight.BOLD;
-
-			case EXTRA_BOLD:
-				return FontWeight.EXTRA_BOLD;
-
-			case BLACK:
-				return FontWeight.BLACK;
-
-			default:
-				return FontWeight.NORMAL;
-		}
+		return switch (weight) {
+			case THIN -> FontWeight.THIN;
+			case EXTRA_LIGHT -> FontWeight.EXTRA_LIGHT;
+			case LIGHT -> FontWeight.LIGHT;
+			case NORMAL -> FontWeight.NORMAL;
+			case MEDIUM -> FontWeight.MEDIUM;
+			case SEMI_BOLD -> FontWeight.SEMI_BOLD;
+			case BOLD -> FontWeight.BOLD;
+			case EXTRA_BOLD -> FontWeight.EXTRA_BOLD;
+			case BLACK -> FontWeight.BLACK;
+		};
 	}
 
 	private static org.lecturestudio.core.text.FontWeight toLectFontWeight(FontWeight weight) {
-		switch (weight) {
-			case THIN:
-				return org.lecturestudio.core.text.FontWeight.THIN;
-
-			case EXTRA_LIGHT:
-				return org.lecturestudio.core.text.FontWeight.EXTRA_LIGHT;
-
-			case LIGHT:
-				return org.lecturestudio.core.text.FontWeight.LIGHT;
-
-			case NORMAL:
-				return org.lecturestudio.core.text.FontWeight.NORMAL;
-
-			case MEDIUM:
-				return org.lecturestudio.core.text.FontWeight.MEDIUM;
-
-			case SEMI_BOLD:
-				return org.lecturestudio.core.text.FontWeight.SEMI_BOLD;
-
-			case BOLD:
-				return org.lecturestudio.core.text.FontWeight.BOLD;
-
-			case EXTRA_BOLD:
-				return org.lecturestudio.core.text.FontWeight.EXTRA_BOLD;
-
-			case BLACK:
-				return org.lecturestudio.core.text.FontWeight.BLACK;
-
-			default:
-				return org.lecturestudio.core.text.FontWeight.NORMAL;
-		}
+		return switch (weight) {
+			case THIN -> org.lecturestudio.core.text.FontWeight.THIN;
+			case EXTRA_LIGHT -> org.lecturestudio.core.text.FontWeight.EXTRA_LIGHT;
+			case LIGHT -> org.lecturestudio.core.text.FontWeight.LIGHT;
+			case NORMAL -> org.lecturestudio.core.text.FontWeight.NORMAL;
+			case MEDIUM -> org.lecturestudio.core.text.FontWeight.MEDIUM;
+			case SEMI_BOLD -> org.lecturestudio.core.text.FontWeight.SEMI_BOLD;
+			case BOLD -> org.lecturestudio.core.text.FontWeight.BOLD;
+			case EXTRA_BOLD -> org.lecturestudio.core.text.FontWeight.EXTRA_BOLD;
+			case BLACK -> org.lecturestudio.core.text.FontWeight.BLACK;
+		};
 	}
 
 }

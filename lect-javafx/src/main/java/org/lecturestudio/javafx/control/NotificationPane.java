@@ -153,31 +153,17 @@ public class NotificationPane extends StackPane {
 
 	private void updateType(NotificationType type) {
 		switch (type) {
-			case DEFAULT:
-				setIcon(null);
-				break;
-
-			case ERROR:
-				setIcon(errorIcon);
-				break;
-
-			case QUESTION:
-				setIcon(questionIcon);
-				break;
-
-			case WARNING:
-				setIcon(warningIcon);
-				break;
-
-			case WAITING:
+			case DEFAULT -> setIcon(null);
+			case ERROR -> setIcon(errorIcon);
+			case QUESTION -> setIcon(questionIcon);
+			case WARNING -> setIcon(warningIcon);
+			case WAITING -> {
 				ProgressIndicator indicator = new ProgressIndicator();
 				indicator.setProgress(-1);
-
 				setIcon(indicator);
-				break;
-
-			default:
-				break;
+			}
+			default -> {
+			}
 		}
 	}
 

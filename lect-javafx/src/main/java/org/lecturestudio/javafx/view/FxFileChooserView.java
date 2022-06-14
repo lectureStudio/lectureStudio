@@ -119,19 +119,10 @@ public class FxFileChooserView implements FileChooserView {
 			ownerWindow = nodeView.getScene().getWindow();
 		}
 
-		switch (type) {
-			case OPEN:
-				selectedFile = fileChooser.showOpenDialog(ownerWindow);
-				break;
-
-			case SAVE:
-				selectedFile = fileChooser.showSaveDialog(ownerWindow);
-				break;
-
-			default:
-				selectedFile = null;
-				break;
-		}
+		selectedFile = switch (type) {
+			case OPEN -> fileChooser.showOpenDialog(ownerWindow);
+			case SAVE -> fileChooser.showSaveDialog(ownerWindow);
+		};
 
 		return selectedFile;
 	}

@@ -30,40 +30,21 @@ public class HPositionConverter implements Converter<Position, HPos> {
 
 	@Override
 	public HPos to(Position position) {
-		switch (position) {
-			case CENTER:
-				return HPos.CENTER;
-
-			case TOP_LEFT:
-			case CENTER_LEFT:
-			case BOTTOM_LEFT:
-				return HPos.LEFT;
-
-			case TOP_RIGHT:
-			case CENTER_RIGHT:
-			case BOTTOM_RIGHT:
-				return HPos.RIGHT;
-
-			default:
-				return HPos.CENTER;
-		}
+		return switch (position) {
+			case CENTER -> HPos.CENTER;
+			case TOP_LEFT, CENTER_LEFT, BOTTOM_LEFT -> HPos.LEFT;
+			case TOP_RIGHT, CENTER_RIGHT, BOTTOM_RIGHT -> HPos.RIGHT;
+			default -> HPos.CENTER;
+		};
 	}
 
 	@Override
 	public Position from(HPos position) {
-		switch (position) {
-			case CENTER:
-				return Position.CENTER;
-
-			case LEFT:
-				return Position.CENTER_LEFT;
-
-			case RIGHT:
-				return Position.CENTER_RIGHT;
-
-			default:
-				return Position.CENTER;
-		}
+		return switch (position) {
+			case CENTER -> Position.CENTER;
+			case LEFT -> Position.CENTER_LEFT;
+			case RIGHT -> Position.CENTER_RIGHT;
+		};
 	}
 
 }

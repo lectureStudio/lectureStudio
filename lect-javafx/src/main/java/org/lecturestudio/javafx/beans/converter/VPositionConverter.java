@@ -30,40 +30,22 @@ public class VPositionConverter implements Converter<Position, VPos> {
 
 	@Override
 	public VPos to(Position position) {
-		switch (position) {
-			case CENTER:
-				return VPos.CENTER;
-
-			case TOP_LEFT:
-			case TOP_CENTER:
-			case TOP_RIGHT:
-				return VPos.TOP;
-
-			case BOTTOM_LEFT:
-			case BOTTOM_CENTER:
-			case BOTTOM_RIGHT:
-				return VPos.BOTTOM;
-
-			default:
-				return VPos.CENTER;
-		}
+		return switch (position) {
+			case CENTER -> VPos.CENTER;
+			case TOP_LEFT, TOP_CENTER, TOP_RIGHT -> VPos.TOP;
+			case BOTTOM_LEFT, BOTTOM_CENTER, BOTTOM_RIGHT -> VPos.BOTTOM;
+			default -> VPos.CENTER;
+		};
 	}
 
 	@Override
 	public Position from(VPos position) {
-		switch (position) {
-			case CENTER:
-				return Position.CENTER;
-
-			case TOP:
-				return Position.TOP_CENTER;
-
-			case BOTTOM:
-				return Position.BOTTOM_CENTER;
-
-			default:
-				return Position.CENTER;
-		}
+		return switch (position) {
+			case CENTER -> Position.CENTER;
+			case TOP -> Position.TOP_CENTER;
+			case BOTTOM -> Position.BOTTOM_CENTER;
+			default -> Position.CENTER;
+		};
 	}
 
 }

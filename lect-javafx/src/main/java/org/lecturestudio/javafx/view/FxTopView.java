@@ -34,16 +34,13 @@ public interface FxTopView extends FxView {
 	default void onSceneSet() {
 		setOnKeyPressed(event -> {
 			switch (event.getCode()) {
-				// Exit on escape key.
-				case ESCAPE:
-				// Exit on enter key.
-				case ENTER:
+				// Exit on escape and enter key.
+				case ESCAPE, ENTER -> {
 					onShortcutClose();
-
 					event.consume();
-					break;
-				default:
-					break;
+				}
+				default -> {
+				}
 			}
 		});
 		setOnMouseClicked(event -> {

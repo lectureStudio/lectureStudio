@@ -197,28 +197,18 @@ public class FxNotificationPopupManager implements NotificationPopupManager {
 		double padX = 10;
 		double padY = 10;
 
-		switch (position) {
-			case TOP_LEFT:
-				return new Point2D(x + padX, y + padY);
-			case TOP_CENTER:
-				return new Point2D(x + (w - width) / 2, y + padY);
-			case TOP_RIGHT:
-				return new Point2D(x + w - width - padX, y + padY);
-			case CENTER_LEFT:
-				return new Point2D(x + padX, y + (h - height) / 2);
-			case CENTER:
-				return new Point2D(x + (w - width) / 2, y + (h - height) / 2);
-			case CENTER_RIGHT:
-				return new Point2D(x + w - width - padX, y + (h - height) / 2);
-			case BOTTOM_LEFT:
-				return new Point2D(x + padX, y + h - height - padY);
-			case BOTTOM_CENTER:
-				return new Point2D(x + (w - width) / 2, y + h - height - padY);
-			case BOTTOM_RIGHT:
-				return new Point2D(x + w - width - padX, y + h - height - padY);
-		}
-
-		return new Point2D(x, y);
+		return switch (position) {
+			case TOP_LEFT -> new Point2D(x + padX, y + padY);
+			case TOP_CENTER -> new Point2D(x + (w - width) / 2, y + padY);
+			case TOP_RIGHT -> new Point2D(x + w - width - padX, y + padY);
+			case CENTER_LEFT -> new Point2D(x + padX, y + (h - height) / 2);
+			case CENTER -> new Point2D(x + (w - width) / 2, y + (h - height) / 2);
+			case CENTER_RIGHT -> new Point2D(x + w - width - padX, y + (h - height) / 2);
+			case BOTTOM_LEFT -> new Point2D(x + padX, y + h - height - padY);
+			case BOTTOM_CENTER -> new Point2D(x + (w - width) / 2, y + h - height - padY);
+			case BOTTOM_RIGHT -> new Point2D(x + w - width - padX, y + h - height - padY);
+			default -> new Point2D(x, y);
+		};
 	}
 
 	private VerticalDirection getDirection(Pos pos) {

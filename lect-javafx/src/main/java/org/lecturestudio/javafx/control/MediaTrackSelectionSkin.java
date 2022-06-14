@@ -344,15 +344,9 @@ public class MediaTrackSelectionSkin extends SkinBase<MediaTrackSelection<?>> {
 			double offset = (width + 2 - thumbBounds.getWidth()) * 0.5;
 
 			switch (lineAnchor) {
-				case CENTER:
-					lineX.set(snapPositionX(width * 0.5));
-					break;
-				case LEFT:
-					lineX.set(width - offset);
-					break;
-				case RIGHT:
-					lineX.set(offset);
-					break;
+				case CENTER -> lineX.set(snapPositionX(width * 0.5));
+				case LEFT -> lineX.set(width - offset);
+				case RIGHT -> lineX.set(offset);
 			}
 		}
 	}

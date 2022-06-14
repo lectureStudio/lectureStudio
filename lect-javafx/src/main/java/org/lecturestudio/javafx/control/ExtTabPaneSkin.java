@@ -299,18 +299,12 @@ public class ExtTabPaneSkin extends SkinBase<ExtTabPane> {
 	}
 
 	private static int getRotation(Side pos) {
-		switch (pos) {
-			case TOP:
-				return 0;
-			case BOTTOM:
-				return 180;
-			case LEFT:
-				return -90;
-			case RIGHT:
-				return 90;
-			default:
-				return 0;
-		}
+		return switch (pos) {
+			case TOP -> 0;
+			case BOTTOM -> 180;
+			case LEFT -> -90;
+			case RIGHT -> 90;
+		};
 	}
 
 

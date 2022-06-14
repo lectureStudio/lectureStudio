@@ -120,14 +120,10 @@ public abstract class Dialog extends Stage {
 
 		getScene().setOnKeyPressed(event -> {
 			switch (event.getCode()) {
-				// Exit on escape key.
-				case ESCAPE:
-				// Exit on enter key.
-				case ENTER:
-					onShortcutClose();
-					break;
-				default:
-					break;
+				// Exit on escape and enter key.
+				case ESCAPE, ENTER -> onShortcutClose();
+				default -> {
+				}
 			}
 		});
 		getScene().setOnMouseClicked(event -> {

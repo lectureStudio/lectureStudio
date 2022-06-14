@@ -400,50 +400,22 @@ public class SlideViewSkin extends SkinBase<SlideView> {
 	}
 
 	private static HPos getHPos(Pos pos) {
-		switch (pos) {
-			case CENTER:
-				return HPos.CENTER;
-
-			case TOP_LEFT:
-			case CENTER_LEFT:
-			case BOTTOM_LEFT:
-			case BASELINE_LEFT:
-				return HPos.LEFT;
-
-			case TOP_RIGHT:
-			case CENTER_RIGHT:
-			case BOTTOM_RIGHT:
-			case BASELINE_RIGHT:
-				return HPos.RIGHT;
-
-			default:
-				return HPos.CENTER;
-		}
+		return switch (pos) {
+			case CENTER -> HPos.CENTER;
+			case TOP_LEFT, CENTER_LEFT, BOTTOM_LEFT, BASELINE_LEFT -> HPos.LEFT;
+			case TOP_RIGHT, CENTER_RIGHT, BOTTOM_RIGHT, BASELINE_RIGHT -> HPos.RIGHT;
+			default -> HPos.CENTER;
+		};
 	}
 
 	private static VPos getVPos(Pos pos) {
-		switch (pos) {
-			case CENTER:
-				return VPos.CENTER;
-
-			case TOP_LEFT:
-			case TOP_CENTER:
-			case TOP_RIGHT:
-				return VPos.TOP;
-
-			case BASELINE_LEFT:
-			case BASELINE_CENTER:
-			case BASELINE_RIGHT:
-				return VPos.BASELINE;
-
-			case BOTTOM_LEFT:
-			case BOTTOM_CENTER:
-			case BOTTOM_RIGHT:
-				return VPos.BOTTOM;
-
-			default:
-				return VPos.CENTER;
-		}
+		return switch (pos) {
+			case CENTER -> VPos.CENTER;
+			case TOP_LEFT, TOP_CENTER, TOP_RIGHT -> VPos.TOP;
+			case BASELINE_LEFT, BASELINE_CENTER, BASELINE_RIGHT -> VPos.BASELINE;
+			case BOTTOM_LEFT, BOTTOM_CENTER, BOTTOM_RIGHT -> VPos.BOTTOM;
+			default -> VPos.CENTER;
+		};
 	}
 
 	private class PageRenderTask implements RenderThreadTask {

@@ -315,36 +315,36 @@ public class Utils {
 			double q = brightness * (1.0 - saturation * f);
 			double t = brightness * (1.0 - (saturation * (1.0 - f)));
 			switch ((int) h) {
-				case 0:
+				case 0 -> {
 					r = brightness;
 					g = t;
 					b = p;
-					break;
-				case 1:
+				}
+				case 1 -> {
 					r = q;
 					g = brightness;
 					b = p;
-					break;
-				case 2:
+				}
+				case 2 -> {
 					r = p;
 					g = brightness;
 					b = t;
-					break;
-				case 3:
+				}
+				case 3 -> {
 					r = p;
 					g = q;
 					b = brightness;
-					break;
-				case 4:
+				}
+				case 4 -> {
 					r = t;
 					g = p;
 					b = brightness;
-					break;
-				case 5:
+				}
+				case 5 -> {
 					r = brightness;
 					g = p;
 					b = q;
-					break;
+				}
 			}
 		}
 		double[] f = new double[3];

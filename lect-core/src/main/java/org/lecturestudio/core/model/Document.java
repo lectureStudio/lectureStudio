@@ -384,6 +384,13 @@ public class Document {
 			if (isSelected) {
 				currentPageNumber = -1;
 			}
+			if (isWhiteboard()) {
+				// To be removed whe get/setPageNumber() are removed from the Page object.
+				// Re-align page numbers.
+				for (int i = 0; i < pages.size(); i++) {
+					pages.get(i).setPageNumber(i);
+				}
+			}
 
 			fireRemoveChange(page);
 

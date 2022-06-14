@@ -55,22 +55,4 @@ public class TemplateDocument extends Document {
 
 		return page;
 	}
-
-	@Override
-	@Deprecated
-	/*
-	 * To be removed whe get/setPageNumber() are removed from the Page object.
-	 */
-	public boolean removePage(Page page) {
-		boolean removed = super.removePage(page);
-
-		// Re-align page numbers.
-		var pages = getPages();
-
-		for (int i = 0; i < pages.size(); i++) {
-			pages.get(i).setPageNumber(i);
-		}
-
-		return removed;
-	}
 }

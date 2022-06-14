@@ -32,7 +32,7 @@ public abstract class StreamPageAction extends StreamAction {
 
 	public StreamPageAction(Page page) {
 		setDocumentId(page.getDocument().hashCode());
-		setPageNumber(page.getDocument().getPageIndex(page));
+		setPageNumber(page.getPageNumber());
 	}
 
 	public StreamPageAction(byte[] input) throws IOException {

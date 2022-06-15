@@ -45,6 +45,7 @@ import org.lecturestudio.presenter.api.view.CreateQuizView;
 import org.jsoup.Jsoup;
 import org.lecturestudio.web.api.filter.MinMaxRule;
 import org.lecturestudio.web.api.model.quiz.Quiz;
+import org.lecturestudio.web.api.model.quiz.Quiz.QuizSet;
 
 public class CreateQuizPresenter extends Presenter<CreateQuizView> {
 
@@ -103,7 +104,9 @@ public class CreateQuizPresenter extends Presenter<CreateQuizView> {
 		}
 
 		// Set default values.
-		setQuizSet(Quiz.QuizSet.GENERIC);
+		setQuizSet(isGenericSet() ?
+				Quiz.QuizSet.GENERIC :
+				QuizSet.DOCUMENT_SPECIFIC);
 		setQuizType(Quiz.QuizType.MULTIPLE);
 
 		List<Document> documents = new ArrayList<>();
@@ -141,15 +144,28 @@ public class CreateQuizPresenter extends Presenter<CreateQuizView> {
 	private void saveQuiz() {
 		createQuiz();
 
-		Document quizDoc = (selectedDoc == genericDoc) ? null : selectedDoc;
+		boolean isGenericSet = isGenericSet();
 
 		try {
 			if (nonNull(quizEdit)) {
-				quizService.replaceQuiz(quizEdit, quiz, quizDoc);
+				if (isGenericSet) {
+					quizService.replaceQuiz(quizEdit, quiz);
+				}
+				else {
+					quizService.replaceQuiz(quizEdit, quiz, selectedDoc);
+				}
 			}
 			else {
-				quizService.saveQuiz(quiz, quizDoc);
+				if (isGenericSet) {
+					quizService.saveQuiz(quiz);
+				}
+				else {
+					quizService.saveQuiz(quiz, selectedDoc);
+				}
 			}
+
+			// Remember saved quiz to replace it when edited again.
+			setQuiz(quiz.clone());
 		}
 		catch (IOException e) {
 			handleException(e, "Save quiz failed", "quiz.save.error");
@@ -196,11 +212,15 @@ public class CreateQuizPresenter extends Presenter<CreateQuizView> {
 		optionViews.forEach(view -> addOptionView(view, false));
 	}
 
+	private boolean isGenericSet() {
+		return selectedDoc == genericDoc;
+	}
+
 	private void documentSelected(Document doc) {
 		if (doc == genericDoc) {
 			setQuizSet(Quiz.QuizSet.GENERIC);
 
-			this.selectedDoc = null;
+			this.selectedDoc = genericDoc;
 		}
 		else {
 			setQuizSet(Quiz.QuizSet.DOCUMENT_SPECIFIC);
@@ -215,17 +235,12 @@ public class CreateQuizPresenter extends Presenter<CreateQuizView> {
 	}
 
 	private CreateQuizOptionView createOption() {
-		switch (quiz.getType()) {
-			case MULTIPLE:
-			case SINGLE:
-				return viewFactory.getInstance(CreateQuizDefaultOptionView.class);
-
-			case NUMERIC:
-				return viewFactory.getInstance(CreateQuizNumericOptionView.class);
-
-			default:
-				throw new RuntimeException("Unknown quiz type");
-		}
+		return switch (quiz.getType()) {
+			case MULTIPLE, SINGLE ->
+					viewFactory.getInstance(CreateQuizDefaultOptionView.class);
+			case NUMERIC ->
+					viewFactory.getInstance(CreateQuizNumericOptionView.class);
+		};
 	}
 
 	private void newOption() {
@@ -294,7 +309,11 @@ public class CreateQuizPresenter extends Presenter<CreateQuizView> {
 	}
 
 	private void createQuiz() {
-		String htmlBody = Jsoup.parse(view.getQuizText()).body().html();
+		org.jsoup.nodes.Document doc = Jsoup.parse(view.getQuizText());
+		doc.outputSettings().indentAmount(0);
+		doc.outputSettings().prettyPrint(false);
+
+		String htmlBody = doc.body().html().replace("&nbsp;", " ");
 
 		quiz.setQuestion(htmlBody);
 		quiz.clearOptions();
@@ -323,9 +342,11 @@ public class CreateQuizPresenter extends Presenter<CreateQuizView> {
 		if (nonNull(quiz.getQuestion())) {
 			view.setQuizText(quiz.getQuestion());
 		}
-		if (isNull(quiz.getQuizSet())) {
-			setQuizSet(Quiz.QuizSet.GENERIC);
-		}
+
+		setQuizSet(isGenericSet() ?
+				Quiz.QuizSet.GENERIC :
+				QuizSet.DOCUMENT_SPECIFIC);
+
 		if (isNull(quiz.getType())) {
 			setQuizType(Quiz.QuizType.MULTIPLE);
 		}
@@ -340,24 +361,24 @@ public class CreateQuizPresenter extends Presenter<CreateQuizView> {
 				String optionText = options.get(i);
 
 				switch (quiz.getType()) {
-					case MULTIPLE:
-					case SINGLE: {
-						CreateQuizOptionView optionView = viewFactory.getInstance(CreateQuizDefaultOptionView.class);
+					case MULTIPLE, SINGLE -> {
+						CreateQuizOptionView optionView = viewFactory.getInstance(
+								CreateQuizDefaultOptionView.class);
 						optionView.setOptionText(optionText);
 
 						addOptionView(optionView, false);
-						break;
 					}
-					case NUMERIC: {
-						MinMaxRule rule = (MinMaxRule) quiz.getInputFilter().getRules().get(i);
+					case NUMERIC -> {
+						MinMaxRule rule = (MinMaxRule) quiz.getInputFilter()
+								.getRules().get(i);
 
-						CreateQuizNumericOptionView optionView = viewFactory.getInstance(CreateQuizNumericOptionView.class);
+						CreateQuizNumericOptionView optionView = viewFactory.getInstance(
+								CreateQuizNumericOptionView.class);
 						optionView.setOptionText(optionText);
 						optionView.setMinValue(rule.getMin());
 						optionView.setMaxValue(rule.getMax());
 
 						addOptionView(optionView, false);
-						break;
 					}
 				}
 			}

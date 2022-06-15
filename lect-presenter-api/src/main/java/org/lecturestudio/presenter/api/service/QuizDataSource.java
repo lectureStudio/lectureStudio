@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2020 TU Darmstadt, Department of Computer Science,
+ * Copyright (C) 2022 TU Darmstadt, Department of Computer Science,
  * Embedded Systems and Applications Group.
  *
  * This program is free software: you can redistribute it and/or modify
@@ -24,157 +24,172 @@ import static java.util.Objects.requireNonNull;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
 import java.util.List;
 
 import org.lecturestudio.core.model.Document;
+import org.lecturestudio.core.util.FileUtils;
+import org.lecturestudio.presenter.api.quiz.JsonQuizFileRepository;
 import org.lecturestudio.presenter.api.quiz.QuizFileReader;
-import org.lecturestudio.presenter.api.quiz.QuizFileWriter;
 import org.lecturestudio.presenter.api.quiz.QuizReader;
-import org.lecturestudio.presenter.api.quiz.QuizWriter;
+import org.lecturestudio.presenter.api.quiz.QuizRepository;
 import org.lecturestudio.web.api.model.quiz.Quiz;
+import org.lecturestudio.web.api.model.quiz.Quiz.QuizSet;
 
 public class QuizDataSource {
 
 	private final File quizFile;
 
+	private final JsonQuizFileRepository repository;
+
 
 	public QuizDataSource(File dataFile) {
 		quizFile = dataFile;
-	}
-
-	public void clear() {
-		quizFile.delete();
-	}
-
-	public void clear(Document doc) {
-		File quizFile = getQuizFile(doc);
-
-		if (nonNull(quizFile)) {
-			quizFile.delete();
-		}
+		repository = new JsonQuizFileRepository(
+				new File(FileUtils.stripExtension(dataFile) + ".quizzes"));
 	}
 
 	public List<Quiz> getQuizzes() throws IOException {
-		return getQuizzes(this.quizFile, Quiz.QuizSet.GENERIC);
+		backupFile(quizFile, QuizSet.GENERIC);
+
+		return repository.findAll();
 	}
 
 	public List<Quiz> getQuizzes(Document doc) throws IOException {
 		File quizFile = getQuizFile(doc);
-		return getQuizzes(quizFile, Quiz.QuizSet.DOCUMENT_SPECIFIC);
+
+		backupFile(quizFile, QuizSet.DOCUMENT_SPECIFIC);
+
+		QuizRepository repository = getQuizRepository(quizFile);
+
+		return nonNull(repository) ? repository.findAll() : List.of();
+	}
+
+	public void deleteQuiz(Quiz quiz) throws IOException {
+		requireNonNull(quiz);
+
+		repository.delete(quiz);
 	}
 
 	public void deleteQuiz(Quiz quiz, Document doc) throws IOException {
-		QuizReader reader = getQuizReader(doc);
-		QuizWriter writer = getQuizWriter(doc);
+		requireNonNull(quiz);
 
-		if (reader == null) {
+		if (!doc.isPDF()) {
 			return;
 		}
 
-		List<Quiz> quizzes = reader.readQuizzes();
+		QuizRepository repository = getQuizRepository(getQuizFile(doc));
 
-		if (quizzes == null) {
-			return;
+		if (isNull(repository)) {
+			throw new IOException("Repository does not exist");
 		}
 
-		if (quizzes.remove(quiz)) {
-			writer.clear();
+		repository.delete(quiz);
+	}
 
-			for (Quiz q : quizzes) {
-				writer.writeQuiz(q);
-			}
-		}
+	public void saveQuiz(Quiz quiz) throws IOException {
+		requireNonNull(quiz);
+
+		repository.save(quiz);
 	}
 
 	public void saveQuiz(Quiz quiz, Document doc) throws IOException {
 		requireNonNull(quiz);
 
-		QuizReader reader = getQuizReader(doc);
-		QuizWriter writer = getQuizWriter(doc);
+		QuizRepository repository = getQuizRepository(getQuizFile(doc));
 
-		if (nonNull(reader)) {
-			List<Quiz> quizzes = reader.readQuizzes();
-			int index = quizzes != null ? quizzes.indexOf(quiz) : -1;
-
-			// If quiz is already present, skip.
-			if (index > -1) {
-				return;
-			}
+		if (isNull(repository)) {
+			throw new IOException("Repository does not exist");
 		}
 
-		writer.writeQuiz(quiz);
+		repository.save(quiz);
 	}
 
-	public void saveQuiz(Quiz oldQuiz, Quiz newQuiz, Document doc) throws IOException {
-		QuizWriter writer = getQuizWriter(doc);
-		QuizReader reader = getQuizReader(doc);
+	public void replaceQuiz(Quiz oldQuiz, Quiz newQuiz) throws IOException {
+		requireNonNull(oldQuiz);
+		requireNonNull(newQuiz);
 
-		List<Quiz> quizzes = reader.readQuizzes();
+		List<Quiz> quizzes = repository.findAll();
 
 		int index = quizzes != null ? quizzes.indexOf(oldQuiz) : -1;
 		if (index > -1) {
 			// Overwrite old quiz.
 			quizzes.set(index, newQuiz);
 
-			writer.clear();
-
-			for (Quiz q : quizzes) {
-				writer.writeQuiz(q);
-			}
+			repository.deleteAll();
+			repository.saveAll(quizzes);
 		}
 		else {
 			// Append quiz.
-			writer.writeQuiz(newQuiz);
+			repository.save(newQuiz);
 		}
 	}
 
+	public void replaceQuiz(Quiz oldQuiz, Quiz newQuiz, Document doc)
+			throws IOException {
+		requireNonNull(oldQuiz);
+		requireNonNull(newQuiz);
+
+		QuizRepository repository = getQuizRepository(getQuizFile(doc));
+
+		if (isNull(repository)) {
+			throw new IOException("Repository does not exist");
+		}
+
+		List<Quiz> quizzes = repository.findAll();
+
+		int index = quizzes != null ? quizzes.indexOf(oldQuiz) : -1;
+		if (index > -1) {
+			// Overwrite old quiz.
+			quizzes.set(index, newQuiz);
+
+			repository.deleteAll();
+			repository.saveAll(quizzes);
+		}
+		else {
+			// Append quiz.
+			repository.save(newQuiz);
+		}
+	}
+
+	@Deprecated
 	private List<Quiz> getQuizzes(File quizFile, Quiz.QuizSet set) throws IOException {
 		QuizReader reader = new QuizFileReader(quizFile, set);
 
 		return reader.readQuizzes();
 	}
 
-	private QuizReader getQuizReader(Document doc) {
-		QuizReader reader = null;
+	private void backupFile(File file, Quiz.QuizSet set) throws IOException {
+		if (nonNull(file) && file.exists()) {
+			// Convert deprecated file format and backup old file storage.
+			List<Quiz> oldList = getQuizzes(file, set);
 
-		if (isNull(doc) || !doc.isPDF()) {
-			// Get generic quiz reader.
-			reader = new QuizFileReader(quizFile, Quiz.QuizSet.GENERIC);
-		}
-		else {
-			// Get document specific quiz reader.
-			File quizFile = getQuizFile(doc);
-
-			if (nonNull(quizFile)) {
-				reader = new QuizFileReader(quizFile, Quiz.QuizSet.DOCUMENT_SPECIFIC);
+			QuizRepository repository = getQuizRepository(file);
+			if (nonNull(repository)) {
+				repository.saveAll(oldList);
 			}
-		}
 
-		return reader;
+			var oldFilePath = file.toPath();
+			var oldBackupPath = Paths.get(file.getAbsolutePath() + ".backup");
+
+			Files.copy(oldFilePath, oldBackupPath, StandardCopyOption.REPLACE_EXISTING);
+			Files.delete(oldFilePath);
+		}
 	}
 
-	private QuizWriter getQuizWriter(Document doc) {
-		File file;
-
-		if (isNull(doc) || !doc.isPDF()) {
-			// Get generic quiz writer.
-			file = this.quizFile;
-		}
-		else {
-			// Get document specific quiz writer.
-			file = getQuizFile(doc);
-
-			// Fall back to generic quiz file.
-			if (isNull(file)) {
-				file = this.quizFile;
-			}
+	private QuizRepository getQuizRepository(File file) {
+		if (isNull(file)) {
+			return null;
 		}
 
-		return new QuizFileWriter(file);
+		return new JsonQuizFileRepository(
+				new File(FileUtils.stripExtension(file) + ".quizzes"));
 	}
 
 	private File getQuizFile(Document doc) {
-		if (doc == null || doc.getFilePath() == null || !doc.isPDF()) {
+		if (isNull(doc) || isNull(doc.getFilePath()) || !doc.isPDF()) {
 			return null;
 		}
 

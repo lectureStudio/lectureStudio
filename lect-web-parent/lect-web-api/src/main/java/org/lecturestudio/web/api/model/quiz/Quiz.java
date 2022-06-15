@@ -208,6 +208,7 @@ public class Quiz implements Cloneable, Serializable {
 	@Override
 	public Quiz clone() {
 		Quiz quiz = new Quiz(type, question);
+		quiz.setQuizSet(getQuizSet());
 
 		for (String o : getOptions()) {
 			quiz.addOption(o);

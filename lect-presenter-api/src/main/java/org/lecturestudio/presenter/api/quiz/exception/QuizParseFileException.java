@@ -20,6 +20,7 @@ package org.lecturestudio.presenter.api.quiz.exception;
 
 import java.io.IOException;
 
+@Deprecated
 public class QuizParseFileException extends IOException implements QuizParseException {
 
 	private static final long serialVersionUID = -7650759897102905950L;

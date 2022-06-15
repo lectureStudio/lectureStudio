@@ -42,14 +42,6 @@ public class QuizService {
 		this.documentService = documentService;
 	}
 
-	public void clear() {
-		quizDataSource.clear();
-	}
-
-	public void clear(Document doc) {
-		quizDataSource.clear(doc);
-	}
-
 	public List<Quiz> getQuizzes() throws IOException {
 		return quizDataSource.getQuizzes();
 	}
@@ -59,7 +51,7 @@ public class QuizService {
 	}
 
 	public void saveQuiz(Quiz quiz) throws IOException {
-		quizDataSource.saveQuiz(quiz, null);
+		quizDataSource.saveQuiz(quiz);
 	}
 
 	public void saveQuiz(Quiz quiz, Document doc) throws IOException {
@@ -67,10 +59,10 @@ public class QuizService {
 	}
 
 	public void deleteQuiz(Quiz quiz) throws IOException {
-		quizDataSource.deleteQuiz(quiz, null);
+		quizDataSource.deleteQuiz(quiz);
 
 		// Find and delete the quiz for any opened document.
-		for (var document : documentService.getDocuments().asList()) {
+		for (var document : documentService.getDocuments().getPdfDocuments()) {
 			quizDataSource.deleteQuiz(quiz, document);
 		}
 	}
@@ -81,13 +73,19 @@ public class QuizService {
 
 		if (quizzes.contains(oldQuiz)) {
 			// Replace in-place.
-			quizDataSource.saveQuiz(oldQuiz, newQuiz, null);
+			quizDataSource.replaceQuiz(oldQuiz, newQuiz);
 		}
 		else {
 			Document selectedDoc = documentService.getDocuments().getSelectedDocument();
 
-			quizDataSource.deleteQuiz(oldQuiz, selectedDoc);
-			quizDataSource.saveQuiz(newQuiz, null);
+			if (selectedDoc.isPDF()) {
+				quizDataSource.deleteQuiz(oldQuiz, selectedDoc);
+			}
+			else {
+				quizDataSource.deleteQuiz(oldQuiz);
+			}
+
+			quizDataSource.saveQuiz(newQuiz);
 		}
 	}
 
@@ -95,16 +93,22 @@ public class QuizService {
 		Document selectedDoc = documentService.getDocuments().getSelectedDocument();
 
 		// Remove from generic set.
-		quizDataSource.deleteQuiz(oldQuiz, null);
+		quizDataSource.deleteQuiz(oldQuiz);
 
 		// Refresh within the same set.
 		if (selectedDoc.equals(doc)) {
-			quizDataSource.saveQuiz(oldQuiz, newQuiz, doc);
+			quizDataSource.replaceQuiz(oldQuiz, newQuiz, doc);
 		}
 		else {
 			// Remove from current set, since it has been moved to another set.
 			quizDataSource.deleteQuiz(oldQuiz, selectedDoc);
-			quizDataSource.saveQuiz(oldQuiz, newQuiz, doc);
+
+			if (doc.isPDF()) {
+				quizDataSource.replaceQuiz(oldQuiz, newQuiz, doc);
+			}
+			else {
+				quizDataSource.replaceQuiz(oldQuiz, newQuiz);
+			}
 		}
 	}
 }

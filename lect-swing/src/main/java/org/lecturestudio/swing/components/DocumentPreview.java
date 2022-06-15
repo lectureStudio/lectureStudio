@@ -63,6 +63,8 @@ public class DocumentPreview extends JPanel {
 
 	private JButton openButton;
 
+	private JButton resetButton;
+
 
 	@Inject
 	public DocumentPreview(ResourceBundle bundle) {
@@ -73,6 +75,10 @@ public class DocumentPreview extends JPanel {
 
 	public void setOpenTemplateAction(Action action) {
 		SwingUtils.bindAction(openButton, action);
+	}
+
+	public void setResetTemplateAction(Action action) {
+		SwingUtils.bindAction(resetButton, action);
 	}
 
 	public void setPage(Page page, PresentationParameter parameter) {
@@ -141,13 +147,10 @@ public class DocumentPreview extends JPanel {
 			parentBounds.setSize(viewPanel.getPreferredSize());
 		}
 
-		Rectangle2D pageRect = slideView.getPage().getPageRect();
-		double sx = pageRect.getWidth() / parentBounds.getWidth();
-		double sy = pageRect.getHeight() / parentBounds.getHeight();
-		double x = Math.round(bounds.getX() * sx);
-		double y = Math.round(bounds.getY() * sy);
-		double w = Math.round(bounds.getWidth() * sx);
-		double h = Math.round(bounds.getHeight() * sy);
+		double x = bounds.getX() / parentBounds.getWidth();
+		double y = bounds.getY() / parentBounds.getHeight();
+		double w = bounds.getWidth() / parentBounds.getWidth();
+		double h = bounds.getHeight() / parentBounds.getHeight();
 
 		return new Rectangle2D(x, y, w, h);
 	}
@@ -163,13 +166,10 @@ public class DocumentPreview extends JPanel {
 			return parentBounds;
 		}
 
-		Rectangle2D pageRect = slideView.getPage().getPageRect();
-		double sx = parentBounds.getWidth() / pageRect.getWidth();
-		double sy = parentBounds.getHeight() / pageRect.getHeight();
-		double x = Math.round(bounds.getX() * sx);
-		double y = Math.round(bounds.getY() * sy);
-		double w = Math.round(bounds.getWidth() * sx);
-		double h = Math.round(bounds.getHeight() * sy);
+		double x = bounds.getX() * parentBounds.getWidth();
+		double y = bounds.getY() * parentBounds.getHeight();
+		double w = bounds.getWidth() * parentBounds.getWidth();
+		double h = bounds.getHeight() * parentBounds.getHeight();
 
 		Rectangle viewBounds = new Rectangle();
 		viewBounds.setFrame(x, y, w, h);
@@ -202,15 +202,20 @@ public class DocumentPreview extends JPanel {
 			}
 		});
 
-		openButton = new JButton(bundle.getString("button.browse"));
+		openButton = new JButton(bundle.getString("template.settings.open"));
 		openButton.setIcon(AwtResourceLoader.getIcon("folder-open.svg", 20));
-		openButton.setToolTipText(bundle.getString("button.browse"));
+
+		resetButton = new JButton(bundle.getString("template.settings.reset"));
+		resetButton.setIcon(AwtResourceLoader.getIcon("reset.svg", 20));
 
 		buttonPanel = new JPanel();
 		buttonPanel.setLayout(new BoxLayout(buttonPanel, BoxLayout.X_AXIS));
 		buttonPanel.setBorder(new EmptyBorder(5, 0, 0, 0));
 		buttonPanel.add(Box.createHorizontalGlue());
+		buttonPanel.add(resetButton);
+		buttonPanel.add(Box.createHorizontalStrut(5));
 		buttonPanel.add(openButton);
+		buttonPanel.add(Box.createHorizontalGlue());
 
 		addMouseListener(new MouseAdapter() {
 

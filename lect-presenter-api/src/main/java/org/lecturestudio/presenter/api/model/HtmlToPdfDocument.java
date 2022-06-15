@@ -18,6 +18,7 @@
 
 package org.lecturestudio.presenter.api.model;
 
+import static java.util.Objects.isNull;
 import static java.util.Objects.nonNull;
 
 import com.openhtmltopdf.extend.FSDOMMutator;
@@ -82,6 +83,17 @@ public abstract class HtmlToPdfDocument extends Document {
 		return new PdfDocument(stream.toByteArray());
 	}
 
+	protected static Rectangle2D getPageBounds(PDDocument tplDoc) {
+		if (isNull(tplDoc)) {
+			return new Rectangle2D(0, 0, PAGE_WIDTH, PAGE_HEIGHT);
+		}
+
+		PDPage tplPage = tplDoc.getPage(0);
+		PDRectangle mediaBox = tplPage.getMediaBox();
+
+		return new Rectangle2D(0, 0, mediaBox.getWidth(), mediaBox.getHeight());
+	}
+
 	protected static void renderHtmlPage(org.jsoup.nodes.Document jdoc,
 			PDDocument tplDoc, PDDocument pdDoc, Rectangle2D contentBounds,
 			Map<String, String> resourceMap) throws IOException {
@@ -91,22 +103,16 @@ public abstract class HtmlToPdfDocument extends Document {
 
 		jdoc.outputSettings(outputSettings);
 
+		final Rectangle2D pageBounds = getPageBounds(tplDoc);
 		final PDPage tplPage = nonNull(tplDoc) ? tplDoc.getPage(0) : null;
-		float pageWidth = PAGE_WIDTH;
-		float pageHeight = PAGE_HEIGHT;
-
-		if (nonNull(tplDoc)) {
-			PDRectangle mediaBox = tplPage.getMediaBox();
-
-			pageWidth = mediaBox.getWidth();
-			pageHeight = mediaBox.getHeight();
-		}
+		float pageWidth = (float) pageBounds.getWidth();
+		float pageHeight = (float) pageBounds.getHeight();
 
 		if (nonNull(contentBounds)) {
-			int marginLeft = (int) contentBounds.getX();
-			int marginTop = (int) contentBounds.getY();
-			int marginRight = (int) (pageWidth - (contentBounds.getX() + contentBounds.getWidth()));
-			int marginBottom = (int) (pageHeight - (contentBounds.getY() + contentBounds.getHeight()));
+			int marginLeft = (int) (contentBounds.getX() * pageWidth);
+			int marginTop = (int) (contentBounds.getY() * pageHeight);
+			int marginRight = (int) (pageWidth - (contentBounds.getX() + contentBounds.getWidth()) * pageWidth);
+			int marginBottom = (int) (pageHeight - (contentBounds.getY() + contentBounds.getHeight()) * pageHeight);
 
 			marginLeft = (int) (marginLeft * 1.5);
 			marginTop = (int) (marginTop * 1.5);

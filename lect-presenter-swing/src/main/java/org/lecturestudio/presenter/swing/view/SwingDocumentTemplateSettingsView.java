@@ -106,8 +106,18 @@ public class SwingDocumentTemplateSettingsView extends JPanel implements Documen
 	}
 
 	@Override
+	public void setOnResetChatMessageTemplatePath(Action action) {
+		chatMessagePreview.setResetTemplateAction(action);
+	}
+
+	@Override
 	public void setOnSelectHallMessageTemplatePath(Action action) {
 		hallMessagePreview.setOpenTemplateAction(action);
+	}
+
+	@Override
+	public void setOnResetHallMessageTemplatePath(Action action) {
+		hallMessagePreview.setResetTemplateAction(action);
 	}
 
 	@Override
@@ -116,8 +126,18 @@ public class SwingDocumentTemplateSettingsView extends JPanel implements Documen
 	}
 
 	@Override
+	public void setOnResetQuizTemplatePath(Action action) {
+		quizPreview.setResetTemplateAction(action);
+	}
+
+	@Override
 	public void setOnSelectWhiteboardTemplatePath(Action action) {
 		whiteboardPreview.setOpenTemplateAction(action);
+	}
+
+	@Override
+	public void setOnResetWhiteboardTemplatePath(Action action) {
+		whiteboardPreview.setResetTemplateAction(action);
 	}
 
 	@Override

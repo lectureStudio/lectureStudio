@@ -47,6 +47,8 @@ public class DocumentTemplateSettingsPresenter extends Presenter<DocumentTemplat
 
 	private final TemplateConfiguration templateConfig;
 
+	private final TemplateConfiguration defaultTemplateConfig;
+
 	private final ViewContextFactory viewFactory;
 
 
@@ -57,6 +59,7 @@ public class DocumentTemplateSettingsPresenter extends Presenter<DocumentTemplat
 
 		this.viewFactory = viewFactory;
 		this.templateConfig = context.getConfiguration().getTemplateConfig();
+		this.defaultTemplateConfig = new DefaultConfiguration().getTemplateConfig();
 	}
 
 	@Override
@@ -75,9 +78,13 @@ public class DocumentTemplateSettingsPresenter extends Presenter<DocumentTemplat
 		view.bindHallMessageBounds(hallConfig.boundsProperty());
 		view.bindQuizBounds(quizConfig.boundsProperty());
 		view.setOnSelectChatMessageTemplatePath(this::selectChatMessageTemplatePath);
+		view.setOnResetChatMessageTemplatePath(this::resetChatMessageTemplatePath);
 		view.setOnSelectHallMessageTemplatePath(this::selectHallMessageTemplatePath);
+		view.setOnResetHallMessageTemplatePath(this::resetHallMessageTemplatePath);
 		view.setOnSelectQuizTemplatePath(this::selectQuizTemplatePath);
+		view.setOnResetQuizTemplatePath(this::resetQuizTemplatePath);
 		view.setOnSelectWhiteboardTemplatePath(this::selectWhiteboardTemplatePath);
+		view.setOnResetWhiteboardTemplatePath(this::resetWhiteboardTemplatePath);
 		view.setOnReset(this::reset);
 	}
 
@@ -108,19 +115,43 @@ public class DocumentTemplateSettingsPresenter extends Presenter<DocumentTemplat
 	}
 
 	private void selectChatMessageTemplatePath() {
-		selectTemplate(templateConfig.getChatMessageTemplateConfig().templatePathProperty());
+		selectTemplate(templateConfig.getChatMessageTemplateConfig()
+				.templatePathProperty());
+	}
+
+	private void resetChatMessageTemplatePath() {
+		resetTemplate(templateConfig.getChatMessageTemplateConfig(),
+				defaultTemplateConfig.getChatMessageTemplateConfig());
 	}
 
 	private void selectHallMessageTemplatePath() {
-		selectTemplate(templateConfig.getHallMessageTemplateConfig().templatePathProperty());
+		selectTemplate(templateConfig.getHallMessageTemplateConfig()
+				.templatePathProperty());
+	}
+
+	private void resetHallMessageTemplatePath() {
+		resetTemplate(templateConfig.getHallMessageTemplateConfig(),
+				defaultTemplateConfig.getHallMessageTemplateConfig());
 	}
 
 	private void selectQuizTemplatePath() {
-		selectTemplate(templateConfig.getQuizTemplateConfig().templatePathProperty());
+		selectTemplate(templateConfig.getQuizTemplateConfig()
+				.templatePathProperty());
+	}
+
+	private void resetQuizTemplatePath() {
+		resetTemplate(templateConfig.getQuizTemplateConfig(),
+				defaultTemplateConfig.getQuizTemplateConfig());
 	}
 
 	private void selectWhiteboardTemplatePath() {
-		selectTemplate(templateConfig.getWhiteboardTemplateConfig().templatePathProperty());
+		selectTemplate(templateConfig.getWhiteboardTemplateConfig()
+				.templatePathProperty());
+	}
+
+	private void resetWhiteboardTemplatePath() {
+		resetTemplate(templateConfig.getWhiteboardTemplateConfig(),
+				defaultTemplateConfig.getWhiteboardTemplateConfig());
 	}
 
 	private void selectTemplate(StringProperty property) {
@@ -163,6 +194,12 @@ public class DocumentTemplateSettingsPresenter extends Presenter<DocumentTemplat
 		return new File(nonNull(path) ? path : "");
 	}
 
+	private void resetTemplate(DocumentTemplateConfiguration tplConfig,
+			DocumentTemplateConfiguration defConfig) {
+		tplConfig.setTemplatePath(defConfig.getTemplatePath());
+		tplConfig.setBounds(defConfig.getBounds());
+	}
+
 	private void reset() {
 		DefaultConfiguration defaultConfig = new DefaultConfiguration();
 		TemplateConfiguration defaultTemplateConfig = defaultConfig.getTemplateConfig();
@@ -174,8 +211,7 @@ public class DocumentTemplateSettingsPresenter extends Presenter<DocumentTemplat
 			var defaultTplConf = defaultList.get(i);
 			var tplConf = configList.get(i);
 
-			tplConf.setTemplatePath(defaultTplConf.getTemplatePath());
-			tplConf.setBounds(defaultTplConf.getBounds());
+			resetTemplate(tplConf, defaultTplConf);
 		}
 	}
 }

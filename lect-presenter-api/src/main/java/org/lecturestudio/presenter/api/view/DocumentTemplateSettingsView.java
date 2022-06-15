@@ -42,10 +42,18 @@ public interface DocumentTemplateSettingsView extends SettingsBaseView {
 
 	void setOnSelectChatMessageTemplatePath(Action action);
 
+	void setOnResetChatMessageTemplatePath(Action action);
+
 	void setOnSelectHallMessageTemplatePath(Action action);
+
+	void setOnResetHallMessageTemplatePath(Action action);
 
 	void setOnSelectQuizTemplatePath(Action action);
 
+	void setOnResetQuizTemplatePath(Action action);
+
 	void setOnSelectWhiteboardTemplatePath(Action action);
+
+	void setOnResetWhiteboardTemplatePath(Action action);
 
 }

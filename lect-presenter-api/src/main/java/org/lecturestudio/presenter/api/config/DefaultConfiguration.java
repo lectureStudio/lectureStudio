@@ -28,6 +28,7 @@ import org.lecturestudio.core.audio.AudioProcessingSettings;
 import org.lecturestudio.core.audio.AudioProcessingSettings.NoiseSuppressionLevel;
 import org.lecturestudio.core.geometry.Dimension2D;
 import org.lecturestudio.core.geometry.Position;
+import org.lecturestudio.core.geometry.Rectangle2D;
 import org.lecturestudio.core.graphics.Color;
 import org.lecturestudio.core.text.Font;
 import org.lecturestudio.core.text.TeXFont;
@@ -122,6 +123,9 @@ public class DefaultConfiguration extends PresenterConfiguration {
 		getStreamConfig().getCameraCodecConfig().setBitRate(200);
 		getStreamConfig().getCameraCodecConfig().setPreset("ultrafast");
 		getStreamConfig().getCameraCodecConfig().setFrameRate(30);
+
+		getTemplateConfig().getQuizTemplateConfig().setBounds(new Rectangle2D(0.05, 0.05, 0.9, 0.9));
+		getTemplateConfig().getChatMessageTemplateConfig().setBounds(new Rectangle2D(0.05, 0.05, 0.9, 0.9));
 	}
 
 }

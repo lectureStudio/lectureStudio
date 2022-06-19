@@ -24,6 +24,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.module.SimpleModule;
 
 import org.lecturestudio.core.app.configuration.JsonConfigurationService;
+import org.lecturestudio.core.geometry.Rectangle2D;
 import org.lecturestudio.presenter.api.model.bind.IpRangeRuleDeserializer;
 import org.lecturestudio.presenter.api.model.bind.RegexRuleDeserializer;
 import org.lecturestudio.web.api.filter.IpRangeRule;
@@ -53,6 +54,21 @@ public class PresenterConfigService extends JsonConfigurationService<PresenterCo
 		if (isNull(config.getStreamConfig().getServerName())) {
 			config.getStreamConfig().setServerName(defaultConfig
 					.getStreamConfig().getServerName());
+		}
+
+		config.getTemplateConfig().getAll().forEach(this::checkBoundsValid);
+	}
+
+	private void checkBoundsValid(DocumentTemplateConfiguration tplConfig) {
+		Rectangle2D bounds = tplConfig.getBounds();
+
+		if (isNull(bounds)) {
+			return;
+		}
+
+		if (bounds.getX() > 1 || bounds.getY() > 1 || bounds.getWidth() > 1
+				|| bounds.getHeight() > 1) {
+			tplConfig.setBounds(new DocumentTemplateConfiguration().getBounds());
 		}
 	}
 }

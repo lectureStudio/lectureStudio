@@ -26,7 +26,7 @@ public class DocumentTemplateConfiguration {
 
 	private final StringProperty templatePath = new StringProperty();
 
-	private final ObjectProperty<Rectangle2D> bounds = new ObjectProperty<>();
+	private final ObjectProperty<Rectangle2D> bounds = new ObjectProperty<>(new Rectangle2D(0.05, 0.05, 0.9, 0.9));
 
 
 	public String getTemplatePath() {

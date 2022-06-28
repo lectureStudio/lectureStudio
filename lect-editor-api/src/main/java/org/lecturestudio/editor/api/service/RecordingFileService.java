@@ -41,7 +41,7 @@ import org.lecturestudio.core.io.RandomAccessAudioStream;
 import org.lecturestudio.core.model.Document;
 import org.lecturestudio.core.recording.RecordingEditException;
 import org.lecturestudio.core.recording.edit.EditAction;
-import org.lecturestudio.core.recording.edit.ReplaceAudioAction;
+import org.lecturestudio.editor.api.edit.ReplaceAudioAction;
 import org.lecturestudio.core.recording.RecordingChangeEvent;
 import org.lecturestudio.core.recording.RecordingChangeListener;
 import org.lecturestudio.core.recording.Recording;

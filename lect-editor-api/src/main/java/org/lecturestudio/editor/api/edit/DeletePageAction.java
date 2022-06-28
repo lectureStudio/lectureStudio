@@ -23,11 +23,7 @@ import java.util.List;
 import org.lecturestudio.core.model.Interval;
 import org.lecturestudio.core.recording.RecordedPage;
 import org.lecturestudio.core.recording.Recording;
-import org.lecturestudio.core.recording.edit.DeleteAudioAction;
-import org.lecturestudio.core.recording.edit.DeleteDocumentPageAction;
-import org.lecturestudio.core.recording.edit.DeleteEventsAction;
 import org.lecturestudio.core.recording.edit.EditAction;
-import org.lecturestudio.core.recording.edit.EditHeaderAction;
 
 /**
  * A {@code DeletePageAction} removes a portion of a recording specified by the

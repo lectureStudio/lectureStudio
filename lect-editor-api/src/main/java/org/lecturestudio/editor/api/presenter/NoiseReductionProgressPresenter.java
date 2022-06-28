@@ -39,7 +39,7 @@ import org.lecturestudio.core.io.RandomAccessAudioStream;
 import org.lecturestudio.core.presenter.Presenter;
 import org.lecturestudio.core.recording.RecordedAudio;
 import org.lecturestudio.core.recording.Recording;
-import org.lecturestudio.core.recording.edit.ReplaceAudioAction;
+import org.lecturestudio.editor.api.edit.ReplaceAudioAction;
 import org.lecturestudio.core.view.ViewLayer;
 import org.lecturestudio.editor.api.context.EditorContext;
 import org.lecturestudio.editor.api.service.RecordingFileService;

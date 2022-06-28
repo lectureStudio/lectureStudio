@@ -16,38 +16,38 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package org.lecturestudio.core.recording.edit;
+package org.lecturestudio.editor.api.edit;
 
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
 
 import org.lecturestudio.core.model.Document;
 import org.lecturestudio.core.model.Page;
 import org.lecturestudio.core.recording.RecordingEditException;
 import org.lecturestudio.core.recording.RecordedDocument;
 
-public class DeleteDocumentAction extends RecordedObjectAction<RecordedDocument> {
+public class InsertDocumentAction extends RecordingInsertAction<RecordedDocument> {
 
-	private final List<Integer> pages = new ArrayList<>();
+	private final boolean split;
+
+	private final int startIndex;
 
 	private byte[] docStream;
 
 
-	public DeleteDocumentAction(RecordedDocument lectureObject) {
-		super(lectureObject);
-	}
+	public InsertDocumentAction(RecordedDocument recordedObject,
+			RecordedDocument document,
+			boolean split,
+			int startTime,
+			int startIndex) {
+		super(recordedObject, document, startTime);
 
-	public void removePage(int pageNumber) {
-		pages.add(pageNumber);
+		this.split = split;
+		this.startIndex = startIndex;
 	}
 
 	@Override
 	public void undo() throws RecordingEditException {
-		if (pages.isEmpty()) {
-			return;
-		}
-
 		try {
 			getRecordedObject().parseFrom(docStream);
 		}
@@ -58,43 +58,54 @@ public class DeleteDocumentAction extends RecordedObjectAction<RecordedDocument>
 
 	@Override
 	public void redo() throws RecordingEditException {
-		if (pages.isEmpty()) {
-			return;
-		}
-
 		execute();
 	}
 
 	@Override
 	public void execute() throws RecordingEditException {
-		Document document = getDocument();
-		List<Page> removeList = new ArrayList<>();
+		if (startIndex < 0) {
+			throw new RecordingEditException("Invalid insert position");
+		}
+
+		Document doc = getRecordedObject().getDocument();
+		Document newDoc;
 
 		try {
 			docStream = getRecordedObject().toByteArray();
-		}
-		catch (IOException e) {
-			throw new RecordingEditException(e);
-		}
 
-		for (int pageNumber : pages) {
-			removeList.add(document.getPage(pageNumber));
-		}
-		for (Page page : removeList) {
-			document.removePage(page);
-		}
+			newDoc = new Document();
+			newDoc.setTitle(doc.getTitle());
 
-		// Serialize and load changed document.
-		try {
-			getRecordedObject().parseFrom(getRecordedObject().toByteArray());
+			// Copy pages from the current document.
+			for (int i = 0; i < startIndex; i++) {
+				newDoc.createPage(doc.getPage(i));
+			}
+
+			if (split) {
+				newDoc.createPage(doc.getPage(startIndex));
+			}
+
+			// Copy pages from the document to insert.
+			for (Page page : objectToInsert.getDocument().getPages()) {
+				newDoc.createPage(page);
+			}
+
+			// Copy pages from the current document.
+			for (int i = startIndex; i < doc.getPageCount(); i++) {
+				newDoc.createPage(doc.getPage(i));
+			}
+
+			// Serialize and load new document.
+			ByteArrayOutputStream stream = new ByteArrayOutputStream();
+			newDoc.toOutputStream(stream);
+			stream.close();
+
+			getRecordedObject().parseFrom(stream.toByteArray());
+
+			newDoc.close();
 		}
 		catch (IOException e) {
 			throw new RecordingEditException(e);
 		}
 	}
-
-	private Document getDocument() {
-		return getRecordedObject().getDocument();
-	}
-
 }

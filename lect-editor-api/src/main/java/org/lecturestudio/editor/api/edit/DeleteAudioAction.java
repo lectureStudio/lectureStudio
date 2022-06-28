@@ -16,7 +16,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package org.lecturestudio.core.recording.edit;
+package org.lecturestudio.editor.api.edit;
 
 import java.io.IOException;
 import java.util.List;
@@ -26,6 +26,7 @@ import org.lecturestudio.core.io.RandomAccessAudioStream;
 import org.lecturestudio.core.model.Interval;
 import org.lecturestudio.core.recording.RecordingEditException;
 import org.lecturestudio.core.recording.RecordedAudio;
+import org.lecturestudio.core.recording.edit.RecordedObjectAction;
 import org.lecturestudio.core.util.AudioUtils;
 
 public class DeleteAudioAction extends RecordedObjectAction<RecordedAudio> {

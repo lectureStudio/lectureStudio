@@ -25,7 +25,6 @@ import org.lecturestudio.core.recording.RecordedEvents;
 import org.lecturestudio.core.recording.Recording;
 import org.lecturestudio.core.recording.Recording.Content;
 import org.lecturestudio.core.recording.action.PlaybackAction;
-import org.lecturestudio.core.recording.edit.DeleteEventAction;
 import org.lecturestudio.core.recording.edit.EditAction;
 
 /**

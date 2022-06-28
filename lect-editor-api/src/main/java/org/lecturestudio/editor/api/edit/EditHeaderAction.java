@@ -16,9 +16,10 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package org.lecturestudio.core.recording.edit;
+package org.lecturestudio.editor.api.edit;
 
 import org.lecturestudio.core.recording.RecordingHeader;
+import org.lecturestudio.core.recording.edit.RecordedObjectAction;
 
 public class EditHeaderAction extends RecordedObjectAction<RecordingHeader> {
 

@@ -16,7 +16,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package org.lecturestudio.core.recording.edit;
+package org.lecturestudio.editor.api.edit;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -26,6 +26,7 @@ import java.util.Map;
 import org.lecturestudio.core.model.Interval;
 import org.lecturestudio.core.recording.RecordedEvents;
 import org.lecturestudio.core.recording.RecordedPage;
+import org.lecturestudio.core.recording.edit.RecordedObjectAction;
 
 public class DeleteEventsAction extends RecordedObjectAction<RecordedEvents> {
 

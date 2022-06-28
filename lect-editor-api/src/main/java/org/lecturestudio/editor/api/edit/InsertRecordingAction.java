@@ -27,10 +27,6 @@ import org.lecturestudio.core.recording.RecordedPage;
 import org.lecturestudio.core.recording.Recording;
 import org.lecturestudio.core.recording.RecordingHeader;
 import org.lecturestudio.core.recording.edit.EditAction;
-import org.lecturestudio.core.recording.edit.EditHeaderAction;
-import org.lecturestudio.core.recording.edit.InsertAudioAction;
-import org.lecturestudio.core.recording.edit.InsertDocumentAction;
-import org.lecturestudio.core.recording.edit.InsertEventsAction;
 
 /**
  * Inserts a {@code Recording} into another {@code Recording} that is being

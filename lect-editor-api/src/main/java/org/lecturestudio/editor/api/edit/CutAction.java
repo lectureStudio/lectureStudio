@@ -35,11 +35,7 @@ import org.lecturestudio.core.recording.RecordedEvents;
 import org.lecturestudio.core.recording.RecordedPage;
 import org.lecturestudio.core.recording.Recording;
 import org.lecturestudio.core.recording.RecordingHeader;
-import org.lecturestudio.core.recording.edit.DeleteAudioAction;
-import org.lecturestudio.core.recording.edit.DeleteDocumentAction;
-import org.lecturestudio.core.recording.edit.DeleteEventsAction;
 import org.lecturestudio.core.recording.edit.EditAction;
-import org.lecturestudio.core.recording.edit.EditHeaderAction;
 
 /**
  * A {@code CutAction} removes a portion of a recording specified by a time

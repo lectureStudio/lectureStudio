@@ -16,31 +16,32 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package org.lecturestudio.core.recording.edit;
+package org.lecturestudio.editor.api.edit;
 
 import java.io.IOException;
 
-import org.lecturestudio.core.io.RandomAccessAudioStream;
+import org.lecturestudio.core.model.Document;
+import org.lecturestudio.core.recording.RecordedDocument;
 import org.lecturestudio.core.recording.RecordingEditException;
-import org.lecturestudio.core.recording.RecordedAudio;
+import org.lecturestudio.core.recording.edit.RecordedObjectAction;
 
-public class ReplaceAudioAction extends RecordedObjectAction<RecordedAudio> {
+public class DeleteDocumentPageAction extends RecordedObjectAction<RecordedDocument> {
 
-	private final RandomAccessAudioStream oldStream;
-	private final RandomAccessAudioStream newStream;
+	private final int pageNumber;
+
+	private byte[] docStream;
 
 
-	public ReplaceAudioAction(RecordedAudio audio, RandomAccessAudioStream newStream) {
-		super(audio);
+	public DeleteDocumentPageAction(RecordedDocument lectureObject, int pageNumber) {
+		super(lectureObject);
 
-		this.newStream = newStream;
-		this.oldStream = audio.getAudioStream();
+		this.pageNumber = pageNumber;
 	}
 
 	@Override
 	public void undo() throws RecordingEditException {
 		try {
-			getRecordedObject().setAudioStream(oldStream.clone());
+			getRecordedObject().parseFrom(docStream);
 		}
 		catch (IOException e) {
 			throw new RecordingEditException(e);
@@ -54,12 +55,23 @@ public class ReplaceAudioAction extends RecordedObjectAction<RecordedAudio> {
 
 	@Override
 	public void execute() throws RecordingEditException {
+		Document document = getRecordedObject().getDocument();
+
 		try {
-			getRecordedObject().setAudioStream(newStream.clone());
+			docStream = getRecordedObject().toByteArray();
+		}
+		catch (IOException e) {
+			throw new RecordingEditException(e);
+		}
+
+		document.removePage(document.getPage(pageNumber));
+
+		// Serialize and load changed document.
+		try {
+			getRecordedObject().parseFrom(getRecordedObject().toByteArray());
 		}
 		catch (IOException e) {
 			throw new RecordingEditException(e);
 		}
 	}
-
 }

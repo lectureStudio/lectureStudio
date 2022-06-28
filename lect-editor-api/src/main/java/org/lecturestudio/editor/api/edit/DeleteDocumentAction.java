@@ -16,29 +16,39 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package org.lecturestudio.core.recording.edit;
+package org.lecturestudio.editor.api.edit;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
 import org.lecturestudio.core.model.Document;
-import org.lecturestudio.core.recording.RecordedDocument;
+import org.lecturestudio.core.model.Page;
 import org.lecturestudio.core.recording.RecordingEditException;
+import org.lecturestudio.core.recording.RecordedDocument;
+import org.lecturestudio.core.recording.edit.RecordedObjectAction;
 
-public class DeleteDocumentPageAction extends RecordedObjectAction<RecordedDocument> {
+public class DeleteDocumentAction extends RecordedObjectAction<RecordedDocument> {
 
-	private final int pageNumber;
+	private final List<Integer> pages = new ArrayList<>();
 
 	private byte[] docStream;
 
 
-	public DeleteDocumentPageAction(RecordedDocument lectureObject, int pageNumber) {
+	public DeleteDocumentAction(RecordedDocument lectureObject) {
 		super(lectureObject);
+	}
 
-		this.pageNumber = pageNumber;
+	public void removePage(int pageNumber) {
+		pages.add(pageNumber);
 	}
 
 	@Override
 	public void undo() throws RecordingEditException {
+		if (pages.isEmpty()) {
+			return;
+		}
+
 		try {
 			getRecordedObject().parseFrom(docStream);
 		}
@@ -49,12 +59,17 @@ public class DeleteDocumentPageAction extends RecordedObjectAction<RecordedDocum
 
 	@Override
 	public void redo() throws RecordingEditException {
+		if (pages.isEmpty()) {
+			return;
+		}
+
 		execute();
 	}
 
 	@Override
 	public void execute() throws RecordingEditException {
-		Document document = getRecordedObject().getDocument();
+		Document document = getDocument();
+		List<Page> removeList = new ArrayList<>();
 
 		try {
 			docStream = getRecordedObject().toByteArray();
@@ -63,7 +78,12 @@ public class DeleteDocumentPageAction extends RecordedObjectAction<RecordedDocum
 			throw new RecordingEditException(e);
 		}
 
-		document.removePage(document.getPage(pageNumber));
+		for (int pageNumber : pages) {
+			removeList.add(document.getPage(pageNumber));
+		}
+		for (Page page : removeList) {
+			document.removePage(page);
+		}
 
 		// Serialize and load changed document.
 		try {
@@ -73,4 +93,9 @@ public class DeleteDocumentPageAction extends RecordedObjectAction<RecordedDocum
 			throw new RecordingEditException(e);
 		}
 	}
+
+	private Document getDocument() {
+		return getRecordedObject().getDocument();
+	}
+
 }

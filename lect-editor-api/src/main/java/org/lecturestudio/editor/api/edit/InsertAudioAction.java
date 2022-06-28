@@ -64,7 +64,7 @@ public class InsertAudioAction extends RecordingInsertAction<RecordedAudio> {
 		RandomAccessAudioStream insStream = objectToInsert.getAudioStream();
 		RandomAccessAudioStream stream = getRecordedObject().getAudioStream();
 		AudioFormat audioFormat = stream.getAudioFormat();
-		AudioFormat insAudioFormat = stream.getAudioFormat();
+		AudioFormat insAudioFormat = insStream.getAudioFormat();
 
 		oldStream = stream.clone();
 
@@ -100,7 +100,7 @@ public class InsertAudioAction extends RecordingInsertAction<RecordedAudio> {
 			}
 
 			// Copy inserted audio stream.
-			if (audioFormat.equals(insStream.getAudioFormat())) {
+			if (audioFormat.equals(insAudioFormat)) {
 				while ((read = insStream.read(buffer)) > 0) {
 					fileOutputStream.write(buffer, 0, read);
 				}

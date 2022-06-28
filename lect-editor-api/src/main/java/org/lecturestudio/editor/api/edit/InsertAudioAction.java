@@ -18,6 +18,8 @@
 
 package org.lecturestudio.editor.api.edit;
 
+import dev.onvoid.webrtc.media.audio.AudioConverter;
+
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -62,10 +64,7 @@ public class InsertAudioAction extends RecordingInsertAction<RecordedAudio> {
 		RandomAccessAudioStream insStream = objectToInsert.getAudioStream();
 		RandomAccessAudioStream stream = getRecordedObject().getAudioStream();
 		AudioFormat audioFormat = stream.getAudioFormat();
-
-		if (!audioFormat.equals(insStream.getAudioFormat())) {
-			throw new RecordingEditException("Audio formats do not match");
-		}
+		AudioFormat insAudioFormat = stream.getAudioFormat();
 
 		oldStream = stream.clone();
 
@@ -101,8 +100,35 @@ public class InsertAudioAction extends RecordingInsertAction<RecordedAudio> {
 			}
 
 			// Copy inserted audio stream.
-			while ((read = insStream.read(buffer)) > 0) {
-				fileOutputStream.write(buffer, 0, read);
+			if (audioFormat.equals(insStream.getAudioFormat())) {
+				while ((read = insStream.read(buffer)) > 0) {
+					fileOutputStream.write(buffer, 0, read);
+				}
+			}
+			else {
+				// Audio formats do not match. Need audio conversion.
+				int insSampleRate = insAudioFormat.getSampleRate();
+				int insChannels = insAudioFormat.getChannels();
+
+				AudioConverter converter = new AudioConverter(
+						insSampleRate, insChannels,
+						audioFormat.getSampleRate(), audioFormat.getChannels());
+
+				// kHz / 100 (10 ms frame) * channels * 2 (16-bit PCM sample)
+				byte[] input = new byte[insSampleRate / 100 * insChannels * 2];
+
+				// Fill the input buffer...
+				while ((read = insStream.read(input)) > 0) {
+					byte[] output = new byte[converter.getTargetBufferSize()];
+
+					// 'nConverted' represents the number of samples in the output buffer.
+					int nConverted = converter.convert(input, output);
+
+					// write(output, 0, nConverted * 2); (16-bit PCM sample)
+					fileOutputStream.write(output, 0, nConverted * 2);
+				}
+
+				converter.dispose();
 			}
 
 			// Copy current audio stream.
@@ -121,5 +147,4 @@ public class InsertAudioAction extends RecordingInsertAction<RecordedAudio> {
 			throw new RecordingEditException(e);
 		}
 	}
-
 }

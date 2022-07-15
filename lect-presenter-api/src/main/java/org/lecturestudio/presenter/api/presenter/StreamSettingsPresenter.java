@@ -18,6 +18,8 @@
 
 package org.lecturestudio.presenter.api.presenter;
 
+import java.util.concurrent.CompletableFuture;
+
 import javax.inject.Inject;
 
 import org.lecturestudio.core.app.ApplicationContext;
@@ -82,13 +84,13 @@ public class StreamSettingsPresenter extends Presenter<StreamSettingsView> {
 		StreamProviderService streamProviderService = new StreamProviderService(
 				parameters, streamConfig::getAccessToken);
 
-		try {
-			streamProviderService.getCourses();
-
-			view.setAccessTokenValid(true);
-		}
-		catch (Exception e) {
-			view.setAccessTokenValid(false);
-		}
+		CompletableFuture.runAsync(streamProviderService::getCourses)
+				.thenRun(() -> {
+					view.setAccessTokenValid(true);
+				})
+				.exceptionally(throwable -> {
+					view.setAccessTokenValid(false);
+					return null;
+				});
 	}
 }

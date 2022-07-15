@@ -36,6 +36,7 @@ import org.lecturestudio.core.beans.IntegerProperty;
 import org.lecturestudio.core.beans.ObjectProperty;
 import org.lecturestudio.core.beans.StringProperty;
 import org.lecturestudio.core.converter.IntegerStringConverter;
+import org.lecturestudio.core.converter.RegexConverter;
 import org.lecturestudio.core.view.Action;
 import org.lecturestudio.presenter.api.view.StreamSettingsView;
 import org.lecturestudio.swing.beans.ConvertibleObjectProperty;
@@ -99,7 +100,9 @@ public class SwingStreamSettingsView extends JPanel implements StreamSettingsVie
 
 	@Override
 	public void setServerName(StringProperty serverName) {
-		SwingUtils.bindBidirectional(serverNameTextField, serverName);
+		SwingUtils.bindBidirectional(serverNameTextField,
+				new ConvertibleObjectProperty<>(serverName,
+						new RegexConverter("^(?:https?:\\/\\/)?(?:[^@\\/\\n]+@)?(?:www\\.)?([^:\\/?\\n]+)")));
 	}
 
 	@Override

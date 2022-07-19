@@ -24,6 +24,8 @@ import java.time.ZonedDateTime;
 
 public abstract class WebMessage {
 
+	private String messageId;
+
 	private String firstName;
 
 	private String familyName;
@@ -32,6 +34,14 @@ public abstract class WebMessage {
 
 	private ZonedDateTime date;
 
+
+	public String getMessageId() {
+		return messageId;
+	}
+
+	public void setMessageId(String messageId) {
+		this.messageId = messageId;
+	}
 
 	public String getFirstName() {
 		return requireNonNullElse(firstName, "");

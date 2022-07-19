@@ -27,15 +27,26 @@ public class MessengerMessage extends WebMessage {
 
 	private Message message;
 
+	private Boolean reply;
+
 
 	public MessengerMessage() {
 		this(null, null, null);
 	}
 
-	public MessengerMessage(Message message, String remoteAddress, ZonedDateTime date) {
+	public MessengerMessage(Message message, String remoteAddress,
+			ZonedDateTime date) {
 		setMessage(message);
 		setRemoteAddress(remoteAddress);
 		setDate(date);
+		setReply(false);
+	}
+
+	public MessengerMessage(Message message, String remoteAddress,
+			ZonedDateTime date, String messageId) {
+		this(message, remoteAddress, date);
+
+		setMessageId(messageId);
 	}
 
 	/**
@@ -50,6 +61,14 @@ public class MessengerMessage extends WebMessage {
 	 */
 	public void setMessage(Message message) {
 		this.message = message;
+	}
+
+	public void setReply(boolean reply) {
+		this.reply = reply;
+	}
+
+	public Boolean getReply() {
+		return this.reply;
 	}
 
 	@Override

@@ -26,8 +26,18 @@ package org.lecturestudio.web.api.message;
  */
 public class CourseParticipantMessage extends WebMessage {
 
+	private String userName;
+
 	private boolean connected;
 
+
+	public String getUserName() {
+		return userName;
+	}
+
+	public void setUserName(String username) {
+		this.userName = username;
+	}
 
 	/**
 	 * Get whether the participant connected or disconnected to/from the current

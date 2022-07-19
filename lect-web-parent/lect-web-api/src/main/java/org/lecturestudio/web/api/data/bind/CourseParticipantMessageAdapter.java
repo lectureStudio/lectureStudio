@@ -41,6 +41,9 @@ public class CourseParticipantMessageAdapter implements JsonbAdapter<CourseParti
 		if (nonNull(message.getFamilyName())) {
 			builder.add("familyName", message.getFamilyName());
 		}
+		if (nonNull(message.getUserName())) {
+			builder.add("username", message.getUserName());
+		}
 
 		return builder.build();
 	}
@@ -52,6 +55,7 @@ public class CourseParticipantMessageAdapter implements JsonbAdapter<CourseParti
 		Class<?> cls = Class.forName(className);
 
 		CourseParticipantMessage message = (CourseParticipantMessage) cls.getConstructor().newInstance();
+		message.setUserName(jsonObject.getString("username"));
 		message.setFirstName(jsonObject.getString("firstName"));
 		message.setFamilyName(jsonObject.getString("familyName"));
 		message.setConnected(jsonObject.getBoolean("connected"));

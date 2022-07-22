@@ -119,6 +119,8 @@ public interface SlidesView extends View {
 
 	void setOnStopQuiz(Action action);
 
+	void setOnSendMessage(ConsumerAction<String> action);
+
 	void setOnOutlineItem(ConsumerAction<DocumentOutlineItem> action);
 
 	void setOnExternalMessagesPositionChanged(ConsumerAction<ExternalWindowPosition> action);

@@ -40,6 +40,7 @@ import org.lecturestudio.presenter.api.event.QuizStateEvent;
 import org.lecturestudio.presenter.api.net.LocalBroadcaster;
 import org.lecturestudio.web.api.client.TokenProvider;
 import org.lecturestudio.web.api.message.MessageTransport;
+import org.lecturestudio.web.api.message.WebMessage;
 import org.lecturestudio.web.api.message.WebSocketStompTransport;
 import org.lecturestudio.web.api.model.quiz.Quiz;
 import org.lecturestudio.web.api.service.ServiceParameters;
@@ -146,6 +147,16 @@ public class WebService extends ExecutableBase {
 		stopService(service);
 
 		context.getEventBus().post(new MessengerStateEvent(ExecutableState.Stopped));
+	}
+
+	public void sendMessengerMessage(WebMessage message) {
+		var service = getService(MessageFeatureWebService.class);
+
+		if (isNull(service)) {
+			return;
+		}
+
+		messageTransport.sendMessage(message);
 	}
 
 	/**

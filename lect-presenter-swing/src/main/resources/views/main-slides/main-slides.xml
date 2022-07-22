@@ -18,10 +18,16 @@
 
 				<AdaptiveTabbedPane id="bottomTabPane" tabPlacement="JTabbedPane.BOTTOM" defaultTabType="AdaptiveTabType.MESSAGE">
 					<Tab id="messageTab" name="message" text="slides.message" icon="messenger-indicator.svg, 20">
-						<Panel id="messagesPanel" layout="BorderLayout">
-							<ScrollPane id="messagesPane">
-								<VBox id="messageViewContainer" border="EmptyBorder(10, 10, 10, 10)" />
-							</ScrollPane>
+						<Panel layout="BorderLayout">
+							<HBox id="messageSendPanel" constraints="BorderLayout.NORTH">
+								<TextField id="messageTextField" text="" />
+								<Button id="sendMessageButton" text="slides.message.send" />
+							</HBox>
+							<Panel id="messagesPanel" layout="BorderLayout">
+								<ScrollPane id="messagesPane" constraints="BorderLayout.CENTER">
+									<VBox id="messageViewContainer" border="EmptyBorder(10, 10, 10, 10)" />
+								</ScrollPane>
+							</Panel>
 						</Panel>
 					</Tab>
 				</AdaptiveTabbedPane>

@@ -73,15 +73,18 @@ import org.lecturestudio.web.api.message.CourseParticipantMessage;
 import org.lecturestudio.web.api.message.MessengerMessage;
 import org.lecturestudio.web.api.message.SpeechCancelMessage;
 import org.lecturestudio.web.api.message.SpeechRequestMessage;
+import org.lecturestudio.web.api.model.Message;
 
 import javax.inject.Inject;
 import java.awt.*;
 import java.io.File;
 import java.io.IOException;
+import java.time.ZonedDateTime;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 import java.util.function.BiConsumer;
 
@@ -570,6 +573,15 @@ public class SlidesPresenter extends Presenter<SlidesView> {
 		shareQuiz();
 	}
 
+	private void sendMessage(String text) {
+		MessengerMessage message = new MessengerMessage();
+		message.setDate(ZonedDateTime.now());
+		message.setMessageId(UUID.randomUUID().toString());
+		message.setMessage(new Message(text));
+
+		webService.sendMessengerMessage(message);
+	}
+
 	private void selectDocument(Document doc) {
 		documentService.selectDocument(doc);
 	}
@@ -854,6 +866,7 @@ public class SlidesPresenter extends Presenter<SlidesView> {
 
 		view.setOnKeyEvent(this::keyEvent);
 		view.setOnStopQuiz(this::stopQuiz);
+		view.setOnSendMessage(this::sendMessage);
 		view.setOnNewPage(this::newWhiteboardPage);
 		view.setOnDeletePage(this::deleteWhiteboardPage);
 		view.setOnSelectPage(this::selectPage);

@@ -189,6 +189,12 @@ public class SwingSlidesView extends JPanel implements SlidesView {
 
 	private JPanel messagesPanel;
 
+	private Box messageSendPanel;
+
+	private JTextField messageTextField;
+
+	private JButton sendMessageButton;
+
 	private AdaptiveTabbedPane leftTabPane;
 
 	private ExternalFrame externalMessagesFrame;
@@ -502,10 +508,14 @@ public class SwingSlidesView extends JPanel implements SlidesView {
 	@Override
 	public void setMessengerState(ExecutableState state) {
 		SwingUtils.invoke(() -> {
-			if (state == ExecutableState.Started) {
+			boolean started = state == ExecutableState.Started;
+
+			if (started) {
 				removeMessageViews(MessageView.class);
 				setMessageBarTabEnabled(dict.get(MESSAGE_LABEL_KEY), true);
 			}
+
+			messageSendPanel.setVisible(started);
 		});
 	}
 
@@ -712,6 +722,15 @@ public class SwingSlidesView extends JPanel implements SlidesView {
 	@Override
 	public void setOnStopQuiz(Action action) {
 		stopQuizAction = action;
+	}
+
+	@Override
+	public void setOnSendMessage(ConsumerAction<String> action) {
+		SwingUtils.bindAction(sendMessageButton, () -> {
+			action.execute(messageTextField.getText());
+
+			messageTextField.setText("");
+		});
 	}
 
 	@Override

@@ -107,6 +107,11 @@ public class WebSocketTransport extends ExecutableBase implements MessageTranspo
 	}
 
 	@Override
+	public void sendMessage(WebMessage message) {
+
+	}
+
+	@Override
 	protected void initInternal() throws ExecutableException {
 		JsonbConfig jsonbConfig = JsonConfigProvider.createConfig();
 		jsonbConfig.withAdapters(

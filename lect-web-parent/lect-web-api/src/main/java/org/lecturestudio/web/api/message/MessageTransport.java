@@ -28,4 +28,6 @@ public interface MessageTransport extends Executable {
 
 	<T extends WebMessage> void removeListener(Class<T> cls, Consumer<T> listener);
 
+	void sendMessage(WebMessage message);
+
 }

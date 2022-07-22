@@ -9,7 +9,7 @@ import org.lecturestudio.web.api.data.bind.*;
 import org.lecturestudio.web.api.service.ServiceParameters;
 import org.lecturestudio.web.api.stream.model.Course;
 import org.lecturestudio.web.api.websocket.WebSocketStompHeaderProvider;
-import org.springframework.messaging.converter.MappingJackson2MessageConverter;
+
 import org.springframework.messaging.simp.stomp.DefaultStompSession;
 import org.springframework.messaging.simp.stomp.StompCommand;
 import org.springframework.messaging.simp.stomp.StompHeaders;
@@ -35,7 +35,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.ExecutionException;
 import java.util.function.Consumer;
 
 public class WebSocketStompTransport extends ExecutableBase implements MessageTransport {
@@ -53,6 +52,8 @@ public class WebSocketStompTransport extends ExecutableBase implements MessageTr
 	private Jsonb jsonb;
 
 	private DefaultStompSession session;
+
+	private String userId;
 
 
 	public WebSocketStompTransport(ServiceParameters serviceParameters,
@@ -138,7 +139,6 @@ public class WebSocketStompTransport extends ExecutableBase implements MessageTr
 			}
 
 			stompClient = new WebSocketStompClient(standardClient);
-			stompClient.setMessageConverter(new MappingJackson2MessageConverter());
 
 			connect();
 		}
@@ -160,7 +160,7 @@ public class WebSocketStompTransport extends ExecutableBase implements MessageTr
 		try {
 			this.session = (DefaultStompSession) listenableSession.get();
 		}
-		catch (InterruptedException | ExecutionException e) {
+		catch (Exception e) {
 			e.printStackTrace();
 		}
 	}
@@ -184,10 +184,14 @@ public class WebSocketStompTransport extends ExecutableBase implements MessageTr
 
 	@Override
 	protected void destroyInternal() throws ExecutableException {
-		//no-op
+		// No-op
 	}
 
+	@Override
 	public void sendMessage(WebMessage message) {
+		// To identify the originator of the message.
+		message.setRemoteAddress(userId);
+
 		if (super.started()) {
 			if (nonNull(this.session)) {
 				String messageAsJson = jsonb.toJson(message, message.getClass());
@@ -239,6 +243,11 @@ public class WebSocketStompTransport extends ExecutableBase implements MessageTr
 		}
 
 		private void handleMessage(WebMessage message) {
+			if (message.getRemoteAddress().equals(userId)) {
+				// Do not handle our own messages.
+				return;
+			}
+
 			Class<? extends WebMessage> cls = message.getClass();
 			List<Consumer<WebMessage>> consumerList = listenerMap.get(cls);
 
@@ -252,6 +261,8 @@ public class WebSocketStompTransport extends ExecutableBase implements MessageTr
 		@Override
 		public void afterConnected(StompSession stompSession,
 				StompHeaders stompHeaders) {
+			userId = stompHeaders.getFirst("user-name");
+
 			subscribe(stompSession, "/topic/participant/");
 			subscribe(stompSession, "/topic/quiz/");
 			subscribe(stompSession, "/topic/chat/");

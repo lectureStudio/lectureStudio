@@ -15,6 +15,9 @@ module org.lecturestudio.web.api {
 	requires org.apache.logging.log4j.core;
 	requires org.lecturestudio.core;
 	requires resteasy.multipart.provider;
+	requires spring.websocket;
+	requires spring.messaging;
+	requires spring.core;
 	requires webrtc.java;
 
 	exports org.lecturestudio.web.api.client;

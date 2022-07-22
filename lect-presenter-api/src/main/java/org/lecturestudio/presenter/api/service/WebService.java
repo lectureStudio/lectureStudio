@@ -40,12 +40,12 @@ import org.lecturestudio.presenter.api.event.QuizStateEvent;
 import org.lecturestudio.presenter.api.net.LocalBroadcaster;
 import org.lecturestudio.web.api.client.TokenProvider;
 import org.lecturestudio.web.api.message.MessageTransport;
-import org.lecturestudio.web.api.message.WebSocketTransport;
+import org.lecturestudio.web.api.message.WebSocketStompTransport;
 import org.lecturestudio.web.api.model.quiz.Quiz;
 import org.lecturestudio.web.api.service.ServiceParameters;
 import org.lecturestudio.web.api.stream.model.Course;
-import org.lecturestudio.web.api.websocket.WebSocketBearerTokenProvider;
-import org.lecturestudio.web.api.websocket.WebSocketHeaderProvider;
+import org.lecturestudio.web.api.websocket.WebSocketStompBearerTokenProvider;
+import org.lecturestudio.web.api.websocket.WebSocketStompHeaderProvider;
 
 /**
  * The {@code WebService} maintains different web services, like {@link
@@ -324,11 +324,11 @@ public class WebService extends ExecutableBase {
 
 	private void initMessageTransport() {
 		if (isNull(messageTransport) || messageTransport.destroyed()) {
-			messageTransport = createMessageTransport();
+			messageTransport = createStompMessageTransport();
 		}
 	}
 
-	private MessageTransport createMessageTransport() {
+	private MessageTransport createStompMessageTransport() {
 		ServiceParameters messageApiParameters = new ServiceParameters();
 		messageApiParameters.setUrl(webServiceInfo.getStreamMessageApiUrl());
 
@@ -339,9 +339,8 @@ public class WebService extends ExecutableBase {
 
 		Course course = pContext.getCourse();
 
-		WebSocketHeaderProvider headerProvider = new WebSocketBearerTokenProvider(
-				tokenProvider);
+		WebSocketStompHeaderProvider headerProvider = new WebSocketStompBearerTokenProvider(tokenProvider);
 
-		return new WebSocketTransport(messageApiParameters, headerProvider, course);
+		return new WebSocketStompTransport(messageApiParameters, headerProvider, course);
 	}
 }

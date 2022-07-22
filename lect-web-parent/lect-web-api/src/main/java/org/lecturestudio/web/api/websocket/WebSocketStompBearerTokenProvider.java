@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2021 TU Darmstadt, Department of Computer Science,
+ * Copyright (C) 2022 TU Darmstadt, Department of Computer Science,
  * Embedded Systems and Applications Group.
  *
  * This program is free software: you can redistribute it and/or modify
@@ -20,32 +20,42 @@ package org.lecturestudio.web.api.websocket;
 
 import static java.util.Objects.nonNull;
 
-import java.net.http.WebSocket.Builder;
-
 import org.lecturestudio.web.api.client.TokenProvider;
 
+import org.springframework.messaging.simp.stomp.StompHeaders;
+import org.springframework.web.socket.WebSocketHttpHeaders;
+
 /**
- * Bearer token authorization header provider.
+ * STOMP bearer token authorization header provider.
  *
  * @author Alex Andres
  */
-public class WebSocketBearerTokenProvider implements WebSocketHeaderProvider {
+public class WebSocketStompBearerTokenProvider extends WebSocketBearerTokenProvider implements WebSocketStompHeaderProvider {
 
-	protected static final String API_KEY_HEADER = "ApiKey";
-
-	protected final TokenProvider tokenProvider;
-
-
-	public WebSocketBearerTokenProvider(TokenProvider tokenProvider) {
-		this.tokenProvider = tokenProvider;
+	public WebSocketStompBearerTokenProvider(TokenProvider tokenProvider) {
+		super(tokenProvider);
 	}
 
 	@Override
-	public void setHeaders(Builder builder) {
+	public WebSocketHttpHeaders getHeaders() {
+		String token = tokenProvider.getToken();
+		WebSocketHttpHeaders headers = new WebSocketHttpHeaders();
+
+		if (nonNull(token)) {
+			headers.add(API_KEY_HEADER, token);
+		}
+
+		return headers;
+	}
+
+	@Override
+	public StompHeaders addHeaders(StompHeaders headers) {
 		String token = tokenProvider.getToken();
 
 		if (nonNull(token)) {
-			builder.header(API_KEY_HEADER, token);
+			headers.add(API_KEY_HEADER, token);
 		}
+
+		return headers;
 	}
 }

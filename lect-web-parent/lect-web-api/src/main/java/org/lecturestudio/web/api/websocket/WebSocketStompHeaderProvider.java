@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2021 TU Darmstadt, Department of Computer Science,
+ * Copyright (C) 2022 TU Darmstadt, Department of Computer Science,
  * Embedded Systems and Applications Group.
  *
  * This program is free software: you can redistribute it and/or modify
@@ -18,34 +18,37 @@
 
 package org.lecturestudio.web.api.websocket;
 
-import static java.util.Objects.nonNull;
+import java.net.http.WebSocket;
 
-import java.net.http.WebSocket.Builder;
-
-import org.lecturestudio.web.api.client.TokenProvider;
+import org.springframework.messaging.simp.stomp.StompHeaders;
+import org.springframework.web.socket.WebSocketHttpHeaders;
 
 /**
- * Bearer token authorization header provider.
+ * Interface to set individual headers for STOMP WebSockets.
  *
  * @author Alex Andres
  */
-public class WebSocketBearerTokenProvider implements WebSocketHeaderProvider {
+public interface WebSocketStompHeaderProvider extends WebSocketHeaderProvider {
 
-	protected static final String API_KEY_HEADER = "ApiKey";
+	/**
+	 * Set WebSocket headers.
+	 *
+	 * @param builder The WebSocket builder.
+	 */
+	void setHeaders(WebSocket.Builder builder);
 
-	protected final TokenProvider tokenProvider;
+	/**
+	 * Get all set HTTP headers for the WebSocket.
+	 *
+	 * @return The WebSocket HTTP headers.
+	 */
+	WebSocketHttpHeaders getHeaders();
 
+	/**
+	 * @param headers
+	 *
+	 * @return
+	 */
+	StompHeaders addHeaders(StompHeaders headers);
 
-	public WebSocketBearerTokenProvider(TokenProvider tokenProvider) {
-		this.tokenProvider = tokenProvider;
-	}
-
-	@Override
-	public void setHeaders(Builder builder) {
-		String token = tokenProvider.getToken();
-
-		if (nonNull(token)) {
-			builder.header(API_KEY_HEADER, token);
-		}
-	}
 }

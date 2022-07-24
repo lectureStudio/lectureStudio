@@ -33,8 +33,8 @@ public class MessengerDirectMessageAdapter implements JsonbAdapter<MessengerDire
 		if (nonNull(messengerDirectMessage.getFamilyName())) {
 			builder.add("familyName", messengerDirectMessage.getFamilyName());
 		}
-		if (nonNull(messengerDirectMessage.getRemoteAddress())) {
-			builder.add("remoteAddress", messengerDirectMessage.getRemoteAddress());
+		if (nonNull(messengerDirectMessage.getUserId())) {
+			builder.add("userId", messengerDirectMessage.getUserId());
 		}
 		if (nonNull(messengerDirectMessage.getDate())) {
 			builder.add("date", messengerDirectMessage.getDate().toString());
@@ -72,7 +72,7 @@ public class MessengerDirectMessageAdapter implements JsonbAdapter<MessengerDire
 			directMessage.setFamilyName(jsonObject.getString("familyName"));
 		}
 		if (jsonObject.get("username").getValueType() != JsonValue.ValueType.NULL) {
-			directMessage.setRemoteAddress(jsonObject.getString("username"));
+			directMessage.setUserId(jsonObject.getString("username"));
 		}
 		if (jsonObject.get("messageId").getValueType() != JsonValue.ValueType.NULL) {
 			directMessage.setMessageId(jsonObject.getString("messageId"));

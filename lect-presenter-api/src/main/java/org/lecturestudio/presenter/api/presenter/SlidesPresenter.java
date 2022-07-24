@@ -69,11 +69,12 @@ import org.lecturestudio.presenter.api.view.SlidesView;
 import org.lecturestudio.swing.model.ExternalWindowPosition;
 import org.lecturestudio.web.api.event.PeerStateEvent;
 import org.lecturestudio.web.api.event.VideoFrameEvent;
-import org.lecturestudio.web.api.message.CourseParticipantMessage;
+import org.lecturestudio.web.api.message.CoursePresenceMessage;
 import org.lecturestudio.web.api.message.MessengerMessage;
 import org.lecturestudio.web.api.message.SpeechCancelMessage;
 import org.lecturestudio.web.api.message.SpeechRequestMessage;
 import org.lecturestudio.web.api.model.Message;
+import org.lecturestudio.web.api.stream.model.CoursePresence;
 
 import javax.inject.Inject;
 import java.awt.*;
@@ -269,10 +270,10 @@ public class SlidesPresenter extends Presenter<SlidesView> {
 	}
 
 	@Subscribe
-	public void onEvent(CourseParticipantMessage message) {
+	public void onEvent(CoursePresenceMessage message) {
 		PresenterContext presenterContext = (PresenterContext) context;
 
-		if (message.getConnected()) {
+		if (CoursePresence.isConnected(message.getCoursePresence())) {
 			presenterContext.setAttendeesCount(presenterContext.getAttendeesCount() + 1);
 		}
 		else {

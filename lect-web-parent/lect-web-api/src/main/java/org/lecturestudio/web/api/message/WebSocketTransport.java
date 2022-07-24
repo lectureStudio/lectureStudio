@@ -46,7 +46,7 @@ import javax.json.bind.JsonbConfig;
 
 import org.lecturestudio.core.ExecutableBase;
 import org.lecturestudio.core.ExecutableException;
-import org.lecturestudio.web.api.data.bind.CourseParticipantMessageAdapter;
+import org.lecturestudio.web.api.data.bind.CoursePresenceMessageAdapter;
 import org.lecturestudio.web.api.data.bind.JsonConfigProvider;
 import org.lecturestudio.web.api.data.bind.MessengerMessageAdapter;
 import org.lecturestudio.web.api.data.bind.QuizAnswerMessageAdapter;
@@ -115,7 +115,7 @@ public class WebSocketTransport extends ExecutableBase implements MessageTranspo
 	protected void initInternal() throws ExecutableException {
 		JsonbConfig jsonbConfig = JsonConfigProvider.createConfig();
 		jsonbConfig.withAdapters(
-				new CourseParticipantMessageAdapter(),
+				new CoursePresenceMessageAdapter(),
 				new MessengerMessageAdapter(),
 				new QuizAnswerMessageAdapter(),
 				new SpeechMessageAdapter()

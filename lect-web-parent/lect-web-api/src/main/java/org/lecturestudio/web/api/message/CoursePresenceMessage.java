@@ -18,26 +18,18 @@
 
 package org.lecturestudio.web.api.message;
 
+import org.lecturestudio.web.api.stream.model.CoursePresence;
+
 /**
  * Message used to notify the arrival or departure of participants during a
  * streaming session.
  *
  * @author Alex Andres
  */
-public class CourseParticipantMessage extends WebMessage {
+public class CoursePresenceMessage extends WebMessage {
 
-	private String userName;
+	private CoursePresence presence;
 
-	private boolean connected;
-
-
-	public String getUserName() {
-		return userName;
-	}
-
-	public void setUserName(String username) {
-		this.userName = username;
-	}
 
 	/**
 	 * Get whether the participant connected or disconnected to/from the current
@@ -45,17 +37,17 @@ public class CourseParticipantMessage extends WebMessage {
 	 *
 	 * @return True if connected.
 	 */
-	public boolean getConnected() {
-		return connected;
+	public CoursePresence getCoursePresence() {
+		return presence;
 	}
 
 	/**
 	 * Set whether the participant connected or disconnected to/from the current
 	 * streaming session.
 	 *
-	 * @param connected True if connected.
+	 * @param presence True if connected.
 	 */
-	public void setConnected(boolean connected) {
-		this.connected = connected;
+	public void setCoursePresence(CoursePresence presence) {
+		this.presence = presence;
 	}
 }

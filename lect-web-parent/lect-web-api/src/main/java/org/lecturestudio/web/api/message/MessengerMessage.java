@@ -34,10 +34,10 @@ public class MessengerMessage extends WebMessage {
 		this(null, null, null);
 	}
 
-	public MessengerMessage(Message message, String remoteAddress,
+	public MessengerMessage(Message message, String userId,
 			ZonedDateTime date) {
 		setMessage(message);
-		setRemoteAddress(remoteAddress);
+		setUserId(userId);
 		setDate(date);
 		setReply(false);
 	}
@@ -99,8 +99,8 @@ public class MessengerMessage extends WebMessage {
 		buffer.append(", ");
 		buffer.append(getDate());
 		buffer.append(", ");
-		buffer.append("RemoteAddress: ");
-		buffer.append(getRemoteAddress());
+		buffer.append("User Id: ");
+		buffer.append(getUserId());
 
 		return buffer.toString();
 	}

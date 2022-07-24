@@ -90,8 +90,7 @@ public class WebSocketStompTransport extends ExecutableBase implements MessageTr
 	protected void initInternal() throws ExecutableException {
 		JsonbConfig jsonbConfig = JsonConfigProvider.createConfig();
 		jsonbConfig.withAdapters(
-				new CourseParticipantMessageAdapter(),
-				new CourseFeatureMessengerParticipantMessageAdapter(),
+				new CoursePresenceMessageAdapter(),
 				new MessengerMessageAdapter(),
 				new MessengerDirectMessageAdapter(),
 				new MessengerReplyMessageAdapter(),
@@ -190,7 +189,7 @@ public class WebSocketStompTransport extends ExecutableBase implements MessageTr
 	@Override
 	public void sendMessage(WebMessage message) {
 		// To identify the originator of the message.
-		message.setRemoteAddress(userId);
+		message.setUserId(userId);
 
 		if (super.started()) {
 			if (nonNull(this.session)) {
@@ -243,7 +242,7 @@ public class WebSocketStompTransport extends ExecutableBase implements MessageTr
 		}
 
 		private void handleMessage(WebMessage message) {
-			if (message.getRemoteAddress().equals(userId)) {
+			if (message.getUserId().equals(userId)) {
 				// Do not handle our own messages.
 				return;
 			}

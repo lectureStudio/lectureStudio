@@ -43,10 +43,10 @@ import org.lecturestudio.core.Executable;
 import org.lecturestudio.core.ExecutableBase;
 import org.lecturestudio.core.ExecutableException;
 import org.lecturestudio.core.bus.EventBus;
-import org.lecturestudio.web.api.data.bind.CourseParticipantMessageAdapter;
+import org.lecturestudio.web.api.data.bind.CoursePresenceMessageAdapter;
 import org.lecturestudio.web.api.data.bind.JsonConfigProvider;
 import org.lecturestudio.web.api.data.bind.SpeechMessageAdapter;
-import org.lecturestudio.web.api.message.CourseParticipantMessage;
+import org.lecturestudio.web.api.message.CoursePresenceMessage;
 import org.lecturestudio.web.api.message.SpeechBaseMessage;
 import org.lecturestudio.web.api.net.SSLContextFactory;
 import org.lecturestudio.web.api.service.ServiceParameters;
@@ -100,7 +100,7 @@ public class StreamWebSocketClient extends ExecutableBase {
 
 		JsonbConfig config = JsonConfigProvider.createConfig().withAdapters(
 				new SpeechMessageAdapter(),
-				new CourseParticipantMessageAdapter());
+				new CoursePresenceMessageAdapter());
 
 		this.jsonb = JsonbBuilder.create(config);
 	}
@@ -212,7 +212,7 @@ public class StreamWebSocketClient extends ExecutableBase {
 					message = jsonb.fromJson(text, SpeechBaseMessage.class);
 				}
 				else if (typeStr.startsWith("CourseParticipant")) {
-					message = jsonb.fromJson(text, CourseParticipantMessage.class);
+					message = jsonb.fromJson(text, CoursePresenceMessage.class);
 				}
 
 				if (nonNull(message)) {

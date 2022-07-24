@@ -18,47 +18,45 @@
 
 package org.lecturestudio.web.api.data.bind;
 
-import static java.util.Objects.nonNull;
+import java.time.ZonedDateTime;
 
 import javax.json.Json;
 import javax.json.JsonObject;
 import javax.json.JsonObjectBuilder;
 import javax.json.bind.adapter.JsonbAdapter;
 
-import org.lecturestudio.web.api.message.CourseParticipantMessage;
+import org.lecturestudio.web.api.message.CoursePresenceMessage;
+import org.lecturestudio.web.api.stream.model.CoursePresence;
 
-public class CourseParticipantMessageAdapter implements JsonbAdapter<CourseParticipantMessage, JsonObject> {
+public class CoursePresenceMessageAdapter implements JsonbAdapter<CoursePresenceMessage, JsonObject> {
 
 	@Override
-	public JsonObject adaptToJson(CourseParticipantMessage message) {
+	public JsonObject adaptToJson(CoursePresenceMessage message) {
 		JsonObjectBuilder builder = Json.createObjectBuilder();
 		builder.add("type", message.getClass().getSimpleName());
-		builder.add("connected", message.getConnected());
-
-		if (nonNull(message.getFirstName())) {
-			builder.add("firstName", message.getFirstName());
-		}
-		if (nonNull(message.getFamilyName())) {
-			builder.add("familyName", message.getFamilyName());
-		}
-		if (nonNull(message.getUserName())) {
-			builder.add("username", message.getUserName());
-		}
+		builder.add("date", message.getDate().toString());
+		builder.add("firstName", message.getFirstName());
+		builder.add("familyName", message.getFamilyName());
+		builder.add("userId", message.getUserId());
+		builder.add("messageId", message.getMessageId());
+		builder.add("presence", message.getCoursePresence().toString());
 
 		return builder.build();
 	}
 
 	@Override
-	public CourseParticipantMessage adaptFromJson(JsonObject jsonObject) throws Exception {
+	public CoursePresenceMessage adaptFromJson(JsonObject jsonObject) throws Exception {
 		String typeStr = jsonObject.getString("type");
-		String className = CourseParticipantMessage.class.getPackageName() + "." + typeStr;
+		String className = CoursePresenceMessage.class.getPackageName() + "." + typeStr;
 		Class<?> cls = Class.forName(className);
 
-		CourseParticipantMessage message = (CourseParticipantMessage) cls.getConstructor().newInstance();
-		message.setUserName(jsonObject.getString("username"));
+		CoursePresenceMessage message = (CoursePresenceMessage) cls.getConstructor().newInstance();
+		message.setDate(ZonedDateTime.parse(jsonObject.getString("time")));
 		message.setFirstName(jsonObject.getString("firstName"));
 		message.setFamilyName(jsonObject.getString("familyName"));
-		message.setConnected(jsonObject.getBoolean("connected"));
+		message.setUserId(jsonObject.getString("userId"));
+		message.setMessageId(jsonObject.getString("messageId"));
+		message.setCoursePresence(CoursePresence.valueOf(jsonObject.getString("presence")));
 
 		return message;
 	}

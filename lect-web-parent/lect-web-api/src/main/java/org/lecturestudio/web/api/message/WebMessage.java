@@ -26,11 +26,11 @@ public abstract class WebMessage {
 
 	private String messageId;
 
+	private String userId;
+
 	private String firstName;
 
 	private String familyName;
-
-	private String remoteAddress;
 
 	private ZonedDateTime date;
 
@@ -59,18 +59,12 @@ public abstract class WebMessage {
 		this.familyName = familyName;
 	}
 
-	/**
-	 * @return the remoteAddress
-	 */
-	public String getRemoteAddress() {
-		return requireNonNullElse(remoteAddress, "");
+	public String getUserId() {
+		return userId;
 	}
 
-	/**
-	 * @param remoteAddress the remoteAddress to set
-	 */
-	public void setRemoteAddress(String remoteAddress) {
-		this.remoteAddress = remoteAddress;
+	public void setUserId(String id) {
+		this.userId = id;
 	}
 
 	/**

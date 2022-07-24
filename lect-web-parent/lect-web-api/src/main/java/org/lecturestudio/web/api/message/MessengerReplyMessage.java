@@ -16,9 +16,9 @@ public class MessengerReplyMessage extends WebMessage {
 		this(toReply, remoteAddress, date, null);
 	}
 
-	public MessengerReplyMessage(WebMessage toReply, String remoteAddress,
+	public MessengerReplyMessage(WebMessage toReply, String userId,
 			ZonedDateTime date, String messageId) {
-		setRemoteAddress(remoteAddress);
+		setUserId(userId);
 		setDate(date);
 		setMessageId(messageId);
 		this.repliedMessageId = toReply.getMessageId();

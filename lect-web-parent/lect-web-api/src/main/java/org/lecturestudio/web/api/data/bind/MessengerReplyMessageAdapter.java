@@ -25,8 +25,8 @@ public class MessengerReplyMessageAdapter implements JsonbAdapter<MessengerReply
 		if (nonNull(messengerReplyMessage.getFamilyName())) {
 			builder.add("familyName", messengerReplyMessage.getFamilyName());
 		}
-		if (nonNull(messengerReplyMessage.getRemoteAddress())) {
-			builder.add("remoteAddress", messengerReplyMessage.getRemoteAddress());
+		if (nonNull(messengerReplyMessage.getUserId())) {
+			builder.add("userId", messengerReplyMessage.getUserId());
 		}
 		if (nonNull(messengerReplyMessage.getDate())) {
 			builder.add("date", messengerReplyMessage.getDate().toString());
@@ -52,7 +52,7 @@ public class MessengerReplyMessageAdapter implements JsonbAdapter<MessengerReply
 		replyMessage.setDate(ZonedDateTime.parse(jsonObject.getString("time")));
 		replyMessage.setFirstName(jsonObject.getString("firstName"));
 		replyMessage.setFamilyName(jsonObject.getString("familyName"));
-		replyMessage.setRemoteAddress(jsonObject.getString("remoteAddress"));
+		replyMessage.setUserId(jsonObject.getString("userName"));
 		replyMessage.setMessageId(jsonObject.getString("messageId"));
 
 		return replyMessage;

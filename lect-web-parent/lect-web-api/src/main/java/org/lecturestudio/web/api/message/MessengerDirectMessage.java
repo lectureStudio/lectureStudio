@@ -23,11 +23,11 @@ public class MessengerDirectMessage extends WebMessage {
 	}
 
 	public MessengerDirectMessage(String messageDestinationUsername,
-			Message message, String remoteAddress, ZonedDateTime date,
+			Message message, String userId, ZonedDateTime date,
 			String messageId) {
 		setMessageDestinationUsername(messageDestinationUsername);
 		setMessage(message);
-		setRemoteAddress(remoteAddress);
+		setUserId(userId);
 		setDate(date);
 		setMessageId(messageId);
 	}

@@ -1,5 +1,7 @@
 package org.lecturestudio.web.api.data.bind;
 
+import static java.util.Objects.nonNull;
+
 import org.lecturestudio.web.api.message.MessengerDirectMessage;
 import org.lecturestudio.web.api.model.Message;
 
@@ -11,41 +13,36 @@ import javax.json.bind.adapter.JsonbAdapter;
 
 import java.time.ZonedDateTime;
 
-import static java.util.Objects.nonNull;
-
 public class MessengerDirectMessageAdapter implements JsonbAdapter<MessengerDirectMessage, JsonObject> {
 
 	@Override
-	public JsonObject adaptToJson(MessengerDirectMessage messengerDirectMessage) throws Exception {
+	public JsonObject adaptToJson(MessengerDirectMessage directMessage) throws Exception {
 		JsonObjectBuilder builder = Json.createObjectBuilder();
-		builder.add("type", messengerDirectMessage.getClass().getSimpleName());
+		builder.add("type", directMessage.getClass().getSimpleName());
 
-		if (nonNull(messengerDirectMessage.getMessageDestinationUsername())) {
-			builder.add("messageDestinationUsername", messengerDirectMessage.getMessageDestinationUsername());
+		if (nonNull(directMessage.getRecipient())) {
+			builder.add("recipient", directMessage.getRecipient());
 		}
-
-		if (nonNull(messengerDirectMessage.getMessage())) {
-			builder.add("message", messengerDirectMessage.getMessage().getText());
+		if (nonNull(directMessage.getMessage())) {
+			builder.add("message", directMessage.getMessage().getText());
 		}
-		if (nonNull(messengerDirectMessage.getFirstName())) {
-			builder.add("firstName", messengerDirectMessage.getFirstName());
+		if (nonNull(directMessage.getFirstName())) {
+			builder.add("firstName", directMessage.getFirstName());
 		}
-		if (nonNull(messengerDirectMessage.getFamilyName())) {
-			builder.add("familyName", messengerDirectMessage.getFamilyName());
+		if (nonNull(directMessage.getFamilyName())) {
+			builder.add("familyName", directMessage.getFamilyName());
 		}
-		if (nonNull(messengerDirectMessage.getUserId())) {
-			builder.add("userId", messengerDirectMessage.getUserId());
+		if (nonNull(directMessage.getUserId())) {
+			builder.add("userId", directMessage.getUserId());
 		}
-		if (nonNull(messengerDirectMessage.getDate())) {
-			builder.add("date", messengerDirectMessage.getDate().toString());
+		if (nonNull(directMessage.getDate())) {
+			builder.add("date", directMessage.getDate().toString());
 		}
-
-		if (nonNull(messengerDirectMessage.getMessageId())) {
-			builder.add("messageId", messengerDirectMessage.getMessageId().toString());
+		if (nonNull(directMessage.getMessageId())) {
+			builder.add("messageId", directMessage.getMessageId().toString());
 		}
-
-		if (nonNull(messengerDirectMessage.isReply())) {
-			builder.add("reply", messengerDirectMessage.isReply());
+		if (nonNull(directMessage.isReply())) {
+			builder.add("reply", directMessage.isReply());
 		}
 
 		return builder.build();
@@ -53,11 +50,11 @@ public class MessengerDirectMessageAdapter implements JsonbAdapter<MessengerDire
 
 	@Override
 	public MessengerDirectMessage adaptFromJson(JsonObject jsonObject) throws Exception {
-		String messageDestinationUsername = null;
-		if (jsonObject.get("messageDestinationUsername").getValueType() != JsonValue.ValueType.NULL) {
-			messageDestinationUsername = jsonObject.getString("messageDestinationUsername");
+		String recipient = null;
+		if (jsonObject.get("recipient").getValueType() != JsonValue.ValueType.NULL) {
+			recipient = jsonObject.getString("recipient");
 		}
-		MessengerDirectMessage directMessage = new MessengerDirectMessage(messageDestinationUsername);
+		MessengerDirectMessage directMessage = new MessengerDirectMessage(recipient);
 
 		if (jsonObject.get("text").getValueType() != JsonValue.ValueType.NULL) {
 			directMessage.setMessage(new Message(jsonObject.getString("text")));

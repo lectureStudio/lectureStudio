@@ -203,7 +203,7 @@ public class WebSocketStompTransport extends ExecutableBase implements MessageTr
 				}
 				else if (message instanceof MessengerDirectMessage) {
 					headers.add("messageType", "user");
-					headers.add("username", ((MessengerDirectMessage) message).getMessageDestinationUsername());
+					headers.add("username", ((MessengerDirectMessage) message).getRecipient());
 				}
 				else if (message instanceof MessengerReplyMessage) {
 					headers.add("messageType", "reply");

@@ -10,22 +10,21 @@ public class MessengerDirectMessage extends WebMessage {
 
 	private Boolean reply;
 
-	private String messageDestinationUsername;
+	private String recipient;
 
 
-	public MessengerDirectMessage(String messageDestinationUsername) {
-		this(messageDestinationUsername, null, null, null, null);
+	public MessengerDirectMessage(String recipient) {
+		this(recipient, null, null, null, null);
 	}
 
-	public MessengerDirectMessage(String messageDestinationUsername,
-			Message message, String remoteAddress, ZonedDateTime date) {
-		this(messageDestinationUsername, message, remoteAddress, date, null);
+	public MessengerDirectMessage(String recipient, Message message,
+			String remoteAddress, ZonedDateTime date) {
+		this(recipient, message, remoteAddress, date, null);
 	}
 
-	public MessengerDirectMessage(String messageDestinationUsername,
-			Message message, String userId, ZonedDateTime date,
-			String messageId) {
-		setMessageDestinationUsername(messageDestinationUsername);
+	public MessengerDirectMessage(String recipient, Message message,
+			String userId, ZonedDateTime date, String messageId) {
+		setRecipient(recipient);
 		setMessage(message);
 		setUserId(userId);
 		setDate(date);
@@ -40,8 +39,8 @@ public class MessengerDirectMessage extends WebMessage {
 		return reply;
 	}
 
-	public String getMessageDestinationUsername() {
-		return messageDestinationUsername;
+	public String getRecipient() {
+		return recipient;
 	}
 
 	public void setMessage(Message message) {
@@ -52,8 +51,8 @@ public class MessengerDirectMessage extends WebMessage {
 		this.reply = reply;
 	}
 
-	public void setMessageDestinationUsername(String messageDestinationUsername) {
-		this.messageDestinationUsername = messageDestinationUsername;
+	public void setRecipient(String recipient) {
+		this.recipient = recipient;
 	}
 
 	@Override
@@ -61,7 +60,7 @@ public class MessengerDirectMessage extends WebMessage {
 		return "MessengerDirectMessage{" +
 				"message=" + message +
 				", reply=" + reply +
-				", messageDestinationUsername='" + messageDestinationUsername + '\'' +
+				", recipient='" + recipient + '\'' +
 				'}';
 	}
 }

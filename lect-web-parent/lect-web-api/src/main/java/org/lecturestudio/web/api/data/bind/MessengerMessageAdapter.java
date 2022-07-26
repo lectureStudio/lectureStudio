@@ -83,8 +83,8 @@ public class MessengerMessageAdapter implements JsonbAdapter<MessengerMessage, J
 		if (jsonObject.get("familyName").getValueType() != JsonValue.ValueType.NULL) {
 			message.setFamilyName(jsonObject.getString("familyName"));
 		}
-		if (jsonObject.get("username").getValueType() != JsonValue.ValueType.NULL) {
-			message.setUserId(jsonObject.getString("username"));
+		if (jsonObject.get("userId").getValueType() != JsonValue.ValueType.NULL) {
+			message.setUserId(jsonObject.getString("userId"));
 		}
 		if (jsonObject.get("messageId").getValueType() != JsonValue.ValueType.NULL) {
 			message.setMessageId(jsonObject.getString("messageId"));

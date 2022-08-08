@@ -92,8 +92,6 @@ public class WebSocketStompTransport extends ExecutableBase implements MessageTr
 		jsonbConfig.withAdapters(
 				new CoursePresenceMessageAdapter(),
 				new MessengerMessageAdapter(),
-				new MessengerDirectMessageAdapter(),
-				new MessengerReplyMessageAdapter(),
 				new QuizAnswerMessageAdapter(),
 				new SpeechMessageAdapter()
 		);
@@ -150,11 +148,11 @@ public class WebSocketStompTransport extends ExecutableBase implements MessageTr
 		WebSocketHttpHeaders headers = headerProvider.getHeaders();
 
 		StompHeaders stompHeaders = new StompHeaders();
-		stompHeaders.add("courseId", this.course.getId().toString());
+		stompHeaders.add("courseId", course.getId().toString());
 
-		MessengerStompSessionHandler sessionHandler = new MessengerStompSessionHandler(this.course, this.jsonb, this.listenerMap);
+		MessengerStompSessionHandler sessionHandler = new MessengerStompSessionHandler(course, jsonb, listenerMap);
 
-		ListenableFuture<StompSession> listenableSession = stompClient.connect(this.serviceParameters.getUrl(), headers, stompHeaders, sessionHandler);
+		ListenableFuture<StompSession> listenableSession = stompClient.connect(serviceParameters.getUrl(), headers, stompHeaders, sessionHandler);
 
 		try {
 			this.session = (DefaultStompSession) listenableSession.get();
@@ -262,10 +260,11 @@ public class WebSocketStompTransport extends ExecutableBase implements MessageTr
 				StompHeaders stompHeaders) {
 			userId = stompHeaders.getFirst("user-name");
 
-			subscribe(stompSession, "/topic/participant/");
-			subscribe(stompSession, "/topic/quiz/");
-			subscribe(stompSession, "/topic/chat/");
-			subscribe(stompSession, "/user/queue/chat/");
+			subscribe(stompSession, "/topic/course/event/{id}/presence");
+			subscribe(stompSession, "/topic/course/{id}/chat");
+			subscribe(stompSession, "/user/queue/course/{id}/chat");
+			subscribe(stompSession, "/user/queue/course/{id}/speech");
+			subscribe(stompSession, "/user/queue/course/{id}/quiz");
 		}
 
 		@Override
@@ -309,7 +308,7 @@ public class WebSocketStompTransport extends ExecutableBase implements MessageTr
 
 		private void subscribe(StompSession session, String topic) {
 			StompHeaders headers = new StompHeaders();
-			headers.setDestination(topic + this.course.getId());
+			headers.setDestination(topic.replaceFirst("\\{id\\}", this.course.getId().toString()));
 			headers.add("courseId", this.course.getId().toString());
 
 			session.subscribe(headers, this);

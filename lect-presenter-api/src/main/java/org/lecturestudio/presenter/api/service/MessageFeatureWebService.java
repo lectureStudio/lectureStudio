@@ -22,12 +22,15 @@ import java.util.function.Consumer;
 
 import org.lecturestudio.core.ExecutableException;
 import org.lecturestudio.presenter.api.context.PresenterContext;
+import org.lecturestudio.web.api.message.MessengerDirectMessage;
 import org.lecturestudio.web.api.message.MessengerMessage;
 
 public class MessageFeatureWebService extends FeatureServiceBase {
 
 	/** Received message consumer. */
 	private final Consumer<MessengerMessage> messageConsumer = this::onMessage;
+
+	private final Consumer<MessengerDirectMessage> directMessageConsumer = this::onDirectMessage;
 
 	/** The web service client. */
 	private final MessageFeatureService webService;
@@ -56,6 +59,7 @@ public class MessageFeatureWebService extends FeatureServiceBase {
 		try {
 			serviceId = webService.startMessenger(courseId);
 
+			webService.addMessageListener(MessengerDirectMessage.class, directMessageConsumer);
 			webService.addMessageListener(MessengerMessage.class, messageConsumer);
 		}
 		catch (Exception e) {
@@ -67,6 +71,7 @@ public class MessageFeatureWebService extends FeatureServiceBase {
 	protected void stopInternal() throws ExecutableException {
 		try {
 			webService.removeMessageListener(MessengerMessage.class, messageConsumer);
+			webService.removeMessageListener(MessengerDirectMessage.class, directMessageConsumer);
 			webService.stopMessenger(courseId);
 			// Stop receiving message events.
 			webService.close();
@@ -82,6 +87,11 @@ public class MessageFeatureWebService extends FeatureServiceBase {
 	}
 
 	private void onMessage(MessengerMessage message) {
+		// Forward message to interested recipients.
+		context.getEventBus().post(message);
+	}
+
+	private void onDirectMessage(MessengerDirectMessage message) {
 		// Forward message to interested recipients.
 		context.getEventBus().post(message);
 	}

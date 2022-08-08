@@ -33,6 +33,7 @@ import org.lecturestudio.swing.components.MessageView;
 import org.lecturestudio.swing.components.SpeechRequestView;
 import org.lecturestudio.swing.util.SwingUtils;
 import org.lecturestudio.swing.view.SwingView;
+import org.lecturestudio.web.api.message.MessengerDirectMessage;
 import org.lecturestudio.web.api.message.MessengerMessage;
 import org.lecturestudio.web.api.message.SpeechRequestMessage;
 
@@ -58,6 +59,7 @@ public class SwingMessengerWindow extends JFrame implements MessengerWindow {
 			messageView.setUserName(String.format("%s %s", message.getFirstName(), message.getFamilyName()));
 			messageView.setDate(message.getDate());
 			messageView.setMessage(message.getMessage().getText());
+			messageView.setPrivate(message instanceof MessengerDirectMessage);
 			messageView.setOnDiscard(() -> {
 				removeMessageView(messageView);
 			});

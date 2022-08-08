@@ -46,6 +46,8 @@ public abstract class MessagePanel extends JPanel {
 
 	protected JLabel timeLabel;
 
+	protected JLabel privateLabel;
+
 
 	abstract protected void createContent(JPanel content);
 
@@ -106,6 +108,10 @@ public abstract class MessagePanel extends JPanel {
 
 		timeLabel = new JLabel();
 		timeLabel.setForeground(Color.BLUE);
+
+		privateLabel = new JLabel();
+		privateLabel.setForeground(Color.RED);
+		privateLabel.setVisible(false);
 
 		createContent(content);
 

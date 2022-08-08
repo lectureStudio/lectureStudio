@@ -34,11 +34,9 @@ public class CoursePresenceMessageAdapter implements JsonbAdapter<CoursePresence
 	public JsonObject adaptToJson(CoursePresenceMessage message) {
 		JsonObjectBuilder builder = Json.createObjectBuilder();
 		builder.add("type", message.getClass().getSimpleName());
-		builder.add("date", message.getDate().toString());
 		builder.add("firstName", message.getFirstName());
 		builder.add("familyName", message.getFamilyName());
 		builder.add("userId", message.getUserId());
-		builder.add("messageId", message.getMessageId());
 		builder.add("presence", message.getCoursePresence().toString());
 
 		return builder.build();
@@ -51,11 +49,9 @@ public class CoursePresenceMessageAdapter implements JsonbAdapter<CoursePresence
 		Class<?> cls = Class.forName(className);
 
 		CoursePresenceMessage message = (CoursePresenceMessage) cls.getConstructor().newInstance();
-		message.setDate(ZonedDateTime.parse(jsonObject.getString("time")));
 		message.setFirstName(jsonObject.getString("firstName"));
 		message.setFamilyName(jsonObject.getString("familyName"));
 		message.setUserId(jsonObject.getString("userId"));
-		message.setMessageId(jsonObject.getString("messageId"));
 		message.setCoursePresence(CoursePresence.valueOf(jsonObject.getString("presence")));
 
 		return message;

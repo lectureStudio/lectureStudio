@@ -52,6 +52,13 @@ public class MessageView extends MessagePanel {
 		textArea.setText(message);
 	}
 
+	public void setPrivate(boolean isPrivate) {
+		if (isPrivate) {
+			privateLabel.setText(dict.get("text.message.privately"));
+			privateLabel.setVisible(true);
+		}
+	}
+
 	public void setOnDiscard(Action action) {
 		SwingUtils.bindAction(discardButton, action);
 	}
@@ -71,6 +78,8 @@ public class MessageView extends MessagePanel {
 		controlPanel.setBorder(BorderFactory.createEmptyBorder(2, 5, 2, 5));
 		controlPanel.setOpaque(false);
 		controlPanel.add(fromLabel);
+		controlPanel.add(Box.createHorizontalStrut(5));
+		controlPanel.add(privateLabel);
 		controlPanel.add(Box.createHorizontalGlue());
 		controlPanel.add(Box.createHorizontalStrut(5));
 		controlPanel.add(createSlideButton);

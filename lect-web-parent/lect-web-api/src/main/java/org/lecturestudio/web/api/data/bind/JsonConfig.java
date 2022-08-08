@@ -29,12 +29,10 @@ public class JsonConfig implements ContextResolver<Jsonb> {
 
 	@Override
 	public Jsonb getContext(Class<?> aClass) {
-		JsonbConfig config = new JsonbConfig();
+		JsonbConfig config = JsonConfigProvider.createConfig();
 
 		config.withAdapters(
-				new MessengerReplyMessageAdapter(),
-				new MessengerMessageAdapter(),
-				new MessengerDirectMessageAdapter()
+				new MessengerMessageAdapter(){}
 		);
 		config.withSerializers(
 				new HttpResourceFileSerializer()

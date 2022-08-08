@@ -28,6 +28,7 @@ import javax.json.JsonObjectBuilder;
 import javax.json.JsonValue;
 import javax.json.bind.adapter.JsonbAdapter;
 
+import org.lecturestudio.web.api.message.MessengerDirectMessage;
 import org.lecturestudio.web.api.message.MessengerMessage;
 import org.lecturestudio.web.api.model.Message;
 
@@ -65,14 +66,29 @@ public class MessengerMessageAdapter implements JsonbAdapter<MessengerMessage, J
 
 	@Override
 	public MessengerMessage adaptFromJson(JsonObject jsonObject) {
-		MessengerMessage message = new MessengerMessage();
+		String type = jsonObject.getString("_type");
+
+		MessengerMessage message;
+
+		if (type.equals("MessengerDirectMessage")) {
+			MessengerDirectMessage directMessage = new MessengerDirectMessage();
+
+			directMessage.setRecipient(jsonObject.getString("recipient"));
+
+			message = directMessage;
+		}
+		else {
+			message = new MessengerMessage();
+		}
 
 		if (jsonObject.get("text").getValueType() != JsonValue.ValueType.NULL) {
 			message.setDate(ZonedDateTime.parse(jsonObject.getString("time")));
 			message.setMessage(new Message(jsonObject.getString("text")));
 			message.setFirstName(jsonObject.getString("firstName"));
 		}
+
 		message.setFamilyName(jsonObject.getString("familyName"));
+
 		if (jsonObject.get("time").getValueType() != JsonValue.ValueType.NULL) {
 
 			message.setDate(ZonedDateTime.parse(jsonObject.getString("time")));

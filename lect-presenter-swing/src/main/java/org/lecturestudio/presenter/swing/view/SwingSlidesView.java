@@ -80,6 +80,7 @@ import org.lecturestudio.swing.view.SwingView;
 import org.lecturestudio.swing.view.ViewPostConstruct;
 import org.lecturestudio.web.api.event.PeerStateEvent;
 import org.lecturestudio.web.api.event.VideoFrameEvent;
+import org.lecturestudio.web.api.message.MessengerDirectMessage;
 import org.lecturestudio.web.api.message.MessengerMessage;
 import org.lecturestudio.web.api.message.SpeechCancelMessage;
 import org.lecturestudio.web.api.message.SpeechRequestMessage;
@@ -526,6 +527,7 @@ public class SwingSlidesView extends JPanel implements SlidesView {
 			messageView.setUserName(String.format("%s %s", message.getFirstName(), message.getFamilyName()));
 			messageView.setDate(message.getDate());
 			messageView.setMessage(message.getMessage().getText());
+			messageView.setPrivate(message instanceof MessengerDirectMessage);
 			messageView.setOnDiscard(() -> {
 				executeAction(discardMessageAction, message);
 

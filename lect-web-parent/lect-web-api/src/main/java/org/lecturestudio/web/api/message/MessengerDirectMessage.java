@@ -3,23 +3,19 @@ package org.lecturestudio.web.api.message;
 import org.lecturestudio.web.api.model.Message;
 
 import java.time.ZonedDateTime;
+import java.util.StringJoiner;
 
-public class MessengerDirectMessage extends WebMessage {
-
-	private Message message;
-
-	private Boolean reply;
+public class MessengerDirectMessage extends MessengerMessage {
 
 	private String recipient;
 
 
-	public MessengerDirectMessage(String recipient) {
-		this(recipient, null, null, null, null);
+	public MessengerDirectMessage() {
+		this(null);
 	}
 
-	public MessengerDirectMessage(String recipient, Message message,
-			String remoteAddress, ZonedDateTime date) {
-		this(recipient, message, remoteAddress, date, null);
+	public MessengerDirectMessage(String recipient) {
+		this(recipient, null, null, null, null);
 	}
 
 	public MessengerDirectMessage(String recipient, Message message,
@@ -31,24 +27,8 @@ public class MessengerDirectMessage extends WebMessage {
 		setMessageId(messageId);
 	}
 
-	public Message getMessage() {
-		return message;
-	}
-
-	public Boolean isReply() {
-		return reply;
-	}
-
 	public String getRecipient() {
 		return recipient;
-	}
-
-	public void setMessage(Message message) {
-		this.message = message;
-	}
-
-	public void setReply(boolean reply) {
-		this.reply = reply;
 	}
 
 	public void setRecipient(String recipient) {
@@ -57,10 +37,8 @@ public class MessengerDirectMessage extends WebMessage {
 
 	@Override
 	public String toString() {
-		return "MessengerDirectMessage{" +
-				"message=" + message +
-				", reply=" + reply +
-				", recipient='" + recipient + '\'' +
-				'}';
+		return new StringJoiner(", ",
+				MessengerDirectMessage.class.getSimpleName() + "[", "]").add(
+				"recipient='" + recipient + "'").toString();
 	}
 }

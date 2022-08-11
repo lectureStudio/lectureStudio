@@ -246,11 +246,16 @@ public class WebSocketStompTransport extends ExecutableBase implements MessageTr
 			}
 
 			Class<? extends WebMessage> cls = message.getClass();
-			List<Consumer<WebMessage>> consumerList = listenerMap.get(cls);
 
-			if (nonNull(consumerList)) {
-				for (Consumer<WebMessage> listener : consumerList) {
-					listener.accept(message);
+			for (var keyClass : listenerMap.keySet()) {
+				if (keyClass.isAssignableFrom(cls)) {
+					var consumerList = listenerMap.get(keyClass);
+
+					if (nonNull(consumerList)) {
+						for (Consumer<WebMessage> listener : consumerList) {
+							listener.accept(message);
+						}
+					}
 				}
 			}
 		}

@@ -1,11 +1,13 @@
 package org.lecturestudio.swing.components;
 
 import java.awt.BorderLayout;
+import java.util.Arrays;
 import java.util.ResourceBundle;
+import java.util.TreeSet;
 
 import javax.inject.Inject;
+import javax.swing.AbstractListModel;
 import javax.swing.BorderFactory;
-import javax.swing.DefaultListModel;
 import javax.swing.JList;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
@@ -17,7 +19,7 @@ import org.lecturestudio.web.api.stream.model.CourseParticipant;
 
 public class ParticipantList extends JPanel {
 
-	private final DefaultListModel<CourseParticipant> listModel;
+	private final SortedListModel listModel;
 
 
 	@Inject
@@ -28,7 +30,7 @@ public class ParticipantList extends JPanel {
 		setFocusable(false);
 		setIgnoreRepaint(true);
 
-		listModel = new DefaultListModel<>();
+		listModel = new SortedListModel();
 
 		JList<CourseParticipant> list = new JList<>(listModel);
 		list.setCellRenderer(new ParticipantCellRenderer(bundle));
@@ -46,10 +48,89 @@ public class ParticipantList extends JPanel {
 	}
 
 	public void addParticipant(CourseParticipant participant) {
-		listModel.addElement(participant);
+		listModel.add(participant);
 	}
 
 	public void removeParticipant(CourseParticipant participant) {
-		listModel.removeElement(participant);
+		listModel.remove(participant);
+	}
+
+
+
+	private static class SortedListModel extends AbstractListModel<CourseParticipant> {
+
+		private final TreeSet<CourseParticipant> model;
+
+
+		public SortedListModel() {
+			model = new TreeSet<>(this::compare);
+		}
+
+		@Override
+		public int getSize() {
+			return model.size();
+		}
+
+		@Override
+		public CourseParticipant getElementAt(int index) {
+			return model.toArray(new CourseParticipant[0])[index];
+		}
+
+		public void add(CourseParticipant participant) {
+			if (model.contains(participant)) {
+				CourseParticipant ceil = model.ceiling(participant);
+				CourseParticipant floor = model.floor(participant);
+
+				System.out.println(ceil + " -> " + floor);
+			}
+			else if (model.add(participant)) {
+				fireContentsChanged(this, 0, getSize());
+			}
+		}
+
+		public void addAll(CourseParticipant[] participants) {
+			model.addAll(Arrays.asList(participants));
+
+			fireContentsChanged(this, 0, getSize());
+		}
+
+		public boolean remove(CourseParticipant participant) {
+			boolean removed = model.remove(participant);
+
+			if (removed) {
+				fireContentsChanged(this, 0, getSize());
+			}
+
+			return removed;
+		}
+
+		public void clear() {
+			model.clear();
+
+			fireContentsChanged(this, 0, getSize());
+		}
+
+		public boolean contains(CourseParticipant element) {
+			return model.contains(element);
+		}
+
+		private int compare(CourseParticipant lhs, CourseParticipant rhs) {
+			int result = lhs.getParticipantType().compareTo(rhs.getParticipantType());
+			if (result != 0) {
+				return result;
+			}
+
+			result = lhs.getFirstName().compareToIgnoreCase(rhs.getFirstName());
+			if (result != 0) {
+				return result;
+			}
+
+			result = lhs.getFamilyName().compareToIgnoreCase(rhs.getFamilyName());
+			if (result != 0) {
+				return result;
+			}
+
+			return lhs.getPresenceType().compareTo(rhs.getPresenceType());
+		}
 	}
 }

@@ -75,13 +75,16 @@ public class CourseParticipant {
 
 		CourseParticipant that = (CourseParticipant) o;
 
-		return Objects.equals(id, that.id)
-				&& Objects.equals(firstName, that.firstName)
-				&& Objects.equals(familyName, that.familyName);
+		return Objects.equals(id, that.id);
 	}
 
 	@Override
 	public int hashCode() {
-		return Objects.hash(id, firstName, familyName);
+		return Objects.hash(id);
+	}
+
+	@Override
+	public String toString() {
+		return "[CourseParticipant] " + id;
 	}
 }

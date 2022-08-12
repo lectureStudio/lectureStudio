@@ -14,6 +14,7 @@ import javax.swing.border.EmptyBorder;
 
 import org.lecturestudio.web.api.stream.model.CourseParticipant;
 import org.lecturestudio.web.api.stream.model.CourseParticipantType;
+import org.lecturestudio.web.api.stream.model.CoursePresenceType;
 
 public class ParticipantCellRenderer extends DefaultListCellRenderer {
 
@@ -35,22 +36,38 @@ public class ParticipantCellRenderer extends DefaultListCellRenderer {
 		CourseParticipant participant = (CourseParticipant) value;
 
 		if (nonNull(participant)) {
-			CourseParticipantType pType = participant.getParticipantType();
-			String pTypeStr = null;
+			CourseParticipantType partType = participant.getParticipantType();
+			CoursePresenceType presenceType = participant.getPresenceType();
+			String partTypeStr = null;
+			String presenceTypeStr = null;
 
-			switch (pType) {
-				case ORGANISATOR -> pTypeStr = bundle.getString("role.organisator");
-				case CO_ORGANISATOR -> pTypeStr = bundle.getString("role.co-organisator");
+			switch (partType) {
+				case ORGANISATOR -> partTypeStr = bundle.getString("role.organisator");
+				case CO_ORGANISATOR -> partTypeStr = bundle.getString("role.co-organisator");
+			}
+			switch (presenceType) {
+				case CLASSROOM -> presenceTypeStr = bundle.getString("presence.type.classroom");
+				case STREAM -> presenceTypeStr = bundle.getString("presence.type.stream");
 			}
 
-			if (isNull(pTypeStr)) {
+			if (isNull(partTypeStr) && isNull(presenceTypeStr)) {
 				label.setText(String.format("%s %s",
 						participant.getFirstName(),	participant.getFamilyName()));
 			}
-			else {
+			else if (isNull(partTypeStr)) {
 				label.setText(String.format("%s %s (%s)",
 						participant.getFirstName(),	participant.getFamilyName(),
-						pTypeStr));
+						presenceTypeStr));
+			}
+			else if (isNull(presenceTypeStr)) {
+				label.setText(String.format("%s %s (%s)",
+						participant.getFirstName(),	participant.getFamilyName(),
+						partTypeStr));
+			}
+			else {
+				label.setText(String.format("%s %s (%s) (%s)",
+						participant.getFirstName(),	participant.getFamilyName(),
+						partTypeStr, presenceTypeStr));
 			}
 		}
 		else {

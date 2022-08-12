@@ -454,8 +454,7 @@ public class WebRtcStreamService extends ExecutableBase {
 		WebSocketHeaderProvider headerProvider = new WebSocketBearerTokenProvider(
 				tokenProvider);
 
-		return new StreamWebSocketClient(context.getEventBus(),
-				stateWsParameters, headerProvider, eventRecorder, course);
+		return new StreamWebSocketClient(stateWsParameters, headerProvider, eventRecorder);
 	}
 
 	private JanusWebSocketClient createJanusClient(StreamContext streamContext) {

@@ -1,7 +1,9 @@
 package org.lecturestudio.swing.components;
 
 import java.awt.BorderLayout;
+import java.util.ResourceBundle;
 
+import javax.inject.Inject;
 import javax.swing.BorderFactory;
 import javax.swing.DefaultListModel;
 import javax.swing.JList;
@@ -10,15 +12,16 @@ import javax.swing.JScrollPane;
 import javax.swing.JViewport;
 import javax.swing.ListSelectionModel;
 
-import org.lecturestudio.core.model.Participant;
 import org.lecturestudio.swing.list.ParticipantCellRenderer;
+import org.lecturestudio.web.api.stream.model.CourseParticipant;
 
 public class ParticipantList extends JPanel {
 
-	private final DefaultListModel<Participant> listModel;
+	private final DefaultListModel<CourseParticipant> listModel;
 
 
-	public ParticipantList() {
+	@Inject
+	public ParticipantList(ResourceBundle bundle) {
 		super();
 
 		setLayout(new BorderLayout());
@@ -27,8 +30,8 @@ public class ParticipantList extends JPanel {
 
 		listModel = new DefaultListModel<>();
 
-		JList<Participant> list = new JList<>(listModel);
-		list.setCellRenderer(new ParticipantCellRenderer());
+		JList<CourseParticipant> list = new JList<>(listModel);
+		list.setCellRenderer(new ParticipantCellRenderer(bundle));
 		list.setLayoutOrientation(JList.VERTICAL);
 		list.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 		list.setFocusable(false);
@@ -42,11 +45,11 @@ public class ParticipantList extends JPanel {
 		add(scrollPane, BorderLayout.CENTER);
 	}
 
-	public void addParticipant(Participant participant) {
+	public void addParticipant(CourseParticipant participant) {
 		listModel.addElement(participant);
 	}
 
-	public void removeParticipant(Participant participant) {
+	public void removeParticipant(CourseParticipant participant) {
 		listModel.removeElement(participant);
 	}
 }

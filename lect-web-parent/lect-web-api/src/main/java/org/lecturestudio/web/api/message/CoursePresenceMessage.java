@@ -18,8 +18,9 @@
 
 package org.lecturestudio.web.api.message;
 
-import org.lecturestudio.core.model.ParticipantType;
+import org.lecturestudio.web.api.stream.model.CourseParticipantType;
 import org.lecturestudio.web.api.stream.model.CoursePresence;
+import org.lecturestudio.web.api.stream.model.CoursePresenceType;
 
 /**
  * Message used to notify the arrival or departure of participants during a
@@ -31,7 +32,9 @@ public class CoursePresenceMessage extends WebMessage {
 
 	private CoursePresence presence;
 
-	private ParticipantType participantType;
+	private CoursePresenceType presenceType;
+
+	private CourseParticipantType participantType;
 
 
 	/**
@@ -55,11 +58,31 @@ public class CoursePresenceMessage extends WebMessage {
 	}
 
 	/**
+	 * Get the type of the presence, meaning through which service endpoint the
+	 * participant has issued this event.
+	 *
+	 * @return The presence type.
+	 */
+	public CoursePresenceType getCoursePresenceType() {
+		return presenceType;
+	}
+
+	/**
+	 * Set the type of the presence, meaning through which service endpoint the
+	 * participant has issued this event.
+	 *
+	 * @param presenceType The presence type.
+	 */
+	public void setCoursePresenceType(CoursePresenceType presenceType) {
+		this.presenceType = presenceType;
+	}
+
+	/**
 	 * Get the type of the participant who has issued this presence event.
 	 *
 	 * @return The participant type.
 	 */
-	public ParticipantType getCourseParticipantType() {
+	public CourseParticipantType getCourseParticipantType() {
 		return participantType;
 	}
 
@@ -68,7 +91,7 @@ public class CoursePresenceMessage extends WebMessage {
 	 *
 	 * @param type The participant type.
 	 */
-	public void setCourseParticipantType(ParticipantType type) {
+	public void setCourseParticipantType(CourseParticipantType type) {
 		this.participantType = type;
 	}
 }

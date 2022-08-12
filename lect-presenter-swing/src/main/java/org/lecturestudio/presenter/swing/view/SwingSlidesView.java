@@ -59,7 +59,6 @@ import org.lecturestudio.core.model.Document;
 import org.lecturestudio.core.model.DocumentOutline;
 import org.lecturestudio.core.model.DocumentOutlineItem;
 import org.lecturestudio.core.model.Page;
-import org.lecturestudio.core.model.Participant;
 import org.lecturestudio.core.view.*;
 import org.lecturestudio.core.view.Action;
 import org.lecturestudio.presenter.api.model.MessageBarPosition;
@@ -85,6 +84,7 @@ import org.lecturestudio.web.api.message.MessengerDirectMessage;
 import org.lecturestudio.web.api.message.MessengerMessage;
 import org.lecturestudio.web.api.message.SpeechCancelMessage;
 import org.lecturestudio.web.api.message.SpeechRequestMessage;
+import org.lecturestudio.web.api.stream.model.CourseParticipant;
 
 @SwingView(name = "main-slides")
 public class SwingSlidesView extends JPanel implements SlidesView {
@@ -412,14 +412,14 @@ public class SwingSlidesView extends JPanel implements SlidesView {
 	}
 
 	@Override
-	public void addParticipant(Participant participant) {
+	public void addParticipant(CourseParticipant participant) {
 		SwingUtils.invoke(() -> {
 			participantList.addParticipant(participant);
 		});
 	}
 
 	@Override
-	public void removeParticipant(Participant participant) {
+	public void removeParticipant(CourseParticipant participant) {
 		SwingUtils.invoke(() -> {
 			participantList.removeParticipant(participant);
 		});

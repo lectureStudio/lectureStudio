@@ -55,7 +55,7 @@ import org.lecturestudio.web.api.websocket.WebSocketStompHeaderProvider;
  * QuizFeatureWebService} or {@link MessageFeatureWebService}. This class is the
  * interface between the UI and the HTTP application server. The {@link
  * LocalBroadcaster} allows to run the web services on a local machine and act
- * as an standalone server.
+ * as a standalone server.
  *
  * @author Alex Andres
  */

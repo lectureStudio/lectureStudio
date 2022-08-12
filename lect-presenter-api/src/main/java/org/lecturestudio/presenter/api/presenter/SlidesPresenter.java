@@ -74,7 +74,9 @@ import org.lecturestudio.web.api.message.MessengerMessage;
 import org.lecturestudio.web.api.message.SpeechCancelMessage;
 import org.lecturestudio.web.api.message.SpeechRequestMessage;
 import org.lecturestudio.web.api.model.Message;
+import org.lecturestudio.web.api.stream.model.CourseParticipant;
 import org.lecturestudio.web.api.stream.model.CoursePresence;
+import org.lecturestudio.web.api.stream.model.CoursePresenceType;
 
 import javax.inject.Inject;
 import java.awt.*;
@@ -274,16 +276,24 @@ public class SlidesPresenter extends Presenter<SlidesView> {
 		PresenterContext presenterContext = (PresenterContext) context;
 
 		if (CoursePresence.isConnected(message.getCoursePresence())) {
-			presenterContext.setAttendeesCount(presenterContext.getAttendeesCount() + 1);
+			if (CoursePresenceType.isStream(message.getCoursePresenceType())) {
+				presenterContext.setAttendeesCount(presenterContext.getAttendeesCount() + 1);
+			}
 
-			view.addParticipant(new Participant(message.getUserId(),
-					message.getFirstName(), message.getFamilyName()));
+			view.addParticipant(new CourseParticipant(message.getUserId(),
+					message.getFirstName(), message.getFamilyName(),
+					message.getCoursePresenceType(),
+					message.getCourseParticipantType()));
 		}
 		else {
-			presenterContext.setAttendeesCount(presenterContext.getAttendeesCount() - 1);
+			if (CoursePresenceType.isStream(message.getCoursePresenceType())) {
+				presenterContext.setAttendeesCount(presenterContext.getAttendeesCount() - 1);
+			}
 
-			view.removeParticipant(new Participant(message.getUserId(),
-					message.getFirstName(), message.getFamilyName()));
+			view.removeParticipant(new CourseParticipant(message.getUserId(),
+					message.getFirstName(), message.getFamilyName(),
+					message.getCoursePresenceType(),
+					message.getCourseParticipantType()));
 		}
 	}
 

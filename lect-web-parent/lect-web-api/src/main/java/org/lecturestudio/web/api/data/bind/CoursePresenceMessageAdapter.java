@@ -18,15 +18,15 @@
 
 package org.lecturestudio.web.api.data.bind;
 
-import java.time.ZonedDateTime;
-
 import javax.json.Json;
 import javax.json.JsonObject;
 import javax.json.JsonObjectBuilder;
 import javax.json.bind.adapter.JsonbAdapter;
 
 import org.lecturestudio.web.api.message.CoursePresenceMessage;
+import org.lecturestudio.web.api.stream.model.CourseParticipantType;
 import org.lecturestudio.web.api.stream.model.CoursePresence;
+import org.lecturestudio.web.api.stream.model.CoursePresenceType;
 
 public class CoursePresenceMessageAdapter implements JsonbAdapter<CoursePresenceMessage, JsonObject> {
 
@@ -38,6 +38,8 @@ public class CoursePresenceMessageAdapter implements JsonbAdapter<CoursePresence
 		builder.add("familyName", message.getFamilyName());
 		builder.add("userId", message.getUserId());
 		builder.add("presence", message.getCoursePresence().toString());
+		builder.add("presenceType", message.getCoursePresenceType().toString());
+		builder.add("participantType", message.getCourseParticipantType().toString());
 
 		return builder.build();
 	}
@@ -53,6 +55,8 @@ public class CoursePresenceMessageAdapter implements JsonbAdapter<CoursePresence
 		message.setFamilyName(jsonObject.getString("familyName"));
 		message.setUserId(jsonObject.getString("userId"));
 		message.setCoursePresence(CoursePresence.valueOf(jsonObject.getString("presence")));
+		message.setCoursePresenceType(CoursePresenceType.valueOf(jsonObject.getString("presenceType")));
+		message.setCourseParticipantType(CourseParticipantType.valueOf(jsonObject.getString("participantType")));
 
 		return message;
 	}

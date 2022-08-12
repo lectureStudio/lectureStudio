@@ -1,15 +1,12 @@
-package org.lecturestudio.core.model;
+package org.lecturestudio.web.api.stream.model;
 
 import java.util.Objects;
 
-//import lombok.AllArgsConstructor;
-//import lombok.Data;
+public class CourseParticipant {
 
-//@Data
-//@AllArgsConstructor
-public class Participant {
+	private CourseParticipantType participantType;
 
-	private ParticipantType participantType;
+	private CoursePresenceType presenceType;
 
 	private String id;
 
@@ -18,11 +15,13 @@ public class Participant {
 	private String familyName;
 
 
-	public Participant(String id, String firstName, String familyName) {
+	public CourseParticipant(String id, String firstName, String familyName,
+			CoursePresenceType presenceType, CourseParticipantType type) {
 		this.id = id;
 		this.firstName = firstName;
 		this.familyName = familyName;
-		this.participantType = ParticipantType.STUDENT;
+		this.presenceType = presenceType;
+		this.participantType = type;
 	}
 
 	public String getId() {
@@ -49,12 +48,20 @@ public class Participant {
 		this.familyName = familyName;
 	}
 
-	public ParticipantType getParticipantType() {
+	public CourseParticipantType getParticipantType() {
 		return participantType;
 	}
 
-	public void setParticipantType(ParticipantType type) {
+	public void setParticipantType(CourseParticipantType type) {
 		this.participantType = type;
+	}
+
+	public CoursePresenceType getPresenceType() {
+		return presenceType;
+	}
+
+	public void setPresenceType(CoursePresenceType type) {
+		this.presenceType = type;
 	}
 
 	@Override
@@ -66,7 +73,7 @@ public class Participant {
 			return false;
 		}
 
-		Participant that = (Participant) o;
+		CourseParticipant that = (CourseParticipant) o;
 
 		return Objects.equals(id, that.id)
 				&& Objects.equals(firstName, that.firstName)

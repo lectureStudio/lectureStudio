@@ -16,9 +16,9 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package org.lecturestudio.core.model;
+package org.lecturestudio.web.api.stream.model;
 
-public enum ParticipantType {
+public enum CourseParticipantType {
 
 	ORGANISATOR,
 

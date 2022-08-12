@@ -30,7 +30,6 @@ import org.lecturestudio.core.model.Document;
 import org.lecturestudio.core.model.DocumentOutline;
 import org.lecturestudio.core.model.DocumentOutlineItem;
 import org.lecturestudio.core.model.Page;
-import org.lecturestudio.core.model.Participant;
 import org.lecturestudio.core.view.*;
 import org.lecturestudio.presenter.api.model.MessageBarPosition;
 import org.lecturestudio.presenter.api.config.SlideViewConfiguration;
@@ -41,6 +40,7 @@ import org.lecturestudio.web.api.event.VideoFrameEvent;
 import org.lecturestudio.web.api.message.MessengerMessage;
 import org.lecturestudio.web.api.message.SpeechCancelMessage;
 import org.lecturestudio.web.api.message.SpeechRequestMessage;
+import org.lecturestudio.web.api.stream.model.CourseParticipant;
 
 public interface SlidesView extends View {
 
@@ -60,9 +60,9 @@ public interface SlidesView extends View {
 
 	void selectDocument(Document doc, PresentationParameterProvider ppProvider);
 
-	void addParticipant(Participant participant);
+	void addParticipant(CourseParticipant participant);
 
-	void removeParticipant(Participant participant);
+	void removeParticipant(CourseParticipant participant);
 
 	Page getPage();
 

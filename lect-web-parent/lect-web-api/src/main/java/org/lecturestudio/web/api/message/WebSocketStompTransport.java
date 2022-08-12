@@ -196,12 +196,12 @@ public class WebSocketStompTransport extends ExecutableBase implements MessageTr
 				headerProvider.addHeaders(headers);
 				headers.add("courseId", this.course.getId().toString());
 
-				if (message instanceof MessengerMessage) {
-					headers.add("messageType", "public");
-				}
-				else if (message instanceof MessengerDirectMessage) {
+				if (message instanceof MessengerDirectMessage) {
 					headers.add("messageType", "user");
 					headers.add("username", ((MessengerDirectMessage) message).getRecipient());
+				}
+				else if (message instanceof MessengerMessage) {
+					headers.add("messageType", "public");
 				}
 				else if (message instanceof MessengerReplyMessage) {
 					headers.add("messageType", "reply");
@@ -268,6 +268,7 @@ public class WebSocketStompTransport extends ExecutableBase implements MessageTr
 			subscribe(stompSession, "/topic/course/event/{id}/presence");
 			subscribe(stompSession, "/topic/course/{id}/chat");
 			subscribe(stompSession, "/user/queue/course/{id}/chat");
+			subscribe(stompSession, "/user/queue/course/{id}/presence");
 			subscribe(stompSession, "/user/queue/course/{id}/speech");
 			subscribe(stompSession, "/user/queue/course/{id}/quiz");
 		}

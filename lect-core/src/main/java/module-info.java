@@ -1,6 +1,6 @@
 module org.lecturestudio.core {
 
-	uses org.lecturestudio.core.audio.codec.AudioCodecProvider;
+	requires static lombok;
 
 	requires com.artifex.mupdf;
 	requires com.fasterxml.jackson.annotation;
@@ -34,7 +34,6 @@ module org.lecturestudio.core {
 	exports org.lecturestudio.core.audio;
 	exports org.lecturestudio.core.audio.bus;
 	exports org.lecturestudio.core.audio.bus.event;
-	exports org.lecturestudio.core.audio.codec;
 	exports org.lecturestudio.core.audio.device;
 	exports org.lecturestudio.core.audio.filter;
 	exports org.lecturestudio.core.audio.sink;
@@ -45,7 +44,6 @@ module org.lecturestudio.core {
 	exports org.lecturestudio.core.camera;
 	exports org.lecturestudio.core.camera.bus.event;
 	exports org.lecturestudio.core.codec;
-	exports org.lecturestudio.core.codec.h264;
 	exports org.lecturestudio.core.controller;
 	exports org.lecturestudio.core.converter;
 	exports org.lecturestudio.core.geometry;
@@ -58,8 +56,6 @@ module org.lecturestudio.core {
 	exports org.lecturestudio.core.model.listener;
 	exports org.lecturestudio.core.model.shape;
 	exports org.lecturestudio.core.net;
-	exports org.lecturestudio.core.net.protocol;
-	exports org.lecturestudio.core.net.rtp;
 	exports org.lecturestudio.core.pdf;
 	exports org.lecturestudio.core.presenter;
 	exports org.lecturestudio.core.recording;

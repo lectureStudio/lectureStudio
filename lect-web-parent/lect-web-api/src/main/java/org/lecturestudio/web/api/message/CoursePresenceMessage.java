@@ -18,6 +18,7 @@
 
 package org.lecturestudio.web.api.message;
 
+import org.lecturestudio.core.model.ParticipantType;
 import org.lecturestudio.web.api.stream.model.CoursePresence;
 
 /**
@@ -29,6 +30,8 @@ import org.lecturestudio.web.api.stream.model.CoursePresence;
 public class CoursePresenceMessage extends WebMessage {
 
 	private CoursePresence presence;
+
+	private ParticipantType participantType;
 
 
 	/**
@@ -49,5 +52,23 @@ public class CoursePresenceMessage extends WebMessage {
 	 */
 	public void setCoursePresence(CoursePresence presence) {
 		this.presence = presence;
+	}
+
+	/**
+	 * Get the type of the participant who has issued this presence event.
+	 *
+	 * @return The participant type.
+	 */
+	public ParticipantType getCourseParticipantType() {
+		return participantType;
+	}
+
+	/**
+	 * Set the type of the participant who has issued this presence event.
+	 *
+	 * @param type The participant type.
+	 */
+	public void setCourseParticipantType(ParticipantType type) {
+		this.participantType = type;
 	}
 }

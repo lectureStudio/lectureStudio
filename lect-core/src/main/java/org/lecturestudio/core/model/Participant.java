@@ -9,6 +9,8 @@ import java.util.Objects;
 //@AllArgsConstructor
 public class Participant {
 
+	private ParticipantType participantType;
+
 	private String id;
 
 	private String firstName;
@@ -20,6 +22,7 @@ public class Participant {
 		this.id = id;
 		this.firstName = firstName;
 		this.familyName = familyName;
+		this.participantType = ParticipantType.STUDENT;
 	}
 
 	public String getId() {
@@ -44,6 +47,14 @@ public class Participant {
 
 	public void setFamilyName(String familyName) {
 		this.familyName = familyName;
+	}
+
+	public ParticipantType getParticipantType() {
+		return participantType;
+	}
+
+	public void setParticipantType(ParticipantType type) {
+		this.participantType = type;
 	}
 
 	@Override

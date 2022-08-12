@@ -1,6 +1,6 @@
 module org.lecturestudio.core {
 
-	requires static lombok;
+//	requires static lombok;
 
 	requires com.artifex.mupdf;
 	requires com.fasterxml.jackson.annotation;

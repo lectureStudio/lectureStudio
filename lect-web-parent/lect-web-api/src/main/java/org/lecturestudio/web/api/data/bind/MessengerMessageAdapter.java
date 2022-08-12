@@ -105,9 +105,6 @@ public class MessengerMessageAdapter implements JsonbAdapter<MessengerMessage, J
 		if (jsonObject.get("messageId").getValueType() != JsonValue.ValueType.NULL) {
 			message.setMessageId(jsonObject.getString("messageId"));
 		}
-		if (jsonObject.get("reply").getValueType() != JsonValue.ValueType.NULL) {
-			message.setReply(jsonObject.getBoolean("reply"));
-		}
 
 		return message;
 	}

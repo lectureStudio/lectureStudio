@@ -193,6 +193,11 @@ public class MenuPresenter extends Presenter<MenuView> {
 	}
 
 	@Subscribe
+	public void onEvent(final ExternalParticipantsViewEvent event) {
+		view.setExternalParticipants(event.isEnabled(), event.isShow());
+	}
+
+	@Subscribe
 	public void onEvent(final ExternalSlidePreviewViewEvent event) {
 		view.setExternalSlidePreview(event.isEnabled(), event.isShow());
 	}
@@ -252,6 +257,10 @@ public class MenuPresenter extends Presenter<MenuView> {
 		eventBus.post(new ExternalMessagesViewEvent(selected));
 	}
 
+	public void externalParticipants(boolean selected) {
+		eventBus.post(new ExternalParticipantsViewEvent(selected));
+	}
+
 	public void externalSlidePreview(boolean selected) {
 		eventBus.post(new ExternalSlidePreviewViewEvent(selected));
 	}
@@ -262,6 +271,10 @@ public class MenuPresenter extends Presenter<MenuView> {
 
 	public void positionMessages(MessageBarPosition position) {
 		eventBus.post(new MessageBarPositionEvent(position));
+	}
+
+	public void positionParticipants(MessageBarPosition position) {
+		eventBus.post(new ParticipantsPositionEvent(position));
 	}
 
 	public void newWhiteboard() {
@@ -457,24 +470,27 @@ public class MenuPresenter extends Presenter<MenuView> {
 		view.setOnCustomizeToolbar(this::customizeToolbar);
 
 		view.setOnExternalMessages(this::externalMessages);
+		view.setOnExternalParticipants(this::externalParticipants);
 		view.setOnExternalSlidePreview(this::externalSlidePreview);
 		view.setOnExternalSpeech(this::externalSpeech);
 
 		switch (config.getSlideViewConfiguration().getMessageBarPosition()) {
-			case LEFT:
-				view.setMessagesPositionLeft();
-				break;
-			case BOTTOM:
-				view.setMessagesPositionBottom();
-				break;
-			case RIGHT:
-				view.setMessagesPositionRight();
-				break;
+			case LEFT -> view.setMessagesPositionLeft();
+			case BOTTOM -> view.setMessagesPositionBottom();
+			case RIGHT -> view.setMessagesPositionRight();
 		}
 
 		view.setOnMessagesPositionLeft(() -> positionMessages(MessageBarPosition.LEFT));
 		view.setOnMessagesPositionBottom(() -> positionMessages(MessageBarPosition.BOTTOM));
 		view.setOnMessagesPositionRight(() -> positionMessages(MessageBarPosition.RIGHT));
+
+		switch (config.getSlideViewConfiguration().getParticipantsPosition()) {
+			case LEFT -> view.setParticipantsPositionLeft();
+			case RIGHT -> view.setParticipantsPositionRight();
+		}
+
+		view.setOnParticipantsPositionLeft(() -> positionParticipants(MessageBarPosition.LEFT));
+		view.setOnParticipantsPositionRight(() -> positionParticipants(MessageBarPosition.RIGHT));
 
 		view.setOnNewWhiteboard(this::newWhiteboard);
 		view.setOnNewWhiteboardPage(this::newWhiteboardPage);

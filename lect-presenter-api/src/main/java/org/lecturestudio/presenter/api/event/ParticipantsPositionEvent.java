@@ -20,9 +20,9 @@ package org.lecturestudio.presenter.api.event;
 
 import org.lecturestudio.presenter.api.model.MessageBarPosition;
 
-public class MessageBarPositionEvent extends PositionEvent {
+public class ParticipantsPositionEvent extends PositionEvent {
 
-	public MessageBarPositionEvent(MessageBarPosition position) {
+	public ParticipantsPositionEvent(MessageBarPosition position) {
 		super(position);
 	}
 }

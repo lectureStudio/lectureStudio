@@ -78,6 +78,7 @@ public class ViewLoader<T extends Container> extends SwingEngine<T> {
 		tagLibrary.registerTag("LineToolPreview", LineToolPreview.class);
 		tagLibrary.registerTag("MessageView", MessageView.class);
 		tagLibrary.registerTag("Panel", new BeanFactory(JPanel.class, new PanelProcessor()));
+		tagLibrary.registerTag("ParticipantList", ParticipantList.class);
 		tagLibrary.registerTag("PenToolPreview", PenToolPreview.class);
 		tagLibrary.registerTag("PointerToolPreview", PointerToolPreview.class);
 		tagLibrary.registerTag("RecordButton", RecordButton.class);

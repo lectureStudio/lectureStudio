@@ -86,6 +86,10 @@ public interface MenuView extends View {
 
 	void setOnExternalMessages(ConsumerAction<Boolean> action);
 
+	void setExternalParticipants(boolean selected, boolean show);
+
+	void setOnExternalParticipants(ConsumerAction<Boolean> action);
+
 	void setExternalSlidePreview(boolean selected, boolean show);
 
 	void setOnExternalSlidePreview(ConsumerAction<Boolean> action);
@@ -105,6 +109,14 @@ public interface MenuView extends View {
 	void setOnMessagesPositionRight(Action action);
 
 	void setMessagesPositionRight();
+
+	void setOnParticipantsPositionLeft(Action action);
+
+	void setParticipantsPositionLeft();
+
+	void setOnParticipantsPositionRight(Action action);
+
+	void setParticipantsPositionRight();
 
 	/**
 	 * Whiteboard Menu

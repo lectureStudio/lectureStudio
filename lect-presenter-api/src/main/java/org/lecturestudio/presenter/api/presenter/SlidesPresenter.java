@@ -275,9 +275,15 @@ public class SlidesPresenter extends Presenter<SlidesView> {
 
 		if (CoursePresence.isConnected(message.getCoursePresence())) {
 			presenterContext.setAttendeesCount(presenterContext.getAttendeesCount() + 1);
+
+			view.addParticipant(new Participant(message.getUserId(),
+					message.getFirstName(), message.getFamilyName()));
 		}
 		else {
 			presenterContext.setAttendeesCount(presenterContext.getAttendeesCount() - 1);
+
+			view.removeParticipant(new Participant(message.getUserId(),
+					message.getFirstName(), message.getFamilyName()));
 		}
 	}
 
@@ -303,6 +309,21 @@ public class SlidesPresenter extends Presenter<SlidesView> {
 		}
 		else {
 			viewHideExternalMessages(event.isPersistent());
+		}
+	}
+
+	@Subscribe
+	public void onEvent(ExternalParticipantsViewEvent event) {
+		if (event.isEnabled()) {
+			if (event.isShow()) {
+				viewShowExternalParticipants(event.isPersistent());
+			}
+			else {
+				view.hideExternalParticipants();
+			}
+		}
+		else {
+			viewHideExternalParticipants(event.isPersistent());
 		}
 	}
 
@@ -338,11 +359,20 @@ public class SlidesPresenter extends Presenter<SlidesView> {
 
 	@Subscribe
 	public void onEvent(MessageBarPositionEvent event) {
-		final MessageBarPosition position = event.position;
+		final MessageBarPosition position = event.getPosition();
 
 		view.setMessageBarPosition(position);
 
 		getPresenterConfig().getSlideViewConfiguration().setMessageBarPosition(position);
+	}
+
+	@Subscribe
+	public void onEvent(ParticipantsPositionEvent event) {
+		final MessageBarPosition position = event.getPosition();
+
+		view.setParticipantsPosition(position);
+
+		getPresenterConfig().getSlideViewConfiguration().setParticipantsPosition(position);
 	}
 
 	private void externalMessagesPositionChanged(ExternalWindowPosition position) {
@@ -358,6 +388,21 @@ public class SlidesPresenter extends Presenter<SlidesView> {
 
 	private void externalMessagesClosed() {
 		eventBus.post(new ExternalMessagesViewEvent(false));
+	}
+
+	private void externalParticipantsPositionChanged(ExternalWindowPosition position) {
+		final ExternalWindowConfiguration config = getExternalParticipantsConfig();
+
+		config.setPosition(position.getPosition());
+		config.setScreen(position.getScreen());
+	}
+
+	private void externalParticipantsSizeChanged(Dimension size) {
+		getExternalParticipantsConfig().setSize(size);
+	}
+
+	private void externalParticipantsClosed() {
+		eventBus.post(new ExternalParticipantsViewEvent(false));
 	}
 
 	private void externalSlidePreviewPositionChanged(ExternalWindowPosition position) {
@@ -760,6 +805,10 @@ public class SlidesPresenter extends Presenter<SlidesView> {
 		return getPresenterConfig().getExternalMessagesConfig();
 	}
 
+	private ExternalWindowConfiguration getExternalParticipantsConfig() {
+		return getPresenterConfig().getExternalParticipantsConfig();
+	}
+
 	private ExternalWindowConfiguration getExternalSlidePreviewConfig() {
 		return getPresenterConfig().getExternalSlidePreviewConfig();
 	}
@@ -844,6 +893,12 @@ public class SlidesPresenter extends Presenter<SlidesView> {
 		initExternalScreenBehavior(getExternalMessagesConfig(),
 				(enabled, show) -> eventBus.post(new ExternalMessagesViewEvent(enabled, show)));
 
+		view.setOnExternalParticipantsPositionChanged(this::externalParticipantsPositionChanged);
+		view.setOnExternalParticipantsSizeChanged(this::externalParticipantsSizeChanged);
+		view.setOnExternalParticipantsClosed(this::externalParticipantsClosed);
+		initExternalScreenBehavior(getExternalParticipantsConfig(),
+				(enabled, show) -> eventBus.post(new ExternalParticipantsViewEvent(enabled, show)));
+
 		view.setOnExternalSlidePreviewPositionChanged(this::externalSlidePreviewPositionChanged);
 		view.setOnExternalSlidePreviewSizeChanged(this::externalSlidePreviewSizeChanged);
 		view.setOnExternalSlidePreviewClosed(this::externalSlidePreviewClosed);
@@ -896,9 +951,11 @@ public class SlidesPresenter extends Presenter<SlidesView> {
 		registerShortcut(Shortcut.COPY_OVERLAY_NEXT_PAGE_CTRL, this::copyNextOverlay);
 		registerShortcut(Shortcut.COPY_OVERLAY_NEXT_PAGE_SHIFT, this::copyNextOverlay);
 
-		view.setMessageBarPosition(
-				getPresenterConfig().getSlideViewConfiguration()
-						.getMessageBarPosition());
+		view.setMessageBarPosition(getPresenterConfig()
+				.getSlideViewConfiguration().getMessageBarPosition());
+
+		view.setParticipantsPosition(getPresenterConfig()
+				.getSlideViewConfiguration().getParticipantsPosition());
 
 		try {
 			recordingService.init();
@@ -929,6 +986,8 @@ public class SlidesPresenter extends Presenter<SlidesView> {
 	private void showExternalScreens() {
 		showExternalScreen(getExternalMessagesConfig(),
 				(enabled, show) -> eventBus.post(new ExternalMessagesViewEvent(enabled, show)));
+		showExternalScreen(getExternalParticipantsConfig(),
+				(enabled, show) -> eventBus.post(new ExternalParticipantsViewEvent(enabled, show)));
 		showExternalScreen(getExternalSlidePreviewConfig(),
 				(enabled, show) -> eventBus.post(new ExternalSlidePreviewViewEvent(enabled, show)));
 		showExternalScreen(getExternalSpeechConfig(),
@@ -968,6 +1027,29 @@ public class SlidesPresenter extends Presenter<SlidesView> {
 		}
 
 		view.hideExternalMessages();
+	}
+
+	private void viewShowExternalParticipants(boolean persistent) {
+		final ExternalWindowConfiguration config = getExternalParticipantsConfig();
+
+		if (persistent) {
+			config.setEnabled(true);
+		}
+
+		view.showExternalParticipants(config.getScreen(), config.getPosition(), config.getSize());
+	}
+
+	private void viewHideExternalParticipants(boolean persistent) {
+		final ExternalWindowConfiguration config = getExternalParticipantsConfig();
+
+		if (persistent) {
+			config.setEnabled(false);
+			config.setScreen(null);
+			config.setPosition(null);
+			config.setSize(null);
+		}
+
+		view.hideExternalParticipants();
 	}
 
 	private void viewShowExternalSlidePreview(boolean persistent) {

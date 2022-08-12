@@ -103,6 +103,7 @@ public class DefaultConfiguration extends PresenterConfiguration {
 		getSlideViewConfiguration().setLeftSliderPosition(0.375);
 		getSlideViewConfiguration().setRightSliderPosition(0.8);
 		getSlideViewConfiguration().setMessageBarPosition(MessageBarPosition.BOTTOM);
+		getSlideViewConfiguration().setParticipantsPosition(MessageBarPosition.LEFT);
 
 		AudioProcessingSettings processingSettings = new AudioProcessingSettings();
 		processingSettings.setHighpassFilterEnabled(true);

@@ -24,8 +24,11 @@ import org.lecturestudio.presenter.api.model.MessageBarPosition;
 
 public class SlideViewConfiguration {
 
-	private final ObjectProperty<MessageBarPosition> messageBarPosition =
-			new ObjectProperty<>(MessageBarPosition.BOTTOM);
+	private final ObjectProperty<MessageBarPosition> messageBarPosition = new ObjectProperty<>(
+			MessageBarPosition.BOTTOM);
+
+	private final ObjectProperty<MessageBarPosition> participantsPosition = new ObjectProperty<>(
+			MessageBarPosition.LEFT);
 
 	private final DoubleProperty leftSliderPosition = new DoubleProperty(0.375);
 
@@ -82,5 +85,13 @@ public class SlideViewConfiguration {
 	 */
 	public void setMessageBarPosition(MessageBarPosition position) {
 		messageBarPosition.set(position);
+	}
+
+	public MessageBarPosition getParticipantsPosition() {
+		return participantsPosition.get();
+	}
+
+	public void setParticipantsPosition(MessageBarPosition position) {
+		participantsPosition.set(position);
 	}
 }

@@ -39,8 +39,8 @@ import org.lecturestudio.presenter.api.event.MessengerStateEvent;
 import org.lecturestudio.presenter.api.event.QuizStateEvent;
 import org.lecturestudio.presenter.api.net.LocalBroadcaster;
 import org.lecturestudio.web.api.client.TokenProvider;
+import org.lecturestudio.web.api.message.CoursePresenceMessage;
 import org.lecturestudio.web.api.message.MessageTransport;
-import org.lecturestudio.web.api.message.QuizAnswerMessage;
 import org.lecturestudio.web.api.message.SpeechBaseMessage;
 import org.lecturestudio.web.api.message.WebMessage;
 import org.lecturestudio.web.api.message.WebSocketStompTransport;
@@ -339,6 +339,9 @@ public class WebService extends ExecutableBase {
 		if (isNull(messageTransport) || messageTransport.destroyed()) {
 			messageTransport = createStompMessageTransport();
 
+			messageTransport.addListener(CoursePresenceMessage.class, message -> {
+				context.getEventBus().post(message);
+			});
 			messageTransport.addListener(SpeechBaseMessage.class, message -> {
 				context.getEventBus().post(message);
 			});

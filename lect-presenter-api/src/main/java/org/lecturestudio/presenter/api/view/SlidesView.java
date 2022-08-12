@@ -30,6 +30,7 @@ import org.lecturestudio.core.model.Document;
 import org.lecturestudio.core.model.DocumentOutline;
 import org.lecturestudio.core.model.DocumentOutlineItem;
 import org.lecturestudio.core.model.Page;
+import org.lecturestudio.core.model.Participant;
 import org.lecturestudio.core.view.*;
 import org.lecturestudio.presenter.api.model.MessageBarPosition;
 import org.lecturestudio.presenter.api.config.SlideViewConfiguration;
@@ -58,6 +59,10 @@ public interface SlidesView extends View {
 	void removeDocument(Document doc);
 
 	void selectDocument(Document doc, PresentationParameterProvider ppProvider);
+
+	void addParticipant(Participant participant);
+
+	void removeParticipant(Participant participant);
 
 	Page getPage();
 
@@ -129,6 +134,12 @@ public interface SlidesView extends View {
 
 	void setOnExternalMessagesClosed(Action action);
 
+	void setOnExternalParticipantsPositionChanged(ConsumerAction<ExternalWindowPosition> action);
+
+	void setOnExternalParticipantsSizeChanged(ConsumerAction<Dimension> action);
+
+	void setOnExternalParticipantsClosed(Action action);
+
 	void setOnExternalSlidePreviewPositionChanged(ConsumerAction<ExternalWindowPosition> action);
 
 	void setOnExternalSlidePreviewSizeChanged(ConsumerAction<Dimension> action);
@@ -145,6 +156,10 @@ public interface SlidesView extends View {
 
 	void hideExternalMessages();
 
+	void showExternalParticipants(Screen screen, Point position, Dimension size);
+
+	void hideExternalParticipants();
+
 	void showExternalSlidePreview(Screen screen, Point position, Dimension size);
 
 	void hideExternalSlidePreview();
@@ -154,4 +169,7 @@ public interface SlidesView extends View {
 	void hideExternalSpeech();
 
 	void setMessageBarPosition(MessageBarPosition position);
+
+	void setParticipantsPosition(MessageBarPosition position);
+
 }

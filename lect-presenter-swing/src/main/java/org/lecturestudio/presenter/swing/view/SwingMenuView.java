@@ -86,6 +86,8 @@ public class SwingMenuView extends JMenuBar implements MenuView {
 
 	private JCheckBoxMenuItem externalMessagesMenuItem;
 
+	private JCheckBoxMenuItem externalParticipantsMenuItem;
+
 	private JCheckBoxMenuItem externalSlidePreviewMenuItem;
 
 	private JCheckBoxMenuItem externalSpeechMenuItem;
@@ -97,6 +99,12 @@ public class SwingMenuView extends JMenuBar implements MenuView {
 	private JRadioButtonMenuItem messagesPositionBottomMenuItem;
 
 	private JRadioButtonMenuItem messagesPositionRightMenuItem;
+
+	private JMenu participantsPositionMenu;
+
+	private JRadioButtonMenuItem participantsPositionLeftMenuItem;
+
+	private JRadioButtonMenuItem participantsPositionRightMenuItem;
 
 	private JMenuItem newWhiteboardMenuItem;
 
@@ -184,6 +192,7 @@ public class SwingMenuView extends JMenuBar implements MenuView {
 			enableMessengerMenuItem.setEnabled(hasDocument);
 			externalWindowsMenu.setEnabled(hasDocument);
 			messagesPositionMenu.setEnabled(hasDocument);
+			participantsPositionMenu.setEnabled(hasDocument);
 		});
 	}
 
@@ -313,9 +322,9 @@ public class SwingMenuView extends JMenuBar implements MenuView {
 	@Override
 	public void setExternalMessages(boolean selected, boolean show) {
 		externalMessagesMenuItem.setSelected(selected);
-		externalMessagesMenuItem.setText(
-				!selected || show ? dict.get("menu.external.messages") :
-						dict.get("menu.external.messages.disconnected"));
+		externalMessagesMenuItem.setText(!selected || show
+				? dict.get("menu.external.messages")
+				: dict.get("menu.external.messages.disconnected"));
 	}
 
 	@Override
@@ -324,11 +333,24 @@ public class SwingMenuView extends JMenuBar implements MenuView {
 	}
 
 	@Override
+	public void setExternalParticipants(boolean selected, boolean show) {
+		externalParticipantsMenuItem.setSelected(selected);
+		externalParticipantsMenuItem.setText(!selected || show
+				? dict.get("menu.external.participants")
+				: dict.get("menu.external.participants.disconnected"));
+	}
+
+	@Override
+	public void setOnExternalParticipants(ConsumerAction<Boolean> action) {
+		SwingUtils.bindAction(externalParticipantsMenuItem, action);
+	}
+
+	@Override
 	public void setExternalSlidePreview(boolean selected, boolean show) {
 		externalSlidePreviewMenuItem.setSelected(selected);
-		externalSlidePreviewMenuItem.setText(
-				!selected || show ? dict.get("menu.external.slide.preview") :
-						dict.get("menu.external.slide.preview.disconnected"));
+		externalSlidePreviewMenuItem.setText(!selected || show
+				? dict.get("menu.external.slide.preview")
+				: dict.get("menu.external.slide.preview.disconnected"));
 	}
 
 	@Override
@@ -339,8 +361,9 @@ public class SwingMenuView extends JMenuBar implements MenuView {
 	@Override
 	public void setExternalSpeech(boolean selected, boolean show) {
 		externalSpeechMenuItem.setSelected(selected);
-		externalSpeechMenuItem.setText(
-				!selected || show ? dict.get("menu.external.speech") : dict.get("menu.external.speech.disconnected"));
+		externalSpeechMenuItem.setText(!selected || show
+				? dict.get("menu.external.speech")
+				: dict.get("menu.external.speech.disconnected"));
 	}
 
 	@Override
@@ -376,6 +399,26 @@ public class SwingMenuView extends JMenuBar implements MenuView {
 	@Override
 	public void setMessagesPositionRight() {
 		messagesPositionRightMenuItem.setSelected(true);
+	}
+
+	@Override
+	public void setOnParticipantsPositionLeft(Action action) {
+		SwingUtils.bindAction(participantsPositionLeftMenuItem, action);
+	}
+
+	@Override
+	public void setParticipantsPositionLeft() {
+		participantsPositionLeftMenuItem.setSelected(true);
+	}
+
+	@Override
+	public void setOnParticipantsPositionRight(Action action) {
+		SwingUtils.bindAction(participantsPositionRightMenuItem, action);
+	}
+
+	@Override
+	public void setParticipantsPositionRight() {
+		participantsPositionRightMenuItem.setSelected(true);
 	}
 
 	@Override
@@ -635,6 +678,10 @@ public class SwingMenuView extends JMenuBar implements MenuView {
 		messagesPositionButtonGroup.add(messagesPositionLeftMenuItem);
 		messagesPositionButtonGroup.add(messagesPositionBottomMenuItem);
 		messagesPositionButtonGroup.add(messagesPositionRightMenuItem);
+
+		final ButtonGroup participantsPositionButtonGroup = new ButtonGroup();
+		participantsPositionButtonGroup.add(participantsPositionLeftMenuItem);
+		participantsPositionButtonGroup.add(participantsPositionRightMenuItem);
 	}
 
 	private void setStateText(AbstractButton button, String start, String stop) {

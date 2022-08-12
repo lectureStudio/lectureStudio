@@ -20,6 +20,7 @@
 		<menuitem id="customizeToolbarMenuItem" text="menu.toolbar.customize" />
 		<menu id="externalWindowsMenu" text="menu.external.windows">
 			<checkboxmenuitem id="externalMessagesMenuItem" text="menu.external.messages" />
+			<checkboxmenuitem id="externalParticipantsMenuItem" text="menu.external.participants" />
 			<checkboxmenuitem id="externalSlidePreviewMenuItem" text="menu.external.slide.preview" />
 			<checkboxmenuitem id="externalSpeechMenuItem" text="menu.external.speech" />
 		</menu>
@@ -27,6 +28,10 @@
 			<radiobuttonmenuitem id="messagesPositionLeftMenuItem" text="menu.left" />
 			<radiobuttonmenuitem id="messagesPositionBottomMenuItem" text="menu.bottom" />
 			<radiobuttonmenuitem id="messagesPositionRightMenuItem" text="menu.right" />
+		</menu>
+		<menu id="participantsPositionMenu" text="menu.participants.position">
+			<radiobuttonmenuitem id="participantsPositionLeftMenuItem" text="menu.left" />
+			<radiobuttonmenuitem id="participantsPositionRightMenuItem" text="menu.right" />
 		</menu>
 	</menu>
 	<menu text="menu.whiteboard">

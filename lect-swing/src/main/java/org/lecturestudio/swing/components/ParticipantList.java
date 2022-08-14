@@ -1,6 +1,13 @@
 package org.lecturestudio.swing.components;
 
+import static java.util.Objects.nonNull;
+
 import java.awt.BorderLayout;
+import java.awt.Point;
+import java.awt.Toolkit;
+import java.awt.event.InputEvent;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.util.Arrays;
 import java.util.ResourceBundle;
 import java.util.TreeSet;
@@ -32,11 +39,44 @@ public class ParticipantList extends JPanel {
 
 		listModel = new SortedListModel();
 
-		JList<CourseParticipant> list = new JList<>(listModel);
+		JList<CourseParticipant> list = new JList<>(listModel) {
+
+			@Override
+			public int locationToIndex(Point location) {
+				int index = super.locationToIndex(location);
+				return (index != -1 && !getCellBounds(index, index).contains(location)) ? -1 : index;
+			}
+		};
 		list.setCellRenderer(new ParticipantCellRenderer(bundle));
 		list.setLayoutOrientation(JList.VERTICAL);
 		list.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 		list.setFocusable(false);
+
+		list.addMouseListener(new MouseAdapter() {
+
+			@Override
+			public void mouseClicked(MouseEvent e) {
+				JList<?> list = (JList<?>) e.getSource();
+				if (list.locationToIndex(e.getPoint()) == -1
+						&& !e.isShiftDown() && !isMenuShortcutKeyDown(e)) {
+					list.clearSelection();
+				}
+			}
+
+			private boolean isMenuShortcutKeyDown(InputEvent event) {
+				return (event.getModifiersEx() & Toolkit.getDefaultToolkit().getMenuShortcutKeyMaskEx()) != 0;
+			}
+		});
+		list.addMouseMotionListener(new MouseAdapter() {
+
+			@Override
+			public void mouseDragged(MouseEvent e) {
+				JList<?> list = (JList<?>) e.getSource();
+				if (list.locationToIndex(e.getPoint()) == -1) {
+					list.clearSelection();
+				}
+			}
+		});
 
 		JScrollPane scrollPane = new JScrollPane();
 		scrollPane.setBorder(BorderFactory.createEmptyBorder());
@@ -77,13 +117,20 @@ public class ParticipantList extends JPanel {
 		}
 
 		public void add(CourseParticipant participant) {
-			if (model.contains(participant)) {
+			var pOpt = model.stream()
+					.filter(p -> p.getId().equals(participant.getId()))
+					.findFirst();
+
+			if (pOpt.isPresent()) {
 				CourseParticipant ceil = model.ceiling(participant);
 				CourseParticipant floor = model.floor(participant);
 
-				System.out.println(ceil + " -> " + floor);
+				if (nonNull(floor)) {
+					model.remove(floor);
+				}
 			}
-			else if (model.add(participant)) {
+
+			if (model.add(participant)) {
 				fireContentsChanged(this, 0, getSize());
 			}
 		}

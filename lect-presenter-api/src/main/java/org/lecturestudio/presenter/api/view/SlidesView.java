@@ -38,6 +38,7 @@ import org.lecturestudio.presenter.api.stylus.StylusHandler;
 import org.lecturestudio.web.api.event.PeerStateEvent;
 import org.lecturestudio.web.api.event.VideoFrameEvent;
 import org.lecturestudio.web.api.message.MessengerMessage;
+import org.lecturestudio.web.api.message.SpeechBaseMessage;
 import org.lecturestudio.web.api.message.SpeechCancelMessage;
 import org.lecturestudio.web.api.message.SpeechRequestMessage;
 import org.lecturestudio.web.api.stream.model.CourseParticipant;
@@ -88,17 +89,17 @@ public interface SlidesView extends View {
 
 	void setMessengerMessage(MessengerMessage message);
 
-	void setSpeechRequestMessage(SpeechRequestMessage message);
+	void addSpeechRequest(SpeechBaseMessage message);
 
-	void setSpeechCancelMessage(SpeechCancelMessage message);
+	void removeSpeechRequest(SpeechBaseMessage message);
 
 	void setOnDiscardMessage(ConsumerAction<MessengerMessage> action);
 
 	void setOnCreateMessageSlide(ConsumerAction<MessengerMessage> action);
 
-	void setOnAcceptSpeech(ConsumerAction<SpeechRequestMessage> action);
+	void setOnAcceptSpeech(ConsumerAction<SpeechBaseMessage> action);
 
-	void setOnRejectSpeech(ConsumerAction<SpeechRequestMessage> action);
+	void setOnRejectSpeech(ConsumerAction<SpeechBaseMessage> action);
 
 	void setPeerStateEvent(PeerStateEvent event);
 

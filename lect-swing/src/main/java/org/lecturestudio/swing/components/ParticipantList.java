@@ -1,32 +1,59 @@
+/*
+ * Copyright (C) 2022 TU Darmstadt, Department of Computer Science,
+ * Embedded Systems and Applications Group.
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
 package org.lecturestudio.swing.components;
 
 import static java.util.Objects.nonNull;
 
 import java.awt.BorderLayout;
+import java.awt.Component;
 import java.awt.Point;
-import java.awt.Toolkit;
-import java.awt.event.InputEvent;
+import java.awt.Rectangle;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.ResourceBundle;
 import java.util.TreeSet;
 
 import javax.inject.Inject;
 import javax.swing.AbstractListModel;
 import javax.swing.BorderFactory;
+import javax.swing.JButton;
 import javax.swing.JList;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JViewport;
 import javax.swing.ListSelectionModel;
 
+import org.lecturestudio.core.beans.ObjectProperty;
+import org.lecturestudio.core.view.ConsumerAction;
 import org.lecturestudio.swing.list.ParticipantCellRenderer;
+import org.lecturestudio.web.api.message.SpeechBaseMessage;
 import org.lecturestudio.web.api.stream.model.CourseParticipant;
+import org.lecturestudio.web.api.stream.model.CoursePresenceType;
 
 public class ParticipantList extends JPanel {
 
 	private final SortedListModel listModel;
+
+	private final Map<String, ConsumerAction<?>> actionMap;
 
 
 	@Inject
@@ -38,8 +65,9 @@ public class ParticipantList extends JPanel {
 		setIgnoreRepaint(true);
 
 		listModel = new SortedListModel();
+		actionMap = new HashMap<>();
 
-		JList<CourseParticipant> list = new JList<>(listModel) {
+		JList<CourseParticipantItem> list = new JList<>(listModel) {
 
 			@Override
 			public int locationToIndex(Point location) {
@@ -52,31 +80,10 @@ public class ParticipantList extends JPanel {
 		list.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 		list.setFocusable(false);
 
-		list.addMouseListener(new MouseAdapter() {
+		MouseHandler mouseHandler = new MouseHandler(list);
 
-			@Override
-			public void mouseClicked(MouseEvent e) {
-				JList<?> list = (JList<?>) e.getSource();
-				if (list.locationToIndex(e.getPoint()) == -1
-						&& !e.isShiftDown() && !isMenuShortcutKeyDown(e)) {
-					list.clearSelection();
-				}
-			}
-
-			private boolean isMenuShortcutKeyDown(InputEvent event) {
-				return (event.getModifiersEx() & Toolkit.getDefaultToolkit().getMenuShortcutKeyMaskEx()) != 0;
-			}
-		});
-		list.addMouseMotionListener(new MouseAdapter() {
-
-			@Override
-			public void mouseDragged(MouseEvent e) {
-				JList<?> list = (JList<?>) e.getSource();
-				if (list.locationToIndex(e.getPoint()) == -1) {
-					list.clearSelection();
-				}
-			}
-		});
+		list.addMouseListener(mouseHandler);
+		list.addMouseMotionListener(mouseHandler);
 
 		JScrollPane scrollPane = new JScrollPane();
 		scrollPane.setBorder(BorderFactory.createEmptyBorder());
@@ -88,18 +95,123 @@ public class ParticipantList extends JPanel {
 	}
 
 	public void addParticipant(CourseParticipant participant) {
-		listModel.add(participant);
+		listModel.add(new CourseParticipantItem(participant));
 	}
 
 	public void removeParticipant(CourseParticipant participant) {
-		listModel.remove(participant);
+		listModel.remove(new CourseParticipantItem(participant));
+	}
+
+	public void addSpeechRequest(SpeechBaseMessage request) {
+		CourseParticipantItem found = listModel.getParticipantById(request.getUserId());
+
+		if (nonNull(found)) {
+			found.speechRequest.set(request);
+
+			listModel.fireParticipantChanged(found);
+		}
+	}
+
+	public void removeSpeechRequest(SpeechBaseMessage request) {
+		CourseParticipantItem found = listModel.getParticipantById(request.getUserId());
+
+		if (nonNull(found)) {
+			found.speechRequest.set(null);
+
+			listModel.fireParticipantChanged(found);
+		}
+	}
+
+	public void setOnAcceptSpeech(ConsumerAction<? extends SpeechBaseMessage> action) {
+		actionMap.put("speech-accept", action);
+	}
+
+	public void setOnRejectSpeech(ConsumerAction<? extends SpeechBaseMessage> action) {
+		actionMap.put("speech-reject", action);
 	}
 
 
 
-	private static class SortedListModel extends AbstractListModel<CourseParticipant> {
+	private class MouseHandler extends MouseAdapter {
 
-		private final TreeSet<CourseParticipant> model;
+		private final JList<CourseParticipantItem> list;
+
+
+		MouseHandler(JList<CourseParticipantItem> list) {
+			this.list = list;
+		}
+
+		@Override
+		public void mouseDragged(MouseEvent e) {
+			JList<?> list = (JList<?>) e.getSource();
+			if (list.locationToIndex(e.getPoint()) == -1) {
+				list.clearSelection();
+			}
+		}
+
+		@Override
+		public void mouseClicked(MouseEvent e) {
+			JList<?> list = (JList<?>) e.getSource();
+			int index = list.locationToIndex(e.getPoint());
+
+			if (index == -1 && !e.isShiftDown() && !e.isControlDown()) {
+				list.clearSelection();
+			}
+			if (index > -1) {
+				handleButton(e.getPoint(), index);
+			}
+		}
+
+		@SuppressWarnings("unchecked")
+		private void handleButton(Point pt, int index) {
+			CourseParticipantItem value = listModel.getElementAt(index);
+
+			Component cell = list.getCellRenderer()
+					.getListCellRendererComponent(list, value, index, false, false);
+			cell.setBounds(list.getCellBounds(index, index));
+
+			Rectangle r = cell.getBounds();
+			pt.translate(-r.x, -r.y);
+
+			Component child = cell.getComponentAt(pt);
+
+			if (child instanceof JButton) {
+				String actionName = child.getName();
+				var action = actionMap.get(actionName);
+
+				if (nonNull(action) && actionName.startsWith("speech-")) {
+					ConsumerAction<SpeechBaseMessage> speechAction = (ConsumerAction<SpeechBaseMessage>) action;
+					speechAction.execute(value.speechRequest.get());
+
+					value.speechRequest.set(null);
+
+					listModel.fireParticipantChanged(index);
+				}
+			}
+		}
+	}
+
+
+
+	public static class CourseParticipantItem extends CourseParticipant {
+
+		public ObjectProperty<SpeechBaseMessage> speechRequest = new ObjectProperty<>();
+
+		public CoursePresenceType secondaryPresenceType;
+
+
+		public CourseParticipantItem(CourseParticipant participant) {
+			super(participant.getId(), participant.getFirstName(),
+					participant.getFamilyName(), participant.getPresenceType(),
+					participant.getParticipantType());
+		}
+	}
+
+
+
+	private static class SortedListModel extends AbstractListModel<CourseParticipantItem> {
+
+		private final TreeSet<CourseParticipantItem> model;
 
 
 		public SortedListModel() {
@@ -112,21 +224,44 @@ public class ParticipantList extends JPanel {
 		}
 
 		@Override
-		public CourseParticipant getElementAt(int index) {
-			return model.toArray(new CourseParticipant[0])[index];
+		public CourseParticipantItem getElementAt(int index) {
+			return model.toArray(new CourseParticipantItem[0])[index];
 		}
 
-		public void add(CourseParticipant participant) {
-			var pOpt = model.stream()
-					.filter(p -> p.getId().equals(participant.getId()))
-					.findFirst();
+		public void fireParticipantChanged(int index) {
+			if (index > -1) {
+				fireContentsChanged(this, index, index);
+			}
+		}
 
-			if (pOpt.isPresent()) {
-				CourseParticipant ceil = model.ceiling(participant);
-				CourseParticipant floor = model.floor(participant);
+		public void fireParticipantChanged(CourseParticipantItem participant) {
+			int index = indexOf(participant);
 
-				if (nonNull(floor)) {
-					model.remove(floor);
+			if (index > -1) {
+				fireContentsChanged(this, index, index);
+			}
+		}
+
+		public int indexOf(CourseParticipantItem participant) {
+			return model.contains(participant)
+					? model.headSet(participant).size()
+					: -1;
+		}
+
+		public CourseParticipantItem getParticipantById(String id) {
+			return model.stream().filter(p -> p.getId().equals(id))
+					.findFirst().orElse(null);
+		}
+
+		public void add(CourseParticipantItem participant) {
+			CourseParticipantItem found = getParticipantById(participant.getId());
+
+			if (nonNull(found)) {
+				// Stream presence takes precedence.
+				if (CoursePresenceType.isStream(participant.getPresenceType())) {
+					participant.secondaryPresenceType = found.getPresenceType();
+					// Remove found participant and replace it with new presence.
+					model.remove(found);
 				}
 			}
 
@@ -135,13 +270,47 @@ public class ParticipantList extends JPanel {
 			}
 		}
 
-		public void addAll(CourseParticipant[] participants) {
+		public void addAll(CourseParticipantItem[] participants) {
 			model.addAll(Arrays.asList(participants));
 
 			fireContentsChanged(this, 0, getSize());
 		}
 
-		public boolean remove(CourseParticipant participant) {
+		public boolean remove(CourseParticipantItem participant) {
+			CourseParticipantItem found = getParticipantById(participant.getId());
+
+			if (nonNull(found)) {
+				if (nonNull(found.secondaryPresenceType)) {
+					// Multi-presence found.
+					if (found.getPresenceType().equals(participant.getPresenceType())) {
+						found.setPresenceType(found.secondaryPresenceType);
+						found.setParticipantType(participant.getParticipantType());
+					}
+
+					found.secondaryPresenceType = null;
+
+					fireContentsChanged(this, 0, getSize());
+
+					return false;
+				}
+
+				return removeParticipant(found);
+			}
+
+			return removeParticipant(participant);
+		}
+
+		public void clear() {
+			model.clear();
+
+			fireContentsChanged(this, 0, getSize());
+		}
+
+		public boolean contains(CourseParticipantItem element) {
+			return model.contains(element);
+		}
+
+		private boolean removeParticipant(CourseParticipantItem participant) {
 			boolean removed = model.remove(participant);
 
 			if (removed) {
@@ -151,17 +320,7 @@ public class ParticipantList extends JPanel {
 			return removed;
 		}
 
-		public void clear() {
-			model.clear();
-
-			fireContentsChanged(this, 0, getSize());
-		}
-
-		public boolean contains(CourseParticipant element) {
-			return model.contains(element);
-		}
-
-		private int compare(CourseParticipant lhs, CourseParticipant rhs) {
+		private int compare(CourseParticipantItem lhs, CourseParticipantItem rhs) {
 			int result = lhs.getParticipantType().compareTo(rhs.getParticipantType());
 			if (result != 0) {
 				return result;

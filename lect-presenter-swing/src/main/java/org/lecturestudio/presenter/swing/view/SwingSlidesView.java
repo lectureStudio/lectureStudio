@@ -82,8 +82,7 @@ import org.lecturestudio.web.api.event.PeerStateEvent;
 import org.lecturestudio.web.api.event.VideoFrameEvent;
 import org.lecturestudio.web.api.message.MessengerDirectMessage;
 import org.lecturestudio.web.api.message.MessengerMessage;
-import org.lecturestudio.web.api.message.SpeechCancelMessage;
-import org.lecturestudio.web.api.message.SpeechRequestMessage;
+import org.lecturestudio.web.api.message.SpeechBaseMessage;
 import org.lecturestudio.web.api.stream.model.CourseParticipant;
 
 @SwingView(name = "main-slides")
@@ -121,9 +120,9 @@ public class SwingSlidesView extends JPanel implements SlidesView {
 
 	private ConsumerAction<MessengerMessage> createMessageSlideAction;
 
-	private ConsumerAction<SpeechRequestMessage> acceptSpeechRequestAction;
+	private ConsumerAction<SpeechBaseMessage> acceptSpeechRequestAction;
 
-	private ConsumerAction<SpeechRequestMessage> rejectSpeechRequestAction;
+	private ConsumerAction<SpeechBaseMessage> rejectSpeechRequestAction;
 
 	private ConsumerAction<Boolean> mutePeerAudioAction;
 
@@ -575,8 +574,10 @@ public class SwingSlidesView extends JPanel implements SlidesView {
 	}
 
 	@Override
-	public void setSpeechRequestMessage(SpeechRequestMessage message) {
+	public void addSpeechRequest(SpeechBaseMessage message) {
 		SwingUtils.invoke(() -> {
+			participantList.addSpeechRequest(message);
+
 			SpeechRequestView requestView = new SpeechRequestView(this.dict);
 			requestView.setRequestId(message.getRequestId());
 			requestView.setUserName(String.format("%s %s", message.getFirstName(), message.getFamilyName()));
@@ -598,8 +599,10 @@ public class SwingSlidesView extends JPanel implements SlidesView {
 	}
 
 	@Override
-	public void setSpeechCancelMessage(SpeechCancelMessage message) {
+	public void removeSpeechRequest(SpeechBaseMessage message) {
 		SwingUtils.invoke(() -> {
+			participantList.removeSpeechRequest(message);
+
 			for (Component c : messageViewContainer.getComponents()) {
 				if (c instanceof SpeechRequestView) {
 					SpeechRequestView view = (SpeechRequestView) c;
@@ -628,13 +631,17 @@ public class SwingSlidesView extends JPanel implements SlidesView {
 	}
 
 	@Override
-	public void setOnAcceptSpeech(ConsumerAction<SpeechRequestMessage> action) {
+	public void setOnAcceptSpeech(ConsumerAction<SpeechBaseMessage> action) {
 		acceptSpeechRequestAction = action;
+
+		participantList.setOnAcceptSpeech(action);
 	}
 
 	@Override
-	public void setOnRejectSpeech(ConsumerAction<SpeechRequestMessage> action) {
+	public void setOnRejectSpeech(ConsumerAction<SpeechBaseMessage> action) {
 		rejectSpeechRequestAction = action;
+
+		participantList.setOnRejectSpeech(action);
 	}
 
 	@Override

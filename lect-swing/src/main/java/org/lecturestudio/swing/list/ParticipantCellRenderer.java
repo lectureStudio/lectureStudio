@@ -8,6 +8,7 @@ import java.util.ResourceBundle;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.Icon;
+import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JList;
 import javax.swing.ListCellRenderer;
@@ -15,11 +16,12 @@ import javax.swing.border.Border;
 import javax.swing.border.EmptyBorder;
 
 import org.lecturestudio.swing.AwtResourceLoader;
-import org.lecturestudio.web.api.stream.model.CourseParticipant;
+import org.lecturestudio.swing.components.ParticipantList.CourseParticipantItem;
+import org.lecturestudio.web.api.message.SpeechBaseMessage;
 import org.lecturestudio.web.api.stream.model.CourseParticipantType;
 import org.lecturestudio.web.api.stream.model.CoursePresenceType;
 
-public class ParticipantCellRenderer extends Box implements ListCellRenderer<CourseParticipant> {
+public class ParticipantCellRenderer extends Box implements ListCellRenderer<CourseParticipantItem> {
 
 	private static final Border BORDER = new EmptyBorder(5, 5, 5, 5);
 
@@ -32,8 +34,10 @@ public class ParticipantCellRenderer extends Box implements ListCellRenderer<Cou
 
 	private final JLabel nameLabel;
 	private final JLabel typeLabel;
-	private final JLabel streamLabel;
-	private final JLabel classroomLabel;
+	private final JLabel presenceTypeLabel;
+
+	private final JButton acceptButton;
+	private final JButton rejectButton;
 
 
 	public ParticipantCellRenderer(ResourceBundle bundle) {
@@ -42,11 +46,13 @@ public class ParticipantCellRenderer extends Box implements ListCellRenderer<Cou
 		this.bundle = bundle;
 		this.nameLabel = new JLabel();
 		this.typeLabel = new JLabel();
-		this.streamLabel = new JLabel(ICON_STREAM);
-		this.classroomLabel = new JLabel(ICON_CLASSROOM);
+		this.presenceTypeLabel = new JLabel();
 
-		streamLabel.setToolTipText(bundle.getString("presence.type.stream"));
-		classroomLabel.setToolTipText(bundle.getString("presence.type.classroom"));
+		acceptButton = new JButton(AwtResourceLoader.getIcon("speech-accept.svg", 14));
+		rejectButton = new JButton(AwtResourceLoader.getIcon("speech-decline.svg", 14));
+
+		acceptButton.setName("speech-accept");
+		rejectButton.setName("speech-reject");
 
 		setBorder(BORDER);
 		setOpaque(true);
@@ -54,13 +60,17 @@ public class ParticipantCellRenderer extends Box implements ListCellRenderer<Cou
 		add(nameLabel);
 		add(Box.createHorizontalGlue());
 		add(typeLabel);
+		add(presenceTypeLabel);
 		add(Box.createHorizontalStrut(3));
+		add(acceptButton);
+		add(Box.createHorizontalStrut(3));
+		add(rejectButton);
 	}
 
 	@Override
 	public Component getListCellRendererComponent(
-			JList<? extends CourseParticipant> list,
-			CourseParticipant participant, int index, boolean isSelected,
+			JList<? extends CourseParticipantItem> list,
+			CourseParticipantItem participant, int index, boolean isSelected,
 			boolean cellHasFocus) {
 		setEnabled(list.isEnabled());
 		setFont(list.getFont());
@@ -74,25 +84,32 @@ public class ParticipantCellRenderer extends Box implements ListCellRenderer<Cou
 			setForeground(list.getForeground());
 		}
 
-		remove(streamLabel);
-		remove(classroomLabel);
-
 		if (nonNull(participant)) {
-			CourseParticipantType partType = participant.getParticipantType();
-			CoursePresenceType presenceType = participant.getPresenceType();
+			final CourseParticipantType partType = participant.getParticipantType();
+			final CoursePresenceType presenceType = participant.getPresenceType();
+			final SpeechBaseMessage speechRequest = participant.speechRequest.get();
+
+			String partTypeStr = "";
+			String presenceTypeStr = "";
+
+			acceptButton.setVisible(nonNull(speechRequest));
+			rejectButton.setVisible(nonNull(speechRequest));
 
 			switch (partType) {
 				case ORGANISATOR -> {
 					typeLabel.setIcon(ICON_ORGANISATOR);
-					typeLabel.setToolTipText(bundle.getString("role.organisator"));
+
+					partTypeStr = bundle.getString("role.organisator");
 				}
 				case CO_ORGANISATOR -> {
 					typeLabel.setIcon(ICON_CO_ORGANISATOR);
-					typeLabel.setToolTipText(bundle.getString("role.co-organisator"));
+
+					partTypeStr = bundle.getString("role.co-organisator");
 				}
 				case PARTICIPANT -> {
 					typeLabel.setIcon(null);
-					typeLabel.setToolTipText(bundle.getString("role.participant"));
+
+					partTypeStr = bundle.getString("role.participant");
 				}
 			}
 
@@ -100,14 +117,28 @@ public class ParticipantCellRenderer extends Box implements ListCellRenderer<Cou
 					participant.getFirstName(),	participant.getFamilyName()));
 
 			if (presenceType == CoursePresenceType.STREAM) {
-				add(streamLabel);
+				presenceTypeStr = bundle.getString("presence.type.stream");
+
+				presenceTypeLabel.setIcon(ICON_STREAM);
+				presenceTypeLabel.setVisible(true);
 			}
 			else if (presenceType == CoursePresenceType.CLASSROOM) {
-				add(classroomLabel);
+				presenceTypeStr = bundle.getString("presence.type.classroom");
+
+				presenceTypeLabel.setIcon(ICON_CLASSROOM);
+				presenceTypeLabel.setVisible(true);
 			}
+			else {
+				presenceTypeLabel.setVisible(false);
+			}
+
+			list.setToolTipText(String.format("%s (%s)",
+					partTypeStr, presenceTypeStr));
 		}
 		else {
 			nameLabel.setText("");
+
+			list.setToolTipText(null);
 		}
 
 		return this;

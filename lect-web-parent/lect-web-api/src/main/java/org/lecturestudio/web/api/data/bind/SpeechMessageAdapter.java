@@ -36,6 +36,9 @@ public class SpeechMessageAdapter implements JsonbAdapter<SpeechBaseMessage, Jso
 		JsonObjectBuilder builder = Json.createObjectBuilder();
 		builder.add("type", message.getClass().getSimpleName());
 
+		if (nonNull(message.getUserId())) {
+			builder.add("userId", message.getUserId());
+		}
 		if (nonNull(message.getRequestId())) {
 			builder.add("requestId", message.getRequestId());
 		}
@@ -59,6 +62,7 @@ public class SpeechMessageAdapter implements JsonbAdapter<SpeechBaseMessage, Jso
 		Class<?> cls = Class.forName(className);
 
 		SpeechBaseMessage message = (SpeechBaseMessage) cls.getConstructor().newInstance();
+		message.setUserId(jsonObject.getString("userId"));
 		message.setRequestId(jsonObject.getJsonNumber("requestId").longValue());
 		message.setDate(ZonedDateTime.parse(jsonObject.getString("time")));
 		message.setFirstName(jsonObject.getString("firstName"));

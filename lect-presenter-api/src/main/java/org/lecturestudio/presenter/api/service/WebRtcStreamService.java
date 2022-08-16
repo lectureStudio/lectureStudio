@@ -64,7 +64,7 @@ import org.lecturestudio.web.api.janus.JanusHandlerException.Type;
 import org.lecturestudio.web.api.janus.JanusPeerConnectionMediaException;
 import org.lecturestudio.web.api.janus.JanusStateHandlerListener;
 import org.lecturestudio.web.api.janus.client.JanusWebSocketClient;
-import org.lecturestudio.web.api.message.SpeechRequestMessage;
+import org.lecturestudio.web.api.message.SpeechBaseMessage;
 import org.lecturestudio.web.api.service.ServiceParameters;
 import org.lecturestudio.web.api.stream.StreamAudioContext;
 import org.lecturestudio.web.api.stream.StreamVideoContext;
@@ -144,7 +144,7 @@ public class WebRtcStreamService extends ExecutableBase {
 		eventRecorder.init();
 	}
 
-	public void acceptSpeechRequest(SpeechRequestMessage message) {
+	public void acceptSpeechRequest(SpeechBaseMessage message) {
 		if (!started()) {
 			return;
 		}
@@ -157,7 +157,7 @@ public class WebRtcStreamService extends ExecutableBase {
 		streamProviderService.acceptSpeechRequest(requestId);
 	}
 
-	public void rejectSpeechRequest(SpeechRequestMessage message) {
+	public void rejectSpeechRequest(SpeechBaseMessage message) {
 		if (!started()) {
 			return;
 		}

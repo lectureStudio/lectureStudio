@@ -57,9 +57,6 @@ public class MessengerMessageAdapter implements JsonbAdapter<MessengerMessage, J
 		if (nonNull(messengerMessage.getMessageId())) {
 			builder.add("messageId", messengerMessage.getMessageId().toString());
 		}
-		if (nonNull(messengerMessage.getReply())) {
-			builder.add("reply", messengerMessage.getReply());
-		}
 
 		return builder.build();
 	}
@@ -90,7 +87,6 @@ public class MessengerMessageAdapter implements JsonbAdapter<MessengerMessage, J
 		message.setFamilyName(jsonObject.getString("familyName"));
 
 		if (jsonObject.get("time").getValueType() != JsonValue.ValueType.NULL) {
-
 			message.setDate(ZonedDateTime.parse(jsonObject.getString("time")));
 		}
 		if (jsonObject.get("firstName").getValueType() != JsonValue.ValueType.NULL) {

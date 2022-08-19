@@ -41,8 +41,8 @@ import org.lecturestudio.web.api.client.TokenProvider;
 import org.lecturestudio.web.api.message.CoursePresenceMessage;
 import org.lecturestudio.web.api.message.MessageTransport;
 import org.lecturestudio.web.api.message.SpeechBaseMessage;
-import org.lecturestudio.web.api.message.WebMessage;
 import org.lecturestudio.web.api.message.WebSocketStompTransport;
+import org.lecturestudio.web.api.model.Message;
 import org.lecturestudio.web.api.model.quiz.Quiz;
 import org.lecturestudio.web.api.service.ServiceParameters;
 import org.lecturestudio.web.api.stream.model.Course;
@@ -168,14 +168,16 @@ public class WebService extends ExecutableBase {
 		context.getEventBus().post(new MessengerStateEvent(ExecutableState.Stopped));
 	}
 
-	public void sendMessengerMessage(WebMessage message) {
+	public void sendChatMessage(String recipient, Message message) {
 		var service = getService(MessageFeatureWebService.class);
 
 		if (isNull(service)) {
 			return;
 		}
 
-		messageTransport.sendMessage(message);
+		message.setServiceId(service.serviceId);
+
+		messageTransport.sendMessage(recipient, message);
 	}
 
 	/**
@@ -336,7 +338,7 @@ public class WebService extends ExecutableBase {
 
 	private <T> T createFeatureService(String streamPublisherApiUrl,
 			Class<T> cls) throws Exception {
-		PresenterConfiguration config = (PresenterConfiguration) context.getConfiguration();
+		PresenterConfiguration config = context.getConfiguration();
 		StreamConfiguration streamConfig = config.getStreamConfig();
 
 		ServiceParameters streamApiParameters = new ServiceParameters();

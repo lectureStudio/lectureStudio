@@ -83,12 +83,10 @@ import javax.inject.Inject;
 import java.awt.*;
 import java.io.File;
 import java.io.IOException;
-import java.time.ZonedDateTime;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 import java.util.function.BiConsumer;
 
@@ -634,12 +632,14 @@ public class SlidesPresenter extends Presenter<SlidesView> {
 	}
 
 	private void sendMessage(String text) {
-		MessengerMessage message = new MessengerMessage();
-		message.setDate(ZonedDateTime.now());
-		message.setMessageId(UUID.randomUUID().toString());
-		message.setMessage(new Message(text));
+		Message message = new Message(text);
 
-		webService.sendMessengerMessage(message);
+		try {
+			webService.sendChatMessage("public", message);
+		}
+		catch (Exception e) {
+			logException(e, "Send chat-message failed");
+		}
 	}
 
 	private void selectDocument(Document doc) {

@@ -6,10 +6,13 @@ import static java.util.Objects.nonNull;
 import org.lecturestudio.core.ExecutableBase;
 import org.lecturestudio.core.ExecutableException;
 import org.lecturestudio.web.api.data.bind.*;
+import org.lecturestudio.web.api.model.Message;
 import org.lecturestudio.web.api.service.ServiceParameters;
 import org.lecturestudio.web.api.stream.model.Course;
 import org.lecturestudio.web.api.websocket.WebSocketStompHeaderProvider;
 
+import org.springframework.lang.NonNull;
+import org.springframework.messaging.converter.MappingJackson2MessageConverter;
 import org.springframework.messaging.simp.stomp.DefaultStompSession;
 import org.springframework.messaging.simp.stomp.StompCommand;
 import org.springframework.messaging.simp.stomp.StompHeaders;
@@ -136,6 +139,7 @@ public class WebSocketStompTransport extends ExecutableBase implements MessageTr
 			}
 
 			stompClient = new WebSocketStompClient(standardClient);
+			stompClient.setMessageConverter(new MappingJackson2MessageConverter());
 
 			connect();
 		}
@@ -185,39 +189,16 @@ public class WebSocketStompTransport extends ExecutableBase implements MessageTr
 	}
 
 	@Override
-	public void sendMessage(WebMessage message) {
-		// To identify the originator of the message.
-		message.setUserId(userId);
+	public void sendMessage(String recipient, Message message) {
+		if (super.started() && nonNull(session)) {
+			StompHeaders headers = new StompHeaders();
+			headers.add("courseId", this.course.getId().toString());
+			headers.add("recipient", recipient);
+			headers.setDestination("/app/message/" + this.course.getId());
 
-		if (super.started()) {
-			if (nonNull(this.session)) {
-				String messageAsJson = jsonb.toJson(message, message.getClass());
-				StompHeaders headers = new StompHeaders();
-				headerProvider.addHeaders(headers);
-				headers.add("courseId", this.course.getId().toString());
+			headerProvider.addHeaders(headers);
 
-				if (message instanceof MessengerDirectMessage) {
-					headers.add("messageType", "user");
-					headers.add("username", ((MessengerDirectMessage) message).getRecipient());
-				}
-				else if (message instanceof MessengerMessage) {
-					headers.add("messageType", "public");
-				}
-				else if (message instanceof MessengerReplyMessage) {
-					headers.add("messageType", "reply");
-				}
-
-				headers.setDestination("/app/message/publisher/" +  this.course.getId());
-
-				try {
-					StompSession ftr = this.session.getSessionFuture().get();
-					headers.setSession(ftr.getSessionId());
-					ftr.send(headers, messageAsJson.getBytes(StandardCharsets.UTF_8));
-				}
-				catch (Exception exc) {
-					exc.printStackTrace();
-				}
-			}
+			session.send(headers, message);
 		}
 	}
 
@@ -261,7 +242,7 @@ public class WebSocketStompTransport extends ExecutableBase implements MessageTr
 		}
 
 		@Override
-		public void afterConnected(StompSession stompSession,
+		public void afterConnected(@NonNull StompSession stompSession,
 				StompHeaders stompHeaders) {
 			userId = stompHeaders.getFirst("user-name");
 
@@ -274,25 +255,26 @@ public class WebSocketStompTransport extends ExecutableBase implements MessageTr
 		}
 
 		@Override
-		public void handleException(StompSession stompSession,
-				StompCommand stompCommand, StompHeaders stompHeaders,
-				byte[] bytes, Throwable throwable) {
+		public void handleException(@NonNull StompSession stompSession,
+				StompCommand stompCommand, @NonNull StompHeaders stompHeaders,
+				@NonNull byte[] bytes, Throwable throwable) {
 			throwable.printStackTrace();
 		}
 
 		@Override
-		public void handleTransportError(StompSession stompSession,
+		public void handleTransportError(@NonNull StompSession stompSession,
 				Throwable throwable) {
 			throwable.printStackTrace();
 		}
 
 		@Override
-		public Type getPayloadType(StompHeaders stompHeaders) {
+		@NonNull
+		public Type getPayloadType(@NonNull StompHeaders stompHeaders) {
 			return Object.class;
 		}
 
 		@Override
-		public void handleFrame(StompHeaders stompHeaders, Object o) {
+		public void handleFrame(@NonNull StompHeaders stompHeaders, Object o) {
 			if (nonNull(o)) {
 				String payloadType = stompHeaders.get("payloadType").get(0);
 				String payloadJson = new String((byte[]) o, StandardCharsets.UTF_8);
@@ -301,8 +283,6 @@ public class WebSocketStompTransport extends ExecutableBase implements MessageTr
 
 				try {
 					WebMessage message = createMessage(payloadJson, payloadType);
-
-					System.out.println(message);
 
 					handleMessage(message);
 				}

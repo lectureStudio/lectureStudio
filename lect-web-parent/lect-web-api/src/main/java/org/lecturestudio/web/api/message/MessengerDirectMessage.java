@@ -11,11 +11,21 @@ public class MessengerDirectMessage extends MessengerMessage {
 
 
 	public MessengerDirectMessage() {
-		this(null);
+
 	}
 
 	public MessengerDirectMessage(String recipient) {
-		this(recipient, null, null, null, null);
+		setRecipient(recipient);
+	}
+
+	public MessengerDirectMessage(MessengerDirectMessage other) {
+		setRecipient(other.recipient);
+		setFirstName(other.getFirstName());
+		setFamilyName(other.getFamilyName());
+		setMessage(other.getMessage());
+		setUserId(other.getUserId());
+		setDate(other.getDate());
+		setMessageId(other.getMessageId());
 	}
 
 	public MessengerDirectMessage(String recipient, Message message,

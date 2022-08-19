@@ -21,6 +21,7 @@ package org.lecturestudio.web.api.message;
 import java.util.function.Consumer;
 
 import org.lecturestudio.core.Executable;
+import org.lecturestudio.web.api.model.Message;
 
 public interface MessageTransport extends Executable {
 
@@ -28,6 +29,6 @@ public interface MessageTransport extends Executable {
 
 	<T extends WebMessage> void removeListener(Class<T> cls, Consumer<T> listener);
 
-	void sendMessage(WebMessage message);
+	void sendMessage(String recipient, Message message);
 
 }

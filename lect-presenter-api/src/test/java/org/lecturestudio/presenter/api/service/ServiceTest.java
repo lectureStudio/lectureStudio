@@ -69,7 +69,7 @@ abstract class ServiceTest {
 
 		AppDataLocator locator = new AppDataLocator("test");
 
-		context = new PresenterContext(locator, null, config, dict, eventBus, audioBus) {
+		context = new PresenterContext(locator, null, config, dict, eventBus, audioBus, null) {
 
 			@Override
 			public void saveConfiguration() {

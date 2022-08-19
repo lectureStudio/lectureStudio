@@ -30,7 +30,6 @@ import javax.inject.Singleton;
 import org.lecturestudio.core.ExecutableBase;
 import org.lecturestudio.core.ExecutableException;
 import org.lecturestudio.core.ExecutableState;
-import org.lecturestudio.core.app.ApplicationContext;
 import org.lecturestudio.core.service.DocumentService;
 import org.lecturestudio.presenter.api.config.PresenterConfiguration;
 import org.lecturestudio.presenter.api.config.StreamConfiguration;
@@ -47,6 +46,7 @@ import org.lecturestudio.web.api.message.WebSocketStompTransport;
 import org.lecturestudio.web.api.model.quiz.Quiz;
 import org.lecturestudio.web.api.service.ServiceParameters;
 import org.lecturestudio.web.api.stream.model.Course;
+import org.lecturestudio.web.api.stream.service.StreamProviderService;
 import org.lecturestudio.web.api.websocket.WebSocketStompBearerTokenProvider;
 import org.lecturestudio.web.api.websocket.WebSocketStompHeaderProvider;
 
@@ -62,11 +62,13 @@ import org.lecturestudio.web.api.websocket.WebSocketStompHeaderProvider;
 @Singleton
 public class WebService extends ExecutableBase {
 
-	private final ApplicationContext context;
+	private final PresenterContext context;
 
 	private final LocalBroadcaster localBroadcaster;
 
 	private final DocumentService documentService;
+
+	private final StreamProviderService streamProviderService;
 
 	private final WebServiceInfo webServiceInfo;
 
@@ -78,7 +80,7 @@ public class WebService extends ExecutableBase {
 
 
 	@Inject
-	public WebService(ApplicationContext context,
+	public WebService(PresenterContext context,
 			DocumentService documentService,
 			LocalBroadcaster localBroadcaster,
 			WebServiceInfo webServiceInfo) {
@@ -87,6 +89,15 @@ public class WebService extends ExecutableBase {
 		this.localBroadcaster = localBroadcaster;
 		this.webServiceInfo = webServiceInfo;
 		this.startedServices = new ArrayList<>();
+
+		StreamConfiguration streamConfig = context.getConfiguration()
+				.getStreamConfig();
+
+		ServiceParameters parameters = new ServiceParameters();
+		parameters.setUrl(webServiceInfo.getStreamPublisherApiUrl());
+
+		streamProviderService = new StreamProviderService(parameters,
+				streamConfig::getAccessToken);
 
 		Runtime.getRuntime().addShutdownHook(new Thread(() -> {
 			for (var webService : startedServices) {
@@ -120,9 +131,15 @@ public class WebService extends ExecutableBase {
 		try {
 			initMessageTransport();
 
-			startService(new MessageFeatureWebService((PresenterContext) context,
+			startService(new MessageFeatureWebService(context,
 					createFeatureService(webServiceInfo.getStreamPublisherApiUrl(),
 							MessageFeatureService.class)));
+
+			long courseId = context.getCourse().getId();
+
+			context.getUserPrivilegeService().setPrivileges(
+					streamProviderService.getUserPrivileges(courseId)
+							.getPrivileges());
 		}
 		catch (Exception e) {
 			throw new ExecutableException("Message service could not be started", e);
@@ -286,9 +303,7 @@ public class WebService extends ExecutableBase {
 			messageTransport.start();
 		}
 
-		PresenterContext pContext = (PresenterContext) context;
-
-		service.setCourseId(pContext.getCourse().getId());
+		service.setCourseId(context.getCourse().getId());
 		service.start();
 
 		if (!startedServices.contains(service)) {
@@ -352,12 +367,11 @@ public class WebService extends ExecutableBase {
 		ServiceParameters messageApiParameters = new ServiceParameters();
 		messageApiParameters.setUrl(webServiceInfo.getStreamMessageApiUrl());
 
-		PresenterContext pContext = (PresenterContext) context;
-		PresenterConfiguration config = (PresenterConfiguration) context.getConfiguration();
+		PresenterConfiguration config = context.getConfiguration();
 		StreamConfiguration streamConfig = config.getStreamConfig();
 		TokenProvider tokenProvider = streamConfig::getAccessToken;
 
-		Course course = pContext.getCourse();
+		Course course = context.getCourse();
 
 		WebSocketStompHeaderProvider headerProvider = new WebSocketStompBearerTokenProvider(tokenProvider);
 

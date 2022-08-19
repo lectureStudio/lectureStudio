@@ -63,6 +63,7 @@ import org.lecturestudio.core.view.*;
 import org.lecturestudio.core.view.Action;
 import org.lecturestudio.presenter.api.model.MessageBarPosition;
 import org.lecturestudio.presenter.api.config.SlideViewConfiguration;
+import org.lecturestudio.presenter.api.service.UserPrivilegeService;
 import org.lecturestudio.swing.model.AdaptiveTab;
 import org.lecturestudio.swing.model.AdaptiveTabType;
 import org.lecturestudio.swing.model.ExternalWindowPosition;
@@ -105,6 +106,8 @@ public class SwingSlidesView extends JPanel implements SlidesView {
 	private static final String MENU_LABEL_KEY = "menu.contents";
 
 	private final Dictionary dict;
+
+	private final UserPrivilegeService userPrivilegeService;
 
 	private ConsumerAction<org.lecturestudio.core.input.KeyEvent> keyAction;
 
@@ -239,10 +242,11 @@ public class SwingSlidesView extends JPanel implements SlidesView {
 
 
 	@Inject
-	SwingSlidesView(Dictionary dictionary) {
+	SwingSlidesView(Dictionary dictionary, UserPrivilegeService userPrivilegeService) {
 		super();
 
 		this.dict = dictionary;
+		this.userPrivilegeService = userPrivilegeService;
 	}
 
 	@Override
@@ -543,9 +547,14 @@ public class SwingSlidesView extends JPanel implements SlidesView {
 			if (started) {
 				removeMessageViews(MessageView.class);
 				setMessageBarTabEnabled(dict.get(MESSAGE_LABEL_KEY), true);
-			}
 
-			messageSendPanel.setVisible(started);
+				if (userPrivilegeService.canWriteMessages()) {
+					messageSendPanel.setVisible(true);
+				}
+			}
+			else {
+				messageSendPanel.setVisible(false);
+			}
 		});
 	}
 

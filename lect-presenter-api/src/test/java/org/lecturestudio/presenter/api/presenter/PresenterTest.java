@@ -99,7 +99,7 @@ abstract class PresenterTest {
 
 		AppDataLocator locator = new AppDataLocator(testPath.toString());
 
-		context = new PresenterContext(locator, null, config, dict, eventBus, audioBus) {
+		context = new PresenterContext(locator, null, config, dict, eventBus, audioBus, null) {
 
 			public String getRecordingDirectory() {
 				return testPath.resolve("recording").toString();

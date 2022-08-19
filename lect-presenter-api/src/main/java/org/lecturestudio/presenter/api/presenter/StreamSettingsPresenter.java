@@ -84,8 +84,8 @@ public class StreamSettingsPresenter extends Presenter<StreamSettingsView> {
 		StreamProviderService streamProviderService = new StreamProviderService(
 				parameters, streamConfig::getAccessToken);
 
-		CompletableFuture.runAsync(streamProviderService::getCourses)
-				.thenRun(() -> {
+		CompletableFuture.supplyAsync(streamProviderService::getUserInfo)
+				.thenAccept((userInfo) -> {
 					view.setAccessTokenValid(true);
 				})
 				.exceptionally(throwable -> {

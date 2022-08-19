@@ -76,7 +76,6 @@ import org.lecturestudio.web.api.message.SpeechCancelMessage;
 import org.lecturestudio.web.api.message.SpeechRequestMessage;
 import org.lecturestudio.web.api.model.Message;
 import org.lecturestudio.web.api.stream.model.CourseParticipant;
-import org.lecturestudio.web.api.stream.model.CourseParticipantType;
 import org.lecturestudio.web.api.stream.model.CoursePresence;
 import org.lecturestudio.web.api.stream.model.CoursePresenceType;
 
@@ -981,25 +980,6 @@ public class SlidesPresenter extends Presenter<SlidesView> {
 		catch (ExecutableException e) {
 			throw new RuntimeException(e);
 		}
-
-
-
-		view.addParticipant(new CourseParticipant("0",
-				"Alice", "A.",
-				CoursePresenceType.CLASSROOM,
-				CourseParticipantType.CO_ORGANISATOR));
-		view.addParticipant(new CourseParticipant("1",
-				"Bob", "B.",
-				CoursePresenceType.STREAM,
-				CourseParticipantType.PARTICIPANT));
-		view.addParticipant(new CourseParticipant("2",
-				"Alex", "Andres",
-				CoursePresenceType.STREAM,
-				CourseParticipantType.ORGANISATOR));
-		view.addParticipant(new CourseParticipant("0",
-				"Alice", "A.",
-				CoursePresenceType.STREAM,
-				CourseParticipantType.CO_ORGANISATOR));
 	}
 
 	private void initExternalScreenBehavior(ExternalWindowConfiguration config, BiConsumer<Boolean, Boolean> action) {

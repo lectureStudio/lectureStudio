@@ -44,6 +44,8 @@ public abstract class MessagePanel extends JPanel {
 
 	protected JLabel fromLabel;
 
+	protected JLabel toLabel;
+
 	protected JLabel timeLabel;
 
 	protected JLabel privateLabel;
@@ -71,8 +73,12 @@ public abstract class MessagePanel extends JPanel {
 		timeLabel.setText(formattedDate);
 	}
 
-	public void setUserName(String host) {
-		fromLabel.setText(host);
+	public void setSender(String sender) {
+		fromLabel.setText(sender);
+	}
+
+	public void setRecipient(String recipient) {
+		toLabel.setText(recipient);
 	}
 
 	public void pack() {
@@ -105,6 +111,7 @@ public abstract class MessagePanel extends JPanel {
 		content.setOpaque(false);
 
 		fromLabel = new JLabel();
+		toLabel = new JLabel();
 
 		timeLabel = new JLabel();
 		timeLabel.setForeground(Color.BLUE);

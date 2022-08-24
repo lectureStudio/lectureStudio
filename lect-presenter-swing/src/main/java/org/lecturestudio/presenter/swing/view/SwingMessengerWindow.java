@@ -56,13 +56,25 @@ public class SwingMessengerWindow extends JFrame implements MessengerWindow {
 	public void setMessengerMessage(MessengerMessage message) {
 		SwingUtils.invoke(() -> {
 			MessageView messageView = new MessageView(this.dict);
-			messageView.setUserName(String.format("%s %s", message.getFirstName(), message.getFamilyName()));
+			messageView.setSender(String.format("%s %s", message.getFirstName(), message.getFamilyName()));
 			messageView.setDate(message.getDate());
 			messageView.setMessage(message.getMessage().getText());
-			messageView.setPrivate(message instanceof MessengerDirectMessage);
 			messageView.setOnDiscard(() -> {
 				removeMessageView(messageView);
 			});
+
+			if (message instanceof MessengerDirectMessage) {
+				MessengerDirectMessage directMessage = (MessengerDirectMessage) message;
+				String recipient = directMessage.getRecipient();
+
+				if (recipient.equals("organisers")) {
+					messageView.setPrivateText(dict.get("text.message.to.organisators"));
+				}
+				else {
+					messageView.setPrivateText(dict.get("text.message.privately"));
+				}
+			}
+
 			messageView.pack();
 
 			messageViewContainer.add(messageView);
@@ -75,7 +87,7 @@ public class SwingMessengerWindow extends JFrame implements MessengerWindow {
 		SwingUtils.invoke(() -> {
 			SpeechRequestView requestView = new SpeechRequestView(this.dict);
 			requestView.setRequestId(message.getRequestId());
-			requestView.setUserName(String.format("%s %s", message.getFirstName(), message.getFamilyName()));
+			requestView.setSender(String.format("%s %s", message.getFirstName(), message.getFamilyName()));
 			requestView.setDate(message.getDate());
 			requestView.setOnAccept(() -> {
 				removeMessageView(requestView);

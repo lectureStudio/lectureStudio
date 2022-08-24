@@ -52,11 +52,9 @@ public class MessageView extends MessagePanel {
 		textArea.setText(message);
 	}
 
-	public void setPrivate(boolean isPrivate) {
-		if (isPrivate) {
-			privateLabel.setText(dict.get("text.message.privately"));
-			privateLabel.setVisible(true);
-		}
+	public void setPrivateText(String text) {
+		privateLabel.setText(text);
+		privateLabel.setVisible(true);
 	}
 
 	public void setOnDiscard(Action action) {

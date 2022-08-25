@@ -1,54 +1,53 @@
 package org.lecturestudio.web.api.message;
 
-import org.lecturestudio.web.api.model.Message;
-
-import java.time.ZonedDateTime;
-import java.util.StringJoiner;
+import static java.util.Objects.requireNonNullElse;
 
 public class MessengerDirectMessage extends MessengerMessage {
 
-	private String recipient;
+	private String recipientId;
+
+	private String recipientFirstName;
+
+	private String recipientFamilyName;
 
 
 	public MessengerDirectMessage() {
 
 	}
 
-	public MessengerDirectMessage(String recipient) {
-		setRecipient(recipient);
-	}
-
 	public MessengerDirectMessage(MessengerDirectMessage other) {
-		setRecipient(other.recipient);
+		setUserId(other.getUserId());
 		setFirstName(other.getFirstName());
 		setFamilyName(other.getFamilyName());
+		setRecipientId(other.getRecipientId());
+		setRecipientFirstName(other.getRecipientFirstName());
+		setRecipientFamilyName(other.getRecipientFamilyName());
 		setMessage(other.getMessage());
-		setUserId(other.getUserId());
 		setDate(other.getDate());
 		setMessageId(other.getMessageId());
 	}
 
-	public MessengerDirectMessage(String recipient, Message message,
-			String userId, ZonedDateTime date, String messageId) {
-		setRecipient(recipient);
-		setMessage(message);
-		setUserId(userId);
-		setDate(date);
-		setMessageId(messageId);
+	public String getRecipientFirstName() {
+		return requireNonNullElse(recipientFirstName, "");
 	}
 
-	public String getRecipient() {
-		return recipient;
+	public void setRecipientFirstName(String firstName) {
+		recipientFirstName = firstName;
 	}
 
-	public void setRecipient(String recipient) {
-		this.recipient = recipient;
+	public String getRecipientFamilyName() {
+		return requireNonNullElse(recipientFamilyName, "");
 	}
 
-	@Override
-	public String toString() {
-		return new StringJoiner(", ",
-				MessengerDirectMessage.class.getSimpleName() + "[", "]").add(
-				"recipient='" + recipient + "'").toString();
+	public void setRecipientFamilyName(String familyName) {
+		recipientFamilyName = familyName;
+	}
+
+	public String getRecipientId() {
+		return recipientId;
+	}
+
+	public void setRecipientId(String id) {
+		recipientId = id;
 	}
 }

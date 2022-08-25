@@ -18,19 +18,11 @@
 
 package org.lecturestudio.web.api.message;
 
-import static java.util.Objects.requireNonNullElse;
-
 import java.time.ZonedDateTime;
 
 import org.lecturestudio.web.api.model.Message;
 
 public class MessengerMessage extends UserMessage {
-
-	private String recipientId;
-
-	private String recipientFirstName;
-
-	private String recipientFamilyName;
 
 	private Message message;
 
@@ -65,29 +57,5 @@ public class MessengerMessage extends UserMessage {
 	 */
 	public void setMessage(Message message) {
 		this.message = message;
-	}
-
-	public String getRecipientFirstName() {
-		return requireNonNullElse(recipientFirstName, "");
-	}
-
-	public void setRecipientFirstName(String firstName) {
-		recipientFirstName = firstName;
-	}
-
-	public String getRecipientFamilyName() {
-		return requireNonNullElse(recipientFamilyName, "");
-	}
-
-	public void setRecipientFamilyName(String familyName) {
-		recipientFamilyName = familyName;
-	}
-
-	public String getRecipientId() {
-		return recipientId;
-	}
-
-	public void setRecipientId(String id) {
-		recipientId = id;
 	}
 }

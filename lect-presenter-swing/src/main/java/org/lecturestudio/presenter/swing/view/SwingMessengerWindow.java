@@ -65,7 +65,7 @@ public class SwingMessengerWindow extends JFrame implements MessengerWindow {
 
 			if (message instanceof MessengerDirectMessage) {
 				MessengerDirectMessage directMessage = (MessengerDirectMessage) message;
-				String recipient = directMessage.getRecipient();
+				String recipient = directMessage.getRecipientId();
 
 				if (recipient.equals("organisers")) {
 					messageView.setPrivateText(dict.get("text.message.to.organisators"));

@@ -18,8 +18,6 @@
 
 package org.lecturestudio.web.api.data.bind;
 
-import static java.util.Objects.nonNull;
-
 import java.time.ZonedDateTime;
 
 import javax.json.Json;
@@ -35,27 +33,22 @@ import org.lecturestudio.web.api.model.Message;
 public class MessengerMessageAdapter implements JsonbAdapter<MessengerMessage, JsonObject> {
 
 	@Override
-	public JsonObject adaptToJson(MessengerMessage messengerMessage) {
+	public JsonObject adaptToJson(MessengerMessage message) {
 		JsonObjectBuilder builder = Json.createObjectBuilder();
-		builder.add("type", messengerMessage.getClass().getSimpleName());
+		builder.add("type", message.getClass().getSimpleName());
+		builder.add("message", message.getMessage().getText());
+		builder.add("userId", message.getUserId());
+		builder.add("firstName", message.getFirstName());
+		builder.add("familyName", message.getFamilyName());
+		builder.add("date", message.getDate().toString());
+		builder.add("messageId", message.getMessageId());
 
-		if (nonNull(messengerMessage.getMessage())) {
-			builder.add("message", messengerMessage.getMessage().getText());
-		}
-		if (nonNull(messengerMessage.getFirstName())) {
-			builder.add("firstName", messengerMessage.getFirstName());
-		}
-		if (nonNull(messengerMessage.getFamilyName())) {
-			builder.add("familyName", messengerMessage.getFamilyName());
-		}
-		if (nonNull(messengerMessage.getUserId())) {
-			builder.add("userId", messengerMessage.getUserId());
-		}
-		if (nonNull(messengerMessage.getDate())) {
-			builder.add("date", messengerMessage.getDate().toString());
-		}
-		if (nonNull(messengerMessage.getMessageId())) {
-			builder.add("messageId", messengerMessage.getMessageId().toString());
+		if (message instanceof MessengerDirectMessage) {
+			MessengerDirectMessage directMessage = (MessengerDirectMessage) message;
+
+			builder.add("recipientId", directMessage.getRecipientId());
+			builder.add("recipientFirstName", directMessage.getRecipientFirstName());
+			builder.add("recipientFamilyName", directMessage.getRecipientFamilyName());
 		}
 
 		return builder.build();
@@ -69,8 +62,9 @@ public class MessengerMessageAdapter implements JsonbAdapter<MessengerMessage, J
 
 		if (type.equals("MessengerDirectMessage")) {
 			MessengerDirectMessage directMessage = new MessengerDirectMessage();
-
-			directMessage.setRecipient(jsonObject.getString("recipient"));
+			directMessage.setRecipientId(jsonObject.getString("recipientId"));
+			directMessage.setRecipientId(jsonObject.getString("recipientFirstName"));
+			directMessage.setRecipientId(jsonObject.getString("recipientFamilyName"));
 
 			message = directMessage;
 		}
@@ -83,8 +77,6 @@ public class MessengerMessageAdapter implements JsonbAdapter<MessengerMessage, J
 			message.setMessage(new Message(jsonObject.getString("text")));
 			message.setFirstName(jsonObject.getString("firstName"));
 		}
-
-		message.setFamilyName(jsonObject.getString("familyName"));
 
 		if (jsonObject.get("time").getValueType() != JsonValue.ValueType.NULL) {
 			message.setDate(ZonedDateTime.parse(jsonObject.getString("time")));

@@ -47,8 +47,6 @@ public class QuizAnswerMessageAdapter implements JsonbAdapter<QuizAnswerMessage,
 		QuizAnswerMessage message = new QuizAnswerMessage();
 		message.setQuizAnswer(answer);
 		message.setDate(ZonedDateTime.parse(jsonObject.getString("time")));
-		message.setFirstName(jsonObject.getString("firstName"));
-		message.setFamilyName(jsonObject.getString("familyName"));
 
 		return message;
 	}

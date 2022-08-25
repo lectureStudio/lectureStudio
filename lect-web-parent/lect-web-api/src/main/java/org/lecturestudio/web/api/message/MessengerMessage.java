@@ -18,12 +18,19 @@
 
 package org.lecturestudio.web.api.message;
 
+import static java.util.Objects.requireNonNullElse;
+
 import java.time.ZonedDateTime;
-import java.util.Objects;
 
 import org.lecturestudio.web.api.model.Message;
 
-public class MessengerMessage extends WebMessage {
+public class MessengerMessage extends UserMessage {
+
+	private String receiverId;
+
+	private String receiverFirstName;
+
+	private String receiverFamilyName;
 
 	private Message message;
 
@@ -60,38 +67,27 @@ public class MessengerMessage extends WebMessage {
 		this.message = message;
 	}
 
-	@Override
-	public boolean equals(Object o) {
-		if (this == o) {
-			return true;
-		}
-		if (o == null || getClass() != o.getClass()) {
-			return false;
-		}
-
-		MessengerMessage other = (MessengerMessage) o;
-
-		return Objects.equals(message, other.message);
+	public String getReceiverFirstName() {
+		return requireNonNullElse(receiverFirstName, "");
 	}
 
-	@Override
-	public int hashCode() {
-		return Objects.hash(message);
+	public void setReceiverFirstName(String firstName) {
+		receiverFirstName = firstName;
 	}
 
-	@Override
-	public String toString() {
-		StringBuffer buffer = new StringBuffer();
-		buffer.append(getClass().getSimpleName());
-		buffer.append(": ");
-		buffer.append(getMessage());
-		buffer.append(", ");
-		buffer.append(getDate());
-		buffer.append(", ");
-		buffer.append("User Id: ");
-		buffer.append(getUserId());
-
-		return buffer.toString();
+	public String getReceiverFamilyName() {
+		return requireNonNullElse(receiverFamilyName, "");
 	}
 
+	public void setReceiverFamilyName(String familyName) {
+		receiverFamilyName = familyName;
+	}
+
+	public String getReceiverId() {
+		return receiverId;
+	}
+
+	public void setReceiverId(String id) {
+		receiverId = id;
+	}
 }

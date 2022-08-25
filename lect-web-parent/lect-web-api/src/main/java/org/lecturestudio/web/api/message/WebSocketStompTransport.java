@@ -221,11 +221,6 @@ public class WebSocketStompTransport extends ExecutableBase implements MessageTr
 		}
 
 		private void handleMessage(WebMessage message) {
-			if (nonNull(message.getUserId()) && message.getUserId().equals(userId)) {
-				// Do not handle our own messages.
-//				return;
-			}
-
 			Class<? extends WebMessage> cls = message.getClass();
 
 			for (var keyClass : listenerMap.keySet()) {

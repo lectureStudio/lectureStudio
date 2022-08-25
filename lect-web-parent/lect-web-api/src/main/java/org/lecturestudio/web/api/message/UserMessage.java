@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2021 TU Darmstadt, Department of Computer Science,
+ * Copyright (C) 2022 TU Darmstadt, Department of Computer Science,
  * Embedded Systems and Applications Group.
  *
  * This program is free software: you can redistribute it and/or modify
@@ -18,16 +18,38 @@
 
 package org.lecturestudio.web.api.message;
 
-public abstract class SpeechBaseMessage extends UserMessage {
+import static java.util.Objects.requireNonNullElse;
 
-	private Long requestId;
+public abstract class UserMessage extends WebMessage {
+
+	private String userId;
+
+	private String firstName;
+
+	private String familyName;
 
 
-	public Long getRequestId() {
-		return requestId;
+	public String getUserId() {
+		return userId;
 	}
 
-	public void setRequestId(Long requestId) {
-		this.requestId = requestId;
+	public void setUserId(String id) {
+		this.userId = id;
+	}
+
+	public String getFirstName() {
+		return requireNonNullElse(firstName, "");
+	}
+
+	public void setFirstName(String firstName) {
+		this.firstName = firstName;
+	}
+
+	public String getFamilyName() {
+		return requireNonNullElse(familyName, "");
+	}
+
+	public void setFamilyName(String familyName) {
+		this.familyName = familyName;
 	}
 }

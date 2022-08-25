@@ -28,7 +28,7 @@ import org.lecturestudio.web.api.stream.model.CoursePresenceType;
  *
  * @author Alex Andres
  */
-public class CoursePresenceMessage extends WebMessage {
+public class CoursePresenceMessage extends UserMessage {
 
 	private CoursePresence presence;
 

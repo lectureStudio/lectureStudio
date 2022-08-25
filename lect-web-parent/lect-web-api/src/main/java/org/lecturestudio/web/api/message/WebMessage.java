@@ -18,19 +18,11 @@
 
 package org.lecturestudio.web.api.message;
 
-import static java.util.Objects.requireNonNullElse;
-
 import java.time.ZonedDateTime;
 
 public abstract class WebMessage {
 
 	private String messageId;
-
-	private String userId;
-
-	private String firstName;
-
-	private String familyName;
 
 	private ZonedDateTime date;
 
@@ -41,30 +33,6 @@ public abstract class WebMessage {
 
 	public void setMessageId(String messageId) {
 		this.messageId = messageId;
-	}
-
-	public String getFirstName() {
-		return requireNonNullElse(firstName, "");
-	}
-
-	public void setFirstName(String firstName) {
-		this.firstName = firstName;
-	}
-
-	public String getFamilyName() {
-		return requireNonNullElse(familyName, "");
-	}
-
-	public void setFamilyName(String familyName) {
-		this.familyName = familyName;
-	}
-
-	public String getUserId() {
-		return userId;
-	}
-
-	public void setUserId(String id) {
-		this.userId = id;
 	}
 
 	/**

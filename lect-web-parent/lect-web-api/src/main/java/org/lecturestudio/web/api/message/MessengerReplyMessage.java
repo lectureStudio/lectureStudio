@@ -2,7 +2,7 @@ package org.lecturestudio.web.api.message;
 
 import java.time.ZonedDateTime;
 
-public class MessengerReplyMessage extends WebMessage {
+public class MessengerReplyMessage extends MessengerMessage {
 
 	private String repliedMessageId;
 

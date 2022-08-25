@@ -26,11 +26,11 @@ import org.lecturestudio.web.api.model.Message;
 
 public class MessengerMessage extends UserMessage {
 
-	private String receiverId;
+	private String recipientId;
 
-	private String receiverFirstName;
+	private String recipientFirstName;
 
-	private String receiverFamilyName;
+	private String recipientFamilyName;
 
 	private Message message;
 
@@ -67,27 +67,27 @@ public class MessengerMessage extends UserMessage {
 		this.message = message;
 	}
 
-	public String getReceiverFirstName() {
-		return requireNonNullElse(receiverFirstName, "");
+	public String getRecipientFirstName() {
+		return requireNonNullElse(recipientFirstName, "");
 	}
 
-	public void setReceiverFirstName(String firstName) {
-		receiverFirstName = firstName;
+	public void setRecipientFirstName(String firstName) {
+		recipientFirstName = firstName;
 	}
 
-	public String getReceiverFamilyName() {
-		return requireNonNullElse(receiverFamilyName, "");
+	public String getRecipientFamilyName() {
+		return requireNonNullElse(recipientFamilyName, "");
 	}
 
-	public void setReceiverFamilyName(String familyName) {
-		receiverFamilyName = familyName;
+	public void setRecipientFamilyName(String familyName) {
+		recipientFamilyName = familyName;
 	}
 
-	public String getReceiverId() {
-		return receiverId;
+	public String getRecipientId() {
+		return recipientId;
 	}
 
-	public void setReceiverId(String id) {
-		receiverId = id;
+	public void setRecipientId(String id) {
+		recipientId = id;
 	}
 }

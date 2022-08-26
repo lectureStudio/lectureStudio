@@ -63,8 +63,8 @@ public class MessengerMessageAdapter implements JsonbAdapter<MessengerMessage, J
 		if (type.equals("MessengerDirectMessage")) {
 			MessengerDirectMessage directMessage = new MessengerDirectMessage();
 			directMessage.setRecipientId(jsonObject.getString("recipientId"));
-			directMessage.setRecipientId(jsonObject.getString("recipientFirstName"));
-			directMessage.setRecipientId(jsonObject.getString("recipientFamilyName"));
+			directMessage.setRecipientFirstName(jsonObject.getString("recipientFirstName"));
+			directMessage.setRecipientFamilyName(jsonObject.getString("recipientFamilyName"));
 
 			message = directMessage;
 		}

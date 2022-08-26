@@ -30,6 +30,7 @@ import java.awt.*;
 import java.awt.event.*;
 import java.awt.image.BufferedImage;
 import java.awt.image.DataBufferByte;
+import java.text.MessageFormat;
 import java.util.*;
 import java.util.List;
 import java.util.function.Consumer;
@@ -561,8 +562,15 @@ public class SwingSlidesView extends JPanel implements SlidesView {
 	@Override
 	public void setMessengerMessage(MessengerMessage message) {
 		SwingUtils.invoke(() -> {
+			String myId = userPrivilegeService.getUserInfo().getUserId();
+			boolean byMe = Objects.equals(message.getUserId(), myId);
+
+			String sender = byMe
+					? dict.get("text.message.me")
+					: String.format("%s %s", message.getFirstName(), message.getFamilyName());
+
 			MessageView messageView = new MessageView(this.dict);
-			messageView.setSender(String.format("%s %s", message.getFirstName(), message.getFamilyName()));
+			messageView.setSender(sender);
 			messageView.setDate(message.getDate());
 			messageView.setMessage(message.getMessage().getText());
 			messageView.setOnDiscard(() -> {
@@ -578,14 +586,18 @@ public class SwingSlidesView extends JPanel implements SlidesView {
 
 			if (message instanceof MessengerDirectMessage) {
 				MessengerDirectMessage directMessage = (MessengerDirectMessage) message;
-				String recipient = directMessage.getRecipientId();
+				String recipientId = directMessage.getRecipientId();
+				boolean toMe = Objects.equals(recipientId, myId);
+				boolean toOrganisers = Objects.equals(recipientId, "organisers");
 
-				if (recipient.equals("organisers")) {
-					messageView.setPrivateText(dict.get("text.message.to.organisators"));
-				}
-				else {
-					messageView.setPrivateText(dict.get("text.message.privately"));
-				}
+				String recipient = toMe
+						? dict.get("text.message.to.me")
+						: toOrganisers
+							? dict.get("text.message.to.organisators")
+							: String.format("%s %s", directMessage.getRecipientFirstName(), directMessage.getRecipientFamilyName());
+
+				messageView.setSender(MessageFormat.format(dict.get("text.message.recipient"), sender, recipient));
+				messageView.setPrivateText(dict.get("text.message.privately"));
 			}
 
 			messageView.pack();

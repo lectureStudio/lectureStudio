@@ -22,12 +22,23 @@ import static java.util.Objects.isNull;
 
 import java.util.Set;
 
+import org.lecturestudio.web.api.model.UserInfo;
 import org.lecturestudio.web.api.model.UserPrivilege;
 
 public class UserPrivilegeService {
 
+	private UserInfo userInfo;
+
 	private Set<UserPrivilege> privileges;
 
+
+	public UserInfo getUserInfo() {
+		return userInfo;
+	}
+
+	public void setUserInfo(UserInfo userInfo) {
+		this.userInfo = userInfo;
+	}
 
 	public Set<UserPrivilege> getPrivileges() {
 		return privileges;

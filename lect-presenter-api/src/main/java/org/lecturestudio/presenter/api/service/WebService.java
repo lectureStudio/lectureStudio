@@ -137,6 +137,8 @@ public class WebService extends ExecutableBase {
 
 			long courseId = context.getCourse().getId();
 
+			context.getUserPrivilegeService().setUserInfo(
+					streamProviderService.getUserInfo());
 			context.getUserPrivilegeService().setPrivileges(
 					streamProviderService.getUserPrivileges(courseId)
 							.getPrivileges());

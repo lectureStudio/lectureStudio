@@ -99,7 +99,7 @@ public class SpeechRequestView extends MessagePanel {
 		Box controlPanel = Box.createHorizontalBox();
 		controlPanel.setBorder(BorderFactory.createEmptyBorder(2, 5, 2, 5));
 		controlPanel.setOpaque(false);
-		controlPanel.add(fromLabel);
+		controlPanel.add(userLabel);
 		controlPanel.add(Box.createHorizontalGlue());
 		controlPanel.add(rejectButton);
 		controlPanel.add(Box.createHorizontalStrut(5));

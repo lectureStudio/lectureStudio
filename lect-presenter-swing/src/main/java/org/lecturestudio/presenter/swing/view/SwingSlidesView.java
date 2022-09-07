@@ -570,7 +570,7 @@ public class SwingSlidesView extends JPanel implements SlidesView {
 					: String.format("%s %s", message.getFirstName(), message.getFamilyName());
 
 			MessageView messageView = new MessageView(this.dict);
-			messageView.setSender(sender);
+			messageView.setUser(sender);
 			messageView.setDate(message.getDate());
 			messageView.setMessage(message.getMessage().getText());
 			messageView.setOnDiscard(() -> {
@@ -593,11 +593,11 @@ public class SwingSlidesView extends JPanel implements SlidesView {
 				String recipient = toMe
 						? dict.get("text.message.to.me")
 						: toOrganisers
-							? dict.get("text.message.to.organisators")
+							? dict.get("text.message.to.organisators.short")
 							: String.format("%s %s", directMessage.getRecipientFirstName(), directMessage.getRecipientFamilyName());
 
-				messageView.setSender(MessageFormat.format(dict.get("text.message.recipient"), sender, recipient));
-				messageView.setPrivateText(dict.get("text.message.privately"));
+				messageView.setUser(MessageFormat.format(dict.get("text.message.recipient"), sender, ""));
+				messageView.setPrivateText(recipient);
 			}
 
 			messageView.pack();
@@ -613,7 +613,7 @@ public class SwingSlidesView extends JPanel implements SlidesView {
 
 			SpeechRequestView requestView = new SpeechRequestView(this.dict);
 			requestView.setRequestId(message.getRequestId());
-			requestView.setSender(String.format("%s %s", message.getFirstName(), message.getFamilyName()));
+			requestView.setUser(String.format("%s %s", message.getFirstName(), message.getFamilyName()));
 			requestView.setDate(message.getDate());
 			requestView.setOnAccept(() -> {
 				executeAction(acceptSpeechRequestAction, message);

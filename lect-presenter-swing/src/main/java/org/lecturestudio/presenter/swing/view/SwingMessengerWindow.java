@@ -56,7 +56,7 @@ public class SwingMessengerWindow extends JFrame implements MessengerWindow {
 	public void setMessengerMessage(MessengerMessage message) {
 		SwingUtils.invoke(() -> {
 			MessageView messageView = new MessageView(this.dict);
-			messageView.setSender(String.format("%s %s", message.getFirstName(), message.getFamilyName()));
+			messageView.setUser(String.format("%s %s", message.getFirstName(), message.getFamilyName()));
 			messageView.setDate(message.getDate());
 			messageView.setMessage(message.getMessage().getText());
 			messageView.setOnDiscard(() -> {
@@ -87,7 +87,7 @@ public class SwingMessengerWindow extends JFrame implements MessengerWindow {
 		SwingUtils.invoke(() -> {
 			SpeechRequestView requestView = new SpeechRequestView(this.dict);
 			requestView.setRequestId(message.getRequestId());
-			requestView.setSender(String.format("%s %s", message.getFirstName(), message.getFamilyName()));
+			requestView.setUser(String.format("%s %s", message.getFirstName(), message.getFamilyName()));
 			requestView.setDate(message.getDate());
 			requestView.setOnAccept(() -> {
 				removeMessageView(requestView);

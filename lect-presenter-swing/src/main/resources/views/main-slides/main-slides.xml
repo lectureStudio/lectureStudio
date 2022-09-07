@@ -28,7 +28,7 @@
 							</HBox>
 							<Panel id="messagesPanel" layout="BorderLayout">
 								<ScrollPane id="messagesPane" constraints="BorderLayout.CENTER">
-									<VBox id="messageViewContainer" border="EmptyBorder(10, 10, 10, 10)" />
+									<VBox id="messageViewContainer" border="EmptyBorder(5, 5, 5, 5)" />
 								</ScrollPane>
 							</Panel>
 						</Panel>

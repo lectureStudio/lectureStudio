@@ -75,8 +75,8 @@ public class MessageView extends MessagePanel {
 		Box controlPanel = Box.createHorizontalBox();
 		controlPanel.setBorder(BorderFactory.createEmptyBorder(2, 5, 2, 5));
 		controlPanel.setOpaque(false);
-		controlPanel.add(fromLabel);
-		controlPanel.add(Box.createHorizontalStrut(5));
+		controlPanel.add(userLabel);
+//		controlPanel.add(Box.createHorizontalStrut(5));
 		controlPanel.add(privateLabel);
 		controlPanel.add(Box.createHorizontalGlue());
 		controlPanel.add(Box.createHorizontalStrut(5));

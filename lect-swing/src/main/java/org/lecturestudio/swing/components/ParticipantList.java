@@ -26,9 +26,11 @@ import java.awt.Point;
 import java.awt.Rectangle;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.time.ZonedDateTime;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 import java.util.ResourceBundle;
 import java.util.TreeSet;
 
@@ -324,6 +326,27 @@ public class ParticipantList extends JPanel {
 			int result = lhs.getParticipantType().compareTo(rhs.getParticipantType());
 			if (result != 0) {
 				return result;
+			}
+
+			boolean lhsRequest = nonNull(lhs.speechRequest.get());
+			boolean rhsRequest = nonNull(rhs.speechRequest.get());
+
+			if (lhsRequest || rhsRequest) {
+				if (lhsRequest && rhsRequest) {
+					ZonedDateTime lhsDate = lhs.speechRequest.get().getDate();
+					ZonedDateTime rhsDate = rhs.speechRequest.get().getDate();
+
+					result = Objects.compare(lhsDate, rhsDate, ZonedDateTime::compareTo);
+					if (result != 0) {
+						return result;
+					}
+				}
+				else if (lhsRequest) {
+					return -1;
+				}
+				else {
+					return 1;
+				}
 			}
 
 			result = lhs.getFirstName().compareToIgnoreCase(rhs.getFirstName());

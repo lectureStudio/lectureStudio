@@ -55,6 +55,7 @@ import org.lecturestudio.presenter.api.config.StreamConfiguration;
 import org.lecturestudio.presenter.api.context.PresenterContext;
 import org.lecturestudio.presenter.api.event.CameraStateEvent;
 import org.lecturestudio.presenter.api.event.StreamingStateEvent;
+import org.lecturestudio.presenter.api.model.SharedScreenSource;
 import org.lecturestudio.presenter.api.presenter.ReconnectStreamPresenter;
 import org.lecturestudio.web.api.client.ClientFailover;
 import org.lecturestudio.web.api.client.TokenProvider;
@@ -65,6 +66,7 @@ import org.lecturestudio.web.api.janus.JanusPeerConnectionMediaException;
 import org.lecturestudio.web.api.janus.JanusStateHandlerListener;
 import org.lecturestudio.web.api.janus.client.JanusWebSocketClient;
 import org.lecturestudio.web.api.message.SpeechBaseMessage;
+import org.lecturestudio.web.api.model.ScreenSource;
 import org.lecturestudio.web.api.service.ServiceParameters;
 import org.lecturestudio.web.api.stream.StreamAudioContext;
 import org.lecturestudio.web.api.stream.StreamVideoContext;
@@ -117,6 +119,8 @@ public class WebRtcStreamService extends ExecutableBase {
 	private ExecutableState streamState;
 
 	private ExecutableState cameraState;
+
+	private ExecutableState screenShareState;
 
 
 	@Inject
@@ -190,6 +194,34 @@ public class WebRtcStreamService extends ExecutableBase {
 		setCameraState(ExecutableState.Stopped);
 	}
 
+	public void startScreenShare(SharedScreenSource screenSource)
+			throws ExecutableException {
+		if (streamState != ExecutableState.Started
+				|| screenShareState == ExecutableState.Started) {
+			return;
+		}
+
+		setScreenShareState(ExecutableState.Starting);
+
+		streamContext.getScreenContext().setScreenSource(
+				new ScreenSource(screenSource.getTitle(), screenSource.getId(),
+						screenSource.isWindow()));
+
+		setScreenShareState(ExecutableState.Started);
+	}
+
+	public void stopScreenShare() throws ExecutableException {
+		if (screenShareState != ExecutableState.Started) {
+			return;
+		}
+
+		setScreenShareState(ExecutableState.Stopping);
+
+		streamContext.getScreenContext().setScreenSource(null);
+
+		setScreenShareState(ExecutableState.Stopped);
+	}
+
 	public void mutePeerAudio(boolean mute) {
 		if (!started()) {
 			return;
@@ -225,6 +257,7 @@ public class WebRtcStreamService extends ExecutableBase {
 	protected void initInternal() {
 		streamState = ExecutableState.Stopped;
 		cameraState = ExecutableState.Stopped;
+		screenShareState = ExecutableState.Stopped;
 	}
 
 	@Override
@@ -417,6 +450,17 @@ public class WebRtcStreamService extends ExecutableBase {
 	}
 
 	/**
+	 * Sets the new screen-sharing state of this controller.
+	 *
+	 * @param state The new state.
+	 */
+	private void setScreenShareState(ExecutableState state) {
+		this.screenShareState = state;
+
+		//		context.getEventBus().post(new CameraStateEvent(cameraState));
+	}
+
+	/**
 	 * Sets the new camera state of this controller.
 	 *
 	 * @param state The new state.
@@ -511,6 +555,9 @@ public class WebRtcStreamService extends ExecutableBase {
 					(int) cameraViewRect.getHeight(),
 					(int) streamConfig.getCameraFormat().getFrameRate()));
 		}
+
+		streamContext.getScreenContext().setScreenSource(null);
+		streamContext.getScreenContext().setFrameRate(30);
 
 		RTCIceServer iceServer = new RTCIceServer();
 		iceServer.urls.add(webServiceInfo.getStreamStunServers());

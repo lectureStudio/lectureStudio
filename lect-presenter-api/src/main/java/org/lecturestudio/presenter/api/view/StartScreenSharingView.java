@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2020 TU Darmstadt, Department of Computer Science,
+ * Copyright (C) 2021 TU Darmstadt, Department of Computer Science,
  * Embedded Systems and Applications Group.
  *
  * This program is free software: you can redistribute it and/or modify
@@ -16,26 +16,24 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package org.lecturestudio.core.net;
+package org.lecturestudio.presenter.api.view;
 
-/**
- * Enum for the different media types.
- */
-public enum MediaType
-{
-	/** Audio stream. */
-	Audio,
-	
-	/** Annotations like vector graphics and single independent events. */
-	Event,
-	
-	/** Camera video stream. */
-	Camera,
-	
-	/** Messenger events (text and quiz) stream. */
-	Messenger,
+import org.lecturestudio.core.beans.ObjectProperty;
+import org.lecturestudio.core.util.ObservableList;
+import org.lecturestudio.core.view.Action;
+import org.lecturestudio.core.view.View;
+import org.lecturestudio.presenter.api.model.SharedScreenSource;
 
-	/** Shared screen and window stream. */
-	Screen
+public interface StartScreenSharingView extends View {
+
+	void setWindows(ObservableList<SharedScreenSource> windows);
+
+	void setScreens(ObservableList<SharedScreenSource> screens);
+
+	void bindScreenSource(ObjectProperty<SharedScreenSource> sourceProperty);
+
+	void setOnClose(Action action);
+
+	void setOnStart(Action action);
 
 }

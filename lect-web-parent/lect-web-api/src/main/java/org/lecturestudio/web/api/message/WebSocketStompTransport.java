@@ -26,12 +26,13 @@ import org.springframework.web.socket.messaging.WebSocketStompClient;
 import javax.json.bind.Jsonb;
 import javax.json.bind.JsonbBuilder;
 import javax.json.bind.JsonbConfig;
-import javax.net.ssl.HttpsURLConnection;
 import javax.net.ssl.SSLContext;
+import javax.net.ssl.SSLEngine;
 import javax.net.ssl.TrustManager;
-import javax.net.ssl.X509TrustManager;
+import javax.net.ssl.X509ExtendedTrustManager;
 
 import java.lang.reflect.Type;
+import java.net.Socket;
 import java.nio.charset.StandardCharsets;
 import java.security.cert.X509Certificate;
 import java.util.ArrayList;
@@ -108,18 +109,47 @@ public class WebSocketStompTransport extends ExecutableBase implements MessageTr
 			StandardWebSocketClient standardClient = new StandardWebSocketClient();
 
 			TrustManager[] trustAllCerts = new TrustManager[] {
-					new X509TrustManager() {
+					new X509ExtendedTrustManager() {
 
+						@Override
+						public void checkClientTrusted(X509Certificate[] chain,
+								String authType) {
+
+						}
+
+						@Override
+						public void checkServerTrusted(X509Certificate[] chain,
+								String authType) {
+
+						}
+
+						@Override
 						public X509Certificate[] getAcceptedIssuers() {
-							return null;
+							return new X509Certificate[0];
 						}
 
-						public void checkClientTrusted(X509Certificate[] certs,
-								String authType) {
+						@Override
+						public void checkClientTrusted(X509Certificate[] chain,
+								String authType, Socket socket) {
+
 						}
 
-						public void checkServerTrusted(X509Certificate[] certs,
-								String authType) {
+						@Override
+						public void checkServerTrusted(X509Certificate[] chain,
+								String authType, Socket socket) {
+
+						}
+
+						@Override
+						public void checkClientTrusted(X509Certificate[] chain,
+								String authType, SSLEngine engine) {
+
+						}
+
+						@Override
+						public void checkServerTrusted(X509Certificate[] chain,
+								String authType, SSLEngine engine) {
+
 						}
 					}
 			};
@@ -127,8 +157,6 @@ public class WebSocketStompTransport extends ExecutableBase implements MessageTr
 			try {
 				SSLContext sc = SSLContext.getInstance("SSL");
 				sc.init(null, trustAllCerts, new java.security.SecureRandom());
-				HttpsURLConnection.setDefaultSSLSocketFactory(
-						sc.getSocketFactory());
 
 				Map<String, Object> properties = new HashMap<>();
 				properties.put("org.apache.tomcat.websocket.SSL_CONTEXT", sc);

@@ -33,6 +33,7 @@ import org.apache.logging.log4j.Logger;
 
 import org.lecturestudio.core.geometry.Point2D;
 import org.lecturestudio.core.net.MediaType;
+import org.lecturestudio.web.api.model.ScreenSource;
 
 import dev.onvoid.webrtc.CreateSessionDescriptionObserver;
 import dev.onvoid.webrtc.PeerConnectionObserver;
@@ -69,6 +70,10 @@ public class JanusPeerConnection implements PeerConnectionObserver {
 
 	private static final Logger LOGGER = LogManager.getLogger(JanusPeerConnection.class);
 
+	private static final String MICROPHONE_TRACK = "microphone";
+	private static final String CAMERA_TRACK = "camera";
+	private static final String SCREEN_TRACK = "screen";
+
 	private final JanusPeerConnectionFactory factory;
 
 	private final ExecutorService executor;
@@ -78,6 +83,8 @@ public class JanusPeerConnection implements PeerConnectionObserver {
 	private RTCDataChannel dataChannel;
 
 	private RTCDataChannel remoteDataChannel;
+
+	private ScreenSource screenSource;
 
 	/*
 	 * Queued remote ICE candidates are consumed only after both local and
@@ -227,6 +234,10 @@ public class JanusPeerConnection implements PeerConnectionObserver {
 		}
 	}
 
+	public RTCRtpTransceiver[] getTransceivers() {
+		return peerConnection.getTransceivers();
+	}
+
 	public void setSessionDescription(RTCSessionDescription description) {
 		execute(() -> {
 			boolean receivingCall = description.sdpType == RTCSdpType.OFFER;
@@ -278,11 +289,13 @@ public class JanusPeerConnection implements PeerConnectionObserver {
 	}
 
 	public void setup(RTCRtpTransceiverDirection audio,
-			RTCRtpTransceiverDirection video) {
+			RTCRtpTransceiverDirection video,
+			RTCRtpTransceiverDirection screen) {
 		execute(() -> {
+			addDataChannel();
 			addAudio(audio);
 			addVideo(video);
-			addDataChannel();
+			addScreenVideo(screen);
 
 			createOffer();
 		});
@@ -304,7 +317,7 @@ public class JanusPeerConnection implements PeerConnectionObserver {
 
 	public void setMicrophoneEnabled(boolean enable) {
 		execute(() -> {
-			setSenderTrackEnabled(MediaStreamTrack.AUDIO_TRACK_KIND, enable);
+			setSenderTrackEnabled(MICROPHONE_TRACK, enable);
 		});
 	}
 
@@ -336,8 +349,50 @@ public class JanusPeerConnection implements PeerConnectionObserver {
 				}
 			}
 
-			setTransceiverDirection(direction, MediaStreamTrack.VIDEO_TRACK_KIND);
-			setSenderTrackEnabled(MediaStreamTrack.VIDEO_TRACK_KIND, enable);
+			setTransceiverDirection(CAMERA_TRACK, direction);
+			setSenderTrackEnabled(CAMERA_TRACK, enable);
+		});
+	}
+
+	public void setScreenShareEnabled(boolean enable) {
+		execute(() -> {
+			RTCRtpTransceiverDirection direction = enable ?
+					RTCRtpTransceiverDirection.SEND_ONLY :
+					RTCRtpTransceiverDirection.INACTIVE;
+
+			if (enable) {
+				if (isNull(screenSource)) {
+					notify(onException, new JanusPeerConnectionMediaException(
+							MediaType.Screen, "Start screen capture source failed"));
+					return;
+				}
+
+				if (nonNull(desktopSource)) {
+					try {
+						desktopSource.setSourceId(screenSource.getId(),
+								screenSource.isWindow());
+						desktopSource.setFrameRate(30);
+						desktopSource.start();
+					}
+					catch (Throwable e) {
+						notify(onException, new JanusPeerConnectionMediaException(
+								MediaType.Screen, "Start screen capture source failed", e));
+						return;
+					}
+				}
+				else {
+					addScreenVideo(direction);
+					return;
+				}
+			}
+			else {
+				if (nonNull(desktopSource)) {
+					desktopSource.stop();
+				}
+			}
+
+			setTransceiverDirection(SCREEN_TRACK, direction);
+			setSenderTrackEnabled(SCREEN_TRACK, enable);
 		});
 	}
 
@@ -393,6 +448,14 @@ public class JanusPeerConnection implements PeerConnectionObserver {
 		}
 	}
 
+	public void setScreenSource(ScreenSource source) {
+		if (Objects.equals(screenSource, source)) {
+			return;
+		}
+
+		this.screenSource = source;
+	}
+
 	private void addAudio(RTCRtpTransceiverDirection direction) {
 		if (!sendMedia(direction)) {
 			return;
@@ -406,11 +469,11 @@ public class JanusPeerConnection implements PeerConnectionObserver {
 		audioOptions.residualEchoDetector = true;
 
 		AudioTrackSource audioSource = factory.getFactory().createAudioSource(audioOptions);
-		AudioTrack audioTrack = factory.getFactory().createAudioTrack("audioTrack", audioSource);
+		AudioTrack audioTrack = factory.getFactory().createAudioTrack(MICROPHONE_TRACK, audioSource);
 
 		peerConnection.addTrack(audioTrack, List.of("stream"));
 
-		setTransceiverDirection(direction, MediaStreamTrack.AUDIO_TRACK_KIND);
+		setTransceiverDirection(MICROPHONE_TRACK, direction);
 	}
 
 	private void addVideo(RTCRtpTransceiverDirection direction) {
@@ -434,8 +497,8 @@ public class JanusPeerConnection implements PeerConnectionObserver {
 			cameraSource.setVideoCaptureCapability(nearestCapability);
 		}
 
-		VideoTrack videoTrack = factory.getFactory().createVideoTrack("cameraTrack",
-				cameraSource);
+		VideoTrack videoTrack = factory.getFactory().createVideoTrack(
+				CAMERA_TRACK, cameraSource);
 
 		try {
 			cameraSource.start();
@@ -451,14 +514,47 @@ public class JanusPeerConnection implements PeerConnectionObserver {
 
 		peerConnection.addTrack(videoTrack, List.of("stream"));
 
-		setTransceiverDirection(direction, MediaStreamTrack.VIDEO_TRACK_KIND);
+		setTransceiverDirection(CAMERA_TRACK, direction);
+	}
+
+	private void addScreenVideo(RTCRtpTransceiverDirection direction) {
+		if (!sendMedia(direction)) {
+			return;
+		}
+
+		desktopSource = new VideoDesktopSource();
+
+		if (nonNull(screenSource)) {
+			desktopSource.setSourceId(screenSource.getId(), screenSource.isWindow());
+			desktopSource.setFrameRate(30);
+		}
+
+		VideoTrack videoTrack = factory.getFactory().createVideoTrack(
+				SCREEN_TRACK,
+				desktopSource);
+
+		//		try {
+		//			desktopSource.start();
+		//		}
+		//		catch (Throwable e) {
+		//			desktopSource.dispose();
+		//			desktopSource = null;
+		//
+		//			notify(onException, new JanusPeerConnectionMediaException(
+		//					MediaType.Screen, "Start screen capture source failed", e));
+		//			return;
+		//		}
+
+		peerConnection.addTrack(videoTrack, List.of("stream"));
+
+		setTransceiverDirection(SCREEN_TRACK, direction);
 	}
 
 	private void addDataChannel() {
 		RTCDataChannelInit dict = new RTCDataChannelInit();
 		dict.protocol = "stream-messaging";
 
-		dataChannel = peerConnection.createDataChannel("data", dict);
+		dataChannel = peerConnection.createDataChannel("events", dict);
 	}
 
 	private VideoCaptureCapability getNearestCameraFormat(VideoCaptureCapability capability) {
@@ -509,11 +605,11 @@ public class JanusPeerConnection implements PeerConnectionObserver {
 		return nearest;
 	}
 
-	private void setReceiverTrackEnabled(String type, boolean enable) {
+	private void setReceiverTrackEnabled(String trackId, boolean enable) {
 		for (RTCRtpReceiver receiver : peerConnection.getReceivers()) {
 			MediaStreamTrack track = receiver.getTrack();
 
-			if (nonNull(track) && track.getKind().equals(type)) {
+			if (nonNull(track) && track.getId().equals(trackId)) {
 				track.setEnabled(enable);
 
 				LOGGER.debug("Receiver track \"{}\" set enabled to \"{}\"",
@@ -523,11 +619,11 @@ public class JanusPeerConnection implements PeerConnectionObserver {
 		}
 	}
 
-	private void setSenderTrackEnabled(String type, boolean enable) {
+	private void setSenderTrackEnabled(String trackId, boolean enable) {
 		for (RTCRtpSender sender : peerConnection.getSenders()) {
 			MediaStreamTrack track = sender.getTrack();
 
-			if (nonNull(track) && track.getKind().equals(type)) {
+			if (nonNull(track) && track.getId().equals(trackId)) {
 				track.setEnabled(enable);
 
 				LOGGER.debug("Sender track \"{}\" set enabled to \"{}\"",
@@ -549,12 +645,12 @@ public class JanusPeerConnection implements PeerConnectionObserver {
 		return false;
 	}
 
-	private void setTransceiverDirection(RTCRtpTransceiverDirection direction,
-			String kind) {
+	private void setTransceiverDirection(String trackId,
+			RTCRtpTransceiverDirection direction) {
 		for (RTCRtpTransceiver transceiver : peerConnection.getTransceivers()) {
 			MediaStreamTrack track = transceiver.getSender().getTrack();
 
-			if (nonNull(track) && track.getKind().equals(kind)) {
+			if (nonNull(track) && track.getId().equals(trackId)) {
 				transceiver.setDirection(direction);
 				break;
 			}

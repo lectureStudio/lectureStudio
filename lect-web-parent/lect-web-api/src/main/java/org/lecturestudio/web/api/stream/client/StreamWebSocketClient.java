@@ -107,7 +107,8 @@ public class StreamWebSocketClient extends ExecutableBase {
 
 	private void createWebsocket() {
 		HttpClient httpClient = HttpClient.newBuilder()
-				.sslContext(SSLContextFactory.createSSLContext()).build();
+				.sslContext(SSLContextFactory.createSSLContext())
+				.build();
 
 		Builder webSocketBuilder = httpClient.newWebSocketBuilder();
 		webSocketBuilder.subprotocols("state-protocol");

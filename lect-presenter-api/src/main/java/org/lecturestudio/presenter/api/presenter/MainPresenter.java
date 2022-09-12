@@ -165,6 +165,9 @@ public class MainPresenter extends org.lecturestudio.core.presenter.MainPresente
 		presenterContext.streamStartedProperty().addListener((observable, oldValue, newValue) -> {
 			streamService.enableStream(newValue);
 		});
+		presenterContext.screenSharingStartedProperty().addListener((observable, oldValue, newValue) -> {
+			streamService.enableScreenSharing(newValue);
+		});
 		presenterContext.messengerStartedProperty().addListener((observable, oldValue, newValue) -> {
 			streamService.enableMessenger(newValue);
 		});

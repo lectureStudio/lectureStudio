@@ -19,14 +19,31 @@
 package org.lecturestudio.web.api.stream;
 
 import org.lecturestudio.core.beans.IntegerProperty;
+import org.lecturestudio.core.beans.ObjectProperty;
+import org.lecturestudio.web.api.model.ScreenSource;
 
-public class StreamDesktopContext {
+public class StreamScreenContext {
+
+	private final ObjectProperty<ScreenSource> screenSource;
 
 	private final IntegerProperty frameRate;
 
 
-	public StreamDesktopContext() {
+	public StreamScreenContext() {
+		screenSource = new ObjectProperty<>();
 		frameRate = new IntegerProperty();
+	}
+
+	public ObjectProperty<ScreenSource> screenSourceProperty() {
+		return screenSource;
+	}
+
+	public ScreenSource getScreenSource() {
+		return screenSource.get();
+	}
+
+	public void setScreenSource(ScreenSource source) {
+		screenSource.set(source);
 	}
 
 	public IntegerProperty frameRateProperty() {

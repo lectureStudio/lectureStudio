@@ -68,6 +68,8 @@ public class PresenterContext extends ApplicationContext {
 
 	private final BooleanProperty hasRecordedChanges = new BooleanProperty();
 
+	private final BooleanProperty screenSharingStarted = new BooleanProperty();
+
 	private final BooleanProperty showOutline = new BooleanProperty();
 
 	private final UserPrivilegeService userPrivilegeService;
@@ -211,6 +213,18 @@ public class PresenterContext extends ApplicationContext {
 
 	public BooleanProperty showOutlineProperty() {
 		return showOutline;
+	}
+
+	public void setScreenSharingStarted(boolean started) {
+		screenSharingStarted.set(started);
+	}
+
+	public boolean getScreenSharingStarted() {
+		return screenSharingStarted.get();
+	}
+
+	public BooleanProperty screenSharingStartedProperty() {
+		return screenSharingStarted;
 	}
 
 	public String getRecordingDirectory() {

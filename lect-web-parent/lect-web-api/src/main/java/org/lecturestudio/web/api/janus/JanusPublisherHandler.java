@@ -26,7 +26,9 @@ import org.lecturestudio.web.api.janus.message.JanusMessage;
 import org.lecturestudio.web.api.janus.message.JanusPluginMessage;
 import org.lecturestudio.web.api.janus.state.AttachPluginState;
 import org.lecturestudio.web.api.janus.state.CreateRoomState;
+import org.lecturestudio.web.api.model.ScreenSource;
 import org.lecturestudio.web.api.stream.StreamEventRecorder;
+import org.lecturestudio.web.api.stream.StreamScreenContext;
 import org.lecturestudio.web.api.stream.action.StreamAction;
 import org.lecturestudio.web.api.stream.StreamAudioContext;
 import org.lecturestudio.web.api.stream.StreamVideoContext;
@@ -42,6 +44,8 @@ public class JanusPublisherHandler extends JanusStateHandler {
 
 	private final StreamVideoContext videoContext;
 
+	private final StreamScreenContext screenContext;
+
 	private ChangeListener<Boolean> enableMicListener;
 
 	private ChangeListener<Boolean> enableCamListener;
@@ -49,6 +53,8 @@ public class JanusPublisherHandler extends JanusStateHandler {
 	private ChangeListener<VideoDevice> camListener;
 
 	private ChangeListener<VideoCaptureCapability> camCapabilityListener;
+
+	private ChangeListener<ScreenSource> screenSourceListener;
 
 
 	public JanusPublisherHandler(JanusPeerConnectionFactory factory,
@@ -59,6 +65,7 @@ public class JanusPublisherHandler extends JanusStateHandler {
 		this.eventRecorder = eventRecorder;
 		this.audioContext = getStreamContext().getAudioContext();
 		this.videoContext = getStreamContext().getVideoContext();
+		this.screenContext = getStreamContext().getScreenContext();
 	}
 
 	@Override
@@ -96,6 +103,7 @@ public class JanusPublisherHandler extends JanusStateHandler {
 		videoContext.sendVideoProperty().addListener(enableCamListener);
 		videoContext.captureDeviceProperty().addListener(camListener);
 		videoContext.captureCapabilityProperty().addListener(camCapabilityListener);
+		screenContext.screenSourceProperty().addListener(screenSourceListener);
 
 		return peerConnection;
 	}
@@ -117,6 +125,11 @@ public class JanusPublisherHandler extends JanusStateHandler {
 
 		camCapabilityListener = (observable, oldCapability, newCapability) -> {
 			peerConnection.setCameraCapability(newCapability);
+		};
+
+		screenSourceListener = (observable, oldValue, newValue) -> {
+			peerConnection.setScreenSource(newValue);
+			peerConnection.setScreenShareEnabled(nonNull(newValue));
 		};
 	}
 

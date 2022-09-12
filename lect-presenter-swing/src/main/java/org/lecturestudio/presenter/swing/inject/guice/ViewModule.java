@@ -69,6 +69,7 @@ public class ViewModule extends AbstractModule {
 		bind(StartCourseFeatureView.class).to(SwingStartCourseFeatureView.class);
 		bind(StartView.class).to(SwingStartView.class);
 		bind(StartRecordingView.class).to(SwingStartRecordingView.class);
+		bind(StartScreenSharingView.class).to(SwingStartScreenSharingView.class);
 		bind(StartStreamView.class).to(SwingStartStreamView.class);
 		bind(StreamSettingsView.class).to(SwingStreamSettingsView.class);
 		bind(TextBoxView.class).to(SwingTextBoxView.class);

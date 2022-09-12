@@ -37,6 +37,7 @@
 	<Separator type="t" defaultTool="true" />
 	<RecordButton id="startRecordingButton" icon="record-tool.svg, 30" blinkIcon="record-blink-tool.svg, 30" pauseIcon="record-pause-tool.svg, 30" pausedIcon="record-resume-tool.svg, 30" tooltipText="toolbar.recording.start.tooltip" defaultTool="true" />
 	<Button id="stopRecordingButton" icon="record-stop-tool.svg, 30" tooltipText="toolbar.recording.stop.tooltip" defaultTool="true" />
+	<ToggleButton id="screenShareEnableButton" icon="screen-share.svg, 30" tooltipText="toolbar.stream.screen.share.start.tooltip" />
 	<ToggleButton id="streamEnableButton" icon="stream-indicator.svg, 30" tooltipText="toolbar.stream.start.tooltip" />
 	<ToggleButton id="streamMicButton" icon="microphone-off.svg, 30" selectedIcon="microphone.svg, 30" tooltipText="toolbar.stream.microphone.tooltip" />
 	<ToggleButton id="streamCamButton" icon="camera-off.svg, 30" selectedIcon="camera.svg, 30" tooltipText="toolbar.stream.camera.tooltip" />

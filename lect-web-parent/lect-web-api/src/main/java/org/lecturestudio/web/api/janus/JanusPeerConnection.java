@@ -349,7 +349,6 @@ public class JanusPeerConnection implements PeerConnectionObserver {
 				}
 			}
 
-			setTransceiverDirection(CAMERA_TRACK, direction);
 			setSenderTrackEnabled(CAMERA_TRACK, enable);
 		});
 	}
@@ -391,7 +390,6 @@ public class JanusPeerConnection implements PeerConnectionObserver {
 				}
 			}
 
-			setTransceiverDirection(SCREEN_TRACK, direction);
 			setSenderTrackEnabled(SCREEN_TRACK, enable);
 		});
 	}
@@ -500,17 +498,19 @@ public class JanusPeerConnection implements PeerConnectionObserver {
 		VideoTrack videoTrack = factory.getFactory().createVideoTrack(
 				CAMERA_TRACK, cameraSource);
 
-		try {
-			cameraSource.start();
-		}
-		catch (Throwable e) {
-			cameraSource.dispose();
-			cameraSource = null;
-
-			notify(onException, new JanusPeerConnectionMediaException(
-					MediaType.Camera, "Start video capture source failed", e));
-			return;
-		}
+//		try {
+//			cameraSource.start();
+//
+//			System.out.println("video source started");
+//		}
+//		catch (Throwable e) {
+//			cameraSource.dispose();
+//			cameraSource = null;
+//
+//			notify(onException, new JanusPeerConnectionMediaException(
+//					MediaType.Camera, "Start video capture source failed", e));
+//			return;
+//		}
 
 		peerConnection.addTrack(videoTrack, List.of("stream"));
 
@@ -529,21 +529,20 @@ public class JanusPeerConnection implements PeerConnectionObserver {
 			desktopSource.setFrameRate(30);
 		}
 
-		VideoTrack videoTrack = factory.getFactory().createVideoTrack(
-				SCREEN_TRACK,
-				desktopSource);
+		VideoTrack videoTrack = factory.getFactory()
+				.createVideoTrack(SCREEN_TRACK, desktopSource);
 
-		//		try {
-		//			desktopSource.start();
-		//		}
-		//		catch (Throwable e) {
-		//			desktopSource.dispose();
-		//			desktopSource = null;
-		//
-		//			notify(onException, new JanusPeerConnectionMediaException(
-		//					MediaType.Screen, "Start screen capture source failed", e));
-		//			return;
-		//		}
+//		try {
+//			desktopSource.start();
+//		}
+//		catch (Throwable e) {
+//			desktopSource.dispose();
+//			desktopSource = null;
+//
+//			notify(onException, new JanusPeerConnectionMediaException(MediaType.Screen,
+//					"Start screen capture source failed", e));
+//			return;
+//		}
 
 		peerConnection.addTrack(videoTrack, List.of("stream"));
 
@@ -603,20 +602,6 @@ public class JanusPeerConnection implements PeerConnectionObserver {
 		}
 
 		return nearest;
-	}
-
-	private void setReceiverTrackEnabled(String trackId, boolean enable) {
-		for (RTCRtpReceiver receiver : peerConnection.getReceivers()) {
-			MediaStreamTrack track = receiver.getTrack();
-
-			if (nonNull(track) && track.getId().equals(trackId)) {
-				track.setEnabled(enable);
-
-				LOGGER.debug("Receiver track \"{}\" set enabled to \"{}\"",
-						track.getId(), enable);
-				break;
-			}
-		}
 	}
 
 	private void setSenderTrackEnabled(String trackId, boolean enable) {

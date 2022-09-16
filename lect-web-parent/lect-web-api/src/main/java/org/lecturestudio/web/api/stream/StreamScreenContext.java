@@ -18,6 +18,7 @@
 
 package org.lecturestudio.web.api.stream;
 
+import org.lecturestudio.core.beans.BooleanProperty;
 import org.lecturestudio.core.beans.IntegerProperty;
 import org.lecturestudio.core.beans.ObjectProperty;
 import org.lecturestudio.web.api.model.ScreenSource;
@@ -28,10 +29,13 @@ public class StreamScreenContext {
 
 	private final IntegerProperty frameRate;
 
+	private final BooleanProperty sendVideo;
+
 
 	public StreamScreenContext() {
 		screenSource = new ObjectProperty<>();
 		frameRate = new IntegerProperty();
+		sendVideo = new BooleanProperty();
 	}
 
 	public ObjectProperty<ScreenSource> screenSourceProperty() {
@@ -56,5 +60,17 @@ public class StreamScreenContext {
 
 	public void setFrameRate(int rate) {
 		frameRate.set(rate);
+	}
+
+	public BooleanProperty sendVideoProperty() {
+		return sendVideo;
+	}
+
+	public boolean getSendVideo() {
+		return sendVideo.get();
+	}
+
+	public void setSendVideo(boolean send) {
+		sendVideo.set(send);
 	}
 }

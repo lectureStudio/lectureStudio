@@ -35,6 +35,7 @@ import org.lecturestudio.web.api.janus.message.JanusRoomPublishRequest;
 import org.lecturestudio.web.api.janus.message.JanusRoomStateMessage;
 import org.lecturestudio.web.api.janus.message.JanusTrickleMessage;
 import org.lecturestudio.web.api.stream.StreamAudioContext;
+import org.lecturestudio.web.api.stream.StreamScreenContext;
 import org.lecturestudio.web.api.stream.StreamVideoContext;
 import org.lecturestudio.web.api.stream.StreamContext;
 
@@ -63,6 +64,7 @@ public class PublishToRoomState implements JanusState {
 		StreamContext streamContext = handler.getStreamContext();
 		StreamAudioContext audioContext = streamContext.getAudioContext();
 		StreamVideoContext videoContext = streamContext.getVideoContext();
+		StreamScreenContext screenContext = streamContext.getScreenContext();
 		JanusPeerConnection peerConnection = handler.createPeerConnection();
 
 		peerConnection.setOnLocalSessionDescription(description -> {
@@ -83,9 +85,7 @@ public class PublishToRoomState implements JanusState {
 
 		// Publishers are send-only.
 		var audioDirection = RTCRtpTransceiverDirection.SEND_ONLY;
-		var videoDirection = videoContext.getSendVideo() ?
-				RTCRtpTransceiverDirection.SEND_ONLY :
-				RTCRtpTransceiverDirection.INACTIVE;
+		var videoDirection = RTCRtpTransceiverDirection.SEND_ONLY;
 		var screenDirection = RTCRtpTransceiverDirection.SEND_ONLY;
 
 		try {
@@ -95,6 +95,23 @@ public class PublishToRoomState implements JanusState {
 
 			// Initialize with desired mute setting.
 			peerConnection.setMicrophoneEnabled(audioContext.getSendAudio());
+
+			videoContext.sendVideoProperty().addListener((observable, oldValue, newValue) -> {
+//				if (!newValue) {
+//					JanusRoomPublishRequest request = new JanusRoomPublishRequest();
+//					request.addStream("2", newValue);
+//					request.addStreamDescription("2", "camera");
+//
+//					var	publishRequest = new JanusPluginDataMessage(handler.getSessionId(),
+//							handler.getPluginId());
+//					publishRequest.setTransaction(UUID.randomUUID().toString());
+//					publishRequest.setBody(request);
+//
+//					System.out.println("send new media request");
+//
+//					handler.sendMessage(publishRequest);
+//				}
+			});
 		}
 		catch (Exception e) {
 			logError(e, "Start peer connection failed");

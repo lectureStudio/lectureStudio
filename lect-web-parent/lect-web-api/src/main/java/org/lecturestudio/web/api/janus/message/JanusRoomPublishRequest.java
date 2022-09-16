@@ -32,6 +32,8 @@ public class JanusRoomPublishRequest extends JanusRoomRequest {
 
 	private Boolean record;
 
+	private List<Stream> streams;
+
 	private List<StreamDescription> descriptions;
 
 
@@ -41,6 +43,7 @@ public class JanusRoomPublishRequest extends JanusRoomRequest {
 	public JanusRoomPublishRequest() {
 		setRequestType(JanusRoomRequestType.CONFIGURE);
 
+		streams = new ArrayList<>();
 		descriptions = new ArrayList<>();
 	}
 
@@ -66,6 +69,17 @@ public class JanusRoomPublishRequest extends JanusRoomRequest {
 	}
 
 	/**
+	 * Add a stream to control whether this stream should be relayed or not.
+	 *
+	 * @param mid  The unique mid of a stream being published.
+	 * @param send Whether the media addressed by the above mid should be
+	 *             relayed or not.
+	 */
+	public void addStream(String mid, boolean send) {
+		streams.add(new Stream(mid, send));
+	}
+
+	/**
 	 * Adds a stream description in order to provide more information about the
 	 * streams being published (e.g., to let other participants know that the
 	 * first video is a camera, while the second video is a screen share).
@@ -84,6 +98,31 @@ public class JanusRoomPublishRequest extends JanusRoomRequest {
 	 */
 	public List<StreamDescription> getDescriptions() {
 		return descriptions;
+	}
+
+
+
+	public static class Stream {
+
+		/** Unique mid of a stream being published. */
+		public String mid;
+
+		/** Whether the media addressed by the above mid should be relayed or not. */
+		public Boolean send;
+
+
+		Stream(String mid, Boolean send) {
+			this.mid = mid;
+			this.send = send;
+		}
+
+		public String getMid() {
+			return mid;
+		}
+
+		public Boolean getSend() {
+			return send;
+		}
 	}
 
 

@@ -93,25 +93,9 @@ public class PublishToRoomState implements JanusState {
 			peerConnection.setCameraDevice(videoContext.getCaptureDevice());
 			peerConnection.setup(audioDirection, videoDirection, screenDirection);
 
-			// Initialize with desired mute setting.
+			// Initialize with desired mute and device settings.
 			peerConnection.setMicrophoneEnabled(audioContext.getSendAudio());
-
-			videoContext.sendVideoProperty().addListener((observable, oldValue, newValue) -> {
-//				if (!newValue) {
-//					JanusRoomPublishRequest request = new JanusRoomPublishRequest();
-//					request.addStream("2", newValue);
-//					request.addStreamDescription("2", "camera");
-//
-//					var	publishRequest = new JanusPluginDataMessage(handler.getSessionId(),
-//							handler.getPluginId());
-//					publishRequest.setTransaction(UUID.randomUUID().toString());
-//					publishRequest.setBody(request);
-//
-//					System.out.println("send new media request");
-//
-//					handler.sendMessage(publishRequest);
-//				}
-			});
+			peerConnection.setCameraEnabled(videoContext.getSendVideo());
 		}
 		catch (Exception e) {
 			logError(e, "Start peer connection failed");
@@ -191,6 +175,7 @@ public class PublishToRoomState implements JanusState {
 		JanusPluginMessage message = new JanusPluginMessage(handler.getSessionId(),
 				handler.getPluginId()) {
 
+			// This field is mandatory.
 			final Map<String, Object> candidate = Map.of("completed", true);
 
 		};

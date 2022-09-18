@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2020 TU Darmstadt, Department of Computer Science,
+ * Copyright (C) 2022 TU Darmstadt, Department of Computer Science,
  * Embedded Systems and Applications Group.
  *
  * This program is free software: you can redistribute it and/or modify
@@ -18,24 +18,10 @@
 
 package org.lecturestudio.core.view;
 
-import org.lecturestudio.core.graphics.Color;
+public enum PresentationViewType {
 
-public interface PresentationView extends View {
+	SLIDE,
 
-	void close();
-
-	void setBackgroundColor(Color color);
-
-	void setVisible(boolean visible);
-
-	boolean isVisible();
-
-	void setOnVisible(Action action);
-
-	void addOverlay(SlideViewOverlay overlay);
-
-	void removeOverlay(SlideViewOverlay overlay);
-
-	void setPresentationViewContext(PresentationViewContext context);
+	SCREEN
 
 }

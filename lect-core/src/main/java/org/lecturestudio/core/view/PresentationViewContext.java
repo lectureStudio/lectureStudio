@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2020 TU Darmstadt, Department of Computer Science,
+ * Copyright (C) 2022 TU Darmstadt, Department of Computer Science,
  * Embedded Systems and Applications Group.
  *
  * This program is free software: you can redistribute it and/or modify
@@ -18,10 +18,10 @@
 
 package org.lecturestudio.core.view;
 
-public enum ScreenViewType {
+public interface PresentationViewContext {
 
-	SLIDE,
-	
-	CAMERA;
+	void configure(PresentationViewComponent component);
+
+	PresentationViewType getViewType();
 
 }

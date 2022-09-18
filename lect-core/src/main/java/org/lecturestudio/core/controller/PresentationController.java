@@ -37,6 +37,7 @@ import org.lecturestudio.core.presenter.PresentationPresenter;
 import org.lecturestudio.core.service.DisplayService;
 import org.lecturestudio.core.util.ListChangeListener;
 import org.lecturestudio.core.util.ObservableList;
+import org.lecturestudio.core.view.PresentationViewContext;
 import org.lecturestudio.core.view.PresentationViewFactory;
 import org.lecturestudio.core.view.Screen;
 import org.lecturestudio.core.view.SlideViewOverlay;
@@ -73,6 +74,9 @@ public class PresentationController {
 
 	/** The bounds of the main window. */
 	private Rectangle2D mainWindowBounds;
+
+	/** The current presentation context. */
+	private PresentationViewContext presentationContext;
 
 
 	/**
@@ -170,6 +174,20 @@ public class PresentationController {
 		this.mainWindowBounds = bounds;
 
 		updateScreensAvailable(getScreens());
+	}
+
+	/**
+	 * Set the presentation context that controls what and how is being shown on
+	 * the presentation view.
+	 *
+	 * @param context The new presentation context.
+	 */
+	public void setPresentationViewContext(PresentationViewContext context) {
+		presentationContext = context;
+
+		for (PresentationPresenter<?> presenter : views.values()) {
+			presenter.getPresentationView().setPresentationViewContext(context);
+		}
 	}
 
 	/**
@@ -300,6 +318,8 @@ public class PresentationController {
 				PresentationPresenter<?> presenter = factory.createPresentationView(context, screen);
 
 				if (nonNull(presenter)) {
+					presenter.getPresentationView().setPresentationViewContext(presentationContext);
+
 					views.put(screen, presenter);
 
 					showPresentationView(screen, displayConfig.getAutostart());

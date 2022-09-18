@@ -18,14 +18,19 @@
 
 package org.lecturestudio.web.api.stream;
 
+import java.util.function.Consumer;
+
 import org.lecturestudio.core.beans.BooleanProperty;
 import org.lecturestudio.core.beans.IntegerProperty;
 import org.lecturestudio.core.beans.ObjectProperty;
+import org.lecturestudio.web.api.event.ScreenVideoFrameEvent;
 import org.lecturestudio.web.api.model.ScreenSource;
 
 public class StreamScreenContext {
 
 	private final ObjectProperty<ScreenSource> screenSource;
+
+	private Consumer<ScreenVideoFrameEvent> localFrameConsumer;
 
 	private final IntegerProperty frameRate;
 
@@ -48,6 +53,14 @@ public class StreamScreenContext {
 
 	public void setScreenSource(ScreenSource source) {
 		screenSource.set(source);
+	}
+
+	public Consumer<ScreenVideoFrameEvent> getLocalFrameConsumer() {
+		return localFrameConsumer;
+	}
+
+	public void setLocalFrameConsumer(Consumer<ScreenVideoFrameEvent> consumer) {
+		this.localFrameConsumer = consumer;
 	}
 
 	public IntegerProperty frameRateProperty() {

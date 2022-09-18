@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2021 TU Darmstadt, Department of Computer Science,
+ * Copyright (C) 2022 TU Darmstadt, Department of Computer Science,
  * Embedded Systems and Applications Group.
  *
  * This program is free software: you can redistribute it and/or modify
@@ -20,23 +20,16 @@ package org.lecturestudio.web.api.event;
 
 import dev.onvoid.webrtc.media.video.VideoFrame;
 
-public class VideoFrameEvent {
+public class ScreenVideoFrameEvent {
 
 	private final VideoFrame frame;
 
-	private final String source;
 
-
-	public VideoFrameEvent(VideoFrame frame, String source) {
+	public ScreenVideoFrameEvent(VideoFrame frame) {
 		this.frame = frame;
-		this.source = source;
 	}
 
 	public VideoFrame getFrame() {
 		return frame;
-	}
-
-	public String getSource() {
-		return source;
 	}
 }

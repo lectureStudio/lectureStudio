@@ -29,7 +29,7 @@ import java.util.UUID;
 import java.util.function.Consumer;
 
 import org.lecturestudio.core.audio.AudioFrame;
-import org.lecturestudio.web.api.event.VideoFrameEvent;
+import org.lecturestudio.web.api.event.PeerVideoFrameEvent;
 import org.lecturestudio.web.api.janus.JanusPeerConnection;
 import org.lecturestudio.web.api.janus.JanusPublisher;
 import org.lecturestudio.web.api.janus.JanusStateHandler;
@@ -59,7 +59,7 @@ public class SubscriberJoinedRoomState implements JanusState {
 
 	private Consumer<AudioFrame> audioFrameConsumer;
 
-	private Consumer<VideoFrameEvent> videoFrameConsumer;
+	private Consumer<PeerVideoFrameEvent> videoFrameConsumer;
 
 	private JanusRoomSubscribeMessage subscribeRequest;
 
@@ -93,8 +93,7 @@ public class SubscriberJoinedRoomState implements JanusState {
 		});
 		peerConnection.setOnRemoteVideoFrame(videoFrame -> {
 			if (nonNull(videoFrameConsumer)) {
-				videoFrameConsumer.accept(new VideoFrameEvent(videoFrame,
-						publisher.getId().toString()));
+				videoFrameConsumer.accept(new PeerVideoFrameEvent(videoFrame));
 			}
 		});
 		peerConnection.setAudioTrackSink((data, bitsPerSample, sampleRate, channels, frames) -> {

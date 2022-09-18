@@ -22,7 +22,9 @@ import static java.util.Objects.nonNull;
 
 import java.util.Map;
 import java.util.UUID;
+import java.util.function.Consumer;
 
+import org.lecturestudio.web.api.event.ScreenVideoFrameEvent;
 import org.lecturestudio.web.api.janus.JanusPeerConnection;
 import org.lecturestudio.web.api.janus.JanusStateHandler;
 import org.lecturestudio.web.api.janus.message.JanusJsepMessage;
@@ -46,6 +48,7 @@ import dev.onvoid.webrtc.RTCRtpTransceiverDirection;
 import dev.onvoid.webrtc.RTCSdpType;
 import dev.onvoid.webrtc.RTCSessionDescription;
 import dev.onvoid.webrtc.media.MediaStreamTrack;
+import dev.onvoid.webrtc.media.video.VideoTrack;
 
 /**
  * This state starts publishing media (audio, video and data) to a joined
@@ -58,6 +61,8 @@ public class PublishToRoomState implements JanusState {
 
 	private JanusRoomPublishMessage publishRequest;
 
+	private Consumer<ScreenVideoFrameEvent> localScreenFrameConsumer;
+
 
 	@Override
 	public void initialize(JanusStateHandler handler) throws Exception {
@@ -66,6 +71,8 @@ public class PublishToRoomState implements JanusState {
 		StreamVideoContext videoContext = streamContext.getVideoContext();
 		StreamScreenContext screenContext = streamContext.getScreenContext();
 		JanusPeerConnection peerConnection = handler.createPeerConnection();
+
+		localScreenFrameConsumer = screenContext.getLocalFrameConsumer();
 
 		peerConnection.setOnLocalSessionDescription(description -> {
 			sendRequest(handler, description.sdp);
@@ -148,6 +155,15 @@ public class PublishToRoomState implements JanusState {
 
 			if (nonNull(track)) {
 				request.addStreamDescription(transceiver.getMid(), track.getId());
+
+				if (track.getId().equals("screen")) {
+					VideoTrack videoTrack = (VideoTrack) track;
+					videoTrack.addSink(videoFrame -> {
+						if (nonNull(localScreenFrameConsumer)) {
+							localScreenFrameConsumer.accept(new ScreenVideoFrameEvent(videoFrame));
+						}
+					});
+				}
 			}
 		}
 

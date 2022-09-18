@@ -26,7 +26,7 @@ import java.util.function.Consumer;
 import org.lecturestudio.core.beans.BooleanProperty;
 import org.lecturestudio.core.beans.IntegerProperty;
 import org.lecturestudio.core.beans.ObjectProperty;
-import org.lecturestudio.web.api.event.VideoFrameEvent;
+import org.lecturestudio.web.api.event.PeerVideoFrameEvent;
 
 public class StreamVideoContext {
 
@@ -40,7 +40,7 @@ public class StreamVideoContext {
 
 	private final BooleanProperty sendVideo;
 
-	private Consumer<VideoFrameEvent> frameConsumer;
+	private Consumer<PeerVideoFrameEvent> frameConsumer;
 
 
 	public StreamVideoContext() {
@@ -111,11 +111,11 @@ public class StreamVideoContext {
 		sendVideo.set(send);
 	}
 
-	public Consumer<VideoFrameEvent> getFrameConsumer() {
+	public Consumer<PeerVideoFrameEvent> getFrameConsumer() {
 		return frameConsumer;
 	}
 
-	public void setFrameConsumer(Consumer<VideoFrameEvent> consumer) {
+	public void setFrameConsumer(Consumer<PeerVideoFrameEvent> consumer) {
 		this.frameConsumer = consumer;
 	}
 }

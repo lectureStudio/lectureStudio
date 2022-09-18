@@ -37,8 +37,8 @@ import org.lecturestudio.core.graphics.Color;
 import org.lecturestudio.core.model.Page;
 import org.lecturestudio.core.view.Action;
 import org.lecturestudio.core.view.PresentationParameter;
+import org.lecturestudio.core.view.PresentationViewContext;
 import org.lecturestudio.core.view.Screen;
-import org.lecturestudio.core.view.ScreenViewType;
 import org.lecturestudio.core.view.SlidePresentationView;
 import org.lecturestudio.core.view.SlideViewOverlay;
 import org.lecturestudio.core.view.ViewType;
@@ -70,11 +70,6 @@ public class SlideViewWindow extends Stage implements SlidePresentationView {
 			slideView.parameterChanged(page, parameter);
 			slideView.setPage(page);
 		});
-	}
-
-	@Override
-	public ScreenViewType getType() {
-		return ScreenViewType.SLIDE;
 	}
 
 	@Override
@@ -116,6 +111,11 @@ public class SlideViewWindow extends Stage implements SlidePresentationView {
 	@Override
 	public void removeOverlay(SlideViewOverlay overlay) {
 		slideView.removeOverlay(overlay);
+	}
+
+	@Override
+	public void setPresentationViewContext(PresentationViewContext context) {
+
 	}
 
 	private void initialize(Screen screen, RenderController renderController) {

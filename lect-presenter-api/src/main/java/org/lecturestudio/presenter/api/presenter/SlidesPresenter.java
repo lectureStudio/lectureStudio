@@ -68,13 +68,16 @@ import org.lecturestudio.presenter.api.view.PageObjectRegistry;
 import org.lecturestudio.presenter.api.view.SlidesView;
 import org.lecturestudio.swing.model.ExternalWindowPosition;
 import org.lecturestudio.web.api.event.PeerStateEvent;
-import org.lecturestudio.web.api.event.VideoFrameEvent;
+import org.lecturestudio.web.api.event.PeerVideoFrameEvent;
+import org.lecturestudio.web.api.event.ScreenVideoFrameEvent;
 import org.lecturestudio.web.api.message.CoursePresenceMessage;
 import org.lecturestudio.web.api.message.MessengerMessage;
 import org.lecturestudio.web.api.message.SpeechBaseMessage;
 import org.lecturestudio.web.api.message.SpeechCancelMessage;
 import org.lecturestudio.web.api.message.SpeechRequestMessage;
 import org.lecturestudio.web.api.model.Message;
+import org.lecturestudio.web.api.stream.ScreenPresentationViewContext;
+import org.lecturestudio.core.view.SlidePresentationViewContext;
 import org.lecturestudio.web.api.stream.model.CourseParticipant;
 import org.lecturestudio.web.api.stream.model.CoursePresence;
 import org.lecturestudio.web.api.stream.model.CoursePresenceType;
@@ -120,6 +123,8 @@ public class SlidesPresenter extends Presenter<SlidesView> {
 
 	private ToolType toolType;
 
+	private final ScreenPresentationViewContext screenViewContext;
+
 	private final ViewContextFactory viewFactory;
 
 	private final ToolController toolController;
@@ -159,6 +164,7 @@ public class SlidesPresenter extends Presenter<SlidesView> {
 		this.shortcutMap = new HashMap<>();
 		this.pageObjectRegistry = new PageObjectRegistry();
 		this.documentChangeListener = new DocumentChangeHandler();
+		this.screenViewContext = new ScreenPresentationViewContext();
 	}
 
 	@Subscribe
@@ -302,8 +308,13 @@ public class SlidesPresenter extends Presenter<SlidesView> {
 	}
 
 	@Subscribe
-	public void onEvent(VideoFrameEvent event) {
+	public void onEvent(PeerVideoFrameEvent event) {
 		view.setVideoFrameEvent(event);
+	}
+
+	@Subscribe
+	public void onEvent(ScreenVideoFrameEvent event) {
+		screenViewContext.addScreenVideoFrameEvent(event);
 	}
 
 	@Subscribe
@@ -899,6 +910,19 @@ public class SlidesPresenter extends Presenter<SlidesView> {
 
 		config.extendedFullscreenProperty().addListener((observable, oldValue, newValue) -> {
 			view.setExtendedFullscreen(newValue);
+		});
+
+		ctx.screenSharingStartedProperty().addListener((o, oldValue, newValue) -> {
+			PresentationViewContext viewContext;
+
+			if (newValue) {
+				viewContext = screenViewContext;
+			}
+			else {
+				viewContext = new SlidePresentationViewContext();
+			}
+
+			presentationController.setPresentationViewContext(viewContext);
 		});
 
 		view.setOnExternalMessagesPositionChanged(this::externalMessagesPositionChanged);

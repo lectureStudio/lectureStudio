@@ -21,15 +21,9 @@ package org.lecturestudio.presenter.swing.view;
 import static java.util.Objects.isNull;
 import static java.util.Objects.nonNull;
 
-import dev.onvoid.webrtc.media.FourCC;
-import dev.onvoid.webrtc.media.video.VideoBufferConverter;
-import dev.onvoid.webrtc.media.video.VideoFrame;
-import dev.onvoid.webrtc.media.video.VideoFrameBuffer;
-
 import java.awt.*;
 import java.awt.event.*;
 import java.awt.image.BufferedImage;
-import java.awt.image.DataBufferByte;
 import java.text.MessageFormat;
 import java.util.*;
 import java.util.List;
@@ -78,10 +72,11 @@ import org.lecturestudio.swing.converter.KeyEventConverter;
 import org.lecturestudio.swing.converter.MatrixConverter;
 import org.lecturestudio.swing.util.AdaptiveTabbedPaneChangeListener;
 import org.lecturestudio.swing.util.SwingUtils;
+import org.lecturestudio.swing.util.VideoFrameConverter;
 import org.lecturestudio.swing.view.SwingView;
 import org.lecturestudio.swing.view.ViewPostConstruct;
 import org.lecturestudio.web.api.event.PeerStateEvent;
-import org.lecturestudio.web.api.event.VideoFrameEvent;
+import org.lecturestudio.web.api.event.PeerVideoFrameEvent;
 import org.lecturestudio.web.api.message.MessengerDirectMessage;
 import org.lecturestudio.web.api.message.MessengerMessage;
 import org.lecturestudio.web.api.message.SpeechBaseMessage;
@@ -742,13 +737,14 @@ public class SwingSlidesView extends JPanel implements SlidesView {
 	}
 
 	@Override
-	public void setVideoFrameEvent(VideoFrameEvent event) {
+	public void setVideoFrameEvent(PeerVideoFrameEvent event) {
 		if (isNull(peerView)) {
 			return;
 		}
 
 		try {
-			peerViewImage = convertVideoFrame(event.getFrame(), peerViewImage);
+			peerViewImage = VideoFrameConverter.convertVideoFrameToComponentSize(
+					event.getFrame(), peerViewImage, peerView);
 		}
 		catch (Exception e) {
 			return;
@@ -1707,33 +1703,5 @@ public class SwingSlidesView extends JPanel implements SlidesView {
 		if (messageViewContainer.getComponentCount() == 0) {
 			showMessagesPlaceholder();
 		}
-	}
-
-	private BufferedImage convertVideoFrame(VideoFrame videoFrame, BufferedImage image) throws Exception {
-		VideoFrameBuffer buffer = videoFrame.buffer;
-		int width = buffer.getWidth();
-		int height = buffer.getHeight();
-
-		// Scale video frame down to the view size.
-		double uiScale = getGraphicsConfiguration().getDefaultTransform().getScaleX();
-		int viewHeight = (int) (peerView.getHeight() * uiScale);
-		double scale = viewHeight / (double) height;
-
-		buffer = buffer.cropAndScale(0, 0, width, height, (int) (width * scale), viewHeight);
-		width = buffer.getWidth();
-		height = buffer.getHeight();
-
-		if (isNull(image) || image.getWidth() != width || image.getHeight() != height) {
-			image = new BufferedImage(width, height, BufferedImage.TYPE_4BYTE_ABGR);
-		}
-
-		byte[] imageBuffer = ((DataBufferByte) image.getRaster().getDataBuffer()).getData();
-
-		VideoBufferConverter.convertFromI420(buffer, imageBuffer, FourCC.RGBA);
-
-		// Release resources.
-		buffer.release();
-
-		return image;
 	}
 }

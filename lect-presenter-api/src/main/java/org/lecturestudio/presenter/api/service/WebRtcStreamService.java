@@ -69,6 +69,7 @@ import org.lecturestudio.web.api.message.SpeechBaseMessage;
 import org.lecturestudio.web.api.model.ScreenSource;
 import org.lecturestudio.web.api.service.ServiceParameters;
 import org.lecturestudio.web.api.stream.StreamAudioContext;
+import org.lecturestudio.web.api.stream.StreamScreenContext;
 import org.lecturestudio.web.api.stream.StreamVideoContext;
 import org.lecturestudio.web.api.stream.client.StreamWebSocketClient;
 import org.lecturestudio.web.api.stream.StreamContext;
@@ -533,6 +534,7 @@ public class WebRtcStreamService extends ExecutableBase {
 		StreamContext streamContext = new StreamContext();
 		StreamAudioContext audioContext = streamContext.getAudioContext();
 		StreamVideoContext videoContext = streamContext.getVideoContext();
+		StreamScreenContext screenContext = streamContext.getScreenContext();
 
 		audioContext.setSendAudio(streamConfig.getMicrophoneEnabled());
 		audioContext.setReceiveAudio(true);
@@ -545,8 +547,12 @@ public class WebRtcStreamService extends ExecutableBase {
 		videoContext.setReceiveVideo(true);
 		videoContext.setCaptureDevice(videoCaptureDevice);
 		videoContext.setBitrate(cameraConfig.getBitRate());
-		videoContext.setFrameConsumer(videoFrame -> {
-			context.getEventBus().post(videoFrame);
+		videoContext.setFrameConsumer(videoFrameEvent -> {
+			context.getEventBus().post(videoFrameEvent);
+		});
+
+		screenContext.setLocalFrameConsumer(videoFrameEvent -> {
+			context.getEventBus().post(videoFrameEvent);
 		});
 
 		if (nonNull(streamConfig.getCameraFormat())) {

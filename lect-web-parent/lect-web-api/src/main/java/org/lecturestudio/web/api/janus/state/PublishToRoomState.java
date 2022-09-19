@@ -98,6 +98,8 @@ public class PublishToRoomState implements JanusState {
 		try {
 			peerConnection.setCameraCapability(videoContext.getCaptureCapability());
 			peerConnection.setCameraDevice(videoContext.getCaptureDevice());
+			peerConnection.getScreenShareConfig().setBitRate(screenContext.getBitrate());
+			peerConnection.getScreenShareConfig().setFrameRate(screenContext.getFramerate());
 			peerConnection.setup(audioDirection, videoDirection, screenDirection);
 
 			// Initialize with desired mute and device settings.

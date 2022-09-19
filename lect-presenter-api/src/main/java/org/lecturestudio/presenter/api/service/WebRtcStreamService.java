@@ -54,8 +54,10 @@ import org.lecturestudio.presenter.api.config.PresenterConfiguration;
 import org.lecturestudio.presenter.api.config.StreamConfiguration;
 import org.lecturestudio.presenter.api.context.PresenterContext;
 import org.lecturestudio.presenter.api.event.CameraStateEvent;
+import org.lecturestudio.presenter.api.event.ScreenShareStateEvent;
 import org.lecturestudio.presenter.api.event.StreamingStateEvent;
 import org.lecturestudio.presenter.api.model.SharedScreenSource;
+import org.lecturestudio.presenter.api.net.ScreenShareProfile;
 import org.lecturestudio.presenter.api.presenter.ReconnectStreamPresenter;
 import org.lecturestudio.web.api.client.ClientFailover;
 import org.lecturestudio.web.api.client.TokenProvider;
@@ -116,6 +118,8 @@ public class WebRtcStreamService extends ExecutableBase {
 	private ChangeListener<String> playbackDeviceListener;
 
 	private ChangeListener<Double> playbackVolumeListener;
+
+	private ChangeListener<ScreenShareProfile> screenProfileListener;
 
 	private ExecutableState streamState;
 
@@ -371,7 +375,12 @@ public class WebRtcStreamService extends ExecutableBase {
 		playbackVolumeListener = (o, oldValue, newValue) -> {
 			streamContext.getAudioContext().setPlaybackVolume(newValue);
 		};
+		screenProfileListener = (o, oldValue, newValue) -> {
+			streamContext.getScreenContext().setFramerate(newValue.getFramerate());
+			streamContext.getScreenContext().setBitrate(newValue.getBitrate());
+		};
 
+		streamConfig.screenProfileProperty().addListener(screenProfileListener);
 		streamConfig.getCameraCodecConfig().viewRectProperty().addListener(cameraFormatListener);
 		streamConfig.cameraNameProperty().addListener(cameraDeviceListener);
 		audioConfig.captureDeviceNameProperty().addListener(captureDeviceListener);
@@ -409,6 +418,7 @@ public class WebRtcStreamService extends ExecutableBase {
 		AudioConfiguration audioConfig = config.getAudioConfig();
 		StreamConfiguration streamConfig = config.getStreamConfig();
 
+		streamConfig.screenProfileProperty().removeListener(screenProfileListener);
 		streamConfig.getCameraCodecConfig().viewRectProperty().removeListener(cameraFormatListener);
 		streamConfig.cameraNameProperty().removeListener(cameraDeviceListener);
 		audioConfig.captureDeviceNameProperty().removeListener(captureDeviceListener);
@@ -458,7 +468,7 @@ public class WebRtcStreamService extends ExecutableBase {
 	private void setScreenShareState(ExecutableState state) {
 		this.screenShareState = state;
 
-		//		context.getEventBus().post(new CameraStateEvent(cameraState));
+		context.getEventBus().post(new ScreenShareStateEvent(screenShareState));
 	}
 
 	/**
@@ -518,6 +528,7 @@ public class WebRtcStreamService extends ExecutableBase {
 		AudioConfiguration audioConfig = config.getAudioConfig();
 		StreamConfiguration streamConfig = config.getStreamConfig();
 		VideoCodecConfiguration cameraConfig = streamConfig.getCameraCodecConfig();
+		VideoCodecConfiguration screenConfig = streamConfig.getScreenCodecConfig();
 
 		Rectangle2D cameraViewRect = cameraConfig.getViewRect();
 
@@ -551,6 +562,9 @@ public class WebRtcStreamService extends ExecutableBase {
 			context.getEventBus().post(videoFrameEvent);
 		});
 
+		screenContext.setScreenSource(null);
+		screenContext.setBitrate(screenConfig.getBitRate());
+		screenContext.setFramerate((int) screenConfig.getFrameRate());
 		screenContext.setLocalFrameConsumer(videoFrameEvent -> {
 			context.getEventBus().post(videoFrameEvent);
 		});
@@ -561,9 +575,6 @@ public class WebRtcStreamService extends ExecutableBase {
 					(int) cameraViewRect.getHeight(),
 					(int) streamConfig.getCameraFormat().getFrameRate()));
 		}
-
-		streamContext.getScreenContext().setScreenSource(null);
-		streamContext.getScreenContext().setFrameRate(30);
 
 		RTCIceServer iceServer = new RTCIceServer();
 		iceServer.urls.add(webServiceInfo.getStreamStunServers());

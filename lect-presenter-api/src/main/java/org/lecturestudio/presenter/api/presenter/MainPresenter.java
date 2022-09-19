@@ -162,13 +162,13 @@ public class MainPresenter extends org.lecturestudio.core.presenter.MainPresente
 
 		config.setAdvancedUIMode(true);
 
-		presenterContext.streamStartedProperty().addListener((observable, oldValue, newValue) -> {
+		presenterContext.streamStartedProperty().addListener((o, oldValue, newValue) -> {
 			streamService.enableStream(newValue);
 		});
-		presenterContext.screenSharingStartedProperty().addListener((observable, oldValue, newValue) -> {
+		presenterContext.screenSharingStartedProperty().addListener((o, oldValue, newValue) -> {
 			streamService.enableScreenSharing(newValue);
 		});
-		presenterContext.messengerStartedProperty().addListener((observable, oldValue, newValue) -> {
+		presenterContext.messengerStartedProperty().addListener((o, oldValue, newValue) -> {
 			streamService.enableMessenger(newValue);
 		});
 

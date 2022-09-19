@@ -83,11 +83,9 @@ public class VideoCodecConfiguration extends CodecConfiguration {
 
 	@Override
 	public String toString() {
-
 		return "View-Rect: " + getViewRect() + "\n" +
 				"Framerate: " + getFrameRate() + "\n" +
-				"Bitrate: " + getBitRate() + "\n" +
-				"Preset: " + getPreset();
+				"Bitrate: " + getBitRate();
 	}
 
 }

@@ -32,14 +32,17 @@ public class StreamScreenContext {
 
 	private Consumer<ScreenVideoFrameEvent> localFrameConsumer;
 
-	private final IntegerProperty frameRate;
+	private final IntegerProperty framerate;
+
+	private final IntegerProperty bitrate;
 
 	private final BooleanProperty sendVideo;
 
 
 	public StreamScreenContext() {
 		screenSource = new ObjectProperty<>();
-		frameRate = new IntegerProperty();
+		framerate = new IntegerProperty();
+		bitrate = new IntegerProperty();
 		sendVideo = new BooleanProperty();
 	}
 
@@ -63,16 +66,28 @@ public class StreamScreenContext {
 		this.localFrameConsumer = consumer;
 	}
 
-	public IntegerProperty frameRateProperty() {
-		return frameRate;
+	public IntegerProperty framerateProperty() {
+		return framerate;
 	}
 
-	public Integer getFrameRate() {
-		return frameRate.get();
+	public Integer getFramerate() {
+		return framerate.get();
 	}
 
-	public void setFrameRate(int rate) {
-		frameRate.set(rate);
+	public void setFramerate(int rate) {
+		framerate.set(rate);
+	}
+
+	public IntegerProperty bitrateProperty() {
+		return bitrate;
+	}
+
+	public int getBitrate() {
+		return bitrate.get();
+	}
+
+	public void setBitrate(int rate) {
+		bitrate.set(rate);
 	}
 
 	public BooleanProperty sendVideoProperty() {

@@ -54,6 +54,10 @@ public class JanusPublisherHandler extends JanusStateHandler {
 
 	private ChangeListener<VideoCaptureCapability> camCapabilityListener;
 
+	private ChangeListener<Integer> screenFramerateListener;
+
+	private ChangeListener<Integer> screenBitrateListener;
+
 	private ChangeListener<ScreenSource> screenSourceListener;
 
 
@@ -104,6 +108,8 @@ public class JanusPublisherHandler extends JanusStateHandler {
 		videoContext.captureDeviceProperty().addListener(camListener);
 		videoContext.captureCapabilityProperty().addListener(camCapabilityListener);
 		screenContext.screenSourceProperty().addListener(screenSourceListener);
+		screenContext.framerateProperty().addListener(screenFramerateListener);
+		screenContext.bitrateProperty().addListener(screenBitrateListener);
 
 		return peerConnection;
 	}
@@ -128,8 +134,14 @@ public class JanusPublisherHandler extends JanusStateHandler {
 		};
 
 		screenSourceListener = (observable, oldValue, newValue) -> {
-			peerConnection.setScreenSource(newValue);
+			peerConnection.getScreenShareConfig().setScreenSource(newValue);
 			peerConnection.setScreenShareEnabled(nonNull(newValue));
+		};
+		screenFramerateListener = (observable, oldValue, newValue) -> {
+			peerConnection.getScreenShareConfig().setFrameRate(newValue);
+		};
+		screenBitrateListener = (observable, oldValue, newValue) -> {
+			peerConnection.getScreenShareConfig().setBitRate(newValue);
 		};
 	}
 
@@ -148,6 +160,9 @@ public class JanusPublisherHandler extends JanusStateHandler {
 		videoContext.sendVideoProperty().removeListener(enableCamListener);
 		videoContext.captureDeviceProperty().removeListener(camListener);
 		videoContext.captureCapabilityProperty().removeListener(camCapabilityListener);
+		screenContext.screenSourceProperty().removeListener(screenSourceListener);
+		screenContext.framerateProperty().removeListener(screenFramerateListener);
+		screenContext.bitrateProperty().removeListener(screenBitrateListener);
 
 		if (nonNull(peerConnection)) {
 			peerConnection.close();

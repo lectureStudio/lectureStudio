@@ -234,6 +234,28 @@ public class SlidesPresenter extends Presenter<SlidesView> {
 		view.setStreamState(event.getState());
 
 		checkRemoteServiceState();
+
+		if (event.stopped()) {
+			onEvent(new ScreenShareStateEvent(event.getState()));
+		}
+	}
+
+	@Subscribe
+	public void onEvent(final ScreenShareStateEvent event) {
+		PresenterContext ctx = (PresenterContext) context;
+		PresentationViewContext viewContext = null;
+
+		switch (event.getState()) {
+			case Started -> {
+				viewContext = screenViewContext;
+			}
+			case Stopped -> {
+				viewContext = new SlidePresentationViewContext();
+				ctx.setScreenSharingStarted(false);
+			}
+		}
+
+		presentationController.setPresentationViewContext(viewContext);
 	}
 
 	@Subscribe
@@ -910,19 +932,6 @@ public class SlidesPresenter extends Presenter<SlidesView> {
 
 		config.extendedFullscreenProperty().addListener((observable, oldValue, newValue) -> {
 			view.setExtendedFullscreen(newValue);
-		});
-
-		ctx.screenSharingStartedProperty().addListener((o, oldValue, newValue) -> {
-			PresentationViewContext viewContext;
-
-			if (newValue) {
-				viewContext = screenViewContext;
-			}
-			else {
-				viewContext = new SlidePresentationViewContext();
-			}
-
-			presentationController.setPresentationViewContext(viewContext);
 		});
 
 		view.setOnExternalMessagesPositionChanged(this::externalMessagesPositionChanged);

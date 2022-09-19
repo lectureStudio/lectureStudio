@@ -18,6 +18,8 @@
 
 package org.lecturestudio.presenter.api.presenter;
 
+import static java.util.Objects.isNull;
+
 import java.util.concurrent.CompletableFuture;
 
 import javax.inject.Inject;
@@ -28,6 +30,7 @@ import org.lecturestudio.core.presenter.Presenter;
 import org.lecturestudio.presenter.api.config.DefaultConfiguration;
 import org.lecturestudio.presenter.api.config.PresenterConfiguration;
 import org.lecturestudio.presenter.api.config.StreamConfiguration;
+import org.lecturestudio.presenter.api.net.ScreenShareProfiles;
 import org.lecturestudio.presenter.api.service.WebServiceInfo;
 import org.lecturestudio.presenter.api.view.StreamSettingsView;
 import org.lecturestudio.web.api.service.ServiceParameters;
@@ -57,6 +60,8 @@ public class StreamSettingsPresenter extends Presenter<StreamSettingsView> {
 		streamConfig.setAudioCodec(defaultConfig.getStreamConfig().getAudioCodec());
 		streamConfig.setAudioFormat(defaultConfig.getStreamConfig().getAudioFormat());
 		streamConfig.setAccessToken(defaultConfig.getStreamConfig().getAccessToken());
+		streamConfig.setServerName(defaultConfig.getStreamConfig().getServerName());
+		streamConfig.setScreenShareProfile(defaultConfig.getStreamConfig().getScreenShareProfile());
 
 		cameraConfig.setBitRate(defaultConfig.getStreamConfig().getCameraCodecConfig().getBitRate());
 	}
@@ -66,8 +71,22 @@ public class StreamSettingsPresenter extends Presenter<StreamSettingsView> {
 		PresenterConfiguration config = (PresenterConfiguration) context.getConfiguration();
 		StreamConfiguration streamConfig = config.getStreamConfig();
 
+		if (isNull(streamConfig.getServerName())) {
+			streamConfig.setServerName(defaultConfig.getStreamConfig().getServerName());
+		}
+		if (isNull(streamConfig.getScreenShareProfile())) {
+			streamConfig.setScreenShareProfile(defaultConfig.getStreamConfig().getScreenShareProfile());
+		}
+
+		streamConfig.screenProfileProperty().addListener((o, oldValue, newValue) -> {
+			streamConfig.getScreenCodecConfig().setFrameRate(newValue.getFramerate());
+			streamConfig.getScreenCodecConfig().setBitRate(newValue.getBitrate());
+		});
+
 		view.setServerName(streamConfig.serverNameProperty());
 		view.setAccessToken(streamConfig.accessTokenProperty());
+		view.setScreenShareProfile(streamConfig.screenProfileProperty());
+		view.setScreenShareProfiles(ScreenShareProfiles.DEFAULT);
 		view.setOnCheckAccessToken(this::checkAccessToken);
 		view.setOnReset(this::reset);
 

@@ -73,6 +73,8 @@ public class JanusPeerConnection implements PeerConnectionObserver {
 	private static final String CAMERA_TRACK = "camera";
 	private static final String SCREEN_TRACK = "screen";
 
+	private final JanusScreenShareConfig screenShareConfig = new JanusScreenShareConfig();
+
 	private final JanusPeerConnectionFactory factory;
 
 	private final ExecutorService executor;
@@ -82,8 +84,6 @@ public class JanusPeerConnection implements PeerConnectionObserver {
 	private RTCDataChannel dataChannel;
 
 	private RTCDataChannel remoteDataChannel;
-
-	private ScreenSource screenSource;
 
 	private VideoDesktopSource desktopSource;
 
@@ -112,6 +112,10 @@ public class JanusPeerConnection implements PeerConnectionObserver {
 		this.factory = factory;
 		this.executor = factory.getExecutor();
 		this.peerConnection = factory.createPeerConnection(this);
+	}
+
+	public JanusScreenShareConfig getScreenShareConfig() {
+		return screenShareConfig;
 	}
 
 	public void setOnException(Consumer<JanusPeerConnectionException> callback) {
@@ -326,16 +330,21 @@ public class JanusPeerConnection implements PeerConnectionObserver {
 
 		execute(() -> {
 			if (enable) {
+				ScreenSource screenSource = screenShareConfig.getScreenSource();
+
 				if (isNull(screenSource)) {
 					notify(onException, new JanusPeerConnectionMediaException(
 							MediaType.Screen, "Start screen capture source failed"));
 					return;
 				}
 
+				LOGGER.debug("Screen-Share capability: FrameRate={}, BitRate={}",
+						screenShareConfig.getFrameRate(), screenShareConfig.getBitRate());
+
 				try {
 					desktopSource.setSourceId(screenSource.getId(),
 							screenSource.isWindow());
-					desktopSource.setFrameRate(30);
+					desktopSource.setFrameRate(screenShareConfig.getFrameRate());
 					desktopSource.start();
 				}
 				catch (Throwable e) {
@@ -402,14 +411,6 @@ public class JanusPeerConnection implements PeerConnectionObserver {
 				}
 			}
 		}
-	}
-
-	public void setScreenSource(ScreenSource source) {
-		if (Objects.equals(screenSource, source)) {
-			return;
-		}
-
-		this.screenSource = source;
 	}
 
 	private void addAudio(RTCRtpTransceiverDirection direction) {

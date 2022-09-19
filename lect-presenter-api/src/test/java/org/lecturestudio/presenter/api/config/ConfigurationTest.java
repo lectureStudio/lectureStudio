@@ -79,7 +79,6 @@ class ConfigurationTest {
 		config.getStreamConfig().setCameraFormat(new CameraFormat(1280, 720, 25));
 		config.getStreamConfig().getCameraCodecConfig().setBitRate(128);
 		config.getStreamConfig().getCameraCodecConfig().setFrameRate(30);
-		config.getStreamConfig().getCameraCodecConfig().setPreset("high");
 		config.getStreamConfig().getCameraCodecConfig().setViewRect(new Rectangle2D(20, 20, 640, 480));
 
 		manager.save(configFile, config);
@@ -93,7 +92,6 @@ class ConfigurationTest {
 		assertEquals(new CameraFormat(1280, 720, 25), streamConfig.getCameraFormat());
 		assertEquals(128, streamConfig.getCameraCodecConfig().getBitRate());
 		assertEquals(0, Double.compare(30, streamConfig.getCameraCodecConfig().getFrameRate()));
-		assertEquals("high", streamConfig.getCameraCodecConfig().getPreset());
 		assertEquals(new Rectangle2D(20, 20, 640, 480), streamConfig.getCameraCodecConfig().getViewRect());
 	}
 

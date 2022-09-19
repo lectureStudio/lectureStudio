@@ -18,13 +18,10 @@
 
 package org.lecturestudio.presenter.api.view;
 
-import org.lecturestudio.core.audio.AudioFormat;
-import org.lecturestudio.core.beans.IntegerProperty;
 import org.lecturestudio.core.beans.ObjectProperty;
 import org.lecturestudio.core.beans.StringProperty;
 import org.lecturestudio.core.view.Action;
-
-import java.util.List;
+import org.lecturestudio.presenter.api.net.ScreenShareProfile;
 
 public interface StreamSettingsView extends SettingsBaseView {
 
@@ -36,14 +33,8 @@ public interface StreamSettingsView extends SettingsBaseView {
 
 	void setOnCheckAccessToken(Action action);
 
-	void setStreamAudioFormat(ObjectProperty<AudioFormat> audioFormat);
+	void setScreenShareProfile(ObjectProperty<ScreenShareProfile> profile);
 
-	void setStreamAudioFormats(List<AudioFormat> formats);
-
-	void setStreamAudioCodecName(StringProperty audioCodecName);
-
-	void setStreamAudioCodecNames(String[] codecNames);
-
-	void setStreamCameraBitrate(IntegerProperty bitrate);
+	void setScreenShareProfiles(ScreenShareProfile[] profiles);
 
 }

@@ -68,8 +68,6 @@ public class WebService extends ExecutableBase {
 
 	private final DocumentService documentService;
 
-	private final StreamProviderService streamProviderService;
-
 	private final WebServiceInfo webServiceInfo;
 
 	private final List<FeatureServiceBase> startedServices;
@@ -89,15 +87,6 @@ public class WebService extends ExecutableBase {
 		this.localBroadcaster = localBroadcaster;
 		this.webServiceInfo = webServiceInfo;
 		this.startedServices = new ArrayList<>();
-
-		StreamConfiguration streamConfig = context.getConfiguration()
-				.getStreamConfig();
-
-		ServiceParameters parameters = new ServiceParameters();
-		parameters.setUrl(webServiceInfo.getStreamPublisherApiUrl());
-
-		streamProviderService = new StreamProviderService(parameters,
-				streamConfig::getAccessToken);
 
 		Runtime.getRuntime().addShutdownHook(new Thread(() -> {
 			for (var webService : startedServices) {
@@ -137,8 +126,17 @@ public class WebService extends ExecutableBase {
 
 			long courseId = context.getCourse().getId();
 
-			context.getUserPrivilegeService().setUserInfo(
-					streamProviderService.getUserInfo());
+			StreamConfiguration streamConfig = context.getConfiguration()
+					.getStreamConfig();
+
+			ServiceParameters parameters = new ServiceParameters();
+			parameters.setUrl(webServiceInfo.getStreamPublisherApiUrl());
+
+			StreamProviderService streamProviderService = new StreamProviderService(
+					parameters, streamConfig::getAccessToken);
+
+			context.getUserPrivilegeService()
+					.setUserInfo(streamProviderService.getUserInfo());
 			context.getUserPrivilegeService().setPrivileges(
 					streamProviderService.getUserPrivileges(courseId)
 							.getPrivileges());

@@ -56,7 +56,6 @@ import org.lecturestudio.presenter.api.context.PresenterContext;
 import org.lecturestudio.presenter.api.event.CameraStateEvent;
 import org.lecturestudio.presenter.api.event.ScreenShareStateEvent;
 import org.lecturestudio.presenter.api.event.StreamingStateEvent;
-import org.lecturestudio.presenter.api.model.SharedScreenSource;
 import org.lecturestudio.presenter.api.net.ScreenShareProfile;
 import org.lecturestudio.presenter.api.presenter.ReconnectStreamPresenter;
 import org.lecturestudio.web.api.client.ClientFailover;
@@ -199,8 +198,15 @@ public class WebRtcStreamService extends ExecutableBase {
 		setCameraState(ExecutableState.Stopped);
 	}
 
-	public void startScreenShare(SharedScreenSource screenSource)
-			throws ExecutableException {
+	public ScreenSource getScreenSource() {
+		return streamContext.getScreenContext().getScreenSource();
+	}
+
+	public void setScreenSource(ScreenSource screenSource) {
+		streamContext.getScreenContext().setScreenSource(screenSource);
+	}
+
+	public void startScreenShare() throws ExecutableException {
 		if (streamState != ExecutableState.Started
 				|| screenShareState == ExecutableState.Started) {
 			return;
@@ -208,9 +214,6 @@ public class WebRtcStreamService extends ExecutableBase {
 
 		setScreenShareState(ExecutableState.Starting);
 
-		streamContext.getScreenContext().setScreenSource(
-				new ScreenSource(screenSource.getTitle(), screenSource.getId(),
-						screenSource.isWindow()));
 		streamContext.getScreenContext().setSendVideo(true);
 
 		setScreenShareState(ExecutableState.Started);
@@ -223,7 +226,7 @@ public class WebRtcStreamService extends ExecutableBase {
 
 		setScreenShareState(ExecutableState.Stopping);
 
-		streamContext.getScreenContext().setScreenSource(null);
+//		streamContext.getScreenContext().setScreenSource(null);
 		streamContext.getScreenContext().setSendVideo(false);
 
 		setScreenShareState(ExecutableState.Stopped);
@@ -470,7 +473,9 @@ public class WebRtcStreamService extends ExecutableBase {
 	private void setScreenShareState(ExecutableState state) {
 		this.screenShareState = state;
 
-		context.getEventBus().post(new ScreenShareStateEvent(screenShareState));
+		context.getEventBus().post(new ScreenShareStateEvent(
+				streamContext.getScreenContext().getScreenSource(),
+				screenShareState));
 	}
 
 	/**

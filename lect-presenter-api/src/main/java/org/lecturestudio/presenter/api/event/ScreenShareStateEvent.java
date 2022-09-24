@@ -20,11 +20,20 @@ package org.lecturestudio.presenter.api.event;
 
 import org.lecturestudio.core.ExecutableState;
 import org.lecturestudio.core.bus.event.ExecutableEvent;
+import org.lecturestudio.web.api.model.ScreenSource;
 
 public class ScreenShareStateEvent extends ExecutableEvent {
 
-	public ScreenShareStateEvent(ExecutableState state) {
+	private final ScreenSource screenSource;
+
+
+	public ScreenShareStateEvent(ScreenSource source, ExecutableState state) {
 		super(state);
+
+		this.screenSource = source;
 	}
 
+	public ScreenSource getScreenSource() {
+		return screenSource;
+	}
 }

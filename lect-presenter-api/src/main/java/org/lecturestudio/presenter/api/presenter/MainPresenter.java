@@ -76,15 +76,18 @@ import org.lecturestudio.presenter.api.event.MessengerStateEvent;
 import org.lecturestudio.presenter.api.event.QuizStateEvent;
 import org.lecturestudio.presenter.api.event.StreamingStateEvent;
 import org.lecturestudio.presenter.api.input.Shortcut;
+import org.lecturestudio.presenter.api.presenter.command.StartScreenSharingCommand;
 import org.lecturestudio.presenter.api.recording.RecordingBackup;
 import org.lecturestudio.presenter.api.service.BookmarkService;
 import org.lecturestudio.presenter.api.service.RecordingService;
 import org.lecturestudio.presenter.api.service.StreamService;
 import org.lecturestudio.presenter.api.util.SaveDocumentsHandler;
 import org.lecturestudio.presenter.api.util.SaveRecordingHandler;
+import org.lecturestudio.presenter.api.util.ScreenDocumentCreator;
 import org.lecturestudio.presenter.api.view.MainView;
 import org.lecturestudio.web.api.exception.StreamMediaException;
 import org.lecturestudio.web.api.model.GitHubRelease;
+import org.lecturestudio.web.api.model.ScreenSource;
 import org.lecturestudio.web.api.service.VersionChecker;
 
 public class MainPresenter extends org.lecturestudio.core.presenter.MainPresenter<MainView> implements ViewHandler {
@@ -165,8 +168,45 @@ public class MainPresenter extends org.lecturestudio.core.presenter.MainPresente
 		presenterContext.streamStartedProperty().addListener((o, oldValue, newValue) -> {
 			streamService.enableStream(newValue);
 		});
+		presenterContext.screenSharingStartProperty().addListener((o, oldValue, newValue) -> {
+			if (!newValue) {
+				return;
+			}
+
+			context.getEventBus()
+				.post(new StartScreenSharingCommand((screenSource) -> {
+					CompletableFuture.runAsync(() -> {
+						var source = new ScreenSource(screenSource.getTitle(),
+								screenSource.getId(), screenSource.isWindow());
+
+						streamService.setScreenSource(source);
+
+						try {
+							ScreenDocumentCreator.create(documentService, source);
+						}
+						catch (IOException e) {
+							throw new RuntimeException(e);
+						}
+					})
+					.exceptionally(e -> {
+						handleException(e, "Set screen-source failed",
+								"stream.screen.share.error");
+						return null;
+					});
+				}));
+		});
 		presenterContext.screenSharingStartedProperty().addListener((o, oldValue, newValue) -> {
 			streamService.enableScreenSharing(newValue);
+
+			if (!newValue) {
+				try {
+					ScreenDocumentCreator.create(documentService,
+							streamService.getScreenSource());
+				}
+				catch (Exception e) {
+					throw new RuntimeException(e);
+				}
+			}
 		});
 		presenterContext.messengerStartedProperty().addListener((o, oldValue, newValue) -> {
 			streamService.enableMessenger(newValue);

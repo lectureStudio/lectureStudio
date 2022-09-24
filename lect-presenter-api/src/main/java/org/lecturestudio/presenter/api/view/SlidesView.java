@@ -81,6 +81,8 @@ public interface SlidesView extends View {
 
 	void setStreamState(ExecutableState state);
 
+	void setScreenShareState(ExecutableState state);
+
 	void setQuizState(ExecutableState state);
 
 	void setMessengerState(ExecutableState state);
@@ -122,6 +124,10 @@ public interface SlidesView extends View {
 	void setOnDeletePage(Action action);
 
 	void setOnStopQuiz(Action action);
+
+	void setOnToggleScreenShare(BooleanProperty property);
+
+	void setOnStopScreenShare(Action action);
 
 	void setOnSendMessage(ConsumerAction<String> action);
 

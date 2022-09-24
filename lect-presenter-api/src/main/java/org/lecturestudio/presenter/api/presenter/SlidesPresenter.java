@@ -236,7 +236,7 @@ public class SlidesPresenter extends Presenter<SlidesView> {
 		checkRemoteServiceState();
 
 		if (event.stopped()) {
-			onEvent(new ScreenShareStateEvent(event.getState()));
+			onEvent(new ScreenShareStateEvent(null, event.getState()));
 		}
 	}
 
@@ -244,6 +244,8 @@ public class SlidesPresenter extends Presenter<SlidesView> {
 	public void onEvent(final ScreenShareStateEvent event) {
 		PresenterContext ctx = (PresenterContext) context;
 		PresentationViewContext viewContext = null;
+
+		view.setScreenShareState(event.getState());
 
 		switch (event.getState()) {
 			case Started -> {
@@ -664,6 +666,20 @@ public class SlidesPresenter extends Presenter<SlidesView> {
 		shareQuiz();
 	}
 
+	private void stopScreenShare() {
+		PresenterContext presenterContext = (PresenterContext) context;
+		presenterContext.setScreenSharingStart(false);
+		presenterContext.setScreenSharingStarted(false);
+
+		// Remove document.
+		for (Document doc : documentService.getDocuments().asList()) {
+			if (doc.isScreen()) {
+				documentService.closeDocument(doc);
+				break;
+			}
+		}
+	}
+
 	private void sendMessage(String text) {
 		Message message = new Message(text);
 
@@ -969,6 +985,8 @@ public class SlidesPresenter extends Presenter<SlidesView> {
 
 		view.setOnKeyEvent(this::keyEvent);
 		view.setOnStopQuiz(this::stopQuiz);
+		view.setOnToggleScreenShare(ctx.screenSharingStartedProperty());
+		view.setOnStopScreenShare(this::stopScreenShare);
 		view.setOnSendMessage(this::sendMessage);
 		view.setOnNewPage(this::newWhiteboardPage);
 		view.setOnDeletePage(this::deleteWhiteboardPage);

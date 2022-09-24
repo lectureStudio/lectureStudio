@@ -36,8 +36,8 @@ import org.lecturestudio.core.util.NetUtils;
 import org.lecturestudio.core.view.NotificationType;
 import org.lecturestudio.presenter.api.context.PresenterContext;
 import org.lecturestudio.presenter.api.presenter.command.StartCourseFeatureCommand;
-import org.lecturestudio.presenter.api.presenter.command.StartScreenSharingCommand;
 import org.lecturestudio.presenter.api.presenter.command.StartStreamCommand;
+import org.lecturestudio.web.api.model.ScreenSource;
 import org.lecturestudio.web.api.model.quiz.Quiz;
 import org.lecturestudio.web.api.stream.model.Course;
 
@@ -71,6 +71,14 @@ public class StreamService {
 		else {
 			stopStream();
 		}
+	}
+
+	public ScreenSource getScreenSource() {
+		return streamService.getScreenSource();
+	}
+
+	public void setScreenSource(ScreenSource screenSource) {
+		streamService.setScreenSource(screenSource);
 	}
 
 	public void enableScreenSharing(boolean enable) {
@@ -201,23 +209,12 @@ public class StreamService {
 	}
 
 	private void startScreenSharing() {
-		eventBus.post(new StartScreenSharingCommand((screenSource) -> {
-			CompletableFuture.runAsync(() -> {
-				try {
-					streamService.startScreenShare(screenSource);
-				}
-				catch (ExecutableException e) {
-					throw new CompletionException(e);
-				}
-			}).exceptionally(e -> {
-				handleServiceError(e, "Start screen-sharing failed",
-						"stream.screen.share.error");
-
-				context.setScreenSharingStarted(false);
-
-				return null;
-			});
-		}));
+		try {
+			streamService.startScreenShare();
+		}
+		catch (ExecutableException e) {
+			handleException(e, "Start screen-share failed", "stream.screen.share.error");
+		}
 	}
 
 	private void stopScreenSharing() {

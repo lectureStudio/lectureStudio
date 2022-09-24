@@ -211,6 +211,7 @@ public class WebRtcStreamService extends ExecutableBase {
 		streamContext.getScreenContext().setScreenSource(
 				new ScreenSource(screenSource.getTitle(), screenSource.getId(),
 						screenSource.isWindow()));
+		streamContext.getScreenContext().setSendVideo(true);
 
 		setScreenShareState(ExecutableState.Started);
 	}
@@ -223,6 +224,7 @@ public class WebRtcStreamService extends ExecutableBase {
 		setScreenShareState(ExecutableState.Stopping);
 
 		streamContext.getScreenContext().setScreenSource(null);
+		streamContext.getScreenContext().setSendVideo(false);
 
 		setScreenShareState(ExecutableState.Stopped);
 	}
@@ -290,7 +292,7 @@ public class WebRtcStreamService extends ExecutableBase {
 				.getRecordingFormat());
 
 		streamContext = createStreamContext(course, config);
-		streamStateClient = createStreamStateClient(course, config);
+		streamStateClient = createStreamStateClient(config);
 		janusClient = createJanusClient(streamContext);
 		janusClient.setJanusStateHandlerListener(new JanusStateHandlerListener() {
 
@@ -491,8 +493,7 @@ public class WebRtcStreamService extends ExecutableBase {
 		}
 	}
 
-	private StreamWebSocketClient createStreamStateClient(Course course,
-			PresenterConfiguration config) {
+	private StreamWebSocketClient createStreamStateClient(PresenterConfiguration config) {
 		StreamConfiguration streamConfig = config.getStreamConfig();
 
 		ServiceParameters stateWsParameters = new ServiceParameters();
@@ -520,8 +521,8 @@ public class WebRtcStreamService extends ExecutableBase {
 		janusWsParameters.setUrl(MessageFormat.format(webServiceInfo.getJanusWebSocketUrl(),
 				streamConfig.getServerName()));
 
-		return new JanusWebSocketClient(context.getEventBus(), janusWsParameters,
-				streamContext, eventRecorder, clientFailover);
+		return new JanusWebSocketClient(janusWsParameters, streamContext,
+				eventRecorder, clientFailover);
 	}
 
 	private StreamContext createStreamContext(Course course, PresenterConfiguration config) {

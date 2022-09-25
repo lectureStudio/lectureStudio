@@ -102,11 +102,15 @@ public class CreateRoomState implements JanusState {
 		StreamContext context = handler.getStreamContext();
 		Course course = context.getCourse();
 
+		// Max video bitrate for senders.
+		int bitrate = context.getVideoContext().getBitrate()
+				+ 10000; // Max screen-share bitrate.
+
 		JanusCreateRoomMessage request = new JanusCreateRoomMessage();
 		request.setRoomId(handler.getRoomId());
 		request.setDescription(course.getTitle());
 		request.setPublishers(3);
-		request.setBitrate(context.getVideoContext().getBitrate() * 1000);
+		request.setBitrate(bitrate * 1000); // kBit/s
 		request.setNotifyJoining(true);
 		//request.setSecret(handler.getRoomSecret());
 

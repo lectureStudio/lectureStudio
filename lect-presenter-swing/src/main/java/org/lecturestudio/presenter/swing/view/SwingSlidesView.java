@@ -159,6 +159,10 @@ public class SwingSlidesView extends JPanel implements SlidesView {
 
 	private Action stopQuizAction;
 
+	private BooleanProperty toggleScreenShareAction;
+
+	private Action stopScreenShareAction;
+
 	private double notesDividerPosition;
 
 	private boolean extendedFullscreen;
@@ -321,6 +325,13 @@ public class SwingSlidesView extends JPanel implements SlidesView {
 				quizThumbPanel.setOnStopQuiz(stopQuizAction);
 
 				thumbPanel = quizThumbPanel;
+			}
+			else if (doc.isScreen()) {
+				ScreenThumbnailPanel screenThumbPanel = new ScreenThumbnailPanel(dict);
+				screenThumbPanel.setOnToggleScreenShare(toggleScreenShareAction);
+				screenThumbPanel.setOnStopScreenShare(stopScreenShareAction);
+
+				thumbPanel = screenThumbPanel;
 			}
 			else {
 				thumbPanel = new ThumbnailPanel();
@@ -519,7 +530,6 @@ public class SwingSlidesView extends JPanel implements SlidesView {
 			QuizThumbnailPanel quizPanel = (QuizThumbnailPanel) slidesTabPane.getPaneComponentAt(i);
 			quizPanel.setQuizState(state);
 			break;
-
 		}
 	}
 
@@ -533,6 +543,22 @@ public class SwingSlidesView extends JPanel implements SlidesView {
 				removeMessageViews(SpeechRequestView.class);
 			}
 		});
+	}
+
+	@Override
+	public void setScreenShareState(ExecutableState state) {
+		final AdaptiveTabbedPane slidesTabPane = getSlidesTabPane();
+
+		for (int i = 0; i < slidesTabPane.getPaneTabCount(); i++) {
+			final Component tabComponent = slidesTabPane.getPaneComponentAt(i);
+			if (!(tabComponent instanceof ScreenThumbnailPanel)) {
+				continue;
+			}
+
+			ScreenThumbnailPanel screenPanel = (ScreenThumbnailPanel) slidesTabPane.getPaneComponentAt(i);
+			screenPanel.setScreenShareState(state);
+			break;
+		}
 	}
 
 	@Override
@@ -790,6 +816,16 @@ public class SwingSlidesView extends JPanel implements SlidesView {
 	@Override
 	public void setOnStopQuiz(Action action) {
 		stopQuizAction = action;
+	}
+
+	@Override
+	public void setOnToggleScreenShare(BooleanProperty property) {
+		toggleScreenShareAction = property;
+	}
+
+	@Override
+	public void setOnStopScreenShare(Action action) {
+		stopScreenShareAction = action;
 	}
 
 	@Override

@@ -231,7 +231,7 @@ public class WebRtcStreamEventRecorder extends StreamEventRecorder {
 			action = new StreamDocumentSelectAction(doc);
 		}
 		else if (event.replaced()) {
-			if (doc.isMessage()) {
+			if (doc.isMessage() || doc.isScreen()) {
 				try {
 					shareDocument(doc);
 				}

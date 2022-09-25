@@ -227,6 +227,11 @@ public class Document {
 	}
 
 	public Dimension2D getPageSize() {
+		if (getPageCount() > 0) {
+			Rectangle2D rect = getPageRect(0);
+
+			return new Dimension2D(rect.getWidth(), rect.getHeight());
+		}
 		return pageSize;
 	}
 
@@ -466,7 +471,7 @@ public class Document {
 	 * @return The new page.
 	 */
 	public Page createPage() {
-		int pageIndex = pdfDocument.createPage(pageSize);
+		int pageIndex = pdfDocument.createPage(getPageSize());
 
 		Page newPage = new Page(this, pageIndex);
 		addPage(newPage);

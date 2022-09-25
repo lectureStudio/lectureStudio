@@ -96,15 +96,20 @@ public class ScreenDocumentCreator {
 				stream.flush();
 				stream.close();
 
-				doc.close();
-
 				Document newDoc = new ScreenDocument(stream.toByteArray());
+				// Set the newly created page as the selected one.
+				newDoc.selectPage(newDoc.getPageCount() - 1);
 
 				if (exists) {
 					documentService.replaceDocument(doc, newDoc);
+
+					// Do not close replaced document, since its pages cannot be saved later.
 				}
 				else {
 					documentService.addDocument(newDoc);
+
+					// Close copied document.
+					doc.close();
 				}
 
 				documentService.selectDocument(newDoc);

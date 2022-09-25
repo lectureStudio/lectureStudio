@@ -29,6 +29,8 @@ import org.lecturestudio.swing.util.SwingUtils;
 
 public class ScreenThumbnailPanel extends ThumbnailPanel {
 
+	private final Dictionary dict;
+
 	private final RecordButton startScreenShareButton;
 
 	private final JButton stopScreenShareButton;
@@ -37,15 +39,17 @@ public class ScreenThumbnailPanel extends ThumbnailPanel {
 	public ScreenThumbnailPanel(Dictionary dict) {
 		super();
 
+		this.dict = dict;
+
 		startScreenShareButton = new RecordButton();
 		startScreenShareButton.setIcon(AwtResourceLoader.getIcon("record-tool.svg", 20));
 		startScreenShareButton.setPauseIcon(AwtResourceLoader.getIcon("record-pause-tool.svg", 20));
 		startScreenShareButton.setPausedIcon(AwtResourceLoader.getIcon("record-resume-tool.svg", 20));
-		startScreenShareButton.setToolTipText(dict.get("slides.quiz.stop"));
+		startScreenShareButton.setToolTipText(dict.get("screen.share.start"));
 
 		stopScreenShareButton = new JButton();
 		stopScreenShareButton.setIcon(AwtResourceLoader.getIcon("record-stop-tool.svg", 20));
-		stopScreenShareButton.setToolTipText(dict.get("slides.quiz.stop"));
+		stopScreenShareButton.setToolTipText(dict.get("screen.share.stop"));
 
 		addButton(startScreenShareButton);
 		addButton(stopScreenShareButton);
@@ -63,5 +67,10 @@ public class ScreenThumbnailPanel extends ThumbnailPanel {
 
 	public void setScreenShareState(ExecutableState state) {
 		startScreenShareButton.setState(state);
+
+		switch (state) {
+			case Started -> startScreenShareButton.setToolTipText(dict.get("screen.share.suspend"));
+			case Stopped -> startScreenShareButton.setToolTipText(dict.get("screen.share.start"));
+		}
 	}
 }

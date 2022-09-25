@@ -44,6 +44,10 @@ public class SwingScreenView extends JComponent implements ScreenViewComponent {
 
 	@Override
 	public void setVideoFrame(VideoFrame frame) {
+		if (!isVisible() || !isDisplayable()) {
+			return;
+		}
+
 		try {
 			image = VideoFrameConverter.convertVideoFrameToComponentSize(frame,
 					image, this);

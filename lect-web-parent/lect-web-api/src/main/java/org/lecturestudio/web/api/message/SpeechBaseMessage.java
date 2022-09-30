@@ -18,7 +18,7 @@
 
 package org.lecturestudio.web.api.message;
 
-public abstract class SpeechBaseMessage extends WebMessage {
+public abstract class SpeechBaseMessage extends UserMessage {
 
 	private Long requestId;
 

@@ -19,7 +19,6 @@
 package org.lecturestudio.core.codec;
 
 import org.lecturestudio.core.beans.IntegerProperty;
-import org.lecturestudio.core.beans.StringProperty;
 
 /**
  * The base codec configuration contains codec properties for basic usage.
@@ -30,9 +29,6 @@ public abstract class CodecConfiguration {
 
 	/** The encoder's target bitrate. */
 	private final IntegerProperty bitrate = new IntegerProperty();
-
-	/** The encoder's preset configuration. */
-	private final StringProperty preset = new StringProperty();
 
 
 	/**
@@ -62,23 +58,4 @@ public abstract class CodecConfiguration {
 	public IntegerProperty bitRateProperty() {
 		return bitrate;
 	}
-
-	/**
-	 * Get the encoder's preset configuration.
-	 *
-	 * @return the encoder's preset configuration.
-	 */
-	public String getPreset() {
-		return preset.get();
-	}
-
-	/**
-	 * Set the encoder's preset configuration.
-	 *
-	 * @param preset The preset configuration to set.
-	 */
-	public void setPreset(String preset) {
-		this.preset.set(preset);
-	}
-
 }

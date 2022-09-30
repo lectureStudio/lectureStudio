@@ -18,9 +18,13 @@
 
 package org.lecturestudio.web.api.janus.state;
 
+import static java.util.Objects.nonNull;
+
 import java.util.Map;
 import java.util.UUID;
+import java.util.function.Consumer;
 
+import org.lecturestudio.web.api.event.ScreenVideoFrameEvent;
 import org.lecturestudio.web.api.janus.JanusPeerConnection;
 import org.lecturestudio.web.api.janus.JanusStateHandler;
 import org.lecturestudio.web.api.janus.message.JanusJsepMessage;
@@ -33,14 +37,18 @@ import org.lecturestudio.web.api.janus.message.JanusRoomPublishRequest;
 import org.lecturestudio.web.api.janus.message.JanusRoomStateMessage;
 import org.lecturestudio.web.api.janus.message.JanusTrickleMessage;
 import org.lecturestudio.web.api.stream.StreamAudioContext;
+import org.lecturestudio.web.api.stream.StreamScreenContext;
 import org.lecturestudio.web.api.stream.StreamVideoContext;
 import org.lecturestudio.web.api.stream.StreamContext;
 
 import dev.onvoid.webrtc.RTCIceCandidate;
 import dev.onvoid.webrtc.RTCIceGatheringState;
+import dev.onvoid.webrtc.RTCRtpTransceiver;
 import dev.onvoid.webrtc.RTCRtpTransceiverDirection;
 import dev.onvoid.webrtc.RTCSdpType;
 import dev.onvoid.webrtc.RTCSessionDescription;
+import dev.onvoid.webrtc.media.MediaStreamTrack;
+import dev.onvoid.webrtc.media.video.VideoTrack;
 
 /**
  * This state starts publishing media (audio, video and data) to a joined
@@ -53,13 +61,18 @@ public class PublishToRoomState implements JanusState {
 
 	private JanusRoomPublishMessage publishRequest;
 
+	private Consumer<ScreenVideoFrameEvent> localScreenFrameConsumer;
+
 
 	@Override
 	public void initialize(JanusStateHandler handler) throws Exception {
 		StreamContext streamContext = handler.getStreamContext();
 		StreamAudioContext audioContext = streamContext.getAudioContext();
 		StreamVideoContext videoContext = streamContext.getVideoContext();
+		StreamScreenContext screenContext = streamContext.getScreenContext();
 		JanusPeerConnection peerConnection = handler.createPeerConnection();
+
+		localScreenFrameConsumer = screenContext.getLocalFrameConsumer();
 
 		peerConnection.setOnLocalSessionDescription(description -> {
 			sendRequest(handler, description.sdp);
@@ -79,17 +92,19 @@ public class PublishToRoomState implements JanusState {
 
 		// Publishers are send-only.
 		var audioDirection = RTCRtpTransceiverDirection.SEND_ONLY;
-		var videoDirection = videoContext.getSendVideo() ?
-				RTCRtpTransceiverDirection.SEND_ONLY :
-				RTCRtpTransceiverDirection.INACTIVE;
+		var videoDirection = RTCRtpTransceiverDirection.SEND_ONLY;
+		var screenDirection = RTCRtpTransceiverDirection.SEND_ONLY;
 
 		try {
 			peerConnection.setCameraCapability(videoContext.getCaptureCapability());
 			peerConnection.setCameraDevice(videoContext.getCaptureDevice());
-			peerConnection.setup(audioDirection, videoDirection);
+			peerConnection.getScreenShareConfig().setBitRate(screenContext.getBitrate());
+			peerConnection.getScreenShareConfig().setFrameRate(screenContext.getFramerate());
+			peerConnection.setup(audioDirection, videoDirection, screenDirection);
 
-			// Initialize with desired mute setting.
+			// Initialize with desired mute and device settings.
 			peerConnection.setMicrophoneEnabled(audioContext.getSendAudio());
+			peerConnection.setCameraEnabled(videoContext.getSendVideo());
 		}
 		catch (Exception e) {
 			logError(e, "Start peer connection failed");
@@ -135,9 +150,24 @@ public class PublishToRoomState implements JanusState {
 
 	private void sendRequest(JanusStateHandler handler, String sdp) {
 		JanusRoomPublishRequest request = new JanusRoomPublishRequest();
-		request.setAudio(true);
-		request.setVideo(handler.getStreamContext().getVideoContext().getSendVideo());
-		request.setData(true);
+		JanusPeerConnection peerConnection = handler.getPeerConnection();
+
+		for (RTCRtpTransceiver transceiver : peerConnection.getTransceivers()) {
+			MediaStreamTrack track = transceiver.getSender().getTrack();
+
+			if (nonNull(track)) {
+				request.addStreamDescription(transceiver.getMid(), track.getId());
+
+				if (track.getId().equals("screen")) {
+					VideoTrack videoTrack = (VideoTrack) track;
+					videoTrack.addSink(videoFrame -> {
+						if (nonNull(localScreenFrameConsumer)) {
+							localScreenFrameConsumer.accept(new ScreenVideoFrameEvent(videoFrame));
+						}
+					});
+				}
+			}
+		}
 
 		publishRequest = new JanusRoomPublishMessage(handler.getSessionId(),
 				handler.getPluginId());
@@ -163,6 +193,7 @@ public class PublishToRoomState implements JanusState {
 		JanusPluginMessage message = new JanusPluginMessage(handler.getSessionId(),
 				handler.getPluginId()) {
 
+			// This field is mandatory.
 			final Map<String, Object> candidate = Map.of("completed", true);
 
 		};

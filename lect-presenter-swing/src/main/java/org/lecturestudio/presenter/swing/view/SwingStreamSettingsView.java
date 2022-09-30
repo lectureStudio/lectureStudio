@@ -19,59 +19,39 @@
 package org.lecturestudio.presenter.swing.view;
 
 import java.awt.Color;
-import java.util.List;
-import java.util.Vector;
+import java.util.ResourceBundle;
 
 import javax.inject.Inject;
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
-import javax.swing.JLabel;
 import javax.swing.JPanel;
-import javax.swing.JTable;
 import javax.swing.JTextField;
 
-import org.lecturestudio.core.audio.AudioFormat;
-import org.lecturestudio.core.beans.IntegerProperty;
 import org.lecturestudio.core.beans.ObjectProperty;
 import org.lecturestudio.core.beans.StringProperty;
-import org.lecturestudio.core.converter.IntegerStringConverter;
 import org.lecturestudio.core.converter.RegexConverter;
 import org.lecturestudio.core.view.Action;
+import org.lecturestudio.presenter.api.net.ScreenShareProfile;
 import org.lecturestudio.presenter.api.view.StreamSettingsView;
+import org.lecturestudio.presenter.swing.combobox.ScreenShareProfileRenderer;
 import org.lecturestudio.swing.beans.ConvertibleObjectProperty;
-import org.lecturestudio.swing.components.IPTextField;
 import org.lecturestudio.swing.util.SwingUtils;
 import org.lecturestudio.swing.view.SwingView;
+import org.lecturestudio.swing.view.ViewPostConstruct;
 
 @SwingView(name = "stream-settings", presenter = org.lecturestudio.presenter.api.presenter.StreamSettingsPresenter.class)
 public class SwingStreamSettingsView extends JPanel implements StreamSettingsView {
+
+	private final ResourceBundle resources;
 
 	private JTextField serverNameTextField;
 
 	private JTextField accessTokenTextField;
 
-	private JComboBox<String> streamAudioCodecCombo;
-
-	private JComboBox<AudioFormat> streamAudioFormatCombo;
-
-	private JTextField cameraBitrateTextField;
-
-	private JTextField broadcastNameTextField;
-
-	private IPTextField broadcastAddressTextField;
-
-	private JTextField broadcastPortTextField;
-
-	private JTextField broadcastTlsPortTextField;
-
-	private JLabel selectedProfileLabel;
-
-	private JTable profileTable;
+	private JComboBox<ScreenShareProfile> screenProfileCombo;
 
 	private JButton updateCoursesButton;
-
-	private JButton addProfileButton;
 
 	private JButton closeButton;
 
@@ -79,8 +59,10 @@ public class SwingStreamSettingsView extends JPanel implements StreamSettingsVie
 
 
 	@Inject
-	SwingStreamSettingsView() {
+	SwingStreamSettingsView(ResourceBundle resources) {
 		super();
+
+		this.resources = resources;
 	}
 
 	@Override
@@ -111,34 +93,16 @@ public class SwingStreamSettingsView extends JPanel implements StreamSettingsVie
 	}
 
 	@Override
-	public void setStreamAudioFormat(ObjectProperty<AudioFormat> audioFormat) {
+	public void setScreenShareProfile(ObjectProperty<ScreenShareProfile> profile) {
 		SwingUtils.invoke(() -> {
-			SwingUtils.bindBidirectional(streamAudioFormatCombo, audioFormat);
+			SwingUtils.bindBidirectional(screenProfileCombo, profile);
 		});
 	}
 
 	@Override
-	public void setStreamAudioFormats(List<AudioFormat> formats) {
-		SwingUtils.invoke(() -> streamAudioFormatCombo
-				.setModel(new DefaultComboBoxModel<>(new Vector<>(formats))));
-	}
-
-	@Override
-	public void setStreamAudioCodecName(StringProperty audioCodecName) {
-		SwingUtils.bindBidirectional(streamAudioCodecCombo, audioCodecName);
-	}
-
-	@Override
-	public void setStreamAudioCodecNames(String[] codecNames) {
-		SwingUtils.invoke(() -> streamAudioCodecCombo
-				.setModel(new DefaultComboBoxModel<>(codecNames)));
-	}
-
-	@Override
-	public void setStreamCameraBitrate(IntegerProperty bitrate) {
-		SwingUtils.bindBidirectional(cameraBitrateTextField,
-				new ConvertibleObjectProperty<>(bitrate,
-						new IntegerStringConverter("#")));
+	public void setScreenShareProfiles(ScreenShareProfile[] profiles) {
+		SwingUtils.invoke(() -> screenProfileCombo
+				.setModel(new DefaultComboBoxModel<>(profiles)));
 	}
 
 	@Override
@@ -149,5 +113,12 @@ public class SwingStreamSettingsView extends JPanel implements StreamSettingsVie
 	@Override
 	public void setOnReset(Action action) {
 		SwingUtils.bindAction(resetButton, action);
+	}
+
+	@ViewPostConstruct
+	private void initialize() {
+		screenProfileCombo.setRenderer(new ScreenShareProfileRenderer(resources,
+				"stream.settings.screen.share.profile."));
+
 	}
 }

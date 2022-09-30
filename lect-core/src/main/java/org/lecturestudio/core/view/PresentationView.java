@@ -24,12 +24,10 @@ public interface PresentationView extends View {
 
 	void close();
 
-	ScreenViewType getType();
-
 	void setBackgroundColor(Color color);
 
 	void setVisible(boolean visible);
-	
+
 	boolean isVisible();
 
 	void setOnVisible(Action action);
@@ -37,5 +35,7 @@ public interface PresentationView extends View {
 	void addOverlay(SlideViewOverlay overlay);
 
 	void removeOverlay(SlideViewOverlay overlay);
-	
+
+	void setPresentationViewContext(PresentationViewContext context);
+
 }

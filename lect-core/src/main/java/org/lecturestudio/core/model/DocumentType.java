@@ -23,6 +23,6 @@ package org.lecturestudio.core.model;
  */
 public enum DocumentType {
 
-	PDF, WHITEBOARD, QUIZ, MESSAGE
+	PDF, WHITEBOARD, QUIZ, MESSAGE, SCREEN
 
 }

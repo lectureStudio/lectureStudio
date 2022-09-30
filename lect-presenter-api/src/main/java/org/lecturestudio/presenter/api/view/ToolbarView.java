@@ -132,6 +132,8 @@ public interface ToolbarView extends View {
 
 	void bindEnableStreamCamera(BooleanProperty enable);
 
+	void bindEnableScreenSharing(BooleanProperty enable);
+
 	void setOnSelectQuiz(Action action);
 
 	void setOnAudienceMessage(Action action);

@@ -226,6 +226,15 @@ public class Document {
 		pageSize = size;
 	}
 
+	public Dimension2D getPageSize() {
+		if (getPageCount() > 0) {
+			Rectangle2D rect = getPageRect(0);
+
+			return new Dimension2D(rect.getWidth(), rect.getHeight());
+		}
+		return pageSize;
+	}
+
 	/**
 	 * Get the media box of the specified page.
 	 *
@@ -462,7 +471,7 @@ public class Document {
 	 * @return The new page.
 	 */
 	public Page createPage() {
-		int pageIndex = pdfDocument.createPage(pageSize);
+		int pageIndex = pdfDocument.createPage(getPageSize());
 
 		Page newPage = new Page(this, pageIndex);
 		addPage(newPage);
@@ -497,43 +506,48 @@ public class Document {
 	}
 
 	/**
-	 * Specifies whether the document is a PDF.
+	 * Returns whether the document is a loaded PDF.
 	 *
-	 * @return {@code true} if {@link #type} equals {@code DocumentType.PDF},
-	 * otherwise {@code false}.
+	 * @return {@code true} if {@link #type} equals {@code DocumentType.PDF}.
 	 */
 	public boolean isPDF() {
 		return type == DocumentType.PDF;
 	}
 
 	/**
-	 * Specifies whether the document is a whiteboard.
+	 * Returns whether the document is a whiteboard.
 	 *
-	 * @return {@code true} if {@link #type} equals
-	 * {@code DocumentType.WHITEBOARD}, otherwise {@code false}.
+	 * @return {@code true} if {@link #type} equals {@code DocumentType.WHITEBOARD}.
 	 */
 	public boolean isWhiteboard() {
 		return type == DocumentType.WHITEBOARD;
 	}
 
 	/**
-	 * Specifies whether the document is a quiz.
+	 * Returns whether the document is a quiz.
 	 *
-	 * @return {@code true} if {@link #type} equals {@code DocumentType.QUIZ},
-	 * otherwise {@code false}.
+	 * @return {@code true} if {@link #type} equals {@code DocumentType.QUIZ}.
 	 */
 	public boolean isQuiz() {
 		return type == DocumentType.QUIZ;
 	}
 
 	/**
-	 * Specifies whether the document is a message.
+	 * Returns whether the document is a message.
 	 *
-	 * @return {@code true} if {@link #type} equals
-	 * {@code DocumentType.MESSAGE}, otherwise {@code false}.
+	 * @return {@code true} if {@link #type} equals {@code DocumentType.MESSAGE}.
 	 */
 	public boolean isMessage() {
 		return type == DocumentType.MESSAGE;
+	}
+
+	/**
+	 * Returns whether the document consists of screen frames.
+	 *
+	 * @return {@code true} if {@link #type} equals {@code DocumentType.SCREEN}.
+	 */
+	public boolean isScreen() {
+		return type == DocumentType.SCREEN;
 	}
 
 	/**

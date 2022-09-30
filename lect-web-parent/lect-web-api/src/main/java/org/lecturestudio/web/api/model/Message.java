@@ -18,10 +18,7 @@
 
 package org.lecturestudio.web.api.model;
 
-import java.io.Serializable;
-import java.util.Objects;
-
-public class Message extends ServiceModel implements Comparable<Message>, Cloneable, Serializable {
+public class Message extends ServiceModel {
 
 	private String text;
 
@@ -37,43 +34,13 @@ public class Message extends ServiceModel implements Comparable<Message>, Clonea
 	public String getText() {
 		return text;
 	}
-	
+
 	public void setText(String text) {
 		this.text = text;
-	}
-	
-	@Override
-	public int compareTo(Message other) {
-		return text.compareToIgnoreCase(other.text);
-	}
-
-	@Override
-	public boolean equals(Object o) {
-		if (this == o) {
-			return true;
-		}
-		if (o == null || getClass() != o.getClass()) {
-			return false;
-		}
-
-		Message other = (Message) o;
-
-		return getServiceId() == other.getServiceId() && Objects.equals(text, other.text);
-	}
-
-	@Override
-	public int hashCode() {
-		return Objects.hash(getServiceId(), text);
-	}
-
-	@Override
-	public Message clone() {
-		return new Message(text);
 	}
 
 	@Override
 	public String toString() {
 		return getClass().getSimpleName() + ": " + text;
 	}
-	
 }

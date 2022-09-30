@@ -61,6 +61,7 @@ import org.lecturestudio.presenter.api.config.PresenterConfiguration;
 import org.lecturestudio.presenter.api.context.PresenterContext;
 import org.lecturestudio.presenter.api.recording.FileLectureRecorder;
 import org.lecturestudio.presenter.api.service.QuizDataSource;
+import org.lecturestudio.presenter.api.service.UserPrivilegeService;
 import org.lecturestudio.presenter.api.service.WebServiceInfo;
 import org.lecturestudio.swing.AwtPresentationViewFactory;
 import org.lecturestudio.swing.DefaultRenderContext;
@@ -151,11 +152,19 @@ public class ApplicationModule extends AbstractModule {
 
 	@Provides
 	@Singleton
-	PresenterContext createApplicationContext(Configuration config, Dictionary dict) {
+	UserPrivilegeService createUserPrivilegeService() {
+		return new UserPrivilegeService();
+	}
+
+	@Provides
+	@Singleton
+	PresenterContext createApplicationContext(Configuration config, Dictionary dict,
+			UserPrivilegeService privilegeService) {
 		EventBus eventBus = ApplicationBus.get();
 		EventBus audioBus = AudioBus.get();
 
-		return new PresenterContext(LOCATOR, CONFIG_FILE, config, dict, eventBus, audioBus);
+		return new PresenterContext(LOCATOR, CONFIG_FILE, config, dict,
+				eventBus, audioBus, privilegeService);
 	}
 
 	@Provides

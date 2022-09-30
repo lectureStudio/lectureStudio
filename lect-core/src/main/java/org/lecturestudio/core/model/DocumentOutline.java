@@ -18,6 +18,7 @@
 
 package org.lecturestudio.core.model;
 
+import static java.util.Objects.isNull;
 import static java.util.Objects.nonNull;
 
 import java.util.Iterator;
@@ -55,6 +56,9 @@ public class DocumentOutline extends DocumentOutlineItem {
 				DocumentOutlineItem item2 = iterator.next();
 				Integer pageNum2 = item2.getPageNumber();
 
+				if (isNull(pageNum2)) {
+					return null;
+				}
 				if (pageNum2.equals(pageNumber)) {
 					return item2;
 				}

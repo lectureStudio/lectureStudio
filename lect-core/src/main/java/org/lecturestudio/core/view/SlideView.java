@@ -20,7 +20,7 @@ package org.lecturestudio.core.view;
 
 import org.lecturestudio.core.model.Page;
 
-public interface SlideView {
+public interface SlideView extends PresentationViewComponent {
 
 	void setPage(Page page);
 

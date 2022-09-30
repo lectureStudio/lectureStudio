@@ -18,49 +18,21 @@
 
 package org.lecturestudio.web.api.message;
 
-import static java.util.Objects.requireNonNullElse;
-
 import java.time.ZonedDateTime;
 
 public abstract class WebMessage {
 
-	private String firstName;
-
-	private String familyName;
-
-	private String remoteAddress;
+	private String messageId;
 
 	private ZonedDateTime date;
 
 
-	public String getFirstName() {
-		return requireNonNullElse(firstName, "");
+	public String getMessageId() {
+		return messageId;
 	}
 
-	public void setFirstName(String firstName) {
-		this.firstName = firstName;
-	}
-
-	public String getFamilyName() {
-		return requireNonNullElse(familyName, "");
-	}
-
-	public void setFamilyName(String familyName) {
-		this.familyName = familyName;
-	}
-
-	/**
-	 * @return the remoteAddress
-	 */
-	public String getRemoteAddress() {
-		return requireNonNullElse(remoteAddress, "");
-	}
-
-	/**
-	 * @param remoteAddress the remoteAddress to set
-	 */
-	public void setRemoteAddress(String remoteAddress) {
-		this.remoteAddress = remoteAddress;
+	public void setMessageId(String messageId) {
+		this.messageId = messageId;
 	}
 
 	/**

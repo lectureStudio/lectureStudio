@@ -36,10 +36,10 @@ import org.lecturestudio.presenter.api.config.SlideViewConfiguration;
 import org.lecturestudio.swing.model.ExternalWindowPosition;
 import org.lecturestudio.presenter.api.stylus.StylusHandler;
 import org.lecturestudio.web.api.event.PeerStateEvent;
-import org.lecturestudio.web.api.event.VideoFrameEvent;
+import org.lecturestudio.web.api.event.PeerVideoFrameEvent;
 import org.lecturestudio.web.api.message.MessengerMessage;
-import org.lecturestudio.web.api.message.SpeechCancelMessage;
-import org.lecturestudio.web.api.message.SpeechRequestMessage;
+import org.lecturestudio.web.api.message.SpeechBaseMessage;
+import org.lecturestudio.web.api.stream.model.CourseParticipant;
 
 public interface SlidesView extends View {
 
@@ -59,6 +59,10 @@ public interface SlidesView extends View {
 
 	void selectDocument(Document doc, PresentationParameterProvider ppProvider);
 
+	void addParticipant(CourseParticipant participant);
+
+	void removeParticipant(CourseParticipant participant);
+
 	Page getPage();
 
 	void setPage(Page page, PresentationParameter parameter);
@@ -77,23 +81,25 @@ public interface SlidesView extends View {
 
 	void setStreamState(ExecutableState state);
 
+	void setScreenShareState(ExecutableState state);
+
 	void setQuizState(ExecutableState state);
 
 	void setMessengerState(ExecutableState state);
 
 	void setMessengerMessage(MessengerMessage message);
 
-	void setSpeechRequestMessage(SpeechRequestMessage message);
+	void addSpeechRequest(SpeechBaseMessage message);
 
-	void setSpeechCancelMessage(SpeechCancelMessage message);
+	void removeSpeechRequest(SpeechBaseMessage message);
 
 	void setOnDiscardMessage(ConsumerAction<MessengerMessage> action);
 
 	void setOnCreateMessageSlide(ConsumerAction<MessengerMessage> action);
 
-	void setOnAcceptSpeech(ConsumerAction<SpeechRequestMessage> action);
+	void setOnAcceptSpeech(ConsumerAction<SpeechBaseMessage> action);
 
-	void setOnRejectSpeech(ConsumerAction<SpeechRequestMessage> action);
+	void setOnRejectSpeech(ConsumerAction<SpeechBaseMessage> action);
 
 	void setPeerStateEvent(PeerStateEvent event);
 
@@ -103,7 +109,7 @@ public interface SlidesView extends View {
 
 	void setOnStopPeerConnection(ConsumerAction<Long> action);
 
-	void setVideoFrameEvent(VideoFrameEvent event);
+	void setVideoFrameEvent(PeerVideoFrameEvent event);
 
 	void setOnKeyEvent(ConsumerAction<KeyEvent> action);
 
@@ -119,6 +125,12 @@ public interface SlidesView extends View {
 
 	void setOnStopQuiz(Action action);
 
+	void setOnToggleScreenShare(BooleanProperty property);
+
+	void setOnStopScreenShare(Action action);
+
+	void setOnSendMessage(ConsumerAction<String> action);
+
 	void setOnOutlineItem(ConsumerAction<DocumentOutlineItem> action);
 
 	void setOnExternalMessagesPositionChanged(ConsumerAction<ExternalWindowPosition> action);
@@ -126,6 +138,12 @@ public interface SlidesView extends View {
 	void setOnExternalMessagesSizeChanged(ConsumerAction<Dimension> action);
 
 	void setOnExternalMessagesClosed(Action action);
+
+	void setOnExternalParticipantsPositionChanged(ConsumerAction<ExternalWindowPosition> action);
+
+	void setOnExternalParticipantsSizeChanged(ConsumerAction<Dimension> action);
+
+	void setOnExternalParticipantsClosed(Action action);
 
 	void setOnExternalSlidePreviewPositionChanged(ConsumerAction<ExternalWindowPosition> action);
 
@@ -143,6 +161,10 @@ public interface SlidesView extends View {
 
 	void hideExternalMessages();
 
+	void showExternalParticipants(Screen screen, Point position, Dimension size);
+
+	void hideExternalParticipants();
+
 	void showExternalSlidePreview(Screen screen, Point position, Dimension size);
 
 	void hideExternalSlidePreview();
@@ -152,4 +174,7 @@ public interface SlidesView extends View {
 	void hideExternalSpeech();
 
 	void setMessageBarPosition(MessageBarPosition position);
+
+	void setParticipantsPosition(MessageBarPosition position);
+
 }

@@ -29,11 +29,8 @@ import java.awt.Insets;
  */
 public class WrapFlowLayout extends FlowLayout {
 
-	private static final long serialVersionUID = 3530855029971846023L;
-
-	
 	public WrapFlowLayout() {
-		super();
+		this(FlowLayout.LEFT);
 	}
 
 	public WrapFlowLayout(int align) {

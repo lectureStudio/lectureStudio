@@ -24,6 +24,7 @@ import org.lecturestudio.core.beans.ObjectProperty;
 import org.lecturestudio.core.beans.StringProperty;
 import org.lecturestudio.core.camera.CameraFormat;
 import org.lecturestudio.core.codec.VideoCodecConfiguration;
+import org.lecturestudio.presenter.api.net.ScreenShareProfile;
 
 public class StreamConfiguration {
 
@@ -40,6 +41,10 @@ public class StreamConfiguration {
 	private final ObjectProperty<CameraFormat> cameraFormat = new ObjectProperty<>();
 
 	private final VideoCodecConfiguration cameraCodecConfig = new VideoCodecConfiguration();
+
+	private final ObjectProperty<ScreenShareProfile> screenProfile = new ObjectProperty<>();
+
+	private final VideoCodecConfiguration screenCodecConfig = new VideoCodecConfiguration();
 
 	private final BooleanProperty enableMicrophone = new BooleanProperty();
 
@@ -143,12 +148,28 @@ public class StreamConfiguration {
 	public ObjectProperty<CameraFormat> cameraFormatProperty() {
 		return cameraFormat;
 	}
-	
+
 	/**
 	 * @return the camCodecConfig
 	 */
 	public VideoCodecConfiguration getCameraCodecConfig() {
 		return cameraCodecConfig;
+	}
+
+	public ScreenShareProfile getScreenShareProfile() {
+		return screenProfile.get();
+	}
+
+	public void setScreenShareProfile(ScreenShareProfile profile) {
+		this.screenProfile.set(profile);
+	}
+
+	public ObjectProperty<ScreenShareProfile> screenProfileProperty() {
+		return screenProfile;
+	}
+
+	public VideoCodecConfiguration getScreenCodecConfig() {
+		return screenCodecConfig;
 	}
 
 	public BooleanProperty enableMicrophoneProperty() {

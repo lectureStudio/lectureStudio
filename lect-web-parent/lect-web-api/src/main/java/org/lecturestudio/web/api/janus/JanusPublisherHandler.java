@@ -26,10 +26,14 @@ import org.lecturestudio.web.api.janus.message.JanusMessage;
 import org.lecturestudio.web.api.janus.message.JanusPluginMessage;
 import org.lecturestudio.web.api.janus.state.AttachPluginState;
 import org.lecturestudio.web.api.janus.state.CreateRoomState;
+import org.lecturestudio.web.api.model.ScreenSource;
 import org.lecturestudio.web.api.stream.StreamEventRecorder;
+import org.lecturestudio.web.api.stream.StreamScreenContext;
 import org.lecturestudio.web.api.stream.action.StreamAction;
 import org.lecturestudio.web.api.stream.StreamAudioContext;
 import org.lecturestudio.web.api.stream.StreamVideoContext;
+import org.lecturestudio.web.api.stream.action.StreamActionType;
+import org.lecturestudio.web.api.stream.action.StreamMediaChangeAction;
 
 import dev.onvoid.webrtc.media.video.VideoCaptureCapability;
 import dev.onvoid.webrtc.media.video.VideoDevice;
@@ -42,13 +46,23 @@ public class JanusPublisherHandler extends JanusStateHandler {
 
 	private final StreamVideoContext videoContext;
 
+	private final StreamScreenContext screenContext;
+
 	private ChangeListener<Boolean> enableMicListener;
 
 	private ChangeListener<Boolean> enableCamListener;
 
+	private ChangeListener<Boolean> enableScreenListener;
+
 	private ChangeListener<VideoDevice> camListener;
 
 	private ChangeListener<VideoCaptureCapability> camCapabilityListener;
+
+	private ChangeListener<Integer> screenFramerateListener;
+
+	private ChangeListener<Integer> screenBitrateListener;
+
+	private ChangeListener<ScreenSource> screenSourceListener;
 
 
 	public JanusPublisherHandler(JanusPeerConnectionFactory factory,
@@ -59,6 +73,7 @@ public class JanusPublisherHandler extends JanusStateHandler {
 		this.eventRecorder = eventRecorder;
 		this.audioContext = getStreamContext().getAudioContext();
 		this.videoContext = getStreamContext().getVideoContext();
+		this.screenContext = getStreamContext().getScreenContext();
 	}
 
 	@Override
@@ -96,6 +111,10 @@ public class JanusPublisherHandler extends JanusStateHandler {
 		videoContext.sendVideoProperty().addListener(enableCamListener);
 		videoContext.captureDeviceProperty().addListener(camListener);
 		videoContext.captureCapabilityProperty().addListener(camCapabilityListener);
+		screenContext.sendVideoProperty().addListener(enableScreenListener);
+		screenContext.screenSourceProperty().addListener(screenSourceListener);
+		screenContext.framerateProperty().addListener(screenFramerateListener);
+		screenContext.bitrateProperty().addListener(screenBitrateListener);
 
 		return peerConnection;
 	}
@@ -104,19 +123,36 @@ public class JanusPublisherHandler extends JanusStateHandler {
 	protected void initInternal() throws ExecutableException {
 		enableMicListener = (observable, oldValue, newValue) -> {
 			peerConnection.setMicrophoneEnabled(newValue);
+
+			sendMediaChangeAction(StreamActionType.STREAM_MICROPHONE_CHANGE, newValue);
 		};
 
 		enableCamListener = (observable, oldValue, newValue) -> {
 			peerConnection.setCameraEnabled(newValue);
-		};
 
+			sendMediaChangeAction(StreamActionType.STREAM_CAMERA_CHANGE, newValue);
+		};
 		camListener = (observable, oldDevice, newDevice) -> {
 			peerConnection.setCameraDevice(newDevice);
 			peerConnection.setCameraEnabled(videoContext.getSendVideo());
 		};
-
 		camCapabilityListener = (observable, oldCapability, newCapability) -> {
 			peerConnection.setCameraCapability(newCapability);
+		};
+
+		enableScreenListener = (observable, oldValue, newValue) -> {
+			peerConnection.setScreenShareEnabled(newValue);
+
+			sendMediaChangeAction(StreamActionType.STREAM_SCREEN_SHARE_CHANGE, newValue);
+		};
+		screenSourceListener = (observable, oldValue, newValue) -> {
+			peerConnection.getScreenShareConfig().setScreenSource(newValue);
+		};
+		screenFramerateListener = (observable, oldValue, newValue) -> {
+			peerConnection.getScreenShareConfig().setFrameRate(newValue);
+		};
+		screenBitrateListener = (observable, oldValue, newValue) -> {
+			peerConnection.getScreenShareConfig().setBitRate(newValue);
 		};
 	}
 
@@ -135,6 +171,10 @@ public class JanusPublisherHandler extends JanusStateHandler {
 		videoContext.sendVideoProperty().removeListener(enableCamListener);
 		videoContext.captureDeviceProperty().removeListener(camListener);
 		videoContext.captureCapabilityProperty().removeListener(camCapabilityListener);
+		screenContext.sendVideoProperty().removeListener(enableScreenListener);
+		screenContext.screenSourceProperty().removeListener(screenSourceListener);
+		screenContext.framerateProperty().removeListener(screenFramerateListener);
+		screenContext.bitrateProperty().removeListener(screenBitrateListener);
 
 		if (nonNull(peerConnection)) {
 			peerConnection.close();
@@ -158,5 +198,9 @@ public class JanusPublisherHandler extends JanusStateHandler {
 				logDebugMessage("Send event via data channel failed");
 			}
 		}
+	}
+
+	private void sendMediaChangeAction(StreamActionType type, boolean enabled) {
+		sendStreamAction(new StreamMediaChangeAction(type, enabled));
 	}
 }

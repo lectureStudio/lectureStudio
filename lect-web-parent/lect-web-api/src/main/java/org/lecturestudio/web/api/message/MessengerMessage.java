@@ -19,11 +19,10 @@
 package org.lecturestudio.web.api.message;
 
 import java.time.ZonedDateTime;
-import java.util.Objects;
 
 import org.lecturestudio.web.api.model.Message;
 
-public class MessengerMessage extends WebMessage {
+public class MessengerMessage extends UserMessage {
 
 	private Message message;
 
@@ -32,10 +31,18 @@ public class MessengerMessage extends WebMessage {
 		this(null, null, null);
 	}
 
-	public MessengerMessage(Message message, String remoteAddress, ZonedDateTime date) {
+	public MessengerMessage(Message message, String userId,
+			ZonedDateTime date) {
 		setMessage(message);
-		setRemoteAddress(remoteAddress);
+		setUserId(userId);
 		setDate(date);
+	}
+
+	public MessengerMessage(Message message, String remoteAddress,
+			ZonedDateTime date, String messageId) {
+		this(message, remoteAddress, date);
+
+		setMessageId(messageId);
 	}
 
 	/**
@@ -51,39 +58,4 @@ public class MessengerMessage extends WebMessage {
 	public void setMessage(Message message) {
 		this.message = message;
 	}
-
-	@Override
-	public boolean equals(Object o) {
-		if (this == o) {
-			return true;
-		}
-		if (o == null || getClass() != o.getClass()) {
-			return false;
-		}
-
-		MessengerMessage other = (MessengerMessage) o;
-
-		return Objects.equals(message, other.message);
-	}
-
-	@Override
-	public int hashCode() {
-		return Objects.hash(message);
-	}
-
-	@Override
-	public String toString() {
-		StringBuffer buffer = new StringBuffer();
-		buffer.append(getClass().getSimpleName());
-		buffer.append(": ");
-		buffer.append(getMessage());
-		buffer.append(", ");
-		buffer.append(getDate());
-		buffer.append(", ");
-		buffer.append("RemoteAddress: ");
-		buffer.append(getRemoteAddress());
-
-		return buffer.toString();
-	}
-
 }

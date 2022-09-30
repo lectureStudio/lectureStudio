@@ -34,6 +34,7 @@ import org.lecturestudio.core.util.ObservableArrayList;
 import org.lecturestudio.core.util.ObservableList;
 import org.lecturestudio.presenter.api.config.PresenterConfigService;
 import org.lecturestudio.presenter.api.config.PresenterConfiguration;
+import org.lecturestudio.presenter.api.service.UserPrivilegeService;
 import org.lecturestudio.web.api.message.MessengerMessage;
 import org.lecturestudio.web.api.message.SpeechRequestMessage;
 import org.lecturestudio.web.api.stream.model.Course;
@@ -67,17 +68,26 @@ public class PresenterContext extends ApplicationContext {
 
 	private final BooleanProperty hasRecordedChanges = new BooleanProperty();
 
+	private final BooleanProperty screenSharingStart = new BooleanProperty();
+
+	private final BooleanProperty screenSharingStarted = new BooleanProperty();
+
 	private final BooleanProperty showOutline = new BooleanProperty();
+
+	private final UserPrivilegeService userPrivilegeService;
 
 	private final File configFile;
 
 	private final String recordingDir;
 
 
-	public PresenterContext(AppDataLocator dataLocator, File configFile, Configuration config, Dictionary dict, EventBus eventBus, EventBus audioBus) {
+	public PresenterContext(AppDataLocator dataLocator, File configFile,
+			Configuration config, Dictionary dict, EventBus eventBus,
+			EventBus audioBus, UserPrivilegeService userPrivilegeService) {
 		super(dataLocator, config, dict, eventBus, audioBus);
 
 		this.configFile = configFile;
+		this.userPrivilegeService = userPrivilegeService;
 		this.recordingDir = getDataLocator().toAppDataPath("recording");
 
 		messengerMessages.addListener(new ListChangeListener<>() {
@@ -105,6 +115,10 @@ public class PresenterContext extends ApplicationContext {
 	public void saveConfiguration() throws Exception {
 		var configService = new PresenterConfigService();
 		configService.save(configFile, getConfiguration());
+	}
+
+	public UserPrivilegeService getUserPrivilegeService() {
+		return userPrivilegeService;
 	}
 
 	public Course getCourse() {
@@ -201,6 +215,30 @@ public class PresenterContext extends ApplicationContext {
 
 	public BooleanProperty showOutlineProperty() {
 		return showOutline;
+	}
+
+	public void setScreenSharingStart(boolean start) {
+		screenSharingStart.set(start);
+	}
+
+	public boolean getScreenSharingStart() {
+		return screenSharingStart.get();
+	}
+
+	public BooleanProperty screenSharingStartProperty() {
+		return screenSharingStart;
+	}
+
+	public void setScreenSharingStarted(boolean started) {
+		screenSharingStarted.set(started);
+	}
+
+	public boolean getScreenSharingStarted() {
+		return screenSharingStarted.get();
+	}
+
+	public BooleanProperty screenSharingStartedProperty() {
+		return screenSharingStarted;
 	}
 
 	public String getRecordingDirectory() {

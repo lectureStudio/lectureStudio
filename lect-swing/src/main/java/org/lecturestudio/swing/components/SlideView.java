@@ -611,45 +611,30 @@ public class SlideView extends JComponent implements org.lecturestudio.core.view
 		int y = 0;
 
 		switch (overlay.getPosition()) {
-			case TOP_LEFT:
-				x = 0;
-				y = 0;
-				break;
-
-			case TOP_CENTER:
+			case TOP_CENTER -> {
 				x = (width - overlayWidth) / 2;
-				y = 0;
-				break;
-
-			case TOP_RIGHT:
+			}
+			case TOP_RIGHT -> {
 				x = width - overlayWidth;
-				y = 0;
-				break;
-
-			case CENTER_LEFT:
-				x = 0;
+			}
+			case CENTER_LEFT -> {
 				y = (height - overlayHeight) / 2;
-				break;
-
-			case CENTER_RIGHT:
+			}
+			case CENTER_RIGHT -> {
 				x = width - overlayWidth;
 				y = (height - overlayHeight) / 2;
-				break;
-
-			case BOTTOM_LEFT:
-				x = 0;
+			}
+			case BOTTOM_LEFT -> {
 				y = height - overlayHeight;
-				break;
-
-			case BOTTOM_CENTER:
+			}
+			case BOTTOM_CENTER -> {
 				x = (width - overlayWidth) / 2;
 				y = height - overlayHeight;
-				break;
-
-			case BOTTOM_RIGHT:
+			}
+			case BOTTOM_RIGHT -> {
 				x = width - overlayWidth;
 				y = height - overlayHeight;
-				break;
+			}
 		}
 
 		overlayComponent.setSize(overlaySize);

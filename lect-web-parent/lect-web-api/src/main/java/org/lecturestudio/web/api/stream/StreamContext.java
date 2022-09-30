@@ -34,7 +34,7 @@ public class StreamContext {
 
 	private final StreamVideoContext videoContext;
 
-	private final StreamDesktopContext desktopContext;
+	private final StreamScreenContext screenContext;
 
 	private final RTCConfiguration rtcConfig;
 
@@ -48,7 +48,7 @@ public class StreamContext {
 	public StreamContext() {
 		audioContext = new StreamAudioContext();
 		videoContext = new StreamVideoContext();
-		desktopContext = new StreamDesktopContext();
+		screenContext = new StreamScreenContext();
 		enableMessenger = new BooleanProperty();
 
 		rtcConfig = new RTCConfiguration();
@@ -64,8 +64,8 @@ public class StreamContext {
 		return videoContext;
 	}
 
-	public StreamDesktopContext getDesktopContext() {
-		return desktopContext;
+	public StreamScreenContext getScreenContext() {
+		return screenContext;
 	}
 
 	public RTCConfiguration getRTCConfig() {

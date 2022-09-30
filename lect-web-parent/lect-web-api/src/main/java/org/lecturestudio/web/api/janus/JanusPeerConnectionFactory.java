@@ -26,6 +26,11 @@ import dev.onvoid.webrtc.PeerConnectionObserver;
 import dev.onvoid.webrtc.RTCPeerConnection;
 import dev.onvoid.webrtc.media.audio.AudioDevice;
 import dev.onvoid.webrtc.media.audio.AudioDeviceModule;
+import dev.onvoid.webrtc.media.audio.AudioOptions;
+import dev.onvoid.webrtc.media.audio.AudioTrack;
+import dev.onvoid.webrtc.media.audio.AudioTrackSource;
+import dev.onvoid.webrtc.media.video.VideoTrack;
+import dev.onvoid.webrtc.media.video.VideoTrackSource;
 
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
@@ -100,6 +105,24 @@ public class JanusPeerConnectionFactory {
 	public RTCPeerConnection createPeerConnection(PeerConnectionObserver observer) {
 		return executeAndGet(() -> {
 			return factory.createPeerConnection(context.getRTCConfig(), observer);
+		});
+	}
+
+	public AudioTrackSource createAudioSource(AudioOptions audioOptions) {
+		return executeAndGet(() -> {
+			return factory.createAudioSource(audioOptions);
+		});
+	}
+
+	public AudioTrack createAudioTrack(String label, AudioTrackSource source) {
+		return executeAndGet(() -> {
+			return factory.createAudioTrack(label, source);
+		});
+	}
+
+	public VideoTrack createVideoTrack(String label, VideoTrackSource source) {
+		return executeAndGet(() -> {
+			return factory.createVideoTrack(label, source);
 		});
 	}
 

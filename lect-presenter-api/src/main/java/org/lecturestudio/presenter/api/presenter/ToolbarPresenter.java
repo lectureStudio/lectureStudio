@@ -510,6 +510,7 @@ public class ToolbarPresenter extends Presenter<ToolbarView> {
 		view.bindEnableStream(presenterContext.streamStartedProperty());
 		view.bindEnableStreamMicrophone(config.getStreamConfig().enableMicrophoneProperty());
 		view.bindEnableStreamCamera(config.getStreamConfig().enableCameraProperty());
+		view.bindEnableScreenSharing(presenterContext.screenSharingStartProperty());
 
 		view.setOnSelectQuiz(this::selectQuiz);
 		view.setOnAudienceMessage(this::showAudienceMessageTemplate);

@@ -33,6 +33,7 @@ import org.lecturestudio.swing.components.MessageView;
 import org.lecturestudio.swing.components.SpeechRequestView;
 import org.lecturestudio.swing.util.SwingUtils;
 import org.lecturestudio.swing.view.SwingView;
+import org.lecturestudio.web.api.message.MessengerDirectMessage;
 import org.lecturestudio.web.api.message.MessengerMessage;
 import org.lecturestudio.web.api.message.SpeechRequestMessage;
 
@@ -55,12 +56,25 @@ public class SwingMessengerWindow extends JFrame implements MessengerWindow {
 	public void setMessengerMessage(MessengerMessage message) {
 		SwingUtils.invoke(() -> {
 			MessageView messageView = new MessageView(this.dict);
-			messageView.setUserName(String.format("%s %s", message.getFirstName(), message.getFamilyName()));
+			messageView.setUser(String.format("%s %s", message.getFirstName(), message.getFamilyName()));
 			messageView.setDate(message.getDate());
 			messageView.setMessage(message.getMessage().getText());
 			messageView.setOnDiscard(() -> {
 				removeMessageView(messageView);
 			});
+
+			if (message instanceof MessengerDirectMessage) {
+				MessengerDirectMessage directMessage = (MessengerDirectMessage) message;
+				String recipient = directMessage.getRecipientId();
+
+				if (recipient.equals("organisers")) {
+					messageView.setPrivateText(dict.get("text.message.to.organisators"));
+				}
+				else {
+					messageView.setPrivateText(dict.get("text.message.privately"));
+				}
+			}
+
 			messageView.pack();
 
 			messageViewContainer.add(messageView);
@@ -73,7 +87,7 @@ public class SwingMessengerWindow extends JFrame implements MessengerWindow {
 		SwingUtils.invoke(() -> {
 			SpeechRequestView requestView = new SpeechRequestView(this.dict);
 			requestView.setRequestId(message.getRequestId());
-			requestView.setUserName(String.format("%s %s", message.getFirstName(), message.getFamilyName()));
+			requestView.setUser(String.format("%s %s", message.getFirstName(), message.getFamilyName()));
 			requestView.setDate(message.getDate());
 			requestView.setOnAccept(() -> {
 				removeMessageView(requestView);

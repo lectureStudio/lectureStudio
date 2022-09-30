@@ -30,7 +30,6 @@ import javax.inject.Singleton;
 import org.lecturestudio.core.ExecutableBase;
 import org.lecturestudio.core.ExecutableException;
 import org.lecturestudio.core.ExecutableState;
-import org.lecturestudio.core.app.ApplicationContext;
 import org.lecturestudio.core.service.DocumentService;
 import org.lecturestudio.presenter.api.config.PresenterConfiguration;
 import org.lecturestudio.presenter.api.config.StreamConfiguration;
@@ -39,27 +38,31 @@ import org.lecturestudio.presenter.api.event.MessengerStateEvent;
 import org.lecturestudio.presenter.api.event.QuizStateEvent;
 import org.lecturestudio.presenter.api.net.LocalBroadcaster;
 import org.lecturestudio.web.api.client.TokenProvider;
+import org.lecturestudio.web.api.message.CoursePresenceMessage;
 import org.lecturestudio.web.api.message.MessageTransport;
-import org.lecturestudio.web.api.message.WebSocketTransport;
+import org.lecturestudio.web.api.message.SpeechBaseMessage;
+import org.lecturestudio.web.api.message.WebSocketStompTransport;
+import org.lecturestudio.web.api.model.Message;
 import org.lecturestudio.web.api.model.quiz.Quiz;
 import org.lecturestudio.web.api.service.ServiceParameters;
 import org.lecturestudio.web.api.stream.model.Course;
-import org.lecturestudio.web.api.websocket.WebSocketBearerTokenProvider;
-import org.lecturestudio.web.api.websocket.WebSocketHeaderProvider;
+import org.lecturestudio.web.api.stream.service.StreamProviderService;
+import org.lecturestudio.web.api.websocket.WebSocketStompBearerTokenProvider;
+import org.lecturestudio.web.api.websocket.WebSocketStompHeaderProvider;
 
 /**
  * The {@code WebService} maintains different web services, like {@link
  * QuizFeatureWebService} or {@link MessageFeatureWebService}. This class is the
  * interface between the UI and the HTTP application server. The {@link
  * LocalBroadcaster} allows to run the web services on a local machine and act
- * as an standalone server.
+ * as a standalone server.
  *
  * @author Alex Andres
  */
 @Singleton
 public class WebService extends ExecutableBase {
 
-	private final ApplicationContext context;
+	private final PresenterContext context;
 
 	private final LocalBroadcaster localBroadcaster;
 
@@ -75,7 +78,7 @@ public class WebService extends ExecutableBase {
 
 
 	@Inject
-	public WebService(ApplicationContext context,
+	public WebService(PresenterContext context,
 			DocumentService documentService,
 			LocalBroadcaster localBroadcaster,
 			WebServiceInfo webServiceInfo) {
@@ -117,9 +120,26 @@ public class WebService extends ExecutableBase {
 		try {
 			initMessageTransport();
 
-			startService(new MessageFeatureWebService((PresenterContext) context,
+			startService(new MessageFeatureWebService(context,
 					createFeatureService(webServiceInfo.getStreamPublisherApiUrl(),
 							MessageFeatureService.class)));
+
+			long courseId = context.getCourse().getId();
+
+			StreamConfiguration streamConfig = context.getConfiguration()
+					.getStreamConfig();
+
+			ServiceParameters parameters = new ServiceParameters();
+			parameters.setUrl(webServiceInfo.getStreamPublisherApiUrl());
+
+			StreamProviderService streamProviderService = new StreamProviderService(
+					parameters, streamConfig::getAccessToken);
+
+			context.getUserPrivilegeService()
+					.setUserInfo(streamProviderService.getUserInfo());
+			context.getUserPrivilegeService().setPrivileges(
+					streamProviderService.getUserPrivileges(courseId)
+							.getPrivileges());
 		}
 		catch (Exception e) {
 			throw new ExecutableException("Message service could not be started", e);
@@ -146,6 +166,18 @@ public class WebService extends ExecutableBase {
 		stopService(service);
 
 		context.getEventBus().post(new MessengerStateEvent(ExecutableState.Stopped));
+	}
+
+	public void sendChatMessage(String recipient, Message message) {
+		var service = getService(MessageFeatureWebService.class);
+
+		if (isNull(service)) {
+			return;
+		}
+
+		message.setServiceId(service.serviceId);
+
+		messageTransport.sendMessage(recipient, message);
 	}
 
 	/**
@@ -273,9 +305,7 @@ public class WebService extends ExecutableBase {
 			messageTransport.start();
 		}
 
-		PresenterContext pContext = (PresenterContext) context;
-
-		service.setCourseId(pContext.getCourse().getId());
+		service.setCourseId(context.getCourse().getId());
 		service.start();
 
 		if (!startedServices.contains(service)) {
@@ -308,7 +338,7 @@ public class WebService extends ExecutableBase {
 
 	private <T> T createFeatureService(String streamPublisherApiUrl,
 			Class<T> cls) throws Exception {
-		PresenterConfiguration config = (PresenterConfiguration) context.getConfiguration();
+		PresenterConfiguration config = context.getConfiguration();
 		StreamConfiguration streamConfig = config.getStreamConfig();
 
 		ServiceParameters streamApiParameters = new ServiceParameters();
@@ -324,24 +354,29 @@ public class WebService extends ExecutableBase {
 
 	private void initMessageTransport() {
 		if (isNull(messageTransport) || messageTransport.destroyed()) {
-			messageTransport = createMessageTransport();
+			messageTransport = createStompMessageTransport();
+
+			messageTransport.addListener(CoursePresenceMessage.class, message -> {
+				context.getEventBus().post(message);
+			});
+			messageTransport.addListener(SpeechBaseMessage.class, message -> {
+				context.getEventBus().post(message);
+			});
 		}
 	}
 
-	private MessageTransport createMessageTransport() {
+	private MessageTransport createStompMessageTransport() {
 		ServiceParameters messageApiParameters = new ServiceParameters();
 		messageApiParameters.setUrl(webServiceInfo.getStreamMessageApiUrl());
 
-		PresenterContext pContext = (PresenterContext) context;
-		PresenterConfiguration config = (PresenterConfiguration) context.getConfiguration();
+		PresenterConfiguration config = context.getConfiguration();
 		StreamConfiguration streamConfig = config.getStreamConfig();
 		TokenProvider tokenProvider = streamConfig::getAccessToken;
 
-		Course course = pContext.getCourse();
+		Course course = context.getCourse();
 
-		WebSocketHeaderProvider headerProvider = new WebSocketBearerTokenProvider(
-				tokenProvider);
+		WebSocketStompHeaderProvider headerProvider = new WebSocketStompBearerTokenProvider(tokenProvider);
 
-		return new WebSocketTransport(messageApiParameters, headerProvider, course);
+		return new WebSocketStompTransport(messageApiParameters, headerProvider, course);
 	}
 }

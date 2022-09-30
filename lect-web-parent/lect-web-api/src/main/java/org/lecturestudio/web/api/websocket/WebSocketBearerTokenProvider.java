@@ -31,9 +31,9 @@ import org.lecturestudio.web.api.client.TokenProvider;
  */
 public class WebSocketBearerTokenProvider implements WebSocketHeaderProvider {
 
-	private static final String API_KEY_HEADER = "ApiKey";
+	protected static final String API_KEY_HEADER = "ApiKey";
 
-	private final TokenProvider tokenProvider;
+	protected final TokenProvider tokenProvider;
 
 
 	public WebSocketBearerTokenProvider(TokenProvider tokenProvider) {

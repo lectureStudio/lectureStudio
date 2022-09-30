@@ -39,6 +39,8 @@ public class PresenterConfiguration extends Configuration {
 
 	private final ExternalWindowConfiguration externalMessagesConfig = new ExternalWindowConfiguration();
 
+	private final ExternalWindowConfiguration externalParticipantsConfig = new ExternalWindowConfiguration();
+
 	private final ExternalWindowConfiguration externalSlidePreviewConfig = new ExternalWindowConfiguration();
 
 	private final ExternalWindowConfiguration externalSpeechConfig = new ExternalWindowConfiguration();
@@ -121,7 +123,6 @@ public class PresenterConfiguration extends Configuration {
 	}
 
 	/**
-	 *
 	 * @return External messages configuration
 	 */
 	public ExternalWindowConfiguration getExternalMessagesConfig() {
@@ -129,7 +130,13 @@ public class PresenterConfiguration extends Configuration {
 	}
 
 	/**
-	 *
+	 * @return External participants configuration
+	 */
+	public ExternalWindowConfiguration getExternalParticipantsConfig() {
+		return externalParticipantsConfig;
+	}
+
+	/**
 	 * @return External slide preview configuration
 	 */
 	public ExternalWindowConfiguration getExternalSlidePreviewConfig() {
@@ -137,7 +144,6 @@ public class PresenterConfiguration extends Configuration {
 	}
 
 	/**
-	 *
 	 * @return External speech configuration
 	 */
 	public ExternalWindowConfiguration getExternalSpeechConfig() {

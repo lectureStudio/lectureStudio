@@ -33,5 +33,9 @@ public enum MediaType
 	Camera,
 	
 	/** Messenger events (text and quiz) stream. */
-	Messenger
+	Messenger,
+
+	/** Shared screen and window stream. */
+	Screen
+
 }

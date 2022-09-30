@@ -36,6 +36,8 @@ import org.jboss.resteasy.annotations.providers.multipart.MultipartForm;
 import org.lecturestudio.web.api.client.ApiKeyFilter;
 import org.lecturestudio.web.api.client.MultipartBody;
 import org.lecturestudio.web.api.data.bind.JsonConfigProvider;
+import org.lecturestudio.web.api.model.UserInfo;
+import org.lecturestudio.web.api.model.UserPrivileges;
 import org.lecturestudio.web.api.stream.model.Course;
 
 /**
@@ -50,6 +52,28 @@ import org.lecturestudio.web.api.stream.model.Course;
 	@RegisterProvider(JsonConfigProvider.class)
 })
 public interface StreamRestClient {
+
+	/**
+	 * Get information about the authenticated user.
+	 *
+	 * @return The user information.
+	 */
+	@Path("/user")
+	@GET
+	@Consumes(MediaType.APPLICATION_JSON)
+	UserInfo getUserInfo();
+
+	/**
+	 * Get privileges for the authenticated user.
+	 *
+	 * @param courseId The unique course ID.
+	 *
+	 * @return The user privileges.
+	 */
+	@Path("/user/privileges/{courseId}")
+	@GET
+	@Consumes(MediaType.APPLICATION_JSON)
+	UserPrivileges getUserPrivileges(@PathParam("courseId") long courseId);
 
 	/**
 	 * Gets a list of all courses associated with a user.

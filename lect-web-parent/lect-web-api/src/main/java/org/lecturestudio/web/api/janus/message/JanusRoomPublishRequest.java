@@ -18,6 +18,9 @@
 
 package org.lecturestudio.web.api.janus.message;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  * Room request to start publishing media to a room.
  *
@@ -29,11 +32,9 @@ public class JanusRoomPublishRequest extends JanusRoomRequest {
 
 	private Boolean record;
 
-	private Boolean audio;
+	private List<Stream> streams;
 
-	private Boolean video;
-
-	private Boolean data;
+	private List<StreamDescription> descriptions;
 
 
 	/**
@@ -41,33 +42,9 @@ public class JanusRoomPublishRequest extends JanusRoomRequest {
 	 */
 	public JanusRoomPublishRequest() {
 		setRequestType(JanusRoomRequestType.CONFIGURE);
-	}
 
-	/**
-	 * Set whether or not audio should be relayed. {@code True} by default.
-	 *
-	 * @param enable True to relay audio to participants.
-	 */
-	public void setAudio(Boolean enable) {
-		audio = enable;
-	}
-
-	/**
-	 * Set whether or not video should be relayed. {@code True} by default.
-	 *
-	 * @param enable True to relay video to participants.
-	 */
-	public void setVideo(Boolean enable) {
-		video = enable;
-	}
-
-	/**
-	 * Set whether or not data should be relayed. {@code True} by default.
-	 *
-	 * @param enable True to relay data to participants.
-	 */
-	public void setData(Boolean enable) {
-		data = enable;
+		streams = new ArrayList<>();
+		descriptions = new ArrayList<>();
 	}
 
 	/**
@@ -89,5 +66,87 @@ public class JanusRoomPublishRequest extends JanusRoomRequest {
 	 */
 	public void setRecord(Boolean record) {
 		this.record = record;
+	}
+
+	/**
+	 * Add a stream to control whether this stream should be relayed or not.
+	 *
+	 * @param mid  The unique mid of a stream being published.
+	 * @param send Whether the media addressed by the above mid should be
+	 *             relayed or not.
+	 */
+	public void addStream(String mid, boolean send) {
+		streams.add(new Stream(mid, send));
+	}
+
+	/**
+	 * Adds a stream description in order to provide more information about the
+	 * streams being published (e.g., to let other participants know that the
+	 * first video is a camera, while the second video is a screen share).
+	 *
+	 * @param mid         The unique mid of a stream being published.
+	 * @param description The description of the stream (e.g., camera).
+	 */
+	public void addStreamDescription(String mid, String description) {
+		descriptions.add(new StreamDescription(mid, description));
+	}
+
+	/**
+	 * Get all provided stream descriptions.
+	 *
+	 * @return A list of stream descriptions.
+	 */
+	public List<StreamDescription> getDescriptions() {
+		return descriptions;
+	}
+
+
+
+	public static class Stream {
+
+		/** Unique mid of a stream being published. */
+		public String mid;
+
+		/** Whether the media addressed by the above mid should be relayed or not. */
+		public Boolean send;
+
+
+		Stream(String mid, Boolean send) {
+			this.mid = mid;
+			this.send = send;
+		}
+
+		public String getMid() {
+			return mid;
+		}
+
+		public Boolean getSend() {
+			return send;
+		}
+	}
+
+
+
+	public static class StreamDescription {
+
+		/** Unique mid of a stream being published. */
+		public String mid;
+
+		/** Text description of the stream (e.g., camera). */
+		public String description;
+
+
+		StreamDescription(String mid, String description) {
+			this.mid = mid;
+			this.description = description;
+		}
+
+		public String getMid() {
+			return mid;
+		}
+
+		public String getDescription() {
+			return description;
+		}
 	}
 }

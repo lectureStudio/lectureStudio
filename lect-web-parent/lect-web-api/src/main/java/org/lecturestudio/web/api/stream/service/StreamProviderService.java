@@ -25,6 +25,8 @@ import jakarta.inject.Inject;
 import org.eclipse.microprofile.rest.client.RestClientBuilder;
 import org.lecturestudio.web.api.client.MultipartBody;
 import org.lecturestudio.web.api.client.TokenProvider;
+import org.lecturestudio.web.api.model.UserInfo;
+import org.lecturestudio.web.api.model.UserPrivileges;
 import org.lecturestudio.web.api.service.ProviderService;
 import org.lecturestudio.web.api.service.ServiceParameters;
 import org.lecturestudio.web.api.stream.client.StreamRestClient;
@@ -55,6 +57,26 @@ public class StreamProviderService extends ProviderService {
 		builder.property(TokenProvider.class.getName(), tokenProvider);
 
 		streamRestClient = builder.build(StreamRestClient.class);
+	}
+
+	/**
+	 * Get information about the authenticated user.
+	 *
+	 * @return The user information.
+	 */
+	public UserInfo getUserInfo() {
+		return streamRestClient.getUserInfo();
+	}
+
+	/**
+	 * Get privileges for the authenticated user.
+	 *
+	 * @param courseId The unique course ID.
+	 *
+	 * @return The user privileges.
+	 */
+	public UserPrivileges getUserPrivileges(long courseId) {
+		return streamRestClient.getUserPrivileges(courseId);
 	}
 
 	/**

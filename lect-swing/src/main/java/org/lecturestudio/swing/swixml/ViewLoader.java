@@ -78,6 +78,7 @@ public class ViewLoader<T extends Container> extends SwingEngine<T> {
 		tagLibrary.registerTag("LineToolPreview", LineToolPreview.class);
 		tagLibrary.registerTag("MessageView", MessageView.class);
 		tagLibrary.registerTag("Panel", new BeanFactory(JPanel.class, new PanelProcessor()));
+		tagLibrary.registerTag("ParticipantList", ParticipantList.class);
 		tagLibrary.registerTag("PenToolPreview", PenToolPreview.class);
 		tagLibrary.registerTag("PointerToolPreview", PointerToolPreview.class);
 		tagLibrary.registerTag("RecordButton", RecordButton.class);
@@ -122,6 +123,7 @@ public class ViewLoader<T extends Container> extends SwingEngine<T> {
 		tagLibrary.registerTag("Label", new LabelFactory(JLabel.class));
 		tagLibrary.registerTag("Button", new AbstractButtonFactory(JButton.class));
 		tagLibrary.registerTag("DocumentPreview", new InjectViewFactory(DocumentPreview.class, injector));
+		tagLibrary.registerTag("ParticipantList", new InjectViewFactory(ParticipantList.class, injector));
 		tagLibrary.registerTag("ToggleButton", new AbstractButtonFactory(JToggleButton.class));
 		tagLibrary.registerTag("RadioButton", new AbstractButtonFactory(JRadioButton.class));
 		tagLibrary.registerTag("RecordButton", new AbstractButtonFactory(RecordButton.class));

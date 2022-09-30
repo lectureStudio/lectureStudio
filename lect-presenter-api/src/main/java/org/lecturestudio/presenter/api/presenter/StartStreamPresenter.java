@@ -110,7 +110,7 @@ public class StartStreamPresenter extends Presenter<StartStreamView> {
 		this.camService = camService;
 		this.webServiceInfo = webServiceInfo;
 
-		PresenterConfiguration config = (PresenterConfiguration) context.getConfiguration();
+		PresenterConfiguration config = context.getConfiguration();
 		this.audioConfig = config.getAudioConfig();
 		this.streamConfig = config.getStreamConfig();
 	}

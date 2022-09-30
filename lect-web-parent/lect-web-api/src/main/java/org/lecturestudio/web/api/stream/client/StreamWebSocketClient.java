@@ -18,11 +18,9 @@
 
 package org.lecturestudio.web.api.stream.client;
 
-import static java.util.Objects.nonNull;
 import static java.util.Objects.requireNonNull;
 
 import java.io.IOException;
-import java.io.StringReader;
 import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.WebSocket;
@@ -32,27 +30,13 @@ import java.time.Duration;
 import java.time.temporal.ChronoUnit;
 import java.util.function.Consumer;
 
-import javax.json.Json;
-import javax.json.JsonObject;
-import javax.json.JsonReader;
-import javax.json.bind.Jsonb;
-import javax.json.bind.JsonbBuilder;
-import javax.json.bind.JsonbConfig;
-
 import org.lecturestudio.core.Executable;
 import org.lecturestudio.core.ExecutableBase;
 import org.lecturestudio.core.ExecutableException;
-import org.lecturestudio.core.bus.EventBus;
-import org.lecturestudio.web.api.data.bind.CourseParticipantMessageAdapter;
-import org.lecturestudio.web.api.data.bind.JsonConfigProvider;
-import org.lecturestudio.web.api.data.bind.SpeechMessageAdapter;
-import org.lecturestudio.web.api.message.CourseParticipantMessage;
-import org.lecturestudio.web.api.message.SpeechBaseMessage;
 import org.lecturestudio.web.api.net.SSLContextFactory;
 import org.lecturestudio.web.api.service.ServiceParameters;
 import org.lecturestudio.web.api.stream.StreamEventRecorder;
 import org.lecturestudio.web.api.stream.action.StreamAction;
-import org.lecturestudio.web.api.stream.model.Course;
 import org.lecturestudio.web.api.websocket.WebSocketHeaderProvider;
 
 /**
@@ -66,43 +50,25 @@ public class StreamWebSocketClient extends ExecutableBase {
 
 	private final Consumer<StreamAction> actionConsumer = this::send;
 
-	private final EventBus eventBus;
-
 	private final ServiceParameters serviceParameters;
 
 	private final WebSocketHeaderProvider headerProvider;
 
 	private final StreamEventRecorder eventRecorder;
 
-	private final Course course;
-
-	private final Jsonb jsonb;
-
 	private WebSocket webSocket;
 
 
-	public StreamWebSocketClient(EventBus eventBus,
-			ServiceParameters parameters,
+	public StreamWebSocketClient(ServiceParameters parameters,
 			WebSocketHeaderProvider headerProvider,
-			StreamEventRecorder eventRecorder,
-			Course course) {
-		requireNonNull(eventBus);
+			StreamEventRecorder eventRecorder) {
 		requireNonNull(parameters);
 		requireNonNull(headerProvider);
 		requireNonNull(eventRecorder);
-		requireNonNull(course);
 
-		this.eventBus = eventBus;
 		this.serviceParameters = parameters;
 		this.headerProvider = headerProvider;
 		this.eventRecorder = eventRecorder;
-		this.course = course;
-
-		JsonbConfig config = JsonConfigProvider.createConfig().withAdapters(
-				new SpeechMessageAdapter(),
-				new CourseParticipantMessageAdapter());
-
-		this.jsonb = JsonbBuilder.create(config);
 	}
 
 	public Executable getReconnectExecutable() {
@@ -141,7 +107,8 @@ public class StreamWebSocketClient extends ExecutableBase {
 
 	private void createWebsocket() {
 		HttpClient httpClient = HttpClient.newBuilder()
-				.sslContext(SSLContextFactory.createSSLContext()).build();
+				.sslContext(SSLContextFactory.createSSLContext())
+				.build();
 
 		Builder webSocketBuilder = httpClient.newWebSocketBuilder();
 		webSocketBuilder.subprotocols("state-protocol");
@@ -195,33 +162,11 @@ public class StreamWebSocketClient extends ExecutableBase {
 
 
 
-	private class WebSocketHandler extends WebSocketClientHandler {
+	private static class WebSocketHandler extends WebSocketClientHandler {
 
 		@Override
 		protected void onText(WebSocket webSocket, String text) {
-			StringReader reader = new StringReader(text);
 
-			try {
-				Object message = null;
-
-				JsonReader jsonReader = Json.createReader(reader);
-				JsonObject jsonObject = jsonReader.readObject();
-				String typeStr = jsonObject.getString("type");
-
-				if (typeStr.startsWith("Speech")) {
-					message = jsonb.fromJson(text, SpeechBaseMessage.class);
-				}
-				else if (typeStr.startsWith("CourseParticipant")) {
-					message = jsonb.fromJson(text, CourseParticipantMessage.class);
-				}
-
-				if (nonNull(message)) {
-					eventBus.post(message);
-				}
-			}
-			catch (Exception e) {
-				logException(e, "Process message failed");
-			}
 		}
 	}
 }

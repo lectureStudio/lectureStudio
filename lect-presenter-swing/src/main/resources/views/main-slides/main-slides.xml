@@ -4,7 +4,10 @@
 		<SplitPane id="tabSplitPane" resizeWeight="1" orientation="JSplitPane.HORIZONTAL_SPLIT" constraints="BorderLayout.CENTER">
 			<SplitPane id="notesSplitPane" resizeWeight="1" orientation="JSplitPane.VERTICAL_SPLIT">
 				<SplitPane id="docSplitPane" resizeWeight="0" focusable="false" orientation="JSplitPane.HORIZONTAL_SPLIT">
-					<AdaptiveTabbedPane id="leftTabPane" tabPlacement="JTabbedPane.LEFT">
+					<AdaptiveTabbedPane id="leftTabPane" tabPlacement="JTabbedPane.LEFT" defaultTabType="AdaptiveTabType.PARTICIPANTS">
+						<Tab id="participantsTab" name="participants" text="slides.participants" icon="participants.svg, 18">
+							<ParticipantList id="participantList" />
+						</Tab>
 						<Tab id="outlineTab" name="outline" text="menu.contents">
 							<ScrollPane id="outlinePane">
 								<Tree id="outlineTree" name="tree" focusable="false" rootVisible="false" showsRootHandles="true">
@@ -17,11 +20,17 @@
 				</SplitPane>
 
 				<AdaptiveTabbedPane id="bottomTabPane" tabPlacement="JTabbedPane.BOTTOM" defaultTabType="AdaptiveTabType.MESSAGE">
-					<Tab id="messageTab" name="message" text="slides.message" icon="messenger-indicator.svg, 20">
-						<Panel id="messagesPanel" layout="BorderLayout">
-							<ScrollPane id="messagesPane">
-								<VBox id="messageViewContainer" border="EmptyBorder(10, 10, 10, 10)" />
-							</ScrollPane>
+					<Tab id="messageTab" name="message" text="slides.messages" icon="messenger-indicator.svg, 20">
+						<Panel layout="BorderLayout">
+							<HBox id="messageSendPanel" constraints="BorderLayout.NORTH">
+								<TextField id="messageTextField" text="" />
+								<Button id="sendMessageButton" text="slides.message.send" />
+							</HBox>
+							<Panel id="messagesPanel" layout="BorderLayout">
+								<ScrollPane id="messagesPane" constraints="BorderLayout.CENTER">
+									<VBox id="messageViewContainer" border="EmptyBorder(5, 5, 5, 5)" />
+								</ScrollPane>
+							</Panel>
 						</Panel>
 					</Tab>
 				</AdaptiveTabbedPane>

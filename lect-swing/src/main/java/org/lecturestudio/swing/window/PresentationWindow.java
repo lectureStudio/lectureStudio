@@ -18,10 +18,12 @@
 
 package org.lecturestudio.swing.window;
 
+import static java.util.Objects.isNull;
 import static java.util.Objects.nonNull;
 
 import com.google.common.eventbus.Subscribe;
 
+import java.awt.Container;
 import java.awt.Dimension;
 import java.awt.GraphicsConfiguration;
 import java.awt.GraphicsDevice;
@@ -47,14 +49,15 @@ import org.lecturestudio.core.model.Page;
 import org.lecturestudio.core.view.Action;
 import org.lecturestudio.core.view.PresentationParameter;
 import org.lecturestudio.core.view.PresentationParameterProvider;
+import org.lecturestudio.core.view.PresentationViewContext;
 import org.lecturestudio.core.view.Screen;
-import org.lecturestudio.core.view.ScreenViewType;
 import org.lecturestudio.core.view.SlidePresentationView;
 import org.lecturestudio.core.view.SlideViewOverlay;
 import org.lecturestudio.core.view.ViewType;
 import org.lecturestudio.swing.components.SlideView;
 import org.lecturestudio.swing.converter.ColorConverter;
 import org.lecturestudio.swing.converter.RectangleConverter;
+import org.lecturestudio.swing.view.SwingScreenView;
 
 public class PresentationWindow extends AbstractWindow implements SlidePresentationView {
 
@@ -63,6 +66,8 @@ public class PresentationWindow extends AbstractWindow implements SlidePresentat
 	private Action onVisibleAction;
 
 	private SlideView slideView;
+
+	private SwingScreenView screenView;
 
 	private Document doc;
 
@@ -73,10 +78,6 @@ public class PresentationWindow extends AbstractWindow implements SlidePresentat
 		this.renderController = renderController;
 
 		init(screen);
-	}
-
-	public ScreenViewType getType() {
-		return ScreenViewType.SLIDE;
 	}
 
 	@Override
@@ -156,6 +157,33 @@ public class PresentationWindow extends AbstractWindow implements SlidePresentat
 	}
 
 	@Override
+	public void setPresentationViewContext(PresentationViewContext context) {
+		if (isNull(context)) {
+			return;
+		}
+
+		Container contentPane = getWindow().getContentPane();
+
+		switch (context.getViewType()) {
+			case SLIDE -> {
+				context.configure(slideView);
+
+				contentPane.remove(screenView);
+				contentPane.add(slideView);
+			}
+			case SCREEN -> {
+				context.configure(screenView);
+
+				contentPane.remove(slideView);
+				contentPane.add(screenView);
+			}
+		}
+
+		contentPane.doLayout();
+		contentPane.repaint();
+	}
+
+	@Override
 	protected Window createWindow(GraphicsConfiguration gc) {
 		return new JWindow(gc);
 	}
@@ -189,6 +217,8 @@ public class PresentationWindow extends AbstractWindow implements SlidePresentat
 				}
 			}
 		});
+
+		screenView = new SwingScreenView();
 
 		slideView = new SlideView();
 		slideView.setViewType(ViewType.Presentation);

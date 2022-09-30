@@ -20,26 +20,79 @@ package org.lecturestudio.web.api.data.bind;
 
 import java.time.ZonedDateTime;
 
+import javax.json.Json;
 import javax.json.JsonObject;
+import javax.json.JsonObjectBuilder;
+import javax.json.JsonValue;
 import javax.json.bind.adapter.JsonbAdapter;
 
+import org.lecturestudio.web.api.message.MessengerDirectMessage;
 import org.lecturestudio.web.api.message.MessengerMessage;
 import org.lecturestudio.web.api.model.Message;
 
 public class MessengerMessageAdapter implements JsonbAdapter<MessengerMessage, JsonObject> {
 
 	@Override
-	public JsonObject adaptToJson(MessengerMessage messengerMessage) {
-		return null;
+	public JsonObject adaptToJson(MessengerMessage message) {
+		JsonObjectBuilder builder = Json.createObjectBuilder();
+		builder.add("type", message.getClass().getSimpleName());
+		builder.add("message", message.getMessage().getText());
+		builder.add("userId", message.getUserId());
+		builder.add("firstName", message.getFirstName());
+		builder.add("familyName", message.getFamilyName());
+		builder.add("date", message.getDate().toString());
+		builder.add("messageId", message.getMessageId());
+
+		if (message instanceof MessengerDirectMessage) {
+			MessengerDirectMessage directMessage = (MessengerDirectMessage) message;
+
+			builder.add("recipientId", directMessage.getRecipientId());
+			builder.add("recipientFirstName", directMessage.getRecipientFirstName());
+			builder.add("recipientFamilyName", directMessage.getRecipientFamilyName());
+		}
+
+		return builder.build();
 	}
 
 	@Override
 	public MessengerMessage adaptFromJson(JsonObject jsonObject) {
-		MessengerMessage message = new MessengerMessage();
-		message.setMessage(new Message(jsonObject.getString("text")));
-		message.setDate(ZonedDateTime.parse(jsonObject.getString("time")));
-		message.setFirstName(jsonObject.getString("firstName"));
-		message.setFamilyName(jsonObject.getString("familyName"));
+		String type = jsonObject.getString("_type");
+
+		MessengerMessage message;
+
+		if (type.equals("MessengerDirectMessage")) {
+			MessengerDirectMessage directMessage = new MessengerDirectMessage();
+			directMessage.setRecipientId(jsonObject.getString("recipientId"));
+			directMessage.setRecipientFirstName(jsonObject.getString("recipientFirstName"));
+			directMessage.setRecipientFamilyName(jsonObject.getString("recipientFamilyName"));
+
+			message = directMessage;
+		}
+		else {
+			message = new MessengerMessage();
+		}
+
+		if (jsonObject.get("text").getValueType() != JsonValue.ValueType.NULL) {
+			message.setDate(ZonedDateTime.parse(jsonObject.getString("time")));
+			message.setMessage(new Message(jsonObject.getString("text")));
+			message.setFirstName(jsonObject.getString("firstName"));
+		}
+
+		if (jsonObject.get("time").getValueType() != JsonValue.ValueType.NULL) {
+			message.setDate(ZonedDateTime.parse(jsonObject.getString("time")));
+		}
+		if (jsonObject.get("firstName").getValueType() != JsonValue.ValueType.NULL) {
+			message.setFirstName(jsonObject.getString("firstName"));
+		}
+		if (jsonObject.get("familyName").getValueType() != JsonValue.ValueType.NULL) {
+			message.setFamilyName(jsonObject.getString("familyName"));
+		}
+		if (jsonObject.get("userId").getValueType() != JsonValue.ValueType.NULL) {
+			message.setUserId(jsonObject.getString("userId"));
+		}
+		if (jsonObject.get("messageId").getValueType() != JsonValue.ValueType.NULL) {
+			message.setMessageId(jsonObject.getString("messageId"));
+		}
 
 		return message;
 	}

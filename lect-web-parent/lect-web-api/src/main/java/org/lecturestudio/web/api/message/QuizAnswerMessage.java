@@ -28,15 +28,14 @@ public class QuizAnswerMessage extends WebMessage {
 	
 
 	public QuizAnswerMessage() {
-		this(null, null, null);
+		this(null, null);
 	}
 
-	public QuizAnswerMessage(QuizAnswer answer, String remoteAddress, ZonedDateTime date) {
+	public QuizAnswerMessage(QuizAnswer answer, ZonedDateTime date) {
 		setQuizAnswer(answer);
-		setRemoteAddress(remoteAddress);
 		setDate(date);
 	}
-	
+
 	/**
 	 * @return the answer
 	 */
@@ -57,11 +56,8 @@ public class QuizAnswerMessage extends WebMessage {
 		buffer.append(getClass().getSimpleName());
 		buffer.append(": ");
 		buffer.append(getQuizAnswer());
-		buffer.append(", ");
-		buffer.append("RemoteAddress: ");
-		buffer.append(getRemoteAddress());
-		
+
 		return buffer.toString();
 	}
-	
+
 }

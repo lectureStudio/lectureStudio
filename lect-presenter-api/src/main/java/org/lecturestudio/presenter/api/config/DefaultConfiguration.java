@@ -35,6 +35,7 @@ import org.lecturestudio.core.text.TeXFont;
 import org.lecturestudio.core.text.TextAttributes;
 import org.lecturestudio.core.tool.PresetColor;
 import org.lecturestudio.presenter.api.model.MessageBarPosition;
+import org.lecturestudio.presenter.api.net.ScreenShareProfiles;
 
 public class DefaultConfiguration extends PresenterConfiguration {
 
@@ -103,6 +104,7 @@ public class DefaultConfiguration extends PresenterConfiguration {
 		getSlideViewConfiguration().setLeftSliderPosition(0.375);
 		getSlideViewConfiguration().setRightSliderPosition(0.8);
 		getSlideViewConfiguration().setMessageBarPosition(MessageBarPosition.BOTTOM);
+		getSlideViewConfiguration().setParticipantsPosition(MessageBarPosition.LEFT);
 
 		AudioProcessingSettings processingSettings = new AudioProcessingSettings();
 		processingSettings.setHighpassFilterEnabled(true);
@@ -121,8 +123,8 @@ public class DefaultConfiguration extends PresenterConfiguration {
 		getStreamConfig().setAudioCodec("OPUS");
 		getStreamConfig().setAudioFormat(new AudioFormat(AudioFormat.Encoding.S16LE, 24000, 1));
 		getStreamConfig().getCameraCodecConfig().setBitRate(200);
-		getStreamConfig().getCameraCodecConfig().setPreset("ultrafast");
 		getStreamConfig().getCameraCodecConfig().setFrameRate(30);
+		getStreamConfig().setScreenShareProfile(ScreenShareProfiles.MOTION);
 
 		getTemplateConfig().getQuizTemplateConfig().setBounds(new Rectangle2D(0.05, 0.05, 0.9, 0.9));
 		getTemplateConfig().getChatMessageTemplateConfig().setBounds(new Rectangle2D(0.05, 0.05, 0.9, 0.9));

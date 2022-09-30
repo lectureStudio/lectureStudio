@@ -37,6 +37,7 @@ import org.lecturestudio.core.view.NotificationType;
 import org.lecturestudio.presenter.api.context.PresenterContext;
 import org.lecturestudio.presenter.api.presenter.command.StartCourseFeatureCommand;
 import org.lecturestudio.presenter.api.presenter.command.StartStreamCommand;
+import org.lecturestudio.web.api.model.ScreenSource;
 import org.lecturestudio.web.api.model.quiz.Quiz;
 import org.lecturestudio.web.api.stream.model.Course;
 
@@ -70,6 +71,25 @@ public class StreamService {
 		else {
 			stopStream();
 		}
+	}
+
+	public ScreenSource getScreenSource() {
+		return streamService.getScreenSource();
+	}
+
+	public void setScreenSource(ScreenSource screenSource) {
+		streamService.setScreenSource(screenSource);
+	}
+
+	public void enableScreenSharing(boolean enable) {
+		CompletableFuture.runAsync(() -> {
+			if (enable) {
+				startScreenSharing();
+			}
+			else {
+				stopScreenSharing();
+			}
+		});
 	}
 
 	public void enableStreamCamera(boolean enable) {
@@ -186,6 +206,24 @@ public class StreamService {
 			handleServiceError(e, "Stop stream failed", "stream.stop.error");
 			return null;
 		});
+	}
+
+	private void startScreenSharing() {
+		try {
+			streamService.startScreenShare();
+		}
+		catch (ExecutableException e) {
+			handleException(e, "Start screen-share failed", "stream.screen.share.error");
+		}
+	}
+
+	private void stopScreenSharing() {
+		try {
+			streamService.stopScreenShare();
+		}
+		catch (ExecutableException e) {
+			handleException(e, "Stop screen-share failed", "stream.screen.share.error");
+		}
 	}
 
 	private void startStreamCamera() {

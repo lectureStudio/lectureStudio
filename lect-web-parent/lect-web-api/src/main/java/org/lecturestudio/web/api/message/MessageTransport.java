@@ -21,11 +21,14 @@ package org.lecturestudio.web.api.message;
 import java.util.function.Consumer;
 
 import org.lecturestudio.core.Executable;
+import org.lecturestudio.web.api.model.Message;
 
 public interface MessageTransport extends Executable {
 
 	<T extends WebMessage> void addListener(Class<T> cls, Consumer<T> listener);
 
 	<T extends WebMessage> void removeListener(Class<T> cls, Consumer<T> listener);
+
+	void sendMessage(String recipient, Message message);
 
 }

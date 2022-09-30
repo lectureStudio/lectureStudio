@@ -37,7 +37,6 @@ import java.util.function.Consumer;
 
 import org.lecturestudio.core.ExecutableException;
 import org.lecturestudio.core.ExecutableState;
-import org.lecturestudio.core.bus.EventBus;
 import org.lecturestudio.core.net.MediaType;
 import org.lecturestudio.web.api.client.ClientFailover;
 import org.lecturestudio.web.api.event.PeerStateEvent;
@@ -66,8 +65,6 @@ public class JanusHandler extends JanusStateHandler {
 
 	private final ClientFailover clientFailover;
 
-	private final EventBus eventBus;
-
 	private ScheduledExecutorService executorService;
 
 	private ScheduledFuture<?> timeoutFuture;
@@ -85,13 +82,11 @@ public class JanusHandler extends JanusStateHandler {
 
 	public JanusHandler(JanusMessageTransmitter transmitter,
 			StreamContext streamContext,
-			StreamEventRecorder eventRecorder, ClientFailover clientFailover,
-			EventBus eventBus) {
+			StreamEventRecorder eventRecorder, ClientFailover clientFailover) {
 		super(new JanusPeerConnectionFactory(streamContext), transmitter);
 
 		this.eventRecorder = eventRecorder;
 		this.clientFailover = clientFailover;
-		this.eventBus = eventBus;
 	}
 
 	public void setRejectedConsumer(Consumer<Long> consumer) {

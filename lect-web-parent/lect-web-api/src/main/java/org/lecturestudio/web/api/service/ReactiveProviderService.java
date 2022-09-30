@@ -18,51 +18,20 @@
 
 package org.lecturestudio.web.api.service;
 
-import java.util.Map;
-import java.util.Map.Entry;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Consumer;
 
-import javax.json.bind.Jsonb;
-import javax.ws.rs.client.Client;
-import javax.ws.rs.client.WebTarget;
-import javax.ws.rs.sse.SseEventSource;
-
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-
-import org.lecturestudio.web.api.client.ApiKeyFilter;
-import org.lecturestudio.web.api.client.TokenProvider;
-import org.lecturestudio.web.api.data.bind.JsonConfig;
 import org.lecturestudio.web.api.message.MessageTransport;
 import org.lecturestudio.web.api.message.WebMessage;
 
 public abstract class ReactiveProviderService extends ProviderService {
 
-	private static final Logger LOG = LogManager.getLogger(ReactiveProviderService.class);
-
-	private final ServiceParameters parameters;
-
-	private final TokenProvider tokenProvider;
-
 	private final MessageTransport messageTransport;
 
-	private final Map<Client, SseEventSource> eventSources;
-
-	private final Jsonb jsonb;
-
-
-	public ReactiveProviderService(ServiceParameters parameters) {
-		this(parameters, null, null);
-	}
 
 	public ReactiveProviderService(ServiceParameters parameters,
-			TokenProvider tokenProvider, MessageTransport messageTransport) {
+			MessageTransport messageTransport) {
 		this.parameters = parameters;
-		this.tokenProvider = tokenProvider;
 		this.messageTransport = messageTransport;
-		this.eventSources = new ConcurrentHashMap<>();
-		this.jsonb = new JsonConfig().getContext(null);
 	}
 
 	public <T extends WebMessage> void addMessageListener(Class<T> cls,
@@ -75,42 +44,7 @@ public abstract class ReactiveProviderService extends ProviderService {
 		messageTransport.removeListener(cls, onEvent);
 	}
 
-	protected <T extends WebMessage> void subscribeSse(String path, Class<T> cls,
-			Consumer<T> onEvent, Consumer<Throwable> onError) {
-		WebClientBuilder builder = new WebClientBuilder();
-		builder.setTls(true);
-		builder.setTokenProvider(tokenProvider);
-		builder.setComponentClasses(ApiKeyFilter.class);
-
-		Client client = builder.build();
-		WebTarget target = client.target(parameters.getUrl() + path);
-
-		SseEventSource eventSource = SseEventSource.target(target).build();
-		eventSource.register(sseEvent -> {
-			if (sseEvent.isEmpty()) {
-				return;
-			}
-
-			T message = jsonb.fromJson(sseEvent.readData(), cls);
-
-			try {
-				onEvent.accept(message);
-			}
-			catch (Exception e) {
-				LOG.error("Consume event message failed", e);
-			}
-		}, onError);
-		eventSource.open();
-
-		if (eventSource.isOpen()) {
-			eventSources.put(client, eventSource);
-		}
-	}
-
 	public void close() {
-		for (Entry<Client, SseEventSource> entry : eventSources.entrySet()) {
-			entry.getValue().close();
-			entry.getKey().close();
-		}
+
 	}
 }

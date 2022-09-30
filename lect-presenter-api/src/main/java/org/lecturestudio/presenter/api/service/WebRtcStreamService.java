@@ -54,7 +54,9 @@ import org.lecturestudio.presenter.api.config.PresenterConfiguration;
 import org.lecturestudio.presenter.api.config.StreamConfiguration;
 import org.lecturestudio.presenter.api.context.PresenterContext;
 import org.lecturestudio.presenter.api.event.CameraStateEvent;
+import org.lecturestudio.presenter.api.event.ScreenShareStateEvent;
 import org.lecturestudio.presenter.api.event.StreamingStateEvent;
+import org.lecturestudio.presenter.api.net.ScreenShareProfile;
 import org.lecturestudio.presenter.api.presenter.ReconnectStreamPresenter;
 import org.lecturestudio.web.api.client.ClientFailover;
 import org.lecturestudio.web.api.client.TokenProvider;
@@ -64,9 +66,11 @@ import org.lecturestudio.web.api.janus.JanusHandlerException.Type;
 import org.lecturestudio.web.api.janus.JanusPeerConnectionMediaException;
 import org.lecturestudio.web.api.janus.JanusStateHandlerListener;
 import org.lecturestudio.web.api.janus.client.JanusWebSocketClient;
-import org.lecturestudio.web.api.message.SpeechRequestMessage;
+import org.lecturestudio.web.api.message.SpeechBaseMessage;
+import org.lecturestudio.web.api.model.ScreenSource;
 import org.lecturestudio.web.api.service.ServiceParameters;
 import org.lecturestudio.web.api.stream.StreamAudioContext;
+import org.lecturestudio.web.api.stream.StreamScreenContext;
 import org.lecturestudio.web.api.stream.StreamVideoContext;
 import org.lecturestudio.web.api.stream.client.StreamWebSocketClient;
 import org.lecturestudio.web.api.stream.StreamContext;
@@ -114,9 +118,13 @@ public class WebRtcStreamService extends ExecutableBase {
 
 	private ChangeListener<Double> playbackVolumeListener;
 
+	private ChangeListener<ScreenShareProfile> screenProfileListener;
+
 	private ExecutableState streamState;
 
 	private ExecutableState cameraState;
+
+	private ExecutableState screenShareState;
 
 
 	@Inject
@@ -144,7 +152,7 @@ public class WebRtcStreamService extends ExecutableBase {
 		eventRecorder.init();
 	}
 
-	public void acceptSpeechRequest(SpeechRequestMessage message) {
+	public void acceptSpeechRequest(SpeechBaseMessage message) {
 		if (!started()) {
 			return;
 		}
@@ -157,7 +165,7 @@ public class WebRtcStreamService extends ExecutableBase {
 		streamProviderService.acceptSpeechRequest(requestId);
 	}
 
-	public void rejectSpeechRequest(SpeechRequestMessage message) {
+	public void rejectSpeechRequest(SpeechBaseMessage message) {
 		if (!started()) {
 			return;
 		}
@@ -188,6 +196,40 @@ public class WebRtcStreamService extends ExecutableBase {
 		streamContext.getVideoContext().setSendVideo(false);
 
 		setCameraState(ExecutableState.Stopped);
+	}
+
+	public ScreenSource getScreenSource() {
+		return streamContext.getScreenContext().getScreenSource();
+	}
+
+	public void setScreenSource(ScreenSource screenSource) {
+		streamContext.getScreenContext().setScreenSource(screenSource);
+	}
+
+	public void startScreenShare() throws ExecutableException {
+		if (streamState != ExecutableState.Started
+				|| screenShareState == ExecutableState.Started) {
+			return;
+		}
+
+		setScreenShareState(ExecutableState.Starting);
+
+		streamContext.getScreenContext().setSendVideo(true);
+
+		setScreenShareState(ExecutableState.Started);
+	}
+
+	public void stopScreenShare() throws ExecutableException {
+		if (screenShareState != ExecutableState.Started) {
+			return;
+		}
+
+		setScreenShareState(ExecutableState.Stopping);
+
+//		streamContext.getScreenContext().setScreenSource(null);
+		streamContext.getScreenContext().setSendVideo(false);
+
+		setScreenShareState(ExecutableState.Stopped);
 	}
 
 	public void mutePeerAudio(boolean mute) {
@@ -225,6 +267,7 @@ public class WebRtcStreamService extends ExecutableBase {
 	protected void initInternal() {
 		streamState = ExecutableState.Stopped;
 		cameraState = ExecutableState.Stopped;
+		screenShareState = ExecutableState.Stopped;
 	}
 
 	@Override
@@ -252,7 +295,7 @@ public class WebRtcStreamService extends ExecutableBase {
 				.getRecordingFormat());
 
 		streamContext = createStreamContext(course, config);
-		streamStateClient = createStreamStateClient(course, config);
+		streamStateClient = createStreamStateClient(config);
 		janusClient = createJanusClient(streamContext);
 		janusClient.setJanusStateHandlerListener(new JanusStateHandlerListener() {
 
@@ -337,7 +380,12 @@ public class WebRtcStreamService extends ExecutableBase {
 		playbackVolumeListener = (o, oldValue, newValue) -> {
 			streamContext.getAudioContext().setPlaybackVolume(newValue);
 		};
+		screenProfileListener = (o, oldValue, newValue) -> {
+			streamContext.getScreenContext().setFramerate(newValue.getFramerate());
+			streamContext.getScreenContext().setBitrate(newValue.getBitrate());
+		};
 
+		streamConfig.screenProfileProperty().addListener(screenProfileListener);
 		streamConfig.getCameraCodecConfig().viewRectProperty().addListener(cameraFormatListener);
 		streamConfig.cameraNameProperty().addListener(cameraDeviceListener);
 		audioConfig.captureDeviceNameProperty().addListener(captureDeviceListener);
@@ -375,6 +423,7 @@ public class WebRtcStreamService extends ExecutableBase {
 		AudioConfiguration audioConfig = config.getAudioConfig();
 		StreamConfiguration streamConfig = config.getStreamConfig();
 
+		streamConfig.screenProfileProperty().removeListener(screenProfileListener);
 		streamConfig.getCameraCodecConfig().viewRectProperty().removeListener(cameraFormatListener);
 		streamConfig.cameraNameProperty().removeListener(cameraDeviceListener);
 		audioConfig.captureDeviceNameProperty().removeListener(captureDeviceListener);
@@ -417,6 +466,19 @@ public class WebRtcStreamService extends ExecutableBase {
 	}
 
 	/**
+	 * Sets the new screen-sharing state of this controller.
+	 *
+	 * @param state The new state.
+	 */
+	private void setScreenShareState(ExecutableState state) {
+		this.screenShareState = state;
+
+		context.getEventBus().post(new ScreenShareStateEvent(
+				streamContext.getScreenContext().getScreenSource(),
+				screenShareState));
+	}
+
+	/**
 	 * Sets the new camera state of this controller.
 	 *
 	 * @param state The new state.
@@ -436,8 +498,7 @@ public class WebRtcStreamService extends ExecutableBase {
 		}
 	}
 
-	private StreamWebSocketClient createStreamStateClient(Course course,
-			PresenterConfiguration config) {
+	private StreamWebSocketClient createStreamStateClient(PresenterConfiguration config) {
 		StreamConfiguration streamConfig = config.getStreamConfig();
 
 		ServiceParameters stateWsParameters = new ServiceParameters();
@@ -454,8 +515,7 @@ public class WebRtcStreamService extends ExecutableBase {
 		WebSocketHeaderProvider headerProvider = new WebSocketBearerTokenProvider(
 				tokenProvider);
 
-		return new StreamWebSocketClient(context.getEventBus(),
-				stateWsParameters, headerProvider, eventRecorder, course);
+		return new StreamWebSocketClient(stateWsParameters, headerProvider, eventRecorder);
 	}
 
 	private JanusWebSocketClient createJanusClient(StreamContext streamContext) {
@@ -466,14 +526,15 @@ public class WebRtcStreamService extends ExecutableBase {
 		janusWsParameters.setUrl(MessageFormat.format(webServiceInfo.getJanusWebSocketUrl(),
 				streamConfig.getServerName()));
 
-		return new JanusWebSocketClient(context.getEventBus(), janusWsParameters,
-				streamContext, eventRecorder, clientFailover);
+		return new JanusWebSocketClient(janusWsParameters, streamContext,
+				eventRecorder, clientFailover);
 	}
 
 	private StreamContext createStreamContext(Course course, PresenterConfiguration config) {
 		AudioConfiguration audioConfig = config.getAudioConfig();
 		StreamConfiguration streamConfig = config.getStreamConfig();
 		VideoCodecConfiguration cameraConfig = streamConfig.getCameraCodecConfig();
+		VideoCodecConfiguration screenConfig = streamConfig.getScreenCodecConfig();
 
 		Rectangle2D cameraViewRect = cameraConfig.getViewRect();
 
@@ -490,6 +551,7 @@ public class WebRtcStreamService extends ExecutableBase {
 		StreamContext streamContext = new StreamContext();
 		StreamAudioContext audioContext = streamContext.getAudioContext();
 		StreamVideoContext videoContext = streamContext.getVideoContext();
+		StreamScreenContext screenContext = streamContext.getScreenContext();
 
 		audioContext.setSendAudio(streamConfig.getMicrophoneEnabled());
 		audioContext.setReceiveAudio(true);
@@ -502,8 +564,15 @@ public class WebRtcStreamService extends ExecutableBase {
 		videoContext.setReceiveVideo(true);
 		videoContext.setCaptureDevice(videoCaptureDevice);
 		videoContext.setBitrate(cameraConfig.getBitRate());
-		videoContext.setFrameConsumer(videoFrame -> {
-			context.getEventBus().post(videoFrame);
+		videoContext.setFrameConsumer(videoFrameEvent -> {
+			context.getEventBus().post(videoFrameEvent);
+		});
+
+		screenContext.setScreenSource(null);
+		screenContext.setBitrate(screenConfig.getBitRate());
+		screenContext.setFramerate((int) screenConfig.getFrameRate());
+		screenContext.setLocalFrameConsumer(videoFrameEvent -> {
+			context.getEventBus().post(videoFrameEvent);
 		});
 
 		if (nonNull(streamConfig.getCameraFormat())) {

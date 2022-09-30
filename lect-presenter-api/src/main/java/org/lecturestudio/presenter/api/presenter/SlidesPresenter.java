@@ -68,11 +68,19 @@ import org.lecturestudio.presenter.api.view.PageObjectRegistry;
 import org.lecturestudio.presenter.api.view.SlidesView;
 import org.lecturestudio.swing.model.ExternalWindowPosition;
 import org.lecturestudio.web.api.event.PeerStateEvent;
-import org.lecturestudio.web.api.event.VideoFrameEvent;
-import org.lecturestudio.web.api.message.CourseParticipantMessage;
+import org.lecturestudio.web.api.event.PeerVideoFrameEvent;
+import org.lecturestudio.web.api.event.ScreenVideoFrameEvent;
+import org.lecturestudio.web.api.message.CoursePresenceMessage;
 import org.lecturestudio.web.api.message.MessengerMessage;
+import org.lecturestudio.web.api.message.SpeechBaseMessage;
 import org.lecturestudio.web.api.message.SpeechCancelMessage;
 import org.lecturestudio.web.api.message.SpeechRequestMessage;
+import org.lecturestudio.web.api.model.Message;
+import org.lecturestudio.web.api.stream.ScreenPresentationViewContext;
+import org.lecturestudio.core.view.SlidePresentationViewContext;
+import org.lecturestudio.web.api.stream.model.CourseParticipant;
+import org.lecturestudio.web.api.stream.model.CoursePresence;
+import org.lecturestudio.web.api.stream.model.CoursePresenceType;
 
 import javax.inject.Inject;
 import java.awt.*;
@@ -115,6 +123,8 @@ public class SlidesPresenter extends Presenter<SlidesView> {
 
 	private ToolType toolType;
 
+	private final ScreenPresentationViewContext screenViewContext;
+
 	private final ViewContextFactory viewFactory;
 
 	private final ToolController toolController;
@@ -154,6 +164,7 @@ public class SlidesPresenter extends Presenter<SlidesView> {
 		this.shortcutMap = new HashMap<>();
 		this.pageObjectRegistry = new PageObjectRegistry();
 		this.documentChangeListener = new DocumentChangeHandler();
+		this.screenViewContext = new ScreenPresentationViewContext();
 	}
 
 	@Subscribe
@@ -223,6 +234,30 @@ public class SlidesPresenter extends Presenter<SlidesView> {
 		view.setStreamState(event.getState());
 
 		checkRemoteServiceState();
+
+		if (event.stopped()) {
+			onEvent(new ScreenShareStateEvent(null, event.getState()));
+		}
+	}
+
+	@Subscribe
+	public void onEvent(final ScreenShareStateEvent event) {
+		PresenterContext ctx = (PresenterContext) context;
+		PresentationViewContext viewContext = null;
+
+		view.setScreenShareState(event.getState());
+
+		switch (event.getState()) {
+			case Started -> {
+				viewContext = screenViewContext;
+			}
+			case Stopped -> {
+				viewContext = new SlidePresentationViewContext();
+				ctx.setScreenSharingStarted(false);
+			}
+		}
+
+		presentationController.setPresentationViewContext(viewContext);
 	}
 
 	@Subscribe
@@ -251,7 +286,7 @@ public class SlidesPresenter extends Presenter<SlidesView> {
 		PresenterContext presenterContext = (PresenterContext) context;
 		presenterContext.getSpeechRequests().add(message);
 
-		view.setSpeechRequestMessage(message);
+		view.addSpeechRequest(message);
 	}
 
 	@Subscribe
@@ -262,18 +297,32 @@ public class SlidesPresenter extends Presenter<SlidesView> {
 		presenterContext.getSpeechRequests().removeIf(m -> Objects.equals(
 				m.getRequestId(), message.getRequestId()));
 
-		view.setSpeechCancelMessage(message);
+		view.removeSpeechRequest(message);
 	}
 
 	@Subscribe
-	public void onEvent(CourseParticipantMessage message) {
+	public void onEvent(CoursePresenceMessage message) {
 		PresenterContext presenterContext = (PresenterContext) context;
 
-		if (message.getConnected()) {
-			presenterContext.setAttendeesCount(presenterContext.getAttendeesCount() + 1);
+		if (CoursePresence.isConnected(message.getCoursePresence())) {
+			if (CoursePresenceType.isStream(message.getCoursePresenceType())) {
+				presenterContext.setAttendeesCount(presenterContext.getAttendeesCount() + 1);
+			}
+
+			view.addParticipant(new CourseParticipant(message.getUserId(),
+					message.getFirstName(), message.getFamilyName(),
+					message.getCoursePresenceType(),
+					message.getCourseParticipantType()));
 		}
 		else {
-			presenterContext.setAttendeesCount(presenterContext.getAttendeesCount() - 1);
+			if (CoursePresenceType.isStream(message.getCoursePresenceType())) {
+				presenterContext.setAttendeesCount(presenterContext.getAttendeesCount() - 1);
+			}
+
+			view.removeParticipant(new CourseParticipant(message.getUserId(),
+					message.getFirstName(), message.getFamilyName(),
+					message.getCoursePresenceType(),
+					message.getCourseParticipantType()));
 		}
 	}
 
@@ -283,8 +332,13 @@ public class SlidesPresenter extends Presenter<SlidesView> {
 	}
 
 	@Subscribe
-	public void onEvent(VideoFrameEvent event) {
+	public void onEvent(PeerVideoFrameEvent event) {
 		view.setVideoFrameEvent(event);
+	}
+
+	@Subscribe
+	public void onEvent(ScreenVideoFrameEvent event) {
+		screenViewContext.addScreenVideoFrameEvent(event);
 	}
 
 	@Subscribe
@@ -299,6 +353,21 @@ public class SlidesPresenter extends Presenter<SlidesView> {
 		}
 		else {
 			viewHideExternalMessages(event.isPersistent());
+		}
+	}
+
+	@Subscribe
+	public void onEvent(ExternalParticipantsViewEvent event) {
+		if (event.isEnabled()) {
+			if (event.isShow()) {
+				viewShowExternalParticipants(event.isPersistent());
+			}
+			else {
+				view.hideExternalParticipants();
+			}
+		}
+		else {
+			viewHideExternalParticipants(event.isPersistent());
 		}
 	}
 
@@ -334,11 +403,20 @@ public class SlidesPresenter extends Presenter<SlidesView> {
 
 	@Subscribe
 	public void onEvent(MessageBarPositionEvent event) {
-		final MessageBarPosition position = event.position;
+		final MessageBarPosition position = event.getPosition();
 
 		view.setMessageBarPosition(position);
 
 		getPresenterConfig().getSlideViewConfiguration().setMessageBarPosition(position);
+	}
+
+	@Subscribe
+	public void onEvent(ParticipantsPositionEvent event) {
+		final MessageBarPosition position = event.getPosition();
+
+		view.setParticipantsPosition(position);
+
+		getPresenterConfig().getSlideViewConfiguration().setParticipantsPosition(position);
 	}
 
 	private void externalMessagesPositionChanged(ExternalWindowPosition position) {
@@ -354,6 +432,21 @@ public class SlidesPresenter extends Presenter<SlidesView> {
 
 	private void externalMessagesClosed() {
 		eventBus.post(new ExternalMessagesViewEvent(false));
+	}
+
+	private void externalParticipantsPositionChanged(ExternalWindowPosition position) {
+		final ExternalWindowConfiguration config = getExternalParticipantsConfig();
+
+		config.setPosition(position.getPosition());
+		config.setScreen(position.getScreen());
+	}
+
+	private void externalParticipantsSizeChanged(Dimension size) {
+		getExternalParticipantsConfig().setSize(size);
+	}
+
+	private void externalParticipantsClosed() {
+		eventBus.post(new ExternalParticipantsViewEvent(false));
 	}
 
 	private void externalSlidePreviewPositionChanged(ExternalWindowPosition position) {
@@ -399,7 +492,7 @@ public class SlidesPresenter extends Presenter<SlidesView> {
 		}
 	}
 
-	private void onAcceptSpeech(SpeechRequestMessage message) {
+	private void onAcceptSpeech(SpeechBaseMessage message) {
 		streamService.acceptSpeechRequest(message);
 
 		PresenterContext presenterContext = (PresenterContext) context;
@@ -412,14 +505,17 @@ public class SlidesPresenter extends Presenter<SlidesView> {
 		PeerStateEvent event = new PeerStateEvent(requestId, userName,
 				ExecutableState.Starting);
 
+		view.removeSpeechRequest(message);
 		view.setPeerStateEvent(event);
 	}
 
-	private void onRejectSpeech(SpeechRequestMessage message) {
+	private void onRejectSpeech(SpeechBaseMessage message) {
 		streamService.rejectSpeechRequest(message);
 
 		PresenterContext presenterContext = (PresenterContext) context;
 		presenterContext.getSpeechRequests().remove(message);
+
+		view.removeSpeechRequest(message);
 	}
 
 	private void onDiscardMessage(MessengerMessage message) {
@@ -568,6 +664,31 @@ public class SlidesPresenter extends Presenter<SlidesView> {
 		}
 
 		shareQuiz();
+	}
+
+	private void stopScreenShare() {
+		PresenterContext presenterContext = (PresenterContext) context;
+		presenterContext.setScreenSharingStart(false);
+		presenterContext.setScreenSharingStarted(false);
+
+		// Remove document.
+		for (Document doc : documentService.getDocuments().asList()) {
+			if (doc.isScreen()) {
+				documentService.closeDocument(doc);
+				break;
+			}
+		}
+	}
+
+	private void sendMessage(String text) {
+		Message message = new Message(text);
+
+		try {
+			webService.sendChatMessage("public", message);
+		}
+		catch (Exception e) {
+			logException(e, "Send chat-message failed");
+		}
 	}
 
 	private void selectDocument(Document doc) {
@@ -747,6 +868,10 @@ public class SlidesPresenter extends Presenter<SlidesView> {
 		return getPresenterConfig().getExternalMessagesConfig();
 	}
 
+	private ExternalWindowConfiguration getExternalParticipantsConfig() {
+		return getPresenterConfig().getExternalParticipantsConfig();
+	}
+
 	private ExternalWindowConfiguration getExternalSlidePreviewConfig() {
 		return getPresenterConfig().getExternalSlidePreviewConfig();
 	}
@@ -831,6 +956,12 @@ public class SlidesPresenter extends Presenter<SlidesView> {
 		initExternalScreenBehavior(getExternalMessagesConfig(),
 				(enabled, show) -> eventBus.post(new ExternalMessagesViewEvent(enabled, show)));
 
+		view.setOnExternalParticipantsPositionChanged(this::externalParticipantsPositionChanged);
+		view.setOnExternalParticipantsSizeChanged(this::externalParticipantsSizeChanged);
+		view.setOnExternalParticipantsClosed(this::externalParticipantsClosed);
+		initExternalScreenBehavior(getExternalParticipantsConfig(),
+				(enabled, show) -> eventBus.post(new ExternalParticipantsViewEvent(enabled, show)));
+
 		view.setOnExternalSlidePreviewPositionChanged(this::externalSlidePreviewPositionChanged);
 		view.setOnExternalSlidePreviewSizeChanged(this::externalSlidePreviewSizeChanged);
 		view.setOnExternalSlidePreviewClosed(this::externalSlidePreviewClosed);
@@ -854,6 +985,9 @@ public class SlidesPresenter extends Presenter<SlidesView> {
 
 		view.setOnKeyEvent(this::keyEvent);
 		view.setOnStopQuiz(this::stopQuiz);
+		view.setOnToggleScreenShare(ctx.screenSharingStartedProperty());
+		view.setOnStopScreenShare(this::stopScreenShare);
+		view.setOnSendMessage(this::sendMessage);
 		view.setOnNewPage(this::newWhiteboardPage);
 		view.setOnDeletePage(this::deleteWhiteboardPage);
 		view.setOnSelectPage(this::selectPage);
@@ -882,9 +1016,11 @@ public class SlidesPresenter extends Presenter<SlidesView> {
 		registerShortcut(Shortcut.COPY_OVERLAY_NEXT_PAGE_CTRL, this::copyNextOverlay);
 		registerShortcut(Shortcut.COPY_OVERLAY_NEXT_PAGE_SHIFT, this::copyNextOverlay);
 
-		view.setMessageBarPosition(
-				getPresenterConfig().getSlideViewConfiguration()
-						.getMessageBarPosition());
+		view.setMessageBarPosition(getPresenterConfig()
+				.getSlideViewConfiguration().getMessageBarPosition());
+
+		view.setParticipantsPosition(getPresenterConfig()
+				.getSlideViewConfiguration().getParticipantsPosition());
 
 		try {
 			recordingService.init();
@@ -915,6 +1051,8 @@ public class SlidesPresenter extends Presenter<SlidesView> {
 	private void showExternalScreens() {
 		showExternalScreen(getExternalMessagesConfig(),
 				(enabled, show) -> eventBus.post(new ExternalMessagesViewEvent(enabled, show)));
+		showExternalScreen(getExternalParticipantsConfig(),
+				(enabled, show) -> eventBus.post(new ExternalParticipantsViewEvent(enabled, show)));
 		showExternalScreen(getExternalSlidePreviewConfig(),
 				(enabled, show) -> eventBus.post(new ExternalSlidePreviewViewEvent(enabled, show)));
 		showExternalScreen(getExternalSpeechConfig(),
@@ -954,6 +1092,29 @@ public class SlidesPresenter extends Presenter<SlidesView> {
 		}
 
 		view.hideExternalMessages();
+	}
+
+	private void viewShowExternalParticipants(boolean persistent) {
+		final ExternalWindowConfiguration config = getExternalParticipantsConfig();
+
+		if (persistent) {
+			config.setEnabled(true);
+		}
+
+		view.showExternalParticipants(config.getScreen(), config.getPosition(), config.getSize());
+	}
+
+	private void viewHideExternalParticipants(boolean persistent) {
+		final ExternalWindowConfiguration config = getExternalParticipantsConfig();
+
+		if (persistent) {
+			config.setEnabled(false);
+			config.setScreen(null);
+			config.setPosition(null);
+			config.setSize(null);
+		}
+
+		view.hideExternalParticipants();
 	}
 
 	private void viewShowExternalSlidePreview(boolean persistent) {

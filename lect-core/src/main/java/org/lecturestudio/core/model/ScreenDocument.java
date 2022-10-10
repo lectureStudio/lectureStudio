@@ -19,6 +19,7 @@
 package org.lecturestudio.core.model;
 
 import java.awt.Color;
+import java.awt.geom.AffineTransform;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
 
@@ -45,12 +46,27 @@ public class ScreenDocument extends Document {
 
 		Rectangle2D rect = page.getPageRect();
 
-		int x = (int) ((rect.getWidth() - image.getWidth(null)) / 2);
-		int y = (int) ((rect.getHeight() - image.getHeight(null)) / 2);
-		int w = (int) rect.getWidth();
-		int h = (int) rect.getHeight();
+		double s = rect.getWidth() / (double) image.getWidth(null);
 
-		PDFGraphics2D g2d = (PDFGraphics2D) getPdfDocument().createPageGraphics2D(pageIndex);
+		if (image.getHeight(null) > image.getWidth(null)) {
+			s = rect.getHeight() / (double) image.getHeight(null);
+		}
+
+		double sInv = 1 / s;
+
+		int x = (int) ((rect.getWidth() - image.getWidth(null) * s) / 2 * sInv);
+		int y = (int) ((rect.getHeight() - image.getHeight(null) * s) / 2 * sInv);
+		int w = (int) (rect.getWidth() * sInv);
+		int h = (int) (rect.getHeight() * sInv);
+
+		try {
+			getPdfDocument().setPageContentTransform(pageIndex, AffineTransform.getScaleInstance(s, s));
+		}
+		catch (IOException e) {
+			throw new RuntimeException(e);
+		}
+
+		PDFGraphics2D g2d = (PDFGraphics2D) getPdfDocument().createAppendablePageGraphics2D(pageIndex);
 		// Draw screen frame onto a black page background.
 		g2d.setColor(Color.BLACK);
 		g2d.fillRect(0, 0, w, h);

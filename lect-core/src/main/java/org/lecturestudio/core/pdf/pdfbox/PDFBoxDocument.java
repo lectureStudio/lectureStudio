@@ -322,6 +322,35 @@ public class PDFBoxDocument implements DocumentAdapter {
 		return importPage(pdfBoxSrcDoc, pageNumber, transform);
 	}
 
+	public void setPageContentTransform(PDFBoxDocument srcDocument, int pageNumber, AffineTransform transform) throws IOException {
+		PDDocument sourceDocument = srcDocument.doc;
+		PDPage page = sourceDocument.getPage(pageNumber);
+
+		List<PDStream> newContents = new ArrayList<>();
+
+		float h = page.getMediaBox().getHeight();
+		float sx = (float) transform.getScaleX();
+		float sy = (float) transform.getScaleY();
+
+		// Create page transformation content stream.
+		PDStream transformStream = new PDStream(sourceDocument);
+		OutputStream transformOutStream = transformStream.createOutputStream(COSName.FLATE_DECODE);
+		ContentStreamWriter writer = new ContentStreamWriter(transformOutStream);
+		writer.writeToken(new COSFloat(sx));
+		writer.writeToken(COSInteger.ZERO);
+		writer.writeToken(COSInteger.ZERO);
+		writer.writeToken(new COSFloat(-sy));
+		writer.writeToken(new COSFloat(0));
+		writer.writeToken(new COSFloat(h));
+		writer.writeToken(Operator.getOperator("cm"));
+		transformOutStream.flush();
+		transformOutStream.close();
+
+		newContents.add(transformStream);
+
+		page.setContents(newContents);
+	}
+
 	public synchronized int importPage(PDFBoxDocument srcDocument, int pageNumber, AffineTransform transform) throws IOException {
 		PDDocument sourceDocument = srcDocument.doc;
 

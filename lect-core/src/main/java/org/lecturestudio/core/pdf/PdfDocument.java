@@ -19,6 +19,7 @@
 package org.lecturestudio.core.pdf;
 
 import java.awt.Graphics2D;
+import java.awt.geom.AffineTransform;
 import java.io.*;
 import java.util.HashMap;
 import java.util.List;
@@ -165,7 +166,11 @@ public class PdfDocument {
 	public Rectangle2D getPageMediaBox(int pageIndex) {
 		return pdfBoxDocument.getPageBounds(pageIndex);
 	}
-	
+
+	public void setPageContentTransform(int pageIndex, AffineTransform transform) throws IOException {
+		pdfBoxDocument.setPageContentTransform(pdfBoxDocument, pageIndex, transform);
+	}
+
 	public int importPage(PdfDocument pdfDocument, int pageIndex, Rectangle2D pageRect) throws IOException {
 		muPDFDocument.importPage(pdfDocument.muPDFDocument, pageIndex);
 
@@ -190,7 +195,7 @@ public class PdfDocument {
 
 	/**
 	 * Create a {@link Graphics2D} object with the specified page index.
-	 * The The PDF graphics stream name will be set to {@code null}.
+	 * The PDF graphics stream name will be set to {@code null}.
 	 * The content will overwrite the existing one.
 	 *
 	 * @param pageIndex The index of the page to which to draw.
@@ -203,7 +208,7 @@ public class PdfDocument {
 
 	/**
 	 * Create a {@link Graphics2D} object with the specified page index.
-	 * The The PDF graphics stream name will be set to {@code null}.
+	 * The PDF graphics stream name will be set to {@code null}.
 	 * The content will be appended to the existing one.
 	 *
 	 * @param pageIndex The index of the page to which to draw.

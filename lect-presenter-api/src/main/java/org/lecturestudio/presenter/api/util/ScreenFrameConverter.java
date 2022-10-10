@@ -75,14 +75,14 @@ public class ScreenFrameConverter {
 		buf.get(imageBuffer);
 
 		// Draw frame.
-		BufferedImage image = new BufferedImage(imageWidth, imageHeight, BufferedImage.TYPE_4BYTE_ABGR);
+//		BufferedImage image = new BufferedImage(imageWidth, imageHeight, BufferedImage.TYPE_4BYTE_ABGR);
+//
+//		Graphics2D g2 = image.createGraphics();
+//		g2.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BILINEAR);
+//		g2.drawImage(tempImage, 0, 0, imageWidth, imageHeight, null);
+//		g2.dispose();
 
-		Graphics2D g2 = image.createGraphics();
-		g2.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BILINEAR);
-		g2.drawImage(tempImage, 0, 0, imageWidth, imageHeight, null);
-		g2.dispose();
-
-		return image;
+		return tempImage;
 	}
 
 }

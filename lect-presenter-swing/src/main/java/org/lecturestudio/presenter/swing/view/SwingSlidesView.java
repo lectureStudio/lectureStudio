@@ -546,7 +546,7 @@ public class SwingSlidesView extends JPanel implements SlidesView {
 	}
 
 	@Override
-	public void setScreenShareState(ExecutableState state) {
+	public void setScreenShareState(ExecutableState state, Document document) {
 		final AdaptiveTabbedPane slidesTabPane = getSlidesTabPane();
 
 		for (int i = 0; i < slidesTabPane.getPaneTabCount(); i++) {
@@ -555,9 +555,12 @@ public class SwingSlidesView extends JPanel implements SlidesView {
 				continue;
 			}
 
-			ScreenThumbnailPanel screenPanel = (ScreenThumbnailPanel) slidesTabPane.getPaneComponentAt(i);
-			screenPanel.setScreenShareState(state);
-			break;
+			ScreenThumbnailPanel screenPanel = (ScreenThumbnailPanel) tabComponent;
+
+			if (screenPanel.getDocument().getName().equals(document.getName())) {
+				screenPanel.setScreenShareState(state);
+				break;
+			}
 		}
 	}
 

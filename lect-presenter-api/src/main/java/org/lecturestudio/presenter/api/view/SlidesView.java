@@ -81,7 +81,7 @@ public interface SlidesView extends View {
 
 	void setStreamState(ExecutableState state);
 
-	void setScreenShareState(ExecutableState state);
+	void setScreenShareState(ExecutableState state, Document document);
 
 	void setQuizState(ExecutableState state);
 

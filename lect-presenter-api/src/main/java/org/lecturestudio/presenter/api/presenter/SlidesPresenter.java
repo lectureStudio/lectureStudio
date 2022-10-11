@@ -76,6 +76,7 @@ import org.lecturestudio.web.api.message.SpeechBaseMessage;
 import org.lecturestudio.web.api.message.SpeechCancelMessage;
 import org.lecturestudio.web.api.message.SpeechRequestMessage;
 import org.lecturestudio.web.api.model.Message;
+import org.lecturestudio.web.api.model.ScreenSource;
 import org.lecturestudio.web.api.stream.ScreenPresentationViewContext;
 import org.lecturestudio.core.view.SlidePresentationViewContext;
 import org.lecturestudio.web.api.stream.model.CourseParticipant;
@@ -237,6 +238,13 @@ public class SlidesPresenter extends Presenter<SlidesView> {
 
 		if (event.stopped()) {
 			onEvent(new ScreenShareStateEvent(null, event.getState()));
+
+			// Close all documents related to a screen source.
+			for (Document doc : documentService.getDocuments().asList()) {
+				if (doc.isScreen()) {
+					documentService.removeDocument(doc);
+				}
+			}
 		}
 	}
 
@@ -245,7 +253,19 @@ public class SlidesPresenter extends Presenter<SlidesView> {
 		PresenterContext ctx = (PresenterContext) context;
 		PresentationViewContext viewContext = null;
 
-		view.setScreenShareState(event.getState());
+		ScreenSource screenSource = event.getScreenSource();
+		Document screenDocument = null;
+
+		if (nonNull(screenSource)) {
+			for (Document doc : documentService.getDocuments().asList()) {
+				if (doc.getTitle().equals(screenSource.getTitle())) {
+					screenDocument = doc;
+					break;
+				}
+			}
+
+			view.setScreenShareState(event.getState(), screenDocument);
+		}
 
 		switch (event.getState()) {
 			case Started -> {
@@ -671,12 +691,8 @@ public class SlidesPresenter extends Presenter<SlidesView> {
 		presenterContext.setScreenSharingStarted(false);
 
 		// Remove document.
-		for (Document doc : documentService.getDocuments().asList()) {
-			if (doc.isScreen()) {
-				documentService.closeDocument(doc);
-				break;
-			}
-		}
+		documentService.closeDocument(documentService.getDocuments()
+				.getSelectedDocument());
 	}
 
 	private void sendMessage(String text) {

@@ -47,7 +47,7 @@ public class ScreenDocumentCreator {
 
 		// Search for a possibly existing screen-document.
 		for (Document doc : documentService.getDocuments().asList()) {
-			if (doc.isScreen()) {
+			if (doc.getTitle().equals(screenSource.getTitle())) {
 				screenDoc = (ScreenDocument) doc;
 				found = true;
 				break;

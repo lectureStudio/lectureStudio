@@ -668,7 +668,6 @@ public class SlidesPresenter extends Presenter<SlidesView> {
 
 	private void stopScreenShare() {
 		PresenterContext presenterContext = (PresenterContext) context;
-		presenterContext.setScreenSharingStart(false);
 		presenterContext.setScreenSharingStarted(false);
 
 		// Remove document.

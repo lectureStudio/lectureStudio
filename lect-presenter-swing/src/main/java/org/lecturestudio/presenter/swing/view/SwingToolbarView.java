@@ -154,7 +154,7 @@ public class SwingToolbarView extends JPanel implements ToolbarView {
 
 	private JButton stopRecordingButton;
 
-	private JToggleButton screenShareEnableButton;
+	private JButton screenShareEnableButton;
 
 	private JToggleButton streamEnableButton;
 
@@ -243,6 +243,7 @@ public class SwingToolbarView extends JPanel implements ToolbarView {
 
 			streamMicButton.setEnabled(started);
 			streamCamButton.setEnabled(started);
+			screenShareEnableButton.setEnabled(started);
 		});
 	}
 
@@ -591,8 +592,8 @@ public class SwingToolbarView extends JPanel implements ToolbarView {
 	}
 
 	@Override
-	public void bindEnableScreenSharing(BooleanProperty enable) {
-		SwingUtils.bindBidirectional(screenShareEnableButton, enable);
+	public void bindEnableScreenSharing(Action action) {
+		SwingUtils.bindAction(screenShareEnableButton, action);
 	}
 
 	@Override

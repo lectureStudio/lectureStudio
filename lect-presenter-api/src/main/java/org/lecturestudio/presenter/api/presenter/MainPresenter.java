@@ -74,6 +74,7 @@ import org.lecturestudio.presenter.api.config.StreamConfiguration;
 import org.lecturestudio.presenter.api.context.PresenterContext;
 import org.lecturestudio.presenter.api.event.MessengerStateEvent;
 import org.lecturestudio.presenter.api.event.QuizStateEvent;
+import org.lecturestudio.presenter.api.event.ScreenShareSelectEvent;
 import org.lecturestudio.presenter.api.event.StreamingStateEvent;
 import org.lecturestudio.presenter.api.input.Shortcut;
 import org.lecturestudio.presenter.api.presenter.command.StartScreenSharingCommand;
@@ -167,33 +168,6 @@ public class MainPresenter extends org.lecturestudio.core.presenter.MainPresente
 
 		presenterContext.streamStartedProperty().addListener((o, oldValue, newValue) -> {
 			streamService.enableStream(newValue);
-		});
-		presenterContext.screenSharingStartProperty().addListener((o, oldValue, newValue) -> {
-			if (!newValue) {
-				return;
-			}
-
-			context.getEventBus()
-				.post(new StartScreenSharingCommand((screenSource) -> {
-					CompletableFuture.runAsync(() -> {
-						var source = new ScreenSource(screenSource.getTitle(),
-								screenSource.getId(), screenSource.isWindow());
-
-						streamService.setScreenSource(source);
-
-						try {
-							ScreenDocumentCreator.create(documentService, source);
-						}
-						catch (IOException e) {
-							throw new RuntimeException(e);
-						}
-					})
-					.exceptionally(e -> {
-						handleException(e, "Set screen-source failed",
-								"stream.screen.share.error");
-						return null;
-					});
-				}));
 		});
 		presenterContext.screenSharingStartedProperty().addListener((o, oldValue, newValue) -> {
 			streamService.enableScreenSharing(newValue);
@@ -435,6 +409,30 @@ public class MainPresenter extends org.lecturestudio.core.presenter.MainPresente
 		else if (state == ExecutableState.Error) {
 			showError("stream.closed.by.remote.host.title", "stream.closed.by.remote.host");
 		}
+	}
+
+	@Subscribe
+	public void onEvent(final ScreenShareSelectEvent event) {
+		context.getEventBus()
+			.post(new StartScreenSharingCommand((screenSource) -> {
+				CompletableFuture.runAsync(() -> {
+					var source = new ScreenSource(screenSource.getTitle(),
+							screenSource.getId(), screenSource.isWindow());
+
+					streamService.setScreenSource(source);
+
+					try {
+						ScreenDocumentCreator.create(documentService, source);
+					}
+					catch (IOException e) {
+						throw new RuntimeException(e);
+					}
+				}).exceptionally(e -> {
+					handleException(e, "Set screen-source failed",
+							"stream.screen.share.error");
+					return null;
+				});
+			}));
 	}
 
 	@Override

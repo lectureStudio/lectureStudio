@@ -63,7 +63,7 @@
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<build.output.dir>${platform.name}-${platform.arch}</build.output.dir>
-		<package.version>5.1.${git.commitsCount}</package.version>
+		<package.version>5.3.${git.commitsCount}</package.version>
 		<maven.build.timestamp.format>yyyy-MM-dd HH:mm</maven.build.timestamp.format>
 		<license.path>${project.basedir}/../</license.path>
 		<log4j.version>2.17.1</log4j.version>

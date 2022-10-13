@@ -18,6 +18,7 @@ import org.springframework.messaging.simp.stomp.StompCommand;
 import org.springframework.messaging.simp.stomp.StompHeaders;
 import org.springframework.messaging.simp.stomp.StompSession;
 import org.springframework.messaging.simp.stomp.StompSessionHandler;
+import org.springframework.scheduling.concurrent.ConcurrentTaskScheduler;
 import org.springframework.util.concurrent.ListenableFuture;
 import org.springframework.web.socket.WebSocketHttpHeaders;
 import org.springframework.web.socket.client.standard.StandardWebSocketClient;
@@ -168,6 +169,8 @@ public class WebSocketStompTransport extends ExecutableBase implements MessageTr
 
 			stompClient = new WebSocketStompClient(standardClient);
 			stompClient.setMessageConverter(new MappingJackson2MessageConverter());
+			stompClient.setTaskScheduler(new ConcurrentTaskScheduler());
+			stompClient.setDefaultHeartbeat(new long[] { 25000, 25000 });
 
 			connect();
 		}
@@ -181,6 +184,7 @@ public class WebSocketStompTransport extends ExecutableBase implements MessageTr
 
 		StompHeaders stompHeaders = new StompHeaders();
 		stompHeaders.add("courseId", course.getId().toString());
+		stompHeaders.setHeartbeat(new long[] { 25000, 25000 });
 
 		MessengerStompSessionHandler sessionHandler = new MessengerStompSessionHandler(course, jsonb, listenerMap);
 
@@ -301,8 +305,6 @@ public class WebSocketStompTransport extends ExecutableBase implements MessageTr
 			if (nonNull(o)) {
 				String payloadType = stompHeaders.get("payloadType").get(0);
 				String payloadJson = new String((byte[]) o, StandardCharsets.UTF_8);
-
-				System.out.println(payloadType + " " + payloadJson);
 
 				try {
 					WebMessage message = createMessage(payloadJson, payloadType);

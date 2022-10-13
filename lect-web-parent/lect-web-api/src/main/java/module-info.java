@@ -17,6 +17,7 @@ module org.lecturestudio.web.api {
 	requires resteasy.multipart.provider;
 	requires spring.websocket;
 	requires spring.messaging;
+	requires spring.context;
 	requires spring.core;
 	requires webrtc.java;
 

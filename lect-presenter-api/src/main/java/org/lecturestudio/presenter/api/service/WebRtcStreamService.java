@@ -226,7 +226,6 @@ public class WebRtcStreamService extends ExecutableBase {
 
 		setScreenShareState(ExecutableState.Stopping);
 
-//		streamContext.getScreenContext().setScreenSource(null);
 		streamContext.getScreenContext().setSendVideo(false);
 
 		setScreenShareState(ExecutableState.Stopped);
@@ -261,6 +260,10 @@ public class WebRtcStreamService extends ExecutableBase {
 		if (streamState == ExecutableState.Started) {
 			eventRecorder.shareDocument(document);
 		}
+	}
+
+	public ExecutableState getScreenShareState() {
+		return screenShareState;
 	}
 
 	@Override

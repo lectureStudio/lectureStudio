@@ -245,6 +245,8 @@ public class SlidesPresenter extends Presenter<SlidesView> {
 					documentService.removeDocument(doc);
 				}
 			}
+
+			documentService.selectLastDocument();
 		}
 	}
 
@@ -263,7 +265,11 @@ public class SlidesPresenter extends Presenter<SlidesView> {
 					break;
 				}
 			}
+		}
 
+		// The document related to the screen source may have been closed already
+		// due to the sharing has finished.
+		if (nonNull(screenDocument)) {
 			view.setScreenShareState(event.getState(), screenDocument);
 		}
 
@@ -687,12 +693,7 @@ public class SlidesPresenter extends Presenter<SlidesView> {
 	}
 
 	private void stopScreenShare() {
-		PresenterContext presenterContext = (PresenterContext) context;
-		presenterContext.setScreenSharingStarted(false);
-
-		// Remove document.
-		documentService.closeDocument(documentService.getDocuments()
-				.getSelectedDocument());
+		eventBus.post(new ScreenShareEndEvent());
 	}
 
 	private void sendMessage(String text) {

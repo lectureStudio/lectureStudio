@@ -74,6 +74,7 @@ import org.lecturestudio.presenter.api.config.StreamConfiguration;
 import org.lecturestudio.presenter.api.context.PresenterContext;
 import org.lecturestudio.presenter.api.event.MessengerStateEvent;
 import org.lecturestudio.presenter.api.event.QuizStateEvent;
+import org.lecturestudio.presenter.api.event.ScreenShareEndEvent;
 import org.lecturestudio.presenter.api.event.ScreenShareSelectEvent;
 import org.lecturestudio.presenter.api.event.StreamingStateEvent;
 import org.lecturestudio.presenter.api.input.Shortcut;
@@ -179,19 +180,20 @@ public class MainPresenter extends org.lecturestudio.core.presenter.MainPresente
 			}
 		});
 		presenterContext.screenSharingStartedProperty().addListener((o, oldValue, newValue) -> {
-			streamService.enableScreenSharing(newValue);
-
 			if (!newValue) {
-				try {
-					ScreenDocumentCreator.create(documentService,
-							streamService.getScreenSource());
+				// Only update documents with screen dumps if the service is active.
+				if (streamService.getScreenShareState() == ExecutableState.Started) {
+					try {
+						ScreenDocumentCreator.create(documentService,
+								streamService.getScreenSource());
 
-					// Register the newly created document with the source.
-					screenSourceService.addScreenSource(documentService.getDocuments()
-							.getSelectedDocument(), streamService.getScreenSource());
-				}
-				catch (Exception e) {
-					throw new RuntimeException(e);
+						// Register the newly created document with the source.
+						screenSourceService.addScreenSource(documentService.getDocuments()
+								.getSelectedDocument(), streamService.getScreenSource());
+					}
+					catch (Exception e) {
+						throw new RuntimeException(e);
+					}
 				}
 			}
 			else {
@@ -201,6 +203,8 @@ public class MainPresenter extends org.lecturestudio.core.presenter.MainPresente
 
 				streamService.setScreenSource(source);
 			}
+
+			streamService.enableScreenSharing(newValue);
 		});
 		presenterContext.messengerStartedProperty().addListener((o, oldValue, newValue) -> {
 			streamService.enableMessenger(newValue);
@@ -377,6 +381,9 @@ public class MainPresenter extends org.lecturestudio.core.presenter.MainPresente
 		else if (event.closed()) {
 			documentClosed(doc);
 		}
+		else if (event.selected()) {
+			documentSelected();
+		}
 	}
 
 	@Subscribe
@@ -459,6 +466,20 @@ public class MainPresenter extends org.lecturestudio.core.presenter.MainPresente
 					return null;
 				});
 			}));
+	}
+
+	@Subscribe
+	public void onEvent(final ScreenShareEndEvent event) {
+		streamService.enableScreenSharing(false);
+
+		// Remove document.
+		Document screenDoc = documentService.getDocuments()
+				.getSelectedDocument();
+
+		documentService.closeDocument(screenDoc);
+		documentService.selectLastDocument();
+
+		screenSourceService.removeScreenSource(screenDoc);
 	}
 
 	@Override
@@ -770,6 +791,10 @@ public class MainPresenter extends org.lecturestudio.core.presenter.MainPresente
 
 		// Remove bookmarks for the closed document.
 		bookmarkService.clearBookmarks(doc);
+	}
+
+	private void documentSelected() {
+		streamService.enableScreenSharing(false);
 	}
 
 	private <T extends Presenter<?>> T createPresenter(Class<T> pClass) {

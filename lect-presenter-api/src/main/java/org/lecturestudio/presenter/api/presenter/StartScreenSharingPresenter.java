@@ -210,8 +210,6 @@ public class StartScreenSharingPresenter extends Presenter<StartScreenSharingVie
 			var task = entry.getValue();
 
 			if (!sourceList.contains(task.source)) {
-				System.out.println("remove closed sources: " + sourceList);
-
 				// Stop observing screen source.
 				disposeTask(task);
 
@@ -226,9 +224,6 @@ public class StartScreenSharingPresenter extends Presenter<StartScreenSharingVie
 			SharedScreenSource screenSource,
 			ObservableList<SharedScreenSource> observableList,
 			Map<SharedScreenSource, DesktopSourceTask> sourceMap) {
-
-		System.out.println("add new source: " + source);
-
 		DesktopSourceTask task = new DesktopSourceTask(capturer, source, screenSource);
 
 		sourceMap.put(screenSource, task);
@@ -274,8 +269,6 @@ public class StartScreenSharingPresenter extends Presenter<StartScreenSharingVie
 		@Override
 		protected void startInternal() throws ExecutableException {
 			capturer.start((result, desktopFrame) -> {
-				System.out.println("result: " + result + ", frame = " + desktopFrame);
-
 				ScreenSourceVideoFrame videoFrame = new ScreenSourceVideoFrame(
 						desktopFrame.frameRect, desktopFrame.frameSize,
 						desktopFrame.stride, cloneByteBuffer(desktopFrame.buffer));
@@ -286,7 +279,6 @@ public class StartScreenSharingPresenter extends Presenter<StartScreenSharingVie
 			future = executorService.scheduleAtFixedRate(() -> {
 				if (!disposed.get()) {
 					synchronized (capturer) {
-						System.out.println("capture frame");
 						capturer.captureFrame();
 					}
 				}

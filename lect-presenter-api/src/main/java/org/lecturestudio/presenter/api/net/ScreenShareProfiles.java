@@ -26,10 +26,10 @@ package org.lecturestudio.presenter.api.net;
 public class ScreenShareProfiles {
 
 	public static ScreenShareProfile STILL = new ScreenShareProfile(
-			ScreenShareProfileType.STILL, 1500, 3);
+			ScreenShareProfileType.STILL, 2000, 3);
 
 	public static ScreenShareProfile MOTION = new ScreenShareProfile(
-			ScreenShareProfileType.MOTION, 1000, 24);
+			ScreenShareProfileType.MOTION, 2000, 24);
 
 	public static final ScreenShareProfile[] DEFAULT = { STILL, MOTION };
 

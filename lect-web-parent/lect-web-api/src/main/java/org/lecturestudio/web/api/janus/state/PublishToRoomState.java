@@ -43,6 +43,8 @@ import org.lecturestudio.web.api.stream.StreamContext;
 
 import dev.onvoid.webrtc.RTCIceCandidate;
 import dev.onvoid.webrtc.RTCIceGatheringState;
+import dev.onvoid.webrtc.RTCRtpSendParameters;
+import dev.onvoid.webrtc.RTCRtpSender;
 import dev.onvoid.webrtc.RTCRtpTransceiver;
 import dev.onvoid.webrtc.RTCRtpTransceiverDirection;
 import dev.onvoid.webrtc.RTCSdpType;
@@ -152,6 +154,10 @@ public class PublishToRoomState implements JanusState {
 		JanusRoomPublishRequest request = new JanusRoomPublishRequest();
 		JanusPeerConnection peerConnection = handler.getPeerConnection();
 
+		StreamContext streamContext = handler.getStreamContext();
+		StreamVideoContext videoContext = streamContext.getVideoContext();
+		StreamScreenContext screenContext = streamContext.getScreenContext();
+
 		for (RTCRtpTransceiver transceiver : peerConnection.getTransceivers()) {
 			MediaStreamTrack track = transceiver.getSender().getTrack();
 
@@ -165,6 +171,31 @@ public class PublishToRoomState implements JanusState {
 							localScreenFrameConsumer.accept(new ScreenVideoFrameEvent(videoFrame));
 						}
 					});
+
+					RTCRtpSender sender = transceiver.getSender();
+					RTCRtpSendParameters sendParams = sender.getParameters();
+
+					// Set screen encoding constraints.
+					for (var encoding : sendParams.encodings) {
+						encoding.minBitrate = screenContext.getBitrate() * 500;
+						encoding.maxBitrate = screenContext.getBitrate() * 1000;
+						encoding.maxFramerate = screenContext.getFramerate().doubleValue();
+					}
+
+					sender.setParameters(sendParams);
+				}
+				else if (track.getId().equals("camera")) {
+					RTCRtpSender sender = transceiver.getSender();
+					RTCRtpSendParameters sendParams = sender.getParameters();
+
+					// Set camera encoding constraints.
+					for (var encoding : sendParams.encodings) {
+						encoding.minBitrate = videoContext.getBitrate() * 500;
+						encoding.maxBitrate = videoContext.getBitrate() * 1000;
+						encoding.maxFramerate = 20.0;
+					}
+
+					sender.setParameters(sendParams);
 				}
 			}
 		}

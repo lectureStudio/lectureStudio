@@ -31,13 +31,14 @@
 		<VBox id="optionContainer">
 			<gridbagconstraints gridx="0" gridy="4" gridwidth="4" fill="GridBagConstraints.HORIZONTAL" insets="20,0,10,0" />
 		</VBox>
-		<Button id="newOptionButton" icon="add.svg, 20" text="create.quiz.option.add" tooltipText="create.quiz.option.add.tooltip">
+		<Button id="newOptionButton" icon="add.svg, 20" text="create.quiz.option.add" tooltipText="create.quiz.option.add.tooltip" accelerator="ctrl O">
 			<gridbagconstraints gridx="0" gridy="5" gridwidth="4" anchor="GridBagConstraints.WEST" />
 		</Button>
 		<HBox gap="5" border="EmptyBorder(10, 0, 0, 0)">
 			<gridbagconstraints gridx="0" gridy="6" gridwidth="4" fill="GridBagConstraints.HORIZONTAL" />
 			<box.hglue />
 			<Button id="closeButton" text="button.close" tooltipText="create.quiz.cancel.tooltip"/>
+			<Button id="saveAndNextQuizButton" text="create.quiz.save.next" tooltipText="create.quiz.save.next.tooltip" accelerator="ctrl W"/>
 			<Button id="saveQuizButton" text="create.quiz.save" tooltipText="create.quiz.save.tooltip" accelerator="ctrl ENTER"/>
 			<Button id="startQuizButton" text="create.quiz.start" tooltipText="create.quiz.start"/>
 		</HBox>

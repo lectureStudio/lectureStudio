@@ -56,6 +56,8 @@ public interface CreateQuizView extends View {
 
 	void setOnSaveQuiz(Action action);
 
+	void setOnSaveAndNextQuiz(Action action);
+
 	void setOnStartQuiz(Action action);
 
 	void setOnQuizType(ConsumerAction<Quiz.QuizType> action);

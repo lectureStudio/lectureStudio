@@ -119,6 +119,7 @@ public class CreateQuizPresenter extends Presenter<CreateQuizView> {
 		view.setOnDocumentSelected(this::documentSelected);
 		view.setOnNewOption(this::newOption);
 		view.setOnSaveQuiz(this::saveQuiz);
+		view.setOnSaveAndNextQuiz(this::saveAndNextQuiz);
 		view.setOnStartQuiz(this::startQuiz);
 		view.setOnQuizType(this::setQuizType);
 
@@ -170,6 +171,21 @@ public class CreateQuizPresenter extends Presenter<CreateQuizView> {
 		catch (IOException e) {
 			handleException(e, "Save quiz failed", "quiz.save.error");
 		}
+	}
+
+	private void saveAndNextQuiz() {
+		saveQuiz();
+		setQuiz(null);
+
+		quiz = new Quiz(Quiz.QuizType.MULTIPLE, "");
+		quiz.setQuizSet(isGenericSet() ?
+				Quiz.QuizSet.GENERIC :
+				QuizSet.DOCUMENT_SPECIFIC);
+
+		view.setQuizText(quiz.getQuestion());
+		view.setQuizType(quiz.getType());
+
+		clearOptions();
 	}
 
 	private void startQuiz() {

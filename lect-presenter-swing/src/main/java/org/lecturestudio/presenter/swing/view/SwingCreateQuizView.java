@@ -93,6 +93,8 @@ public class SwingCreateQuizView extends ContentPane implements CreateQuizView {
 
 	private JButton saveQuizButton;
 
+	private JButton saveAndNextQuizButton;
+
 	private JButton startQuizButton;
 
 	public javax.swing.Action typeAction = new AbstractAction() {
@@ -115,7 +117,13 @@ public class SwingCreateQuizView extends ContentPane implements CreateQuizView {
 
 	@Override
 	public void clearOptions() {
-		SwingUtils.invoke(() -> optionContainer.removeAll());
+		SwingUtils.invoke(() -> {
+			optionContainer.removeAll();
+			optionContainer.revalidate();
+			optionContainer.repaint();
+
+			htmlEditor.requestFocus();
+		});
 	}
 
 	@Override
@@ -222,15 +230,9 @@ public class SwingCreateQuizView extends ContentPane implements CreateQuizView {
 	public void setQuizType(QuizType type) {
 		SwingUtils.invoke(() -> {
 			switch (type) {
-				case MULTIPLE:
-					multipleTypeRadioButton.setSelected(true);
-					break;
-				case NUMERIC:
-					numericTypeRadioButton.setSelected(true);
-					break;
-				case SINGLE:
-					singleTypeRadioButton.setSelected(true);
-					break;
+				case MULTIPLE -> multipleTypeRadioButton.setSelected(true);
+				case NUMERIC -> numericTypeRadioButton.setSelected(true);
+				case SINGLE -> singleTypeRadioButton.setSelected(true);
 			}
 		});
 	}
@@ -263,6 +265,11 @@ public class SwingCreateQuizView extends ContentPane implements CreateQuizView {
 	}
 
 	@Override
+	public void setOnSaveAndNextQuiz(Action action) {
+		SwingUtils.bindAction(saveAndNextQuizButton, action);
+	}
+
+	@Override
 	public void setOnStartQuiz(Action action) {
 		SwingUtils.bindAction(startQuizButton, action);
 	}
@@ -274,6 +281,8 @@ public class SwingCreateQuizView extends ContentPane implements CreateQuizView {
 
 	@ViewPostConstruct
 	private void initialize() {
+		traverseButtons(this);
+
 		oldKFM = KeyboardFocusManager.getCurrentKeyboardFocusManager();
 
 		// Use custom keyboard manager.
@@ -310,6 +319,28 @@ public class SwingCreateQuizView extends ContentPane implements CreateQuizView {
 						KeyUtils.getDisplayText(KeyStroke.getKeyStroke("UP")));
 			}
 		});
+	}
+
+	public static void traverseButtons(Container container) {
+		if (container != null) {
+			for (int i = 0; i < container.getComponentCount(); ++i) {
+				Component c = container.getComponent(i);
+				if (c instanceof JComponent) {
+					JComponent cc = (JComponent) c;
+					String ks = (String) cc.getClientProperty("KEY_STRING");
+
+					if (nonNull(ks)) {
+						String tooltip = cc.getToolTipText();
+
+						cc.setToolTipText(nonNull(tooltip)
+								? tooltip + " [" + ks + "]"
+								: ks);
+					}
+
+					traverseButtons(cc);
+				}
+			}
+		}
 	}
 
 	private String createMultilineTooltip(Map<String, String> data) {

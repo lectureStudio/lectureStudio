@@ -21,6 +21,8 @@ package org.lecturestudio.swing.swixml.factory;
 import static java.util.Objects.nonNull;
 
 import java.awt.event.ActionEvent;
+import java.awt.event.InputEvent;
+import java.awt.event.KeyEvent;
 
 import javax.swing.AbstractAction;
 import javax.swing.AbstractButton;
@@ -58,6 +60,15 @@ public class AbstractButtonFactory extends BeanFactory implements LogAware {
 								b.doClick();
 							}
 						});
+
+				String modifierString = InputEvent.getModifiersExText(stroke.getModifiers());
+				String keyString = KeyEvent.getKeyText(stroke.getKeyCode());
+
+				if (!modifierString.isEmpty() || !modifierString.isBlank()) {
+					keyString = modifierString + " + " + keyString;
+				}
+
+				button.putClientProperty("KEY_STRING", keyString);
 			}
 			else {
 				logger.warning("Failed to set assigned accelerator: " + node

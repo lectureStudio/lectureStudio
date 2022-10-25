@@ -191,8 +191,12 @@ public class MainPresenter extends org.lecturestudio.core.presenter.MainPresente
 						screenSourceService.addScreenSource(documentService.getDocuments()
 								.getSelectedDocument(), streamService.getScreenSource());
 					}
+					catch (Error e) {
+						// Select screen source failed.
+						// Which in this case is not too critical, since the source may be minimized.
+					}
 					catch (Exception e) {
-						throw new RuntimeException(e);
+						logException(e, "Create screen-document failed");
 					}
 				}
 			}

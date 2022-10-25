@@ -459,6 +459,11 @@ class CreateQuizPresenterTest extends PresenterTest {
 		}
 
 		@Override
+		public void setOnSaveAndNextQuiz(Action action) {
+
+		}
+
+		@Override
 		public void setOnStartQuiz(Action action) {
 			assertNotNull(action);
 

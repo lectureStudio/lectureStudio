@@ -224,6 +224,8 @@ public class WebRtcStreamEventRecorder extends StreamEventRecorder {
 		}
 		else if (event.closed()) {
 			action = new StreamDocumentCloseAction(doc);
+
+			removeActionsForDocument(doc);
 		}
 		else if (event.selected()) {
 			currentPage = doc.getCurrentPage();

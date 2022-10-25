@@ -26,6 +26,7 @@ import java.math.BigInteger;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
@@ -330,6 +331,7 @@ public class JanusHandler extends JanusStateHandler {
 
 		if (nonNull(entry)) {
 			entry.getValue().setId(publisher.getId());
+			entry.getValue().setStreams(publisher.getStreams());
 
 			startSubscriber(entry.getValue(), entry.getKey());
 		}
@@ -470,21 +472,24 @@ public class JanusHandler extends JanusStateHandler {
 		return speechPublishers.entrySet().iterator().next();
 	}
 
-	private void muteParticipant(JanusPublisher publisher, boolean mute, MediaType... types) {
+	private void muteParticipant(JanusPublisher publisher, boolean mute, MediaType type) {
+		if (isNull(publisher.getStreams())) {
+			logErrorMessage("Cannot mute publisher (no stream info).");
+			return;
+		}
+
 		JanusRoomModerateRequest request = new JanusRoomModerateRequest();
 		request.setParticipantId(publisher.getId());
 		request.setRoomId(getRoomId());
 		request.setSecret(getRoomSecret());
+		request.setMute(mute);
 
-		for (MediaType type : types) {
-			if (type == MediaType.Audio) {
-				request.setMuteAudio(mute);
-			}
-			else if (type == MediaType.Camera) {
-				request.setMuteVideo(mute);
-			}
-			if (type == MediaType.Event) {
-				request.setMuteData(mute);
+		for (JanusPublisherStream stream : publisher.getStreams()) {
+			if (type == MediaType.Audio && Objects.equals(stream.getType(), "audio") ||
+				type == MediaType.Camera && Objects.equals(stream.getType(), "video") ||
+				type == MediaType.Event && Objects.equals(stream.getType(), "data")) {
+				request.setMid(stream.getMid());
+				break;
 			}
 		}
 

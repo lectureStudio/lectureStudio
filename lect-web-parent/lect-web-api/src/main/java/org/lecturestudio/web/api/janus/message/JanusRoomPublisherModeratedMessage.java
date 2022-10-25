@@ -31,7 +31,7 @@ import org.lecturestudio.web.api.janus.JanusPublisher;
  */
 public class JanusRoomPublisherModeratedMessage extends JanusRoomPublisherEventMessage {
 
-	private String mediaType;
+	private String mid;
 
 	private String mediaState;
 
@@ -49,21 +49,21 @@ public class JanusRoomPublisherModeratedMessage extends JanusRoomPublisherEventM
 	}
 
 	/**
-	 * Get the media type (audio, video or data) that has been moderated.
+	 * Get the unique mid of moderated stream.
 	 *
-	 * @return The media type.
+	 * @return The unique mid of moderated stream.
 	 */
-	public String getMediaType() {
-		return mediaType;
+	public String getMid() {
+		return mid;
 	}
 
 	/**
-	 * Set the media type (audio, video or data) that has been moderated.
+	 * Set the unique mid of moderated stream.
 	 *
-	 * @param mediaType The media type.
+	 * @param mid The unique mid of moderated stream.
 	 */
-	public void setMediaType(String mediaType) {
-		this.mediaType = mediaType;
+	public void setMid(String mid) {
+		this.mid = mid;
 	}
 
 	/**

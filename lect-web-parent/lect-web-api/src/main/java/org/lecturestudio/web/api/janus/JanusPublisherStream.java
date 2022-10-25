@@ -25,6 +25,42 @@ package org.lecturestudio.web.api.janus;
  *
  * @apiNote https://janus.conf.meetecho.com/docs/videoroom.html
  */
-public class JanusStream {
+public class JanusPublisherStream {
 
+	private String type;
+
+	private Integer mindex;
+
+	private String mid;
+
+	private String codec;
+
+
+	/**
+	 * @return The type of published stream (audio|video|data).
+	 */
+	public String getType() {
+		return type;
+	}
+
+	/**
+	 * @return The unique mindex of published stream.
+	 */
+	public Integer getMindex() {
+		return mindex;
+	}
+
+	/**
+	 * @return The unique mid of published stream.
+	 */
+	public String getMid() {
+		return mid;
+	}
+
+	/**
+	 * @return The codec used for published stream.
+	 */
+	public String getCodec() {
+		return codec;
+	}
 }

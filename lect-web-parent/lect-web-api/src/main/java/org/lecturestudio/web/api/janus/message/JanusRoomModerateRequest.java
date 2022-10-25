@@ -33,11 +33,7 @@ public class JanusRoomModerateRequest extends JanusRoomRequest {
 
 	private String mid;
 
-	private Boolean mute_audio;
-
-	private Boolean mute_video;
-
-	private Boolean mute_data;
+	private Boolean mute;
 
 
 	/**
@@ -76,29 +72,11 @@ public class JanusRoomModerateRequest extends JanusRoomRequest {
 	}
 
 	/**
-	 * Set whether or not audio of the specified participant should be muted.
+	 * Set whether the media addressed by the mid should be muted.
 	 *
 	 * @param mute True to mute audio.
 	 */
-	public void setMuteAudio(boolean mute) {
-		this.mute_audio = mute;
-	}
-
-	/**
-	 * Set whether or not video of the specified participant should be muted.
-	 *
-	 * @param mute True to mute video.
-	 */
-	public void setMuteVideo(boolean mute) {
-		this.mute_video = mute;
-	}
-
-	/**
-	 * Set whether or not data of the specified participant should be muted.
-	 *
-	 * @param mute True to mute data.
-	 */
-	public void setMuteData(boolean mute) {
-		this.mute_data = mute;
+	public void setMute(boolean mute) {
+		this.mute = mute;
 	}
 }

@@ -19,6 +19,7 @@
 package org.lecturestudio.web.api.janus;
 
 import java.math.BigInteger;
+import java.util.List;
 import java.util.Objects;
 import java.util.StringJoiner;
 
@@ -36,6 +37,8 @@ public class JanusPublisher {
 	private String display;
 
 	private Boolean talking;
+
+	private List<JanusPublisherStream> streams;
 
 
 	/**
@@ -91,6 +94,24 @@ public class JanusPublisher {
 	 */
 	public void setIsTalking(boolean talking) {
 		this.talking = talking;
+	}
+
+	/**
+	 * Get the publisher's active streams.
+	 *
+	 * @return The published streams.
+	 */
+	public List<JanusPublisherStream> getStreams() {
+		return streams;
+	}
+
+	/**
+	 * Set the publisher's active streams.
+	 *
+	 * @param streams The published streams.
+	 */
+	public void setStreams(List<JanusPublisherStream> streams) {
+		this.streams = streams;
 	}
 
 	@Override

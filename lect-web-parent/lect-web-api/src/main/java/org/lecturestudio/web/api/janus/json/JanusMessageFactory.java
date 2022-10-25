@@ -424,13 +424,8 @@ public class JanusMessageFactory {
 			else if (data.containsKey("joining")) {
 				return createPublisherJoiningMessage(body, data, jsonb);
 			}
-			else if (data.containsKey("audio-moderation")) {
-				return createPublisherModeratedMessage(body, data, "audio",
-					data.getString("audio-moderation"));
-			}
-			else if (data.containsKey("video-moderation")) {
-				return createPublisherModeratedMessage(body, data, "video",
-					data.getString("video-moderation"));
+			else if (data.containsKey("moderation")) {
+				return createPublisherModeratedMessage(body, data);
 			}
 
 			throw new NotSupportedException("Room event type not supported: " + eventType);
@@ -440,10 +435,12 @@ public class JanusMessageFactory {
 	}
 
 	private static JanusMessage createPublisherModeratedMessage(JsonObject body,
-			JsonObject data, String type, String state) {
+			JsonObject data) {
 		var sessionId = body.getJsonNumber("session_id").bigIntegerValue();
 		var handleId = body.getJsonNumber("sender").bigIntegerValue();
 		var roomId = data.getJsonNumber("room").bigIntegerValue();
+		var state = data.getString("moderation");
+		var mid = data.getString("mid");
 
 		JanusPublisher publisher = new JanusPublisher();
 		publisher.setId(data.getJsonNumber("id").bigIntegerValue());
@@ -452,7 +449,7 @@ public class JanusMessageFactory {
 				sessionId, roomId, publisher);
 		message.setEventType(JanusMessageType.EVENT);
 		message.setRoomEventType(JanusRoomEventType.EVENT);
-		message.setMediaType(type);
+		message.setMid(mid);
 		message.setMediaState(state);
 
 		return message;

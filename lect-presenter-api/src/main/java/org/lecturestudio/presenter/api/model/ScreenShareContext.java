@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2021 TU Darmstadt, Department of Computer Science,
+ * Copyright (C) 2022 TU Darmstadt, Department of Computer Science,
  * Embedded Systems and Applications Group.
  *
  * This program is free software: you can redistribute it and/or modify
@@ -16,30 +16,32 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package org.lecturestudio.presenter.api.view;
+package org.lecturestudio.presenter.api.model;
 
 import org.lecturestudio.core.beans.ObjectProperty;
-import org.lecturestudio.core.util.ObservableList;
-import org.lecturestudio.core.view.Action;
-import org.lecturestudio.core.view.View;
-import org.lecturestudio.presenter.api.model.SharedScreenSource;
 import org.lecturestudio.presenter.api.net.ScreenShareProfile;
 import org.lecturestudio.web.api.model.ScreenSource;
 
-public interface StartScreenSharingView extends View {
+public class ScreenShareContext {
 
-	void setWindows(ObservableList<SharedScreenSource> windows);
+	private final ObjectProperty<ScreenShareProfile> profile = new ObjectProperty<>();
 
-	void setScreens(ObservableList<SharedScreenSource> screens);
+	private final ObjectProperty<ScreenSource> source = new ObjectProperty<>();
 
-	void bindScreenSource(ObjectProperty<ScreenSource> sourceProperty);
 
-	void bindScreenShareProfile(ObjectProperty<ScreenShareProfile> profile);
+	public ObjectProperty<ScreenSource> sourceProperty() {
+		return source;
+	}
 
-	void setScreenShareProfiles(ScreenShareProfile[] profiles);
+	public ObjectProperty<ScreenShareProfile> profileProperty() {
+		return profile;
+	}
 
-	void setOnClose(Action action);
+	public ScreenSource getSource() {
+		return source.get();
+	}
 
-	void setOnStart(Action action);
-
+	public ScreenShareProfile getProfile() {
+		return profile.get();
+	}
 }

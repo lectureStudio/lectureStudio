@@ -119,6 +119,5 @@ public class SwingStreamSettingsView extends JPanel implements StreamSettingsVie
 	private void initialize() {
 		screenProfileCombo.setRenderer(new ScreenShareProfileRenderer(resources,
 				"stream.settings.screen.share.profile."));
-
 	}
 }

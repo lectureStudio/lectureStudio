@@ -100,4 +100,10 @@ public class ScreenShareProfile {
 	public int hashCode() {
 		return Objects.hash(type, bitrate, framerate);
 	}
+
+	@Override
+	public String toString() {
+		return "ScreenShareProfile{" + "type=" + type + ", bitrate=" + bitrate
+				+ ", framerate=" + framerate + '}';
+	}
 }

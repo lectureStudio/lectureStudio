@@ -56,6 +56,7 @@ import org.lecturestudio.presenter.api.context.PresenterContext;
 import org.lecturestudio.presenter.api.event.CameraStateEvent;
 import org.lecturestudio.presenter.api.event.ScreenShareStateEvent;
 import org.lecturestudio.presenter.api.event.StreamingStateEvent;
+import org.lecturestudio.presenter.api.model.ScreenShareContext;
 import org.lecturestudio.presenter.api.net.ScreenShareProfile;
 import org.lecturestudio.presenter.api.presenter.ReconnectStreamPresenter;
 import org.lecturestudio.web.api.client.ClientFailover;
@@ -67,7 +68,6 @@ import org.lecturestudio.web.api.janus.JanusPeerConnectionMediaException;
 import org.lecturestudio.web.api.janus.JanusStateHandlerListener;
 import org.lecturestudio.web.api.janus.client.JanusWebSocketClient;
 import org.lecturestudio.web.api.message.SpeechBaseMessage;
-import org.lecturestudio.web.api.model.ScreenSource;
 import org.lecturestudio.web.api.service.ServiceParameters;
 import org.lecturestudio.web.api.stream.StreamAudioContext;
 import org.lecturestudio.web.api.stream.StreamScreenContext;
@@ -198,12 +198,10 @@ public class WebRtcStreamService extends ExecutableBase {
 		setCameraState(ExecutableState.Stopped);
 	}
 
-	public ScreenSource getScreenSource() {
-		return streamContext.getScreenContext().getScreenSource();
-	}
-
-	public void setScreenSource(ScreenSource screenSource) {
-		streamContext.getScreenContext().setScreenSource(screenSource);
+	public void setScreenShareContext(ScreenShareContext context) {
+		streamContext.getScreenContext().setFramerate(context.getProfile().getFramerate());
+		streamContext.getScreenContext().setBitrate(context.getProfile().getBitrate());
+		streamContext.getScreenContext().setScreenSource(context.getSource());
 	}
 
 	public void startScreenShare() throws ExecutableException {

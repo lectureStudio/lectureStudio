@@ -78,6 +78,7 @@ import org.lecturestudio.presenter.api.event.ScreenShareEndEvent;
 import org.lecturestudio.presenter.api.event.ScreenShareSelectEvent;
 import org.lecturestudio.presenter.api.event.StreamingStateEvent;
 import org.lecturestudio.presenter.api.input.Shortcut;
+import org.lecturestudio.presenter.api.model.ScreenShareContext;
 import org.lecturestudio.presenter.api.presenter.command.StartScreenSharingCommand;
 import org.lecturestudio.presenter.api.recording.RecordingBackup;
 import org.lecturestudio.presenter.api.service.BookmarkService;
@@ -90,7 +91,6 @@ import org.lecturestudio.presenter.api.util.ScreenDocumentCreator;
 import org.lecturestudio.presenter.api.view.MainView;
 import org.lecturestudio.web.api.exception.StreamMediaException;
 import org.lecturestudio.web.api.model.GitHubRelease;
-import org.lecturestudio.web.api.model.ScreenSource;
 import org.lecturestudio.web.api.service.VersionChecker;
 
 public class MainPresenter extends org.lecturestudio.core.presenter.MainPresenter<MainView> implements ViewHandler {
@@ -180,16 +180,19 @@ public class MainPresenter extends org.lecturestudio.core.presenter.MainPresente
 			}
 		});
 		presenterContext.screenSharingStartedProperty().addListener((o, oldValue, newValue) -> {
+			Document selectedDoc = documentService.getDocuments().getSelectedDocument();
+			ScreenShareContext shareContext = screenSourceService.getScreenShareContext(selectedDoc);
+
 			if (!newValue) {
 				// Only update documents with screen dumps if the service is active.
 				if (streamService.getScreenShareState() == ExecutableState.Started) {
 					try {
-						ScreenDocumentCreator.create(documentService,
-								streamService.getScreenSource());
+						ScreenDocumentCreator.create(documentService, shareContext.getSource());
+
+						selectedDoc = documentService.getDocuments().getSelectedDocument();
 
 						// Register the newly created document with the source.
-						screenSourceService.addScreenSource(documentService.getDocuments()
-								.getSelectedDocument(), streamService.getScreenSource());
+						screenSourceService.addScreenShareContext(selectedDoc, shareContext);
 					}
 					catch (Error e) {
 						// Select screen source failed.
@@ -202,10 +205,7 @@ public class MainPresenter extends org.lecturestudio.core.presenter.MainPresente
 			}
 			else {
 				// Set the screen source related to the selected screen document.
-				ScreenSource source = screenSourceService.getScreenSource(
-						documentService.getDocuments().getSelectedDocument());
-
-				streamService.setScreenSource(source);
+				streamService.setScreenShareContext(shareContext);
 			}
 
 			streamService.enableScreenSharing(newValue);
@@ -447,19 +447,17 @@ public class MainPresenter extends org.lecturestudio.core.presenter.MainPresente
 	@Subscribe
 	public void onEvent(final ScreenShareSelectEvent event) {
 		context.getEventBus()
-			.post(new StartScreenSharingCommand((screenSource) -> {
+			.post(new StartScreenSharingCommand((context) -> {
 				CompletableFuture.runAsync(() -> {
-					var source = new ScreenSource(screenSource.getTitle(),
-							screenSource.getId(), screenSource.isWindow());
-
-					streamService.setScreenSource(source);
+					streamService.setScreenShareContext(context);
 
 					try {
-						ScreenDocumentCreator.create(documentService, source);
+						ScreenDocumentCreator.create(documentService, context.getSource());
 
 						// Register created screen document with the screen source.
-						screenSourceService.addScreenSource(documentService.getDocuments()
-								.getSelectedDocument(), source);
+						screenSourceService.addScreenShareContext(
+								documentService.getDocuments().getSelectedDocument(),
+								context);
 					}
 					catch (IOException e) {
 						throw new RuntimeException(e);

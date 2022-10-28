@@ -36,9 +36,9 @@ import org.lecturestudio.core.presenter.command.NotificationCommand;
 import org.lecturestudio.core.util.NetUtils;
 import org.lecturestudio.core.view.NotificationType;
 import org.lecturestudio.presenter.api.context.PresenterContext;
+import org.lecturestudio.presenter.api.model.ScreenShareContext;
 import org.lecturestudio.presenter.api.presenter.command.StartCourseFeatureCommand;
 import org.lecturestudio.presenter.api.presenter.command.StartStreamCommand;
-import org.lecturestudio.web.api.model.ScreenSource;
 import org.lecturestudio.web.api.model.quiz.Quiz;
 import org.lecturestudio.web.api.stream.model.Course;
 
@@ -74,12 +74,8 @@ public class StreamService {
 		}
 	}
 
-	public ScreenSource getScreenSource() {
-		return streamService.getScreenSource();
-	}
-
-	public void setScreenSource(ScreenSource screenSource) {
-		streamService.setScreenSource(screenSource);
+	public void setScreenShareContext(ScreenShareContext context) {
+		streamService.setScreenShareContext(context);
 	}
 
 	public ExecutableState getScreenShareState() {

@@ -20,15 +20,15 @@ package org.lecturestudio.presenter.api.presenter.command;
 
 import org.lecturestudio.core.presenter.command.ShowPresenterCommand;
 import org.lecturestudio.core.view.ConsumerAction;
-import org.lecturestudio.presenter.api.model.SharedScreenSource;
+import org.lecturestudio.presenter.api.model.ScreenShareContext;
 import org.lecturestudio.presenter.api.presenter.StartScreenSharingPresenter;
 
 public class StartScreenSharingCommand extends ShowPresenterCommand<StartScreenSharingPresenter> {
 
-	private final ConsumerAction<SharedScreenSource> startAction;
+	private final ConsumerAction<ScreenShareContext> startAction;
 
 
-	public StartScreenSharingCommand(ConsumerAction<SharedScreenSource> startAction) {
+	public StartScreenSharingCommand(ConsumerAction<ScreenShareContext> startAction) {
 		super(StartScreenSharingPresenter.class);
 
 		this.startAction = startAction;

@@ -39,20 +39,21 @@ import javax.inject.Inject;
 
 import org.lecturestudio.core.ExecutableBase;
 import org.lecturestudio.core.ExecutableException;
-import org.lecturestudio.core.beans.ObjectProperty;
 import org.lecturestudio.core.presenter.Presenter;
 import org.lecturestudio.core.util.ObservableArrayList;
 import org.lecturestudio.core.util.ObservableList;
 import org.lecturestudio.core.view.ConsumerAction;
 import org.lecturestudio.core.view.ViewLayer;
 import org.lecturestudio.presenter.api.context.PresenterContext;
+import org.lecturestudio.presenter.api.model.ScreenShareContext;
 import org.lecturestudio.presenter.api.model.ScreenSourceVideoFrame;
 import org.lecturestudio.presenter.api.model.SharedScreenSource;
+import org.lecturestudio.presenter.api.net.ScreenShareProfiles;
 import org.lecturestudio.presenter.api.view.StartScreenSharingView;
 
 public class StartScreenSharingPresenter extends Presenter<StartScreenSharingView> {
 
-	private ConsumerAction<SharedScreenSource> startAction;
+	private ConsumerAction<ScreenShareContext> startAction;
 
 	private ScheduledExecutorService executorService;
 
@@ -70,7 +71,7 @@ public class StartScreenSharingPresenter extends Presenter<StartScreenSharingVie
 
 	private ScreenCapturer screenCapturer;
 
-	private ObjectProperty<SharedScreenSource> screenSource;
+	private ScreenShareContext screenShareContext;
 
 
 	@Inject
@@ -88,7 +89,8 @@ public class StartScreenSharingPresenter extends Presenter<StartScreenSharingVie
 		windowMap = new ConcurrentHashMap<>();
 		screens = new ObservableArrayList<>();
 		windows = new ObservableArrayList<>();
-		screenSource = new ObjectProperty<>();
+		screenShareContext = new ScreenShareContext();
+		screenShareContext.profileProperty().set(ScreenShareProfiles.STILL);
 
 		future = executorService.scheduleAtFixedRate(() -> {
 			getWindows();
@@ -97,7 +99,9 @@ public class StartScreenSharingPresenter extends Presenter<StartScreenSharingVie
 
 		view.setScreens(screens);
 		view.setWindows(windows);
-		view.bindScreenSource(screenSource);
+		view.bindScreenSource(screenShareContext.sourceProperty());
+		view.bindScreenShareProfile(screenShareContext.profileProperty());
+		view.setScreenShareProfiles(ScreenShareProfiles.DEFAULT);
 		view.setOnStart(this::onStart);
 		view.setOnClose(this::close);
 	}
@@ -115,7 +119,7 @@ public class StartScreenSharingPresenter extends Presenter<StartScreenSharingVie
 		return ViewLayer.Dialog;
 	}
 
-	public void setOnStart(ConsumerAction<SharedScreenSource> action) {
+	public void setOnStart(ConsumerAction<ScreenShareContext> action) {
 		startAction = action;
 	}
 
@@ -123,7 +127,7 @@ public class StartScreenSharingPresenter extends Presenter<StartScreenSharingVie
 		dispose();
 
 		if (nonNull(startAction)) {
-			startAction.execute(screenSource.get());
+			startAction.execute(screenShareContext);
 		}
 	}
 

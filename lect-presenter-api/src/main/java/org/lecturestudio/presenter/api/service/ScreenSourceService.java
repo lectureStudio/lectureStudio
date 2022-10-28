@@ -24,27 +24,27 @@ import java.util.Map;
 import javax.inject.Singleton;
 
 import org.lecturestudio.core.model.Document;
-import org.lecturestudio.web.api.model.ScreenSource;
+import org.lecturestudio.presenter.api.model.ScreenShareContext;
 
 @Singleton
 public class ScreenSourceService {
 
-	private final Map<Document, ScreenSource> docScreenSourceMap;
+	private final Map<Document, ScreenShareContext> docScreenSourceMap;
 
 
 	public ScreenSourceService() {
 		docScreenSourceMap = new HashMap<>();
 	}
 
-	public void addScreenSource(Document doc, ScreenSource source) {
-		docScreenSourceMap.put(doc, source);
+	public void addScreenShareContext(Document doc, ScreenShareContext context) {
+		docScreenSourceMap.put(doc, context);
 	}
 
 	public void removeScreenSource(Document doc) {
 		docScreenSourceMap.remove(doc);
 	}
 
-	public ScreenSource getScreenSource(Document doc) {
+	public ScreenShareContext getScreenShareContext(Document doc) {
 		return docScreenSourceMap.get(doc);
 	}
 

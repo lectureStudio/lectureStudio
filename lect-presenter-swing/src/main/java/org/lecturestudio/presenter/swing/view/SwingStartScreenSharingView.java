@@ -20,15 +20,16 @@ package org.lecturestudio.presenter.swing.view;
 
 import static java.util.Objects.nonNull;
 
-import java.awt.Component;
-import java.awt.Container;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
-import java.awt.Insets;
 import java.util.List;
+import java.util.ResourceBundle;
 import java.util.function.Consumer;
 
+import javax.inject.Inject;
+import javax.swing.DefaultComboBoxModel;
 import javax.swing.JButton;
+import javax.swing.JComboBox;
 import javax.swing.JComponent;
 import javax.swing.JPanel;
 
@@ -37,14 +38,19 @@ import org.lecturestudio.core.util.ListChangeListener;
 import org.lecturestudio.core.util.ObservableList;
 import org.lecturestudio.core.view.Action;
 import org.lecturestudio.presenter.api.model.SharedScreenSource;
+import org.lecturestudio.presenter.api.net.ScreenShareProfile;
 import org.lecturestudio.presenter.api.view.StartScreenSharingView;
+import org.lecturestudio.presenter.swing.combobox.ScreenShareProfileRenderer;
 import org.lecturestudio.presenter.swing.component.ScreenSourceView;
 import org.lecturestudio.swing.util.SwingUtils;
 import org.lecturestudio.swing.view.SwingView;
 import org.lecturestudio.swing.view.ViewPostConstruct;
+import org.lecturestudio.web.api.model.ScreenSource;
 
 @SwingView(name = "start-screen-sharing")
 public class SwingStartScreenSharingView extends JPanel implements StartScreenSharingView {
+
+	private final ResourceBundle resources;
 
 	private JPanel screenContainer;
 
@@ -54,11 +60,16 @@ public class SwingStartScreenSharingView extends JPanel implements StartScreenSh
 
 	private JButton startButton;
 
-	private ObjectProperty<SharedScreenSource> sourceProperty;
+	private JComboBox<ScreenShareProfile> screenProfileCombo;
+
+	private ObjectProperty<ScreenSource> sourceProperty;
 
 
-	SwingStartScreenSharingView() {
+	@Inject
+	SwingStartScreenSharingView(ResourceBundle resources) {
 		super();
+
+		this.resources = resources;
 	}
 
 	@Override
@@ -74,7 +85,7 @@ public class SwingStartScreenSharingView extends JPanel implements StartScreenSh
 	}
 
 	@Override
-	public void bindScreenSource(ObjectProperty<SharedScreenSource> sourceProperty) {
+	public void bindScreenSource(ObjectProperty<ScreenSource> sourceProperty) {
 		this.sourceProperty = sourceProperty;
 
 		sourceProperty.addListener((o, oldValue, newValue) -> {
@@ -82,6 +93,25 @@ public class SwingStartScreenSharingView extends JPanel implements StartScreenSh
 		});
 
 		startButton.setEnabled(nonNull(sourceProperty.get()));
+	}
+
+	@Override
+	public void bindScreenShareProfile(ObjectProperty<ScreenShareProfile> profile) {
+		SwingUtils.invoke(() -> {
+			SwingUtils.bindBidirectional(screenProfileCombo, profile);
+		});
+	}
+
+	@Override
+	public void setScreenShareProfiles(ScreenShareProfile[] profiles) {
+		SwingUtils.invoke(() -> {
+			screenProfileCombo.setLightWeightPopupEnabled(false);
+			screenProfileCombo.setModel(new DefaultComboBoxModel<>(profiles));
+
+			Dimension prefSize = screenProfileCombo.getPreferredSize();
+			screenProfileCombo.setMinimumSize(prefSize);
+			screenProfileCombo.setMaximumSize(prefSize);
+		});
 	}
 
 	@Override
@@ -96,14 +126,25 @@ public class SwingStartScreenSharingView extends JPanel implements StartScreenSh
 
 	@ViewPostConstruct
 	private void initialize() {
-		windowContainer.setLayout(new WrapLayout());
+		screenProfileCombo.setRenderer(new ScreenShareProfileRenderer(resources,
+				"stream.settings.screen.share.profile."));
+
+		windowContainer.setMinimumSize(new Dimension(600, 220));
+		windowContainer.setMaximumSize(new Dimension(Integer.MAX_VALUE, Integer.MAX_VALUE));
+		windowContainer.setLayout(new FlowLayout());
+
+		screenContainer.setLayout(new FlowLayout());
 	}
 
 	private void onScreenSourceSelected(ScreenSourceView screenSourceView) {
 		updateSelection(screenSourceView, screenContainer);
 		updateSelection(screenSourceView, windowContainer);
 
-		sourceProperty.set(screenSourceView.getScreenSource());
+		SharedScreenSource sharedSource = screenSourceView.getScreenSource();
+		ScreenSource screenSource = new ScreenSource(sharedSource.getTitle(),
+				sharedSource.getId(), sharedSource.isWindow());
+
+		sourceProperty.set(screenSource);
 	}
 
 	private void updateSelection(ScreenSourceView screenSourceView, JComponent container) {
@@ -176,77 +217,6 @@ public class SwingStartScreenSharingView extends JPanel implements StartScreenSh
 			screenSourceView.addSelectionConsumer(selectConsumer);
 
 			container.add(screenSourceView);
-		}
-	}
-
-
-
-	private static class WrapLayout extends FlowLayout {
-
-		public WrapLayout() {
-			super(FlowLayout.LEFT);
-		}
-
-		@Override
-		public Dimension minimumLayoutSize(Container target) {
-			// Size of the largest component, so we can resize it in
-			// either direction with something like a split-pane.
-			return computeSize(target);
-		}
-
-		private Dimension computeSize(Container target) {
-			synchronized (target.getTreeLock()) {
-				int hgap = getHgap();
-				int vgap = getVgap();
-				int w = target.getWidth();
-
-				// Let this behave like a regular FlowLayout (single row)
-				// if the container hasn't been assigned any size yet.
-				if (w == 0) {
-					w = Integer.MAX_VALUE;
-				}
-
-				Insets insets = target.getInsets();
-				if (insets == null) {
-					insets = new Insets(0, 0, 0, 0);
-				}
-
-				int reqdWidth = 0;
-				int maxwidth = w - (insets.left + insets.right + hgap * 2);
-				int n = target.getComponentCount();
-				int x = 0;
-				int y = insets.top + vgap;
-				int rowHeight = 0;
-
-				for (int i = 0; i < n; i++) {
-					Component c = target.getComponent(i);
-
-					if (c.isVisible()) {
-						Dimension d = c.getPreferredSize();
-
-						if ((x == 0) || ((x + d.width) <= maxwidth)) {
-							// Fits in current row.
-							if (x > 0) {
-								x += hgap;
-							}
-							x += d.width;
-							rowHeight = Math.max(rowHeight, d.height);
-						}
-						else {
-							// Start of new row.
-							x = d.width;
-							y += vgap + rowHeight;
-							rowHeight = d.height;
-						}
-						reqdWidth = Math.max(reqdWidth, x);
-					}
-				}
-
-				y += rowHeight;
-				y += insets.bottom;
-
-				return new Dimension(reqdWidth + insets.left + insets.right, y);
-			}
 		}
 	}
 }

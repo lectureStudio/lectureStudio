@@ -18,29 +18,19 @@
 
 package org.lecturestudio.presenter.swing.component;
 
-import static java.util.Objects.isNull;
 import static java.util.Objects.nonNull;
+
+import dev.onvoid.webrtc.media.video.VideoFrame;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Cursor;
-import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
-import java.awt.Insets;
-import java.awt.RenderingHints;
-import java.awt.color.ColorSpace;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.geom.AffineTransform;
 import java.awt.image.BufferedImage;
-import java.awt.image.ColorModel;
-import java.awt.image.ComponentColorModel;
-import java.awt.image.DataBuffer;
-import java.awt.image.DataBufferByte;
-import java.awt.image.Raster;
-import java.awt.image.WritableRaster;
-import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;
@@ -52,8 +42,8 @@ import javax.swing.border.Border;
 import javax.swing.border.EmptyBorder;
 import javax.swing.border.LineBorder;
 
-import org.lecturestudio.presenter.api.model.ScreenSourceVideoFrame;
 import org.lecturestudio.presenter.api.model.SharedScreenSource;
+import org.lecturestudio.swing.util.VideoFrameConverter;
 
 public class ScreenSourceView extends JPanel {
 
@@ -79,7 +69,7 @@ public class ScreenSourceView extends JPanel {
 		setLayout(new BorderLayout(2, 2));
 
 		imageView = new ImageView();
-		imageView.setBorder(new EmptyBorder(3, 0, 0, 0));
+		imageView.setBorder(new EmptyBorder(0, 0, 0, 0));
 
 		nameLabel = new JLabel();
 		nameLabel.setHorizontalAlignment(SwingConstants.CENTER);
@@ -134,9 +124,13 @@ public class ScreenSourceView extends JPanel {
 		imageView.repaint();
 	}
 
-	private void onVideoFrame(ScreenSourceVideoFrame videoFrame) {
-		imageView.createBufferedImage(videoFrame);
-		imageView.repaint();
+	private void onVideoFrame(VideoFrame videoFrame) {
+		try {
+			imageView.paintVideoFrame(videoFrame);
+		}
+		catch (Exception e) {
+			e.printStackTrace();
+		}
 	}
 
 	private void updateBorder(Border border) {
@@ -168,7 +162,7 @@ public class ScreenSourceView extends JPanel {
 				imageTransform.translate(transform.getTranslateX(), transform.getTranslateY());
 
 				int x = (int) ((getWidth() * transform.getScaleX() - image.getWidth(null)) / 2);
-				int y = getInsets().top + getInsets().bottom;
+				int y = (int) ((getHeight() * transform.getScaleX() - image.getHeight(null)) / 2);
 
 				g2.setTransform(imageTransform);
 				g2.drawImage(image, x, y, null);
@@ -176,54 +170,11 @@ public class ScreenSourceView extends JPanel {
 			}
 		}
 
-		void createBufferedImage(ScreenSourceVideoFrame videoFrame) {
-			final ByteBuffer buf = videoFrame.buffer;
-			final Dimension dim = videoFrame.frameSize;
-			final int frameWidth = videoFrame.frameSize.width;
-			final int frameHeight = videoFrame.frameSize.height;
+		void paintVideoFrame(VideoFrame videoFrame) throws Exception {
+			image = VideoFrameConverter.convertVideoFrameToComponentSize(
+					videoFrame, image, this);
 
-			Insets insets = getInsets();
-			int viewHeight = getHeight() - insets.top - insets.bottom;
-
-			double uiScale = getGraphicsConfiguration().getDefaultTransform().getScaleX();
-			double scale = viewHeight / (double) frameHeight * uiScale;
-			int imageWidth = (int) (frameWidth * scale);
-			int imageHeight = (int) (frameHeight * scale);
-
-			if (isNull(image) || image.getWidth() != imageWidth || image.getHeight() != imageHeight) {
-				image = new BufferedImage(imageWidth, imageHeight, BufferedImage.TYPE_4BYTE_ABGR);
-			}
-
-			// Copy frame to buffered image.
-			int bytesPerPixel = 4;
-			int bufferSize = dim.width * dim.height * bytesPerPixel;
-
-			DataBufferByte dataBuffer = new DataBufferByte(bufferSize);
-
-			WritableRaster raster = Raster.createInterleavedRaster(dataBuffer,
-					dim.width,
-					dim.height,
-					dim.width * bytesPerPixel,
-					bytesPerPixel,
-					new int[] { 2, 1, 0, 3 },
-					null);
-
-			ColorModel colorModel = new ComponentColorModel(ColorSpace.getInstance(ColorSpace.CS_sRGB),
-					new int[] { 8, 8, 8, 8 },
-					true,
-					false,
-					ComponentColorModel.OPAQUE, DataBuffer.TYPE_BYTE);
-
-			BufferedImage tempImage = new BufferedImage(colorModel, raster, false, null);
-			byte[] imageBuffer = ((DataBufferByte) tempImage.getRaster().getDataBuffer()).getData();
-
-			buf.get(imageBuffer);
-
-			// Draw frame.
-			Graphics2D g2 = image.createGraphics();
-			g2.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BILINEAR);
-			g2.drawImage(tempImage, 0, 0, imageWidth, imageHeight, null);
-			g2.dispose();
+			repaint();
 		}
 	}
 }

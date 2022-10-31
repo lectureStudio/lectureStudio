@@ -20,6 +20,8 @@ package org.lecturestudio.presenter.api.model;
 
 import static java.util.Objects.nonNull;
 
+import dev.onvoid.webrtc.media.video.VideoFrame;
+
 import java.util.Objects;
 import java.util.function.Consumer;
 
@@ -31,9 +33,7 @@ public class SharedScreenSource {
 
 	private final boolean isWindow;
 
-	private ScreenSourceVideoFrame videoFrame;
-
-	private Consumer<ScreenSourceVideoFrame> videoFrameConsumer;
+	private Consumer<VideoFrame> videoFrameConsumer;
 
 
 	public SharedScreenSource(String title, long id, boolean isWindow) {
@@ -54,19 +54,13 @@ public class SharedScreenSource {
 		return isWindow;
 	}
 
-	public ScreenSourceVideoFrame getVideoFrame() {
-		return videoFrame;
-	}
-
-	public void setVideoFrame(ScreenSourceVideoFrame videoFrame) {
-		this.videoFrame = videoFrame;
-
+	public void setVideoFrame(VideoFrame videoFrame) {
 		if (nonNull(videoFrameConsumer)) {
 			videoFrameConsumer.accept(videoFrame);
 		}
 	}
 
-	public void setVideoFrameConsumer(Consumer<ScreenSourceVideoFrame> consumer) {
+	public void setVideoFrameConsumer(Consumer<VideoFrame> consumer) {
 		this.videoFrameConsumer = consumer;
 	}
 

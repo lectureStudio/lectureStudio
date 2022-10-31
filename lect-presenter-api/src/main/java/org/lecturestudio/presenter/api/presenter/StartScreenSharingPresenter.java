@@ -25,7 +25,6 @@ import dev.onvoid.webrtc.media.video.desktop.DesktopSource;
 import dev.onvoid.webrtc.media.video.desktop.ScreenCapturer;
 import dev.onvoid.webrtc.media.video.desktop.WindowCapturer;
 
-import java.nio.ByteBuffer;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -46,7 +45,6 @@ import org.lecturestudio.core.view.ConsumerAction;
 import org.lecturestudio.core.view.ViewLayer;
 import org.lecturestudio.presenter.api.context.PresenterContext;
 import org.lecturestudio.presenter.api.model.ScreenShareContext;
-import org.lecturestudio.presenter.api.model.ScreenSourceVideoFrame;
 import org.lecturestudio.presenter.api.model.SharedScreenSource;
 import org.lecturestudio.presenter.api.net.ScreenShareProfiles;
 import org.lecturestudio.presenter.api.view.StartScreenSharingView;
@@ -273,11 +271,7 @@ public class StartScreenSharingPresenter extends Presenter<StartScreenSharingVie
 		@Override
 		protected void startInternal() throws ExecutableException {
 			capturer.start((result, desktopFrame) -> {
-				ScreenSourceVideoFrame videoFrame = new ScreenSourceVideoFrame(
-						desktopFrame.frameRect, desktopFrame.frameSize,
-						desktopFrame.stride, cloneByteBuffer(desktopFrame.buffer));
-
-				sharedSource.setVideoFrame(videoFrame);
+				sharedSource.setVideoFrame(desktopFrame);
 			});
 
 			future = executorService.scheduleAtFixedRate(() -> {
@@ -303,17 +297,6 @@ public class StartScreenSharingPresenter extends Presenter<StartScreenSharingVie
 			synchronized (capturer) {
 				capturer.dispose();
 			}
-		}
-
-		private ByteBuffer cloneByteBuffer(final ByteBuffer original) {
-			final ByteBuffer clone = (original.isDirect()) ?
-					ByteBuffer.allocateDirect(original.capacity()) :
-					ByteBuffer.allocate(original.capacity());
-
-			clone.put(original);
-			clone.rewind();
-
-			return clone;
 		}
 	}
 }

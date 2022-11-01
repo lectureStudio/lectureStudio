@@ -35,7 +35,7 @@ import org.lecturestudio.core.geometry.Rectangle2D;
 import org.lecturestudio.core.model.Document;
 import org.lecturestudio.core.model.ScreenDocument;
 import org.lecturestudio.core.service.DocumentService;
-import org.lecturestudio.presenter.api.model.ScreenSourceVideoFrame;
+import org.lecturestudio.swing.util.VideoFrameConverter;
 import org.lecturestudio.web.api.model.ScreenSource;
 
 public class ScreenDocumentCreator {
@@ -80,15 +80,12 @@ public class ScreenDocumentCreator {
 
 		desktopCapturer.selectSource(desktopSource);
 		desktopCapturer.start((result, desktopFrame) -> {
-			ScreenSourceVideoFrame videoFrame = new ScreenSourceVideoFrame(
-					desktopFrame.frameRect, desktopFrame.frameSize,
-					desktopFrame.stride, cloneByteBuffer(desktopFrame.buffer));
-
-			doc.createPage(ScreenFrameConverter.createBufferedImage(videoFrame,
-					(int) doc.getPageSize().getWidth(),
-					(int) doc.getPageSize().getHeight()));
-
 			try {
+				doc.createPage(VideoFrameConverter.convertVideoFrame(desktopFrame,
+						null,
+						(int) (doc.getPageSize().getWidth() * 3),
+						(int) (doc.getPageSize().getHeight() * 3)));
+
 				ByteArrayOutputStream stream = new ByteArrayOutputStream();
 
 				doc.toOutputStream(stream);

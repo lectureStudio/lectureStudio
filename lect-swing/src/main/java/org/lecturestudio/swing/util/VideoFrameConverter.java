@@ -51,6 +51,7 @@ public class VideoFrameConverter {
 			BufferedImage image, int imageWidth, int imageHeight)
 			throws Exception {
 		VideoFrameBuffer buffer = videoFrame.buffer;
+
 		int width = buffer.getWidth();
 		int height = buffer.getHeight();
 

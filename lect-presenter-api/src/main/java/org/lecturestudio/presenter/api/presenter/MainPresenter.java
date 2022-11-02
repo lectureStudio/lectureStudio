@@ -702,7 +702,8 @@ public class MainPresenter extends org.lecturestudio.core.presenter.MainPresente
 
 	private void onViewFocus(boolean hasFocus) {
 		if (hasFocus) {
-			streamService.enableScreenSharing(false);
+			PresenterContext ctx = (PresenterContext) context;
+			ctx.setScreenSharingStarted(false);
 		}
 	}
 

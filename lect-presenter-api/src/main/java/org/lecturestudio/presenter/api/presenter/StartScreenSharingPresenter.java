@@ -43,6 +43,8 @@ import org.lecturestudio.core.util.ObservableArrayList;
 import org.lecturestudio.core.util.ObservableList;
 import org.lecturestudio.core.view.ConsumerAction;
 import org.lecturestudio.core.view.ViewLayer;
+import org.lecturestudio.presenter.api.config.PresenterConfiguration;
+import org.lecturestudio.presenter.api.config.StreamConfiguration;
 import org.lecturestudio.presenter.api.context.PresenterContext;
 import org.lecturestudio.presenter.api.model.ScreenShareContext;
 import org.lecturestudio.presenter.api.model.SharedScreenSource;
@@ -80,6 +82,9 @@ public class StartScreenSharingPresenter extends Presenter<StartScreenSharingVie
 
 	@Override
 	public void initialize() {
+		PresenterConfiguration config = (PresenterConfiguration) context.getConfiguration();
+		StreamConfiguration streamConfig = config.getStreamConfig();
+
 		executorService = Executors.newScheduledThreadPool(1);
 		screenCapturer = new ScreenCapturer();
 		windowCapturer = new WindowCapturer();
@@ -88,7 +93,10 @@ public class StartScreenSharingPresenter extends Presenter<StartScreenSharingVie
 		screens = new ObservableArrayList<>();
 		windows = new ObservableArrayList<>();
 		screenShareContext = new ScreenShareContext();
-		screenShareContext.profileProperty().set(ScreenShareProfiles.STILL);
+		screenShareContext.profileProperty().set(
+				nonNull(streamConfig.getScreenShareProfile())
+				? streamConfig.getScreenShareProfile()
+				: ScreenShareProfiles.STILL);
 
 		future = executorService.scheduleAtFixedRate(() -> {
 			getWindows();

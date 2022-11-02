@@ -243,6 +243,7 @@ public class SwingToolbarView extends JPanel implements ToolbarView {
 
 			streamMicButton.setEnabled(started);
 			streamCamButton.setEnabled(started);
+			screenShareEnableButton.setEnabled(started);
 		});
 	}
 

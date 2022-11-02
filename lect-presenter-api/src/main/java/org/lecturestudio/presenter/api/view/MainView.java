@@ -47,6 +47,8 @@ public interface MainView extends View {
 
 	void setOnBounds(ConsumerAction<Rectangle2D> action);
 
+	void setOnFocus(ConsumerAction<Boolean> action);
+
 	void setOnShown(Action action);
 
 	void setOnClose(Action action);

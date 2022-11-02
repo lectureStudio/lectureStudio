@@ -37,6 +37,7 @@ import java.awt.event.HierarchyEvent;
 import java.awt.event.HierarchyListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
+import java.awt.event.WindowFocusListener;
 import java.awt.geom.AffineTransform;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
@@ -72,6 +73,8 @@ public class SwingMainView extends JPanel implements MainView, KeyEventDispatche
 	private final Deque<Component> viewStack;
 
 	private ConsumerAction<Rectangle2D> boundsAction;
+
+	private ConsumerAction<Boolean> focusAction;
 
 	private Predicate<org.lecturestudio.core.input.KeyEvent> keyAction;
 
@@ -118,14 +121,8 @@ public class SwingMainView extends JPanel implements MainView, KeyEventDispatche
 		Component componentView = (Component) view;
 
 		switch (layer) {
-			case Content:
-				removeComponent(componentView);
-				break;
-
-			case Dialog:
-			case Notification:
-				removeComponentOnTop(componentView);
-				break;
+			case Content -> removeComponent(componentView);
+			case Dialog, Notification -> removeComponentOnTop(componentView);
 		}
 	}
 
@@ -140,14 +137,8 @@ public class SwingMainView extends JPanel implements MainView, KeyEventDispatche
 		Component componentView = (Component) view;
 
 		switch (layer) {
-			case Content:
-				showComponent(componentView, true);
-				break;
-
-			case Dialog:
-			case Notification:
-				showComponentOnTop(componentView);
-				break;
+			case Content -> showComponent(componentView, true);
+			case Dialog, Notification -> showComponentOnTop(componentView);
 		}
 	}
 
@@ -204,6 +195,11 @@ public class SwingMainView extends JPanel implements MainView, KeyEventDispatche
 	@Override
 	public void setOnBounds(ConsumerAction<Rectangle2D> action) {
 		boundsAction = action;
+	}
+
+	@Override
+	public void setOnFocus(ConsumerAction<Boolean> action) {
+		focusAction = action;
 	}
 
 	@Override
@@ -381,6 +377,18 @@ public class SwingMainView extends JPanel implements MainView, KeyEventDispatche
 			@Override
 			public void windowClosing(WindowEvent e) {
 				executeAction(closeAction);
+			}
+		});
+		window.addWindowFocusListener(new WindowFocusListener() {
+
+			@Override
+			public void windowGainedFocus(WindowEvent e) {
+				executeAction(focusAction, true);
+			}
+
+			@Override
+			public void windowLostFocus(WindowEvent e) {
+				executeAction(focusAction, false);
 			}
 		});
 

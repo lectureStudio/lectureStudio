@@ -262,6 +262,7 @@ public class MainPresenter extends org.lecturestudio.core.presenter.MainPresente
 		view.setMenuVisible(!config.getExtendedFullscreen());
 		view.setOnClose(this::closeWindow);
 		view.setOnShown(this::onViewShown);
+		view.setOnFocus(this::onViewFocus);
 		view.setOnBounds(this::onViewBounds);
 		view.setOnKeyEvent(this::keyEvent);
 
@@ -697,6 +698,12 @@ public class MainPresenter extends org.lecturestudio.core.presenter.MainPresente
 
 	private void onViewBounds(Rectangle2D bounds) {
 		presentationController.setMainWindowBounds(bounds);
+	}
+
+	private void onViewFocus(boolean hasFocus) {
+		if (hasFocus) {
+			streamService.enableScreenSharing(false);
+		}
 	}
 
 	private boolean closeView(KeyEvent event) {

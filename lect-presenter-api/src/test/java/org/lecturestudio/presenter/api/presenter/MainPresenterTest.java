@@ -540,6 +540,11 @@ class MainPresenterTest extends PresenterTest {
 		}
 
 		@Override
+		public void setOnFocus(ConsumerAction<Boolean> action) {
+
+		}
+
+		@Override
 		public void setOnShown(Action action) {
 			assertNotNull(action);
 

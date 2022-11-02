@@ -170,6 +170,9 @@ public class PresentationWindow extends AbstractWindow implements SlidePresentat
 
 				contentPane.remove(screenView);
 				contentPane.add(slideView);
+
+				slideView.revalidate();
+				slideView.repaint();
 			}
 			case SCREEN -> {
 				context.configure(screenView);

@@ -65,6 +65,8 @@ public class PublishToRoomState implements JanusState {
 
 	private Consumer<ScreenVideoFrameEvent> localScreenFrameConsumer;
 
+	private Runnable screenSourceEndedCallback;
+
 
 	@Override
 	public void initialize(JanusStateHandler handler) throws Exception {
@@ -75,6 +77,7 @@ public class PublishToRoomState implements JanusState {
 		JanusPeerConnection peerConnection = handler.createPeerConnection();
 
 		localScreenFrameConsumer = screenContext.getLocalFrameConsumer();
+		screenSourceEndedCallback = screenContext.getScreenSourceEndedCallback();
 
 		peerConnection.setOnLocalSessionDescription(description -> {
 			sendRequest(handler, description.sdp);
@@ -158,6 +161,12 @@ public class PublishToRoomState implements JanusState {
 		StreamVideoContext videoContext = streamContext.getVideoContext();
 		StreamScreenContext screenContext = streamContext.getScreenContext();
 
+		peerConnection.setOnReplacedTrack(track -> {
+			if (track.getId().equals("screen")) {
+				addScreenTrackListeners((VideoTrack) track);
+			}
+		});
+
 		for (RTCRtpTransceiver transceiver : peerConnection.getTransceivers()) {
 			MediaStreamTrack track = transceiver.getSender().getTrack();
 
@@ -165,12 +174,7 @@ public class PublishToRoomState implements JanusState {
 				request.addStreamDescription(transceiver.getMid(), track.getId());
 
 				if (track.getId().equals("screen")) {
-					VideoTrack videoTrack = (VideoTrack) track;
-					videoTrack.addSink(videoFrame -> {
-						if (nonNull(localScreenFrameConsumer)) {
-							localScreenFrameConsumer.accept(new ScreenVideoFrameEvent(videoFrame));
-						}
-					});
+					addScreenTrackListeners((VideoTrack) track);
 
 					RTCRtpSender sender = transceiver.getSender();
 					RTCRtpSendParameters sendParams = sender.getParameters();
@@ -232,5 +236,19 @@ public class PublishToRoomState implements JanusState {
 		message.setTransaction(UUID.randomUUID().toString());
 
 		handler.sendMessage(message);
+	}
+
+	private void addScreenTrackListeners(VideoTrack track) {
+		track.addTrackEndedListener(endedTrack -> {
+			if (nonNull(screenSourceEndedCallback)) {
+				screenSourceEndedCallback.run();
+			}
+		});
+
+		track.addSink(videoFrame -> {
+			if (nonNull(localScreenFrameConsumer)) {
+				localScreenFrameConsumer.accept(new ScreenVideoFrameEvent(videoFrame));
+			}
+		});
 	}
 }

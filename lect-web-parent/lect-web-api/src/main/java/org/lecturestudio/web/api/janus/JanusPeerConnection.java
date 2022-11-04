@@ -54,6 +54,7 @@ import dev.onvoid.webrtc.RTCSessionDescription;
 import dev.onvoid.webrtc.SetSessionDescriptionObserver;
 import dev.onvoid.webrtc.media.MediaDevices;
 import dev.onvoid.webrtc.media.MediaStreamTrack;
+import dev.onvoid.webrtc.media.MediaStreamTrackState;
 import dev.onvoid.webrtc.media.audio.AudioOptions;
 import dev.onvoid.webrtc.media.audio.AudioTrack;
 import dev.onvoid.webrtc.media.audio.AudioTrackSink;
@@ -105,6 +106,8 @@ public class JanusPeerConnection implements PeerConnectionObserver {
 
 	private Consumer<VideoFrame> onRemoteVideoFrame;
 
+	private Consumer<MediaStreamTrack> onReplacedTrack;
+
 	private AudioTrackSink audioTrackSink;
 
 
@@ -140,6 +143,10 @@ public class JanusPeerConnection implements PeerConnectionObserver {
 
 	public void setOnRemoteVideoFrame(Consumer<VideoFrame> callback) {
 		onRemoteVideoFrame = callback;
+	}
+
+	public void setOnReplacedTrack(Consumer<MediaStreamTrack> callback) {
+		this.onReplacedTrack = callback;
 	}
 
 	public void setAudioTrackSink(AudioTrackSink sink) {
@@ -340,6 +347,21 @@ public class JanusPeerConnection implements PeerConnectionObserver {
 
 				LOGGER.debug("Screen-Share capability: FrameRate={}, BitRate={}",
 						screenShareConfig.getFrameRate(), screenShareConfig.getBitRate());
+
+				// Check if the current track has ended and create a new one.
+				for (RTCRtpSender sender : peerConnection.getSenders()) {
+					MediaStreamTrack track = sender.getTrack();
+
+					if (nonNull(track) && track.getId().equals(SCREEN_TRACK)
+							&& track.getState() == MediaStreamTrackState.ENDED) {
+						VideoTrack videoTrack = factory.getFactory()
+								.createVideoTrack(SCREEN_TRACK, desktopSource);
+
+						sender.replaceTrack(videoTrack);
+
+						notify(onReplacedTrack, videoTrack);
+					}
+				}
 
 				try {
 					desktopSource.setSourceId(screenSource.getId(),

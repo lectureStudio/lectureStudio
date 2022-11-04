@@ -32,6 +32,8 @@ public class StreamScreenContext {
 
 	private Consumer<ScreenVideoFrameEvent> localFrameConsumer;
 
+	private Runnable screenSourceEnded;
+
 	private final IntegerProperty framerate;
 
 	private final IntegerProperty bitrate;
@@ -56,6 +58,14 @@ public class StreamScreenContext {
 
 	public void setScreenSource(ScreenSource source) {
 		screenSource.set(source);
+	}
+
+	public Runnable getScreenSourceEndedCallback() {
+		return screenSourceEnded;
+	}
+
+	public void setScreenSourceEndedCallback(Runnable callback) {
+		screenSourceEnded = callback;
 	}
 
 	public Consumer<ScreenVideoFrameEvent> getLocalFrameConsumer() {

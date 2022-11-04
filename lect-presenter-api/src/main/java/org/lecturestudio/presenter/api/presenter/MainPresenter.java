@@ -33,6 +33,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionException;
+import java.util.concurrent.TimeUnit;
 import java.util.function.Predicate;
 
 import javax.inject.Inject;
@@ -702,8 +703,11 @@ public class MainPresenter extends org.lecturestudio.core.presenter.MainPresente
 
 	private void onViewFocus(boolean hasFocus) {
 		if (hasFocus) {
-			PresenterContext ctx = (PresenterContext) context;
-			ctx.setScreenSharingStarted(false);
+			// Delay execution to give the screen-capturer a chance to process internal state.
+			CompletableFuture.runAsync(() -> {
+				PresenterContext ctx = (PresenterContext) context;
+				ctx.setScreenSharingStarted(false);
+			}, CompletableFuture.delayedExecutor(1, TimeUnit.SECONDS));
 		}
 	}
 

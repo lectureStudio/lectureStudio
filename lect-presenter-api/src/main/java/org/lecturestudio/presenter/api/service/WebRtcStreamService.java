@@ -54,6 +54,7 @@ import org.lecturestudio.presenter.api.config.PresenterConfiguration;
 import org.lecturestudio.presenter.api.config.StreamConfiguration;
 import org.lecturestudio.presenter.api.context.PresenterContext;
 import org.lecturestudio.presenter.api.event.CameraStateEvent;
+import org.lecturestudio.presenter.api.event.ScreenShareEndEvent;
 import org.lecturestudio.presenter.api.event.ScreenShareStateEvent;
 import org.lecturestudio.presenter.api.event.StreamingStateEvent;
 import org.lecturestudio.presenter.api.model.ScreenShareContext;
@@ -570,10 +571,12 @@ public class WebRtcStreamService extends ExecutableBase {
 		});
 
 		screenContext.setScreenSource(null);
-		screenContext.setBitrate(screenConfig.getBitRate());
 		screenContext.setFramerate((int) screenConfig.getFrameRate());
 		screenContext.setLocalFrameConsumer(videoFrameEvent -> {
 			context.getEventBus().post(videoFrameEvent);
+		});
+		screenContext.setScreenSourceEndedCallback(() -> {
+			context.getEventBus().post(new ScreenShareEndEvent());
 		});
 
 		if (nonNull(streamConfig.getCameraFormat())) {

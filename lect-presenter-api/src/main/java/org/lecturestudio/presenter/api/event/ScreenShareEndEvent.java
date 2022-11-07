@@ -22,4 +22,18 @@ import org.lecturestudio.core.bus.event.BusEvent;
 
 public class ScreenShareEndEvent extends BusEvent {
 
+	private final boolean forced;
+
+
+	public ScreenShareEndEvent() {
+		this(false);
+	}
+
+	public ScreenShareEndEvent(boolean forced) {
+		this.forced = forced;
+	}
+
+	public boolean isForced() {
+		return forced;
+	}
 }

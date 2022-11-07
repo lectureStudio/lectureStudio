@@ -485,7 +485,10 @@ public class MainPresenter extends org.lecturestudio.core.presenter.MainPresente
 
 		screenSourceService.removeScreenSource(screenDoc);
 
-		showNotification(NotificationType.DEFAULT, "screen.share", "screen.share.stopped");
+		if (event.isForced()) {
+			showNotification(NotificationType.DEFAULT, "screen.share",
+					"screen.share.stopped");
+		}
 	}
 
 	@Override

@@ -574,7 +574,7 @@ public class WebRtcStreamService extends ExecutableBase {
 			context.getEventBus().post(videoFrameEvent);
 		});
 		screenContext.setScreenSourceEndedCallback(() -> {
-			context.getEventBus().post(new ScreenShareEndEvent());
+			context.getEventBus().post(new ScreenShareEndEvent(true));
 		});
 
 		if (nonNull(streamConfig.getCameraFormat())) {

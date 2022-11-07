@@ -42,7 +42,7 @@ public class ScreenThumbnailPanel extends ThumbnailPanel {
 		this.dict = dict;
 
 		startScreenShareButton = new RecordButton();
-		startScreenShareButton.setIcon(AwtResourceLoader.getIcon("record-tool.svg", 20));
+		startScreenShareButton.setIcon(AwtResourceLoader.getIcon("play-circle.svg", 20));
 		startScreenShareButton.setPauseIcon(AwtResourceLoader.getIcon("record-pause-tool.svg", 20));
 		startScreenShareButton.setPausedIcon(AwtResourceLoader.getIcon("record-resume-tool.svg", 20));
 		startScreenShareButton.setToolTipText(dict.get("screen.share.start"));

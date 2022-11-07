@@ -484,6 +484,8 @@ public class MainPresenter extends org.lecturestudio.core.presenter.MainPresente
 		documentService.selectLastDocument();
 
 		screenSourceService.removeScreenSource(screenDoc);
+
+		showNotification(NotificationType.DEFAULT, "screen.share", "screen.share.stopped");
 	}
 
 	@Override
@@ -707,7 +709,7 @@ public class MainPresenter extends org.lecturestudio.core.presenter.MainPresente
 			CompletableFuture.runAsync(() -> {
 				PresenterContext ctx = (PresenterContext) context;
 				ctx.setScreenSharingStarted(false);
-			}, CompletableFuture.delayedExecutor(1, TimeUnit.SECONDS));
+			}, CompletableFuture.delayedExecutor(1500, TimeUnit.MILLISECONDS));
 		}
 	}
 

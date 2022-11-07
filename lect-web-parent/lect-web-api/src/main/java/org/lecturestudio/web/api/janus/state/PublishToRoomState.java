@@ -159,7 +159,6 @@ public class PublishToRoomState implements JanusState {
 
 		StreamContext streamContext = handler.getStreamContext();
 		StreamVideoContext videoContext = streamContext.getVideoContext();
-		StreamScreenContext screenContext = streamContext.getScreenContext();
 
 		peerConnection.setOnReplacedTrack(track -> {
 			if (track.getId().equals("screen")) {
@@ -175,18 +174,6 @@ public class PublishToRoomState implements JanusState {
 
 				if (track.getId().equals("screen")) {
 					addScreenTrackListeners((VideoTrack) track);
-
-					RTCRtpSender sender = transceiver.getSender();
-					RTCRtpSendParameters sendParams = sender.getParameters();
-
-					// Set screen encoding constraints.
-					for (var encoding : sendParams.encodings) {
-						encoding.minBitrate = screenContext.getBitrate() * 500;
-						encoding.maxBitrate = screenContext.getBitrate() * 1000;
-						encoding.maxFramerate = screenContext.getFramerate().doubleValue();
-					}
-
-					sender.setParameters(sendParams);
 				}
 				else if (track.getId().equals("camera")) {
 					RTCRtpSender sender = transceiver.getSender();

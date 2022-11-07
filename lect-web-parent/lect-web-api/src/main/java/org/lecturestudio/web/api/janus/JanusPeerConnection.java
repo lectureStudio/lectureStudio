@@ -46,12 +46,14 @@ import dev.onvoid.webrtc.RTCIceGatheringState;
 import dev.onvoid.webrtc.RTCOfferOptions;
 import dev.onvoid.webrtc.RTCPeerConnection;
 import dev.onvoid.webrtc.RTCRtpReceiver;
+import dev.onvoid.webrtc.RTCRtpSendParameters;
 import dev.onvoid.webrtc.RTCRtpSender;
 import dev.onvoid.webrtc.RTCRtpTransceiver;
 import dev.onvoid.webrtc.RTCRtpTransceiverDirection;
 import dev.onvoid.webrtc.RTCSdpType;
 import dev.onvoid.webrtc.RTCSessionDescription;
 import dev.onvoid.webrtc.SetSessionDescriptionObserver;
+
 import dev.onvoid.webrtc.media.MediaDevices;
 import dev.onvoid.webrtc.media.MediaStreamTrack;
 import dev.onvoid.webrtc.media.MediaStreamTrackState;
@@ -348,18 +350,24 @@ public class JanusPeerConnection implements PeerConnectionObserver {
 				LOGGER.debug("Screen-Share capability: FrameRate={}, BitRate={}",
 						screenShareConfig.getFrameRate(), screenShareConfig.getBitRate());
 
-				// Check if the current track has ended and create a new one.
 				for (RTCRtpSender sender : peerConnection.getSenders()) {
 					MediaStreamTrack track = sender.getTrack();
 
-					if (nonNull(track) && track.getId().equals(SCREEN_TRACK)
-							&& track.getState() == MediaStreamTrackState.ENDED) {
-						VideoTrack videoTrack = factory.getFactory()
-								.createVideoTrack(SCREEN_TRACK, desktopSource);
+					// Check if the current track has ended and create a new one.
+					if (nonNull(track) && track.getId().equals(SCREEN_TRACK)) {
+						// Set screen encoding constraints.
+						setSenderConstraints(sender,
+								screenShareConfig.getFrameRate(),
+								screenShareConfig.getBitRate());
 
-						sender.replaceTrack(videoTrack);
+						if (track.getState() == MediaStreamTrackState.ENDED) {
+							VideoTrack videoTrack = factory.getFactory()
+									.createVideoTrack(SCREEN_TRACK, desktopSource);
 
-						notify(onReplacedTrack, videoTrack);
+							sender.replaceTrack(videoTrack);
+
+							notify(onReplacedTrack, videoTrack);
+						}
 					}
 				}
 
@@ -538,6 +546,23 @@ public class JanusPeerConnection implements PeerConnectionObserver {
 		}
 
 		return nearest;
+	}
+
+	private void setSenderConstraints(RTCRtpSender sender, double framerate, int bitrate) {
+		RTCRtpSendParameters sendParams = sender.getParameters();
+		int minBitrate = bitrate * 500;
+		int maxBitrate = bitrate * 1000;
+
+		for (var encoding : sendParams.encodings) {
+			encoding.minBitrate = minBitrate;
+			encoding.maxBitrate = maxBitrate;
+			encoding.maxFramerate = framerate;
+		}
+
+		sender.setParameters(sendParams);
+
+		LOGGER.debug("Sender encoding parameters set to: minBitrate = {}, maxBitrate = {}, maxFramerate = {}",
+				minBitrate, maxBitrate, framerate);
 	}
 
 	private void setSenderTrackEnabled(String trackId, boolean enable) {

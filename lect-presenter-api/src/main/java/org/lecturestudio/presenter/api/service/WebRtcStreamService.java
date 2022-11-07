@@ -570,8 +570,6 @@ public class WebRtcStreamService extends ExecutableBase {
 			context.getEventBus().post(videoFrameEvent);
 		});
 
-		screenContext.setScreenSource(null);
-		screenContext.setFramerate((int) screenConfig.getFrameRate());
 		screenContext.setLocalFrameConsumer(videoFrameEvent -> {
 			context.getEventBus().post(videoFrameEvent);
 		});

@@ -98,7 +98,7 @@ public class ScreenDocumentCreator {
 				newDoc.selectPage(newDoc.getPageCount() - 1);
 
 				if (exists) {
-					documentService.replaceDocument(doc, newDoc);
+					documentService.replaceDocument(doc, newDoc, true);
 
 					// Do not close replaced document, since its pages cannot be saved later.
 				}

@@ -28,6 +28,9 @@ import org.lecturestudio.core.pdf.pdfbox.PDFGraphics2D;
 
 public class ScreenDocument extends Document {
 
+	private static final int PADDING = 10;
+
+
 	public ScreenDocument() throws IOException {
 		super();
 
@@ -46,18 +49,21 @@ public class ScreenDocument extends Document {
 
 		Rectangle2D rect = page.getPageRect();
 
-		double s = rect.getWidth() / (double) image.getWidth(null);
+		double pageWidth = rect.getWidth() - PADDING * 2;
+		double pageHeight = rect.getHeight() - PADDING * 2;
+
+		double s = pageWidth / (double) image.getWidth();
 
 		if (image.getHeight(null) > image.getWidth(null)) {
-			s = rect.getHeight() / (double) image.getHeight(null);
+			s = pageHeight / (double) image.getHeight();
 		}
 
 		double sInv = 1 / s;
 
-		int x = (int) ((rect.getWidth() - image.getWidth(null) * s) / 2 * sInv);
-		int y = (int) ((rect.getHeight() - image.getHeight(null) * s) / 2 * sInv);
-		int w = (int) (rect.getWidth() * sInv);
-		int h = (int) (rect.getHeight() * sInv);
+		int x = (int) (((pageWidth - image.getWidth() * s) / 2 + PADDING) * sInv);
+		int y = (int) (((pageHeight - image.getHeight() * s) / 2 + PADDING) * sInv);
+		int w = image.getWidth();
+		int h = image.getHeight();
 
 		try {
 			getPdfDocument().setPageContentTransform(pageIndex, AffineTransform.getScaleInstance(s, s));
@@ -66,10 +72,12 @@ public class ScreenDocument extends Document {
 			throw new RuntimeException(e);
 		}
 
+		int padding = (int) (PADDING * s);
+
 		PDFGraphics2D g2d = (PDFGraphics2D) getPdfDocument().createAppendablePageGraphics2D(pageIndex);
-		// Draw screen frame onto a black page background.
+		// Draw screen frame with a border around it.
 		g2d.setColor(Color.BLACK);
-		g2d.fillRect(0, 0, w, h);
+		g2d.drawRect(x - padding, y - padding, w + padding * 2, h + padding * 2);
 		g2d.drawImage(image, x, y, null);
 		g2d.close();
 		g2d.dispose();

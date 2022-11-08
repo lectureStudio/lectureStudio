@@ -33,10 +33,16 @@ import java.util.function.Consumer;
 import org.lecturestudio.core.Executable;
 import org.lecturestudio.core.ExecutableBase;
 import org.lecturestudio.core.ExecutableException;
+import org.lecturestudio.core.ExecutableState;
+import org.lecturestudio.core.ExecutableStateListener;
+import org.lecturestudio.core.beans.ChangeListener;
 import org.lecturestudio.web.api.net.SSLContextFactory;
 import org.lecturestudio.web.api.service.ServiceParameters;
+import org.lecturestudio.web.api.stream.StreamContext;
 import org.lecturestudio.web.api.stream.StreamEventRecorder;
 import org.lecturestudio.web.api.stream.action.StreamAction;
+import org.lecturestudio.web.api.stream.action.StreamActionType;
+import org.lecturestudio.web.api.stream.action.StreamMediaChangeAction;
 import org.lecturestudio.web.api.websocket.WebSocketHeaderProvider;
 
 /**
@@ -48,19 +54,29 @@ import org.lecturestudio.web.api.websocket.WebSocketHeaderProvider;
  */
 public class StreamWebSocketClient extends ExecutableBase {
 
-	private final Consumer<StreamAction> actionConsumer = this::send;
+	private final Consumer<StreamAction> actionConsumer;
+
+	private final ExecutableStateListener recStateConsumer;
 
 	private final ServiceParameters serviceParameters;
 
 	private final WebSocketHeaderProvider headerProvider;
 
+	private final StreamContext streamContext;
+
 	private final StreamEventRecorder eventRecorder;
+
+	private ChangeListener<Boolean> enableMicListener;
+
+	private ChangeListener<Boolean> enableCamListener;
+
+	private ChangeListener<Boolean> enableScreenListener;
 
 	private WebSocket webSocket;
 
 
 	public StreamWebSocketClient(ServiceParameters parameters,
-			WebSocketHeaderProvider headerProvider,
+			WebSocketHeaderProvider headerProvider, StreamContext streamContext,
 			StreamEventRecorder eventRecorder) {
 		requireNonNull(parameters);
 		requireNonNull(headerProvider);
@@ -68,7 +84,11 @@ public class StreamWebSocketClient extends ExecutableBase {
 
 		this.serviceParameters = parameters;
 		this.headerProvider = headerProvider;
+		this.streamContext = streamContext;
 		this.eventRecorder = eventRecorder;
+
+		actionConsumer = this::send;
+		recStateConsumer = this::onRecorderState;
 	}
 
 	public Executable getReconnectExecutable() {
@@ -78,6 +98,21 @@ public class StreamWebSocketClient extends ExecutableBase {
 	@Override
 	protected void initInternal() throws ExecutableException {
 		eventRecorder.addRecordedActionConsumer(actionConsumer);
+		eventRecorder.addStateListener(recStateConsumer);
+
+		enableMicListener = (observable, oldValue, newValue) -> {
+			sendMediaChangeAction(StreamActionType.STREAM_MICROPHONE_CHANGE, newValue);
+		};
+		enableCamListener = (observable, oldValue, newValue) -> {
+			sendMediaChangeAction(StreamActionType.STREAM_CAMERA_CHANGE, newValue);
+		};
+		enableScreenListener = (observable, oldValue, newValue) -> {
+			sendMediaChangeAction(StreamActionType.STREAM_SCREEN_SHARE_CHANGE, newValue);
+		};
+
+		streamContext.getAudioContext().sendAudioProperty().addListener(enableMicListener);
+		streamContext.getVideoContext().sendVideoProperty().addListener(enableCamListener);
+		streamContext.getScreenContext().sendVideoProperty().addListener(enableScreenListener);
 	}
 
 	@Override
@@ -93,6 +128,11 @@ public class StreamWebSocketClient extends ExecutableBase {
 	@Override
 	protected void stopInternal() throws ExecutableException {
 		eventRecorder.removeRecordedActionConsumer(actionConsumer);
+		eventRecorder.removeStateListener(recStateConsumer);
+
+		streamContext.getAudioContext().sendAudioProperty().removeListener(enableMicListener);
+		streamContext.getVideoContext().sendVideoProperty().removeListener(enableCamListener);
+		streamContext.getScreenContext().sendVideoProperty().removeListener(enableScreenListener);
 
 		if (!webSocket.isOutputClosed()) {
 			webSocket.sendClose(WebSocket.NORMAL_CLOSURE, "disconnect").join();
@@ -121,6 +161,19 @@ public class StreamWebSocketClient extends ExecutableBase {
 				.join();
 	}
 
+	private void onRecorderState(ExecutableState oldState, ExecutableState newState) {
+		// Send media stream state when course state has been initialized.
+		if (newState == ExecutableState.Started) {
+			boolean camEnabled = streamContext.getVideoContext().getSendVideo();
+			boolean micEnabled = streamContext.getAudioContext().getSendAudio();
+			boolean screenEnabled = streamContext.getScreenContext().getSendVideo();
+
+			sendMediaChangeAction(StreamActionType.STREAM_CAMERA_CHANGE, camEnabled);
+			sendMediaChangeAction(StreamActionType.STREAM_MICROPHONE_CHANGE, micEnabled);
+			sendMediaChangeAction(StreamActionType.STREAM_SCREEN_SHARE_CHANGE, screenEnabled);
+		}
+	}
+
 	private void send(StreamAction action) {
 		try {
 			webSocket.sendBinary(ByteBuffer.wrap(action.toByteArray()), true);
@@ -128,6 +181,10 @@ public class StreamWebSocketClient extends ExecutableBase {
 		catch (IOException e) {
 			logException(e, "Send event state failed");
 		}
+	}
+
+	private void sendMediaChangeAction(StreamActionType type, boolean enabled) {
+		send(new StreamMediaChangeAction(type, enabled));
 	}
 
 

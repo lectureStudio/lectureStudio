@@ -297,7 +297,7 @@ public class WebRtcStreamService extends ExecutableBase {
 				.getRecordingFormat());
 
 		streamContext = createStreamContext(course, config);
-		streamStateClient = createStreamStateClient(config);
+		streamStateClient = createStreamStateClient(streamContext, config);
 		janusClient = createJanusClient(streamContext);
 		janusClient.setJanusStateHandlerListener(new JanusStateHandlerListener() {
 
@@ -500,7 +500,8 @@ public class WebRtcStreamService extends ExecutableBase {
 		}
 	}
 
-	private StreamWebSocketClient createStreamStateClient(PresenterConfiguration config) {
+	private StreamWebSocketClient createStreamStateClient(StreamContext streamContext,
+			PresenterConfiguration config) {
 		StreamConfiguration streamConfig = config.getStreamConfig();
 
 		ServiceParameters stateWsParameters = new ServiceParameters();
@@ -514,10 +515,10 @@ public class WebRtcStreamService extends ExecutableBase {
 		streamProviderService = new StreamProviderService(streamApiParameters,
 				tokenProvider);
 
-		WebSocketHeaderProvider headerProvider = new WebSocketBearerTokenProvider(
-				tokenProvider);
+		WebSocketHeaderProvider headerProvider = new WebSocketBearerTokenProvider(tokenProvider);
 
-		return new StreamWebSocketClient(stateWsParameters, headerProvider, eventRecorder);
+		return new StreamWebSocketClient(stateWsParameters, headerProvider,
+				streamContext, eventRecorder);
 	}
 
 	private JanusWebSocketClient createJanusClient(StreamContext streamContext) {

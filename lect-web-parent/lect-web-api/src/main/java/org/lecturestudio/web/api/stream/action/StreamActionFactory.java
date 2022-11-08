@@ -52,7 +52,7 @@ public class StreamActionFactory {
 			case STREAM_CAMERA_CHANGE:
 			case STREAM_MICROPHONE_CHANGE:
 			case STREAM_SCREEN_SHARE_CHANGE:
-				return new StreamMediaChangeAction(input);
+				return new StreamMediaChangeAction(type, input);
 			default:
 				throw new IOException("Action not defined: " + type);
 		}

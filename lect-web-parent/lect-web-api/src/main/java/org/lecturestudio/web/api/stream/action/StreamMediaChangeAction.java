@@ -33,8 +33,14 @@ public class StreamMediaChangeAction extends StreamAction {
 		this.enabled = enabled;
 	}
 
-	public StreamMediaChangeAction(byte[] input) {
+	public StreamMediaChangeAction(StreamActionType actionType, byte[] input) {
+		this.actionType = actionType;
+
 		parseFrom(input);
+	}
+
+	public boolean isEnabled() {
+		return enabled;
 	}
 
 	@Override

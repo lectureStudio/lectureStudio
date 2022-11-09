@@ -23,6 +23,8 @@ import java.awt.geom.AffineTransform;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
 
+import org.lecturestudio.core.PageMetrics;
+import org.lecturestudio.core.geometry.Dimension2D;
 import org.lecturestudio.core.geometry.Rectangle2D;
 import org.lecturestudio.core.pdf.pdfbox.PDFGraphics2D;
 
@@ -49,21 +51,26 @@ public class ScreenDocument extends Document {
 
 		Rectangle2D rect = page.getPageRect();
 
+		double imageWidth = image.getWidth();
+		double imageHeight = image.getHeight();
 		double pageWidth = rect.getWidth() - PADDING * 2;
 		double pageHeight = rect.getHeight() - PADDING * 2;
 
-		double s = pageWidth / (double) image.getWidth();
+		PageMetrics metrics = new PageMetrics(pageWidth, pageHeight);
+		Dimension2D size = metrics.convert(imageWidth, imageHeight);
 
-		if (image.getHeight(null) > image.getWidth(null)) {
-			s = pageHeight / (double) image.getHeight();
+		double s = pageWidth / imageWidth;
+
+		if (imageHeight > size.getHeight()) {
+			s = pageHeight / imageHeight;
 		}
 
 		double sInv = 1 / s;
 
-		int x = (int) (((pageWidth - image.getWidth() * s) / 2 + PADDING) * sInv);
-		int y = (int) (((pageHeight - image.getHeight() * s) / 2 + PADDING) * sInv);
-		int w = image.getWidth();
-		int h = image.getHeight();
+		int x = (int) (((pageWidth - imageWidth * s) / 2 + PADDING) * sInv);
+		int y = (int) (((pageHeight - imageHeight * s) / 2 + PADDING) * sInv);
+		int w = (int) imageWidth;
+		int h = (int) imageHeight;
 
 		try {
 			getPdfDocument().setPageContentTransform(pageIndex, AffineTransform.getScaleInstance(s, s));

@@ -28,7 +28,6 @@ import dev.onvoid.webrtc.media.video.desktop.WindowCapturer;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.nio.ByteBuffer;
 
 import org.lecturestudio.core.geometry.Dimension2D;
 import org.lecturestudio.core.geometry.Rectangle2D;
@@ -117,16 +116,5 @@ public class ScreenDocumentCreator {
 		});
 		desktopCapturer.captureFrame();
 		//desktopCapturer.dispose();
-	}
-
-	private static ByteBuffer cloneByteBuffer(final ByteBuffer original) {
-		final ByteBuffer clone = (original.isDirect()) ?
-				ByteBuffer.allocateDirect(original.capacity()) :
-				ByteBuffer.allocate(original.capacity());
-
-		clone.put(original);
-		clone.rewind();
-
-		return clone;
 	}
 }

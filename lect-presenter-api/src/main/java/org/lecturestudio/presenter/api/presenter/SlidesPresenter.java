@@ -1187,6 +1187,11 @@ public class SlidesPresenter extends Presenter<SlidesView> {
 	}
 
 	private void recordPage(Page page) {
+		if (page.getDocument().isQuiz() && quizState == ExecutableState.Started) {
+			// Do not record pages from running quizzes.
+			return;
+		}
+
 		try {
 			documentRecorder.recordPage(page);
 		}

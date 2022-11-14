@@ -252,15 +252,6 @@ public class DocumentRecorder extends ExecutableBase {
 				}
 			}
 			else {
-				boolean hasRecUid = nonNull(recDocument.getUid());
-				boolean hasDocUid = nonNull(pageDoc.getUid());
-
-				if (pageDoc.isQuiz() && hasRecUid && hasDocUid
-						&& recDocument.getUid().equals(pageDoc.getUid())
-						&& pageDoc.getPageIndex(page) == 0) {
-					// Do not record duplicate pages.
-					return;
-				}
 				if (pageDoc.isQuiz() && pageDoc.getPageIndex(page) == 0) {
 					// Change uid to record pages from different document source.
 					recDocument.setUid(pageDoc.getUid());

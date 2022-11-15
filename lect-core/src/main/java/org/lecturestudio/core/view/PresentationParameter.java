@@ -244,4 +244,13 @@ public class PresentationParameter {
 		return viewRect;
 	}
 
+	public void copy(PresentationParameter other) {
+		// PageRect reflects zoom and extended state.
+		setPageRect(other.getPageRect());
+		setShowGrid(other.showGrid());
+		setTranslation(other.getTranslation());
+
+		isExtended = other.isExtended;
+		zoomMode = other.zoomMode;
+	}
 }

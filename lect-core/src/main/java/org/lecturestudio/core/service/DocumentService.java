@@ -48,6 +48,9 @@ import org.lecturestudio.core.model.DocumentType;
 import org.lecturestudio.core.model.Page;
 import org.lecturestudio.core.model.RecentDocument;
 import org.lecturestudio.core.model.TemplateDocument;
+import org.lecturestudio.core.view.PresentationParameter;
+import org.lecturestudio.core.view.PresentationParameterProvider;
+import org.lecturestudio.core.view.ViewType;
 
 @Singleton
 public class DocumentService {
@@ -224,10 +227,6 @@ public class DocumentService {
 		replaceDocument(documents.getSelectedDocument(), newDoc);
 	}
 
-	public void replaceDocument(Document newDoc, boolean copyAnnotations) {
-		replaceDocument(documents.getSelectedDocument(), newDoc, copyAnnotations);
-	}
-
 	public void replaceDocument(Document oldDoc, Document newDoc) {
 		if (documents.replace(oldDoc, newDoc)) {
 			context.getEventBus().post(new DocumentEvent(oldDoc, newDoc,
@@ -246,6 +245,10 @@ public class DocumentService {
 					Page oldPage = oldDoc.getPage(i);
 
 					newPage.copy(oldPage);
+
+					copyPagePresentation(oldPage, newPage, ViewType.User);
+					copyPagePresentation(oldPage, newPage, ViewType.Presentation);
+					copyPagePresentation(oldPage, newPage, ViewType.Preview);
 				}
 			}
 
@@ -509,4 +512,10 @@ public class DocumentService {
 		}
 	}
 
+	private void copyPagePresentation(Page oldPage, Page newPage, ViewType viewType) {
+		PresentationParameterProvider presentation = context.getPagePropertyProvider(viewType);
+
+		PresentationParameter param = presentation.getParameter(newPage);
+		param.copy(presentation.getParameter(oldPage));
+	}
 }

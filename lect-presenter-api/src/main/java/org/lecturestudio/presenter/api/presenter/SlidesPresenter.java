@@ -567,7 +567,7 @@ public class SlidesPresenter extends Presenter<SlidesView> {
 			Document prevMessageDocument = null;
 
 			for (Document doc : documentService.getDocuments().asList()) {
-				if (doc.isMessage()) {
+				if (doc.isMessage() && doc instanceof MessageDocument) {
 					prevMessageDocument = doc;
 					break;
 				}

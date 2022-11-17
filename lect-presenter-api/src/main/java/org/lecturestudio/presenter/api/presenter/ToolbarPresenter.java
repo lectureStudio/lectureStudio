@@ -399,7 +399,22 @@ public class ToolbarPresenter extends Presenter<ToolbarView> {
 			document.setDocumentType(DocumentType.MESSAGE);
 			document.createPage();
 
-			documentService.addDocument(document);
+			Document prevDocument = null;
+
+			for (Document doc : documentService.getDocuments().asList()) {
+				if (doc.hashCode() == document.hashCode()) {
+					prevDocument = doc;
+					break;
+				}
+			}
+
+			if (nonNull(prevDocument)) {
+				documentService.replaceDocument(prevDocument, document);
+			}
+			else {
+				documentService.addDocument(document);
+			}
+
 			documentService.selectDocument(document);
 		}
 	}

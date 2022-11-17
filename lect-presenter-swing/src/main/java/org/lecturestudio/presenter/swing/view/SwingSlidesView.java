@@ -1581,7 +1581,7 @@ public class SwingSlidesView extends JPanel implements SlidesView {
 				if (clickedTab.type == AdaptiveTabType.SLIDE) {
 					selectedSlideLabelText = clickedTab.getLabelText();
 				}
-				toggleRightTab(sameTab);
+				//toggleRightTab(sameTab);
 			}
 
 			@Override

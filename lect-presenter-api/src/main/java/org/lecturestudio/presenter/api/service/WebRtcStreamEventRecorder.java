@@ -240,7 +240,7 @@ public class WebRtcStreamEventRecorder extends StreamEventRecorder {
 
 			if (isInitialQuiz || doc.isMessage() || doc.isScreen()) {
 				try {
-					replaceDocument(doc);
+					shareDocument(doc);
 				}
 				catch (IOException e) {
 					logException(e, "Transmit document failed");
@@ -367,15 +367,6 @@ public class WebRtcStreamEventRecorder extends StreamEventRecorder {
 		addPlaybackAction(action);
 	}
 
-	public void replaceDocument(Document document) throws IOException {
-		StreamDocumentCreateAction action = uploadDocument(document);
-		action.setDocumentChecksum("replaced");
-
-		addPlaybackAction(action);
-		addPlaybackAction(new StreamDocumentSelectAction(document));
-		addPlaybackAction(new StreamPageSelectedAction(document.getCurrentPage()));
-	}
-
 	private StreamDocumentCreateAction uploadDocument(Document document)
 			throws IOException {
 		if (document.isWhiteboard()) {
@@ -415,6 +406,7 @@ public class WebRtcStreamEventRecorder extends StreamEventRecorder {
 
 		StreamDocumentCreateAction docCreateAction = new StreamDocumentCreateAction(document);
 		docCreateAction.setDocumentFile(remoteFile);
+		docCreateAction.setDocumentChecksum(document.getUid().toString());
 
 		return docCreateAction;
 	}

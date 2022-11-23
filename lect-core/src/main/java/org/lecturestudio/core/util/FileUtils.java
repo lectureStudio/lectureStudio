@@ -21,9 +21,9 @@ package org.lecturestudio.core.util;
 import static java.util.Objects.isNull;
 import static java.util.Objects.nonNull;
 
-import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
@@ -34,7 +34,6 @@ import java.nio.file.Paths;
 import java.nio.file.SimpleFileVisitor;
 import java.nio.file.StandardCopyOption;
 import java.nio.file.attribute.BasicFileAttributes;
-import java.security.MessageDigest;
 import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.HashSet;
@@ -45,6 +44,8 @@ import java.util.Set;
 import java.util.function.Predicate;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipOutputStream;
 
 import org.lecturestudio.core.app.configuration.Configuration;
 
@@ -54,8 +55,6 @@ public class FileUtils {
 	 * The default path resolves to 'user.home'.
 	 */
 	public static final String DEFAULT_PATH = System.getProperty("user.home");
-
-	private static final char[] HEX_DIGITS = { '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'a', 'b', 'c', 'd', 'e', 'f' };
 
 
 	public static Path getContextPath(Configuration config, String pathContext) {
@@ -131,29 +130,6 @@ public class FileUtils {
 		return Locale.forLanguageTag(tag);
 	}
 
-	public static String getChecksum(MessageDigest digest, File file) throws IOException {
-		FileInputStream fis = new FileInputStream(file);
-		byte[] byteArray = new byte[4096];
-		int bytesCount;
-
-		while ((bytesCount = fis.read(byteArray)) != -1) {
-			digest.update(byteArray, 0, bytesCount);
-		}
-
-		fis.close();
-
-		byte[] bytes = digest.digest();
-		char[] hex = new char[bytes.length << 1];
-
-		// Convert it to hexadecimal format.
-		for (int i = 0, j = 0; i < bytes.length; i++) {
-			hex[j++] = HEX_DIGITS[(0xF0 & bytes[i]) >>> 4];
-			hex[j++] = HEX_DIGITS[0x0F & bytes[i]];
-		}
-		
-		return new String(hex);
-	}
-	
 	/**
 	 * Creates the directory named by this abstract pathname, including any
 	 * necessary but nonexistent parent directories. Note that if this
@@ -239,16 +215,6 @@ public class FileUtils {
 		return filePath;
 	}
 
-	public static String toPlatformPath(String path) {
-		String sep = File.separator;
-
-		if (sep.equals("\\")) {
-			return path.replace("/", sep);
-		}
-
-		return path.replace("\\", sep);
-	}
-
 	public static String[] getResourceListing(String path, Predicate<String> predicate) throws Exception {
 		URL dirURL = FileUtils.class.getResource(path);
 
@@ -322,23 +288,7 @@ public class FileUtils {
 		
 		throw new IOException("Cannot list files for path: " + path);
 	}
-	
-	public static File getJarDir(Class<?> cls) throws Exception {
-		File path = new File(cls.getProtectionDomain().getCodeSource().getLocation().toURI().getPath());
-		
-		if (path.isFile() && path.getName().endsWith(".jar")) {
-			return new File(path.getParentFile().getAbsolutePath());
-		}
-		
-		return null;
-	}
-	
-	public static InputStream getByteArrayInputStream(File file) throws IOException {
-		byte[] bytes = getByteArray(file);
 
-		return new ByteArrayInputStream(bytes);
-	}
-	
 	public static byte[] getByteArray(File file) throws IOException {
 		Path path = Paths.get(file.toURI());
 		return Files.readAllBytes(path);
@@ -402,4 +352,44 @@ public class FileUtils {
 		return new String(shortPathArray);
 	}
 
+	public static void zipFile(File inZipFile, File outZipFile) throws IOException {
+		try (FileOutputStream fos = new FileOutputStream(outZipFile);
+				ZipOutputStream zipOut = new ZipOutputStream(fos)) {
+			zipFile(inZipFile, inZipFile.getName(), zipOut);
+		}
+	}
+
+	private static void zipFile(File inZipFile, String fileName, ZipOutputStream zipOut) throws IOException {
+		if (inZipFile.isHidden()) {
+			return;
+		}
+		if (inZipFile.isDirectory()) {
+			if (fileName.endsWith("/")) {
+				zipOut.putNextEntry(new ZipEntry(fileName));
+				zipOut.closeEntry();
+			}
+			else {
+				zipOut.putNextEntry(new ZipEntry(fileName + "/"));
+				zipOut.closeEntry();
+			}
+
+			File[] children = inZipFile.listFiles();
+			for (File childFile : children) {
+				zipFile(childFile, fileName + "/" + childFile.getName(), zipOut);
+			}
+
+			return;
+		}
+
+		FileInputStream fis = new FileInputStream(inZipFile);
+		ZipEntry zipEntry = new ZipEntry(fileName);
+		zipOut.putNextEntry(zipEntry);
+
+		byte[] bytes = new byte[1024];
+		int length;
+		while ((length = fis.read(bytes)) >= 0) {
+			zipOut.write(bytes, 0, length);
+		}
+		fis.close();
+	}
 }

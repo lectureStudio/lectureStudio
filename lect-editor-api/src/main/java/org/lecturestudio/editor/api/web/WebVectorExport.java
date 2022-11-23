@@ -102,8 +102,10 @@ public class WebVectorExport extends RecordingExport {
 	@Override
 	protected void initInternal() throws ExecutableException {
 		File outputFile = config.getOutputFile();
-		String webExportPath = FileUtils.stripExtension(outputFile.getPath());
-		File outputFolder = Paths.get(webExportPath).getParent().resolve("vector").toFile();
+		String outputPathStr = FileUtils.stripExtension(outputFile.getPath());
+		Path outputRootPath = Paths.get(outputPathStr).getParent();
+		String outputFileName = FileUtils.stripExtension(outputFile.getName());
+		File outputFolder = outputRootPath.resolve(outputFileName + "v").toFile();
 
 		outputPath = outputFolder.getAbsolutePath();
 
@@ -113,9 +115,9 @@ public class WebVectorExport extends RecordingExport {
 		indexContent = processTemplateFile(indexContent, data);
 
 		try {
-			copyResourceToFilesystem(TEMPLATE_FOLDER, outputPath, List.of("txt"));
+			copyResourceToFilesystem(TEMPLATE_FOLDER, outputPath, List.of("html", "txt"));
 
-			writeTemplateFile(indexContent, getFile(TEMPLATE_FILE));
+			writeTemplateFile(indexContent, getFile(outputFileName + "." + FileUtils.getExtension(TEMPLATE_FILE)));
 		}
 		catch (Exception e) {
 			throw new ExecutableException(e);
@@ -158,6 +160,10 @@ public class WebVectorExport extends RecordingExport {
 				writeTemplateFile(bundleContent, getFile("main.bundle.js"));
 
 				RecordingFileWriter.write(encRecording, plrFile);
+
+				File targetFolder = new File(outputPath);
+				FileUtils.zipFile(targetFolder, Paths.get(outputPath + ".zip").toFile());
+				FileUtils.deleteDir(targetFolder);
 
 				stop();
 			}

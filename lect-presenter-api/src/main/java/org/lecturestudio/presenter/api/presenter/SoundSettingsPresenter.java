@@ -386,7 +386,16 @@ public class SoundSettingsPresenter extends Presenter<SoundSettingsView> {
 	}
 
 	private void startAudioLevelCapture() {
+		AudioProcessingSettings settings = new AudioProcessingSettings();
+		settings.setHighpassFilterEnabled(true);
+		settings.setNoiseSuppressionEnabled(true);
+		settings.setNoiseSuppressionLevel(NoiseSuppressionLevel.LOW);
+		settings.setLevelEstimationEnabled(true);
+		settings.setVoiceDetectionEnabled(true);
+		settings.setEchoCancellerEnabled(true);
+
 		levelRecorder = createAudioRecorder();
+		levelRecorder.setAudioProcessingSettings(settings);
 		levelRecorder.setAudioSink(new AudioSink() {
 
 			@Override
@@ -400,7 +409,13 @@ public class SoundSettingsPresenter extends Presenter<SoundSettingsView> {
 
 			@Override
 			public int write(byte[] data, int offset, int length) {
-				double level = getSignalPowerLevel(data);
+				var stats = levelRecorder.getAudioProcessingStats();
+				double level = 0;
+
+				if (nonNull(stats) && stats.voiceDetected) {
+					level = getSignalPowerLevel(data);
+				}
+
 				view.setAudioCaptureLevel(level);
 
 				context.getAudioBus().post(new AudioSignalEvent(level));

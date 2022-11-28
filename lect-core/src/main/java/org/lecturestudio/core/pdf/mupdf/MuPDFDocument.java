@@ -76,6 +76,8 @@ public class MuPDFDocument implements DocumentAdapter {
 
 	private AbstractMap.SimpleEntry<DocumentAdapter, PDFGraftMap> graftMapping;
 
+	private final Object mutex = new Object();
+
 
 	/**
 	 * Create a new {@link MuPDFDocument}.
@@ -117,15 +119,19 @@ public class MuPDFDocument implements DocumentAdapter {
 
 	@Override
 	public void close() {
-		doc.destroy();
+		synchronized (mutex) {
+			doc.destroy();
+		}
 	}
 
 	@Override
 	public DocumentOutline getDocumentOutline() {
-		if (isNull(outline)) {
-			outline = new DocumentOutline();
+		synchronized (mutex) {
+			if (isNull(outline)) {
+				outline = new DocumentOutline();
 
-			loadOutline(doc.loadOutline(), outline);
+				loadOutline(doc.loadOutline(), outline);
+			}
 		}
 
 		return outline;
@@ -148,7 +154,9 @@ public class MuPDFDocument implements DocumentAdapter {
 
 	@Override
 	public String getTitle() {
-		return doc.getMetaData(Document.META_INFO_TITLE);
+		synchronized (mutex) {
+			return doc.getMetaData(Document.META_INFO_TITLE);
+		}
 	}
 
 	@Override
@@ -158,56 +166,66 @@ public class MuPDFDocument implements DocumentAdapter {
 
 	@Override
 	public String getAuthor() {
-		return doc.getMetaData(Document.META_INFO_AUTHOR);
+		synchronized (mutex) {
+			return doc.getMetaData(Document.META_INFO_AUTHOR);
+		}
 	}
 
 	@Override
 	public Rectangle2D getPageBounds(int pageNumber) {
-		Page page = getPage(pageNumber);
-		Rect bounds = page.getBounds();
+		synchronized (mutex) {
+			Page page = getPage(pageNumber);
+			Rect bounds = page.getBounds();
 
-		return new Rectangle2D(0, 0, bounds.x1 - bounds.x0, bounds.y1 - bounds.y0);
+			return new Rectangle2D(0, 0, bounds.x1 - bounds.x0, bounds.y1 - bounds.y0);
+		}
 	}
 
 	@Override
 	public int getPageCount() {
-		return doc.countPages();
+		synchronized (mutex) {
+			return doc.countPages();
+		}
 	}
 
 	@Override
 	public String getPageText(int pageNumber) {
-		CompletableFuture<String> future = CompletableFuture.supplyAsync(() -> {
-			DisplayList displayList = getDisplayList(pageNumber);
-			Page page = getPage(pageNumber);
+		synchronized (mutex) {
+			CompletableFuture<String> future = CompletableFuture.supplyAsync(() -> {
+				DisplayList displayList = getDisplayList(pageNumber);
+				Page page = getPage(pageNumber);
 
-			SimpleTextWalker textWalker = new SimpleTextWalker(page.getBounds());
+				SimpleTextWalker textWalker = new SimpleTextWalker(page.getBounds());
 
-			StructuredText structuredText = displayList.toStructuredText();
-			structuredText.walk(textWalker);
+				StructuredText structuredText = displayList.toStructuredText();
+				structuredText.walk(textWalker);
 
-			return textWalker.getText();
-		}, EXECUTOR);
+				return textWalker.getText();
+			}, EXECUTOR);
 
-		try {
-			return future.get();
-		}
-		catch (Exception e) {
-			e.printStackTrace();
-			return null;
+			try {
+				return future.get();
+			}
+			catch (Exception e) {
+				e.printStackTrace();
+				return null;
+			}
 		}
 	}
 
 	@Override
 	public List<Rectangle2D> getPageWordsNormalized(int pageNumber) {
-		DisplayList displayList = getDisplayList(pageNumber);
-		Page page = getPage(pageNumber);
+		synchronized (mutex) {
+			DisplayList displayList = getDisplayList(pageNumber);
+			Page page = getPage(pageNumber);
 
-		WordWalker wordWalker = new WordWalker(page.getBounds());
+			WordWalker wordWalker = new WordWalker(page.getBounds());
 
-		StructuredText structuredText = displayList.toStructuredText();
-		structuredText.walk(wordWalker);
+			StructuredText structuredText = displayList.toStructuredText();
+			structuredText.walk(wordWalker);
 
-		return wordWalker.getWordBounds();
+			return wordWalker.getWordBounds();
+		}
 	}
 
 	@Override
@@ -217,246 +235,264 @@ public class MuPDFDocument implements DocumentAdapter {
 
 	@Override
 	public Set<URI> getLinks(int pageNumber) {
-		Page page = getPage(pageNumber);
+		synchronized (mutex) {
+			Page page = getPage(pageNumber);
 
-		Set<URI> uris = new HashSet<>();
-		Link[] links = page.getLinks();
+			Set<URI> uris = new HashSet<>();
+			Link[] links = page.getLinks();
 
-		if (nonNull(links)) {
-			for (Link link : links) {
-				if (nonNull(link.uri)) {
-					uris.add(URI.create(link.uri));
+			if (nonNull(links)) {
+				for (Link link : links) {
+					if (nonNull(link.uri)) {
+						uris.add(URI.create(link.uri));
+					}
 				}
 			}
-		}
 
-		return uris;
+			return uris;
+		}
 	}
 
 	@Override
 	public Set<File> getLaunchActions(int pageNumber) {
-		Page page = getPage(pageNumber);
+		synchronized (mutex) {
+			Page page = getPage(pageNumber);
 
-		Set<File> launchActions = new HashSet<>();
-		Link[] links = page.getLinks();
+			Set<File> launchActions = new HashSet<>();
+			Link[] links = page.getLinks();
 
-		if (nonNull(links)) {
-			for (Link link : links) {
-				if (nonNull(link.uri)) {
-					launchActions.add(new File(link.uri));
+			if (nonNull(links)) {
+				for (Link link : links) {
+					if (nonNull(link.uri)) {
+						launchActions.add(new File(link.uri));
+					}
 				}
 			}
-		}
 
-		return launchActions;
+			return launchActions;
+		}
 	}
 
 	@Override
 	public void addPage(int width, int height) {
-		PDFObject resources = doc.newDictionary();
-		Buffer buffer = new Buffer();
+		synchronized (mutex) {
+			PDFObject resources = doc.newDictionary();
+			Buffer buffer = new Buffer();
 
-		PDFObject page = doc.addPage(new Rect(0, 0, width, height), 0, resources, buffer);
+			PDFObject page = doc.addPage(new Rect(0, 0, width, height), 0, resources, buffer);
 
-		// Insert page object at the end of the document.
-		doc.insertPage(-1, page);
+			// Insert page object at the end of the document.
+			doc.insertPage(-1, page);
 
-		buffer.destroy();
+			buffer.destroy();
+		}
 	}
 
 	@Override
 	public void deletePage(int pageNumber) {
-		doc.deletePage(pageNumber);
+		synchronized (mutex) {
+			doc.deletePage(pageNumber);
+		}
 	}
 
 	@Override
 	public int importPage(DocumentAdapter srcDocument, int pageNumber) {
-		PDFGraftMap graftMap;
+		synchronized (mutex) {
+			PDFGraftMap graftMap;
 
-		if (isNull(graftMapping) || !graftMapping.getKey().equals(srcDocument)) {
-			if (nonNull(graftMapping) && nonNull(graftMapping.getValue())) {
-				graftMapping.getValue().destroy();
+			if (isNull(graftMapping) || !graftMapping.getKey().equals(srcDocument)) {
+				if (nonNull(graftMapping) && nonNull(graftMapping.getValue())) {
+					graftMapping.getValue().destroy();
+				}
+
+				graftMapping = new AbstractMap.SimpleEntry<>(srcDocument, doc.newPDFGraftMap());
 			}
 
-			graftMapping = new AbstractMap.SimpleEntry<>(srcDocument, doc.newPDFGraftMap());
+			graftMap = graftMapping.getValue();
+
+			MuPDFDocument muPDFSrcDoc = (MuPDFDocument) srcDocument;
+
+			PDFObject srcPage = muPDFSrcDoc.doc.findPage(pageNumber);
+			PDFObject dstPage = doc.newDictionary();
+
+			PDFObject mediaBox = srcPage.get("MediaBox");
+			PDFObject rotate = srcPage.get("Rotate");
+			PDFObject resources = srcPage.get("Resources");
+			PDFObject contents = srcPage.get("Contents");
+
+			if (nonNull(mediaBox)) {
+				try {
+					dstPage.put("MediaBox", graftMap.graftObject(mediaBox));
+				}
+				catch (Throwable e) {
+					// Ignore
+				}
+			}
+			if (nonNull(rotate)) {
+				try {
+					dstPage.put("Rotate", graftMap.graftObject(rotate));
+				}
+				catch (Throwable e) {
+					// Ignore
+				}
+			}
+			if (nonNull(resources)) {
+				try {
+					dstPage.put("Resources", graftMap.graftObject(resources));
+				}
+				catch (Throwable e) {
+					dstPage.put("Resources", doc.newDictionary());
+				}
+			}
+			if (nonNull(contents)) {
+				try {
+					dstPage.put("Contents", graftMap.graftObject(contents));
+				}
+				catch (Throwable e) {
+					dstPage.put("Contents", doc.newDictionary());
+				}
+			}
+
+			doc.insertPage(-1, doc.addObject(dstPage));
+
+			return getPageCount() - 1;
 		}
-
-		graftMap = graftMapping.getValue();
-
-		MuPDFDocument muPDFSrcDoc = (MuPDFDocument) srcDocument;
-
-		PDFObject srcPage = muPDFSrcDoc.doc.findPage(pageNumber);
-		PDFObject dstPage = doc.newDictionary();
-
-		PDFObject mediaBox = srcPage.get("MediaBox");
-		PDFObject rotate = srcPage.get("Rotate");
-		PDFObject resources = srcPage.get("Resources");
-		PDFObject contents = srcPage.get("Contents");
-
-		if (nonNull(mediaBox)) {
-			try {
-				dstPage.put("MediaBox", graftMap.graftObject(mediaBox));
-			}
-			catch (Throwable e) {
-				// Ignore
-			}
-		}
-		if (nonNull(rotate)) {
-			try {
-				dstPage.put("Rotate", graftMap.graftObject(rotate));
-			}
-			catch (Throwable e) {
-				// Ignore
-			}
-		}
-		if (nonNull(resources)) {
-			try {
-				dstPage.put("Resources", graftMap.graftObject(resources));
-			}
-			catch (Throwable e) {
-				dstPage.put("Resources", doc.newDictionary());
-			}
-		}
-		if (nonNull(contents)) {
-			try {
-				dstPage.put("Contents", graftMap.graftObject(contents));
-			}
-			catch (Throwable e) {
-				dstPage.put("Contents", doc.newDictionary());
-			}
-		}
-
-		doc.insertPage(-1, doc.addObject(dstPage));
-
-		return getPageCount() - 1;
 	}
 
 	@Override
 	public void toOutputStream(OutputStream stream) throws IOException {
-		doc.save(new SeekableInputOutputStream() {
+		synchronized (mutex) {
+			doc.save(new SeekableInputOutputStream() {
 
-			@Override
-			public int read(byte[] b) throws IOException {
-				return 0;
-			}
+				@Override
+				public int read(byte[] b) throws IOException {
+					return 0;
+				}
 
-			@Override
-			public long seek(long offset, int whence) throws IOException {
-				return 0;
-			}
+				@Override
+				public long seek(long offset, int whence) throws IOException {
+					return 0;
+				}
 
-			@Override
-			public long position() throws IOException {
-				return 0;
-			}
+				@Override
+				public long position() throws IOException {
+					return 0;
+				}
 
-			@Override
-			public void write(byte[] b, int off, int len) throws IOException {
-				stream.write(b, off, len);
-			}
-		}, "compress");
+				@Override
+				public void write(byte[] b, int off, int len) throws IOException {
+					stream.write(b, off, len);
+				}
+			}, "compress");
+		}
 	}
 
 	@Override
 	public void setEditableAnnotations(int pageNumber, List<Shape> shapes) throws IOException {
-		PDFObject page = doc.findPage(pageNumber);
-		PDFObject shapesContent = page.get(PdfDocument.EMBEDDED_SHAPES_KEY);
+		synchronized (mutex) {
+			PDFObject page = doc.findPage(pageNumber);
+			PDFObject shapesContent = page.get(PdfDocument.EMBEDDED_SHAPES_KEY);
 
-		if (!shapesContent.isArray()) {
-			shapesContent = doc.newArray();
+			if (!shapesContent.isArray()) {
+				shapesContent = doc.newArray();
+			}
+
+			Buffer buffer = new Buffer();
+
+			for (Shape shape : shapes) {
+				// Write shape class.
+				String cls = shape.getClass().getCanonicalName();
+				byte[] data = cls.getBytes();
+				buffer.writeBytes(BitConverter.getBigEndianBytes(data.length));
+				buffer.writeBytes(data);
+
+				// Write shape as binary data.
+				data = shape.toByteArray();
+				buffer.writeBytes(BitConverter.getBigEndianBytes(data.length));
+				buffer.writeBytes(data);
+			}
+
+			shapesContent.push(doc.addStream(buffer));
+
+			buffer.destroy();
+
+			page.put(PdfDocument.EMBEDDED_SHAPES_KEY, shapesContent);
 		}
-
-		Buffer buffer = new Buffer();
-
-		for (Shape shape : shapes) {
-			// Write shape class.
-			String cls = shape.getClass().getCanonicalName();
-			byte[] data = cls.getBytes();
-			buffer.writeBytes(BitConverter.getBigEndianBytes(data.length));
-			buffer.writeBytes(data);
-
-			// Write shape as binary data.
-			data = shape.toByteArray();
-			buffer.writeBytes(BitConverter.getBigEndianBytes(data.length));
-			buffer.writeBytes(data);
-		}
-
-		shapesContent.push(doc.addStream(buffer));
-
-		buffer.destroy();
-
-		page.put(PdfDocument.EMBEDDED_SHAPES_KEY, shapesContent);
 	}
 
 	@Override
 	public List<Shape> getEditableAnnotations(int pageNumber) throws IOException {
-		PDFObject pageDict = doc.findPage(pageNumber);
-		PDFObject shapesContent = pageDict.get(PdfDocument.EMBEDDED_SHAPES_KEY);
+		synchronized (mutex) {
+			PDFObject pageDict = doc.findPage(pageNumber);
+			PDFObject shapesContent = pageDict.get(PdfDocument.EMBEDDED_SHAPES_KEY);
 
-		List<Shape> shapes = new ArrayList<>();
+			List<Shape> shapes = new ArrayList<>();
 
-		if (!shapesContent.isArray()) {
-			return shapes;
-		}
+			if (!shapesContent.isArray()) {
+				return shapes;
+			}
 
-		for (int i = 0; i < shapesContent.size(); i++) {
-			PDFObject stream = shapesContent.get(i);
+			for (int i = 0; i < shapesContent.size(); i++) {
+				PDFObject stream = shapesContent.get(i);
 
-			ByteArrayInputStream byteStream = new ByteArrayInputStream(stream.readStream());
+				ByteArrayInputStream byteStream = new ByteArrayInputStream(stream.readStream());
 
-			byte[] lenBytes = new byte[4];
+				byte[] lenBytes = new byte[4];
 
-			while (byteStream.available() > 0) {
-				// Read shape class.
-				byteStream.read(lenBytes);
-				byte[] data = new byte[BitConverter.getBigEndianInt(lenBytes)];
-				byteStream.read(data);
-
-				try {
-					Class<?> cls = Class.forName(new String(data));
-					Constructor<?> ctor = cls.getConstructor(byte[].class);
-
-					// Read shape data.
+				while (byteStream.available() > 0) {
+					// Read shape class.
 					byteStream.read(lenBytes);
-					data = new byte[BitConverter.getBigEndianInt(lenBytes)];
+					byte[] data = new byte[BitConverter.getBigEndianInt(lenBytes)];
 					byteStream.read(data);
 
-					shapes.add((Shape) ctor.newInstance(data));
-				}
-				catch (Exception e) {
-					throw new IOException("Create embedded annotation failed.", e);
+					try {
+						Class<?> cls = Class.forName(new String(data));
+						Constructor<?> ctor = cls.getConstructor(byte[].class);
+
+						// Read shape data.
+						byteStream.read(lenBytes);
+						data = new byte[BitConverter.getBigEndianInt(lenBytes)];
+						byteStream.read(data);
+
+						shapes.add((Shape) ctor.newInstance(data));
+					}
+					catch (Exception e) {
+						throw new IOException("Create embedded annotation failed.", e);
+					}
 				}
 			}
-		}
 
-		return shapes;
+			return shapes;
+		}
 	}
 
 	@Override
 	public Map<Integer, List<Shape>> removeEditableAnnotations() throws IOException {
-		Map<Integer, List<Shape>> shapes = new HashMap<>();
+		synchronized (mutex) {
+			Map<Integer, List<Shape>> shapes = new HashMap<>();
 
-		for (int number = 0; number < doc.countPages(); number++) {
-			PDFObject pageDict = doc.findPage(number);
+			for (int number = 0; number < doc.countPages(); number++) {
+				PDFObject pageDict = doc.findPage(number);
 
-			// Store parsed annotations before removing them.
-			shapes.put(number, getEditableAnnotations(number));
+				// Store parsed annotations before removing them.
+				shapes.put(number, getEditableAnnotations(number));
 
-			// Remove binary annotation streams.
-			PDFObject shapesContent = pageDict.get(PdfDocument.EMBEDDED_SHAPES_KEY);
+				// Remove binary annotation streams.
+				PDFObject shapesContent = pageDict.get(PdfDocument.EMBEDDED_SHAPES_KEY);
 
-			if (shapesContent.isArray()) {
-				for (int i = 0; i < shapesContent.size(); i++) {
-					PDFObject stream = shapesContent.get(i);
+				if (shapesContent.isArray()) {
+					for (int i = 0; i < shapesContent.size(); i++) {
+						PDFObject stream = shapesContent.get(i);
 
-					doc.deleteObject(stream);
+						doc.deleteObject(stream);
+					}
 				}
+
+				pageDict.delete(PdfDocument.EMBEDDED_SHAPES_KEY);
 			}
 
-			pageDict.delete(PdfDocument.EMBEDDED_SHAPES_KEY);
+			return shapes;
 		}
-
-		return shapes;
 	}
 
 	/**
@@ -467,7 +503,9 @@ public class MuPDFDocument implements DocumentAdapter {
 	 * @return The display list of the {@link PageEntry} that is mapped to the specified page number.
 	 */
 	public DisplayList getDisplayList(int pageNumber) {
-		return getPageEntry(pageNumber).displayList;
+		synchronized (mutex) {
+			return getPageEntry(pageNumber).displayList;
+		}
 	}
 
 	/**
@@ -478,7 +516,9 @@ public class MuPDFDocument implements DocumentAdapter {
 	 * @return The page of the {@link PageEntry} that is mapped to the specified page number.
 	 */
 	public Page getPage(int pageNumber) {
-		return getPageEntry(pageNumber).page;
+		synchronized (mutex) {
+			return getPageEntry(pageNumber).page;
+		}
 	}
 
 	/**
@@ -492,18 +532,20 @@ public class MuPDFDocument implements DocumentAdapter {
 	 * @return The {@link PageEntry} that is mapped to the specified page number.
 	 */
 	private PageEntry getPageEntry(int pageNumber) {
-		PageEntry pageEntry = displayListMap.get(pageNumber);
+		synchronized (mutex) {
+			PageEntry pageEntry = displayListMap.get(pageNumber);
 
-		if (isNull(pageEntry)) {
-			Page page = doc.loadPage(pageNumber);
-			DisplayList displayList = page.toDisplayList();
+			if (isNull(pageEntry)) {
+				Page page = doc.loadPage(pageNumber);
+				DisplayList displayList = page.toDisplayList();
 
-			pageEntry = new PageEntry(page, displayList);
+				pageEntry = new PageEntry(page, displayList);
 
-			displayListMap.put(pageNumber, pageEntry);
+				displayListMap.put(pageNumber, pageEntry);
+			}
+
+			return pageEntry;
 		}
-
-		return pageEntry;
 	}
 
 	private static void loadOutline(Outline[] outlines, DocumentOutlineItem outline) {

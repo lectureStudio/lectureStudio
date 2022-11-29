@@ -69,6 +69,7 @@ import org.lecturestudio.web.api.janus.JanusPeerConnectionMediaException;
 import org.lecturestudio.web.api.janus.JanusStateHandlerListener;
 import org.lecturestudio.web.api.janus.client.JanusWebSocketClient;
 import org.lecturestudio.web.api.message.SpeechBaseMessage;
+import org.lecturestudio.web.api.model.UserInfo;
 import org.lecturestudio.web.api.service.ServiceParameters;
 import org.lecturestudio.web.api.stream.StreamAudioContext;
 import org.lecturestudio.web.api.stream.StreamScreenContext;
@@ -330,6 +331,15 @@ public class WebRtcStreamService extends ExecutableBase {
 				}
 			}
 		});
+
+		UserInfo userInfo = streamProviderService.getUserInfo();
+
+		pContext.getUserPrivilegeService().setUserInfo(userInfo);
+		pContext.getUserPrivilegeService().setPrivileges(
+				streamProviderService.getUserPrivileges(course.getId())
+						.getPrivileges());
+
+		streamContext.setUserInfo(userInfo);
 
 		eventRecorder.setCourse(course);
 		eventRecorder.setStreamProviderService(streamProviderService);

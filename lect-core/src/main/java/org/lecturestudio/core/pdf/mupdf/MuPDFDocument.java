@@ -48,10 +48,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.Executor;
-import java.util.concurrent.Executors;
 
 import org.lecturestudio.core.geometry.Rectangle2D;
 import org.lecturestudio.core.io.BitConverter;
@@ -63,8 +60,6 @@ import org.lecturestudio.core.pdf.DocumentRenderer;
 import org.lecturestudio.core.pdf.PdfDocument;
 
 public class MuPDFDocument implements DocumentAdapter {
-
-	private static final Executor EXECUTOR = Executors.newFixedThreadPool(1);
 
 	private final Map<Integer, PageEntry> displayListMap = new ConcurrentHashMap<>();
 
@@ -191,25 +186,15 @@ public class MuPDFDocument implements DocumentAdapter {
 	@Override
 	public String getPageText(int pageNumber) {
 		synchronized (mutex) {
-			CompletableFuture<String> future = CompletableFuture.supplyAsync(() -> {
-				DisplayList displayList = getDisplayList(pageNumber);
-				Page page = getPage(pageNumber);
+			DisplayList displayList = getDisplayList(pageNumber);
+			Page page = getPage(pageNumber);
 
-				SimpleTextWalker textWalker = new SimpleTextWalker(page.getBounds());
+			SimpleTextWalker textWalker = new SimpleTextWalker(page.getBounds());
 
-				StructuredText structuredText = displayList.toStructuredText();
-				structuredText.walk(textWalker);
+			StructuredText structuredText = displayList.toStructuredText();
+			structuredText.walk(textWalker);
 
-				return textWalker.getText();
-			}, EXECUTOR);
-
-			try {
-				return future.get();
-			}
-			catch (Exception e) {
-				e.printStackTrace();
-				return null;
-			}
+			return textWalker.getText();
 		}
 	}
 

@@ -168,8 +168,8 @@ public class SwingTextBoxView extends TextInputPageObject<TextShape> implements 
 		double s = transform.getScaleX();
 		double tx = transform.getTranslateX();
 		double ty = transform.getTranslateY();
-		double x = Math.ceil((shapeRect.getX() + tx) * s) - xOffset;
-		double y = Math.ceil((shapeRect.getY() + ty) * s) - yOffset;
+		double x = Math.ceil((shapeRect.getX() - tx) * s) - xOffset;
+		double y = Math.ceil((shapeRect.getY() - ty) * s) - yOffset;
 
 		Font font = shape.getFont().clone();
 		font.setSize(fontSize * s);

@@ -42,7 +42,7 @@
     "@types/webpack-env": "^1.13.6",
     "codelyzer": "^6.0.0",
     "cors": "^2.8.4",
-    "express": "^4.16.3",
+    "express": "^4.17.3",
     "jasmine-core": "~3.6.0",
     "jasmine-spec-reporter": "~5.0.0",
     "karma": "~6.3.16",

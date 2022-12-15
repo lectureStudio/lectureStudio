@@ -26,6 +26,7 @@ import java.util.function.Consumer;
 
 import org.lecturestudio.core.beans.BooleanProperty;
 import org.lecturestudio.web.api.event.PeerStateEvent;
+import org.lecturestudio.web.api.model.UserInfo;
 import org.lecturestudio.web.api.stream.model.Course;
 
 public class StreamContext {
@@ -43,6 +44,8 @@ public class StreamContext {
 	private Consumer<PeerStateEvent> peerStateConsumer;
 
 	private Course course;
+
+	private UserInfo userInfo;
 
 
 	public StreamContext() {
@@ -90,6 +93,14 @@ public class StreamContext {
 
 	public void setCourse(Course course) {
 		this.course = course;
+	}
+
+	public UserInfo getUserInfo() {
+		return userInfo;
+	}
+
+	public void setUserInfo(UserInfo userInfo) {
+		this.userInfo = userInfo;
 	}
 
 	public Consumer<PeerStateEvent> getPeerStateConsumer() {

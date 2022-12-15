@@ -358,7 +358,7 @@ public class SlideView extends JComponent implements org.lecturestudio.core.view
 			return;
 		}
 
-		canvasBounds.setRect(getX(), getY(), size.getWidth(), size.getHeight());
+		canvasBounds.setRect(0, 0, size.getWidth(), size.getHeight());
 
 		renderer.resizeBuffer(size);
 

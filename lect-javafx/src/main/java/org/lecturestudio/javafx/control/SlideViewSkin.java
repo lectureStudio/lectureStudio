@@ -418,6 +418,8 @@ public class SlideViewSkin extends SkinBase<SlideView> {
 		};
 	}
 
+
+
 	private class PageRenderTask implements RenderThreadTask {
 
 		@Override

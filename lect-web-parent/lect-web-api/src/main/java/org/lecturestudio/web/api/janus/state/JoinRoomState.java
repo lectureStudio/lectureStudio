@@ -26,6 +26,7 @@ import org.lecturestudio.web.api.janus.message.JanusRoomJoinRequest;
 import org.lecturestudio.web.api.janus.message.JanusMessage;
 import org.lecturestudio.web.api.janus.message.JanusPluginDataMessage;
 import org.lecturestudio.web.api.janus.message.JanusRoomJoinedMessage;
+import org.lecturestudio.web.api.model.UserInfo;
 
 /**
  * This state joins a previously created video-room on the Janus WebRTC server.
@@ -41,9 +42,13 @@ public class JoinRoomState implements JanusState {
 
 	@Override
 	public void initialize(JanusStateHandler handler) {
+		UserInfo userInfo = handler.getStreamContext().getUserInfo();
+
 		JanusRoomJoinRequest request = new JanusRoomJoinRequest();
 		request.setParticipantType(JanusParticipantType.PUBLISHER);
 		request.setRoomId(handler.getRoomId());
+		request.setDisplayName(String.format("%s %s", userInfo.getFirstName(),
+				userInfo.getFamilyName()));
 
 		joinRequest = new JanusPluginDataMessage(handler.getSessionId(),
 				handler.getPluginId());

@@ -16,31 +16,25 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package org.lecturestudio.editor.javafx.view;
+package org.lecturestudio.javafx.view;
 
 import java.util.ResourceBundle;
 
 import javax.inject.Inject;
 
-import javafx.fxml.FXML;
 import javafx.scene.control.Button;
 
 import org.lecturestudio.core.view.Action;
 import org.lecturestudio.core.view.NewVersionView;
 import org.lecturestudio.javafx.control.NotificationPane;
 import org.lecturestudio.javafx.util.FxUtils;
-import org.lecturestudio.javafx.view.FxmlView;
 
-@FxmlView(name = "new-version")
 public class FxNewVersionView extends NotificationPane implements NewVersionView {
 
-	@FXML
 	private Button closeButton;
 
-	@FXML
 	private Button downloadButton;
 
-	@FXML
 	private Button openUrlButton;
 
 
@@ -62,5 +56,16 @@ public class FxNewVersionView extends NotificationPane implements NewVersionView
 	@Override
 	public void setOnOpenUrl(Action action) {
 		FxUtils.bindAction(openUrlButton, action);
+	}
+
+	@Override
+	protected void initialize() {
+		super.initialize();
+
+		openUrlButton = new Button(resources.getString("version.website"));
+		downloadButton = new Button(resources.getString("button.download"));
+		closeButton = new Button(resources.getString("button.close"));
+
+		getButtons().addAll(openUrlButton, downloadButton, closeButton);
 	}
 }

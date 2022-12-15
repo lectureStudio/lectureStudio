@@ -44,7 +44,7 @@ public class NotificationPane extends StackPane {
 
 	private final ObjectProperty<NotificationType> type = new SimpleObjectProperty<>(NotificationType.DEFAULT);
 
-	private final ResourceBundle resources;
+	protected final ResourceBundle resources;
 
 	@FXML
 	private Pane contentPane;

@@ -140,7 +140,6 @@ public class ToolController extends Controller implements ToolContext {
 		StrokeSettings ellipseSettings = new StrokeSettings(toolConfig.getEllipseSettings());
 		TextSelectionSettings textSelectionSettings = new TextSelectionSettings(toolConfig.getTextSelectionSettings());
 		TextSettings textSettings = new TextSettings(toolConfig.getTextSettings());
-		LatexToolSettings latexSettings = new LatexToolSettings(toolConfig.getLatexSettings());
 
 		// Bind controller settings to configuration settings.
 		toolConfig.getPenSettings().widthProperty().addListener((observable, oldValue, newValue) -> penSettings.setWidth(newValue));
@@ -161,7 +160,6 @@ public class ToolController extends Controller implements ToolContext {
 		paintSettings.put(ToolType.ELLIPSE, ellipseSettings);
 		paintSettings.put(ToolType.TEXT_SELECTION, textSelectionSettings);
 		paintSettings.put(ToolType.TEXT, textSettings);
-		paintSettings.put(ToolType.LATEX, latexSettings);
 	}
 
 	@Subscribe

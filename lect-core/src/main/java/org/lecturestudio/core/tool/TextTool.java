@@ -87,6 +87,8 @@ public class TextTool extends Tool implements TextChangeListener<TextShape> {
 		recordAction(new TextAction(shape.getHandle()));
 
 		super.begin(point, page);
+
+		fireToolEvent(new ShapePaintEvent(ToolEventType.BEGIN, shape, shape.getBounds()));
 	}
 
 	@Override
@@ -97,6 +99,7 @@ public class TextTool extends Tool implements TextChangeListener<TextShape> {
 	@Override
 	public void end(PenPoint2D point) {
 		shape.setLocation(point);
+		shape.getBounds().setSize(1, 1);	// TODO: calculate real bounds
 
 		page.addShape(shape);
 
@@ -116,16 +119,22 @@ public class TextTool extends Tool implements TextChangeListener<TextShape> {
 	@Override
 	public void textChanged(TextShape shape) {
 		recordAction(new TextChangeAction(shape.getHandle(), shape.getText()));
+
+		fireToolEvent(new ShapePaintEvent(ToolEventType.EXECUTE, shape, shape.getBounds()));
 	}
 
 	@Override
 	public void textFontChanged(TextShape shape) {
 		recordAction(new TextFontChangeAction(shape.getHandle(), shape.getTextColor().clone(), shape.getFont().clone(), shape.getTextAttributes().clone()));
+
+		fireToolEvent(new ShapePaintEvent(ToolEventType.EXECUTE, shape, shape.getBounds()));
 	}
 
 	@Override
 	public void textLocationChanged(TextShape shape) {
 		recordAction(new TextLocationChangeAction(shape.getHandle(), shape.getBounds().clone().getLocation()));
+
+		fireToolEvent(new ShapePaintEvent(ToolEventType.EXECUTE, shape, shape.getBounds()));
 	}
 
 	@Override

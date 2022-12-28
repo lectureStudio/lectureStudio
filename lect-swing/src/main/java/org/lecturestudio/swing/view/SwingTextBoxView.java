@@ -58,7 +58,7 @@ import org.lecturestudio.swing.util.SwingUtils;
 
 public class SwingTextBoxView extends TextInputPageObject<TextShape> implements TextBoxView {
 
-	private static final java.awt.Color THEME_COLOR = new java.awt.Color(40, 190, 140);
+	private static final java.awt.Color THEME_COLOR = new java.awt.Color(253, 224, 71, 125);
 
 	private Binding textBinding;
 
@@ -158,7 +158,7 @@ public class SwingTextBoxView extends TextInputPageObject<TextShape> implements 
 		Rectangle textBounds = textArea.getBounds();
 		Rectangle2D shapeRect = shape.getBounds();
 
-		double xOffset = textBounds.getMinX() + padding.left + 1;
+		double xOffset = textBounds.getMinX() + padding.left + 4;
 		double yOffset = textBounds.getMinY() + padding.top + 1;
 
 		if (!getFocus()) {

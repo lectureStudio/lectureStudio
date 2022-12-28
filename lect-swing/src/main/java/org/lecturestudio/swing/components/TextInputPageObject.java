@@ -175,6 +175,7 @@ public abstract class TextInputPageObject<T extends Shape> extends PageObject<T>
 
 		header = new JPanel(new GridBagLayout());
 		header.setBackground(getThemeColor());
+		header.setVisible(false);
 
 		JButton closeButton = new JButton("X");
 		closeButton.setBorder(new EmptyBorder(0, 0, 0, 0));
@@ -191,7 +192,7 @@ public abstract class TextInputPageObject<T extends Shape> extends PageObject<T>
 
 		content = createContent();
 
-		add(header, BorderLayout.NORTH);
+		// add(header, BorderLayout.NORTH);
 		add(content, BorderLayout.CENTER);
 
 		initDefaultListeners();

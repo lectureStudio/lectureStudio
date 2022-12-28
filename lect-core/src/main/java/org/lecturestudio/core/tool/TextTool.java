@@ -99,7 +99,7 @@ public class TextTool extends Tool implements TextChangeListener<TextShape> {
 	@Override
 	public void end(PenPoint2D point) {
 		shape.setLocation(point);
-		shape.getBounds().setSize(1, 1);	// TODO: calculate real bounds
+		shape.getBounds().setSize(1, 1); // Real size is calculated by the UI element
 
 		page.addShape(shape);
 

@@ -416,23 +416,25 @@ public class ToolController extends Controller implements ToolContext {
 	 * Select the select tool.
 	 */
 	public void selectSelectTool() {
-		Tool selectedTool = getSelectedTool();
+		setTool(new SelectTool(this));
 
-		if (isNull(selectedTool)) {
-			selectSelectionTool();
-			return;
-		}
-
-		// Toggle in cycle.
-		if (selectedTool.getType() == ToolType.SELECT) {
-			selectGroupSelectionTool();
-		}
-		else if (selectedTool.getType() == ToolType.SELECT_GROUP) {
-			selectCloneTool();
-		}
-		else {
-			selectSelectionTool();
-		}
+//		Tool selectedTool = getSelectedTool();
+//
+//		if (isNull(selectedTool)) {
+//			selectSelectionTool();
+//			return;
+//		}
+//
+//		// Toggle in cycle.
+//		if (selectedTool.getType() == ToolType.SELECT) {
+//			selectGroupSelectionTool();
+//		}
+//		else if (selectedTool.getType() == ToolType.SELECT_GROUP) {
+//			selectCloneTool();
+//		}
+//		else {
+//			selectSelectionTool();
+//		}
 	}
 
 	/**

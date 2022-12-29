@@ -126,7 +126,7 @@ public class SwingToolbarView extends JPanel implements ToolbarView {
 
 	private JToggleButton ellipseButton;
 
-//	private ToolGroupButton selectButton;
+	private JToggleButton selectButton;
 
 	private JToggleButton eraseButton;
 
@@ -389,7 +389,7 @@ public class SwingToolbarView extends JPanel implements ToolbarView {
 
 	@Override
 	public void setOnSelectTool(Action action) {
-//		SwingUtils.bindAction(selectButton, action);
+		SwingUtils.bindAction(selectButton, action);
 	}
 
 	@Override

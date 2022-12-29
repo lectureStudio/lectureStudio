@@ -20,6 +20,7 @@
 	<ToggleButton id="arrowButton" accelerator="W" icon="arrow-tool.svg, 30" tooltipText="toolbar.arrow.tooltip" tool="ARROW" group="toolGroup" />
 	<ToggleButton id="rectangleButton" accelerator="R" icon="rectangle-tool.svg, 30" tooltipText="toolbar.rectangle.tooltip" tool="RECTANGLE" group="toolGroup" visible="false" />
 	<ToggleButton id="ellipseButton" accelerator="C" icon="ellipse-tool.svg, 30" tooltipText="toolbar.ellipse.tooltip" tool="ELLIPSE" group="toolGroup" visible="false" />
+	<ToggleButton id="selectButton" accelerator="O" icon="select-tool.svg, 30" tooltipText="toolbar.select.tooltip" tool="SELECT" group="toolGroup" visible="false" />
 <!--	<ToolGroupButton id="selectButton" accelerator="O" copyIcon="clone-tool.svg, 30" selectIcon="select-tool.svg, 30" selectGroupIcon="select-group-tool.svg, 30" tooltipText="toolbar.select.tooltip" tool="SELECT, SELECT_GROUP, CLONE" group="toolGroup" />-->
 	<FontPickerButton id="textButton" accelerator="T" icon="text-tool.svg, 30" tooltipText="toolbar.text.tooltip" tool="TEXT" group="toolGroup" visible="false" />
 <!--	<TeXFontPickerButton id="texButton" accelerator="X" icon="latex-tool.svg, 30" tooltipText="toolbar.latex.tooltip" tool="LATEX" group="toolGroup" visible="false" />-->

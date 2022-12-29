@@ -24,6 +24,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.lecturestudio.core.beans.StringProperty;
+import org.lecturestudio.core.geometry.PenPoint2D;
 import org.lecturestudio.core.geometry.Point2D;
 import org.lecturestudio.core.geometry.Rectangle2D;
 import org.lecturestudio.core.graphics.Color;
@@ -184,7 +185,14 @@ public class TextShape extends Shape implements TextBoxShape<Font> {
 	public Point2D getLocation() {
 		return getBounds().getLocation();
 	}
-	
+
+	@Override
+	public void moveByDelta(PenPoint2D delta) {
+		setLocation(getLocation().subtract(delta));
+
+		super.moveByDelta(delta);
+	}
+
 	/**
 	 * Returns whether text is underlined or not.
 	 * 

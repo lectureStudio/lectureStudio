@@ -365,7 +365,17 @@ public class SwingTextBoxView extends TextInputPageObject<TextShape> implements 
 		}
 
 		Rectangle2D shapeBounds = shape.getBounds();
+		Rectangle2D dirtyBounds = shapeBounds.clone();
+
 		shapeBounds.setSize(layoutX / transform.getScaleX(), layoutY / transform.getScaleY());
+		dirtyBounds.union(shapeBounds);
+
+		// Add some margin to the changed rectangle.
+		double m = 10 / transform.getScaleX();
+		dirtyBounds.setRect(dirtyBounds.getX() - m, dirtyBounds.getY() - m,
+				dirtyBounds.getWidth() + 2 * m, dirtyBounds.getHeight() + 2 * m);
+
+		shape.setDirtyBounds(dirtyBounds);
 	}
 
 	private List<TextLayout> getTextLayouts() {

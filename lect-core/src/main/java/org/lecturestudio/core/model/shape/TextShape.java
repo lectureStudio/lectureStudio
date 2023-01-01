@@ -35,8 +35,9 @@ import org.lecturestudio.core.text.FontWeight;
 import org.lecturestudio.core.text.TextAttributes;
 
 /**
- * A shape representing a text input. It has a textbox handle to associate it with some textbox widget on the GUI.
- * 
+ * A shape representing a text input. It has a textbox handle to associate it
+ * with some textbox widget on the GUI.
+ *
  * @author Alex Andres
  * @author Tobias
  */
@@ -52,9 +53,12 @@ public class TextShape extends Shape implements TextBoxShape<Font> {
 	
 	private TextAttributes attributes = new TextAttributes();
 
+	private Rectangle2D dirtyBounds = new Rectangle2D();
+
+
 	/**
-	 * Creates a {@link TextShape}.
-	 * (Calls the default constructor of {@link Shape} and calls {@link #initProperties()}.)
+	 * Creates a {@link TextShape}. (Calls the default constructor of
+	 * {@link Shape} and calls {@link #initProperties()}.)
 	 */
 	public TextShape() {
 		super();
@@ -63,8 +67,9 @@ public class TextShape extends Shape implements TextBoxShape<Font> {
 	}
 
 	/**
-	 * Creates a new {@link TextShape} with the specified input byte array containing the data for the {@link TeXShape}.
-	 * (Calls {@link #initProperties().)
+	 * Creates a new {@link TextShape} with the specified input byte array
+	 * containing the data for the {@link TeXShape}. (Calls
+	 * {@link #initProperties())
 	 *
 	 * @param input The input byte array.
 	 */
@@ -191,6 +196,25 @@ public class TextShape extends Shape implements TextBoxShape<Font> {
 		setLocation(getLocation().subtract(delta));
 
 		super.moveByDelta(delta);
+	}
+
+	/**
+	 * Returns the bounding rectangle of the shape which encloses the changed
+	 * area.
+	 *
+	 * @return The bounding rectangle of this shape.
+	 */
+	public Rectangle2D getDirtyBounds() {
+		return dirtyBounds;
+	}
+
+	/**
+	 * Set new bounding rectangle of the shape which encloses the changed area.
+	 *
+	 * @param bounds The new bounding rectangle of this shape.
+	 */
+	public void setDirtyBounds(Rectangle2D bounds) {
+		this.dirtyBounds = bounds;
 	}
 
 	/**

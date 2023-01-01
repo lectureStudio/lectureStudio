@@ -120,21 +120,27 @@ public class TextTool extends Tool implements TextChangeListener<TextShape> {
 	public void textChanged(TextShape shape) {
 		recordAction(new TextChangeAction(shape.getHandle(), shape.getText()));
 
-		fireToolEvent(new ShapePaintEvent(ToolEventType.EXECUTE, shape, shape.getBounds()));
+		fireToolEvent(new ShapePaintEvent(ToolEventType.EXECUTE, shape,
+				shape.getDirtyBounds().clone()));
 	}
 
 	@Override
 	public void textFontChanged(TextShape shape) {
-		recordAction(new TextFontChangeAction(shape.getHandle(), shape.getTextColor().clone(), shape.getFont().clone(), shape.getTextAttributes().clone()));
+		recordAction(new TextFontChangeAction(shape.getHandle(),
+				shape.getTextColor().clone(), shape.getFont().clone(),
+				shape.getTextAttributes().clone()));
 
-		fireToolEvent(new ShapePaintEvent(ToolEventType.EXECUTE, shape, shape.getBounds()));
+		fireToolEvent(new ShapePaintEvent(ToolEventType.EXECUTE, shape,
+				shape.getDirtyBounds().clone()));
 	}
 
 	@Override
 	public void textLocationChanged(TextShape shape) {
-		recordAction(new TextLocationChangeAction(shape.getHandle(), shape.getBounds().clone().getLocation()));
+		recordAction(new TextLocationChangeAction(shape.getHandle(),
+				shape.getBounds().clone().getLocation()));
 
-		fireToolEvent(new ShapePaintEvent(ToolEventType.EXECUTE, shape, shape.getBounds()));
+		fireToolEvent(new ShapePaintEvent(ToolEventType.EXECUTE, shape,
+				shape.getDirtyBounds().clone()));
 	}
 
 	@Override

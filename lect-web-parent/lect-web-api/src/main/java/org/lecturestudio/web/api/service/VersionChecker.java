@@ -44,11 +44,11 @@ public class VersionChecker {
 	/**
 	 * Creates a new {@code VersionChecker}.
 	 */
-	public VersionChecker() {
+	public VersionChecker(String owner, String repository) {
 		ServiceParameters parameters = new ServiceParameters();
 		parameters.setUrl("https://api.github.com");
 
-		gitHubService = new GitHubService(parameters);
+		gitHubService = new GitHubService(parameters, owner, repository);
 	}
 
 	/**

@@ -21,9 +21,8 @@ package org.lecturestudio.web.api.service;
 import java.net.URI;
 import java.util.List;
 
-import jakarta.inject.Inject;
-
 import org.eclipse.microprofile.rest.client.RestClientBuilder;
+
 import org.lecturestudio.web.api.client.GitHubClient;
 import org.lecturestudio.web.api.model.GitHubRelease;
 
@@ -37,16 +36,26 @@ public class GitHubService extends ProviderService {
 
 	private final GitHubClient providerClient;
 
+	private final String owner;
+
+	private final String repository;
+
+
 	/**
 	 * Creates a new {@code GitHubService}.
 	 *
 	 * @param parameters The service connection parameters.
+	 * @param owner      The owner (user, organization) on GitHub.
+	 * @param repository The repository name on GitHub.
 	 */
-	@Inject
-	public GitHubService(ServiceParameters parameters) {
+	public GitHubService(ServiceParameters parameters, String owner,
+			String repository) {
 		providerClient = RestClientBuilder.newBuilder()
 				.baseUri(URI.create(parameters.getUrl()))
 				.build(GitHubClient.class);
+
+		this.owner = owner;
+		this.repository = repository;
 	}
 
 	/**
@@ -56,7 +65,7 @@ public class GitHubService extends ProviderService {
 	 * @return A list of lectureStudio releases.
 	 */
 	public List<GitHubRelease> getReleases() {
-		return providerClient.getReleases();
+		return providerClient.getReleases(owner, repository);
 	}
 
 	/**
@@ -66,6 +75,6 @@ public class GitHubService extends ProviderService {
 	 * @return The latest release of lectureStudio.
 	 */
 	public GitHubRelease getLatestRelease() {
-		return providerClient.getLatestRelease();
+		return providerClient.getLatestRelease(owner, repository);
 	}
 }

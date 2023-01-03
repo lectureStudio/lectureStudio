@@ -294,7 +294,8 @@ public class MainPresenter extends org.lecturestudio.core.presenter.MainPresente
 			// Check for a new version.
 			CompletableFuture.runAsync(() -> {
 				try {
-					VersionChecker versionChecker = new VersionChecker();
+					VersionChecker versionChecker = new VersionChecker(
+							"lectureStudio", "lectureStudio");
 
 					if (versionChecker.newVersionAvailable()) {
 						GitHubRelease release = versionChecker.getLatestRelease();

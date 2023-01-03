@@ -34,7 +34,9 @@ import org.lecturestudio.core.model.listener.PageEditEvent;
 import org.lecturestudio.core.model.listener.PageEditedListener;
 import org.lecturestudio.core.model.listener.ShapeChangeListener;
 import org.lecturestudio.core.model.listener.ShapeListener;
+import org.lecturestudio.core.model.shape.PointerShape;
 import org.lecturestudio.core.model.shape.Shape;
+import org.lecturestudio.core.model.shape.ZoomShape;
 import org.lecturestudio.core.tool.ShapeModifyEvent;
 import org.lecturestudio.core.tool.ShapePaintEvent;
 
@@ -197,6 +199,10 @@ public class Page {
 		}
 
 		for (Shape shape : page.getShapes()) {
+			if (shape instanceof PointerShape || shape instanceof ZoomShape) {
+				continue;
+			}
+
 			addShape(shape.clone());
 		}
 

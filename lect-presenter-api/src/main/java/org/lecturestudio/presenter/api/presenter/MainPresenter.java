@@ -199,7 +199,8 @@ public class MainPresenter extends org.lecturestudio.core.presenter.MainPresente
 
 			if (!newValue) {
 				// Only update documents with screen dumps if the service is active.
-				if (streamService.getScreenShareState() == ExecutableState.Started) {
+				if (streamService.getScreenShareState() == ExecutableState.Started
+					|| (nonNull(screenCaptureService) && screenCaptureService.started())) {
 					try {
 						ScreenDocumentCreator.create(documentService, shareContext.getSource());
 
@@ -216,7 +217,8 @@ public class MainPresenter extends org.lecturestudio.core.presenter.MainPresente
 						logException(e, "Create screen-document failed");
 					}
 				}
-				else if (nonNull(screenCaptureService)) {
+
+				if (nonNull(screenCaptureService)) {
 					stopLocalScreenShare();
 				}
 			}

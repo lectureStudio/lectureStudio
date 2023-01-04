@@ -77,6 +77,7 @@ public class ScreenCaptureService extends ExecutableBase {
 
 		capturer = source.isWindow() ? new WindowCapturer() : new ScreenCapturer();
 		capturer.selectSource(new DesktopSource(source.getTitle(), source.getId()));
+		capturer.setFocusSelectedSource(true);
 		capturer.start((result, videoFrame) -> {
 			context.getEventBus().post(new ScreenVideoFrameEvent(videoFrame));
 		});

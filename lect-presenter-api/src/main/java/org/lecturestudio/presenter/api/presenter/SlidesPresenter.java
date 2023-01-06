@@ -27,6 +27,8 @@ import org.lecturestudio.core.ExecutableState;
 import org.lecturestudio.core.app.ApplicationContext;
 import org.lecturestudio.core.app.configuration.DisplayConfiguration;
 import org.lecturestudio.core.app.configuration.WhiteboardConfiguration;
+import org.lecturestudio.core.audio.bus.event.TextColorEvent;
+import org.lecturestudio.core.audio.bus.event.TextFontEvent;
 import org.lecturestudio.core.bus.EventBus;
 import org.lecturestudio.core.bus.event.DocumentEvent;
 import org.lecturestudio.core.bus.event.PageEvent;
@@ -449,11 +451,18 @@ public class SlidesPresenter extends Presenter<SlidesView> {
 	}
 
 	@Subscribe
-	public void onFont(Font font) {
+	public void onEvent(TextColorEvent event) {
+		if (nonNull(lastFocusedTextBox)) {
+			lastFocusedTextBox.setTextColor(event.getColor());
+		}
+	}
+
+	@Subscribe
+	public void onEvent(TextFontEvent event) {
 		if (nonNull(lastFocusedTextBox)) {
 			// Scale font size to page metrics.
-			Font textFont = font.clone();
-			textFont.setSize(font.getSize() / toolController.getViewTransform().getScaleX());
+			Font textFont = event.getFont().clone();
+			textFont.setSize(textFont.getSize() / toolController.getViewTransform().getScaleX());
 
 			lastFocusedTextBox.setTextFont(textFont);
 		}

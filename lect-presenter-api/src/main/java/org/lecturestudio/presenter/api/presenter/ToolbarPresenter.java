@@ -35,6 +35,7 @@ import org.lecturestudio.core.ExecutableState;
 import org.lecturestudio.core.app.ApplicationContext;
 import org.lecturestudio.core.app.dictionary.Dictionary;
 import org.lecturestudio.core.audio.AudioDeviceNotConnectedException;
+import org.lecturestudio.core.audio.bus.event.TextFontEvent;
 import org.lecturestudio.core.bus.EventBus;
 import org.lecturestudio.core.bus.event.CustomizeToolbarEvent;
 import org.lecturestudio.core.bus.event.DocumentEvent;
@@ -251,7 +252,7 @@ public class ToolbarPresenter extends Presenter<ToolbarView> {
 	public void setTextBoxFont(Font font) {
 		toolController.setTextFont(font);
 
-		eventBus.post(font);
+		eventBus.post(new TextFontEvent(font));
 	}
 
 	public void texTool() {

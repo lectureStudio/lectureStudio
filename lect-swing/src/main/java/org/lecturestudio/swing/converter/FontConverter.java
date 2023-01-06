@@ -18,6 +18,8 @@
 
 package org.lecturestudio.swing.converter;
 
+import static java.util.Objects.nonNull;
+
 import java.awt.Font;
 import java.awt.font.TextAttribute;
 import java.util.HashMap;
@@ -26,6 +28,7 @@ import java.util.Map;
 import org.lecturestudio.core.beans.Converter;
 import org.lecturestudio.core.text.FontPosture;
 import org.lecturestudio.core.text.FontWeight;
+import org.lecturestudio.core.text.TextAttributes;
 
 public class FontConverter implements Converter<org.lecturestudio.core.text.Font, Font> {
 
@@ -34,20 +37,34 @@ public class FontConverter implements Converter<org.lecturestudio.core.text.Font
 
 	@Override
 	public Font to(org.lecturestudio.core.text.Font font) {
+		TextAttributes textAttributes = font.getTextAttributes();
+
 		Map<TextAttribute, Object> attrs = new HashMap<>();
 		attrs.put(TextAttribute.FAMILY, font.getFamilyName());
 		attrs.put(TextAttribute.SIZE, font.getSize());
 		attrs.put(TextAttribute.POSTURE, toAwtFontPosture(font.getPosture()));
 		attrs.put(TextAttribute.WEIGHT, toAwtFontWeight(font.getWeight()));
 
+		if (nonNull(textAttributes)) {
+			attrs.put(TextAttribute.STRIKETHROUGH, textAttributes.isStrikethrough());
+			attrs.put(TextAttribute.UNDERLINE, textAttributes.isUnderline() ? 0 : -1);
+		}
+
 		return new Font(attrs);
 	}
 
 	@Override
 	public org.lecturestudio.core.text.Font from(Font font) {
+		Map<TextAttribute, ?> attributes = font.getAttributes();
+
+		TextAttributes textAttributes = new TextAttributes();
+		textAttributes.setUnderline(attributes.get(TextAttribute.UNDERLINE) == TextAttribute.UNDERLINE_ON);
+		textAttributes.setStrikethrough(attributes.get(TextAttribute.STRIKETHROUGH) == TextAttribute.STRIKETHROUGH_ON);
+
 		org.lecturestudio.core.text.Font f = new org.lecturestudio.core.text.Font(font.getName(), font.getSize());
 		f.setPosture(toLectFontPosture(font));
 		f.setWeight(toLectFontWeight(font));
+		f.setTextAttributes(textAttributes);
 
 		return f;
 	}

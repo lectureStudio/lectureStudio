@@ -23,42 +23,51 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class TextAttributes implements Serializable {
-	
+
 	private static final long serialVersionUID = -3665418380734563104L;
-	
+
 	private final Map<String, Object> attributes = new HashMap<>(2);
-	
+
+
 	public TextAttributes() {
 		attributes.put("underline", Boolean.FALSE);
 		attributes.put("strikethrough", Boolean.FALSE);
 	}
-	
+
 	public boolean isUnderline() {
-		Boolean underline = (Boolean) attributes.get("underline");
-		return underline.equals(Boolean.TRUE);
+		Boolean underline = (Boolean) attributes.getOrDefault("underline", Boolean.FALSE);
+		return Boolean.TRUE.equals(underline);
 	}
-	
+
+	public void setUnderline(boolean underline) {
+		attributes.put("underline", underline);
+	}
+
 	public boolean isStrikethrough() {
-		Boolean strikethrough = (Boolean) attributes.get("strikethrough");
-		return strikethrough.equals(Boolean.TRUE);
+		Boolean strikethrough = (Boolean) attributes.getOrDefault("strikethrough", Boolean.FALSE);
+		return Boolean.TRUE.equals(strikethrough);
 	}
-	
+
+	public void setStrikethrough(boolean strikethrough) {
+		attributes.put("strikethrough", strikethrough);
+	}
+
 	public void setAttribute(String name, Object value) {
 		if (!attributes.containsKey(name)) {
 			return;
 		}
-		
+
 		attributes.put(name, value);
 	}
-	
+
 	public TextAttributes clone() {
 		TextAttributes clone = new TextAttributes();
-		
+
 		for (String key : attributes.keySet()) {
 			clone.setAttribute(key, attributes.get(key));
 		}
-		
+
 		return clone;
 	}
-	
+
 }

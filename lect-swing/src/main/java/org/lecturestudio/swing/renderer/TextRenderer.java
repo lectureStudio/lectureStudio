@@ -72,8 +72,6 @@ public class TextRenderer extends BaseRenderer {
 
 		java.awt.Font textFont = FontConverter.INSTANCE.to(font);
 		Map<TextAttribute, Object> attrs = (Map<TextAttribute, Object>) textFont.getAttributes();
-		attrs.put(TextAttribute.UNDERLINE, toAwtFontUnderline(textShape.isUnderline()));
-		attrs.put(TextAttribute.STRIKETHROUGH, textShape.isStrikethrough());
 		attrs.put(TextAttribute.FOREGROUND, ColorConverter.INSTANCE.to(textShape.getTextColor()));
 
 		FontRenderContext frc = context.getFontRenderContext();
@@ -95,19 +93,12 @@ public class TextRenderer extends BaseRenderer {
 			layoutY += layout.getAscent();
 
 			// Draw the TextLayout.
-			layout.draw(context, layoutX, layoutY);
+			if (!line.isBlank()) {
+				layout.draw(context, layoutX, layoutY);
+			}
 
 			// Move y-coordinate in preparation for next layout.
 			layoutY += layout.getDescent() + layout.getLeading();
-		}
-	}
-
-	public static Number toAwtFontUnderline(boolean underline) {
-		if (underline) {
-			return TextAttribute.UNDERLINE_ON;
-		}
-		else {
-			return -1;
 		}
 	}
 }

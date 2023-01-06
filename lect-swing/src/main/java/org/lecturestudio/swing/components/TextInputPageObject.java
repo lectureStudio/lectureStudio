@@ -107,17 +107,9 @@ public abstract class TextInputPageObject<T extends Shape> extends PageObject<T>
 
 		super.setFocus(focus);
 
-//		header.setVisible(focus);
 		content.setVisible(focus);
 
 		updateContentSize();
-
-//		if (focus) {
-//			super.setLocation(getX(), getY() - header.getPreferredSize().height);
-//		}
-//		else {
-//			super.setLocation(getX(), getY() + header.getPreferredSize().height);
-//		}
 	}
 
 	protected void dispose() {

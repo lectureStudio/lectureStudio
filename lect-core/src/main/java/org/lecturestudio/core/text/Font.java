@@ -26,12 +26,14 @@ public class Font implements Cloneable, Serializable {
 	private static final long serialVersionUID = 2227630950171606113L;
 
 	private String familyName;
-	
+
 	private double size;
-	
+
 	private FontWeight weight;
-	
+
 	private FontPosture posture;
+
+	private TextAttributes attributes;
 
 
 	public Font() {
@@ -44,7 +46,7 @@ public class Font implements Cloneable, Serializable {
 		this.weight = FontWeight.NORMAL;
 		this.posture = FontPosture.REGULAR;
 	}
-	
+
 	public String getFamilyName() {
 		return familyName;
 	}
@@ -52,29 +54,37 @@ public class Font implements Cloneable, Serializable {
 	public void setFamilyName(String name) {
 		this.familyName = name;
 	}
-	
+
 	public void setSize(double size) {
 		this.size = size;
 	}
-	
+
 	public double getSize() {
 		return size;
 	}
-	
+
 	public void setWeight(FontWeight weight) {
 		this.weight = weight;
 	}
-	
+
 	public FontWeight getWeight() {
 		return weight;
 	}
-	
+
 	public void setPosture(FontPosture posture) {
 		this.posture = posture;
 	}
-	
+
 	public FontPosture getPosture() {
 		return posture;
+	}
+
+	public TextAttributes getTextAttributes() {
+		return attributes;
+	}
+
+	public void setTextAttributes(TextAttributes textAttributes) {
+		this.attributes = textAttributes;
 	}
 
 	@Override
@@ -82,7 +92,8 @@ public class Font implements Cloneable, Serializable {
 		Font font = new Font(familyName, size);
 		font.setPosture(posture);
 		font.setWeight(weight);
-		
+		font.setTextAttributes(attributes);
+
 		return font;
 	}
 
@@ -99,19 +110,20 @@ public class Font implements Cloneable, Serializable {
 
 		boolean sizeEqual = Double.compare(font.size, size) == 0;
 		boolean familyEqual = Objects.equals(familyName, font.familyName);
+		boolean attributesEqual = Objects.equals(attributes, font.attributes);
 		boolean weightEqual = weight == font.weight;
 		boolean postureEqual = posture == font.posture;
 
-		return sizeEqual && familyEqual && weightEqual && postureEqual;
+		return sizeEqual && familyEqual && attributesEqual && weightEqual && postureEqual;
 	}
 
 	@Override
 	public int hashCode() {
-		return Objects.hash(familyName, size, weight, posture);
+		return Objects.hash(familyName, size, weight, posture, attributes);
 	}
 
 	@Override
 	public String toString() {
-		return familyName + " " + size + " " + posture + " " + weight;
+		return familyName + " " + size + " " + posture + " " + weight + " " + attributes;
 	}
 }

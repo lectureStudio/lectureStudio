@@ -18,6 +18,8 @@
 
 package org.lecturestudio.core.recording.action;
 
+import static java.util.Objects.nonNull;
+
 import java.io.IOException;
 import java.nio.ByteBuffer;
 
@@ -57,6 +59,7 @@ public class TextFontChangeAction extends PlaybackAction {
 
 	@Override
 	public byte[] toByteArray() throws IOException {
+		TextAttributes attributes = font.getTextAttributes();
 		byte[] fontFamily = font.getFamilyName().getBytes();
 
 		int payloadBytes = 4 + 2 + 4 + 14 + fontFamily.length;
@@ -76,8 +79,8 @@ public class TextFontChangeAction extends PlaybackAction {
 		buffer.put((byte) font.getWeight().ordinal());
 
 		// Text attributes: 2 bytes.
-		buffer.put((byte) (attributes.isStrikethrough() ? 1 : 0));
-		buffer.put((byte) (attributes.isUnderline() ? 1 : 0));
+		buffer.put((byte) ((nonNull(attributes) && attributes.isStrikethrough()) ? 1 : 0));
+		buffer.put((byte) ((nonNull(attributes) && attributes.isUnderline()) ? 1 : 0));
 
 		return buffer.array();
 	}
@@ -107,8 +110,10 @@ public class TextFontChangeAction extends PlaybackAction {
 		boolean underline = buffer.get() > 0;
 
 		attributes = new TextAttributes();
-		attributes.setAttribute("strikethrough", strikethrough);
-		attributes.setAttribute("underline", underline);
+		attributes.setStrikethrough(strikethrough);
+		attributes.setUnderline(underline);
+
+		font.setTextAttributes(attributes.clone());
 	}
 
 	@Override

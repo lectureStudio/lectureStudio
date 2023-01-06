@@ -22,6 +22,7 @@ import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 import org.lecturestudio.core.beans.StringProperty;
 import org.lecturestudio.core.geometry.PenPoint2D;
@@ -110,9 +111,9 @@ public class TextShape extends Shape implements TextBoxShape<Font> {
 		if (this.attributes.equals(attributes)) {
 			return;
 		}
-		
+
 		this.attributes = attributes;
-		
+
 		fireTextFontChange();
 		fireShapeChanged(null);
 	}
@@ -152,9 +153,9 @@ public class TextShape extends Shape implements TextBoxShape<Font> {
 		if (this.font.equals(font)) {
 			return;
 		}
-		
+
 		this.font = font;
-		
+
 		fireTextFontChange();
 		fireShapeChanged(null);
 	}
@@ -176,7 +177,7 @@ public class TextShape extends Shape implements TextBoxShape<Font> {
 		
 		if (location != null) {
 			getBounds().setLocation(location.getX(), location.getY());
-			
+
 			fireTextLocationChange();
 			fireShapeChanged(null);
 		}
@@ -398,6 +399,10 @@ public class TextShape extends Shape implements TextBoxShape<Font> {
 
 	private void initProperties() {
 		text.addListener((observable, oldValue, newValue) -> {
+			if (Objects.equals(oldValue, newValue)) {
+				return;
+			}
+
 			fireTextChange();
 			fireShapeChanged(null);
 		});

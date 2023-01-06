@@ -250,6 +250,8 @@ public class ToolbarPresenter extends Presenter<ToolbarView> {
 
 	public void setTextBoxFont(Font font) {
 		toolController.setTextFont(font);
+
+		eventBus.post(font);
 	}
 
 	public void texTool() {

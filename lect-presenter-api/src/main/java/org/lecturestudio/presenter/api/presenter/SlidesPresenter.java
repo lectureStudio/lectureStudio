@@ -48,6 +48,7 @@ import org.lecturestudio.core.model.shape.TextShape;
 import org.lecturestudio.core.presenter.Presenter;
 import org.lecturestudio.core.recording.DocumentRecorder;
 import org.lecturestudio.core.service.DocumentService;
+import org.lecturestudio.core.text.Font;
 import org.lecturestudio.core.tool.ToolType;
 import org.lecturestudio.core.util.ListChangeListener;
 import org.lecturestudio.core.util.ObservableList;
@@ -110,6 +111,20 @@ public class SlidesPresenter extends Presenter<SlidesView> {
 
 	private final WebRtcStreamService streamService;
 
+	private final ScreenPresentationViewContext screenViewContext;
+
+	private final ViewContextFactory viewFactory;
+
+	private final ToolController toolController;
+
+	private final PresentationController presentationController;
+
+	private final RenderController renderController;
+
+	private final DocumentService documentService;
+
+	private final RecordingService recordingService;
+
 	private StylusHandler stylusHandler;
 
 	private PageEditedListener pageEditedListener;
@@ -124,19 +139,7 @@ public class SlidesPresenter extends Presenter<SlidesView> {
 
 	private ToolType toolType;
 
-	private final ScreenPresentationViewContext screenViewContext;
-
-	private final ViewContextFactory viewFactory;
-
-	private final ToolController toolController;
-
-	private final PresentationController presentationController;
-
-	private final RenderController renderController;
-
-	private final DocumentService documentService;
-
-	private final RecordingService recordingService;
+	private TextBoxView lastFocusedTextBox;
 
 
 	@Inject
@@ -445,6 +448,17 @@ public class SlidesPresenter extends Presenter<SlidesView> {
 		getPresenterConfig().getSlideViewConfiguration().setParticipantsPosition(position);
 	}
 
+	@Subscribe
+	public void onFont(Font font) {
+		if (nonNull(lastFocusedTextBox)) {
+			// Scale font size to page metrics.
+			Font textFont = font.clone();
+			textFont.setSize(font.getSize() / toolController.getViewTransform().getScaleX());
+
+			lastFocusedTextBox.setTextFont(textFont);
+		}
+	}
+
 	private void externalMessagesPositionChanged(ExternalWindowPosition position) {
 		final ExternalWindowConfiguration config = getExternalMessagesConfig();
 
@@ -624,8 +638,14 @@ public class SlidesPresenter extends Presenter<SlidesView> {
 	}
 
 	private void pageObjectViewFocused(PageObjectView<? extends Shape> objectView) {
+		Class<? extends Shape> shapeClass = pageObjectRegistry.getShapeClass(ToolType.TEXT);
+
+		if (nonNull(shapeClass) && shapeClass.isAssignableFrom(objectView.getPageShape().getClass())) {
+			lastFocusedTextBox = (TextBoxView) objectView;
+		}
+
 		// Set latex text.
-		Class<? extends Shape> shapeClass = pageObjectRegistry.getShapeClass(ToolType.LATEX);
+		shapeClass = pageObjectRegistry.getShapeClass(ToolType.LATEX);
 
 		if (isNull(shapeClass) || !shapeClass.isAssignableFrom(objectView.getPageShape().getClass())) {
 			return;

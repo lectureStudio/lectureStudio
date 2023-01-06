@@ -74,7 +74,7 @@ public class FontChooser extends JPanel {
 		super();
 
 		initialize(resources);
-		setSelectedFont(new Font("Arial", Font.PLAIN, 28));
+		setSelectedFont(new Font("Arial", Font.PLAIN, 24));
 	}
 
 	public void setSelectedFont(Font font) {

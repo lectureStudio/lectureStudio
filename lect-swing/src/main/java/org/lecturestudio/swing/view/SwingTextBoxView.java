@@ -23,16 +23,11 @@ import static java.util.Objects.nonNull;
 
 import java.awt.Insets;
 import java.awt.Rectangle;
-import java.awt.Shape;
 import java.awt.event.FocusAdapter;
 import java.awt.event.FocusEvent;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
-import java.awt.event.MouseMotionAdapter;
 import java.awt.font.FontRenderContext;
 import java.awt.font.LineBreakMeasurer;
 import java.awt.font.TextAttribute;
-import java.awt.font.TextHitInfo;
 import java.awt.font.TextLayout;
 import java.awt.geom.AffineTransform;
 import java.text.AttributedCharacterIterator;
@@ -129,6 +124,13 @@ public class SwingTextBoxView extends TextInputPageObject<TextShape> implements 
 	public void setTextFont(Font font) {
 		if (nonNull(getPageShape())) {
 			getPageShape().setFont(font);
+
+			TextAttributes attributes = font.getTextAttributes();
+
+			if (nonNull(attributes)) {
+				getPageShape().getTextAttributes().setStrikethrough(attributes.isStrikethrough());
+				getPageShape().getTextAttributes().setUnderline(attributes.isUnderline());
+			}
 		}
 	}
 
@@ -165,10 +167,6 @@ public class SwingTextBoxView extends TextInputPageObject<TextShape> implements 
 		double xOffset = textBounds.getMinX() + padding.left + 4;
 		double yOffset = textBounds.getMinY() + padding.top + 1;
 
-		if (!getFocus()) {
-//			yOffset = padding.top + 1;
-		}
-
 		double s = transform.getScaleX();
 		double tx = transform.getTranslateX();
 		double ty = transform.getTranslateY();
@@ -191,98 +189,7 @@ public class SwingTextBoxView extends TextInputPageObject<TextShape> implements 
 
 	@Override
 	protected JComponent createContent() {
-		textArea = new JTextArea() {
-
-			List<TextLayout> layouts = new ArrayList<>();
-
-			float wrapWidth;
-
-			Shape caret;
-
-			int hit1, hit2;
-
-
-			{
-//				addMouseListener(new MouseHandler());
-//				addMouseMotionListener(new MouseMotionHandler());
-			}
-
-//			@Override
-//			protected void paintComponent(Graphics g) {
-//				Graphics2D g2d = (Graphics2D) g;
-//				g2d.setRenderingHint(RenderingHints.KEY_FRACTIONALMETRICS,
-//						RenderingHints.VALUE_FRACTIONALMETRICS_ON);
-//
-//				layouts = getTextLayouts();
-//
-//				float x = 3, y = 3;
-//
-//				for (TextLayout layout : layouts) {
-//					float dx = layout.isLeftToRight() ? 0 : wrapWidth - layout.getAdvance();
-//
-//					y += layout.getAscent();
-//
-//					layout.draw(g2d, x + dx, y);
-//
-//					y += layout.getDescent() + layout.getLeading();
-//				}
-//
-//				if (nonNull(caret)) {
-//					g2d.setColor(java.awt.Color.BLUE);
-//					g2d.draw(caret);
-//				}
-//			}
-
-			private int getHitLocation(int mouseX, int mouseY) {
-				layouts = getTextLayouts();
-
-				FontRenderContext frc = new FontRenderContext(null, true, true);
-				float x = 3, y = 3;
-				int hit = -1;
-
-				for (TextLayout layout : layouts) {
-					float dx = layout.isLeftToRight() ? 0 : wrapWidth - layout.getAdvance();
-
-					y += layout.getAscent();
-
-					Rectangle bounds = layout.getPixelBounds(frc, x + dx, y);
-
-					if (bounds.y <= mouseY && mouseY <= bounds.y + bounds.height) {
-						TextHitInfo hitInfo = layout.hitTestChar(mouseX, mouseY);
-						hit = hitInfo.getInsertionIndex();
-
-						AffineTransform at = AffineTransform.getTranslateInstance(x + dx, y);
-						Shape[] caretShapes = layout.getCaretShapes(hit);
-
-						caret = at.createTransformedShape(caretShapes[0]);
-						break;
-					}
-
-					y += layout.getDescent() + layout.getLeading();
-				}
-
-				return hit;
-			}
-
-			class MouseHandler extends MouseAdapter {
-
-				@Override
-				public void mousePressed(MouseEvent e) {
-					hit1 = getHitLocation(e.getX(), e.getY());
-					hit2 = hit1;
-					repaint();
-				}
-
-			}
-
-			class MouseMotionHandler extends MouseMotionAdapter {
-
-				public void mouseDragged(MouseEvent e) {
-					hit2 = getHitLocation(e.getX(), e.getY());
-					repaint();
-				}
-			}
-		};
+		textArea = new JTextArea();
 		textArea.setUI(new BasicTextAreaUI());
 		textArea.setOpaque(false);
 		textArea.setForeground(new java.awt.Color(0, 0, 0, 0));
@@ -324,7 +231,15 @@ public class SwingTextBoxView extends TextInputPageObject<TextShape> implements 
 
 	@Override
 	protected void onRelocateShape(Point2D location) {
+		TextShape shape = getPageShape();
+
 		getPageShape().setLocation(location);
+
+		// Add some margin to the changed location.
+		AffineTransform transform = getPageTransform();
+		double m = 10 / transform.getScaleX();
+
+		shape.getDirtyBounds().setLocation(location.getX() - m, location.getY() - m);
 	}
 
 	private void updateShapeSize(String text) {

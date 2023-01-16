@@ -154,27 +154,29 @@ public class PresentationWindow extends AbstractWindow implements SlidePresentat
 			return;
 		}
 
-		Container contentPane = getWindow().getContentPane();
+		SwingUtilities.invokeLater(() -> {
+			Container contentPane = getWindow().getContentPane();
 
-		switch (context.getViewType()) {
-			case SLIDE -> {
-				context.configure(slideView);
+			switch (context.getViewType()) {
+				case SLIDE -> {
+					context.configure(slideView);
 
-				contentPane.remove(screenView);
-				contentPane.add(slideView);
+					contentPane.remove(screenView);
+					contentPane.add(slideView);
 
-				updateSlidePage();
+					updateSlidePage();
+				}
+				case SCREEN -> {
+					context.configure(screenView);
+
+					contentPane.remove(slideView);
+					contentPane.add(screenView);
+				}
 			}
-			case SCREEN -> {
-				context.configure(screenView);
 
-				contentPane.remove(slideView);
-				contentPane.add(screenView);
-			}
-		}
-
-		contentPane.doLayout();
-		contentPane.repaint();
+			contentPane.doLayout();
+			contentPane.repaint();
+		});
 	}
 
 	@Override

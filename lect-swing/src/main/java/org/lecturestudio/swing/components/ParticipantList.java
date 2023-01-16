@@ -96,6 +96,10 @@ public class ParticipantList extends JPanel {
 		add(scrollPane, BorderLayout.CENTER);
 	}
 
+	public void clear() {
+		listModel.clear();
+	}
+
 	public void addParticipant(CourseParticipant participant) {
 		listModel.add(new CourseParticipantItem(participant));
 	}

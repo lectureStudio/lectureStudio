@@ -538,6 +538,8 @@ public class SwingSlidesView extends JPanel implements SlidesView {
 		SwingUtils.invoke(() -> {
 			if (state == ExecutableState.Started) {
 				setMessageBarTabEnabled(dict.get(MESSAGE_LABEL_KEY), true);
+
+				participantList.clear();
 			}
 			else {
 				removeMessageViews(SpeechRequestView.class);

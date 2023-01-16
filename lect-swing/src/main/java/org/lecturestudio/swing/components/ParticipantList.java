@@ -207,7 +207,7 @@ public class ParticipantList extends JPanel {
 
 
 		public CourseParticipantItem(CourseParticipant participant) {
-			super(participant.getId(), participant.getFirstName(),
+			super(participant.getUserId(), participant.getFirstName(),
 					participant.getFamilyName(), participant.getPresenceType(),
 					participant.getParticipantType());
 		}
@@ -255,12 +255,12 @@ public class ParticipantList extends JPanel {
 		}
 
 		public CourseParticipantItem getParticipantById(String id) {
-			return model.stream().filter(p -> p.getId().equals(id))
+			return model.stream().filter(p -> p.getUserId().equals(id))
 					.findFirst().orElse(null);
 		}
 
 		public void add(CourseParticipantItem participant) {
-			CourseParticipantItem found = getParticipantById(participant.getId());
+			CourseParticipantItem found = getParticipantById(participant.getUserId());
 
 			if (nonNull(found)) {
 				// Stream presence takes precedence.
@@ -283,7 +283,7 @@ public class ParticipantList extends JPanel {
 		}
 
 		public boolean remove(CourseParticipantItem participant) {
-			CourseParticipantItem found = getParticipantById(participant.getId());
+			CourseParticipantItem found = getParticipantById(participant.getUserId());
 
 			if (nonNull(found)) {
 				if (nonNull(found.secondaryPresenceType)) {

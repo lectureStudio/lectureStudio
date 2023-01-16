@@ -26,28 +26,28 @@ public class CourseParticipant {
 
 	private CoursePresenceType presenceType;
 
-	private String id;
+	private String userId;
 
 	private String firstName;
 
 	private String familyName;
 
 
-	public CourseParticipant(String id, String firstName, String familyName,
+	public CourseParticipant(String userId, String firstName, String familyName,
 			CoursePresenceType presenceType, CourseParticipantType type) {
-		this.id = id;
+		this.userId = userId;
 		this.firstName = firstName;
 		this.familyName = familyName;
 		this.presenceType = presenceType;
 		this.participantType = type;
 	}
 
-	public String getId() {
-		return id;
+	public String getUserId() {
+		return userId;
 	}
 
-	public void setId(String id) {
-		this.id = id;
+	public void setUserId(String userId) {
+		this.userId = userId;
 	}
 
 	public String getFirstName() {
@@ -93,16 +93,16 @@ public class CourseParticipant {
 
 		CourseParticipant that = (CourseParticipant) o;
 
-		return Objects.equals(id, that.id);
+		return Objects.equals(userId, that.userId);
 	}
 
 	@Override
 	public int hashCode() {
-		return Objects.hash(id);
+		return Objects.hash(userId);
 	}
 
 	@Override
 	public String toString() {
-		return "[CourseParticipant] " + id + ", name: " + firstName;
+		return "[CourseParticipant] " + userId + ", name: " + firstName;
 	}
 }

@@ -39,6 +39,7 @@ import org.lecturestudio.web.api.data.bind.JsonConfigProvider;
 import org.lecturestudio.web.api.model.UserInfo;
 import org.lecturestudio.web.api.model.UserPrivileges;
 import org.lecturestudio.web.api.stream.model.Course;
+import org.lecturestudio.web.api.stream.model.CourseParticipant;
 
 /**
  * Streaming API REST client implementation. The user must be authenticated with
@@ -83,6 +84,17 @@ public interface StreamRestClient {
 	@GET
 	@Path("/courses")
 	List<Course> getCourses();
+
+	/**
+	 * Gets a list of all participants in an active courses.
+	 *
+	 * @param courseId The unique course ID.
+	 *
+	 * @return A list of all participants in an active courses.
+	 */
+	@GET
+	@Path("/participants/{courseId}")
+	List<CourseParticipant> getParticipants(@PathParam("courseId") long courseId);
 
 	/**
 	 * Uploads the provided multipart data.

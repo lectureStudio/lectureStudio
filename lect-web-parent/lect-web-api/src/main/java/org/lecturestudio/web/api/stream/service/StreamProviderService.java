@@ -20,6 +20,9 @@ package org.lecturestudio.web.api.stream.service;
 
 import java.util.List;
 
+import javax.ws.rs.GET;
+import javax.ws.rs.Path;
+
 import jakarta.inject.Inject;
 
 import org.eclipse.microprofile.rest.client.RestClientBuilder;
@@ -31,6 +34,7 @@ import org.lecturestudio.web.api.service.ProviderService;
 import org.lecturestudio.web.api.service.ServiceParameters;
 import org.lecturestudio.web.api.stream.client.StreamRestClient;
 import org.lecturestudio.web.api.stream.model.Course;
+import org.lecturestudio.web.api.stream.model.CourseParticipant;
 
 /**
  * Service implementation to manage streaming related information with streaming
@@ -87,6 +91,19 @@ public class StreamProviderService extends ProviderService {
 	 */
 	public List<Course> getCourses() {
 		return streamRestClient.getCourses();
+	}
+
+	/**
+	 * Gets a list of all participants in an active courses.
+	 *
+	 * @param courseId The unique course ID.
+	 *
+	 * @return A list of all participants in an active courses.
+	 */
+	@GET
+	@Path("/participants/{courseId}")
+	List<CourseParticipant> getParticipants(long courseId) {
+		return streamRestClient.getParticipants(courseId);
 	}
 
 	/**

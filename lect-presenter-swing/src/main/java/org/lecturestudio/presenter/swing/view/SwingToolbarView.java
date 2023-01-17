@@ -344,6 +344,11 @@ public class SwingToolbarView extends JPanel implements ToolbarView {
 	@Override
 	public void setOnTextSelectTool(Action action) {
 		SwingUtils.bindAction(textSelectButton, action);
+		textSelectButton.addChangeListener(e -> {
+			if (textSelectButton.isSelected()) {
+				setColorButtonsEnabled(true);
+			}
+		});
 	}
 
 	@Override

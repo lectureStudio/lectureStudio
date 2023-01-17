@@ -102,7 +102,7 @@ public class StreamProviderService extends ProviderService {
 	 */
 	@GET
 	@Path("/participants/{courseId}")
-	List<CourseParticipant> getParticipants(long courseId) {
+	public List<CourseParticipant> getParticipants(long courseId) {
 		return streamRestClient.getParticipants(courseId);
 	}
 

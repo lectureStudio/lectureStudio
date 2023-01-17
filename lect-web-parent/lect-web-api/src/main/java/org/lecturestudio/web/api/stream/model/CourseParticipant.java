@@ -33,6 +33,10 @@ public class CourseParticipant {
 	private String familyName;
 
 
+	public CourseParticipant() {
+
+	}
+
 	public CourseParticipant(String userId, String firstName, String familyName,
 			CoursePresenceType presenceType, CourseParticipantType type) {
 		this.userId = userId;
@@ -103,6 +107,9 @@ public class CourseParticipant {
 
 	@Override
 	public String toString() {
-		return "[CourseParticipant] " + userId + ", name: " + firstName;
+		return "CourseParticipant{" + "participantType=" + participantType
+				+ ", presenceType=" + presenceType + ", userId='" + userId
+				+ '\'' + ", firstName='" + firstName + '\'' + ", familyName='"
+				+ familyName + '\'' + '}';
 	}
 }

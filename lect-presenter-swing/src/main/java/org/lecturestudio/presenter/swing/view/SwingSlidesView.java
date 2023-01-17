@@ -422,6 +422,13 @@ public class SwingSlidesView extends JPanel implements SlidesView {
 	}
 
 	@Override
+	public void addParticipants(Collection<CourseParticipant> participants) {
+		SwingUtils.invoke(() -> {
+			participantList.addParticipants(participants);
+		});
+	}
+
+	@Override
 	public void addParticipant(CourseParticipant participant) {
 		SwingUtils.invoke(() -> {
 			participantList.addParticipant(participant);

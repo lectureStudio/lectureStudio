@@ -66,6 +66,7 @@ import org.lecturestudio.presenter.api.model.MessageDocument;
 import org.lecturestudio.presenter.api.service.RecordingService;
 import org.lecturestudio.presenter.api.service.WebRtcStreamService;
 import org.lecturestudio.presenter.api.service.WebService;
+import org.lecturestudio.presenter.api.service.WebServiceInfo;
 import org.lecturestudio.presenter.api.stylus.StylusHandler;
 import org.lecturestudio.presenter.api.view.PageObjectRegistry;
 import org.lecturestudio.presenter.api.view.SlidesView;
@@ -80,11 +81,13 @@ import org.lecturestudio.web.api.message.SpeechCancelMessage;
 import org.lecturestudio.web.api.message.SpeechRequestMessage;
 import org.lecturestudio.web.api.model.Message;
 import org.lecturestudio.web.api.model.ScreenSource;
+import org.lecturestudio.web.api.service.ServiceParameters;
 import org.lecturestudio.web.api.stream.ScreenPresentationViewContext;
 import org.lecturestudio.core.view.SlidePresentationViewContext;
 import org.lecturestudio.web.api.stream.model.CourseParticipant;
 import org.lecturestudio.web.api.stream.model.CoursePresence;
 import org.lecturestudio.web.api.stream.model.CoursePresenceType;
+import org.lecturestudio.web.api.stream.service.StreamProviderService;
 
 import javax.inject.Inject;
 import java.awt.*;
@@ -110,6 +113,8 @@ public class SlidesPresenter extends Presenter<SlidesView> {
 	private final DocumentRecorder documentRecorder;
 
 	private final WebService webService;
+
+	private final WebServiceInfo webServiceInfo;
 
 	private final WebRtcStreamService streamService;
 
@@ -154,6 +159,7 @@ public class SlidesPresenter extends Presenter<SlidesView> {
 					DocumentRecorder documentRecorder,
 					RecordingService recordingService,
 					WebService webService,
+					WebServiceInfo webServiceInfo,
 					WebRtcStreamService streamService) {
 		super(context, view);
 
@@ -165,6 +171,7 @@ public class SlidesPresenter extends Presenter<SlidesView> {
 		this.documentService = documentService;
 		this.recordingService = recordingService;
 		this.webService = webService;
+		this.webServiceInfo = webServiceInfo;
 		this.streamService = streamService;
 		this.eventBus = context.getEventBus();
 		this.shortcutMap = new HashMap<>();
@@ -241,7 +248,10 @@ public class SlidesPresenter extends Presenter<SlidesView> {
 
 		checkRemoteServiceState();
 
-		if (event.stopped()) {
+		if (event.started()) {
+			loadParticipants();
+		}
+		else if (event.stopped()) {
 			onEvent(new ScreenShareStateEvent(null, event.getState()));
 
 			// Close all documents related to a screen source.
@@ -1257,6 +1267,21 @@ public class SlidesPresenter extends Presenter<SlidesView> {
 		overlay.setFontSize(30);
 
 		return overlay;
+	}
+
+	private void loadParticipants() {
+		PresenterContext ctx = (PresenterContext) context;
+		PresenterConfiguration config = ctx.getConfiguration();
+
+		long courseId = ctx.getCourse().getId();
+
+		ServiceParameters parameters = new ServiceParameters();
+		parameters.setUrl(webServiceInfo.getStreamPublisherApiUrl());
+
+		StreamProviderService spService = new StreamProviderService(parameters,
+				config.getStreamConfig()::getAccessToken);
+
+		view.addParticipants(spService.getParticipants(courseId));
 	}
 
 

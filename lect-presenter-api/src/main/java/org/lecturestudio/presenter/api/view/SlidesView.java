@@ -19,6 +19,7 @@
 package org.lecturestudio.presenter.api.view;
 
 import java.awt.*;
+import java.util.Collection;
 import java.util.List;
 
 import org.lecturestudio.core.ExecutableState;
@@ -58,6 +59,8 @@ public interface SlidesView extends View {
 	void removeDocument(Document doc);
 
 	void selectDocument(Document doc, PresentationParameterProvider ppProvider);
+
+	void addParticipants(Collection<CourseParticipant> participants);
 
 	void addParticipant(CourseParticipant participant);
 

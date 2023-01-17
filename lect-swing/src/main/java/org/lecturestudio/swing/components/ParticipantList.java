@@ -28,6 +28,7 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.time.ZonedDateTime;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
@@ -98,6 +99,12 @@ public class ParticipantList extends JPanel {
 
 	public void clear() {
 		listModel.clear();
+	}
+
+	public void addParticipants(Collection<CourseParticipant> participants) {
+		listModel.addAll(participants.stream()
+				.map(CourseParticipantItem::new)
+				.toArray(CourseParticipantItem[]::new));
 	}
 
 	public void addParticipant(CourseParticipant participant) {
@@ -363,7 +370,8 @@ public class ParticipantList extends JPanel {
 				return result;
 			}
 
-			return lhs.getPresenceType().compareTo(rhs.getPresenceType());
+			return Objects.compare(lhs.getPresenceType(), rhs.getPresenceType(),
+					CoursePresenceType::compareTo);
 		}
 	}
 }

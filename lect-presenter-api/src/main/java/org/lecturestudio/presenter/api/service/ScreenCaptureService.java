@@ -41,9 +41,9 @@ import org.lecturestudio.web.api.model.ScreenSource;
 @Singleton
 public class ScreenCaptureService extends ExecutableBase {
 
-	private final int frameRate = 30;
-
 	private final ApplicationContext context;
+
+	private int frameRate = 20;
 
 	private ScreenSource source;
 
@@ -54,6 +54,14 @@ public class ScreenCaptureService extends ExecutableBase {
 
 	public ScreenCaptureService(ApplicationContext context) {
 		this.context = context;
+	}
+
+	public void setFrameRate(int frameRate) {
+		this.frameRate = frameRate;
+	}
+
+	public int getFrameRate() {
+		return frameRate;
 	}
 
 	public ScreenSource getScreenSource() {

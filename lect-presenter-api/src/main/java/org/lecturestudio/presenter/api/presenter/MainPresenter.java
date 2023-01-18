@@ -43,7 +43,6 @@ import org.lecturestudio.core.ExecutableState;
 import org.lecturestudio.core.app.ApplicationContext;
 import org.lecturestudio.core.app.dictionary.Dictionary;
 import org.lecturestudio.core.app.util.SaveConfigurationHandler;
-import org.lecturestudio.core.audio.AudioSystemProvider;
 import org.lecturestudio.core.audio.bus.event.AudioDeviceHotplugEvent;
 import org.lecturestudio.core.beans.BooleanProperty;
 import org.lecturestudio.core.bus.event.DocumentEvent;
@@ -86,8 +85,7 @@ import org.lecturestudio.presenter.api.presenter.command.StartScreenSharingComma
 import org.lecturestudio.presenter.api.recording.RecordingBackup;
 import org.lecturestudio.presenter.api.service.BookmarkService;
 import org.lecturestudio.presenter.api.service.RecordingService;
-import org.lecturestudio.presenter.api.service.ScreenCaptureService;
-import org.lecturestudio.presenter.api.service.ScreenRecorderService;
+import org.lecturestudio.presenter.api.service.ScreenShareService;
 import org.lecturestudio.presenter.api.service.ScreenSourceService;
 import org.lecturestudio.presenter.api.service.StreamService;
 import org.lecturestudio.presenter.api.util.SaveDocumentsHandler;
@@ -96,7 +94,6 @@ import org.lecturestudio.presenter.api.util.ScreenDocumentCreator;
 import org.lecturestudio.presenter.api.view.MainView;
 import org.lecturestudio.web.api.exception.StreamMediaException;
 import org.lecturestudio.web.api.model.GitHubRelease;
-import org.lecturestudio.web.api.model.ScreenSource;
 import org.lecturestudio.web.api.service.VersionChecker;
 
 public class MainPresenter extends org.lecturestudio.core.presenter.MainPresenter<MainView> implements ViewHandler {
@@ -125,9 +122,7 @@ public class MainPresenter extends org.lecturestudio.core.presenter.MainPresente
 
 	private final ScreenSourceService screenSourceService;
 
-	private final ScreenRecorderService screenRecorderService;
-
-	private ScreenCaptureService screenCaptureService;
+	private final ScreenShareService screenShareService;
 
 	private SlidesPresenter slidesPresenter;
 
@@ -144,7 +139,7 @@ public class MainPresenter extends org.lecturestudio.core.presenter.MainPresente
 			BookmarkService bookmarkService,
 			RecordingService recordingService,
 			StreamService streamService,
-			AudioSystemProvider audioSystemProvider) {
+			ScreenShareService screenShareService) {
 		super(context, view);
 
 		this.presentationController = presentationController;
@@ -155,7 +150,7 @@ public class MainPresenter extends org.lecturestudio.core.presenter.MainPresente
 		this.recordingService = recordingService;
 		this.streamService = streamService;
 		this.screenSourceService = new ScreenSourceService();
-		this.screenRecorderService = new ScreenRecorderService((PresenterContext) context, audioSystemProvider);
+		this.screenShareService = screenShareService;
 		this.viewMap = new ObservableHashMap<>();
 		this.shortcutMap = new HashMap<>();
 		this.contexts = new ArrayList<>();
@@ -187,9 +182,9 @@ public class MainPresenter extends org.lecturestudio.core.presenter.MainPresente
 			streamService.enableStream(newValue);
 
 			if (newValue) {
-				if (nonNull(screenCaptureService) && screenCaptureService.started()) {
+				if (screenShareService.isScreenCaptureActive()) {
 					// Local screen share active. Stop local and start screen share with the stream.
-					stopLocalScreenShare();
+					stopLocalScreenCapture();
 
 					streamService.enableScreenSharing(true);
 				}
@@ -206,7 +201,7 @@ public class MainPresenter extends org.lecturestudio.core.presenter.MainPresente
 			if (!newValue) {
 				// Only update documents with screen dumps if the service is active.
 				if (streamService.getScreenShareState() == ExecutableState.Started
-					|| (nonNull(screenCaptureService) && screenCaptureService.started())) {
+					|| screenShareService.isScreenCaptureActive()) {
 					try {
 						ScreenDocumentCreator.create(documentService, shareContext.getSource());
 
@@ -224,22 +219,17 @@ public class MainPresenter extends org.lecturestudio.core.presenter.MainPresente
 					}
 				}
 
-				if (nonNull(screenCaptureService)) {
-					stopLocalScreenShare();
-				}
+				// Pause screen recording.
+				suspendScreenRecording();
+				// Stop screen capturing.
+				stopLocalScreenCapture();
 			}
 			else {
 				startScreenRecording(shareContext);
 
 				if (!presenterContext.getStreamStarted()) {
-					try {
-						screenCaptureService.setScreenSource(shareContext.getSource());
-						screenCaptureService.start();
-					}
-					catch (ExecutableException e) {
-						handleException(e, "Set screen-source failed",
-								"stream.screen.share.error");
-					}
+					// Start local screen capture only if we are not streaming.
+					startLocalScreenCapture(shareContext);
 				}
 				else {
 					// Set the screen source related to the selected screen document.
@@ -493,10 +483,7 @@ public class MainPresenter extends org.lecturestudio.core.presenter.MainPresente
 			.post(new StartScreenSharingCommand((context) -> {
 				CompletableFuture.runAsync(() -> {
 					try {
-						if (!presenterContext.getStreamStarted()) {
-							initLocalScreenShare(context.getSource());
-						}
-						else {
+						if (presenterContext.getStreamStarted()) {
 							streamService.setScreenShareContext(context);
 						}
 
@@ -523,7 +510,7 @@ public class MainPresenter extends org.lecturestudio.core.presenter.MainPresente
 		PresenterContext presenterContext = (PresenterContext) context;
 
 		if (!presenterContext.getStreamStarted()) {
-			stopLocalScreenShare();
+			stopLocalScreenCapture();
 		}
 		else {
 			streamService.enableScreenSharing(false);
@@ -900,49 +887,34 @@ public class MainPresenter extends org.lecturestudio.core.presenter.MainPresente
 		return null;
 	}
 
-	private void initLocalScreenShare(ScreenSource source) {
-		if (isNull(screenCaptureService)) {
-			screenCaptureService = new ScreenCaptureService(context);
-		}
-
-		screenCaptureService.setScreenSource(source);
-	}
-
-	private void stopLocalScreenShare() {
+	private void startLocalScreenCapture(ScreenShareContext shareContext) {
 		try {
-			if (screenCaptureService.started()) {
-				screenCaptureService.stop();
-			}
+			screenShareService.startScreenCapture(shareContext);
 		}
 		catch (ExecutableException e) {
-			logException(e, "Stop local screen share failed");
+			handleException(e, "Set screen-source failed",
+					"stream.screen.share.error");
 		}
+	}
+
+	private void stopLocalScreenCapture() {
+		screenShareService.stopScreenCapture();
 	}
 
 	private void startScreenRecording(ScreenShareContext shareContext) {
-		if (screenRecorderService.started() || !recordingService.started()) {
+		// Record screen if we are actually recording a lecture.
+		if (!recordingService.started()) {
 			return;
 		}
 
-		try {
-			screenRecorderService.setScreenShareContext(shareContext);
-			screenRecorderService.start();
-		}
-		catch (ExecutableException e) {
-			logException(e, "Stop screen-recorder failed");
-		}
+		screenShareService.startScreenRecording(shareContext);
+	}
+
+	private void suspendScreenRecording() {
+		screenShareService.suspendScreenRecording();
 	}
 
 	private void stopScreenRecording() {
-		if (!screenRecorderService.started()) {
-			return;
-		}
-
-		try {
-			screenRecorderService.stop();
-		}
-		catch (ExecutableException e) {
-			logException(e, "Stop screen-recorder failed");
-		}
+		screenShareService.stopScreenRecording();
 	}
 }

@@ -26,6 +26,7 @@ import dev.onvoid.webrtc.media.video.VideoFrame;
 
 import java.awt.Graphics2D;
 import java.awt.image.BufferedImage;
+import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -41,8 +42,10 @@ import org.apache.logging.log4j.Logger;
 import org.lecturestudio.core.ExecutableBase;
 import org.lecturestudio.core.ExecutableException;
 import org.lecturestudio.core.app.configuration.AudioConfiguration;
+import org.lecturestudio.core.audio.AudioFormat;
 import org.lecturestudio.core.audio.AudioRecorder;
 import org.lecturestudio.core.audio.AudioSystemProvider;
+import org.lecturestudio.core.audio.AudioUtils;
 import org.lecturestudio.core.audio.sink.ByteArrayAudioSink;
 import org.lecturestudio.core.codec.CodecID;
 import org.lecturestudio.core.geometry.Dimension2D;
@@ -82,11 +85,19 @@ public class ScreenRecorderService extends ExecutableBase {
 
 	private ScreenShareContext shareContext;
 
+	private int timestampMs;
+
+	private int frames;
+
 
 	public ScreenRecorderService(PresenterContext context,
 			AudioSystemProvider audioSystemProvider) {
 		this.context = context;
 		this.audioSystemProvider = audioSystemProvider;
+	}
+
+	public ScreenShareContext getScreenShareContext() {
+		return shareContext;
 	}
 
 	public void setScreenShareContext(ScreenShareContext shareContext) {
@@ -109,38 +120,17 @@ public class ScreenRecorderService extends ExecutableBase {
 
 	@Override
 	protected void initInternal() throws ExecutableException {
+		context.getEventBus().register(this);
 
+		frames = 0;
+		timestampMs = 0;
+
+		initMuxer();
+		initAudioRecorder();
 	}
 
 	@Override
 	protected void startInternal() throws ExecutableException {
-		context.getEventBus().register(this);
-
-		String date = dateFormat.format(new Date());
-
-		outputPath = Paths.get(context.getConfiguration().getAudioConfig()
-				.getRecordingPath(), "screen-" + date + ".mp4");
-		outputVideoPath = Paths.get(context.getConfiguration().getAudioConfig()
-						.getRecordingPath(), "screen-video-" + date + ".mp4");
-
-		VideoRenderConfiguration vRenderConfig = new VideoRenderConfiguration();
-//		vRenderConfig.setBitrate(shareContext.getProfile().getBitrate());
-//		vRenderConfig.setFrameRate(shareContext.getProfile().getFramerate());
-		vRenderConfig.setBitrate(700);
-		vRenderConfig.setFrameRate(30);
-		vRenderConfig.setDimension(outputSize);
-		vRenderConfig.setCodecID(CodecID.H264);
-
-		RenderConfiguration renderConfig = new RenderConfiguration();
-		renderConfig.setFileFormat("mp4");
-		renderConfig.setOutputFile(outputVideoPath.toFile());
-		renderConfig.setAudioConfig(null);
-		renderConfig.setVideoConfig(vRenderConfig);
-
-		muxer = new FFmpegProcessMuxer(renderConfig);
-		muxer.start();
-
-		initAudioRecorder();
 		audioRecorder.start();
 	}
 
@@ -154,14 +144,26 @@ public class ScreenRecorderService extends ExecutableBase {
 		muxer.stop();
 		muxer.destroy();
 
+		// Write recorded audio into the video.
 		try {
 			flushAudio();
-
-			Files.deleteIfExists(outputVideoPath);
 		}
 		catch (Exception e) {
 			LOG.error("Flush recorded audio failed", e);
 		}
+
+		// Delete temporary video file.
+		try {
+			Files.deleteIfExists(outputVideoPath);
+		}
+		catch (IOException e) {
+			LOG.error("Delete temporary capture file failed", e);
+		}
+	}
+
+	@Override
+	protected void suspendInternal() throws ExecutableException {
+		audioRecorder.suspend();
 	}
 
 	@Override
@@ -170,6 +172,14 @@ public class ScreenRecorderService extends ExecutableBase {
 	}
 
 	private void writeVideoFrame(VideoFrame videoFrame) throws Exception {
+		// Check audio/video timestamp drift.
+		float currentFps = frames / (timestampMs / 1000f);
+
+		if (currentFps > shareContext.getProfile().getFramerate()) {
+			// Drop frame.
+			return;
+		}
+
 		int width = (int) outputSize.getWidth();
 		int height = (int) outputSize.getHeight();
 
@@ -196,18 +206,60 @@ public class ScreenRecorderService extends ExecutableBase {
 		g2d.dispose();
 
 		muxer.addVideoFrame(converted);
+
+		frames++;
+	}
+
+	private void initMuxer() throws ExecutableException {
+		String title = shareContext.getSource().getTitle();
+		String date = dateFormat.format(new Date());
+
+		outputPath = Paths.get(context.getConfiguration().getAudioConfig()
+				.getRecordingPath(), title + "-" + date + ".mp4");
+		outputVideoPath = Paths.get(context.getConfiguration().getAudioConfig()
+				.getRecordingPath(), title + "-temp-" + date + ".mp4");
+
+		VideoRenderConfiguration vRenderConfig = new VideoRenderConfiguration();
+		vRenderConfig.setBitrate(shareContext.getProfile().getBitrate());
+		vRenderConfig.setFrameRate(shareContext.getProfile().getFramerate());
+		vRenderConfig.setDimension(outputSize);
+		vRenderConfig.setCodecID(CodecID.H264);
+
+		RenderConfiguration renderConfig = new RenderConfiguration();
+		renderConfig.setFileFormat("mp4");
+		renderConfig.setOutputFile(outputVideoPath.toFile());
+		renderConfig.setAudioConfig(null);
+		renderConfig.setVideoConfig(vRenderConfig);
+
+		muxer = new FFmpegProcessMuxer(renderConfig);
+		muxer.start();
 	}
 
 	private void initAudioRecorder() {
 		AudioConfiguration audioConfig = context.getConfiguration().getAudioConfig();
+		AudioFormat audioFormat = audioConfig.getRecordingFormat();
 
 		String deviceName = audioConfig.getCaptureDeviceName();
 		Double deviceVolume = audioConfig.getRecordingVolume(deviceName);
 		double masterVolume = audioConfig.getMasterRecordingVolume();
 		double volume = nonNull(deviceVolume) ? deviceVolume : masterVolume;
 
-		audioSink = new ByteArrayAudioSink();
-		audioSink.setAudioFormat(audioConfig.getRecordingFormat());
+		audioSink = new ByteArrayAudioSink() {
+
+			final float bytesPerSec = AudioUtils.getBytesPerSecond(audioFormat);
+
+			int bytesConsumed = 0;
+
+
+			@Override
+			public int write(byte[] data, int offset, int length) throws IOException {
+				bytesConsumed += length;
+				timestampMs = (int) (bytesConsumed / bytesPerSec * 1000);
+
+				return super.write(data, offset, length);
+			}
+		};
+		audioSink.setAudioFormat(audioFormat);
 
 		audioRecorder = audioSystemProvider.createAudioRecorder();
 		audioRecorder.setAudioProcessingSettings(
@@ -238,5 +290,6 @@ public class ScreenRecorderService extends ExecutableBase {
 		muxer.start();
 		muxer.addAudioFrame(stream, 0, stream.length);
 		muxer.stop();
+		muxer.destroy();
 	}
 }

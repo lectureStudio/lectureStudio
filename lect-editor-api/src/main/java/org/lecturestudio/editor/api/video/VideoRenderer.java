@@ -335,6 +335,13 @@ public class VideoRenderer extends RecordingExport {
 		}
 		catch (IOException e) {
 			LOG.error("Mux video frame failed", e);
+
+			try {
+				stop();
+			}
+			catch (ExecutableException ex) {
+				throw new RuntimeException(ex);
+			}
 		}
 	}
 

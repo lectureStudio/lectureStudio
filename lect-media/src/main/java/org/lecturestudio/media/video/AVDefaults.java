@@ -31,6 +31,7 @@ public class AVDefaults {
 
 	public static VideoFormat[] VIDEO_FORMATS = {
 			new VideoFormat(CodecID.H264, CodecID.AAC, "mp4"),
+			new VideoFormat(CodecID.H264_NVIDIA, CodecID.AAC, "mp4"),
 			new VideoFormat(CodecID.H264, CodecID.MP3, "avi"),
 			new VideoFormat(CodecID.H264, CodecID.MP3, "mp4"),
 			new VideoFormat(CodecID.VP9, CodecID.OPUS, "webm")

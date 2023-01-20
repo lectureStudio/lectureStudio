@@ -28,6 +28,9 @@ public enum CodecID {
 	/** H.264/MPEG-4 video codec */
 	H264,
 
+	/** H.264/MPEG-4 NVIDIA video codec */
+	H264_NVIDIA,
+
 	/** H.265/HEVC video codec */
 	H265,
 

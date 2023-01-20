@@ -397,7 +397,10 @@ public class FFmpegProcessMuxer extends ExecutableBase implements VideoMuxer {
 		switch (codecID) {
 			case H264:
 				return "libx264";
-				
+
+			case H264_NVIDIA:
+				return "h264_nvenc";
+
 			case H265:
 				return "libx265";
 				

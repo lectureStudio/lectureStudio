@@ -18,7 +18,11 @@
 
 package org.lecturestudio.swing.components;
 
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
+
 import javax.swing.JButton;
+import javax.swing.SwingUtilities;
 
 import org.lecturestudio.core.ExecutableState;
 import org.lecturestudio.core.app.dictionary.Dictionary;
@@ -34,6 +38,9 @@ public class ScreenThumbnailPanel extends ThumbnailPanel {
 	private final RecordButton startScreenShareButton;
 
 	private final JButton stopScreenShareButton;
+
+	private boolean focused = false;
+	private boolean actionDisabled = false;
 
 
 	public ScreenThumbnailPanel(Dictionary dict) {
@@ -51,12 +58,31 @@ public class ScreenThumbnailPanel extends ThumbnailPanel {
 		stopScreenShareButton.setIcon(AwtResourceLoader.getIcon("record-stop-tool.svg", 20));
 		stopScreenShareButton.setToolTipText(dict.get("screen.share.stop"));
 
+		startScreenShareButton.addMouseListener(new MouseAdapter() {
+
+			@Override
+			public void mouseEntered(MouseEvent e) {
+				focused = isWindowFocused();
+			}
+
+			@Override
+			public void mouseExited(MouseEvent e) {
+				focused = true;
+			}
+		});
+
 		addButton(startScreenShareButton);
 		addButton(stopScreenShareButton);
 	}
 
 	public void setOnToggleScreenShare(BooleanProperty property) {
 		startScreenShareButton.addActionListener(e -> {
+			// Handle async state behaviour between focus and click events.
+			if (actionDisabled) {
+				actionDisabled = false;
+				return;
+			}
+
 			property.set(!property.get());
 		});
 	}
@@ -68,9 +94,21 @@ public class ScreenThumbnailPanel extends ThumbnailPanel {
 	public void setScreenShareState(ExecutableState state) {
 		startScreenShareButton.setState(state);
 
+		// Handle async state behaviour between focus and click events.
+		if (state == ExecutableState.Stopped) {
+			actionDisabled = !focused;
+		}
+		else if (state == ExecutableState.Started) {
+			focused = false;
+		}
+
 		switch (state) {
 			case Started -> startScreenShareButton.setToolTipText(dict.get("screen.share.suspend"));
 			case Stopped -> startScreenShareButton.setToolTipText(dict.get("screen.share.start"));
 		}
+	}
+
+	private boolean isWindowFocused() {
+		return SwingUtilities.getWindowAncestor(this).isFocused();
 	}
 }

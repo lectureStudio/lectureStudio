@@ -750,11 +750,9 @@ public class MainPresenter extends org.lecturestudio.core.presenter.MainPresente
 
 	private void onViewFocus(boolean hasFocus) {
 		if (hasFocus) {
-			// Delay execution to give the screen-capturer a chance to process internal state.
-			CompletableFuture.runAsync(() -> {
-				PresenterContext ctx = (PresenterContext) context;
-				ctx.setScreenSharingStarted(false);
-			}, CompletableFuture.delayedExecutor(1500, TimeUnit.MILLISECONDS));
+			// Stop screen sharing whe the main window has gained focus.
+			PresenterContext ctx = (PresenterContext) context;
+			ctx.setScreenSharingStarted(false);
 		}
 	}
 

@@ -18,6 +18,7 @@
 
 package org.lecturestudio.presenter.api.recording;
 
+import static java.util.Objects.isNull;
 import static java.util.Objects.nonNull;
 
 import java.util.ArrayList;
@@ -58,7 +59,18 @@ public class PendingActions {
 	}
 
 	public void clearPendingActions(Page page) {
-		pendingActions.remove(page);
+		List<PlaybackAction> actions = pendingActions.remove(page);
+
+		if (isNull(actions)) {
+			// Page not found for removal. May be due to replaced document.
+			// Find by common document.
+			for (Page p : pendingActions.keySet()) {
+				if (page.getDocument().getName().equals(p.getDocument().getName())) {
+					pendingActions.remove(p);
+					break;
+				}
+			}
+		}
 
 		if (page == pendingPage) {
 			pendingPage = null;

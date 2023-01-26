@@ -253,15 +253,6 @@ public class SlidesPresenter extends Presenter<SlidesView> {
 		}
 		else if (event.stopped()) {
 			onEvent(new ScreenShareStateEvent(null, event.getState()));
-
-			// Close all documents related to a screen source.
-			for (Document doc : documentService.getDocuments().asList()) {
-				if (doc.isScreen()) {
-					documentService.removeDocument(doc);
-				}
-			}
-
-			documentService.selectLastDocument();
 		}
 	}
 

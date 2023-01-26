@@ -57,6 +57,10 @@ public class PDFBoxRenderer implements DocumentRenderer {
 			g.fillRect(0, 0, imageWidth, imageHeight);
 		}
 		else {
+			g.setColor(Color.WHITE);
+			g.setBackground(Color.WHITE);
+			g.fillRect(0, 0, imageWidth, imageHeight);
+
 			Rectangle2D pageRect = parameter.getViewRect();
 
 			double sx = imageWidth / pageRect.getWidth();

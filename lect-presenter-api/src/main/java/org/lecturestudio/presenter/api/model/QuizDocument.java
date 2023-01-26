@@ -35,6 +35,7 @@ import java.nio.file.Paths;
 import java.text.AttributedCharacterIterator;
 import java.text.AttributedString;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
@@ -318,7 +319,14 @@ public class QuizDocument extends HtmlToPdfDocument {
 
 	private static PieChart createPieChart(Dictionary dict, QuizResult result) {
 		PieChart chart = new PieChartBuilder().theme(ChartTheme.GGPlot2).build();
-		chart.getStyler().setPlotContentSize(0.75);
+		chart.getStyler().setPlotContentSize(0.7);
+		chart.getStyler().setLegendVisible(false);
+		chart.getStyler().setForceAllLabelsVisible(true);
+		chart.getStyler().setLabelsDistance(1.25);
+		chart.getStyler().setLabelsVisible(true);
+		chart.getStyler().setAntiAlias(true);
+		chart.getStyler().setLabelsFontColorAutomaticEnabled(true);
+		chart.getStyler().setStartAngleInDegrees(90);
 		chart.getStyler().setPlotBackgroundColor(Color.WHITE);
 		chart.getStyler().setSeriesColors(new ChartColors().getSeriesColors());
 
@@ -339,27 +347,38 @@ public class QuizDocument extends HtmlToPdfDocument {
 		chart.getStyler().setOverlapped(true);
 		chart.getStyler().setChartBackgroundColor(Color.WHITE);
 		chart.getStyler().setLegendBorderColor(Color.WHITE);
-		chart.getStyler().setXAxisTicksVisible(false);
+		chart.getStyler().setLegendVisible(false);
+		chart.getStyler().setXAxisTicksVisible(true);
 		chart.getStyler().setAxisTicksLineVisible(false);
 		chart.getStyler().setSeriesColors(new ChartColors().getSeriesColors());
 
 		Map<QuizAnswer, Integer> resultMap = result.getResult();
-		int[] xValues = new int[resultMap.size()];
+		String[] xValues = new String[resultMap.size()];
 		int index = 0;
-
-		for (int i = 0; i < xValues.length; i++) {
-			xValues[i] = i;
-		}
 
 		Collection<QuizAnswer> answers = getSortedAnswers(result);
 
 		for (QuizAnswer answer : answers) {
-			int[] yValues = new int[resultMap.size()];
-			yValues[index] = resultMap.get(answer);
-
-			chart.addSeries(result.getAnswerText(answer), xValues, yValues);
+			xValues[index] = result.getAnswerText(answer);
 
 			index++;
+		}
+
+		index = 0;
+
+		for (QuizAnswer answer : answers) {
+			Integer[] yValues = new Integer[resultMap.size()];
+			Arrays.fill(yValues, 0);
+
+			yValues[index] = resultMap.get(answer);
+
+			chart.addSeries(result.getAnswerText(answer), List.of(xValues), List.of(yValues));
+
+			index++;
+		}
+
+		if (answers.size() > 9) {
+			chart.getStyler().setXAxisLabelRotation(45);
 		}
 
 		return chart;
@@ -374,7 +393,8 @@ public class QuizDocument extends HtmlToPdfDocument {
 		chart.getStyler().setOverlapped(true);
 		chart.getStyler().setChartBackgroundColor(Color.WHITE);
 		chart.getStyler().setLegendBorderColor(Color.WHITE);
-		chart.getStyler().setXAxisTicksVisible(false);
+		chart.getStyler().setLegendVisible(false);
+		chart.getStyler().setXAxisTicksVisible(true);
 		chart.getStyler().setAxisTicksLineVisible(false);
 		chart.getStyler().setSeriesColors(new ChartColors().getSeriesColors());
 
@@ -415,18 +435,24 @@ public class QuizDocument extends HtmlToPdfDocument {
 			chart.addSeries(" ", new int[] { 0 }, new int[] { 0 });
 		}
 		else {
-			int[] xValues = new int[chartMap.size()];
+			String[] xValues = new String[chartMap.size()];
 			int index = 0;
 
-			for (int i = 0; i < xValues.length; i++) {
-				xValues[i] = i;
+			for (String answer : chartMap.keySet()) {
+				xValues[index] = answer;
+
+				index++;
 			}
 
+			index = 0;
+
 			for (String answer : chartMap.keySet()) {
-				int[] yValues = new int[chartMap.size()];
+				Integer[] yValues = new Integer[chartMap.size()];
+				Arrays.fill(yValues, 0);
+
 				yValues[index] = chartMap.get(answer);
 
-				chart.addSeries(answer, xValues, yValues);
+				chart.addSeries(answer, List.of(xValues), List.of(yValues));
 
 				index++;
 			}

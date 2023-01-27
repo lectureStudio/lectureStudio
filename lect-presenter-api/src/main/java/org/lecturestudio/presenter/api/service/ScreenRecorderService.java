@@ -18,6 +18,7 @@
 
 package org.lecturestudio.presenter.api.service;
 
+import static java.util.Objects.isNull;
 import static java.util.Objects.nonNull;
 
 import com.google.common.eventbus.Subscribe;
@@ -85,6 +86,8 @@ public class ScreenRecorderService extends ExecutableBase {
 	private Path outputVideoPath;
 
 	private ScreenShareContext shareContext;
+
+	private BufferedImage bufferedImage;
 
 	private int timestampMs;
 
@@ -181,32 +184,42 @@ public class ScreenRecorderService extends ExecutableBase {
 		int frameStepMs = (int) (1000 / frameRate);
 		int videoTimeMs = (int) (frames / frameRate * 1000);
 
-		// Add or duplicate video frames if video is behind audio.
-		while (audioTimeMs - videoTimeMs > frameStepMs) {
-			writeVideoFrame(videoFrame);
-
-			videoTimeMs += frameStepMs;
-		}
-
 		// Drop video frame if ahead of audio.
 		if (currentFps > frameRate) {
 			return;
 		}
 
+		BufferedImage image = null;
+
+		// Add or duplicate video frames if video is behind audio.
+		while (audioTimeMs - videoTimeMs > frameStepMs) {
+			if (isNull(image)) {
+				image = convertVideoFrame(videoFrame);
+			}
+			muxVideoImage(image);
+
+			videoTimeMs += frameStepMs;
+		}
+
 		// Compare timestamps again, since video may be behind audio again.
 		if (timestampMs - videoTimeMs > frameStepMs) {
-			writeVideoFrame(videoFrame);
+			if (isNull(image)) {
+				image = convertVideoFrame(videoFrame);
+			}
+			muxVideoImage(image);
 		}
 	}
 
-	private void writeVideoFrame(VideoFrame videoFrame) throws Exception {
+	private BufferedImage convertVideoFrame(VideoFrame videoFrame) throws Exception {
 		int width = (int) outputSize.getWidth();
 		int height = (int) outputSize.getHeight();
 
 		// Valid frame sizes are when width and height are divisible by 2.
-		BufferedImage image = VideoFrameConverter.convertVideoFrame(videoFrame,
-				null, width, height);
+		bufferedImage = VideoFrameConverter.convertVideoFrame(videoFrame,
+				bufferedImage, width, height);
 
+		// Need to perform type (byte to int) conversion and center image
+		// vertically and horizontally.
 		BufferedImage converted = new BufferedImage(width, height,
 				BufferedImage.TYPE_INT_ARGB);
 
@@ -214,18 +227,22 @@ public class ScreenRecorderService extends ExecutableBase {
 		int x = 0;
 		int y = 0;
 
-		if (image.getWidth() < converted.getWidth()) {
-			x = (converted.getWidth() - image.getWidth()) / 2;
+		if (bufferedImage.getWidth() < converted.getWidth()) {
+			x = (converted.getWidth() - bufferedImage.getWidth()) / 2;
 		}
-		if (image.getHeight() < converted.getHeight()) {
-			y = (converted.getHeight() - image.getHeight()) / 2;
+		if (bufferedImage.getHeight() < converted.getHeight()) {
+			y = (converted.getHeight() - bufferedImage.getHeight()) / 2;
 		}
 
 		Graphics2D g2d = converted.createGraphics();
-		g2d.drawImage(image, x, y, null);
+		g2d.drawImage(bufferedImage, x, y, null);
 		g2d.dispose();
 
-		muxer.addVideoFrame(converted);
+		return converted;
+	}
+
+	private void muxVideoImage(BufferedImage image) throws IOException {
+		muxer.addVideoFrame(image);
 
 		frames++;
 	}

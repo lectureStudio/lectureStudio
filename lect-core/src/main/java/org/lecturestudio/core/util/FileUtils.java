@@ -132,12 +132,11 @@ public class FileUtils {
 
 	/**
 	 * Creates the directory named by this abstract pathname, including any
-	 * necessary but nonexistent parent directories. Note that if this
-	 * operation fails it may have succeeded in creating some of the necessary
-	 * parent directories.
+	 * necessary but nonexistent parent directories. Note that if this operation
+	 * fails it may have succeeded in creating necessary parent directories.
 	 *
-	 * @return {@code true} if and only if the directory was created, along with all
-	 *         necessary parent directories, otherwise {@code false}.
+	 * @return {@code true} if and only if the directory was created, along with
+	 * all necessary parent directories, otherwise {@code false}.
 	 */
 	public static boolean create(String path) {
 		File file = new File(path);
@@ -148,10 +147,6 @@ public class FileUtils {
 		}
 		
 		return created;
-	}
-
-	public static void copyJarResource(String jarPath, String source, String destDir) throws IOException {
-		copyJarResource(jarPath, source, destDir, null);
 	}
 
 	public static void copyJarResource(String jarPath, String source, String destDir, List<String> skipList) throws IOException {

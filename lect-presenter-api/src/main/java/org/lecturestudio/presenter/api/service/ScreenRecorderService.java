@@ -36,6 +36,7 @@ import java.util.Date;
 
 import javax.inject.Singleton;
 
+import org.apache.commons.io.FileSystem;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -111,7 +112,7 @@ public class ScreenRecorderService extends ExecutableBase {
 		}
 
 		try {
-			writeVideoFrame(event.getFrame());
+			addVideoFrame(event.getFrame());
 		}
 		catch (Exception e) {
 			LOG.error("Mux video frame failed", e);
@@ -171,15 +172,34 @@ public class ScreenRecorderService extends ExecutableBase {
 
 	}
 
-	private void writeVideoFrame(VideoFrame videoFrame) throws Exception {
+	private void addVideoFrame(VideoFrame videoFrame) throws Exception {
 		// Check audio/video timestamp drift.
-		float currentFps = frames / (timestampMs / 1000f);
+		int audioTimeMs = timestampMs;
+		float currentFps = frames / (audioTimeMs / 1000f);
 
-		if (currentFps > shareContext.getProfile().getFramerate()) {
-			// Drop frame.
+		float frameRate = shareContext.getProfile().getFramerate();
+		int frameStepMs = (int) (1000 / frameRate);
+		int videoTimeMs = (int) (frames / frameRate * 1000);
+
+		// Add or duplicate video frames if video is behind audio.
+		while (audioTimeMs - videoTimeMs > frameStepMs) {
+			writeVideoFrame(videoFrame);
+
+			videoTimeMs += frameStepMs;
+		}
+
+		// Drop video frame if ahead of audio.
+		if (currentFps > frameRate) {
 			return;
 		}
 
+		// Compare timestamps again, since video may be behind audio again.
+		if (timestampMs - videoTimeMs > frameStepMs) {
+			writeVideoFrame(videoFrame);
+		}
+	}
+
+	private void writeVideoFrame(VideoFrame videoFrame) throws Exception {
 		int width = (int) outputSize.getWidth();
 		int height = (int) outputSize.getHeight();
 
@@ -213,6 +233,9 @@ public class ScreenRecorderService extends ExecutableBase {
 	private void initMuxer() throws ExecutableException {
 		String title = shareContext.getSource().getTitle();
 		String date = dateFormat.format(new Date());
+
+		// Sanitize title to be suitable for file names.
+		title = FileSystem.getCurrent().toLegalFileName(title, '_');
 
 		outputPath = Paths.get(context.getConfiguration().getAudioConfig()
 				.getRecordingPath(), title + "-" + date + ".mp4");

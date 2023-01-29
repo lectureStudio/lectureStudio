@@ -22,9 +22,9 @@ import static java.util.Objects.isNull;
 import static java.util.Objects.nonNull;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 import org.lecturestudio.core.model.Page;
 import org.lecturestudio.core.recording.action.PlaybackAction;
@@ -37,11 +37,18 @@ public class PendingActions {
 
 
 	public void initialize() {
-		pendingActions = new HashMap<>();
+		pendingActions = new ConcurrentHashMap<>();
 	}
 
 	public void addPendingAction(PlaybackAction action) {
 		List<PlaybackAction> list = pendingActions.get(pendingPage);
+
+		if (isNull(list)) {
+			list = new ArrayList<>();
+
+			pendingActions.put(pendingPage, list);
+		}
+
 		list.add(action);
 	}
 

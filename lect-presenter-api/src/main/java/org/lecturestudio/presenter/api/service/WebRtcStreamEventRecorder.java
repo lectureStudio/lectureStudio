@@ -246,6 +246,10 @@ public class WebRtcStreamEventRecorder extends StreamEventRecorder {
 					logException(e, "Transmit document failed");
 				}
 			}
+
+			// Set current pending page, as it may have been removed previously
+			// by removeActionsForDocument().
+			pendingActions.setPendingPage(doc.getCurrentPage());
 		}
 
 		if (nonNull(action)) {

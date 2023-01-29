@@ -33,7 +33,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionException;
-import java.util.concurrent.TimeUnit;
 import java.util.function.Predicate;
 
 import javax.inject.Inject;
@@ -467,8 +466,6 @@ public class MainPresenter extends org.lecturestudio.core.presenter.MainPresente
 			PresenterContext presenterContext = (PresenterContext) context;
 			presenterContext.setAttendeesCount(0);
 			presenterContext.getSpeechRequests().clear();
-
-			screenSourceService.clear();
 		}
 		else if (state == ExecutableState.Error) {
 			showError("stream.closed.by.remote.host.title", "stream.closed.by.remote.host");

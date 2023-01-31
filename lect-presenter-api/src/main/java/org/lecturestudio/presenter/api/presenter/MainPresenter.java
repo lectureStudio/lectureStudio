@@ -75,6 +75,7 @@ import org.lecturestudio.presenter.api.config.StreamConfiguration;
 import org.lecturestudio.presenter.api.context.PresenterContext;
 import org.lecturestudio.presenter.api.event.MessengerStateEvent;
 import org.lecturestudio.presenter.api.event.QuizStateEvent;
+import org.lecturestudio.presenter.api.event.RecordingStateEvent;
 import org.lecturestudio.presenter.api.event.ScreenShareEndEvent;
 import org.lecturestudio.presenter.api.event.ScreenShareSelectEvent;
 import org.lecturestudio.presenter.api.event.StreamingStateEvent;
@@ -469,6 +470,13 @@ public class MainPresenter extends org.lecturestudio.core.presenter.MainPresente
 		}
 		else if (state == ExecutableState.Error) {
 			showError("stream.closed.by.remote.host.title", "stream.closed.by.remote.host");
+		}
+	}
+
+	@Subscribe
+	public void onEvent(final RecordingStateEvent event) {
+		if (event.stopped()) {
+			stopScreenRecording();
 		}
 	}
 

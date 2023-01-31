@@ -377,7 +377,7 @@ public class FFmpegProcessMuxer extends ExecutableBase implements VideoMuxer {
 	private String getAudioCodecName(CodecID codecID) {
 		switch (codecID) {
 			case AAC:
-				return "libfdk_aac";
+				return "aac";
 				
 			case MP3:
 				return "libmp3lame";
@@ -395,18 +395,36 @@ public class FFmpegProcessMuxer extends ExecutableBase implements VideoMuxer {
 	
 	private String getVideoCodecName(CodecID codecID) {
 		switch (codecID) {
+			case AV1:
+				return "libaom-av1";
+
 			case H264:
 				return "libx264";
+
+			case H264_AMF:
+				return "h264_amf";
 
 			case H264_NVIDIA:
 				return "h264_nvenc";
 
+			case H264_QSV:
+				return "h264_qsv";
+
 			case H265:
 				return "libx265";
-				
+
+			case H265_AMF:
+				return "hevc_amf";
+
+			case H265_NVIDIA:
+				return "hevc_nvenc";
+
+			case H265_QSV:
+				return "hevc_qsv";
+
 			case VP9:
 				return "libvpx-vp9";
-				
+
 			default:
 				return "libx264";
 		}

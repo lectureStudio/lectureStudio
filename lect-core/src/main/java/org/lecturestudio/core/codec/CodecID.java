@@ -25,14 +25,32 @@ package org.lecturestudio.core.codec;
  */
 public enum CodecID {
 
+	/** AOM AV1 codec */
+	AV1,
+
 	/** H.264/MPEG-4 video codec */
 	H264,
+
+	/** AMD AMF H.264 codec */
+	H264_AMF,
 
 	/** H.264/MPEG-4 NVIDIA video codec */
 	H264_NVIDIA,
 
+	/** H.264 Intel Quick Sync Video codec */
+	H264_QSV,
+
 	/** H.265/HEVC video codec */
 	H265,
+
+	/** AMD AMF HEVC codec */
+	H265_AMF,
+
+	/** NVIDIA NVENC hevc codec */
+	H265_NVIDIA,
+
+	/** HEVC Intel Quick Sync Video codec */
+	H265_QSV,
 
 	/** VP9 video codec */
 	VP9,

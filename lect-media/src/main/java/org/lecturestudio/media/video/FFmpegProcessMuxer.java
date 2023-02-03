@@ -184,6 +184,11 @@ public class FFmpegProcessMuxer extends ExecutableBase implements VideoMuxer {
 		commands.add(outputPath);
 		commands.add("-y");
 
+		commands.add("-hide_banner");
+		commands.add("-loglevel");
+		commands.add("info");
+		commands.add("-nostats");
+
 		ProcessBuilder procBuilder = new ProcessBuilder(commands.toArray(new String[0]));
 		procBuilder.redirectErrorStream(true);
 

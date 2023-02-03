@@ -30,6 +30,7 @@
 
 	<Loggers>
 		<Logger name="org.lecturestudio" level="error" />
+		<Logger name="org.lecturestudio.media.video" level="info" />
 		<Logger name="org.jboss" level="error" />
 
 		<Root level="info">

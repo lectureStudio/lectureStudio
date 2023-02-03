@@ -31,12 +31,12 @@ public class AVDefaults {
 
 	public static VideoFormat[] VIDEO_FORMATS = {
 			new VideoFormat(CodecID.H264, CodecID.AAC, "mp4"),
-//			new VideoFormat(CodecID.H264_AMF, CodecID.AAC, "mp4"),
+			new VideoFormat(CodecID.H264_AMF, CodecID.AAC, "mp4"),
 			new VideoFormat(CodecID.H264_NVIDIA, CodecID.AAC, "mp4"),
 //			new VideoFormat(CodecID.H264_QSV, CodecID.AAC, "mp4"),
-//			new VideoFormat(CodecID.H265, CodecID.AAC, "mp4"),
-//			new VideoFormat(CodecID.H265_AMF, CodecID.AAC, "mp4"),
-//			new VideoFormat(CodecID.H265_NVIDIA, CodecID.AAC, "mp4"),
+			new VideoFormat(CodecID.H265, CodecID.AAC, "mp4"),
+			new VideoFormat(CodecID.H265_AMF, CodecID.AAC, "mp4"),
+			new VideoFormat(CodecID.H265_NVIDIA, CodecID.AAC, "mp4"),
 //			new VideoFormat(CodecID.H265_QSV, CodecID.AAC, "mp4"),
 	};
 

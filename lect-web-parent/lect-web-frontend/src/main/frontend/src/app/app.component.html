@@ -1,6 +1,0 @@
-<div *ngIf="classroom; else no_classroom">
-	<app-nav [classroom]="classroom"></app-nav>
-</div>
-<ng-template #no_classroom>
-	<loading-fragment [state]="state" (retryEvent)="onRetry()"></loading-fragment>
-</ng-template>

@@ -18,7 +18,6 @@
 
 	<modules>
 		<module>lect-web-api</module>
-<!--		<module>lect-web-frontend</module>-->
 	</modules>
 
 	<build>

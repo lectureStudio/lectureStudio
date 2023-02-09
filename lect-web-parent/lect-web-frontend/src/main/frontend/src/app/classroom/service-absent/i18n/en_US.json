@@ -1,8 +1,0 @@
-{
-	"service": {
-		"absent": {
-			"title": "Service is not available",
-			"message": "You will be redirected to the home page"
-		}
-	}
-}

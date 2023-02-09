@@ -1,6 +1,0 @@
-<mat-list [formGroup]="form">
-	<mat-list-item formArrayName="options" *ngFor="let option of options; let i = index">
-		<label class="option-index">{{ indexChar(i) }})</label>
-		<mat-checkbox matInput [formControlName]="i" name="option" value="{{i}}" id="{{i}}">{{option}}</mat-checkbox>
-	</mat-list-item>
-</mat-list>

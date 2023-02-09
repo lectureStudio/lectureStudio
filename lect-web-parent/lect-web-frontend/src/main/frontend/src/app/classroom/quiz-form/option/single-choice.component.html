@@ -1,8 +1,0 @@
-<mat-list [formGroup]="form">
-	<mat-radio-group formControlName="options">
-		<mat-list-item *ngFor="let option of options; let i = index">
-			<label class="option-index">{{ indexChar(i) }})</label>
-			<mat-radio-button value="{{i}}" id="{{option}}">{{option}}</mat-radio-button>
-		</mat-list-item>
-	</mat-radio-group>
-</mat-list>

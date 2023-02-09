@@ -1,8 +1,0 @@
-{
-	"service": {
-		"absent": {
-			"title": "Dienst ist nicht verf\u00fcgbar",
-			"message": "Sie werden auf die Startseite weitergeleitet"
-		}
-	}
-}

@@ -43,6 +43,8 @@ import javax.swing.tree.DefaultTreeModel;
 import javax.swing.tree.TreeNode;
 import javax.swing.tree.TreePath;
 
+import org.apache.commons.lang3.StringUtils;
+
 import org.lecturestudio.core.ExecutableState;
 import org.lecturestudio.core.app.dictionary.Dictionary;
 import org.lecturestudio.core.beans.BooleanProperty;
@@ -347,7 +349,9 @@ public class SwingSlidesView extends JPanel implements SlidesView {
 				}
 			});
 
-			VerticalTab tab = VerticalTab.fromText(doc.getName(), getSlidesTabPane().getTabPlacement());
+			String tabName = StringUtils.abbreviate(doc.getName(), 32);
+
+			VerticalTab tab = VerticalTab.fromText(tabName, getSlidesTabPane().getTabPlacement());
 			getSlidesTabPane().addTabBefore(new AdaptiveTab(AdaptiveTabType.SLIDE, tab, thumbPanel),
 					AdaptiveTabType.MESSAGE);
 			getSlidesTabPane().setPaneTabSelected(tab.getText());

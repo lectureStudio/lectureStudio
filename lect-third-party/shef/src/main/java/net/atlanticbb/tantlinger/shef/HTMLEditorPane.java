@@ -366,6 +366,9 @@ public class HTMLEditorPane extends JPanel
     	WysiwygHTMLEditorKit kit = new WysiwygHTMLEditorKit();
     	StyleSheet styleSheet = kit.getStyleSheet();
 		styleSheet.addRule("code {background: #DAE6E6;}");
+        styleSheet.addRule("p {margin: 0 0 10px 0;}");
+        styleSheet.addRule("ul {margin-left: 20px;}");
+        styleSheet.addRule("ol {margin-left: 20px;}");
 
 		// Add custom span rule.
 		StyleSheet styleSheetTmp = new StyleSheet();

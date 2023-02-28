@@ -239,7 +239,7 @@ public class QuizDocument extends HtmlToPdfDocument {
 		Element table = div.appendElement("table");
 		Element row = null;
 
-		int maxWidth = (int) (width / 2);
+		int maxWidth = (int) (width / 2) - 70;
 		int maxHeight = 16;    // Option text not longer than one line.
 
 		if (options.size() < 7) {

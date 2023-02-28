@@ -29,14 +29,17 @@ public class PathValidator extends TextInputValidator {
 	public void bind(TextInputControl control) {
 		bind(control, text -> {
 			if (text.isEmpty() || text.isBlank()) {
+				setError("File path is empty");
 				return false;
 			}
 
 			try {
 				Path path = Paths.get(text);
+				setError("");
 				return Files.exists(path);
 			}
 			catch (Throwable e) {
+				setError(e.getMessage());
 				return false;
 			}
 		});

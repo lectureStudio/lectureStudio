@@ -18,16 +18,28 @@
 
 package org.lecturestudio.javafx.util;
 
+import java.nio.file.Paths;
+
 import javafx.scene.control.TextInputControl;
 
 public class FileNameValidator extends TextInputValidator {
 
-	private static final String REGEX = "^([^\\W_][\\w\\s\\._-]*)$";
-
-
 	public void bind(TextInputControl control) {
 		bind(control, text -> {
-			return !text.isEmpty() && !text.isBlank() && text.matches(REGEX);
+			if (text.isEmpty() || text.isBlank()) {
+				setError("File name is empty");
+				return false;
+			}
+
+			try {
+				Paths.get(text);
+				setError("");
+				return true;
+			}
+			catch (Exception e) {
+				setError(e.getMessage());
+				return false;
+			}
 		});
 	}
 

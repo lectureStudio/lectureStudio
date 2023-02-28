@@ -8,11 +8,13 @@
 		<Label styleClass="header" text="%video.export.create.video"/>
 		<Label styleClass="desc-first" text="%video.export.save.name"/>
 		<TextField fx:id="targetNameField" />
+		<Label fx:id="targetNameErrorLabel" styleClass="error-label" managed="false" />
 		<Label styleClass="desc" text="%video.export.save.location"/>
 		<HBox>
 			<TextField fx:id="targetPathField" HBox.hgrow="ALWAYS"/>
 			<Button fx:id="browseButton" text="%button.browse"/>
 		</HBox>
+		<Label fx:id="targetPathErrorLabel" styleClass="error-label" managed="false" />
 		<CheckBox fx:id="videoCheckbox" text="%video.export.compressed.video" maxWidth="Infinity"/>
 		<CheckBox fx:id="vectorPlayerCheckbox" text="%video.export.vector.player" maxWidth="Infinity"/>
 		<HBox styleClass="buttons" alignment="BOTTOM_RIGHT" VBox.vgrow="ALWAYS">

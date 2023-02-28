@@ -18,11 +18,16 @@
 
 package org.lecturestudio.editor.javafx.view;
 
+import static java.util.Objects.nonNull;
+
+import java.util.ResourceBundle;
+
 import javafx.beans.property.IntegerProperty;
 import javafx.beans.property.SimpleIntegerProperty;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
 import javafx.scene.control.CheckBox;
+import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.StackPane;
 
@@ -45,10 +50,19 @@ public class FxVideoExportView extends StackPane implements VideoExportView {
 	private final IntegerProperty anySelected;
 
 	@FXML
+	private ResourceBundle resources;
+
+	@FXML
 	private TextField targetNameField;
 
 	@FXML
+	private Label targetNameErrorLabel;
+
+	@FXML
 	private TextField targetPathField;
+
+	@FXML
+	private Label targetPathErrorLabel;
 
 	@FXML
 	private CheckBox videoCheckbox;
@@ -121,12 +135,27 @@ public class FxVideoExportView extends StackPane implements VideoExportView {
 
 		FileNameValidator nameValidator = new FileNameValidator();
 		nameValidator.bind(targetNameField);
+		nameValidator.errorProperty().addListener(o -> {
+			if (nonNull(nameValidator.getError())) {
+				targetNameErrorLabel.setText(nameValidator.getError());
+			}
+		});
 
 		PathValidator pathValidator = new PathValidator();
 		pathValidator.bind(targetPathField);
+		pathValidator.errorProperty().addListener(o -> {
+			if (nonNull(pathValidator.getError())) {
+				targetPathErrorLabel.setText(pathValidator.getError());
+			}
+		});
 
 		createButton.disableProperty().bind(anySelected.lessThanOrEqualTo(0)
 				.or(nameValidator.validProperty().not())
 				.or(pathValidator.validProperty().not()));
+
+		targetNameErrorLabel.managedProperty()
+				.bind(nameValidator.errorProperty().isNotEmpty());
+		targetPathErrorLabel.managedProperty()
+				.bind(pathValidator.errorProperty().isNotEmpty());
 	}
 }

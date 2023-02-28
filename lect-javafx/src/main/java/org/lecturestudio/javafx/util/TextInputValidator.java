@@ -24,6 +24,8 @@ import java.util.function.Predicate;
 
 import javafx.beans.property.ReadOnlyBooleanProperty;
 import javafx.beans.property.ReadOnlyBooleanWrapper;
+import javafx.beans.property.ReadOnlyStringProperty;
+import javafx.beans.property.ReadOnlyStringWrapper;
 import javafx.css.PseudoClass;
 import javafx.scene.control.TextInputControl;
 
@@ -33,11 +35,21 @@ public abstract class TextInputValidator {
 
 	private final ReadOnlyBooleanWrapper valid = new ReadOnlyBooleanWrapper(true);
 
+	private final ReadOnlyStringWrapper error = new ReadOnlyStringWrapper();
+
 	private LambdaMultiplePropertyChangeListenerHandler listenerHandler;
 
 
 	public ReadOnlyBooleanProperty validProperty() {
 		return valid.getReadOnlyProperty();
+	}
+
+	public ReadOnlyStringProperty errorProperty() {
+		return error.getReadOnlyProperty();
+	}
+
+	public String getError() {
+		return this.error.get();
 	}
 
 	public void bind(TextInputControl control) {
@@ -56,5 +68,9 @@ public abstract class TextInputValidator {
 
 			valid.set(isValid);
 		});
+	}
+
+	protected void setError(String error) {
+		this.error.set(error);
 	}
 }

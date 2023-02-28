@@ -18,18 +18,26 @@
 
 package org.lecturestudio.swing.components;
 
+import static java.util.Objects.nonNull;
+
 import java.awt.Color;
 
+import javax.swing.DefaultListSelectionModel;
 import javax.swing.JButton;
 
 import org.lecturestudio.core.ExecutableState;
 import org.lecturestudio.core.app.dictionary.Dictionary;
+import org.lecturestudio.core.model.Document;
+import org.lecturestudio.core.model.Page;
 import org.lecturestudio.core.view.Action;
+import org.lecturestudio.core.view.PresentationParameterProvider;
 import org.lecturestudio.swing.util.SwingUtils;
 
 public class QuizThumbnailPanel extends ThumbnailPanel {
 
 	private final JButton stopQuizButton;
+
+	private int maxPageIndex = 0;
 
 
 	public QuizThumbnailPanel(Dictionary dict) {
@@ -44,7 +52,17 @@ public class QuizThumbnailPanel extends ThumbnailPanel {
 
 		addButton(stopQuizButton);
 
-		setEnabled(false);
+		getList().setSelectionModel(new DefaultListSelectionModel() {
+
+			@Override
+			public void setSelectionInterval(int index0, int index1) {
+				Page page = getList().getModel().getElementAt(index0);
+
+				if (nonNull(page) && page.getPageNumber() < maxPageIndex) {
+					super.setSelectionInterval(index0, index1);
+				}
+			}
+		});
 	}
 
 	public void setOnStopQuiz(Action action) {
@@ -55,12 +73,22 @@ public class QuizThumbnailPanel extends ThumbnailPanel {
 		if (state == ExecutableState.Started) {
 			stopQuizButton.setEnabled(true);
 
-			setEnabled(false);
+			maxPageIndex = getDocument().getPageCount();
 		}
 		else if (state == ExecutableState.Stopped) {
 			stopQuizButton.setEnabled(false);
 
-			setEnabled(true);
+			maxPageIndex = Integer.MAX_VALUE;
+		}
+	}
+
+	@Override
+	public void setDocument(Document doc, PresentationParameterProvider ppProvider) {
+		super.setDocument(doc, ppProvider);
+
+		if (maxPageIndex == 0) {
+			// Set constraint for the very first document.
+			maxPageIndex = doc.getPageCount();
 		}
 	}
 }

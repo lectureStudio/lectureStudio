@@ -169,6 +169,10 @@ public class ThumbPanel extends JPanel {
 		list.setEnabled(enabled);
 	}
 
+	public JList<Page> getList() {
+		return list;
+	}
+
 	public void setRenderController(RenderController renderController) {
 		this.renderController = renderController;
 	}

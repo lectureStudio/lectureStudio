@@ -139,15 +139,18 @@ public class SoundSettingsPresenter extends Presenter<SoundSettingsView> {
 			audioConfig.setRecordingProcessingSettings(processingSettings);
 		}
 
+		AudioProcessingSettings processingSettings = audioConfig.getRecordingProcessingSettings();
+
 		view.setAudioCaptureDevices(audioSystemProvider.getRecordingDevices());
 		view.setAudioPlaybackDevices(audioSystemProvider.getPlaybackDevices());
 		view.setAudioCaptureDevice(audioConfig.captureDeviceNameProperty());
 		view.setAudioPlaybackDevice(audioConfig.playbackDeviceNameProperty());
 		view.bindAudioPlaybackLevel(audioConfig.playbackVolumeProperty());
 		view.bindAudioCaptureLevel(audioConfig.recordingMasterVolumeProperty());
-		view.setAudioCaptureNoiseSuppressionLevel(
-				audioConfig.getRecordingProcessingSettings()
-						.noiseSuppressionLevelProperty());
+		view.bindAudioCaptureNoiseSuppressionLevelEnabled(processingSettings
+				.enableNoiseSuppressionProperty());
+		view.setAudioCaptureNoiseSuppressionLevel(processingSettings
+				.noiseSuppressionLevelProperty());
 		view.setOnViewVisible(this::onViewVisible);
 		view.setOnAdjustAudioCaptureLevel(this::adjustAudioCaptureLevel);
 		view.bindTestCaptureEnabled(captureEnabled);

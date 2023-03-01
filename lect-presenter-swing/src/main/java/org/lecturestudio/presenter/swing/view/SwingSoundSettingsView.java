@@ -26,6 +26,7 @@ import java.util.ResourceBundle;
 import javax.inject.Inject;
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.JButton;
+import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
 import javax.swing.JPanel;
 import javax.swing.JSlider;
@@ -61,6 +62,8 @@ public class SwingSoundSettingsView extends JPanel implements SoundSettingsView 
 	private JComboBox<String> audioCaptureDevicesCombo;
 
 	private JComboBox<String> audioPlaybackDevicesCombo;
+
+	private JCheckBox noiseSuppressionCheckBox;
 
 	private JComboBox<NoiseSuppressionLevel> noiseSuppressionCombo;
 
@@ -138,6 +141,15 @@ public class SwingSoundSettingsView extends JPanel implements SoundSettingsView 
 		SwingUtils.invoke(() -> {
 			audioPlaybackDevicesCombo.setModel(model);
 		});
+	}
+
+	@Override
+	public void bindAudioCaptureNoiseSuppressionLevelEnabled(BooleanProperty enable) {
+		SwingUtils.invoke(() -> {
+			testCaptureButton.setSelected(enable.get());
+		});
+
+		SwingUtils.bindBidirectional(noiseSuppressionCheckBox, enable);
 	}
 
 	@Override
@@ -238,6 +250,11 @@ public class SwingSoundSettingsView extends JPanel implements SoundSettingsView 
 
 	@ViewPostConstruct
 	private void initialize() {
+		noiseSuppressionCheckBox.addItemListener(e -> {
+			noiseSuppressionCombo.setEnabled(noiseSuppressionCheckBox.isSelected());
+		});
+
+		noiseSuppressionCombo.setEnabled(noiseSuppressionCheckBox.isSelected());
 		noiseSuppressionCombo.setRenderer(new NoiseSuppressionLevelRenderer(
 				resources, "sound.settings.noise.suppression."));
 

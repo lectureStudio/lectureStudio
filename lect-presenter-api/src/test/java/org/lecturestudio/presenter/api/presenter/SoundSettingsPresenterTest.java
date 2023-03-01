@@ -98,6 +98,12 @@ class SoundSettingsPresenterTest extends PresenterTest {
 		}
 
 		@Override
+		public void bindAudioCaptureNoiseSuppressionLevelEnabled(
+				BooleanProperty enable) {
+
+		}
+
+		@Override
 		public void setAudioCaptureNoiseSuppressionLevel(
 				ObjectProperty<NoiseSuppressionLevel> level) {
 

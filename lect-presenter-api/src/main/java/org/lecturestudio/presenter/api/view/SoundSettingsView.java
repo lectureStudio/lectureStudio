@@ -40,6 +40,8 @@ public interface SoundSettingsView extends SettingsBaseView {
 
 	void setAudioPlaybackDevices(AudioDevice[] playbackDevices);
 
+	void bindAudioCaptureNoiseSuppressionLevelEnabled(BooleanProperty enable);
+
 	void setAudioCaptureNoiseSuppressionLevel(ObjectProperty<NoiseSuppressionLevel> level);
 
 	void setAudioCaptureLevel(double value);

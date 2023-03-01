@@ -79,6 +79,10 @@ public class AudioProcessingSettings {
 		enableHighpassFilter.set(enable);
 	}
 
+	public BooleanProperty enableNoiseSuppressionProperty() {
+		return enableNoiseSuppression;
+	}
+
 	public boolean isNoiseSuppressionEnabled() {
 		return enableNoiseSuppression.get();
 	}

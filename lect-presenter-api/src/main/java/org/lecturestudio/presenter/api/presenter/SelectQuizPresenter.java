@@ -21,6 +21,8 @@ package org.lecturestudio.presenter.api.presenter;
 import static java.util.Objects.nonNull;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
 import javax.inject.Inject;
 
@@ -64,11 +66,12 @@ public class SelectQuizPresenter extends Presenter<SelectQuizView> {
 
 	@Override
 	public void initialize() throws IOException {
-		DocumentList docList = documentService.getDocuments();
-		Document doc = docList.getSelectedDocument();
+		List<Quiz> documentQuizzes = new ArrayList<>();
 
-		if (doc.isQuiz()) {
-			doc = docList.getLastNonWhiteboard();
+		DocumentList docList = documentService.getDocuments();
+
+		for (Document doc : docList.getPdfDocuments()) {
+			documentQuizzes.addAll(quizService.getQuizzes(doc));
 		}
 
 		setOnEdit((quiz) -> {
@@ -78,7 +81,7 @@ public class SelectQuizPresenter extends Presenter<SelectQuizView> {
 		});
 
 		view.setQuizzes(quizService.getQuizzes());
-		view.setDocumentQuizzes(quizService.getQuizzes(doc));
+		view.setDocumentQuizzes(documentQuizzes);
 		view.selectQuiz(webService.getStartedQuiz());
 		view.setOnClose(this::close);
 		view.setOnCreateQuiz(this::createQuiz);

@@ -196,7 +196,7 @@ public class WebService extends ExecutableBase {
 			try {
 				initMessageTransport();
 
-				service = new QuizFeatureWebService((PresenterContext) context,
+				service = new QuizFeatureWebService(context,
 						createFeatureService(webServiceInfo.getStreamPublisherApiUrl(),
 								QuizFeatureService.class), documentService);
 			}

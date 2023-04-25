@@ -90,5 +90,7 @@ public class QuizThumbnailPanel extends ThumbnailPanel {
 			// Set constraint for the very first document.
 			maxPageIndex = doc.getPageCount();
 		}
+
+		getList().setSelectedIndex(doc.getCurrentPage().getPageNumber());
 	}
 }

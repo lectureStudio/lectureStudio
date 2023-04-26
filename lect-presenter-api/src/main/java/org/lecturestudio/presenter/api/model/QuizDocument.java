@@ -79,12 +79,20 @@ public class QuizDocument extends HtmlToPdfDocument {
 
 	private static final NumericStringComparator NS_COMPARATOR = new NumericStringComparator();
 
+	private final QuizResult result;
+
 
 	public QuizDocument(File templateFile, Rectangle2D contentBounds,
 			Dictionary dict, QuizResult result) throws IOException {
+		this.result = result;
+
 		init(createDocument(templateFile, contentBounds, dict, result));
 		setDocumentType(DocumentType.QUIZ);
 		setTitle(dict.get("quiz"));
+	}
+
+	public boolean hasAnswers() {
+		return nonNull(result) && !result.getResult().isEmpty();
 	}
 
 	private static PdfDocument createDocument(File templateFile,

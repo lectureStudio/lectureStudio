@@ -47,6 +47,7 @@ import org.lecturestudio.core.recording.RecordedPage;
 import org.lecturestudio.core.recording.action.PlaybackAction;
 import org.lecturestudio.core.service.DocumentService;
 import org.lecturestudio.presenter.api.event.RecordingStateEvent;
+import org.lecturestudio.presenter.api.model.QuizDocument;
 import org.lecturestudio.presenter.api.recording.PendingActions;
 import org.lecturestudio.web.api.client.MultipartBody;
 import org.lecturestudio.web.api.stream.StreamEventRecorder;
@@ -236,7 +237,12 @@ public class WebRtcStreamEventRecorder extends StreamEventRecorder {
 			removeActionsForDocument(event.getOldDocument());
 
 			// Transmit quiz documents only in initial state.
-			boolean isInitialQuiz = doc.isQuiz() && doc.getPageCount() == 1;
+			boolean isInitialQuiz = false;
+
+			if (doc instanceof QuizDocument) {
+				QuizDocument quizDoc = (QuizDocument) doc;
+				isInitialQuiz = !quizDoc.hasAnswers();
+			}
 
 			if (isInitialQuiz || doc.isMessage() || doc.isScreen()) {
 				try {

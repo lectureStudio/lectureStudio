@@ -145,10 +145,6 @@ public class SwingSoundSettingsView extends JPanel implements SoundSettingsView 
 
 	@Override
 	public void bindAudioCaptureNoiseSuppressionLevelEnabled(BooleanProperty enable) {
-		SwingUtils.invoke(() -> {
-			testCaptureButton.setSelected(enable.get());
-		});
-
 		SwingUtils.bindBidirectional(noiseSuppressionCheckBox, enable);
 	}
 

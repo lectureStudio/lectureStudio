@@ -412,12 +412,7 @@ public class SoundSettingsPresenter extends Presenter<SoundSettingsView> {
 
 			@Override
 			public int write(byte[] data, int offset, int length) {
-				var stats = levelRecorder.getAudioProcessingStats();
-				double level = 0;
-
-				if (nonNull(stats) && stats.voiceDetected) {
-					level = getSignalPowerLevel(data);
-				}
+				double level = getSignalPowerLevel(data);
 
 				view.setAudioCaptureLevel(level);
 

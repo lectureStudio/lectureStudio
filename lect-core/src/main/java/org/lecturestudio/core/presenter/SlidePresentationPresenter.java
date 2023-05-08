@@ -57,14 +57,14 @@ public class SlidePresentationPresenter extends PresentationPresenter<SlidePrese
 
 	@Subscribe
 	public void onEvent(final DocumentEvent event) {
-		if (event.selected()) {
+		if (event.selected() || event.replaced()) {
 			setDocument(event.getDocument());
 		}
 		else if (event.closed()) {
 			setDocument(null);
 		}
 
-		if (event.selected()) {
+		if (event.selected() || event.replaced()) {
 			Document document = event.getDocument();
 
 			setPage(document.getCurrentPage());

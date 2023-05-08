@@ -446,7 +446,13 @@ public class PDFGraphics2D extends Graphics2D {
 				}
 
 				stream.setStrokingColor(getBackground());
-				stream.setNonStrokingColor(getColor());
+
+				if ((shape instanceof GeneralPath)) {
+					stream.setNonStrokingColor(getBackground());
+				}
+				else {
+					stream.setNonStrokingColor(getColor());
+				}
 
 				PathIterator iter = shape.getPathIterator(trans);
 				processPathIterator(iter);

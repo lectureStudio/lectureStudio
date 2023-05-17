@@ -181,11 +181,11 @@ public class PdfDocument {
 	 * Replaces the page that has the {@code pageIndex} with the page
 	 * that has {@code docIndex} in {@code newPdfDocument}.
 	 *
-	 * @param pageIndex The page index of the page to replace.
+	 * @param pageIndex      The page index of the page to replace.
 	 * @param newPdfDocument The {@link PdfDocument} that contains the new page.
-	 * @param docIndex The index of the new page in {@code newPdfDocument}.
+	 * @param docIndex       The index of the new page in {@code newPdfDocument}.
 	 */
-	public void replacePage(int pageIndex, PdfDocument newPdfDocument, int docIndex) throws IOException {
+	public void replacePage(int pageIndex, PdfDocument newPdfDocument, int docIndex) {
 		pdfBoxDocument.replacePage(pageIndex, newPdfDocument.pdfBoxDocument, docIndex);
 	}
 
@@ -292,10 +292,9 @@ public class PdfDocument {
 	 * Get the word bounds of the page that has the specified page number.
 	 *
 	 * @param pageNumber The page number.
-	 *
 	 * @return The word bounds of the page that has the specified page number.
 	 */
-	public List<Rectangle2D> getNormalizedWordPositions(int pageNumber) throws IOException {
+	public List<Rectangle2D> getNormalizedWordPositions(int pageNumber) {
 		return muPDFDocument.getPageWordsNormalized(pageNumber);
 	}
 

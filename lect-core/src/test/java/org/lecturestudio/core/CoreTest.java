@@ -41,7 +41,7 @@ public abstract class CoreTest {
 
 			@Override
 			public String get(String key) throws NullPointerException {
-				return null;
+				return key;
 			}
 
 			@Override

@@ -22,10 +22,13 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.io.File;
 import java.io.IOException;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
 import java.util.List;
+import java.util.Objects;
 
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
@@ -53,9 +56,9 @@ class QuizServiceTest extends ServiceTest {
 
 
 	@BeforeAll
-	static void init() throws IOException {
-		String quizzesFile = QuizServiceTest.class.getClassLoader().getResource("quizzes.txt").getFile();
-		String docQuizzesFile = QuizServiceTest.class.getClassLoader().getResource("empty.quiz").getFile();
+	static void init() throws IOException, URISyntaxException {
+		URI quizzesFile = Objects.requireNonNull(QuizServiceTest.class.getClassLoader().getResource("quizzes.txt")).toURI();
+		URI docQuizzesFile = Objects.requireNonNull(QuizServiceTest.class.getClassLoader().getResource("empty.quiz")).toURI();
 
 		quizzesPath = Path.of(quizzesFile);
 		quizzesCopyPath = quizzesPath.getParent().resolve("quizzes.txt.copy");

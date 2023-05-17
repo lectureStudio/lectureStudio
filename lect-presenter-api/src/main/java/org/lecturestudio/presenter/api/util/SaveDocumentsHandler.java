@@ -34,14 +34,12 @@ public class SaveDocumentsHandler extends ShutdownHandler {
 
 	@Override
 	public boolean execute() throws Exception {
-		PresenterConfiguration config = (PresenterConfiguration) context
-				.getConfiguration();
+		PresenterConfiguration config = context.getConfiguration();
 
-		if (config.getSaveDocumentOnClose()) {
-			if (context.hasRecordedChanges()) {
-				executeAndWait(() -> context.getEventBus()
-						.post(new QuitSaveDocumentsCommand(this::resume)));
-			}
+		if (Boolean.TRUE.equals(config.getSaveDocumentOnClose()) && (context.hasRecordedChanges())) {
+			executeAndWait(() -> context.getEventBus()
+					.post(new QuitSaveDocumentsCommand(this::resume)));
+
 		}
 
 		return true;

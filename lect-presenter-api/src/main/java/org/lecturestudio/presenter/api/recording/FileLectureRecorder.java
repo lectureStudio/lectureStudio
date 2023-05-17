@@ -209,22 +209,23 @@ public class FileLectureRecorder extends LectureRecorder {
 
 		recordedDocument.setTitle(FileUtils.stripExtension(destFile.getName()));
 
-		RandomAccessAudioStream audioStream = new RandomAccessAudioStream(audioFile);
-		audioStream.reset();
+		try (RandomAccessAudioStream audioStream = new RandomAccessAudioStream(audioFile)) {
+			audioStream.reset();
 
-		RecordingHeader fileHeader = new RecordingHeader();
-		fileHeader.setDuration(duration);
+			RecordingHeader fileHeader = new RecordingHeader();
+			fileHeader.setDuration(duration);
 
-		Recording recording = new Recording();
-		recording.setRecordingHeader(fileHeader);
-		recording.setRecordedAudio(new RecordedAudio(audioStream));
-		recording.setRecordedEvents(new RecordedEvents(recordedPages));
-		recording.setRecordedDocument(new RecordedDocument(recordedDocument));
+			Recording recording = new Recording();
+			recording.setRecordingHeader(fileHeader);
+			recording.setRecordedAudio(new RecordedAudio(audioStream));
+			recording.setRecordedEvents(new RecordedEvents(recordedPages));
+			recording.setRecordedDocument(new RecordedDocument(recordedDocument));
 
-		RecordingFileWriter.write(recording, destFile, progressCallback);
+			RecordingFileWriter.write(recording, destFile, progressCallback);
 
-		// Delete backup files since they are not needed anymore.
-		discard();
+			// Delete backup files since they are not needed anymore.
+			discard();
+		}
 	}
 
 	public void discard() {
@@ -385,10 +386,18 @@ public class FileLectureRecorder extends LectureRecorder {
 
 	@Override
 	protected void destroyInternal() {
-		ApplicationBus.unregister(this);
+		try {
+			ApplicationBus.unregister(this);
+		}
+		catch (Exception ignored) {
+			// Throws an Error in case this class gets destroyed before being initialized
+			// Catches the error, because this is a legal state transition
+		}
 
 		try {
-			audioMixer.destroy();
+			if (audioMixer != null) {
+				audioMixer.destroy();
+			}
 		}
 		catch (Exception e) {
 			logException(e, "Destroy audio mixer failed");
@@ -554,7 +563,7 @@ public class FileLectureRecorder extends LectureRecorder {
 		Page lastRecorded = getLastRecordedPage();
 		boolean same = page.equals(lastRecorded);
 
-		if (!same) {
+		if (!same && lastRecorded != null) {
 			UUID lastId = lastRecorded.getUid();
 			UUID pageId = page.getUid();
 

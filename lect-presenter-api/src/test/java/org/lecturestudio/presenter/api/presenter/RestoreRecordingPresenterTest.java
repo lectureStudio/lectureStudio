@@ -56,7 +56,7 @@ class RestoreRecordingPresenterTest extends PresenterTest {
 		audioConfig.setCaptureDeviceName("dummy");
 
 		DocumentService documentService = context.getDocumentService();
-		FileLectureRecorder recorder = new FileLectureRecorder(audioSystemProvider, documentService, audioConfig, context.getRecordingDirectory());
+		recorder = new FileLectureRecorder(audioSystemProvider, documentService, audioConfig, getRecordingDirectory());
 
 		recordingService = new RecordingService(context, recorder);
 		recordingService.start();
@@ -86,7 +86,7 @@ class RestoreRecordingPresenterTest extends PresenterTest {
 		presenter.initialize();
 		presenter.setOnDiscardRecording(() -> discarded.set(true));
 
-		RecordingBackup backup = new RecordingBackup(context.getRecordingDirectory());
+		RecordingBackup backup = new RecordingBackup(getRecordingDirectory());
 
 		assertTrue(backup.hasCheckpoint());
 
@@ -157,15 +157,15 @@ class RestoreRecordingPresenterTest extends PresenterTest {
 
 		view.saveAction.execute();
 
-		RecordingBackup backup = new RecordingBackup(context.getRecordingDirectory());
+		RecordingBackup backup = new RecordingBackup(getRecordingDirectory());
 		File initFile = new File(backup.getCheckpoint() + "." + PresenterContext.RECORDING_EXTENSION);
 
 		view.saveAction.execute();
 
 		saveLatch.await();
 
-		assertEquals("Presenter Recordings", chooserRef.get().description);
-		assertArrayEquals(new String[] { "*.presenter" }, chooserRef.get().extensions);
+		assertEquals(context.getDictionary().get("file.description.recording"), chooserRef.get().description);
+		assertArrayEquals(new String[]{"presenter"}, chooserRef.get().extensions);
 		assertEquals(initFile.getName(), chooserRef.get().initialFileName);
 		assertEquals(initFile.getParentFile(), chooserRef.get().directory);
 		assertEquals(selectedFile.getPath(), pathRef.get());

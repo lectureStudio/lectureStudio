@@ -18,48 +18,81 @@
 
 package org.lecturestudio.presenter.api.presenter;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import javax.inject.Inject;
+import javax.inject.Singleton;
 
 import java.io.IOException;
+import java.util.List;
+import java.util.Properties;
 import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Predicate;
 
+import com.google.inject.AbstractModule;
+import com.google.inject.Provides;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.lecturestudio.core.ExecutableException;
+import org.lecturestudio.core.ExecutableState;
 import org.lecturestudio.core.app.ApplicationContext;
 import org.lecturestudio.core.app.configuration.AudioConfiguration;
+import org.lecturestudio.core.audio.AudioSystemProvider;
+import org.lecturestudio.core.controller.PresentationController;
 import org.lecturestudio.core.controller.ToolController;
 import org.lecturestudio.core.geometry.PenPoint2D;
 import org.lecturestudio.core.geometry.Rectangle2D;
+import org.lecturestudio.core.inject.DIViewContextFactory;
+import org.lecturestudio.core.inject.GuiceInjector;
 import org.lecturestudio.core.input.KeyEvent;
+import org.lecturestudio.core.model.Document;
 import org.lecturestudio.core.presenter.Presenter;
 import org.lecturestudio.core.recording.DocumentRecorder;
+import org.lecturestudio.core.service.DisplayService;
 import org.lecturestudio.core.service.DocumentService;
+import org.lecturestudio.core.util.ObservableArrayList;
+import org.lecturestudio.core.util.ObservableList;
 import org.lecturestudio.core.util.ShutdownHandler;
 import org.lecturestudio.core.view.Action;
 import org.lecturestudio.core.view.ConsumerAction;
+import org.lecturestudio.core.view.PresentationViewFactory;
+import org.lecturestudio.core.view.Screen;
 import org.lecturestudio.core.view.View;
 import org.lecturestudio.core.view.ViewContextFactory;
 import org.lecturestudio.core.view.ViewLayer;
 import org.lecturestudio.presenter.api.config.PresenterConfiguration;
+import org.lecturestudio.presenter.api.context.PresenterContext;
 import org.lecturestudio.presenter.api.input.Shortcut;
+import org.lecturestudio.presenter.api.model.ScreenShareContext;
+import org.lecturestudio.presenter.api.net.LocalBroadcaster;
 import org.lecturestudio.presenter.api.recording.FileLectureRecorder;
 import org.lecturestudio.presenter.api.service.BookmarkService;
 import org.lecturestudio.presenter.api.service.RecordingService;
+import org.lecturestudio.presenter.api.service.WebRtcStreamEventRecorder;
+import org.lecturestudio.presenter.api.service.WebRtcStreamService;
+import org.lecturestudio.presenter.api.service.WebService;
+import org.lecturestudio.presenter.api.service.WebServiceInfo;
 import org.lecturestudio.presenter.api.view.MainView;
 import org.lecturestudio.presenter.api.view.QuitRecordingView;
 import org.lecturestudio.presenter.api.view.RestoreRecordingView;
 import org.lecturestudio.presenter.api.view.SaveDocumentsView;
 import org.lecturestudio.presenter.api.view.SettingsView;
 import org.lecturestudio.presenter.api.view.SlidesView;
-
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
+import org.lecturestudio.web.api.message.SpeechBaseMessage;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class MainPresenterTest extends PresenterTest {
+
+	private static final Screen[] SCREENS = {
+			new Screen(0, 0, 1280, 720),
+			new Screen(1280, 720, 1920, 1200),
+			new Screen(-640, -480, 640, 480)
+	};
+
 
 	private ViewContextFactory viewFactory;
 
@@ -68,6 +101,16 @@ class MainPresenterTest extends PresenterTest {
 	private DocumentService documentService;
 
 	private RecordingService recordingService;
+
+	private ObservableList<Screen> screens;
+
+	private PresentationController presentationController;
+
+	private WebRtcStreamService streamService;
+
+	private GuiceInjector injector;
+
+	private DocumentRecorder documentRecorder;
 
 
 	@BeforeEach
@@ -79,9 +122,76 @@ class MainPresenterTest extends PresenterTest {
 
 		bookmarkService = new BookmarkService(documentService);
 
-		FileLectureRecorder recorder = new FileLectureRecorder(audioSystemProvider, documentService, audioConfig, context.getRecordingDirectory());
+		recorder = new FileLectureRecorder(audioSystemProvider, documentService, audioConfig, getRecordingDirectory());
 
 		recordingService = new RecordingService(context, recorder);
+
+		screens = new ObservableArrayList<>();
+		screens.addAll(List.of(SCREENS));
+
+		DisplayService displayService = () -> screens;
+
+		PresentationViewFactory factory = (context, screen) -> null;
+
+		presentationController = new PresentationController(context, displayService, factory);
+
+		Properties streamProps = new Properties();
+		streamProps.load(getClass().getClassLoader().getResourceAsStream("resources/stream.properties"));
+
+		WebServiceInfo webServiceInfo = new WebServiceInfo(streamProps);
+
+		WebService webService = new WebService((PresenterContext) context, documentService, new LocalBroadcaster(context), webServiceInfo);
+		injector = new GuiceInjector(new AbstractModule() {
+			@Override
+			protected void configure() {
+				bind(ViewContextFactory.class).to(DIViewContextFactory.class);
+			}
+
+			@Provides
+			@Singleton
+			ApplicationContext provideApplicationContext() {
+				return context;
+			}
+
+			@Provides
+			@Singleton
+			AudioSystemProvider provideAudioSystemProvider() {
+				return audioSystemProvider;
+			}
+
+			@Provides
+			@Singleton
+			WebService provideWebService() {
+				return webService;
+			}
+
+			@Provides
+			@Singleton
+			DocumentService provideDocumentService() {
+				return documentService;
+			}
+
+			@Provides
+			FileLectureRecorder provideFileLectureRecorder() {
+				return recorder;
+			}
+
+			@Provides
+			@Singleton
+			WebServiceInfo provideWebServiceInfo() {
+				return webServiceInfo;
+			}
+
+			@Provides
+			RecordingService provideRecordingService() {
+				return recordingService;
+			}
+		});
+
+
+		streamService = injector.getInstance(CreateQuizPresenterTest.MockWebRtcStreamService.class);
+
+		documentRecorder = new DocumentRecorder(context);
 
 		viewFactory = new ViewContextMockFactory() {
 			@Override
@@ -89,7 +199,7 @@ class MainPresenterTest extends PresenterTest {
 			public <T> T getInstance(Class<T> cls) {
 				if (cls == SlidesPresenter.class) {
 					ToolController toolController = new ToolController(context, documentService);
-					return (T) new SlidesPresenter(context, createProxy(SlidesView.class), null, toolController, null, null, null, new DocumentRecorder(context), null, null, null, null);
+					return (T) new SlidesPresenter(context, createProxy(SlidesView.class), null, toolController, presentationController, null, documentService, documentRecorder, recordingService, webService, webServiceInfo, streamService);
 				}
 				else if (cls == SettingsPresenter.class) {
 					return (T) new SettingsPresenter(context, createProxy(SettingsView.class));
@@ -101,7 +211,7 @@ class MainPresenterTest extends PresenterTest {
 					return (T) new QuitRecordingPresenter(context, createProxy(QuitRecordingView.class), null);
 				}
 				else if (cls == SaveDocumentsPresenter.class) {
-					return (T) new SaveDocumentsPresenter(context, createProxy(SaveDocumentsView.class), viewFactory, new DocumentRecorder(context));
+					return (T) new SaveDocumentsPresenter(context, createProxy(SaveDocumentsView.class), viewFactory, documentRecorder);
 				}
 
 				return super.getInstance(cls);
@@ -123,7 +233,7 @@ class MainPresenterTest extends PresenterTest {
 			}
 		};
 
-		MainPresenter presenter = new MainPresenter(context, view, null, null, viewFactory, documentService, bookmarkService, recordingService, null, null);
+		MainPresenter presenter = new MainPresenter(context, view, presentationController, null, viewFactory, documentService, bookmarkService, recordingService, null, null);
 		presenter.initialize();
 		presenter.showView(testView, ViewLayer.Content);
 	}
@@ -159,7 +269,7 @@ class MainPresenterTest extends PresenterTest {
 			}
 		};
 
-		MainPresenter presenter = new MainPresenter(context, view, null, null, viewFactory, documentService, bookmarkService, recordingService, null, null);
+		MainPresenter presenter = new MainPresenter(context, view, presentationController, null, viewFactory, documentService, bookmarkService, recordingService, null, null);
 		presenter.initialize();
 		presenter.display(new TestPresenter(context, new TestView()));
 
@@ -208,7 +318,7 @@ class MainPresenterTest extends PresenterTest {
 			}
 		};
 
-		MainPresenter presenter = new MainPresenter(context, view, null, null, viewFactory, documentService, bookmarkService, recordingService, null, null);
+		MainPresenter presenter = new MainPresenter(context, view, presentationController, null, viewFactory, documentService, bookmarkService, recordingService, null, null);
 		presenter.initialize();
 		presenter.display(new TestPresenter(context, new TestView()));
 
@@ -252,7 +362,7 @@ class MainPresenterTest extends PresenterTest {
 
 		TestPresenter testPresenter = new TestPresenter(context, new TestView());
 
-		MainPresenter presenter = new MainPresenter(context, view, null, null, viewFactory, documentService, bookmarkService, recordingService, null, null);
+		MainPresenter presenter = new MainPresenter(context, view, presentationController, null, viewFactory, documentService, bookmarkService, recordingService, null, null);
 		presenter.initialize();
 		presenter.display(testPresenter);
 		presenter.destroy(testPresenter);
@@ -297,7 +407,7 @@ class MainPresenterTest extends PresenterTest {
 
 		TestPresenter testPresenter = new TestPresenter(context, new TestView());
 
-		MainPresenter presenter = new MainPresenter(context, view, null, null, viewFactory, documentService, bookmarkService, recordingService, null, null);
+		MainPresenter presenter = new MainPresenter(context, view, presentationController, null, viewFactory, documentService, bookmarkService, recordingService, null, null);
 		presenter.initialize();
 		presenter.display(testPresenter);
 		presenter.destroy(testPresenter);
@@ -317,7 +427,7 @@ class MainPresenterTest extends PresenterTest {
 			}
 		};
 
-		MainPresenter presenter = new MainPresenter(context, view, null, null, viewFactory, documentService, bookmarkService, recordingService, null, null);
+		MainPresenter presenter = new MainPresenter(context, view, presentationController, null, viewFactory, documentService, bookmarkService, recordingService, null, null);
 		presenter.initialize();
 		presenter.setFullscreen(true);
 
@@ -345,7 +455,15 @@ class MainPresenterTest extends PresenterTest {
 			}
 		};
 
-		MainPresenter presenter = new MainPresenter(context, view, null, null, viewFactory, documentService, bookmarkService, recordingService, null, null);
+		// Simulate crash and restore with new recording service
+		AudioConfiguration audioConfig = context.getConfiguration().getAudioConfig();
+		audioConfig.setCaptureDeviceName("dummy");
+
+		recorder = new FileLectureRecorder(audioSystemProvider, documentService, audioConfig, getRecordingDirectory());
+
+		recordingService = new RecordingService(context, recorder);
+
+		MainPresenter presenter = new MainPresenter(context, view, presentationController, null, viewFactory, documentService, bookmarkService, recordingService, null, null);
 		presenter.initialize();
 
 		view.shownAction.execute();
@@ -365,7 +483,7 @@ class MainPresenterTest extends PresenterTest {
 			}
 		};
 
-		MainPresenter presenter = new MainPresenter(context, view, null, null, viewFactory, documentService, bookmarkService, recordingService, null, null);
+		MainPresenter presenter = new MainPresenter(context, view, presentationController, null, viewFactory, documentService, bookmarkService, recordingService, null, null);
 		presenter.initialize();
 		presenter.addShutdownHandler(new ShutdownHandler() {
 
@@ -405,7 +523,7 @@ class MainPresenterTest extends PresenterTest {
 			}
 		};
 
-		MainPresenter presenter = new MainPresenter(context, view, null, null, viewFactory, documentService, bookmarkService, recordingService, null, null);
+		MainPresenter presenter = new MainPresenter(context, view, presentationController, null, viewFactory, documentService, bookmarkService, recordingService, null, null);
 		presenter.initialize();
 		presenter.display(new TestPresenter(context, new TestView()));
 
@@ -430,14 +548,14 @@ class MainPresenterTest extends PresenterTest {
 			}
 		};
 
-		MainPresenter presenter = new MainPresenter(context, view, null, null, viewFactory, documentService, bookmarkService, recordingService, null, null);
+		MainPresenter presenter = new MainPresenter(context, view, presentationController, null, viewFactory, documentService, bookmarkService, recordingService, null, null);
 		presenter.initialize();
 
 		recordingService.start();
 
 		view.closeAction.execute();
 
-		shownLatch.await();
+		shownLatch.await(10, TimeUnit.SECONDS);
 
 		assertTrue(shownView.get());
 		assertEquals(0, shownLatch.getCount());
@@ -464,7 +582,7 @@ class MainPresenterTest extends PresenterTest {
 			}
 		};
 
-		MainPresenter presenter = new MainPresenter(context, view, null, null, viewFactory, documentService, bookmarkService, recordingService, null, null);
+		MainPresenter presenter = new MainPresenter(context, view, presentationController, null, viewFactory, documentService, bookmarkService, recordingService, null, null);
 		presenter.initialize();
 
 		ToolController toolController = new ToolController(context, documentService);
@@ -475,7 +593,7 @@ class MainPresenterTest extends PresenterTest {
 
 		view.closeAction.execute();
 
-		shownLatch.await();
+		shownLatch.await(10, TimeUnit.SECONDS);
 
 		assertTrue(shownView.get());
 		assertEquals(0, shownLatch.getCount());
@@ -556,6 +674,94 @@ class MainPresenterTest extends PresenterTest {
 			assertNotNull(action);
 
 			closeAction = action;
+		}
+	}
+
+	public static class MockWebRtcStreamService extends WebRtcStreamService {
+
+		@Inject
+		public MockWebRtcStreamService(ApplicationContext context, WebServiceInfo webServiceInfo, WebRtcStreamEventRecorder eventRecorder, RecordingService recordingService) throws ExecutableException {
+			super(context, webServiceInfo, eventRecorder, recordingService);
+		}
+
+		@Override
+		public void acceptSpeechRequest(SpeechBaseMessage message) {
+
+		}
+
+		@Override
+		public void rejectSpeechRequest(SpeechBaseMessage message) {
+
+		}
+
+		@Override
+		public void startCameraStream() {
+
+		}
+
+		@Override
+		public void stopCameraStream() {
+
+		}
+
+		@Override
+		public void setScreenShareContext(ScreenShareContext context) {
+
+		}
+
+		@Override
+		public void startScreenShare() {
+
+		}
+
+		@Override
+		public void stopScreenShare() {
+
+		}
+
+		@Override
+		public void mutePeerAudio(boolean mute) {
+
+		}
+
+		@Override
+		public void mutePeerVideo(boolean mute) {
+
+		}
+
+		@Override
+		public void stopPeerConnection(Long requestId) {
+
+		}
+
+		@Override
+		public void shareDocument(Document document) {
+
+		}
+
+		@Override
+		public ExecutableState getScreenShareState() {
+			return null;
+		}
+
+		@Override
+		public void initInternal() {
+
+		}
+
+		@Override
+		public void startInternal() {
+
+		}
+
+		@Override
+		public void stopInternal() {
+
+		}
+
+		@Override
+		public void destroyInternal() {
+
 		}
 	}
 

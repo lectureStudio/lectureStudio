@@ -40,6 +40,7 @@ import org.lecturestudio.core.ExecutableException;
 import org.lecturestudio.core.app.configuration.AudioConfiguration;
 import org.lecturestudio.core.model.Document;
 import org.lecturestudio.core.service.DocumentService;
+import org.lecturestudio.core.util.FileUtils;
 import org.lecturestudio.core.view.Action;
 import org.lecturestudio.core.view.FileChooserView;
 import org.lecturestudio.core.view.View;
@@ -77,11 +78,12 @@ class SaveRecordingPresenterTest extends PresenterTest {
 
 		documentService = context.getDocumentService();
 
-		FileLectureRecorder recorder = new FileLectureRecorder(audioSystemProvider, documentService, audioConfig, context.getRecordingDirectory());
+		recorder = new FileLectureRecorder(audioSystemProvider, documentService, audioConfig, getRecordingDirectory());
 
 		recordingService = new RecordingService(context, recorder);
 
 		defaultSavePath = getRecordingPath();
+
 		defaultFile = getRecordingName();
 		selectedFile = testPath.resolve("test.presenter");
 
@@ -122,9 +124,9 @@ class SaveRecordingPresenterTest extends PresenterTest {
 
 		view.viewShownAction.execute();
 
-		assertEquals("Presenter Recordings", chooserRef.get().description);
-		assertArrayEquals(new String[] { "*.presenter" }, chooserRef.get().extensions);
-		assertEquals(defaultFile, chooserRef.get().initialFileName);
+		assertEquals(context.getDictionary().get("file.description.recording"), chooserRef.get().description);
+		assertArrayEquals(new String[]{"presenter"}, chooserRef.get().extensions);
+		assertEquals(FileUtils.stripExtension(defaultFile), chooserRef.get().initialFileName);
 		assertEquals(new File(defaultSavePath), chooserRef.get().directory);
 		assertEquals(selectedFile.toFile(), pathRef.get());
 	}
@@ -180,7 +182,7 @@ class SaveRecordingPresenterTest extends PresenterTest {
 
 		view.viewShownAction.execute();
 
-		RecordingBackup backup = new RecordingBackup(context.getRecordingDirectory());
+		RecordingBackup backup = new RecordingBackup(getRecordingDirectory());
 
 		assertTrue(aborted.get());
 		assertFalse(backup.hasCheckpoint());
@@ -218,9 +220,10 @@ class SaveRecordingPresenterTest extends PresenterTest {
 		assertTrue(gotProgress.get());
 		assertTrue(success.get());
 
-		FileChannel recFileChannel = FileChannel.open(selectedFile);
+		try (FileChannel recFileChannel = FileChannel.open(selectedFile)) {
 
-		assertTrue(recFileChannel.size() > 0);
+			assertTrue(recFileChannel.size() > 0);
+		}
 	}
 
 	private String getRecordingName() {

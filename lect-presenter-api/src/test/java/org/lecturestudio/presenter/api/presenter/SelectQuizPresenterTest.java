@@ -24,6 +24,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.File;
 import java.io.IOException;
+import java.net.URISyntaxException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
@@ -41,6 +42,7 @@ import org.lecturestudio.core.model.Document;
 import org.lecturestudio.core.service.DocumentService;
 import org.lecturestudio.core.view.Action;
 import org.lecturestudio.core.view.ConsumerAction;
+import org.lecturestudio.presenter.api.context.PresenterContext;
 import org.lecturestudio.presenter.api.net.LocalBroadcaster;
 import org.lecturestudio.presenter.api.service.QuizDataSource;
 import org.lecturestudio.presenter.api.service.QuizService;
@@ -50,7 +52,7 @@ import org.lecturestudio.presenter.api.service.WebServiceInfo;
 import org.lecturestudio.presenter.api.view.SelectQuizView;
 import org.lecturestudio.web.api.model.quiz.Quiz;
 
-class SelectQuizPresenterPresenter extends PresenterTest {
+class SelectQuizPresenterTest extends PresenterTest {
 
 	private Path quizzesCopyPath;
 
@@ -64,8 +66,8 @@ class SelectQuizPresenterPresenter extends PresenterTest {
 
 
 	@BeforeEach
-	void setup() throws ExecutionException, InterruptedException, IOException {
-		Path quizzesPath = testPath.resolve("quizzes.txt");
+	void setup() throws ExecutionException, InterruptedException, IOException, URISyntaxException {
+		Path quizzesPath = getResourcePath(".").resolve("quizzes.txt");
 		quizzesCopyPath = quizzesPath.getParent().resolve("quizzes.txt.copy");
 
 		Files.copy(quizzesPath, quizzesCopyPath, StandardCopyOption.REPLACE_EXISTING);
@@ -73,7 +75,7 @@ class SelectQuizPresenterPresenter extends PresenterTest {
 		String quizzesFile = quizzesCopyPath.toString();
 
 		documentService = context.getDocumentService();
-		documentService.openDocument(testPath.resolve("empty.pdf").toFile()).get();
+		documentService.openDocument(getResourcePath(".").resolve("empty.pdf").toFile()).get();
 
 		quizService = new QuizService(new QuizDataSource(new File(quizzesFile)), documentService);
 
@@ -83,9 +85,9 @@ class SelectQuizPresenterPresenter extends PresenterTest {
 
 		WebServiceInfo webServiceInfo = new WebServiceInfo(streamProps);
 
-		webService = new WebService(context, documentService, new LocalBroadcaster(context), webServiceInfo);
+		webService = new WebService((PresenterContext) context, documentService, new LocalBroadcaster(context), webServiceInfo);
 
-		streamService = new StreamService(context, null, webService);
+		streamService = new StreamService((PresenterContext) context, null, webService);
 	}
 
 	@AfterEach

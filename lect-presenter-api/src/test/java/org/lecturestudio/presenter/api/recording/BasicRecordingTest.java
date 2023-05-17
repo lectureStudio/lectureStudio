@@ -54,9 +54,9 @@ import org.lecturestudio.core.recording.DocumentRecorder;
 import org.lecturestudio.core.service.DocumentService;
 import org.lecturestudio.presenter.api.config.DefaultConfiguration;
 import org.lecturestudio.presenter.api.context.PresenterContext;
-import org.lecturestudio.presenter.audio.DummyAudioSystemProvider;
+import org.lecturestudio.core.audio.DummyAudioSystemProvider;
 
-public class BasicRecordingTest {
+class BasicRecordingTest {
 
 	Path testPath;
 
@@ -160,6 +160,12 @@ public class BasicRecordingTest {
 	void destroy() throws IOException {
 		for (Document doc : context.getDocumentService().getDocuments().getPdfDocuments()) {
 			doc.close();
+		}
+
+		try {
+			recorder.stop();
+		}
+		catch (Exception ignored) {
 		}
 
 		deletePath(testPath);

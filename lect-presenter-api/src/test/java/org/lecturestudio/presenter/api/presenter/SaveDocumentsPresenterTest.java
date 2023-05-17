@@ -30,6 +30,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
@@ -61,14 +62,17 @@ class SaveDocumentsPresenterTest extends PresenterTest {
 	}
 
 	@Test
-	void testInit() {
+	void testInit() throws InterruptedException {
 		AtomicInteger optionViewCount = new AtomicInteger(0);
 		AtomicReference<String> pathRef = new AtomicReference<>();
+		int numberOfOptions = 2;
+		CountDownLatch doneLatch = new CountDownLatch(numberOfOptions);
 
 		SaveDocumentsMockView view = new SaveDocumentsMockView() {
 			@Override
 			public void addDocumentOptionView(SaveDocumentOptionView optionView) {
 				optionViewCount.incrementAndGet();
+				doneLatch.countDown();
 			}
 
 			@Override
@@ -80,9 +84,11 @@ class SaveDocumentsPresenterTest extends PresenterTest {
 		SaveDocumentsPresenter presenter = new SaveDocumentsPresenter(context, view, viewFactory, new DocumentRecorder(context));
 		presenter.initialize();
 
+		doneLatch.await(10, TimeUnit.SECONDS);
+
 		String savePath = System.getProperty("user.home") + File.separator + getFileName();
 
-		assertEquals(2, optionViewCount.get());
+		assertEquals(numberOfOptions, optionViewCount.get());
 		assertEquals(savePath, pathRef.get());
 	}
 
@@ -92,8 +98,7 @@ class SaveDocumentsPresenterTest extends PresenterTest {
 		AtomicReference<String> pathRef = new AtomicReference<>();
 
 		String savePath = System.getProperty("user.home") + File.separator + getFileName();
-		File initFile = new File(savePath);
-		File selectedFile = new File(initFile.getParentFile(), "random.pdf");
+		File selectedFile = new File(savePath);
 
 		viewFactory = new ViewContextMockFactory() {
 			@Override
@@ -122,10 +127,10 @@ class SaveDocumentsPresenterTest extends PresenterTest {
 
 		view.selectPathAction.execute();
 
-		assertEquals("PDF Files", chooserRef.get().description);
-		assertArrayEquals(new String[] { "*.pdf" }, chooserRef.get().extensions);
-		assertEquals(initFile.getName(), chooserRef.get().initialFileName);
-		assertEquals(initFile.getParentFile(), chooserRef.get().directory);
+		assertEquals(context.getDictionary().get("file.description.pdf"), chooserRef.get().description);
+		assertArrayEquals(new String[]{"pdf"}, chooserRef.get().extensions);
+		assertEquals(selectedFile.getName(), chooserRef.get().initialFileName);
+		assertEquals(selectedFile.getParentFile(), chooserRef.get().directory);
 		assertEquals(selectedFile.getPath(), pathRef.get());
 	}
 
@@ -137,11 +142,12 @@ class SaveDocumentsPresenterTest extends PresenterTest {
 		SaveDocumentsMockView view = new SaveDocumentsMockView();
 
 		SaveDocumentsPresenter presenter = new SaveDocumentsPresenter(context, view, viewFactory, new DocumentRecorder(context));
+		presenter.setOnClose(errorLatch::countDown);
 		presenter.initialize();
 
 		view.mergeAction.execute();
 
-		errorLatch.await();
+		errorLatch.await(10, TimeUnit.SECONDS);
 
 		assertEquals("document.save.error", errorRef.get());
 	}
@@ -192,7 +198,7 @@ class SaveDocumentsPresenterTest extends PresenterTest {
 		view.selectPathAction.execute();
 		view.mergeAction.execute();
 
-		saveLatch.await();
+		saveLatch.await(10, TimeUnit.SECONDS);
 
 		assertTrue(shownProgress.get());
 		assertTrue(gotProgress.get());
@@ -207,7 +213,8 @@ class SaveDocumentsPresenterTest extends PresenterTest {
 
 	@Test
 	void testSaveIndividual() throws InterruptedException, IOException {
-		CountDownLatch saveLatch = new CountDownLatch(1);
+		int numberOfOptions = 2;
+		CountDownLatch saveLatch = new CountDownLatch(numberOfOptions);
 
 		List<SaveDocumentOptionMockView> optionViews = new ArrayList<>();
 
@@ -241,17 +248,19 @@ class SaveDocumentsPresenterTest extends PresenterTest {
 			@Override
 			public void addDocumentOptionView(SaveDocumentOptionView optionView) {
 				optionViews.add((SaveDocumentOptionMockView) optionView);
+				saveLatch.countDown();
 			}
 		};
 
 		SaveDocumentsPresenter presenter = new SaveDocumentsPresenter(context, view, viewFactory, new DocumentRecorder(context));
 		presenter.initialize();
 
-		assertEquals(2, optionViews.size());
+
+		saveLatch.await(10, TimeUnit.SECONDS);
 
 		optionViews.get(1).saveAction.execute();
 
-		saveLatch.await();
+		assertEquals(numberOfOptions, optionViews.size());
 
 		Document savedDoc = new Document(selectedFile);
 

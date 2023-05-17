@@ -38,6 +38,7 @@ import org.lecturestudio.media.camera.CameraService;
 import org.lecturestudio.presenter.api.config.DefaultConfiguration;
 import org.lecturestudio.presenter.api.config.PresenterConfiguration;
 import org.lecturestudio.presenter.api.config.StreamConfiguration;
+import org.lecturestudio.presenter.api.context.PresenterContext;
 import org.lecturestudio.presenter.api.view.CameraSettingsView;
 
 class CameraSettingsPresenterTest extends PresenterTest {
@@ -54,7 +55,7 @@ class CameraSettingsPresenterTest extends PresenterTest {
 
 		CameraService camService = new CameraService(new CameraDriverMock());
 
-		CameraSettingsPresenter presenter = new CameraSettingsPresenter(context, view, camService);
+		CameraSettingsPresenter presenter = new CameraSettingsPresenter((PresenterContext) context, view, camService);
 		presenter.initialize();
 	}
 

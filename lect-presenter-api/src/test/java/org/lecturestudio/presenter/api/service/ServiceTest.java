@@ -33,7 +33,7 @@ import org.lecturestudio.presenter.api.context.PresenterContext;
 
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
-import org.lecturestudio.presenter.audio.DummyAudioSystemProvider;
+import org.lecturestudio.core.audio.DummyAudioSystemProvider;
 
 abstract class ServiceTest {
 

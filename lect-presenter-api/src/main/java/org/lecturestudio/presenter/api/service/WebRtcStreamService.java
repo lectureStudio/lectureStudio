@@ -176,8 +176,7 @@ public class WebRtcStreamService extends ExecutableBase {
 	}
 
 	public void startCameraStream() throws ExecutableException {
-		if (streamState != ExecutableState.Started
-			|| cameraState == ExecutableState.Started) {
+		if (streamState != ExecutableState.Started || cameraState == ExecutableState.Started) {
 			return;
 		}
 

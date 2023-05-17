@@ -58,8 +58,8 @@ public class ReplacePagePresenter extends Presenter<ReplacePageView> {
 			// Cloning Document to have a working copy, all edits are done exclusively on this copy
 			currentDoc = new Document(recordedDocument.toByteArray());
 		}
-		catch (IOException e) {
-			throw new RuntimeException(e);
+		catch (IOException exc) {
+			handleException(exc, "Replace page failed", "replace.page.error");
 		}
 
 		this.recordingService = recordingService;

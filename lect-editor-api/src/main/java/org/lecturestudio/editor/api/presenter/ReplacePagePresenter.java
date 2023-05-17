@@ -146,8 +146,8 @@ public class ReplacePagePresenter extends Presenter<ReplacePageView> {
 	}
 
 	/**
-	 * Replaces the selected {@code Page} from the current Document with the selected Page from the replacing {@code Document}.
-	 * Closes the view in case there is no {@code Page} left in the current Document.
+	 * Replaces all {@code Page}s of the current {@code Document} with all {@code Page}s from the working {@code Document},
+	 * no matter if page replacements actually happened.
 	 * Opens a pop-up with an error message, in case an error occurs.
 	 */
 	private void confirm() {
@@ -162,6 +162,11 @@ public class ReplacePagePresenter extends Presenter<ReplacePageView> {
 				});
 	}
 
+	/**
+	 * Replaces one or all {@code Page}s of the current working {@code Document}, depending on the selected {@code ReplacePageType}.
+	 * Flips to the next Page in the View if possible.
+	 * Disables the input in the view during processing.
+	 */
 	private void replace() {
 		view.disableInput();
 		CompletableFuture.runAsync(() -> {
@@ -201,8 +206,7 @@ public class ReplacePagePresenter extends Presenter<ReplacePageView> {
 	/**
 	 * Shows the next {@code Page} for both the replacing {@code Document} and the current {@code Document}.
 	 * In case the replacing {@code Document} shows the last {@code Page}, no {@code Page} switch is going to happen for this one.
-	 * In case the current {@code Document} already shows the last {@code Page}, the no page flip occurs and returns {@code false}.
-	 * Returns {@code true} in any other case.
+	 * In case the current {@code Document} shows the last {@code Page}, no {@code Page} switch is going to happen at all.
 	 */
 	private void showNextPages() {
 		int newDocCurrentPageNumber = newDoc.getCurrentPageNumber();
@@ -216,10 +220,18 @@ public class ReplacePagePresenter extends Presenter<ReplacePageView> {
 		}
 	}
 
+	/**
+	 * Gets notified whenever the replacement type is changed in the view and saves the current replacement type.
+	 *
+	 * @param typeID The ID of the current selected {@code ReplacePageType}.
+	 */
 	private void replaceTypeChanged(String typeID) {
 		replacePageType = ReplacePageType.parse(typeID);
 	}
 
+	/**
+	 * Closes the opened Documents.
+	 */
 	private void closeDocuments() {
 		newDoc.close();
 	}

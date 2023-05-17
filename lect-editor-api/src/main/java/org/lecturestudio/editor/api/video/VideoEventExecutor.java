@@ -185,7 +185,7 @@ public class VideoEventExecutor extends EventExecutor {
 			ExecutableState state = getState();
 
 			if (state == ExecutableState.Starting || state == ExecutableState.Started) {
-				long time = getElapsedTime();
+				long startTime = getElapsedTime();
 
 				synchronized (playbacks) {
 					// Execute all events for the current time period.
@@ -194,7 +194,7 @@ public class VideoEventExecutor extends EventExecutor {
 							// Get next action for execution.
 							PlaybackAction action = playbacks.peek();
 
-							if (time < action.getTimestamp()) {
+							if (startTime < action.getTimestamp()) {
 								break;
 							}
 
@@ -266,7 +266,7 @@ public class VideoEventExecutor extends EventExecutor {
 
 		playbacks.addAll(recPage.getPlaybackActions());
 
-		if (playbacks.size() > 0) {
+		if (!playbacks.isEmpty()) {
 			Collections.reverse(playbacks);
 		}
 

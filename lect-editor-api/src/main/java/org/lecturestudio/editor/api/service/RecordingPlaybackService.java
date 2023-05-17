@@ -44,7 +44,7 @@ import org.lecturestudio.media.playback.RecordingPlayer;
 @Singleton
 public class RecordingPlaybackService extends ExecutableBase {
 
-	private final static Logger LOG = LogManager.getLogger(RecordingPlaybackService.class);
+	private static final Logger LOG = LogManager.getLogger(RecordingPlaybackService.class);
 
 	private final AudioSystemProvider audioSystemProvider;
 

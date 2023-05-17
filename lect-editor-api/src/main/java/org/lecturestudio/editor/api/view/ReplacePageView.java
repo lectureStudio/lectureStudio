@@ -25,18 +25,37 @@ import org.lecturestudio.core.view.View;
 
 public interface ReplacePageView extends View {
 
-	void setCurrentPage(Page page);
+	void setPageCurrentDoc(Page page);
 
-	void setNewPage(Page page);
+	void setPageNewDoc(Page page);
 
-	void setOnPreviousPage(Action action);
+	void setOnPreviousPageNewDoc(Action action);
 
-	void setOnNextPage(Action action);
+	void setOnNextPageNewDoc(Action action);
 
-	void setOnPageNumber(ConsumerAction<Integer> action);
+	void setOnPageNumberNewDoc(ConsumerAction<Integer> action);
 
-	void setOnCancel(Action action);
+	void setOnPreviousPageCurrentDoc(Action action);
+
+	void setOnNextPageCurrentDoc(Action action);
+
+	void setOnPageNumberCurrentDoc(ConsumerAction<Integer> action);
+
+	void setTotalPagesNewDocLabel(int pages);
+
+	void setTotalPagesCurrentDocLabel(int pages);
+
+	void setOnAbort(Action action);
 
 	void setOnReplace(Action action);
 
+	void setOnConfirm(Action action);
+
+	void enableInput();
+
+	void disableInput();
+
+	void setDisableAllPagesTypeRadio(boolean disable);
+
+	void setOnReplaceTypeChange(ConsumerAction<String> action);
 }

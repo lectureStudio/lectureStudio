@@ -26,9 +26,11 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.URI;
+import java.net.URISyntaxException;
 import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -47,6 +49,7 @@ import java.util.stream.Collectors;
 import javax.sound.sampled.AudioFormat;
 import javax.sound.sampled.AudioInputStream;
 import javax.sound.sampled.AudioSystem;
+import javax.sound.sampled.UnsupportedAudioFileException;
 
 import org.concentus.OpusSignal;
 import org.lecturestudio.core.ExecutableException;
@@ -193,7 +196,7 @@ public class WebVectorExport extends RecordingExport {
 		return Paths.get(outputPath, file).toFile();
 	}
 
-	private RecordedAudio encodeAudio() throws Exception {
+	private RecordedAudio encodeAudio() throws IOException, UnsupportedAudioFileException {
 		RecordedAudio recAudio = recording.getRecordedAudio();
 		RandomAccessAudioStream stream = recAudio.getAudioStream().clone();
 
@@ -208,10 +211,10 @@ public class WebVectorExport extends RecordingExport {
 
 		// TODO: avoid this intermediate step and use stream with exclusions directly.
 		File target = new File(Files.createTempFile("export-v", ".wav").toString());
-		FileOutputStream outStream = new FileOutputStream(target);
-		stream.reset();
-		stream.write(outStream.getChannel());
-		outStream.close();
+		try (FileOutputStream outStream = new FileOutputStream(target)) {
+			stream.reset();
+			stream.write(outStream.getChannel());
+		}
 
 		AudioInputStream targetStream = AudioSystem.getAudioInputStream(target);
 		AudioInputStream inputStream = AudioSystem.getAudioInputStream(targetFormat, targetStream);
@@ -249,34 +252,33 @@ public class WebVectorExport extends RecordingExport {
 	}
 
 	private String processTemplateFile(String fileContent, Map<String, String> data) {
-		Pattern p = Pattern.compile("\\$\\{(.+?)\\}");
-		Matcher m = p.matcher(fileContent);
+		Pattern pattern = Pattern.compile("\\$\\{(.+?)\\}");
+		Matcher matcher = pattern.matcher(fileContent);
 		StringBuilder sb = new StringBuilder();
 
-		while (m.find()) {
-			String var = m.group(1);
-			String replacement = data.get(var);
+		while (matcher.find()) {
+			String match = matcher.group(1);
+			String replacement = data.get(match);
 
 			if (nonNull(replacement)) {
-				m.appendReplacement(sb, replacement);
+				matcher.appendReplacement(sb, replacement);
 			}
 			else {
-				LOG.warn("Found match '{}' with no replacement.", var);
+				LOG.warn("Found match '{}' with no replacement.", match);
 			}
 		}
 
-		m.appendTail(sb);
+		matcher.appendTail(sb);
 
 		return sb.toString();
 	}
 
-	private void writeTemplateFile(String fileContent, File outputFile) throws Exception {
+	private void writeTemplateFile(String fileContent, File outputFile) throws IOException {
 		Path path = Paths.get(outputFile.getPath());
 		Files.writeString(path, fileContent);
 	}
 
-	private void copyResourceToFilesystem(String resName, String baseDir,
-			List<String> skipList) throws Exception {
+	private void copyResourceToFilesystem(String resName, String baseDir, List<String> skipList) throws URISyntaxException, IOException {
 		URL resURL = ResourceLoader.getResourceURL(resName);
 
 		if (ResourceLoader.isJarResource(resURL)) {

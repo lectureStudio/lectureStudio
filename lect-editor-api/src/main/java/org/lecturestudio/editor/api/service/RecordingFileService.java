@@ -41,6 +41,7 @@ import org.lecturestudio.core.io.RandomAccessAudioStream;
 import org.lecturestudio.core.model.Document;
 import org.lecturestudio.core.recording.RecordingEditException;
 import org.lecturestudio.core.recording.edit.EditAction;
+import org.lecturestudio.editor.api.edit.ReplaceAllPagesAction;
 import org.lecturestudio.editor.api.edit.ReplaceAudioAction;
 import org.lecturestudio.core.recording.RecordingChangeEvent;
 import org.lecturestudio.core.recording.RecordingChangeListener;
@@ -55,7 +56,6 @@ import org.lecturestudio.editor.api.context.EditorContext;
 import org.lecturestudio.editor.api.edit.CutAction;
 import org.lecturestudio.editor.api.edit.DeletePageAction;
 import org.lecturestudio.editor.api.edit.InsertRecordingAction;
-import org.lecturestudio.editor.api.edit.ReplacePageAction;
 import org.lecturestudio.media.recording.RecordingEvent;
 
 import org.apache.logging.log4j.LogManager;
@@ -64,7 +64,7 @@ import org.apache.logging.log4j.Logger;
 @Singleton
 public class RecordingFileService {
 
-	private final static Logger LOG = LogManager.getLogger(RecordingFileService.class);
+	private static final Logger LOG = LogManager.getLogger(RecordingFileService.class);
 
 	private final RecordingChangeListener recordingChangeListener = this::recordingChanged;
 
@@ -221,17 +221,26 @@ public class RecordingFileService {
 		});
 	}
 
-	public CompletableFuture<Void> replacePage(Document newDoc) {
+	public CompletableFuture<Void> replaceAllPages(Document newDoc) {
 		Recording recording = getSelectedRecording();
 
-		return CompletableFuture.runAsync(() -> {
-			try {
-				addEditAction(recording, new ReplacePageAction(recording, newDoc));
+		// PDDocument is getting garbage collected, when it's not actively referenced,
+		// saving the document in a temporary variable might keep the reference alive and make sure it won't get GCed
+		Runnable runnable = new Runnable() {
+			final Document document = newDoc;
+
+			@Override
+			public void run() {
+				try {
+					addEditAction(recording, new ReplaceAllPagesAction(recording, document));
+				}
+				catch (Exception e) {
+					throw new CompletionException(e);
+				}
 			}
-			catch (Exception e) {
-				throw new CompletionException(e);
-			}
-		});
+		};
+
+		return CompletableFuture.runAsync(runnable);
 	}
 
 	public CompletableFuture<Void> undoChanges() {
@@ -287,18 +296,18 @@ public class RecordingFileService {
 					throw new CompletionException(e);
 				}
 
-				RandomAccessAudioStream newAudioStream = new RandomAccessAudioStream(target);
-				newAudioStream.reset();
+				try (RandomAccessAudioStream newAudioStream = new RandomAccessAudioStream(target)) {
+					newAudioStream.reset();
 
-				Recording rec = new Recording();
-				rec.setRecordingHeader(recording.getRecordingHeader());
-				rec.setRecordedAudio(new RecordedAudio(newAudioStream));
-				rec.setRecordedEvents(recording.getRecordedEvents());
-				rec.setRecordedDocument(recording.getRecordedDocument());
+					Recording rec = new Recording();
+					rec.setRecordingHeader(recording.getRecordingHeader());
+					rec.setRecordedAudio(new RecordedAudio(newAudioStream));
+					rec.setRecordedEvents(recording.getRecordedEvents());
+					rec.setRecordedDocument(recording.getRecordedDocument());
 
-				RecordingFileWriter.write(rec, file, callback);
+					RecordingFileWriter.write(rec, file, callback);
 
-				newAudioStream.close();
+				}
 
 				if (file.equals(recording.getSourceFile())) {
 					// File overwritten. Need to update the audio stream.

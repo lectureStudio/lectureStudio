@@ -73,10 +73,10 @@ public class MediaControlsPresenter extends Presenter<MediaControlsView> {
 		playing = new BooleanProperty();
 		playing.addListener((o, oldValue, newValue) -> {
 			try {
-				if (newValue && !playbackService.started()) {
+				if (Boolean.TRUE.equals(newValue) && !playbackService.started()) {
 					playbackService.start();
 				}
-				else if (!newValue && playbackService.started()) {
+				else if (Boolean.FALSE.equals(newValue) && playbackService.started()) {
 					playbackService.suspend();
 				}
 			}
@@ -86,7 +86,7 @@ public class MediaControlsPresenter extends Presenter<MediaControlsView> {
 		});
 		mute = new BooleanProperty();
 		mute.addListener((o, oldValue, newValue) -> {
-			if (newValue) {
+			if (Boolean.TRUE.equals(newValue)) {
 				playbackVolume = audioConfig.getPlaybackVolume();
 				audioConfig.setPlaybackVolume(0);
 			}
@@ -151,6 +151,8 @@ public class MediaControlsPresenter extends Presenter<MediaControlsView> {
 
 				view.setDuration(new Time(recording.getRecordedAudio().getAudioStream().getLengthInMillis()));
 				view.setCurrentPage(doc.getCurrentPageNumber() + 1, doc.getPageCount());
+				break;
+			case AUDIO, DOCUMENT, EVENTS:
 				break;
 		}
 	}

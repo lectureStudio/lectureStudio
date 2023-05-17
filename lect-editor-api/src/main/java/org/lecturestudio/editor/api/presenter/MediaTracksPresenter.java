@@ -173,6 +173,8 @@ public class MediaTracksPresenter extends Presenter<MediaTracksView> {
 				view.setDuration(new Time(event.getRecording().getRecordedAudio().getAudioStream().getLengthInMillis()));
 				view.stickSliders();
 				break;
+			case AUDIO, DOCUMENT, EVENTS:
+				break;
 		}
 	}
 

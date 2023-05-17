@@ -152,28 +152,28 @@ public class WebVideoExport extends RecordingExport {
 	}
 
 	private String processTemplateFile(String fileContent, Map<String, String> data) {
-		Pattern p = Pattern.compile("\\$\\{(.+?)\\}");
-		Matcher m = p.matcher(fileContent);
+		Pattern pattern = Pattern.compile("\\$\\{(.+?)\\}");
+		Matcher matcher = pattern.matcher(fileContent);
 		StringBuilder sb = new StringBuilder();
 
-		while (m.find()) {
-			String var = m.group(1);
-			String replacement = data.get(var);
+		while (matcher.find()) {
+			String match = matcher.group(1);
+			String replacement = data.get(match);
 
 			if (nonNull(replacement)) {
-				m.appendReplacement(sb, replacement);
+				matcher.appendReplacement(sb, replacement);
 			}
 			else {
-				LOG.warn("Found match '{}' with no replacement.", var);
+				LOG.warn("Found match '{}' with no replacement.", match);
 			}
 		}
 
-		m.appendTail(sb);
+		matcher.appendTail(sb);
 
 		return sb.toString();
 	}
 
-	private void writeTemplateFile(String fileContent, File outputFile) throws Exception {
+	private void writeTemplateFile(String fileContent, File outputFile) throws IOException {
 		Path path = Paths.get(outputFile.getPath());
 		Files.writeString(path, fileContent);
 	}

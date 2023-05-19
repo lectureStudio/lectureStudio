@@ -43,7 +43,7 @@ jobs:
       uses: actions/setup-java@v3
       with:
         distribution: 'microsoft'
-        java-version: '14'
+        java-version: '17.0.3'
 
     - name: Checkout repository
       uses: actions/checkout@v3

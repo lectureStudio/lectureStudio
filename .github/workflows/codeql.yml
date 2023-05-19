@@ -39,6 +39,11 @@ jobs:
         # Learn more about CodeQL language support at https://aka.ms/codeql-docs/language-support
 
     steps:
+    - name: Setup Java JDK
+      uses: actions/setup-java@v1.3.0
+      with:
+        java-version: 14
+
     - name: Checkout repository
       uses: actions/checkout@v3
 

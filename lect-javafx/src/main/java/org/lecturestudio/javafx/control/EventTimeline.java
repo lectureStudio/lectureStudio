@@ -20,7 +20,7 @@ package org.lecturestudio.javafx.control;
 
 import java.util.List;
 import java.util.Objects;
-import java.util.function.Consumer;
+import java.util.function.BiConsumer;
 
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
@@ -44,7 +44,7 @@ public class EventTimeline extends MediaTrackControlBase<EventsTrack> {
 
 	private final ObjectProperty<Time> duration = new SimpleObjectProperty<>();
 
-	private Consumer<Time> showTimeCallback;
+	private BiConsumer<Time, Double> showTimeCallback;
 
 	private ConsumerAction<RecordedPage> onMovePageAction;
 
@@ -92,11 +92,11 @@ public class EventTimeline extends MediaTrackControlBase<EventsTrack> {
 		getStyleClass().setAll(DEFAULT_STYLE_CLASS);
 	}
 
-	public void setShowTimeCallback(Consumer<Time> showTimeCallback) {
+	public void setShowTimeCallback(BiConsumer<Time, Double> showTimeCallback) {
 		this.showTimeCallback = showTimeCallback;
 	}
 
-	public Consumer<Time> getShowTimeCallback() {
+	public BiConsumer<Time, Double> getShowTimeCallback() {
 		return this.showTimeCallback;
 	}
 

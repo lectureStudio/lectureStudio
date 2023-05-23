@@ -164,7 +164,7 @@ public class EventTimelineSkin extends MediaTrackControlSkinBase {
 
 				double boxX = timeToXPositionFunction.applyAsDouble(timestamp);
 
-				pageSlider.setLayoutX(boxX);
+				pageSlider.setLayoutX(snapPositionX(boxX));
 				pageSlider.setLayoutY(0);
 
 				pageSliders.add(pageSlider);
@@ -246,12 +246,17 @@ public class EventTimelineSkin extends MediaTrackControlSkinBase {
 			if (pages.size() > pageNumber + 1) {
 				maxX = Math.min(maxX, pages.get(pageNumber + 1).getTimestamp());
 			}
-			else {
-				maxX = (int) Math.min(maxX, eventTimeline.getDuration().getMillis());
-			}
 
 			minX = timeToXPositionFunction.applyAsDouble((int) minX);
 			maxX = timeToXPositionFunction.applyAsDouble((int) maxX);
+
+			minX = Math.max(minX, eventTimeline.getLayoutBounds().getMinX() + eventTimeline.getLayoutX());
+			maxX = Math.min(maxX, eventTimeline.getLayoutBounds().getMaxX() + eventTimeline.getLayoutX());
+
+			Time duration = eventTimeline.getDuration();
+			Time current = new Time((long) (getSliderValue() * duration.getMillis()), true);
+
+			eventTimeline.getShowTimeCallback().accept(current, this.getLayoutX() + this.getLayoutBounds().getCenterX());
 		}
 
 		@Override
@@ -263,7 +268,7 @@ public class EventTimelineSkin extends MediaTrackControlSkinBase {
 
 			page.setTimestamp(time);
 
-			eventTimeline.getShowTimeCallback().accept(null);
+			eventTimeline.getShowTimeCallback().accept(null, null);
 
 			moveOrHidePage(page);
 		}
@@ -273,7 +278,7 @@ public class EventTimelineSkin extends MediaTrackControlSkinBase {
 			Time duration = eventTimeline.getDuration();
 			Time current = new Time((long) (getSliderValue() * duration.getMillis()), true);
 
-			eventTimeline.getShowTimeCallback().accept(current);
+			eventTimeline.getShowTimeCallback().accept(current, this.getLayoutX() + this.getLayoutBounds().getCenterX());
 		}
 
 		@Override
@@ -282,7 +287,7 @@ public class EventTimelineSkin extends MediaTrackControlSkinBase {
 
 			x = Math.min(Math.max(x, minX), maxX);
 
-			this.setLayoutX(x);
+			this.setLayoutX(snapPositionX(x));
 		}
 
 
@@ -311,18 +316,15 @@ public class EventTimelineSkin extends MediaTrackControlSkinBase {
 				higherPageBound = pages.get(page.getNumber() + 1);
 			}
 
-			if (lowerPageBound.getTimestamp() == page.getTimestamp()) {
+			if (page.getTimestamp() - lowerPageBound.getTimestamp() < 10) {
 				eventTimeline.getOnHideAndMoveNextPage().execute(lowerPageBound);
-				render();
 			}
-			else if (higherPageBound.getTimestamp() == page.getTimestamp()) {
+			else if (higherPageBound.getTimestamp() - page.getTimestamp() < 10) {
 				eventTimeline.getOnHidePage().execute(page);
-				render();
 			}
 			else {
 				eventTimeline.getOnMovePage().execute(page);
 			}
-
 		}
 	}
 }

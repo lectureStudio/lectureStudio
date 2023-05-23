@@ -321,19 +321,27 @@ public class MediaTracksSkin extends SkinBase<MediaTracks> {
 			eventTimeline.setOnHidePage(mediaTracks.getOnHidePage());
 			eventTimeline.setOnHideAndMoveNextPage(mediaTracks.getOnHideAndMoveNextPage());
 
+			InvalidationListener updateClippingListener = (event) -> eventTimeline.setClip(new Rectangle(eventTimeline.getLayoutX(), eventTimeline.getLayoutY(), eventTimeline.getWidth() + rightPlaceholder.getWidth(), eventTimeline.getHeight()));
+
+			eventTimeline.widthProperty().addListener(updateClippingListener);
+			eventTimeline.heightProperty().addListener(updateClippingListener);
+
 			addMediaTrackControl(eventTimeline, "events-track-icon");
 		}
 	}
 
-	private void showSliderTimeCallback(Time time) {
+	private void showSliderTimeCallback(Time time, Double location) {
+		int textPadding = 10;
 		if (time == null) {
 			sliderTime.setVisible(false);
 		}
 		else {
+			sliderTime.setText(time.toString());
+			double sliderTimePosition = Math.min(snapPositionX(location + textPadding), snapPositionX(mediaTracks.getWidth() - sliderTime.getLayoutBounds().getWidth()));
+			sliderTime.setLayoutX(sliderTimePosition);
 			if (!sliderTime.isVisible()) {
 				sliderTime.setVisible(true);
 			}
-			sliderTime.setText(time.toString());
 		}
 	}
 
@@ -623,8 +631,6 @@ public class MediaTracksSkin extends SkinBase<MediaTracks> {
 			thumbNode.setOnMouseClicked(mouseHandler);
 
 			layoutXListener = observable -> updateSliderTimePos();
-
-			layoutXProperty().addListener(layoutXListener);
 		}
 
 		void bindValueProperty(DoubleProperty property) {
@@ -671,7 +677,11 @@ public class MediaTracksSkin extends SkinBase<MediaTracks> {
 
 		void setSliderTimeVisible(boolean visible) {
 			if (visible) {
+				layoutXProperty().addListener(layoutXListener);
 				updateSliderTimePos();
+			}
+			else {
+				layoutXProperty().removeListener(layoutXListener);
 			}
 
 			sliderTime.setVisible(visible);

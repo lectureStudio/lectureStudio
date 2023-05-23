@@ -26,6 +26,7 @@ import com.google.common.eventbus.Subscribe;
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeUnit;
 
 import javax.inject.Inject;
@@ -222,11 +223,11 @@ public class MediaTracksPresenter extends Presenter<MediaTracksView> {
 			higherPageBound = pages.get(recordedPage.getNumber() + 1);
 		}
 
-		if (recordedPage.getTimestamp() - lowerPageBound.getTimestamp() < ONE_SECOND_IN_MILLIS * 3) {
-			showNotification(NotificationType.DEFAULT, "move.page.duration.low.title", "move.page.duration.low.text", lowerPageBound.getNumber() + 1);
+		if (recordedPage.getTimestamp() - lowerPageBound.getTimestamp() < ONE_SECOND_IN_MILLIS) {
+			showNotification(NotificationType.DEFAULT, "move.page.duration.low.title", "move.page.duration.low.text", lowerPageBound.getNumber() + 1, String.format("%.1f", (recordedPage.getTimestamp() - lowerPageBound.getTimestamp()) / (float) ONE_SECOND_IN_MILLIS));
 		}
-		else if (higherPageBound.getTimestamp() - recordedPage.getTimestamp() < ONE_SECOND_IN_MILLIS * 3) {
-			showNotification(NotificationType.DEFAULT, "move.page.duration.low.title", "move.page.duration.low.text", recordedPage.getNumber() + 1);
+		else if (higherPageBound.getTimestamp() - recordedPage.getTimestamp() < ONE_SECOND_IN_MILLIS) {
+			showNotification(NotificationType.DEFAULT, "move.page.duration.low.title", "move.page.duration.low.text", recordedPage.getNumber() + 1, String.format("%.1f", (higherPageBound.getTimestamp() - recordedPage.getTimestamp()) / (float) ONE_SECOND_IN_MILLIS));
 		}
 
 		recordingService.movePage(recordedPage.getTimestamp(), recordedPage.getNumber())
@@ -253,7 +254,9 @@ public class MediaTracksPresenter extends Presenter<MediaTracksView> {
 		showConfirmationNotification(NotificationType.QUESTION, "hide.page.notification.title",
 				MessageFormat.format(context.getDictionary().get("hide.page.notification.text"), recordedPage.getNumber() + 1),
 				confirmAction, () -> {
-					// Sending an Events changed event causes freezes when opening the FileChooser
+					CompletableFuture.runAsync(() -> {
+						recordingService.getSelectedRecording().fireChangeEvent(Recording.Content.EVENTS);
+					});
 				},
 				"hide.page.notification.confirm", "hide.page.notification.close");
 	}
@@ -276,7 +279,9 @@ public class MediaTracksPresenter extends Presenter<MediaTracksView> {
 		showConfirmationNotification(NotificationType.QUESTION, "hide.page.notification.title",
 				MessageFormat.format(context.getDictionary().get("hide.page.notification.text"), recordedPage.getNumber() + 1),
 				confirmAction, () -> {
-					// Sending an Events changed event causes freezes when opening the FileChooser
+					CompletableFuture.runAsync(() -> {
+						recordingService.getSelectedRecording().fireChangeEvent(Recording.Content.EVENTS);
+					});
 				},
 				"hide.page.notification.confirm", "hide.page.notification.close");
 	}

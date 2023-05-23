@@ -23,6 +23,8 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.IOException;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.lecturestudio.core.ExecutableException;
@@ -45,7 +47,6 @@ class QuitRecordingPresenterTest extends PresenterTest {
 
 	private QuitRecordingPresenter presenter;
 
-
 	@BeforeEach
 	void setup() throws IOException {
 		AudioConfiguration audioConfig = context.getConfiguration().getAudioConfig();
@@ -53,7 +54,7 @@ class QuitRecordingPresenterTest extends PresenterTest {
 
 		DocumentService documentService = context.getDocumentService();
 
-		FileLectureRecorder recorder = new FileLectureRecorder(audioSystemProvider, documentService, audioConfig, context.getRecordingDirectory());
+		recorder = new FileLectureRecorder(audioSystemProvider, documentService, audioConfig, getRecordingDirectory());
 
 		recordingService = new RecordingService(context, recorder);
 
@@ -78,7 +79,7 @@ class QuitRecordingPresenterTest extends PresenterTest {
 
 	@Test
 	void testDiscard() throws ExecutableException, IOException {
-		RecordingBackup backup = new RecordingBackup(context.getRecordingDirectory());
+		RecordingBackup backup = new RecordingBackup(getRecordingDirectory());
 		AtomicBoolean discarded = new AtomicBoolean(false);
 
 		presenter.setOnDiscardRecording(() -> {
@@ -97,14 +98,18 @@ class QuitRecordingPresenterTest extends PresenterTest {
 	}
 
 	@Test
-	void testSave() {
+	void testSave() throws InterruptedException {
 		AtomicBoolean save = new AtomicBoolean(false);
+		CountDownLatch saveLatch = new CountDownLatch(1);
 
 		presenter.setOnSaveRecording(() -> {
 			save.set(true);
+			saveLatch.countDown();
 		});
 
 		view.saveAction.execute();
+
+		saveLatch.await(10, TimeUnit.SECONDS);
 
 		assertTrue(save.get());
 	}

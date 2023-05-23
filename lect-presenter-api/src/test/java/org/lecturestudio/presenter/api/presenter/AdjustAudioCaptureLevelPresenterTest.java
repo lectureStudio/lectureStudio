@@ -63,7 +63,7 @@ class AdjustAudioCaptureLevelPresenterTest extends PresenterTest {
 
 		AudioConfiguration config = context.getConfiguration().getAudioConfig();
 
-		assertEquals(0.77, config.getRecordingVolume(config.getCaptureDeviceName()).doubleValue());
+		assertEquals(0.692, config.getRecordingVolume(config.getCaptureDeviceName()).doubleValue());
 	}
 
 

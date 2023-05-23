@@ -18,8 +18,8 @@
 
 package org.lecturestudio.presenter.api.presenter;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
+import javax.inject.Inject;
+import javax.inject.Singleton;
 
 import java.io.File;
 import java.io.IOException;
@@ -34,25 +34,44 @@ import java.util.Properties;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
 
+import com.google.inject.AbstractModule;
+import com.google.inject.Provides;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-
+import org.lecturestudio.core.ExecutableException;
+import org.lecturestudio.core.ExecutableState;
+import org.lecturestudio.core.app.ApplicationContext;
+import org.lecturestudio.core.app.configuration.AudioConfiguration;
+import org.lecturestudio.core.audio.AudioSystemProvider;
+import org.lecturestudio.core.inject.DIViewContextFactory;
+import org.lecturestudio.core.inject.GuiceInjector;
 import org.lecturestudio.core.model.Document;
+import org.lecturestudio.core.model.DocumentType;
 import org.lecturestudio.core.service.DocumentService;
 import org.lecturestudio.core.view.Action;
 import org.lecturestudio.core.view.ConsumerAction;
+import org.lecturestudio.core.view.ViewContextFactory;
+import org.lecturestudio.presenter.api.context.PresenterContext;
+import org.lecturestudio.presenter.api.model.ScreenShareContext;
 import org.lecturestudio.presenter.api.net.LocalBroadcaster;
+import org.lecturestudio.presenter.api.recording.FileLectureRecorder;
 import org.lecturestudio.presenter.api.service.QuizDataSource;
 import org.lecturestudio.presenter.api.service.QuizService;
+import org.lecturestudio.presenter.api.service.RecordingService;
 import org.lecturestudio.presenter.api.service.StreamService;
+import org.lecturestudio.presenter.api.service.WebRtcStreamEventRecorder;
+import org.lecturestudio.presenter.api.service.WebRtcStreamService;
 import org.lecturestudio.presenter.api.service.WebService;
 import org.lecturestudio.presenter.api.service.WebServiceInfo;
 import org.lecturestudio.presenter.api.view.CreateQuizDefaultOptionView;
 import org.lecturestudio.presenter.api.view.CreateQuizNumericOptionView;
 import org.lecturestudio.presenter.api.view.CreateQuizOptionView;
 import org.lecturestudio.presenter.api.view.CreateQuizView;
+import org.lecturestudio.web.api.message.SpeechBaseMessage;
 import org.lecturestudio.web.api.model.quiz.Quiz;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 class CreateQuizPresenterTest extends PresenterTest {
 
@@ -62,7 +81,9 @@ class CreateQuizPresenterTest extends PresenterTest {
 			Quiz.QuizType.NUMERIC
 	};
 
-	private Path quizzesPath;
+	private Path quizPath;
+
+	private Path quizzesDir;
 
 	private DocumentService documentService;
 
@@ -72,17 +93,17 @@ class CreateQuizPresenterTest extends PresenterTest {
 
 	private List<CreateQuizOptionMockView> optionViews;
 
+	private GuiceInjector injector;
 
 	@BeforeEach
-	void setup() throws IOException, URISyntaxException {
-		Path testPath = getResourcePath(".");
+	void setup() throws IOException, URISyntaxException, ExecutableException {
+		quizzesDir = getResourcePath(".");
 
-		quizzesPath = testPath.resolve("quizzes-presenter.txt");
+		quizPath = quizzesDir.resolve("empty.quiz");
 
-		String quizzesFile = quizzesPath.toFile().getPath();
+		String quizzesFile = quizPath.toFile().getPath();
 
-		Document document = new Document();
-		document.createPage();
+		Document document = new Document(quizzesDir.resolve("empty.pdf").toFile());
 
 		documentService = new DocumentService(context);
 		documentService.addDocument(document);
@@ -91,19 +112,66 @@ class CreateQuizPresenterTest extends PresenterTest {
 		quizService = new QuizService(new QuizDataSource(new File(quizzesFile)), documentService);
 
 		Properties streamProps = new Properties();
-		streamProps.load(getClass().getClassLoader()
-				.getResourceAsStream("resources/stream.properties"));
+		streamProps.load(getClass().getClassLoader().getResourceAsStream("resources/stream.properties"));
 
 		WebServiceInfo webServiceInfo = new WebServiceInfo(streamProps);
 
-		WebService webService = new WebService(context, documentService, new LocalBroadcaster(context), webServiceInfo);
-		streamService = new StreamService(context, null, webService);
+		WebService webService = new WebService((PresenterContext) context, documentService, new LocalBroadcaster(context), webServiceInfo);
+
+		AudioConfiguration audioConfig = context.getConfiguration().getAudioConfig();
+		audioConfig.setCaptureDeviceName("dummy");
+
+		recorder = new FileLectureRecorder(audioSystemProvider, documentService, audioConfig, getRecordingDirectory());
+
+		injector = new GuiceInjector(new AbstractModule() {
+			@Override
+			protected void configure() {
+				bind(ViewContextFactory.class).to(DIViewContextFactory.class);
+			}
+
+			@Provides
+			@Singleton
+			ApplicationContext provideApplicationContext() {
+				return context;
+			}
+
+			@Provides
+			@Singleton
+			AudioSystemProvider provideAudioSystemProvider() {
+				return audioSystemProvider;
+			}
+
+			@Provides
+			@Singleton
+			WebService provideWebService() {
+				return webService;
+			}
+
+			@Provides
+			@Singleton
+			DocumentService provideDocumentService() {
+				return documentService;
+			}
+
+			@Provides
+			FileLectureRecorder provideFileLectureRecorder() {
+				return recorder;
+			}
+
+			@Provides
+			@Singleton
+			WebServiceInfo provideWebServiceInfo() {
+				return webServiceInfo;
+			}
+		});
+
+		streamService = new StreamService((PresenterContext) context, injector.getInstance(MockWebRtcStreamService.class), webService);
 
 		optionViews = new LinkedList<>();
 
 		viewFactory = new ViewContextMockFactory() {
 
-			final String[] options = { "choose this", "choose that", "I don't understand" };
+			final String[] options = {"choose this", "choose that", "I don't understand", "I know this", "I actually dont", "I might", "I might", "I might", "I might", "choose this", "choose that", "I don't understand", "I know this", "I actually dont", "I might", "I might", "I might", "I might"};
 
 
 			@Override
@@ -133,7 +201,7 @@ class CreateQuizPresenterTest extends PresenterTest {
 
 	@AfterEach
 	void dispose() throws IOException {
-		Files.deleteIfExists(quizzesPath);
+		Files.deleteIfExists(quizzesDir.resolve("empty.quizzes"));
 	}
 
 	@Test
@@ -159,6 +227,7 @@ class CreateQuizPresenterTest extends PresenterTest {
 	void testDocumentSelected() throws Exception {
 		CreateQuizMockView view = new CreateQuizMockView();
 
+		documentService.getDocuments().getSelectedDocument().setDocumentType(DocumentType.SCREEN);
 		CreateQuizPresenter presenter = new CreateQuizPresenter(context, view,
 				viewFactory, documentService, quizService, streamService);
 		presenter.initialize();
@@ -210,6 +279,7 @@ class CreateQuizPresenterTest extends PresenterTest {
 	@Test
 	void testSaveQuiz() throws Exception {
 		CreateQuizMockView view = new CreateQuizMockView();
+		documentService.getDocuments().getSelectedDocument().setDocumentType(DocumentType.SCREEN);
 
 		CreateQuizPresenter presenter = new CreateQuizPresenter(context, view,
 				viewFactory, documentService, quizService, streamService);
@@ -223,6 +293,7 @@ class CreateQuizPresenterTest extends PresenterTest {
 			testSavingOp(view, presenter, Quiz.QuizSet.GENERIC, type, ++count);
 		}
 
+		documentService.getDocuments().getSelectedDocument().setDocumentType(DocumentType.PDF);
 		view.docSelectAction.execute(documentService.getDocuments().getSelectedDocument());
 
 		for (Quiz.QuizType type : TYPES) {
@@ -240,6 +311,8 @@ class CreateQuizPresenterTest extends PresenterTest {
 
 		view.setQuizText("HTML question content..");
 		view.startQuizAction.execute();
+
+		assertEquals(view.getQuizText(), presenter.getQuiz().getQuestion());
 	}
 
 	@Test
@@ -346,7 +419,7 @@ class CreateQuizPresenterTest extends PresenterTest {
 	private void testSavingOp(CreateQuizMockView view, CreateQuizPresenter presenter, Quiz.QuizSet set, Quiz.QuizType type, int count)
 			throws IOException {
 		optionViews.clear();
-
+		presenter.setQuiz(null);
 		view.quizTypeAction.execute(type);
 		view.newOptionAction.execute();
 		view.newOptionAction.execute();
@@ -366,7 +439,6 @@ class CreateQuizPresenterTest extends PresenterTest {
 	}
 
 
-
 	private static class CreateQuizMockView implements CreateQuizView {
 
 		ConsumerAction<Document> docSelectAction;
@@ -376,6 +448,8 @@ class CreateQuizPresenterTest extends PresenterTest {
 		Action saveQuizAction;
 
 		Action startQuizAction;
+
+		Action saveAndNextQuizAction;
 
 		ConsumerAction<Quiz.QuizType> quizTypeAction;
 
@@ -460,7 +534,7 @@ class CreateQuizPresenterTest extends PresenterTest {
 
 		@Override
 		public void setOnSaveAndNextQuiz(Action action) {
-
+			saveAndNextQuizAction = action;
 		}
 
 		@Override
@@ -566,6 +640,94 @@ class CreateQuizPresenterTest extends PresenterTest {
 		@Override
 		public void setOnTabKey(Action action) {
 			assertNotNull(action);
+		}
+	}
+
+	public static class MockWebRtcStreamService extends WebRtcStreamService {
+
+		@Inject
+		public MockWebRtcStreamService(ApplicationContext context, WebServiceInfo webServiceInfo, WebRtcStreamEventRecorder eventRecorder, RecordingService recordingService) throws ExecutableException {
+			super(context, webServiceInfo, eventRecorder, recordingService);
+		}
+
+		@Override
+		public void acceptSpeechRequest(SpeechBaseMessage message) {
+
+		}
+
+		@Override
+		public void rejectSpeechRequest(SpeechBaseMessage message) {
+
+		}
+
+		@Override
+		public void startCameraStream() {
+
+		}
+
+		@Override
+		public void stopCameraStream() {
+
+		}
+
+		@Override
+		public void setScreenShareContext(ScreenShareContext context) {
+
+		}
+
+		@Override
+		public void startScreenShare() {
+
+		}
+
+		@Override
+		public void stopScreenShare() {
+
+		}
+
+		@Override
+		public void mutePeerAudio(boolean mute) {
+
+		}
+
+		@Override
+		public void mutePeerVideo(boolean mute) {
+
+		}
+
+		@Override
+		public void stopPeerConnection(Long requestId) {
+
+		}
+
+		@Override
+		public void shareDocument(Document document) {
+
+		}
+
+		@Override
+		public ExecutableState getScreenShareState() {
+			return null;
+		}
+
+		@Override
+		public void initInternal() {
+
+		}
+
+		@Override
+		public void startInternal() {
+
+		}
+
+		@Override
+		public void stopInternal() {
+
+		}
+
+		@Override
+		public void destroyInternal() {
+
 		}
 	}
 }

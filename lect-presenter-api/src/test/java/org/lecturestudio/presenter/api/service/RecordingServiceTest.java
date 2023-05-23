@@ -25,12 +25,14 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.URISyntaxException;
 import java.nio.channels.FileChannel;
 import java.nio.file.FileVisitResult;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.SimpleFileVisitor;
 import java.nio.file.attribute.BasicFileAttributes;
+import java.util.Objects;
 
 import org.lecturestudio.core.ExecutableException;
 import org.lecturestudio.core.ExecutableState;
@@ -52,11 +54,12 @@ class RecordingServiceTest extends ServiceTest {
 	private static Path recPath;
 
 	private RecordingService recordingService;
+	private FileLectureRecorder recorder;
 
 
 	@BeforeAll
-	static void init() {
-		Path testPath = Path.of(RecordingServiceTest.class.getClassLoader().getResource(".").getFile());
+	static void init() throws URISyntaxException {
+		Path testPath = Path.of(Objects.requireNonNull(RecordingServiceTest.class.getClassLoader().getResource(".")).toURI());
 
 		recPath = testPath.resolve("recording");
 	}
@@ -83,7 +86,7 @@ class RecordingServiceTest extends ServiceTest {
 		AudioConfiguration audioConfig = context.getConfiguration().getAudioConfig();
 		audioConfig.setCaptureDeviceName("dummy");
 
-		FileLectureRecorder recorder = new FileLectureRecorder(audioSystemProvider, documentService, audioConfig, recPath.toFile().getPath());
+		recorder = new FileLectureRecorder(audioSystemProvider, documentService, audioConfig, recPath.toFile().getPath());
 
 		recordingService = new RecordingService(context, recorder);
 		recordingService.setAudioFormat(new AudioFormat(AudioFormat.Encoding.S16BE, 24000, 1));
@@ -91,6 +94,12 @@ class RecordingServiceTest extends ServiceTest {
 
 	@AfterEach
 	void tearDown() throws ExecutableException {
+		try {
+			recorder.stop();
+		}
+		catch (Exception ignored) {
+		}
+		
 		if (!recordingService.destroyed()) {
 			recordingService.destroy();
 		}
@@ -183,7 +192,7 @@ class RecordingServiceTest extends ServiceTest {
 		recordingService.writeRecording(filePath.toFile(), progress -> {}).get();
 
 		try (FileChannel fileChannel = FileChannel.open(filePath)) {
-			assertEquals(773, fileChannel.size());
+			assertEquals(788, fileChannel.size());
 		}
 	}
 

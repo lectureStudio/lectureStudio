@@ -16,17 +16,11 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package org.lecturestudio.presenter.audio;
+package org.lecturestudio.core.audio;
 
 import org.lecturestudio.core.ExecutableException;
 import org.lecturestudio.core.ExecutableState;
 import org.lecturestudio.core.ExecutableStateListener;
-import org.lecturestudio.core.audio.AudioPlaybackProgressListener;
-import org.lecturestudio.core.audio.AudioPlayer;
-import org.lecturestudio.core.audio.AudioProcessingSettings;
-import org.lecturestudio.core.audio.AudioProcessingStats;
-import org.lecturestudio.core.audio.AudioRecorder;
-import org.lecturestudio.core.audio.AudioSystemProvider;
 import org.lecturestudio.core.audio.device.AudioDevice;
 import org.lecturestudio.core.audio.sink.AudioSink;
 import org.lecturestudio.core.audio.source.AudioSource;

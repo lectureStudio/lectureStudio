@@ -48,12 +48,16 @@ import org.apache.logging.log4j.Logger;
  */
 public class Document {
 
-	/** Logger for {@link Document}. */
+	/**
+	 * Logger for {@link Document}.
+	 */
 	protected static final Logger LOG = LogManager.getLogger(Document.class);
 
 	private final List<DocumentChangeListener> changeListeners = new ArrayList<>();
 
-	/** A list with all the pages of the document. */
+	/**
+	 * A list with all the pages of the document.
+	 */
 	private final List<Page> pages = new ArrayList<>();
 
 	/**
@@ -62,16 +66,24 @@ public class Document {
 	 */
 	private File file;
 
-	/** The type of the document. */
+	/**
+	 * The type of the document.
+	 */
 	private DocumentType type;
 
-	/** The size of the pages. */
+	/**
+	 * The size of the pages.
+	 */
 	private Dimension2D pageSize;
 
-	/** The PDF document. */
+	/**
+	 * The PDF document.
+	 */
 	private PdfDocument pdfDocument;
 
-	/** The title of the PDF document. */
+	/**
+	 * The title of the PDF document.
+	 */
 	private String title;
 
 	/** The index of the current page. */
@@ -265,13 +277,7 @@ public class Document {
 	 * @return A list of the text positions.
 	 */
 	public List<Rectangle2D> getTextPositions(int pageIndex) {
-		try {
-			return pdfDocument.getNormalizedWordPositions(pageIndex);
-		}
-		catch (IOException e) {
-			LOG.error("Get text words failed.", e);
-			return null;
-		}
+		return pdfDocument.getNormalizedWordPositions(pageIndex);
 	}
 
 	/**
@@ -661,14 +667,27 @@ public class Document {
 	/**
 	 * Replaces the specified page with the new one.
 	 *
-	 * @param page The page to be replaced.
+	 * @param page    The page to be replaced.
 	 * @param newPage The new page.
 	 */
-	public void replacePage(Page page, Page newPage) throws IOException {
+	public void replacePage(Page page, Page newPage) {
 		PdfDocument newPdfDocument = newPage.getDocument().getPdfDocument();
 		int docIndex = newPage.getPageNumber();
 
 		pdfDocument.replacePage(page.getPageNumber(), newPdfDocument, docIndex);
+	}
+
+	/**
+	 * Replaces all pages from the current document with the ones from the new document.
+	 *
+	 * @param newDocument The document containing all new Pages.
+	 */
+	public void replaceAllPages(Document newDocument) {
+		PdfDocument newPdfDocument = newDocument.getPdfDocument();
+
+		for (int pageIndex = 0; pageIndex < pdfDocument.getPageCount(); pageIndex++) {
+			pdfDocument.replacePage(pageIndex, newPdfDocument, pageIndex);
+		}
 	}
 
 	private void fireAddChange(Page page) {

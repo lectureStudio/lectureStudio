@@ -976,7 +976,7 @@ public class SlidesPresenter extends Presenter<SlidesView> {
 			// Update grid parameter.
 			PresentationParameterProvider pProvider = context.getPagePropertyProvider(ViewType.Presentation);
 
-			if (!newValue) {
+			if (Boolean.FALSE.equals(newValue)) {
 				// Hide grid if previously enabled.
 				pProvider.getAllPresentationParameters().forEach(param -> param.setShowGrid(newValue));
 			}

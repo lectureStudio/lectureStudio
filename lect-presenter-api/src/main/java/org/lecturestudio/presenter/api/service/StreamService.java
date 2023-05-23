@@ -47,7 +47,7 @@ import org.lecturestudio.web.api.stream.model.Course;
 @Singleton
 public class StreamService {
 
-	private final static Logger LOG = LogManager.getLogger(StreamService.class);
+	private static final Logger LOG = LogManager.getLogger(StreamService.class);
 
 	private final PresenterContext context;
 
@@ -60,7 +60,7 @@ public class StreamService {
 
 	@Inject
 	public StreamService(PresenterContext context,
-			WebRtcStreamService streamService, WebService webService) {
+	                     WebRtcStreamService streamService, WebService webService) {
 		this.context = context;
 		this.eventBus = context.getEventBus();
 		this.streamService = streamService;

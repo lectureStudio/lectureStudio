@@ -20,56 +20,69 @@
 	</properties>
 
 	<build>
-		<plugins>
-			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-surefire-plugin</artifactId>
-				<configuration>
-					<skipTests>true</skipTests>
-				</configuration>
-			</plugin>
-		</plugins>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <configuration>
+                    <skipTests>true</skipTests>
+                </configuration>
+            </plugin>
+        </plugins>
 
-		<resources>
-			<resource>
-				<directory>src/main/resources</directory>
-				<targetPath>resources</targetPath>
-				<filtering>false</filtering>
-			</resource>
-		</resources>
-	</build>
+        <resources>
+            <resource>
+                <directory>src/main/resources</directory>
+                <targetPath>resources</targetPath>
+                <filtering>false</filtering>
+            </resource>
+        </resources>
+        <testResources>
+            <testResource>
+                <directory>src/test/resources</directory>
+                <filtering>false</filtering>
+            </testResource>
+        </testResources>
+    </build>
 
-	<dependencies>
-		<dependency>
-			<groupId>org.lecturestudio.core</groupId>
-			<artifactId>lect-core</artifactId>
-			<version>4.0.0</version>
-		</dependency>
-		<dependency>
-			<groupId>org.lecturestudio.swing</groupId>
-			<artifactId>lect-swing</artifactId>
-			<version>4.0.0</version>
-		</dependency>
-		<dependency>
-			<groupId>org.lecturestudio.media</groupId>
-			<artifactId>lect-media</artifactId>
-			<version>1.0.0</version>
-		</dependency>
-		<dependency>
-			<groupId>org.lecturestudio.stylus</groupId>
-			<artifactId>stylus</artifactId>
-			<version>${stylus.version}</version>
-		</dependency>
+    <dependencies>
+        <dependency>
+            <groupId>org.lecturestudio.core</groupId>
+            <artifactId>lect-core</artifactId>
+            <version>4.0.0</version>
+        </dependency>
+        <dependency>
+            <groupId>org.lecturestudio.core</groupId>
+            <artifactId>lect-core</artifactId>
+            <version>4.0.0</version>
+            <type>test-jar</type>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.lecturestudio.swing</groupId>
+            <artifactId>lect-swing</artifactId>
+            <version>4.0.0</version>
+        </dependency>
+        <dependency>
+            <groupId>org.lecturestudio.media</groupId>
+            <artifactId>lect-media</artifactId>
+            <version>1.0.0</version>
+        </dependency>
+        <dependency>
+            <groupId>org.lecturestudio.stylus</groupId>
+            <artifactId>stylus</artifactId>
+            <version>${stylus.version}</version>
+        </dependency>
 
-		<dependency>
-			<groupId>org.jsoup</groupId>
-			<artifactId>jsoup</artifactId>
-			<version>1.15.3</version>
-		</dependency>
-		<dependency>
-			<!-- Required for PDF output. -->
-			<groupId>com.openhtmltopdf</groupId>
-			<artifactId>openhtmltopdf-pdfbox</artifactId>
+        <dependency>
+            <groupId>org.jsoup</groupId>
+            <artifactId>jsoup</artifactId>
+            <version>1.15.3</version>
+        </dependency>
+        <dependency>
+            <!-- Required for PDF output. -->
+            <groupId>com.openhtmltopdf</groupId>
+            <artifactId>openhtmltopdf-pdfbox</artifactId>
 			<version>${openhtml.version}</version>
 		</dependency>
 

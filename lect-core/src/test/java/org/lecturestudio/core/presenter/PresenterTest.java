@@ -150,7 +150,7 @@ public abstract class PresenterTest {
 	}
 
 
-	protected static class FileChooserMockView implements FileChooserView {
+	public static class FileChooserMockView implements FileChooserView {
 
 		public String description;
 
@@ -193,7 +193,7 @@ public abstract class PresenterTest {
 	}
 
 
-	protected static class DirectoryChooserMockView implements DirectoryChooserView {
+	public static class DirectoryChooserMockView implements DirectoryChooserView {
 
 		public File directory;
 
@@ -220,13 +220,15 @@ public abstract class PresenterTest {
 	}
 
 
-	protected static class NotificationMockView implements NotificationView {
+	public static class NotificationMockView implements NotificationView {
 
 		public NotificationType type;
 
 		public String title;
 
 		public String message;
+
+		public Action closeAction;
 
 
 		@Override
@@ -246,7 +248,7 @@ public abstract class PresenterTest {
 
 		@Override
 		public void setOnClose(Action action) {
-
+			this.closeAction = action;
 		}
 	}
 }

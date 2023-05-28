@@ -25,6 +25,7 @@ import java.text.MessageFormat;
 
 import org.lecturestudio.core.app.ApplicationContext;
 import org.lecturestudio.core.geometry.Position;
+import org.lecturestudio.core.presenter.command.ConfirmationNotificationCommand;
 import org.lecturestudio.core.presenter.command.NotificationCommand;
 import org.lecturestudio.core.presenter.command.NotificationPopupCommand;
 import org.lecturestudio.core.view.Action;
@@ -44,7 +45,7 @@ import org.apache.logging.log4j.Logger;
  */
 public abstract class Presenter<T extends View> {
 
-	private final static Logger LOG = LogManager.getLogger(Presenter.class);
+	private static final Logger LOG = LogManager.getLogger(Presenter.class);
 
 	protected final ApplicationContext context;
 
@@ -56,7 +57,7 @@ public abstract class Presenter<T extends View> {
 	private boolean closeable;
 
 
-	public Presenter(ApplicationContext context, T view) {
+	protected Presenter(ApplicationContext context, T view) {
 		requireNonNull(context);
 		requireNonNull(view);
 
@@ -107,34 +108,34 @@ public abstract class Presenter<T extends View> {
 		handleException(throwable, throwMessage, title, null);
 	}
 
-	final protected void handleException(Throwable throwable, String throwMessage, String title, String message) {
+	protected final void handleException(Throwable throwable, String throwMessage, String title, String message) {
 		logException(throwable, throwMessage);
 
 		showError(title, message);
 	}
 
-	final protected void logMessage(String message, Object... messageParams) {
-		LOG.debug(MessageFormat.format(message, messageParams));
+	protected final void logMessage(String message, Object... messageParams) {
+		LOG.debug(message, messageParams);
 	}
 
-	final protected void logException(Throwable throwable, String throwMessage) {
+	protected final void logException(Throwable throwable, String throwMessage) {
 		requireNonNull(throwable);
 		requireNonNull(throwMessage);
 
 		LOG.error(throwMessage, throwable);
 	}
 
-	final protected void showError(String title, String message) {
+	protected final void showError(String title, String message) {
 		requireNonNull(title);
 
 		showNotification(NotificationType.ERROR, title, message);
 	}
 
-	final protected void showError(String title, String message, Object... messageParams) {
+	protected final void showError(String title, String message, Object... messageParams) {
 		showNotification(NotificationType.ERROR, title, message, messageParams);
 	}
 
-	final protected void showNotification(NotificationType type, String title, String message) {
+	protected final void showNotification(NotificationType type, String title, String message) {
 		if (context.getDictionary().contains(title)) {
 			title = context.getDictionary().get(title);
 		}
@@ -145,7 +146,7 @@ public abstract class Presenter<T extends View> {
 		context.getEventBus().post(new NotificationCommand(type, title, message));
 	}
 
-	final protected void showNotification(NotificationType type, String title, String message, Object... messageParams) {
+	protected final void showNotification(NotificationType type, String title, String message, Object... messageParams) {
 		if (context.getDictionary().contains(message)) {
 			message = context.getDictionary().get(message);
 		}
@@ -155,11 +156,11 @@ public abstract class Presenter<T extends View> {
 		showNotification(type, title, message);
 	}
 
-	final protected void showNotificationPopup(String title) {
+	protected final void showNotificationPopup(String title) {
 		showNotificationPopup(title, null);
 	}
 
-	final protected void showNotificationPopup(String title, String message) {
+	protected final void showNotificationPopup(String title, String message) {
 		if (context.getDictionary().contains(title)) {
 			title = context.getDictionary().get(title);
 		}
@@ -168,6 +169,50 @@ public abstract class Presenter<T extends View> {
 		}
 
 		context.getEventBus().post(new NotificationPopupCommand(Position.TOP_RIGHT, title, message));
+	}
+
+	/**
+	 * Opens a notification pop with an accept and decline option.
+	 *
+	 * @param type          The Notification Type
+	 * @param title         The title of the notification
+	 * @param message       The message of the notification
+	 * @param confirmAction The action when the user clicks the confirm button
+	 * @param discardAction The action when the user clicks the close button
+	 */
+	protected final void showConfirmationNotification(NotificationType type, String title, String message,
+	                                                  Action confirmAction, Action discardAction) {
+		showConfirmationNotification(type, title, message, confirmAction, discardAction, "button.confirm", "button.close");
+	}
+
+	/**
+	 * Opens a notification pop with an accept and decline option.
+	 *
+	 * @param type          The Notification Type
+	 * @param title         The title of the notification
+	 * @param message       The message of the notification
+	 * @param confirmAction The action when the user clicks the confirm button
+	 * @param discardAction The action when the user clicks the close button
+	 */
+	protected final void showConfirmationNotification(NotificationType type, String title, String message,
+	                                                  Action confirmAction, Action discardAction,
+	                                                  String confirmButtonText, String discardButtonText) {
+		if (context.getDictionary().contains(title)) {
+			title = context.getDictionary().get(title);
+		}
+		if (context.getDictionary().contains(message)) {
+			message = context.getDictionary().get(message);
+		}
+		if (context.getDictionary().contains(confirmButtonText)) {
+			confirmButtonText = context.getDictionary().get(confirmButtonText);
+		}
+		if (context.getDictionary().contains(discardButtonText)) {
+			discardButtonText = context.getDictionary().get(discardButtonText);
+		}
+
+
+		context.getEventBus().post(new ConfirmationNotificationCommand(type, title, message, confirmAction,
+				discardAction, confirmButtonText, discardButtonText));
 	}
 
 }

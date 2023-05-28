@@ -194,14 +194,5 @@ public class ExtSplitPaneSkin extends SkinBase<ExtSplitPane> {
 			return snappedTopInset() + snappedBottomInset();
 		}
 
-		@Override
-		protected double computeMaxWidth(double height) {
-			return Double.MAX_VALUE;
-		}
-
-		@Override
-		protected double computeMaxHeight(double width) {
-			return Double.MAX_VALUE;
-		}
 	}
 }

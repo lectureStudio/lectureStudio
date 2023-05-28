@@ -21,6 +21,8 @@ package org.lecturestudio.javafx.control;
 import static java.util.Objects.nonNull;
 
 import org.lecturestudio.core.model.Interval;
+import org.lecturestudio.javafx.util.Slider;
+import org.lecturestudio.javafx.util.ThumbMouseHandler;
 
 import javafx.application.Platform;
 import javafx.beans.property.BooleanProperty;
@@ -28,7 +30,6 @@ import javafx.beans.property.DoubleProperty;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleDoubleProperty;
 import javafx.css.PseudoClass;
-import javafx.event.EventHandler;
 import javafx.geometry.Bounds;
 import javafx.geometry.HPos;
 import javafx.geometry.Orientation;
@@ -37,7 +38,6 @@ import javafx.scene.Node;
 import javafx.scene.control.Button;
 import javafx.scene.control.Control;
 import javafx.scene.control.SkinBase;
-import javafx.scene.input.MouseEvent;
 import javafx.scene.shape.Line;
 import javafx.scene.shape.Rectangle;
 import javafx.scene.transform.Affine;
@@ -180,6 +180,7 @@ public class MediaTrackSelectionSkin extends SkinBase<MediaTrackSelection<?>> {
 
 	private void setSliderPos(SelectionSlider slider, double value) {
 		Affine transform = parent.getTransform();
+
 		double width = parent.getWidth();
 		double sx = transform.getMxx();
 		double tx = transform.getTx() * width + parent.getLayoutX();
@@ -349,74 +350,5 @@ public class MediaTrackSelectionSkin extends SkinBase<MediaTrackSelection<?>> {
 				case RIGHT -> lineX.set(offset);
 			}
 		}
-	}
-
-
-
-	protected static class ThumbMouseHandler implements EventHandler<MouseEvent> {
-
-		protected final Slider slider;
-
-		private final Orientation orientation;
-
-		private double lastX;
-		private double lastY;
-
-
-		ThumbMouseHandler(Slider slider, Orientation orientation) {
-			this.slider = slider;
-			this.orientation = orientation;
-		}
-
-		@Override
-		public void handle(MouseEvent event) {
-			if (event.getEventType() == MouseEvent.MOUSE_CLICKED) {
-				event.consume();
-
-				if (event.getClickCount() == 2) {
-					slider.mouseDoubleClicked();
-				}
-			}
-			else if (event.getEventType() == MouseEvent.MOUSE_PRESSED) {
-				event.consume();
-
-				lastX = event.getX();
-				lastY = event.getY();
-
-				slider.mousePressed();
-			}
-			else if (event.getEventType() == MouseEvent.MOUSE_RELEASED) {
-				event.consume();
-
-				slider.mouseReleased();
-			}
-			else if (event.getEventType() == MouseEvent.MOUSE_DRAGGED) {
-				event.consume();
-
-				if (orientation == Orientation.HORIZONTAL) {
-					slider.moveByDelta(event.getX() - lastX);
-				}
-				else if (orientation == Orientation.VERTICAL) {
-					slider.moveByDelta(event.getY() - lastY);
-				}
-
-				slider.mouseDragged();
-			}
-		}
-	}
-
-
-
-	protected interface Slider {
-
-		void moveByDelta(double delta);
-
-		default void mousePressed() {}
-
-		default void mouseReleased() {}
-
-		default void mouseDragged() {}
-
-		default void mouseDoubleClicked() {}
 	}
 }

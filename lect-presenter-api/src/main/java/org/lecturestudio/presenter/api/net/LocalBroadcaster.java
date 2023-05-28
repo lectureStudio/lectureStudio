@@ -27,7 +27,6 @@ import org.lecturestudio.core.Executable;
 import org.lecturestudio.core.ExecutableException;
 import org.lecturestudio.core.ExecutableState;
 import org.lecturestudio.core.app.ApplicationContext;
-import org.lecturestudio.presenter.api.config.PresenterConfiguration;
 
 @Singleton
 public class LocalBroadcaster implements Executable {
@@ -39,10 +38,6 @@ public class LocalBroadcaster implements Executable {
 	
 	/** The current state of this component. */
     private ExecutableState state = ExecutableState.Created;
-	
-    /** The broadcaster component. */
-//	private Broadcaster broadcaster;
-
 
 	@Inject
 	public LocalBroadcaster(ApplicationContext context) {
@@ -51,16 +46,6 @@ public class LocalBroadcaster implements Executable {
 
 	@Override
 	public final synchronized void init() throws ExecutableException {
-		PresenterConfiguration pConfig = (PresenterConfiguration) context.getConfiguration();
-//		BroadcastProfile bcastProfile = pConfig.getNetworkConfig().getBroadcastProfile();
-//
-//		Configuration config = new Configuration();
-//		config.port = bcastProfile.getBroadcastPort();
-//		config.tlsPort = bcastProfile.getBroadcastTlsPort();
-
-//		broadcaster = new Broadcaster(config);
-//		broadcaster.init();
-
 		setState(ExecutableState.Initialized);
 	}
 
@@ -74,8 +59,6 @@ public class LocalBroadcaster implements Executable {
 		if (state == ExecutableState.Created || state == ExecutableState.Destroyed) {
             init();
         }
-		
-//		broadcaster.start();
 		
 		startCount.incrementAndGet();
 		
@@ -91,8 +74,6 @@ public class LocalBroadcaster implements Executable {
 			return;
 		}
 		
-//		broadcaster.stop();
-		
 		setState(ExecutableState.Stopped);
 	}
 	
@@ -106,8 +87,6 @@ public class LocalBroadcaster implements Executable {
 		if (state != ExecutableState.Stopped) {
             return;
         }
-		
-//		broadcaster.destroy();
 		
 		setState(ExecutableState.Destroyed);
 	}

@@ -365,21 +365,21 @@ public class RecordedPage implements RecordedObject, Cloneable {
 
 	@Override
 	public String toString() {
-		StringBuffer sb = new StringBuffer();
+		StringBuilder sb = new StringBuilder();
 
 		sb.append("[ Page ]");
 		sb.append("\n");
-		sb.append("Number: \t" + number);
+		sb.append("Number: \t").append(number);
 		sb.append("\n");
-		sb.append("Time: \t\t" + new Time(timestamp, true));
+		sb.append("Time: \t\t").append(new Time(timestamp, true));
 		sb.append("\n");
-		sb.append("Static actions: " + staticActions.size());
+		sb.append("Static actions: ").append(staticActions.size());
 		sb.append("\n");
 		sb.append(" - Playback actions");
 		sb.append("\n");
 
 		for (PlaybackAction action : playback) {
-			sb.append("\t" + action.getClass().getSimpleName() + "\t\t" + new Time(action.getTimestamp(), true));
+			sb.append("\t").append(action.getClass().getSimpleName()).append("\t\t").append(new Time(action.getTimestamp(), true));
 			sb.append("\n");
 		}
 
@@ -387,8 +387,7 @@ public class RecordedPage implements RecordedObject, Cloneable {
 	}
 
 
-
-	private static abstract class ToolState {
+	private abstract static class ToolState {
 
 		protected PlaybackAction toolAction;
 		protected ToolBeginAction toolBeginAction;

@@ -35,8 +35,6 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class ReplacePagePresenterTest extends PresenterTest {
 
-	GuiceInjector injector;
-
 	RecordingFileService recordingService;
 
 	ReplacePageMockView view = new ReplacePageMockView();
@@ -47,6 +45,7 @@ public class ReplacePagePresenterTest extends PresenterTest {
 
 
 	@BeforeEach
+	@Override
 	void setupInjector() throws ExecutionException, InterruptedException {
 		injector = new GuiceInjector(new AbstractModule() {
 			@Override

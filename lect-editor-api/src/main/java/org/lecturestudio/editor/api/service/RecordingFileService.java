@@ -41,6 +41,9 @@ import org.lecturestudio.core.io.RandomAccessAudioStream;
 import org.lecturestudio.core.model.Document;
 import org.lecturestudio.core.recording.RecordingEditException;
 import org.lecturestudio.core.recording.edit.EditAction;
+import org.lecturestudio.editor.api.edit.HideAndMoveNextPageAction;
+import org.lecturestudio.editor.api.edit.HidePageAction;
+import org.lecturestudio.editor.api.edit.MovePageAction;
 import org.lecturestudio.editor.api.edit.ReplaceAllPagesAction;
 import org.lecturestudio.editor.api.edit.ReplaceAudioAction;
 import org.lecturestudio.core.recording.RecordingChangeEvent;
@@ -158,21 +161,22 @@ public class RecordingFileService {
 		}
 		if (nonNull(recording)) {
 			recording.addRecordingChangeListener(recordingChangeListener);
+
+			// Move new recording to the tail in the list.
+			if (recordings.remove(recording)) {
+				recordings.add(recording);
+
+				eventBus.post(new RecordingEvent(oldRec, recording, RecordingEvent.Type.SELECTED));
+
+				Document document = recording.getRecordedDocument().getDocument();
+
+				playbackService.setRecording(recording);
+				documentService.selectDocument(document);
+
+				updateEditState(recording);
+			}
 		}
 
-		// Move new recording to the tail in the list.
-		if (recordings.remove(recording)) {
-			recordings.add(recording);
-
-			eventBus.post(new RecordingEvent(oldRec, recording, RecordingEvent.Type.SELECTED));
-
-			Document document = recording.getRecordedDocument().getDocument();
-
-			playbackService.setRecording(recording);
-			documentService.selectDocument(document);
-
-			updateEditState(recording);
-		}
 	}
 
 	public Recording getSelectedRecording() {
@@ -424,5 +428,92 @@ public class RecordingFileService {
 		context.setCanDeletePage(document.getPageCount() > 1);
 		context.setCanRedo(recording.getEditManager().hasRedoActions());
 		context.setCanUndo(recording.getEditManager().hasUndoActions());
+	}
+
+
+	/**
+	 * Sets the timestamp of the page with the selected number, without affecting other parts of the recording,
+	 * like the audio or the total duration of the recording.
+	 *
+	 * @param timestamp  The new timestamp
+	 * @param pageNumber The number of the page to move the timestamp
+	 * @return
+	 */
+	public CompletableFuture<Void> movePage(int timestamp, int pageNumber) {
+		return movePage(timestamp, pageNumber, getSelectedRecording());
+	}
+
+
+	/**
+	 * Sets the timestamp of the page with the selected number, without affecting other parts of the recording,
+	 * like the audio or the total duration of the recording.
+	 *
+	 * @param timestamp  The new timestamp
+	 * @param pageNumber The number of the page to move the timestamp
+	 * @param recording  The recording this should happen in
+	 * @return
+	 */
+	public CompletableFuture<Void> movePage(int timestamp, int pageNumber, Recording recording) {
+		return CompletableFuture.runAsync(() -> {
+			try {
+				suspendPlayback();
+
+				addEditAction(recording, new MovePageAction(recording, pageNumber, timestamp));
+			}
+			catch (Exception e) {
+				throw new CompletionException(e);
+			}
+		});
+	}
+
+
+	/**
+	 * Removes the page with the selected number, without affecting other parts of the recording,
+	 * like the audio or the total duration of the recording.
+	 *
+	 * @param pageNumber The number of the page to remove
+	 * @return
+	 */
+	public CompletableFuture<Void> hidePage(int pageNumber) {
+		return hidePage(pageNumber, getSelectedRecording());
+	}
+
+
+	/**
+	 * Removes the page with the selected number, without affecting other parts of the recording,
+	 * like the audio or the total duration of the recording.
+	 *
+	 * @param pageNumber The number of the page to remove
+	 * @param recording  The recording this should happen in
+	 * @return
+	 */
+	public CompletableFuture<Void> hidePage(int pageNumber, Recording recording) {
+		return CompletableFuture.runAsync(() -> {
+			try {
+				suspendPlayback();
+
+				addEditAction(recording, new HidePageAction(recording, pageNumber));
+			}
+			catch (Exception e) {
+				throw new CompletionException(e);
+			}
+		});
+	}
+
+	public CompletableFuture<Void> hideAndMoveNextPage(int pageNumber, int timestamp) {
+		return hideAndMoveNextPage(pageNumber, timestamp, getSelectedRecording());
+	}
+
+	public CompletableFuture<Void> hideAndMoveNextPage(int pageNumber, int timestamp, Recording recording) {
+		return CompletableFuture.runAsync(() -> {
+			try {
+				suspendPlayback();
+
+				addEditAction(recording, new HideAndMoveNextPageAction(recording, pageNumber, timestamp));
+			}
+			catch (Exception e) {
+				throw new CompletionException(e);
+			}
+		});
 	}
 }

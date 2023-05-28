@@ -1,7 +1,16 @@
-.event-timeline {
-	-fx-event-timeline-background: derive(-fx-background, -4%);
-	-fx-event-timeline-text-color: -fx-mid-text-color;
-	-fx-event-timeline-page-mark-color: -fx-text-inner-color;
-	-fx-event-timeline-page-mark-background: rgba(210, 210, 210, 0.7);
-	-fx-event-timeline-event-mark-color: #FC8181;
+.page-slider {
+    -fx-text-fill: -fx-text-inner-color;
+    -fx-background-color: rgba(210, 210, 210, 0.7);
+    -fx-border-radius: 5 5 5 5;
+    -fx-background-radius: 5 5 5 5;
+    -fx-background-position: center;
+    -fx-cursor: hand;
+}
+
+.page-event-marker {
+    -fx-fill: #FC8181;
+}
+
+.event-timeline-pane {
+    -fx-background-color: derive(-fx-background, -4%);
 }

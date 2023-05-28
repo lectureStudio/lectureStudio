@@ -20,8 +20,6 @@ package org.lecturestudio.core.service;
 
 import java.util.List;
 
-import org.lecturestudio.core.model.Contributor;
-
 public interface DataSource<T> {
 
 	List<T> getAll();

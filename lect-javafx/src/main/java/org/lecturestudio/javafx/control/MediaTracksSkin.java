@@ -37,11 +37,11 @@ import javafx.geometry.Orientation;
 import javafx.geometry.VPos;
 import javafx.scene.Group;
 import javafx.scene.Node;
-import javafx.scene.control.Control;
 import javafx.scene.control.ScrollBar;
 import javafx.scene.control.SkinBase;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.Pane;
+import javafx.scene.layout.Region;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import javafx.scene.shape.Line;
@@ -50,6 +50,8 @@ import javafx.scene.text.Text;
 import javafx.scene.transform.Affine;
 
 import org.lecturestudio.core.model.Time;
+import org.lecturestudio.javafx.util.Slider;
+import org.lecturestudio.javafx.util.ThumbMouseHandler;
 import org.lecturestudio.media.track.AudioTrack;
 import org.lecturestudio.media.track.EventsTrack;
 import org.lecturestudio.media.track.MediaTrack;
@@ -152,7 +154,7 @@ public class MediaTracksSkin extends SkinBase<MediaTracks> {
 
 	private void initLayout(MediaTracks control) {
 		timeline = new Timeline();
-		timeline.setMaxHeight(Control.USE_PREF_SIZE);
+		timeline.setMaxHeight(Region.USE_PREF_SIZE);
 
 		scrollBar = new ScrollBar();
 		scrollBar.setOrientation(Orientation.HORIZONTAL);
@@ -314,8 +316,24 @@ public class MediaTracksSkin extends SkinBase<MediaTracks> {
 			EventTimeline eventTimeline = new EventTimeline();
 			eventTimeline.durationProperty().bind(mediaTracks.durationProperty());
 			eventTimeline.setMediaTrack((EventsTrack) track);
+			eventTimeline.setShowTimeCallback(this::showSliderTimeCallback);
+			eventTimeline.setOnMovePage(mediaTracks.getOnMovePage());
+			eventTimeline.setOnHidePage(mediaTracks.getOnHidePage());
+			eventTimeline.setOnHideAndMoveNextPage(mediaTracks.getOnHideAndMoveNextPage());
 
 			addMediaTrackControl(eventTimeline, "events-track-icon");
+		}
+	}
+
+	private void showSliderTimeCallback(Time time) {
+		if (time == null) {
+			sliderTime.setVisible(false);
+		}
+		else {
+			if (!sliderTime.isVisible()) {
+				sliderTime.setVisible(true);
+			}
+			sliderTime.setText(time.toString());
 		}
 	}
 
@@ -423,8 +441,9 @@ public class MediaTracksSkin extends SkinBase<MediaTracks> {
 				selectRect.setWidth(selectX2 - selectX1);
 			}
 		}
-
-		selectRect.setVisible(!stick);
+		if (nonNull(selectRect)) {
+			selectRect.setVisible(!stick);
+		}
 	}
 
 	private void stickSliders(TimeSlider slider) {
@@ -459,10 +478,9 @@ public class MediaTracksSkin extends SkinBase<MediaTracks> {
 		double scrollMin = scrollBar.getMin();
 		double scrollMax = scrollBar.getMax();
 
-		if (!always) {
-			if (value > minX && value < maxX) {
-				scrollValue = scrollBar.getValue();
-			}
+		if (!always && (value > minX && value < maxX)) {
+			scrollValue = scrollBar.getValue();
+
 		}
 
 		scrollBar.setValue(Math.max(scrollMin, Math.min(scrollMax, scrollValue)));
@@ -497,7 +515,7 @@ public class MediaTracksSkin extends SkinBase<MediaTracks> {
 		}
 
 		@Override
-		void mousePressed() {
+		public void mousePressed() {
 			triggerSeekEvent();
 
 			super.mousePressed();
@@ -533,7 +551,7 @@ public class MediaTracksSkin extends SkinBase<MediaTracks> {
 		}
 
 		@Override
-		void mouseDragged() {
+		public void mouseDragged() {
 			super.mouseDragged();
 
 			setStickToPrimary(false);
@@ -556,8 +574,7 @@ public class MediaTracksSkin extends SkinBase<MediaTracks> {
 	}
 
 
-
-	private class TimeSlider extends Group {
+	private class TimeSlider extends Group implements Slider {
 
 		private final InvalidationListener layoutXListener;
 
@@ -597,7 +614,7 @@ public class MediaTracksSkin extends SkinBase<MediaTracks> {
 
 			getChildren().add(thumb);
 
-			ThumbMouseHandler mouseHandler = new ThumbMouseHandler(this);
+			ThumbMouseHandler mouseHandler = new ThumbMouseHandler(this, Orientation.HORIZONTAL);
 
 			Node thumbNode = getThumbNode();
 			thumbNode.setOnMouseDragged(mouseHandler);
@@ -606,6 +623,8 @@ public class MediaTracksSkin extends SkinBase<MediaTracks> {
 			thumbNode.setOnMouseClicked(mouseHandler);
 
 			layoutXListener = observable -> updateSliderTimePos();
+
+			layoutXProperty().addListener(layoutXListener);
 		}
 
 		void bindValueProperty(DoubleProperty property) {
@@ -652,11 +671,7 @@ public class MediaTracksSkin extends SkinBase<MediaTracks> {
 
 		void setSliderTimeVisible(boolean visible) {
 			if (visible) {
-				layoutXProperty().addListener(layoutXListener);
 				updateSliderTimePos();
-			}
-			else {
-				layoutXProperty().removeListener(layoutXListener);
 			}
 
 			sliderTime.setVisible(visible);
@@ -695,7 +710,8 @@ public class MediaTracksSkin extends SkinBase<MediaTracks> {
 			}
 		}
 
-		void moveByDeltaX(double dx) {
+		@Override
+		public void moveByDelta(double dx) {
 			Bounds bounds = timeline.getLayoutBounds();
 			double offset = getLineOffset();
 			double x = getLayoutX() + dx;
@@ -704,7 +720,7 @@ public class MediaTracksSkin extends SkinBase<MediaTracks> {
 			double scrollValue = scrollBar.getValue() + dx;
 
 			if (x < minX && scrollValue >= scrollBar.getMin() ||
-				x > maxX && scrollValue <= scrollBar.getMax()) {
+					x > maxX && scrollValue <= scrollBar.getMax()) {
 				scrollBar.setValue(scrollValue);
 			}
 
@@ -713,23 +729,27 @@ public class MediaTracksSkin extends SkinBase<MediaTracks> {
 			setLayoutX(x);
 		}
 
-		void mousePressed() {
+		@Override
+		public void mousePressed() {
 			updateSliderTime();
 			setSliderTimeVisible(true);
 			setValueChanging(true);
 		}
 
-		void mouseReleased() {
+		@Override
+		public void mouseReleased() {
 			setSliderTimeVisible(false);
 			setValueChanging(false);
 		}
 
-		void mouseDragged() {
+		@Override
+		public void mouseDragged() {
 			updateSliderValue();
 			updateSliderTime();
 		}
 
-		void mouseDoubleClicked() {
+		@Override
+		public void mouseDoubleClicked() {
 			stickSliders(this);
 		}
 
@@ -746,49 +766,6 @@ public class MediaTracksSkin extends SkinBase<MediaTracks> {
 				case CENTER -> lineX.set(snapPositionX(width * 0.5));
 				case LEFT -> lineX.set(width - offset);
 				case RIGHT -> lineX.set(offset);
-			}
-		}
-	}
-
-
-
-	private static class ThumbMouseHandler implements EventHandler<MouseEvent> {
-
-		protected final TimeSlider slider;
-
-		private double lastX;
-
-
-		ThumbMouseHandler(TimeSlider slider) {
-			this.slider = slider;
-		}
-
-		@Override
-		public void handle(MouseEvent event) {
-			if (event.getEventType() == MouseEvent.MOUSE_CLICKED) {
-				event.consume();
-
-				if (event.getClickCount() == 2) {
-					slider.mouseDoubleClicked();
-				}
-			}
-			else if (event.getEventType() == MouseEvent.MOUSE_PRESSED) {
-				event.consume();
-
-				lastX = event.getX();
-
-				slider.mousePressed();
-			}
-			else if (event.getEventType() == MouseEvent.MOUSE_RELEASED) {
-				event.consume();
-
-				slider.mouseReleased();
-			}
-			else if (event.getEventType() == MouseEvent.MOUSE_DRAGGED) {
-				event.consume();
-
-				slider.moveByDeltaX(event.getX() - lastX);
-				slider.mouseDragged();
 			}
 		}
 	}

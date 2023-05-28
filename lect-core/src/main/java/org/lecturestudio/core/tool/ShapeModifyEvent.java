@@ -20,7 +20,6 @@ package org.lecturestudio.core.tool;
 
 import java.util.List;
 
-import org.lecturestudio.core.geometry.Rectangle2D;
 import org.lecturestudio.core.model.shape.Shape;
 
 public class ShapeModifyEvent implements ToolEvent {

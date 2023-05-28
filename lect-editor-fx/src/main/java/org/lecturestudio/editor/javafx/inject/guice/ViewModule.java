@@ -47,6 +47,7 @@ public class ViewModule extends AbstractModule {
 		bind(DirectoryChooserView.class).to(FxDirectoryChooserView.class);
 		bind(FileChooserView.class).to(FxFileChooserView.class);
 		bind(NotificationView.class).to(FxNotificationView.class);
+		bind(ConfirmationNotificationView.class).to(FxConfirmationNotificationView.class);
 		bind(NotificationPopupView.class).to(FxNotificationPopupView.class);
 		bind(NotificationPopupManager.class).to(FxNotificationPopupManager.class);
 

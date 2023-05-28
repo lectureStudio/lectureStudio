@@ -26,7 +26,6 @@ import org.lecturestudio.core.model.Document;
 import org.lecturestudio.core.model.Page;
 import org.lecturestudio.core.view.ConsumerAction;
 import org.lecturestudio.core.view.PresentationParameter;
-import org.lecturestudio.core.view.PresentationParameterProvider;
 import org.lecturestudio.core.view.View;
 
 public interface SlidesView extends View {

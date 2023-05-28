@@ -20,7 +20,9 @@ package org.lecturestudio.editor.api.view;
 
 import org.lecturestudio.core.beans.DoubleProperty;
 import org.lecturestudio.core.model.Time;
+import org.lecturestudio.core.recording.RecordedPage;
 import org.lecturestudio.core.view.Action;
+import org.lecturestudio.core.view.ConsumerAction;
 import org.lecturestudio.core.view.View;
 import org.lecturestudio.media.track.MediaTrack;
 
@@ -42,4 +44,9 @@ public interface MediaTracksView extends View {
 
 	void setOnSeekPressed(Action action);
 
+	void setOnMovePage(ConsumerAction<RecordedPage> action);
+
+	void setOnHidePage(ConsumerAction<RecordedPage> action);
+
+	void setOnHideAndMoveNextPage(ConsumerAction<RecordedPage> action);
 }

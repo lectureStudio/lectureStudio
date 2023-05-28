@@ -65,8 +65,6 @@ public class FxSlidesView extends VBox implements SlidesView {
 		onFocusChange(newNode);
 	};
 
-	private final List<Node> focusRegistry = new ArrayList<>();
-
 	private ConsumerAction<org.lecturestudio.core.input.KeyEvent> keyAction;
 
 	private ConsumerAction<Document> selectDocumentAction;
@@ -276,9 +274,6 @@ public class FxSlidesView extends VBox implements SlidesView {
 			if (TextField.class.isAssignableFrom(node.getClass()) ||
 				TitledPane.class.isAssignableFrom(node.getClass())) {
 				node.requestFocus();
-				return;
-			}
-			if (focusRegistry.contains(node)) {
 				return;
 			}
 		}

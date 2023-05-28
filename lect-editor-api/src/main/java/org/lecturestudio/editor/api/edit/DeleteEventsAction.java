@@ -78,8 +78,9 @@ public class DeleteEventsAction extends RecordedObjectAction<RecordedEvents> {
 		}
 
 		// Cut page content.
-		for (Integer number : pageChanges.keySet()) {
-			Interval<Integer> interval = pageChanges.get(number);
+		for (Map.Entry<Integer, Interval<Integer>> entry : pageChanges.entrySet()) {
+			Integer number = entry.getKey();
+			Interval<Integer> interval = entry.getValue();
 
 			RecordedPage recPage = lecturePages.getRecordedPage(number);
 			recPage.cut(interval);

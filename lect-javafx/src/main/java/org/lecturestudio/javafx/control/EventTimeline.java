@@ -19,50 +19,42 @@
 package org.lecturestudio.javafx.control;
 
 import java.util.List;
+import java.util.Objects;
+import java.util.function.Consumer;
 
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
-import javafx.beans.value.ObservableValue;
 import javafx.css.CssMetaData;
 import javafx.css.Styleable;
-import javafx.css.StyleableObjectProperty;
 import javafx.scene.control.Control;
 import javafx.scene.control.Skin;
-import javafx.scene.paint.Color;
-import javafx.scene.paint.Paint;
 
 import org.lecturestudio.core.model.Time;
+import org.lecturestudio.core.recording.RecordedPage;
+import org.lecturestudio.core.view.ConsumerAction;
 import org.lecturestudio.javafx.util.FxStyleablePropertyFactory;
 import org.lecturestudio.media.track.EventsTrack;
 
 public class EventTimeline extends MediaTrackControlBase<EventsTrack> {
 
-	private final static String DEFAULT_STYLE_CLASS = "event-timeline";
+	private static final String DEFAULT_STYLE_CLASS = "event-timeline-pane";
 
 	private static final FxStyleablePropertyFactory<EventTimeline> FACTORY =
 			new FxStyleablePropertyFactory<>(Control.getClassCssMetaData());
 
 	private final ObjectProperty<Time> duration = new SimpleObjectProperty<>();
 
-	private final StyleableObjectProperty<Paint> background;
+	private Consumer<Time> showTimeCallback;
 
-	private final StyleableObjectProperty<Paint> textColor;
+	private ConsumerAction<RecordedPage> onMovePageAction;
 
-	private final StyleableObjectProperty<Paint> pageMarkColor;
+	private ConsumerAction<RecordedPage> onHidePageAction;
 
-	private final StyleableObjectProperty<Paint> pageMarkBackground;
-
-	private final StyleableObjectProperty<Paint> eventMarkColor;
+	private ConsumerAction<RecordedPage> onHideAndMoveNextPageAction;
 
 
 	public EventTimeline() {
 		initialize();
-
-		background = FACTORY.createPaintProperty(this, "background", "-fx-event-timeline-background", s -> s.background, Color.web("#2D3748"));
-		textColor = FACTORY.createPaintProperty(this, "textColor", "-fx-event-timeline-text-color", s -> s.textColor, Color.web("#E2E8F0"));
-		pageMarkColor = FACTORY.createPaintProperty(this, "pageMarkColor", "-fx-event-timeline-page-mark-color", s -> s.pageMarkColor, Color.web("#FEB2B2"));
-		pageMarkBackground = FACTORY.createPaintProperty(this, "pageMarkBackground", "-fx-event-timeline-page-mark-background", s -> s.pageMarkBackground, Color.web("#1A202C"));
-		eventMarkColor = FACTORY.createPaintProperty(this, "eventMarkColor", "-fx-event-timeline-event-mark-color", s -> s.eventMarkColor, Color.web("#F56565"));
 	}
 
 	public final Time getDuration() {
@@ -77,73 +69,13 @@ public class EventTimeline extends MediaTrackControlBase<EventsTrack> {
 		return duration;
 	}
 
-	public final void setBackgroundColor(Paint value) {
-		background.set(value);
-	}
-
-	public final Paint getBackgroundColor() {
-		return background.get();
-	}
-
-	public final ObservableValue<Paint> backgroundColorProperty() {
-		return background;
-	}
-
-	public final void setTextColor(Paint value) {
-		textColor.set(value);
-	}
-
-	public final Paint getTextColor() {
-		return textColor.get();
-	}
-
-	public final ObservableValue<Paint> textColorProperty() {
-		return textColor;
-	}
-
-	public final void setPageMarkColor(Paint value) {
-		pageMarkColor.set(value);
-	}
-
-	public final Paint getPageMarkColor() {
-		return pageMarkColor.get();
-	}
-
-	public final ObservableValue<Paint> pageMarkColorProperty() {
-		return pageMarkColor;
-	}
-
-	public final void setPageMarkBackground(Paint value) {
-		pageMarkBackground.set(value);
-	}
-
-	public final Paint getPageMarkBackground() {
-		return pageMarkBackground.get();
-	}
-
-	public final ObservableValue<Paint> pageMarkBackgroundProperty() {
-		return pageMarkBackground;
-	}
-
-	public final void setEventMarkColor(Paint value) {
-		eventMarkColor.set(value);
-	}
-
-	public final Paint getEventMarkColor() {
-		return eventMarkColor.get();
-	}
-
-	public final ObservableValue<Paint> eventMarkColorProperty() {
-		return eventMarkColor;
-	}
-
 	public static List<CssMetaData<? extends Styleable, ?>> getClassCssMetaData() {
 		return FACTORY.getCssMetaData();
 	}
 
 	@Override
 	public String getUserAgentStylesheet() {
-		return getClass().getResource("/resources/css/event-timeline.css").toExternalForm();
+		return Objects.requireNonNull(getClass().getResource("/resources/css/event-timeline.css")).toExternalForm();
 	}
 
 	@Override
@@ -158,6 +90,38 @@ public class EventTimeline extends MediaTrackControlBase<EventsTrack> {
 
 	private void initialize() {
 		getStyleClass().setAll(DEFAULT_STYLE_CLASS);
+	}
+
+	public void setShowTimeCallback(Consumer<Time> showTimeCallback) {
+		this.showTimeCallback = showTimeCallback;
+	}
+
+	public Consumer<Time> getShowTimeCallback() {
+		return this.showTimeCallback;
+	}
+
+	void setOnMovePage(ConsumerAction<RecordedPage> action) {
+		this.onMovePageAction = action;
+	}
+
+	public ConsumerAction<RecordedPage> getOnMovePage() {
+		return this.onMovePageAction;
+	}
+
+	void setOnHidePage(ConsumerAction<RecordedPage> action) {
+		this.onHidePageAction = action;
+	}
+
+	public ConsumerAction<RecordedPage> getOnHidePage() {
+		return this.onHidePageAction;
+	}
+
+	void setOnHideAndMoveNextPage(ConsumerAction<RecordedPage> action) {
+		this.onHideAndMoveNextPageAction = action;
+	}
+
+	public ConsumerAction<RecordedPage> getOnHideAndMoveNextPage() {
+		return this.onHideAndMoveNextPageAction;
 	}
 
 }

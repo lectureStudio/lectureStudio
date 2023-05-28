@@ -23,7 +23,6 @@ import java.nio.ByteBuffer;
 
 import org.lecturestudio.core.geometry.Dimension2D;
 import org.lecturestudio.core.graphics.Color;
-import org.lecturestudio.core.tool.Stroke;
 
 public class GridShape extends Shape {
 

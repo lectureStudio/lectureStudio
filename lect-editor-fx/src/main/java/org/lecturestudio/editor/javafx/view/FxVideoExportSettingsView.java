@@ -66,9 +66,6 @@ public class FxVideoExportSettingsView extends ContentPane implements VideoExpor
 	@FXML
 	private CheckBox audioVbrCheckbox;
 
-//	@FXML
-//	private CheckBox twoPassCheckbox;
-
 	@FXML
 	private Button createButton;
 

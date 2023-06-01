@@ -48,18 +48,16 @@ import org.lecturestudio.core.beans.ChangeListener;
 import org.lecturestudio.core.codec.VideoCodecConfiguration;
 import org.lecturestudio.core.geometry.Rectangle2D;
 import org.lecturestudio.core.model.Document;
-import org.lecturestudio.core.presenter.command.ClosePresenterCommand;
-import org.lecturestudio.core.presenter.command.ShowPresenterCommand;
 import org.lecturestudio.presenter.api.config.PresenterConfiguration;
 import org.lecturestudio.presenter.api.config.StreamConfiguration;
 import org.lecturestudio.presenter.api.context.PresenterContext;
 import org.lecturestudio.presenter.api.event.CameraStateEvent;
 import org.lecturestudio.presenter.api.event.ScreenShareEndEvent;
 import org.lecturestudio.presenter.api.event.ScreenShareStateEvent;
+import org.lecturestudio.presenter.api.event.StreamReconnectStateEvent;
 import org.lecturestudio.presenter.api.event.StreamingStateEvent;
 import org.lecturestudio.presenter.api.model.ScreenShareContext;
 import org.lecturestudio.presenter.api.net.ScreenShareProfile;
-import org.lecturestudio.presenter.api.presenter.ReconnectStreamPresenter;
 import org.lecturestudio.web.api.client.ClientFailover;
 import org.lecturestudio.web.api.client.TokenProvider;
 import org.lecturestudio.web.api.exception.StreamMediaException;
@@ -141,14 +139,7 @@ public class WebRtcStreamService extends ExecutableBase {
 		this.recordingService = recordingService;
 		this.clientFailover = new ClientFailover();
 		this.clientFailover.addStateListener((oldState, newState) -> {
-			if (newState == ExecutableState.Started) {
-				context.getEventBus().post(new ShowPresenterCommand<>(
-						ReconnectStreamPresenter.class));
-			}
-			else if (newState == ExecutableState.Stopped) {
-				context.getEventBus().post(new ClosePresenterCommand(
-						ReconnectStreamPresenter.class));
-			}
+			context.getEventBus().post(new StreamReconnectStateEvent(newState));
 		});
 
 		eventRecorder.init();
@@ -546,7 +537,6 @@ public class WebRtcStreamService extends ExecutableBase {
 		AudioConfiguration audioConfig = config.getAudioConfig();
 		StreamConfiguration streamConfig = config.getStreamConfig();
 		VideoCodecConfiguration cameraConfig = streamConfig.getCameraCodecConfig();
-		VideoCodecConfiguration screenConfig = streamConfig.getScreenCodecConfig();
 
 		Rectangle2D cameraViewRect = cameraConfig.getViewRect();
 

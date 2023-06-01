@@ -542,6 +542,30 @@ public class SwingMenuView extends JMenuBar implements MenuView {
 
 			setIndicatorState(streamIndicatorMenu, state);
 			setIndicatorState(speechIndicatorMenu, state);
+
+			streamIndicatorMenu.setBackground(started ?
+					Color.decode("#D1FAE5") :
+					Color.decode("#FEE2E2"));
+
+			streamIndicatorMenu.setToolTipText(started ?
+					dict.get("menu.stream.online") :
+					dict.get("menu.stream.offline"));
+		});
+	}
+
+	@Override
+	public void setStreamReconnectState(ExecutableState state) {
+		// Reconnection procedure started.
+		final boolean started = state == ExecutableState.Started;
+
+		SwingUtils.invoke(() -> {
+			streamIndicatorMenu.setBackground(!started ?
+					Color.decode("#D1FAE5") :
+					Color.decode("#FEE2E2"));
+
+			streamIndicatorMenu.setToolTipText(!started ?
+					dict.get("menu.stream.online") :
+					dict.get("menu.stream.offline"));
 		});
 	}
 

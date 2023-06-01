@@ -164,6 +164,8 @@ public interface MenuView extends View {
 
 	void setStreamingState(ExecutableState state);
 
+	void setStreamReconnectState(ExecutableState state);
+
 	/**
 	 * Bookmarks Menu
 	 */

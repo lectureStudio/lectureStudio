@@ -553,6 +553,10 @@ public class SwingSlidesView extends JPanel implements SlidesView {
 				participantList.clear();
 			}
 			else {
+				if (state == ExecutableState.Stopped) {
+					participantList.clear();
+				}
+
 				removeMessageViews(SpeechRequestView.class);
 			}
 		});

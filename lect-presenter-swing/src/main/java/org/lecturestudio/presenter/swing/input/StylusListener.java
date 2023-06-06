@@ -25,7 +25,6 @@ import java.awt.Rectangle;
 import java.awt.Toolkit;
 import java.awt.event.ComponentAdapter;
 import java.awt.event.ComponentEvent;
-import java.util.function.Consumer;
 
 import org.lecturestudio.core.geometry.Rectangle2D;
 import org.lecturestudio.presenter.api.stylus.StylusHandler;
@@ -46,16 +45,12 @@ public class StylusListener implements org.lecturestudio.stylus.StylusListener {
 
 	private final Image penCursorImage;
 
-	private final Consumer<Boolean> isMouseAction;
-
 	private StylusCursor stylusCursor;
 
 
-	public StylusListener(StylusHandler handler, SlideView slideView,
-						  Consumer<Boolean> isMouseAction) {
+	public StylusListener(StylusHandler handler, SlideView slideView) {
 		this.handler = handler;
 		this.slideView = slideView;
-		this.isMouseAction = isMouseAction;
 		this.viewBounds = new Rectangle2D();
 
 		penCursorImage = AwtResourceLoader.getImage("gfx/icons/pen-cursor.png");
@@ -85,35 +80,33 @@ public class StylusListener implements org.lecturestudio.stylus.StylusListener {
 			cursor = Cursor.getDefaultCursor();
 		}
 
-		isMouseAction.accept(stylusCursor == StylusCursor.MOUSE);
-
 		slideView.setCursor(cursor);
 	}
 
 	@Override
 	public void onCursorMove(StylusEvent stylusEvent) {
-		checkCursor(stylusEvent);
+		if (stylusCursor != stylusEvent.getCursor()) {
+			onCursorChange(stylusEvent);
+		}
 
 		handler.onCursorMove(stylusEvent, viewBounds);
 	}
 
 	@Override
 	public void onButtonDown(StylusEvent stylusEvent) {
-		checkCursor(stylusEvent);
+		if (stylusCursor != stylusEvent.getCursor()) {
+			onCursorChange(stylusEvent);
+		}
 
 		handler.onButtonDown(stylusEvent, viewBounds);
 	}
 
 	@Override
 	public void onButtonUp(StylusEvent stylusEvent) {
-		checkCursor(stylusEvent);
-
-		handler.onButtonUp(stylusEvent, viewBounds);
-	}
-
-	private void checkCursor(StylusEvent stylusEvent) {
 		if (stylusCursor != stylusEvent.getCursor()) {
 			onCursorChange(stylusEvent);
 		}
+
+		handler.onButtonUp(stylusEvent, viewBounds);
 	}
 }

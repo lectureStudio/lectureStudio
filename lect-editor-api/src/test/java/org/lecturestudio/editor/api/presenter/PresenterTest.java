@@ -6,6 +6,7 @@ import java.nio.file.Path;
 import java.util.concurrent.atomic.AtomicReference;
 
 import com.google.common.eventbus.Subscribe;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.lecturestudio.core.app.AppDataLocator;
 import org.lecturestudio.core.app.configuration.Configuration;
@@ -21,6 +22,7 @@ import org.lecturestudio.editor.api.config.DefaultConfiguration;
 import org.lecturestudio.editor.api.context.EditorContext;
 
 public abstract class PresenterTest extends org.lecturestudio.core.presenter.PresenterTest {
+
 	GuiceInjector injector;
 
 	@BeforeEach
@@ -71,4 +73,5 @@ public abstract class PresenterTest extends org.lecturestudio.core.presenter.Pre
 	}
 
 	abstract void setupInjector() throws Exception;
+
 }

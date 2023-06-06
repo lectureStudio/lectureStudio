@@ -78,6 +78,7 @@ import org.lecturestudio.presenter.api.event.QuizStateEvent;
 import org.lecturestudio.presenter.api.event.RecordingStateEvent;
 import org.lecturestudio.presenter.api.event.ScreenShareEndEvent;
 import org.lecturestudio.presenter.api.event.ScreenShareSelectEvent;
+import org.lecturestudio.presenter.api.event.StreamReconnectStateEvent;
 import org.lecturestudio.presenter.api.event.StreamingStateEvent;
 import org.lecturestudio.presenter.api.input.Shortcut;
 import org.lecturestudio.presenter.api.model.ScreenShareContext;
@@ -467,6 +468,23 @@ public class MainPresenter extends org.lecturestudio.core.presenter.MainPresente
 			PresenterContext presenterContext = (PresenterContext) context;
 			presenterContext.setAttendeesCount(0);
 			presenterContext.getSpeechRequests().clear();
+		}
+		else if (state == ExecutableState.Error) {
+			showError("stream.closed.by.remote.host.title", "stream.closed.by.remote.host");
+		}
+	}
+
+	@Subscribe
+	public void onEvent(final StreamReconnectStateEvent event) {
+		ExecutableState state = event.getState();
+
+		if (state == ExecutableState.Started) {
+			context.getEventBus().post(new ShowPresenterCommand<>(
+					ReconnectStreamPresenter.class));
+		}
+		else if (state == ExecutableState.Stopped) {
+			context.getEventBus().post(new ClosePresenterCommand(
+					ReconnectStreamPresenter.class));
 		}
 		else if (state == ExecutableState.Error) {
 			showError("stream.closed.by.remote.host.title", "stream.closed.by.remote.host");

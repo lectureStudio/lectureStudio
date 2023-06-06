@@ -178,6 +178,11 @@ public class MenuPresenter extends Presenter<MenuView> {
 	}
 
 	@Subscribe
+	public void onEvent(final StreamReconnectStateEvent event) {
+		view.setStreamReconnectState(event.getState());
+	}
+
+	@Subscribe
 	public void onEvent(final ViewVisibleEvent event) {
 		Class<? extends View> viewClass = event.getViewClass();
 		boolean visible = event.isVisible();

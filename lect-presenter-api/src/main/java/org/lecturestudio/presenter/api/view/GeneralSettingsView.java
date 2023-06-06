@@ -47,6 +47,8 @@ public interface GeneralSettingsView extends SettingsBaseView {
 
 	void setSaveAnnotationsOnClose(BooleanProperty saveAnnotations);
 
+	void setDisableUserInputForPreview(BooleanProperty disabled);
+
 	void setExtendedFullscreen(BooleanProperty extended);
 
 	void setExtendPageDimension(ObjectProperty<Dimension2D> dimension);

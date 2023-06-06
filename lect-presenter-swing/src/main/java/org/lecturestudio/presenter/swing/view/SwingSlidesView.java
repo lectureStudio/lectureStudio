@@ -339,6 +339,7 @@ public class SwingSlidesView extends JPanel implements SlidesView {
 				thumbPanel = new ThumbnailPanel();
 			}
 
+			thumbPanel.setEnabled(slidesTabPane.isEnabled());
 			thumbPanel.setRenderController(pageRenderer);
 			thumbPanel.setDocument(doc, ppProvider);
 			thumbPanel.addSelectedSlideChangedListener(event -> {
@@ -553,6 +554,10 @@ public class SwingSlidesView extends JPanel implements SlidesView {
 				participantList.clear();
 			}
 			else {
+				if (state == ExecutableState.Stopped) {
+					participantList.clear();
+				}
+
 				removeMessageViews(SpeechRequestView.class);
 			}
 		});
@@ -859,6 +864,19 @@ public class SwingSlidesView extends JPanel implements SlidesView {
 	}
 
 	@Override
+	public void setOnPreviewDisable(BooleanProperty disabled) {
+		disabled.addListener((observable, oldValue, newValue) -> {
+			SwingUtils.invoke(() -> {
+				setPreviewEnabled(!newValue);
+			});
+		});
+
+		SwingUtils.invoke(() -> {
+			setPreviewEnabled(!disabled.get());
+		});
+	}
+
+	@Override
 	public void setOnExternalMessagesPositionChanged(ConsumerAction<ExternalWindowPosition> action) {
 		this.externalMessagesPositionChangedAction = action;
 	}
@@ -1070,6 +1088,21 @@ public class SwingSlidesView extends JPanel implements SlidesView {
 		}
 
 		participantsPosition = position;
+	}
+
+	private void setPreviewEnabled(boolean enabled) {
+		final AdaptiveTabbedPane slidesTabPane = getSlidesTabPane();
+		slidesTabPane.setEnabled(enabled);
+
+		// Remove document tab.
+		for (final AdaptiveTab tab : slidesTabPane.getTabs()) {
+			if (!(tab.getComponent() instanceof ThumbPanel)) {
+				continue;
+			}
+
+			ThumbPanel thumbnailPanel = (ThumbPanel) tab.getComponent();
+			thumbnailPanel.setEnabled(enabled);
+		}
 	}
 
 	private void showMessagesPlaceholder() {

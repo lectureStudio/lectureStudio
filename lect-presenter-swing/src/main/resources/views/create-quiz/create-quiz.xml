@@ -7,10 +7,10 @@
 		<Panel id="toolbarContainer">
 			<gridbagconstraints gridx="0" gridy="1" gridwidth="4" anchor="GridBagConstraints.WEST" fill="GridBagConstraints.NONE" />
 		</Panel>
-		<ScrollPane>
+
+		<HTMLEditor id="htmlEditor" text="">
 			<gridbagconstraints gridx="0" gridy="2" gridwidth="4" weightx="1.0" weighty="1.0" fill="GridBagConstraints.BOTH" insets="0,0,20,0" />
-			<HTMLEditor id="htmlEditor" text="" />
-		</ScrollPane>
+		</HTMLEditor>
 		<Label text="create.quiz.type">
 			<gridbagconstraints gridx="0" gridy="3" anchor="GridBagConstraints.NORTHWEST" insets="0,0,0,30" />
 		</Label>

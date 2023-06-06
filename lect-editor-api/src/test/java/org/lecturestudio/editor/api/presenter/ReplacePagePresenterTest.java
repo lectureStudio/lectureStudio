@@ -35,6 +35,8 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class ReplacePagePresenterTest extends PresenterTest {
 
+	GuiceInjector injector;
+
 	RecordingFileService recordingService;
 
 	ReplacePageMockView view = new ReplacePageMockView();

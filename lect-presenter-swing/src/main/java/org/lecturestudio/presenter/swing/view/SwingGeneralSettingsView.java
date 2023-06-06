@@ -59,6 +59,8 @@ public class SwingGeneralSettingsView extends JPanel implements GeneralSettingsV
 
 	private JCheckBox fullscreenModeCheckBox;
 
+	private JCheckBox disablePreviewCheckBox;
+
 	private JSlider extendViewSlider;
 
 	private JButton closeButton;
@@ -114,6 +116,11 @@ public class SwingGeneralSettingsView extends JPanel implements GeneralSettingsV
 	@Override
 	public void setSaveAnnotationsOnClose(BooleanProperty saveAnnotations) {
 		SwingUtils.bindBidirectional(saveAnnotationsCheckBox, saveAnnotations);
+	}
+
+	@Override
+	public void setDisableUserInputForPreview(BooleanProperty disabled) {
+		SwingUtils.bindBidirectional(disablePreviewCheckBox, disabled);
 	}
 
 	@Override

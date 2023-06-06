@@ -25,6 +25,7 @@ import javax.swing.JComboBox;
 import javax.swing.JEditorPane;
 import javax.swing.JList;
 import javax.swing.JPanel;
+import javax.swing.JScrollPane;
 import javax.swing.JToolBar;
 import javax.swing.KeyStroke;
 import javax.swing.event.CaretEvent;
@@ -100,7 +101,7 @@ public class HTMLEditorPane extends JPanel
 
         setLayout(new BorderLayout());
 
-        add(wysEditor, BorderLayout.CENTER);
+        add(new JScrollPane(wysEditor), BorderLayout.CENTER);
     }
 
     public JToolBar getFormatToolBar()

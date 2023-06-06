@@ -130,6 +130,8 @@ public class SwingToolbarView extends JPanel implements ToolbarView {
 
 	private JToggleButton eraseButton;
 
+	private JToggleButton disablePreviewButton;
+
 	private FontPickerButton textButton;
 
 //	private TeXFontPickerButton texButton;
@@ -578,6 +580,11 @@ public class SwingToolbarView extends JPanel implements ToolbarView {
 
 		toolGroup.setSelected(selectedTool, true);
 		colorGroup.setSelected(selectedColor, true);
+	}
+
+	@Override
+	public void bindDisablePreview(BooleanProperty disabled) {
+		SwingUtils.bindBidirectional(disablePreviewButton, disabled);
 	}
 
 	@Override

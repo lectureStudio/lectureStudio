@@ -530,6 +530,8 @@ public class ToolbarPresenter extends Presenter<ToolbarView> {
 		view.setOnStartRecording(this::startRecording);
 		view.setOnStopRecording(this::stopRecording);
 
+		view.bindDisablePreview(config.disablePreviewProperty());
+
 		view.bindEnableStream(presenterContext.streamStartedProperty());
 		view.bindEnableStreamMicrophone(config.getStreamConfig().enableMicrophoneProperty());
 		view.bindEnableStreamCamera(config.getStreamConfig().enableCameraProperty());

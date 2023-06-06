@@ -126,6 +126,8 @@ public interface ToolbarView extends View {
 
 	void openCustomizeToolbarDialog();
 
+	void bindDisablePreview(BooleanProperty disabled);
+
 	void bindEnableStream(BooleanProperty enable);
 
 	void bindEnableStreamMicrophone(BooleanProperty enable);

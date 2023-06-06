@@ -27,6 +27,7 @@
 	<Separator type=" " defaultTool="true" />
 	<ToggleButton id="eraseButton" accelerator="E" icon="rubber-tool.svg, 30" tooltipText="toolbar.erase.tooltip" tool="RUBBER" group="toolGroup" defaultTool="true" />
 	<Button id="clearButton" accelerator="ESCAPE" icon="clear-tool.svg, 30" tooltipText="toolbar.clear.tooltip" defaultTool="true" />
+	<ToggleButton id="disablePreviewButton" icon="file-unlock.svg, 30" selectedIcon="file-lock.svg, 30" tooltipText="toolbar.disable.preview.tooltip" />
 	<Separator type=" " defaultTool="true" />
 	<ToggleButton id="gridButton" accelerator="Q" icon="grid-tool.svg, 30" tooltipText="toolbar.grid.tooltip" />
 	<ToggleButton id="extendButton" accelerator="F7" icon="extend-tool.svg, 30" tooltipText="toolbar.extend.tooltip" />

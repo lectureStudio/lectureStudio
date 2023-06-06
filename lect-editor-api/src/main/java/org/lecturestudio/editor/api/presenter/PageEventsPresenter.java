@@ -27,6 +27,7 @@ import java.util.concurrent.CompletionException;
 
 import javax.inject.Inject;
 
+import org.lecturestudio.core.ExecutableException;
 import org.lecturestudio.core.app.ApplicationContext;
 import org.lecturestudio.core.beans.ObjectProperty;
 import org.lecturestudio.core.model.Document;
@@ -127,8 +128,7 @@ public class PageEventsPresenter extends Presenter<PageEventsView> {
 		}).join();
 	}
 
-	private void deletePageEvent(PlaybackAction action, int pageNumber)
-			throws Exception {
+	private void deletePageEvent(PlaybackAction action, int pageNumber) throws ExecutableException, RecordingEditException {
 		if (playbackService.started()) {
 			playbackService.suspend();
 		}

@@ -135,17 +135,17 @@ public class VideoRenderer extends RecordingExport {
 
 	}
 
-	private void startPass1() throws Exception {
-    	SecureRandom random = new SecureRandom();
+	private void startPass1() throws ExecutableException, IOException {
+		SecureRandom random = new SecureRandom();
 		String profileName = String.format("%s-%d", "twopass", random.nextLong());
 		String profilePath = context.getDataLocator().toAppDataPath("media" + File.separator + profileName);
-		
+
 		RenderConfiguration renderConfig = new RenderConfiguration();
-    	renderConfig.setFileFormat(config.getFileFormat());
-    	// First pass only outputs to the profile.
-    	renderConfig.setOutputFile(null);
-    	renderConfig.setVideoConfig(config.getVideoConfig());
-    	renderConfig.setAudioConfig(null);
+		renderConfig.setFileFormat(config.getFileFormat());
+		// First pass only outputs to the profile.
+		renderConfig.setOutputFile(null);
+		renderConfig.setVideoConfig(config.getVideoConfig());
+		renderConfig.setAudioConfig(null);
 		
 		VideoRenderConfiguration videoConfig = renderConfig.getVideoConfig();
 		videoConfig.setPass(1);
@@ -153,21 +153,21 @@ public class VideoRenderer extends RecordingExport {
     	
 		renderVideo(renderConfig);
     }
-    
-    private void startPass2() throws Exception {
-    	RenderConfiguration renderConfig = new RenderConfiguration();
-    	renderConfig.setFileFormat(config.getFileFormat());
-    	renderConfig.setOutputFile(createTempFile(config.getOutputFile()));
-    	renderConfig.setVideoConfig(config.getVideoConfig());
+
+	private void startPass2() throws ExecutableException, IOException {
+		RenderConfiguration renderConfig = new RenderConfiguration();
+		renderConfig.setFileFormat(config.getFileFormat());
+		renderConfig.setOutputFile(createTempFile(config.getOutputFile()));
+		renderConfig.setVideoConfig(config.getVideoConfig());
 		renderConfig.setAudioConfig(null);
-    	
-    	VideoRenderConfiguration videoConfig = renderConfig.getVideoConfig();
-    	videoConfig.setPass(2);
-    	
+
+		VideoRenderConfiguration videoConfig = renderConfig.getVideoConfig();
+		videoConfig.setPass(2);
+
 		renderVideo(renderConfig);
     }
 
-	private void renderVideo(RenderConfiguration config) throws Exception {
+	private void renderVideo(RenderConfiguration config) throws IOException, ExecutableException {
 		runningConfig = config;
 
 		VideoRenderConfiguration videoConfig = config.getVideoConfig();
@@ -217,8 +217,7 @@ public class VideoRenderer extends RecordingExport {
 		eventExecutor.start();
 	}
 
-	private void preloadDocument(Document document, RecordedEvents actions,
-			ToolController toolController) {
+	private void preloadDocument(Document document, RecordedEvents actions, ToolController toolController) {
 		for (RecordedPage recPage : actions.getRecordedPages()) {
 			Page page = document.getPage(recPage.getNumber());
 
@@ -254,7 +253,7 @@ public class VideoRenderer extends RecordingExport {
 		}
 	}
 
-	private void renderAudio() throws Exception {
+	private void renderAudio() throws ExecutableException, IOException {
 		onRenderState(RecordingRenderState.RENDER_AUDIO);
 
 		RandomAccessAudioStream stream = recording.getRecordedAudio().getAudioStream().clone();
@@ -274,8 +273,8 @@ public class VideoRenderer extends RecordingExport {
 		audioConfig.setInputFormat(stream.getAudioFormat());
 		audioConfig.setVideoInputFile(runningConfig.getOutputFile());
 
-		VideoMuxer muxer = new FFmpegProcessMuxer(renderConfig);
-		muxer.start();
+		VideoMuxer ffmpegMuxer = new FFmpegProcessMuxer(renderConfig);
+		ffmpegMuxer.start();
 
 		Time totalTime = new Time(stream.getLengthInMillis());
 		Time progressTime = new Time(0);
@@ -297,7 +296,7 @@ public class VideoRenderer extends RecordingExport {
 		int read;
 
 		while ((read = stream.read(buffer)) > 0) {
-			muxer.addAudioFrame(buffer, 0, read);
+			ffmpegMuxer.addAudioFrame(buffer, 0, read);
 
 			totalRead += read;
 
@@ -317,7 +316,7 @@ public class VideoRenderer extends RecordingExport {
 			onRenderProgress(progressEvent);
 		}
 
-		muxer.stop();
+		ffmpegMuxer.stop();
 		stream.close();
 
 		stop();

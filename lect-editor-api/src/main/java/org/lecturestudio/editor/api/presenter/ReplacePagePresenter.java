@@ -20,37 +20,69 @@ package org.lecturestudio.editor.api.presenter;
 
 import javax.inject.Inject;
 
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.CompletionException;
+
 import org.lecturestudio.core.app.ApplicationContext;
 import org.lecturestudio.core.model.Document;
 import org.lecturestudio.core.presenter.Presenter;
+import org.lecturestudio.core.recording.RecordedDocument;
 import org.lecturestudio.core.view.ViewLayer;
 import org.lecturestudio.editor.api.service.RecordingFileService;
+import org.lecturestudio.editor.api.util.ReplacePageType;
 import org.lecturestudio.editor.api.view.ReplacePageView;
 
 public class ReplacePagePresenter extends Presenter<ReplacePageView> {
 
 	private final RecordingFileService recordingService;
 
+	private int currentDocCurrentPageNumber;
+
 	private Document newDoc;
+
+	private Document currentDoc;
+
+	private ReplacePageType replacePageType = ReplacePageType.REPLACE_SINGLE_PAGE;
 
 
 	@Inject
 	ReplacePagePresenter(ApplicationContext context, ReplacePageView view,
-			RecordingFileService recordingService) {
+	                     RecordingFileService recordingService) {
 		super(context, view);
+
+		RecordedDocument recordedDocument = recordingService.getSelectedRecording().getRecordedDocument();
+
+		try {
+			// Cloning Document to have a working copy, all edits are done exclusively on this copy
+			currentDoc = new Document(recordedDocument.toByteArray());
+		}
+		catch (IOException exc) {
+			handleException(exc, "Replace page failed", "replace.page.error");
+		}
 
 		this.recordingService = recordingService;
 	}
 
 	@Override
 	public void initialize() {
-		Document doc = recordingService.getSelectedRecording()
-				.getRecordedDocument().getDocument();
+		currentDocCurrentPageNumber = currentDoc.getCurrentPageNumber();
 
-		view.setCurrentPage(doc.getCurrentPage());
-		view.setOnPageNumber(this::selectPage);
-		view.setOnCancel(this::close);
+		view.setPageCurrentDoc(currentDoc.getCurrentPage());
+		view.setTotalPagesCurrentDocLabel(currentDoc.getPageCount());
+
+		view.setOnPreviousPageCurrentDoc(() -> selectPageCurrentDoc(currentDocCurrentPageNumber - 1));
+		view.setOnNextPageCurrentDoc(() -> selectPageCurrentDoc(currentDocCurrentPageNumber + 1));
+		view.setOnPageNumberCurrentDoc(this::selectPageCurrentDoc);
+		view.setOnPageNumberNewDoc(this::selectPageNewDoc);
+		view.setOnAbort(() -> {
+			closeDocuments();
+			close();
+		});
 		view.setOnReplace(this::replace);
+		view.setOnConfirm(this::confirm);
+		view.setOnReplaceTypeChange(this::replaceTypeChanged);
 	}
 
 	@Override
@@ -58,35 +90,149 @@ public class ReplacePagePresenter extends Presenter<ReplacePageView> {
 		return ViewLayer.Dialog;
 	}
 
+	/**
+	 * Sets the replacing {@code Document}. Is called first, before any of the other methods.
+	 *
+	 * @param doc The {@code Document} from which the {@code Page}s are taken from to replace in the current {@code Document}
+	 */
 	public void setNewDocument(Document doc) {
 		newDoc = doc;
 
-		view.setNewPage(doc.getCurrentPage());
-		view.setOnPreviousPage(() -> {
+		view.setPageNewDoc(doc.getCurrentPage());
+		view.setOnPreviousPageNewDoc(() -> {
 			int currentPage = doc.getCurrentPageNumber();
 
-			selectPage(currentPage - 1);
+			selectPageNewDoc(currentPage - 1);
 		});
-		view.setOnNextPage(() -> {
+		view.setOnNextPageNewDoc(() -> {
 			int currentPage = doc.getCurrentPageNumber();
 
-			selectPage(currentPage + 1);
+			selectPageNewDoc(currentPage + 1);
+		});
+
+		view.setDisableAllPagesTypeRadio(newDoc.getPageCount() != currentDoc.getPageCount());
+
+		view.setTotalPagesNewDocLabel(doc.getPageCount());
+	}
+
+	/**
+	 * Flips the {@code Page} in the replacing {@code Document}.
+	 *
+	 * @param pageNumber The page to be shown.
+	 * @return {@code true} if the page flip was successful.
+	 */
+	private boolean selectPageNewDoc(int pageNumber) {
+		if (newDoc.selectPage(pageNumber)) {
+			view.setPageNewDoc(newDoc.getCurrentPage());
+			return true;
+		}
+		return false;
+	}
+
+	/**
+	 * Flips the {@code Page} in the current {@code Document}.
+	 *
+	 * @param pageNumber The page to be shown.
+	 * @return {@code true} if the page flip was successful.
+	 */
+	private boolean selectPageCurrentDoc(int pageNumber) {
+
+		if (currentDoc.selectPage(pageNumber)) {
+			currentDocCurrentPageNumber = pageNumber;
+			view.setPageCurrentDoc(currentDoc.getCurrentPage());
+			return true;
+		}
+		return false;
+	}
+
+	/**
+	 * Replaces all {@code Page}s of the current {@code Document} with all {@code Page}s from the working {@code Document},
+	 * no matter if page replacements actually happened.
+	 * Opens a pop-up with an error message, in case an error occurs.
+	 */
+	private void confirm() {
+		recordingService.replaceAllPages(currentDoc)
+				.whenComplete((result, throwable) -> {
+					if (throwable != null) {
+						handleException(throwable, "Replace page failed",
+								"replace.page.error");
+					}
+					closeDocuments();
+					ReplacePagePresenter.this.close();
+				});
+	}
+
+	/**
+	 * Replaces one or all {@code Page}s of the current working {@code Document}, depending on the selected {@code ReplacePageType}.
+	 * Flips to the next Page in the View if possible.
+	 * Disables the input in the view during processing.
+	 */
+	private void replace() {
+		view.disableInput();
+		CompletableFuture.runAsync(() -> {
+			if (replacePageType.equals(ReplacePageType.REPLACE_ALL_PAGES)) {
+				currentDoc.replaceAllPages(newDoc);
+			}
+			else if (replacePageType.equals(ReplacePageType.REPLACE_SINGLE_PAGE)) {
+				currentDoc.replacePage(currentDoc.getCurrentPage(), newDoc.getCurrentPage());
+			}
+
+			try (ByteArrayOutputStream stream = new ByteArrayOutputStream()) {
+				currentDoc.toOutputStream(stream);
+				currentDoc.close();
+
+				currentDoc = new Document(stream.toByteArray());
+			}
+			catch (IOException e) {
+				throw new CompletionException(e);
+			}
+
+			if (replacePageType.equals(ReplacePageType.REPLACE_ALL_PAGES)) {
+				// reloads the page in the viewer, in order to show the replaced page
+				view.setPageCurrentDoc(currentDoc.getCurrentPage());
+			}
+			else if (replacePageType.equals(ReplacePageType.REPLACE_SINGLE_PAGE)) {
+				showNextPages();
+			}
+
+		}).whenComplete((result, throwable) -> {
+			if (throwable != null) {
+				handleException(throwable, "Replace page failed", "replace.page.error");
+			}
+			view.enableInput();
 		});
 	}
 
-	private void selectPage(int pageNumber) {
-		if (newDoc.selectPage(pageNumber)) {
-			view.setNewPage(newDoc.getCurrentPage());
+	/**
+	 * Shows the next {@code Page} for both the replacing {@code Document} and the current {@code Document}.
+	 * In case the replacing {@code Document} shows the last {@code Page}, no {@code Page} switch is going to happen for this one.
+	 * In case the current {@code Document} shows the last {@code Page}, no {@code Page} switch is going to happen at all.
+	 */
+	private void showNextPages() {
+		int newDocCurrentPageNumber = newDoc.getCurrentPageNumber();
+
+		if (selectPageCurrentDoc(currentDocCurrentPageNumber + 1)) {
+
+			selectPageNewDoc(newDocCurrentPageNumber + 1);
+		}
+		else {
+			selectPageCurrentDoc(currentDocCurrentPageNumber);
 		}
 	}
 
-	private void replace() {
-		recordingService.replacePage(newDoc)
-				.thenRun(this::close)
-				.exceptionally(throwable -> {
-					handleException(throwable, "Replace page failed",
-							"replace.page.error");
-					return null;
-				});
+	/**
+	 * Gets notified whenever the replacement type is changed in the view and saves the current replacement type.
+	 *
+	 * @param typeID The ID of the current selected {@code ReplacePageType}.
+	 */
+	private void replaceTypeChanged(String typeID) {
+		replacePageType = ReplacePageType.parse(typeID);
+	}
+
+	/**
+	 * Closes the opened Documents.
+	 */
+	private void closeDocuments() {
+		newDoc.close();
 	}
 }

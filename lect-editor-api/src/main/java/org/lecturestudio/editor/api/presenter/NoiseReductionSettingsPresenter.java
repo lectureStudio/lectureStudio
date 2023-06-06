@@ -94,7 +94,7 @@ public class NoiseReductionSettingsPresenter extends Presenter<NoiseReductionSet
 
 		playAudioSnippet = new BooleanProperty();
 		playAudioSnippet.addListener((observable, oldValue, newValue) -> {
-			if (newValue) {
+			if (Boolean.TRUE.equals(newValue)) {
 				startAudioSnippetPlayback();
 			}
 			else {
@@ -271,7 +271,6 @@ public class NoiseReductionSettingsPresenter extends Presenter<NoiseReductionSet
 			audioPlayer.setAudioDeviceName(outputDeviceName);
 			audioPlayer.setAudioSource(audioSource);
 			audioPlayer.addStateListener(this::onAudioStateChange);
-//			audioPlayer.setProgressListener(this::onAudioProgress);
 		}
 		catch (Exception e) {
 			logException(e, "Initialize audio player failed");

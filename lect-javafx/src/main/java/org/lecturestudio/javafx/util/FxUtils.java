@@ -37,7 +37,7 @@ import javafx.scene.control.CheckBox;
 import javafx.scene.control.CheckMenuItem;
 import javafx.scene.control.MenuItem;
 import javafx.scene.control.ToggleButton;
-
+import javafx.scene.control.ToggleGroup;
 import org.lecturestudio.core.view.Action;
 import org.lecturestudio.core.view.ConsumerAction;
 
@@ -124,6 +124,15 @@ public final class FxUtils {
 		requireNonNull(action);
 
 		toggle.addEventHandler(ActionEvent.ACTION, event -> action.execute(toggle.isSelected()));
+	}
+
+	public static void bindAction(ToggleGroup toggle, ConsumerAction<String> action) {
+		requireNonNull(toggle);
+		requireNonNull(action);
+
+		toggle.selectedToggleProperty().addListener((observableValue, previousToggle, newToggle) -> {
+			action.execute((((Node) observableValue.getValue()).getId()));
+		});
 	}
 
 	public static void bindAction(CheckBox checkBox, ConsumerAction<Boolean> action) {

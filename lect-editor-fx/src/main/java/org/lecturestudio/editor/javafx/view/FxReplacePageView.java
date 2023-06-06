@@ -24,8 +24,9 @@ import javax.inject.Inject;
 
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
+import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
-import javafx.scene.layout.Pane;
+import javafx.scene.control.ToggleGroup;
 import javafx.scene.layout.StackPane;
 
 import org.lecturestudio.core.app.ApplicationContext;
@@ -36,9 +37,11 @@ import org.lecturestudio.core.view.Action;
 import org.lecturestudio.core.view.ConsumerAction;
 import org.lecturestudio.core.view.PresentationParameter;
 import org.lecturestudio.editor.api.view.ReplacePageView;
+import org.lecturestudio.javafx.control.ExtRadioButton;
 import org.lecturestudio.javafx.control.SlideView;
 import org.lecturestudio.javafx.util.FxUtils;
 import org.lecturestudio.javafx.view.FxmlView;
+
 
 @FxmlView(name = "page-replace")
 public class FxReplacePageView extends StackPane implements ReplacePageView {
@@ -47,7 +50,9 @@ public class FxReplacePageView extends StackPane implements ReplacePageView {
 
 	private final RenderController pageRenderer;
 
-	private ConsumerAction<Integer> pageNumberAction;
+	private ConsumerAction<Integer> pageNumberNewDocAction;
+
+	private ConsumerAction<Integer> pageNumberCurrentDocAction;
 
 	@FXML
 	private SlideView currentPageView;
@@ -56,22 +61,51 @@ public class FxReplacePageView extends StackPane implements ReplacePageView {
 	private SlideView newPageView;
 
 	@FXML
-	private Pane controlsContainer;
+	private Button prevPageNewDocButton;
 
 	@FXML
-	private Button prevPageButton;
+	private Button nextPageNewDocButton;
 
 	@FXML
-	private Button nextPageButton;
+	private Button prevPageCurrentDocButton;
 
 	@FXML
-	private TextField pageNumberField;
+	private Button nextPageCurrentDocButton;
 
 	@FXML
-	private Button cancelButton;
+	private Label totalPagesNewDocLabel;
+
+	@FXML
+	private Label totalPagesCurrentDocLabel;
+
+	@FXML
+	private TextField pageNumberNewDocField;
+
+	@FXML
+	private TextField pageNumberCurrentDocField;
+
+	@FXML
+	private ExtRadioButton allPagesTypeRadio;
+
+	@FXML
+	private ExtRadioButton currentPageTypeRadio;
+
+	@FXML
+	private ToggleGroup pageSelectionType;
+
+	@FXML
+	private Label allPagesTypeLabel;
+
+	@FXML
+	private Button abortButton;
 
 	@FXML
 	private Button replaceButton;
+
+	@FXML
+	private Button confirmButton;
+
+	private boolean allPagesTypeRadioDisabled = false;
 
 
 	@Inject
@@ -83,48 +117,58 @@ public class FxReplacePageView extends StackPane implements ReplacePageView {
 	}
 
 	@Override
-	public void setCurrentPage(Page page) {
-		FxUtils.invoke(() -> {
-			currentPageView.parameterChanged(page, getPresentationParameter(page));
-			currentPageView.setPage(page);
-		});
+	public void setPageCurrentDoc(Page page) {
+		setPageControls(page, currentPageView, pageNumberCurrentDocField, prevPageCurrentDocButton, nextPageCurrentDocButton);
 	}
 
 	@Override
-	public void setNewPage(Page page) {
-		Document document = page.getDocument();
-		int pageCount = document.getPageCount();
-		int pageNumber = page.getPageNumber();
-
-		FxUtils.invoke(() -> {
-			newPageView.parameterChanged(page, getPresentationParameter(page));
-			newPageView.setPage(page);
-
-			pageNumberField.setText(String.valueOf(page.getPageNumber() + 1));
-
-			prevPageButton.setDisable(pageNumber < 1);
-			nextPageButton.setDisable(pageNumber >= pageCount - 1);
-		});
+	public void setPageNewDoc(Page page) {
+		setPageControls(page, newPageView, pageNumberNewDocField, prevPageNewDocButton, nextPageNewDocButton);
 	}
 
 	@Override
-	public void setOnPreviousPage(Action action) {
-		FxUtils.bindAction(prevPageButton, action);
+	public void setTotalPagesNewDocLabel(int pages) {
+		FxUtils.invoke(() -> totalPagesNewDocLabel.setText(" / " + pages));
 	}
 
 	@Override
-	public void setOnNextPage(Action action) {
-		FxUtils.bindAction(nextPageButton, action);
+	public void setTotalPagesCurrentDocLabel(int pages) {
+		FxUtils.invoke(() -> totalPagesCurrentDocLabel.setText(" / " + pages));
 	}
 
 	@Override
-	public void setOnPageNumber(ConsumerAction<Integer> action) {
-		pageNumberAction = action;
+	public void setOnPreviousPageNewDoc(Action action) {
+		FxUtils.bindAction(prevPageNewDocButton, action);
 	}
 
 	@Override
-	public void setOnCancel(Action action) {
-		FxUtils.bindAction(cancelButton, action);
+	public void setOnNextPageNewDoc(Action action) {
+		FxUtils.bindAction(nextPageNewDocButton, action);
+	}
+
+	@Override
+	public void setOnPageNumberNewDoc(ConsumerAction<Integer> action) {
+		pageNumberNewDocAction = action;
+	}
+
+	@Override
+	public void setOnPreviousPageCurrentDoc(Action action) {
+		FxUtils.bindAction(prevPageCurrentDocButton, action);
+	}
+
+	@Override
+	public void setOnNextPageCurrentDoc(Action action) {
+		FxUtils.bindAction(nextPageCurrentDocButton, action);
+	}
+
+	@Override
+	public void setOnPageNumberCurrentDoc(ConsumerAction<Integer> action) {
+		pageNumberCurrentDocAction = action;
+	}
+
+	@Override
+	public void setOnAbort(Action action) {
+		FxUtils.bindAction(abortButton, action);
 	}
 
 	@Override
@@ -132,16 +176,33 @@ public class FxReplacePageView extends StackPane implements ReplacePageView {
 		FxUtils.bindAction(replaceButton, action);
 	}
 
+	@Override
+	public void setOnConfirm(Action action) {
+		FxUtils.bindAction(confirmButton, action);
+	}
+
 	@FXML
 	private void initialize() {
 		currentPageView.setPageRenderer(pageRenderer);
 		newPageView.setPageRenderer(pageRenderer);
 
-		pageNumberField.setOnAction(event -> {
-			if (nonNull(pageNumberAction)) {
+		pageNumberNewDocField.setOnAction(event -> {
+			if (nonNull(pageNumberNewDocAction)) {
 				try {
-					int pageNumber = Integer.parseInt(pageNumberField.getText());
-					pageNumberAction.execute(pageNumber - 1);
+					int pageNumber = Integer.parseInt(pageNumberNewDocField.getText());
+					pageNumberNewDocAction.execute(pageNumber - 1);
+				}
+				catch (Exception e) {
+					// Ignore parsing errors.
+				}
+			}
+		});
+
+		pageNumberCurrentDocField.setOnAction(event -> {
+			if (nonNull(pageNumberCurrentDocAction)) {
+				try {
+					int pageNumber = Integer.parseInt(pageNumberCurrentDocField.getText());
+					pageNumberCurrentDocAction.execute(pageNumber - 1);
 				}
 				catch (Exception e) {
 					// Ignore parsing errors.
@@ -152,5 +213,49 @@ public class FxReplacePageView extends StackPane implements ReplacePageView {
 
 	private PresentationParameter getPresentationParameter(Page page) {
 		return new PresentationParameter(context.getConfiguration(), page);
+	}
+
+
+	private void setPageControls(Page page, SlideView pageView, TextField pageNumberField, Button prevPageButton, Button nextPageButton) {
+		Document document = page.getDocument();
+		int pageCount = document.getPageCount();
+		int pageNumber = page.getPageNumber();
+
+		FxUtils.invoke(() -> {
+			pageView.parameterChanged(page, getPresentationParameter(page));
+			pageView.setPage(page);
+
+			pageNumberField.setText(String.valueOf(page.getPageNumber() + 1));
+
+			prevPageButton.setDisable(pageNumber < 1);
+			nextPageButton.setDisable(pageNumber >= pageCount - 1);
+		});
+	}
+
+	@Override
+	public void enableInput() {
+		FxUtils.invoke(() -> {
+			setDisable(false);
+			setDisableAllPagesTypeRadio(allPagesTypeRadioDisabled);
+		});
+	}
+
+	@Override
+	public void disableInput() {
+		FxUtils.invoke(() -> setDisable(true));
+	}
+
+	@Override
+	public void setDisableAllPagesTypeRadio(boolean disable) {
+		allPagesTypeRadioDisabled = disable;
+		FxUtils.invoke(() -> {
+			allPagesTypeRadio.setDisable(disable);
+			allPagesTypeLabel.setDisable(disable);
+		});
+	}
+
+	@Override
+	public void setOnReplaceTypeChange(ConsumerAction<String> action) {
+		FxUtils.bindAction(pageSelectionType, action);
 	}
 }

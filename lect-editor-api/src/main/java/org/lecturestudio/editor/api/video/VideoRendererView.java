@@ -50,7 +50,7 @@ import org.lecturestudio.core.view.ViewType;
  */
 public class VideoRendererView implements SlideView, ShapeListener, ParameterChangeListener {
 
-	private final ViewType viewType = ViewType.User;
+	private static final ViewType viewType = ViewType.User;
 
 	private final int width;
 

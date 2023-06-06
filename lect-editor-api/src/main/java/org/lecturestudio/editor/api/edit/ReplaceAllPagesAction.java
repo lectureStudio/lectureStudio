@@ -21,7 +21,6 @@ package org.lecturestudio.editor.api.edit;
 import java.io.IOException;
 
 import org.lecturestudio.core.model.Document;
-import org.lecturestudio.core.model.Page;
 import org.lecturestudio.core.recording.RecordedDocument;
 import org.lecturestudio.core.recording.Recording;
 import org.lecturestudio.core.recording.Recording.Content;
@@ -29,13 +28,13 @@ import org.lecturestudio.core.recording.RecordingEditException;
 import org.lecturestudio.core.recording.edit.EditAction;
 
 /**
- * A {@code ReplacePageAction} replaces a page in the recording. This action
+ * A {@code ReplaceAllPagesAction} replaces a page in the recording. This action
  * only affects the recorded pages. Audio, events and the duration of the
  * recording remain unchanged.
  *
  * @author Alex Andres
  */
-public class ReplacePageAction implements EditAction {
+public class ReplaceAllPagesAction implements EditAction {
 
 	/**
 	 * The recording on which to operate.
@@ -53,27 +52,21 @@ public class ReplacePageAction implements EditAction {
 	private final Document newDoc;
 
 	/**
-	 * The page number to replace.
-	 */
-	private final int pageNumber;
-
-	/**
 	 * The previous document state stored in a byte stream.
 	 */
 	private byte[] docStream;
 
 
 	/**
-	 * Creates a new {@code ReplacePageAction} with the provided parameters.
+	 * Creates a new {@code ReplaceAllPagesAction} with the provided parameters.
 	 *
 	 * @param recording The recording on which to operate.
 	 * @param newDoc    The document containing the new page.
 	 */
-	public ReplacePageAction(Recording recording, Document newDoc) {
+	public ReplaceAllPagesAction(Recording recording, Document newDoc) {
 		this.recording = recording;
 		this.recordedDocument = recording.getRecordedDocument();
 		this.newDoc = newDoc;
-		this.pageNumber = recordedDocument.getDocument().getCurrentPageNumber();
 	}
 
 	@Override
@@ -104,11 +97,10 @@ public class ReplacePageAction implements EditAction {
 			throw new RecordingEditException(e);
 		}
 
-		Page page = document.getPage(pageNumber);
 
 		// Serialize and load changed document.
 		try {
-			document.replacePage(page, newDoc.getCurrentPage());
+			document.replaceAllPages(newDoc);
 
 			recordedDocument.parseFrom(recordedDocument.toByteArray());
 		}

@@ -996,6 +996,8 @@ public class SlidesPresenter extends Presenter<SlidesView> {
 			view.setExtendedFullscreen(newValue);
 		});
 
+		view.setOnPreviewDisable(config.disablePreviewProperty());
+
 		view.setOnExternalMessagesPositionChanged(this::externalMessagesPositionChanged);
 		view.setOnExternalMessagesSizeChanged(this::externalMessagesSizeChanged);
 		view.setOnExternalMessagesClosed(this::externalMessagesClosed);

@@ -33,6 +33,8 @@ public class PresenterConfiguration extends Configuration {
 
 	private final BooleanProperty saveDocOnClose = new BooleanProperty();
 
+	private final BooleanProperty disablePreview = new BooleanProperty();
+
 	private final StreamConfiguration streamConfig = new StreamConfiguration();
 
 	private final TemplateConfiguration templateConfig = new TemplateConfiguration();
@@ -109,6 +111,18 @@ public class PresenterConfiguration extends Configuration {
 
 	public BooleanProperty saveDocOnCloseProperty() {
 		return saveDocOnClose;
+	}
+
+	public Boolean getDisablePreview() {
+		return disablePreview.get();
+	}
+
+	public void setDisablePreview(Boolean disabled) {
+		this.disablePreview.set(disabled);
+	}
+
+	public BooleanProperty disablePreviewProperty() {
+		return disablePreview;
 	}
 
 	/**

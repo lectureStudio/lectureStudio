@@ -165,7 +165,7 @@ public class EventTimelineSkin extends MediaTrackControlSkinBase {
 				double boxX = timeToXPositionFunction.applyAsDouble(timestamp);
 
 				pageSlider.setLayoutX(snapPositionX(boxX));
-				pageSlider.setLayoutY(0);
+				pageSlider.setLayoutY(snapPositionY(0));
 
 				pageSliders.add(pageSlider);
 			}
@@ -192,11 +192,19 @@ public class EventTimelineSkin extends MediaTrackControlSkinBase {
 
 					Rectangle rectangle = new Rectangle(endTime - beginningTime, height / 1.5);
 					rectangle.getStyleClass().add("page-event-marker");
-					rectangle.setX(beginningTime);
-					rectangle.setY(height / 6);
+					rectangle.setX(snapPositionX(beginningTime));
+					rectangle.setY(snapPositionX(height / 6));
 
 					pageEventList.add(rectangle);
 					actionStartTime = null;
+				}
+				else if (action.getType() == ActionType.TEXT_SELECTION_EXT) {
+					Rectangle rectangle = new Rectangle(1, height / 1.5);
+					rectangle.getStyleClass().add("page-event-marker");
+					rectangle.setX(snapPositionX(timeToXPositionFunction.applyAsDouble(action.getTimestamp())));
+					rectangle.setY(snapPositionY(height / 6));
+
+					pageEventList.add(rectangle);
 				}
 			}
 		}
@@ -223,8 +231,8 @@ public class EventTimelineSkin extends MediaTrackControlSkinBase {
 			this.getChildren().addAll(label);
 
 			this.setManaged(false);
-			this.setLayoutX(0);
-			this.setLayoutY(0);
+			this.setLayoutX(snapPositionX(0));
+			this.setLayoutY(snapPositionY(0));
 
 			label.setAlignment(Pos.CENTER);
 			label.setPrefWidth(label.getWidth() + 15);

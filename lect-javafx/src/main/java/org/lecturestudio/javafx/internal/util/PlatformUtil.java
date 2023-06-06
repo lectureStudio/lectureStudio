@@ -172,11 +172,10 @@ public class PlatformUtil {
 
 	private static void loadPropertiesFromFile(final File file) {
 		Properties p = new Properties();
-		try {
-			InputStream in = new FileInputStream(file);
+		try (InputStream in = new FileInputStream(file)) {
 			p.load(in);
-			in.close();
-		} catch (IOException e) {
+		}
+		catch (IOException e) {
 			e.printStackTrace();
 		}
 		if (javafxPlatform == null) {

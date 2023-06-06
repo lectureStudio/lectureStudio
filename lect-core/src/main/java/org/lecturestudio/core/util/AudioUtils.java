@@ -98,7 +98,7 @@ public class AudioUtils {
 	}
 
 	public static int getBytesPerSecond(AudioFormat audioFormat) {
-		return Math.round(audioFormat.getSampleRate() * audioFormat.getBytesPerSample() * audioFormat.getChannels());
+		return audioFormat.getSampleRate() * audioFormat.getBytesPerSample() * audioFormat.getChannels();
 	}
 
 	public static float getSampleValue(byte[] data, int index) {

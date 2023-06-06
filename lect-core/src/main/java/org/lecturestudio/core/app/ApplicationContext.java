@@ -18,7 +18,7 @@
 
 package org.lecturestudio.core.app;
 
-import java.util.HashMap;
+import java.util.EnumMap;
 import java.util.Map;
 
 import org.lecturestudio.core.app.configuration.Configuration;
@@ -71,7 +71,7 @@ public abstract class ApplicationContext {
 	 *
 	 * @throws Exception If a fatal error occurs while saving the configuration.
 	 */
-	abstract public void saveConfiguration() throws Exception;
+	public abstract void saveConfiguration() throws Exception;
 
 
 	/**
@@ -83,14 +83,14 @@ public abstract class ApplicationContext {
 	 * @param eventBus    The application event data bus.
 	 * @param audioBus    The audio event bus.
 	 */
-	public ApplicationContext(AppDataLocator dataLocator, Configuration config,
-			Dictionary dict, EventBus eventBus, EventBus audioBus) {
+	protected ApplicationContext(AppDataLocator dataLocator, Configuration config,
+	                             Dictionary dict, EventBus eventBus, EventBus audioBus) {
 		this.dataLocator = dataLocator;
 		this.configuration = config;
 		this.dictionary = dict;
 		this.eventBus = eventBus;
 		this.audioBus = audioBus;
-		this.ppProvider = new HashMap<>();
+		this.ppProvider = new EnumMap<>(ViewType.class);
 		this.documentService = new DocumentService(this);
 
 		ppProvider.put(ViewType.User, new PresentationParameterProvider(config));

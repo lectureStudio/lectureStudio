@@ -20,7 +20,6 @@ package org.lecturestudio.core.service;
 
 import java.io.IOException;
 
-import org.lecturestudio.core.model.Contributor;
 import org.lecturestudio.core.model.Sponsor;
 
 public class SponsorsYamlSource extends YamlSource<Sponsor> {

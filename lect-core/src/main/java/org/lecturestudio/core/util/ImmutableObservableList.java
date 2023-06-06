@@ -19,6 +19,7 @@
 package org.lecturestudio.core.util;
 
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.ListIterator;
@@ -145,7 +146,7 @@ public class ImmutableObservableList<T> implements ObservableList<T> {
 
 	@Override
 	public boolean containsAll(Collection<?> c) {
-		return list.containsAll(c);
+		return new HashSet<>(list).containsAll(c);
 	}
 
 	@Override

@@ -23,8 +23,11 @@ import static java.util.Objects.nonNull;
 
 import com.google.common.eventbus.Subscribe;
 
+import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.TimeUnit;
 
 import javax.inject.Inject;
 
@@ -33,10 +36,13 @@ import org.lecturestudio.core.app.ApplicationContext;
 import org.lecturestudio.core.model.Time;
 import org.lecturestudio.core.presenter.Presenter;
 import org.lecturestudio.core.recording.RecordedAudio;
+import org.lecturestudio.core.recording.RecordedPage;
 import org.lecturestudio.core.recording.RecordingChangeEvent;
 import org.lecturestudio.core.recording.Recording;
 import org.lecturestudio.core.recording.RecordingEditException;
 import org.lecturestudio.core.recording.edit.RecordingEditManager;
+import org.lecturestudio.core.view.Action;
+import org.lecturestudio.core.view.NotificationType;
 import org.lecturestudio.editor.api.context.EditorContext;
 import org.lecturestudio.editor.api.edit.AudioTrackOverlayAction;
 import org.lecturestudio.media.recording.RecordingEvent;
@@ -50,6 +56,7 @@ import org.lecturestudio.media.track.MediaTrack;
 import org.lecturestudio.media.track.control.AdjustAudioVolumeControl;
 
 public class MediaTracksPresenter extends Presenter<MediaTracksView> {
+	private static final long ONE_SECOND_IN_MILLIS = TimeUnit.SECONDS.toMillis(1);
 
 	private final RecordingFileService recordingService;
 
@@ -86,6 +93,9 @@ public class MediaTracksPresenter extends Presenter<MediaTracksView> {
 		view.bindRightSelection(editorContext.rightSelectionProperty());
 		view.bindZoomLevel(editorContext.trackZoomLevelProperty());
 		view.setOnSeekPressed(this::seekPressed);
+		view.setOnMovePage(this::movePage);
+		view.setOnHidePage(this::hidePage);
+		view.setOnHideAndMoveNextPage(this::hideAndMoveNextPage);
 
 		context.getEventBus().register(this);
 	}
@@ -187,5 +197,92 @@ public class MediaTracksPresenter extends Presenter<MediaTracksView> {
 		catch (ExecutableException e) {
 			logException(e, "Suspend playback failed");
 		}
+	}
+
+	/**
+	 * Moves the timestamp of the page with the number supplied by the RecordedPage parameter.
+	 * Sets it to the timestamp supplied by the RecordedPage parameter.
+	 * Shows a notification, in case the new timestamp sets the duration of a shown page to less than 3 seconds.
+	 *
+	 * @param recordedPage The RecordedPage to take the number and timestamp from.
+	 */
+	private void movePage(RecordedPage recordedPage) {
+		List<RecordedPage> pages = recordingService.getSelectedRecording().getRecordedEvents().getRecordedPages();
+
+		RecordedPage lowerPageBound;
+		RecordedPage higherPageBound;
+
+		lowerPageBound = pages.get(recordedPage.getNumber() - 1);
+
+		if (recordedPage.getNumber() == pages.size() - 1) {
+			higherPageBound = new RecordedPage();
+			higherPageBound.setTimestamp((int) recordingService.getSelectedRecording().getRecordingHeader().getDuration());
+			higherPageBound.setNumber(recordedPage.getNumber() + 1);
+		}
+		else {
+			higherPageBound = pages.get(recordedPage.getNumber() + 1);
+		}
+
+		if (recordedPage.getTimestamp() - lowerPageBound.getTimestamp() < ONE_SECOND_IN_MILLIS) {
+			showNotification(NotificationType.DEFAULT, "move.page.duration.low.title", "move.page.duration.low.text", lowerPageBound.getNumber() + 1, String.format("%.1f", (recordedPage.getTimestamp() - lowerPageBound.getTimestamp()) / (float) ONE_SECOND_IN_MILLIS));
+		}
+		else if (higherPageBound.getTimestamp() - recordedPage.getTimestamp() < ONE_SECOND_IN_MILLIS) {
+			showNotification(NotificationType.DEFAULT, "move.page.duration.low.title", "move.page.duration.low.text", recordedPage.getNumber() + 1, String.format("%.1f", (higherPageBound.getTimestamp() - recordedPage.getTimestamp()) / (float) ONE_SECOND_IN_MILLIS));
+		}
+
+		recordingService.movePage(recordedPage.getTimestamp(), recordedPage.getNumber())
+				.exceptionally(throwable -> {
+					handleException(throwable, "Delete page failed", "delete.page.error");
+					return null;
+				});
+	}
+
+	/**
+	 * Hides the RecordedPage with the same number as the number from supplied RecordedPage.
+	 * This does not affect any other parts of the recording as the audio or total duration of the recording.
+	 *
+	 * @param recordedPage The RecordedPage to take the pageNumber from.
+	 */
+	private void hidePage(RecordedPage recordedPage) {
+		Action confirmAction = () ->
+				recordingService.hidePage(recordedPage.getNumber())
+						.exceptionally(throwable -> {
+							handleException(throwable, "Hide Page failed", "hide.page.error");
+							return null;
+						});
+
+		showConfirmationNotification(NotificationType.QUESTION, "hide.page.notification.title",
+				MessageFormat.format(context.getDictionary().get("hide.page.notification.text"), recordedPage.getNumber() + 1),
+				confirmAction, () -> {
+					CompletableFuture.runAsync(() -> {
+						recordingService.getSelectedRecording().fireChangeEvent(Recording.Content.EVENTS);
+					});
+				},
+				"hide.page.notification.confirm", "hide.page.notification.close");
+	}
+
+	/**
+	 * Hides the RecordedPage with the same number as the number from supplied RecordedPage.
+	 * Puts the timestamp of the next page to the hidden page.
+	 * This does not affect any other parts of the recording as the audio or total duration of the recording.
+	 *
+	 * @param recordedPage The RecordedPage to take the pageNumber from.
+	 */
+	private void hideAndMoveNextPage(RecordedPage recordedPage) {
+		Action confirmAction = () ->
+				recordingService.hideAndMoveNextPage(recordedPage.getNumber(), recordedPage.getTimestamp())
+						.exceptionally(throwable -> {
+							handleException(throwable, "Hide Page failed", "hide.page.error");
+							return null;
+						});
+
+		showConfirmationNotification(NotificationType.QUESTION, "hide.page.notification.title",
+				MessageFormat.format(context.getDictionary().get("hide.page.notification.text"), recordedPage.getNumber() + 1),
+				confirmAction, () -> {
+					CompletableFuture.runAsync(() -> {
+						recordingService.getSelectedRecording().fireChangeEvent(Recording.Content.EVENTS);
+					});
+				},
+				"hide.page.notification.confirm", "hide.page.notification.close");
 	}
 }

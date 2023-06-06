@@ -185,10 +185,19 @@ public class Recording {
 		listeners.remove(listener);
 	}
 
+	/**
+	 * Do not run this method in the UI Thread.
+	 * Running it in the UI Thread might lead to freezes freezes of the UI.
+	 */
 	public void fireChangeEvent(Content contentType) {
 		fireChangeEvent(contentType, null);
 	}
 
+
+	/**
+	 * Do not run this method in the UI Thread.
+	 * Running it in the UI Thread might lead to freezes of the UI.
+	 */
 	public void fireChangeEvent(Content contentType, Interval<Double> duration) {
 		RecordingChangeEvent event = new RecordingChangeEvent(this, contentType);
 		event.setDuration(duration);

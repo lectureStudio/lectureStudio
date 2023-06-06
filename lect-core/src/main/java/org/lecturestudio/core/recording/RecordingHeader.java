@@ -160,15 +160,15 @@ public class RecordingHeader extends RecordedObjectBase {
 
 	@Override
 	public String toString() {
-		StringBuffer buffer = new StringBuffer();
-		buffer.append("[" + getClass().getSimpleName() + "]\n");
-		buffer.append("Version: " + getVersion() + "\n");
-		buffer.append("Duration: " + getDuration() + "\n");
-		buffer.append("Events: " + getEventsLength() + "\n");
-		buffer.append("Document: " + getDocumentLength() + "\n");
-		buffer.append("Audio: " + getAudioLength() + "\n");
+		StringBuilder builder = new StringBuilder();
+		builder.append("[").append(getClass().getSimpleName()).append("]\n");
+		builder.append("Version: ").append(getVersion()).append("\n");
+		builder.append("Duration: ").append(getDuration()).append("\n");
+		builder.append("Events: ").append(getEventsLength()).append("\n");
+		builder.append("Document: ").append(getDocumentLength()).append("\n");
+		builder.append("Audio: ").append(getAudioLength()).append("\n");
 
-		return buffer.toString();
+		return builder.toString();
 	}
 
 }

@@ -19,7 +19,9 @@
 package org.lecturestudio.editor.javafx.view;
 
 import org.lecturestudio.core.beans.DoubleProperty;
+import org.lecturestudio.core.recording.RecordedPage;
 import org.lecturestudio.core.view.Action;
+import org.lecturestudio.core.view.ConsumerAction;
 import org.lecturestudio.editor.api.presenter.MediaTracksPresenter;
 import org.lecturestudio.editor.api.view.MediaTracksView;
 import org.lecturestudio.javafx.beans.LectDoubleProperty;
@@ -68,5 +70,20 @@ public class FxMediaTracksView extends MediaTracks implements MediaTracksView {
 	@Override
 	public void setOnSeekPressed(Action action) {
 		setOnSeekPressed(event -> action.execute());
+	}
+
+	@Override
+	public void setOnMovePage(ConsumerAction<RecordedPage> action) {
+		super.setOnMovePage(action);
+	}
+
+	@Override
+	public void setOnHidePage(ConsumerAction<RecordedPage> action) {
+		super.setOnHidePage(action);
+	}
+
+	@Override
+	public void setOnHideAndMoveNextPage(ConsumerAction<RecordedPage> action) {
+		super.setOnHideAndMoveNextPage(action);
 	}
 }

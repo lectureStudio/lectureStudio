@@ -62,8 +62,7 @@ public class AudioUtils {
 	 * @return The required number of bytes per second.
 	 */
 	public static int getBytesPerSecond(AudioFormat audioFormat) {
-		return Math.round(audioFormat.getSampleRate() * audioFormat
-				.getBytesPerSample() * audioFormat.getChannels());
+		return audioFormat.getSampleRate() * audioFormat.getBytesPerSample() * audioFormat.getChannels();
 	}
 
 	/**

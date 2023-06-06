@@ -252,7 +252,7 @@ public class DigestRandomAccessFile implements DataOutput, DataInput, Closeable 
 
 	@Override
 	public String readLine() throws IOException {
-		return readLine();
+		return file.readLine();
 	}
 
 	@Override
@@ -296,7 +296,7 @@ public class DigestRandomAccessFile implements DataOutput, DataInput, Closeable 
 		b[6] = (byte) ((int) (v >>> 8) & 0xFF);
 		b[7] = (byte) ((int) (v) & 0xFF);
 
-		return null;
+		return b;
 	}
 
 }

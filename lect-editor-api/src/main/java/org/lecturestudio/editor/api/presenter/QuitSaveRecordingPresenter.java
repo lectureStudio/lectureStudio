@@ -79,8 +79,8 @@ public class QuitSaveRecordingPresenter extends Presenter<QuitSaveRecordingView>
 		FileChooserView fileChooser = viewFactory.createFileChooserView();
 		fileChooser.addExtensionFilter(dict.get("file.description.recording"),
 				EditorContext.RECORDING_EXTENSION);
-		fileChooser.setInitialFileName(fileName);
 		fileChooser.setInitialDirectory(dirPath.toFile());
+		fileChooser.setInitialFileName(fileName);
 
 		File selectedFile = fileChooser.showSaveFile(view);
 

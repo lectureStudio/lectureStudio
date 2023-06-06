@@ -21,31 +21,41 @@ package org.lecturestudio.javafx.control;
 import static java.util.Objects.isNull;
 import static java.util.Objects.nonNull;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;
+import java.util.function.IntToDoubleFunction;
 
 import javafx.geometry.HPos;
+import javafx.geometry.Orientation;
+import javafx.geometry.Pos;
 import javafx.geometry.VPos;
-import javafx.scene.canvas.Canvas;
-import javafx.scene.canvas.GraphicsContext;
-import javafx.scene.text.Text;
+import javafx.scene.Group;
+import javafx.scene.control.Label;
+import javafx.scene.layout.Pane;
+import javafx.scene.layout.Region;
+import javafx.scene.shape.Rectangle;
 import javafx.scene.transform.Affine;
 
 import org.lecturestudio.core.model.Time;
 import org.lecturestudio.core.recording.RecordedPage;
+import org.lecturestudio.core.recording.action.ActionType;
 import org.lecturestudio.core.recording.action.PlaybackAction;
 import org.lecturestudio.javafx.util.FxUtils;
+import org.lecturestudio.javafx.util.Slider;
+import org.lecturestudio.javafx.util.ThumbMouseHandler;
 import org.lecturestudio.media.track.EventsTrack;
 
 public class EventTimelineSkin extends MediaTrackControlSkinBase {
 
-	private final Consumer<List<RecordedPage>> trackListener = recordedPages -> {
-		updateControl();
-	};
+	private final Consumer<List<RecordedPage>> trackListener = recordedPages -> updateControl();
 
 	private final EventTimeline eventTimeline;
+	private Pane pane;
 
-	private Canvas canvas;
+	private final List<PageSlider> pageSliders = new ArrayList<>();
+	private final ArrayList<Rectangle> pageEventList = new ArrayList<>();
+	private IntToDoubleFunction timeToXPositionFunction;
 
 
 	protected EventTimelineSkin(EventTimeline control) {
@@ -54,13 +64,6 @@ public class EventTimelineSkin extends MediaTrackControlSkinBase {
 		eventTimeline = control;
 
 		initLayout(control);
-	}
-
-	@Override
-	public void dispose() {
-		super.dispose();
-
-		//unregisterChangeListeners(eventTimeline.mediaTrackProperty());
 	}
 
 	@Override
@@ -86,20 +89,21 @@ public class EventTimelineSkin extends MediaTrackControlSkinBase {
 	@Override
 	protected void layoutChildren(final double contentX, final double contentY,
 								  final double contentWidth, final double contentHeight) {
-		layoutInArea(canvas, contentX, contentY, contentWidth, contentHeight,
-					 -1, HPos.LEFT, VPos.TOP);
+		layoutInArea(pane, contentX, contentY, contentWidth, contentHeight, -1, HPos.LEFT, VPos.CENTER);
 	}
 
 	private void initLayout(EventTimeline control) {
 		EventsTrack track = control.getMediaTrack();
 
-		canvas = new Canvas();
-		canvas.widthProperty().bind(control.widthProperty());
-		canvas.heightProperty().bind(control.heightProperty());
-		canvas.widthProperty().addListener(o -> updateControl());
-		canvas.heightProperty().addListener(o -> updateControl());
+		pane = new Pane();
 
-		getChildren().add(canvas);
+		pane.setPrefHeight(Region.USE_PREF_SIZE);
+		pane.setPrefWidth(Region.USE_PREF_SIZE);
+		pane.widthProperty().addListener(o -> updateControl());
+		pane.heightProperty().addListener(o -> updateControl());
+		pane.getStyleClass().add("event-timeline-pane");
+
+		getChildren().add(pane);
 
 		if (nonNull(track)) {
 			track.addChangeListener(trackListener);
@@ -125,73 +129,210 @@ public class EventTimelineSkin extends MediaTrackControlSkinBase {
 			return;
 		}
 
-		final double width = canvas.getWidth();
-		final double height = canvas.getHeight();
+		final double width = pane.getWidth();
+		final double height = pane.getHeight();
 
 		final Time duration = eventTimeline.getDuration();
-		final GraphicsContext ctx = canvas.getGraphicsContext2D();
-
-		ctx.setFill(eventTimeline.getBackgroundColor());
-		ctx.fillRect(0, 0, width + 0.5, height + 0.5);
 
 		double sx = transform.getMxx();
 		double tx = transform.getTx() * width;
 		final double pixelPerSecond = width * sx / (duration.getMillis() / 1000D);
 
-		paintEvents(ctx, height, pixelPerSecond, tx);
-		paintPageEvents(ctx, height, pixelPerSecond, tx);
+		timeToXPositionFunction = (timestamp) -> pixelPerSecond * timestamp / 1000 + tx;
+
+		paintEvents(height);
+		paintPageEvents(height);
 	}
 
-	private void paintPageEvents(GraphicsContext ctx, double height, double pixelPerSecond, double tx) {
-		ctx.setStroke(eventTimeline.getPageMarkColor());
-		ctx.setTextBaseline(VPos.CENTER);
-
-		Text text = new Text();
-		text.setFont(ctx.getFont());
-
-		int boxPadding = 5;
-		height--;
-
+	private void paintPageEvents(double height) {
 		List<RecordedPage> pages = eventTimeline.getMediaTrack().getData();
+
+		pageSliders.forEach(pageSlider -> pane.getChildren().remove(pageSlider));
+		pageSliders.clear();
 		for (RecordedPage recPage : pages) {
 			int pageNumber = recPage.getNumber();
+
 			if (pageNumber != 0) {
-				text.setText("" + (pageNumber + 1));
+				PageSlider pageSlider = new PageSlider(pages, pageNumber, height);
+				ThumbMouseHandler mouseHandler = new ThumbMouseHandler(pageSlider, Orientation.HORIZONTAL);
+				pageSlider.setOnMouseDragged(mouseHandler);
+				pageSlider.setOnMousePressed(mouseHandler);
+				pageSlider.setOnMouseReleased(mouseHandler);
+				pageSlider.setOnMouseClicked(mouseHandler);
 
 				int timestamp = recPage.getTimestamp();
 
-				double boxW = text.getLayoutBounds().getWidth() + boxPadding * 2;
-				double boxH = Math.min(ctx.getFont().getSize() + boxPadding * 2, height);
-				double boxX = pixelPerSecond * timestamp / 1000 + tx;
-				double boxY = (height - boxH) / 2;
+				double boxX = timeToXPositionFunction.applyAsDouble(timestamp);
 
-				ctx.setFill(eventTimeline.getPageMarkBackground());
-				ctx.fillRoundRect(snap(boxX), snap(boxY), boxW, boxH, 5, 5);
+				pageSlider.setLayoutX(snapPositionX(boxX));
+				pageSlider.setLayoutY(snapPositionY(0));
 
-				double textX = boxX + boxPadding;
-				double textY = height / 2;
-
-				ctx.setFill(eventTimeline.getPageMarkColor());
-				ctx.fillText(text.getText(), snap(textX), textY);
+				pageSliders.add(pageSlider);
 			}
 		}
+		pane.getChildren().addAll(pageSliders);
 	}
 
-	private void paintEvents(GraphicsContext ctx, double height, double pixelPerSecond, double tx) {
-		ctx.setStroke(eventTimeline.getEventMarkColor());
+	private void paintEvents(double height) {
+		pageEventList.forEach(pageSlider -> pane.getChildren().remove(pageSlider));
+		pageEventList.clear();
 
 		List<RecordedPage> pages = eventTimeline.getMediaTrack().getData();
 		for (RecordedPage page : pages) {
 			List<PlaybackAction> actions = page.getPlaybackActions();
+			Integer actionStartTime = null;
 			for (PlaybackAction action : actions) {
-				double x = pixelPerSecond * action.getTimestamp() / 1000 + tx;
 
-				ctx.strokeLine(snap(x), 0, snap(x), height / 2);
+				if (action.getType() == ActionType.TOOL_BEGIN && actionStartTime == null) {
+					actionStartTime = action.getTimestamp();
+				}
+				else if (action.getType() == ActionType.TOOL_END && actionStartTime != null) {
+					double beginningTime = timeToXPositionFunction.applyAsDouble(actionStartTime);
+					double endTime = timeToXPositionFunction.applyAsDouble(action.getTimestamp());
+
+					Rectangle rectangle = new Rectangle(endTime - beginningTime, height / 1.5);
+					rectangle.getStyleClass().add("page-event-marker");
+					rectangle.setX(snapPositionX(beginningTime));
+					rectangle.setY(snapPositionX(height / 6));
+
+					pageEventList.add(rectangle);
+					actionStartTime = null;
+				}
+				else if (action.getType() == ActionType.TEXT_SELECTION_EXT) {
+					Rectangle rectangle = new Rectangle(1, height / 1.5);
+					rectangle.getStyleClass().add("page-event-marker");
+					rectangle.setX(snapPositionX(timeToXPositionFunction.applyAsDouble(action.getTimestamp())));
+					rectangle.setY(snapPositionY(height / 6));
+
+					pageEventList.add(rectangle);
+				}
 			}
 		}
+		pane.getChildren().addAll(pageEventList);
 	}
 
-	private double snap(double v) {
-		return ((int) v) + .5;
+	private class PageSlider extends Group implements Slider {
+
+		private final List<RecordedPage> pages;
+		private final Label label;
+		private final int pageNumber;
+		private double minX;
+		private double maxX;
+
+		PageSlider(List<RecordedPage> pages, int pageNumber, double maxHeight) {
+			super();
+			this.pages = pages;
+			this.pageNumber = pageNumber;
+
+			label = new Label(String.valueOf(pageNumber + 1));
+
+			label.getStyleClass().add("page-slider");
+
+			this.getChildren().addAll(label);
+
+			this.setManaged(false);
+			this.setLayoutX(snapPositionX(0));
+			this.setLayoutY(snapPositionY(0));
+
+			label.setAlignment(Pos.CENTER);
+			label.setPrefWidth(label.getWidth() + 15);
+			label.setPrefHeight(Math.min(label.getHeight() + 10, maxHeight));
+		}
+
+		@Override
+		public void mousePressed() {
+			minX = Double.MIN_VALUE;
+			maxX = Double.MAX_VALUE;
+
+			RecordedPage minPage = pages.get(pageNumber - 1);
+			RecordedPage maxPage = pages.get(pageNumber);
+
+			minPage.getPlaybackActions().forEach(action -> minX = Math.max(minX, action.getTimestamp()));
+			maxPage.getPlaybackActions().forEach(action -> maxX = Math.min(maxX, action.getTimestamp()));
+
+			minX = Math.max(minX, minPage.getTimestamp());
+			if (pages.size() > pageNumber + 1) {
+				maxX = Math.min(maxX, pages.get(pageNumber + 1).getTimestamp());
+			}
+
+			minX = timeToXPositionFunction.applyAsDouble((int) minX);
+			maxX = timeToXPositionFunction.applyAsDouble((int) maxX);
+
+			minX = Math.max(minX, eventTimeline.getLayoutBounds().getMinX() + eventTimeline.getLayoutX());
+			maxX = Math.min(maxX, eventTimeline.getLayoutBounds().getMaxX() + eventTimeline.getLayoutX());
+
+			Time duration = eventTimeline.getDuration();
+			Time current = new Time((long) (getSliderValue() * duration.getMillis()), true);
+
+			eventTimeline.getShowTimeCallback().accept(current, this.getLayoutX() + this.getLayoutBounds().getCenterX());
+		}
+
+		@Override
+		public void mouseReleased() {
+			RecordedPage page = pages.get(pageNumber).clone();
+
+			Time duration = eventTimeline.getDuration();
+			int time = (int) (getSliderValue() * duration.getMillis());
+
+			page.setTimestamp(time);
+
+			eventTimeline.getShowTimeCallback().accept(null, null);
+
+			moveOrHidePage(page);
+		}
+
+		@Override
+		public void mouseDragged() {
+			Time duration = eventTimeline.getDuration();
+			Time current = new Time((long) (getSliderValue() * duration.getMillis()), true);
+
+			eventTimeline.getShowTimeCallback().accept(current, this.getLayoutX() + this.getLayoutBounds().getCenterX());
+		}
+
+		@Override
+		public void moveByDelta(double deltaX) {
+			double x = getLayoutX() + deltaX;
+
+			x = Math.min(Math.max(x, minX), maxX);
+
+			this.setLayoutX(snapPositionX(x));
+		}
+
+
+		private double getSliderValue() {
+			Affine transform = eventTimeline.getTransform();
+
+			double width = eventTimeline.getWidth();
+			double sx = transform.getMxx();
+			double tx = transform.getTx();
+
+			return ((getLayoutX()) / width - tx) / sx;
+		}
+
+		private void moveOrHidePage(RecordedPage page) {
+			RecordedPage lowerPageBound;
+			RecordedPage higherPageBound;
+
+			lowerPageBound = pages.get(page.getNumber() - 1);
+
+			if (page.getNumber() == pages.size() - 1) {
+				higherPageBound = new RecordedPage();
+				higherPageBound.setTimestamp((int) eventTimeline.getDuration().getMillis());
+				higherPageBound.setNumber(page.getNumber() + 1);
+			}
+			else {
+				higherPageBound = pages.get(page.getNumber() + 1);
+			}
+
+			if (page.getTimestamp() - lowerPageBound.getTimestamp() < 10) {
+				eventTimeline.getOnHideAndMoveNextPage().execute(lowerPageBound);
+			}
+			else if (higherPageBound.getTimestamp() - page.getTimestamp() < 10) {
+				eventTimeline.getOnHidePage().execute(page);
+			}
+			else {
+				eventTimeline.getOnMovePage().execute(page);
+			}
+		}
 	}
 }

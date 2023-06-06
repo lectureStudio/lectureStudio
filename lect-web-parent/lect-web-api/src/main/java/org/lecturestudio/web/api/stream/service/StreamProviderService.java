@@ -22,6 +22,7 @@ import java.util.List;
 
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
 
 import jakarta.inject.Inject;
 
@@ -97,12 +98,11 @@ public class StreamProviderService extends ProviderService {
 	 * Gets a list of all participants in an active courses.
 	 *
 	 * @param courseId The unique course ID.
-	 *
 	 * @return A list of all participants in an active courses.
 	 */
 	@GET
 	@Path("/participants/{courseId}")
-	public List<CourseParticipant> getParticipants(long courseId) {
+	public List<CourseParticipant> getParticipants(@PathParam("courseId") long courseId) {
 		return streamRestClient.getParticipants(courseId);
 	}
 

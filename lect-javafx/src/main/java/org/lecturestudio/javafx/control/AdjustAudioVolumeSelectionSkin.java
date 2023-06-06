@@ -25,6 +25,9 @@ import javafx.geometry.Orientation;
 import javafx.scene.shape.Rectangle;
 import javafx.scene.transform.Affine;
 
+import org.lecturestudio.javafx.util.Slider;
+import org.lecturestudio.javafx.util.ThumbMouseHandler;
+
 public class AdjustAudioVolumeSelectionSkin extends MediaTrackSelectionSkin {
 
 	private static final double OUT_MIN = 0;

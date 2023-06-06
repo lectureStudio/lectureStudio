@@ -47,6 +47,7 @@ public class ReplacePagePresenterTest extends PresenterTest {
 
 
 	@BeforeEach
+	@Override
 	void setupInjector() throws ExecutionException, InterruptedException {
 		injector = new GuiceInjector(new AbstractModule() {
 			@Override

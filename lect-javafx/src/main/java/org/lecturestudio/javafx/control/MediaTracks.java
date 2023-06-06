@@ -20,6 +20,8 @@ package org.lecturestudio.javafx.control;
 
 import static java.util.Objects.nonNull;
 
+import java.util.Objects;
+
 import javafx.beans.property.DoubleProperty;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleDoubleProperty;
@@ -27,17 +29,20 @@ import javafx.beans.property.SimpleObjectProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
+import javafx.event.Event;
 import javafx.event.EventHandler;
 import javafx.scene.control.Control;
 import javafx.scene.control.Skin;
 import javafx.scene.transform.Affine;
 
 import org.lecturestudio.core.model.Time;
+import org.lecturestudio.core.recording.RecordedPage;
+import org.lecturestudio.core.view.ConsumerAction;
 import org.lecturestudio.media.track.MediaTrack;
 
 public class MediaTracks extends Control {
 
-	private final static String DEFAULT_STYLE_CLASS = "media-tracks";
+	private static final String DEFAULT_STYLE_CLASS = "media-tracks";
 
 	private final DoubleProperty primarySelection = new SimpleDoubleProperty();
 
@@ -54,6 +59,9 @@ public class MediaTracks extends Control {
 	private final ObjectProperty<EventHandler<ActionEvent>> seekAction = new SimpleObjectProperty<>();
 
 	private final ObjectProperty<EventHandler<ActionEvent>> stickSlidersAction = new SimpleObjectProperty<>();
+	private ConsumerAction<RecordedPage> onMovePageAction;
+	private ConsumerAction<RecordedPage> onHidePageAction;
+	private ConsumerAction<RecordedPage> onHideAndMoveNextPageAction;
 
 
 	public MediaTracks() {
@@ -144,7 +152,7 @@ public class MediaTracks extends Control {
 
 	public final void stickSlidersTogether() {
 		if (nonNull(stickSlidersAction.get())) {
-			stickSlidersAction.get().handle(new ActionEvent(this, ActionEvent.NULL_SOURCE_TARGET));
+			stickSlidersAction.get().handle(new ActionEvent(this, Event.NULL_SOURCE_TARGET));
 		}
 	}
 
@@ -154,7 +162,7 @@ public class MediaTracks extends Control {
 
 	@Override
 	public String getUserAgentStylesheet() {
-		return getClass().getResource("/resources/css/media-tracks.css").toExternalForm();
+		return Objects.requireNonNull(getClass().getResource("/resources/css/media-tracks.css")).toExternalForm();
 	}
 
 	@Override
@@ -166,4 +174,27 @@ public class MediaTracks extends Control {
 		getStyleClass().setAll(DEFAULT_STYLE_CLASS);
 	}
 
+	protected void setOnMovePage(ConsumerAction<RecordedPage> action) {
+		this.onMovePageAction = action;
+	}
+
+	public ConsumerAction<RecordedPage> getOnMovePage() {
+		return this.onMovePageAction;
+	}
+
+	protected void setOnHidePage(ConsumerAction<RecordedPage> action) {
+		this.onHidePageAction = action;
+	}
+
+	public ConsumerAction<RecordedPage> getOnHidePage() {
+		return this.onHidePageAction;
+	}
+
+	protected void setOnHideAndMoveNextPage(ConsumerAction<RecordedPage> action) {
+		this.onHideAndMoveNextPageAction = action;
+	}
+
+	public ConsumerAction<RecordedPage> getOnHideAndMoveNextPage() {
+		return this.onHideAndMoveNextPageAction;
+	}
 }

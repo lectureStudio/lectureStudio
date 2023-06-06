@@ -46,6 +46,7 @@ public class ShowPresenterCommand<T extends Presenter<?>> {
 
 	/**
 	 * Execute the command on the specified presenter.
+	 * May be empty if no extra commands are required to display the corresponding view.
 	 *
 	 * @param presenter The presenter.
 	 */

@@ -134,6 +134,11 @@ class GeneralSettingsPresenterTest extends PresenterTest {
 		}
 
 		@Override
+		public void setDisableUserInputForPreview(BooleanProperty disabled) {
+			assertFalse(disabled.get());
+		}
+
+		@Override
 		public void setExtendedFullscreen(BooleanProperty extended) {
 			assertTrue(extended.get());
 		}

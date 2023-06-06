@@ -517,7 +517,22 @@ public class SwingSlidesView extends JPanel implements SlidesView {
 
 	@Override
 	public void setStylusHandler(StylusHandler handler) {
-		stylusListener = new StylusListener(handler, slideView);
+		stylusListener = new StylusListener(handler, slideView, isMouse -> {
+			focusSlideView(!isMouse);
+		});
+
+		slideView.addMouseListener(new MouseAdapter() {
+
+			@Override
+			public void mouseEntered(MouseEvent e) {
+				focusSlideView(true);
+			}
+
+			@Override
+			public void mouseExited(MouseEvent e) {
+				focusSlideView(false);
+			}
+		});
 
 		AwtStylusManager manager = AwtStylusManager.getInstance();
 		manager.attachStylusListener(slideView, stylusListener);
@@ -1074,6 +1089,13 @@ public class SwingSlidesView extends JPanel implements SlidesView {
 		}
 
 		participantsPosition = position;
+	}
+
+	private void focusSlideView(boolean focus) {
+		// Prevent interaction with the preview-panel while the slide is focused.
+		SwingUtils.invoke(() -> {
+			getSlidesTabPane().setEnabled(!focus);
+		});
 	}
 
 	private void showMessagesPlaceholder() {

@@ -45,6 +45,12 @@ public class SplitRecordingPresenter extends Presenter<SplitRecordingView> {
 		return ViewLayer.Dialog;
 	}
 
+	/**
+	 * Opens the file chooser and preselects a filename with -part-{n} appended to the filename.
+	 * Saves the selected interval into a new file and removes it from the recording
+	 *
+	 * @param interval The interval to be cut and saved into a separate recording
+	 */
 	private void onSubmit(Interval<Integer> interval) {
 		final String pathContext = EditorContext.RECORDING_CONTEXT;
 		Configuration config = context.getConfiguration();
@@ -95,6 +101,12 @@ public class SplitRecordingPresenter extends Presenter<SplitRecordingView> {
 		close();
 	}
 
+	/**
+	 * Sets the Intervals that can be selected.
+	 *
+	 * @param begin The first interval
+	 * @param end   The second interval
+	 */
 	public void setIntervals(Interval<Integer> begin, Interval<Integer> end) {
 		view.setIntervals(begin, end);
 	}

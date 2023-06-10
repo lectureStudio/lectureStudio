@@ -38,6 +38,8 @@ public interface MediaTrackControlsView extends View {
 
 	void bindZoomLevel(ZoomConstraints constraints, DoubleProperty property);
 
+	void bindCanSplitAndSaveRecording(BooleanProperty property);
+
 	void setOnCollapseSelection(Action action);
 
 	void setOnUndo(Action action);
@@ -63,6 +65,8 @@ public interface MediaTrackControlsView extends View {
 	void setOnPreviousFoundPage(Action action);
 
 	void setOnNextFoundPage(Action action);
+
+	void setOnSplitAndSaveRecording(Action action);
 
 	void setSearchState(SearchState searchState);
 

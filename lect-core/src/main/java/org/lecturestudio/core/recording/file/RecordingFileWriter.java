@@ -19,6 +19,8 @@
 package org.lecturestudio.core.recording.file;
 
 import java.io.File;
+import java.io.IOException;
+import java.security.NoSuchAlgorithmException;
 
 import org.lecturestudio.core.io.DigestRandomAccessFile;
 import org.lecturestudio.core.io.RandomAccessAudioStream;
@@ -32,79 +34,79 @@ public final class RecordingFileWriter {
 		return write(recFile, destFile, null);
 	}
 
-	public static int write(Recording recFile, File destFile, ProgressCallback progressCallback) throws Exception {
+	public static int write(Recording recFile, File destFile, ProgressCallback progressCallback) throws NoSuchAlgorithmException, IOException {
 		if (destFile.exists()) {
 			destFile.delete();
 		}
 
-		DigestRandomAccessFile raFile = new DigestRandomAccessFile(destFile, "rw", RecordingHeader.CHECKSUM_ALGORITHM);
+		try (DigestRandomAccessFile raFile = new DigestRandomAccessFile(destFile, "rw", RecordingHeader.CHECKSUM_ALGORITHM)) {
 
-		RecordingHeader header = recFile.getRecordingHeader();
-		RandomAccessAudioStream audioStream = recFile.getRecordedAudio().getAudioStream().clone();
-		audioStream.reset();
+			RecordingHeader header = recFile.getRecordingHeader();
+			RandomAccessAudioStream audioStream = recFile.getRecordedAudio().getAudioStream().clone();
+			audioStream.reset();
 
-		byte[] eventData = recFile.getRecordedEvents().toByteArray();
-		byte[] docData = recFile.getRecordedDocument().toByteArray();
+			byte[] eventData = recFile.getRecordedEvents().toByteArray();
+			byte[] docData = recFile.getRecordedDocument().toByteArray();
 
-		int headerLength = header.getHeaderLength();
-		int eventsLength = eventData.length;
-		int documentLength = docData.length;
-		int audioLength = (int) audioStream.getLength();
-		int totalSize = headerLength + eventsLength + documentLength + audioLength;
+			int headerLength = header.getHeaderLength();
+			int eventsLength = eventData.length;
+			int documentLength = docData.length;
+			int audioLength = (int) audioStream.getLength();
+			int totalSize = headerLength + eventsLength + documentLength + audioLength;
 
-		float written = headerLength;
+			float written = headerLength;
 
-		// Skip the header and write it when the file checksum is computed.
-		raFile.seek(headerLength);
+			// Skip the header and write it when the file checksum is computed.
+			raFile.seek(headerLength);
 
-		// Write events.
-		raFile.write(eventData);
+			// Write events.
+			raFile.write(eventData);
 
-		written += eventsLength;
-		setProgress(written / totalSize, progressCallback);
+			written += eventsLength;
+			setProgress(written / totalSize, progressCallback);
 
-		// Write document.
-		raFile.write(docData);
+			// Write document.
+			raFile.write(docData);
 
-		written += documentLength;
-		setProgress(written / totalSize, progressCallback);
+			written += documentLength;
+			setProgress(written / totalSize, progressCallback);
 
-		// Write audio.
-		byte[] audioBuffer = new byte[4096];
+			// Write audio.
+			byte[] audioBuffer = new byte[4096];
 
-		while (true) {
-			int bytesRead = audioStream.read(audioBuffer);
-			if (bytesRead == -1) {
-				break;
+			while (true) {
+				int bytesRead = audioStream.read(audioBuffer);
+				if (bytesRead == -1) {
+					break;
+				}
+
+				raFile.write(audioBuffer, 0, bytesRead);
+
+				written += bytesRead;
+				setProgress(written / totalSize, progressCallback);
 			}
 
-			raFile.write(audioBuffer, 0, bytesRead);
+			audioStream.close();
 
-			written += bytesRead;
+			// Update file header.
+			byte[] checksum = raFile.getDigest();
+
+			// Set header values.
+			header.setVersion(Recording.FORMAT_VERSION);
+			header.setChecksum(checksum);
+			header.setEventsLength(eventsLength);
+			header.setDocumentLength(documentLength);
+			header.setAudioLength(audioLength);
+
+			// Write file header at the beginning of the file.
+			raFile.seek(0);
+			raFile.write(header.toByteArray());
+			written += headerLength;
 			setProgress(written / totalSize, progressCallback);
+
+			return totalSize;
 		}
 
-		audioStream.close();
-
-		// Update file header.
-		byte[] checksum = raFile.getDigest();
-
-		// Set header values.
-		header.setVersion(Recording.FORMAT_VERSION);
-		header.setChecksum(checksum);
-		header.setEventsLength(eventsLength);
-		header.setDocumentLength(documentLength);
-		header.setAudioLength(audioLength);
-
-		// Write file header at the beginning of the file.
-		raFile.seek(0);
-		raFile.write(header.toByteArray());
-		raFile.close();
-
-		written += headerLength;
-		setProgress(written / totalSize, progressCallback);
-
-		return totalSize;
 	}
 
 	private static void setProgress(float progress, ProgressCallback progressCallback) {
@@ -112,5 +114,4 @@ public final class RecordingFileWriter {
 			progressCallback.onProgress(progress);
 		}
 	}
-
 }

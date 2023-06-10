@@ -36,6 +36,12 @@ public interface MediaControlsView extends View {
 
 	void setDuration(Time duration);
 
+	/**
+	 * Sets the current page number and the amount of total pages.
+	 *
+	 * @param current Current Page number
+	 * @param total   Amount of total pages
+	 */
 	void setCurrentPage(Integer current, Integer total);
 
 	void setOnSeekPressed(Action action);

@@ -35,11 +35,9 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class ReplacePagePresenterTest extends PresenterTest {
 
-	GuiceInjector injector;
-
 	RecordingFileService recordingService;
 
-	ReplacePageMockView view = new ReplacePageMockView();
+	ReplacePageMockView view;
 
 	ReplacePagePresenter presenter;
 
@@ -49,6 +47,7 @@ public class ReplacePagePresenterTest extends PresenterTest {
 	@BeforeEach
 	@Override
 	void setupInjector() throws ExecutionException, InterruptedException {
+		view = new ReplacePageMockView();
 		injector = new GuiceInjector(new AbstractModule() {
 			@Override
 			protected void configure() {
@@ -97,28 +96,16 @@ public class ReplacePagePresenterTest extends PresenterTest {
 	}
 
 	List<Integer> replacePages(String pageReplaceType, Document replacingDocument, boolean confirm) throws InterruptedException {
-		CountDownLatch doneLatch = new CountDownLatch(1);
 		replacingDocument.getPages().forEach((page -> page.setUid(UUID.randomUUID())));
 
 		view.setOnReplaceTypeChangeAction.execute(pageReplaceType);
 
 		CompletableFuture.runAsync(() -> {
 			view.setOnReplaceAction.execute();
-			do {
-				try {
-					TimeUnit.MILLISECONDS.sleep(50);
-				}
-				catch (InterruptedException e) {
-					throw new RuntimeException(e);
-				}
-			} while (!view.doneBoolean);
-
-			view.doneBoolean = false;
-
-			doneLatch.countDown();
 		});
 
-		assertTrue(doneLatch.await(10, TimeUnit.SECONDS));
+		assertTrue(awaitTrue(() -> view.doneBoolean, 10));
+		view.doneBoolean = false;
 
 		if (confirm) {
 			CountDownLatch confirmLatch = new CountDownLatch(1);
@@ -150,70 +137,29 @@ public class ReplacePagePresenterTest extends PresenterTest {
 
 	@Test
 	void testSetOnNextPrevPageNewDoc() throws InterruptedException {
-		CountDownLatch pageSetLatch = new CountDownLatch(1);
 		view.setNewPagePage = null;
 		view.setOnNextPageNewDocAction.execute();
 
-		CountDownLatch finalPageSetLatch = pageSetLatch;
-		CompletableFuture.runAsync(() -> {
-			while (view.setNewPagePage == null) {
-				try {
-					TimeUnit.MICROSECONDS.sleep(10);
-				}
-				catch (InterruptedException e) {
-					throw new RuntimeException(e);
-				}
-			}
-			finalPageSetLatch.countDown();
-		});
-
-		assertTrue(pageSetLatch.await(10, TimeUnit.SECONDS));
+		assertTrue(awaitTrue(() -> view.setNewPagePage != null, 10));
 		assertEquals(1, view.setNewPagePage.getPageNumber());
 
-		pageSetLatch = new CountDownLatch(1);
 		view.setNewPagePage = null;
 
 		view.setOnPreviousPageNewDocAction.execute();
 
-		CountDownLatch finalPageSetLatch1 = pageSetLatch;
-		CompletableFuture.runAsync(() -> {
-			while (view.setNewPagePage == null) {
-				try {
-					TimeUnit.MICROSECONDS.sleep(10);
-				}
-				catch (InterruptedException e) {
-					throw new RuntimeException(e);
-				}
-			}
-			finalPageSetLatch1.countDown();
-		});
-
-		assertTrue(pageSetLatch.await(10, TimeUnit.SECONDS));
+		assertTrue(awaitTrue(() -> view.setNewPagePage != null, 10));
 		assertEquals(0, view.setNewPagePage.getPageNumber());
 	}
 
 	@Test
 	void testSetOnPageNumberNewDoc() throws InterruptedException {
-		CountDownLatch pageSetLatch = new CountDownLatch(1);
 		Document document = recordingService.getSelectedRecording().getRecordedDocument().getDocument();
 
 		view.setCurrentPagePage = null;
 
 		view.setOnPageNumberCurrentDocAction.execute(document.getPageCount() - 1);
 
-		CompletableFuture.runAsync(() -> {
-			while (view.setCurrentPagePage == null) {
-				try {
-					TimeUnit.MICROSECONDS.sleep(10);
-				}
-				catch (InterruptedException e) {
-					throw new RuntimeException(e);
-				}
-			}
-			pageSetLatch.countDown();
-		});
-
-		assertTrue(pageSetLatch.await(10, TimeUnit.SECONDS));
+		assertTrue(awaitTrue(() -> view.setCurrentPagePage != null, 10));
 
 		assertEquals(document.getPageCount() - 1, view.setCurrentPagePage.getPageNumber());
 	}
@@ -221,48 +167,20 @@ public class ReplacePagePresenterTest extends PresenterTest {
 	@Test
 	void testSetOnNextPreviousPageCurrentDoc() throws InterruptedException {
 		Document document = recordingService.getSelectedRecording().getRecordedDocument().getDocument();
-		CountDownLatch pageSetLatch = new CountDownLatch(1);
 
 		assertTrue(document.getPageCount() > 1);
 		view.setCurrentPagePage = null;
 		view.setOnNextPageCurrentDocAction.execute();
 
-		CountDownLatch finalPageSetLatch = pageSetLatch;
-		CompletableFuture.runAsync(() -> {
-			while (view.setCurrentPagePage == null) {
-				try {
-					TimeUnit.MICROSECONDS.sleep(10);
-				}
-				catch (InterruptedException e) {
-					throw new RuntimeException(e);
-				}
-			}
-			finalPageSetLatch.countDown();
-		});
-
-		assertTrue(pageSetLatch.await(10, TimeUnit.SECONDS));
+		assertTrue(awaitTrue(() -> view.setCurrentPagePage != null, 10));
 
 		assertEquals(1, view.setCurrentPagePage.getPageNumber());
 
-		pageSetLatch = new CountDownLatch(1);
 		view.setCurrentPagePage = null;
 
 		view.setOnPreviousPageCurrentDocAction.execute();
 
-		CountDownLatch finalPageSetLatch1 = pageSetLatch;
-		CompletableFuture.runAsync(() -> {
-			while (view.setCurrentPagePage == null) {
-				try {
-					TimeUnit.MICROSECONDS.sleep(10);
-				}
-				catch (InterruptedException e) {
-					throw new RuntimeException(e);
-				}
-			}
-			finalPageSetLatch1.countDown();
-		});
-
-		assertTrue(pageSetLatch.await(10, TimeUnit.SECONDS));
+		assertTrue(awaitTrue(() -> view.setCurrentPagePage != null, 10));
 
 		assertEquals(0, view.setCurrentPagePage.getPageNumber());
 	}
@@ -270,24 +188,11 @@ public class ReplacePagePresenterTest extends PresenterTest {
 	@Test
 	void testSetOnPageNumberCurrentDoc() throws InterruptedException {
 		Document document = recordingService.getSelectedRecording().getRecordedDocument().getDocument();
-		CountDownLatch pageSetLatch = new CountDownLatch(1);
 		view.setCurrentPagePage = null;
 
 		view.setOnPageNumberCurrentDocAction.execute(document.getPageCount() - 1);
 
-		CompletableFuture.runAsync(() -> {
-			while (view.setCurrentPagePage == null) {
-				try {
-					TimeUnit.MICROSECONDS.sleep(10);
-				}
-				catch (InterruptedException e) {
-					throw new RuntimeException(e);
-				}
-			}
-			pageSetLatch.countDown();
-		});
-
-		assertTrue(pageSetLatch.await(10, TimeUnit.SECONDS));
+		assertTrue(awaitTrue(() -> view.setCurrentPagePage != null, 10));
 
 		assertEquals(document.getPageCount() - 1, view.setCurrentPagePage.getPageNumber());
 	}
@@ -363,5 +268,4 @@ public class ReplacePagePresenterTest extends PresenterTest {
 			assertTrue(document.getPage(i).getPageText().isBlank());
 		}
 	}
-
 }

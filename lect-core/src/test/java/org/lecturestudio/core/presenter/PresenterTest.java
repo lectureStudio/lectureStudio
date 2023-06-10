@@ -10,7 +10,11 @@ import java.nio.file.Path;
 import java.nio.file.SimpleFileVisitor;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.util.Objects;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicReference;
+import java.util.function.Supplier;
 
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -188,7 +192,7 @@ public abstract class PresenterTest {
 		@Override
 		public File showSaveFile(View parent) {
 			this.parent = parent;
-			return null;
+			return new File(directory, initialFileName);
 		}
 	}
 
@@ -250,5 +254,32 @@ public abstract class PresenterTest {
 		public void setOnClose(Action action) {
 			this.closeAction = action;
 		}
+	}
+
+	/**
+	 * Pauses execution until either the supplied function returns true or the timeout runs out.
+	 * Can be used as a convenience method to wait for async tasks to complete.
+	 *
+	 * @param booleanSupplier  Waits for this function to return true
+	 * @param timeoutInSeconds The timeout in seconds
+	 * @return True, if the boolean function returns true and false if the timeout runs out.
+	 * @throws InterruptedException
+	 */
+	protected boolean awaitTrue(Supplier<Boolean> booleanSupplier, int timeoutInSeconds) throws InterruptedException {
+		CountDownLatch trueLatch = new CountDownLatch(1);
+		CompletableFuture.runAsync(() -> {
+			while (!booleanSupplier.get()) {
+				try {
+					TimeUnit.MILLISECONDS.sleep(10);
+				}
+				catch (InterruptedException e) {
+					throw new RuntimeException(e);
+				}
+			}
+
+			trueLatch.countDown();
+		});
+
+		return trueLatch.await(timeoutInSeconds, TimeUnit.SECONDS);
 	}
 }

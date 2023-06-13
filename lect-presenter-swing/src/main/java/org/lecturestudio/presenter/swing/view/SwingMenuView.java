@@ -134,6 +134,10 @@ public class SwingMenuView extends JMenuBar implements MenuView {
 
 	private JMenuItem closeQuizMenuItem;
 
+	private JMenuItem resetStopwatchMenuItem;
+
+	private JMenuItem pauseStopwatchMenuItem;
+
 	private JMenuItem clearBookmarksMenuItem;
 
 	private JMenuItem newBookmarkMenuItem;
@@ -147,6 +151,8 @@ public class SwingMenuView extends JMenuBar implements MenuView {
 	private JMenuItem aboutMenuItem;
 
 	private JMenu timeMenu;
+
+	private JMenu stopwatchMenu;
 
 	private JMenu recordIndicatorMenu;
 
@@ -492,6 +498,18 @@ public class SwingMenuView extends JMenuBar implements MenuView {
 	}
 
 	@Override
+	public void setOnResetStopwatch(Action action) {
+		SwingUtils.bindAction(resetStopwatchMenuItem, action);
+	}
+
+	@Override
+	public void setOnPauseStopwatch(Action action) {
+		SwingUtils.bindAction(pauseStopwatchMenuItem, action);
+	}
+
+
+
+	@Override
 	public void setMessengerWindowVisible(boolean visible) {
 //		showMessengerWindowMenuItem.setSelected(visible);
 	}
@@ -646,6 +664,11 @@ public class SwingMenuView extends JMenuBar implements MenuView {
 	@Override
 	public void setCurrentTime(String time) {
 		SwingUtils.invoke(() -> timeMenu.setText(time));
+	}
+
+	@Override
+	public void setCurrentStopwatch(String time) {
+		SwingUtils.invoke(() -> stopwatchMenu.setText(time));
 	}
 
 	@Override

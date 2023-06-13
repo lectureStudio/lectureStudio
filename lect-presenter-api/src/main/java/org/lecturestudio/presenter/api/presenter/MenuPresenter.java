@@ -85,6 +85,8 @@ public class MenuPresenter extends Presenter<MenuView> {
 
 	private final QuizParser quizParser;
 
+	private final Stopwatch stopwatch;
+
 	@Inject
 	private ToolController toolController;
 
@@ -112,6 +114,7 @@ public class MenuPresenter extends Presenter<MenuView> {
 		this.quizParser = new QuizParser();
 		this.timeFormatter = DateTimeFormatter.ofPattern("HH:mm", getPresenterConfig().getLocale());
 		this.timer = new Timer("MenuTime", true);
+		this.stopwatch = new Stopwatch();
 	}
 
 	@Subscribe
@@ -358,6 +361,14 @@ public class MenuPresenter extends Presenter<MenuView> {
 		streamService.stopQuiz();
 	}
 
+	public void resetStopwatch(){
+		stopwatch.resetStopwatch();
+	}
+
+	public void pauseStopwatch(){
+		stopwatch.pauseStopwatch();
+	}
+
 	public void clearBookmarks() {
 		bookmarkService.clearBookmarks();
 	}
@@ -512,6 +523,8 @@ public class MenuPresenter extends Presenter<MenuView> {
 		view.setOnShowSelectQuizView(this::selectQuiz);
 		view.setOnShowNewQuizView(this::newQuiz);
 		view.setOnCloseQuiz(this::closeQuiz);
+		view.setOnPauseStopwatch(this::pauseStopwatch);
+		view.setOnResetStopwatch(this::resetStopwatch);
 
 		view.setOnClearBookmarks(this::clearBookmarks);
 		view.setOnShowNewBookmarkView(this::newBookmark);
@@ -589,5 +602,15 @@ public class MenuPresenter extends Presenter<MenuView> {
 				view.setCurrentTime(LocalDateTime.now().format(timeFormatter));
 			}
 		}, 0, 30000);
+
+		timer.scheduleAtFixedRate(new TimerTask() {
+
+			@Override
+			public void run() {
+				stopwatch.updateStopwatchInterval();
+				view.setCurrentStopwatch(stopwatch.calculateCurrentStopwatch());
+
+			}
+		}, 0, 1000);
 	}
 }

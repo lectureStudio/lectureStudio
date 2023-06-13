@@ -166,6 +166,10 @@ public interface MenuView extends View {
 
 	void setStreamReconnectState(ExecutableState state);
 
+	void setOnResetStopwatch(Action action);
+
+	void setOnPauseStopwatch(Action action);
+
 	/**
 	 * Bookmarks Menu
 	 */
@@ -195,6 +199,8 @@ public interface MenuView extends View {
 	 */
 
 	void setCurrentTime(String time);
+
+	void setCurrentStopwatch(String time);
 
 	/**
 	 * Recording time Menu

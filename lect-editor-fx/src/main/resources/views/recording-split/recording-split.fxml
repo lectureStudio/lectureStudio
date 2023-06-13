@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.text.*?>
+<?import org.lecturestudio.javafx.control.*?>
+
+<fx:root styleClass="recording-split" type="StackPane" xmlns="http://javafx.com/javafx/17.0.2-ea"
+		 xmlns:fx="http://javafx.com/fxml/1">
+	<VBox maxHeight="150" maxWidth="300" styleClass="content">
+		<Label styleClass="header" text="%recording.split.title"/>
+		<FlowPane styleClass="split-options">
+			<VBox>
+				<TextFlow>
+					<Label fx:id="splitInfoText" text="%recording.split.info" wrapText="true">
+						<tooltip>
+							<Tooltip text="%recording.split.info"/>
+						</tooltip>
+					</Label>
+				</TextFlow>
+				<VBox styleClass="radioButtons">
+					<fx:define>
+						<ToggleGroup fx:id="partialSaveGroup"/>
+					</fx:define>
+					<ExtRadioButton fx:id="beginRadio" mnemonicParsing="false" selected="true"
+									text="%recording.split.radio.begin" toggleGroup="$partialSaveGroup">
+						<tooltip>
+							<Tooltip text="%recording.split.radio.begin"/>
+						</tooltip>
+					</ExtRadioButton>
+
+					<ExtRadioButton fx:id="endRadio" mnemonicParsing="false"
+									text="%recording.split.radio.end" toggleGroup="$partialSaveGroup">
+						<tooltip>
+							<Tooltip text="%recording.split.radio.end"/>
+						</tooltip>
+					</ExtRadioButton>
+				</VBox>
+				<TextFlow>
+					<Label fx:id="removeInfoText" text="%recording.split.info.remove" wrapText="true">
+						<tooltip>
+							<Tooltip text="%recording.split.info.remove"/>
+						</tooltip>
+					</Label>
+				</TextFlow>
+			</VBox>
+
+		</FlowPane>
+
+		<HBox alignment="BOTTOM_RIGHT" styleClass="buttons" VBox.vgrow="ALWAYS">
+			<Button fx:id="closeButton" text="%recording.split.button.abort"/>
+
+			<Button fx:id="submitButton" defaultButton="true" text="%recording.split.button.save"/>
+		</HBox>
+	</VBox>
+</fx:root>

@@ -21,6 +21,7 @@ package org.lecturestudio.core.recording;
 import static java.util.Objects.nonNull;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -54,6 +55,19 @@ public class Recording {
 
 	public Recording() {
 		header = new RecordingHeader();
+	}
+
+	/**
+	 * Copies all mutable object variables from the supplied recording.
+	 *
+	 * @param recording The recording to copy the variables from.
+	 * @throws IOException
+	 */
+	public Recording(Recording recording) throws IOException {
+		this.setRecordedDocument(new RecordedDocument(recording.getRecordedDocument().toByteArray()));
+		this.setRecordedAudio(new RecordedAudio(recording.getRecordedAudio().getAudioStream().clone()));
+		this.setRecordedEvents(new RecordedEvents(recording.getRecordedEvents().toByteArray()));
+		this.setRecordingHeader(recording.getRecordingHeader().clone());
 	}
 
 	public File getSourceFile() {

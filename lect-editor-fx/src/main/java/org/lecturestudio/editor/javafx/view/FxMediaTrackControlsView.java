@@ -94,6 +94,9 @@ public class FxMediaTrackControlsView extends HBox implements MediaTrackControls
 	@FXML
 	private TextSearchField<String> searchField;
 
+	@FXML
+	private Button splitAndSaveRecordingButton;
+
 
 	public FxMediaTrackControlsView() {
 		super();
@@ -130,6 +133,11 @@ public class FxMediaTrackControlsView extends HBox implements MediaTrackControls
 		property.addListener((o, oldValue, newValue) -> {
 			updateZoomButtons(constraints, newValue);
 		});
+	}
+
+	@Override
+	public void bindCanSplitAndSaveRecording(BooleanProperty property) {
+		splitAndSaveRecordingButton.disableProperty().bind(new LectBooleanProperty(property).not());
 	}
 
 	@Override
@@ -197,6 +205,11 @@ public class FxMediaTrackControlsView extends HBox implements MediaTrackControls
 	@Override
 	public void setOnNextFoundPage(Action action) {
 		FxUtils.bindAction(searchNextButton, action);
+	}
+
+	@Override
+	public void setOnSplitAndSaveRecording(Action action) {
+		FxUtils.bindAction(splitAndSaveRecordingButton, action);
 	}
 
 	@Override

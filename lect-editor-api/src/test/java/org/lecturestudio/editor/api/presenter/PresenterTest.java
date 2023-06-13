@@ -1,5 +1,6 @@
 package org.lecturestudio.editor.api.presenter;
 
+import java.io.File;
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.nio.file.Path;
@@ -16,8 +17,10 @@ import org.lecturestudio.core.inject.GuiceInjector;
 import org.lecturestudio.core.model.Document;
 import org.lecturestudio.core.presenter.ConfirmationNotificationPresenter;
 import org.lecturestudio.core.presenter.NotificationPresenter;
+import org.lecturestudio.core.presenter.Presenter;
 import org.lecturestudio.core.presenter.command.ConfirmationNotificationCommand;
 import org.lecturestudio.core.presenter.command.NotificationCommand;
+import org.lecturestudio.core.presenter.command.ShowPresenterCommand;
 import org.lecturestudio.editor.api.config.DefaultConfiguration;
 import org.lecturestudio.editor.api.context.EditorContext;
 
@@ -29,6 +32,7 @@ public abstract class PresenterTest extends org.lecturestudio.core.presenter.Pre
 	void setupPresenterTest() throws IOException, URISyntaxException {
 		Path root = getResourcePath(".");
 		testPath = root.resolve("AppData");
+		new File(testPath.toUri()).mkdirs();
 
 		notifyViewRef = new AtomicReference<>();
 
@@ -67,6 +71,20 @@ public abstract class PresenterTest extends org.lecturestudio.core.presenter.Pre
 				NotificationPresenter presenter = injector.getInstance(command.getPresenterClass());
 
 				command.execute(presenter);
+			}
+
+
+			@Subscribe
+			public <T extends Presenter<?>> void onCommand(ShowPresenterCommand<T> command) {
+				T presenter = injector.getInstance(command.getPresenterClass());
+
+				try {
+					command.execute(presenter);
+					presenter.initialize();
+				}
+				catch (Exception e) {
+					e.printStackTrace();
+				}
 			}
 
 		});

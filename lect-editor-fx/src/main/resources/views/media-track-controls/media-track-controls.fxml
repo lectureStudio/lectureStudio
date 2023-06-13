@@ -62,10 +62,18 @@
 			</Button>
 			<Button fx:id="importRecordingButton">
 				<tooltip>
-					<Tooltip text="%media.import.recording" />
+					<Tooltip text="%media.import.recording"/>
 				</tooltip>
 				<graphic>
 					<SvgIcon styleClass="import-recording-icon"/>
+				</graphic>
+			</Button>
+			<Button fx:id="splitAndSaveRecordingButton">
+				<tooltip>
+					<Tooltip text="%media.split.recording"/>
+				</tooltip>
+				<graphic>
+					<SvgIcon styleClass="split-recording-icon"/>
 				</graphic>
 			</Button>
 		</buttons>

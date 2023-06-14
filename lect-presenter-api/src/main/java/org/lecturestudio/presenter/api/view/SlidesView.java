@@ -136,8 +136,6 @@ public interface SlidesView extends View {
 
 	void setOnOutlineItem(ConsumerAction<DocumentOutlineItem> action);
 
-	void setOnPreviewDisable(BooleanProperty disabled);
-
 	void setOnExternalMessagesPositionChanged(ConsumerAction<ExternalWindowPosition> action);
 
 	void setOnExternalMessagesSizeChanged(ConsumerAction<Dimension> action);

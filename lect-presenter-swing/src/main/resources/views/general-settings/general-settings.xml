@@ -22,9 +22,12 @@
 	<CheckBox id="saveAnnotationsCheckBox" text="general.settings.annotations.save">
 		<gridbagconstraints gridx="0" gridy="4" gridwidth="2" anchor="GridBagConstraints.WEST" insets="5,0,2,0" />
 	</CheckBox>
-	<CheckBox id="disablePreviewCheckBox" text="general.settings.disable.preview">
-		<gridbagconstraints gridx="0" gridy="5" gridwidth="2" anchor="GridBagConstraints.WEST" insets="5,0,2,0" />
-	</CheckBox>
+	<HBox gap="5">
+		<gridbagconstraints gridx="0" gridy="5" gridwidth="2" anchor="GridBagConstraints.WEST" insets="5,0,5,0" />
+
+		<Label text="general.settings.page.select.delay" />
+		<TextField id="pageSelectDelayField" columns="5" />
+	</HBox>
 <!--	<CheckBox id="fullscreenModeCheckBox" text="general.settings.fullscreen.hide.extended">-->
 <!--		<gridbagconstraints gridx="0" gridy="6" gridwidth="2" anchor="GridBagConstraints.WEST" insets="5,0,10,0" />-->
 <!--	</CheckBox>-->

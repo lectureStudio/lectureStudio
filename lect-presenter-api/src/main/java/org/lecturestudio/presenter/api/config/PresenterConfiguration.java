@@ -33,7 +33,7 @@ public class PresenterConfiguration extends Configuration {
 
 	private final BooleanProperty saveDocOnClose = new BooleanProperty();
 
-	private final BooleanProperty disablePreview = new BooleanProperty();
+	private final IntegerProperty pageSelectionDelay = new IntegerProperty();
 
 	private final StreamConfiguration streamConfig = new StreamConfiguration();
 
@@ -113,16 +113,16 @@ public class PresenterConfiguration extends Configuration {
 		return saveDocOnClose;
 	}
 
-	public Boolean getDisablePreview() {
-		return disablePreview.get();
+	public Integer getPageSelectionDelay() {
+		return pageSelectionDelay.get();
 	}
 
-	public void setDisablePreview(Boolean disabled) {
-		this.disablePreview.set(disabled);
+	public void setPageSelectionDelay(Integer delay) {
+		this.pageSelectionDelay.set(delay);
 	}
 
-	public BooleanProperty disablePreviewProperty() {
-		return disablePreview;
+	public IntegerProperty pageSelectionDelayProperty() {
+		return pageSelectionDelay;
 	}
 
 	/**

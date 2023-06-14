@@ -28,17 +28,21 @@ import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
 import javax.swing.JPanel;
 import javax.swing.JSlider;
+import javax.swing.JTextField;
 
 import org.lecturestudio.core.PageMetrics;
 import org.lecturestudio.core.app.Theme;
 import org.lecturestudio.core.beans.BooleanProperty;
 import org.lecturestudio.core.beans.Converter;
 import org.lecturestudio.core.beans.DoubleProperty;
+import org.lecturestudio.core.beans.IntegerProperty;
 import org.lecturestudio.core.beans.ObjectProperty;
+import org.lecturestudio.core.converter.IntegerStringConverter;
 import org.lecturestudio.core.geometry.Dimension2D;
 import org.lecturestudio.core.view.Action;
 import org.lecturestudio.presenter.api.view.GeneralSettingsView;
 import org.lecturestudio.swing.beans.ConvertibleNumberProperty;
+import org.lecturestudio.swing.beans.ConvertibleObjectProperty;
 import org.lecturestudio.swing.util.SwingUtils;
 import org.lecturestudio.swing.view.SwingView;
 
@@ -59,7 +63,7 @@ public class SwingGeneralSettingsView extends JPanel implements GeneralSettingsV
 
 	private JCheckBox fullscreenModeCheckBox;
 
-	private JCheckBox disablePreviewCheckBox;
+	private JTextField pageSelectDelayField;
 
 	private JSlider extendViewSlider;
 
@@ -119,8 +123,10 @@ public class SwingGeneralSettingsView extends JPanel implements GeneralSettingsV
 	}
 
 	@Override
-	public void setDisableUserInputForPreview(BooleanProperty disabled) {
-		SwingUtils.bindBidirectional(disablePreviewCheckBox, disabled);
+	public void setPageSelectionDelay(IntegerProperty delay) {
+		SwingUtils.bindBidirectional(pageSelectDelayField,
+				new ConvertibleObjectProperty<>(delay,
+						new IntegerStringConverter("#")));
 	}
 
 	@Override

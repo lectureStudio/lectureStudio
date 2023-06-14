@@ -152,7 +152,7 @@ public class SwingMenuView extends JMenuBar implements MenuView {
 
 	private JMenu timeMenu;
 
-	private JMenu stopwatchMenu;
+	private JButton stopwatchMenu;
 
 	private JMenu recordIndicatorMenu;
 
@@ -670,6 +670,10 @@ public class SwingMenuView extends JMenuBar implements MenuView {
 	public void setCurrentStopwatch(String time) {
 		SwingUtils.invoke(() -> stopwatchMenu.setText(time));
 	}
+	@Override
+	public void setCurrentStopwatch(Action action) {
+		SwingUtils.bindAction(stopwatchMenu, action);
+	}
 
 	@Override
 	public void setRecordingTime(Time time) {
@@ -729,6 +733,10 @@ public class SwingMenuView extends JMenuBar implements MenuView {
 		final ButtonGroup participantsPositionButtonGroup = new ButtonGroup();
 		participantsPositionButtonGroup.add(participantsPositionLeftMenuItem);
 		participantsPositionButtonGroup.add(participantsPositionRightMenuItem);
+		stopwatchMenu.setBorderPainted(false);
+		stopwatchMenu.setContentAreaFilled(false);
+		stopwatchMenu.setFocusPainted(false);
+		stopwatchMenu.setOpaque(false);
 	}
 
 	private void setStateText(AbstractButton button, String start, String stop) {

@@ -202,6 +202,8 @@ public interface MenuView extends View {
 
 	void setCurrentStopwatch(String time);
 
+	void setCurrentStopwatch(Action action);
+
 	/**
 	 * Recording time Menu
 	 */

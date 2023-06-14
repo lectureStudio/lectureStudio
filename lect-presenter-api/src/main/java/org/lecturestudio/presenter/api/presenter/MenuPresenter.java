@@ -525,6 +525,7 @@ public class MenuPresenter extends Presenter<MenuView> {
 		view.setOnCloseQuiz(this::closeQuiz);
 		view.setOnPauseStopwatch(this::pauseStopwatch);
 		view.setOnResetStopwatch(this::resetStopwatch);
+		view.setCurrentStopwatch(this::pauseStopwatch);
 
 		view.setOnClearBookmarks(this::clearBookmarks);
 		view.setOnShowNewBookmarkView(this::newBookmark);

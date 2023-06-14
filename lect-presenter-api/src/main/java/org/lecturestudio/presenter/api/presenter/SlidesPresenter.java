@@ -456,6 +456,13 @@ public class SlidesPresenter extends Presenter<SlidesView> {
 	}
 
 	@Subscribe
+	public void onEvent(PreviewPositionEvent event) {
+		final MessageBarPosition position = event.getPosition();
+
+		view.setPreviewPosition(position);
+	}
+
+	@Subscribe
 	public void onEvent(TextColorEvent event) {
 		if (nonNull(lastFocusedTextBox)) {
 			lastFocusedTextBox.setTextColor(event.getColor());
@@ -1096,6 +1103,9 @@ public class SlidesPresenter extends Presenter<SlidesView> {
 
 		view.setParticipantsPosition(getPresenterConfig()
 				.getSlideViewConfiguration().getParticipantsPosition());
+
+		view.setPreviewPosition(getPresenterConfig()
+				.getSlideViewConfiguration().getPreviewPosition());
 
 		try {
 			recordingService.init();

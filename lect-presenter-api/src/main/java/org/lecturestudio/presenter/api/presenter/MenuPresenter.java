@@ -42,6 +42,7 @@ import org.lecturestudio.core.app.ApplicationContext;
 import org.lecturestudio.core.app.configuration.Configuration;
 import org.lecturestudio.core.app.dictionary.Dictionary;
 import org.lecturestudio.core.audio.AudioDeviceNotConnectedException;
+import org.lecturestudio.core.beans.ObjectProperty;
 import org.lecturestudio.core.bus.EventBus;
 import org.lecturestudio.core.bus.event.CustomizeToolbarEvent;
 import org.lecturestudio.core.bus.event.DocumentEvent;
@@ -64,6 +65,7 @@ import org.lecturestudio.core.util.ListChangeListener;
 import org.lecturestudio.core.util.ObservableList;
 import org.lecturestudio.core.view.*;
 import org.lecturestudio.presenter.api.config.PresenterConfiguration;
+import org.lecturestudio.presenter.api.config.SlideViewConfiguration;
 import org.lecturestudio.presenter.api.context.PresenterContext;
 import org.lecturestudio.presenter.api.event.*;
 import org.lecturestudio.presenter.api.model.*;
@@ -444,6 +446,7 @@ public class MenuPresenter extends Presenter<MenuView> {
 	public void initialize() {
 		final PresenterContext presenterContext = (PresenterContext) context;
 		final PresenterConfiguration config = getPresenterConfig();
+		final SlideViewConfiguration slideViewConfig = config.getSlideViewConfiguration();
 
 		eventBus.register(this);
 
@@ -479,7 +482,7 @@ public class MenuPresenter extends Presenter<MenuView> {
 		view.setOnExternalSlidePreview(this::externalSlidePreview);
 		view.setOnExternalSpeech(this::externalSpeech);
 
-		switch (config.getSlideViewConfiguration().getMessageBarPosition()) {
+		switch (slideViewConfig.getMessageBarPosition()) {
 			case LEFT -> view.setMessagesPositionLeft();
 			case BOTTOM -> view.setMessagesPositionBottom();
 			case RIGHT -> view.setMessagesPositionRight();
@@ -489,13 +492,20 @@ public class MenuPresenter extends Presenter<MenuView> {
 		view.setOnMessagesPositionBottom(() -> positionMessages(MessageBarPosition.BOTTOM));
 		view.setOnMessagesPositionRight(() -> positionMessages(MessageBarPosition.RIGHT));
 
-		switch (config.getSlideViewConfiguration().getParticipantsPosition()) {
+		switch (slideViewConfig.getParticipantsPosition()) {
 			case LEFT -> view.setParticipantsPositionLeft();
 			case RIGHT -> view.setParticipantsPositionRight();
 		}
 
 		view.setOnParticipantsPositionLeft(() -> positionParticipants(MessageBarPosition.LEFT));
 		view.setOnParticipantsPositionRight(() -> positionParticipants(MessageBarPosition.RIGHT));
+
+		ObjectProperty<MessageBarPosition> previewPosition = slideViewConfig.previewPositionProperty();
+		previewPosition.addListener((o, oldPos, newPos) -> {
+			eventBus.post(new PreviewPositionEvent(newPos));
+		});
+
+		view.bindPreviewPosition(previewPosition);
 
 		view.setOnNewWhiteboard(this::newWhiteboard);
 		view.setOnNewWhiteboardPage(this::newWhiteboardPage);

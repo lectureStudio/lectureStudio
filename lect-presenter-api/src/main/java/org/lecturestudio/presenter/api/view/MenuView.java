@@ -24,6 +24,7 @@ import java.util.List;
 import org.lecturestudio.core.ExecutableState;
 import org.lecturestudio.core.beans.BooleanProperty;
 import org.lecturestudio.core.beans.IntegerProperty;
+import org.lecturestudio.core.beans.ObjectProperty;
 import org.lecturestudio.core.model.Document;
 import org.lecturestudio.core.model.Page;
 import org.lecturestudio.core.model.RecentDocument;
@@ -34,6 +35,7 @@ import org.lecturestudio.core.view.PresentationParameter;
 import org.lecturestudio.core.view.View;
 import org.lecturestudio.presenter.api.model.Bookmark;
 import org.lecturestudio.presenter.api.model.Bookmarks;
+import org.lecturestudio.presenter.api.model.MessageBarPosition;
 import org.lecturestudio.presenter.api.service.QuizWebServiceState;
 
 public interface MenuView extends View {
@@ -117,6 +119,8 @@ public interface MenuView extends View {
 	void setOnParticipantsPositionRight(Action action);
 
 	void setParticipantsPositionRight();
+
+	void bindPreviewPosition(ObjectProperty<MessageBarPosition> position);
 
 	/**
 	 * Whiteboard Menu

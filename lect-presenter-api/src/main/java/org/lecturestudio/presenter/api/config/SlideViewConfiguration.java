@@ -30,6 +30,9 @@ public class SlideViewConfiguration {
 	private final ObjectProperty<MessageBarPosition> participantsPosition = new ObjectProperty<>(
 			MessageBarPosition.LEFT);
 
+	private final ObjectProperty<MessageBarPosition> previewPosition = new ObjectProperty<>(
+			MessageBarPosition.RIGHT);
+
 	private final DoubleProperty leftSliderPosition = new DoubleProperty(0.375);
 
 	private final DoubleProperty rightSliderPosition = new DoubleProperty(0.8);
@@ -93,5 +96,23 @@ public class SlideViewConfiguration {
 
 	public void setParticipantsPosition(MessageBarPosition position) {
 		participantsPosition.set(position);
+	}
+
+	/**
+	 * @param position Slide preview position
+	 */
+	public void setPreviewPosition(MessageBarPosition position) {
+		previewPosition.set(position);
+	}
+
+	/**
+	 * @return Slide preview position
+	 */
+	public MessageBarPosition getPreviewPosition() {
+		return previewPosition.get();
+	}
+
+	public ObjectProperty<MessageBarPosition> previewPositionProperty() {
+		return previewPosition;
 	}
 }

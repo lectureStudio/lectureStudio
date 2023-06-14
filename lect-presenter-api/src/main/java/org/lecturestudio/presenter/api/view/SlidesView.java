@@ -180,4 +180,6 @@ public interface SlidesView extends View {
 
 	void setParticipantsPosition(MessageBarPosition position);
 
+	void setPreviewPosition(MessageBarPosition position);
+
 }

@@ -47,6 +47,10 @@ public class Stopwatch {
         return resetStopwatch;
     }
 
+    public void setRunStopwatch(boolean runStopwatch) {
+        this.runStopwatch = runStopwatch;
+    }
+
     public boolean isRunStopwatch() {
         return runStopwatch;
     }

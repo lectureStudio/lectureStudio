@@ -146,6 +146,7 @@ public class MenuPresenter extends Presenter<MenuView> {
 
 			page.addPageEditedListener(this::pageEdited);
 
+			stopwatch.setRunStopwatch(true);
 			pageChanged(page);
 		}
 	}

@@ -6,9 +6,9 @@ import org.lecturestudio.core.view.ConsumerAction;
 import org.lecturestudio.core.view.View;
 
 public interface SplitRecordingView extends View {
-	void setIntervals(Interval<Integer> beginning, Interval<Integer> end);
+	void setIntervals(Interval<Long> beginning, Interval<Long> end);
 
-	void setOnSubmit(ConsumerAction<Interval<Integer>> action);
+	void setOnSubmit(ConsumerAction<Interval<Long>> action);
 
 	void setOnClose(Action action);
 }

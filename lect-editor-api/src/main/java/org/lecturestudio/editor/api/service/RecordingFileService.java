@@ -366,7 +366,7 @@ public class RecordingFileService {
 	 * @param callback Progress callback for the saving progress
 	 * @return An async future completing the task
 	 */
-	public CompletableFuture<Void> savePartialRecording(File file, Interval<Integer> interval, ProgressCallback callback) throws RecordingEditException {
+	public CompletableFuture<Void> savePartialRecording(File file, Interval<Long> interval, ProgressCallback callback) throws RecordingEditException {
 		return savePartialRecording(file, interval, callback, getSelectedRecording());
 	}
 
@@ -380,7 +380,7 @@ public class RecordingFileService {
 	 * @param recording The recording that should be saved partially
 	 * @return An async future completing the task
 	 */
-	public CompletableFuture<Void> savePartialRecording(File file, Interval<Integer> interval, ProgressCallback callback, Recording recording) throws RecordingEditException {
+	public CompletableFuture<Void> savePartialRecording(File file, Interval<Long> interval, ProgressCallback callback, Recording recording) throws RecordingEditException {
 		try {
 			Recording partial = new Recording(recording);
 

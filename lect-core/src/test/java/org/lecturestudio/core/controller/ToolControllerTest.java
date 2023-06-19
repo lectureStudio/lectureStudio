@@ -29,7 +29,11 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.concurrent.ThreadLocalRandom;
 
-import org.lecturestudio.core.CoreTest;
+import org.lecturestudio.core.app.ApplicationContext;
+import org.lecturestudio.core.app.configuration.Configuration;
+import org.lecturestudio.core.app.dictionary.Dictionary;
+import org.lecturestudio.core.bus.EventBus;
+import org.lecturestudio.core.service.ServiceTest;
 import org.lecturestudio.core.app.configuration.ToolConfiguration;
 import org.lecturestudio.core.geometry.Dimension2D;
 import org.lecturestudio.core.geometry.GeometryUtils;
@@ -60,15 +64,43 @@ import org.lecturestudio.core.view.ViewType;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-class ToolControllerTest extends CoreTest {
+class ToolControllerTest extends ServiceTest {
 
 	private DocumentService documentService;
 
 	private ToolController controller;
 
+	private ApplicationContext context;
+
 
 	@BeforeEach
 	void setUp() throws IOException {
+		Configuration config = new Configuration();
+
+		EventBus eventBus = new EventBus();
+		EventBus audioBus = new EventBus();
+
+		Dictionary dict = new Dictionary() {
+
+			@Override
+			public String get(String key) throws NullPointerException {
+				return key;
+			}
+
+			@Override
+			public boolean contains(String key) {
+				return false;
+			}
+		};
+
+		context = new ApplicationContext(null, config, dict, eventBus, audioBus) {
+
+			@Override
+			public void saveConfiguration() {
+
+			}
+		};
+
 		context.getConfiguration().setExtendPageDimension(new Dimension2D(1.3, 1.3));
 
 		ToolConfiguration toolConfig = context.getConfiguration().getToolConfig();
@@ -636,6 +668,11 @@ class ToolControllerTest extends CoreTest {
 		}
 
 		controller.endToolAction(points.getLast());
+	}
+
+	@Override
+	protected ApplicationContext getApplicationContext() {
+		return context;
 	}
 
 }

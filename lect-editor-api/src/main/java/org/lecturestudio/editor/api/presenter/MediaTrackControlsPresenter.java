@@ -264,10 +264,10 @@ public class MediaTrackControlsPresenter extends Presenter<MediaTrackControlsVie
 	private void splitAndSaveRecording() {
 		CompletableFuture.runAsync(() -> {
 					long duration = playbackService.getDuration().getMillis();
-					int selectedTimeMs = (int) (((EditorContext) context).getPrimarySelection() * duration);
+					long selectedTimeMs = (long) (((EditorContext) context).getPrimarySelection() * duration);
 
-					Interval<Integer> begin = new Interval<>(0, selectedTimeMs);
-					Interval<Integer> end = new Interval<>(selectedTimeMs, (int) duration);
+					Interval<Long> begin = new Interval<>(0L, selectedTimeMs);
+					Interval<Long> end = new Interval<>(selectedTimeMs, duration);
 
 					context.getEventBus().post(new SplitAndSaveRecordingCommand(begin, end));
 				})

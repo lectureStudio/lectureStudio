@@ -46,8 +46,8 @@ public class FxSplitRecordingView extends StackPane implements SplitRecordingVie
 	@FXML
 	private Button closeButton;
 
-	private Interval<Integer> begin;
-	private Interval<Integer> end;
+	private Interval<Long> begin;
+	private Interval<Long> end;
 
 	@Inject
 	FxSplitRecordingView(ApplicationContext context) {
@@ -57,7 +57,7 @@ public class FxSplitRecordingView extends StackPane implements SplitRecordingVie
 	}
 
 	@Override
-	public void setIntervals(Interval<Integer> begin, Interval<Integer> end) {
+	public void setIntervals(Interval<Long> begin, Interval<Long> end) {
 		this.begin = begin;
 		this.end = end;
 
@@ -80,8 +80,8 @@ public class FxSplitRecordingView extends StackPane implements SplitRecordingVie
 	}
 
 	@Override
-	public void setOnSubmit(ConsumerAction<Interval<Integer>> action) {
-		FxUtils.bindAction(submitButton, () -> action.execute((Interval<Integer>) partialSaveGroup.getSelectedToggle().getUserData()));
+	public void setOnSubmit(ConsumerAction<Interval<Long>> action) {
+		FxUtils.bindAction(submitButton, () -> action.execute((Interval<Long>) partialSaveGroup.getSelectedToggle().getUserData()));
 	}
 
 	@Override

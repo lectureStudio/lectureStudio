@@ -8,7 +8,7 @@ import javax.inject.Singleton;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.Objects;
+import java.net.URISyntaxException;
 import java.util.concurrent.ExecutionException;
 
 import com.google.inject.AbstractModule;
@@ -54,7 +54,7 @@ public class MediaTrackControlsPresenterTest extends PresenterTest {
 
 	@BeforeEach
 	@Override
-	void setupInjector() throws ExecutionException, InterruptedException {
+	void setupInjector() throws ExecutionException, InterruptedException, URISyntaxException {
 		mediaTracksMockView = new MediaTracksMockView();
 		mediaControlsMockView = new MediaControlsMockView();
 		mediaTrackControlsMockView = new MediaTrackControlsMockView();
@@ -117,7 +117,7 @@ public class MediaTrackControlsPresenterTest extends PresenterTest {
 		});
 
 		recordingService = injector.getInstance(RecordingFileService.class);
-		String recordingPath = Objects.requireNonNull(getClass().getClassLoader().getResource("empty_pages_recording.presenter")).getFile();
+		String recordingPath = getResourcePath("empty_pages_recording.presenter").toString();
 		recordingService.openRecording(new File(recordingPath)).get();
 
 		mediaControlsPresenter = injector.getInstance(MediaControlsPresenter.class);
@@ -164,7 +164,7 @@ public class MediaTrackControlsPresenterTest extends PresenterTest {
 		splitRecordingMockView.onSubmitAction.execute(splitRecordingMockView.beginning);
 
 		String title = FileUtils.stripExtension(recordingService.getSelectedRecording().getSourceFile().getName());
-		String fileName = title + "-part-1";
+		String fileName = title + "-part-1.presenter";
 
 		// Checking whether the name and directory is set correctly
 		assertEquals(context.getDictionary().get("file.description.recording"), fileChooserMockView.description);

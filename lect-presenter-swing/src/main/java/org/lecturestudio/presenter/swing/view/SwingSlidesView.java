@@ -1756,6 +1756,8 @@ public class SwingSlidesView extends JPanel implements SlidesView {
 		if (messageViewContainer.getComponentCount() == 1) {
 			hideMessagesPlaceholder();
 		}
+
+		setMessageBarTabVisible(dict.get(MESSAGE_LABEL_KEY), true);
 	}
 
 	private void removeMessageView(Component view) {

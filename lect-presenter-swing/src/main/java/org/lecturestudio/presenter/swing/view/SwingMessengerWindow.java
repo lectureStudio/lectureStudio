@@ -28,7 +28,9 @@ import javax.swing.JFrame;
 
 import org.lecturestudio.core.app.dictionary.Dictionary;
 import org.lecturestudio.core.view.Action;
+import org.lecturestudio.presenter.api.service.UserPrivilegeService;
 import org.lecturestudio.presenter.api.view.MessengerWindow;
+import org.lecturestudio.presenter.swing.utils.ViewUtil;
 import org.lecturestudio.swing.components.MessageView;
 import org.lecturestudio.swing.components.SpeechRequestView;
 import org.lecturestudio.swing.util.SwingUtils;
@@ -36,28 +38,33 @@ import org.lecturestudio.swing.view.SwingView;
 import org.lecturestudio.web.api.message.MessengerDirectMessage;
 import org.lecturestudio.web.api.message.MessengerMessage;
 import org.lecturestudio.web.api.message.SpeechRequestMessage;
+import org.lecturestudio.web.api.model.UserInfo;
 
 @SwingView(name = "messenger-window")
 public class SwingMessengerWindow extends JFrame implements MessengerWindow {
 
 	private final Dictionary dict;
 
+	private final UserPrivilegeService userPrivilegeService;
+
 	private Container messageViewContainer;
 
 
 	@Inject
-	SwingMessengerWindow(Dictionary dictionary) {
+	SwingMessengerWindow(Dictionary dictionary,
+			UserPrivilegeService userPrivilegeService) {
 		super();
 
 		this.dict = dictionary;
+		this.userPrivilegeService = userPrivilegeService;
 	}
 
 	@Override
 	public void setMessengerMessage(MessengerMessage message) {
 		SwingUtils.invoke(() -> {
-			MessageView messageView = new MessageView(this.dict);
-			messageView.setUser(String.format("%s %s", message.getFirstName(), message.getFamilyName()));
-			messageView.setDate(message.getDate());
+			UserInfo userInfo = userPrivilegeService.getUserInfo();
+
+			MessageView messageView = ViewUtil.createMessageView(MessageView.class, userInfo, message, dict);
 			messageView.setMessage(message.getMessage().getText());
 			messageView.setOnDiscard(() -> {
 				removeMessageView(messageView);
@@ -85,10 +92,10 @@ public class SwingMessengerWindow extends JFrame implements MessengerWindow {
 	@Override
 	public void setSpeechRequestMessage(SpeechRequestMessage message) {
 		SwingUtils.invoke(() -> {
-			SpeechRequestView requestView = new SpeechRequestView(this.dict);
+			UserInfo userInfo = userPrivilegeService.getUserInfo();
+
+			SpeechRequestView requestView = ViewUtil.createMessageView(SpeechRequestView.class, userInfo, message, dict);
 			requestView.setRequestId(message.getRequestId());
-			requestView.setUser(String.format("%s %s", message.getFirstName(), message.getFamilyName()));
-			requestView.setDate(message.getDate());
 			requestView.setOnAccept(() -> {
 				removeMessageView(requestView);
 			});

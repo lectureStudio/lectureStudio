@@ -85,27 +85,40 @@ public class SpeechRequestView extends MessagePanel {
 	@Override
 	protected void createContent(JPanel content) {
 		stateLabel = new JLabel();
-		stateLabel.setBorder(BorderFactory.createEmptyBorder(0, 10, 0, 10));
+		stateLabel.setBorder(BorderFactory.createEmptyBorder(0, 5, 0, 5));
 		stateLabel.setText(dict.get("speech.requested"));
 
 		acceptButton = new JButton(AwtResourceLoader.getIcon("speech-accept.svg", 18));
-//		acceptButton.setBackground(Color.decode("#D1FAE5"));
 		acceptButton.setToolTipText(dict.get("speech.accept"));
 
 		rejectButton = new JButton(AwtResourceLoader.getIcon("speech-decline.svg", 18));
-//		rejectButton.setBackground(Color.decode("#FEE2E2"));
 		rejectButton.setToolTipText(dict.get("speech.reject"));
+
+		Box userPanel = Box.createHorizontalBox();
+		userPanel.setOpaque(false);
+		userPanel.add(userLabel);
+		userPanel.add(Box.createHorizontalGlue());
+
+		Box timePanel = Box.createHorizontalBox();
+		timePanel.setOpaque(false);
+		timePanel.add(timeLabel);
+		timePanel.add(Box.createHorizontalGlue());
+
+		Box userTimePanel = Box.createVerticalBox();
+		userTimePanel.setBorder(BorderFactory.createEmptyBorder());
+		userTimePanel.setOpaque(false);
+		userTimePanel.add(userPanel);
+		userTimePanel.add(timePanel);
 
 		Box controlPanel = Box.createHorizontalBox();
 		controlPanel.setBorder(BorderFactory.createEmptyBorder(2, 5, 2, 5));
 		controlPanel.setOpaque(false);
-		controlPanel.add(userLabel);
+		controlPanel.add(userTimePanel);
 		controlPanel.add(Box.createHorizontalGlue());
+		controlPanel.add(Box.createHorizontalStrut(5));
 		controlPanel.add(rejectButton);
 		controlPanel.add(Box.createHorizontalStrut(5));
 		controlPanel.add(acceptButton);
-		controlPanel.add(Box.createHorizontalStrut(10));
-		controlPanel.add(timeLabel);
 
 		content.add(controlPanel, BorderLayout.NORTH);
 		content.add(stateLabel, BorderLayout.CENTER);

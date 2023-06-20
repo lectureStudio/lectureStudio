@@ -61,6 +61,7 @@ import org.lecturestudio.core.view.Action;
 import org.lecturestudio.presenter.api.model.MessageBarPosition;
 import org.lecturestudio.presenter.api.config.SlideViewConfiguration;
 import org.lecturestudio.presenter.api.service.UserPrivilegeService;
+import org.lecturestudio.presenter.swing.utils.ViewUtil;
 import org.lecturestudio.swing.model.AdaptiveTab;
 import org.lecturestudio.swing.model.AdaptiveTabType;
 import org.lecturestudio.swing.model.ExternalWindowPosition;
@@ -82,6 +83,7 @@ import org.lecturestudio.web.api.event.PeerVideoFrameEvent;
 import org.lecturestudio.web.api.message.MessengerDirectMessage;
 import org.lecturestudio.web.api.message.MessengerMessage;
 import org.lecturestudio.web.api.message.SpeechBaseMessage;
+import org.lecturestudio.web.api.model.UserInfo;
 import org.lecturestudio.web.api.stream.model.CourseParticipant;
 
 @SwingView(name = "main-slides")
@@ -605,16 +607,10 @@ public class SwingSlidesView extends JPanel implements SlidesView {
 	@Override
 	public void setMessengerMessage(MessengerMessage message) {
 		SwingUtils.invoke(() -> {
-			String myId = userPrivilegeService.getUserInfo().getUserId();
-			boolean byMe = Objects.equals(message.getUserId(), myId);
+			UserInfo userInfo = userPrivilegeService.getUserInfo();
+			String myId = userInfo.getUserId();
 
-			String sender = byMe
-					? dict.get("text.message.me")
-					: String.format("%s %s", message.getFirstName(), message.getFamilyName());
-
-			MessageView messageView = new MessageView(this.dict);
-			messageView.setUser(sender);
-			messageView.setDate(message.getDate());
+			MessageView messageView = ViewUtil.createMessageView(MessageView.class, userInfo, message, dict);
 			messageView.setMessage(message.getMessage().getText());
 			messageView.setOnDiscard(() -> {
 				executeAction(discardMessageAction, message);
@@ -630,8 +626,13 @@ public class SwingSlidesView extends JPanel implements SlidesView {
 			if (message instanceof MessengerDirectMessage) {
 				MessengerDirectMessage directMessage = (MessengerDirectMessage) message;
 				String recipientId = directMessage.getRecipientId();
+				boolean byMe = Objects.equals(message.getUserId(), myId);
 				boolean toMe = Objects.equals(recipientId, myId);
 				boolean toOrganisers = Objects.equals(recipientId, "organisers");
+
+				String sender = byMe
+						? dict.get("text.message.me")
+						: String.format("%s %s", message.getFirstName(), message.getFamilyName());
 
 				String recipient = toMe
 						? dict.get("text.message.to.me")
@@ -639,7 +640,7 @@ public class SwingSlidesView extends JPanel implements SlidesView {
 							? dict.get("text.message.to.organisators.short")
 							: String.format("%s %s", directMessage.getRecipientFirstName(), directMessage.getRecipientFamilyName());
 
-				messageView.setUser(MessageFormat.format(dict.get("text.message.recipient"), sender, ""));
+				messageView.setUserName(MessageFormat.format(dict.get("text.message.recipient"), sender, ""));
 				messageView.setPrivateText(recipient);
 			}
 
@@ -654,10 +655,10 @@ public class SwingSlidesView extends JPanel implements SlidesView {
 		SwingUtils.invoke(() -> {
 			participantList.addSpeechRequest(message);
 
-			SpeechRequestView requestView = new SpeechRequestView(this.dict);
+			UserInfo userInfo = userPrivilegeService.getUserInfo();
+
+			SpeechRequestView requestView = ViewUtil.createMessageView(SpeechRequestView.class, userInfo, message, dict);
 			requestView.setRequestId(message.getRequestId());
-			requestView.setUser(String.format("%s %s", message.getFirstName(), message.getFamilyName()));
-			requestView.setDate(message.getDate());
 			requestView.setOnAccept(() -> {
 				executeAction(acceptSpeechRequestAction, message);
 

@@ -22,19 +22,35 @@
 					<fx:define>
 						<ToggleGroup fx:id="partialSaveGroup"/>
 					</fx:define>
-					<ExtRadioButton fx:id="beginRadio" mnemonicParsing="false" selected="true"
-									text="%recording.split.radio.begin" toggleGroup="$partialSaveGroup">
-						<tooltip>
-							<Tooltip text="%recording.split.radio.begin"/>
-						</tooltip>
-					</ExtRadioButton>
+					<HBox>
+						<ExtRadioButton fx:id="beginRadio" mnemonicParsing="false" selected="true"
+										text="%recording.split.radio.begin" toggleGroup="$partialSaveGroup"
+										minWidth="130">
+							<tooltip>
+								<Tooltip text="%recording.split.radio.begin.tooltip"/>
+							</tooltip>
+						</ExtRadioButton>
+						<Label fx:id="beginRadioTimeLabel" text="%recording.split.radio.begin.tooltip" wrapText="true">
+							<tooltip>
+								<Tooltip text="%recording.split.radio.begin.time"/>
+							</tooltip>
+						</Label>
+					</HBox>
 
-					<ExtRadioButton fx:id="endRadio" mnemonicParsing="false"
-									text="%recording.split.radio.end" toggleGroup="$partialSaveGroup">
-						<tooltip>
-							<Tooltip text="%recording.split.radio.end"/>
-						</tooltip>
-					</ExtRadioButton>
+					<HBox>
+						<ExtRadioButton fx:id="endRadio" mnemonicParsing="false"
+										text="%recording.split.radio.end" toggleGroup="$partialSaveGroup"
+										minWidth="130">
+							<tooltip>
+								<Tooltip text="%recording.split.radio.end.tooltip"/>
+							</tooltip>
+						</ExtRadioButton>
+						<Label fx:id="endRadioTimeLabel" text="%recording.split.radio.end.tooltip" wrapText="true">
+							<tooltip>
+								<Tooltip text="%recording.split.radio.end.time"/>
+							</tooltip>
+						</Label>
+					</HBox>
 				</VBox>
 				<TextFlow>
 					<Label fx:id="removeInfoText" text="%recording.split.info.remove" wrapText="true">

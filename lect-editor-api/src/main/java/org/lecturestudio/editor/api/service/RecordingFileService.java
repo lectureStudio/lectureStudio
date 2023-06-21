@@ -408,7 +408,14 @@ public class RecordingFileService {
 					// Then we save the extracted part
 					.thenCompose(ignored -> saveRecording(partial, file, callback))
 					// And remove the same interval in the selected recording
-					.thenCompose(ignored -> cut(start, end, getSelectedRecording()));
+					.thenCompose(ignored -> CompletableFuture.runAsync(() -> {
+						try {
+							addEditAction(getSelectedRecording(), new CutAction(getSelectedRecording(), start, end, context.primarySelectionProperty()));
+						}
+						catch (RecordingEditException e) {
+							throw new RuntimeException(e);
+						}
+					}));
 		}
 		catch (IOException e) {
 			throw new RecordingEditException(e);

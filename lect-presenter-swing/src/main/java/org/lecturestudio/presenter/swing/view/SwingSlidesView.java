@@ -1749,6 +1749,8 @@ public class SwingSlidesView extends JPanel implements SlidesView {
 	}
 
 	private void addMessageView(Component view) {
+		setMessageBarTabVisible(dict.get(MESSAGE_LABEL_KEY), true);
+
 		messageViewContainer.add(view);
 		messageViewContainer.revalidate();
 		messageViewContainer.repaint();
@@ -1756,8 +1758,6 @@ public class SwingSlidesView extends JPanel implements SlidesView {
 		if (messageViewContainer.getComponentCount() == 1) {
 			hideMessagesPlaceholder();
 		}
-
-		setMessageBarTabVisible(dict.get(MESSAGE_LABEL_KEY), true);
 	}
 
 	private void removeMessageView(Component view) {

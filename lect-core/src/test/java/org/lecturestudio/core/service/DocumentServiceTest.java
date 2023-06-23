@@ -27,22 +27,49 @@ import java.io.File;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 
-import org.lecturestudio.core.CoreTest;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.lecturestudio.core.app.ApplicationContext;
+import org.lecturestudio.core.app.configuration.Configuration;
+import org.lecturestudio.core.app.dictionary.Dictionary;
+import org.lecturestudio.core.bus.EventBus;
 import org.lecturestudio.core.model.Document;
 import org.lecturestudio.core.model.DocumentList;
 import org.lecturestudio.core.model.DocumentType;
 import org.lecturestudio.core.model.Page;
 
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-
-class DocumentServiceTest extends CoreTest {
+class DocumentServiceTest extends ServiceTest {
 
 	private DocumentService documentService;
-
+	private ApplicationContext context;
 
 	@BeforeEach
 	void setUp() {
+		Configuration config = new Configuration();
+
+		EventBus eventBus = new EventBus();
+		EventBus audioBus = new EventBus();
+
+		Dictionary dict = new Dictionary() {
+
+			@Override
+			public String get(String key) throws NullPointerException {
+				return key;
+			}
+
+			@Override
+			public boolean contains(String key) {
+				return false;
+			}
+		};
+
+		context = new ApplicationContext(null, config, dict, eventBus, audioBus) {
+
+			@Override
+			public void saveConfiguration() {
+
+			}
+		};
 		documentService = new DocumentService(context);
 	}
 
@@ -319,5 +346,10 @@ class DocumentServiceTest extends CoreTest {
 		documentService.selectPreviousPage();
 
 		assertEquals(page1, doc.getCurrentPage());
+	}
+
+	@Override
+	protected ApplicationContext getApplicationContext() {
+		return context;
 	}
 }

@@ -32,7 +32,13 @@ public class FxSplitRecordingView extends StackPane implements SplitRecordingVie
 	private ExtRadioButton beginRadio;
 
 	@FXML
+	private Label beginRadioTimeLabel;
+
+	@FXML
 	private ExtRadioButton endRadio;
+
+	@FXML
+	private Label endRadioTimeLabel;
 
 	@FXML
 	private ToggleGroup partialSaveGroup;
@@ -46,8 +52,8 @@ public class FxSplitRecordingView extends StackPane implements SplitRecordingVie
 	@FXML
 	private Button closeButton;
 
-	private Interval<Integer> begin;
-	private Interval<Integer> end;
+	private Interval<Long> begin;
+	private Interval<Long> end;
 
 	@Inject
 	FxSplitRecordingView(ApplicationContext context) {
@@ -57,7 +63,7 @@ public class FxSplitRecordingView extends StackPane implements SplitRecordingVie
 	}
 
 	@Override
-	public void setIntervals(Interval<Integer> begin, Interval<Integer> end) {
+	public void setIntervals(Interval<Long> begin, Interval<Long> end) {
 		this.begin = begin;
 		this.end = end;
 
@@ -70,18 +76,21 @@ public class FxSplitRecordingView extends StackPane implements SplitRecordingVie
 			beginRadio.setSelected(true);
 		}
 
-		beginRadio.setText(getRadioButtonText("recording.split.radio.begin", begin.getStart(), begin.getEnd()));
-		beginRadio.getTooltip().setText(getRadioButtonText("recording.split.radio.begin", begin.getStart(), begin.getEnd()));
-		endRadio.setText(getRadioButtonText("recording.split.radio.end", end.getStart(), end.getEnd()));
-		endRadio.getTooltip().setText(getRadioButtonText("recording.split.radio.end", end.getStart(), end.getEnd()));
+		beginRadio.getTooltip().setText(getRadioButtonText("recording.split.radio.begin.tooltip", begin.getStart(), begin.getEnd()));
+		beginRadioTimeLabel.setText(getRadioButtonText("recording.split.radio.begin.time", begin.getStart(), begin.getEnd()));
+		beginRadioTimeLabel.getTooltip().setText(getRadioButtonText("recording.split.radio.begin.tooltip", begin.getStart(), begin.getEnd()));
+
+		endRadio.getTooltip().setText(getRadioButtonText("recording.split.radio.end.tooltip", end.getStart(), end.getEnd()));
+		endRadioTimeLabel.setText(getRadioButtonText("recording.split.radio.end.time", end.getStart(), end.getEnd()));
+		endRadioTimeLabel.getTooltip().setText(getRadioButtonText("recording.split.radio.end.tooltip", end.getStart(), end.getEnd()));
 
 		beginRadio.setUserData(begin);
 		endRadio.setUserData(end);
 	}
 
 	@Override
-	public void setOnSubmit(ConsumerAction<Interval<Integer>> action) {
-		FxUtils.bindAction(submitButton, () -> action.execute((Interval<Integer>) partialSaveGroup.getSelectedToggle().getUserData()));
+	public void setOnSubmit(ConsumerAction<Interval<Long>> action) {
+		FxUtils.bindAction(submitButton, () -> action.execute((Interval<Long>) partialSaveGroup.getSelectedToggle().getUserData()));
 	}
 
 	@Override

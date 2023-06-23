@@ -7,11 +7,10 @@ import java.nio.file.Path;
 import java.util.concurrent.atomic.AtomicReference;
 
 import com.google.common.eventbus.Subscribe;
-
 import org.junit.jupiter.api.BeforeEach;
 import org.lecturestudio.core.app.AppDataLocator;
+import org.lecturestudio.core.app.ApplicationContext;
 import org.lecturestudio.core.app.configuration.Configuration;
-import org.lecturestudio.core.audio.DummyAudioSystemProvider;
 import org.lecturestudio.core.bus.EventBus;
 import org.lecturestudio.core.inject.GuiceInjector;
 import org.lecturestudio.core.model.Document;
@@ -26,7 +25,8 @@ import org.lecturestudio.editor.api.context.EditorContext;
 
 public abstract class PresenterTest extends org.lecturestudio.core.presenter.PresenterTest {
 
-	GuiceInjector injector;
+	protected EditorContext context;
+	protected GuiceInjector injector;
 
 	@BeforeEach
 	void setupPresenterTest() throws IOException, URISyntaxException {
@@ -54,8 +54,6 @@ public abstract class PresenterTest extends org.lecturestudio.core.presenter.Pre
 		};
 
 		viewFactory = new ViewContextMockFactory();
-
-		audioSystemProvider = new DummyAudioSystemProvider();
 
 		context.getEventBus().register(new Object() {
 
@@ -88,6 +86,11 @@ public abstract class PresenterTest extends org.lecturestudio.core.presenter.Pre
 			}
 
 		});
+	}
+
+	@Override
+	protected ApplicationContext getApplicationContext() {
+		return context;
 	}
 
 	abstract void setupInjector() throws Exception;

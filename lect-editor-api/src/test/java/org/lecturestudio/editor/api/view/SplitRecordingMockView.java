@@ -6,18 +6,18 @@ import org.lecturestudio.core.view.ConsumerAction;
 
 public class SplitRecordingMockView implements SplitRecordingView {
 	public Action onCloseAction;
-	public ConsumerAction<Interval<Integer>> onSubmitAction;
-	public Interval<Integer> beginning;
-	public Interval<Integer> end;
+	public ConsumerAction<Interval<Long>> onSubmitAction;
+	public Interval<Long> beginning;
+	public Interval<Long> end;
 
 	@Override
-	public void setIntervals(Interval<Integer> beginning, Interval<Integer> end) {
+	public void setIntervals(Interval<Long> beginning, Interval<Long> end) {
 		this.beginning = beginning;
 		this.end = end;
 	}
 
 	@Override
-	public void setOnSubmit(ConsumerAction<Interval<Integer>> action) {
+	public void setOnSubmit(ConsumerAction<Interval<Long>> action) {
 		this.onSubmitAction = action;
 	}
 

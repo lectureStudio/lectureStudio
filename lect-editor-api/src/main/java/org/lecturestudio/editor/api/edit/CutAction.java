@@ -20,6 +20,7 @@ package org.lecturestudio.editor.api.edit;
 
 import static java.util.Objects.nonNull;
 
+import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -28,6 +29,7 @@ import java.util.Map;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import org.lecturestudio.core.beans.DoubleProperty;
 import org.lecturestudio.core.model.Interval;
 import org.lecturestudio.core.recording.RecordedAudio;
 import org.lecturestudio.core.recording.RecordedDocument;
@@ -59,10 +61,23 @@ public class CutAction extends RecordingAction {
 	 *                  within the range [0, 1].
 	 */
 	public CutAction(Recording recording, double start, double end) {
-		super(recording, createActions(recording, start, end));
+		this(recording, start, end, null);
 	}
 
-	private static List<EditAction> createActions(Recording recording, double start, double end) {
+	/**
+	 * Creates a new {@code CutAction} with the provided parameters.
+	 *
+	 * @param recording The recording on which to operate.
+	 * @param start     The start time from where to start removing. The value
+	 *                  must be within the range [0, 1].
+	 * @param end       The end time when to stop removing. The value must be
+	 *                  within the range [0, 1].
+	 */
+	public CutAction(Recording recording, double start, double end, DoubleProperty primarySelectionProperty) {
+		super(recording, createActions(recording, start, end, primarySelectionProperty));
+	}
+
+	private static List<EditAction> createActions(Recording recording, double start, double end, DoubleProperty primarySelectionProperty) {
 		RecordingHeader header = recording.getRecordingHeader();
 		RecordedAudio audio = recording.getRecordedAudio();
 		RecordedDocument doc = recording.getRecordedDocument();
@@ -81,6 +96,11 @@ public class CutAction extends RecordingAction {
 		final DeleteEventsAction eventsAction = new DeleteEventsAction(events, editInterval);
 		final DeleteDocumentAction documentAction = new DeleteDocumentAction(doc);
 		final DeleteAudioAction audioAction = new DeleteAudioAction(audio, editInterval);
+
+		MovePrimarySelectionAction selectionAction = null;
+		if (primarySelectionProperty != null && primarySelectionProperty.get() > startRel) {
+			selectionAction = new MovePrimarySelectionAction(primarySelectionProperty, primarySelectionProperty.get() - (endRel - startRel));
+		}
 
 		final Map<Integer, Integer> timetable = getPageChangeEvents(events);
 
@@ -146,8 +166,15 @@ public class CutAction extends RecordingAction {
 				break;
 			}
 		}
+		List<EditAction> actions = new ArrayList<>();
 
-		return List.of(headerAction, documentAction, eventsAction, audioAction);
+		if (selectionAction != null) {
+			actions.add(selectionAction);
+		}
+
+		actions.addAll(List.of(headerAction, documentAction, eventsAction, audioAction));
+
+		return actions;
 	}
 
 	private static Map<Integer, Integer> getPageChangeEvents(RecordedEvents events) {

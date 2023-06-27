@@ -59,6 +59,7 @@
 		<separator />
 		<menuitem id="pauseStopwatchMenuItem" text="menu.stopwatch.pause" accelerator="shift P" enabled="true" />
 		<menuitem id="resetStopwatchMenuItem" text="menu.stopwatch.stop" enabled="true" />
+		<menuitem id="configStopwatchMenuItem" text="menu.stopwatch.config" enabled="true" />
 	</menu>
 	<menu id="bookmarksMenu" text="menu.bookmarks">
 		<menuitem id="clearBookmarksMenuItem" text="menu.bookmarks.clear" enabled="false" />

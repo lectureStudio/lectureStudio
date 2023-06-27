@@ -68,6 +68,7 @@ import org.lecturestudio.presenter.api.context.PresenterContext;
 import org.lecturestudio.presenter.api.event.*;
 import org.lecturestudio.presenter.api.model.*;
 import org.lecturestudio.presenter.api.pdf.embedded.QuizParser;
+import org.lecturestudio.presenter.api.presenter.command.StopwatchCommand;
 import org.lecturestudio.presenter.api.service.BookmarkService;
 import org.lecturestudio.presenter.api.service.QuizWebServiceState;
 import org.lecturestudio.presenter.api.service.RecordingService;
@@ -114,7 +115,7 @@ public class MenuPresenter extends Presenter<MenuView> {
 		this.quizParser = new QuizParser();
 		this.timeFormatter = DateTimeFormatter.ofPattern("HH:mm", getPresenterConfig().getLocale());
 		this.timer = new Timer("MenuTime", true);
-		this.stopwatch = new Stopwatch();
+		this.stopwatch = ((PresenterContext) this.context).getStopwatch();
 	}
 
 	@Subscribe
@@ -362,14 +363,15 @@ public class MenuPresenter extends Presenter<MenuView> {
 		streamService.stopQuiz();
 	}
 
-	public void resetStopwatch(){
-		stopwatch.resetStopwatch();
-	}
 
 	public void pauseStopwatch(){
-		stopwatch.pauseStopwatch();
+		stopwatch.startStopStopwatch();
 	}
 
+	public void resetStopwatch(){
+		stopwatch.resetStopwatch();
+		view.setCurrentStopwatch(stopwatch.calculateCurrentStopwatch());
+	}
 	public void clearBookmarks() {
 		bookmarkService.clearBookmarks();
 	}
@@ -527,6 +529,7 @@ public class MenuPresenter extends Presenter<MenuView> {
 		view.setOnPauseStopwatch(this::pauseStopwatch);
 		view.setOnResetStopwatch(this::resetStopwatch);
 		view.setCurrentStopwatch(this::pauseStopwatch);
+		view.setOnConfigStopwatch(this::startStopwatchConfiguration);
 
 		view.setOnClearBookmarks(this::clearBookmarks);
 		view.setOnShowNewBookmarkView(this::newBookmark);
@@ -611,8 +614,22 @@ public class MenuPresenter extends Presenter<MenuView> {
 			public void run() {
 				stopwatch.updateStopwatchInterval();
 				view.setCurrentStopwatch(stopwatch.calculateCurrentStopwatch());
-
+				//Timer blinks 5times when the time ran out
+				if(stopwatch.isTimerEnded()) {
+					if (stopwatch.getTimerEndedInterval() % 2 == 0) {
+						view.setCurrentStopwatchBackgroundColor(Color.WHITE);
+					} else {
+						view.setCurrentStopwatchBackgroundColor(Color.RED);
+					}
+				}
 			}
 		}, 0, 1000);
+	}
+
+	public void startStopwatchConfiguration() {
+		eventBus.post(new StopwatchCommand(() -> {
+			stopwatch.stopStopwatch();
+			view.setCurrentStopwatch(stopwatch.calculateCurrentStopwatch());
+		}));
 	}
 }

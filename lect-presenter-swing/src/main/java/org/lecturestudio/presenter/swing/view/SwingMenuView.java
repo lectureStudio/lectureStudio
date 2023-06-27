@@ -22,6 +22,8 @@ import static java.util.Objects.nonNull;
 
 import java.awt.Color;
 import java.awt.Component;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.io.File;
 import java.util.List;
 
@@ -137,6 +139,8 @@ public class SwingMenuView extends JMenuBar implements MenuView {
 	private JMenuItem resetStopwatchMenuItem;
 
 	private JMenuItem pauseStopwatchMenuItem;
+
+	private JMenuItem configStopwatchMenuItem;
 
 	private JMenuItem clearBookmarksMenuItem;
 
@@ -676,10 +680,18 @@ public class SwingMenuView extends JMenuBar implements MenuView {
 	}
 
 	@Override
+	public void setCurrentStopwatchBackgroundColor(Color color) {
+		stopwatchMenu.setBackground(color);
+	}
+	@Override
 	public void setRecordingTime(Time time) {
 		SwingUtils.invoke(() -> recordIndicatorMenu.setText(time.toString()));
 	}
 
+	@Override
+	public void setOnConfigStopwatch(Action action) {
+		SwingUtils.bindAction(configStopwatchMenuItem, action);
+	}
 	@Override
 	public void bindMessageCount(IntegerProperty count) {
 		count.addListener((observable, oldValue, newValue) -> {
@@ -734,9 +746,18 @@ public class SwingMenuView extends JMenuBar implements MenuView {
 		participantsPositionButtonGroup.add(participantsPositionLeftMenuItem);
 		participantsPositionButtonGroup.add(participantsPositionRightMenuItem);
 		stopwatchMenu.setBorderPainted(false);
-		stopwatchMenu.setContentAreaFilled(false);
 		stopwatchMenu.setFocusPainted(false);
-		stopwatchMenu.setOpaque(false);
+		stopwatchMenu.addMouseListener(new MouseAdapter() {
+			@Override
+			public void mouseEntered(MouseEvent e) {
+				stopwatchMenu.setBackground(Color.LIGHT_GRAY);
+			}
+
+			@Override
+			public void mouseExited(MouseEvent e) {
+				stopwatchMenu.setBackground(Color.WHITE);
+			}
+		});
 	}
 
 	private void setStateText(AbstractButton button, String start, String stop) {

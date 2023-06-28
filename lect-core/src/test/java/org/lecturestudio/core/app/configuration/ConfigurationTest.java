@@ -32,8 +32,12 @@ import java.util.Arrays;
 import java.util.Calendar;
 import java.util.List;
 import java.util.Locale;
-import java.util.Objects;
 
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.lecturestudio.core.CoreTest;
+import org.lecturestudio.core.app.ApplicationContext;
 import org.lecturestudio.core.audio.AudioFormat;
 import org.lecturestudio.core.geometry.Dimension2D;
 import org.lecturestudio.core.geometry.Position;
@@ -45,11 +49,7 @@ import org.lecturestudio.core.text.TeXFont;
 import org.lecturestudio.core.text.TextAttributes;
 import org.lecturestudio.core.tool.PresetColor;
 
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-
-class ConfigurationTest {
+class ConfigurationTest extends CoreTest {
 
 	private final JsonConfigurationService<Configuration> manager = new JsonConfigurationService<>();
 
@@ -202,8 +202,8 @@ class ConfigurationTest {
 		assertEquals(Double.valueOf(0.7f), audioConfig.getRecordingVolume("Microphone"));
 	}
 
-	Path getResourcePath(String path) throws URISyntaxException {
-		return Path.of(Objects.requireNonNull(
-				getClass().getClassLoader().getResource(path)).toURI());
+	@Override
+	protected ApplicationContext getApplicationContext() {
+		return null;
 	}
 }

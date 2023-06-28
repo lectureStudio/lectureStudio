@@ -27,9 +27,9 @@ import com.google.common.eventbus.Subscribe;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.lecturestudio.core.app.AppDataLocator;
+import org.lecturestudio.core.app.ApplicationContext;
 import org.lecturestudio.core.app.configuration.Configuration;
 import org.lecturestudio.core.app.dictionary.Dictionary;
-import org.lecturestudio.core.audio.DummyAudioSystemProvider;
 import org.lecturestudio.core.bus.EventBus;
 import org.lecturestudio.core.model.Document;
 import org.lecturestudio.core.presenter.NotificationPresenter;
@@ -41,6 +41,7 @@ import org.lecturestudio.presenter.api.recording.FileLectureRecorder;
 abstract class PresenterTest extends org.lecturestudio.core.presenter.PresenterTest {
 
 	protected FileLectureRecorder recorder = null;
+	protected ApplicationContext context;
 
 	@BeforeEach
 	protected void setupPresenterTest() throws IOException, URISyntaxException {
@@ -99,8 +100,6 @@ abstract class PresenterTest extends org.lecturestudio.core.presenter.PresenterT
 		context.getDocumentService().selectDocument(document);
 
 		viewFactory = new ViewContextMockFactory();
-
-		audioSystemProvider = new DummyAudioSystemProvider();
 	}
 
 	@AfterEach
@@ -114,6 +113,12 @@ abstract class PresenterTest extends org.lecturestudio.core.presenter.PresenterT
 
 	protected String getRecordingDirectory() {
 		return ((PresenterContext) context).getRecordingDirectory();
+	}
+
+
+	@Override
+	protected ApplicationContext getApplicationContext() {
+		return context;
 	}
 
 }

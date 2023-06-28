@@ -51,7 +51,7 @@ public class SplitRecordingPresenter extends Presenter<SplitRecordingView> {
 	 *
 	 * @param interval The interval to be cut and saved into a separate recording
 	 */
-	private void onSubmit(Interval<Integer> interval) {
+	private void onSubmit(Interval<Long> interval) {
 		final String pathContext = EditorContext.RECORDING_CONTEXT;
 		Configuration config = context.getConfiguration();
 		Dictionary dict = context.getDictionary();
@@ -107,7 +107,7 @@ public class SplitRecordingPresenter extends Presenter<SplitRecordingView> {
 	 * @param begin The first interval
 	 * @param end   The second interval
 	 */
-	public void setIntervals(Interval<Integer> begin, Interval<Integer> end) {
+	public void setIntervals(Interval<Long> begin, Interval<Long> end) {
 		view.setIntervals(begin, end);
 	}
 }

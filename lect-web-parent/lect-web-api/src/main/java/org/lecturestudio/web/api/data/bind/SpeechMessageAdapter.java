@@ -21,6 +21,7 @@ package org.lecturestudio.web.api.data.bind;
 import static java.util.Objects.nonNull;
 
 import java.time.ZonedDateTime;
+import java.util.UUID;
 
 import javax.json.Json;
 import javax.json.JsonObject;
@@ -40,7 +41,7 @@ public class SpeechMessageAdapter implements JsonbAdapter<SpeechBaseMessage, Jso
 			builder.add("userId", message.getUserId());
 		}
 		if (nonNull(message.getRequestId())) {
-			builder.add("requestId", message.getRequestId());
+			builder.add("requestId", message.getRequestId().toString());
 		}
 		if (nonNull(message.getDate())) {
 			builder.add("time", message.getDate().toString());
@@ -63,7 +64,7 @@ public class SpeechMessageAdapter implements JsonbAdapter<SpeechBaseMessage, Jso
 
 		SpeechBaseMessage message = (SpeechBaseMessage) cls.getConstructor().newInstance();
 		message.setUserId(jsonObject.getString("userId"));
-		message.setRequestId(jsonObject.getJsonNumber("requestId").longValue());
+		message.setRequestId(UUID.fromString(jsonObject.getString("requestId")));
 		message.setDate(ZonedDateTime.parse(jsonObject.getString("time")));
 		message.setFirstName(jsonObject.getString("firstName"));
 		message.setFamilyName(jsonObject.getString("familyName"));

@@ -19,6 +19,7 @@
 package org.lecturestudio.web.api.stream.client;
 
 import java.util.List;
+import java.util.UUID;
 
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
@@ -116,7 +117,7 @@ public interface StreamRestClient {
 	 */
 	@POST
 	@Path("/speech/accept/{requestId}")
-	void acceptSpeechRequest(@PathParam("requestId") long requestId);
+	void acceptSpeechRequest(@PathParam("requestId") UUID requestId);
 
 	/**
 	 * Reject a speech request with the corresponding ID.
@@ -125,7 +126,7 @@ public interface StreamRestClient {
 	 */
 	@POST
 	@Path("/speech/reject/{requestId}")
-	void rejectSpeechRequest(@PathParam("requestId") long requestId);
+	void rejectSpeechRequest(@PathParam("requestId") UUID requestId);
 
 	@POST
 	@Path("/course/recorded/{courseId}/{recorded}")

@@ -99,6 +99,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Timer;
 import java.util.TimerTask;
+import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 import java.util.function.BiConsumer;
 
@@ -559,7 +560,7 @@ public class SlidesPresenter extends Presenter<SlidesView> {
 		PresenterContext presenterContext = (PresenterContext) context;
 		presenterContext.getSpeechRequests().remove(message);
 
-		Long requestId = message.getRequestId();
+		UUID requestId = message.getRequestId();
 		String userName = String.format("%s %s", message.getFirstName(),
 				message.getFamilyName());
 

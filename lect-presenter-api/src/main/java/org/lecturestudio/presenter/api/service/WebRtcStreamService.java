@@ -32,6 +32,7 @@ import dev.onvoid.webrtc.media.video.VideoDevice;
 import java.io.IOException;
 import java.text.MessageFormat;
 import java.util.List;
+import java.util.UUID;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -150,7 +151,7 @@ public class WebRtcStreamService extends ExecutableBase {
 			return;
 		}
 
-		long requestId = message.getRequestId();
+		UUID requestId = message.getRequestId();
 		String userName = String.format("%s %s", message.getFirstName(),
 				message.getFamilyName());
 
@@ -237,7 +238,7 @@ public class WebRtcStreamService extends ExecutableBase {
 		streamContext.getVideoContext().setReceiveVideo(mute);
 	}
 
-	public void stopPeerConnection(Long requestId) {
+	public void stopPeerConnection(UUID requestId) {
 		if (!started()) {
 			return;
 		}

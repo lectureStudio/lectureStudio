@@ -20,6 +20,7 @@ package org.lecturestudio.swing.components;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
+import java.util.UUID;
 
 import javax.swing.BorderFactory;
 import javax.swing.Box;
@@ -33,7 +34,7 @@ import org.lecturestudio.swing.AwtResourceLoader;
 
 public class SpeechRequestView extends MessagePanel {
 
-	private long requestId;
+	private UUID requestId;
 
 	private JLabel stateLabel;
 
@@ -74,11 +75,11 @@ public class SpeechRequestView extends MessagePanel {
 		setState(dict.get("speech.rejected"));
 	}
 
-	public long getRequestId() {
+	public UUID getRequestId() {
 		return requestId;
 	}
 
-	public void setRequestId(long id) {
+	public void setRequestId(UUID id) {
 		requestId = id;
 	}
 

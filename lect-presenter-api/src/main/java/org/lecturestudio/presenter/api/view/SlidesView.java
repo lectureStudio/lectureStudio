@@ -21,6 +21,7 @@ package org.lecturestudio.presenter.api.view;
 import java.awt.*;
 import java.util.Collection;
 import java.util.List;
+import java.util.UUID;
 
 import org.lecturestudio.core.ExecutableState;
 import org.lecturestudio.core.beans.BooleanProperty;
@@ -110,7 +111,7 @@ public interface SlidesView extends View {
 
 	void setOnMutePeerVideo(ConsumerAction<Boolean> action);
 
-	void setOnStopPeerConnection(ConsumerAction<Long> action);
+	void setOnStopPeerConnection(ConsumerAction<UUID> action);
 
 	void setVideoFrameEvent(PeerVideoFrameEvent event);
 

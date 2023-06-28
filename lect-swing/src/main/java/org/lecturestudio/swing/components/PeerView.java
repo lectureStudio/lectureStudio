@@ -30,6 +30,7 @@ import java.awt.GridBagLayout;
 import java.awt.Image;
 import java.awt.event.ItemEvent;
 import java.awt.geom.AffineTransform;
+import java.util.UUID;
 
 import javax.swing.Box;
 import javax.swing.JButton;
@@ -72,7 +73,7 @@ public class PeerView extends JComponent {
 
 	private Image image;
 
-	private Long requestId;
+	private UUID requestId;
 
 
 	/**
@@ -140,7 +141,7 @@ public class PeerView extends JComponent {
 		SwingUtils.bindAction(muteVideoButton, action);
 	}
 
-	public void setOnStopPeerConnection(ConsumerAction<Long> action) {
+	public void setOnStopPeerConnection(ConsumerAction<UUID> action) {
 		stopConnectionButton.addActionListener(e -> {
 			action.execute(requestId);
 		});
@@ -217,7 +218,7 @@ public class PeerView extends JComponent {
 	/**
 	 * @return The unique request ID of the peer.
 	 */
-	public Long getRequestId() {
+	public UUID getRequestId() {
 		return requestId;
 	}
 
@@ -226,7 +227,7 @@ public class PeerView extends JComponent {
 	 *
 	 * @param id The unique request ID of the peer.
 	 */
-	public void setRequestId(Long id) {
+	public void setRequestId(UUID id) {
 		this.requestId = id;
 	}
 

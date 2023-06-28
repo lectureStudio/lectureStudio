@@ -19,6 +19,7 @@
 package org.lecturestudio.web.api.stream.service;
 
 import java.util.List;
+import java.util.UUID;
 
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
@@ -122,7 +123,7 @@ public class StreamProviderService extends ProviderService {
 	 *
 	 * @param requestId The request ID.
 	 */
-	public void acceptSpeechRequest(long requestId) {
+	public void acceptSpeechRequest(UUID requestId) {
 		streamRestClient.acceptSpeechRequest(requestId);
 	}
 
@@ -131,7 +132,7 @@ public class StreamProviderService extends ProviderService {
 	 *
 	 * @param requestId The request ID.
 	 */
-	public void rejectSpeechRequest(long requestId) {
+	public void rejectSpeechRequest(UUID requestId) {
 		streamRestClient.rejectSpeechRequest(requestId);
 	}
 

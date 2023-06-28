@@ -131,7 +131,7 @@ public class SwingSlidesView extends JPanel implements SlidesView {
 
 	private ConsumerAction<Boolean> mutePeerVideoAction;
 
-	private ConsumerAction<Long> stopPeerConnectionAction;
+	private ConsumerAction<UUID> stopPeerConnectionAction;
 
 	private ConsumerAction<ExternalWindowPosition> externalMessagesPositionChangedAction;
 
@@ -684,7 +684,7 @@ public class SwingSlidesView extends JPanel implements SlidesView {
 				if (c instanceof SpeechRequestView) {
 					SpeechRequestView view = (SpeechRequestView) c;
 
-					if (view.getRequestId() == message.getRequestId()) {
+					if (Objects.equals(view.getRequestId(), message.getRequestId())) {
 						view.setCanceled();
 
 						removeMessageView(view);
@@ -781,7 +781,7 @@ public class SwingSlidesView extends JPanel implements SlidesView {
 	}
 
 	@Override
-	public void setOnStopPeerConnection(ConsumerAction<Long> action) {
+	public void setOnStopPeerConnection(ConsumerAction<UUID> action) {
 		stopPeerConnectionAction = action;
 	}
 
@@ -1199,7 +1199,7 @@ public class SwingSlidesView extends JPanel implements SlidesView {
 		maximizeRightTabPane();
 	}
 
-	private void removePeerView(long requestId) {
+	private void removePeerView(UUID requestId) {
 		for (var component : peerViewContainer.getComponents()) {
 			if (!(component instanceof PeerView)) {
 				continue;

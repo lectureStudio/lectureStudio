@@ -19,6 +19,7 @@
 package org.lecturestudio.web.api.event;
 
 import java.math.BigInteger;
+import java.util.UUID;
 
 import org.lecturestudio.core.ExecutableState;
 import org.lecturestudio.core.bus.event.ExecutableEvent;
@@ -29,7 +30,7 @@ public class PeerStateEvent extends ExecutableEvent {
 
 	private final String peerName;
 
-	private final Long requestId;
+	private final UUID requestId;
 
 	private boolean hasVideo;
 
@@ -41,7 +42,7 @@ public class PeerStateEvent extends ExecutableEvent {
 	 * @param peerName The display-name of the peer.
 	 * @param state    The state.
 	 */
-	public PeerStateEvent(Long requestId, String peerName, ExecutableState state) {
+	public PeerStateEvent(UUID requestId, String peerName, ExecutableState state) {
 		this(null, requestId, peerName, state);
 	}
 
@@ -59,11 +60,12 @@ public class PeerStateEvent extends ExecutableEvent {
 	/**
 	 * Create the {@link PeerStateEvent} with the specified state.
 	 *
-	 * @param peerId   The unique ID of the peer.
-	 * @param peerName The display-name of the peer.
-	 * @param state    The state.
+	 * @param peerId    The unique ID of the peer.
+	 * @param requestId The unique request ID.
+	 * @param peerName  The display-name of the peer.
+	 * @param state     The state.
 	 */
-	public PeerStateEvent(BigInteger peerId, Long requestId, String peerName, ExecutableState state) {
+	public PeerStateEvent(BigInteger peerId, UUID requestId, String peerName, ExecutableState state) {
 		super(state);
 
 		this.peerId = peerId;
@@ -88,7 +90,7 @@ public class PeerStateEvent extends ExecutableEvent {
 	/**
 	 * @return The unique request ID of the peer.
 	 */
-	public Long getRequestId() {
+	public UUID getRequestId() {
 		return requestId;
 	}
 

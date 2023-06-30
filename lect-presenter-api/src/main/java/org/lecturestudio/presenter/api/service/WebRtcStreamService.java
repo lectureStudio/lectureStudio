@@ -191,6 +191,14 @@ public class WebRtcStreamService extends ExecutableBase {
 		setCameraState(ExecutableState.Stopped);
 	}
 
+	public void setCaptureLocalCameraVideo(boolean capture) {
+		if (cameraState != ExecutableState.Started) {
+			return;
+		}
+
+		streamContext.getVideoContext().setCaptureLocalVideo(capture);
+	}
+
 	public void setScreenShareContext(ScreenShareContext context) {
 		streamContext.getScreenContext().setFramerate(context.getProfile().getFramerate());
 		streamContext.getScreenContext().setBitrate(context.getProfile().getBitrate());
@@ -561,13 +569,16 @@ public class WebRtcStreamService extends ExecutableBase {
 		audioContext.setRecordingDevice(audioCaptureDevice);
 		audioContext.setPlaybackDevice(audioPlaybackDevice);
 		audioContext.setPlaybackVolume(audioConfig.getPlaybackVolume());
-		audioContext.setFrameConsumer(this::processAudioFrame);
+		audioContext.setRemoteFrameConsumer(this::processAudioFrame);
 
 		videoContext.setSendVideo(streamConfig.getCameraEnabled());
 		videoContext.setReceiveVideo(true);
 		videoContext.setCaptureDevice(videoCaptureDevice);
 		videoContext.setBitrate(cameraConfig.getBitRate());
-		videoContext.setFrameConsumer(videoFrameEvent -> {
+		videoContext.setRemoteFrameConsumer(videoFrameEvent -> {
+			context.getEventBus().post(videoFrameEvent);
+		});
+		videoContext.setLocalFrameConsumer(videoFrameEvent -> {
 			context.getEventBus().post(videoFrameEvent);
 		});
 

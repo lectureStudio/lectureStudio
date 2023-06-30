@@ -79,7 +79,7 @@ import org.lecturestudio.swing.util.VideoFrameConverter;
 import org.lecturestudio.swing.view.SwingView;
 import org.lecturestudio.swing.view.ViewPostConstruct;
 import org.lecturestudio.web.api.event.PeerStateEvent;
-import org.lecturestudio.web.api.event.PeerVideoFrameEvent;
+import org.lecturestudio.web.api.event.RemoteVideoFrameEvent;
 import org.lecturestudio.web.api.message.MessengerDirectMessage;
 import org.lecturestudio.web.api.message.MessengerMessage;
 import org.lecturestudio.web.api.message.SpeechBaseMessage;
@@ -786,7 +786,7 @@ public class SwingSlidesView extends JPanel implements SlidesView {
 	}
 
 	@Override
-	public void setVideoFrameEvent(PeerVideoFrameEvent event) {
+	public void setVideoFrameEvent(RemoteVideoFrameEvent event) {
 		if (isNull(peerView)) {
 			return;
 		}

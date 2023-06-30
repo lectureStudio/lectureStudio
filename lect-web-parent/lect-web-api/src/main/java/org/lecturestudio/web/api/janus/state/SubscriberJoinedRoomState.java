@@ -29,7 +29,7 @@ import java.util.UUID;
 import java.util.function.Consumer;
 
 import org.lecturestudio.core.audio.AudioFrame;
-import org.lecturestudio.web.api.event.PeerVideoFrameEvent;
+import org.lecturestudio.web.api.event.RemoteVideoFrameEvent;
 import org.lecturestudio.web.api.janus.JanusPeerConnection;
 import org.lecturestudio.web.api.janus.JanusPublisher;
 import org.lecturestudio.web.api.janus.JanusStateHandler;
@@ -59,7 +59,7 @@ public class SubscriberJoinedRoomState implements JanusState {
 
 	private Consumer<AudioFrame> audioFrameConsumer;
 
-	private Consumer<PeerVideoFrameEvent> videoFrameConsumer;
+	private Consumer<RemoteVideoFrameEvent> videoFrameConsumer;
 
 	private JanusRoomSubscribeMessage subscribeRequest;
 
@@ -77,8 +77,8 @@ public class SubscriberJoinedRoomState implements JanusState {
 		StreamVideoContext videoContext = streamContext.getVideoContext();
 		JanusPeerConnection peerConnection = handler.createPeerConnection();
 
-		audioFrameConsumer = audioContext.getFrameConsumer();
-		videoFrameConsumer = videoContext.getFrameConsumer();
+		audioFrameConsumer = audioContext.getRemoteFrameConsumer();
+		videoFrameConsumer = videoContext.getRemoteFrameConsumer();
 
 		peerConnection.setOnLocalSessionDescription(description -> {
 			sendRequest(handler, description.sdp);
@@ -93,7 +93,7 @@ public class SubscriberJoinedRoomState implements JanusState {
 		});
 		peerConnection.setOnRemoteVideoFrame(videoFrame -> {
 			if (nonNull(videoFrameConsumer)) {
-				videoFrameConsumer.accept(new PeerVideoFrameEvent(videoFrame));
+				videoFrameConsumer.accept(new RemoteVideoFrameEvent(videoFrame));
 			}
 		});
 		peerConnection.setAudioTrackSink((data, bitsPerSample, sampleRate, channels, frames) -> {

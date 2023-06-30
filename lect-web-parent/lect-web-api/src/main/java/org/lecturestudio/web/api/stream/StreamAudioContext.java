@@ -39,7 +39,7 @@ public class StreamAudioContext {
 
 	private final DoubleProperty playbackVolume = new DoubleProperty();
 
-	private Consumer<AudioFrame> frameConsumer;
+	private Consumer<AudioFrame> remoteFrameConsumer;
 
 
 	public StreamAudioContext() {
@@ -106,11 +106,11 @@ public class StreamAudioContext {
 		sendAudio.set(send);
 	}
 
-	public Consumer<AudioFrame> getFrameConsumer() {
-		return frameConsumer;
+	public Consumer<AudioFrame> getRemoteFrameConsumer() {
+		return remoteFrameConsumer;
 	}
 
-	public void setFrameConsumer(Consumer<AudioFrame> consumer) {
-		this.frameConsumer = consumer;
+	public void setRemoteFrameConsumer(Consumer<AudioFrame> consumer) {
+		this.remoteFrameConsumer = consumer;
 	}
 }

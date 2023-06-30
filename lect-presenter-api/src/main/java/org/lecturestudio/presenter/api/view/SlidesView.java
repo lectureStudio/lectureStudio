@@ -38,7 +38,7 @@ import org.lecturestudio.presenter.api.config.SlideViewConfiguration;
 import org.lecturestudio.swing.model.ExternalWindowPosition;
 import org.lecturestudio.presenter.api.stylus.StylusHandler;
 import org.lecturestudio.web.api.event.PeerStateEvent;
-import org.lecturestudio.web.api.event.PeerVideoFrameEvent;
+import org.lecturestudio.web.api.event.RemoteVideoFrameEvent;
 import org.lecturestudio.web.api.message.MessengerMessage;
 import org.lecturestudio.web.api.message.SpeechBaseMessage;
 import org.lecturestudio.web.api.stream.model.CourseParticipant;
@@ -113,7 +113,7 @@ public interface SlidesView extends View {
 
 	void setOnStopPeerConnection(ConsumerAction<UUID> action);
 
-	void setVideoFrameEvent(PeerVideoFrameEvent event);
+	void setVideoFrameEvent(RemoteVideoFrameEvent event);
 
 	void setOnKeyEvent(ConsumerAction<KeyEvent> action);
 

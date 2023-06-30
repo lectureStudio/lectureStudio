@@ -24,7 +24,8 @@ import java.util.Map;
 import java.util.UUID;
 import java.util.function.Consumer;
 
-import org.lecturestudio.web.api.event.ScreenVideoFrameEvent;
+import org.lecturestudio.web.api.event.LocalVideoFrameEvent;
+import org.lecturestudio.web.api.event.LocalScreenVideoFrameEvent;
 import org.lecturestudio.web.api.janus.JanusPeerConnection;
 import org.lecturestudio.web.api.janus.JanusStateHandler;
 import org.lecturestudio.web.api.janus.message.JanusJsepMessage;
@@ -63,7 +64,9 @@ public class PublishToRoomState implements JanusState {
 
 	private JanusRoomPublishMessage publishRequest;
 
-	private Consumer<ScreenVideoFrameEvent> localScreenFrameConsumer;
+	private Consumer<LocalScreenVideoFrameEvent> localScreenFrameConsumer;
+
+	private Consumer<LocalVideoFrameEvent> localVideoFrameConsumer;
 
 	private Runnable screenSourceEndedCallback;
 
@@ -76,6 +79,7 @@ public class PublishToRoomState implements JanusState {
 		StreamScreenContext screenContext = streamContext.getScreenContext();
 		JanusPeerConnection peerConnection = handler.createPeerConnection();
 
+		localVideoFrameConsumer = videoContext.getLocalFrameConsumer();
 		localScreenFrameConsumer = screenContext.getLocalFrameConsumer();
 		screenSourceEndedCallback = screenContext.getScreenSourceEndedCallback();
 
@@ -93,6 +97,13 @@ public class PublishToRoomState implements JanusState {
 			if (state == RTCIceGatheringState.COMPLETE) {
 				sendEndOfCandidates(handler);
 			}
+		});
+
+		// Register for local video frames.
+		setLocalVideoFrameConsumer(peerConnection, videoContext.getCaptureLocalVideo());
+
+		videoContext.captureLocalVideoProperty().addListener((o, oldValue, newValue) -> {
+			setLocalVideoFrameConsumer(peerConnection, newValue);
 		});
 
 		// Publishers are send-only.
@@ -234,8 +245,22 @@ public class PublishToRoomState implements JanusState {
 
 		track.addSink(videoFrame -> {
 			if (nonNull(localScreenFrameConsumer)) {
-				localScreenFrameConsumer.accept(new ScreenVideoFrameEvent(videoFrame));
+				localScreenFrameConsumer.accept(new LocalScreenVideoFrameEvent(videoFrame));
 			}
 		});
+	}
+
+	private void setLocalVideoFrameConsumer(JanusPeerConnection peerConnection,
+			boolean receiveLocalVideo) {
+		if (receiveLocalVideo) {
+			peerConnection.setOnLocalVideoFrame(videoFrame -> {
+				if (nonNull(localVideoFrameConsumer)) {
+					localVideoFrameConsumer.accept(new LocalVideoFrameEvent(videoFrame));
+				}
+			});
+		}
+		else {
+			peerConnection.setOnLocalVideoFrame(null);
+		}
 	}
 }

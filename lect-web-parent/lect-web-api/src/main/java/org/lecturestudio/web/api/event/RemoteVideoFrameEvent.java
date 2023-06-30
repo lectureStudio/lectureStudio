@@ -16,16 +16,24 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package org.lecturestudio.web.api.stream.model;
+package org.lecturestudio.web.api.event;
 
-import java.util.Map;
+import dev.onvoid.webrtc.media.video.VideoFrame;
 
-public class CourseFeatureResponse {
+/**
+ * A VideoFrameEvent containing a VideoFrame that was received from a remote
+ * video track.
+ *
+ * @author Alex Andres
+ */
+public class RemoteVideoFrameEvent extends VideoFrameEvent {
 
-	public int statusCode;
-
-	public String statusMessage;
-
-	public Map<Integer, String> fieldErrors;
-
+	/**
+	 * Creates a new RemoteVideoFrameEvent with the specified video frame.
+	 *
+	 * @param frame The video frame received from a remote video track.
+	 */
+	public RemoteVideoFrameEvent(VideoFrame frame) {
+		super(frame);
+	}
 }

@@ -67,6 +67,7 @@ import dev.onvoid.webrtc.media.video.VideoDevice;
 import dev.onvoid.webrtc.media.video.VideoDeviceSource;
 import dev.onvoid.webrtc.media.video.VideoFrame;
 import dev.onvoid.webrtc.media.video.VideoTrack;
+import dev.onvoid.webrtc.media.video.VideoTrackSink;
 
 public class JanusPeerConnection implements PeerConnectionObserver {
 
@@ -96,6 +97,10 @@ public class JanusPeerConnection implements PeerConnectionObserver {
 
 	private VideoCaptureCapability cameraCapability;
 
+	private VideoTrack localVideoTrack;
+
+	private VideoTrackSink localVideoTrackSink;
+
 	private Consumer<JanusPeerConnectionException> onException;
 
 	private Consumer<RTCSessionDescription> onLocalSessionDescription;
@@ -106,6 +111,7 @@ public class JanusPeerConnection implements PeerConnectionObserver {
 
 	private Consumer<RTCIceGatheringState> onIceGatheringState;
 
+	private Consumer<VideoFrame> onLocalVideoFrame;
 	private Consumer<VideoFrame> onRemoteVideoFrame;
 
 	private Consumer<MediaStreamTrack> onReplacedTrack;
@@ -141,6 +147,28 @@ public class JanusPeerConnection implements PeerConnectionObserver {
 
 	public void setOnIceConnectionState(Consumer<RTCIceConnectionState> callback) {
 		onIceConnectionState = callback;
+	}
+
+	public void setOnLocalVideoFrame(Consumer<VideoFrame> callback) {
+		onLocalVideoFrame = callback;
+
+		execute(() -> {
+			// Remove old video track callback.
+			if (nonNull(localVideoTrack) && nonNull(localVideoTrackSink)) {
+				localVideoTrack.removeSink(localVideoTrackSink);
+			}
+
+			if (nonNull(onLocalVideoFrame)) {
+				localVideoTrackSink = frame -> publishFrame(onLocalVideoFrame, frame);
+
+				if (nonNull(localVideoTrack)) {
+					localVideoTrack.addSink(localVideoTrackSink);
+				}
+			}
+			else {
+				localVideoTrackSink = null;
+			}
+		});
 	}
 
 	public void setOnRemoteVideoFrame(Consumer<VideoFrame> callback) {
@@ -468,10 +496,14 @@ public class JanusPeerConnection implements PeerConnectionObserver {
 
 		cameraSource = new VideoDeviceSource();
 
-		VideoTrack videoTrack = factory.getFactory()
+		localVideoTrack = factory.getFactory()
 				.createVideoTrack(CAMERA_TRACK, cameraSource);
 
-		peerConnection.addTrack(videoTrack, List.of("stream"));
+		if (nonNull(onLocalVideoFrame) && nonNull(localVideoTrackSink)) {
+			localVideoTrack.addSink(localVideoTrackSink);
+		}
+
+		peerConnection.addTrack(localVideoTrack, List.of("stream"));
 
 		setTransceiverDirection(CAMERA_TRACK, direction);
 	}

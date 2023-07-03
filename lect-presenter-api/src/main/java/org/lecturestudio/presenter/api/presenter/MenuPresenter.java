@@ -33,6 +33,9 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.Timer;
 import java.util.TimerTask;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 import javax.inject.Inject;
 
@@ -69,7 +72,6 @@ import org.lecturestudio.presenter.api.config.SlideViewConfiguration;
 import org.lecturestudio.presenter.api.context.PresenterContext;
 import org.lecturestudio.presenter.api.event.*;
 import org.lecturestudio.presenter.api.model.*;
-import org.lecturestudio.presenter.api.pdf.embedded.QuizParser;
 import org.lecturestudio.presenter.api.service.BookmarkService;
 import org.lecturestudio.presenter.api.service.QuizWebServiceState;
 import org.lecturestudio.presenter.api.service.RecordingService;
@@ -79,13 +81,14 @@ import org.lecturestudio.presenter.api.view.MessengerWindow;
 
 public class MenuPresenter extends Presenter<MenuView> {
 
+	/** Mainly used for Desktop.getDesktop().open to circumvent errors. */
+	private final ExecutorService executorService = Executors.newSingleThreadExecutor();
+
 	private final DateTimeFormatter timeFormatter;
 
 	private final Timer timer;
 
 	private final EventBus eventBus;
-
-	private final QuizParser quizParser;
 
 	@Inject
 	private ToolController toolController;
@@ -111,7 +114,6 @@ public class MenuPresenter extends Presenter<MenuView> {
 		super(context, view);
 
 		this.eventBus = context.getEventBus();
-		this.quizParser = new QuizParser();
 		this.timeFormatter = DateTimeFormatter.ofPattern("HH:mm", getPresenterConfig().getLocale());
 		this.timer = new Timer("MenuTime", true);
 	}
@@ -136,7 +138,8 @@ public class MenuPresenter extends Presenter<MenuView> {
 
 		if (event.isRemoved()) {
 			page.removePageEditedListener(this::pageEdited);
-		} else if (event.isSelected()) {
+		}
+		else if (event.isSelected()) {
 			Page oldPage = event.getOldPage();
 
 			if (nonNull(oldPage)) {
@@ -217,9 +220,11 @@ public class MenuPresenter extends Presenter<MenuView> {
 	public void openBookmark(Bookmark bookmark) {
 		try {
 			bookmarkService.gotoBookmark(bookmark);
-		} catch (BookmarkKeyException e) {
+		}
+		catch (BookmarkKeyException e) {
 			showError("bookmark.goto.error", "bookmark.key.not.existing", bookmark.getShortcut());
-		} catch (Exception e) {
+		}
+		catch (Exception e) {
 			handleException(e, "Go to bookmark failed", "bookmark.goto.error");
 		}
 	}
@@ -308,17 +313,18 @@ public class MenuPresenter extends Presenter<MenuView> {
 		try {
 			if (recordingService.started()) {
 				recordingService.suspend();
-			} else {
+			}
+			else {
 				recordingService.start();
 			}
-		} catch (ExecutableException e) {
+		}
+		catch (ExecutableException e) {
 			Throwable cause = nonNull(e.getCause()) ? e.getCause().getCause() : null;
 
-			if (cause instanceof AudioDeviceNotConnectedException) {
-				var ex = (AudioDeviceNotConnectedException) cause;
+			if (cause instanceof AudioDeviceNotConnectedException ex) {
 				showError("recording.start.error", "recording.start.device.error", ex.getDeviceName());
-				logException(e, "Start recording failed");
-			} else {
+			}
+			else {
 				handleException(e, "Start recording failed", "recording.start.error");
 			}
 		}
@@ -329,12 +335,14 @@ public class MenuPresenter extends Presenter<MenuView> {
 
 		if (config.getConfirmStopRecording()) {
 			eventBus.post(new ShowPresenterCommand<>(ConfirmStopRecordingPresenter.class));
-		} else {
+		}
+		else {
 			try {
 				recordingService.stop();
 
 				eventBus.post(new ShowPresenterCommand<>(SaveRecordingPresenter.class));
-			} catch (ExecutableException e) {
+			}
+			catch (ExecutableException e) {
 				handleException(e, "Stop recording failed", "recording.stop.error");
 			}
 		}
@@ -343,7 +351,8 @@ public class MenuPresenter extends Presenter<MenuView> {
 	public void showMessengerWindow(boolean show) {
 		if (show) {
 			eventBus.post(new ShowPresenterCommand<>(MessengerWindowPresenter.class));
-		} else {
+		}
+		else {
 			eventBus.post(new ClosePresenterCommand(MessengerWindowPresenter.class));
 		}
 	}
@@ -377,12 +386,16 @@ public class MenuPresenter extends Presenter<MenuView> {
 	}
 
 	public void showLog() {
-		try {
-			Desktop.getDesktop().open(new File(
-					context.getDataLocator().getAppDataPath()));
-		} catch (IOException e) {
-			handleException(e, "Open log path failed", "generic.error");
-		}
+		// Run async to avoid 'CoInitializeEx() failed.' with Desktop.getDesktop().open
+		CompletableFuture.runAsync(() -> {
+			try {
+				Desktop.getDesktop().open(new File(context.getDataLocator()
+						.getAppDataPath()));
+			}
+			catch (IOException e) {
+				handleException(e, "Open log path failed", "generic.error");
+			}
+		}, executorService);
 	}
 
 	public void showAboutView() {

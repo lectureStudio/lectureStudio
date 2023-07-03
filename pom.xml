@@ -68,6 +68,7 @@
 		<license.path>${project.basedir}/../</license.path>
 		<log4j.version>2.17.1</log4j.version>
 		<stylus.version>0.2.0</stylus.version>
+		<java.version>17</java.version>
 	</properties>
 
 	<repositories>
@@ -90,7 +91,7 @@
 					<artifactId>maven-compiler-plugin</artifactId>
 					<version>3.8.1</version>
 					<configuration>
-						<release>14</release>
+						<release>${java.version}</release>
 						<showDeprecation>true</showDeprecation>
 						<showWarnings>true</showWarnings>
 					</configuration>
@@ -98,22 +99,22 @@
 				<plugin>
 					<groupId>org.apache.maven.plugins</groupId>
 					<artifactId>maven-surefire-plugin</artifactId>
-					<version>3.0.0-M5</version>
+					<version>3.1.2</version>
 				</plugin>
 				<plugin>
 					<groupId>org.apache.maven.plugins</groupId>
 					<artifactId>maven-surefire-report-plugin</artifactId>
-					<version>3.0.0-M4</version>
+					<version>3.1.2</version>
 				</plugin>
 				<plugin>
 					<groupId>org.apache.maven.plugins</groupId>
 					<artifactId>maven-site-plugin</artifactId>
-					<version>3.8.2</version>
+					<version>4.0.0-M8</version>
 				</plugin>
 				<plugin>
 					<groupId>org.apache.maven.plugins</groupId>
 					<artifactId>maven-dependency-plugin</artifactId>
-					<version>3.1.1</version>
+					<version>3.6.0</version>
 					<executions>
 						<execution>
 							<id>copy-installed</id>
@@ -154,7 +155,7 @@
 				<plugin>
 					<groupId>org.apache.maven.plugins</groupId>
 					<artifactId>maven-gpg-plugin</artifactId>
-					<version>1.6</version>
+					<version>3.1.0</version>
 					<executions>
 						<execution>
 							<id>sign-artifacts</id>
@@ -168,7 +169,7 @@
 				<plugin>
 					<groupId>org.apache.maven.plugins</groupId>
 					<artifactId>maven-jar-plugin</artifactId>
-					<version>3.2.0</version>
+					<version>3.3.0</version>
 					<configuration>
 						<archive>
 							<compress>true</compress>
@@ -185,7 +186,7 @@
 				<plugin>
 					<groupId>org.apache.maven.plugins</groupId>
 					<artifactId>maven-javadoc-plugin</artifactId>
-					<version>3.1.1</version>
+					<version>3.5.0</version>
 					<executions>
 						<execution>
 							<id>attach-javadocs</id>
@@ -201,12 +202,12 @@
 				<plugin>
 					<groupId>org.apache.maven.plugins</groupId>
 					<artifactId>maven-project-info-reports-plugin</artifactId>
-					<version>3.0.0</version>
+					<version>3.4.5</version>
 				</plugin>
 				<plugin>
 					<groupId>org.apache.maven.plugins</groupId>
 					<artifactId>maven-resources-plugin</artifactId>
-					<version>3.1.0</version>
+					<version>3.3.1</version>
 					<executions>
 						<execution>
 							<id>copy-license</id>
@@ -231,7 +232,7 @@
 				<plugin>
 					<groupId>org.apache.maven.plugins</groupId>
 					<artifactId>maven-source-plugin</artifactId>
-					<version>3.1.0</version>
+					<version>3.3.0</version>
 					<executions>
 						<execution>
 							<id>attach-sources</id>
@@ -253,7 +254,7 @@
 			<plugin>
 				<groupId>com.github.ferstl</groupId>
 				<artifactId>depgraph-maven-plugin</artifactId>
-				<version>3.3.0</version>
+				<version>4.0.2</version>
 				<configuration>
 					<includes>lect*:*</includes>
 					<createImage>true</createImage>

@@ -277,11 +277,11 @@ public class ThumbPanel extends JPanel {
 			page.addPageEditedListener(pageEditedHandler);
 
 			this.selectedPage = page;
-
-			list.setSelectedValue(page, false);
-
-			scrollToSelected();
 		}
+
+		list.setSelectedValue(page, false);
+
+		scrollToSelected();
 	}
 
 	public void setDocument(Document doc, PresentationParameterProvider ppProvider) {

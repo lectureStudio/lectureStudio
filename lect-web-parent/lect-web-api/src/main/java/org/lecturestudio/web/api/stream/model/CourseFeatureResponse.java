@@ -18,10 +18,14 @@
 
 package org.lecturestudio.web.api.stream.model;
 
+import java.util.Map;
+
 public class CourseFeatureResponse {
 
 	public int statusCode;
 
 	public String statusMessage;
+
+	public Map<Integer, String> fieldErrors;
 
 }

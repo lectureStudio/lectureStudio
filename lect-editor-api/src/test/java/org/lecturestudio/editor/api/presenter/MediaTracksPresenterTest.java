@@ -9,10 +9,7 @@ import javax.inject.Singleton;
 import java.io.File;
 import java.util.List;
 import java.util.Objects;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutionException;
-import java.util.concurrent.TimeUnit;
 
 import com.google.inject.AbstractModule;
 import com.google.inject.Provides;
@@ -36,18 +33,18 @@ import org.lecturestudio.editor.api.view.MediaTracksView;
 public class MediaTracksPresenterTest extends PresenterTest {
 
 	RecordingFileService recordingService;
-
-	MediaTracksMockView view = new MediaTracksMockView();
-
 	MediaTracksPresenter presenter;
-
-	ConfirmationNotificationMockView confirmationNotificationView = new ConfirmationNotificationMockView();
-	NotificationMockView notificationView = new NotificationMockView();
+	MediaTracksMockView view;
+	ConfirmationNotificationMockView confirmationNotificationView;
+	NotificationMockView notificationView;
 
 
 	@BeforeEach
 	@Override
 	void setupInjector() throws ExecutionException, InterruptedException {
+		view = new MediaTracksMockView();
+		confirmationNotificationView = new ConfirmationNotificationMockView();
+		notificationView = new NotificationMockView();
 		injector = new GuiceInjector(new AbstractModule() {
 			@Override
 			protected void configure() {
@@ -130,7 +127,6 @@ public class MediaTracksPresenterTest extends PresenterTest {
 	 */
 	@Test
 	void testConfirmHidePage() throws InterruptedException {
-		CountDownLatch confirmLatch = new CountDownLatch(1);
 		Recording recording = recordingService.getSelectedRecording();
 
 		List<RecordedPage> pages = recording.getRecordedEvents().getRecordedPages();
@@ -143,19 +139,8 @@ public class MediaTracksPresenterTest extends PresenterTest {
 		int audioLengthBeforeHide = recording.getRecordingHeader().getAudioLength();
 
 		view.setOnHidePageAction.execute(hidePage);
-		CompletableFuture.runAsync(() -> {
-			while (confirmationNotificationView.setOnConfirmAction == null) {
-				try {
-					TimeUnit.MILLISECONDS.sleep(10);
-				}
-				catch (InterruptedException e) {
-					throw new RuntimeException(e);
-				}
-			}
-			confirmLatch.countDown();
-		});
 
-		assertTrue(confirmLatch.await(10, TimeUnit.SECONDS));
+		assertTrue(awaitTrue(() -> confirmationNotificationView.setOnConfirmAction != null, 10));
 
 		assertEquals(dict.get("hide.page.notification.title"), confirmationNotificationView.setTitleString);
 		assertEquals(dict.get("hide.page.notification.text"), confirmationNotificationView.setMessageString);
@@ -165,21 +150,7 @@ public class MediaTracksPresenterTest extends PresenterTest {
 
 		confirmationNotificationView.setOnConfirmAction.execute();
 
-		CountDownLatch pagesReducedLatch = new CountDownLatch(1);
-
-		CompletableFuture.runAsync(() -> {
-			while (recording.getRecordedEvents().getRecordedPages().size() == numPagesBeforeHide) {
-				try {
-					TimeUnit.MILLISECONDS.sleep(10);
-				}
-				catch (InterruptedException e) {
-					throw new RuntimeException(e);
-				}
-				pagesReducedLatch.countDown();
-			}
-		});
-
-		assertTrue(pagesReducedLatch.await(10, TimeUnit.SECONDS));
+		assertTrue(awaitTrue(() -> recording.getRecordedEvents().getRecordedPages().size() != numPagesBeforeHide, 10));
 
 		List<RecordedPage> pagesAfterHide = recording.getRecordedEvents().getRecordedPages();
 		Integer[] pageTimesAfterHide = pagesAfterHide.stream().map(RecordedPage::getTimestamp).toArray(Integer[]::new);
@@ -204,7 +175,6 @@ public class MediaTracksPresenterTest extends PresenterTest {
 	 */
 	@Test
 	void testAbortHidePage() throws InterruptedException {
-		CountDownLatch confirmLatch = new CountDownLatch(1);
 		Recording recording = recordingService.getSelectedRecording();
 
 		List<RecordedPage> pages = recording.getRecordedEvents().getRecordedPages();
@@ -217,19 +187,8 @@ public class MediaTracksPresenterTest extends PresenterTest {
 		int audioLengthBeforeHide = recording.getRecordingHeader().getAudioLength();
 
 		view.setOnHidePageAction.execute(hidePage);
-		CompletableFuture.runAsync(() -> {
-			while (confirmationNotificationView.setOnConfirmAction == null) {
-				try {
-					TimeUnit.MILLISECONDS.sleep(10);
-				}
-				catch (InterruptedException e) {
-					throw new RuntimeException(e);
-				}
-			}
-			confirmLatch.countDown();
-		});
 
-		assertTrue(confirmLatch.await(10, TimeUnit.SECONDS));
+		assertTrue(awaitTrue(() -> confirmationNotificationView.setOnConfirmAction != null, 10));
 
 		assertEquals(dict.get("hide.page.notification.title"), confirmationNotificationView.setTitleString);
 		assertEquals(dict.get("hide.page.notification.text"), confirmationNotificationView.setMessageString);
@@ -266,7 +225,6 @@ public class MediaTracksPresenterTest extends PresenterTest {
 	 */
 	@Test
 	void testShowMovePageNotification() throws InterruptedException {
-		CountDownLatch confirmLatch = new CountDownLatch(1);
 		Recording recording = recordingService.getSelectedRecording();
 
 		List<RecordedPage> pages = recording.getRecordedEvents().getRecordedPages();
@@ -286,23 +244,11 @@ public class MediaTracksPresenterTest extends PresenterTest {
 
 		view.setOnMovePageAction.execute(movePage);
 
-		CompletableFuture.runAsync(() -> {
-			while (notificationView.title == null) {
-				try {
-					TimeUnit.MILLISECONDS.sleep(10);
-				}
-				catch (InterruptedException e) {
-					throw new RuntimeException(e);
-				}
-			}
-			confirmLatch.countDown();
-		});
-
 		movePage = recording.getRecordedEvents().getRecordedPage(1);
-		Integer[] pageTimesAfterMove = recording.getRecordedEvents().getRecordedPages().stream().filter(page -> page.getNumber() != 1).map(RecordedPage::getTimestamp).toArray(Integer[]::new);
+		Integer[] pageTimesAfterMove = recording.getRecordedEvents().getRecordedPages()
+				.stream().filter(page -> page.getNumber() != 1).map(RecordedPage::getTimestamp).toArray(Integer[]::new);
 
-
-		assertTrue(confirmLatch.await(10, TimeUnit.SECONDS));
+		assertTrue(awaitTrue(() -> notificationView.title != null, 10));
 
 		assertNotEquals(pageTimeBeforeMove, pageTimeAfterMove);
 		assertEquals(pageTimeAfterMove, movePage.getTimestamp());
@@ -323,7 +269,6 @@ public class MediaTracksPresenterTest extends PresenterTest {
 	 */
 	@Test
 	void testConfirmHideAndMoveNextPage() throws InterruptedException {
-		CountDownLatch confirmLatch = new CountDownLatch(1);
 		Recording recording = recordingService.getSelectedRecording();
 
 		List<RecordedPage> pages = recording.getRecordedEvents().getRecordedPages();
@@ -337,19 +282,8 @@ public class MediaTracksPresenterTest extends PresenterTest {
 		int audioLengthBeforeHide = recording.getRecordingHeader().getAudioLength();
 
 		view.setOnHideAndMoveNextPageAction.execute(hidePage);
-		CompletableFuture.runAsync(() -> {
-			while (confirmationNotificationView.setOnConfirmAction == null) {
-				try {
-					TimeUnit.MILLISECONDS.sleep(10);
-				}
-				catch (InterruptedException e) {
-					throw new RuntimeException(e);
-				}
-			}
-			confirmLatch.countDown();
-		});
 
-		assertTrue(confirmLatch.await(10, TimeUnit.SECONDS));
+		assertTrue(awaitTrue(() -> confirmationNotificationView.setOnConfirmAction != null, 10));
 
 		assertEquals(dict.get("hide.page.notification.title"), confirmationNotificationView.setTitleString);
 		assertEquals(dict.get("hide.page.notification.text"), confirmationNotificationView.setMessageString);
@@ -359,21 +293,8 @@ public class MediaTracksPresenterTest extends PresenterTest {
 
 		confirmationNotificationView.setOnConfirmAction.execute();
 
-		CountDownLatch pagesReducedLatch = new CountDownLatch(1);
+		assertTrue(awaitTrue(() -> recording.getRecordedEvents().getRecordedPages().size() != numPagesBeforeHide, 10));
 
-		CompletableFuture.runAsync(() -> {
-			while (recording.getRecordedEvents().getRecordedPages().size() == numPagesBeforeHide) {
-				try {
-					TimeUnit.MILLISECONDS.sleep(10);
-				}
-				catch (InterruptedException e) {
-					throw new RuntimeException(e);
-				}
-				pagesReducedLatch.countDown();
-			}
-		});
-
-		assertTrue(pagesReducedLatch.await(10, TimeUnit.SECONDS));
 		List<RecordedPage> pagesAfterHide = recording.getRecordedEvents().getRecordedPages();
 		Integer[] pageTimesAfterHide = pagesAfterHide.stream().map(RecordedPage::getTimestamp).toArray(Integer[]::new);
 
@@ -398,7 +319,6 @@ public class MediaTracksPresenterTest extends PresenterTest {
 	 */
 	@Test
 	void testAbortHideAndMoveNextPage() throws InterruptedException {
-		CountDownLatch confirmLatch = new CountDownLatch(1);
 		Recording recording = recordingService.getSelectedRecording();
 
 		List<RecordedPage> pages = recording.getRecordedEvents().getRecordedPages();
@@ -411,19 +331,8 @@ public class MediaTracksPresenterTest extends PresenterTest {
 		int audioLengthBeforeHide = recording.getRecordingHeader().getAudioLength();
 
 		view.setOnHideAndMoveNextPageAction.execute(hidePage);
-		CompletableFuture.runAsync(() -> {
-			while (confirmationNotificationView.setOnConfirmAction == null) {
-				try {
-					TimeUnit.MILLISECONDS.sleep(10);
-				}
-				catch (InterruptedException e) {
-					throw new RuntimeException(e);
-				}
-			}
-			confirmLatch.countDown();
-		});
 
-		assertTrue(confirmLatch.await(10, TimeUnit.SECONDS));
+		assertTrue(awaitTrue(() -> confirmationNotificationView.setOnConfirmAction != null, 10));
 
 		assertEquals(dict.get("hide.page.notification.title"), confirmationNotificationView.setTitleString);
 		assertEquals(dict.get("hide.page.notification.text"), confirmationNotificationView.setMessageString);

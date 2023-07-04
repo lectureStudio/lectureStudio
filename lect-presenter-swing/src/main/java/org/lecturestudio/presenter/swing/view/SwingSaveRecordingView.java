@@ -86,6 +86,8 @@ public class SwingSaveRecordingView extends NotificationPane implements SaveReco
 			progressIndicator.setValue((int) (progress * 100));
 
 			if (progressIndicator.getValue() >= progressIndicator.getMaximum()) {
+				progressIndicator.setIndeterminate(false);
+
 				closeButton.setEnabled(true);
 				closeButton.requestFocusInWindow();
 			}

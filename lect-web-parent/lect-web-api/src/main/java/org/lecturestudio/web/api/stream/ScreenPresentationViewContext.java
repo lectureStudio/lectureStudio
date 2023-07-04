@@ -27,7 +27,7 @@ import java.util.function.Consumer;
 import org.lecturestudio.core.view.PresentationViewComponent;
 import org.lecturestudio.core.view.PresentationViewContext;
 import org.lecturestudio.core.view.PresentationViewType;
-import org.lecturestudio.web.api.event.ScreenVideoFrameEvent;
+import org.lecturestudio.web.api.event.LocalScreenVideoFrameEvent;
 
 public class ScreenPresentationViewContext implements PresentationViewContext {
 
@@ -50,7 +50,7 @@ public class ScreenPresentationViewContext implements PresentationViewContext {
 		return PresentationViewType.SCREEN;
 	}
 
-	public void addScreenVideoFrameEvent(ScreenVideoFrameEvent event) {
+	public void addScreenVideoFrameEvent(LocalScreenVideoFrameEvent event) {
 		VideoFrame videoFrame = event.getFrame();
 
 		for (Consumer<VideoFrame> consumer : eventListeners) {

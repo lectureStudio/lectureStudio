@@ -25,6 +25,8 @@ import java.awt.Rectangle;
 import java.awt.Toolkit;
 import java.awt.event.ComponentAdapter;
 import java.awt.event.ComponentEvent;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 
 import org.lecturestudio.core.geometry.Rectangle2D;
 import org.lecturestudio.presenter.api.stylus.StylusHandler;
@@ -55,6 +57,13 @@ public class StylusListener implements org.lecturestudio.stylus.StylusListener {
 
 		penCursorImage = AwtResourceLoader.getImage("gfx/icons/pen-cursor.png");
 
+		slideView.addMouseListener(new MouseAdapter() {
+
+			@Override
+			public void mouseEntered(MouseEvent e) {
+				handler.onCursorEntered();
+			}
+		});
 		slideView.addComponentListener(new ComponentAdapter() {
 
 			@Override

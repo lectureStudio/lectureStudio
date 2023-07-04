@@ -35,7 +35,7 @@ import org.lecturestudio.core.ExecutableBase;
 import org.lecturestudio.core.ExecutableException;
 import org.lecturestudio.core.app.ApplicationContext;
 import org.lecturestudio.presenter.api.event.ScreenShareStateEvent;
-import org.lecturestudio.web.api.event.ScreenVideoFrameEvent;
+import org.lecturestudio.web.api.event.LocalScreenVideoFrameEvent;
 import org.lecturestudio.web.api.model.ScreenSource;
 
 @Singleton
@@ -87,7 +87,7 @@ public class ScreenCaptureService extends ExecutableBase {
 		capturer.selectSource(new DesktopSource(source.getTitle(), source.getId()));
 		capturer.setFocusSelectedSource(true);
 		capturer.start((result, videoFrame) -> {
-			context.getEventBus().post(new ScreenVideoFrameEvent(videoFrame));
+			context.getEventBus().post(new LocalScreenVideoFrameEvent(videoFrame));
 		});
 
 		future = Executors.newScheduledThreadPool(1).scheduleAtFixedRate(() -> {

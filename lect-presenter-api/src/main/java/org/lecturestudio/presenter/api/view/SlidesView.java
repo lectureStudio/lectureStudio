@@ -21,6 +21,7 @@ package org.lecturestudio.presenter.api.view;
 import java.awt.*;
 import java.util.Collection;
 import java.util.List;
+import java.util.UUID;
 
 import org.lecturestudio.core.ExecutableState;
 import org.lecturestudio.core.beans.BooleanProperty;
@@ -37,7 +38,7 @@ import org.lecturestudio.presenter.api.config.SlideViewConfiguration;
 import org.lecturestudio.swing.model.ExternalWindowPosition;
 import org.lecturestudio.presenter.api.stylus.StylusHandler;
 import org.lecturestudio.web.api.event.PeerStateEvent;
-import org.lecturestudio.web.api.event.PeerVideoFrameEvent;
+import org.lecturestudio.web.api.event.RemoteVideoFrameEvent;
 import org.lecturestudio.web.api.message.MessengerMessage;
 import org.lecturestudio.web.api.message.SpeechBaseMessage;
 import org.lecturestudio.web.api.stream.model.CourseParticipant;
@@ -110,9 +111,9 @@ public interface SlidesView extends View {
 
 	void setOnMutePeerVideo(ConsumerAction<Boolean> action);
 
-	void setOnStopPeerConnection(ConsumerAction<Long> action);
+	void setOnStopPeerConnection(ConsumerAction<UUID> action);
 
-	void setVideoFrameEvent(PeerVideoFrameEvent event);
+	void setVideoFrameEvent(RemoteVideoFrameEvent event);
 
 	void setOnKeyEvent(ConsumerAction<KeyEvent> action);
 
@@ -135,8 +136,6 @@ public interface SlidesView extends View {
 	void setOnSendMessage(ConsumerAction<String> action);
 
 	void setOnOutlineItem(ConsumerAction<DocumentOutlineItem> action);
-
-	void setOnPreviewDisable(BooleanProperty disabled);
 
 	void setOnExternalMessagesPositionChanged(ConsumerAction<ExternalWindowPosition> action);
 
@@ -181,5 +180,7 @@ public interface SlidesView extends View {
 	void setMessageBarPosition(MessageBarPosition position);
 
 	void setParticipantsPosition(MessageBarPosition position);
+
+	void setPreviewPosition(MessageBarPosition position);
 
 }

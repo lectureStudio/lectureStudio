@@ -23,6 +23,7 @@ import static java.util.Objects.isNull;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Dimension;
+import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Shape;
@@ -71,8 +72,8 @@ public abstract class MessagePanel extends JPanel {
 		timeLabel.setText(formattedDate);
 	}
 
-	public void setUser(String user) {
-		userLabel.setText(user);
+	public void setUserName(String userName) {
+		userLabel.setText(userName);
 	}
 
 	public void pack() {
@@ -108,6 +109,10 @@ public abstract class MessagePanel extends JPanel {
 
 		timeLabel = new JLabel();
 		timeLabel.setForeground(Color.BLUE);
+
+		// Make time text a little smaller.
+		Font timeFont = timeLabel.getFont();
+		timeLabel.setFont(timeFont.deriveFont(timeFont.getSize2D() - 1));
 
 		privateLabel = new JLabel();
 		privateLabel.setForeground(Color.RED);

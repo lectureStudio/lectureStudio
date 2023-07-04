@@ -25,13 +25,23 @@
 			<checkboxmenuitem id="externalSpeechMenuItem" text="menu.external.speech" />
 		</menu>
 		<menu id="messagesPositionMenu" text="menu.messages.position">
-			<radiobuttonmenuitem id="messagesPositionLeftMenuItem" text="menu.left" />
-			<radiobuttonmenuitem id="messagesPositionBottomMenuItem" text="menu.bottom" />
-			<radiobuttonmenuitem id="messagesPositionRightMenuItem" text="menu.right" />
+			<buttongroup>
+				<radiobuttonmenuitem id="messagesPositionLeftMenuItem" text="menu.left" />
+				<radiobuttonmenuitem id="messagesPositionBottomMenuItem" text="menu.bottom" />
+				<radiobuttonmenuitem id="messagesPositionRightMenuItem" text="menu.right" />
+			</buttongroup>
 		</menu>
 		<menu id="participantsPositionMenu" text="menu.participants.position">
-			<radiobuttonmenuitem id="participantsPositionLeftMenuItem" text="menu.left" />
-			<radiobuttonmenuitem id="participantsPositionRightMenuItem" text="menu.right" />
+			<buttongroup>
+				<radiobuttonmenuitem id="participantsPositionLeftMenuItem" text="menu.left" />
+				<radiobuttonmenuitem id="participantsPositionRightMenuItem" text="menu.right" />
+			</buttongroup>
+		</menu>
+		<menu id="previewPositionMenu" text="menu.preview.position">
+			<buttongroup>
+				<radiobuttonmenuitem id="previewPositionLeftMenuItem" text="menu.left" />
+				<radiobuttonmenuitem id="previewPositionRightMenuItem" text="menu.right" />
+			</buttongroup>
 		</menu>
 	</menu>
 	<menu text="menu.whiteboard">

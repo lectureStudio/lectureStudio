@@ -60,7 +60,7 @@ import org.lecturestudio.media.video.VideoMuxer;
 import org.lecturestudio.presenter.api.context.PresenterContext;
 import org.lecturestudio.presenter.api.model.ScreenShareContext;
 import org.lecturestudio.swing.util.VideoFrameConverter;
-import org.lecturestudio.web.api.event.ScreenVideoFrameEvent;
+import org.lecturestudio.web.api.event.LocalScreenVideoFrameEvent;
 
 @Singleton
 public class ScreenRecorderService extends ExecutableBase {
@@ -109,7 +109,7 @@ public class ScreenRecorderService extends ExecutableBase {
 	}
 
 	@Subscribe
-	public void onEvent(ScreenVideoFrameEvent event) {
+	public void onEvent(LocalScreenVideoFrameEvent event) {
 		if (!started()) {
 			return;
 		}

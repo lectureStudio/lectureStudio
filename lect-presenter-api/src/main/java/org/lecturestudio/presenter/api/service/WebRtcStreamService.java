@@ -32,6 +32,7 @@ import dev.onvoid.webrtc.media.video.VideoDevice;
 import java.io.IOException;
 import java.text.MessageFormat;
 import java.util.List;
+import java.util.UUID;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -150,7 +151,7 @@ public class WebRtcStreamService extends ExecutableBase {
 			return;
 		}
 
-		long requestId = message.getRequestId();
+		UUID requestId = message.getRequestId();
 		String userName = String.format("%s %s", message.getFirstName(),
 				message.getFamilyName());
 
@@ -188,6 +189,14 @@ public class WebRtcStreamService extends ExecutableBase {
 		streamContext.getVideoContext().setSendVideo(false);
 
 		setCameraState(ExecutableState.Stopped);
+	}
+
+	public void setCaptureLocalCameraVideo(boolean capture) {
+		if (cameraState != ExecutableState.Started) {
+			return;
+		}
+
+		streamContext.getVideoContext().setCaptureLocalVideo(capture);
 	}
 
 	public void setScreenShareContext(ScreenShareContext context) {
@@ -237,7 +246,7 @@ public class WebRtcStreamService extends ExecutableBase {
 		streamContext.getVideoContext().setReceiveVideo(mute);
 	}
 
-	public void stopPeerConnection(Long requestId) {
+	public void stopPeerConnection(UUID requestId) {
 		if (!started()) {
 			return;
 		}
@@ -560,13 +569,16 @@ public class WebRtcStreamService extends ExecutableBase {
 		audioContext.setRecordingDevice(audioCaptureDevice);
 		audioContext.setPlaybackDevice(audioPlaybackDevice);
 		audioContext.setPlaybackVolume(audioConfig.getPlaybackVolume());
-		audioContext.setFrameConsumer(this::processAudioFrame);
+		audioContext.setRemoteFrameConsumer(this::processAudioFrame);
 
 		videoContext.setSendVideo(streamConfig.getCameraEnabled());
 		videoContext.setReceiveVideo(true);
 		videoContext.setCaptureDevice(videoCaptureDevice);
 		videoContext.setBitrate(cameraConfig.getBitRate());
-		videoContext.setFrameConsumer(videoFrameEvent -> {
+		videoContext.setRemoteFrameConsumer(videoFrameEvent -> {
+			context.getEventBus().post(videoFrameEvent);
+		});
+		videoContext.setLocalFrameConsumer(videoFrameEvent -> {
 			context.getEventBus().post(videoFrameEvent);
 		});
 

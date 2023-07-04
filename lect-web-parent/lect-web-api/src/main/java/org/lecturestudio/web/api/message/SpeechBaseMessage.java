@@ -18,16 +18,18 @@
 
 package org.lecturestudio.web.api.message;
 
+import java.util.UUID;
+
 public abstract class SpeechBaseMessage extends UserMessage {
 
-	private Long requestId;
+	private UUID requestId;
 
 
-	public Long getRequestId() {
+	public UUID getRequestId() {
 		return requestId;
 	}
 
-	public void setRequestId(Long requestId) {
+	public void setRequestId(UUID requestId) {
 		this.requestId = requestId;
 	}
 }

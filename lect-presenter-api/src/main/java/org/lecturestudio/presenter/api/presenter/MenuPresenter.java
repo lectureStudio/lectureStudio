@@ -33,6 +33,9 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.Timer;
 import java.util.TimerTask;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 import javax.inject.Inject;
 
@@ -42,6 +45,7 @@ import org.lecturestudio.core.app.ApplicationContext;
 import org.lecturestudio.core.app.configuration.Configuration;
 import org.lecturestudio.core.app.dictionary.Dictionary;
 import org.lecturestudio.core.audio.AudioDeviceNotConnectedException;
+import org.lecturestudio.core.beans.ObjectProperty;
 import org.lecturestudio.core.bus.EventBus;
 import org.lecturestudio.core.bus.event.CustomizeToolbarEvent;
 import org.lecturestudio.core.bus.event.DocumentEvent;
@@ -64,10 +68,10 @@ import org.lecturestudio.core.util.ListChangeListener;
 import org.lecturestudio.core.util.ObservableList;
 import org.lecturestudio.core.view.*;
 import org.lecturestudio.presenter.api.config.PresenterConfiguration;
+import org.lecturestudio.presenter.api.config.SlideViewConfiguration;
 import org.lecturestudio.presenter.api.context.PresenterContext;
 import org.lecturestudio.presenter.api.event.*;
 import org.lecturestudio.presenter.api.model.*;
-import org.lecturestudio.presenter.api.pdf.embedded.QuizParser;
 import org.lecturestudio.presenter.api.presenter.command.StopwatchCommand;
 import org.lecturestudio.presenter.api.service.BookmarkService;
 import org.lecturestudio.presenter.api.service.QuizWebServiceState;
@@ -78,13 +82,14 @@ import org.lecturestudio.presenter.api.view.MessengerWindow;
 
 public class MenuPresenter extends Presenter<MenuView> {
 
+	/** Mainly used for Desktop.getDesktop().open to circumvent errors. */
+	private final ExecutorService executorService = Executors.newSingleThreadExecutor();
+
 	private final DateTimeFormatter timeFormatter;
 
 	private final Timer timer;
 
 	private final EventBus eventBus;
-
-	private final QuizParser quizParser;
 
 	private final Stopwatch stopwatch;
 
@@ -112,7 +117,6 @@ public class MenuPresenter extends Presenter<MenuView> {
 		super(context, view);
 
 		this.eventBus = context.getEventBus();
-		this.quizParser = new QuizParser();
 		this.timeFormatter = DateTimeFormatter.ofPattern("HH:mm", getPresenterConfig().getLocale());
 		this.timer = new Timer("MenuTime", true);
 		this.stopwatch = ((PresenterContext) this.context).getStopwatch();
@@ -138,7 +142,8 @@ public class MenuPresenter extends Presenter<MenuView> {
 
 		if (event.isRemoved()) {
 			page.removePageEditedListener(this::pageEdited);
-		} else if (event.isSelected()) {
+		}
+		else if (event.isSelected()) {
 			Page oldPage = event.getOldPage();
 
 			if (nonNull(oldPage)) {
@@ -220,9 +225,11 @@ public class MenuPresenter extends Presenter<MenuView> {
 	public void openBookmark(Bookmark bookmark) {
 		try {
 			bookmarkService.gotoBookmark(bookmark);
-		} catch (BookmarkKeyException e) {
+		}
+		catch (BookmarkKeyException e) {
 			showError("bookmark.goto.error", "bookmark.key.not.existing", bookmark.getShortcut());
-		} catch (Exception e) {
+		}
+		catch (Exception e) {
 			handleException(e, "Go to bookmark failed", "bookmark.goto.error");
 		}
 	}
@@ -311,17 +318,18 @@ public class MenuPresenter extends Presenter<MenuView> {
 		try {
 			if (recordingService.started()) {
 				recordingService.suspend();
-			} else {
+			}
+			else {
 				recordingService.start();
 			}
-		} catch (ExecutableException e) {
+		}
+		catch (ExecutableException e) {
 			Throwable cause = nonNull(e.getCause()) ? e.getCause().getCause() : null;
 
-			if (cause instanceof AudioDeviceNotConnectedException) {
-				var ex = (AudioDeviceNotConnectedException) cause;
+			if (cause instanceof AudioDeviceNotConnectedException ex) {
 				showError("recording.start.error", "recording.start.device.error", ex.getDeviceName());
-				logException(e, "Start recording failed");
-			} else {
+			}
+			else {
 				handleException(e, "Start recording failed", "recording.start.error");
 			}
 		}
@@ -332,12 +340,14 @@ public class MenuPresenter extends Presenter<MenuView> {
 
 		if (config.getConfirmStopRecording()) {
 			eventBus.post(new ShowPresenterCommand<>(ConfirmStopRecordingPresenter.class));
-		} else {
+		}
+		else {
 			try {
 				recordingService.stop();
 
 				eventBus.post(new ShowPresenterCommand<>(SaveRecordingPresenter.class));
-			} catch (ExecutableException e) {
+			}
+			catch (ExecutableException e) {
 				handleException(e, "Stop recording failed", "recording.stop.error");
 			}
 		}
@@ -346,7 +356,8 @@ public class MenuPresenter extends Presenter<MenuView> {
 	public void showMessengerWindow(boolean show) {
 		if (show) {
 			eventBus.post(new ShowPresenterCommand<>(MessengerWindowPresenter.class));
-		} else {
+		}
+		else {
 			eventBus.post(new ClosePresenterCommand(MessengerWindowPresenter.class));
 		}
 	}
@@ -389,12 +400,16 @@ public class MenuPresenter extends Presenter<MenuView> {
 	}
 
 	public void showLog() {
-		try {
-			Desktop.getDesktop().open(new File(
-					context.getDataLocator().getAppDataPath()));
-		} catch (IOException e) {
-			handleException(e, "Open log path failed", "generic.error");
-		}
+		// Run async to avoid 'CoInitializeEx() failed.' with Desktop.getDesktop().open
+		CompletableFuture.runAsync(() -> {
+			try {
+				Desktop.getDesktop().open(new File(context.getDataLocator()
+						.getAppDataPath()));
+			}
+			catch (IOException e) {
+				handleException(e, "Open log path failed", "generic.error");
+			}
+		}, executorService);
 	}
 
 	public void showAboutView() {
@@ -458,6 +473,7 @@ public class MenuPresenter extends Presenter<MenuView> {
 	public void initialize() {
 		final PresenterContext presenterContext = (PresenterContext) context;
 		final PresenterConfiguration config = getPresenterConfig();
+		final SlideViewConfiguration slideViewConfig = config.getSlideViewConfiguration();
 
 		eventBus.register(this);
 
@@ -493,7 +509,7 @@ public class MenuPresenter extends Presenter<MenuView> {
 		view.setOnExternalSlidePreview(this::externalSlidePreview);
 		view.setOnExternalSpeech(this::externalSpeech);
 
-		switch (config.getSlideViewConfiguration().getMessageBarPosition()) {
+		switch (slideViewConfig.getMessageBarPosition()) {
 			case LEFT -> view.setMessagesPositionLeft();
 			case BOTTOM -> view.setMessagesPositionBottom();
 			case RIGHT -> view.setMessagesPositionRight();
@@ -503,13 +519,20 @@ public class MenuPresenter extends Presenter<MenuView> {
 		view.setOnMessagesPositionBottom(() -> positionMessages(MessageBarPosition.BOTTOM));
 		view.setOnMessagesPositionRight(() -> positionMessages(MessageBarPosition.RIGHT));
 
-		switch (config.getSlideViewConfiguration().getParticipantsPosition()) {
+		switch (slideViewConfig.getParticipantsPosition()) {
 			case LEFT -> view.setParticipantsPositionLeft();
 			case RIGHT -> view.setParticipantsPositionRight();
 		}
 
 		view.setOnParticipantsPositionLeft(() -> positionParticipants(MessageBarPosition.LEFT));
 		view.setOnParticipantsPositionRight(() -> positionParticipants(MessageBarPosition.RIGHT));
+
+		ObjectProperty<MessageBarPosition> previewPosition = slideViewConfig.previewPositionProperty();
+		previewPosition.addListener((o, oldPos, newPos) -> {
+			eventBus.post(new PreviewPositionEvent(newPos));
+		});
+
+		view.bindPreviewPosition(previewPosition);
 
 		view.setOnNewWhiteboard(this::newWhiteboard);
 		view.setOnNewWhiteboardPage(this::newWhiteboardPage);

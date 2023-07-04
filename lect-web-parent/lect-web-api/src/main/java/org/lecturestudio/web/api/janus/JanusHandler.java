@@ -74,11 +74,11 @@ public class JanusHandler extends JanusStateHandler {
 
 	private Map<BigInteger, JanusPublisher> participants;
 
-	private Map<Long, JanusPublisher> speechPublishers;
+	private Map<UUID, JanusPublisher> speechPublishers;
 
 	private List<JanusStateHandler> handlers;
 
-	private Consumer<Long> rejectedConsumer;
+	private Consumer<UUID> rejectedConsumer;
 
 
 	public JanusHandler(JanusMessageTransmitter transmitter,
@@ -90,16 +90,16 @@ public class JanusHandler extends JanusStateHandler {
 		this.clientFailover = clientFailover;
 	}
 
-	public void setRejectedConsumer(Consumer<Long> consumer) {
+	public void setRejectedConsumer(Consumer<UUID> consumer) {
 		this.rejectedConsumer = consumer;
 	}
 
-	public void startRemoteSpeech(long requestId, String userName) {
+	public void startRemoteSpeech(UUID requestId, String userName) {
 		if (!started()) {
 			return;
 		}
 
-		Map.Entry<Long, JanusPublisher> entry = getFirstPublisherEntry();
+		Map.Entry<UUID, JanusPublisher> entry = getFirstPublisherEntry();
 
 		if (nonNull(entry)) {
 			JanusPublisher activePublisher = entry.getValue();
@@ -124,7 +124,7 @@ public class JanusHandler extends JanusStateHandler {
 		editRoom(3);
 	}
 
-	public void stopRemoteSpeech(Long requestId) {
+	public void stopRemoteSpeech(UUID requestId) {
 		if (!started()) {
 			return;
 		}
@@ -395,7 +395,7 @@ public class JanusHandler extends JanusStateHandler {
 		addStateHandler(pubHandler);
 	}
 
-	private void startSubscriber(final JanusPublisher publisher, final long requestId) {
+	private void startSubscriber(final JanusPublisher publisher, final UUID requestId) {
 		getStreamContext().getAudioContext().setReceiveAudio(true);
 		getStreamContext().getVideoContext().setReceiveVideo(true);
 
@@ -464,7 +464,7 @@ public class JanusHandler extends JanusStateHandler {
 		return speechPublishers.entrySet().iterator().next().getValue();
 	}
 
-	private Map.Entry<Long, JanusPublisher> getFirstPublisherEntry() {
+	private Map.Entry<UUID, JanusPublisher> getFirstPublisherEntry() {
 		if (speechPublishers.isEmpty()) {
 			return null;
 		}

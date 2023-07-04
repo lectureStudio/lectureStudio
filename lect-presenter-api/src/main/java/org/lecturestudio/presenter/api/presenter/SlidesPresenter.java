@@ -72,8 +72,8 @@ import org.lecturestudio.presenter.api.view.PageObjectRegistry;
 import org.lecturestudio.presenter.api.view.SlidesView;
 import org.lecturestudio.swing.model.ExternalWindowPosition;
 import org.lecturestudio.web.api.event.PeerStateEvent;
-import org.lecturestudio.web.api.event.PeerVideoFrameEvent;
-import org.lecturestudio.web.api.event.ScreenVideoFrameEvent;
+import org.lecturestudio.web.api.event.RemoteVideoFrameEvent;
+import org.lecturestudio.web.api.event.LocalScreenVideoFrameEvent;
 import org.lecturestudio.web.api.message.CoursePresenceMessage;
 import org.lecturestudio.web.api.message.MessengerMessage;
 import org.lecturestudio.web.api.message.SpeechBaseMessage;
@@ -97,6 +97,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Timer;
+import java.util.TimerTask;
+import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 import java.util.function.BiConsumer;
 
@@ -147,6 +150,8 @@ public class SlidesPresenter extends Presenter<SlidesView> {
 	private ToolType toolType;
 
 	private TextBoxView lastFocusedTextBox;
+
+	private SelectionIdleTimer idleTimer;
 
 
 	@Inject
@@ -364,12 +369,12 @@ public class SlidesPresenter extends Presenter<SlidesView> {
 	}
 
 	@Subscribe
-	public void onEvent(PeerVideoFrameEvent event) {
+	public void onEvent(RemoteVideoFrameEvent event) {
 		view.setVideoFrameEvent(event);
 	}
 
 	@Subscribe
-	public void onEvent(ScreenVideoFrameEvent event) {
+	public void onEvent(LocalScreenVideoFrameEvent event) {
 		screenViewContext.addScreenVideoFrameEvent(event);
 	}
 
@@ -449,6 +454,13 @@ public class SlidesPresenter extends Presenter<SlidesView> {
 		view.setParticipantsPosition(position);
 
 		getPresenterConfig().getSlideViewConfiguration().setParticipantsPosition(position);
+	}
+
+	@Subscribe
+	public void onEvent(PreviewPositionEvent event) {
+		final MessageBarPosition position = event.getPosition();
+
+		view.setPreviewPosition(position);
 	}
 
 	@Subscribe
@@ -548,7 +560,7 @@ public class SlidesPresenter extends Presenter<SlidesView> {
 		PresenterContext presenterContext = (PresenterContext) context;
 		presenterContext.getSpeechRequests().remove(message);
 
-		Long requestId = message.getRequestId();
+		UUID requestId = message.getRequestId();
 		String userName = String.format("%s %s", message.getFirstName(),
 				message.getFamilyName());
 
@@ -750,7 +762,19 @@ public class SlidesPresenter extends Presenter<SlidesView> {
 	}
 
 	private void selectPage(Page page) {
-		documentService.selectPage(page);
+		//	documentService.selectPage(page);
+
+		// Ignore all previous tasks.
+		if (nonNull(idleTimer)) {
+			idleTimer.stop();
+		}
+
+		// Select page with a delay to prevent unwanted page changes.
+		Integer delay = getPresenterConfig().getPageSelectionDelay();
+		delay = nonNull(delay) ? Math.abs(delay) : 0;
+
+		idleTimer = new SelectionIdleTimer(page, delay);
+		idleTimer.runIdleTask();
 	}
 
 	private void nextPage() {
@@ -928,7 +952,20 @@ public class SlidesPresenter extends Presenter<SlidesView> {
 
 	@Override
 	public void initialize() {
-		stylusHandler = new StylusHandler(toolController);
+		stylusHandler = new StylusHandler(toolController, () -> {
+			// Cancel page selection task.
+			if (nonNull(idleTimer)) {
+				idleTimer.stop();
+				idleTimer = null;
+
+				// Tell the view to keep the currently selected page.
+				Page page = documentService.getDocuments().getSelectedDocument().getCurrentPage();
+				PresentationParameterProvider ppProvider = context.getPagePropertyProvider(ViewType.User);
+				PresentationParameter parameter = ppProvider.getParameter(page);
+
+				view.setPage(page, parameter);
+			}
+		});
 
 		pageObjectRegistry.register(ToolType.TEXT, TextBoxView.class);
 		pageObjectRegistry.register(ToolType.LATEX, TeXBoxView.class);
@@ -995,8 +1032,6 @@ public class SlidesPresenter extends Presenter<SlidesView> {
 		config.extendedFullscreenProperty().addListener((observable, oldValue, newValue) -> {
 			view.setExtendedFullscreen(newValue);
 		});
-
-		view.setOnPreviewDisable(config.disablePreviewProperty());
 
 		view.setOnExternalMessagesPositionChanged(this::externalMessagesPositionChanged);
 		view.setOnExternalMessagesSizeChanged(this::externalMessagesSizeChanged);
@@ -1069,6 +1104,9 @@ public class SlidesPresenter extends Presenter<SlidesView> {
 
 		view.setParticipantsPosition(getPresenterConfig()
 				.getSlideViewConfiguration().getParticipantsPosition());
+
+		view.setPreviewPosition(getPresenterConfig()
+				.getSlideViewConfiguration().getPreviewPosition());
 
 		try {
 			recordingService.init();
@@ -1295,6 +1333,42 @@ public class SlidesPresenter extends Presenter<SlidesView> {
 		@Override
 		public void pageRemoved(Page page) {
 
+		}
+	}
+
+
+
+	private class SelectionIdleTimer extends Timer {
+
+		private final Page page;
+
+		private final int idleTime;
+
+		private TimerTask idleTask;
+
+
+		SelectionIdleTimer(Page page, int idleTime) {
+			this.page = page;
+			this.idleTime = idleTime;
+		}
+
+		void runIdleTask() {
+			idleTask = new TimerTask() {
+
+				@Override
+				public void run() {
+					documentService.selectPage(page);
+				}
+			};
+
+			schedule(idleTask, idleTime);
+		}
+
+		public void stop() {
+			cancel();
+			purge();
+
+			idleTask = null;
 		}
 	}
 }

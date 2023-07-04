@@ -22,6 +22,7 @@ import static java.util.Objects.nonNull;
 
 import java.io.File;
 import java.io.FileOutputStream;
+import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
@@ -39,6 +40,7 @@ import org.lecturestudio.core.app.ApplicationContext;
 import org.lecturestudio.core.bus.EventBus;
 import org.lecturestudio.core.io.RandomAccessAudioStream;
 import org.lecturestudio.core.model.Document;
+import org.lecturestudio.core.model.Interval;
 import org.lecturestudio.core.recording.RecordingEditException;
 import org.lecturestudio.core.recording.edit.EditAction;
 import org.lecturestudio.editor.api.edit.HideAndMoveNextPageAction;
@@ -191,10 +193,33 @@ public class RecordingFileService {
 		return !recordings.isEmpty();
 	}
 
+	/**
+	 * Removes a portion of a recording specified by a time
+	 * interval. All recorded parts - audio, events and slides - contained within
+	 * the interval will be removed from the recording.
+	 *
+	 * @param start The start time from where to start removing. The value
+	 *              must be within the range [0, 1].
+	 * @param end   The end time when to stop removing. The value must be
+	 *              within the range [0, 1].
+	 * @return An async future completing the task
+	 */
 	public CompletableFuture<Void> cut(double start, double end) {
 		return cut(start, end, getSelectedRecording());
 	}
 
+	/**
+	 * Removes a portion of a recording specified by a time
+	 * interval. All recorded parts - audio, events and slides - contained within
+	 * the interval will be removed from the recording.
+	 *
+	 * @param start     The start time from where to start removing. The value
+	 *                  must be within the range [0, 1].
+	 * @param end       The end time when to stop removing. The value must be
+	 *                  within the range [0, 1].
+	 * @param recording The recording this edit action should happen on
+	 * @return An async future completing the task
+	 */
 	public CompletableFuture<Void> cut(double start, double end, Recording recording) {
 		return CompletableFuture.runAsync(() -> {
 			try {
@@ -331,6 +356,72 @@ public class RecordingFileService {
 		});
 	}
 
+
+	/**
+	 * Saves the part of the recording that is specified through the interval.
+	 * Removes the saved part from the current recording.
+	 *
+	 * @param file     The file to save the recording in
+	 * @param interval The interval of the recording that should be saved, in milliseconds
+	 * @param callback Progress callback for the saving progress
+	 * @return An async future completing the task
+	 */
+	public CompletableFuture<Void> savePartialRecording(File file, Interval<Long> interval, ProgressCallback callback) throws RecordingEditException {
+		return savePartialRecording(file, interval, callback, getSelectedRecording());
+	}
+
+	/**
+	 * Saves the part of the recording that is specified through the interval.
+	 * Removes the saved part from the current recording.
+	 *
+	 * @param file      The file to save the recording in
+	 * @param interval  The interval of the recording that should be saved, in milliseconds
+	 * @param callback  Progress callback for the saving progress
+	 * @param recording The recording that should be saved partially
+	 * @return An async future completing the task
+	 */
+	public CompletableFuture<Void> savePartialRecording(File file, Interval<Long> interval, ProgressCallback callback, Recording recording) throws RecordingEditException {
+		try {
+			Recording partial = new Recording(recording);
+
+			long duration = partial.getRecordingHeader().getDuration();
+			double start = (double) interval.getStart() / duration;
+			double end = (double) interval.getEnd() / duration;
+			CompletableFuture<Void> future = CompletableFuture.completedFuture(null);
+
+			return future.thenCompose(ignored -> {
+						// Checks whether the interval to get extracted starts in the beginning of the recording
+						// if it does not we have to cut out the section before the interval
+						if (start != 0) {
+							return cut(0, start, partial);
+						}
+						return CompletableFuture.completedFuture(null);
+					})
+					.thenCompose(ignored -> {
+						// Checks whether the interval to get extracted ends at the end of the recording
+						// if it does not we have to cut out the section before the interval
+						if (end != 1) {
+							return cut(end, 1, partial);
+						}
+						return CompletableFuture.completedFuture(null);
+					})
+					// Then we save the extracted part
+					.thenCompose(ignored -> saveRecording(partial, file, callback))
+					// And remove the same interval in the selected recording
+					.thenCompose(ignored -> CompletableFuture.runAsync(() -> {
+						try {
+							addEditAction(getSelectedRecording(), new CutAction(getSelectedRecording(), start, end, context.primarySelectionProperty()));
+						}
+						catch (RecordingEditException e) {
+							throw new RuntimeException(e);
+						}
+					}));
+		}
+		catch (IOException e) {
+			throw new RecordingEditException(e);
+		}
+	}
+
 	public CompletableFuture<Void> exportAudio(File file, ProgressCallback callback) {
 		return exportAudio(getSelectedRecording(), file, callback);
 	}
@@ -437,7 +528,7 @@ public class RecordingFileService {
 	 *
 	 * @param timestamp  The new timestamp
 	 * @param pageNumber The number of the page to move the timestamp
-	 * @return
+	 * @return An async future completing the task
 	 */
 	public CompletableFuture<Void> movePage(int timestamp, int pageNumber) {
 		return movePage(timestamp, pageNumber, getSelectedRecording());
@@ -451,7 +542,7 @@ public class RecordingFileService {
 	 * @param timestamp  The new timestamp
 	 * @param pageNumber The number of the page to move the timestamp
 	 * @param recording  The recording this should happen in
-	 * @return
+	 * @return An async future completing the task
 	 */
 	public CompletableFuture<Void> movePage(int timestamp, int pageNumber, Recording recording) {
 		return CompletableFuture.runAsync(() -> {
@@ -472,7 +563,7 @@ public class RecordingFileService {
 	 * like the audio or the total duration of the recording.
 	 *
 	 * @param pageNumber The number of the page to remove
-	 * @return
+	 * @return  An async future completing the task
 	 */
 	public CompletableFuture<Void> hidePage(int pageNumber) {
 		return hidePage(pageNumber, getSelectedRecording());
@@ -485,7 +576,7 @@ public class RecordingFileService {
 	 *
 	 * @param pageNumber The number of the page to remove
 	 * @param recording  The recording this should happen in
-	 * @return
+	 * @return An async future completing the task
 	 */
 	public CompletableFuture<Void> hidePage(int pageNumber, Recording recording) {
 		return CompletableFuture.runAsync(() -> {

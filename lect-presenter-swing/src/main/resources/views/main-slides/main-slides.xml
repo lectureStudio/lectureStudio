@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Panel layout="BorderLayout">
 	<ToolbarView constraints="BorderLayout.NORTH"/>
-		<SplitPane id="tabSplitPane" resizeWeight="1" orientation="JSplitPane.HORIZONTAL_SPLIT" constraints="BorderLayout.CENTER">
-			<SplitPane id="notesSplitPane" resizeWeight="1" orientation="JSplitPane.VERTICAL_SPLIT">
-				<SplitPane id="docSplitPane" resizeWeight="0" focusable="false" orientation="JSplitPane.HORIZONTAL_SPLIT">
+		<SplitPane id="tabSplitPane" dividerSize="10" resizeWeight="1" orientation="JSplitPane.HORIZONTAL_SPLIT" constraints="BorderLayout.CENTER">
+			<SplitPane id="notesSplitPane" dividerSize="10" resizeWeight="1" orientation="JSplitPane.VERTICAL_SPLIT">
+				<SplitPane id="docSplitPane" dividerSize="10" resizeWeight="0" focusable="false" orientation="JSplitPane.HORIZONTAL_SPLIT">
 					<AdaptiveTabbedPane id="leftTabPane" tabPlacement="JTabbedPane.LEFT" defaultTabType="AdaptiveTabType.PARTICIPANTS">
 						<Tab id="participantsTab" name="participants" text="slides.participants" icon="participants.svg, 18">
 							<ParticipantList id="participantList" />

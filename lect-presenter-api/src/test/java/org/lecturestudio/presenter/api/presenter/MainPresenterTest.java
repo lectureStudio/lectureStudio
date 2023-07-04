@@ -24,6 +24,7 @@ import javax.inject.Singleton;
 import java.io.IOException;
 import java.util.List;
 import java.util.Properties;
+import java.util.UUID;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -730,7 +731,7 @@ class MainPresenterTest extends PresenterTest {
 		}
 
 		@Override
-		public void stopPeerConnection(Long requestId) {
+		public void stopPeerConnection(UUID requestId) {
 
 		}
 

@@ -23,14 +23,14 @@ import java.util.function.Consumer;
 import org.lecturestudio.core.beans.BooleanProperty;
 import org.lecturestudio.core.beans.IntegerProperty;
 import org.lecturestudio.core.beans.ObjectProperty;
-import org.lecturestudio.web.api.event.ScreenVideoFrameEvent;
+import org.lecturestudio.web.api.event.LocalScreenVideoFrameEvent;
 import org.lecturestudio.web.api.model.ScreenSource;
 
 public class StreamScreenContext {
 
 	private final ObjectProperty<ScreenSource> screenSource;
 
-	private Consumer<ScreenVideoFrameEvent> localFrameConsumer;
+	private Consumer<LocalScreenVideoFrameEvent> localFrameConsumer;
 
 	private Runnable screenSourceEnded;
 
@@ -68,11 +68,11 @@ public class StreamScreenContext {
 		screenSourceEnded = callback;
 	}
 
-	public Consumer<ScreenVideoFrameEvent> getLocalFrameConsumer() {
+	public Consumer<LocalScreenVideoFrameEvent> getLocalFrameConsumer() {
 		return localFrameConsumer;
 	}
 
-	public void setLocalFrameConsumer(Consumer<ScreenVideoFrameEvent> consumer) {
+	public void setLocalFrameConsumer(Consumer<LocalScreenVideoFrameEvent> consumer) {
 		this.localFrameConsumer = consumer;
 	}
 

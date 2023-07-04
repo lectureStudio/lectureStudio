@@ -34,8 +34,10 @@ import javax.inject.Inject;
 import org.lecturestudio.core.app.ApplicationContext;
 import org.lecturestudio.core.app.configuration.Configuration;
 import org.lecturestudio.core.app.dictionary.Dictionary;
+import org.lecturestudio.core.beans.BooleanProperty;
 import org.lecturestudio.core.bus.event.DocumentEvent;
 import org.lecturestudio.core.model.Document;
+import org.lecturestudio.core.model.Interval;
 import org.lecturestudio.core.presenter.Presenter;
 import org.lecturestudio.core.util.FileUtils;
 import org.lecturestudio.core.view.FileChooserView;
@@ -44,6 +46,7 @@ import org.lecturestudio.editor.api.context.EditorContext;
 import org.lecturestudio.editor.api.model.ZoomConstraints;
 import org.lecturestudio.editor.api.presenter.command.AdjustAudioCommand;
 import org.lecturestudio.editor.api.presenter.command.ReplacePageCommand;
+import org.lecturestudio.editor.api.presenter.command.SplitAndSaveRecordingCommand;
 import org.lecturestudio.media.search.SearchService;
 import org.lecturestudio.media.search.SearchState;
 import org.lecturestudio.editor.api.service.RecordingFileService;
@@ -83,6 +86,7 @@ public class MediaTrackControlsPresenter extends Presenter<MediaTrackControlsVie
 	@Override
 	public void initialize() {
 		EditorContext editorContext = (EditorContext) context;
+		BooleanProperty canSplitAndSaveRecordingProperty = new BooleanProperty(false);
 
 		view.setOnAdjustVolume(this::adjustAudio);
 		view.setOnCut(this::cut);
@@ -97,11 +101,17 @@ public class MediaTrackControlsPresenter extends Presenter<MediaTrackControlsVie
 		view.setOnNextFoundPage(this::nextFoundPage);
 		view.setOnZoomIn(this::zoomIn);
 		view.setOnZoomOut(this::zoomOut);
+		view.setOnSplitAndSaveRecording(this::splitAndSaveRecording);
 		view.bindZoomLevel(zoomConstraints, editorContext.trackZoomLevelProperty());
 		view.bindCanCut(editorContext.canCutProperty());
 		view.bindCanDeletePage(editorContext.canDeletePageProperty());
 		view.bindCanRedo(editorContext.canRedoProperty());
 		view.bindCanUndo(editorContext.canUndoProperty());
+		view.bindCanSplitAndSaveRecording(canSplitAndSaveRecordingProperty);
+
+		editorContext.primarySelectionProperty().addListener((observable, oldValue, newValue) -> {
+			canSplitAndSaveRecordingProperty.set(0 < newValue && newValue < 1);
+		});
 
 		context.getEventBus().register(this);
 	}
@@ -240,12 +250,34 @@ public class MediaTrackControlsPresenter extends Presenter<MediaTrackControlsVie
 			EditorContext editorContext = (EditorContext) context;
 
 			recordingService.importRecording(file, editorContext.getPrimarySelection())
-				.exceptionally(throwable -> {
-					handleException(throwable, "Open recording failed", "open.recording.error", file.getPath());
-					return null;
-				});
+					.exceptionally(throwable -> {
+						handleException(throwable, "Open recording failed", "open.recording.error", file.getPath());
+						return null;
+					});
 		}
 	}
+
+	/**
+	 * Splits the recording at the position marked by the primary selector.
+	 * The selected part (left or right of the primary selector) gets cut out and saved into a separate file.
+	 */
+	private void splitAndSaveRecording() {
+		CompletableFuture.runAsync(() -> {
+					long duration = playbackService.getDuration().getMillis();
+					long selectedTimeMs = (long) (((EditorContext) context).getPrimarySelection() * duration);
+
+					Interval<Long> begin = new Interval<>(0L, selectedTimeMs);
+					Interval<Long> end = new Interval<>(selectedTimeMs, duration);
+
+					context.getEventBus().post(new SplitAndSaveRecordingCommand(begin, end));
+				})
+				.exceptionally(throwable -> {
+					handleException(throwable, "Splitting and saving recording failed",
+							"recording.split.error");
+					return null;
+				});
+	}
+
 
 	private void search(String text) {
 		if (isNull(text) || text.isEmpty() || text.isBlank()) {
@@ -253,11 +285,11 @@ public class MediaTrackControlsPresenter extends Presenter<MediaTrackControlsVie
 		}
 		else {
 			searchService.searchIndex(text)
-				.thenAccept(searchResult -> {
-					searchState = new SearchState(searchResult);
+					.thenAccept(searchResult -> {
+						searchState = new SearchState(searchResult);
 
-					view.setSearchState(searchState);
-				})
+						view.setSearchState(searchState);
+					})
 				.exceptionally(throwable -> {
 					logException(throwable, "Search page index failed");
 					return null;

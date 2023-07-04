@@ -29,6 +29,7 @@ import java.util.Locale;
 import org.lecturestudio.core.app.Theme;
 import org.lecturestudio.core.beans.BooleanProperty;
 import org.lecturestudio.core.beans.DoubleProperty;
+import org.lecturestudio.core.beans.IntegerProperty;
 import org.lecturestudio.core.beans.ObjectProperty;
 import org.lecturestudio.core.geometry.Dimension2D;
 import org.lecturestudio.core.view.Action;
@@ -134,8 +135,8 @@ class GeneralSettingsPresenterTest extends PresenterTest {
 		}
 
 		@Override
-		public void setDisableUserInputForPreview(BooleanProperty disabled) {
-			assertFalse(disabled.get());
+		public void setPageSelectionDelay(IntegerProperty delay) {
+			assertNotNull(delay);
 		}
 
 		@Override

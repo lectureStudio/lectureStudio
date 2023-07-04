@@ -18,6 +18,8 @@
 
 package org.lecturestudio.presenter.api.stylus;
 
+import static java.util.Objects.nonNull;
+
 import org.lecturestudio.stylus.StylusAxesData;
 import org.lecturestudio.stylus.StylusButton;
 import org.lecturestudio.stylus.StylusCursor;
@@ -32,6 +34,8 @@ public class StylusHandler {
 
 	private final ToolController toolController;
 
+	private final Runnable cursorEnteredCallback;
+
 	private final PenPoint2D point;
 
 	private PresentationParameter parameter;
@@ -41,13 +45,20 @@ public class StylusHandler {
 	private boolean inRubberMode;
 
 
-	public StylusHandler(ToolController toolController) {
+	public StylusHandler(ToolController toolController, Runnable cursorEnteredCallback) {
 		this.toolController = toolController;
+		this.cursorEnteredCallback = cursorEnteredCallback;
 		this.point = new PenPoint2D();
 	}
 
 	public void setPresentationParameter(PresentationParameter parameter) {
 		this.parameter = parameter;
+	}
+
+	public void onCursorEntered() {
+		if (nonNull(cursorEnteredCallback)) {
+			cursorEnteredCallback.run();
+		}
 	}
 
 	public void onCursorChange(StylusEvent stylusEvent, Rectangle2D viewBounds) {

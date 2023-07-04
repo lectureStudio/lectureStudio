@@ -72,19 +72,32 @@ public class MessageView extends MessagePanel {
 		createSlideButton = new JButton(AwtResourceLoader.getIcon("message-slide.svg", 18));
 		createSlideButton.setToolTipText(dict.get("button.create.slide"));
 
+		Box userPanel = Box.createHorizontalBox();
+		userPanel.setOpaque(false);
+		userPanel.add(userLabel);
+		userPanel.add(privateLabel);
+		userPanel.add(Box.createHorizontalGlue());
+
+		Box timePanel = Box.createHorizontalBox();
+		timePanel.setOpaque(false);
+		timePanel.add(timeLabel);
+		timePanel.add(Box.createHorizontalGlue());
+
+		Box userTimePanel = Box.createVerticalBox();
+		userTimePanel.setBorder(BorderFactory.createEmptyBorder());
+		userTimePanel.setOpaque(false);
+		userTimePanel.add(userPanel);
+		userTimePanel.add(timePanel);
+
 		Box controlPanel = Box.createHorizontalBox();
 		controlPanel.setBorder(BorderFactory.createEmptyBorder(2, 5, 2, 5));
 		controlPanel.setOpaque(false);
-		controlPanel.add(userLabel);
-//		controlPanel.add(Box.createHorizontalStrut(5));
-		controlPanel.add(privateLabel);
+		controlPanel.add(userTimePanel);
 		controlPanel.add(Box.createHorizontalGlue());
 		controlPanel.add(Box.createHorizontalStrut(5));
 		controlPanel.add(createSlideButton);
 		controlPanel.add(Box.createHorizontalStrut(5));
 		controlPanel.add(discardButton);
-		controlPanel.add(Box.createHorizontalStrut(10));
-		controlPanel.add(timeLabel);
 
 		textArea = new JTextArea();
 		textArea.setOpaque(false);

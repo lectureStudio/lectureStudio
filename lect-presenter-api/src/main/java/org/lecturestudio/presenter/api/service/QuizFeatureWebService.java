@@ -26,6 +26,7 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.net.URI;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.HashMap;
 import java.util.Map;
@@ -108,7 +109,7 @@ public class QuizFeatureWebService extends FeatureServiceBase {
 	 * @param quiz The quiz to start.
 	 */
 	public void setQuiz(Quiz quiz) {
-		this.quiz = quiz;
+		this.quiz = preprocessQuiz(quiz);
 		this.quizResult = new QuizResult(quiz);
 	}
 
@@ -327,10 +328,56 @@ public class QuizFeatureWebService extends FeatureServiceBase {
 					generatedName).toString().replaceAll("\\\\", "/"));
 		}
 
-		html = doc.body().html();
-
-		quiz.setQuestion(html);
+		quiz.setQuestion(doc.body().html());
 
 		return fileMap;
+	}
+
+	private Quiz preprocessQuiz(Quiz quiz) {
+		Document selectedDoc = documentService.getDocuments().getSelectedDocument();
+		if (!selectedDoc.isPDF()) {
+			selectedDoc = documentService.getDocuments().getLastNonWhiteboard();
+		}
+		if (isNull(selectedDoc)) {
+			return quiz;
+		}
+
+		boolean modified = false;
+
+		// Parse question.
+		String html = quiz.getQuestion();
+		org.jsoup.nodes.Document doc = Jsoup.parse(html);
+		doc.outputSettings().prettyPrint(false);
+
+		// Get all elements with image tag.
+		Elements img = doc.getElementsByTag("img");
+		for (Element e : img) {
+			String src = e.absUrl("src");
+			File imgFile = new File(URI.create(src).getPath());
+
+			if (!imgFile.exists() && nonNull(selectedDoc.getFilePath())) {
+				logDebugMessage("Quiz resource path not found: %s", imgFile);
+
+				// Try to find file resource in the path of the selected document.
+				// Construct the alternative file path.
+				Path alterPath = Paths.get(selectedDoc.getFilePath())
+						.getParent().resolve(imgFile.getName());
+
+				if (Files.exists(alterPath)) {
+					logDebugMessage("Found alternative quiz resource path: %s", imgFile);
+
+					// Replace by new path.
+					e.attr("src", alterPath.toUri().toString());
+
+					modified = true;
+				}
+			}
+		}
+
+		if (modified) {
+			quiz.setQuestion(doc.body().html());
+		}
+
+		return quiz;
 	}
 }

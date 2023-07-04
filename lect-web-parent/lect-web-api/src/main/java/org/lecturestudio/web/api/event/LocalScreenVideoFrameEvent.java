@@ -20,16 +20,20 @@ package org.lecturestudio.web.api.event;
 
 import dev.onvoid.webrtc.media.video.VideoFrame;
 
-public class ScreenVideoFrameEvent {
+/**
+ * A VideoFrameEvent containing a VideoFrame that was received from a local
+ * video track that is sending local screen frames to remote peers.
+ *
+ * @author Alex Andres
+ */
+public class LocalScreenVideoFrameEvent extends VideoFrameEvent {
 
-	private final VideoFrame frame;
-
-
-	public ScreenVideoFrameEvent(VideoFrame frame) {
-		this.frame = frame;
-	}
-
-	public VideoFrame getFrame() {
-		return frame;
+	/**
+	 * Creates a new ScreenVideoFrameEvent with the specified video frame.
+	 *
+	 * @param frame The video frame received from a local screen video track.
+	 */
+	public LocalScreenVideoFrameEvent(VideoFrame frame) {
+		super(frame);
 	}
 }

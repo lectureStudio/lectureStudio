@@ -53,18 +53,20 @@
 		<dependency>
 			<groupId>com.formdev</groupId>
 			<artifactId>flatlaf</artifactId>
-			<version>2.0.2</version>
+			<version>3.1.1</version>
 		</dependency>
 		<dependency>
 			<groupId>com.formdev</groupId>
 			<artifactId>svgSalamander</artifactId>
-			<version>1.1.3</version>
+			<version>1.1.4</version>
 		</dependency>
+
 		<dependency>
 			<groupId>org.swixml</groupId>
 			<artifactId>swixml</artifactId>
 			<version>2.6.20130530</version>
 			<exclusions>
+				<!-- Not needed dependencies. -->
 				<exclusion>
 					<groupId>javax.jnlp</groupId>
 					<artifactId>jnlp</artifactId>
@@ -72,6 +74,11 @@
 				<exclusion>
 					<groupId>com.apple</groupId>
 					<artifactId>AppleJavaExtensions</artifactId>
+				</exclusion>
+				<!-- Exclude old version due to CVE. -->
+				<exclusion>
+					<groupId>commons-beanutils</groupId>
+					<artifactId>commons-beanutils</artifactId>
 				</exclusion>
 			</exclusions>
 		</dependency>

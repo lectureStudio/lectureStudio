@@ -314,6 +314,19 @@ public class AdaptiveTabbedPane extends JComponent {
 	}
 
 	/**
+	 * Adds multiple tabs at given index
+	 *
+	 * @param tabs  {@link AdaptiveTab} to be added
+	 * @param index The index at which to add the tabs
+	 */
+	public void addTabs(List<AdaptiveTab> tabs, int index) {
+		tabs.forEach(this::convertTabLabel);
+		this.tabs.addAll(index, tabs);
+		updateSelectedTabsAdded(tabs);
+		rebuild();
+	}
+
+	/**
 	 * Removes a tab with matching {@code labelText}
 	 *
 	 * @param labelText Text of the tab's label

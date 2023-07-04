@@ -31,6 +31,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.ListIterator;
 import java.util.Properties;
+import java.util.UUID;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
 
@@ -696,7 +697,7 @@ class CreateQuizPresenterTest extends PresenterTest {
 		}
 
 		@Override
-		public void stopPeerConnection(Long requestId) {
+		public void stopPeerConnection(UUID requestId) {
 
 		}
 

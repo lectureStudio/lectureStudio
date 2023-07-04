@@ -34,6 +34,7 @@ import org.lecturestudio.core.util.ObservableArrayList;
 import org.lecturestudio.core.util.ObservableList;
 import org.lecturestudio.presenter.api.config.PresenterConfigService;
 import org.lecturestudio.presenter.api.config.PresenterConfiguration;
+import org.lecturestudio.presenter.api.model.Stopwatch;
 import org.lecturestudio.presenter.api.service.UserPrivilegeService;
 import org.lecturestudio.web.api.message.MessengerMessage;
 import org.lecturestudio.web.api.message.SpeechRequestMessage;
@@ -78,6 +79,7 @@ public class PresenterContext extends ApplicationContext {
 
 	private final String recordingDir;
 
+	private final Stopwatch stopwatch = new Stopwatch();
 
 	public PresenterContext(AppDataLocator dataLocator, File configFile,
 			Configuration config, Dictionary dict, EventBus eventBus,
@@ -229,5 +231,9 @@ public class PresenterContext extends ApplicationContext {
 
 	public String getRecordingDirectory() {
 		return recordingDir;
+	}
+
+	public Stopwatch getStopwatch(){
+		return stopwatch;
 	}
 }

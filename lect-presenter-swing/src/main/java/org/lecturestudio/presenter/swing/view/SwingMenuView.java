@@ -22,6 +22,8 @@ import static java.util.Objects.nonNull;
 
 import java.awt.Color;
 import java.awt.Component;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.io.File;
 import java.util.List;
 
@@ -142,6 +144,12 @@ public class SwingMenuView extends JMenuBar implements MenuView {
 
 	private JMenuItem closeQuizMenuItem;
 
+	private JMenuItem resetStopwatchMenuItem;
+
+	private JMenuItem pauseStopwatchMenuItem;
+
+	private JMenuItem configStopwatchMenuItem;
+
 	private JMenuItem clearBookmarksMenuItem;
 
 	private JMenuItem newBookmarkMenuItem;
@@ -155,6 +163,8 @@ public class SwingMenuView extends JMenuBar implements MenuView {
 	private JMenuItem aboutMenuItem;
 
 	private JMenu timeMenu;
+
+	private JButton stopwatchMenu;
 
 	private JMenu recordIndicatorMenu;
 
@@ -512,6 +522,18 @@ public class SwingMenuView extends JMenuBar implements MenuView {
 	}
 
 	@Override
+	public void setOnResetStopwatch(Action action) {
+		SwingUtils.bindAction(resetStopwatchMenuItem, action);
+	}
+
+	@Override
+	public void setOnPauseStopwatch(Action action) {
+		SwingUtils.bindAction(pauseStopwatchMenuItem, action);
+	}
+
+
+
+	@Override
 	public void setMessengerWindowVisible(boolean visible) {
 //		showMessengerWindowMenuItem.setSelected(visible);
 	}
@@ -669,10 +691,27 @@ public class SwingMenuView extends JMenuBar implements MenuView {
 	}
 
 	@Override
+	public void setCurrentStopwatch(String time) {
+		SwingUtils.invoke(() -> stopwatchMenu.setText(time));
+	}
+	@Override
+	public void setCurrentStopwatch(Action action) {
+		SwingUtils.bindAction(stopwatchMenu, action);
+	}
+
+	@Override
+	public void setCurrentStopwatchBackgroundColor(Color color) {
+		stopwatchMenu.setBackground(color);
+	}
+	@Override
 	public void setRecordingTime(Time time) {
 		SwingUtils.invoke(() -> recordIndicatorMenu.setText(time.toString()));
 	}
 
+	@Override
+	public void setOnConfigStopwatch(Action action) {
+		SwingUtils.bindAction(configStopwatchMenuItem, action);
+	}
 	@Override
 	public void bindMessageCount(IntegerProperty count) {
 		count.addListener((observable, oldValue, newValue) -> {
@@ -717,6 +756,30 @@ public class SwingMenuView extends JMenuBar implements MenuView {
 				dict.get("menu.stream.microphone.stop"));
 		setStateText(enableStreamCameraMenuItem, dict.get("menu.stream.camera.start"),
 				dict.get("menu.stream.camera.stop"));
+
+    // TODO: Creation of ButtonGroup can be removed here and can be set in the view xml.
+		final ButtonGroup messagesPositionButtonGroup = new ButtonGroup();
+		messagesPositionButtonGroup.add(messagesPositionLeftMenuItem);
+		messagesPositionButtonGroup.add(messagesPositionBottomMenuItem);
+		messagesPositionButtonGroup.add(messagesPositionRightMenuItem);
+
+		final ButtonGroup participantsPositionButtonGroup = new ButtonGroup();
+		participantsPositionButtonGroup.add(participantsPositionLeftMenuItem);
+		participantsPositionButtonGroup.add(participantsPositionRightMenuItem);
+
+		stopwatchMenu.setBorderPainted(false);
+		stopwatchMenu.setFocusPainted(false);
+		stopwatchMenu.addMouseListener(new MouseAdapter() {
+			@Override
+			public void mouseEntered(MouseEvent e) {
+				stopwatchMenu.setBackground(Color.LIGHT_GRAY);
+			}
+
+			@Override
+			public void mouseExited(MouseEvent e) {
+				stopwatchMenu.setBackground(Color.WHITE);
+			}
+		});
 	}
 
 	private void setStateText(AbstractButton button, String start, String stop) {

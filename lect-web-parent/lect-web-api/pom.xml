@@ -54,7 +54,7 @@
 		</repository>
 		<repository>
 			<id>central</id>
-			<url>https://central</url>
+			<url>http://central</url>
 			<releases><enabled>true</enabled></releases>
 			<snapshots><enabled>true</enabled></snapshots>
 		</repository>

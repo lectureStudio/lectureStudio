@@ -19,7 +19,6 @@ import org.springframework.messaging.simp.stomp.StompHeaders;
 import org.springframework.messaging.simp.stomp.StompSession;
 import org.springframework.messaging.simp.stomp.StompSessionHandler;
 import org.springframework.scheduling.concurrent.ConcurrentTaskScheduler;
-import org.springframework.util.concurrent.ListenableFuture;
 import org.springframework.web.socket.WebSocketHttpHeaders;
 import org.springframework.web.socket.client.standard.StandardWebSocketClient;
 import org.springframework.web.socket.messaging.WebSocketStompClient;
@@ -27,15 +26,9 @@ import org.springframework.web.socket.messaging.WebSocketStompClient;
 import javax.json.bind.Jsonb;
 import javax.json.bind.JsonbBuilder;
 import javax.json.bind.JsonbConfig;
-import javax.net.ssl.SSLContext;
-import javax.net.ssl.SSLEngine;
-import javax.net.ssl.TrustManager;
-import javax.net.ssl.X509ExtendedTrustManager;
 
 import java.lang.reflect.Type;
-import java.net.Socket;
 import java.nio.charset.StandardCharsets;
-import java.security.cert.X509Certificate;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -57,8 +50,6 @@ public class WebSocketStompTransport extends ExecutableBase implements MessageTr
 	private Jsonb jsonb;
 
 	private DefaultStompSession session;
-
-	private String userId;
 
 
 	public WebSocketStompTransport(ServiceParameters serviceParameters,
@@ -109,64 +100,6 @@ public class WebSocketStompTransport extends ExecutableBase implements MessageTr
 		if (isNull(this.stompClient)) {
 			StandardWebSocketClient standardClient = new StandardWebSocketClient();
 
-			TrustManager[] trustAllCerts = new TrustManager[] {
-					new X509ExtendedTrustManager() {
-
-						@Override
-						public void checkClientTrusted(X509Certificate[] chain,
-								String authType) {
-
-						}
-
-						@Override
-						public void checkServerTrusted(X509Certificate[] chain,
-								String authType) {
-
-						}
-
-						@Override
-						public X509Certificate[] getAcceptedIssuers() {
-							return new X509Certificate[0];
-						}
-
-						@Override
-						public void checkClientTrusted(X509Certificate[] chain,
-								String authType, Socket socket) {
-
-						}
-
-						@Override
-						public void checkServerTrusted(X509Certificate[] chain,
-								String authType, Socket socket) {
-
-						}
-
-						@Override
-						public void checkClientTrusted(X509Certificate[] chain,
-								String authType, SSLEngine engine) {
-
-						}
-
-						@Override
-						public void checkServerTrusted(X509Certificate[] chain,
-								String authType, SSLEngine engine) {
-
-						}
-					}
-			};
-
-			try {
-				SSLContext sc = SSLContext.getInstance("SSL");
-				sc.init(null, trustAllCerts, new java.security.SecureRandom());
-
-				Map<String, Object> properties = new HashMap<>();
-				properties.put("org.apache.tomcat.websocket.SSL_CONTEXT", sc);
-				standardClient.setUserProperties(properties);
-			}
-			catch (Throwable e) {
-				throw new ExecutableException(e);
-			}
-
 			stompClient = new WebSocketStompClient(standardClient);
 			stompClient.setMessageConverter(new MappingJackson2MessageConverter());
 			stompClient.setTaskScheduler(new ConcurrentTaskScheduler());
@@ -179,7 +112,7 @@ public class WebSocketStompTransport extends ExecutableBase implements MessageTr
 		}
 	}
 
-	public void connect() {
+	public void connect() throws ExecutableException {
 		WebSocketHttpHeaders headers = headerProvider.getHeaders();
 
 		StompHeaders stompHeaders = new StompHeaders();
@@ -188,13 +121,13 @@ public class WebSocketStompTransport extends ExecutableBase implements MessageTr
 
 		MessengerStompSessionHandler sessionHandler = new MessengerStompSessionHandler(course, jsonb, listenerMap);
 
-		ListenableFuture<StompSession> listenableSession = stompClient.connect(serviceParameters.getUrl(), headers, stompHeaders, sessionHandler);
+		var listenableSession = stompClient.connectAsync(serviceParameters.getUrl(), headers, stompHeaders, sessionHandler);
 
 		try {
 			this.session = (DefaultStompSession) listenableSession.get();
 		}
 		catch (Exception e) {
-			e.printStackTrace();
+			throw new ExecutableException(e);
 		}
 	}
 
@@ -270,8 +203,8 @@ public class WebSocketStompTransport extends ExecutableBase implements MessageTr
 
 		@Override
 		public void afterConnected(@NonNull StompSession stompSession,
-				StompHeaders stompHeaders) {
-			userId = stompHeaders.getFirst("user-name");
+				@NonNull StompHeaders stompHeaders) {
+			//userId = stompHeaders.getFirst("user-name");
 
 			subscribe(stompSession, "/topic/course/event/{id}/presence");
 			subscribe(stompSession, "/topic/course/{id}/chat");

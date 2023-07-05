@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Panel layout="GridBagLayout" border="EmptyBorder(20, 20, 20, 20)">
+    <VBox id="contentContainer">
+        <gridbagconstraints gridx="0" gridy="0" insets="0,0,2,0" anchor="GridBagConstraints.WEST" />
+        <Panel layout="GridBagLayout" border="EmptyBorder(0, 0, 0, 0)">
+            <Panel layout="GridBagLayout">
+                <gridbagconstraints gridx="1" gridy="0" weightx="0.5" fill="GridBagConstraints.HORIZONTAL" anchor="GridBagConstraints.NORTH" />
+                <buttongroup>
+                    <RadioButton id="stopwatchRadioButton" selected="true" text="stopwatch.settings.stopwatch" action="typeAction" actionCommand="STOPWATCH"/>
+                    <RadioButton id="timerRadioButton" text="stopwatch.settings.timer"  action="typeAction" actionCommand="TIMER"/>
+                </buttongroup>
+            </Panel>
+            <Label text="stopwatch.settings.setTime">
+                <gridbagconstraints gridx="1" gridy="1" gridwidth="2" anchor="GridBagConstraints.WEST" insets="5,0,2,0" />
+            </Label>
+            <TextField id="setTimerTextField">
+                <gridbagconstraints gridx="1" gridy="2" weightx="1" fill="GridBagConstraints.HORIZONTAL" anchor="GridBagConstraints.WEST" insets="5,0,15,0" />
+                <Filter class="org.lecturestudio.swing.filter.StopwatchFilter" />
+            </TextField>
+        </Panel>
+    </VBox>
+    <HBox>
+        <gridbagconstraints gridx="0" gridy="1" insets="20,0,0,0" weightx="1.0" fill="GridBagConstraints.HORIZONTAL" />
+        <box.hglue />
+        <Button id="startButton" text="start.stopwatch.start" />
+        <box.hstrut width="5" />
+        <Button id="closeButton" text="button.close" />
+    </HBox>
+</Panel>

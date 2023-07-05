@@ -66,6 +66,10 @@
 		<menuitem id="selectQuizMenuItem" text="menu.quiz.selection" accelerator="Z" enabled="false" />
 		<menuitem id="newQuizMenuItem" text="menu.quiz.new" enabled="false" />
 		<menuitem id="closeQuizMenuItem" text="menu.quiz.stop" enabled="false" />
+		<separator />
+		<menuitem id="pauseStopwatchMenuItem" text="menu.stopwatch.pause" accelerator="shift P" enabled="true" />
+		<menuitem id="resetStopwatchMenuItem" text="menu.stopwatch.stop" enabled="true" />
+		<menuitem id="configStopwatchMenuItem" text="menu.stopwatch.config" enabled="true" />
 	</menu>
 	<menu id="bookmarksMenu" text="menu.bookmarks">
 		<menuitem id="clearBookmarksMenuItem" text="menu.bookmarks.clear" enabled="false" />
@@ -79,6 +83,8 @@
 		<menuitem id="aboutMenuItem" text="menu.about" />
 	</menu>
 	<box.hglue />
+	<button id="stopwatchMenu" icon="stopwatch.svg, 20" disabledicon="stopwatch.svg, 20" enabled="true" />
+	<box.hstrut width="10" />
 	<menu id="timeMenu" icon="clock-indicator.svg, 20" disabledicon="clock-indicator.svg, 20" enabled="false" />
 	<box.hstrut width="10" />
 	<menu id="recordIndicatorMenu" icon="record-indicator.svg, 20" disabledicon="record-indicator.svg, 20" enabled="false" />

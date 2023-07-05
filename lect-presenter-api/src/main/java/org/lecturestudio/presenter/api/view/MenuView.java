@@ -18,6 +18,7 @@
 
 package org.lecturestudio.presenter.api.view;
 
+import java.awt.*;
 import java.io.File;
 import java.util.List;
 
@@ -171,6 +172,18 @@ public interface MenuView extends View {
 	void setStreamReconnectState(ExecutableState state);
 
 	/**
+	 * Stopwatch Menu
+	 */
+
+	void setOnResetStopwatch(Action action);
+
+	void setOnPauseStopwatch(Action action);
+
+	void setOnConfigStopwatch(Action action);
+
+	void setCurrentStopwatchBackgroundColor(Color color);
+
+	/**
 	 * Bookmarks Menu
 	 */
 
@@ -199,6 +212,10 @@ public interface MenuView extends View {
 	 */
 
 	void setCurrentTime(String time);
+
+	void setCurrentStopwatch(String time);
+
+	void setCurrentStopwatch(Action action);
 
 	/**
 	 * Recording time Menu

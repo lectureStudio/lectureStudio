@@ -51,10 +51,10 @@ public class PDFTextRenderer extends BaseRenderer {
 		}
 
 		Font font = textShape.getFont();
-		
-		float fontSize = (float) (font.getSize());
-		float x = (float) (textShape.getLocation().getX());
-		float y = (float) (textShape.getLocation().getY());
+
+		double fontSize = font.getSize();
+		double x = textShape.getLocation().getX();
+		double y = textShape.getLocation().getY();
 
 		Map<TextAttribute, Object> attrs = new HashMap<>();
 		attrs.put(TextAttribute.FAMILY, font.getFamilyName());
@@ -77,7 +77,7 @@ public class PDFTextRenderer extends BaseRenderer {
 		for (String line : lines) {
 			y += (metrics.getAscent() + metrics.getLeading()) / sy;
 			
-			context.drawString(line, x, y);
+			context.drawString(line, (float) x, (float) y);
 			
 			y += (metrics.getDescent()) / sy + 0;
 		}

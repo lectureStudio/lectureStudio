@@ -156,8 +156,9 @@ public class FileUtils {
 		for (final Enumeration<JarEntry> e = jarFile.entries(); e.hasMoreElements();) {
 			JarEntry entry = e.nextElement();
 			String entryName = entry.getName();
+			File file = new File(entryName);
 
-			if (!entryName.startsWith(source)) {
+			if (!file.toPath().normalize().startsWith(source)) {
 				continue;
 			}
 
@@ -266,8 +267,9 @@ public class FileUtils {
 
 			while (entries.hasMoreElements()) {
 				String name = entries.nextElement().getName();
-				
-				if (name.startsWith(searchPath) && predicate.test(name)) {
+				File file = new File(name);
+
+				if (file.toPath().normalize().startsWith(searchPath) && predicate.test(name)) {
 					String relativePath = name.substring(searchPath.length() + 1);
 					
 					if (!relativePath.isEmpty()) {

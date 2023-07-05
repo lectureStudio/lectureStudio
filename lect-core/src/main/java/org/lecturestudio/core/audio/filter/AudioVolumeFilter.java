@@ -35,7 +35,7 @@ public class AudioVolumeFilter implements AudioFilter {
 		length = Math.min(data.length, length);
 
 		for (int i = 0; i < length; i += 2) {
-			int value = (short) ((data[i + 1] << 8) | (data[i] & 0xFF));
+			long value = (short) ((data[i + 1] << 8) | (data[i] & 0xFF));
 			value *= scalar;
 
 			// Clip

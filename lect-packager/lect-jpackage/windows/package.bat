@@ -38,7 +38,7 @@ for /l %%n in (0,1,1) do (
 	echo Get !app[%%n]! modules
 	for /F %%i in ('jdeps ^
 					--class-path "${package.input.dir}\lib\*" ^
-					--multi-release 15 ^
+					--multi-release 17 ^
 					--ignore-missing-deps ^
 					--print-module-deps ^
 					-R -q ^

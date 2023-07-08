@@ -214,6 +214,11 @@ public class MenuPresenter extends Presenter<MenuView> {
 		view.setExternalSpeech(event.isEnabled(), event.isShow());
 	}
 
+	@Subscribe
+	public void onEvent(final ExternalNotesViewEvent event) {
+		view.setExternalNotes(event.isEnabled(), event.isShow());
+	}
+
 	public void openBookmark(Bookmark bookmark) {
 		try {
 			bookmarkService.gotoBookmark(bookmark);
@@ -276,8 +281,16 @@ public class MenuPresenter extends Presenter<MenuView> {
 		eventBus.post(new ExternalSpeechViewEvent(selected));
 	}
 
+	public void externalNotes(boolean selected) {
+		eventBus.post(new ExternalNotesViewEvent(selected));
+	}
+
 	public void positionMessages(MessageBarPosition position) {
 		eventBus.post(new MessageBarPositionEvent(position));
+	}
+
+	public void positionNotes(NoteBarPosition position) {
+		eventBus.post(new NotesBarPositionEvent(position));
 	}
 
 	public void positionParticipants(MessageBarPosition position) {
@@ -481,6 +494,7 @@ public class MenuPresenter extends Presenter<MenuView> {
 		view.setOnExternalParticipants(this::externalParticipants);
 		view.setOnExternalSlidePreview(this::externalSlidePreview);
 		view.setOnExternalSpeech(this::externalSpeech);
+		view.setOnExternalNotes(this::externalNotes);
 
 		switch (slideViewConfig.getMessageBarPosition()) {
 			case LEFT -> view.setMessagesPositionLeft();
@@ -491,6 +505,14 @@ public class MenuPresenter extends Presenter<MenuView> {
 		view.setOnMessagesPositionLeft(() -> positionMessages(MessageBarPosition.LEFT));
 		view.setOnMessagesPositionBottom(() -> positionMessages(MessageBarPosition.BOTTOM));
 		view.setOnMessagesPositionRight(() -> positionMessages(MessageBarPosition.RIGHT));
+
+		switch (slideViewConfig.getNotesBarPosition()) {
+			case LEFT -> view.setNotesPositionLeft();
+			case BOTTOM -> view.setNotesPositionBottom();
+		}
+
+		view.setOnNotesPositionLeft(() -> positionNotes(NoteBarPosition.LEFT));
+		view.setOnNotesPositionBottom(() -> positionNotes(NoteBarPosition.BOTTOM));
 
 		switch (slideViewConfig.getParticipantsPosition()) {
 			case LEFT -> view.setParticipantsPositionLeft();

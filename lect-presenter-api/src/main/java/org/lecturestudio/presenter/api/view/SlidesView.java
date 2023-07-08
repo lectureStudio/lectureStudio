@@ -32,6 +32,7 @@ import org.lecturestudio.core.model.DocumentOutline;
 import org.lecturestudio.core.model.DocumentOutlineItem;
 import org.lecturestudio.core.model.Page;
 import org.lecturestudio.core.view.*;
+import org.lecturestudio.presenter.api.model.NoteBarPosition;
 import org.lecturestudio.presenter.api.model.MessageBarPosition;
 import org.lecturestudio.presenter.api.config.SlideViewConfiguration;
 import org.lecturestudio.swing.model.ExternalWindowPosition;
@@ -89,6 +90,10 @@ public interface SlidesView extends View {
 	void setQuizState(ExecutableState state);
 
 	void setMessengerState(ExecutableState state);
+
+	void setNotesText(String notesText);
+
+	void clearNotesViewContainer();
 
 	void setMessengerMessage(MessengerMessage message);
 
@@ -160,6 +165,12 @@ public interface SlidesView extends View {
 
 	void setOnExternalSpeechClosed(Action action);
 
+	void setOnExternalNotesPositionChanged(ConsumerAction<ExternalWindowPosition> action);
+
+	void setOnExternalNotesSizeChanged(ConsumerAction<Dimension> action);
+
+	void setOnExternalNotesClosed(Action action);
+
 	void showExternalMessages(Screen screen, Point position, Dimension size);
 
 	void hideExternalMessages();
@@ -176,7 +187,13 @@ public interface SlidesView extends View {
 
 	void hideExternalSpeech();
 
+	void showExternalNotes(Screen screen, Point position, Dimension size);
+
+	void hideExternalNotes();
+
 	void setMessageBarPosition(MessageBarPosition position);
+
+	void setNotesBarPosition(NoteBarPosition position);
 
 	void setParticipantsPosition(MessageBarPosition position);
 

@@ -26,6 +26,7 @@ import org.lecturestudio.swing.components.AdaptiveTabbedPane;
 import org.lecturestudio.swing.components.SettingsTab;
 
 import org.lecturestudio.swing.model.AdaptiveTab;
+import org.lecturestudio.swing.model.AdaptiveTabType;
 import org.lecturestudio.swing.util.TabLabelTransformer;
 import org.swixml.LogAware;
 import org.swixml.Parser;
@@ -47,12 +48,12 @@ public class AdaptiveTabbedPaneProcessor implements TagProcessor, LogAware {
 
 		final AdaptiveTabbedPane tabbedPane = (AdaptiveTabbedPane) parent;
 		final SettingsTab tab = (SettingsTab) parser.getSwing(child, null);
+		AdaptiveTabType defaultType = tab.getDefaultTabType() != null ? tab.getDefaultTabType() : tabbedPane.getDefaultTabType();
 
 		final JLabel tabLabel = TabLabelTransformer.transformTabLabel(tab,
 				tabbedPane.getTabPlacement(), null);
 
-		AdaptiveTab adaptiveTab = new AdaptiveTab(
-				tabbedPane.getDefaultTabType(), tabLabel, tab.getContent());
+		AdaptiveTab adaptiveTab = new AdaptiveTab(defaultType, tabLabel, tab.getContent());
 
 		tabbedPane.addTab(adaptiveTab);
 

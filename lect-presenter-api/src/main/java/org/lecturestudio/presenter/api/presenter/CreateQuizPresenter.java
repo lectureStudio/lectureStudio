@@ -143,7 +143,12 @@ public class CreateQuizPresenter extends Presenter<CreateQuizView> {
 	}
 
 	private void saveQuiz() {
-		createQuiz();
+		try {
+			createQuiz();
+		}
+		catch (Exception e) {
+			handleException(e, "Create quiz failed", "quiz", "quiz.save.error");
+		}
 
 		boolean isGenericSet = isGenericSet();
 
@@ -189,7 +194,12 @@ public class CreateQuizPresenter extends Presenter<CreateQuizView> {
 	}
 
 	private void startQuiz() {
-		createQuiz();
+		try {
+			createQuiz();
+		}
+		catch (Exception e) {
+			handleException(e, "Create quiz failed", "quiz", "quiz.save.error");
+		}
 
 		streamService.startQuiz(quiz);
 
@@ -214,8 +224,7 @@ public class CreateQuizPresenter extends Presenter<CreateQuizView> {
 			CreateQuizOptionView newView = createOption();
 			newView.setOptionText(currentView.getOptionText());
 
-			if (newView instanceof CreateQuizNumericOptionView) {
-				CreateQuizNumericOptionView numericView = (CreateQuizNumericOptionView) newView;
+			if (newView instanceof CreateQuizNumericOptionView numericView) {
 				numericView.setMinValue(0);
 				numericView.setMaxValue(0);
 			}

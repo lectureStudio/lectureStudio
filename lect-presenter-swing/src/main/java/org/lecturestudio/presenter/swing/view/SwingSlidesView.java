@@ -626,21 +626,21 @@ public class SwingSlidesView extends JPanel implements SlidesView {
 
 	@Override
 	public void setNotesText(String notesText){
-		AdaptiveTabbedPane currentPane;
-
-		switch (notesBarPosition){
-			case BOTTOM -> currentPane = bottomTabPane;
-			case LEFT -> currentPane = leftTabPane;
-			default -> currentPane = bottomTabPane;
-		}
-		int tabPos = currentPane.getPaneSelectedIndex();
 		SwingUtils.invoke(() -> {
+			AdaptiveTabbedPane currentPane;
+
+			switch (notesBarPosition){
+				case BOTTOM -> currentPane = bottomTabPane;
+				case LEFT -> currentPane = leftTabPane;
+				default -> currentPane = bottomTabPane;
+			}
+
+			int tabPos = currentPane.getPaneSelectedIndex();
 			NotesView notesView = ViewUtil.createNotesView(NotesView.class, dict);
 			notesView.setNote(notesText);
-			notesView.pack();
+			notesView.doLayout();
 
 			addNoteView(notesView);
-			notesViewContainer.revalidate();
 			currentPane.setSelectedIndex(tabPos);
 		});
 	}
@@ -1901,7 +1901,8 @@ public class SwingSlidesView extends JPanel implements SlidesView {
 	private void addNoteView(Component view){
 		setNotesBarTabVisible(dict.get(NOTES_LABEL_KEY), true);
 		notesViewContainer.add(view);
-		notesViewContainer.revalidate();
+		notesViewContainer.invalidate();
+		notesViewContainer.doLayout();
 		notesViewContainer.repaint();
 	}
 
@@ -1952,7 +1953,11 @@ public class SwingSlidesView extends JPanel implements SlidesView {
 	 */
 	@Override
 	public void clearNotesViewContainer(){
-		notesViewContainer.removeAll();
-		notesViewContainer.repaint();
+		SwingUtils.invoke(() -> {
+			notesViewContainer.removeAll();
+			notesViewContainer.invalidate();
+			notesViewContainer.doLayout();
+			notesViewContainer.repaint();
+		});
 	}
 }

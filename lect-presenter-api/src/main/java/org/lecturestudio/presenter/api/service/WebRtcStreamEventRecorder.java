@@ -239,8 +239,7 @@ public class WebRtcStreamEventRecorder extends StreamEventRecorder {
 			// Transmit quiz documents only in initial state.
 			boolean isInitialQuiz = false;
 
-			if (doc instanceof QuizDocument) {
-				QuizDocument quizDoc = (QuizDocument) doc;
+			if (doc instanceof QuizDocument quizDoc) {
 				isInitialQuiz = !quizDoc.hasAnswers();
 			}
 
@@ -380,26 +379,21 @@ public class WebRtcStreamEventRecorder extends StreamEventRecorder {
 	private StreamDocumentCreateAction uploadDocument(Document document)
 			throws IOException {
 		if (document.isWhiteboard()) {
-			if (!(document instanceof TemplateDocument)) {
-				// Do not send document data for plain whiteboards.
-				return new StreamDocumentCreateAction(document);
+			// Copy whiteboard document with initially N empty pages.
+			// The empty pages are used to simplify new page creation on the client side.
+			ByteArrayOutputStream data = new ByteArrayOutputStream();
+
+			document.toOutputStream(data);
+
+			Document whiteboard = new TemplateDocument(data.toByteArray());
+			whiteboard.setTitle(document.getName());
+			whiteboard.setDocumentType(document.getType());
+
+			for (int i = 0; i < 100; i++) {
+				whiteboard.createPage();
 			}
-			else {
-				// Copy whiteboard document.
-				ByteArrayOutputStream data = new ByteArrayOutputStream();
 
-				document.toOutputStream(data);
-
-				Document whiteboard = new TemplateDocument(data.toByteArray());
-				whiteboard.setTitle(document.getName());
-				whiteboard.setDocumentType(document.getType());
-
-				for (int i = 0; i < 100; i++) {
-					whiteboard.createPage();
-				}
-
-				document = whiteboard;
-			}
+			document = whiteboard;
 		}
 
 		String docFileName = document.getUid().toString() + ".pdf";

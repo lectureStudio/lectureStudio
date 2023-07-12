@@ -429,8 +429,7 @@ public class HTMLEditorPane extends JPanel
 
     public String getText()
     {
-    	String topText = removeInvalidTags(wysEditor.getText());
-    	return topText;
+        return removeInvalidTags(wysEditor.getText());
     }
 
 

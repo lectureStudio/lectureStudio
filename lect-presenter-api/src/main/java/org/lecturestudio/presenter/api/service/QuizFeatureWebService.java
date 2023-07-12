@@ -354,7 +354,7 @@ public class QuizFeatureWebService extends FeatureServiceBase {
 		Elements img = doc.getElementsByTag("img");
 		for (Element e : img) {
 			String src = e.absUrl("src");
-			File imgFile = new File(URI.create(src).getPath());
+			File imgFile = new File(FileUtils.decodePath(src));
 
 			if (!imgFile.exists() && nonNull(selectedDoc.getFilePath())) {
 				logDebugMessage("Quiz resource path not found: %s", imgFile);

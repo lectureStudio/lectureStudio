@@ -16,29 +16,38 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package org.lecturestudio.presenter.api.view;
+package org.lecturestudio.swing.event;
+
+import java.util.Objects;
+
+import javax.swing.event.DocumentEvent;
+import javax.swing.event.DocumentListener;
 
 import org.lecturestudio.core.view.Action;
-import org.lecturestudio.core.view.View;
 
-public interface CreateQuizOptionView extends View {
+public class DefaultDocumentListener implements DocumentListener {
 
-	void focus();
+	private final Action action;
 
-	String getOptionText();
 
-	void setOptionText(String text);
+	public DefaultDocumentListener(Action action) {
+		Objects.requireNonNull(action);
 
-	void addOnChange(Action action);
+		this.action = action;
+	}
 
-	void setOnRemove(Action action);
+	@Override
+	public void insertUpdate(DocumentEvent e) {
+		action.execute();
+	}
 
-	void setOnMoveUp(Action action);
+	@Override
+	public void removeUpdate(DocumentEvent e) {
+		action.execute();
+	}
 
-	void setOnMoveDown(Action action);
-
-	void setOnEnterKey(Action action);
-
-	void setOnTabKey(Action action);
-
+	@Override
+	public void changedUpdate(DocumentEvent e) {
+		action.execute();
+	}
 }

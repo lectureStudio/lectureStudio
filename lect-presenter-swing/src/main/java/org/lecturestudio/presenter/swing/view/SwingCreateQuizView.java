@@ -26,6 +26,8 @@ import java.awt.Container;
 import java.awt.DefaultKeyboardFocusManager;
 import java.awt.KeyboardFocusManager;
 import java.awt.event.ActionEvent;
+import java.awt.event.ContainerAdapter;
+import java.awt.event.ContainerEvent;
 import java.awt.event.HierarchyEvent;
 import java.awt.event.ItemEvent;
 import java.awt.event.KeyEvent;
@@ -54,6 +56,7 @@ import org.lecturestudio.core.view.ConsumerAction;
 import org.lecturestudio.presenter.api.view.CreateQuizOptionView;
 import org.lecturestudio.presenter.api.view.CreateQuizView;
 import org.lecturestudio.swing.components.ContentPane;
+import org.lecturestudio.swing.event.DefaultDocumentListener;
 import org.lecturestudio.swing.input.KeyUtils;
 import org.lecturestudio.swing.util.SwingUtils;
 import org.lecturestudio.swing.view.SwingView;
@@ -129,6 +132,8 @@ public class SwingCreateQuizView extends ContentPane implements CreateQuizView {
 	@Override
 	public void addQuizOptionView(CreateQuizOptionView optionView) {
 		if (SwingUtils.isComponent(optionView)) {
+			optionView.addOnChange(() -> updateQuizStateUI(true));
+
 			SwingUtils.invoke(() -> {
 				optionContainer.add((Component) optionView);
 				optionContainer.revalidate();
@@ -284,6 +289,7 @@ public class SwingCreateQuizView extends ContentPane implements CreateQuizView {
 	@ViewPostConstruct
 	private void initialize() {
 		traverseButtons(this);
+		updateQuizStateUI(false);
 
 		oldKFM = KeyboardFocusManager.getCurrentKeyboardFocusManager();
 
@@ -297,9 +303,30 @@ public class SwingCreateQuizView extends ContentPane implements CreateQuizView {
 					KeyboardFocusManager.setCurrentKeyboardFocusManager(null);
 					KeyboardFocusManager focusManager = KeyboardFocusManager.getCurrentKeyboardFocusManager();
 					focusManager.addKeyEventDispatcher(new KeyboardManager());
+
+					updateQuizStateUI(false);
 				}
 			}
 		});
+
+		htmlEditor.getEditorPane().getDocument().addDocumentListener(
+				new DefaultDocumentListener(() -> updateQuizStateUI(true)));
+
+		optionContainer.addContainerListener(new ContainerAdapter() {
+
+			@Override
+			public void componentAdded(ContainerEvent e) {
+				updateQuizStateUI(true);
+			}
+
+			@Override
+			public void componentRemoved(ContainerEvent e) {
+				updateQuizStateUI(true);
+			}
+		});
+
+		saveQuizButton.addActionListener(e -> updateQuizStateUI(false));
+		saveAndNextQuizButton.addActionListener(e -> updateQuizStateUI(false));
 
 		toolbarContainer.add(htmlEditor.getFormatToolBar());
 
@@ -327,8 +354,7 @@ public class SwingCreateQuizView extends ContentPane implements CreateQuizView {
 		if (container != null) {
 			for (int i = 0; i < container.getComponentCount(); ++i) {
 				Component c = container.getComponent(i);
-				if (c instanceof JComponent) {
-					JComponent cc = (JComponent) c;
+				if (c instanceof JComponent cc) {
 					String ks = (String) cc.getClientProperty("KEY_STRING");
 
 					if (nonNull(ks)) {
@@ -369,6 +395,11 @@ public class SwingCreateQuizView extends ContentPane implements CreateQuizView {
 
 	private void updateOptionUI() {
 		newOptionButton.setEnabled(optionContainer.getComponentCount() < 6);
+	}
+
+	private void updateQuizStateUI(boolean quizChanged) {
+		saveQuizButton.setEnabled(quizChanged);
+		saveAndNextQuizButton.setEnabled(quizChanged);
 	}
 
 	private void setFieldTooltips() {

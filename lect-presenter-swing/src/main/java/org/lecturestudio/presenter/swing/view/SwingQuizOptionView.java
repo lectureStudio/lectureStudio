@@ -18,6 +18,8 @@
 
 package org.lecturestudio.presenter.swing.view;
 
+import static java.util.Objects.nonNull;
+
 import java.awt.Container;
 import java.awt.event.KeyEvent;
 
@@ -31,6 +33,8 @@ import org.lecturestudio.swing.view.SwingView;
 
 @SwingView(name = "quiz-option")
 public abstract class SwingQuizOptionView extends JPanel implements CreateQuizOptionView {
+
+	private Action changeAction;
 
 	private Action moveUpAction;
 
@@ -54,6 +58,16 @@ public abstract class SwingQuizOptionView extends JPanel implements CreateQuizOp
 
 	public Container getButtons() {
 		return buttons;
+	}
+
+	@Override
+	public void addOnChange(Action action) {
+		if (nonNull(changeAction)) {
+			changeAction = changeAction.andThen(action);
+		}
+		else {
+			changeAction = action;
+		}
 	}
 
 	@Override
@@ -85,20 +99,24 @@ public abstract class SwingQuizOptionView extends JPanel implements CreateQuizOp
 		this.tabKeyAction = action;
 	}
 
+	protected void fireChange() {
+		if (nonNull(changeAction)) {
+			changeAction.execute();
+		}
+	}
+
 	protected void upDownKeyHandler(KeyEvent event) {
 		switch (event.getKeyCode()) {
-			case KeyEvent.VK_UP:
+			case KeyEvent.VK_UP -> {
 				executeAction(moveUpAction);
 				event.consume();
-				break;
-
-			case KeyEvent.VK_DOWN:
+			}
+			case KeyEvent.VK_DOWN -> {
 				executeAction(moveDownAction);
 				event.consume();
-				break;
-
-			default:
-				break;
+			}
+			default -> {
+			}
 		}
 	}
 

@@ -28,6 +28,7 @@ import java.awt.event.KeyEvent;
 import javax.swing.JTextField;
 
 import org.lecturestudio.presenter.api.view.CreateQuizDefaultOptionView;
+import org.lecturestudio.swing.event.DefaultDocumentListener;
 import org.lecturestudio.swing.util.SwingUtils;
 import org.lecturestudio.swing.view.SwingView;
 import org.lecturestudio.swing.view.ViewPostConstruct;
@@ -94,6 +95,8 @@ public class SwingQuizDefaultOptionView extends SwingQuizOptionView implements C
 				tabKeyHandler(e);
 			}
 		});
+		optionTextField.getDocument().addDocumentListener(
+				new DefaultDocumentListener(super::fireChange));
 	}
 
 }

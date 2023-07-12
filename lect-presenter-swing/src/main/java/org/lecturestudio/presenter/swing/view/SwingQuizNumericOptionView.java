@@ -30,6 +30,7 @@ import java.text.ParseException;
 import javax.swing.JTextField;
 
 import org.lecturestudio.presenter.api.view.CreateQuizNumericOptionView;
+import org.lecturestudio.swing.event.DefaultDocumentListener;
 import org.lecturestudio.swing.util.SwingUtils;
 import org.lecturestudio.swing.view.SwingView;
 import org.lecturestudio.swing.view.ViewPostConstruct;
@@ -146,5 +147,11 @@ public class SwingQuizNumericOptionView extends SwingQuizOptionView implements C
 				tabKeyHandler(e);
 			}
 		});
+
+		DefaultDocumentListener docListener = new DefaultDocumentListener(super::fireChange);
+
+		optionTextField.getDocument().addDocumentListener(docListener);
+		minTextField.getDocument().addDocumentListener(docListener);
+		maxTextField.getDocument().addDocumentListener(docListener);
 	}
 }

@@ -30,7 +30,6 @@ import java.awt.font.TextLayout;
 import java.awt.geom.AffineTransform;
 import java.io.File;
 import java.io.IOException;
-import java.net.URI;
 import java.nio.file.Paths;
 import java.text.AttributedCharacterIterator;
 import java.text.AttributedString;
@@ -63,6 +62,7 @@ import org.lecturestudio.core.geometry.Rectangle2D;
 import org.lecturestudio.core.model.DocumentType;
 import org.lecturestudio.core.pdf.PdfDocument;
 import org.lecturestudio.core.pdf.pdfbox.PDFGraphics2D;
+import org.lecturestudio.core.util.FileUtils;
 import org.lecturestudio.presenter.api.util.NumericStringComparator;
 import org.lecturestudio.web.api.model.quiz.Quiz;
 import org.lecturestudio.web.api.model.quiz.Quiz.QuizType;
@@ -152,7 +152,7 @@ public class QuizDocument extends HtmlToPdfDocument {
 		Elements images = jdoc.getElementsByTag("img");
 		for (Element e : images) {
 			String src = e.absUrl("src");
-			File imgFile = new File(URI.create(src).getPath());
+			File imgFile = new File(FileUtils.decodePath(src));
 			String newPath = Paths.get("quiz", imgFile.getName()).toString()
 					.replaceAll("\\\\", "/");
 

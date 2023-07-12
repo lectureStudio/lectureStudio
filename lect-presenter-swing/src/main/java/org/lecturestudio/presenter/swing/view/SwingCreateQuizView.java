@@ -133,6 +133,7 @@ public class SwingCreateQuizView extends ContentPane implements CreateQuizView {
 				optionContainer.add((Component) optionView);
 				optionContainer.revalidate();
 
+				updateOptionUI();
 				setFieldTooltips();
 			});
 		}
@@ -145,6 +146,7 @@ public class SwingCreateQuizView extends ContentPane implements CreateQuizView {
 				optionContainer.remove((Component) optionView);
 				optionContainer.revalidate();
 
+				updateOptionUI();
 				setFieldTooltips();
 			});
 		}
@@ -363,6 +365,10 @@ public class SwingCreateQuizView extends ContentPane implements CreateQuizView {
 		builder.append("</html>");
 
 		return builder.toString();
+	}
+
+	private void updateOptionUI() {
+		newOptionButton.setEnabled(optionContainer.getComponentCount() < 6);
 	}
 
 	private void setFieldTooltips() {

@@ -18,6 +18,8 @@
 
 package org.lecturestudio.media.webrtc;
 
+import static java.util.Objects.nonNull;
+
 import dev.onvoid.webrtc.media.Device;
 import dev.onvoid.webrtc.media.MediaDevices;
 
@@ -38,6 +40,12 @@ public class WebRtcAudioSystemProvider implements AudioSystemProvider {
 
 	@Override
 	public AudioDevice getDefaultRecordingDevice() {
+		var device = MediaDevices.getDefaultAudioCaptureDevice();
+
+		if (nonNull(device)) {
+			return new AudioDevice(device.getName());
+		}
+
 		var devices = MediaDevices.getAudioCaptureDevices();
 
 		if (devices.isEmpty()) {
@@ -49,6 +57,12 @@ public class WebRtcAudioSystemProvider implements AudioSystemProvider {
 
 	@Override
 	public AudioDevice getDefaultPlaybackDevice() {
+		var device = MediaDevices.getDefaultAudioRenderDevice();
+
+		if (nonNull(device)) {
+			return new AudioDevice(device.getName());
+		}
+
 		var devices = MediaDevices.getAudioRenderDevices();
 
 		if (devices.isEmpty()) {

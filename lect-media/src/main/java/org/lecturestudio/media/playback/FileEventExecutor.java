@@ -127,6 +127,7 @@ public class FileEventExecutor extends EventExecutor {
 			thread.start();
 		}
 		else if (state == ExecutableState.Suspended) {
+			thread.interrupt();
 			thread.signal();
 		}
 	}
@@ -193,7 +194,12 @@ public class FileEventExecutor extends EventExecutor {
 				}
 
 				// Relieve the CPU.
-				thread.sleep(sleep);
+				try {
+					thread.sleep(sleep);
+				}
+				catch (InterruptedException e) {
+					// Ignore
+				}
 			}
 			else if (state == ExecutableState.Suspended) {
 				thread.await();

@@ -18,8 +18,10 @@
 
 package org.lecturestudio.javafx.control;
 
+import static java.util.Objects.isNull;
 import static java.util.Objects.nonNull;
 
+import javafx.animation.AnimationTimer;
 import javafx.application.Platform;
 import javafx.beans.InvalidationListener;
 import javafx.beans.Observable;
@@ -584,6 +586,8 @@ public class MediaTracksSkin extends SkinBase<MediaTracks> {
 
 	private class TimeSlider extends Group implements Slider {
 
+		record ScrollEvent(double x, double minX, double maxX, double scrollX) {}
+
 		private final InvalidationListener layoutXListener;
 
 		private final SvgIcon thumb;
@@ -599,6 +603,8 @@ public class MediaTracksSkin extends SkinBase<MediaTracks> {
 		private Runnable updateValueCallback;
 
 		private DoubleProperty valueProperty;
+
+		private ScrollTimer scrollTimer;
 
 
 		TimeSlider(MediaTracks parent) {
@@ -722,21 +728,31 @@ public class MediaTracksSkin extends SkinBase<MediaTracks> {
 
 		@Override
 		public void moveByDelta(double dx) {
-			Bounds bounds = timeline.getLayoutBounds();
-			double offset = getLineOffset();
-			double x = getLayoutX() + dx;
-			double minX = bounds.getMinX() - offset + timeline.getLayoutX();
-			double maxX = bounds.getMaxX() - offset + timeline.getLayoutX();
-			double scrollValue = scrollBar.getValue() + dx;
+			ScrollEvent event = createScrollEvent(dx);
 
-			if (x < minX && scrollValue >= scrollBar.getMin() ||
-					x > maxX && scrollValue <= scrollBar.getMax()) {
-				scrollBar.setValue(scrollValue);
+			double x = Math.min(Math.max(event.x, event.minX), event.maxX);
+
+			if (Double.compare(x, event.minX) != 0 && Double.compare(x, event.maxX) != 0) {
+				// Slider left bounding constraint. Scroll without timer.
+				scroll(dx, event);
+
+				if (nonNull(scrollTimer)) {
+					scrollTimer.stop();
+					scrollTimer = null;
+				}
 			}
-
-			x = Math.min(Math.max(x, minX), maxX);
-
-			setLayoutX(x);
+			else {
+				// Slider entered bounding constraint. Scroll with timer.
+				if (isNull(scrollTimer)) {
+					scrollTimer = new ScrollTimer();
+					scrollTimer.dx = dx;
+					scrollTimer.start();
+				}
+				else {
+					// Update delta to increase or slow down scrolling speed.
+					scrollTimer.dx = dx;
+				}
+			}
 		}
 
 		@Override
@@ -750,6 +766,11 @@ public class MediaTracksSkin extends SkinBase<MediaTracks> {
 		public void mouseReleased() {
 			setSliderTimeVisible(false);
 			setValueChanging(false);
+
+			if (nonNull(scrollTimer)) {
+				scrollTimer.stop();
+				scrollTimer = null;
+			}
 		}
 
 		@Override
@@ -776,6 +797,49 @@ public class MediaTracksSkin extends SkinBase<MediaTracks> {
 				case CENTER -> lineX.set(snapPositionX(width * 0.5));
 				case LEFT -> lineX.set(width - offset);
 				case RIGHT -> lineX.set(offset);
+			}
+		}
+
+		private void scroll(double dx, ScrollEvent event) {
+			if (isNull(event)) {
+				event = createScrollEvent(dx);
+			}
+
+			if (event.x < event.minX || event.x > event.maxX) {
+				double scrollX = Math.min(
+						Math.max(event.scrollX, scrollBar.getMin()),
+						scrollBar.getMax());
+
+				scrollBar.setValue(scrollX);
+			}
+
+			double layoutX = Math.min(Math.max(event.x, event.minX), event.maxX);
+
+			setLayoutX(layoutX);
+		}
+
+		private ScrollEvent createScrollEvent(double dx) {
+			Bounds bounds = timeline.getLayoutBounds();
+			double offset = getLineOffset();
+			double x = getLayoutX() + dx;
+			double minX = bounds.getMinX() - offset + timeline.getLayoutX();
+			double maxX = bounds.getMaxX() - offset + timeline.getLayoutX();
+			double scrollX = scrollBar.getValue() + dx;
+
+			return new ScrollEvent(x, minX, maxX, scrollX);
+		}
+
+
+
+		private class ScrollTimer extends AnimationTimer {
+
+			double dx = 0;
+
+
+			@Override
+			public void handle(long now) {
+				scroll(dx, null);
+				mouseDragged();
 			}
 		}
 	}

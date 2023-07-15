@@ -81,11 +81,10 @@ public class AudioTrack extends MediaTrackBase<RandomAccessAudioStream> {
 	@Override
 	public void recordingChanged(RecordingChangeEvent event) {
 		switch (event.getContentType()) {
-			case ALL:
-			case AUDIO:
+			case ALL, AUDIO -> {
 				dispose();
 				setData(event.getRecording().getRecordedAudio().getAudioStream().clone());
-				break;
+			}
 		}
 	}
 

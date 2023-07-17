@@ -5,6 +5,7 @@ import static java.util.Objects.nonNull;
 
 import org.lecturestudio.core.ExecutableBase;
 import org.lecturestudio.core.ExecutableException;
+import org.lecturestudio.web.api.client.ClientFailover;
 import org.lecturestudio.web.api.data.bind.*;
 import org.lecturestudio.web.api.model.Message;
 import org.lecturestudio.web.api.service.ServiceParameters;
@@ -41,6 +42,8 @@ public class WebSocketStompTransport extends ExecutableBase implements MessageTr
 
 	private final Course course;
 
+	private final ClientFailover clientFailover;
+
 	private final ServiceParameters serviceParameters;
 
 	private final WebSocketStompHeaderProvider headerProvider;
@@ -58,6 +61,8 @@ public class WebSocketStompTransport extends ExecutableBase implements MessageTr
 		this.headerProvider = headerProvider;
 		this.course = course;
 		this.listenerMap = new HashMap<>();
+		this.clientFailover = new ClientFailover();
+		this.clientFailover.addExecutable(new Reconnect());
 	}
 
 	@Override
@@ -107,12 +112,44 @@ public class WebSocketStompTransport extends ExecutableBase implements MessageTr
 
 			connect();
 		}
-		else if (! this.stompClient.isRunning()) {
-			this.stompClient.start();
+	}
+
+	@Override
+	protected void stopInternal() throws ExecutableException {
+		try {
+			this.disconnect();
+
+			if (this.stompClient.isRunning()) {
+				this.stompClient.stop();
+			}
+
+			this.stompClient = null;
+		}
+		catch (Exception e) {
+			throw new ExecutableException("Stop STOMP client failed", e);
 		}
 	}
 
-	public void connect() throws ExecutableException {
+	@Override
+	protected void destroyInternal() throws ExecutableException {
+		// No-op
+	}
+
+	@Override
+	public void sendMessage(String recipient, Message message) {
+		if (started() && nonNull(session)) {
+			StompHeaders headers = new StompHeaders();
+			headers.add("courseId", this.course.getId().toString());
+			headers.add("recipient", recipient);
+			headers.setDestination("/app/message/" + this.course.getId());
+
+			headerProvider.addHeaders(headers);
+
+			session.send(headers, message);
+		}
+	}
+
+	private void connect() throws ExecutableException {
 		WebSocketHttpHeaders headers = headerProvider.getHeaders();
 
 		StompHeaders stompHeaders = new StompHeaders();
@@ -131,44 +168,35 @@ public class WebSocketStompTransport extends ExecutableBase implements MessageTr
 		}
 	}
 
-	public void disconnect() {
+	private void disconnect() {
 		if (nonNull(this.session) && this.session.isConnected()) {
 			this.session.disconnect();
 			this.session = null;
 		}
 	}
 
-	@Override
-	protected void stopInternal() throws ExecutableException {
-		try {
-			this.disconnect();
 
-			if (this.stompClient.isRunning()) {
-				this.stompClient.stop();
-				this.stompClient = null;
-			}
+
+	private class Reconnect extends ExecutableBase {
+
+		@Override
+		protected void initInternal() {
+
 		}
-		catch (Exception e) {
-			throw new ExecutableException("Stop STOMP client failed", e);
+
+		@Override
+		protected void startInternal() throws ExecutableException {
+			WebSocketStompTransport.this.start();
 		}
-	}
 
-	@Override
-	protected void destroyInternal() throws ExecutableException {
-		// No-op
-	}
+		@Override
+		protected void stopInternal() throws ExecutableException {
+			WebSocketStompTransport.this.stop();
+		}
 
-	@Override
-	public void sendMessage(String recipient, Message message) {
-		if (super.started() && nonNull(session)) {
-			StompHeaders headers = new StompHeaders();
-			headers.add("courseId", this.course.getId().toString());
-			headers.add("recipient", recipient);
-			headers.setDestination("/app/message/" + this.course.getId());
+		@Override
+		protected void destroyInternal() {
 
-			headerProvider.addHeaders(headers);
-
-			session.send(headers, message);
 		}
 	}
 
@@ -211,6 +239,16 @@ public class WebSocketStompTransport extends ExecutableBase implements MessageTr
 				@NonNull StompHeaders stompHeaders) {
 			//userId = stompHeaders.getFirst("user-name");
 
+			// Reconnection not needed anymore, if recovery previously startet.
+			if (clientFailover.started()) {
+				try {
+					clientFailover.stop();
+				}
+				catch (ExecutableException e) {
+					logException(e, "Stop connection failover failed");
+				}
+			}
+
 			subscribe(stompSession, "/topic/course/event/{id}/presence");
 			subscribe(stompSession, "/topic/course/{id}/chat");
 			subscribe(stompSession, "/user/queue/course/{id}/chat");
@@ -228,8 +266,24 @@ public class WebSocketStompTransport extends ExecutableBase implements MessageTr
 
 		@Override
 		public void handleTransportError(@NonNull StompSession stompSession,
-				Throwable throwable) {
-			throwable.printStackTrace();
+				@NonNull Throwable throwable) {
+			if (started()) {
+				// Stop transport to start from clean state.
+				try {
+					stop();
+				}
+				catch (ExecutableException e) {
+					logException(e, "Stop STOMP client failed");
+				}
+
+				// Start recover process.
+				try {
+					clientFailover.start();
+				}
+				catch (ExecutableException e) {
+					logException(e, "Start connection failover failed");
+				}
+			}
 		}
 
 		@Override

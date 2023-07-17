@@ -132,7 +132,7 @@ public class WebSocketStompTransport extends ExecutableBase implements MessageTr
 	}
 
 	public void disconnect() {
-		if (nonNull(this.session)) {
+		if (nonNull(this.session) && this.session.isConnected()) {
 			this.session.disconnect();
 			this.session = null;
 		}
@@ -140,11 +140,16 @@ public class WebSocketStompTransport extends ExecutableBase implements MessageTr
 
 	@Override
 	protected void stopInternal() throws ExecutableException {
-		this.disconnect();
+		try {
+			this.disconnect();
 
-		if (this.stompClient.isRunning()) {
-			this.stompClient.stop();
-			this.stompClient = null;
+			if (this.stompClient.isRunning()) {
+				this.stompClient.stop();
+				this.stompClient = null;
+			}
+		}
+		catch (Exception e) {
+			throw new ExecutableException("Stop STOMP client failed", e);
 		}
 	}
 

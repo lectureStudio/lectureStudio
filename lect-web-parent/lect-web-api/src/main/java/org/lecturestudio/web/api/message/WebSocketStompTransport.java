@@ -186,12 +186,16 @@ public class WebSocketStompTransport extends ExecutableBase implements MessageTr
 
 		@Override
 		protected void startInternal() throws ExecutableException {
-			WebSocketStompTransport.this.start();
+			if (!WebSocketStompTransport.this.started()) {
+				WebSocketStompTransport.this.start();
+			}
 		}
 
 		@Override
 		protected void stopInternal() throws ExecutableException {
-			WebSocketStompTransport.this.stop();
+			if (!WebSocketStompTransport.this.stopped()) {
+				WebSocketStompTransport.this.stop();
+			}
 		}
 
 		@Override

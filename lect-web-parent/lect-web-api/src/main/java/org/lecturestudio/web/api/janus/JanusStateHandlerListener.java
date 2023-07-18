@@ -29,13 +29,13 @@ public interface JanusStateHandlerListener {
 	 * Invoked when the WebRTC peer connection is up and sending or receiving
 	 * media.
 	 */
-	void connected();
+	default void connected() {}
 
 	/**
 	 * Invoked when the WebRTC peer connection is closed and does not send or
 	 * receive media anymore.
 	 */
-	void disconnected();
+	default void disconnected() {}
 
 	/**
 	 * Invoked whenever an error during state handling has occurred. This method

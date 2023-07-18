@@ -302,26 +302,14 @@ public class WebRtcStreamService extends ExecutableBase {
 		janusClient.setJanusStateHandlerListener(new JanusStateHandlerListener() {
 
 			@Override
-			public void connected() {
-
-			}
-
-			@Override
-			public void disconnected() {
-
-			}
-
-			@Override
 			public void error(Throwable throwable) {
 				logException(throwable, "Janus state error");
 
-				if (throwable instanceof JanusHandlerException) {
+				if (throwable instanceof JanusHandlerException handlerException) {
 					Throwable cause = throwable.getCause();
-					var handlerException = (JanusHandlerException) throwable;
 
 					if (handlerException.getType() == Type.PUBLISHER
-							&& cause instanceof JanusPeerConnectionMediaException) {
-						var pcMediaException = (JanusPeerConnectionMediaException) cause;
+							&& cause instanceof JanusPeerConnectionMediaException pcMediaException) {
 
 						context.getEventBus().post(new StreamMediaException(
 								pcMediaException.getMediaType(),

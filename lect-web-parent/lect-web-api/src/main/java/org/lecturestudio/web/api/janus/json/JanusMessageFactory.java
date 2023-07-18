@@ -21,11 +21,13 @@ package org.lecturestudio.web.api.janus.json;
 import static java.util.Objects.isNull;
 import static java.util.Objects.nonNull;
 
+import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
 
 import javax.json.JsonArray;
 import javax.json.JsonObject;
+import javax.json.JsonValue.ValueType;
 import javax.json.bind.Jsonb;
 import javax.ws.rs.NotSupportedException;
 
@@ -49,6 +51,7 @@ import org.lecturestudio.web.api.janus.message.JanusRoomListMessage;
 import org.lecturestudio.web.api.janus.message.JanusRoomPublisherJoinedMessage;
 import org.lecturestudio.web.api.janus.message.JanusRoomPublisherLeftMessage;
 import org.lecturestudio.web.api.janus.message.JanusRoomPublisherUnpublishedMessage;
+import org.lecturestudio.web.api.janus.message.JanusRoomTalkingMessage;
 import org.lecturestudio.web.api.janus.message.JanusSessionSuccessMessage;
 import org.lecturestudio.web.api.janus.message.JanusSessionTimeoutMessage;
 
@@ -132,6 +135,9 @@ public class JanusMessageFactory {
 					case SLOW_LINK:
 						return createRoomSlowLinkMessage(body, data, type);
 
+					case TALKING:
+						return createParticipantTalkingMessage(body, data, type);
+
 					default:
 						throw new NotSupportedException(
 								"Event type not supported: " + responseStr);
@@ -198,9 +204,16 @@ public class JanusMessageFactory {
 
 	private static JanusMessage createSessionSuccessMessage(JsonObject body) {
 		var data = body.getJsonObject("data");
-		var id = data.getJsonNumber("id").bigIntegerValue();
+		BigInteger sessionId;
 
-		JanusSessionSuccessMessage message = new JanusSessionSuccessMessage(id);
+		if (isNull(data)) {
+			sessionId = body.getJsonNumber("session_id").bigIntegerValue();
+		}
+		else {
+			sessionId = data.getJsonNumber("id").bigIntegerValue();
+		}
+
+		JanusSessionSuccessMessage message = new JanusSessionSuccessMessage(sessionId);
 		message.setTransaction(body.getString("transaction"));
 
 		return message;
@@ -410,7 +423,8 @@ public class JanusMessageFactory {
 		else if (data.containsKey("configured")) {
 			return createRoomSuccessMessage(body, data, type);
 		}
-		else if (data.containsKey("leaving")) {
+		else if (data.containsKey("leaving")
+				&& data.get("leaving").getValueType() == ValueType.NUMBER) {
 			return createRoomPublisherLeftMessage(body, data, type);
 		}
 
@@ -437,7 +451,6 @@ public class JanusMessageFactory {
 	private static JanusMessage createPublisherModeratedMessage(JsonObject body,
 			JsonObject data) {
 		var sessionId = body.getJsonNumber("session_id").bigIntegerValue();
-		var handleId = body.getJsonNumber("sender").bigIntegerValue();
 		var roomId = data.getJsonNumber("room").bigIntegerValue();
 		var state = data.getString("moderation");
 		var mid = data.getString("mid");
@@ -542,6 +555,18 @@ public class JanusMessageFactory {
 		JanusRoomSlowLinkMessage message = new JanusRoomSlowLinkMessage(sessionId, handleId);
 		message.setEventType(type);
 		message.setRoomEventType(JanusRoomEventType.SLOW_LINK);
+
+		return message;
+	}
+
+	private static JanusMessage createParticipantTalkingMessage(JsonObject body,
+			JsonObject data, JanusMessageType type) {
+		var sessionId = body.getJsonNumber("session_id").bigIntegerValue();
+		var handleId = body.getJsonNumber("sender").bigIntegerValue();
+		var peerId = body.getJsonNumber("id").bigIntegerValue();
+
+		JanusRoomTalkingMessage message = new JanusRoomTalkingMessage(sessionId, handleId, peerId);
+		message.setEventType(type);
 
 		return message;
 	}

@@ -185,11 +185,6 @@ public class JanusWebSocketClient extends ExecutableBase implements JanusMessage
 
 
 		@Override
-		public void onOpen(WebSocket webSocket) {
-			webSocket.request(1);
-		}
-
-		@Override
 		public void onError(WebSocket socket, Throwable error) {
 			logException(error, "WebSocket error");
 		}

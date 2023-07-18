@@ -45,6 +45,7 @@ import dev.onvoid.webrtc.RTCIceConnectionState;
 import dev.onvoid.webrtc.RTCIceGatheringState;
 import dev.onvoid.webrtc.RTCOfferOptions;
 import dev.onvoid.webrtc.RTCPeerConnection;
+import dev.onvoid.webrtc.RTCPeerConnectionState;
 import dev.onvoid.webrtc.RTCRtpReceiver;
 import dev.onvoid.webrtc.RTCRtpSendParameters;
 import dev.onvoid.webrtc.RTCRtpSender;
@@ -111,6 +112,8 @@ public class JanusPeerConnection implements PeerConnectionObserver {
 
 	private Consumer<RTCIceGatheringState> onIceGatheringState;
 
+	private Consumer<RTCPeerConnectionState> onPeerConnectionState;
+
 	private Consumer<VideoFrame> onLocalVideoFrame;
 	private Consumer<VideoFrame> onRemoteVideoFrame;
 
@@ -147,6 +150,10 @@ public class JanusPeerConnection implements PeerConnectionObserver {
 
 	public void setOnIceConnectionState(Consumer<RTCIceConnectionState> callback) {
 		onIceConnectionState = callback;
+	}
+
+	public void setOnPeerConnectionState(Consumer<RTCPeerConnectionState> callback) {
+		onPeerConnectionState = callback;
 	}
 
 	public void setOnLocalVideoFrame(Consumer<VideoFrame> callback) {
@@ -200,6 +207,13 @@ public class JanusPeerConnection implements PeerConnectionObserver {
 
 			createOffer();
 		}
+	}
+
+	@Override
+	public void onConnectionChange(RTCPeerConnectionState state) {
+		LOGGER.debug("Peer connection state: " + state);
+
+		notify(onPeerConnectionState, state);
 	}
 
 	@Override

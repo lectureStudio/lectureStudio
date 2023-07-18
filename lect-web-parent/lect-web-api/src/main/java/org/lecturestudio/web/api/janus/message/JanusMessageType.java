@@ -49,6 +49,11 @@ public enum JanusMessageType {
 	CREATE("create"),
 
 	/**
+	 * To claim a session, e.g. during a reconnection procedure.
+	 */
+	CLAIM("claim"),
+
+	/**
 	 * If the request is successful.
 	 */
 	SUCCESS("success"),

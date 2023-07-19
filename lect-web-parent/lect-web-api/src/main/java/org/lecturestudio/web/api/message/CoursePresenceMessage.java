@@ -94,4 +94,15 @@ public class CoursePresenceMessage extends UserMessage {
 	public void setCourseParticipantType(CourseParticipantType type) {
 		this.participantType = type;
 	}
+
+	@Override
+	public String toString() {
+		return "CoursePresenceMessage{"
+				+ "coursePresence=" + getCoursePresence()
+				+ ", coursePresenceType=" + getCoursePresenceType()
+				+ ", courseParticipantType=" + getCourseParticipantType()
+				+ ", userId='" + getUserId() + '\''
+				+ ", firstName='" + getFirstName() + '\''
+				+ ", familyName='" + getFamilyName() + '\'' + '}';
+	}
 }

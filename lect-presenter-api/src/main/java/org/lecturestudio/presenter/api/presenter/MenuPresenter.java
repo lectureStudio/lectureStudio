@@ -482,7 +482,7 @@ public class MenuPresenter extends Presenter<MenuView> {
 		view.setStreamingState(ExecutableState.Stopped);
 		view.setQuizState(ExecutableState.Stopped);
 
-		view.bindAttendeesCount(presenterContext.attendeesCountProperty());
+		view.bindCourseParticipantsCount(presenterContext.courseParticipantsCountProperty());
 		view.bindMessageCount(presenterContext.messageCountProperty());
 		view.bindSpeechRequestCount(presenterContext.speechRequestCountProperty());
 

@@ -42,6 +42,7 @@ import org.lecturestudio.core.model.Time;
 import org.lecturestudio.core.view.Action;
 import org.lecturestudio.core.view.ConsumerAction;
 import org.lecturestudio.core.view.PresentationParameter;
+import org.lecturestudio.presenter.api.context.PresenterContext.ParticipantCount;
 import org.lecturestudio.presenter.api.model.Bookmark;
 import org.lecturestudio.presenter.api.model.Bookmarks;
 import org.lecturestudio.presenter.api.model.MessageBarPosition;
@@ -731,10 +732,11 @@ public class SwingMenuView extends JMenuBar implements MenuView {
 	}
 
 	@Override
-	public void bindAttendeesCount(IntegerProperty count) {
+	public void bindCourseParticipantsCount(ObjectProperty<ParticipantCount> count) {
 		count.addListener((observable, oldValue, newValue) -> {
 			SwingUtils.invoke(() -> {
-				streamIndicatorMenu.setText(Integer.toString(newValue));
+				streamIndicatorMenu.setText(String.format("%d + %d",
+						count.get().streamCount(), count.get().classroomCount()));
 			});
 		});
 	}

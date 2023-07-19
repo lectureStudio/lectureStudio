@@ -86,7 +86,6 @@ import org.lecturestudio.web.api.stream.ScreenPresentationViewContext;
 import org.lecturestudio.core.view.SlidePresentationViewContext;
 import org.lecturestudio.web.api.stream.model.CourseParticipant;
 import org.lecturestudio.web.api.stream.model.CoursePresence;
-import org.lecturestudio.web.api.stream.model.CoursePresenceType;
 import org.lecturestudio.web.api.stream.service.StreamProviderService;
 
 import javax.inject.Inject;
@@ -349,25 +348,20 @@ public class SlidesPresenter extends Presenter<SlidesView> {
 	public void onEvent(CoursePresenceMessage message) {
 		PresenterContext presenterContext = (PresenterContext) context;
 
-		if (CoursePresence.isConnected(message.getCoursePresence())) {
-			if (CoursePresenceType.isStream(message.getCoursePresenceType())) {
-				presenterContext.setAttendeesCount(presenterContext.getAttendeesCount() + 1);
-			}
+		var participant = new CourseParticipant(message.getUserId(),
+				message.getFirstName(), message.getFamilyName(),
+				message.getCoursePresenceType(),
+				message.getCourseParticipantType());
 
-			view.addParticipant(new CourseParticipant(message.getUserId(),
-					message.getFirstName(), message.getFamilyName(),
-					message.getCoursePresenceType(),
-					message.getCourseParticipantType()));
+		if (CoursePresence.isConnected(message.getCoursePresence())) {
+			presenterContext.getCourseParticipants().add(participant);
+
+			view.addParticipant(participant);
 		}
 		else {
-			if (CoursePresenceType.isStream(message.getCoursePresenceType())) {
-				presenterContext.setAttendeesCount(presenterContext.getAttendeesCount() - 1);
-			}
+			presenterContext.getCourseParticipants().remove(participant);
 
-			view.removeParticipant(new CourseParticipant(message.getUserId(),
-					message.getFirstName(), message.getFamilyName(),
-					message.getCoursePresenceType(),
-					message.getCourseParticipantType()));
+			view.removeParticipant(participant);
 		}
 	}
 
@@ -650,9 +644,8 @@ public class SlidesPresenter extends Presenter<SlidesView> {
 		Page page = view.getPage();
 		page.removeShape(shape);
 
-		if (shape instanceof TextShape) {
+		if (shape instanceof TextShape textShape) {
 			// TODO: make this generic or remove at all
-			TextShape textShape = (TextShape) shape;
 			textShape.setOnRemove();
 		}
 
@@ -1322,7 +1315,7 @@ public class SlidesPresenter extends Presenter<SlidesView> {
 
 		List<CourseParticipant> participants = spService.getParticipants(courseId);
 
-		ctx.setAttendeesCount(participants.size());
+		ctx.getCourseParticipants().addAll(participants);
 
 		view.setParticipants(participants);
 	}

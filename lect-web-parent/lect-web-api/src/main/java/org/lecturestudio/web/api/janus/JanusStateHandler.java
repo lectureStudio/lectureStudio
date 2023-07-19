@@ -51,6 +51,8 @@ public abstract class JanusStateHandler extends ExecutableBase {
 
 	protected String roomSecret;
 
+	protected String opaqueId;
+
 
 	public JanusStateHandler(JanusPeerConnectionFactory factory,
 			JanusMessageTransmitter transmitter) {
@@ -114,6 +116,16 @@ public abstract class JanusStateHandler extends ExecutableBase {
 		requireNonNull(secret);
 
 		roomSecret = secret;
+	}
+
+	public String getOpaqueId() {
+		return opaqueId;
+	}
+
+	public void setOpaqueId(String id) {
+		requireNonNull(id);
+
+		opaqueId = id;
 	}
 
 	public void setInfo(JanusInfo info) {

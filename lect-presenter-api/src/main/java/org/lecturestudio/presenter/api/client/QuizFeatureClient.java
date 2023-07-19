@@ -33,7 +33,7 @@ import org.lecturestudio.web.api.client.ApiKeyFilter;
 import org.lecturestudio.web.api.client.MultipartBody;
 import org.lecturestudio.web.api.data.bind.ClientJsonMapper;
 
-@Path("/api/publisher")
+@Path("/api/v1/publisher")
 @RegisterProviders({
 		@RegisterProvider(ApiKeyFilter.class),
 		@RegisterProvider(ClientJsonMapper.class)

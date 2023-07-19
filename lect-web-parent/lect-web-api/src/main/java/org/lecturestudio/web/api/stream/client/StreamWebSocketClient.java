@@ -178,6 +178,7 @@ public class StreamWebSocketClient extends ExecutableBase {
 			boolean micEnabled = streamContext.getAudioContext().getSendAudio();
 			boolean screenEnabled = streamContext.getScreenContext().getSendVideo();
 
+			// TODO: move to http api
 			sendMediaChangeAction(StreamActionType.STREAM_CAMERA_CHANGE, camEnabled);
 			sendMediaChangeAction(StreamActionType.STREAM_MICROPHONE_CHANGE, micEnabled);
 			sendMediaChangeAction(StreamActionType.STREAM_SCREEN_SHARE_CHANGE, screenEnabled);

@@ -230,6 +230,7 @@ public class JanusHandler extends JanusStateHandler {
 				});
 
 		setRoomId(BigInteger.valueOf(getStreamContext().getCourse().getId()));
+		setOpaqueId(getStreamContext().getUserInfo().getUserId());
 
 		registerHandler(JanusErrorMessage.class, this::handleError);
 		registerHandler(JanusSessionTimeoutMessage.class, this::handleSessionTimeout);
@@ -355,6 +356,7 @@ public class JanusHandler extends JanusStateHandler {
 				transmitter, eventRecorder);
 		pubHandler.setSessionId(getSessionId());
 		pubHandler.setRoomId(getRoomId());
+		pubHandler.setOpaqueId(getStreamContext().getUserInfo().getUserId());
 		pubHandler.addJanusStateHandlerListener(new JanusStateHandlerListener() {
 
 			@Override
@@ -408,6 +410,7 @@ public class JanusHandler extends JanusStateHandler {
 				peerConnectionFactory, transmitter);
 		subHandler.setSessionId(getSessionId());
 		subHandler.setRoomId(getRoomId());
+		subHandler.setOpaqueId(getStreamContext().getUserInfo().getUserId());
 		subHandler.addJanusStateHandlerListener(new JanusStateHandlerListener() {
 
 			@Override
@@ -425,6 +428,7 @@ public class JanusHandler extends JanusStateHandler {
 				// Propagate "speech published" to passive participants.
 				for (JanusStateHandler handler : handlers) {
 					if (handler instanceof JanusPublisherHandler) {
+						// TODO: move to http api
 						JanusPublisherHandler pubHandler = (JanusPublisherHandler) handler;
 						pubHandler.sendStreamAction(new StreamSpeechPublishedAction(publisher.getId()));
 						break;

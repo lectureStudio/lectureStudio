@@ -48,7 +48,7 @@ import org.lecturestudio.web.api.stream.model.CourseParticipant;
  *
  * @author Alex Andres
  */
-@Path("/api/publisher")
+@Path("/api/v1/publisher")
 @RegisterProviders({
 	@RegisterProvider(ApiKeyFilter.class),
 	@RegisterProvider(JsonConfigProvider.class)

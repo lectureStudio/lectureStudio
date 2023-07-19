@@ -38,7 +38,7 @@ public class AttachPluginState implements JanusState {
 
 	private final JanusState nextState;
 
-	private JanusMessage attachRequest;
+	private JanusPluginAttachMessage attachRequest;
 
 
 	public AttachPluginState(JanusState nextState) {
@@ -49,6 +49,7 @@ public class AttachPluginState implements JanusState {
 	public void initialize(JanusStateHandler handler) {
 		attachRequest = new JanusPluginAttachMessage(handler.getSessionId(), PLUGIN);
 		attachRequest.setTransaction(UUID.randomUUID().toString());
+		attachRequest.setOpaqueId(handler.getOpaqueId());
 
 		handler.sendMessage(attachRequest);
 	}

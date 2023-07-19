@@ -299,11 +299,9 @@ public class SwingSlidesView extends JPanel implements SlidesView {
 
 			for (int i = 0; i < tabCount; i++) {
 				final Component tabComponent = slidesTabPane.getPaneComponentAt(i);
-				if (!(tabComponent instanceof ThumbPanel)) {
+				if (!(tabComponent instanceof ThumbPanel thumbnailPanel)) {
 					continue;
 				}
-
-				ThumbPanel thumbnailPanel = (ThumbPanel) tabComponent;
 
 				if (thumbnailPanel.getDocument().getName().equals(doc.getName())) {
 					// Reload if document has changed.
@@ -346,9 +344,7 @@ public class SwingSlidesView extends JPanel implements SlidesView {
 			thumbPanel.setRenderController(pageRenderer);
 			thumbPanel.setDocument(doc, ppProvider);
 			thumbPanel.addSelectedSlideChangedListener(event -> {
-				if (event.getNewValue() instanceof Page) {
-					Page page = (Page) event.getNewValue();
-
+				if (event.getNewValue() instanceof Page page) {
 					executeAction(selectPageAction, page);
 				}
 			});
@@ -369,11 +365,10 @@ public class SwingSlidesView extends JPanel implements SlidesView {
 
 		// Remove document tab.
 		for (final AdaptiveTab tab : slidesTabPane.getTabs()) {
-			if (!(tab.getComponent() instanceof ThumbPanel)) {
+			if (!(tab.getComponent() instanceof ThumbPanel thumbnailPanel)) {
 				continue;
 			}
 
-			ThumbPanel thumbnailPanel = (ThumbPanel) tab.getComponent();
 			if (thumbnailPanel.getDocument().equals(doc)) {
 				slidesTabPane.removeTab(tab.getLabelText());
 				break;
@@ -384,11 +379,9 @@ public class SwingSlidesView extends JPanel implements SlidesView {
 	private void checkIfThumbSelected() {
 		final Component selectedComponent = getSlidesTabPane().getSelectedComponent();
 
-		if (!(selectedComponent instanceof ThumbPanel)) {
+		if (!(selectedComponent instanceof ThumbPanel thumbPanel)) {
 			return;
 		}
-
-		ThumbPanel thumbPanel = (ThumbPanel) selectedComponent;
 
 		executeAction(selectDocumentAction, thumbPanel.getDocument());
 	}
@@ -404,11 +397,9 @@ public class SwingSlidesView extends JPanel implements SlidesView {
 			for (int i = 0; i < tabCount; i++) {
 				final Component tabComponent = slidesTabPane.getPaneComponentAt(i);
 
-				if (!(tabComponent instanceof ThumbPanel)) {
+				if (!(tabComponent instanceof ThumbPanel thumbnailPanel)) {
 					continue;
 				}
-
-				ThumbPanel thumbnailPanel = (ThumbPanel) tabComponent;
 
 				if (thumbnailPanel.getDocument().getName().equals(doc.getName())) {
 					// Reload if document has changed.
@@ -430,9 +421,9 @@ public class SwingSlidesView extends JPanel implements SlidesView {
 	}
 
 	@Override
-	public void addParticipants(Collection<CourseParticipant> participants) {
+	public void setParticipants(Collection<CourseParticipant> participants) {
 		SwingUtils.invoke(() -> {
-			participantList.addParticipants(participants);
+			participantList.setParticipants(participants);
 		});
 	}
 
@@ -463,8 +454,7 @@ public class SwingSlidesView extends JPanel implements SlidesView {
 
 			// Select page on the thumbnail panel.
 			final Component selectedComponent = getSlidesTabPane().getSelectedComponent();
-			if (selectedComponent instanceof ThumbPanel) {
-				ThumbPanel thumbPanel = (ThumbPanel) selectedComponent;
+			if (selectedComponent instanceof ThumbPanel thumbPanel) {
 				thumbPanel.selectPage(page);
 
 				selectOutlineItem(page);
@@ -572,11 +562,9 @@ public class SwingSlidesView extends JPanel implements SlidesView {
 
 		for (int i = 0; i < slidesTabPane.getPaneTabCount(); i++) {
 			final Component tabComponent = slidesTabPane.getPaneComponentAt(i);
-			if (!(tabComponent instanceof ScreenThumbnailPanel)) {
+			if (!(tabComponent instanceof ScreenThumbnailPanel screenPanel)) {
 				continue;
 			}
-
-			ScreenThumbnailPanel screenPanel = (ScreenThumbnailPanel) tabComponent;
 
 			if (screenPanel.getDocument().getName().equals(document.getName())) {
 				screenPanel.setScreenShareState(state);
@@ -623,8 +611,7 @@ public class SwingSlidesView extends JPanel implements SlidesView {
 				removeMessageView(messageView);
 			});
 
-			if (message instanceof MessengerDirectMessage) {
-				MessengerDirectMessage directMessage = (MessengerDirectMessage) message;
+			if (message instanceof MessengerDirectMessage directMessage) {
 				String recipientId = directMessage.getRecipientId();
 				boolean byMe = Objects.equals(message.getUserId(), myId);
 				boolean toMe = Objects.equals(recipientId, myId);
@@ -681,9 +668,7 @@ public class SwingSlidesView extends JPanel implements SlidesView {
 			participantList.removeSpeechRequest(message);
 
 			for (Component c : messageViewContainer.getComponents()) {
-				if (c instanceof SpeechRequestView) {
-					SpeechRequestView view = (SpeechRequestView) c;
-
+				if (c instanceof SpeechRequestView view) {
 					if (Objects.equals(view.getRequestId(), message.getRequestId())) {
 						view.setCanceled();
 
@@ -754,9 +739,7 @@ public class SwingSlidesView extends JPanel implements SlidesView {
 			}
 			else if (state == ExecutableState.Started) {
 				for (var component : peerViewContainer.getComponents()) {
-					if (component instanceof PeerView) {
-						PeerView peerView = (PeerView) component;
-
+					if (component instanceof PeerView peerView) {
 						if (Objects.equals(peerView.getRequestId(), event.getRequestId())) {
 							peerView.setState(state);
 							peerView.setHasVideo(event.hasVideo());
@@ -1201,11 +1184,9 @@ public class SwingSlidesView extends JPanel implements SlidesView {
 
 	private void removePeerView(UUID requestId) {
 		for (var component : peerViewContainer.getComponents()) {
-			if (!(component instanceof PeerView)) {
+			if (!(component instanceof PeerView peerView)) {
 				continue;
 			}
-
-			PeerView peerView = (PeerView) component;
 
 			if (Objects.equals(peerView.getRequestId(), requestId)) {
 				this.peerView = null;

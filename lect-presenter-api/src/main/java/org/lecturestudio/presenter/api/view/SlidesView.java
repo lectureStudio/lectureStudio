@@ -61,7 +61,7 @@ public interface SlidesView extends View {
 
 	void selectDocument(Document doc, PresentationParameterProvider ppProvider);
 
-	void addParticipants(Collection<CourseParticipant> participants);
+	void setParticipants(Collection<CourseParticipant> participants);
 
 	void addParticipant(CourseParticipant participant);
 

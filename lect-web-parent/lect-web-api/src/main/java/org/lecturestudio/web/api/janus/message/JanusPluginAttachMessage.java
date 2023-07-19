@@ -20,6 +20,8 @@ package org.lecturestudio.web.api.janus.message;
 
 import java.math.BigInteger;
 
+import javax.json.bind.annotation.JsonbProperty;
+
 /**
  * Plugin message to perform plugin related requests with the Janus WebRTC
  * Server. The plugin message builds up on the {@link JanusSessionMessage}. The
@@ -33,6 +35,9 @@ import java.math.BigInteger;
 public class JanusPluginAttachMessage extends JanusSessionMessage {
 
 	private final String plugin;
+
+	@JsonbProperty("opaque_id")
+	private String opaqueId;
 
 
 	/**
@@ -56,5 +61,14 @@ public class JanusPluginAttachMessage extends JanusSessionMessage {
 	 */
 	public String getPluginName() {
 		return plugin;
+	}
+
+	/**
+	 * Set the opaque ID to correlate it to handles and events.
+	 *
+	 * @param id The unique opaque ID.
+	 */
+	public void setOpaqueId(String id) {
+		opaqueId = id;
 	}
 }

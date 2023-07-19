@@ -262,6 +262,14 @@ public class SlidesPresenter extends Presenter<SlidesView> {
 	}
 
 	@Subscribe
+	public void onEvent(final StreamReconnectStateEvent event) {
+		if (event.stopped()) {
+			// Update state on successful reconnection.
+			loadParticipants();
+		}
+	}
+
+	@Subscribe
 	public void onEvent(final ScreenShareStateEvent event) {
 		PresenterContext ctx = (PresenterContext) context;
 		PresentationViewContext viewContext = null;
@@ -1312,7 +1320,11 @@ public class SlidesPresenter extends Presenter<SlidesView> {
 		StreamProviderService spService = new StreamProviderService(parameters,
 				config.getStreamConfig()::getAccessToken);
 
-		view.addParticipants(spService.getParticipants(courseId));
+		List<CourseParticipant> participants = spService.getParticipants(courseId);
+
+		ctx.setAttendeesCount(participants.size());
+
+		view.setParticipants(participants);
 	}
 
 

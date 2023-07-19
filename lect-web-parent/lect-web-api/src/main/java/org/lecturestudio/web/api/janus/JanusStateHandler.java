@@ -158,6 +158,12 @@ public abstract class JanusStateHandler extends ExecutableBase {
 		}
 	}
 
+	protected void setFailed() {
+		for (JanusStateHandlerListener listener : listeners) {
+			listener.failed();
+		}
+	}
+
 	protected void setError(Throwable throwable) {
 		for (JanusStateHandlerListener listener : listeners) {
 			listener.error(throwable);

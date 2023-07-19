@@ -68,8 +68,11 @@ public class JanusSubscriberHandler extends JanusStateHandler {
 					break;
 
 				case DISCONNECTED:
-				case CLOSED:
 					setDisconnected();
+					break;
+
+				case FAILED:
+					setFailed();
 					break;
 			}
 		});

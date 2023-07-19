@@ -280,7 +280,7 @@ public class WebSocketStompTransport extends ExecutableBase implements MessageTr
 					logException(e, "Stop STOMP client failed");
 				}
 
-				// Start recover process.
+				// Start recovery process.
 				try {
 					clientFailover.start();
 				}

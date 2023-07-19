@@ -18,6 +18,7 @@
 
 package org.lecturestudio.web.api.stream.client;
 
+import static java.util.Objects.nonNull;
 import static java.util.Objects.requireNonNull;
 
 import java.io.IOException;
@@ -36,6 +37,7 @@ import org.lecturestudio.core.ExecutableException;
 import org.lecturestudio.core.ExecutableState;
 import org.lecturestudio.core.ExecutableStateListener;
 import org.lecturestudio.core.beans.ChangeListener;
+import org.lecturestudio.web.api.client.ClientFailover;
 import org.lecturestudio.web.api.net.SSLContextFactory;
 import org.lecturestudio.web.api.service.ServiceParameters;
 import org.lecturestudio.web.api.stream.StreamContext;
@@ -66,6 +68,8 @@ public class StreamWebSocketClient extends ExecutableBase {
 
 	private final StreamEventRecorder eventRecorder;
 
+	private final ClientFailover clientFailover;
+
 	private ChangeListener<Boolean> enableMicListener;
 
 	private ChangeListener<Boolean> enableCamListener;
@@ -86,6 +90,8 @@ public class StreamWebSocketClient extends ExecutableBase {
 		this.headerProvider = headerProvider;
 		this.streamContext = streamContext;
 		this.eventRecorder = eventRecorder;
+		this.clientFailover = new ClientFailover();
+		this.clientFailover.addExecutable(getReconnectExecutable());
 
 		actionConsumer = this::send;
 		recStateConsumer = this::onRecorderState;
@@ -134,10 +140,7 @@ public class StreamWebSocketClient extends ExecutableBase {
 		streamContext.getVideoContext().sendVideoProperty().removeListener(enableCamListener);
 		streamContext.getScreenContext().sendVideoProperty().removeListener(enableScreenListener);
 
-		if (!webSocket.isOutputClosed()) {
-			webSocket.sendClose(WebSocket.NORMAL_CLOSURE, "disconnect").join();
-			webSocket.abort();
-		}
+		closeWebsocket();
 	}
 
 	@Override
@@ -159,6 +162,13 @@ public class StreamWebSocketClient extends ExecutableBase {
 		webSocket = webSocketBuilder.buildAsync(
 				URI.create(serviceParameters.getUrl()), new WebSocketHandler())
 				.join();
+	}
+
+	private void closeWebsocket() {
+		if (nonNull(webSocket) && !webSocket.isOutputClosed()) {
+			webSocket.sendClose(WebSocket.NORMAL_CLOSURE, "disconnect").join();
+			webSocket.abort();
+		}
 	}
 
 	private void onRecorderState(ExecutableState oldState, ExecutableState newState) {
@@ -192,7 +202,7 @@ public class StreamWebSocketClient extends ExecutableBase {
 	private class Reconnect extends ExecutableBase {
 
 		@Override
-		protected void initInternal() throws ExecutableException {
+		protected void initInternal() {
 
 		}
 
@@ -208,22 +218,57 @@ public class StreamWebSocketClient extends ExecutableBase {
 
 		@Override
 		protected void stopInternal() throws ExecutableException {
-
+			try {
+				closeWebsocket();
+			}
+			catch (Throwable e) {
+				throw new ExecutableException(e);
+			}
 		}
 
 		@Override
-		protected void destroyInternal() throws ExecutableException {
+		protected void destroyInternal() {
 
 		}
 	}
 
 
 
-	private static class WebSocketHandler extends WebSocketClientHandler {
+	private class WebSocketHandler extends WebSocketClientHandler {
 
 		@Override
 		protected void onText(WebSocket webSocket, String text) {
 
+		}
+
+		@Override
+		public void onOpen(WebSocket webSocket) {
+			super.onOpen(webSocket);
+
+			// Reconnection not needed anymore, if recovery previously startet.
+			if (clientFailover.started()) {
+				try {
+					clientFailover.stop();
+				}
+				catch (ExecutableException e) {
+					logException(e, "Stop connection failover failed");
+				}
+			}
+		}
+
+		@Override
+		public void onError(WebSocket webSocket, Throwable error) {
+			super.onError(webSocket, error);
+
+			if (started()) {
+				// Start recovery process.
+				try {
+					clientFailover.start();
+				}
+				catch (ExecutableException e) {
+					logException(e, "Start connection failover failed");
+				}
+			}
 		}
 	}
 }

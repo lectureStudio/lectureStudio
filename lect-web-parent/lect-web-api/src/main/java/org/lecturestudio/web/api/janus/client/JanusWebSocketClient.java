@@ -37,6 +37,7 @@ import javax.json.Json;
 import javax.json.JsonObject;
 import javax.json.bind.Jsonb;
 import javax.json.bind.JsonbBuilder;
+import javax.ws.rs.NotSupportedException;
 
 import org.lecturestudio.core.ExecutableBase;
 import org.lecturestudio.core.ExecutableException;
@@ -115,6 +116,11 @@ public class JanusWebSocketClient extends ExecutableBase implements JanusMessage
 
 	@Override
 	public void sendMessage(JanusMessage message) {
+		if (webSocket.isOutputClosed()) {
+			logDebugMessage("Could not send message. Websocket is closed.");
+			return;
+		}
+
 		String messageTxt = jsonb.toJson(message);
 
 		logTraceMessage("WebSocket ->: {0}", messageTxt);
@@ -186,7 +192,7 @@ public class JanusWebSocketClient extends ExecutableBase implements JanusMessage
 
 		@Override
 		public void onError(WebSocket socket, Throwable error) {
-			logException(error, "WebSocket error");
+			logException(error, "Janus websocket error");
 		}
 
 		@Override
@@ -207,6 +213,10 @@ public class JanusWebSocketClient extends ExecutableBase implements JanusMessage
 					JanusMessage message = JanusMessageFactory.createMessage(jsonb, body, type);
 
 					handler.handleMessage(message);
+				}
+				catch (NotSupportedException e) {
+					logDebugMessage("Received unsupported message");
+					logDebugMessage(buffer.toString());
 				}
 				catch (NoSuchElementException e) {
 					logException(e, "Non existing Janus event type received");

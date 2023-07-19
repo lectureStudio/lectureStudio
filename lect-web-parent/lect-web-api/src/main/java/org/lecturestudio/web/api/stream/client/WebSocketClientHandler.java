@@ -61,7 +61,7 @@ public abstract class WebSocketClientHandler extends TimerTask implements Listen
 	public void onError(WebSocket webSocket, Throwable error) {
 		stopHeartBeat();
 
-		LOG.error("WebSocket error", error);
+		LOG.error("WebSocket error: " + error.getMessage());
 	}
 
 	@Override

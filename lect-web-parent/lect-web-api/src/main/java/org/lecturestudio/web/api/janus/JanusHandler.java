@@ -373,8 +373,13 @@ public class JanusHandler extends JanusStateHandler {
 
 			@Override
 			public void disconnected() {
+				setDisconnected();
+			}
+
+			@Override
+			public void failed() {
 				if (started()) {
-					// Upon unexpected disruption start recover process.
+					// Upon unexpected disruption start recovery process.
 					try {
 						clientFailover.start();
 					}

@@ -101,8 +101,13 @@ public class JanusPublisherHandler extends JanusStateHandler {
 					break;
 
 				case DISCONNECTED:
-				case CLOSED:
+					// Do not panic, yet. There is a chance to claim the connection.
 					setDisconnected();
+					break;
+
+				case FAILED:
+					// Requires a new connection setup.
+					setFailed();
 					break;
 			}
 		});

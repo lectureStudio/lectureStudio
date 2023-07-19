@@ -139,9 +139,6 @@ public class WebRtcStreamService extends ExecutableBase {
 		this.eventRecorder = eventRecorder;
 		this.recordingService = recordingService;
 		this.clientFailover = new ClientFailover();
-		this.clientFailover.addStateListener((oldState, newState) -> {
-			context.getEventBus().post(new StreamReconnectStateEvent(newState));
-		});
 
 		eventRecorder.init();
 	}
@@ -302,6 +299,16 @@ public class WebRtcStreamService extends ExecutableBase {
 		janusClient.setJanusStateHandlerListener(new JanusStateHandlerListener() {
 
 			@Override
+			public void connected() {
+				setReconnectionState(ExecutableState.Stopped);
+			}
+
+			@Override
+			public void disconnected() {
+				setReconnectionState(ExecutableState.Started);
+			}
+
+			@Override
 			public void error(Throwable throwable) {
 				logException(throwable, "Janus state error");
 
@@ -316,6 +323,10 @@ public class WebRtcStreamService extends ExecutableBase {
 								pcMediaException));
 					}
 				}
+			}
+
+			private void setReconnectionState(ExecutableState state) {
+				context.getEventBus().post(new StreamReconnectStateEvent(state));
 			}
 		});
 

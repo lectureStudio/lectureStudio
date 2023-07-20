@@ -298,13 +298,29 @@ public class WebRtcStreamService extends ExecutableBase {
 		janusClient = createJanusClient(streamContext);
 		janusClient.setJanusStateHandlerListener(new JanusStateHandlerListener() {
 
+			private boolean hasFailed = false;
+
+
 			@Override
 			public void connected() {
 				setReconnectionState(ExecutableState.Stopped);
+
+				if (hasFailed) {
+					streamProviderService.restartedStream(course.getId());
+				}
+
+				hasFailed = false;
 			}
 
 			@Override
 			public void disconnected() {
+				setReconnectionState(ExecutableState.Started);
+			}
+
+			@Override
+			public void failed() {
+				hasFailed = true;
+
 				setReconnectionState(ExecutableState.Started);
 			}
 

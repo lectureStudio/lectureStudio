@@ -99,11 +99,13 @@ public class StreamProviderService extends ProviderService {
 	 * Gets a list of all participants in an active courses.
 	 *
 	 * @param courseId The unique course ID.
+	 *
 	 * @return A list of all participants in an active courses.
 	 */
 	@GET
 	@Path("/participants/{courseId}")
-	public List<CourseParticipant> getParticipants(@PathParam("courseId") long courseId) {
+	public List<CourseParticipant> getParticipants(
+			@PathParam("courseId") long courseId) {
 		return streamRestClient.getParticipants(courseId);
 	}
 
@@ -144,5 +146,15 @@ public class StreamProviderService extends ProviderService {
 	 */
 	public void setCourseRecordingState(long courseId, boolean recorded) {
 		streamRestClient.setCourseRecordingState(courseId, recorded);
+	}
+
+	/**
+	 * Notify course participants that a course stream has been restarted. The
+	 * restart may have been caused due to an interrupted connection.
+	 *
+	 * @param courseId The unique course ID of the course that was restarted.
+	 */
+	public void restartedStream(long courseId) {
+		streamRestClient.restartedStream(courseId);
 	}
 }

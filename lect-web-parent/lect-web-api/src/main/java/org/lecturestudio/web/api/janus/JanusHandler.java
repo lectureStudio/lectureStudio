@@ -390,7 +390,7 @@ public class JanusHandler extends JanusStateHandler {
 					}
 				}
 
-				setDisconnected();
+				setFailed();
 			}
 
 			@Override

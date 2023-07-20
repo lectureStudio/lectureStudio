@@ -44,7 +44,8 @@ import org.lecturestudio.web.api.stream.model.CourseParticipant;
 
 /**
  * Streaming API REST client implementation. The user must be authenticated with
- * a token to the API.
+ * a token to the API. This client implements course related signaling between
+ * publishers and other course participants.
  *
  * @author Alex Andres
  */
@@ -66,9 +67,10 @@ public interface StreamRestClient {
 	UserInfo getUserInfo();
 
 	/**
-	 * Get privileges for the authenticated user.
+	 * Get privileges for the registered course user.
 	 *
-	 * @param courseId The unique course ID.
+	 * @param courseId The unique course ID of the course of which to retrieve
+	 *                 the privileges.
 	 *
 	 * @return The user privileges.
 	 */
@@ -78,20 +80,20 @@ public interface StreamRestClient {
 	UserPrivileges getUserPrivileges(@PathParam("courseId") long courseId);
 
 	/**
-	 * Gets a list of all courses associated with a user.
+	 * Gets a list of all courses associated with the authenticated user.
 	 *
-	 * @return A list of all courses associated with a user.
+	 * @return A list of all courses.
 	 */
 	@GET
 	@Path("/courses")
 	List<Course> getCourses();
 
 	/**
-	 * Gets a list of all participants in an active courses.
+	 * Gets a list of all participants in an active course.
 	 *
 	 * @param courseId The unique course ID.
 	 *
-	 * @return A list of all participants in an active courses.
+	 * @return A list of all participants in an active course.
 	 */
 	@GET
 	@Path("/participants/{courseId}")
@@ -111,7 +113,7 @@ public interface StreamRestClient {
 	String uploadFile(@MultipartForm MultipartBody data);
 
 	/**
-	 * Accept a speech request with the corresponding ID.
+	 * Accept a speech request with the corresponding request ID.
 	 *
 	 * @param requestId The request ID.
 	 */
@@ -120,7 +122,7 @@ public interface StreamRestClient {
 	void acceptSpeechRequest(@PathParam("requestId") UUID requestId);
 
 	/**
-	 * Reject a speech request with the corresponding ID.
+	 * Reject a speech request with the corresponding request ID.
 	 *
 	 * @param requestId The request ID.
 	 */
@@ -128,9 +130,25 @@ public interface StreamRestClient {
 	@Path("/speech/reject/{requestId}")
 	void rejectSpeechRequest(@PathParam("requestId") UUID requestId);
 
+	/**
+	 * Notify course participants whether a course is being recorded or not.
+	 *
+	 * @param courseId The unique course ID.
+	 * @param recorded True if the course is being recorded.
+	 */
 	@POST
 	@Path("/course/recorded/{courseId}/{recorded}")
 	void setCourseRecordingState(@PathParam("courseId") long courseId,
 			@PathParam("recorded") boolean recorded);
+
+	/**
+	 * Notify course participants that a course stream has been restarted. The
+	 * restart may have been caused due to an interrupted connection.
+	 *
+	 * @param courseId The unique course ID of the course that was restarted.
+	 */
+	@POST
+	@Path("/stream/restart/{courseId}")
+	void restartedStream(@PathParam("courseId") long courseId);
 
 }

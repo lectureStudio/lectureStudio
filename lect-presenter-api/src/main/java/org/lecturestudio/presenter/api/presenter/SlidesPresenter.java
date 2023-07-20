@@ -354,6 +354,8 @@ public class SlidesPresenter extends Presenter<SlidesView> {
 				message.getCourseParticipantType());
 
 		if (CoursePresence.isConnected(message.getCoursePresence())) {
+			presenterContext.getCourseParticipants().removeIf(
+					p -> p.getUserId().equals(participant.getUserId()));
 			presenterContext.getCourseParticipants().add(participant);
 
 			view.addParticipant(participant);

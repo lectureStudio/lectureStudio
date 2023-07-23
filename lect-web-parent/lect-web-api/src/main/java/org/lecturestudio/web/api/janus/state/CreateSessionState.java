@@ -47,7 +47,9 @@ public class CreateSessionState implements JanusState {
 
 	@Override
 	public void handleMessage(JanusStateHandler handler, JanusMessage message) {
-		checkTransaction(createRequest, message);
+		if (!createRequest.getTransaction().equals(message.getTransaction())) {
+			return;
+		}
 
 		if (message instanceof JanusSessionSuccessMessage) {
 			JanusSessionSuccessMessage success = (JanusSessionSuccessMessage) message;

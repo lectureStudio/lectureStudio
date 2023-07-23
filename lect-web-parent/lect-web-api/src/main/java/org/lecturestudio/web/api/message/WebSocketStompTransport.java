@@ -38,6 +38,8 @@ import java.util.function.Consumer;
 
 public class WebSocketStompTransport extends ExecutableBase implements MessageTransport {
 
+	private static final int HEARTBEAT_MS = 1000;
+
 	private final Map<Class<? extends WebMessage>, List<Consumer<WebMessage>>> listenerMap;
 
 	private final Course course;
@@ -108,7 +110,7 @@ public class WebSocketStompTransport extends ExecutableBase implements MessageTr
 			stompClient = new WebSocketStompClient(standardClient);
 			stompClient.setMessageConverter(new MappingJackson2MessageConverter());
 			stompClient.setTaskScheduler(new ConcurrentTaskScheduler());
-			stompClient.setDefaultHeartbeat(new long[] { 25000, 25000 });
+			stompClient.setDefaultHeartbeat(new long[] { HEARTBEAT_MS, HEARTBEAT_MS });
 
 			connect();
 		}
@@ -154,7 +156,7 @@ public class WebSocketStompTransport extends ExecutableBase implements MessageTr
 
 		StompHeaders stompHeaders = new StompHeaders();
 		stompHeaders.add("courseId", course.getId().toString());
-		stompHeaders.setHeartbeat(new long[] { 25000, 25000 });
+		stompHeaders.setHeartbeat(new long[] { HEARTBEAT_MS, HEARTBEAT_MS });
 
 		MessengerStompSessionHandler sessionHandler = new MessengerStompSessionHandler(course, jsonb, listenerMap);
 

@@ -77,6 +77,8 @@ public class JanusHandler extends JanusStateHandler {
 
 	private Consumer<UUID> rejectedConsumer;
 
+	private boolean hasFailed = false;
+
 
 	public JanusHandler(JanusMessageTransmitter transmitter,
 			StreamContext streamContext, StreamEventRecorder eventRecorder) {
@@ -241,7 +243,10 @@ public class JanusHandler extends JanusStateHandler {
 
 	@Override
 	protected void stopInternal() throws ExecutableException {
-		setState(new DestroyRoomState());
+		if (!hasFailed) {
+			// Destroy room only in stable state.
+			setState(new DestroyRoomState());
+		}
 
 		for (JanusStateHandler handler : handlers) {
 			handler.destroy();
@@ -366,6 +371,8 @@ public class JanusHandler extends JanusStateHandler {
 
 			@Override
 			public void failed() {
+				hasFailed = true;
+
 				setFailed();
 			}
 

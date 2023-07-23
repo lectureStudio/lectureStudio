@@ -28,6 +28,8 @@ import java.net.http.WebSocket.Builder;
 import java.net.http.WebSocket.Listener;
 import java.time.Duration;
 import java.time.temporal.ChronoUnit;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.UUID;
 import java.util.concurrent.CompletionStage;
@@ -41,6 +43,7 @@ import javax.ws.rs.NotSupportedException;
 
 import org.lecturestudio.core.ExecutableBase;
 import org.lecturestudio.core.ExecutableException;
+import org.lecturestudio.core.ExecutableState;
 import org.lecturestudio.web.api.data.bind.JsonConfigProvider;
 import org.lecturestudio.web.api.janus.JanusHandler;
 import org.lecturestudio.web.api.janus.JanusMessageTransmitter;
@@ -66,6 +69,8 @@ public class JanusWebSocketClient extends ExecutableBase implements JanusMessage
 	private final StreamContext streamContext;
 
 	private final StreamEventRecorder eventRecorder;
+
+	private final List<JanusMessage> bufferedMessages = new ArrayList<>();
 
 	private WebSocket webSocket;
 
@@ -111,6 +116,10 @@ public class JanusWebSocketClient extends ExecutableBase implements JanusMessage
 
 	@Override
 	public void sendMessage(JanusMessage message) {
+		if (getState() != ExecutableState.Starting && getState() != ExecutableState.Started) {
+			bufferedMessages.add(message);
+			return;
+		}
 		if (webSocket.isOutputClosed()) {
 			logDebugMessage("Could not send message. Websocket is closed.");
 			return;
@@ -154,6 +163,11 @@ public class JanusWebSocketClient extends ExecutableBase implements JanusMessage
 			handler.setRejectedConsumer(rejectedConsumer);
 			handler.init();
 			handler.start();
+
+			if (!bufferedMessages.isEmpty()) {
+				bufferedMessages.forEach(this::sendMessage);
+				bufferedMessages.clear();
+			}
 		}
 		catch (Throwable e) {
 			throw new ExecutableException(e);

@@ -314,8 +314,6 @@ public class WebRtcStreamService extends ExecutableBase {
 
 			@Override
 			public void connected() {
-				System.out.println("stream service connected");
-
 				if (clientFailover.started()) {
 					try {
 						clientFailover.stop();
@@ -331,8 +329,6 @@ public class WebRtcStreamService extends ExecutableBase {
 
 			@Override
 			public void disconnected() {
-				System.out.println("stream service disconnected");
-
 				if (started()) {
 					setReconnectionState(ExecutableState.Started);
 				}
@@ -340,8 +336,6 @@ public class WebRtcStreamService extends ExecutableBase {
 
 			@Override
 			public void failed() {
-				System.out.println("stream service failed");
-
 				hasFailed = true;
 
 				if (started()) {
@@ -357,8 +351,6 @@ public class WebRtcStreamService extends ExecutableBase {
 
 			@Override
 			public void error(Throwable throwable) {
-				System.out.println("stream service error");
-
 				logException(throwable, "Janus state error");
 
 				if (throwable instanceof JanusHandlerException handlerException) {

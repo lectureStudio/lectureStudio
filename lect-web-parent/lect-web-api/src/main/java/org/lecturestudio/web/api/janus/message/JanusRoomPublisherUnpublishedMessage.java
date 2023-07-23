@@ -21,7 +21,7 @@ package org.lecturestudio.web.api.janus.message;
 import java.math.BigInteger;
 
 /**
- * Event message received when an publisher has unpublished streams in the
+ * Event message received when a publisher has unpublished streams in the
  * room.
  *
  * @author Alex Andres

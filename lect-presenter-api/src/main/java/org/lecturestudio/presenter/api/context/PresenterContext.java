@@ -18,6 +18,8 @@
 
 package org.lecturestudio.presenter.api.context;
 
+import static java.util.Objects.isNull;
+
 import java.io.File;
 import java.util.List;
 import java.util.Set;
@@ -119,6 +121,10 @@ public class PresenterContext extends ApplicationContext {
 			int classroomCount = 0;
 
 			for (CourseParticipant participant : set) {
+				if (isNull(participant.getPresenceType())) {
+					continue;
+				}
+
 				switch (participant.getPresenceType()) {
 					case STREAM -> streamCount++;
 					case CLASSROOM -> classroomCount++;

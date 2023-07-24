@@ -585,4 +585,13 @@ public class AdaptiveTabbedPane extends JComponent {
 			noTabsEnabled();
 		}
 	}
+
+	/**
+	 * Opens the tab with the given index
+	 *
+	 * @param index Position of the tab in the tabbar
+	 */
+    public void setSelectedIndex(int index) {
+		tabbedPane.setSelectedIndex(index);
+    }
 }

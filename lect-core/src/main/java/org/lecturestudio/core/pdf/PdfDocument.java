@@ -339,4 +339,13 @@ public class PdfDocument {
 			shapes = new HashMap<>();
 		}
 	}
+	/**
+	 * Get the PDFBox Document.
+	 *
+	 * @return The PDFBox Document
+	 */
+
+	public PDFBoxDocument getPdfBoxDocument() {
+		return pdfBoxDocument;
+	}
 }

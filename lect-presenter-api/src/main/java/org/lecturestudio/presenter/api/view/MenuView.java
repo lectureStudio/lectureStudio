@@ -102,6 +102,10 @@ public interface MenuView extends View {
 
 	void setOnExternalSpeech(ConsumerAction<Boolean> action);
 
+	void setExternalNotes(boolean selected, boolean show);
+
+	void setOnExternalNotes(ConsumerAction<Boolean> action);
+
 	void setOnMessagesPositionLeft(Action action);
 
 	void setMessagesPositionLeft();
@@ -113,6 +117,15 @@ public interface MenuView extends View {
 	void setOnMessagesPositionRight(Action action);
 
 	void setMessagesPositionRight();
+
+	void setOnNotesPositionLeft(Action action);
+
+	void setNotesPositionLeft();
+
+	void setOnNotesPositionBottom(Action action);
+
+	void setNotesPositionBottom();
+
 
 	void setOnParticipantsPositionLeft(Action action);
 

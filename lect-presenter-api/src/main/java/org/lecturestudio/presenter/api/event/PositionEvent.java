@@ -19,17 +19,28 @@
 package org.lecturestudio.presenter.api.event;
 
 import org.lecturestudio.presenter.api.model.MessageBarPosition;
+import org.lecturestudio.presenter.api.model.NoteBarPosition;
 
 public abstract class PositionEvent {
 
-	private final MessageBarPosition position;
+	private MessageBarPosition messageBarPosition;
+
+	private NoteBarPosition noteBarPosition;
 
 
-	public PositionEvent(MessageBarPosition position) {
-		this.position = position;
+	public PositionEvent(MessageBarPosition messageBarPosition) {
+		this.messageBarPosition = messageBarPosition;
 	}
 
-	public MessageBarPosition getPosition() {
-		return position;
+	public PositionEvent(NoteBarPosition noteBarPosition){
+		this.noteBarPosition = noteBarPosition;
+	}
+
+	public MessageBarPosition getMessageBarPosition() {
+		return messageBarPosition;
+	}
+
+	public NoteBarPosition getNoteBarPosition(){
+		return noteBarPosition;
 	}
 }

@@ -4,8 +4,8 @@
 		<SplitPane id="tabSplitPane" dividerSize="10" resizeWeight="1" orientation="JSplitPane.HORIZONTAL_SPLIT" constraints="BorderLayout.CENTER">
 			<SplitPane id="notesSplitPane" dividerSize="10" resizeWeight="1" orientation="JSplitPane.VERTICAL_SPLIT">
 				<SplitPane id="docSplitPane" dividerSize="10" resizeWeight="0" focusable="false" orientation="JSplitPane.HORIZONTAL_SPLIT">
-					<AdaptiveTabbedPane id="leftTabPane" tabPlacement="JTabbedPane.LEFT" defaultTabType="AdaptiveTabType.PARTICIPANTS">
-						<Tab id="participantsTab" name="participants" text="slides.participants" icon="participants.svg, 18">
+					<AdaptiveTabbedPane id="leftTabPane" tabPlacement="JTabbedPane.LEFT" >
+						<Tab id="participantsTab" name="participants" text="slides.participants" icon="participants.svg, 18" defaultTabType="AdaptiveTabType.PARTICIPANTS">
 							<ParticipantList id="participantList" />
 						</Tab>
 						<Tab id="outlineTab" name="outline" text="menu.contents">
@@ -19,8 +19,8 @@
 					<SlideView id="slideView" />
 				</SplitPane>
 
-				<AdaptiveTabbedPane id="bottomTabPane" tabPlacement="JTabbedPane.BOTTOM" defaultTabType="AdaptiveTabType.MESSAGE">
-					<Tab id="messageTab" name="message" text="slides.messages" icon="messenger-indicator.svg, 20">
+				<AdaptiveTabbedPane id="bottomTabPane" tabPlacement="JTabbedPane.BOTTOM" >
+					<Tab id="messageTab" name="message" text="slides.messages" icon="messenger-indicator.svg, 20" defaultTabType="AdaptiveTabType.MESSAGE">
 						<Panel layout="BorderLayout">
 							<HBox id="messageSendPanel" constraints="BorderLayout.NORTH">
 								<TextField id="messageTextField" text="" />
@@ -29,6 +29,15 @@
 							<Panel id="messagesPanel" layout="BorderLayout">
 								<ScrollPane id="messagesPane" constraints="BorderLayout.CENTER">
 									<VBox id="messageViewContainer" border="EmptyBorder(5, 5, 5, 5)" />
+								</ScrollPane>
+							</Panel>
+						</Panel>
+					</Tab>
+					<Tab id="notesTab" name="notes" text="slides.notes" icon="notes.svg, 20" defaultTabType="AdaptiveTabType.NOTES">
+						<Panel layout="BorderLayout">
+							<Panel id="notesPanel" layout="BorderLayout">
+								<ScrollPane id="notesPane" constraints="BorderLayout.CENTER">
+									<VBox id="notesViewContainer" border="EmptyBorder(5, 5, 5, 5)" />
 								</ScrollPane>
 							</Panel>
 						</Panel>

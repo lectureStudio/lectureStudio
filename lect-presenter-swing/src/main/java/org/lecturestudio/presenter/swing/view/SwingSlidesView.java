@@ -58,6 +58,7 @@ import org.lecturestudio.core.model.DocumentOutlineItem;
 import org.lecturestudio.core.model.Page;
 import org.lecturestudio.core.view.*;
 import org.lecturestudio.core.view.Action;
+import org.lecturestudio.presenter.api.model.NoteBarPosition;
 import org.lecturestudio.presenter.api.model.MessageBarPosition;
 import org.lecturestudio.presenter.api.config.SlideViewConfiguration;
 import org.lecturestudio.presenter.api.service.UserPrivilegeService;
@@ -101,6 +102,8 @@ public class SwingSlidesView extends JPanel implements SlidesView {
 
 	private static final String SPEECH_LABEL_KEY = "slides.speech";
 
+	private static final String NOTES_LABEL_KEY = "slides.notes";
+
 	private static final String CURRENTLY_NO_SPEECH_LABEL_KEY = "slides.currently.no.speech";
 
 	private static final String MENU_LABEL_KEY = "menu.contents";
@@ -137,6 +140,8 @@ public class SwingSlidesView extends JPanel implements SlidesView {
 
 	private ConsumerAction<Dimension> externalMessagesSizeChangedAction;
 
+	private ConsumerAction<Dimension> externalNotesSizeChangedAction;
+
 	private Action externalMessagesClosedAction;
 
 	private ConsumerAction<ExternalWindowPosition> externalParticipantsPositionChangedAction;
@@ -156,6 +161,10 @@ public class SwingSlidesView extends JPanel implements SlidesView {
 	private ConsumerAction<Dimension> externalSpeechSizeChangedAction;
 
 	private Action externalSpeechClosedAction;
+
+	private ConsumerAction<ExternalWindowPosition> externalNotesPositionChangedAction;
+
+	private Action externalNotesClosedAction;
 
 	private Action newPageAction;
 
@@ -203,11 +212,17 @@ public class SwingSlidesView extends JPanel implements SlidesView {
 
 	private JScrollPane messagesPane;
 
+	private JScrollPane notesPane;
+
 	private Box messageViewContainer;
+
+	private Box notesViewContainer;
 
 	private AdaptiveTabbedPane bottomTabPane;
 
 	private JPanel messagesPanel;
+
+	private JPanel notesPanel;
 
 	private Box messageSendPanel;
 
@@ -225,7 +240,11 @@ public class SwingSlidesView extends JPanel implements SlidesView {
 
 	private ExternalFrame externalSpeechFrame;
 
+	private ExternalFrame externalNotesFrame;
+
 	private final JScrollPane externalMessagesPane = new JScrollPane();
+
+	private final JScrollPane externalNotesPane = new JScrollPane();
 
 	private double oldDocSplitPaneDividerRatio = 0.15;
 
@@ -240,6 +259,7 @@ public class SwingSlidesView extends JPanel implements SlidesView {
 	private final AdaptiveTabbedPane externalSlidePreviewTabPane = new AdaptiveTabbedPane(SwingConstants.RIGHT);
 
 	private MessageBarPosition messageBarPosition = MessageBarPosition.BOTTOM;
+	private NoteBarPosition notesBarPosition = NoteBarPosition.BOTTOM;
 	private MessageBarPosition participantsPosition = MessageBarPosition.LEFT;
 	private MessageBarPosition previewPosition = MessageBarPosition.RIGHT;
 
@@ -593,6 +613,27 @@ public class SwingSlidesView extends JPanel implements SlidesView {
 	}
 
 	@Override
+	public void setNotesText(String notesText){
+		SwingUtils.invoke(() -> {
+			AdaptiveTabbedPane currentPane;
+
+			switch (notesBarPosition){
+				case BOTTOM -> currentPane = bottomTabPane;
+				case LEFT -> currentPane = leftTabPane;
+				default -> currentPane = bottomTabPane;
+			}
+
+			int tabPos = currentPane.getPaneSelectedIndex();
+			NotesView notesView = ViewUtil.createNotesView(NotesView.class, dict);
+			notesView.setNote(notesText);
+			notesView.doLayout();
+
+			addNoteView(notesView);
+			currentPane.setSelectedIndex(tabPos);
+		});
+	}
+
+	@Override
 	public void setMessengerMessage(MessengerMessage message) {
 		SwingUtils.invoke(() -> {
 			UserInfo userInfo = userPrivilegeService.getUserInfo();
@@ -909,6 +950,21 @@ public class SwingSlidesView extends JPanel implements SlidesView {
 	}
 
 	@Override
+	public void setOnExternalNotesPositionChanged(ConsumerAction<ExternalWindowPosition> action) {
+		this.externalNotesPositionChangedAction = action;
+	}
+
+	@Override
+	public void setOnExternalNotesSizeChanged(ConsumerAction<Dimension> action) {
+		this.externalNotesSizeChangedAction = action;
+	}
+
+	@Override
+	public void setOnExternalNotesClosed(Action action) {
+		externalNotesClosedAction = action;
+	}
+
+	@Override
 	public void showExternalMessages(Screen screen, Point position, Dimension size) {
 		if (externalMessagesFrame.isVisible()) {
 			return;
@@ -1049,6 +1105,38 @@ public class SwingSlidesView extends JPanel implements SlidesView {
 	}
 
 	@Override
+	public void showExternalNotes(Screen screen, Point position, Dimension size) {
+		if (externalNotesFrame.isVisible()) {
+			return;
+		}
+
+		setNotesBarTabVisible(dict.get(NOTES_LABEL_KEY), false);
+
+		notesPane.getViewport().remove(notesViewContainer);
+
+		externalNotesPane.getViewport().add(notesViewContainer);
+
+		externalNotesFrame.updatePosition(screen, position, size);
+		externalNotesFrame.showBody();
+		externalNotesFrame.setVisible(true);
+	}
+
+	@Override
+	public void hideExternalNotes() {
+		if (!externalNotesFrame.isVisible()) {
+			return;
+		}
+
+		externalNotesPane.getViewport().remove(notesViewContainer);
+
+		externalNotesFrame.setVisible(false);
+
+		notesPane.getViewport().add(notesViewContainer);
+
+		setNotesBarTabVisible(dict.get(NOTES_LABEL_KEY), true);
+	}
+
+	@Override
 	public void setMessageBarPosition(MessageBarPosition position) {
 		switch (position) {
 			case BOTTOM -> showMessageBarBottom();
@@ -1077,6 +1165,42 @@ public class SwingSlidesView extends JPanel implements SlidesView {
 		}
 
 		previewPosition = position;
+	}
+
+	@Override
+	public void setNotesBarPosition(NoteBarPosition position) {
+		switch (position) {
+			case LEFT -> showNoteLeft();
+			case BOTTOM -> showNoteBottom();
+		}
+
+		notesBarPosition = position;
+	}
+
+	private void showNoteBottom() {
+		if (notesBarPosition == NoteBarPosition.BOTTOM) {
+			return;
+		}
+		final boolean prevMinimized = isBottomTabPaneMinimized();
+
+		bottomTabPane.addTabs(removeNotesBarTabs());
+
+		if (prevMinimized) {
+			minimizeBottomTabPane();
+		}
+	}
+
+	private void showNoteLeft() {
+		if (notesBarPosition == NoteBarPosition.LEFT) {
+			return;
+		}
+
+		final boolean prevMinimized = isLeftTabPaneMinimized();
+		leftTabPane.addTabs(removeNotesBarTabs());
+
+		if (prevMinimized) {
+			minimizeLeftTabPane();
+		}
 	}
 
 	private void showMessagesPlaceholder() {
@@ -1256,6 +1380,13 @@ public class SwingSlidesView extends JPanel implements SlidesView {
 		}
 	}
 
+	private void setNotesBarTabVisible(String labelText, boolean visible) {
+		switch (notesBarPosition) {
+			case BOTTOM -> setBottomTabVisible(labelText, visible);
+			case LEFT -> setLeftTabVisible(labelText, visible);
+		}
+	}
+
 	private void setLeftTabVisible(String labelText, boolean visible) {
 		final boolean prevMinimized = isLeftTabPaneMinimized();
 		setTabVisible(leftTabPane, labelText, visible, this::minimizeLeftTabPane);
@@ -1329,6 +1460,17 @@ public class SwingSlidesView extends JPanel implements SlidesView {
 				}
 			}
 		}
+	}
+
+	private List<AdaptiveTab> removeNotesBarTabs() {
+		final ArrayList<AdaptiveTab> removedTabs = new ArrayList<>();
+
+		switch (notesBarPosition) {
+			case BOTTOM -> removedTabs.addAll(bottomTabPane.removeTabsByType(AdaptiveTabType.NOTES));
+			case LEFT -> removedTabs.addAll(leftTabPane.removeTabsByType(AdaptiveTabType.NOTES));
+		}
+
+		return removedTabs;
 	}
 
 	private List<AdaptiveTab> removeParticipantsTabs() {
@@ -1674,6 +1816,13 @@ public class SwingSlidesView extends JPanel implements SlidesView {
 				.setSizeChangedAction(size -> executeAction(externalSpeechSizeChangedAction, size))
 				.setMinimumSize(new Dimension(1000, 500)).build();
 
+		externalNotesFrame =
+				new ExternalFrame.Builder().setName(dict.get(NOTES_LABEL_KEY)).setBody(externalNotesPane)
+						.setClosedAction(() -> executeAction(externalNotesClosedAction))
+						.setPositionChangedAction(position -> executeAction(externalNotesPositionChangedAction, position))
+						.setSizeChangedAction(size -> executeAction(externalNotesSizeChangedAction, size))
+						.setMinimumSize(new Dimension(500, 400)).build();
+
 		addAncestorListener(new AncestorListener() {
 
 			@Override
@@ -1729,6 +1878,15 @@ public class SwingSlidesView extends JPanel implements SlidesView {
 		});
 	}
 
+
+	private void addNoteView(Component view){
+		setNotesBarTabVisible(dict.get(NOTES_LABEL_KEY), true);
+		notesViewContainer.add(view);
+		notesViewContainer.invalidate();
+		notesViewContainer.doLayout();
+		notesViewContainer.repaint();
+	}
+
 	private void addMessageView(Component view) {
 		setMessageBarTabVisible(dict.get(MESSAGE_LABEL_KEY), true);
 
@@ -1769,5 +1927,18 @@ public class SwingSlidesView extends JPanel implements SlidesView {
 		if (messageViewContainer.getComponentCount() == 0) {
 			showMessagesPlaceholder();
 		}
+	}
+
+	/**
+	 * Removes all notes from the View
+	 */
+	@Override
+	public void clearNotesViewContainer(){
+		SwingUtils.invoke(() -> {
+			notesViewContainer.removeAll();
+			notesViewContainer.invalidate();
+			notesViewContainer.doLayout();
+			notesViewContainer.repaint();
+		});
 	}
 }

@@ -22,6 +22,7 @@ import java.util.Objects;
 
 import org.lecturestudio.core.app.dictionary.Dictionary;
 import org.lecturestudio.swing.components.MessagePanel;
+import org.lecturestudio.swing.components.NotesPanel;
 import org.lecturestudio.web.api.message.UserMessage;
 import org.lecturestudio.web.api.model.UserInfo;
 
@@ -64,6 +65,26 @@ public class ViewUtil {
 			view.setUserName(sender);
 			view.setDate(message.getDate());
 
+			return view;
+		}
+		catch (Exception e) {
+			throw new RuntimeException(e);
+		}
+	}
+	/**
+	 * Creates a concrete NotesPanel specified by the provided class
+	 * parameter.
+	 *
+	 * @param c        The class of the concrete NotesPanel to create.
+	 * @param dict     The dictionary to translate content in the new panel.
+	 * @param <T>      The type of the panel to create.
+	 *
+	 * @return A new panel implementing the NotesPanel.
+	 */
+	public static <T extends NotesPanel> T createNotesView(Class<T> c, Dictionary dict) {
+
+		try {
+			T view = c.getDeclaredConstructor(Dictionary.class).newInstance(dict);
 			return view;
 		}
 		catch (Exception e) {

@@ -23,6 +23,7 @@ import static java.util.Objects.nonNull;
 
 import java.io.ByteArrayInputStream;
 import java.util.Arrays;
+import java.util.concurrent.CompletableFuture;
 
 import javax.inject.Inject;
 
@@ -37,15 +38,29 @@ import org.lecturestudio.core.audio.sink.AudioSink;
 import org.lecturestudio.core.audio.sink.ByteArrayAudioSink;
 import org.lecturestudio.core.audio.source.ByteArrayAudioSource;
 import org.lecturestudio.core.beans.BooleanProperty;
+import org.lecturestudio.core.beans.ChangeListener;
+import org.lecturestudio.core.camera.*;
+import org.lecturestudio.core.codec.VideoCodecConfiguration;
+import org.lecturestudio.core.geometry.Rectangle2D;
 import org.lecturestudio.core.presenter.Presenter;
 import org.lecturestudio.core.view.Action;
 import org.lecturestudio.core.view.ViewLayer;
+import org.lecturestudio.media.camera.CameraService;
+import org.lecturestudio.presenter.api.config.CameraRecordingConfiguration;
 import org.lecturestudio.presenter.api.context.PresenterContext;
 import org.lecturestudio.presenter.api.view.StartRecordingView;
 
 public class StartRecordingPresenter extends Presenter<StartRecordingView> {
 
 	private final AudioSystemProvider audioSystemProvider;
+
+	private final CameraRecordingConfiguration cameraRecordingConfig;
+
+	private final CameraService camService;
+
+	private ChangeListener<String> camListener;
+
+	private boolean capture;
 
 	private final AudioConfiguration audioConfig;
 
@@ -69,9 +84,12 @@ public class StartRecordingPresenter extends Presenter<StartRecordingView> {
 
 	@Inject
 	StartRecordingPresenter(PresenterContext context, StartRecordingView view,
-			AudioSystemProvider audioSystemProvider) {
+			AudioSystemProvider audioSystemProvider,
+			CameraService camService) {
 		super(context, view);
 
+		this.camService = camService;
+		this.cameraRecordingConfig = context.getConfiguration().getCameraRecordingConfig();
 		this.audioSystemProvider = audioSystemProvider;
 		this.audioConfig = context.getConfiguration().getAudioConfig();
 	}
@@ -100,10 +118,22 @@ public class StartRecordingPresenter extends Presenter<StartRecordingView> {
 		validateMicrophone();
 		validateSpeaker();
 
+		camListener = (observable, oldCamera, newCamera) -> {
+			if (nonNull(newCamera)) {
+				setViewCamera(newCamera);
+			}
+		};
+		cameraRecordingConfig.cameraNameProperty().addListener(camListener);
+
 		view.setAudioCaptureDevices(audioSystemProvider.getRecordingDevices());
 		view.setAudioCaptureDevice(audioConfig.captureDeviceNameProperty());
 		view.setAudioPlaybackDevices(audioSystemProvider.getPlaybackDevices());
 		view.setAudioPlaybackDevice(audioConfig.playbackDeviceNameProperty());
+		view.setEnableCamera(cameraRecordingConfig.enableCameraProperty());
+		view.setOnViewVisible(this::captureCamera);
+		view.setCameraNames(camService.getCameraNames());
+		view.setCameraName(cameraRecordingConfig.cameraNameProperty());
+		setViewCamera(cameraRecordingConfig.getCameraName());
 		view.setAudioTestCaptureEnabled(captureEnabled);
 		view.setAudioTestPlaybackEnabled(playbackEnabled);
 		view.setOnAudioTestCapture(testCapture);
@@ -135,6 +165,8 @@ public class StartRecordingPresenter extends Presenter<StartRecordingView> {
 	}
 
 	private void dispose() {
+		cameraRecordingConfig.cameraNameProperty().removeListener(camListener);
+		captureCamera(false);
 		stopAudioCapture();
 
 		super.close();
@@ -284,5 +316,92 @@ public class StartRecordingPresenter extends Presenter<StartRecordingView> {
 		});
 
 		return player;
+	}
+
+	private void captureCamera(boolean capture) {
+		CompletableFuture.runAsync(() -> {
+					if (this.capture == capture) {
+						return;
+					}
+
+					this.capture = capture;
+
+					if (capture) {
+						startCameraPreview();
+					} else {
+						stopCameraPreview();
+					}
+				})
+				.exceptionally(e -> {
+					logException(e, "Start/stop camera failed");
+					return null;
+				});
+	}
+
+	private void startCameraPreview() {
+		try {
+			view.setCameraStatus(context.getDictionary()
+					.get("start.stream.camera.starting"));
+			view.startCameraPreview();
+			view.setCameraStatus(null);
+		} catch (Throwable e) {
+			view.setCameraStatus(context.getDictionary()
+					.get("start.stream.camera.unavailable"));
+		}
+	}
+
+	private void stopCameraPreview() {
+		view.stopCameraPreview();
+	}
+
+	private void setViewCamera(String cameraName) {
+		CompletableFuture.runAsync(() -> {
+					if (capture) {
+						stopCameraPreview();
+					}
+
+					Camera camera = camService.getCamera(cameraName);
+
+					if (nonNull(camera)) {
+						view.setCamera(camera);
+
+						if (camera.isOpened()) {
+							return;
+						}
+
+						VideoCodecConfiguration cameraConfig = cameraRecordingConfig.getCameraCodecConfig();
+
+						AspectRatio ratio = AspectRatio.forRect(cameraConfig.getViewRect());
+						CameraProfile[] profiles = CameraProfiles.forRatio(ratio);
+						CameraProfile profile = getCameraProfile(profiles);
+
+						if (isNull(profile)) {
+							profile = profiles[profiles.length - 1];
+						}
+
+						view.setCameraFormat(profile.getFormat());
+
+						if (capture) {
+							startCameraPreview();
+						}
+					}
+				})
+				.exceptionally(e -> {
+					logException(e, "Start camera failed");
+					return null;
+				});
+	}
+
+	private CameraProfile getCameraProfile(CameraProfile[] profiles) {
+		Rectangle2D rect = cameraRecordingConfig.getCameraCodecConfig().getViewRect();
+
+		if (isNull(rect)) {
+			return null;
+		}
+
+		return Arrays.stream(profiles).filter(p -> {
+			return p.getFormat().getWidth() == rect.getWidth()
+					&& p.getFormat().getHeight() == rect.getHeight();
+		}).findFirst().orElse(null);
 	}
 }

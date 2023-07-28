@@ -138,7 +138,11 @@ public class WebRtcStreamService extends ExecutableBase {
 		this.webServiceInfo = webServiceInfo;
 		this.eventRecorder = eventRecorder;
 		this.recordingService = recordingService;
+		recordingService.SetWebRTC(this);
 		this.clientFailover = new ClientFailover();
+		this.clientFailover.addStateListener((oldState, newState) -> {
+			context.getEventBus().post(new StreamReconnectStateEvent(newState));
+		});
 
 		eventRecorder.init();
 	}

@@ -11,7 +11,7 @@
 					<gridbagconstraints id="gbc_audio" gridx="0" gridy="0" insets="0,0,2,0" anchor="GridBagConstraints.WEST" />
 				</Label>
 				<ComboBox id="audioCaptureDevicesCombo">
-					<gridbagconstraints gridx="0" gridy="1" weightx="1.0" fill="GridBagConstraints.HORIZONTAL" insets="0,0,0,0" />
+					<gridbagconstraints gridx="0" gridy="1" weightx="1.0" gridwidth="2" fill="GridBagConstraints.HORIZONTAL" insets="0,0,0,0" />
 					<renderer class="org.lecturestudio.swing.combobox.DefaultStringRenderer" />
 				</ComboBox>
 
@@ -19,15 +19,26 @@
 					<gridbagconstraints refid="gbc_audio" gridx="0" gridy="2" gridwidth="2" insets="10,0,2,0" />
 				</Label>
 				<ComboBox id="audioPlaybackDevicesCombo">
-					<gridbagconstraints refid="gbc_audio" gridx="0" gridy="3" weightx="1.0" fill="GridBagConstraints.HORIZONTAL" insets="0,0,0,0" />
+					<gridbagconstraints refid="gbc_audio" gridx="0" gridy="3" gridwidth="2" weightx="1.0" fill="GridBagConstraints.HORIZONTAL" insets="0,0,0,0" />
 					<renderer class="org.lecturestudio.swing.combobox.DefaultStringRenderer" />
 				</ComboBox>
-
+				<Label text="start.stream.camera">
+					<gridbagconstraints refid="gbc_audio" gridx="0" gridy="4"  gridwidth="2"  insets="10,0,2,0" />
+				</Label>
+				<ComboBox id="camerasCombo">
+					<gridbagconstraints gridx="0" gridy="5"  weightx="1.0" fill="GridBagConstraints.HORIZONTAL"  insets="0,0,0,0" />
+				</ComboBox>
+				<ToggleButton id="enableCameraButton" text="" icon="camera-off.svg, 18" selectedIcon="camera.svg, 18" tooltipText="toolbar.stream.camera.tooltip">
+					<gridbagconstraints gridx="1" gridy="5"  insets="0,2,0,0" />
+				</ToggleButton>
+				<CameraPreviewPanel id="cameraView" preferredSize="400,300" maximumSize="400,300">
+					<gridbagconstraints gridx="0" gridy="6" gridwidth="2" weightx="1.0" weighty="1.0" fill="GridBagConstraints.BOTH" insets="5,0,0,0" />
+				</CameraPreviewPanel>
 				<Label text="start.recording.test.title">
-					<gridbagconstraints refid="gbc_audio" gridx="0" gridy="4" gridwidth="2" insets="10,0,2,0" />
+					<gridbagconstraints refid="gbc_audio" gridx="0" gridy="7" gridwidth="2" insets="10,0,2,0" />
 				</Label>
 				<ToolBar floatable="false">
-					<gridbagconstraints gridx="0" gridy="5" anchor="GridBagConstraints.WEST" insets="0,0,0,0" />
+					<gridbagconstraints gridx="0" gridy="8" anchor="GridBagConstraints.WEST" insets="0,0,0,0" />
 
 					<ToggleButton id="testCaptureButton" text="start.recording.test.capture" icon="record-tool.svg, 20" selectedIcon="record-stop-tool.svg, 20" />
 					<ToggleButton id="playCaptureButton" text="start.recording.test.playback" icon="play.svg, 20" selectedIcon="stop.svg, 20" />

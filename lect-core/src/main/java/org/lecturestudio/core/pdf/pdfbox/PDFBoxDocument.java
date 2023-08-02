@@ -64,6 +64,7 @@ import org.lecturestudio.core.geometry.Rectangle2D;
 import org.lecturestudio.core.io.BitConverter;
 import org.lecturestudio.core.model.DocumentOutline;
 import org.lecturestudio.core.model.DocumentOutlineItem;
+import org.lecturestudio.core.model.NotesPosition;
 import org.lecturestudio.core.model.shape.Shape;
 import org.lecturestudio.core.pdf.DocumentAdapter;
 import org.lecturestudio.core.pdf.DocumentRenderer;
@@ -179,10 +180,19 @@ public class PDFBoxDocument implements DocumentAdapter {
 	}
 
 	@Override
-	public Rectangle2D getPageBounds(int pageNumber) {
+	public Rectangle2D getPageBounds(int pageNumber, NotesPosition position) {
 		PDPage page = doc.getPage(pageNumber);
 		PDRectangle rect = page.getMediaBox();
-
+		if(position == NotesPosition.UNKNOWN){
+			position = rect.getWidth()/rect.getHeight() >=2 ? NotesPosition.RIGHT : NotesPosition.UNKNOWN;
+		}
+		if(position == NotesPosition.RIGHT || position == NotesPosition.LEFT){
+			return new Rectangle2D(0, 0, rect.getWidth()/2, rect.getHeight());
+		}
+		//TODO: LEFT funktioniert noch nicht
+		if(position == NotesPosition.LEFT){
+			return new Rectangle2D(rect.getWidth()/2, 0, rect.getWidth()/2, rect.getHeight());
+		}
 		return new Rectangle2D(0, 0, rect.getWidth(), rect.getHeight());
 	}
 

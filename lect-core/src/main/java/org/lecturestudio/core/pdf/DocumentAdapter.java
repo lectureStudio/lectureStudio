@@ -29,6 +29,7 @@ import java.util.Set;
 
 import org.lecturestudio.core.geometry.Rectangle2D;
 import org.lecturestudio.core.model.DocumentOutline;
+import org.lecturestudio.core.model.NotesPosition;
 import org.lecturestudio.core.model.shape.Shape;
 
 public interface DocumentAdapter {
@@ -95,10 +96,11 @@ public interface DocumentAdapter {
 	 * Get the bounds of the page that has the specified page number.
 	 *
 	 * @param pageNumber The page number.
+	 * @param position The position of notes on a page.
 	 *
 	 * @return The bounds of the page that has the specified page number.
 	 */
-	Rectangle2D getPageBounds(int pageNumber);
+	Rectangle2D getPageBounds(int pageNumber, NotesPosition position);
 
 	/**
 	 * Get the number of pages in the document.

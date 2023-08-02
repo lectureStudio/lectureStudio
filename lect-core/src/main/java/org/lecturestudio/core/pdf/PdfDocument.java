@@ -28,6 +28,7 @@ import java.util.Map;
 import org.lecturestudio.core.geometry.Dimension2D;
 import org.lecturestudio.core.geometry.Rectangle2D;
 import org.lecturestudio.core.model.DocumentOutline;
+import org.lecturestudio.core.model.NotesPosition;
 import org.lecturestudio.core.model.shape.Shape;
 import org.lecturestudio.core.pdf.mupdf.MuPDFDocument;
 import org.lecturestudio.core.pdf.pdfbox.PDFBoxDocument;
@@ -160,11 +161,23 @@ public class PdfDocument {
 	 * Get the bounds of the page that has the specified page index.
 	 *
 	 * @param pageIndex The page index.
+	 * @param position The position of notes on a page.
+	 *
+	 * @return The bounds of the page that has the specified page index.
+	 */
+	public Rectangle2D getPageMediaBox(int pageIndex, NotesPosition position) {
+		return pdfBoxDocument.getPageBounds(pageIndex, position);
+	}
+
+	/**
+	 * Get the bounds of the page that has the specified page index.
+	 *
+	 * @param pageIndex The page index.
 	 *
 	 * @return The bounds of the page that has the specified page index.
 	 */
 	public Rectangle2D getPageMediaBox(int pageIndex) {
-		return pdfBoxDocument.getPageBounds(pageIndex);
+		return getPageMediaBox(pageIndex, NotesPosition.UNKNOWN);
 	}
 
 	public void setPageContentTransform(int pageIndex, AffineTransform transform) throws IOException {

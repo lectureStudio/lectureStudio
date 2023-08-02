@@ -36,6 +36,7 @@ import java.util.Map;
 
 import org.lecturestudio.core.geometry.Point2D;
 import org.lecturestudio.core.geometry.Rectangle2D;
+import org.lecturestudio.core.model.NotesPosition;
 import org.lecturestudio.core.model.Page;
 import org.lecturestudio.core.pdf.DocumentRenderer;
 import org.lecturestudio.core.view.PresentationParameter;
@@ -68,6 +69,9 @@ public class MuPDFRenderer implements DocumentRenderer {
 		synchronized (lock) {
 			Rectangle2D pageRect = parameter.getViewRect();
 			int pageNumber = page.getPageNumber();
+			//Needed for notes on right side
+			//TODO: NotesPosition == LEFT funktioniert nicht
+			float stmX = 0;
 
 			double sx = imageWidth / pageRect.getWidth();
 			double sy = imageHeight / pageRect.getHeight();
@@ -80,6 +84,14 @@ public class MuPDFRenderer implements DocumentRenderer {
 			com.artifex.mupdf.fitz.Page p = document.getPage(pageNumber);
 			Rect bounds = p.getBounds();
 
+			if(page.getDocument().getSplittedSlideNotes() == NotesPosition.RIGHT ||
+					(page.getDocument().getSplittedSlideNotes() == NotesPosition.UNKNOWN && bounds.x1/bounds.y1 >= 2)){
+				bounds.x1 = bounds.x1/2;
+			}
+			if(page.getDocument().getSplittedSlideNotes() == NotesPosition.LEFT){
+				bounds.x0 = bounds.x1/2;
+			}
+
 			float scale = (float) (1.D / pageRect.getWidth());
 			float pageSx = imageWidth / (bounds.x1 - bounds.x0);
 			float pageSy = imageHeight / (bounds.y1 - bounds.y0);
@@ -91,8 +103,12 @@ public class MuPDFRenderer implements DocumentRenderer {
 			int px = (int) (pageRect.getX() * pageSx);
 			int py = (int) (pageRect.getY() * pageSy);
 
+			if(page.getDocument().getSplittedSlideNotes() == NotesPosition.LEFT){
+				stmX = bounds.x0 * pageSx;
+			}
+
 			Matrix stm = new Matrix();
-			stm.translate(-px, -py);
+			stm.translate(-px - stmX, -py);
 			stm.scale(pageSx, pageSy);
 
 			if (parameter.isTranslation()) {

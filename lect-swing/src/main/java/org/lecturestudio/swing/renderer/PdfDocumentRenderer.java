@@ -32,6 +32,7 @@ import org.lecturestudio.core.ExecutableBase;
 import org.lecturestudio.core.ExecutableException;
 import org.lecturestudio.core.geometry.Rectangle2D;
 import org.lecturestudio.core.model.Document;
+import org.lecturestudio.core.model.NotesPosition;
 import org.lecturestudio.core.model.Page;
 import org.lecturestudio.core.model.shape.Shape;
 import org.lecturestudio.core.pdf.PdfDocument;
@@ -255,7 +256,7 @@ public class PdfDocumentRenderer extends ExecutableBase {
 		}
 
 		AffineTransform annotTransform = transform.createInverse();
-		Rectangle2D mediaBox = pdfDocument.getPageMediaBox(pageIndex);
+		Rectangle2D mediaBox = pdfDocument.getPageMediaBox(pageIndex, NotesPosition.UNKNOWN);
 
 		double pageWidth = mediaBox.getWidth();
 		double sx = pageWidth * annotTransform.getScaleX();

@@ -54,6 +54,7 @@ import org.lecturestudio.core.geometry.Rectangle2D;
 import org.lecturestudio.core.io.BitConverter;
 import org.lecturestudio.core.model.DocumentOutline;
 import org.lecturestudio.core.model.DocumentOutlineItem;
+import org.lecturestudio.core.model.NotesPosition;
 import org.lecturestudio.core.model.shape.Shape;
 import org.lecturestudio.core.pdf.DocumentAdapter;
 import org.lecturestudio.core.pdf.DocumentRenderer;
@@ -167,7 +168,7 @@ public class MuPDFDocument implements DocumentAdapter {
 	}
 
 	@Override
-	public Rectangle2D getPageBounds(int pageNumber) {
+	public Rectangle2D getPageBounds(int pageNumber, NotesPosition position) {
 		synchronized (mutex) {
 			Page page = getPage(pageNumber);
 			Rect bounds = page.getBounds();

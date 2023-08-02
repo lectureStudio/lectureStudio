@@ -93,7 +93,7 @@ public class Document {
 	private UUID uid;
 
 	/** Position of notes */
-	private NotesPosition splittedSlideNotes = NotesPosition.LEFT;
+	private NotesPosition splittedSlideNotes = NotesPosition.UNKNOWN;
 
 	/**
 	 * Create a new {@link Document}.

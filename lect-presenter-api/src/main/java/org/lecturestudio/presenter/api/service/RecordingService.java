@@ -104,7 +104,7 @@ public class RecordingService extends ExecutableBase {
 			}
 			if (context.getConfiguration().getCameraRecordingConfig().isCameraEnabled()) {
 				try {
-					camRecorder.finishVideoRecordingProcess(file);
+					camRecorder.FinishVideoRecordingProcess(file);
 				} catch (Exception e) {
 					throw new CompletionException(e);
 				}

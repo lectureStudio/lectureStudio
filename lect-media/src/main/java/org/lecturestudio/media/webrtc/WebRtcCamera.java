@@ -103,6 +103,8 @@ public class WebRtcCamera extends AbstractCamera {
 				height = nearestFormat.getHeight();
 			}
 
+			System.out.println("camera.open NearestFormat: " + nearestFormat.toString());
+
 			VideoCaptureCapability capability = new VideoCaptureCapability(width, height, frameRate);
 
 			videoCapture = new VideoCapture();
@@ -112,9 +114,11 @@ public class WebRtcCamera extends AbstractCamera {
 				VideoFrameBuffer buffer = frame.buffer;
 
 				try {
+					System.out.println("LOOP| camera.open.SetVideoSink Buffer: " + buffer.getWidth() +"x"+ buffer.getHeight());
 					VideoFrameBuffer scaled = buffer.cropAndScale(0, 0,
 							buffer.getWidth(), buffer.getHeight(),
 							imageWidth, imageHeight);
+					System.out.println("LOOP| camera.open.SetVideoSink Scaled: " + scaled.getWidth() +"x"+ scaled.getHeight());
 					VideoBufferConverter.convertFromI420(scaled, imageBuffer, FourCC.ARGB);
 					scaled.release();
 

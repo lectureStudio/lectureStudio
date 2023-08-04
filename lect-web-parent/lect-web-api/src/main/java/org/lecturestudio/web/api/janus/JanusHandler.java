@@ -39,7 +39,6 @@ import java.util.function.Consumer;
 import org.lecturestudio.core.ExecutableException;
 import org.lecturestudio.core.ExecutableState;
 import org.lecturestudio.core.net.MediaType;
-import org.lecturestudio.web.api.client.ClientFailover;
 import org.lecturestudio.web.api.event.PeerStateEvent;
 import org.lecturestudio.web.api.janus.JanusHandlerException.Type;
 import org.lecturestudio.web.api.janus.message.JanusEditRoomMessage;
@@ -64,8 +63,6 @@ public class JanusHandler extends JanusStateHandler {
 
 	private final StreamEventRecorder eventRecorder;
 
-	private final ClientFailover clientFailover;
-
 	private ScheduledExecutorService executorService;
 
 	private ScheduledFuture<?> timeoutFuture;
@@ -80,14 +77,14 @@ public class JanusHandler extends JanusStateHandler {
 
 	private Consumer<UUID> rejectedConsumer;
 
+	private boolean hasFailed = false;
+
 
 	public JanusHandler(JanusMessageTransmitter transmitter,
-			StreamContext streamContext,
-			StreamEventRecorder eventRecorder, ClientFailover clientFailover) {
+			StreamContext streamContext, StreamEventRecorder eventRecorder) {
 		super(new JanusPeerConnectionFactory(streamContext), transmitter);
 
 		this.eventRecorder = eventRecorder;
-		this.clientFailover = clientFailover;
 	}
 
 	public void setRejectedConsumer(Consumer<UUID> consumer) {
@@ -246,7 +243,10 @@ public class JanusHandler extends JanusStateHandler {
 
 	@Override
 	protected void stopInternal() throws ExecutableException {
-		setState(new DestroyRoomState());
+		if (!hasFailed) {
+			// Destroy room only in stable state.
+			setState(new DestroyRoomState());
+		}
 
 		for (JanusStateHandler handler : handlers) {
 			handler.destroy();
@@ -361,15 +361,6 @@ public class JanusHandler extends JanusStateHandler {
 
 			@Override
 			public void connected() {
-				if (clientFailover.started()) {
-					try {
-						clientFailover.stop();
-					}
-					catch (ExecutableException e) {
-						logException(e, "Stop connection failover failed");
-					}
-				}
-
 				setConnected();
 			}
 
@@ -380,15 +371,7 @@ public class JanusHandler extends JanusStateHandler {
 
 			@Override
 			public void failed() {
-				if (started()) {
-					// Upon unexpected disruption start recovery process.
-					try {
-						clientFailover.start();
-					}
-					catch (ExecutableException e) {
-						logException(e, "Start connection failover failed");
-					}
-				}
+				hasFailed = true;
 
 				setFailed();
 			}

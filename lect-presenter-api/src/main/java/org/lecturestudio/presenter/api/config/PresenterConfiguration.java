@@ -49,6 +49,8 @@ public class PresenterConfiguration extends Configuration {
 
 	private final ExternalWindowConfiguration externalSpeechConfig = new ExternalWindowConfiguration();
 
+	private final ExternalWindowConfiguration externalNotesConfig = new ExternalWindowConfiguration();
+
 	private final SlideViewConfiguration slideViewConfiguration = new SlideViewConfiguration();
 
 
@@ -171,6 +173,14 @@ public class PresenterConfiguration extends Configuration {
 	 */
 	public ExternalWindowConfiguration getExternalSpeechConfig() {
 		return externalSpeechConfig;
+	}
+
+	/**
+	 * @return External notes configuration
+	 */
+
+	public ExternalWindowConfiguration getExternalNotesConfig() {
+		return externalNotesConfig;
 	}
 
 	public SlideViewConfiguration getSlideViewConfiguration() {

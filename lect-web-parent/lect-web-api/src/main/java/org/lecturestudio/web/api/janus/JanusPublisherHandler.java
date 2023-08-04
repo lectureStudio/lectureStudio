@@ -23,7 +23,10 @@ import static java.util.Objects.nonNull;
 import org.lecturestudio.core.ExecutableException;
 import org.lecturestudio.core.beans.ChangeListener;
 import org.lecturestudio.web.api.janus.message.JanusMessage;
+import org.lecturestudio.web.api.janus.message.JanusPluginDataMessage;
 import org.lecturestudio.web.api.janus.message.JanusPluginMessage;
+import org.lecturestudio.web.api.janus.message.JanusRoomRequest;
+import org.lecturestudio.web.api.janus.message.JanusRoomRequestType;
 import org.lecturestudio.web.api.janus.state.AttachPluginState;
 import org.lecturestudio.web.api.janus.state.CreateRoomState;
 import org.lecturestudio.web.api.model.ScreenSource;
@@ -37,6 +40,8 @@ import org.lecturestudio.web.api.stream.action.StreamMediaChangeAction;
 
 import dev.onvoid.webrtc.media.video.VideoCaptureCapability;
 import dev.onvoid.webrtc.media.video.VideoDevice;
+
+import java.util.UUID;
 
 public class JanusPublisherHandler extends JanusStateHandler {
 
@@ -170,6 +175,17 @@ public class JanusPublisherHandler extends JanusStateHandler {
 
 	@Override
 	protected void stopInternal() throws ExecutableException {
+		// Send leave message.
+		JanusRoomRequest request = new JanusRoomRequest();
+		request.setRequestType(JanusRoomRequestType.LEAVE);
+
+		JanusPluginDataMessage requestMessage = new JanusPluginDataMessage(
+				getSessionId(), getPluginId());
+		requestMessage.setTransaction(UUID.randomUUID().toString());
+		requestMessage.setBody(request);
+
+		transmitter.sendMessage(requestMessage);
+
 		eventRecorder.removeRecordedActionConsumer(this::sendStreamAction);
 
 		audioContext.sendAudioProperty().removeListener(enableMicListener);

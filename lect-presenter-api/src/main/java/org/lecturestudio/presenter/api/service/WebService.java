@@ -321,8 +321,10 @@ public class WebService extends ExecutableBase {
 		startedServices.remove(service);
 
 		if (startedServices.isEmpty()) {
-			messageTransport.stop();
-			messageTransport.destroy();
+			if (!messageTransport.stopped()) {
+				messageTransport.stop();
+				messageTransport.destroy();
+			}
 		}
 
 		//stopLocalBroadcaster();

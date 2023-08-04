@@ -23,12 +23,19 @@
 			<checkboxmenuitem id="externalParticipantsMenuItem" text="menu.external.participants" />
 			<checkboxmenuitem id="externalSlidePreviewMenuItem" text="menu.external.slide.preview" />
 			<checkboxmenuitem id="externalSpeechMenuItem" text="menu.external.speech" />
+			<checkboxmenuitem id="externalNotesMenuItem" text="menu.external.notes" />
 		</menu>
 		<menu id="messagesPositionMenu" text="menu.messages.position">
 			<buttongroup>
 				<radiobuttonmenuitem id="messagesPositionLeftMenuItem" text="menu.left" />
 				<radiobuttonmenuitem id="messagesPositionBottomMenuItem" text="menu.bottom" />
 				<radiobuttonmenuitem id="messagesPositionRightMenuItem" text="menu.right" />
+			</buttongroup>
+		</menu>
+		<menu id="notesPositionMenu" text="menu.notes.position">
+			<buttongroup>
+				<radiobuttonmenuitem id="notesPositionLeftMenuItem" text="menu.left" />
+				<radiobuttonmenuitem id="notesPositionBottomMenuItem" text="menu.bottom" />
 			</buttongroup>
 		</menu>
 		<menu id="participantsPositionMenu" text="menu.participants.position">

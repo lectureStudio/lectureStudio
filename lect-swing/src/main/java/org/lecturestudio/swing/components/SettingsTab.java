@@ -18,6 +18,8 @@
 
 package org.lecturestudio.swing.components;
 
+import org.lecturestudio.swing.model.AdaptiveTabType;
+
 import java.awt.Component;
 import java.awt.Dimension;
 
@@ -34,6 +36,8 @@ public class SettingsTab {
 	private Component content;
 
 	private Dimension size;
+
+	private AdaptiveTabType defaultTabType = AdaptiveTabType.NORMAL;
 
 
 	public String getText() {
@@ -74,5 +78,13 @@ public class SettingsTab {
 
 	public void setSize(Dimension size) {
 		this.size = size;
+	}
+
+	public void setDefaultTabType(AdaptiveTabType defaultTabType) {
+		this.defaultTabType = defaultTabType;
+	}
+
+	public AdaptiveTabType getDefaultTabType() {
+		return defaultTabType;
 	}
 }

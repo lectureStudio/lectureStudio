@@ -80,7 +80,7 @@ public class SwingQuizNumericOptionView extends SwingQuizOptionView implements C
 		String minText = minTextField.getText();
 
 		if (isNull(minText) || minText.isBlank() || minText.isEmpty()) {
-			return 0;
+			return Integer.MIN_VALUE;
 		}
 
 		try {
@@ -93,14 +93,14 @@ public class SwingQuizNumericOptionView extends SwingQuizOptionView implements C
 
 	@Override
 	public int getMaxValue() {
-		String maxText = minTextField.getText();
+		String maxText = maxTextField.getText();
 
 		if (isNull(maxText) || maxText.isBlank() || maxText.isEmpty()) {
-			return 0;
+			return Integer.MAX_VALUE;
 		}
 
 		try {
-			return numberFormat.parse(maxTextField.getText()).intValue();
+			return numberFormat.parse(maxText).intValue();
 		}
 		catch (ParseException e) {
 			throw new RuntimeException(e);

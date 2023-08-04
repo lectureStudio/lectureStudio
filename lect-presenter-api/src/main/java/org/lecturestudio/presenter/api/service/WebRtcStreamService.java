@@ -105,7 +105,7 @@ public class WebRtcStreamService extends ExecutableBase {
 
 	private StreamWebSocketClient streamStateClient;
 
-	private JanusWebSocketClient janusClient;
+	private JanusWebSocketClient janusSignalingClient;
 
 	private AudioFrameProcessor audioProcessor;
 
@@ -127,6 +127,8 @@ public class WebRtcStreamService extends ExecutableBase {
 
 	private ExecutableState screenShareState;
 
+	private boolean hasFailed = false;
+
 
 	@Inject
 	public WebRtcStreamService(ApplicationContext context,
@@ -141,7 +143,7 @@ public class WebRtcStreamService extends ExecutableBase {
 		recordingService.SetWebRTC(this);
 		this.clientFailover = new ClientFailover();
 		this.clientFailover.addStateListener((oldState, newState) -> {
-			context.getEventBus().post(new StreamReconnectStateEvent(newState));
+			setReconnectionState(newState);
 		});
 
 		eventRecorder.init();
@@ -156,7 +158,7 @@ public class WebRtcStreamService extends ExecutableBase {
 		String userName = String.format("%s %s", message.getFirstName(),
 				message.getFamilyName());
 
-		janusClient.startRemoteSpeech(requestId, userName);
+		janusSignalingClient.startRemoteSpeech(requestId, userName);
 		streamProviderService.acceptSpeechRequest(requestId);
 	}
 
@@ -253,7 +255,7 @@ public class WebRtcStreamService extends ExecutableBase {
 		}
 
 		streamProviderService.rejectSpeechRequest(requestId);
-		janusClient.stopRemoteSpeech(requestId);
+		janusSignalingClient.stopRemoteSpeech(requestId);
 	}
 
 	public void shareDocument(Document document) throws IOException {
@@ -299,33 +301,53 @@ public class WebRtcStreamService extends ExecutableBase {
 
 		streamContext = createStreamContext(course, config);
 		streamStateClient = createStreamStateClient(streamContext, config);
-		janusClient = createJanusClient(streamContext);
-		janusClient.setJanusStateHandlerListener(new JanusStateHandlerListener() {
-
-			private boolean hasFailed = false;
-
-
-			@Override
-			public void connected() {
-				setReconnectionState(ExecutableState.Stopped);
-
+		janusSignalingClient = createJanusClient(streamContext);
+		janusSignalingClient.addStateListener((oldState, newState) -> {
+			if (newState == ExecutableState.Started) {
 				if (hasFailed) {
 					streamProviderService.restartedStream(course.getId());
 				}
 
 				hasFailed = false;
 			}
+		});
+		janusSignalingClient.setJanusStateHandlerListener(new JanusStateHandlerListener() {
+
+			@Override
+			public void connected() {
+				if (clientFailover.started()) {
+					try {
+						clientFailover.stop();
+					}
+					catch (ExecutableException e) {
+						logException(e, "Stop connection failover failed");
+					}
+				}
+				else {
+					setReconnectionState(ExecutableState.Stopped);
+				}
+			}
 
 			@Override
 			public void disconnected() {
-				setReconnectionState(ExecutableState.Started);
+				if (started()) {
+					setReconnectionState(ExecutableState.Started);
+				}
 			}
 
 			@Override
 			public void failed() {
 				hasFailed = true;
 
-				setReconnectionState(ExecutableState.Started);
+				if (started()) {
+					// Upon unexpected disruption start recovery process.
+					try {
+						clientFailover.start();
+					}
+					catch (ExecutableException e) {
+						logException(e, "Start connection failover failed");
+					}
+				}
 			}
 
 			@Override
@@ -344,10 +366,6 @@ public class WebRtcStreamService extends ExecutableBase {
 					}
 				}
 			}
-
-			private void setReconnectionState(ExecutableState state) {
-				context.getEventBus().post(new StreamReconnectStateEvent(state));
-			}
 		});
 
 		UserInfo userInfo = streamProviderService.getUserInfo();
@@ -362,12 +380,12 @@ public class WebRtcStreamService extends ExecutableBase {
 		eventRecorder.setCourse(course);
 		eventRecorder.setStreamProviderService(streamProviderService);
 
-		clientFailover.addExecutable(janusClient);
+		clientFailover.addExecutable(janusSignalingClient);
 		clientFailover.addExecutable(streamStateClient.getReconnectExecutable());
 
 		try {
 			streamStateClient.start();
-			janusClient.start();
+			janusSignalingClient.start();
 
 			// As of now, it's mandatory to start the event-recorder after the
 			// clients started.
@@ -442,7 +460,7 @@ public class WebRtcStreamService extends ExecutableBase {
 
 			disposeExecutable(clientFailover);
 			disposeExecutable(streamStateClient);
-			disposeExecutable(janusClient);
+			disposeExecutable(janusSignalingClient);
 		}
 		catch (Exception e) {
 			throw new ExecutableException(e);
@@ -528,6 +546,10 @@ public class WebRtcStreamService extends ExecutableBase {
 		}
 	}
 
+	private void setReconnectionState(ExecutableState state) {
+		context.getEventBus().post(new StreamReconnectStateEvent(state));
+	}
+
 	private StreamWebSocketClient createStreamStateClient(StreamContext streamContext,
 			PresenterConfiguration config) {
 		StreamConfiguration streamConfig = config.getStreamConfig();
@@ -558,7 +580,7 @@ public class WebRtcStreamService extends ExecutableBase {
 				streamConfig.getServerName()));
 
 		return new JanusWebSocketClient(janusWsParameters, streamContext,
-				eventRecorder, clientFailover);
+				eventRecorder);
 	}
 
 	private StreamContext createStreamContext(Course course, PresenterConfiguration config) {

@@ -73,5 +73,10 @@
 			<artifactId>lect-javafx</artifactId>
 			<version>1.0.0</version>
 		</dependency>
+		<dependency>
+			<groupId>org.lecturestudio.stylus</groupId>
+			<artifactId>stylus-javafx</artifactId>
+			<version>${stylus.version}</version>
+		</dependency>
 	</dependencies>
 </project>

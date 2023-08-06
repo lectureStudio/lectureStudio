@@ -84,6 +84,10 @@ public class RecordingPlaybackService extends ExecutableBase {
 		return nonNull(recordingPlayer) ? recordingPlayer.getDuration() : null;
 	}
 
+	public Long getElapsedTime() {
+		return nonNull(recordingPlayer) ? recordingPlayer.getElapsedTime() : null;
+	}
+
 	public void setAudioFilter(AudioFilter filter, Interval<Long> interval) {
 		recordingPlayer.getAudioStream().setAudioFilter(filter, interval);
 	}

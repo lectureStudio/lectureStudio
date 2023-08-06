@@ -77,7 +77,7 @@ public class GeneralSettingsPresenter extends Presenter<GeneralSettingsView> {
 		Dictionary dict = context.getDictionary();
 
 		if (!initialLocale.equals(config.getLocale())) {
-			showNotification(NotificationType.WARNING,
+			context.showNotification(NotificationType.WARNING,
 					dict.get("general.settings.language.notify.title"),
 					MessageFormat.format(
 							dict.get("general.settings.language.notify.message"),

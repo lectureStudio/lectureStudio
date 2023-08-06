@@ -21,13 +21,13 @@ package org.lecturestudio.editor.javafx.view;
 import static java.util.Objects.isNull;
 import static java.util.Objects.nonNull;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.Collection;
 
 import javafx.beans.value.ChangeListener;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.scene.Node;
+import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.ContextMenu;
 import javafx.scene.control.MenuItem;
@@ -41,11 +41,15 @@ import javafx.scene.layout.VBox;
 import javafx.scene.transform.TransformChangedEvent;
 
 import org.lecturestudio.core.app.ApplicationContext;
+import org.lecturestudio.core.beans.BooleanProperty;
 import org.lecturestudio.core.controller.RenderController;
 import org.lecturestudio.core.geometry.Matrix;
 import org.lecturestudio.core.model.Document;
 import org.lecturestudio.core.model.Page;
+import org.lecturestudio.core.model.shape.Shape;
+import org.lecturestudio.core.stylus.StylusHandler;
 import org.lecturestudio.core.view.ConsumerAction;
+import org.lecturestudio.core.view.PageObjectView;
 import org.lecturestudio.core.view.PresentationParameter;
 import org.lecturestudio.core.view.ViewType;
 import org.lecturestudio.editor.api.view.SlidesView;
@@ -53,8 +57,10 @@ import org.lecturestudio.javafx.beans.converter.KeyEventConverter;
 import org.lecturestudio.javafx.beans.converter.MatrixConverter;
 import org.lecturestudio.javafx.control.SlideView;
 import org.lecturestudio.javafx.control.ThumbnailPanel;
+import org.lecturestudio.javafx.input.StylusListener;
 import org.lecturestudio.javafx.util.FxUtils;
 import org.lecturestudio.javafx.view.FxmlView;
+import org.lecturestudio.stylus.javafx.JavaFxStylusManager;
 
 @FxmlView(name = "main-slides")
 public class FxSlidesView extends VBox implements SlidesView {
@@ -91,6 +97,8 @@ public class FxSlidesView extends VBox implements SlidesView {
 
 	@FXML
 	private TabPane tabPane;
+
+	private StylusListener stylusListener;
 
 
 	public FxSlidesView() {
@@ -213,6 +221,39 @@ public class FxSlidesView extends VBox implements SlidesView {
 		this.viewTransformAction = action;
 	}
 
+	@Override
+	public void removeAllPageObjectViews() {
+		slideView.removeAllPageObjectViews();
+	}
+
+	@Override
+	public Collection<PageObjectView<?>> getPageObjectViews() {
+		return slideView.getPageObjectViews();
+	}
+
+	@Override
+	public void addPageObjectView(PageObjectView<Shape> objectView) {
+		slideView.addPageObjectView(objectView);
+	}
+
+	@Override
+	public void removePageObjectView(PageObjectView<? extends Shape> objectView) {
+		slideView.removePageObjectView(objectView);
+	}
+
+	@Override
+	public void setStylusHandler(StylusHandler handler) {
+		stylusListener = new StylusListener(handler, slideView);
+
+		JavaFxStylusManager manager = JavaFxStylusManager.getInstance();
+		manager.attachStylusListener(slideView, stylusListener);
+	}
+
+	@Override
+	public void bindToolStartedProperty(BooleanProperty toolStartedProperty) {
+		slideView.toolStartedProperty().addListener((observable, oldValue, newValue) -> toolStartedProperty.set(newValue));
+	}
+
 	@FXML
 	private void initialize() {
 		deletePageMenuItem.setOnAction(event -> {
@@ -271,10 +312,13 @@ public class FxSlidesView extends VBox implements SlidesView {
 
 	private void onFocusChange(Node node) {
 		if (nonNull(node)) {
-			if (TextField.class.isAssignableFrom(node.getClass()) ||
-				TitledPane.class.isAssignableFrom(node.getClass())) {
-				node.requestFocus();
-				return;
+			Parent parent = node.getParent();
+
+			if (nonNull(parent)) {
+				if (PageObjectView.class.isAssignableFrom(parent.getClass())) {
+					node.requestFocus();
+					return;
+				}
 			}
 		}
 

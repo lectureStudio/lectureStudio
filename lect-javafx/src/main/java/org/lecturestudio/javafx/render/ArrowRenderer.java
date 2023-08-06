@@ -66,8 +66,8 @@ public class ArrowRenderer implements Renderer<GraphicsContext> {
 
 		// Focus
 		if (shape.isSelected()) {
-			boolean bold = keyEvent != null && keyEvent.isAltDown();
-			boolean twoSided = keyEvent != null && keyEvent.isShiftDown();
+			boolean bold = ((ArrowShape) shape).isBold();
+			boolean twoSided = ((ArrowShape) shape).isTwoSided();
 
 			double penWidth = width * 0.7;
 			double scale = bold ? width * 2 : width;

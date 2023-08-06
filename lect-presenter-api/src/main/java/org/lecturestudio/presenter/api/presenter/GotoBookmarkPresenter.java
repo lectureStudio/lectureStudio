@@ -66,7 +66,7 @@ public class GotoBookmarkPresenter extends Presenter<GotoBookmarkView> {
 			close();
 		}
 		catch (BookmarkKeyException e) {
-			showError("bookmark.goto.error", "bookmark.key.not.existing", bookmark.getShortcut());
+			context.showError("bookmark.goto.error", "bookmark.key.not.existing", bookmark.getShortcut());
 		}
 		catch (Exception e) {
 			handleException(e, "Go to bookmark failed", "bookmark.goto.error");

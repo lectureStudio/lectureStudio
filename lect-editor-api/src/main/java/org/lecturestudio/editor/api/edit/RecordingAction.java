@@ -52,7 +52,7 @@ public abstract class RecordingAction implements EditAction {
 	 * @param recording The recording on which to apply this action.
 	 * @param actions   The sub-actions to manage.
 	 */
-	public RecordingAction(Recording recording, List<EditAction> actions) {
+	protected RecordingAction(Recording recording, List<EditAction> actions) {
 		this.recording = recording;
 		this.editActions = actions;
 	}

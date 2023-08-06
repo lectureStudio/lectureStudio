@@ -26,11 +26,9 @@ import org.lecturestudio.core.recording.RecordedObject;
 
 public abstract class PlaybackAction implements RecordedObject, Cloneable {
 
-	abstract public ActionType getType();
+	public abstract ActionType getType();
 
-	abstract public void execute(ToolController controller) throws Exception;
-
-
+	public abstract void execute(ToolController controller) throws Exception;
 
 	private static final int KEY_EVENT_MASK = 1;
 

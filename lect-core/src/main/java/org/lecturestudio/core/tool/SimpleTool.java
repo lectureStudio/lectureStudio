@@ -22,7 +22,7 @@ import org.lecturestudio.core.geometry.PenPoint2D;
 
 public abstract class SimpleTool extends Tool {
 
-	public SimpleTool(ToolContext context) {
+	protected SimpleTool(ToolContext context) {
 		super(context);
 	}
 

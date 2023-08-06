@@ -35,6 +35,7 @@ import org.lecturestudio.core.view.Action;
 import org.lecturestudio.core.view.ConsumerAction;
 import org.lecturestudio.editor.api.model.ZoomConstraints;
 import org.lecturestudio.editor.api.presenter.MediaTrackControlsPresenter;
+import org.lecturestudio.editor.api.view.ToolbarView;
 import org.lecturestudio.media.search.SearchState;
 import org.lecturestudio.editor.api.view.MediaTrackControlsView;
 import org.lecturestudio.javafx.beans.LectBooleanProperty;
@@ -96,6 +97,9 @@ public class FxMediaTrackControlsView extends HBox implements MediaTrackControls
 
 	@FXML
 	private Button splitAndSaveRecordingButton;
+
+	@FXML
+	private ToolbarView toolbarView;
 
 
 	public FxMediaTrackControlsView() {

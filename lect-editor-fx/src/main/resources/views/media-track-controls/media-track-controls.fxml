@@ -1,9 +1,17 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import javafx.scene.control.*?>
-<?import javafx.scene.layout.*?>
-<?import org.lecturestudio.javafx.control.*?>
+<?import org.lecturestudio.javafx.control.ButtonGroup?>
+<?import org.lecturestudio.javafx.control.SvgIcon?>
+<?import org.lecturestudio.javafx.control.TextSearchField?>
 
+<?import org.lecturestudio.editor.javafx.view.FxToolbarView?>
+
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Tooltip?>
+<?import javafx.scene.control.Separator?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.Slider?>
 <fx:root type="HBox" alignment="CENTER_LEFT" styleClass="media-track-controls" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1">
 	<ButtonGroup>
 		<buttons>
@@ -96,24 +104,28 @@
 			<SvgIcon styleClass="zoom-in-icon"/>
 		</graphic>
 	</Button>
-	<Separator />
+	<Separator/>
 	<Button fx:id="collapseSelectionButton">
 		<tooltip>
-			<Tooltip text="%media.collapse.selection" />
+			<Tooltip text="%media.collapse.selection"/>
 		</tooltip>
 		<graphic>
 			<SvgIcon styleClass="collapse-selection-icon"/>
 		</graphic>
 	</Button>
-	<Separator />
+	<Separator/>
+
+	<FxToolbarView fx:id="toolBar" HBox.hgrow="ALWAYS"/>
+
+	<Separator/>
 
 	<HBox styleClass="search-box" alignment="CENTER_RIGHT" HBox.hgrow="ALWAYS">
-		<Label fx:id="searchStateLabel" managed="false" visible="false" />
+		<Label fx:id="searchStateLabel" managed="false" visible="false"/>
 		<ButtonGroup>
 			<buttons>
 				<Button fx:id="searchPrevButton" managed="false" visible="false">
 					<tooltip>
-						<Tooltip text="%media.previous.search.index" />
+						<Tooltip text="%media.previous.search.index"/>
 					</tooltip>
 					<graphic>
 						<SvgIcon styleClass="search-prev-icon"/>

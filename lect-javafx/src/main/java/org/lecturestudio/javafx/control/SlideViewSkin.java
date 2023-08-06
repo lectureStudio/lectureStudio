@@ -32,7 +32,7 @@ import java.awt.image.DataBufferInt;
 import java.awt.image.DirectColorModel;
 import java.awt.image.WritableRaster;
 import java.nio.IntBuffer;
-import java.util.HashMap;
+import java.util.EnumMap;
 import java.util.Map;
 
 import javafx.application.Platform;
@@ -69,7 +69,7 @@ import org.lecturestudio.javafx.util.FxUtils;
 
 public class SlideViewSkin extends SkinBase<SlideView> {
 
-	private static final Map<ViewType, RenderThread> executors = new HashMap<>();
+	private static final Map<ViewType, RenderThread> executors = new EnumMap<>(ViewType.class);
 
 	static {
 		executors.put(ViewType.Preview, new RenderThread());

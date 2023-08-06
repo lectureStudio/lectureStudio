@@ -97,8 +97,10 @@ public class PageEventsPresenter extends Presenter<PageEventsView> {
 
 	@Subscribe
 	public void onEvent(RecordingChangeEvent event) {
-		if (event.getContentType() == Recording.Content.EVENTS
-				|| event.getContentType() == Content.ALL) {
+		if (event.getContentType() == Recording.Content.EVENTS_REMOVED
+				|| event.getContentType() == Content.ALL
+				|| event.getContentType() == Recording.Content.EVENTS_CHANGED
+				|| event.getContentType() == Recording.Content.EVENTS_ADDED) {
 			loadSelectedPageEvents();
 		}
 	}

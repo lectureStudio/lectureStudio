@@ -42,9 +42,11 @@ import org.lecturestudio.core.io.RandomAccessAudioStream;
 import org.lecturestudio.core.model.Document;
 import org.lecturestudio.core.model.Interval;
 import org.lecturestudio.core.recording.RecordingEditException;
+import org.lecturestudio.core.recording.action.PlaybackAction;
 import org.lecturestudio.core.recording.edit.EditAction;
 import org.lecturestudio.editor.api.edit.HideAndMoveNextPageAction;
 import org.lecturestudio.editor.api.edit.HidePageAction;
+import org.lecturestudio.editor.api.edit.InsertPlaybackActionsAction;
 import org.lecturestudio.editor.api.edit.MovePageAction;
 import org.lecturestudio.editor.api.edit.ReplaceAllPagesAction;
 import org.lecturestudio.editor.api.edit.ReplaceAudioAction;
@@ -471,10 +473,14 @@ public class RecordingFileService {
 		double prevDuration = playbackService.getDuration().getMillis();
 		double scale = prevDuration / recording.getRecordedAudio().getAudioStream().getLengthInMillis();
 
-		documentService.replaceDocument(document);
-		playbackService.setRecording(recording);
+		switch (event.getContentType()) {
+			case ALL, DOCUMENT, HEADER, AUDIO, EVENTS_REMOVED, EVENTS_CHANGED -> {
+				documentService.replaceDocument(document);
+				playbackService.setRecording(recording);
 
-		updateEditState(recording);
+				updateEditState(recording);
+			}
+		}
 
 		context.getEventBus().post(event);
 
@@ -498,6 +504,7 @@ public class RecordingFileService {
 		catch (ExecutableException e) {
 			LOG.error("Seek failed", e);
 		}
+
 	}
 
 	private void suspendPlayback() throws ExecutableException {
@@ -605,6 +612,25 @@ public class RecordingFileService {
 			catch (Exception e) {
 				throw new CompletionException(e);
 			}
+		});
+	}
+
+	public CompletableFuture<Void> insertPlaybackActions(List<PlaybackAction> addedActions, int pageNumber) {
+		return insertPlaybackActions(addedActions, pageNumber, getSelectedRecording());
+	}
+
+	public CompletableFuture<Void> insertPlaybackActions(List<PlaybackAction> addedActions, int pageNumber, Recording recording) {
+		return CompletableFuture.runAsync(() -> {
+			try {
+				addEditAction(recording, new InsertPlaybackActionsAction(addedActions, pageNumber, recording));
+			}
+			catch (Exception e) {
+				throw new CompletionException(e);
+			}
+		}).thenCompose((ignored) -> {
+			double endTimestamp = (double) (addedActions.get(addedActions.size() - 1).getTimestamp() + 2) / recording.getRecordingHeader().getDuration();
+			context.setPrimarySelection(endTimestamp);
+			return null;
 		});
 	}
 }

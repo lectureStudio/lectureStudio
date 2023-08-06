@@ -35,7 +35,7 @@ public class SelectAction extends PlaybackAction {
 
 	@Override
 	public void execute(ToolController controller) throws Exception {
-		controller.selectSelectionTool();
+		controller.selectSelectTool();
 	}
 
 	@Override

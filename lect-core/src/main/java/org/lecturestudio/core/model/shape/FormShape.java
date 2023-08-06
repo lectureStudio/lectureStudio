@@ -45,7 +45,7 @@ public abstract class FormShape extends PenShape {
 	 *
 	 * @param stroke The stroke.
 	 */
-	public FormShape(Stroke stroke) {
+	protected FormShape(Stroke stroke) {
 		super(stroke);
 	}
 
@@ -68,7 +68,7 @@ public abstract class FormShape extends PenShape {
 	 * @return The last point of the form.
 	 */
 	public PenPoint2D getEndPoint() {
-		if (getPoints().size() < 1) {
+		if (getPoints().isEmpty()) {
 			return null;
 		}
 

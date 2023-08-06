@@ -18,31 +18,45 @@
 
 package org.lecturestudio.editor.api.presenter;
 
+import static java.util.Objects.isNull;
 import static java.util.Objects.nonNull;
 
-import com.google.common.eventbus.Subscribe;
+import javax.inject.Inject;
 
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
-import javax.inject.Inject;
+import com.google.common.eventbus.Subscribe;
 
 import org.lecturestudio.core.app.ApplicationContext;
+import org.lecturestudio.core.audio.bus.event.TextColorEvent;
+import org.lecturestudio.core.beans.BooleanProperty;
 import org.lecturestudio.core.bus.EventBus;
 import org.lecturestudio.core.bus.event.DocumentEvent;
 import org.lecturestudio.core.bus.event.PageEvent;
+import org.lecturestudio.core.bus.event.ToolSelectionEvent;
 import org.lecturestudio.core.controller.RenderController;
+import org.lecturestudio.editor.api.controller.EditorToolController;
 import org.lecturestudio.core.input.KeyEvent;
 import org.lecturestudio.core.model.Document;
 import org.lecturestudio.core.model.Page;
+import org.lecturestudio.core.model.listener.PageEditedListener;
 import org.lecturestudio.core.model.listener.ParameterChangeListener;
+import org.lecturestudio.core.model.shape.Shape;
+import org.lecturestudio.core.model.shape.TextShape;
 import org.lecturestudio.core.presenter.Presenter;
 import org.lecturestudio.core.recording.DocumentEventExecutor;
 import org.lecturestudio.core.recording.Recording;
+import org.lecturestudio.core.stylus.StylusHandler;
+import org.lecturestudio.core.tool.ToolType;
 import org.lecturestudio.core.view.Action;
+import org.lecturestudio.core.view.PageObjectRegistry;
+import org.lecturestudio.core.view.PageObjectView;
 import org.lecturestudio.core.view.PresentationParameter;
 import org.lecturestudio.core.view.PresentationParameterProvider;
+import org.lecturestudio.core.view.TextBoxView;
+import org.lecturestudio.core.view.ViewContextFactory;
 import org.lecturestudio.core.view.ViewType;
 import org.lecturestudio.editor.api.context.EditorContext;
 import org.lecturestudio.editor.api.input.Shortcut;
@@ -59,36 +73,66 @@ public class SlidesPresenter extends Presenter<SlidesView> {
 
 	private final Map<Document, DocumentEventExecutor> docExecMap;
 
+	private final ViewContextFactory viewFactory;
 	private final RenderController renderController;
+
+	private final EditorToolController toolController;
+
+	private ToolType toolType;
+
+	private TextBoxView lastFocusedTextBox;
 
 	private final RecordingFileService recordingService;
 
 	private final RecordingPlaybackService playbackService;
+	private final PageObjectRegistry pageObjectRegistry;
+	private PageEditedListener pageEditedListener;
+	private StylusHandler stylusHandler;
 
 
 	@Inject
 	SlidesPresenter(ApplicationContext context, SlidesView view,
-			RenderController renderController,
-			RecordingFileService recordingService,
-			RecordingPlaybackService playbackService) {
+	                ViewContextFactory viewFactory,
+	                RenderController renderController,
+	                EditorToolController toolController,
+	                RecordingFileService recordingService,
+	                RecordingPlaybackService playbackService) {
 		super(context, view);
 
+		this.viewFactory = viewFactory;
 		this.renderController = renderController;
+		this.toolController = toolController;
 		this.recordingService = recordingService;
 		this.playbackService = playbackService;
 		this.eventBus = context.getEventBus();
 		this.shortcutMap = new HashMap<>();
 		this.docExecMap = new ConcurrentHashMap<>();
+		this.pageObjectRegistry = new PageObjectRegistry();
 	}
 
 	@Override
 	public void initialize() {
 		eventBus.register(this);
+		BooleanProperty toolStartedProperty = new BooleanProperty(false);
+
+		stylusHandler = new StylusHandler(toolController, () -> {
+		});
 
 		view.setOnKeyEvent(this::keyEvent);
 		view.setOnDeletePage(this::deletePage);
 		view.setOnSelectPage(this::selectPage);
 		view.setPageRenderer(renderController);
+		view.setStylusHandler(stylusHandler);
+		view.bindToolStartedProperty(toolStartedProperty);
+
+		toolStartedProperty.addListener((observable, oldValue, newValue) -> {
+			if (Boolean.TRUE.equals(newValue)) {
+				((EditorContext) context).setIsEditing(true);
+			}
+			else {
+				((EditorContext) context).setIsEditing(false);
+			}
+		});
 
 		// Register for page parameter change updates.
 		PresentationParameterProvider ppProvider = context.getPagePropertyProvider(ViewType.User);
@@ -114,6 +158,15 @@ public class SlidesPresenter extends Presenter<SlidesView> {
 		registerShortcut(Shortcut.SLIDE_PREVIOUS_LEFT, this::previousPage);
 		registerShortcut(Shortcut.SLIDE_PREVIOUS_PAGE_UP, this::previousPage);
 		registerShortcut(Shortcut.SLIDE_PREVIOUS_UP, this::previousPage);
+
+		pageEditedListener = (event) -> {
+			switch (event.getType()) {
+				case SHAPE_ADDED -> pageShapeAdded(event.getShape());
+				case CLEAR -> setPage(event.getPage());
+			}
+		};
+
+		pageObjectRegistry.register(ToolType.TEXT, TextBoxView.class);
 	}
 
 	@Override
@@ -213,6 +266,9 @@ public class SlidesPresenter extends Presenter<SlidesView> {
 		if (nonNull(action)) {
 			action.execute();
 		}
+		else {
+			toolController.setKeyEvent(event);
+		}
 	}
 
 	private void documentCreated(Document doc) {
@@ -277,6 +333,17 @@ public class SlidesPresenter extends Presenter<SlidesView> {
 		PresentationParameterProvider ppProvider = context.getPagePropertyProvider(ViewType.User);
 		PresentationParameter parameter = ppProvider.getParameter(page);
 
+		stylusHandler.setPresentationParameter(parameter);
+
+		if (nonNull(view.getPage())) {
+			view.getPage().removePageEditedListener(pageEditedListener);
+		}
+
+		if (nonNull(page)) {
+			page.addPageEditedListener(pageEditedListener);
+		}
+
+
 		view.setPage(page, parameter);
 	}
 
@@ -290,5 +357,110 @@ public class SlidesPresenter extends Presenter<SlidesView> {
 
 	private synchronized void removeProxyDocument(Document document) {
 		docExecMap.remove(document);
+	}
+
+	private void pageShapeAdded(Shape shape) {
+		Class<? extends Shape> shapeClass = pageObjectRegistry.getShapeClass(toolType);
+
+		if (isNull(shapeClass) || !shapeClass.isAssignableFrom(shape.getClass())) {
+			return;
+		}
+
+		Class<? extends PageObjectView<? extends Shape>> viewClass =
+				pageObjectRegistry.getPageObjectViewClass(toolType);
+
+		try {
+			PageObjectView<?> objectView = createPageObjectView(shape, viewClass);
+			objectView.setFocus(view.getPageObjectViews().stream().noneMatch(PageObjectView::isCopying));
+		}
+		catch (Exception e) {
+			logException(e, "Create PageObjectView failed");
+		}
+	}
+
+	private void loadPageObjectViews(Page page) {
+		if (pageObjectRegistry.containsViewShapes(toolType, page)) {
+			Class<? extends PageObjectView<? extends Shape>> viewClass =
+					pageObjectRegistry.getPageObjectViewClass(toolType);
+			Class<? extends Shape> shapeClass = pageObjectRegistry.getShapeClass(toolType);
+
+			for (Shape shape : page.getShapes()) {
+				if (shapeClass.isAssignableFrom(shape.getClass())) {
+					createPageObjectView(shape, viewClass);
+				}
+			}
+		}
+	}
+
+	private PageObjectView<? extends Shape> createPageObjectView(Shape shape,
+	                                                             Class<? extends PageObjectView<? extends Shape>> viewClass) {
+		PageObjectView<Shape> objectView = (PageObjectView<Shape>) viewFactory.getInstance(viewClass);
+		objectView.setPageShape(shape);
+		objectView.setOnClose(() -> {
+			pageObjectViewClosed(objectView);
+		});
+		objectView.setOnFocus((focused) -> {
+			pageObjectViewFocused(objectView);
+		});
+		objectView.setOnCopy(() -> {
+			pageObjectViewCopy(objectView);
+		});
+
+		view.addPageObjectView(objectView);
+
+		return objectView;
+	}
+
+	private void pageObjectViewClosed(PageObjectView<? extends Shape> objectView) {
+		view.removePageObjectView(objectView);
+
+		// Remove associated shape from the page.
+		Shape shape = objectView.getPageShape();
+
+		Page page = view.getPage();
+		page.removeShape(shape);
+
+		if (shape instanceof TextShape) {
+			// TODO: make this generic or remove at all
+			TextShape textShape = (TextShape) shape;
+			textShape.setOnRemove();
+		}
+	}
+
+	private void pageObjectViewFocused(PageObjectView<? extends Shape> objectView) {
+		Class<? extends Shape> shapeClass = pageObjectRegistry.getShapeClass(ToolType.TEXT);
+
+		if (nonNull(shapeClass) && shapeClass.isAssignableFrom(objectView.getPageShape().getClass())) {
+			lastFocusedTextBox = (TextBoxView) objectView;
+		}
+	}
+
+	private void pageObjectViewCopy(PageObjectView<? extends Shape> objectView) {
+		Shape shape = objectView.getPageShape();
+		Class<? extends Shape> shapeClass = pageObjectRegistry.getShapeClass(ToolType.TEXT);
+
+		if (nonNull(shapeClass) && shapeClass.isAssignableFrom(shape.getClass())) {
+			toolController.copyText((TextShape) shape.clone());
+		}
+	}
+
+	@Subscribe
+	public void onEvent(final ToolSelectionEvent event) {
+		toolChanged(event.getToolType());
+	}
+
+	@Subscribe
+	public void onEvent(TextColorEvent event) {
+		if (nonNull(lastFocusedTextBox)) {
+			lastFocusedTextBox.setTextColor(event.getColor());
+		}
+	}
+
+	private void toolChanged(ToolType toolType) {
+		this.toolType = toolType;
+
+		view.removeAllPageObjectViews();
+
+		loadPageObjectViews(view.getPage());
 	}
 }

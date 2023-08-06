@@ -18,7 +18,9 @@
 
 package org.lecturestudio.presenter.api.presenter;
 
-import static java.util.Objects.*;
+import static java.util.Objects.isNull;
+import static java.util.Objects.nonNull;
+import static java.util.Objects.requireNonNull;
 
 import com.google.common.eventbus.Subscribe;
 
@@ -59,7 +61,22 @@ import org.lecturestudio.presenter.api.config.DocumentTemplateConfiguration;
 import org.lecturestudio.presenter.api.config.ExternalWindowConfiguration;
 import org.lecturestudio.presenter.api.config.PresenterConfiguration;
 import org.lecturestudio.presenter.api.context.PresenterContext;
-import org.lecturestudio.presenter.api.event.*;
+import org.lecturestudio.presenter.api.event.ExternalMessagesViewEvent;
+import org.lecturestudio.presenter.api.event.ExternalNotesViewEvent;
+import org.lecturestudio.presenter.api.event.ExternalParticipantsViewEvent;
+import org.lecturestudio.presenter.api.event.ExternalSlidePreviewViewEvent;
+import org.lecturestudio.presenter.api.event.ExternalSpeechViewEvent;
+import org.lecturestudio.presenter.api.event.MessageBarPositionEvent;
+import org.lecturestudio.presenter.api.event.MessengerStateEvent;
+import org.lecturestudio.presenter.api.event.NotesBarPositionEvent;
+import org.lecturestudio.presenter.api.event.ParticipantsPositionEvent;
+import org.lecturestudio.presenter.api.event.PreviewPositionEvent;
+import org.lecturestudio.presenter.api.event.QuizStateEvent;
+import org.lecturestudio.presenter.api.event.RecordingStateEvent;
+import org.lecturestudio.presenter.api.event.ScreenShareEndEvent;
+import org.lecturestudio.presenter.api.event.ScreenShareStateEvent;
+import org.lecturestudio.presenter.api.event.StreamReconnectStateEvent;
+import org.lecturestudio.presenter.api.event.StreamingStateEvent;
 import org.lecturestudio.presenter.api.input.Shortcut;
 import org.lecturestudio.presenter.api.model.MessageBarPosition;
 import org.lecturestudio.presenter.api.model.MessageDocument;
@@ -68,8 +85,8 @@ import org.lecturestudio.presenter.api.service.RecordingService;
 import org.lecturestudio.presenter.api.service.WebRtcStreamService;
 import org.lecturestudio.presenter.api.service.WebService;
 import org.lecturestudio.presenter.api.service.WebServiceInfo;
-import org.lecturestudio.presenter.api.stylus.StylusHandler;
-import org.lecturestudio.presenter.api.view.PageObjectRegistry;
+import org.lecturestudio.core.stylus.StylusHandler;
+import org.lecturestudio.core.view.PageObjectRegistry;
 import org.lecturestudio.presenter.api.view.SlidesView;
 import org.lecturestudio.swing.model.ExternalWindowPosition;
 import org.lecturestudio.web.api.event.PeerStateEvent;

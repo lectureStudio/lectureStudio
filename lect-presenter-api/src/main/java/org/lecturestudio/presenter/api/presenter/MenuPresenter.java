@@ -232,7 +232,7 @@ public class MenuPresenter extends Presenter<MenuView> {
 			bookmarkService.gotoBookmark(bookmark);
 		}
 		catch (BookmarkKeyException e) {
-			showError("bookmark.goto.error", "bookmark.key.not.existing", bookmark.getShortcut());
+			context.showError("bookmark.goto.error", "bookmark.key.not.existing", bookmark.getShortcut());
 		}
 		catch (Exception e) {
 			handleException(e, "Go to bookmark failed", "bookmark.goto.error");
@@ -340,7 +340,7 @@ public class MenuPresenter extends Presenter<MenuView> {
 			Throwable cause = nonNull(e.getCause()) ? e.getCause().getCause() : null;
 
 			if (cause instanceof AudioDeviceNotConnectedException ex) {
-				showError("recording.start.error", "recording.start.device.error", ex.getDeviceName());
+				context.showError("recording.start.error", "recording.start.device.error", ex.getDeviceName());
 			}
 			else {
 				handleException(e, "Start recording failed", "recording.start.error");

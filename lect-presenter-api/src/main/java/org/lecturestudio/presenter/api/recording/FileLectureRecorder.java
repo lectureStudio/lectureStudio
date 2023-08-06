@@ -25,6 +25,7 @@ import com.google.common.eventbus.Subscribe;
 
 import java.io.File;
 import java.io.IOException;
+import java.security.NoSuchAlgorithmException;
 import java.util.Arrays;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -57,6 +58,7 @@ import org.lecturestudio.core.io.RandomAccessAudioStream;
 import org.lecturestudio.core.model.Document;
 import org.lecturestudio.core.model.Page;
 import org.lecturestudio.core.recording.LectureRecorder;
+import org.lecturestudio.core.recording.PendingActions;
 import org.lecturestudio.core.recording.Recording;
 import org.lecturestudio.core.recording.RecordingHeader;
 import org.lecturestudio.core.recording.file.RecordingFileWriter;
@@ -197,7 +199,7 @@ public class FileLectureRecorder extends LectureRecorder {
 		return name;
 	}
 
-	public void writeRecording(File destFile, ProgressCallback progressCallback) throws Exception {
+	public void writeRecording(File destFile, ProgressCallback progressCallback) throws IOException, NoSuchAlgorithmException {
 		if (destFile == null) {
 			throw new NullPointerException("No destination file provided.");
 		}

@@ -98,6 +98,12 @@ public class SwingMenuView extends JMenuBar implements MenuView {
 
 	private JMenu messagesPositionMenu;
 
+	private JMenu splitNotesPositionMenu;
+
+	private JRadioButtonMenuItem splitNotesPositionRightMenuItem;
+
+	private JRadioButtonMenuItem splitNotesPositionNoneMenuItem;
+
 	private JRadioButtonMenuItem messagesPositionLeftMenuItem;
 
 	private JRadioButtonMenuItem messagesPositionBottomMenuItem;
@@ -211,6 +217,7 @@ public class SwingMenuView extends JMenuBar implements MenuView {
 			messagesPositionMenu.setEnabled(hasDocument);
 			participantsPositionMenu.setEnabled(hasDocument);
 			previewPositionMenu.setEnabled(hasDocument);
+			splitNotesPositionMenu.setEnabled(hasDocument);
 		});
 	}
 
@@ -744,6 +751,26 @@ public class SwingMenuView extends JMenuBar implements MenuView {
 		SwingUtils.invoke(() -> {
 			quizIndicatorMenu.setText(Long.toString(state.answerCount));
 		});
+	}
+
+	@Override
+	public void setOnSplitNotesPositionNone(Action action) {
+		SwingUtils.bindAction(splitNotesPositionNoneMenuItem, action);
+	}
+
+	@Override
+	public void setSplitNotesPositionNone() {
+		splitNotesPositionNoneMenuItem.setSelected(true);
+	}
+
+	@Override
+	public void setOnSplitNotesPositionRight(Action action) {
+		SwingUtils.bindAction(splitNotesPositionRightMenuItem, action);
+	}
+
+	@Override
+	public void setSplitNotesPositionRight() {
+		splitNotesPositionRightMenuItem.setSelected(true);
 	}
 
 	@ViewPostConstruct

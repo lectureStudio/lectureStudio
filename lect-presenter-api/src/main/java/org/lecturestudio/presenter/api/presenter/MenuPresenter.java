@@ -53,6 +53,7 @@ import org.lecturestudio.core.bus.event.PageEvent;
 import org.lecturestudio.core.bus.event.ViewVisibleEvent;
 import org.lecturestudio.core.controller.ToolController;
 import org.lecturestudio.core.model.Document;
+import org.lecturestudio.core.model.NotesPosition;
 import org.lecturestudio.core.model.Page;
 import org.lecturestudio.core.model.RecentDocument;
 import org.lecturestudio.core.model.listener.PageEditEvent;
@@ -220,6 +221,10 @@ public class MenuPresenter extends Presenter<MenuView> {
 	@Subscribe
 	public void onEvent(final ExternalSpeechViewEvent event) {
 		view.setExternalSpeech(event.isEnabled(), event.isShow());
+	}
+
+	public void positionSplitNotes(NotesPosition position){
+		documentService.selectNotesPosition(position);
 	}
 
 	public void openBookmark(Bookmark bookmark) {
@@ -647,6 +652,9 @@ public class MenuPresenter extends Presenter<MenuView> {
 				}
 			}
 		}, 0, 1000);
+		view.setOnSplitNotesPositionNone(() -> positionSplitNotes(NotesPosition.NONE));
+		view.setOnSplitNotesPositionRight(() -> positionSplitNotes(NotesPosition.RIGHT));
+
 	}
 
 	public void startStopwatchConfiguration() {

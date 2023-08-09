@@ -26,9 +26,10 @@ import com.artifex.mupdf.fitz.Pixmap;
 import com.artifex.mupdf.fitz.Rect;
 import com.artifex.mupdf.fitz.RectI;
 
-import java.awt.Graphics2D;
+import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.awt.image.DataBufferInt;
+import java.awt.image.RescaleOp;
 import java.awt.image.WritableRaster;
 import java.io.IOException;
 import java.util.HashMap;
@@ -70,8 +71,8 @@ public class MuPDFRenderer implements DocumentRenderer {
 			Rectangle2D pageRect = parameter.getViewRect();
 			int pageNumber = page.getPageNumber();
 			//Needed for notes on right side
-			//TODO: NotesPosition == LEFT funktioniert nicht
 			float stmX = 0;
+			float ctmX = 0;
 
 			double sx = imageWidth / pageRect.getWidth();
 			double sy = imageHeight / pageRect.getHeight();
@@ -96,18 +97,21 @@ public class MuPDFRenderer implements DocumentRenderer {
 			float pageSx = imageWidth / (bounds.x1 - bounds.x0);
 			float pageSy = imageHeight / (bounds.y1 - bounds.y0);
 
+			if(page.getDocument().getSplittedSlideNotes() == NotesPosition.LEFT){
+				stmX = bounds.x0 * pageSx;
+				ctmX = bounds.x0 * pageSx;
+			}
+
 			Matrix ctm = new Matrix();
-			ctm.translate(-x, -y);
+			//ctm.translate(-x, -y);
+			ctm.translate(-x - ctmX, -y);
 			ctm.scale(pageSx * scale, pageSy * scale);
 
 			int px = (int) (pageRect.getX() * pageSx);
 			int py = (int) (pageRect.getY() * pageSy);
 
-			if(page.getDocument().getSplittedSlideNotes() == NotesPosition.LEFT){
-				stmX = bounds.x0 * pageSx;
-			}
-
 			Matrix stm = new Matrix();
+			//stm.translate(-px, -py);
 			stm.translate(-px - stmX, -py);
 			stm.scale(pageSx, pageSy);
 

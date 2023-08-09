@@ -234,4 +234,16 @@ public interface MenuView extends View {
 	void bindAttendeesCount(IntegerProperty count);
 
 	void setQuizServiceState(QuizWebServiceState state);
+
+	/**
+	 * Split notes
+	 */
+	void setOnSplitNotesPositionNone(Action action);
+
+	void setSplitNotesPositionNone();
+
+	void setOnSplitNotesPositionRight(Action action);
+
+	void setSplitNotesPositionRight();
+
 }

@@ -43,6 +43,12 @@
 				<radiobuttonmenuitem id="previewPositionRightMenuItem" text="menu.right" />
 			</buttongroup>
 		</menu>
+		<menu id="splitNotesPositionMenu" text="menu.splitNotes.position">
+			<buttongroup>
+				<radiobuttonmenuitem id="splitNotesPositionRightMenuItem" text="menu.right" />
+				<radiobuttonmenuitem id="splitNotesPositionNoneMenuItem" text="menu.none" />
+			</buttongroup>
+		</menu>
 	</menu>
 	<menu text="menu.whiteboard">
 		<menuitem id="newWhiteboardMenuItem" text="menu.whiteboard.new" />

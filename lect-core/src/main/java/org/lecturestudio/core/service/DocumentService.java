@@ -42,12 +42,7 @@ import org.lecturestudio.core.bus.event.DocumentEvent;
 import org.lecturestudio.core.bus.event.PageEvent;
 import org.lecturestudio.core.geometry.Dimension2D;
 import org.lecturestudio.core.geometry.Rectangle2D;
-import org.lecturestudio.core.model.Document;
-import org.lecturestudio.core.model.DocumentList;
-import org.lecturestudio.core.model.DocumentType;
-import org.lecturestudio.core.model.Page;
-import org.lecturestudio.core.model.RecentDocument;
-import org.lecturestudio.core.model.TemplateDocument;
+import org.lecturestudio.core.model.*;
 import org.lecturestudio.core.view.PresentationParameter;
 import org.lecturestudio.core.view.PresentationParameterProvider;
 import org.lecturestudio.core.view.ViewType;
@@ -171,7 +166,7 @@ public class DocumentService {
 	 *
 	 * @param docFile the document file.
 	 */
-	public CompletableFuture<Document> openDocument(File docFile) {
+	public CompletableFuture<Document> openDocument(File docFile, NotesPosition notesPosition) {
 		return CompletableFuture.supplyAsync(() -> {
 			Optional<Document> fileDoc = documents.getDocumentByFile(docFile);
 
@@ -192,9 +187,12 @@ public class DocumentService {
 			selectDocument(doc);
 
 			updateRecentDocuments(doc);
-
+			doc.setSplittedSlideNotes(notesPosition);
 			return doc;
 		});
+	}
+	public CompletableFuture<Document> openDocument(File docFile) {
+		return openDocument(docFile, NotesPosition.UNKNOWN);
 	}
 
 	public void addDocument(Document doc) {
@@ -404,6 +402,14 @@ public class DocumentService {
 
 		if (nonNull(doc)) {
 			selectPage(doc, pageNumber);
+		}
+	}
+
+	public void selectNotesPosition(NotesPosition pos) {
+		Document doc = documents.getSelectedDocument();
+
+		if (nonNull(doc)) {
+			doc.setSplittedSlideNotes(pos);
 		}
 	}
 

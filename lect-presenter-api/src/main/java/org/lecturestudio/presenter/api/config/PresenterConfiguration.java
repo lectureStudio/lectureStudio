@@ -37,6 +37,8 @@ public class PresenterConfiguration extends Configuration {
 
 	private final StreamConfiguration streamConfig = new StreamConfiguration();
 
+	private final CameraRecordingConfiguration cameraRecordingConfig = new CameraRecordingConfiguration();
+
 	private final TemplateConfiguration templateConfig = new TemplateConfiguration();
 
 	private final ExternalWindowConfiguration externalMessagesConfig = new ExternalWindowConfiguration();
@@ -132,6 +134,13 @@ public class PresenterConfiguration extends Configuration {
 	 */
 	public StreamConfiguration getStreamConfig() {
 		return streamConfig;
+	}
+
+	/**
+	 * @return the cameraConfig
+	 */
+	public CameraRecordingConfiguration getCameraRecordingConfig() {
+		return cameraRecordingConfig;
 	}
 
 	public TemplateConfiguration getTemplateConfig() {

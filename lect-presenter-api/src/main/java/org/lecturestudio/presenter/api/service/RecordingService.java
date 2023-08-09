@@ -29,31 +29,40 @@ import java.util.concurrent.CompletionException;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.lecturestudio.core.ExecutableBase;
 import org.lecturestudio.core.ExecutableException;
-import org.lecturestudio.core.app.ApplicationContext;
 import org.lecturestudio.core.audio.AudioFormat;
 import org.lecturestudio.core.audio.AudioFrame;
 import org.lecturestudio.core.model.Time;
 import org.lecturestudio.core.util.ProgressCallback;
 import org.lecturestudio.presenter.api.config.PresenterConfiguration;
+import org.lecturestudio.presenter.api.context.PresenterContext;
 import org.lecturestudio.presenter.api.event.RecordingTimeEvent;
 import org.lecturestudio.presenter.api.recording.FileLectureRecorder;
 
 @Singleton
 public class RecordingService extends ExecutableBase {
 
-	private final ApplicationContext context;
+	private static final Logger LOG = LogManager.getLogger(RecordingService.class);
+
+	private final PresenterContext context;
 
 	private final FileLectureRecorder recorder;
+
+	private final CameraRecordingService camRecorder;
+
+	private WebRtcStreamService streamService;
 
 	private IdleTimer recordingTimer;
 
 
 	@Inject
-	public RecordingService(ApplicationContext context, FileLectureRecorder recorder) {
+	public RecordingService(PresenterContext context, FileLectureRecorder recorder, CameraRecordingService camRecorder) {
 		this.context = context;
 		this.recorder = recorder;
+		this.camRecorder = camRecorder;
 
 		setAudioFormat(context.getConfiguration().getAudioConfig().getRecordingFormat());
 
@@ -66,6 +75,11 @@ public class RecordingService extends ExecutableBase {
 				recorder.setPageRecordingTimeout(newValue);
 			}
 		});
+	}
+
+	public void SetWebRTC(WebRtcStreamService streamService) {
+		this.streamService = streamService;
+		camRecorder.setWebRTC(streamService);
 	}
 
 	public void addAudioFrame(final AudioFrame event) {
@@ -85,9 +99,15 @@ public class RecordingService extends ExecutableBase {
 		return CompletableFuture.runAsync(() -> {
 			try {
 				recorder.writeRecording(file, callback);
-			}
-			catch (Exception e) {
+			} catch (Exception e) {
 				throw new CompletionException(e);
+			}
+			if (context.getConfiguration().getCameraRecordingConfig().isCameraEnabled()) {
+				try {
+					camRecorder.finishVideoRecordingProcess(file);
+				} catch (Exception e) {
+					throw new CompletionException(e);
+				}
 			}
 		});
 	}
@@ -107,6 +127,13 @@ public class RecordingService extends ExecutableBase {
 	@Override
 	protected void initInternal() throws ExecutableException {
 		recorder.init();
+		if (context.getConfiguration().getCameraRecordingConfig().isCameraEnabled()) {
+			try {
+				camRecorder.init();
+			} catch (Exception e) {
+				LOG.error("Initialization of CameraRecorderService failed", e);
+			}
+		}
 
 		recordingTimer = new IdleTimer();
 	}
@@ -118,8 +145,16 @@ public class RecordingService extends ExecutableBase {
 				// Recover from potential error.
 				recorder.stop();
 			}
-
 			recorder.start();
+			if (context.getConfiguration().getCameraRecordingConfig().isCameraEnabled()) {
+				try {
+					camRecorder.start();
+				} catch (Exception e) {
+					LOG.error("Start of CameraRecorderService failed", e);
+					recorder.stop();
+					throw e;
+				}
+			}
 			recordingTimer.runTask();
 		}
 	}
@@ -127,8 +162,17 @@ public class RecordingService extends ExecutableBase {
 	@Override
 	protected void suspendInternal() throws ExecutableException {
 		if (recorder.started()) {
-			recorder.suspend();
 			recordingTimer.stop();
+			recorder.suspend();
+			if (context.getConfiguration().getCameraRecordingConfig().isCameraEnabled()) {
+				try {
+					camRecorder.suspend();
+				} catch (Exception e) {
+					LOG.error("Suspension of CameraRecorderService failed", e);
+					recorder.stop();
+					throw e;
+				}
+			}
 		}
 	}
 
@@ -137,6 +181,15 @@ public class RecordingService extends ExecutableBase {
 		if (recorder.started() || recorder.suspended()) {
 			recordingTimer.stop();
 			recorder.stop();
+			if (context.getConfiguration().getCameraRecordingConfig().isCameraEnabled()) {
+				try {
+					context.setRecordingStarted(false);
+					camRecorder.stop();
+				} catch (Exception e) {
+					LOG.error("Stop of CameraRecorderService failed", e);
+					throw e;
+				}
+			}
 		}
 	}
 
@@ -144,6 +197,13 @@ public class RecordingService extends ExecutableBase {
 	protected void destroyInternal() throws ExecutableException {
 		if (!recorder.destroyed()) {
 			recorder.destroy();
+			if (context.getConfiguration().getCameraRecordingConfig().isCameraEnabled()) {
+				try {
+					camRecorder.destroy();
+				} catch (Exception e) {
+					LOG.error("Destruction of CameraRecorderService failed", e);
+				}
+			}
 		}
 	}
 
@@ -152,7 +212,6 @@ public class RecordingService extends ExecutableBase {
 
 		context.getEventBus().post(new RecordingTimeEvent(time));
 	}
-
 
 
 	private class IdleTimer extends Timer {

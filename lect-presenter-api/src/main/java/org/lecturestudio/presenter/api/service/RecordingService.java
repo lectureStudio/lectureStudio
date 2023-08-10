@@ -66,7 +66,7 @@ public class RecordingService extends ExecutableBase {
 
 		setAudioFormat(context.getConfiguration().getAudioConfig().getRecordingFormat());
 
-		PresenterConfiguration config = (PresenterConfiguration) context.getConfiguration();
+		PresenterConfiguration config =  context.getConfiguration();
 		config.getAudioConfig().recordingMasterVolumeProperty().addListener((observable, oldValue, newValue) -> {
 			recorder.setAudioVolume(newValue.doubleValue());
 		});
@@ -104,7 +104,7 @@ public class RecordingService extends ExecutableBase {
 			}
 			if (context.getConfiguration().getCameraRecordingConfig().isCameraEnabled()) {
 				try {
-					camRecorder.finishVideoRecordingProcess(file);
+					camRecorder.finishCameraRecordingProcess(file);
 				} catch (Exception e) {
 					throw new CompletionException(e);
 				}

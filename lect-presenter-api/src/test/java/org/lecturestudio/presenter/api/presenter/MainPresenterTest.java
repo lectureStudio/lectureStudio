@@ -33,6 +33,7 @@ import java.util.function.Predicate;
 
 import com.google.inject.AbstractModule;
 import com.google.inject.Provides;
+import org.checkerframework.checker.optional.qual.Present;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.lecturestudio.core.ExecutableException;
@@ -62,18 +63,14 @@ import org.lecturestudio.core.view.Screen;
 import org.lecturestudio.core.view.View;
 import org.lecturestudio.core.view.ViewContextFactory;
 import org.lecturestudio.core.view.ViewLayer;
+import org.lecturestudio.media.camera.CameraService;
 import org.lecturestudio.presenter.api.config.PresenterConfiguration;
 import org.lecturestudio.presenter.api.context.PresenterContext;
 import org.lecturestudio.presenter.api.input.Shortcut;
 import org.lecturestudio.presenter.api.model.ScreenShareContext;
 import org.lecturestudio.presenter.api.net.LocalBroadcaster;
 import org.lecturestudio.presenter.api.recording.FileLectureRecorder;
-import org.lecturestudio.presenter.api.service.BookmarkService;
-import org.lecturestudio.presenter.api.service.RecordingService;
-import org.lecturestudio.presenter.api.service.WebRtcStreamEventRecorder;
-import org.lecturestudio.presenter.api.service.WebRtcStreamService;
-import org.lecturestudio.presenter.api.service.WebService;
-import org.lecturestudio.presenter.api.service.WebServiceInfo;
+import org.lecturestudio.presenter.api.service.*;
 import org.lecturestudio.presenter.api.view.MainView;
 import org.lecturestudio.presenter.api.view.QuitRecordingView;
 import org.lecturestudio.presenter.api.view.RestoreRecordingView;
@@ -81,6 +78,7 @@ import org.lecturestudio.presenter.api.view.SaveDocumentsView;
 import org.lecturestudio.presenter.api.view.SettingsView;
 import org.lecturestudio.presenter.api.view.SlidesView;
 import org.lecturestudio.web.api.message.SpeechBaseMessage;
+
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -102,6 +100,10 @@ class MainPresenterTest extends PresenterTest {
 	private DocumentService documentService;
 
 	private RecordingService recordingService;
+
+	private CameraRecordingService cameraRecordingService;
+
+	private CameraService cameraService;
 
 	private ObservableList<Screen> screens;
 
@@ -125,7 +127,9 @@ class MainPresenterTest extends PresenterTest {
 
 		recorder = new FileLectureRecorder(audioSystemProvider, documentService, audioConfig, getRecordingDirectory());
 
-		recordingService = new RecordingService(context, recorder);
+		cameraRecordingService = new CameraRecordingService((PresenterContext) context, cameraService, recorder);
+
+		recordingService = new RecordingService((PresenterContext) context, recorder, cameraRecordingService);
 
 		screens = new ObservableArrayList<>();
 		screens.addAll(List.of(SCREENS));
@@ -201,17 +205,13 @@ class MainPresenterTest extends PresenterTest {
 				if (cls == SlidesPresenter.class) {
 					ToolController toolController = new ToolController(context, documentService);
 					return (T) new SlidesPresenter(context, createProxy(SlidesView.class), null, toolController, presentationController, null, documentService, documentRecorder, recordingService, webService, webServiceInfo, streamService);
-				}
-				else if (cls == SettingsPresenter.class) {
+				} else if (cls == SettingsPresenter.class) {
 					return (T) new SettingsPresenter(context, createProxy(SettingsView.class));
-				}
-				else if (cls == RestoreRecordingPresenter.class) {
+				} else if (cls == RestoreRecordingPresenter.class) {
 					return (T) new RestoreRecordingPresenter(context, createProxy(RestoreRecordingView.class), null);
-				}
-				else if (cls == QuitRecordingPresenter.class) {
+				} else if (cls == QuitRecordingPresenter.class) {
 					return (T) new QuitRecordingPresenter(context, createProxy(QuitRecordingView.class), null);
-				}
-				else if (cls == SaveDocumentsPresenter.class) {
+				} else if (cls == SaveDocumentsPresenter.class) {
 					return (T) new SaveDocumentsPresenter(context, createProxy(SaveDocumentsView.class), viewFactory, documentRecorder);
 				}
 
@@ -222,7 +222,8 @@ class MainPresenterTest extends PresenterTest {
 
 	@Test
 	void testShowView() throws Exception {
-		class TestView implements View { }
+		class TestView implements View {
+		}
 
 		View testView = new TestView();
 
@@ -245,7 +246,8 @@ class MainPresenterTest extends PresenterTest {
 		AtomicBoolean shown = new AtomicBoolean(false);
 		AtomicInteger showCounter = new AtomicInteger(0);
 
-		class TestView implements View { }
+		class TestView implements View {
+		}
 		class TestPresenter extends Presenter<TestView> {
 			TestPresenter(ApplicationContext context, TestView view) {
 				super(context, view);
@@ -289,7 +291,8 @@ class MainPresenterTest extends PresenterTest {
 		AtomicBoolean shown = new AtomicBoolean(false);
 		AtomicInteger initializedCounter = new AtomicInteger(0);
 
-		class TestView implements View { }
+		class TestView implements View {
+		}
 		class TestPresenter extends Presenter<TestView> {
 			TestPresenter(ApplicationContext context, TestView view) {
 				super(context, view);
@@ -337,7 +340,8 @@ class MainPresenterTest extends PresenterTest {
 		AtomicBoolean removed = new AtomicBoolean(false);
 		AtomicBoolean destroyed = new AtomicBoolean(false);
 
-		class TestView implements View { }
+		class TestView implements View {
+		}
 		class TestPresenter extends Presenter<TestView> {
 			TestPresenter(ApplicationContext context, TestView view) {
 				super(context, view);
@@ -377,7 +381,8 @@ class MainPresenterTest extends PresenterTest {
 		AtomicBoolean removed = new AtomicBoolean(false);
 		AtomicBoolean destroyed = new AtomicBoolean(false);
 
-		class TestView implements View { }
+		class TestView implements View {
+		}
 		class TestPresenter extends Presenter<TestView> {
 			TestPresenter(ApplicationContext context, TestView view) {
 				super(context, view);
@@ -462,7 +467,7 @@ class MainPresenterTest extends PresenterTest {
 
 		recorder = new FileLectureRecorder(audioSystemProvider, documentService, audioConfig, getRecordingDirectory());
 
-		recordingService = new RecordingService(context, recorder);
+		recordingService = new RecordingService((PresenterContext) context, recorder, cameraRecordingService);
 
 		MainPresenter presenter = new MainPresenter(context, view, presentationController, null, viewFactory, documentService, bookmarkService, recordingService, null, null);
 		presenter.initialize();
@@ -507,7 +512,8 @@ class MainPresenterTest extends PresenterTest {
 	void testCloseViewShortcut() throws Exception {
 		AtomicBoolean removed = new AtomicBoolean(false);
 
-		class TestView implements View { }
+		class TestView implements View {
+		}
 		class TestPresenter extends Presenter<TestView> {
 			TestPresenter(ApplicationContext context, TestView view) {
 				super(context, view);
@@ -599,7 +605,6 @@ class MainPresenterTest extends PresenterTest {
 		assertTrue(shownView.get());
 		assertEquals(0, shownLatch.getCount());
 	}
-
 
 
 	private static class MainMockView implements MainView {

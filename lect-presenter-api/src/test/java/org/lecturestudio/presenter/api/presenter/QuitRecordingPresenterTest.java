@@ -31,8 +31,11 @@ import org.lecturestudio.core.ExecutableException;
 import org.lecturestudio.core.app.configuration.AudioConfiguration;
 import org.lecturestudio.core.service.DocumentService;
 import org.lecturestudio.core.view.Action;
+import org.lecturestudio.media.camera.CameraService;
+import org.lecturestudio.presenter.api.context.PresenterContext;
 import org.lecturestudio.presenter.api.recording.FileLectureRecorder;
 import org.lecturestudio.presenter.api.recording.RecordingBackup;
+import org.lecturestudio.presenter.api.service.CameraRecordingService;
 import org.lecturestudio.presenter.api.service.RecordingService;
 import org.lecturestudio.presenter.api.view.QuitRecordingView;
 
@@ -42,6 +45,10 @@ import org.junit.jupiter.api.Test;
 class QuitRecordingPresenterTest extends PresenterTest {
 
 	private RecordingService recordingService;
+
+	private CameraRecordingService cameraRecordingService;
+
+	private CameraService cameraService;
 
 	private QuitRecordingMockView view;
 
@@ -56,7 +63,9 @@ class QuitRecordingPresenterTest extends PresenterTest {
 
 		recorder = new FileLectureRecorder(audioSystemProvider, documentService, audioConfig, getRecordingDirectory());
 
-		recordingService = new RecordingService(context, recorder);
+		cameraRecordingService = new CameraRecordingService((PresenterContext) context, cameraService, recorder);
+
+		recordingService = new RecordingService((PresenterContext) context, recorder, cameraRecordingService);
 
 		view = new QuitRecordingMockView();
 

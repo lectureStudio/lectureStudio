@@ -95,6 +95,8 @@ public class DeleteEventsAction extends RecordedObjectAction<RecordedEvents> {
 		for (RecordedPage page : recPages) {
 			page.shift(editInterval);
 
+
+
 			if (page.getNumber() > lastRemoved) {
 				page.setNumber(page.getNumber() - removedPages.size());
 			}

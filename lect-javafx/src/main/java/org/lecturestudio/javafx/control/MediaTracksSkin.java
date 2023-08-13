@@ -314,7 +314,7 @@ public class MediaTracksSkin extends SkinBase<MediaTracks> {
 
 			addMediaTrackControl(waveform, "audio-track-icon");
 		}
-		else if (track instanceof EventsTrack) {
+		else if (track instanceof EventsTrack eventsTrack) {
 			EventTimeline eventTimeline = new EventTimeline();
 			eventTimeline.durationProperty().bind(mediaTracks.durationProperty());
 			eventTimeline.setMediaTrack((EventsTrack) track);
@@ -322,6 +322,7 @@ public class MediaTracksSkin extends SkinBase<MediaTracks> {
 			eventTimeline.setOnMovePage(mediaTracks.getOnMovePage());
 			eventTimeline.setOnHidePage(mediaTracks.getOnHidePage());
 			eventTimeline.setOnHideAndMoveNextPage(mediaTracks.getOnHideAndMoveNextPage());
+			eventTimeline.getToolDemoRecordings().addAll(eventsTrack.getToolDemoRecordings());
 
 			InvalidationListener updateClippingListener = (event) -> eventTimeline.setClip(new Rectangle(eventTimeline.getLayoutX(), eventTimeline.getLayoutY(), eventTimeline.getWidth() + rightPlaceholder.getWidth(), eventTimeline.getHeight()));
 

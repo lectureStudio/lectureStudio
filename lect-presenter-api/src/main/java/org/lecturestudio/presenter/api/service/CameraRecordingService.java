@@ -384,13 +384,14 @@ public class CameraRecordingService extends ExecutableBase {
 	 * @param file The video file, which has been recorded by the camera
 	 * @throws ExecutableException
 	 */
-	public void finishCameraRecordingProcess(File file) throws ExecutableException {
+	public void finishCameraRecordingProcess(File file, FileLectureRecorder recorder) throws ExecutableException {
 		muxer.stop();
 		muxer.destroy();
 		isMuxerInit = false;
 		if (closestFormat.getFrameRate() == 0 || frames * 1.0 / closestFormat.getFrameRate() < 1.0) {
 			try {
 				Files.delete(outputVideoPath);
+				recorder.setCameraRecordingFileName("");
 			}
 			catch (IOException e) {
 				throw new RuntimeException(e);
@@ -398,11 +399,15 @@ public class CameraRecordingService extends ExecutableBase {
 		}
 		else {
 			try {
-				Files.move(outputVideoPath, getSafeVideoFileDestinationPath(file));
+				Path newOutputVideoPath = getSafeVideoFileDestinationPath(file);
+				Files.move(outputVideoPath, newOutputVideoPath);
+				recorder.setCameraRecordingFileName(newOutputVideoPath.getFileName().toString());
+
 			}
 			catch (IOException e) {
 				try {
 					Files.delete(outputVideoPath);
+					recorder.setCameraRecordingFileName("");
 				}
 				catch (IOException ex) {
 					throw new ExecutableException(ex);

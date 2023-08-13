@@ -11,6 +11,11 @@
     -fx-fill: #FC8181;
 }
 
+.page-tool-demo-marker {
+    -fx-fill: #32A852;
+    -fx-opacity: 0.5;
+}
+
 .event-timeline-pane {
     -fx-background-color: derive(-fx-background, -4%);
 }

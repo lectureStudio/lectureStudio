@@ -47,6 +47,9 @@ public class VideoRenderConfiguration {
 	/** The two-pass profile path. */
 	private String twoPassProfilePath;
 
+	/** The placement of the camera recording. */
+	private ObjectProperty<String> cameraRecordingPlacement = new ObjectProperty<>();
+
 
 	public CodecID getCodecID() {
 		return codecID.get();
@@ -128,4 +131,11 @@ public class VideoRenderConfiguration {
 		this.twoPassProfilePath = profilePath;
 	}
 
+	public ObjectProperty<String> getCameraRecordingPlacement() {
+		return cameraRecordingPlacement;
+	}
+
+	public void setCameraRecordingPlacement(String cameraRecordingPlacement) {
+		this.cameraRecordingPlacement.set(cameraRecordingPlacement);
+	}
 }

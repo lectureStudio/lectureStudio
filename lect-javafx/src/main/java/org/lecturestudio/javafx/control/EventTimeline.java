@@ -29,8 +29,12 @@ import javafx.css.Styleable;
 import javafx.scene.control.Control;
 import javafx.scene.control.Skin;
 
+import org.lecturestudio.core.model.Interval;
 import org.lecturestudio.core.model.Time;
 import org.lecturestudio.core.recording.RecordedPage;
+import org.lecturestudio.core.recording.Recording;
+import org.lecturestudio.core.util.ObservableArrayList;
+import org.lecturestudio.core.util.ObservableList;
 import org.lecturestudio.core.view.ConsumerAction;
 import org.lecturestudio.javafx.util.FxStyleablePropertyFactory;
 import org.lecturestudio.media.track.EventsTrack;
@@ -52,6 +56,7 @@ public class EventTimeline extends MediaTrackControlBase<EventsTrack> {
 
 	private ConsumerAction<RecordedPage> onHideAndMoveNextPageAction;
 
+	private final ObservableList<Recording.ToolDemoRecording> toolDemoRecordings = new ObservableArrayList<>();
 
 	public EventTimeline() {
 		initialize();
@@ -124,4 +129,7 @@ public class EventTimeline extends MediaTrackControlBase<EventsTrack> {
 		return this.onHideAndMoveNextPageAction;
 	}
 
+	public ObservableList<Recording.ToolDemoRecording> getToolDemoRecordings() {
+		return toolDemoRecordings;
+	}
 }

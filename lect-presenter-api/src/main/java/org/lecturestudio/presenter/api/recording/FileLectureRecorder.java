@@ -25,15 +25,7 @@ import com.google.common.eventbus.Subscribe;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.Arrays;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.Stack;
-import java.util.Timer;
-import java.util.TimerTask;
-import java.util.UUID;
+import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -55,6 +47,7 @@ import org.lecturestudio.core.bus.event.PageEvent;
 import org.lecturestudio.core.bus.event.RecordActionEvent;
 import org.lecturestudio.core.io.RandomAccessAudioStream;
 import org.lecturestudio.core.model.Document;
+import org.lecturestudio.core.model.Interval;
 import org.lecturestudio.core.model.Page;
 import org.lecturestudio.core.recording.LectureRecorder;
 import org.lecturestudio.core.recording.Recording;
@@ -104,10 +97,15 @@ public class FileLectureRecorder extends LectureRecorder {
 
 	private int pageRecordingTimeout = 2000;
 
+	private List<Recording.ToolDemoRecording> toolDemoRecordings = new ArrayList<>();
+
+	private String cameraRecordingFileName;
+
+	public String currentToolDemoFileName;
 
 	public FileLectureRecorder(AudioSystemProvider audioSystemProvider,
-			DocumentService documentService, AudioConfiguration audioConfig,
-			String recDir) throws IOException {
+							   DocumentService documentService, AudioConfiguration audioConfig,
+							   String recDir) throws IOException {
 		this.audioSystemProvider = audioSystemProvider;
 		this.documentService = documentService;
 		this.audioConfig = audioConfig;
@@ -149,8 +147,7 @@ public class FileLectureRecorder extends LectureRecorder {
 
 		if (event.getType() == PageEvent.Type.CREATED) {
 			addPage(event.getPage(), 0);
-		}
-		else if (event.getType() == PageEvent.Type.SELECTED) {
+		} else if (event.getType() == PageEvent.Type.SELECTED) {
 			runIdleTimer();
 		}
 	}
@@ -197,6 +194,30 @@ public class FileLectureRecorder extends LectureRecorder {
 		return name;
 	}
 
+	public String getCameraRecordingFileName() {
+		return this.cameraRecordingFileName;
+	}
+
+	public void setCameraRecordingFileName(String cameraRecordingFileName) {
+		this.cameraRecordingFileName = cameraRecordingFileName;
+	}
+
+	public List<Recording.ToolDemoRecording> getToolDemoRecordings() {
+		return toolDemoRecordings;
+	}
+
+	public void addToolDemoRecording(Interval<Long> toolDemoInterval) {
+		this.toolDemoRecordings.add(new Recording.ToolDemoRecording(toolDemoInterval, currentToolDemoFileName));
+	}
+
+	public String getCurrentToolDemoFileName() {
+		return this.currentToolDemoFileName;
+	}
+
+	public void setCurrentToolDemoFileName(String fileName) {
+		this.currentToolDemoFileName = fileName;
+	}
+
 	public void writeRecording(File destFile, ProgressCallback progressCallback) throws Exception {
 		if (destFile == null) {
 			throw new NullPointerException("No destination file provided.");
@@ -220,6 +241,8 @@ public class FileLectureRecorder extends LectureRecorder {
 			recording.setRecordedAudio(new RecordedAudio(audioStream));
 			recording.setRecordedEvents(new RecordedEvents(recordedPages));
 			recording.setRecordedDocument(new RecordedDocument(recordedDocument));
+			recording.setCameraRecordingFileNameData(cameraRecordingFileName);
+			recording.setToolDemoRecordingsData(toolDemoRecordings);
 
 			RecordingFileWriter.write(recording, destFile, progressCallback);
 
@@ -273,7 +296,7 @@ public class FileLectureRecorder extends LectureRecorder {
 		ExecutableState prevState = getPreviousState();
 
 		if (prevState == ExecutableState.Initialized ||
-			prevState == ExecutableState.Stopped) {
+				prevState == ExecutableState.Stopped) {
 			if (!hasRecordingDevice(deviceName)) {
 				throw new AudioDeviceNotConnectedException(
 						"Audio device %s is not connected", deviceName,
@@ -290,16 +313,14 @@ public class FileLectureRecorder extends LectureRecorder {
 				audioMixer.setOutputFile(new File(backup.getAudioFile()));
 				audioMixer.setMixAudio(audioConfig.getMixAudioStreams());
 				audioMixer.init();
-			}
-			catch (Exception e) {
+			} catch (Exception e) {
 				logException(e, "Could not create audio mixer");
 				throw new ExecutableException("Could not create audio mixer", e);
 			}
 
 			try {
 				recordedDocument = new Document();
-			}
-			catch (IOException e) {
+			} catch (IOException e) {
 				throw new ExecutableException("Could not create document.", e);
 			}
 
@@ -309,8 +330,7 @@ public class FileLectureRecorder extends LectureRecorder {
 
 			try {
 				audioMixer.start();
-			}
-			catch (Exception e) {
+			} catch (Exception e) {
 				logException(e, "Could not start audio mixer");
 			}
 
@@ -338,15 +358,13 @@ public class FileLectureRecorder extends LectureRecorder {
 			// Record the first page.
 			Page firstPage = documentService.getDocuments().getSelectedDocument().getCurrentPage();
 			recordPage(firstPage, 0);
-		}
-		else if (prevState == ExecutableState.Suspended) {
+		} else if (prevState == ExecutableState.Suspended) {
 			Page pendingPage = pendingActions.getPendingPage();
 
 			if (nonNull(pendingPage)) {
 				if (isDuplicate(pendingPage)) {
 					insertPendingActions(recordedPages.peek(), pendingPage);
-				}
-				else {
+				} else {
 					insertPage(pendingPage, 0);
 				}
 			}
@@ -365,8 +383,7 @@ public class FileLectureRecorder extends LectureRecorder {
 
 		try {
 			audioMixer.stop();
-		}
-		catch (Exception e) {
+		} catch (Exception e) {
 			logException(e, "Close audio mixer failed");
 		}
 
@@ -388,8 +405,7 @@ public class FileLectureRecorder extends LectureRecorder {
 	protected void destroyInternal() {
 		try {
 			ApplicationBus.unregister(this);
-		}
-		catch (Exception ignored) {
+		} catch (Exception ignored) {
 			// Throws an Error in case this class gets destroyed before being initialized
 			// Catches the error, because this is a legal state transition
 		}
@@ -398,8 +414,7 @@ public class FileLectureRecorder extends LectureRecorder {
 			if (audioMixer != null) {
 				audioMixer.destroy();
 			}
-		}
-		catch (Exception e) {
+		} catch (Exception e) {
 			logException(e, "Destroy audio mixer failed");
 		}
 
@@ -514,8 +529,7 @@ public class FileLectureRecorder extends LectureRecorder {
 			synchronized (recordedDocument) {
 				try {
 					recordedDocument.createPage(page);
-				}
-				catch (Exception e) {
+				} catch (Exception e) {
 					logException(e, "Create page failed");
 					return;
 				}
@@ -530,8 +544,7 @@ public class FileLectureRecorder extends LectureRecorder {
 				try {
 					backup.writeDocument(recordedDocument);
 					backup.writePages(recordedPages);
-				}
-				catch (Throwable e) {
+				} catch (Throwable e) {
 					logException(e, "Write backup failed");
 				}
 			}
@@ -594,7 +607,6 @@ public class FileLectureRecorder extends LectureRecorder {
 		idleTimer = new IdleTimer(pageRecordingTimeout);
 		idleTimer.runIdleTask();
 	}
-
 
 
 	private class IdleTimer extends Timer {

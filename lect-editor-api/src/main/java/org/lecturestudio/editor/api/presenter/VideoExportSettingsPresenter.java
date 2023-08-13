@@ -31,6 +31,7 @@ import org.lecturestudio.core.beans.ObjectProperty;
 import org.lecturestudio.core.bus.event.DocumentEvent;
 import org.lecturestudio.core.codec.CodecID;
 import org.lecturestudio.core.geometry.Dimension2D;
+import org.lecturestudio.core.geometry.Rectangle2D;
 import org.lecturestudio.core.model.Document;
 import org.lecturestudio.core.model.Page;
 import org.lecturestudio.core.presenter.Presenter;
@@ -53,10 +54,11 @@ public class VideoExportSettingsPresenter extends Presenter<VideoExportSettingsV
 
 	private ObjectProperty<VideoFormat> videoFormatProperty;
 
+	private ObjectProperty<String> cameraRecordingPlacementProperty;
 
 	@Inject
 	VideoExportSettingsPresenter(ApplicationContext context, VideoExportSettingsView view,
-			DocumentService documentService) {
+								 DocumentService documentService) {
 		super(context, view);
 
 		this.renderConfig = ((EditorContext) context).getRenderConfiguration();
@@ -68,6 +70,7 @@ public class VideoExportSettingsPresenter extends Presenter<VideoExportSettingsV
 		VideoFormat videoFormat = AVDefaults.VIDEO_FORMATS[0];
 		AudioFormat[] audioFormats = getAudioFormats(videoFormat);
 		Dimension2D[] dimensions = getDimensions();
+		String[] placements = new String[]{"Deaktiviert" ,"Oben links", "Oben rechts", "Unten links", "Unten rechts"};
 
 		AudioRenderConfiguration audioRenderConfig = renderConfig.getAudioConfig();
 		VideoRenderConfiguration videoRenderConfig = renderConfig.getVideoConfig();
@@ -99,6 +102,7 @@ public class VideoExportSettingsPresenter extends Presenter<VideoExportSettingsV
 			renderConfig.setFileFormat(newValue.getOutputFormat());
 		});
 
+
 		view.setAudioBitrates(AVDefaults.AUDIO_BITRATES);
 		view.bindAudioBitrate(audioRenderConfig.bitrateProperty());
 		view.setAudioFormats(audioFormats);
@@ -109,6 +113,7 @@ public class VideoExportSettingsPresenter extends Presenter<VideoExportSettingsV
 		view.setFrameRates(AVDefaults.FRAME_RATES);
 		view.bindFrameRate(videoRenderConfig.frameRateProperty());
 		view.bindVideoBitrate(videoRenderConfig.bitrateProperty());
+		view.bindCameraRecordingPlacement(videoRenderConfig.getCameraRecordingPlacement());
 		view.setVideoFormats(AVDefaults.VIDEO_FORMATS);
 		view.bindVideoFormat(videoFormatProperty);
 		view.setOnCreate(this::create);
@@ -118,6 +123,13 @@ public class VideoExportSettingsPresenter extends Presenter<VideoExportSettingsV
 
 			view.setDimensions(dimensions);
 		}
+
+		videoRenderConfig.setCameraRecordingPlacement(placements[0]);
+		view.setCameraRecordingPlacement(placements);
+
+		view.setCameraViewRect(new ObjectProperty<>(new Rectangle2D(0,0,300,300)));
+		view.startCameraPreview();
+		view.stopCameraPreview();
 
 		context.getEventBus().register(this);
 	}
@@ -164,8 +176,7 @@ public class VideoExportSettingsPresenter extends Presenter<VideoExportSettingsV
 
 		if (profile.getAudioCodecID() == CodecID.OPUS) {
 			sampleRates = AVDefaults.OPUS_SAMPLE_RATES;
-		}
-		else {
+		} else {
 			sampleRates = AVDefaults.SAMPLE_RATES;
 		}
 

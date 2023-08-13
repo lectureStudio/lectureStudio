@@ -133,14 +133,14 @@ public class MainPresenter extends org.lecturestudio.core.presenter.MainPresente
 
 	@Inject
 	MainPresenter(ApplicationContext context, MainView view,
-			PresentationController presentationController,
-			NotificationPopupManager popupManager,
-			ViewContextFactory contextFactory,
-			DocumentService documentService,
-			BookmarkService bookmarkService,
-			RecordingService recordingService,
-			StreamService streamService,
-			ScreenShareService screenShareService) {
+				  PresentationController presentationController,
+				  NotificationPopupManager popupManager,
+				  ViewContextFactory contextFactory,
+				  DocumentService documentService,
+				  BookmarkService bookmarkService,
+				  RecordingService recordingService,
+				  StreamService streamService,
+				  ScreenShareService screenShareService) {
 		super(context, view);
 
 		this.presentationController = presentationController;
@@ -189,8 +189,7 @@ public class MainPresenter extends org.lecturestudio.core.presenter.MainPresente
 
 					streamService.enableScreenSharing(true);
 				}
-			}
-			else {
+			} else {
 				// Stop screen-share as well.
 				streamService.enableScreenSharing(false);
 			}
@@ -200,9 +199,10 @@ public class MainPresenter extends org.lecturestudio.core.presenter.MainPresente
 			ScreenShareContext shareContext = screenSourceService.getScreenShareContext(selectedDoc);
 
 			if (!newValue) {
+				recordingService.screenShareStopped();
 				// Only update documents with screen dumps if the service is active.
 				if (streamService.getScreenShareState() == ExecutableState.Started
-					|| screenShareService.isScreenCaptureActive()) {
+						|| screenShareService.isScreenCaptureActive()) {
 					try {
 						ScreenDocumentCreator.create(documentService, shareContext.getSource());
 
@@ -210,12 +210,10 @@ public class MainPresenter extends org.lecturestudio.core.presenter.MainPresente
 
 						// Register the newly created document with the source.
 						screenSourceService.addScreenShareContext(selectedDoc, shareContext);
-					}
-					catch (Error e) {
+					} catch (Error e) {
 						// Select screen source failed.
 						// Which in this case is not too critical, since the source may be minimized.
-					}
-					catch (Exception e) {
+					} catch (Exception e) {
 						logException(e, "Create screen-document failed");
 					}
 				}
@@ -226,13 +224,13 @@ public class MainPresenter extends org.lecturestudio.core.presenter.MainPresente
 				stopLocalScreenCapture();
 			}
 			else {
+				recordingService.screenShareStarted();
 				startScreenRecording(shareContext);
 
 				if (!presenterContext.getStreamStarted()) {
 					// Start local screen capture only if we are not streaming.
 					startLocalScreenCapture(shareContext);
-				}
-				else {
+				} else {
 					// Set the screen source related to the selected screen document.
 					streamService.setScreenShareContext(shareContext);
 				}
@@ -300,53 +298,51 @@ public class MainPresenter extends org.lecturestudio.core.presenter.MainPresente
 
 		// Create settings asynchronously.
 		CompletableFuture.runAsync(() -> {
-			try {
-				SettingsPresenter settingsPresenter = createPresenter(SettingsPresenter.class);
+					try {
+						SettingsPresenter settingsPresenter = createPresenter(SettingsPresenter.class);
 
-				if (nonNull(settingsPresenter)) {
-					settingsPresenter.initialize();
-					settingsPresenter.setOnClose(() -> destroy(settingsPresenter));
+						if (nonNull(settingsPresenter)) {
+							settingsPresenter.initialize();
+							settingsPresenter.setOnClose(() -> destroy(settingsPresenter));
 
-					addContext(settingsPresenter);
-				}
-			}
-			catch (Exception e) {
-				throw new CompletionException(e);
-			}
-		})
-		.exceptionally(throwable -> {
-			logException(throwable, "Create settings failed");
-			return null;
-		});
+							addContext(settingsPresenter);
+						}
+					} catch (Exception e) {
+						throw new CompletionException(e);
+					}
+				})
+				.exceptionally(throwable -> {
+					logException(throwable, "Create settings failed");
+					return null;
+				});
 
 		if (config.getCheckNewVersion()) {
 			// Check for a new version.
 			CompletableFuture.runAsync(() -> {
-				try {
-					VersionChecker versionChecker = new VersionChecker(
-							"lectureStudio", "lectureStudio");
+						try {
+							VersionChecker versionChecker = new VersionChecker(
+									"lectureStudio", "lectureStudio");
 
-					if (versionChecker.newVersionAvailable()) {
-						GitHubRelease release = versionChecker.getLatestRelease();
+							if (versionChecker.newVersionAvailable()) {
+								GitHubRelease release = versionChecker.getLatestRelease();
 
-						VersionInfo version = new VersionInfo();
-						version.downloadUrl = versionChecker.getMatchingAssetUrl();
-						version.htmlUrl = release.getUrl();
-						version.published = release.getPublishedAt();
-						version.version = release.getTagName();
+								VersionInfo version = new VersionInfo();
+								version.downloadUrl = versionChecker.getMatchingAssetUrl();
+								version.htmlUrl = release.getUrl();
+								version.published = release.getPublishedAt();
+								version.version = release.getTagName();
 
-						context.getEventBus().post(new NewVersionCommand(
-								NewVersionPresenter.class, version));
-					}
-				}
-				catch (Exception e) {
-					throw new CompletionException(e);
-				}
-			})
-			.exceptionally(throwable -> {
-				logException(throwable, "Check for new version failed");
-				return null;
-			});
+								context.getEventBus().post(new NewVersionCommand(
+										NewVersionPresenter.class, version));
+							}
+						} catch (Exception e) {
+							throw new CompletionException(e);
+						}
+					})
+					.exceptionally(throwable -> {
+						logException(throwable, "Check for new version failed");
+						return null;
+					});
 		}
 	}
 
@@ -399,8 +395,7 @@ public class MainPresenter extends org.lecturestudio.core.presenter.MainPresente
 
 		try {
 			command.execute(presenter);
-		}
-		catch (Exception e) {
+		} catch (Exception e) {
 			logException(e, "Execute command failed");
 		}
 
@@ -413,11 +408,9 @@ public class MainPresenter extends org.lecturestudio.core.presenter.MainPresente
 
 		if (event.created()) {
 			documentCreated();
-		}
-		else if (event.closed()) {
+		} else if (event.closed()) {
 			documentClosed(doc);
-		}
-		else if (event.selected()) {
+		} else if (event.selected()) {
 			documentSelected();
 		}
 	}
@@ -428,13 +421,11 @@ public class MainPresenter extends org.lecturestudio.core.presenter.MainPresente
 
 		if (state == ExecutableState.Starting) {
 			showWaitingNotification("messenger.starting");
-		}
-		else if (state == ExecutableState.Started) {
+		} else if (state == ExecutableState.Started) {
 			hideWaitingNotification();
 
 //			display(createPresenter(MessengerWindowPresenter.class));
-		}
-		else if (state == ExecutableState.Stopped) {
+		} else if (state == ExecutableState.Stopped) {
 			PresenterContext presenterContext = (PresenterContext) context;
 			presenterContext.getMessengerMessages().clear();
 
@@ -448,8 +439,7 @@ public class MainPresenter extends org.lecturestudio.core.presenter.MainPresente
 
 		if (state == ExecutableState.Starting) {
 			showWaitingNotification("quiz.starting");
-		}
-		else if (state == ExecutableState.Started) {
+		} else if (state == ExecutableState.Started) {
 			hideWaitingNotification();
 		}
 	}
@@ -460,16 +450,13 @@ public class MainPresenter extends org.lecturestudio.core.presenter.MainPresente
 
 		if (state == ExecutableState.Starting) {
 			showWaitingNotification("stream.starting");
-		}
-		else if (state == ExecutableState.Started) {
+		} else if (state == ExecutableState.Started) {
 			hideWaitingNotification();
-		}
-		else if (state == ExecutableState.Stopped) {
+		} else if (state == ExecutableState.Stopped) {
 			PresenterContext presenterContext = (PresenterContext) context;
 			presenterContext.getCourseParticipants().clear();
 			presenterContext.getSpeechRequests().clear();
-		}
-		else if (state == ExecutableState.Error) {
+		} else if (state == ExecutableState.Error) {
 			showError("stream.closed.by.remote.host.title", "stream.closed.by.remote.host");
 		}
 	}
@@ -481,12 +468,10 @@ public class MainPresenter extends org.lecturestudio.core.presenter.MainPresente
 		if (state == ExecutableState.Started) {
 			context.getEventBus().post(new ShowPresenterCommand<>(
 					ReconnectStreamPresenter.class));
-		}
-		else if (state == ExecutableState.Stopped) {
+		} else if (state == ExecutableState.Stopped) {
 			context.getEventBus().post(new ClosePresenterCommand(
 					ReconnectStreamPresenter.class));
-		}
-		else if (state == ExecutableState.Error) {
+		} else if (state == ExecutableState.Error) {
 			showError("stream.closed.by.remote.host.title", "stream.closed.by.remote.host");
 		}
 	}
@@ -503,29 +488,28 @@ public class MainPresenter extends org.lecturestudio.core.presenter.MainPresente
 		PresenterContext presenterContext = (PresenterContext) context;
 
 		context.getEventBus()
-			.post(new StartScreenSharingCommand((context) -> {
-				CompletableFuture.runAsync(() -> {
-					try {
-						if (presenterContext.getStreamStarted()) {
-							streamService.setScreenShareContext(context);
+				.post(new StartScreenSharingCommand((context) -> {
+					CompletableFuture.runAsync(() -> {
+						try {
+							if (presenterContext.getStreamStarted()) {
+								streamService.setScreenShareContext(context);
+							}
+
+							ScreenDocumentCreator.create(documentService, context.getSource());
+
+							// Register created screen document with the screen source.
+							screenSourceService.addScreenShareContext(
+									documentService.getDocuments().getSelectedDocument(),
+									context);
+						} catch (Exception e) {
+							throw new RuntimeException(e);
 						}
-
-						ScreenDocumentCreator.create(documentService, context.getSource());
-
-						// Register created screen document with the screen source.
-						screenSourceService.addScreenShareContext(
-								documentService.getDocuments().getSelectedDocument(),
-								context);
-					}
-					catch (Exception e) {
-						throw new RuntimeException(e);
-					}
-				}).exceptionally(e -> {
-					handleException(e, "Set screen-source failed",
-							"stream.screen.share.error");
-					return null;
-				});
-			}));
+					}).exceptionally(e -> {
+						handleException(e, "Set screen-source failed",
+								"stream.screen.share.error");
+						return null;
+					});
+				}));
 	}
 
 	@Subscribe
@@ -534,8 +518,7 @@ public class MainPresenter extends org.lecturestudio.core.presenter.MainPresente
 
 		if (!presenterContext.getStreamStarted()) {
 			stopLocalScreenCapture();
-		}
-		else {
+		} else {
 			streamService.enableScreenSharing(false);
 		}
 
@@ -576,8 +559,7 @@ public class MainPresenter extends org.lecturestudio.core.presenter.MainPresente
 	public void showView(View childView, ViewLayer layer) {
 		if (layer == ViewLayer.NotificationPopup) {
 			popupManager.show(view, (NotificationPopupView) childView);
-		}
-		else {
+		} else {
 			view.showView(childView, layer);
 
 			setViewShown(getViewInterface(childView.getClass()));
@@ -603,8 +585,7 @@ public class MainPresenter extends org.lecturestudio.core.presenter.MainPresente
 
 					showView(view, cachedPresenter.getViewLayer());
 				}
-			}
-			else {
+			} else {
 				if (presenter.getClass().equals(NotificationPresenter.class) &&
 						nonNull(notificationPresenter) &&
 						!notificationPresenter.equals(presenter)) {
@@ -629,8 +610,7 @@ public class MainPresenter extends org.lecturestudio.core.presenter.MainPresente
 					addContext(presenter);
 				}
 			}
-		}
-		catch (Exception e) {
+		} catch (Exception e) {
 			handleException(e, "Show view failed", "error", "generic.error");
 		}
 	}
@@ -651,8 +631,7 @@ public class MainPresenter extends org.lecturestudio.core.presenter.MainPresente
 
 				removeContext(presenter);
 			}
-		}
-		catch (Exception e) {
+		} catch (Exception e) {
 			handleException(e, "Destroy view failed", "error", "generic.error");
 		}
 	}
@@ -680,8 +659,7 @@ public class MainPresenter extends org.lecturestudio.core.presenter.MainPresente
 						// Abort shutdown process.
 						break;
 					}
-				}
-				catch (Exception e) {
+				} catch (Exception e) {
 					logException(e, "Execute shutdown handler failed");
 				}
 			}
@@ -761,8 +739,7 @@ public class MainPresenter extends org.lecturestudio.core.presenter.MainPresente
 			if (backup.hasCheckpoint()) {
 				display(createPresenter(RestoreRecordingPresenter.class));
 			}
-		}
-		catch (IOException e) {
+		} catch (IOException e) {
 			handleException(e, "Open recording backup failed", "recording.restore.missing.backup");
 		}
 	}
@@ -841,8 +818,7 @@ public class MainPresenter extends org.lecturestudio.core.presenter.MainPresente
 		if (!recordingService.suspended()) {
 			try {
 				recordingService.suspend();
-			}
-			catch (Exception e) {
+			} catch (Exception e) {
 				handleException(e, "Pause recording failed", "recording.pause.error");
 			}
 		}
@@ -882,8 +858,7 @@ public class MainPresenter extends org.lecturestudio.core.presenter.MainPresente
 	private <T extends Presenter<?>> T createPresenter(Class<T> pClass) {
 		try {
 			return contextFactory.getInstance(pClass);
-		}
-		catch (Throwable e) {
+		} catch (Throwable e) {
 			handleException(e, "Create presenter failed", "generic.error");
 			return null;
 		}
@@ -911,8 +886,7 @@ public class MainPresenter extends org.lecturestudio.core.presenter.MainPresente
 	private void startLocalScreenCapture(ScreenShareContext shareContext) {
 		try {
 			screenShareService.startScreenCapture(shareContext);
-		}
-		catch (ExecutableException e) {
+		} catch (ExecutableException e) {
 			handleException(e, "Set screen-source failed",
 					"stream.screen.share.error");
 		}

@@ -35,6 +35,7 @@ import org.lecturestudio.core.ExecutableBase;
 import org.lecturestudio.core.ExecutableException;
 import org.lecturestudio.core.audio.AudioFormat;
 import org.lecturestudio.core.audio.AudioFrame;
+import org.lecturestudio.core.model.Interval;
 import org.lecturestudio.core.model.Time;
 import org.lecturestudio.core.util.ProgressCallback;
 import org.lecturestudio.presenter.api.config.PresenterConfiguration;
@@ -57,6 +58,7 @@ public class RecordingService extends ExecutableBase {
 
 	private IdleTimer recordingTimer;
 
+	private Interval<Long> pendingToolDemoInterval;
 
 	@Inject
 	public RecordingService(PresenterContext context, FileLectureRecorder recorder, CameraRecordingService camRecorder) {
@@ -66,7 +68,7 @@ public class RecordingService extends ExecutableBase {
 
 		setAudioFormat(context.getConfiguration().getAudioConfig().getRecordingFormat());
 
-		PresenterConfiguration config =  context.getConfiguration();
+		PresenterConfiguration config = context.getConfiguration();
 		config.getAudioConfig().recordingMasterVolumeProperty().addListener((observable, oldValue, newValue) -> {
 			recorder.setAudioVolume(newValue.doubleValue());
 		});
@@ -95,19 +97,19 @@ public class RecordingService extends ExecutableBase {
 	}
 
 	public CompletableFuture<Void> writeRecording(File file,
-			ProgressCallback callback) {
+												  ProgressCallback callback) {
 		return CompletableFuture.runAsync(() -> {
 			try {
+				if (context.getConfiguration().getCameraRecordingConfig().isCameraEnabled()) {
+					try {
+						camRecorder.finishCameraRecordingProcess(file, recorder);
+					} catch (Exception e) {
+						throw new CompletionException(e);
+					}
+				}
 				recorder.writeRecording(file, callback);
 			} catch (Exception e) {
 				throw new CompletionException(e);
-			}
-			if (context.getConfiguration().getCameraRecordingConfig().isCameraEnabled()) {
-				try {
-					camRecorder.finishCameraRecordingProcess(file);
-				} catch (Exception e) {
-					throw new CompletionException(e);
-				}
 			}
 		});
 	}
@@ -122,6 +124,15 @@ public class RecordingService extends ExecutableBase {
 		}
 
 		recorder.discard();
+	}
+
+	public void screenShareStarted() {
+		pendingToolDemoInterval = new Interval<>(recorder.getElapsedTime(), null);
+	}
+
+	public void screenShareStopped() {
+		pendingToolDemoInterval.set(pendingToolDemoInterval.getStart(), recorder.getElapsedTime());
+		recorder.addToolDemoRecording(pendingToolDemoInterval);
 	}
 
 	@Override

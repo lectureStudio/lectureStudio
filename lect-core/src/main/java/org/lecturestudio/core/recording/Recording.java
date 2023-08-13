@@ -22,6 +22,8 @@ import static java.util.Objects.nonNull;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.ByteBuffer;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -30,6 +32,13 @@ import org.lecturestudio.core.model.Interval;
 import org.lecturestudio.core.recording.edit.RecordingEditManager;
 
 public class Recording {
+
+	/**
+	 * @param interval The interval of the recording, including its start and endpoint in ms.
+	 * @param fileName The name of the file including its extension.
+	 */
+	public record ToolDemoRecording(Interval<Long> interval, String fileName) {
+	}
 
 	public static final int FORMAT_VERSION = 3;
 
@@ -41,7 +50,9 @@ public class Recording {
 
 	private final RecordingEditManager editManager = new RecordingEditManager();
 
-	/** The source file. */
+	/**
+	 * The source file.
+	 */
 	private File sourceFile;
 
 	private RecordingHeader header;
@@ -52,6 +63,9 @@ public class Recording {
 
 	private RecordedEvents events;
 
+	private String cameraRecordingFileName;
+
+	private List<ToolDemoRecording> toolDemoRecordings = new ArrayList<>();
 
 	public Recording() {
 		header = new RecordingHeader();
@@ -120,6 +134,36 @@ public class Recording {
 		this.document = document;
 
 		fireChangeEvent(Content.DOCUMENT);
+	}
+
+	public byte[] getCameraRecordingFileNameDataAsByteStream() {
+		return cameraRecordingFileName.getBytes(StandardCharsets.UTF_8);
+	}
+
+	public void setCameraRecordingFileNameData(String cameraRecordingFileName) {
+		this.cameraRecordingFileName = cameraRecordingFileName;
+	}
+
+	public List<ToolDemoRecording> getToolDemoRecordingsData() {
+		return this.toolDemoRecordings;
+	}
+
+	public void setToolDemoRecordingsData(List<ToolDemoRecording> toolDemoRecordings) {
+		this.toolDemoRecordings = toolDemoRecordings;
+	}
+
+	public byte[] getToolDemoRecordingsDataAsByteStream() {
+		ByteBuffer buffer = ByteBuffer.allocate(getToolDemoRecordingsByteLength());
+
+		for (ToolDemoRecording toolDemoRecording : toolDemoRecordings) {
+			byte[] nameBuffer = toolDemoRecording.fileName.getBytes(StandardCharsets.UTF_8);
+
+			buffer.putLong(toolDemoRecording.interval.getStart());
+			buffer.putLong(toolDemoRecording.interval.getEnd());
+			buffer.putInt(nameBuffer.length);
+			buffer.put(nameBuffer);
+		}
+		return buffer.array();
 	}
 
 	public void close() {
@@ -241,12 +285,25 @@ public class Recording {
 
 			if (Math.abs(nextPage.getTimestamp() - startTime) < snapToPageMargin) {
 				return i + 1;
-			}
-			else if (pageInterval.contains(startTime)) {
+			} else if (pageInterval.contains(startTime)) {
 				return i;
 			}
 		}
 
 		return -1;
+	}
+
+	private int getToolDemoRecordingsByteLength() {
+		//For the initial count on how many bytes this is.
+		int totalLength = 0;
+
+		for (ToolDemoRecording toolDemoRecording : toolDemoRecordings) {
+			int length = toolDemoRecording.fileName.getBytes(StandardCharsets.UTF_8).length;
+
+			// 2x Long (8 byte) + 4 byte name length + N bytes of string
+			totalLength += 20 + length;
+		}
+
+		return totalLength;
 	}
 }

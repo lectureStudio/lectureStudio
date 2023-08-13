@@ -34,6 +34,7 @@ import org.lecturestudio.core.ExecutableException;
 import org.lecturestudio.core.audio.AudioSystemProvider;
 import org.lecturestudio.presenter.api.context.PresenterContext;
 import org.lecturestudio.presenter.api.model.ScreenShareContext;
+import org.lecturestudio.presenter.api.recording.FileLectureRecorder;
 import org.lecturestudio.web.api.model.ScreenSource;
 
 @Singleton
@@ -42,6 +43,8 @@ public class ScreenShareService {
 	private static final Logger LOG = LogManager.getLogger(ScreenShareService.class);
 
 	private final Map<ScreenSource, ScreenRecorderService> recorderServices = new HashMap<>();
+
+	private final FileLectureRecorder recorder;
 
 	private final PresenterContext context;
 
@@ -54,9 +57,10 @@ public class ScreenShareService {
 
 	@Inject
 	public ScreenShareService(PresenterContext context,
-			AudioSystemProvider audioSystemProvider) {
+			AudioSystemProvider audioSystemProvider, FileLectureRecorder fileLectureRecorder) {
 		this.context = context;
 		this.audioSystemProvider = audioSystemProvider;
+		this.recorder = fileLectureRecorder;
 	}
 
 	public void startScreenRecording(ScreenShareContext shareContext) {
@@ -64,7 +68,7 @@ public class ScreenShareService {
 		ScreenRecorderService service = recorderServices.get(source);
 
 		if (isNull(service)) {
-			service = new ScreenRecorderService(context, audioSystemProvider);
+			service = new ScreenRecorderService(context, audioSystemProvider, recorder);
 
 			// Register the recorder for the given source.
 			recorderServices.put(source, service);
@@ -79,8 +83,7 @@ public class ScreenShareService {
 				&& activeRecorderService.started()) {
 			try {
 				activeRecorderService.suspend();
-			}
-			catch (ExecutableException e) {
+			} catch (ExecutableException e) {
 				LOG.error("Suspend screen-recorder failed", e);
 			}
 		}
@@ -90,8 +93,7 @@ public class ScreenShareService {
 			service.start();
 
 			activeRecorderService = service;
-		}
-		catch (ExecutableException e) {
+		} catch (ExecutableException e) {
 			LOG.error("Stop screen-recorder failed", e);
 		}
 	}
@@ -103,8 +105,7 @@ public class ScreenShareService {
 
 		try {
 			activeRecorderService.suspend();
-		}
-		catch (ExecutableException e) {
+		} catch (ExecutableException e) {
 			LOG.error("Suspend screen-recorder failed", e);
 		}
 	}
@@ -117,8 +118,7 @@ public class ScreenShareService {
 
 		try {
 			activeRecorderService.stop();
-		}
-		catch (ExecutableException e) {
+		} catch (ExecutableException e) {
 			LOG.error("Stop screen-recorder failed", e);
 		}
 
@@ -141,8 +141,7 @@ public class ScreenShareService {
 			screenCaptureService.setScreenSource(shareContext.getSource());
 			screenCaptureService.setFrameRate(shareContext.getProfile().getFramerate());
 			screenCaptureService.start();
-		}
-		catch (ExecutableException e) {
+		} catch (ExecutableException e) {
 			LOG.error("Start local screen share failed", e);
 			throw e;
 		}
@@ -155,8 +154,7 @@ public class ScreenShareService {
 
 		try {
 			screenCaptureService.stop();
-		}
-		catch (ExecutableException e) {
+		} catch (ExecutableException e) {
 			LOG.error("Stop local screen share failed", e);
 		}
 	}
@@ -164,4 +162,5 @@ public class ScreenShareService {
 	public boolean isScreenCaptureActive() {
 		return nonNull(screenCaptureService) && screenCaptureService.started();
 	}
+
 }

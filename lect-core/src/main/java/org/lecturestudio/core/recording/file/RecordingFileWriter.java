@@ -47,12 +47,16 @@ public final class RecordingFileWriter {
 
 			byte[] eventData = recFile.getRecordedEvents().toByteArray();
 			byte[] docData = recFile.getRecordedDocument().toByteArray();
+			byte[] cameraRecordingFileNameData = recFile.getCameraRecordingFileNameDataAsByteStream();
+			byte[] toolDemoRecordingsData = recFile.getToolDemoRecordingsDataAsByteStream();
 
 			int headerLength = header.getHeaderLength();
 			int eventsLength = eventData.length;
 			int documentLength = docData.length;
 			int audioLength = (int) audioStream.getLength();
-			int totalSize = headerLength + eventsLength + documentLength + audioLength;
+			int cameraRecordingFileNameLength = cameraRecordingFileNameData.length;
+			int toolDemoRecordingsLength = toolDemoRecordingsData.length;
+			int totalSize = headerLength + eventsLength + documentLength + audioLength + cameraRecordingFileNameLength + toolDemoRecordingsLength;
 
 			float written = headerLength;
 
@@ -88,6 +92,14 @@ public final class RecordingFileWriter {
 
 			audioStream.close();
 
+			// Write camera recording file name.
+			raFile.write(cameraRecordingFileNameData);
+			written += cameraRecordingFileNameLength;
+
+			// Write tool demo filenames and intervals.
+			raFile.write(toolDemoRecordingsData);
+			written += toolDemoRecordingsLength;
+
 			// Update file header.
 			byte[] checksum = raFile.getDigest();
 
@@ -97,6 +109,8 @@ public final class RecordingFileWriter {
 			header.setEventsLength(eventsLength);
 			header.setDocumentLength(documentLength);
 			header.setAudioLength(audioLength);
+			header.setCameraRecordingFileNameLength(cameraRecordingFileNameLength);
+			header.setToolDemoRecordingsLength(toolDemoRecordingsLength);
 
 			// Write file header at the beginning of the file.
 			raFile.seek(0);

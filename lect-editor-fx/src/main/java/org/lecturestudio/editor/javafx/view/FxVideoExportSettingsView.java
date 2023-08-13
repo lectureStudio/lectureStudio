@@ -26,17 +26,22 @@ import javafx.scene.control.CheckBox;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.TextField;
 
+import javafx.scene.media.MediaView;
 import org.lecturestudio.core.audio.AudioFormat;
 import org.lecturestudio.core.beans.BooleanProperty;
 import org.lecturestudio.core.beans.IntegerProperty;
 import org.lecturestudio.core.beans.ObjectProperty;
 import org.lecturestudio.core.geometry.Dimension2D;
+import org.lecturestudio.core.geometry.Rectangle2D;
 import org.lecturestudio.core.view.Action;
 import org.lecturestudio.editor.api.presenter.VideoExportSettingsPresenter;
 import org.lecturestudio.editor.api.view.VideoExportSettingsView;
 import org.lecturestudio.javafx.beans.LectBooleanProperty;
 import org.lecturestudio.javafx.beans.LectIntegerProperty;
 import org.lecturestudio.javafx.beans.LectObjectProperty;
+import org.lecturestudio.javafx.control.CameraCanvas;
+import org.lecturestudio.javafx.control.CameraView;
+import org.lecturestudio.javafx.control.SlideView;
 import org.lecturestudio.javafx.layout.ContentPane;
 import org.lecturestudio.javafx.util.FxUtils;
 import org.lecturestudio.javafx.view.FxmlView;
@@ -68,6 +73,12 @@ public class FxVideoExportSettingsView extends ContentPane implements VideoExpor
 
 	@FXML
 	private Button createButton;
+
+	@FXML
+	private ComboBox<String> cameraRecordingPlacementCombo;
+
+	@FXML
+	private CameraView cameraView = new CameraView();
 
 
 	public FxVideoExportSettingsView() {
@@ -118,6 +129,16 @@ public class FxVideoExportSettingsView extends ContentPane implements VideoExpor
 	}
 
 	@Override
+	public void setCameraRecordingPlacement(String[] placements) {
+		FxUtils.invoke(() -> cameraRecordingPlacementCombo.getItems().setAll(placements));
+	}
+
+	@Override
+	public void bindCameraRecordingPlacement(ObjectProperty<String> property) {
+		cameraRecordingPlacementCombo.valueProperty().bindBidirectional(new LectObjectProperty<>(property));
+	}
+
+	@Override
 	public void bindTwoPassEncoding(BooleanProperty enable) {
 //		twoPassCheckbox.selectedProperty().bindBidirectional(new LectBooleanProperty(enable));
 	}
@@ -150,5 +171,20 @@ public class FxVideoExportSettingsView extends ContentPane implements VideoExpor
 	@Override
 	public void setOnCreate(Action action) {
 		FxUtils.bindAction(createButton, action);
+	}
+
+	@Override
+	public void setCameraViewRect(ObjectProperty<Rectangle2D> viewRect) {
+		cameraView.captureRectProperty().bindBidirectional(new LectObjectProperty<>(viewRect));
+	}
+
+	@Override
+	public void startCameraPreview() {
+		cameraView.startCapture();
+	}
+
+	@Override
+	public void stopCameraPreview() {
+		cameraView.stopCapture();
 	}
 }

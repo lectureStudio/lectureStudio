@@ -18,12 +18,16 @@
 
 package org.lecturestudio.media.track;
 
+import java.util.ArrayList;
 import java.util.List;
 
+import org.lecturestudio.core.recording.Recording;
 import org.lecturestudio.core.recording.RecordingChangeEvent;
 import org.lecturestudio.core.recording.RecordedPage;
 
 public class EventsTrack extends MediaTrackBase<List<RecordedPage>> {
+
+	private List<Recording.ToolDemoRecording> toolDemoRecordings = new ArrayList<>();
 
 	@Override
 	public void recordingChanged(RecordingChangeEvent event) {
@@ -31,8 +35,17 @@ public class EventsTrack extends MediaTrackBase<List<RecordedPage>> {
 			case ALL:
 			case EVENTS:
 				dispose();
+				toolDemoRecordings = event.getRecording().getToolDemoRecordingsData();
 				setData(event.getRecording().getRecordedEvents().getRecordedPages());
 				break;
 		}
+	}
+
+	public List<Recording.ToolDemoRecording> getToolDemoRecordings() {
+		return toolDemoRecordings;
+	}
+
+	public void setToolDemoRecordings(List<Recording.ToolDemoRecording> toolDemoRecordings) {
+		this.toolDemoRecordings = toolDemoRecordings;
 	}
 }

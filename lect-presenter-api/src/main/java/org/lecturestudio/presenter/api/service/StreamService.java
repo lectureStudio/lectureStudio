@@ -24,6 +24,9 @@ import static java.util.Objects.requireNonNull;
 import java.io.FileNotFoundException;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionException;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -53,17 +56,17 @@ public class StreamService {
 
 	private final EventBus eventBus;
 
-	private final WebRtcStreamService streamService;
+	private final WebRtcStreamService webRtcStreamService;
 
 	private final WebService webService;
 
 
 	@Inject
 	public StreamService(PresenterContext context,
-	                     WebRtcStreamService streamService, WebService webService) {
+	                     WebRtcStreamService webRtcStreamService, WebService webService) {
 		this.context = context;
 		this.eventBus = context.getEventBus();
-		this.streamService = streamService;
+		this.webRtcStreamService = webRtcStreamService;
 		this.webService = webService;
 	}
 
@@ -77,11 +80,11 @@ public class StreamService {
 	}
 
 	public void setScreenShareContext(ScreenShareContext context) {
-		streamService.setScreenShareContext(context);
+		webRtcStreamService.setScreenShareContext(context);
 	}
 
 	public ExecutableState getScreenShareState() {
-		return streamService.getScreenShareState();
+		return webRtcStreamService.getScreenShareState();
 	}
 
 	public void enableScreenSharing(boolean enable) {
@@ -118,7 +121,7 @@ public class StreamService {
 	}
 
 	public void startQuiz(Quiz quiz) {
-		if (streamService.started()) {
+		if (webRtcStreamService.started()) {
 			startQuizInternal(quiz);
 		}
 		else {
@@ -184,14 +187,17 @@ public class StreamService {
 		eventBus.post(new StartStreamCommand(course, (streamContext) -> {
 			CompletableFuture.runAsync(() -> {
 				try {
-					streamService.start();
+					webRtcStreamService.start();
 				}
 				catch (ExecutableException e) {
 					throw new CompletionException(e);
 				}
 
 				if (streamContext.getMessengerEnabled()) {
-					context.setMessengerStarted(true);
+					ScheduledExecutorService executorService = Executors.newSingleThreadScheduledExecutor();
+					executorService.schedule(() -> {
+						context.setMessengerStarted(true);
+					}, 3, TimeUnit.SECONDS);
 				}
 			})
 			.exceptionally(e -> {
@@ -206,12 +212,12 @@ public class StreamService {
 
 	private void stopStream() {
 		CompletableFuture.runAsync(() -> {
-			if (!streamService.started()) {
+			if (!webRtcStreamService.started()) {
 				return;
 			}
 
 			try {
-				streamService.stop();
+				webRtcStreamService.stop();
 			}
 			catch (ExecutableException e) {
 				throw new CompletionException(e);
@@ -227,7 +233,7 @@ public class StreamService {
 
 	private void startScreenSharing() {
 		try {
-			streamService.startScreenShare();
+			webRtcStreamService.startScreenShare();
 		}
 		catch (ExecutableException e) {
 			handleException(e, "Start screen-share failed", "stream.screen.share.error");
@@ -236,7 +242,7 @@ public class StreamService {
 
 	private void stopScreenSharing() {
 		try {
-			streamService.stopScreenShare();
+			webRtcStreamService.stopScreenShare();
 		}
 		catch (ExecutableException e) {
 			handleException(e, "Stop screen-share failed", "stream.screen.share.error");
@@ -245,7 +251,7 @@ public class StreamService {
 
 	private void startStreamCamera() {
 		try {
-			streamService.startCameraStream();
+			webRtcStreamService.startCameraStream();
 		}
 		catch (ExecutableException e) {
 			handleException(e, "Start camera stream failed", "stream.start.error");
@@ -254,7 +260,7 @@ public class StreamService {
 
 	private void stopStreamCamera() {
 		try {
-			streamService.stopCameraStream();
+			webRtcStreamService.stopCameraStream();
 		}
 		catch (ExecutableException e) {
 			handleException(e, "Stop camera stream failed", "stream.stop.error");
@@ -262,7 +268,7 @@ public class StreamService {
 	}
 
 	private void startMessenger() {
-		if (streamService.started()) {
+		if (webRtcStreamService.started()) {
 			startMessengerInternal();
 		}
 		else {

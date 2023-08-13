@@ -35,8 +35,6 @@ import org.lecturestudio.web.api.stream.StreamScreenContext;
 import org.lecturestudio.web.api.stream.action.StreamAction;
 import org.lecturestudio.web.api.stream.StreamAudioContext;
 import org.lecturestudio.web.api.stream.StreamVideoContext;
-import org.lecturestudio.web.api.stream.action.StreamActionType;
-import org.lecturestudio.web.api.stream.action.StreamMediaChangeAction;
 
 import dev.onvoid.webrtc.media.video.VideoCaptureCapability;
 import dev.onvoid.webrtc.media.video.VideoDevice;
@@ -133,14 +131,10 @@ public class JanusPublisherHandler extends JanusStateHandler {
 	protected void initInternal() throws ExecutableException {
 		enableMicListener = (observable, oldValue, newValue) -> {
 			peerConnection.setMicrophoneEnabled(newValue);
-
-			sendMediaChangeAction(StreamActionType.STREAM_MICROPHONE_CHANGE, newValue);
 		};
 
 		enableCamListener = (observable, oldValue, newValue) -> {
 			peerConnection.setCameraEnabled(newValue);
-
-			sendMediaChangeAction(StreamActionType.STREAM_CAMERA_CHANGE, newValue);
 		};
 		camListener = (observable, oldDevice, newDevice) -> {
 			peerConnection.setCameraDevice(newDevice);
@@ -152,8 +146,6 @@ public class JanusPublisherHandler extends JanusStateHandler {
 
 		enableScreenListener = (observable, oldValue, newValue) -> {
 			peerConnection.setScreenShareEnabled(newValue);
-
-			sendMediaChangeAction(StreamActionType.STREAM_SCREEN_SHARE_CHANGE, newValue);
 		};
 		screenSourceListener = (observable, oldValue, newValue) -> {
 			peerConnection.getScreenShareConfig().setScreenSource(newValue);
@@ -219,9 +211,5 @@ public class JanusPublisherHandler extends JanusStateHandler {
 				logDebugMessage("Send event via data channel failed");
 			}
 		}
-	}
-
-	private void sendMediaChangeAction(StreamActionType type, boolean enabled) {
-		sendStreamAction(new StreamMediaChangeAction(type, enabled));
 	}
 }

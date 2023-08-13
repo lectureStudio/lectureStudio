@@ -31,7 +31,9 @@ import dev.onvoid.webrtc.media.video.VideoDevice;
 
 import java.io.IOException;
 import java.text.MessageFormat;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 import javax.inject.Inject;
@@ -49,6 +51,7 @@ import org.lecturestudio.core.beans.ChangeListener;
 import org.lecturestudio.core.codec.VideoCodecConfiguration;
 import org.lecturestudio.core.geometry.Rectangle2D;
 import org.lecturestudio.core.model.Document;
+import org.lecturestudio.core.net.MediaType;
 import org.lecturestudio.presenter.api.config.PresenterConfiguration;
 import org.lecturestudio.presenter.api.config.StreamConfiguration;
 import org.lecturestudio.presenter.api.context.PresenterContext;
@@ -299,7 +302,7 @@ public class WebRtcStreamService extends ExecutableBase {
 				.getRecordingFormat());
 
 		streamContext = createStreamContext(course, config);
-		streamStateClient = createStreamStateClient(streamContext, config);
+		streamStateClient = createStreamStateClient(config);
 		janusSignalingClient = createJanusClient(streamContext);
 		janusSignalingClient.addStateListener((oldState, newState) -> {
 			if (newState == ExecutableState.Started) {
@@ -325,6 +328,8 @@ public class WebRtcStreamService extends ExecutableBase {
 				else {
 					setReconnectionState(ExecutableState.Stopped);
 				}
+
+				sendMediaStreamState();
 			}
 
 			@Override
@@ -536,6 +541,22 @@ public class WebRtcStreamService extends ExecutableBase {
 		context.getEventBus().post(new CameraStateEvent(cameraState));
 	}
 
+	private void sendMediaStreamState() {
+		long courseId = streamContext.getCourse().getId();
+
+		// Send media stream state when course state has been initialized.
+		boolean camEnabled = streamContext.getVideoContext().getSendVideo();
+		boolean micEnabled = streamContext.getAudioContext().getSendAudio();
+		boolean screenEnabled = streamContext.getScreenContext().getSendVideo();
+
+		Map<MediaType, Boolean> mediaStateMap = new HashMap<>();
+		mediaStateMap.put(MediaType.Audio, micEnabled);
+		mediaStateMap.put(MediaType.Camera, camEnabled);
+		mediaStateMap.put(MediaType.Screen, screenEnabled);
+
+		streamProviderService.updateStreamMediaState(courseId, mediaStateMap);
+	}
+
 	private void disposeExecutable(Executable executable) throws ExecutableException {
 		if (executable.started()) {
 			executable.stop();
@@ -549,7 +570,7 @@ public class WebRtcStreamService extends ExecutableBase {
 		context.getEventBus().post(new StreamReconnectStateEvent(state));
 	}
 
-	private StreamWebSocketClient createStreamStateClient(StreamContext streamContext,
+	private StreamWebSocketClient createStreamStateClient(
 			PresenterConfiguration config) {
 		StreamConfiguration streamConfig = config.getStreamConfig();
 
@@ -567,7 +588,7 @@ public class WebRtcStreamService extends ExecutableBase {
 		WebSocketHeaderProvider headerProvider = new WebSocketBearerTokenProvider(tokenProvider);
 
 		return new StreamWebSocketClient(stateWsParameters, headerProvider,
-				streamContext, eventRecorder);
+				eventRecorder);
 	}
 
 	private JanusWebSocketClient createJanusClient(StreamContext streamContext) {
@@ -627,6 +648,20 @@ public class WebRtcStreamService extends ExecutableBase {
 		});
 		screenContext.setScreenSourceEndedCallback(() -> {
 			context.getEventBus().post(new ScreenShareEndEvent(true));
+		});
+
+		// Register media stream state handlers.
+		audioContext.sendAudioProperty().addListener((o, oldValue, newValue) -> {
+			streamProviderService.updateStreamMediaState(course.getId(),
+					Map.of(MediaType.Audio, newValue));
+		});
+		videoContext.sendVideoProperty().addListener((o, oldValue, newValue) -> {
+			streamProviderService.updateStreamMediaState(course.getId(),
+					Map.of(MediaType.Camera, newValue));
+		});
+		screenContext.sendVideoProperty().addListener((o, oldValue, newValue) -> {
+			streamProviderService.updateStreamMediaState(course.getId(),
+					Map.of(MediaType.Screen, newValue));
 		});
 
 		if (nonNull(streamConfig.getCameraFormat())) {

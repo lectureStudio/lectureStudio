@@ -47,8 +47,7 @@ public class JoinRoomState implements JanusState {
 		JanusRoomJoinRequest request = new JanusRoomJoinRequest();
 		request.setParticipantType(JanusParticipantType.PUBLISHER);
 		request.setRoomId(handler.getRoomId());
-		request.setDisplayName(String.format("%s %s", userInfo.getFirstName(),
-				userInfo.getFamilyName()));
+		request.setDisplayName(userInfo.getUserId());
 
 		joinRequest = new JanusPluginDataMessage(handler.getSessionId(),
 				handler.getPluginId());

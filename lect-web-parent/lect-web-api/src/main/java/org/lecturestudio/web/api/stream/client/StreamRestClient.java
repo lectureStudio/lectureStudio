@@ -19,6 +19,7 @@
 package org.lecturestudio.web.api.stream.client;
 
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 import javax.ws.rs.Consumes;
@@ -150,5 +151,19 @@ public interface StreamRestClient {
 	@POST
 	@Path("/stream/restart/{courseId}")
 	void restartedStream(@PathParam("courseId") long courseId);
+
+	/**
+	 * Update the media stream state for a given streaming session in a course.
+	 * The media state is represented by a mapping {@code MediaType to Boolean}
+	 * which indicates whether a stream with the given MediaType is
+	 * muted/enabled or not.
+	 *
+	 * @param courseId The unique course ID.
+	 * @param state    The current media stream state.
+	 */
+	@POST
+	@Path("/stream/media/state/{courseId}")
+	void updateStreamMediaState(@PathParam("courseId") long courseId,
+			Map<org.lecturestudio.core.net.MediaType, Boolean> state);
 
 }

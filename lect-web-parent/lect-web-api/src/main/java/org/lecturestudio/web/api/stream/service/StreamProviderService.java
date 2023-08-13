@@ -19,6 +19,7 @@
 package org.lecturestudio.web.api.stream.service;
 
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 import javax.ws.rs.GET;
@@ -28,6 +29,7 @@ import javax.ws.rs.PathParam;
 import jakarta.inject.Inject;
 
 import org.eclipse.microprofile.rest.client.RestClientBuilder;
+import org.lecturestudio.core.net.MediaType;
 import org.lecturestudio.web.api.client.MultipartBody;
 import org.lecturestudio.web.api.client.TokenProvider;
 import org.lecturestudio.web.api.model.UserInfo;
@@ -156,5 +158,19 @@ public class StreamProviderService extends ProviderService {
 	 */
 	public void restartedStream(long courseId) {
 		streamRestClient.restartedStream(courseId);
+	}
+
+	/**
+	 * Update the media stream state for a given streaming session in a course.
+	 * The media state is represented by a mapping {@code MediaType to Boolean}
+	 * which indicates whether a stream with the given MediaType is
+	 * muted/enabled or not.
+	 *
+	 * @param courseId The unique course ID.
+	 * @param state    The current media stream state.
+	 */
+	public void updateStreamMediaState(long courseId,
+			Map<MediaType, Boolean> state) {
+		streamRestClient.updateStreamMediaState(courseId, state);
 	}
 }

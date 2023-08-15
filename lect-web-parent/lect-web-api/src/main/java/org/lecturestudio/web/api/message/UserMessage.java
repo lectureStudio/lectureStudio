@@ -18,8 +18,13 @@
 
 package org.lecturestudio.web.api.message;
 
-import static java.util.Objects.requireNonNullElse;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
+@Getter
+@Setter
+@NoArgsConstructor
 public abstract class UserMessage extends WebMessage {
 
 	private String userId;
@@ -28,28 +33,4 @@ public abstract class UserMessage extends WebMessage {
 
 	private String familyName;
 
-
-	public String getUserId() {
-		return userId;
-	}
-
-	public void setUserId(String id) {
-		this.userId = id;
-	}
-
-	public String getFirstName() {
-		return requireNonNullElse(firstName, "");
-	}
-
-	public void setFirstName(String firstName) {
-		this.firstName = firstName;
-	}
-
-	public String getFamilyName() {
-		return requireNonNullElse(familyName, "");
-	}
-
-	public void setFamilyName(String familyName) {
-		this.familyName = familyName;
-	}
 }

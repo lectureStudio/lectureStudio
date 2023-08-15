@@ -18,46 +18,17 @@
 
 package org.lecturestudio.web.api.message;
 
-import java.time.ZonedDateTime;
-
 import org.lecturestudio.web.api.model.quiz.QuizAnswer;
 
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+
+@Getter
+@Setter
+@NoArgsConstructor
 public class QuizAnswerMessage extends WebMessage {
 
 	private QuizAnswer quizAnswer;
-	
-
-	public QuizAnswerMessage() {
-		this(null, null);
-	}
-
-	public QuizAnswerMessage(QuizAnswer answer, ZonedDateTime date) {
-		setQuizAnswer(answer);
-		setDate(date);
-	}
-
-	/**
-	 * @return the answer
-	 */
-	public QuizAnswer getQuizAnswer() {
-		return quizAnswer;
-	}
-
-	/**
-	 * @param answer the answer to set
-	 */
-	public void setQuizAnswer(QuizAnswer answer) {
-		this.quizAnswer = answer;
-	}
-
-	@Override
-	public String toString() {
-		StringBuffer buffer = new StringBuffer();
-		buffer.append(getClass().getSimpleName());
-		buffer.append(": ");
-		buffer.append(getQuizAnswer());
-
-		return buffer.toString();
-	}
 
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2020 TU Darmstadt, Department of Computer Science,
+ * Copyright (C) 2021 TU Darmstadt, Department of Computer Science,
  * Embedded Systems and Applications Group.
  *
  * This program is free software: you can redistribute it and/or modify
@@ -18,19 +18,27 @@
 
 package org.lecturestudio.web.api.message;
 
-import java.time.ZonedDateTime;
+import java.util.Map;
+
+import org.lecturestudio.core.net.MediaType;
 
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+/**
+ * Message used to transmit the current media state of a participant during a
+ * streaming session.
+ *
+ * @author Alex Andres
+ */
 @Getter
 @Setter
 @NoArgsConstructor
-public abstract class WebMessage {
+public class MediaStateMessage extends WebMessage {
 
-	private String messageId;
+	private String userId;
 
-	private ZonedDateTime date;
+	private Map<MediaType, Boolean> state;
 
 }

@@ -18,44 +18,17 @@
 
 package org.lecturestudio.web.api.message;
 
-import java.time.ZonedDateTime;
-
 import org.lecturestudio.web.api.model.Message;
 
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+
+@Getter
+@Setter
+@NoArgsConstructor
 public class MessengerMessage extends UserMessage {
 
 	private Message message;
 
-
-	public MessengerMessage() {
-		this(null, null, null);
-	}
-
-	public MessengerMessage(Message message, String userId,
-			ZonedDateTime date) {
-		setMessage(message);
-		setUserId(userId);
-		setDate(date);
-	}
-
-	public MessengerMessage(Message message, String remoteAddress,
-			ZonedDateTime date, String messageId) {
-		this(message, remoteAddress, date);
-
-		setMessageId(messageId);
-	}
-
-	/**
-	 * @return the message
-	 */
-	public Message getMessage() {
-		return message;
-	}
-
-	/**
-	 * @param message the message to set
-	 */
-	public void setMessage(Message message) {
-		this.message = message;
-	}
 }

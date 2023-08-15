@@ -9,6 +9,7 @@ module org.lecturestudio.web.api {
 	requires java.json.bind;
 	requires java.net.http;
 	requires java.ws.rs;
+	requires lombok;
 	requires maven.artifact;
 	requires microprofile.rest.client.api;
 	requires org.apache.logging.log4j;

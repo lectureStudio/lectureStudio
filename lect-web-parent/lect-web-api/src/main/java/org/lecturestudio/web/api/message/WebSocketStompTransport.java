@@ -34,6 +34,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 import java.util.function.Consumer;
 
 public class WebSocketStompTransport extends ExecutableBase implements MessageTransport {
@@ -43,6 +44,8 @@ public class WebSocketStompTransport extends ExecutableBase implements MessageTr
 	private final Map<Class<? extends WebMessage>, List<Consumer<WebMessage>>> listenerMap;
 
 	private final Course course;
+
+	private final UUID clientId;
 
 	private final ClientFailover clientFailover;
 
@@ -58,10 +61,12 @@ public class WebSocketStompTransport extends ExecutableBase implements MessageTr
 
 
 	public WebSocketStompTransport(ServiceParameters serviceParameters,
-			WebSocketStompHeaderProvider headerProvider, Course course) {
+			WebSocketStompHeaderProvider headerProvider, Course course,
+			UUID clientId) {
 		this.serviceParameters = serviceParameters;
 		this.headerProvider = headerProvider;
 		this.course = course;
+		this.clientId = clientId;
 		this.listenerMap = new HashMap<>();
 		this.clientFailover = new ClientFailover();
 		this.clientFailover.addExecutable(new Reconnect());
@@ -141,7 +146,8 @@ public class WebSocketStompTransport extends ExecutableBase implements MessageTr
 	public void sendMessage(String recipient, Message message) {
 		if (started() && nonNull(session)) {
 			StompHeaders headers = new StompHeaders();
-			headers.add("courseId", this.course.getId().toString());
+			headers.add("course-id", course.getId().toString());
+			headers.add("client-id", clientId.toString());
 			headers.add("recipient", recipient);
 			headers.setDestination("/app/message/" + this.course.getId());
 
@@ -155,7 +161,8 @@ public class WebSocketStompTransport extends ExecutableBase implements MessageTr
 		WebSocketHttpHeaders headers = headerProvider.getHeaders();
 
 		StompHeaders stompHeaders = new StompHeaders();
-		stompHeaders.add("courseId", course.getId().toString());
+		stompHeaders.add("course-id", course.getId().toString());
+		stompHeaders.add("client-id", clientId.toString());
 		stompHeaders.setHeartbeat(new long[] { HEARTBEAT_MS, HEARTBEAT_MS });
 
 		MessengerStompSessionHandler sessionHandler = new MessengerStompSessionHandler(course, jsonb, listenerMap);
@@ -243,8 +250,6 @@ public class WebSocketStompTransport extends ExecutableBase implements MessageTr
 		@Override
 		public void afterConnected(@NonNull StompSession stompSession,
 				@NonNull StompHeaders stompHeaders) {
-			//userId = stompHeaders.getFirst("user-name");
-
 			// Reconnection not needed anymore, if recovery previously startet.
 			if (clientFailover.started()) {
 				try {

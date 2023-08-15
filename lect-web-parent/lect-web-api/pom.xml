@@ -20,6 +20,7 @@
 		<resteasy.version>4.7.9.Final</resteasy.version>
 		<jackson.version>2.15.2</jackson.version>
 		<spring.version>6.0.10</spring.version>
+		<lombok.version>1.18.28</lombok.version>
 	</properties>
 
 	<build>
@@ -36,6 +37,19 @@
 						</goals>
 					</execution>
 				</executions>
+			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-compiler-plugin</artifactId>
+				<configuration>
+					<annotationProcessorPaths>
+						<path>
+							<groupId>org.projectlombok</groupId>
+							<artifactId>lombok</artifactId>
+							<version>${lombok.version}</version>
+						</path>
+					</annotationProcessorPaths>
+				</configuration>
 			</plugin>
 		</plugins>
 	</build>
@@ -54,7 +68,7 @@
 		</repository>
 		<repository>
 			<id>central</id>
-			<url>http://central</url>
+			<url>https://repo.maven.apache.org/maven2</url>
 			<releases><enabled>true</enabled></releases>
 			<snapshots><enabled>true</enabled></snapshots>
 		</repository>
@@ -183,6 +197,13 @@
 			<groupId>org.springframework</groupId>
 			<artifactId>spring-context</artifactId>
 			<version>${spring.version}</version>
+		</dependency>
+
+		<dependency>
+			<groupId>org.projectlombok</groupId>
+			<artifactId>lombok</artifactId>
+			<version>${lombok.version}</version>
+			<scope>provided</scope>
 		</dependency>
 
 		<dependency>

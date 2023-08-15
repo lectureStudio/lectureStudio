@@ -20,16 +20,15 @@ package org.lecturestudio.web.api.message;
 
 import java.util.UUID;
 
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+
+@Getter
+@Setter
+@NoArgsConstructor
 public abstract class SpeechBaseMessage extends UserMessage {
 
 	private UUID requestId;
 
-
-	public UUID getRequestId() {
-		return requestId;
-	}
-
-	public void setRequestId(UUID requestId) {
-		this.requestId = requestId;
-	}
 }

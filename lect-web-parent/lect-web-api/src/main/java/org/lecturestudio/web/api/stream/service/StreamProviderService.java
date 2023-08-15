@@ -51,7 +51,6 @@ public class StreamProviderService extends ProviderService {
 
 	private final StreamRestClient streamRestClient;
 
-
 	/**
 	 * Creates a new {@code StreamService}.
 	 *
@@ -167,10 +166,11 @@ public class StreamProviderService extends ProviderService {
 	 * muted/enabled or not.
 	 *
 	 * @param courseId The unique course ID.
+	 * @param clientId The unique client ID for the current stream.
 	 * @param state    The current media stream state.
 	 */
-	public void updateStreamMediaState(long courseId,
+	public void updateStreamMediaState(long courseId, UUID clientId,
 			Map<MediaType, Boolean> state) {
-		streamRestClient.updateStreamMediaState(courseId, state);
+		streamRestClient.updateStreamMediaState(courseId, clientId, state);
 	}
 }

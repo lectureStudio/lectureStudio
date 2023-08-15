@@ -24,9 +24,6 @@ import static java.util.Objects.requireNonNull;
 import java.io.FileNotFoundException;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionException;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.TimeUnit;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -194,10 +191,7 @@ public class StreamService {
 				}
 
 				if (streamContext.getMessengerEnabled()) {
-					ScheduledExecutorService executorService = Executors.newSingleThreadScheduledExecutor();
-					executorService.schedule(() -> {
-						context.setMessengerStarted(true);
-					}, 3, TimeUnit.SECONDS);
+					context.setMessengerStarted(true);
 				}
 			})
 			.exceptionally(e -> {

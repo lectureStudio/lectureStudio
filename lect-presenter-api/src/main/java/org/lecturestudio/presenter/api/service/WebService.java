@@ -23,6 +23,7 @@ import static java.util.Objects.nonNull;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -76,6 +77,8 @@ public class WebService extends ExecutableBase {
 
 	private Quiz lastQuiz;
 
+	private UUID clientId;
+
 
 	@Inject
 	public WebService(PresenterContext context,
@@ -100,6 +103,16 @@ public class WebService extends ExecutableBase {
 				}
 			}
 		}));
+	}
+
+	/**
+	 * Get the unique client ID which is generated together with the
+	 * {@code MessageTransport}.
+	 *
+	 * @return The unique client ID.
+	 */
+	public UUID getClientId() {
+		return clientId;
 	}
 
 	/**
@@ -356,6 +369,8 @@ public class WebService extends ExecutableBase {
 
 	private void initMessageTransport() {
 		if (isNull(messageTransport) || messageTransport.destroyed()) {
+			clientId = UUID.randomUUID();
+
 			messageTransport = createStompMessageTransport();
 
 			messageTransport.addListener(CoursePresenceMessage.class, message -> {
@@ -379,6 +394,6 @@ public class WebService extends ExecutableBase {
 
 		WebSocketStompHeaderProvider headerProvider = new WebSocketStompBearerTokenProvider(tokenProvider);
 
-		return new WebSocketStompTransport(messageApiParameters, headerProvider, course);
+		return new WebSocketStompTransport(messageApiParameters, headerProvider, course, clientId);
 	}
 }

@@ -98,6 +98,8 @@ public class WebRtcStreamService extends ExecutableBase {
 
 	private final ClientFailover clientFailover;
 
+	private final WebService webService;
+
 	private final WebServiceInfo webServiceInfo;
 
 	private final RecordingService recordingService;
@@ -135,11 +137,13 @@ public class WebRtcStreamService extends ExecutableBase {
 
 	@Inject
 	public WebRtcStreamService(ApplicationContext context,
+			WebService webService,
 			WebServiceInfo webServiceInfo,
 			WebRtcStreamEventRecorder eventRecorder,
 			RecordingService recordingService)
 			throws ExecutableException {
 		this.context = context;
+		this.webService = webService;
 		this.webServiceInfo = webServiceInfo;
 		this.eventRecorder = eventRecorder;
 		this.recordingService = recordingService;
@@ -543,6 +547,7 @@ public class WebRtcStreamService extends ExecutableBase {
 
 	private void sendMediaStreamState() {
 		long courseId = streamContext.getCourse().getId();
+		UUID clientId = webService.getClientId();
 
 		// Send media stream state when course state has been initialized.
 		boolean camEnabled = streamContext.getVideoContext().getSendVideo();
@@ -554,7 +559,7 @@ public class WebRtcStreamService extends ExecutableBase {
 		mediaStateMap.put(MediaType.Camera, camEnabled);
 		mediaStateMap.put(MediaType.Screen, screenEnabled);
 
-		streamProviderService.updateStreamMediaState(courseId, mediaStateMap);
+		streamProviderService.updateStreamMediaState(courseId, clientId, mediaStateMap);
 	}
 
 	private void disposeExecutable(Executable executable) throws ExecutableException {
@@ -653,15 +658,15 @@ public class WebRtcStreamService extends ExecutableBase {
 		// Register media stream state handlers.
 		audioContext.sendAudioProperty().addListener((o, oldValue, newValue) -> {
 			streamProviderService.updateStreamMediaState(course.getId(),
-					Map.of(MediaType.Audio, newValue));
+					webService.getClientId(), Map.of(MediaType.Audio, newValue));
 		});
 		videoContext.sendVideoProperty().addListener((o, oldValue, newValue) -> {
 			streamProviderService.updateStreamMediaState(course.getId(),
-					Map.of(MediaType.Camera, newValue));
+					webService.getClientId(), Map.of(MediaType.Camera, newValue));
 		});
 		screenContext.sendVideoProperty().addListener((o, oldValue, newValue) -> {
 			streamProviderService.updateStreamMediaState(course.getId(),
-					Map.of(MediaType.Screen, newValue));
+					webService.getClientId(), Map.of(MediaType.Screen, newValue));
 		});
 
 		if (nonNull(streamConfig.getCameraFormat())) {

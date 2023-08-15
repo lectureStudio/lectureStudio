@@ -55,6 +55,7 @@ public class Stopwatch {
         stopwatchInterval = resetStopwatchInterval;
         runStopwatch = false;
         timerEndedInterval = 0;
+        timerEnded = false;
     }
 
     /**

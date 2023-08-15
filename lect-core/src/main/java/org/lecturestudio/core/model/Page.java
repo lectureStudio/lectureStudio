@@ -646,7 +646,8 @@ public class Page {
 		List<PDAnnotation> annotations;
 		List<String> annotationsAsString = new ArrayList<>();
 		try {
-			 annotations = getDocument().getPdfDocument().getPdfBoxDocument().doc.getPage(pageNumber).getAnnotations();
+			 annotations = getDocument().getPdfDocument().getPdfBoxDocument().
+					 getDoc().getPage(pageNumber).getAnnotations();
 		} catch (IOException e) {
 			throw new RuntimeException(e);
 		}

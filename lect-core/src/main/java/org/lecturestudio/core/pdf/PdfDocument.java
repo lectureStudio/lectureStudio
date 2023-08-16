@@ -225,11 +225,12 @@ public class PdfDocument {
 	 * The content will be appended to the existing one.
 	 *
 	 * @param pageIndex The index of the page to which to draw.
+	 * @param notesPosition The position of split slides notes
 	 *
 	 * @return The newly created {@link Graphics2D} object.
 	 */
-	public Graphics2D createAppendablePageGraphics2D(int pageIndex) {
-		return pdfBoxDocument.createGraphics(pageIndex, null, true);
+	public Graphics2D createAppendablePageGraphics2D(int pageIndex, NotesPosition notesPosition) {
+		return pdfBoxDocument.createGraphics(pageIndex, null, true, notesPosition);
 	}
 
 	/**
@@ -238,11 +239,12 @@ public class PdfDocument {
 	 *
 	 * @param pageIndex The index of the page to which to draw.
 	 * @param name The PDF graphics stream name.
-	 *
+	 * @param notesPosition The position of split slides notes
+
 	 * @return The newly created {@link Graphics2D} object.
 	 */
-	public Graphics2D createAppendablePageGraphics2D(int pageIndex, String name) {
-		return pdfBoxDocument.createGraphics(pageIndex, name, true);
+	public Graphics2D createAppendablePageGraphics2D(int pageIndex, String name, NotesPosition notesPosition) {
+		return pdfBoxDocument.createGraphics(pageIndex, name, true, notesPosition);
 	}
 
 	/**

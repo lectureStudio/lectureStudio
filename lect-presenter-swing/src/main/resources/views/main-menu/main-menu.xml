@@ -46,6 +46,7 @@
 		<menu id="splitNotesPositionMenu" text="menu.splitNotes.position">
 			<buttongroup>
 				<radiobuttonmenuitem id="splitNotesPositionRightMenuItem" text="menu.right" />
+				<radiobuttonmenuitem id="splitNotesPositionLeftMenuItem" text="menu.left" />
 				<radiobuttonmenuitem id="splitNotesPositionNoneMenuItem" text="menu.none" />
 			</buttongroup>
 		</menu>

@@ -187,7 +187,7 @@ public class DocumentService {
 			selectDocument(doc);
 
 			updateRecentDocuments(doc);
-			doc.setSplittedSlideNotes(notesPosition);
+			//doc.setSplittedSlideNotes(notesPosition);
 			return doc;
 		});
 	}
@@ -411,6 +411,8 @@ public class DocumentService {
 		if (nonNull(doc)) {
 			doc.setSplittedSlideNotes(pos);
 		}
+		context.getEventBus().post(new PageEvent(doc.getCurrentPage(),
+				PageEvent.Type.SELECTED));
 	}
 
 	private void selectPage(Document document, int pageNumber) {

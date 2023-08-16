@@ -47,10 +47,7 @@ import org.lecturestudio.core.app.dictionary.Dictionary;
 import org.lecturestudio.core.audio.AudioDeviceNotConnectedException;
 import org.lecturestudio.core.beans.ObjectProperty;
 import org.lecturestudio.core.bus.EventBus;
-import org.lecturestudio.core.bus.event.CustomizeToolbarEvent;
-import org.lecturestudio.core.bus.event.DocumentEvent;
-import org.lecturestudio.core.bus.event.PageEvent;
-import org.lecturestudio.core.bus.event.ViewVisibleEvent;
+import org.lecturestudio.core.bus.event.*;
 import org.lecturestudio.core.controller.ToolController;
 import org.lecturestudio.core.model.Document;
 import org.lecturestudio.core.model.NotesPosition;
@@ -654,6 +651,7 @@ public class MenuPresenter extends Presenter<MenuView> {
 		}, 0, 1000);
 		view.setOnSplitNotesPositionNone(() -> positionSplitNotes(NotesPosition.NONE));
 		view.setOnSplitNotesPositionRight(() -> positionSplitNotes(NotesPosition.RIGHT));
+		view.setOnSplitNotesPositionLeft(() -> positionSplitNotes(NotesPosition.LEFT));
 
 	}
 

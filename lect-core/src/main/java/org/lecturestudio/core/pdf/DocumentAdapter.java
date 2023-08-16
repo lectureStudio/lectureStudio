@@ -65,6 +65,18 @@ public interface DocumentAdapter {
 	Graphics2D createGraphics(int pageIndex, String name, boolean appendContent);
 
 	/**
+	 * Create a {@link Graphics2D} object with the specified parameters.
+	 *
+	 * @param pageIndex The index of the PDF page to which to draw.
+	 * @param name The PDF graphics stream name.
+	 * @param appendContent {@code true} if content should be appended to the existing one, {@code false} to overwrite.
+	 * @param notesPosition The position of split slides notes
+	 *
+	 * @return The newly created {@link Graphics2D} object.
+	 */
+	Graphics2D createGraphics(int pageIndex, String name, boolean appendContent, NotesPosition notesPosition);
+
+	/**
 	 * Set the title of the document.
 	 *
 	 * @param title The title.

@@ -154,8 +154,20 @@ public class PDFBoxDocument implements DocumentAdapter {
 
 	@Override
 	public PDFGraphics2D createGraphics(int pageIndex, String name, boolean appendContent) {
-		PDPage pdPage = doc.getPage(pageIndex);
+		return createGraphics(pageIndex, name, appendContent, NotesPosition.NONE);
+	}
 
+	@Override
+	public PDFGraphics2D createGraphics(int pageIndex, String name, boolean appendContent, NotesPosition notesPosition) {
+		PDPage pdPage = doc.getPage(pageIndex);
+		if(notesPosition == NotesPosition.LEFT){
+			PDRectangle rect = pdPage.getMediaBox();
+			pdPage.setCropBox(new PDRectangle(rect.getWidth()/2, 0, rect.getWidth()/2, rect.getHeight()));
+		}
+		if(notesPosition == NotesPosition.RIGHT){
+			PDRectangle rect = pdPage.getMediaBox();
+			pdPage.setCropBox(new PDRectangle(0, 0, rect.getWidth()/2, rect.getHeight()));
+		}
 		return new PDFGraphics2D(doc, pdPage, name, appendContent);
 	}
 
@@ -186,10 +198,9 @@ public class PDFBoxDocument implements DocumentAdapter {
 		if(position == NotesPosition.UNKNOWN){
 			position = rect.getWidth()/rect.getHeight() >=2 ? NotesPosition.RIGHT : NotesPosition.UNKNOWN;
 		}
-		if(position == NotesPosition.RIGHT || position == NotesPosition.LEFT){
+		if(position == NotesPosition.RIGHT){
 			return new Rectangle2D(0, 0, rect.getWidth()/2, rect.getHeight());
 		}
-		//TODO: LEFT funktioniert noch nicht
 		if(position == NotesPosition.LEFT){
 			return new Rectangle2D(rect.getWidth()/2, 0, rect.getWidth()/2, rect.getHeight());
 		}

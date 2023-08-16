@@ -246,4 +246,7 @@ public interface MenuView extends View {
 
 	void setSplitNotesPositionRight();
 
+    void setOnSplitNotesPositionLeft(Action action);
+
+	void setSplitNotesPositionLeft();
 }

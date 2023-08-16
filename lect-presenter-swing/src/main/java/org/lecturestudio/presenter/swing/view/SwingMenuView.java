@@ -102,6 +102,8 @@ public class SwingMenuView extends JMenuBar implements MenuView {
 
 	private JRadioButtonMenuItem splitNotesPositionRightMenuItem;
 
+	private JRadioButtonMenuItem splitNotesPositionLeftMenuItem;
+
 	private JRadioButtonMenuItem splitNotesPositionNoneMenuItem;
 
 	private JRadioButtonMenuItem messagesPositionLeftMenuItem;
@@ -771,6 +773,16 @@ public class SwingMenuView extends JMenuBar implements MenuView {
 	@Override
 	public void setSplitNotesPositionRight() {
 		splitNotesPositionRightMenuItem.setSelected(true);
+	}
+
+	@Override
+	public void setOnSplitNotesPositionLeft(Action action) {
+		SwingUtils.bindAction(splitNotesPositionLeftMenuItem, action);
+	}
+
+	@Override
+	public void setSplitNotesPositionLeft() {
+		splitNotesPositionLeftMenuItem.setSelected(true);
 	}
 
 	@ViewPostConstruct

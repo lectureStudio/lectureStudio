@@ -144,6 +144,11 @@ public class MuPDFDocument implements DocumentAdapter {
 	}
 
 	@Override
+	public Graphics2D createGraphics(int pageIndex, String name, boolean appendContent, NotesPosition notesPosition) {
+		return null;
+	}
+
+	@Override
 	public void setTitle(String title) {
 		//doc.setTitle(title);
 	}

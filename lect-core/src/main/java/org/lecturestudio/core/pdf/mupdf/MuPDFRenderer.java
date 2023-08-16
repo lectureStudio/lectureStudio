@@ -88,6 +88,7 @@ public class MuPDFRenderer implements DocumentRenderer {
 			if(page.getDocument().getSplittedSlideNotes() == NotesPosition.RIGHT ||
 					(page.getDocument().getSplittedSlideNotes() == NotesPosition.UNKNOWN && bounds.x1/bounds.y1 >= 2)){
 				bounds.x1 = bounds.x1/2;
+				page.getDocument().setSplittedSlideNotes(NotesPosition.RIGHT);
 			}
 			if(page.getDocument().getSplittedSlideNotes() == NotesPosition.LEFT){
 				bounds.x0 = bounds.x1/2;

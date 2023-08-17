@@ -119,11 +119,9 @@ public class JanusPublisher {
 		if (this == o) {
 			return true;
 		}
-		if (!(o instanceof JanusPublisher)) {
+		if (!(o instanceof JanusPublisher publisher)) {
 			return false;
 		}
-
-		JanusPublisher publisher = (JanusPublisher) o;
 
 		return Objects.equals(id, publisher.id)
 				&& Objects.equals(display, publisher.display);

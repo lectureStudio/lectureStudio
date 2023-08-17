@@ -5,9 +5,9 @@
 	<modelVersion>4.0.0</modelVersion>
 
 	<parent>
-		<groupId>org.lecturestudio.web</groupId>
-		<artifactId>lect-web-parent</artifactId>
-		<version>1.0.0</version>
+		<groupId>org.lecturestudio</groupId>
+		<artifactId>lect-studio</artifactId>
+		<version>4.0.0</version>
 	</parent>
 
 	<groupId>org.lecturestudio.web.api</groupId>
@@ -70,7 +70,7 @@
 			<id>central</id>
 			<url>https://repo.maven.apache.org/maven2</url>
 			<releases><enabled>true</enabled></releases>
-			<snapshots><enabled>true</enabled></snapshots>
+			<snapshots><enabled>false</enabled></snapshots>
 		</repository>
 	</repositories>
 

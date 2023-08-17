@@ -413,7 +413,10 @@ public class JanusHandler extends JanusStateHandler {
 					if (handler instanceof JanusPublisherHandler) {
 						// TODO: move to http api
 						JanusPublisherHandler pubHandler = (JanusPublisherHandler) handler;
-						pubHandler.sendStreamAction(new StreamSpeechPublishedAction(publisher.getId()));
+						pubHandler.sendStreamAction(
+								new StreamSpeechPublishedAction(
+										publisher.getId(),
+										publisher.getDisplayName()));
 						break;
 					}
 				}

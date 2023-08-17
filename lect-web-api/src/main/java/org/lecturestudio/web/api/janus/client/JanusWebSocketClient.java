@@ -225,7 +225,6 @@ public class JanusWebSocketClient extends ExecutableBase implements JanusMessage
 				}
 				catch (NotSupportedException e) {
 					logDebugMessage("Received unsupported message");
-					logDebugMessage(buffer.toString());
 				}
 				catch (NoSuchElementException e) {
 					logException(e, "Non existing Janus event type received");

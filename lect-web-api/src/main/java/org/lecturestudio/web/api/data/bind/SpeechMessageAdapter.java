@@ -66,8 +66,8 @@ public class SpeechMessageAdapter implements JsonbAdapter<SpeechBaseMessage, Jso
 		message.setUserId(jsonObject.getString("userId"));
 		message.setRequestId(UUID.fromString(jsonObject.getString("requestId")));
 		message.setDate(ZonedDateTime.parse(jsonObject.getString("time")));
-		message.setFirstName(jsonObject.getString("firstName"));
-		message.setFamilyName(jsonObject.getString("familyName"));
+		message.setFirstName(jsonObject.isNull("firstName") ? null : jsonObject.getString("firstName"));
+		message.setFamilyName(jsonObject.isNull("familyName") ? null : jsonObject.getString("familyName"));
 
 		return message;
 	}

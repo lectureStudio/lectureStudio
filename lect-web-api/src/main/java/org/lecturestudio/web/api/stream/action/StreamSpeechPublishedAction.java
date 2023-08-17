@@ -27,27 +27,29 @@ public class StreamSpeechPublishedAction extends StreamAction {
 
 	private BigInteger publisherId;
 
+	private String displayName;
 
-	public StreamSpeechPublishedAction(BigInteger publisherId) {
+
+	public StreamSpeechPublishedAction(BigInteger publisherId, String displayName) {
 		this.publisherId = publisherId;
+		this.displayName = displayName;
 	}
 
 	public StreamSpeechPublishedAction(byte[] input) {
 		parseFrom(input);
 	}
 
-	public BigInteger getPublisherId() {
-		return publisherId;
-	}
-
 	@Override
 	public byte[] toByteArray() throws IOException {
 		String idStr = publisherId.toString();
-		byte[] payload = idStr.getBytes(StandardCharsets.UTF_8);
+		byte[] idBytes = idStr.getBytes(StandardCharsets.UTF_8);
+		byte[] nameBytes = displayName.getBytes(StandardCharsets.UTF_8);
 
-		ByteBuffer buffer = createBuffer(payload.length + 4);
-		buffer.putInt(payload.length);
-		buffer.put(payload);
+		ByteBuffer buffer = createBuffer(idBytes.length + nameBytes.length + 8);
+		buffer.putInt(idBytes.length);
+		buffer.put(idBytes);
+		buffer.putInt(nameBytes.length);
+		buffer.put(nameBytes);
 
 		return buffer.array();
 	}
@@ -55,12 +57,17 @@ public class StreamSpeechPublishedAction extends StreamAction {
 	@Override
 	public void parseFrom(byte[] input) {
 		ByteBuffer buffer = createBuffer(input);
+
 		int length = buffer.getInt();
+		byte[] idBytes = new byte[length];
+		buffer.get(idBytes);
 
-		byte[] val = new byte[length];
-		buffer.get(val);
+		length = buffer.getInt();
+		byte[] nameBytes = new byte[length];
+		buffer.get(nameBytes);
 
-		publisherId = new BigInteger(new String(val, StandardCharsets.UTF_8));
+		publisherId = new BigInteger(new String(idBytes, StandardCharsets.UTF_8));
+		displayName = new String(idBytes, StandardCharsets.UTF_8);
 	}
 
 	@Override

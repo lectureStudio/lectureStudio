@@ -57,7 +57,7 @@
 		<module>lect-editor-fx</module>
 		<module>lect-packager</module>
 		<module>lect-media</module>
-		<module>lect-web-parent</module>
+		<module>lect-web-api</module>
 	</modules>
 
 	<properties>
@@ -89,7 +89,7 @@
 				<plugin>
 					<groupId>org.apache.maven.plugins</groupId>
 					<artifactId>maven-compiler-plugin</artifactId>
-					<version>3.8.1</version>
+					<version>3.11.0</version>
 					<configuration>
 						<release>${java.version}</release>
 						<showDeprecation>true</showDeprecation>

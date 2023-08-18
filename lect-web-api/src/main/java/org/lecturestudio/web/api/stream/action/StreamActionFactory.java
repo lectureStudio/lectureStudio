@@ -26,31 +26,17 @@ public class StreamActionFactory {
 			throws IOException {
 		StreamActionType type = StreamActionType.values()[actionType];
 
-		switch (type) {
-			case STREAM_INIT:
-				return new StreamInitAction(input);
-			case STREAM_START:
-				return new StreamStartAction(input);
-			case STREAM_PAGE_ACTION:
-				return new StreamPagePlaybackAction(input);
-			case STREAM_PAGE_ACTIONS:
-				return new StreamPageActionsAction(input);
-			case STREAM_PAGE_CREATED:
-				return new StreamPageCreatedAction(input);
-			case STREAM_PAGE_DELETED:
-				return new StreamPageDeletedAction(input);
-			case STREAM_PAGE_SELECTED:
-				return new StreamPageSelectedAction(input);
-			case STREAM_DOCUMENT_CREATED:
-				return new StreamDocumentCreateAction(input);
-			case STREAM_DOCUMENT_CLOSED:
-				return new StreamDocumentCloseAction(input);
-			case STREAM_DOCUMENT_SELECTED:
-				return new StreamDocumentSelectAction(input);
-			case STREAM_SPEECH_PUBLISHED:
-				return new StreamSpeechPublishedAction(input);
-			default:
-				throw new IOException("Action not defined: " + type);
-		}
+		return switch (type) {
+			case STREAM_INIT -> new StreamInitAction(input);
+			case STREAM_PAGE_ACTION -> new StreamPagePlaybackAction(input);
+			case STREAM_PAGE_ACTIONS -> new StreamPageActionsAction(input);
+			case STREAM_PAGE_CREATED -> new StreamPageCreatedAction(input);
+			case STREAM_PAGE_DELETED -> new StreamPageDeletedAction(input);
+			case STREAM_PAGE_SELECTED -> new StreamPageSelectedAction(input);
+			case STREAM_DOCUMENT_CREATED -> new StreamDocumentCreateAction(input);
+			case STREAM_DOCUMENT_CLOSED -> new StreamDocumentCloseAction(input);
+			case STREAM_DOCUMENT_SELECTED -> new StreamDocumentSelectAction(input);
+			case STREAM_SPEECH_PUBLISHED -> new StreamSpeechPublishedAction(input);
+		};
 	}
 }

@@ -184,6 +184,9 @@ public class StreamService {
 		eventBus.post(new StartStreamCommand(course, (streamContext) -> {
 			CompletableFuture.runAsync(() -> {
 				try {
+					webService.initMessageTransport();
+					webService.startMessageTransport();
+
 					webRtcStreamService.start();
 				}
 				catch (ExecutableException e) {
@@ -191,6 +194,7 @@ public class StreamService {
 				}
 
 				if (streamContext.getMessengerEnabled()) {
+
 					context.setMessengerStarted(true);
 				}
 			})

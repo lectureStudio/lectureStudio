@@ -329,6 +329,8 @@ public class WebRtcStreamService extends ExecutableBase {
 					}
 				}
 				else {
+					streamProviderService.startedStream(course.getId());
+
 					setReconnectionState(ExecutableState.Stopped);
 				}
 

@@ -76,30 +76,17 @@ public class JanusMessageFactory {
 
 		if (isNull(pluginData)) {
 			// Common Janus signaling messages.
-			switch (type) {
-				case ACK:
-					return createMessage(body, type);
-
-				case HANGUP:
-				case SLOW_LINK:
-				case WEBRTC_UP:
-					return createPluginMessage(body, type);
-
-				case ERROR:
-					return createErrorMessage(body);
-
-				case SERVER_INFO:
-					return createInfoMessage(body);
-
-				case SUCCESS:
-					return createSessionSuccessMessage(body);
-
-				case TIMEOUT:
-					return createSessionTimeoutMessage(body);
-
-				case MEDIA:
-					return createMediaMessage(body);
-			}
+			return switch (type) {
+				case ACK -> createMessage(body, type);
+				case HANGUP, SLOW_LINK, WEBRTC_UP -> createPluginMessage(body, type);
+				case ERROR -> createErrorMessage(body);
+				case SERVER_INFO -> createInfoMessage(body);
+				case SUCCESS -> createSessionSuccessMessage(body);
+				case TIMEOUT -> createSessionTimeoutMessage(body);
+				case MEDIA -> createMediaMessage(body);
+				default -> throw new NotSupportedException(
+						"Event type not supported: " + type);
+			};
 		}
 		else {
 			// Janus plugin related signaling messages.
@@ -107,41 +94,22 @@ public class JanusMessageFactory {
 
 			if (nonNull(data)) {
 				String responseStr = data.getString("videoroom");
-				var responseType = JanusRoomEventType
-						.fromString(responseStr);
+				var responseType = JanusRoomEventType.fromString(responseStr);
 
-				switch (responseType) {
-					case ATTACHED:
-						return createAttachedMessage(body, data, type);
-
-					case CREATED:
-						return createRoomCreatedMessage(body, data, type);
-
-					case DESTROYED:
-						return createRoomDestroyedMessage(body, data, type);
-
-					case EDITED:
-						return createRoomEditedMessage(body, data, type);
-
-					case EVENT:
-						return createRoomEventMessage(body, data, type, jsonb);
-
-					case JOINED:
-						return createRoomJoinedMessage(body, data, type, jsonb);
-
-					case SUCCESS:
-						return createRoomSuccessMessage(body, data, type, jsonb);
-
-					case SLOW_LINK:
-						return createRoomSlowLinkMessage(body, data, type);
-
-					case TALKING:
-						return createParticipantTalkingMessage(body, data, type);
-
-					default:
-						throw new NotSupportedException(
-								"Event type not supported: " + responseStr);
-				}
+				return switch (responseType) {
+					case ATTACHED -> createAttachedMessage(body, data, type);
+					case CREATED -> createRoomCreatedMessage(body, data, type);
+					case DESTROYED -> createRoomDestroyedMessage(body, data, type);
+					case EDITED -> createRoomEditedMessage(body, data, type);
+					case EVENT -> createRoomEventMessage(body, data, type, jsonb);
+					case JOINED -> createRoomJoinedMessage(body, data, type, jsonb);
+					case SUCCESS -> createRoomSuccessMessage(body, data, type, jsonb);
+					case SLOW_LINK -> createRoomSlowLinkMessage(body, data, type);
+					case TALKING -> createParticipantTalkingMessage(body, data, type, true);
+					case STOPPED_TALKING -> createParticipantTalkingMessage(body, data, type, false);
+					default -> throw new NotSupportedException(
+							"Event type not supported: " + responseStr);
+				};
 			}
 		}
 
@@ -560,12 +528,13 @@ public class JanusMessageFactory {
 	}
 
 	private static JanusMessage createParticipantTalkingMessage(JsonObject body,
-			JsonObject data, JanusMessageType type) {
+			JsonObject data, JanusMessageType type, boolean talking) {
 		var sessionId = body.getJsonNumber("session_id").bigIntegerValue();
 		var handleId = body.getJsonNumber("sender").bigIntegerValue();
-		var peerId = body.getJsonNumber("id").bigIntegerValue();
+		var peerId = data.getJsonNumber("id").bigIntegerValue();
 
-		JanusRoomTalkingMessage message = new JanusRoomTalkingMessage(sessionId, handleId, peerId);
+		JanusRoomTalkingMessage message = new JanusRoomTalkingMessage(sessionId,
+				handleId, peerId, talking);
 		message.setEventType(type);
 
 		return message;

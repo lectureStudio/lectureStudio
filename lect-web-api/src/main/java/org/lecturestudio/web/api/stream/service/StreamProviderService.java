@@ -150,6 +150,15 @@ public class StreamProviderService extends ProviderService {
 	}
 
 	/**
+	 * Notify course participants that a course stream has been started.
+	 *
+	 * @param courseId The unique course ID of the course that was started.
+	 */
+	public void startedStream(long courseId) {
+		streamRestClient.startedStream(courseId);
+	}
+
+	/**
 	 * Notify course participants that a course stream has been restarted. The
 	 * restart may have been caused due to an interrupted connection.
 	 *

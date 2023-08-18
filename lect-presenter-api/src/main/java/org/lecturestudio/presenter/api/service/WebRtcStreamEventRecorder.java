@@ -62,7 +62,6 @@ import org.lecturestudio.web.api.stream.action.StreamPageCreatedAction;
 import org.lecturestudio.web.api.stream.action.StreamPageDeletedAction;
 import org.lecturestudio.web.api.stream.action.StreamPagePlaybackAction;
 import org.lecturestudio.web.api.stream.action.StreamPageSelectedAction;
-import org.lecturestudio.web.api.stream.action.StreamStartAction;
 import org.lecturestudio.web.api.stream.model.Course;
 import org.lecturestudio.web.api.stream.service.StreamProviderService;
 
@@ -295,8 +294,6 @@ public class WebRtcStreamEventRecorder extends StreamEventRecorder {
 			addPlaybackAction(new StreamPageSelectedAction(document.getCurrentPage()));
 
 			getPreRecordedActions().forEach(this::addPlaybackAction);
-
-			addPlaybackAction(new StreamStartAction(course.getId()));
 		}
 		catch (Exception e) {
 			throw new ExecutableException("Send action failed", e);

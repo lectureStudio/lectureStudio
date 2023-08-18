@@ -143,6 +143,15 @@ public interface StreamRestClient {
 			@PathParam("recorded") boolean recorded);
 
 	/**
+	 * Notify course participants that a course stream has been started.
+	 *
+	 * @param courseId The unique course ID of the course that was started.
+	 */
+	@POST
+	@Path("/stream/start/{courseId}")
+	void startedStream(@PathParam("courseId") long courseId);
+
+	/**
 	 * Notify course participants that a course stream has been restarted. The
 	 * restart may have been caused due to an interrupted connection.
 	 *

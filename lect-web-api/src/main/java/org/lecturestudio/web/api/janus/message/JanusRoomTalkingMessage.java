@@ -32,6 +32,8 @@ public class JanusRoomTalkingMessage extends JanusRoomMessage {
 
 	private final BigInteger peerId;
 
+	private final boolean isTalking;
+
 
 	/**
 	 * Create a new {@code JanusRoomStateMessage}.
@@ -41,11 +43,12 @@ public class JanusRoomTalkingMessage extends JanusRoomMessage {
 	 * @param peerId    The ID of the peer who is talking or stopped talking.
 	 */
 	public JanusRoomTalkingMessage(BigInteger sessionId, BigInteger roomId,
-			BigInteger peerId) {
+			BigInteger peerId, boolean isTalking) {
 		super(sessionId);
 
 		this.roomId = roomId;
 		this.peerId = peerId;
+		this.isTalking = isTalking;
 
 		setRoomEventType(JanusRoomEventType.TALKING);
 	}
@@ -66,5 +69,12 @@ public class JanusRoomTalkingMessage extends JanusRoomMessage {
 	 */
 	public BigInteger getPeerId() {
 		return peerId;
+	}
+
+	/**
+	 * @return true if participant is talking.
+	 */
+	public boolean isTalking() {
+		return isTalking;
 	}
 }

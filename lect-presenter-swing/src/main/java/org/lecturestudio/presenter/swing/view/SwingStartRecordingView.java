@@ -18,25 +18,26 @@
 
 package org.lecturestudio.presenter.swing.view;
 
-import java.awt.Container;
+import java.awt.*;
 
-import javax.swing.DefaultComboBoxModel;
-import javax.swing.JButton;
-import javax.swing.JComboBox;
-import javax.swing.JPanel;
-import javax.swing.JToggleButton;
+import javax.swing.*;
 import javax.swing.event.AncestorEvent;
 import javax.swing.event.AncestorListener;
 
 import org.lecturestudio.core.audio.device.AudioDevice;
 import org.lecturestudio.core.beans.BooleanProperty;
 import org.lecturestudio.core.beans.StringProperty;
+import org.lecturestudio.core.camera.Camera;
+import org.lecturestudio.core.camera.CameraFormat;
 import org.lecturestudio.core.view.Action;
 import org.lecturestudio.core.view.ConsumerAction;
 import org.lecturestudio.presenter.api.view.StartRecordingView;
+import org.lecturestudio.swing.components.CameraPreviewPanel;
 import org.lecturestudio.swing.util.SwingUtils;
 import org.lecturestudio.swing.view.SwingView;
 import org.lecturestudio.swing.view.ViewPostConstruct;
+
+import static java.util.Objects.isNull;
 
 @SwingView(name = "start-recording")
 public class SwingStartRecordingView extends JPanel implements StartRecordingView {
@@ -49,6 +50,12 @@ public class SwingStartRecordingView extends JPanel implements StartRecordingVie
 
 	private JComboBox<String> audioPlaybackDevicesCombo;
 
+	private JComboBox<String> camerasCombo;
+
+	private CameraPreviewPanel cameraView;
+
+	private JToggleButton enableCameraButton;
+
 	private JToggleButton testCaptureButton;
 
 	private JToggleButton playCaptureButton;
@@ -60,6 +67,7 @@ public class SwingStartRecordingView extends JPanel implements StartRecordingVie
 
 	SwingStartRecordingView() {
 		super();
+		ToolTipManager.sharedInstance().setLightWeightPopupEnabled(false);
 	}
 
 	@Override
@@ -102,6 +110,54 @@ public class SwingStartRecordingView extends JPanel implements StartRecordingVie
 			audioPlaybackDevicesCombo.setLightWeightPopupEnabled(false);
 			audioPlaybackDevicesCombo.setModel(model);
 		});
+	}
+
+	@Override
+	public void setCameraName(StringProperty cameraName) {
+		SwingUtils.bindBidirectional(camerasCombo, cameraName);
+	}
+
+	@Override
+	public void setCameraNames(String[] cameraNames) {
+		if (isNull(cameraNames)) {
+			return;
+		}
+
+		SwingUtils.invoke(() -> {
+			camerasCombo.setLightWeightPopupEnabled(false);
+			camerasCombo.setModel(new DefaultComboBoxModel<>(cameraNames));
+		});
+	}
+
+	@Override
+	public void setEnableCamera(BooleanProperty enable) {
+		SwingUtils.bindBidirectional(enableCameraButton, enable);
+
+		setComponentColor(enableCameraButton);
+	}
+
+	@Override
+	public void setCamera(Camera camera) {
+		cameraView.setCamera(camera);
+	}
+
+	public void setCameraFormat(CameraFormat cameraFormat) {
+		cameraView.setCameraFormat(cameraFormat);
+	}
+
+	@Override
+	public void setCameraStatus(String statusMessage) {
+		cameraView.setStatusMessage(statusMessage);
+	}
+
+	@Override
+	public void startCameraPreview() {
+		cameraView.startCapture();
+	}
+
+	@Override
+	public void stopCameraPreview() {
+		cameraView.stopCapture();
 	}
 
 	@Override
@@ -161,8 +217,10 @@ public class SwingStartRecordingView extends JPanel implements StartRecordingVie
 
 	@ViewPostConstruct
 	private void initialize() {
+		enableCameraButton.addActionListener(e -> {
+			setComponentColor(enableCameraButton);
+		});
 		addAncestorListener(new AncestorListener() {
-
 			@Override
 			public void ancestorAdded(AncestorEvent event) {
 				executeAction(viewVisibleAction, true);
@@ -177,5 +235,11 @@ public class SwingStartRecordingView extends JPanel implements StartRecordingVie
 			public void ancestorMoved(AncestorEvent event) {
 			}
 		});
+	}
+
+	private void setComponentColor(AbstractButton button) {
+		button.setBackground(button.isSelected() ?
+				Color.decode("#D1FAE5") :
+				Color.decode("#FEE2E2"));
 	}
 }

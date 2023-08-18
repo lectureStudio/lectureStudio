@@ -68,6 +68,7 @@ import org.lecturestudio.presenter.api.context.PresenterContext;
 import org.lecturestudio.presenter.api.event.RecordingStateEvent;
 import org.lecturestudio.presenter.api.event.ScreenShareSelectEvent;
 import org.lecturestudio.presenter.api.event.StreamingStateEvent;
+import org.lecturestudio.presenter.api.exceptions.CameraRecordingException;
 import org.lecturestudio.presenter.api.presenter.command.StartRecordingCommand;
 import org.lecturestudio.presenter.api.service.RecordingService;
 import org.lecturestudio.presenter.api.view.ToolbarView;
@@ -315,37 +316,24 @@ public class ToolbarPresenter extends Presenter<ToolbarView> {
 	}
 
 	public void startRecording() {
-		try {
-			if (recordingService.started()) {
+		if (recordingService.started()) {
+			try {
 				recordingService.suspend();
 			}
-			else if (recordingService.suspended()) {
-				recordingService.start();
+			catch (CameraRecordingException e) {
+				showError("stream.camera.error.title", "recording.webcam.start.error");
 			}
-			else {
-				eventBus.post(new StartRecordingCommand(() -> {
-					PresenterContext pContext = (PresenterContext) context;
-
-					CompletableFuture.runAsync(() -> {
-						try {
-							recordingService.start();
-						}
-						catch (ExecutableException e) {
-							throw new CompletionException(e);
-						}
-
-						pContext.setRecordingStarted(true);
-					})
-					.exceptionally(e -> {
-						handleRecordingStateError(e);
-						pContext.setRecordingStarted(false);
-						return null;
-					});
-				}));
+			catch (Exception e) {
+				showError("recording.error", "recording.pause.error");
 			}
 		}
-		catch (ExecutableException e) {
-			handleRecordingStateError(e);
+		else if (recordingService.suspended()) {
+			startRecordingService();
+		}
+		else {
+			eventBus.post(new StartRecordingCommand(() -> {
+				startRecordingService();
+			}));
 		}
 	}
 
@@ -474,6 +462,31 @@ public class ToolbarPresenter extends Presenter<ToolbarView> {
 		else {
 			handleException(e, "Start recording failed", "recording.start.error");
 		}
+	}
+
+	private void startRecordingService() {
+		PresenterContext pContext = (PresenterContext) context;
+		CompletableFuture.runAsync(() -> {
+					try {
+						recordingService.start();
+					} catch (ExecutableException e) {
+						throw new CompletionException(e);
+					}
+					pContext.setRecordingStarted(true);
+				})
+				.exceptionally(e -> {
+					handleRecordingStateError(e);
+					pContext.setRecordingStarted(false);
+
+					var cause = e.getCause();
+					if (cause instanceof CameraRecordingException) {
+						showError("stream.camera.error.title", "recording.webcam.start.error");
+
+					} else {
+						showError("recording.error", "recording.pause.error");
+					}
+					return null;
+				});
 	}
 
 	@Override

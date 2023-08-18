@@ -133,6 +133,7 @@ public class ViewModule extends AbstractModule {
 		bind(SoundSettingsView.class).to(FxSoundSettingsView.class);
 		bind(StartView.class).to(FxStartView.class);
 		bind(ToolbarView.class).to(FxToolbarView.class);
+		bind(TextBoxView.class).to(TextBox.class);
 		bind(VideoExportView.class).to(FxVideoExportView.class);
 		bind(VideoExportProgressView.class).to(FxVideoExportProgressView.class);
 		bind(VideoExportSettingsView.class).to(FxVideoExportSettingsView.class);

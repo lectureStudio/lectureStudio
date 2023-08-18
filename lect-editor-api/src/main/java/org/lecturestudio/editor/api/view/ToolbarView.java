@@ -4,6 +4,7 @@ import java.util.List;
 
 import org.lecturestudio.core.graphics.Color;
 import org.lecturestudio.core.model.Document;
+import org.lecturestudio.core.text.Font;
 import org.lecturestudio.core.tool.StrokeWidthSettings;
 import org.lecturestudio.core.tool.PaintSettings;
 import org.lecturestudio.core.tool.ToolType;
@@ -49,6 +50,10 @@ public interface ToolbarView extends View {
 	void setOnSelectTool(Action action);
 
 	void setOnEraseTool(Action action);
+
+	void setOnTextTool(Action action);
+
+	void setOnTextBoxFont(ConsumerAction<Font> action);
 
 	void setOnClearTool(Action action);
 

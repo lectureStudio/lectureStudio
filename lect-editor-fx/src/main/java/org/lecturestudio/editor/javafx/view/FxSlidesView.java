@@ -34,8 +34,6 @@ import javafx.scene.control.MenuItem;
 import javafx.scene.control.SplitPane;
 import javafx.scene.control.Tab;
 import javafx.scene.control.TabPane;
-import javafx.scene.control.TextField;
-import javafx.scene.control.TitledPane;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.VBox;
 import javafx.scene.transform.TransformChangedEvent;
@@ -252,6 +250,12 @@ public class FxSlidesView extends VBox implements SlidesView {
 	@Override
 	public void bindToolStartedProperty(BooleanProperty toolStartedProperty) {
 		slideView.toolStartedProperty().addListener((observable, oldValue, newValue) -> toolStartedProperty.set(newValue));
+	}
+
+	@Override
+	public void bindSeekProperty(BooleanProperty seekProperty) {
+		slideView.seekProperty().set(seekProperty.get());
+		seekProperty.addListener((observable, oldValue, newValue) -> slideView.setSeek(seekProperty.get()));
 	}
 
 	@FXML

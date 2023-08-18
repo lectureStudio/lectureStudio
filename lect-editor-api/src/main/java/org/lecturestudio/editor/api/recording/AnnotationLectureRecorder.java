@@ -34,7 +34,7 @@ public class AnnotationLectureRecorder extends LectureRecorder {
 	private final EditorContext context;
 	private final RecordingPlaybackService playbackService;
 	private ArrayList<PlaybackAction> addedActions;
-	private Integer pageNumber = null;
+	private Integer pageNumber;
 	private String errorDuringRecording;
 
 	@Inject
@@ -46,6 +46,8 @@ public class AnnotationLectureRecorder extends LectureRecorder {
 		this.recordingService = recordingFileService;
 		this.context = (EditorContext) context;
 		this.playbackService = playbackService;
+
+		reset();
 	}
 
 
@@ -58,7 +60,7 @@ public class AnnotationLectureRecorder extends LectureRecorder {
 		}
 	}
 
-	private synchronized void addPlaybackAction(PlaybackAction action) {
+	private void addPlaybackAction(PlaybackAction action) {
 		if (isNull(action)) {
 			return;
 		}
@@ -82,7 +84,7 @@ public class AnnotationLectureRecorder extends LectureRecorder {
 		}
 	}
 
-	public void persistPlaybackActions() throws IllegalStateException {
+	public synchronized void persistPlaybackActions() throws IllegalStateException {
 		if (errorDuringRecording != null) {
 			handleException(errorDuringRecording);
 		}
@@ -102,7 +104,7 @@ public class AnnotationLectureRecorder extends LectureRecorder {
 		}
 
 		recordingService.insertPlaybackActions(addedActions, pageNumber);
-
+		reset();
 	}
 
 	private String checkAnnotationBounds(List<PlaybackAction> actions) {
@@ -140,7 +142,7 @@ public class AnnotationLectureRecorder extends LectureRecorder {
 			}
 
 			if (existingActionStartTime != null && existingActionEndTime != null) {
-				if (existingActionStartTime <= newActionEndTime && newActionStartTime <= existingActionEndTime) {
+				if (existingActionStartTime < newActionEndTime && newActionStartTime < existingActionEndTime) {
 					return "annotationrecorder.overlap.message";
 				}
 				else {
@@ -160,9 +162,6 @@ public class AnnotationLectureRecorder extends LectureRecorder {
 	@Override
 	protected void startInternal() throws ExecutableException {
 		context.getEventBus().register(this);
-		addedActions = new ArrayList<>();
-		pageNumber = null;
-		errorDuringRecording = null;
 
 		if (!playbackService.started()) {
 			playbackService.start();
@@ -214,6 +213,13 @@ public class AnnotationLectureRecorder extends LectureRecorder {
 			recordingService.getSelectedRecording().fireChangeEvent(Recording.Content.EVENTS_REMOVED, eventDuration);
 		});
 
+		reset();
 		throw new IllegalStateException(message);
+	}
+
+	private void reset() {
+		addedActions = new ArrayList<>();
+		pageNumber = null;
+		errorDuringRecording = null;
 	}
 }

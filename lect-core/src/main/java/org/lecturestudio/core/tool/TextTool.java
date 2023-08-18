@@ -39,11 +39,11 @@ import org.lecturestudio.core.recording.action.TextRemoveAction;
  */
 public class TextTool extends Tool implements TextChangeListener<TextShape> {
 
-	private final int handle;
+	protected final int handle;
 
-	private TextShape shape;
+	protected TextShape shape;
 
-	private Page page;
+	protected Page page;
 
 
 	public TextTool(ToolContext context) {

@@ -100,6 +100,7 @@ public class StylusListener implements org.lecturestudio.stylus.StylusListener {
 		}
 
 		Platform.runLater(() -> {
+			slideView.requestFocus();
 			slideView.setToolStarted(true);
 			handler.onButtonDown(stylusEvent, viewBounds);
 		});

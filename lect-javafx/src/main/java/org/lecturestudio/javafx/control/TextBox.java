@@ -20,6 +20,8 @@ package org.lecturestudio.javafx.control;
 
 import static java.util.Objects.nonNull;
 
+import java.util.Objects;
+
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.scene.control.Skin;
@@ -95,7 +97,7 @@ public class TextBox extends PageObject<TextShape> implements TextBoxView {
 
 	@Override
 	public String getUserAgentStylesheet() {
-		return getClass().getResource("/resources/css/text-box.css").toExternalForm();
+		return Objects.requireNonNull(getClass().getResource("/resources/css/text-box.css")).toExternalForm();
 	}
 
 	@Override

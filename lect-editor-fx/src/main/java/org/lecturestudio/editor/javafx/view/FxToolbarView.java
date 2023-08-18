@@ -25,6 +25,7 @@ import javafx.scene.paint.Paint;
 
 import org.lecturestudio.core.graphics.Color;
 import org.lecturestudio.core.model.Document;
+import org.lecturestudio.core.text.Font;
 import org.lecturestudio.core.tool.ColorPalette;
 import org.lecturestudio.core.tool.PaintSettings;
 import org.lecturestudio.core.tool.ToolType;
@@ -33,9 +34,11 @@ import org.lecturestudio.core.view.ConsumerAction;
 import org.lecturestudio.core.tool.StrokeWidthSettings;
 import org.lecturestudio.editor.api.view.ToolbarView;
 import org.lecturestudio.javafx.beans.converter.ColorConverter;
+import org.lecturestudio.javafx.beans.converter.FontConverter;
 import org.lecturestudio.javafx.control.ColorPaletteButton;
 import org.lecturestudio.javafx.control.ExtButton;
 import org.lecturestudio.javafx.control.ExtToggleButton;
+import org.lecturestudio.javafx.control.FontPickerButton;
 import org.lecturestudio.javafx.control.ToolGroupButton;
 import org.lecturestudio.javafx.factory.StrokeWidthCellFactory;
 import org.lecturestudio.javafx.factory.StrokeWidthListCell;
@@ -108,6 +111,9 @@ public class FxToolbarView extends FlowPane implements ToolbarView {
 	private ExtToggleButton eraseButton;
 
 	@FXML
+	private FontPickerButton textButton;
+
+	@FXML
 	private ExtButton clearButton;
 
 	@FXML
@@ -120,6 +126,7 @@ public class FxToolbarView extends FlowPane implements ToolbarView {
 	private ExtButton zoomOutButton;
 	@FXML
 	private ComboBox<StrokeWidthSettings> strokeWidthComboBox;
+	private ConsumerAction<Font> textBoxFontAction;
 
 	public FxToolbarView() {
 		super();
@@ -220,6 +227,16 @@ public class FxToolbarView extends FlowPane implements ToolbarView {
 	@Override
 	public void setOnEraseTool(Action action) {
 		FxUtils.bindAction(eraseButton, action);
+	}
+
+	@Override
+	public void setOnTextTool(Action action) {
+		FxUtils.bindAction(textButton, action);
+	}
+
+	@Override
+	public void setOnTextBoxFont(ConsumerAction<Font> action) {
+		this.textBoxFontAction = action;
 	}
 
 	@Override
@@ -327,6 +344,9 @@ public class FxToolbarView extends FlowPane implements ToolbarView {
 			if (newVal == null) {
 				oldVal.setSelected(true);
 			}
+		});
+		textButton.textFontProperty().addListener((observable, oldFont, newFont) -> {
+			executeAction(textBoxFontAction, FontConverter.INSTANCE.from(newFont));
 		});
 
 		strokeWidthComboBox.setCellFactory(new StrokeWidthCellFactory(resources));

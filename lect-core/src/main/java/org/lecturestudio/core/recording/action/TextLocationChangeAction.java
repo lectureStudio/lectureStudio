@@ -26,7 +26,7 @@ import org.lecturestudio.core.geometry.Point2D;
 
 public class TextLocationChangeAction extends PlaybackAction {
 
-	private int handle;
+	protected int handle;
 
 	private Point2D location;
 

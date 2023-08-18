@@ -23,7 +23,6 @@ import static java.util.Objects.nonNull;
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Iterator;
 import java.util.List;
 
 import javafx.beans.property.ObjectProperty;
@@ -54,7 +53,6 @@ import org.lecturestudio.core.geometry.Rectangle2D;
 import org.lecturestudio.core.model.Page;
 import org.lecturestudio.core.model.listener.ParameterChangeListener;
 import org.lecturestudio.core.model.listener.ShapeListener;
-import org.lecturestudio.core.model.shape.Shape;
 import org.lecturestudio.core.tool.ShapeModifyEvent;
 import org.lecturestudio.core.tool.ShapePaintEvent;
 import org.lecturestudio.core.view.PageObjectView;
@@ -86,6 +84,8 @@ public class SlideView extends Control implements ParameterChangeListener, org.l
 	private ObjectProperty<Pos> alignment;
 
 	private final BooleanProperty toolStartedProperty = new BooleanProperty(false);
+
+	private final BooleanProperty seekProperty = new BooleanProperty(true);
 
 
 	public SlideView() {
@@ -261,6 +261,9 @@ public class SlideView extends Control implements ParameterChangeListener, org.l
 	@Override
 	public void setPage(Page page) {
 		pageProperty().set(page);
+		if (Boolean.FALSE.equals(seekProperty.get())) {
+			page.addShapeListener(this);
+		}
 	}
 
 	public final ObjectProperty<RenderController> pageRendererProperty() {
@@ -295,7 +298,7 @@ public class SlideView extends Control implements ParameterChangeListener, org.l
 
 	/**
 	 * @return The CssMetaData associated with this class, which may include the
-	 *         CssMetaData of its super classes.
+	 * 		CssMetaData of its super classes.
 	 */
 	public static List<CssMetaData<? extends Styleable, ?>> getClassCssMetaData() {
 		return StyleableProperties.STYLEABLES;
@@ -336,15 +339,15 @@ public class SlideView extends Control implements ParameterChangeListener, org.l
 		setPickOnBounds(true);
 
 		canvasBoundsProperty().addListener((observable, oldBounds, newBounds) -> updateViewTransform());
-		toolStartedProperty().addListener(((observable, oldValue, newValue) -> {
+		seekProperty().addListener(((observable, oldValue, newValue) -> {
 			Page page = pageProperty().get();
 
 			if (nonNull(page)) {
-				if (Boolean.TRUE.equals(newValue)) {
-					pageProperty().get().addShapeListener(this);
+				if (Boolean.FALSE.equals(newValue)) {
+					page.addShapeListener(this);
 				}
 				else {
-					pageProperty().get().removeShapeListener(this);
+					page.removeShapeListener(this);
 				}
 			}
 		}));
@@ -354,37 +357,26 @@ public class SlideView extends Control implements ParameterChangeListener, org.l
 		return toolStartedProperty;
 	}
 
+	public void setToolStarted(boolean toolStarted) {
+		this.toolStartedProperty.set(toolStarted);
+	}
+
+	public BooleanProperty seekProperty() {
+		return seekProperty;
+	}
+
+	public void setSeek(boolean seekProperty) {
+		this.seekProperty.set(seekProperty);
+	}
+
 	@Override
 	public void shapePainted(ShapePaintEvent event) {
-		Rectangle2D clip = event.getClipRect();
-
-		if (nonNull(clip)) {
-			repaint();
-		}
-		else {
-			repaint();
-		}
+		repaint();
 	}
 
 	@Override
 	public void shapeModified(ShapeModifyEvent event) {
-		Iterator<Shape> shapes = event.getShapes().iterator();
-
-		if (shapes.hasNext()) {
-			Rectangle2D clip = shapes.next().getBounds().clone();
-
-			while (shapes.hasNext()) {
-				clip.union(shapes.next().getBounds());
-			}
-			repaint();
-		}
-		else {
-			repaint();
-		}
-	}
-
-	public void setToolStarted(boolean toolStarted) {
-		this.toolStartedProperty.set(toolStarted);
+		repaint();
 	}
 
 

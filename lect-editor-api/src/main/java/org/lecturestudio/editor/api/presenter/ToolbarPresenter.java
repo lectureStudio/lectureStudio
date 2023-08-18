@@ -6,8 +6,10 @@ import java.util.List;
 
 import com.google.common.eventbus.Subscribe;
 import org.lecturestudio.core.app.ApplicationContext;
+import org.lecturestudio.core.audio.bus.event.TextFontEvent;
 import org.lecturestudio.core.bus.EventBus;
 import org.lecturestudio.core.graphics.Color;
+import org.lecturestudio.core.text.Font;
 import org.lecturestudio.core.tool.StrokeWidthSettings;
 import org.lecturestudio.core.presenter.Presenter;
 import org.lecturestudio.core.tool.ColorPalette;
@@ -131,6 +133,16 @@ public class ToolbarPresenter extends Presenter<ToolbarView> {
 		toolController.selectRubberTool();
 	}
 
+	public void textTool() {
+		toolController.selectTextTool();
+	}
+
+	public void setTextBoxFont(Font font) {
+		toolController.setTextFont(font);
+
+		eventBus.post(new TextFontEvent(font));
+	}
+
 	public void clearTool() {
 		toolController.selectDeleteAllTool();
 	}
@@ -179,6 +191,8 @@ public class ToolbarPresenter extends Presenter<ToolbarView> {
 		view.setOnEllipseTool(this::ellipseTool);
 		view.setOnSelectTool(this::selectTool);
 		view.setOnEraseTool(this::eraseTool);
+		view.setOnTextTool(this::textTool);
+		view.setOnTextBoxFont(this::setTextBoxFont);
 		view.setOnClearTool(this::clearTool);
 
 		view.setOnZoomInTool(this::zoomInTool);

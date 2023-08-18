@@ -32,7 +32,7 @@ import org.lecturestudio.core.text.TextAttributes;
 
 public class TextFontChangeAction extends PlaybackAction {
 
-	private int handle;
+	protected int handle;
 
 	private TextAttributes attributes;
 

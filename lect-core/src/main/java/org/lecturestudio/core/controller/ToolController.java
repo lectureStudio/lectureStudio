@@ -117,7 +117,7 @@ public class ToolController extends Controller implements ToolContext {
 	private Tool previousTool;
 
 	/** The selected tool. */
-	private Tool selectedTool;
+	protected Tool selectedTool;
 
 	/** The current key event. */
 	private KeyEvent keyEvent;
@@ -972,7 +972,7 @@ public class ToolController extends Controller implements ToolContext {
 		selectPreviousTool();
 	}
 
-	private TextBoxShape<?> getTextShape(int handle) {
+	protected TextBoxShape<?> getTextShape(int handle) {
 		Document selectedDoc = documentService.getDocuments().getSelectedDocument();
 		Page page = selectedDoc.getCurrentPage();
 		Shape shape = page.getShape(handle);

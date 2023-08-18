@@ -142,7 +142,7 @@ public class TextBoxSkin extends PageObjectSkin<TextBox> {
 		double y = Math.ceil((shapeRect.getY() + ty) * s) - yOffset;
 
 		Font font = textBox.getPageShape().getFont().clone();
-		font.setSize(fontSize * s);
+		font.setSize(fontSize * transform.getMyy());
 
 		textBox.fontProperty().set(FontConverter.INSTANCE.to(font));
 		textBox.relocate(x, y);
@@ -181,8 +181,7 @@ public class TextBoxSkin extends PageObjectSkin<TextBox> {
 			// Remove style in order to place the TextShape right underneath
 			// the TextArea text nodes.
 			for (Node textNode : textNodes) {
-				if (textNode instanceof Text) {
-					Text text = (Text) textNode;
+				if (textNode instanceof Text text) {
 					text.setBoundsType(TextBoundsType.LOGICAL);
 					text.fillProperty().unbind();
 					text.setFill(Color.TRANSPARENT);
@@ -249,5 +248,4 @@ public class TextBoxSkin extends PageObjectSkin<TextBox> {
 			return bounds.getHeight() + paddingHeight;
 		}
 	}
-
 }

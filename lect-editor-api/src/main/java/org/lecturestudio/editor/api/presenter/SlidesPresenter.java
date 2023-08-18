@@ -31,12 +31,15 @@ import com.google.common.eventbus.Subscribe;
 
 import org.lecturestudio.core.app.ApplicationContext;
 import org.lecturestudio.core.audio.bus.event.TextColorEvent;
+import org.lecturestudio.core.audio.bus.event.TextFontEvent;
 import org.lecturestudio.core.beans.BooleanProperty;
 import org.lecturestudio.core.bus.EventBus;
 import org.lecturestudio.core.bus.event.DocumentEvent;
 import org.lecturestudio.core.bus.event.PageEvent;
 import org.lecturestudio.core.bus.event.ToolSelectionEvent;
 import org.lecturestudio.core.controller.RenderController;
+import org.lecturestudio.core.geometry.Matrix;
+import org.lecturestudio.core.text.Font;
 import org.lecturestudio.editor.api.controller.EditorToolController;
 import org.lecturestudio.core.input.KeyEvent;
 import org.lecturestudio.core.model.Document;
@@ -123,15 +126,12 @@ public class SlidesPresenter extends Presenter<SlidesView> {
 		view.setOnSelectPage(this::selectPage);
 		view.setPageRenderer(renderController);
 		view.setStylusHandler(stylusHandler);
+		view.setOnViewTransform(this::setViewTransform);
 		view.bindToolStartedProperty(toolStartedProperty);
+		view.bindSeekProperty(((EditorContext) context).seekingProperty());
 
 		toolStartedProperty.addListener((observable, oldValue, newValue) -> {
-			if (Boolean.TRUE.equals(newValue)) {
-				((EditorContext) context).setIsEditing(true);
-			}
-			else {
-				((EditorContext) context).setIsEditing(false);
-			}
+			((EditorContext) context).setIsEditing(Boolean.TRUE.equals(newValue));
 		});
 
 		// Register for page parameter change updates.
@@ -378,20 +378,6 @@ public class SlidesPresenter extends Presenter<SlidesView> {
 		}
 	}
 
-	private void loadPageObjectViews(Page page) {
-		if (pageObjectRegistry.containsViewShapes(toolType, page)) {
-			Class<? extends PageObjectView<? extends Shape>> viewClass =
-					pageObjectRegistry.getPageObjectViewClass(toolType);
-			Class<? extends Shape> shapeClass = pageObjectRegistry.getShapeClass(toolType);
-
-			for (Shape shape : page.getShapes()) {
-				if (shapeClass.isAssignableFrom(shape.getClass())) {
-					createPageObjectView(shape, viewClass);
-				}
-			}
-		}
-	}
-
 	private PageObjectView<? extends Shape> createPageObjectView(Shape shape,
 	                                                             Class<? extends PageObjectView<? extends Shape>> viewClass) {
 		PageObjectView<Shape> objectView = (PageObjectView<Shape>) viewFactory.getInstance(viewClass);
@@ -400,10 +386,12 @@ public class SlidesPresenter extends Presenter<SlidesView> {
 			pageObjectViewClosed(objectView);
 		});
 		objectView.setOnFocus((focused) -> {
-			pageObjectViewFocused(objectView);
-		});
-		objectView.setOnCopy(() -> {
-			pageObjectViewCopy(objectView);
+			if (Boolean.TRUE.equals(focused)) {
+				pageObjectViewFocused(objectView);
+			}
+			else {
+				pageObjectViewFocusRemoved(objectView);
+			}
 		});
 
 		view.addPageObjectView(objectView);
@@ -420,9 +408,8 @@ public class SlidesPresenter extends Presenter<SlidesView> {
 		Page page = view.getPage();
 		page.removeShape(shape);
 
-		if (shape instanceof TextShape) {
+		if (shape instanceof TextShape textShape) {
 			// TODO: make this generic or remove at all
-			TextShape textShape = (TextShape) shape;
 			textShape.setOnRemove();
 		}
 	}
@@ -435,13 +422,10 @@ public class SlidesPresenter extends Presenter<SlidesView> {
 		}
 	}
 
-	private void pageObjectViewCopy(PageObjectView<? extends Shape> objectView) {
-		Shape shape = objectView.getPageShape();
-		Class<? extends Shape> shapeClass = pageObjectRegistry.getShapeClass(ToolType.TEXT);
+	private void pageObjectViewFocusRemoved(PageObjectView<? extends Shape> objectView) {
 
-		if (nonNull(shapeClass) && shapeClass.isAssignableFrom(shape.getClass())) {
-			toolController.copyText((TextShape) shape.clone());
-		}
+		toolController.persistPlaybackActions();
+		view.removePageObjectView(objectView);
 	}
 
 	@Subscribe
@@ -456,11 +440,24 @@ public class SlidesPresenter extends Presenter<SlidesView> {
 		}
 	}
 
+	@Subscribe
+	public void onEvent(TextFontEvent event) {
+		if (nonNull(lastFocusedTextBox)) {
+			// Scale font size to page metrics.
+			Font textFont = event.getFont().clone();
+			textFont.setSize(textFont.getSize() / toolController.getViewTransform().getScaleX());
+
+			lastFocusedTextBox.setTextFont(textFont);
+		}
+	}
+
+	private void setViewTransform(Matrix matrix) {
+		toolController.setViewTransform(matrix.clone());
+	}
+
 	private void toolChanged(ToolType toolType) {
 		this.toolType = toolType;
 
 		view.removeAllPageObjectViews();
-
-		loadPageObjectViews(view.getPage());
 	}
 }

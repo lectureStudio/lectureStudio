@@ -12,6 +12,7 @@
 <?import javafx.scene.control.ComboBox?>
 
 
+<?import org.lecturestudio.javafx.control.FontPickerButton?>
 <fx:root type="FlowPane" hgap="5" vgap="5" styleClass="main-toolbar" xmlns="http://javafx.com/javafx/8"
          xmlns:fx="http://javafx.com/fxml/1">
     <fx:define>
@@ -109,6 +110,15 @@
         </graphic>
         <userData>RUBBER</userData>
     </ExtToggleButton>
+    <FontPickerButton fx:id="textButton" accelerator="t" toggleGroup="$toolToggleGroup">
+        <tooltip>
+            <Tooltip text="%toolbar.text.tooltip"/>
+        </tooltip>
+        <graphic>
+            <SvgIcon styleClass="icon, text-icon"/>
+        </graphic>
+        <userData>TEXT</userData>
+    </FontPickerButton>
     <ExtButton fx:id="clearButton" accelerator="esc">
         <tooltip>
             <Tooltip text="%toolbar.clear.tooltip"/>

@@ -194,7 +194,6 @@ public class StreamService {
 				}
 
 				if (streamContext.getMessengerEnabled()) {
-
 					context.setMessengerStarted(true);
 				}
 			})

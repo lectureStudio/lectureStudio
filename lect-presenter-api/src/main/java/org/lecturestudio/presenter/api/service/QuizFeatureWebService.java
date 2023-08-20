@@ -24,7 +24,6 @@ import static java.util.Objects.nonNull;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
-import java.net.URI;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -325,8 +324,7 @@ public class QuizFeatureWebService extends FeatureServiceBase {
 			fileMap.put(imgFile, generatedName);
 
 			// Replace by new relative web-root path.
-			e.attr("src", Paths.get(Long.toString(courseId), "quiz", "resource",
-					generatedName).toString().replaceAll("\\\\", "/"));
+			e.attr("src", generatedName);
 		}
 
 		quiz.setQuestion(doc.body().html());

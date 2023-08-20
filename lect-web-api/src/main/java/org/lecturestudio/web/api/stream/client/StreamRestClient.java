@@ -168,13 +168,11 @@ public interface StreamRestClient {
 	 * muted/enabled or not.
 	 *
 	 * @param courseId The unique course ID.
-	 * @param clientId The unique client ID for the current stream.
 	 * @param state    The current media stream state.
 	 */
 	@POST
-	@Path("/stream/media/state/{courseId}/{clientId}")
+	@Path("/stream/media/state/{courseId}")
 	void updateStreamMediaState(@PathParam("courseId") long courseId,
-			@PathParam("clientId") UUID clientId,
 			Map<org.lecturestudio.core.net.MediaType, Boolean> state);
 
 }

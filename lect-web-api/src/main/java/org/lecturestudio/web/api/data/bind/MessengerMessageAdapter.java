@@ -43,9 +43,7 @@ public class MessengerMessageAdapter implements JsonbAdapter<MessengerMessage, J
 		builder.add("date", message.getDate().toString());
 		builder.add("messageId", message.getMessageId());
 
-		if (message instanceof MessengerDirectMessage) {
-			MessengerDirectMessage directMessage = (MessengerDirectMessage) message;
-
+		if (message instanceof MessengerDirectMessage directMessage) {
 			builder.add("recipientId", directMessage.getRecipientId());
 			builder.add("recipientFirstName", directMessage.getRecipientFirstName());
 			builder.add("recipientFamilyName", directMessage.getRecipientFamilyName());
@@ -63,8 +61,6 @@ public class MessengerMessageAdapter implements JsonbAdapter<MessengerMessage, J
 		if (type.equals("MessengerDirectMessage")) {
 			MessengerDirectMessage directMessage = new MessengerDirectMessage();
 			directMessage.setRecipientId(jsonObject.getString("recipientId"));
-			directMessage.setRecipientFirstName(jsonObject.getString("recipientFirstName"));
-			directMessage.setRecipientFamilyName(jsonObject.getString("recipientFamilyName"));
 
 			message = directMessage;
 		}

@@ -72,13 +72,13 @@ public class JanusWebSocketClient extends ExecutableBase implements JanusMessage
 
 	private final List<JanusMessage> bufferedMessages = new ArrayList<>();
 
+	private final List<JanusStateHandlerListener> stateListeners = new ArrayList<>();
+
 	private WebSocket webSocket;
 
 	private Jsonb jsonb;
 
 	private Consumer<UUID> rejectedConsumer;
-
-	private JanusStateHandlerListener handlerStateListener;
 
 	private JanusHandler handler;
 
@@ -90,8 +90,8 @@ public class JanusWebSocketClient extends ExecutableBase implements JanusMessage
 		this.eventRecorder = eventRecorder;
 	}
 
-	public void setJanusStateHandlerListener(JanusStateHandlerListener listener) {
-		handlerStateListener = listener;
+	public void addJanusStateHandlerListener(JanusStateHandlerListener listener) {
+		stateListeners.add(listener);
 	}
 
 	public void setRejectedConsumer(Consumer<UUID> consumer) {
@@ -159,7 +159,7 @@ public class JanusWebSocketClient extends ExecutableBase implements JanusMessage
 					new WebSocketListener()).join();
 
 			handler = new JanusHandler(this, streamContext, eventRecorder);
-			handler.addJanusStateHandlerListener(handlerStateListener);
+			handler.addJanusStateHandlerListeners(stateListeners);
 			handler.setRejectedConsumer(rejectedConsumer);
 			handler.init();
 			handler.start();

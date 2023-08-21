@@ -62,7 +62,11 @@ public abstract class JanusStateHandler extends ExecutableBase {
 	}
 
 	public void addJanusStateHandlerListener(JanusStateHandlerListener listener) {
-		listeners.add(listener);
+		this.listeners.add(listener);
+	}
+
+	public void addJanusStateHandlerListeners(List<JanusStateHandlerListener> listeners) {
+		this.listeners.addAll(listeners);
 	}
 
 	public void setState(JanusState state) {

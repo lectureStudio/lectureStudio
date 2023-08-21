@@ -43,6 +43,7 @@ import org.lecturestudio.core.Executable;
 import org.lecturestudio.core.ExecutableBase;
 import org.lecturestudio.core.ExecutableException;
 import org.lecturestudio.core.ExecutableState;
+import org.lecturestudio.core.ExecutableStateObserver;
 import org.lecturestudio.core.app.ApplicationContext;
 import org.lecturestudio.core.app.configuration.AudioConfiguration;
 import org.lecturestudio.core.audio.AudioFormat;
@@ -102,6 +103,8 @@ public class WebRtcStreamService extends ExecutableBase {
 
 	private final RecordingService recordingService;
 
+	private final ExecutableStateObserver stateObserver;
+
 	private StreamContext streamContext;
 
 	private StreamProviderService streamProviderService;
@@ -143,6 +146,7 @@ public class WebRtcStreamService extends ExecutableBase {
 		this.webServiceInfo = webServiceInfo;
 		this.eventRecorder = eventRecorder;
 		this.recordingService = recordingService;
+		this.stateObserver = new ExecutableStateObserver();
 		this.clientFailover = new ClientFailover();
 		this.clientFailover.addStateListener((oldState, newState) -> {
 			setReconnectionState(newState);
@@ -297,6 +301,8 @@ public class WebRtcStreamService extends ExecutableBase {
 			setCameraState(ExecutableState.Starting);
 		}
 
+		StreamStateHandler streamStateHandler = new StreamStateHandler();
+
 		audioProcessor = new AudioFrameProcessor(config.getAudioConfig()
 				.getRecordingFormat());
 
@@ -312,7 +318,7 @@ public class WebRtcStreamService extends ExecutableBase {
 				hasFailed = false;
 			}
 		});
-		janusSignalingClient.setJanusStateHandlerListener(new JanusStateHandlerListener() {
+		janusSignalingClient.addJanusStateHandlerListener(new JanusStateHandlerListener() {
 
 			@Override
 			public void connected() {
@@ -325,8 +331,6 @@ public class WebRtcStreamService extends ExecutableBase {
 					}
 				}
 				else {
-					streamProviderService.startedStream(course.getId());
-
 					setReconnectionState(ExecutableState.Stopped);
 				}
 
@@ -372,6 +376,7 @@ public class WebRtcStreamService extends ExecutableBase {
 				}
 			}
 		});
+		janusSignalingClient.addJanusStateHandlerListener(streamStateHandler);
 
 		UserInfo userInfo = streamProviderService.getUserInfo();
 
@@ -387,6 +392,12 @@ public class WebRtcStreamService extends ExecutableBase {
 
 		clientFailover.addExecutable(janusSignalingClient);
 		clientFailover.addExecutable(streamStateClient.getReconnectExecutable());
+
+		stateObserver.addExecutable(eventRecorder);
+		stateObserver.addExecutable(streamStateHandler);
+		stateObserver.setStartedListener(() -> {
+			streamProviderService.startedStream(course.getId());
+		});
 
 		try {
 			streamStateClient.start();
@@ -459,6 +470,8 @@ public class WebRtcStreamService extends ExecutableBase {
 		}
 
 		setStreamState(ExecutableState.Stopping);
+
+		stateObserver.removeAllExecutables();
 
 		try {
 			eventRecorder.stop();

@@ -22,7 +22,14 @@ import org.lecturestudio.core.ExecutableBase;
 import org.lecturestudio.core.ExecutableException;
 import org.lecturestudio.web.api.janus.JanusStateHandlerListener;
 
-public class StreamStateHandler extends ExecutableBase implements JanusStateHandlerListener {
+/**
+ * Stream state observer to executable component adapter. This component will
+ * set its executable state depending on the stream state.
+ *
+ * @author Alex Andres
+ */
+public class StreamStateHandler extends ExecutableBase
+		implements JanusStateHandlerListener {
 
 	@Override
 	public void connected() {

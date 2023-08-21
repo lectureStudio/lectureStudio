@@ -333,8 +333,6 @@ public class WebRtcStreamService extends ExecutableBase {
 				else {
 					setReconnectionState(ExecutableState.Stopped);
 				}
-
-				sendMediaStreamState();
 			}
 
 			@Override
@@ -396,6 +394,7 @@ public class WebRtcStreamService extends ExecutableBase {
 		stateObserver.addExecutable(eventRecorder);
 		stateObserver.addExecutable(streamStateHandler);
 		stateObserver.setStartedListener(() -> {
+			sendMediaStreamState();
 			streamProviderService.startedStream(course.getId());
 		});
 

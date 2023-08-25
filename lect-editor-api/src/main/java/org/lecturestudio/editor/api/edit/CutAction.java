@@ -93,7 +93,7 @@ public class CutAction extends RecordingAction {
 		final List<RecordedPage> recPages = events.getRecordedPages();
 		final Interval<Integer> editInterval = new Interval<>(startTime, endTime);
 		final EditHeaderAction headerAction = new EditHeaderAction(header, -editInterval.lengthLong());
-		final DeleteEventsAction eventsAction = new DeleteEventsAction(events, editInterval);
+		final DeleteEventsAction eventsAction = new DeleteEventsAction(events, editInterval, recording.getToolDemoRecordingsData());
 		final DeleteDocumentAction documentAction = new DeleteDocumentAction(doc);
 		final DeleteAudioAction audioAction = new DeleteAudioAction(audio, editInterval);
 
@@ -128,8 +128,7 @@ public class CutAction extends RecordingAction {
 
 					// Remove document page.
 					documentAction.removePage(number);
-				}
-				else {
+				} else {
 					LOG.debug("Shift page: {}", number);
 
 					/*
@@ -144,8 +143,7 @@ public class CutAction extends RecordingAction {
 					// Done.
 					break;
 				}
-			}
-			else if (containsNext) {
+			} else if (containsNext) {
 				LOG.debug("Remove actions on the right side of page: {}", number);
 
 				/*
@@ -153,8 +151,7 @@ public class CutAction extends RecordingAction {
 				 */
 				Interval<Integer> interval = new Interval<>(editInterval.getStart(), nextTimestamp);
 				eventsAction.changeRecordedPage(number, interval);
-			}
-			else if (timestamp < editInterval.getStart() && (isLastPage || editInterval.getEnd() < nextTimestamp)) {
+			} else if (timestamp < editInterval.getStart() && (isLastPage || editInterval.getEnd() < nextTimestamp)) {
 				LOG.debug("Remove actions from the middle of page: {}", number);
 
 				/*

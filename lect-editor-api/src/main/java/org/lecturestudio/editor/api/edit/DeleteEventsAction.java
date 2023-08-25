@@ -26,6 +26,7 @@ import java.util.Map;
 import org.lecturestudio.core.model.Interval;
 import org.lecturestudio.core.recording.RecordedEvents;
 import org.lecturestudio.core.recording.RecordedPage;
+import org.lecturestudio.core.recording.Recording;
 import org.lecturestudio.core.recording.edit.RecordedObjectAction;
 
 public class DeleteEventsAction extends RecordedObjectAction<RecordedEvents> {
@@ -40,10 +41,11 @@ public class DeleteEventsAction extends RecordedObjectAction<RecordedEvents> {
 
 	private Integer shiftPage;
 
+	private List<Recording.ToolDemoRecording> toolDemoRecordings;
 
-	public DeleteEventsAction(RecordedEvents lectureObject, Interval<Integer> interval) {
+	public DeleteEventsAction(RecordedEvents lectureObject, Interval<Integer> interval, List<Recording.ToolDemoRecording> toolDemoRecordings) {
 		super(lectureObject);
-
+		this.toolDemoRecordings = toolDemoRecordings;
 		this.editInterval = interval;
 	}
 
@@ -95,7 +97,7 @@ public class DeleteEventsAction extends RecordedObjectAction<RecordedEvents> {
 		for (RecordedPage page : recPages) {
 			page.shift(editInterval);
 
-
+			//Shift time intervals here of tooldemorecordings -INTERVAL
 
 			if (page.getNumber() > lastRemoved) {
 				page.setNumber(page.getNumber() - removedPages.size());
@@ -107,6 +109,8 @@ public class DeleteEventsAction extends RecordedObjectAction<RecordedEvents> {
 	public void undo() {
 		RecordedEvents lecturePages = getRecordedObject();
 		List<RecordedPage> recPages = lecturePages.getRecordedPages();
+
+		//+INTERVAL
 
 		recPages.clear();
 		recPages.addAll(backupPages);

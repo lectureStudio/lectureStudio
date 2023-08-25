@@ -18,6 +18,8 @@
 
 package org.lecturestudio.core.beans;
 
+import java.io.IOException;
+
 /**
  * A {@link ChangeListener} is notified whenever the value of an {@link Observable} has
  * changed.

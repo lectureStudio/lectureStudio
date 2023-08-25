@@ -18,7 +18,11 @@
 
 package org.lecturestudio.editor.javafx.view;
 
+import java.awt.image.BufferedImage;
 import java.text.DecimalFormat;
+import java.time.LocalDateTime;
+import java.util.List;
+import java.util.Locale;
 
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
@@ -32,6 +36,7 @@ import org.lecturestudio.core.beans.BooleanProperty;
 import org.lecturestudio.core.beans.IntegerProperty;
 import org.lecturestudio.core.beans.ObjectProperty;
 import org.lecturestudio.core.geometry.Dimension2D;
+import org.lecturestudio.core.geometry.Position;
 import org.lecturestudio.core.geometry.Rectangle2D;
 import org.lecturestudio.core.view.Action;
 import org.lecturestudio.editor.api.presenter.VideoExportSettingsPresenter;
@@ -75,10 +80,10 @@ public class FxVideoExportSettingsView extends ContentPane implements VideoExpor
 	private Button createButton;
 
 	@FXML
-	private ComboBox<String> cameraRecordingPlacementCombo;
+	private ComboBox<Position> cameraRecordingPlacementCombo;
 
 	@FXML
-	private CameraView cameraView = new CameraView();
+	private CameraCanvas cameraView;
 
 
 	public FxVideoExportSettingsView() {
@@ -129,12 +134,12 @@ public class FxVideoExportSettingsView extends ContentPane implements VideoExpor
 	}
 
 	@Override
-	public void setCameraRecordingPlacement(String[] placements) {
-		FxUtils.invoke(() -> cameraRecordingPlacementCombo.getItems().setAll(placements));
+	public void setCameraRecordingPlacements(Position[] formats) {
+		FxUtils.invoke(() -> cameraRecordingPlacementCombo.getItems().setAll(formats));
 	}
 
 	@Override
-	public void bindCameraRecordingPlacement(ObjectProperty<String> property) {
+	public void bindCameraRecordingPlacement(ObjectProperty<Position> property) {
 		cameraRecordingPlacementCombo.valueProperty().bindBidirectional(new LectObjectProperty<>(property));
 	}
 
@@ -174,17 +179,7 @@ public class FxVideoExportSettingsView extends ContentPane implements VideoExpor
 	}
 
 	@Override
-	public void setCameraViewRect(ObjectProperty<Rectangle2D> viewRect) {
-		cameraView.captureRectProperty().bindBidirectional(new LectObjectProperty<>(viewRect));
-	}
-
-	@Override
-	public void startCameraPreview() {
-		cameraView.startCapture();
-	}
-
-	@Override
-	public void stopCameraPreview() {
-		cameraView.stopCapture();
+	public void setCameraPreview(BufferedImage buffImage) {
+		cameraView.setImage(buffImage);
 	}
 }

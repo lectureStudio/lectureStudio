@@ -1,24 +1,24 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0"
-		 xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-		 xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
-	<modelVersion>4.0.0</modelVersion>
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
 
-	<parent>
-		<groupId>org.lecturestudio</groupId>
-		<artifactId>lect-studio</artifactId>
-		<version>4.0.0</version>
-	</parent>
+    <parent>
+        <groupId>org.lecturestudio</groupId>
+        <artifactId>lect-studio</artifactId>
+        <version>4.0.0</version>
+    </parent>
 
-	<groupId>org.lecturestudio.editor.api</groupId>
-	<artifactId>lect-editor-api</artifactId>
-	<version>1.0.0</version>
+    <groupId>org.lecturestudio.editor.api</groupId>
+    <artifactId>lect-editor-api</artifactId>
+    <version>1.0.0</version>
 
-	<properties>
-		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-	</properties>
+    <properties>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    </properties>
 
-	<build>
+    <build>
         <plugins>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
@@ -70,6 +70,16 @@
             <groupId>org.lecturestudio.player</groupId>
             <artifactId>lect-player-web</artifactId>
             <version>1.0.0</version>
+        </dependency>
+        <dependency>
+            <groupId>org.jcodec</groupId>
+            <artifactId>jcodec</artifactId>
+            <version>0.2.5</version>
+        </dependency>
+        <dependency>
+            <groupId>org.jcodec</groupId>
+            <artifactId>jcodec-javase</artifactId>
+            <version>0.2.5</version>
         </dependency>
     </dependencies>
 </project>

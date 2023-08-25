@@ -20,9 +20,20 @@ package org.lecturestudio.editor.api.video;
 
 import static java.util.Objects.nonNull;
 
+import com.artifex.mupdf.fitz.Buffer;
+import com.github.javaffmpeg.Demuxer;
+import com.github.javaffmpeg.Image;
+import com.github.javaffmpeg.JavaFFmpeg;
+import com.github.javaffmpeg.MediaFrame;
+import com.github.javaffmpeg.VideoFrame;
 import com.google.common.eventbus.Subscribe;
 
+import java.awt.*;
 import java.awt.image.BufferedImage;
+import java.io.File;
+import java.io.IOException;
+import java.nio.file.Paths;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Stack;
@@ -30,6 +41,12 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionException;
 import java.util.function.BiConsumer;
 
+import org.apache.juli.logging.Log;
+import org.jcodec.api.FrameGrab;
+import org.jcodec.common.DictionaryCompressor;
+import org.jcodec.common.io.NIOUtils;
+import org.jcodec.common.model.Picture;
+import org.jcodec.scale.AWTUtil;
 import org.lecturestudio.core.ExecutableException;
 import org.lecturestudio.core.ExecutableState;
 import org.lecturestudio.core.bus.EventBus;
@@ -42,6 +59,8 @@ import org.lecturestudio.core.recording.RecordedPage;
 import org.lecturestudio.core.recording.action.NextPageAction;
 import org.lecturestudio.core.recording.action.PlaybackAction;
 import org.lecturestudio.editor.api.recording.RecordingRenderProgressEvent;
+
+import javax.imageio.ImageIO;
 
 public class VideoEventExecutor extends EventExecutor {
 
@@ -147,15 +166,14 @@ public class VideoEventExecutor extends EventExecutor {
 		toolController.start();
 
 		ExecutableState state = getPreviousState();
-		
+
 		if (state == ExecutableState.Initialized || state == ExecutableState.Stopped) {
 			eventBus.register(this);
 
 			CompletableFuture.runAsync(() -> {
 				try {
 					executeEvents();
-				}
-				catch (Exception e) {
+				} catch (Exception e) {
 					eventBus.unregister(this);
 
 					throw new CompletionException(e);
@@ -202,12 +220,10 @@ public class VideoEventExecutor extends EventExecutor {
 
 							// Remove executed action.
 							playbacks.pop();
-						}
-						else if (pageNumber < recordedPages.size() - 1) {
+						} else if (pageNumber < recordedPages.size() - 1) {
 							// Get actions for the next page.
 							getPlaybackActions(++pageNumber);
-						}
-						else {
+						} else {
 							break;
 						}
 					}
@@ -219,8 +235,7 @@ public class VideoEventExecutor extends EventExecutor {
 
 				// Relieve the CPU.
 				Thread.sleep(1);
-			}
-			else {
+			} else {
 				break;
 			}
 		}
@@ -252,6 +267,27 @@ public class VideoEventExecutor extends EventExecutor {
 		frames++;
 	}
 
+	private void renderVideoFrame(BufferedImage image, long timestamp) {
+		if (timestamp == 0) {
+			timestamp = 1;
+		}
+
+		float currentFps = frames / (timestamp / 1000f);
+
+		if (currentFps > frameRate) {
+			// Drop frame.
+			return;
+		}
+
+		if (nonNull(frameConsumer)) {
+			progressEvent.getCurrentTime().setMillis(timestamp);
+
+			frameConsumer.accept(image, progressEvent);
+		}
+
+		frames++;
+	}
+
 	private void getPlaybackActions(int pageNumber) {
 		RecordedPage recPage = recordedPages.get(pageNumber);
 
@@ -271,5 +307,78 @@ public class VideoEventExecutor extends EventExecutor {
 		}
 
 		this.pageNumber = pageNumber;
+	}
+
+	private boolean isToolDemoAtTimestamp(long timestamp) {
+		for (var demo : toolDemoRecordings) {
+			var interval = demo.interval();
+
+			if (interval.contains(timestamp)) {
+				if (screenFrameGrabber == null || !screenFrameGrabber.interval.equals(interval)) {
+					try {
+						File screenFile = new File(presenterRootPath , demo.fileName());
+						if (screenFile.exists()) {
+							screenFrameGrabber = new VideoFrameGrabber(screenFile, interval);
+						}
+					} catch (Exception e) {
+						e.printStackTrace();
+					}
+				}
+
+				return true;
+			}
+		}
+
+		return false;
+	}
+
+	private BufferedImage resizeImage(BufferedImage originalImage,
+									  int targetWidth, int targetHeight) throws IOException {
+		java.awt.Image resultingImage = originalImage.getScaledInstance(targetWidth,
+				targetHeight, java.awt.Image.SCALE_DEFAULT);
+		BufferedImage outputImage = new BufferedImage(targetWidth, targetHeight,
+				BufferedImage.TYPE_INT_RGB);
+		outputImage.getGraphics().drawImage(resultingImage, 0, 0, null);
+
+		return outputImage;
+	}
+
+	public void setPresenterRootPath(String presenterRootPath) {
+		File presenterFile = new File(presenterRootPath);
+		this.presenterRootPath = presenterFile.getParent();
+	}
+
+	public void setCameraPosition(Position cameraPosition) {
+		this.cameraPosition = cameraPosition;
+	}
+
+	public void setOutputDimension(Dimension2D outputDimension) {
+		this.outputDimension = outputDimension;
+	}
+
+
+	private static class VideoFrameGrabber {
+
+		final FrameGrab grab;
+
+		final Interval<Long> interval;
+
+
+		VideoFrameGrabber(File file) throws Exception {
+			this(file, null);
+		}
+
+		VideoFrameGrabber(File file, Interval<Long> interval) throws Exception {
+			this.grab = FrameGrab.createFrameGrab(NIOUtils.readableChannel(file));
+			this.interval = interval;
+		}
+
+		BufferedImage getImage(long timestamp) throws Exception {
+			grab.seekToSecondPrecise(timestamp * 1000);
+
+			Picture picture = grab.getNativeFrame();
+
+			return AWTUtil.toBufferedImage(picture);
+		}
 	}
 }

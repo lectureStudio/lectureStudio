@@ -68,9 +68,9 @@ public class SlidesPresenter extends Presenter<SlidesView> {
 
 	@Inject
 	SlidesPresenter(ApplicationContext context, SlidesView view,
-			RenderController renderController,
-			RecordingFileService recordingService,
-			RecordingPlaybackService playbackService) {
+					RenderController renderController,
+					RecordingFileService recordingService,
+					RecordingPlaybackService playbackService) {
 		super(context, view);
 
 		this.renderController = renderController;
@@ -163,8 +163,7 @@ public class SlidesPresenter extends Presenter<SlidesView> {
 	private void nextPage() {
 		try {
 			playbackService.selectNextPage();
-		}
-		catch (Exception e) {
+		} catch (Exception e) {
 			handleException(e, "Select page failed", "select.recording.page.error");
 		}
 	}
@@ -172,8 +171,7 @@ public class SlidesPresenter extends Presenter<SlidesView> {
 	private void previousPage() {
 		try {
 			playbackService.selectPreviousPage();
-		}
-		catch (Exception e) {
+		} catch (Exception e) {
 			handleException(e, "Select page failed", "select.recording.page.error");
 		}
 	}
@@ -195,8 +193,7 @@ public class SlidesPresenter extends Presenter<SlidesView> {
 					.getRecordedDocument().getDocument();
 
 			playbackService.selectPage(doc.getPage(page.getPageNumber()));
-		}
-		catch (Exception e) {
+		} catch (Exception e) {
 			handleException(e, "Select page failed", "select.recording.page.error");
 		}
 	}
@@ -233,8 +230,7 @@ public class SlidesPresenter extends Presenter<SlidesView> {
 
 		try {
 			docEventExecutor.executeEvents();
-		}
-		catch (Exception e) {
+		} catch (Exception e) {
 			logException(e, "Execute recorded events failed");
 		}
 
@@ -267,8 +263,7 @@ public class SlidesPresenter extends Presenter<SlidesView> {
 			view.selectDocument(getProxyDocument(doc));
 
 			setPage(doc.getCurrentPage());
-		}
-		catch (Exception e) {
+		} catch (Exception e) {
 			logException(e, "Execute recorded events failed");
 		}
 	}

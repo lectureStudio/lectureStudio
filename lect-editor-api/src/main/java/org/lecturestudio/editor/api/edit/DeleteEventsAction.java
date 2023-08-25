@@ -18,14 +18,13 @@
 
 package org.lecturestudio.editor.api.edit;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import org.lecturestudio.core.model.Interval;
 import org.lecturestudio.core.recording.RecordedEvents;
 import org.lecturestudio.core.recording.RecordedPage;
+import org.lecturestudio.core.recording.Recording;
+import org.lecturestudio.core.recording.action.PlaybackAction;
 import org.lecturestudio.core.recording.edit.RecordedObjectAction;
 
 public class DeleteEventsAction extends RecordedObjectAction<RecordedEvents> {
@@ -40,10 +39,13 @@ public class DeleteEventsAction extends RecordedObjectAction<RecordedEvents> {
 
 	private Integer shiftPage;
 
+	private Recording recording;
 
-	public DeleteEventsAction(RecordedEvents lectureObject, Interval<Integer> interval) {
+	private HashMap<String, Recording.ToolDemoRecording> backupToolDemoRecordingsHashMap = new HashMap<>();
+
+	public DeleteEventsAction(RecordedEvents lectureObject, Interval<Integer> interval, Recording recording) {
 		super(lectureObject);
-
+		this.recording = recording;
 		this.editInterval = interval;
 	}
 
@@ -72,13 +74,15 @@ public class DeleteEventsAction extends RecordedObjectAction<RecordedEvents> {
 		}
 
 		// Remove pages.
-		for (Integer number : removedPages) {
+		for (
+				Integer number : removedPages) {
 			lecturePages.removePage(number);
 			lastRemoved = number;
 		}
 
 		// Cut page content.
-		for (Map.Entry<Integer, Interval<Integer>> entry : pageChanges.entrySet()) {
+		for (
+				Map.Entry<Integer, Interval<Integer>> entry : pageChanges.entrySet()) {
 			Integer number = entry.getKey();
 			Interval<Integer> interval = entry.getValue();
 
@@ -91,22 +95,63 @@ public class DeleteEventsAction extends RecordedObjectAction<RecordedEvents> {
 			recPage.setTimestamp(editInterval.getStart());
 		}
 
+		//TODO TBD
+		//for (Recording.ToolDemoRecording toolDemoRecording : toolDemoRecordings) {
+		//	if (editInterval.getEnd() < toolDemoRecording.interval().getStart()) {
+		//		toolDemoRecording.interval().set(toolDemoRecording.interval().getStart() - (editInterval.getEnd() - editInterval.getStart()), toolDemoRecording.interval().getEnd() - (editInterval.getEnd() - editInterval.getStart()));
+		//	}
+		//}
+
+		//Adjusts the interval of the toolDemoRecordings and the adjusted entities to a backup hashmap.
+		backupToolDemoRecordingsHashMap.clear();
+		Iterator<Recording.ToolDemoRecording> i = recording.getToolDemoRecordingsData().iterator();
+		while (i.hasNext()) {
+			Recording.ToolDemoRecording toolDemoRecording = i.next();
+			if (editInterval.getEnd() < toolDemoRecording.interval().getStart()) {
+				backupToolDemoRecordingsHashMap.put(toolDemoRecording.fileName(), toolDemoRecording.clone());
+				toolDemoRecording.interval().set(toolDemoRecording.interval().getStart() - (editInterval.getEnd() - editInterval.getStart()), toolDemoRecording.interval().getEnd() - (editInterval.getEnd() - editInterval.getStart()));
+			} else if (editInterval.getEnd() >= toolDemoRecording.interval().getStart() && editInterval.getStart() <= toolDemoRecording.interval().getEnd()) {
+				backupToolDemoRecordingsHashMap.put(toolDemoRecording.fileName(), toolDemoRecording.clone());
+				toolDemoRecording.interval().set(-1L, -1L);
+			}
+		}
+
 		// Shift page numbers and time stamps.
 		for (RecordedPage page : recPages) {
 			page.shift(editInterval);
-
-
 
 			if (page.getNumber() > lastRemoved) {
 				page.setNumber(page.getNumber() - removedPages.size());
 			}
 		}
+
 	}
 
 	@Override
 	public void undo() {
 		RecordedEvents lecturePages = getRecordedObject();
 		List<RecordedPage> recPages = lecturePages.getRecordedPages();
+
+		//TODO TBD
+		//for (Recording.ToolDemoRecording toolDemoRecording : recording.getToolDemoRecordingsData()) {
+		//	if (editInterval.getEnd() < toolDemoRecording.interval().getStart() + (editInterval.getEnd() - editInterval.getStart())) {
+		//		toolDemoRecording.interval().set(backupToolDemoRecordings.get(0).interval().getStart(), backupToolDemoRecordings.get(0).interval().getEnd());
+		//	}
+		//}
+		//TODO TBD
+		//Non working but optimal option just revert the whole lists, that really doesnt matter even with 10 tool demos the performance wont tank
+		//recording.setToolDemoRecordingsData(new ArrayList<>());
+		//for (Recording.ToolDemoRecording toolDemoRecording : backupToolDemoRecordings) {
+		//	recording.addToolDemoRecordingsData(toolDemoRecording);
+		//}
+
+		//Restores the original interval of the edited toolDemos.
+		for (Recording.ToolDemoRecording toolDemoRecording : recording.getToolDemoRecordingsData()) {
+			Recording.ToolDemoRecording backupRecoding = backupToolDemoRecordingsHashMap.get(toolDemoRecording.fileName());
+			if (backupRecoding != null) {
+				toolDemoRecording.interval().set(backupRecoding.interval().getStart(), backupRecoding.interval().getEnd());
+			}
+		}
 
 		recPages.clear();
 		recPages.addAll(backupPages);

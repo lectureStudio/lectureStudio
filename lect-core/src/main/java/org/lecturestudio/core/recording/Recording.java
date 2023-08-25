@@ -38,6 +38,9 @@ public class Recording {
 	 * @param fileName The name of the file including its extension.
 	 */
 	public record ToolDemoRecording(Interval<Long> interval, String fileName) {
+		public ToolDemoRecording clone() {
+			return new ToolDemoRecording(new Interval<Long>(this.interval.getStart(), this.interval.getEnd()), this.fileName);
+		}
 	}
 
 	public static final int FORMAT_VERSION = 3;
@@ -136,6 +139,10 @@ public class Recording {
 		fireChangeEvent(Content.DOCUMENT);
 	}
 
+	public String getCameraRecordingFileNameData() {
+		return cameraRecordingFileName;
+	}
+
 	public byte[] getCameraRecordingFileNameDataAsByteStream() {
 		return cameraRecordingFileName.getBytes(StandardCharsets.UTF_8);
 	}
@@ -150,6 +157,10 @@ public class Recording {
 
 	public void setToolDemoRecordingsData(List<ToolDemoRecording> toolDemoRecordings) {
 		this.toolDemoRecordings = toolDemoRecordings;
+	}
+
+	public void addToolDemoRecordingsData(ToolDemoRecording toolDemoRecordings) {
+		this.toolDemoRecordings.add(toolDemoRecordings);
 	}
 
 	public byte[] getToolDemoRecordingsDataAsByteStream() {

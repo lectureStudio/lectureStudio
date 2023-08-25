@@ -5,11 +5,9 @@
 <?import org.lecturestudio.javafx.factory.*?>
 <?import org.lecturestudio.javafx.layout.*?>
 <?import org.lecturestudio.javafx.util.*?>
-
-<?import org.lecturestudio.javafx.control.SlideView?>
-<?import javafx.scene.media.MediaView?>
-<?import org.lecturestudio.javafx.control.CameraCanvas?>
 <?import org.lecturestudio.javafx.control.CameraView?>
+
+<?import org.lecturestudio.javafx.control.CameraCanvas?>
 <fx:root type="ContentPane" title="%video.export.settings.title" styleClass="video-export-settings"
          xmlns="http://javafx.com/javafx/10.0.2-internal" xmlns:fx="http://javafx.com/fxml/1">
     <Accordion expandedPane="$filePane">
@@ -59,7 +57,14 @@
                             </textFormatter>
                         </TextField>
                         <Label text="%video.export.settings.cameraRecording" GridPane.rowIndex="3"/>
-                        <ComboBox fx:id="cameraRecordingPlacementCombo" GridPane.columnIndex="1" GridPane.rowIndex="3"/>
+                        <ComboBox fx:id="cameraRecordingPlacementCombo" GridPane.columnIndex="1" GridPane.rowIndex="3" GridPane.hgrow="ALWAYS">
+                            <buttonCell>
+                                <CameraPlacementListCell/>
+                            </buttonCell>
+                            <cellFactory>
+                                <CameraPlacementCellFactory/>
+                            </cellFactory>
+                        </ComboBox>
                         <!--						<CheckBox fx:id="twoPassCheckbox" maxWidth="1.7976931348623157E308" text="%video.export.settings.two.pass" GridPane.columnSpan="2147483647" GridPane.rowIndex="3" />-->
                     </GridPane>
                 </ScrollPane>
@@ -96,7 +101,7 @@
         </panes>
     </Accordion>
 
-    <CameraView id="cameraView"></CameraView>
+    <CameraCanvas fx:id="cameraView" prefWidth="200" prefHeight="150"></CameraCanvas>
 
     <HBox alignment="BOTTOM_RIGHT" spacing="5" styleClass="buttons" VBox.vgrow="ALWAYS">
         <Button fx:id="createButton" text="%video.export.settings.create"/>

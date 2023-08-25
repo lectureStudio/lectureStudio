@@ -41,7 +41,6 @@ public class CameraCanvas extends Pane {
 	/** Camera frame buffer image. */
 	private WritableImage bufferImage;
 
-
 	public CameraCanvas() {
 		initialize();
 	}

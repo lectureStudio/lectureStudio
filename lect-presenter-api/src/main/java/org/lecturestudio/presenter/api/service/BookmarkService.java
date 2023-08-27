@@ -21,6 +21,7 @@ package org.lecturestudio.presenter.api.service;
 import static java.util.Objects.isNull;
 import static java.util.Objects.nonNull;
 
+import java.util.Comparator;
 import java.util.List;
 
 import javax.inject.Inject;
@@ -33,6 +34,7 @@ import org.lecturestudio.core.service.DocumentService;
 import org.lecturestudio.presenter.api.model.Bookmark;
 import org.lecturestudio.presenter.api.model.BookmarkException;
 import org.lecturestudio.presenter.api.model.BookmarkKeyException;
+import org.lecturestudio.presenter.api.model.BookmarkExistsException;
 import org.lecturestudio.presenter.api.model.Bookmarks;
 
 @Singleton
@@ -43,6 +45,8 @@ public class BookmarkService {
 	private final Bookmarks bookmarks;
 
 	private Page prevBookmarkPage;
+
+	private int defaultBookmarkCounter = 1;
 
 
 	@Inject
@@ -81,9 +85,11 @@ public class BookmarkService {
 				if (bookmark.getShortcut().equalsIgnoreCase(keyStr)) {
 					throw new BookmarkKeyException("Bookmark key is already assigned to another bookmark");
 				}
+				if(bookmark.getPage().equals(page)){
+					throw new BookmarkExistsException("Page is already bookmarked");
+				}
 			}
 		}
-
 		Bookmark bookmark = new Bookmark(keyStr, page);
 
 		bookmarks.add(bookmark);
@@ -136,6 +142,91 @@ public class BookmarkService {
 		prevBookmarkPage = documentList.getSelectedDocument().getCurrentPage();
 
 		documentService.selectPage(page);
+	}
+
+	/**
+	 * Creates a bookmark with a default shortcut
+	 */
+	public void createDefaultBookmark()throws BookmarkException{
+
+		createBookmark("L" + defaultBookmarkCounter);
+
+		defaultBookmarkCounter++;
+	}
+
+	/**
+	 * Calculates the next bookmark where the pagenumber is lower than current pagenumber.
+	 *
+	 * @return Page with bookmark with the next lower pagenumber
+	 */
+	public Page getPrevBookmarkPage(){
+		Document currDoc = documentService.getDocuments().getSelectedDocument();
+		List<Bookmark> allDocBookmarks = bookmarks.getDocumentBookmarks(currDoc);
+		Bookmark currBookmark = getBookmarkCurrentPage(allDocBookmarks);
+
+		if(!nonNull(currBookmark)){
+			createDefaultBookmarkCurrentPage();
+			currBookmark = getBookmarks().getBookmark("L0");
+		}
+
+		int maxBookmarks = allDocBookmarks.size();
+
+		allDocBookmarks.sort(Comparator.comparingInt(a -> a.getPage().getPageNumber()));
+		int bookmarkPos = allDocBookmarks.indexOf(currBookmark);
+
+		if(maxBookmarks == 0 || bookmarkPos == 0){
+			return null;
+		}
+		bookmarkPos--;
+		Bookmark bookmark = allDocBookmarks.get(bookmarkPos);
+		return bookmark.getPage();
+	}
+	/**
+	 * Calculates the next bookmark where the pagenumber is higher than current pagenumber.
+	 *
+	 * @return Page with bookmark with the next higher pagenumber
+	 */
+	public Page getNextBookmarkPage(){
+		Document currDoc = documentService.getDocuments().getSelectedDocument();
+		List<Bookmark> allDocBookmarks = bookmarks.getDocumentBookmarks(currDoc);
+		Bookmark currBookmark = getBookmarkCurrentPage(allDocBookmarks);
+
+		if(!nonNull(currBookmark)){
+			createDefaultBookmarkCurrentPage();
+			currBookmark = getBookmarks().getBookmark("L0");
+		}
+
+		int maxBookmarks = allDocBookmarks.size();
+
+		allDocBookmarks.sort(Comparator.comparingInt(a -> a.getPage().getPageNumber()));
+		int bookmarkPos = allDocBookmarks.indexOf(currBookmark);
+		if(bookmarkPos + 1 == maxBookmarks){
+			return null;
+		}
+		bookmarkPos++;
+		Bookmark bookmark = allDocBookmarks.get(bookmarkPos);
+		return bookmark.getPage();
+	}
+
+	private Bookmark getBookmarkCurrentPage(List<Bookmark> allDocBookmarks){
+		Page currPage = documentService.getDocuments().getSelectedDocument().getCurrentPage();
+		for(Bookmark bm : allDocBookmarks){
+			if(bm.getPage().equals(currPage)){
+				return bm;
+			}
+		}
+		return null;
+	}
+
+	private void createDefaultBookmarkCurrentPage(){
+		try {
+			if (nonNull(getBookmarks().getBookmark("L0"))) {
+				deleteBookmark(getBookmarks().getBookmark("L0"));
+			}
+			createBookmark("L0");
+		} catch (BookmarkException e) {
+			throw new RuntimeException(e);
+		}
 	}
 
 }

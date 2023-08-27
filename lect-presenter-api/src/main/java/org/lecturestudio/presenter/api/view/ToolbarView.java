@@ -56,6 +56,12 @@ public interface ToolbarView extends View {
 
 	void setOnNextSlide(Action action);
 
+	void setOnPreviousBookmark(Action action);
+
+	void setOnNextBookmark(Action action);
+
+	void setOnNewBookmark(Action action);
+
 	void setOnCustomPaletteColor(ConsumerAction<Color> action);
 
 	void setOnCustomColor(Action action);

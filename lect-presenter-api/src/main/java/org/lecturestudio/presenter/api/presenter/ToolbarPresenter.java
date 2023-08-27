@@ -68,7 +68,9 @@ import org.lecturestudio.presenter.api.context.PresenterContext;
 import org.lecturestudio.presenter.api.event.RecordingStateEvent;
 import org.lecturestudio.presenter.api.event.ScreenShareSelectEvent;
 import org.lecturestudio.presenter.api.event.StreamingStateEvent;
+import org.lecturestudio.presenter.api.model.*;
 import org.lecturestudio.presenter.api.presenter.command.StartRecordingCommand;
+import org.lecturestudio.presenter.api.service.BookmarkService;
 import org.lecturestudio.presenter.api.service.RecordingService;
 import org.lecturestudio.presenter.api.view.ToolbarView;
 
@@ -84,6 +86,9 @@ public class ToolbarPresenter extends Presenter<ToolbarView> {
 
 	@Inject
 	private ToolController toolController;
+
+	@Inject
+	private BookmarkService bookmarkService;
 
 	@Inject
 	private PresentationController presentationController;
@@ -476,6 +481,42 @@ public class ToolbarPresenter extends Presenter<ToolbarView> {
 		}
 	}
 
+
+
+	/**
+	 * Select the previous bookmark in the bookmark list.
+	 */
+	public void selectPreviousBookmark() {
+		Page page = bookmarkService.getPrevBookmarkPage();
+		if (nonNull(page)) {
+			documentService.selectPage(page);
+		}
+	}
+
+	/**
+	 * Select the next bookmark in the bookmark list.
+	 */
+	public void selectNextBookmark() {
+		Page page = bookmarkService.getNextBookmarkPage();
+		if (nonNull(page)) {
+			documentService.selectPage(page);
+		}
+	}
+
+	/**
+	 * Create a new default bookmark.
+	 */
+	public void createNewBookmark() {
+		try {
+			bookmarkService.createDefaultBookmark();
+		}catch (BookmarkExistsException e){
+			showError("bookmark.assign.error", "bookmark.exists");
+		} catch (BookmarkException e) {
+			handleException(e, "Create bookmark failed", "bookmark.assign.error");
+		}
+	}
+
+
 	@Override
 	public void initialize() {
 		PresenterContext presenterContext = (PresenterContext) context;
@@ -493,6 +534,11 @@ public class ToolbarPresenter extends Presenter<ToolbarView> {
 
 		view.setOnPreviousSlide(toolController::selectPreviousPage);
 		view.setOnNextSlide(toolController::selectNextPage);
+
+		view.setOnPreviousBookmark(this::selectPreviousBookmark);
+		view.setOnNextBookmark(this::selectNextBookmark);
+
+		view.setOnNewBookmark(this::createNewBookmark);
 
 		view.setOnCustomPaletteColor(this::customPaletteColor);
 		view.setOnCustomColor(this::customColor);

@@ -239,6 +239,20 @@ public class MenuPresenter extends Presenter<MenuView> {
 		}
 	}
 
+	public void openPrevBookmark(){
+		Page page = bookmarkService.getPrevBookmarkPage();
+		if (nonNull(page)) {
+			documentService.selectPage(page);
+		}
+	}
+
+	public void openNextBookmark(){
+		Page page = bookmarkService.getNextBookmarkPage();
+		if (nonNull(page)) {
+			documentService.selectPage(page);
+		}
+	}
+
 	public void openDocument(File documentFile) {
 		documentService.openDocument(documentFile)
 				.exceptionally(throwable -> {
@@ -403,6 +417,16 @@ public class MenuPresenter extends Presenter<MenuView> {
 	public void newBookmark() {
 		eventBus.post(new ShowPresenterCommand<>(CreateBookmarkPresenter.class));
 	}
+
+	public void newDefaultBookmark() {
+		try {
+			bookmarkService.createDefaultBookmark();
+		}catch (BookmarkExistsException e){
+			showError("bookmark.assign.error", "bookmark.exists");
+		} catch (BookmarkException e) {
+			handleException(e, "Create bookmark failed", "bookmark.assign.error");
+        }
+    }
 
 	public void gotoBookmark() {
 		eventBus.post(new ShowPresenterCommand<>(GotoBookmarkPresenter.class));
@@ -578,8 +602,11 @@ public class MenuPresenter extends Presenter<MenuView> {
 
 		view.setOnClearBookmarks(this::clearBookmarks);
 		view.setOnShowNewBookmarkView(this::newBookmark);
+		view.setOnCreateNewDefaultBookmarkView(this::newDefaultBookmark);
 		view.setOnShowGotoBookmarkView(this::gotoBookmark);
 		view.setOnPreviousBookmark(this::previousBookmark);
+		view.setOnPrevBookmark(this::openPrevBookmark);
+		view.setOnNextBookmark(this::openNextBookmark);
 		view.setOnOpenBookmark(this::openBookmark);
 
 		view.setOnOpenLog(this::showLog);

@@ -96,6 +96,12 @@ public class SwingToolbarView extends JPanel implements ToolbarView {
 
 	private JButton nextSlideButton;
 
+	private JButton prevBookmarkButton;
+
+	private JButton nextBookmarkButton;
+
+	private JButton newBookmarkButton;
+
 	private ToolColorPickerButton customColorButton;
 
 	private JToggleButton colorButton1;
@@ -269,6 +275,23 @@ public class SwingToolbarView extends JPanel implements ToolbarView {
 	@Override
 	public void setOnNextSlide(Action action) {
 		SwingUtils.bindAction(nextSlideButton, action);
+	}
+
+
+	@Override
+	public void setOnPreviousBookmark(Action action) {
+		SwingUtils.bindAction(prevBookmarkButton, action);
+	}
+
+
+	@Override
+	public void setOnNextBookmark(Action action) {
+		SwingUtils.bindAction(nextBookmarkButton, action);
+	}
+
+	@Override
+	public void setOnNewBookmark(Action action) {
+		SwingUtils.bindAction(newBookmarkButton, action);
 	}
 
 	@Override

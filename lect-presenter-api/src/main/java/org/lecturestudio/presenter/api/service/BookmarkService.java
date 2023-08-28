@@ -27,6 +27,8 @@ import java.util.List;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
+import org.lecturestudio.core.app.ApplicationContext;
+import org.lecturestudio.core.bus.event.BookmarkEvent;
 import org.lecturestudio.core.model.Document;
 import org.lecturestudio.core.model.DocumentList;
 import org.lecturestudio.core.model.Page;
@@ -48,12 +50,15 @@ public class BookmarkService {
 
 	private int defaultBookmarkCounter = 1;
 
+	private final ApplicationContext context;
 
 	@Inject
-	public BookmarkService(DocumentService documentService) {
+	public BookmarkService(DocumentService documentService, ApplicationContext context) {
 		this.documentService = documentService;
+		this.context = context;
 		this.bookmarks = new Bookmarks();
 	}
+
 
 	public Bookmarks getBookmarks() {
 		return bookmarks;
@@ -61,11 +66,12 @@ public class BookmarkService {
 
 	public void clearBookmarks() {
 		Document selectedDoc = documentService.getDocuments().getSelectedDocument();
-
+		context.getEventBus().post(new BookmarkEvent(documentService.getDocuments().getSelectedDocument().getCurrentPage(), BookmarkEvent.Type.REMOVED));
 		bookmarks.clear(selectedDoc);
 	}
 
 	public void clearBookmarks(Document document) {
+		context.getEventBus().post(new BookmarkEvent(documentService.getDocuments().getSelectedDocument().getCurrentPage(), BookmarkEvent.Type.REMOVED));
 		bookmarks.clear(document);
 	}
 
@@ -93,11 +99,12 @@ public class BookmarkService {
 		Bookmark bookmark = new Bookmark(keyStr, page);
 
 		bookmarks.add(bookmark);
-
+		context.getEventBus().post(new BookmarkEvent(page, BookmarkEvent.Type.CREATED));
 		return bookmark;
 	}
 
 	public void deleteBookmark(Bookmark bookmark) throws BookmarkException {
+		context.getEventBus().post(new BookmarkEvent(bookmark.getPage(), BookmarkEvent.Type.REMOVED));
 		bookmarks.removeBookmark(bookmark);
 	}
 
@@ -145,14 +152,17 @@ public class BookmarkService {
 	}
 
 	/**
-	 * Creates a bookmark with a default shortcut
-	 */
-	public void createDefaultBookmark()throws BookmarkException{
+     * Creates a bookmark with a default shortcut
+     *
+     * @return the new created bookmark
+     */
+	public Bookmark createDefaultBookmark()throws BookmarkException{
 
-		createBookmark("L" + defaultBookmarkCounter);
+		Bookmark bookmark = createBookmark("L" + defaultBookmarkCounter);
 
 		defaultBookmarkCounter++;
-	}
+        return bookmark;
+    }
 
 	/**
 	 * Calculates the next bookmark where the pagenumber is lower than current pagenumber.
@@ -218,12 +228,12 @@ public class BookmarkService {
 		return null;
 	}
 
-	private void createDefaultBookmarkCurrentPage(){
+	private Bookmark createDefaultBookmarkCurrentPage(){
 		try {
 			if (nonNull(getBookmarks().getBookmark("L0"))) {
 				deleteBookmark(getBookmarks().getBookmark("L0"));
 			}
-			createBookmark("L0");
+			return createBookmark("L0");
 		} catch (BookmarkException e) {
 			throw new RuntimeException(e);
 		}

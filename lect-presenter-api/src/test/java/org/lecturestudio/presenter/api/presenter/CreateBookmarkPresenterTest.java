@@ -54,7 +54,7 @@ class CreateBookmarkPresenterTest extends PresenterTest {
 		documentService.addDocument(document);
 		documentService.selectDocument(document);
 
-		bookmarkService = new BookmarkService(documentService);
+		bookmarkService = new BookmarkService(documentService, context);
 	}
 
 	@Test
@@ -130,7 +130,7 @@ class CreateBookmarkPresenterTest extends PresenterTest {
 		assertFalse(close.get());
 		assertNotNull(notifyView);
 		assertEquals(NotificationType.ERROR, notifyView.type);
-		assertEquals("bookmark.assign.error", notifyView.title);
+		assertEquals("bookmark.assign.warning", notifyView.title);
 		assertEquals("bookmark.key.exists", notifyView.message);
 	}
 

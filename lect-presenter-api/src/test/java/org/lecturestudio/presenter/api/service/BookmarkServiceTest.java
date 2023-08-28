@@ -39,7 +39,7 @@ class BookmarkServiceTest extends ServiceTest {
 
 	@BeforeEach
 	void setUp() {
-		bookmarkService = new BookmarkService(documentService);
+		bookmarkService = new BookmarkService(documentService, context);
 	}
 
 	@Test

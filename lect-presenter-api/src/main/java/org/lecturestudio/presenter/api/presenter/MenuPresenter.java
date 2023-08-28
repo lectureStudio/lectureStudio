@@ -27,6 +27,7 @@ import java.awt.*;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Path;
+import java.text.MessageFormat;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Iterator;
@@ -420,13 +421,21 @@ public class MenuPresenter extends Presenter<MenuView> {
 
 	public void newDefaultBookmark() {
 		try {
-			bookmarkService.createDefaultBookmark();
+			bookmarkCreated(bookmarkService.createDefaultBookmark());
 		}catch (BookmarkExistsException e){
-			showError("bookmark.assign.error", "bookmark.exists");
+			showNotification(NotificationType.WARNING, "bookmark.assign.warning", "bookmark.exists");
 		} catch (BookmarkException e) {
-			handleException(e, "Create bookmark failed", "bookmark.assign.error");
+			handleException(e, "Create bookmark failed", "bookmark.assign.warning");
         }
     }
+
+	private void bookmarkCreated(Bookmark bookmark) {
+		String shortcut = bookmark.getShortcut().toUpperCase();
+		String message = MessageFormat.format(context.getDictionary().get("bookmark.created"), shortcut);
+
+		showNotificationPopup(message);
+		close();
+	}
 
 	public void gotoBookmark() {
 		eventBus.post(new ShowPresenterCommand<>(GotoBookmarkPresenter.class));

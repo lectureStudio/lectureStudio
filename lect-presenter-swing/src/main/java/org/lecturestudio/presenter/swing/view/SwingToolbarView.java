@@ -59,6 +59,7 @@ import org.lecturestudio.core.view.Action;
 import org.lecturestudio.core.view.ConsumerAction;
 import org.lecturestudio.core.view.PresentationParameter;
 import org.lecturestudio.presenter.api.view.ToolbarView;
+import org.lecturestudio.swing.AwtResourceLoader;
 import org.lecturestudio.swing.components.FontPickerButton;
 import org.lecturestudio.swing.components.RecordButton;
 import org.lecturestudio.swing.components.ToolColorPickerButton;
@@ -542,6 +543,11 @@ public class SwingToolbarView extends JPanel implements ToolbarView {
 				setButtonColor(button, ColorConverter.INSTANCE.to(color));
 			}
 		});
+	}
+
+	@Override
+	public void selectNewBookmarkButton(boolean hasBookmark){
+			newBookmarkButton.setEnabled(!hasBookmark);
 	}
 
 	@Override

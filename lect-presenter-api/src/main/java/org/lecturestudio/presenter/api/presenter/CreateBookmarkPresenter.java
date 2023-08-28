@@ -59,13 +59,13 @@ public class CreateBookmarkPresenter extends Presenter<CreateBookmarkView> {
 			bookmarkCreated(bookmarkService.createBookmark(keyStr));
 		}
 		catch (BookmarkKeyException e) {
-			showError("bookmark.assign.error", "bookmark.key.exists", keyStr);
+			showError("bookmark.assign.warning", "bookmark.key.exists", keyStr);
 		}
 		catch (BookmarkExistsException e){
-			showError("bookmark.assign.error", "bookmark.exists");
+			showError("bookmark.assign.warning", "bookmark.exists");
 		}
 		catch (BookmarkException e) {
-			handleException(e, "Create bookmark failed", "bookmark.assign.error");
+			handleException(e, "Create bookmark failed", "bookmark.assign.warning");
 		}
 	}
 

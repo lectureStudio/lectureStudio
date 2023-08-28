@@ -54,7 +54,7 @@ class GotoBookmarkPresenterTest extends PresenterTest {
 		documentService.addDocument(document);
 		documentService.selectDocument(document);
 
-		bookmarkService = new BookmarkService(documentService);
+		bookmarkService = new BookmarkService(documentService, context);
 	}
 
 	@Test

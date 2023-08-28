@@ -128,6 +128,8 @@ public interface ToolbarView extends View {
 
 	void selectColorButton(ToolType toolType, PaintSettings settings);
 
+	void selectNewBookmarkButton(boolean hasBookmark);
+
 	void selectToolButton(ToolType toolType);
 
 	void openCustomizeToolbarDialog();

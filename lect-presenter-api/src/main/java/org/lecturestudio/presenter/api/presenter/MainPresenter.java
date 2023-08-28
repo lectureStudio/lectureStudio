@@ -60,6 +60,7 @@ import org.lecturestudio.core.presenter.command.ClosePresenterCommand;
 import org.lecturestudio.core.presenter.command.NewVersionCommand;
 import org.lecturestudio.core.presenter.command.ShowPresenterCommand;
 import org.lecturestudio.core.service.DocumentService;
+import org.lecturestudio.core.util.FileUtils;
 import org.lecturestudio.core.util.ObservableHashMap;
 import org.lecturestudio.core.util.ObservableMap;
 import org.lecturestudio.core.util.ShutdownHandler;
@@ -160,7 +161,18 @@ public class MainPresenter extends org.lecturestudio.core.presenter.MainPresente
 
 	@Override
 	public void openFile(File file) {
-		// No file associations yet.
+		if (isNull(file) || !file.exists()) {
+			return;
+		}
+		showWaitingNotification("open.document");
+		documentService.openDocument(file).thenRun( () -> {
+			hideWaitingNotification();
+		}).exceptionally(throwable -> {
+			hideWaitingNotification();
+			handleException(throwable, "Open document failed",
+					"open.document.error", file.getPath());
+			return null;
+		});
 	}
 
 	@Override

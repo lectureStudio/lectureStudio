@@ -85,11 +85,11 @@ public class Point2D implements Cloneable, Serializable {
 	 * @param x The x coordinate.
 	 * @param y The y coordinate.
 	 */
-	public Point2D set(double x, double y) {
+	public <T extends Point2D> T set(double x, double y) {
 		this.x = x;
 		this.y = y;
 
-		return this;
+		return (T) this;
 	}
 
 	/**
@@ -99,10 +99,10 @@ public class Point2D implements Cloneable, Serializable {
 	 *
 	 * @return This point.
 	 */
-	public Point2D set(Point2D p) {
+	public <T extends Point2D> T set(Point2D p) {
 		set(p.x, p.y);
 
-		return this;
+		return (T) this;
 	}
 
 	/**
@@ -138,11 +138,11 @@ public class Point2D implements Cloneable, Serializable {
 	 *
 	 * @return This point instance with added coordinates.
 	 */
-	public Point2D add(Point2D p) {
+	public <T extends Point2D> T add(Point2D p) {
 		x += p.x;
 		y += p.y;
 
-		return this;
+		return (T) this;
 	}
 
 	/**
@@ -152,11 +152,11 @@ public class Point2D implements Cloneable, Serializable {
 	 *
 	 * @return This point instance with subtracted coordinates.
 	 */
-	public Point2D subtract(Point2D p) {
+	public <T extends Point2D> T subtract(Point2D p) {
 		x -= p.x;
 		y -= p.y;
 
-		return this;
+		return (T) this;
 	}
 
 	/**
@@ -178,11 +178,11 @@ public class Point2D implements Cloneable, Serializable {
 	 *
 	 * @return This point instance with multiplied coordinates.
 	 */
-	public Point2D multiply(double factor) {
+	public <T extends Point2D> T multiply(double factor) {
 		x *= factor;
 		y *= factor;
 
-		return this;
+		return (T) this;
 	}
 
 	/**
@@ -190,13 +190,13 @@ public class Point2D implements Cloneable, Serializable {
 	 *
 	 * @return This point instance as the normalized vector.
 	 */
-	public Point2D normalize() {
+	public <T extends Point2D> T normalize() {
 		double length = Math.sqrt(x * x + y * y);
 
 		x /= length;
 		y /= length;
 
-		return this;
+		return (T) this;
 	}
 
 	/**
@@ -206,7 +206,7 @@ public class Point2D implements Cloneable, Serializable {
 	 *
 	 * @return This normalized point instance.
 	 */
-	public Point2D normalize(double length) {
+	public <T extends Point2D> T normalize(double length) {
 		double mag = Math.sqrt(x * x + y * y);
 
 		if (mag > 0) {
@@ -215,7 +215,7 @@ public class Point2D implements Cloneable, Serializable {
 			y *= mag;
 		}
 
-		return this;
+		return (T) this;
 	}
 
 	/**
@@ -223,12 +223,12 @@ public class Point2D implements Cloneable, Serializable {
 	 *
 	 * @return A new point on the perpendicular of this point.
 	 */
-	public Point2D perpendicular() {
+	public <T extends Point2D> T perpendicular() {
 		double t = x;
 		this.x = -y;
 		this.y = t;
 
-		return this;
+		return (T) this;
 	}
 
 	@Override
@@ -274,4 +274,10 @@ public class Point2D implements Cloneable, Serializable {
 		return new Point2D(x, y);
 	}
 
+	public <T extends Point2D> T invert() {
+		x = -x;
+		y = -y;
+
+		return (T) this;
+	}
 }

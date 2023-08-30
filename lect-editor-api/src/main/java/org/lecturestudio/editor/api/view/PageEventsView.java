@@ -31,6 +31,8 @@ public interface PageEventsView extends View {
 
 	void setPageEvents(List<PageEvent> events);
 
-	void setOnDeleteEvent(ConsumerAction<PageEvent> action);
+    void setOnSelectEvent(ConsumerAction<PageEvent> action);
+
+    void setOnDeleteEvent(ConsumerAction<PageEvent> action);
 
 }

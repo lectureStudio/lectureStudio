@@ -54,7 +54,7 @@ public abstract class PageObject<T extends Shape> extends Control implements Pag
 	private ConsumerAction<Boolean> focusAction;
 
 
-	public PageObject() {
+	protected PageObject() {
 		initialize();
 	}
 

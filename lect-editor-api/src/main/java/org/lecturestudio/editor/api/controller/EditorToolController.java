@@ -3,61 +3,62 @@ package org.lecturestudio.editor.api.controller;
 import static java.util.Objects.isNull;
 import static java.util.Objects.nonNull;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.concurrent.CompletableFuture;
+import java.util.function.Consumer;
+
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
-import java.util.Objects;
-
 import org.lecturestudio.core.ExecutableException;
 import org.lecturestudio.core.app.ApplicationContext;
-import org.lecturestudio.core.beans.StringProperty;
+import org.lecturestudio.core.beans.BooleanProperty;
+import org.lecturestudio.core.controller.ToolController;
 import org.lecturestudio.core.geometry.PenPoint2D;
-import org.lecturestudio.core.geometry.Rectangle2D;
 import org.lecturestudio.core.model.Document;
 import org.lecturestudio.core.model.Page;
 import org.lecturestudio.core.model.shape.Shape;
-import org.lecturestudio.core.model.shape.TextBoxShape;
 import org.lecturestudio.core.model.shape.TextShape;
 import org.lecturestudio.core.recording.action.PlaybackAction;
 import org.lecturestudio.core.service.DocumentService;
-import org.lecturestudio.core.tool.ShapePaintEvent;
 import org.lecturestudio.core.tool.TextTool;
 import org.lecturestudio.core.tool.Tool;
-import org.lecturestudio.core.tool.ToolEventType;
 import org.lecturestudio.core.tool.ToolType;
+import org.lecturestudio.editor.api.bus.event.EditorRecordActionEvent;
 import org.lecturestudio.editor.api.bus.event.EditorToolSelectionEvent;
 import org.lecturestudio.editor.api.context.EditorContext;
 import org.lecturestudio.editor.api.recording.AnnotationLectureRecorder;
+import org.lecturestudio.editor.api.service.RecordingFileService;
+import org.lecturestudio.editor.api.tool.EditorSelectTool;
 import org.lecturestudio.editor.api.tool.EditorTextTool;
 
 @Singleton
-public class EditorToolController extends org.lecturestudio.core.controller.ToolController {
-	private final ApplicationContext context;
+public class EditorToolController extends ToolController {
+	private final EditorContext context;
 	private final DocumentService documentService;
+	private final RecordingFileService recordingFileService;
 	private final AnnotationLectureRecorder annotationLectureRecorder;
+	private final BooleanProperty isToolRecordingEnabled = new BooleanProperty(true);
+	private final BooleanProperty isEditingProperty = new BooleanProperty(false);
+	private final List<Consumer<Shape>> shapeAddedListeners = new ArrayList<>();
 
 	@Inject
 	public EditorToolController(ApplicationContext context,
 	                            DocumentService documentService,
+								RecordingFileService recordingFileService,
 	                            AnnotationLectureRecorder annotationLectureRecorder) {
 		super(context, documentService);
-		this.context = context;
+		this.context = (EditorContext) context;
 		this.documentService = documentService;
+		this.recordingFileService = recordingFileService;
 		this.annotationLectureRecorder = annotationLectureRecorder;
-
-		// We have to start and end recording separately in case an Action does not consist of a TOOL_BEGIN and TOOL_END
-		// SimpleToolActions are one example of these
-		((EditorContext) getContext()).isEditingProperty().addListener((observable, oldValue, newValue) ->
-				{
-
-				}
-		);
 	}
 
 	@Override
 	public void beginToolAction(PenPoint2D point) {
 		try {
-			if (Boolean.TRUE.equals(((EditorContext) getContext()).getIsEditing()) && !annotationLectureRecorder.started()) {
+			if (getIsToolRecordingEnabled() && getIsEditing() && !annotationLectureRecorder.started()) {
 				annotationLectureRecorder.start();
 			}
 			super.beginToolAction(point);
@@ -71,7 +72,7 @@ public class EditorToolController extends org.lecturestudio.core.controller.Tool
 	public void endToolAction(PenPoint2D point) {
 		try {
 			super.endToolAction(point);
-			if (Boolean.TRUE.equals(((EditorContext) getContext()).getIsEditing()) && !annotationLectureRecorder.suspended()) {
+			if (getIsToolRecordingEnabled() && getIsEditing() && !annotationLectureRecorder.suspended()) {
 				annotationLectureRecorder.suspend();
 				if (selectedTool.getType() != ToolType.TEXT) {
 					persistPlaybackActions();
@@ -88,18 +89,22 @@ public class EditorToolController extends org.lecturestudio.core.controller.Tool
 
 	@Override
 	public void simpleToolAction() {
-		boolean previousValue = ((EditorContext) getContext()).getIsEditing();
+		boolean previousValue = getIsEditing();
 
-		((EditorContext) getContext()).setIsEditing(true);
+		setIsEditing(true);
 		super.simpleToolAction();
-		((EditorContext) getContext()).setIsEditing(previousValue);
+		setIsEditing(previousValue);
 	}
 
 	@Override
 	public void recordAction(PlaybackAction action) {
-		if (((EditorContext) getContext()).getIsEditing()) {
-			super.recordAction(action);
+		if (getIsToolRecordingEnabled() && getIsEditing()) {
+			getContext().getEventBus().post(new EditorRecordActionEvent(action));
 		}
+	}
+
+	private boolean getIsToolRecordingEnabled() {
+		return isToolRecordingEnabled.get();
 	}
 
 	/**
@@ -111,10 +116,19 @@ public class EditorToolController extends org.lecturestudio.core.controller.Tool
 
 		if (nonNull(tool)) {
 			pushEvent(new EditorToolSelectionEvent(tool.getType(), getPaintSettings(tool.getType())));
+
+			switch (tool.getType()) {
+				case SELECT -> setIsToolRecordingEnabled(false);
+				default -> setIsToolRecordingEnabled(true);
+			}
 		}
 		else {
 			pushEvent(new EditorToolSelectionEvent(null, getPaintSettings(null)));
 		}
+	}
+
+	private void setIsToolRecordingEnabled(boolean enabled) {
+		isToolRecordingEnabled.set(enabled);
 	}
 
 
@@ -161,38 +175,48 @@ public class EditorToolController extends org.lecturestudio.core.controller.Tool
 		tool.copy(shape);
 	}
 
-
-	/**
-	 * Set text of a text shape with the specified handle.
-	 *
-	 * @param handle The handle of a text shape.
-	 * @param text   The new text to set.
-	 *
-	 * @throws NullPointerException If the text shape could not be found.
-	 */
-	public void setText(int handle, StringProperty text) throws NullPointerException {
-		TextBoxShape<?> textShape = getTextShape(handle);
-		Objects.requireNonNull(textShape).setText(text.get());
-
-		fireToolEvent(new ShapePaintEvent(ToolEventType.BEGIN,
-				(Shape) textShape, null));
-	}
-
-	public void persistPlaybackActions() {
+	public CompletableFuture<Void> persistPlaybackActions() {
 		try {
-			annotationLectureRecorder.persistPlaybackActions();
+			return annotationLectureRecorder.persistPlaybackActions();
 		}
 		catch (IllegalStateException e) {
 			getContext().showError("annotationrecorder.error.title", e.getMessage());
 		}
+		return CompletableFuture.completedFuture(null);
 	}
 
-	public void setTextLocation(int handle, Rectangle2D location) {
-		TextBoxShape<?> textShape = getTextShape(handle);
-		Objects.requireNonNull(textShape).setLocation(location.getLocation());
+	public void resetRecordedPlaybackActions() {
+		annotationLectureRecorder.reset();
+	}
 
-		fireToolEvent(new ShapePaintEvent(ToolEventType.BEGIN,
-				(Shape) textShape, null));
+	public BooleanProperty isEditingProperty() {
+		return isEditingProperty;
+	}
 
+	public boolean getIsEditing() {
+		return isEditingProperty.get();
+	}
+
+	public void setIsEditing(boolean enabled) {
+		isEditingProperty.set(enabled);
+	}
+
+	public void addPageShapeAddedListener(Consumer<Shape> shapeListener) {
+		shapeAddedListeners.add(shapeListener);
+	}
+
+	public void fireShapeAdded(Shape shape) {
+		for (Consumer<Shape> listener : shapeAddedListeners) {
+			listener.accept(shape);
+		}
+	}
+
+	@Override
+	public void selectSelectTool() {
+		setTool(new EditorSelectTool(this));
+	}
+
+	public RecordingFileService getRecordingFileService() {
+		return recordingFileService;
 	}
 }

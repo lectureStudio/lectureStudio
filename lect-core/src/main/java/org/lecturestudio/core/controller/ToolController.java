@@ -25,7 +25,6 @@ import com.google.common.eventbus.Subscribe;
 
 import java.util.EnumMap;
 import java.util.Map;
-import java.util.Objects;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -49,7 +48,6 @@ import org.lecturestudio.core.input.KeyEvent;
 import org.lecturestudio.core.model.Document;
 import org.lecturestudio.core.model.Page;
 import org.lecturestudio.core.model.shape.Shape;
-import org.lecturestudio.core.tool.StrokeWidthSettings;
 import org.lecturestudio.core.model.shape.TeXShape;
 import org.lecturestudio.core.model.shape.TextBoxShape;
 import org.lecturestudio.core.model.shape.TextShape;
@@ -69,9 +67,6 @@ import org.lecturestudio.core.tool.LatexToolSettings;
 import org.lecturestudio.core.tool.LineTool;
 import org.lecturestudio.core.tool.PaintSettings;
 import org.lecturestudio.core.tool.PanningTool;
-import org.lecturestudio.core.tool.ShapeModifyEvent;
-import org.lecturestudio.core.tool.ShapePaintEvent;
-import org.lecturestudio.core.tool.ToolContext;
 import org.lecturestudio.core.tool.PenTool;
 import org.lecturestudio.core.tool.PointerTool;
 import org.lecturestudio.core.tool.RectangleTool;
@@ -79,12 +74,16 @@ import org.lecturestudio.core.tool.RedoTool;
 import org.lecturestudio.core.tool.RubberTool;
 import org.lecturestudio.core.tool.SelectGroupTool;
 import org.lecturestudio.core.tool.SelectTool;
+import org.lecturestudio.core.tool.ShapeModifyEvent;
+import org.lecturestudio.core.tool.ShapePaintEvent;
 import org.lecturestudio.core.tool.StrokeSettings;
+import org.lecturestudio.core.tool.StrokeWidthSettings;
 import org.lecturestudio.core.tool.TextSelectionSettings;
 import org.lecturestudio.core.tool.TextSelectionTool;
 import org.lecturestudio.core.tool.TextSettings;
 import org.lecturestudio.core.tool.TextTool;
 import org.lecturestudio.core.tool.Tool;
+import org.lecturestudio.core.tool.ToolContext;
 import org.lecturestudio.core.tool.ToolEvent;
 import org.lecturestudio.core.tool.ToolEventType;
 import org.lecturestudio.core.tool.ToolType;
@@ -747,10 +746,12 @@ public class ToolController extends Controller implements ToolContext {
 	 */
 	public void setText(int handle, String text) throws NullPointerException {
 		TextBoxShape<?> textShape = getTextShape(handle);
-		Objects.requireNonNull(textShape).setText(text);
+		if (textShape != null) {
+			textShape.setText(text);
 
-		fireToolEvent(new ShapePaintEvent(ToolEventType.BEGIN,
-				(Shape) textShape, null));
+			fireToolEvent(new ShapePaintEvent(ToolEventType.BEGIN,
+					(Shape) textShape, null));
+		}
 	}
 
 	/**
@@ -766,12 +767,14 @@ public class ToolController extends Controller implements ToolContext {
 	@SuppressWarnings("unchecked")
 	public void setTextFont(int handle, Color color, Font font, TextAttributes attributes) throws NullPointerException {
 		TextBoxShape<Font> textShape = (TextBoxShape<Font>) getTextShape(handle);
-		Objects.requireNonNull(textShape).setFont(font);
-		textShape.setTextAttributes(attributes);
-		textShape.setTextColor(color);
+		if (textShape != null) {
+			textShape.setFont(font);
+			textShape.setTextAttributes(attributes);
+			textShape.setTextColor(color);
 
-		fireToolEvent(new ShapePaintEvent(ToolEventType.BEGIN,
-				(Shape) textShape, null));
+			fireToolEvent(new ShapePaintEvent(ToolEventType.BEGIN,
+					(Shape) textShape, null));
+		}
 	}
 
 	/**
@@ -786,11 +789,13 @@ public class ToolController extends Controller implements ToolContext {
 	@SuppressWarnings("unchecked")
 	public void setTeXFont(int handle, Color color, TeXFont font) throws NullPointerException {
 		TextBoxShape<TeXFont> textShape = (TextBoxShape<TeXFont>) getTextShape(handle);
-		Objects.requireNonNull(textShape).setFont(font);
-		textShape.setTextColor(color);
+		if (textShape != null) {
+			textShape.setFont(font);
+			textShape.setTextColor(color);
 
-		fireToolEvent(new ShapePaintEvent(ToolEventType.BEGIN,
-				(Shape) textShape, null));
+			fireToolEvent(new ShapePaintEvent(ToolEventType.BEGIN,
+					(Shape) textShape, null));
+		}
 	}
 
 	/**
@@ -803,10 +808,12 @@ public class ToolController extends Controller implements ToolContext {
 	 */
 	public void setTextLocation(int handle, Point2D location) throws NullPointerException {
 		TextBoxShape<?> textShape = getTextShape(handle);
-		Objects.requireNonNull(textShape).setLocation(location);
+		if (textShape != null) {
+			textShape.setLocation(location);
 
-		fireToolEvent(new ShapePaintEvent(ToolEventType.BEGIN,
-				(Shape) textShape, null));
+			fireToolEvent(new ShapePaintEvent(ToolEventType.BEGIN,
+					(Shape) textShape, null));
+		}
 	}
 
 	/**

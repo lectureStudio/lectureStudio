@@ -79,8 +79,7 @@ public class ConfirmStopRecordingPresenter extends Presenter<ConfirmStopRecordin
 		catch (ExecutableException e) {
 			Throwable cause = nonNull(e.getCause()) ? e.getCause().getCause() : null;
 
-			if (cause instanceof AudioDeviceNotConnectedException) {
-				var ex = (AudioDeviceNotConnectedException) cause;
+			if (cause instanceof AudioDeviceNotConnectedException ex) {
 				context.showError("recording.start.error", "recording.start.device.error", ex.getDeviceName());
 				logException(e, "Start recording failed");
 			}

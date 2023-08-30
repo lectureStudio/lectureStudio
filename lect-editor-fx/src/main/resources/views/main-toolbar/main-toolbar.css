@@ -53,8 +53,7 @@
     -fx-max-height: -button-size;
 }
 
-.main-toolbar > .split-menu-button,
-.main-toolbar > .container > .split-menu-button {
+.main-toolbar > .split-menu-button {
     -button-width: 4em;
     -fx-pref-width: -button-width;
     -fx-min-width: -button-width;
@@ -67,11 +66,12 @@
     -fx-max-height: -button-height;
 }
 
-.main-toolbar > .container > .split-menu-button > .label {
-    -fx-padding: 0;
+.main-toolbar > .split-menu-button > .label {
+    -fx-padding: 0.25em;
 }
-.main-toolbar > .container > .split-menu-button.tool-bar-color > .label {
-    -fx-padding: 0.5em;
+
+.main-toolbar > .split-menu-button.tool-bar-color > .label {
+    -fx-padding: 0 0.55em;
 }
 
 .main-toolbar .stylus-icon {
@@ -128,4 +128,8 @@
 .main-toolbar .stroke-width-combo SvgIcon {
     -fx-icon-fill: black;
     -fx-icon-stroke: black;
+}
+
+.main-toolbar .stroke-width-combo {
+    -fx-pref-width: 2em;
 }

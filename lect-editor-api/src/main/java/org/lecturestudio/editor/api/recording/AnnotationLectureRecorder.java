@@ -2,8 +2,7 @@ package org.lecturestudio.editor.api.recording;
 
 import static java.util.Objects.isNull;
 
-import javax.inject.Inject;
-import javax.inject.Singleton;
+import com.google.common.eventbus.Subscribe;
 
 import java.util.ArrayDeque;
 import java.util.ArrayList;
@@ -11,10 +10,12 @@ import java.util.List;
 import java.util.Queue;
 import java.util.concurrent.CompletableFuture;
 
-import com.google.common.eventbus.Subscribe;
+import javax.inject.Inject;
+import javax.inject.Singleton;
+
 import org.lecturestudio.core.ExecutableException;
+import org.lecturestudio.core.ExecutableState;
 import org.lecturestudio.core.app.ApplicationContext;
-import org.lecturestudio.core.bus.event.RecordActionEvent;
 import org.lecturestudio.core.model.Interval;
 import org.lecturestudio.core.recording.LectureRecorder;
 import org.lecturestudio.core.recording.RecordedPage;
@@ -22,6 +23,7 @@ import org.lecturestudio.core.recording.Recording;
 import org.lecturestudio.core.recording.action.ActionType;
 import org.lecturestudio.core.recording.action.PlaybackAction;
 import org.lecturestudio.core.service.DocumentService;
+import org.lecturestudio.editor.api.bus.event.EditorRecordActionEvent;
 import org.lecturestudio.editor.api.context.EditorContext;
 import org.lecturestudio.editor.api.service.RecordingFileService;
 import org.lecturestudio.editor.api.service.RecordingPlaybackService;
@@ -36,6 +38,7 @@ public class AnnotationLectureRecorder extends LectureRecorder {
 	private ArrayList<PlaybackAction> addedActions;
 	private Integer pageNumber;
 	private String errorDuringRecording;
+	private ExecutableState previousPlaybackState;
 
 	@Inject
 	public AnnotationLectureRecorder(DocumentService documentService,
@@ -52,7 +55,7 @@ public class AnnotationLectureRecorder extends LectureRecorder {
 
 
 	@Subscribe
-	public void onEvent(final RecordActionEvent event) {
+	public void onEvent(final EditorRecordActionEvent event) {
 		PlaybackAction action = event.getAction();
 
 		if (action != null && action.getTimestamp() == 0) {
@@ -84,14 +87,14 @@ public class AnnotationLectureRecorder extends LectureRecorder {
 		}
 	}
 
-	public synchronized void persistPlaybackActions() throws IllegalStateException {
+	public synchronized CompletableFuture<Void> persistPlaybackActions() throws IllegalStateException {
 		if (errorDuringRecording != null) {
 			handleException(errorDuringRecording);
 		}
 
 		if (addedActions.isEmpty() || pageNumber == null) {
 			// No actions were recorded
-			return;
+			return CompletableFuture.completedFuture(null);
 		}
 
 		RecordedPage page = recordingService.getSelectedRecording().getRecordedEvents().getRecordedPage(pageNumber);
@@ -103,8 +106,9 @@ public class AnnotationLectureRecorder extends LectureRecorder {
 			handleException(error);
 		}
 
-		recordingService.insertPlaybackActions(addedActions, pageNumber);
+		CompletableFuture<Void> task = recordingService.insertPlaybackActions(new ArrayList<>(addedActions), pageNumber);
 		reset();
+		return task;
 	}
 
 	private String checkAnnotationBounds(List<PlaybackAction> actions) {
@@ -162,7 +166,7 @@ public class AnnotationLectureRecorder extends LectureRecorder {
 	@Override
 	protected void startInternal() throws ExecutableException {
 		context.getEventBus().register(this);
-
+		previousPlaybackState = playbackService.getState();
 		if (!playbackService.started()) {
 			playbackService.start();
 		}
@@ -175,13 +179,9 @@ public class AnnotationLectureRecorder extends LectureRecorder {
 	@Override
 	protected void suspendInternal() throws ExecutableException {
 		context.getEventBus().unregister(this);
-		try {
-			if (!playbackService.suspended()) {
-				playbackService.suspend();
-			}
-		}
-		catch (ExecutableException exc) {
-			// Ignore
+
+		if (previousPlaybackState != ExecutableState.Started && !playbackService.suspended()) {
+			playbackService.suspend();
 		}
 	}
 
@@ -217,7 +217,7 @@ public class AnnotationLectureRecorder extends LectureRecorder {
 		throw new IllegalStateException(message);
 	}
 
-	private void reset() {
+	public void reset() {
 		addedActions = new ArrayList<>();
 		pageNumber = null;
 		errorDuringRecording = null;

@@ -72,7 +72,7 @@ public class TextTool extends Tool implements TextChangeListener<TextShape> {
 
 		shape = new TextShape();
 		shape.setTextColor(settings.getColor());
-		shape.setTextAttributes(settings.getTextAttributes());
+		shape.setTextAttributes(settings.getTextAttributes().clone());
 		shape.setFont(settings.getFont().clone());
 
 		if (nonNull(matrix)) {

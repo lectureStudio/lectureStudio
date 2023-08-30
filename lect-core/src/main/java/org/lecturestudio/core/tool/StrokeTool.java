@@ -20,7 +20,6 @@ package org.lecturestudio.core.tool;
 
 import static java.util.Objects.nonNull;
 
-import org.lecturestudio.core.beans.ObjectProperty;
 import org.lecturestudio.core.geometry.PenPoint2D;
 import org.lecturestudio.core.geometry.Rectangle2D;
 import org.lecturestudio.core.model.Page;
@@ -32,8 +31,6 @@ public abstract class StrokeTool<T extends Shape> extends Tool {
 	protected T shape;
 
 	protected Integer shapeHandle;
-
-	protected ObjectProperty<StrokeWidthSettings> strokeWidthMultiplier = new ObjectProperty<>(StrokeWidthSettings.NORMAL);
 
 
 	protected abstract PlaybackAction createPlaybackAction();

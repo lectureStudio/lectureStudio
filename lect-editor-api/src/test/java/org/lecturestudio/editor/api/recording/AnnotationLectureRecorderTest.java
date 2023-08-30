@@ -3,6 +3,12 @@ package org.lecturestudio.editor.api.recording;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import com.google.inject.AbstractModule;
+import com.google.inject.Provides;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+
 import javax.inject.Singleton;
 
 import java.io.File;
@@ -13,11 +19,6 @@ import java.util.Objects;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ThreadLocalRandom;
 
-import com.google.inject.AbstractModule;
-import com.google.inject.Provides;
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
 import org.lecturestudio.core.ExecutableException;
 import org.lecturestudio.core.app.ApplicationContext;
 import org.lecturestudio.core.audio.AudioSystemProvider;
@@ -88,9 +89,9 @@ public class AnnotationLectureRecorderTest extends ServiceTest {
 		LinkedList<PenPoint2D> points = createRandomPoints();
 
 		toolController.selectPenTool();
-		context.setIsEditing(true);
+		toolController.setIsEditing(true);
 		executeTool(points);
-		context.setIsEditing(false);
+		toolController.setIsEditing(false);
 
 		awaitTrue(() -> recording.getRecordedEvents().getRecordedPage(0).getPlaybackActions().size() != actionsBefore.size(), 10);
 		List<PlaybackAction> actionsAfter = new ArrayList<>(recording.getRecordedEvents().getRecordedPage(0).getPlaybackActions());
@@ -112,9 +113,9 @@ public class AnnotationLectureRecorderTest extends ServiceTest {
 		Thread.sleep(1000);
 
 		LinkedList<PenPoint2D> points = createRandomPoints();
-		context.setIsEditing(true);
+		toolController.setIsEditing(true);
 		executeTool(points);
-		context.setIsEditing(false);
+		toolController.setIsEditing(false);
 
 		Thread.sleep(2000);
 		List<PlaybackAction> actionsAfter = new ArrayList<>(recording.getRecordedEvents().getRecordedPage(0).getPlaybackActions());
@@ -136,9 +137,9 @@ public class AnnotationLectureRecorderTest extends ServiceTest {
 		Thread.sleep(1000);
 
 		LinkedList<PenPoint2D> points = createRandomPoints();
-		context.setIsEditing(true);
+		toolController.setIsEditing(true);
 		executeTool(points);
-		context.setIsEditing(false);
+		toolController.setIsEditing(false);
 
 		Thread.sleep(2000);
 		List<PlaybackAction> actionsAfter = new ArrayList<>(recording.getRecordedEvents().getRecordedPage(0).getPlaybackActions());

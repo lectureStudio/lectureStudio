@@ -20,14 +20,14 @@ package org.lecturestudio.editor.javafx.view;
 
 import static java.util.Objects.nonNull;
 
-import java.text.MessageFormat;
-import java.util.ResourceBundle;
-
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.Slider;
 import javafx.scene.layout.HBox;
+
+import java.text.MessageFormat;
+import java.util.ResourceBundle;
 
 import org.lecturestudio.core.beans.BooleanProperty;
 import org.lecturestudio.core.beans.DoubleProperty;
@@ -35,14 +35,14 @@ import org.lecturestudio.core.view.Action;
 import org.lecturestudio.core.view.ConsumerAction;
 import org.lecturestudio.editor.api.model.ZoomConstraints;
 import org.lecturestudio.editor.api.presenter.MediaTrackControlsPresenter;
-import org.lecturestudio.editor.api.view.ToolbarView;
-import org.lecturestudio.media.search.SearchState;
 import org.lecturestudio.editor.api.view.MediaTrackControlsView;
+import org.lecturestudio.editor.api.view.ToolbarView;
 import org.lecturestudio.javafx.beans.LectBooleanProperty;
 import org.lecturestudio.javafx.beans.LectDoubleProperty;
 import org.lecturestudio.javafx.control.TextSearchField;
 import org.lecturestudio.javafx.util.FxUtils;
 import org.lecturestudio.javafx.view.FxmlView;
+import org.lecturestudio.media.search.SearchState;
 
 @FxmlView(name = "media-track-controls", presenter = MediaTrackControlsPresenter.class)
 public class FxMediaTrackControlsView extends HBox implements MediaTrackControlsView {

@@ -20,8 +20,8 @@ package org.lecturestudio.core.recording.action;
 
 import java.nio.ByteBuffer;
 
-import org.lecturestudio.core.input.KeyEvent;
 import org.lecturestudio.core.controller.ToolController;
+import org.lecturestudio.core.input.KeyEvent;
 import org.lecturestudio.core.recording.RecordedObject;
 
 public abstract class PlaybackAction implements RecordedObject, Cloneable {
@@ -160,4 +160,11 @@ public abstract class PlaybackAction implements RecordedObject, Cloneable {
 		return buffer;
 	}
 
+	public boolean hasHandle() {
+		return false;
+	}
+
+	public int getHandle() {
+		return -1;
+	}
 }

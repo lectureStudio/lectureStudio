@@ -20,6 +20,8 @@ package org.lecturestudio.javafx.input;
 
 import static java.util.Objects.isNull;
 
+import java.util.Objects;
+
 import javafx.application.Platform;
 import javafx.geometry.Bounds;
 import javafx.scene.Cursor;
@@ -70,7 +72,7 @@ public class StylusListener implements org.lecturestudio.stylus.StylusListener {
 			if (isNull(penCursorImage)) {
 				ClassLoader classLoader = StylusListener.class.getClassLoader();
 
-				penCursorImage = new Image(classLoader.getResourceAsStream("resources/gfx/pen-cursor.png"));
+				penCursorImage = new Image(Objects.requireNonNull(classLoader.getResourceAsStream("resources/gfx/pen-cursor.png")));
 			}
 
 			cursor = new ImageCursor(penCursorImage,
@@ -101,7 +103,6 @@ public class StylusListener implements org.lecturestudio.stylus.StylusListener {
 
 		Platform.runLater(() -> {
 			slideView.requestFocus();
-			slideView.setToolStarted(true);
 			handler.onButtonDown(stylusEvent, viewBounds);
 		});
 	}
@@ -113,7 +114,6 @@ public class StylusListener implements org.lecturestudio.stylus.StylusListener {
 		}
 		Platform.runLater(() -> {
 			handler.onButtonUp(stylusEvent, viewBounds);
-			slideView.setToolStarted(false);
 		});
 	}
 

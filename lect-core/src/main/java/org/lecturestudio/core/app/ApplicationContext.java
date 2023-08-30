@@ -289,5 +289,4 @@ public abstract class ApplicationContext {
 		getEventBus().post(new ConfirmationNotificationCommand(type, title, message, confirmAction,
 				discardAction, confirmButtonText, discardButtonText));
 	}
-
 }

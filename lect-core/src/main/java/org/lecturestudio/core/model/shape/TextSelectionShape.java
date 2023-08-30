@@ -241,4 +241,20 @@ public class TextSelectionShape extends Shape {
 		return rectDist;
 	}
 
+	/**
+	 * Translate all points of {@link #selection} by the specified delta.
+	 *
+	 * @param delta The delta by which to translate the points.
+	 */
+	@Override
+	public void moveByDelta(PenPoint2D delta) {
+		for (Rectangle2D rect : selection) {
+			rect.setLocation(rect.getX() - delta.getX(), rect.getY() - delta.getY());
+		}
+
+		fireShapeChanged(null);
+
+		super.moveByDelta(delta);
+	}
+
 }

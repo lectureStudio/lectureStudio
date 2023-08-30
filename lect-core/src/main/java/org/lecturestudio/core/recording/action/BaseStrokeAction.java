@@ -23,9 +23,9 @@ import static java.util.Objects.nonNull;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 
-import org.lecturestudio.core.input.KeyEvent;
 import org.lecturestudio.core.graphics.Color;
 import org.lecturestudio.core.graphics.StrokeLineCap;
+import org.lecturestudio.core.input.KeyEvent;
 import org.lecturestudio.core.tool.Stroke;
 
 public abstract class BaseStrokeAction extends PlaybackAction {
@@ -35,14 +35,14 @@ public abstract class BaseStrokeAction extends PlaybackAction {
 	protected Stroke stroke;
 
 
-	public BaseStrokeAction(int shapeHandle, Stroke stroke, KeyEvent keyEvent) {
+	protected BaseStrokeAction(int shapeHandle, Stroke stroke, KeyEvent keyEvent) {
 		super(keyEvent);
 
 		this.shapeHandle = shapeHandle;
 		this.stroke = stroke;
 	}
 
-	public BaseStrokeAction(byte[] input) throws IOException {
+	protected BaseStrokeAction(byte[] input) throws IOException {
 		parseFrom(input);
 	}
 
@@ -83,4 +83,13 @@ public abstract class BaseStrokeAction extends PlaybackAction {
 		}
 	}
 
+	@Override
+	public boolean hasHandle() {
+		return true;
+	}
+
+	@Override
+	public int getHandle() {
+		return shapeHandle;
+	}
 }

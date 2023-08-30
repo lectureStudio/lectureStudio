@@ -70,7 +70,5 @@ public interface SlidesView extends View {
 
 	void setStylusHandler(StylusHandler handler);
 
-	void bindToolStartedProperty(BooleanProperty toolStartedProperty);
-
-	void bindSeekProperty(BooleanProperty toolStartedProperty);
+	void bindSeekProperty(BooleanProperty seekProperty);
 }

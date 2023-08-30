@@ -21,8 +21,6 @@ package org.lecturestudio.editor.javafx.view;
 import static java.util.Objects.isNull;
 import static java.util.Objects.nonNull;
 
-import java.util.Collection;
-
 import javafx.beans.value.ChangeListener;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
@@ -34,9 +32,12 @@ import javafx.scene.control.MenuItem;
 import javafx.scene.control.SplitPane;
 import javafx.scene.control.Tab;
 import javafx.scene.control.TabPane;
+import javafx.scene.control.TextField;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.VBox;
 import javafx.scene.transform.TransformChangedEvent;
+
+import java.util.Collection;
 
 import org.lecturestudio.core.app.ApplicationContext;
 import org.lecturestudio.core.beans.BooleanProperty;
@@ -248,11 +249,6 @@ public class FxSlidesView extends VBox implements SlidesView {
 	}
 
 	@Override
-	public void bindToolStartedProperty(BooleanProperty toolStartedProperty) {
-		slideView.toolStartedProperty().addListener((observable, oldValue, newValue) -> toolStartedProperty.set(newValue));
-	}
-
-	@Override
 	public void bindSeekProperty(BooleanProperty seekProperty) {
 		slideView.seekProperty().set(seekProperty.get());
 		seekProperty.addListener((observable, oldValue, newValue) -> slideView.setSeek(seekProperty.get()));
@@ -323,6 +319,11 @@ public class FxSlidesView extends VBox implements SlidesView {
 					node.requestFocus();
 					return;
 				}
+			}
+
+			if (node instanceof TextField) {
+				node.requestFocus();
+				return;
 			}
 		}
 

@@ -53,9 +53,6 @@ public class TextBoxSkin extends PageObjectSkin<TextBox> {
 
 	private Text textHolder;
 
-	private double fontSize;
-
-
 	TextBoxSkin(TextBox control) {
 		super(control);
 	}
@@ -64,8 +61,6 @@ public class TextBoxSkin extends PageObjectSkin<TextBox> {
 	protected Node createContent() {
 		TextBox textBox = getSkinnable();
 		textBox.fontProperty().set(FontConverter.INSTANCE.to(textBox.getPageShape().getFont()));
-
-		fontSize = textBox.getPageShape().getFont().getSize();
 
 		shapeTextProperty = new LectStringProperty(textBox.getPageShape().textProperty());
 
@@ -92,6 +87,8 @@ public class TextBoxSkin extends PageObjectSkin<TextBox> {
 		textHolder = new Text();
 		textHolder.fontProperty().bind(textArea.fontProperty());
 		textHolder.textProperty().bind(textArea.textProperty());
+
+		textBox.fontProperty().addListener((observable, oldFont, newFont) -> updateFontSize());
 
 		return textArea;
 	}
@@ -142,7 +139,7 @@ public class TextBoxSkin extends PageObjectSkin<TextBox> {
 		double y = Math.ceil((shapeRect.getY() + ty) * s) - yOffset;
 
 		Font font = textBox.getPageShape().getFont().clone();
-		font.setSize(fontSize * transform.getMyy());
+		font.setSize(font.getSize() * transform.getMxx());
 
 		textBox.fontProperty().set(FontConverter.INSTANCE.to(font));
 		textBox.relocate(x, y);

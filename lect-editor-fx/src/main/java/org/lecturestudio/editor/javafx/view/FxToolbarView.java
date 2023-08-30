@@ -28,10 +28,10 @@ import org.lecturestudio.core.model.Document;
 import org.lecturestudio.core.text.Font;
 import org.lecturestudio.core.tool.ColorPalette;
 import org.lecturestudio.core.tool.PaintSettings;
+import org.lecturestudio.core.tool.StrokeWidthSettings;
 import org.lecturestudio.core.tool.ToolType;
 import org.lecturestudio.core.view.Action;
 import org.lecturestudio.core.view.ConsumerAction;
-import org.lecturestudio.core.tool.StrokeWidthSettings;
 import org.lecturestudio.editor.api.view.ToolbarView;
 import org.lecturestudio.javafx.beans.converter.ColorConverter;
 import org.lecturestudio.javafx.beans.converter.FontConverter;
@@ -49,6 +49,7 @@ import org.lecturestudio.javafx.view.FxmlView;
 public class FxToolbarView extends FlowPane implements ToolbarView {
 
 	private ConsumerAction<Color> paletteColorAction;
+	private ConsumerAction<Font> textBoxFontAction;
 
 	@FXML
 	private ResourceBundle resources;
@@ -126,7 +127,6 @@ public class FxToolbarView extends FlowPane implements ToolbarView {
 	private ExtButton zoomOutButton;
 	@FXML
 	private ComboBox<StrokeWidthSettings> strokeWidthComboBox;
-	private ConsumerAction<Font> textBoxFontAction;
 
 	public FxToolbarView() {
 		super();
@@ -313,8 +313,7 @@ public class FxToolbarView extends FlowPane implements ToolbarView {
 						if (toolType == buttonType) {
 							toolToggleGroup.selectToggle(toggle);
 
-							if (toggle instanceof ToolGroupButton) {
-								ToolGroupButton button = (ToolGroupButton) toggle;
+							if (toggle instanceof ToolGroupButton button) {
 								button.selectToolType(toolType);
 							}
 
@@ -350,7 +349,7 @@ public class FxToolbarView extends FlowPane implements ToolbarView {
 		});
 
 		strokeWidthComboBox.setCellFactory(new StrokeWidthCellFactory(resources));
-		strokeWidthComboBox.setButtonCell(new StrokeWidthListCell(resources));
+		strokeWidthComboBox.setButtonCell(new StrokeWidthListCell(resources, false));
 	}
 
 	private void setButtonColor(ButtonBase button, Paint paint) {

@@ -31,6 +31,7 @@ import org.lecturestudio.core.model.shape.TextShape;
 import org.lecturestudio.core.text.Font;
 import org.lecturestudio.core.text.TextAttributes;
 import org.lecturestudio.core.view.TextBoxView;
+import org.lecturestudio.javafx.beans.converter.FontConverter;
 
 public class TextBox extends PageObject<TextShape> implements TextBoxView {
 
@@ -92,6 +93,7 @@ public class TextBox extends PageObject<TextShape> implements TextBoxView {
 	public void setTextFont(Font font) {
 		if (nonNull(getPageShape())) {
 			getPageShape().setFont(font);
+			fontProperty().set(FontConverter.INSTANCE.to(font));
 		}
 	}
 

@@ -33,22 +33,22 @@ import org.lecturestudio.core.beans.ObjectProperty;
 import org.lecturestudio.core.model.Document;
 import org.lecturestudio.core.model.Page;
 import org.lecturestudio.core.presenter.Presenter;
+import org.lecturestudio.core.recording.RecordedPage;
+import org.lecturestudio.core.recording.Recording;
 import org.lecturestudio.core.recording.Recording.Content;
+import org.lecturestudio.core.recording.RecordingChangeEvent;
 import org.lecturestudio.core.recording.RecordingEditException;
 import org.lecturestudio.core.recording.action.ActionType;
-import org.lecturestudio.core.recording.RecordingChangeEvent;
-import org.lecturestudio.core.recording.Recording;
-import org.lecturestudio.core.recording.RecordedPage;
 import org.lecturestudio.core.recording.action.PlaybackAction;
 import org.lecturestudio.core.recording.edit.EditAction;
 import org.lecturestudio.core.service.DocumentService;
 import org.lecturestudio.editor.api.context.EditorContext;
 import org.lecturestudio.editor.api.edit.DeletePageEventAction;
-import org.lecturestudio.editor.api.service.RecordingPlaybackService;
-import org.lecturestudio.media.recording.RecordingEvent;
 import org.lecturestudio.editor.api.service.RecordingFileService;
+import org.lecturestudio.editor.api.service.RecordingPlaybackService;
 import org.lecturestudio.editor.api.view.PageEventsView;
 import org.lecturestudio.editor.api.view.model.PageEvent;
+import org.lecturestudio.media.recording.RecordingEvent;
 
 public class PageEventsPresenter extends Presenter<PageEventsView> {
 
@@ -79,6 +79,7 @@ public class PageEventsPresenter extends Presenter<PageEventsView> {
 
 		view.bindSelectedPageEvent(pageEventProperty);
 		view.setOnDeleteEvent(this::deletePageEvent);
+		view.setOnSelectEvent(this::selectPageEvent);
 
 		context.getEventBus().register(this);
 	}
@@ -130,6 +131,15 @@ public class PageEventsPresenter extends Presenter<PageEventsView> {
 		}).join();
 	}
 
+	private void selectPageEvent(PageEvent event) {
+		try {
+			playbackService.seek((int) event.getTime().getMillis() - 20);
+		}
+		catch (ExecutableException e) {
+			handleException(e, "Seek failed", "page.events.seek.error");
+		}
+	}
+
 	private void deletePageEvent(PlaybackAction action, int pageNumber) throws ExecutableException, RecordingEditException {
 		if (playbackService.started()) {
 			playbackService.suspend();
@@ -160,6 +170,9 @@ public class PageEventsPresenter extends Presenter<PageEventsView> {
 				case TOOL_BEGIN:
 				case TOOL_EXECUTE:
 				case TOOL_END:
+				case TEXT_CHANGE:
+				case TEXT_FONT_CHANGE:
+				case TEXT_LOCATION_CHANGE:
 					continue;
 			}
 

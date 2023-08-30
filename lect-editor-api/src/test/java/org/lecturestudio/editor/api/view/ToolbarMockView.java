@@ -4,8 +4,9 @@ import java.util.List;
 
 import org.lecturestudio.core.graphics.Color;
 import org.lecturestudio.core.model.Document;
-import org.lecturestudio.core.tool.StrokeWidthSettings;
+import org.lecturestudio.core.text.Font;
 import org.lecturestudio.core.tool.PaintSettings;
+import org.lecturestudio.core.tool.StrokeWidthSettings;
 import org.lecturestudio.core.tool.ToolType;
 import org.lecturestudio.core.view.Action;
 import org.lecturestudio.core.view.ConsumerAction;
@@ -29,6 +30,8 @@ public class ToolbarMockView implements ToolbarView {
 	public Action setOnRectangleTool;
 	public Action setOnEllipseTool;
 	public Action setOnSelectTool;
+	public Action setOnTextTool;
+	public ConsumerAction<Font> setOnTextBoxFont;
 	public Action setOnEraseTool;
 	public Action setOnClearTool;
 	public Action setOnZoomInTool;
@@ -134,6 +137,16 @@ public class ToolbarMockView implements ToolbarView {
 	@Override
 	public void setOnEraseTool(Action action) {
 		this.setOnEraseTool = action;
+	}
+
+	@Override
+	public void setOnTextTool(Action action) {
+		this.setOnTextTool = action;
+	}
+
+	@Override
+	public void setOnTextBoxFont(ConsumerAction<Font> action) {
+		this.setOnTextBoxFont = action;
 	}
 
 	@Override

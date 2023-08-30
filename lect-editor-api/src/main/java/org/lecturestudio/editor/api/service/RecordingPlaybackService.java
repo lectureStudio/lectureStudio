@@ -169,6 +169,20 @@ public class RecordingPlaybackService extends ExecutableBase {
 		}
 	}
 
+	public synchronized void seek(int timeMs) throws ExecutableException {
+		if (started() || destroyed()) {
+			return;
+		}
+		if (context.isSeeking()) {
+			return;
+		}
+		if (nonNull(recordingPlayer)) {
+			context.setSeeking(true);
+			recordingPlayer.seek(timeMs);
+			context.setSeeking(false);
+		}
+	}
+
 	@Override
 	protected synchronized void initInternal() throws ExecutableException {
 		if (!recordingPlayer.initialized()) {

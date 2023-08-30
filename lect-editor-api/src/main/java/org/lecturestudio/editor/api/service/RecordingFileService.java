@@ -20,6 +20,9 @@ package org.lecturestudio.editor.api.service;
 
 import static java.util.Objects.nonNull;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -38,35 +41,34 @@ import javax.inject.Singleton;
 import org.lecturestudio.core.ExecutableException;
 import org.lecturestudio.core.app.ApplicationContext;
 import org.lecturestudio.core.bus.EventBus;
+import org.lecturestudio.core.geometry.PenPoint2D;
 import org.lecturestudio.core.io.RandomAccessAudioStream;
 import org.lecturestudio.core.model.Document;
 import org.lecturestudio.core.model.Interval;
+import org.lecturestudio.core.recording.RecordedAudio;
+import org.lecturestudio.core.recording.Recording;
+import org.lecturestudio.core.recording.RecordingChangeEvent;
+import org.lecturestudio.core.recording.RecordingChangeListener;
 import org.lecturestudio.core.recording.RecordingEditException;
 import org.lecturestudio.core.recording.action.PlaybackAction;
 import org.lecturestudio.core.recording.edit.EditAction;
-import org.lecturestudio.editor.api.edit.HideAndMoveNextPageAction;
-import org.lecturestudio.editor.api.edit.HidePageAction;
-import org.lecturestudio.editor.api.edit.InsertPlaybackActionsAction;
-import org.lecturestudio.editor.api.edit.MovePageAction;
-import org.lecturestudio.editor.api.edit.ReplaceAllPagesAction;
-import org.lecturestudio.editor.api.edit.ReplaceAudioAction;
-import org.lecturestudio.core.recording.RecordingChangeEvent;
-import org.lecturestudio.core.recording.RecordingChangeListener;
-import org.lecturestudio.core.recording.Recording;
 import org.lecturestudio.core.recording.file.RecordingFileReader;
 import org.lecturestudio.core.recording.file.RecordingFileWriter;
 import org.lecturestudio.core.recording.file.RecordingUtils;
-import org.lecturestudio.core.recording.RecordedAudio;
 import org.lecturestudio.core.service.DocumentService;
 import org.lecturestudio.core.util.ProgressCallback;
 import org.lecturestudio.editor.api.context.EditorContext;
 import org.lecturestudio.editor.api.edit.CutAction;
 import org.lecturestudio.editor.api.edit.DeletePageAction;
+import org.lecturestudio.editor.api.edit.HideAndMoveNextPageAction;
+import org.lecturestudio.editor.api.edit.HidePageAction;
+import org.lecturestudio.editor.api.edit.InsertPlaybackActionsAction;
 import org.lecturestudio.editor.api.edit.InsertRecordingAction;
+import org.lecturestudio.editor.api.edit.ModifyPlaybackActionPositionsAction;
+import org.lecturestudio.editor.api.edit.MovePageAction;
+import org.lecturestudio.editor.api.edit.ReplaceAllPagesAction;
+import org.lecturestudio.editor.api.edit.ReplaceAudioAction;
 import org.lecturestudio.media.recording.RecordingEvent;
-
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 
 @Singleton
 public class RecordingFileService {
@@ -504,7 +506,6 @@ public class RecordingFileService {
 		catch (ExecutableException e) {
 			LOG.error("Seek failed", e);
 		}
-
 	}
 
 	private void suspendPlayback() throws ExecutableException {
@@ -630,6 +631,25 @@ public class RecordingFileService {
 		}).thenCompose((ignored) -> {
 			double endTimestamp = (double) (addedActions.get(addedActions.size() - 1).getTimestamp() + 2) / recording.getRecordingHeader().getDuration();
 			context.setPrimarySelection(endTimestamp);
+			return null;
+		});
+	}
+
+	public CompletableFuture<Void> modifyPlaybackActionPositions(int handle, int pageNumber, PenPoint2D delta) {
+		return modifyPlaybackActionPositions(handle, pageNumber, delta, getSelectedRecording());
+	}
+
+	public CompletableFuture<Void> modifyPlaybackActionPositions(int handle, int pageNumber, PenPoint2D delta, Recording recording) {
+		double timestampBefore = context.getPrimarySelection();
+		return CompletableFuture.runAsync(() -> {
+			try {
+				addEditAction(recording, new ModifyPlaybackActionPositionsAction(recording, handle, pageNumber, delta));
+			}
+			catch (Exception e) {
+				throw new CompletionException(e);
+			}
+		}).thenCompose((ignored) -> {
+			context.setPrimarySelection(timestampBefore);
 			return null;
 		});
 	}

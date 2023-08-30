@@ -21,7 +21,7 @@ package org.lecturestudio.editor.api.presenter;
 import static java.util.Objects.isNull;
 import static java.util.Objects.nonNull;
 
-import com.google.common.eventbus.Subscribe;
+import javax.inject.Inject;
 
 import java.io.File;
 import java.io.IOException;
@@ -29,7 +29,7 @@ import java.nio.file.Path;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionException;
 
-import javax.inject.Inject;
+import com.google.common.eventbus.Subscribe;
 
 import org.lecturestudio.core.app.ApplicationContext;
 import org.lecturestudio.core.app.configuration.Configuration;
@@ -47,11 +47,11 @@ import org.lecturestudio.editor.api.model.ZoomConstraints;
 import org.lecturestudio.editor.api.presenter.command.AdjustAudioCommand;
 import org.lecturestudio.editor.api.presenter.command.ReplacePageCommand;
 import org.lecturestudio.editor.api.presenter.command.SplitAndSaveRecordingCommand;
-import org.lecturestudio.media.search.SearchService;
-import org.lecturestudio.media.search.SearchState;
 import org.lecturestudio.editor.api.service.RecordingFileService;
 import org.lecturestudio.editor.api.service.RecordingPlaybackService;
 import org.lecturestudio.editor.api.view.MediaTrackControlsView;
+import org.lecturestudio.media.search.SearchService;
+import org.lecturestudio.media.search.SearchState;
 
 public class MediaTrackControlsPresenter extends Presenter<MediaTrackControlsView> {
 
@@ -80,7 +80,7 @@ public class MediaTrackControlsPresenter extends Presenter<MediaTrackControlsVie
 		this.recordingService = recordingService;
 		this.playbackService = playbackService;
 		this.searchService = searchService;
-		this.zoomConstraints = new ZoomConstraints(1, 25);
+		this.zoomConstraints = new ZoomConstraints(1, 50);
 	}
 
 	@Override

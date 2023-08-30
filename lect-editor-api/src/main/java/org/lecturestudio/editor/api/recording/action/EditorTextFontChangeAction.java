@@ -15,40 +15,45 @@ import org.lecturestudio.core.text.FontWeight;
 import org.lecturestudio.core.text.TextAttributes;
 
 public class EditorTextFontChangeAction extends TextFontChangeAction {
+	protected ObjectProperty<Color> colorProperty;
 
-	private int handle;
+	protected ObjectProperty<Font> fontProperty;
 
-	protected ObjectProperty<Color> color;
-
-	protected ObjectProperty<Font> font;
-
-	protected ObjectProperty<TextAttributes> attributes;
+	protected ObjectProperty<TextAttributes> attributesProperty;
 
 	public EditorTextFontChangeAction(int handle, ObjectProperty<Color> color,
-	                                  ObjectProperty<Font> font,
-	                                  ObjectProperty<TextAttributes> attributes) {
+									  ObjectProperty<Font> font,
+									  ObjectProperty<TextAttributes> attributes) {
 		super(handle, color.get(), font.get(), attributes.get());
 
-		this.handle = handle;
-		this.color = color;
-		this.font = font;
-		this.attributes = attributes;
+		this.colorProperty = color;
+		this.fontProperty = font;
+		this.attributesProperty = attributes;
 	}
 
 	public EditorTextFontChangeAction(byte[] input) throws IOException {
 		super(input);
+
+		colorProperty = new ObjectProperty<>();
+		fontProperty = new ObjectProperty<>();
+		attributesProperty = new ObjectProperty<>();
+
 		parseFrom(input);
 	}
 
 	@Override
 	public void execute(ToolController controller) throws Exception {
-		controller.setTextFont(handle, color.get(), font.get(), attributes.get());
+		color = colorProperty.get();
+		font = fontProperty.get();
+		attributes = attributesProperty.get();
+
+		super.execute(controller);
 	}
 
 	@Override
 	public byte[] toByteArray() throws IOException {
-		TextAttributes attributes = font.get().getTextAttributes();
-		byte[] fontFamily = font.get().getFamilyName().getBytes();
+		TextAttributes attributes = fontProperty.get().getTextAttributes();
+		byte[] fontFamily = fontProperty.get().getFamilyName().getBytes();
 
 		int payloadBytes = 4 + 2 + 4 + 14 + fontFamily.length;
 
@@ -57,14 +62,14 @@ public class EditorTextFontChangeAction extends TextFontChangeAction {
 		// Shape handle.
 		buffer.putInt(handle);
 
-		buffer.putInt(color.get().getRGBA());
+		buffer.putInt(colorProperty.get().getRGBA());
 
 		// Font: 14 + X bytes.
 		buffer.putInt(fontFamily.length);
 		buffer.put(fontFamily);
-		buffer.putDouble(font.get().getSize());
-		buffer.put((byte) font.get().getPosture().ordinal());
-		buffer.put((byte) font.get().getWeight().ordinal());
+		buffer.putDouble(fontProperty.get().getSize());
+		buffer.put((byte) fontProperty.get().getPosture().ordinal());
+		buffer.put((byte) fontProperty.get().getWeight().ordinal());
 
 		// Text attributes: 2 bytes.
 		buffer.put((byte) ((nonNull(attributes) && attributes.isStrikethrough()) ? 1 : 0));
@@ -79,7 +84,7 @@ public class EditorTextFontChangeAction extends TextFontChangeAction {
 
 		handle = buffer.getInt();
 
-		color.set(new Color(buffer.getInt()));
+		colorProperty.set(new Color(buffer.getInt()));
 
 		// Font
 		int familyLength = buffer.getInt();
@@ -89,18 +94,18 @@ public class EditorTextFontChangeAction extends TextFontChangeAction {
 		FontPosture posture = FontPosture.values()[buffer.get()];
 		FontWeight weight = FontWeight.values()[buffer.get()];
 
-		font.set(new Font(new String(familyStr), fontSize));
-		font.get().setPosture(posture);
-		font.get().setWeight(weight);
+		fontProperty.set(new Font(new String(familyStr), fontSize));
+		fontProperty.get().setPosture(posture);
+		fontProperty.get().setWeight(weight);
 
 		// Text attributes
 		boolean strikethrough = buffer.get() > 0;
 		boolean underline = buffer.get() > 0;
 
-		attributes.set(new TextAttributes());
-		attributes.get().setStrikethrough(strikethrough);
-		attributes.get().setUnderline(underline);
+		attributesProperty.set(new TextAttributes());
+		attributesProperty.get().setStrikethrough(strikethrough);
+		attributesProperty.get().setUnderline(underline);
 
-		font.get().setTextAttributes(attributes.get().clone());
+		fontProperty.get().setTextAttributes(attributesProperty.get().clone());
 	}
 }

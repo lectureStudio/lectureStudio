@@ -63,5 +63,14 @@ public class LatexAction extends PlaybackAction {
 	public ActionType getType() {
 		return ActionType.LATEX;
 	}
+	
+	@Override
+	public boolean hasHandle() {
+		return true;
+	}
 
+	@Override
+	public int getHandle() {
+		return handle;
+	}
 }

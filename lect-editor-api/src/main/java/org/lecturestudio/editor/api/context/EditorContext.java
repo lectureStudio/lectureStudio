@@ -54,8 +54,6 @@ public class EditorContext extends ApplicationContext {
 
 	private final BooleanProperty seeking = new BooleanProperty();
 
-	private final BooleanProperty isEditing = new BooleanProperty();
-
 	private final DoubleProperty primarySelection = new DoubleProperty();
 
 	private final DoubleProperty leftSelection = new DoubleProperty();
@@ -151,18 +149,6 @@ public class EditorContext extends ApplicationContext {
 
 	public DoubleProperty primarySelectionProperty() {
 		return primarySelection;
-	}
-
-	public boolean getIsEditing() {
-		return isEditing.get();
-	}
-
-	public void setIsEditing(boolean value) {
-		isEditing.set(value);
-	}
-
-	public BooleanProperty isEditingProperty() {
-		return isEditing;
 	}
 
 	public double getLeftSelection() {

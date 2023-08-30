@@ -6,39 +6,23 @@ import java.nio.ByteBuffer;
 import org.lecturestudio.core.beans.StringProperty;
 import org.lecturestudio.core.controller.ToolController;
 import org.lecturestudio.core.recording.action.TextChangeAction;
-import org.lecturestudio.editor.api.controller.EditorToolController;
 
 public class EditorTextChangeAction extends TextChangeAction {
-	private int handle;
 	private StringProperty textProperty;
 
 	public EditorTextChangeAction(int handle, StringProperty textProperty) {
 		super(handle, textProperty.get());
-		this.handle = handle;
 		this.textProperty = textProperty;
-
-		textProperty.addListener((observable, oldValue, newValue) -> {
-			System.out.println(newValue);
-		});
 	}
 
 	public EditorTextChangeAction(byte[] input) throws IOException {
 		super(input);
 		parseFrom(input);
-
-		textProperty.addListener((observable, oldValue, newValue) -> {
-			System.out.println(newValue);
-		});
 	}
 
 	@Override
 	public void execute(ToolController controller) throws Exception {
-		if (controller instanceof EditorToolController editorToolController) {
-			editorToolController.setText(handle, textProperty);
-		}
-		else {
-			controller.setText(handle, textProperty.get());
-		}
+		controller.setText(handle, textProperty.get());
 	}
 
 	@Override

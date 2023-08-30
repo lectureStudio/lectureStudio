@@ -60,5 +60,14 @@ public class RubberActionExt extends PlaybackAction {
 	public ActionType getType() {
 		return ActionType.RUBBER_EXT;
 	}
+	
+	@Override
+	public boolean hasHandle() {
+		return true;
+	}
 
+	@Override
+	public int getHandle() {
+		return shapeHandle;
+	}
 }

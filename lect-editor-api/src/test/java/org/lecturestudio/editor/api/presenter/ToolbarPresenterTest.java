@@ -4,19 +4,20 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import javax.inject.Singleton;
-
-import java.io.File;
-import java.util.List;
-import java.util.Objects;
-import java.util.concurrent.ExecutionException;
-
 import com.google.common.eventbus.Subscribe;
 import com.google.inject.AbstractModule;
 import com.google.inject.Provides;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+
+import java.io.File;
+import java.util.List;
+import java.util.Objects;
+import java.util.concurrent.ExecutionException;
+
+import javax.inject.Singleton;
+
 import org.lecturestudio.core.app.ApplicationContext;
 import org.lecturestudio.core.audio.AudioSystemProvider;
 import org.lecturestudio.core.geometry.PenPoint2D;
@@ -25,9 +26,9 @@ import org.lecturestudio.core.graphics.Color;
 import org.lecturestudio.core.inject.DIViewContextFactory;
 import org.lecturestudio.core.inject.GuiceInjector;
 import org.lecturestudio.core.model.Document;
-import org.lecturestudio.core.tool.StrokeWidthSettings;
 import org.lecturestudio.core.tool.ColorPalette;
 import org.lecturestudio.core.tool.StrokeSettings;
+import org.lecturestudio.core.tool.StrokeWidthSettings;
 import org.lecturestudio.core.tool.ToolType;
 import org.lecturestudio.core.view.Action;
 import org.lecturestudio.core.view.ViewContextFactory;
@@ -220,6 +221,14 @@ public class ToolbarPresenterTest extends PresenterTest {
 	}
 
 	@Test
+	public void testTextTool() throws InterruptedException {
+		view.setOnTextTool.execute();
+		awaitTrue(() -> selectedToolType != null, 10);
+		assertSame(ToolType.SELECT, selectedToolType);
+		assertSame(ToolType.SELECT, view.selectToolButtonToolType);
+	}
+
+	@Test
 	void testEraseTool() throws InterruptedException {
 		view.setOnEraseTool.execute();
 		awaitTrue(() -> selectedToolType != null, 10);
@@ -284,4 +293,5 @@ public class ToolbarPresenterTest extends PresenterTest {
 			selectedToolType = event.getToolType();
 		}
 	}
+
 }

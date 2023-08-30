@@ -83,8 +83,6 @@ public class SlideView extends Control implements ParameterChangeListener, org.l
 
 	private ObjectProperty<Pos> alignment;
 
-	private final BooleanProperty toolStartedProperty = new BooleanProperty(false);
-
 	private final BooleanProperty seekProperty = new BooleanProperty(true);
 
 
@@ -351,14 +349,6 @@ public class SlideView extends Control implements ParameterChangeListener, org.l
 				}
 			}
 		}));
-	}
-
-	public BooleanProperty toolStartedProperty() {
-		return toolStartedProperty;
-	}
-
-	public void setToolStarted(boolean toolStarted) {
-		this.toolStartedProperty.set(toolStarted);
 	}
 
 	public BooleanProperty seekProperty() {

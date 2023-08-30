@@ -224,8 +224,8 @@ public class ToolbarPresenterTest extends PresenterTest {
 	public void testTextTool() throws InterruptedException {
 		view.setOnTextTool.execute();
 		awaitTrue(() -> selectedToolType != null, 10);
-		assertSame(ToolType.SELECT, selectedToolType);
-		assertSame(ToolType.SELECT, view.selectToolButtonToolType);
+		assertSame(ToolType.TEXT, selectedToolType);
+		assertSame(ToolType.TEXT, view.selectToolButtonToolType);
 	}
 
 	@Test

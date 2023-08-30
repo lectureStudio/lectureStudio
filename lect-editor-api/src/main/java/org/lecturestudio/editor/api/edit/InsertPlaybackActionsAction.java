@@ -10,6 +10,9 @@ import org.lecturestudio.core.recording.RecordingEditException;
 import org.lecturestudio.core.recording.action.PlaybackAction;
 import org.lecturestudio.core.recording.edit.RecordedObjectAction;
 
+/**
+ * Insert PlaybackActions into the given Page of the recording.
+ */
 public class InsertPlaybackActionsAction extends RecordedObjectAction<RecordedEvents> {
 	private final List<PlaybackAction> addedActions;
 	private final int pageNumber;

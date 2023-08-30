@@ -217,15 +217,10 @@ public class SlideViewSkin extends SkinBase<SlideView> {
 			Platform.runLater(() -> {
 				while (change.next()) {
 					if (change.wasAdded() && !change.getList().isEmpty()) {
-						try {
-							for (PageObjectView<?> objectViewNode : change.getAddedSubList()) {
+						for (PageObjectView<?> objectViewNode : change.getAddedSubList()) {
 								getChildren().remove((Node) objectViewNode);
 								getChildren().add((Node) objectViewNode);
 							}
-						}
-						catch (IndexOutOfBoundsException exc) {
-							System.out.println(exc.getMessage());
-						}
 					}
 					else if (change.wasRemoved()) {
 						for (PageObjectView<?> objectViewNode : change.getRemoved()) {

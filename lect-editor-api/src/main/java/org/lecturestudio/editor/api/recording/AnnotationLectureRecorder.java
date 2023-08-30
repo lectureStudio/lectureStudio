@@ -28,6 +28,16 @@ import org.lecturestudio.editor.api.context.EditorContext;
 import org.lecturestudio.editor.api.service.RecordingFileService;
 import org.lecturestudio.editor.api.service.RecordingPlaybackService;
 
+/**
+ * Allows for recording annotations during the editing phase of the workflow.
+ * The correct usage is the following:
+ * 1. start()
+ * 2. addAnnotation() (however many times)
+ * 3. suspend()
+ * 4. persistPlaybackActions()
+ * Recordings cannot span multiple slides.
+ * It is recommended to persist the annotations after each annotation was fully recorded.
+ */
 @Singleton
 public class AnnotationLectureRecorder extends LectureRecorder {
 
@@ -87,6 +97,21 @@ public class AnnotationLectureRecorder extends LectureRecorder {
 		}
 	}
 
+	/**
+	 * Persists the PlaybackActions to the recording if all bounds are met.
+	 * The following bounds have to be met, otherwise an error gets thrown:
+	 * <p>
+	 * 1. The playback has to be running during recording
+	 * 2. Annotations cannot overlap with an already existing PlaybackAction
+	 * 3. Annotations can only be recorded on one page at once
+	 * <p>
+	 * Other conditions can be derived from these conditions, such as:
+	 * 1. The playback cannot be over (it will be automatically be paused when it is)
+	 * 2. A single Annotation cannot span multiple pages at once
+	 *
+	 * @return A task which persists the annotations. Might be used for waiting until the annotations have been persisted
+	 * @throws IllegalStateException will be thrown if any of the conditions are not met
+	 */
 	public synchronized CompletableFuture<Void> persistPlaybackActions() throws IllegalStateException {
 		if (errorDuringRecording != null) {
 			handleException(errorDuringRecording);
@@ -111,7 +136,17 @@ public class AnnotationLectureRecorder extends LectureRecorder {
 		return task;
 	}
 
+	/**
+	 * Compares the new Annotations with already existing Annotations and makes sure that they do not overlap.
+	 * An overlap will be detected if
+	 * {@code (existingActionStartTime < newActionEndTime && newActionStartTime < existingActionEndTime)}
+	 * is {@code false}.
+	 * This means, annotations can have the same timestamp.
+	 * @param actions
+	 * @return
+	 */
 	private String checkAnnotationBounds(List<PlaybackAction> actions) {
+		String result = null;
 		// New PlaybackActions that should be added to the page
 		int newActionStartTime = addedActions.get(0).getTimestamp();
 		int newActionEndTime = addedActions.get(addedActions.size() - 1).getTimestamp();
@@ -147,7 +182,8 @@ public class AnnotationLectureRecorder extends LectureRecorder {
 
 			if (existingActionStartTime != null && existingActionEndTime != null) {
 				if (existingActionStartTime < newActionEndTime && newActionStartTime < existingActionEndTime) {
-					return "annotationrecorder.overlap.message";
+					result = "annotationrecorder.overlap.message";
+					break;
 				}
 				else {
 					// No overlap detected
@@ -156,7 +192,7 @@ public class AnnotationLectureRecorder extends LectureRecorder {
 				}
 			}
 		}
-		return null;
+		return result;
 	}
 
 	@Override
@@ -195,6 +231,11 @@ public class AnnotationLectureRecorder extends LectureRecorder {
 		return playbackService.getElapsedTime();
 	}
 
+	/**
+	 * Throws an exception and rolls back the view
+	 * @param message the exception message to be thrown
+	 * @throws IllegalStateException
+	 */
 	private void handleException(String message) throws IllegalStateException {
 		// New PlaybackActions that should be added to the page
 		Interval<Double> eventDuration;
@@ -217,6 +258,9 @@ public class AnnotationLectureRecorder extends LectureRecorder {
 		throw new IllegalStateException(message);
 	}
 
+	/**
+	 * Resets the unpersisted annotations, in case they shouldn't be saved.
+	 */
 	public void reset() {
 		addedActions = new ArrayList<>();
 		pageNumber = null;

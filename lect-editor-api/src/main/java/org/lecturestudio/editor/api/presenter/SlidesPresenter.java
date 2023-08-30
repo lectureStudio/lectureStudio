@@ -216,6 +216,9 @@ public class SlidesPresenter extends Presenter<SlidesView> {
 		}
 	}
 
+	/**
+	 * Resumes or Pauses the playback, whichever state was selected before
+	 */
 	private void resumeOrPause() {
 		try {
 			if (!playbackService.started()) {
@@ -230,18 +233,28 @@ public class SlidesPresenter extends Presenter<SlidesView> {
 		}
 	}
 
+	/**
+	 * Moves the playback to the left, the amount is determined by the current zoom level
+	 */
 	private void moveLeft() {
 		double zoomLevel = ((EditorContext) context).getTrackZoomLevel();
 		int amountMs = (int) ((1 / zoomLevel) * 5000);
 		movePlayback(-amountMs);
 	}
 
+	/**
+	 * Moves the playback to the left, the amount is determined by the current zoom level
+	 */
 	private void moveRight() {
 		double zoomLevel = ((EditorContext) context).getTrackZoomLevel();
 		int amountMs = (int) ((1 / zoomLevel) * 5000);
 		movePlayback(amountMs);
 	}
 
+	/**
+	 * Move the Playback by the selected amount in milliseconds
+	 * @param amount the selected amount in milliseconds
+	 */
 	private void movePlayback(int amount) {
 		try {
 			int currentTimeMs = Math.toIntExact(playbackService.getElapsedTime());

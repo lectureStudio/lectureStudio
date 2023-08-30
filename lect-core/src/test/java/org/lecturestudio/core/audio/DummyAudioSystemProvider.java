@@ -71,6 +71,10 @@ public class DummyAudioSystemProvider implements AudioSystemProvider {
 	}
 
 
+	/**
+	 * Player that enables starting and stopping the recording.
+	 * Some functionalities depend on a running timer and can only be tested if the actual player is also running.
+	 */
 	private static class DummyPlayer implements AudioPlayer {
 
 		private long progress;

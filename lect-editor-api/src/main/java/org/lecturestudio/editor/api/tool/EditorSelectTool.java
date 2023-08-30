@@ -10,6 +10,11 @@ import org.lecturestudio.core.tool.SelectTool;
 import org.lecturestudio.core.tool.ShapeModifyEvent;
 import org.lecturestudio.editor.api.controller.EditorToolController;
 
+/**
+ * Changes the initial positions of the selected shape, by changing the recorded points.
+ * {@link org.lecturestudio.editor.api.edit.ModifyPlaybackActionPositionsAction}
+ * Does not record any PlaybackActions itself
+ */
 public class EditorSelectTool extends SelectTool {
 
     private final EditorToolController toolController;

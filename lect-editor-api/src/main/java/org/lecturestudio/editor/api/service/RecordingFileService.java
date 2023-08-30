@@ -475,6 +475,7 @@ public class RecordingFileService {
 		double prevDuration = playbackService.getDuration().getMillis();
 		double scale = prevDuration / recording.getRecordedAudio().getAudioStream().getLengthInMillis();
 
+		// Do not refresh the recording if new events got added, because the view got already handled by the UI
 		switch (event.getContentType()) {
 			case ALL, DOCUMENT, HEADER, AUDIO, EVENTS_REMOVED, EVENTS_CHANGED -> {
 				documentService.replaceDocument(document);
@@ -616,6 +617,13 @@ public class RecordingFileService {
 		});
 	}
 
+	/**
+	 * {@link InsertPlaybackActionsAction}
+	 *
+	 * @param addedActions the actions to be added
+	 * @param pageNumber   the number of the page in which they should be added
+	 * @return an async task performing the task
+	 */
 	public CompletableFuture<Void> insertPlaybackActions(List<PlaybackAction> addedActions, int pageNumber) {
 		return insertPlaybackActions(addedActions, pageNumber, getSelectedRecording());
 	}
@@ -635,6 +643,14 @@ public class RecordingFileService {
 		});
 	}
 
+	/**
+	 * {@link ModifyPlaybackActionPositionsAction}
+	 *
+	 * @param handle the associated shape handle
+	 * @param pageNumber the number of the page the actions should be modified
+	 * @param delta the amount the locations should be changed by
+	 * @return an async task performing the task
+	 */
 	public CompletableFuture<Void> modifyPlaybackActionPositions(int handle, int pageNumber, PenPoint2D delta) {
 		return modifyPlaybackActionPositions(handle, pageNumber, delta, getSelectedRecording());
 	}

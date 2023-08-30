@@ -1011,6 +1011,11 @@ public class ToolController extends Controller implements ToolContext {
 		return para.isZoomMode();
 	}
 
+	/**
+	 * Sets the selected stroke width for the selected tool
+	 *
+	 * @param selectedStrokeWidthSettings the selected stroke width
+	 */
 	public void selectStrokeWidthSettings(StrokeWidthSettings selectedStrokeWidthSettings) {
 		if (selectedTool != null) {
 			PaintSettings toolSettings = paintSettings.get(selectedTool.getType());

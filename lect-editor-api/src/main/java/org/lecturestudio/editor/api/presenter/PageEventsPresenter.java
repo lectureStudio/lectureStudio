@@ -131,6 +131,11 @@ public class PageEventsPresenter extends Presenter<PageEventsView> {
 		}).join();
 	}
 
+	/**
+	 * Moves the current timestamp to right before the PlaybackAction
+	 *
+	 * @param event the PlaybackAction, which timestamp should be selected
+	 */
 	private void selectPageEvent(PageEvent event) {
 		try {
 			playbackService.seek((int) event.getTime().getMillis() - 20);
@@ -166,6 +171,7 @@ public class PageEventsPresenter extends Presenter<PageEventsView> {
 		for (var action : recordedPage.getPlaybackActions()) {
 			ActionType actionType = action.getType();
 
+			// Exclude the following Types from being shown in the EventList
 			switch (actionType) {
 				case TOOL_BEGIN:
 				case TOOL_EXECUTE:

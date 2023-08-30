@@ -1,6 +1,5 @@
 package org.lecturestudio.editor.api.controller;
 
-import static java.util.Objects.isNull;
 import static java.util.Objects.nonNull;
 
 import java.util.ArrayList;
@@ -16,13 +15,9 @@ import org.lecturestudio.core.app.ApplicationContext;
 import org.lecturestudio.core.beans.BooleanProperty;
 import org.lecturestudio.core.controller.ToolController;
 import org.lecturestudio.core.geometry.PenPoint2D;
-import org.lecturestudio.core.model.Document;
-import org.lecturestudio.core.model.Page;
 import org.lecturestudio.core.model.shape.Shape;
-import org.lecturestudio.core.model.shape.TextShape;
 import org.lecturestudio.core.recording.action.PlaybackAction;
 import org.lecturestudio.core.service.DocumentService;
-import org.lecturestudio.core.tool.TextTool;
 import org.lecturestudio.core.tool.Tool;
 import org.lecturestudio.core.tool.ToolType;
 import org.lecturestudio.editor.api.bus.event.EditorRecordActionEvent;
@@ -55,6 +50,11 @@ public class EditorToolController extends ToolController {
 		this.annotationLectureRecorder = annotationLectureRecorder;
 	}
 
+	/**
+	 * Starts the recording only if the tool allows for recording and the editing is enabled.
+	 *
+	 * @param point The location on the painting surface where to start.
+	 */
 	@Override
 	public void beginToolAction(PenPoint2D point) {
 		try {
@@ -68,6 +68,12 @@ public class EditorToolController extends ToolController {
 		}
 	}
 
+	/**
+	 * Ends the Recording only, if the tool allows for recording and the editing is enabled.
+	 * Saves the recorded annotations, unless a text was recorded, since this one has a separate saving logic.
+	 *
+	 * @param point The location on the painting surface where to end.
+	 */
 	@Override
 	public void endToolAction(PenPoint2D point) {
 		try {
@@ -96,6 +102,10 @@ public class EditorToolController extends ToolController {
 		setIsEditing(previousValue);
 	}
 
+	/**
+	 * Records the event only if both the tool allows for recording and editing is enabled.
+	 * @param action
+	 */
 	@Override
 	public void recordAction(PlaybackAction action) {
 		if (getIsToolRecordingEnabled() && getIsEditing()) {
@@ -148,31 +158,6 @@ public class EditorToolController extends ToolController {
 	@Override
 	public void selectTextTool(int handle) {
 		setTool(new EditorTextTool(this, handle));
-	}
-
-
-	/**
-	 * Copy a TextShape.
-	 *
-	 * @param shape The TextShape to copy.
-	 */
-	@Override
-	public void copyText(TextShape shape) {
-		Document doc = documentService.getDocuments().getSelectedDocument();
-
-		if (isNull(doc)) {
-			return;
-		}
-
-		Page page = doc.getCurrentPage();
-
-		PenPoint2D loc = new PenPoint2D(shape.getLocation().getX(), shape.getLocation().getY());
-
-		TextTool tool = new EditorTextTool(this, shape.getHandle());
-		tool.begin(loc, page);
-		tool.execute(loc);
-		tool.end(loc);
-		tool.copy(shape);
 	}
 
 	public CompletableFuture<Void> persistPlaybackActions() {

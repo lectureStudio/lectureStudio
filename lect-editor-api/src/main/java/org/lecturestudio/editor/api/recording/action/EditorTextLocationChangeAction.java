@@ -9,6 +9,9 @@ import org.lecturestudio.core.geometry.Rectangle2D;
 import org.lecturestudio.core.recording.action.LocationModifiable;
 import org.lecturestudio.core.recording.action.TextLocationChangeAction;
 
+/**
+ * Has an editable Position, which allows for editing of the position played by this PlaybackAction
+ */
 public class EditorTextLocationChangeAction extends TextLocationChangeAction implements LocationModifiable {
 	private Rectangle2D location;
 

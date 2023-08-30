@@ -14,6 +14,9 @@ import org.lecturestudio.core.text.FontPosture;
 import org.lecturestudio.core.text.FontWeight;
 import org.lecturestudio.core.text.TextAttributes;
 
+/**
+ * Has editable Properties, which allows for editing of the font properties played by this PlaybackAction
+ */
 public class EditorTextFontChangeAction extends TextFontChangeAction {
 	protected ObjectProperty<Color> colorProperty;
 

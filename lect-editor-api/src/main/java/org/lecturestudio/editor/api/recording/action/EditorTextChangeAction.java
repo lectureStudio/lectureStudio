@@ -7,6 +7,9 @@ import org.lecturestudio.core.beans.StringProperty;
 import org.lecturestudio.core.controller.ToolController;
 import org.lecturestudio.core.recording.action.TextChangeAction;
 
+/**
+ * Has an editable StringProperty, which allows for editing of the text content played by this PlaybackAction
+ */
 public class EditorTextChangeAction extends TextChangeAction {
 	private StringProperty textProperty;
 

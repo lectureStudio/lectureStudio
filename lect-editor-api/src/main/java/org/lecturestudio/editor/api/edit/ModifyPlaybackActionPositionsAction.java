@@ -19,6 +19,12 @@ import org.lecturestudio.core.recording.action.TextLocationChangeAction;
 import org.lecturestudio.core.recording.action.TextSelectionExtAction;
 import org.lecturestudio.core.recording.edit.RecordedObjectAction;
 
+/**
+ * Modifies the position of the PlaybackActions associated with the selected shape handle.
+ * This way the placement of existing can be altered.
+ * This changes the original points and therefore the initial placement.
+ * All points are moved by the selected delta
+ */
 public class ModifyPlaybackActionPositionsAction extends RecordedObjectAction<RecordedEvents> {
     private final Recording recording;
     private final int handle;

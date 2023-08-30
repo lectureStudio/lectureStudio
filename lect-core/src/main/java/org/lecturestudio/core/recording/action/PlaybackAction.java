@@ -160,10 +160,18 @@ public abstract class PlaybackAction implements RecordedObject, Cloneable {
 		return buffer;
 	}
 
+	/**
+	 * Whether this PlaybackAction carries a shape handle
+	 *
+	 * @return {@code true} if the PlaybackAction has a shape handle
+	 */
 	public boolean hasHandle() {
 		return false;
 	}
 
+	/**
+	 * @return the shape handle associated with this action, if it has one {@link this.hasHande()}
+	 */
 	public int getHandle() {
 		return -1;
 	}

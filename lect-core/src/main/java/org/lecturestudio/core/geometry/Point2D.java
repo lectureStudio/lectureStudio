@@ -274,6 +274,11 @@ public class Point2D implements Cloneable, Serializable {
 		return new Point2D(x, y);
 	}
 
+	/**
+	 * Inverts the coordinates
+	 *
+	 * @return itself with the changed coordinates
+	 */
 	public <T extends Point2D> T invert() {
 		x = -x;
 		y = -y;

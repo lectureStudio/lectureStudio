@@ -5,6 +5,9 @@ import org.lecturestudio.core.stylus.StylusHandler;
 import org.lecturestudio.editor.api.controller.EditorToolController;
 import org.lecturestudio.stylus.StylusEvent;
 
+/**
+ * Sets the editing state when the stylus is being used
+ */
 public class EditorStylusHandler extends StylusHandler {
     private final EditorToolController toolController;
 

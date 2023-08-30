@@ -1,5 +1,9 @@
 package org.lecturestudio.core.tool;
 
+/**
+ * Enum Settings for selecting the multiplier by how much the stroke of the tool should be multiplied.
+ * This enables a preselection for the thickness of the strokes
+ */
 public enum StrokeWidthSettings {
 	EXTRA_SMALL("EXTRA_SMALL", 0.33),
 	SMALL("SMALL", 0.66),

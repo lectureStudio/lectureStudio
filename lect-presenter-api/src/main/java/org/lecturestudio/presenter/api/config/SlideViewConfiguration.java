@@ -21,11 +21,15 @@ package org.lecturestudio.presenter.api.config;
 import org.lecturestudio.core.beans.DoubleProperty;
 import org.lecturestudio.core.beans.ObjectProperty;
 import org.lecturestudio.presenter.api.model.MessageBarPosition;
+import org.lecturestudio.presenter.api.model.NoteBarPosition;
 
 public class SlideViewConfiguration {
 
 	private final ObjectProperty<MessageBarPosition> messageBarPosition = new ObjectProperty<>(
 			MessageBarPosition.BOTTOM);
+
+	private final ObjectProperty<NoteBarPosition> notesBarPosition = new ObjectProperty<>(
+			NoteBarPosition.BOTTOM);
 
 	private final ObjectProperty<MessageBarPosition> participantsPosition = new ObjectProperty<>(
 			MessageBarPosition.LEFT);
@@ -88,6 +92,21 @@ public class SlideViewConfiguration {
 	 */
 	public void setMessageBarPosition(MessageBarPosition position) {
 		messageBarPosition.set(position);
+	}
+
+	/**
+	 * @return Notes bar's position
+	 */
+	public NoteBarPosition getNotesBarPosition() {
+		return notesBarPosition.get();
+	}
+
+
+	/**
+	 * @param position Notes bar's position
+	 */
+	public void setNotesBarPosition(NoteBarPosition position) {
+		notesBarPosition.set(position);
 	}
 
 	public MessageBarPosition getParticipantsPosition() {

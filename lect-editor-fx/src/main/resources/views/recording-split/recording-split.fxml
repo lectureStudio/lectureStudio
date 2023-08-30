@@ -12,11 +12,7 @@
 		<FlowPane styleClass="split-options">
 			<VBox>
 				<TextFlow>
-					<Label fx:id="splitInfoText" text="%recording.split.info" wrapText="true">
-						<tooltip>
-							<Tooltip text="%recording.split.info"/>
-						</tooltip>
-					</Label>
+					<Label fx:id="splitInfoText" text="%recording.split.info" wrapText="true" />
 				</TextFlow>
 				<VBox styleClass="radioButtons">
 					<fx:define>
@@ -53,11 +49,7 @@
 					</HBox>
 				</VBox>
 				<TextFlow>
-					<Label fx:id="removeInfoText" text="%recording.split.info.remove" wrapText="true">
-						<tooltip>
-							<Tooltip text="%recording.split.info.remove"/>
-						</tooltip>
-					</Label>
+					<Label fx:id="removeInfoText" text="%recording.split.info.remove" wrapText="true" />
 				</TextFlow>
 			</VBox>
 

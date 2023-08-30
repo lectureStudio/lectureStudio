@@ -74,7 +74,7 @@ public class PDFBoxDocument implements DocumentAdapter {
 
 	private final PDFBoxRenderer renderer;
 
-	public final PDDocument doc;
+	private final PDDocument doc;
 
 	private DocumentOutline outline;
 
@@ -648,5 +648,9 @@ public class PDFBoxDocument implements DocumentAdapter {
 	private boolean isEditableStream(PDStream stream) {
 		String name = stream.getCOSObject().getNameAsString(COSName.NAME);
 		return name != null && name.equals(PdfDocument.EMBEDDED_SHAPES_KEY);
+	}
+
+	public PDDocument getDoc() {
+		return doc;
 	}
 }

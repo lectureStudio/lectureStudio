@@ -27,6 +27,8 @@ import java.io.IOException;
 import java.text.MessageFormat;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 import javax.inject.Inject;
 
@@ -35,6 +37,8 @@ import org.lecturestudio.core.ExecutableState;
 import org.lecturestudio.core.app.ApplicationContext;
 import org.lecturestudio.core.app.configuration.Configuration;
 import org.lecturestudio.core.app.dictionary.Dictionary;
+import org.lecturestudio.core.audio.AudioPlayer;
+import org.lecturestudio.core.audio.AudioSystemProvider;
 import org.lecturestudio.core.audio.effect.DenoiseEffectRunner;
 import org.lecturestudio.core.audio.effect.NoiseReductionParameters;
 import org.lecturestudio.core.audio.sink.AudioSink;
@@ -52,7 +56,6 @@ import org.lecturestudio.core.presenter.Presenter;
 import org.lecturestudio.core.recording.Recording;
 import org.lecturestudio.core.view.NotificationType;
 import org.lecturestudio.editor.api.context.EditorContext;
-import org.lecturestudio.media.webrtc.WebRtcAudioPlayer;
 import org.lecturestudio.media.recording.RecordingEvent;
 import org.lecturestudio.editor.api.presenter.command.NoiseReductionProgressCommand;
 import org.lecturestudio.editor.api.service.RecordingFileService;
@@ -65,6 +68,11 @@ public class NoiseReductionSettingsPresenter extends Presenter<NoiseReductionSet
 
 	private final static int MIN_MS_PROFILE = 100;
 
+	/** Used to start AudioPlayer. */
+	private final ExecutorService executorService = Executors.newSingleThreadExecutor();
+
+	private final AudioSystemProvider audioSystemProvider;
+
 	private final RecordingFileService recordingService;
 
 	private final NoiseReductionParameters effectParams;
@@ -73,15 +81,18 @@ public class NoiseReductionSettingsPresenter extends Presenter<NoiseReductionSet
 
 	private BooleanProperty playAudioSnippet;
 
-	private WebRtcAudioPlayer audioPlayer;
+	private AudioPlayer audioPlayer;
 
 
 	@Inject
-	NoiseReductionSettingsPresenter(ApplicationContext context, NoiseReductionSettingsView view,
-			RecordingFileService recordingService) {
+	NoiseReductionSettingsPresenter(ApplicationContext context,
+			NoiseReductionSettingsView view,
+			RecordingFileService recordingService,
+			AudioSystemProvider audioSystemProvider) {
 		super(context, view);
 
 		this.recordingService = recordingService;
+		this.audioSystemProvider = audioSystemProvider;
 		this.effectParams = new NoiseReductionParameters();
 	}
 
@@ -159,14 +170,17 @@ public class NoiseReductionSettingsPresenter extends Presenter<NoiseReductionSet
 	}
 
 	private void startAudioSnippetPlayback() {
-		if (!audioPlayer.started()) {
-			try {
-				audioPlayer.start();
+		// Run async to avoid running in the UI thread.
+		CompletableFuture.runAsync(() -> {
+			if (!audioPlayer.started()) {
+				try {
+					audioPlayer.start();
+				}
+				catch (ExecutableException e) {
+					logException(e, "Start audio player failed");
+				}
 			}
-			catch (ExecutableException e) {
-				logException(e, "Start audio player failed");
-			}
-		}
+		}, executorService);
 	}
 
 	private void stopAudioSnippetPlayback() {
@@ -266,7 +280,7 @@ public class NoiseReductionSettingsPresenter extends Presenter<NoiseReductionSet
 			Configuration config = context.getConfiguration();
 			String outputDeviceName = config.getAudioConfig().getPlaybackDeviceName();
 
-			audioPlayer = new WebRtcAudioPlayer();
+			audioPlayer = audioSystemProvider.createAudioPlayer();
 			audioPlayer.setAudioVolume(1.0);
 			audioPlayer.setAudioDeviceName(outputDeviceName);
 			audioPlayer.setAudioSource(audioSource);

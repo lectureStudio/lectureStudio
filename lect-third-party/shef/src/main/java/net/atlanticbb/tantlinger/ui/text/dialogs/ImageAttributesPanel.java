@@ -13,6 +13,7 @@ import java.awt.event.ActionListener;
 import java.io.File;
 import java.io.IOException;
 import java.net.URL;
+import java.util.prefs.Preferences;
 
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
@@ -36,8 +37,10 @@ public class ImageAttributesPanel extends HTMLAttributeEditorPanel
 //    {
 //        "top", "middle", "bottom", "left", "right" //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ //$NON-NLS-5$
 //    };
-    
-    private static final String FILE_EXT[] =
+
+    private static final String LAST_USED_FOLDER = "last.used.folder";
+
+    private static final String[] FILE_EXT =
     {
         "jpg", "jpeg", "png", "gif"
     };
@@ -347,16 +350,20 @@ public class ImageAttributesPanel extends HTMLAttributeEditorPanel
     }
 
     private File showOpenFileDialog(String[] fileFilters, String currentDir, String selectedFile) {
+        Preferences prefs = Preferences.userRoot().node(getClass().getName());
     	JFileChooser fc = createFileChooser(fileFilters, currentDir, selectedFile);
 
 		if (currentDir == null) {
-			fc.setCurrentDirectory(new File(System.getProperty("user.home")));
+            String lastFolderPath = prefs.get(LAST_USED_FOLDER, System.getProperty("user.home"));
+
+			fc.setCurrentDirectory(new File(lastFolderPath));
 		}
 
 		int result = fc.showOpenDialog(this);
 		File file = fc.getSelectedFile();
 
 		if (result == JFileChooser.APPROVE_OPTION && isValidFile(file)) {
+            prefs.put(LAST_USED_FOLDER, file.getParent());
 			return file;
 		}
 

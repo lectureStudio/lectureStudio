@@ -29,6 +29,8 @@ public interface CreateQuizOptionView extends View {
 
 	void setOptionText(String text);
 
+	void addOnChange(Action action);
+
 	void setOnRemove(Action action);
 
 	void setOnMoveUp(Action action);

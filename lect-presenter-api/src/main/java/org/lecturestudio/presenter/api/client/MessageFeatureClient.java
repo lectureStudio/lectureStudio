@@ -30,7 +30,7 @@ import org.eclipse.microprofile.rest.client.annotation.RegisterProviders;
 import org.lecturestudio.web.api.client.ApiKeyFilter;
 import org.lecturestudio.web.api.data.bind.JsonConfigProvider;
 
-@Path("/api/publisher")
+@Path("/api/v1/publisher")
 @RegisterProviders({
 		@RegisterProvider(ApiKeyFilter.class),
 		@RegisterProvider(JsonConfigProvider.class)

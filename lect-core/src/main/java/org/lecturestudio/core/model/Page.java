@@ -18,14 +18,14 @@
 
 package org.lecturestudio.core.model;
 
-import java.util.List;
-import java.util.Set;
-import java.util.Stack;
-import java.util.UUID;
+import java.io.IOException;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.stream.Collectors;
 
+import org.apache.pdfbox.pdmodel.interactive.annotation.PDAnnotation;
+import org.apache.pdfbox.pdmodel.interactive.annotation.PDAnnotationText;
 import org.lecturestudio.core.PageMetrics;
 import org.lecturestudio.core.geometry.Rectangle2D;
 import org.lecturestudio.core.model.action.ShapeAction;
@@ -635,6 +635,28 @@ public class Page {
 		undoActions.clear();
 		redoActions.clear();
 		shapes.clear();
+	}
+
+	/**
+	 * Reads all text annotations of the current PDF page
+	 *
+	 * @return All text annotations of the current PDF page
+	 */
+	public List<String> getNotes(){
+		List<PDAnnotation> annotations;
+		List<String> annotationsAsString = new ArrayList<>();
+		try {
+			 annotations = getDocument().getPdfDocument().getPdfBoxDocument().
+					 getDoc().getPage(pageNumber).getAnnotations();
+		} catch (IOException e) {
+			throw new RuntimeException(e);
+		}
+		for(PDAnnotation annotation : annotations){
+			if(PDAnnotationText.SUB_TYPE.equals(annotation.getSubtype())){
+				annotationsAsString.add(annotation.getContents());
+			}
+		}
+		return annotationsAsString;
 	}
 
 }

@@ -22,6 +22,7 @@ import static java.util.Objects.isNull;
 import static java.util.Objects.nonNull;
 
 import java.util.Arrays;
+import java.util.List;
 import java.util.stream.Collectors;
 
 import javax.inject.Inject;
@@ -60,6 +61,10 @@ public class SoundSettingsPresenter extends Presenter<SoundSettingsView> {
 		var devices = Arrays.stream(audioSystemProvider.getPlaybackDevices())
 				.map(AudioDevice::getName).collect(Collectors.toList());
 
+		if (!hasDevice(devices, audioConfig.getPlaybackDeviceName())) {
+			setDefaultPlaybackDevice();
+		}
+
 		view.setAudioPlaybackDevices(devices);
 		view.setAudioPlaybackDevice(audioConfig.playbackDeviceNameProperty());
 
@@ -82,5 +87,9 @@ public class SoundSettingsPresenter extends Presenter<SoundSettingsView> {
 		if (nonNull(playbackDevice)) {
 			audioConfig.setPlaybackDeviceName(playbackDevice.getName());
 		}
+	}
+
+	private boolean hasDevice(List<String> devices, String name) {
+		return devices.stream().anyMatch(deviceName -> deviceName.equals(name));
 	}
 }

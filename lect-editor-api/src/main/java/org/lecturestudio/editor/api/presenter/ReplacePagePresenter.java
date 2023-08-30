@@ -57,6 +57,7 @@ public class ReplacePagePresenter extends Presenter<ReplacePageView> {
 		try {
 			// Cloning Document to have a working copy, all edits are done exclusively on this copy
 			currentDoc = new Document(recordedDocument.toByteArray());
+			currentDoc.selectPage(recordedDocument.getDocument().getCurrentPageNumber());
 		}
 		catch (IOException exc) {
 			handleException(exc, "Replace page failed", "replace.page.error");
@@ -136,7 +137,6 @@ public class ReplacePagePresenter extends Presenter<ReplacePageView> {
 	 * @return {@code true} if the page flip was successful.
 	 */
 	private boolean selectPageCurrentDoc(int pageNumber) {
-
 		if (currentDoc.selectPage(pageNumber)) {
 			currentDocCurrentPageNumber = pageNumber;
 			view.setPageCurrentDoc(currentDoc.getCurrentPage());
@@ -169,6 +169,7 @@ public class ReplacePagePresenter extends Presenter<ReplacePageView> {
 	 */
 	private void replace() {
 		view.disableInput();
+
 		CompletableFuture.runAsync(() -> {
 			if (replacePageType.equals(ReplacePageType.REPLACE_ALL_PAGES)) {
 				currentDoc.replaceAllPages(newDoc);

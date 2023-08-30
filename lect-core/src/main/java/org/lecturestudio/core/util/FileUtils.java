@@ -26,6 +26,7 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.URI;
 import java.net.URL;
 import java.nio.file.FileVisitResult;
 import java.nio.file.Files;
@@ -116,6 +117,19 @@ public class FileUtils {
 		}
 		
 		return path.substring(index + 1);
+	}
+
+	/**
+	 * Returns the decoded path string with %20 in original path string replaced
+	 * by white space character.
+	 */
+	public static String decodePath(String path) {
+		try {
+			return new URI(null, path, null).getPath();
+		}
+		catch (Exception e) {
+			return path;
+		}
 	}
 
 	public static Locale extractLocale(String path, String baseName) {

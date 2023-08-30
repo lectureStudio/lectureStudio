@@ -66,7 +66,7 @@ public class IntFilter extends DocumentFilter {
 
 		for (int i = builder.length() - 1; i >= 0; i--) {
 			int cp = builder.codePointAt(i);
-			if (!Character.isDigit(cp)) {
+			if (!Character.isDigit(cp) && cp != '-') {
 				builder.deleteCharAt(i);
 
 				if (Character.isSupplementaryCodePoint(cp)) {

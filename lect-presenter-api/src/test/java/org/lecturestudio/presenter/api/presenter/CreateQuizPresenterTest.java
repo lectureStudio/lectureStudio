@@ -590,6 +590,8 @@ class CreateQuizPresenterTest extends PresenterTest {
 
 		private String option;
 
+		Action changeAction;
+
 		Action removeAction;
 
 		Action moveUpAction;
@@ -610,6 +612,13 @@ class CreateQuizPresenterTest extends PresenterTest {
 		@Override
 		public void setOptionText(String text) {
 			this.option = text;
+		}
+
+		@Override
+		public void addOnChange(Action action) {
+			assertNotNull(action);
+
+			changeAction = action;
 		}
 
 		@Override

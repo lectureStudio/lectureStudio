@@ -34,6 +34,7 @@ import org.lecturestudio.core.view.Action;
 import org.lecturestudio.core.view.ConsumerAction;
 import org.lecturestudio.core.view.PresentationParameter;
 import org.lecturestudio.core.view.View;
+import org.lecturestudio.presenter.api.context.PresenterContext.ParticipantCount;
 import org.lecturestudio.presenter.api.model.Bookmark;
 import org.lecturestudio.presenter.api.model.Bookmarks;
 import org.lecturestudio.presenter.api.model.MessageBarPosition;
@@ -101,6 +102,10 @@ public interface MenuView extends View {
 
 	void setOnExternalSpeech(ConsumerAction<Boolean> action);
 
+	void setExternalNotes(boolean selected, boolean show);
+
+	void setOnExternalNotes(ConsumerAction<Boolean> action);
+
 	void setOnMessagesPositionLeft(Action action);
 
 	void setMessagesPositionLeft();
@@ -112,6 +117,15 @@ public interface MenuView extends View {
 	void setOnMessagesPositionRight(Action action);
 
 	void setMessagesPositionRight();
+
+	void setOnNotesPositionLeft(Action action);
+
+	void setNotesPositionLeft();
+
+	void setOnNotesPositionBottom(Action action);
+
+	void setNotesPositionBottom();
+
 
 	void setOnParticipantsPositionLeft(Action action);
 
@@ -231,7 +245,7 @@ public interface MenuView extends View {
 
 	void bindSpeechRequestCount(IntegerProperty count);
 
-	void bindAttendeesCount(IntegerProperty count);
+	void bindCourseParticipantsCount(ObjectProperty<ParticipantCount> count);
 
 	void setQuizServiceState(QuizWebServiceState state);
 

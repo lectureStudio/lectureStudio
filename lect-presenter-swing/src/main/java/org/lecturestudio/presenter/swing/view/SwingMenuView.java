@@ -42,6 +42,7 @@ import org.lecturestudio.core.model.Time;
 import org.lecturestudio.core.view.Action;
 import org.lecturestudio.core.view.ConsumerAction;
 import org.lecturestudio.core.view.PresentationParameter;
+import org.lecturestudio.presenter.api.context.PresenterContext.ParticipantCount;
 import org.lecturestudio.presenter.api.model.Bookmark;
 import org.lecturestudio.presenter.api.model.Bookmarks;
 import org.lecturestudio.presenter.api.model.MessageBarPosition;
@@ -96,6 +97,12 @@ public class SwingMenuView extends JMenuBar implements MenuView {
 
 	private JCheckBoxMenuItem externalSpeechMenuItem;
 
+	private JCheckBoxMenuItem notesMenuItem;
+
+	private JMenu notesPositionMenu;
+
+	private JCheckBoxMenuItem externalNotesMenuItem;
+
 	private JMenu messagesPositionMenu;
 
 	private JMenu splitNotesPositionMenu;
@@ -111,6 +118,10 @@ public class SwingMenuView extends JMenuBar implements MenuView {
 	private JRadioButtonMenuItem messagesPositionBottomMenuItem;
 
 	private JRadioButtonMenuItem messagesPositionRightMenuItem;
+
+	private JRadioButtonMenuItem notesPositionLeftMenuItem;
+
+	private JRadioButtonMenuItem notesPositionBottomMenuItem;
 
 	private JMenu participantsPositionMenu;
 
@@ -145,6 +156,8 @@ public class SwingMenuView extends JMenuBar implements MenuView {
 	private JCheckBoxMenuItem enableMessengerMenuItem;
 
 	private JCheckBoxMenuItem showMessengerWindowMenuItem;
+
+	private JCheckBoxMenuItem showNotesWindowMenuItem;
 
 	private JMenuItem selectQuizMenuItem;
 
@@ -217,6 +230,7 @@ public class SwingMenuView extends JMenuBar implements MenuView {
 			enableMessengerMenuItem.setEnabled(hasDocument);
 			externalWindowsMenu.setEnabled(hasDocument);
 			messagesPositionMenu.setEnabled(hasDocument);
+			notesPositionMenu.setEnabled(hasDocument);
 			participantsPositionMenu.setEnabled(hasDocument);
 			previewPositionMenu.setEnabled(hasDocument);
 			splitNotesPositionMenu.setEnabled(hasDocument);
@@ -355,6 +369,14 @@ public class SwingMenuView extends JMenuBar implements MenuView {
 	}
 
 	@Override
+	public void setExternalNotes(boolean selected, boolean show) {
+		externalNotesMenuItem.setSelected(selected);
+		externalNotesMenuItem.setText(!selected || show
+				? dict.get("menu.external.notes")
+				: dict.get("menu.external.notes.disconnected"));
+	}
+
+	@Override
 	public void setOnExternalMessages(ConsumerAction<Boolean> action) {
 		SwingUtils.bindAction(externalMessagesMenuItem, action);
 	}
@@ -399,6 +421,11 @@ public class SwingMenuView extends JMenuBar implements MenuView {
 	}
 
 	@Override
+	public void setOnExternalNotes(ConsumerAction<Boolean> action) {
+		SwingUtils.bindAction(externalNotesMenuItem, action);
+	}
+
+	@Override
 	public void setOnMessagesPositionLeft(Action action) {
 		SwingUtils.bindAction(messagesPositionLeftMenuItem, action);
 	}
@@ -426,6 +453,27 @@ public class SwingMenuView extends JMenuBar implements MenuView {
 	@Override
 	public void setMessagesPositionRight() {
 		messagesPositionRightMenuItem.setSelected(true);
+	}
+
+	@Override
+	public void setOnNotesPositionBottom(Action action) {
+		SwingUtils.bindAction(notesPositionBottomMenuItem, action);
+	}
+
+	@Override
+	public void setNotesPositionBottom() {
+		notesPositionBottomMenuItem.setSelected(true);
+	}
+
+
+	@Override
+	public void setOnNotesPositionLeft(Action action) {
+		SwingUtils.bindAction(notesPositionLeftMenuItem, action);
+	}
+
+	@Override
+	public void setNotesPositionLeft() {
+		notesPositionLeftMenuItem.setSelected(true);
 	}
 
 	@Override
@@ -740,10 +788,11 @@ public class SwingMenuView extends JMenuBar implements MenuView {
 	}
 
 	@Override
-	public void bindAttendeesCount(IntegerProperty count) {
+	public void bindCourseParticipantsCount(ObjectProperty<ParticipantCount> count) {
 		count.addListener((observable, oldValue, newValue) -> {
 			SwingUtils.invoke(() -> {
-				streamIndicatorMenu.setText(Integer.toString(newValue));
+				streamIndicatorMenu.setText(String.format("%d + %d",
+						count.get().streamCount(), count.get().classroomCount()));
 			});
 		});
 	}

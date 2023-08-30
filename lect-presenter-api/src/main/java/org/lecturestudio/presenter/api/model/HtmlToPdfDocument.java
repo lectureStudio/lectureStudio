@@ -230,7 +230,7 @@ public abstract class HtmlToPdfDocument extends Document {
 				final String replacement = resourceMap.get(path.substring(1));
 
 				if (nonNull(replacement)) {
-					URI repUri = new URI(replacement);
+					URI repUri = new URI(null, replacement, null);
 
 					if (repUri.getScheme().equals("file")) {
 						return new PDFFileStream(repUri);

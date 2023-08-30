@@ -101,7 +101,8 @@ public class ParticipantList extends JPanel {
 		listModel.clear();
 	}
 
-	public void addParticipants(Collection<CourseParticipant> participants) {
+	public void setParticipants(Collection<CourseParticipant> participants) {
+		listModel.clear();
 		listModel.addAll(participants.stream()
 				.map(CourseParticipantItem::new)
 				.toArray(CourseParticipantItem[]::new));

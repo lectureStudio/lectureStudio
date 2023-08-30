@@ -143,7 +143,12 @@ public class CreateQuizPresenter extends Presenter<CreateQuizView> {
 	}
 
 	private void saveQuiz() {
-		createQuiz();
+		try {
+			createQuiz();
+		}
+		catch (Exception e) {
+			handleException(e, "Create quiz failed", "quiz", "quiz.save.error");
+		}
 
 		boolean isGenericSet = isGenericSet();
 
@@ -189,7 +194,12 @@ public class CreateQuizPresenter extends Presenter<CreateQuizView> {
 	}
 
 	private void startQuiz() {
-		createQuiz();
+		try {
+			createQuiz();
+		}
+		catch (Exception e) {
+			handleException(e, "Create quiz failed", "quiz", "quiz.save.error");
+		}
 
 		streamService.startQuiz(quiz);
 
@@ -213,12 +223,6 @@ public class CreateQuizPresenter extends Presenter<CreateQuizView> {
 		for (CreateQuizOptionView currentView : optionContextList) {
 			CreateQuizOptionView newView = createOption();
 			newView.setOptionText(currentView.getOptionText());
-
-			if (newView instanceof CreateQuizNumericOptionView) {
-				CreateQuizNumericOptionView numericView = (CreateQuizNumericOptionView) newView;
-				numericView.setMinValue(0);
-				numericView.setMaxValue(0);
-			}
 
 			optionViews.add(newView);
 		}
@@ -391,8 +395,13 @@ public class CreateQuizPresenter extends Presenter<CreateQuizView> {
 						CreateQuizNumericOptionView optionView = viewFactory.getInstance(
 								CreateQuizNumericOptionView.class);
 						optionView.setOptionText(optionText);
-						optionView.setMinValue(rule.getMin());
-						optionView.setMaxValue(rule.getMax());
+
+						if (rule.getMin() != Integer.MIN_VALUE) {
+							optionView.setMinValue(rule.getMin());
+						}
+						if (rule.getMax() != Integer.MAX_VALUE) {
+							optionView.setMaxValue(rule.getMax());
+						}
 
 						addOptionView(optionView, false);
 					}

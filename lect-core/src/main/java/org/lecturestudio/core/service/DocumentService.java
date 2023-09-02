@@ -166,7 +166,7 @@ public class DocumentService {
 	 *
 	 * @param docFile the document file.
 	 */
-	public CompletableFuture<Document> openDocument(File docFile, NotesPosition notesPosition) {
+	public CompletableFuture<Document> openDocument(File docFile) {
 		return CompletableFuture.supplyAsync(() -> {
 			Optional<Document> fileDoc = documents.getDocumentByFile(docFile);
 
@@ -187,12 +187,8 @@ public class DocumentService {
 			selectDocument(doc);
 
 			updateRecentDocuments(doc);
-			//doc.setSplittedSlideNotes(notesPosition);
 			return doc;
 		});
-	}
-	public CompletableFuture<Document> openDocument(File docFile) {
-		return openDocument(docFile, NotesPosition.UNKNOWN);
 	}
 
 	public void addDocument(Document doc) {
@@ -409,7 +405,7 @@ public class DocumentService {
 		Document doc = documents.getSelectedDocument();
 
 		if (nonNull(doc)) {
-			doc.setSplittedSlideNotes(pos);
+			doc.setSplitSlideNotesPositon(pos);
 		}
 		context.getEventBus().post(new PageEvent(doc.getCurrentPage(),
 				PageEvent.Type.SELECTED));

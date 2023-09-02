@@ -29,7 +29,6 @@ import com.artifex.mupdf.fitz.RectI;
 import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.awt.image.DataBufferInt;
-import java.awt.image.RescaleOp;
 import java.awt.image.WritableRaster;
 import java.io.IOException;
 import java.util.HashMap;
@@ -85,12 +84,19 @@ public class MuPDFRenderer implements DocumentRenderer {
 			com.artifex.mupdf.fitz.Page p = document.getPage(pageNumber);
 			Rect bounds = p.getBounds();
 
-			if(page.getDocument().getSplittedSlideNotes() == NotesPosition.RIGHT ||
-					(page.getDocument().getSplittedSlideNotes() == NotesPosition.UNKNOWN && bounds.x1/bounds.y1 >= 2)){
-				bounds.x1 = bounds.x1/2;
-				page.getDocument().setSplittedSlideNotes(NotesPosition.RIGHT);
+			if(page.getDocument().getSplitSlideNotesPositon() == NotesPosition.UNKNOWN){
+				if(bounds.x1/bounds.y1 >= 2){
+					page.getDocument().setSplitSlideNotesPositon(NotesPosition.RIGHT);
+				}else {
+					page.getDocument().setSplitSlideNotesPositon(NotesPosition.NONE);
+				}
 			}
-			if(page.getDocument().getSplittedSlideNotes() == NotesPosition.LEFT){
+			if(page.getDocument().getSplitSlideNotesPositon() == NotesPosition.RIGHT){
+				bounds.x1 = bounds.x1/2;
+
+			}
+
+			if(page.getDocument().getSplitSlideNotesPositon() == NotesPosition.LEFT){
 				bounds.x0 = bounds.x1/2;
 			}
 
@@ -98,7 +104,7 @@ public class MuPDFRenderer implements DocumentRenderer {
 			float pageSx = imageWidth / (bounds.x1 - bounds.x0);
 			float pageSy = imageHeight / (bounds.y1 - bounds.y0);
 
-			if(page.getDocument().getSplittedSlideNotes() == NotesPosition.LEFT){
+			if(page.getDocument().getSplitSlideNotesPositon() == NotesPosition.LEFT){
 				stmX = bounds.x0 * pageSx;
 				ctmX = bounds.x0 * pageSx;
 			}
@@ -154,10 +160,10 @@ public class MuPDFRenderer implements DocumentRenderer {
 			com.artifex.mupdf.fitz.Page p = document.getPage(pageNumber);
 			Rect bounds = p.getBounds();
 
-			if(page.getDocument().getSplittedSlideNotes() == NotesPosition.LEFT){
+			if(page.getDocument().getSplitSlideNotesPositon() == NotesPosition.LEFT){
 				bounds.x1 = bounds.x1/2;
 			}
-			if(page.getDocument().getSplittedSlideNotes() == NotesPosition.RIGHT){
+			if(page.getDocument().getSplitSlideNotesPositon() == NotesPosition.RIGHT){
 				bounds.x0 = bounds.x1/2;
 			}
 
@@ -165,7 +171,7 @@ public class MuPDFRenderer implements DocumentRenderer {
 			float pageSx = imageWidth / (bounds.x1 - bounds.x0);
 			float pageSy = imageHeight / (bounds.y1 - bounds.y0);
 
-			if(page.getDocument().getSplittedSlideNotes() == NotesPosition.RIGHT){
+			if(page.getDocument().getSplitSlideNotesPositon() == NotesPosition.RIGHT){
 				stmX = bounds.x0 * pageSx;
 				ctmX = bounds.x0 * pageSx;
 			}

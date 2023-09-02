@@ -93,7 +93,7 @@ public class Document {
 	private UUID uid;
 
 	/** Position of notes */
-	private NotesPosition splittedSlideNotes = NotesPosition.UNKNOWN;
+	private NotesPosition splitSlideNotesPositon = NotesPosition.UNKNOWN;
 
 	/**
 	 * Create a new {@link Document}.
@@ -257,7 +257,7 @@ public class Document {
 	 * @return The media box of the specified page.
 	 */
 	public Rectangle2D getPageRect(int pageIndex) {
-		return pdfDocument.getPageMediaBox(pageIndex, splittedSlideNotes);
+		return pdfDocument.getPageMediaBox(pageIndex, splitSlideNotesPositon);
 	}
 
 	/**
@@ -752,17 +752,17 @@ public class Document {
 	 *
 	 * @return position of the notes on the slide
 	 */
-	public NotesPosition getSplittedSlideNotes() {
-		return splittedSlideNotes;
+	public NotesPosition getSplitSlideNotesPositon() {
+		return splitSlideNotesPositon;
 	}
 
 	/**
 	 * Sets the position of the slide
 	 *
-	 * @param splittedSlideNotes a position that doesn't depend on prediction
+	 * @param splitSlideNotesPositon a position that doesn't depend on prediction
 	 */
-	public void setSplittedSlideNotes(NotesPosition splittedSlideNotes) {
-		this.splittedSlideNotes = splittedSlideNotes;
+	public void setSplitSlideNotesPositon(NotesPosition splitSlideNotesPositon) {
+		this.splitSlideNotesPositon = splitSlideNotesPositon;
 	}
 
 }

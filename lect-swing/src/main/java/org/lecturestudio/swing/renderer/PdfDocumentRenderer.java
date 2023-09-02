@@ -221,7 +221,7 @@ public class PdfDocumentRenderer extends ExecutableBase {
 	private void createPage(PresentationParameter param,
 			Document newDocument, Page page) throws Exception {
 		Rectangle2D pageRect = param.getPageRect();
-		NotesPosition notesPosition = page.getDocument().getSplittedSlideNotes();
+		NotesPosition notesPosition = page.getDocument().getSplitSlideNotesPositon();
 
 		Page newPage = newDocument.createPage(page, pageScale ? pageRect : null);
 		int pageIndex = newPage.getPageNumber();

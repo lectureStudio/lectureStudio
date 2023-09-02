@@ -201,6 +201,15 @@ public class MenuPresenter extends Presenter<MenuView> {
 	}
 
 	@Subscribe
+	public void onEvent(final SplitSlidesPositionEvent event){
+		switch (event.getNotesPosition()){
+			case RIGHT -> view.setSplitNotesPositionRight();
+			case LEFT -> view.setSplitNotesPositionLeft();
+			case NONE -> view.setSplitNotesPositionNone();
+		}
+	}
+
+	@Subscribe
 	public void onEvent(final ExternalMessagesViewEvent event) {
 		view.setExternalMessages(event.isEnabled(), event.isShow());
 	}

@@ -109,7 +109,11 @@ public class RenderController extends Controller {
 			final PresentationParameterProvider ppProvider = getContext().getPagePropertyProvider(viewType);
 			final PresentationParameter parameter = ppProvider.getParameter(page);
 
-			page.getDocument().getDocumentRenderer().render(page, parameter, image);
+			if(viewType == ViewType.Slide_Notes){
+				page.getDocument().getDocumentRenderer().renderNotes(page, parameter, image);
+			}else {
+				page.getDocument().getDocumentRenderer().render(page, parameter, image);
+			}
 
 			if (page.getDocument().isWhiteboard()) {
 				renderGrid(image, parameter, viewType);

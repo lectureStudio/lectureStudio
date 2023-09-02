@@ -96,6 +96,7 @@ public abstract class ApplicationContext {
 		ppProvider.put(ViewType.User, new PresentationParameterProvider(config));
 		ppProvider.put(ViewType.Preview, new PresentationParameterProvider(config));
 		ppProvider.put(ViewType.Presentation, new PresentationParameterProvider(config));
+		ppProvider.put(ViewType.Slide_Notes, new PresentationParameterProvider(config));
 	}
 
 	/**

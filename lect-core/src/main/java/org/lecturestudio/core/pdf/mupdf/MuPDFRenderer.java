@@ -130,6 +130,73 @@ public class MuPDFRenderer implements DocumentRenderer {
 		}
 	}
 
+	@Override
+	public void renderNotes(Page page, PresentationParameter parameter,
+					   BufferedImage image) throws IOException {
+		int imageWidth = image.getWidth();
+		int imageHeight = image.getHeight();
+
+		synchronized (lock) {
+			Rectangle2D pageRect = parameter.getViewRect();
+			int pageNumber = page.getPageNumber();
+			//Needed for notes on right side
+			float stmX = 0;
+			float ctmX = 0;
+
+			double sx = imageWidth / pageRect.getWidth();
+			double sy = imageHeight / pageRect.getHeight();
+
+			int x = (int) (pageRect.getX() * sx);
+			int y = (int) (pageRect.getY() * sy);
+
+			DisplayList displayList = document.getDisplayList(pageNumber);
+
+			com.artifex.mupdf.fitz.Page p = document.getPage(pageNumber);
+			Rect bounds = p.getBounds();
+
+			if(page.getDocument().getSplittedSlideNotes() == NotesPosition.LEFT){
+				bounds.x1 = bounds.x1/2;
+			}
+			if(page.getDocument().getSplittedSlideNotes() == NotesPosition.RIGHT){
+				bounds.x0 = bounds.x1/2;
+			}
+
+			float scale = (float) (1.D / pageRect.getWidth());
+			float pageSx = imageWidth / (bounds.x1 - bounds.x0);
+			float pageSy = imageHeight / (bounds.y1 - bounds.y0);
+
+			if(page.getDocument().getSplittedSlideNotes() == NotesPosition.RIGHT){
+				stmX = bounds.x0 * pageSx;
+				ctmX = bounds.x0 * pageSx;
+			}
+
+			Matrix ctm = new Matrix();
+			//ctm.translate(-x, -y);
+			ctm.translate(-x - ctmX, -y);
+			ctm.scale(pageSx * scale, pageSy * scale);
+
+			int px = (int) (pageRect.getX() * pageSx);
+			int py = (int) (pageRect.getY() * pageSy);
+
+			Matrix stm = new Matrix();
+			//stm.translate(-px, -py);
+			stm.translate(-px - stmX, -py);
+			stm.scale(pageSx, pageSy);
+
+			if (parameter.isTranslation()) {
+				renderPan(parameter, image, displayList, bounds, ctm, stm);
+			}
+			else {
+				RectI scissor = new RectI(bounds).transform(stm);
+				Rect pixmapBounds = new Rect(0, 0, imageWidth, imageHeight);
+
+				renderImage(image, displayList, pixmapBounds, ctm, scissor);
+
+				sizeMap.put(imageWidth, new Point2D(x, y));
+			}
+		}
+	}
+
 	private void renderPan(PresentationParameter parameter, BufferedImage image,
 			DisplayList displayList, Rect bounds, Matrix ctm, Matrix stm) {
 		Rectangle2D pageRect = parameter.getViewRect();

@@ -81,4 +81,9 @@ public class PDFBoxRenderer implements DocumentRenderer {
 
 		g.dispose();
 	}
+
+	@Override
+	public void renderNotes(Page page, PresentationParameter parameter, BufferedImage image) throws IOException{
+
+	}
 }

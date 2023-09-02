@@ -225,6 +225,11 @@ public class MenuPresenter extends Presenter<MenuView> {
 		view.setExternalNotes(event.isEnabled(), event.isShow());
 	}
 
+	@Subscribe
+	public void onEvent(final ExternalSlideNotesViewEvent event) {
+		view.setExternalSlideNotes(event.isEnabled(), event.isShow());
+	}
+
 	public void positionSplitNotes(NotesPosition position){
 		documentService.selectNotesPosition(position);
 	}
@@ -297,12 +302,20 @@ public class MenuPresenter extends Presenter<MenuView> {
 		eventBus.post(new ExternalNotesViewEvent(selected));
 	}
 
+	public void externalSlideNotes(boolean selected) {
+		eventBus.post(new ExternalSlideNotesViewEvent(selected));
+	}
+
 	public void positionMessages(MessageBarPosition position) {
 		eventBus.post(new MessageBarPositionEvent(position));
 	}
 
 	public void positionNotes(NoteBarPosition position) {
 		eventBus.post(new NotesBarPositionEvent(position));
+	}
+
+	public void positionSlideNotes(SlideNoteBarPosition position) {
+		eventBus.post(new SlideNotesBarPositionEvent(position));
 	}
 
 	public void positionParticipants(MessageBarPosition position) {
@@ -524,6 +537,7 @@ public class MenuPresenter extends Presenter<MenuView> {
 		view.setOnExternalSlidePreview(this::externalSlidePreview);
 		view.setOnExternalSpeech(this::externalSpeech);
 		view.setOnExternalNotes(this::externalNotes);
+		view.setOnExternalSlideNotes(this::externalSlideNotes);
 
 		switch (slideViewConfig.getMessageBarPosition()) {
 			case LEFT -> view.setMessagesPositionLeft();
@@ -542,6 +556,18 @@ public class MenuPresenter extends Presenter<MenuView> {
 
 		view.setOnNotesPositionLeft(() -> positionNotes(NoteBarPosition.LEFT));
 		view.setOnNotesPositionBottom(() -> positionNotes(NoteBarPosition.BOTTOM));
+
+		switch (slideViewConfig.getSlideNotesBarPosition()) {
+			case RIGHT -> view.setSlideNotesPositionRight();
+			case LEFT -> view.setSlideNotesPositionLeft();
+			case BOTTOM -> view.setSlideNotesPositionBottom();
+			case NONE -> view.setSlideNotesPositionNone();
+		}
+
+		view.setOnSlideNotesPositionRight(() -> positionSlideNotes(SlideNoteBarPosition.RIGHT));
+		view.setOnSlideNotesPositionLeft(() -> positionSlideNotes(SlideNoteBarPosition.LEFT));
+		view.setOnSlideNotesPositionBottom(() -> positionSlideNotes(SlideNoteBarPosition.BOTTOM));
+		view.setOnSlideNotesPositionNone(() -> positionSlideNotes(SlideNoteBarPosition.NONE));
 
 		switch (slideViewConfig.getParticipantsPosition()) {
 			case LEFT -> view.setParticipantsPositionLeft();

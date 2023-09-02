@@ -24,6 +24,7 @@
 			<checkboxmenuitem id="externalSlidePreviewMenuItem" text="menu.external.slide.preview" />
 			<checkboxmenuitem id="externalSpeechMenuItem" text="menu.external.speech" />
 			<checkboxmenuitem id="externalNotesMenuItem" text="menu.external.notes" />
+			<checkboxmenuitem id="externalSlideNotesMenuItem" text="menu.external.slide.notes" />
 		</menu>
 		<menu id="messagesPositionMenu" text="menu.messages.position">
 			<buttongroup>
@@ -36,6 +37,14 @@
 			<buttongroup>
 				<radiobuttonmenuitem id="notesPositionLeftMenuItem" text="menu.left" />
 				<radiobuttonmenuitem id="notesPositionBottomMenuItem" text="menu.bottom" />
+			</buttongroup>
+		</menu>
+		<menu id="slideNotesPositionMenu" text="menu.slide.notes.position">
+			<buttongroup>
+				<radiobuttonmenuitem id="slideNotesPositionRightMenuItem" text="menu.right" />
+				<radiobuttonmenuitem id="slideNotesPositionLeftMenuItem" text="menu.left" />
+				<radiobuttonmenuitem id="slideNotesPositionBottomMenuItem" text="menu.bottom" />
+				<radiobuttonmenuitem id="slideNotesPositionNoneMenuItem" text="menu.none" />
 			</buttongroup>
 		</menu>
 		<menu id="participantsPositionMenu" text="menu.participants.position">

@@ -20,12 +20,15 @@ package org.lecturestudio.presenter.api.event;
 
 import org.lecturestudio.presenter.api.model.MessageBarPosition;
 import org.lecturestudio.presenter.api.model.NoteBarPosition;
+import org.lecturestudio.presenter.api.model.SlideNoteBarPosition;
 
 public abstract class PositionEvent {
 
 	private MessageBarPosition messageBarPosition;
 
 	private NoteBarPosition noteBarPosition;
+
+	private SlideNoteBarPosition slideNoteBarPosition;
 
 
 	public PositionEvent(MessageBarPosition messageBarPosition) {
@@ -36,11 +39,19 @@ public abstract class PositionEvent {
 		this.noteBarPosition = noteBarPosition;
 	}
 
+	public PositionEvent(SlideNoteBarPosition slideNoteBarPosition){
+		this.slideNoteBarPosition = slideNoteBarPosition;
+	}
+
 	public MessageBarPosition getMessageBarPosition() {
 		return messageBarPosition;
 	}
 
 	public NoteBarPosition getNoteBarPosition(){
 		return noteBarPosition;
+	}
+
+	public SlideNoteBarPosition getSlideNoteBarPosition(){
+		return slideNoteBarPosition;
 	}
 }

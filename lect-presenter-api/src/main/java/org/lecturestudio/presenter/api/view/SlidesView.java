@@ -36,6 +36,7 @@ import org.lecturestudio.core.view.*;
 import org.lecturestudio.presenter.api.model.NoteBarPosition;
 import org.lecturestudio.presenter.api.model.MessageBarPosition;
 import org.lecturestudio.presenter.api.config.SlideViewConfiguration;
+import org.lecturestudio.presenter.api.model.SlideNoteBarPosition;
 import org.lecturestudio.swing.model.ExternalWindowPosition;
 import org.lecturestudio.presenter.api.stylus.StylusHandler;
 import org.lecturestudio.web.api.event.PeerStateEvent;
@@ -71,6 +72,8 @@ public interface SlidesView extends View {
 	Page getPage();
 
 	void setPage(Page page, PresentationParameter parameter);
+
+	void setSlideNotes(Page page, PresentationParameter parameter);
 
 	void setPageRenderer(RenderController pageRenderer);
 
@@ -172,6 +175,12 @@ public interface SlidesView extends View {
 
 	void setOnExternalNotesClosed(Action action);
 
+	void setOnExternalSlideNotesPositionChanged(ConsumerAction<ExternalWindowPosition> action);
+
+	void setOnExternalSlideNotesSizeChanged(ConsumerAction<Dimension> action);
+
+	void setOnExternalSlideNotesClosed(Action action);
+
 	void showExternalMessages(Screen screen, Point position, Dimension size);
 
 	void hideExternalMessages();
@@ -192,9 +201,15 @@ public interface SlidesView extends View {
 
 	void hideExternalNotes();
 
+	void showExternalSlideNotes(Screen screen, Point position, Dimension size);
+
+	void hideExternalSlideNotes();
+
 	void setMessageBarPosition(MessageBarPosition position);
 
 	void setNotesBarPosition(NoteBarPosition position);
+
+	void setSlideNotesBarPosition(SlideNoteBarPosition position);
 
 	void setParticipantsPosition(MessageBarPosition position);
 

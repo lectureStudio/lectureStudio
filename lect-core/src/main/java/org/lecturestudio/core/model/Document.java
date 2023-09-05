@@ -727,7 +727,6 @@ public class Document {
 		int pageCount = pdfDocument.getPageCount();
 		String[] prevSplitPageText = new String[2];
 		String[] splitPageText;
-		int overlaystart = 0;
 		for (int number = 0; number < pageCount; number++) {
 			Page page = new Page(this, number);
 
@@ -741,15 +740,12 @@ public class Document {
 			splitPageText = page.getPageText().split("\n");
 			if(nonNull(prevSplitPageText[0]) && nonNull(prevSplitPageText[1]) && nonNull(splitPageText[0]) && nonNull(splitPageText[1])){
 				if(prevSplitPageText[0].equals(splitPageText[0]) && prevSplitPageText[1].equals(splitPageText[1])){
-					System.out.println("overlay auf Folie: " + overlaystart + " bis Folie " + (number+1));
 					page.setOverlay(true);
 				}else{
 					prevSplitPageText = splitPageText;
-					overlaystart = number+1;
 				}
 			}else {
 				prevSplitPageText = splitPageText;
-				overlaystart = number+1;
 			}
 			pages.add(page);
 		}

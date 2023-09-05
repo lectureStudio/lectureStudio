@@ -456,7 +456,7 @@ public class ThumbPanel extends JPanel {
 				g2d.setColor(Color.BLUE);
 				g2d.fillRect(0, 0, getWidth(), getHeight());
 			}else if(page.isOverlay()){
-				g2d.setColor(Color.ORANGE);
+				g2d.setColor(Color.GRAY);
 				g2d.fillRect(0, 0, getWidth(), getHeight());
 			}
 			else {

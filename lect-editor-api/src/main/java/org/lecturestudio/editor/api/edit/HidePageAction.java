@@ -53,6 +53,6 @@ public class HidePageAction extends RecordingAction {
 	@Override
 	protected void fireChangeEvent(Interval<Double> duration) {
 		recording.fireChangeEvent(Recording.Content.ALL, duration);
-		recording.fireChangeEvent(Recording.Content.EVENTS, duration);
+		recording.fireChangeEvent(Recording.Content.EVENTS_REMOVED, duration);
 	}
 }

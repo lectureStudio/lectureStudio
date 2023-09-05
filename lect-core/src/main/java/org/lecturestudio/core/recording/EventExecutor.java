@@ -22,14 +22,14 @@ import org.lecturestudio.core.ExecutableBase;
 
 public abstract class EventExecutor extends ExecutableBase {
 
-	abstract public long getElapsedTime();
-	
-	abstract public int getPageNumber(int timeMillis);
-	
-	abstract public int seekByTime(int timeMillis);
-	
-	abstract public Integer seekByPage(int pageNumber);
-	
-	abstract protected void executeEvents() throws Exception;
-	
+	public abstract long getElapsedTime();
+
+	public abstract int getPageNumber(int timeMillis);
+
+	public abstract int seekByTime(int timeMillis);
+
+	public abstract Integer seekByPage(int pageNumber);
+
+	protected abstract void executeEvents() throws Exception;
+
 }

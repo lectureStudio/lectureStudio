@@ -53,6 +53,7 @@ public class DeleteEventAction extends RecordedObjectAction<RecordedEvents> {
 		List<PlaybackAction> actions = recordedPage.getPlaybackActions();
 
 		actionIndex = actions.indexOf(action);
+		ActionType initialType = action.getType();
 
 		if (actionIndex < 0) {
 			throw new IllegalArgumentException("RecordedPage does not contain the event to delete");
@@ -61,13 +62,22 @@ public class DeleteEventAction extends RecordedObjectAction<RecordedEvents> {
 		var iter = actions.listIterator(actionIndex);
 
 		while (iter.hasNext()) {
-			var action = iter.next();
+			var iterAction = iter.next();
+			var actionType = iterAction.getType();
+
+			if (actionType != ActionType.TOOL_BEGIN
+					&& actionType != ActionType.TOOL_EXECUTE
+					&& actionType != ActionType.TOOL_END
+					&& !iterAction.equals(action)
+					&& actionType != initialType) {
+				break;
+			}
 
 			iter.remove();
 
-			removedActions.add(action);
+			removedActions.add(iterAction);
 
-			if (action.getType() == ActionType.TOOL_END) {
+			if (actionType == ActionType.TOOL_END) {
 				break;
 			}
 		}

@@ -21,12 +21,13 @@ package org.lecturestudio.editor.javafx.view;
 import static java.util.Objects.isNull;
 import static java.util.Objects.nonNull;
 
+import javax.inject.Inject;
+
 import java.util.ArrayDeque;
 import java.util.Deque;
 import java.util.Locale;
+import java.util.Objects;
 import java.util.function.Predicate;
-
-import javax.inject.Inject;
 
 import javafx.animation.TranslateTransition;
 import javafx.beans.value.ChangeListener;
@@ -102,7 +103,7 @@ public class FxMainView extends StackPane implements MainView {
 
 	@Override
 	public void close() {
-		// Fire close request in order to shutdown appropriately.
+		// Fire close request in order to shut down appropriately.
 		Window window = getScene().getWindow();
 		window.fireEvent(new WindowEvent(window, WindowEvent.WINDOW_CLOSE_REQUEST));
 	}
@@ -297,14 +298,14 @@ public class FxMainView extends StackPane implements MainView {
 
 	private void loadTheme(Theme theme) {
 		if (nonNull(theme) && nonNull(theme.getFile())) {
-			String themeUrl = getClass().getResource(theme.getFile()).toExternalForm();
+			String themeUrl = Objects.requireNonNull(getClass().getResource(theme.getFile())).toExternalForm();
 			getScene().getStylesheets().add(themeUrl);
 		}
 	}
 
 	private void unloadTheme(Theme theme) {
 		if (nonNull(theme.getFile())) {
-			String themeUrl = getClass().getResource(theme.getFile()).toExternalForm();
+			String themeUrl = Objects.requireNonNull(getClass().getResource(theme.getFile())).toExternalForm();
 			getScene().getStylesheets().remove(themeUrl);
 		}
 	}

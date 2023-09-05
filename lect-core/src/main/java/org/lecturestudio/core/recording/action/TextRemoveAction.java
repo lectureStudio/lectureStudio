@@ -64,5 +64,14 @@ public class TextRemoveAction extends PlaybackAction {
 	public ActionType getType() {
 		return ActionType.TEXT_REMOVE;
 	}
+	
+	@Override
+	public boolean hasHandle() {
+		return true;
+	}
 
+	@Override
+	public int getHandle() {
+		return handle;
+	}
 }

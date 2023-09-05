@@ -92,7 +92,7 @@ public class Font implements Cloneable, Serializable {
 		Font font = new Font(familyName, size);
 		font.setPosture(posture);
 		font.setWeight(weight);
-		font.setTextAttributes(attributes);
+		font.setTextAttributes(attributes != null ? attributes.clone() : null);
 
 		return font;
 	}

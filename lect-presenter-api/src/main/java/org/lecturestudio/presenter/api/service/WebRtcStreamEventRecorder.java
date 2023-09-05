@@ -48,7 +48,7 @@ import org.lecturestudio.core.recording.action.PlaybackAction;
 import org.lecturestudio.core.service.DocumentService;
 import org.lecturestudio.presenter.api.event.RecordingStateEvent;
 import org.lecturestudio.presenter.api.model.QuizDocument;
-import org.lecturestudio.presenter.api.recording.PendingActions;
+import org.lecturestudio.core.recording.PendingActions;
 import org.lecturestudio.web.api.client.MultipartBody;
 import org.lecturestudio.web.api.stream.StreamEventRecorder;
 import org.lecturestudio.web.api.stream.action.StreamAction;

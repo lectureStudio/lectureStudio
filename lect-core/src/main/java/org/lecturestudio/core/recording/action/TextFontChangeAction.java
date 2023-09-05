@@ -32,13 +32,13 @@ import org.lecturestudio.core.text.TextAttributes;
 
 public class TextFontChangeAction extends PlaybackAction {
 
-	private int handle;
+	protected int handle;
 
-	private TextAttributes attributes;
+	protected TextAttributes attributes;
 
-	private Color color;
+	protected Color color;
 
-	private Font font;
+	protected Font font;
 
 
 	public TextFontChangeAction(int handle, Color color, Font font, TextAttributes attributes) {
@@ -121,4 +121,13 @@ public class TextFontChangeAction extends PlaybackAction {
 		return ActionType.TEXT_FONT_CHANGE;
 	}
 
+	@Override
+	public boolean hasHandle() {
+		return true;
+	}
+
+	@Override
+	public int getHandle() {
+		return handle;
+	}
 }

@@ -48,6 +48,7 @@ import org.lecturestudio.core.service.RecentDocumentSource;
 import org.lecturestudio.core.util.AggregateBundle;
 import org.lecturestudio.core.util.DirUtils;
 import org.lecturestudio.editor.api.config.DefaultConfiguration;
+import org.lecturestudio.editor.api.config.EditorConfigService;
 import org.lecturestudio.editor.api.config.EditorConfiguration;
 import org.lecturestudio.editor.api.context.EditorContext;
 import org.lecturestudio.media.webrtc.WebRtcAudioSystemProvider;
@@ -120,7 +121,7 @@ public class ApplicationModule extends AbstractModule {
 		ConfigurationService<EditorConfiguration> configService = null;
 
 		try {
-			configService = new JsonConfigurationService<>();
+			configService = new EditorConfigService();
 		}
 		catch (Exception e) {
 			LOG.error("Create configuration service failed.", e);
@@ -131,7 +132,7 @@ public class ApplicationModule extends AbstractModule {
 
 	@Provides
 	@Singleton
-	Configuration provideConfiguration(ConfigurationService<EditorConfiguration> configService) {
+	Configuration provideConfiguration(EditorConfigService configService) {
 		EditorConfiguration configuration = null;
 
 		try {
@@ -145,6 +146,8 @@ public class ApplicationModule extends AbstractModule {
 			}
 			else {
 				configuration = configService.load(CONFIG_FILE, EditorConfiguration.class);
+
+				configService.validate(configuration);
 			}
 
 			// Set system default locale.

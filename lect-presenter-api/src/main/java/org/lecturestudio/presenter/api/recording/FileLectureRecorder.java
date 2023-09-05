@@ -21,10 +21,9 @@ package org.lecturestudio.presenter.api.recording;
 import static java.util.Objects.isNull;
 import static java.util.Objects.nonNull;
 
-import com.google.common.eventbus.Subscribe;
-
 import java.io.File;
 import java.io.IOException;
+import java.security.NoSuchAlgorithmException;
 import java.util.Arrays;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -38,6 +37,8 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
+import com.google.common.eventbus.Subscribe;
+
 import org.lecturestudio.core.ExecutableException;
 import org.lecturestudio.core.ExecutableState;
 import org.lecturestudio.core.app.configuration.AudioConfiguration;
@@ -45,6 +46,7 @@ import org.lecturestudio.core.audio.AudioDeviceNotConnectedException;
 import org.lecturestudio.core.audio.AudioFormat;
 import org.lecturestudio.core.audio.AudioFrame;
 import org.lecturestudio.core.audio.AudioMixer;
+import org.lecturestudio.core.audio.AudioRecorder;
 import org.lecturestudio.core.audio.AudioSystemProvider;
 import org.lecturestudio.core.audio.AudioUtils;
 import org.lecturestudio.core.audio.bus.AudioBus;
@@ -57,19 +59,19 @@ import org.lecturestudio.core.io.RandomAccessAudioStream;
 import org.lecturestudio.core.model.Document;
 import org.lecturestudio.core.model.Page;
 import org.lecturestudio.core.recording.LectureRecorder;
-import org.lecturestudio.core.recording.Recording;
-import org.lecturestudio.core.recording.RecordingHeader;
-import org.lecturestudio.core.recording.file.RecordingFileWriter;
+import org.lecturestudio.core.recording.PendingActions;
 import org.lecturestudio.core.recording.RecordedAudio;
 import org.lecturestudio.core.recording.RecordedDocument;
 import org.lecturestudio.core.recording.RecordedEvents;
 import org.lecturestudio.core.recording.RecordedPage;
+import org.lecturestudio.core.recording.Recording;
+import org.lecturestudio.core.recording.RecordingHeader;
 import org.lecturestudio.core.recording.action.PlaybackAction;
 import org.lecturestudio.core.recording.action.StaticShapeAction;
+import org.lecturestudio.core.recording.file.RecordingFileWriter;
 import org.lecturestudio.core.service.DocumentService;
 import org.lecturestudio.core.util.FileUtils;
 import org.lecturestudio.core.util.ProgressCallback;
-import org.lecturestudio.core.audio.AudioRecorder;
 import org.lecturestudio.presenter.api.event.RecordingStateEvent;
 
 public class FileLectureRecorder extends LectureRecorder {
@@ -197,7 +199,7 @@ public class FileLectureRecorder extends LectureRecorder {
 		return name;
 	}
 
-	public void writeRecording(File destFile, ProgressCallback progressCallback) throws Exception {
+	public void writeRecording(File destFile, ProgressCallback progressCallback) throws IOException, NoSuchAlgorithmException {
 		if (destFile == null) {
 			throw new NullPointerException("No destination file provided.");
 		}

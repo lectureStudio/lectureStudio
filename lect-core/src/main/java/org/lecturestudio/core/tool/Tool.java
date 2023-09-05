@@ -32,7 +32,7 @@ import org.lecturestudio.core.recording.action.ToolExecuteAction;
 
 /**
  * Abstract class for all PaintTools. PaintTools can be applied on the current
- * Page an modify there state dependent on the positions at which the Tool is
+ * Page and modify their state dependent on the positions at which the Tool is
  * used.
  *
  * @author Alex Andres
@@ -45,7 +45,7 @@ public abstract class Tool {
 	private KeyEvent keyEvent = new KeyEvent(0, EventType.TYPED);
 
 
-	public Tool(ToolContext context) {
+	protected Tool(ToolContext context) {
 		this.context = context;
 	}
 
@@ -58,7 +58,7 @@ public abstract class Tool {
 
 	/**
 	 * Indicates whether the specific tool supports the given key event. This
-	 * method is meant to be overridden by a specific tool. By default this
+	 * method is meant to be overridden by a specific tool. By default, this
 	 * method returns false.
 	 *
 	 * @param event The key event.

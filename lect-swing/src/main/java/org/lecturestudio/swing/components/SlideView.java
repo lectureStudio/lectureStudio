@@ -467,18 +467,15 @@ public class SlideView extends JComponent implements org.lecturestudio.core.view
 	@Override
 	public void shapeModified(ShapeModifyEvent event) {
 		Iterator<Shape> shapes = event.getShapes().iterator();
-		Rectangle2D clip = null;
 
 		if (shapes.hasNext()) {
-			clip = shapes.next().getBounds().clone();
-		}
+			Rectangle2D clip = shapes.next().getBounds().clone();
 
-		while (shapes.hasNext()) {
-			clip.union(shapes.next().getBounds());
-		}
+			while (shapes.hasNext()) {
+				clip.union(shapes.next().getBounds());
+			}
 
-		if (nonNull(clip)) {
-			repaintView();
+			repaintView(clip);
 		}
 		else {
 			repaintView();

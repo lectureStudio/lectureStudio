@@ -431,7 +431,7 @@ class ToolControllerTest extends ServiceTest {
 		controller.selectPenTool();
 		executeTool(penPoints);
 
-		controller.selectSelectionTool();
+		controller.selectSelectTool();
 
 		LinkedList<PenPoint2D> selectPoints = createRandomPoints(penPoints);
 		executeTool(selectPoints);

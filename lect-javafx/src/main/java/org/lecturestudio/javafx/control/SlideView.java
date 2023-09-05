@@ -19,6 +19,7 @@
 package org.lecturestudio.javafx.control;
 
 import static java.util.Objects.isNull;
+import static java.util.Objects.nonNull;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -46,16 +47,20 @@ import javafx.scene.control.Skin;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.transform.Affine;
 
+import org.lecturestudio.core.beans.BooleanProperty;
 import org.lecturestudio.core.controller.RenderController;
 import org.lecturestudio.core.geometry.Rectangle2D;
 import org.lecturestudio.core.model.Page;
 import org.lecturestudio.core.model.listener.ParameterChangeListener;
+import org.lecturestudio.core.model.listener.ShapeListener;
+import org.lecturestudio.core.tool.ShapeModifyEvent;
+import org.lecturestudio.core.tool.ShapePaintEvent;
 import org.lecturestudio.core.view.PageObjectView;
 import org.lecturestudio.core.view.PresentationParameter;
 import org.lecturestudio.core.view.SlideViewOverlay;
 import org.lecturestudio.core.view.ViewType;
 
-public class SlideView extends Control implements ParameterChangeListener {
+public class SlideView extends Control implements ParameterChangeListener, org.lecturestudio.core.view.SlideView, ShapeListener {
 
 	private static final String DEFAULT_STYLE_CLASS = "slide-view";
 
@@ -77,6 +82,8 @@ public class SlideView extends Control implements ParameterChangeListener {
 	private final ObservableList<PageObjectView<?>> objectViews = FXCollections.observableArrayList();
 
 	private ObjectProperty<Pos> alignment;
+
+	private final BooleanProperty seekProperty = new BooleanProperty(true);
 
 
 	public SlideView() {
@@ -240,17 +247,21 @@ public class SlideView extends Control implements ParameterChangeListener {
 	public void addSelectionHandler(EventHandler<MouseEvent> handler) {
 		addEventHandler(MouseEvent.MOUSE_RELEASED, handler);
 	}
-	
+
 	public final ObjectProperty<Page> pageProperty() {
 		return page;
 	}
-	
+
 	public Page getPage() {
 		return pageProperty().get();
 	}
-	
+
+	@Override
 	public void setPage(Page page) {
 		pageProperty().set(page);
+		if (Boolean.FALSE.equals(seekProperty.get())) {
+			page.addShapeListener(this);
+		}
 	}
 
 	public final ObjectProperty<RenderController> pageRendererProperty() {
@@ -285,7 +296,7 @@ public class SlideView extends Control implements ParameterChangeListener {
 
 	/**
 	 * @return The CssMetaData associated with this class, which may include the
-	 *         CssMetaData of its super classes.
+	 * 		CssMetaData of its super classes.
 	 */
 	public static List<CssMetaData<? extends Styleable, ?>> getClassCssMetaData() {
 		return StyleableProperties.STYLEABLES;
@@ -326,8 +337,37 @@ public class SlideView extends Control implements ParameterChangeListener {
 		setPickOnBounds(true);
 
 		canvasBoundsProperty().addListener((observable, oldBounds, newBounds) -> updateViewTransform());
+		seekProperty().addListener(((observable, oldValue, newValue) -> {
+			Page page = pageProperty().get();
+
+			if (nonNull(page)) {
+				if (Boolean.FALSE.equals(newValue)) {
+					page.addShapeListener(this);
+				}
+				else {
+					page.removeShapeListener(this);
+				}
+			}
+		}));
 	}
 
+	public BooleanProperty seekProperty() {
+		return seekProperty;
+	}
+
+	public void setSeek(boolean seekProperty) {
+		this.seekProperty.set(seekProperty);
+	}
+
+	@Override
+	public void shapePainted(ShapePaintEvent event) {
+		repaint();
+	}
+
+	@Override
+	public void shapeModified(ShapeModifyEvent event) {
+		repaint();
+	}
 
 
 	private static class StyleableProperties {
@@ -371,17 +411,17 @@ public class SlideView extends Control implements ParameterChangeListener {
 				return ViewType.User;
 			}
 		};
-		
+
 		private static final List<CssMetaData<? extends Styleable, ?>> STYLEABLES;
-		
+
 		static {
 			List<CssMetaData<? extends Styleable, ?>> styleables = new ArrayList<>(Control.getClassCssMetaData());
 			styleables.add(ALIGNMENT);
 			styleables.add(VIEW_TYPE);
-			
+
 			STYLEABLES = Collections.unmodifiableList(styleables);
 		}
-		
+
 	}
 	
 }

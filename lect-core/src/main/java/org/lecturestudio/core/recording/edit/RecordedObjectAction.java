@@ -25,7 +25,7 @@ public abstract class RecordedObjectAction<T extends RecordedObjectBase> impleme
 	private final T recordedObject;
 
 
-	public RecordedObjectAction(T recordedObject) {
+	protected RecordedObjectAction(T recordedObject) {
 		this.recordedObject = recordedObject;
 	}
 

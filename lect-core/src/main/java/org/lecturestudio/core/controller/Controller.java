@@ -41,7 +41,7 @@ public abstract class Controller extends ExecutableBase {
 	 *
 	 * @param context The application context.
 	 */
-	public Controller(ApplicationContext context) {
+	protected Controller(ApplicationContext context) {
 		this.context = context;
 	}
 

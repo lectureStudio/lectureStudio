@@ -188,7 +188,7 @@ public abstract class Shape implements Cloneable {
 	}
 
 	/**
-	 * Checks whether or not the bounding rectangle of the shape contains the point.
+	 * Checks whether the bounding rectangle of the shape contains the point.
 	 *
 	 * @param point A {@link Point2D}.
 	 *

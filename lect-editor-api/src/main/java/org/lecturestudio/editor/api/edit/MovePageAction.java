@@ -46,6 +46,6 @@ public class MovePageAction implements EditAction {
 		RecordedPage page = recording.getRecordedEvents().getRecordedPage(pageNumber);
 		page.setTimestamp(newPosition);
 
-		recording.fireChangeEvent(Recording.Content.EVENTS);
+		recording.fireChangeEvent(Recording.Content.EVENTS_CHANGED);
 	}
 }

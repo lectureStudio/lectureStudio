@@ -22,6 +22,6 @@ import org.lecturestudio.core.ExecutableBase;
 
 public abstract class LectureRecorder extends ExecutableBase {
 
-	abstract public long getElapsedTime();
+	public abstract long getElapsedTime();
 
 }

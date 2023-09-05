@@ -29,11 +29,11 @@ import org.lecturestudio.core.recording.action.SelectAction;
 
 public class SelectTool extends Tool {
 
-	private Page page;
+	protected Page page;
 
-	private Shape selectedShape;
+	protected Shape selectedShape;
 
-	private PenPoint2D sourcePoint;
+	protected PenPoint2D sourcePoint;
 
 
 	public SelectTool(ToolContext context) {
@@ -96,7 +96,7 @@ public class SelectTool extends Tool {
 		return ToolType.SELECT;
 	}
 
-	private Shape getTopLevelShape(PenPoint2D point, Page page) {
+	protected Shape getTopLevelShape(PenPoint2D point, Page page) {
 		Shape shape = null;
 
 		for (Shape s : page.getShapes()) {
@@ -108,7 +108,7 @@ public class SelectTool extends Tool {
 		return shape;
 	}
 
-	private boolean removeSelection() {
+	protected boolean removeSelection() {
 		boolean removed = false;
 
 		for (Shape shape : page.getShapes()) {

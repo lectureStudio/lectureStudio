@@ -154,8 +154,6 @@ public class MenuPresenter extends Presenter<MenuView> {
 
 			stopwatch.setRunStopwatch(true);
 			pageChanged(page);
-			if(page.isOverlay())
-				showNotificationPopup("Overlay!");
 		}
 	}
 

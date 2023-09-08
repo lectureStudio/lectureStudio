@@ -354,7 +354,7 @@ public class WebService extends ExecutableBase {
 						messageTransport);
 	}
 
-	private void initMessageTransport() {
+	public void initMessageTransport() {
 		if (isNull(messageTransport) || messageTransport.destroyed()) {
 			messageTransport = createStompMessageTransport();
 
@@ -364,6 +364,12 @@ public class WebService extends ExecutableBase {
 			messageTransport.addListener(SpeechBaseMessage.class, message -> {
 				context.getEventBus().post(message);
 			});
+		}
+	}
+
+	public void startMessageTransport() throws ExecutableException {
+		if (messageTransport.getState() != ExecutableState.Started) {
+			messageTransport.start();
 		}
 	}
 

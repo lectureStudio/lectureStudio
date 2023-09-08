@@ -152,7 +152,7 @@ public class MediaControlsPresenter extends Presenter<MediaControlsView> {
 				view.setDuration(new Time(recording.getRecordedAudio().getAudioStream().getLengthInMillis()));
 				view.setCurrentPage(doc.getCurrentPageNumber() + 1, doc.getPageCount());
 				break;
-			case AUDIO, DOCUMENT, EVENTS:
+			case AUDIO, DOCUMENT, EVENTS_ADDED, EVENTS_CHANGED, EVENTS_REMOVED:
 				break;
 		}
 	}

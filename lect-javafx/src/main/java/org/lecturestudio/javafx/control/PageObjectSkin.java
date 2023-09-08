@@ -43,7 +43,7 @@ import org.lecturestudio.core.model.shape.Shape;
 import org.lecturestudio.core.view.Action;
 import org.lecturestudio.javafx.util.FxUtils;
 
-public abstract class PageObjectSkin<T extends PageObject> extends SkinBase<T> {
+public abstract class PageObjectSkin<T extends PageObject<?>> extends SkinBase<T> {
 
 	private final EventHandler<TransformChangedEvent> transformHandler = event -> onTransform();
 

@@ -153,7 +153,7 @@ public class NoiseReductionSettingsPresenter extends Presenter<NoiseReductionSet
 		if (selectedLength < MIN_MS_PROFILE) {
 			Dictionary dict = context.getDictionary();
 
-			showNotification(NotificationType.WARNING,
+			context.showNotification(NotificationType.WARNING,
 					dict.get("noise.reduction.profile.error"),
 					MessageFormat.format(dict.get("noise.reduction.profile.min.error"),
 							MIN_MS_PROFILE));

@@ -46,7 +46,7 @@ public class Recording {
 	public static final int FORMAT_VERSION = 3;
 
 	public enum Content {
-		ALL, HEADER, AUDIO, DOCUMENT, EVENTS
+		ALL, HEADER, AUDIO, DOCUMENT, EVENTS_ADDED, EVENTS_CHANGED, EVENTS_REMOVED
 	}
 
 	private final List<RecordingChangeListener> listeners = new ArrayList<>();
@@ -126,7 +126,7 @@ public class Recording {
 	public void setRecordedEvents(RecordedEvents actions) {
 		this.events = actions;
 
-		fireChangeEvent(Content.EVENTS);
+		fireChangeEvent(Content.EVENTS_REMOVED);
 	}
 
 	public RecordedDocument getRecordedDocument() {
@@ -256,7 +256,7 @@ public class Recording {
 
 	/**
 	 * Do not run this method in the UI Thread.
-	 * Running it in the UI Thread might lead to freezes freezes of the UI.
+	 * Running it in the UI Thread might lead to freezes of the UI.
 	 */
 	public void fireChangeEvent(Content contentType) {
 		fireChangeEvent(contentType, null);

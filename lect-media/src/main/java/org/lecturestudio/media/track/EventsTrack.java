@@ -33,7 +33,9 @@ public class EventsTrack extends MediaTrackBase<List<RecordedPage>> {
 	public void recordingChanged(RecordingChangeEvent event) {
 		switch (event.getContentType()) {
 			case ALL:
-			case EVENTS:
+			case EVENTS_ADDED:
+			case EVENTS_CHANGED:
+			case EVENTS_REMOVED:
 				dispose();
 				toolDemoRecordings = event.getRecording().getToolDemoRecordingsData();
 				setData(event.getRecording().getRecordedEvents().getRecordedPages());

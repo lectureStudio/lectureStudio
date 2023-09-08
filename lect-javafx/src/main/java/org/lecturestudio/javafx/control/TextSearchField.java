@@ -18,6 +18,8 @@
 
 package org.lecturestudio.javafx.control;
 
+import java.util.Objects;
+
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.collections.FXCollections;
@@ -94,7 +96,7 @@ public class TextSearchField<T> extends ClearableTextField {
 
 	@Override
 	public String getUserAgentStylesheet() {
-		return getClass().getResource("/resources/css/text-search-field.css").toExternalForm();
+		return Objects.requireNonNull(getClass().getResource("/resources/css/text-search-field.css")).toExternalForm();
 	}
 
 	@Override

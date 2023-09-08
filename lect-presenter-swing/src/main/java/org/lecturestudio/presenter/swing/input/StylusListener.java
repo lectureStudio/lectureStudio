@@ -29,7 +29,7 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 
 import org.lecturestudio.core.geometry.Rectangle2D;
-import org.lecturestudio.presenter.api.stylus.StylusHandler;
+import org.lecturestudio.core.stylus.StylusHandler;
 import org.lecturestudio.stylus.StylusCursor;
 import org.lecturestudio.stylus.StylusEvent;
 import org.lecturestudio.swing.AwtResourceLoader;

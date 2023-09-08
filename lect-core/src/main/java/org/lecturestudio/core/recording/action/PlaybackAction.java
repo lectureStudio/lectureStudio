@@ -20,17 +20,15 @@ package org.lecturestudio.core.recording.action;
 
 import java.nio.ByteBuffer;
 
-import org.lecturestudio.core.input.KeyEvent;
 import org.lecturestudio.core.controller.ToolController;
+import org.lecturestudio.core.input.KeyEvent;
 import org.lecturestudio.core.recording.RecordedObject;
 
 public abstract class PlaybackAction implements RecordedObject, Cloneable {
 
-	abstract public ActionType getType();
+	public abstract ActionType getType();
 
-	abstract public void execute(ToolController controller) throws Exception;
-
-
+	public abstract void execute(ToolController controller) throws Exception;
 
 	private static final int KEY_EVENT_MASK = 1;
 
@@ -162,4 +160,19 @@ public abstract class PlaybackAction implements RecordedObject, Cloneable {
 		return buffer;
 	}
 
+	/**
+	 * Whether this PlaybackAction carries a shape handle
+	 *
+	 * @return {@code true} if the PlaybackAction has a shape handle
+	 */
+	public boolean hasHandle() {
+		return false;
+	}
+
+	/**
+	 * @return the shape handle associated with this action, if it has one {@link this.hasHande()}
+	 */
+	public int getHandle() {
+		return -1;
+	}
 }

@@ -57,6 +57,6 @@ public class DeletePageEventAction extends RecordingAction {
 
 	@Override
 	protected void fireChangeEvent(Interval<Double> duration) {
-		recording.fireChangeEvent(Content.EVENTS, duration);
+		recording.fireChangeEvent(Content.EVENTS_REMOVED, duration);
 	}
 }

@@ -18,6 +18,7 @@
 
 package org.lecturestudio.editor.api.presenter;
 
+import static java.util.Objects.isNull;
 import static java.util.Objects.nonNull;
 
 import com.google.common.eventbus.Subscribe;
@@ -25,29 +26,46 @@ import com.google.common.eventbus.Subscribe;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ExecutionException;
 
 import javax.inject.Inject;
 
 import org.lecturestudio.core.app.ApplicationContext;
+import org.lecturestudio.core.audio.bus.event.TextColorEvent;
+import org.lecturestudio.core.audio.bus.event.TextFontEvent;
 import org.lecturestudio.core.bus.EventBus;
 import org.lecturestudio.core.bus.event.DocumentEvent;
 import org.lecturestudio.core.bus.event.PageEvent;
+import org.lecturestudio.core.bus.event.ToolSelectionEvent;
 import org.lecturestudio.core.controller.RenderController;
+import org.lecturestudio.core.geometry.Matrix;
 import org.lecturestudio.core.input.KeyEvent;
 import org.lecturestudio.core.model.Document;
 import org.lecturestudio.core.model.Page;
+import org.lecturestudio.core.model.listener.PageEditedListener;
 import org.lecturestudio.core.model.listener.ParameterChangeListener;
+import org.lecturestudio.core.model.shape.Shape;
+import org.lecturestudio.core.model.shape.TextShape;
 import org.lecturestudio.core.presenter.Presenter;
 import org.lecturestudio.core.recording.DocumentEventExecutor;
 import org.lecturestudio.core.recording.Recording;
+import org.lecturestudio.core.stylus.StylusHandler;
+import org.lecturestudio.core.text.Font;
+import org.lecturestudio.core.tool.ToolType;
 import org.lecturestudio.core.view.Action;
+import org.lecturestudio.core.view.PageObjectRegistry;
+import org.lecturestudio.core.view.PageObjectView;
 import org.lecturestudio.core.view.PresentationParameter;
 import org.lecturestudio.core.view.PresentationParameterProvider;
+import org.lecturestudio.core.view.TextBoxView;
+import org.lecturestudio.core.view.ViewContextFactory;
 import org.lecturestudio.core.view.ViewType;
 import org.lecturestudio.editor.api.context.EditorContext;
+import org.lecturestudio.editor.api.controller.EditorToolController;
 import org.lecturestudio.editor.api.input.Shortcut;
 import org.lecturestudio.editor.api.service.RecordingFileService;
 import org.lecturestudio.editor.api.service.RecordingPlaybackService;
+import org.lecturestudio.editor.api.stylus.EditorStylusHandler;
 import org.lecturestudio.editor.api.view.SlidesView;
 import org.lecturestudio.media.event.MediaPlayerProgressEvent;
 
@@ -59,36 +77,56 @@ public class SlidesPresenter extends Presenter<SlidesView> {
 
 	private final Map<Document, DocumentEventExecutor> docExecMap;
 
+	private final ViewContextFactory viewFactory;
 	private final RenderController renderController;
+	private final EditorToolController editorToolController;
+
+	private ToolType toolType;
+
+	private TextBoxView lastFocusedTextBox;
 
 	private final RecordingFileService recordingService;
 
 	private final RecordingPlaybackService playbackService;
+	private final PageObjectRegistry pageObjectRegistry;
+	private PageEditedListener pageEditedListener;
+	private StylusHandler stylusHandler;
 
 
 	@Inject
 	SlidesPresenter(ApplicationContext context, SlidesView view,
-					RenderController renderController,
-					RecordingFileService recordingService,
-					RecordingPlaybackService playbackService) {
+	                ViewContextFactory viewFactory,
+	                RenderController renderController,
+	                EditorToolController toolController,
+	                RecordingFileService recordingService,
+	                RecordingPlaybackService playbackService) {
 		super(context, view);
 
+		this.viewFactory = viewFactory;
 		this.renderController = renderController;
+		this.editorToolController = toolController;
 		this.recordingService = recordingService;
 		this.playbackService = playbackService;
 		this.eventBus = context.getEventBus();
 		this.shortcutMap = new HashMap<>();
 		this.docExecMap = new ConcurrentHashMap<>();
+		this.pageObjectRegistry = new PageObjectRegistry();
 	}
 
 	@Override
 	public void initialize() {
 		eventBus.register(this);
 
+		stylusHandler = new EditorStylusHandler(editorToolController, () -> {
+		});
+
 		view.setOnKeyEvent(this::keyEvent);
 		view.setOnDeletePage(this::deletePage);
 		view.setOnSelectPage(this::selectPage);
 		view.setPageRenderer(renderController);
+		view.setStylusHandler(stylusHandler);
+		view.setOnViewTransform(this::setViewTransform);
+		view.bindSeekProperty(((EditorContext) context).seekingProperty());
 
 		// Register for page parameter change updates.
 		PresentationParameterProvider ppProvider = context.getPagePropertyProvider(ViewType.User);
@@ -108,12 +146,21 @@ public class SlidesPresenter extends Presenter<SlidesView> {
 		// Register shortcuts that are associated with the SlideView.
 		registerShortcut(Shortcut.SLIDE_NEXT_DOWN, this::nextPage);
 		registerShortcut(Shortcut.SLIDE_NEXT_PAGE_DOWN, this::nextPage);
-		registerShortcut(Shortcut.SLIDE_NEXT_RIGHT, this::nextPage);
-		registerShortcut(Shortcut.SLIDE_NEXT_SPACE, this::nextPage);
+		registerShortcut(Shortcut.SLIDE_PAUSE_PLAY_SPACE, this::resumeOrPause);
+		registerShortcut(Shortcut.SLIDE_MOVE_LEFT, this::moveLeft);
+		registerShortcut(Shortcut.SLIDE_MOVE_RIGHT, this::moveRight);
 
-		registerShortcut(Shortcut.SLIDE_PREVIOUS_LEFT, this::previousPage);
 		registerShortcut(Shortcut.SLIDE_PREVIOUS_PAGE_UP, this::previousPage);
 		registerShortcut(Shortcut.SLIDE_PREVIOUS_UP, this::previousPage);
+
+		pageEditedListener = (event) -> {
+			switch (event.getType()) {
+				case CLEAR -> setPage(event.getPage());
+			}
+		};
+
+		editorToolController.addPageShapeAddedListener(this::pageShapeAdded);
+		pageObjectRegistry.register(ToolType.TEXT, TextBoxView.class);
 	}
 
 	@Override
@@ -168,6 +215,55 @@ public class SlidesPresenter extends Presenter<SlidesView> {
 		}
 	}
 
+	/**
+	 * Resumes or Pauses the playback, whichever state was selected before
+	 */
+	private void resumeOrPause() {
+		try {
+			if (!playbackService.started()) {
+				playbackService.start();
+			}
+			else if (!playbackService.suspended()) {
+				playbackService.suspend();
+			}
+		}
+		catch (Exception e) {
+			handleException(e, "Resume playback failed", "resume.playback.error");
+		}
+	}
+
+	/**
+	 * Moves the playback to the left, the amount is determined by the current zoom level
+	 */
+	private void moveLeft() {
+		double zoomLevel = ((EditorContext) context).getTrackZoomLevel();
+		int amountMs = (int) ((1 / zoomLevel) * 5000);
+		movePlayback(-amountMs);
+	}
+
+	/**
+	 * Moves the playback to the left, the amount is determined by the current zoom level
+	 */
+	private void moveRight() {
+		double zoomLevel = ((EditorContext) context).getTrackZoomLevel();
+		int amountMs = (int) ((1 / zoomLevel) * 5000);
+		movePlayback(amountMs);
+	}
+
+	/**
+	 * Move the Playback by the selected amount in milliseconds
+	 * @param amount the selected amount in milliseconds
+	 */
+	private void movePlayback(int amount) {
+		try {
+			int currentTimeMs = Math.toIntExact(playbackService.getElapsedTime());
+			playbackService.seek(currentTimeMs + amount);
+		}
+		catch (Exception e) {
+			handleException(e, "Resume playback failed", "resume.playback.error");
+		}
+	}
+
 	private void previousPage() {
 		try {
 			playbackService.selectPreviousPage();
@@ -209,6 +305,9 @@ public class SlidesPresenter extends Presenter<SlidesView> {
 		// the key-event will be distributed.
 		if (nonNull(action)) {
 			action.execute();
+		}
+		else {
+			editorToolController.setKeyEvent(event);
 		}
 	}
 
@@ -272,6 +371,16 @@ public class SlidesPresenter extends Presenter<SlidesView> {
 		PresentationParameterProvider ppProvider = context.getPagePropertyProvider(ViewType.User);
 		PresentationParameter parameter = ppProvider.getParameter(page);
 
+		stylusHandler.setPresentationParameter(parameter);
+
+		if (nonNull(view.getPage())) {
+			view.getPage().removePageEditedListener(pageEditedListener);
+		}
+
+		if (nonNull(page)) {
+			page.addPageEditedListener(pageEditedListener);
+		}
+
 		view.setPage(page, parameter);
 	}
 
@@ -285,5 +394,124 @@ public class SlidesPresenter extends Presenter<SlidesView> {
 
 	private synchronized void removeProxyDocument(Document document) {
 		docExecMap.remove(document);
+	}
+
+	private void pageShapeAdded(Shape shape) {
+		Class<? extends Shape> shapeClass = pageObjectRegistry.getShapeClass(toolType);
+
+		if (isNull(shapeClass) || !shapeClass.isAssignableFrom(shape.getClass())) {
+			return;
+		}
+
+		Class<? extends PageObjectView<? extends Shape>> viewClass =
+				pageObjectRegistry.getPageObjectViewClass(toolType);
+
+		try {
+			PageObjectView<?> objectView = createPageObjectView(shape, viewClass);
+			objectView.setFocus(true);
+		}
+		catch (Exception e) {
+			logException(e, "Create PageObjectView failed");
+		}
+	}
+
+	private PageObjectView<? extends Shape> createPageObjectView(Shape shape,
+	                                                             Class<? extends PageObjectView<? extends Shape>> viewClass) {
+		PageObjectView<Shape> objectView = (PageObjectView<Shape>) viewFactory.getInstance(viewClass);
+		objectView.setPageShape(shape);
+		objectView.setOnClose(() -> {
+			pageObjectViewClosed(objectView);
+		});
+		objectView.setOnFocus((focused) -> {
+			if (Boolean.TRUE.equals(focused)) {
+				pageObjectViewFocused(objectView);
+			}
+			else {
+				pageObjectViewFocusRemoved(objectView);
+			}
+		});
+
+		view.addPageObjectView(objectView);
+
+		return objectView;
+	}
+
+	private void pageObjectViewClosed(PageObjectView<? extends Shape> objectView) {
+		view.removePageObjectView(objectView);
+
+		// Remove associated shape from the page.
+		Shape shape = objectView.getPageShape();
+
+		Page page = view.getPage();
+		page.removeShape(shape);
+
+		if (shape instanceof TextShape textShape) {
+			// TODO: make this generic or remove at all
+			objectView.setOnFocus((ignored -> {
+			}));
+			editorToolController.resetRecordedPlaybackActions();
+			textShape.setOnRemove();
+		}
+	}
+
+	private void pageObjectViewFocused(PageObjectView<? extends Shape> objectView) {
+		Class<? extends Shape> shapeClass = pageObjectRegistry.getShapeClass(ToolType.TEXT);
+
+		if (nonNull(shapeClass) && shapeClass.isAssignableFrom(objectView.getPageShape().getClass())) {
+			lastFocusedTextBox = (TextBoxView) objectView;
+		}
+	}
+
+	private void pageObjectViewFocusRemoved(PageObjectView<? extends Shape> objectView) {
+		try {
+			if (!(objectView.getPageShape() instanceof TextShape) ||
+					!((TextShape) objectView.getPageShape()).getText().isEmpty()) {
+				editorToolController.persistPlaybackActions().get();
+			}
+			else {
+				// If content of the page-object is empty don't save and remove the unnecessary playback actions
+				editorToolController.resetRecordedPlaybackActions();
+			}
+		}
+		catch (InterruptedException | ExecutionException e) {
+			// ignored
+		}
+		objectView.setOnFocus((ignored) -> {
+		});
+		view.removePageObjectView(objectView);
+		lastFocusedTextBox = null;
+	}
+
+	@Subscribe
+	public void onEvent(final ToolSelectionEvent event) {
+		toolChanged(event.getToolType());
+	}
+
+	@Subscribe
+	public void onEvent(TextColorEvent event) {
+		if (nonNull(lastFocusedTextBox)) {
+			lastFocusedTextBox.setTextColor(event.getColor());
+		}
+	}
+
+	@Subscribe
+	public void onEvent(TextFontEvent event) {
+		if (nonNull(lastFocusedTextBox)) {
+			// Scale font size to page metrics.
+			Font textFont = event.getFont().clone();
+			textFont.setSize(textFont.getSize() / editorToolController.getViewTransform().getScaleX());
+
+			lastFocusedTextBox.setTextFont(textFont);
+		}
+	}
+
+	private void setViewTransform(Matrix matrix) {
+		editorToolController.setViewTransform(matrix.clone());
+	}
+
+	private void toolChanged(ToolType toolType) {
+		this.toolType = toolType;
+
+		view.removeAllPageObjectViews();
 	}
 }

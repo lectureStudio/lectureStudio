@@ -199,6 +199,10 @@ public class RecordingPlayer extends ExecutableBase {
 		return duration;
 	}
 
+	public long getElapsedTime() {
+		return syncState.getAudioTime();
+	}
+
 	public void setVolume(float volume) {
 		if (isNull(audioPlayer)) {
 			throw new NullPointerException("Audio player not initialized");
@@ -269,6 +273,7 @@ public class RecordingPlayer extends ExecutableBase {
 	/**
 	 * Notify state listeners about the new state.
 	 */
+	@Override
 	protected void fireStateChanged() {
 		super.fireStateChanged();
 
@@ -440,8 +445,6 @@ public class RecordingPlayer extends ExecutableBase {
 		context.getPagePropertyProvider(ViewType.User).clearParameters();
 
 		preloadDocument(document, recording.getRecordedEvents());
-
-//		toolController.selectPage(0);
 
 		previousPage = 0;
 	}

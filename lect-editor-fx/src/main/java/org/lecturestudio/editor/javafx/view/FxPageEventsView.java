@@ -20,11 +20,11 @@ package org.lecturestudio.editor.javafx.view;
 
 import static java.util.Objects.nonNull;
 
-import java.util.List;
-
 import javafx.collections.FXCollections;
 import javafx.fxml.FXML;
 import javafx.scene.control.TableView;
+
+import java.util.List;
 
 import org.lecturestudio.core.beans.ObjectProperty;
 import org.lecturestudio.core.view.ConsumerAction;
@@ -44,6 +44,7 @@ public class FxPageEventsView extends ContentPane implements PageEventsView {
 	private ConsumerAction<PageEvent> deleteEventAction;
 
 	private ObjectProperty<PageEvent> selectedPageEvent;
+	private ConsumerAction<PageEvent> selectEventAction;
 
 
 	public FxPageEventsView() {
@@ -69,6 +70,11 @@ public class FxPageEventsView extends ContentPane implements PageEventsView {
 	}
 
 	@Override
+	public void setOnSelectEvent(ConsumerAction<PageEvent> action) {
+		this.selectEventAction = action;
+	}
+
+	@Override
 	public void setOnDeleteEvent(ConsumerAction<PageEvent> action) {
 		this.deleteEventAction = action;
 	}
@@ -89,6 +95,15 @@ public class FxPageEventsView extends ContentPane implements PageEventsView {
 			if (nonNull(selectedPageEvent) && nonNull(selectedItem)) {
 				selectedPageEvent.set(selectedItem);
 			}
+		});
+
+		FxUtils.invoke(() -> {
+			eventsTableView.setOnMouseClicked(clickEvent -> {
+				if (clickEvent.getClickCount() == 2) {
+					executeAction(selectEventAction, selectedPageEvent.get());
+					clickEvent.consume();
+				}
+			});
 		});
 	}
 }

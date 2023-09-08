@@ -359,11 +359,11 @@ public class MainPresenter extends org.lecturestudio.core.presenter.MainPresente
 
 		switch (event.getType()) {
 			case Connected:
-				showNotificationPopup(MessageFormat.format(dict.get("audio.device.connected"), devName));
+				context.showNotificationPopup(MessageFormat.format(dict.get("audio.device.connected"), devName));
 				break;
 
 			case Disconnected:
-				showNotificationPopup(MessageFormat.format(dict.get("audio.device.disconnected"), devName));
+				context.showNotificationPopup(MessageFormat.format(dict.get("audio.device.disconnected"), devName));
 				break;
 		}
 	}
@@ -375,7 +375,7 @@ public class MainPresenter extends org.lecturestudio.core.presenter.MainPresente
 			StreamConfiguration streamConfig = config.getStreamConfig();
 			streamConfig.setCameraEnabled(false);
 
-			showNotification(NotificationType.WARNING,
+			context.showNotification(NotificationType.WARNING,
 					"stream.camera.error.title", "stream.camera.error.message",
 					streamConfig.getCameraName());
 		}
@@ -472,7 +472,7 @@ public class MainPresenter extends org.lecturestudio.core.presenter.MainPresente
 			presenterContext.getSpeechRequests().clear();
 		}
 		else if (state == ExecutableState.Error) {
-			showError("stream.closed.by.remote.host.title", "stream.closed.by.remote.host");
+			context.showError("stream.closed.by.remote.host.title", "stream.closed.by.remote.host");
 		}
 	}
 
@@ -489,7 +489,7 @@ public class MainPresenter extends org.lecturestudio.core.presenter.MainPresente
 					ReconnectStreamPresenter.class));
 		}
 		else if (state == ExecutableState.Error) {
-			showError("stream.closed.by.remote.host.title", "stream.closed.by.remote.host");
+			context.showError("stream.closed.by.remote.host.title", "stream.closed.by.remote.host");
 		}
 	}
 
@@ -553,7 +553,7 @@ public class MainPresenter extends org.lecturestudio.core.presenter.MainPresente
 		screenSourceService.removeScreenSource(screenDoc);
 
 		if (event.isForced()) {
-			showNotification(NotificationType.DEFAULT, "screen.share",
+			context.showNotification(NotificationType.DEFAULT, "screen.share",
 					"screen.share.stopped");
 		}
 	}

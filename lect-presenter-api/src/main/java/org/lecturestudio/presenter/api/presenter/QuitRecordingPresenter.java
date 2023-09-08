@@ -76,7 +76,7 @@ public class QuitRecordingPresenter extends Presenter<QuitRecordingView> {
 
 				if (cause instanceof AudioDeviceNotConnectedException) {
 					var ex = (AudioDeviceNotConnectedException) cause;
-					showError("recording.start.error", "recording.start.device.error", ex.getDeviceName());
+					context.showError("recording.start.error", "recording.start.device.error", ex.getDeviceName());
 					logException(e, "Start recording failed");
 				}
 				else {

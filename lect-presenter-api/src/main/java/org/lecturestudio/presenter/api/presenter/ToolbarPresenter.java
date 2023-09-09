@@ -526,12 +526,22 @@ public class ToolbarPresenter extends Presenter<ToolbarView> {
 	/**
 	 * Create a new default bookmark.
 	 */
-	public void createNewBookmark() {
+	private void createNewBookmark() {
 		try {
-			bookmarkCreated(bookmarkService.createDefaultBookmark());
-			view.selectNewBookmarkButton(true);
+			Bookmark currBookmark = bookmarkService.getPageBookmark();
+			if(nonNull(currBookmark)){
+				String shortcut = currBookmark.getShortcut();
+				bookmarkService.deleteBookmark(currBookmark);
+				bookmarkRemoved(shortcut);
+				view.selectNewBookmarkButton(false);
+			} else{
+				bookmarkCreated(bookmarkService.createDefaultBookmark());
+				view.selectNewBookmarkButton(true);
+			}
 		}catch (BookmarkExistsException e){
-			showNotification(NotificationType.WARNING, "bookmark.assign.warning", "bookmark.exists");
+			Page page = documentService.getDocuments().getSelectedDocument().getCurrentPage();
+			String message = MessageFormat.format(context.getDictionary().get("bookmark.exists"), page.getPageNumber());
+			showNotification(NotificationType.WARNING, "bookmark.assign.warning", message);
 		} catch (BookmarkException e) {
 			handleException(e, "Create bookmark failed", "bookmark.assign.warning");
 		}
@@ -539,6 +549,13 @@ public class ToolbarPresenter extends Presenter<ToolbarView> {
 	private void bookmarkCreated(Bookmark bookmark) {
 		String shortcut = bookmark.getShortcut().toUpperCase();
 		String message = MessageFormat.format(context.getDictionary().get("bookmark.created"), shortcut);
+
+		showNotificationPopup(message);
+		close();
+	}
+
+	private void bookmarkRemoved(String shortcut) {
+		String message = MessageFormat.format(context.getDictionary().get("bookmark.removed"), shortcut);
 
 		showNotificationPopup(message);
 		close();

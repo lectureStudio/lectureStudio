@@ -169,6 +169,8 @@ public class SwingMenuView extends JMenuBar implements MenuView {
 
 	private JMenuItem newDefaultBookmarkMenuItem;
 
+	private JMenuItem removeBookmarkMenuItem;
+
 	private JMenuItem gotoBookmarkMenuItem;
 
 	private JMenuItem previousBookmarkMenuItem;
@@ -226,6 +228,7 @@ public class SwingMenuView extends JMenuBar implements MenuView {
 			prevBookmarkMenuItem.setEnabled(hasDocument);
 			nextBookmarkMenuItem.setEnabled(hasDocument);
 			newDefaultBookmarkMenuItem.setEnabled(hasDocument);
+			removeBookmarkMenuItem.setEnabled(hasDocument);
 			startRecordingMenuItem.setEnabled(hasDocument);
 			enableStreamMenuItem.setEnabled(hasDocument);
 			enableMessengerMenuItem.setEnabled(hasDocument);
@@ -672,7 +675,7 @@ public class SwingMenuView extends JMenuBar implements MenuView {
 	public void setBookmarks(Bookmarks bookmarks) {
 		SwingUtils.invoke(() -> {
 			List<Bookmark> bookmarkList = bookmarks.getAllBookmarks();
-			int fixedMenuItems = 9;
+			int fixedMenuItems = 10;
 
 			// Remove all bookmark menu items.
 			if (bookmarksMenu.getItemCount() > fixedMenuItems) {
@@ -720,6 +723,11 @@ public class SwingMenuView extends JMenuBar implements MenuView {
 	@Override
 	public void setOnCreateNewDefaultBookmarkView(Action action) {
 		SwingUtils.bindAction(newDefaultBookmarkMenuItem, action);
+	}
+
+	@Override
+	public void setOnRemoveBookmarkView(Action action) {
+		SwingUtils.bindAction(removeBookmarkMenuItem, action);
 	}
 
 	@Override

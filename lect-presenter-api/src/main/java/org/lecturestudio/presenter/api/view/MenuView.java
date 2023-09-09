@@ -209,6 +209,8 @@ public interface MenuView extends View {
 
 	void setOnCreateNewDefaultBookmarkView(Action action);
 
+	void setOnRemoveBookmarkView(Action action);
+
 	void setOnShowGotoBookmarkView(Action action);
 
 	void setOnPreviousBookmark(Action action);

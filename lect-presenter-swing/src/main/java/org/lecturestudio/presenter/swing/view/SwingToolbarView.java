@@ -547,7 +547,11 @@ public class SwingToolbarView extends JPanel implements ToolbarView {
 
 	@Override
 	public void selectNewBookmarkButton(boolean hasBookmark){
-			newBookmarkButton.setEnabled(!hasBookmark);
+			if (hasBookmark){
+				newBookmarkButton.setIcon(AwtResourceLoader.getIcon("bookmark-remove.svg", 24));
+			} else {
+				newBookmarkButton.setIcon(AwtResourceLoader.getIcon("bookmark-add.svg", 24));
+			}
 	}
 
 	@Override

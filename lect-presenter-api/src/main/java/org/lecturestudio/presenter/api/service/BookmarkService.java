@@ -108,6 +108,26 @@ public class BookmarkService {
 		bookmarks.removeBookmark(bookmark);
 	}
 
+	public Bookmark getPageBookmark() throws BookmarkException {
+		Document selectedDoc = documentService.getDocuments().getSelectedDocument();
+		Page page = selectedDoc.getCurrentPage();
+		if (isNull(page)) {
+			throw new BookmarkException("No document selected");
+		}
+
+		List<Bookmark> docBookmarks = bookmarks.getDocumentBookmarks(selectedDoc);
+
+		if (nonNull(docBookmarks)) {
+			for (Bookmark bookmark : docBookmarks) {
+				if(bookmark.getPage().equals(page)){
+					deleteBookmark(bookmark);
+					return bookmark;
+				}
+			}
+		}
+		return null;
+	}
+
 	public void gotoBookmark(Bookmark bookmark) throws BookmarkException {
 		if (isNull(bookmark)) {
 			throw new NullPointerException("No bookmark provided");
@@ -152,17 +172,17 @@ public class BookmarkService {
 	}
 
 	/**
-     * Creates a bookmark with a default shortcut
-     *
-     * @return the new created bookmark
-     */
+	 * Creates a bookmark with a default shortcut
+	 *
+	 * @return the new created bookmark
+	 */
 	public Bookmark createDefaultBookmark()throws BookmarkException{
 
 		Bookmark bookmark = createBookmark("L" + defaultBookmarkCounter);
 
 		defaultBookmarkCounter++;
-        return bookmark;
-    }
+		return bookmark;
+	}
 
 	/**
 	 * Calculates the next bookmark where the pagenumber is lower than current pagenumber.
@@ -172,6 +192,9 @@ public class BookmarkService {
 	public Page getPrevBookmarkPage(){
 		Document currDoc = documentService.getDocuments().getSelectedDocument();
 		List<Bookmark> allDocBookmarks = bookmarks.getDocumentBookmarks(currDoc);
+		if(!nonNull(allDocBookmarks)){
+			return null;
+		}
 		Bookmark currBookmark = getBookmarkCurrentPage(allDocBookmarks);
 
 		if(!nonNull(currBookmark)){
@@ -191,6 +214,7 @@ public class BookmarkService {
 		Bookmark bookmark = allDocBookmarks.get(bookmarkPos);
 		return bookmark.getPage();
 	}
+
 	/**
 	 * Calculates the next bookmark where the pagenumber is higher than current pagenumber.
 	 *
@@ -199,6 +223,9 @@ public class BookmarkService {
 	public Page getNextBookmarkPage(){
 		Document currDoc = documentService.getDocuments().getSelectedDocument();
 		List<Bookmark> allDocBookmarks = bookmarks.getDocumentBookmarks(currDoc);
+		if(!nonNull(allDocBookmarks)){
+			return null;
+		}
 		Bookmark currBookmark = getBookmarkCurrentPage(allDocBookmarks);
 
 		if(!nonNull(currBookmark)){

@@ -423,11 +423,21 @@ public class MenuPresenter extends Presenter<MenuView> {
 		try {
 			bookmarkCreated(bookmarkService.createDefaultBookmark());
 		}catch (BookmarkExistsException e){
-			showNotification(NotificationType.WARNING, "bookmark.assign.warning", "bookmark.exists");
+			Page page = documentService.getDocuments().getSelectedDocument().getCurrentPage();
+			String message = MessageFormat.format(context.getDictionary().get("bookmark.exists"), page.getPageNumber());
+			showNotification(NotificationType.WARNING, "bookmark.assign.warning", message);
 		} catch (BookmarkException e) {
 			handleException(e, "Create bookmark failed", "bookmark.assign.warning");
-        }
-    }
+		}
+	}
+
+	public void removeBookmark() {
+		try {
+			bookmarkService.deleteBookmark(bookmarkService.getPageBookmark());
+		} catch (BookmarkException e) {
+			handleException(e, "Remove bookmark failed", "bookmark.assign.warning");
+		}
+	}
 
 	private void bookmarkCreated(Bookmark bookmark) {
 		String shortcut = bookmark.getShortcut().toUpperCase();
@@ -611,6 +621,7 @@ public class MenuPresenter extends Presenter<MenuView> {
 
 		view.setOnClearBookmarks(this::clearBookmarks);
 		view.setOnShowNewBookmarkView(this::newBookmark);
+		view.setOnRemoveBookmarkView(this::removeBookmark);
 		view.setOnCreateNewDefaultBookmarkView(this::newDefaultBookmark);
 		view.setOnShowGotoBookmarkView(this::gotoBookmark);
 		view.setOnPreviousBookmark(this::previousBookmark);

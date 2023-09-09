@@ -433,7 +433,9 @@ public class MenuPresenter extends Presenter<MenuView> {
 
 	public void removeBookmark() {
 		try {
-			bookmarkService.deleteBookmark(bookmarkService.getPageBookmark());
+			if(nonNull(bookmarkService.getPageBookmark())){
+				bookmarkService.deleteBookmark(bookmarkService.getPageBookmark());
+			}
 		} catch (BookmarkException e) {
 			handleException(e, "Remove bookmark failed", "bookmark.assign.warning");
 		}

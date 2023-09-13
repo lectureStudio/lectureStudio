@@ -1998,6 +1998,12 @@ public class SwingSlidesView extends JPanel implements SlidesView {
 						.setSizeChangedAction(size -> executeAction(externalSlideNotesSizeChangedAction, size))
 						.setMinimumSize(new Dimension(500, 400)).build();
 
+		slideNotesView.addComponentListener(new ComponentAdapter() {
+			@Override
+			public void componentResized(ComponentEvent e) {
+				centerSlideNotesView();
+			}
+		});
 		addAncestorListener(new AncestorListener() {
 
 			@Override
@@ -2032,6 +2038,25 @@ public class SwingSlidesView extends JPanel implements SlidesView {
 		});
 		showMessagesPlaceholder();
 	}
+
+	private void centerSlideNotesView() {
+		SwingUtilities.invokeLater(() -> {
+			if(externalSlideNotesFrame.isVisible()){
+				Dimension size = slideNotesView.getSize();
+				Dimension viewSize = slideNotesView.getCanvasBounds().getSize();
+
+				int x = (size.width - viewSize.width) / 2;
+				int y = (size.height - viewSize.height) / 2;
+
+				slideNotesView.setSlideLocation(x, y);
+				slideNotesView.repaint();
+			}else{
+				slideNotesView.setSlideLocation(0, 0);
+				slideNotesView.repaint();
+			}
+		});
+	}
+
 
 	private void observeDividerLocation(final JSplitPane pane,
 			final DoubleProperty property) {

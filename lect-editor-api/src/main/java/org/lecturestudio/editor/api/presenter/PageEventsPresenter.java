@@ -168,6 +168,7 @@ public class PageEventsPresenter extends Presenter<PageEventsView> {
 
 		List<PageEvent> eventList = new ArrayList<>();
 
+		PlaybackAction previousAction = null;
 		for (var action : recordedPage.getPlaybackActions()) {
 			ActionType actionType = action.getType();
 
@@ -182,7 +183,17 @@ public class PageEventsPresenter extends Presenter<PageEventsView> {
 					continue;
 			}
 
-			eventList.add(new PageEvent(action, page.getPageNumber()));
+			if (previousAction != null &&
+					action.hasHandle() &&
+					previousAction.hasHandle() &&
+					action.getHandle() == previousAction.getHandle()) {
+				// Do not show the action in the list, if it has the same handle as the previous action
+			}
+			else {
+				eventList.add(new PageEvent(action, page.getPageNumber()));
+			}
+
+			previousAction = action;
 		}
 
 		view.setPageEvents(eventList);

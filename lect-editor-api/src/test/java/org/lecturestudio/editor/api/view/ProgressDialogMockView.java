@@ -13,10 +13,18 @@ public class ProgressDialogMockView implements ProgressDialogView {
 	public Runnable onHidden;
 	public boolean opened;
 	public boolean closed;
+	public String errorMessageTitle;
+	public String errorMessageText;
 
 	@Override
 	public void setError(String message) {
 		this.errorMessage = message;
+	}
+
+	@Override
+	public void setError(String message, String error) {
+		this.errorMessageTitle = message;
+		this.errorMessageText = error;
 	}
 
 	@Override

@@ -27,19 +27,36 @@ import java.nio.file.Files;
 import org.lecturestudio.core.audio.AudioFormat;
 import org.lecturestudio.core.audio.sink.WavFileSink;
 import org.lecturestudio.core.io.RandomAccessAudioStream;
-import org.lecturestudio.core.recording.RecordingEditException;
 import org.lecturestudio.core.recording.RecordedAudio;
+import org.lecturestudio.core.recording.RecordingEditException;
 import org.lecturestudio.core.util.AudioUtils;
+import org.lecturestudio.core.util.ProgressCallback;
+import org.lecturestudio.media.audio.FFmpegLoudnessNormalization;
+import org.lecturestudio.media.audio.LoudnessConfiguration;
 
+/**
+ * Inserts the new audio track at the selected position and adjusts the loudness (perceived volume)
+ * of the new track to match the existing if selected
+ */
 public class InsertAudioAction extends RecordingInsertAction<RecordedAudio> {
 
 	private RandomAccessAudioStream oldStream;
 
 	private File newStreamFile;
+	private FFmpegLoudnessNormalization normalization = null;
+	private final boolean normalizeNewAudio;
+	private final LoudnessConfiguration configuration;
+	private final ProgressCallback callback;
+	private RandomAccessAudioStream newStream;
 
 
-	public InsertAudioAction(RecordedAudio recordedObject, RecordedAudio audio, int startTime) {
+	public InsertAudioAction(RecordedAudio recordedObject, RecordedAudio audio, int startTime,
+							 boolean normalizeNewAudio, LoudnessConfiguration configuration,
+							 ProgressCallback callback) {
 		super(recordedObject, audio, startTime);
+		this.normalizeNewAudio = normalizeNewAudio;
+		this.configuration = configuration;
+		this.callback = callback;
 	}
 
 	@Override
@@ -56,7 +73,12 @@ public class InsertAudioAction extends RecordingInsertAction<RecordedAudio> {
 
 	@Override
 	public void redo() throws RecordingEditException {
-		execute();
+		try {
+			getRecordedObject().setAudioStream(newStream);
+		}
+		catch (IOException e) {
+			throw new RecordingEditException(e);
+		}
 	}
 
 	@Override
@@ -72,6 +94,34 @@ public class InsertAudioAction extends RecordingInsertAction<RecordedAudio> {
 		byte[] buffer = new byte[8192];
 		int readTotal = 0;
 		int read;
+
+		int totalSteps = normalizeNewAudio ? 4 : 2;
+		int currentStep = 0;
+
+		if (normalizeNewAudio) {
+			try {
+				if (normalization == null) {
+					normalization = new FFmpegLoudnessNormalization();
+					int finalCurrentStep1 = currentStep;
+					if (configuration == null) {
+						normalization.retrieveInformation(stream, (progress) -> callback.onProgress((progress + finalCurrentStep1) / totalSteps));
+					}
+					else {
+						normalization.setLoudnessConfiguration(configuration);
+						callback.onProgress((float) (finalCurrentStep1 + 1) / totalSteps);
+					}
+					currentStep++;
+				}
+				int finalCurrentStep = currentStep;
+				File newInstreamFile = normalization.normalize(insStream, (progress) -> callback.onProgress((progress + finalCurrentStep) / totalSteps));
+				currentStep++;
+				insStream.close();
+				insStream = new RandomAccessAudioStream(newInstreamFile);
+			}
+			catch (IOException e) {
+				throw new RuntimeException(e);
+			}
+		}
 
 		try {
 			newStreamFile = Files.createTempFile("lect-editor-", ".wav").toFile();
@@ -98,6 +148,8 @@ public class InsertAudioAction extends RecordingInsertAction<RecordedAudio> {
 
 				fileOutputStream.write(buffer, 0, read);
 			}
+
+			callback.onProgress((float) (++currentStep) / totalSteps);
 
 			// Copy inserted audio stream.
 			if (audioFormat.equals(insAudioFormat)) {
@@ -139,9 +191,11 @@ public class InsertAudioAction extends RecordingInsertAction<RecordedAudio> {
 				fileOutputStream.write(buffer, 0, read);
 			}
 
+			callback.onProgress((float) (++currentStep) / totalSteps);
 			fileOutputStream.close();
-
+			insStream.close();
 			getRecordedObject().setAudioStream(new RandomAccessAudioStream(newStreamFile));
+			newStream = new RandomAccessAudioStream(newStreamFile);
 		}
 		catch (Exception e) {
 			throw new RecordingEditException(e);

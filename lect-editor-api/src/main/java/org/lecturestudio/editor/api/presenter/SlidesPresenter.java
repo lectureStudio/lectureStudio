@@ -146,12 +146,16 @@ public class SlidesPresenter extends Presenter<SlidesView> {
 		// Register shortcuts that are associated with the SlideView.
 		registerShortcut(Shortcut.SLIDE_NEXT_DOWN, this::nextPage);
 		registerShortcut(Shortcut.SLIDE_NEXT_PAGE_DOWN, this::nextPage);
-		registerShortcut(Shortcut.SLIDE_PAUSE_PLAY_SPACE, this::resumeOrPause);
-		registerShortcut(Shortcut.SLIDE_MOVE_LEFT, this::moveLeft);
-		registerShortcut(Shortcut.SLIDE_MOVE_RIGHT, this::moveRight);
 
 		registerShortcut(Shortcut.SLIDE_PREVIOUS_PAGE_UP, this::previousPage);
 		registerShortcut(Shortcut.SLIDE_PREVIOUS_UP, this::previousPage);
+
+		registerShortcut(Shortcut.PLAYBACK_BEGINNING_POS_1, this::startOfRecording);
+		registerShortcut(Shortcut.PLAYBACK_END_END, this::endOfRecording);
+		registerShortcut(Shortcut.PLAYBACK_PAUSE_PLAY_SPACE, this::resumeOrPause);
+
+		registerShortcut(Shortcut.SLIDE_MOVE_LEFT, this::moveLeft);
+		registerShortcut(Shortcut.SLIDE_MOVE_RIGHT, this::moveRight);
 
 		pageEditedListener = (event) -> {
 			switch (event.getType()) {
@@ -268,6 +272,24 @@ public class SlidesPresenter extends Presenter<SlidesView> {
 	private void previousPage() {
 		try {
 			playbackService.selectPreviousPage();
+		}
+		catch (Exception e) {
+			handleException(e, "Select page failed", "select.recording.page.error");
+		}
+	}
+
+	private void startOfRecording() {
+		try {
+			playbackService.seek(0.0D);
+		}
+		catch (Exception e) {
+			handleException(e, "Select page failed", "select.recording.page.error");
+		}
+	}
+
+	private void endOfRecording() {
+		try {
+			playbackService.seek(1.0D);
 		}
 		catch (Exception e) {
 			handleException(e, "Select page failed", "select.recording.page.error");

@@ -22,6 +22,7 @@ import org.lecturestudio.core.model.Page;
 import org.lecturestudio.core.view.Action;
 import org.lecturestudio.core.view.ConsumerAction;
 import org.lecturestudio.core.view.View;
+import org.lecturestudio.media.search.SearchState;
 
 public interface ReplacePageView extends View {
 
@@ -58,4 +59,12 @@ public interface ReplacePageView extends View {
 	void setDisableAllPagesTypeRadio(boolean disable);
 
 	void setOnReplaceTypeChange(ConsumerAction<String> action);
+
+	void setOnSearch(ConsumerAction<String> action);
+
+	void setSearchState(SearchState searchState);
+
+	void setOnPreviousFoundPage(Action action);
+
+	void setOnNextFoundPage(Action action);
 }

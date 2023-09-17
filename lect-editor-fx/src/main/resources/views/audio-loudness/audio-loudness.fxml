@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.FlowPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.StackPane?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.text.TextFlow?>
+<fx:root styleClass="audio-loudness" type="StackPane" xmlns="http://javafx.com/javafx/17.0.2-ea"
+		 xmlns:fx="http://javafx.com/fxml/1">
+	<VBox maxHeight="150" maxWidth="300" styleClass="content">
+		<Label styleClass="header" text="%audio.loudness.title"/>
+		<FlowPane styleClass="loudness-options">
+			<VBox>
+				<TextFlow>
+					<Label fx:id="loudnessInfotext" text="%audio.loudness.info" wrapText="true"/>
+				</TextFlow>
+			</VBox>
+		</FlowPane>
+
+		<HBox styleClass="lufs-area" alignment="CENTER_LEFT">
+			<Label fx:id="lufsValueLabel" text="%audio.loudness.selection.label"/>
+			<TextField fx:id="lufsValueTextField" alignment="CENTER_RIGHT">
+			</TextField>
+		</HBox>
+
+		<HBox alignment="BOTTOM_RIGHT" styleClass="buttons" VBox.vgrow="ALWAYS">
+			<Button fx:id="cancelButton" text="%audio.loudness.button.abort"/>
+
+			<Button fx:id="submitButton" defaultButton="true" text="%audio.loudness.button.save"/>
+		</HBox>
+	</VBox>
+</fx:root>

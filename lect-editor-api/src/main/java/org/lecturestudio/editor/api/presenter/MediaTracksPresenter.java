@@ -37,19 +37,19 @@ import org.lecturestudio.core.model.Time;
 import org.lecturestudio.core.presenter.Presenter;
 import org.lecturestudio.core.recording.RecordedAudio;
 import org.lecturestudio.core.recording.RecordedPage;
-import org.lecturestudio.core.recording.RecordingChangeEvent;
 import org.lecturestudio.core.recording.Recording;
+import org.lecturestudio.core.recording.RecordingChangeEvent;
 import org.lecturestudio.core.recording.RecordingEditException;
 import org.lecturestudio.core.recording.edit.RecordingEditManager;
 import org.lecturestudio.core.view.Action;
 import org.lecturestudio.core.view.NotificationType;
 import org.lecturestudio.editor.api.context.EditorContext;
 import org.lecturestudio.editor.api.edit.AudioTrackOverlayAction;
-import org.lecturestudio.media.recording.RecordingEvent;
 import org.lecturestudio.editor.api.presenter.command.AdjustAudioCommand;
 import org.lecturestudio.editor.api.service.RecordingFileService;
 import org.lecturestudio.editor.api.service.RecordingPlaybackService;
 import org.lecturestudio.editor.api.view.MediaTracksView;
+import org.lecturestudio.media.recording.RecordingEvent;
 import org.lecturestudio.media.track.AudioTrack;
 import org.lecturestudio.media.track.EventsTrack;
 import org.lecturestudio.media.track.MediaTrack;
@@ -133,6 +133,9 @@ public class MediaTracksPresenter extends Presenter<MediaTracksView> {
 		catch (RecordingEditException e) {
 			handleException(e, "Add edit action failed", "generic.error");
 		}
+		catch (NullPointerException exc) {
+			// Audio might be nonexistent, causing the editor to freeze and crash
+		}
 	}
 
 	@Subscribe
@@ -178,8 +181,7 @@ public class MediaTracksPresenter extends Presenter<MediaTracksView> {
 	@Subscribe
 	public void onEvent(RecordingChangeEvent event) {
 		switch (event.getContentType()) {
-			case ALL:
-			case HEADER:
+			case ALL, HEADER:
 				view.setDuration(new Time(event.getRecording().getRecordedAudio().getAudioStream().getLengthInMillis()));
 				view.stickSliders();
 				break;

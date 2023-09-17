@@ -23,9 +23,9 @@ import com.google.inject.TypeLiteral;
 import com.google.inject.spi.TypeEncounter;
 import com.google.inject.spi.TypeListener;
 
-import javax.inject.Provider;
-
 import javafx.util.BuilderFactory;
+
+import javax.inject.Provider;
 
 import org.lecturestudio.core.inject.DIViewContextFactory;
 import org.lecturestudio.core.util.AggregateBundle;
@@ -42,6 +42,7 @@ import org.lecturestudio.core.view.ProgressView;
 import org.lecturestudio.core.view.TextBoxView;
 import org.lecturestudio.core.view.ViewContextFactory;
 import org.lecturestudio.editor.api.view.GeneralSettingsView;
+import org.lecturestudio.editor.api.view.ImportRecordingView;
 import org.lecturestudio.editor.api.view.MainView;
 import org.lecturestudio.editor.api.view.MediaControlsView;
 import org.lecturestudio.editor.api.view.MediaTrackControlsView;
@@ -49,6 +50,7 @@ import org.lecturestudio.editor.api.view.MediaTracksView;
 import org.lecturestudio.editor.api.view.MenuView;
 import org.lecturestudio.editor.api.view.NoiseReductionProgressView;
 import org.lecturestudio.editor.api.view.NoiseReductionSettingsView;
+import org.lecturestudio.editor.api.view.NormalizeLoudnessView;
 import org.lecturestudio.editor.api.view.PageEventsView;
 import org.lecturestudio.editor.api.view.QuitSaveRecordingView;
 import org.lecturestudio.editor.api.view.ReplacePageView;
@@ -64,6 +66,7 @@ import org.lecturestudio.editor.api.view.VideoExportView;
 import org.lecturestudio.editor.api.view.VideoSettingsView;
 import org.lecturestudio.editor.javafx.view.FxAboutView;
 import org.lecturestudio.editor.javafx.view.FxGeneralSettingsView;
+import org.lecturestudio.editor.javafx.view.FxImportRecordingView;
 import org.lecturestudio.editor.javafx.view.FxMainView;
 import org.lecturestudio.editor.javafx.view.FxMediaControlsView;
 import org.lecturestudio.editor.javafx.view.FxMediaTrackControlsView;
@@ -71,6 +74,7 @@ import org.lecturestudio.editor.javafx.view.FxMediaTracksView;
 import org.lecturestudio.editor.javafx.view.FxMenuView;
 import org.lecturestudio.editor.javafx.view.FxNoiseReductionProgressView;
 import org.lecturestudio.editor.javafx.view.FxNoiseReductionSettingsView;
+import org.lecturestudio.editor.javafx.view.FxNormalizeLoudnessView;
 import org.lecturestudio.editor.javafx.view.FxPageEventsView;
 import org.lecturestudio.editor.javafx.view.FxQuitSaveRecordingView;
 import org.lecturestudio.editor.javafx.view.FxReplacePageView;
@@ -114,6 +118,7 @@ public class ViewModule extends AbstractModule {
 
 		bind(AboutView.class).to(FxAboutView.class);
 		bind(GeneralSettingsView.class).to(FxGeneralSettingsView.class);
+		bind(ImportRecordingView.class).to(FxImportRecordingView.class);
 		bind(MainView.class).to(FxMainView.class);
 		bind(MediaControlsView.class).to(FxMediaControlsView.class);
 		bind(MediaTrackControlsView.class).to(FxMediaTrackControlsView.class);
@@ -122,6 +127,7 @@ public class ViewModule extends AbstractModule {
 		bind(NewVersionView.class).to(FxNewVersionView.class);
 		bind(NoiseReductionProgressView.class).to(FxNoiseReductionProgressView.class);
 		bind(NoiseReductionSettingsView.class).to(FxNoiseReductionSettingsView.class);
+		bind(NormalizeLoudnessView.class).to(FxNormalizeLoudnessView.class);
 		bind(PageEventsView.class).to(FxPageEventsView.class);
 		bind(ProgressView.class).to(FxProgressView.class);
 		bind(ProgressDialogView.class).to(FxProgressDialogView.class);

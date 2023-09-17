@@ -1,0 +1,25 @@
+.recording-import {
+    -fx-background-color: rgba(64, 64, 64, 0.85);
+}
+.recording-import > .content {
+    -fx-background-color: white;
+    -fx-background-radius: 3;
+    -fx-padding: 1em;
+}
+.recording-import > .content > .header {
+    -fx-font-size: 1.3em;
+    -fx-font-weight: bold;
+    -fx-padding: 0 0 1.25em 0;
+}
+.recording-import .header {
+    -fx-font-weight: bold;
+}
+.recording-import .check-box {
+    -fx-padding: 1.25em;
+}
+.recording-import > .content > .import-options {
+    -fx-padding: 0 0 1.25em 0;
+}
+.recording-import > .content > .buttons {
+    -fx-spacing: 5;
+}

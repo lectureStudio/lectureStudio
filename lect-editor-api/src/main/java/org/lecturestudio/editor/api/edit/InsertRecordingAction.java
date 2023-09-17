@@ -27,6 +27,8 @@ import org.lecturestudio.core.recording.RecordedPage;
 import org.lecturestudio.core.recording.Recording;
 import org.lecturestudio.core.recording.RecordingHeader;
 import org.lecturestudio.core.recording.edit.EditAction;
+import org.lecturestudio.core.util.ProgressCallback;
+import org.lecturestudio.media.audio.LoudnessConfiguration;
 
 /**
  * Inserts a {@code Recording} into another {@code Recording} that is being
@@ -42,12 +44,16 @@ public class InsertRecordingAction extends RecordingAction {
 	 * @param target    The recording to insert.
 	 * @param start     The time position in the target recording where to
 	 *                  insert the new recording.
+	 * @param normalizeNewAudio Whether the new audio track should have the same loudness as the existing audio track
 	 */
-	public InsertRecordingAction(Recording recording, Recording target, double start) {
-		super(recording, createActions(recording, target, start));
+	public InsertRecordingAction(Recording recording, Recording target, double start, boolean normalizeNewAudio,
+								 LoudnessConfiguration configuration, ProgressCallback callback) {
+		super(recording, createActions(recording, target, start, normalizeNewAudio, configuration, callback));
 	}
 
-	private static List<EditAction> createActions(Recording recording, Recording target, double start) {
+	private static List<EditAction> createActions(Recording recording, Recording target, double start,
+												  boolean normalizeNewAudio, LoudnessConfiguration configuration,
+												  ProgressCallback callback) {
 		// Snap to page margin in milliseconds.
 		int snapToPageMargin = 250;
 
@@ -74,7 +80,7 @@ public class InsertRecordingAction extends RecordingAction {
 		EditHeaderAction headerAction = new EditHeaderAction(header, insertDuration);
 		InsertEventsAction eventsAction = new InsertEventsAction(events, insEvents, split, time, startIndex, insertDuration);
 		InsertDocumentAction documentAction = new InsertDocumentAction(doc, insDoc, split, time, startIndex);
-		InsertAudioAction audioAction = new InsertAudioAction(audio, insAudio, time);
+		InsertAudioAction audioAction = new InsertAudioAction(audio, insAudio, time, normalizeNewAudio, configuration, callback);
 
 		return List.of(headerAction, documentAction, eventsAction, audioAction);
 	}

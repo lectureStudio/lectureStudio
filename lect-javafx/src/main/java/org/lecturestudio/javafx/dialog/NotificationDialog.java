@@ -26,12 +26,12 @@ import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.stage.Window;
 
-import org.lecturestudio.javafx.control.NotificationPane;
 import org.lecturestudio.core.view.NotificationType;
+import org.lecturestudio.javafx.control.NotificationPane;
 
 public class NotificationDialog extends Dialog {
 
-	private NotificationPane notificationPane;
+	protected NotificationPane notificationPane;
 
 
 	public NotificationDialog(ResourceBundle resources) {

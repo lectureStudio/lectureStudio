@@ -34,6 +34,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionException;
+import java.util.concurrent.CompletionStage;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -66,8 +67,11 @@ import org.lecturestudio.editor.api.edit.InsertPlaybackActionsAction;
 import org.lecturestudio.editor.api.edit.InsertRecordingAction;
 import org.lecturestudio.editor.api.edit.ModifyPlaybackActionPositionsAction;
 import org.lecturestudio.editor.api.edit.MovePageAction;
+import org.lecturestudio.editor.api.edit.NormalizeLoudnessAction;
 import org.lecturestudio.editor.api.edit.ReplaceAllPagesAction;
 import org.lecturestudio.editor.api.edit.ReplaceAudioAction;
+import org.lecturestudio.media.audio.FFmpegLoudnessNormalization;
+import org.lecturestudio.media.audio.LoudnessConfiguration;
 import org.lecturestudio.media.recording.RecordingEvent;
 
 @Singleton
@@ -89,6 +93,8 @@ public class RecordingFileService {
 
 	private final EventBus eventBus;
 
+	private final Map<Recording, LoudnessConfiguration> loudnessConfigurationMap;
+
 
 	@Inject
 	RecordingFileService(ApplicationContext context,
@@ -100,6 +106,7 @@ public class RecordingFileService {
 		this.documentService = documentService;
 		this.recordings = new ArrayList<>();
 		this.recordingStateMap = new HashMap<>();
+		this.loudnessConfigurationMap = new HashMap<>();
 	}
 
 	public CompletableFuture<Recording> openRecording(File file) {
@@ -121,11 +128,30 @@ public class RecordingFileService {
 
 			selectRecording(recording);
 
+			computeLoudnessConfiguration(recording);
+
 			return recording;
 		});
 	}
 
-	public CompletableFuture<Recording> importRecording(File file, double start) {
+	private void computeLoudnessConfiguration(Recording recording) {
+		CompletableFuture.runAsync(() -> {
+			FFmpegLoudnessNormalization normalization = new FFmpegLoudnessNormalization();
+			try {
+				loudnessConfigurationMap.put(recording,
+						normalization.retrieveInformation(recording.getRecordedAudio().getAudioStream(),
+								(progress -> {
+									// Don't do anything with progress information for now
+								})));
+			}
+			catch (IOException e) {
+				// ignore
+			}
+		});
+	}
+
+	public CompletableFuture<Recording> importRecording(File file, double start, boolean normalizeNewAudio,
+														ProgressCallback callback) {
 		return CompletableFuture.supplyAsync(() -> {
 			Recording recording = getSelectedRecording();
 			Recording imported;
@@ -134,7 +160,7 @@ public class RecordingFileService {
 				imported = RecordingFileReader.read(file);
 
 				addEditAction(recording, new InsertRecordingAction(recording,
-						imported, start));
+						imported, start, normalizeNewAudio, loudnessConfigurationMap.get(recording), callback));
 			}
 			catch (Exception e) {
 				throw new CompletionException(e);
@@ -483,6 +509,9 @@ public class RecordingFileService {
 
 				updateEditState(recording);
 			}
+			default -> {
+				// Do nothing
+			}
 		}
 
 		context.getEventBus().post(event);
@@ -667,6 +696,25 @@ public class RecordingFileService {
 		}).thenCompose((ignored) -> {
 			context.setPrimarySelection(timestampBefore);
 			return null;
+		});
+	}
+
+	public CompletionStage<Void> normalizeAudioLoudness(Double lufsValue, ProgressCallback callback) {
+		return normalizeAudioLoudness(lufsValue, callback, getSelectedRecording());
+	}
+
+	public CompletionStage<Void> normalizeAudioLoudness(Double lufsValue, ProgressCallback callback, Recording recording) {
+		return CompletableFuture.runAsync(() -> {
+			try {
+				addEditAction(recording, new NormalizeLoudnessAction(recording, lufsValue, callback));
+			}
+			catch (Exception e) {
+				throw new CompletionException(e);
+			}
+		}).thenCompose((ignored) -> {
+			// Recompute Loudness Configuration, to be used for subsequent audio edits
+			computeLoudnessConfiguration(recording);
+			return CompletableFuture.completedFuture(null);
 		});
 	}
 }

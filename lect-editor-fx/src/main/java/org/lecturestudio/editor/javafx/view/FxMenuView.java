@@ -66,6 +66,9 @@ public class FxMenuView extends MenuBar implements MenuView {
 	private MenuItem saveDocumentMenuItem;
 
 	@FXML
+	private MenuItem saveCurrentPageMenuItem;
+
+	@FXML
 	private MenuItem saveRecordingAsMenuItem;
 
 	@FXML
@@ -88,6 +91,9 @@ public class FxMenuView extends MenuBar implements MenuView {
 
 	@FXML
 	private MenuItem deletePageMenuItem;
+
+	@FXML
+	private MenuItem normalizeAudioLoudnessMenuItem;
 
 	@FXML
 	private MenuItem settingsMenuItem;
@@ -113,9 +119,11 @@ public class FxMenuView extends MenuBar implements MenuView {
 		FxUtils.invoke(() -> {
 			closeRecordingMenuItem.setDisable(!hasDocument);
 			saveDocumentMenuItem.setDisable(!hasDocument);
+			saveCurrentPageMenuItem.setDisable(!hasDocument);
 			saveRecordingAsMenuItem.setDisable(!hasDocument);
 			exportAudioMenuItem.setDisable(!hasDocument);
 			importAudioMenuItem.setDisable(!hasDocument);
+			normalizeAudioLoudnessMenuItem.setDisable(!hasDocument);
 		});
 	}
 
@@ -169,6 +177,11 @@ public class FxMenuView extends MenuBar implements MenuView {
 	@Override
 	public void setOnSaveDocument(Action action) {
 		FxUtils.bindAction(saveDocumentMenuItem, action);
+	}
+
+	@Override
+	public void setOnSaveCurrentPage(Action action) {
+		FxUtils.bindAction(saveCurrentPageMenuItem, action);
 	}
 
 	@Override
@@ -228,6 +241,11 @@ public class FxMenuView extends MenuBar implements MenuView {
 	@Override
 	public void setOnDeletePage(Action action) {
 		FxUtils.bindAction(deletePageMenuItem, action);
+	}
+
+	@Override
+	public void setOnNormalizeAudioLoudness(Action action) {
+		FxUtils.bindAction(normalizeAudioLoudnessMenuItem, action);
 	}
 
 	@Override

@@ -29,9 +29,6 @@
 		<SeparatorMenuItem />
 		<MenuItem fx:id="settingsMenuItem" text="%menu.options" />
 	</Menu>
-	<Menu fx:id="audioMenu" text="%menu.audio">
-		<MenuItem fx:id="normalizeAudioLoudnessMenuItem" text="%menu.audio.normalize.loudness"/>
-	</Menu>
 	<Menu text="%menu.view">
 		<CheckMenuItem fx:id="fullscreenMenuItem" accelerator="alt+enter" text="%menu.fullscreen" />
 	</Menu>

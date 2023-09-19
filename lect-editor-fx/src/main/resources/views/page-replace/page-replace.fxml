@@ -61,8 +61,9 @@
 
         </FlowPane>
 
-        <HBox VBox.vgrow="ALWAYS">
-            <VBox prefHeight="350" prefWidth="300" HBox.hgrow="ALWAYS" alignment="TOP_CENTER">
+        <HBox VBox.vgrow="ALWAYS" styleClass="slide-views">
+            <VBox prefHeight="350" prefWidth="300" HBox.hgrow="ALWAYS" alignment="TOP_CENTER"
+                  styleClass="new-document-view">
                 <Label styleClass="header" text="%page.replace.page.new"/>
                 <SlideView fx:id="newPageView" maxHeight="200" alignment="CENTER" minWidth="300" prefWidth="300"
                            VBox.vgrow="ALWAYS"/>

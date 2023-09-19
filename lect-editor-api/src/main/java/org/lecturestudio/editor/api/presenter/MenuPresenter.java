@@ -113,7 +113,6 @@ public class MenuPresenter extends Presenter<MenuView> {
 		view.setOnRedo(this::redo);
 		view.setOnCut(this::cut);
 		view.setOnDeletePage(this::deletePage);
-		view.setOnNormalizeAudioLoudness(this::setOnNormalizeAudioLoudness);
 		view.setOnSettings(this::showSettingsView);
 
 		view.bindFullscreen(context.fullscreenProperty());
@@ -502,9 +501,5 @@ public class MenuPresenter extends Presenter<MenuView> {
 					handleException(throwable, "Delete page failed", "delete.page.error");
 					return null;
 				}).join();
-	}
-
-	private void setOnNormalizeAudioLoudness() {
-		eventBus.post(new ShowPresenterCommand<>(NormalizeLoudnessPresenter.class));
 	}
 }

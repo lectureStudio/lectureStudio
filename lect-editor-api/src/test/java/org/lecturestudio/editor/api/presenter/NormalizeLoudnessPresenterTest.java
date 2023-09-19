@@ -21,13 +21,13 @@ import org.lecturestudio.core.view.ProgressDialogView;
 import org.lecturestudio.core.view.ViewContextFactory;
 import org.lecturestudio.editor.api.context.EditorContext;
 import org.lecturestudio.editor.api.service.RecordingFileService;
-import org.lecturestudio.editor.api.view.NormalizeLoudnessMockView;
-import org.lecturestudio.editor.api.view.NormalizeLoudnessView;
+import org.lecturestudio.editor.api.view.LoudnessMockNormalizeView;
+import org.lecturestudio.editor.api.view.LoudnessNormalizeView;
 import org.lecturestudio.editor.api.view.ProgressDialogMockView;
 
 public class NormalizeLoudnessPresenterTest extends PresenterTest {
 
-    private NormalizeLoudnessMockView normalizeLoudnessMockView;
+    private LoudnessMockNormalizeView normalizeLoudnessMockView;
     private RecordingFileService recordingService;
     private NormalizeLoudnessPresenter normalizeLoudnessPresenter;
 
@@ -37,7 +37,7 @@ public class NormalizeLoudnessPresenterTest extends PresenterTest {
     @BeforeEach
     @Override
     void setupInjector() throws Exception {
-        normalizeLoudnessMockView = new NormalizeLoudnessMockView();
+        normalizeLoudnessMockView = new LoudnessMockNormalizeView();
         progressDialogMockView = new ProgressDialogMockView();
         notificationView = new NotificationMockView();
 
@@ -61,7 +61,7 @@ public class NormalizeLoudnessPresenterTest extends PresenterTest {
 
             @Provides
             @Singleton
-            NormalizeLoudnessView provideNormalizeLoudnessMockView() {
+            LoudnessNormalizeView provideNormalizeLoudnessMockView() {
                 return normalizeLoudnessMockView;
             }
 

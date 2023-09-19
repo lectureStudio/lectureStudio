@@ -6,17 +6,13 @@ import javafx.scene.control.TextField;
 import javafx.scene.layout.StackPane;
 
 import org.lecturestudio.core.converter.NumberStringConverter;
-import org.lecturestudio.core.view.Action;
 import org.lecturestudio.core.view.ConsumerAction;
-import org.lecturestudio.editor.api.view.NormalizeLoudnessView;
+import org.lecturestudio.editor.api.view.LoudnessNormalizeView;
 import org.lecturestudio.javafx.util.FxUtils;
 import org.lecturestudio.javafx.view.FxmlView;
 
-@FxmlView(name = "audio-loudness")
-public class FxNormalizeLoudnessView extends StackPane implements NormalizeLoudnessView {
-
-    @FXML
-    private Button cancelButton;
+@FxmlView(name = "loudness-normalize", presenter = org.lecturestudio.editor.api.presenter.NormalizeLoudnessPresenter.class)
+public class FxLoudnessNormalizeView extends StackPane implements LoudnessNormalizeView {
 
     @FXML
     private Button submitButton;
@@ -32,10 +28,5 @@ public class FxNormalizeLoudnessView extends StackPane implements NormalizeLoudn
     @Override
     public void onSubmit(ConsumerAction<Double> action) {
         FxUtils.bindAction(submitButton, () -> action.execute(new NumberStringConverter<>().from(lufsValueTextField.getText()).doubleValue()));
-    }
-
-    @Override
-    public void onClose(Action action) {
-        FxUtils.bindAction(cancelButton, action);
     }
 }

@@ -74,8 +74,6 @@ public interface MenuView extends View {
 
 	void setOnDeletePage(Action action);
 
-	void setOnNormalizeAudioLoudness(Action action);
-
 	void setOnSettings(Action action);
 
 	/**

@@ -150,8 +150,8 @@ public class SlidesPresenter extends Presenter<SlidesView> {
 		registerShortcut(Shortcut.SLIDE_PREVIOUS_PAGE_UP, this::previousPage);
 		registerShortcut(Shortcut.SLIDE_PREVIOUS_UP, this::previousPage);
 
-		registerShortcut(Shortcut.PLAYBACK_BEGINNING_POS_1, this::startOfRecording);
-		registerShortcut(Shortcut.PLAYBACK_END_END, this::endOfRecording);
+		registerShortcut(Shortcut.PLAYBACK_BEGINNING_POS_1, this::firstPage);
+		registerShortcut(Shortcut.PLAYBACK_END_END, this::lastPage);
 		registerShortcut(Shortcut.PLAYBACK_PAUSE_PLAY_SPACE, this::resumeOrPause);
 
 		registerShortcut(Shortcut.SLIDE_MOVE_LEFT, this::moveLeft);
@@ -278,18 +278,18 @@ public class SlidesPresenter extends Presenter<SlidesView> {
 		}
 	}
 
-	private void startOfRecording() {
+	private void firstPage() {
 		try {
-			playbackService.seek(0.0D);
+			playbackService.selectPage(0);
 		}
 		catch (Exception e) {
 			handleException(e, "Select page failed", "select.recording.page.error");
 		}
 	}
 
-	private void endOfRecording() {
+	private void lastPage() {
 		try {
-			playbackService.seek(1.0D);
+			playbackService.selectPage(recordingService.getSelectedRecording().getRecordedDocument().getDocument().getPageCount() - 1);
 		}
 		catch (Exception e) {
 			handleException(e, "Select page failed", "select.recording.page.error");

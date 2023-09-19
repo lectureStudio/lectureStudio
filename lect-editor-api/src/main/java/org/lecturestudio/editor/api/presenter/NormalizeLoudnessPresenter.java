@@ -9,26 +9,20 @@ import org.lecturestudio.core.beans.DoubleProperty;
 import org.lecturestudio.core.presenter.Presenter;
 import org.lecturestudio.core.view.ProgressDialogView;
 import org.lecturestudio.core.view.ViewContextFactory;
-import org.lecturestudio.core.view.ViewLayer;
 import org.lecturestudio.editor.api.service.RecordingFileService;
-import org.lecturestudio.editor.api.view.NormalizeLoudnessView;
+import org.lecturestudio.editor.api.view.LoudnessNormalizeView;
 
-public class NormalizeLoudnessPresenter extends Presenter<NormalizeLoudnessView> {
+public class NormalizeLoudnessPresenter extends Presenter<LoudnessNormalizeView> {
     private final RecordingFileService recordingService;
     private final ViewContextFactory viewFactory;
     private DoubleProperty lufsValue;
 
     @Inject
-    protected NormalizeLoudnessPresenter(ApplicationContext context, NormalizeLoudnessView view,
+    protected NormalizeLoudnessPresenter(ApplicationContext context, LoudnessNormalizeView view,
                                          RecordingFileService recordingService, ViewContextFactory viewFactory) {
         super(context, view);
         this.recordingService = recordingService;
         this.viewFactory = viewFactory;
-    }
-
-    @Override
-    public ViewLayer getViewLayer() {
-        return ViewLayer.Dialog;
     }
 
     @Override
@@ -44,7 +38,6 @@ public class NormalizeLoudnessPresenter extends Presenter<NormalizeLoudnessView>
         });
 
         view.setLUFSValue(lufsValue.get());
-        view.onClose(this::close);
         view.onSubmit(this::normalizeLoudness);
     }
 
@@ -63,6 +56,5 @@ public class NormalizeLoudnessPresenter extends Presenter<NormalizeLoudnessView>
                     progressView.setError(context.getDictionary().get("normalize.loudness.audio.error"), throwable.getMessage());
                     return null;
                 });
-        close();
     }
 }

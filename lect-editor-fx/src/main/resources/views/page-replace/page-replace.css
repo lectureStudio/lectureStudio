@@ -23,15 +23,15 @@
 .page-replace > .content > HBox {
 	-fx-spacing: 5;
 }
-.page-replace > .search-box {
+.page-replace > .content > .slide-views > .new-document-view > .search-box {
 	-fx-spacing: 8;
 	-fx-padding: 0 0.25em 0 0;
 }
-.page-replace > .search-box > .search-field {
+.page-replace > .content > .slide-views > .new-document-view > .search-box > .search-field {
 	-fx-background-radius: 20;
 	-fx-padding: 0.1em 0.583em;
 }
-.page-replace > .search-box > .button-group > .container > .button {
+.page-replace > .content > .slide-views > .new-document-view > .search-box > .button-group > .container > .button {
 	-fx-background-radius: 0;
 	-button-size: 2em;
 	-fx-content-display: graphic-only;

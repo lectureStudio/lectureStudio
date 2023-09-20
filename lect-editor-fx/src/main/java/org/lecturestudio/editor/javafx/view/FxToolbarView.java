@@ -25,6 +25,7 @@ import javafx.scene.paint.Paint;
 
 import org.lecturestudio.core.graphics.Color;
 import org.lecturestudio.core.model.Document;
+import org.lecturestudio.core.model.Page;
 import org.lecturestudio.core.text.Font;
 import org.lecturestudio.core.tool.ColorPalette;
 import org.lecturestudio.core.tool.PaintSettings;
@@ -32,6 +33,7 @@ import org.lecturestudio.core.tool.StrokeWidthSettings;
 import org.lecturestudio.core.tool.ToolType;
 import org.lecturestudio.core.view.Action;
 import org.lecturestudio.core.view.ConsumerAction;
+import org.lecturestudio.core.view.PresentationParameter;
 import org.lecturestudio.editor.api.view.ToolbarView;
 import org.lecturestudio.javafx.beans.converter.ColorConverter;
 import org.lecturestudio.javafx.beans.converter.FontConverter;
@@ -383,6 +385,18 @@ public class FxToolbarView extends FlowPane implements ToolbarView {
 		strokeWidthComboBox.valueProperty().addListener((observable, oldValue, newValue) -> {
 			executeAction(action, newValue);
 		});
+	}
+
+	@Override
+	public void setPage(Page page, PresentationParameter parameter) {
+		boolean zoomedIn = false;
+
+		if (nonNull(parameter)) {
+			zoomedIn = parameter.isZoomMode();
+		}
+
+		panButton.setDisable(!zoomedIn);
+		zoomOutButton.setDisable(!zoomedIn);
 	}
 
 }

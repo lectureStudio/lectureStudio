@@ -114,7 +114,7 @@
                         </buttons>
                     </ButtonGroup>
                     <TextSearchField fx:id="searchFieldNewDocument" promptText="%page.replace.search"
-                                     styleClass="search-field"/>
+                                     styleClass="search-field" minWidth="190"/>
                 </HBox>
 
             </VBox>

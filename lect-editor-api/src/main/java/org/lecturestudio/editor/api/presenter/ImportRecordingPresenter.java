@@ -59,7 +59,7 @@ public class ImportRecordingPresenter extends Presenter<ImportRecordingView> {
 
     @Override
     public void initialize() {
-        normalizeNewAudio = new BooleanProperty();
+        normalizeNewAudio = new BooleanProperty(true);
 
         view.setOnSubmit(this::submit);
         view.setOnCancel(this::close);

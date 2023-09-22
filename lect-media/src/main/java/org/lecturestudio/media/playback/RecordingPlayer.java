@@ -94,8 +94,8 @@ public class RecordingPlayer extends ExecutableBase {
 
 
 	public RecordingPlayer(ApplicationContext context,
-			AudioConfiguration audioConfig,
-			AudioSystemProvider audioSystemProvider) {
+						   AudioConfiguration audioConfig,
+						   AudioSystemProvider audioSystemProvider) {
 		this.context = context;
 		this.audioConfig = audioConfig;
 		this.audioSystemProvider = audioSystemProvider;
@@ -148,8 +148,7 @@ public class RecordingPlayer extends ExecutableBase {
 		if (seekTime > -1) {
 			try {
 				audioPlayer.seek(seekTime);
-			}
-			catch (Exception e) {
+			} catch (Exception e) {
 				throw new ExecutableException(e);
 			}
 		}
@@ -214,12 +213,12 @@ public class RecordingPlayer extends ExecutableBase {
 
 	public void selectNextPage() throws Exception {
 		Document document = getDocument();
-		
+
 		int pageNumber = document.getCurrentPageNumber() + 1;
 		if (pageNumber > document.getPageCount() - 1) {
 			return;
 		}
-		
+
 		selectPage(pageNumber, started());
 	}
 
@@ -250,24 +249,24 @@ public class RecordingPlayer extends ExecutableBase {
 
 	public synchronized void seek(int timeMs) throws ExecutableException {
 		seekTime = timeMs;
-		
+
 		if (!seeking) {
 			setSeeking(true);
-			
+
 			if (started()) {
 				suspend();
 			}
 			reset();
 		}
-		
+
 		int pageNumber = actionExecutor.getPageNumber(seekTime);
-		
+
 		resetPages(pageNumber, previousPage);
-		
+
 		actionExecutor.seekByTime(seekTime);
-		
+
 		previousPage = pageNumber;
-		
+
 		onAudioPlaybackProgress(new Time(timeMs), duration);
 	}
 
@@ -295,8 +294,7 @@ public class RecordingPlayer extends ExecutableBase {
 			audioPlayer.seek(time);
 
 			previousPage = pageNumber;
-		}
-		else {
+		} else {
 			previousPage = 0;
 		}
 
@@ -341,7 +339,7 @@ public class RecordingPlayer extends ExecutableBase {
 		audioPlayer.addStateListener(this::onAudioStateChange);
 		audioPlayer.init();
 	}
-	
+
 	private void onAudioStateChange(ExecutableState oldState, ExecutableState newState) {
 		if (stopped()) {
 			return;
@@ -350,8 +348,7 @@ public class RecordingPlayer extends ExecutableBase {
 		if (newState == ExecutableState.Stopped && getState() != ExecutableState.Stopping) {
 			try {
 				stop();
-			}
-			catch (ExecutableException e) {
+			} catch (ExecutableException e) {
 				LOG.error("Stop media player failed.", e);
 			}
 		}
@@ -383,11 +380,11 @@ public class RecordingPlayer extends ExecutableBase {
 
 	private void loadStaticShapes(Document doc, RecordedPage recPage) {
 		Page page = doc.getPage(recPage.getNumber());
-		
+
 		if (isNull(page)) {
 			return;
 		}
-		
+
 		Iterator<StaticShapeAction> iter = recPage.getStaticActions().iterator();
 
 		if (iter.hasNext()) {
@@ -400,23 +397,22 @@ public class RecordingPlayer extends ExecutableBase {
 			while (iter.hasNext()) {
 				StaticShapeAction staticAction = iter.next();
 				PlaybackAction action = staticAction.getAction();
-				
+
 				// Execute static action on selected page.
 				try {
 					action.execute(toolController);
-				}
-				catch (Exception e) {
+				} catch (Exception e) {
 					LOG.error("Execute static action failed.", e);
 				}
 			}
-			
+
 			// Go back to the page which was selected prior preloading.
 			doc.selectPage(lastPageNumber);
-			
+
 			page.sendChangeEvent();
 		}
 	}
-	
+
 	private void resetView(Page page) {
 		// Reset presentation on all view types.
 		PresentationParameterProvider ppp = context.getPagePropertyProvider(ViewType.User);
@@ -441,10 +437,10 @@ public class RecordingPlayer extends ExecutableBase {
 			if (page.hasAnnotations()) {
 				page.reset();
 			}
-			
+
 			resetView(page);
 		}
-		
+
 		// Reset page parameters.
 		context.getPagePropertyProvider(ViewType.User).clearParameters();
 
@@ -456,27 +452,26 @@ public class RecordingPlayer extends ExecutableBase {
 	private void resetPage(int number) {
 		Document document = getDocument();
 		Page page = document.getPage(number);
-		
+
 		if (page.hasAnnotations()) {
 			page.reset();
 		}
-		
+
 		resetView(page);
-		
+
 		context.getPagePropertyProvider(ViewType.User).clearParameter(page);
-		
+
 		// Load static page shapes.
 		RecordedPage recPage = recording
 				.getRecordedEvents().getRecordedPage(number);
-		
+
 		loadStaticShapes(document, recPage);
 	}
 
 	private void resetPages(int newPage, int previousPage) {
 		if (newPage == previousPage) {
 			resetPage(newPage);
-		}
-		else if (newPage < previousPage) {
+		} else if (newPage < previousPage) {
 			int resetPage = newPage;
 
 			while (resetPage <= previousPage) {
@@ -484,15 +479,15 @@ public class RecordingPlayer extends ExecutableBase {
 			}
 		}
 	}
-	
+
 	private void setSeeking(boolean seeking) {
 		this.seeking = seeking;
-		
+
 		if (!seeking) {
 			seekTime = -1;
 		}
 	}
-	
+
 	private Document getDocument() {
 		return recording.getRecordedDocument().getDocument();
 	}

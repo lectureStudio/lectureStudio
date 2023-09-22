@@ -158,6 +158,7 @@ public class MediaTracksPresenter extends Presenter<MediaTracksView> {
 
 			EventsTrack eventsTrack = new EventsTrack();
 			eventsTrack.setData(recording.getRecordedEvents().getRecordedPages());
+			eventsTrack.setToolDemoRecordings(recording.getToolDemoRecordingsData());
 
 			mediaTracks.add(audioTrack);
 			mediaTracks.add(eventsTrack);

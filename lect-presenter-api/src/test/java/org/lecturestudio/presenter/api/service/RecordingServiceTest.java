@@ -34,12 +34,15 @@ import java.nio.file.SimpleFileVisitor;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.util.Objects;
 
+import org.checkerframework.checker.optional.qual.Present;
 import org.lecturestudio.core.ExecutableException;
 import org.lecturestudio.core.ExecutableState;
 import org.lecturestudio.core.app.configuration.AudioConfiguration;
 import org.lecturestudio.core.audio.AudioFormat;
 import org.lecturestudio.core.io.RandomAccessStream;
 import org.lecturestudio.core.io.WaveHeader;
+import org.lecturestudio.media.camera.CameraService;
+import org.lecturestudio.presenter.api.context.PresenterContext;
 import org.lecturestudio.presenter.api.recording.FileLectureRecorder;
 import org.lecturestudio.presenter.api.recording.RecordingBackup;
 
@@ -54,6 +57,11 @@ class RecordingServiceTest extends ServiceTest {
 	private static Path recPath;
 
 	private RecordingService recordingService;
+
+	private CameraRecordingService cameraRecordingService;
+
+	private CameraService cameraService;
+
 	private FileLectureRecorder recorder;
 
 
@@ -88,7 +96,9 @@ class RecordingServiceTest extends ServiceTest {
 
 		recorder = new FileLectureRecorder(audioSystemProvider, documentService, audioConfig, recPath.toFile().getPath());
 
-		recordingService = new RecordingService(context, recorder);
+		cameraRecordingService = new CameraRecordingService((PresenterContext) context, cameraService, recorder);
+
+		recordingService = new RecordingService((PresenterContext) context, recorder, cameraRecordingService);
 		recordingService.setAudioFormat(new AudioFormat(AudioFormat.Encoding.S16BE, 24000, 1));
 	}
 

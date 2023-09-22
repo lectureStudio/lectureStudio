@@ -45,12 +45,7 @@ import java.util.Deque;
 import java.util.List;
 import java.util.function.Predicate;
 
-import javax.swing.JComponent;
-import javax.swing.JFrame;
-import javax.swing.JPanel;
-import javax.swing.SwingUtilities;
-import javax.swing.UIManager;
-import javax.swing.WindowConstants;
+import javax.swing.*;
 import javax.swing.text.JTextComponent;
 
 import org.lecturestudio.core.app.view.Screens;
@@ -89,7 +84,7 @@ public class SwingMainView extends JPanel implements MainView, KeyEventDispatche
 		super();
 
 		this.viewStack = new ArrayDeque<>();
-
+		ToolTipManager.sharedInstance().setLightWeightPopupEnabled(true);
 		initialize();
 	}
 

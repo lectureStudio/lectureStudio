@@ -23,9 +23,14 @@ import org.lecturestudio.core.beans.BooleanProperty;
 import org.lecturestudio.core.beans.IntegerProperty;
 import org.lecturestudio.core.beans.ObjectProperty;
 import org.lecturestudio.core.geometry.Dimension2D;
+import org.lecturestudio.core.geometry.Position;
+import org.lecturestudio.core.geometry.Rectangle2D;
 import org.lecturestudio.core.view.Action;
 import org.lecturestudio.core.view.View;
 import org.lecturestudio.media.video.VideoFormat;
+
+import java.awt.image.BufferedImage;
+import java.util.List;
 
 public interface VideoExportSettingsView extends View {
 
@@ -48,6 +53,12 @@ public interface VideoExportSettingsView extends View {
 	void bindFrameRate(IntegerProperty property);
 
 	void bindVideoBitrate(IntegerProperty property);
+
+	public void setCameraRecordingPlacements(Position[] formats);
+
+	public void bindCameraRecordingPlacement(ObjectProperty<Position> property);
+
+	public void setCameraPreview(BufferedImage buffImage);
 
 	void bindTwoPassEncoding(BooleanProperty enable);
 

@@ -89,11 +89,14 @@ public class RecordingFileService {
 
 	private final EventBus eventBus;
 
+	private List<Recording.ToolDemoRecording> toolDemoRecordings = new ArrayList<>();
+
+	private String cameraRecordingFileName;
 
 	@Inject
 	RecordingFileService(ApplicationContext context,
-			RecordingPlaybackService playbackService,
-			DocumentService documentService) {
+						 RecordingPlaybackService playbackService,
+						 DocumentService documentService) {
 		this.context = (EditorContext) context;
 		this.eventBus = context.getEventBus();
 		this.playbackService = playbackService;
@@ -108,8 +111,7 @@ public class RecordingFileService {
 
 			try {
 				recording = RecordingFileReader.read(file);
-			}
-			catch (Exception e) {
+			} catch (Exception e) {
 				throw new CompletionException(e);
 			}
 
@@ -135,8 +137,7 @@ public class RecordingFileService {
 
 				addEditAction(recording, new InsertRecordingAction(recording,
 						imported, start));
-			}
-			catch (Exception e) {
+			} catch (Exception e) {
 				throw new CompletionException(e);
 			}
 
@@ -230,8 +231,7 @@ public class RecordingFileService {
 				suspendPlayback();
 
 				addEditAction(recording, new CutAction(recording, start, end));
-			}
-			catch (Exception e) {
+			} catch (Exception e) {
 				throw new CompletionException(e);
 			}
 		});
@@ -247,8 +247,7 @@ public class RecordingFileService {
 				suspendPlayback();
 
 				addEditAction(recording, new DeletePageAction(recording, timeNorm));
-			}
-			catch (Exception e) {
+			} catch (Exception e) {
 				throw new CompletionException(e);
 			}
 		});
@@ -266,8 +265,7 @@ public class RecordingFileService {
 			public void run() {
 				try {
 					addEditAction(recording, new ReplaceAllPagesAction(recording, document));
-				}
-				catch (Exception e) {
+				} catch (Exception e) {
 					throw new CompletionException(e);
 				}
 			}
@@ -285,8 +283,7 @@ public class RecordingFileService {
 				recording.getEditManager().undo();
 
 				updateEditState(recording);
-			}
-			catch (Exception e) {
+			} catch (Exception e) {
 				throw new CompletionException(e);
 			}
 		});
@@ -301,8 +298,7 @@ public class RecordingFileService {
 				recording.getEditManager().redo();
 
 				updateEditState(recording);
-			}
-			catch (Exception e) {
+			} catch (Exception e) {
 				throw new CompletionException(e);
 			}
 		});
@@ -324,8 +320,7 @@ public class RecordingFileService {
 				try (FileOutputStream outStream = new FileOutputStream(target)) {
 					audioStream.reset();
 					audioStream.write(outStream.getChannel());
-				}
-				catch (Exception e) {
+				} catch (Exception e) {
 					throw new CompletionException(e);
 				}
 
@@ -337,6 +332,8 @@ public class RecordingFileService {
 					rec.setRecordedAudio(new RecordedAudio(newAudioStream));
 					rec.setRecordedEvents(recording.getRecordedEvents());
 					rec.setRecordedDocument(recording.getRecordedDocument());
+					rec.setCameraRecordingFileNameData(cameraRecordingFileName);
+					rec.setToolDemoRecordingsData(toolDemoRecordings);
 
 					RecordingFileWriter.write(rec, file, callback);
 
@@ -348,11 +345,9 @@ public class RecordingFileService {
 				}
 
 				recordingStateMap.put(recording, recording.getStateHash());
-			}
-			catch (Exception e) {
+			} catch (Exception e) {
 				throw new CompletionException(e);
-			}
-			finally {
+			} finally {
 				if (nonNull(target)) {
 					target.delete();
 				}
@@ -415,13 +410,11 @@ public class RecordingFileService {
 					.thenCompose(ignored -> CompletableFuture.runAsync(() -> {
 						try {
 							addEditAction(getSelectedRecording(), new CutAction(getSelectedRecording(), start, end, context.primarySelectionProperty()));
-						}
-						catch (RecordingEditException e) {
+						} catch (RecordingEditException e) {
 							throw new RuntimeException(e);
 						}
 					}));
-		}
-		catch (IOException e) {
+		} catch (IOException e) {
 			throw new RecordingEditException(e);
 		}
 	}
@@ -434,8 +427,7 @@ public class RecordingFileService {
 		return CompletableFuture.runAsync(() -> {
 			try {
 				RecordingUtils.exportAudio(recording, file, callback);
-			}
-			catch (Exception e) {
+			} catch (Exception e) {
 				throw new CompletionException(e);
 			}
 		});
@@ -457,8 +449,7 @@ public class RecordingFileService {
 				recordedAudio.addEditAction(editAction);
 
 				recording.setRecordedAudio(recordedAudio);
-			}
-			catch (Exception e) {
+			} catch (Exception e) {
 				throw new CompletionException(e);
 			}
 		});
@@ -493,8 +484,7 @@ public class RecordingFileService {
 		if (nonNull(event.getDuration())) {
 			selection = Math.max(0, Math.min(1.0, event.getDuration().getStart()));
 			selection *= scale;
-		}
-		else {
+		} else {
 			double pos = Math.min(context.getLeftSelection(), context.getRightSelection());
 			selection = Math.min(1.0, pos * scale);
 		}
@@ -503,8 +493,7 @@ public class RecordingFileService {
 
 		try {
 			playbackService.seek(selection);
-		}
-		catch (ExecutableException e) {
+		} catch (ExecutableException e) {
 			LOG.error("Seek failed", e);
 		}
 	}
@@ -559,8 +548,7 @@ public class RecordingFileService {
 				suspendPlayback();
 
 				addEditAction(recording, new MovePageAction(recording, pageNumber, timestamp));
-			}
-			catch (Exception e) {
+			} catch (Exception e) {
 				throw new CompletionException(e);
 			}
 		});
@@ -572,7 +560,7 @@ public class RecordingFileService {
 	 * like the audio or the total duration of the recording.
 	 *
 	 * @param pageNumber The number of the page to remove
-	 * @return  An async future completing the task
+	 * @return An async future completing the task
 	 */
 	public CompletableFuture<Void> hidePage(int pageNumber) {
 		return hidePage(pageNumber, getSelectedRecording());
@@ -593,8 +581,7 @@ public class RecordingFileService {
 				suspendPlayback();
 
 				addEditAction(recording, new HidePageAction(recording, pageNumber));
-			}
-			catch (Exception e) {
+			} catch (Exception e) {
 				throw new CompletionException(e);
 			}
 		});
@@ -610,12 +597,27 @@ public class RecordingFileService {
 				suspendPlayback();
 
 				addEditAction(recording, new HideAndMoveNextPageAction(recording, pageNumber, timestamp));
-			}
-			catch (Exception e) {
+			} catch (Exception e) {
 				throw new CompletionException(e);
 			}
 		});
 	}
+
+	public String getCameraRecordingFileName() {
+		return this.cameraRecordingFileName;
+	}
+
+	public void setCameraRecordingFileName(String cameraRecordingFileName) {
+		this.cameraRecordingFileName = cameraRecordingFileName;
+	}
+
+	public List<Recording.ToolDemoRecording> getToolDemoRecordings() {
+		return toolDemoRecordings;
+	}
+
+	public void setToolDemoRecording(List<Recording.ToolDemoRecording> toolDemoRecordings) {
+		this.toolDemoRecordings = toolDemoRecordings;
+  }
 
 	/**
 	 * {@link InsertPlaybackActionsAction}

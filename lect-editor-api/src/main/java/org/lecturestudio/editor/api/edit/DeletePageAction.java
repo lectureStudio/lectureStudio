@@ -69,7 +69,7 @@ public class DeletePageAction extends RecordingAction {
 
 		EditHeaderAction headerAction = new EditHeaderAction(recording.getRecordingHeader(), -pageDuration.lengthLong());
 		DeleteDocumentPageAction documentAction = new DeleteDocumentPageAction(recording.getRecordedDocument(), pageNumber);
-		DeleteEventsAction eventsAction = new DeleteEventsAction(recording.getRecordedEvents(), pageDuration);
+		DeleteEventsAction eventsAction = new DeleteEventsAction(recording.getRecordedEvents(), pageDuration, recording);
 		DeleteAudioAction audioAction = new DeleteAudioAction(recording.getRecordedAudio(), pageDuration);
 
 		eventsAction.removeRecordedPage(pageNumber);

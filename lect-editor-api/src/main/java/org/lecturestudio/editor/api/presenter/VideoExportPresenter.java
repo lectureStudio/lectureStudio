@@ -65,9 +65,9 @@ public class VideoExportPresenter extends Presenter<VideoExportView> {
 
 	@Inject
 	VideoExportPresenter(ApplicationContext context, VideoExportView view,
-			ViewContextFactory viewFactory,
-			RecordingFileService recordingService,
-			RecentDocumentService recentDocumentService) {
+						 ViewContextFactory viewFactory,
+						 RecordingFileService recordingService,
+						 RecentDocumentService recentDocumentService) {
 		super(context, view);
 
 		this.viewFactory = viewFactory;
@@ -123,17 +123,15 @@ public class VideoExportPresenter extends Presenter<VideoExportView> {
 			close();
 
 			context.getEventBus().post(new ExportRecordingCommand(exportStack));
-		}
-		catch (Throwable e) {
+		} catch (Throwable e) {
 			handleException(e, "Set output path failed", "video.export.failed");
-		}
-		finally {
+		} finally {
 			close();
 		}
 	}
 
 	private RecordingExport createWebVectorExport(Recording recording,
-			RenderConfiguration config) {
+												  RenderConfiguration config) {
 		WebVectorExport vectorExport = new WebVectorExport(recording, config);
 		vectorExport.setTitle("Web Player");
 
@@ -141,7 +139,7 @@ public class VideoExportPresenter extends Presenter<VideoExportView> {
 	}
 
 	private RecordingExport createWebVideoExport(Recording recording,
-			RenderConfiguration config) {
+												 RenderConfiguration config) {
 		WebVideoExport webExport = new WebVideoExport(context, recording,
 				config);
 		webExport.setTitle("Web Player");

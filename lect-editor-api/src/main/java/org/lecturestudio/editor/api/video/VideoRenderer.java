@@ -95,8 +95,7 @@ public class VideoRenderer extends RecordingExport {
 		try {
 			if (config.getVideoConfig().getTwoPass()) {
 				startPass1();
-			}
-			else {
+			} else {
 				RenderConfiguration renderConfig = new RenderConfiguration();
 				renderConfig.setAudioConfig(null);
 				renderConfig.setVideoConfig(config.getVideoConfig());
@@ -105,8 +104,7 @@ public class VideoRenderer extends RecordingExport {
 
 				renderVideo(renderConfig);
 			}
-		}
-		catch (Exception e) {
+		} catch (Exception e) {
 			throw new ExecutableException(e);
 		}
 	}
@@ -146,13 +144,13 @@ public class VideoRenderer extends RecordingExport {
 		renderConfig.setOutputFile(null);
 		renderConfig.setVideoConfig(config.getVideoConfig());
 		renderConfig.setAudioConfig(null);
-		
+
 		VideoRenderConfiguration videoConfig = renderConfig.getVideoConfig();
 		videoConfig.setPass(1);
 		videoConfig.setTwoPassProfilePath(profilePath);
-    	
+
 		renderVideo(renderConfig);
-    }
+	}
 
 	private void startPass2() throws ExecutableException, IOException {
 		RenderConfiguration renderConfig = new RenderConfiguration();
@@ -165,7 +163,7 @@ public class VideoRenderer extends RecordingExport {
 		videoConfig.setPass(2);
 
 		renderVideo(renderConfig);
-    }
+	}
 
 	private void renderVideo(RenderConfiguration config) throws IOException, ExecutableException {
 		runningConfig = config;
@@ -178,12 +176,10 @@ public class VideoRenderer extends RecordingExport {
 		if (videoConfig.getTwoPass()) {
 			if (videoConfig.getPass() == 1) {
 				onRenderState(RecordingRenderState.PASS_1);
-			}
-			else if (videoConfig.getPass() == 2) {
+			} else if (videoConfig.getPass() == 2) {
 				onRenderState(RecordingRenderState.PASS_2);
 			}
-		}
-		else {
+		} else {
 			onRenderState(RecordingRenderState.RENDER_VIDEO);
 		}
 
@@ -209,6 +205,10 @@ public class VideoRenderer extends RecordingExport {
 		eventExecutor.setDuration((int) recording.getRecordedAudio().getAudioStream().getLengthInMillis());
 		eventExecutor.setFrameConsumer(this::onVideoFrame);
 		eventExecutor.setFrameRate(videoConfig.getFrameRate());
+		eventExecutor.setToolDemoRecordings(recording.getToolDemoRecordingsData());
+		eventExecutor.setCameraRecordings(recording.getCameraRecordingFileNameData());
+		eventExecutor.setPresenterRootPath(recording.getSourceFile().toString());
+		eventExecutor.setCameraPosition(videoConfig.getCameraRecordingPlacement().get());
 		eventExecutor.addStateListener((oldState, newState) -> {
 			if (started() && newState == ExecutableState.Stopped) {
 				onEventExecutorFinish();
@@ -241,8 +241,7 @@ public class VideoRenderer extends RecordingExport {
 					// Execute static action on selected page.
 					try {
 						action.execute(toolController);
-					}
-					catch (Exception e) {
+					} catch (Exception e) {
 						LOG.error("Execute static action failed", e);
 					}
 				}
@@ -331,14 +330,12 @@ public class VideoRenderer extends RecordingExport {
 			}
 
 			onRenderProgress(event);
-		}
-		catch (IOException e) {
+		} catch (IOException e) {
 			LOG.error("Mux video frame failed", e);
 
 			try {
 				stop();
-			}
-			catch (ExecutableException ex) {
+			} catch (ExecutableException ex) {
 				throw new RuntimeException(ex);
 			}
 		}
@@ -354,16 +351,13 @@ public class VideoRenderer extends RecordingExport {
 				if (videoConfig.getPass() == 1) {
 					// Start second pass.
 					startPass2();
-				}
-				else if (videoConfig.getPass() == 2) {
+				} else if (videoConfig.getPass() == 2) {
 					renderAudio();
 				}
-			}
-			else {
+			} else {
 				renderAudio();
 			}
-		}
-		catch (Exception e) {
+		} catch (Exception e) {
 			LOG.error("Close muxer failed", e);
 		}
 	}
@@ -378,8 +372,7 @@ public class VideoRenderer extends RecordingExport {
 			try {
 				Files.deleteIfExists(Paths.get(path));
 				Files.deleteIfExists(Paths.get(path + ".mbtree"));
-			}
-			catch (IOException e) {
+			} catch (IOException e) {
 				LOG.error("Delete profile failed.", e);
 			}
 		}

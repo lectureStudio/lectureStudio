@@ -23,10 +23,15 @@ import static java.util.Objects.isNull;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.nio.ByteBuffer;
+import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
+import java.util.List;
 
 import org.lecturestudio.core.io.RandomAccessAudioStream;
 import org.lecturestudio.core.io.RandomAccessStream;
 import org.lecturestudio.core.model.Document;
+import org.lecturestudio.core.model.Interval;
 import org.lecturestudio.core.recording.RecordedAudio;
 import org.lecturestudio.core.recording.RecordedDocument;
 import org.lecturestudio.core.recording.RecordedEvents;
@@ -39,20 +44,20 @@ public class RecordingFileReader {
 	public static Recording read(File srcFile) throws IOException, IncompatibleFileFormatException {
 		FileInputStream inputStream = new FileInputStream(srcFile);
 		RecordingHeader header = new RecordingHeader();
-		
+
 		// Read the file header.
 		int headerLength = header.getHeaderLength();
 		byte[] headerData = new byte[headerLength];
 		inputStream.read(headerData);
 
 		header.parseFrom(headerData);
-		
+
 		if (header.getVersion() != Recording.FORMAT_VERSION) {
 			inputStream.close();
-			
+
 			throw new IncompatibleFileFormatException("Incompatible file format");
 		}
-		
+
 		// Read events.
 		int eventsLength = header.getEventsLength();
 		byte[] eventData = new byte[eventsLength];
@@ -65,9 +70,42 @@ public class RecordingFileReader {
 
 		// Read audio data.
 		int audioLength = header.getAudioLength();
-		
 		RandomAccessStream raStream = new RandomAccessStream(srcFile, headerLength + eventsLength + docLength, audioLength);
 		RandomAccessAudioStream audioStream = new RandomAccessAudioStream(raStream);
+		inputStream.skip(audioLength);
+
+		// Read camera recording file name.
+		int cameraRecordingFileNameLength = header.getCameraRecordingFileNameLength();
+		byte[] cameraRecordingFileNameData = new byte[cameraRecordingFileNameLength];
+		inputStream.read(cameraRecordingFileNameData);
+
+		// Read tool demos data.
+		int toolDemoRecordingsLength = header.getToolDemoRecordingsLength();
+		byte[] toolDemoRecordingsData = new byte[toolDemoRecordingsLength];
+		inputStream.read(toolDemoRecordingsData);
+
+		ByteBuffer toolDemoRecordingsDataBuffer = ByteBuffer.wrap(toolDemoRecordingsData);
+
+		List<Recording.ToolDemoRecording> toolDemoRecordings = new ArrayList<Recording.ToolDemoRecording>();
+		int chunkLength = toolDemoRecordingsLength;
+
+		while (chunkLength > 0) {
+			long start = toolDemoRecordingsDataBuffer.getLong();
+			long end = toolDemoRecordingsDataBuffer.getLong();
+
+			var toolDemoInterval = new Interval<>(start, end);
+
+			int nameLength = toolDemoRecordingsDataBuffer.getInt();
+			byte[] nameBuffer = new byte[nameLength];
+
+			toolDemoRecordingsDataBuffer.get(nameBuffer);
+
+			String fileName = new String(nameBuffer, StandardCharsets.UTF_8);
+
+			toolDemoRecordings.add(new Recording.ToolDemoRecording(toolDemoInterval, fileName));
+
+			chunkLength -= 20 + nameLength;
+		}
 
 		inputStream.close();
 
@@ -77,6 +115,8 @@ public class RecordingFileReader {
 		recording.setRecordedEvents(new RecordedEvents(eventData));
 		recording.setRecordedDocument(new RecordedDocument(documentData));
 		recording.setRecordedAudio(new RecordedAudio(audioStream));
+		recording.setCameraRecordingFileNameData(new String(cameraRecordingFileNameData, StandardCharsets.UTF_8));
+		recording.setToolDemoRecordingsData(toolDemoRecordings);
 
 		Document document = recording.getRecordedDocument().getDocument();
 

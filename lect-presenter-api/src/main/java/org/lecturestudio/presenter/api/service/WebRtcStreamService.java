@@ -152,6 +152,8 @@ public class WebRtcStreamService extends ExecutableBase {
 			setReconnectionState(newState);
 		});
 
+    recordingService.SetWebRTC(this);
+
 		eventRecorder.init();
 	}
 

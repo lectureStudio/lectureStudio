@@ -18,38 +18,71 @@
 
 package org.lecturestudio.core.recording;
 
+import org.lecturestudio.core.model.Interval;
+import org.lecturestudio.core.tool.Tool;
+
 import java.io.IOException;
 import java.nio.ByteBuffer;
+import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
+import java.util.List;
 
 public class RecordingHeader extends RecordedObjectBase {
 
-	/** The file checksum/hash algorithm name. */
+	/**
+	 * The file checksum/hash algorithm name.
+	 */
 	public static final String CHECKSUM_ALGORITHM = "SHA-1";
 
-	/** The length in bytes of the file checksum/hash. SHA-1 hash length is 20 bytes. */
+	/**
+	 * The length in bytes of the file checksum/hash. SHA-1 hash length is 20 bytes.
+	 */
 	private static final int CHECKSUM_LENGTH = 20;
 
-	/** Content format marker '.PLR' represented as an integer value. */
+	/**
+	 * Content format marker '.PLR' represented as an integer value.
+	 */
 	private static final int FORMAT_MARKER = 777014354;
 
-	/** The file version number. */
+	/**
+	 * The file version number.
+	 */
 	private int version;
 
-	/** The duration in milliseconds of the recording. */
+	/**
+	 * The duration in milliseconds of the recording.
+	 */
 	private long duration;
 
-	/** The file contents' checksum. */
+	/**
+	 * The file contents' checksum.
+	 */
 	private byte[] checksum;
 
-	/** The length in bytes of the events chunk. */
+	/**
+	 * The length in bytes of the events chunk.
+	 */
 	private int eventsLength;
 
-	/**  The length in bytes of the document chunk. */
+	/**
+	 * The length in bytes of the document chunk.
+	 */
 	private int documentLength;
 
-	/**  The length in bytes of the audio chunk. */
+	/**
+	 * The length in bytes of the audio chunk.
+	 */
 	private int audioLength;
 
+	/**
+	 * The length in bytes of the camera recording file data.
+	 */
+	private int cameraRecordingFileNameLength;
+
+	/**
+	 * The length in bytes of the tool demo recordings data.
+	 */
+	private int toolDemoRecordingsLength;
 
 	public RecordingHeader() {
 		setVersion(0);
@@ -105,8 +138,24 @@ public class RecordingHeader extends RecordedObjectBase {
 		return audioLength;
 	}
 
+	public int getCameraRecordingFileNameLength() {
+		return cameraRecordingFileNameLength;
+	}
+
+	public void setCameraRecordingFileNameLength(int cameraRecordingFileNameLength) {
+		this.cameraRecordingFileNameLength = cameraRecordingFileNameLength;
+	}
+
+	public int getToolDemoRecordingsLength() {
+		return toolDemoRecordingsLength;
+	}
+
+	public void setToolDemoRecordingsLength(int toolDemoRecordingsLength) {
+		this.toolDemoRecordingsLength = toolDemoRecordingsLength;
+	}
+
 	public int getHeaderLength() {
-		return CHECKSUM_LENGTH + 28;
+		return CHECKSUM_LENGTH + 36;
 	}
 
 	@Override
@@ -119,6 +168,8 @@ public class RecordingHeader extends RecordedObjectBase {
 		buffer.putInt(getEventsLength());
 		buffer.putInt(getDocumentLength());
 		buffer.putInt(getAudioLength());
+		buffer.putInt(getCameraRecordingFileNameLength());
+		buffer.putInt(getToolDemoRecordingsLength());
 
 		return buffer.array();
 	}
@@ -144,6 +195,8 @@ public class RecordingHeader extends RecordedObjectBase {
 		setEventsLength(buffer.getInt());
 		setDocumentLength(buffer.getInt());
 		setAudioLength(buffer.getInt());
+		setCameraRecordingFileNameLength(buffer.getInt());
+		setToolDemoRecordingsLength(buffer.getInt());
 	}
 
 	public RecordingHeader clone() {
@@ -154,6 +207,8 @@ public class RecordingHeader extends RecordedObjectBase {
 		header.setEventsLength(getEventsLength());
 		header.setDocumentLength(getDocumentLength());
 		header.setAudioLength(getAudioLength());
+		header.setCameraRecordingFileNameLength(getCameraRecordingFileNameLength());
+		header.setToolDemoRecordingsLength(getToolDemoRecordingsLength());
 
 		return header;
 	}
@@ -167,8 +222,9 @@ public class RecordingHeader extends RecordedObjectBase {
 		builder.append("Events: ").append(getEventsLength()).append("\n");
 		builder.append("Document: ").append(getDocumentLength()).append("\n");
 		builder.append("Audio: ").append(getAudioLength()).append("\n");
+		builder.append("CameraRecordingFileName: ").append(getCameraRecordingFileNameLength()).append("\n");
+		builder.append("ToolDemoRecordings: ").append(getToolDemoRecordingsLength()).append("\n");
 
 		return builder.toString();
 	}
-
 }

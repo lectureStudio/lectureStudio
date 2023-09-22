@@ -37,8 +37,10 @@ import javafx.scene.layout.Region;
 import javafx.scene.shape.Rectangle;
 import javafx.scene.transform.Affine;
 
+import org.lecturestudio.core.model.Interval;
 import org.lecturestudio.core.model.Time;
 import org.lecturestudio.core.recording.RecordedPage;
+import org.lecturestudio.core.recording.Recording;
 import org.lecturestudio.core.recording.action.ActionType;
 import org.lecturestudio.core.recording.action.PlaybackAction;
 import org.lecturestudio.javafx.util.FxUtils;
@@ -140,6 +142,7 @@ public class EventTimelineSkin extends MediaTrackControlSkinBase {
 
 		timeToXPositionFunction = (timestamp) -> pixelPerSecond * timestamp / 1000 + tx;
 
+		//paintToolDemos(height);
 		paintEvents(height);
 		paintPageEvents(height);
 	}
@@ -177,6 +180,19 @@ public class EventTimelineSkin extends MediaTrackControlSkinBase {
 		pageEventList.forEach(pageSlider -> pane.getChildren().remove(pageSlider));
 		pageEventList.clear();
 
+		// Adds the tool demo bars.
+		for (Recording.ToolDemoRecording toolDemoRecording : eventTimeline.getToolDemoRecordings()) {
+			double beginningTime = timeToXPositionFunction.applyAsDouble(toolDemoRecording.interval().getStart().intValue());
+			double endTime = timeToXPositionFunction.applyAsDouble(toolDemoRecording.interval().getEnd().intValue());
+			Rectangle rectangle = new Rectangle(endTime-beginningTime, height);
+			rectangle.getStyleClass().add("page-tool-demo-marker");
+			rectangle.setX(snapPositionX(beginningTime));
+			rectangle.setY(snapPositionX(height/18));
+
+			pageEventList.add(rectangle);
+		}
+
+		// Adds the event bars.
 		List<RecordedPage> pages = eventTimeline.getMediaTrack().getData();
 		for (RecordedPage page : pages) {
 			List<PlaybackAction> actions = page.getPlaybackActions();
@@ -185,8 +201,7 @@ public class EventTimelineSkin extends MediaTrackControlSkinBase {
 
 				if (action.getType() == ActionType.TOOL_BEGIN && actionStartTime == null) {
 					actionStartTime = action.getTimestamp();
-				}
-				else if (action.getType() == ActionType.TOOL_END && actionStartTime != null) {
+				} else if (action.getType() == ActionType.TOOL_END && actionStartTime != null) {
 					double beginningTime = timeToXPositionFunction.applyAsDouble(actionStartTime);
 					double endTime = timeToXPositionFunction.applyAsDouble(action.getTimestamp());
 
@@ -197,8 +212,7 @@ public class EventTimelineSkin extends MediaTrackControlSkinBase {
 
 					pageEventList.add(rectangle);
 					actionStartTime = null;
-				}
-				else if (action.getType() == ActionType.TEXT_SELECTION_EXT) {
+				} else if (action.getType() == ActionType.TEXT_SELECTION_EXT) {
 					Rectangle rectangle = new Rectangle(1, height / 1.5);
 					rectangle.getStyleClass().add("page-event-marker");
 					rectangle.setX(snapPositionX(timeToXPositionFunction.applyAsDouble(action.getTimestamp())));
@@ -207,6 +221,23 @@ public class EventTimelineSkin extends MediaTrackControlSkinBase {
 					pageEventList.add(rectangle);
 				}
 			}
+		}
+		pane.getChildren().addAll(pageEventList);
+	}
+
+	private void paintToolDemos(double height) {
+		pageEventList.forEach(pageSlider -> pane.getChildren().remove(pageSlider));
+		pageEventList.clear();
+
+		for (Recording.ToolDemoRecording toolDemoRecording : eventTimeline.getToolDemoRecordings()) {
+			double beginningTime = timeToXPositionFunction.applyAsDouble(toolDemoRecording.interval().getStart().intValue());
+			double endTime = timeToXPositionFunction.applyAsDouble(toolDemoRecording.interval().getEnd().intValue());
+			Rectangle rectangle = new Rectangle(endTime-beginningTime, height / 1.5);
+			rectangle.getStyleClass().add("page-tool-demo-marker");
+			rectangle.setX(snapPositionX(beginningTime));
+			rectangle.setY(snapPositionX(height / 6));
+
+			pageEventList.add(rectangle);
 		}
 		pane.getChildren().addAll(pageEventList);
 	}
@@ -319,18 +350,15 @@ public class EventTimelineSkin extends MediaTrackControlSkinBase {
 				higherPageBound = new RecordedPage();
 				higherPageBound.setTimestamp((int) eventTimeline.getDuration().getMillis());
 				higherPageBound.setNumber(page.getNumber() + 1);
-			}
-			else {
+			} else {
 				higherPageBound = pages.get(page.getNumber() + 1);
 			}
 
 			if (page.getTimestamp() - lowerPageBound.getTimestamp() < 10) {
 				eventTimeline.getOnHideAndMoveNextPage().execute(lowerPageBound);
-			}
-			else if (higherPageBound.getTimestamp() - page.getTimestamp() < 10) {
+			} else if (higherPageBound.getTimestamp() - page.getTimestamp() < 10) {
 				eventTimeline.getOnHidePage().execute(page);
-			}
-			else {
+			} else {
 				eventTimeline.getOnMovePage().execute(page);
 			}
 		}

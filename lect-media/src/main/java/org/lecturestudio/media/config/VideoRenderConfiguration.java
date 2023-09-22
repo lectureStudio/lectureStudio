@@ -23,6 +23,7 @@ import org.lecturestudio.core.beans.IntegerProperty;
 import org.lecturestudio.core.beans.ObjectProperty;
 import org.lecturestudio.core.codec.CodecID;
 import org.lecturestudio.core.geometry.Dimension2D;
+import org.lecturestudio.core.geometry.Position;
 
 public class VideoRenderConfiguration {
 
@@ -46,6 +47,9 @@ public class VideoRenderConfiguration {
 
 	/** The two-pass profile path. */
 	private String twoPassProfilePath;
+
+	/** The placement of the camera recording. */
+	private ObjectProperty<Position> cameraRecordingPlacement = new ObjectProperty<>();
 
 
 	public CodecID getCodecID() {
@@ -128,4 +132,11 @@ public class VideoRenderConfiguration {
 		this.twoPassProfilePath = profilePath;
 	}
 
+	public ObjectProperty<Position> getCameraRecordingPlacement() {
+		return cameraRecordingPlacement;
+	}
+
+	public void setCameraRecordingPlacement(Position cameraRecordingPlacement) {
+		this.cameraRecordingPlacement.set(cameraRecordingPlacement);
+	}
 }

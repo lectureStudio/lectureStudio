@@ -59,6 +59,7 @@ import org.lecturestudio.media.video.FFmpegProcessMuxer;
 import org.lecturestudio.media.video.VideoMuxer;
 import org.lecturestudio.presenter.api.context.PresenterContext;
 import org.lecturestudio.presenter.api.model.ScreenShareContext;
+import org.lecturestudio.presenter.api.recording.FileLectureRecorder;
 import org.lecturestudio.swing.util.VideoFrameConverter;
 import org.lecturestudio.web.api.event.LocalScreenVideoFrameEvent;
 
@@ -70,6 +71,8 @@ public class ScreenRecorderService extends ExecutableBase {
 	private final DateFormat dateFormat = new SimpleDateFormat("yyyy_MM_dd-HH_mm");
 
 	private final PresenterContext context;
+
+	private final FileLectureRecorder recorder;
 
 	private final Dimension2D outputSize = new Dimension2D(1280, 960);
 
@@ -95,9 +98,10 @@ public class ScreenRecorderService extends ExecutableBase {
 
 
 	public ScreenRecorderService(PresenterContext context,
-			AudioSystemProvider audioSystemProvider) {
+								 AudioSystemProvider audioSystemProvider, FileLectureRecorder fileLectureRecorder) {
 		this.context = context;
 		this.audioSystemProvider = audioSystemProvider;
+		this.recorder = fileLectureRecorder;
 	}
 
 	public ScreenShareContext getScreenShareContext() {
@@ -116,8 +120,7 @@ public class ScreenRecorderService extends ExecutableBase {
 
 		try {
 			addVideoFrame(event.getFrame());
-		}
-		catch (Exception e) {
+		} catch (Exception e) {
 			LOG.error("Mux video frame failed", e);
 		}
 	}
@@ -151,16 +154,14 @@ public class ScreenRecorderService extends ExecutableBase {
 		// Write recorded audio into the video.
 		try {
 			flushAudio();
-		}
-		catch (Exception e) {
+		} catch (Exception e) {
 			LOG.error("Flush recorded audio failed", e);
 		}
 
 		// Delete temporary video file.
 		try {
 			Files.deleteIfExists(outputVideoPath);
-		}
-		catch (IOException e) {
+		} catch (IOException e) {
 			LOG.error("Delete temporary capture file failed", e);
 		}
 	}
@@ -258,6 +259,8 @@ public class ScreenRecorderService extends ExecutableBase {
 				.getRecordingPath(), title + "-" + date + ".mp4");
 		outputVideoPath = Paths.get(context.getConfiguration().getAudioConfig()
 				.getRecordingPath(), title + "-temp-" + date + ".mp4");
+
+		recorder.setCurrentToolDemoFileName(outputPath.getFileName().toString());
 
 		VideoRenderConfiguration vRenderConfig = new VideoRenderConfiguration();
 		vRenderConfig.setBitrate(shareContext.getProfile().getBitrate());

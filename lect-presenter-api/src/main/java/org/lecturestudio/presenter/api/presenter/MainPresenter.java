@@ -200,6 +200,7 @@ public class MainPresenter extends org.lecturestudio.core.presenter.MainPresente
 			ScreenShareContext shareContext = screenSourceService.getScreenShareContext(selectedDoc);
 
 			if (!newValue) {
+				recordingService.screenShareStopped();
 				// Only update documents with screen dumps if the service is active.
 				if (streamService.getScreenShareState() == ExecutableState.Started
 					|| screenShareService.isScreenCaptureActive()) {
@@ -226,6 +227,7 @@ public class MainPresenter extends org.lecturestudio.core.presenter.MainPresente
 				stopLocalScreenCapture();
 			}
 			else {
+				recordingService.screenShareStarted();
 				startScreenRecording(shareContext);
 
 				if (!presenterContext.getStreamStarted()) {

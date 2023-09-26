@@ -205,12 +205,12 @@ public class MuPDFDocument implements DocumentAdapter {
 	}
 
 	@Override
-	public List<Rectangle2D> getPageWordsNormalized(int pageNumber) {
+	public List<Rectangle2D> getPageWordsNormalized(int pageNumber, NotesPosition splitNotesPosition) {
 		synchronized (mutex) {
 			DisplayList displayList = getDisplayList(pageNumber);
 			Page page = getPage(pageNumber);
 
-			WordWalker wordWalker = new WordWalker(page.getBounds());
+			WordWalker wordWalker = new WordWalker(page.getBounds(), splitNotesPosition);
 
 			StructuredText structuredText = displayList.toStructuredText();
 			structuredText.walk(wordWalker);

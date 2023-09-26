@@ -238,11 +238,11 @@ public class PdfDocumentRenderer extends ExecutableBase {
 		if (editable) {
 			// Tag graphics stream to be able to find it later.
 			graphics = (PDFGraphics2D) pdfDocument.createAppendablePageGraphics2D(
-					pageIndex, PdfDocument.EMBEDDED_SHAPES_KEY, notesPosition);
+					pageIndex, PdfDocument.EMBEDDED_SHAPES_KEY, NotesPosition.UNKNOWN);
 		}
 		else {
 			graphics = (PDFGraphics2D) pdfDocument.createAppendablePageGraphics2D(
-					pageIndex, notesPosition);
+					pageIndex, NotesPosition.UNKNOWN);
 		}
 
 		SwingGraphicsContext gc = new SwingGraphicsContext(graphics);
@@ -264,8 +264,9 @@ public class PdfDocumentRenderer extends ExecutableBase {
 		double tx = pageWidth * annotTransform.getTranslateX();
 		double ty = pageWidth * annotTransform.getTranslateY();
 
-		if(notesPosition == NotesPosition.LEFT){
-			tx += pageWidth;
+		if(page.getDocument().getActualSplitSlideNotesPositon() == NotesPosition.LEFT) {
+			mediaBox.setRect(mediaBox.getWidth(), mediaBox.getY(), mediaBox.getWidth(), mediaBox.getHeight());
+			tx -= pageWidth;
 		}
 		gc.translate(-tx , ty + mediaBox.getHeight());
 		gc.scale(sx, -sx);

@@ -220,7 +220,7 @@ public class PDFBoxDocument implements DocumentAdapter {
 	}
 
 	@Override
-	public List<Rectangle2D> getPageWordsNormalized(int pageNumber) throws IOException {
+	public List<Rectangle2D> getPageWordsNormalized(int pageNumber, NotesPosition splitNotesPosition) throws IOException {
 		WordBoundsExtractor wordExtractor = new WordBoundsExtractor(doc);
 
 		return wordExtractor.getWordBounds(pageNumber + 1);
@@ -372,6 +372,11 @@ public class PDFBoxDocument implements DocumentAdapter {
 		page.setContents(newContents);
 	}
 
+	public void setCropbox(int pageNumber, int x, int y, int width, int height){
+		PDPage page = doc.getPage(pageNumber);
+		page.setCropBox(new PDRectangle(x, y, width, height));
+	}
+
 	public synchronized int importPage(PDFBoxDocument srcDocument, int pageNumber, AffineTransform transform) throws IOException {
 		PDDocument sourceDocument = srcDocument.doc;
 
@@ -380,6 +385,7 @@ public class PDFBoxDocument implements DocumentAdapter {
 			PDPage imported = doc.importPage(page);
 
 			imported.setResources(page.getResources());
+			imported.setMediaBox(imported.getCropBox());
 
 			if (page.getRotation() == 90) {
 				// Set rotation to zero.

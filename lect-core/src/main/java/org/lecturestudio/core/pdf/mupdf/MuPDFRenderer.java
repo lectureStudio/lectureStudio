@@ -81,8 +81,11 @@ public class MuPDFRenderer implements DocumentRenderer {
 
 			DisplayList displayList = document.getDisplayList(pageNumber);
 
+
+
 			com.artifex.mupdf.fitz.Page p = document.getPage(pageNumber);
 			Rect bounds = p.getBounds();
+			System.out.println("Bounds: " + bounds);
 
 			if(page.getDocument().getSplitSlideNotesPositon() == NotesPosition.UNKNOWN){
 				if(bounds.x1/bounds.y1 >= 2){
@@ -90,14 +93,15 @@ public class MuPDFRenderer implements DocumentRenderer {
 				}else {
 					page.getDocument().setSplitSlideNotesPositon(NotesPosition.NONE);
 				}
+				page.getDocument().calculateCropbox();
 			}
 			if(page.getDocument().getSplitSlideNotesPositon() == NotesPosition.RIGHT){
 				bounds.x1 = bounds.x1/2;
-
 			}
 
 			if(page.getDocument().getSplitSlideNotesPositon() == NotesPosition.LEFT){
 				bounds.x0 = bounds.x1/2;
+				x = (int) (x - (imageWidth -sx));
 			}
 
 			float scale = (float) (1.D / pageRect.getWidth());

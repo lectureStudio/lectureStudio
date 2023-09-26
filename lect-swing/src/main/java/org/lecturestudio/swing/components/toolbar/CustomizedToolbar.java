@@ -788,6 +788,11 @@ public class CustomizedToolbar extends JPanel {
 			SpaceComponent space = new SpaceComponent(this, true);
 			space.setName(name);
 			return space;
+		}if (name.equals("newBookmarkButton") || name.equals("prevBookmarkButton") || name.equals("nextBookmarkButton") || name.equals("bookmarksButton")) {
+			JSeparator newSeparator = new JSeparator(SwingConstants.VERTICAL);
+			newSeparator.setUI(new MacToolbarSeparatorUI());
+			newSeparator.setName(name);
+			return newSeparator;
 		}
 		throw new NullPointerException("No component \"" + name + "\"");
 	}

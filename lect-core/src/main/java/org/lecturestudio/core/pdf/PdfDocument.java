@@ -190,6 +190,9 @@ public class PdfDocument {
 		return pdfBoxDocument.importPage(pdfDocument.pdfBoxDocument, pageIndex, pageRect);
 	}
 
+	public void setCropbox(int pageNumber,int x, int y, int width, int height){
+		pdfBoxDocument.setCropbox(pageNumber,x , y, width,height);
+	}
 	/**
 	 * Replaces the page that has the {@code pageIndex} with the page
 	 * that has {@code docIndex} in {@code newPdfDocument}.
@@ -309,8 +312,8 @@ public class PdfDocument {
 	 * @param pageNumber The page number.
 	 * @return The word bounds of the page that has the specified page number.
 	 */
-	public List<Rectangle2D> getNormalizedWordPositions(int pageNumber) {
-		return muPDFDocument.getPageWordsNormalized(pageNumber);
+	public List<Rectangle2D> getNormalizedWordPositions(int pageNumber, NotesPosition splitNotesPosition) {
+		return muPDFDocument.getPageWordsNormalized(pageNumber, splitNotesPosition);
 	}
 
 	/**

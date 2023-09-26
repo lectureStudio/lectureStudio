@@ -134,10 +134,11 @@ public interface DocumentAdapter {
 	 * Get the word bounds of the page that has the specified page number.
 	 *
 	 * @param pageNumber The page number.
+	 * @param splitNotesPosition Position of the slide notes
 	 *
 	 * @return The word bounds of the page that has the specified page number.
 	 */
-	List<Rectangle2D> getPageWordsNormalized(int pageNumber) throws IOException;
+	List<Rectangle2D> getPageWordsNormalized(int pageNumber, NotesPosition splitNotesPosition) throws IOException;
 
 	/**
 	 * Get the text bounds of the page that has the specified page number.

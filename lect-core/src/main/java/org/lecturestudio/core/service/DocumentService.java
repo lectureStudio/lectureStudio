@@ -406,6 +406,7 @@ public class DocumentService {
 
 		if (nonNull(doc)) {
 			doc.setSplitSlideNotesPositon(pos);
+			doc.calculateCropbox();
 		}
 		context.getEventBus().post(new PageEvent(doc.getCurrentPage(),
 				PageEvent.Type.SELECTED));

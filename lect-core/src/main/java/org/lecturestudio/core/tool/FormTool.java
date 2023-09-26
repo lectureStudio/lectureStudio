@@ -25,11 +25,11 @@ import org.lecturestudio.core.model.shape.FormShape;
 
 public abstract class FormTool extends StrokeTool<FormShape> {
 
-	public FormTool(ToolContext context) {
+	protected FormTool(ToolContext context) {
 		super(context);
 	}
 
-	public FormTool(ToolContext context, Integer shapeHandle) {
+	protected FormTool(ToolContext context, Integer shapeHandle) {
 		super(context, shapeHandle);
 	}
 

@@ -20,7 +20,7 @@ package org.lecturestudio.core.render;
 
 import static java.util.Objects.isNull;
 
-import java.util.HashMap;
+import java.util.EnumMap;
 import java.util.List;
 import java.util.Map;
 
@@ -30,7 +30,7 @@ import org.lecturestudio.core.view.ViewType;
 
 public class RenderContext {
 
-	private final Map<ViewType, RenderService> renderers = new HashMap<>();
+	private final Map<ViewType, RenderService> renderers = new EnumMap<>(ViewType.class);
 	
 	
 	public void setRenderer(ViewType type, RenderService service) {

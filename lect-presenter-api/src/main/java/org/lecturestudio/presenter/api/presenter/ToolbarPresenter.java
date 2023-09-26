@@ -466,9 +466,8 @@ public class ToolbarPresenter extends Presenter<ToolbarView> {
 	private void handleRecordingStateError(Throwable e) {
 		Throwable cause = nonNull(e.getCause()) ? e.getCause().getCause() : null;
 
-		if (cause instanceof AudioDeviceNotConnectedException) {
-			var ex = (AudioDeviceNotConnectedException) cause;
-			showError("recording.start.error", "recording.start.device.error", ex.getDeviceName());
+		if (cause instanceof AudioDeviceNotConnectedException ex) {
+			context.showError("recording.start.error", "recording.start.device.error", ex.getDeviceName());
 			logException(e, "Start recording failed");
 		}
 		else {

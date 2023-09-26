@@ -23,8 +23,9 @@ import java.nio.ByteBuffer;
 
 import org.lecturestudio.core.controller.ToolController;
 import org.lecturestudio.core.geometry.PenPoint2D;
+import org.lecturestudio.core.geometry.Point2D;
 
-public class ToolEndAction extends PlaybackAction {
+public class ToolEndAction extends PlaybackAction implements LocationModifiable {
 
 	private PenPoint2D point;
 
@@ -74,4 +75,8 @@ public class ToolEndAction extends PlaybackAction {
 		return ActionType.TOOL_END;
 	}
 
+	@Override
+	public void moveByDelta(Point2D delta) {
+		point.subtract(delta);
+	}
 }

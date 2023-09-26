@@ -48,7 +48,7 @@ public abstract class ServiceTest extends org.lecturestudio.core.service.Service
 		});
 	}
 
-	abstract void setupInjector() throws Exception;
+	protected abstract void setupInjector() throws Exception;
 
 
 	@Override

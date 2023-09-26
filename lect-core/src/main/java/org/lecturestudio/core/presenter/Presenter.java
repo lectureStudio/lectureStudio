@@ -111,7 +111,7 @@ public abstract class Presenter<T extends View> {
 	protected final void handleException(Throwable throwable, String throwMessage, String title, String message) {
 		logException(throwable, throwMessage);
 
-		showError(title, message);
+		context.showError(title, message);
 	}
 
 	protected final void logMessage(String message, Object... messageParams) {
@@ -124,95 +124,4 @@ public abstract class Presenter<T extends View> {
 
 		LOG.error(throwMessage, throwable);
 	}
-
-	protected final void showError(String title, String message) {
-		requireNonNull(title);
-
-		showNotification(NotificationType.ERROR, title, message);
-	}
-
-	protected final void showError(String title, String message, Object... messageParams) {
-		showNotification(NotificationType.ERROR, title, message, messageParams);
-	}
-
-	protected final void showNotification(NotificationType type, String title, String message) {
-		if (context.getDictionary().contains(title)) {
-			title = context.getDictionary().get(title);
-		}
-		if (context.getDictionary().contains(message)) {
-			message = context.getDictionary().get(message);
-		}
-
-		context.getEventBus().post(new NotificationCommand(type, title, message));
-	}
-
-	protected final void showNotification(NotificationType type, String title, String message, Object... messageParams) {
-		if (context.getDictionary().contains(message)) {
-			message = context.getDictionary().get(message);
-		}
-
-		message = MessageFormat.format(message, messageParams);
-
-		showNotification(type, title, message);
-	}
-
-	protected final void showNotificationPopup(String title) {
-		showNotificationPopup(title, null);
-	}
-
-	protected final void showNotificationPopup(String title, String message) {
-		if (context.getDictionary().contains(title)) {
-			title = context.getDictionary().get(title);
-		}
-		if (context.getDictionary().contains(message)) {
-			message = context.getDictionary().get(message);
-		}
-
-		context.getEventBus().post(new NotificationPopupCommand(Position.TOP_RIGHT, title, message));
-	}
-
-	/**
-	 * Opens a notification pop with an accept and decline option.
-	 *
-	 * @param type          The Notification Type
-	 * @param title         The title of the notification
-	 * @param message       The message of the notification
-	 * @param confirmAction The action when the user clicks the confirm button
-	 * @param discardAction The action when the user clicks the close button
-	 */
-	protected final void showConfirmationNotification(NotificationType type, String title, String message,
-	                                                  Action confirmAction, Action discardAction) {
-		showConfirmationNotification(type, title, message, confirmAction, discardAction, "button.confirm", "button.close");
-	}
-
-	/**
-	 * Opens a notification pop with an accept and decline option.
-	 *
-	 * @param type          The Notification Type
-	 * @param title         The title of the notification
-	 * @param message       The message of the notification
-	 * @param confirmAction The action when the user clicks the confirm button
-	 * @param discardAction The action when the user clicks the close button
-	 */
-	protected final void showConfirmationNotification(NotificationType type, String title, String message,
-	                                                  Action confirmAction, Action discardAction,
-	                                                  String confirmButtonText, String discardButtonText) {
-		if (context.getDictionary().contains(title)) {
-			title = context.getDictionary().get(title);
-		}
-		if (context.getDictionary().contains(message)) {
-			message = context.getDictionary().get(message);
-		}
-		if (context.getDictionary().contains(confirmButtonText)) {
-			confirmButtonText = context.getDictionary().get(confirmButtonText);
-		}
-		if (context.getDictionary().contains(discardButtonText)) {
-			discardButtonText = context.getDictionary().get(discardButtonText);
-		}
-
-
-		context.getEventBus().post(new ConfirmationNotificationCommand(type, title, message, confirmAction,
-				discardAction, confirmButtonText, discardButtonText));
-	}
-
 }

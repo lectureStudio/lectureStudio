@@ -20,11 +20,12 @@ package org.lecturestudio.media.recording;
 
 import static java.util.Objects.nonNull;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import org.lecturestudio.core.ExecutableBase;
 import org.lecturestudio.core.ExecutableException;
 import org.lecturestudio.core.ExecutableState;
@@ -41,7 +42,7 @@ import org.lecturestudio.media.playback.RecordingPlayer;
 @Singleton
 public class RecordingPlaybackService extends ExecutableBase {
 
-	private final static Logger LOG = LogManager.getLogger(RecordingPlaybackService.class);
+	private static final Logger LOG = LogManager.getLogger(RecordingPlaybackService.class);
 
 	private final AudioSystemProvider audioSystemProvider;
 

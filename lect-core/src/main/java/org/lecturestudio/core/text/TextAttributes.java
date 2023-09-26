@@ -21,12 +21,13 @@ package org.lecturestudio.core.text;
 import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Map.Entry;
 
 public class TextAttributes implements Serializable {
 
 	private static final long serialVersionUID = -3665418380734563104L;
 
-	private final Map<String, Object> attributes = new HashMap<>(2);
+	private final Map<String, Boolean> attributes = new HashMap<>(2);
 
 
 	public TextAttributes() {
@@ -44,7 +45,7 @@ public class TextAttributes implements Serializable {
 	}
 
 	public boolean isStrikethrough() {
-		Boolean strikethrough = (Boolean) attributes.getOrDefault("strikethrough", Boolean.FALSE);
+		Boolean strikethrough = attributes.getOrDefault("strikethrough", Boolean.FALSE);
 		return Boolean.TRUE.equals(strikethrough);
 	}
 
@@ -52,7 +53,7 @@ public class TextAttributes implements Serializable {
 		attributes.put("strikethrough", strikethrough);
 	}
 
-	public void setAttribute(String name, Object value) {
+	public void setAttribute(String name, Boolean value) {
 		if (!attributes.containsKey(name)) {
 			return;
 		}
@@ -63,8 +64,8 @@ public class TextAttributes implements Serializable {
 	public TextAttributes clone() {
 		TextAttributes clone = new TextAttributes();
 
-		for (String key : attributes.keySet()) {
-			clone.setAttribute(key, attributes.get(key));
+		for (Entry<String, Boolean> entry : attributes.entrySet()) {
+			clone.setAttribute(entry.getKey(), entry.getValue());
 		}
 
 		return clone;

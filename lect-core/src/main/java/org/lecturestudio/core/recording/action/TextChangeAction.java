@@ -25,7 +25,7 @@ import org.lecturestudio.core.controller.ToolController;
 
 public class TextChangeAction extends PlaybackAction {
 
-	private int handle;
+	protected int handle;
 
 	private String text;
 
@@ -80,4 +80,13 @@ public class TextChangeAction extends PlaybackAction {
 		return ActionType.TEXT_CHANGE;
 	}
 
+	@Override
+	public boolean hasHandle() {
+		return true;
+	}
+
+	@Override
+	public int getHandle() {
+		return handle;
+	}
 }

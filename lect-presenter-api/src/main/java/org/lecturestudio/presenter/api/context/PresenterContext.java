@@ -135,6 +135,7 @@ public class PresenterContext extends ApplicationContext {
 		});
 	}
 
+	@Override
 	public PresenterConfiguration getConfiguration() {
 		return (PresenterConfiguration) super.getConfiguration();
 	}

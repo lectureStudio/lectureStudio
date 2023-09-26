@@ -20,6 +20,8 @@ package org.lecturestudio.javafx.control;
 
 import static java.util.Objects.nonNull;
 
+import java.util.Objects;
+
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.scene.control.Skin;
@@ -29,6 +31,7 @@ import org.lecturestudio.core.model.shape.TextShape;
 import org.lecturestudio.core.text.Font;
 import org.lecturestudio.core.text.TextAttributes;
 import org.lecturestudio.core.view.TextBoxView;
+import org.lecturestudio.javafx.beans.converter.FontConverter;
 
 public class TextBox extends PageObject<TextShape> implements TextBoxView {
 
@@ -90,12 +93,13 @@ public class TextBox extends PageObject<TextShape> implements TextBoxView {
 	public void setTextFont(Font font) {
 		if (nonNull(getPageShape())) {
 			getPageShape().setFont(font);
+			fontProperty().set(FontConverter.INSTANCE.to(font));
 		}
 	}
 
 	@Override
 	public String getUserAgentStylesheet() {
-		return getClass().getResource("/resources/css/text-box.css").toExternalForm();
+		return Objects.requireNonNull(getClass().getResource("/resources/css/text-box.css")).toExternalForm();
 	}
 
 	@Override

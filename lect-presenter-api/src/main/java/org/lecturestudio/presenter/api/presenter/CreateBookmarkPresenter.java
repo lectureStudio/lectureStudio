@@ -58,7 +58,7 @@ public class CreateBookmarkPresenter extends Presenter<CreateBookmarkView> {
 			bookmarkCreated(bookmarkService.createBookmark(keyStr));
 		}
 		catch (BookmarkKeyException e) {
-			showError("bookmark.assign.error", "bookmark.key.exists", keyStr);
+			context.showError("bookmark.assign.error", "bookmark.key.exists", keyStr);
 		}
 		catch (BookmarkException e) {
 			handleException(e, "Create bookmark failed", "bookmark.assign.error");
@@ -79,7 +79,7 @@ public class CreateBookmarkPresenter extends Presenter<CreateBookmarkView> {
 		String shortcut = bookmark.getShortcut().toUpperCase();
 		String message = MessageFormat.format(context.getDictionary().get("bookmark.created"), shortcut);
 
-		showNotificationPopup(message);
+		context.showNotificationPopup(message);
 		close();
 	}
 }

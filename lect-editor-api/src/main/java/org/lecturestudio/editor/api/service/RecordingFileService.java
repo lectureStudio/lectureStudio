@@ -20,6 +20,9 @@ package org.lecturestudio.editor.api.service;
 
 import static java.util.Objects.nonNull;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -38,33 +41,34 @@ import javax.inject.Singleton;
 import org.lecturestudio.core.ExecutableException;
 import org.lecturestudio.core.app.ApplicationContext;
 import org.lecturestudio.core.bus.EventBus;
+import org.lecturestudio.core.geometry.PenPoint2D;
 import org.lecturestudio.core.io.RandomAccessAudioStream;
 import org.lecturestudio.core.model.Document;
 import org.lecturestudio.core.model.Interval;
-import org.lecturestudio.core.recording.RecordingEditException;
-import org.lecturestudio.core.recording.edit.EditAction;
-import org.lecturestudio.editor.api.edit.HideAndMoveNextPageAction;
-import org.lecturestudio.editor.api.edit.HidePageAction;
-import org.lecturestudio.editor.api.edit.MovePageAction;
-import org.lecturestudio.editor.api.edit.ReplaceAllPagesAction;
-import org.lecturestudio.editor.api.edit.ReplaceAudioAction;
+import org.lecturestudio.core.recording.RecordedAudio;
+import org.lecturestudio.core.recording.Recording;
 import org.lecturestudio.core.recording.RecordingChangeEvent;
 import org.lecturestudio.core.recording.RecordingChangeListener;
-import org.lecturestudio.core.recording.Recording;
+import org.lecturestudio.core.recording.RecordingEditException;
+import org.lecturestudio.core.recording.action.PlaybackAction;
+import org.lecturestudio.core.recording.edit.EditAction;
 import org.lecturestudio.core.recording.file.RecordingFileReader;
 import org.lecturestudio.core.recording.file.RecordingFileWriter;
 import org.lecturestudio.core.recording.file.RecordingUtils;
-import org.lecturestudio.core.recording.RecordedAudio;
 import org.lecturestudio.core.service.DocumentService;
 import org.lecturestudio.core.util.ProgressCallback;
 import org.lecturestudio.editor.api.context.EditorContext;
 import org.lecturestudio.editor.api.edit.CutAction;
 import org.lecturestudio.editor.api.edit.DeletePageAction;
+import org.lecturestudio.editor.api.edit.HideAndMoveNextPageAction;
+import org.lecturestudio.editor.api.edit.HidePageAction;
+import org.lecturestudio.editor.api.edit.InsertPlaybackActionsAction;
 import org.lecturestudio.editor.api.edit.InsertRecordingAction;
+import org.lecturestudio.editor.api.edit.ModifyPlaybackActionPositionsAction;
+import org.lecturestudio.editor.api.edit.MovePageAction;
+import org.lecturestudio.editor.api.edit.ReplaceAllPagesAction;
+import org.lecturestudio.editor.api.edit.ReplaceAudioAction;
 import org.lecturestudio.media.recording.RecordingEvent;
-
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 
 @Singleton
 public class RecordingFileService {
@@ -471,10 +475,15 @@ public class RecordingFileService {
 		double prevDuration = playbackService.getDuration().getMillis();
 		double scale = prevDuration / recording.getRecordedAudio().getAudioStream().getLengthInMillis();
 
-		documentService.replaceDocument(document);
-		playbackService.setRecording(recording);
+		// Do not refresh the recording if new events got added, because the view got already handled by the UI
+		switch (event.getContentType()) {
+			case ALL, DOCUMENT, HEADER, AUDIO, EVENTS_REMOVED, EVENTS_CHANGED -> {
+				documentService.replaceDocument(document);
+				playbackService.setRecording(recording);
 
-		updateEditState(recording);
+				updateEditState(recording);
+			}
+		}
 
 		context.getEventBus().post(event);
 
@@ -605,6 +614,59 @@ public class RecordingFileService {
 			catch (Exception e) {
 				throw new CompletionException(e);
 			}
+		});
+	}
+
+	/**
+	 * {@link InsertPlaybackActionsAction}
+	 *
+	 * @param addedActions the actions to be added
+	 * @param pageNumber   the number of the page in which they should be added
+	 * @return an async task performing the task
+	 */
+	public CompletableFuture<Void> insertPlaybackActions(List<PlaybackAction> addedActions, int pageNumber) {
+		return insertPlaybackActions(addedActions, pageNumber, getSelectedRecording());
+	}
+
+	public CompletableFuture<Void> insertPlaybackActions(List<PlaybackAction> addedActions, int pageNumber, Recording recording) {
+		return CompletableFuture.runAsync(() -> {
+			try {
+				addEditAction(recording, new InsertPlaybackActionsAction(addedActions, pageNumber, recording));
+			}
+			catch (Exception e) {
+				throw new CompletionException(e);
+			}
+		}).thenCompose((ignored) -> {
+			double endTimestamp = (double) (addedActions.get(addedActions.size() - 1).getTimestamp() + 2) / recording.getRecordingHeader().getDuration();
+			context.setPrimarySelection(endTimestamp);
+			return null;
+		});
+	}
+
+	/**
+	 * {@link ModifyPlaybackActionPositionsAction}
+	 *
+	 * @param handle the associated shape handle
+	 * @param pageNumber the number of the page the actions should be modified
+	 * @param delta the amount the locations should be changed by
+	 * @return an async task performing the task
+	 */
+	public CompletableFuture<Void> modifyPlaybackActionPositions(int handle, int pageNumber, PenPoint2D delta) {
+		return modifyPlaybackActionPositions(handle, pageNumber, delta, getSelectedRecording());
+	}
+
+	public CompletableFuture<Void> modifyPlaybackActionPositions(int handle, int pageNumber, PenPoint2D delta, Recording recording) {
+		double timestampBefore = context.getPrimarySelection();
+		return CompletableFuture.runAsync(() -> {
+			try {
+				addEditAction(recording, new ModifyPlaybackActionPositionsAction(recording, handle, pageNumber, delta));
+			}
+			catch (Exception e) {
+				throw new CompletionException(e);
+			}
+		}).thenCompose((ignored) -> {
+			context.setPrimarySelection(timestampBefore);
+			return null;
 		});
 	}
 }

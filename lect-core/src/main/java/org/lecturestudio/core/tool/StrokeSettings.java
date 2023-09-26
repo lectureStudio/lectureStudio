@@ -20,10 +20,13 @@ package org.lecturestudio.core.tool;
 
 import org.lecturestudio.core.beans.BooleanProperty;
 import org.lecturestudio.core.beans.DoubleProperty;
+import org.lecturestudio.core.beans.ObjectProperty;
 
 public class StrokeSettings extends PaintSettings {
 
 	private final DoubleProperty width = new DoubleProperty();
+
+	private final ObjectProperty<StrokeWidthSettings> strokeWidthSettings = new ObjectProperty<>(StrokeWidthSettings.NORMAL);
 
 	private final BooleanProperty scale = new BooleanProperty();
 
@@ -37,6 +40,7 @@ public class StrokeSettings extends PaintSettings {
 
 		setWidth(settings.getWidth());
 		setScale(settings.getScale());
+		setStrokeWidthSettings(settings.getStrokeWidthSettings());
 	}
 
 	public DoubleProperty widthProperty() {
@@ -67,5 +71,17 @@ public class StrokeSettings extends PaintSettings {
 
 	public BooleanProperty scaleProperty() {
 		return scale;
+	}
+
+	public ObjectProperty<StrokeWidthSettings> strokeWidthSettingsProperty() {
+		return strokeWidthSettings;
+	}
+
+	public StrokeWidthSettings getStrokeWidthSettings() {
+		return strokeWidthSettings.get();
+	}
+
+	public void setStrokeWidthSettings(StrokeWidthSettings strokeWidthSettings) {
+		this.strokeWidthSettings.set(strokeWidthSettings);
 	}
 }

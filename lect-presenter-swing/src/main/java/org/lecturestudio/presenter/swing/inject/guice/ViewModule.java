@@ -54,6 +54,7 @@ public class ViewModule extends AbstractModule {
 		bind(NotificationView.class).to(SwingNotificationView.class);
 		bind(NotificationPopupView.class).to(SwingNotificationPopupView.class);
 		bind(NotificationPopupManager.class).to(SwingNotificationPopupManager.class);
+		bind(PreviewStreamView.class).to(SwingPreviewStreamView.class);
 		bind(ProgressView.class).to(SwingProgressView.class);
 		bind(QuitRecordingView.class).to(SwingQuitRecordingView.class);
 		bind(ReconnectStreamView.class).to(SwingReconnectStreamView.class);
@@ -71,6 +72,7 @@ public class ViewModule extends AbstractModule {
 		bind(StartRecordingView.class).to(SwingStartRecordingView.class);
 		bind(StartScreenSharingView.class).to(SwingStartScreenSharingView.class);
 		bind(StartStreamView.class).to(SwingStartStreamView.class);
+		bind(StreamView.class).to(SwingStreamView.class);
 		bind(StreamSettingsView.class).to(SwingStreamSettingsView.class);
 		bind(StopwatchConfigView.class).to(SwingStopwatchConfigView.class);
 		bind(TextBoxView.class).to(SwingTextBoxView.class);

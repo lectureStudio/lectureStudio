@@ -61,8 +61,7 @@ public class VersionInfo {
 	/**
 	 * Retrieves the version of the running application. The version of deployed
 	 * applications will be retrieved from the {@code Package-Version} entry in
-	 * the application's manifest. The default value is {@code
-	 * 999.999.999-snapshot}.
+	 * the application's manifest. The default value is {@code dev}.
 	 *
 	 * @return The application version.
 	 */
@@ -76,7 +75,7 @@ public class VersionInfo {
 		}
 		catch (Exception e) {
 			// Dev mode.
-			version = "999.999.999-snapshot";
+			version = "dev";
 		}
 
 		return version;

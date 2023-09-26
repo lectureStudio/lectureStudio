@@ -187,6 +187,7 @@ public class StartStreamPresenter extends Presenter<StartStreamView> {
 			view.setEnableMicrophone(streamConfig.enableMicrophoneProperty());
 			view.setEnableCamera(streamConfig.enableCameraProperty());
 			view.setEnableMessenger(streamContext.enableMessengerProperty());
+			view.setViewStream(streamContext.previewStreamProperty());
 			view.setAudioCaptureDevices(audioSystemProvider.getRecordingDevices());
 			view.setAudioCaptureDevice(audioConfig.captureDeviceNameProperty());
 			view.setAudioPlaybackDevices(audioSystemProvider.getPlaybackDevices());

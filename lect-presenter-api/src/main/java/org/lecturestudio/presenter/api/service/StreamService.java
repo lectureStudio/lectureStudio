@@ -38,6 +38,7 @@ import org.lecturestudio.core.presenter.command.NotificationCommand;
 import org.lecturestudio.core.util.NetUtils;
 import org.lecturestudio.core.view.NotificationType;
 import org.lecturestudio.presenter.api.context.PresenterContext;
+import org.lecturestudio.presenter.api.handler.PreviewStreamHandler;
 import org.lecturestudio.presenter.api.model.ScreenShareContext;
 import org.lecturestudio.presenter.api.presenter.command.StartCourseFeatureCommand;
 import org.lecturestudio.presenter.api.presenter.command.StartStreamCommand;
@@ -195,6 +196,11 @@ public class StreamService {
 
 				if (streamContext.getMessengerEnabled()) {
 					context.setMessengerStarted(true);
+				}
+
+				if (streamContext.getPreviewStream()) {
+					var previewStreamHandler = new PreviewStreamHandler(context);
+					previewStreamHandler.initialize();
 				}
 			})
 			.exceptionally(e -> {

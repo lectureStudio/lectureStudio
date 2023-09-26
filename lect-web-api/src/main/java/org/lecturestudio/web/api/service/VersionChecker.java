@@ -83,7 +83,7 @@ public class VersionChecker {
 		ComparableVersion appVersion = new ComparableVersion(VersionInfo.getAppVersion());
 		ComparableVersion repoVersion = new ComparableVersion(latestVersion);
 
-		return repoVersion.compareTo(appVersion) > 0;
+		return !appVersion.toString().equals("dev") && repoVersion.compareTo(appVersion) > 0;
 	}
 
 	/**

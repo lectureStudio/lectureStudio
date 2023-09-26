@@ -1,0 +1,12 @@
+<frame size="800,550" plaf="com.formdev.flatlaf.FlatLightLaf" defaultCloseOperation="JFrame.DO_NOTHING_ON_CLOSE">
+	<Panel layout="BorderLayout">
+		<HBox id="buttons" constraints="BorderLayout.NORTH" border="EmptyBorder(5, 5, 5, 5)">
+			<Button id="reloadButton" icon="reload.svg, 20" tooltipText="stream.preview.reload" />
+			<box.hstrut width="5" />
+			<TextField id="addressTextField" text="">
+			</TextField>
+		</HBox>
+		<Panel id="contentContainer" layout="BorderLayout" constraints="BorderLayout.CENTER">
+		</Panel>
+	</Panel>
+</frame>

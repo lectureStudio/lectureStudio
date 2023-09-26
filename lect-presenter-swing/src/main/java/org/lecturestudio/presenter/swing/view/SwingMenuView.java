@@ -141,6 +141,8 @@ public class SwingMenuView extends JMenuBar implements MenuView {
 
 	private JCheckBoxMenuItem enableStreamMenuItem;
 
+	private JCheckBoxMenuItem viewStreamMenuItem;
+
 	private JCheckBoxMenuItem enableStreamMicrophoneMenuItem;
 
 	private JCheckBoxMenuItem enableStreamCameraMenuItem;
@@ -535,6 +537,11 @@ public class SwingMenuView extends JMenuBar implements MenuView {
 	}
 
 	@Override
+	public void bindViewStream(BooleanProperty enable) {
+		SwingUtils.bindBidirectional(viewStreamMenuItem, enable);
+	}
+
+	@Override
 	public void bindEnableStreamingMicrophone(BooleanProperty enable) {
 		SwingUtils.bindBidirectional(enableStreamMicrophoneMenuItem, enable);
 	}
@@ -627,6 +634,7 @@ public class SwingMenuView extends JMenuBar implements MenuView {
 		final boolean started = state == ExecutableState.Started;
 
 		SwingUtils.invoke(() -> {
+			viewStreamMenuItem.setEnabled(started);
 			enableStreamMicrophoneMenuItem.setEnabled(started);
 			enableStreamCameraMenuItem.setEnabled(started);
 

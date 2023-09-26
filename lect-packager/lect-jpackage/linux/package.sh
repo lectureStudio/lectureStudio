@@ -75,6 +75,7 @@ do
 		--runtime-image "runtime" \
 		--java-options -Xmx4096m \
 		--java-options -Djava.library.path="$LIBRARY_PATH" \
+		--java-options -Djava.util.logging.manager=org.apache.logging.log4j.jul.LogManager \
 		--app-version "$VERSION" \
 		--name $app_name \
 		--main-jar ${jar[$value]} \

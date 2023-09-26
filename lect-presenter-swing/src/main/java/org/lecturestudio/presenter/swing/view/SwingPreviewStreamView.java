@@ -18,7 +18,16 @@
 
 package org.lecturestudio.presenter.swing.view;
 
+import static java.util.Objects.nonNull;
+
 import java.awt.Component;
+import java.awt.Container;
+import java.awt.Dimension;
+import java.awt.event.ComponentAdapter;
+import java.awt.event.ComponentEvent;
+import java.awt.event.ComponentListener;
+import java.awt.event.HierarchyEvent;
+import java.awt.event.HierarchyListener;
 
 import javax.swing.JButton;
 import javax.swing.JPanel;
@@ -27,6 +36,7 @@ import org.lecturestudio.core.view.Action;
 import org.lecturestudio.presenter.api.view.PreviewStreamView;
 import org.lecturestudio.swing.util.SwingUtils;
 import org.lecturestudio.swing.view.SwingView;
+import org.lecturestudio.swing.view.ViewPostConstruct;
 
 @SwingView(name = "stream-preview")
 public class SwingPreviewStreamView extends JPanel implements PreviewStreamView {
@@ -36,6 +46,12 @@ public class SwingPreviewStreamView extends JPanel implements PreviewStreamView 
 	private Component browserContent;
 
 	private JButton closeButton;
+
+	private Container parent;
+
+	private ComponentListener componentListener;
+
+	private double parentSizeScale;
 
 
 	SwingPreviewStreamView() {
@@ -52,5 +68,64 @@ public class SwingPreviewStreamView extends JPanel implements PreviewStreamView 
 	@Override
 	public void setOnClose(Action action) {
 		SwingUtils.bindAction(closeButton, action);
+	}
+
+	@ViewPostConstruct
+	private void initialize() {
+		parentSizeScale = getParentSizeScale();
+
+		componentListener = new ComponentAdapter() {
+
+			@Override
+			public void componentResized(ComponentEvent e) {
+				updateBounds();
+			}
+		};
+
+		addHierarchyListener(new HierarchyListener() {
+
+			@Override
+			public void hierarchyChanged(HierarchyEvent e) {
+				if ((e.getChangeFlags() & HierarchyEvent.PARENT_CHANGED) != 0) {
+					Container p = getParent();
+
+					if (nonNull(p)) {
+						removeHierarchyListener(this);
+
+						setParent(p);
+					}
+				}
+			}
+		});
+
+		closeButton.addActionListener(e -> {
+			parent.removeComponentListener(componentListener);
+		});
+	}
+
+	private double getParentSizeScale() {
+		Object property = getClientProperty("parentSizeScale");
+
+		try {
+			return Double.parseDouble(property.toString());
+		}
+		catch (Exception e) {
+			// Default value.
+			return 0.7;
+		}
+	}
+
+	private void setParent(Container parent) {
+		this.parent = parent;
+		this.parent.addComponentListener(componentListener);
+
+		updateBounds();
+	}
+
+	private void updateBounds() {
+		setPreferredSize(new Dimension(
+				(int) (parent.getWidth() * parentSizeScale),
+				(int) (parent.getHeight() * parentSizeScale)));
+		revalidate();
 	}
 }

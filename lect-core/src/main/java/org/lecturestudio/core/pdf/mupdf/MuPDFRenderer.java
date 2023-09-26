@@ -85,7 +85,6 @@ public class MuPDFRenderer implements DocumentRenderer {
 
 			com.artifex.mupdf.fitz.Page p = document.getPage(pageNumber);
 			Rect bounds = p.getBounds();
-			System.out.println("Bounds: " + bounds);
 
 			if(page.getDocument().getSplitSlideNotesPositon() == NotesPosition.UNKNOWN){
 				if(bounds.x1/bounds.y1 >= 2){

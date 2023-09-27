@@ -79,16 +79,10 @@ import org.lecturestudio.core.model.DocumentOutline;
 import org.lecturestudio.core.model.DocumentOutlineItem;
 import org.lecturestudio.core.model.Page;
 import org.lecturestudio.core.stylus.StylusHandler;
-import org.lecturestudio.core.view.Action;
-import org.lecturestudio.core.view.ConsumerAction;
-import org.lecturestudio.core.view.PageObjectView;
-import org.lecturestudio.core.view.PresentationParameter;
-import org.lecturestudio.core.view.PresentationParameterProvider;
-import org.lecturestudio.core.view.Screen;
+import org.lecturestudio.core.view.*;
 import org.lecturestudio.presenter.api.config.SlideViewConfiguration;
 import org.lecturestudio.presenter.api.model.NoteBarPosition;
 import org.lecturestudio.presenter.api.model.MessageBarPosition;
-import org.lecturestudio.presenter.api.config.SlideViewConfiguration;
 import org.lecturestudio.presenter.api.model.SlideNoteBarPosition;
 import org.lecturestudio.presenter.api.service.UserPrivilegeService;
 import org.lecturestudio.presenter.api.view.SlidesView;
@@ -355,19 +349,16 @@ public class SwingSlidesView extends JPanel implements SlidesView {
 	@Override
 	public void addPageObjectView(PageObjectView<?> objectView) {
 		slideView.addPageObjectView(objectView);
-		slideNotesView.addPageObjectView(objectView);
 	}
 
 	@Override
 	public void removePageObjectView(PageObjectView<?> objectView) {
 		slideView.removePageObjectView(objectView);
-		slideNotesView.removePageObjectView(objectView);
 	}
 
 	@Override
 	public void removeAllPageObjectViews() {
 		slideView.removeAllPageObjectViews();
-		slideNotesView.removeAllPageObjectViews();
 	}
 
 	@Override

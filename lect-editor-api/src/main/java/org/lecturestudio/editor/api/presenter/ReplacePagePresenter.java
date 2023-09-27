@@ -18,12 +18,14 @@
 
 package org.lecturestudio.editor.api.presenter;
 
-import javax.inject.Inject;
+import static java.util.Objects.isNull;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionException;
+
+import javax.inject.Inject;
 
 import org.lecturestudio.core.app.ApplicationContext;
 import org.lecturestudio.core.model.Document;
@@ -33,10 +35,13 @@ import org.lecturestudio.core.view.ViewLayer;
 import org.lecturestudio.editor.api.service.RecordingFileService;
 import org.lecturestudio.editor.api.util.ReplacePageType;
 import org.lecturestudio.editor.api.view.ReplacePageView;
+import org.lecturestudio.media.search.SearchService;
+import org.lecturestudio.media.search.SearchState;
 
 public class ReplacePagePresenter extends Presenter<ReplacePageView> {
 
 	private final RecordingFileService recordingService;
+	private final SearchService searchService;
 
 	private int currentDocCurrentPageNumber;
 
@@ -46,11 +51,14 @@ public class ReplacePagePresenter extends Presenter<ReplacePageView> {
 
 	private ReplacePageType replacePageType = ReplacePageType.REPLACE_SINGLE_PAGE;
 
+	private SearchState searchState;
+
 
 	@Inject
 	ReplacePagePresenter(ApplicationContext context, ReplacePageView view,
-	                     RecordingFileService recordingService) {
+						 RecordingFileService recordingService, SearchService searchService) {
 		super(context, view);
+		this.searchService = searchService;
 
 		RecordedDocument recordedDocument = recordingService.getSelectedRecording().getRecordedDocument();
 
@@ -84,6 +92,9 @@ public class ReplacePagePresenter extends Presenter<ReplacePageView> {
 		view.setOnReplace(this::replace);
 		view.setOnConfirm(this::confirm);
 		view.setOnReplaceTypeChange(this::replaceTypeChanged);
+		view.setOnSearch(this::search);
+		view.setOnPreviousFoundPage(this::previousFoundPage);
+		view.setOnNextFoundPage(this::nextFoundPage);
 	}
 
 	@Override
@@ -100,6 +111,11 @@ public class ReplacePagePresenter extends Presenter<ReplacePageView> {
 		newDoc = doc;
 
 		view.setPageNewDoc(doc.getCurrentPage());
+
+		if (newDoc.getPageCount() >= currentDoc.getCurrentPageNumber()) {
+			selectPageNewDoc(currentDoc.getCurrentPageNumber());
+		}
+
 		view.setOnPreviousPageNewDoc(() -> {
 			int currentPage = doc.getCurrentPageNumber();
 
@@ -114,6 +130,12 @@ public class ReplacePagePresenter extends Presenter<ReplacePageView> {
 		view.setDisableAllPagesTypeRadio(newDoc.getPageCount() != currentDoc.getPageCount());
 
 		view.setTotalPagesNewDocLabel(doc.getPageCount());
+
+		searchService.createIndex(doc)
+				.exceptionally(throwable -> {
+					logException(throwable, "Create search index failed");
+					return null;
+				});
 	}
 
 	/**
@@ -235,5 +257,49 @@ public class ReplacePagePresenter extends Presenter<ReplacePageView> {
 	 */
 	private void closeDocuments() {
 		newDoc.close();
+	}
+
+	private void search(String text) {
+		if (isNull(text) || text.isEmpty() || text.isBlank()) {
+			view.setSearchState(null);
+		}
+		else {
+			searchService.searchIndex(text)
+					.thenAccept(searchResult -> {
+						searchState = new SearchState(searchResult);
+
+						view.setSearchState(searchState);
+					})
+					.exceptionally(throwable -> {
+						logException(throwable, "Search page index failed");
+						return null;
+					});
+		}
+	}
+
+	private void previousFoundPage() {
+		int pageIndex = searchState.selectPreviousIndex();
+
+		try {
+			selectPageNewDoc(pageIndex);
+		}
+		catch (Exception e) {
+			handleException(e, "Select page failed", "select.recording.page.error");
+		}
+
+		view.setSearchState(searchState);
+	}
+
+	private void nextFoundPage() {
+		int pageIndex = searchState.selectNextIndex();
+
+		try {
+			selectPageNewDoc(pageIndex);
+		}
+		catch (Exception e) {
+			handleException(e, "Select page failed", "select.recording.page.error");
+		}
+
+		view.setSearchState(searchState);
 	}
 }

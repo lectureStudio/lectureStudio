@@ -20,11 +20,11 @@ package org.lecturestudio.javafx.view;
 
 import java.util.ResourceBundle;
 
-import javax.inject.Inject;
-
 import javafx.scene.Parent;
 import javafx.scene.control.Button;
 import javafx.scene.control.ProgressIndicator;
+
+import javax.inject.Inject;
 
 import org.lecturestudio.core.view.NotificationType;
 import org.lecturestudio.core.view.ProgressDialogView;
@@ -49,6 +49,16 @@ public class FxProgressDialogView extends NotificationDialog implements Progress
 			setType(NotificationType.ERROR);
 
 			setMessageTitle(message);
+		});
+	}
+
+	@Override
+	public void setError(String message, String error) {
+		FxUtils.invoke(() -> {
+			setType(NotificationType.ERROR);
+
+			setMessageTitle(message);
+			setMessage(error);
 		});
 	}
 

@@ -23,6 +23,7 @@ import static java.util.Objects.nonNull;
 
 import java.io.File;
 import java.io.FileOutputStream;
+import java.io.IOException;
 
 import org.lecturestudio.core.io.RandomAccessAudioStream;
 import org.lecturestudio.core.io.WaveOutputStream;
@@ -35,7 +36,7 @@ public final class RecordingUtils {
 		exportAudio(recFile.getRecordedAudio().getAudioStream(), audioFile, callback);
 	}
 
-	public static void exportAudio(RandomAccessAudioStream audioStream, File audioFile, ProgressCallback callback) throws Exception {
+	public static void exportAudio(RandomAccessAudioStream audioStream, File audioFile, ProgressCallback callback) throws IOException {
 		if (isNull(audioFile)) {
 			throw new NullPointerException("No audio export file provided.");
 		}

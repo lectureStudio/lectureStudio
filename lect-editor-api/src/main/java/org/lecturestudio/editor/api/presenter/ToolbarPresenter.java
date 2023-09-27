@@ -1,21 +1,34 @@
 package org.lecturestudio.editor.api.presenter;
 
-import javax.inject.Inject;
+import static java.util.Objects.nonNull;
+
+import com.google.common.eventbus.Subscribe;
 
 import java.util.List;
 
-import com.google.common.eventbus.Subscribe;
+import javax.inject.Inject;
+
 import org.lecturestudio.core.app.ApplicationContext;
 import org.lecturestudio.core.audio.bus.event.TextFontEvent;
 import org.lecturestudio.core.bus.EventBus;
+import org.lecturestudio.core.bus.event.DocumentEvent;
+import org.lecturestudio.core.bus.event.PageEvent;
 import org.lecturestudio.core.graphics.Color;
-import org.lecturestudio.core.text.Font;
-import org.lecturestudio.core.tool.StrokeWidthSettings;
+import org.lecturestudio.core.model.Document;
+import org.lecturestudio.core.model.Page;
+import org.lecturestudio.core.model.listener.PageEditEvent;
+import org.lecturestudio.core.model.listener.ParameterChangeListener;
 import org.lecturestudio.core.presenter.Presenter;
+import org.lecturestudio.core.service.DocumentService;
+import org.lecturestudio.core.text.Font;
 import org.lecturestudio.core.tool.ColorPalette;
 import org.lecturestudio.core.tool.PaintSettings;
 import org.lecturestudio.core.tool.StrokeSettings;
+import org.lecturestudio.core.tool.StrokeWidthSettings;
 import org.lecturestudio.core.tool.ToolType;
+import org.lecturestudio.core.view.PresentationParameter;
+import org.lecturestudio.core.view.PresentationParameterProvider;
+import org.lecturestudio.core.view.ViewType;
 import org.lecturestudio.editor.api.bus.event.EditorToolSelectionEvent;
 import org.lecturestudio.editor.api.controller.EditorToolController;
 import org.lecturestudio.editor.api.view.ToolbarView;
@@ -23,21 +36,70 @@ import org.lecturestudio.editor.api.view.ToolbarView;
 public class ToolbarPresenter extends Presenter<ToolbarView> {
 	private final EventBus eventBus;
 	private final EditorToolController toolController;
+	private final DocumentService documentService;
 	private ToolType toolType;
 
 	@Inject
 	protected ToolbarPresenter(ApplicationContext context,
-	                           ToolbarView view,
-	                           EditorToolController toolController) {
+							   ToolbarView view,
+							   EditorToolController toolController,
+							   DocumentService documentService) {
 		super(context, view);
 
 		this.eventBus = context.getEventBus();
 		this.toolController = toolController;
+		this.documentService = documentService;
 	}
 
 	@Subscribe
 	public void onEvent(final EditorToolSelectionEvent event) {
 		toolChanged(event.getToolType(), event.getPaintSettings());
+	}
+
+	@Subscribe
+	public void onEvent(final DocumentEvent event) {
+		if (event.closed()) {
+			return;
+		}
+
+		Document doc = event.getDocument();
+		Page page = nonNull(doc) ? doc.getCurrentPage() : null;
+
+		if (event.selected() && nonNull(page)) {
+			page.addPageEditedListener(this::pageEdited);
+		}
+
+		view.setDocument(doc);
+
+		pageChanged(page);
+	}
+
+	@Subscribe
+	public void onEvent(final PageEvent event) {
+		final Page page = event.getPage();
+
+		if (event.isRemoved()) {
+			page.removePageEditedListener(this::pageEdited);
+		}
+		else if (event.isSelected()) {
+			Page oldPage = event.getOldPage();
+
+			if (nonNull(oldPage)) {
+				oldPage.removePageEditedListener(this::pageEdited);
+			}
+
+			page.addPageEditedListener(this::pageEdited);
+
+			pageChanged(page);
+		}
+	}
+
+	private void pageEdited(final PageEditEvent event) {
+		if (event.shapedChanged()) {
+			return;
+		}
+
+		pageChanged(event.getPage());
 	}
 
 	private void toolChanged(ToolType toolType, PaintSettings settings) {
@@ -63,6 +125,21 @@ public class ToolbarPresenter extends Presenter<ToolbarView> {
 		ColorPalette.setColor(toolType, color, 0);
 
 		toolController.selectPaintColor(color);
+	}
+
+	private void pageParameterChanged(Page page, PresentationParameter parameter) {
+		view.setPage(page, parameter);
+	}
+
+	private void pageChanged(Page page) {
+		PresentationParameter parameter = null;
+
+		if (nonNull(page)) {
+			PresentationParameterProvider ppProvider = context.getPagePropertyProvider(ViewType.User);
+			parameter = ppProvider.getParameter(page);
+		}
+
+		view.setPage(page, parameter);
 	}
 
 	public void customColor() {
@@ -202,6 +279,22 @@ public class ToolbarPresenter extends Presenter<ToolbarView> {
 		view.setOnStrokeWidthSettings(this::strokeWidthSettings);
 		view.setStrokeSettings(List.of(StrokeWidthSettings.values()));
 		view.selectStrokeWidthSettings(StrokeWidthSettings.NORMAL);
+
+		// Register for page parameter change updates.
+		PresentationParameterProvider ppProvider = context.getPagePropertyProvider(ViewType.User);
+		ppProvider.addParameterChangeListener(new ParameterChangeListener() {
+
+			@Override
+			public Page forPage() {
+				Document selectedDocument = documentService.getDocuments().getSelectedDocument();
+				return nonNull(selectedDocument) ? selectedDocument.getCurrentPage() : null;
+			}
+
+			@Override
+			public void parameterChanged(Page page, PresentationParameter parameter) {
+				pageParameterChanged(page, parameter);
+			}
+		});
 
 		penTool();
 	}

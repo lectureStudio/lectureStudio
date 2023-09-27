@@ -1,0 +1,24 @@
+.loudness-normalize > .content {
+    -fx-padding: 1em;
+    -fx-spacing: 10;
+}
+.loudness-normalize > .content > .header {
+    -fx-font-size: 1.3em;
+    -fx-font-weight: bold;
+    -fx-padding: 0 0 1.25em 0;
+}
+.loudness-normalize .header {
+    -fx-font-weight: bold;
+}
+.loudness-normalize .check-box {
+    -fx-padding: 1.25em;
+}
+.loudness-normalize > .content > .loudness-options {
+    -fx-padding: 0 0 1.25em 0;
+}
+.loudness-normalize > .content > .lufs-area > .text-field {
+    -fx-max-width: 6em;
+}
+.loudness-normalize > .content > .lufs-area {
+    -fx-spacing: 5;
+}

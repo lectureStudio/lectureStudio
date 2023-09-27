@@ -21,14 +21,6 @@ package org.lecturestudio.media.search;
 import static java.util.Objects.isNull;
 import static java.util.Objects.nonNull;
 
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.CompletionException;
-
-import javax.inject.Singleton;
-
 import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.analysis.de.GermanAnalyzer;
 import org.apache.lucene.document.Field;
@@ -53,10 +45,15 @@ import org.apache.lucene.search.suggest.analyzing.AnalyzingInfixSuggester;
 import org.apache.lucene.store.ByteBuffersDirectory;
 import org.apache.lucene.store.Directory;
 
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.CompletionException;
+
 import org.lecturestudio.core.model.Document;
 import org.lecturestudio.core.model.Page;
 
-@Singleton
 public class SearchService {
 
 	private final Directory index;

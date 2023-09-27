@@ -53,7 +53,6 @@ public class DeleteEventAction extends RecordedObjectAction<RecordedEvents> {
 		List<PlaybackAction> actions = recordedPage.getPlaybackActions();
 
 		actionIndex = actions.indexOf(action);
-		ActionType initialType = action.getType();
 
 		if (actionIndex < 0) {
 			throw new IllegalArgumentException("RecordedPage does not contain the event to delete");
@@ -65,11 +64,11 @@ public class DeleteEventAction extends RecordedObjectAction<RecordedEvents> {
 			var iterAction = iter.next();
 			var actionType = iterAction.getType();
 
-			if (actionType != ActionType.TOOL_BEGIN
-					&& actionType != ActionType.TOOL_EXECUTE
-					&& actionType != ActionType.TOOL_END
-					&& !iterAction.equals(action)
-					&& actionType != initialType) {
+			if (!iterAction.equals(action)
+					&& iterAction.hasHandle()
+					&& action.hasHandle()
+					&& iterAction.getHandle() != action.getHandle()) {
+				// End the deletion, if and only if both actions contain handles, which do not match
 				break;
 			}
 

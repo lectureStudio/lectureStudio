@@ -21,6 +21,9 @@ package org.lecturestudio.media.video;
 import static java.util.Objects.isNull;
 import static java.util.Objects.nonNull;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
 import java.awt.image.BufferedImage;
 import java.awt.image.DataBuffer;
 import java.awt.image.DataBufferInt;
@@ -31,9 +34,6 @@ import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;
-
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 
 import org.lecturestudio.core.ExecutableBase;
 import org.lecturestudio.core.ExecutableException;
@@ -48,7 +48,7 @@ import org.lecturestudio.media.config.VideoRenderConfiguration;
 
 public class FFmpegProcessMuxer extends ExecutableBase implements VideoMuxer {
 
-	private final static Logger LOG = LogManager.getLogger(FFmpegProcessMuxer.class.getName());
+	private static final Logger LOG = LogManager.getLogger(FFmpegProcessMuxer.class.getName());
 
 	private final RenderConfiguration config;
 
@@ -75,8 +75,8 @@ public class FFmpegProcessMuxer extends ExecutableBase implements VideoMuxer {
 		DataBuffer dataBuffer = image.getRaster().getDataBuffer();
 		byte[] imageBytes = null;
 
-		if (dataBuffer instanceof DataBufferInt) {
-			int[] a = ((DataBufferInt) dataBuffer).getData();
+		if (dataBuffer instanceof DataBufferInt dataBufferInt) {
+			int[] a = dataBufferInt.getData();
 
 			if (isNull(imageBuffer) || imageBuffer.capacity() != a.length * 4) {
 				imageBuffer = ByteBuffer.allocate(a.length * 4);

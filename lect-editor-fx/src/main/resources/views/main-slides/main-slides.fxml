@@ -3,22 +3,21 @@
 
 <?import javafx.scene.control.ContextMenu?>
 <?import javafx.scene.control.MenuItem?>
-<?import org.lecturestudio.javafx.control.SvgIcon?>
 <?import javafx.scene.control.SplitPane?>
-<?import javafx.scene.layout.HBox?>
-<?import javafx.scene.layout.VBox?>
-<?import javafx.scene.control.TabPane?>
 <?import javafx.scene.control.Tab?>
-<?import org.lecturestudio.editor.javafx.view.FxVideoExportSettingsView?>
+<?import javafx.scene.control.TabPane?>
 <?import javafx.scene.control.Tooltip?>
-<?import org.lecturestudio.editor.javafx.view.FxNoiseReductionSettingsView?>
-<?import org.lecturestudio.editor.javafx.view.FxPageEventsView?>
-<?import org.lecturestudio.javafx.control.SlideView?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.StackPane?>
+<?import javafx.scene.layout.VBox?>
+<?import org.lecturestudio.editor.javafx.view.FxAudioEffectsView?>
 <?import org.lecturestudio.editor.javafx.view.FxMediaControlsView?>
 <?import org.lecturestudio.editor.javafx.view.FxMediaTrackControlsView?>
 <?import org.lecturestudio.editor.javafx.view.FxMediaTracksView?>
-<?import javafx.scene.layout.StackPane?>
-
+<?import org.lecturestudio.editor.javafx.view.FxPageEventsView?>
+<?import org.lecturestudio.editor.javafx.view.FxVideoExportSettingsView?>
+<?import org.lecturestudio.javafx.control.SlideView?>
+<?import org.lecturestudio.javafx.control.SvgIcon?>
 <fx:root type="VBox" VBox.vgrow="ALWAYS" styleClass="main-slides" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1">
 	<fx:define>
 		<ContextMenu fx:id="contextMenu">
@@ -43,13 +42,13 @@
 						<SvgIcon styleClass="video-icon"/>
 					</graphic>
 				</Tab>
-				<Tab id="noise-reduction">
-					<FxNoiseReductionSettingsView/>
+				<Tab id="audio-effects">
+					<FxAudioEffectsView/>
 					<tooltip>
-						<Tooltip text="%slides.noise.reduction"/>
+						<Tooltip text="%slides.audio.effects"/>
 					</tooltip>
 					<graphic>
-						<SvgIcon styleClass="noise-reduction-icon"/>
+						<SvgIcon styleClass="audio-effects-icon"/>
 					</graphic>
 				</Tab>
 				<Tab id="events">

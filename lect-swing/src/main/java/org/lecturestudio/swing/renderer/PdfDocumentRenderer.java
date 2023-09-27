@@ -26,7 +26,6 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.nio.file.Files;
 import java.util.List;
-import java.util.stream.Collectors;
 
 import org.lecturestudio.core.ExecutableBase;
 import org.lecturestudio.core.ExecutableException;
@@ -170,9 +169,8 @@ public class PdfDocumentRenderer extends ExecutableBase {
 			Document newDocument = new Document();
 			newDocument.setTitle(FileUtils.stripExtension(outputFile.getName()));
 
-			int pageCount = documents.stream().mapToInt(Document::getPageCount).sum();
 			int pagesWritten = 0;
-			float pageStep = 1.f / pageCount;
+			float pageStep = 1.f / pages.size();
 
 			for (Page page : pages) {
 				if (documents.contains(page.getDocument())) {
@@ -273,7 +271,7 @@ public class PdfDocumentRenderer extends ExecutableBase {
 			// Create additional binary encoded shape stream.
 			List<Shape> shapes = page.getShapes().stream()
 					.filter(shape -> renderService.hasRenderer(shape.getClass()))
-					.collect(Collectors.toList());
+					.toList();
 
 			pdfDocument.createEditableAnnotationStream(pageIndex, shapes);
 		}

@@ -20,7 +20,8 @@ package org.lecturestudio.editor.javafx.view;
 
 import static java.util.Objects.nonNull;
 
-import javax.inject.Inject;
+import java.text.MessageFormat;
+import java.util.ResourceBundle;
 
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
@@ -28,6 +29,8 @@ import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
 import javafx.scene.control.ToggleGroup;
 import javafx.scene.layout.StackPane;
+
+import javax.inject.Inject;
 
 import org.lecturestudio.core.app.ApplicationContext;
 import org.lecturestudio.core.controller.RenderController;
@@ -39,8 +42,10 @@ import org.lecturestudio.core.view.PresentationParameter;
 import org.lecturestudio.editor.api.view.ReplacePageView;
 import org.lecturestudio.javafx.control.ExtRadioButton;
 import org.lecturestudio.javafx.control.SlideView;
+import org.lecturestudio.javafx.control.TextSearchField;
 import org.lecturestudio.javafx.util.FxUtils;
 import org.lecturestudio.javafx.view.FxmlView;
+import org.lecturestudio.media.search.SearchState;
 
 
 @FxmlView(name = "page-replace")
@@ -53,6 +58,9 @@ public class FxReplacePageView extends StackPane implements ReplacePageView {
 	private ConsumerAction<Integer> pageNumberNewDocAction;
 
 	private ConsumerAction<Integer> pageNumberCurrentDocAction;
+
+	@FXML
+	private ResourceBundle resources;
 
 	@FXML
 	private SlideView currentPageView;
@@ -104,6 +112,15 @@ public class FxReplacePageView extends StackPane implements ReplacePageView {
 
 	@FXML
 	private Button confirmButton;
+
+	@FXML
+	private TextSearchField searchFieldNewDocument;
+	@FXML
+	private Label searchStateLabel;
+	@FXML
+	private Button searchPrevButton;
+	@FXML
+	private Button searchNextButton;
 
 	private boolean allPagesTypeRadioDisabled = false;
 
@@ -257,5 +274,49 @@ public class FxReplacePageView extends StackPane implements ReplacePageView {
 	@Override
 	public void setOnReplaceTypeChange(ConsumerAction<String> action) {
 		FxUtils.bindAction(pageSelectionType, action);
+	}
+
+	@Override
+	public void setOnSearch(ConsumerAction<String> action) {
+		searchFieldNewDocument.textProperty().addListener((observable, oldValue, newValue) -> {
+			action.execute(newValue);
+		});
+	}
+
+	@Override
+	public void setSearchState(SearchState searchState) {
+		FxUtils.invoke(() -> {
+			boolean showControls = nonNull(searchState);
+
+			if (showControls) {
+				int totalHits = searchState.getTotalHits();
+				int currentIndex = searchState.getSelectedIndex();
+
+				searchStateLabel.setText(MessageFormat.format(
+						resources.getString("media.search.index.of"),
+						currentIndex, totalHits));
+				searchPrevButton.setDisable(totalHits < 1 || currentIndex <= 1);
+				searchNextButton.setDisable(totalHits < 1 || currentIndex == totalHits);
+
+				searchFieldNewDocument.getSuggestions().setAll(searchState.getSearchResult().getSuggestions());
+			}
+
+			searchStateLabel.setManaged(showControls);
+			searchStateLabel.setVisible(showControls);
+			searchPrevButton.setManaged(showControls);
+			searchPrevButton.setVisible(showControls);
+			searchNextButton.setManaged(showControls);
+			searchNextButton.setVisible(showControls);
+		});
+	}
+
+	@Override
+	public void setOnPreviousFoundPage(Action action) {
+		FxUtils.bindAction(searchPrevButton, action);
+	}
+
+	@Override
+	public void setOnNextFoundPage(Action action) {
+		FxUtils.bindAction(searchNextButton, action);
 	}
 }

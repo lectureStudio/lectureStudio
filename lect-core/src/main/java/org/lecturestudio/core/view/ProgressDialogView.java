@@ -22,6 +22,8 @@ public interface ProgressDialogView extends View {
 
 	void setError(String message);
 
+	void setError(String message, String error);
+
 	void setMessage(String message);
 
 	void setMessageTitle(String title);

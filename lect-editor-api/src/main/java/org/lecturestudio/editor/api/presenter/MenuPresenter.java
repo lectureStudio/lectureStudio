@@ -26,8 +26,10 @@ import java.awt.Desktop;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Path;
+import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionException;
@@ -98,6 +100,7 @@ public class MenuPresenter extends Presenter<MenuView> {
 		view.setOnOpenRecording(this::openRecording);
 		view.setOnCloseRecording(this::closeSelectedRecording);
 		view.setOnSaveDocument(this::saveDocument);
+		view.setOnSaveCurrentPage(this::saveCurrentPage);
 		view.setOnSaveRecordingAs(this::saveRecording);
 		view.setOnExportAudio(this::exportAudio);
 		view.setOnImportAudio(this::importAudio);
@@ -238,6 +241,92 @@ public class MenuPresenter extends Presenter<MenuView> {
 		});
 	}
 
+
+	private void saveCurrentPage() {
+		final String pathContext = EditorContext.SLIDES_CONTEXT;
+		Recording recording = recordingService.getSelectedRecording();
+		Configuration config = context.getConfiguration();
+		Dictionary dict = context.getDictionary();
+		Path dirPath = FileUtils.getContextPath(config, pathContext);
+
+		String fileName = recording.getRecordedDocument().getDocument().getTitle() + "-page_" + (recording.getRecordedDocument().getDocument().getCurrentPageNumber() + 1);
+
+		FileChooserView fileChooser = viewFactory.createFileChooserView();
+		fileChooser.addExtensionFilter(dict.get("file.description.pdf"),
+				EditorContext.SLIDES_EXTENSION);
+		fileChooser.setInitialDirectory(dirPath.toFile());
+		fileChooser.setInitialFileName(fileName);
+
+		File file = fileChooser.showSaveFile(view);
+
+		if (nonNull(file)) {
+			config.getContextPaths().put(pathContext, file.getParent());
+
+			context.getEventBus().post(new ShowPresenterCommand<>(ProgressPresenter.class) {
+				@Override
+				public void execute(ProgressPresenter presenter) {
+					ProgressView progressView = presenter.getView();
+					progressView.setTitle(context.getDictionary().get("save.page.current.title"));
+					progressView.setMessage(file.getAbsolutePath());
+					progressView.setOnViewShown(() -> {
+						saveCurrentPage(recording, progressView, file);
+					});
+				}
+			});
+		}
+	}
+
+	private void saveCurrentPage(Recording recording, ProgressView progressView, File file) {
+		ApplicationContext dummyContext = new ApplicationContext(null,
+				context.getConfiguration(), context.getDictionary(),
+				new EventBus(), new EventBus()) {
+
+			@Override
+			public void saveConfiguration() {
+
+			}
+		};
+
+		CompletableFuture.runAsync(() -> {
+					CreateDocumentExecutor docEventExecutor = new CreateDocumentExecutor(
+							dummyContext, recording);
+					DocumentRecorder documentRecorder;
+
+					try {
+						docEventExecutor.executeEvents();
+
+						documentRecorder = docEventExecutor.getDocumentRecorder();
+					}
+					catch (Exception e) {
+						throw new CompletionException(e);
+					}
+
+					PdfDocumentRenderer documentRenderer = new PdfDocumentRenderer();
+					documentRenderer.setDocuments(new ArrayList<>(documentRecorder.getRecordedDocuments()));
+					documentRenderer.setPages(List.of(documentRecorder.getRecordedPages()
+							.get(recording.getRecordedDocument().getDocument().getCurrentPageNumber())));
+					documentRenderer.setParameterProvider(documentRecorder.getRecordedParamProvider());
+					documentRenderer.setProgressCallback(progressView::setProgress);
+					documentRenderer.setOutputFile(file);
+
+					try {
+						documentRenderer.start();
+					}
+					catch (ExecutableException e) {
+						throw new CompletionException(e);
+					}
+				})
+				.thenRun(() -> {
+					progressView.setTitle(context.getDictionary().get("save.page.current.success"));
+				})
+				.exceptionally(throwable -> {
+					logException(throwable, "Write document to PDF failed");
+
+					progressView.setError(context.getDictionary().get("save.page.current.error"));
+					return null;
+				});
+	}
+
 	private void saveRecording() {
 		final String pathContext = EditorContext.RECORDING_CONTEXT;
 		Configuration config = context.getConfiguration();
@@ -270,7 +359,7 @@ public class MenuPresenter extends Presenter<MenuView> {
 					progressView.setMessageTitle(context.getDictionary().get("save.recording.success"));
 				})
 				.exceptionally(throwable -> {
-					handleException(throwable, "Save recording failed", "save.recording.error", file.getPath());
+					progressView.setError(MessageFormat.format(context.getDictionary().get("save.recording.error"), file.getPath()), throwable.getMessage());
 					return null;
 				});
 		}
@@ -356,7 +445,7 @@ public class MenuPresenter extends Presenter<MenuView> {
 
 			recordingService.exportAudio(file, progressView::setProgress)
 				.exceptionally(throwable -> {
-					handleException(throwable, "Export audio failed", "export.audio.error", file.getPath());
+					progressView.setError(MessageFormat.format(context.getDictionary().get("export.audio.error"), file.getPath()), throwable.getMessage());
 					return null;
 				});
 		}

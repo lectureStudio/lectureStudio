@@ -4,12 +4,14 @@ import java.util.List;
 
 import org.lecturestudio.core.graphics.Color;
 import org.lecturestudio.core.model.Document;
+import org.lecturestudio.core.model.Page;
 import org.lecturestudio.core.text.Font;
-import org.lecturestudio.core.tool.StrokeWidthSettings;
 import org.lecturestudio.core.tool.PaintSettings;
+import org.lecturestudio.core.tool.StrokeWidthSettings;
 import org.lecturestudio.core.tool.ToolType;
 import org.lecturestudio.core.view.Action;
 import org.lecturestudio.core.view.ConsumerAction;
+import org.lecturestudio.core.view.PresentationParameter;
 import org.lecturestudio.core.view.View;
 
 public interface ToolbarView extends View {
@@ -72,4 +74,6 @@ public interface ToolbarView extends View {
 	void selectStrokeWidthSettings(StrokeWidthSettings settings);
 
 	void setOnStrokeWidthSettings(ConsumerAction<StrokeWidthSettings> action);
+
+	void setPage(Page page, PresentationParameter parameter);
 }

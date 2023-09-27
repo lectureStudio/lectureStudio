@@ -9,15 +9,16 @@
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.StackPane?>
 <?import javafx.scene.layout.VBox?>
+<?import javafx.scene.text.TextFlow?>
+<?import org.lecturestudio.javafx.control.ButtonGroup?>
 <?import org.lecturestudio.javafx.control.ExtRadioButton?>
 <?import org.lecturestudio.javafx.control.SlideView?>
 <?import org.lecturestudio.javafx.control.SvgIcon?>
+<?import org.lecturestudio.javafx.control.TextSearchField?>
 <?import org.lecturestudio.javafx.util.TextIntegerFormatter?>
-
-<?import javafx.scene.text.TextFlow?>
 <fx:root styleClass="page-replace" type="StackPane" xmlns="http://javafx.com/javafx/17.0.2-ea"
          xmlns:fx="http://javafx.com/fxml/1">
-    <VBox maxHeight="400" maxWidth="600" styleClass="content">
+    <VBox maxHeight="500" maxWidth="600" styleClass="content">
         <Label styleClass="header" text="%page.replace.title"/>
         <FlowPane styleClass="replace-options">
             <VBox>
@@ -60,10 +61,12 @@
 
         </FlowPane>
 
-        <HBox VBox.vgrow="ALWAYS">
-            <VBox prefHeight="350" prefWidth="300" HBox.hgrow="ALWAYS">
+        <HBox VBox.vgrow="ALWAYS" styleClass="slide-views">
+            <VBox prefHeight="350" prefWidth="300" HBox.hgrow="ALWAYS" alignment="TOP_CENTER"
+                  styleClass="new-document-view">
                 <Label styleClass="header" text="%page.replace.page.new"/>
-                <SlideView fx:id="newPageView" alignment="CENTER" minWidth="300" prefWidth="300" VBox.vgrow="ALWAYS"/>
+                <SlideView fx:id="newPageView" maxHeight="200" alignment="CENTER" minWidth="300" prefWidth="300"
+                           VBox.vgrow="ALWAYS"/>
                 <HBox alignment="CENTER" prefHeight="50.0" prefWidth="250.0">
                     <Button fx:id="prevPageNewDocButton">
                         <tooltip>
@@ -88,10 +91,36 @@
                         </graphic>
                     </Button>
                 </HBox>
+                <HBox styleClass="search-box" alignment="CENTER" HBox.hgrow="ALWAYS">
+                    <Label fx:id="searchStateLabel" managed="false" visible="false"/>
+                    <ButtonGroup>
+                        <buttons>
+                            <Button fx:id="searchPrevButton" managed="false" visible="false">
+                                <tooltip>
+                                    <Tooltip text="%media.previous.search.index"/>
+                                </tooltip>
+                                <graphic>
+                                    <SvgIcon styleClass="search-prev-icon"/>
+                                </graphic>
+                            </Button>
+                            <Button fx:id="searchNextButton" managed="false" visible="false">
+                                <tooltip>
+                                    <Tooltip text="%media.next.search.index"/>
+                                </tooltip>
+                                <graphic>
+                                    <SvgIcon styleClass="search-next-icon"/>
+                                </graphic>
+                            </Button>
+                        </buttons>
+                    </ButtonGroup>
+                    <TextSearchField fx:id="searchFieldNewDocument" promptText="%page.replace.search"
+                                     styleClass="search-field" minWidth="190"/>
+                </HBox>
+
             </VBox>
-            <VBox prefHeight="350" prefWidth="300" HBox.hgrow="ALWAYS">
+            <VBox prefHeight="350" prefWidth="300" HBox.hgrow="ALWAYS" alignment="TOP_CENTER">
                 <Label styleClass="header" text="%page.replace.page.current"/>
-                <SlideView fx:id="currentPageView" alignment="CENTER" minWidth="300" prefWidth="300"
+                <SlideView fx:id="currentPageView" maxHeight="200" alignment="CENTER" minWidth="300" prefWidth="300"
                            VBox.vgrow="ALWAYS"/>
                 <HBox alignment="CENTER" prefHeight="50.0" prefWidth="200.0">
                     <Button fx:id="prevPageCurrentDocButton">

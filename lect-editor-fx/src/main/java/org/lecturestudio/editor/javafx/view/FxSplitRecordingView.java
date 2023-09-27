@@ -1,7 +1,5 @@
 package org.lecturestudio.editor.javafx.view;
 
-import javax.inject.Inject;
-
 import java.text.MessageFormat;
 import java.util.ResourceBundle;
 
@@ -11,7 +9,8 @@ import javafx.scene.control.Label;
 import javafx.scene.control.ToggleGroup;
 import javafx.scene.layout.StackPane;
 
-import org.lecturestudio.core.app.ApplicationContext;
+import javax.inject.Inject;
+
 import org.lecturestudio.core.model.Interval;
 import org.lecturestudio.core.model.Time;
 import org.lecturestudio.core.view.Action;
@@ -24,7 +23,6 @@ import org.lecturestudio.javafx.view.FxmlView;
 @FxmlView(name = "recording-split", presenter = org.lecturestudio.editor.api.presenter.SplitRecordingPresenter.class)
 public class FxSplitRecordingView extends StackPane implements SplitRecordingView {
 
-	private final ApplicationContext context;
 	@FXML
 	private ResourceBundle resources;
 
@@ -56,10 +54,8 @@ public class FxSplitRecordingView extends StackPane implements SplitRecordingVie
 	private Interval<Long> end;
 
 	@Inject
-	FxSplitRecordingView(ApplicationContext context) {
+	FxSplitRecordingView() {
 		super();
-
-		this.context = context;
 	}
 
 	@Override

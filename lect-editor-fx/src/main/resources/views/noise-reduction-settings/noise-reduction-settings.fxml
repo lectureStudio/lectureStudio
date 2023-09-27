@@ -1,60 +1,77 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import javafx.scene.chart.*?>
-<?import javafx.scene.control.*?>
-<?import javafx.scene.layout.*?>
-<?import org.lecturestudio.javafx.control.*?>
-<?import org.lecturestudio.javafx.layout.*?>
-<?import org.lecturestudio.javafx.util.*?>
-
-<fx:root type="ContentPane" title="%noise.reduction.settings.title" styleClass="noise-reduction-settings" xmlns="http://javafx.com/javafx/10.0.2-internal" xmlns:fx="http://javafx.com/fxml/1">
-	<GridPane>
-		<columnConstraints>
-			<ColumnConstraints/>
-			<ColumnConstraints hgrow="ALWAYS"/>
-		</columnConstraints>
-		<HBox GridPane.columnSpan="2" minHeight="-Infinity" GridPane.hgrow="ALWAYS">
-			<Label text="%noise.reduction.settings.profile" wrapText="true" maxWidth="Infinity" HBox.hgrow="ALWAYS"/>
-			<Button fx:id="saveProfileSelectionButton" text="%button.save" minWidth="-Infinity"/>
-		</HBox>
-		<Separator GridPane.rowIndex="1" GridPane.columnSpan="2"/>
-		<Label id="reduction" text="%noise.reduction.settings.sensitivity" GridPane.rowIndex="2"/>
-		<TextField id="reduction" fx:id="sensitivityField" prefColumnCount="4" maxWidth="-Infinity" GridPane.rowIndex="3">
+<?import javafx.scene.chart.NumberAxis?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.Separator?>
+<?import javafx.scene.control.Slider?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.control.ToggleButton?>
+<?import javafx.scene.control.Tooltip?>
+<?import javafx.scene.layout.ColumnConstraints?>
+<?import javafx.scene.layout.GridPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Pane?>
+<?import javafx.scene.layout.Region?>
+<?import org.lecturestudio.javafx.control.SpectrogramChart?>
+<?import org.lecturestudio.javafx.control.SvgIcon?>
+<?import org.lecturestudio.javafx.util.TextDoubleFormatter?>
+<fx:root type="GridPane" styleClass="noise-reduction-settings"
+		 xmlns="http://javafx.com/javafx/10.0.2-internal" xmlns:fx="http://javafx.com/fxml/1">
+	<columnConstraints>
+		<ColumnConstraints/>
+		<ColumnConstraints hgrow="ALWAYS"/>
+	</columnConstraints>
+	<HBox GridPane.columnSpan="2" minHeight="-Infinity" GridPane.hgrow="ALWAYS">
+		<Label text="%audio.noise.reduction.settings.profile" wrapText="true" maxWidth="Infinity"
+			   HBox.hgrow="ALWAYS"/>
+		<Button fx:id="saveProfileSelectionButton" text="%button.save" minWidth="-Infinity"/>
+	</HBox>
+	<Separator GridPane.rowIndex="1" GridPane.columnSpan="2"/>
+	<Label id="reduction" text="%audio.noise.reduction.settings.sensitivity" GridPane.rowIndex="2"/>
+	<TextField id="reduction" fx:id="sensitivityField" prefColumnCount="4" maxWidth="-Infinity"
+			   GridPane.rowIndex="3">
 			<textFormatter>
-				<TextDoubleFormatter minValue="0" maxValue="1" />
+				<TextDoubleFormatter minValue="0" maxValue="1"/>
 			</textFormatter>
 		</TextField>
-		<Slider id="reduction" fx:id="sensitivitySlider" min="0.001" max="1" GridPane.columnIndex="1" GridPane.rowIndex="3"/>
-		<Label id="reduction" text="%noise.reduction.settings.audio.snippet" GridPane.rowIndex="4"/>
+	<Slider id="reduction" fx:id="sensitivitySlider" min="0.001" max="1" GridPane.columnIndex="1"
+			GridPane.rowIndex="3"/>
+	<Label id="reduction" text="%audio.noise.reduction.settings.audio.snippet" GridPane.rowIndex="4"/>
 		<HBox GridPane.rowIndex="4" GridPane.columnIndex="1">
-			<ToggleButton id="reduction" fx:id="playSnippetButton" styleClass="play, secondary-button" text="%noise.reduction.settings.play.audio.snippet">
+			<ToggleButton id="reduction" fx:id="playSnippetButton" styleClass="play, secondary-button"
+						  text="%audio.noise.reduction.settings.play.audio.snippet">
 				<graphic>
-					<SvgIcon />
+					<SvgIcon/>
 				</graphic>
 			</ToggleButton>
 			<Pane HBox.hgrow="ALWAYS"/>
-			<Button id="reduction" fx:id="updateAudioSnippetButton" styleClass="update-snippet, secondary-button">
+			<Button id="reduction" fx:id="updateAudioSnippetButton"
+					styleClass="update-snippet, secondary-button">
 				<graphic>
-					<SvgIcon />
+					<SvgIcon/>
 				</graphic>
 				<tooltip>
-					<Tooltip text="%noise.reduction.settings.audio.snippet.update"/>
+					<Tooltip text="%audio.noise.reduction.settings.audio.snippet.update"/>
 				</tooltip>
 			</Button>
 		</HBox>
-		<SpectrogramChart fx:id="spectrogramChart" animated="false" legendVisible="false" horizontalGridLinesVisible="false" verticalGridLinesVisible="false" GridPane.rowIndex="5" GridPane.columnSpan="2" GridPane.hgrow="ALWAYS">
+	<SpectrogramChart fx:id="spectrogramChart" animated="false" legendVisible="false"
+					  horizontalGridLinesVisible="false" verticalGridLinesVisible="false"
+					  GridPane.rowIndex="5" GridPane.columnSpan="2" GridPane.hgrow="ALWAYS">
 			<xAxis>
-				<NumberAxis label="%noise.reduction.settings.time" autoRanging="false" />
+				<NumberAxis label="%audio.noise.reduction.settings.time" autoRanging="false"/>
 			</xAxis>
 			<yAxis>
-				<NumberAxis label="%noise.reduction.settings.frequency" autoRanging="false" tickUnit="1000" />
+				<NumberAxis label="%audio.noise.reduction.settings.frequency" autoRanging="false"
+							tickUnit="1000"/>
 			</yAxis>
 		</SpectrogramChart>
-		<HBox id="reduction" styleClass="buttons" GridPane.rowIndex="6" GridPane.columnSpan="2" GridPane.hgrow="ALWAYS">
-			<Label text="%noise.reduction.settings.denoise"/>
+	<HBox id="reduction" styleClass="buttons" GridPane.rowIndex="6" GridPane.columnSpan="2"
+		  GridPane.hgrow="ALWAYS">
+		<Label text="%audio.noise.reduction.settings.denoise"/>
 			<Region HBox.hgrow="ALWAYS"/>
-			<Button fx:id="denoiseTrialButton" text="%noise.reduction.settings.denoise.trial"/>
-			<Button fx:id="denoiseFinalButton" text="%noise.reduction.settings.denoise.final"/>
-		</HBox>
-	</GridPane>
+		<Button fx:id="denoiseTrialButton" text="%audio.noise.reduction.settings.denoise.trial"/>
+		<Button fx:id="denoiseFinalButton" text="%audio.noise.reduction.settings.denoise.final"/>
+	</HBox>
 </fx:root>

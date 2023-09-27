@@ -2,10 +2,11 @@ package org.lecturestudio.editor.api.presenter;
 
 import static java.util.Objects.nonNull;
 
-import javax.inject.Inject;
-
 import java.io.File;
 import java.nio.file.Path;
+import java.text.MessageFormat;
+
+import javax.inject.Inject;
 
 import org.lecturestudio.core.app.ApplicationContext;
 import org.lecturestudio.core.app.configuration.Configuration;
@@ -90,12 +91,14 @@ public class SplitRecordingPresenter extends Presenter<SplitRecordingView> {
 							progressView.setMessageTitle(context.getDictionary().get("save.recording.success"));
 						})
 						.exceptionally(throwable -> {
-							handleException(throwable, "Save recording failed", "save.recording.error", file.getPath());
+							progressView.setError(MessageFormat.format(context.getDictionary().get("save.recording.error"),
+									file.getPath()), throwable.getMessage());
 							return null;
 						});
 			}
 			catch (RecordingEditException e) {
-				handleException(e, "Save recording failed", "save.recording.error", file.getPath());
+				progressView.setError(MessageFormat.format(context.getDictionary().get("save.recording.error"),
+						file.getPath()), e.getMessage());
 			}
 		}
 		close();

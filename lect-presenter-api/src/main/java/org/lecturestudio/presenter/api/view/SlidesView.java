@@ -26,6 +26,7 @@ import java.util.UUID;
 import org.lecturestudio.core.ExecutableState;
 import org.lecturestudio.core.beans.BooleanProperty;
 import org.lecturestudio.core.controller.RenderController;
+import org.lecturestudio.core.controller.ToolController;
 import org.lecturestudio.core.geometry.Matrix;
 import org.lecturestudio.core.input.KeyEvent;
 import org.lecturestudio.core.model.Document;
@@ -80,7 +81,9 @@ public interface SlidesView extends View {
 
 	void setExtendedFullscreen(boolean extended);
 
-	void setStylusHandler(StylusHandler handler);
+	void createStylusInput(StylusHandler handler);
+
+	void createMouseInput(ToolController toolController);
 
 	void setLaTeXText(String text);
 

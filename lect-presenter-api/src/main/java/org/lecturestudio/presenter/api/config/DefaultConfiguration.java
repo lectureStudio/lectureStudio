@@ -47,6 +47,7 @@ public class DefaultConfiguration extends PresenterConfiguration {
 		setUIControlSize(10);
 		setExtendPageDimension(new Dimension2D(1.3, 1.3));
 		setStartMaximized(true);
+		setUseMouseInput(false);
 		setTabletMode(false);
 		setSaveDocumentOnClose(true);
 		setAdvancedUIMode(true);

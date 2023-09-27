@@ -44,6 +44,8 @@ public interface GeneralSettingsView extends SettingsBaseView {
 
 	void setStartFullscreen(BooleanProperty fullscreen);
 
+	void setUseMouseInput(BooleanProperty useMouse);
+
 	void setTabletMode(BooleanProperty tabletMode);
 
 	void setSaveAnnotationsOnClose(BooleanProperty saveAnnotations);

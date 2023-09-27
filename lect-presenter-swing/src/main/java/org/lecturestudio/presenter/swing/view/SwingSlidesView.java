@@ -72,6 +72,7 @@ import org.lecturestudio.core.app.dictionary.Dictionary;
 import org.lecturestudio.core.beans.BooleanProperty;
 import org.lecturestudio.core.beans.DoubleProperty;
 import org.lecturestudio.core.controller.RenderController;
+import org.lecturestudio.core.controller.ToolController;
 import org.lecturestudio.core.geometry.Matrix;
 import org.lecturestudio.core.input.KeyEvent;
 import org.lecturestudio.core.model.Document;
@@ -90,6 +91,7 @@ import org.lecturestudio.presenter.api.model.NoteBarPosition;
 import org.lecturestudio.presenter.api.model.MessageBarPosition;
 import org.lecturestudio.presenter.api.service.UserPrivilegeService;
 import org.lecturestudio.presenter.api.view.SlidesView;
+import org.lecturestudio.presenter.swing.input.MouseListener;
 import org.lecturestudio.presenter.swing.input.StylusListener;
 import org.lecturestudio.presenter.swing.utils.ViewUtil;
 import org.lecturestudio.stylus.awt.AwtStylusManager;
@@ -151,6 +153,8 @@ public class SwingSlidesView extends JPanel implements SlidesView {
 	private final Dictionary dict;
 
 	private final UserPrivilegeService userPrivilegeService;
+
+	private MouseListener mouseListener;
 
 	private ConsumerAction<org.lecturestudio.core.input.KeyEvent> keyAction;
 
@@ -307,7 +311,8 @@ public class SwingSlidesView extends JPanel implements SlidesView {
 
 
 	@Inject
-	SwingSlidesView(Dictionary dictionary, UserPrivilegeService userPrivilegeService) {
+	SwingSlidesView(Dictionary dictionary,
+			UserPrivilegeService userPrivilegeService) {
 		super();
 
 		this.dict = dictionary;
@@ -508,6 +513,10 @@ public class SwingSlidesView extends JPanel implements SlidesView {
 
 	@Override
 	public void setPage(Page page, PresentationParameter parameter) {
+		if (nonNull(mouseListener)) {
+			mouseListener.setPresentationParameter(parameter);
+		}
+
 		SwingUtils.invoke(() -> {
 			slideView.parameterChanged(page, parameter);
 			slideView.setPage(page);
@@ -570,11 +579,35 @@ public class SwingSlidesView extends JPanel implements SlidesView {
 	}
 
 	@Override
-	public void setStylusHandler(StylusHandler handler) {
-		stylusListener = new StylusListener(handler, slideView);
+	public void createStylusInput(StylusHandler handler) {
+		if (nonNull(mouseListener)) {
+			// Detach mouse to avoid double input.
+			slideView.removeMouseListener(mouseListener);
+			slideView.removeMouseMotionListener(mouseListener);
+		}
+
+		if (isNull(stylusListener)) {
+			stylusListener = new StylusListener(handler, slideView);
+		}
 
 		AwtStylusManager manager = AwtStylusManager.getInstance();
 		manager.attachStylusListener(slideView, stylusListener);
+	}
+
+	@Override
+	public void createMouseInput(ToolController toolController) {
+		if (nonNull(stylusListener)) {
+			// Detach stylus to avoid double input.
+			AwtStylusManager manager = AwtStylusManager.getInstance();
+			manager.detachStylusListener(slideView);
+		}
+
+		if (isNull(mouseListener)) {
+			mouseListener = new MouseListener(slideView, toolController);
+		}
+
+		slideView.addMouseListener(mouseListener);
+		slideView.addMouseMotionListener(mouseListener);
 	}
 
 	@Override

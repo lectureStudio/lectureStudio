@@ -61,7 +61,7 @@ public class StreamService {
 
 	@Inject
 	public StreamService(PresenterContext context,
-	                     WebRtcStreamService webRtcStreamService, WebService webService) {
+			WebRtcStreamService webRtcStreamService, WebService webService) {
 		this.context = context;
 		this.eventBus = context.getEventBus();
 		this.webRtcStreamService = webRtcStreamService;
@@ -188,19 +188,18 @@ public class StreamService {
 					webService.initMessageTransport();
 					webService.startMessageTransport();
 
+					// Add the preview-handler here as it will observe stream
+					// state events and execute properly when the stream is running.
+					if (streamContext.getPreviewStream()) {
+						var previewStreamHandler = new PreviewStreamHandler(context);
+						previewStreamHandler.initialize();
+					}
+
+					webRtcStreamService.getStreamConfig().setStartChat(streamContext.getMessengerEnabled());
 					webRtcStreamService.start();
 				}
 				catch (ExecutableException e) {
 					throw new CompletionException(e);
-				}
-
-				if (streamContext.getMessengerEnabled()) {
-					context.setMessengerStarted(true);
-				}
-
-				if (streamContext.getPreviewStream()) {
-					var previewStreamHandler = new PreviewStreamHandler(context);
-					previewStreamHandler.initialize();
 				}
 			})
 			.exceptionally(e -> {

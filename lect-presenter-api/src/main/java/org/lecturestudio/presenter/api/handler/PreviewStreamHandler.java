@@ -18,10 +18,15 @@
 
 package org.lecturestudio.presenter.api.handler;
 
+import com.google.common.eventbus.Subscribe;
+
+import java.util.concurrent.CompletableFuture;
+
+import org.lecturestudio.core.ExecutableState;
 import org.lecturestudio.core.bus.EventBus;
-import org.lecturestudio.core.presenter.command.ShowPresenterCommand;
 import org.lecturestudio.presenter.api.context.PresenterContext;
-import org.lecturestudio.presenter.api.presenter.StreamPreviewPresenter;
+import org.lecturestudio.presenter.api.event.StreamingStateEvent;
+import org.lecturestudio.presenter.api.presenter.command.PreviewStreamCommand;
 
 import me.friwi.jcefmaven.UnsupportedPlatformException;
 
@@ -49,20 +54,45 @@ public class PreviewStreamHandler extends CefStreamHandler {
 
 	@Override
 	public void initialize() {
-		try {
-			if (!isJcefInstalled()) {
-				installJcef();
+		eventBus.register(this);
+	}
+
+	@Subscribe
+	public void onEvent(final StreamingStateEvent event) {
+		ExecutableState state = event.getState();
+
+		if (state == ExecutableState.Started) {
+			try {
+				if (!isJcefInstalled()) {
+					installJcef();
+				}
+				else {
+					showStreamView();
+				}
 			}
-			else {
-				showStreamView();
+			catch (UnsupportedPlatformException e) {
+				throw new RuntimeException(e);
 			}
 		}
-		catch (UnsupportedPlatformException e) {
-			throw new RuntimeException(e);
+		else if (state == ExecutableState.Stopped) {
+			eventBus.unregister(this);
 		}
 	}
 
 	private void showStreamView() {
-		eventBus.post(new ShowPresenterCommand<>(StreamPreviewPresenter.class));
+		CompletableFuture.runAsync(() -> {
+			// Add a slight delay to let the stream setup settle.
+			try {
+				Thread.sleep(1000);
+			}
+			catch (InterruptedException e) {
+				// Ignore
+			}
+
+			eventBus.post(new PreviewStreamCommand(() -> {
+				// On close, unsubscribe from receiving state events.
+				eventBus.unregister(this);
+			}));
+		});
 	}
 }

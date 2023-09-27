@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2020 TU Darmstadt, Department of Computer Science,
+ * Copyright (C) 2023 TU Darmstadt, Department of Computer Science,
  * Embedded Systems and Applications Group.
  *
  * This program is free software: you can redistribute it and/or modify
@@ -20,21 +20,21 @@ package org.lecturestudio.presenter.api.presenter.command;
 
 import org.lecturestudio.core.presenter.command.ShowPresenterCommand;
 import org.lecturestudio.core.view.Action;
-import org.lecturestudio.presenter.api.presenter.StopwatchConfigPresenter;
+import org.lecturestudio.presenter.api.presenter.StreamPreviewPresenter;
 
-public class StopwatchCommand extends ShowPresenterCommand<StopwatchConfigPresenter> {
+public class PreviewStreamCommand extends ShowPresenterCommand<StreamPreviewPresenter> {
 
-    private final Action startAction;
+	private final Action closeAction;
 
 
-    public StopwatchCommand(Action startAction) {
-        super(StopwatchConfigPresenter.class);
+	public PreviewStreamCommand(Action closeAction) {
+		super(StreamPreviewPresenter.class);
 
-        this.startAction = startAction;
-    }
+		this.closeAction = closeAction;
+	}
 
-    @Override
-    public void execute(StopwatchConfigPresenter stopwatch) {
-        stopwatch.setOnStart(startAction);
-    }
+	@Override
+	public void execute(StreamPreviewPresenter presenter) {
+		presenter.setOnClose(closeAction);
+	}
 }

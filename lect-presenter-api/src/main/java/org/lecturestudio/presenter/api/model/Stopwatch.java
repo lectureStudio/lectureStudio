@@ -26,127 +26,139 @@ package org.lecturestudio.presenter.api.model;
  */
 public class Stopwatch {
 
+	public enum StopwatchType {
+		TIMER,
+		STOPWATCH
+	}
 
-    public enum StopwatchType {
-        TIMER, STOPWATCH
-    }
-    private int stopwatchInterval;
-    private boolean resetStopwatch ;
-    private boolean runStopwatch ;
+	private int stopwatchInterval;
 
-    private boolean timerEnded = false;
+	private boolean resetStopwatch;
 
-    private int timerEndedInterval = 0;
+	private boolean runStopwatch;
 
-    private int resetStopwatchInterval = 0;
+	private boolean timerEnded = false;
 
-    private StopwatchType type = StopwatchType.STOPWATCH;
+	private int timerEndedInterval = 0;
 
-    public Stopwatch(){
-        stopwatchInterval = 0;
-        resetStopwatch = false;
-        runStopwatch = false;
-    }
+	private int resetStopwatchInterval = 0;
 
-    /**
-     * Reset the stopwatch to the last configured time and stops it
-     */
-    public void resetStopwatch() {
-        stopwatchInterval = resetStopwatchInterval;
-        runStopwatch = false;
-        timerEndedInterval = 0;
-        timerEnded = false;
-    }
-
-    /**
-     * Switching between running and paused stopwatch.
-     */
-    public void startStopStopwatch(){
-        runStopwatch = !runStopwatch;
-    }
+	private StopwatchType type = StopwatchType.STOPWATCH;
 
 
-    /**
-     * Handles all incoming changes to the current stopwatch.
-     */
-    public void updateStopwatchInterval() {
-        if(runStopwatch) {
-            if(type == StopwatchType.STOPWATCH)
-                stopwatchInterval++;
-            else if(type == StopwatchType.TIMER)
-                if(stopwatchInterval > 0){
-                    stopwatchInterval--;
-                    timerEnded = false;
-                }else{
-                    if(timerEndedInterval <= 11) {
-                        timerEnded = true;
-                        timerEndedInterval++;
-                    }else{
-                        runStopwatch = false;
-                    }
-                }
-        }
-    }
+	public Stopwatch() {
+		stopwatchInterval = 0;
+		resetStopwatch = false;
+		runStopwatch = false;
+	}
 
-    /**
+	/**
+	 * Reset the stopwatch to the last configured time and stops it
+	 */
+	public void resetStopwatch() {
+		stopwatchInterval = resetStopwatchInterval;
+		runStopwatch = false;
+		timerEndedInterval = 0;
+		timerEnded = false;
+	}
+
+	/**
+	 * Switching between running and paused stopwatch.
+	 */
+	public void startStopStopwatch() {
+		runStopwatch = !runStopwatch;
+	}
+
+	/**
+	 * Handles all incoming changes to the current stopwatch.
+	 */
+	public void updateStopwatchInterval() {
+		if (runStopwatch) {
+			if (type == StopwatchType.STOPWATCH) {
+				stopwatchInterval++;
+			}
+			else if (type == StopwatchType.TIMER) {
+				if (stopwatchInterval > 0) {
+					stopwatchInterval--;
+					timerEnded = false;
+				}
+				else {
+					if (timerEndedInterval <= 11) {
+						timerEnded = true;
+						timerEndedInterval++;
+					}
+					else {
+						runStopwatch = false;
+					}
+				}
+			}
+		}
+	}
+
+	/**
      * Creates a string with the current time.
      *
      * @return the current stopwatch time as string
      */
-    public String calculateCurrentStopwatch(){
-        int sec = stopwatchInterval%60;
-        int min = stopwatchInterval/60%60;
-        int h = stopwatchInterval/60/60;
-        String secStr = String.format("%02d" , sec);
-        String minStr = String.format("%02d" , min);
-        String hStr = String.format("%02d" , h);
-        return hStr + ":" + minStr + ":" + secStr;
-    }
+	public String calculateCurrentStopwatch() {
+		int sec = stopwatchInterval % 60;
+		int min = stopwatchInterval / 60 % 60;
+		int h = stopwatchInterval / 60 / 60;
+		String secStr = String.format("%02d", sec);
+		String minStr = String.format("%02d", min);
+		String hStr = String.format("%02d", h);
 
-    /**
-     * Transforms a given string into an actual stopwatch time.
-     *
-     * @param time The stopwatchtime in format "ss", "mm:ss" or "hh:mm:ss"
-     */
-    public void setStopwatchIntervalByString(String time){
-        if(!time.trim().equals("")) {
-            String[] timesteps = time.split(":");
-            int actualTime = switch (timesteps.length) {
-                case 1 -> Integer.parseInt(timesteps[0]);
-                case 2 -> 60 * Integer.parseInt(timesteps[0]) + Integer.parseInt(timesteps[1]);
-                case 3 -> 60 * 60 * Integer.parseInt(timesteps[0]) + 60 * Integer.parseInt(timesteps[1]) + Integer.parseInt(timesteps[2]);
-                default -> 0;
-            };
-            stopwatchInterval = actualTime;
-            resetStopwatchInterval = actualTime;
-        }
-    }
+		return hStr + ":" + minStr + ":" + secStr;
+	}
 
-    /**
-     * Stops the current stopwatch
-     */
-    public void stopStopwatch(){
-        runStopwatch = false;
-    }
+	/**
+	 * Transforms a given string into an actual stopwatch time.
+	 *
+	 * @param time The stopwatchtime in format "ss", "mm:ss" or "hh:mm:ss"
+	 */
+	public void setStopwatchIntervalByString(String time) {
+		if (!time.trim().equals("")) {
+			String[] timesteps = time.split(":");
 
+			int actualTime = switch (timesteps.length) {
+				case 1 -> Integer.parseInt(timesteps[0]);
+				case 2 ->
+						60 * Integer.parseInt(timesteps[0]) + Integer.parseInt(
+								timesteps[1]);
+				case 3 -> 60 * 60 * Integer.parseInt(timesteps[0])
+						+ 60 * Integer.parseInt(timesteps[1])
+						+ Integer.parseInt(timesteps[2]);
+				default -> 0;
+			};
+			stopwatchInterval = actualTime;
+			resetStopwatchInterval = actualTime;
+		}
+	}
 
-    public StopwatchType getType() {
-        return type;
-    }
+	/**
+	 * Stops the current stopwatch
+	 */
+	public void stopStopwatch() {
+		runStopwatch = false;
+	}
 
-    public void setRunStopwatch(boolean runStopwatch) {
-        this.runStopwatch = runStopwatch;
-    }
+	public StopwatchType getType() {
+		return type;
+	}
 
-    public boolean isTimerEnded() {
-        return timerEnded;
-    }
+	public void setRunStopwatch(boolean runStopwatch) {
+		this.runStopwatch = runStopwatch;
+	}
 
-    public void setStopwatchType(StopwatchType type){
-        this.type = type;
-    }
+	public boolean isTimerEnded() {
+		return timerEnded;
+	}
 
-    public int getTimerEndedInterval(){
-        return timerEndedInterval;
-    }
+	public void setStopwatchType(StopwatchType type) {
+		this.type = type;
+	}
+
+	public int getTimerEndedInterval() {
+		return timerEndedInterval;
+	}
 }

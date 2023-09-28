@@ -20,8 +20,8 @@ package org.lecturestudio.core.recording.action;
 
 import java.io.IOException;
 
-import org.lecturestudio.core.input.KeyEvent;
 import org.lecturestudio.core.controller.ToolController;
+import org.lecturestudio.core.input.KeyEvent;
 import org.lecturestudio.core.tool.Stroke;
 import org.lecturestudio.core.tool.StrokeSettings;
 import org.lecturestudio.core.tool.ToolType;
@@ -49,6 +49,11 @@ public class PointerAction extends BaseStrokeAction {
 	@Override
 	public ActionType getType() {
 		return ActionType.POINTER;
+	}
+
+	@Override
+	public boolean hasHandle() {
+		return false;
 	}
 
 }

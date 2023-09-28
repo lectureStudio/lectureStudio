@@ -81,7 +81,7 @@
 	<menu id="bookmarksMenu" text="menu.bookmarks">
 		<menuitem id="clearBookmarksMenuItem" text="menu.bookmarks.clear" enabled="false" />
 		<menuitem id="newBookmarkMenuItem" text="menu.bookmarks.add" accelerator="B" enabled="false" />
-		<menuitem id="removeBookmarkMenuItem" text="menu.bookmarks.remove" accelerator="B" enabled="false" />
+		<menuitem id="removeBookmarkMenuItem" text="menu.bookmarks.remove" enabled="false" />
 		<menuitem id="newDefaultBookmarkMenuItem" text="menu.bookmarks.add.default" enabled="false" />
 		<separator />
 		<menuitem id="gotoBookmarkMenuItem" text="menu.bookmarks.goto" accelerator="G" enabled="false" />

@@ -120,7 +120,6 @@ public class BookmarkService {
 		if (nonNull(docBookmarks)) {
 			for (Bookmark bookmark : docBookmarks) {
 				if(bookmark.getPage().equals(page)){
-					deleteBookmark(bookmark);
 					return bookmark;
 				}
 			}

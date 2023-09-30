@@ -55,4 +55,8 @@ public class ZoomAction extends BaseStrokeAction {
 		return ActionType.ZOOM;
 	}
 
+	@Override
+	public boolean hasHandle() {
+		return false;
+	}
 }

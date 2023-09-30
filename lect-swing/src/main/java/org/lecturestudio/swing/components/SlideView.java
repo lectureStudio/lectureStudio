@@ -33,7 +33,6 @@ import java.awt.event.ComponentEvent;
 import java.awt.geom.AffineTransform;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ExecutorService;
@@ -51,7 +50,6 @@ import org.lecturestudio.core.geometry.Rectangle2D;
 import org.lecturestudio.core.model.Page;
 import org.lecturestudio.core.model.listener.ParameterChangeListener;
 import org.lecturestudio.core.model.listener.ShapeListener;
-import org.lecturestudio.core.model.shape.Shape;
 import org.lecturestudio.core.swing.SwingGraphicsContext;
 import org.lecturestudio.core.tool.ShapeModifyEvent;
 import org.lecturestudio.core.tool.ShapePaintEvent;
@@ -68,8 +66,6 @@ import org.lecturestudio.core.view.ViewType;
  * @author Alex
  */
 public class SlideView extends JComponent implements org.lecturestudio.core.view.SlideView, ShapeListener, ParameterChangeListener {
-
-	private static final long serialVersionUID = -7415177296923113959L;
 
 	private SlideRenderer renderer;
 
@@ -466,20 +462,7 @@ public class SlideView extends JComponent implements org.lecturestudio.core.view
 
 	@Override
 	public void shapeModified(ShapeModifyEvent event) {
-		Iterator<Shape> shapes = event.getShapes().iterator();
-
-		if (shapes.hasNext()) {
-			Rectangle2D clip = shapes.next().getBounds().clone();
-
-			while (shapes.hasNext()) {
-				clip.union(shapes.next().getBounds());
-			}
-
-			repaintView(clip);
-		}
-		else {
-			repaintView();
-		}
+		repaintView();
 	}
 
 	public void dispose() {

@@ -264,9 +264,9 @@ public class SwingSlidesView extends JPanel implements SlidesView {
 
 	private AdaptiveTabbedPane bottomTabPane;
 
-	private JPanel messagesPanel;
+	private JPanel participantsPanel;
 
-	private JPanel notesPanel;
+	private JPanel messagesPanel;
 
 	private Box messageSendPanel;
 
@@ -289,6 +289,8 @@ public class SwingSlidesView extends JPanel implements SlidesView {
 	private final JScrollPane externalMessagesPane = new JScrollPane();
 
 	private final JScrollPane externalNotesPane = new JScrollPane();
+
+	private final JScrollPane externalParticipantsPane = new JScrollPane();
 
 	private double oldDocSplitPaneDividerRatio = 0.15;
 
@@ -1070,33 +1072,34 @@ public class SwingSlidesView extends JPanel implements SlidesView {
 
 	@Override
 	public void showExternalParticipants(Screen screen, Point position, Dimension size) {
-//		if (externalParticipantsFrame.isVisible()) {
-//			return;
-//		}
+		if (externalParticipantsFrame.isVisible()) {
+			return;
+		}
 
-//		setParticipantsTabVisible(dict.get(PARTICIPANTS_LABEL_KEY), false);
-//
-//		participantsPane.getViewport().remove(participantsViewContainer);
-//
-//		externalParticipantsPane.getViewport().add(participantsViewContainer);
-//
-//		externalParticipantsFrame.updatePosition(screen, position, size);
-//		externalParticipantsFrame.setVisible(true);
+		setParticipantsTabVisible(dict.get(PARTICIPANTS_LABEL_KEY), false);
+
+		participantsPanel.remove(participantList);
+
+		externalParticipantsPane.getViewport().add(participantList);
+
+		externalParticipantsFrame.updatePosition(screen, position, size);
+		externalParticipantsFrame.showBody();
+		externalParticipantsFrame.setVisible(true);
 	}
 
 	@Override
 	public void hideExternalParticipants() {
-//		if (!externalParticipantsFrame.isVisible()) {
-//			return;
-//		}
+		if (!externalParticipantsFrame.isVisible()) {
+			return;
+		}
 
-//		externalParticipantsPane.getViewport().remove(participantsViewContainer);
-//
-//		externalParticipantsFrame.setVisible(false);
-//
-//		participantsPane.getViewport().add(participantsViewContainer);
-//
-//		setParticipantsTabVisible(dict.get(PARTICIPANTS_LABEL_KEY), true);
+		externalParticipantsPane.getViewport().remove(participantList);
+
+		externalParticipantsFrame.setVisible(false);
+
+		participantsPanel.add(participantList);
+
+		setParticipantsTabVisible(dict.get(PARTICIPANTS_LABEL_KEY), true);
 	}
 
 	@Override
@@ -1456,6 +1459,13 @@ public class SwingSlidesView extends JPanel implements SlidesView {
 	private void setNotesBarTabVisible(String labelText, boolean visible) {
 		switch (notesBarPosition) {
 			case BOTTOM -> setBottomTabVisible(labelText, visible);
+			case LEFT -> setLeftTabVisible(labelText, visible);
+		}
+	}
+
+	private void setParticipantsTabVisible(String labelText, boolean visible) {
+		switch (participantsPosition) {
+			case RIGHT -> setRightTabVisible(labelText, visible);
 			case LEFT -> setLeftTabVisible(labelText, visible);
 		}
 	}
@@ -1865,13 +1875,13 @@ public class SwingSlidesView extends JPanel implements SlidesView {
 						.setSizeChangedAction(size -> executeAction(externalMessagesSizeChangedAction, size))
 						.setMinimumSize(new Dimension(500, 400)).build();
 
-//		externalParticipantsFrame =
-//				new ExternalFrame.Builder().setName(dict.get(PARTICIPANTS_LABEL_KEY)).setBody(externalParticipantsPane)
-//						.setPlaceholderText(dict.get(NO_PARTICIPANTS_LABEL_KEY)).setPositionChangedAction(
-//								position -> executeAction(externalParticipantsPositionChangedAction, position))
-//						.setClosedAction(() -> executeAction(externalParticipantsClosedAction))
-//						.setSizeChangedAction(size -> executeAction(externalParticipantsSizeChangedAction, size))
-//						.setMinimumSize(new Dimension(200, 600)).build();
+		externalParticipantsFrame =
+				new ExternalFrame.Builder().setName(dict.get(PARTICIPANTS_LABEL_KEY)).setBody(externalParticipantsPane)
+						.setPlaceholderText(dict.get(NO_PARTICIPANTS_LABEL_KEY)).setPositionChangedAction(
+								position -> executeAction(externalParticipantsPositionChangedAction, position))
+						.setClosedAction(() -> executeAction(externalParticipantsClosedAction))
+						.setSizeChangedAction(size -> executeAction(externalParticipantsSizeChangedAction, size))
+						.setMinimumSize(new Dimension(280, 600)).build();
 
 		externalSlidePreviewFrame =
 				new ExternalFrame.Builder().setName(dict.get(SLIDES_PREVIEW_LABEL_KEY)).setBody(

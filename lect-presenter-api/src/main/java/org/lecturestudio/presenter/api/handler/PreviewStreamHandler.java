@@ -25,6 +25,7 @@ import java.util.concurrent.CompletableFuture;
 import org.lecturestudio.core.ExecutableState;
 import org.lecturestudio.core.bus.EventBus;
 import org.lecturestudio.presenter.api.context.PresenterContext;
+import org.lecturestudio.presenter.api.event.MessengerStateEvent;
 import org.lecturestudio.presenter.api.event.StreamingStateEvent;
 import org.lecturestudio.presenter.api.presenter.command.PreviewStreamCommand;
 
@@ -39,6 +40,8 @@ import me.friwi.jcefmaven.UnsupportedPlatformException;
 public class PreviewStreamHandler extends CefStreamHandler {
 
 	private final EventBus eventBus;
+
+	private ExecutableState streamState;
 
 
 	public PreviewStreamHandler(PresenterContext context) {
@@ -59,9 +62,21 @@ public class PreviewStreamHandler extends CefStreamHandler {
 
 	@Subscribe
 	public void onEvent(final StreamingStateEvent event) {
+		streamState = event.getState();
+
+		if (streamState == ExecutableState.Stopped) {
+			eventBus.unregister(this);
+		}
+	}
+
+	@Subscribe
+	public void onEvent(final MessengerStateEvent event) {
 		ExecutableState state = event.getState();
 
-		if (state == ExecutableState.Started) {
+		// Show the stream view when both, the stream itself and the chat have
+		// successfully started.
+		if (state == ExecutableState.Started
+				&& streamState == ExecutableState.Started) {
 			try {
 				if (!isJcefInstalled()) {
 					installJcef();
@@ -73,9 +88,10 @@ public class PreviewStreamHandler extends CefStreamHandler {
 			catch (UnsupportedPlatformException e) {
 				throw new RuntimeException(e);
 			}
-		}
-		else if (state == ExecutableState.Stopped) {
-			eventBus.unregister(this);
+			finally {
+				// This handler has nothing to do anymore.
+				eventBus.unregister(this);
+			}
 		}
 	}
 

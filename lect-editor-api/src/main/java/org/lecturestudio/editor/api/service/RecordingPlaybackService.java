@@ -69,7 +69,7 @@ public class RecordingPlaybackService extends ExecutableBase {
 		this.audioSystemProvider = audioSystemProvider;
 		this.context = (EditorContext) context;
 		this.context.primarySelectionProperty().addListener((o, oldValue, newValue) -> {
-			if (initialized() || suspended()) {
+			if (initialized() || suspended() || stopped()) {
 				try {
 					seek(newValue);
 				}
@@ -170,10 +170,12 @@ public class RecordingPlaybackService extends ExecutableBase {
 	}
 
 	/**
-	 * Sets the playback to the selected time
+	 * Sets the playback to the selected time in millisecond precision.
 	 *
-	 * @param timeMs the time in milliseconds
-	 * @throws ExecutableException
+	 * @param timeMs The time in milliseconds.
+	 *
+	 * @throws ExecutableException If the playback could not be set to the
+	 *                             provided timestamp.
 	 */
 	public synchronized void seek(int timeMs) throws ExecutableException {
 		if (started() || destroyed()) {

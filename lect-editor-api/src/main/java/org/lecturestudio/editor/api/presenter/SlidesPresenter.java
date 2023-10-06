@@ -123,6 +123,7 @@ public class SlidesPresenter extends Presenter<SlidesView> {
 		view.setOnKeyEvent(this::keyEvent);
 		view.setOnDeletePage(this::deletePage);
 		view.setOnSelectPage(this::selectPage);
+		view.setOnSelectDocument(this::selectDocument);
 		view.setPageRenderer(renderController);
 		view.setStylusHandler(stylusHandler);
 		view.setOnViewTransform(this::setViewTransform);
@@ -316,6 +317,17 @@ public class SlidesPresenter extends Presenter<SlidesView> {
 		}
 		catch (Exception e) {
 			handleException(e, "Select page failed", "select.recording.page.error");
+		}
+	}
+
+	private void selectDocument(Document document) {
+		try {
+			Recording recording = recordingService.getRecordingWithDocument(document);
+
+			recordingService.selectRecording(recording);
+		}
+		catch (Exception e) {
+			handleException(e, "Select document failed", "select.recording.page.error");
 		}
 	}
 

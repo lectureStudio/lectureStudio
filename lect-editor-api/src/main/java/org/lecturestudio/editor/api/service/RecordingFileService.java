@@ -18,6 +18,7 @@
 
 package org.lecturestudio.editor.api.service;
 
+import static java.util.Objects.isNull;
 import static java.util.Objects.nonNull;
 
 import org.apache.logging.log4j.LogManager;
@@ -219,19 +220,51 @@ public class RecordingFileService {
 		return recordings.get(recordings.size() - 1);
 	}
 
+	/**
+	 * Searches all opened recordings and returns the recording that contains
+	 * the specified document.
+	 *
+	 * @param document The document of an opened recording.
+	 *
+	 * @return The recording that contains the provided document.
+	 */
+	public Recording getRecordingWithDocument(Document document) {
+		if (recordings.isEmpty() || isNull(document)) {
+			return null;
+		}
+
+		Recording selectedRecording = getSelectedRecording();
+
+		if (selectedRecording.getRecordedDocument().getDocument().getName()
+				.equals(document.getName())) {
+			// Skip if looking for opened recording.
+			return null;
+		}
+
+		for (Recording recording : recordings) {
+			if (recording.getRecordedDocument().getDocument().getName()
+					.equals(document.getName())) {
+				return recording;
+			}
+		}
+
+		return null;
+	}
+
 	public boolean hasRecordings() {
 		return !recordings.isEmpty();
 	}
 
 	/**
-	 * Removes a portion of a recording specified by a time
-	 * interval. All recorded parts - audio, events and slides - contained within
-	 * the interval will be removed from the recording.
+	 * Removes a portion of a recording specified by a time interval. All
+	 * recorded parts - audio, events and slides - contained within the interval
+	 * will be removed from the recording.
 	 *
-	 * @param start The start time from where to start removing. The value
-	 *              must be within the range [0, 1].
-	 * @param end   The end time when to stop removing. The value must be
-	 *              within the range [0, 1].
+	 * @param start The start time from where to start removing. The value must
+	 *              be within the range [0, 1].
+	 * @param end   The end time when to stop removing. The value must be within
+	 *              the range [0, 1].
+	 *
 	 * @return An async future completing the task
 	 */
 	public CompletableFuture<Void> cut(double start, double end) {
@@ -239,15 +272,16 @@ public class RecordingFileService {
 	}
 
 	/**
-	 * Removes a portion of a recording specified by a time
-	 * interval. All recorded parts - audio, events and slides - contained within
-	 * the interval will be removed from the recording.
+	 * Removes a portion of a recording specified by a time interval. All
+	 * recorded parts - audio, events and slides - contained within the interval
+	 * will be removed from the recording.
 	 *
 	 * @param start     The start time from where to start removing. The value
 	 *                  must be within the range [0, 1].
 	 * @param end       The end time when to stop removing. The value must be
 	 *                  within the range [0, 1].
 	 * @param recording The recording this edit action should happen on
+	 *
 	 * @return An async future completing the task
 	 */
 	public CompletableFuture<Void> cut(double start, double end, Recording recording) {

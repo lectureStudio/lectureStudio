@@ -22,6 +22,8 @@ import static java.util.Objects.nonNull;
 
 import com.google.common.eventbus.Subscribe;
 
+import java.util.concurrent.CompletableFuture;
+
 import javax.inject.Inject;
 
 import org.lecturestudio.core.ExecutableException;
@@ -137,7 +139,11 @@ public class MediaControlsPresenter extends Presenter<MediaControlsView> {
 			view.setDuration(duration);
 			view.setCurrentPage(doc.getCurrentPageNumber() + 1, doc.getPageCount());
 
-			editorContext.setPrimarySelection(0.0);
+			// Defer time selection to avoid UI blocking when more than one
+			// recording is opened.
+			CompletableFuture.runAsync(() -> {
+				editorContext.setPrimarySelection(0.0);
+			});
 		}
 	}
 

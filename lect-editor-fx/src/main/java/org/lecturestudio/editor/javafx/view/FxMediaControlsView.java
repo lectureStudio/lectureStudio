@@ -28,7 +28,6 @@ import org.lecturestudio.editor.api.view.MediaControlsView;
 import org.lecturestudio.javafx.beans.LectBooleanProperty;
 import org.lecturestudio.javafx.beans.LectDoubleProperty;
 import org.lecturestudio.javafx.control.MediaControls;
-import org.lecturestudio.javafx.util.FxUtils;
 import org.lecturestudio.javafx.view.FxmlView;
 
 @FxmlView(name = "media-controls", presenter = MediaControlsPresenter.class)
@@ -60,9 +59,7 @@ public class FxMediaControlsView extends MediaControls implements MediaControlsV
 
 	@Override
 	public void setCurrentPage(Integer current, Integer total) {
-		FxUtils.invoke(() -> {
-			setCurrentPage(new Pair<>(current, total));
-		});
+		setCurrentPage(new Pair<>(current, total));
 	}
 
 	@Override

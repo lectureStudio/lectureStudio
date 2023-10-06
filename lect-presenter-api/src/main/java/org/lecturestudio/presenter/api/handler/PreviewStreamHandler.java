@@ -105,10 +105,7 @@ public class PreviewStreamHandler extends CefStreamHandler {
 				// Ignore
 			}
 
-			eventBus.post(new PreviewStreamCommand(() -> {
-				// On close, unsubscribe from receiving state events.
-				eventBus.unregister(this);
-			}));
+			eventBus.post(new PreviewStreamCommand(() -> {}));
 		});
 	}
 }

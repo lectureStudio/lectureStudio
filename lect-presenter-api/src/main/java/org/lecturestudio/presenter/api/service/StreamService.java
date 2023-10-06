@@ -270,7 +270,7 @@ public class StreamService {
 	}
 
 	private void startMessenger() {
-		if (webRtcStreamService.started()) {
+		if (!webRtcStreamService.stopped()) {
 			startMessengerInternal();
 		}
 		else {

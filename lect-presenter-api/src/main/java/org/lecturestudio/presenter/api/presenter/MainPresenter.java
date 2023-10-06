@@ -321,15 +321,16 @@ public class MainPresenter extends org.lecturestudio.core.presenter.MainPresente
 	public void onEvent(final MessengerStateEvent event) {
 		ExecutableState state = event.getState();
 
-		if (state == ExecutableState.Starting) {
-			showWaitingNotification("messenger.starting");
-		}
-		else if (state == ExecutableState.Started) {
-			hideWaitingNotification();
-
-//			display(createPresenter(MessengerWindowPresenter.class));
-		}
-		else if (state == ExecutableState.Stopped) {
+//		if (state == ExecutableState.Starting) {
+//			showWaitingNotification("messenger.starting");
+//		}
+//		else if (state == ExecutableState.Started) {
+//			hideWaitingNotification();
+//
+////			display(createPresenter(MessengerWindowPresenter.class));
+//		}
+//		else
+		if (state == ExecutableState.Stopped) {
 			PresenterContext presenterContext = (PresenterContext) context;
 			presenterContext.getMessengerMessages().clear();
 

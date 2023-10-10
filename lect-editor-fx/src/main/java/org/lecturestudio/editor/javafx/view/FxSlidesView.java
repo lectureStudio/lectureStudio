@@ -23,6 +23,7 @@ import static java.util.Objects.nonNull;
 
 import java.util.Collection;
 
+import javafx.application.Platform;
 import javafx.beans.value.ChangeListener;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
@@ -298,6 +299,8 @@ public class FxSlidesView extends VBox implements SlidesView {
 			newScene.addEventFilter(KeyEvent.KEY_RELEASED, keyEventHandler);
 
 			newScene.focusOwnerProperty().addListener(sceneFocusListener);
+
+			slideView.requestFocus();
 		}
 	}
 

@@ -322,7 +322,12 @@ public class SlidesPresenter extends Presenter<SlidesView> {
 
 	private void selectDocument(Document document) {
 		try {
+			Recording selectedRecording = recordingService.getSelectedRecording();
 			Recording recording = recordingService.getRecordingWithDocument(document);
+
+			if (nonNull(selectedRecording) && selectedRecording.equals(recording)) {
+				return;
+			}
 
 			recordingService.selectRecording(recording);
 		}

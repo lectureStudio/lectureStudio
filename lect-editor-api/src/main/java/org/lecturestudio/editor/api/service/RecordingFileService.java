@@ -238,7 +238,7 @@ public class RecordingFileService {
 		if (selectedRecording.getRecordedDocument().getDocument().getName()
 				.equals(document.getName())) {
 			// Skip if looking for opened recording.
-			return null;
+			return selectedRecording;
 		}
 
 		for (Recording recording : recordings) {

@@ -434,12 +434,21 @@ public class MenuPresenter extends Presenter<MenuView> {
 	public void removeBookmark() {
 		try {
 			if(nonNull(bookmarkService.getPageBookmark())){
+				String shortcut = bookmarkService.getPageBookmark().getShortcut();
 				bookmarkService.deleteBookmark(bookmarkService.getPageBookmark());
+				bookmarkRemoved(shortcut);
 			}
 		} catch (BookmarkException e) {
 			handleException(e, "Remove bookmark failed", "bookmark.assign.warning");
 		}
 	}
+	private void bookmarkRemoved(String shortcut) {
+		String message = MessageFormat.format(context.getDictionary().get("bookmark.removed"), shortcut);
+
+		showNotificationPopup(message);
+		close();
+	}
+
 
 	private void bookmarkCreated(Bookmark bookmark) {
 		String shortcut = bookmark.getShortcut().toUpperCase();

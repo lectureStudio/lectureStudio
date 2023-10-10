@@ -161,7 +161,7 @@ public class MainPresenter extends org.lecturestudio.core.presenter.MainPresente
 
 	@Override
 	public void openFile(File file) {
-		if (isNull(file) || !file.exists()) {
+		if (isNull(file)) {
 			return;
 		}
 		showWaitingNotification("open.document");

@@ -245,7 +245,7 @@ public class JanusHandler extends JanusStateHandler {
 	protected void stopInternal() throws ExecutableException {
 		if (!hasFailed) {
 			// Destroy room only in stable state.
-			setState(new DestroyRoomState());
+//			setState(new DestroyRoomState());
 		}
 
 		for (JanusStateHandler handler : handlers) {

@@ -77,7 +77,7 @@ public class StreamStateHandler extends ExecutableBase
 	}
 
 	private void setStopped() {
-		if (stopped()) {
+		if (!started()) {
 			return;
 		}
 

@@ -747,7 +747,7 @@ public class SwingMenuView extends JMenuBar implements MenuView {
 
 	@Override
 	public void setOnNextBookmark(Action action) {
-		SwingUtils.bindAction(prevBookmarkMenuItem, action);
+		SwingUtils.bindAction(nextBookmarkMenuItem, action);
 	}
 
 	@Override

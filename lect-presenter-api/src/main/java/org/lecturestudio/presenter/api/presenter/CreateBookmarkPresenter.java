@@ -62,8 +62,7 @@ public class CreateBookmarkPresenter extends Presenter<CreateBookmarkView> {
 			showError("bookmark.assign.warning", "bookmark.key.exists", keyStr);
 		}
 		catch (BookmarkExistsException e){
-			String message = MessageFormat.format(context.getDictionary().get("bookmark.exists"), bookmarkService.getBookmarks().getBookmark(keyStr).getPage());
-			showError("bookmark.assign.warning", message);
+			showError("bookmark.assign.warning", "bookmark.exists");
 		}
 		catch (BookmarkException e) {
 			handleException(e, "Create bookmark failed", "bookmark.assign.warning");

@@ -27,6 +27,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
+import java.util.stream.Stream;
 
 import org.lecturestudio.core.geometry.Dimension2D;
 import org.lecturestudio.core.geometry.Rectangle2D;
@@ -738,7 +739,8 @@ public class Document {
 				}
 			}
 			splitPageText = page.getPageText().split("\n");
-			if(nonNull(prevSplitPageText[0]) && nonNull(prevSplitPageText[1]) && nonNull(splitPageText[0]) && nonNull(splitPageText[1])){
+			if(splitPageText.length >= 2 && prevSplitPageText.length >= 2 &&
+					Stream.of(prevSplitPageText[0], prevSplitPageText[1], splitPageText[0],splitPageText[1]).allMatch(Objects::nonNull)){
 				if(prevSplitPageText[0].equals(splitPageText[0]) && prevSplitPageText[1].equals(splitPageText[1])){
 					page.setOverlay(true);
 				}else{

@@ -113,7 +113,7 @@ class SoundSettingsPresenterTest extends PresenterTest {
 		}
 
 		@Override
-		public void bindAudioCaptureLevel(FloatProperty levelProperty) {
+		public void bindAudioCaptureLevel(DoubleProperty levelProperty) {
 
 		}
 

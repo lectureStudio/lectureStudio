@@ -46,7 +46,7 @@ public interface SoundSettingsView extends SettingsBaseView {
 
 	void setAudioCaptureLevel(double value);
 
-	void bindAudioCaptureLevel(FloatProperty levelProperty);
+	void bindAudioCaptureLevel(DoubleProperty levelProperty);
 
 	void bindAudioPlaybackLevel(DoubleProperty levelProperty);
 

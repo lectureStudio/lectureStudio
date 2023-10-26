@@ -193,10 +193,10 @@ public class SoundSettingsPresenter extends Presenter<SoundSettingsView> {
 				audioConfig.setRecordingVolume(deviceName, newValue);
 			}
 			if (nonNull(levelRecorder)) {
-				levelRecorder.setAudioVolume(newValue.doubleValue());
+				levelRecorder.setAudioVolume(newValue);
 			}
 			if (nonNull(testRecorder)) {
-				testRecorder.setAudioVolume(newValue.doubleValue());
+				testRecorder.setAudioVolume(newValue);
 			}
 		});
 

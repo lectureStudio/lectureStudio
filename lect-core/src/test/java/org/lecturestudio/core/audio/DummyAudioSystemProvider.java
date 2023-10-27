@@ -20,6 +20,7 @@ package org.lecturestudio.core.audio;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
@@ -35,24 +36,37 @@ import org.lecturestudio.core.model.Time;
 
 public class DummyAudioSystemProvider implements AudioSystemProvider {
 
+	private final List<AudioDeviceChangeListener> changeListeners = new LinkedList<>();
+
+
+	@Override
+	public void addDeviceChangeListener(AudioDeviceChangeListener listener) {
+		changeListeners.add(listener);
+	}
+
+	@Override
+	public void removeDeviceChangeListener(AudioDeviceChangeListener listener) {
+		changeListeners.remove(listener);
+	}
+
 	@Override
 	public AudioDevice getDefaultRecordingDevice() {
-		return new AudioDevice("dummy");
+		return new AudioDevice("dummy", "dummy");
 	}
 
 	@Override
 	public AudioDevice getDefaultPlaybackDevice() {
-		return new AudioDevice("dummy");
+		return new AudioDevice("dummy", "dummy");
 	}
 
 	@Override
 	public AudioDevice[] getRecordingDevices() {
-		return new AudioDevice[] { new AudioDevice("dummy") };
+		return new AudioDevice[] { new AudioDevice("dummy", "dummy") };
 	}
 
 	@Override
 	public AudioDevice[] getPlaybackDevices() {
-		return new AudioDevice[] { new AudioDevice("dummy") };
+		return new AudioDevice[] { new AudioDevice("dummy", "dummy") };
 	}
 
 	@Override

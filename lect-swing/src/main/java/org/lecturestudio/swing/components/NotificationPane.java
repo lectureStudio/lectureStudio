@@ -21,6 +21,7 @@ package org.lecturestudio.swing.components;
 import static java.util.Objects.nonNull;
 
 import java.awt.BorderLayout;
+import java.awt.Color;
 import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
@@ -36,6 +37,7 @@ import javax.swing.Icon;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTextArea;
+import javax.swing.SwingUtilities;
 import javax.swing.border.EmptyBorder;
 
 import org.lecturestudio.core.view.NotificationType;
@@ -58,6 +60,8 @@ public class NotificationPane extends GlassPane {
 
 	private JTextArea messageLabel;
 
+	private JPanel container;
+
 	private JPanel contentContainer;
 
 	private JPanel buttonContainer;
@@ -68,7 +72,28 @@ public class NotificationPane extends GlassPane {
 
 		this.type = NotificationType.DEFAULT;
 
-		initialize();
+		// Make sure the notification is initialized is the UI thread.
+		Runnable initFunc = () -> {
+			try {
+				initialize();
+			}
+			catch (Exception e) {
+				throw new RuntimeException(e);
+			}
+		};
+
+		// Run in the UI thread, if necessary.
+		if (!SwingUtilities.isEventDispatchThread()) {
+			try {
+				SwingUtilities.invokeAndWait(initFunc);
+			}
+			catch (Exception e) {
+				throw new RuntimeException(e);
+			}
+		}
+		else {
+			initFunc.run();
+		}
 	}
 
 	public void addButton(AbstractButton button) {
@@ -120,8 +145,17 @@ public class NotificationPane extends GlassPane {
 		contentContainer.add(content, BorderLayout.CENTER);
 	}
 
+	public void setBackgroundColor(Color backgroundColor) {
+		container.setBackground(backgroundColor);
+	}
+
+	public void setForegroundColor(Color foregroundColor) {
+		titleLabel.setForeground(foregroundColor);
+		messageLabel.setForeground(foregroundColor);
+	}
+
 	private void initialize() {
-		JPanel container = new JPanel(new GridBagLayout());
+		container = new JPanel(new GridBagLayout());
 		container.setBorder(new EmptyBorder(20, 20, 20, 20));
 
 		GridBagConstraints constraints = new GridBagConstraints();
@@ -167,7 +201,7 @@ public class NotificationPane extends GlassPane {
 		container.add(titleLabel, constraints);
 
 		constraints.gridy++;
-		constraints.insets = new Insets(10, 0, 15, 0);
+		constraints.insets = new Insets(10, 0, 0, 0);
 
 		container.add(messageLabel, constraints);
 

@@ -26,7 +26,6 @@ import com.google.common.eventbus.Subscribe;
 
 import java.io.File;
 import java.io.IOException;
-import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -39,9 +38,8 @@ import javax.inject.Inject;
 
 import org.lecturestudio.core.ExecutableState;
 import org.lecturestudio.core.app.ApplicationContext;
-import org.lecturestudio.core.app.dictionary.Dictionary;
 import org.lecturestudio.core.app.util.SaveConfigurationHandler;
-import org.lecturestudio.core.audio.bus.event.AudioDeviceHotplugEvent;
+import org.lecturestudio.core.audio.AudioSystemProvider;
 import org.lecturestudio.core.beans.BooleanProperty;
 import org.lecturestudio.core.bus.event.DocumentEvent;
 import org.lecturestudio.core.bus.event.ViewVisibleEvent;
@@ -77,6 +75,7 @@ import org.lecturestudio.presenter.api.event.ScreenShareEndEvent;
 import org.lecturestudio.presenter.api.event.ScreenShareSelectEvent;
 import org.lecturestudio.presenter.api.event.StreamReconnectStateEvent;
 import org.lecturestudio.presenter.api.event.StreamingStateEvent;
+import org.lecturestudio.presenter.api.handler.AudioDeviceChangeHandler;
 import org.lecturestudio.presenter.api.handler.CheckVersionHandler;
 import org.lecturestudio.presenter.api.handler.PresenterHandler;
 import org.lecturestudio.presenter.api.handler.ScreenShareHandler;
@@ -99,6 +98,8 @@ import org.lecturestudio.presenter.api.view.MainView;
 import org.lecturestudio.web.api.exception.StreamMediaException;
 
 public class MainPresenter extends org.lecturestudio.core.presenter.MainPresenter<MainView> implements ViewHandler {
+
+	private final AudioSystemProvider audioSystemProvider;
 
 	private final ObservableMap<Class<? extends View>, BooleanProperty> viewMap;
 
@@ -136,6 +137,7 @@ public class MainPresenter extends org.lecturestudio.core.presenter.MainPresente
 
 	@Inject
 	MainPresenter(ApplicationContext context, MainView view,
+			AudioSystemProvider audioSystemProvider,
 			PresentationController presentationController,
 			NotificationPopupManager popupManager,
 			ViewContextFactory contextFactory,
@@ -146,6 +148,7 @@ public class MainPresenter extends org.lecturestudio.core.presenter.MainPresente
 			ScreenShareService screenShareService) {
 		super(context, view);
 
+		this.audioSystemProvider = audioSystemProvider;
 		this.presentationController = presentationController;
 		this.popupManager = popupManager;
 		this.contextFactory = contextFactory;
@@ -190,6 +193,8 @@ public class MainPresenter extends org.lecturestudio.core.presenter.MainPresente
 
 		config.setAdvancedUIMode(true);
 
+		addHandler(new AudioDeviceChangeHandler(presenterContext,
+				audioSystemProvider, recordingService));
 		addHandler(new ViewStreamHandler(presenterContext));
 		addHandler(new StreamHandler(presenterContext, streamService,
 				screenShareService));
@@ -197,7 +202,7 @@ public class MainPresenter extends org.lecturestudio.core.presenter.MainPresente
 				screenShareService, screenSourceService, documentService,
 				recordingService));
 
-		// TODO: create separate handlers.
+		// TODO: create more separate handlers.
 
 		presenterContext.messengerStartedProperty().addListener((o, oldValue, newValue) -> {
 			streamService.enableMessenger(newValue);
@@ -243,22 +248,6 @@ public class MainPresenter extends org.lecturestudio.core.presenter.MainPresente
 		createSettingsPresentation();
 
 		addHandler(new CheckVersionHandler(presenterContext));
-	}
-
-	@Subscribe
-	public void onAudioDeviceHotplug(AudioDeviceHotplugEvent event) {
-		String devName = event.getDeviceName();
-		Dictionary dict = context.getDictionary();
-
-		switch (event.getType()) {
-			case Connected:
-				context.showNotificationPopup(MessageFormat.format(dict.get("audio.device.connected"), devName));
-				break;
-
-			case Disconnected:
-				context.showNotificationPopup(MessageFormat.format(dict.get("audio.device.disconnected"), devName));
-				break;
-		}
 	}
 
 	@Subscribe
@@ -514,7 +503,9 @@ public class MainPresenter extends org.lecturestudio.core.presenter.MainPresente
 				if (nonNull(view)) {
 					BooleanProperty property = getViewVisibleProperty(getViewInterface(view.getClass()));
 
-					if (property.get()) {
+					// Allow notification popups to be shown, since they do not
+					// block the main view.
+					if (property.get() && presenter.getViewLayer() != ViewLayer.NotificationPopup) {
 						return;
 					}
 

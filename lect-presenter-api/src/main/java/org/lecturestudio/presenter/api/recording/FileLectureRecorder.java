@@ -28,6 +28,7 @@ import java.util.Arrays;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import java.util.Stack;
 import java.util.Timer;
@@ -42,6 +43,7 @@ import com.google.common.eventbus.Subscribe;
 import org.lecturestudio.core.ExecutableException;
 import org.lecturestudio.core.ExecutableState;
 import org.lecturestudio.core.app.configuration.AudioConfiguration;
+import org.lecturestudio.core.audio.AudioDeviceChangeListener;
 import org.lecturestudio.core.audio.AudioDeviceNotConnectedException;
 import org.lecturestudio.core.audio.AudioFormat;
 import org.lecturestudio.core.audio.AudioFrame;
@@ -50,6 +52,7 @@ import org.lecturestudio.core.audio.AudioRecorder;
 import org.lecturestudio.core.audio.AudioSystemProvider;
 import org.lecturestudio.core.audio.AudioUtils;
 import org.lecturestudio.core.audio.bus.AudioBus;
+import org.lecturestudio.core.audio.device.AudioDevice;
 import org.lecturestudio.core.audio.sink.ProxyAudioSink;
 import org.lecturestudio.core.bus.ApplicationBus;
 import org.lecturestudio.core.bus.event.DocumentEvent;
@@ -88,6 +91,8 @@ public class FileLectureRecorder extends LectureRecorder {
 
 	private final AudioConfiguration audioConfig;
 
+	private final AudioDeviceChangeListener deviceChangeListener;
+
 	private final DocumentService documentService;
 
 	private final PendingActions pendingActions;
@@ -115,6 +120,18 @@ public class FileLectureRecorder extends LectureRecorder {
 		this.audioConfig = audioConfig;
 		this.backup = new RecordingBackup(recDir);
 		this.pendingActions = new PendingActions();
+		this.deviceChangeListener = new AudioDeviceChangeListener() {
+
+			@Override
+			public void deviceConnected(AudioDevice device) {
+				// Not needed here.
+			}
+
+			@Override
+			public void deviceDisconnected(AudioDevice device) {
+				handleDisconnectedDevice(device);
+			}
+		};
 	}
 
 	public void setPageRecordingTimeout(int timeoutMs) {
@@ -263,97 +280,37 @@ public class FileLectureRecorder extends LectureRecorder {
 					}
 				});
 
+		audioSystemProvider.addDeviceChangeListener(deviceChangeListener);
+
 		ApplicationBus.register(this);
 	}
 
 	@Override
 	protected void startInternal() throws ExecutableException {
-		String deviceName = audioConfig.getCaptureDeviceName();
-
 		AudioBus.register(this);
 
 		ExecutableState prevState = getPreviousState();
 
-		if (prevState == ExecutableState.Initialized ||
-			prevState == ExecutableState.Stopped) {
+		if (prevState == ExecutableState.Initialized
+				|| prevState == ExecutableState.Stopped) {
+			String deviceName = audioConfig.getCaptureDeviceName();
+
 			if (!hasRecordingDevice(deviceName)) {
 				throw new AudioDeviceNotConnectedException(
 						"Audio device %s is not connected", deviceName,
 						deviceName);
 			}
 
-			clear();
+			clearDocumentState();
 
 			backup.open();
 
-			try {
-				audioMixer = new AudioMixer();
-				audioMixer.setAudioFormat(audioFormat);
-				audioMixer.setOutputFile(new File(backup.getAudioFile()));
-				audioMixer.setMixAudio(audioConfig.getMixAudioStreams());
-				audioMixer.init();
-			}
-			catch (Exception e) {
-				logException(e, "Could not create audio mixer");
-				throw new ExecutableException("Could not create audio mixer", e);
-			}
-
-			try {
-				recordedDocument = new Document();
-			}
-			catch (IOException e) {
-				throw new ExecutableException("Could not create document.", e);
-			}
-
-			if (nonNull(audioRecorder)) {
-				audioRecorder.destroy();
-			}
-
-			try {
-				audioMixer.start();
-			}
-			catch (Exception e) {
-				logException(e, "Could not start audio mixer");
-			}
-
-			Double deviceVolume = audioConfig.getRecordingVolume(deviceName);
-			double masterVolume = audioConfig.getMasterRecordingVolume();
-			double volume = nonNull(deviceVolume) ? deviceVolume : masterVolume;
-
-			audioRecorder = audioSystemProvider.createAudioRecorder();
-			audioRecorder.setAudioProcessingSettings(
-					audioConfig.getRecordingProcessingSettings());
-			audioRecorder.setAudioDeviceName(deviceName);
-			audioRecorder.setAudioVolume(volume);
-			audioRecorder.setAudioSink(new ProxyAudioSink(audioMixer) {
-
-				@Override
-				public int write(byte[] data, int offset, int length)
-						throws IOException {
-					bytesConsumed += length;
-
-					return super.write(data, offset, length);
-				}
-			});
-			audioRecorder.start();
-
-			// Record the first page.
-			Page firstPage = documentService.getDocuments().getSelectedDocument().getCurrentPage();
-			recordPage(firstPage, 0);
+			initAudioMixer();
+			initAudioRecorder();
+			initRecordedDocument();
 		}
 		else if (prevState == ExecutableState.Suspended) {
-			Page pendingPage = pendingActions.getPendingPage();
-
-			if (nonNull(pendingPage)) {
-				if (isDuplicate(pendingPage)) {
-					insertPendingActions(recordedPages.peek(), pendingPage);
-				}
-				else {
-					insertPage(pendingPage, 0);
-				}
-			}
-
-			audioRecorder.start();
+			resumeRecording();
 		}
 	}
 
@@ -380,7 +337,9 @@ public class FileLectureRecorder extends LectureRecorder {
 	@Override
 	protected void suspendInternal() throws ExecutableException {
 		if (getPreviousState() == ExecutableState.Started) {
-			audioRecorder.suspend();
+			if (nonNull(audioRecorder)) {
+				audioRecorder.suspend();
+			}
 
 			pendingActions.setPendingPage(getLastRecordedPage());
 		}
@@ -388,12 +347,15 @@ public class FileLectureRecorder extends LectureRecorder {
 
 	@Override
 	protected void destroyInternal() {
+		audioSystemProvider.removeDeviceChangeListener(deviceChangeListener);
+
 		try {
 			ApplicationBus.unregister(this);
 		}
 		catch (Exception ignored) {
-			// Throws an Error in case this class gets destroyed before being initialized
-			// Catches the error, because this is a legal state transition
+			// Throws an Error in case this class gets destroyed before being
+			// initialized. Catches the error, because this is a legal state
+			// transition.
 		}
 
 		try {
@@ -405,12 +367,94 @@ public class FileLectureRecorder extends LectureRecorder {
 			logException(e, "Destroy audio mixer failed");
 		}
 
-		clear();
+		clearDocumentState();
 	}
 
 	@Override
 	protected void fireStateChanged() {
 		ApplicationBus.post(new RecordingStateEvent(getState()));
+	}
+
+	private void initAudioMixer() throws ExecutableException {
+		audioMixer = new AudioMixer();
+		audioMixer.setAudioFormat(audioFormat);
+		audioMixer.setOutputFile(new File(backup.getAudioFile()));
+		audioMixer.setMixAudio(audioConfig.getMixAudioStreams());
+		audioMixer.init();
+		audioMixer.start();
+	}
+
+	private void initAudioRecorder() throws ExecutableException {
+		String deviceName = audioConfig.getCaptureDeviceName();
+		Double deviceVolume = audioConfig.getRecordingVolume(deviceName);
+		double masterVolume = audioConfig.getMasterRecordingVolume();
+		double volume = nonNull(deviceVolume) ? deviceVolume : masterVolume;
+
+		if (nonNull(audioRecorder)) {
+			audioRecorder.destroy();
+		}
+
+		audioRecorder = audioSystemProvider.createAudioRecorder();
+		audioRecorder.setAudioProcessingSettings(
+				audioConfig.getRecordingProcessingSettings());
+		audioRecorder.setAudioDeviceName(deviceName);
+		audioRecorder.setAudioVolume(volume);
+		audioRecorder.setAudioSink(new ProxyAudioSink(audioMixer) {
+
+			@Override
+			public int write(byte[] data, int offset, int length)
+					throws IOException {
+				bytesConsumed += length;
+
+				return super.write(data, offset, length);
+			}
+		});
+		audioRecorder.start();
+	}
+
+	private void initRecordedDocument() throws ExecutableException {
+		try {
+			recordedDocument = new Document();
+		}
+		catch (IOException e) {
+			throw new ExecutableException("Could not create document.", e);
+		}
+
+		// Record the first page.
+		Page firstPage = documentService.getDocuments().getSelectedDocument()
+				.getCurrentPage();
+		recordPage(firstPage, 0);
+	}
+
+	private void resumeRecording() throws ExecutableException {
+		Page pendingPage = pendingActions.getPendingPage();
+
+		if (nonNull(pendingPage)) {
+			if (isDuplicate(pendingPage)) {
+				insertPendingActions(recordedPages.peek(), pendingPage);
+			}
+			else {
+				insertPage(pendingPage, 0);
+			}
+		}
+
+		if (nonNull(audioRecorder)) {
+			audioRecorder.start();
+		}
+		else {
+			initAudioRecorder();
+		}
+	}
+
+	private void handleDisconnectedDevice(AudioDevice device) {
+		String deviceConfigName = audioConfig.getCaptureDeviceName();
+		String deviceName = device.getName();
+
+		if (Objects.equals(deviceName, deviceConfigName)) {
+			// The recording device has been disconnected.
+			// Any operation on the audio recorder is not possible any more.
+			audioRecorder = null;
+		}
 	}
 
 	private void addPendingAction(PlaybackAction action) {
@@ -423,7 +467,7 @@ public class FileLectureRecorder extends LectureRecorder {
 		pendingActions.addPendingAction(action);
 	}
 
-	private void clear() {
+	private void clearDocumentState() {
 		if (nonNull(recordedDocument)) {
 			synchronized (recordedDocument) {
 				recordedDocument.close();

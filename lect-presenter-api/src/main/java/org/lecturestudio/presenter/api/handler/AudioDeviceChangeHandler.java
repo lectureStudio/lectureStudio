@@ -18,11 +18,20 @@
 
 package org.lecturestudio.presenter.api.handler;
 
+import static java.util.Objects.nonNull;
+
+import java.util.Objects;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.CompletionException;
+
+import org.lecturestudio.core.ExecutableException;
 import org.lecturestudio.core.app.dictionary.Dictionary;
 import org.lecturestudio.core.audio.AudioDeviceChangeListener;
+import org.lecturestudio.core.audio.AudioDeviceNotConnectedException;
 import org.lecturestudio.core.audio.AudioSystemProvider;
 import org.lecturestudio.core.audio.device.AudioDevice;
 import org.lecturestudio.presenter.api.context.PresenterContext;
+import org.lecturestudio.presenter.api.presenter.command.StartRecordingCommand;
 import org.lecturestudio.presenter.api.service.RecordingService;
 
 public class AudioDeviceChangeHandler extends PresenterHandler {
@@ -53,17 +62,68 @@ public class AudioDeviceChangeHandler extends PresenterHandler {
 			@Override
 			public void deviceDisconnected(AudioDevice device) {
 				showNotification(device, false);
+				handleDisconnectedDevice(device);
 			}
 		});
 	}
 
 	private void showNotification(AudioDevice device, boolean connected) {
 		Dictionary dict = context.getDictionary();
-		String devName = device.getName();
-		String message = connected
-				? "audio.device.connected"
-				: "audio.device.disconnected";
+		String deviceName = device.getName();
+		String message = connected ?
+				"audio.device.connected" :
+				"audio.device.disconnected";
 
-		context.showNotificationPopup(dict.get(message), devName);
+		context.showNotificationPopup(dict.get(message), deviceName);
+	}
+
+	private void handleDisconnectedDevice(AudioDevice device) {
+		var audioConfig = context.getConfiguration().getAudioConfig();
+		String deviceConfigName = audioConfig.getCaptureDeviceName();
+		String deviceName = device.getName();
+
+		if (Objects.equals(deviceName, deviceConfigName)) {
+			// Pause recording to select a new microphone.
+			try {
+				recordingService.suspend();
+			}
+			catch (ExecutableException e) {
+				handleException(e, "Suspend recording failed", "Error.....");
+			}
+
+			// Show dialog to select a new microphone.
+			CompletableFuture.runAsync(() -> {
+				context.getEventBus().post(new StartRecordingCommand(() -> {
+					try {
+						recordingService.start();
+					}
+					catch (ExecutableException e) {
+						throw new CompletionException(e);
+					}
+
+					context.setRecordingStarted(true);
+				}));
+			})
+			.exceptionally(e -> {
+				handleRecordingStateError(e);
+				context.setRecordingStarted(false);
+				return null;
+			});
+		}
+	}
+
+	private void handleRecordingStateError(Throwable e) {
+		Throwable cause = nonNull(e.getCause()) ?
+				e.getCause().getCause() :
+				null;
+
+		if (cause instanceof AudioDeviceNotConnectedException ex) {
+			context.showError("recording.start.error",
+					"recording.start.device.error", ex.getDeviceName());
+			logException(e, "Start recording failed");
+		}
+		else {
+			handleException(e, "Start recording failed", "recording.start.error");
+		}
 	}
 }

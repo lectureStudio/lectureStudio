@@ -68,6 +68,7 @@ import org.lecturestudio.presenter.api.context.PresenterContext;
 import org.lecturestudio.presenter.api.event.RecordingStateEvent;
 import org.lecturestudio.presenter.api.event.ScreenShareSelectEvent;
 import org.lecturestudio.presenter.api.event.StreamingStateEvent;
+import org.lecturestudio.presenter.api.presenter.command.CloseablePresenterCommand;
 import org.lecturestudio.presenter.api.presenter.command.StartRecordingCommand;
 import org.lecturestudio.presenter.api.service.RecordingService;
 import org.lecturestudio.presenter.api.view.ToolbarView;
@@ -575,6 +576,8 @@ public class ToolbarPresenter extends Presenter<ToolbarView> {
 
 		private boolean shapeAdded;
 
+		private boolean userDeclined;
+
 
 		RecordNotifyState() {
 			config = (PresenterConfiguration) context.getConfiguration();
@@ -585,6 +588,8 @@ public class ToolbarPresenter extends Presenter<ToolbarView> {
 
 			if (notifyState()) {
 				view.showRecordNotification(notifyState());
+
+				showRecordNotification();
 			}
 		}
 
@@ -597,6 +602,8 @@ public class ToolbarPresenter extends Presenter<ToolbarView> {
 
 			if (notifyState()) {
 				view.showRecordNotification(notifyState());
+
+				showRecordNotification();
 			}
 		}
 
@@ -607,16 +614,27 @@ public class ToolbarPresenter extends Presenter<ToolbarView> {
 				// Reset
 				pageChanged = false;
 				shapeAdded = false;
+				userDeclined = false;
 			}
 
 			view.showRecordNotification(notifyState());
 		}
 
 		boolean notifyState() {
-			if (!config.getNotifyToRecord()) {
+			if (!config.getNotifyToRecord() || userDeclined) {
 				return false;
 			}
-			return (shapeAdded || pageChanged) && recordingState != ExecutableState.Started && recordingState != ExecutableState.Suspended;
+			return (shapeAdded || pageChanged)
+					&& recordingState != ExecutableState.Started
+					&& recordingState != ExecutableState.Suspended;
+		}
+
+		void showRecordNotification() {
+			eventBus.post(new CloseablePresenterCommand<>(
+					RemindRecordingPresenter.class, () -> {
+				// User declined, so do not ask again.
+				userDeclined = true;
+			}));
 		}
 	}
 }

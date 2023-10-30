@@ -69,6 +69,16 @@ public class RemindRecordingPresenter extends Presenter<RemindRecordingView> {
 	private void record() {
 		close();
 
+		// The order of state checking here is important.
+		if (recordingService.suspended()) {
+			resumeRecording();
+		}
+		else if (!recordingService.started()) {
+			startRecording();
+		}
+	}
+
+	private void startRecording() {
 		PresenterContext pContext = (PresenterContext) context;
 
 		CompletableFuture.runAsync(() -> {
@@ -88,6 +98,18 @@ public class RemindRecordingPresenter extends Presenter<RemindRecordingView> {
 			pContext.setRecordingStarted(false);
 			return null;
 		});
+	}
+
+	private void resumeRecording() {
+		if (recordingService.suspended()) {
+			try {
+				recordingService.start();
+			}
+			catch (ExecutableException e) {
+				handleException(e, "Start recording failed",
+						"recording.start.error");
+			}
+		}
 	}
 
 	private void handleRecordingStateError(Throwable e) {

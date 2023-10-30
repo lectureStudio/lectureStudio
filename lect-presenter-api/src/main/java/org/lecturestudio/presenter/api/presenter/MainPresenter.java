@@ -77,6 +77,7 @@ import org.lecturestudio.presenter.api.event.StreamReconnectStateEvent;
 import org.lecturestudio.presenter.api.event.StreamingStateEvent;
 import org.lecturestudio.presenter.api.handler.AudioDeviceChangeHandler;
 import org.lecturestudio.presenter.api.handler.CheckVersionHandler;
+import org.lecturestudio.presenter.api.handler.MicrophoneMuteHandler;
 import org.lecturestudio.presenter.api.handler.PresenterHandler;
 import org.lecturestudio.presenter.api.handler.ScreenShareHandler;
 import org.lecturestudio.presenter.api.handler.StreamHandler;
@@ -195,6 +196,7 @@ public class MainPresenter extends org.lecturestudio.core.presenter.MainPresente
 
 		addHandler(new AudioDeviceChangeHandler(presenterContext,
 				audioSystemProvider, recordingService));
+		addHandler(new MicrophoneMuteHandler(presenterContext, recordingService));
 		addHandler(new ViewStreamHandler(presenterContext));
 		addHandler(new StreamHandler(presenterContext, streamService,
 				screenShareService));

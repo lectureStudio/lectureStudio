@@ -610,11 +610,11 @@ public class ToolbarPresenter extends Presenter<ToolbarView> {
 		void setRecordingState(ExecutableState state) {
 			this.recordingState = state;
 
-			if (state == ExecutableState.Stopped) {
-				// Reset
-				pageChanged = false;
-				shapeAdded = false;
-				userDeclined = false;
+			switch (recordingState) {
+				case Suspended:
+				case Stopped:
+					resetState();
+					break;
 			}
 
 			view.showRecordNotification(notifyState());
@@ -625,8 +625,7 @@ public class ToolbarPresenter extends Presenter<ToolbarView> {
 				return false;
 			}
 			return (shapeAdded || pageChanged)
-					&& recordingState != ExecutableState.Started
-					&& recordingState != ExecutableState.Suspended;
+					&& recordingState != ExecutableState.Started;
 		}
 
 		void showRecordNotification() {
@@ -635,6 +634,12 @@ public class ToolbarPresenter extends Presenter<ToolbarView> {
 				// User declined, so do not ask again.
 				userDeclined = true;
 			}));
+		}
+
+		void resetState() {
+			pageChanged = false;
+			shapeAdded = false;
+			userDeclined = false;
 		}
 	}
 }

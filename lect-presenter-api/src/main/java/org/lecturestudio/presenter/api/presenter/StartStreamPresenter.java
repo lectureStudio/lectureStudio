@@ -248,6 +248,10 @@ public class StartStreamPresenter extends Presenter<StartStreamView> {
 		if (streamConfig.getRecordStream() && !recordingService.started()) {
 			try {
 				recordingService.start();
+
+				if (!streamConfig.getMicrophoneEnabled()) {
+					recordingService.suspend();
+				}
 			}
 			catch (ExecutableException e) {
 				handleRecordingStateError(e);

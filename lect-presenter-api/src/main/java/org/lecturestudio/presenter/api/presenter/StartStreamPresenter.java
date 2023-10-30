@@ -29,8 +29,10 @@ import java.util.concurrent.CompletableFuture;
 import javax.inject.Inject;
 
 import org.lecturestudio.core.Executable;
+import org.lecturestudio.core.ExecutableException;
 import org.lecturestudio.core.ExecutableState;
 import org.lecturestudio.core.app.configuration.AudioConfiguration;
+import org.lecturestudio.core.audio.AudioDeviceNotConnectedException;
 import org.lecturestudio.core.audio.AudioPlayer;
 import org.lecturestudio.core.audio.AudioRecorder;
 import org.lecturestudio.core.audio.AudioSystemProvider;
@@ -54,6 +56,7 @@ import org.lecturestudio.presenter.api.config.PresenterConfiguration;
 import org.lecturestudio.presenter.api.config.StreamConfiguration;
 import org.lecturestudio.presenter.api.context.PresenterContext;
 import org.lecturestudio.presenter.api.presenter.command.ShowSettingsCommand;
+import org.lecturestudio.presenter.api.service.RecordingService;
 import org.lecturestudio.presenter.api.service.WebServiceInfo;
 import org.lecturestudio.presenter.api.view.StartStreamView;
 import org.lecturestudio.web.api.service.ServiceParameters;
@@ -70,6 +73,8 @@ public class StartStreamPresenter extends Presenter<StartStreamView> {
 	private final StreamConfiguration streamConfig;
 
 	private final CameraService camService;
+
+	private final RecordingService recordingService;
 
 	private final WebServiceInfo webServiceInfo;
 
@@ -103,11 +108,12 @@ public class StartStreamPresenter extends Presenter<StartStreamView> {
 	@Inject
 	StartStreamPresenter(PresenterContext context, StartStreamView view,
 			AudioSystemProvider audioSystemProvider, CameraService camService,
-			WebServiceInfo webServiceInfo) {
+			RecordingService recordingService, WebServiceInfo webServiceInfo) {
 		super(context, view);
 
 		this.audioSystemProvider = audioSystemProvider;
 		this.camService = camService;
+		this.recordingService = recordingService;
 		this.webServiceInfo = webServiceInfo;
 
 		PresenterConfiguration config = context.getConfiguration();
@@ -187,6 +193,7 @@ public class StartStreamPresenter extends Presenter<StartStreamView> {
 			view.setEnableMicrophone(streamConfig.enableMicrophoneProperty());
 			view.setEnableCamera(streamConfig.enableCameraProperty());
 			view.setEnableMessenger(streamContext.enableMessengerProperty());
+			view.setRecordStream(streamConfig.recordStreamProperty());
 			view.setViewStream(streamContext.previewStreamProperty());
 			view.setAudioCaptureDevices(audioSystemProvider.getRecordingDevices());
 			view.setAudioCaptureDevice(audioConfig.captureDeviceNameProperty());
@@ -236,6 +243,15 @@ public class StartStreamPresenter extends Presenter<StartStreamView> {
 
 		if (nonNull(startAction)) {
 			startAction.execute(streamContext);
+		}
+
+		if (streamConfig.getRecordStream()) {
+			try {
+				recordingService.start();
+			}
+			catch (ExecutableException e) {
+				handleRecordingStateError(e);
+			}
 		}
 	}
 
@@ -496,5 +512,20 @@ public class StartStreamPresenter extends Presenter<StartStreamView> {
 		});
 
 		return player;
+	}
+
+	private void handleRecordingStateError(Throwable e) {
+		Throwable cause = nonNull(e.getCause()) ?
+				e.getCause().getCause() :
+				null;
+
+		if (cause instanceof AudioDeviceNotConnectedException ex) {
+			context.showError("recording.start.error",
+					"recording.start.device.error", ex.getDeviceName());
+			logException(e, "Start recording failed");
+		}
+		else {
+			handleException(e, "Start recording failed", "recording.start.error");
+		}
 	}
 }

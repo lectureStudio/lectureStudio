@@ -78,6 +78,8 @@ public class SwingStartStreamView extends JPanel implements StartStreamView {
 
 	private JCheckBox messengerCheckBox;
 
+	private JCheckBox recordStreamCheckBox;
+
 	private JCheckBox viewStreamCheckBox;
 
 	private JLabel errorLabel;
@@ -224,6 +226,11 @@ public class SwingStartStreamView extends JPanel implements StartStreamView {
 	@Override
 	public void setEnableMessenger(BooleanProperty enable) {
 		SwingUtils.bindBidirectional(messengerCheckBox, enable);
+	}
+
+	@Override
+	public void setRecordStream(BooleanProperty record) {
+		SwingUtils.bindBidirectional(recordStreamCheckBox, record);
 	}
 
 	@Override

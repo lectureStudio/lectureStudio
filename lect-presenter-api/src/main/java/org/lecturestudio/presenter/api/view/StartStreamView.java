@@ -63,6 +63,8 @@ public interface StartStreamView extends View {
 
 	void setEnableMessenger(BooleanProperty enable);
 
+	void setRecordStream(BooleanProperty record);
+
 	void setViewStream(BooleanProperty view);
 
 	void setCamera(Camera camera);

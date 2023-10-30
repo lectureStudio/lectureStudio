@@ -245,7 +245,7 @@ public class StartStreamPresenter extends Presenter<StartStreamView> {
 			startAction.execute(streamContext);
 		}
 
-		if (streamConfig.getRecordStream()) {
+		if (streamConfig.getRecordStream() && !recordingService.started()) {
 			try {
 				recordingService.start();
 			}

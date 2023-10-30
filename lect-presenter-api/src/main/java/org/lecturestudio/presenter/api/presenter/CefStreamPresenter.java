@@ -30,6 +30,8 @@ import org.cef.CefSettings.LogSeverity;
 import org.cef.browser.CefBrowser;
 import org.cef.browser.CefFrame;
 import org.cef.browser.CefMessageRouter;
+import org.cef.callback.CefCommandLine;
+import org.cef.handler.CefAppHandlerAdapter;
 import org.cef.handler.CefRequestHandlerAdapter;
 import org.cef.handler.CefResourceRequestHandler;
 import org.cef.handler.CefResourceRequestHandlerAdapter;
@@ -90,10 +92,24 @@ public abstract class CefStreamPresenter<T extends View> extends Presenter<T> {
 			settings.log_severity = LogSeverity.LOGSEVERITY_DISABLE;
 			settings.windowless_rendering_enabled = false;
 			settings.locale = context.getConfiguration().getLocale().toLanguageTag();
+			settings.cache_path = new File(jcefDir, "cache").getAbsolutePath();
 
 			cefApp = builder.build();
 
 			ctx.setCefApp(cefApp);
+
+			CefApp.addAppHandler(new CefAppHandlerAdapter(null) {
+
+				@Override
+				public void onBeforeCommandLineProcessing(String processType,
+						CefCommandLine commandLine) {
+					super.onBeforeCommandLineProcessing(processType, commandLine);
+					if (processType.isEmpty()) {
+						commandLine.appendSwitchWithValue("enable-media-stream",
+								"true");
+					}
+				}
+			});
 		}
 
 		client = cefApp.createClient();

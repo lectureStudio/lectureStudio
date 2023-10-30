@@ -170,7 +170,10 @@ public class PdfDocumentRenderer extends ExecutableBase {
 			newDocument.setTitle(FileUtils.stripExtension(outputFile.getName()));
 
 			int pagesWritten = 0;
-			float pageStep = 1.f / pages.size();
+			long pageCount = pages.stream()
+					.filter(page -> documents.contains(page.getDocument()))
+					.count();
+			float pageStep = 1.f / pageCount;
 
 			for (Page page : pages) {
 				if (documents.contains(page.getDocument())) {

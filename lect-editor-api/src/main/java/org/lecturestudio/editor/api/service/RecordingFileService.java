@@ -532,6 +532,8 @@ public class RecordingFileService {
 		Recording recording = event.getRecording();
 		Document document = recording.getRecordedDocument().getDocument();
 
+		context.setSeeking(true);
+
 		double prevDuration = playbackService.getDuration().getMillis();
 		double scale = prevDuration / recording.getRecordedAudio().getAudioStream().getLengthInMillis();
 
@@ -562,14 +564,15 @@ public class RecordingFileService {
 			selection = Math.min(1.0, pos * scale);
 		}
 
-		context.setPrimarySelection(selection);
-
 		try {
 			playbackService.seek(selection);
 		}
 		catch (ExecutableException e) {
 			LOG.error("Seek failed", e);
 		}
+
+		context.setSeeking(false);
+		context.setPrimarySelection(selection);
 	}
 
 	private void suspendPlayback() throws ExecutableException {

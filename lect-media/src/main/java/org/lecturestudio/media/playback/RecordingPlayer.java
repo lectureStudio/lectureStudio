@@ -249,6 +249,10 @@ public class RecordingPlayer extends ExecutableBase {
 	}
 
 	public synchronized void seek(int timeMs) throws ExecutableException {
+		if (seekTime == timeMs) {
+			return;
+		}
+
 		seekTime = timeMs;
 		
 		if (!seeking) {

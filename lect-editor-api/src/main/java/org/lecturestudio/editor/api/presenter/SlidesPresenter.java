@@ -127,7 +127,7 @@ public class SlidesPresenter extends Presenter<SlidesView> {
 		view.setPageRenderer(renderController);
 		view.setStylusHandler(stylusHandler);
 		view.setOnViewTransform(this::setViewTransform);
-		//view.bindSeekProperty(((EditorContext) context).seekingProperty());
+		view.bindSeekProperty(((EditorContext) context).seekingProperty());
 
 		// Register for page parameter change updates.
 		PresentationParameterProvider ppProvider = context.getPagePropertyProvider(ViewType.User);

@@ -260,6 +260,8 @@ public class SlideView extends Control implements ParameterChangeListener, org.l
 	public void setPage(Page page) {
 		Page oldPage = getPage();
 
+		pageProperty().set(page);
+
 		if (nonNull(oldPage)) {
 			oldPage.removeShapeListener(this);
 		}
@@ -268,8 +270,6 @@ public class SlideView extends Control implements ParameterChangeListener, org.l
 				page.addShapeListener(this);
 			}
 		}
-
-		pageProperty().set(page);
 	}
 
 	public final ObjectProperty<RenderController> pageRendererProperty() {
@@ -298,6 +298,10 @@ public class SlideView extends Control implements ParameterChangeListener, org.l
 	}
 
 	public synchronized void repaint() {
+		if (seekProperty.get()) {
+			return;
+		}
+
 		SlideViewSkin skin = (SlideViewSkin) getSkin();
 		skin.repaint();
 	}
@@ -350,10 +354,10 @@ public class SlideView extends Control implements ParameterChangeListener, org.l
 
 			if (nonNull(page)) {
 				if (Boolean.FALSE.equals(newValue)) {
-					//page.addShapeListener(this);
+					page.addShapeListener(this);
 				}
 				else {
-					//page.removeShapeListener(this);
+					page.removeShapeListener(this);
 				}
 			}
 		}));

@@ -149,6 +149,7 @@ public class EventTimelineSkin extends MediaTrackControlSkinBase {
 
 		pageSliders.forEach(pageSlider -> pane.getChildren().remove(pageSlider));
 		pageSliders.clear();
+
 		for (RecordedPage recPage : pages) {
 			int pageNumber = recPage.getNumber();
 
@@ -181,12 +182,14 @@ public class EventTimelineSkin extends MediaTrackControlSkinBase {
 		for (RecordedPage page : pages) {
 			List<PlaybackAction> actions = page.getPlaybackActions();
 			Integer actionStartTime = null;
-			for (PlaybackAction action : actions) {
 
-				if (action.getType() == ActionType.TOOL_BEGIN && actionStartTime == null) {
+			for (PlaybackAction action : actions) {
+				ActionType actionType = action.getType();
+
+				if (actionType == ActionType.TOOL_BEGIN && isNull(actionStartTime)) {
 					actionStartTime = action.getTimestamp();
 				}
-				else if (action.getType() == ActionType.TOOL_END && actionStartTime != null) {
+				else if (actionType == ActionType.TOOL_END && nonNull(actionStartTime)) {
 					double beginningTime = timeToXPositionFunction.applyAsDouble(actionStartTime);
 					double endTime = timeToXPositionFunction.applyAsDouble(action.getTimestamp());
 
@@ -198,7 +201,8 @@ public class EventTimelineSkin extends MediaTrackControlSkinBase {
 					pageEventList.add(rectangle);
 					actionStartTime = null;
 				}
-				else if (action.getType() == ActionType.TEXT_SELECTION_EXT) {
+				else if (actionType == ActionType.TEXT_SELECTION_EXT ||
+						actionType == ActionType.RUBBER_EXT) {
 					Rectangle rectangle = new Rectangle(1, height / 1.5);
 					rectangle.getStyleClass().add("page-event-marker");
 					rectangle.setX(snapPositionX(timeToXPositionFunction.applyAsDouble(action.getTimestamp())));

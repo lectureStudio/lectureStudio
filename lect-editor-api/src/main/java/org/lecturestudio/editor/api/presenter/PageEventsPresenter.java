@@ -18,10 +18,13 @@
 
 package org.lecturestudio.editor.api.presenter;
 
+import static java.util.Objects.nonNull;
+
 import com.google.common.eventbus.Subscribe;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionException;
 
@@ -137,6 +140,10 @@ public class PageEventsPresenter extends Presenter<PageEventsView> {
 	 * @param event the PlaybackAction, which timestamp should be selected
 	 */
 	private void selectPageEvent(PageEvent event) {
+		if (Objects.isNull(event)) {
+			return;
+		}
+
 		try {
 			playbackService.seek((int) event.getTime().getMillis() - 20);
 		}
@@ -167,8 +174,8 @@ public class PageEventsPresenter extends Presenter<PageEventsView> {
 				.getRecordedPage(page.getPageNumber());
 
 		List<PageEvent> eventList = new ArrayList<>();
-
 		PlaybackAction previousAction = null;
+
 		for (var action : recordedPage.getPlaybackActions()) {
 			ActionType actionType = action.getType();
 
@@ -183,10 +190,10 @@ public class PageEventsPresenter extends Presenter<PageEventsView> {
 					continue;
 			}
 
-			if (previousAction != null &&
-					action.hasHandle() &&
-					previousAction.hasHandle() &&
-					action.getHandle() == previousAction.getHandle()) {
+			if (nonNull(previousAction) && action.getClass()
+					.equals(previousAction.getClass()) && action.hasHandle()
+					&& previousAction.hasHandle()
+					&& action.getHandle() == previousAction.getHandle()) {
 				// Do not show the action in the list, if it has the same handle as the previous action
 			}
 			else {

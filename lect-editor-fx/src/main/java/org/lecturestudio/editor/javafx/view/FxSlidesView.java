@@ -23,7 +23,6 @@ import static java.util.Objects.nonNull;
 
 import java.util.Collection;
 
-import javafx.application.Platform;
 import javafx.beans.value.ChangeListener;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
@@ -253,7 +252,10 @@ public class FxSlidesView extends VBox implements SlidesView {
 	@Override
 	public void bindSeekProperty(BooleanProperty seekProperty) {
 		slideView.seekProperty().set(seekProperty.get());
-		seekProperty.addListener((observable, oldValue, newValue) -> slideView.setSeek(seekProperty.get()));
+
+		seekProperty.addListener((observable, oldValue, newValue) -> {
+			slideView.setSeek(seekProperty.get());
+		});
 	}
 
 	@FXML

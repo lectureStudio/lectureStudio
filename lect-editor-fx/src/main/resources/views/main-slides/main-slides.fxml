@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-
 <?import javafx.scene.control.ContextMenu?>
 <?import javafx.scene.control.MenuItem?>
 <?import javafx.scene.control.SplitPane?>
@@ -18,6 +17,7 @@
 <?import org.lecturestudio.editor.javafx.view.FxVideoExportSettingsView?>
 <?import org.lecturestudio.javafx.control.SlideView?>
 <?import org.lecturestudio.javafx.control.SvgIcon?>
+
 <fx:root type="VBox" VBox.vgrow="ALWAYS" styleClass="main-slides" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1">
 	<fx:define>
 		<ContextMenu fx:id="contextMenu">

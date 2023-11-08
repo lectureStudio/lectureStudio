@@ -19,6 +19,7 @@
 <?import org.lecturestudio.javafx.factory.DimensionListCell?>
 <?import org.lecturestudio.javafx.layout.ContentPane?>
 <?import org.lecturestudio.javafx.util.TextIntegerFormatter?>
+
 <fx:root type="ContentPane" title="%video.export.settings.title" styleClass="video-export-settings"
 		 xmlns="http://javafx.com/javafx/10.0.2-internal" xmlns:fx="http://javafx.com/fxml/1">
 	<Accordion expandedPane="$filePane">

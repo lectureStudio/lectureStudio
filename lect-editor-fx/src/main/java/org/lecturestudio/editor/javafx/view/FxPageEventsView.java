@@ -23,6 +23,8 @@ import static java.util.Objects.nonNull;
 import javafx.collections.FXCollections;
 import javafx.fxml.FXML;
 import javafx.scene.control.TableView;
+import javafx.scene.layout.Priority;
+import javafx.scene.layout.VBox;
 
 import java.util.List;
 
@@ -88,6 +90,8 @@ public class FxPageEventsView extends ContentPane implements PageEventsView {
 
 	@FXML
 	private void initialize() {
+		VBox.setVgrow(eventsTableView, Priority.ALWAYS);
+
 		eventsTableView.setItems(FXCollections.observableArrayList());
 		eventsTableView.getSelectionModel().selectedItemProperty().addListener(observable -> {
 			PageEvent selectedItem = eventsTableView.getSelectionModel().getSelectedItem();

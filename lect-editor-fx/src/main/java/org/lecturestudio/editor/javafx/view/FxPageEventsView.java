@@ -20,6 +20,7 @@ package org.lecturestudio.editor.javafx.view;
 
 import static java.util.Objects.nonNull;
 
+import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.fxml.FXML;
 import javafx.scene.control.TableView;
@@ -58,7 +59,7 @@ public class FxPageEventsView extends ContentPane implements PageEventsView {
 		selectedPageEvent = property;
 
 		property.addListener((observable, oldValue, newValue) -> {
-			FxUtils.invoke(() -> {
+			Platform.runLater(() -> {
 				eventsTableView.getSelectionModel().select(newValue);
 			});
 		});
@@ -66,7 +67,7 @@ public class FxPageEventsView extends ContentPane implements PageEventsView {
 
 	@Override
 	public void setPageEvents(List<PageEvent> events) {
-		FxUtils.invoke(() -> {
+		Platform.runLater(() -> {
 			eventsTableView.getItems().setAll(events);
 		});
 	}

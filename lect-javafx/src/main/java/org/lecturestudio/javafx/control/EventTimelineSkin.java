@@ -193,26 +193,29 @@ public class EventTimelineSkin extends MediaTrackControlSkinBase {
 					double beginningTime = timeToXPositionFunction.applyAsDouble(actionStartTime);
 					double endTime = timeToXPositionFunction.applyAsDouble(action.getTimestamp());
 
-					Rectangle rectangle = new Rectangle(endTime - beginningTime, height / 1.5);
-					rectangle.getStyleClass().add("page-event-marker");
-					rectangle.setX(snapPositionX(beginningTime));
-					rectangle.setY(snapPositionX(height / 6));
+					addMarker(beginningTime, endTime - beginningTime, height);
 
-					pageEventList.add(rectangle);
 					actionStartTime = null;
 				}
-				else if (actionType == ActionType.TEXT_SELECTION_EXT ||
-						actionType == ActionType.RUBBER_EXT) {
-					Rectangle rectangle = new Rectangle(1, height / 1.5);
-					rectangle.getStyleClass().add("page-event-marker");
-					rectangle.setX(snapPositionX(timeToXPositionFunction.applyAsDouble(action.getTimestamp())));
-					rectangle.setY(snapPositionY(height / 6));
-
-					pageEventList.add(rectangle);
+				else {
+					switch (actionType) {
+						case TEXT_SELECTION_EXT,
+								RUBBER_EXT, DELETE_ALL ->
+								addMarker(timeToXPositionFunction.applyAsDouble(action.getTimestamp()), 1, height);
+					}
 				}
 			}
 		}
 		pane.getChildren().addAll(pageEventList);
+	}
+
+	private void addMarker(double x, double width, double height) {
+		Rectangle rectangle = new Rectangle(width, height / 1.5);
+		rectangle.getStyleClass().add("page-event-marker");
+		rectangle.setX(snapPositionX(x));
+		rectangle.setY(snapPositionY(height / 6));
+
+		pageEventList.add(rectangle);
 	}
 
 	private class PageSlider extends Group implements Slider {

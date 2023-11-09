@@ -192,16 +192,20 @@ public class EventTimelineSkin extends MediaTrackControlSkinBase {
 				else if (actionType == ActionType.TOOL_END && nonNull(actionStartTime)) {
 					double beginningTime = timeToXPositionFunction.applyAsDouble(actionStartTime);
 					double endTime = timeToXPositionFunction.applyAsDouble(action.getTimestamp());
+					String styleClass = getMarkerStyleClass(actionType);
 
-					addMarker(beginningTime, endTime - beginningTime, height);
+					addMarker(beginningTime, endTime - beginningTime, height, styleClass);
 
 					actionStartTime = null;
 				}
 				else {
 					switch (actionType) {
 						case TEXT_SELECTION_EXT,
-								RUBBER_EXT, DELETE_ALL ->
-								addMarker(timeToXPositionFunction.applyAsDouble(action.getTimestamp()), 1, height);
+								RUBBER_EXT, DELETE_ALL -> {
+							double x = timeToXPositionFunction.applyAsDouble(action.getTimestamp());
+
+							addMarker(x, 1, height, getMarkerStyleClass(actionType));
+						}
 					}
 				}
 			}
@@ -209,13 +213,25 @@ public class EventTimelineSkin extends MediaTrackControlSkinBase {
 		pane.getChildren().addAll(pageEventList);
 	}
 
-	private void addMarker(double x, double width, double height) {
+	private void addMarker(double x, double width, double height,
+			String styleClass) {
 		Rectangle rectangle = new Rectangle(width, height / 1.5);
-		rectangle.getStyleClass().add("page-event-marker");
+		rectangle.getStyleClass().add(styleClass);
 		rectangle.setX(snapPositionX(x));
 		rectangle.setY(snapPositionY(height / 6));
 
 		pageEventList.add(rectangle);
+	}
+
+	private String getMarkerStyleClass(ActionType actionType) {
+		switch (actionType) {
+			case RUBBER_EXT, DELETE_ALL -> {
+				return "page-event-delete-marker";
+			}
+			default -> {
+				return "page-event-marker";
+			}
+		}
 	}
 
 	private class PageSlider extends Group implements Slider {

@@ -8,6 +8,9 @@
 }
 
 .page-event-marker {
+    -fx-fill: #63B3ED;
+}
+.page-event-delete-marker {
     -fx-fill: #FC8181;
 }
 

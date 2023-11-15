@@ -181,4 +181,12 @@ public class StreamProviderService extends ProviderService {
 			Map<MediaType, Boolean> state) {
 		streamRestClient.updateStreamMediaState(courseId, state);
 	}
+
+	/**
+	 * Sends a message to the server in order to ban a user from a course.
+	 * @param userId The user to ban
+	 */
+	public void banParticipantFromCourse(long courseId, String userId) {
+		streamRestClient.banParticipantFromCourse(courseId, userId);
+	}
 }

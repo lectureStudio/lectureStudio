@@ -175,4 +175,13 @@ public interface StreamRestClient {
 	void updateStreamMediaState(@PathParam("courseId") long courseId,
 			Map<org.lecturestudio.core.net.MediaType, Boolean> state);
 
+	/**
+	 * Ban a participant/user from a course.
+	 * @param courseId The unique course ID.
+	 * @param userId The user ID.
+	 */
+	@POST
+	@Path("/participant/{courseId}/ban/{userId}")
+	void banParticipantFromCourse(@PathParam("courseId") long courseId, @PathParam("userId") String userId);
+
 }

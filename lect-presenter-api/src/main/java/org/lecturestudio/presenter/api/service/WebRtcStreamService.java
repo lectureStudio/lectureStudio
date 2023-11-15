@@ -81,6 +81,7 @@ import org.lecturestudio.web.api.stream.StreamVideoContext;
 import org.lecturestudio.web.api.stream.client.StreamWebSocketClient;
 import org.lecturestudio.web.api.stream.StreamContext;
 import org.lecturestudio.web.api.stream.model.Course;
+import org.lecturestudio.web.api.stream.model.CourseParticipant;
 import org.lecturestudio.web.api.stream.service.StreamProviderService;
 import org.lecturestudio.web.api.websocket.WebSocketBearerTokenProvider;
 import org.lecturestudio.web.api.websocket.WebSocketHeaderProvider;
@@ -181,6 +182,16 @@ public class WebRtcStreamService extends ExecutableBase {
 		}
 
 		streamProviderService.rejectSpeechRequest(message.getRequestId());
+	}
+
+	public void ban(CourseParticipant user) {
+		if (!started()) {
+			return;
+		}
+		long courseId = streamContext.getCourse().getId();
+
+
+		streamProviderService.banParticipantFromCourse(courseId, user.getUserId());
 	}
 
 	public void startCameraStream() throws ExecutableException {

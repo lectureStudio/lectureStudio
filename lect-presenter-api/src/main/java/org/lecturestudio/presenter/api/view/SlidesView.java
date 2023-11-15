@@ -113,6 +113,8 @@ public interface SlidesView extends View {
 
 	void setOnRejectSpeech(ConsumerAction<SpeechBaseMessage> action);
 
+	void setOnBan(ConsumerAction<CourseParticipant> action);
+
 	void setPeerStateEvent(PeerStateEvent event);
 
 	void setOnMutePeerAudio(ConsumerAction<Boolean> action);

@@ -115,8 +115,13 @@ public class StartRecordingPresenter extends Presenter<StartRecordingView> {
 
 		audioSystemProvider.addDeviceChangeListener(deviceChangeListener);
 
-		validateMicrophone();
-		validateSpeaker();
+		try {
+			validateMicrophone();
+			validateSpeaker();
+		}
+		catch (Throwable e) {
+			// Audio device error, e.g. no device connected, will be visible in the view.
+		}
 
 		view.setAudioCaptureDevices(audioSystemProvider.getRecordingDevices());
 		view.setAudioCaptureDevice(audioConfig.captureDeviceNameProperty());

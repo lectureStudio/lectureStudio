@@ -1,6 +1,22 @@
 .page-events > .table-view .table-row-cell {
 	-fx-cell-size: 2.5em;
 }
+.page-events .table-view *.scroll-bar:horizontal *.increment-button,
+.page-events .table-view *.scroll-bar:horizontal *.decrement-button {
+    -fx-background-color: null;
+    -fx-background-radius: 0;
+    -fx-background-insets: 0;
+    -fx-padding: 0;
+}
+
+.page-events .table-view *.scroll-bar:horizontal *.increment-arrow,
+.page-events .table-view *.scroll-bar:horizontal *.decrement-arrow {
+    -fx-background-color: null;
+    -fx-background-radius: 0;
+    -fx-background-insets: 0;
+    -fx-padding: 0;
+    -fx-shape: null;
+}
 .page-events .undo-icon {
 	-fx-icon-content: "m 41.000001,975.36218 -34,25.00002 34,25 0,-13 c 1.7024,-0.08 31.377098,-1.0334 51.999998,17 -8.253,-25.4273 -34.173798,-36.48722 -51.999998,-41.00002 z";
 }

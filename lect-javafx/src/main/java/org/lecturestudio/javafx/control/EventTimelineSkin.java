@@ -200,8 +200,7 @@ public class EventTimelineSkin extends MediaTrackControlSkinBase {
 				}
 				else {
 					switch (actionType) {
-						case TEXT_SELECTION_EXT,
-								RUBBER_EXT, DELETE_ALL -> {
+						case TEXT_SELECTION_EXT, RUBBER_EXT, DELETE_ALL -> {
 							double x = timeToXPositionFunction.applyAsDouble(action.getTimestamp());
 
 							addMarker(x, 1, height, getMarkerStyleClass(actionType));

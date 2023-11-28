@@ -289,7 +289,15 @@ public class RecordingFileService {
 			try {
 				suspendPlayback();
 
+				double durationOld = recording.getRecordingHeader().getDuration();
+
 				addEditAction(recording, new CutAction(recording, start, end));
+
+				double durationNew = recording.getRecordingHeader().getDuration();
+				double scale = durationOld / durationNew;
+
+				// Set time marker to the cut position.
+				context.setPrimarySelection(start * scale);
 			}
 			catch (Exception e) {
 				throw new CompletionException(e);
@@ -399,7 +407,6 @@ public class RecordingFileService {
 					rec.setRecordedDocument(recording.getRecordedDocument());
 
 					RecordingFileWriter.write(rec, file, callback);
-
 				}
 
 				if (file.equals(recording.getSourceFile())) {
@@ -420,18 +427,22 @@ public class RecordingFileService {
 		});
 	}
 
-
 	/**
 	 * Saves the part of the recording that is specified through the interval.
 	 * Removes the saved part from the current recording.
 	 *
 	 * @param file     The file to save the recording in
-	 * @param interval The interval of the recording that should be saved, in milliseconds
+	 * @param interval The interval of the recording that should be saved, in
+	 *                 milliseconds
 	 * @param callback Progress callback for the saving progress
+	 *
 	 * @return An async future completing the task
 	 */
-	public CompletableFuture<Void> savePartialRecording(File file, Interval<Long> interval, ProgressCallback callback) throws RecordingEditException {
-		return savePartialRecording(file, interval, callback, getSelectedRecording());
+	public CompletableFuture<Void> savePartialRecording(File file,
+			Interval<Long> interval, ProgressCallback callback)
+			throws RecordingEditException {
+		return savePartialRecording(file, interval, callback,
+				getSelectedRecording());
 	}
 
 	/**
@@ -439,12 +450,16 @@ public class RecordingFileService {
 	 * Removes the saved part from the current recording.
 	 *
 	 * @param file      The file to save the recording in
-	 * @param interval  The interval of the recording that should be saved, in milliseconds
+	 * @param interval  The interval of the recording that should be saved, in
+	 *                  milliseconds
 	 * @param callback  Progress callback for the saving progress
 	 * @param recording The recording that should be saved partially
+	 *
 	 * @return An async future completing the task
 	 */
-	public CompletableFuture<Void> savePartialRecording(File file, Interval<Long> interval, ProgressCallback callback, Recording recording) throws RecordingEditException {
+	public CompletableFuture<Void> savePartialRecording(File file,
+			Interval<Long> interval, ProgressCallback callback,
+			Recording recording) throws RecordingEditException {
 		try {
 			Recording partial = new Recording(recording);
 
@@ -474,7 +489,10 @@ public class RecordingFileService {
 					// And remove the same interval in the selected recording
 					.thenCompose(ignored -> CompletableFuture.runAsync(() -> {
 						try {
-							addEditAction(getSelectedRecording(), new CutAction(getSelectedRecording(), start, end, context.primarySelectionProperty()));
+							addEditAction(getSelectedRecording(),
+									new CutAction(getSelectedRecording(), start,
+											end,
+											context.primarySelectionProperty()));
 						}
 						catch (RecordingEditException e) {
 							throw new RuntimeException(e);
@@ -486,11 +504,13 @@ public class RecordingFileService {
 		}
 	}
 
-	public CompletableFuture<Void> exportAudio(File file, ProgressCallback callback) {
+	public CompletableFuture<Void> exportAudio(File file,
+			ProgressCallback callback) {
 		return exportAudio(getSelectedRecording(), file, callback);
 	}
 
-	public CompletableFuture<Void> exportAudio(Recording recording, File file, ProgressCallback callback) {
+	public CompletableFuture<Void> exportAudio(Recording recording, File file,
+			ProgressCallback callback) {
 		return CompletableFuture.runAsync(() -> {
 			try {
 				RecordingUtils.exportAudio(recording, file, callback);
@@ -596,35 +616,39 @@ public class RecordingFileService {
 		context.setCanUndo(recording.getEditManager().hasUndoActions());
 	}
 
-
 	/**
-	 * Sets the timestamp of the page with the selected number, without affecting other parts of the recording,
-	 * like the audio or the total duration of the recording.
+	 * Sets the timestamp of the page with the selected number, without
+	 * affecting other parts of the recording, like the audio or the total
+	 * duration of the recording.
 	 *
 	 * @param timestamp  The new timestamp
 	 * @param pageNumber The number of the page to move the timestamp
+	 *
 	 * @return An async future completing the task
 	 */
 	public CompletableFuture<Void> movePage(int timestamp, int pageNumber) {
 		return movePage(timestamp, pageNumber, getSelectedRecording());
 	}
 
-
 	/**
-	 * Sets the timestamp of the page with the selected number, without affecting other parts of the recording,
-	 * like the audio or the total duration of the recording.
+	 * Sets the timestamp of the page with the selected number, without
+	 * affecting other parts of the recording, like the audio or the total
+	 * duration of the recording.
 	 *
 	 * @param timestamp  The new timestamp
 	 * @param pageNumber The number of the page to move the timestamp
 	 * @param recording  The recording this should happen in
+	 *
 	 * @return An async future completing the task
 	 */
-	public CompletableFuture<Void> movePage(int timestamp, int pageNumber, Recording recording) {
+	public CompletableFuture<Void> movePage(int timestamp, int pageNumber,
+			Recording recording) {
 		return CompletableFuture.runAsync(() -> {
 			try {
 				suspendPlayback();
 
-				addEditAction(recording, new MovePageAction(recording, pageNumber, timestamp));
+				addEditAction(recording,
+						new MovePageAction(recording, pageNumber, timestamp));
 			}
 			catch (Exception e) {
 				throw new CompletionException(e);
@@ -632,28 +656,29 @@ public class RecordingFileService {
 		});
 	}
 
-
 	/**
-	 * Removes the page with the selected number, without affecting other parts of the recording,
-	 * like the audio or the total duration of the recording.
+	 * Removes the page with the selected number, without affecting other parts
+	 * of the recording, like the audio or the total duration of the recording.
 	 *
 	 * @param pageNumber The number of the page to remove
-	 * @return  An async future completing the task
+	 *
+	 * @return An async future completing the task
 	 */
 	public CompletableFuture<Void> hidePage(int pageNumber) {
 		return hidePage(pageNumber, getSelectedRecording());
 	}
 
-
 	/**
-	 * Removes the page with the selected number, without affecting other parts of the recording,
-	 * like the audio or the total duration of the recording.
+	 * Removes the page with the selected number, without affecting other parts
+	 * of the recording, like the audio or the total duration of the recording.
 	 *
 	 * @param pageNumber The number of the page to remove
 	 * @param recording  The recording this should happen in
+	 *
 	 * @return An async future completing the task
 	 */
-	public CompletableFuture<Void> hidePage(int pageNumber, Recording recording) {
+	public CompletableFuture<Void> hidePage(int pageNumber,
+			Recording recording) {
 		return CompletableFuture.runAsync(() -> {
 			try {
 				suspendPlayback();
@@ -670,12 +695,15 @@ public class RecordingFileService {
 		return hideAndMoveNextPage(pageNumber, timestamp, getSelectedRecording());
 	}
 
-	public CompletableFuture<Void> hideAndMoveNextPage(int pageNumber, int timestamp, Recording recording) {
+	public CompletableFuture<Void> hideAndMoveNextPage(int pageNumber,
+			int timestamp, Recording recording) {
 		return CompletableFuture.runAsync(() -> {
 			try {
 				suspendPlayback();
 
-				addEditAction(recording, new HideAndMoveNextPageAction(recording, pageNumber, timestamp));
+				addEditAction(recording,
+						new HideAndMoveNextPageAction(recording, pageNumber,
+								timestamp));
 			}
 			catch (Exception e) {
 				throw new CompletionException(e);
@@ -688,70 +716,93 @@ public class RecordingFileService {
 	 *
 	 * @param addedActions the actions to be added
 	 * @param pageNumber   the number of the page in which they should be added
+	 *
 	 * @return an async task performing the task
 	 */
-	public CompletableFuture<Void> insertPlaybackActions(List<PlaybackAction> addedActions, int pageNumber) {
-		return insertPlaybackActions(addedActions, pageNumber, getSelectedRecording());
+	public CompletableFuture<Void> insertPlaybackActions(
+			List<PlaybackAction> addedActions, int pageNumber) {
+		return insertPlaybackActions(addedActions, pageNumber,
+				getSelectedRecording());
 	}
 
-	public CompletableFuture<Void> insertPlaybackActions(List<PlaybackAction> addedActions, int pageNumber, Recording recording) {
+	public CompletableFuture<Void> insertPlaybackActions(
+			List<PlaybackAction> addedActions, int pageNumber,
+			Recording recording) {
 		return CompletableFuture.runAsync(() -> {
-			try {
-				addEditAction(recording, new InsertPlaybackActionsAction(addedActions, pageNumber, recording));
-			}
-			catch (Exception e) {
-				throw new CompletionException(e);
-			}
-		}).thenCompose((ignored) -> {
-			double endTimestamp = (double) (addedActions.get(addedActions.size() - 1).getTimestamp() + 2) / recording.getRecordingHeader().getDuration();
-			context.setPrimarySelection(endTimestamp);
-			return null;
-		});
+				try {
+					addEditAction(recording,
+							new InsertPlaybackActionsAction(addedActions,
+									pageNumber, recording));
+				}
+				catch (Exception e) {
+					throw new CompletionException(e);
+				}
+			})
+			.thenCompose((ignored) -> {
+				double endTimestamp = (double) (
+						addedActions.get(addedActions.size() - 1).getTimestamp()
+								+ 2) / recording.getRecordingHeader().getDuration();
+				context.setPrimarySelection(endTimestamp);
+				return null;
+			});
 	}
 
 	/**
 	 * {@link ModifyPlaybackActionPositionsAction}
 	 *
-	 * @param handle the associated shape handle
+	 * @param handle     the associated shape handle
 	 * @param pageNumber the number of the page the actions should be modified
-	 * @param delta the amount the locations should be changed by
+	 * @param delta      the amount the locations should be changed by
+	 *
 	 * @return an async task performing the task
 	 */
-	public CompletableFuture<Void> modifyPlaybackActionPositions(int handle, int pageNumber, PenPoint2D delta) {
-		return modifyPlaybackActionPositions(handle, pageNumber, delta, getSelectedRecording());
+	public CompletableFuture<Void> modifyPlaybackActionPositions(int handle,
+			int pageNumber, PenPoint2D delta) {
+		return modifyPlaybackActionPositions(handle, pageNumber, delta,
+				getSelectedRecording());
 	}
 
-	public CompletableFuture<Void> modifyPlaybackActionPositions(int handle, int pageNumber, PenPoint2D delta, Recording recording) {
+	public CompletableFuture<Void> modifyPlaybackActionPositions(int handle,
+			int pageNumber, PenPoint2D delta, Recording recording) {
 		double timestampBefore = context.getPrimarySelection();
 		return CompletableFuture.runAsync(() -> {
-			try {
-				addEditAction(recording, new ModifyPlaybackActionPositionsAction(recording, handle, pageNumber, delta));
-			}
-			catch (Exception e) {
-				throw new CompletionException(e);
-			}
-		}).thenCompose((ignored) -> {
-			context.setPrimarySelection(timestampBefore);
-			return null;
-		});
+				try {
+					addEditAction(recording,
+							new ModifyPlaybackActionPositionsAction(recording,
+									handle, pageNumber, delta));
+				}
+				catch (Exception e) {
+					throw new CompletionException(e);
+				}
+			})
+			.thenCompose((ignored) -> {
+				context.setPrimarySelection(timestampBefore);
+				return null;
+			});
 	}
 
-	public CompletionStage<Void> normalizeAudioLoudness(Double lufsValue, ProgressCallback callback) {
-		return normalizeAudioLoudness(lufsValue, callback, getSelectedRecording());
+	public CompletionStage<Void> normalizeAudioLoudness(Double lufsValue,
+			ProgressCallback callback) {
+		return normalizeAudioLoudness(lufsValue, callback,
+				getSelectedRecording());
 	}
 
-	public CompletionStage<Void> normalizeAudioLoudness(Double lufsValue, ProgressCallback callback, Recording recording) {
+	public CompletionStage<Void> normalizeAudioLoudness(Double lufsValue,
+			ProgressCallback callback, Recording recording) {
 		return CompletableFuture.runAsync(() -> {
-			try {
-				addEditAction(recording, new NormalizeLoudnessAction(recording, lufsValue, callback));
-			}
-			catch (Exception e) {
-				throw new CompletionException(e);
-			}
-		}).thenCompose((ignored) -> {
-			// Recompute Loudness Configuration, to be used for subsequent audio edits
-			computeLoudnessConfiguration(recording);
-			return CompletableFuture.completedFuture(null);
-		});
+				try {
+					addEditAction(recording,
+							new NormalizeLoudnessAction(recording, lufsValue,
+									callback));
+				}
+				catch (Exception e) {
+					throw new CompletionException(e);
+				}
+			})
+			.thenCompose((ignored) -> {
+				// Recompute Loudness Configuration, to be used for subsequent audio edits
+				computeLoudnessConfiguration(recording);
+				return CompletableFuture.completedFuture(null);
+			});
 	}
 }

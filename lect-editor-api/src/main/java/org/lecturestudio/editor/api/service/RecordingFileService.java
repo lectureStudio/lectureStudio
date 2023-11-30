@@ -48,6 +48,7 @@ import org.lecturestudio.core.io.RandomAccessAudioStream;
 import org.lecturestudio.core.model.Document;
 import org.lecturestudio.core.model.Interval;
 import org.lecturestudio.core.recording.RecordedAudio;
+import org.lecturestudio.core.recording.RecordedEvents;
 import org.lecturestudio.core.recording.Recording;
 import org.lecturestudio.core.recording.RecordingChangeEvent;
 import org.lecturestudio.core.recording.RecordingChangeListener;
@@ -60,7 +61,9 @@ import org.lecturestudio.core.recording.file.RecordingUtils;
 import org.lecturestudio.core.service.DocumentService;
 import org.lecturestudio.core.util.ProgressCallback;
 import org.lecturestudio.editor.api.context.EditorContext;
+import org.lecturestudio.editor.api.edit.CompositeEventAction;
 import org.lecturestudio.editor.api.edit.CutAction;
+import org.lecturestudio.editor.api.edit.DeleteEventAtIndexAction;
 import org.lecturestudio.editor.api.edit.DeletePageAction;
 import org.lecturestudio.editor.api.edit.HideAndMoveNextPageAction;
 import org.lecturestudio.editor.api.edit.HidePageAction;
@@ -714,33 +717,51 @@ public class RecordingFileService {
 	/**
 	 * {@link InsertPlaybackActionsAction}
 	 *
-	 * @param addedActions the actions to be added
-	 * @param pageNumber   the number of the page in which they should be added
+	 * @param addActions    The actions to be added.
+	 * @param removeActions The actions to be removed.
+	 * @param pageNumber    The page number into which the actions should be
+	 *                      added.
 	 *
-	 * @return an async task performing the task
+	 * @return An async task performing the task.
 	 */
 	public CompletableFuture<Void> insertPlaybackActions(
-			List<PlaybackAction> addedActions, int pageNumber) {
-		return insertPlaybackActions(addedActions, pageNumber,
+			List<PlaybackAction> addActions,
+			List<PlaybackAction> removeActions, int pageNumber) {
+		return insertPlaybackActions(addActions, removeActions, pageNumber,
 				getSelectedRecording());
 	}
 
 	public CompletableFuture<Void> insertPlaybackActions(
-			List<PlaybackAction> addedActions, int pageNumber,
+			List<PlaybackAction> addActions,
+			List<PlaybackAction> removeActions, int pageNumber,
 			Recording recording) {
 		return CompletableFuture.runAsync(() -> {
-				try {
-					addEditAction(recording,
-							new InsertPlaybackActionsAction(addedActions,
-									pageNumber, recording));
+				// Add and remove actions with a single composite action which
+				// can be undone in one step.
+				RecordedEvents recordedEvents = recording.getRecordedEvents();
+				CompositeEventAction compositeAction = new CompositeEventAction(recordedEvents, recording);
+				// Create removal actions.
+				for (PlaybackAction action : removeActions) {
+					var deleteAction = new DeleteEventAtIndexAction(recordedEvents, action, pageNumber);
+
+					compositeAction.addAction(deleteAction);
 				}
-				catch (Exception e) {
+				// Create the insertion of the new action.
+				try {
+					var changeAction = new InsertPlaybackActionsAction(
+							addActions, pageNumber, recording);
+
+					compositeAction.addAction(changeAction);
+
+					addEditAction(recording, compositeAction);
+				}
+				catch (Throwable e) {
 					throw new CompletionException(e);
 				}
 			})
 			.thenCompose((ignored) -> {
 				double endTimestamp = (double) (
-						addedActions.get(addedActions.size() - 1).getTimestamp()
+						addActions.get(addActions.size() - 1).getTimestamp()
 								+ 2) / recording.getRecordingHeader().getDuration();
 				context.setPrimarySelection(endTimestamp);
 				return null;

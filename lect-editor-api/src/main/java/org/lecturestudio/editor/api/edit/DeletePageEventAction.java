@@ -44,13 +44,16 @@ public class DeletePageEventAction extends RecordingAction {
 	 * @param action     The action to delete.
 	 * @param pageNumber The page number on which the action is located.
 	 */
-	public DeletePageEventAction(Recording recording, PlaybackAction action, int pageNumber) {
+	public DeletePageEventAction(Recording recording, PlaybackAction action,
+			int pageNumber) {
 		super(recording, createActions(recording, action, pageNumber));
 	}
 
-	private static List<EditAction> createActions(Recording recording, PlaybackAction action, int pageNumber) {
+	private static List<EditAction> createActions(Recording recording,
+			PlaybackAction action, int pageNumber) {
 		RecordedEvents lectureEvents = recording.getRecordedEvents();
-		DeleteEventAction deleteAction = new DeleteEventAction(lectureEvents, action, pageNumber);
+		DeleteEventAction deleteAction = new DeleteEventAction(lectureEvents,
+				action, pageNumber);
 
 		return List.of(deleteAction);
 	}

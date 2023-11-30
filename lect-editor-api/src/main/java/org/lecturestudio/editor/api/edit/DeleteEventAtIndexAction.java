@@ -18,31 +18,36 @@
 
 package org.lecturestudio.editor.api.edit;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import org.lecturestudio.core.recording.RecordedEvents;
 import org.lecturestudio.core.recording.RecordedPage;
-import org.lecturestudio.core.recording.action.ActionType;
 import org.lecturestudio.core.recording.action.PlaybackAction;
 import org.lecturestudio.core.recording.edit.RecordedObjectAction;
 
-public class DeleteEventAction extends RecordedObjectAction<RecordedEvents> {
-
-	private final List<PlaybackAction> removedActions = new ArrayList<>();
+public class DeleteEventAtIndexAction extends RecordedObjectAction<RecordedEvents> {
 
 	private final PlaybackAction action;
+
+	private PlaybackAction refAction;
 
 	private final int pageNumber;
 
 	private int actionIndex;
 
+	private int refIndex;
 
-	public DeleteEventAction(RecordedEvents lectureObject,
+
+	public DeleteEventAtIndexAction(RecordedEvents lectureObject,
 			PlaybackAction action, int pageNumber) {
 		super(lectureObject);
 
+		RecordedPage recordedPage = lectureObject.getRecordedPage(pageNumber);
+		List<PlaybackAction> actions = recordedPage.getPlaybackActions();
+
 		this.action = action;
+		this.actionIndex = actions.indexOf(action);
+		this.refAction = actions.get(actionIndex - 1);
 		this.pageNumber = pageNumber;
 	}
 
@@ -52,50 +57,29 @@ public class DeleteEventAction extends RecordedObjectAction<RecordedEvents> {
 		RecordedPage recordedPage = lecturePages.getRecordedPage(pageNumber);
 		List<PlaybackAction> actions = recordedPage.getPlaybackActions();
 
-		actionIndex = actions.indexOf(action);
-
 		if (actionIndex < 0) {
-			throw new IllegalArgumentException("RecordedPage does not contain the event to delete");
+			throw new IllegalArgumentException(
+					"RecordedPage does not contain the action to delete");
 		}
 
-		System.out.println(actionIndex);
-
-		var iter = actions.listIterator(actionIndex);
-
-		while (iter.hasNext()) {
-			var iterAction = iter.next();
-			var actionType = iterAction.getType();
-
-			if (!iterAction.equals(action)
-					&& iterAction.hasHandle()
-					&& action.hasHandle()
-					&& iterAction.getHandle() != action.getHandle()) {
-				// End the deletion, if and only if both actions contain handles, which do not match.
-				break;
-			}
-
-			iter.remove();
-
-			removedActions.add(iterAction);
-
-			if (actionType == ActionType.TOOL_END) {
-				break;
-			}
+		if (!actions.remove(action)) {
+			System.out.println("Action could not be removed");
 		}
 	}
 
 	@Override
 	public void undo() {
+		RecordedEvents lecturePages = getRecordedObject();
+		RecordedPage recordedPage = lecturePages.getRecordedPage(pageNumber);
+		List<PlaybackAction> actions = recordedPage.getPlaybackActions();
+
+		int actionIndex = actions.indexOf(refAction);
 		if (actionIndex < 0) {
+			System.out.println("Action could not be removed");
 			return;
 		}
 
-		RecordedEvents lecturePages = getRecordedObject();
-		RecordedPage recordedPage = lecturePages.getRecordedPage(pageNumber);
-
-		recordedPage.getPlaybackActions().addAll(actionIndex, removedActions);
-
-		removedActions.clear();
+		actions.add(actionIndex + 1, action);
 	}
 
 	@Override

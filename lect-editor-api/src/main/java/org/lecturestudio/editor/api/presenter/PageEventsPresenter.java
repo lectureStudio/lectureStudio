@@ -152,7 +152,8 @@ public class PageEventsPresenter extends Presenter<PageEventsView> {
 		}
 	}
 
-	private void deletePageEvent(PlaybackAction action, int pageNumber) throws ExecutableException, RecordingEditException {
+	private void deletePageEvent(PlaybackAction action, int pageNumber)
+			throws ExecutableException, RecordingEditException {
 		if (playbackService.started()) {
 			playbackService.suspend();
 		}

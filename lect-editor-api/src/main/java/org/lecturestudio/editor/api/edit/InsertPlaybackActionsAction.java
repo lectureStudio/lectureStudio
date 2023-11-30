@@ -1,3 +1,21 @@
+/*
+ * Copyright (C) 2023 TU Darmstadt, Department of Computer Science,
+ * Embedded Systems and Applications Group.
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
 package org.lecturestudio.editor.api.edit;
 
 import java.util.List;
@@ -14,13 +32,15 @@ import org.lecturestudio.core.recording.edit.RecordedObjectAction;
  * Insert PlaybackActions into the given Page of the recording.
  */
 public class InsertPlaybackActionsAction extends RecordedObjectAction<RecordedEvents> {
+
 	private final List<PlaybackAction> addedActions;
 	private final int pageNumber;
 	private final Recording recording;
 	private final Interval<Double> duration;
 
 
-	public InsertPlaybackActionsAction(List<PlaybackAction> addedActions, int pageNumber, Recording recording) {
+	public InsertPlaybackActionsAction(List<PlaybackAction> addedActions,
+			int pageNumber, Recording recording) {
 		super(recording.getRecordedEvents());
 
 		this.addedActions = addedActions;

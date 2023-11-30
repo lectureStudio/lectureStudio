@@ -48,7 +48,6 @@ import org.lecturestudio.core.io.RandomAccessAudioStream;
 import org.lecturestudio.core.model.Document;
 import org.lecturestudio.core.model.Interval;
 import org.lecturestudio.core.recording.RecordedAudio;
-import org.lecturestudio.core.recording.RecordedEvents;
 import org.lecturestudio.core.recording.Recording;
 import org.lecturestudio.core.recording.RecordingChangeEvent;
 import org.lecturestudio.core.recording.RecordingChangeListener;
@@ -61,19 +60,17 @@ import org.lecturestudio.core.recording.file.RecordingUtils;
 import org.lecturestudio.core.service.DocumentService;
 import org.lecturestudio.core.util.ProgressCallback;
 import org.lecturestudio.editor.api.context.EditorContext;
-import org.lecturestudio.editor.api.edit.CompositeEventAction;
 import org.lecturestudio.editor.api.edit.CutAction;
-import org.lecturestudio.editor.api.edit.DeleteEventAtIndexAction;
 import org.lecturestudio.editor.api.edit.DeletePageAction;
 import org.lecturestudio.editor.api.edit.HideAndMoveNextPageAction;
 import org.lecturestudio.editor.api.edit.HidePageAction;
-import org.lecturestudio.editor.api.edit.InsertPlaybackActionsAction;
 import org.lecturestudio.editor.api.edit.InsertRecordingAction;
 import org.lecturestudio.editor.api.edit.ModifyPlaybackActionPositionsAction;
 import org.lecturestudio.editor.api.edit.MovePageAction;
 import org.lecturestudio.editor.api.edit.NormalizeLoudnessAction;
 import org.lecturestudio.editor.api.edit.ReplaceAllPagesAction;
 import org.lecturestudio.editor.api.edit.ReplaceAudioAction;
+import org.lecturestudio.editor.api.edit.ReplacePageEventsAction;
 import org.lecturestudio.media.audio.FFmpegLoudnessNormalization;
 import org.lecturestudio.media.audio.LoudnessConfiguration;
 import org.lecturestudio.media.recording.RecordingEvent;
@@ -715,7 +712,7 @@ public class RecordingFileService {
 	}
 
 	/**
-	 * {@link InsertPlaybackActionsAction}
+	 * Inserts new actions into a page and optionally removes un-used ones.
 	 *
 	 * @param addActions    The actions to be added.
 	 * @param removeActions The actions to be removed.
@@ -738,22 +735,11 @@ public class RecordingFileService {
 		return CompletableFuture.runAsync(() -> {
 				// Add and remove actions with a single composite action which
 				// can be undone in one step.
-				RecordedEvents recordedEvents = recording.getRecordedEvents();
-				CompositeEventAction compositeAction = new CompositeEventAction(recordedEvents, recording);
-				// Create removal actions.
-				for (PlaybackAction action : removeActions) {
-					var deleteAction = new DeleteEventAtIndexAction(recordedEvents, action, pageNumber);
+				var changeAction = new ReplacePageEventsAction(recording,
+						addActions, removeActions, pageNumber);
 
-					compositeAction.addAction(deleteAction);
-				}
-				// Create the insertion of the new action.
 				try {
-					var changeAction = new InsertPlaybackActionsAction(
-							addActions, pageNumber, recording);
-
-					compositeAction.addAction(changeAction);
-
-					addEditAction(recording, compositeAction);
+					addEditAction(recording, changeAction);
 				}
 				catch (Throwable e) {
 					throw new CompletionException(e);

@@ -18,50 +18,51 @@
 
 package org.lecturestudio.editor.api.edit;
 
+import java.util.ArrayList;
 import java.util.List;
 
-import org.lecturestudio.core.model.Interval;
 import org.lecturestudio.core.recording.RecordedEvents;
 import org.lecturestudio.core.recording.RecordedPage;
 import org.lecturestudio.core.recording.Recording;
+import org.lecturestudio.core.recording.Recording.Content;
 import org.lecturestudio.core.recording.RecordingEditException;
 import org.lecturestudio.core.recording.action.PlaybackAction;
 import org.lecturestudio.core.recording.edit.RecordedObjectAction;
 
-/**
- * Insert PlaybackActions into the given Page of the recording.
- */
-public class InsertPlaybackActionsAction extends RecordedObjectAction<RecordedEvents> {
+public class ReplacePageEventsAction extends RecordedObjectAction<RecordedEvents> {
 
-	private final List<PlaybackAction> addedActions;
-	private final int pageNumber;
 	private final Recording recording;
-	private final Interval<Double> duration;
+
+	private final int pageNumber;
+
+	private final List<PlaybackAction> addActions;
+
+	private final List<PlaybackAction> removeActions;
+
+	private List<PlaybackAction> savedActions;
 
 
-	public InsertPlaybackActionsAction(List<PlaybackAction> addedActions,
-			int pageNumber, Recording recording) {
+	public ReplacePageEventsAction(Recording recording,
+			List<PlaybackAction> addActions, List<PlaybackAction> removeActions,
+			int pageNumber) {
 		super(recording.getRecordedEvents());
 
-		this.addedActions = addedActions;
-		this.pageNumber = pageNumber;
 		this.recording = recording;
-
-		long totalLength = recording.getRecordingHeader().getDuration();
-		int start = addedActions.get(0).getTimestamp();
-		int end = addedActions.get(addedActions.size() - 1).getTimestamp();
-
-		duration = new Interval<>((double) start / totalLength, (double) end / totalLength);
+		this.pageNumber = pageNumber;
+		this.addActions = addActions;
+		this.removeActions = removeActions;
 	}
 
 	@Override
 	public void undo() throws RecordingEditException {
 		RecordedEvents lecturePages = getRecordedObject();
 		RecordedPage recordedPage = lecturePages.getRecordedPage(pageNumber);
+		List<PlaybackAction> actions = recordedPage.getPlaybackActions();
 
-		recordedPage.getPlaybackActions().removeAll(addedActions);
+		actions.clear();
+		actions.addAll(savedActions);
 
-		recording.fireChangeEvent(Recording.Content.EVENTS_REMOVED, duration);
+		recording.fireChangeEvent(Content.EVENTS_CHANGED);
 	}
 
 	@Override
@@ -75,22 +76,30 @@ public class InsertPlaybackActionsAction extends RecordedObjectAction<RecordedEv
 		RecordedPage recordedPage = lecturePages.getRecordedPage(pageNumber);
 		List<PlaybackAction> actions = recordedPage.getPlaybackActions();
 
-		int firstTimeStamp = addedActions.get(0).getTimestamp();
-		PlaybackAction insertAfterAction = actions.stream().reduce(null, (previous, action) -> {
-			if (action.getTimestamp() < firstTimeStamp) {
-				return action;
+		savedActions = new ArrayList<>(actions);
+
+		try {
+			actions.removeAll(removeActions);
+
+			int firstTimeStamp = addActions.get(0).getTimestamp();
+			PlaybackAction insertAfterAction = actions.stream().reduce(null, (previous, action) -> {
+				if (action.getTimestamp() < firstTimeStamp) {
+					return action;
+				}
+				return previous;
+			});
+
+			if (insertAfterAction != null) {
+				actions.addAll(actions.indexOf(insertAfterAction) + 1, addActions);
 			}
-			return previous;
-		});
-
-		if (insertAfterAction != null) {
-			actions.addAll(actions.indexOf(insertAfterAction) + 1, addedActions);
+			else {
+				actions.addAll(0, addActions);
+			}
 		}
-		else {
-			actions.addAll(0, addedActions);
+		catch (Throwable e) {
+			throw new RecordingEditException(e);
 		}
 
-		recording.fireChangeEvent(Recording.Content.EVENTS_ADDED, duration);
+		recording.fireChangeEvent(Content.EVENTS_CHANGED);
 	}
-
 }

@@ -55,9 +55,7 @@ public class ReplacePageEventsAction extends RecordedObjectAction<RecordedEvents
 
 	@Override
 	public void undo() throws RecordingEditException {
-		RecordedEvents lecturePages = getRecordedObject();
-		RecordedPage recordedPage = lecturePages.getRecordedPage(pageNumber);
-		List<PlaybackAction> actions = recordedPage.getPlaybackActions();
+		List<PlaybackAction> actions = getPageActions();
 
 		actions.clear();
 		actions.addAll(savedActions);
@@ -72,9 +70,7 @@ public class ReplacePageEventsAction extends RecordedObjectAction<RecordedEvents
 
 	@Override
 	public void execute() throws RecordingEditException {
-		RecordedEvents lecturePages = getRecordedObject();
-		RecordedPage recordedPage = lecturePages.getRecordedPage(pageNumber);
-		List<PlaybackAction> actions = recordedPage.getPlaybackActions();
+		List<PlaybackAction> actions = getPageActions();
 
 		savedActions = new ArrayList<>(actions);
 
@@ -101,5 +97,12 @@ public class ReplacePageEventsAction extends RecordedObjectAction<RecordedEvents
 		}
 
 		recording.fireChangeEvent(Content.EVENTS_CHANGED);
+	}
+
+	private List<PlaybackAction> getPageActions() {
+		RecordedEvents lecturePages = getRecordedObject();
+		RecordedPage recordedPage = lecturePages.getRecordedPage(pageNumber);
+
+		return recordedPage.getPlaybackActions();
 	}
 }

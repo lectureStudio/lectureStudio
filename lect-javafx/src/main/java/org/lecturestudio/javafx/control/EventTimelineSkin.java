@@ -200,7 +200,7 @@ public class EventTimelineSkin extends MediaTrackControlSkinBase {
 				}
 				else {
 					switch (actionType) {
-						case TEXT_SELECTION_EXT, RUBBER_EXT, DELETE_ALL -> {
+						case TEXT_SELECTION_EXT, RUBBER_EXT, DELETE_ALL, ZOOM_OUT -> {
 							double x = timeToXPositionFunction.applyAsDouble(action.getTimestamp());
 
 							addMarker(x, 1, height, getMarkerStyleClass(actionType));
@@ -214,7 +214,7 @@ public class EventTimelineSkin extends MediaTrackControlSkinBase {
 
 	private void addMarker(double x, double width, double height,
 			String styleClass) {
-		Rectangle rectangle = new Rectangle(width, height / 1.5);
+		Rectangle rectangle = new Rectangle(width + 0.5, height / 1.5);
 		rectangle.getStyleClass().add(styleClass);
 		rectangle.setX(snapPositionX(x));
 		rectangle.setY(snapPositionY(height / 6));
@@ -232,6 +232,8 @@ public class EventTimelineSkin extends MediaTrackControlSkinBase {
 			}
 		}
 	}
+
+
 
 	private class PageSlider extends Group implements Slider {
 

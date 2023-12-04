@@ -38,7 +38,6 @@ import org.lecturestudio.core.model.Page;
 import org.lecturestudio.core.presenter.Presenter;
 import org.lecturestudio.core.recording.RecordedPage;
 import org.lecturestudio.core.recording.Recording;
-import org.lecturestudio.core.recording.Recording.Content;
 import org.lecturestudio.core.recording.RecordingChangeEvent;
 import org.lecturestudio.core.recording.RecordingEditException;
 import org.lecturestudio.core.recording.action.ActionType;
@@ -101,11 +100,9 @@ public class PageEventsPresenter extends Presenter<PageEventsView> {
 
 	@Subscribe
 	public void onEvent(RecordingChangeEvent event) {
-		if (event.getContentType() == Recording.Content.EVENTS_REMOVED
-				|| event.getContentType() == Content.ALL
-				|| event.getContentType() == Recording.Content.EVENTS_CHANGED
-				|| event.getContentType() == Recording.Content.EVENTS_ADDED) {
-			loadSelectedPageEvents();
+		switch (event.getContentType()) {
+			case ALL, EVENTS_ADDED, EVENTS_CHANGED, EVENTS_REMOVED ->
+					loadSelectedPageEvents();
 		}
 	}
 

@@ -105,7 +105,7 @@ public class DeleteEventAction extends RecordedObjectAction<RecordedEvents> {
 
 			iterator.remove();
 
-			if (actionType == ActionType.TOOL_END) {
+			if (actionType == ActionType.TOOL_END || actionType == ActionType.ZOOM_OUT) {
 				break;
 			}
 		}

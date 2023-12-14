@@ -24,7 +24,7 @@
 	<licenses>
 		<license>
 			<name>GNU General Public License, Version 3.0</name>
-			<url>http://www.gnu.org/licenses/gpl-3.0.txt</url>
+			<url>https://www.gnu.org/licenses/gpl-3.0.txt</url>
 			<distribution>manual</distribution>
 			<comments>A free, copyleft license for software and other kinds of works.</comments>
 		</license>
@@ -268,6 +268,7 @@
 			</plugin>
 			<plugin>
 				<artifactId>maven-resources-plugin</artifactId>
+				<version>3.3.1</version>
 				<inherited>false</inherited>
 				<executions>
 					<!-- Don't copy the license for this parent POM. -->

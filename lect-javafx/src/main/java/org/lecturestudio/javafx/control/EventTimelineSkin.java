@@ -348,10 +348,10 @@ public class EventTimelineSkin extends MediaTrackControlSkinBase {
 				higherPageBound = pages.get(page.getNumber() + 1);
 			}
 
-			if (page.getTimestamp() - lowerPageBound.getTimestamp() < 10) {
+			if (page.getTimestamp() - lowerPageBound.getTimestamp() < 150) { // Allow a margin error of 150ms.
 				eventTimeline.getOnHideAndMoveNextPage().execute(lowerPageBound);
 			}
-			else if (higherPageBound.getTimestamp() - page.getTimestamp() < 10) {
+			else if (higherPageBound.getTimestamp() - page.getTimestamp() < 150) {
 				eventTimeline.getOnHidePage().execute(page);
 			}
 			else {

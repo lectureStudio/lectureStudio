@@ -68,6 +68,7 @@ import org.lecturestudio.presenter.api.event.RecordingStateEvent;
 import org.lecturestudio.presenter.api.event.ScreenShareSelectEvent;
 import org.lecturestudio.presenter.api.event.StreamingStateEvent;
 import org.lecturestudio.presenter.api.model.*;
+import org.lecturestudio.presenter.api.presenter.command.CloseablePresenterCommand;
 import org.lecturestudio.presenter.api.presenter.command.StartRecordingCommand;
 import org.lecturestudio.presenter.api.service.BookmarkService;
 import org.lecturestudio.presenter.api.service.RecordingService;
@@ -528,20 +529,23 @@ public class ToolbarPresenter extends Presenter<ToolbarView> {
 	private void createNewBookmark() {
 		try {
 			Bookmark currBookmark = bookmarkService.getPageBookmark();
-			if(nonNull(currBookmark)){
+			if (nonNull(currBookmark)) {
 				String shortcut = currBookmark.getShortcut();
 				bookmarkService.deleteBookmark(currBookmark);
 				bookmarkRemoved(shortcut);
 				view.selectNewBookmarkButton(false);
-			} else{
+			}
+			else {
 				bookmarkCreated(bookmarkService.createDefaultBookmark());
 				view.selectNewBookmarkButton(true);
 			}
-		}catch (BookmarkExistsException e){
+		}
+		catch (BookmarkExistsException e) {
 			Page page = documentService.getDocuments().getSelectedDocument().getCurrentPage();
 			String message = MessageFormat.format(context.getDictionary().get("bookmark.exists"), page.getPageNumber());
-			showNotification(NotificationType.WARNING, "bookmark.assign.warning", message);
-		} catch (BookmarkException e) {
+			context.showNotification(NotificationType.WARNING, "bookmark.assign.warning", message);
+		}
+		catch (BookmarkException e) {
 			handleException(e, "Create bookmark failed", "bookmark.assign.warning");
 		}
 	}
@@ -549,14 +553,14 @@ public class ToolbarPresenter extends Presenter<ToolbarView> {
 		String shortcut = bookmark.getShortcut().toUpperCase();
 		String message = MessageFormat.format(context.getDictionary().get("bookmark.created"), shortcut);
 
-		showNotificationPopup(message);
+		context.showNotificationPopup(message);
 		close();
 	}
 
 	private void bookmarkRemoved(String shortcut) {
 		String message = MessageFormat.format(context.getDictionary().get("bookmark.removed"), shortcut);
 
-		showNotificationPopup(message);
+		context.showNotificationPopup(message);
 		close();
 	}
 

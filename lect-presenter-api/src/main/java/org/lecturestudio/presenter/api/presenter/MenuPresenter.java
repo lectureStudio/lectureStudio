@@ -66,12 +66,7 @@ import org.lecturestudio.core.service.DocumentService;
 import org.lecturestudio.core.util.FileUtils;
 import org.lecturestudio.core.util.ListChangeListener;
 import org.lecturestudio.core.util.ObservableList;
-import org.lecturestudio.core.view.FileChooserView;
-import org.lecturestudio.core.view.PresentationParameter;
-import org.lecturestudio.core.view.PresentationParameterProvider;
-import org.lecturestudio.core.view.View;
-import org.lecturestudio.core.view.ViewContextFactory;
-import org.lecturestudio.core.view.ViewType;
+import org.lecturestudio.core.view.*;
 import org.lecturestudio.presenter.api.config.PresenterConfiguration;
 import org.lecturestudio.presenter.api.config.SlideViewConfiguration;
 import org.lecturestudio.presenter.api.context.PresenterContext;
@@ -92,14 +87,7 @@ import org.lecturestudio.presenter.api.event.RecordingStateEvent;
 import org.lecturestudio.presenter.api.event.RecordingTimeEvent;
 import org.lecturestudio.presenter.api.event.StreamReconnectStateEvent;
 import org.lecturestudio.presenter.api.event.StreamingStateEvent;
-import org.lecturestudio.presenter.api.model.Bookmark;
-import org.lecturestudio.presenter.api.model.BookmarkKeyException;
-import org.lecturestudio.presenter.api.model.Bookmarks;
-import org.lecturestudio.presenter.api.model.BookmarksListener;
-import org.lecturestudio.presenter.api.model.MessageBarPosition;
-import org.lecturestudio.presenter.api.model.NoteBarPosition;
-import org.lecturestudio.presenter.api.model.SlideNoteBarPosition;
-import org.lecturestudio.presenter.api.model.Stopwatch;
+import org.lecturestudio.presenter.api.model.*;
 import org.lecturestudio.presenter.api.presenter.command.StopwatchCommand;
 import org.lecturestudio.presenter.api.service.BookmarkService;
 import org.lecturestudio.presenter.api.service.QuizWebServiceState;
@@ -475,30 +463,33 @@ public class MenuPresenter extends Presenter<MenuView> {
 	public void newDefaultBookmark() {
 		try {
 			bookmarkCreated(bookmarkService.createDefaultBookmark());
-		}catch (BookmarkExistsException e){
+		}
+		catch (BookmarkExistsException e) {
 			Page page = documentService.getDocuments().getSelectedDocument().getCurrentPage();
 			String message = MessageFormat.format(context.getDictionary().get("bookmark.exists"), page.getPageNumber());
-			showNotification(NotificationType.WARNING, "bookmark.assign.warning", message);
-		} catch (BookmarkException e) {
+			context.showNotification(NotificationType.WARNING, "bookmark.assign.warning", message);
+		}
+		catch (BookmarkException e) {
 			handleException(e, "Create bookmark failed", "bookmark.assign.warning");
 		}
 	}
 
 	public void removeBookmark() {
 		try {
-			if(nonNull(bookmarkService.getPageBookmark())){
+			if (nonNull(bookmarkService.getPageBookmark())) {
 				String shortcut = bookmarkService.getPageBookmark().getShortcut();
 				bookmarkService.deleteBookmark(bookmarkService.getPageBookmark());
 				bookmarkRemoved(shortcut);
 			}
-		} catch (BookmarkException e) {
+		}
+		catch (BookmarkException e) {
 			handleException(e, "Remove bookmark failed", "bookmark.assign.warning");
 		}
 	}
 	private void bookmarkRemoved(String shortcut) {
 		String message = MessageFormat.format(context.getDictionary().get("bookmark.removed"), shortcut);
 
-		showNotificationPopup(message);
+		context.showNotificationPopup(message);
 		close();
 	}
 
@@ -507,7 +498,7 @@ public class MenuPresenter extends Presenter<MenuView> {
 		String shortcut = bookmark.getShortcut().toUpperCase();
 		String message = MessageFormat.format(context.getDictionary().get("bookmark.created"), shortcut);
 
-		showNotificationPopup(message);
+		context.showNotificationPopup(message);
 		close();
 	}
 

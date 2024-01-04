@@ -16,7 +16,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package org.lecturestudio.presenter.api.util;
+package org.lecturestudio.presenter.api.handler.shutdown;
 
 import static java.util.Objects.nonNull;
 

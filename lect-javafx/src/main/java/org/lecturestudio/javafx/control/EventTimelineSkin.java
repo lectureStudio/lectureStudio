@@ -149,6 +149,7 @@ public class EventTimelineSkin extends MediaTrackControlSkinBase {
 
 		pageSliders.forEach(pageSlider -> pane.getChildren().remove(pageSlider));
 		pageSliders.clear();
+
 		for (RecordedPage recPage : pages) {
 			int pageNumber = recPage.getNumber();
 
@@ -181,35 +182,58 @@ public class EventTimelineSkin extends MediaTrackControlSkinBase {
 		for (RecordedPage page : pages) {
 			List<PlaybackAction> actions = page.getPlaybackActions();
 			Integer actionStartTime = null;
-			for (PlaybackAction action : actions) {
 
-				if (action.getType() == ActionType.TOOL_BEGIN && actionStartTime == null) {
+			for (PlaybackAction action : actions) {
+				ActionType actionType = action.getType();
+
+				if (actionType == ActionType.TOOL_BEGIN && isNull(actionStartTime)) {
 					actionStartTime = action.getTimestamp();
 				}
-				else if (action.getType() == ActionType.TOOL_END && actionStartTime != null) {
+				else if (actionType == ActionType.TOOL_END && nonNull(actionStartTime)) {
 					double beginningTime = timeToXPositionFunction.applyAsDouble(actionStartTime);
 					double endTime = timeToXPositionFunction.applyAsDouble(action.getTimestamp());
+					String styleClass = getMarkerStyleClass(actionType);
 
-					Rectangle rectangle = new Rectangle(endTime - beginningTime, height / 1.5);
-					rectangle.getStyleClass().add("page-event-marker");
-					rectangle.setX(snapPositionX(beginningTime));
-					rectangle.setY(snapPositionX(height / 6));
+					addMarker(beginningTime, endTime - beginningTime, height, styleClass);
 
-					pageEventList.add(rectangle);
 					actionStartTime = null;
 				}
-				else if (action.getType() == ActionType.TEXT_SELECTION_EXT) {
-					Rectangle rectangle = new Rectangle(1, height / 1.5);
-					rectangle.getStyleClass().add("page-event-marker");
-					rectangle.setX(snapPositionX(timeToXPositionFunction.applyAsDouble(action.getTimestamp())));
-					rectangle.setY(snapPositionY(height / 6));
+				else {
+					switch (actionType) {
+						case TEXT_SELECTION_EXT, RUBBER_EXT, DELETE_ALL, ZOOM_OUT -> {
+							double x = timeToXPositionFunction.applyAsDouble(action.getTimestamp());
 
-					pageEventList.add(rectangle);
+							addMarker(x, 1, height, getMarkerStyleClass(actionType));
+						}
+					}
 				}
 			}
 		}
 		pane.getChildren().addAll(pageEventList);
 	}
+
+	private void addMarker(double x, double width, double height,
+			String styleClass) {
+		Rectangle rectangle = new Rectangle(width + 0.5, height / 1.5);
+		rectangle.getStyleClass().add(styleClass);
+		rectangle.setX(snapPositionX(x));
+		rectangle.setY(snapPositionY(height / 6));
+
+		pageEventList.add(rectangle);
+	}
+
+	private String getMarkerStyleClass(ActionType actionType) {
+		switch (actionType) {
+			case RUBBER_EXT, DELETE_ALL -> {
+				return "page-event-delete-marker";
+			}
+			default -> {
+				return "page-event-marker";
+			}
+		}
+	}
+
+
 
 	private class PageSlider extends Group implements Slider {
 
@@ -324,10 +348,10 @@ public class EventTimelineSkin extends MediaTrackControlSkinBase {
 				higherPageBound = pages.get(page.getNumber() + 1);
 			}
 
-			if (page.getTimestamp() - lowerPageBound.getTimestamp() < 10) {
+			if (page.getTimestamp() - lowerPageBound.getTimestamp() < 150) { // Allow a margin error of 150ms.
 				eventTimeline.getOnHideAndMoveNextPage().execute(lowerPageBound);
 			}
-			else if (higherPageBound.getTimestamp() - page.getTimestamp() < 10) {
+			else if (higherPageBound.getTimestamp() - page.getTimestamp() < 150) {
 				eventTimeline.getOnHidePage().execute(page);
 			}
 			else {

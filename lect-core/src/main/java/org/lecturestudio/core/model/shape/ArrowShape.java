@@ -60,7 +60,7 @@ public class ArrowShape extends LineShape {
 	}
 
 	/**
-	 * Return true if Shift is pressed (and a two sided arrow is to be created).
+	 * Return true if Shift is pressed (and a two-sided arrow is to be created).
 	 *
 	 * @return {@code true} if Shift is pressed, otherwise {@code false}.
 	 */

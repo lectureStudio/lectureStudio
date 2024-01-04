@@ -29,11 +29,11 @@ public abstract class PaintSettings {
 	private final IntegerProperty alpha = new IntegerProperty(255);
 
 
-	public PaintSettings() {
+	protected PaintSettings() {
 
 	}
 
-	public PaintSettings(PaintSettings settings) {
+	protected PaintSettings(PaintSettings settings) {
 		setAlpha(settings.getAlpha());
 		setColor(settings.getColor());
 	}

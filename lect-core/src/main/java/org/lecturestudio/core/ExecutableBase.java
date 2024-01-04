@@ -85,7 +85,7 @@ public abstract class ExecutableBase implements Executable {
 	}
 
 	/**
-	 * @throws ExecutableException if the sub-class fails to initialize this
+	 * @throws ExecutableException if the subclass fails to initialize this
 	 *                             component.
 	 */
 	protected abstract void initInternal() throws ExecutableException;
@@ -108,10 +108,10 @@ public abstract class ExecutableBase implements Executable {
 		}
     	
     	setState(ExecutableState.Started);
-    }
+	}
 
 	/**
-	 * @throws ExecutableException if the sub-class fails to start this
+	 * @throws ExecutableException if the subclass fails to start this
 	 *                             component.
 	 */
 	protected abstract void startInternal() throws ExecutableException;

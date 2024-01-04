@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.CheckBox?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.Tooltip?>
+<?import javafx.scene.layout.FlowPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.StackPane?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.text.TextFlow?>
+<fx:root styleClass="recording-import" type="StackPane" xmlns="http://javafx.com/javafx/17.0.2-ea"
+		 xmlns:fx="http://javafx.com/fxml/1">
+	<VBox maxHeight="150" maxWidth="300" styleClass="content">
+		<Label styleClass="header" text="%recording.import.title"/>
+		<FlowPane styleClass="import-options">
+			<VBox>
+				<TextFlow>
+					<Label fx:id="importInfoText" text="%recording.import.info" wrapText="true"/>
+				</TextFlow>
+			</VBox>
+			<CheckBox fx:id="normalizeNewAudioCheckBox" mnemonicParsing="false" text="%recording.import.info.normalize">
+				<tooltip>
+					<Tooltip text="%recording.import.info.normalize"/>
+				</tooltip>
+			</CheckBox>
+		</FlowPane>
+
+		<HBox alignment="BOTTOM_RIGHT" styleClass="buttons" VBox.vgrow="ALWAYS">
+			<Button fx:id="cancelButton" text="%recording.import.button.abort"/>
+
+			<Button fx:id="submitButton" defaultButton="true" text="%recording.import.button.save"/>
+		</HBox>
+	</VBox>
+</fx:root>

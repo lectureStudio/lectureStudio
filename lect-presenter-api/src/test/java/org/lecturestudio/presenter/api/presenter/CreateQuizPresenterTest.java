@@ -656,8 +656,8 @@ class CreateQuizPresenterTest extends PresenterTest {
 	public static class MockWebRtcStreamService extends WebRtcStreamService {
 
 		@Inject
-		public MockWebRtcStreamService(ApplicationContext context, WebService webService, WebServiceInfo webServiceInfo, WebRtcStreamEventRecorder eventRecorder, RecordingService recordingService) throws ExecutableException {
-			super(context, webService, webServiceInfo, eventRecorder, recordingService);
+		public MockWebRtcStreamService(ApplicationContext context, WebServiceInfo webServiceInfo, WebRtcStreamEventRecorder eventRecorder, RecordingService recordingService) throws ExecutableException {
+			super(context, webServiceInfo, eventRecorder, recordingService);
 		}
 
 		@Override

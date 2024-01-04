@@ -24,10 +24,12 @@ import java.util.ResourceBundle;
 import javax.inject.Inject;
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.JButton;
+import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
 
+import org.lecturestudio.core.beans.BooleanProperty;
 import org.lecturestudio.core.beans.ObjectProperty;
 import org.lecturestudio.core.beans.StringProperty;
 import org.lecturestudio.core.converter.RegexConverter;
@@ -44,6 +46,8 @@ import org.lecturestudio.swing.view.ViewPostConstruct;
 public class SwingStreamSettingsView extends JPanel implements StreamSettingsView {
 
 	private final ResourceBundle resources;
+
+	private JCheckBox recordStreamCheckBox;
 
 	private JTextField serverNameTextField;
 
@@ -63,6 +67,11 @@ public class SwingStreamSettingsView extends JPanel implements StreamSettingsVie
 		super();
 
 		this.resources = resources;
+	}
+
+	@Override
+	public void setRecordStream(BooleanProperty record) {
+		SwingUtils.bindBidirectional(recordStreamCheckBox, record);
 	}
 
 	@Override

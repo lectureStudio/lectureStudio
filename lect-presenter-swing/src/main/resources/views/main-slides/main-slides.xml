@@ -6,7 +6,9 @@
 				<SplitPane id="docSplitPane" dividerSize="10" resizeWeight="0" focusable="false" orientation="JSplitPane.HORIZONTAL_SPLIT">
 					<AdaptiveTabbedPane id="leftTabPane" tabPlacement="JTabbedPane.LEFT" >
 						<Tab id="participantsTab" name="participants" text="slides.participants" icon="participants.svg, 18" defaultTabType="AdaptiveTabType.PARTICIPANTS">
-							<ParticipantList id="participantList" />
+							<Panel id="participantsPanel" layout="BorderLayout">
+								<ParticipantList id="participantList" constraints="BorderLayout.CENTER" />
+							</Panel>
 						</Tab>
 						<Tab id="outlineTab" name="outline" text="menu.contents">
 							<ScrollPane id="outlinePane">
@@ -41,6 +43,9 @@
 								</ScrollPane>
 							</Panel>
 						</Panel>
+					</Tab>
+					<Tab id="slideNotesTab" name="slideNotes" text="slides.slide.notes" icon="slideNotes.svg, 20" defaultTabType="AdaptiveTabType.SLIDE_NOTES" >
+						<SlideView id="slideNotesView" />
 					</Tab>
 				</AdaptiveTabbedPane>
 			</SplitPane>

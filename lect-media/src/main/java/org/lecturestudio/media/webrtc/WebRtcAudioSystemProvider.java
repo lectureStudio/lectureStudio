@@ -21,10 +21,13 @@ package org.lecturestudio.media.webrtc;
 import static java.util.Objects.nonNull;
 
 import dev.onvoid.webrtc.media.Device;
+import dev.onvoid.webrtc.media.DeviceChangeListener;
 import dev.onvoid.webrtc.media.MediaDevices;
 
+import java.util.ArrayList;
 import java.util.List;
 
+import org.lecturestudio.core.audio.AudioDeviceChangeListener;
 import org.lecturestudio.core.audio.AudioPlayer;
 import org.lecturestudio.core.audio.AudioRecorder;
 import org.lecturestudio.core.audio.AudioSystemProvider;
@@ -38,12 +41,48 @@ import org.lecturestudio.core.audio.device.AudioDevice;
  */
 public class WebRtcAudioSystemProvider implements AudioSystemProvider {
 
+	private final List<AudioDeviceChangeListener> changeListeners = new ArrayList<>();
+
+
+	public WebRtcAudioSystemProvider() {
+		MediaDevices.addDeviceChangeListener(new DeviceChangeListener() {
+
+			@Override
+			public void deviceConnected(Device device) {
+				AudioDevice audioDevice = new AudioDevice(device.getName(), device.getDescriptor());
+
+				for (var listener : changeListeners) {
+					listener.deviceConnected(audioDevice);
+				}
+			}
+
+			@Override
+			public void deviceDisconnected(Device device) {
+				AudioDevice audioDevice = new AudioDevice(device.getName(), device.getDescriptor());
+
+				for (var listener : changeListeners) {
+					listener.deviceDisconnected(audioDevice);
+				}
+			}
+		});
+	}
+
+	@Override
+	public void addDeviceChangeListener(AudioDeviceChangeListener listener) {
+		changeListeners.add(listener);
+	}
+
+	@Override
+	public void removeDeviceChangeListener(AudioDeviceChangeListener listener) {
+		changeListeners.remove(listener);
+	}
+
 	@Override
 	public AudioDevice getDefaultRecordingDevice() {
 		var device = MediaDevices.getDefaultAudioCaptureDevice();
 
 		if (nonNull(device)) {
-			return new AudioDevice(device.getName());
+			return new AudioDevice(device.getName(), device.getDescriptor());
 		}
 
 		var devices = MediaDevices.getAudioCaptureDevices();
@@ -52,7 +91,9 @@ public class WebRtcAudioSystemProvider implements AudioSystemProvider {
 			return null;
 		}
 
-		return new AudioDevice(devices.get(0).getName());
+		device = devices.get(0);
+
+		return new AudioDevice(device.getName(), device.getDescriptor());
 	}
 
 	@Override
@@ -60,7 +101,7 @@ public class WebRtcAudioSystemProvider implements AudioSystemProvider {
 		var device = MediaDevices.getDefaultAudioRenderDevice();
 
 		if (nonNull(device)) {
-			return new AudioDevice(device.getName());
+			return new AudioDevice(device.getName(), device.getDescriptor());
 		}
 
 		var devices = MediaDevices.getAudioRenderDevices();
@@ -69,7 +110,9 @@ public class WebRtcAudioSystemProvider implements AudioSystemProvider {
 			return null;
 		}
 
-		return new AudioDevice(devices.get(0).getName());
+		device = devices.get(0);
+
+		return new AudioDevice(device.getName(), device.getDescriptor());
 	}
 
 	@Override
@@ -105,7 +148,8 @@ public class WebRtcAudioSystemProvider implements AudioSystemProvider {
 		AudioDevice[] devArray = new AudioDevice[devices.size()];
 
 		for (int i = 0; i < devArray.length; i++) {
-			devArray[i] = new AudioDevice(devices.get(i).getName());
+			var device = devices.get(i);
+			devArray[i] = new AudioDevice(device.getName(), device.getDescriptor());
 		}
 
 		return devArray;

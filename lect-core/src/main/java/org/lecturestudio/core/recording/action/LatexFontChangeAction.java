@@ -85,4 +85,13 @@ public class LatexFontChangeAction extends PlaybackAction {
 		return ActionType.LATEX_FONT_CHANGE;
 	}
 
+	@Override
+	public boolean hasHandle() {
+		return true;
+	}
+
+	@Override
+	public int getHandle() {
+		return handle;
+	}
 }

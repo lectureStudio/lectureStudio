@@ -67,8 +67,8 @@ public class RandomAccessAudioStream extends DynamicInputStream {
 		this.encoded = encoded;
 		this.inputStream = inputStream;
 
-		if (stream instanceof AudioInputStream) {
-			audioFormat = AudioUtils.createAudioFormat(((AudioInputStream) stream).getFormat());
+		if (stream instanceof AudioInputStream audioInputStream) {
+			audioFormat = AudioUtils.createAudioFormat(audioInputStream.getFormat());
 		}
 
 		streamLength = stream.available();

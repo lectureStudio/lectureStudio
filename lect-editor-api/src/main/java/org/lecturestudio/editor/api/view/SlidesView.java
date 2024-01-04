@@ -18,13 +18,19 @@
 
 package org.lecturestudio.editor.api.view;
 
+import java.util.Collection;
+
 import org.lecturestudio.core.app.ApplicationContext;
+import org.lecturestudio.core.beans.BooleanProperty;
 import org.lecturestudio.core.controller.RenderController;
 import org.lecturestudio.core.geometry.Matrix;
 import org.lecturestudio.core.input.KeyEvent;
 import org.lecturestudio.core.model.Document;
 import org.lecturestudio.core.model.Page;
+import org.lecturestudio.core.model.shape.Shape;
+import org.lecturestudio.core.stylus.StylusHandler;
 import org.lecturestudio.core.view.ConsumerAction;
+import org.lecturestudio.core.view.PageObjectView;
 import org.lecturestudio.core.view.PresentationParameter;
 import org.lecturestudio.core.view.View;
 
@@ -54,4 +60,15 @@ public interface SlidesView extends View {
 
 	void setOnViewTransform(ConsumerAction<Matrix> action);
 
+	void removeAllPageObjectViews();
+
+	Collection<PageObjectView<?>> getPageObjectViews();
+
+	void addPageObjectView(PageObjectView<Shape> objectView);
+
+	void removePageObjectView(PageObjectView<? extends Shape> objectView);
+
+	void setStylusHandler(StylusHandler handler);
+
+	void bindSeekProperty(BooleanProperty seekProperty);
 }

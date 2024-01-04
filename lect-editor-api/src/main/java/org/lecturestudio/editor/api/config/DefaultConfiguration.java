@@ -20,6 +20,7 @@ package org.lecturestudio.editor.api.config;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Locale;
 
 import org.lecturestudio.core.geometry.Dimension2D;
@@ -54,22 +55,22 @@ public class DefaultConfiguration extends EditorConfiguration {
 		getDisplayConfig().setBackgroundColor(Color.WHITE);
 
 		getToolConfig().getPenSettings().setColor(PresetColor.BLACK.getColor());
-		getToolConfig().getPenSettings().setWidth(0.02);
+		getToolConfig().getPenSettings().setWidth(0.003);
 		getToolConfig().getHighlighterSettings().setColor(PresetColor.ORANGE.getColor());
 		getToolConfig().getHighlighterSettings().setAlpha(140);
-		getToolConfig().getHighlighterSettings().setWidth(0.07);
+		getToolConfig().getHighlighterSettings().setWidth(0.011);
 		getToolConfig().getHighlighterSettings().setScale(false);
 		getToolConfig().getPointerSettings().setColor(PresetColor.RED.getColor());
 		getToolConfig().getPointerSettings().setAlpha(140);
-		getToolConfig().getPointerSettings().setWidth(0.07);
+		getToolConfig().getPointerSettings().setWidth(0.011);
 		getToolConfig().getArrowSettings().setColor(PresetColor.BLACK.getColor());
-		getToolConfig().getArrowSettings().setWidth(0.02);
+		getToolConfig().getArrowSettings().setWidth(0.003);
 		getToolConfig().getLineSettings().setColor(PresetColor.BLACK.getColor());
-		getToolConfig().getLineSettings().setWidth(0.02);
+		getToolConfig().getLineSettings().setWidth(0.003);
 		getToolConfig().getRectangleSettings().setColor(PresetColor.BLACK.getColor());
-		getToolConfig().getRectangleSettings().setWidth(0.02);
+		getToolConfig().getRectangleSettings().setWidth(0.003);
 		getToolConfig().getEllipseSettings().setColor(PresetColor.BLACK.getColor());
-		getToolConfig().getEllipseSettings().setWidth(0.02);
+		getToolConfig().getEllipseSettings().setWidth(0.003);
 		getToolConfig().getTextSelectionSettings().setColor(PresetColor.ORANGE.getColor());
 		getToolConfig().getTextSelectionSettings().setAlpha(140);
 		getToolConfig().getTextSettings().setColor(PresetColor.BLACK.getColor());
@@ -79,6 +80,8 @@ public class DefaultConfiguration extends EditorConfiguration {
 		getToolConfig().getLatexSettings().setFont(new TeXFont(TeXFont.Type.SERIF, 20));
 
 		getToolConfig().getPresetColors().addAll(new ArrayList<>(6));
+		
+		Collections.fill(getToolConfig().getPresetColors(), Color.WHITE);
 
 		getAudioConfig().setPlaybackVolume(1);
 	}

@@ -52,7 +52,7 @@ public class AudioConfiguration {
 	private final FloatProperty recordingVolume = new FloatProperty();
 
 	/** The capture device master recording volume. */
-	private final FloatProperty recordingMasterVolume = new FloatProperty();
+	private final DoubleProperty recordingMasterVolume = new DoubleProperty();
 
 	/** The playback device volume. */
 	private final DoubleProperty playbackVolume = new DoubleProperty();
@@ -210,7 +210,7 @@ public class AudioConfiguration {
 	 *
 	 * @return the capture device recording volume.
 	 */
-	public float getMasterRecordingVolume() {
+	public double getMasterRecordingVolume() {
 		return recordingMasterVolume.get();
 	}
 
@@ -220,7 +220,7 @@ public class AudioConfiguration {
 	 *
 	 * @param volume the recording volume to set.
 	 */
-	public void setMasterRecordingVolume(float volume) {
+	public void setMasterRecordingVolume(double volume) {
 		this.recordingMasterVolume.set(volume);
 	}
 
@@ -229,7 +229,7 @@ public class AudioConfiguration {
 	 *
 	 * @return the recording volume property.
 	 */
-	public FloatProperty recordingMasterVolumeProperty() {
+	public DoubleProperty recordingMasterVolumeProperty() {
 		return recordingMasterVolume;
 	}
 

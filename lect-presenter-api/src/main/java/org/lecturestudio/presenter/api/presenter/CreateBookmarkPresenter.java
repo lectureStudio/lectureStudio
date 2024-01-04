@@ -83,7 +83,7 @@ public class CreateBookmarkPresenter extends Presenter<CreateBookmarkView> {
 		String shortcut = bookmark.getShortcut().toUpperCase();
 		String message = MessageFormat.format(context.getDictionary().get("bookmark.created"), shortcut);
 
-		showNotificationPopup(message);
+		context.showNotificationPopup(message);
 		close();
 	}
 }

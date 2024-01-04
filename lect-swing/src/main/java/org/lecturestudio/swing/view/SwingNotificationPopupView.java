@@ -38,6 +38,8 @@ public class SwingNotificationPopupView extends NotificationPane implements Noti
 		super();
 
 		setBorder(new LineBorder(Color.gray, 2));
+		setBackgroundColor(Color.BLACK);
+		setForegroundColor(Color.WHITE);
 	}
 
 	@Override

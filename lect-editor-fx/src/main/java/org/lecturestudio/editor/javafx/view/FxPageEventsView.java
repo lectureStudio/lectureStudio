@@ -20,11 +20,14 @@ package org.lecturestudio.editor.javafx.view;
 
 import static java.util.Objects.nonNull;
 
-import java.util.List;
-
+import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.fxml.FXML;
 import javafx.scene.control.TableView;
+import javafx.scene.layout.Priority;
+import javafx.scene.layout.VBox;
+
+import java.util.List;
 
 import org.lecturestudio.core.beans.ObjectProperty;
 import org.lecturestudio.core.view.ConsumerAction;
@@ -44,6 +47,7 @@ public class FxPageEventsView extends ContentPane implements PageEventsView {
 	private ConsumerAction<PageEvent> deleteEventAction;
 
 	private ObjectProperty<PageEvent> selectedPageEvent;
+	private ConsumerAction<PageEvent> selectEventAction;
 
 
 	public FxPageEventsView() {
@@ -55,7 +59,7 @@ public class FxPageEventsView extends ContentPane implements PageEventsView {
 		selectedPageEvent = property;
 
 		property.addListener((observable, oldValue, newValue) -> {
-			FxUtils.invoke(() -> {
+			Platform.runLater(() -> {
 				eventsTableView.getSelectionModel().select(newValue);
 			});
 		});
@@ -63,9 +67,14 @@ public class FxPageEventsView extends ContentPane implements PageEventsView {
 
 	@Override
 	public void setPageEvents(List<PageEvent> events) {
-		FxUtils.invoke(() -> {
+		Platform.runLater(() -> {
 			eventsTableView.getItems().setAll(events);
 		});
+	}
+
+	@Override
+	public void setOnSelectEvent(ConsumerAction<PageEvent> action) {
+		this.selectEventAction = action;
 	}
 
 	@Override
@@ -82,6 +91,8 @@ public class FxPageEventsView extends ContentPane implements PageEventsView {
 
 	@FXML
 	private void initialize() {
+		VBox.setVgrow(eventsTableView, Priority.ALWAYS);
+
 		eventsTableView.setItems(FXCollections.observableArrayList());
 		eventsTableView.getSelectionModel().selectedItemProperty().addListener(observable -> {
 			PageEvent selectedItem = eventsTableView.getSelectionModel().getSelectedItem();
@@ -89,6 +100,15 @@ public class FxPageEventsView extends ContentPane implements PageEventsView {
 			if (nonNull(selectedPageEvent) && nonNull(selectedItem)) {
 				selectedPageEvent.set(selectedItem);
 			}
+		});
+
+		FxUtils.invoke(() -> {
+			eventsTableView.setOnMouseClicked(clickEvent -> {
+				if (clickEvent.getClickCount() == 2) {
+					executeAction(selectEventAction, selectedPageEvent.get());
+					clickEvent.consume();
+				}
+			});
 		});
 	}
 }

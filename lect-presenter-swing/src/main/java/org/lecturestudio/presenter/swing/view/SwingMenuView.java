@@ -103,7 +103,21 @@ public class SwingMenuView extends JMenuBar implements MenuView {
 
 	private JCheckBoxMenuItem externalNotesMenuItem;
 
+	private JCheckBoxMenuItem slideNotesMenuItem;
+
+	private JMenu slideNotesPositionMenu;
+
+	private JCheckBoxMenuItem externalSlideNotesMenuItem;
+
 	private JMenu messagesPositionMenu;
+
+	private JMenu splitNotesPositionMenu;
+
+	private JRadioButtonMenuItem splitNotesPositionRightMenuItem;
+
+	private JRadioButtonMenuItem splitNotesPositionLeftMenuItem;
+
+	private JRadioButtonMenuItem splitNotesPositionNoneMenuItem;
 
 	private JRadioButtonMenuItem messagesPositionLeftMenuItem;
 
@@ -114,6 +128,14 @@ public class SwingMenuView extends JMenuBar implements MenuView {
 	private JRadioButtonMenuItem notesPositionLeftMenuItem;
 
 	private JRadioButtonMenuItem notesPositionBottomMenuItem;
+
+	private JRadioButtonMenuItem slideNotesPositionLeftMenuItem;
+
+	private JRadioButtonMenuItem slideNotesPositionRightMenuItem;
+
+	private JRadioButtonMenuItem slideNotesPositionBottomMenuItem;
+
+	private JRadioButtonMenuItem slideNotesPositionNoneMenuItem;
 
 	private JMenu participantsPositionMenu;
 
@@ -141,6 +163,8 @@ public class SwingMenuView extends JMenuBar implements MenuView {
 
 	private JCheckBoxMenuItem enableStreamMenuItem;
 
+	private JCheckBoxMenuItem viewStreamMenuItem;
+
 	private JCheckBoxMenuItem enableStreamMicrophoneMenuItem;
 
 	private JCheckBoxMenuItem enableStreamCameraMenuItem;
@@ -150,6 +174,8 @@ public class SwingMenuView extends JMenuBar implements MenuView {
 	private JCheckBoxMenuItem showMessengerWindowMenuItem;
 
 	private JCheckBoxMenuItem showNotesWindowMenuItem;
+
+	private JCheckBoxMenuItem showSlideNotesWindowMenuItem;
 
 	private JMenuItem selectQuizMenuItem;
 
@@ -237,6 +263,7 @@ public class SwingMenuView extends JMenuBar implements MenuView {
 			notesPositionMenu.setEnabled(hasDocument);
 			participantsPositionMenu.setEnabled(hasDocument);
 			previewPositionMenu.setEnabled(hasDocument);
+			splitNotesPositionMenu.setEnabled(hasDocument);
 		});
 	}
 
@@ -380,6 +407,14 @@ public class SwingMenuView extends JMenuBar implements MenuView {
 	}
 
 	@Override
+	public void setExternalSlideNotes(boolean selected, boolean show) {
+		externalSlideNotesMenuItem.setSelected(selected);
+		externalSlideNotesMenuItem.setText(!selected || show
+				? dict.get("menu.external.slide.notes")
+				: dict.get("menu.external.slide.notes.disconnected"));
+	}
+
+	@Override
 	public void setOnExternalMessages(ConsumerAction<Boolean> action) {
 		SwingUtils.bindAction(externalMessagesMenuItem, action);
 	}
@@ -426,6 +461,11 @@ public class SwingMenuView extends JMenuBar implements MenuView {
 	@Override
 	public void setOnExternalNotes(ConsumerAction<Boolean> action) {
 		SwingUtils.bindAction(externalNotesMenuItem, action);
+	}
+
+	@Override
+	public void setOnExternalSlideNotes(ConsumerAction<Boolean> action) {
+		SwingUtils.bindAction(externalSlideNotesMenuItem, action);
 	}
 
 	@Override
@@ -477,6 +517,47 @@ public class SwingMenuView extends JMenuBar implements MenuView {
 	@Override
 	public void setNotesPositionLeft() {
 		notesPositionLeftMenuItem.setSelected(true);
+	}
+
+	@Override
+	public void setSlideNotesPositionRight() {
+		slideNotesPositionRightMenuItem.setSelected(true);
+	}
+
+	@Override
+	public void setSlideNotesPositionLeft() {
+		slideNotesPositionLeftMenuItem.setSelected(true);
+	}
+
+	@Override
+	public void setSlideNotesPositionBottom() {
+		slideNotesPositionBottomMenuItem.setSelected(true);
+	}
+
+	@Override
+	public void setSlideNotesPositionNone() {
+		slideNotesPositionNoneMenuItem.setSelected(true);
+	}
+
+
+	@Override
+	public void setOnSlideNotesPositionRight(Action action) {
+		SwingUtils.bindAction(slideNotesPositionRightMenuItem, action);
+	}
+
+	@Override
+	public void setOnSlideNotesPositionLeft(Action action) {
+		SwingUtils.bindAction(slideNotesPositionLeftMenuItem, action);
+	}
+
+	@Override
+	public void setOnSlideNotesPositionBottom(Action action) {
+		SwingUtils.bindAction(slideNotesPositionBottomMenuItem, action);
+	}
+
+	@Override
+	public void setOnSlideNotesPositionNone(Action action) {
+		SwingUtils.bindAction(slideNotesPositionNoneMenuItem, action);
 	}
 
 	@Override
@@ -544,6 +625,11 @@ public class SwingMenuView extends JMenuBar implements MenuView {
 	@Override
 	public void bindEnableStream(BooleanProperty enable) {
 		SwingUtils.bindBidirectional(enableStreamMenuItem, enable);
+	}
+
+	@Override
+	public void bindViewStream(BooleanProperty enable) {
+		SwingUtils.bindBidirectional(viewStreamMenuItem, enable);
 	}
 
 	@Override
@@ -639,6 +725,7 @@ public class SwingMenuView extends JMenuBar implements MenuView {
 		final boolean started = state == ExecutableState.Started;
 
 		SwingUtils.invoke(() -> {
+			viewStreamMenuItem.setEnabled(started);
 			enableStreamMicrophoneMenuItem.setEnabled(started);
 			enableStreamCameraMenuItem.setEnabled(started);
 
@@ -825,6 +912,36 @@ public class SwingMenuView extends JMenuBar implements MenuView {
 		SwingUtils.invoke(() -> {
 			quizIndicatorMenu.setText(Long.toString(state.answerCount));
 		});
+	}
+
+	@Override
+	public void setOnSplitNotesPositionNone(Action action) {
+		SwingUtils.bindAction(splitNotesPositionNoneMenuItem, action);
+	}
+
+	@Override
+	public void setSplitNotesPositionNone() {
+		splitNotesPositionNoneMenuItem.setSelected(true);
+	}
+
+	@Override
+	public void setOnSplitNotesPositionRight(Action action) {
+		SwingUtils.bindAction(splitNotesPositionRightMenuItem, action);
+	}
+
+	@Override
+	public void setSplitNotesPositionRight() {
+		splitNotesPositionRightMenuItem.setSelected(true);
+	}
+
+	@Override
+	public void setOnSplitNotesPositionLeft(Action action) {
+		SwingUtils.bindAction(splitNotesPositionLeftMenuItem, action);
+	}
+
+	@Override
+	public void setSplitNotesPositionLeft() {
+		splitNotesPositionLeftMenuItem.setSelected(true);
 	}
 
 	@ViewPostConstruct

@@ -20,11 +20,11 @@ package org.lecturestudio.editor.api.service;
 
 import static java.util.Objects.nonNull;
 
-import javax.inject.Inject;
-import javax.inject.Singleton;
-
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+
+import javax.inject.Inject;
+import javax.inject.Singleton;
 
 import org.lecturestudio.core.ExecutableBase;
 import org.lecturestudio.core.ExecutableException;
@@ -69,7 +69,7 @@ public class RecordingPlaybackService extends ExecutableBase {
 		this.audioSystemProvider = audioSystemProvider;
 		this.context = (EditorContext) context;
 		this.context.primarySelectionProperty().addListener((o, oldValue, newValue) -> {
-			if (initialized() || suspended()) {
+			if (initialized() || suspended() || stopped()) {
 				try {
 					seek(newValue);
 				}
@@ -82,6 +82,10 @@ public class RecordingPlaybackService extends ExecutableBase {
 
 	public Time getDuration() {
 		return nonNull(recordingPlayer) ? recordingPlayer.getDuration() : null;
+	}
+
+	public Long getElapsedTime() {
+		return nonNull(recordingPlayer) ? recordingPlayer.getElapsedTime() : null;
 	}
 
 	public void setAudioFilter(AudioFilter filter, Interval<Long> interval) {
@@ -161,6 +165,28 @@ public class RecordingPlaybackService extends ExecutableBase {
 		if (nonNull(recordingPlayer)) {
 			context.setSeeking(true);
 			recordingPlayer.seek(time);
+			context.setSeeking(false);
+		}
+	}
+
+	/**
+	 * Sets the playback to the selected time in millisecond precision.
+	 *
+	 * @param timeMs The time in milliseconds.
+	 *
+	 * @throws ExecutableException If the playback could not be set to the
+	 *                             provided timestamp.
+	 */
+	public synchronized void seek(int timeMs) throws ExecutableException {
+		if (started() || destroyed()) {
+			return;
+		}
+		if (context.isSeeking()) {
+			return;
+		}
+		if (nonNull(recordingPlayer)) {
+			context.setSeeking(true);
+			recordingPlayer.seek(timeMs);
 			context.setSeeking(false);
 		}
 	}

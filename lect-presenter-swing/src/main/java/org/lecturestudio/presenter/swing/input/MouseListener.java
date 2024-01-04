@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2020 TU Darmstadt, Department of Computer Science,
+ * Copyright (C) 2022 TU Darmstadt, Department of Computer Science,
  * Embedded Systems and Applications Group.
  *
  * This program is free software: you can redistribute it and/or modify
@@ -16,27 +16,29 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package org.lecturestudio.presenter.api.stylus;
+package org.lecturestudio.presenter.swing.input;
 
-import static java.util.Objects.nonNull;
+import java.awt.Rectangle;
+import java.awt.event.ComponentAdapter;
+import java.awt.event.ComponentEvent;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 
-import org.lecturestudio.stylus.StylusAxesData;
-import org.lecturestudio.stylus.StylusButton;
-import org.lecturestudio.stylus.StylusCursor;
-import org.lecturestudio.stylus.StylusEvent;
+import javax.swing.SwingUtilities;
 
 import org.lecturestudio.core.controller.ToolController;
 import org.lecturestudio.core.geometry.PenPoint2D;
 import org.lecturestudio.core.geometry.Rectangle2D;
 import org.lecturestudio.core.view.PresentationParameter;
+import org.lecturestudio.swing.components.SlideView;
 
-public class StylusHandler {
+public class MouseListener extends MouseAdapter {
 
 	private final ToolController toolController;
 
-	private final Runnable cursorEnteredCallback;
-
 	private final PenPoint2D point;
+
+	private final Rectangle2D viewBounds;
 
 	private PresentationParameter parameter;
 
@@ -45,46 +47,34 @@ public class StylusHandler {
 	private boolean inRubberMode;
 
 
-	public StylusHandler(ToolController toolController, Runnable cursorEnteredCallback) {
+	public MouseListener(SlideView slideView, ToolController toolController) {
 		this.toolController = toolController;
-		this.cursorEnteredCallback = cursorEnteredCallback;
+		this.viewBounds = new Rectangle2D();
 		this.point = new PenPoint2D();
+
+		slideView.addComponentListener(new ComponentAdapter() {
+
+			@Override
+			public void componentResized(ComponentEvent e) {
+				Rectangle canvasBounds = slideView.getCanvasBounds();
+
+				viewBounds.setLocation(canvasBounds.getMinX(), canvasBounds.getMinY());
+				viewBounds.setSize(canvasBounds.getWidth(), canvasBounds.getHeight());
+			}
+		});
 	}
 
-	public void setPresentationParameter(PresentationParameter parameter) {
-		this.parameter = parameter;
-	}
-
-	public void onCursorEntered() {
-		if (nonNull(cursorEnteredCallback)) {
-			cursorEnteredCallback.run();
-		}
-	}
-
-	public void onCursorChange(StylusEvent stylusEvent, Rectangle2D viewBounds) {
-		// Nothing to do, for now.
-	}
-
-	public void onCursorMove(StylusEvent stylusEvent, Rectangle2D viewBounds) {
-		if (!inExecute) {
-			return;
-		}
-
-		getPoint(stylusEvent);
-
-		toolController.executeToolAction(getPageLoc(point, viewBounds));
-	}
-
-	public void onButtonDown(StylusEvent stylusEvent, Rectangle2D viewBounds) {
+	@Override
+	public void mousePressed(MouseEvent e) {
 		if (inExecute) {
 			return;
 		}
 
 		inExecute = true;
 
-		getPoint(stylusEvent);
+		getPoint(e);
 
-		if (stylusEvent.getButton() == StylusButton.RIGHT || stylusEvent.getCursor() == StylusCursor.ERASER) {
+		if (SwingUtilities.isRightMouseButton(e)) {
 			toolController.selectRubberTool();
 			inRubberMode = true;
 		}
@@ -92,30 +82,38 @@ public class StylusHandler {
 		toolController.beginToolAction(getPageLoc(point, viewBounds));
 	}
 
-	public void onButtonUp(StylusEvent stylusEvent, Rectangle2D viewBounds) {
+	@Override
+	public void mouseReleased(MouseEvent e) {
 		inExecute = false;
 
-		getPoint(stylusEvent);
+		getPoint(e);
 
 		toolController.endToolAction(getPageLoc(point, viewBounds));
 
-		if (inRubberMode && (stylusEvent.getButton() == StylusButton.RIGHT || stylusEvent.getCursor() == StylusCursor.ERASER)) {
+		if (inRubberMode && SwingUtilities.isRightMouseButton(e)) {
 			toolController.selectPreviousTool();
 			inRubberMode = false;
 		}
 	}
 
-	private void getPoint(StylusEvent stylusEvent) {
-		StylusAxesData axesData = stylusEvent.getAxesData();
-
-		point.set(axesData.getX(), axesData.getY());
-
-		if (stylusEvent.getCursor() == StylusCursor.MOUSE) {
-			point.setPressure(1.0);
+	@Override
+	public void mouseDragged(MouseEvent e) {
+		if (!inExecute) {
+			return;
 		}
-		else {
-			point.setPressure(axesData.getPressure());
-		}
+
+		getPoint(e);
+
+		toolController.executeToolAction(getPageLoc(point, viewBounds));
+	}
+
+	public void setPresentationParameter(PresentationParameter parameter) {
+		this.parameter = parameter;
+	}
+
+	private void getPoint(MouseEvent event) {
+		point.set(event.getX(), event.getY());
+		point.setPressure(1.0);
 	}
 
 	private PenPoint2D getPageLoc(PenPoint2D point, Rectangle2D viewBounds) {
@@ -129,5 +127,4 @@ public class StylusHandler {
 
 		return new PenPoint2D(x, y, point.getPressure());
 	}
-
 }

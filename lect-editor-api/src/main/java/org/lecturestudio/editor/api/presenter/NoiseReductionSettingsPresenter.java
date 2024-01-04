@@ -56,17 +56,17 @@ import org.lecturestudio.core.presenter.Presenter;
 import org.lecturestudio.core.recording.Recording;
 import org.lecturestudio.core.view.NotificationType;
 import org.lecturestudio.editor.api.context.EditorContext;
-import org.lecturestudio.media.recording.RecordingEvent;
 import org.lecturestudio.editor.api.presenter.command.NoiseReductionProgressCommand;
 import org.lecturestudio.editor.api.service.RecordingFileService;
 import org.lecturestudio.editor.api.view.NoiseReductionSettingsView;
 import org.lecturestudio.media.audio.SpectrogramBuilder;
+import org.lecturestudio.media.recording.RecordingEvent;
 
 public class NoiseReductionSettingsPresenter extends Presenter<NoiseReductionSettingsView> {
 
-	private final static int SNIPPET_LENGTH_MS = 10000;
+	private static final int SNIPPET_LENGTH_MS = 10000;
 
-	private final static int MIN_MS_PROFILE = 100;
+	private static final int MIN_MS_PROFILE = 100;
 
 	/** Used to start AudioPlayer. */
 	private final ExecutorService executorService = Executors.newSingleThreadExecutor();
@@ -153,7 +153,7 @@ public class NoiseReductionSettingsPresenter extends Presenter<NoiseReductionSet
 		if (selectedLength < MIN_MS_PROFILE) {
 			Dictionary dict = context.getDictionary();
 
-			showNotification(NotificationType.WARNING,
+			context.showNotification(NotificationType.WARNING,
 					dict.get("noise.reduction.profile.error"),
 					MessageFormat.format(dict.get("noise.reduction.profile.min.error"),
 							MIN_MS_PROFILE));

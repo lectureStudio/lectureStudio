@@ -64,6 +64,7 @@ import org.lecturestudio.core.geometry.Rectangle2D;
 import org.lecturestudio.core.io.BitConverter;
 import org.lecturestudio.core.model.DocumentOutline;
 import org.lecturestudio.core.model.DocumentOutlineItem;
+import org.lecturestudio.core.model.NotesPosition;
 import org.lecturestudio.core.model.shape.Shape;
 import org.lecturestudio.core.pdf.DocumentAdapter;
 import org.lecturestudio.core.pdf.DocumentRenderer;
@@ -73,7 +74,7 @@ public class PDFBoxDocument implements DocumentAdapter {
 
 	private final PDFBoxRenderer renderer;
 
-	public final PDDocument doc;
+	private final PDDocument doc;
 
 	private DocumentOutline outline;
 
@@ -153,8 +154,20 @@ public class PDFBoxDocument implements DocumentAdapter {
 
 	@Override
 	public PDFGraphics2D createGraphics(int pageIndex, String name, boolean appendContent) {
-		PDPage pdPage = doc.getPage(pageIndex);
+		return createGraphics(pageIndex, name, appendContent, NotesPosition.NONE);
+	}
 
+	@Override
+	public PDFGraphics2D createGraphics(int pageIndex, String name, boolean appendContent, NotesPosition notesPosition) {
+		PDPage pdPage = doc.getPage(pageIndex);
+		if(notesPosition == NotesPosition.LEFT){
+			PDRectangle rect = pdPage.getMediaBox();
+			pdPage.setCropBox(new PDRectangle(rect.getWidth()/2, 0, rect.getWidth()/2, rect.getHeight()));
+		}
+		if(notesPosition == NotesPosition.RIGHT){
+			PDRectangle rect = pdPage.getMediaBox();
+			pdPage.setCropBox(new PDRectangle(0, 0, rect.getWidth()/2, rect.getHeight()));
+		}
 		return new PDFGraphics2D(doc, pdPage, name, appendContent);
 	}
 
@@ -179,10 +192,18 @@ public class PDFBoxDocument implements DocumentAdapter {
 	}
 
 	@Override
-	public Rectangle2D getPageBounds(int pageNumber) {
+	public Rectangle2D getPageBounds(int pageNumber, NotesPosition position) {
 		PDPage page = doc.getPage(pageNumber);
 		PDRectangle rect = page.getMediaBox();
-
+		if(position == NotesPosition.UNKNOWN){
+			position = rect.getWidth()/rect.getHeight() >=2 ? NotesPosition.RIGHT : NotesPosition.UNKNOWN;
+		}
+		if(position == NotesPosition.RIGHT){
+			return new Rectangle2D(0, 0, rect.getWidth()/2, rect.getHeight());
+		}
+		if(position == NotesPosition.LEFT){
+			return new Rectangle2D(rect.getWidth()/2, 0, rect.getWidth()/2, rect.getHeight());
+		}
 		return new Rectangle2D(0, 0, rect.getWidth(), rect.getHeight());
 	}
 
@@ -199,7 +220,7 @@ public class PDFBoxDocument implements DocumentAdapter {
 	}
 
 	@Override
-	public List<Rectangle2D> getPageWordsNormalized(int pageNumber) throws IOException {
+	public List<Rectangle2D> getPageWordsNormalized(int pageNumber, NotesPosition splitNotesPosition) throws IOException {
 		WordBoundsExtractor wordExtractor = new WordBoundsExtractor(doc);
 
 		return wordExtractor.getWordBounds(pageNumber + 1);
@@ -351,6 +372,11 @@ public class PDFBoxDocument implements DocumentAdapter {
 		page.setContents(newContents);
 	}
 
+	public void setCropbox(int pageNumber, int x, int y, int width, int height){
+		PDPage page = doc.getPage(pageNumber);
+		page.setCropBox(new PDRectangle(x, y, width, height));
+	}
+
 	public synchronized int importPage(PDFBoxDocument srcDocument, int pageNumber, AffineTransform transform) throws IOException {
 		PDDocument sourceDocument = srcDocument.doc;
 
@@ -359,6 +385,7 @@ public class PDFBoxDocument implements DocumentAdapter {
 			PDPage imported = doc.importPage(page);
 
 			imported.setResources(page.getResources());
+			imported.setMediaBox(imported.getCropBox());
 
 			if (page.getRotation() == 90) {
 				// Set rotation to zero.
@@ -627,5 +654,9 @@ public class PDFBoxDocument implements DocumentAdapter {
 	private boolean isEditableStream(PDStream stream) {
 		String name = stream.getCOSObject().getNameAsString(COSName.NAME);
 		return name != null && name.equals(PdfDocument.EMBEDDED_SHAPES_KEY);
+	}
+
+	public PDDocument getDoc() {
+		return doc;
 	}
 }

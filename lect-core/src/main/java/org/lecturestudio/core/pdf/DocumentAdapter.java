@@ -29,6 +29,7 @@ import java.util.Set;
 
 import org.lecturestudio.core.geometry.Rectangle2D;
 import org.lecturestudio.core.model.DocumentOutline;
+import org.lecturestudio.core.model.NotesPosition;
 import org.lecturestudio.core.model.shape.Shape;
 
 public interface DocumentAdapter {
@@ -64,6 +65,18 @@ public interface DocumentAdapter {
 	Graphics2D createGraphics(int pageIndex, String name, boolean appendContent);
 
 	/**
+	 * Create a {@link Graphics2D} object with the specified parameters.
+	 *
+	 * @param pageIndex The index of the PDF page to which to draw.
+	 * @param name The PDF graphics stream name.
+	 * @param appendContent {@code true} if content should be appended to the existing one, {@code false} to overwrite.
+	 * @param notesPosition The position of split slides notes
+	 *
+	 * @return The newly created {@link Graphics2D} object.
+	 */
+	Graphics2D createGraphics(int pageIndex, String name, boolean appendContent, NotesPosition notesPosition);
+
+	/**
 	 * Set the title of the document.
 	 *
 	 * @param title The title.
@@ -95,10 +108,11 @@ public interface DocumentAdapter {
 	 * Get the bounds of the page that has the specified page number.
 	 *
 	 * @param pageNumber The page number.
+	 * @param position The position of notes on a page.
 	 *
 	 * @return The bounds of the page that has the specified page number.
 	 */
-	Rectangle2D getPageBounds(int pageNumber);
+	Rectangle2D getPageBounds(int pageNumber, NotesPosition position);
 
 	/**
 	 * Get the number of pages in the document.
@@ -120,10 +134,11 @@ public interface DocumentAdapter {
 	 * Get the word bounds of the page that has the specified page number.
 	 *
 	 * @param pageNumber The page number.
+	 * @param splitNotesPosition Position of the slide notes
 	 *
 	 * @return The word bounds of the page that has the specified page number.
 	 */
-	List<Rectangle2D> getPageWordsNormalized(int pageNumber) throws IOException;
+	List<Rectangle2D> getPageWordsNormalized(int pageNumber, NotesPosition splitNotesPosition) throws IOException;
 
 	/**
 	 * Get the text bounds of the page that has the specified page number.

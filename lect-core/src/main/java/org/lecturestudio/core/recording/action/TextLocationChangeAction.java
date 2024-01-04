@@ -24,9 +24,9 @@ import java.nio.ByteBuffer;
 import org.lecturestudio.core.controller.ToolController;
 import org.lecturestudio.core.geometry.Point2D;
 
-public class TextLocationChangeAction extends PlaybackAction {
+public class TextLocationChangeAction extends PlaybackAction implements LocationModifiable {
 
-	private int handle;
+	protected int handle;
 
 	private Point2D location;
 
@@ -78,4 +78,18 @@ public class TextLocationChangeAction extends PlaybackAction {
 		return ActionType.TEXT_LOCATION_CHANGE;
 	}
 
+	@Override
+	public void moveByDelta(Point2D delta) {
+		location.subtract(delta);
+	}
+
+	@Override
+	public boolean hasHandle() {
+		return true;
+	}
+
+	@Override
+	public int getHandle() {
+		return handle;
+	}
 }

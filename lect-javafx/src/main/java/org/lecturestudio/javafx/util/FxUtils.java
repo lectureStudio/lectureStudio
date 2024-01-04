@@ -38,6 +38,7 @@ import javafx.scene.control.CheckMenuItem;
 import javafx.scene.control.MenuItem;
 import javafx.scene.control.ToggleButton;
 import javafx.scene.control.ToggleGroup;
+
 import org.lecturestudio.core.view.Action;
 import org.lecturestudio.core.view.ConsumerAction;
 
@@ -106,8 +107,8 @@ public final class FxUtils {
 		}
 
 		for (Node child : parent.getChildrenUnmodifiable()) {
-			if (child instanceof Parent) {
-				getAllNodesInParent((Parent) child, selector, results);
+			if (child instanceof Parent parentChild) {
+				getAllNodesInParent(parentChild, selector, results);
 			}
 		}
 	}

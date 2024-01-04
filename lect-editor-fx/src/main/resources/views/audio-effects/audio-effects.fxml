@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.Accordion?>
+<?import javafx.scene.control.ScrollPane?>
+<?import javafx.scene.control.TitledPane?>
+<?import org.lecturestudio.editor.javafx.view.FxLoudnessNormalizeView?>
+<?import org.lecturestudio.editor.javafx.view.FxNoiseReductionSettingsView?>
+<?import org.lecturestudio.javafx.layout.ContentPane?>
+<fx:root type="ContentPane" title="%audio.effects.title" styleClass="audio-effects"
+		 xmlns="http://javafx.com/javafx/10.0.2-internal" xmlns:fx="http://javafx.com/fxml/1">
+	<ScrollPane fitToWidth="true" fitToHeight="true" hbarPolicy="NEVER">
+		<Accordion expandedPane="$noisePane" styleClass="audio-effects-accordion">
+			<panes>
+				<TitledPane fx:id="noisePane" animated="false" text="%audio.noise.reduction.settings.title">
+					<FxNoiseReductionSettingsView/>
+				</TitledPane>
+				<TitledPane fx:id="loudnessNormalizePane" animated="false" text="%audio.loudness.normalize.title">
+					<FxLoudnessNormalizeView/>
+				</TitledPane>
+			</panes>
+		</Accordion>
+	</ScrollPane>
+</fx:root>

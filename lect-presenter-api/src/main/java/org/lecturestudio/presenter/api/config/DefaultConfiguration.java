@@ -47,6 +47,7 @@ public class DefaultConfiguration extends PresenterConfiguration {
 		setUIControlSize(10);
 		setExtendPageDimension(new Dimension2D(1.3, 1.3));
 		setStartMaximized(true);
+		setUseMouseInput(false);
 		setTabletMode(false);
 		setSaveDocumentOnClose(true);
 		setAdvancedUIMode(true);
@@ -119,6 +120,7 @@ public class DefaultConfiguration extends PresenterConfiguration {
 		getAudioConfig().setMasterRecordingVolume(1.0f);
 		getAudioConfig().setMixAudioStreams(false);
 
+		getStreamConfig().setRecordStream(false);
 		getStreamConfig().setServerName("lect.stream");
 		getStreamConfig().setAudioCodec("OPUS");
 		getStreamConfig().setAudioFormat(new AudioFormat(AudioFormat.Encoding.S16LE, 24000, 1));

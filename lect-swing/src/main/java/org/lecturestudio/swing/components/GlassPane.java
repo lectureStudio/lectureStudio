@@ -67,10 +67,16 @@ public class GlassPane extends JPanel implements KeyListener {
 
 	@Override
 	public void remove(Component comp) {
-		super.remove(comp);
+		if (comp == getComponent(0)) {
+			super.remove(comp);
 
-		if (!backlog.empty()) {
-			add(backlog.pop());
+			if (!backlog.empty()) {
+				add(backlog.pop());
+			}
+		}
+		else {
+			// Check the backlog and remove if necessary.
+			backlog.remove(comp);
 		}
 	}
 

@@ -21,18 +21,19 @@ package org.lecturestudio.presenter.swing.view;
 import static java.util.Objects.isNull;
 import static java.util.Objects.nonNull;
 
-import java.awt.*;
-import java.awt.event.*;
-import java.awt.image.BufferedImage;
-import java.text.MessageFormat;
-import java.util.*;
-import java.util.List;
-import java.util.function.Consumer;
-import java.util.function.IntSupplier;
-import java.util.Objects;
-
 import javax.inject.Inject;
-import javax.swing.*;
+import javax.swing.Box;
+import javax.swing.JButton;
+import javax.swing.JFrame;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.JSplitPane;
+import javax.swing.JTextField;
+import javax.swing.JTree;
+import javax.swing.SwingConstants;
+import javax.swing.SwingUtilities;
+import javax.swing.ToolTipManager;
 import javax.swing.event.AncestorEvent;
 import javax.swing.event.AncestorListener;
 import javax.swing.plaf.basic.BasicSplitPaneDivider;
@@ -43,6 +44,27 @@ import javax.swing.tree.DefaultTreeModel;
 import javax.swing.tree.TreeNode;
 import javax.swing.tree.TreePath;
 
+import java.awt.Component;
+import java.awt.Container;
+import java.awt.Dimension;
+import java.awt.KeyboardFocusManager;
+import java.awt.Point;
+import java.awt.Rectangle;
+import java.awt.event.ComponentAdapter;
+import java.awt.event.ComponentEvent;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
+import java.awt.image.BufferedImage;
+import java.text.MessageFormat;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Enumeration;
+import java.util.List;
+import java.util.Objects;
+import java.util.UUID;
+import java.util.function.Consumer;
+import java.util.function.IntSupplier;
+
 import org.apache.commons.lang3.StringUtils;
 
 import org.lecturestudio.core.ExecutableState;
@@ -50,30 +72,46 @@ import org.lecturestudio.core.app.dictionary.Dictionary;
 import org.lecturestudio.core.beans.BooleanProperty;
 import org.lecturestudio.core.beans.DoubleProperty;
 import org.lecturestudio.core.controller.RenderController;
+import org.lecturestudio.core.controller.ToolController;
 import org.lecturestudio.core.geometry.Matrix;
 import org.lecturestudio.core.input.KeyEvent;
 import org.lecturestudio.core.model.Document;
 import org.lecturestudio.core.model.DocumentOutline;
 import org.lecturestudio.core.model.DocumentOutlineItem;
 import org.lecturestudio.core.model.Page;
+import org.lecturestudio.core.stylus.StylusHandler;
 import org.lecturestudio.core.view.*;
-import org.lecturestudio.core.view.Action;
+import org.lecturestudio.presenter.api.config.SlideViewConfiguration;
 import org.lecturestudio.presenter.api.model.NoteBarPosition;
 import org.lecturestudio.presenter.api.model.MessageBarPosition;
-import org.lecturestudio.presenter.api.config.SlideViewConfiguration;
+import org.lecturestudio.presenter.api.model.SlideNoteBarPosition;
 import org.lecturestudio.presenter.api.service.UserPrivilegeService;
+import org.lecturestudio.presenter.api.view.SlidesView;
+import org.lecturestudio.presenter.swing.input.MouseListener;
+import org.lecturestudio.presenter.swing.input.StylusListener;
 import org.lecturestudio.presenter.swing.utils.ViewUtil;
+import org.lecturestudio.stylus.awt.AwtStylusManager;
+import org.lecturestudio.swing.components.AdaptiveTabbedPane;
+import org.lecturestudio.swing.components.ExternalFrame;
+import org.lecturestudio.swing.components.MessagePanel;
+import org.lecturestudio.swing.components.MessageView;
+import org.lecturestudio.swing.components.NotesView;
+import org.lecturestudio.swing.components.ParticipantList;
+import org.lecturestudio.swing.components.PeerView;
+import org.lecturestudio.swing.components.QuizThumbnailPanel;
+import org.lecturestudio.swing.components.ScreenThumbnailPanel;
+import org.lecturestudio.swing.components.SettingsTab;
+import org.lecturestudio.swing.components.SlideView;
+import org.lecturestudio.swing.components.SpeechRequestView;
+import org.lecturestudio.swing.components.ThumbPanel;
+import org.lecturestudio.swing.components.ThumbnailPanel;
+import org.lecturestudio.swing.components.VerticalTab;
+import org.lecturestudio.swing.components.WhiteboardThumbnailPanel;
+import org.lecturestudio.swing.converter.KeyEventConverter;
+import org.lecturestudio.swing.converter.MatrixConverter;
 import org.lecturestudio.swing.model.AdaptiveTab;
 import org.lecturestudio.swing.model.AdaptiveTabType;
 import org.lecturestudio.swing.model.ExternalWindowPosition;
-import org.lecturestudio.presenter.api.stylus.StylusHandler;
-import org.lecturestudio.presenter.api.view.SlidesView;
-import org.lecturestudio.presenter.swing.input.StylusListener;
-import org.lecturestudio.stylus.awt.AwtStylusManager;
-import org.lecturestudio.swing.components.*;
-import org.lecturestudio.swing.components.SlideView;
-import org.lecturestudio.swing.converter.KeyEventConverter;
-import org.lecturestudio.swing.converter.MatrixConverter;
 import org.lecturestudio.swing.util.AdaptiveTabbedPaneChangeListener;
 import org.lecturestudio.swing.util.SwingUtils;
 import org.lecturestudio.swing.util.VideoFrameConverter;
@@ -104,6 +142,8 @@ public class SwingSlidesView extends JPanel implements SlidesView {
 
 	private static final String NOTES_LABEL_KEY = "slides.notes";
 
+	private static final String SLIDE_NOTES_LABEL_KEY = "slides.slide.notes";
+
 	private static final String CURRENTLY_NO_SPEECH_LABEL_KEY = "slides.currently.no.speech";
 
 	private static final String MENU_LABEL_KEY = "menu.contents";
@@ -111,6 +151,8 @@ public class SwingSlidesView extends JPanel implements SlidesView {
 	private final Dictionary dict;
 
 	private final UserPrivilegeService userPrivilegeService;
+
+	private MouseListener mouseListener;
 
 	private ConsumerAction<org.lecturestudio.core.input.KeyEvent> keyAction;
 
@@ -142,6 +184,8 @@ public class SwingSlidesView extends JPanel implements SlidesView {
 
 	private ConsumerAction<Dimension> externalNotesSizeChangedAction;
 
+	private ConsumerAction<Dimension> externalSlideNotesSizeChangedAction;
+
 	private Action externalMessagesClosedAction;
 
 	private ConsumerAction<ExternalWindowPosition> externalParticipantsPositionChangedAction;
@@ -165,6 +209,10 @@ public class SwingSlidesView extends JPanel implements SlidesView {
 	private ConsumerAction<ExternalWindowPosition> externalNotesPositionChangedAction;
 
 	private Action externalNotesClosedAction;
+
+	private ConsumerAction<ExternalWindowPosition> externalSlideNotesPositionChangedAction;
+
+	private Action externalSlideNotesClosedAction;
 
 	private Action newPageAction;
 
@@ -194,6 +242,8 @@ public class SwingSlidesView extends JPanel implements SlidesView {
 
 	private SlideView slideView;
 
+	private SlideView slideNotesView;
+
 	private StylusListener stylusListener;
 
 	private BufferedImage peerViewImage;
@@ -204,11 +254,15 @@ public class SwingSlidesView extends JPanel implements SlidesView {
 
 	private AdaptiveTabbedPane rightTabPane;
 
+	private AdaptiveTabbedPane noneTabPane;
+
 	private Container peerViewContainer;
 
 	private ParticipantList participantList;
 
 	private SettingsTab messageTab;
+
+	private SettingsTab slideNotesTab;
 
 	private JScrollPane messagesPane;
 
@@ -220,9 +274,9 @@ public class SwingSlidesView extends JPanel implements SlidesView {
 
 	private AdaptiveTabbedPane bottomTabPane;
 
-	private JPanel messagesPanel;
+	private JPanel participantsPanel;
 
-	private JPanel notesPanel;
+	private JPanel messagesPanel;
 
 	private Box messageSendPanel;
 
@@ -242,9 +296,13 @@ public class SwingSlidesView extends JPanel implements SlidesView {
 
 	private ExternalFrame externalNotesFrame;
 
+	private ExternalFrame externalSlideNotesFrame;
+
 	private final JScrollPane externalMessagesPane = new JScrollPane();
 
 	private final JScrollPane externalNotesPane = new JScrollPane();
+
+	private final JScrollPane externalParticipantsPane = new JScrollPane();
 
 	private double oldDocSplitPaneDividerRatio = 0.15;
 
@@ -260,14 +318,20 @@ public class SwingSlidesView extends JPanel implements SlidesView {
 
 	private MessageBarPosition messageBarPosition = MessageBarPosition.BOTTOM;
 	private NoteBarPosition notesBarPosition = NoteBarPosition.BOTTOM;
+
+	private SlideNoteBarPosition slideNotesBarPosition = SlideNoteBarPosition.BOTTOM;
+
 	private MessageBarPosition participantsPosition = MessageBarPosition.LEFT;
 	private MessageBarPosition previewPosition = MessageBarPosition.RIGHT;
 
 	private String selectedSlideLabelText = "";
 
+	List<AdaptiveTab> noneTabs;
+
 
 	@Inject
-	SwingSlidesView(Dictionary dictionary, UserPrivilegeService userPrivilegeService) {
+	SwingSlidesView(Dictionary dictionary,
+			UserPrivilegeService userPrivilegeService) {
 		super();
 
 		this.dict = dictionary;
@@ -468,6 +532,10 @@ public class SwingSlidesView extends JPanel implements SlidesView {
 
 	@Override
 	public void setPage(Page page, PresentationParameter parameter) {
+		if (nonNull(mouseListener)) {
+			mouseListener.setPresentationParameter(parameter);
+		}
+
 		SwingUtils.invoke(() -> {
 			slideView.parameterChanged(page, parameter);
 			slideView.setPage(page);
@@ -483,10 +551,19 @@ public class SwingSlidesView extends JPanel implements SlidesView {
 	}
 
 	@Override
+	public void setSlideNotes(Page page, PresentationParameter parameter) {
+		SwingUtils.invoke(() -> {
+			slideNotesView.parameterChanged(page, parameter);
+			slideNotesView.setPage(page);
+		});
+	}
+
+	@Override
 	public void setPageRenderer(RenderController pageRenderer) {
 		this.pageRenderer = pageRenderer;
 
 		slideView.setPageRenderer(pageRenderer);
+		slideNotesView.setPageRenderer(pageRenderer);
 	}
 
 	@Override
@@ -530,11 +607,35 @@ public class SwingSlidesView extends JPanel implements SlidesView {
 	}
 
 	@Override
-	public void setStylusHandler(StylusHandler handler) {
-		stylusListener = new StylusListener(handler, slideView);
+	public void createStylusInput(StylusHandler handler) {
+		if (nonNull(mouseListener)) {
+			// Detach mouse to avoid double input.
+			slideView.removeMouseListener(mouseListener);
+			slideView.removeMouseMotionListener(mouseListener);
+		}
+
+		if (isNull(stylusListener)) {
+			stylusListener = new StylusListener(handler, slideView);
+		}
 
 		AwtStylusManager manager = AwtStylusManager.getInstance();
 		manager.attachStylusListener(slideView, stylusListener);
+	}
+
+	@Override
+	public void createMouseInput(ToolController toolController) {
+		if (nonNull(stylusListener)) {
+			// Detach stylus to avoid double input.
+			AwtStylusManager manager = AwtStylusManager.getInstance();
+			manager.detachStylusListener(slideView);
+		}
+
+		if (isNull(mouseListener)) {
+			mouseListener = new MouseListener(slideView, toolController);
+		}
+
+		slideView.addMouseListener(mouseListener);
+		slideView.addMouseMotionListener(mouseListener);
 	}
 
 	@Override
@@ -964,6 +1065,23 @@ public class SwingSlidesView extends JPanel implements SlidesView {
 		externalNotesClosedAction = action;
 	}
 
+
+	@Override
+	public void setOnExternalSlideNotesPositionChanged(ConsumerAction<ExternalWindowPosition> action) {
+		this.externalSlideNotesPositionChangedAction = action;
+	}
+
+	@Override
+	public void setOnExternalSlideNotesSizeChanged(ConsumerAction<Dimension> action) {
+		this.externalSlideNotesSizeChangedAction = action;
+	}
+
+	@Override
+	public void setOnExternalSlideNotesClosed(Action action) {
+		externalSlideNotesClosedAction = action;
+	}
+
+
 	@Override
 	public void showExternalMessages(Screen screen, Point position, Dimension size) {
 		if (externalMessagesFrame.isVisible()) {
@@ -997,33 +1115,34 @@ public class SwingSlidesView extends JPanel implements SlidesView {
 
 	@Override
 	public void showExternalParticipants(Screen screen, Point position, Dimension size) {
-//		if (externalParticipantsFrame.isVisible()) {
-//			return;
-//		}
+		if (externalParticipantsFrame.isVisible()) {
+			return;
+		}
 
-//		setParticipantsTabVisible(dict.get(PARTICIPANTS_LABEL_KEY), false);
-//
-//		participantsPane.getViewport().remove(participantsViewContainer);
-//
-//		externalParticipantsPane.getViewport().add(participantsViewContainer);
-//
-//		externalParticipantsFrame.updatePosition(screen, position, size);
-//		externalParticipantsFrame.setVisible(true);
+		setParticipantsTabVisible(dict.get(PARTICIPANTS_LABEL_KEY), false);
+
+		participantsPanel.remove(participantList);
+
+		externalParticipantsPane.getViewport().add(participantList);
+
+		externalParticipantsFrame.updatePosition(screen, position, size);
+		externalParticipantsFrame.showBody();
+		externalParticipantsFrame.setVisible(true);
 	}
 
 	@Override
 	public void hideExternalParticipants() {
-//		if (!externalParticipantsFrame.isVisible()) {
-//			return;
-//		}
+		if (!externalParticipantsFrame.isVisible()) {
+			return;
+		}
 
-//		externalParticipantsPane.getViewport().remove(participantsViewContainer);
-//
-//		externalParticipantsFrame.setVisible(false);
-//
-//		participantsPane.getViewport().add(participantsViewContainer);
-//
-//		setParticipantsTabVisible(dict.get(PARTICIPANTS_LABEL_KEY), true);
+		externalParticipantsPane.getViewport().remove(participantList);
+
+		externalParticipantsFrame.setVisible(false);
+
+		participantsPanel.add(participantList);
+
+		setParticipantsTabVisible(dict.get(PARTICIPANTS_LABEL_KEY), true);
 	}
 
 	@Override
@@ -1137,6 +1256,30 @@ public class SwingSlidesView extends JPanel implements SlidesView {
 	}
 
 	@Override
+	public void showExternalSlideNotes(Screen screen, Point position, Dimension size) {
+		if (externalSlideNotesFrame.isVisible()) {
+			return;
+		}
+
+		setSlideNotesBarTabVisible(dict.get(SLIDE_NOTES_LABEL_KEY), false);
+
+		externalSlideNotesFrame.updatePosition(screen, position, size);
+		externalSlideNotesFrame.showBody();
+		externalSlideNotesFrame.setVisible(true);
+		externalSlideNotesFrame.repaint(0, externalSlideNotesFrame.getX(),externalSlideNotesFrame.getY(), externalSlideNotesFrame.getWidth()+1, externalSlideNotesFrame.getHeight());
+	}
+
+	@Override
+	public void hideExternalSlideNotes() {
+		if (!externalSlideNotesFrame.isVisible()) {
+			return;
+		}
+		externalSlideNotesFrame.setVisible(false);
+
+		setSlideNotesBarTabVisible(dict.get(SLIDE_NOTES_LABEL_KEY), true);
+	}
+
+	@Override
 	public void setMessageBarPosition(MessageBarPosition position) {
 		switch (position) {
 			case BOTTOM -> showMessageBarBottom();
@@ -1201,6 +1344,64 @@ public class SwingSlidesView extends JPanel implements SlidesView {
 		if (prevMinimized) {
 			minimizeLeftTabPane();
 		}
+	}
+
+	@Override
+	public void setSlideNotesBarPosition(SlideNoteBarPosition position) {
+		switch (position) {
+			case RIGHT -> showSlideNoteRight();
+			case LEFT -> showSlideNoteLeft();
+			case BOTTOM -> showSlideNoteBottom();
+			case NONE -> showSlideNoteNone();
+		}
+
+		slideNotesBarPosition = position;
+	}
+
+	private void showSlideNoteRight() {
+		if (slideNotesBarPosition == SlideNoteBarPosition.RIGHT) {
+			return;
+		}
+
+		final boolean prevMinimized = isRightTabPaneMinimized();
+		rightTabPane.addTabs(removeSlideNotesBarTabs());
+
+		if (prevMinimized) {
+			minimizeRightTabPane();
+		}
+	}
+
+	private void showSlideNoteLeft() {
+		if (slideNotesBarPosition == SlideNoteBarPosition.LEFT) {
+			return;
+		}
+
+		final boolean prevMinimized = isLeftTabPaneMinimized();
+		leftTabPane.addTabs(removeSlideNotesBarTabs());
+
+		if (prevMinimized) {
+			minimizeLeftTabPane();
+		}
+	}
+
+	private void showSlideNoteBottom() {
+		if (slideNotesBarPosition == SlideNoteBarPosition.BOTTOM) {
+			return;
+		}
+		final boolean prevMinimized = isBottomTabPaneMinimized();
+
+		bottomTabPane.addTabs(removeSlideNotesBarTabs());
+
+		if (prevMinimized) {
+			minimizeBottomTabPane();
+		}
+	}
+
+	private void showSlideNoteNone() {
+		if (slideNotesBarPosition == SlideNoteBarPosition.NONE) {
+			return;
+		}
+		noneTabPane.addTabs(removeSlideNotesBarTabs());
 	}
 
 	private void showMessagesPlaceholder() {
@@ -1380,10 +1581,26 @@ public class SwingSlidesView extends JPanel implements SlidesView {
 		}
 	}
 
+	private void setParticipantsTabVisible(String labelText, boolean visible) {
+		switch (participantsPosition) {
+			case RIGHT -> setRightTabVisible(labelText, visible);
+			case LEFT -> setLeftTabVisible(labelText, visible);
+		}
+	}
+
 	private void setNotesBarTabVisible(String labelText, boolean visible) {
 		switch (notesBarPosition) {
 			case BOTTOM -> setBottomTabVisible(labelText, visible);
 			case LEFT -> setLeftTabVisible(labelText, visible);
+		}
+	}
+
+	private void setSlideNotesBarTabVisible(String labelText, boolean visible) {
+		switch (slideNotesBarPosition) {
+			case RIGHT -> setRightTabVisible(labelText, visible);
+			case LEFT -> setLeftTabVisible(labelText, visible);
+			case BOTTOM -> setBottomTabVisible(labelText, visible);
+			case NONE -> setNoneTabVisible(labelText, visible);
 		}
 	}
 
@@ -1414,6 +1631,10 @@ public class SwingSlidesView extends JPanel implements SlidesView {
 		}
 	}
 
+	private void setNoneTabVisible(String labelText, boolean visible) {
+		setTabVisible(noneTabPane, labelText, visible, null);
+	}
+
 	private void setTabVisible(AdaptiveTabbedPane tabbedPane, String labelText,
 			boolean visible, Runnable minimizeFunc) {
 		final int prevVisibleTabCount = tabbedPane.getPaneTabCount();
@@ -1422,7 +1643,7 @@ public class SwingSlidesView extends JPanel implements SlidesView {
 
 		final int visibleTabCount = tabbedPane.getPaneTabCount();
 
-		if (visibleTabCount == 0 || (prevVisibleTabCount == 0 && visibleTabCount >= 1)) {
+		if (nonNull(minimizeFunc) && (visibleTabCount == 0 || (prevVisibleTabCount == 0 && visibleTabCount >= 1))) {
 			minimizeFunc.run();
 		}
 	}
@@ -1469,7 +1690,18 @@ public class SwingSlidesView extends JPanel implements SlidesView {
 			case BOTTOM -> removedTabs.addAll(bottomTabPane.removeTabsByType(AdaptiveTabType.NOTES));
 			case LEFT -> removedTabs.addAll(leftTabPane.removeTabsByType(AdaptiveTabType.NOTES));
 		}
+		return removedTabs;
+	}
 
+	private List<AdaptiveTab> removeSlideNotesBarTabs() {
+		final ArrayList<AdaptiveTab> removedTabs = new ArrayList<>();
+
+        switch (slideNotesBarPosition) {
+			case RIGHT -> removedTabs.addAll(rightTabPane.removeTabsByType(AdaptiveTabType.SLIDE_NOTES));
+			case LEFT -> removedTabs.addAll(leftTabPane.removeTabsByType(AdaptiveTabType.SLIDE_NOTES));
+			case BOTTOM -> removedTabs.addAll(bottomTabPane.removeTabsByType(AdaptiveTabType.SLIDE_NOTES));
+            case NONE -> removedTabs.addAll(noneTabPane.removeTabsByType(AdaptiveTabType.SLIDE_NOTES));
+        }
 		return removedTabs;
 	}
 
@@ -1671,6 +1903,17 @@ public class SwingSlidesView extends JPanel implements SlidesView {
 			}
 		});
 
+
+		slideNotesView.setViewType(ViewType.Slide_Notes);
+
+		slideNotesView.addPropertyChangeListener("transform", e -> {
+			if (nonNull(viewTransformAction)) {
+				executeAction(viewTransformAction, MatrixConverter.INSTANCE.from(slideNotesView.getPageTransform()));
+			}
+		});
+
+		noneTabPane = new AdaptiveTabbedPane();
+
 		leftTabPane.addChangeListener(new AdaptiveTabbedPaneChangeListener() {
 
 			@Override
@@ -1792,13 +2035,13 @@ public class SwingSlidesView extends JPanel implements SlidesView {
 						.setSizeChangedAction(size -> executeAction(externalMessagesSizeChangedAction, size))
 						.setMinimumSize(new Dimension(500, 400)).build();
 
-//		externalParticipantsFrame =
-//				new ExternalFrame.Builder().setName(dict.get(PARTICIPANTS_LABEL_KEY)).setBody(externalParticipantsPane)
-//						.setPlaceholderText(dict.get(NO_PARTICIPANTS_LABEL_KEY)).setPositionChangedAction(
-//								position -> executeAction(externalParticipantsPositionChangedAction, position))
-//						.setClosedAction(() -> executeAction(externalParticipantsClosedAction))
-//						.setSizeChangedAction(size -> executeAction(externalParticipantsSizeChangedAction, size))
-//						.setMinimumSize(new Dimension(200, 600)).build();
+		externalParticipantsFrame =
+				new ExternalFrame.Builder().setName(dict.get(PARTICIPANTS_LABEL_KEY)).setBody(externalParticipantsPane)
+						.setPlaceholderText(dict.get(NO_PARTICIPANTS_LABEL_KEY)).setPositionChangedAction(
+								position -> executeAction(externalParticipantsPositionChangedAction, position))
+						.setClosedAction(() -> executeAction(externalParticipantsClosedAction))
+						.setSizeChangedAction(size -> executeAction(externalParticipantsSizeChangedAction, size))
+						.setMinimumSize(new Dimension(280, 600)).build();
 
 		externalSlidePreviewFrame =
 				new ExternalFrame.Builder().setName(dict.get(SLIDES_PREVIEW_LABEL_KEY)).setBody(
@@ -1823,6 +2066,19 @@ public class SwingSlidesView extends JPanel implements SlidesView {
 						.setSizeChangedAction(size -> executeAction(externalNotesSizeChangedAction, size))
 						.setMinimumSize(new Dimension(500, 400)).build();
 
+		externalSlideNotesFrame =
+				new ExternalFrame.Builder().setName(dict.get(SLIDE_NOTES_LABEL_KEY)).setBody(slideNotesView)
+						.setClosedAction(() -> executeAction(externalSlideNotesClosedAction))
+						.setPositionChangedAction(position -> executeAction(externalSlideNotesPositionChangedAction, position))
+						.setSizeChangedAction(size -> executeAction(externalSlideNotesSizeChangedAction, size))
+						.setMinimumSize(new Dimension(500, 400)).build();
+
+		slideNotesView.addComponentListener(new ComponentAdapter() {
+			@Override
+			public void componentResized(ComponentEvent e) {
+				centerSlideNotesView();
+			}
+		});
 		addAncestorListener(new AncestorListener() {
 
 			@Override
@@ -1855,9 +2111,27 @@ public class SwingSlidesView extends JPanel implements SlidesView {
 				minimizeBottomTabPane();
 			}
 		});
-
 		showMessagesPlaceholder();
 	}
+
+	private void centerSlideNotesView() {
+		SwingUtilities.invokeLater(() -> {
+			if(externalSlideNotesFrame.isVisible()){
+				Dimension size = slideNotesView.getSize();
+				Dimension viewSize = slideNotesView.getCanvasBounds().getSize();
+
+				int x = (size.width - viewSize.width) / 2;
+				int y = (size.height - viewSize.height) / 2;
+
+				slideNotesView.setSlideLocation(x, y);
+				slideNotesView.repaint();
+			}else{
+				slideNotesView.setSlideLocation(0, 0);
+				slideNotesView.repaint();
+			}
+		});
+	}
+
 
 	private void observeDividerLocation(final JSplitPane pane,
 			final DoubleProperty property) {

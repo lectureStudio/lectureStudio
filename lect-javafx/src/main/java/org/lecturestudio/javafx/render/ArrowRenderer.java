@@ -22,8 +22,8 @@ import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.paint.Color;
 import javafx.scene.transform.Affine;
 
-import org.lecturestudio.core.input.KeyEvent;
 import org.lecturestudio.core.geometry.PenPoint2D;
+import org.lecturestudio.core.input.KeyEvent;
 import org.lecturestudio.core.model.shape.ArrowShape;
 import org.lecturestudio.core.model.shape.Shape;
 import org.lecturestudio.core.render.Renderer;
@@ -66,20 +66,20 @@ public class ArrowRenderer implements Renderer<GraphicsContext> {
 
 		// Focus
 		if (shape.isSelected()) {
-			boolean bold = keyEvent != null && keyEvent.isAltDown();
-			boolean twoSided = keyEvent != null && keyEvent.isShiftDown();
+			boolean bold = ((ArrowShape) shape).isBold();
+			boolean twoSided = ((ArrowShape) shape).isTwoSided();
 
 			double penWidth = width * 0.7;
 			double scale = bold ? width * 2 : width;
 
-			PenPoint2D v1 = (PenPoint2D) p1.clone().subtract(p2).normalize().multiply(scale);
-			PenPoint2D v2 = (PenPoint2D) p2.clone().subtract(p1).normalize().multiply(scale);
+			PenPoint2D v1 = p1.clone().subtract(p2).normalize().multiply(scale);
+			PenPoint2D v2 = p2.clone().subtract(p1).normalize().multiply(scale);
 
 			if (twoSided) {
-				p1 = (PenPoint2D) p1.subtract(v1);
+				p1 = p1.subtract(v1);
 			}
 
-			p2 = (PenPoint2D) p2.subtract(v2);
+			p2 = p2.subtract(v2);
 
 			transform = context.getTransform();
 

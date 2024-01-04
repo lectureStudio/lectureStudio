@@ -25,13 +25,14 @@ import java.util.List;
 
 import org.lecturestudio.core.controller.ToolController;
 import org.lecturestudio.core.geometry.PenPoint2D;
+import org.lecturestudio.core.geometry.Point2D;
 import org.lecturestudio.core.geometry.Rectangle2D;
 import org.lecturestudio.core.graphics.Color;
 import org.lecturestudio.core.tool.TextSelectionSettings;
 import org.lecturestudio.core.tool.TextSelectionTool;
 import org.lecturestudio.core.tool.ToolType;
 
-public class TextSelectionExtAction extends PlaybackAction {
+public class TextSelectionExtAction extends PlaybackAction implements LocationModifiable {
 
 	private final List<Rectangle2D> selection = new ArrayList<>();
 
@@ -129,5 +130,18 @@ public class TextSelectionExtAction extends PlaybackAction {
 	public ActionType getType() {
 		return ActionType.TEXT_SELECTION_EXT;
 	}
+	
+	@Override
+	public boolean hasHandle() {
+		return true;
+	}
 
+	@Override
+	public int getHandle() {
+		return shapeHandle;
+	}
+
+	public void moveByDelta(Point2D delta) {
+		selection.forEach((rect) -> rect.setLocation(rect.getX() - delta.getX(), rect.getY() - delta.getY()));
+	}
 }

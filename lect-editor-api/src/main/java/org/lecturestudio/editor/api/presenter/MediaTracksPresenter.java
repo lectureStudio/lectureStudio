@@ -37,19 +37,19 @@ import org.lecturestudio.core.model.Time;
 import org.lecturestudio.core.presenter.Presenter;
 import org.lecturestudio.core.recording.RecordedAudio;
 import org.lecturestudio.core.recording.RecordedPage;
-import org.lecturestudio.core.recording.RecordingChangeEvent;
 import org.lecturestudio.core.recording.Recording;
+import org.lecturestudio.core.recording.RecordingChangeEvent;
 import org.lecturestudio.core.recording.RecordingEditException;
 import org.lecturestudio.core.recording.edit.RecordingEditManager;
 import org.lecturestudio.core.view.Action;
 import org.lecturestudio.core.view.NotificationType;
 import org.lecturestudio.editor.api.context.EditorContext;
 import org.lecturestudio.editor.api.edit.AudioTrackOverlayAction;
-import org.lecturestudio.media.recording.RecordingEvent;
 import org.lecturestudio.editor.api.presenter.command.AdjustAudioCommand;
 import org.lecturestudio.editor.api.service.RecordingFileService;
 import org.lecturestudio.editor.api.service.RecordingPlaybackService;
 import org.lecturestudio.editor.api.view.MediaTracksView;
+import org.lecturestudio.media.recording.RecordingEvent;
 import org.lecturestudio.media.track.AudioTrack;
 import org.lecturestudio.media.track.EventsTrack;
 import org.lecturestudio.media.track.MediaTrack;
@@ -133,6 +133,9 @@ public class MediaTracksPresenter extends Presenter<MediaTracksView> {
 		catch (RecordingEditException e) {
 			handleException(e, "Add edit action failed", "generic.error");
 		}
+		catch (NullPointerException exc) {
+			// Audio might be nonexistent, causing the editor to freeze and crash
+		}
 	}
 
 	@Subscribe
@@ -178,12 +181,11 @@ public class MediaTracksPresenter extends Presenter<MediaTracksView> {
 	@Subscribe
 	public void onEvent(RecordingChangeEvent event) {
 		switch (event.getContentType()) {
-			case ALL:
-			case HEADER:
+			case ALL, HEADER:
 				view.setDuration(new Time(event.getRecording().getRecordedAudio().getAudioStream().getLengthInMillis()));
 				view.stickSliders();
 				break;
-			case AUDIO, DOCUMENT, EVENTS:
+			case AUDIO, DOCUMENT, EVENTS_ADDED, EVENTS_CHANGED, EVENTS_REMOVED:
 				break;
 		}
 	}
@@ -224,10 +226,10 @@ public class MediaTracksPresenter extends Presenter<MediaTracksView> {
 		}
 
 		if (recordedPage.getTimestamp() - lowerPageBound.getTimestamp() < ONE_SECOND_IN_MILLIS) {
-			showNotification(NotificationType.DEFAULT, "move.page.duration.low.title", "move.page.duration.low.text", lowerPageBound.getNumber() + 1, String.format("%.1f", (recordedPage.getTimestamp() - lowerPageBound.getTimestamp()) / (float) ONE_SECOND_IN_MILLIS));
+			context.showNotification(NotificationType.DEFAULT, "move.page.duration.low.title", "move.page.duration.low.text", lowerPageBound.getNumber() + 1, String.format("%.1f", (recordedPage.getTimestamp() - lowerPageBound.getTimestamp()) / (float) ONE_SECOND_IN_MILLIS));
 		}
 		else if (higherPageBound.getTimestamp() - recordedPage.getTimestamp() < ONE_SECOND_IN_MILLIS) {
-			showNotification(NotificationType.DEFAULT, "move.page.duration.low.title", "move.page.duration.low.text", recordedPage.getNumber() + 1, String.format("%.1f", (higherPageBound.getTimestamp() - recordedPage.getTimestamp()) / (float) ONE_SECOND_IN_MILLIS));
+			context.showNotification(NotificationType.DEFAULT, "move.page.duration.low.title", "move.page.duration.low.text", recordedPage.getNumber() + 1, String.format("%.1f", (higherPageBound.getTimestamp() - recordedPage.getTimestamp()) / (float) ONE_SECOND_IN_MILLIS));
 		}
 
 		recordingService.movePage(recordedPage.getTimestamp(), recordedPage.getNumber())
@@ -251,11 +253,11 @@ public class MediaTracksPresenter extends Presenter<MediaTracksView> {
 							return null;
 						});
 
-		showConfirmationNotification(NotificationType.QUESTION, "hide.page.notification.title",
+		context.showConfirmationNotification(NotificationType.QUESTION, "hide.page.notification.title",
 				MessageFormat.format(context.getDictionary().get("hide.page.notification.text"), recordedPage.getNumber() + 1),
 				confirmAction, () -> {
 					CompletableFuture.runAsync(() -> {
-						recordingService.getSelectedRecording().fireChangeEvent(Recording.Content.EVENTS);
+						recordingService.getSelectedRecording().fireChangeEvent(Recording.Content.EVENTS_REMOVED);
 					});
 				},
 				"hide.page.notification.confirm", "hide.page.notification.close");
@@ -276,11 +278,11 @@ public class MediaTracksPresenter extends Presenter<MediaTracksView> {
 							return null;
 						});
 
-		showConfirmationNotification(NotificationType.QUESTION, "hide.page.notification.title",
+		context.showConfirmationNotification(NotificationType.QUESTION, "hide.page.notification.title",
 				MessageFormat.format(context.getDictionary().get("hide.page.notification.text"), recordedPage.getNumber() + 1),
 				confirmAction, () -> {
 					CompletableFuture.runAsync(() -> {
-						recordingService.getSelectedRecording().fireChangeEvent(Recording.Content.EVENTS);
+						recordingService.getSelectedRecording().fireChangeEvent(Recording.Content.EVENTS_REMOVED);
 					});
 				},
 				"hide.page.notification.confirm", "hide.page.notification.close");

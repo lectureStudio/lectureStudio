@@ -59,7 +59,7 @@ public class RecordingService extends ExecutableBase {
 
 		PresenterConfiguration config = (PresenterConfiguration) context.getConfiguration();
 		config.getAudioConfig().recordingMasterVolumeProperty().addListener((observable, oldValue, newValue) -> {
-			recorder.setAudioVolume(newValue.doubleValue());
+			recorder.setAudioVolume(newValue);
 		});
 		config.pageRecordingTimeoutProperty().addListener((o, oldValue, newValue) -> {
 			if (nonNull(newValue)) {

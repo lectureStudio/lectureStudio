@@ -95,6 +95,8 @@ public class Page {
 	/** The unique ID of this document. */
 	private UUID uid;
 
+	private boolean overlay = false;
+
 
 	/**
 	 * Create a new Page with the specified document and page number.
@@ -646,7 +648,8 @@ public class Page {
 		List<PDAnnotation> annotations;
 		List<String> annotationsAsString = new ArrayList<>();
 		try {
-			 annotations = getDocument().getPdfDocument().getPdfBoxDocument().doc.getPage(pageNumber).getAnnotations();
+			 annotations = getDocument().getPdfDocument().getPdfBoxDocument().
+					 getDoc().getPage(pageNumber).getAnnotations();
 		} catch (IOException e) {
 			throw new RuntimeException(e);
 		}
@@ -658,4 +661,11 @@ public class Page {
 		return annotationsAsString;
 	}
 
+	public boolean isOverlay() {
+		return overlay;
+	}
+
+	public void setOverlay(boolean overlay) {
+		this.overlay = overlay;
+	}
 }

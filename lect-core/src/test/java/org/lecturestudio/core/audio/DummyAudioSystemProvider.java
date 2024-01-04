@@ -18,33 +18,55 @@
 
 package org.lecturestudio.core.audio;
 
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
+
 import org.lecturestudio.core.ExecutableException;
 import org.lecturestudio.core.ExecutableState;
 import org.lecturestudio.core.ExecutableStateListener;
 import org.lecturestudio.core.audio.device.AudioDevice;
 import org.lecturestudio.core.audio.sink.AudioSink;
 import org.lecturestudio.core.audio.source.AudioSource;
+import org.lecturestudio.core.model.Time;
 
 public class DummyAudioSystemProvider implements AudioSystemProvider {
 
+	private final List<AudioDeviceChangeListener> changeListeners = new LinkedList<>();
+
+
+	@Override
+	public void addDeviceChangeListener(AudioDeviceChangeListener listener) {
+		changeListeners.add(listener);
+	}
+
+	@Override
+	public void removeDeviceChangeListener(AudioDeviceChangeListener listener) {
+		changeListeners.remove(listener);
+	}
+
 	@Override
 	public AudioDevice getDefaultRecordingDevice() {
-		return new AudioDevice("dummy");
+		return new AudioDevice("dummy", "dummy");
 	}
 
 	@Override
 	public AudioDevice getDefaultPlaybackDevice() {
-		return new AudioDevice("dummy");
+		return new AudioDevice("dummy", "dummy");
 	}
 
 	@Override
 	public AudioDevice[] getRecordingDevices() {
-		return new AudioDevice[] { new AudioDevice("dummy") };
+		return new AudioDevice[] { new AudioDevice("dummy", "dummy") };
 	}
 
 	@Override
 	public AudioDevice[] getPlaybackDevices() {
-		return new AudioDevice[] { new AudioDevice("dummy") };
+		return new AudioDevice[] { new AudioDevice("dummy", "dummy") };
 	}
 
 	@Override
@@ -63,27 +85,75 @@ public class DummyAudioSystemProvider implements AudioSystemProvider {
 	}
 
 
-
+	/**
+	 * Player that enables starting and stopping the recording.
+	 * Some functionalities depend on a running timer and can only be tested if the actual player is also running.
+	 */
 	private static class DummyPlayer implements AudioPlayer {
 
-		@Override
-		public void init() {
+		private long progress;
+		private long previousProgress;
+		private long startTime;
+		ScheduledExecutorService executor;
+		private AudioPlaybackProgressListener listener;
+		private AudioSource source;
+		private long inputSize;
+		private Time duration;
+		private List<ExecutableStateListener> stateListeners = new ArrayList<>();
 
+		private void resetDuration() {
+			this.progress = 0L;
+			this.previousProgress = 0L;
+		}
+
+		private void startTimer() {
+			this.startTime = System.currentTimeMillis();
+		}
+
+		private void pauseTimer() {
+			progress = getProgress();
+			this.previousProgress = progress;
+		}
+
+		private long getProgress() {
+			return System.currentTimeMillis() - startTime + previousProgress;
 		}
 
 		@Override
-		public void start() throws ExecutableException {
+		public void init() {
+			resetDuration();
+			executor = Executors.newScheduledThreadPool(1);
 
+			AudioFormat format = source.getAudioFormat();
+			float bytesPerMs = AudioUtils.getBytesPerSecond(format) / 1000f;
+
+			duration = new Time((long) (inputSize / bytesPerMs));
+		}
+
+		@Override
+		public void start() {
+			startTimer();
+			executor.scheduleAtFixedRate(() -> {
+				if (getProgress() < duration.getMillis()) {
+					listener.onAudioProgress(new Time(getProgress()), duration);
+				}
+				else {
+					stop();
+				}
+			}, 0, 10, TimeUnit.MILLISECONDS);
 		}
 
 		@Override
 		public void stop() {
-
+			pauseTimer();
+			resetDuration();
+			fireStop();
 		}
 
 		@Override
 		public void suspend() {
-
+			pauseTimer();
+			executor.shutdown();
 		}
 
 		@Override
@@ -96,6 +166,12 @@ public class DummyAudioSystemProvider implements AudioSystemProvider {
 			return ExecutableState.Created;
 		}
 
+		protected void fireStop() {
+			for (ExecutableStateListener listener : stateListeners) {
+				listener.onExecutableStateChange(ExecutableState.Stopping, ExecutableState.Stopped);
+			}
+		}
+
 		@Override
 		public void setAudioDeviceName(String deviceName) {
 
@@ -103,7 +179,14 @@ public class DummyAudioSystemProvider implements AudioSystemProvider {
 
 		@Override
 		public void setAudioSource(AudioSource source) {
+			this.source = source;
 
+			try {
+				this.inputSize = source.getInputSize();
+			}
+			catch (IOException e) {
+				throw new RuntimeException(e);
+			}
 		}
 
 		@Override
@@ -113,17 +196,18 @@ public class DummyAudioSystemProvider implements AudioSystemProvider {
 
 		@Override
 		public void setAudioProgressListener(AudioPlaybackProgressListener listener) {
-
+			this.listener = listener;
 		}
 
 		@Override
 		public void seek(int timeMs) {
-
+			resetDuration();
+			previousProgress = timeMs;
 		}
 
 		@Override
 		public void addStateListener(ExecutableStateListener listener) {
-
+			stateListeners.add(listener);
 		}
 
 		@Override

@@ -175,11 +175,10 @@ public class StreamProviderService extends ProviderService {
 	 * muted/enabled or not.
 	 *
 	 * @param courseId The unique course ID.
-	 * @param clientId The unique client ID for the current stream.
 	 * @param state    The current media stream state.
 	 */
-	public void updateStreamMediaState(long courseId, UUID clientId,
+	public void updateStreamMediaState(long courseId,
 			Map<MediaType, Boolean> state) {
-		streamRestClient.updateStreamMediaState(courseId, clientId, state);
+		streamRestClient.updateStreamMediaState(courseId, state);
 	}
 }

@@ -20,10 +20,10 @@ package org.lecturestudio.javafx.view;
 
 import java.util.ResourceBundle;
 
-import javax.inject.Inject;
-
 import javafx.fxml.FXML;
 import javafx.scene.layout.Region;
+
+import javax.inject.Inject;
 
 import org.lecturestudio.core.geometry.Position;
 import org.lecturestudio.core.view.Action;

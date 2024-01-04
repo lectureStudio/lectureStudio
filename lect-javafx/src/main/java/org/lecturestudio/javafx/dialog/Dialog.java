@@ -45,18 +45,18 @@ public abstract class Dialog extends Stage {
 	 *
 	 * @return root The root node of the scene graph.
 	 */
-	abstract protected Parent createRoot();
+	protected abstract Parent createRoot();
 
 
-	public Dialog(ResourceBundle resources) {
+	protected Dialog(ResourceBundle resources) {
 		this(null, resources);
 	}
 
-	public Dialog(Window owner) {
+	protected Dialog(Window owner) {
 		this(owner, null);
 	}
 
-	public Dialog(Window owner, ResourceBundle resources) {
+	protected Dialog(Window owner, ResourceBundle resources) {
 		this.resources = resources;
 
 		initStyle(StageStyle.TRANSPARENT);

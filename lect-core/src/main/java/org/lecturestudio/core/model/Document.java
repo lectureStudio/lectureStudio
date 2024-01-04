@@ -27,6 +27,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
+import java.util.stream.Stream;
 
 import org.lecturestudio.core.geometry.Dimension2D;
 import org.lecturestudio.core.geometry.Rectangle2D;
@@ -92,6 +93,11 @@ public class Document {
 	/** The unique ID of this document. */
 	private UUID uid;
 
+	/** Position of notes */
+	private NotesPosition splitSlideNotesPositon = NotesPosition.UNKNOWN;
+
+	/** Position of Notes in new Documents for export. Setting the splitSlideNotesPositon variable ends in broken PDF*/
+	private NotesPosition actualSplitSlideNotesPositon = NotesPosition.UNKNOWN;
 
 	/**
 	 * Create a new {@link Document}.
@@ -255,7 +261,7 @@ public class Document {
 	 * @return The media box of the specified page.
 	 */
 	public Rectangle2D getPageRect(int pageIndex) {
-		return pdfDocument.getPageMediaBox(pageIndex);
+		return pdfDocument.getPageMediaBox(pageIndex, splitSlideNotesPositon);
 	}
 
 	/**
@@ -277,7 +283,7 @@ public class Document {
 	 * @return A list of the text positions.
 	 */
 	public List<Rectangle2D> getTextPositions(int pageIndex) {
-		return pdfDocument.getNormalizedWordPositions(pageIndex);
+		return pdfDocument.getNormalizedWordPositions(pageIndex, splitSlideNotesPositon);
 	}
 
 	/**
@@ -725,7 +731,8 @@ public class Document {
 		pages.clear();
 
 		int pageCount = pdfDocument.getPageCount();
-
+		String[] prevSplitPageText = new String[2];
+		String[] splitPageText;
 		for (int number = 0; number < pageCount; number++) {
 			Page page = new Page(this, number);
 
@@ -736,7 +743,17 @@ public class Document {
 					page.addShape(shape);
 				}
 			}
-
+			splitPageText = page.getPageText().split("\n");
+			if(splitPageText.length >= 2 && prevSplitPageText.length >= 2 &&
+					Stream.of(prevSplitPageText[0], prevSplitPageText[1], splitPageText[0],splitPageText[1]).allMatch(Objects::nonNull)){
+				if(prevSplitPageText[0].equals(splitPageText[0]) && prevSplitPageText[1].equals(splitPageText[1])){
+					page.setOverlay(true);
+				}else{
+					prevSplitPageText = splitPageText;
+				}
+			}else {
+				prevSplitPageText = splitPageText;
+			}
 			pages.add(page);
 		}
 
@@ -745,4 +762,61 @@ public class Document {
 		}
 	}
 
+	/**
+	 * Calculates the cropbox for all pages, depending on splitSlideNotesPositon variable
+	 */
+	public void calculateCropbox(){
+		int width;
+		int height;
+		if (splitSlideNotesPositon == NotesPosition.LEFT){
+			for(int i=0; i< getPageCount(); i++){
+				width = (int) getPageRect(i).getWidth();
+				height = (int) getPageRect(i).getHeight();
+				pdfDocument.setCropbox(i, width, 0, width, height);
+			}
+		}else if (splitSlideNotesPositon == NotesPosition.RIGHT || splitSlideNotesPositon == NotesPosition.NONE){
+			for(int i=0; i< getPageCount(); i++){
+				width = (int) getPageRect(i).getWidth();
+				height = (int) getPageRect(i).getHeight();
+				pdfDocument.setCropbox(i, 0, 0, width, height);
+			}
+		}
+	}
+
+
+	/**
+	 * Get the position of the notes when the slide needs to be split
+	 *
+	 * @return position of the notes on the slide
+	 */
+	public NotesPosition getSplitSlideNotesPositon() {
+		return splitSlideNotesPositon;
+	}
+
+	/**
+	 * Sets the position of the slide notes
+	 *
+	 * @param splitSlideNotesPositon a position that doesn't depend on prediction
+	 */
+	public void setSplitSlideNotesPositon(NotesPosition splitSlideNotesPositon) {
+		this.splitSlideNotesPositon = splitSlideNotesPositon;
+	}
+
+	/**
+	 * Get the position of the notes when the slide needs to be split on exports
+	 *
+	 * @return position of the notes on the slide
+	 */
+	public NotesPosition getActualSplitSlideNotesPositon() {
+		return actualSplitSlideNotesPositon;
+	}
+
+	/**
+	 * Sets the position of the slide notes for PDF exports
+	 *
+	 * @param actualSplitSlideNotesPositon a position that doesn't depend on prediction
+	 */
+	public void setActualSplitSlideNotesPositon(NotesPosition actualSplitSlideNotesPositon) {
+		this.actualSplitSlideNotesPositon = actualSplitSlideNotesPositon;
+	}
 }

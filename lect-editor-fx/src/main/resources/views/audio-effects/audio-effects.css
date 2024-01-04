@@ -1,0 +1,12 @@
+.audio-effects-accordion > .titled-pane {
+    -fx-spacing: 5;
+}
+.audio-effects-accordion > .titled-pane > *.content {
+    -fx-border-color: null;
+    -fx-border-insets: 0;
+}
+.audio-effects-accordion > .titled-pane:focused > .title > .arrow-button > .arrow {
+    -fx-background-color: -fx-mark-color;
+    -fx-background-insets: 0;
+    -fx-effect: null;
+}

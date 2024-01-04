@@ -16,19 +16,18 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package org.lecturestudio.presenter.api.view;
+package org.lecturestudio.core.view;
 
 import static java.util.Objects.isNull;
 
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
-import java.util.HashMap;
+import java.util.EnumMap;
 import java.util.Map;
 
 import org.lecturestudio.core.model.Page;
 import org.lecturestudio.core.model.shape.Shape;
 import org.lecturestudio.core.tool.ToolType;
-import org.lecturestudio.core.view.PageObjectView;
 
 public class PageObjectRegistry {
 
@@ -36,7 +35,7 @@ public class PageObjectRegistry {
 
 
 	public PageObjectRegistry() {
-		toolViewMap = new HashMap<>();
+		toolViewMap = new EnumMap<>(ToolType.class);
 	}
 
 	public void register(ToolType toolType, Class<? extends PageObjectView<? extends Shape>> objectViewClass) throws IllegalArgumentException {

@@ -3,6 +3,7 @@ package org.lecturestudio.editor.api.view;
 import org.lecturestudio.core.model.Page;
 import org.lecturestudio.core.view.Action;
 import org.lecturestudio.core.view.ConsumerAction;
+import org.lecturestudio.media.search.SearchState;
 
 public class ReplacePageMockView implements ReplacePageView {
 	public ConsumerAction<String> setOnReplaceTypeChangeAction;
@@ -106,5 +107,25 @@ public class ReplacePageMockView implements ReplacePageView {
 	@Override
 	public void setOnReplaceTypeChange(ConsumerAction<String> action) {
 		setOnReplaceTypeChangeAction = action;
+	}
+
+	@Override
+	public void setOnSearch(ConsumerAction<String> action) {
+
+	}
+
+	@Override
+	public void setSearchState(SearchState searchState) {
+
+	}
+
+	@Override
+	public void setOnPreviousFoundPage(Action action) {
+
+	}
+
+	@Override
+	public void setOnNextFoundPage(Action action) {
+
 	}
 }

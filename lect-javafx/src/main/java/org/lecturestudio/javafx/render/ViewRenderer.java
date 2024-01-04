@@ -123,15 +123,11 @@ public class ViewRenderer {
 
 		lastShape = null;
 
-
-
 		if (shape != null) {
 			lastShape = shape;
 
 			drawShape(g, shape);
 		}
-
-
 
 		g.dispose();
 

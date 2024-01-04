@@ -27,6 +27,7 @@ import org.apache.logging.log4j.Logger;
 
 import org.lecturestudio.core.app.ApplicationContext;
 import org.lecturestudio.core.app.configuration.WhiteboardConfiguration;
+import org.lecturestudio.core.bus.event.SplitSlidesPositionEvent;
 import org.lecturestudio.core.geometry.Dimension2D;
 import org.lecturestudio.core.geometry.Rectangle2D;
 import org.lecturestudio.core.graphics.GraphicsContext;
@@ -109,7 +110,12 @@ public class RenderController extends Controller {
 			final PresentationParameterProvider ppProvider = getContext().getPagePropertyProvider(viewType);
 			final PresentationParameter parameter = ppProvider.getParameter(page);
 
-			page.getDocument().getDocumentRenderer().render(page, parameter, image);
+			if(viewType == ViewType.Slide_Notes){
+				page.getDocument().getDocumentRenderer().renderNotes(page, parameter, image);
+			}else {
+				page.getDocument().getDocumentRenderer().render(page, parameter, image);
+				getContext().getEventBus().post(new SplitSlidesPositionEvent(page.getDocument().getSplitSlideNotesPositon()));
+			}
 
 			if (page.getDocument().isWhiteboard()) {
 				renderGrid(image, parameter, viewType);

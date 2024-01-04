@@ -25,7 +25,7 @@ public class RecordingFileServiceTest extends ServiceTest {
 
 	@Override
 	@BeforeEach
-	void setupInjector() throws Exception {
+	protected void setupInjector() throws Exception {
 		injector = new GuiceInjector(new AbstractModule() {
 
 			@Provides

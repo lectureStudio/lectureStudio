@@ -26,6 +26,7 @@ import java.util.UUID;
 import org.lecturestudio.core.ExecutableState;
 import org.lecturestudio.core.beans.BooleanProperty;
 import org.lecturestudio.core.controller.RenderController;
+import org.lecturestudio.core.controller.ToolController;
 import org.lecturestudio.core.geometry.Matrix;
 import org.lecturestudio.core.input.KeyEvent;
 import org.lecturestudio.core.model.Document;
@@ -36,8 +37,9 @@ import org.lecturestudio.core.view.*;
 import org.lecturestudio.presenter.api.model.NoteBarPosition;
 import org.lecturestudio.presenter.api.model.MessageBarPosition;
 import org.lecturestudio.presenter.api.config.SlideViewConfiguration;
+import org.lecturestudio.presenter.api.model.SlideNoteBarPosition;
 import org.lecturestudio.swing.model.ExternalWindowPosition;
-import org.lecturestudio.presenter.api.stylus.StylusHandler;
+import org.lecturestudio.core.stylus.StylusHandler;
 import org.lecturestudio.web.api.event.PeerStateEvent;
 import org.lecturestudio.web.api.event.RemoteVideoFrameEvent;
 import org.lecturestudio.web.api.message.MessengerMessage;
@@ -72,6 +74,8 @@ public interface SlidesView extends View {
 
 	void setPage(Page page, PresentationParameter parameter);
 
+	void setSlideNotes(Page page, PresentationParameter parameter);
+
 	void setPageRenderer(RenderController pageRenderer);
 
 	void setOutline(DocumentOutline outline);
@@ -80,7 +84,9 @@ public interface SlidesView extends View {
 
 	void setExtendedFullscreen(boolean extended);
 
-	void setStylusHandler(StylusHandler handler);
+	void createStylusInput(StylusHandler handler);
+
+	void createMouseInput(ToolController toolController);
 
 	void setLaTeXText(String text);
 
@@ -172,6 +178,12 @@ public interface SlidesView extends View {
 
 	void setOnExternalNotesClosed(Action action);
 
+	void setOnExternalSlideNotesPositionChanged(ConsumerAction<ExternalWindowPosition> action);
+
+	void setOnExternalSlideNotesSizeChanged(ConsumerAction<Dimension> action);
+
+	void setOnExternalSlideNotesClosed(Action action);
+
 	void showExternalMessages(Screen screen, Point position, Dimension size);
 
 	void hideExternalMessages();
@@ -192,9 +204,15 @@ public interface SlidesView extends View {
 
 	void hideExternalNotes();
 
+	void showExternalSlideNotes(Screen screen, Point position, Dimension size);
+
+	void hideExternalSlideNotes();
+
 	void setMessageBarPosition(MessageBarPosition position);
 
 	void setNotesBarPosition(NoteBarPosition position);
+
+	void setSlideNotesBarPosition(SlideNoteBarPosition position);
 
 	void setParticipantsPosition(MessageBarPosition position);
 

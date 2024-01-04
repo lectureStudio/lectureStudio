@@ -18,6 +18,9 @@
 
 package org.lecturestudio.core.app;
 
+import static java.util.Objects.requireNonNull;
+
+import java.text.MessageFormat;
 import java.util.EnumMap;
 import java.util.Map;
 
@@ -25,8 +28,14 @@ import org.lecturestudio.core.app.configuration.Configuration;
 import org.lecturestudio.core.app.dictionary.Dictionary;
 import org.lecturestudio.core.beans.BooleanProperty;
 import org.lecturestudio.core.bus.EventBus;
+import org.lecturestudio.core.geometry.Position;
 import org.lecturestudio.core.model.DocumentList;
+import org.lecturestudio.core.presenter.command.ConfirmationNotificationCommand;
+import org.lecturestudio.core.presenter.command.NotificationCommand;
+import org.lecturestudio.core.presenter.command.NotificationPopupCommand;
 import org.lecturestudio.core.service.DocumentService;
+import org.lecturestudio.core.view.Action;
+import org.lecturestudio.core.view.NotificationType;
 import org.lecturestudio.core.view.PresentationParameterProvider;
 import org.lecturestudio.core.view.ViewType;
 
@@ -75,7 +84,8 @@ public abstract class ApplicationContext {
 
 
 	/**
-	 * Create a new {@link ApplicationContext} instance with the given parameters.
+	 * Create a new {@link ApplicationContext} instance with the given
+	 * parameters.
 	 *
 	 * @param dataLocator The application resource data locator.
 	 * @param config      The application configuration.
@@ -83,8 +93,9 @@ public abstract class ApplicationContext {
 	 * @param eventBus    The application event data bus.
 	 * @param audioBus    The audio event bus.
 	 */
-	protected ApplicationContext(AppDataLocator dataLocator, Configuration config,
-	                             Dictionary dict, EventBus eventBus, EventBus audioBus) {
+	protected ApplicationContext(AppDataLocator dataLocator,
+			Configuration config, Dictionary dict, EventBus eventBus,
+			EventBus audioBus) {
 		this.dataLocator = dataLocator;
 		this.configuration = config;
 		this.dictionary = dict;
@@ -96,6 +107,7 @@ public abstract class ApplicationContext {
 		ppProvider.put(ViewType.User, new PresentationParameterProvider(config));
 		ppProvider.put(ViewType.Preview, new PresentationParameterProvider(config));
 		ppProvider.put(ViewType.Presentation, new PresentationParameterProvider(config));
+		ppProvider.put(ViewType.Slide_Notes, new PresentationParameterProvider(config));
 	}
 
 	/**
@@ -162,13 +174,16 @@ public abstract class ApplicationContext {
 	}
 
 	/**
-	 * Obtain the {@link PresentationParameterProvider} for the given {@link ViewType}.
+	 * Obtain the {@link PresentationParameterProvider} for the given
+	 * {@link ViewType}.
 	 *
 	 * @param type The {@link ViewType} of the presentation provider.
 	 *
-	 * @return the {@link PresentationParameterProvider} bound to the {@link ViewType}.
+	 * @return the {@link PresentationParameterProvider} bound to the
+	 * {@link ViewType}.
 	 */
-	public PresentationParameterProvider getPagePropertyProvider(ViewType type) {
+	public PresentationParameterProvider getPagePropertyProvider(
+			ViewType type) {
 		return ppProvider.get(type);
 	}
 
@@ -188,5 +203,102 @@ public abstract class ApplicationContext {
 	 */
 	public BooleanProperty fullscreenProperty() {
 		return fullscreen;
+	}
+
+	public final void showError(String title, String message) {
+		requireNonNull(title);
+
+		showNotification(NotificationType.ERROR, title, message);
+	}
+
+	public final void showError(String title, String message,
+			Object... messageParams) {
+		showNotification(NotificationType.ERROR, title, message, messageParams);
+	}
+
+	public final void showNotification(NotificationType type, String title,
+			String message) {
+		if (getDictionary().contains(title)) {
+			title = getDictionary().get(title);
+		}
+		if (getDictionary().contains(message)) {
+			message = getDictionary().get(message);
+		}
+
+		getEventBus().post(new NotificationCommand(type, title, message));
+	}
+
+	public final void showNotification(NotificationType type, String title,
+			String message, Object... messageParams) {
+		if (getDictionary().contains(message)) {
+			message = getDictionary().get(message);
+		}
+
+		message = MessageFormat.format(message, messageParams);
+
+		showNotification(type, title, message);
+	}
+
+	public final void showNotificationPopup(String title) {
+		showNotificationPopup(title, null);
+	}
+
+	public final void showNotificationPopup(String title, String message) {
+		if (getDictionary().contains(title)) {
+			title = getDictionary().get(title);
+		}
+		if (getDictionary().contains(message)) {
+			message = getDictionary().get(message);
+		}
+
+		getEventBus().post(new NotificationPopupCommand(Position.TOP_RIGHT,
+				title, message));
+	}
+
+	/**
+	 * Opens a notification pop with an accept and decline option.
+	 *
+	 * @param type          The Notification Type
+	 * @param title         The title of the notification
+	 * @param message       The message of the notification
+	 * @param confirmAction The action when the user clicks the confirm button
+	 * @param discardAction The action when the user clicks the close button
+	 */
+	public final void showConfirmationNotification(NotificationType type,
+			String title, String message, Action confirmAction,
+			Action discardAction) {
+		showConfirmationNotification(type, title, message, confirmAction,
+				discardAction, "button.confirm", "button.close");
+	}
+
+	/**
+	 * Opens a notification pop with an accept and decline option.
+	 *
+	 * @param type          The Notification Type
+	 * @param title         The title of the notification
+	 * @param message       The message of the notification
+	 * @param confirmAction The action when the user clicks the confirm button
+	 * @param discardAction The action when the user clicks the close button
+	 */
+	public final void showConfirmationNotification(NotificationType type,
+			String title, String message, Action confirmAction,
+			Action discardAction, String confirmButtonText,
+			String discardButtonText) {
+		if (getDictionary().contains(title)) {
+			title = getDictionary().get(title);
+		}
+		if (getDictionary().contains(message)) {
+			message = getDictionary().get(message);
+		}
+		if (getDictionary().contains(confirmButtonText)) {
+			confirmButtonText = getDictionary().get(confirmButtonText);
+		}
+		if (getDictionary().contains(discardButtonText)) {
+			discardButtonText = getDictionary().get(discardButtonText);
+		}
+
+		getEventBus().post(new ConfirmationNotificationCommand(type, title,
+				message, confirmAction,	discardAction, confirmButtonText,
+				discardButtonText));
 	}
 }

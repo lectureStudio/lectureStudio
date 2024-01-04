@@ -33,16 +33,16 @@ public abstract class StrokeTool<T extends Shape> extends Tool {
 	protected Integer shapeHandle;
 
 
-	abstract protected PlaybackAction createPlaybackAction();
+	protected abstract PlaybackAction createPlaybackAction();
 
-	abstract protected T createShape();
+	protected abstract T createShape();
 
 
-	public StrokeTool(ToolContext context) {
+	protected StrokeTool(ToolContext context) {
 		super(context);
 	}
 
-	public StrokeTool(ToolContext context, Integer shapeHandle) {
+	protected StrokeTool(ToolContext context, Integer shapeHandle) {
 		super(context);
 
 		this.shapeHandle = shapeHandle;
@@ -96,7 +96,7 @@ public abstract class StrokeTool<T extends Shape> extends Tool {
 
 		Stroke stroke = new Stroke();
 		stroke.setColor(settings.getColor().derive(settings.getAlpha()));
-		stroke.setWidth(settings.getWidth());
+		stroke.setWidth(settings.getWidth() * settings.getStrokeWidthSettings().getMultiplier());
 
 		return stroke;
 	}

@@ -26,7 +26,6 @@ import com.google.common.eventbus.Subscribe;
 import java.awt.Container;
 import java.awt.Dimension;
 import java.awt.GraphicsConfiguration;
-import java.awt.GraphicsDevice;
 import java.awt.Rectangle;
 import java.awt.Window;
 import java.awt.event.ComponentAdapter;
@@ -260,9 +259,13 @@ public class PresentationWindow extends AbstractWindow implements SlidePresentat
 
 	private Rectangle transformScreenBounds(Screen screen) {
 		Rectangle screenBounds = RectangleConverter.INSTANCE.to(screen.getBounds());
+		GraphicsConfiguration gfxConfig = Screens.getGraphicsConfiguration(screen);
 
-		GraphicsDevice dev = Screens.getDefaultScreenDevice();
-		AffineTransform defaultTx = dev.getDefaultConfiguration().getDefaultTransform();
+		if (isNull(gfxConfig)) {
+			throw new RuntimeException("GraphicsConfiguration does not exist for screen: " + screen);
+		}
+
+		AffineTransform defaultTx = gfxConfig.getDefaultTransform();
 
 		// Main screen / current screen scale ratio.
 		double sx = defaultTx.getScaleX();

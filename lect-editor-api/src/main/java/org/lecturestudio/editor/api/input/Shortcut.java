@@ -30,11 +30,8 @@ public enum Shortcut {
 	DOC_OPEN(KeyCode.O, KeyEvent.CTRL_MASK),
 	DOC_CLOSE(KeyCode.F4, KeyEvent.CTRL_MASK),
 
-	SLIDE_NEXT_RIGHT(KeyCode.RIGHT),
 	SLIDE_NEXT_DOWN(KeyCode.DOWN),
 	SLIDE_NEXT_PAGE_DOWN(KeyCode.PAGE_DOWN),
-	SLIDE_NEXT_SPACE(KeyCode.SPACE),
-	SLIDE_PREVIOUS_LEFT(KeyCode.LEFT),
 	SLIDE_PREVIOUS_UP(KeyCode.UP),
 	SLIDE_PREVIOUS_PAGE_UP(KeyCode.PAGE_UP),
 	SLIDE_NEW(KeyCode.F9),
@@ -42,7 +39,15 @@ public enum Shortcut {
 
 	UNDO(KeyCode.Z, KeyEvent.CTRL_MASK),
 	REDO(KeyCode.Y, KeyEvent.CTRL_MASK),
-	CUT(KeyCode.X, KeyEvent.CTRL_MASK);
+	CUT(KeyCode.X, KeyEvent.CTRL_MASK),
+
+
+	SLIDE_MOVE_RIGHT(KeyCode.RIGHT),
+	SLIDE_MOVE_LEFT(KeyCode.LEFT),
+
+	PLAYBACK_PAUSE_PLAY_SPACE(KeyCode.SPACE),
+	PLAYBACK_BEGINNING_POS_1(KeyCode.HOME),
+	PLAYBACK_END_END(KeyCode.END);
 
 
 	private final KeyEvent keyEvent;

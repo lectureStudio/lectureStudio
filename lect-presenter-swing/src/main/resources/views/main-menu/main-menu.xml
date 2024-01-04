@@ -24,6 +24,7 @@
 			<checkboxmenuitem id="externalSlidePreviewMenuItem" text="menu.external.slide.preview" />
 			<checkboxmenuitem id="externalSpeechMenuItem" text="menu.external.speech" />
 			<checkboxmenuitem id="externalNotesMenuItem" text="menu.external.notes" />
+			<checkboxmenuitem id="externalSlideNotesMenuItem" text="menu.external.slide.notes" />
 		</menu>
 		<menu id="messagesPositionMenu" text="menu.messages.position">
 			<buttongroup>
@@ -38,6 +39,14 @@
 				<radiobuttonmenuitem id="notesPositionBottomMenuItem" text="menu.bottom" />
 			</buttongroup>
 		</menu>
+		<menu id="slideNotesPositionMenu" text="menu.slide.notes.position">
+			<buttongroup>
+				<radiobuttonmenuitem id="slideNotesPositionRightMenuItem" text="menu.right" />
+				<radiobuttonmenuitem id="slideNotesPositionLeftMenuItem" text="menu.left" />
+				<radiobuttonmenuitem id="slideNotesPositionBottomMenuItem" text="menu.bottom" />
+				<radiobuttonmenuitem id="slideNotesPositionNoneMenuItem" text="menu.none" />
+			</buttongroup>
+		</menu>
 		<menu id="participantsPositionMenu" text="menu.participants.position">
 			<buttongroup>
 				<radiobuttonmenuitem id="participantsPositionLeftMenuItem" text="menu.left" />
@@ -48,6 +57,13 @@
 			<buttongroup>
 				<radiobuttonmenuitem id="previewPositionLeftMenuItem" text="menu.left" />
 				<radiobuttonmenuitem id="previewPositionRightMenuItem" text="menu.right" />
+			</buttongroup>
+		</menu>
+		<menu id="splitNotesPositionMenu" text="menu.splitNotes.position">
+			<buttongroup>
+				<radiobuttonmenuitem id="splitNotesPositionRightMenuItem" text="menu.right" />
+				<radiobuttonmenuitem id="splitNotesPositionLeftMenuItem" text="menu.left" />
+				<radiobuttonmenuitem id="splitNotesPositionNoneMenuItem" text="menu.none" />
 			</buttongroup>
 		</menu>
 	</menu>
@@ -64,6 +80,7 @@
 		<menuitem id="stopRecordingMenuItem" text="menu.recording.stop" enabled="false" />
 		<separator />
 		<checkboxmenuitem id="enableStreamMenuItem" text="menu.stream.start" enabled="false" />
+		<checkboxmenuitem id="viewStreamMenuItem" text="menu.stream.view" type="checkbox" selected="false" enabled="false" />
 		<checkboxmenuitem id="enableStreamMicrophoneMenuItem" text="menu.stream.microphone.start" type="checkbox" selected="true" enabled="false" />
 		<checkboxmenuitem id="enableStreamCameraMenuItem" text="menu.stream.camera.start" type="checkbox" selected="true" enabled="false" />
 		<separator />

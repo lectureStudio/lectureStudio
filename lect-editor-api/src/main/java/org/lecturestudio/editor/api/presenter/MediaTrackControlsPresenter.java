@@ -39,6 +39,7 @@ import org.lecturestudio.core.bus.event.DocumentEvent;
 import org.lecturestudio.core.model.Document;
 import org.lecturestudio.core.model.Interval;
 import org.lecturestudio.core.presenter.Presenter;
+import org.lecturestudio.core.presenter.command.ShowPresenterCommand;
 import org.lecturestudio.core.util.FileUtils;
 import org.lecturestudio.core.view.FileChooserView;
 import org.lecturestudio.core.view.ViewContextFactory;
@@ -47,11 +48,11 @@ import org.lecturestudio.editor.api.model.ZoomConstraints;
 import org.lecturestudio.editor.api.presenter.command.AdjustAudioCommand;
 import org.lecturestudio.editor.api.presenter.command.ReplacePageCommand;
 import org.lecturestudio.editor.api.presenter.command.SplitAndSaveRecordingCommand;
-import org.lecturestudio.media.search.SearchService;
-import org.lecturestudio.media.search.SearchState;
 import org.lecturestudio.editor.api.service.RecordingFileService;
 import org.lecturestudio.editor.api.service.RecordingPlaybackService;
 import org.lecturestudio.editor.api.view.MediaTrackControlsView;
+import org.lecturestudio.media.search.SearchService;
+import org.lecturestudio.media.search.SearchState;
 
 public class MediaTrackControlsPresenter extends Presenter<MediaTrackControlsView> {
 
@@ -80,7 +81,7 @@ public class MediaTrackControlsPresenter extends Presenter<MediaTrackControlsVie
 		this.recordingService = recordingService;
 		this.playbackService = playbackService;
 		this.searchService = searchService;
-		this.zoomConstraints = new ZoomConstraints(1, 25);
+		this.zoomConstraints = new ZoomConstraints(1, 50);
 	}
 
 	@Override
@@ -247,13 +248,12 @@ public class MediaTrackControlsPresenter extends Presenter<MediaTrackControlsVie
 		File file = fileChooser.showOpenFile(view);
 
 		if (nonNull(file)) {
-			EditorContext editorContext = (EditorContext) context;
-
-			recordingService.importRecording(file, editorContext.getPrimarySelection())
-					.exceptionally(throwable -> {
-						handleException(throwable, "Open recording failed", "open.recording.error", file.getPath());
-						return null;
-					});
+			context.getEventBus().post(new ShowPresenterCommand<>(ImportRecordingPresenter.class) {
+				@Override
+				public void execute(ImportRecordingPresenter presenter) {
+					presenter.setFile(file);
+				}
+			});
 		}
 	}
 

@@ -21,9 +21,10 @@ package org.lecturestudio.presenter.api.presenter;
 import static java.util.Objects.isNull;
 import static java.util.Objects.nonNull;
 
-import com.google.common.eventbus.Subscribe;
+import javax.inject.Inject;
 
-import java.awt.*;
+import java.awt.Color;
+import java.awt.Desktop;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Path;
@@ -38,7 +39,7 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-import javax.inject.Inject;
+import com.google.common.eventbus.Subscribe;
 
 import org.lecturestudio.core.ExecutableException;
 import org.lecturestudio.core.ExecutableState;
@@ -48,12 +49,10 @@ import org.lecturestudio.core.app.dictionary.Dictionary;
 import org.lecturestudio.core.audio.AudioDeviceNotConnectedException;
 import org.lecturestudio.core.beans.ObjectProperty;
 import org.lecturestudio.core.bus.EventBus;
-import org.lecturestudio.core.bus.event.CustomizeToolbarEvent;
-import org.lecturestudio.core.bus.event.DocumentEvent;
-import org.lecturestudio.core.bus.event.PageEvent;
-import org.lecturestudio.core.bus.event.ViewVisibleEvent;
+import org.lecturestudio.core.bus.event.*;
 import org.lecturestudio.core.controller.ToolController;
 import org.lecturestudio.core.model.Document;
+import org.lecturestudio.core.model.NotesPosition;
 import org.lecturestudio.core.model.Page;
 import org.lecturestudio.core.model.RecentDocument;
 import org.lecturestudio.core.model.listener.PageEditEvent;
@@ -67,12 +66,40 @@ import org.lecturestudio.core.service.DocumentService;
 import org.lecturestudio.core.util.FileUtils;
 import org.lecturestudio.core.util.ListChangeListener;
 import org.lecturestudio.core.util.ObservableList;
-import org.lecturestudio.core.view.*;
+import org.lecturestudio.core.view.FileChooserView;
+import org.lecturestudio.core.view.PresentationParameter;
+import org.lecturestudio.core.view.PresentationParameterProvider;
+import org.lecturestudio.core.view.View;
+import org.lecturestudio.core.view.ViewContextFactory;
+import org.lecturestudio.core.view.ViewType;
 import org.lecturestudio.presenter.api.config.PresenterConfiguration;
 import org.lecturestudio.presenter.api.config.SlideViewConfiguration;
 import org.lecturestudio.presenter.api.context.PresenterContext;
-import org.lecturestudio.presenter.api.event.*;
-import org.lecturestudio.presenter.api.model.*;
+import org.lecturestudio.presenter.api.event.ExternalMessagesViewEvent;
+import org.lecturestudio.presenter.api.event.ExternalNotesViewEvent;
+import org.lecturestudio.presenter.api.event.ExternalSlideNotesViewEvent;
+import org.lecturestudio.presenter.api.event.ExternalParticipantsViewEvent;
+import org.lecturestudio.presenter.api.event.ExternalSlidePreviewViewEvent;
+import org.lecturestudio.presenter.api.event.ExternalSpeechViewEvent;
+import org.lecturestudio.presenter.api.event.MessageBarPositionEvent;
+import org.lecturestudio.presenter.api.event.MessengerStateEvent;
+import org.lecturestudio.presenter.api.event.NotesBarPositionEvent;
+import org.lecturestudio.presenter.api.event.SlideNotesBarPositionEvent;
+import org.lecturestudio.presenter.api.event.ParticipantsPositionEvent;
+import org.lecturestudio.presenter.api.event.PreviewPositionEvent;
+import org.lecturestudio.presenter.api.event.QuizStateEvent;
+import org.lecturestudio.presenter.api.event.RecordingStateEvent;
+import org.lecturestudio.presenter.api.event.RecordingTimeEvent;
+import org.lecturestudio.presenter.api.event.StreamReconnectStateEvent;
+import org.lecturestudio.presenter.api.event.StreamingStateEvent;
+import org.lecturestudio.presenter.api.model.Bookmark;
+import org.lecturestudio.presenter.api.model.BookmarkKeyException;
+import org.lecturestudio.presenter.api.model.Bookmarks;
+import org.lecturestudio.presenter.api.model.BookmarksListener;
+import org.lecturestudio.presenter.api.model.MessageBarPosition;
+import org.lecturestudio.presenter.api.model.NoteBarPosition;
+import org.lecturestudio.presenter.api.model.SlideNoteBarPosition;
+import org.lecturestudio.presenter.api.model.Stopwatch;
 import org.lecturestudio.presenter.api.presenter.command.StopwatchCommand;
 import org.lecturestudio.presenter.api.service.BookmarkService;
 import org.lecturestudio.presenter.api.service.QuizWebServiceState;
@@ -204,6 +231,15 @@ public class MenuPresenter extends Presenter<MenuView> {
 	}
 
 	@Subscribe
+	public void onEvent(final SplitSlidesPositionEvent event){
+		switch (event.getNotesPosition()){
+			case RIGHT -> view.setSplitNotesPositionRight();
+			case LEFT -> view.setSplitNotesPositionLeft();
+			case NONE -> view.setSplitNotesPositionNone();
+		}
+	}
+
+	@Subscribe
 	public void onEvent(final ExternalMessagesViewEvent event) {
 		view.setExternalMessages(event.isEnabled(), event.isShow());
 	}
@@ -228,12 +264,21 @@ public class MenuPresenter extends Presenter<MenuView> {
 		view.setExternalNotes(event.isEnabled(), event.isShow());
 	}
 
+	@Subscribe
+	public void onEvent(final ExternalSlideNotesViewEvent event) {
+		view.setExternalSlideNotes(event.isEnabled(), event.isShow());
+	}
+
+	public void positionSplitNotes(NotesPosition position){
+		documentService.selectNotesPosition(position);
+	}
+
 	public void openBookmark(Bookmark bookmark) {
 		try {
 			bookmarkService.gotoBookmark(bookmark);
 		}
 		catch (BookmarkKeyException e) {
-			showError("bookmark.goto.error", "bookmark.key.not.existing", bookmark.getShortcut());
+			context.showError("bookmark.goto.error", "bookmark.key.not.existing", bookmark.getShortcut());
 		}
 		catch (Exception e) {
 			handleException(e, "Go to bookmark failed", "bookmark.goto.error");
@@ -310,12 +355,20 @@ public class MenuPresenter extends Presenter<MenuView> {
 		eventBus.post(new ExternalNotesViewEvent(selected));
 	}
 
+	public void externalSlideNotes(boolean selected) {
+		eventBus.post(new ExternalSlideNotesViewEvent(selected));
+	}
+
 	public void positionMessages(MessageBarPosition position) {
 		eventBus.post(new MessageBarPositionEvent(position));
 	}
 
 	public void positionNotes(NoteBarPosition position) {
 		eventBus.post(new NotesBarPositionEvent(position));
+	}
+
+	public void positionSlideNotes(SlideNoteBarPosition position) {
+		eventBus.post(new SlideNotesBarPositionEvent(position));
 	}
 
 	public void positionParticipants(MessageBarPosition position) {
@@ -355,7 +408,7 @@ public class MenuPresenter extends Presenter<MenuView> {
 			Throwable cause = nonNull(e.getCause()) ? e.getCause().getCause() : null;
 
 			if (cause instanceof AudioDeviceNotConnectedException ex) {
-				showError("recording.start.error", "recording.start.device.error", ex.getDeviceName());
+				context.showError("recording.start.error", "recording.start.device.error", ex.getDeviceName());
 			}
 			else {
 				handleException(e, "Start recording failed", "recording.start.error");
@@ -576,6 +629,7 @@ public class MenuPresenter extends Presenter<MenuView> {
 		view.setOnExternalSlidePreview(this::externalSlidePreview);
 		view.setOnExternalSpeech(this::externalSpeech);
 		view.setOnExternalNotes(this::externalNotes);
+		view.setOnExternalSlideNotes(this::externalSlideNotes);
 
 		switch (slideViewConfig.getMessageBarPosition()) {
 			case LEFT -> view.setMessagesPositionLeft();
@@ -594,6 +648,18 @@ public class MenuPresenter extends Presenter<MenuView> {
 
 		view.setOnNotesPositionLeft(() -> positionNotes(NoteBarPosition.LEFT));
 		view.setOnNotesPositionBottom(() -> positionNotes(NoteBarPosition.BOTTOM));
+
+		switch (slideViewConfig.getSlideNotesBarPosition()) {
+			case RIGHT -> view.setSlideNotesPositionRight();
+			case LEFT -> view.setSlideNotesPositionLeft();
+			case BOTTOM -> view.setSlideNotesPositionBottom();
+			case NONE -> view.setSlideNotesPositionNone();
+		}
+
+		view.setOnSlideNotesPositionRight(() -> positionSlideNotes(SlideNoteBarPosition.RIGHT));
+		view.setOnSlideNotesPositionLeft(() -> positionSlideNotes(SlideNoteBarPosition.LEFT));
+		view.setOnSlideNotesPositionBottom(() -> positionSlideNotes(SlideNoteBarPosition.BOTTOM));
+		view.setOnSlideNotesPositionNone(() -> positionSlideNotes(SlideNoteBarPosition.NONE));
 
 		switch (slideViewConfig.getParticipantsPosition()) {
 			case LEFT -> view.setParticipantsPositionLeft();
@@ -618,6 +684,7 @@ public class MenuPresenter extends Presenter<MenuView> {
 		view.setOnStartRecording(this::startRecording);
 		view.setOnStopRecording(this::stopRecording);
 		view.bindEnableStream(presenterContext.streamStartedProperty());
+		view.bindViewStream(presenterContext.viewStreamProperty());
 		view.bindEnableStreamingMicrophone(config.getStreamConfig().enableMicrophoneProperty());
 		view.bindEnableStreamingCamera(config.getStreamConfig().enableCameraProperty());
 		view.bindEnableMessenger(presenterContext.messengerStartedProperty());
@@ -727,6 +794,10 @@ public class MenuPresenter extends Presenter<MenuView> {
 				}
 			}
 		}, 0, 1000);
+		view.setOnSplitNotesPositionNone(() -> positionSplitNotes(NotesPosition.NONE));
+		view.setOnSplitNotesPositionRight(() -> positionSplitNotes(NotesPosition.RIGHT));
+		view.setOnSplitNotesPositionLeft(() -> positionSplitNotes(NotesPosition.LEFT));
+
 	}
 
 	public void startStopwatchConfiguration() {

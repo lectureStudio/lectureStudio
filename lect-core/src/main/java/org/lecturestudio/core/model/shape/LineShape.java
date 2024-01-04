@@ -71,7 +71,7 @@ public class LineShape extends FormShape {
 	/**
 	 * Return true if Alt is pressed (and line should be bold).
 	 *
-	 * @return {@code true} if Shift is pressed, otherwise {@code false}.
+	 * @return {@code true} if Alt is pressed, otherwise {@code false}.
 	 */
 	public boolean isBold() {
 		KeyEvent keyEvent = getKeyEvent();

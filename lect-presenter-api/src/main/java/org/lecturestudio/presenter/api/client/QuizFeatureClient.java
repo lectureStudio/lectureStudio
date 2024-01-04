@@ -40,7 +40,7 @@ import org.lecturestudio.web.api.data.bind.ClientJsonMapper;
 })
 public interface QuizFeatureClient {
 
-	@Path("/v2/quiz/start/{courseId}")
+	@Path("/quiz/start/{courseId}")
 	@POST
 	@Consumes(MediaType.MULTIPART_FORM_DATA)
 	String startQuiz(@PathParam("courseId") long courseId,

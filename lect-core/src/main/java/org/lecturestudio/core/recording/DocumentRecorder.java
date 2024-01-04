@@ -242,9 +242,7 @@ public class DocumentRecorder extends ExecutableBase {
 
 					documentMap.put(pageDoc, recDocument);
 
-					if (documentMap.size() > 1) {
-						setHasChanges();
-					}
+					setHasChanges();
 				}
 				catch (IOException e) {
 					LOG.error("Record document failed", e);
@@ -258,6 +256,7 @@ public class DocumentRecorder extends ExecutableBase {
 				}
 			}
 		}
+		recDocument.setActualSplitSlideNotesPositon(pageDoc.getSplitSlideNotesPositon());
 
 		try {
 			PresentationParameter param = paramProvider.getParameter(page);

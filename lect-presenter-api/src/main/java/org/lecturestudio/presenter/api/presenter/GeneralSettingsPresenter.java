@@ -59,6 +59,7 @@ public class GeneralSettingsPresenter extends Presenter<GeneralSettingsView> {
 		view.setCheckNewVersion(config.checkNewVersionProperty());
 		view.setStartMaximized(config.startMaximizedProperty());
 		view.setStartFullscreen(config.startFullscreenProperty());
+		view.setUseMouseInput(config.useMouseInputProperty());
 		view.setTabletMode(config.tabletModeProperty());
 		view.setSaveAnnotationsOnClose(config.saveDocOnCloseProperty());
 		view.setPageSelectionDelay(config.pageSelectionDelayProperty());
@@ -77,7 +78,7 @@ public class GeneralSettingsPresenter extends Presenter<GeneralSettingsView> {
 		Dictionary dict = context.getDictionary();
 
 		if (!initialLocale.equals(config.getLocale())) {
-			showNotification(NotificationType.WARNING,
+			context.showNotification(NotificationType.WARNING,
 					dict.get("general.settings.language.notify.title"),
 					MessageFormat.format(
 							dict.get("general.settings.language.notify.message"),
@@ -93,6 +94,7 @@ public class GeneralSettingsPresenter extends Presenter<GeneralSettingsView> {
 		config.setLocale(defaultConfig.getLocale());
 		config.setStartMaximized(defaultConfig.getStartMaximized());
 		config.setStartFullscreen(defaultConfig.getStartFullscreen());
+		config.setUseMouseInput(defaultConfig.getUseMouseInput());
 		config.setTabletMode(defaultConfig.getTabletMode());
 		config.setSaveDocumentOnClose(defaultConfig.getSaveDocumentOnClose());
 		config.setPageSelectionDelay(defaultConfig.getPageSelectionDelay());

@@ -706,9 +706,9 @@ public class SwingToolbarView extends JPanel implements ToolbarView {
 
 			component.setBackground(null);
 
-			if (component instanceof AbstractButton) {
-				AbstractButton button = (AbstractButton) component;
+			if (component instanceof AbstractButton button) {
 				button.setBorderPainted(false);
+				button.setFocusable(false);
 
 				if (nonNull(group)) {
 					if (group.equals("colorGroup")) {

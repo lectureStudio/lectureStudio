@@ -25,6 +25,7 @@ import com.google.common.eventbus.Subscribe;
 
 import java.io.File;
 import java.io.IOException;
+import java.text.MessageFormat;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionException;
 
@@ -37,10 +38,7 @@ import org.lecturestudio.core.app.dictionary.Dictionary;
 import org.lecturestudio.core.audio.AudioDeviceNotConnectedException;
 import org.lecturestudio.core.audio.bus.event.TextFontEvent;
 import org.lecturestudio.core.bus.EventBus;
-import org.lecturestudio.core.bus.event.CustomizeToolbarEvent;
-import org.lecturestudio.core.bus.event.DocumentEvent;
-import org.lecturestudio.core.bus.event.PageEvent;
-import org.lecturestudio.core.bus.event.ToolSelectionEvent;
+import org.lecturestudio.core.bus.event.*;
 import org.lecturestudio.core.controller.PresentationController;
 import org.lecturestudio.core.controller.ToolController;
 import org.lecturestudio.core.graphics.Color;
@@ -60,6 +58,7 @@ import org.lecturestudio.core.text.TeXFont;
 import org.lecturestudio.core.tool.ColorPalette;
 import org.lecturestudio.core.tool.PaintSettings;
 import org.lecturestudio.core.tool.ToolType;
+import org.lecturestudio.core.view.NotificationType;
 import org.lecturestudio.core.view.PresentationParameter;
 import org.lecturestudio.core.view.PresentationParameterProvider;
 import org.lecturestudio.core.view.ViewType;
@@ -68,8 +67,9 @@ import org.lecturestudio.presenter.api.context.PresenterContext;
 import org.lecturestudio.presenter.api.event.RecordingStateEvent;
 import org.lecturestudio.presenter.api.event.ScreenShareSelectEvent;
 import org.lecturestudio.presenter.api.event.StreamingStateEvent;
-import org.lecturestudio.presenter.api.presenter.command.CloseablePresenterCommand;
+import org.lecturestudio.presenter.api.model.*;
 import org.lecturestudio.presenter.api.presenter.command.StartRecordingCommand;
+import org.lecturestudio.presenter.api.service.BookmarkService;
 import org.lecturestudio.presenter.api.service.RecordingService;
 import org.lecturestudio.presenter.api.view.ToolbarView;
 
@@ -85,6 +85,9 @@ public class ToolbarPresenter extends Presenter<ToolbarView> {
 
 	@Inject
 	private ToolController toolController;
+
+	@Inject
+	private BookmarkService bookmarkService;
 
 	@Inject
 	private PresentationController presentationController;
@@ -138,7 +141,28 @@ public class ToolbarPresenter extends Presenter<ToolbarView> {
 
 			page.addPageEditedListener(pageEditedListener);
 
+			boolean hasBookmark = false;
+			for(Bookmark bookmark : bookmarkService.getBookmarks().getAllBookmarks()){
+				if(bookmark.getPage().equals(page)){
+					hasBookmark = true;
+					break;
+				}
+			}
+			view.selectNewBookmarkButton(hasBookmark);
 			pageChanged(page);
+
+		}
+	}
+
+
+	@Subscribe
+	public void onEvent(final BookmarkEvent event){
+		if(event.getPage().equals(documentService.getDocuments().getSelectedDocument().getCurrentPage())){
+			switch (event.getType()){
+				case CREATED -> view.selectNewBookmarkButton(true);
+				case REMOVED -> view.selectNewBookmarkButton(false);
+				default -> view.selectNewBookmarkButton(false);
+			}
 		}
 	}
 
@@ -476,6 +500,66 @@ public class ToolbarPresenter extends Presenter<ToolbarView> {
 		}
 	}
 
+
+
+	/**
+	 * Select the previous bookmark in the bookmark list.
+	 */
+	public void selectPreviousBookmark() {
+		Page page = bookmarkService.getPrevBookmarkPage();
+		if (nonNull(page)) {
+			documentService.selectPage(page);
+		}
+	}
+
+	/**
+	 * Select the next bookmark in the bookmark list.
+	 */
+	public void selectNextBookmark() {
+		Page page = bookmarkService.getNextBookmarkPage();
+		if (nonNull(page)) {
+			documentService.selectPage(page);
+		}
+	}
+
+	/**
+	 * Create a new default bookmark.
+	 */
+	private void createNewBookmark() {
+		try {
+			Bookmark currBookmark = bookmarkService.getPageBookmark();
+			if(nonNull(currBookmark)){
+				String shortcut = currBookmark.getShortcut();
+				bookmarkService.deleteBookmark(currBookmark);
+				bookmarkRemoved(shortcut);
+				view.selectNewBookmarkButton(false);
+			} else{
+				bookmarkCreated(bookmarkService.createDefaultBookmark());
+				view.selectNewBookmarkButton(true);
+			}
+		}catch (BookmarkExistsException e){
+			Page page = documentService.getDocuments().getSelectedDocument().getCurrentPage();
+			String message = MessageFormat.format(context.getDictionary().get("bookmark.exists"), page.getPageNumber());
+			showNotification(NotificationType.WARNING, "bookmark.assign.warning", message);
+		} catch (BookmarkException e) {
+			handleException(e, "Create bookmark failed", "bookmark.assign.warning");
+		}
+	}
+	private void bookmarkCreated(Bookmark bookmark) {
+		String shortcut = bookmark.getShortcut().toUpperCase();
+		String message = MessageFormat.format(context.getDictionary().get("bookmark.created"), shortcut);
+
+		showNotificationPopup(message);
+		close();
+	}
+
+	private void bookmarkRemoved(String shortcut) {
+		String message = MessageFormat.format(context.getDictionary().get("bookmark.removed"), shortcut);
+
+		showNotificationPopup(message);
+		close();
+	}
+
 	@Override
 	public void initialize() {
 		PresenterContext presenterContext = (PresenterContext) context;
@@ -493,6 +577,11 @@ public class ToolbarPresenter extends Presenter<ToolbarView> {
 
 		view.setOnPreviousSlide(toolController::selectPreviousPage);
 		view.setOnNextSlide(toolController::selectNextPage);
+
+		view.setOnPreviousBookmark(this::selectPreviousBookmark);
+		view.setOnNextBookmark(this::selectNextBookmark);
+
+		view.setOnNewBookmark(this::createNewBookmark);
 
 		view.setOnCustomPaletteColor(this::customPaletteColor);
 		view.setOnCustomColor(this::customColor);

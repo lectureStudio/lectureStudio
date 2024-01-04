@@ -27,6 +27,7 @@ import org.lecturestudio.core.presenter.Presenter;
 import org.lecturestudio.presenter.api.model.Bookmark;
 import org.lecturestudio.presenter.api.model.BookmarkException;
 import org.lecturestudio.presenter.api.model.BookmarkKeyException;
+import org.lecturestudio.presenter.api.model.BookmarkExistsException;
 import org.lecturestudio.presenter.api.model.Bookmarks;
 import org.lecturestudio.presenter.api.service.BookmarkService;
 import org.lecturestudio.presenter.api.view.CreateBookmarkView;
@@ -58,10 +59,13 @@ public class CreateBookmarkPresenter extends Presenter<CreateBookmarkView> {
 			bookmarkCreated(bookmarkService.createBookmark(keyStr));
 		}
 		catch (BookmarkKeyException e) {
-			context.showError("bookmark.assign.error", "bookmark.key.exists", keyStr);
+			showError("bookmark.assign.warning", "bookmark.key.exists", keyStr);
+		}
+		catch (BookmarkExistsException e){
+			showError("bookmark.assign.warning", "bookmark.exists");
 		}
 		catch (BookmarkException e) {
-			handleException(e, "Create bookmark failed", "bookmark.assign.error");
+			handleException(e, "Create bookmark failed", "bookmark.assign.warning");
 		}
 	}
 

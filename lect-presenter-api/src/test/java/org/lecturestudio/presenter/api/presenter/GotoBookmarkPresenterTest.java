@@ -44,17 +44,20 @@ class GotoBookmarkPresenterTest extends PresenterTest {
 
 	private BookmarkService bookmarkService;
 
+	private DocumentService documentService;
 
 	@BeforeEach
 	void setup() throws IOException {
 		Document document = new Document();
 		document.createPage();
+		document.createPage();
+		document.createPage();
 
-		DocumentService documentService = new DocumentService(context);
+		documentService = new DocumentService(context);
 		documentService.addDocument(document);
 		documentService.selectDocument(document);
 
-		bookmarkService = new BookmarkService(documentService);
+		bookmarkService = new BookmarkService(documentService, context);
 	}
 
 	@Test
@@ -74,6 +77,9 @@ class GotoBookmarkPresenterTest extends PresenterTest {
 	@Test
 	void testBookmarkList() throws BookmarkException {
 		Bookmark a = bookmarkService.createBookmark("a");
+		int currPage = documentService.getDocuments().getSelectedDocument().getCurrentPage().getPageNumber();
+		int maxPages = documentService.getDocuments().getSelectedDocument().getPageCount();
+		documentService.getDocuments().getSelectedDocument().selectPage((currPage + 1) % maxPages);
 		Bookmark z = bookmarkService.createBookmark("z");
 
 		GotoBookmarkMockView view = new GotoBookmarkMockView() {
@@ -138,6 +144,9 @@ class GotoBookmarkPresenterTest extends PresenterTest {
 	@Test
 	void testDeleteBookmark() throws BookmarkException {
 		Bookmark a = bookmarkService.createBookmark("a");
+		int currPage = documentService.getDocuments().getSelectedDocument().getCurrentPage().getPageNumber();
+		int maxPages = documentService.getDocuments().getSelectedDocument().getPageCount();
+		documentService.getDocuments().getSelectedDocument().selectPage((currPage + 1) % maxPages);
 		Bookmark z = bookmarkService.createBookmark("z");
 
 		GotoBookmarkMockView view = new GotoBookmarkMockView() {
@@ -160,6 +169,32 @@ class GotoBookmarkPresenterTest extends PresenterTest {
 
 		view.deleteAction.execute(z);
 		assertEquals(0, bookmarkService.getBookmarks().size());
+	}
+
+	@Test
+	void testGoToNextBookmark() throws BookmarkException {
+		Bookmark a = bookmarkService.createBookmark("a");
+		int currPage = documentService.getDocuments().getSelectedDocument().getCurrentPage().getPageNumber();
+		int maxPages = documentService.getDocuments().getSelectedDocument().getPageCount();
+		documentService.getDocuments().getSelectedDocument().selectPage((currPage + 1) % maxPages);
+		Bookmark z = bookmarkService.createBookmark("z");
+		currPage = documentService.getDocuments().getSelectedDocument().getCurrentPage().getPageNumber();
+		maxPages = documentService.getDocuments().getSelectedDocument().getPageCount();
+		documentService.getDocuments().getSelectedDocument().selectPage((currPage + 1) % maxPages);
+		Bookmark y = bookmarkService.createBookmark("y");
+
+		documentService.getDocuments().getSelectedDocument().selectPage(0);
+		assertEquals(bookmarkService.getPageBookmark(), a);
+
+		currPage = documentService.getDocuments().getSelectedDocument().getCurrentPage().getPageNumber();
+		maxPages = documentService.getDocuments().getSelectedDocument().getPageCount();
+		documentService.getDocuments().getSelectedDocument().selectPage((currPage + 1) % maxPages);
+		assertEquals(bookmarkService.getPageBookmark(), z);
+
+		currPage = documentService.getDocuments().getSelectedDocument().getCurrentPage().getPageNumber();
+		maxPages = documentService.getDocuments().getSelectedDocument().getPageCount();
+		documentService.getDocuments().getSelectedDocument().selectPage((currPage + 1) % maxPages);
+		assertEquals(bookmarkService.getPageBookmark(), y);
 	}
 
 

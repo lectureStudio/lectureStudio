@@ -193,9 +193,17 @@ public class SwingMenuView extends JMenuBar implements MenuView {
 
 	private JMenuItem newBookmarkMenuItem;
 
+	private JMenuItem newDefaultBookmarkMenuItem;
+
+	private JMenuItem removeBookmarkMenuItem;
+
 	private JMenuItem gotoBookmarkMenuItem;
 
 	private JMenuItem previousBookmarkMenuItem;
+
+	private JMenuItem prevBookmarkMenuItem;
+
+	private JMenuItem nextBookmarkMenuItem;
 
 	private JMenuItem logMenuItem;
 
@@ -243,6 +251,10 @@ public class SwingMenuView extends JMenuBar implements MenuView {
 			newBookmarkMenuItem.setEnabled(hasDocument);
 			gotoBookmarkMenuItem.setEnabled(hasDocument);
 			previousBookmarkMenuItem.setEnabled(hasDocument);
+			prevBookmarkMenuItem.setEnabled(hasDocument);
+			nextBookmarkMenuItem.setEnabled(hasDocument);
+			newDefaultBookmarkMenuItem.setEnabled(hasDocument);
+			removeBookmarkMenuItem.setEnabled(hasDocument);
 			startRecordingMenuItem.setEnabled(hasDocument);
 			enableStreamMenuItem.setEnabled(hasDocument);
 			enableMessengerMenuItem.setEnabled(hasDocument);
@@ -750,7 +762,7 @@ public class SwingMenuView extends JMenuBar implements MenuView {
 	public void setBookmarks(Bookmarks bookmarks) {
 		SwingUtils.invoke(() -> {
 			List<Bookmark> bookmarkList = bookmarks.getAllBookmarks();
-			int fixedMenuItems = 5;
+			int fixedMenuItems = 10;
 
 			// Remove all bookmark menu items.
 			if (bookmarksMenu.getItemCount() > fixedMenuItems) {
@@ -796,6 +808,16 @@ public class SwingMenuView extends JMenuBar implements MenuView {
 	}
 
 	@Override
+	public void setOnCreateNewDefaultBookmarkView(Action action) {
+		SwingUtils.bindAction(newDefaultBookmarkMenuItem, action);
+	}
+
+	@Override
+	public void setOnRemoveBookmarkView(Action action) {
+		SwingUtils.bindAction(removeBookmarkMenuItem, action);
+	}
+
+	@Override
 	public void setOnShowGotoBookmarkView(Action action) {
 		SwingUtils.bindAction(gotoBookmarkMenuItem, action);
 	}
@@ -803,6 +825,16 @@ public class SwingMenuView extends JMenuBar implements MenuView {
 	@Override
 	public void setOnPreviousBookmark(Action action) {
 		SwingUtils.bindAction(previousBookmarkMenuItem, action);
+	}
+
+	@Override
+	public void setOnPrevBookmark(Action action) {
+		SwingUtils.bindAction(prevBookmarkMenuItem, action);
+	}
+
+	@Override
+	public void setOnNextBookmark(Action action) {
+		SwingUtils.bindAction(nextBookmarkMenuItem, action);
 	}
 
 	@Override

@@ -16,31 +16,18 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package org.lecturestudio.core.tool;
+package org.lecturestudio.presenter.api.model;
 
-public enum ToolType {
-	
-	UNDO,
-	REDO,
-	PEN,
-	HIGHLIGHTER,
-	RUBBER,
-	DELETE_ALL,
-	LATEX,
-	TEXT,
-	ZOOM,
-	ZOOM_OUT,
-	PANNING,
-	TEXT_SELECTION,
-	POINTER,
-	EXTEND_VIEW,
-	ARROW,
-	LINE,
-	RECTANGLE,
-	ELLIPSE,
-	SELECT,
-	SELECT_GROUP,
-	CLONE,
-	BOOKMARK
-	
+public class BookmarkExistsException extends BookmarkException {
+
+	/**
+	 * Constructs a new BookmarkExistsException with the specified detail message.
+	 * The cause is not initialized, and may subsequently be initialized by a
+	 * call to {@link #initCause}.
+	 *
+	 * @param message the detail message.
+	 */
+	public BookmarkExistsException(String message) {
+		super(message);
+	}
 }

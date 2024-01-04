@@ -28,6 +28,7 @@ import java.awt.Desktop;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Path;
+import java.text.MessageFormat;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Iterator;
@@ -284,6 +285,20 @@ public class MenuPresenter extends Presenter<MenuView> {
 		}
 	}
 
+	public void openPrevBookmark(){
+		Page page = bookmarkService.getPrevBookmarkPage();
+		if (nonNull(page)) {
+			documentService.selectPage(page);
+		}
+	}
+
+	public void openNextBookmark(){
+		Page page = bookmarkService.getNextBookmarkPage();
+		if (nonNull(page)) {
+			documentService.selectPage(page);
+		}
+	}
+
 	public void openDocument(File documentFile) {
 		documentService.openDocument(documentFile)
 				.exceptionally(throwable -> {
@@ -455,6 +470,45 @@ public class MenuPresenter extends Presenter<MenuView> {
 
 	public void newBookmark() {
 		eventBus.post(new ShowPresenterCommand<>(CreateBookmarkPresenter.class));
+	}
+
+	public void newDefaultBookmark() {
+		try {
+			bookmarkCreated(bookmarkService.createDefaultBookmark());
+		}catch (BookmarkExistsException e){
+			Page page = documentService.getDocuments().getSelectedDocument().getCurrentPage();
+			String message = MessageFormat.format(context.getDictionary().get("bookmark.exists"), page.getPageNumber());
+			showNotification(NotificationType.WARNING, "bookmark.assign.warning", message);
+		} catch (BookmarkException e) {
+			handleException(e, "Create bookmark failed", "bookmark.assign.warning");
+		}
+	}
+
+	public void removeBookmark() {
+		try {
+			if(nonNull(bookmarkService.getPageBookmark())){
+				String shortcut = bookmarkService.getPageBookmark().getShortcut();
+				bookmarkService.deleteBookmark(bookmarkService.getPageBookmark());
+				bookmarkRemoved(shortcut);
+			}
+		} catch (BookmarkException e) {
+			handleException(e, "Remove bookmark failed", "bookmark.assign.warning");
+		}
+	}
+	private void bookmarkRemoved(String shortcut) {
+		String message = MessageFormat.format(context.getDictionary().get("bookmark.removed"), shortcut);
+
+		showNotificationPopup(message);
+		close();
+	}
+
+
+	private void bookmarkCreated(Bookmark bookmark) {
+		String shortcut = bookmark.getShortcut().toUpperCase();
+		String message = MessageFormat.format(context.getDictionary().get("bookmark.created"), shortcut);
+
+		showNotificationPopup(message);
+		close();
 	}
 
 	public void gotoBookmark() {
@@ -645,8 +699,12 @@ public class MenuPresenter extends Presenter<MenuView> {
 
 		view.setOnClearBookmarks(this::clearBookmarks);
 		view.setOnShowNewBookmarkView(this::newBookmark);
+		view.setOnRemoveBookmarkView(this::removeBookmark);
+		view.setOnCreateNewDefaultBookmarkView(this::newDefaultBookmark);
 		view.setOnShowGotoBookmarkView(this::gotoBookmark);
 		view.setOnPreviousBookmark(this::previousBookmark);
+		view.setOnPrevBookmark(this::openPrevBookmark);
+		view.setOnNextBookmark(this::openNextBookmark);
 		view.setOnOpenBookmark(this::openBookmark);
 
 		view.setOnOpenLog(this::showLog);

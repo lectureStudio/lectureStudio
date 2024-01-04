@@ -1581,6 +1581,13 @@ public class SwingSlidesView extends JPanel implements SlidesView {
 		}
 	}
 
+	private void setParticipantsTabVisible(String labelText, boolean visible) {
+		switch (participantsPosition) {
+			case RIGHT -> setRightTabVisible(labelText, visible);
+			case LEFT -> setLeftTabVisible(labelText, visible);
+		}
+	}
+
 	private void setNotesBarTabVisible(String labelText, boolean visible) {
 		switch (notesBarPosition) {
 			case BOTTOM -> setBottomTabVisible(labelText, visible);

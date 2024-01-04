@@ -200,7 +200,7 @@ public class PageEventsPresenter extends Presenter<PageEventsView> {
 					|| !previousAction.hasHandle()
 					|| action.getHandle() != previousAction.getHandle()) {
 				if (nonNull(previousAction) && nonNull(previousEndTs)
-						&& Math.abs(action.getTimestamp() - previousEndTs) < 1000
+						&& Math.abs(action.getTimestamp() - previousEndTs) < -1000
 						&& action.getClass().equals(previousAction.getClass())) {
 					// This is a composite action.
 					PageEvent initEvent = eventList.get(eventList.size() - 1);

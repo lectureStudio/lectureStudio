@@ -41,6 +41,8 @@ public class StreamContext {
 
 	private final BooleanProperty enableMessenger;
 
+	private final BooleanProperty previewStream;
+
 	private Consumer<PeerStateEvent> peerStateConsumer;
 
 	private Course course;
@@ -53,6 +55,7 @@ public class StreamContext {
 		videoContext = new StreamVideoContext();
 		screenContext = new StreamScreenContext();
 		enableMessenger = new BooleanProperty();
+		previewStream = new BooleanProperty();
 
 		rtcConfig = new RTCConfiguration();
 		rtcConfig.iceTransportPolicy = RTCIceTransportPolicy.ALL;
@@ -85,6 +88,18 @@ public class StreamContext {
 
 	public BooleanProperty enableMessengerProperty() {
 		return enableMessenger;
+	}
+
+	public boolean getPreviewStream() {
+		return previewStream.get();
+	}
+
+	public void setPreviewStream(boolean enabled) {
+		previewStream.set(enabled);
+	}
+
+	public BooleanProperty previewStreamProperty() {
+		return previewStream;
 	}
 
 	public Course getCourse() {

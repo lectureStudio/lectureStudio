@@ -15,7 +15,7 @@
 		<columnResizePolicy>
 			<DynamicResizePolicy tableView="$eventsTableView">
 				<columnConstraints>
-					<ColumnSizeConstraints percentWidth="1"/>
+					<ColumnSizeConstraints percentWidth="0.999"/>
 					<ColumnSizeConstraints prefWidth="80"/>
 					<ColumnSizeConstraints prefWidth="40"/>
 				</columnConstraints>

@@ -123,6 +123,7 @@ public class SlidesPresenter extends Presenter<SlidesView> {
 		view.setOnKeyEvent(this::keyEvent);
 		view.setOnDeletePage(this::deletePage);
 		view.setOnSelectPage(this::selectPage);
+		view.setOnSelectDocument(this::selectDocument);
 		view.setPageRenderer(renderController);
 		view.setStylusHandler(stylusHandler);
 		view.setOnViewTransform(this::setViewTransform);
@@ -139,6 +140,8 @@ public class SlidesPresenter extends Presenter<SlidesView> {
 
 			@Override
 			public void parameterChanged(Page page, PresentationParameter parameter) {
+				stylusHandler.setPresentationParameter(parameter);
+
 				view.setPage(page, parameter);
 			}
 		});
@@ -146,12 +149,16 @@ public class SlidesPresenter extends Presenter<SlidesView> {
 		// Register shortcuts that are associated with the SlideView.
 		registerShortcut(Shortcut.SLIDE_NEXT_DOWN, this::nextPage);
 		registerShortcut(Shortcut.SLIDE_NEXT_PAGE_DOWN, this::nextPage);
-		registerShortcut(Shortcut.SLIDE_PAUSE_PLAY_SPACE, this::resumeOrPause);
-		registerShortcut(Shortcut.SLIDE_MOVE_LEFT, this::moveLeft);
-		registerShortcut(Shortcut.SLIDE_MOVE_RIGHT, this::moveRight);
 
 		registerShortcut(Shortcut.SLIDE_PREVIOUS_PAGE_UP, this::previousPage);
 		registerShortcut(Shortcut.SLIDE_PREVIOUS_UP, this::previousPage);
+
+		registerShortcut(Shortcut.PLAYBACK_BEGINNING_POS_1, this::firstPage);
+		registerShortcut(Shortcut.PLAYBACK_END_END, this::lastPage);
+		registerShortcut(Shortcut.PLAYBACK_PAUSE_PLAY_SPACE, this::resumeOrPause);
+
+		registerShortcut(Shortcut.SLIDE_MOVE_LEFT, this::moveLeft);
+		registerShortcut(Shortcut.SLIDE_MOVE_RIGHT, this::moveRight);
 
 		pageEditedListener = (event) -> {
 			switch (event.getType()) {
@@ -274,6 +281,24 @@ public class SlidesPresenter extends Presenter<SlidesView> {
 		}
 	}
 
+	private void firstPage() {
+		try {
+			playbackService.selectPage(0);
+		}
+		catch (Exception e) {
+			handleException(e, "Select page failed", "select.recording.page.error");
+		}
+	}
+
+	private void lastPage() {
+		try {
+			playbackService.selectPage(recordingService.getSelectedRecording().getRecordedDocument().getDocument().getPageCount() - 1);
+		}
+		catch (Exception e) {
+			handleException(e, "Select page failed", "select.recording.page.error");
+		}
+	}
+
 	private void deletePage(Page page) {
 		EditorContext editorContext = (EditorContext) context;
 		double timeNorm = editorContext.getPrimarySelection();
@@ -294,6 +319,22 @@ public class SlidesPresenter extends Presenter<SlidesView> {
 		}
 		catch (Exception e) {
 			handleException(e, "Select page failed", "select.recording.page.error");
+		}
+	}
+
+	private void selectDocument(Document document) {
+		try {
+			Recording selectedRecording = recordingService.getSelectedRecording();
+			Recording recording = recordingService.getRecordingWithDocument(document);
+
+			if (nonNull(selectedRecording) && selectedRecording.equals(recording)) {
+				return;
+			}
+
+			recordingService.selectRecording(recording);
+		}
+		catch (Exception e) {
+			handleException(e, "Select document failed", "select.recording.page.error");
 		}
 	}
 

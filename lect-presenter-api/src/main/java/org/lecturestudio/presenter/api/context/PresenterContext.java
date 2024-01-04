@@ -24,6 +24,7 @@ import java.io.File;
 import java.util.List;
 import java.util.Set;
 
+import org.cef.CefApp;
 import org.lecturestudio.core.app.AppDataLocator;
 import org.lecturestudio.core.app.ApplicationContext;
 import org.lecturestudio.core.app.configuration.Configuration;
@@ -59,6 +60,8 @@ public class PresenterContext extends ApplicationContext {
 
 	private final ObjectProperty<Course> course = new ObjectProperty<>();
 
+	private final ObjectProperty<CefApp> cefApp = new ObjectProperty<>();
+
 	private final ObservableSet<CourseParticipant> courseParticipants = new ObservableHashSet<>();
 
 	private final ObjectProperty<ParticipantCount> courseParticipantsCount = new ObjectProperty<>();
@@ -74,6 +77,8 @@ public class PresenterContext extends ApplicationContext {
 	private final BooleanProperty messengerStarted = new BooleanProperty();
 
 	private final BooleanProperty streamStarted = new BooleanProperty();
+
+	private final BooleanProperty viewStream = new BooleanProperty();
 
 	private final BooleanProperty recordingStarted = new BooleanProperty();
 
@@ -162,6 +167,14 @@ public class PresenterContext extends ApplicationContext {
 		return course;
 	}
 
+	public CefApp getCefApp() {
+		return cefApp.get();
+	}
+
+	public void setCefApp(CefApp cefApp) {
+		this.cefApp.set(cefApp);
+	}
+
 	public Set<CourseParticipant> getCourseParticipants() {
 		return courseParticipants;
 	}
@@ -208,6 +221,18 @@ public class PresenterContext extends ApplicationContext {
 
 	public BooleanProperty streamStartedProperty() {
 		return streamStarted;
+	}
+
+	public void setViewStream(boolean view) {
+		viewStream.set(view);
+	}
+
+	public boolean getViewStream() {
+		return viewStream.get();
+	}
+
+	public BooleanProperty viewStreamProperty() {
+		return viewStream;
 	}
 
 	public void setMessengerStarted(boolean started) {

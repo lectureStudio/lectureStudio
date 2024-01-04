@@ -60,6 +60,9 @@ public class Configuration {
 	/** Indicates whether to open the application in fullscreen mode. */
 	private final BooleanProperty startFullscreen = new BooleanProperty();
 
+	/** Indicates whether to use native mouse input instead of pen/stylus input. */
+	private final BooleanProperty useMouseInput = new BooleanProperty();
+
 	/** Indicates whether to enable a virtual keyboard on tablet devices. */
 	private final BooleanProperty tabletMode = new BooleanProperty();
 
@@ -280,6 +283,35 @@ public class Configuration {
 	 */
 	public BooleanProperty startFullscreenProperty() {
 		return startFullscreen;
+	}
+
+	/**
+	 * Check whether to use app native mouse input instead of the pen/stylus
+	 * input.
+	 *
+	 * @return {@code true} if the application should use mouse input.
+	 */
+	public Boolean getUseMouseInput() {
+		return useMouseInput.get();
+	}
+
+	/**
+	 * Set whether to use app native mouse input instead of the pen/stylus
+	 * input.
+	 *
+	 * @param useMouse True to use mouse input.
+	 */
+	public void setUseMouseInput(boolean useMouse) {
+		this.useMouseInput.set(useMouse);
+	}
+
+	/**
+	 * Obtain the mouse input property.
+	 *
+	 * @return the start mouse input property.
+	 */
+	public BooleanProperty useMouseInputProperty() {
+		return useMouseInput;
 	}
 
 	/**

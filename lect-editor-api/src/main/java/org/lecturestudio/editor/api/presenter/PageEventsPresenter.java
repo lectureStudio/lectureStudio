@@ -18,10 +18,14 @@
 
 package org.lecturestudio.editor.api.presenter;
 
+import static java.util.Objects.isNull;
+import static java.util.Objects.nonNull;
+
 import com.google.common.eventbus.Subscribe;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionException;
 
@@ -35,7 +39,6 @@ import org.lecturestudio.core.model.Page;
 import org.lecturestudio.core.presenter.Presenter;
 import org.lecturestudio.core.recording.RecordedPage;
 import org.lecturestudio.core.recording.Recording;
-import org.lecturestudio.core.recording.Recording.Content;
 import org.lecturestudio.core.recording.RecordingChangeEvent;
 import org.lecturestudio.core.recording.RecordingEditException;
 import org.lecturestudio.core.recording.action.ActionType;
@@ -43,7 +46,7 @@ import org.lecturestudio.core.recording.action.PlaybackAction;
 import org.lecturestudio.core.recording.edit.EditAction;
 import org.lecturestudio.core.service.DocumentService;
 import org.lecturestudio.editor.api.context.EditorContext;
-import org.lecturestudio.editor.api.edit.DeletePageEventAction;
+import org.lecturestudio.editor.api.edit.DeletePageActions;
 import org.lecturestudio.editor.api.service.RecordingFileService;
 import org.lecturestudio.editor.api.service.RecordingPlaybackService;
 import org.lecturestudio.editor.api.view.PageEventsView;
@@ -98,11 +101,9 @@ public class PageEventsPresenter extends Presenter<PageEventsView> {
 
 	@Subscribe
 	public void onEvent(RecordingChangeEvent event) {
-		if (event.getContentType() == Recording.Content.EVENTS_REMOVED
-				|| event.getContentType() == Content.ALL
-				|| event.getContentType() == Recording.Content.EVENTS_CHANGED
-				|| event.getContentType() == Recording.Content.EVENTS_ADDED) {
-			loadSelectedPageEvents();
+		switch (event.getContentType()) {
+			case ALL, EVENTS_ADDED, EVENTS_CHANGED, EVENTS_REMOVED ->
+					loadSelectedPageEvents();
 		}
 	}
 
@@ -116,10 +117,10 @@ public class PageEventsPresenter extends Presenter<PageEventsView> {
 	private void deletePageEvent(PageEvent event) {
 		CompletableFuture.runAsync(() -> {
 			try {
-				PlaybackAction action = event.getPlaybackAction();
+				List<PlaybackAction> compositeActions = event.getCompositeActions();
 				int pageNumber = event.getPageNumber();
 
-				deletePageEvent(action, pageNumber);
+				deletePageActions(compositeActions, pageNumber);
 			}
 			catch (Exception e) {
 				throw new CompletionException(e);
@@ -137,6 +138,10 @@ public class PageEventsPresenter extends Presenter<PageEventsView> {
 	 * @param event the PlaybackAction, which timestamp should be selected
 	 */
 	private void selectPageEvent(PageEvent event) {
+		if (Objects.isNull(event)) {
+			return;
+		}
+
 		try {
 			playbackService.seek((int) event.getTime().getMillis() - 20);
 		}
@@ -145,14 +150,15 @@ public class PageEventsPresenter extends Presenter<PageEventsView> {
 		}
 	}
 
-	private void deletePageEvent(PlaybackAction action, int pageNumber) throws ExecutableException, RecordingEditException {
+	private void deletePageActions(List<PlaybackAction> actions,
+			int pageNumber) throws ExecutableException, RecordingEditException {
 		if (playbackService.started()) {
 			playbackService.suspend();
 		}
 
 		Recording recording = recordingService.getSelectedRecording();
 
-		addEditAction(recording, new DeletePageEventAction(recording, action,
+		addEditAction(recording, new DeletePageActions(recording, actions,
 				pageNumber));
 	}
 
@@ -167,6 +173,8 @@ public class PageEventsPresenter extends Presenter<PageEventsView> {
 				.getRecordedPage(page.getPageNumber());
 
 		List<PageEvent> eventList = new ArrayList<>();
+		PlaybackAction previousAction = null;
+		Integer previousEndTs = null;
 
 		for (var action : recordedPage.getPlaybackActions()) {
 			ActionType actionType = action.getType();
@@ -175,14 +183,36 @@ public class PageEventsPresenter extends Presenter<PageEventsView> {
 			switch (actionType) {
 				case TOOL_BEGIN:
 				case TOOL_EXECUTE:
-				case TOOL_END:
 				case TEXT_CHANGE:
 				case TEXT_FONT_CHANGE:
 				case TEXT_LOCATION_CHANGE:
 					continue;
+				case TOOL_END:
+					previousEndTs = action.getTimestamp();
+					continue;
 			}
 
-			eventList.add(new PageEvent(action, page.getPageNumber()));
+			// Do not show the action in the list, if it has the same handle
+			// as the previous action.
+			if (isNull(previousAction)
+					|| !action.getClass().equals(previousAction.getClass())
+					|| !action.hasHandle()
+					|| !previousAction.hasHandle()
+					|| action.getHandle() != previousAction.getHandle()) {
+				if (nonNull(previousAction) && nonNull(previousEndTs)
+						&& Math.abs(action.getTimestamp() - previousEndTs) < 1000
+						&& action.getClass().equals(previousAction.getClass())) {
+					// This is a composite action.
+					PageEvent initEvent = eventList.get(eventList.size() - 1);
+					initEvent.getCompositeActions().add(action);
+				}
+				else {
+					// This is an individual action.
+					eventList.add(new PageEvent(action, page.getPageNumber()));
+				}
+			}
+
+			previousAction = action;
 		}
 
 		view.setPageEvents(eventList);

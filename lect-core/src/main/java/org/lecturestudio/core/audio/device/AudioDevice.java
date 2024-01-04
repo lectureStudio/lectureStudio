@@ -18,12 +18,17 @@
 
 package org.lecturestudio.core.audio.device;
 
+import java.util.Objects;
+
 /**
  * Common class to provide a consistent interface to audio devices.
  *
  * @author Alex Andres
  */
 public class AudioDevice {
+
+	/** The unique device ID. */
+	private final String deviceId;
 
 	/** The name of this audio device. */
 	private final String name;
@@ -32,10 +37,12 @@ public class AudioDevice {
 	/**
 	 * Creates a new {@code AudioDevice} with the specified name.
 	 *
-	 * @param name The name of the device.
+	 * @param name     The name of the device.
+	 * @param deviceId The unique device ID.
 	 */
-	public AudioDevice(String name) {
+	public AudioDevice(String name, String deviceId) {
 		this.name = name;
+		this.deviceId = deviceId;
 	}
 
 	/**
@@ -47,4 +54,37 @@ public class AudioDevice {
 		return name;
 	}
 
+	/**
+	 * Get the unique audio device ID assigned by the operating system.
+	 *
+	 * @return the unique audio device ID.
+	 */
+	public String getDeviceId() {
+		return deviceId;
+	}
+
+	@Override
+	public boolean equals(Object o) {
+		if (this == o) {
+			return true;
+		}
+		if (o == null || getClass() != o.getClass()) {
+			return false;
+		}
+
+		AudioDevice that = (AudioDevice) o;
+
+		return Objects.equals(deviceId, that.deviceId);
+	}
+
+	@Override
+	public int hashCode() {
+		return Objects.hash(deviceId);
+	}
+
+	@Override
+	public String toString() {
+		return "AudioDevice{" + "deviceId='" + deviceId + '\'' + ", name='"
+				+ name + '\'' + '}';
+	}
 }

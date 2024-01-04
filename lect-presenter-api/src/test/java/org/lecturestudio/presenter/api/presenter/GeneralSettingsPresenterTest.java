@@ -125,6 +125,11 @@ class GeneralSettingsPresenterTest extends PresenterTest {
 		}
 
 		@Override
+		public void setUseMouseInput(BooleanProperty fullscreen) {
+
+		}
+
+		@Override
 		public void setTabletMode(BooleanProperty tabletMode) {
 			assertFalse(tabletMode.get());
 		}

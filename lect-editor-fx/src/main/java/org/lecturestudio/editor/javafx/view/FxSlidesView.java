@@ -252,7 +252,10 @@ public class FxSlidesView extends VBox implements SlidesView {
 	@Override
 	public void bindSeekProperty(BooleanProperty seekProperty) {
 		slideView.seekProperty().set(seekProperty.get());
-		seekProperty.addListener((observable, oldValue, newValue) -> slideView.setSeek(seekProperty.get()));
+
+		seekProperty.addListener((observable, oldValue, newValue) -> {
+			slideView.setSeek(seekProperty.get());
+		});
 	}
 
 	@FXML
@@ -298,6 +301,8 @@ public class FxSlidesView extends VBox implements SlidesView {
 			newScene.addEventFilter(KeyEvent.KEY_RELEASED, keyEventHandler);
 
 			newScene.focusOwnerProperty().addListener(sceneFocusListener);
+
+			slideView.requestFocus();
 		}
 	}
 

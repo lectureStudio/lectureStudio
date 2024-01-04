@@ -38,6 +38,7 @@ import org.lecturestudio.core.presenter.command.NotificationCommand;
 import org.lecturestudio.core.util.NetUtils;
 import org.lecturestudio.core.view.NotificationType;
 import org.lecturestudio.presenter.api.context.PresenterContext;
+import org.lecturestudio.presenter.api.handler.PreviewStreamHandler;
 import org.lecturestudio.presenter.api.model.ScreenShareContext;
 import org.lecturestudio.presenter.api.presenter.command.StartCourseFeatureCommand;
 import org.lecturestudio.presenter.api.presenter.command.StartStreamCommand;
@@ -60,7 +61,7 @@ public class StreamService {
 
 	@Inject
 	public StreamService(PresenterContext context,
-	                     WebRtcStreamService webRtcStreamService, WebService webService) {
+			WebRtcStreamService webRtcStreamService, WebService webService) {
 		this.context = context;
 		this.eventBus = context.getEventBus();
 		this.webRtcStreamService = webRtcStreamService;
@@ -187,14 +188,18 @@ public class StreamService {
 					webService.initMessageTransport();
 					webService.startMessageTransport();
 
+					// Add the preview-handler here as it will observe stream
+					// state events and execute properly when the stream is running.
+					if (streamContext.getPreviewStream()) {
+						var previewStreamHandler = new PreviewStreamHandler(context);
+						previewStreamHandler.initialize();
+					}
+
+					webRtcStreamService.getStreamConfig().setStartChat(streamContext.getMessengerEnabled());
 					webRtcStreamService.start();
 				}
 				catch (ExecutableException e) {
 					throw new CompletionException(e);
-				}
-
-				if (streamContext.getMessengerEnabled()) {
-					context.setMessengerStarted(true);
 				}
 			})
 			.exceptionally(e -> {
@@ -265,7 +270,7 @@ public class StreamService {
 	}
 
 	private void startMessenger() {
-		if (webRtcStreamService.started()) {
+		if (!webRtcStreamService.stopped()) {
 			startMessengerInternal();
 		}
 		else {

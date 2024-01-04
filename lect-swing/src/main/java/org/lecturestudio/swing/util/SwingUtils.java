@@ -30,6 +30,7 @@ import javax.swing.JComboBox;
 import javax.swing.JComponent;
 import javax.swing.JSlider;
 import javax.swing.JTable;
+import javax.swing.JTextField;
 import javax.swing.JToggleButton;
 import javax.swing.SwingUtilities;
 import javax.swing.text.JTextComponent;
@@ -78,6 +79,13 @@ public final class SwingUtils {
 		requireNonNull(action);
 
 		toggle.addActionListener(event -> action.execute(toggle.isSelected()));
+	}
+
+	public static void bindAction(JTextField textField, Action action) {
+		requireNonNull(textField);
+		requireNonNull(action);
+
+		textField.addActionListener(e -> action.execute());
 	}
 
 	public static <E> Binding bindBidirectional(ObjectProperty<E> source, ObjectProperty<E> target) {

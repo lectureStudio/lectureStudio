@@ -84,7 +84,8 @@ public abstract class ApplicationContext {
 
 
 	/**
-	 * Create a new {@link ApplicationContext} instance with the given parameters.
+	 * Create a new {@link ApplicationContext} instance with the given
+	 * parameters.
 	 *
 	 * @param dataLocator The application resource data locator.
 	 * @param config      The application configuration.
@@ -92,8 +93,9 @@ public abstract class ApplicationContext {
 	 * @param eventBus    The application event data bus.
 	 * @param audioBus    The audio event bus.
 	 */
-	protected ApplicationContext(AppDataLocator dataLocator, Configuration config,
-	                             Dictionary dict, EventBus eventBus, EventBus audioBus) {
+	protected ApplicationContext(AppDataLocator dataLocator,
+			Configuration config, Dictionary dict, EventBus eventBus,
+			EventBus audioBus) {
 		this.dataLocator = dataLocator;
 		this.configuration = config;
 		this.dictionary = dict;
@@ -172,13 +174,16 @@ public abstract class ApplicationContext {
 	}
 
 	/**
-	 * Obtain the {@link PresentationParameterProvider} for the given {@link ViewType}.
+	 * Obtain the {@link PresentationParameterProvider} for the given
+	 * {@link ViewType}.
 	 *
 	 * @param type The {@link ViewType} of the presentation provider.
 	 *
-	 * @return the {@link PresentationParameterProvider} bound to the {@link ViewType}.
+	 * @return the {@link PresentationParameterProvider} bound to the
+	 * {@link ViewType}.
 	 */
-	public PresentationParameterProvider getPagePropertyProvider(ViewType type) {
+	public PresentationParameterProvider getPagePropertyProvider(
+			ViewType type) {
 		return ppProvider.get(type);
 	}
 
@@ -200,18 +205,19 @@ public abstract class ApplicationContext {
 		return fullscreen;
 	}
 
-
 	public final void showError(String title, String message) {
 		requireNonNull(title);
 
 		showNotification(NotificationType.ERROR, title, message);
 	}
 
-	public final void showError(String title, String message, Object... messageParams) {
+	public final void showError(String title, String message,
+			Object... messageParams) {
 		showNotification(NotificationType.ERROR, title, message, messageParams);
 	}
 
-	public final void showNotification(NotificationType type, String title, String message) {
+	public final void showNotification(NotificationType type, String title,
+			String message) {
 		if (getDictionary().contains(title)) {
 			title = getDictionary().get(title);
 		}
@@ -222,7 +228,8 @@ public abstract class ApplicationContext {
 		getEventBus().post(new NotificationCommand(type, title, message));
 	}
 
-	public final void showNotification(NotificationType type, String title, String message, Object... messageParams) {
+	public final void showNotification(NotificationType type, String title,
+			String message, Object... messageParams) {
 		if (getDictionary().contains(message)) {
 			message = getDictionary().get(message);
 		}
@@ -244,7 +251,8 @@ public abstract class ApplicationContext {
 			message = getDictionary().get(message);
 		}
 
-		getEventBus().post(new NotificationPopupCommand(Position.TOP_RIGHT, title, message));
+		getEventBus().post(new NotificationPopupCommand(Position.TOP_RIGHT,
+				title, message));
 	}
 
 	/**
@@ -256,9 +264,11 @@ public abstract class ApplicationContext {
 	 * @param confirmAction The action when the user clicks the confirm button
 	 * @param discardAction The action when the user clicks the close button
 	 */
-	public final void showConfirmationNotification(NotificationType type, String title, String message,
-	                                               Action confirmAction, Action discardAction) {
-		showConfirmationNotification(type, title, message, confirmAction, discardAction, "button.confirm", "button.close");
+	public final void showConfirmationNotification(NotificationType type,
+			String title, String message, Action confirmAction,
+			Action discardAction) {
+		showConfirmationNotification(type, title, message, confirmAction,
+				discardAction, "button.confirm", "button.close");
 	}
 
 	/**
@@ -270,9 +280,10 @@ public abstract class ApplicationContext {
 	 * @param confirmAction The action when the user clicks the confirm button
 	 * @param discardAction The action when the user clicks the close button
 	 */
-	public final void showConfirmationNotification(NotificationType type, String title, String message,
-	                                               Action confirmAction, Action discardAction,
-	                                               String confirmButtonText, String discardButtonText) {
+	public final void showConfirmationNotification(NotificationType type,
+			String title, String message, Action confirmAction,
+			Action discardAction, String confirmButtonText,
+			String discardButtonText) {
 		if (getDictionary().contains(title)) {
 			title = getDictionary().get(title);
 		}
@@ -286,8 +297,8 @@ public abstract class ApplicationContext {
 			discardButtonText = getDictionary().get(discardButtonText);
 		}
 
-
-		getEventBus().post(new ConfirmationNotificationCommand(type, title, message, confirmAction,
-				discardAction, confirmButtonText, discardButtonText));
+		getEventBus().post(new ConfirmationNotificationCommand(type, title,
+				message, confirmAction,	discardAction, confirmButtonText,
+				discardButtonText));
 	}
 }

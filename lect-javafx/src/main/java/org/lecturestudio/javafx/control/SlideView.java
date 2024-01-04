@@ -258,9 +258,17 @@ public class SlideView extends Control implements ParameterChangeListener, org.l
 
 	@Override
 	public void setPage(Page page) {
+		Page oldPage = getPage();
+
 		pageProperty().set(page);
-		if (Boolean.FALSE.equals(seekProperty.get())) {
-			page.addShapeListener(this);
+
+		if (nonNull(oldPage)) {
+			oldPage.removeShapeListener(this);
+		}
+		if (nonNull(page)) {
+			if (Boolean.FALSE.equals(seekProperty.get())) {
+				page.addShapeListener(this);
+			}
 		}
 	}
 
@@ -289,7 +297,11 @@ public class SlideView extends Control implements ParameterChangeListener, org.l
 		updateViewTransform();
 	}
 
-	public void repaint() {
+	public synchronized void repaint() {
+		if (seekProperty.get()) {
+			return;
+		}
+
 		SlideViewSkin skin = (SlideViewSkin) getSkin();
 		skin.repaint();
 	}
@@ -338,7 +350,7 @@ public class SlideView extends Control implements ParameterChangeListener, org.l
 
 		canvasBoundsProperty().addListener((observable, oldBounds, newBounds) -> updateViewTransform());
 		seekProperty().addListener(((observable, oldValue, newValue) -> {
-			Page page = pageProperty().get();
+			Page page = getPage();
 
 			if (nonNull(page)) {
 				if (Boolean.FALSE.equals(newValue)) {

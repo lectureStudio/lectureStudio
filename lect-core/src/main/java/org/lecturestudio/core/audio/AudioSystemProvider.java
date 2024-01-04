@@ -30,6 +30,22 @@ import org.lecturestudio.core.audio.device.AudioDevice;
 public interface AudioSystemProvider {
 
 	/**
+	 * Adds a new device change listener that receives events each time an audio
+	 * device is connected or disconnected to or from the system.
+	 *
+	 * @param listener The device change listener to register.
+	 */
+	void addDeviceChangeListener(AudioDeviceChangeListener listener);
+
+	/**
+	 * Removes a device change listener from event observation when an audio
+	 * device is connected or disconnected to or from the system.
+	 *
+	 * @param listener The device change listener to unregister.
+	 */
+	void removeDeviceChangeListener(AudioDeviceChangeListener listener);
+
+	/**
 	 * Get the systems default audio recording device.
 	 *
 	 * @return The default audio recording device.

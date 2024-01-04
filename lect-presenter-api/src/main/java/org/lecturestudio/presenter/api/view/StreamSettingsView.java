@@ -18,12 +18,15 @@
 
 package org.lecturestudio.presenter.api.view;
 
+import org.lecturestudio.core.beans.BooleanProperty;
 import org.lecturestudio.core.beans.ObjectProperty;
 import org.lecturestudio.core.beans.StringProperty;
 import org.lecturestudio.core.view.Action;
 import org.lecturestudio.presenter.api.net.ScreenShareProfile;
 
 public interface StreamSettingsView extends SettingsBaseView {
+
+	void setRecordStream(BooleanProperty record);
 
 	void setAccessToken(StringProperty accessToken);
 

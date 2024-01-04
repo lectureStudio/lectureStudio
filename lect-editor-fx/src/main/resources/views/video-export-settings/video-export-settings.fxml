@@ -1,12 +1,27 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import javafx.scene.control.*?>
-<?import javafx.scene.layout.*?>
-<?import org.lecturestudio.javafx.factory.*?>
-<?import org.lecturestudio.javafx.layout.*?>
-<?import org.lecturestudio.javafx.util.*?>
+<?import javafx.scene.control.Accordion?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.CheckBox?>
+<?import javafx.scene.control.ComboBox?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ScrollPane?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.control.TitledPane?>
+<?import javafx.scene.layout.ColumnConstraints?>
+<?import javafx.scene.layout.GridPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.RowConstraints?>
+<?import javafx.scene.layout.VBox?>
+<?import org.lecturestudio.javafx.factory.AudioFormatCellFactory?>
+<?import org.lecturestudio.javafx.factory.AudioFormatListCell?>
+<?import org.lecturestudio.javafx.factory.DimensionCellFactory?>
+<?import org.lecturestudio.javafx.factory.DimensionListCell?>
+<?import org.lecturestudio.javafx.layout.ContentPane?>
+<?import org.lecturestudio.javafx.util.TextIntegerFormatter?>
 
-<fx:root type="ContentPane" title="%video.export.settings.title" styleClass="video-export-settings" xmlns="http://javafx.com/javafx/10.0.2-internal" xmlns:fx="http://javafx.com/fxml/1">
+<fx:root type="ContentPane" title="%video.export.settings.title" styleClass="video-export-settings"
+		 xmlns="http://javafx.com/javafx/10.0.2-internal" xmlns:fx="http://javafx.com/fxml/1">
 	<Accordion expandedPane="$filePane">
 		<panes>
 			<TitledPane fx:id="filePane" animated="false" text="%video.export.settings.file">

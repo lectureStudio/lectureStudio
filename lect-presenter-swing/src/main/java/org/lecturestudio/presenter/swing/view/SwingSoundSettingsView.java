@@ -38,11 +38,9 @@ import org.lecturestudio.core.audio.AudioProcessingSettings.NoiseSuppressionLeve
 import org.lecturestudio.core.audio.device.AudioDevice;
 import org.lecturestudio.core.beans.BooleanProperty;
 import org.lecturestudio.core.beans.DoubleProperty;
-import org.lecturestudio.core.beans.FloatProperty;
 import org.lecturestudio.core.beans.ObjectProperty;
 import org.lecturestudio.core.beans.StringProperty;
 import org.lecturestudio.core.converter.DoubleIntegerConverter;
-import org.lecturestudio.core.converter.FloatIntegerConverter;
 import org.lecturestudio.core.view.Action;
 import org.lecturestudio.core.view.ConsumerAction;
 import org.lecturestudio.presenter.api.presenter.SoundSettingsPresenter;
@@ -166,9 +164,9 @@ public class SwingSoundSettingsView extends JPanel implements SoundSettingsView 
 	}
 
 	@Override
-	public void bindAudioCaptureLevel(FloatProperty level) {
+	public void bindAudioCaptureLevel(DoubleProperty level) {
 		var levelProperty = new ConvertibleNumberProperty<>(level,
-				new FloatIntegerConverter(100));
+				new DoubleIntegerConverter(100));
 
 		SwingUtils.bindBidirectional(micVolumeSlider, levelProperty);
 	}

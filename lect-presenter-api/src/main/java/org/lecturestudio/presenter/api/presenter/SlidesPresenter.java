@@ -1163,6 +1163,12 @@ public class SlidesPresenter extends Presenter<SlidesView> {
 			view.setExtendedFullscreen(newValue);
 		});
 
+//		config.useMouseInputProperty().addListener((o, oldValue, newValue) -> {
+//			setUseMouse(newValue);
+//		});
+
+		setUseMouse(config.getUseMouseInput());
+
 		view.setOnExternalMessagesPositionChanged(this::externalMessagesPositionChanged);
 		view.setOnExternalMessagesSizeChanged(this::externalMessagesSizeChanged);
 		view.setOnExternalMessagesClosed(this::externalMessagesClosed);
@@ -1200,7 +1206,6 @@ public class SlidesPresenter extends Presenter<SlidesView> {
 				(enabled, show) -> eventBus.post(new ExternalSlideNotesViewEvent(enabled, show)));
 
 		view.setPageRenderer(renderController);
-		view.setStylusHandler(stylusHandler);
 		view.setExtendedFullscreen(config.getExtendedFullscreen());
 		view.setMessengerState(ExecutableState.Stopped);
 
@@ -1264,6 +1269,15 @@ public class SlidesPresenter extends Presenter<SlidesView> {
 		}
 		catch (ExecutableException e) {
 			throw new RuntimeException(e);
+		}
+	}
+
+	private void setUseMouse(boolean useMouse) {
+		if (useMouse) {
+			view.createMouseInput(toolController);
+		}
+		else {
+			view.createStylusInput(stylusHandler);
 		}
 	}
 

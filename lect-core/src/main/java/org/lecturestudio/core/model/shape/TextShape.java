@@ -63,7 +63,7 @@ public class TextShape extends Shape implements TextBoxShape<Font> {
 	 */
 	public TextShape() {
 		super();
-		
+
 		initProperties();
 	}
 
@@ -183,6 +183,12 @@ public class TextShape extends Shape implements TextBoxShape<Font> {
 		}
 	}
 
+	@Override
+	public void setBounds(Rectangle2D rect) {
+		super.setBounds(rect);
+		fireShapeChanged(null);
+	}
+
 	/**
 	 * Get the location of the bounding rectangle of the shape.
 	 *
@@ -248,12 +254,6 @@ public class TextShape extends Shape implements TextBoxShape<Font> {
 	 */
 	public void setStrikethrough(boolean strikethrough) {
 		this.attributes.setAttribute("strikethrough", strikethrough);
-	}
-
-	@Override
-	public void setBounds(Rectangle2D rect) {
-		super.setBounds(rect);
-		fireShapeChanged(null);
 	}
 
 	public void setOnRemove() {

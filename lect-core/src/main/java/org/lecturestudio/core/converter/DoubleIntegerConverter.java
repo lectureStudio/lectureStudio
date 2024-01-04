@@ -36,7 +36,7 @@ public class DoubleIntegerConverter implements Converter<Double, Integer> {
 
 	@Override
 	public Integer to(Double value) {
-		return (int) (value * scalar);
+		return (int) (value * scalar + 0.5);
 	}
 
 	@Override

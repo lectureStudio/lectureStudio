@@ -21,7 +21,7 @@ package org.lecturestudio.editor.api.presenter;
 import static java.util.Objects.isNull;
 import static java.util.Objects.nonNull;
 
-import javax.inject.Inject;
+import com.google.common.eventbus.Subscribe;
 
 import java.io.File;
 import java.io.IOException;
@@ -29,7 +29,7 @@ import java.nio.file.Path;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionException;
 
-import com.google.common.eventbus.Subscribe;
+import javax.inject.Inject;
 
 import org.lecturestudio.core.app.ApplicationContext;
 import org.lecturestudio.core.app.configuration.Configuration;
@@ -39,6 +39,7 @@ import org.lecturestudio.core.bus.event.DocumentEvent;
 import org.lecturestudio.core.model.Document;
 import org.lecturestudio.core.model.Interval;
 import org.lecturestudio.core.presenter.Presenter;
+import org.lecturestudio.core.presenter.command.ShowPresenterCommand;
 import org.lecturestudio.core.util.FileUtils;
 import org.lecturestudio.core.view.FileChooserView;
 import org.lecturestudio.core.view.ViewContextFactory;
@@ -247,13 +248,12 @@ public class MediaTrackControlsPresenter extends Presenter<MediaTrackControlsVie
 		File file = fileChooser.showOpenFile(view);
 
 		if (nonNull(file)) {
-			EditorContext editorContext = (EditorContext) context;
-
-			recordingService.importRecording(file, editorContext.getPrimarySelection())
-					.exceptionally(throwable -> {
-						handleException(throwable, "Open recording failed", "open.recording.error", file.getPath());
-						return null;
-					});
+			context.getEventBus().post(new ShowPresenterCommand<>(ImportRecordingPresenter.class) {
+				@Override
+				public void execute(ImportRecordingPresenter presenter) {
+					presenter.setFile(file);
+				}
+			});
 		}
 	}
 

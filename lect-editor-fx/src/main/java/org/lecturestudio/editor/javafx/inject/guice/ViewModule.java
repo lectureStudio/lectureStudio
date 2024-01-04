@@ -23,9 +23,9 @@ import com.google.inject.TypeLiteral;
 import com.google.inject.spi.TypeEncounter;
 import com.google.inject.spi.TypeListener;
 
-import javax.inject.Provider;
-
 import javafx.util.BuilderFactory;
+
+import javax.inject.Provider;
 
 import org.lecturestudio.core.inject.DIViewContextFactory;
 import org.lecturestudio.core.util.AggregateBundle;
@@ -41,7 +41,10 @@ import org.lecturestudio.core.view.ProgressDialogView;
 import org.lecturestudio.core.view.ProgressView;
 import org.lecturestudio.core.view.TextBoxView;
 import org.lecturestudio.core.view.ViewContextFactory;
+import org.lecturestudio.editor.api.view.AudioEffectsView;
 import org.lecturestudio.editor.api.view.GeneralSettingsView;
+import org.lecturestudio.editor.api.view.ImportRecordingView;
+import org.lecturestudio.editor.api.view.LoudnessNormalizeView;
 import org.lecturestudio.editor.api.view.MainView;
 import org.lecturestudio.editor.api.view.MediaControlsView;
 import org.lecturestudio.editor.api.view.MediaTrackControlsView;
@@ -63,7 +66,10 @@ import org.lecturestudio.editor.api.view.VideoExportSettingsView;
 import org.lecturestudio.editor.api.view.VideoExportView;
 import org.lecturestudio.editor.api.view.VideoSettingsView;
 import org.lecturestudio.editor.javafx.view.FxAboutView;
+import org.lecturestudio.editor.javafx.view.FxAudioEffectsView;
 import org.lecturestudio.editor.javafx.view.FxGeneralSettingsView;
+import org.lecturestudio.editor.javafx.view.FxImportRecordingView;
+import org.lecturestudio.editor.javafx.view.FxLoudnessNormalizeView;
 import org.lecturestudio.editor.javafx.view.FxMainView;
 import org.lecturestudio.editor.javafx.view.FxMediaControlsView;
 import org.lecturestudio.editor.javafx.view.FxMediaTrackControlsView;
@@ -113,7 +119,9 @@ public class ViewModule extends AbstractModule {
 		bind(NotificationPopupManager.class).to(FxNotificationPopupManager.class);
 
 		bind(AboutView.class).to(FxAboutView.class);
+		bind(AudioEffectsView.class).to(FxAudioEffectsView.class);
 		bind(GeneralSettingsView.class).to(FxGeneralSettingsView.class);
+		bind(ImportRecordingView.class).to(FxImportRecordingView.class);
 		bind(MainView.class).to(FxMainView.class);
 		bind(MediaControlsView.class).to(FxMediaControlsView.class);
 		bind(MediaTrackControlsView.class).to(FxMediaTrackControlsView.class);
@@ -122,6 +130,7 @@ public class ViewModule extends AbstractModule {
 		bind(NewVersionView.class).to(FxNewVersionView.class);
 		bind(NoiseReductionProgressView.class).to(FxNoiseReductionProgressView.class);
 		bind(NoiseReductionSettingsView.class).to(FxNoiseReductionSettingsView.class);
+		bind(LoudnessNormalizeView.class).to(FxLoudnessNormalizeView.class);
 		bind(PageEventsView.class).to(FxPageEventsView.class);
 		bind(ProgressView.class).to(FxProgressView.class);
 		bind(ProgressDialogView.class).to(FxProgressDialogView.class);

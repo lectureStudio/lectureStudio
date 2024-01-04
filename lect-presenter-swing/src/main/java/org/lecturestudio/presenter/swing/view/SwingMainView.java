@@ -265,7 +265,10 @@ public class SwingMainView extends JPanel implements MainView, KeyEventDispatche
 		SwingUtils.invoke(() -> {
 			JComponent glassPane = (JComponent) getWindow().getGlassPane();
 			glassPane.remove(componentView);
-			glassPane.setVisible(false);
+
+			if (glassPane.getComponentCount() < 1) {
+				glassPane.setVisible(false);
+			}
 		});
 	}
 

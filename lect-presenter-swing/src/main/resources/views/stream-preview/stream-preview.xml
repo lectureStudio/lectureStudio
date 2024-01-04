@@ -1,0 +1,8 @@
+<Panel layout="BorderLayout" parentSizeScale="0.7">
+	<Panel id="contentContainer" layout="BorderLayout" constraints="BorderLayout.CENTER">
+	</Panel>
+	<HBox constraints="BorderLayout.SOUTH" border="EmptyBorder(5, 5, 5, 5)">
+		<box.hglue />
+		<Button id="closeButton" text="button.close" />
+	</HBox>
+</Panel>

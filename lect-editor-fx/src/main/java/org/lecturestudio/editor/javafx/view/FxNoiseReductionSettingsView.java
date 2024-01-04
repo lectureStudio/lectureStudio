@@ -25,6 +25,7 @@ import javafx.scene.control.Button;
 import javafx.scene.control.Slider;
 import javafx.scene.control.TextField;
 import javafx.scene.control.ToggleButton;
+import javafx.scene.layout.GridPane;
 import javafx.util.converter.NumberStringConverter;
 
 import org.lecturestudio.core.beans.BooleanProperty;
@@ -35,13 +36,12 @@ import org.lecturestudio.editor.api.view.NoiseReductionSettingsView;
 import org.lecturestudio.javafx.beans.LectBooleanProperty;
 import org.lecturestudio.javafx.beans.LectDoubleProperty;
 import org.lecturestudio.javafx.control.SpectrogramChart;
-import org.lecturestudio.javafx.layout.ContentPane;
 import org.lecturestudio.javafx.util.FxUtils;
 import org.lecturestudio.javafx.view.FxmlView;
 import org.lecturestudio.media.audio.Spectrogram;
 
 @FxmlView(name = "noise-reduction-settings", presenter = NoiseReductionSettingsPresenter.class)
-public class FxNoiseReductionSettingsView extends ContentPane implements NoiseReductionSettingsView {
+public class FxNoiseReductionSettingsView extends GridPane implements NoiseReductionSettingsView {
 
 	@FXML
 	private ResourceBundle resources;
@@ -85,10 +85,10 @@ public class FxNoiseReductionSettingsView extends ContentPane implements NoiseRe
 			String text;
 
 			if (playSnippetButton.isSelected()) {
-				text = "noise.reduction.settings.stop.audio.snippet";
+				text = "audio.noise.reduction.settings.stop.audio.snippet";
 			}
 			else {
-				text = "noise.reduction.settings.play.audio.snippet";
+				text = "audionoise.reduction.settings.play.audio.snippet";
 			}
 
 			FxUtils.invoke(() -> {

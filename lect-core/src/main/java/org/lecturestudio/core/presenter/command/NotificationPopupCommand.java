@@ -23,8 +23,9 @@ import org.lecturestudio.core.presenter.NotificationPopupPresenter;
 import org.lecturestudio.core.view.NotificationType;
 
 /**
- * NotificationPopup view command implementation. NotificationPopups will be shown on
- * the {@code NotificationPopup} layer at the top-most view layer with configurable position in the main window.
+ * NotificationPopup view command implementation. NotificationPopups will be
+ * shown on the {@code NotificationPopup} layer at the top-most view layer with
+ * configurable position in the main window.
  *
  * @author Alex Andres
  */
@@ -44,27 +45,29 @@ public class NotificationPopupCommand extends ShowPresenterCommand<NotificationP
 
 
 	/**
-	 * Create a new {@link NotificationPopupCommand} with the specified notification type and title.
-	 * The message is empty.
+	 * Create a new {@link NotificationPopupCommand} with the specified
+	 * notification type and title. The message is empty.
 	 *
 	 * @param position The position of the popup in the main window.
 	 * @param title    The title of the notification.
 	 * @param message  The message of the notification.
 	 */
-	public NotificationPopupCommand(Position position, String title, String message) {
+	public NotificationPopupCommand(Position position, String title,
+			String message) {
 		this(position, NotificationType.DEFAULT, title, message);
 	}
 
 	/**
-	 * Create a new {@link NotificationPopupCommand} with the specified notification
-	 * type, title and message at the given position.
+	 * Create a new {@link NotificationPopupCommand} with the specified
+	 * notification type, title and message at the given position.
 	 *
 	 * @param position The position of the popup in the main window.
 	 * @param type     The type of the notification.
 	 * @param title    The title of the notification.
 	 * @param message  The message of the notification.
 	 */
-	public NotificationPopupCommand(Position position, NotificationType type, String title, String message) {
+	public NotificationPopupCommand(Position position, NotificationType type,
+			String title, String message) {
 		super(NotificationPopupPresenter.class);
 
 		this.position = position;

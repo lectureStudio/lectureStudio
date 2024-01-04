@@ -24,7 +24,7 @@ import org.lecturestudio.core.audio.analysis.WindowFunction;
 
 /**
  * Noise reduction audio effect implementation that performs noise reduction on
- * an audio stream. The noise reduction of audio is an two-step process. First
+ * an audio stream. The noise reduction of audio is a two-step process. First
  * the frequency profile of the audio stream needs to be created, then the noise
  * reduction algorithm is applied on the audio stream using the collected
  * frequencies to filter out the frequencies that cause the noise.

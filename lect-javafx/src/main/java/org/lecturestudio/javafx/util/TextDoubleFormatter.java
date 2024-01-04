@@ -59,7 +59,7 @@ public class TextDoubleFormatter extends TextFormatter<Double> {
 
 				value = value.trim();
 
-				if (value.length() < 1) {
+				if (value.isEmpty()) {
 					return null;
 				}
 

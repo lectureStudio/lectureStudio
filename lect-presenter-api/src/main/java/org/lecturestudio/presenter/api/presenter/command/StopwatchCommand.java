@@ -16,7 +16,6 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-
 package org.lecturestudio.presenter.api.presenter.command;
 
 import org.lecturestudio.core.presenter.command.ShowPresenterCommand;
@@ -26,6 +25,8 @@ import org.lecturestudio.presenter.api.presenter.StopwatchConfigPresenter;
 public class StopwatchCommand extends ShowPresenterCommand<StopwatchConfigPresenter> {
 
     private final Action startAction;
+
+
     public StopwatchCommand(Action startAction) {
         super(StopwatchConfigPresenter.class);
 

@@ -108,9 +108,7 @@ public abstract class ApplicationBase implements Application {
 
 			File file = new File(utf8Path);
 
-			if (file.exists()) {
-				OPEN_FILES.add(file);
-			}
+			OPEN_FILES.add(file);
 		}
 
 		try {

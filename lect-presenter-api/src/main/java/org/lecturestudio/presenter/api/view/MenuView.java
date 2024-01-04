@@ -178,6 +178,8 @@ public interface MenuView extends View {
 
 	void bindEnableStream(BooleanProperty enable);
 
+	void bindViewStream(BooleanProperty enable);
+
 	void bindEnableStreamingMicrophone(BooleanProperty enable);
 
 	void bindEnableStreamingCamera(BooleanProperty enable);

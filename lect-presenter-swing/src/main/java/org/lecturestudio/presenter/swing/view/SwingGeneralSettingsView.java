@@ -57,6 +57,8 @@ public class SwingGeneralSettingsView extends JPanel implements GeneralSettingsV
 
 	private JCheckBox fullscreenCheckBox;
 
+	private JCheckBox mouseInputCheckBox;
+
 	private JCheckBox tabletCheckBox;
 
 	private JCheckBox saveAnnotationsCheckBox;
@@ -110,6 +112,11 @@ public class SwingGeneralSettingsView extends JPanel implements GeneralSettingsV
 	@Override
 	public void setStartFullscreen(BooleanProperty fullscreen) {
 		SwingUtils.bindBidirectional(fullscreenCheckBox, fullscreen);
+	}
+
+	@Override
+	public void setUseMouseInput(BooleanProperty useMouse) {
+		SwingUtils.bindBidirectional(mouseInputCheckBox, useMouse);
 	}
 
 	@Override

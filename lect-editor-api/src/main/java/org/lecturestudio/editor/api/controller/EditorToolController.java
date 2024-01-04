@@ -1,3 +1,21 @@
+/*
+ * Copyright (C) 2023 TU Darmstadt, Department of Computer Science,
+ * Embedded Systems and Applications Group.
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
 package org.lecturestudio.editor.api.controller;
 
 import static java.util.Objects.nonNull;
@@ -22,7 +40,6 @@ import org.lecturestudio.core.tool.Tool;
 import org.lecturestudio.core.tool.ToolType;
 import org.lecturestudio.editor.api.bus.event.EditorRecordActionEvent;
 import org.lecturestudio.editor.api.bus.event.EditorToolSelectionEvent;
-import org.lecturestudio.editor.api.context.EditorContext;
 import org.lecturestudio.editor.api.recording.AnnotationLectureRecorder;
 import org.lecturestudio.editor.api.service.RecordingFileService;
 import org.lecturestudio.editor.api.tool.EditorSelectTool;
@@ -30,13 +47,13 @@ import org.lecturestudio.editor.api.tool.EditorTextTool;
 
 @Singleton
 public class EditorToolController extends ToolController {
-	private final EditorContext context;
-	private final DocumentService documentService;
+
 	private final RecordingFileService recordingFileService;
 	private final AnnotationLectureRecorder annotationLectureRecorder;
 	private final BooleanProperty isToolRecordingEnabled = new BooleanProperty(true);
 	private final BooleanProperty isEditingProperty = new BooleanProperty(false);
 	private final List<Consumer<Shape>> shapeAddedListeners = new ArrayList<>();
+
 
 	@Inject
 	public EditorToolController(ApplicationContext context,
@@ -44,8 +61,7 @@ public class EditorToolController extends ToolController {
 								RecordingFileService recordingFileService,
 	                            AnnotationLectureRecorder annotationLectureRecorder) {
 		super(context, documentService);
-		this.context = (EditorContext) context;
-		this.documentService = documentService;
+
 		this.recordingFileService = recordingFileService;
 		this.annotationLectureRecorder = annotationLectureRecorder;
 	}
@@ -141,7 +157,6 @@ public class EditorToolController extends ToolController {
 		isToolRecordingEnabled.set(enabled);
 	}
 
-
 	/**
 	 * Select the text tool.
 	 */
@@ -158,6 +173,11 @@ public class EditorToolController extends ToolController {
 	@Override
 	public void selectTextTool(int handle) {
 		setTool(new EditorTextTool(this, handle));
+	}
+
+	@Override
+	public void selectSelectTool() {
+		setTool(new EditorSelectTool(this));
 	}
 
 	public CompletableFuture<Void> persistPlaybackActions() {
@@ -194,11 +214,6 @@ public class EditorToolController extends ToolController {
 		for (Consumer<Shape> listener : shapeAddedListeners) {
 			listener.accept(shape);
 		}
-	}
-
-	@Override
-	public void selectSelectTool() {
-		setTool(new EditorSelectTool(this));
 	}
 
 	public RecordingFileService getRecordingFileService() {

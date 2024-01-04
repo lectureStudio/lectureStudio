@@ -5,13 +5,13 @@
 <?import javafx.scene.control.MenuBar?>
 <?import javafx.scene.control.MenuItem?>
 <?import javafx.scene.control.SeparatorMenuItem?>
-
 <fx:root type="MenuBar" useSystemMenuBar="true" maxHeight="-Infinity" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1">
 	<Menu fx:id="fileMenu" text="%menu.file">
 		<MenuItem fx:id="openRecordingMenuItem" accelerator="shortcut+o" text="%menu.open" />
 		<MenuItem fx:id="closeRecordingMenuItem" accelerator="shortcut+f4" text="%menu.close" />
 		<SeparatorMenuItem />
 		<MenuItem fx:id="saveDocumentMenuItem" text="%menu.save.document" />
+		<MenuItem fx:id="saveCurrentPageMenuItem" text="%menu.save.page.current"/>
 		<MenuItem fx:id="saveRecordingAsMenuItem" text="%menu.save.as" />
 		<SeparatorMenuItem />
 		<MenuItem fx:id="exportAudioMenuItem" text="%menu.export.audio" />

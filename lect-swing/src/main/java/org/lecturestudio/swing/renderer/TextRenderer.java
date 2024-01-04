@@ -81,6 +81,7 @@ public class TextRenderer extends BaseRenderer {
 
 		float layoutX = 0;
 		float layoutY = 0;
+		double maxWidth = 0;
 
 		for (String line : lines) {
 			if (line.isEmpty()) {
@@ -99,6 +100,11 @@ public class TextRenderer extends BaseRenderer {
 
 			// Move y-coordinate in preparation for next layout.
 			layoutY += layout.getDescent() + layout.getLeading();
+
+			maxWidth = Math.max(maxWidth, layout.getBounds().getWidth());
 		}
+
+		// Set the shape size here, since it is hard to compute it anywhere else, right now.
+		shape.getBounds().setSize(maxWidth / sx, layoutY / sy);
 	}
 }

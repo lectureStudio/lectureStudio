@@ -23,6 +23,7 @@ import static java.util.Objects.nonNull;
 
 import java.awt.Component;
 import java.awt.Container;
+import java.awt.Dimension;
 import java.awt.Point;
 import java.awt.Rectangle;
 import java.awt.geom.Point2D;
@@ -75,17 +76,21 @@ public class SwingNotificationPopupManager implements NotificationPopupManager {
 		final Position pos = view.getPosition();
 
 		SwingUtils.invoke(() -> {
-			show(rootComponent, viewComponent, pos, Duration.ZERO);
+			show(rootComponent, viewComponent, pos, Duration.ofSeconds(4));
 		});
 	}
 
 	private void show(Component root, Component component, Position position, Duration delay) {
+		// Show all popups with the width of 300px.
+		component.setPreferredSize(new Dimension(300, component.getPreferredSize().height));
+		Dimension size = component.getPreferredSize();
+
 		JWindow popup = new JWindow(SwingUtilities.getWindowAncestor(component));
 		popup.setContentPane((Container) component);
-		popup.setSize(component.getPreferredSize());
+		popup.setSize(size);
 		popup.setAlwaysOnTop(true);
 
-		Rectangle contentBounds = new Rectangle(0, 0, component.getPreferredSize().width, component.getPreferredSize().height);
+		Rectangle contentBounds = new Rectangle(0, 0, size.width, size.height);
 		Point rootLoc = root.getLocationOnScreen();
 		Rectangle rootBounds = new Rectangle(rootLoc.x, rootLoc.y, root.getWidth(), root.getHeight());
 		Point2D location = getLocation(contentBounds, rootBounds, position);
@@ -102,7 +107,7 @@ public class SwingNotificationPopupManager implements NotificationPopupManager {
 
 		addPopup(popup, position);
 
-		createHideAnimation(popup, Duration.ofSeconds(2), position);
+		createHideAnimation(popup, delay, position);
 	}
 
 	private void showBacklog(Position position) {
@@ -116,7 +121,8 @@ public class SwingNotificationPopupManager implements NotificationPopupManager {
 				BacklogEntry entry = iter.next();
 				iter.remove();
 
-				show(entry.root, entry.component, entry.position, Duration.ofMillis(i++ * 500));
+				show(entry.root, entry.component, entry.position,
+						Duration.ofMillis(i++ * 500L));
 			}
 		}
 	}
@@ -163,8 +169,10 @@ public class SwingNotificationPopupManager implements NotificationPopupManager {
 		entries.add(entry);
 	}
 
-	private Point2D getLocation(Rectangle contentBounds, Rectangle rootBounds, Position position) {
-		Point2D location = getInitialLocation(contentBounds, rootBounds, position);
+	private Point2D getLocation(Rectangle contentBounds, Rectangle rootBounds,
+			Position position) {
+		Point2D location = getInitialLocation(contentBounds, rootBounds,
+				position);
 		List<JWindow> popups = popupMap.get(position);
 
 		if (isNull(popups)) {
@@ -190,7 +198,8 @@ public class SwingNotificationPopupManager implements NotificationPopupManager {
 		return new Point2D.Double(x, y);
 	}
 
-	private Point2D getInitialLocation(Rectangle contentBounds, Rectangle rootBounds, Position position) {
+	private Point2D getInitialLocation(Rectangle contentBounds,
+			Rectangle rootBounds, Position position) {
 		double width = contentBounds.getWidth();
 		double height = contentBounds.getHeight();
 		double x = rootBounds.getMinX();
@@ -201,28 +210,22 @@ public class SwingNotificationPopupManager implements NotificationPopupManager {
 		double padX = 10;
 		double padY = 10;
 
-		switch (position) {
-			case TOP_LEFT:
-				return new Point2D.Double(x + padX, y + padY);
-			case TOP_CENTER:
-				return new Point2D.Double(x + (w - width) / 2, y + padY);
-			case TOP_RIGHT:
-				return new Point2D.Double(x + w - width - padX, y + padY);
-			case CENTER_LEFT:
-				return new Point2D.Double(x + padX, y + (h - height) / 2);
-			case CENTER:
-				return new Point2D.Double(x + (w - width) / 2, y + (h - height) / 2);
-			case CENTER_RIGHT:
-				return new Point2D.Double(x + w - width - padX, y + (h - height) / 2);
-			case BOTTOM_LEFT:
-				return new Point2D.Double(x + padX, y + h - height - padY);
-			case BOTTOM_CENTER:
-				return new Point2D.Double(x + (w - width) / 2, y + h - height - padY);
-			case BOTTOM_RIGHT:
-				return new Point2D.Double(x + w - width - padX, y + h - height - padY);
-		}
-
-		return new Point2D.Double(x, y);
+		return switch (position) {
+			case TOP_LEFT -> new Point2D.Double(x + padX, y + padY);
+			case TOP_CENTER -> new Point2D.Double(x + (w - width) / 2, y + padY);
+			case TOP_RIGHT -> new Point2D.Double(x + w - width - padX, y + padY);
+			case CENTER_LEFT -> new Point2D.Double(x + padX, y + (h - height) / 2);
+			case CENTER -> new Point2D.Double(x + (w - width) / 2,
+					y + (h - height) / 2);
+			case CENTER_RIGHT -> new Point2D.Double(x + w - width - padX,
+					y + (h - height) / 2);
+			case BOTTOM_LEFT ->
+					new Point2D.Double(x + padX, y + h - height - padY);
+			case BOTTOM_CENTER -> new Point2D.Double(x + (w - width) / 2,
+					y + h - height - padY);
+			case BOTTOM_RIGHT -> new Point2D.Double(x + w - width - padX,
+					y + h - height - padY);
+		};
 	}
 
 	private int getDirection(Position pos) {
@@ -232,7 +235,8 @@ public class SwingNotificationPopupManager implements NotificationPopupManager {
 		return SwingConstants.SOUTH;
 	}
 
-	private void createHideAnimation(final JWindow popup, final Duration delay, final Position position) {
+	private void createHideAnimation(final JWindow popup, final Duration delay,
+			final Position position) {
 		Timer timer = new Timer((int) delay.toMillis(), e -> {
 			hide(popup, position);
 		});

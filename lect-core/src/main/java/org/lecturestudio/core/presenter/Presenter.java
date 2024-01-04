@@ -21,15 +21,8 @@ package org.lecturestudio.core.presenter;
 import static java.util.Objects.nonNull;
 import static java.util.Objects.requireNonNull;
 
-import java.text.MessageFormat;
-
 import org.lecturestudio.core.app.ApplicationContext;
-import org.lecturestudio.core.geometry.Position;
-import org.lecturestudio.core.presenter.command.ConfirmationNotificationCommand;
-import org.lecturestudio.core.presenter.command.NotificationCommand;
-import org.lecturestudio.core.presenter.command.NotificationPopupCommand;
 import org.lecturestudio.core.view.Action;
-import org.lecturestudio.core.view.NotificationType;
 import org.lecturestudio.core.view.View;
 import org.lecturestudio.core.view.ViewLayer;
 

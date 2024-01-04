@@ -18,6 +18,7 @@
 
 package org.lecturestudio.editor.api.edit;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import org.lecturestudio.core.model.Interval;
@@ -34,25 +35,33 @@ import org.lecturestudio.core.recording.edit.EditAction;
  *
  * @author Alex Andres
  */
-public class DeletePageEventAction extends RecordingAction {
+public class DeletePageActions extends RecordingAction {
 
 	/**
 	 * Constructor for a {@code RecordingAction} to be used by specific action
 	 * implementations.
 	 *
 	 * @param recording  The recording on which to apply this action.
-	 * @param action     The action to delete.
+	 * @param actions    The actions to delete.
 	 * @param pageNumber The page number on which the action is located.
 	 */
-	public DeletePageEventAction(Recording recording, PlaybackAction action, int pageNumber) {
-		super(recording, createActions(recording, action, pageNumber));
+	public DeletePageActions(Recording recording,
+			List<PlaybackAction> actions, int pageNumber) {
+		super(recording, createActions(recording, actions, pageNumber));
 	}
 
-	private static List<EditAction> createActions(Recording recording, PlaybackAction action, int pageNumber) {
+	private static List<EditAction> createActions(Recording recording,
+			List<PlaybackAction> actions, int pageNumber) {
 		RecordedEvents lectureEvents = recording.getRecordedEvents();
-		DeleteEventAction deleteAction = new DeleteEventAction(lectureEvents, action, pageNumber);
 
-		return List.of(deleteAction);
+		List<EditAction> deletions = new ArrayList<>();
+
+		for (var action : actions) {
+			deletions.add(new DeleteEventAction(lectureEvents, action,
+					pageNumber));
+		}
+
+		return deletions;
 	}
 
 	@Override

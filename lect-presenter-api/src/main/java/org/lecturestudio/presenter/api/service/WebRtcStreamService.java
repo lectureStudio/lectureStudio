@@ -72,6 +72,7 @@ import org.lecturestudio.web.api.janus.JanusPeerConnectionMediaException;
 import org.lecturestudio.web.api.janus.JanusStateHandlerListener;
 import org.lecturestudio.web.api.janus.client.JanusWebSocketClient;
 import org.lecturestudio.web.api.message.SpeechBaseMessage;
+import org.lecturestudio.web.api.model.StreamConfig;
 import org.lecturestudio.web.api.model.UserInfo;
 import org.lecturestudio.web.api.service.ServiceParameters;
 import org.lecturestudio.web.api.stream.StreamAudioContext;
@@ -104,6 +105,8 @@ public class WebRtcStreamService extends ExecutableBase {
 	private final RecordingService recordingService;
 
 	private final ExecutableStateObserver stateObserver;
+
+	private final StreamConfig streamConfig;
 
 	private StreamContext streamContext;
 
@@ -146,6 +149,7 @@ public class WebRtcStreamService extends ExecutableBase {
 		this.webServiceInfo = webServiceInfo;
 		this.eventRecorder = eventRecorder;
 		this.recordingService = recordingService;
+		this.streamConfig = new StreamConfig();
 		this.stateObserver = new ExecutableStateObserver();
 		this.clientFailover = new ClientFailover();
 		this.clientFailover.addStateListener((oldState, newState) -> {
@@ -153,6 +157,10 @@ public class WebRtcStreamService extends ExecutableBase {
 		});
 
 		eventRecorder.init();
+	}
+
+	public StreamConfig getStreamConfig() {
+		return streamConfig;
 	}
 
 	public void acceptSpeechRequest(SpeechBaseMessage message) {
@@ -396,6 +404,10 @@ public class WebRtcStreamService extends ExecutableBase {
 		stateObserver.setStartedListener(() -> {
 			sendMediaStreamState();
 			streamProviderService.startedStream(course.getId());
+
+			if (this.streamConfig.getStartChat()) {
+				pContext.setMessengerStarted(true);
+			}
 		});
 
 		try {

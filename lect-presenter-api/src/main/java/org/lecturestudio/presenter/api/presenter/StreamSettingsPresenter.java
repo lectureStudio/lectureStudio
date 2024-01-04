@@ -57,6 +57,7 @@ public class StreamSettingsPresenter extends Presenter<StreamSettingsView> {
 		StreamConfiguration streamConfig = config.getStreamConfig();
 		VideoCodecConfiguration cameraConfig = streamConfig.getCameraCodecConfig();
 
+		streamConfig.setRecordStream(defaultConfig.getStreamConfig().getRecordStream());
 		streamConfig.setAudioCodec(defaultConfig.getStreamConfig().getAudioCodec());
 		streamConfig.setAudioFormat(defaultConfig.getStreamConfig().getAudioFormat());
 		streamConfig.setAccessToken(defaultConfig.getStreamConfig().getAccessToken());
@@ -83,6 +84,7 @@ public class StreamSettingsPresenter extends Presenter<StreamSettingsView> {
 			streamConfig.getScreenCodecConfig().setBitRate(newValue.getBitrate());
 		});
 
+		view.setRecordStream(streamConfig.recordStreamProperty());
 		view.setServerName(streamConfig.serverNameProperty());
 		view.setAccessToken(streamConfig.accessTokenProperty());
 		view.setScreenShareProfile(streamConfig.screenProfileProperty());

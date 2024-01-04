@@ -61,6 +61,8 @@
 		</Panel>
 		<VBox border="EmptyBorder(10, 0, 0, 0)">
 			<CheckBox id="messengerCheckBox" text="start.stream.messenger.enable" />
+			<CheckBox id="recordStreamCheckBox" text="start.stream.record" />
+			<CheckBox id="viewStreamCheckBox" text="start.stream.preview" />
 		</VBox>
 	</VBox>
 

@@ -28,6 +28,8 @@ import org.lecturestudio.presenter.api.net.ScreenShareProfile;
 
 public class StreamConfiguration {
 
+	private final BooleanProperty recordStream = new BooleanProperty();
+
 	private final StringProperty serverName = new StringProperty();
 
 	private final StringProperty accessToken = new StringProperty();
@@ -52,6 +54,18 @@ public class StreamConfiguration {
 
 	private final BooleanProperty enableMessenger = new BooleanProperty();
 
+
+	public boolean getRecordStream() {
+		return recordStream.get();
+	}
+
+	public void setRecordStream(boolean record) {
+		this.recordStream.set(record);
+	}
+
+	public BooleanProperty recordStreamProperty() {
+		return recordStream;
+	}
 
 	public String getServerName() {
 		return serverName.get();

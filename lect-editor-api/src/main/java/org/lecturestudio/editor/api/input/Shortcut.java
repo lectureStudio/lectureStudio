@@ -41,9 +41,13 @@ public enum Shortcut {
 	REDO(KeyCode.Y, KeyEvent.CTRL_MASK),
 	CUT(KeyCode.X, KeyEvent.CTRL_MASK),
 
-	SLIDE_PAUSE_PLAY_SPACE(KeyCode.SPACE),
+
 	SLIDE_MOVE_RIGHT(KeyCode.RIGHT),
-	SLIDE_MOVE_LEFT(KeyCode.LEFT);
+	SLIDE_MOVE_LEFT(KeyCode.LEFT),
+
+	PLAYBACK_PAUSE_PLAY_SPACE(KeyCode.SPACE),
+	PLAYBACK_BEGINNING_POS_1(KeyCode.HOME),
+	PLAYBACK_END_END(KeyCode.END);
 
 
 	private final KeyEvent keyEvent;

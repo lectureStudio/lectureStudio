@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2020 TU Darmstadt, Department of Computer Science,
+ * Copyright (C) 2023 TU Darmstadt, Department of Computer Science,
  * Embedded Systems and Applications Group.
  *
  * This program is free software: you can redistribute it and/or modify
@@ -16,32 +16,27 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package org.lecturestudio.presenter.api.util;
+package org.lecturestudio.presenter.api.handler.shutdown;
+
+import static java.util.Objects.nonNull;
 
 import org.lecturestudio.core.util.ShutdownHandler;
-import org.lecturestudio.presenter.api.config.PresenterConfiguration;
-import org.lecturestudio.presenter.api.context.PresenterContext;
-import org.lecturestudio.presenter.api.presenter.command.QuitSaveDocumentsCommand;
+import org.lecturestudio.core.view.Action;
 
-public class SaveDocumentsHandler extends ShutdownHandler {
+public class ActionHandler extends ShutdownHandler {
 
-	private final PresenterContext context;
+	private final Action action;
 
 
-	public SaveDocumentsHandler(PresenterContext context) {
-		this.context = context;
+	public ActionHandler(Action action) {
+		this.action = action;
 	}
 
 	@Override
 	public boolean execute() throws Exception {
-		PresenterConfiguration config = context.getConfiguration();
-
-		if (Boolean.TRUE.equals(config.getSaveDocumentOnClose()) && (context.hasRecordedChanges())) {
-			executeAndWait(() -> context.getEventBus()
-					.post(new QuitSaveDocumentsCommand(this::resume)));
-
+		if (nonNull(action)) {
+			action.execute();
 		}
-
 		return true;
 	}
 }

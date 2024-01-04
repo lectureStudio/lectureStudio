@@ -29,6 +29,7 @@ import javax.inject.Inject;
 import org.lecturestudio.core.Executable;
 import org.lecturestudio.core.ExecutableState;
 import org.lecturestudio.core.app.configuration.AudioConfiguration;
+import org.lecturestudio.core.audio.AudioDeviceChangeListener;
 import org.lecturestudio.core.audio.AudioPlayer;
 import org.lecturestudio.core.audio.AudioRecorder;
 import org.lecturestudio.core.audio.AudioSystemProvider;
@@ -51,6 +52,8 @@ public class StartRecordingPresenter extends Presenter<StartRecordingView> {
 
 	/** The action that is executed when the saving process has been aborted. */
 	private Action startAction;
+
+	private AudioDeviceChangeListener deviceChangeListener;
 
 	private AudioRecorder testRecorder;
 
@@ -97,8 +100,28 @@ public class StartRecordingPresenter extends Presenter<StartRecordingView> {
 			}
 		});
 
-		validateMicrophone();
-		validateSpeaker();
+		deviceChangeListener = new AudioDeviceChangeListener() {
+
+			@Override
+			public void deviceConnected(AudioDevice device) {
+				loadDevices();
+			}
+
+			@Override
+			public void deviceDisconnected(AudioDevice device) {
+				loadDevices();
+			}
+		};
+
+		audioSystemProvider.addDeviceChangeListener(deviceChangeListener);
+
+		try {
+			validateMicrophone();
+			validateSpeaker();
+		}
+		catch (Throwable e) {
+			// Audio device error, e.g. no device connected, will be visible in the view.
+		}
 
 		view.setAudioCaptureDevices(audioSystemProvider.getRecordingDevices());
 		view.setAudioCaptureDevice(audioConfig.captureDeviceNameProperty());
@@ -134,7 +157,16 @@ public class StartRecordingPresenter extends Presenter<StartRecordingView> {
 		}
 	}
 
+	private void loadDevices() {
+		view.setAudioCaptureDevices(audioSystemProvider.getRecordingDevices());
+		view.setAudioPlaybackDevices(audioSystemProvider.getPlaybackDevices());
+		view.setAudioCaptureDevice(audioConfig.captureDeviceNameProperty());
+		view.setAudioPlaybackDevice(audioConfig.playbackDeviceNameProperty());
+	}
+
 	private void dispose() {
+		audioSystemProvider.removeDeviceChangeListener(deviceChangeListener);
+
 		stopAudioCapture();
 
 		super.close();

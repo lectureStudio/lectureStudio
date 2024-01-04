@@ -46,6 +46,7 @@ public abstract class SwingApplication extends ApplicationBase implements Graphi
 
 	private JFrame window;
 
+	private MainPresenter<?> mainPresenter;
 
 	@Override
 	protected void initInternal(String[] args) throws ExecutableException {
@@ -134,10 +135,7 @@ public abstract class SwingApplication extends ApplicationBase implements Graphi
 			throw new ExecutableException(e);
 		}
 
-		if (!OPEN_FILES.isEmpty()) {
-			mainPresenter.openFile(OPEN_FILES.get(0));
-			OPEN_FILES.clear();
-		}
+		this.mainPresenter = mainPresenter;
 	}
 
 	@Override
@@ -163,6 +161,10 @@ public abstract class SwingApplication extends ApplicationBase implements Graphi
 		}
 		catch (Exception e) {
 			throw new ExecutableException(e);
+		}
+		if (!OPEN_FILES.isEmpty()) {
+			mainPresenter.openFile(OPEN_FILES.get(0));
+			OPEN_FILES.clear();
 		}
 	}
 

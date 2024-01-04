@@ -44,6 +44,9 @@
 							</Panel>
 						</Panel>
 					</Tab>
+					<Tab id="slideNotesTab" name="slideNotes" text="slides.slide.notes" icon="slideNotes.svg, 20" defaultTabType="AdaptiveTabType.SLIDE_NOTES" >
+						<SlideView id="slideNotesView" />
+					</Tab>
 				</AdaptiveTabbedPane>
 			</SplitPane>
 

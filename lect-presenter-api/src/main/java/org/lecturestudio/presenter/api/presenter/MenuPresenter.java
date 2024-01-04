@@ -48,12 +48,10 @@ import org.lecturestudio.core.app.dictionary.Dictionary;
 import org.lecturestudio.core.audio.AudioDeviceNotConnectedException;
 import org.lecturestudio.core.beans.ObjectProperty;
 import org.lecturestudio.core.bus.EventBus;
-import org.lecturestudio.core.bus.event.CustomizeToolbarEvent;
-import org.lecturestudio.core.bus.event.DocumentEvent;
-import org.lecturestudio.core.bus.event.PageEvent;
-import org.lecturestudio.core.bus.event.ViewVisibleEvent;
+import org.lecturestudio.core.bus.event.*;
 import org.lecturestudio.core.controller.ToolController;
 import org.lecturestudio.core.model.Document;
+import org.lecturestudio.core.model.NotesPosition;
 import org.lecturestudio.core.model.Page;
 import org.lecturestudio.core.model.RecentDocument;
 import org.lecturestudio.core.model.listener.PageEditEvent;
@@ -78,12 +76,14 @@ import org.lecturestudio.presenter.api.config.SlideViewConfiguration;
 import org.lecturestudio.presenter.api.context.PresenterContext;
 import org.lecturestudio.presenter.api.event.ExternalMessagesViewEvent;
 import org.lecturestudio.presenter.api.event.ExternalNotesViewEvent;
+import org.lecturestudio.presenter.api.event.ExternalSlideNotesViewEvent;
 import org.lecturestudio.presenter.api.event.ExternalParticipantsViewEvent;
 import org.lecturestudio.presenter.api.event.ExternalSlidePreviewViewEvent;
 import org.lecturestudio.presenter.api.event.ExternalSpeechViewEvent;
 import org.lecturestudio.presenter.api.event.MessageBarPositionEvent;
 import org.lecturestudio.presenter.api.event.MessengerStateEvent;
 import org.lecturestudio.presenter.api.event.NotesBarPositionEvent;
+import org.lecturestudio.presenter.api.event.SlideNotesBarPositionEvent;
 import org.lecturestudio.presenter.api.event.ParticipantsPositionEvent;
 import org.lecturestudio.presenter.api.event.PreviewPositionEvent;
 import org.lecturestudio.presenter.api.event.QuizStateEvent;
@@ -97,6 +97,7 @@ import org.lecturestudio.presenter.api.model.Bookmarks;
 import org.lecturestudio.presenter.api.model.BookmarksListener;
 import org.lecturestudio.presenter.api.model.MessageBarPosition;
 import org.lecturestudio.presenter.api.model.NoteBarPosition;
+import org.lecturestudio.presenter.api.model.SlideNoteBarPosition;
 import org.lecturestudio.presenter.api.model.Stopwatch;
 import org.lecturestudio.presenter.api.presenter.command.StopwatchCommand;
 import org.lecturestudio.presenter.api.service.BookmarkService;
@@ -229,6 +230,15 @@ public class MenuPresenter extends Presenter<MenuView> {
 	}
 
 	@Subscribe
+	public void onEvent(final SplitSlidesPositionEvent event){
+		switch (event.getNotesPosition()){
+			case RIGHT -> view.setSplitNotesPositionRight();
+			case LEFT -> view.setSplitNotesPositionLeft();
+			case NONE -> view.setSplitNotesPositionNone();
+		}
+	}
+
+	@Subscribe
 	public void onEvent(final ExternalMessagesViewEvent event) {
 		view.setExternalMessages(event.isEnabled(), event.isShow());
 	}
@@ -251,6 +261,15 @@ public class MenuPresenter extends Presenter<MenuView> {
 	@Subscribe
 	public void onEvent(final ExternalNotesViewEvent event) {
 		view.setExternalNotes(event.isEnabled(), event.isShow());
+	}
+
+	@Subscribe
+	public void onEvent(final ExternalSlideNotesViewEvent event) {
+		view.setExternalSlideNotes(event.isEnabled(), event.isShow());
+	}
+
+	public void positionSplitNotes(NotesPosition position){
+		documentService.selectNotesPosition(position);
 	}
 
 	public void openBookmark(Bookmark bookmark) {
@@ -321,12 +340,20 @@ public class MenuPresenter extends Presenter<MenuView> {
 		eventBus.post(new ExternalNotesViewEvent(selected));
 	}
 
+	public void externalSlideNotes(boolean selected) {
+		eventBus.post(new ExternalSlideNotesViewEvent(selected));
+	}
+
 	public void positionMessages(MessageBarPosition position) {
 		eventBus.post(new MessageBarPositionEvent(position));
 	}
 
 	public void positionNotes(NoteBarPosition position) {
 		eventBus.post(new NotesBarPositionEvent(position));
+	}
+
+	public void positionSlideNotes(SlideNoteBarPosition position) {
+		eventBus.post(new SlideNotesBarPositionEvent(position));
 	}
 
 	public void positionParticipants(MessageBarPosition position) {
@@ -548,6 +575,7 @@ public class MenuPresenter extends Presenter<MenuView> {
 		view.setOnExternalSlidePreview(this::externalSlidePreview);
 		view.setOnExternalSpeech(this::externalSpeech);
 		view.setOnExternalNotes(this::externalNotes);
+		view.setOnExternalSlideNotes(this::externalSlideNotes);
 
 		switch (slideViewConfig.getMessageBarPosition()) {
 			case LEFT -> view.setMessagesPositionLeft();
@@ -566,6 +594,18 @@ public class MenuPresenter extends Presenter<MenuView> {
 
 		view.setOnNotesPositionLeft(() -> positionNotes(NoteBarPosition.LEFT));
 		view.setOnNotesPositionBottom(() -> positionNotes(NoteBarPosition.BOTTOM));
+
+		switch (slideViewConfig.getSlideNotesBarPosition()) {
+			case RIGHT -> view.setSlideNotesPositionRight();
+			case LEFT -> view.setSlideNotesPositionLeft();
+			case BOTTOM -> view.setSlideNotesPositionBottom();
+			case NONE -> view.setSlideNotesPositionNone();
+		}
+
+		view.setOnSlideNotesPositionRight(() -> positionSlideNotes(SlideNoteBarPosition.RIGHT));
+		view.setOnSlideNotesPositionLeft(() -> positionSlideNotes(SlideNoteBarPosition.LEFT));
+		view.setOnSlideNotesPositionBottom(() -> positionSlideNotes(SlideNoteBarPosition.BOTTOM));
+		view.setOnSlideNotesPositionNone(() -> positionSlideNotes(SlideNoteBarPosition.NONE));
 
 		switch (slideViewConfig.getParticipantsPosition()) {
 			case LEFT -> view.setParticipantsPositionLeft();
@@ -696,6 +736,10 @@ public class MenuPresenter extends Presenter<MenuView> {
 				}
 			}
 		}, 0, 1000);
+		view.setOnSplitNotesPositionNone(() -> positionSplitNotes(NotesPosition.NONE));
+		view.setOnSplitNotesPositionRight(() -> positionSplitNotes(NotesPosition.RIGHT));
+		view.setOnSplitNotesPositionLeft(() -> positionSplitNotes(NotesPosition.LEFT));
+
 	}
 
 	public void startStopwatchConfiguration() {

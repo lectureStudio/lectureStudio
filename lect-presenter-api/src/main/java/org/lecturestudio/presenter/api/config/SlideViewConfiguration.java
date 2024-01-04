@@ -21,6 +21,7 @@ package org.lecturestudio.presenter.api.config;
 import org.lecturestudio.core.beans.DoubleProperty;
 import org.lecturestudio.core.beans.ObjectProperty;
 import org.lecturestudio.presenter.api.model.MessageBarPosition;
+import org.lecturestudio.presenter.api.model.SlideNoteBarPosition;
 import org.lecturestudio.presenter.api.model.NoteBarPosition;
 
 public class SlideViewConfiguration {
@@ -36,6 +37,9 @@ public class SlideViewConfiguration {
 
 	private final ObjectProperty<MessageBarPosition> previewPosition = new ObjectProperty<>(
 			MessageBarPosition.RIGHT);
+
+	private final ObjectProperty<SlideNoteBarPosition> slideNotesBarPosition = new ObjectProperty<>(
+			SlideNoteBarPosition.BOTTOM);
 
 	private final DoubleProperty leftSliderPosition = new DoubleProperty(0.375);
 
@@ -133,5 +137,20 @@ public class SlideViewConfiguration {
 
 	public ObjectProperty<MessageBarPosition> previewPositionProperty() {
 		return previewPosition;
+	}
+
+	/**
+	 * @return Slide notes bar's position
+	 */
+	public SlideNoteBarPosition getSlideNotesBarPosition() {
+		return slideNotesBarPosition.get();
+	}
+
+
+	/**
+	 * @param position Slide notes bar's position
+	 */
+	public void setSlideNotesBarPosition(SlideNoteBarPosition position) {
+		slideNotesBarPosition.set(position);
 	}
 }

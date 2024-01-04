@@ -256,6 +256,7 @@ public class DocumentRecorder extends ExecutableBase {
 				}
 			}
 		}
+		recDocument.setActualSplitSlideNotesPositon(pageDoc.getSplitSlideNotesPositon());
 
 		try {
 			PresentationParameter param = paramProvider.getParameter(page);

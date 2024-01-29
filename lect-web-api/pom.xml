@@ -20,15 +20,15 @@
 		<resteasy.version>4.7.9.Final</resteasy.version>
 		<jackson.version>2.15.2</jackson.version>
 		<spring.version>6.0.10</spring.version>
-		<lombok.version>1.18.28</lombok.version>
+		<lombok.version>1.18.30</lombok.version>
 	</properties>
 
 	<build>
 		<plugins>
 			<plugin>
-				<groupId>org.jboss.jandex</groupId>
+				<groupId>io.smallrye</groupId>
 				<artifactId>jandex-maven-plugin</artifactId>
-				<version>1.0.8</version>
+				<version>3.1.6</version>
 				<executions>
 					<execution>
 						<id>make-index</id>

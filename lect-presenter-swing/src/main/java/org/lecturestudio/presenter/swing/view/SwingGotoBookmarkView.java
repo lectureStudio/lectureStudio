@@ -116,6 +116,18 @@ public class SwingGotoBookmarkView extends ContentPane implements GotoBookmarkVi
 		executeAction(gotoBookmarkAction, selectedItem);
 	}
 
+	private void findBookmark(String shortcut) {
+		BookmarkTableModel model = (BookmarkTableModel) bookmarkTableView.getModel();
+
+		for (int i = 0; i < model.getRowCount(); i++) {
+			Bookmark bookmark = model.getItem(i);
+
+			if (bookmark.getShortcut().equalsIgnoreCase(shortcut)) {
+				executeAction(gotoBookmarkAction, bookmark);
+			}
+		}
+	}
+
 	@ViewPostConstruct
 	private void initialize() {
 		bookmarkTableView.setModel(new BookmarkTableModel(
@@ -157,8 +169,7 @@ public class SwingGotoBookmarkView extends ContentPane implements GotoBookmarkVi
 					char c = s.charAt(0);
 
 					if (Character.isLetter(c) || Character.isDigit(c)) {
-						Bookmark bookmark = new Bookmark(String.valueOf(c));
-						executeAction(gotoBookmarkAction, bookmark);
+						findBookmark(s);
 					}
 				}
 			}

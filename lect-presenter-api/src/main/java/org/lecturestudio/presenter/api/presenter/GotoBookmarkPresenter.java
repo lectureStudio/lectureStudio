@@ -61,12 +61,14 @@ public class GotoBookmarkPresenter extends Presenter<GotoBookmarkView> {
 	}
 
 	private void gotoBookmark(Bookmark bookmark) {
-		try {
-			bookmarkService.gotoBookmark(bookmark);
-			close();
-		}
-		catch (BookmarkKeyException e) {
+		if (!bookmarkService.hasBookmark(bookmark)) {
 			context.showError("bookmark.goto.error", "bookmark.key.not.existing", bookmark.getShortcut());
+			return;
+		}
+
+		try {
+			close();
+			bookmarkService.gotoBookmark(bookmark);
 		}
 		catch (Exception e) {
 			handleException(e, "Go to bookmark failed", "bookmark.goto.error");

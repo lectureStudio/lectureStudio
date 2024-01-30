@@ -127,6 +127,16 @@ public class BookmarkService {
 		return null;
 	}
 
+	public boolean hasBookmark(Bookmark bookmark) {
+		if (isNull(bookmark)) {
+			throw new NullPointerException("No bookmark provided");
+		}
+
+		Bookmark selectedBookmark = bookmarks.getBookmark(bookmark.getShortcut());
+
+		return nonNull(selectedBookmark);
+	}
+
 	public void gotoBookmark(Bookmark bookmark) throws BookmarkException {
 		if (isNull(bookmark)) {
 			throw new NullPointerException("No bookmark provided");

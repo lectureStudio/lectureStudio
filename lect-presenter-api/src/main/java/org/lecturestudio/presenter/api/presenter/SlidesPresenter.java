@@ -1338,9 +1338,6 @@ public class SlidesPresenter extends Presenter<SlidesView> {
 
 		if (persistent) {
 			config.setEnabled(false);
-			config.setScreen(null);
-			config.setPosition(null);
-			config.setSize(null);
 		}
 
 		view.hideExternalMessages();
@@ -1361,9 +1358,6 @@ public class SlidesPresenter extends Presenter<SlidesView> {
 
 		if (persistent) {
 			config.setEnabled(false);
-			config.setScreen(null);
-			config.setPosition(null);
-			config.setSize(null);
 		}
 
 		view.hideExternalParticipants();
@@ -1384,9 +1378,6 @@ public class SlidesPresenter extends Presenter<SlidesView> {
 
 		if (persistent) {
 			config.setEnabled(false);
-			config.setScreen(null);
-			config.setPosition(null);
-			config.setSize(null);
 		}
 
 		view.hideExternalSlidePreview();
@@ -1407,9 +1398,6 @@ public class SlidesPresenter extends Presenter<SlidesView> {
 
 		if (persistent) {
 			config.setEnabled(false);
-			config.setScreen(null);
-			config.setPosition(null);
-			config.setSize(null);
 		}
 
 		view.hideExternalSpeech();
@@ -1430,9 +1418,6 @@ public class SlidesPresenter extends Presenter<SlidesView> {
 
 		if (persistent) {
 			config.setEnabled(false);
-			config.setScreen(null);
-			config.setPosition(null);
-			config.setSize(null);
 		}
 
 		view.hideExternalNotes();
@@ -1453,9 +1438,6 @@ public class SlidesPresenter extends Presenter<SlidesView> {
 
 		if (persistent) {
 			config.setEnabled(false);
-			config.setScreen(null);
-			config.setPosition(null);
-			config.setSize(null);
 		}
 
 		view.hideExternalSlideNotes();

@@ -2027,51 +2027,44 @@ public class SwingSlidesView extends JPanel implements SlidesView {
 
 		messagesPlaceholder = new JLabel(dict.get(NO_MESSAGES_LABEL_KEY), SwingConstants.CENTER);
 
-		externalMessagesFrame =
-				new ExternalFrame.Builder().setName(dict.get(MESSAGE_LABEL_KEY)).setBody(externalMessagesPane)
-						.setPlaceholderText(dict.get(NO_MESSAGES_LABEL_KEY)).setPositionChangedAction(
-								position -> executeAction(externalMessagesPositionChangedAction, position))
-						.setClosedAction(() -> executeAction(externalMessagesClosedAction))
-						.setSizeChangedAction(size -> executeAction(externalMessagesSizeChangedAction, size))
-						.setMinimumSize(new Dimension(500, 400)).build();
+		externalMessagesFrame = createExternalFrame(dict.get(MESSAGE_LABEL_KEY), externalMessagesPane,
+				dict.get(NO_MESSAGES_LABEL_KEY),
+				new Dimension(500, 400),
+				() -> executeAction(externalMessagesClosedAction),
+				position -> executeAction(externalMessagesPositionChangedAction, position),
+				size -> executeAction(externalMessagesSizeChangedAction, size));
 
-		externalParticipantsFrame =
-				new ExternalFrame.Builder().setName(dict.get(PARTICIPANTS_LABEL_KEY)).setBody(externalParticipantsPane)
-						.setPlaceholderText(dict.get(NO_PARTICIPANTS_LABEL_KEY)).setPositionChangedAction(
-								position -> executeAction(externalParticipantsPositionChangedAction, position))
-						.setClosedAction(() -> executeAction(externalParticipantsClosedAction))
-						.setSizeChangedAction(size -> executeAction(externalParticipantsSizeChangedAction, size))
-						.setMinimumSize(new Dimension(280, 600)).build();
+		externalParticipantsFrame = createExternalFrame(dict.get(PARTICIPANTS_LABEL_KEY), externalParticipantsPane,
+				dict.get(NO_PARTICIPANTS_LABEL_KEY),
+				new Dimension(280, 600),
+				() -> executeAction(externalParticipantsClosedAction),
+				position -> executeAction(externalParticipantsPositionChangedAction, position),
+				size -> executeAction(externalParticipantsSizeChangedAction, size));
 
-		externalSlidePreviewFrame =
-				new ExternalFrame.Builder().setName(dict.get(SLIDES_PREVIEW_LABEL_KEY)).setBody(
-								externalSlidePreviewTabPane)
-						.setPositionChangedAction(
-								position -> executeAction(externalSlidePreviewPositionChangedAction, position))
-						.setClosedAction(() -> executeAction(externalSlidePreviewClosedAction))
-						.setSizeChangedAction(size -> executeAction(externalSlidePreviewSizeChangedAction, size))
-						.setMinimumSize(new Dimension(500, 700)).build();
+		externalSlidePreviewFrame = createExternalFrame(dict.get(SLIDES_PREVIEW_LABEL_KEY), externalSlidePreviewTabPane,
+				"", new Dimension(500, 700),
+				() -> executeAction(externalSlidePreviewClosedAction),
+				position -> executeAction(externalSlidePreviewPositionChangedAction, position),
+				size -> executeAction(externalSlidePreviewSizeChangedAction, size));
 
-		externalSpeechFrame = new ExternalFrame.Builder().setName(dict.get(SPEECH_LABEL_KEY)).setBody(peerViewContainer)
-				.setPlaceholderText(dict.get(CURRENTLY_NO_SPEECH_LABEL_KEY))
-				.setPositionChangedAction(position -> executeAction(externalSpeechPositionChangedAction, position))
-				.setClosedAction(() -> executeAction(externalSpeechClosedAction))
-				.setSizeChangedAction(size -> executeAction(externalSpeechSizeChangedAction, size))
-				.setMinimumSize(new Dimension(1000, 500)).build();
+		externalSpeechFrame = createExternalFrame(dict.get(SPEECH_LABEL_KEY), peerViewContainer,
+				dict.get(CURRENTLY_NO_SPEECH_LABEL_KEY),
+				new Dimension(1000, 500),
+				() -> executeAction(externalSpeechClosedAction),
+				position -> executeAction(externalSpeechPositionChangedAction, position),
+				size -> executeAction(externalSpeechSizeChangedAction, size));
 
-		externalNotesFrame =
-				new ExternalFrame.Builder().setName(dict.get(NOTES_LABEL_KEY)).setBody(externalNotesPane)
-						.setClosedAction(() -> executeAction(externalNotesClosedAction))
-						.setPositionChangedAction(position -> executeAction(externalNotesPositionChangedAction, position))
-						.setSizeChangedAction(size -> executeAction(externalNotesSizeChangedAction, size))
-						.setMinimumSize(new Dimension(500, 400)).build();
+		externalNotesFrame = createExternalFrame(dict.get(NOTES_LABEL_KEY), externalNotesPane, "",
+				new Dimension(500, 400),
+				() -> executeAction(externalNotesClosedAction),
+				position -> executeAction(externalNotesPositionChangedAction, position),
+				size -> executeAction(externalNotesSizeChangedAction, size));
 
-		externalSlideNotesFrame =
-				new ExternalFrame.Builder().setName(dict.get(SLIDE_NOTES_LABEL_KEY)).setBody(slideNotesView)
-						.setClosedAction(() -> executeAction(externalSlideNotesClosedAction))
-						.setPositionChangedAction(position -> executeAction(externalSlideNotesPositionChangedAction, position))
-						.setSizeChangedAction(size -> executeAction(externalSlideNotesSizeChangedAction, size))
-						.setMinimumSize(new Dimension(500, 400)).build();
+		externalSlideNotesFrame = createExternalFrame(dict.get(SLIDE_NOTES_LABEL_KEY), slideNotesView, "",
+				new Dimension(500, 400),
+				() -> executeAction(externalSlideNotesClosedAction),
+				position -> executeAction(externalSlideNotesPositionChangedAction, position),
+				size -> executeAction(externalSlideNotesSizeChangedAction, size));
 
 		slideNotesView.addComponentListener(new ComponentAdapter() {
 			@Override
@@ -2114,6 +2107,19 @@ public class SwingSlidesView extends JPanel implements SlidesView {
 		showMessagesPlaceholder();
 	}
 
+	private ExternalFrame createExternalFrame(String name, Component body, String placeholderText,
+											  Dimension minimumSize, Runnable closedAction,
+											  Consumer<ExternalWindowPosition> positionChangedAction,
+											  Consumer<Dimension> sizeChangedAction) {
+		ExternalFrame frame = new ExternalFrame(name, body, placeholderText);
+		frame.setMinimumSize(minimumSize);
+		frame.setClosedAction(closedAction);
+		frame.setPositionChangedAction(positionChangedAction);
+		frame.setSizeChangedAction(sizeChangedAction);
+
+		return frame;
+	}
+
 	private void centerSlideNotesView() {
 		SwingUtilities.invokeLater(() -> {
 			if(externalSlideNotesFrame.isVisible()){
@@ -2125,7 +2131,8 @@ public class SwingSlidesView extends JPanel implements SlidesView {
 
 				slideNotesView.setSlideLocation(x, y);
 				slideNotesView.repaint();
-			}else{
+			}
+			else{
 				slideNotesView.setSlideLocation(0, 0);
 				slideNotesView.repaint();
 			}

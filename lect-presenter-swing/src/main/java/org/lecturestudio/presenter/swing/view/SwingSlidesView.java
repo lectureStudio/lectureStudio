@@ -68,6 +68,7 @@ import java.util.function.IntSupplier;
 import org.apache.commons.lang3.StringUtils;
 
 import org.lecturestudio.core.ExecutableState;
+import org.lecturestudio.core.PageMetrics;
 import org.lecturestudio.core.app.dictionary.Dictionary;
 import org.lecturestudio.core.beans.BooleanProperty;
 import org.lecturestudio.core.beans.DoubleProperty;
@@ -257,6 +258,8 @@ public class SwingSlidesView extends JPanel implements SlidesView {
 	private AdaptiveTabbedPane noneTabPane;
 
 	private Container peerViewContainer;
+
+	private Container slideNoteViewContainer;
 
 	private ParticipantList participantList;
 
@@ -725,11 +728,13 @@ public class SwingSlidesView extends JPanel implements SlidesView {
 			}
 
 			int tabPos = currentPane.getPaneSelectedIndex();
+
 			NotesView notesView = ViewUtil.createNotesView(NotesView.class, dict);
 			notesView.setNote(notesText);
 			notesView.doLayout();
 
 			addNoteView(notesView);
+
 			currentPane.setSelectedIndex(tabPos);
 		});
 	}
@@ -1266,7 +1271,8 @@ public class SwingSlidesView extends JPanel implements SlidesView {
 		externalSlideNotesFrame.updatePosition(screen, position, size);
 		externalSlideNotesFrame.showBody();
 		externalSlideNotesFrame.setVisible(true);
-		externalSlideNotesFrame.repaint(0, externalSlideNotesFrame.getX(),externalSlideNotesFrame.getY(), externalSlideNotesFrame.getWidth()+1, externalSlideNotesFrame.getHeight());
+		externalSlideNotesFrame.repaint(0, externalSlideNotesFrame.getX(), externalSlideNotesFrame.getY(),
+				externalSlideNotesFrame.getWidth() + 1, externalSlideNotesFrame.getHeight());
 	}
 
 	@Override
@@ -1363,12 +1369,18 @@ public class SwingSlidesView extends JPanel implements SlidesView {
 			return;
 		}
 
-		final boolean prevMinimized = isRightTabPaneMinimized();
-		rightTabPane.addTabs(removeSlideNotesBarTabs());
+		slideNoteViewContainer.setVisible(true);
+		slideNoteViewContainer.removeAll();
+		slideNoteViewContainer.add(slideNotesView);
 
-		if (prevMinimized) {
-			minimizeRightTabPane();
-		}
+		updateSlideNoteContainer();
+
+//		final boolean prevMinimized = isRightTabPaneMinimized();
+//		rightTabPane.addTabs(removeSlideNotesBarTabs());
+//
+//		if (prevMinimized) {
+//			minimizeRightTabPane();
+//		}
 	}
 
 	private void showSlideNoteLeft() {
@@ -1388,6 +1400,7 @@ public class SwingSlidesView extends JPanel implements SlidesView {
 		if (slideNotesBarPosition == SlideNoteBarPosition.BOTTOM) {
 			return;
 		}
+
 		final boolean prevMinimized = isBottomTabPaneMinimized();
 
 		bottomTabPane.addTabs(removeSlideNotesBarTabs());
@@ -1694,6 +1707,8 @@ public class SwingSlidesView extends JPanel implements SlidesView {
 	}
 
 	private List<AdaptiveTab> removeSlideNotesBarTabs() {
+		System.out.println("removeSlideNotesBarTabs");
+
 		final ArrayList<AdaptiveTab> removedTabs = new ArrayList<>();
 
         switch (slideNotesBarPosition) {
@@ -1850,6 +1865,28 @@ public class SwingSlidesView extends JPanel implements SlidesView {
 		}
 	}
 
+	private void updateSlideNoteContainer() {
+		SwingUtilities.invokeLater(() -> {
+			Page page = getPage();
+			if (isNull(page)) {
+				return;
+			}
+
+			PageMetrics pageMetrics = page.getPageMetrics();
+			Dimension size = rightVbox.getSize();
+
+			int height = (int) pageMetrics.getHeight(size.width);
+			var newSize = pageMetrics.convert(size.width, height);
+			int width = (int) newSize.getWidth();
+			height = (int) newSize.getHeight();
+
+			slideNoteViewContainer.setPreferredSize(new Dimension(width, height));
+			slideNoteViewContainer.setMinimumSize(new Dimension(0, height));
+			slideNoteViewContainer.revalidate();
+			slideNoteViewContainer.repaint();
+		});
+	}
+
 	@ViewPostConstruct
 	private void initialize() {
 		KeyboardFocusManager keyboardManager = KeyboardFocusManager.getCurrentKeyboardFocusManager();
@@ -1909,6 +1946,15 @@ public class SwingSlidesView extends JPanel implements SlidesView {
 		slideNotesView.addPropertyChangeListener("transform", e -> {
 			if (nonNull(viewTransformAction)) {
 				executeAction(viewTransformAction, MatrixConverter.INSTANCE.from(slideNotesView.getPageTransform()));
+			}
+		});
+
+		slideNoteViewContainer.setMaximumSize(new Dimension(Integer.MAX_VALUE, Integer.MAX_VALUE));
+
+		rightVbox.addComponentListener(new ComponentAdapter() {
+			@Override
+			public void componentResized(ComponentEvent e) {
+				updateSlideNoteContainer();
 			}
 		});
 
@@ -2072,6 +2118,7 @@ public class SwingSlidesView extends JPanel implements SlidesView {
 				centerSlideNotesView();
 			}
 		});
+
 		addAncestorListener(new AncestorListener() {
 
 			@Override
@@ -2122,7 +2169,7 @@ public class SwingSlidesView extends JPanel implements SlidesView {
 
 	private void centerSlideNotesView() {
 		SwingUtilities.invokeLater(() -> {
-			if(externalSlideNotesFrame.isVisible()){
+			if (externalSlideNotesFrame.isVisible()){
 				Dimension size = slideNotesView.getSize();
 				Dimension viewSize = slideNotesView.getCanvasBounds().getSize();
 
@@ -2132,13 +2179,12 @@ public class SwingSlidesView extends JPanel implements SlidesView {
 				slideNotesView.setSlideLocation(x, y);
 				slideNotesView.repaint();
 			}
-			else{
+			else {
 				slideNotesView.setSlideLocation(0, 0);
 				slideNotesView.repaint();
 			}
 		});
 	}
-
 
 	private void observeDividerLocation(final JSplitPane pane,
 			final DoubleProperty property) {
@@ -2159,9 +2205,9 @@ public class SwingSlidesView extends JPanel implements SlidesView {
 		});
 	}
 
-
 	private void addNoteView(Component view){
 		setNotesBarTabVisible(dict.get(NOTES_LABEL_KEY), true);
+
 		notesViewContainer.add(view);
 		notesViewContainer.invalidate();
 		notesViewContainer.doLayout();

@@ -52,6 +52,7 @@
 
 			<VBox id="rightVbox">
 				<Panel layout="BorderLayout" id="peerViewContainer" visible="false" />
+				<Panel layout="BorderLayout" id="slideNoteViewContainer" visible="false" />
 				<AdaptiveTabbedPane id="rightTabPane" tabPlacement="JTabbedPane.RIGHT" defaultTabType="AdaptiveTabType.SLIDE" focusTraversable="false" />
 			</VBox>
 		</SplitPane>

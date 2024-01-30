@@ -15,22 +15,36 @@
 		<menuitem id="settingsMenuItem" text="menu.options" />
 	</menu>
 	<menu text="menu.view">
-		<checkboxmenuitem id="outlineMenuItem" text="menu.contents" />
 		<checkboxmenuitem id="fullscreenMenuItem" text="menu.fullscreen" type="checkbox" accelerator="alt ENTER" />
 		<menuitem id="customizeToolbarMenuItem" text="menu.toolbar.customize" />
+		<checkboxmenuitem id="outlineMenuItem" text="menu.contents" />
+		<separator />
 		<menu id="externalWindowsMenu" text="menu.external.windows">
 			<checkboxmenuitem id="externalMessagesMenuItem" text="menu.external.messages" />
 			<checkboxmenuitem id="externalParticipantsMenuItem" text="menu.external.participants" />
 			<checkboxmenuitem id="externalSlidePreviewMenuItem" text="menu.external.slide.preview" />
-			<checkboxmenuitem id="externalSpeechMenuItem" text="menu.external.speech" />
 			<checkboxmenuitem id="externalNotesMenuItem" text="menu.external.notes" />
 			<checkboxmenuitem id="externalSlideNotesMenuItem" text="menu.external.slide.notes" />
+			<checkboxmenuitem id="externalSpeechMenuItem" text="menu.external.speech" />
 		</menu>
+		<separator />
 		<menu id="messagesPositionMenu" text="menu.messages.position">
 			<buttongroup>
 				<radiobuttonmenuitem id="messagesPositionLeftMenuItem" text="menu.left" />
 				<radiobuttonmenuitem id="messagesPositionBottomMenuItem" text="menu.bottom" />
 				<radiobuttonmenuitem id="messagesPositionRightMenuItem" text="menu.right" />
+			</buttongroup>
+		</menu>
+		<menu id="participantsPositionMenu" text="menu.participants.position">
+			<buttongroup>
+				<radiobuttonmenuitem id="participantsPositionLeftMenuItem" text="menu.left" />
+				<radiobuttonmenuitem id="participantsPositionRightMenuItem" text="menu.right" />
+			</buttongroup>
+		</menu>
+		<menu id="previewPositionMenu" text="menu.preview.position">
+			<buttongroup>
+				<radiobuttonmenuitem id="previewPositionLeftMenuItem" text="menu.left" />
+				<radiobuttonmenuitem id="previewPositionRightMenuItem" text="menu.right" />
 			</buttongroup>
 		</menu>
 		<menu id="notesPositionMenu" text="menu.notes.position">
@@ -47,18 +61,7 @@
 				<radiobuttonmenuitem id="slideNotesPositionNoneMenuItem" text="menu.none" />
 			</buttongroup>
 		</menu>
-		<menu id="participantsPositionMenu" text="menu.participants.position">
-			<buttongroup>
-				<radiobuttonmenuitem id="participantsPositionLeftMenuItem" text="menu.left" />
-				<radiobuttonmenuitem id="participantsPositionRightMenuItem" text="menu.right" />
-			</buttongroup>
-		</menu>
-		<menu id="previewPositionMenu" text="menu.preview.position">
-			<buttongroup>
-				<radiobuttonmenuitem id="previewPositionLeftMenuItem" text="menu.left" />
-				<radiobuttonmenuitem id="previewPositionRightMenuItem" text="menu.right" />
-			</buttongroup>
-		</menu>
+		<separator />
 		<menu id="splitNotesPositionMenu" text="menu.splitNotes.position">
 			<buttongroup>
 				<radiobuttonmenuitem id="splitNotesPositionRightMenuItem" text="menu.right" />

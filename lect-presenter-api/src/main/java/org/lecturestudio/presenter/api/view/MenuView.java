@@ -38,6 +38,7 @@ import org.lecturestudio.presenter.api.context.PresenterContext.ParticipantCount
 import org.lecturestudio.presenter.api.model.Bookmark;
 import org.lecturestudio.presenter.api.model.Bookmarks;
 import org.lecturestudio.presenter.api.model.MessageBarPosition;
+import org.lecturestudio.presenter.api.model.SlideNoteBarPosition;
 import org.lecturestudio.presenter.api.service.QuizWebServiceState;
 
 public interface MenuView extends View {
@@ -130,21 +131,9 @@ public interface MenuView extends View {
 
 	void setNotesPositionBottom();
 
-	void setSlideNotesPositionRight();
+	void setSlideNotesPosition(SlideNoteBarPosition position);
 
-	void setSlideNotesPositionLeft();
-
-	void setSlideNotesPositionBottom();
-
-	void setSlideNotesPositionNone();
-
-	void setOnSlideNotesPositionLeft(Action action);
-
-	void setOnSlideNotesPositionRight(Action action);
-
-	void setOnSlideNotesPositionBottom(Action action);
-
-	void setOnSlideNotesPositionNone(Action action);
+	void setOnSlideNotesPosition(ConsumerAction<SlideNoteBarPosition> action);
 
 	void setOnParticipantsPositionLeft(Action action);
 

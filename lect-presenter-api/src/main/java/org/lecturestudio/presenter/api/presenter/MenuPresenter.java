@@ -640,17 +640,8 @@ public class MenuPresenter extends Presenter<MenuView> {
 		view.setOnNotesPositionLeft(() -> positionNotes(NoteBarPosition.LEFT));
 		view.setOnNotesPositionBottom(() -> positionNotes(NoteBarPosition.BOTTOM));
 
-		switch (slideViewConfig.getSlideNotesBarPosition()) {
-			case RIGHT -> view.setSlideNotesPositionRight();
-			case LEFT -> view.setSlideNotesPositionLeft();
-			case BOTTOM -> view.setSlideNotesPositionBottom();
-			case NONE -> view.setSlideNotesPositionNone();
-		}
-
-		view.setOnSlideNotesPositionRight(() -> positionSlideNotes(SlideNoteBarPosition.RIGHT));
-		view.setOnSlideNotesPositionLeft(() -> positionSlideNotes(SlideNoteBarPosition.LEFT));
-		view.setOnSlideNotesPositionBottom(() -> positionSlideNotes(SlideNoteBarPosition.BOTTOM));
-		view.setOnSlideNotesPositionNone(() -> positionSlideNotes(SlideNoteBarPosition.NONE));
+		view.setSlideNotesPosition(slideViewConfig.getSlideNotesBarPosition());
+		view.setOnSlideNotesPosition(this::positionSlideNotes);
 
 		switch (slideViewConfig.getParticipantsPosition()) {
 			case LEFT -> view.setParticipantsPositionLeft();

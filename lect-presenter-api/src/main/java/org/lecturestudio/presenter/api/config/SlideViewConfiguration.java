@@ -39,7 +39,7 @@ public class SlideViewConfiguration {
 			MessageBarPosition.RIGHT);
 
 	private final ObjectProperty<SlideNoteBarPosition> slideNotesBarPosition = new ObjectProperty<>(
-			SlideNoteBarPosition.BOTTOM);
+			SlideNoteBarPosition.BELOW_PREVIEW);
 
 	private final DoubleProperty leftSliderPosition = new DoubleProperty(0.375);
 

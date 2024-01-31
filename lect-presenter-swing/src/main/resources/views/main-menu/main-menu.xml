@@ -55,9 +55,7 @@
 		</menu>
 		<menu id="slideNotesPositionMenu" text="menu.slide.notes.position">
 			<buttongroup>
-				<radiobuttonmenuitem id="slideNotesPositionRightMenuItem" text="menu.right" />
-				<radiobuttonmenuitem id="slideNotesPositionLeftMenuItem" text="menu.left" />
-				<radiobuttonmenuitem id="slideNotesPositionBottomMenuItem" text="menu.bottom" />
+				<radiobuttonmenuitem id="slideNotesPositionBottomMenuItem" text="menu.preview.bottom" />
 				<radiobuttonmenuitem id="slideNotesPositionNoneMenuItem" text="menu.none" />
 			</buttongroup>
 		</menu>

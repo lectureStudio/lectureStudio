@@ -46,6 +46,7 @@ import org.lecturestudio.presenter.api.context.PresenterContext.ParticipantCount
 import org.lecturestudio.presenter.api.model.Bookmark;
 import org.lecturestudio.presenter.api.model.Bookmarks;
 import org.lecturestudio.presenter.api.model.MessageBarPosition;
+import org.lecturestudio.presenter.api.model.SlideNoteBarPosition;
 import org.lecturestudio.presenter.api.service.QuizWebServiceState;
 import org.lecturestudio.presenter.api.view.MenuView;
 import org.lecturestudio.swing.util.SwingUtils;
@@ -128,10 +129,6 @@ public class SwingMenuView extends JMenuBar implements MenuView {
 	private JRadioButtonMenuItem notesPositionLeftMenuItem;
 
 	private JRadioButtonMenuItem notesPositionBottomMenuItem;
-
-	private JRadioButtonMenuItem slideNotesPositionLeftMenuItem;
-
-	private JRadioButtonMenuItem slideNotesPositionRightMenuItem;
 
 	private JRadioButtonMenuItem slideNotesPositionBottomMenuItem;
 
@@ -508,6 +505,19 @@ public class SwingMenuView extends JMenuBar implements MenuView {
 		notesPositionBottomMenuItem.setSelected(true);
 	}
 
+	@Override
+	public void setSlideNotesPosition(SlideNoteBarPosition position) {
+		switch (position) {
+			case BELOW_PREVIEW -> slideNotesPositionBottomMenuItem.setSelected(true);
+			case NONE -> slideNotesPositionNoneMenuItem.setSelected(true);
+		}
+	}
+
+	@Override
+	public void setOnSlideNotesPosition(ConsumerAction<SlideNoteBarPosition> action) {
+		SwingUtils.bindAction(slideNotesPositionBottomMenuItem, () -> action.execute(SlideNoteBarPosition.BELOW_PREVIEW));
+		SwingUtils.bindAction(slideNotesPositionNoneMenuItem, () -> action.execute(SlideNoteBarPosition.NONE));
+	}
 
 	@Override
 	public void setOnNotesPositionLeft(Action action) {
@@ -517,47 +527,6 @@ public class SwingMenuView extends JMenuBar implements MenuView {
 	@Override
 	public void setNotesPositionLeft() {
 		notesPositionLeftMenuItem.setSelected(true);
-	}
-
-	@Override
-	public void setSlideNotesPositionRight() {
-		slideNotesPositionRightMenuItem.setSelected(true);
-	}
-
-	@Override
-	public void setSlideNotesPositionLeft() {
-		slideNotesPositionLeftMenuItem.setSelected(true);
-	}
-
-	@Override
-	public void setSlideNotesPositionBottom() {
-		slideNotesPositionBottomMenuItem.setSelected(true);
-	}
-
-	@Override
-	public void setSlideNotesPositionNone() {
-		slideNotesPositionNoneMenuItem.setSelected(true);
-	}
-
-
-	@Override
-	public void setOnSlideNotesPositionRight(Action action) {
-		SwingUtils.bindAction(slideNotesPositionRightMenuItem, action);
-	}
-
-	@Override
-	public void setOnSlideNotesPositionLeft(Action action) {
-		SwingUtils.bindAction(slideNotesPositionLeftMenuItem, action);
-	}
-
-	@Override
-	public void setOnSlideNotesPositionBottom(Action action) {
-		SwingUtils.bindAction(slideNotesPositionBottomMenuItem, action);
-	}
-
-	@Override
-	public void setOnSlideNotesPositionNone(Action action) {
-		SwingUtils.bindAction(slideNotesPositionNoneMenuItem, action);
 	}
 
 	@Override

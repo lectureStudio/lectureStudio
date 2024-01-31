@@ -22,5 +22,5 @@ package org.lecturestudio.presenter.api.model;
 
 public enum SlideNoteBarPosition {
 
-    BOTTOM, LEFT, RIGHT, NONE
+    BELOW_PREVIEW, NONE
 }

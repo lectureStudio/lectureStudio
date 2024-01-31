@@ -70,9 +70,11 @@ public class StylusListener implements org.lecturestudio.stylus.StylusListener {
 			public void componentResized(ComponentEvent e) {
 				Rectangle canvasBounds = slideView.getCanvasBounds();
 
-				viewBounds.setLocation(canvasBounds.getMinX(), canvasBounds.getMinY());
-				viewBounds.setSize(canvasBounds.getWidth(), canvasBounds.getHeight());
+				updateBounds(canvasBounds);
 			}
+		});
+		slideView.addPropertyChangeListener("CanvasBounds", event -> {
+			updateBounds((Rectangle) event.getNewValue());
 		});
 	}
 
@@ -117,5 +119,10 @@ public class StylusListener implements org.lecturestudio.stylus.StylusListener {
 		}
 
 		handler.onButtonUp(stylusEvent, viewBounds);
+	}
+
+	private void updateBounds(Rectangle canvasBounds) {
+		viewBounds.setLocation(canvasBounds.getMinX(), canvasBounds.getMinY());
+		viewBounds.setSize(canvasBounds.getWidth(), canvasBounds.getHeight());
 	}
 }

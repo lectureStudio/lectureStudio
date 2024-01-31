@@ -322,7 +322,7 @@ public class SwingSlidesView extends JPanel implements SlidesView {
 	private MessageBarPosition messageBarPosition = MessageBarPosition.BOTTOM;
 	private NoteBarPosition notesBarPosition = NoteBarPosition.BOTTOM;
 
-	private SlideNoteBarPosition slideNotesBarPosition = SlideNoteBarPosition.BELOW_PREVIEW;
+	private SlideNoteBarPosition slideNotesBarPosition = SlideNoteBarPosition.NONE;
 
 	private MessageBarPosition participantsPosition = MessageBarPosition.LEFT;
 	private MessageBarPosition previewPosition = MessageBarPosition.RIGHT;

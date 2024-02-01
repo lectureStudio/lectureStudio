@@ -31,10 +31,7 @@ import java.nio.file.Path;
 import java.text.MessageFormat;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.Iterator;
-import java.util.Map;
-import java.util.Timer;
-import java.util.TimerTask;
+import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -47,7 +44,6 @@ import org.lecturestudio.core.app.ApplicationContext;
 import org.lecturestudio.core.app.configuration.Configuration;
 import org.lecturestudio.core.app.dictionary.Dictionary;
 import org.lecturestudio.core.audio.AudioDeviceNotConnectedException;
-import org.lecturestudio.core.beans.ObjectProperty;
 import org.lecturestudio.core.bus.EventBus;
 import org.lecturestudio.core.bus.event.*;
 import org.lecturestudio.core.controller.ToolController;
@@ -100,6 +96,8 @@ public class MenuPresenter extends Presenter<MenuView> {
 
 	/** Mainly used for Desktop.getDesktop().open to circumvent errors. */
 	private final ExecutorService executorService = Executors.newSingleThreadExecutor();
+
+	private final Map<Class<?>, Object> viewPositionMap = new HashMap<>();
 
 	private final DateTimeFormatter timeFormatter;
 
@@ -229,32 +227,62 @@ public class MenuPresenter extends Presenter<MenuView> {
 
 	@Subscribe
 	public void onEvent(final ExternalMessagesViewEvent event) {
-		view.setExternalMessages(event.isEnabled(), event.isShow());
+		if (!event.isEnabled()) {
+			// Set the previous position.
+			MessageBarPosition position = getViewPosition(MessageBarPosition.class);
+
+			if (nonNull(position)) {
+				view.setMessagesPosition(position);
+			}
+		}
 	}
 
 	@Subscribe
 	public void onEvent(final ExternalParticipantsViewEvent event) {
-		view.setExternalParticipants(event.isEnabled(), event.isShow());
+		if (!event.isEnabled()) {
+			// Set the previous position.
+			ParticipantsPosition position = getViewPosition(ParticipantsPosition.class);
+
+			if (nonNull(position)) {
+				view.setParticipantsPosition(position);
+			}
+		}
 	}
 
 	@Subscribe
 	public void onEvent(final ExternalSlidePreviewViewEvent event) {
-		view.setExternalSlidePreview(event.isEnabled(), event.isShow());
-	}
+		if (!event.isEnabled()) {
+			// Set the previous position.
+			SlidePreviewPosition position = getViewPosition(SlidePreviewPosition.class);
 
-	@Subscribe
-	public void onEvent(final ExternalSpeechViewEvent event) {
-		view.setExternalSpeech(event.isEnabled(), event.isShow());
+			if (nonNull(position)) {
+				view.setSlidePreviewPosition(position);
+			}
+		}
 	}
 
 	@Subscribe
 	public void onEvent(final ExternalNotesViewEvent event) {
-		view.setExternalNotes(event.isEnabled(), event.isShow());
+		if (!event.isEnabled()) {
+			// Set the previous position.
+			SlideNotesPosition position = getViewPosition(SlideNotesPosition.class);
+
+			if (nonNull(position)) {
+				view.setSlideNotesPosition(position);
+			}
+		}
 	}
 
 	@Subscribe
 	public void onEvent(final ExternalSlideNotesViewEvent event) {
-		view.setExternalSlideNotes(event.isEnabled(), event.isShow());
+		if (!event.isEnabled()) {
+			// Set the previous position.
+			NoteSlidePosition position = getViewPosition(NoteSlidePosition.class);
+
+			if (nonNull(position)) {
+				view.setNoteSlidePosition(position);
+			}
+		}
 	}
 
 	public void positionSplitNotes(NotesPosition position){
@@ -323,44 +351,68 @@ public class MenuPresenter extends Presenter<MenuView> {
 		eventBus.post(new CustomizeToolbarEvent());
 	}
 
-	public void externalMessages(boolean selected) {
-		eventBus.post(new ExternalMessagesViewEvent(selected));
-	}
-
-	public void externalParticipants(boolean selected) {
-		eventBus.post(new ExternalParticipantsViewEvent(selected));
-	}
-
-	public void externalSlidePreview(boolean selected) {
-		eventBus.post(new ExternalSlidePreviewViewEvent(selected));
-	}
-
-	public void externalSpeech(boolean selected) {
-		eventBus.post(new ExternalSpeechViewEvent(selected));
-	}
-
-	public void externalNotes(boolean selected) {
-		eventBus.post(new ExternalNotesViewEvent(selected));
-	}
-
-	public void externalSlideNotes(boolean selected) {
-		eventBus.post(new ExternalSlideNotesViewEvent(selected));
+	public void positionSpeech(SpeechPosition position) {
+		if (position == SpeechPosition.EXTERNAL) {
+			eventBus.post(new ExternalSpeechViewEvent(true));
+		}
+		else {
+			setViewPosition(SpeechPosition.class, position);
+		}
 	}
 
 	public void positionMessages(MessageBarPosition position) {
-		eventBus.post(new MessageBarPositionEvent(position));
+		if (position == MessageBarPosition.EXTERNAL) {
+			eventBus.post(new ExternalMessagesViewEvent(true));
+		}
+		else {
+			setViewPosition(MessageBarPosition.class, position);
+
+			eventBus.post(new MessageBarPositionEvent(position));
+		}
 	}
 
-	public void positionNotes(NoteBarPosition position) {
-		eventBus.post(new NotesBarPositionEvent(position));
+	public void positionParticipants(ParticipantsPosition position) {
+		if (position == ParticipantsPosition.EXTERNAL) {
+			eventBus.post(new ExternalParticipantsViewEvent(true));
+		}
+		else {
+			setViewPosition(ParticipantsPosition.class, position);
+
+			eventBus.post(new ParticipantsPositionEvent(position));
+		}
 	}
 
-	public void positionSlideNotes(SlideNoteBarPosition position) {
-		eventBus.post(new SlideNotesBarPositionEvent(position));
+	public void positionSlidePreview(SlidePreviewPosition position) {
+		if (position == SlidePreviewPosition.EXTERNAL) {
+			eventBus.post(new ExternalSlidePreviewViewEvent(true));
+		}
+		else {
+			setViewPosition(SlidePreviewPosition.class, position);
+
+			eventBus.post(new PreviewPositionEvent(position));
+		}
 	}
 
-	public void positionParticipants(MessageBarPosition position) {
-		eventBus.post(new ParticipantsPositionEvent(position));
+	public void positionSlideNotes(SlideNotesPosition position) {
+		if (position == SlideNotesPosition.EXTERNAL) {
+			eventBus.post(new ExternalNotesViewEvent(true));
+		}
+		else {
+			setViewPosition(SlideNotesPosition.class, position);
+
+			eventBus.post(new NotesBarPositionEvent(position));
+		}
+	}
+
+	public void positionNoteSlide(NoteSlidePosition position) {
+		if (position == NoteSlidePosition.EXTERNAL) {
+			eventBus.post(new ExternalSlideNotesViewEvent(true));
+		}
+		else {
+			setViewPosition(NoteSlidePosition.class, position);
+
+			eventBus.post(new SlideNotesBarPositionEvent(position));
+		}
 	}
 
 	public void newWhiteboard() {
@@ -580,6 +632,15 @@ public class MenuPresenter extends Presenter<MenuView> {
 		return (PresenterConfiguration) context.getConfiguration();
 	}
 
+	@SuppressWarnings("unchecked")
+	private <T> T getViewPosition(Class<T> cls) {
+		return (T) viewPositionMap.getOrDefault(cls, null);
+	}
+
+	private <T> void setViewPosition(Class<T> cls, T value) {
+		viewPositionMap.put(cls, value);
+	}
+
 	@Override
 	public void initialize() {
 		final PresenterContext presenterContext = (PresenterContext) context;
@@ -587,6 +648,13 @@ public class MenuPresenter extends Presenter<MenuView> {
 		final SlideViewConfiguration slideViewConfig = config.getSlideViewConfiguration();
 
 		eventBus.register(this);
+
+		setViewPosition(MessageBarPosition.class, slideViewConfig.getMessageBarPosition());
+		setViewPosition(ParticipantsPosition.class, slideViewConfig.getParticipantsPosition());
+		setViewPosition(SlidePreviewPosition.class, slideViewConfig.getSlidePreviewPosition());
+		setViewPosition(SlideNotesPosition.class, slideViewConfig.getSlideNotesPosition());
+		setViewPosition(NoteSlidePosition.class, slideViewConfig.getNoteSlidePosition());
+		setViewPosition(SpeechPosition.class, slideViewConfig.getSpeechPosition());
 
 		view.setRecordingState(ExecutableState.Stopped);
 		view.setMessengerState(ExecutableState.Stopped);
@@ -615,48 +683,23 @@ public class MenuPresenter extends Presenter<MenuView> {
 
 		view.setOnCustomizeToolbar(this::customizeToolbar);
 
-		view.setOnExternalMessages(this::externalMessages);
-		view.setOnExternalParticipants(this::externalParticipants);
-		view.setOnExternalSlidePreview(this::externalSlidePreview);
-		view.setOnExternalSpeech(this::externalSpeech);
-		view.setOnExternalNotes(this::externalNotes);
-		view.setOnExternalSlideNotes(this::externalSlideNotes);
+		view.setSpeechPosition(slideViewConfig.getSpeechPosition());
+		view.setOnSpeechPosition(this::positionSpeech);
 
-		switch (slideViewConfig.getMessageBarPosition()) {
-			case LEFT -> view.setMessagesPositionLeft();
-			case BOTTOM -> view.setMessagesPositionBottom();
-			case RIGHT -> view.setMessagesPositionRight();
-		}
+		view.setMessagesPosition(slideViewConfig.getMessageBarPosition());
+		view.setOnMessagesPosition(this::positionMessages);
 
-		view.setOnMessagesPositionLeft(() -> positionMessages(MessageBarPosition.LEFT));
-		view.setOnMessagesPositionBottom(() -> positionMessages(MessageBarPosition.BOTTOM));
-		view.setOnMessagesPositionRight(() -> positionMessages(MessageBarPosition.RIGHT));
-
-		switch (slideViewConfig.getNotesBarPosition()) {
-			case LEFT -> view.setNotesPositionLeft();
-			case BOTTOM -> view.setNotesPositionBottom();
-		}
-
-		view.setOnNotesPositionLeft(() -> positionNotes(NoteBarPosition.LEFT));
-		view.setOnNotesPositionBottom(() -> positionNotes(NoteBarPosition.BOTTOM));
-
-		view.setSlideNotesPosition(slideViewConfig.getSlideNotesBarPosition());
+		view.setSlideNotesPosition(slideViewConfig.getSlideNotesPosition());
 		view.setOnSlideNotesPosition(this::positionSlideNotes);
 
-		switch (slideViewConfig.getParticipantsPosition()) {
-			case LEFT -> view.setParticipantsPositionLeft();
-			case RIGHT -> view.setParticipantsPositionRight();
-		}
+		view.setNoteSlidePosition(slideViewConfig.getNoteSlidePosition());
+		view.setOnNoteSlidePosition(this::positionNoteSlide);
 
-		view.setOnParticipantsPositionLeft(() -> positionParticipants(MessageBarPosition.LEFT));
-		view.setOnParticipantsPositionRight(() -> positionParticipants(MessageBarPosition.RIGHT));
+		view.setParticipantsPosition(slideViewConfig.getParticipantsPosition());
+		view.setOnParticipantsPosition(this::positionParticipants);
 
-		ObjectProperty<MessageBarPosition> previewPosition = slideViewConfig.previewPositionProperty();
-		previewPosition.addListener((o, oldPos, newPos) -> {
-			eventBus.post(new PreviewPositionEvent(newPos));
-		});
-
-		view.bindPreviewPosition(previewPosition);
+		view.setSlidePreviewPosition(slideViewConfig.getSlidePreviewPosition());
+		view.setOnSlidePreviewPosition(this::positionSlidePreview);
 
 		view.setOnNewWhiteboard(this::newWhiteboard);
 		view.setOnNewWhiteboardPage(this::newWhiteboardPage);

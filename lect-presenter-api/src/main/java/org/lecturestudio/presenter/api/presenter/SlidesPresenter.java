@@ -110,10 +110,7 @@ import org.lecturestudio.presenter.api.event.ScreenShareStateEvent;
 import org.lecturestudio.presenter.api.event.StreamReconnectStateEvent;
 import org.lecturestudio.presenter.api.event.StreamingStateEvent;
 import org.lecturestudio.presenter.api.input.Shortcut;
-import org.lecturestudio.presenter.api.model.MessageBarPosition;
-import org.lecturestudio.presenter.api.model.MessageDocument;
-import org.lecturestudio.presenter.api.model.NoteBarPosition;
-import org.lecturestudio.presenter.api.model.SlideNoteBarPosition;
+import org.lecturestudio.presenter.api.model.*;
 import org.lecturestudio.presenter.api.service.RecordingService;
 import org.lecturestudio.presenter.api.service.WebRtcStreamService;
 import org.lecturestudio.presenter.api.service.WebService;
@@ -508,7 +505,7 @@ public class SlidesPresenter extends Presenter<SlidesView> {
 
 	@Subscribe
 	public void onEvent(MessageBarPositionEvent event) {
-		final MessageBarPosition position = event.getMessageBarPosition();
+		final MessageBarPosition position = event.position();
 
 		view.setMessageBarPosition(position);
 
@@ -517,7 +514,7 @@ public class SlidesPresenter extends Presenter<SlidesView> {
 
 	@Subscribe
 	public void onEvent(ParticipantsPositionEvent event) {
-		final MessageBarPosition position = event.getMessageBarPosition();
+		final ParticipantsPosition position = event.position();
 
 		view.setParticipantsPosition(position);
 
@@ -526,27 +523,25 @@ public class SlidesPresenter extends Presenter<SlidesView> {
 
 	@Subscribe
 	public void onEvent(PreviewPositionEvent event) {
-		final MessageBarPosition position = event.getMessageBarPosition();
-
-		view.setPreviewPosition(position);
+		view.setPreviewPosition(event.position());
 	}
 
 	@Subscribe
 	public void onEvent(NotesBarPositionEvent event) {
-		final NoteBarPosition position = event.getNoteBarPosition();
+		final SlideNotesPosition position = event.position();
 
 		view.setNotesBarPosition(position);
 
-		getPresenterConfig().getSlideViewConfiguration().setNotesBarPosition(position);
+		getPresenterConfig().getSlideViewConfiguration().setSlideNotesPosition(position);
 	}
 
 	@Subscribe
 	public void onEvent(SlideNotesBarPositionEvent event) {
-		final SlideNoteBarPosition position = event.getSlideNoteBarPosition();
+		final NoteSlidePosition position = event.position();
 
 		view.setSlideNotesBarPosition(position);
 
-		getPresenterConfig().getSlideViewConfiguration().setSlideNotesBarPosition(position);
+		getPresenterConfig().getSlideViewConfiguration().setNoteSlidePosition(position);
 	}
 
 	@Subscribe
@@ -1022,7 +1017,7 @@ public class SlidesPresenter extends Presenter<SlidesView> {
 	}
 
 	private PageObjectView<? extends Shape> createPageObjectView(Shape shape,
-			Class<? extends PageObjectView<? extends Shape>> viewClass) {
+																 Class<? extends PageObjectView<? extends Shape>> viewClass) {
 		PageObjectView<Shape> objectView = (PageObjectView<Shape>) viewFactory.getInstance(viewClass);
 		objectView.setPageShape(shape);
 		objectView.setOnClose(() -> {
@@ -1250,16 +1245,16 @@ public class SlidesPresenter extends Presenter<SlidesView> {
 				.getSlideViewConfiguration().getMessageBarPosition());
 
 		view.setNotesBarPosition(getPresenterConfig()
-				.getSlideViewConfiguration().getNotesBarPosition());
+				.getSlideViewConfiguration().getSlideNotesPosition());
 
 		view.setSlideNotesBarPosition(getPresenterConfig()
-				.getSlideViewConfiguration().getSlideNotesBarPosition());
+				.getSlideViewConfiguration().getNoteSlidePosition());
 
 		view.setParticipantsPosition(getPresenterConfig()
 				.getSlideViewConfiguration().getParticipantsPosition());
 
 		view.setPreviewPosition(getPresenterConfig()
-				.getSlideViewConfiguration().getPreviewPosition());
+				.getSlideViewConfiguration().getSlidePreviewPosition());
 
 		try {
 			recordingService.init();

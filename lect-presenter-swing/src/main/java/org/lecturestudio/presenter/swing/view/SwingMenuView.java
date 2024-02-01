@@ -43,10 +43,7 @@ import org.lecturestudio.core.view.Action;
 import org.lecturestudio.core.view.ConsumerAction;
 import org.lecturestudio.core.view.PresentationParameter;
 import org.lecturestudio.presenter.api.context.PresenterContext.ParticipantCount;
-import org.lecturestudio.presenter.api.model.Bookmark;
-import org.lecturestudio.presenter.api.model.Bookmarks;
-import org.lecturestudio.presenter.api.model.MessageBarPosition;
-import org.lecturestudio.presenter.api.model.SlideNoteBarPosition;
+import org.lecturestudio.presenter.api.model.*;
 import org.lecturestudio.presenter.api.service.QuizWebServiceState;
 import org.lecturestudio.presenter.api.view.MenuView;
 import org.lecturestudio.swing.util.SwingUtils;
@@ -84,35 +81,25 @@ public class SwingMenuView extends JMenuBar implements MenuView {
 
 	private JCheckBoxMenuItem fullscreenMenuItem;
 
-	private JCheckBoxMenuItem advancedSettingsMenuItem;
-
 	private JMenuItem customizeToolbarMenuItem;
-
-	private JMenu externalWindowsMenu;
-
-	private JCheckBoxMenuItem externalMessagesMenuItem;
-
-	private JCheckBoxMenuItem externalParticipantsMenuItem;
-
-	private JCheckBoxMenuItem externalSlidePreviewMenuItem;
-
-	private JCheckBoxMenuItem externalSpeechMenuItem;
 
 	private JCheckBoxMenuItem notesMenuItem;
 
 	private JMenu notesPositionMenu;
 
-	private JCheckBoxMenuItem externalNotesMenuItem;
-
 	private JCheckBoxMenuItem slideNotesMenuItem;
 
-	private JMenu slideNotesPositionMenu;
-
-	private JCheckBoxMenuItem externalSlideNotesMenuItem;
+	private JMenu noteSlidePositionMenu;
 
 	private JMenu messagesPositionMenu;
 
 	private JMenu splitNotesPositionMenu;
+
+	private JMenu speechPositionMenu;
+
+	private JRadioButtonMenuItem speechPositionAbovePreviewMenuItem;
+
+	private JRadioButtonMenuItem speechPositionExternalMenuItem;
 
 	private JRadioButtonMenuItem splitNotesPositionRightMenuItem;
 
@@ -126,13 +113,19 @@ public class SwingMenuView extends JMenuBar implements MenuView {
 
 	private JRadioButtonMenuItem messagesPositionRightMenuItem;
 
+	private JRadioButtonMenuItem messagesPositionExternalMenuItem;
+
 	private JRadioButtonMenuItem notesPositionLeftMenuItem;
 
 	private JRadioButtonMenuItem notesPositionBottomMenuItem;
 
-	private JRadioButtonMenuItem slideNotesPositionBottomMenuItem;
+	private JRadioButtonMenuItem notesPositionExternalMenuItem;
 
-	private JRadioButtonMenuItem slideNotesPositionNoneMenuItem;
+	private JRadioButtonMenuItem noteSlidePositionBelowPreviewMenuItem;
+
+	private JRadioButtonMenuItem noteSlidePositionNoneMenuItem;
+
+	private JRadioButtonMenuItem noteSlidePositionExternalMenuItem;
 
 	private JMenu participantsPositionMenu;
 
@@ -140,11 +133,15 @@ public class SwingMenuView extends JMenuBar implements MenuView {
 
 	private JRadioButtonMenuItem participantsPositionRightMenuItem;
 
+	private JRadioButtonMenuItem participantsPositionExternalMenuItem;
+
 	private JMenu previewPositionMenu;
 
 	private JRadioButtonMenuItem previewPositionLeftMenuItem;
 
 	private JRadioButtonMenuItem previewPositionRightMenuItem;
+
+	private JRadioButtonMenuItem previewPositionExternalMenuItem;
 
 	private JMenuItem newWhiteboardMenuItem;
 
@@ -255,11 +252,12 @@ public class SwingMenuView extends JMenuBar implements MenuView {
 			startRecordingMenuItem.setEnabled(hasDocument);
 			enableStreamMenuItem.setEnabled(hasDocument);
 			enableMessengerMenuItem.setEnabled(hasDocument);
-			externalWindowsMenu.setEnabled(hasDocument);
 			messagesPositionMenu.setEnabled(hasDocument);
 			notesPositionMenu.setEnabled(hasDocument);
 			participantsPositionMenu.setEnabled(hasDocument);
 			previewPositionMenu.setEnabled(hasDocument);
+			noteSlidePositionMenu.setEnabled(hasDocument);
+			speechPositionMenu.setEnabled(hasDocument);
 			splitNotesPositionMenu.setEnabled(hasDocument);
 		});
 	}
@@ -368,18 +366,8 @@ public class SwingMenuView extends JMenuBar implements MenuView {
 	}
 
 	@Override
-	public void setAdvancedSettings(boolean selected) {
-		advancedSettingsMenuItem.setSelected(selected);
-	}
-
-	@Override
 	public void bindFullscreen(BooleanProperty fullscreen) {
 		SwingUtils.bindBidirectional(fullscreenMenuItem, fullscreen);
-	}
-
-	@Override
-	public void setOnAdvancedSettings(ConsumerAction<Boolean> action) {
-		SwingUtils.bindAction(advancedSettingsMenuItem, action);
 	}
 
 	@Override
@@ -388,177 +376,99 @@ public class SwingMenuView extends JMenuBar implements MenuView {
 	}
 
 	@Override
-	public void setExternalMessages(boolean selected, boolean show) {
-		externalMessagesMenuItem.setSelected(selected);
-		externalMessagesMenuItem.setText(!selected || show
-				? dict.get("menu.external.messages")
-				: dict.get("menu.external.messages.disconnected"));
-	}
-
-	@Override
-	public void setExternalNotes(boolean selected, boolean show) {
-		externalNotesMenuItem.setSelected(selected);
-		externalNotesMenuItem.setText(!selected || show
-				? dict.get("menu.external.notes")
-				: dict.get("menu.external.notes.disconnected"));
-	}
-
-	@Override
-	public void setExternalSlideNotes(boolean selected, boolean show) {
-		externalSlideNotesMenuItem.setSelected(selected);
-		externalSlideNotesMenuItem.setText(!selected || show
-				? dict.get("menu.external.slide.notes")
-				: dict.get("menu.external.slide.notes.disconnected"));
-	}
-
-	@Override
-	public void setOnExternalMessages(ConsumerAction<Boolean> action) {
-		SwingUtils.bindAction(externalMessagesMenuItem, action);
-	}
-
-	@Override
-	public void setExternalParticipants(boolean selected, boolean show) {
-		externalParticipantsMenuItem.setSelected(selected);
-		externalParticipantsMenuItem.setText(!selected || show
-				? dict.get("menu.external.participants")
-				: dict.get("menu.external.participants.disconnected"));
-	}
-
-	@Override
-	public void setOnExternalParticipants(ConsumerAction<Boolean> action) {
-		SwingUtils.bindAction(externalParticipantsMenuItem, action);
-	}
-
-	@Override
-	public void setExternalSlidePreview(boolean selected, boolean show) {
-		externalSlidePreviewMenuItem.setSelected(selected);
-		externalSlidePreviewMenuItem.setText(!selected || show
-				? dict.get("menu.external.slide.preview")
-				: dict.get("menu.external.slide.preview.disconnected"));
-	}
-
-	@Override
-	public void setOnExternalSlidePreview(ConsumerAction<Boolean> action) {
-		SwingUtils.bindAction(externalSlidePreviewMenuItem, action);
-	}
-
-	@Override
-	public void setExternalSpeech(boolean selected, boolean show) {
-		externalSpeechMenuItem.setSelected(selected);
-		externalSpeechMenuItem.setText(!selected || show
-				? dict.get("menu.external.speech")
-				: dict.get("menu.external.speech.disconnected"));
-	}
-
-	@Override
-	public void setOnExternalSpeech(ConsumerAction<Boolean> action) {
-		SwingUtils.bindAction(externalSpeechMenuItem, action);
-	}
-
-	@Override
-	public void setOnExternalNotes(ConsumerAction<Boolean> action) {
-		SwingUtils.bindAction(externalNotesMenuItem, action);
-	}
-
-	@Override
-	public void setOnExternalSlideNotes(ConsumerAction<Boolean> action) {
-		SwingUtils.bindAction(externalSlideNotesMenuItem, action);
-	}
-
-	@Override
-	public void setOnMessagesPositionLeft(Action action) {
-		SwingUtils.bindAction(messagesPositionLeftMenuItem, action);
-	}
-
-	@Override
-	public void setMessagesPositionLeft() {
-		messagesPositionLeftMenuItem.setSelected(true);
-	}
-
-	@Override
-	public void setOnMessagesPositionBottom(Action action) {
-		SwingUtils.bindAction(messagesPositionBottomMenuItem, action);
-	}
-
-	@Override
-	public void setMessagesPositionBottom() {
-		messagesPositionBottomMenuItem.setSelected(true);
-	}
-
-	@Override
-	public void setOnMessagesPositionRight(Action action) {
-		SwingUtils.bindAction(messagesPositionRightMenuItem, action);
-	}
-
-	@Override
-	public void setMessagesPositionRight() {
-		messagesPositionRightMenuItem.setSelected(true);
-	}
-
-	@Override
-	public void setOnNotesPositionBottom(Action action) {
-		SwingUtils.bindAction(notesPositionBottomMenuItem, action);
-	}
-
-	@Override
-	public void setNotesPositionBottom() {
-		notesPositionBottomMenuItem.setSelected(true);
-	}
-
-	@Override
-	public void setSlideNotesPosition(SlideNoteBarPosition position) {
+	public void setSpeechPosition(SpeechPosition position) {
 		switch (position) {
-			case BELOW_PREVIEW -> slideNotesPositionBottomMenuItem.setSelected(true);
-			case NONE -> slideNotesPositionNoneMenuItem.setSelected(true);
+			case ABOVE_SLIDE_PREVIEW -> speechPositionAbovePreviewMenuItem.setSelected(true);
+			case EXTERNAL -> speechPositionExternalMenuItem.setSelected(true);
 		}
 	}
 
 	@Override
-	public void setOnSlideNotesPosition(ConsumerAction<SlideNoteBarPosition> action) {
-		SwingUtils.bindAction(slideNotesPositionBottomMenuItem, () -> action.execute(SlideNoteBarPosition.BELOW_PREVIEW));
-		SwingUtils.bindAction(slideNotesPositionNoneMenuItem, () -> action.execute(SlideNoteBarPosition.NONE));
+	public void setOnSpeechPosition(ConsumerAction<SpeechPosition> action) {
+		SwingUtils.bindAction(speechPositionAbovePreviewMenuItem, () -> action.execute(SpeechPosition.ABOVE_SLIDE_PREVIEW));
+		SwingUtils.bindAction(speechPositionExternalMenuItem, () -> action.execute(SpeechPosition.EXTERNAL));
 	}
 
 	@Override
-	public void setOnNotesPositionLeft(Action action) {
-		SwingUtils.bindAction(notesPositionLeftMenuItem, action);
+	public void setMessagesPosition(MessageBarPosition position) {
+		switch (position) {
+			case LEFT -> messagesPositionLeftMenuItem.setSelected(true);
+			case BOTTOM -> messagesPositionBottomMenuItem.setSelected(true);
+			case RIGHT -> messagesPositionRightMenuItem.setSelected(true);
+			case EXTERNAL -> messagesPositionExternalMenuItem.setSelected(true);
+		}
 	}
 
 	@Override
-	public void setNotesPositionLeft() {
-		notesPositionLeftMenuItem.setSelected(true);
+	public void setOnMessagesPosition(ConsumerAction<MessageBarPosition> action) {
+		SwingUtils.bindAction(messagesPositionLeftMenuItem, () -> action.execute(MessageBarPosition.LEFT));
+		SwingUtils.bindAction(messagesPositionBottomMenuItem, () -> action.execute(MessageBarPosition.BOTTOM));
+		SwingUtils.bindAction(messagesPositionRightMenuItem, () -> action.execute(MessageBarPosition.RIGHT));
+		SwingUtils.bindAction(messagesPositionExternalMenuItem, () -> action.execute(MessageBarPosition.EXTERNAL));
 	}
 
 	@Override
-	public void setOnParticipantsPositionLeft(Action action) {
-		SwingUtils.bindAction(participantsPositionLeftMenuItem, action);
+	public void setSlideNotesPosition(SlideNotesPosition position) {
+		switch (position) {
+			case LEFT -> notesPositionLeftMenuItem.setSelected(true);
+			case BOTTOM -> notesPositionBottomMenuItem.setSelected(true);
+			case EXTERNAL -> notesPositionExternalMenuItem.setSelected(true);
+		}
 	}
 
 	@Override
-	public void setParticipantsPositionLeft() {
-		participantsPositionLeftMenuItem.setSelected(true);
+	public void setOnSlideNotesPosition(ConsumerAction<SlideNotesPosition> action) {
+		SwingUtils.bindAction(notesPositionLeftMenuItem, () -> action.execute(SlideNotesPosition.LEFT));
+		SwingUtils.bindAction(notesPositionBottomMenuItem, () -> action.execute(SlideNotesPosition.BOTTOM));
+		SwingUtils.bindAction(notesPositionExternalMenuItem, () -> action.execute(SlideNotesPosition.EXTERNAL));
 	}
 
 	@Override
-	public void setOnParticipantsPositionRight(Action action) {
-		SwingUtils.bindAction(participantsPositionRightMenuItem, action);
+	public void setNoteSlidePosition(NoteSlidePosition position) {
+		switch (position) {
+			case NONE -> noteSlidePositionNoneMenuItem.setSelected(true);
+			case BELOW_SLIDE_PREVIEW -> noteSlidePositionBelowPreviewMenuItem.setSelected(true);
+			case EXTERNAL -> noteSlidePositionExternalMenuItem.setSelected(true);
+		}
 	}
 
 	@Override
-	public void setParticipantsPositionRight() {
-		participantsPositionRightMenuItem.setSelected(true);
+	public void setOnNoteSlidePosition(ConsumerAction<NoteSlidePosition> action) {
+		SwingUtils.bindAction(noteSlidePositionNoneMenuItem, () -> action.execute(NoteSlidePosition.NONE));
+		SwingUtils.bindAction(noteSlidePositionBelowPreviewMenuItem, () -> action.execute(NoteSlidePosition.BELOW_SLIDE_PREVIEW));
+		SwingUtils.bindAction(noteSlidePositionExternalMenuItem, () -> action.execute(NoteSlidePosition.EXTERNAL));
 	}
 
 	@Override
-	public void bindPreviewPosition(ObjectProperty<MessageBarPosition> position) {
-		setPreviewPosition(position.get());
+	public void setParticipantsPosition(ParticipantsPosition position) {
+		switch (position) {
+			case LEFT -> participantsPositionLeftMenuItem.setSelected(true);
+			case RIGHT -> participantsPositionRightMenuItem.setSelected(true);
+			case EXTERNAL -> participantsPositionExternalMenuItem.setSelected(true);
+		}
+	}
 
-		position.addListener((o, oldPos, newPos) -> {
-			setPreviewPosition(newPos);
-		});
+	@Override
+	public void setOnParticipantsPosition(ConsumerAction<ParticipantsPosition> action) {
+		SwingUtils.bindAction(participantsPositionLeftMenuItem, () -> action.execute(ParticipantsPosition.LEFT));
+		SwingUtils.bindAction(participantsPositionRightMenuItem, () -> action.execute(ParticipantsPosition.RIGHT));
+		SwingUtils.bindAction(participantsPositionExternalMenuItem, () -> action.execute(ParticipantsPosition.EXTERNAL));
+	}
 
-		previewPositionLeftMenuItem.addActionListener(e -> position.set(MessageBarPosition.LEFT));
-		previewPositionRightMenuItem.addActionListener(e -> position.set(MessageBarPosition.RIGHT));
+	@Override
+	public void setSlidePreviewPosition(SlidePreviewPosition position) {
+		switch (position) {
+			case LEFT -> previewPositionLeftMenuItem.setSelected(true);
+			case RIGHT -> previewPositionRightMenuItem.setSelected(true);
+			case EXTERNAL -> previewPositionExternalMenuItem.setSelected(true);
+		}
+	}
+
+	@Override
+	public void setOnSlidePreviewPosition(ConsumerAction<SlidePreviewPosition> action) {
+		SwingUtils.bindAction(previewPositionLeftMenuItem, () -> action.execute(SlidePreviewPosition.LEFT));
+		SwingUtils.bindAction(previewPositionRightMenuItem, () -> action.execute(SlidePreviewPosition.RIGHT));
+		SwingUtils.bindAction(previewPositionExternalMenuItem, () -> action.execute(SlidePreviewPosition.EXTERNAL));
 	}
 
 	@Override
@@ -924,16 +834,6 @@ public class SwingMenuView extends JMenuBar implements MenuView {
 		setStateText(enableStreamCameraMenuItem, dict.get("menu.stream.camera.start"),
 				dict.get("menu.stream.camera.stop"));
 
-    // TODO: Creation of ButtonGroup can be removed here and can be set in the view xml.
-		final ButtonGroup messagesPositionButtonGroup = new ButtonGroup();
-		messagesPositionButtonGroup.add(messagesPositionLeftMenuItem);
-		messagesPositionButtonGroup.add(messagesPositionBottomMenuItem);
-		messagesPositionButtonGroup.add(messagesPositionRightMenuItem);
-
-		final ButtonGroup participantsPositionButtonGroup = new ButtonGroup();
-		participantsPositionButtonGroup.add(participantsPositionLeftMenuItem);
-		participantsPositionButtonGroup.add(participantsPositionRightMenuItem);
-
 		stopwatchMenu.setBorderPainted(false);
 		stopwatchMenu.setFocusPainted(false);
 		stopwatchMenu.addMouseListener(new MouseAdapter() {
@@ -975,13 +875,6 @@ public class SwingMenuView extends JMenuBar implements MenuView {
 	private void updateRecTimeLabel(ExecutableState state) {
 		if (state == ExecutableState.Stopped) {
 			recordIndicatorMenu.setText(null);
-		}
-	}
-
-	private void setPreviewPosition(MessageBarPosition position) {
-		switch (position) {
-			case LEFT -> previewPositionLeftMenuItem.setSelected(true);
-			case RIGHT -> previewPositionRightMenuItem.setSelected(true);
 		}
 	}
 }

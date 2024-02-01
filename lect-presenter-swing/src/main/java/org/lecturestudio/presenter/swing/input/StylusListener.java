@@ -68,9 +68,7 @@ public class StylusListener implements org.lecturestudio.stylus.StylusListener {
 
 			@Override
 			public void componentResized(ComponentEvent e) {
-				Rectangle canvasBounds = slideView.getCanvasBounds();
-
-				updateBounds(canvasBounds);
+				updateBounds(slideView.getCanvasBounds());
 			}
 		});
 		slideView.addPropertyChangeListener("CanvasBounds", event -> {

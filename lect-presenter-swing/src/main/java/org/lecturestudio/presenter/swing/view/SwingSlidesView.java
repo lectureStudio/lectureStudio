@@ -83,9 +83,7 @@ import org.lecturestudio.core.model.Page;
 import org.lecturestudio.core.stylus.StylusHandler;
 import org.lecturestudio.core.view.*;
 import org.lecturestudio.presenter.api.config.SlideViewConfiguration;
-import org.lecturestudio.presenter.api.model.NoteBarPosition;
-import org.lecturestudio.presenter.api.model.MessageBarPosition;
-import org.lecturestudio.presenter.api.model.SlideNoteBarPosition;
+import org.lecturestudio.presenter.api.model.*;
 import org.lecturestudio.presenter.api.service.UserPrivilegeService;
 import org.lecturestudio.presenter.api.view.SlidesView;
 import org.lecturestudio.presenter.swing.input.MouseListener;
@@ -320,12 +318,14 @@ public class SwingSlidesView extends JPanel implements SlidesView {
 	private final AdaptiveTabbedPane externalSlidePreviewTabPane = new AdaptiveTabbedPane(SwingConstants.RIGHT);
 
 	private MessageBarPosition messageBarPosition = MessageBarPosition.BOTTOM;
-	private NoteBarPosition notesBarPosition = NoteBarPosition.BOTTOM;
 
-	private SlideNoteBarPosition slideNotesBarPosition = SlideNoteBarPosition.NONE;
+	private SlideNotesPosition slideNotesPosition = SlideNotesPosition.BOTTOM;
 
-	private MessageBarPosition participantsPosition = MessageBarPosition.LEFT;
-	private MessageBarPosition previewPosition = MessageBarPosition.RIGHT;
+	private NoteSlidePosition slideNotesBarPosition = NoteSlidePosition.NONE;
+
+	private ParticipantsPosition participantsPosition = ParticipantsPosition.LEFT;
+
+	private SlidePreviewPosition previewPosition = SlidePreviewPosition.RIGHT;
 
 	private String selectedSlideLabelText = "";
 
@@ -334,7 +334,7 @@ public class SwingSlidesView extends JPanel implements SlidesView {
 
 	@Inject
 	SwingSlidesView(Dictionary dictionary,
-			UserPrivilegeService userPrivilegeService) {
+					UserPrivilegeService userPrivilegeService) {
 		super();
 
 		this.dict = dictionary;
@@ -721,7 +721,7 @@ public class SwingSlidesView extends JPanel implements SlidesView {
 		SwingUtils.invoke(() -> {
 			AdaptiveTabbedPane currentPane;
 
-			switch (notesBarPosition){
+			switch (slideNotesPosition){
 				case BOTTOM -> currentPane = bottomTabPane;
 				case LEFT -> currentPane = leftTabPane;
 				default -> currentPane = bottomTabPane;
@@ -771,8 +771,8 @@ public class SwingSlidesView extends JPanel implements SlidesView {
 				String recipient = toMe
 						? dict.get("text.message.to.me")
 						: toOrganisers
-							? dict.get("text.message.to.organisators.short")
-							: String.format("%s %s", directMessage.getRecipientFirstName(), directMessage.getRecipientFamilyName());
+						? dict.get("text.message.to.organisators.short")
+						: String.format("%s %s", directMessage.getRecipientFirstName(), directMessage.getRecipientFamilyName());
 
 				messageView.setUserName(MessageFormat.format(dict.get("text.message.recipient"), sender, ""));
 				messageView.setPrivateText(recipient);
@@ -1185,7 +1185,7 @@ public class SwingSlidesView extends JPanel implements SlidesView {
 			return externalSlidePreviewTabPane;
 		}
 
-		if (Objects.requireNonNull(previewPosition) == MessageBarPosition.LEFT) {
+		if (Objects.requireNonNull(previewPosition) == SlidePreviewPosition.LEFT) {
 			return leftTabPane;
 		}
 		return rightTabPane;
@@ -1283,7 +1283,7 @@ public class SwingSlidesView extends JPanel implements SlidesView {
 
 		externalSlideNotesFrame.setVisible(false);
 
-		if (slideNotesBarPosition == SlideNoteBarPosition.BELOW_PREVIEW) {
+		if (slideNotesBarPosition == NoteSlidePosition.BELOW_SLIDE_PREVIEW) {
 			showSlideNote();
 		}
 	}
@@ -1300,7 +1300,7 @@ public class SwingSlidesView extends JPanel implements SlidesView {
 	}
 
 	@Override
-	public void setParticipantsPosition(MessageBarPosition position) {
+	public void setParticipantsPosition(ParticipantsPosition position) {
 		switch (position) {
 			case LEFT -> showParticipantsLeft();
 			case RIGHT -> showParticipantsRight();
@@ -1310,7 +1310,7 @@ public class SwingSlidesView extends JPanel implements SlidesView {
 	}
 
 	@Override
-	public void setPreviewPosition(MessageBarPosition position) {
+	public void setPreviewPosition(SlidePreviewPosition position) {
 		switch (position) {
 			case LEFT -> showPreviewLeft();
 			case RIGHT -> showPreviewRight();
@@ -1320,17 +1320,17 @@ public class SwingSlidesView extends JPanel implements SlidesView {
 	}
 
 	@Override
-	public void setNotesBarPosition(NoteBarPosition position) {
+	public void setNotesBarPosition(SlideNotesPosition position) {
 		switch (position) {
 			case LEFT -> showNoteLeft();
 			case BOTTOM -> showNoteBottom();
 		}
 
-		notesBarPosition = position;
+		slideNotesPosition = position;
 	}
 
 	private void showNoteBottom() {
-		if (notesBarPosition == NoteBarPosition.BOTTOM) {
+		if (slideNotesPosition == SlideNotesPosition.BOTTOM) {
 			return;
 		}
 		final boolean prevMinimized = isBottomTabPaneMinimized();
@@ -1343,7 +1343,7 @@ public class SwingSlidesView extends JPanel implements SlidesView {
 	}
 
 	private void showNoteLeft() {
-		if (notesBarPosition == NoteBarPosition.LEFT) {
+		if (slideNotesPosition == SlideNotesPosition.LEFT) {
 			return;
 		}
 
@@ -1356,9 +1356,9 @@ public class SwingSlidesView extends JPanel implements SlidesView {
 	}
 
 	@Override
-	public void setSlideNotesBarPosition(SlideNoteBarPosition position) {
+	public void setSlideNotesBarPosition(NoteSlidePosition position) {
 		switch (position) {
-			case BELOW_PREVIEW -> showSlideNote();
+			case BELOW_SLIDE_PREVIEW -> showSlideNote();
 			case NONE -> hideSlideNote();
 		}
 
@@ -1436,7 +1436,7 @@ public class SwingSlidesView extends JPanel implements SlidesView {
 	}
 
 	private void showParticipantsLeft() {
-		if (participantsPosition == MessageBarPosition.LEFT) {
+		if (participantsPosition == ParticipantsPosition.LEFT) {
 			return;
 		}
 
@@ -1449,7 +1449,7 @@ public class SwingSlidesView extends JPanel implements SlidesView {
 	}
 
 	private void showParticipantsRight() {
-		if (participantsPosition == MessageBarPosition.RIGHT) {
+		if (participantsPosition == ParticipantsPosition.RIGHT) {
 			return;
 		}
 
@@ -1462,7 +1462,7 @@ public class SwingSlidesView extends JPanel implements SlidesView {
 	}
 
 	private void showPreviewLeft() {
-		if (previewPosition == MessageBarPosition.LEFT) {
+		if (previewPosition == SlidePreviewPosition.LEFT) {
 			return;
 		}
 
@@ -1472,7 +1472,7 @@ public class SwingSlidesView extends JPanel implements SlidesView {
 	}
 
 	private void showPreviewRight() {
-		if (previewPosition == MessageBarPosition.RIGHT) {
+		if (previewPosition == SlidePreviewPosition.RIGHT) {
 			return;
 		}
 
@@ -1563,7 +1563,7 @@ public class SwingSlidesView extends JPanel implements SlidesView {
 	}
 
 	private void setNotesBarTabVisible(String labelText, boolean visible) {
-		switch (notesBarPosition) {
+		switch (slideNotesPosition) {
 			case BOTTOM -> setBottomTabVisible(labelText, visible);
 			case LEFT -> setLeftTabVisible(labelText, visible);
 		}
@@ -1601,7 +1601,7 @@ public class SwingSlidesView extends JPanel implements SlidesView {
 	}
 
 	private void setTabVisible(AdaptiveTabbedPane tabbedPane, String labelText,
-			boolean visible, Runnable minimizeFunc) {
+							   boolean visible, Runnable minimizeFunc) {
 		final int prevVisibleTabCount = tabbedPane.getPaneTabCount();
 
 		tabbedPane.setTabVisible(labelText, visible);
@@ -1651,7 +1651,7 @@ public class SwingSlidesView extends JPanel implements SlidesView {
 	private List<AdaptiveTab> removeNotesBarTabs() {
 		final ArrayList<AdaptiveTab> removedTabs = new ArrayList<>();
 
-		switch (notesBarPosition) {
+		switch (slideNotesPosition) {
 			case BOTTOM -> removedTabs.addAll(bottomTabPane.removeTabsByType(AdaptiveTabType.NOTES));
 			case LEFT -> removedTabs.addAll(leftTabPane.removeTabsByType(AdaptiveTabType.NOTES));
 		}
@@ -1788,8 +1788,8 @@ public class SwingSlidesView extends JPanel implements SlidesView {
 	}
 
 	private void toggleTab(boolean sameTab, IntSupplier tabPaneSizeFunc,
-			IntSupplier tabSizeFunc, Consumer<Boolean> minimizeFunc,
-			Runnable maximizeFunc) {
+						   IntSupplier tabSizeFunc, Consumer<Boolean> minimizeFunc,
+						   Runnable maximizeFunc) {
 		final int tabPaneSize = tabPaneSizeFunc.getAsInt();
 		final int tabSize = tabSizeFunc.getAsInt();
 
@@ -2125,7 +2125,7 @@ public class SwingSlidesView extends JPanel implements SlidesView {
 	}
 
 	private void observeDividerLocation(final JSplitPane pane,
-			final DoubleProperty property) {
+										final DoubleProperty property) {
 		BasicSplitPaneUI ui = (BasicSplitPaneUI) pane.getUI();
 		BasicSplitPaneDivider divider = ui.getDivider();
 
@@ -2143,8 +2143,8 @@ public class SwingSlidesView extends JPanel implements SlidesView {
 		});
 	}
 
-	private void addNoteView(Component view) {
-		//setNotesBarTabVisible(dict.get(NOTES_LABEL_KEY), true);
+	private void addNoteView(Component view){
+//		setNotesBarTabVisible(dict.get(NOTES_LABEL_KEY), true);
 
 		notesViewContainer.add(view);
 		notesViewContainer.invalidate();

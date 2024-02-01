@@ -35,10 +35,7 @@ import org.lecturestudio.core.view.ConsumerAction;
 import org.lecturestudio.core.view.PresentationParameter;
 import org.lecturestudio.core.view.View;
 import org.lecturestudio.presenter.api.context.PresenterContext.ParticipantCount;
-import org.lecturestudio.presenter.api.model.Bookmark;
-import org.lecturestudio.presenter.api.model.Bookmarks;
-import org.lecturestudio.presenter.api.model.MessageBarPosition;
-import org.lecturestudio.presenter.api.model.SlideNoteBarPosition;
+import org.lecturestudio.presenter.api.model.*;
 import org.lecturestudio.presenter.api.service.QuizWebServiceState;
 
 public interface MenuView extends View {
@@ -79,71 +76,33 @@ public interface MenuView extends View {
 
 	void bindShowOutline(BooleanProperty showProperty);
 
-	void setAdvancedSettings(boolean selected);
-
 	void bindFullscreen(BooleanProperty fullscreen);
-
-	void setOnAdvancedSettings(ConsumerAction<Boolean> action);
 
 	void setOnCustomizeToolbar(Action action);
 
-	void setExternalMessages(boolean selected, boolean show);
+	void setSpeechPosition(SpeechPosition position);
 
-	void setOnExternalMessages(ConsumerAction<Boolean> action);
+	void setOnSpeechPosition(ConsumerAction<SpeechPosition> action);
 
-	void setExternalParticipants(boolean selected, boolean show);
+	void setMessagesPosition(MessageBarPosition position);
 
-	void setOnExternalParticipants(ConsumerAction<Boolean> action);
+	void setOnMessagesPosition(ConsumerAction<MessageBarPosition> action);
 
-	void setExternalSlidePreview(boolean selected, boolean show);
+	void setSlideNotesPosition(SlideNotesPosition position);
 
-	void setOnExternalSlidePreview(ConsumerAction<Boolean> action);
+	void setOnSlideNotesPosition(ConsumerAction<SlideNotesPosition> action);
 
-	void setExternalSpeech(boolean selected, boolean show);
+	void setNoteSlidePosition(NoteSlidePosition position);
 
-	void setOnExternalSpeech(ConsumerAction<Boolean> action);
+	void setOnNoteSlidePosition(ConsumerAction<NoteSlidePosition> action);
 
-	void setExternalNotes(boolean selected, boolean show);
+	void setParticipantsPosition(ParticipantsPosition position);
 
-	void setOnExternalNotes(ConsumerAction<Boolean> action);
+	void setOnParticipantsPosition(ConsumerAction<ParticipantsPosition> action);
 
-	void setExternalSlideNotes(boolean selected, boolean show);
+	void setSlidePreviewPosition(SlidePreviewPosition position);
 
-	void setOnExternalSlideNotes(ConsumerAction<Boolean> action);
-
-	void setOnMessagesPositionLeft(Action action);
-
-	void setMessagesPositionLeft();
-
-	void setOnMessagesPositionBottom(Action action);
-
-	void setMessagesPositionBottom();
-
-	void setOnMessagesPositionRight(Action action);
-
-	void setMessagesPositionRight();
-
-	void setOnNotesPositionLeft(Action action);
-
-	void setNotesPositionLeft();
-
-	void setOnNotesPositionBottom(Action action);
-
-	void setNotesPositionBottom();
-
-	void setSlideNotesPosition(SlideNoteBarPosition position);
-
-	void setOnSlideNotesPosition(ConsumerAction<SlideNoteBarPosition> action);
-
-	void setOnParticipantsPositionLeft(Action action);
-
-	void setParticipantsPositionLeft();
-
-	void setOnParticipantsPositionRight(Action action);
-
-	void setParticipantsPositionRight();
-
-	void bindPreviewPosition(ObjectProperty<MessageBarPosition> position);
+	void setOnSlidePreviewPosition(ConsumerAction<SlidePreviewPosition> action);
 
 	/**
 	 * Whiteboard Menu
@@ -278,7 +237,7 @@ public interface MenuView extends View {
 
 	void setSplitNotesPositionRight();
 
-    void setOnSplitNotesPositionLeft(Action action);
+	void setOnSplitNotesPositionLeft(Action action);
 
 	void setSplitNotesPositionLeft();
 }

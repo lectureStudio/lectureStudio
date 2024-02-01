@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2022 TU Darmstadt, Department of Computer Science,
+ * Copyright (C) 2020 TU Darmstadt, Department of Computer Science,
  * Embedded Systems and Applications Group.
  *
  * This program is free software: you can redistribute it and/or modify
@@ -16,10 +16,12 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package org.lecturestudio.presenter.api.event;
+package org.lecturestudio.presenter.api.model;
 
-import org.lecturestudio.presenter.api.model.NoteSlidePosition;
+public enum ParticipantsPosition {
 
-public record SlideNotesBarPositionEvent(NoteSlidePosition position) {
+    LEFT,
+    RIGHT,
+    EXTERNAL
 
 }

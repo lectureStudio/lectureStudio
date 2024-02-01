@@ -34,10 +34,8 @@ import org.lecturestudio.core.model.DocumentOutline;
 import org.lecturestudio.core.model.DocumentOutlineItem;
 import org.lecturestudio.core.model.Page;
 import org.lecturestudio.core.view.*;
-import org.lecturestudio.presenter.api.model.NoteBarPosition;
-import org.lecturestudio.presenter.api.model.MessageBarPosition;
+import org.lecturestudio.presenter.api.model.*;
 import org.lecturestudio.presenter.api.config.SlideViewConfiguration;
-import org.lecturestudio.presenter.api.model.SlideNoteBarPosition;
 import org.lecturestudio.swing.model.ExternalWindowPosition;
 import org.lecturestudio.core.stylus.StylusHandler;
 import org.lecturestudio.web.api.event.PeerStateEvent;
@@ -210,12 +208,12 @@ public interface SlidesView extends View {
 
 	void setMessageBarPosition(MessageBarPosition position);
 
-	void setNotesBarPosition(NoteBarPosition position);
+	void setNotesBarPosition(SlideNotesPosition position);
 
-	void setSlideNotesBarPosition(SlideNoteBarPosition position);
+	void setSlideNotesBarPosition(NoteSlidePosition position);
 
-	void setParticipantsPosition(MessageBarPosition position);
+	void setParticipantsPosition(ParticipantsPosition position);
 
-	void setPreviewPosition(MessageBarPosition position);
+	void setPreviewPosition(SlidePreviewPosition position);
 
 }

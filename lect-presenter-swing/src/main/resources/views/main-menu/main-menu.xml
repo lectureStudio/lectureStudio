@@ -19,51 +19,53 @@
 		<menuitem id="customizeToolbarMenuItem" text="menu.toolbar.customize" />
 		<checkboxmenuitem id="outlineMenuItem" text="menu.contents" />
 		<separator />
-		<menu id="externalWindowsMenu" text="menu.external.windows">
-			<checkboxmenuitem id="externalMessagesMenuItem" text="menu.external.messages" />
-			<checkboxmenuitem id="externalParticipantsMenuItem" text="menu.external.participants" />
-			<checkboxmenuitem id="externalSlidePreviewMenuItem" text="menu.external.slide.preview" />
-			<checkboxmenuitem id="externalNotesMenuItem" text="menu.external.notes" />
-			<checkboxmenuitem id="externalSlideNotesMenuItem" text="menu.external.slide.notes" />
-			<checkboxmenuitem id="externalSpeechMenuItem" text="menu.external.speech" />
-		</menu>
-		<separator />
 		<menu id="messagesPositionMenu" text="menu.messages.position">
 			<buttongroup>
 				<radiobuttonmenuitem id="messagesPositionLeftMenuItem" text="menu.left" />
-				<radiobuttonmenuitem id="messagesPositionBottomMenuItem" text="menu.bottom" />
 				<radiobuttonmenuitem id="messagesPositionRightMenuItem" text="menu.right" />
+				<radiobuttonmenuitem id="messagesPositionBottomMenuItem" text="menu.bottom" />
+				<radiobuttonmenuitem id="messagesPositionExternalMenuItem" text="menu.external" />
 			</buttongroup>
 		</menu>
 		<menu id="participantsPositionMenu" text="menu.participants.position">
 			<buttongroup>
 				<radiobuttonmenuitem id="participantsPositionLeftMenuItem" text="menu.left" />
 				<radiobuttonmenuitem id="participantsPositionRightMenuItem" text="menu.right" />
+				<radiobuttonmenuitem id="participantsPositionExternalMenuItem" text="menu.external" />
 			</buttongroup>
 		</menu>
 		<menu id="previewPositionMenu" text="menu.preview.position">
 			<buttongroup>
 				<radiobuttonmenuitem id="previewPositionLeftMenuItem" text="menu.left" />
 				<radiobuttonmenuitem id="previewPositionRightMenuItem" text="menu.right" />
+				<radiobuttonmenuitem id="previewPositionExternalMenuItem" text="menu.external" />
 			</buttongroup>
 		</menu>
 		<menu id="notesPositionMenu" text="menu.notes.position">
 			<buttongroup>
 				<radiobuttonmenuitem id="notesPositionLeftMenuItem" text="menu.left" />
 				<radiobuttonmenuitem id="notesPositionBottomMenuItem" text="menu.bottom" />
+				<radiobuttonmenuitem id="notesPositionExternalMenuItem" text="menu.external" />
 			</buttongroup>
 		</menu>
-		<menu id="slideNotesPositionMenu" text="menu.slide.notes.position">
+		<menu id="noteSlidePositionMenu" text="menu.note.slide.position">
 			<buttongroup>
-				<radiobuttonmenuitem id="slideNotesPositionBottomMenuItem" text="menu.preview.bottom" />
-				<radiobuttonmenuitem id="slideNotesPositionNoneMenuItem" text="menu.none" />
+				<radiobuttonmenuitem id="noteSlidePositionBelowPreviewMenuItem" text="menu.note.slide.below.preview" />
+				<radiobuttonmenuitem id="noteSlidePositionNoneMenuItem" text="menu.none" />
+				<radiobuttonmenuitem id="noteSlidePositionExternalMenuItem" text="menu.external" />
+			</buttongroup>
+		</menu>
+		<menu id="speechPositionMenu" text="menu.speech.position">
+			<buttongroup>
+				<radiobuttonmenuitem id="speechPositionAbovePreviewMenuItem" text="menu.speech.position.above.preview" />
+				<radiobuttonmenuitem id="speechPositionExternalMenuItem" text="menu.external" />
 			</buttongroup>
 		</menu>
 		<separator />
 		<menu id="splitNotesPositionMenu" text="menu.splitNotes.position">
 			<buttongroup>
-				<radiobuttonmenuitem id="splitNotesPositionRightMenuItem" text="menu.right" />
 				<radiobuttonmenuitem id="splitNotesPositionLeftMenuItem" text="menu.left" />
+				<radiobuttonmenuitem id="splitNotesPositionRightMenuItem" text="menu.right" />
 				<radiobuttonmenuitem id="splitNotesPositionNoneMenuItem" text="menu.none" />
 			</buttongroup>
 		</menu>
@@ -86,7 +88,6 @@
 		<checkboxmenuitem id="enableStreamCameraMenuItem" text="menu.stream.camera.start" type="checkbox" selected="true" enabled="false" />
 		<separator />
 		<checkboxmenuitem id="enableMessengerMenuItem" text="menu.messenger.start" enabled="false" />
-<!--		<checkboxmenuitem id="showMessengerWindowMenuItem" text="menu.messenger.window.visible" type="checkbox" selected="true" enabled="false" />-->
 		<separator />
 		<menuitem id="selectQuizMenuItem" text="menu.quiz.selection" accelerator="Z" enabled="false" />
 		<menuitem id="newQuizMenuItem" text="menu.quiz.new" enabled="false" />

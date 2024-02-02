@@ -862,22 +862,9 @@ public class SwingSlidesView extends JPanel implements SlidesView {
 			ExecutableState state = event.getState();
 
 			if (state == ExecutableState.Starting) {
-				peerView = new PeerView(dict);
-				peerView.setMinimumSize(new Dimension(100, 150));
-				peerView.setPreferredSize(new Dimension(100, 150));
-				rightPeerViewContainer.setMaximumSize(new Dimension(Integer.MAX_VALUE, 150));
-				peerView.setState(state);
-				peerView.setRequestId(event.getRequestId());
-				peerView.setPeerName(event.getPeerName());
-				peerView.setOnMuteAudio(mutePeerAudioAction);
-				peerView.setOnMuteVideo(mutePeerVideoAction);
-				peerView.setOnStopPeerConnection(stopPeerConnectionAction);
+				peerView = createPeerView(event);
 
-				rightPeerViewContainer.setVisible(true);
-				rightPeerViewContainer.removeAll();
-				rightPeerViewContainer.add(peerView);
-				rightPeerViewContainer.revalidate();
-				rightPeerViewContainer.repaint();
+				addPeerView(peerView);
 
 				currentSpeech = true;
 
@@ -888,14 +875,7 @@ public class SwingSlidesView extends JPanel implements SlidesView {
 				}
 			}
 			else if (state == ExecutableState.Started) {
-				for (var component : rightPeerViewContainer.getComponents()) {
-					if (component instanceof PeerView peerView) {
-						if (Objects.equals(peerView.getRequestId(), event.getRequestId())) {
-							peerView.setState(state);
-							peerView.setHasVideo(event.hasVideo());
-						}
-					}
-				}
+				setPeerViewEvent(event);
 			}
 			else if (state == ExecutableState.Stopped) {
 				removePeerView(event.getRequestId());
@@ -1200,11 +1180,20 @@ public class SwingSlidesView extends JPanel implements SlidesView {
 			return;
 		}
 
-		rightVbox.remove(rightPeerViewContainer);
-		rightVbox.revalidate();
-		rightVbox.repaint();
+		if (previewPosition == SlidePreviewPosition.LEFT) {
+			leftVbox.remove(leftPeerViewContainer);
+			leftVbox.revalidate();
+			leftVbox.repaint();
 
-		rightPeerViewContainer.setVisible(true);
+			leftPeerViewContainer.setVisible(true);
+		}
+		else if (previewPosition == SlidePreviewPosition.RIGHT) {
+			rightVbox.remove(rightPeerViewContainer);
+			rightVbox.revalidate();
+			rightVbox.repaint();
+
+			rightPeerViewContainer.setVisible(true);
+		}
 
 		externalSpeechFrame.updatePosition(screen, position, size);
 		externalSpeechFrame.setVisible(true);
@@ -1222,12 +1211,23 @@ public class SwingSlidesView extends JPanel implements SlidesView {
 
 		externalSpeechFrame.setVisible(false);
 
-		rightVbox.add(rightPeerViewContainer, 0);
-		rightVbox.revalidate();
-		rightVbox.repaint();
+		if (previewPosition == SlidePreviewPosition.LEFT) {
+			leftVbox.add(leftPeerViewContainer, 0);
+			leftVbox.revalidate();
+			leftVbox.repaint();
 
-		if (!currentSpeech) {
-			rightPeerViewContainer.setVisible(false);
+			if (!currentSpeech) {
+				leftPeerViewContainer.setVisible(false);
+			}
+		}
+		else if (previewPosition == SlidePreviewPosition.RIGHT) {
+			rightVbox.add(rightPeerViewContainer, 0);
+			rightVbox.revalidate();
+			rightVbox.repaint();
+
+			if (!currentSpeech) {
+				rightPeerViewContainer.setVisible(false);
+			}
 		}
 	}
 
@@ -1504,8 +1504,67 @@ public class SwingSlidesView extends JPanel implements SlidesView {
 		maximizeRightTabPane();
 	}
 
+	private PeerView createPeerView(PeerStateEvent event) {
+		PeerView peerView = new PeerView(dict);
+		peerView.setMinimumSize(new Dimension(100, 150));
+		peerView.setPreferredSize(new Dimension(100, 150));
+		peerView.setState(event.getState());
+		peerView.setRequestId(event.getRequestId());
+		peerView.setPeerName(event.getPeerName());
+		peerView.setOnMuteAudio(mutePeerAudioAction);
+		peerView.setOnMuteVideo(mutePeerVideoAction);
+		peerView.setOnStopPeerConnection(stopPeerConnectionAction);
+
+		return peerView;
+	}
+
+	private void addPeerView(PeerView peerView) {
+		var adder = new Consumer<Container>() {
+			@Override
+			public void accept(Container container) {
+				container.setMaximumSize(new Dimension(Integer.MAX_VALUE, 150));
+				container.setVisible(true);
+				container.removeAll();
+				container.add(peerView);
+				container.revalidate();
+				container.repaint();
+			}
+		};
+
+		if (previewPosition == SlidePreviewPosition.LEFT) {
+			adder.accept(leftPeerViewContainer);
+		}
+		else if (previewPosition == SlidePreviewPosition.RIGHT) {
+			adder.accept(rightPeerViewContainer);
+		}
+	}
+
+	private void setPeerViewEvent(PeerStateEvent event) {
+		Container container = previewPosition == SlidePreviewPosition.LEFT
+				? leftPeerViewContainer
+				: rightPeerViewContainer;
+
+		for (var component : container.getComponents()) {
+			if (component instanceof PeerView peerView) {
+				if (Objects.equals(peerView.getRequestId(), event.getRequestId())) {
+					peerView.setState(event.getState());
+					peerView.setHasVideo(event.hasVideo());
+				}
+			}
+		}
+	}
+
 	private void removePeerView(UUID requestId) {
-		for (var component : rightPeerViewContainer.getComponents()) {
+		if (previewPosition == SlidePreviewPosition.LEFT) {
+			removePeerView(requestId, leftPeerViewContainer);
+		}
+		else if (previewPosition == SlidePreviewPosition.RIGHT) {
+			removePeerView(requestId, rightPeerViewContainer);
+		}
+	}
+
+	private void removePeerView(UUID requestId, Container container) {
+		for (var component : container.getComponents()) {
 			if (!(component instanceof PeerView peerView)) {
 				continue;
 			}
@@ -1513,10 +1572,10 @@ public class SwingSlidesView extends JPanel implements SlidesView {
 			if (Objects.equals(peerView.getRequestId(), requestId)) {
 				this.peerView = null;
 
-				rightPeerViewContainer.setVisible(false);
-				rightPeerViewContainer.remove(peerView);
-				rightPeerViewContainer.revalidate();
-				rightPeerViewContainer.repaint();
+				container.setVisible(false);
+				container.remove(peerView);
+				container.revalidate();
+				container.repaint();
 
 				currentSpeech = false;
 

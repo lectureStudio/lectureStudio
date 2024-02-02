@@ -4,20 +4,24 @@
 		<SplitPane id="tabSplitPane" dividerSize="10" resizeWeight="1" orientation="JSplitPane.HORIZONTAL_SPLIT" constraints="BorderLayout.CENTER">
 			<SplitPane id="notesSplitPane" dividerSize="10" resizeWeight="1" orientation="JSplitPane.VERTICAL_SPLIT">
 				<SplitPane id="docSplitPane" dividerSize="10" resizeWeight="0" focusable="false" orientation="JSplitPane.HORIZONTAL_SPLIT">
-					<AdaptiveTabbedPane id="leftTabPane" tabPlacement="JTabbedPane.LEFT" >
-						<Tab id="participantsTab" name="participants" text="slides.participants" icon="participants.svg, 18" defaultTabType="AdaptiveTabType.PARTICIPANTS">
-							<Panel id="participantsPanel" layout="BorderLayout">
-								<ParticipantList id="participantList" constraints="BorderLayout.CENTER" />
-							</Panel>
-						</Tab>
-						<Tab id="outlineTab" name="outline" text="menu.contents">
-							<ScrollPane id="outlinePane">
-								<Tree id="outlineTree" name="tree" focusable="false" rootVisible="false" showsRootHandles="true">
-									<renderer class="org.lecturestudio.swing.tree.OutlineRenderer" />
-								</Tree>
-							</ScrollPane>
-						</Tab>
-					</AdaptiveTabbedPane>
+					<VBox id="leftVbox">
+						<Panel layout="BorderLayout" id="leftPeerViewContainer" visible="false" />
+						<AdaptiveTabbedPane id="leftTabPane" tabPlacement="JTabbedPane.LEFT" >
+							<Tab id="participantsTab" name="participants" text="slides.participants" icon="participants.svg, 18" defaultTabType="AdaptiveTabType.PARTICIPANTS">
+								<Panel id="participantsPanel" layout="BorderLayout">
+									<ParticipantList id="participantList" constraints="BorderLayout.CENTER" />
+								</Panel>
+							</Tab>
+							<Tab id="outlineTab" name="outline" text="menu.contents">
+								<ScrollPane id="outlinePane">
+									<Tree id="outlineTree" name="tree" focusable="false" rootVisible="false" showsRootHandles="true">
+										<renderer class="org.lecturestudio.swing.tree.OutlineRenderer" />
+									</Tree>
+								</ScrollPane>
+							</Tab>
+						</AdaptiveTabbedPane>
+						<Panel layout="BorderLayout" id="leftNoteSlideViewContainer" visible="false" />
+					</VBox>
 					<SlideView id="slideView" />
 				</SplitPane>
 
@@ -51,9 +55,9 @@
 			</SplitPane>
 
 			<VBox id="rightVbox">
-				<Panel layout="BorderLayout" id="peerViewContainer" visible="false" />
+				<Panel layout="BorderLayout" id="rightPeerViewContainer" visible="false" />
 				<AdaptiveTabbedPane id="rightTabPane" tabPlacement="JTabbedPane.RIGHT" defaultTabType="AdaptiveTabType.SLIDE" focusTraversable="false" />
-				<Panel layout="BorderLayout" id="slideNoteViewContainer" visible="false" />
+				<Panel layout="BorderLayout" id="rightNoteSlideViewContainer" visible="false" />
 			</VBox>
 		</SplitPane>
 </Panel>

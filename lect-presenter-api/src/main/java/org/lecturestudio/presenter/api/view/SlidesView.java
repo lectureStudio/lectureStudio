@@ -208,9 +208,9 @@ public interface SlidesView extends View {
 
 	void setMessageBarPosition(MessageBarPosition position);
 
-	void setNotesBarPosition(SlideNotesPosition position);
+	void setNotesPosition(SlideNotesPosition position);
 
-	void setSlideNotesBarPosition(NoteSlidePosition position);
+	void setNoteSlidePosition(NoteSlidePosition position);
 
 	void setParticipantsPosition(ParticipantsPosition position);
 

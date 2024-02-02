@@ -530,7 +530,7 @@ public class SlidesPresenter extends Presenter<SlidesView> {
 	public void onEvent(NotesBarPositionEvent event) {
 		final SlideNotesPosition position = event.position();
 
-		view.setNotesBarPosition(position);
+		view.setNotesPosition(position);
 
 		getPresenterConfig().getSlideViewConfiguration().setSlideNotesPosition(position);
 	}
@@ -539,7 +539,7 @@ public class SlidesPresenter extends Presenter<SlidesView> {
 	public void onEvent(SlideNotesBarPositionEvent event) {
 		final NoteSlidePosition position = event.position();
 
-		view.setSlideNotesBarPosition(position);
+		view.setNoteSlidePosition(position);
 
 		getPresenterConfig().getSlideViewConfiguration().setNoteSlidePosition(position);
 	}
@@ -1244,10 +1244,10 @@ public class SlidesPresenter extends Presenter<SlidesView> {
 		view.setMessageBarPosition(getPresenterConfig()
 				.getSlideViewConfiguration().getMessageBarPosition());
 
-		view.setNotesBarPosition(getPresenterConfig()
+		view.setNotesPosition(getPresenterConfig()
 				.getSlideViewConfiguration().getSlideNotesPosition());
 
-		view.setSlideNotesBarPosition(getPresenterConfig()
+		view.setNoteSlidePosition(getPresenterConfig()
 				.getSlideViewConfiguration().getNoteSlidePosition());
 
 		view.setParticipantsPosition(getPresenterConfig()

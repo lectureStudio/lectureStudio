@@ -249,15 +249,18 @@ public class SwingSlidesView extends JPanel implements SlidesView {
 
 	private PeerView peerView;
 
+	private Box leftVbox;
 	private Box rightVbox;
 
 	private AdaptiveTabbedPane rightTabPane;
 
 	private AdaptiveTabbedPane noneTabPane;
 
-	private Container peerViewContainer;
+	private Container leftPeerViewContainer;
+	private Container rightPeerViewContainer;
 
-	private Container slideNoteViewContainer;
+	private Container leftNoteSlideViewContainer;
+	private Container rightNoteSlideViewContainer;
 
 	private ParticipantList participantList;
 
@@ -321,7 +324,7 @@ public class SwingSlidesView extends JPanel implements SlidesView {
 
 	private SlideNotesPosition slideNotesPosition = SlideNotesPosition.BOTTOM;
 
-	private NoteSlidePosition slideNotesBarPosition = NoteSlidePosition.NONE;
+	private NoteSlidePosition noteSlidePosition = NoteSlidePosition.NONE;
 
 	private ParticipantsPosition participantsPosition = ParticipantsPosition.LEFT;
 
@@ -862,7 +865,7 @@ public class SwingSlidesView extends JPanel implements SlidesView {
 				peerView = new PeerView(dict);
 				peerView.setMinimumSize(new Dimension(100, 150));
 				peerView.setPreferredSize(new Dimension(100, 150));
-				peerViewContainer.setMaximumSize(new Dimension(Integer.MAX_VALUE, 150));
+				rightPeerViewContainer.setMaximumSize(new Dimension(Integer.MAX_VALUE, 150));
 				peerView.setState(state);
 				peerView.setRequestId(event.getRequestId());
 				peerView.setPeerName(event.getPeerName());
@@ -870,11 +873,11 @@ public class SwingSlidesView extends JPanel implements SlidesView {
 				peerView.setOnMuteVideo(mutePeerVideoAction);
 				peerView.setOnStopPeerConnection(stopPeerConnectionAction);
 
-				peerViewContainer.setVisible(true);
-				peerViewContainer.removeAll();
-				peerViewContainer.add(peerView);
-				peerViewContainer.revalidate();
-				peerViewContainer.repaint();
+				rightPeerViewContainer.setVisible(true);
+				rightPeerViewContainer.removeAll();
+				rightPeerViewContainer.add(peerView);
+				rightPeerViewContainer.revalidate();
+				rightPeerViewContainer.repaint();
 
 				currentSpeech = true;
 
@@ -885,7 +888,7 @@ public class SwingSlidesView extends JPanel implements SlidesView {
 				}
 			}
 			else if (state == ExecutableState.Started) {
-				for (var component : peerViewContainer.getComponents()) {
+				for (var component : rightPeerViewContainer.getComponents()) {
 					if (component instanceof PeerView peerView) {
 						if (Objects.equals(peerView.getRequestId(), event.getRequestId())) {
 							peerView.setState(state);
@@ -1197,11 +1200,11 @@ public class SwingSlidesView extends JPanel implements SlidesView {
 			return;
 		}
 
-		rightVbox.remove(peerViewContainer);
+		rightVbox.remove(rightPeerViewContainer);
 		rightVbox.revalidate();
 		rightVbox.repaint();
 
-		peerViewContainer.setVisible(true);
+		rightPeerViewContainer.setVisible(true);
 
 		externalSpeechFrame.updatePosition(screen, position, size);
 		externalSpeechFrame.setVisible(true);
@@ -1219,12 +1222,12 @@ public class SwingSlidesView extends JPanel implements SlidesView {
 
 		externalSpeechFrame.setVisible(false);
 
-		rightVbox.add(peerViewContainer, 0);
+		rightVbox.add(rightPeerViewContainer, 0);
 		rightVbox.revalidate();
 		rightVbox.repaint();
 
 		if (!currentSpeech) {
-			peerViewContainer.setVisible(false);
+			rightPeerViewContainer.setVisible(false);
 		}
 	}
 
@@ -1266,7 +1269,7 @@ public class SwingSlidesView extends JPanel implements SlidesView {
 			return;
 		}
 
-		hideSlideNote();
+		hideNoteSlide();
 
 		externalSlideNotesFrame.updatePosition(screen, position, size);
 		externalSlideNotesFrame.showBody();
@@ -1283,8 +1286,8 @@ public class SwingSlidesView extends JPanel implements SlidesView {
 
 		externalSlideNotesFrame.setVisible(false);
 
-		if (slideNotesBarPosition == NoteSlidePosition.BELOW_SLIDE_PREVIEW) {
-			showSlideNote();
+		if (noteSlidePosition == NoteSlidePosition.BELOW_SLIDE_PREVIEW) {
+			showNoteSlide();
 		}
 	}
 
@@ -1316,11 +1319,16 @@ public class SwingSlidesView extends JPanel implements SlidesView {
 			case RIGHT -> showPreviewRight();
 		}
 
+		// The note slide position is dependent on the slide preview position.
+		hideNoteSlide();
+
 		previewPosition = position;
+
+		showNoteSlide();
 	}
 
 	@Override
-	public void setNotesBarPosition(SlideNotesPosition position) {
+	public void setNotesPosition(SlideNotesPosition position) {
 		switch (position) {
 			case LEFT -> showNoteLeft();
 			case BOTTOM -> showNoteBottom();
@@ -1356,26 +1364,41 @@ public class SwingSlidesView extends JPanel implements SlidesView {
 	}
 
 	@Override
-	public void setSlideNotesBarPosition(NoteSlidePosition position) {
+	public void setNoteSlidePosition(NoteSlidePosition position) {
 		switch (position) {
-			case BELOW_SLIDE_PREVIEW -> showSlideNote();
-			case NONE -> hideSlideNote();
+			case BELOW_SLIDE_PREVIEW -> showNoteSlide();
+			case NONE -> hideNoteSlide();
 		}
 
-		slideNotesBarPosition = position;
+		noteSlidePosition = position;
 	}
 
-	private void showSlideNote() {
-		slideNoteViewContainer.setVisible(true);
-		slideNoteViewContainer.removeAll();
-		slideNoteViewContainer.add(slideNotesView);
+	private void showNoteSlide() {
+		if (previewPosition == SlidePreviewPosition.LEFT) {
+			leftNoteSlideViewContainer.setVisible(true);
+			leftNoteSlideViewContainer.removeAll();
+			leftNoteSlideViewContainer.add(slideNotesView);
 
-		updateSlideNoteContainer();
+			updateSlideNoteContainer(leftNoteSlideViewContainer);
+		}
+		else if (previewPosition == SlidePreviewPosition.RIGHT) {
+			rightNoteSlideViewContainer.setVisible(true);
+			rightNoteSlideViewContainer.removeAll();
+			rightNoteSlideViewContainer.add(slideNotesView);
+
+			updateSlideNoteContainer(rightNoteSlideViewContainer);
+		}
 	}
 
-	private void hideSlideNote() {
-		slideNoteViewContainer.setVisible(false);
-		slideNoteViewContainer.removeAll();
+	private void hideNoteSlide() {
+		if (previewPosition == SlidePreviewPosition.LEFT) {
+			leftNoteSlideViewContainer.setVisible(false);
+			leftNoteSlideViewContainer.removeAll();
+		}
+		else if (previewPosition == SlidePreviewPosition.RIGHT) {
+			rightNoteSlideViewContainer.setVisible(false);
+			rightNoteSlideViewContainer.removeAll();
+		}
 	}
 
 	private void showMessagesPlaceholder() {
@@ -1482,7 +1505,7 @@ public class SwingSlidesView extends JPanel implements SlidesView {
 	}
 
 	private void removePeerView(UUID requestId) {
-		for (var component : peerViewContainer.getComponents()) {
+		for (var component : rightPeerViewContainer.getComponents()) {
 			if (!(component instanceof PeerView peerView)) {
 				continue;
 			}
@@ -1490,10 +1513,10 @@ public class SwingSlidesView extends JPanel implements SlidesView {
 			if (Objects.equals(peerView.getRequestId(), requestId)) {
 				this.peerView = null;
 
-				peerViewContainer.setVisible(false);
-				peerViewContainer.remove(peerView);
-				peerViewContainer.revalidate();
-				peerViewContainer.repaint();
+				rightPeerViewContainer.setVisible(false);
+				rightPeerViewContainer.remove(peerView);
+				rightPeerViewContainer.revalidate();
+				rightPeerViewContainer.repaint();
 
 				currentSpeech = false;
 
@@ -1803,7 +1826,7 @@ public class SwingSlidesView extends JPanel implements SlidesView {
 		}
 	}
 
-	private void updateSlideNoteContainer() {
+	private void updateSlideNoteContainer(Container container) {
 		SwingUtilities.invokeLater(() -> {
 			Page page = getPage();
 			if (isNull(page)) {
@@ -1811,17 +1834,17 @@ public class SwingSlidesView extends JPanel implements SlidesView {
 			}
 
 			PageMetrics pageMetrics = page.getPageMetrics();
-			Dimension size = rightVbox.getSize();
+			Dimension size = container.getSize();
 
 			int height = (int) pageMetrics.getHeight(size.width);
 			var newSize = pageMetrics.convert(size.width, height);
 			int width = (int) newSize.getWidth();
 			height = (int) newSize.getHeight();
 
-			slideNoteViewContainer.setPreferredSize(new Dimension(width, height));
-			slideNoteViewContainer.setMinimumSize(new Dimension(0, height));
-			slideNoteViewContainer.revalidate();
-			slideNoteViewContainer.repaint();
+			container.setPreferredSize(new Dimension(width, height));
+			container.setMinimumSize(new Dimension(0, height));
+			container.revalidate();
+			container.repaint();
 		});
 	}
 
@@ -1887,12 +1910,18 @@ public class SwingSlidesView extends JPanel implements SlidesView {
 			}
 		});
 
-		slideNoteViewContainer.setMaximumSize(new Dimension(Integer.MAX_VALUE, Integer.MAX_VALUE));
+		rightNoteSlideViewContainer.setMaximumSize(new Dimension(Integer.MAX_VALUE, Integer.MAX_VALUE));
 
+		leftVbox.addComponentListener(new ComponentAdapter() {
+			@Override
+			public void componentResized(ComponentEvent e) {
+				updateSlideNoteContainer(leftNoteSlideViewContainer);
+			}
+		});
 		rightVbox.addComponentListener(new ComponentAdapter() {
 			@Override
 			public void componentResized(ComponentEvent e) {
-				updateSlideNoteContainer();
+				updateSlideNoteContainer(rightNoteSlideViewContainer);
 			}
 		});
 
@@ -2031,7 +2060,7 @@ public class SwingSlidesView extends JPanel implements SlidesView {
 				position -> executeAction(externalSlidePreviewPositionChangedAction, position),
 				size -> executeAction(externalSlidePreviewSizeChangedAction, size));
 
-		externalSpeechFrame = createExternalFrame(dict.get(SPEECH_LABEL_KEY), peerViewContainer,
+		externalSpeechFrame = createExternalFrame(dict.get(SPEECH_LABEL_KEY), rightPeerViewContainer,
 				dict.get(CURRENTLY_NO_SPEECH_LABEL_KEY),
 				new Dimension(1000, 500),
 				() -> executeAction(externalSpeechClosedAction),

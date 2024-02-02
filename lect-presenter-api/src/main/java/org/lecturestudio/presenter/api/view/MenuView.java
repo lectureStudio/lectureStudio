@@ -26,10 +26,7 @@ import org.lecturestudio.core.ExecutableState;
 import org.lecturestudio.core.beans.BooleanProperty;
 import org.lecturestudio.core.beans.IntegerProperty;
 import org.lecturestudio.core.beans.ObjectProperty;
-import org.lecturestudio.core.model.Document;
-import org.lecturestudio.core.model.Page;
-import org.lecturestudio.core.model.RecentDocument;
-import org.lecturestudio.core.model.Time;
+import org.lecturestudio.core.model.*;
 import org.lecturestudio.core.view.Action;
 import org.lecturestudio.core.view.ConsumerAction;
 import org.lecturestudio.core.view.PresentationParameter;
@@ -229,15 +226,9 @@ public interface MenuView extends View {
 	/**
 	 * Split notes
 	 */
-	void setOnSplitNotesPositionNone(Action action);
 
-	void setSplitNotesPositionNone();
+	void setSplitNotesPosition(NotesPosition position);
 
-	void setOnSplitNotesPositionRight(Action action);
+	void setOnSplitNotesPosition(ConsumerAction<NotesPosition> action);
 
-	void setSplitNotesPositionRight();
-
-	void setOnSplitNotesPositionLeft(Action action);
-
-	void setSplitNotesPositionLeft();
 }

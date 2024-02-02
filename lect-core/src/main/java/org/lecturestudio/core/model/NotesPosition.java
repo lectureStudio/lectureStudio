@@ -21,5 +21,10 @@
 package org.lecturestudio.core.model;
 
 public enum NotesPosition {
-    LEFT, RIGHT, NONE, UNKNOWN
+
+    LEFT,
+    RIGHT,
+    NONE,
+    UNKNOWN
+
 }

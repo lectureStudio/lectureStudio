@@ -35,10 +35,7 @@ import org.lecturestudio.core.app.dictionary.Dictionary;
 import org.lecturestudio.core.beans.BooleanProperty;
 import org.lecturestudio.core.beans.IntegerProperty;
 import org.lecturestudio.core.beans.ObjectProperty;
-import org.lecturestudio.core.model.Document;
-import org.lecturestudio.core.model.Page;
-import org.lecturestudio.core.model.RecentDocument;
-import org.lecturestudio.core.model.Time;
+import org.lecturestudio.core.model.*;
 import org.lecturestudio.core.view.Action;
 import org.lecturestudio.core.view.ConsumerAction;
 import org.lecturestudio.core.view.PresentationParameter;
@@ -794,33 +791,21 @@ public class SwingMenuView extends JMenuBar implements MenuView {
 	}
 
 	@Override
-	public void setOnSplitNotesPositionNone(Action action) {
-		SwingUtils.bindAction(splitNotesPositionNoneMenuItem, action);
+	public void setSplitNotesPosition(NotesPosition position) {
+		System.out.println(position);
+
+		switch (position) {
+			case LEFT -> splitNotesPositionLeftMenuItem.setSelected(true);
+			case RIGHT -> splitNotesPositionRightMenuItem.setSelected(true);
+			case NONE -> splitNotesPositionNoneMenuItem.setSelected(true);
+		}
 	}
 
 	@Override
-	public void setSplitNotesPositionNone() {
-		splitNotesPositionNoneMenuItem.setSelected(true);
-	}
-
-	@Override
-	public void setOnSplitNotesPositionRight(Action action) {
-		SwingUtils.bindAction(splitNotesPositionRightMenuItem, action);
-	}
-
-	@Override
-	public void setSplitNotesPositionRight() {
-		splitNotesPositionRightMenuItem.setSelected(true);
-	}
-
-	@Override
-	public void setOnSplitNotesPositionLeft(Action action) {
-		SwingUtils.bindAction(splitNotesPositionLeftMenuItem, action);
-	}
-
-	@Override
-	public void setSplitNotesPositionLeft() {
-		splitNotesPositionLeftMenuItem.setSelected(true);
+	public void setOnSplitNotesPosition(ConsumerAction<NotesPosition> action) {
+		SwingUtils.bindAction(splitNotesPositionNoneMenuItem, () -> action.execute(NotesPosition.NONE));
+		SwingUtils.bindAction(splitNotesPositionLeftMenuItem, () -> action.execute(NotesPosition.LEFT));
+		SwingUtils.bindAction(splitNotesPositionRightMenuItem, () -> action.execute(NotesPosition.RIGHT));
 	}
 
 	@ViewPostConstruct

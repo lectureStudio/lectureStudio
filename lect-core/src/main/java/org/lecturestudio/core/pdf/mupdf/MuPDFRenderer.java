@@ -86,28 +86,29 @@ public class MuPDFRenderer implements DocumentRenderer {
 			com.artifex.mupdf.fitz.Page p = document.getPage(pageNumber);
 			Rect bounds = p.getBounds();
 
-			if(page.getDocument().getSplitSlideNotesPositon() == NotesPosition.UNKNOWN){
-				if(bounds.x1/bounds.y1 >= 2){
-					page.getDocument().setSplitSlideNotesPositon(NotesPosition.RIGHT);
-				}else {
-					page.getDocument().setSplitSlideNotesPositon(NotesPosition.NONE);
+			if (page.getDocument().getSplitSlideNotesPosition() == NotesPosition.UNKNOWN) {
+				if (bounds.x1 / bounds.y1 >= 2) {
+					page.getDocument().setSplitSlideNotesPosition(NotesPosition.RIGHT);
 				}
-				page.getDocument().calculateCropbox();
+				else {
+					page.getDocument().setSplitSlideNotesPosition(NotesPosition.NONE);
+				}
+				page.getDocument().calculateCropBox();
 			}
-			if(page.getDocument().getSplitSlideNotesPositon() == NotesPosition.RIGHT){
-				bounds.x1 = bounds.x1/2;
+			if (page.getDocument().getSplitSlideNotesPosition() == NotesPosition.RIGHT) {
+				bounds.x1 = bounds.x1 / 2;
 			}
 
-			if(page.getDocument().getSplitSlideNotesPositon() == NotesPosition.LEFT){
-				bounds.x0 = bounds.x1/2;
-				x = (int) (x - (imageWidth -sx));
+			if (page.getDocument().getSplitSlideNotesPosition() == NotesPosition.LEFT) {
+				bounds.x0 = bounds.x1 / 2;
+				x = (int) (x - (imageWidth - sx));
 			}
 
 			float scale = (float) (1.D / pageRect.getWidth());
 			float pageSx = imageWidth / (bounds.x1 - bounds.x0);
 			float pageSy = imageHeight / (bounds.y1 - bounds.y0);
 
-			if(page.getDocument().getSplitSlideNotesPositon() == NotesPosition.LEFT){
+			if (page.getDocument().getSplitSlideNotesPosition() == NotesPosition.LEFT) {
 				stmX = bounds.x0 * pageSx;
 				ctmX = bounds.x0 * pageSx;
 			}
@@ -163,18 +164,18 @@ public class MuPDFRenderer implements DocumentRenderer {
 			com.artifex.mupdf.fitz.Page p = document.getPage(pageNumber);
 			Rect bounds = p.getBounds();
 
-			if(page.getDocument().getSplitSlideNotesPositon() == NotesPosition.LEFT){
-				bounds.x1 = bounds.x1/2;
+			if (page.getDocument().getSplitSlideNotesPosition() == NotesPosition.LEFT) {
+				bounds.x1 = bounds.x1 / 2;
 			}
-			if(page.getDocument().getSplitSlideNotesPositon() == NotesPosition.RIGHT){
-				bounds.x0 = bounds.x1/2;
+			if (page.getDocument().getSplitSlideNotesPosition() == NotesPosition.RIGHT) {
+				bounds.x0 = bounds.x1 / 2;
 			}
 
 			float scale = (float) (1.D / pageRect.getWidth());
 			float pageSx = imageWidth / (bounds.x1 - bounds.x0);
 			float pageSy = imageHeight / (bounds.y1 - bounds.y0);
 
-			if(page.getDocument().getSplitSlideNotesPositon() == NotesPosition.RIGHT){
+			if (page.getDocument().getSplitSlideNotesPosition() == NotesPosition.RIGHT) {
 				stmX = bounds.x0 * pageSx;
 				ctmX = bounds.x0 * pageSx;
 			}

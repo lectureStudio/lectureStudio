@@ -222,7 +222,7 @@ public class PdfDocumentRenderer extends ExecutableBase {
 	private void createPage(PresentationParameter param,
 			Document newDocument, Page page) throws Exception {
 		Rectangle2D pageRect = param.getPageRect();
-		NotesPosition notesPosition = page.getDocument().getSplitSlideNotesPositon();
+		NotesPosition notesPosition = page.getDocument().getSplitSlideNotesPosition();
 
 		Page newPage = newDocument.createPage(page, pageScale ? pageRect : null);
 		int pageIndex = newPage.getPageNumber();
@@ -265,7 +265,7 @@ public class PdfDocumentRenderer extends ExecutableBase {
 		double tx = pageWidth * annotTransform.getTranslateX();
 		double ty = pageWidth * annotTransform.getTranslateY();
 
-		if(page.getDocument().getActualSplitSlideNotesPositon() == NotesPosition.LEFT) {
+		if(page.getDocument().getActualSplitSlideNotesPosition() == NotesPosition.LEFT) {
 			mediaBox.setRect(mediaBox.getWidth(), mediaBox.getY(), mediaBox.getWidth(), mediaBox.getHeight());
 			tx -= pageWidth;
 		}

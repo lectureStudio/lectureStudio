@@ -147,6 +147,10 @@ public class MenuPresenter extends Presenter<MenuView> {
 
 		view.setDocument(doc);
 
+		if (nonNull(doc)) {
+			view.setSplitNotesPosition(doc.getSplitSlideNotesPosition());
+		}
+
 		pageChanged(page);
 	}
 
@@ -217,15 +221,6 @@ public class MenuPresenter extends Presenter<MenuView> {
 	}
 
 	@Subscribe
-	public void onEvent(final SplitSlidesPositionEvent event){
-		switch (event.getNotesPosition()){
-			case RIGHT -> view.setSplitNotesPositionRight();
-			case LEFT -> view.setSplitNotesPositionLeft();
-			case NONE -> view.setSplitNotesPositionNone();
-		}
-	}
-
-	@Subscribe
 	public void onEvent(final ExternalMessagesViewEvent event) {
 		if (!event.isEnabled()) {
 			// Set the previous position.
@@ -283,10 +278,6 @@ public class MenuPresenter extends Presenter<MenuView> {
 				view.setNoteSlidePosition(position);
 			}
 		}
-	}
-
-	public void positionSplitNotes(NotesPosition position){
-		documentService.selectNotesPosition(position);
 	}
 
 	public void openBookmark(Bookmark bookmark) {
@@ -413,6 +404,10 @@ public class MenuPresenter extends Presenter<MenuView> {
 
 			eventBus.post(new SlideNotesBarPositionEvent(position));
 		}
+	}
+
+	public void positionSplitNotes(NotesPosition position){
+		documentService.selectNotesPosition(position);
 	}
 
 	public void newWhiteboard() {
@@ -701,6 +696,9 @@ public class MenuPresenter extends Presenter<MenuView> {
 		view.setSlidePreviewPosition(slideViewConfig.getSlidePreviewPosition());
 		view.setOnSlidePreviewPosition(this::positionSlidePreview);
 
+		view.setSplitNotesPosition(NotesPosition.NONE);
+		view.setOnSplitNotesPosition(this::positionSplitNotes);
+
 		view.setOnNewWhiteboard(this::newWhiteboard);
 		view.setOnNewWhiteboardPage(this::newWhiteboardPage);
 		view.setOnDeleteWhiteboardPage(this::deleteWhiteboardPage);
@@ -819,10 +817,6 @@ public class MenuPresenter extends Presenter<MenuView> {
 				}
 			}
 		}, 0, 1000);
-		view.setOnSplitNotesPositionNone(() -> positionSplitNotes(NotesPosition.NONE));
-		view.setOnSplitNotesPositionRight(() -> positionSplitNotes(NotesPosition.RIGHT));
-		view.setOnSplitNotesPositionLeft(() -> positionSplitNotes(NotesPosition.LEFT));
-
 	}
 
 	public void startStopwatchConfiguration() {

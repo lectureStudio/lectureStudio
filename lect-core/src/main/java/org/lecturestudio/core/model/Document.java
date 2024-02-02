@@ -500,6 +500,17 @@ public class Document {
 		return importPage(page, pageRect);
 	}
 
+	public boolean hasNoteSlide() {
+		Page p = getPage(0);
+		if (isNull(p)) {
+			return false;
+		}
+
+		Rectangle2D bounds = pdfDocument.getPageBounds(0);
+
+		return bounds.getWidth() / bounds.getHeight() >= 2;
+	}
+
 	/**
 	 * Set the type of the document.
 	 *
@@ -730,15 +741,8 @@ public class Document {
 	}
 
 	private void loadNoteSlidePosition() {
-		Page p = getPage(0);
-		if (isNull(p)) {
-			return;
-		}
-
-		Rectangle2D bounds = pdfDocument.getPageBounds(0);
-
 		if (getSplitSlideNotesPosition() == NotesPosition.UNKNOWN) {
-			if (bounds.getWidth() / bounds.getHeight() >= 2) {
+			if (hasNoteSlide()) {
 				setSplitSlideNotesPosition(NotesPosition.RIGHT);
 			}
 			else {

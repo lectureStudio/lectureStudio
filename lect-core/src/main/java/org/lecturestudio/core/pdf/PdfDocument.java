@@ -176,6 +176,17 @@ public class PdfDocument {
 	 *
 	 * @return The bounds of the page that has the specified page index.
 	 */
+	public Rectangle2D getPageBounds(int pageIndex) {
+		return muPDFDocument.getPageBounds(pageIndex, NotesPosition.NONE);
+	}
+
+	/**
+	 * Get the bounds of the page that has the specified page index.
+	 *
+	 * @param pageIndex The page index.
+	 *
+	 * @return The bounds of the page that has the specified page index.
+	 */
 	public Rectangle2D getPageMediaBox(int pageIndex) {
 		return getPageMediaBox(pageIndex, NotesPosition.UNKNOWN);
 	}

@@ -195,15 +195,17 @@ public class PDFBoxDocument implements DocumentAdapter {
 	public Rectangle2D getPageBounds(int pageNumber, NotesPosition position) {
 		PDPage page = doc.getPage(pageNumber);
 		PDRectangle rect = page.getMediaBox();
-		if(position == NotesPosition.UNKNOWN){
-			position = rect.getWidth()/rect.getHeight() >=2 ? NotesPosition.RIGHT : NotesPosition.UNKNOWN;
+
+		if (position == NotesPosition.UNKNOWN) {
+			position = rect.getWidth() / rect.getHeight() >= 2 ? NotesPosition.RIGHT : NotesPosition.UNKNOWN;
 		}
-		if(position == NotesPosition.RIGHT){
-			return new Rectangle2D(0, 0, rect.getWidth()/2, rect.getHeight());
+		if (position == NotesPosition.RIGHT) {
+			return new Rectangle2D(0, 0, rect.getWidth() / 2, rect.getHeight());
 		}
-		if(position == NotesPosition.LEFT){
-			return new Rectangle2D(rect.getWidth()/2, 0, rect.getWidth()/2, rect.getHeight());
+		if (position == NotesPosition.LEFT) {
+			return new Rectangle2D(rect.getWidth() / 2, 0, rect.getWidth() / 2, rect.getHeight());
 		}
+
 		return new Rectangle2D(0, 0, rect.getWidth(), rect.getHeight());
 	}
 

@@ -81,24 +81,12 @@ public class MuPDFRenderer implements DocumentRenderer {
 
 			DisplayList displayList = document.getDisplayList(pageNumber);
 
-
-
 			com.artifex.mupdf.fitz.Page p = document.getPage(pageNumber);
 			Rect bounds = p.getBounds();
 
-			if (page.getDocument().getSplitSlideNotesPosition() == NotesPosition.UNKNOWN) {
-				if (bounds.x1 / bounds.y1 >= 2) {
-					page.getDocument().setSplitSlideNotesPosition(NotesPosition.RIGHT);
-				}
-				else {
-					page.getDocument().setSplitSlideNotesPosition(NotesPosition.NONE);
-				}
-				page.getDocument().calculateCropBox();
-			}
 			if (page.getDocument().getSplitSlideNotesPosition() == NotesPosition.RIGHT) {
 				bounds.x1 = bounds.x1 / 2;
 			}
-
 			if (page.getDocument().getSplitSlideNotesPosition() == NotesPosition.LEFT) {
 				bounds.x0 = bounds.x1 / 2;
 				x = (int) (x - (imageWidth - sx));

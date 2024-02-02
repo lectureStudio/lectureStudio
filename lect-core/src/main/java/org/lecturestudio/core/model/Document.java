@@ -18,6 +18,7 @@
 
 package org.lecturestudio.core.model;
 
+import static java.util.Objects.isNull;
 import static java.util.Objects.nonNull;
 
 import java.io.File;
@@ -725,6 +726,27 @@ public class Document {
 		setDocumentType(DocumentType.PDF);
 
 		loadPages();
+		loadNoteSlidePosition();
+	}
+
+	private void loadNoteSlidePosition() {
+		Page p = getPage(0);
+		if (isNull(p)) {
+			return;
+		}
+
+		Rectangle2D bounds = pdfDocument.getPageBounds(0);
+
+		if (getSplitSlideNotesPosition() == NotesPosition.UNKNOWN) {
+			if (bounds.getWidth() / bounds.getHeight() >= 2) {
+				setSplitSlideNotesPosition(NotesPosition.RIGHT);
+			}
+			else {
+				setSplitSlideNotesPosition(NotesPosition.NONE);
+			}
+
+			calculateCropBox();
+		}
 	}
 
 	private void loadPages() {
@@ -774,15 +796,15 @@ public class Document {
 		int width;
 		int height;
 
-		if (splitSlideNotesPosition == NotesPosition.LEFT){
-			for (int i=0; i< getPageCount(); i++) {
+		if (splitSlideNotesPosition == NotesPosition.LEFT) {
+			for (int i = 0; i < getPageCount(); i++) {
 				width = (int) getPageRect(i).getWidth();
 				height = (int) getPageRect(i).getHeight();
 				pdfDocument.setCropbox(i, width, 0, width, height);
 			}
 		}
-		else if (splitSlideNotesPosition == NotesPosition.RIGHT || splitSlideNotesPosition == NotesPosition.NONE){
-			for (int i=0; i< getPageCount(); i++) {
+		else if (splitSlideNotesPosition == NotesPosition.RIGHT || splitSlideNotesPosition == NotesPosition.NONE) {
+			for (int i = 0; i < getPageCount(); i++) {
 				width = (int) getPageRect(i).getWidth();
 				height = (int) getPageRect(i).getHeight();
 				pdfDocument.setCropbox(i, 0, 0, width, height);

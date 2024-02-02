@@ -792,8 +792,6 @@ public class SwingMenuView extends JMenuBar implements MenuView {
 
 	@Override
 	public void setSplitNotesPosition(NotesPosition position) {
-		System.out.println(position);
-
 		switch (position) {
 			case LEFT -> splitNotesPositionLeftMenuItem.setSelected(true);
 			case RIGHT -> splitNotesPositionRightMenuItem.setSelected(true);

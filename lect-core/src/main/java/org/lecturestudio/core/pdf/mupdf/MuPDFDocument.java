@@ -175,10 +175,15 @@ public class MuPDFDocument implements DocumentAdapter {
 	@Override
 	public Rectangle2D getPageBounds(int pageNumber, NotesPosition position) {
 		synchronized (mutex) {
-			Page page = getPage(pageNumber);
-			Rect bounds = page.getBounds();
+			try {
+				Page page = getPage(pageNumber);
+				Rect bounds = page.getBounds();
 
-			return new Rectangle2D(0, 0, bounds.x1 - bounds.x0, bounds.y1 - bounds.y0);
+				return new Rectangle2D(0, 0, bounds.x1 - bounds.x0, bounds.y1 - bounds.y0);
+			}
+			catch (Throwable e) {
+				return new Rectangle2D();
+			}
 		}
 	}
 

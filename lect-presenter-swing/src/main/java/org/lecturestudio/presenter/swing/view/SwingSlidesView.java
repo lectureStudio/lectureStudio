@@ -507,6 +507,8 @@ public class SwingSlidesView extends JPanel implements SlidesView {
 
 			// Set document outline.
 			setOutline(doc.getDocumentOutline());
+
+			updateNoteSlideView(doc);
 		});
 	}
 
@@ -1371,6 +1373,15 @@ public class SwingSlidesView extends JPanel implements SlidesView {
 		}
 
 		noteSlidePosition = position;
+	}
+
+	private void updateNoteSlideView(Document doc) {
+		if (doc.hasNoteSlide()) {
+			showNoteSlide();
+		}
+		else {
+			hideNoteSlide();
+		}
 	}
 
 	private void showNoteSlide() {

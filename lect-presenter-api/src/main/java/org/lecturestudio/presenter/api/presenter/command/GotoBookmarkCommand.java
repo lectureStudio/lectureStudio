@@ -16,30 +16,30 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package org.lecturestudio.presenter.api.view;
-
-import java.util.List;
+package org.lecturestudio.presenter.api.presenter.command;
 
 import org.lecturestudio.core.model.Document;
-import org.lecturestudio.core.view.Action;
-import org.lecturestudio.core.view.ConsumerAction;
-import org.lecturestudio.core.view.View;
-import org.lecturestudio.presenter.api.model.Bookmark;
+import org.lecturestudio.core.presenter.command.ShowPresenterCommand;
+import org.lecturestudio.presenter.api.presenter.GotoBookmarkPresenter;
 
-public interface GotoBookmarkView extends View {
+public class GotoBookmarkCommand extends ShowPresenterCommand<GotoBookmarkPresenter> {
 
-	void setDocument(Document document);
+    private final Document selectedDocument;
 
-	void setBookmarks(List<Bookmark> bookmarkList);
 
-	void removeBookmark(Bookmark bookmark);
+    /**
+     * Create a new {@link GotoBookmarkCommand} with the corresponding presenter class.
+     *
+     * @param document The currently selected document.
+     */
+    public GotoBookmarkCommand(Document document) {
+        super(GotoBookmarkPresenter.class);
 
-	void setOnClose(Action action);
+        selectedDocument = document;
+    }
 
-	void setOnGotoPageNumber(ConsumerAction<Integer> action);
-
-	void setOnDeleteBookmark(ConsumerAction<Bookmark> action);
-
-	void setOnGotoBookmark(ConsumerAction<Bookmark> action);
-
+    @Override
+    public void execute(GotoBookmarkPresenter presenter) {
+        presenter.setSelectedDocument(selectedDocument);
+    }
 }

@@ -84,6 +84,7 @@ import org.lecturestudio.presenter.api.event.RecordingTimeEvent;
 import org.lecturestudio.presenter.api.event.StreamReconnectStateEvent;
 import org.lecturestudio.presenter.api.event.StreamingStateEvent;
 import org.lecturestudio.presenter.api.model.*;
+import org.lecturestudio.presenter.api.presenter.command.GotoBookmarkCommand;
 import org.lecturestudio.presenter.api.presenter.command.StopwatchCommand;
 import org.lecturestudio.presenter.api.service.BookmarkService;
 import org.lecturestudio.presenter.api.service.QuizWebServiceState;
@@ -550,7 +551,9 @@ public class MenuPresenter extends Presenter<MenuView> {
 	}
 
 	public void gotoBookmark() {
-		eventBus.post(new ShowPresenterCommand<>(GotoBookmarkPresenter.class));
+		Document selectedDoc = documentService.getDocuments().getSelectedDocument();
+
+		eventBus.post(new GotoBookmarkCommand(selectedDoc));
 	}
 
 	public void previousBookmark() {

@@ -70,7 +70,7 @@ class GotoBookmarkPresenterTest extends PresenterTest {
 			}
 		};
 
-		GotoBookmarkPresenter presenter = new GotoBookmarkPresenter(context, view, bookmarkService);
+		GotoBookmarkPresenter presenter = new GotoBookmarkPresenter(context, view, documentService, bookmarkService);
 		presenter.initialize();
 	}
 
@@ -93,7 +93,7 @@ class GotoBookmarkPresenterTest extends PresenterTest {
 			}
 		};
 
-		GotoBookmarkPresenter presenter = new GotoBookmarkPresenter(context, view, bookmarkService);
+		GotoBookmarkPresenter presenter = new GotoBookmarkPresenter(context, view, documentService, bookmarkService);
 		presenter.initialize();
 	}
 
@@ -105,7 +105,7 @@ class GotoBookmarkPresenterTest extends PresenterTest {
 
 		GotoBookmarkMockView view = new GotoBookmarkMockView();
 
-		GotoBookmarkPresenter presenter = new GotoBookmarkPresenter(context, view, bookmarkService);
+		GotoBookmarkPresenter presenter = new GotoBookmarkPresenter(context, view, documentService, bookmarkService);
 		presenter.initialize();
 		presenter.setOnClose(() -> {
 			close.set(true);
@@ -124,7 +124,7 @@ class GotoBookmarkPresenterTest extends PresenterTest {
 
 		GotoBookmarkMockView view = new GotoBookmarkMockView();
 
-		GotoBookmarkPresenter presenter = new GotoBookmarkPresenter(context, view, bookmarkService);
+		GotoBookmarkPresenter presenter = new GotoBookmarkPresenter(context, view, documentService, bookmarkService);
 		presenter.initialize();
 		presenter.setOnClose(() -> {
 			close.set(true);
@@ -161,7 +161,7 @@ class GotoBookmarkPresenterTest extends PresenterTest {
 			}
 		};
 
-		GotoBookmarkPresenter presenter = new GotoBookmarkPresenter(context, view, bookmarkService);
+		GotoBookmarkPresenter presenter = new GotoBookmarkPresenter(context, view, documentService, bookmarkService);
 		presenter.initialize();
 
 		view.deleteAction.execute(a);
@@ -207,6 +207,11 @@ class GotoBookmarkPresenterTest extends PresenterTest {
 
 
 		@Override
+		public void setDocument(Document document) {
+
+		}
+
+		@Override
 		public void setBookmarks(List<Bookmark> bookmarkList) {
 
 		}
@@ -218,6 +223,11 @@ class GotoBookmarkPresenterTest extends PresenterTest {
 
 		@Override
 		public void setOnClose(Action action) {
+
+		}
+
+		@Override
+		public void setOnGotoPageNumber(ConsumerAction<Integer> action) {
 
 		}
 

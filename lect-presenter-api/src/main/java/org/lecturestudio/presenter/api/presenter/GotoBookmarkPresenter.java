@@ -21,22 +21,29 @@ package org.lecturestudio.presenter.api.presenter;
 import javax.inject.Inject;
 
 import org.lecturestudio.core.app.ApplicationContext;
+import org.lecturestudio.core.model.Document;
 import org.lecturestudio.core.presenter.Presenter;
+import org.lecturestudio.core.service.DocumentService;
 import org.lecturestudio.presenter.api.model.Bookmark;
-import org.lecturestudio.presenter.api.model.BookmarkKeyException;
 import org.lecturestudio.presenter.api.model.Bookmarks;
 import org.lecturestudio.presenter.api.service.BookmarkService;
 import org.lecturestudio.presenter.api.view.GotoBookmarkView;
 
 public class GotoBookmarkPresenter extends Presenter<GotoBookmarkView> {
 
+	private final DocumentService documentService;
+
 	private final BookmarkService bookmarkService;
+
+	private Document selectedDocument;
 
 
 	@Inject
-	GotoBookmarkPresenter(ApplicationContext context, GotoBookmarkView view, BookmarkService bookmarkService) {
+	GotoBookmarkPresenter(ApplicationContext context, GotoBookmarkView view, DocumentService documentService,
+						  BookmarkService bookmarkService) {
 		super(context, view);
 
+		this.documentService = documentService;
 		this.bookmarkService = bookmarkService;
 	}
 
@@ -45,9 +52,15 @@ public class GotoBookmarkPresenter extends Presenter<GotoBookmarkView> {
 		Bookmarks bookmarks = bookmarkService.getBookmarks();
 
 		view.setOnClose(this::close);
+		view.setOnGotoPageNumber(this::gotoPageNumber);
 		view.setOnGotoBookmark(this::gotoBookmark);
 		view.setOnDeleteBookmark(this::deleteBookmark);
 		view.setBookmarks(bookmarks.getAllBookmarks());
+		view.setDocument(selectedDocument);
+	}
+
+	public void setSelectedDocument(Document document) {
+		selectedDocument = document;
 	}
 
 	private void deleteBookmark(Bookmark bookmark) {
@@ -68,10 +81,17 @@ public class GotoBookmarkPresenter extends Presenter<GotoBookmarkView> {
 
 		try {
 			close();
+
 			bookmarkService.gotoBookmark(bookmark);
 		}
 		catch (Exception e) {
 			handleException(e, "Go to bookmark failed", "bookmark.goto.error");
 		}
+	}
+
+	private void gotoPageNumber(Integer pageNumber) {
+		close();
+
+		documentService.selectPage(pageNumber);
 	}
 }

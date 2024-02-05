@@ -27,6 +27,7 @@ import javax.inject.Inject;
 import java.awt.Dimension;
 import java.io.File;
 import java.io.IOException;
+import java.text.MessageFormat;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -111,10 +112,7 @@ import org.lecturestudio.presenter.api.event.StreamReconnectStateEvent;
 import org.lecturestudio.presenter.api.event.StreamingStateEvent;
 import org.lecturestudio.presenter.api.input.Shortcut;
 import org.lecturestudio.presenter.api.model.*;
-import org.lecturestudio.presenter.api.service.RecordingService;
-import org.lecturestudio.presenter.api.service.WebRtcStreamService;
-import org.lecturestudio.presenter.api.service.WebService;
-import org.lecturestudio.presenter.api.service.WebServiceInfo;
+import org.lecturestudio.presenter.api.service.*;
 import org.lecturestudio.presenter.api.view.SlidesView;
 import org.lecturestudio.swing.model.ExternalWindowPosition;
 import org.lecturestudio.web.api.event.LocalScreenVideoFrameEvent;
@@ -161,6 +159,8 @@ public class SlidesPresenter extends Presenter<SlidesView> {
 
 	private final RenderController renderController;
 
+	private final BookmarkService bookmarkService;
+
 	private final DocumentService documentService;
 
 	private final RecordingService recordingService;
@@ -190,6 +190,7 @@ public class SlidesPresenter extends Presenter<SlidesView> {
 					ToolController toolController,
 					PresentationController presentationController,
 					RenderController renderController,
+					BookmarkService bookmarkService,
 					DocumentService documentService,
 					DocumentRecorder documentRecorder,
 					RecordingService recordingService,
@@ -203,6 +204,7 @@ public class SlidesPresenter extends Presenter<SlidesView> {
 		this.presentationController = presentationController;
 		this.renderController = renderController;
 		this.documentRecorder = documentRecorder;
+		this.bookmarkService = bookmarkService;
 		this.documentService = documentService;
 		this.recordingService = recordingService;
 		this.webService = webService;
@@ -887,12 +889,156 @@ public class SlidesPresenter extends Presenter<SlidesView> {
 		idleTimer.runIdleTask();
 	}
 
+	private void firstPage() {
+		documentService.selectPage(0);
+	}
+
+	private void lastPage() {
+		Document doc = documentService.getDocuments().getSelectedDocument();
+
+		documentService.selectPage(doc.getPageCount() - 1);
+	}
+
 	private void nextPage() {
 		documentService.selectNextPage();
 	}
 
+	private void tenPagesForward() {
+		Document doc = documentService.getDocuments().getSelectedDocument();
+		int pageNumber = Math.min(doc.getCurrentPageNumber() + 10, doc.getPageCount() - 1);
+
+		documentService.selectPage(pageNumber);
+	}
+
 	private void previousPage() {
 		documentService.selectPreviousPage();
+	}
+
+	private void tenPagesBack() {
+		Document doc = documentService.getDocuments().getSelectedDocument();
+		int pageNumber = Math.max(doc.getCurrentPageNumber() - 10, 0);
+
+		documentService.selectPage(pageNumber);
+	}
+
+	private void overlayStart() {
+		Document doc = documentService.getDocuments().getSelectedDocument();
+		Page page = doc.getCurrentPage();
+
+		if (page.isOverlay()) {
+			Page lastOverlay = null;
+			var listIter = doc.getPages().listIterator(doc.getPageIndex(page));
+
+			while (listIter.hasPrevious()) {
+				Page previous = listIter.previous();
+				if (!previous.isOverlay() && nonNull(lastOverlay)) {
+					documentService.selectPage(lastOverlay);
+					break;
+				}
+
+				lastOverlay = previous;
+			}
+		}
+	}
+
+	private void overlayEnd() {
+		Document doc = documentService.getDocuments().getSelectedDocument();
+		Page page = doc.getCurrentPage();
+
+		if (page.isOverlay()) {
+			Page lastOverlay = null;
+			var listIter = doc.getPages().listIterator(doc.getPageIndex(page));
+
+			while (listIter.hasNext()) {
+				Page next = listIter.next();
+				if (!next.isOverlay() && nonNull(lastOverlay)) {
+					documentService.selectPage(lastOverlay);
+					break;
+				}
+
+				lastOverlay = next;
+			}
+		}
+	}
+
+	private void overlayPreviousPage() {
+		Document doc = documentService.getDocuments().getSelectedDocument();
+		Page page = doc.getCurrentPage();
+
+		if (page.isOverlay()) {
+			var listIter = doc.getPages().listIterator(doc.getPageIndex(page));
+
+			while (listIter.hasPrevious()) {
+				Page previous = listIter.previous();
+				if (!previous.isOverlay()) {
+					documentService.selectPage(previous);
+					break;
+				}
+			}
+		}
+	}
+
+	private void overlayNextPage() {
+		Document doc = documentService.getDocuments().getSelectedDocument();
+		Page page = doc.getCurrentPage();
+
+		if (page.isOverlay()) {
+			var listIter = doc.getPages().listIterator(doc.getPageIndex(page));
+
+			while (listIter.hasNext()) {
+				Page next = listIter.next();
+				if (!next.isOverlay()) {
+					documentService.selectPage(next);
+					break;
+				}
+			}
+		}
+	}
+
+	private void bookmarkSlide() {
+        try {
+			bookmarkCreated(bookmarkService.createDefaultBookmark());
+        }
+		catch (BookmarkException e) {
+			handleException(e, "Create bookmark failed", "bookmark.assign.warning");
+        }
+    }
+
+	private void bookmarkGotoLastSlide() {
+		Document doc = documentService.getDocuments().getSelectedDocument();
+		Bookmark bookmark = bookmarkService.getBookmarks().getLastBookmark(doc);
+
+		if (nonNull(bookmark)) {
+            try {
+                bookmarkService.gotoBookmark(bookmark);
+            }
+			catch (BookmarkException e) {
+				handleException(e, "Go to bookmark failed", "bookmark.goto.error");
+            }
+        }
+	}
+
+	private void bookmarkCreated(Bookmark bookmark) {
+		String shortcut = bookmark.getShortcut().toUpperCase();
+		String message = MessageFormat.format(context.getDictionary().get("bookmark.created"), shortcut);
+
+		context.showNotificationPopup(message);
+		close();
+	}
+
+	private void timerStart() {
+		PresenterContext pContext = (PresenterContext) context;
+		pContext.getStopwatch().startStopwatch();
+	}
+
+	private void timerPause() {
+		PresenterContext pContext = (PresenterContext) context;
+		pContext.getStopwatch().stopStopwatch();
+	}
+
+	private void timerReset() {
+		PresenterContext pContext = (PresenterContext) context;
+		pContext.getStopwatch().resetStopwatch();
 	}
 
 	private void registerShortcut(Shortcut shortcut, Action action) {
@@ -1228,18 +1374,35 @@ public class SlidesPresenter extends Presenter<SlidesView> {
 		view.setOnStopPeerConnection(streamService::stopPeerConnection);
 
 		// Register shortcuts that are associated with the SlideView.
+		registerShortcut(Shortcut.SLIDE_FIRST, this::firstPage);
+		registerShortcut(Shortcut.SLIDE_LAST, this::lastPage);
+
 		registerShortcut(Shortcut.SLIDE_NEXT_DOWN, this::nextPage);
 		registerShortcut(Shortcut.SLIDE_NEXT_PAGE_DOWN, this::nextPage);
 		registerShortcut(Shortcut.SLIDE_NEXT_RIGHT, this::nextPage);
 		registerShortcut(Shortcut.SLIDE_NEXT_SPACE, this::nextPage);
+		registerShortcut(Shortcut.SLIDE_NEXT_10, this::tenPagesForward);
 
 		registerShortcut(Shortcut.SLIDE_PREVIOUS_LEFT, this::previousPage);
 		registerShortcut(Shortcut.SLIDE_PREVIOUS_PAGE_UP, this::previousPage);
 		registerShortcut(Shortcut.SLIDE_PREVIOUS_UP, this::previousPage);
+		registerShortcut(Shortcut.SLIDE_PREVIOUS_BACK_SPACE, this::previousPage);
+		registerShortcut(Shortcut.SLIDE_PREVIOUS_10, this::tenPagesBack);
+
+		registerShortcut(Shortcut.SLIDE_OVERLAY_START, this::overlayStart);
+		registerShortcut(Shortcut.SLIDE_OVERLAY_END, this::overlayEnd);
+		registerShortcut(Shortcut.SLIDE_OVERLAY_PREVIOUS, this::overlayPreviousPage);
+		registerShortcut(Shortcut.SLIDE_OVERLAY_NEXT, this::overlayNextPage);
+
+		registerShortcut(Shortcut.BOOKMARK_SLIDE, this::bookmarkSlide);
+		registerShortcut(Shortcut.BOOKMARK_GOTO_LAST, this::bookmarkGotoLastSlide);
+
+		registerShortcut(Shortcut.TIMER_START, this::timerStart);
+		registerShortcut(Shortcut.TIMER_PAUSE, this::timerPause);
+		registerShortcut(Shortcut.TIMER_RESET, this::timerReset);
 
 		registerShortcut(Shortcut.COPY_OVERLAY, this::copyOverlay);
 		registerShortcut(Shortcut.COPY_OVERLAY_NEXT_PAGE_CTRL, this::copyNextOverlay);
-		registerShortcut(Shortcut.COPY_OVERLAY_NEXT_PAGE_SHIFT, this::copyNextOverlay);
 
 		view.setMessageBarPosition(getPresenterConfig()
 				.getSlideViewConfiguration().getMessageBarPosition());

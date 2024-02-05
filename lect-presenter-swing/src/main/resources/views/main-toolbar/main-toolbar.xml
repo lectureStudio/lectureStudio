@@ -18,7 +18,7 @@
 	<ToggleButton id="penButton" accelerator="P" icon="pen-tool.svg, 24" tooltipText="toolbar.pen.tooltip" tool="PEN" group="toolGroup" defaultTool="true" />
 	<ToggleButton id="highlighterButton" accelerator="H" icon="highlighter-tool.svg, 24" tooltipText="toolbar.highlighter.tooltip" tool="HIGHLIGHTER" group="toolGroup" defaultTool="true" />
 	<ToggleButton id="pointerButton" accelerator="A" icon="pointer-tool.svg, 24" tooltipText="toolbar.pointer.tooltip" tool="POINTER" group="toolGroup" defaultTool="true" />
-	<ToggleButton id="textSelectButton" accelerator="S" icon="text-select-tool.svg, 24" tooltipText="toolbar.text.select.tooltip" tool="TEXT_SELECTION" group="toolGroup" defaultTool="true" />
+	<ToggleButton id="textSelectButton" accelerator="V" icon="text-select-tool.svg, 24" tooltipText="toolbar.text.select.tooltip" tool="TEXT_SELECTION" group="toolGroup" defaultTool="true" />
 	<ToggleButton id="lineButton" accelerator="I" icon="line-tool.svg, 24" tooltipText="toolbar.line.tooltip" tool="LINE" group="toolGroup" />
 	<ToggleButton id="arrowButton" accelerator="W" icon="arrow-tool.svg, 24" tooltipText="toolbar.arrow.tooltip" tool="ARROW" group="toolGroup" />
 	<ToggleButton id="rectangleButton" accelerator="R" icon="rectangle-tool.svg, 24" tooltipText="toolbar.rectangle.tooltip" tool="RECTANGLE" group="toolGroup" visible="false" />

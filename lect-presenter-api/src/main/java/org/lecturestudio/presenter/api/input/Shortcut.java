@@ -30,20 +30,30 @@ public enum Shortcut {
 	DOC_OPEN						(KeyCode.O, KeyEvent.CTRL_MASK),
 	DOC_CLOSE						(KeyCode.F4, KeyEvent.CTRL_MASK),
 
+	SLIDE_FIRST						(KeyCode.HOME),
+	SLIDE_LAST						(KeyCode.END),
+
 	SLIDE_NEXT_RIGHT				(KeyCode.RIGHT),
 	SLIDE_NEXT_DOWN					(KeyCode.DOWN),
 	SLIDE_NEXT_PAGE_DOWN			(KeyCode.PAGE_DOWN),
 	SLIDE_NEXT_SPACE				(KeyCode.SPACE),
+	SLIDE_NEXT_10					(KeyCode.RIGHT, KeyEvent.SHIFT_MASK),
 	SLIDE_PREVIOUS_LEFT				(KeyCode.LEFT),
 	SLIDE_PREVIOUS_UP				(KeyCode.UP),
+	SLIDE_PREVIOUS_BACK_SPACE		(KeyCode.BACK_SPACE),
 	SLIDE_PREVIOUS_PAGE_UP			(KeyCode.PAGE_UP),
+	SLIDE_PREVIOUS_10				(KeyCode.LEFT, KeyEvent.SHIFT_MASK),
 	SLIDE_NEW						(KeyCode.F9),
 	SLIDE_DELETE					(KeyCode.D, KeyEvent.CTRL_MASK),
 	SLIDE_PAN						(KeyCode.F11),
 
+	SLIDE_OVERLAY_START				(KeyCode.UP, KeyEvent.SHIFT_MASK),
+	SLIDE_OVERLAY_END				(KeyCode.DOWN, KeyEvent.SHIFT_MASK),
+	SLIDE_OVERLAY_PREVIOUS			(KeyCode.PAGE_UP, KeyEvent.SHIFT_MASK),
+	SLIDE_OVERLAY_NEXT				(KeyCode.PAGE_DOWN, KeyEvent.SHIFT_MASK),
+
 	COPY_OVERLAY					(KeyCode.V, KeyEvent.CTRL_MASK),
 	COPY_OVERLAY_NEXT_PAGE_CTRL		(KeyCode.PAGE_DOWN, KeyEvent.CTRL_MASK),
-	COPY_OVERLAY_NEXT_PAGE_SHIFT	(KeyCode.PAGE_DOWN, KeyEvent.SHIFT_MASK),
 
 	UNDO							(KeyCode.Z, KeyEvent.CTRL_MASK),
 	REDO							(KeyCode.Y, KeyEvent.CTRL_MASK),
@@ -70,6 +80,12 @@ public enum Shortcut {
 
 	BOOKMARK_NEW					(KeyCode.B),
 	BOOKMARK_GOTO					(KeyCode.G),
+	BOOKMARK_SLIDE					(KeyCode.M),
+	BOOKMARK_GOTO_LAST				(KeyCode.M, KeyEvent.SHIFT_MASK),
+
+	TIMER_START						(KeyCode.S),
+	TIMER_PAUSE						(KeyCode.PAUSE),
+	TIMER_RESET						(KeyCode.T, KeyEvent.CTRL_MASK),
 
 	COLOR_CUSTOM					(KeyCode.F1),
 	COLOR_1							(KeyCode.F2),

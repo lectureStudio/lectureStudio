@@ -52,13 +52,13 @@ public class BookmarkService {
 
 	private final ApplicationContext context;
 
+
 	@Inject
 	public BookmarkService(DocumentService documentService, ApplicationContext context) {
 		this.documentService = documentService;
 		this.context = context;
 		this.bookmarks = new Bookmarks();
 	}
-
 
 	public Bookmarks getBookmarks() {
 		return bookmarks;
@@ -185,8 +185,7 @@ public class BookmarkService {
 	 *
 	 * @return the new created bookmark
 	 */
-	public Bookmark createDefaultBookmark()throws BookmarkException{
-
+	public Bookmark createDefaultBookmark() throws BookmarkException{
 		Bookmark bookmark = createBookmark("L" + defaultBookmarkCounter);
 
 		defaultBookmarkCounter++;

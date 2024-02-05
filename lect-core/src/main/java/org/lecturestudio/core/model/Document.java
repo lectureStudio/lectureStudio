@@ -774,11 +774,17 @@ public class Document {
 			splitPageText = page.getPageText().split("\n");
 
 			if (splitPageText.length >= 2 && prevSplitPageText.length >= 2 &&
-					Stream.of(prevSplitPageText[0], prevSplitPageText[1], splitPageText[0],splitPageText[1]).allMatch(Objects::nonNull)){
-				if (prevSplitPageText[0].equals(splitPageText[0]) && prevSplitPageText[1].equals(splitPageText[1])){
+					Stream.of(prevSplitPageText[0], prevSplitPageText[1], splitPageText[0], splitPageText[1])
+							.allMatch(Objects::nonNull)) {
+				if (prevSplitPageText[0].equals(splitPageText[0]) && prevSplitPageText[1].equals(splitPageText[1])) {
 					page.setOverlay(true);
+
+					if (number > 0) {
+						Page prevPage = pages.get(number - 1);
+						prevPage.setOverlay(true);
+					}
 				}
-				else{
+				else {
 					prevSplitPageText = splitPageText;
 				}
 			}

@@ -1502,7 +1502,7 @@ public class SwingSlidesView extends JPanel implements SlidesView {
 
 		leftTabPane.addTabs(removePreviewTabs(), 0);
 
-		maximizeLeftTabPane();
+		SwingUtilities.invokeLater(this::maximizeLeftTabPane);
 	}
 
 	private void showPreviewRight() {
@@ -1844,9 +1844,6 @@ public class SwingSlidesView extends JPanel implements SlidesView {
 	}
 
 	private void maximizePane(JSplitPane splitPane, double oldSplitPaneRatio, int splitPaneSize) {
-//		final int dividerLocation = (int) (oldSplitPaneRatio * splitPaneSize);
-
-//		splitPane.setDividerLocation(dividerLocation);
 		splitPane.setDividerLocation(oldSplitPaneRatio);
 	}
 

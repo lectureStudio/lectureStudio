@@ -44,12 +44,7 @@ import javax.swing.tree.DefaultTreeModel;
 import javax.swing.tree.TreeNode;
 import javax.swing.tree.TreePath;
 
-import java.awt.Component;
-import java.awt.Container;
-import java.awt.Dimension;
-import java.awt.KeyboardFocusManager;
-import java.awt.Point;
-import java.awt.Rectangle;
+import java.awt.*;
 import java.awt.event.ComponentAdapter;
 import java.awt.event.ComponentEvent;
 import java.awt.event.MouseAdapter;
@@ -308,6 +303,11 @@ public class SwingSlidesView extends JPanel implements SlidesView {
 
 	private final JScrollPane externalParticipantsPane = new JScrollPane();
 
+	private final AdaptiveTabbedPane externalSlidePreviewTabPane = new AdaptiveTabbedPane(SwingConstants.RIGHT);
+
+	private Box externalPreviewBox;
+	private JPanel externalNoteSlideViewContainer;
+
 	private double oldDocSplitPaneDividerRatio = 0.15;
 
 	private double oldNotesSplitPaneDividerRatio = 0.75;
@@ -317,8 +317,6 @@ public class SwingSlidesView extends JPanel implements SlidesView {
 	private boolean currentSpeech = false;
 
 	private JLabel messagesPlaceholder;
-
-	private final AdaptiveTabbedPane externalSlidePreviewTabPane = new AdaptiveTabbedPane(SwingConstants.RIGHT);
 
 	private MessageBarPosition messageBarPosition = MessageBarPosition.BOTTOM;
 
@@ -1145,9 +1143,44 @@ public class SwingSlidesView extends JPanel implements SlidesView {
 		externalSlidePreviewFrame.showBody();
 		externalSlidePreviewFrame.setVisible(true);
 
+		externalPreviewBox.removeAll();
+
+		hideNoteSlide();
+
 		final String prevSelected = selectedSlideLabelText;
-		externalSlidePreviewTabPane.addTabs(rightTabPane.removeTabsByType(AdaptiveTabType.SLIDE));
+
+		if (previewPosition == SlidePreviewPosition.LEFT) {
+			externalSlidePreviewTabPane.addTabs(leftTabPane.removeTabsByType(AdaptiveTabType.SLIDE));
+
+			leftVbox.remove(leftPeerViewContainer);
+			leftVbox.revalidate();
+			leftVbox.repaint();
+
+			leftPeerViewContainer.setVisible(true);
+
+			externalPreviewBox.add(leftPeerViewContainer);
+			externalPreviewBox.add(externalSlidePreviewTabPane);
+			externalPreviewBox.add(externalNoteSlideViewContainer);
+		}
+		else if (previewPosition == SlidePreviewPosition.RIGHT) {
+			externalSlidePreviewTabPane.addTabs(rightTabPane.removeTabsByType(AdaptiveTabType.SLIDE));
+
+			rightVbox.remove(rightPeerViewContainer);
+			rightVbox.revalidate();
+			rightVbox.repaint();
+
+			rightPeerViewContainer.setVisible(true);
+
+			externalPreviewBox.add(rightPeerViewContainer);
+			externalPreviewBox.add(externalSlidePreviewTabPane);
+			externalPreviewBox.add(externalNoteSlideViewContainer);
+		}
+
 		externalSlidePreviewTabPane.setPaneTabSelected(prevSelected);
+
+		externalNoteSlideViewContainer.add(slideNotesView);
+
+		updateSlideNoteContainer(externalNoteSlideViewContainer);
 	}
 
 	@Override
@@ -1156,13 +1189,33 @@ public class SwingSlidesView extends JPanel implements SlidesView {
 			return;
 		}
 
+		final String prevSelected = selectedSlideLabelText;
+
 		externalSlidePreviewFrame.hideBody();
 		externalSlidePreviewFrame.setVisible(false);
 
-		final String prevSelected = selectedSlideLabelText;
-		rightTabPane.addTabsBefore(externalSlidePreviewTabPane.removeTabsByType(AdaptiveTabType.SLIDE),
-				AdaptiveTabType.MESSAGE);
-		rightTabPane.setPaneTabSelected(prevSelected);
+		externalPreviewBox.removeAll();
+
+		if (previewPosition == SlidePreviewPosition.LEFT) {
+			leftTabPane.addTabsBefore(externalSlidePreviewTabPane.removeTabsByType(AdaptiveTabType.SLIDE),
+					AdaptiveTabType.MESSAGE);
+			leftTabPane.setPaneTabSelected(prevSelected);
+
+			leftVbox.add(leftPeerViewContainer);
+
+			leftPeerViewContainer.setVisible(true);
+		}
+		else if (previewPosition == SlidePreviewPosition.RIGHT) {
+			rightTabPane.addTabsBefore(externalSlidePreviewTabPane.removeTabsByType(AdaptiveTabType.SLIDE),
+					AdaptiveTabType.MESSAGE);
+			rightTabPane.setPaneTabSelected(prevSelected);
+
+			rightVbox.add(rightPeerViewContainer);
+
+			rightPeerViewContainer.setVisible(true);
+		}
+
+		showNoteSlide();
 	}
 
 	private AdaptiveTabbedPane getSlidesTabPane() {
@@ -2107,6 +2160,9 @@ public class SwingSlidesView extends JPanel implements SlidesView {
 
 		messagesPlaceholder = new JLabel(dict.get(NO_MESSAGES_LABEL_KEY), SwingConstants.CENTER);
 
+		externalPreviewBox = Box.createVerticalBox();
+		externalNoteSlideViewContainer = new JPanel(new BorderLayout());
+
 		externalMessagesFrame = createExternalFrame(dict.get(MESSAGE_LABEL_KEY), externalMessagesPane,
 				dict.get(NO_MESSAGES_LABEL_KEY),
 				new Dimension(500, 400),
@@ -2121,7 +2177,7 @@ public class SwingSlidesView extends JPanel implements SlidesView {
 				position -> executeAction(externalParticipantsPositionChangedAction, position),
 				size -> executeAction(externalParticipantsSizeChangedAction, size));
 
-		externalSlidePreviewFrame = createExternalFrame(dict.get(SLIDES_PREVIEW_LABEL_KEY), externalSlidePreviewTabPane,
+		externalSlidePreviewFrame = createExternalFrame(dict.get(SLIDES_PREVIEW_LABEL_KEY), externalPreviewBox,
 				"", new Dimension(500, 700),
 				() -> executeAction(externalSlidePreviewClosedAction),
 				position -> executeAction(externalSlidePreviewPositionChangedAction, position),

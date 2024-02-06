@@ -261,8 +261,6 @@ public class SwingSlidesView extends JPanel implements SlidesView {
 
 	private SettingsTab messageTab;
 
-	private SettingsTab slideNotesTab;
-
 	private JScrollPane messagesPane;
 
 	private JScrollPane notesPane;
@@ -1189,12 +1187,14 @@ public class SwingSlidesView extends JPanel implements SlidesView {
 			return;
 		}
 
-		externalSlidePreviewFrame.hideBody();
-		externalSlidePreviewFrame.setVisible(false);
+		SwingUtilities.invokeLater(() -> {
+			externalSlidePreviewFrame.hideBody();
+			externalSlidePreviewFrame.setVisible(false);
 
-		dockSlidePreview(previewPosition);
+			dockSlidePreview(previewPosition);
 
-		showNoteSlide(previewPosition);
+			showNoteSlide(previewPosition);
+		});
 	}
 
 	private void dockSlidePreview(SlidePreviewPosition position) {
@@ -1352,6 +1352,10 @@ public class SwingSlidesView extends JPanel implements SlidesView {
 
 	@Override
 	public void setMessageBarPosition(MessageBarPosition position) {
+		if (externalMessagesFrame.isVisible()) {
+			hideExternalMessages();
+		}
+
 		switch (position) {
 			case BOTTOM -> showMessageBarBottom();
 			case LEFT -> showMessageBarLeft();
@@ -1363,6 +1367,10 @@ public class SwingSlidesView extends JPanel implements SlidesView {
 
 	@Override
 	public void setParticipantsPosition(ParticipantsPosition position) {
+		if (externalParticipantsFrame.isVisible()) {
+			hideExternalParticipants();
+		}
+
 		switch (position) {
 			case LEFT -> showParticipantsLeft();
 			case RIGHT -> showParticipantsRight();
@@ -1397,6 +1405,10 @@ public class SwingSlidesView extends JPanel implements SlidesView {
 
 	@Override
 	public void setNotesPosition(SlideNotesPosition position) {
+		if (externalNotesFrame.isVisible()) {
+			hideExternalNotes();
+		}
+
 		switch (position) {
 			case LEFT -> showNoteLeft();
 			case BOTTOM -> showNoteBottom();

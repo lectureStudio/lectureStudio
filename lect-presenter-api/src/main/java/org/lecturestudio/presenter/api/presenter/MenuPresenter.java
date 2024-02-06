@@ -346,6 +346,8 @@ public class MenuPresenter extends Presenter<MenuView> {
 	public void positionSpeech(SpeechPosition position) {
 		if (position == SpeechPosition.EXTERNAL) {
 			eventBus.post(new ExternalSpeechViewEvent(true));
+
+//			getPresenterConfig().getSlideViewConfiguration().setSpeechPosition(position);
 		}
 		else {
 			setViewPosition(SpeechPosition.class, position);
@@ -355,6 +357,8 @@ public class MenuPresenter extends Presenter<MenuView> {
 	public void positionMessages(MessageBarPosition position) {
 		if (position == MessageBarPosition.EXTERNAL) {
 			eventBus.post(new ExternalMessagesViewEvent(true));
+
+//			getPresenterConfig().getSlideViewConfiguration().setMessageBarPosition(position);
 		}
 		else {
 			setViewPosition(MessageBarPosition.class, position);
@@ -366,6 +370,8 @@ public class MenuPresenter extends Presenter<MenuView> {
 	public void positionParticipants(ParticipantsPosition position) {
 		if (position == ParticipantsPosition.EXTERNAL) {
 			eventBus.post(new ExternalParticipantsViewEvent(true));
+
+//			getPresenterConfig().getSlideViewConfiguration().setParticipantsPosition(position);
 		}
 		else {
 			setViewPosition(ParticipantsPosition.class, position);
@@ -377,6 +383,8 @@ public class MenuPresenter extends Presenter<MenuView> {
 	public void positionSlidePreview(SlidePreviewPosition position) {
 		if (position == SlidePreviewPosition.EXTERNAL) {
 			eventBus.post(new ExternalSlidePreviewViewEvent(true));
+
+//			getPresenterConfig().getSlideViewConfiguration().setSlidePreviewPosition(position);
 		}
 		else {
 			setViewPosition(SlidePreviewPosition.class, position);
@@ -388,6 +396,8 @@ public class MenuPresenter extends Presenter<MenuView> {
 	public void positionSlideNotes(SlideNotesPosition position) {
 		if (position == SlideNotesPosition.EXTERNAL) {
 			eventBus.post(new ExternalNotesViewEvent(true));
+
+//			getPresenterConfig().getSlideViewConfiguration().setSlideNotesPosition(position);
 		}
 		else {
 			setViewPosition(SlideNotesPosition.class, position);
@@ -399,6 +409,8 @@ public class MenuPresenter extends Presenter<MenuView> {
 	public void positionNoteSlide(NoteSlidePosition position) {
 		if (position == NoteSlidePosition.EXTERNAL) {
 			eventBus.post(new ExternalSlideNotesViewEvent(true));
+
+//			getPresenterConfig().getSlideViewConfiguration().setNoteSlidePosition(position);
 		}
 		else {
 			setViewPosition(NoteSlidePosition.class, position);

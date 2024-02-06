@@ -48,16 +48,15 @@
 							</Panel>
 						</Panel>
 					</Tab>
-					<Tab id="slideNotesTab" name="slideNotes" text="slides.slide.notes" icon="slideNotes.svg, 20" defaultTabType="AdaptiveTabType.SLIDE_NOTES" >
-						<SlideView id="slideNotesView" />
-					</Tab>
 				</AdaptiveTabbedPane>
 			</SplitPane>
 
 			<VBox id="rightVbox">
 				<Panel layout="BorderLayout" id="rightPeerViewContainer" visible="false" />
 				<AdaptiveTabbedPane id="rightTabPane" tabPlacement="JTabbedPane.RIGHT" defaultTabType="AdaptiveTabType.SLIDE" focusTraversable="false" />
-				<Panel layout="BorderLayout" id="rightNoteSlideViewContainer" visible="false" />
+				<Panel layout="BorderLayout" id="rightNoteSlideViewContainer" visible="false">
+					<SlideView id="slideNotesView" />
+				</Panel>
 			</VBox>
 		</SplitPane>
 </Panel>

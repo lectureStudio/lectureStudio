@@ -91,6 +91,7 @@ import org.lecturestudio.core.view.ViewType;
 import org.lecturestudio.presenter.api.config.DocumentTemplateConfiguration;
 import org.lecturestudio.presenter.api.config.ExternalWindowConfiguration;
 import org.lecturestudio.presenter.api.config.PresenterConfiguration;
+import org.lecturestudio.presenter.api.config.SlideViewConfiguration;
 import org.lecturestudio.presenter.api.context.PresenterContext;
 import org.lecturestudio.presenter.api.event.ExternalMessagesViewEvent;
 import org.lecturestudio.presenter.api.event.ExternalNotesViewEvent;
@@ -1455,18 +1456,32 @@ public class SlidesPresenter extends Presenter<SlidesView> {
 	}
 
 	private void showExternalScreens() {
-		showExternalScreen(getExternalMessagesConfig(),
-				(enabled, show) -> eventBus.post(new ExternalMessagesViewEvent(enabled, show)));
-		showExternalScreen(getExternalParticipantsConfig(),
-				(enabled, show) -> eventBus.post(new ExternalParticipantsViewEvent(enabled, show)));
-		showExternalScreen(getExternalSlidePreviewConfig(),
-				(enabled, show) -> eventBus.post(new ExternalSlidePreviewViewEvent(enabled, show)));
-		showExternalScreen(getExternalSpeechConfig(),
-				(enabled, show) -> eventBus.post(new ExternalSpeechViewEvent(enabled, show)));
-		showExternalScreen(getExternalNotesConfig(),
-				(enabled, show) -> eventBus.post(new ExternalNotesViewEvent(enabled, show)));
-		showExternalScreen(getExternalSlideNotesConfig(),
-				(enabled, show) -> eventBus.post(new ExternalSlideNotesViewEvent(enabled, show)));
+		SlideViewConfiguration viewConfig = getPresenterConfig().getSlideViewConfiguration();
+
+		if (viewConfig.getMessageBarPosition() == MessageBarPosition.EXTERNAL) {
+			showExternalScreen(getExternalMessagesConfig(),
+					(enabled, show) -> eventBus.post(new ExternalMessagesViewEvent(enabled, show)));
+		}
+		if (viewConfig.getParticipantsPosition() == ParticipantsPosition.EXTERNAL) {
+			showExternalScreen(getExternalParticipantsConfig(),
+					(enabled, show) -> eventBus.post(new ExternalParticipantsViewEvent(enabled, show)));
+		}
+		if (viewConfig.getSlidePreviewPosition() == SlidePreviewPosition.EXTERNAL) {
+			showExternalScreen(getExternalSlidePreviewConfig(),
+					(enabled, show) -> eventBus.post(new ExternalSlidePreviewViewEvent(enabled, show)));
+		}
+		if (viewConfig.getSpeechPosition() == SpeechPosition.EXTERNAL) {
+			showExternalScreen(getExternalSpeechConfig(),
+					(enabled, show) -> eventBus.post(new ExternalSpeechViewEvent(enabled, show)));
+		}
+		if (viewConfig.getSlideNotesPosition() == SlideNotesPosition.EXTERNAL) {
+			showExternalScreen(getExternalNotesConfig(),
+					(enabled, show) -> eventBus.post(new ExternalNotesViewEvent(enabled, show)));
+		}
+		if (viewConfig.getNoteSlidePosition() == NoteSlidePosition.EXTERNAL) {
+			showExternalScreen(getExternalSlideNotesConfig(),
+					(enabled, show) -> eventBus.post(new ExternalSlideNotesViewEvent(enabled, show)));
+		}
 	}
 
 	private void showExternalScreen(ExternalWindowConfiguration config, BiConsumer<Boolean, Boolean> action) {

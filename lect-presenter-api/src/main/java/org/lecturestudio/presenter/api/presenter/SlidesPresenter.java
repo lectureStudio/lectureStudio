@@ -1000,7 +1000,7 @@ public class SlidesPresenter extends Presenter<SlidesView> {
 			bookmarkCreated(bookmarkService.createDefaultBookmark());
         }
 		catch (BookmarkException e) {
-			handleException(e, "Create bookmark failed", "bookmark.assign.warning");
+			handleException(e, "Create bookmark failed", "bookmark.assign.warning", "bookmark.exists");
         }
     }
 

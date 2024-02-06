@@ -91,7 +91,7 @@ public class BookmarkService {
 				if (bookmark.getShortcut().equalsIgnoreCase(keyStr)) {
 					throw new BookmarkKeyException("Bookmark key is already assigned to another bookmark");
 				}
-				if(bookmark.getPage().equals(page)){
+				if (bookmark.getPage().equals(page)){
 					throw new BookmarkExistsException("Page is already bookmarked");
 				}
 			}

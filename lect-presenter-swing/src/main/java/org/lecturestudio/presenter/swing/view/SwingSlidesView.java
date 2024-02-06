@@ -1189,14 +1189,20 @@ public class SwingSlidesView extends JPanel implements SlidesView {
 			return;
 		}
 
-		final String prevSelected = selectedSlideLabelText;
-
 		externalSlidePreviewFrame.hideBody();
 		externalSlidePreviewFrame.setVisible(false);
 
+		dockSlidePreview(previewPosition);
+
+		showNoteSlide(previewPosition);
+	}
+
+	private void dockSlidePreview(SlidePreviewPosition position) {
+		final String prevSelected = selectedSlideLabelText;
+
 		externalPreviewBox.removeAll();
 
-		if (previewPosition == SlidePreviewPosition.LEFT) {
+		if (position == SlidePreviewPosition.LEFT) {
 			leftTabPane.addTabsBefore(externalSlidePreviewTabPane.removeTabsByType(AdaptiveTabType.SLIDE),
 					AdaptiveTabType.MESSAGE);
 			leftTabPane.setPaneTabSelected(prevSelected);
@@ -1205,7 +1211,7 @@ public class SwingSlidesView extends JPanel implements SlidesView {
 
 			leftPeerViewContainer.setVisible(true);
 		}
-		else if (previewPosition == SlidePreviewPosition.RIGHT) {
+		else if (position == SlidePreviewPosition.RIGHT) {
 			rightTabPane.addTabsBefore(externalSlidePreviewTabPane.removeTabsByType(AdaptiveTabType.SLIDE),
 					AdaptiveTabType.MESSAGE);
 			rightTabPane.setPaneTabSelected(prevSelected);
@@ -1214,8 +1220,6 @@ public class SwingSlidesView extends JPanel implements SlidesView {
 
 			rightPeerViewContainer.setVisible(true);
 		}
-
-		showNoteSlide();
 	}
 
 	private AdaptiveTabbedPane getSlidesTabPane() {
@@ -1342,7 +1346,7 @@ public class SwingSlidesView extends JPanel implements SlidesView {
 		externalSlideNotesFrame.setVisible(false);
 
 		if (noteSlidePosition == NoteSlidePosition.BELOW_SLIDE_PREVIEW) {
-			showNoteSlide();
+			showNoteSlide(previewPosition);
 		}
 	}
 
@@ -1369,17 +1373,26 @@ public class SwingSlidesView extends JPanel implements SlidesView {
 
 	@Override
 	public void setPreviewPosition(SlidePreviewPosition position) {
-		switch (position) {
-			case LEFT -> showPreviewLeft();
-			case RIGHT -> showPreviewRight();
-		}
+		SwingUtilities.invokeLater(() -> {
+			if (externalSlidePreviewFrame.isVisible()) {
+				externalSlidePreviewFrame.hideBody();
+				externalSlidePreviewFrame.setVisible(false);
 
-		// The note slide position is dependent on the slide preview position.
-		hideNoteSlide();
+				dockSlidePreview(position);
+			}
 
-		previewPosition = position;
+			switch (position) {
+				case LEFT -> showPreviewLeft();
+				case RIGHT -> showPreviewRight();
+			}
 
-		showNoteSlide();
+			// The note slide position is dependent on the slide preview position.
+			hideNoteSlide();
+
+			previewPosition = position;
+
+			showNoteSlide(position);
+		});
 	}
 
 	@Override
@@ -1421,7 +1434,7 @@ public class SwingSlidesView extends JPanel implements SlidesView {
 	@Override
 	public void setNoteSlidePosition(NoteSlidePosition position) {
 		switch (position) {
-			case BELOW_SLIDE_PREVIEW -> showNoteSlide();
+			case BELOW_SLIDE_PREVIEW -> showNoteSlide(previewPosition);
 			case NONE -> hideNoteSlide();
 		}
 
@@ -1430,22 +1443,22 @@ public class SwingSlidesView extends JPanel implements SlidesView {
 
 	private void updateNoteSlideView(Document doc) {
 		if (doc.hasNoteSlide()) {
-			showNoteSlide();
+			showNoteSlide(previewPosition);
 		}
 		else {
 			hideNoteSlide();
 		}
 	}
 
-	private void showNoteSlide() {
-		if (previewPosition == SlidePreviewPosition.LEFT) {
+	private void showNoteSlide(SlidePreviewPosition position) {
+		if (position == SlidePreviewPosition.LEFT) {
 			leftNoteSlideViewContainer.setVisible(true);
 			leftNoteSlideViewContainer.removeAll();
 			leftNoteSlideViewContainer.add(slideNotesView);
 
 			updateSlideNoteContainer(leftNoteSlideViewContainer);
 		}
-		else if (previewPosition == SlidePreviewPosition.RIGHT) {
+		else if (position == SlidePreviewPosition.RIGHT) {
 			rightNoteSlideViewContainer.setVisible(true);
 			rightNoteSlideViewContainer.removeAll();
 			rightNoteSlideViewContainer.add(slideNotesView);

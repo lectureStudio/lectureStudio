@@ -694,6 +694,10 @@ public class SlidesPresenter extends Presenter<SlidesView> {
 		view.removeSpeechRequest(message);
 	}
 
+	private void onBan(CourseParticipant user) {
+		streamService.ban(user);
+	}
+
 	private void onDiscardMessage(MessengerMessage message) {
 		PresenterContext presenterContext = (PresenterContext) context;
 		presenterContext.getMessengerMessages().remove(message);
@@ -1368,6 +1372,7 @@ public class SlidesPresenter extends Presenter<SlidesView> {
 
 		view.setOnAcceptSpeech(this::onAcceptSpeech);
 		view.setOnRejectSpeech(this::onRejectSpeech);
+		view.setOnBan(this::onBan);
 		view.setOnDiscardMessage(this::onDiscardMessage);
 		view.setOnCreateMessageSlide(this::onCreateMessageSlide);
 		view.setOnMutePeerAudio(streamService::mutePeerAudio);

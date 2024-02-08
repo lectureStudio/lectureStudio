@@ -1158,7 +1158,6 @@ public class SwingSlidesView extends JPanel implements SlidesView {
 
 			externalPreviewBox.add(leftPeerViewContainer);
 			externalPreviewBox.add(externalSlidePreviewTabPane);
-			externalPreviewBox.add(externalNoteSlideViewContainer);
 		}
 		else if (previewPosition == SlidePreviewPosition.RIGHT) {
 			externalSlidePreviewTabPane.addTabs(rightTabPane.removeTabsByType(AdaptiveTabType.SLIDE));
@@ -1171,12 +1170,15 @@ public class SwingSlidesView extends JPanel implements SlidesView {
 
 			externalPreviewBox.add(rightPeerViewContainer);
 			externalPreviewBox.add(externalSlidePreviewTabPane);
-			externalPreviewBox.add(externalNoteSlideViewContainer);
 		}
 
 		externalSlidePreviewTabPane.setPaneTabSelected(prevSelected);
 
-		externalNoteSlideViewContainer.add(slideNotesView);
+		if (!externalSlideNotesFrame.isVisible()) {
+			externalPreviewBox.add(externalNoteSlideViewContainer);
+
+			externalNoteSlideViewContainer.add(slideNotesView);
+		}
 
 		updateSlideNoteContainer(externalNoteSlideViewContainer);
 	}
@@ -1193,7 +1195,13 @@ public class SwingSlidesView extends JPanel implements SlidesView {
 
 			dockSlidePreview(previewPosition);
 
-			showNoteSlide(previewPosition);
+			if (externalSlideNotesFrame.isVisible()) {
+				hideNoteSlide();
+				return;
+			}
+			if (noteSlidePosition != NoteSlidePosition.EXTERNAL) {
+				showNoteSlide(previewPosition);
+			}
 		});
 	}
 
@@ -1463,6 +1471,17 @@ public class SwingSlidesView extends JPanel implements SlidesView {
 	}
 
 	private void showNoteSlide(SlidePreviewPosition position) {
+		if (externalSlidePreviewFrame.isVisible()) {
+			externalNoteSlideViewContainer.add(slideNotesView);
+
+			externalPreviewBox.add(externalNoteSlideViewContainer);
+			externalPreviewBox.revalidate();
+			externalPreviewBox.repaint();
+
+			updateSlideNoteContainer(externalNoteSlideViewContainer);
+			return;
+		}
+
 		if (position == SlidePreviewPosition.LEFT) {
 			leftNoteSlideViewContainer.setVisible(true);
 			leftNoteSlideViewContainer.removeAll();
@@ -1480,6 +1499,15 @@ public class SwingSlidesView extends JPanel implements SlidesView {
 	}
 
 	private void hideNoteSlide() {
+		if (externalSlidePreviewFrame.isVisible()) {
+			externalNoteSlideViewContainer.removeAll();
+
+			externalPreviewBox.remove(externalNoteSlideViewContainer);
+			externalPreviewBox.revalidate();
+			externalPreviewBox.repaint();
+			return;
+		}
+
 		if (previewPosition == SlidePreviewPosition.LEFT) {
 			leftNoteSlideViewContainer.setVisible(false);
 			leftNoteSlideViewContainer.removeAll();

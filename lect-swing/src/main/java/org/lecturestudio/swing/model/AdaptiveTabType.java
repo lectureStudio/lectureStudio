@@ -6,6 +6,7 @@ public enum AdaptiveTabType {
 	MESSAGE,
 	SLIDE,
 	PARTICIPANTS,
-	NOTES
+	NOTES,
+	SLIDE_NOTES
 
 }

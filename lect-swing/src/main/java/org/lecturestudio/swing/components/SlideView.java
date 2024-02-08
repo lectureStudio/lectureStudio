@@ -32,6 +32,8 @@ import java.awt.event.ComponentAdapter;
 import java.awt.event.ComponentEvent;
 import java.awt.geom.AffineTransform;
 import java.awt.image.BufferedImage;
+import java.beans.PropertyChangeListener;
+import java.beans.PropertyChangeSupport;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.BlockingQueue;
@@ -74,6 +76,8 @@ public class SlideView extends JComponent implements org.lecturestudio.core.view
 
 	private Page page;
 
+	private final PropertyChangeSupport changes = new PropertyChangeSupport(this);
+
 	private final Rectangle canvasBounds = new Rectangle();
 
 	private AffineTransform pageTransform = new AffineTransform();
@@ -112,6 +116,14 @@ public class SlideView extends JComponent implements org.lecturestudio.core.view
 		updateViewTransform();
 
 		renderPage();
+	}
+
+	public void addPropertyChangeListener(String propertyName, PropertyChangeListener listener) {
+		changes.addPropertyChangeListener(propertyName, listener);
+	}
+
+	public void removePropertyChangeListener(String propertyName, PropertyChangeListener listener) {
+		changes.removePropertyChangeListener(propertyName, listener);
 	}
 
 	public final void setAlignment(Position position) {
@@ -362,6 +374,8 @@ public class SlideView extends JComponent implements org.lecturestudio.core.view
 		imageRect.setSize(size.getWidth(), size.getHeight());
 
 		updateViewTransform();
+
+		changes.firePropertyChange("CanvasBounds", null, canvasBounds);
 	}
 
 	private void initialize() {

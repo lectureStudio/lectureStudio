@@ -121,7 +121,7 @@ class MainPresenterTest extends PresenterTest {
 
 		documentService = context.getDocumentService();
 
-		bookmarkService = new BookmarkService(documentService);
+		bookmarkService = new BookmarkService(documentService, context);
 
 		recorder = new FileLectureRecorder(audioSystemProvider, documentService, audioConfig, getRecordingDirectory());
 
@@ -200,7 +200,7 @@ class MainPresenterTest extends PresenterTest {
 			public <T> T getInstance(Class<T> cls) {
 				if (cls == SlidesPresenter.class) {
 					ToolController toolController = new ToolController(context, documentService);
-					return (T) new SlidesPresenter(context, createProxy(SlidesView.class), null, toolController, presentationController, null, documentService, documentRecorder, recordingService, webService, webServiceInfo, streamService);
+					return (T) new SlidesPresenter(context, createProxy(SlidesView.class), null, toolController, presentationController, null, bookmarkService, documentService, documentRecorder, recordingService, webService, webServiceInfo, streamService);
 				}
 				else if (cls == SettingsPresenter.class) {
 					return (T) new SettingsPresenter(context, createProxy(SettingsView.class));

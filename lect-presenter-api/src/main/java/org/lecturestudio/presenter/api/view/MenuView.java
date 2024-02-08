@@ -26,18 +26,13 @@ import org.lecturestudio.core.ExecutableState;
 import org.lecturestudio.core.beans.BooleanProperty;
 import org.lecturestudio.core.beans.IntegerProperty;
 import org.lecturestudio.core.beans.ObjectProperty;
-import org.lecturestudio.core.model.Document;
-import org.lecturestudio.core.model.Page;
-import org.lecturestudio.core.model.RecentDocument;
-import org.lecturestudio.core.model.Time;
+import org.lecturestudio.core.model.*;
 import org.lecturestudio.core.view.Action;
 import org.lecturestudio.core.view.ConsumerAction;
 import org.lecturestudio.core.view.PresentationParameter;
 import org.lecturestudio.core.view.View;
 import org.lecturestudio.presenter.api.context.PresenterContext.ParticipantCount;
-import org.lecturestudio.presenter.api.model.Bookmark;
-import org.lecturestudio.presenter.api.model.Bookmarks;
-import org.lecturestudio.presenter.api.model.MessageBarPosition;
+import org.lecturestudio.presenter.api.model.*;
 import org.lecturestudio.presenter.api.service.QuizWebServiceState;
 
 public interface MenuView extends View {
@@ -78,64 +73,33 @@ public interface MenuView extends View {
 
 	void bindShowOutline(BooleanProperty showProperty);
 
-	void setAdvancedSettings(boolean selected);
-
 	void bindFullscreen(BooleanProperty fullscreen);
-
-	void setOnAdvancedSettings(ConsumerAction<Boolean> action);
 
 	void setOnCustomizeToolbar(Action action);
 
-	void setExternalMessages(boolean selected, boolean show);
+	void setSpeechPosition(SpeechPosition position);
 
-	void setOnExternalMessages(ConsumerAction<Boolean> action);
+	void setOnSpeechPosition(ConsumerAction<SpeechPosition> action);
 
-	void setExternalParticipants(boolean selected, boolean show);
+	void setMessagesPosition(MessageBarPosition position);
 
-	void setOnExternalParticipants(ConsumerAction<Boolean> action);
+	void setOnMessagesPosition(ConsumerAction<MessageBarPosition> action);
 
-	void setExternalSlidePreview(boolean selected, boolean show);
+	void setSlideNotesPosition(SlideNotesPosition position);
 
-	void setOnExternalSlidePreview(ConsumerAction<Boolean> action);
+	void setOnSlideNotesPosition(ConsumerAction<SlideNotesPosition> action);
 
-	void setExternalSpeech(boolean selected, boolean show);
+	void setNoteSlidePosition(NoteSlidePosition position);
 
-	void setOnExternalSpeech(ConsumerAction<Boolean> action);
+	void setOnNoteSlidePosition(ConsumerAction<NoteSlidePosition> action);
 
-	void setExternalNotes(boolean selected, boolean show);
+	void setParticipantsPosition(ParticipantsPosition position);
 
-	void setOnExternalNotes(ConsumerAction<Boolean> action);
+	void setOnParticipantsPosition(ConsumerAction<ParticipantsPosition> action);
 
-	void setOnMessagesPositionLeft(Action action);
+	void setSlidePreviewPosition(SlidePreviewPosition position);
 
-	void setMessagesPositionLeft();
-
-	void setOnMessagesPositionBottom(Action action);
-
-	void setMessagesPositionBottom();
-
-	void setOnMessagesPositionRight(Action action);
-
-	void setMessagesPositionRight();
-
-	void setOnNotesPositionLeft(Action action);
-
-	void setNotesPositionLeft();
-
-	void setOnNotesPositionBottom(Action action);
-
-	void setNotesPositionBottom();
-
-
-	void setOnParticipantsPositionLeft(Action action);
-
-	void setParticipantsPositionLeft();
-
-	void setOnParticipantsPositionRight(Action action);
-
-	void setParticipantsPositionRight();
-
-	void bindPreviewPosition(ObjectProperty<MessageBarPosition> position);
+	void setOnSlidePreviewPosition(ConsumerAction<SlidePreviewPosition> action);
 
 	/**
 	 * Whiteboard Menu
@@ -209,9 +173,17 @@ public interface MenuView extends View {
 
 	void setOnShowNewBookmarkView(Action action);
 
+	void setOnCreateNewDefaultBookmarkView(Action action);
+
+	void setOnRemoveBookmarkView(Action action);
+
 	void setOnShowGotoBookmarkView(Action action);
 
 	void setOnPreviousBookmark(Action action);
+
+	void setOnPrevBookmark(Action action);
+
+	void setOnNextBookmark(Action action);
 
 	void setOnOpenBookmark(ConsumerAction<Bookmark> action);
 
@@ -250,4 +222,13 @@ public interface MenuView extends View {
 	void bindCourseParticipantsCount(ObjectProperty<ParticipantCount> count);
 
 	void setQuizServiceState(QuizWebServiceState state);
+
+	/**
+	 * Split notes
+	 */
+
+	void setSplitNotesPosition(NotesPosition position);
+
+	void setOnSplitNotesPosition(ConsumerAction<NotesPosition> action);
+
 }

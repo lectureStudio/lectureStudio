@@ -18,14 +18,13 @@
  *
  */
 
-package org.lecturestudio.presenter.api.model;
+package org.lecturestudio.core.model;
 
-/**
- * Positions where the note tab can appear
- *
- * @author Dustin Ringel
- */
-public enum NoteBarPosition {
-    BOTTOM,
-    LEFT
+public enum NotesPosition {
+
+    LEFT,
+    RIGHT,
+    NONE,
+    UNKNOWN
+
 }

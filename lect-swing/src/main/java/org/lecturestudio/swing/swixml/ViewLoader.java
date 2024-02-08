@@ -73,6 +73,7 @@ public class ViewLoader<T extends Container> extends SwingEngine<T> {
 		tagLibrary.registerTag("DisplayPanel", DisplayPanel.class);
 		tagLibrary.registerTag("DocumentPreview", DocumentPreview.class);
 		tagLibrary.registerTag("EllipseToolPreview", EllipseToolPreview.class);
+		tagLibrary.registerTag("FormattedTextField", JFormattedTextField.class);
 		tagLibrary.registerTag("IPTextField", IPTextField.class);
 		tagLibrary.registerTag("LevelMeter", LevelMeter.class);
 		tagLibrary.registerTag("LineToolPreview", LineToolPreview.class);

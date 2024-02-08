@@ -20,6 +20,7 @@ package org.lecturestudio.presenter.api.view;
 
 import java.util.List;
 
+import org.lecturestudio.core.model.Document;
 import org.lecturestudio.core.view.Action;
 import org.lecturestudio.core.view.ConsumerAction;
 import org.lecturestudio.core.view.View;
@@ -27,11 +28,15 @@ import org.lecturestudio.presenter.api.model.Bookmark;
 
 public interface GotoBookmarkView extends View {
 
+	void setDocument(Document document);
+
 	void setBookmarks(List<Bookmark> bookmarkList);
 
 	void removeBookmark(Bookmark bookmark);
 
 	void setOnClose(Action action);
+
+	void setOnGotoPageNumber(ConsumerAction<Integer> action);
 
 	void setOnDeleteBookmark(ConsumerAction<Bookmark> action);
 

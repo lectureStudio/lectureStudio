@@ -28,6 +28,7 @@ import java.util.Map;
 import org.lecturestudio.core.geometry.Dimension2D;
 import org.lecturestudio.core.geometry.Rectangle2D;
 import org.lecturestudio.core.model.DocumentOutline;
+import org.lecturestudio.core.model.NotesPosition;
 import org.lecturestudio.core.model.shape.Shape;
 import org.lecturestudio.core.pdf.mupdf.MuPDFDocument;
 import org.lecturestudio.core.pdf.pdfbox.PDFBoxDocument;
@@ -160,11 +161,34 @@ public class PdfDocument {
 	 * Get the bounds of the page that has the specified page index.
 	 *
 	 * @param pageIndex The page index.
+	 * @param position The position of notes on a page.
+	 *
+	 * @return The bounds of the page that has the specified page index.
+	 */
+	public Rectangle2D getPageMediaBox(int pageIndex, NotesPosition position) {
+		return pdfBoxDocument.getPageBounds(pageIndex, position);
+	}
+
+	/**
+	 * Get the bounds of the page that has the specified page index.
+	 *
+	 * @param pageIndex The page index.
+	 *
+	 * @return The bounds of the page that has the specified page index.
+	 */
+	public Rectangle2D getPageBounds(int pageIndex) {
+		return muPDFDocument.getPageBounds(pageIndex, NotesPosition.NONE);
+	}
+
+	/**
+	 * Get the bounds of the page that has the specified page index.
+	 *
+	 * @param pageIndex The page index.
 	 *
 	 * @return The bounds of the page that has the specified page index.
 	 */
 	public Rectangle2D getPageMediaBox(int pageIndex) {
-		return pdfBoxDocument.getPageBounds(pageIndex);
+		return getPageMediaBox(pageIndex, NotesPosition.UNKNOWN);
 	}
 
 	public void setPageContentTransform(int pageIndex, AffineTransform transform) throws IOException {
@@ -177,6 +201,9 @@ public class PdfDocument {
 		return pdfBoxDocument.importPage(pdfDocument.pdfBoxDocument, pageIndex, pageRect);
 	}
 
+	public void setCropbox(int pageNumber,int x, int y, int width, int height){
+		pdfBoxDocument.setCropbox(pageNumber,x , y, width,height);
+	}
 	/**
 	 * Replaces the page that has the {@code pageIndex} with the page
 	 * that has {@code docIndex} in {@code newPdfDocument}.
@@ -212,11 +239,12 @@ public class PdfDocument {
 	 * The content will be appended to the existing one.
 	 *
 	 * @param pageIndex The index of the page to which to draw.
+	 * @param notesPosition The position of split slides notes
 	 *
 	 * @return The newly created {@link Graphics2D} object.
 	 */
-	public Graphics2D createAppendablePageGraphics2D(int pageIndex) {
-		return pdfBoxDocument.createGraphics(pageIndex, null, true);
+	public Graphics2D createAppendablePageGraphics2D(int pageIndex, NotesPosition notesPosition) {
+		return pdfBoxDocument.createGraphics(pageIndex, null, true, notesPosition);
 	}
 
 	/**
@@ -225,11 +253,12 @@ public class PdfDocument {
 	 *
 	 * @param pageIndex The index of the page to which to draw.
 	 * @param name The PDF graphics stream name.
-	 *
+	 * @param notesPosition The position of split slides notes
+
 	 * @return The newly created {@link Graphics2D} object.
 	 */
-	public Graphics2D createAppendablePageGraphics2D(int pageIndex, String name) {
-		return pdfBoxDocument.createGraphics(pageIndex, name, true);
+	public Graphics2D createAppendablePageGraphics2D(int pageIndex, String name, NotesPosition notesPosition) {
+		return pdfBoxDocument.createGraphics(pageIndex, name, true, notesPosition);
 	}
 
 	/**
@@ -294,8 +323,8 @@ public class PdfDocument {
 	 * @param pageNumber The page number.
 	 * @return The word bounds of the page that has the specified page number.
 	 */
-	public List<Rectangle2D> getNormalizedWordPositions(int pageNumber) {
-		return muPDFDocument.getPageWordsNormalized(pageNumber);
+	public List<Rectangle2D> getNormalizedWordPositions(int pageNumber, NotesPosition splitNotesPosition) {
+		return muPDFDocument.getPageWordsNormalized(pageNumber, splitNotesPosition);
 	}
 
 	/**

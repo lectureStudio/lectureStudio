@@ -42,12 +42,7 @@ import org.lecturestudio.core.bus.event.DocumentEvent;
 import org.lecturestudio.core.bus.event.PageEvent;
 import org.lecturestudio.core.geometry.Dimension2D;
 import org.lecturestudio.core.geometry.Rectangle2D;
-import org.lecturestudio.core.model.Document;
-import org.lecturestudio.core.model.DocumentList;
-import org.lecturestudio.core.model.DocumentType;
-import org.lecturestudio.core.model.Page;
-import org.lecturestudio.core.model.RecentDocument;
-import org.lecturestudio.core.model.TemplateDocument;
+import org.lecturestudio.core.model.*;
 import org.lecturestudio.core.view.PresentationParameter;
 import org.lecturestudio.core.view.PresentationParameterProvider;
 import org.lecturestudio.core.view.ViewType;
@@ -192,7 +187,6 @@ public class DocumentService {
 			selectDocument(doc);
 
 			updateRecentDocuments(doc);
-
 			return doc;
 		});
 	}
@@ -405,6 +399,22 @@ public class DocumentService {
 		if (nonNull(doc)) {
 			selectPage(doc, pageNumber);
 		}
+	}
+
+	public void selectNotesPosition(NotesPosition pos) {
+		Document doc = documents.getSelectedDocument();
+
+		if (nonNull(doc)) {
+			if (!doc.hasNoteSlide()) {
+				return;
+			}
+
+			doc.setSplitSlideNotesPosition(pos);
+			doc.calculateCropBox();
+		}
+
+		context.getEventBus().post(new PageEvent(doc.getCurrentPage(),
+				PageEvent.Type.SELECTED));
 	}
 
 	private void selectPage(Document document, int pageNumber) {

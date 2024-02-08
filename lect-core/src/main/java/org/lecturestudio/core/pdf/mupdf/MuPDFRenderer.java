@@ -26,7 +26,7 @@ import com.artifex.mupdf.fitz.Pixmap;
 import com.artifex.mupdf.fitz.Rect;
 import com.artifex.mupdf.fitz.RectI;
 
-import java.awt.Graphics2D;
+import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.awt.image.DataBufferInt;
 import java.awt.image.WritableRaster;
@@ -36,6 +36,7 @@ import java.util.Map;
 
 import org.lecturestudio.core.geometry.Point2D;
 import org.lecturestudio.core.geometry.Rectangle2D;
+import org.lecturestudio.core.model.NotesPosition;
 import org.lecturestudio.core.model.Page;
 import org.lecturestudio.core.pdf.DocumentRenderer;
 import org.lecturestudio.core.view.PresentationParameter;
@@ -68,6 +69,9 @@ public class MuPDFRenderer implements DocumentRenderer {
 		synchronized (lock) {
 			Rectangle2D pageRect = parameter.getViewRect();
 			int pageNumber = page.getPageNumber();
+			//Needed for notes on right side
+			float stmX = 0;
+			float ctmX = 0;
 
 			double sx = imageWidth / pageRect.getWidth();
 			double sy = imageHeight / pageRect.getHeight();
@@ -80,19 +84,101 @@ public class MuPDFRenderer implements DocumentRenderer {
 			com.artifex.mupdf.fitz.Page p = document.getPage(pageNumber);
 			Rect bounds = p.getBounds();
 
+			if (page.getDocument().getSplitSlideNotesPosition() == NotesPosition.RIGHT) {
+				bounds.x1 = bounds.x1 / 2;
+			}
+			if (page.getDocument().getSplitSlideNotesPosition() == NotesPosition.LEFT) {
+				bounds.x0 = bounds.x1 / 2;
+				x = (int) (x - (imageWidth - sx));
+			}
+
 			float scale = (float) (1.D / pageRect.getWidth());
 			float pageSx = imageWidth / (bounds.x1 - bounds.x0);
 			float pageSy = imageHeight / (bounds.y1 - bounds.y0);
 
+			if (page.getDocument().getSplitSlideNotesPosition() == NotesPosition.LEFT) {
+				stmX = bounds.x0 * pageSx;
+				ctmX = bounds.x0 * pageSx;
+			}
+
 			Matrix ctm = new Matrix();
-			ctm.translate(-x, -y);
+			//ctm.translate(-x, -y);
+			ctm.translate(-x - ctmX, -y);
 			ctm.scale(pageSx * scale, pageSy * scale);
 
 			int px = (int) (pageRect.getX() * pageSx);
 			int py = (int) (pageRect.getY() * pageSy);
 
 			Matrix stm = new Matrix();
-			stm.translate(-px, -py);
+			//stm.translate(-px, -py);
+			stm.translate(-px - stmX, -py);
+			stm.scale(pageSx, pageSy);
+
+			if (parameter.isTranslation()) {
+				renderPan(parameter, image, displayList, bounds, ctm, stm);
+			}
+			else {
+				RectI scissor = new RectI(bounds).transform(stm);
+				Rect pixmapBounds = new Rect(0, 0, imageWidth, imageHeight);
+
+				renderImage(image, displayList, pixmapBounds, ctm, scissor);
+
+				sizeMap.put(imageWidth, new Point2D(x, y));
+			}
+		}
+	}
+
+	@Override
+	public void renderNotes(Page page, PresentationParameter parameter,
+					   BufferedImage image) throws IOException {
+		int imageWidth = image.getWidth();
+		int imageHeight = image.getHeight();
+
+		synchronized (lock) {
+			Rectangle2D pageRect = parameter.getViewRect();
+			int pageNumber = page.getPageNumber();
+			//Needed for notes on right side
+			float stmX = 0;
+			float ctmX = 0;
+
+			double sx = imageWidth / pageRect.getWidth();
+			double sy = imageHeight / pageRect.getHeight();
+
+			int x = (int) (pageRect.getX() * sx);
+			int y = (int) (pageRect.getY() * sy);
+
+			DisplayList displayList = document.getDisplayList(pageNumber);
+
+			com.artifex.mupdf.fitz.Page p = document.getPage(pageNumber);
+			Rect bounds = p.getBounds();
+
+			if (page.getDocument().getSplitSlideNotesPosition() == NotesPosition.LEFT) {
+				bounds.x1 = bounds.x1 / 2;
+			}
+			if (page.getDocument().getSplitSlideNotesPosition() == NotesPosition.RIGHT) {
+				bounds.x0 = bounds.x1 / 2;
+			}
+
+			float scale = (float) (1.D / pageRect.getWidth());
+			float pageSx = imageWidth / (bounds.x1 - bounds.x0);
+			float pageSy = imageHeight / (bounds.y1 - bounds.y0);
+
+			if (page.getDocument().getSplitSlideNotesPosition() == NotesPosition.RIGHT) {
+				stmX = bounds.x0 * pageSx;
+				ctmX = bounds.x0 * pageSx;
+			}
+
+			Matrix ctm = new Matrix();
+			//ctm.translate(-x, -y);
+			ctm.translate(-x - ctmX, -y);
+			ctm.scale(pageSx * scale, pageSy * scale);
+
+			int px = (int) (pageRect.getX() * pageSx);
+			int py = (int) (pageRect.getY() * pageSy);
+
+			Matrix stm = new Matrix();
+			//stm.translate(-px, -py);
+			stm.translate(-px - stmX, -py);
 			stm.scale(pageSx, pageSy);
 
 			if (parameter.isTranslation()) {

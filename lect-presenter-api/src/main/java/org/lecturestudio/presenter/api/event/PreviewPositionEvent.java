@@ -18,11 +18,8 @@
 
 package org.lecturestudio.presenter.api.event;
 
-import org.lecturestudio.presenter.api.model.MessageBarPosition;
+import org.lecturestudio.presenter.api.model.SlidePreviewPosition;
 
-public class PreviewPositionEvent extends PositionEvent {
+public record PreviewPositionEvent(SlidePreviewPosition position) {
 
-	public PreviewPositionEvent(MessageBarPosition position) {
-		super(position);
-	}
 }

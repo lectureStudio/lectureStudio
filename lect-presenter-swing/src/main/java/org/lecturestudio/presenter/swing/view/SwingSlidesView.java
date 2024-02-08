@@ -855,6 +855,11 @@ public class SwingSlidesView extends JPanel implements SlidesView {
 	}
 
 	@Override
+	public void setOnBan(ConsumerAction<CourseParticipant> action) {
+		participantList.setOnBan(action);
+	}
+
+	@Override
 	public void setPeerStateEvent(PeerStateEvent event) {
 		SwingUtils.invoke(() -> {
 			ExecutableState state = event.getState();

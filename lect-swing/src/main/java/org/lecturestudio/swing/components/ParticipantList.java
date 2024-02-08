@@ -36,20 +36,14 @@ import java.util.ResourceBundle;
 import java.util.TreeSet;
 
 import javax.inject.Inject;
-import javax.swing.AbstractListModel;
-import javax.swing.BorderFactory;
-import javax.swing.JButton;
-import javax.swing.JList;
-import javax.swing.JPanel;
-import javax.swing.JScrollPane;
-import javax.swing.JViewport;
-import javax.swing.ListSelectionModel;
+import javax.swing.*;
 
 import org.lecturestudio.core.beans.ObjectProperty;
 import org.lecturestudio.core.view.ConsumerAction;
 import org.lecturestudio.swing.list.ParticipantCellRenderer;
 import org.lecturestudio.web.api.message.SpeechBaseMessage;
 import org.lecturestudio.web.api.stream.model.CourseParticipant;
+import org.lecturestudio.web.api.stream.model.CourseParticipantType;
 import org.lecturestudio.web.api.stream.model.CoursePresenceType;
 
 public class ParticipantList extends JPanel {
@@ -57,6 +51,12 @@ public class ParticipantList extends JPanel {
 	private final SortedListModel listModel;
 
 	private final Map<String, ConsumerAction<?>> actionMap;
+
+	private CourseParticipantItem popupMenuParticipant;
+
+	private final JPopupMenu popupMenu;
+
+	private final JMenuItem popupMenuBanItem;
 
 
 	@Inject
@@ -69,6 +69,20 @@ public class ParticipantList extends JPanel {
 
 		listModel = new SortedListModel();
 		actionMap = new HashMap<>();
+
+		popupMenuBanItem = new JMenuItem("Ban");
+		popupMenuBanItem.addActionListener(e -> {
+			if (nonNull(popupMenuParticipant)) {
+				var action = (ConsumerAction<CourseParticipant>) actionMap.get("ban-user");
+				if (action == null) {
+					return;
+				}
+				action.execute(popupMenuParticipant);
+			}
+		});
+
+		popupMenu = new JPopupMenu();
+		popupMenu.add(popupMenuBanItem);
 
 		JList<CourseParticipantItem> list = new JList<>(listModel) {
 
@@ -144,6 +158,10 @@ public class ParticipantList extends JPanel {
 		actionMap.put("speech-reject", action);
 	}
 
+	public void setOnBan(ConsumerAction<CourseParticipant> action) {
+		actionMap.put("ban-user", action);
+	}
+
 
 
 	private class MouseHandler extends MouseAdapter {
@@ -171,9 +189,31 @@ public class ParticipantList extends JPanel {
 			if (index == -1 && !e.isShiftDown() && !e.isControlDown()) {
 				list.clearSelection();
 			}
+
+			// Ensure the user is always reset
+			popupMenuParticipant = null;
+
 			if (index > -1) {
-				handleButton(e.getPoint(), index);
+				if (e.getButton() == MouseEvent.BUTTON3) {
+					handleRightClick(e, index);
+				}
+				else if (e.getButton() == MouseEvent.BUTTON1) {
+					handleButton(e.getPoint(), index);
+				}
 			}
+		}
+
+		private void handleRightClick(MouseEvent e, int index) {
+			CourseParticipantItem value = listModel.getElementAt(index);
+			if (value == null) {
+				return;
+			}
+			if (value.getParticipantType() != CourseParticipantType.PARTICIPANT) {
+				return;
+			}
+
+			popupMenuParticipant = value;
+			popupMenu.show(e.getComponent(), e.getX(), e.getY());
 		}
 
 		@SuppressWarnings("unchecked")

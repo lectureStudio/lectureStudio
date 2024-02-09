@@ -24,6 +24,7 @@ public enum CourseParticipantType {
 
 	CO_ORGANISATOR,
 
-	PARTICIPANT
+	PARTICIPANT,
+	GUEST_LECTURER,
 
 }

@@ -245,6 +245,9 @@ public class FxSlidesView extends VBox implements SlidesView {
 	public void setStylusHandler(StylusHandler handler) {
 		stylusListener = new StylusListener(handler, slideView);
 
+		// For Linux: load the shared jawt library in advance, otherwise it will not be found.
+		System.loadLibrary("jawt");
+
 		JavaFxStylusManager manager = JavaFxStylusManager.getInstance();
 		manager.attachStylusListener(slideView, stylusListener);
 	}

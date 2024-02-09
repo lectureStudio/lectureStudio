@@ -662,7 +662,9 @@ public class SlidesPresenter extends Presenter<SlidesView> {
 		if (user.getUserId().equals(userPrivilegeService.getUserInfo().getUserId())) {
 			return;
 		}
-		streamService.ban(user);
+		if (userPrivilegeService.hasPrivilege("PARTICIPANTS_BAN")){
+			streamService.ban(user);
+		}
 	}
 
 	private void onDiscardMessage(MessengerMessage message) {

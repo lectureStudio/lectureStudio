@@ -111,10 +111,7 @@ import org.lecturestudio.presenter.api.input.Shortcut;
 import org.lecturestudio.presenter.api.model.MessageBarPosition;
 import org.lecturestudio.presenter.api.model.MessageDocument;
 import org.lecturestudio.presenter.api.model.NoteBarPosition;
-import org.lecturestudio.presenter.api.service.RecordingService;
-import org.lecturestudio.presenter.api.service.WebRtcStreamService;
-import org.lecturestudio.presenter.api.service.WebService;
-import org.lecturestudio.presenter.api.service.WebServiceInfo;
+import org.lecturestudio.presenter.api.service.*;
 import org.lecturestudio.presenter.api.view.SlidesView;
 import org.lecturestudio.swing.model.ExternalWindowPosition;
 import org.lecturestudio.web.api.event.LocalScreenVideoFrameEvent;
@@ -183,6 +180,8 @@ public class SlidesPresenter extends Presenter<SlidesView> {
 
 	private SelectionIdleTimer idleTimer;
 
+	private final UserPrivilegeService userPrivilegeService;
+
 
 	@Inject
 	SlidesPresenter(ApplicationContext context, SlidesView view,
@@ -195,7 +194,8 @@ public class SlidesPresenter extends Presenter<SlidesView> {
 					RecordingService recordingService,
 					WebService webService,
 					WebServiceInfo webServiceInfo,
-					WebRtcStreamService streamService) {
+					WebRtcStreamService streamService,
+					UserPrivilegeService userPrivilegeService) {
 		super(context, view);
 
 		this.viewFactory = viewFactory;
@@ -213,6 +213,7 @@ public class SlidesPresenter extends Presenter<SlidesView> {
 		this.pageObjectRegistry = new PageObjectRegistry();
 		this.documentChangeListener = new DocumentChangeHandler();
 		this.screenViewContext = new ScreenPresentationViewContext();
+		this.userPrivilegeService = userPrivilegeService;
 	}
 
 	@Subscribe
@@ -655,6 +656,12 @@ public class SlidesPresenter extends Presenter<SlidesView> {
 	}
 
 	private void onBan(CourseParticipant user) {
+		if (isNull(user)) {
+			return;
+		}
+		if (user.getUserId().equals(userPrivilegeService.getUserInfo().getUserId())) {
+			return;
+		}
 		streamService.ban(user);
 	}
 

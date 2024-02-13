@@ -36,7 +36,7 @@ public class OsInfo {
 			osName = "android";
 		}
 		else if (osName.startsWith("mac os x")) {
-			osName = "macosx";
+			osName = "macos";
 		}
 		else {
 			osName = osName.split(" ")[0];
@@ -65,7 +65,7 @@ public class OsInfo {
 		return osName.startsWith("linux");
 	}
 
-	public static boolean isMac() {
+	public static boolean isMacOs() {
 		return osName.startsWith("mac");
 	}
 

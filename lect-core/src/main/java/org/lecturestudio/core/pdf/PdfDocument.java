@@ -358,6 +358,15 @@ public class PdfDocument {
 		pdfBoxDocument.toOutputStream(stream);
 	}
 
+	/**
+	 * Get the PDFBox Document.
+	 *
+	 * @return The PDFBox Document
+	 */
+	public PDFBoxDocument getPdfBoxDocument() {
+		return pdfBoxDocument;
+	}
+
 	private void init() {
 		try {
 			shapes = pdfBoxDocument.removeEditableAnnotations();
@@ -367,14 +376,5 @@ public class PdfDocument {
 
 			shapes = new HashMap<>();
 		}
-	}
-	/**
-	 * Get the PDFBox Document.
-	 *
-	 * @return The PDFBox Document
-	 */
-
-	public PDFBoxDocument getPdfBoxDocument() {
-		return pdfBoxDocument;
 	}
 }

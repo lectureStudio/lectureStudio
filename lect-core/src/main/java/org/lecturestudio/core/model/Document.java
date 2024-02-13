@@ -100,6 +100,7 @@ public class Document {
 	/** Position of Notes in new Documents for export. Setting the splitSlideNotesPosition variable ends in broken PDF. */
 	private NotesPosition actualSplitSlideNotesPosition = NotesPosition.UNKNOWN;
 
+
 	/**
 	 * Create a new {@link Document}.
 	 * (Calls {@link #Document(PdfDocument)} with a new {@link PdfDocument})

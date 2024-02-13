@@ -239,8 +239,8 @@ public class MuPDFDocument implements DocumentAdapter {
 
 			if (nonNull(links)) {
 				for (Link link : links) {
-					if (nonNull(link.uri)) {
-						uris.add(URI.create(link.uri));
+					if (nonNull(link.getURI())) {
+						uris.add(URI.create(link.getURI()));
 					}
 				}
 			}
@@ -259,8 +259,8 @@ public class MuPDFDocument implements DocumentAdapter {
 
 			if (nonNull(links)) {
 				for (Link link : links) {
-					if (nonNull(link.uri)) {
-						launchActions.add(new File(link.uri));
+					if (nonNull(link.getURI())) {
+						launchActions.add(new File(link.getURI()));
 					}
 				}
 			}
@@ -361,23 +361,28 @@ public class MuPDFDocument implements DocumentAdapter {
 			doc.save(new SeekableInputOutputStream() {
 
 				@Override
-				public int read(byte[] b) throws IOException {
+				public int read(byte[] b) {
 					return 0;
 				}
 
 				@Override
-				public long seek(long offset, int whence) throws IOException {
+				public long seek(long offset, int whence) {
 					return 0;
 				}
 
 				@Override
-				public long position() throws IOException {
+				public long position() {
 					return 0;
 				}
 
 				@Override
 				public void write(byte[] b, int off, int len) throws IOException {
 					stream.write(b, off, len);
+				}
+
+				@Override
+				public void truncate() {
+
 				}
 			}, "compress");
 		}

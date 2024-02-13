@@ -57,7 +57,7 @@ public class SimpleTextWalker implements StructuredTextWalker {
 	}
 
 	@Override
-	public void beginLine(Rect bbox, int wMode) {
+	public void beginLine(Rect bbox, int wmode, Point dir) {
 		if (inBounds && nonNull(lastLineBBox)) {
 			if (lastLineBBox.y0 == bbox.y0) {
 				buffer.append(" ");

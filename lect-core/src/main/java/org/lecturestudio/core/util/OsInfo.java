@@ -35,7 +35,7 @@ public class OsInfo {
 		if (jvmName.startsWith("dalvik") && osName.startsWith("linux")) {
 			osName = "android";
 		}
-		else if (osName.startsWith("mac os x")) {
+		else if (osName.startsWith("mac os")) {
 			osName = "macos";
 		}
 		else {

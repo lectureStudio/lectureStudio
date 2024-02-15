@@ -339,6 +339,10 @@ public class SoundSettingsPresenter extends Presenter<SoundSettingsView> {
 	}
 
 	private void setDefaultRecordingDevice() {
+		if (audioSystemProvider.getRecordingDevices().length < 1) {
+			return;
+		}
+
 		AudioDevice captureDevice = null;
 
 		try {

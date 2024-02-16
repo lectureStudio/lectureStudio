@@ -29,6 +29,9 @@
 							<classpathLayoutType>custom</classpathLayoutType>
 							<customClasspathLayout>${artifact.artifactId}.${artifact.extension}</customClasspathLayout>
 						</manifest>
+						<manifestEntries>
+							<Class-Path>lib/stylus-macos-aarch64.jar lib/webrtc-java-macos-aarch64.jar lib/stylus-linux-x86_64.jar lib/webrtc-java-linux-x86_64.jar lib/javafx-controls-mac-aarch64.jar lib/javafx-graphics-mac-aarch64.jar lib/javafx-base-mac-aarch64.jar lib/javafx-fxml-mac-aarch64.jar lib/javafx-swing-mac-aarch64.jar lib/javafx-web-mac-aarch64.jar lib/javafx-media-mac-aarch64.jar</Class-Path>
+						</manifestEntries>
 					</archive>
 				</configuration>
 			</plugin>

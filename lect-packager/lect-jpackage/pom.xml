@@ -82,6 +82,19 @@
 			</properties>
 		</profile>
 		<profile>
+			<id>mac-aarch64</id>
+			<activation>
+				<os>
+					<family>mac</family>
+					<arch>aarch64</arch>
+				</os>
+			</activation>
+			<properties>
+				<build.exec>/bin/bash</build.exec>
+				<build.exec.arg>package.sh</build.exec.arg>
+			</properties>
+		</profile>
+		<profile>
 			<id>mac-x86_64</id>
 			<activation>
 				<os>

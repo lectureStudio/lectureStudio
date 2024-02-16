@@ -71,7 +71,7 @@ public class FontFileLocator {
 				"/usr/share/X11/fonts/TTF"
 			};
 		}
-		else if (OsInfo.isMac()) {
+		else if (OsInfo.isMacOs()) {
 			return new String[] {
 				System.getProperty("user.home") + "/Library/Fonts/",
 				"/Library/Fonts/",

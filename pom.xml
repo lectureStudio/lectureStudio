@@ -67,7 +67,7 @@
 		<maven.build.timestamp.format>yyyy-MM-dd HH:mm</maven.build.timestamp.format>
 		<license.path>${project.basedir}/../</license.path>
 		<log4j.version>2.17.1</log4j.version>
-		<stylus.version>0.2.0</stylus.version>
+		<stylus.version>0.3.0</stylus.version>
 		<java.version>17</java.version>
 	</properties>
 
@@ -349,6 +349,20 @@
 			</properties>
 		</profile>
 		<profile>
+			<id>mac-aarch64</id>
+			<activation>
+				<os>
+					<family>mac</family>
+					<arch>aarch64</arch>
+				</os>
+			</activation>
+			<properties>
+				<platform.arch>arm64</platform.arch>
+				<platform.name>mac</platform.name>
+				<os.name>macos-${platform.arch}</os.name>
+			</properties>
+		</profile>
+		<profile>
 			<id>mac-x86_64</id>
 			<activation>
 				<os>
@@ -359,7 +373,7 @@
 			<properties>
 				<platform.arch>x86_64</platform.arch>
 				<platform.name>mac</platform.name>
-				<os.name>macosx-${platform.arch}</os.name>
+				<os.name>macos-${platform.arch}</os.name>
 			</properties>
 		</profile>
 		<profile>

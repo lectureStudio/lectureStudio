@@ -34,7 +34,7 @@
 							<customClasspathLayout>${artifact.artifactId}.${artifact.extension}</customClasspathLayout>
 						</manifest>
 						<manifestEntries>
-							<Class-Path>lib/stylus-linux-x86_64.jar lib/webrtc-java-linux-x86_64.jar lib/javafx-controls-win.jar lib/javafx-graphics-win.jar lib/javafx-base-win.jar lib/javafx-fxml-win.jar lib/javafx-swing-win.jar lib/javafx-web-win.jar lib/javafx-media-win.jar</Class-Path>
+							<Class-Path>lib/stylus-macos-aarch64.jar lib/webrtc-java-macos-aarch64.jar lib/stylus-linux-x86_64.jar lib/webrtc-java-linux-x86_64.jar lib/javafx-controls-win.jar lib/javafx-graphics-win.jar lib/javafx-base-win.jar lib/javafx-fxml-win.jar lib/javafx-swing-win.jar lib/javafx-web-win.jar lib/javafx-media-win.jar</Class-Path>
 						</manifestEntries>
 					</archive>
 				</configuration>

@@ -68,7 +68,7 @@ public class WordWalker implements StructuredTextWalker {
 	}
 
 	@Override
-	public void beginLine(Rect bbox, int wMode) {
+	public void beginLine(Rect bbox, int wmode, Point dir) {
 		if (inBounds) {
 			wordBounds = new Rect();
 		}

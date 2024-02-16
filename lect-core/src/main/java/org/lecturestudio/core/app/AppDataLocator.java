@@ -65,7 +65,7 @@ public class AppDataLocator {
 		if (OsInfo.isLinux()) {
 			appPath = Paths.get(userHome, ".config");
 		}
-		else if (OsInfo.isMac()) {
+		else if (OsInfo.isMacOs()) {
 			appPath = Paths.get(userHome, "Library", "Application Support");
 		}
 		else if (OsInfo.isWindows()) {

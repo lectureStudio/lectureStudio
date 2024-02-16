@@ -14,7 +14,7 @@
 	<properties>
 		<package.name>lectureStudio</package.name>
 		<package.full.name>${package.name}-${package.version}-${platform.name}-${platform.arch}</package.full.name>
-		<package.copyright>Copyright © 2023 TU Darmstadt</package.copyright>
+		<package.copyright>Copyright © 2024 TU Darmstadt</package.copyright>
 		<package.description>An integrated tool for presenting lectures</package.description>
 		<package.vendor>TU Darmstadt</package.vendor>
 	</properties>

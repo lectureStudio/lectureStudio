@@ -15,6 +15,7 @@
 	<packaging>pom</packaging>
 
 	<properties>
+		<package.license>${project.parent.parent.basedir}/LICENSE</package.license>
 		<package.input.dir>${project.parent.parent.build.directory}/${build.output.dir}</package.input.dir>
 		<package.output.dir>${project.parent.parent.build.directory}</package.output.dir>
 	</properties>

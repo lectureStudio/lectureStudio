@@ -3,8 +3,9 @@
 PRODUCT_NAME="${package.full.name}"
 VERSION="${package.version}"
 VENDOR="${package.vendor}"
+LICENSE="${package.license}"
 COPYRIGHT="${package.copyright}"
-LIBRARY_PATH=\$ROOTDIR/lib/app/lib/native
+LIBRARY_PATH=\$APPDIR/lib/native
 
 app[0]=lecturePresenter
 app[1]=lectureEditor
@@ -96,3 +97,17 @@ done
 chmod +x "$PRODUCT_NAME"/lib/app/lib/native/ffmpeg
 
 zip -r -q "${package.output.dir}/$PRODUCT_NAME".zip "$PRODUCT_NAME"
+
+# Create installable DEB package
+jpackage \
+  --type deb \
+  --name "${package.name}" \
+  --app-version "$VERSION" \
+  --app-image "$PRODUCT_NAME" \
+  --vendor "$VENDOR" \
+  --copyright "$COPYRIGHT" \
+  --linux-shortcut \
+  --linux-menu-group "Education" \
+  --linux-app-category "education" \
+  --license-file "$LICENSE" \
+  --linux-app-release "1"

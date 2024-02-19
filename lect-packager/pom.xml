@@ -17,6 +17,7 @@
 		<package.copyright>Copyright © 2024 TU Darmstadt</package.copyright>
 		<package.description>An integrated tool for presenting lectures</package.description>
 		<package.vendor>TU Darmstadt</package.vendor>
+		<package.about.url>https://www.lecturestudio.org</package.about.url>
 	</properties>
 
 	<modules>

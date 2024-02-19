@@ -15,7 +15,17 @@
 	<packaging>pom</packaging>
 
 	<properties>
+		<package.java.version>17</package.java.version>
+		<package.presenter.name>lecturePresenter</package.presenter.name>
+		<package.presenter.class>org.lecturestudio.presenter.swing.PresenterApplication</package.presenter.class>
+		<package.presenter.jar>lect-presenter-swing.jar</package.presenter.jar>
+		<package.presenter.icon>${project.parent.parent.basedir}/lect-presenter-swing/src/main/resources/gfx/app-icon/128.png</package.presenter.icon>
+		<package.editor.name>lectureEditor</package.editor.name>
+		<package.editor.class>org.lecturestudio.editor.javafx.EditorFxApplication</package.editor.class>
+		<package.editor.jar>lect-editor-fx.jar</package.editor.jar>
+		<package.editor.icon>${project.parent.parent.basedir}/lect-editor-fx/src/main/resources/gfx/app-icon/128.png</package.editor.icon>
 		<package.license>${project.parent.parent.basedir}/LICENSE</package.license>
+		<package.license.type>GPLv3</package.license.type>
 		<package.input.dir>${project.parent.parent.build.directory}/${build.output.dir}</package.input.dir>
 		<package.output.dir>${project.parent.parent.build.directory}</package.output.dir>
 	</properties>

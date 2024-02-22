@@ -191,6 +191,10 @@ public interface MenuView extends View {
 	 * Info Menu
 	 */
 
+	void setOnShortcuts(Action action);
+
+	void setOnManual(Action action);
+
 	void setOnOpenLog(Action action);
 
 	void setOnOpenAbout(Action action);

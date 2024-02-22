@@ -196,8 +196,9 @@ public class SwingMenuView extends JMenuBar implements MenuView {
 
 	private JMenuItem nextBookmarkMenuItem;
 
+	private JMenuItem shortcutsMenuItem;
+	private JMenuItem manualMenuItem;
 	private JMenuItem logMenuItem;
-
 	private JMenuItem aboutMenuItem;
 
 	private JMenu timeMenu;
@@ -716,6 +717,16 @@ public class SwingMenuView extends JMenuBar implements MenuView {
 	@Override
 	public void setOnOpenBookmark(ConsumerAction<Bookmark> action) {
 		this.openBookmarkAction = action;
+	}
+
+	@Override
+	public void setOnShortcuts(Action action) {
+		SwingUtils.bindAction(shortcutsMenuItem, action);
+	}
+
+	@Override
+	public void setOnManual(Action action) {
+		SwingUtils.bindAction(manualMenuItem, action);
 	}
 
 	@Override

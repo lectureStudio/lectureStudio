@@ -110,8 +110,10 @@
 		<menuitem id="nextBookmarkMenuItem" text="menu.bookmarks.next" enabled="false" />
 	</menu>
 	<menu text="menu.info">
-		<menuitem id="logMenuItem" text="menu.log" />
-		<menuitem id="aboutMenuItem" text="menu.about" />
+		<menuitem id="shortcutsMenuItem" text="menu.info.shortcuts" />
+		<menuitem id="manualMenuItem" text="menu.info.manual" />
+		<menuitem id="logMenuItem" text="menu.info.log" />
+		<menuitem id="aboutMenuItem" text="menu.info.about" />
 	</menu>
 	<box.hglue />
 	<button id="stopwatchMenu" icon="stopwatch.svg, 20" disabledicon="stopwatch.svg, 20" enabled="true" />

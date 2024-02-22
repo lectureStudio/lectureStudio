@@ -27,6 +27,7 @@ import java.awt.Color;
 import java.awt.Desktop;
 import java.io.File;
 import java.io.IOException;
+import java.net.URI;
 import java.nio.file.Path;
 import java.text.MessageFormat;
 import java.time.LocalDateTime;
@@ -572,6 +573,21 @@ public class MenuPresenter extends Presenter<MenuView> {
 		bookmarkService.gotoPreviousBookmark();
 	}
 
+	public void showShortcuts() {
+		eventBus.post(new ShowPresenterCommand<>(ShortcutsPresenter.class));
+	}
+
+	public void showManual() {
+		CompletableFuture.runAsync(() -> {
+			try {
+				Desktop.getDesktop().browse(URI.create("https://lect.stream/manual/de/index.html"));
+			}
+			catch (IOException e) {
+				handleException(e, "Open manual uri failed", "generic.error");
+			}
+		}, executorService);
+	}
+
 	public void showLog() {
 		// Run async to avoid 'CoInitializeEx() failed.' with Desktop.getDesktop().open
 		CompletableFuture.runAsync(() -> {
@@ -745,6 +761,8 @@ public class MenuPresenter extends Presenter<MenuView> {
 		view.setOnNextBookmark(this::openNextBookmark);
 		view.setOnOpenBookmark(this::openBookmark);
 
+		view.setOnShortcuts(this::showShortcuts);
+		view.setOnManual(this::showManual);
 		view.setOnOpenLog(this::showLog);
 		view.setOnOpenAbout(this::showAboutView);
 

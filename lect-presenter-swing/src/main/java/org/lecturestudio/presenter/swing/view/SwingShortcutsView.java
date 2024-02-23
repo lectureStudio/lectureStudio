@@ -83,32 +83,32 @@ public class SwingShortcutsView extends ContentPane implements ShortcutsView {
 
 			@Override
 			public void insertUpdate(DocumentEvent e) {
-				String text = searchTextField.getText();
-
-				if (text.trim().isEmpty()) {
-					rowSorter.setRowFilter(null);
-				}
-				else {
-					rowSorter.setRowFilter(RowFilter.regexFilter("(?i)" + text));
-				}
+				filterTable();
 			}
 
 			@Override
 			public void removeUpdate(DocumentEvent e) {
-				String text = searchTextField.getText();
-
-				if (text.trim().isEmpty()) {
-					rowSorter.setRowFilter(null);
-				}
-				else {
-					rowSorter.setRowFilter(RowFilter.regexFilter("(?i)" + text));
-				}
+				filterTable();
 			}
 
 			@Override
 			public void changedUpdate(DocumentEvent e) {
 				throw new UnsupportedOperationException("Not supported yet");
 			}
+
+			private void filterTable() {
+				String text = searchTextField.getText();
+
+				if (text.trim().isEmpty()) {
+					rowSorter.setRowFilter(null);
+				}
+				else {
+					rowSorter.setRowFilter(RowFilter.regexFilter("(?i)" + text));
+				}
+			}
+		});
+		searchTextField.addHierarchyListener(e -> {
+			searchTextField.requestFocusInWindow();
 		});
 	}
 }

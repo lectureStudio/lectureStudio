@@ -89,28 +89,28 @@
 		<separator />
 		<checkboxmenuitem id="enableMessengerMenuItem" text="menu.messenger.start" enabled="false" />
 		<separator />
-		<menuitem id="selectQuizMenuItem" text="menu.quiz.selection" accelerator="Z" enabled="false" />
+		<menuitem id="selectQuizMenuItem" text="menu.quiz.selection" enabled="false" />
 		<menuitem id="newQuizMenuItem" text="menu.quiz.new" enabled="false" />
 		<menuitem id="closeQuizMenuItem" text="menu.quiz.stop" enabled="false" />
 		<separator />
-		<menuitem id="pauseStopwatchMenuItem" text="menu.stopwatch.pause" accelerator="shift P" enabled="true" />
-		<menuitem id="resetStopwatchMenuItem" text="menu.stopwatch.stop" enabled="true" />
-		<menuitem id="configStopwatchMenuItem" text="menu.stopwatch.config" enabled="true" />
+		<menuitem id="pauseStopwatchMenuItem" text="menu.stopwatch.pause" accelerator="S" />
+		<menuitem id="resetStopwatchMenuItem" text="menu.stopwatch.stop" accelerator="ctrl T" />
+		<menuitem id="configStopwatchMenuItem" text="menu.stopwatch.config" />
 	</menu>
 	<menu id="bookmarksMenu" text="menu.bookmarks">
 		<menuitem id="clearBookmarksMenuItem" text="menu.bookmarks.clear" enabled="false" />
 		<menuitem id="newBookmarkMenuItem" text="menu.bookmarks.add" accelerator="B" enabled="false" />
 		<menuitem id="removeBookmarkMenuItem" text="menu.bookmarks.remove" enabled="false" />
-		<menuitem id="newDefaultBookmarkMenuItem" text="menu.bookmarks.add.default" enabled="false" />
+		<menuitem id="newDefaultBookmarkMenuItem" text="menu.bookmarks.add.default" accelerator="M" enabled="false" />
 		<separator />
 		<menuitem id="gotoBookmarkMenuItem" text="menu.bookmarks.goto" accelerator="G" enabled="false" />
-		<menuitem id="previousBookmarkMenuItem" text="menu.bookmarks.previous" accelerator="L" enabled="false" />
+		<menuitem id="previousBookmarkMenuItem" text="menu.bookmarks.previous" accelerator="shift M" enabled="false" />
 		<separator />
 		<menuitem id="prevBookmarkMenuItem" text="menu.bookmarks.prev" enabled="false" />
 		<menuitem id="nextBookmarkMenuItem" text="menu.bookmarks.next" enabled="false" />
 	</menu>
 	<menu text="menu.info">
-		<menuitem id="shortcutsMenuItem" text="menu.info.shortcuts" />
+		<menuitem id="shortcutsMenuItem" text="menu.info.shortcuts" accelerator="shift H" />
 		<menuitem id="manualMenuItem" text="menu.info.manual" />
 		<menuitem id="logMenuItem" text="menu.info.log" />
 		<menuitem id="aboutMenuItem" text="menu.info.about" />

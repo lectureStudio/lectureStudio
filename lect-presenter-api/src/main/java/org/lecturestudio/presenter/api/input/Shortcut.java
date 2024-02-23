@@ -24,6 +24,7 @@ import org.lecturestudio.core.input.KeyEvent;
 public enum Shortcut {
 
 	APP_CLOSE						(KeyCode.Q, KeyEvent.CTRL_MASK, "shortcut.app.close"),
+	APP_SHORTCUTS					(KeyCode.H, KeyEvent.SHIFT_MASK, "shortcut.app.help"),
 
 	CLOSE_VIEW						(KeyCode.ESCAPE, "shortcut.view.close"),
 

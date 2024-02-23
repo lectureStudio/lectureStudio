@@ -28,12 +28,18 @@ import org.lecturestudio.swing.view.SwingView;
 import org.lecturestudio.swing.view.ViewPostConstruct;
 
 import javax.swing.*;
+import javax.swing.event.DocumentEvent;
+import javax.swing.event.DocumentListener;
+import javax.swing.table.TableModel;
+import javax.swing.table.TableRowSorter;
 import java.util.*;
 import java.util.AbstractMap.SimpleEntry;
 import java.util.List;
 
 @SwingView(name = "shortcuts")
 public class SwingShortcutsView extends ContentPane implements ShortcutsView {
+
+	private JTextField searchTextField;
 
 	private JTable shortcutsTable;
 
@@ -67,6 +73,42 @@ public class SwingShortcutsView extends ContentPane implements ShortcutsView {
 
 	@ViewPostConstruct
 	private void initialize() {
-		shortcutsTable.setModel(new ShortcutsTableModel(shortcutsTable.getColumnModel()));
+		TableModel tableModel = new ShortcutsTableModel(shortcutsTable.getColumnModel());
+		TableRowSorter<TableModel> rowSorter = new TableRowSorter<>(tableModel);
+
+		shortcutsTable.setModel(tableModel);
+		shortcutsTable.setRowSorter(rowSorter);
+
+		searchTextField.getDocument().addDocumentListener(new DocumentListener() {
+
+			@Override
+			public void insertUpdate(DocumentEvent e) {
+				String text = searchTextField.getText();
+
+				if (text.trim().isEmpty()) {
+					rowSorter.setRowFilter(null);
+				}
+				else {
+					rowSorter.setRowFilter(RowFilter.regexFilter("(?i)" + text));
+				}
+			}
+
+			@Override
+			public void removeUpdate(DocumentEvent e) {
+				String text = searchTextField.getText();
+
+				if (text.trim().isEmpty()) {
+					rowSorter.setRowFilter(null);
+				}
+				else {
+					rowSorter.setRowFilter(RowFilter.regexFilter("(?i)" + text));
+				}
+			}
+
+			@Override
+			public void changedUpdate(DocumentEvent e) {
+				throw new UnsupportedOperationException("Not supported yet");
+			}
+		});
 	}
 }

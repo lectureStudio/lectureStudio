@@ -36,6 +36,7 @@ import java.util.function.Predicate;
 
 import javax.inject.Inject;
 
+import org.lecturestudio.core.ExecutableException;
 import org.lecturestudio.core.ExecutableState;
 import org.lecturestudio.core.app.ApplicationContext;
 import org.lecturestudio.core.app.util.SaveConfigurationHandler;
@@ -54,7 +55,6 @@ import org.lecturestudio.core.presenter.command.CloseApplicationCommand;
 import org.lecturestudio.core.presenter.command.ClosePresenterCommand;
 import org.lecturestudio.core.presenter.command.ShowPresenterCommand;
 import org.lecturestudio.core.service.DocumentService;
-import org.lecturestudio.core.util.FileUtils;
 import org.lecturestudio.core.util.ObservableHashMap;
 import org.lecturestudio.core.util.ObservableMap;
 import org.lecturestudio.core.util.ShutdownHandler;
@@ -198,8 +198,8 @@ public class MainPresenter extends org.lecturestudio.core.presenter.MainPresente
 	@Override
 	public void initialize() {
 		registerShortcut(Shortcut.CLOSE_VIEW, this::closeView);
-		registerShortcut(Shortcut.PAUSE_RECORDING, this::pauseRecording);
-		registerShortcut(Shortcut.PAUSE_RECORDING_P, this::pauseRecording);
+		registerShortcut(Shortcut.PAUSE_RECORDING, this::togglePauseRecording);
+		registerShortcut(Shortcut.PAUSE_RECORDING_P, this::togglePauseRecording);
 
 		PresenterContext presenterContext = (PresenterContext) context;
 		PresenterConfiguration config = (PresenterConfiguration) context.getConfiguration();
@@ -767,13 +767,21 @@ public class MainPresenter extends org.lecturestudio.core.presenter.MainPresente
 		});
 	}
 
-	private boolean pauseRecording(KeyEvent event) {
+	private boolean togglePauseRecording(KeyEvent event) {
 		if (!recordingService.suspended()) {
 			try {
 				recordingService.suspend();
 			}
 			catch (Exception e) {
 				handleException(e, "Pause recording failed", "recording.pause.error");
+			}
+		}
+		else if (recordingService.suspended()) {
+			try {
+				recordingService.start();
+			}
+			catch (ExecutableException e) {
+				handleException(e, "Start recording failed", "recording.start.error");
 			}
 		}
 

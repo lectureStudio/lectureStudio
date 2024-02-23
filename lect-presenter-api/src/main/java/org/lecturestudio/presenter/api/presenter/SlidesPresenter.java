@@ -1031,9 +1031,9 @@ public class SlidesPresenter extends Presenter<SlidesView> {
 		close();
 	}
 
-	private void timerStart() {
+	private void timerStartToggle() {
 		PresenterContext pContext = (PresenterContext) context;
-		pContext.getStopwatch().startStopwatch();
+		pContext.getStopwatch().startStopStopwatch();
 	}
 
 	private void timerPause() {
@@ -1403,7 +1403,7 @@ public class SlidesPresenter extends Presenter<SlidesView> {
 		registerShortcut(Shortcut.BOOKMARK_SLIDE, this::bookmarkSlide);
 		registerShortcut(Shortcut.BOOKMARK_GOTO_LAST, this::bookmarkGotoLastSlide);
 
-		registerShortcut(Shortcut.TIMER_START, this::timerStart);
+		registerShortcut(Shortcut.TIMER_START, this::timerStartToggle);
 		registerShortcut(Shortcut.TIMER_PAUSE, this::timerPause);
 		registerShortcut(Shortcut.TIMER_RESET, this::timerReset);
 

@@ -580,7 +580,7 @@ public class MenuPresenter extends Presenter<MenuView> {
 	public void showManual() {
 		CompletableFuture.runAsync(() -> {
 			try {
-				Desktop.getDesktop().browse(URI.create("https://lect.stream/manual/de/index.html"));
+				Desktop.getDesktop().browse(URI.create("https://www.lecturestudio.org/manual/"));
 			}
 			catch (IOException e) {
 				handleException(e, "Open manual uri failed", "generic.error");

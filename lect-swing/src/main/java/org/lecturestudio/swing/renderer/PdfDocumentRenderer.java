@@ -31,6 +31,7 @@ import org.lecturestudio.core.ExecutableBase;
 import org.lecturestudio.core.ExecutableException;
 import org.lecturestudio.core.geometry.Rectangle2D;
 import org.lecturestudio.core.model.Document;
+import org.lecturestudio.core.model.NotesPosition;
 import org.lecturestudio.core.model.Page;
 import org.lecturestudio.core.model.shape.Shape;
 import org.lecturestudio.core.pdf.PdfDocument;
@@ -221,6 +222,7 @@ public class PdfDocumentRenderer extends ExecutableBase {
 	private void createPage(PresentationParameter param,
 			Document newDocument, Page page) throws Exception {
 		Rectangle2D pageRect = param.getPageRect();
+		NotesPosition notesPosition = page.getDocument().getSplitSlideNotesPosition();
 
 		Page newPage = newDocument.createPage(page, pageScale ? pageRect : null);
 		int pageIndex = newPage.getPageNumber();
@@ -237,11 +239,11 @@ public class PdfDocumentRenderer extends ExecutableBase {
 		if (editable) {
 			// Tag graphics stream to be able to find it later.
 			graphics = (PDFGraphics2D) pdfDocument.createAppendablePageGraphics2D(
-					pageIndex, PdfDocument.EMBEDDED_SHAPES_KEY);
+					pageIndex, PdfDocument.EMBEDDED_SHAPES_KEY, NotesPosition.UNKNOWN);
 		}
 		else {
 			graphics = (PDFGraphics2D) pdfDocument.createAppendablePageGraphics2D(
-					pageIndex);
+					pageIndex, NotesPosition.UNKNOWN);
 		}
 
 		SwingGraphicsContext gc = new SwingGraphicsContext(graphics);
@@ -256,15 +258,18 @@ public class PdfDocumentRenderer extends ExecutableBase {
 		}
 
 		AffineTransform annotTransform = transform.createInverse();
-		Rectangle2D mediaBox = pdfDocument.getPageMediaBox(pageIndex);
+		Rectangle2D mediaBox = pdfDocument.getPageMediaBox(pageIndex, notesPosition);
 
 		double pageWidth = mediaBox.getWidth();
 		double sx = pageWidth * annotTransform.getScaleX();
 		double tx = pageWidth * annotTransform.getTranslateX();
 		double ty = pageWidth * annotTransform.getTranslateY();
 
-		// Move to top-left corner.
-		gc.translate(-tx, ty + mediaBox.getHeight());
+		if(page.getDocument().getActualSplitSlideNotesPosition() == NotesPosition.LEFT) {
+			mediaBox.setRect(mediaBox.getWidth(), mediaBox.getY(), mediaBox.getWidth(), mediaBox.getHeight());
+			tx -= pageWidth;
+		}
+		gc.translate(-tx , ty + mediaBox.getHeight());
 		gc.scale(sx, -sx);
 
 		// Draw shapes.

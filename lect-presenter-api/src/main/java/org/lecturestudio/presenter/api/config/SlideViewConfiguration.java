@@ -20,22 +20,27 @@ package org.lecturestudio.presenter.api.config;
 
 import org.lecturestudio.core.beans.DoubleProperty;
 import org.lecturestudio.core.beans.ObjectProperty;
-import org.lecturestudio.presenter.api.model.MessageBarPosition;
-import org.lecturestudio.presenter.api.model.NoteBarPosition;
+import org.lecturestudio.presenter.api.model.*;
 
 public class SlideViewConfiguration {
 
 	private final ObjectProperty<MessageBarPosition> messageBarPosition = new ObjectProperty<>(
 			MessageBarPosition.BOTTOM);
 
-	private final ObjectProperty<NoteBarPosition> notesBarPosition = new ObjectProperty<>(
-			NoteBarPosition.BOTTOM);
+	private final ObjectProperty<SlideNotesPosition> slideNotesPosition = new ObjectProperty<>(
+			SlideNotesPosition.BOTTOM);
 
-	private final ObjectProperty<MessageBarPosition> participantsPosition = new ObjectProperty<>(
-			MessageBarPosition.LEFT);
+	private final ObjectProperty<ParticipantsPosition> participantsPosition = new ObjectProperty<>(
+			ParticipantsPosition.LEFT);
 
-	private final ObjectProperty<MessageBarPosition> previewPosition = new ObjectProperty<>(
-			MessageBarPosition.RIGHT);
+	private final ObjectProperty<SlidePreviewPosition> previewPosition = new ObjectProperty<>(
+			SlidePreviewPosition.RIGHT);
+
+	private final ObjectProperty<NoteSlidePosition> noteSlidePosition = new ObjectProperty<>(
+			NoteSlidePosition.NONE);
+
+	private final ObjectProperty<SpeechPosition> speechPosition = new ObjectProperty<>(
+			SpeechPosition.ABOVE_SLIDE_PREVIEW);
 
 	private final DoubleProperty leftSliderPosition = new DoubleProperty(0.375);
 
@@ -97,41 +102,70 @@ public class SlideViewConfiguration {
 	/**
 	 * @return Notes bar's position
 	 */
-	public NoteBarPosition getNotesBarPosition() {
-		return notesBarPosition.get();
+	public SlideNotesPosition getSlideNotesPosition() {
+		return slideNotesPosition.get();
 	}
-
 
 	/**
 	 * @param position Notes bar's position
 	 */
-	public void setNotesBarPosition(NoteBarPosition position) {
-		notesBarPosition.set(position);
+	public void setSlideNotesPosition(SlideNotesPosition position) {
+		slideNotesPosition.set(position);
 	}
 
-	public MessageBarPosition getParticipantsPosition() {
+	public ParticipantsPosition getParticipantsPosition() {
 		return participantsPosition.get();
 	}
 
-	public void setParticipantsPosition(MessageBarPosition position) {
+	public void setParticipantsPosition(ParticipantsPosition position) {
 		participantsPosition.set(position);
 	}
 
 	/**
 	 * @param position Slide preview position
 	 */
-	public void setPreviewPosition(MessageBarPosition position) {
+	public void setSlidePreviewPosition(SlidePreviewPosition position) {
 		previewPosition.set(position);
 	}
 
 	/**
 	 * @return Slide preview position
 	 */
-	public MessageBarPosition getPreviewPosition() {
+	public SlidePreviewPosition getSlidePreviewPosition() {
 		return previewPosition.get();
 	}
 
-	public ObjectProperty<MessageBarPosition> previewPositionProperty() {
+	public ObjectProperty<SlidePreviewPosition> slidePreviewPositionProperty() {
 		return previewPosition;
+	}
+
+	/**
+	 * @return Slide notes bar's position
+	 */
+	public NoteSlidePosition getNoteSlidePosition() {
+		return noteSlidePosition.get();
+	}
+
+
+	/**
+	 * @param position Slide notes bar's position
+	 */
+	public void setNoteSlidePosition(NoteSlidePosition position) {
+		noteSlidePosition.set(position);
+	}
+
+	/**
+	 * @return the speech position
+	 */
+	public SpeechPosition getSpeechPosition() {
+		return speechPosition.get();
+	}
+
+
+	/**
+	 * @param position The speech position
+	 */
+	public void setSpeechPosition(SpeechPosition position) {
+		speechPosition.set(position);
 	}
 }

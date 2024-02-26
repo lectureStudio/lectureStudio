@@ -15,39 +15,58 @@
 		<menuitem id="settingsMenuItem" text="menu.options" />
 	</menu>
 	<menu text="menu.view">
-		<checkboxmenuitem id="outlineMenuItem" text="menu.contents" />
 		<checkboxmenuitem id="fullscreenMenuItem" text="menu.fullscreen" type="checkbox" accelerator="alt ENTER" />
 		<menuitem id="customizeToolbarMenuItem" text="menu.toolbar.customize" />
-		<menu id="externalWindowsMenu" text="menu.external.windows">
-			<checkboxmenuitem id="externalMessagesMenuItem" text="menu.external.messages" />
-			<checkboxmenuitem id="externalParticipantsMenuItem" text="menu.external.participants" />
-			<checkboxmenuitem id="externalSlidePreviewMenuItem" text="menu.external.slide.preview" />
-			<checkboxmenuitem id="externalSpeechMenuItem" text="menu.external.speech" />
-			<checkboxmenuitem id="externalNotesMenuItem" text="menu.external.notes" />
-		</menu>
+		<checkboxmenuitem id="outlineMenuItem" text="menu.contents" />
+		<separator />
 		<menu id="messagesPositionMenu" text="menu.messages.position">
 			<buttongroup>
 				<radiobuttonmenuitem id="messagesPositionLeftMenuItem" text="menu.left" />
-				<radiobuttonmenuitem id="messagesPositionBottomMenuItem" text="menu.bottom" />
 				<radiobuttonmenuitem id="messagesPositionRightMenuItem" text="menu.right" />
-			</buttongroup>
-		</menu>
-		<menu id="notesPositionMenu" text="menu.notes.position">
-			<buttongroup>
-				<radiobuttonmenuitem id="notesPositionLeftMenuItem" text="menu.left" />
-				<radiobuttonmenuitem id="notesPositionBottomMenuItem" text="menu.bottom" />
+				<radiobuttonmenuitem id="messagesPositionBottomMenuItem" text="menu.bottom" />
+				<radiobuttonmenuitem id="messagesPositionExternalMenuItem" text="menu.external" />
 			</buttongroup>
 		</menu>
 		<menu id="participantsPositionMenu" text="menu.participants.position">
 			<buttongroup>
 				<radiobuttonmenuitem id="participantsPositionLeftMenuItem" text="menu.left" />
 				<radiobuttonmenuitem id="participantsPositionRightMenuItem" text="menu.right" />
+				<radiobuttonmenuitem id="participantsPositionExternalMenuItem" text="menu.external" />
 			</buttongroup>
 		</menu>
 		<menu id="previewPositionMenu" text="menu.preview.position">
 			<buttongroup>
 				<radiobuttonmenuitem id="previewPositionLeftMenuItem" text="menu.left" />
 				<radiobuttonmenuitem id="previewPositionRightMenuItem" text="menu.right" />
+				<radiobuttonmenuitem id="previewPositionExternalMenuItem" text="menu.external" />
+			</buttongroup>
+		</menu>
+		<menu id="notesPositionMenu" text="menu.notes.position">
+			<buttongroup>
+				<radiobuttonmenuitem id="notesPositionLeftMenuItem" text="menu.left" />
+				<radiobuttonmenuitem id="notesPositionBottomMenuItem" text="menu.bottom" />
+				<radiobuttonmenuitem id="notesPositionExternalMenuItem" text="menu.external" />
+			</buttongroup>
+		</menu>
+		<menu id="noteSlidePositionMenu" text="menu.note.slide.position">
+			<buttongroup>
+				<radiobuttonmenuitem id="noteSlidePositionBelowPreviewMenuItem" text="menu.note.slide.below.preview" />
+				<radiobuttonmenuitem id="noteSlidePositionNoneMenuItem" text="menu.none" />
+				<radiobuttonmenuitem id="noteSlidePositionExternalMenuItem" text="menu.external" />
+			</buttongroup>
+		</menu>
+		<menu id="speechPositionMenu" text="menu.speech.position">
+			<buttongroup>
+				<radiobuttonmenuitem id="speechPositionAbovePreviewMenuItem" text="menu.speech.position.above.preview" />
+				<radiobuttonmenuitem id="speechPositionExternalMenuItem" text="menu.external" />
+			</buttongroup>
+		</menu>
+		<separator />
+		<menu id="splitNotesPositionMenu" text="menu.splitNotes.position">
+			<buttongroup>
+				<radiobuttonmenuitem id="splitNotesPositionLeftMenuItem" text="menu.left" />
+				<radiobuttonmenuitem id="splitNotesPositionRightMenuItem" text="menu.right" />
+				<radiobuttonmenuitem id="splitNotesPositionNoneMenuItem" text="menu.none" />
 			</buttongroup>
 		</menu>
 	</menu>
@@ -69,26 +88,32 @@
 		<checkboxmenuitem id="enableStreamCameraMenuItem" text="menu.stream.camera.start" type="checkbox" selected="true" enabled="false" />
 		<separator />
 		<checkboxmenuitem id="enableMessengerMenuItem" text="menu.messenger.start" enabled="false" />
-<!--		<checkboxmenuitem id="showMessengerWindowMenuItem" text="menu.messenger.window.visible" type="checkbox" selected="true" enabled="false" />-->
 		<separator />
-		<menuitem id="selectQuizMenuItem" text="menu.quiz.selection" accelerator="Z" enabled="false" />
+		<menuitem id="selectQuizMenuItem" text="menu.quiz.selection" enabled="false" />
 		<menuitem id="newQuizMenuItem" text="menu.quiz.new" enabled="false" />
 		<menuitem id="closeQuizMenuItem" text="menu.quiz.stop" enabled="false" />
 		<separator />
-		<menuitem id="pauseStopwatchMenuItem" text="menu.stopwatch.pause" accelerator="shift P" enabled="true" />
-		<menuitem id="resetStopwatchMenuItem" text="menu.stopwatch.stop" enabled="true" />
-		<menuitem id="configStopwatchMenuItem" text="menu.stopwatch.config" enabled="true" />
+		<menuitem id="pauseStopwatchMenuItem" text="menu.stopwatch.pause" accelerator="S" />
+		<menuitem id="resetStopwatchMenuItem" text="menu.stopwatch.stop" accelerator="ctrl T" />
+		<menuitem id="configStopwatchMenuItem" text="menu.stopwatch.config" />
 	</menu>
 	<menu id="bookmarksMenu" text="menu.bookmarks">
 		<menuitem id="clearBookmarksMenuItem" text="menu.bookmarks.clear" enabled="false" />
 		<menuitem id="newBookmarkMenuItem" text="menu.bookmarks.add" accelerator="B" enabled="false" />
+		<menuitem id="removeBookmarkMenuItem" text="menu.bookmarks.remove" enabled="false" />
+		<menuitem id="newDefaultBookmarkMenuItem" text="menu.bookmarks.add.default" accelerator="M" enabled="false" />
 		<separator />
 		<menuitem id="gotoBookmarkMenuItem" text="menu.bookmarks.goto" accelerator="G" enabled="false" />
-		<menuitem id="previousBookmarkMenuItem" text="menu.bookmarks.previous" accelerator="L" enabled="false" />
+		<menuitem id="previousBookmarkMenuItem" text="menu.bookmarks.previous" accelerator="shift M" enabled="false" />
+		<separator />
+		<menuitem id="prevBookmarkMenuItem" text="menu.bookmarks.prev" enabled="false" />
+		<menuitem id="nextBookmarkMenuItem" text="menu.bookmarks.next" enabled="false" />
 	</menu>
 	<menu text="menu.info">
-		<menuitem id="logMenuItem" text="menu.log" />
-		<menuitem id="aboutMenuItem" text="menu.about" />
+		<menuitem id="shortcutsMenuItem" text="menu.info.shortcuts" accelerator="shift H" />
+		<menuitem id="manualMenuItem" text="menu.info.manual" />
+		<menuitem id="logMenuItem" text="menu.info.log" />
+		<menuitem id="aboutMenuItem" text="menu.info.about" />
 	</menu>
 	<box.hglue />
 	<button id="stopwatchMenu" icon="stopwatch.svg, 20" disabledicon="stopwatch.svg, 20" enabled="true" />

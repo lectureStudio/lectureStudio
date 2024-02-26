@@ -34,6 +34,8 @@ createKeyChain() {
 signFile() { # $1: file path
 	filepath=${1?:"Need a file path."}
 
+  plutil -convert xml1 entitlements.plist
+
 	codesign -s "$DEV_ID_APP" \
 		--timestamp \
 		--entitlements entitlements.plist \

@@ -71,6 +71,16 @@ public class Bookmarks {
 		return bookmarkList;
 	}
 
+	public Bookmark getLastBookmark(Document doc) {
+		List<Bookmark> docBookmarks = bookmarks.get(doc);
+
+		if (isNull(docBookmarks) || docBookmarks.isEmpty()) {
+			return null;
+		}
+
+		return docBookmarks.get(docBookmarks.size() - 1);
+	}
+
 	public List<Bookmark> getDocumentBookmarks(Document doc) {
 		return bookmarks.get(doc);
 	}

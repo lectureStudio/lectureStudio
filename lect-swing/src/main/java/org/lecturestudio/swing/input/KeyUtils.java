@@ -109,7 +109,7 @@ public class KeyUtils {
 				break;
 		}
 
-		if (OsInfo.isMac()) {
+		if (OsInfo.isMacOs()) {
 			switch (code) {
 				case KeyEvent.VK_BACK_SPACE:	return '\u232B';
 				case KeyEvent.VK_ESCAPE:		return '\u238B';

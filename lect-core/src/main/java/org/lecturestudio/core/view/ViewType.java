@@ -20,6 +20,6 @@ package org.lecturestudio.core.view;
 
 public enum ViewType {
 
-	Preview, User, Presentation
+	Preview, User, Presentation, Slide_Notes
 
 }

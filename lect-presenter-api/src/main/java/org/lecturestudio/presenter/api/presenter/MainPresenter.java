@@ -36,6 +36,7 @@ import java.util.function.Predicate;
 
 import javax.inject.Inject;
 
+import org.lecturestudio.core.ExecutableException;
 import org.lecturestudio.core.ExecutableState;
 import org.lecturestudio.core.app.ApplicationContext;
 import org.lecturestudio.core.app.util.SaveConfigurationHandler;
@@ -168,7 +169,18 @@ public class MainPresenter extends org.lecturestudio.core.presenter.MainPresente
 
 	@Override
 	public void openFile(File file) {
-		// No file associations yet.
+		if (isNull(file)) {
+			return;
+		}
+		showWaitingNotification("open.document");
+		documentService.openDocument(file).thenRun( () -> {
+			hideWaitingNotification();
+		}).exceptionally(throwable -> {
+			hideWaitingNotification();
+			handleException(throwable, "Open document failed",
+					"open.document.error", file.getPath());
+			return null;
+		});
 	}
 
 	@Override
@@ -186,8 +198,8 @@ public class MainPresenter extends org.lecturestudio.core.presenter.MainPresente
 	@Override
 	public void initialize() {
 		registerShortcut(Shortcut.CLOSE_VIEW, this::closeView);
-		registerShortcut(Shortcut.PAUSE_RECORDING, this::pauseRecording);
-		registerShortcut(Shortcut.PAUSE_RECORDING_P, this::pauseRecording);
+		registerShortcut(Shortcut.PAUSE_RECORDING, this::togglePauseRecording);
+		registerShortcut(Shortcut.PAUSE_RECORDING_P, this::togglePauseRecording);
 
 		PresenterContext presenterContext = (PresenterContext) context;
 		PresenterConfiguration config = (PresenterConfiguration) context.getConfiguration();
@@ -755,13 +767,21 @@ public class MainPresenter extends org.lecturestudio.core.presenter.MainPresente
 		});
 	}
 
-	private boolean pauseRecording(KeyEvent event) {
+	private boolean togglePauseRecording(KeyEvent event) {
 		if (!recordingService.suspended()) {
 			try {
 				recordingService.suspend();
 			}
 			catch (Exception e) {
 				handleException(e, "Pause recording failed", "recording.pause.error");
+			}
+		}
+		else if (recordingService.suspended()) {
+			try {
+				recordingService.start();
+			}
+			catch (ExecutableException e) {
+				handleException(e, "Start recording failed", "recording.start.error");
 			}
 		}
 

@@ -54,6 +54,7 @@ import org.lecturestudio.core.geometry.Rectangle2D;
 import org.lecturestudio.core.io.BitConverter;
 import org.lecturestudio.core.model.DocumentOutline;
 import org.lecturestudio.core.model.DocumentOutlineItem;
+import org.lecturestudio.core.model.NotesPosition;
 import org.lecturestudio.core.model.shape.Shape;
 import org.lecturestudio.core.pdf.DocumentAdapter;
 import org.lecturestudio.core.pdf.DocumentRenderer;
@@ -143,6 +144,11 @@ public class MuPDFDocument implements DocumentAdapter {
 	}
 
 	@Override
+	public Graphics2D createGraphics(int pageIndex, String name, boolean appendContent, NotesPosition notesPosition) {
+		return null;
+	}
+
+	@Override
 	public void setTitle(String title) {
 		//doc.setTitle(title);
 	}
@@ -167,12 +173,17 @@ public class MuPDFDocument implements DocumentAdapter {
 	}
 
 	@Override
-	public Rectangle2D getPageBounds(int pageNumber) {
+	public Rectangle2D getPageBounds(int pageNumber, NotesPosition position) {
 		synchronized (mutex) {
-			Page page = getPage(pageNumber);
-			Rect bounds = page.getBounds();
+			try {
+				Page page = getPage(pageNumber);
+				Rect bounds = page.getBounds();
 
-			return new Rectangle2D(0, 0, bounds.x1 - bounds.x0, bounds.y1 - bounds.y0);
+				return new Rectangle2D(0, 0, bounds.x1 - bounds.x0, bounds.y1 - bounds.y0);
+			}
+			catch (Throwable e) {
+				return new Rectangle2D();
+			}
 		}
 	}
 
@@ -199,12 +210,12 @@ public class MuPDFDocument implements DocumentAdapter {
 	}
 
 	@Override
-	public List<Rectangle2D> getPageWordsNormalized(int pageNumber) {
+	public List<Rectangle2D> getPageWordsNormalized(int pageNumber, NotesPosition splitNotesPosition) {
 		synchronized (mutex) {
 			DisplayList displayList = getDisplayList(pageNumber);
 			Page page = getPage(pageNumber);
 
-			WordWalker wordWalker = new WordWalker(page.getBounds());
+			WordWalker wordWalker = new WordWalker(page.getBounds(), splitNotesPosition);
 
 			StructuredText structuredText = displayList.toStructuredText();
 			structuredText.walk(wordWalker);
@@ -228,8 +239,8 @@ public class MuPDFDocument implements DocumentAdapter {
 
 			if (nonNull(links)) {
 				for (Link link : links) {
-					if (nonNull(link.uri)) {
-						uris.add(URI.create(link.uri));
+					if (nonNull(link.getURI())) {
+						uris.add(URI.create(link.getURI()));
 					}
 				}
 			}
@@ -248,8 +259,8 @@ public class MuPDFDocument implements DocumentAdapter {
 
 			if (nonNull(links)) {
 				for (Link link : links) {
-					if (nonNull(link.uri)) {
-						launchActions.add(new File(link.uri));
+					if (nonNull(link.getURI())) {
+						launchActions.add(new File(link.getURI()));
 					}
 				}
 			}
@@ -350,23 +361,28 @@ public class MuPDFDocument implements DocumentAdapter {
 			doc.save(new SeekableInputOutputStream() {
 
 				@Override
-				public int read(byte[] b) throws IOException {
+				public int read(byte[] b) {
 					return 0;
 				}
 
 				@Override
-				public long seek(long offset, int whence) throws IOException {
+				public long seek(long offset, int whence) {
 					return 0;
 				}
 
 				@Override
-				public long position() throws IOException {
+				public long position() {
 					return 0;
 				}
 
 				@Override
 				public void write(byte[] b, int off, int len) throws IOException {
 					stream.write(b, off, len);
+				}
+
+				@Override
+				public void truncate() {
+
 				}
 			}, "compress");
 		}

@@ -18,6 +18,26 @@
 
 package org.lecturestudio.swing.components;
 
+import static java.util.Objects.nonNull;
+
+import java.awt.BorderLayout;
+import java.awt.Component;
+import java.awt.Point;
+import java.awt.Rectangle;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
+import java.time.ZonedDateTime;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Objects;
+import java.util.ResourceBundle;
+import java.util.TreeSet;
+
+import javax.inject.Inject;
+import javax.swing.*;
+
 import org.lecturestudio.core.beans.ObjectProperty;
 import org.lecturestudio.core.view.ConsumerAction;
 import org.lecturestudio.swing.list.ParticipantCellRenderer;
@@ -26,28 +46,17 @@ import org.lecturestudio.web.api.stream.model.CourseParticipant;
 import org.lecturestudio.web.api.stream.model.CourseParticipantType;
 import org.lecturestudio.web.api.stream.model.CoursePresenceType;
 
-import javax.inject.Inject;
-import javax.swing.*;
-import java.awt.*;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
-import java.time.ZonedDateTime;
-import java.util.*;
-
-import static java.util.Objects.nonNull;
-
 public class ParticipantList extends JPanel {
+
 	private final SortedListModel listModel;
 
 	private final Map<String, ConsumerAction<?>> actionMap;
-
-	private CourseParticipantItem popupMenuParticipant;
-
 
 	private final JPopupMenu popupMenu;
 
 	private final JMenuItem popupMenuBanItem;
 
+  private CourseParticipantItem popupMenuParticipant;
 
 
 	@Inject
@@ -74,6 +83,20 @@ public class ParticipantList extends JPanel {
 
 		listModel = new SortedListModel();
 
+
+		popupMenuBanItem = new JMenuItem("Ban");
+		popupMenuBanItem.addActionListener(e -> {
+			if (nonNull(popupMenuParticipant)) {
+				var action = (ConsumerAction<CourseParticipant>) actionMap.get("ban-user");
+				if (action == null) {
+					return;
+				}
+				action.execute(popupMenuParticipant);
+			}
+		});
+
+		popupMenu = new JPopupMenu();
+		popupMenu.add(popupMenuBanItem);
 
 		JList<CourseParticipantItem> list = new JList<>(listModel) {
 
@@ -180,8 +203,10 @@ public class ParticipantList extends JPanel {
 			if (index == -1 && !e.isShiftDown() && !e.isControlDown()) {
 				list.clearSelection();
 			}
+
 			// Ensure the user is always reset
 			popupMenuParticipant = null;
+
 			if (index > -1) {
 				if (e.getButton() == MouseEvent.BUTTON3) {
 					handleRightClick(e, index);

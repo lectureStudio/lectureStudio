@@ -34,8 +34,7 @@ import org.lecturestudio.core.model.DocumentOutline;
 import org.lecturestudio.core.model.DocumentOutlineItem;
 import org.lecturestudio.core.model.Page;
 import org.lecturestudio.core.view.*;
-import org.lecturestudio.presenter.api.model.NoteBarPosition;
-import org.lecturestudio.presenter.api.model.MessageBarPosition;
+import org.lecturestudio.presenter.api.model.*;
 import org.lecturestudio.presenter.api.config.SlideViewConfiguration;
 import org.lecturestudio.swing.model.ExternalWindowPosition;
 import org.lecturestudio.core.stylus.StylusHandler;
@@ -72,6 +71,8 @@ public interface SlidesView extends View {
 	Page getPage();
 
 	void setPage(Page page, PresentationParameter parameter);
+
+	void setSlideNotes(Page page, PresentationParameter parameter);
 
 	void setPageRenderer(RenderController pageRenderer);
 
@@ -110,6 +111,8 @@ public interface SlidesView extends View {
 	void setOnCreateMessageSlide(ConsumerAction<MessengerMessage> action);
 
 	void setOnAcceptSpeech(ConsumerAction<SpeechBaseMessage> action);
+
+	void setOnBan(ConsumerAction<CourseParticipant> action);
 
 	void setOnRejectSpeech(ConsumerAction<SpeechBaseMessage> action);
 
@@ -177,6 +180,12 @@ public interface SlidesView extends View {
 
 	void setOnExternalNotesClosed(Action action);
 
+	void setOnExternalSlideNotesPositionChanged(ConsumerAction<ExternalWindowPosition> action);
+
+	void setOnExternalSlideNotesSizeChanged(ConsumerAction<Dimension> action);
+
+	void setOnExternalSlideNotesClosed(Action action);
+
 	void showExternalMessages(Screen screen, Point position, Dimension size);
 
 	void hideExternalMessages();
@@ -197,12 +206,18 @@ public interface SlidesView extends View {
 
 	void hideExternalNotes();
 
+	void showExternalSlideNotes(Screen screen, Point position, Dimension size);
+
+	void hideExternalSlideNotes();
+
 	void setMessageBarPosition(MessageBarPosition position);
 
-	void setNotesBarPosition(NoteBarPosition position);
+	void setNotesPosition(SlideNotesPosition position);
 
-	void setParticipantsPosition(MessageBarPosition position);
+	void setNoteSlidePosition(NoteSlidePosition position);
 
-	void setPreviewPosition(MessageBarPosition position);
+	void setParticipantsPosition(ParticipantsPosition position);
+
+	void setPreviewPosition(SlidePreviewPosition position);
 
 }

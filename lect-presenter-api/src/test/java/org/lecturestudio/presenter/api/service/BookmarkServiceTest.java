@@ -39,17 +39,23 @@ class BookmarkServiceTest extends ServiceTest {
 
 	@BeforeEach
 	void setUp() {
-		bookmarkService = new BookmarkService(documentService);
+		bookmarkService = new BookmarkService(documentService, context);
 	}
 
 	@Test
 	void testClearBookmarks() throws BookmarkException {
 		bookmarkService.createBookmark("a");
+		int currPage = documentService.getDocuments().getSelectedDocument().getCurrentPage().getPageNumber();
+		int maxPages = documentService.getDocuments().getSelectedDocument().getPageCount();
+		documentService.getDocuments().getSelectedDocument().selectPage((currPage + 1) % maxPages);
 		bookmarkService.createBookmark("b");
 
 		documentService.selectDocument(document2);
 
 		bookmarkService.createBookmark("c");
+		currPage = documentService.getDocuments().getSelectedDocument().getCurrentPage().getPageNumber();
+		maxPages = documentService.getDocuments().getSelectedDocument().getPageCount();
+		documentService.getDocuments().getSelectedDocument().selectPage((currPage + 1) % maxPages);
 		bookmarkService.createBookmark("d");
 		bookmarkService.clearBookmarks();
 
@@ -67,12 +73,18 @@ class BookmarkServiceTest extends ServiceTest {
 	@Test
 	void testClearDocumentBookmarks() throws BookmarkException {
 		bookmarkService.createBookmark("a");
+		int currPage = documentService.getDocuments().getSelectedDocument().getCurrentPage().getPageNumber();
+		int maxPages = documentService.getDocuments().getSelectedDocument().getPageCount();
+		documentService.getDocuments().getSelectedDocument().selectPage((currPage + 1) % maxPages);
 		bookmarkService.createBookmark("b");
 		bookmarkService.clearBookmarks(document1);
 
 		documentService.selectDocument(document2);
 
 		bookmarkService.createBookmark("a");
+		currPage = documentService.getDocuments().getSelectedDocument().getCurrentPage().getPageNumber();
+		maxPages = documentService.getDocuments().getSelectedDocument().getPageCount();
+		documentService.getDocuments().getSelectedDocument().selectPage((currPage + 1) % maxPages);
 		bookmarkService.createBookmark("b");
 
 		assertEquals(2, bookmarkService.getBookmarks().getAllBookmarks().size());
@@ -87,6 +99,9 @@ class BookmarkServiceTest extends ServiceTest {
 	@Test
 	void testCreateBookmark() throws BookmarkException {
 		Bookmark bookmarkA = bookmarkService.createBookmark("a");
+		int currPage = documentService.getDocuments().getSelectedDocument().getCurrentPage().getPageNumber();
+		int maxPages = documentService.getDocuments().getSelectedDocument().getPageCount();
+		documentService.getDocuments().getSelectedDocument().selectPage((currPage + 1) % maxPages);
 		Bookmark bookmarkB = bookmarkService.createBookmark("b");
 
 		assertNotNull(bookmarkA);
@@ -100,6 +115,9 @@ class BookmarkServiceTest extends ServiceTest {
 		documentService.selectDocument(document2);
 
 		bookmarkA = bookmarkService.createBookmark("a");
+		currPage = documentService.getDocuments().getSelectedDocument().getCurrentPage().getPageNumber();
+		maxPages = documentService.getDocuments().getSelectedDocument().getPageCount();
+		documentService.getDocuments().getSelectedDocument().selectPage((currPage + 1) % maxPages);
 		bookmarkB = bookmarkService.createBookmark("b");
 
 		assertNotNull(bookmarkA);
@@ -110,6 +128,9 @@ class BookmarkServiceTest extends ServiceTest {
 	@Test
 	void testDeleteBookmark() throws BookmarkException {
 		Bookmark bookmarkA = bookmarkService.createBookmark("a");
+		int currPage = documentService.getDocuments().getSelectedDocument().getCurrentPage().getPageNumber();
+		int maxPages = documentService.getDocuments().getSelectedDocument().getPageCount();
+		documentService.getDocuments().getSelectedDocument().selectPage((currPage + 1) % maxPages);
 		Bookmark bookmarkB = bookmarkService.createBookmark("b");
 
 		bookmarkService.deleteBookmark(bookmarkB);

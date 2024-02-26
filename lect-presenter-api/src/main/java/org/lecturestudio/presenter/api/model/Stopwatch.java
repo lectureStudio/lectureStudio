@@ -63,6 +63,20 @@ public class Stopwatch {
 	}
 
 	/**
+	 * Starts the current stopwatch.
+	 */
+	public void startStopwatch() {
+		runStopwatch = true;
+	}
+
+	/**
+	 * Stops the current stopwatch.
+	 */
+	public void stopStopwatch() {
+		runStopwatch = false;
+	}
+
+	/**
 	 * Switching between running and paused stopwatch.
 	 */
 	public void startStopStopwatch() {
@@ -133,13 +147,6 @@ public class Stopwatch {
 			stopwatchInterval = actualTime;
 			resetStopwatchInterval = actualTime;
 		}
-	}
-
-	/**
-	 * Stops the current stopwatch
-	 */
-	public void stopStopwatch() {
-		runStopwatch = false;
 	}
 
 	public StopwatchType getType() {

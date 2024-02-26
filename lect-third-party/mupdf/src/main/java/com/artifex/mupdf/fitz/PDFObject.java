@@ -1,3 +1,25 @@
+// Copyright (C) 2004-2023 Artifex Software, Inc.
+//
+// This file is part of MuPDF.
+//
+// MuPDF is free software: you can redistribute it and/or modify it under the
+// terms of the GNU Affero General Public License as published by the Free
+// Software Foundation, either version 3 of the License, or (at your option)
+// any later version.
+//
+// MuPDF is distributed in the hope that it will be useful, but WITHOUT ANY
+// WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+// FOR A PARTICULAR PURPOSE. See the GNU Affero General Public License for more
+// details.
+//
+// You should have received a copy of the GNU Affero General Public License
+// along with MuPDF. If not, see <https://www.gnu.org/licenses/agpl-3.0.en.html>
+//
+// Alternative licensing terms are available from the licensor.
+// For commercial licensing, see <https://www.artifex.com/> or contact
+// Artifex Software, Inc., 39 Mesa Street, Suite 108A, San Francisco,
+// CA 94129, USA, for further information.
+
 package com.artifex.mupdf.fitz;
 
 import java.util.Date;
@@ -23,7 +45,9 @@ public class PDFObject implements Iterable<PDFObject>
 	}
 
 	public native boolean isIndirect();
-	public native boolean isNull();
+	public boolean isNull() {
+		return this == PDFObject.Null;
+	}
 	public native boolean isBoolean();
 	public native boolean isInteger();
 	public native boolean isReal();
@@ -53,6 +77,7 @@ public class PDFObject implements Iterable<PDFObject>
 	}
 
 	public native PDFObject resolve();
+	public native boolean equals(PDFObject other);
 
 	public native byte[] readStream();
 	public native byte[] readRawStream();
@@ -80,7 +105,7 @@ public class PDFObject implements Iterable<PDFObject>
 	}
 
 	private native PDFObject getArray(int index);
-	private native PDFObject getDictionary(String name);
+	private native PDFObject getDictionary(String name, boolean inheritable);
 	private native PDFObject getDictionaryKey(int index);
 
 	public PDFObject get(int index) {
@@ -88,11 +113,19 @@ public class PDFObject implements Iterable<PDFObject>
 	}
 
 	public PDFObject get(String name) {
-		return getDictionary(name);
+		return getDictionary(name, false);
 	}
 
 	public PDFObject get(PDFObject name) {
-		return getDictionary(name != null ? name.asName() : null);
+		return getDictionary(name != null ? name.asName() : null, false);
+	}
+
+	public PDFObject getInheritable(String name) {
+		return getDictionary(name, true);
+	}
+
+	public PDFObject getInheritable(PDFObject name) {
+		return getDictionary(name != null ? name.asName() : null, true);
 	}
 
 	private native void putArrayBoolean(int index, boolean b);

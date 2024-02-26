@@ -20,22 +20,13 @@
 
 package org.lecturestudio.presenter.api.event;
 
-import org.lecturestudio.presenter.api.model.NoteBarPosition;
+import org.lecturestudio.presenter.api.model.SlideNotesPosition;
 
 /**
- * Handles the position for Notes in a tabbar
+ * Handles the position for Notes in a tab-bar.
  *
  * @author Dustin Ringel
  */
-public class NotesBarPositionEvent extends PositionEvent {
-
-    /**
-     * Creates a new {@code NotesBarPositionEvent} with the provided parameters.
-     *
-     * @param position          Position of the notes tab
-     */
-    public NotesBarPositionEvent(NoteBarPosition position) {
-        super(position);
-    }
+public record NotesBarPositionEvent(SlideNotesPosition position) {
 
 }

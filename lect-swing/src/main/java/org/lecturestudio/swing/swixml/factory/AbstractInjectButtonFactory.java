@@ -45,24 +45,27 @@ public class AbstractInjectButtonFactory extends InjectViewFactory implements Lo
 		Node node = element.getAttributeNode("accelerator");
 
 		if (nonNull(node)) {
-			KeyStroke stroke = KeyStroke.getKeyStroke(node.getNodeValue());
+			String[] accelerators = node.getNodeValue().split(",|,\\s");
 
-			if (nonNull(stroke)) {
-				button.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW)
-						.put(stroke, stroke.toString());
-				button.getActionMap()
-						.put(stroke.toString(), new AbstractAction() {
+			for (String accelerator : accelerators) {
+				KeyStroke stroke = KeyStroke.getKeyStroke(accelerator);
 
-							@Override
-							public void actionPerformed(ActionEvent e) {
-								AbstractButton b = (AbstractButton) e.getSource();
-								b.doClick();
-							}
-						});
-			}
-			else {
-				logger.warning("Failed to set assigned accelerator: " + node
-						.getNodeValue());
+				if (nonNull(stroke)) {
+					button.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW)
+							.put(stroke, stroke.toString());
+					button.getActionMap()
+							.put(stroke.toString(), new AbstractAction() {
+
+								@Override
+								public void actionPerformed(ActionEvent e) {
+									AbstractButton b = (AbstractButton) e.getSource();
+									b.doClick();
+								}
+							});
+				}
+				else {
+					logger.warning("Failed to set assigned accelerator: " + accelerator);
+				}
 			}
 		}
 

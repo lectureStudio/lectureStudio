@@ -28,4 +28,6 @@ public interface DocumentRenderer {
 
 	void render(Page page, PresentationParameter parameter, BufferedImage image) throws IOException;
 
+	void renderNotes(Page page, PresentationParameter parameter, BufferedImage image) throws IOException;
+
 }

@@ -25,6 +25,7 @@ import com.google.common.eventbus.Subscribe;
 import java.awt.Desktop;
 import java.io.File;
 import java.io.IOException;
+import java.net.URI;
 import java.nio.file.Path;
 import java.text.MessageFormat;
 import java.util.ArrayList;
@@ -117,6 +118,7 @@ public class MenuPresenter extends Presenter<MenuView> {
 
 		view.bindFullscreen(context.fullscreenProperty());
 
+		view.setOnManual(this::showManual);
 		view.setOnOpenLog(this::showLog);
 		view.setOnOpenAbout(this::showAboutView);
 	}
@@ -177,14 +179,16 @@ public class MenuPresenter extends Presenter<MenuView> {
 		if (nonNull(file)) {
 			config.getContextPaths().put(pathContext, file.getParent());
 
+			File pdfFile = FileUtils.ensureExtension(file, "." + EditorContext.SLIDES_EXTENSION);
+
 			context.getEventBus().post(new ShowPresenterCommand<>(ProgressPresenter.class) {
 				@Override
 				public void execute(ProgressPresenter presenter) {
 					ProgressView progressView = presenter.getView();
 					progressView.setTitle(context.getDictionary().get("save.document.title"));
-					progressView.setMessage(file.getAbsolutePath());
+					progressView.setMessage(pdfFile.getAbsolutePath());
 					progressView.setOnViewShown(() -> {
-						saveDocument(recording, progressView, file);
+						saveDocument(recording, progressView, pdfFile);
 					});
 				}
 			});
@@ -262,14 +266,16 @@ public class MenuPresenter extends Presenter<MenuView> {
 		if (nonNull(file)) {
 			config.getContextPaths().put(pathContext, file.getParent());
 
+			File pdfFile = FileUtils.ensureExtension(file, "." + EditorContext.SLIDES_EXTENSION);
+
 			context.getEventBus().post(new ShowPresenterCommand<>(ProgressPresenter.class) {
 				@Override
 				public void execute(ProgressPresenter presenter) {
 					ProgressView progressView = presenter.getView();
 					progressView.setTitle(context.getDictionary().get("save.page.current.title"));
-					progressView.setMessage(file.getAbsolutePath());
+					progressView.setMessage(pdfFile.getAbsolutePath());
 					progressView.setOnViewShown(() -> {
-						saveCurrentPage(recording, progressView, file);
+						saveCurrentPage(recording, progressView, pdfFile);
 					});
 				}
 			});
@@ -349,17 +355,19 @@ public class MenuPresenter extends Presenter<MenuView> {
 			config.getContextPaths().put(EditorContext.RECORDING_CONTEXT,
 					file.getParent());
 
+			File recFile = FileUtils.ensureExtension(file, "." + EditorContext.RECORDING_EXTENSION);
+
 			ProgressDialogView progressView = viewFactory.getInstance(ProgressDialogView.class);
 			progressView.setMessageTitle(context.getDictionary().get("save.recording"));
 			progressView.setParent(view);
 			progressView.open();
 
-			recordingService.saveRecording(file, progressView::setProgress)
+			recordingService.saveRecording(recFile, progressView::setProgress)
 				.thenRun(() -> {
 					progressView.setMessageTitle(context.getDictionary().get("save.recording.success"));
 				})
 				.exceptionally(throwable -> {
-					progressView.setError(MessageFormat.format(context.getDictionary().get("save.recording.error"), file.getPath()), throwable.getMessage());
+					progressView.setError(MessageFormat.format(context.getDictionary().get("save.recording.error"), recFile.getPath()), throwable.getMessage());
 					return null;
 				});
 		}
@@ -389,10 +397,18 @@ public class MenuPresenter extends Presenter<MenuView> {
 		eventBus.post(new ShowPresenterCommand<>(SettingsPresenter.class));
 	}
 
+	public void showManual() {
+		try {
+			Desktop.getDesktop().browse(URI.create("https://www.lecturestudio.org/manual/"));
+		}
+		catch (IOException e) {
+			handleException(e, "Open manual uri failed", "generic.error");
+		}
+	}
+
 	public void showLog() {
 		try {
-			Desktop.getDesktop().open(new File(
-					context.getDataLocator().getAppDataPath()));
+			Desktop.getDesktop().open(new File(context.getDataLocator().getAppDataPath()));
 		}
 		catch (IOException e) {
 			handleException(e, "Open log path failed", "generic.error");
@@ -438,14 +454,16 @@ public class MenuPresenter extends Presenter<MenuView> {
 		if (nonNull(file)) {
 			contextPaths.put(pathContext, file.getParent());
 
+			File wavFile = FileUtils.ensureExtension(file, "." + EditorContext.WAV_EXTENSION);
+
 			ProgressDialogView progressView = viewFactory.getInstance(ProgressDialogView.class);
 			progressView.setMessageTitle(context.getDictionary().get("export.audio"));
 			progressView.setParent(view);
 			progressView.open();
 
-			recordingService.exportAudio(file, progressView::setProgress)
+			recordingService.exportAudio(wavFile, progressView::setProgress)
 				.exceptionally(throwable -> {
-					progressView.setError(MessageFormat.format(context.getDictionary().get("export.audio.error"), file.getPath()), throwable.getMessage());
+					progressView.setError(MessageFormat.format(context.getDictionary().get("export.audio.error"), wavFile.getPath()), throwable.getMessage());
 					return null;
 				});
 		}

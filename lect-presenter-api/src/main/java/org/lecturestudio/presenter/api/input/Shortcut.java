@@ -23,78 +23,115 @@ import org.lecturestudio.core.input.KeyEvent;
 
 public enum Shortcut {
 
-	APP_CLOSE						(KeyCode.Q, KeyEvent.CTRL_MASK),
+	APP_CLOSE						(KeyCode.Q, KeyEvent.CTRL_MASK, "shortcut.app.close"),
+	APP_SHORTCUTS					(KeyCode.H, KeyEvent.SHIFT_MASK, "shortcut.app.help"),
 
-	CLOSE_VIEW						(KeyCode.ESCAPE),
+	CLOSE_VIEW						(KeyCode.ESCAPE, "shortcut.view.close"),
 
-	DOC_OPEN						(KeyCode.O, KeyEvent.CTRL_MASK),
-	DOC_CLOSE						(KeyCode.F4, KeyEvent.CTRL_MASK),
+	DOC_OPEN						(KeyCode.O, KeyEvent.CTRL_MASK, "shortcut.doc.open"),
+	DOC_CLOSE						(KeyCode.F4, KeyEvent.CTRL_MASK, "shortcut.doc.close"),
 
-	SLIDE_NEXT_RIGHT				(KeyCode.RIGHT),
-	SLIDE_NEXT_DOWN					(KeyCode.DOWN),
-	SLIDE_NEXT_PAGE_DOWN			(KeyCode.PAGE_DOWN),
-	SLIDE_NEXT_SPACE				(KeyCode.SPACE),
-	SLIDE_PREVIOUS_LEFT				(KeyCode.LEFT),
-	SLIDE_PREVIOUS_UP				(KeyCode.UP),
-	SLIDE_PREVIOUS_PAGE_UP			(KeyCode.PAGE_UP),
-	SLIDE_NEW						(KeyCode.F9),
-	SLIDE_DELETE					(KeyCode.D, KeyEvent.CTRL_MASK),
-	SLIDE_PAN						(KeyCode.F11),
+	SLIDE_FIRST						(KeyCode.HOME, "shortcut.slide.first"),
+	SLIDE_LAST						(KeyCode.END, "shortcut.slide.last"),
+	SLIDE_NEXT_RIGHT				(KeyCode.RIGHT, "shortcut.slide.next"),
+	SLIDE_NEXT_DOWN					(KeyCode.DOWN, "shortcut.slide.next"),
+	SLIDE_NEXT_PAGE_DOWN			(KeyCode.PAGE_DOWN, "shortcut.slide.next"),
+	SLIDE_NEXT_SPACE				(KeyCode.SPACE, "shortcut.slide.next"),
+	SLIDE_NEXT_10					(KeyCode.RIGHT, KeyEvent.SHIFT_MASK, "shortcut.slide.skip_next_10"),
+	SLIDE_PREVIOUS_LEFT				(KeyCode.LEFT, "shortcut.slide.previous"),
+	SLIDE_PREVIOUS_UP				(KeyCode.UP, "shortcut.slide.previous"),
+	SLIDE_PREVIOUS_BACK_SPACE		(KeyCode.BACK_SPACE, "shortcut.slide.previous"),
+	SLIDE_PREVIOUS_PAGE_UP			(KeyCode.PAGE_UP, "shortcut.slide.previous"),
+	SLIDE_PREVIOUS_10				(KeyCode.LEFT, KeyEvent.SHIFT_MASK, "shortcut.slide.skip_previous_10"),
+	SLIDE_NEW						(KeyCode.F9, "shortcut.slide.new"),
+	SLIDE_DELETE					(KeyCode.D, KeyEvent.CTRL_MASK, "shortcut.slide.delete"),
 
-	COPY_OVERLAY					(KeyCode.V, KeyEvent.CTRL_MASK),
-	COPY_OVERLAY_NEXT_PAGE_CTRL		(KeyCode.PAGE_DOWN, KeyEvent.CTRL_MASK),
-	COPY_OVERLAY_NEXT_PAGE_SHIFT	(KeyCode.PAGE_DOWN, KeyEvent.SHIFT_MASK),
+	SLIDE_OVERLAY_START				(KeyCode.UP, KeyEvent.SHIFT_MASK, "shortcut.overlay.start"),
+	SLIDE_OVERLAY_END				(KeyCode.DOWN, KeyEvent.SHIFT_MASK, "shortcut.overlay.end"),
+	SLIDE_OVERLAY_PREVIOUS			(KeyCode.PAGE_UP, KeyEvent.SHIFT_MASK, "shortcut.overlay.previous"),
+	SLIDE_OVERLAY_NEXT				(KeyCode.PAGE_DOWN, KeyEvent.SHIFT_MASK, "shortcut.overlay.next"),
 
-	UNDO							(KeyCode.Z, KeyEvent.CTRL_MASK),
-	REDO							(KeyCode.Y, KeyEvent.CTRL_MASK),
-	CUT								(KeyCode.X, KeyEvent.CTRL_MASK),
+	COPY_OVERLAY					(KeyCode.V, KeyEvent.CTRL_MASK, "shortcut.annotations.copy"),
+	COPY_OVERLAY_NEXT_PAGE_CTRL		(KeyCode.PAGE_DOWN, KeyEvent.CTRL_MASK, "shortcut.annotations.copy.to.next"),
 
-	ZOOM_RESTORE					(KeyCode.SOFTKEY_0, KeyEvent.CTRL_MASK),
-	ZOOM_TOGGLE						(KeyCode.SOFTKEY_9, KeyEvent.CTRL_MASK),
-	ERASE_ALL						(KeyCode.ESCAPE),
-	FULLSCREEN						(KeyCode.ENTER, KeyEvent.ALT_MASK),
-	SHOW_GRID						(KeyCode.G, KeyEvent.CTRL_MASK),
-	SHOW_GRID_LECTURER				(KeyCode.Q),
-	TEXT							(KeyCode.T),
-	PEN								(KeyCode.P),
-	HIGHLIGHTER						(KeyCode.H),
-	POINTER							(KeyCode.Z),
-	ERASER							(KeyCode.E),
-	EXTEND_VIEW						(KeyCode.F7),
-	WHITEBOARD						(KeyCode.F8),
+	UNDO							(KeyCode.Z, KeyEvent.CTRL_MASK, "shortcut.tool.undo"),
+	REDO							(KeyCode.Y, KeyEvent.CTRL_MASK, "shortcut.tool.redo"),
 
-	SAVE_QUIZ						(KeyCode.ENTER, KeyEvent.CTRL_MASK),
+	ZOOM_RESTORE					(KeyCode.DIGIT1, "shortcut.tool.zoom.restore"),
+	ZOOM_TOGGLE						(KeyCode.DIGIT9, KeyEvent.CTRL_MASK, "shortcut.tool.zoom.toggle"),
+	ZOOM_PAN						(KeyCode.F11, "shortcut.tool.zoom.pan"),
+	ERASE_ALL						(KeyCode.C, "shortcut.tool.clear"),
+	ERASE_ALL_ESC					(KeyCode.ESCAPE, "shortcut.tool.clear"),
+	PEN								(KeyCode.P, "shortcut.tool.pen"),
+	PEN_3							(KeyCode.DIGIT3, "shortcut.tool.pen"),
+	HIGHLIGHTER						(KeyCode.H, "shortcut.tool.highlighter"),
+	HIGHLIGHTER_5					(KeyCode.DIGIT5, "shortcut.tool.highlighter"),
+	POINTER							(KeyCode.L, "shortcut.tool.pointer"),
+	POINTER_2						(KeyCode.DIGIT2, "shortcut.tool.pointer"),
+	TEXT							(KeyCode.T, "shortcut.tool.text"),
+	TEXT_7							(KeyCode.DIGIT7, "shortcut.tool.text"),
+	TEXT_HIGHLIGHTER				(KeyCode.H, KeyEvent.CTRL_MASK, "shortcut.tool.text.highlighter"),
+	TEXT_HIGHLIGHTER_6				(KeyCode.DIGIT6, KeyEvent.CTRL_MASK, "shortcut.tool.text.highlighter"),
+	LINE							(KeyCode.I, "shortcut.tool.line"),
+	ARROW							(KeyCode.W, "shortcut.tool.arrow"),
+	RECTANGLE						(KeyCode.R, "shortcut.tool.rectangle"),
+	ELLIPSE							(KeyCode.O, "shortcut.tool.ellipse"),
+	ERASER							(KeyCode.E, "shortcut.tool.eraser"),
+	ERASER_4						(KeyCode.DIGIT4, "shortcut.tool.eraser"),
+	EXTEND_VIEW						(KeyCode.F7, "shortcut.view.extend"),
+	WHITEBOARD						(KeyCode.F8, "shortcut.whiteboard.open"),
 
-	PAUSE_RECORDING					(KeyCode.PAUSE, KeyEvent.CTRL_MASK),
-	PAUSE_RECORDING_P				(KeyCode.P, KeyEvent.CTRL_MASK),
+	SAVE_QUIZ						(KeyCode.ENTER, KeyEvent.CTRL_MASK, "shortcut.quiz.save"),
 
-	BOOKMARK_NEW					(KeyCode.B),
-	BOOKMARK_GOTO					(KeyCode.G),
+	PAUSE_RECORDING					(KeyCode.PAUSE, KeyEvent.CTRL_MASK, "shortcut.recording.pause.toggle"),
+	PAUSE_RECORDING_P				(KeyCode.P, KeyEvent.CTRL_MASK, "shortcut.recording.pause.toggle"),
 
-	COLOR_CUSTOM					(KeyCode.F1),
-	COLOR_1							(KeyCode.F2),
-	COLOR_2							(KeyCode.F3),
-	COLOR_3							(KeyCode.F4),
-	COLOR_4							(KeyCode.F5),
-	COLOR_5							(KeyCode.F6);
+	BOOKMARK_NEW					(KeyCode.B, "shortcut.bookmark.new"),
+	BOOKMARK_GOTO					(KeyCode.G, "shortcut.bookmark.goto"),
+	BOOKMARK_SLIDE					(KeyCode.M, "shortcut.bookmark.current"),
+	BOOKMARK_GOTO_LAST				(KeyCode.M, KeyEvent.SHIFT_MASK, "shortcut.bookmark.goto.last"),
+
+	FULLSCREEN						(KeyCode.ENTER, KeyEvent.ALT_MASK, "shortcut.fullscreen"),
+
+	SHOW_GRID						(KeyCode.G, KeyEvent.CTRL_MASK, "shortcut.grid.show"),
+	SHOW_GRID_LECTURER				(KeyCode.Q, "shortcut.grid.show.lecturer"),
+
+	TIMER_START						(KeyCode.S, "shortcut.timer.start.toggle"),
+	TIMER_PAUSE						(KeyCode.PAUSE, "shortcut.timer.pause"),
+	TIMER_RESET						(KeyCode.T, KeyEvent.CTRL_MASK, "shortcut.timer.reset"),
+
+	COLOR_CUSTOM					(KeyCode.F1, "shortcut.color.custom"),
+	COLOR_1							(KeyCode.F2, "shortcut.color.one"),
+	COLOR_2							(KeyCode.F3, "shortcut.color.two"),
+	COLOR_3							(KeyCode.F4, "shortcut.color.three"),
+	COLOR_4							(KeyCode.F5, "shortcut.color.four"),
+	COLOR_5							(KeyCode.F6, "shortcut.color.five");
 
 
 	private final KeyEvent keyEvent;
 
+	private final String description;
 
-	Shortcut(KeyCode code) {
+
+	Shortcut(KeyCode code, String description) {
 		this.keyEvent = new KeyEvent(code.getCode());
+		this.description = description;
 	}
 
-	Shortcut(KeyCode code, int modifiers) {
+	Shortcut(KeyCode code, int modifiers, String description) {
 		this.keyEvent = new KeyEvent(code.getCode(), modifiers);
+		this.description = description;
 	}
 
 	public KeyEvent getKeyEvent() {
 		return keyEvent;
 	}
 
-	public boolean match(KeyEvent event) {
+	public String getDescription() {
+		return description;
+	}
+
+	public boolean matches(KeyEvent event) {
 		return keyEvent.equals(event);
 	}
 }

@@ -64,6 +64,7 @@ public class ViewModule extends AbstractModule {
 		bind(SaveDocumentsView.class).to(SwingSaveDocumentsView.class);
 		bind(SaveDocumentOptionView.class).to(SwingSaveDocumentOptionView.class);
 		bind(SaveRecordingView.class).to(SwingSaveRecordingView.class);
+		bind(ShortcutsView.class).to(SwingShortcutsView.class);
 		bind(SettingsView.class).to(SwingSettingsView.class);
 		bind(SelectQuizView.class).to(SwingSelectQuizView.class);
 		bind(SlidesView.class).to(SwingSlidesView.class);

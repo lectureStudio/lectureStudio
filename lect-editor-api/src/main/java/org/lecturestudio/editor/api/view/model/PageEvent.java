@@ -18,6 +18,8 @@
 
 package org.lecturestudio.editor.api.view.model;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
 
 import org.lecturestudio.core.model.Time;
@@ -28,6 +30,8 @@ public class PageEvent {
 
 	private final PlaybackAction action;
 
+	private final List<PlaybackAction> compositeActions;
+
 	private final Time time;
 
 	private final int pageNumber;
@@ -37,10 +41,16 @@ public class PageEvent {
 		this.action = action;
 		this.pageNumber = pageNumber;
 		this.time = new Time(action.getTimestamp());
+		this.compositeActions = new ArrayList<>();
+		this.compositeActions.add(action);
 	}
 
 	public PlaybackAction getPlaybackAction() {
 		return action;
+	}
+
+	public List<PlaybackAction> getCompositeActions() {
+		return compositeActions;
 	}
 
 	public int getPageNumber() {

@@ -1,6 +1,7 @@
 package org.lecturestudio.swing.components;
 
 import com.formdev.flatlaf.util.UIScale;
+
 import org.lecturestudio.core.app.view.Screens;
 import org.lecturestudio.core.view.Screen;
 import org.lecturestudio.swing.AwtResourceLoader;
@@ -20,15 +21,25 @@ import java.util.function.Consumer;
 import static java.util.Objects.nonNull;
 
 public class ExternalFrame extends JFrame {
+
+	private String name;
+
+	private Consumer<ExternalWindowPosition> positionChangedAction;
+
+	private Runnable closedAction;
+
+	private Consumer<Dimension> sizeChangedAction;
+
+	private String placeholderText;
+
 	private final Component body;
 
 	private final Component placeholder;
 
 	private boolean showBody = false;
 
-	public ExternalFrame(String name, Component body, Dimension minimumSize,
-						 Consumer<ExternalWindowPosition> positionChangedAction, Runnable closedAction,
-						 Consumer<Dimension> sizeChangedAction, String placeholderText) {
+
+	public ExternalFrame(String name, Component body, String placeholderText) {
 		super(nonNull(name) ? name : "");
 
 		this.body = body;
@@ -42,18 +53,12 @@ public class ExternalFrame extends JFrame {
 
 		setIconImages(icons);
 
-		setMinimumSize(UIScale.scale(minimumSize));
-
-		if (nonNull(closedAction)) {
-			addClosingListener(closedAction);
-
-		}
-
-		if (nonNull(positionChangedAction) || nonNull(sizeChangedAction)) {
-			addMovedResizedListener(positionChangedAction, sizeChangedAction);
-		}
-
 		addPlaceholder();
+	}
+
+	@Override
+	public void setMinimumSize(Dimension minimumSize) {
+		super.setMinimumSize(UIScale.scale(minimumSize));
 	}
 
 	@Override
@@ -61,7 +66,8 @@ public class ExternalFrame extends JFrame {
 		if (visible && showBody) {
 			removePlaceholder();
 			add(body);
-		} else {
+		}
+		else {
 			remove(body);
 			addPlaceholder();
 		}
@@ -70,6 +76,51 @@ public class ExternalFrame extends JFrame {
 
 		if (visible) {
 			toFront();
+		}
+	}
+
+	public void setClosedAction(Runnable closedAction) {
+		this.closedAction = closedAction;
+
+		if (nonNull(closedAction)) {
+			addWindowListener(new WindowAdapter() {
+				@Override
+				public void windowClosing(WindowEvent e) {
+					if (nonNull(closedAction)) {
+						closedAction.run();
+					}
+				}
+			});
+		}
+	}
+
+	public void setSizeChangedAction(Consumer<Dimension> sizeAction) {
+		sizeChangedAction = sizeAction;
+
+		if (nonNull(sizeChangedAction)) {
+			addComponentListener(new ComponentAdapter() {
+				@Override
+				public void componentResized(ComponentEvent e) {
+					if (nonNull(sizeChangedAction)) {
+						sizeChangedAction.accept(e.getComponent().getSize());
+					}
+				}
+			});
+		}
+	}
+
+	public void setPositionChangedAction(Consumer<ExternalWindowPosition> positionAction) {
+		positionChangedAction = positionAction;
+
+		if (nonNull(positionChangedAction) ) {
+			addComponentListener(new ComponentAdapter() {
+				@Override
+				public void componentMoved(ComponentEvent e) {
+					if (nonNull(positionChangedAction)) {
+						externalComponentOpenedOrMoved(e, positionChangedAction);
+					}
+				}
+			});
 		}
 	}
 
@@ -85,7 +136,6 @@ public class ExternalFrame extends JFrame {
 			revalidate();
 			repaint();
 		}
-
 
 		showBody = true;
 	}
@@ -104,10 +154,6 @@ public class ExternalFrame extends JFrame {
 		}
 
 		showBody = false;
-	}
-
-	public boolean isShowBody() {
-		return showBody;
 	}
 
 	private void addPlaceholder() {
@@ -132,96 +178,10 @@ public class ExternalFrame extends JFrame {
 		}
 	}
 
-	private void addClosingListener(Runnable closedAction) {
-		addWindowListener(new WindowAdapter() {
-			@Override
-			public void windowClosing(WindowEvent e) {
-				if (nonNull(closedAction)) {
-					closedAction.run();
-				}
-			}
-		});
-	}
-
-	private void addMovedResizedListener(Consumer<ExternalWindowPosition> positionChangedAction,
-										 Consumer<Dimension> sizeChangedAction) {
-		addComponentListener(new ComponentAdapter() {
-			@Override
-			public void componentMoved(ComponentEvent e) {
-				if (nonNull(positionChangedAction)) {
-					externalComponentOpenedOrMoved(e, positionChangedAction);
-				}
-			}
-
-			@Override
-			public void componentResized(ComponentEvent e) {
-				if (nonNull(sizeChangedAction)) {
-					sizeChangedAction.accept(e.getComponent().getSize());
-				}
-			}
-		});
-	}
-
 	private void externalComponentOpenedOrMoved(ComponentEvent e, Consumer<ExternalWindowPosition> action) {
 		final Point position = e.getComponent().getLocationOnScreen();
 		final Screen screen = Screens.createScreen(e.getComponent().getGraphicsConfiguration().getDevice());
 
 		action.accept(new ExternalWindowPosition(screen, position));
-	}
-
-	public static class Builder {
-		private String name;
-
-		private Component body;
-
-		private Dimension minimumSize = new Dimension(300, 300);
-
-		private Consumer<ExternalWindowPosition> positionChangedAction;
-
-		private Runnable closedAction;
-
-		private Consumer<Dimension> sizeChangedAction;
-
-		private String placeholderText;
-
-		public Builder setName(String name) {
-			this.name = name;
-			return this;
-		}
-
-		public Builder setBody(Component body) {
-			this.body = body;
-			return this;
-		}
-
-		public Builder setMinimumSize(Dimension minimumSize) {
-			this.minimumSize = minimumSize;
-			return this;
-		}
-
-		public Builder setPositionChangedAction(Consumer<ExternalWindowPosition> positionChangedAction) {
-			this.positionChangedAction = positionChangedAction;
-			return this;
-		}
-
-		public Builder setClosedAction(Runnable closedAction) {
-			this.closedAction = closedAction;
-			return this;
-		}
-
-		public Builder setSizeChangedAction(Consumer<Dimension> sizeChangedAction) {
-			this.sizeChangedAction = sizeChangedAction;
-			return this;
-		}
-
-		public Builder setPlaceholderText(String placeholderText) {
-			this.placeholderText = placeholderText;
-			return this;
-		}
-
-		public ExternalFrame build() {
-			return new ExternalFrame(name, body, minimumSize, positionChangedAction, closedAction, sizeChangedAction,
-					placeholderText);
-		}
 	}
 }

@@ -25,6 +25,7 @@ import com.google.common.eventbus.Subscribe;
 import java.awt.Desktop;
 import java.io.File;
 import java.io.IOException;
+import java.net.URI;
 import java.nio.file.Path;
 import java.text.MessageFormat;
 import java.util.ArrayList;
@@ -117,6 +118,7 @@ public class MenuPresenter extends Presenter<MenuView> {
 
 		view.bindFullscreen(context.fullscreenProperty());
 
+		view.setOnManual(this::showManual);
 		view.setOnOpenLog(this::showLog);
 		view.setOnOpenAbout(this::showAboutView);
 	}
@@ -395,10 +397,18 @@ public class MenuPresenter extends Presenter<MenuView> {
 		eventBus.post(new ShowPresenterCommand<>(SettingsPresenter.class));
 	}
 
+	public void showManual() {
+		try {
+			Desktop.getDesktop().browse(URI.create("https://lect.stream/manual/de/index.html"));
+		}
+		catch (IOException e) {
+			handleException(e, "Open manual uri failed", "generic.error");
+		}
+	}
+
 	public void showLog() {
 		try {
-			Desktop.getDesktop().open(new File(
-					context.getDataLocator().getAppDataPath()));
+			Desktop.getDesktop().open(new File(context.getDataLocator().getAppDataPath()));
 		}
 		catch (IOException e) {
 			handleException(e, "Open log path failed", "generic.error");

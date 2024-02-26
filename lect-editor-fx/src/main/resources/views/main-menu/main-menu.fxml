@@ -33,7 +33,8 @@
 		<CheckMenuItem fx:id="fullscreenMenuItem" accelerator="alt+enter" text="%menu.fullscreen" />
 	</Menu>
 	<Menu text="%menu.info">
-		<MenuItem fx:id="logMenuItem" text="%menu.log"/>
-		<MenuItem fx:id="aboutMenuItem" text="%menu.about"/>
+		<MenuItem fx:id="manualMenuItem" text="%menu.info.manual"/>
+		<MenuItem fx:id="logMenuItem" text="%menu.info.log"/>
+		<MenuItem fx:id="aboutMenuItem" text="%menu.info.about"/>
 	</Menu>
 </fx:root>

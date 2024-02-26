@@ -99,6 +99,9 @@ public class FxMenuView extends MenuBar implements MenuView {
 	private CheckMenuItem fullscreenMenuItem;
 
 	@FXML
+	private MenuItem manualMenuItem;
+
+	@FXML
 	private MenuItem logMenuItem;
 
 	@FXML
@@ -261,6 +264,11 @@ public class FxMenuView extends MenuBar implements MenuView {
 	/**
 	 * Info Menu
 	 */
+
+	@Override
+	public void setOnManual(Action action) {
+		FxUtils.bindAction(manualMenuItem, action);
+	}
 
 	@Override
 	public void setOnOpenLog(Action action) {

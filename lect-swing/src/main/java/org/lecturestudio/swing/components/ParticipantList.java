@@ -56,7 +56,7 @@ public class ParticipantList extends JPanel {
 
 	private final JMenuItem popupMenuBanItem;
 
-  private CourseParticipantItem popupMenuParticipant;
+	private CourseParticipantItem popupMenuParticipant;
 
 
 	@Inject
@@ -68,21 +68,7 @@ public class ParticipantList extends JPanel {
 		setFocusable(false);
 		setIgnoreRepaint(true);
 
-		this.popupMenu = new JPopupMenu();
-		popupMenuBanItem = new JMenuItem("Ban");
-
-		popupMenuBanItem.addActionListener(e -> {
-			if (nonNull(popupMenuParticipant)) {
-				var action = (ConsumerAction<CourseParticipant>) actionMap.get("ban-user");
-                if (action == null) return;
-				action.execute(popupMenuParticipant);
-			}
-		});
-
-		popupMenu.add(popupMenuBanItem);
-
 		listModel = new SortedListModel();
-
 
 		popupMenuBanItem = new JMenuItem("Ban");
 		popupMenuBanItem.addActionListener(e -> {

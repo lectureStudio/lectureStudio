@@ -52,23 +52,23 @@ public class ParticipantList extends JPanel {
 
 	private final Map<String, ConsumerAction<?>> actionMap;
 
-	private CourseParticipantItem popupMenuParticipant;
-
 	private final JPopupMenu popupMenu;
 
 	private final JMenuItem popupMenuBanItem;
+
+	private CourseParticipantItem popupMenuParticipant;
 
 
 	@Inject
 	public ParticipantList(ResourceBundle bundle) {
 		super();
+		actionMap = new HashMap<>();
 
 		setLayout(new BorderLayout());
 		setFocusable(false);
 		setIgnoreRepaint(true);
 
 		listModel = new SortedListModel();
-		actionMap = new HashMap<>();
 
 		popupMenuBanItem = new JMenuItem("Ban");
 		popupMenuBanItem.addActionListener(e -> {

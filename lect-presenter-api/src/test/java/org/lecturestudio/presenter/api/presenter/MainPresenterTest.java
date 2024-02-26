@@ -65,11 +65,7 @@ import org.lecturestudio.presenter.api.context.PresenterContext;
 import org.lecturestudio.presenter.api.input.Shortcut;
 import org.lecturestudio.presenter.api.net.LocalBroadcaster;
 import org.lecturestudio.presenter.api.recording.FileLectureRecorder;
-import org.lecturestudio.presenter.api.service.BookmarkService;
-import org.lecturestudio.presenter.api.service.RecordingService;
-import org.lecturestudio.presenter.api.service.WebRtcStreamService;
-import org.lecturestudio.presenter.api.service.WebService;
-import org.lecturestudio.presenter.api.service.WebServiceInfo;
+import org.lecturestudio.presenter.api.service.*;
 import org.lecturestudio.presenter.api.view.MainView;
 import org.lecturestudio.presenter.api.view.QuitRecordingView;
 import org.lecturestudio.presenter.api.view.RestoreRecordingView;
@@ -200,7 +196,7 @@ class MainPresenterTest extends PresenterTest {
 			public <T> T getInstance(Class<T> cls) {
 				if (cls == SlidesPresenter.class) {
 					ToolController toolController = new ToolController(context, documentService);
-					return (T) new SlidesPresenter(context, createProxy(SlidesView.class), null, toolController, presentationController, null, bookmarkService, documentService, documentRecorder, recordingService, webService, webServiceInfo, streamService);
+					return (T) new SlidesPresenter(context, createProxy(SlidesView.class), null, toolController, presentationController, null, bookmarkService, documentService, documentRecorder, recordingService, webService, webServiceInfo, streamService, null);
 				}
 				else if (cls == SettingsPresenter.class) {
 					return (T) new SettingsPresenter(context, createProxy(SettingsView.class));

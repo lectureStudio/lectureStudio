@@ -86,6 +86,8 @@ public interface MenuView extends View {
 	 * Info Menu
 	 */
 
+	void setOnManual(Action action);
+
 	void setOnOpenLog(Action action);
 
 	void setOnOpenAbout(Action action);

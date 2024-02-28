@@ -49,7 +49,7 @@ public class DesktopUtils {
 			if (OsInfo.isLinux()) {
 				Command.execute(new String[] { "xdg-open", path });
 			}
-			else if (OsInfo.isMac()) {
+			else if (OsInfo.isMacOs()) {
 				Command.execute(new String[] { "open", path });
 			}
 		}
@@ -72,7 +72,7 @@ public class DesktopUtils {
 			else if (OsInfo.isLinux()) {
 				Command.execute(new String[] { "xdg-open", filePath });
 			}
-			else if (OsInfo.isMac()) {
+			else if (OsInfo.isMacOs()) {
 				Command.execute(new String[] { "open", filePath });
 			}
 		}

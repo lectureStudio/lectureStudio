@@ -27,6 +27,7 @@ import javax.inject.Inject;
 import java.awt.Dimension;
 import java.io.File;
 import java.io.IOException;
+import java.text.MessageFormat;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -90,15 +91,18 @@ import org.lecturestudio.core.view.ViewType;
 import org.lecturestudio.presenter.api.config.DocumentTemplateConfiguration;
 import org.lecturestudio.presenter.api.config.ExternalWindowConfiguration;
 import org.lecturestudio.presenter.api.config.PresenterConfiguration;
+import org.lecturestudio.presenter.api.config.SlideViewConfiguration;
 import org.lecturestudio.presenter.api.context.PresenterContext;
 import org.lecturestudio.presenter.api.event.ExternalMessagesViewEvent;
 import org.lecturestudio.presenter.api.event.ExternalNotesViewEvent;
+import org.lecturestudio.presenter.api.event.ExternalSlideNotesViewEvent;
 import org.lecturestudio.presenter.api.event.ExternalParticipantsViewEvent;
 import org.lecturestudio.presenter.api.event.ExternalSlidePreviewViewEvent;
 import org.lecturestudio.presenter.api.event.ExternalSpeechViewEvent;
 import org.lecturestudio.presenter.api.event.MessageBarPositionEvent;
 import org.lecturestudio.presenter.api.event.MessengerStateEvent;
 import org.lecturestudio.presenter.api.event.NotesBarPositionEvent;
+import org.lecturestudio.presenter.api.event.SlideNotesBarPositionEvent;
 import org.lecturestudio.presenter.api.event.ParticipantsPositionEvent;
 import org.lecturestudio.presenter.api.event.PreviewPositionEvent;
 import org.lecturestudio.presenter.api.event.QuizStateEvent;
@@ -108,9 +112,7 @@ import org.lecturestudio.presenter.api.event.ScreenShareStateEvent;
 import org.lecturestudio.presenter.api.event.StreamReconnectStateEvent;
 import org.lecturestudio.presenter.api.event.StreamingStateEvent;
 import org.lecturestudio.presenter.api.input.Shortcut;
-import org.lecturestudio.presenter.api.model.MessageBarPosition;
-import org.lecturestudio.presenter.api.model.MessageDocument;
-import org.lecturestudio.presenter.api.model.NoteBarPosition;
+import org.lecturestudio.presenter.api.model.*;
 import org.lecturestudio.presenter.api.service.*;
 import org.lecturestudio.presenter.api.view.SlidesView;
 import org.lecturestudio.swing.model.ExternalWindowPosition;
@@ -158,6 +160,8 @@ public class SlidesPresenter extends Presenter<SlidesView> {
 
 	private final RenderController renderController;
 
+	private final BookmarkService bookmarkService;
+
 	private final DocumentService documentService;
 
 	private final RecordingService recordingService;
@@ -189,6 +193,7 @@ public class SlidesPresenter extends Presenter<SlidesView> {
 					ToolController toolController,
 					PresentationController presentationController,
 					RenderController renderController,
+					BookmarkService bookmarkService,
 					DocumentService documentService,
 					DocumentRecorder documentRecorder,
 					RecordingService recordingService,
@@ -203,6 +208,7 @@ public class SlidesPresenter extends Presenter<SlidesView> {
 		this.presentationController = presentationController;
 		this.renderController = renderController;
 		this.documentRecorder = documentRecorder;
+		this.bookmarkService = bookmarkService;
 		this.documentService = documentService;
 		this.recordingService = recordingService;
 		this.webService = webService;
@@ -490,8 +496,23 @@ public class SlidesPresenter extends Presenter<SlidesView> {
 	}
 
 	@Subscribe
+	public void onEvent(ExternalSlideNotesViewEvent event) {
+		if (event.isEnabled()) {
+			if (event.isShow()) {
+				viewShowExternalSlideNotes(event.isPersistent());
+			}
+			else {
+				view.hideExternalSlideNotes();
+			}
+		}
+		else {
+			viewHideExternalSlideNotes(event.isPersistent());
+		}
+	}
+
+	@Subscribe
 	public void onEvent(MessageBarPositionEvent event) {
-		final MessageBarPosition position = event.getMessageBarPosition();
+		final MessageBarPosition position = event.position();
 
 		view.setMessageBarPosition(position);
 
@@ -500,7 +521,7 @@ public class SlidesPresenter extends Presenter<SlidesView> {
 
 	@Subscribe
 	public void onEvent(ParticipantsPositionEvent event) {
-		final MessageBarPosition position = event.getMessageBarPosition();
+		final ParticipantsPosition position = event.position();
 
 		view.setParticipantsPosition(position);
 
@@ -509,18 +530,25 @@ public class SlidesPresenter extends Presenter<SlidesView> {
 
 	@Subscribe
 	public void onEvent(PreviewPositionEvent event) {
-		final MessageBarPosition position = event.getMessageBarPosition();
-
-		view.setPreviewPosition(position);
+		view.setPreviewPosition(event.position());
 	}
 
 	@Subscribe
 	public void onEvent(NotesBarPositionEvent event) {
-		final NoteBarPosition position = event.getNoteBarPosition();
+		final SlideNotesPosition position = event.position();
 
-		view.setNotesBarPosition(position);
+		view.setNotesPosition(position);
 
-		getPresenterConfig().getSlideViewConfiguration().setNotesBarPosition(position);
+		getPresenterConfig().getSlideViewConfiguration().setSlideNotesPosition(position);
+	}
+
+	@Subscribe
+	public void onEvent(SlideNotesBarPositionEvent event) {
+		final NoteSlidePosition position = event.position();
+
+		view.setNoteSlidePosition(position);
+
+		getPresenterConfig().getSlideViewConfiguration().setNoteSlidePosition(position);
 	}
 
 	@Subscribe
@@ -616,6 +644,21 @@ public class SlidesPresenter extends Presenter<SlidesView> {
 		eventBus.post(new ExternalNotesViewEvent(false));
 	}
 
+	private void externalSlideNotesPositionChanged(ExternalWindowPosition position) {
+		final ExternalWindowConfiguration config = getExternalSlideNotesConfig();
+
+		config.setPosition(position.getPosition());
+		config.setScreen(position.getScreen());
+	}
+
+	private void externalSlideNotesSizeChanged(Dimension size) {
+		getExternalSlideNotesConfig().setSize(size);
+	}
+
+	private void externalSlideNotesClosed() {
+		eventBus.post(new ExternalSlideNotesViewEvent(false));
+	}
+
 	private void keyEvent(KeyEvent event) {
 		Action action = shortcutMap.get(event);
 
@@ -662,7 +705,9 @@ public class SlidesPresenter extends Presenter<SlidesView> {
 		if (user.getUserId().equals(userPrivilegeService.getUserInfo().getUserId())) {
 			return;
 		}
-		streamService.ban(user);
+		if (userPrivilegeService.hasPrivilege("PARTICIPANTS_BAN")){
+			streamService.ban(user);
+		}
 	}
 
 	private void onDiscardMessage(MessengerMessage message) {
@@ -861,12 +906,156 @@ public class SlidesPresenter extends Presenter<SlidesView> {
 		idleTimer.runIdleTask();
 	}
 
+	private void firstPage() {
+		documentService.selectPage(0);
+	}
+
+	private void lastPage() {
+		Document doc = documentService.getDocuments().getSelectedDocument();
+
+		documentService.selectPage(doc.getPageCount() - 1);
+	}
+
 	private void nextPage() {
 		documentService.selectNextPage();
 	}
 
+	private void tenPagesForward() {
+		Document doc = documentService.getDocuments().getSelectedDocument();
+		int pageNumber = Math.min(doc.getCurrentPageNumber() + 10, doc.getPageCount() - 1);
+
+		documentService.selectPage(pageNumber);
+	}
+
 	private void previousPage() {
 		documentService.selectPreviousPage();
+	}
+
+	private void tenPagesBack() {
+		Document doc = documentService.getDocuments().getSelectedDocument();
+		int pageNumber = Math.max(doc.getCurrentPageNumber() - 10, 0);
+
+		documentService.selectPage(pageNumber);
+	}
+
+	private void overlayStart() {
+		Document doc = documentService.getDocuments().getSelectedDocument();
+		Page page = doc.getCurrentPage();
+
+		if (page.isOverlay()) {
+			Page lastOverlay = null;
+			var listIter = doc.getPages().listIterator(doc.getPageIndex(page));
+
+			while (listIter.hasPrevious()) {
+				Page previous = listIter.previous();
+				if (!previous.isOverlay() && nonNull(lastOverlay)) {
+					documentService.selectPage(lastOverlay);
+					break;
+				}
+
+				lastOverlay = previous;
+			}
+		}
+	}
+
+	private void overlayEnd() {
+		Document doc = documentService.getDocuments().getSelectedDocument();
+		Page page = doc.getCurrentPage();
+
+		if (page.isOverlay()) {
+			Page lastOverlay = null;
+			var listIter = doc.getPages().listIterator(doc.getPageIndex(page));
+
+			while (listIter.hasNext()) {
+				Page next = listIter.next();
+				if (!next.isOverlay() && nonNull(lastOverlay)) {
+					documentService.selectPage(lastOverlay);
+					break;
+				}
+
+				lastOverlay = next;
+			}
+		}
+	}
+
+	private void overlayPreviousPage() {
+		Document doc = documentService.getDocuments().getSelectedDocument();
+		Page page = doc.getCurrentPage();
+
+		if (page.isOverlay()) {
+			var listIter = doc.getPages().listIterator(doc.getPageIndex(page));
+
+			while (listIter.hasPrevious()) {
+				Page previous = listIter.previous();
+				if (!previous.isOverlay()) {
+					documentService.selectPage(previous);
+					break;
+				}
+			}
+		}
+	}
+
+	private void overlayNextPage() {
+		Document doc = documentService.getDocuments().getSelectedDocument();
+		Page page = doc.getCurrentPage();
+
+		if (page.isOverlay()) {
+			var listIter = doc.getPages().listIterator(doc.getPageIndex(page));
+
+			while (listIter.hasNext()) {
+				Page next = listIter.next();
+				if (!next.isOverlay()) {
+					documentService.selectPage(next);
+					break;
+				}
+			}
+		}
+	}
+
+	private void bookmarkSlide() {
+        try {
+			bookmarkCreated(bookmarkService.createDefaultBookmark());
+        }
+		catch (BookmarkException e) {
+			handleException(e, "Create bookmark failed", "bookmark.assign.warning", "bookmark.exists");
+        }
+    }
+
+	private void bookmarkGotoLastSlide() {
+		Document doc = documentService.getDocuments().getSelectedDocument();
+		Bookmark bookmark = bookmarkService.getBookmarks().getLastBookmark(doc);
+
+		if (nonNull(bookmark)) {
+            try {
+                bookmarkService.gotoBookmark(bookmark);
+            }
+			catch (BookmarkException e) {
+				handleException(e, "Go to bookmark failed", "bookmark.goto.error");
+            }
+        }
+	}
+
+	private void bookmarkCreated(Bookmark bookmark) {
+		String shortcut = bookmark.getShortcut().toUpperCase();
+		String message = MessageFormat.format(context.getDictionary().get("bookmark.created"), shortcut);
+
+		context.showNotificationPopup(message);
+		close();
+	}
+
+	private void timerStartToggle() {
+		PresenterContext pContext = (PresenterContext) context;
+		pContext.getStopwatch().startStopStopwatch();
+	}
+
+	private void timerPause() {
+		PresenterContext pContext = (PresenterContext) context;
+		pContext.getStopwatch().stopStopwatch();
+	}
+
+	private void timerReset() {
+		PresenterContext pContext = (PresenterContext) context;
+		pContext.getStopwatch().resetStopwatch();
 	}
 
 	private void registerShortcut(Shortcut shortcut, Action action) {
@@ -950,6 +1139,8 @@ public class SlidesPresenter extends Presenter<SlidesView> {
 		for(String note : page.getNotes()){
 			view.setNotesText(note);
 		}
+
+		view.setSlideNotes(page, parameter);
 		loadPageObjectViews(page);
 
 		recordPage(page);
@@ -989,7 +1180,7 @@ public class SlidesPresenter extends Presenter<SlidesView> {
 	}
 
 	private PageObjectView<? extends Shape> createPageObjectView(Shape shape,
-			Class<? extends PageObjectView<? extends Shape>> viewClass) {
+																 Class<? extends PageObjectView<? extends Shape>> viewClass) {
 		PageObjectView<Shape> objectView = (PageObjectView<Shape>) viewFactory.getInstance(viewClass);
 		objectView.setPageShape(shape);
 		objectView.setOnClose(() -> {
@@ -1041,6 +1232,10 @@ public class SlidesPresenter extends Presenter<SlidesView> {
 
 	private ExternalWindowConfiguration getExternalNotesConfig() {
 		return getPresenterConfig().getExternalNotesConfig();
+	}
+
+	private ExternalWindowConfiguration getExternalSlideNotesConfig() {
+		return getPresenterConfig().getExternalSlideNotesConfig();
 	}
 
 	@Override
@@ -1162,6 +1357,12 @@ public class SlidesPresenter extends Presenter<SlidesView> {
 		initExternalScreenBehavior(getExternalNotesConfig(),
 				(enabled, show) -> eventBus.post(new ExternalNotesViewEvent(enabled, show)));
 
+		view.setOnExternalSlideNotesPositionChanged(this::externalSlideNotesPositionChanged);
+		view.setOnExternalSlideNotesSizeChanged(this::externalSlideNotesSizeChanged);
+		view.setOnExternalSlideNotesClosed(this::externalSlideNotesClosed);
+		initExternalScreenBehavior(getExternalSlideNotesConfig(),
+				(enabled, show) -> eventBus.post(new ExternalSlideNotesViewEvent(enabled, show)));
+
 		view.setPageRenderer(renderController);
 		view.setExtendedFullscreen(config.getExtendedFullscreen());
 		view.setMessengerState(ExecutableState.Stopped);
@@ -1191,30 +1392,50 @@ public class SlidesPresenter extends Presenter<SlidesView> {
 		view.setOnStopPeerConnection(streamService::stopPeerConnection);
 
 		// Register shortcuts that are associated with the SlideView.
+		registerShortcut(Shortcut.SLIDE_FIRST, this::firstPage);
+		registerShortcut(Shortcut.SLIDE_LAST, this::lastPage);
+
 		registerShortcut(Shortcut.SLIDE_NEXT_DOWN, this::nextPage);
 		registerShortcut(Shortcut.SLIDE_NEXT_PAGE_DOWN, this::nextPage);
 		registerShortcut(Shortcut.SLIDE_NEXT_RIGHT, this::nextPage);
 		registerShortcut(Shortcut.SLIDE_NEXT_SPACE, this::nextPage);
+		registerShortcut(Shortcut.SLIDE_NEXT_10, this::tenPagesForward);
 
 		registerShortcut(Shortcut.SLIDE_PREVIOUS_LEFT, this::previousPage);
 		registerShortcut(Shortcut.SLIDE_PREVIOUS_PAGE_UP, this::previousPage);
 		registerShortcut(Shortcut.SLIDE_PREVIOUS_UP, this::previousPage);
+		registerShortcut(Shortcut.SLIDE_PREVIOUS_BACK_SPACE, this::previousPage);
+		registerShortcut(Shortcut.SLIDE_PREVIOUS_10, this::tenPagesBack);
+
+		registerShortcut(Shortcut.SLIDE_OVERLAY_START, this::overlayStart);
+		registerShortcut(Shortcut.SLIDE_OVERLAY_END, this::overlayEnd);
+		registerShortcut(Shortcut.SLIDE_OVERLAY_PREVIOUS, this::overlayPreviousPage);
+		registerShortcut(Shortcut.SLIDE_OVERLAY_NEXT, this::overlayNextPage);
+
+		registerShortcut(Shortcut.BOOKMARK_SLIDE, this::bookmarkSlide);
+		registerShortcut(Shortcut.BOOKMARK_GOTO_LAST, this::bookmarkGotoLastSlide);
+
+		registerShortcut(Shortcut.TIMER_START, this::timerStartToggle);
+		registerShortcut(Shortcut.TIMER_PAUSE, this::timerPause);
+		registerShortcut(Shortcut.TIMER_RESET, this::timerReset);
 
 		registerShortcut(Shortcut.COPY_OVERLAY, this::copyOverlay);
 		registerShortcut(Shortcut.COPY_OVERLAY_NEXT_PAGE_CTRL, this::copyNextOverlay);
-		registerShortcut(Shortcut.COPY_OVERLAY_NEXT_PAGE_SHIFT, this::copyNextOverlay);
 
 		view.setMessageBarPosition(getPresenterConfig()
 				.getSlideViewConfiguration().getMessageBarPosition());
 
-		view.setNotesBarPosition(getPresenterConfig()
-				.getSlideViewConfiguration().getNotesBarPosition());
+		view.setNotesPosition(getPresenterConfig()
+				.getSlideViewConfiguration().getSlideNotesPosition());
+
+		view.setNoteSlidePosition(getPresenterConfig()
+				.getSlideViewConfiguration().getNoteSlidePosition());
 
 		view.setParticipantsPosition(getPresenterConfig()
 				.getSlideViewConfiguration().getParticipantsPosition());
 
 		view.setPreviewPosition(getPresenterConfig()
-				.getSlideViewConfiguration().getPreviewPosition());
+				.getSlideViewConfiguration().getSlidePreviewPosition());
 
 		try {
 			recordingService.init();
@@ -1252,16 +1473,32 @@ public class SlidesPresenter extends Presenter<SlidesView> {
 	}
 
 	private void showExternalScreens() {
-		showExternalScreen(getExternalMessagesConfig(),
-				(enabled, show) -> eventBus.post(new ExternalMessagesViewEvent(enabled, show)));
-		showExternalScreen(getExternalParticipantsConfig(),
-				(enabled, show) -> eventBus.post(new ExternalParticipantsViewEvent(enabled, show)));
-		showExternalScreen(getExternalSlidePreviewConfig(),
-				(enabled, show) -> eventBus.post(new ExternalSlidePreviewViewEvent(enabled, show)));
-		showExternalScreen(getExternalSpeechConfig(),
-				(enabled, show) -> eventBus.post(new ExternalSpeechViewEvent(enabled, show)));
-		showExternalScreen(getExternalNotesConfig(),
-				(enabled, show) -> eventBus.post(new ExternalNotesViewEvent(enabled, show)));
+		SlideViewConfiguration viewConfig = getPresenterConfig().getSlideViewConfiguration();
+
+		if (viewConfig.getMessageBarPosition() == MessageBarPosition.EXTERNAL) {
+			showExternalScreen(getExternalMessagesConfig(),
+					(enabled, show) -> eventBus.post(new ExternalMessagesViewEvent(enabled, show)));
+		}
+		if (viewConfig.getParticipantsPosition() == ParticipantsPosition.EXTERNAL) {
+			showExternalScreen(getExternalParticipantsConfig(),
+					(enabled, show) -> eventBus.post(new ExternalParticipantsViewEvent(enabled, show)));
+		}
+		if (viewConfig.getSlidePreviewPosition() == SlidePreviewPosition.EXTERNAL) {
+			showExternalScreen(getExternalSlidePreviewConfig(),
+					(enabled, show) -> eventBus.post(new ExternalSlidePreviewViewEvent(enabled, show)));
+		}
+		if (viewConfig.getSpeechPosition() == SpeechPosition.EXTERNAL) {
+			showExternalScreen(getExternalSpeechConfig(),
+					(enabled, show) -> eventBus.post(new ExternalSpeechViewEvent(enabled, show)));
+		}
+		if (viewConfig.getSlideNotesPosition() == SlideNotesPosition.EXTERNAL) {
+			showExternalScreen(getExternalNotesConfig(),
+					(enabled, show) -> eventBus.post(new ExternalNotesViewEvent(enabled, show)));
+		}
+		if (viewConfig.getNoteSlidePosition() == NoteSlidePosition.EXTERNAL) {
+			showExternalScreen(getExternalSlideNotesConfig(),
+					(enabled, show) -> eventBus.post(new ExternalSlideNotesViewEvent(enabled, show)));
+		}
 	}
 
 	private void showExternalScreen(ExternalWindowConfiguration config, BiConsumer<Boolean, Boolean> action) {
@@ -1291,9 +1528,6 @@ public class SlidesPresenter extends Presenter<SlidesView> {
 
 		if (persistent) {
 			config.setEnabled(false);
-			config.setScreen(null);
-			config.setPosition(null);
-			config.setSize(null);
 		}
 
 		view.hideExternalMessages();
@@ -1314,9 +1548,6 @@ public class SlidesPresenter extends Presenter<SlidesView> {
 
 		if (persistent) {
 			config.setEnabled(false);
-			config.setScreen(null);
-			config.setPosition(null);
-			config.setSize(null);
 		}
 
 		view.hideExternalParticipants();
@@ -1337,9 +1568,6 @@ public class SlidesPresenter extends Presenter<SlidesView> {
 
 		if (persistent) {
 			config.setEnabled(false);
-			config.setScreen(null);
-			config.setPosition(null);
-			config.setSize(null);
 		}
 
 		view.hideExternalSlidePreview();
@@ -1360,9 +1588,6 @@ public class SlidesPresenter extends Presenter<SlidesView> {
 
 		if (persistent) {
 			config.setEnabled(false);
-			config.setScreen(null);
-			config.setPosition(null);
-			config.setSize(null);
 		}
 
 		view.hideExternalSpeech();
@@ -1383,14 +1608,30 @@ public class SlidesPresenter extends Presenter<SlidesView> {
 
 		if (persistent) {
 			config.setEnabled(false);
-			config.setScreen(null);
-			config.setPosition(null);
-			config.setSize(null);
 		}
 
 		view.hideExternalNotes();
 	}
 
+	private void viewShowExternalSlideNotes(boolean persistent) {
+		final ExternalWindowConfiguration config = getExternalSlideNotesConfig();
+
+		if (persistent) {
+			config.setEnabled(true);
+		}
+
+		view.showExternalSlideNotes(config.getScreen(), config.getPosition(), config.getSize());
+	}
+
+	private void viewHideExternalSlideNotes(boolean persistent) {
+		final ExternalWindowConfiguration config = getExternalSlideNotesConfig();
+
+		if (persistent) {
+			config.setEnabled(false);
+		}
+
+		view.hideExternalSlideNotes();
+	}
 
 	private boolean checkIfScreenInList(List<Screen> screens, Screen screen) {
 		if (screen == null) {

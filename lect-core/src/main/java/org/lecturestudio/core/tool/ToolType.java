@@ -40,6 +40,7 @@ public enum ToolType {
 	ELLIPSE,
 	SELECT,
 	SELECT_GROUP,
-	CLONE
+	CLONE,
+	BOOKMARK
 	
 }

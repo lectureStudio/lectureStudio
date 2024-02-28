@@ -95,6 +95,8 @@ public class Page {
 	/** The unique ID of this document. */
 	private UUID uid;
 
+	private boolean overlay = false;
+
 
 	/**
 	 * Create a new Page with the specified document and page number.
@@ -659,4 +661,11 @@ public class Page {
 		return annotationsAsString;
 	}
 
+	public boolean isOverlay() {
+		return overlay;
+	}
+
+	public void setOverlay(boolean overlay) {
+		this.overlay = overlay;
+	}
 }

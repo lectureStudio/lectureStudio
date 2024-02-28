@@ -56,6 +56,12 @@ public interface ToolbarView extends View {
 
 	void setOnNextSlide(Action action);
 
+	void setOnPreviousBookmark(Action action);
+
+	void setOnNextBookmark(Action action);
+
+	void setOnNewBookmark(Action action);
+
 	void setOnCustomPaletteColor(ConsumerAction<Color> action);
 
 	void setOnCustomColor(Action action);
@@ -121,6 +127,8 @@ public interface ToolbarView extends View {
 	void setOnStopRecording(Action action);
 
 	void selectColorButton(ToolType toolType, PaintSettings settings);
+
+	void selectNewBookmarkButton(boolean hasBookmark);
 
 	void selectToolButton(ToolType toolType);
 

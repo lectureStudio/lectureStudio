@@ -18,6 +18,7 @@
 
 package org.lecturestudio.swing.converter;
 
+import java.awt.*;
 import java.awt.event.InputEvent;
 import java.awt.event.KeyEvent;
 
@@ -26,6 +27,8 @@ import org.lecturestudio.core.beans.Converter;
 public class KeyEventConverter implements Converter<org.lecturestudio.core.input.KeyEvent, KeyEvent> {
 
 	public static final KeyEventConverter INSTANCE = new KeyEventConverter();
+
+	private static final Panel SOURCE = new Panel();
 
 
 	@Override
@@ -68,7 +71,7 @@ public class KeyEventConverter implements Converter<org.lecturestudio.core.input
 			id = KeyEvent.KEY_TYPED;
 		}
 
-		return new KeyEvent(null, id, System.currentTimeMillis(), modifiers, keyCode, (char) keyCode);
+		return new KeyEvent(SOURCE, id, System.currentTimeMillis(), modifiers, keyCode, (char) keyCode);
 	}
 
 	@Override

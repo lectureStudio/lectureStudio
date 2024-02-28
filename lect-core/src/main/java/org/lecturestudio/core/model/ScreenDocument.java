@@ -81,7 +81,7 @@ public class ScreenDocument extends Document {
 
 		int padding = (int) (PADDING * s);
 
-		PDFGraphics2D g2d = (PDFGraphics2D) getPdfDocument().createAppendablePageGraphics2D(pageIndex);
+		PDFGraphics2D g2d = (PDFGraphics2D) getPdfDocument().createAppendablePageGraphics2D(pageIndex, getSplitSlideNotesPosition());
 		// Draw screen frame with a border around it.
 		g2d.setColor(Color.BLACK);
 		g2d.drawRect(x - padding, y - padding, w + padding * 2, h + padding * 2);

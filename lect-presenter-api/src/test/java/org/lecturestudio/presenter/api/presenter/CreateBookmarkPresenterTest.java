@@ -44,17 +44,19 @@ class CreateBookmarkPresenterTest extends PresenterTest {
 
 	private BookmarkService bookmarkService;
 
+	private DocumentService documentService;
 
 	@BeforeEach
 	void setup() throws IOException {
 		Document document = new Document();
 		document.createPage();
+		document.createPage();
 
-		DocumentService documentService = new DocumentService(context);
+		documentService = new DocumentService(context);
 		documentService.addDocument(document);
 		documentService.selectDocument(document);
 
-		bookmarkService = new BookmarkService(documentService);
+		bookmarkService = new BookmarkService(documentService, context);
 	}
 
 	@Test
@@ -74,6 +76,9 @@ class CreateBookmarkPresenterTest extends PresenterTest {
 	@Test
 	void testBookmarkList() throws BookmarkException {
 		Bookmark a = bookmarkService.createBookmark("a");
+		int currPage = documentService.getDocuments().getSelectedDocument().getCurrentPage().getPageNumber();
+		int maxPages = documentService.getDocuments().getSelectedDocument().getPageCount();
+		documentService.getDocuments().getSelectedDocument().selectPage((currPage + 1) % maxPages);
 		Bookmark z = bookmarkService.createBookmark("z");
 
 		CreateBookmarkMockView view = new CreateBookmarkMockView() {
@@ -84,6 +89,29 @@ class CreateBookmarkPresenterTest extends PresenterTest {
 				assertEquals(2, bookmarkList.size());
 				assertEquals(a, bookmarkList.get(0));
 				assertEquals(z, bookmarkList.get(1));
+			}
+		};
+
+		CreateBookmarkPresenter presenter = new CreateBookmarkPresenter(context, view, bookmarkService);
+		presenter.initialize();
+	}
+
+	@Test
+	void testDefaultBookmarkList() throws BookmarkException {
+		Bookmark l1 = bookmarkService.createDefaultBookmark();
+		int currPage = documentService.getDocuments().getSelectedDocument().getCurrentPage().getPageNumber();
+		int maxPages = documentService.getDocuments().getSelectedDocument().getPageCount();
+		documentService.getDocuments().getSelectedDocument().selectPage((currPage + 1) % maxPages);
+		Bookmark l2 = bookmarkService.createDefaultBookmark();
+
+		CreateBookmarkMockView view = new CreateBookmarkMockView() {
+			@Override
+			public void setBookmarks(List<Bookmark> bookmarkList) {
+				assertNotNull(bookmarkList);
+				assertFalse(bookmarkList.isEmpty());
+				assertEquals(2, bookmarkList.size());
+				assertEquals(l1, bookmarkList.get(0));
+				assertEquals(l2, bookmarkList.get(1));
 			}
 		};
 
@@ -130,13 +158,41 @@ class CreateBookmarkPresenterTest extends PresenterTest {
 		assertFalse(close.get());
 		assertNotNull(notifyView);
 		assertEquals(NotificationType.ERROR, notifyView.type);
-		assertEquals("bookmark.assign.error", notifyView.title);
+		assertEquals("bookmark.assign.warning", notifyView.title);
 		assertEquals("bookmark.key.exists", notifyView.message);
+	}
+
+	@Test
+	void testCreateInvalidBookmarkSamePage() throws BookmarkException {
+		bookmarkService.createBookmark("a");
+
+		AtomicBoolean close = new AtomicBoolean(false);
+
+		CreateBookmarkMockView view = new CreateBookmarkMockView();
+
+		CreateBookmarkPresenter presenter = new CreateBookmarkPresenter(context, view, bookmarkService);
+		presenter.initialize();
+		presenter.setOnClose(() -> {
+			close.set(true);
+		});
+
+		view.createAction.execute("z");
+
+		NotificationMockView notifyView = notifyViewRef.get();
+
+		assertFalse(close.get());
+		assertNotNull(notifyView);
+		assertEquals(NotificationType.ERROR, notifyView.type);
+		assertEquals("bookmark.assign.warning", notifyView.title);
+		assertEquals("bookmark.exists", notifyView.message);
 	}
 
 	@Test
 	void testDeleteBookmark() throws BookmarkException {
 		Bookmark a = bookmarkService.createBookmark("a");
+		int currPage = documentService.getDocuments().getSelectedDocument().getCurrentPage().getPageNumber();
+		int maxPages = documentService.getDocuments().getSelectedDocument().getPageCount();
+		documentService.getDocuments().getSelectedDocument().selectPage((currPage + 1) % maxPages);
 		Bookmark z = bookmarkService.createBookmark("z");
 
 		CreateBookmarkMockView view = new CreateBookmarkMockView() {
@@ -161,6 +217,35 @@ class CreateBookmarkPresenterTest extends PresenterTest {
 		assertEquals(0, bookmarkService.getBookmarks().size());
 	}
 
+	@Test
+	void testDeleteDefaultBookmark() throws BookmarkException {
+		Bookmark l1 = bookmarkService.createDefaultBookmark();
+		int currPage = documentService.getDocuments().getSelectedDocument().getCurrentPage().getPageNumber();
+		int maxPages = documentService.getDocuments().getSelectedDocument().getPageCount();
+		documentService.getDocuments().getSelectedDocument().selectPage((currPage + 1) % maxPages);
+		Bookmark l2 = bookmarkService.createDefaultBookmark();
+
+		CreateBookmarkMockView view = new CreateBookmarkMockView() {
+			@Override
+			public void removeBookmark(Bookmark bookmark) {
+				if (bookmarkService.getBookmarks().size() == 1) {
+					assertEquals(l1, bookmark);
+				}
+				else {
+					assertEquals(l2, bookmark);
+				}
+			}
+		};
+
+		CreateBookmarkPresenter presenter = new CreateBookmarkPresenter(context, view, bookmarkService);
+		presenter.initialize();
+
+		view.deleteAction.execute(l1);
+		assertEquals(1, bookmarkService.getBookmarks().size());
+
+		view.deleteAction.execute(l2);
+		assertEquals(0, bookmarkService.getBookmarks().size());
+	}
 
 
 	private static class CreateBookmarkMockView implements CreateBookmarkView {

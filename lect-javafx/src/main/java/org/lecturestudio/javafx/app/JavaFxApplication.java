@@ -57,7 +57,7 @@ public abstract class JavaFxApplication extends ApplicationBase implements Graph
 
 	public static void launch(final String[] args, Class<? extends Preloader> preloaderClass) {
 		Platform.startup(() -> {
-			if (!OsInfo.isMac()) {
+			if (!OsInfo.isMacOs()) {
 				return;
 			}
 

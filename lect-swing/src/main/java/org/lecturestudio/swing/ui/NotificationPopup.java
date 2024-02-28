@@ -61,7 +61,9 @@ public class NotificationPopup extends JWindow {
 	private final static String CONFIG_FILE = "resources/notification.properties";
 
 	private final Object lock = new Object();
-	
+
+	private final NotificationManager manager;
+
 	private final LinearGradientPaint gradient;
 	
 	private final JTextArea messageLabel;
@@ -80,9 +82,7 @@ public class NotificationPopup extends JWindow {
 	
 	private boolean pending;
 	
-	private NotificationManager manager;
-	
-	
+
 	/**
 	 * Create a new {@code NotificationPopup}.
 	 * 
@@ -161,6 +161,8 @@ public class NotificationPopup extends JWindow {
 			
 			height += 30;
 		}
+
+		System.out.println(width + " " + height);
 		
 		setAlwaysOnTop(true);
 		setSize(width, height);

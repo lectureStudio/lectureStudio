@@ -55,6 +55,8 @@ import org.lecturestudio.swing.util.SwingUtils;
  */
 public class SwingNotificationPopupManager implements NotificationPopupManager {
 
+	private static final Dimension OFFSET = new Dimension(0, 55);
+
 	/** Visible notifications. */
 	private final Map<Position, List<JWindow>> popupMap = new HashMap<>();
 
@@ -102,7 +104,7 @@ public class SwingNotificationPopupManager implements NotificationPopupManager {
 			return;
 		}
 
-		popup.setLocation((int) location.getX(), (int) location.getY());
+		popup.setLocation((int) location.getX() + OFFSET.width, (int) location.getY() + OFFSET.height);
 		popup.setVisible(true);
 
 		addPopup(popup, position);
@@ -171,8 +173,7 @@ public class SwingNotificationPopupManager implements NotificationPopupManager {
 
 	private Point2D getLocation(Rectangle contentBounds, Rectangle rootBounds,
 			Position position) {
-		Point2D location = getInitialLocation(contentBounds, rootBounds,
-				position);
+		Point2D location = getInitialLocation(contentBounds, rootBounds, position);
 		List<JWindow> popups = popupMap.get(position);
 
 		if (isNull(popups)) {

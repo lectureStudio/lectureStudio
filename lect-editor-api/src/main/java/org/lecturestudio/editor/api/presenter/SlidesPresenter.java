@@ -140,6 +140,8 @@ public class SlidesPresenter extends Presenter<SlidesView> {
 
 			@Override
 			public void parameterChanged(Page page, PresentationParameter parameter) {
+				stylusHandler.setPresentationParameter(parameter);
+
 				view.setPage(page, parameter);
 			}
 		});

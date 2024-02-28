@@ -5,6 +5,9 @@
 	<Separator type="t" defaultTool="true" />
 	<Button id="prevSlideButton" icon="prev-slide-tool.svg, 24" tooltipText="toolbar.slide.prev.tooltip" />
 	<Button id="nextSlideButton" icon="next-slide-tool.svg, 24" tooltipText="toolbar.slide.next.tooltip" />
+	<Button id="nextBookmarkButton" icon="bookmark-next.svg, 24" tooltipText="toolbar.bookmark.next.tooltip" />
+	<Button id="prevBookmarkButton" icon="bookmark-prev.svg, 24" tooltipText="toolbar.bookmark.prev.tooltip" />
+	<Button id="newBookmarkButton" icon="bookmark-add.svg, 24" tooltipText="toolbar.bookmark.add.tooltip" tool="BOOKMARK" group="toolGroup" visible="false" />
 	<ToolColorPickerButton id="customColorButton" accelerator="F1" group="colorGroup" />
 	<ToggleButton id="colorButton1" accelerator="F2" group="colorGroup" defaultTool="true"/>
 	<ToggleButton id="colorButton2" accelerator="F3" group="colorGroup" defaultTool="true" />
@@ -12,29 +15,29 @@
 	<ToggleButton id="colorButton4" accelerator="F5" group="colorGroup" />
 	<ToggleButton id="colorButton5" accelerator="F6" group="colorGroup" defaultTool="true" />
 	<Separator type=" " defaultTool="true" />
-	<ToggleButton id="penButton" accelerator="P" icon="pen-tool.svg, 24" tooltipText="toolbar.pen.tooltip" tool="PEN" group="toolGroup" defaultTool="true" />
-	<ToggleButton id="highlighterButton" accelerator="H" icon="highlighter-tool.svg, 24" tooltipText="toolbar.highlighter.tooltip" tool="HIGHLIGHTER" group="toolGroup" defaultTool="true" />
-	<ToggleButton id="pointerButton" accelerator="A" icon="pointer-tool.svg, 24" tooltipText="toolbar.pointer.tooltip" tool="POINTER" group="toolGroup" defaultTool="true" />
-	<ToggleButton id="textSelectButton" accelerator="S" icon="text-select-tool.svg, 24" tooltipText="toolbar.text.select.tooltip" tool="TEXT_SELECTION" group="toolGroup" defaultTool="true" />
+	<ToggleButton id="penButton" accelerator="P, 3" icon="pen-tool.svg, 24" tooltipText="toolbar.pen.tooltip" tool="PEN" group="toolGroup" defaultTool="true" />
+	<ToggleButton id="highlighterButton" accelerator="H, 5" icon="highlighter-tool.svg, 24" tooltipText="toolbar.highlighter.tooltip" tool="HIGHLIGHTER" group="toolGroup" defaultTool="true" />
+	<ToggleButton id="pointerButton" accelerator="L, 2" icon="pointer-tool.svg, 24" tooltipText="toolbar.pointer.tooltip" tool="POINTER" group="toolGroup" defaultTool="true" />
+	<ToggleButton id="textSelectButton" accelerator="ctrl H, 6" icon="text-select-tool.svg, 24" tooltipText="toolbar.text.select.tooltip" tool="TEXT_SELECTION" group="toolGroup" defaultTool="true" />
 	<ToggleButton id="lineButton" accelerator="I" icon="line-tool.svg, 24" tooltipText="toolbar.line.tooltip" tool="LINE" group="toolGroup" />
 	<ToggleButton id="arrowButton" accelerator="W" icon="arrow-tool.svg, 24" tooltipText="toolbar.arrow.tooltip" tool="ARROW" group="toolGroup" />
 	<ToggleButton id="rectangleButton" accelerator="R" icon="rectangle-tool.svg, 24" tooltipText="toolbar.rectangle.tooltip" tool="RECTANGLE" group="toolGroup" visible="false" />
-	<ToggleButton id="ellipseButton" accelerator="C" icon="ellipse-tool.svg, 24" tooltipText="toolbar.ellipse.tooltip" tool="ELLIPSE" group="toolGroup" visible="false" />
-	<ToggleButton id="selectButton" accelerator="O" icon="select-tool.svg, 24" tooltipText="toolbar.select.tooltip" tool="SELECT" group="toolGroup" visible="false" />
+	<ToggleButton id="ellipseButton" accelerator="O" icon="ellipse-tool.svg, 24" tooltipText="toolbar.ellipse.tooltip" tool="ELLIPSE" group="toolGroup" visible="false" />
+	<ToggleButton id="selectButton" icon="select-tool.svg, 24" tooltipText="toolbar.select.tooltip" tool="SELECT" group="toolGroup" visible="false" />
 <!--	<ToolGroupButton id="selectButton" accelerator="O" copyIcon="clone-tool.svg, 24" selectIcon="select-tool.svg, 24" selectGroupIcon="select-group-tool.svg, 24" tooltipText="toolbar.select.tooltip" tool="SELECT, SELECT_GROUP, CLONE" group="toolGroup" />-->
-	<FontPickerButton id="textButton" accelerator="T" icon="text-tool.svg, 24" tooltipText="toolbar.text.tooltip" tool="TEXT" group="toolGroup" visible="false" />
+	<FontPickerButton id="textButton" accelerator="T, 7" icon="text-tool.svg, 24" tooltipText="toolbar.text.tooltip" tool="TEXT" group="toolGroup" visible="false" />
 <!--	<TeXFontPickerButton id="texButton" accelerator="X" icon="latex-tool.svg, 24" tooltipText="toolbar.latex.tooltip" tool="LATEX" group="toolGroup" visible="false" />-->
 	<Separator type=" " defaultTool="true" />
-	<ToggleButton id="eraseButton" accelerator="E" icon="rubber-tool.svg, 24" tooltipText="toolbar.erase.tooltip" tool="RUBBER" group="toolGroup" defaultTool="true" />
-	<Button id="clearButton" accelerator="ESCAPE" icon="clear-tool.svg, 24" tooltipText="toolbar.clear.tooltip" defaultTool="true" />
+	<ToggleButton id="eraseButton" accelerator="E, 4" icon="rubber-tool.svg, 24" tooltipText="toolbar.erase.tooltip" tool="RUBBER" group="toolGroup" defaultTool="true" />
+	<Button id="clearButton" accelerator="C, ESCAPE" icon="clear-tool.svg, 24" tooltipText="toolbar.clear.tooltip" defaultTool="true" />
 	<Separator type=" " defaultTool="true" />
 	<ToggleButton id="gridButton" accelerator="Q" icon="grid-tool.svg, 24" tooltipText="toolbar.grid.tooltip" />
 	<ToggleButton id="extendButton" accelerator="F7" icon="extend-tool.svg, 24" tooltipText="toolbar.extend.tooltip" />
 	<ToggleButton id="whiteboardButton" accelerator="F8" icon="whiteboard-tool.svg, 24" tooltipText="toolbar.whiteboard.tooltip" defaultTool="true" />
 	<ToggleButton id="displaysButton" icon="display-tool.svg, 24" tooltipText="toolbar.displays.tooltip" defaultTool="true" />
-	<ToggleButton id="zoomInButton" accelerator="F10" icon="zoom-in-tool.svg, 24" tooltipText="toolbar.zoom.in.tooltip" tool="ZOOM" group="toolGroup" />
+	<ToggleButton id="zoomInButton" accelerator="Z" icon="zoom-in-tool.svg, 24" tooltipText="toolbar.zoom.in.tooltip" tool="ZOOM" group="toolGroup" />
 	<ToggleButton id="panButton" accelerator="F11" icon="pan-tool.svg, 24" tooltipText="toolbar.zoom.pan.tooltip" tool="PANNING" group="toolGroup" />
-	<Button id="zoomOutButton" accelerator="F12" icon="zoom-out-tool.svg, 24" tooltipText="toolbar.zoom.out.tooltip" />
+	<Button id="zoomOutButton" accelerator="1" icon="zoom-out-tool.svg, 24" tooltipText="toolbar.zoom.out.tooltip" />
 	<Separator type="t" defaultTool="true" />
 	<RecordButton id="startRecordingButton" icon="record-tool.svg, 24" blinkIcon="record-blink-tool.svg, 24" pauseIcon="record-pause-tool.svg, 24" pausedIcon="record-resume-tool.svg, 24" tooltipText="toolbar.recording.start.tooltip" defaultTool="true" />
 	<Button id="stopRecordingButton" icon="record-stop-tool.svg, 24" tooltipText="toolbar.recording.stop.tooltip" defaultTool="true" />

@@ -142,8 +142,13 @@ public class StartStreamPresenter extends Presenter<StartStreamView> {
 			}
 		});
 
-		validateMicrophone();
-		validateSpeaker();
+		try {
+			validateMicrophone();
+			validateSpeaker();
+		}
+		catch (Throwable e) {
+			// Audio device error, e.g. no device connected, will be visible in the view.
+		}
 
 		PresenterContext pContext = (PresenterContext) context;
 		List<Course> courses = null;

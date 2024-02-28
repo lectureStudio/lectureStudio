@@ -184,7 +184,8 @@ public class StreamProviderService extends ProviderService {
 
 	/**
 	 * Sends a message to the server in order to ban a user from a course.
-	 * @param userId The user to ban
+	 *
+	 * @param userId The user to ban.
 	 */
 	public void banParticipantFromCourse(long courseId, String userId) {
 		streamRestClient.banParticipantFromCourse(courseId, userId);

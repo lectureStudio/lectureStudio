@@ -1,0 +1,9 @@
+[Desktop Entry]
+Name=lecturePresenter
+Comment=An integrated tool for presenting lectures
+Exec=/opt/lecturestudio/bin/lecturePresenter
+Icon=/opt/lecturestudio/lib/lecturePresenter.png
+Terminal=false
+Type=Application
+Categories=Education
+MimeType=

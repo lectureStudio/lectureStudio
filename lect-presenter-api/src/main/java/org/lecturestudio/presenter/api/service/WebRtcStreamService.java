@@ -188,8 +188,8 @@ public class WebRtcStreamService extends ExecutableBase {
 		if (!started()) {
 			return;
 		}
-		long courseId = streamContext.getCourse().getId();
 
+		long courseId = streamContext.getCourse().getId();
 
 		streamProviderService.banParticipantFromCourse(courseId, user.getUserId());
 	}

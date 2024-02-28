@@ -339,7 +339,18 @@ public class SoundSettingsPresenter extends Presenter<SoundSettingsView> {
 	}
 
 	private void setDefaultRecordingDevice() {
-		AudioDevice captureDevice = audioSystemProvider.getDefaultRecordingDevice();
+		if (audioSystemProvider.getRecordingDevices().length < 1) {
+			return;
+		}
+
+		AudioDevice captureDevice = null;
+
+		try {
+			captureDevice = audioSystemProvider.getDefaultRecordingDevice();
+		}
+		catch (Throwable e) {
+			// Audio device error, e.g. no device connected, will be visible in the view.
+		}
 
 		// Select first available capture device.
 		if (nonNull(captureDevice)) {
@@ -351,7 +362,14 @@ public class SoundSettingsPresenter extends Presenter<SoundSettingsView> {
 	}
 
 	private void setDefaultPlaybackDevice() {
-		AudioDevice playbackDevice = audioSystemProvider.getDefaultPlaybackDevice();
+		AudioDevice playbackDevice = null;
+
+		try {
+			playbackDevice = audioSystemProvider.getDefaultPlaybackDevice();
+		}
+		catch (Throwable e) {
+			// Audio device error, e.g. no device connected, will be visible in the view.
+		}
 
 		// Select first available playback device.
 		if (nonNull(playbackDevice)) {

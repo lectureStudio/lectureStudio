@@ -20,20 +20,22 @@ package org.lecturestudio.presenter.swing.view;
 
 import static java.util.Objects.isNull;
 
+import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.text.MessageFormat;
 import java.util.List;
 
-import javax.swing.AbstractAction;
-import javax.swing.JButton;
-import javax.swing.JTable;
-import javax.swing.JTextField;
-import javax.swing.KeyStroke;
+import javax.inject.Inject;
+import javax.swing.*;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 
+import org.lecturestudio.core.app.dictionary.Dictionary;
+import org.lecturestudio.core.model.Document;
+import org.lecturestudio.core.model.Interval;
 import org.lecturestudio.core.view.Action;
 import org.lecturestudio.core.view.ConsumerAction;
 import org.lecturestudio.presenter.api.model.Bookmark;
@@ -47,9 +49,19 @@ import org.lecturestudio.swing.view.ViewPostConstruct;
 @SwingView(name = "goto-bookmark")
 public class SwingGotoBookmarkView extends ContentPane implements GotoBookmarkView {
 
+	private final Dictionary dictionary;
+
+	private Interval<Integer> slideBounds;
+
+	private ConsumerAction<Integer> gotoPageNumberAction;
+
 	private ConsumerAction<Bookmark> gotoBookmarkAction;
 
 	private ConsumerAction<Bookmark> deleteBookmarkAction;
+
+	private JLabel pageNumberLabel;
+
+	private JTextField slideNumberTextField;
 
 	private JTextField acceleratorTextField;
 
@@ -70,8 +82,22 @@ public class SwingGotoBookmarkView extends ContentPane implements GotoBookmarkVi
 	};
 
 
-	SwingGotoBookmarkView() {
+	@Inject
+	SwingGotoBookmarkView(Dictionary dictionary) {
 		super();
+
+		this.dictionary = dictionary;
+		this.slideBounds = new Interval<>();
+	}
+
+	@Override
+	public void setDocument(Document document) {
+		String message = MessageFormat.format(dictionary.get("goto.slide.bounds"),
+				1, document.getPageCount());
+
+		pageNumberLabel.setText(message);
+
+		slideBounds.set(1, document.getPageCount());
 	}
 
 	@Override
@@ -96,6 +122,11 @@ public class SwingGotoBookmarkView extends ContentPane implements GotoBookmarkVi
 	}
 
 	@Override
+	public void setOnGotoPageNumber(ConsumerAction<Integer> action) {
+		gotoPageNumberAction = action;
+	}
+
+	@Override
 	public void setOnGotoBookmark(ConsumerAction<Bookmark> action) {
 		gotoBookmarkAction = action;
 	}
@@ -103,6 +134,23 @@ public class SwingGotoBookmarkView extends ContentPane implements GotoBookmarkVi
 	@Override
 	public void setOnDeleteBookmark(ConsumerAction<Bookmark> action) {
 		deleteBookmarkAction = action;
+	}
+
+	private void selectPageNumber() {
+		String input = slideNumberTextField.getText();
+
+		if (input.isEmpty() || input.isBlank()) {
+			return;
+		}
+
+		int pageNumber = Integer.parseInt(input);
+
+		if (slideBounds.contains(pageNumber)) {
+			executeAction(gotoPageNumberAction, pageNumber - 1);
+		}
+		else {
+			pageNumberLabel.setForeground(Color.RED);
+		}
 	}
 
 	private void selectBookmark(int row) {
@@ -114,6 +162,18 @@ public class SwingGotoBookmarkView extends ContentPane implements GotoBookmarkVi
 		Bookmark selectedItem = model.getItem(row);
 
 		executeAction(gotoBookmarkAction, selectedItem);
+	}
+
+	private void findBookmark(String shortcut) {
+		BookmarkTableModel model = (BookmarkTableModel) bookmarkTableView.getModel();
+
+		for (int i = 0; i < model.getRowCount(); i++) {
+			Bookmark bookmark = model.getItem(i);
+
+			if (bookmark.getShortcut().equalsIgnoreCase(shortcut)) {
+				executeAction(gotoBookmarkAction, bookmark);
+			}
+		}
 	}
 
 	@ViewPostConstruct
@@ -157,8 +217,7 @@ public class SwingGotoBookmarkView extends ContentPane implements GotoBookmarkVi
 					char c = s.charAt(0);
 
 					if (Character.isLetter(c) || Character.isDigit(c)) {
-						Bookmark bookmark = new Bookmark(String.valueOf(c));
-						executeAction(gotoBookmarkAction, bookmark);
+						findBookmark(s);
 					}
 				}
 			}
@@ -173,8 +232,12 @@ public class SwingGotoBookmarkView extends ContentPane implements GotoBookmarkVi
 
 			}
 		});
-		acceleratorTextField.addHierarchyListener(e -> {
-			acceleratorTextField.requestFocusInWindow();
+
+		slideNumberTextField.addActionListener(e -> {
+			selectPageNumber();
+		});
+		slideNumberTextField.addHierarchyListener(e -> {
+			slideNumberTextField.requestFocusInWindow();
 		});
 	}
 }

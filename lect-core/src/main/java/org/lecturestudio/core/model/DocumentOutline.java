@@ -45,6 +45,9 @@ public class DocumentOutline extends DocumentOutlineItem {
 			DocumentOutlineItem item1 = iterator.next();
 			Integer pageNum1 = item1.getPageNumber();
 
+			if (isNull(pageNum1)) {
+				return null;
+			}
 			if (pageNum1.equals(pageNumber)) {
 				return item1;
 			}

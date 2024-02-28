@@ -26,6 +26,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.lecturestudio.core.geometry.Rectangle2D;
+import org.lecturestudio.core.model.NotesPosition;
 
 public class WordWalker implements StructuredTextWalker {
 
@@ -39,13 +40,15 @@ public class WordWalker implements StructuredTextWalker {
 
 	private boolean inBounds = false;
 
+	private NotesPosition splitNotesPosition;
 
 	/**
 	 * Create a new {@link WordWalker} with the specified page bounds.
 	 *
 	 * @param pageBounds The page bounds.
 	 */
-	public WordWalker(Rect pageBounds) {
+	public WordWalker(Rect pageBounds, NotesPosition splitNotesPosition) {
+		this.splitNotesPosition = splitNotesPosition;
 		this.pageBounds = pageBounds;
 		this.scale = 1.F / (pageBounds.x1 - pageBounds.x0);
 		this.boundsList = new ArrayList<>();
@@ -65,7 +68,7 @@ public class WordWalker implements StructuredTextWalker {
 	}
 
 	@Override
-	public void beginLine(Rect bbox, int wMode) {
+	public void beginLine(Rect bbox, int wmode, Point dir) {
 		if (inBounds) {
 			wordBounds = new Rect();
 		}
@@ -103,12 +106,28 @@ public class WordWalker implements StructuredTextWalker {
 	}
 
 	private void saveWord(Rect wordBounds) {
-		double x = scale * wordBounds.x0;
-		double y = scale * wordBounds.y0;
-		double w = scale * (wordBounds.x1 - wordBounds.x0);
-		double h = scale * (wordBounds.y1 - wordBounds.y0);
-
+		double x = 0;
+		double y = 0;
+		double w = 0;
+		double h = 0;
+		if(splitNotesPosition == NotesPosition.LEFT){
+			x = scale*2 * (wordBounds.x0 - pageBounds.x1/2);
+			y = scale*2 * (wordBounds.y0);
+			w = scale*2 * (wordBounds.x1 - wordBounds.x0);
+			h = scale*2 * (wordBounds.y1 - wordBounds.y0);
+		}else if(splitNotesPosition == NotesPosition.RIGHT){
+			x = scale*2 * wordBounds.x0;
+			y = scale*2 * wordBounds.y0;
+			w = scale*2 * (wordBounds.x1 - wordBounds.x0);
+			h = scale*2 * (wordBounds.y1 - wordBounds.y0);
+		}else{
+			x = scale * wordBounds.x0 ;
+			y = scale * wordBounds.y0;
+			w = scale * (wordBounds.x1 - wordBounds.x0);
+			h = scale * (wordBounds.y1 - wordBounds.y0);
+		}
 		boundsList.add(new Rectangle2D(x, y, w, h));
 	}
+
 
 }

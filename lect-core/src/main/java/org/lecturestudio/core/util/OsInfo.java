@@ -35,8 +35,8 @@ public class OsInfo {
 		if (jvmName.startsWith("dalvik") && osName.startsWith("linux")) {
 			osName = "android";
 		}
-		else if (osName.startsWith("mac os x")) {
-			osName = "macosx";
+		else if (osName.startsWith("mac os")) {
+			osName = "macos";
 		}
 		else {
 			osName = osName.split(" ")[0];
@@ -65,7 +65,7 @@ public class OsInfo {
 		return osName.startsWith("linux");
 	}
 
-	public static boolean isMac() {
+	public static boolean isMacOs() {
 		return osName.startsWith("mac");
 	}
 

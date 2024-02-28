@@ -155,6 +155,8 @@ public class NotificationPane extends GlassPane {
 	}
 
 	private void initialize() {
+		setLayout(new BorderLayout());
+
 		container = new JPanel(new GridBagLayout());
 		container.setBorder(new EmptyBorder(20, 20, 20, 20));
 

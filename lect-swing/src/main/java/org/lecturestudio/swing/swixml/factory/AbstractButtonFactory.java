@@ -46,33 +46,36 @@ public class AbstractButtonFactory extends BeanFactory implements LogAware {
 		Node node = element.getAttributeNode("accelerator");
 
 		if (nonNull(node)) {
-			KeyStroke stroke = KeyStroke.getKeyStroke(node.getNodeValue());
+			String[] accelerators = node.getNodeValue().split(",|,\\s");
 
-			if (nonNull(stroke)) {
-				button.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW)
-						.put(stroke, stroke.toString());
-				button.getActionMap()
-						.put(stroke.toString(), new AbstractAction() {
+			for (String accelerator : accelerators) {
+				KeyStroke stroke = KeyStroke.getKeyStroke(accelerator);
 
-							@Override
-							public void actionPerformed(ActionEvent e) {
-								AbstractButton b = (AbstractButton) e.getSource();
-								b.doClick();
-							}
-						});
+				if (nonNull(stroke)) {
+					button.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW)
+							.put(stroke, stroke.toString());
+					button.getActionMap()
+							.put(stroke.toString(), new AbstractAction() {
 
-				String modifierString = InputEvent.getModifiersExText(stroke.getModifiers());
-				String keyString = KeyEvent.getKeyText(stroke.getKeyCode());
+								@Override
+								public void actionPerformed(ActionEvent e) {
+									AbstractButton b = (AbstractButton) e.getSource();
+									b.doClick();
+								}
+							});
 
-				if (!modifierString.isEmpty() || !modifierString.isBlank()) {
-					keyString = modifierString + " + " + keyString;
+					String modifierString = InputEvent.getModifiersExText(stroke.getModifiers());
+					String keyString = KeyEvent.getKeyText(stroke.getKeyCode());
+
+					if (!modifierString.isEmpty() || !modifierString.isBlank()) {
+						keyString = modifierString + " + " + keyString;
+					}
+
+					button.putClientProperty("KEY_STRING", keyString);
 				}
-
-				button.putClientProperty("KEY_STRING", keyString);
-			}
-			else {
-				logger.warning("Failed to set assigned accelerator: " + node
-						.getNodeValue());
+				else {
+					logger.warning("Failed to set assigned accelerator: " + accelerator);
+				}
 			}
 		}
 

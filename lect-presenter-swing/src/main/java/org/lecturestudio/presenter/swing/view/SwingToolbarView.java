@@ -45,6 +45,7 @@ import javax.swing.JSeparator;
 import javax.swing.JToggleButton;
 
 import org.lecturestudio.core.ExecutableState;
+import org.lecturestudio.core.app.dictionary.Dictionary;
 import org.lecturestudio.core.beans.BooleanProperty;
 import org.lecturestudio.core.controller.ToolController;
 import org.lecturestudio.core.graphics.Color;
@@ -59,6 +60,7 @@ import org.lecturestudio.core.view.Action;
 import org.lecturestudio.core.view.ConsumerAction;
 import org.lecturestudio.core.view.PresentationParameter;
 import org.lecturestudio.presenter.api.view.ToolbarView;
+import org.lecturestudio.swing.AwtResourceLoader;
 import org.lecturestudio.swing.components.FontPickerButton;
 import org.lecturestudio.swing.components.RecordButton;
 import org.lecturestudio.swing.components.ToolColorPickerButton;
@@ -95,6 +97,12 @@ public class SwingToolbarView extends JPanel implements ToolbarView {
 	private JButton prevSlideButton;
 
 	private JButton nextSlideButton;
+
+	private JButton prevBookmarkButton;
+
+	private JButton nextBookmarkButton;
+
+	private JButton newBookmarkButton;
 
 	private ToolColorPickerButton customColorButton;
 
@@ -168,11 +176,19 @@ public class SwingToolbarView extends JPanel implements ToolbarView {
 
 	private CustomizedToolbar customizedToolbar;
 
+	private final Dictionary dict;
+
+	private static final String REMOVE_BOOKMARK_KEY = "menu.bookmarks.remove";
+
+	private static final String ADD_BOOKMARK_KEY = "menu.bookmarks.add";
+
+
 
 	@Inject
-	SwingToolbarView(ResourceBundle resourceBundle, ToolController toolController) {
+	SwingToolbarView(Dictionary dict, ResourceBundle resourceBundle, ToolController toolController) {
 		super();
 
+		this.dict = dict;
 		this.resourceBundle = resourceBundle;
 		this.toolController = toolController;
 
@@ -269,6 +285,23 @@ public class SwingToolbarView extends JPanel implements ToolbarView {
 	@Override
 	public void setOnNextSlide(Action action) {
 		SwingUtils.bindAction(nextSlideButton, action);
+	}
+
+
+	@Override
+	public void setOnPreviousBookmark(Action action) {
+		SwingUtils.bindAction(prevBookmarkButton, action);
+	}
+
+
+	@Override
+	public void setOnNextBookmark(Action action) {
+		SwingUtils.bindAction(nextBookmarkButton, action);
+	}
+
+	@Override
+	public void setOnNewBookmark(Action action) {
+		SwingUtils.bindAction(newBookmarkButton, action);
 	}
 
 	@Override
@@ -519,6 +552,17 @@ public class SwingToolbarView extends JPanel implements ToolbarView {
 				setButtonColor(button, ColorConverter.INSTANCE.to(color));
 			}
 		});
+	}
+
+	@Override
+	public void selectNewBookmarkButton(boolean hasBookmark){
+			if (hasBookmark){
+				newBookmarkButton.setIcon(AwtResourceLoader.getIcon("bookmark-remove.svg", 24));
+				newBookmarkButton.setToolTipText(dict.get(REMOVE_BOOKMARK_KEY));
+			} else {
+				newBookmarkButton.setIcon(AwtResourceLoader.getIcon("bookmark-add.svg", 24));
+				newBookmarkButton.setToolTipText(dict.get(ADD_BOOKMARK_KEY));
+			}
 	}
 
 	@Override

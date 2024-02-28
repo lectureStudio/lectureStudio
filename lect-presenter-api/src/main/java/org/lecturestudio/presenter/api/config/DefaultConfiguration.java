@@ -35,6 +35,7 @@ import org.lecturestudio.core.text.TeXFont;
 import org.lecturestudio.core.text.TextAttributes;
 import org.lecturestudio.core.tool.PresetColor;
 import org.lecturestudio.presenter.api.model.MessageBarPosition;
+import org.lecturestudio.presenter.api.model.ParticipantsPosition;
 import org.lecturestudio.presenter.api.net.ScreenShareProfiles;
 
 public class DefaultConfiguration extends PresenterConfiguration {
@@ -105,7 +106,7 @@ public class DefaultConfiguration extends PresenterConfiguration {
 		getSlideViewConfiguration().setLeftSliderPosition(0.375);
 		getSlideViewConfiguration().setRightSliderPosition(0.8);
 		getSlideViewConfiguration().setMessageBarPosition(MessageBarPosition.BOTTOM);
-		getSlideViewConfiguration().setParticipantsPosition(MessageBarPosition.LEFT);
+		getSlideViewConfiguration().setParticipantsPosition(ParticipantsPosition.LEFT);
 
 		AudioProcessingSettings processingSettings = new AudioProcessingSettings();
 		processingSettings.setHighpassFilterEnabled(true);

@@ -111,6 +111,11 @@ public class ParticipantCellRenderer extends Box implements ListCellRenderer<Cou
 
 					partTypeStr = bundle.getString("role.participant");
 				}
+				case GUEST_LECTURER -> {
+					typeLabel.setIcon(null);
+
+					partTypeStr = bundle.getString("role.guest-lecturer");
+				}
 			}
 
 			nameLabel.setText(String.format("%s %s",

@@ -30,6 +30,8 @@ public class ParticipantCellRenderer extends Box implements ListCellRenderer<Cou
 	private static final Icon ICON_STREAM = AwtResourceLoader.getIcon("stream-indicator.svg", 20);
 	private static final Icon ICON_CLASSROOM = AwtResourceLoader.getIcon("classroom-indicator.svg", 20);
 
+	private static final Icon ICON_GUEST_SPEAKER = AwtResourceLoader.getIcon("guest-lecturer.svg", 15);
+
 	private final ResourceBundle bundle;
 
 	private final JLabel nameLabel;
@@ -112,7 +114,7 @@ public class ParticipantCellRenderer extends Box implements ListCellRenderer<Cou
 					partTypeStr = bundle.getString("role.participant");
 				}
 				case GUEST_LECTURER -> {
-					typeLabel.setIcon(null);
+					typeLabel.setIcon(ICON_GUEST_SPEAKER);
 
 					partTypeStr = bundle.getString("role.guest-lecturer");
 				}

@@ -38,6 +38,7 @@ import org.lecturestudio.presenter.api.event.MessengerStateEvent;
 import org.lecturestudio.presenter.api.event.QuizStateEvent;
 import org.lecturestudio.presenter.api.net.LocalBroadcaster;
 import org.lecturestudio.web.api.client.TokenProvider;
+import org.lecturestudio.web.api.message.StopStreamEnvironmentMessage;
 import org.lecturestudio.web.api.message.CoursePresenceMessage;
 import org.lecturestudio.web.api.message.MessageTransport;
 import org.lecturestudio.web.api.message.SpeechBaseMessage;
@@ -362,6 +363,9 @@ public class WebService extends ExecutableBase {
 				context.getEventBus().post(message);
 			});
 			messageTransport.addListener(SpeechBaseMessage.class, message -> {
+				context.getEventBus().post(message);
+			});
+			messageTransport.addListener(StopStreamEnvironmentMessage.class, message -> {
 				context.getEventBus().post(message);
 			});
 		}

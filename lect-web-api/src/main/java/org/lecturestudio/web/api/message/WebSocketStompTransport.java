@@ -96,7 +96,8 @@ public class WebSocketStompTransport extends ExecutableBase implements MessageTr
 				new CoursePresenceMessageAdapter(),
 				new MessengerMessageAdapter(),
 				new QuizAnswerMessageAdapter(),
-				new SpeechMessageAdapter()
+				new SpeechMessageAdapter(),
+				new StopStreamEnvironmentMessageAdapter()
 		);
 
 		jsonb = JsonbBuilder.create(jsonbConfig);
@@ -255,6 +256,9 @@ public class WebSocketStompTransport extends ExecutableBase implements MessageTr
 
 			subscribe(stompSession, "/topic/course/event/{id}/presence");
 			subscribe(stompSession, "/topic/course/{id}/chat");
+			subscribe(stompSession, "/topic/course/{id}/chat/deletion");
+			subscribe(stompSession, "/topic/course/{id}/chat/edit");
+			subscribe(stompSession, "/topic/course/{id}/stopStreamEnvironment");
 			subscribe(stompSession, "/user/queue/course/{id}/chat");
 			subscribe(stompSession, "/user/queue/course/{id}/presence");
 			subscribe(stompSession, "/user/queue/course/{id}/speech");

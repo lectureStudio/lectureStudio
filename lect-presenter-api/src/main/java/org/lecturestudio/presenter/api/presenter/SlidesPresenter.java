@@ -124,6 +124,7 @@ import org.lecturestudio.web.api.message.MessengerMessage;
 import org.lecturestudio.web.api.message.SpeechBaseMessage;
 import org.lecturestudio.web.api.message.SpeechCancelMessage;
 import org.lecturestudio.web.api.message.SpeechRequestMessage;
+import org.lecturestudio.web.api.message.util.MessageUtil;
 import org.lecturestudio.web.api.model.Message;
 import org.lecturestudio.web.api.model.ScreenSource;
 import org.lecturestudio.web.api.service.ServiceParameters;
@@ -166,6 +167,8 @@ public class SlidesPresenter extends Presenter<SlidesView> {
 
 	private final RecordingService recordingService;
 
+	private final UserPrivilegeService userPrivilegeService;
+
 	private StylusHandler stylusHandler;
 
 	private PageEditedListener pageEditedListener;
@@ -184,8 +187,6 @@ public class SlidesPresenter extends Presenter<SlidesView> {
 
 	private SelectionIdleTimer idleTimer;
 
-	private final UserPrivilegeService userPrivilegeService;
-
 
 	@Inject
 	SlidesPresenter(ApplicationContext context, SlidesView view,
@@ -197,10 +198,10 @@ public class SlidesPresenter extends Presenter<SlidesView> {
 					DocumentService documentService,
 					DocumentRecorder documentRecorder,
 					RecordingService recordingService,
+					UserPrivilegeService userPrivilegeService,
 					WebService webService,
 					WebServiceInfo webServiceInfo,
-					WebRtcStreamService streamService,
-					UserPrivilegeService userPrivilegeService) {
+					WebRtcStreamService streamService) {
 		super(context, view);
 
 		this.viewFactory = viewFactory;
@@ -211,6 +212,7 @@ public class SlidesPresenter extends Presenter<SlidesView> {
 		this.bookmarkService = bookmarkService;
 		this.documentService = documentService;
 		this.recordingService = recordingService;
+		this.userPrivilegeService = userPrivilegeService;
 		this.webService = webService;
 		this.webServiceInfo = webServiceInfo;
 		this.streamService = streamService;
@@ -219,7 +221,6 @@ public class SlidesPresenter extends Presenter<SlidesView> {
 		this.pageObjectRegistry = new PageObjectRegistry();
 		this.documentChangeListener = new DocumentChangeHandler();
 		this.screenViewContext = new ScreenPresentationViewContext();
-		this.userPrivilegeService = userPrivilegeService;
 	}
 
 	@Subscribe
@@ -356,11 +357,33 @@ public class SlidesPresenter extends Presenter<SlidesView> {
 		requireNonNull(message);
 
 		PresenterContext presenterContext = (PresenterContext) context;
+
+		if(message.isDeleted()) {
+			onDiscardMessage(message);
+			view.removeMessengerMessage(message.getMessageId());
+			return;
+		}
+
+		if(message.isEdited()) {
+			view.setModifiedMessengerMessage(message);
+			MessageUtil.updateOutdatedMessage(presenterContext.getMessengerMessages(), message);
+			MessageUtil.updateOutdatedMessage(presenterContext.getAllReceivedMessengerMessages(), message);
+			return;
+		}
+
 		presenterContext.getMessengerMessages().add(message);
+		presenterContext.getAllReceivedMessengerMessages().add(message);
 
-		view.setMessengerMessage(message);
+		if(MessageUtil.isReply(message)) {
+			final MessengerMessage messageToReplyTo = MessageUtil.findMessageToReplyTo(
+					((PresenterContext) context).getAllReceivedMessengerMessages(),
+					message);
+			view.setMessengerMessageAsReply(message, messageToReplyTo);
+		}
+		else {
+			view.setMessengerMessage(message);
+		}
 	}
-
 	@Subscribe
 	public void onEvent(SpeechRequestMessage message) {
 		requireNonNull(message);

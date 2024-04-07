@@ -21,6 +21,7 @@ package org.lecturestudio.presenter.api.context;
 import static java.util.Objects.isNull;
 
 import java.io.File;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
@@ -67,6 +68,8 @@ public class PresenterContext extends ApplicationContext {
 	private final ObjectProperty<ParticipantCount> courseParticipantsCount = new ObjectProperty<>();
 
 	private final ObservableList<MessengerMessage> messengerMessages = new ObservableArrayList<>();
+
+	private final List<MessengerMessage> allReceivedMessengerMessages = new ArrayList<>();
 
 	private final IntegerProperty messageCount = new IntegerProperty();
 
@@ -185,6 +188,10 @@ public class PresenterContext extends ApplicationContext {
 
 	public List<MessengerMessage> getMessengerMessages() {
 		return messengerMessages;
+	}
+
+	public List<MessengerMessage> getAllReceivedMessengerMessages() {
+		return allReceivedMessengerMessages;
 	}
 
 	public List<SpeechRequestMessage> getSpeechRequests() {

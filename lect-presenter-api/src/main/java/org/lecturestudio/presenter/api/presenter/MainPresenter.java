@@ -95,9 +95,11 @@ import org.lecturestudio.presenter.api.service.ScreenSourceService;
 import org.lecturestudio.presenter.api.service.StreamService;
 import org.lecturestudio.presenter.api.handler.shutdown.SaveDocumentsHandler;
 import org.lecturestudio.presenter.api.handler.shutdown.SaveRecordingHandler;
+import org.lecturestudio.presenter.api.service.WebService;
 import org.lecturestudio.presenter.api.util.ScreenDocumentCreator;
 import org.lecturestudio.presenter.api.view.MainView;
 import org.lecturestudio.web.api.exception.StreamMediaException;
+import org.lecturestudio.web.api.message.StopStreamEnvironmentMessage;
 
 public class MainPresenter extends org.lecturestudio.core.presenter.MainPresenter<MainView> implements ViewHandler {
 
@@ -131,6 +133,8 @@ public class MainPresenter extends org.lecturestudio.core.presenter.MainPresente
 
 	private final ScreenShareService screenShareService;
 
+	private final WebService webService;
+
 	private SlidesPresenter slidesPresenter;
 
 	/** The waiting notification. */
@@ -147,7 +151,8 @@ public class MainPresenter extends org.lecturestudio.core.presenter.MainPresente
 			BookmarkService bookmarkService,
 			RecordingService recordingService,
 			StreamService streamService,
-			ScreenShareService screenShareService) {
+			ScreenShareService screenShareService,
+			WebService webService) {
 		super(context, view);
 
 		this.audioSystemProvider = audioSystemProvider;
@@ -160,6 +165,7 @@ public class MainPresenter extends org.lecturestudio.core.presenter.MainPresente
 		this.streamService = streamService;
 		this.screenSourceService = new ScreenSourceService();
 		this.screenShareService = screenShareService;
+		this.webService = webService;
 		this.viewMap = new ObservableHashMap<>();
 		this.shortcutMap = new HashMap<>();
 		this.contexts = new ArrayList<>();
@@ -336,6 +342,7 @@ public class MainPresenter extends org.lecturestudio.core.presenter.MainPresente
 		if (state == ExecutableState.Stopped) {
 			PresenterContext presenterContext = (PresenterContext) context;
 			presenterContext.getMessengerMessages().clear();
+			presenterContext.getAllReceivedMessengerMessages().clear();
 
 //			destroyHandler(MessengerWindowPresenter.class);
 		}
@@ -453,6 +460,33 @@ public class MainPresenter extends org.lecturestudio.core.presenter.MainPresente
 			context.showNotification(NotificationType.DEFAULT, "screen.share",
 					"screen.share.stopped");
 		}
+	}
+
+	@Subscribe
+	public void onEvent(StopStreamEnvironmentMessage event) {
+		//This method tries to force the stop of all stream components (stream, messenger, quiz) even if they might be inactive from this side
+
+		final String initiator = String.format("%s %s", event.getFirstName(), event.getFamilyName());
+
+		try {
+			webService.stopQuiz();
+		}
+		catch (Exception exception) {
+			logException(exception, "Stop quiz failed");
+		}
+		try {
+			webService.stopMessenger();
+		}
+		catch (Exception exception) {
+			logException(exception, "Stop messenger failed");
+		}
+
+		((PresenterContext) context).setStreamStarted(false);
+
+		context.showNotification(NotificationType.WARNING,
+			"stream.environment.stopped.by.message.title",
+			"stream.environment.stopped.by.message",
+			initiator);
 	}
 
 	@Override

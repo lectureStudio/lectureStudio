@@ -49,6 +49,8 @@ public abstract class MessagePanel extends JPanel {
 
 	protected JLabel privateLabel;
 
+	protected JLabel editedLabel;
+
 
 	abstract protected void createContent(JPanel content);
 
@@ -117,6 +119,11 @@ public abstract class MessagePanel extends JPanel {
 		privateLabel = new JLabel();
 		privateLabel.setForeground(Color.RED);
 		privateLabel.setVisible(false);
+
+		editedLabel = new JLabel();
+		editedLabel.setText(dict.get("label.edited"));
+		editedLabel.setFont(editedLabel.getFont().deriveFont(Font.BOLD));
+		editedLabel.setVisible(false);
 
 		createContent(content);
 

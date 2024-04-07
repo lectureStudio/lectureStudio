@@ -16,29 +16,28 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package org.lecturestudio.web.api.message;
+package org.lecturestudio.core.pdf;
 
-import java.time.ZonedDateTime;
+public abstract class DocumentWorkerTask implements Runnable {
 
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+    /**
+     * This method will be executed on the background thread.
+     */
+    public void runInBackground() {
+    }
 
-@Getter
-@Setter
-@NoArgsConstructor
-public abstract class WebMessage {
+    /**
+     * This method will be executed on the UI thread if work() did not throw any exception.
+     */
+    public void run() {
+    }
 
-	private String messageId;
-
-	private ZonedDateTime date;
-
-
-	@Override
-	public boolean equals(final Object obj) {
-		if(!(obj instanceof WebMessage webMessage)) return false;
-
-		return this == webMessage || this.messageId.equals(webMessage.getMessageId());
-	}
+    /**
+     * This method will be executed on the UI thread if work() throws an exception.
+     *
+     * @param t The throwable containing the error.
+     */
+    public void exception(final Throwable t) {
+    }
 
 }

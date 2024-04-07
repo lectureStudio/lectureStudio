@@ -39,17 +39,19 @@ public class MessageView extends MessagePanel {
 
 	private JButton discardButton;
 
-	private JTextArea textArea;
+	protected JTextArea textArea;
 
 	private JButton createSlideButton;
 
+	private String messageId;
 
 	public MessageView(Dictionary dict) {
 		super(dict);
 	}
 
-	public void setMessage(String message) {
+	public void setMessage(String message, String correspondingMessageId) {
 		textArea.setText(message);
+		this.messageId = correspondingMessageId;
 	}
 
 	public void setPrivateText(String text) {
@@ -65,29 +67,32 @@ public class MessageView extends MessagePanel {
 		SwingUtils.bindAction(createSlideButton, action);
 	}
 
+	public String getMessageId() {
+		return messageId;
+	}
+
+	public void setIsEdited() {
+		editedLabel.setVisible(true);
+	}
+
 	@Override
 	protected void createContent(JPanel content) {
-		discardButton = new JButton(AwtResourceLoader.getIcon("message-check.svg", 18));
-		discardButton.setToolTipText(dict.get("button.processed"));
-		createSlideButton = new JButton(AwtResourceLoader.getIcon("message-slide.svg", 18));
-		createSlideButton.setToolTipText(dict.get("button.create.slide"));
+		initComponents();
 
-		Box userPanel = Box.createHorizontalBox();
-		userPanel.setOpaque(false);
-		userPanel.add(userLabel);
-		userPanel.add(privateLabel);
-		userPanel.add(Box.createHorizontalGlue());
+		Box userPanel = createUserPanel();
 
-		Box timePanel = Box.createHorizontalBox();
-		timePanel.setOpaque(false);
-		timePanel.add(timeLabel);
-		timePanel.add(Box.createHorizontalGlue());
+		Box timeEditedPanel = Box.createHorizontalBox();
+		timeEditedPanel.setOpaque(false);
+		timeEditedPanel.add(timeLabel);
+		timeEditedPanel.add(Box.createHorizontalStrut(10));
+		timeEditedPanel.add(editedLabel);
+		timeEditedPanel.add(Box.createHorizontalGlue());
 
 		Box userTimePanel = Box.createVerticalBox();
 		userTimePanel.setBorder(BorderFactory.createEmptyBorder());
 		userTimePanel.setOpaque(false);
 		userTimePanel.add(userPanel);
-		userTimePanel.add(timePanel);
+		userTimePanel.add(timeEditedPanel);
 
 		Box controlPanel = Box.createHorizontalBox();
 		controlPanel.setBorder(BorderFactory.createEmptyBorder(2, 5, 2, 5));
@@ -132,5 +137,24 @@ public class MessageView extends MessagePanel {
 				});
 			}
 		});
+	}
+
+	protected Box createUserPanel() {
+		final Box userPanel = Box.createHorizontalBox();
+
+		userPanel.setOpaque(false);
+		userPanel.add(userLabel);
+		userPanel.add(privateLabel);
+		userPanel.add(Box.createHorizontalGlue());
+
+		return userPanel;
+	}
+
+	protected void initComponents() {
+		discardButton = new JButton(AwtResourceLoader.getIcon("message-check.svg", 18));
+		createSlideButton = new JButton(AwtResourceLoader.getIcon("message-slide.svg", 18));
+
+		discardButton.setToolTipText(dict.get("button.processed"));
+		createSlideButton.setToolTipText(dict.get("button.create.slide"));
 	}
 }

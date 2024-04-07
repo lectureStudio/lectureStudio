@@ -22,6 +22,7 @@ import java.awt.Component;
 import java.awt.Container;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
+import java.util.Optional;
 
 import javax.inject.Inject;
 import javax.swing.JFrame;
@@ -31,13 +32,16 @@ import org.lecturestudio.core.view.Action;
 import org.lecturestudio.presenter.api.service.UserPrivilegeService;
 import org.lecturestudio.presenter.api.view.MessengerWindow;
 import org.lecturestudio.presenter.swing.utils.ViewUtil;
+import org.lecturestudio.swing.components.MessageAsReplyView;
 import org.lecturestudio.swing.components.MessageView;
 import org.lecturestudio.swing.components.SpeechRequestView;
 import org.lecturestudio.swing.util.SwingUtils;
 import org.lecturestudio.swing.view.SwingView;
 import org.lecturestudio.web.api.message.MessengerDirectMessage;
+import org.lecturestudio.web.api.message.MessengerDirectMessageAsReply;
 import org.lecturestudio.web.api.message.MessengerMessage;
 import org.lecturestudio.web.api.message.SpeechRequestMessage;
+import org.lecturestudio.web.api.message.util.MessageUtil;
 import org.lecturestudio.web.api.model.UserInfo;
 
 @SwingView(name = "messenger-window")
@@ -65,7 +69,7 @@ public class SwingMessengerWindow extends JFrame implements MessengerWindow {
 			UserInfo userInfo = userPrivilegeService.getUserInfo();
 
 			MessageView messageView = ViewUtil.createMessageView(MessageView.class, userInfo, message, dict);
-			messageView.setMessage(message.getMessage().getText());
+			messageView.setMessage(message.getMessage().getText(), message.getMessageId());
 			messageView.setOnDiscard(() -> {
 				removeMessageView(messageView);
 			});
@@ -87,6 +91,57 @@ public class SwingMessengerWindow extends JFrame implements MessengerWindow {
 			messageViewContainer.add(messageView);
 			messageViewContainer.revalidate();
 		});
+	}
+
+	@Override
+	public void setMessengerMessageAsReply(MessengerMessage message, MessengerMessage messageToReplyTo) {
+		SwingUtils.invoke(() -> {
+			UserInfo userInfo = userPrivilegeService.getUserInfo();
+
+			MessageAsReplyView messageView = ViewUtil.createMessageView(MessageAsReplyView.class, userInfo, message, dict);
+
+			messageView.setMessage(message.getMessage().getText(), message.getMessageId());
+
+			final String userToReplyTo = MessageUtil.evaluateSenderOfMessageToReplyTo(messageToReplyTo, userInfo, dict);
+			messageView.setUserToReplyTo(userToReplyTo);
+
+			messageView.setOnDiscard(() -> {
+				removeMessageView(messageView);
+			});
+
+			if (message instanceof MessengerDirectMessageAsReply directMessageAsReply) {
+				String recipient = directMessageAsReply.getRecipientId();
+
+				if (recipient.equals("organisers")) {
+					messageView.setPrivateText(dict.get("text.message.to.organisators"));
+				}
+				else {
+					messageView.setPrivateText(dict.get("text.message.privately"));
+				}
+			}
+
+			messageView.pack();
+
+			messageViewContainer.add(messageView);
+			messageViewContainer.revalidate();
+		});
+	}
+
+	@Override
+	public void setModifiedMessengerMessage(MessengerMessage modifiedMessage) {
+		SwingUtils.invoke(() -> {
+			final Optional<MessageView> toModify = findCorrespondingMessageView(modifiedMessage.getMessageId());
+
+			if(toModify.isEmpty()) return;
+
+			toModify.get().setMessage(modifiedMessage.getMessage().getText(), modifiedMessage.getMessageId());
+			toModify.get().setIsEdited();
+		});
+	}
+
+	@Override
+	public void removeMessengerMessage(String messageId) {
+		removeMessageView(messageId);
 	}
 
 	@Override
@@ -147,5 +202,29 @@ public class SwingMessengerWindow extends JFrame implements MessengerWindow {
 				break;
 			}
 		}
+	}
+
+	private void removeMessageView(final String messageId) {
+		for(Component component : messageViewContainer.getComponents()) {
+			if((component instanceof MessageView messageView) &&
+					messageView.getMessageId().equals(messageId)) {
+				
+				messageViewContainer.remove(component);
+				messageViewContainer.validate();
+				messageViewContainer.repaint();
+				
+				return;
+			}
+		}
+	}
+
+	private Optional<MessageView> findCorrespondingMessageView(final String messageId) {
+		for (Component component : messageViewContainer.getComponents()) {
+			if ((component instanceof MessageView messageView) &&
+					messageView.getMessageId().equals(messageId)) {
+				return Optional.of(messageView);
+			}
+		}
+		return Optional.empty();
 	}
 }

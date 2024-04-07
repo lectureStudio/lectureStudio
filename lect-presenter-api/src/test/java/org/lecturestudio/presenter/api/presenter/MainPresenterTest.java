@@ -65,7 +65,11 @@ import org.lecturestudio.presenter.api.context.PresenterContext;
 import org.lecturestudio.presenter.api.input.Shortcut;
 import org.lecturestudio.presenter.api.net.LocalBroadcaster;
 import org.lecturestudio.presenter.api.recording.FileLectureRecorder;
-import org.lecturestudio.presenter.api.service.*;
+import org.lecturestudio.presenter.api.service.BookmarkService;
+import org.lecturestudio.presenter.api.service.RecordingService;
+import org.lecturestudio.presenter.api.service.WebRtcStreamService;
+import org.lecturestudio.presenter.api.service.WebService;
+import org.lecturestudio.presenter.api.service.WebServiceInfo;
 import org.lecturestudio.presenter.api.view.MainView;
 import org.lecturestudio.presenter.api.view.QuitRecordingView;
 import org.lecturestudio.presenter.api.view.RestoreRecordingView;
@@ -196,7 +200,7 @@ class MainPresenterTest extends PresenterTest {
 			public <T> T getInstance(Class<T> cls) {
 				if (cls == SlidesPresenter.class) {
 					ToolController toolController = new ToolController(context, documentService);
-					return (T) new SlidesPresenter(context, createProxy(SlidesView.class), null, toolController, presentationController, null, bookmarkService, documentService, documentRecorder, recordingService, webService, webServiceInfo, streamService, null);
+					return (T) new SlidesPresenter(context, createProxy(SlidesView.class), null, toolController, presentationController, null, bookmarkService, documentService, documentRecorder, recordingService, null, webService, webServiceInfo, streamService);
 				}
 				else if (cls == SettingsPresenter.class) {
 					return (T) new SettingsPresenter(context, createProxy(SettingsView.class));
@@ -232,7 +236,7 @@ class MainPresenterTest extends PresenterTest {
 
 		MainPresenter presenter = new MainPresenter(context, view,
 				audioSystemProvider, presentationController, null, viewFactory,
-				documentService, bookmarkService, recordingService, null, null);
+				documentService, bookmarkService, recordingService, null, null, null);
 		presenter.initialize();
 		presenter.showView(testView, ViewLayer.Content);
 	}
@@ -270,7 +274,7 @@ class MainPresenterTest extends PresenterTest {
 
 		MainPresenter presenter = new MainPresenter(context, view,
 				audioSystemProvider, presentationController, null, viewFactory,
-				documentService, bookmarkService, recordingService, null, null);
+				documentService, bookmarkService, recordingService, null, null, null);
 		presenter.initialize();
 		presenter.display(new TestPresenter(context, new TestView()));
 
@@ -321,7 +325,7 @@ class MainPresenterTest extends PresenterTest {
 
 		MainPresenter presenter = new MainPresenter(context, view,
 				audioSystemProvider, presentationController, null, viewFactory,
-				documentService, bookmarkService, recordingService, null, null);
+				documentService, bookmarkService, recordingService, null, null, null);
 		presenter.initialize();
 		presenter.display(new TestPresenter(context, new TestView()));
 
@@ -367,7 +371,7 @@ class MainPresenterTest extends PresenterTest {
 
 		MainPresenter presenter = new MainPresenter(context, view,
 				audioSystemProvider, presentationController, null, viewFactory,
-				documentService, bookmarkService, recordingService, null, null);
+				documentService, bookmarkService, recordingService, null, null, null);
 		presenter.initialize();
 		presenter.display(testPresenter);
 		presenter.destroy(testPresenter);
@@ -414,7 +418,7 @@ class MainPresenterTest extends PresenterTest {
 
 		MainPresenter presenter = new MainPresenter(context, view,
 				audioSystemProvider, presentationController, null, viewFactory,
-				documentService, bookmarkService, recordingService, null, null);
+				documentService, bookmarkService, recordingService, null, null, null);
 		presenter.initialize();
 		presenter.display(testPresenter);
 		presenter.destroy(testPresenter);
@@ -436,7 +440,7 @@ class MainPresenterTest extends PresenterTest {
 
 		MainPresenter presenter = new MainPresenter(context, view,
 				audioSystemProvider, presentationController, null, viewFactory,
-				documentService, bookmarkService, recordingService, null, null);
+				documentService, bookmarkService, recordingService, null, null, null);
 		presenter.initialize();
 		presenter.setFullscreen(true);
 
@@ -474,7 +478,7 @@ class MainPresenterTest extends PresenterTest {
 
 		MainPresenter presenter = new MainPresenter(context, view,
 				audioSystemProvider, presentationController, null, viewFactory,
-				documentService, bookmarkService, recordingService, null, null);
+				documentService, bookmarkService, recordingService, null, null, null);
 		presenter.initialize();
 
 		view.shownAction.execute();
@@ -496,7 +500,7 @@ class MainPresenterTest extends PresenterTest {
 
 		MainPresenter presenter = new MainPresenter(context, view,
 				audioSystemProvider, presentationController, null, viewFactory,
-				documentService, bookmarkService, recordingService, null, null);
+				documentService, bookmarkService, recordingService, null, null, null);
 		presenter.initialize();
 		presenter.addShutdownHandler(new ShutdownHandler() {
 
@@ -538,7 +542,7 @@ class MainPresenterTest extends PresenterTest {
 
 		MainPresenter presenter = new MainPresenter(context, view,
 				audioSystemProvider, presentationController, null, viewFactory,
-				documentService, bookmarkService, recordingService, null, null);
+				documentService, bookmarkService, recordingService, null, null, null);
 		presenter.initialize();
 		presenter.display(new TestPresenter(context, new TestView()));
 
@@ -565,7 +569,7 @@ class MainPresenterTest extends PresenterTest {
 
 		MainPresenter presenter = new MainPresenter(context, view,
 				audioSystemProvider, presentationController, null, viewFactory,
-				documentService, bookmarkService, recordingService, null, null);
+				documentService, bookmarkService, recordingService, null, null, null);
 		presenter.initialize();
 
 		recordingService.start();
@@ -601,7 +605,7 @@ class MainPresenterTest extends PresenterTest {
 
 		MainPresenter presenter = new MainPresenter(context, view,
 				audioSystemProvider, presentationController, null, viewFactory,
-				documentService, bookmarkService, recordingService, null, null);
+				documentService, bookmarkService, recordingService, null, null, null);
 		presenter.initialize();
 
 		ToolController toolController = new ToolController(context, documentService);

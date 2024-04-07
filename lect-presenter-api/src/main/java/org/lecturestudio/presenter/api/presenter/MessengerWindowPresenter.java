@@ -28,9 +28,11 @@ import org.lecturestudio.core.app.ApplicationContext;
 import org.lecturestudio.core.app.configuration.Configuration;
 import org.lecturestudio.core.presenter.Presenter;
 import org.lecturestudio.core.view.ViewLayer;
+import org.lecturestudio.presenter.api.context.PresenterContext;
 import org.lecturestudio.presenter.api.view.MessengerWindow;
 import org.lecturestudio.web.api.message.MessengerMessage;
 import org.lecturestudio.web.api.message.SpeechRequestMessage;
+import org.lecturestudio.web.api.message.util.MessageUtil;
 
 public class MessengerWindowPresenter extends Presenter<MessengerWindow> {
 
@@ -81,6 +83,26 @@ public class MessengerWindowPresenter extends Presenter<MessengerWindow> {
 		requireNonNull(message);
 
 		view.setMessengerMessage(message);
+
+		if(message.isDeleted()) {
+			view.removeMessengerMessage(message.getMessageId());
+			return;
+		}
+
+		if(message.isEdited()) {
+			view.setModifiedMessengerMessage(message);
+			return;
+		}
+
+		if(MessageUtil.isReply(message)) {
+			final MessengerMessage messageToReplyTo = MessageUtil.findMessageToReplyTo(
+					((PresenterContext) context).getAllReceivedMessengerMessages(),
+					message);
+			view.setMessengerMessageAsReply(message, messageToReplyTo);
+		}
+		else {
+			view.setMessengerMessage(message);
+		}
 	}
 
 	@Subscribe

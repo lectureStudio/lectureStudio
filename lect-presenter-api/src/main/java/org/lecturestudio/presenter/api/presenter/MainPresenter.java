@@ -69,13 +69,7 @@ import org.lecturestudio.core.view.ViewLayer;
 import org.lecturestudio.presenter.api.config.PresenterConfiguration;
 import org.lecturestudio.presenter.api.config.StreamConfiguration;
 import org.lecturestudio.presenter.api.context.PresenterContext;
-import org.lecturestudio.presenter.api.event.MessengerStateEvent;
-import org.lecturestudio.presenter.api.event.QuizStateEvent;
-import org.lecturestudio.presenter.api.event.RecordingStateEvent;
-import org.lecturestudio.presenter.api.event.ScreenShareEndEvent;
-import org.lecturestudio.presenter.api.event.ScreenShareSelectEvent;
-import org.lecturestudio.presenter.api.event.StreamReconnectStateEvent;
-import org.lecturestudio.presenter.api.event.StreamingStateEvent;
+import org.lecturestudio.presenter.api.event.*;
 import org.lecturestudio.presenter.api.handler.AudioDeviceChangeHandler;
 import org.lecturestudio.presenter.api.handler.CheckVersionHandler;
 import org.lecturestudio.presenter.api.handler.MicrophoneMuteHandler;
@@ -86,6 +80,7 @@ import org.lecturestudio.presenter.api.handler.ViewStreamHandler;
 import org.lecturestudio.presenter.api.handler.shutdown.ActionHandler;
 import org.lecturestudio.presenter.api.handler.shutdown.CloseMainViewHandler;
 import org.lecturestudio.presenter.api.input.Shortcut;
+import org.lecturestudio.presenter.api.presenter.command.StartCamSharingCommand;
 import org.lecturestudio.presenter.api.presenter.command.StartScreenSharingCommand;
 import org.lecturestudio.presenter.api.recording.RecordingBackup;
 import org.lecturestudio.presenter.api.service.BookmarkService;
@@ -396,6 +391,43 @@ public class MainPresenter extends org.lecturestudio.core.presenter.MainPresente
 			stopScreenRecording();
 		}
 	}
+
+
+	//TODO: add event handling for cam sharing (Start, Stop, selected ....)
+	@Subscribe
+	public void onEvent(final CamShareSelectEvent event) {
+		PresenterContext presenterContext = (PresenterContext) context;
+
+		context.getEventBus()
+				.post(new StartCamSharingCommand((cam) -> {
+					// THis runnable provided to the command is run AFTER selecting the source!!!!
+
+					System.out.println("Received cam to start sharing: " + cam.getName());
+
+//					CompletableFuture.runAsync(() -> {
+//						try {
+//							if (presenterContext.getStreamStarted()) {
+//								streamService.setScreenShareContext(context);
+//							}
+//
+//							ScreenDocumentCreator.create(documentService, context.getSource());
+//
+//							// Register created screen document with the screen source.
+//							screenSourceService.addScreenShareContext(
+//									documentService.getDocuments().getSelectedDocument(),
+//									context);
+//						}
+//						catch (Exception e) {
+//							throw new RuntimeException(e);
+//						}
+//					}).exceptionally(e -> {
+//						handleException(e, "Set screen-source failed",
+//								"stream.screen.share.error");
+//						return null;
+//					});
+				}));
+	}
+
 
 	@Subscribe
 	public void onEvent(final ScreenShareSelectEvent event) {

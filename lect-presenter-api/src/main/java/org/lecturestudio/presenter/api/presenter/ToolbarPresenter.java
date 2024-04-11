@@ -64,6 +64,7 @@ import org.lecturestudio.core.view.PresentationParameterProvider;
 import org.lecturestudio.core.view.ViewType;
 import org.lecturestudio.presenter.api.config.PresenterConfiguration;
 import org.lecturestudio.presenter.api.context.PresenterContext;
+import org.lecturestudio.presenter.api.event.CamShareSelectEvent;
 import org.lecturestudio.presenter.api.event.RecordingStateEvent;
 import org.lecturestudio.presenter.api.event.ScreenShareSelectEvent;
 import org.lecturestudio.presenter.api.event.StreamingStateEvent;
@@ -397,6 +398,10 @@ public class ToolbarPresenter extends Presenter<ToolbarView> {
 		eventBus.post(new ScreenShareSelectEvent());
 	}
 
+	private void selectCamSource() {
+		eventBus.post(new CamShareSelectEvent());
+	}
+
 	private void selectQuiz() {
 		eventBus.post(new ShowPresenterCommand<>(SelectQuizPresenter.class));
 	}
@@ -626,7 +631,8 @@ public class ToolbarPresenter extends Presenter<ToolbarView> {
 		view.bindEnableStream(presenterContext.streamStartedProperty());
 		view.bindEnableStreamMicrophone(config.getStreamConfig().enableMicrophoneProperty());
 		view.bindEnableStreamCamera(config.getStreamConfig().enableCameraProperty());
-		view.bindEnableScreenSharing(this::selectScreenSource);
+		view.bindEnableScreenSharing(this::selectCamSource);
+//		view.bindEnableScreenSharing(this::selectScreenSource);
 
 		view.setOnSelectQuiz(this::selectQuiz);
 		view.setOnAudienceMessage(this::showAudienceMessageTemplate);

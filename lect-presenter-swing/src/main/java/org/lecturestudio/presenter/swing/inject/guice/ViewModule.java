@@ -71,6 +71,7 @@ public class ViewModule extends AbstractModule {
 		bind(SlideViewAddressOverlay.class).to(SwingSlideViewAddressOverlay.class);
 		bind(StartCourseFeatureView.class).to(SwingStartCourseFeatureView.class);
 		bind(StartView.class).to(SwingStartView.class);
+		bind(StartCamSharingView.class).to(SwingStartCamSharingView.class);
 		bind(StartRecordingView.class).to(SwingStartRecordingView.class);
 		bind(StartScreenSharingView.class).to(SwingStartScreenSharingView.class);
 		bind(StartStreamView.class).to(SwingStartStreamView.class);

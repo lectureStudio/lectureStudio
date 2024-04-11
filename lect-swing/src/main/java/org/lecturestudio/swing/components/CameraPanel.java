@@ -153,6 +153,10 @@ public class CameraPanel extends JPanel {
 		canvas.setStatusMessage(message);
 	}
 
+	public synchronized Camera getCamera() {
+		return camera;
+	}
+
 	protected CameraFormat getCameraFormat() {
 		if (isNull(camera)) {
 			return null;

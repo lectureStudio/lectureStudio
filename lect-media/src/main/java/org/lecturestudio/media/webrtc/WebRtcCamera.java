@@ -88,6 +88,8 @@ public class WebRtcCamera extends AbstractCamera {
 
 	@Override
 	public void open() throws CameraException {
+
+		System.out.println("Camera starting via WebRtcCam: " + device.getName());
 		if (open.compareAndSet(false, true)) {
 			int width = getFormat().getWidth();
 			int height = getFormat().getHeight();

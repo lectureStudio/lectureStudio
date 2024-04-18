@@ -1491,7 +1491,9 @@ public class SlidesPresenter extends Presenter<SlidesView> {
 					return;
 				}
 
-				action.accept(config.isEnabled(), checkIfScreenInList(list, config.getScreen()));
+				checkScreenExists(config);
+
+				action.accept(config.isEnabled(), true);
 			}
 		});
 	}
@@ -1526,9 +1528,9 @@ public class SlidesPresenter extends Presenter<SlidesView> {
 	}
 
 	private void showExternalScreen(ExternalWindowConfiguration config, BiConsumer<Boolean, Boolean> action) {
-		final ObservableList<Screen> screens = presentationController.getScreens();
+		checkScreenExists(config);
 
-		action.accept(config.isEnabled(), checkIfScreenInList(screens, config.getScreen()));
+		action.accept(config.isEnabled(), true);
 	}
 
 	private void hideExternalScreens() {
@@ -1537,12 +1539,22 @@ public class SlidesPresenter extends Presenter<SlidesView> {
 		view.hideExternalSpeech();
 	}
 
+	private void checkScreenExists(ExternalWindowConfiguration config) {
+		final ObservableList<Screen> screens = presentationController.getScreens();
+
+		if (!checkIfScreenInList(screens, config.getScreen())) {
+			config.setScreen(null);
+		}
+	}
+
 	private void viewShowExternalMessages(boolean persistent) {
 		final ExternalWindowConfiguration config = getExternalMessagesConfig();
 
 		if (persistent) {
 			config.setEnabled(true);
 		}
+
+		checkScreenExists(config);
 
 		view.showExternalMessages(config.getScreen(), config.getPosition(), config.getSize());
 	}
@@ -1564,6 +1576,8 @@ public class SlidesPresenter extends Presenter<SlidesView> {
 			config.setEnabled(true);
 		}
 
+		checkScreenExists(config);
+
 		view.showExternalParticipants(config.getScreen(), config.getPosition(), config.getSize());
 	}
 
@@ -1583,6 +1597,8 @@ public class SlidesPresenter extends Presenter<SlidesView> {
 		if (persistent) {
 			config.setEnabled(true);
 		}
+
+		checkScreenExists(config);
 
 		view.showExternalSlidePreview(config.getScreen(), config.getPosition(), config.getSize());
 	}
@@ -1604,6 +1620,8 @@ public class SlidesPresenter extends Presenter<SlidesView> {
 			config.setEnabled(true);
 		}
 
+		checkScreenExists(config);
+
 		view.showExternalSpeech(config.getScreen(), config.getPosition(), config.getSize());
 	}
 
@@ -1623,6 +1641,8 @@ public class SlidesPresenter extends Presenter<SlidesView> {
 		if (persistent) {
 			config.setEnabled(true);
 		}
+
+		checkScreenExists(config);
 
 		view.showExternalNotes(config.getScreen(), config.getPosition(), config.getSize());
 	}
@@ -1644,6 +1664,8 @@ public class SlidesPresenter extends Presenter<SlidesView> {
 			config.setEnabled(true);
 		}
 
+		checkScreenExists(config);
+
 		view.showExternalSlideNotes(config.getScreen(), config.getPosition(), config.getSize());
 	}
 
@@ -1661,7 +1683,7 @@ public class SlidesPresenter extends Presenter<SlidesView> {
 		if (screen == null) {
 			return true;
 		}
-		return screens.stream().anyMatch(scrn -> scrn.equals(screen));
+		return screens.stream().anyMatch(s -> s.equals(screen));
 	}
 
 	private void recordPage(Page page) {

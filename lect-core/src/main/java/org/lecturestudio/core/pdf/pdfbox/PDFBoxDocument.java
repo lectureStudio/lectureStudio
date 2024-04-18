@@ -605,6 +605,11 @@ public class PDFBoxDocument implements DocumentAdapter {
 		return shapes;
 	}
 
+	@Override
+	public List<String> getPageTextLines(int pageNumber, int maxLines) {
+		return List.of();
+	}
+
 	private void loadOutline(PDDocumentCatalog catalog, PDOutlineItem item,
 			DocumentOutlineItem outline) {
 		if (isNull(item)) {

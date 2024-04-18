@@ -41,14 +41,9 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.lang.reflect.Constructor;
 import java.net.URI;
-import java.util.AbstractMap;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.stream.Collectors;
 
 import org.lecturestudio.core.geometry.Rectangle2D;
 import org.lecturestudio.core.io.BitConverter;
@@ -201,7 +196,6 @@ public class MuPDFDocument implements DocumentAdapter {
 			Page page = getPage(pageNumber);
 
 			SimpleTextWalker textWalker = new SimpleTextWalker(page.getBounds());
-
 			StructuredText structuredText = displayList.toStructuredText();
 			structuredText.walk(textWalker);
 
@@ -493,6 +487,62 @@ public class MuPDFDocument implements DocumentAdapter {
 			}
 
 			return shapes;
+		}
+	}
+
+	@Override
+	public List<String> getPageTextLines(int pageNumber, int maxLines) {
+		synchronized (mutex) {
+			List<String> lines = new ArrayList<>();
+			DisplayList displayList = getDisplayList(pageNumber);
+			StructuredText structuredText = displayList.toStructuredText();
+
+			// Sort page text blocks, so that the page text is chronologically ordered (top-down).
+			var sorted = Arrays.stream(structuredText.getBlocks())
+					.sorted((o1, o2) -> o1.bbox.y0 < o2.bbox.y0 ? -1 : 1)
+					.toList();
+
+			// Last text block y-position.
+			double lastY0 = Double.MAX_VALUE;
+			double lastY1 = Double.MAX_VALUE;
+
+			// Read text lines from each block.
+			for (var block : sorted) {
+				// Check if the blocks intersect each other.
+				boolean intersects = (block.bbox.y0 >= lastY0 && block.bbox.y0 <= lastY1)
+						|| (block.bbox.y1 >= lastY0 && block.bbox.y1 <= lastY1);
+
+				if (block.lines.length > 0) {
+					StructuredText.TextLine textLine = block.lines[0];
+
+					if (textLine.chars.length > 0) {
+						// Convert individual chars into lines of strings.
+						var text = Arrays.stream(textLine.chars)
+								.map(textChar -> Character.toString(textChar.c))
+								.collect(Collectors.joining(""));
+
+						// If the blocks intersect, merge the text into a single line.
+						if (intersects) {
+							// Get last line text.
+							int index = lines.size() - 1;
+							String lastLine = lines.get(index) + text;
+							lines.set(index, lastLine);
+						}
+						else {
+							lines.add(text);
+						}
+
+						if (lines.size() >= maxLines) {
+							break;
+						}
+					}
+				}
+
+				lastY0 = block.bbox.y0;
+				lastY1 = block.bbox.y1;
+			}
+
+			return lines;
 		}
 	}
 

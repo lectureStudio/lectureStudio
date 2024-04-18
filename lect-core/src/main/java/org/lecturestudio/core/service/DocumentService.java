@@ -125,7 +125,7 @@ public class DocumentService {
 		final File file = new File(nonNull(templatePath) ? templatePath : "");
 
 		return CompletableFuture.supplyAsync(() -> {
-			// Search for a opened whiteboard.
+			// Search for an opened whiteboard.
 			Document whiteboard = documents.getFirstWhiteboard();
 
 			// If there isn't any whiteboard, then create one.

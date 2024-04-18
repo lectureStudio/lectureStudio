@@ -310,7 +310,7 @@ public class ToolbarPresenter extends Presenter<ToolbarView> {
 			String template = config.getTemplateConfig()
 					.getWhiteboardTemplateConfig().getTemplatePath();
 
-			documentService.openWhiteboard(template).join();
+			documentService.openWhiteboard(template);
 		}
 		else {
 			documentService.selectDocument(documents.getLastNonWhiteboard());

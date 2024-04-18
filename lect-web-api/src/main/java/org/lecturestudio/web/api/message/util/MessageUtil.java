@@ -57,12 +57,12 @@ public class MessageUtil {
     }
 
     public static void updateOutdatedMessage(final List<MessengerMessage> messages, final MessengerMessage newMessage) {
-        for(MessengerMessage message : messages) {
-            if(message.getMessageId().equals(newMessage.getMessageId())) {
-                messages.remove(message);
-                messages.add(newMessage);
-            }
-        }
+		for (MessengerMessage message : messages) {
+			if (message.getMessageId().equals(newMessage.getMessageId())) {
+				messages.remove(message);
+				messages.add(newMessage);
+			}
+		}
     }
 
     private static boolean sentByMe(final UserMessage message, final UserInfo userInfo) {

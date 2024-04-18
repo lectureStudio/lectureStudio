@@ -37,8 +37,6 @@ import org.lecturestudio.swing.components.MessageView;
 import org.lecturestudio.swing.components.SpeechRequestView;
 import org.lecturestudio.swing.util.SwingUtils;
 import org.lecturestudio.swing.view.SwingView;
-import org.lecturestudio.web.api.message.MessengerDirectMessage;
-import org.lecturestudio.web.api.message.MessengerDirectMessageAsReply;
 import org.lecturestudio.web.api.message.MessengerMessage;
 import org.lecturestudio.web.api.message.SpeechRequestMessage;
 import org.lecturestudio.web.api.message.util.MessageUtil;
@@ -69,22 +67,10 @@ public class SwingMessengerWindow extends JFrame implements MessengerWindow {
 			UserInfo userInfo = userPrivilegeService.getUserInfo();
 
 			MessageView messageView = ViewUtil.createMessageView(MessageView.class, userInfo, message, dict);
-			messageView.setMessage(message.getMessage().getText(), message.getMessageId());
+			messageView.setMessage(message, userInfo);
 			messageView.setOnDiscard(() -> {
 				removeMessageView(messageView);
 			});
-
-			if (message instanceof MessengerDirectMessage) {
-				MessengerDirectMessage directMessage = (MessengerDirectMessage) message;
-				String recipient = directMessage.getRecipientId();
-
-				if (recipient.equals("organisers")) {
-					messageView.setPrivateText(dict.get("text.message.to.organisators"));
-				}
-				else {
-					messageView.setPrivateText(dict.get("text.message.privately"));
-				}
-			}
 
 			messageView.pack();
 
@@ -99,8 +85,7 @@ public class SwingMessengerWindow extends JFrame implements MessengerWindow {
 			UserInfo userInfo = userPrivilegeService.getUserInfo();
 
 			MessageAsReplyView messageView = ViewUtil.createMessageView(MessageAsReplyView.class, userInfo, message, dict);
-
-			messageView.setMessage(message.getMessage().getText(), message.getMessageId());
+			messageView.setMessage(message, userInfo);
 
 			final String userToReplyTo = MessageUtil.evaluateSenderOfMessageToReplyTo(messageToReplyTo, userInfo, dict);
 			messageView.setUserToReplyTo(userToReplyTo);
@@ -108,17 +93,6 @@ public class SwingMessengerWindow extends JFrame implements MessengerWindow {
 			messageView.setOnDiscard(() -> {
 				removeMessageView(messageView);
 			});
-
-			if (message instanceof MessengerDirectMessageAsReply directMessageAsReply) {
-				String recipient = directMessageAsReply.getRecipientId();
-
-				if (recipient.equals("organisers")) {
-					messageView.setPrivateText(dict.get("text.message.to.organisators"));
-				}
-				else {
-					messageView.setPrivateText(dict.get("text.message.privately"));
-				}
-			}
 
 			messageView.pack();
 
@@ -132,9 +106,13 @@ public class SwingMessengerWindow extends JFrame implements MessengerWindow {
 		SwingUtils.invoke(() -> {
 			final Optional<MessageView> toModify = findCorrespondingMessageView(modifiedMessage.getMessageId());
 
-			if(toModify.isEmpty()) return;
+			if (toModify.isEmpty()) {
+				return;
+			}
 
-			toModify.get().setMessage(modifiedMessage.getMessage().getText(), modifiedMessage.getMessageId());
+			UserInfo userInfo = userPrivilegeService.getUserInfo();
+
+			toModify.get().setMessage(modifiedMessage, userInfo);
 			toModify.get().setIsEdited();
 		});
 	}

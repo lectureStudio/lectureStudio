@@ -39,7 +39,6 @@ import javax.swing.event.AncestorListener;
 import javax.swing.plaf.basic.BasicSplitPaneDivider;
 import javax.swing.plaf.basic.BasicSplitPaneUI;
 import javax.swing.text.JTextComponent;
-import javax.swing.text.html.Option;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeModel;
 import javax.swing.tree.TreeNode;
@@ -51,7 +50,6 @@ import java.awt.event.ComponentEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.image.BufferedImage;
-import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Enumeration;
@@ -116,8 +114,6 @@ import org.lecturestudio.swing.view.SwingView;
 import org.lecturestudio.swing.view.ViewPostConstruct;
 import org.lecturestudio.web.api.event.PeerStateEvent;
 import org.lecturestudio.web.api.event.RemoteVideoFrameEvent;
-import org.lecturestudio.web.api.message.MessengerDirectMessage;
-import org.lecturestudio.web.api.message.MessengerDirectMessageAsReply;
 import org.lecturestudio.web.api.message.MessengerMessage;
 import org.lecturestudio.web.api.message.SpeechBaseMessage;
 import org.lecturestudio.web.api.message.util.MessageUtil;
@@ -749,40 +745,19 @@ public class SwingSlidesView extends JPanel implements SlidesView {
 	public void setMessengerMessage(MessengerMessage message) {
 		SwingUtils.invoke(() -> {
 			UserInfo userInfo = userPrivilegeService.getUserInfo();
-			String myId = userInfo.getUserId();
 
 			MessageView messageView = ViewUtil.createMessageView(MessageView.class, userInfo, message, dict);
-			messageView.setMessage(message.getMessage().getText(), message.getMessageId());
+			messageView.setMessage(message, userInfo);
 			messageView.setOnDiscard(() -> {
-				executeAction(discardMessageAction, message);
+				executeAction(discardMessageAction, messageView.getMessage());
 
 				removeMessageView(messageView);
 			});
 			messageView.setOnCreateSlide(() -> {
-				createMessageSlideAction.execute(message);
+				createMessageSlideAction.execute(messageView.getMessage());
 
 				removeMessageView(messageView);
 			});
-
-			if (message instanceof MessengerDirectMessage directMessage) {
-				String recipientId = directMessage.getRecipientId();
-				boolean byMe = Objects.equals(message.getUserId(), myId);
-				boolean toMe = Objects.equals(recipientId, myId);
-				boolean toOrganisers = Objects.equals(recipientId, "organisers");
-
-				String sender = byMe
-						? dict.get("text.message.me")
-						: String.format("%s %s", message.getFirstName(), message.getFamilyName());
-
-				String recipient = toMe
-						? dict.get("text.message.to.me")
-						: toOrganisers
-						? dict.get("text.message.to.organisators.short")
-						: String.format("%s %s", directMessage.getRecipientFirstName(), directMessage.getRecipientFamilyName());
-
-				messageView.setUserName(MessageFormat.format(dict.get("text.message.recipient"), sender, ""));
-				messageView.setPrivateText(recipient);
-			}
 
 			messageView.pack();
 
@@ -794,11 +769,9 @@ public class SwingSlidesView extends JPanel implements SlidesView {
 	public void setMessengerMessageAsReply(MessengerMessage message, MessengerMessage messageToReplyTo) {
 		SwingUtils.invoke(() -> {
 			UserInfo userInfo = userPrivilegeService.getUserInfo();
-			String myId = userInfo.getUserId();
 
 			MessageAsReplyView messageView = ViewUtil.createMessageView(MessageAsReplyView.class, userInfo, message, dict);
-
-			messageView.setMessage(message.getMessage().getText(), message.getMessageId());
+			messageView.setMessage(message, userInfo);
 
 			final String userToReplyTo = MessageUtil.evaluateSenderOfMessageToReplyTo(messageToReplyTo, userInfo, dict);
 			messageView.setUserToReplyTo(userToReplyTo);
@@ -814,26 +787,6 @@ public class SwingSlidesView extends JPanel implements SlidesView {
 				removeMessageView(messageView);
 			});
 
-			if (message instanceof MessengerDirectMessageAsReply directMessageAsReply) {
-				String recipientId = directMessageAsReply.getRecipientId();
-				boolean byMe = Objects.equals(message.getUserId(), myId);
-				boolean toMe = Objects.equals(recipientId, myId);
-				boolean toOrganisers = Objects.equals(recipientId, "organisers");
-
-				String sender = byMe
-						? dict.get("text.message.me")
-						: String.format("%s %s", message.getFirstName(), message.getFamilyName());
-
-				String recipient = toMe
-						? dict.get("text.message.to.me")
-						: toOrganisers
-						? dict.get("text.message.to.organisators.short")
-						: String.format("%s %s", directMessageAsReply.getRecipientFirstName(), directMessageAsReply.getRecipientFamilyName());
-
-				messageView.setUserName(MessageFormat.format(dict.get("text.message.recipient"), sender, ""));
-				messageView.setPrivateText(recipient);
-			}
-
 			messageView.pack();
 
 			addMessageView(messageView);
@@ -845,9 +798,13 @@ public class SwingSlidesView extends JPanel implements SlidesView {
 		SwingUtils.invoke(() -> {
 			final Optional<MessageView> toModify = findCorrespondingMessageView(modifiedMessage.getMessageId());
 
-			if(toModify.isEmpty()) return;
+			if (toModify.isEmpty()){
+				return;
+			}
 
-			toModify.get().setMessage(modifiedMessage.getMessage().getText(), modifiedMessage.getMessageId());
+			UserInfo userInfo = userPrivilegeService.getUserInfo();
+
+			toModify.get().setMessage(modifiedMessage, userInfo);
 			toModify.get().setIsEdited();
 		});
 	}

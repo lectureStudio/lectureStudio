@@ -358,13 +358,13 @@ public class SlidesPresenter extends Presenter<SlidesView> {
 
 		PresenterContext presenterContext = (PresenterContext) context;
 
-		if(message.isDeleted()) {
+		if (message.isDeleted()) {
 			onDiscardMessage(message);
 			view.removeMessengerMessage(message.getMessageId());
 			return;
 		}
 
-		if(message.isEdited()) {
+		if (message.isEdited()) {
 			view.setModifiedMessengerMessage(message);
 			MessageUtil.updateOutdatedMessage(presenterContext.getMessengerMessages(), message);
 			MessageUtil.updateOutdatedMessage(presenterContext.getAllReceivedMessengerMessages(), message);
@@ -374,7 +374,7 @@ public class SlidesPresenter extends Presenter<SlidesView> {
 		presenterContext.getMessengerMessages().add(message);
 		presenterContext.getAllReceivedMessengerMessages().add(message);
 
-		if(MessageUtil.isReply(message)) {
+		if (MessageUtil.isReply(message)) {
 			final MessengerMessage messageToReplyTo = MessageUtil.findMessageToReplyTo(
 					((PresenterContext) context).getAllReceivedMessengerMessages(),
 					message);
@@ -384,6 +384,7 @@ public class SlidesPresenter extends Presenter<SlidesView> {
 			view.setMessengerMessage(message);
 		}
 	}
+
 	@Subscribe
 	public void onEvent(SpeechRequestMessage message) {
 		requireNonNull(message);

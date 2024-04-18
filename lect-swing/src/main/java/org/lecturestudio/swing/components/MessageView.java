@@ -23,6 +23,8 @@ import java.awt.Dimension;
 import java.awt.Insets;
 import java.awt.event.ComponentAdapter;
 import java.awt.event.ComponentEvent;
+import java.text.MessageFormat;
+import java.util.Objects;
 
 import javax.swing.BorderFactory;
 import javax.swing.Box;
@@ -34,24 +36,80 @@ import org.lecturestudio.core.app.dictionary.Dictionary;
 import org.lecturestudio.core.view.Action;
 import org.lecturestudio.swing.AwtResourceLoader;
 import org.lecturestudio.swing.util.SwingUtils;
+import org.lecturestudio.web.api.message.MessengerDirectMessage;
+import org.lecturestudio.web.api.message.MessengerDirectMessageAsReply;
+import org.lecturestudio.web.api.message.MessengerMessage;
+import org.lecturestudio.web.api.model.UserInfo;
 
 public class MessageView extends MessagePanel {
 
-	private JButton discardButton;
+	private MessengerMessage message;
 
-	protected JTextArea textArea;
+	private JButton discardButton;
 
 	private JButton createSlideButton;
 
 	private String messageId;
 
+	protected JTextArea textArea;
+
+
 	public MessageView(Dictionary dict) {
 		super(dict);
 	}
 
-	public void setMessage(String message, String correspondingMessageId) {
-		textArea.setText(message);
-		this.messageId = correspondingMessageId;
+	public MessengerMessage getMessage() {
+		return message;
+	}
+
+	public void setMessage(MessengerMessage message, UserInfo userInfo) {
+		this.message = message;
+
+		textArea.setText(message.getMessage().getText());
+		messageId = message.getMessageId();
+
+		if (message instanceof MessengerDirectMessage directMessage) {
+			String myId = userInfo.getUserId();
+			String recipientId = directMessage.getRecipientId();
+
+			boolean byMe = Objects.equals(message.getUserId(), myId);
+			boolean toMe = Objects.equals(recipientId, myId);
+			boolean toOrganisers = Objects.equals(recipientId, "organisers");
+
+			String sender = byMe
+					? dict.get("text.message.me")
+					: String.format("%s %s", message.getFirstName(), message.getFamilyName());
+
+			String recipient = toMe
+					? dict.get("text.message.to.me")
+					: toOrganisers
+					? dict.get("text.message.to.organisators.short")
+					: String.format("%s %s", directMessage.getRecipientFirstName(), directMessage.getRecipientFamilyName());
+
+			setUserName(MessageFormat.format(dict.get("text.message.recipient"), sender, ""));
+			setPrivateText(recipient);
+		}
+		if (message instanceof MessengerDirectMessageAsReply directMessageAsReply) {
+			String myId = userInfo.getUserId();
+			String recipientId = directMessageAsReply.getRecipientId();
+
+			boolean byMe = Objects.equals(message.getUserId(), myId);
+			boolean toMe = Objects.equals(recipientId, myId);
+			boolean toOrganisers = Objects.equals(recipientId, "organisers");
+
+			String sender = byMe
+					? dict.get("text.message.me")
+					: String.format("%s %s", message.getFirstName(), message.getFamilyName());
+
+			String recipient = toMe
+					? dict.get("text.message.to.me")
+					: toOrganisers
+					? dict.get("text.message.to.organisators.short")
+					: String.format("%s %s", directMessageAsReply.getRecipientFirstName(), directMessageAsReply.getRecipientFamilyName());
+
+			setUserName(MessageFormat.format(dict.get("text.message.recipient"), sender, ""));
+			setPrivateText(recipient);
+		}
 	}
 
 	public void setPrivateText(String text) {

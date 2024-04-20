@@ -120,10 +120,10 @@ public abstract class CefStreamPresenter<T extends View> extends Presenter<T> {
 
 		// Open the running course url.
 		StreamConfiguration streamConfig = ctx.getConfiguration().getStreamConfig();
-		long courseId = ctx.getCourse().getId();
+		String accessLink = ctx.getCourse().getDefaultAccessLink();
 		String serverName = streamConfig.getServerName();
 		String serverUrl = String.format("https://%s", serverName);
-		String courseApiUrl = String.format("%s/course/api/%d", serverUrl, courseId);
+		String courseApiUrl = String.format("%s/course/api/%s", serverUrl, accessLink);
 
 		browser = client.createBrowser(courseApiUrl, false, false);
 	}

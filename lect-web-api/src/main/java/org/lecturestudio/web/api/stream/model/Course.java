@@ -25,6 +25,8 @@ public class Course {
 
 	private Long id;
 
+	private String defaultAccessLink;
+
 	private String roomId;
 
 	private String title;
@@ -34,6 +36,10 @@ public class Course {
 
 	public Long getId() {
 		return id;
+	}
+
+	public String getDefaultAccessLink() {
+		return defaultAccessLink;
 	}
 
 	public String getRoomId() {

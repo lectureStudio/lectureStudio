@@ -27,6 +27,12 @@ public interface MessengerWindow extends View {
 
 	void setMessengerMessage(MessengerMessage message);
 
+	void setMessengerMessageAsReply(MessengerMessage message, MessengerMessage messageToReplyTo);
+
+	void setModifiedMessengerMessage(MessengerMessage modifiedMessage);
+
+	void removeMessengerMessage(String messageId);
+
 	void setSpeechRequestMessage(SpeechRequestMessage message);
 
 	void setTextSize(double size);

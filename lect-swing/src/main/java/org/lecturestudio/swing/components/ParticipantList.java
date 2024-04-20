@@ -62,13 +62,13 @@ public class ParticipantList extends JPanel {
 	@Inject
 	public ParticipantList(ResourceBundle bundle) {
 		super();
-		actionMap = new HashMap<>();
 
 		setLayout(new BorderLayout());
 		setFocusable(false);
 		setIgnoreRepaint(true);
 
 		listModel = new SortedListModel();
+		actionMap = new HashMap<>();
 
 		popupMenuBanItem = new JMenuItem("Ban");
 		popupMenuBanItem.addActionListener(e -> {

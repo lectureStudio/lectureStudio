@@ -107,6 +107,21 @@ class MessengerWindowPresenterTest extends PresenterTest {
 		}
 
 		@Override
+		public void setMessengerMessageAsReply(MessengerMessage message, MessengerMessage messageToReplyTo) {
+
+		}
+
+		@Override
+		public void setModifiedMessengerMessage(MessengerMessage modifiedMessage) {
+
+		}
+
+		@Override
+		public void removeMessengerMessage(String messageId) {
+
+		}
+
+		@Override
 		public void setSpeechRequestMessage(SpeechRequestMessage message) {
 
 		}

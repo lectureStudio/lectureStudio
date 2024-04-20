@@ -124,6 +124,7 @@ import org.lecturestudio.web.api.message.MessengerMessage;
 import org.lecturestudio.web.api.message.SpeechBaseMessage;
 import org.lecturestudio.web.api.message.SpeechCancelMessage;
 import org.lecturestudio.web.api.message.SpeechRequestMessage;
+import org.lecturestudio.web.api.message.util.MessageUtil;
 import org.lecturestudio.web.api.model.Message;
 import org.lecturestudio.web.api.model.ScreenSource;
 import org.lecturestudio.web.api.service.ServiceParameters;
@@ -166,6 +167,8 @@ public class SlidesPresenter extends Presenter<SlidesView> {
 
 	private final RecordingService recordingService;
 
+	private final UserPrivilegeService userPrivilegeService;
+
 	private StylusHandler stylusHandler;
 
 	private PageEditedListener pageEditedListener;
@@ -184,8 +187,6 @@ public class SlidesPresenter extends Presenter<SlidesView> {
 
 	private SelectionIdleTimer idleTimer;
 
-	private final UserPrivilegeService userPrivilegeService;
-
 
 	@Inject
 	SlidesPresenter(ApplicationContext context, SlidesView view,
@@ -197,10 +198,10 @@ public class SlidesPresenter extends Presenter<SlidesView> {
 					DocumentService documentService,
 					DocumentRecorder documentRecorder,
 					RecordingService recordingService,
+					UserPrivilegeService userPrivilegeService,
 					WebService webService,
 					WebServiceInfo webServiceInfo,
-					WebRtcStreamService streamService,
-					UserPrivilegeService userPrivilegeService) {
+					WebRtcStreamService streamService) {
 		super(context, view);
 
 		this.viewFactory = viewFactory;
@@ -211,6 +212,7 @@ public class SlidesPresenter extends Presenter<SlidesView> {
 		this.bookmarkService = bookmarkService;
 		this.documentService = documentService;
 		this.recordingService = recordingService;
+		this.userPrivilegeService = userPrivilegeService;
 		this.webService = webService;
 		this.webServiceInfo = webServiceInfo;
 		this.streamService = streamService;
@@ -219,7 +221,6 @@ public class SlidesPresenter extends Presenter<SlidesView> {
 		this.pageObjectRegistry = new PageObjectRegistry();
 		this.documentChangeListener = new DocumentChangeHandler();
 		this.screenViewContext = new ScreenPresentationViewContext();
-		this.userPrivilegeService = userPrivilegeService;
 	}
 
 	@Subscribe
@@ -356,9 +357,32 @@ public class SlidesPresenter extends Presenter<SlidesView> {
 		requireNonNull(message);
 
 		PresenterContext presenterContext = (PresenterContext) context;
-		presenterContext.getMessengerMessages().add(message);
 
-		view.setMessengerMessage(message);
+		if (message.isDeleted()) {
+			onDiscardMessage(message);
+			view.removeMessengerMessage(message.getMessageId());
+			return;
+		}
+
+		if (message.isEdited()) {
+			view.setModifiedMessengerMessage(message);
+			MessageUtil.updateOutdatedMessage(presenterContext.getMessengerMessages(), message);
+			MessageUtil.updateOutdatedMessage(presenterContext.getAllReceivedMessengerMessages(), message);
+			return;
+		}
+
+		presenterContext.getMessengerMessages().add(message);
+		presenterContext.getAllReceivedMessengerMessages().add(message);
+
+		if (MessageUtil.isReply(message)) {
+			final MessengerMessage messageToReplyTo = MessageUtil.findMessageToReplyTo(
+					((PresenterContext) context).getAllReceivedMessengerMessages(),
+					message);
+			view.setMessengerMessageAsReply(message, messageToReplyTo);
+		}
+		else {
+			view.setMessengerMessage(message);
+		}
 	}
 
 	@Subscribe
@@ -1467,7 +1491,9 @@ public class SlidesPresenter extends Presenter<SlidesView> {
 					return;
 				}
 
-				action.accept(config.isEnabled(), checkIfScreenInList(list, config.getScreen()));
+				checkScreenExists(config);
+
+				action.accept(config.isEnabled(), true);
 			}
 		});
 	}
@@ -1502,9 +1528,9 @@ public class SlidesPresenter extends Presenter<SlidesView> {
 	}
 
 	private void showExternalScreen(ExternalWindowConfiguration config, BiConsumer<Boolean, Boolean> action) {
-		final ObservableList<Screen> screens = presentationController.getScreens();
+		checkScreenExists(config);
 
-		action.accept(config.isEnabled(), checkIfScreenInList(screens, config.getScreen()));
+		action.accept(config.isEnabled(), true);
 	}
 
 	private void hideExternalScreens() {
@@ -1513,12 +1539,22 @@ public class SlidesPresenter extends Presenter<SlidesView> {
 		view.hideExternalSpeech();
 	}
 
+	private void checkScreenExists(ExternalWindowConfiguration config) {
+		final ObservableList<Screen> screens = presentationController.getScreens();
+
+		if (!checkIfScreenInList(screens, config.getScreen())) {
+			config.setScreen(null);
+		}
+	}
+
 	private void viewShowExternalMessages(boolean persistent) {
 		final ExternalWindowConfiguration config = getExternalMessagesConfig();
 
 		if (persistent) {
 			config.setEnabled(true);
 		}
+
+		checkScreenExists(config);
 
 		view.showExternalMessages(config.getScreen(), config.getPosition(), config.getSize());
 	}
@@ -1540,6 +1576,8 @@ public class SlidesPresenter extends Presenter<SlidesView> {
 			config.setEnabled(true);
 		}
 
+		checkScreenExists(config);
+
 		view.showExternalParticipants(config.getScreen(), config.getPosition(), config.getSize());
 	}
 
@@ -1559,6 +1597,8 @@ public class SlidesPresenter extends Presenter<SlidesView> {
 		if (persistent) {
 			config.setEnabled(true);
 		}
+
+		checkScreenExists(config);
 
 		view.showExternalSlidePreview(config.getScreen(), config.getPosition(), config.getSize());
 	}
@@ -1580,6 +1620,8 @@ public class SlidesPresenter extends Presenter<SlidesView> {
 			config.setEnabled(true);
 		}
 
+		checkScreenExists(config);
+
 		view.showExternalSpeech(config.getScreen(), config.getPosition(), config.getSize());
 	}
 
@@ -1599,6 +1641,8 @@ public class SlidesPresenter extends Presenter<SlidesView> {
 		if (persistent) {
 			config.setEnabled(true);
 		}
+
+		checkScreenExists(config);
 
 		view.showExternalNotes(config.getScreen(), config.getPosition(), config.getSize());
 	}
@@ -1620,6 +1664,8 @@ public class SlidesPresenter extends Presenter<SlidesView> {
 			config.setEnabled(true);
 		}
 
+		checkScreenExists(config);
+
 		view.showExternalSlideNotes(config.getScreen(), config.getPosition(), config.getSize());
 	}
 
@@ -1637,7 +1683,7 @@ public class SlidesPresenter extends Presenter<SlidesView> {
 		if (screen == null) {
 			return true;
 		}
-		return screens.stream().anyMatch(scrn -> scrn.equals(screen));
+		return screens.stream().anyMatch(s -> s.equals(screen));
 	}
 
 	private void recordPage(Page page) {

@@ -27,7 +27,9 @@ import javax.json.JsonValue;
 import javax.json.bind.adapter.JsonbAdapter;
 
 import org.lecturestudio.web.api.message.MessengerDirectMessage;
+import org.lecturestudio.web.api.message.MessengerDirectMessageAsReply;
 import org.lecturestudio.web.api.message.MessengerMessage;
+import org.lecturestudio.web.api.message.MessengerMessageAsReply;
 import org.lecturestudio.web.api.model.Message;
 
 public class MessengerMessageAdapter implements JsonbAdapter<MessengerMessage, JsonObject> {
@@ -43,10 +45,18 @@ public class MessengerMessageAdapter implements JsonbAdapter<MessengerMessage, J
 		builder.add("date", message.getDate().toString());
 		builder.add("messageId", message.getMessageId());
 
+		if(message instanceof MessengerMessageAsReply messageAsReply) {
+			builder.add("msgIdToReplyTo", messageAsReply.getMsgIdToReplyTo());
+		}
+
 		if (message instanceof MessengerDirectMessage directMessage) {
 			builder.add("recipientId", directMessage.getRecipientId());
 			builder.add("recipientFirstName", directMessage.getRecipientFirstName());
 			builder.add("recipientFamilyName", directMessage.getRecipientFamilyName());
+		}
+
+		if(message instanceof MessengerDirectMessageAsReply directMessageAsReply) {
+			builder.add("msgIdToReplyTo", directMessageAsReply.getMsgIdToReplyTo());
 		}
 
 		return builder.build();
@@ -58,21 +68,45 @@ public class MessengerMessageAdapter implements JsonbAdapter<MessengerMessage, J
 
 		MessengerMessage message;
 
-		if (type.equals("MessengerDirectMessage")) {
-			MessengerDirectMessage directMessage = new MessengerDirectMessage();
-			directMessage.setRecipientId(jsonObject.getString("recipientId"));
+		switch (type) {
+			case "MessengerDirectMessage" -> {
+				MessengerDirectMessage directMessage = new MessengerDirectMessage();
 
-			if (!jsonObject.isNull("recipientFirstName")) {
-				directMessage.setRecipientFirstName(jsonObject.getString("recipientFirstName"));
+				directMessage.setRecipientId(jsonObject.getString("recipientId"));
+				if (!jsonObject.isNull("recipientFirstName")) {
+					directMessage.setRecipientFirstName(jsonObject.getString("recipientFirstName"));
+				}
+				if (!jsonObject.isNull("recipientFamilyName")) {
+					directMessage.setRecipientFamilyName(jsonObject.getString("recipientFamilyName"));
+				}
+				message = directMessage;
 			}
-			if (!jsonObject.isNull("recipientFamilyName")) {
-				directMessage.setRecipientFamilyName(jsonObject.getString("recipientFamilyName"));
-			}
+			case "MessengerDirectMessageAsReply" -> {
+				MessengerDirectMessageAsReply directMessageAsReply = new MessengerDirectMessageAsReply();
 
-			message = directMessage;
-		}
-		else {
-			message = new MessengerMessage();
+				directMessageAsReply.setRecipientId(jsonObject.getString("recipientId"));
+				if (!jsonObject.isNull("recipientFirstName")) {
+					directMessageAsReply.setRecipientFirstName(jsonObject.getString("recipientFirstName"));
+				}
+				if (!jsonObject.isNull("recipientFamilyName")) {
+					directMessageAsReply.setRecipientFamilyName(jsonObject.getString("recipientFamilyName"));
+				}
+				if (!jsonObject.isNull("messageIdToReplyTo")) {
+					directMessageAsReply.setMsgIdToReplyTo(jsonObject.getString("msgIdToReplyTo"));
+				}
+
+				message = directMessageAsReply;
+			}
+			case "MessengerMessageAsReply" -> {
+				MessengerMessageAsReply messageAsReply = new MessengerMessageAsReply();
+
+				if (!jsonObject.isNull("msgIdToReplyTo")) {
+					messageAsReply.setMsgIdToReplyTo(jsonObject.getString("msgIdToReplyTo"));
+				}
+
+				message = messageAsReply;
+			}
+			default -> message = new MessengerMessage();
 		}
 
 		if (jsonObject.get("text").getValueType() != JsonValue.ValueType.NULL) {
@@ -95,6 +129,12 @@ public class MessengerMessageAdapter implements JsonbAdapter<MessengerMessage, J
 		}
 		if (jsonObject.get("messageId").getValueType() != JsonValue.ValueType.NULL) {
 			message.setMessageId(jsonObject.getString("messageId"));
+		}
+		if (jsonObject.get("deleted").getValueType() != JsonValue.ValueType.NULL) {
+			message.setDeleted(jsonObject.getBoolean("deleted"));
+		}
+		if (jsonObject.get("edited").getValueType() != JsonValue.ValueType.NULL) {
+			message.setEdited(jsonObject.getBoolean("edited"));
 		}
 
 		return message;

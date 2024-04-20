@@ -102,6 +102,12 @@ public interface SlidesView extends View {
 
 	void setMessengerMessage(MessengerMessage message);
 
+	void removeMessengerMessage(String messageId);
+
+	void setMessengerMessageAsReply(MessengerMessage message, MessengerMessage messageToReplyTo);
+
+	void setModifiedMessengerMessage(MessengerMessage modifiedMessage);
+
 	void addSpeechRequest(SpeechBaseMessage message);
 
 	void removeSpeechRequest(SpeechBaseMessage message);

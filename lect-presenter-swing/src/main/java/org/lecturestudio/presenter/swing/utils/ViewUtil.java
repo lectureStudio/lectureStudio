@@ -24,6 +24,7 @@ import org.lecturestudio.core.app.dictionary.Dictionary;
 import org.lecturestudio.swing.components.MessagePanel;
 import org.lecturestudio.swing.components.NotesPanel;
 import org.lecturestudio.web.api.message.UserMessage;
+import org.lecturestudio.web.api.message.util.MessageUtil;
 import org.lecturestudio.web.api.model.UserInfo;
 
 public class ViewUtil {
@@ -43,21 +44,7 @@ public class ViewUtil {
 	 */
 	public static <T extends MessagePanel> T createMessageView(Class<T> c,
 			UserInfo userInfo, UserMessage message, Dictionary dict) {
-		String myId = userInfo.getUserId();
-		boolean byMe = Objects.equals(message.getUserId(), myId);
-		String sender;
-
-		if (byMe) {
-			sender = dict.get("text.message.me");
-		}
-		else {
-			String nameFull = message.getFirstName() + " " + message.getFamilyName();
-			String[] nameParts = nameFull.split(" ");
-			String firstName = nameParts.length > 0 ? nameParts[0] : "";
-			String lastName = nameParts.length > 1 ? nameParts[nameParts.length - 1] : "";
-
-			sender = String.format("%s %s", firstName, lastName);
-		}
+		String sender = MessageUtil.evaluateSender(message, userInfo, dict);
 
 		try {
 			T view = c.getDeclaredConstructor(Dictionary.class)
@@ -71,6 +58,7 @@ public class ViewUtil {
 			throw new RuntimeException(e);
 		}
 	}
+
 	/**
 	 * Creates a concrete NotesPanel specified by the provided class
 	 * parameter.
@@ -91,5 +79,4 @@ public class ViewUtil {
 			throw new RuntimeException(e);
 		}
 	}
-
 }

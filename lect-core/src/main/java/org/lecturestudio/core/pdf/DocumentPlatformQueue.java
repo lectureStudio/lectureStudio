@@ -16,29 +16,10 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package org.lecturestudio.web.api.message;
+package org.lecturestudio.core.pdf;
 
-import java.time.ZonedDateTime;
+public interface DocumentPlatformQueue {
 
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
-
-@Getter
-@Setter
-@NoArgsConstructor
-public abstract class WebMessage {
-
-	private String messageId;
-
-	private ZonedDateTime date;
-
-
-	@Override
-	public boolean equals(final Object obj) {
-		if(!(obj instanceof WebMessage webMessage)) return false;
-
-		return this == webMessage || this.messageId.equals(webMessage.getMessageId());
-	}
+    void runInPlatformQueue(Runnable runnable);
 
 }

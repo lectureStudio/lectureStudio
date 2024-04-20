@@ -318,6 +318,18 @@ public class PdfDocument {
 	}
 
 	/**
+	 * Get the text of the page as a list where each list entry represents a text line in the page.
+	 *
+	 * @param pageNumber The page number.
+	 * @param maxLines   The maximum number of lines to retrieve.
+	 *
+	 * @return the text of the page as a list of text lines in the page.
+	 */
+	public List<String> getPageTextLines(int pageNumber, int maxLines) {
+		return muPDFDocument.getPageTextLines(pageNumber, maxLines);
+	}
+
+	/**
 	 * Get the word bounds of the page that has the specified page number.
 	 *
 	 * @param pageNumber The page number.

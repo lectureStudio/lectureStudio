@@ -31,4 +31,7 @@ public class MessengerMessage extends UserMessage {
 
 	private Message message;
 
+	private boolean deleted;
+
+	private boolean edited;
 }

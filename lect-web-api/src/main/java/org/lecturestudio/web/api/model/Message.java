@@ -39,6 +39,14 @@ public class Message extends ServiceModel {
 		this.text = text;
 	}
 
+	public boolean isReply() {
+		return false;
+	}
+
+	public String getMsgIdToReplyTo() {
+		return null;
+	}
+
 	@Override
 	public String toString() {
 		return getClass().getSimpleName() + ": " + text;

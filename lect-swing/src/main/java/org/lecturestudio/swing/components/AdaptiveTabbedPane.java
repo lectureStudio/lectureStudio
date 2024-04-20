@@ -17,6 +17,7 @@ import java.util.List;
 import java.util.stream.IntStream;
 
 public class AdaptiveTabbedPane extends JComponent {
+
 	public static final int TAB_SIZE_OFFSET = UIScale.scale(1);
 
 	private AdaptiveTabType defaultTabType = AdaptiveTabType.NORMAL;
@@ -44,8 +45,12 @@ public class AdaptiveTabbedPane extends JComponent {
 	public AdaptiveTabbedPane(int tabPlacement) {
 		setBorder(new EmptyBorder(0, 0, 0, 0));
 		setLayout(new BorderLayout());
+
+		tabbedPane.setFocusable(false);
 		tabbedPane.setTabPlacement(tabPlacement);
+
 		add(tabbedPane);
+
 		tabbedPane.addMouseListener(new MouseAdapter() {
 			@Override
 			public void mousePressed(MouseEvent e) {

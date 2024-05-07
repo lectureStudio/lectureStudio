@@ -58,6 +58,6 @@
 		"@types/node": "^10.12.18",
 		"morphdom": "^2.3.3",
 		"mustache": "^3.0.1",
-		"pdfjs-dist": "^2.6.347"
+		"pdfjs-dist": "^4.2.67"
 	}
 }

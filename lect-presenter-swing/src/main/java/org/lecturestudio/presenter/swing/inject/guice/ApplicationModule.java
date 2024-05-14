@@ -102,7 +102,7 @@ public class ApplicationModule extends AbstractModule {
 			AudioSystemProvider audioSystemProvider,
 			DocumentService documentService, ApplicationContext context)
 			throws IOException {
-		return new FileLectureRecorder(audioSystemProvider, documentService,
+		return new FileLectureRecorder(context, audioSystemProvider, documentService,
 				context.getConfiguration().getAudioConfig(),
 				((PresenterContext) context).getRecordingDirectory());
 	}

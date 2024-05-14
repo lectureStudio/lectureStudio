@@ -123,7 +123,7 @@ class MainPresenterTest extends PresenterTest {
 
 		bookmarkService = new BookmarkService(documentService, context);
 
-		recorder = new FileLectureRecorder(audioSystemProvider, documentService, audioConfig, getRecordingDirectory());
+		recorder = new FileLectureRecorder(context, audioSystemProvider, documentService, audioConfig, getRecordingDirectory());
 
 		recordingService = new RecordingService(context, recorder);
 
@@ -472,7 +472,7 @@ class MainPresenterTest extends PresenterTest {
 		AudioConfiguration audioConfig = context.getConfiguration().getAudioConfig();
 		audioConfig.setCaptureDeviceName("dummy");
 
-		recorder = new FileLectureRecorder(audioSystemProvider, documentService, audioConfig, getRecordingDirectory());
+		recorder = new FileLectureRecorder(context, audioSystemProvider, documentService, audioConfig, getRecordingDirectory());
 
 		recordingService = new RecordingService(context, recorder);
 

@@ -122,7 +122,7 @@ class CreateQuizPresenterTest extends PresenterTest {
 		AudioConfiguration audioConfig = context.getConfiguration().getAudioConfig();
 		audioConfig.setCaptureDeviceName("dummy");
 
-		recorder = new FileLectureRecorder(audioSystemProvider, documentService, audioConfig, getRecordingDirectory());
+		recorder = new FileLectureRecorder(context, audioSystemProvider, documentService, audioConfig, getRecordingDirectory());
 
 		injector = new GuiceInjector(new AbstractModule() {
 			@Override

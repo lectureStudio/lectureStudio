@@ -54,7 +54,7 @@ class QuitRecordingPresenterTest extends PresenterTest {
 
 		DocumentService documentService = context.getDocumentService();
 
-		recorder = new FileLectureRecorder(audioSystemProvider, documentService, audioConfig, getRecordingDirectory());
+		recorder = new FileLectureRecorder(context, audioSystemProvider, documentService, audioConfig, getRecordingDirectory());
 
 		recordingService = new RecordingService(context, recorder);
 

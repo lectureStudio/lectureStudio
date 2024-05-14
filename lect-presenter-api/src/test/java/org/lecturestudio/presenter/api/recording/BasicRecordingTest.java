@@ -144,7 +144,7 @@ class BasicRecordingTest {
 
 		DummyAudioSystemProvider audioSystemProvider = new DummyAudioSystemProvider();
 
-		recorder = new FileLectureRecorder(audioSystemProvider, documentService, audioConfig, context.getRecordingDirectory());
+		recorder = new FileLectureRecorder(context, audioSystemProvider, documentService, audioConfig, context.getRecordingDirectory());
 		recorder.setAudioFormat(new AudioFormat(Encoding.S16LE, 44100, 1));
 		recorder.setPageRecordingTimeout(pageRecTimeout);
 

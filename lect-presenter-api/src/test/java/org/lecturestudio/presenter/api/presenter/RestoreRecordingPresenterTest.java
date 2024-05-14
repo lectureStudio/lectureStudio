@@ -56,7 +56,7 @@ class RestoreRecordingPresenterTest extends PresenterTest {
 		audioConfig.setCaptureDeviceName("dummy");
 
 		DocumentService documentService = context.getDocumentService();
-		recorder = new FileLectureRecorder(audioSystemProvider, documentService, audioConfig, getRecordingDirectory());
+		recorder = new FileLectureRecorder(context, audioSystemProvider, documentService, audioConfig, getRecordingDirectory());
 
 		recordingService = new RecordingService(context, recorder);
 		recordingService.start();

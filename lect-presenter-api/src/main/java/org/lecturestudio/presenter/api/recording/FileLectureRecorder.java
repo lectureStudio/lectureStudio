@@ -42,6 +42,7 @@ import com.google.common.eventbus.Subscribe;
 
 import org.lecturestudio.core.ExecutableException;
 import org.lecturestudio.core.ExecutableState;
+import org.lecturestudio.core.app.ApplicationContext;
 import org.lecturestudio.core.app.configuration.AudioConfiguration;
 import org.lecturestudio.core.audio.AudioDeviceChangeListener;
 import org.lecturestudio.core.audio.AudioDeviceNotConnectedException;
@@ -87,6 +88,8 @@ public class FileLectureRecorder extends LectureRecorder {
 
 	private final RecordingBackup backup;
 
+	private final ApplicationContext context;
+
 	private final AudioSystemProvider audioSystemProvider;
 
 	private final AudioConfiguration audioConfig;
@@ -112,9 +115,10 @@ public class FileLectureRecorder extends LectureRecorder {
 	private int pageRecordingTimeout = 2000;
 
 
-	public FileLectureRecorder(AudioSystemProvider audioSystemProvider,
-			DocumentService documentService, AudioConfiguration audioConfig,
-			String recDir) throws IOException {
+	public FileLectureRecorder(ApplicationContext context, AudioSystemProvider audioSystemProvider,
+							   DocumentService documentService, AudioConfiguration audioConfig,
+							   String recDir) throws IOException {
+		this.context = context;
 		this.audioSystemProvider = audioSystemProvider;
 		this.documentService = documentService;
 		this.audioConfig = audioConfig;
@@ -532,56 +536,63 @@ public class FileLectureRecorder extends LectureRecorder {
 	}
 
 	private void recordPage(Page page, long timestamp) {
-		CompletableFuture.runAsync(() -> {
-			int pageNumber = recordedPages.size();
+		try {
+			CompletableFuture.runAsync(() -> {
+				int pageNumber = recordedPages.size();
 
-			RecordedPage recPage = new RecordedPage();
-			recPage.setTimestamp((int) timestamp);
-			recPage.setNumber(pageNumber);
+				RecordedPage recPage = new RecordedPage();
+				recPage.setTimestamp((int) timestamp);
+				recPage.setNumber(pageNumber);
 
-			// Copy all actions, if the page was previously annotated and visited again.
-			if (addedPages.containsKey(page)) {
-				RecordedPage rPage = addedPages.get(page);
+				// Copy all actions, if the page was previously annotated and visited again.
+				if (addedPages.containsKey(page)) {
+					RecordedPage rPage = addedPages.get(page);
 
-				if (rPage != null) {
-					for (StaticShapeAction action : rPage.getStaticActions()) {
-						recPage.addStaticAction(action.clone());
+					if (rPage != null) {
+						for (StaticShapeAction action : rPage.getStaticActions()) {
+							recPage.addStaticAction(action.clone());
+						}
+						for (PlaybackAction action : rPage.getPlaybackActions()) {
+							StaticShapeAction staticAction = new StaticShapeAction(action.clone());
+							recPage.addStaticAction(staticAction);
+						}
 					}
-					for (PlaybackAction action : rPage.getPlaybackActions()) {
-						StaticShapeAction staticAction = new StaticShapeAction(action.clone());
-						recPage.addStaticAction(staticAction);
+				}
+				if (pendingActions.hasPendingActions(page)) {
+					insertPendingPageActions(recPage, page);
+				}
+
+				synchronized (recordedDocument) {
+					try {
+						recordedDocument.createPage(page);
+					}
+					catch (Exception e) {
+						logException(e, "Create page failed");
+						return;
+					}
+
+					// Update page to last recorded page relation.
+					addedPages.remove(page);
+					addedPages.put(page, recPage);
+
+					recordedPages.push(recPage);
+
+					// Write backup.
+					try {
+						backup.writeDocument(recordedDocument);
+						backup.writePages(recordedPages);
+					}
+					catch (Throwable e) {
+						logException(e, "Write backup failed");
 					}
 				}
-			}
-			if (pendingActions.hasPendingActions(page)) {
-				insertPendingPageActions(recPage, page);
-			}
+			}, executor).join();
+		}
+		catch (Throwable e) {
+			logException(e, "Record page failed");
 
-			synchronized (recordedDocument) {
-				try {
-					recordedDocument.createPage(page);
-				}
-				catch (Exception e) {
-					logException(e, "Create page failed");
-					return;
-				}
-
-				// Update page to last recorded page relation.
-				addedPages.remove(page);
-				addedPages.put(page, recPage);
-
-				recordedPages.push(recPage);
-
-				// Write backup.
-				try {
-					backup.writeDocument(recordedDocument);
-					backup.writePages(recordedPages);
-				}
-				catch (Throwable e) {
-					logException(e, "Write backup failed");
-				}
-			}
-		}, executor).join();
+			context.showError("recording.notification.title", "recording.slide.error");
+		}
 	}
 
 	private Page getLastRecordedPage() {

@@ -61,6 +61,7 @@ public class MessageUtil {
 			if (message.getMessageId().equals(newMessage.getMessageId())) {
 				messages.remove(message);
 				messages.add(newMessage);
+                break;
 			}
 		}
     }

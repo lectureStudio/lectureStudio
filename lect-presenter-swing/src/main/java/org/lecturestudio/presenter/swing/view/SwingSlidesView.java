@@ -45,10 +45,7 @@ import javax.swing.tree.TreeNode;
 import javax.swing.tree.TreePath;
 
 import java.awt.*;
-import java.awt.event.ComponentAdapter;
-import java.awt.event.ComponentEvent;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
+import java.awt.event.*;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -2066,6 +2063,15 @@ public class SwingSlidesView extends JPanel implements SlidesView {
 		});
 	}
 
+	private void scrollPreview(int step) {
+		final AdaptiveTabbedPane slidesTabPane = getSlidesTabPane();
+		final Component selectedTab = slidesTabPane.getSelectedComponent();
+
+		if (selectedTab instanceof ThumbPanel thumbnailPanel) {
+			thumbnailPanel.scroll(step);
+		}
+	}
+
 	@ViewPostConstruct
 	private void initialize() {
 		KeyboardFocusManager keyboardManager = KeyboardFocusManager.getCurrentKeyboardFocusManager();
@@ -2082,6 +2088,8 @@ public class SwingSlidesView extends JPanel implements SlidesView {
 			}
 			return false;
 		});
+
+		addMouseWheelListener(e -> scrollPreview(e.getWheelRotation()));
 
 		ToolTipManager.sharedInstance().registerComponent(outlineTree);
 

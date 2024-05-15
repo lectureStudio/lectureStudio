@@ -149,6 +149,7 @@ public class ThumbPanel extends JPanel {
 		scrollPane.setBorder(BorderFactory.createEmptyBorder());
 		scrollPane.getViewport().setScrollMode(JViewport.BLIT_SCROLL_MODE);
 		scrollPane.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
+		scrollPane.getVerticalScrollBar().setBlockIncrement(1);
 		scrollPane.getViewport().add(list);
 
 		pageEditedHandler = new EditPainter(list);
@@ -187,6 +188,21 @@ public class ThumbPanel extends JPanel {
 		if (doc.equals(document)) {
 			setSelectedThumbnail(doc.getCurrentPage());
 		}
+	}
+
+	public void scroll(int step) {
+		final int index = list.getSelectedIndex();
+		if (index < 0) {
+			return;
+		}
+
+		final Rectangle thumbBounds = list.getCellBounds(index, index);
+		if (thumbBounds.isEmpty()) {
+			return;
+		}
+
+		JScrollBar bar = scrollPane.getVerticalScrollBar();
+		bar.setValue(bar.getValue() + thumbBounds.height * step);
 	}
 
 	private void fireThumbSelected(Page page) {

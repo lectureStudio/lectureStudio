@@ -240,7 +240,7 @@ public class DynamicResizePolicy<S> implements Callback<ResizeFeatures<S>, Boole
 
 		@Override
 		protected double computeValue() {
-			return getTableView().getWidth() - staticWidth - getScrollbarWidth();
+			return getTableView().getWidth() - staticWidth - getScrollbarWidth() - 1;
 		}
 
 	}

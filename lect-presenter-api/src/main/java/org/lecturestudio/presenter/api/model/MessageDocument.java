@@ -90,8 +90,8 @@ public class MessageDocument extends HtmlToPdfDocument {
 			UrlDetector parser = new UrlDetector(part, UrlDetectorOptions.Default);
 			List<Url> found = parser.detect();
 
-			// Each line is encapsulated in a <div>.
-			Element div = jdoc.body().appendElement("div");
+			// Each line is encapsulated in a <pre>.
+			Element div = jdoc.body().appendElement("pre");
 
 			if (found.isEmpty()) {
 				div.text(part);
@@ -103,8 +103,8 @@ public class MessageDocument extends HtmlToPdfDocument {
 					String s = part.substring(0, origIndex);
 					part = part.substring(origIndex + orig.length());
 
-					// Raw text belongs into a <span> element.
-					div.appendElement("span").text(s);
+					// Raw text belongs into a <pre> element.
+					div.appendElement("pre").text(s);
 
 					// Create the link.
 					Element a = div.appendElement("a");
@@ -115,7 +115,7 @@ public class MessageDocument extends HtmlToPdfDocument {
 
 				// Add remaining raw text.
 				if (!part.isEmpty() || !part.isBlank()) {
-					div.appendElement("span").text(part);
+					div.appendElement("pre").text(part);
 				}
 			}
 		}

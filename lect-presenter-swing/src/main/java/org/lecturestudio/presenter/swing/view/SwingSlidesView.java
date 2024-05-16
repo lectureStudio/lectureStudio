@@ -1172,10 +1172,6 @@ public class SwingSlidesView extends JPanel implements SlidesView {
 			return;
 		}
 
-		externalSlidePreviewFrame.updatePosition(screen, position, size);
-		externalSlidePreviewFrame.showBody();
-		externalSlidePreviewFrame.setVisible(true);
-
 		externalPreviewBox.removeAll();
 
 		hideNoteSlide();
@@ -1209,13 +1205,17 @@ public class SwingSlidesView extends JPanel implements SlidesView {
 
 		externalSlidePreviewTabPane.setPaneTabSelected(prevSelected);
 
-		if (!externalSlideNotesFrame.isVisible()) {
+		if (!externalSlideNotesFrame.isVisible() && noteSlidePosition == NoteSlidePosition.BELOW_SLIDE_PREVIEW) {
 			externalPreviewBox.add(externalNoteSlideViewContainer);
 
 			externalNoteSlideViewContainer.add(slideNotesView);
 		}
 
 		updateSlideNoteContainer(externalNoteSlideViewContainer);
+
+		externalSlidePreviewFrame.updatePosition(screen, position, size);
+		externalSlidePreviewFrame.showBody();
+		externalSlidePreviewFrame.setVisible(true);
 	}
 
 	@Override
@@ -1234,7 +1234,7 @@ public class SwingSlidesView extends JPanel implements SlidesView {
 				hideNoteSlide();
 				return;
 			}
-			if (noteSlidePosition != NoteSlidePosition.EXTERNAL) {
+			if (noteSlidePosition == NoteSlidePosition.BELOW_SLIDE_PREVIEW) {
 				showNoteSlide(previewPosition);
 			}
 		});
@@ -2284,7 +2284,7 @@ public class SwingSlidesView extends JPanel implements SlidesView {
 				size -> executeAction(externalParticipantsSizeChangedAction, size));
 
 		externalSlidePreviewFrame = createExternalFrame(dict.get(SLIDES_PREVIEW_LABEL_KEY), externalPreviewBox,
-				"", new Dimension(500, 700),
+				"", new Dimension(300, 700),
 				() -> executeAction(externalSlidePreviewClosedAction),
 				position -> executeAction(externalSlidePreviewPositionChangedAction, position),
 				size -> executeAction(externalSlidePreviewSizeChangedAction, size));
@@ -2355,7 +2355,7 @@ public class SwingSlidesView extends JPanel implements SlidesView {
 											  Consumer<ExternalWindowPosition> positionChangedAction,
 											  Consumer<Dimension> sizeChangedAction) {
 		ExternalFrame frame = new ExternalFrame(name, body, placeholderText);
-		frame.setMinimumSize(minimumSize);
+//		frame.setSize(minimumSize);
 		frame.setClosedAction(closedAction);
 		frame.setPositionChangedAction(positionChangedAction);
 		frame.setSizeChangedAction(sizeChangedAction);

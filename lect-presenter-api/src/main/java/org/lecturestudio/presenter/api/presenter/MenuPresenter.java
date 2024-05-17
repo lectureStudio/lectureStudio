@@ -420,7 +420,10 @@ public class MenuPresenter extends Presenter<MenuView> {
 		}
 	}
 
-	public void positionSplitNotes(NotesPosition position){
+	public void positionSplitNotes(NotesPosition position) {
+		PresenterConfiguration config = getPresenterConfig();
+		config.getSlideViewConfiguration().setNotesPosition(position);
+
 		documentService.selectNotesPosition(position);
 	}
 
@@ -727,7 +730,7 @@ public class MenuPresenter extends Presenter<MenuView> {
 		view.setSlidePreviewPosition(slideViewConfig.getSlidePreviewPosition());
 		view.setOnSlidePreviewPosition(this::positionSlidePreview);
 
-		view.setSplitNotesPosition(NotesPosition.NONE);
+		view.setSplitNotesPosition(slideViewConfig.getNotesPosition());
 		view.setOnSplitNotesPosition(this::positionSplitNotes);
 
 		view.setOnNewWhiteboard(this::newWhiteboard);

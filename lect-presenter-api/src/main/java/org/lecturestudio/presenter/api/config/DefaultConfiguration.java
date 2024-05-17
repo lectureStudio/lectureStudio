@@ -30,12 +30,15 @@ import org.lecturestudio.core.geometry.Dimension2D;
 import org.lecturestudio.core.geometry.Position;
 import org.lecturestudio.core.geometry.Rectangle2D;
 import org.lecturestudio.core.graphics.Color;
+import org.lecturestudio.core.model.NotesPosition;
 import org.lecturestudio.core.text.Font;
 import org.lecturestudio.core.text.TeXFont;
 import org.lecturestudio.core.text.TextAttributes;
 import org.lecturestudio.core.tool.PresetColor;
 import org.lecturestudio.presenter.api.model.MessageBarPosition;
+import org.lecturestudio.presenter.api.model.NoteSlidePosition;
 import org.lecturestudio.presenter.api.model.ParticipantsPosition;
+import org.lecturestudio.presenter.api.model.SlideNotesPosition;
 import org.lecturestudio.presenter.api.net.ScreenShareProfiles;
 
 public class DefaultConfiguration extends PresenterConfiguration {
@@ -107,6 +110,9 @@ public class DefaultConfiguration extends PresenterConfiguration {
 		getSlideViewConfiguration().setRightSliderPosition(0.8);
 		getSlideViewConfiguration().setMessageBarPosition(MessageBarPosition.BOTTOM);
 		getSlideViewConfiguration().setParticipantsPosition(ParticipantsPosition.LEFT);
+		getSlideViewConfiguration().setNoteSlidePosition(NoteSlidePosition.NONE);
+		getSlideViewConfiguration().setSlideNotesPosition(SlideNotesPosition.BOTTOM);
+		getSlideViewConfiguration().setNotesPosition(NotesPosition.RIGHT);
 
 		AudioProcessingSettings processingSettings = new AudioProcessingSettings();
 		processingSettings.setHighpassFilterEnabled(true);

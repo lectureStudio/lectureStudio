@@ -20,6 +20,7 @@ package org.lecturestudio.presenter.api.config;
 
 import org.lecturestudio.core.beans.DoubleProperty;
 import org.lecturestudio.core.beans.ObjectProperty;
+import org.lecturestudio.core.model.NotesPosition;
 import org.lecturestudio.presenter.api.model.*;
 
 public class SlideViewConfiguration {
@@ -38,6 +39,9 @@ public class SlideViewConfiguration {
 
 	private final ObjectProperty<NoteSlidePosition> noteSlidePosition = new ObjectProperty<>(
 			NoteSlidePosition.NONE);
+
+	private final ObjectProperty<NotesPosition> notesPosition = new ObjectProperty<>(
+			NotesPosition.RIGHT);
 
 	private final ObjectProperty<SpeechPosition> speechPosition = new ObjectProperty<>(
 			SpeechPosition.ABOVE_SLIDE_PREVIEW);
@@ -146,7 +150,6 @@ public class SlideViewConfiguration {
 		return noteSlidePosition.get();
 	}
 
-
 	/**
 	 * @param position Slide notes bar's position
 	 */
@@ -155,12 +158,25 @@ public class SlideViewConfiguration {
 	}
 
 	/**
+	 * @return Slide notes position
+	 */
+	public NotesPosition getNotesPosition() {
+		return notesPosition.get();
+	}
+
+	/**
+	 * @param position Slide notes position
+	 */
+	public void setNotesPosition(NotesPosition position) {
+		notesPosition.set(position);
+	}
+
+	/**
 	 * @return the speech position
 	 */
 	public SpeechPosition getSpeechPosition() {
 		return speechPosition.get();
 	}
-
 
 	/**
 	 * @param position The speech position

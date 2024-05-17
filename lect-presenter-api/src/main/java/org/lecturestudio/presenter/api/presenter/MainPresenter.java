@@ -48,6 +48,7 @@ import org.lecturestudio.core.controller.PresentationController;
 import org.lecturestudio.core.geometry.Rectangle2D;
 import org.lecturestudio.core.input.KeyEvent;
 import org.lecturestudio.core.model.Document;
+import org.lecturestudio.core.model.NotesPosition;
 import org.lecturestudio.core.net.MediaType;
 import org.lecturestudio.core.presenter.NotificationPresenter;
 import org.lecturestudio.core.presenter.Presenter;
@@ -178,15 +179,19 @@ public class MainPresenter extends org.lecturestudio.core.presenter.MainPresente
 		if (isNull(file)) {
 			return;
 		}
+
 		showWaitingNotification("open.document");
-		documentService.openDocument(file).thenRun( () -> {
-			hideWaitingNotification();
-		}).exceptionally(throwable -> {
-			hideWaitingNotification();
-			handleException(throwable, "Open document failed",
-					"open.document.error", file.getPath());
-			return null;
-		});
+
+		documentService.openDocument(file)
+			.thenRun(() -> {
+				hideWaitingNotification();
+			})
+			.exceptionally(throwable -> {
+				hideWaitingNotification();
+				handleException(throwable, "Open document failed",
+						"open.document.error", file.getPath());
+				return null;
+			});
 	}
 
 	@Override
@@ -316,7 +321,7 @@ public class MainPresenter extends org.lecturestudio.core.presenter.MainPresente
 		Document doc = event.getDocument();
 
 		if (event.created()) {
-			documentCreated();
+			documentCreated(doc);
 		}
 		else if (event.closed()) {
 			documentClosed(doc);
@@ -822,7 +827,14 @@ public class MainPresenter extends org.lecturestudio.core.presenter.MainPresente
 		return true;
 	}
 
-	private void documentCreated() {
+	private void documentCreated(Document doc) {
+		// Hook in here to set documents note position from the config.
+		PresenterConfiguration config = (PresenterConfiguration) context.getConfiguration();
+
+		if (doc.getSplitSlideNotesPosition() != NotesPosition.NONE) {
+			doc.setSplitSlideNotesPosition(config.getSlideViewConfiguration().getNotesPosition());
+		}
+
 		showView(slidesPresenter.getView(), slidesPresenter.getViewLayer());
 	}
 

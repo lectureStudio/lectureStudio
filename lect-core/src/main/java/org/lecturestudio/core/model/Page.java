@@ -69,9 +69,12 @@ public class Page {
 
 	/** Cached page text. */
 	private String pageText;
-	
+
 	/** Cached page text layer. */
 	private List<Rectangle2D> textLayer;
+
+	/** Text annotations. */
+	private final List<String> textNotes = new CopyOnWriteArrayList<>();
 
 	/** The shapes of this page. */
 	private final List<Shape> shapes = new CopyOnWriteArrayList<>();
@@ -640,25 +643,32 @@ public class Page {
 	}
 
 	/**
-	 * Reads all text annotations of the current PDF page
+	 * Reads all text annotations of the current PDF page.
 	 *
-	 * @return All text annotations of the current PDF page
+	 * @return All text annotations of the current PDF page.
 	 */
-	public List<String> getNotes(){
+	public List<String> getNotes() {
+		if (!textNotes.isEmpty()) {
+			return textNotes;
+		}
+
 		List<PDAnnotation> annotations;
-		List<String> annotationsAsString = new ArrayList<>();
+
 		try {
 			 annotations = getDocument().getPdfDocument().getPdfBoxDocument().
 					 getDoc().getPage(pageNumber).getAnnotations();
-		} catch (IOException e) {
+		}
+		catch (IOException e) {
 			throw new RuntimeException(e);
 		}
-		for(PDAnnotation annotation : annotations){
-			if(PDAnnotationText.SUB_TYPE.equals(annotation.getSubtype())){
-				annotationsAsString.add(annotation.getContents());
+
+		for (PDAnnotation annotation : annotations) {
+			if (PDAnnotationText.SUB_TYPE.equals(annotation.getSubtype())) {
+				textNotes.add(annotation.getContents());
 			}
 		}
-		return annotationsAsString;
+
+		return textNotes;
 	}
 
 	public boolean isOverlay() {

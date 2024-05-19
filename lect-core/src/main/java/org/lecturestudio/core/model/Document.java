@@ -500,6 +500,16 @@ public class Document {
 		return importPage(page, pageRect);
 	}
 
+	public boolean hasTextNotes() {
+		for (Page page : getPages()) {
+			if (!page.getNotes().isEmpty()) {
+				return true;
+			}
+		}
+
+		return false;
+	}
+
 	public boolean hasNoteSlide() {
 		Page p = getPage(0);
 		if (isNull(p)) {

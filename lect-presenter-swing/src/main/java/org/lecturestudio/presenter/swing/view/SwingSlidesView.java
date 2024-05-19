@@ -22,18 +22,7 @@ import static java.util.Objects.isNull;
 import static java.util.Objects.nonNull;
 
 import javax.inject.Inject;
-import javax.swing.Box;
-import javax.swing.JButton;
-import javax.swing.JFrame;
-import javax.swing.JLabel;
-import javax.swing.JPanel;
-import javax.swing.JScrollPane;
-import javax.swing.JSplitPane;
-import javax.swing.JTextField;
-import javax.swing.JTree;
-import javax.swing.SwingConstants;
-import javax.swing.SwingUtilities;
-import javax.swing.ToolTipManager;
+import javax.swing.*;
 import javax.swing.event.AncestorEvent;
 import javax.swing.event.AncestorListener;
 import javax.swing.plaf.basic.BasicSplitPaneDivider;
@@ -74,6 +63,7 @@ import org.lecturestudio.core.model.DocumentOutlineItem;
 import org.lecturestudio.core.model.Page;
 import org.lecturestudio.core.stylus.StylusHandler;
 import org.lecturestudio.core.view.*;
+import org.lecturestudio.core.view.Action;
 import org.lecturestudio.presenter.api.config.SlideViewConfiguration;
 import org.lecturestudio.presenter.api.model.*;
 import org.lecturestudio.presenter.api.service.UserPrivilegeService;
@@ -504,6 +494,14 @@ public class SwingSlidesView extends JPanel implements SlidesView {
 
 			updateNoteSlideView(doc);
 		});
+
+		// Show embedded document notes, if available.
+		if (doc.hasTextNotes()) {
+			expandTextNotes();
+		}
+		else {
+			collapseTextNotes();
+		}
 	}
 
 	@Override
@@ -1462,6 +1460,44 @@ public class SwingSlidesView extends JPanel implements SlidesView {
 		slideNotesPosition = position;
 	}
 
+	private void expandTabPane(AdaptiveTabbedPane tabbedPane, String tabLabel, Runnable maximizeFunc) {
+		if (tabbedPane.getPaneSelectedIndex() != tabbedPane.getPaneTabIndex(tabLabel)) {
+			return;
+		}
+
+		tabbedPane.setTabEnabled(tabLabel, true);
+
+		maximizeFunc.run();
+	}
+
+	private void expandTextNotes() {
+		switch (slideNotesPosition) {
+			case LEFT -> {
+				expandTabPane(leftTabPane, dict.get(NOTES_LABEL_KEY), this::maximizeLeftTabPane);
+			}
+			case RIGHT -> {
+				expandTabPane(rightTabPane, dict.get(NOTES_LABEL_KEY), this::maximizeRightTabPane);
+			}
+			case BOTTOM -> {
+				expandTabPane(bottomTabPane, dict.get(NOTES_LABEL_KEY), this::maximizeBottomTabPane);
+			}
+		}
+	}
+
+	private void collapseTextNotes() {
+		switch (slideNotesPosition) {
+			case LEFT -> {
+				minimizeLeftTabPane();
+			}
+			case RIGHT -> {
+				minimizeRightTabPane();
+			}
+			case BOTTOM -> {
+				minimizeBottomTabPane();
+			}
+		}
+	}
+
 	private void showNoteBottom() {
 		if (slideNotesPosition == SlideNotesPosition.BOTTOM) {
 			return;
@@ -2344,7 +2380,17 @@ public class SwingSlidesView extends JPanel implements SlidesView {
 			@Override
 			public void componentResized(ComponentEvent e) {
 				notesSplitPane.removeComponentListener(this);
-				minimizeBottomTabPane();
+
+				// Show embedded document notes, if available.
+				Page page = getPage();
+				if (nonNull(page)) {
+					if (page.getDocument().hasTextNotes()) {
+						expandTextNotes();
+					}
+					else {
+						collapseTextNotes();
+					}
+				}
 			}
 		});
 		showMessagesPlaceholder();

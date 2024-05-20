@@ -11,7 +11,7 @@
 		</Panel>
 		<VBox id="recentContainer" border="EmptyBorder(0, 50, 0, 0)" visible="false">
 			<gridbagconstraints gridx="1" gridy="0" gridheight="2" anchor="GridBagConstraints.NORTHWEST"/>
-			<Label text="start.recently.opened" font="Arial 16" border="EmptyBorder(0, 0, 10, 0)"/>
+			<Label text="start.recently.opened" font-scale="1.25" border="EmptyBorder(0, 0, 10, 0)"/>
 			<VBox id="docContainer" />
 		</VBox>
 	</Panel>

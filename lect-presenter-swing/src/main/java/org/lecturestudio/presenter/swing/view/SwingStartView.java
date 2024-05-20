@@ -29,6 +29,7 @@ import javax.swing.JButton;
 import javax.swing.JComponent;
 import javax.swing.JPanel;
 
+import com.formdev.flatlaf.util.UIScale;
 import org.lecturestudio.core.app.dictionary.Dictionary;
 import org.lecturestudio.core.model.RecentDocument;
 import org.lecturestudio.core.view.Action;
@@ -72,7 +73,8 @@ public class SwingStartView extends JPanel implements StartView {
 			recentContainer.setVisible(!documents.isEmpty());
 			docContainer.removeAll();
 
-			Dimension buttonSize = new Dimension(250, 50);
+			float uiScale = UIScale.getUserScaleFactor();
+			Dimension buttonSize = new Dimension((int) (300 * uiScale), (int) (60 * uiScale));
 
 			for (RecentDocument doc : documents) {
 				DocButton button = new DocButton(doc);

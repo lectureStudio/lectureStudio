@@ -71,7 +71,11 @@ public class BookmarkService {
 	}
 
 	public void clearBookmarks(Document document) {
-		context.getEventBus().post(new BookmarkEvent(documentService.getDocuments().getSelectedDocument().getCurrentPage(), BookmarkEvent.Type.REMOVED));
+		if (isNull(document)) {
+			return;
+		}
+
+		context.getEventBus().post(new BookmarkEvent(document.getCurrentPage(), BookmarkEvent.Type.REMOVED));
 		bookmarks.clear(document);
 	}
 

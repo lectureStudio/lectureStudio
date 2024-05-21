@@ -157,9 +157,9 @@ public class ToolbarPresenter extends Presenter<ToolbarView> {
 
 
 	@Subscribe
-	public void onEvent(final BookmarkEvent event){
-		if(event.getPage().equals(documentService.getDocuments().getSelectedDocument().getCurrentPage())){
-			switch (event.getType()){
+	public void onEvent(final BookmarkEvent event) {
+		if (event.getPage().equals(event.getPage().getDocument().getCurrentPage())) {
+			switch (event.getType()) {
 				case CREATED -> view.selectNewBookmarkButton(true);
 				case REMOVED -> view.selectNewBookmarkButton(false);
 				default -> view.selectNewBookmarkButton(false);

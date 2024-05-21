@@ -19,12 +19,10 @@
 package org.lecturestudio.swing.components;
 
 import java.awt.*;
-import java.awt.geom.AffineTransform;
 import java.util.Objects;
 
 import javax.swing.JButton;
 
-import com.formdev.flatlaf.util.UIScale;
 import org.lecturestudio.core.model.RecentDocument;
 import org.lecturestudio.core.util.FileUtils;
 
@@ -54,19 +52,18 @@ public class DocButton extends JButton {
 		String name = recentDocument.getDocumentName();
 		String path = recentDocument.getDocumentPath();
 
-		float uiScale = UIScale.getUserScaleFactor();
 		float x = 15;
 		float y = 10;
 		float yNamePadding = y + font.deriveFont(Font.BOLD).getSize2D();
 		float yPathPadding = (getHeight() - font.getSize2D());
-		float width = getWidth() * uiScale - 2 * x * uiScale;
+		float width = getWidth() - 2 * x;
 		int maxChars = (int) (width / metrics.stringWidth(path) * path.length());
 
 		g2d.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_LCD_HRGB);
 		g2d.setPaint(Color.BLACK);
 		g2d.setFont(font.deriveFont(Font.BOLD));
-		g2d.drawString(name, x * uiScale, yNamePadding * uiScale);
+		g2d.drawString(name, x, yNamePadding);
 		g2d.setFont(font.deriveFont(Font.PLAIN));
-		g2d.drawString(FileUtils.shortenPath(path, maxChars), x * uiScale, yPathPadding * uiScale);
+		g2d.drawString(FileUtils.shortenPath(path, maxChars), x, yPathPadding);
 	}
 }

@@ -273,9 +273,6 @@ public class VideoRenderer extends RecordingExport {
 		audioConfig.setInputFormat(stream.getAudioFormat());
 		audioConfig.setVideoInputFile(runningConfig.getOutputFile());
 
-		VideoMuxer ffmpegMuxer = new FFmpegProcessMuxer(renderConfig);
-		ffmpegMuxer.start();
-
 		Time totalTime = new Time(stream.getLengthInMillis());
 		Time progressTime = new Time(0);
 
@@ -285,35 +282,38 @@ public class VideoRenderer extends RecordingExport {
 		progressEvent.setPageCount(pageList.size());
 		progressEvent.setPageNumber(recPage.getNumber() + 1);
 
-		if (pageIter.hasNext()) {
-			recPage = pageIter.next();
-		}
+		FFmpegProcessMuxer ffmpegMuxer = new FFmpegProcessMuxer(renderConfig);
+		ffmpegMuxer.setProgressListener(new Consumer<>() {
+
+			RecordedPage page;
+
+			{
+				page = recPage;
+			}
+
+			@Override
+			public void accept(Long currentMs) {
+				progressTime.setMillis(currentMs);
+
+				while (pageIter.hasNext() && page.getTimestamp() < currentMs) {
+					progressEvent.setPageNumber(page.getNumber() + 1);
+					page = pageIter.next();
+				}
+
+				if (!pageIter.hasNext()) {
+					progressEvent.setPageNumber(pageList.size());
+				}
+
+				onRenderProgress(progressEvent);
+			}
+		});
+		ffmpegMuxer.start();
 
 		byte[] buffer = new byte[8192];
-		long totalSize = stream.getLength();
-		long totalRead = 0;
-		long currentMs;
 		int read;
 
 		while ((read = stream.read(buffer)) > 0) {
 			ffmpegMuxer.addAudioFrame(buffer, 0, read);
-
-			totalRead += read;
-
-			// Progress update.
-			currentMs = totalRead * totalTime.getMillis() / totalSize;
-
-			progressTime.setMillis(currentMs);
-
-			if (recPage.getTimestamp() < currentMs) {
-				progressEvent.setPageNumber(recPage.getNumber() + 1);
-
-				if (pageIter.hasNext()) {
-					recPage = pageIter.next();
-				}
-			}
-
-			onRenderProgress(progressEvent);
 		}
 
 		ffmpegMuxer.stop();

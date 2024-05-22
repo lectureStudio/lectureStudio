@@ -58,6 +58,8 @@ public class FFmpegProcessMuxer extends ExecutableBase implements VideoMuxer {
 
 	private OutputStream outStream;
 
+	private Consumer<Long> progressListener;
+
 
 	public FFmpegProcessMuxer(RenderConfiguration config) {
 		this.config = config;
@@ -102,6 +104,10 @@ public class FFmpegProcessMuxer extends ExecutableBase implements VideoMuxer {
 		}
 
 		outStream.write(frame, offset, length);
+	}
+
+	public void setProgressListener(Consumer<Long> progressListener) {
+		this.progressListener = progressListener;
 	}
 
 	@Override
@@ -194,10 +200,28 @@ public class FFmpegProcessMuxer extends ExecutableBase implements VideoMuxer {
 
 		process = procBuilder.start();
 
-		Consumer<String> consumer = LOG::info;
+		Consumer<String> errorConsumer = LOG::info;
+		Consumer<String> stdoutConsumer = (message) -> {
+			int timeIndex = message.indexOf("out_time_us=");
+			if (nonNull(progressListener) && timeIndex > -1) {
+				try {
+					long timeUs = Long.parseLong(message.substring(timeIndex + 12));
 
-		StreamGobbler errorGobbler = new StreamGobbler(process.getErrorStream(), consumer);
-		StreamGobbler outputGobbler = new StreamGobbler(process.getInputStream(), consumer);
+					// Convert to milliseconds.
+					progressListener.accept(timeUs / 1000);
+				}
+				catch (Throwable t) {
+					LOG.error("Parse progress failed", t);
+				}
+			}
+			else {
+				// Skip logging, for now.
+				//LOG.info(message);
+			}
+		};
+
+		StreamGobbler errorGobbler = new StreamGobbler(process.getErrorStream(), errorConsumer);
+		StreamGobbler outputGobbler = new StreamGobbler(process.getInputStream(), stdoutConsumer);
 
 		errorGobbler.start();
 		outputGobbler.start();
@@ -245,6 +269,9 @@ public class FFmpegProcessMuxer extends ExecutableBase implements VideoMuxer {
 		params.add(channels);
 		params.add("-ar");
 		params.add(sampleRate);
+
+		params.add("-progress");
+		params.add("pipe:1");
 
 		if (config.getVBR()) {
 			setAudioVBR(config, params);

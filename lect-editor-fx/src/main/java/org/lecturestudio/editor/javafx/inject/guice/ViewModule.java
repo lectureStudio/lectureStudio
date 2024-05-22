@@ -23,12 +23,14 @@ import com.google.inject.TypeLiteral;
 import com.google.inject.spi.TypeEncounter;
 import com.google.inject.spi.TypeListener;
 
+import javafx.scene.text.Font;
 import javafx.util.BuilderFactory;
 
 import javax.inject.Provider;
 
 import org.lecturestudio.core.inject.DIViewContextFactory;
 import org.lecturestudio.core.util.AggregateBundle;
+import org.lecturestudio.core.util.FileUtils;
 import org.lecturestudio.core.view.AboutView;
 import org.lecturestudio.core.view.ConfirmationNotificationView;
 import org.lecturestudio.core.view.DirectoryChooserView;
@@ -108,6 +110,13 @@ public class ViewModule extends AbstractModule {
 
 	@Override
 	protected void configure() {
+		try {
+			loadFonts();
+		}
+		catch (Exception e) {
+			throw new RuntimeException(e);
+		}
+
 		bind(BuilderFactory.class).to(DIBuilderFactory.class);
 		bind(ViewContextFactory.class).to(DIViewContextFactory.class);
 
@@ -161,4 +170,11 @@ public class ViewModule extends AbstractModule {
 		});
 	}
 
+	private void loadFonts() throws Exception {
+		String[] fontFiles = FileUtils.getResourceListing("/resources/fonts", (name) -> name.endsWith(".ttf"));
+
+		for (String file : fontFiles) {
+			Font.loadFont(getClass().getResourceAsStream(file), Font.getDefault().getSize());
+		}
+	}
 }

@@ -18,16 +18,15 @@
 
 package org.lecturestudio.swing.renderer;
 
-import java.awt.Graphics2D;
-import java.awt.font.FontRenderContext;
-import java.awt.font.LineMetrics;
-import java.awt.font.TextAttribute;
-import java.util.HashMap;
-import java.util.Map;
+import java.awt.*;
+import java.awt.font.*;
+import java.util.*;
 
 import org.lecturestudio.core.model.shape.Shape;
 import org.lecturestudio.core.model.shape.TextShape;
+import org.lecturestudio.core.pdf.PdfFontManager;
 import org.lecturestudio.core.text.Font;
+import org.lecturestudio.core.util.FileUtils;
 import org.lecturestudio.swing.converter.FontConverter;
 
 /**
@@ -63,22 +62,22 @@ public class PDFTextRenderer extends BaseRenderer {
 		attrs.put(TextAttribute.WEIGHT, FontConverter.toAwtFontWeight(font.getWeight()));
 		attrs.put(TextAttribute.UNDERLINE, toAwtFontUnderline(textShape.isUnderline()));
 		attrs.put(TextAttribute.STRIKETHROUGH, textShape.isStrikethrough());
-			
+
 		context.setFont(new java.awt.Font(attrs));
 		context.setPaint(new java.awt.Color(textShape.getTextColor().getRGBA(), true));
 
 		double sy = Math.abs(context.getTransform().getScaleY());
-		
+
 		java.awt.Font awtFont = context.getFont().deriveFont((float) (fontSize * sy));
 		LineMetrics metrics = awtFont.getLineMetrics(text, new FontRenderContext(context.getTransform(), true, true));
-		
+
 		String[] lines = text.split("\n");
-		
+
 		for (String line : lines) {
 			y += (metrics.getAscent() + metrics.getLeading()) / sy;
-			
+
 			context.drawString(line, (float) x, (float) y);
-			
+
 			y += (metrics.getDescent()) / sy + 0;
 		}
 	}

@@ -64,7 +64,7 @@ public class FontPickerButtonSkin extends SplitMenuButtonSkin {
 			fontPicker.requestFocus();
 		});
 
-		control.setTextFont(Font.font(24));
+		control.setTextFont(Font.font(fontPicker.getFont().getFamily(), 18.0));
 		control.getItems().add(item);
 	}
 

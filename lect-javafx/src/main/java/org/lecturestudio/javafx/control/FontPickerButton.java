@@ -41,6 +41,9 @@ public class FontPickerButton extends ExtSplitMenuButton {
 		this.resourceBundle = resourceBundle;
 
 		getStyleClass().add("split-picker-button");
+
+		// Set default font.
+		setTextFont(Font.font("Open Sans"));
 	}
 
 	/**

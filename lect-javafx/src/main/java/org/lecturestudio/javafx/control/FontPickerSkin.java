@@ -47,24 +47,26 @@ import javafx.scene.text.FontWeight;
 import javafx.scene.text.Text;
 import javafx.util.StringConverter;
 
+import org.lecturestudio.javafx.util.FxUtils;
+
 public class FontPickerSkin extends SkinBase<FontPicker> {
 
 	private static final String PREVIEW_TEXT = "AaBbYyZz 012345";
-	
+
 	private static final int MIN_FONT_SIZE = 1;
 	private static final int MAX_FONT_SIZE = 100;
-	
+
 	private final ChangeListener<Font> fontListener = (observable, oldFont, newFont) -> {
 		onFontChange(newFont);
 	};
-	
+
 	private Label previewLabel;
 	private Text previewText;
-	
+
 	private ComboBox<String> fontComboBox;
-	
+
 	private Spinner<Integer> sizeSpinner;
-	
+
 	private CheckBox boldCheckBox;
 	private CheckBox italicCheckBox;
 
@@ -74,7 +76,7 @@ public class FontPickerSkin extends SkinBase<FontPicker> {
 
 		initLayout(control, resourceBundle);
 	}
-	
+
 	/** {@inheritDoc} */
 	@Override
 	public void dispose() {
@@ -93,7 +95,7 @@ public class FontPickerSkin extends SkinBase<FontPicker> {
 		ColumnConstraints column1 = new ColumnConstraints();
 		ColumnConstraints column2 = new ColumnConstraints();
 		column2.setFillWidth(true);
-		
+
 		container.getColumnConstraints().addAll(column1, column2);
 
 		container.getRowConstraints().addAll(
@@ -111,8 +113,8 @@ public class FontPickerSkin extends SkinBase<FontPicker> {
 		previewPane.setPrefHeight(80);
 		previewPane.setMaxHeight(80);
 
-		List<String> families = Font.getFamilies();
-		
+		List<String> families = FxUtils.getEmbeddedFontFamilies();
+
 		fontComboBox = new ComboBox<>(FXCollections.observableList(families));
 		fontComboBox.setMaxWidth(Double.MAX_VALUE);
 		fontComboBox.getSelectionModel().select(0);

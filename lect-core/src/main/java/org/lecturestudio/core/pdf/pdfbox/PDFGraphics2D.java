@@ -358,9 +358,6 @@ public class PDFGraphics2D extends Graphics2D {
 				pdFont = getPDFont();
 			}
 
-			// TODO: remove this fallback MacOS
-			pdFont = PDType1Font.HELVETICA;
-
 			// Replace &nbsp;
 			str = str.replace("\u00a0", " ");
 

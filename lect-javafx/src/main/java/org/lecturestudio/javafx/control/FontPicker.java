@@ -72,7 +72,7 @@ public class FontPicker extends Control {
 	public final ObjectProperty<EventHandler<ActionEvent>> okActionProperty() {
 		return okAction;
 	}
-	
+
 	public final EventHandler<ActionEvent> getOkAction() {
 		return okActionProperty().get();
 	}
@@ -80,7 +80,7 @@ public class FontPicker extends Control {
 	public final void setOkAction(EventHandler<ActionEvent> handler) {
 		okAction.set(handler);
 	}
-	
+
 	/**
      * The 'Cancel'-button's action, which is invoked whenever the button is fired.
      * This may be due to the user clicking on the button with the mouse, or by
@@ -90,7 +90,7 @@ public class FontPicker extends Control {
 	public final ObjectProperty<EventHandler<ActionEvent>> cancelActionProperty() {
 		return cancelAction;
 	}
-	
+
 	public final EventHandler<ActionEvent> getCancelAction() {
 		return cancelActionProperty().get();
 	}
@@ -108,9 +108,12 @@ public class FontPicker extends Control {
 	protected Skin<?> createDefaultSkin() {
 		return new FontPickerSkin(this, resourceBundle);
 	}
-	
+
 	private void initialize() {
 		getStyleClass().setAll(DEFAULT_STYLE_CLASS);
+
+		// Set default font.
+		setFont(Font.font("Open Sans"));
 	}
 
 }

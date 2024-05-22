@@ -18,17 +18,20 @@
 
 package org.lecturestudio.swing.renderer;
 
-import java.awt.Graphics2D;
+import java.awt.*;
 import java.awt.font.FontRenderContext;
 import java.awt.font.TextAttribute;
 import java.awt.font.TextLayout;
 import java.awt.geom.AffineTransform;
 import java.util.Map;
+import java.util.Objects;
 
 import org.lecturestudio.core.geometry.Rectangle2D;
 import org.lecturestudio.core.model.shape.Shape;
 import org.lecturestudio.core.model.shape.TextShape;
+import org.lecturestudio.core.pdf.PdfFontManager;
 import org.lecturestudio.core.text.Font;
+import org.lecturestudio.core.util.FileUtils;
 import org.lecturestudio.swing.converter.ColorConverter;
 import org.lecturestudio.swing.converter.FontConverter;
 
@@ -39,6 +42,28 @@ import org.lecturestudio.swing.converter.FontConverter;
  * @author Tobias
  */
 public class TextRenderer extends BaseRenderer {
+
+	private static final GraphicsEnvironment GE = GraphicsEnvironment.getLocalGraphicsEnvironment();
+
+	static {
+		try {
+			PdfFontManager fontManager = PdfFontManager.getInstance();
+			String[] fontFiles = FileUtils.getResourceListing("/resources/fonts", (name) -> name.endsWith(".ttf"));
+
+			for (String file : fontFiles) {
+				fontManager.addFontFile(file);
+
+				var font = java.awt.Font.createFont(java.awt.Font.TRUETYPE_FONT,
+						Objects.requireNonNull(PDFTextRenderer.class.getResourceAsStream(file)));
+
+				GE.registerFont(font);
+			}
+		}
+		catch (Throwable e) {
+			throw new RuntimeException(e);
+		}
+	}
+
 
 	@Override
 	public Class<? extends Shape> forClass() {

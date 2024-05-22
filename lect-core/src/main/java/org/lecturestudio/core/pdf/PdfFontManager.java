@@ -92,7 +92,7 @@ public class PdfFontManager {
 	
 	public PDFont getPdfFont(Font font, PDDocument document) throws IOException {
 		Map<String, PDFont> docFonts = docFontMap.get(document);
-		PDFont pdFont = null;
+		PDFont pdFont;
 
 		if (docFonts == null) {
 			// No fonts loaded for this document so far.
@@ -130,8 +130,7 @@ public class PdfFontManager {
 			pdFont = PDType0Font.load(document, fontFile);
 		}
 		else {
-			try (InputStream inStream = PdfFontManager.class.getClassLoader()
-					.getResourceAsStream(fontPath)) {
+			try (InputStream inStream = PdfFontManager.class.getResourceAsStream(fontPath)) {
 				pdFont = PDType0Font.load(document, inStream);
 			}
 		}
@@ -160,9 +159,9 @@ public class PdfFontManager {
 			font = parser.parse(fontPath);
 		}
 		else {
-			InputStream inStream = PdfFontManager.class.getClassLoader().getResourceAsStream(fontPath);
-			font = parser.parse(inStream);
-			inStream.close();
+			try (InputStream inStream = PdfFontManager.class.getResourceAsStream(fontPath)) {
+				font = parser.parse(inStream);
+			}
 		}
 
 		if (font != null) {

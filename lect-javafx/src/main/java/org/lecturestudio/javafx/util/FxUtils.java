@@ -24,8 +24,7 @@ import static java.util.Objects.requireNonNull;
 
 import java.io.IOException;
 import java.net.URL;
-import java.util.ResourceBundle;
-import java.util.Set;
+import java.util.*;
 
 import javafx.application.Platform;
 import javafx.event.ActionEvent;
@@ -39,6 +38,7 @@ import javafx.scene.control.MenuItem;
 import javafx.scene.control.ToggleButton;
 import javafx.scene.control.ToggleGroup;
 
+import javafx.scene.text.Font;
 import org.lecturestudio.core.view.Action;
 import org.lecturestudio.core.view.ConsumerAction;
 
@@ -155,5 +155,24 @@ public final class FxUtils {
 		requireNonNull(action);
 
 		menuItem.addEventHandler(ActionEvent.ACTION, event -> action.execute(menuItem.isSelected()));
+	}
+
+	public static List<String> getEmbeddedFontFamilies() {
+		String[] supportedFamilies = {
+				"Open Sans",
+				"Roboto Mono"
+		};
+		List<String> families = new ArrayList<>();
+		List<String> fontFamilies = Font.getFamilies();
+
+		for (String family : supportedFamilies) {
+			Optional<String> opt = fontFamilies.stream().filter(s -> s.equals(family)).findFirst();
+
+			if (opt.isPresent()) {
+				families.add(family);
+			}
+		}
+
+		return families;
 	}
 }

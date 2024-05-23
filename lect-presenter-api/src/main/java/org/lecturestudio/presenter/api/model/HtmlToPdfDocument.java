@@ -25,23 +25,21 @@ import com.openhtmltopdf.extend.FSDOMMutator;
 import com.openhtmltopdf.extend.FSStream;
 import com.openhtmltopdf.extend.FSStreamFactory;
 import com.openhtmltopdf.outputdevice.helper.BaseRendererBuilder.PageSizeUnits;
+import com.openhtmltopdf.pdfboxout.PDFontSupplier;
 import com.openhtmltopdf.pdfboxout.PdfRendererBuilder;
 import com.openhtmltopdf.util.XRLog;
 
-import java.io.ByteArrayOutputStream;
-import java.io.FileInputStream;
-import java.io.FileReader;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.Reader;
+import java.awt.*;
+import java.io.*;
 import java.net.URI;
 import java.nio.charset.StandardCharsets;
+import java.util.Arrays;
 import java.util.Map;
 
 import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.pdmodel.PDPage;
 import org.apache.pdfbox.pdmodel.common.PDRectangle;
+import org.apache.pdfbox.pdmodel.font.PDFont;
 
 import org.jsoup.helper.W3CDom;
 import org.jsoup.nodes.Document.OutputSettings;
@@ -50,6 +48,7 @@ import org.jsoup.nodes.Entities.EscapeMode;
 import org.lecturestudio.core.geometry.Rectangle2D;
 import org.lecturestudio.core.model.Document;
 import org.lecturestudio.core.pdf.PdfDocument;
+import org.lecturestudio.core.pdf.PdfFontManager;
 
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -135,6 +134,19 @@ public abstract class HtmlToPdfDocument extends Document {
 						PageSizeUnits.INCHES)
 				.useProtocolsStreamImplementation(
 						new ClassPathStreamFactory(resourceMap), "classpath");
+
+		// Set default document font.
+		Font font = Arrays.stream(GraphicsEnvironment.getLocalGraphicsEnvironment().getAllFonts())
+				.filter(f -> f.getFontName().equals("Open Sans Regular"))
+				.findFirst()
+				.orElse(null);
+
+		if (nonNull(font)) {
+			PdfFontManager fontManager = PdfFontManager.getInstance();
+			PDFont pdFont = fontManager.getPdfFont(font, pdDoc);
+
+			builder.useFont(new PDFontSupplier(pdFont), font.getFamily());
+		}
 
 		if (nonNull(tplPage)) {
 			builder.usePageSupplier((doc, pWidth, pHeight, pNumber, shadowPageNumber) -> {

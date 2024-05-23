@@ -21,8 +21,10 @@ package org.lecturestudio.swing.util;
 import static java.util.Objects.isNull;
 import static java.util.Objects.requireNonNull;
 
-import java.awt.Color;
-import java.awt.Component;
+import java.awt.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
 
 import javax.swing.AbstractButton;
 import javax.swing.JCheckBoxMenuItem;
@@ -162,5 +164,24 @@ public final class SwingUtils {
 
 			c.setEnabled(enabled);
 		}
+	}
+
+	public static List<String> getEmbeddedFontFamilies() {
+		String[] supportedFamilies = {
+				"Open Sans",
+				"Roboto Mono"
+		};
+		List<String> families = new ArrayList<>();
+		List<String> fontFamilies = List.of(GraphicsEnvironment.getLocalGraphicsEnvironment().getAvailableFontFamilyNames());
+
+		for (String family : supportedFamilies) {
+			Optional<String> opt = fontFamilies.stream().filter(s -> s.equals(family)).findFirst();
+
+			if (opt.isPresent()) {
+				families.add(family);
+			}
+		}
+
+		return families;
 	}
 }

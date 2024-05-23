@@ -27,7 +27,7 @@ import javax.swing.JList;
 
 public class FontCellRenderer extends DefaultListCellRenderer {
 
-	private static final int FONT_SIZE = 18;
+	private static final int FONT_SIZE = 14;
 
 
 	@Override

@@ -26,7 +26,6 @@ import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.Font;
-import java.awt.GraphicsEnvironment;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.GridLayout;
@@ -50,6 +49,7 @@ import javax.swing.SwingWorker;
 import javax.swing.border.TitledBorder;
 
 import org.lecturestudio.swing.list.FontCellRenderer;
+import org.lecturestudio.swing.util.SwingUtils;
 
 public class FontChooser extends JPanel {
 
@@ -74,7 +74,12 @@ public class FontChooser extends JPanel {
 		super();
 
 		initialize(resources);
-		setSelectedFont(new Font("Arial", Font.PLAIN, 24));
+
+		Map<TextAttribute, Object> attrs = new HashMap<>();
+		attrs.put(TextAttribute.FAMILY, SwingUtils.getEmbeddedFontFamilies().get(0));
+		attrs.put(TextAttribute.SIZE, 24);
+
+		setSelectedFont(Font.getFont(attrs));
 	}
 
 	public void setSelectedFont(Font font) {
@@ -136,7 +141,7 @@ public class FontChooser extends JPanel {
 
 			@Override
 			protected String[] doInBackground() {
-				return GraphicsEnvironment.getLocalGraphicsEnvironment().getAvailableFontFamilyNames();
+				return SwingUtils.getEmbeddedFontFamilies().toArray(new String[0]);
 			}
 
 			@Override
@@ -145,7 +150,7 @@ public class FontChooser extends JPanel {
 					fontList.setListData(get());
 
 					if (nonNull(font)) {
-						fontList.setSelectedValue(font.getFontName(), true);
+						fontList.setSelectedValue(font.getFamily(), true);
 					}
 
 					fontScrollPane.setPreferredSize(new Dimension(200, 100));

@@ -243,6 +243,10 @@ public class SlideView extends JComponent implements org.lecturestudio.core.view
 	}
 
 	public void removeAllPageObjectViews() {
+		for (var objectView : getPageObjectViews()) {
+			objectView.dispose();
+		}
+
 		getPageObjectViews().clear();
 
 		surfaceView.removeAll();

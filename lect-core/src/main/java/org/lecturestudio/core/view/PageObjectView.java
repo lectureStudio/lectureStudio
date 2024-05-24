@@ -38,4 +38,6 @@ public interface PageObjectView<T extends Shape> extends View {
 
 	void setOnFocus(ConsumerAction<Boolean> action);
 
+	void dispose();
+
 }

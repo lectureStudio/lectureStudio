@@ -103,6 +103,11 @@ public class TextBox extends PageObject<TextShape> implements TextBoxView {
 	}
 
 	@Override
+	public void dispose() {
+
+	}
+
+	@Override
 	protected Skin<?> createDefaultSkin() {
 		return new TextBoxSkin(this);
 	}

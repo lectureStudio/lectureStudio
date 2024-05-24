@@ -26,22 +26,17 @@ import java.awt.Rectangle;
 import java.awt.event.FocusAdapter;
 import java.awt.event.FocusEvent;
 import java.awt.font.FontRenderContext;
-import java.awt.font.LineBreakMeasurer;
 import java.awt.font.TextAttribute;
 import java.awt.font.TextLayout;
 import java.awt.geom.AffineTransform;
-import java.text.AttributedCharacterIterator;
-import java.text.AttributedString;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Map;
 
-import javax.swing.JComponent;
-import javax.swing.JTextArea;
+import javax.swing.*;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 import javax.swing.plaf.basic.BasicTextAreaUI;
 
+import org.lecturestudio.core.beans.ChangeListener;
 import org.lecturestudio.core.geometry.Point2D;
 import org.lecturestudio.core.geometry.Rectangle2D;
 import org.lecturestudio.core.graphics.Color;
@@ -49,21 +44,21 @@ import org.lecturestudio.core.model.shape.TextShape;
 import org.lecturestudio.core.text.Font;
 import org.lecturestudio.core.text.TextAttributes;
 import org.lecturestudio.core.view.TextBoxView;
-import org.lecturestudio.swing.beans.Binding;
 import org.lecturestudio.swing.components.TextInputPageObject;
 import org.lecturestudio.swing.converter.ColorConverter;
 import org.lecturestudio.swing.converter.FontConverter;
-import org.lecturestudio.swing.util.SwingUtils;
 
 public class SwingTextBoxView extends TextInputPageObject<TextShape> implements TextBoxView {
 
 	private static final java.awt.Color THEME_COLOR = new java.awt.Color(253, 224, 71, 125);
 
-	private Binding textBinding;
-
 	private JTextArea textArea;
 
 	private double fontSize;
+
+	private DocumentListener documentListener;
+
+	private ChangeListener<String> textChangeListener;
 
 
 	public SwingTextBoxView() {
@@ -135,9 +130,12 @@ public class SwingTextBoxView extends TextInputPageObject<TextShape> implements 
 	}
 
 	@Override
-	protected void dispose() {
-		if (nonNull(textBinding)) {
-			textBinding.unbind();
+	public void dispose() {
+		if (nonNull(textChangeListener)) {
+			getPageShape().textProperty().removeListener(textChangeListener);
+		}
+		if (nonNull(documentListener)) {
+			textArea.getDocument().removeDocumentListener(documentListener);
 		}
 
 		super.dispose();
@@ -154,7 +152,32 @@ public class SwingTextBoxView extends TextInputPageObject<TextShape> implements 
 		textArea.setFont(FontConverter.INSTANCE.to(shape.getFont()));
 		textArea.setText(shape.getText());
 
-		textBinding = SwingUtils.bindBidirectional(textArea, shape.textProperty());
+		textChangeListener = (observable, oldValue, newValue) -> {
+			if (!textArea.getText().equals(newValue)) {
+				textArea.setText(newValue);
+			}
+		};
+
+		documentListener = new DocumentListener() {
+
+			@Override
+			public void insertUpdate(DocumentEvent e) {
+				changedUpdate(e);
+			}
+
+			@Override
+			public void removeUpdate(DocumentEvent e) {
+				changedUpdate(e);
+			}
+
+			@Override
+			public void changedUpdate(DocumentEvent e) {
+				shape.setText(textArea.getText());
+			}
+		};
+
+		shape.textProperty().addListener(textChangeListener);
+		textArea.getDocument().addDocumentListener(documentListener);
 	}
 
 	@Override
@@ -291,65 +314,6 @@ public class SwingTextBoxView extends TextInputPageObject<TextShape> implements 
 				dirtyBounds.getWidth() + 2 * m, dirtyBounds.getHeight() + 2 * m);
 
 		shape.setDirtyBounds(dirtyBounds);
-	}
-
-	private List<TextLayout> getTextLayouts() {
-		List<TextLayout> layouts = new ArrayList<>();
-		TextShape shape = getPageShape();
-		String text = shape.getText();
-
-		if (text.isEmpty()) {
-			return layouts;
-		}
-
-		// Scale font.
-		Font font = shape.getFont().clone();
-		font.setSize(font.getSize() * getPageTransform().getScaleY());
-
-		java.awt.Font textFont = FontConverter.INSTANCE.to(font);
-
-		AttributedString styledText = new AttributedString(text);
-		styledText.addAttribute(TextAttribute.FONT, textFont);
-		styledText.addAttribute(TextAttribute.UNDERLINE, shape.isUnderline() ? TextAttribute.UNDERLINE_ON : -1);
-		styledText.addAttribute(TextAttribute.STRIKETHROUGH, shape.isStrikethrough());
-		styledText.addAttribute(TextAttribute.FOREGROUND, java.awt.Color.red);
-
-		FontRenderContext frc = new FontRenderContext(null, true, true);
-
-		AttributedCharacterIterator iterator = styledText.getIterator();
-		int start = iterator.getBeginIndex();
-		int end = iterator.getEndIndex();
-
-		LineBreakMeasurer measurer = new LineBreakMeasurer(iterator, frc);
-		measurer.setPosition(start);
-
-		float wrapWidth = getWrappingWidth(text, frc, textFont);
-		int limit;
-		int newLineIndex;
-
-		while (measurer.getPosition() < end) {
-			limit = measurer.nextOffset(wrapWidth);
-
-			newLineIndex = text.indexOf('\n', measurer.getPosition());
-			if (newLineIndex != -1) {
-				limit = newLineIndex;
-			}
-
-			layouts.add(measurer.nextLayout(wrapWidth, limit + 1, false));
-		}
-
-		return layouts;
-	}
-
-	private float getWrappingWidth(String text, FontRenderContext frc, java.awt.Font textFont) {
-		String[] lines = text.split("\\n");
-		double wrapWidth = 0;
-
-		for (String line : lines) {
-			wrapWidth = Math.max(wrapWidth, textFont.getStringBounds(line, frc).getWidth());
-		}
-
-		return (float) wrapWidth;
 	}
 
 	public static Number toAwtFontUnderline(boolean underline) {

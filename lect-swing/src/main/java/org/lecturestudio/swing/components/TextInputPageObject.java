@@ -112,7 +112,11 @@ public abstract class TextInputPageObject<T extends Shape> extends PageObject<T>
 		updateContentSize();
 	}
 
-	protected void dispose() {
+	public void dispose() {
+
+	}
+
+	protected void close() {
 		if (nonNull(getOnClose())) {
 			getOnClose().execute();
 		}
@@ -176,7 +180,7 @@ public abstract class TextInputPageObject<T extends Shape> extends PageObject<T>
 
 			@Override
 			public void mousePressed(MouseEvent e) {
-				dispose();
+				close();
 			}
 		});
 

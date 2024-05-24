@@ -86,6 +86,11 @@ public class TeXBox extends PageObject<TeXShape> implements TeXBoxView {
 	}
 
 	@Override
+	public void dispose() {
+
+	}
+
+	@Override
 	protected Skin<?> createDefaultSkin() {
 		return new TeXBoxSkin(this);
 	}

@@ -104,7 +104,7 @@ public class SwingTeXBoxView extends TextInputPageObject<TeXShape> implements Te
 	}
 
 	@Override
-	protected void dispose() {
+	public void dispose() {
 		if (nonNull(listener)) {
 			getPageShape().textProperty().removeListener(listener);
 		}

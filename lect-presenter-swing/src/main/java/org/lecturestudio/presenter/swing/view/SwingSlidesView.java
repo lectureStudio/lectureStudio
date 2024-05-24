@@ -304,6 +304,8 @@ public class SwingSlidesView extends JPanel implements SlidesView {
 
 	private JLabel messagesPlaceholder;
 
+	private SlideViewConfiguration viewConfig;
+
 	private MessageBarPosition messageBarPosition = MessageBarPosition.BOTTOM;
 
 	private SlideNotesPosition slideNotesPosition = SlideNotesPosition.BOTTOM;
@@ -330,6 +332,8 @@ public class SwingSlidesView extends JPanel implements SlidesView {
 
 	@Override
 	public void setSlideViewConfig(SlideViewConfiguration viewConfig) {
+		this.viewConfig = viewConfig;
+
 		docSplitPane.setDividerLocation(viewConfig.getLeftSliderPosition());
 		tabSplitPane.setDividerLocation(viewConfig.getRightSliderPosition());
 		notesSplitPane.setDividerLocation(viewConfig.getBottomSliderPosition());
@@ -2369,6 +2373,18 @@ public class SwingSlidesView extends JPanel implements SlidesView {
 			}
 		});
 
+		tabSplitPane.addComponentListener(new ComponentAdapter() {
+			@Override
+			public void componentResized(ComponentEvent e) {
+				tabSplitPane.removeComponentListener(this);
+
+				Page page = getPage();
+				if (nonNull(page)) {
+					tabSplitPane.setDividerLocation(viewConfig.getRightSliderPosition());
+				}
+			}
+		});
+
 		notesSplitPane.addComponentListener(new ComponentAdapter() {
 			@Override
 			public void componentResized(ComponentEvent e) {
@@ -2431,7 +2447,7 @@ public class SwingSlidesView extends JPanel implements SlidesView {
 			@Override
 			public void mouseDragged(MouseEvent e) {
 				if (pane.getOrientation() == JSplitPane.HORIZONTAL_SPLIT) {
-					property.set(pane.getDividerLocation() / (double) pane.getWidth());
+					property.set(pane.getDividerLocation() / (double) (pane.getWidth() - pane.getDividerSize()));
 				}
 				else {
 					property.set(pane.getDividerLocation() / (double) pane.getHeight());

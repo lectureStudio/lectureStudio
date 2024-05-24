@@ -77,7 +77,7 @@ public class FontChooser extends JPanel {
 
 		Map<TextAttribute, Object> attrs = new HashMap<>();
 		attrs.put(TextAttribute.FAMILY, SwingUtils.getEmbeddedFontFamilies().get(0));
-		attrs.put(TextAttribute.SIZE, 24);
+		attrs.put(TextAttribute.SIZE, 14);
 
 		setSelectedFont(Font.getFont(attrs));
 	}

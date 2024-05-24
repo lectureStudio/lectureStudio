@@ -2163,14 +2163,7 @@ public class SwingSlidesView extends JPanel implements SlidesView {
 			}
 		});
 
-
 		slideNotesView.setViewType(ViewType.Slide_Notes);
-
-		slideNotesView.addPropertyChangeListener("transform", e -> {
-			if (nonNull(viewTransformAction)) {
-				executeAction(viewTransformAction, MatrixConverter.INSTANCE.from(slideNotesView.getPageTransform()));
-			}
-		});
 
 		rightNoteSlideViewContainer.setMaximumSize(new Dimension(Integer.MAX_VALUE, Integer.MAX_VALUE));
 

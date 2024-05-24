@@ -50,7 +50,7 @@ public class TextShape extends Shape implements TextBoxShape<Font> {
 
 	private Color color = Color.BLACK;
 
-	private Font font = new Font("Verdana", 24);
+	private Font font = new Font("Open Sans Regular", 14);
 	
 	private TextAttributes attributes = new TextAttributes();
 

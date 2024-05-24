@@ -25,6 +25,7 @@ import com.fasterxml.jackson.databind.module.SimpleModule;
 
 import org.lecturestudio.core.app.configuration.JsonConfigurationService;
 import org.lecturestudio.core.geometry.Rectangle2D;
+import org.lecturestudio.core.text.Font;
 import org.lecturestudio.presenter.api.model.bind.IpRangeRuleDeserializer;
 import org.lecturestudio.presenter.api.model.bind.RegexRuleDeserializer;
 import org.lecturestudio.web.api.filter.IpRangeRule;
@@ -55,6 +56,8 @@ public class PresenterConfigService extends JsonConfigurationService<PresenterCo
 			config.getStreamConfig().setServerName(defaultConfig
 					.getStreamConfig().getServerName());
 		}
+
+		config.getToolConfig().getTextSettings().setFont(new Font("Open Sans Regular", 14));
 
 		config.getTemplateConfig().getAll().forEach(this::checkBoundsValid);
 	}

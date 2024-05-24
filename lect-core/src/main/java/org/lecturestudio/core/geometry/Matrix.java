@@ -206,4 +206,16 @@ public class Matrix implements Cloneable {
 	public int hashCode() {
 		return Objects.hash(m00, m10, m01, m11, m02, m12);
 	}
+
+	@Override
+	public String toString() {
+		return "Matrix{" +
+				"m00=" + m00 +
+				", m10=" + m10 +
+				", m01=" + m01 +
+				", m11=" + m11 +
+				", m02=" + m02 +
+				", m12=" + m12 +
+				'}';
+	}
 }

@@ -93,7 +93,7 @@ public class DefaultConfiguration extends PresenterConfiguration {
 		getToolConfig().getTextSelectionSettings().setColor(PresetColor.ORANGE.getColor());
 		getToolConfig().getTextSelectionSettings().setAlpha(140);
 		getToolConfig().getTextSettings().setColor(PresetColor.BLACK.getColor());
-		getToolConfig().getTextSettings().setFont(new Font("Arial", 24));
+		getToolConfig().getTextSettings().setFont(new Font("Open Sans Regular", 14));
 		getToolConfig().getTextSettings().setTextAttributes(new TextAttributes());
 		getToolConfig().getLatexSettings().setColor(PresetColor.BLACK.getColor());
 		getToolConfig().getLatexSettings().setFont(new TeXFont(TeXFont.Type.SERIF, 20));

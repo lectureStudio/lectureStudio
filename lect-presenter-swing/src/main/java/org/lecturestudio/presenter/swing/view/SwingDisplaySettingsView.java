@@ -45,6 +45,8 @@ public class SwingDisplaySettingsView extends JPanel implements DisplaySettingsV
 
 	private JCheckBox autoPresentationCheckBox;
 
+	private JCheckBox notifyToActivateCheckBox;
+
 	private ColorChooserButton colorChooserButton;
 
 	private Container displayContainer;
@@ -63,6 +65,11 @@ public class SwingDisplaySettingsView extends JPanel implements DisplaySettingsV
 	@Override
 	public void setEnableDisplaysOnStart(BooleanProperty enable) {
 		SwingUtils.bindBidirectional(autoPresentationCheckBox, enable);
+	}
+
+	@Override
+	public void setNotifyToActivate(BooleanProperty activate) {
+		SwingUtils.bindBidirectional(notifyToActivateCheckBox, activate);
 	}
 
 	@Override

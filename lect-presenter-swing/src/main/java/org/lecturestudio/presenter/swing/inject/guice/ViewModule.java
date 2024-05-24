@@ -59,6 +59,7 @@ public class ViewModule extends AbstractModule {
 		bind(QuitRecordingView.class).to(SwingQuitRecordingView.class);
 		bind(ReconnectStreamView.class).to(SwingReconnectStreamView.class);
 		bind(RecordSettingsView.class).to(SwingRecordSettingsView.class);
+		bind(RemindDisplayActivationView.class).to(SwingRemindDisplayActivationView.class);
 		bind(RemindRecordingView.class).to(SwingRemindRecordingView.class);
 		bind(RestoreRecordingView.class).to(SwingRestoreRecordingView.class);
 		bind(SaveDocumentsView.class).to(SwingSaveDocumentsView.class);

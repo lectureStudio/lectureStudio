@@ -69,6 +69,7 @@ public class DisplaySettingsPresenter extends Presenter<DisplaySettingsView> {
 		screensConnected(screens, 0, screens.size());
 
 		view.setDisplayBackgroundColor(displayConfig.backgroundColorProperty());
+		view.setNotifyToActivate(displayConfig.notifyToActivateProperty());
 		view.setEnableDisplaysOnStart(displayConfig.autostartProperty());
 		view.setScreens(loadScreenList(screens));
 		view.setOnReset(this::reset);
@@ -78,6 +79,7 @@ public class DisplaySettingsPresenter extends Presenter<DisplaySettingsView> {
 		DefaultConfiguration defaultConfig = new DefaultConfiguration();
 
 		displayConfig.setAutostart(defaultConfig.getDisplayConfig().getAutostart());
+		displayConfig.setNotifyToActivate(defaultConfig.getDisplayConfig().getNotifyToActivate());
 		displayConfig.setBackgroundColor(defaultConfig.getDisplayConfig().getBackgroundColor());
 		displayConfig.getScreens().clear();
 	}

@@ -68,8 +68,9 @@ import org.lecturestudio.presenter.api.event.RecordingStateEvent;
 import org.lecturestudio.presenter.api.event.ScreenShareSelectEvent;
 import org.lecturestudio.presenter.api.event.StreamingStateEvent;
 import org.lecturestudio.presenter.api.model.*;
-import org.lecturestudio.presenter.api.presenter.command.CloseablePresenterCommand;
 import org.lecturestudio.presenter.api.presenter.command.StartRecordingCommand;
+import org.lecturestudio.presenter.api.presenter.state.ActivateDisplaysNotifyState;
+import org.lecturestudio.presenter.api.presenter.state.RecordNotifyState;
 import org.lecturestudio.presenter.api.service.BookmarkService;
 import org.lecturestudio.presenter.api.service.RecordingService;
 import org.lecturestudio.presenter.api.view.ToolbarView;
@@ -81,6 +82,8 @@ public class ToolbarPresenter extends Presenter<ToolbarView> {
 	private final EventBus eventBus;
 
 	private final RecordNotifyState recordNotifyState;
+
+	private final ActivateDisplaysNotifyState activateDisplaysNotifyState;
 
 	private ToolType toolType;
 
@@ -104,8 +107,9 @@ public class ToolbarPresenter extends Presenter<ToolbarView> {
 	public ToolbarPresenter(ApplicationContext context, ToolbarView view) {
 		super(context, view);
 
-		this.eventBus = context.getEventBus();
-		this.recordNotifyState = new RecordNotifyState();
+		eventBus = context.getEventBus();
+		recordNotifyState = new RecordNotifyState(context, view);
+		activateDisplaysNotifyState = new ActivateDisplaysNotifyState(context, view);
 	}
 
 	@Subscribe
@@ -463,6 +467,7 @@ public class ToolbarPresenter extends Presenter<ToolbarView> {
 		view.setPage(page, parameter);
 
 		recordNotifyState.setPage(page);
+		activateDisplaysNotifyState.setPage(page);
 	}
 
 	private void pageEdited(final PageEditEvent event) {
@@ -473,6 +478,7 @@ public class ToolbarPresenter extends Presenter<ToolbarView> {
 		pageChanged(event.getPage());
 
 		recordNotifyState.setShape();
+		activateDisplaysNotifyState.setShape();
 	}
 
 	private void toolChanged(ToolType toolType, PaintSettings settings) {
@@ -500,8 +506,6 @@ public class ToolbarPresenter extends Presenter<ToolbarView> {
 			handleException(e, "Start recording failed", "recording.start.error");
 		}
 	}
-
-
 
 	/**
 	 * Select the previous bookmark in the bookmark list.
@@ -652,87 +656,7 @@ public class ToolbarPresenter extends Presenter<ToolbarView> {
 		});
 		presentationController.presentationViewsVisibleProperty().addListener((observable, oldValue, newValue) -> {
 			view.setPresentationViewsVisible(newValue);
+			activateDisplaysNotifyState.setPresentationViewsVisible(newValue);
 		});
-	}
-
-
-
-	private class RecordNotifyState {
-
-		private final PresenterConfiguration config;
-
-		private ExecutableState recordingState;
-
-		private Page page;
-
-		private boolean pageChanged;
-
-		private boolean shapeAdded;
-
-		private boolean userDeclined;
-
-
-		RecordNotifyState() {
-			config = (PresenterConfiguration) context.getConfiguration();
-		}
-
-		void setShape() {
-			shapeAdded = true;
-
-			if (notifyState()) {
-				view.showRecordNotification(notifyState());
-
-				showRecordNotification();
-			}
-		}
-
-		void setPage(Page page) {
-			if (nonNull(this.page) && this.page != page) {
-				pageChanged = true;
-			}
-
-			this.page = page;
-
-			if (notifyState()) {
-				view.showRecordNotification(notifyState());
-
-				showRecordNotification();
-			}
-		}
-
-		void setRecordingState(ExecutableState state) {
-			this.recordingState = state;
-
-			switch (recordingState) {
-				case Suspended:
-				case Stopped:
-					resetState();
-					break;
-			}
-
-			view.showRecordNotification(notifyState());
-		}
-
-		boolean notifyState() {
-			if (!config.getNotifyToRecord() || userDeclined) {
-				return false;
-			}
-			return (shapeAdded || pageChanged)
-					&& recordingState != ExecutableState.Started;
-		}
-
-		void showRecordNotification() {
-			eventBus.post(new CloseablePresenterCommand<>(
-					RemindRecordingPresenter.class, () -> {
-				// User declined, so do not ask again.
-				userDeclined = true;
-			}));
-		}
-
-		void resetState() {
-			pageChanged = false;
-			shapeAdded = false;
-			userDeclined = false;
-		}
 	}
 }

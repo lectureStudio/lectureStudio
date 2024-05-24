@@ -69,6 +69,7 @@ public class DefaultConfiguration extends PresenterConfiguration {
 		getWhiteboardConfig().setShowGridOnDisplays(false);
 
 		getDisplayConfig().setAutostart(false);
+		getDisplayConfig().setNotifyToActivate(true);
 		getDisplayConfig().setBackgroundColor(Color.WHITE);
 		getDisplayConfig().setIpPosition(Position.BOTTOM_CENTER);
 

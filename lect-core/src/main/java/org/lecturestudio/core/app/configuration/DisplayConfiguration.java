@@ -51,6 +51,11 @@ public class DisplayConfiguration {
 	 */
 	private final BooleanProperty autostart = new BooleanProperty();
 
+	/**
+	 * Show a reminder notification, if desired, to activate connected displays.
+	 */
+	private final BooleanProperty notifyToActivate = new BooleanProperty(true);
+
 
 	/**
 	 * Obtain the observable list of screen configurations that describe the
@@ -152,4 +157,33 @@ public class DisplayConfiguration {
 		return autostart;
 	}
 
+	/**
+	 * Check whether to show a notification to activate connected displays when the
+	 * presentation starts.
+	 *
+	 * @return {@code true} to notify to activate connected displays, otherwise {@code false}.
+	 */
+	public Boolean getNotifyToActivate() {
+		return notifyToActivate.get();
+	}
+
+	/**
+	 * Set whether to show a notification to activate connected displays when the
+	 * presentation starts.
+	 *
+	 * @param notify True to notify to activate connected displays, false
+	 *               otherwise.
+	 */
+	public void setNotifyToActivate(Boolean notify) {
+		this.notifyToActivate.set(notify);
+	}
+
+	/**
+	 * Obtain the notify-to-activate property.
+	 *
+	 * @return the notify-to-activate property.
+	 */
+	public BooleanProperty notifyToActivateProperty() {
+		return notifyToActivate;
+	}
 }

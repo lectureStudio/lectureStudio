@@ -63,6 +63,7 @@ class DisplaySettingsPresenterTest extends PresenterTest {
 
 		DisplayConfiguration config = context.getConfiguration().getDisplayConfig();
 		config.setAutostart(true);
+		config.setNotifyToActivate(true);
 		config.setBackgroundColor(Color.BLACK);
 
 		DisplayService displayService = () -> screens;
@@ -95,6 +96,7 @@ class DisplaySettingsPresenterTest extends PresenterTest {
 		DisplayConfiguration defaultConfig = new DefaultConfiguration().getDisplayConfig();
 
 		assertEquals(defaultConfig.getAutostart(), config.getAutostart());
+		assertEquals(defaultConfig.getNotifyToActivate(), config.getNotifyToActivate());
 		assertEquals(defaultConfig.getBackgroundColor(), config.getBackgroundColor());
 		assertEquals(defaultConfig.getScreens(), config.getScreens());
 	}
@@ -115,6 +117,17 @@ class DisplaySettingsPresenterTest extends PresenterTest {
 			enable.addListener((observable, oldValue, newValue) -> {
 				if (reset) {
 					assertFalse(enable.get());
+				}
+			});
+		}
+
+		@Override
+		public void setNotifyToActivate(BooleanProperty activate) {
+			assertTrue(activate.get());
+
+			activate.addListener((observable, oldValue, newValue) -> {
+				if (reset) {
+					assertTrue(activate.get());
 				}
 			});
 		}

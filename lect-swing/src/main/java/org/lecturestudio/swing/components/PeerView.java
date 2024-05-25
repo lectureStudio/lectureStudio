@@ -262,8 +262,11 @@ public class PeerView extends JComponent {
 		AffineTransform imageTransform = new AffineTransform();
 		imageTransform.translate(transform.getTranslateX(), transform.getTranslateY());
 
+		int x = (int) ((getWidth() * transform.getScaleX() - image.getWidth(null)) / 2);
+		int y = (int) ((getHeight() * transform.getScaleX() - image.getHeight(null)) / 2);
+
 		g2.setTransform(imageTransform);
-		g2.drawImage(image, (int) ((getWidth() * transform.getScaleX() - image.getWidth(null)) / 2), 0, null);
+		g2.drawImage(image, x, y, null);
 		g2.setTransform(transform);
 	}
 }

@@ -14,6 +14,8 @@ pre {
 	font-weight: 400;
 	margin: 0;
 	padding: 0;
+	word-wrap: break-word;
+	white-space: pre-wrap;
 }
 
 .speech-bubble {

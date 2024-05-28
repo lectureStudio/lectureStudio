@@ -17,7 +17,7 @@ jobs:
       if: |
         contains(github.event.issue.title, 'presenter')
       with:
-        project: 'https://github.com/lectureStudio/lectureStudio/projects/4'
+        project: 'https://github.com/lectureStudio/lectureStudio/projects/3'
         column_name: 'To Do'
         
     - name: Assign lectureEditor issues
@@ -25,7 +25,7 @@ jobs:
       if: |
         contains(github.event.issue.title, 'editor')
       with:
-        project: 'https://github.com/lectureStudio/lectureStudio/projects/5'
+        project: 'https://github.com/lectureStudio/lectureStudio/projects/4'
         column_name: 'To Do'
         
     - name: Assign lecturePlayer issues
@@ -33,5 +33,13 @@ jobs:
       if: |
         contains(github.event.issue.title, 'player')
       with:
-        project: 'https://github.com/lectureStudio/lectureStudio/projects/7'
+        project: 'https://github.com/lectureStudio/lectureStudio/projects/5'
+        column_name: 'To Do'
+        
+    - name: Assign lectureStreaming issues
+      uses: srggrs/assign-one-project-github-action@1.2.1
+      if: |
+        contains(github.event.issue.title, 'server')
+      with:
+        project: 'https://github.com/lectureStudio/lectureStudio/projects/6'
         column_name: 'To Do'

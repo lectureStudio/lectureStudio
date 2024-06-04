@@ -36,6 +36,8 @@ import java.util.function.Predicate;
 
 import javax.inject.Inject;
 
+import dev.onvoid.webrtc.media.video.desktop.PowerManagement;
+
 import org.lecturestudio.core.ExecutableException;
 import org.lecturestudio.core.ExecutableState;
 import org.lecturestudio.core.app.ApplicationContext;
@@ -208,6 +210,9 @@ public class MainPresenter extends org.lecturestudio.core.presenter.MainPresente
 
 	@Override
 	public void initialize() {
+		PowerManagement pm = new PowerManagement();
+		pm.enableUserActivity();
+
 		registerShortcut(Shortcut.CLOSE_VIEW, this::closeView);
 		registerShortcut(Shortcut.PAUSE_RECORDING, this::togglePauseRecording);
 		registerShortcut(Shortcut.PAUSE_RECORDING_P, this::togglePauseRecording);

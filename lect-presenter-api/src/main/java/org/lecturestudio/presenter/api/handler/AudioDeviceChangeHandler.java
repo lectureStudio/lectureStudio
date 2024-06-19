@@ -84,11 +84,13 @@ public class AudioDeviceChangeHandler extends PresenterHandler {
 
 		if (Objects.equals(deviceName, deviceConfigName)) {
 			// Pause recording to select a new microphone.
-			try {
-				recordingService.suspend();
-			}
-			catch (ExecutableException e) {
-				handleException(e, "Suspend recording failed", "Error.....");
+			if (recordingService.started()) {
+				try {
+					recordingService.suspend();
+				}
+				catch (ExecutableException e) {
+					handleException(e, "Suspend recording failed", "Error.....");
+				}
 			}
 
 			// Show dialog to select a new microphone.

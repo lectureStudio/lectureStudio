@@ -25,6 +25,7 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Arrays;
+import java.util.concurrent.CompletableFuture;
 
 import javax.inject.Inject;
 
@@ -239,16 +240,18 @@ public class SoundSettingsPresenter extends Presenter<SoundSettingsView> {
 
 	@Override
 	public void close() {
-		audioSystemProvider.removeDeviceChangeListener(deviceChangeListener);
+		//audioSystemProvider.removeDeviceChangeListener(deviceChangeListener);
 
 		super.close();
 	}
 
 	private void loadDevices() {
-		view.setAudioCaptureDevices(audioSystemProvider.getRecordingDevices());
-		view.setAudioPlaybackDevices(audioSystemProvider.getPlaybackDevices());
-		view.setAudioCaptureDevice(audioConfig.captureDeviceNameProperty());
-		view.setAudioPlaybackDevice(audioConfig.playbackDeviceNameProperty());
+		CompletableFuture.runAsync(() -> {
+			view.setAudioCaptureDevices(audioSystemProvider.getRecordingDevices());
+			view.setAudioPlaybackDevices(audioSystemProvider.getPlaybackDevices());
+			view.setAudioCaptureDevice(audioConfig.captureDeviceNameProperty());
+			view.setAudioPlaybackDevice(audioConfig.playbackDeviceNameProperty());
+		});
 	}
 
 	private void adjustAudioCaptureLevel() {

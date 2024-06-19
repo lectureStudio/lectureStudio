@@ -23,6 +23,7 @@ import static java.util.Objects.nonNull;
 
 import java.io.ByteArrayInputStream;
 import java.util.Arrays;
+import java.util.concurrent.CompletableFuture;
 
 import javax.inject.Inject;
 
@@ -158,10 +159,12 @@ public class StartRecordingPresenter extends Presenter<StartRecordingView> {
 	}
 
 	private void loadDevices() {
-		view.setAudioCaptureDevices(audioSystemProvider.getRecordingDevices());
-		view.setAudioPlaybackDevices(audioSystemProvider.getPlaybackDevices());
-		view.setAudioCaptureDevice(audioConfig.captureDeviceNameProperty());
-		view.setAudioPlaybackDevice(audioConfig.playbackDeviceNameProperty());
+		CompletableFuture.runAsync(() -> {
+			view.setAudioCaptureDevices(audioSystemProvider.getRecordingDevices());
+			view.setAudioPlaybackDevices(audioSystemProvider.getPlaybackDevices());
+			view.setAudioCaptureDevice(audioConfig.captureDeviceNameProperty());
+			view.setAudioPlaybackDevice(audioConfig.playbackDeviceNameProperty());
+		});
 	}
 
 	private void dispose() {

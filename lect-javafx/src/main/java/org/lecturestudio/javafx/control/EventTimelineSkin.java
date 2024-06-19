@@ -156,6 +156,7 @@ public class EventTimelineSkin extends MediaTrackControlSkinBase {
 			if (pageNumber != 0) {
 				PageSlider pageSlider = new PageSlider(pages, pageNumber, height);
 				ThumbMouseHandler mouseHandler = new ThumbMouseHandler(pageSlider, Orientation.HORIZONTAL);
+
 				pageSlider.setOnMouseDragged(mouseHandler);
 				pageSlider.setOnMousePressed(mouseHandler);
 				pageSlider.setOnMouseReleased(mouseHandler);
@@ -245,6 +246,7 @@ public class EventTimelineSkin extends MediaTrackControlSkinBase {
 
 		PageSlider(List<RecordedPage> pages, int pageNumber, double maxHeight) {
 			super();
+
 			this.pages = pages;
 			this.pageNumber = pageNumber;
 
@@ -259,8 +261,8 @@ public class EventTimelineSkin extends MediaTrackControlSkinBase {
 			this.setLayoutY(snapPositionY(0));
 
 			label.setAlignment(Pos.CENTER);
-			label.setPrefWidth(label.getWidth() + 15);
-			label.setPrefHeight(Math.min(label.getHeight() + 10, maxHeight));
+			label.setPrefWidth(label.getWidth() + 18);
+			label.setPrefHeight(Math.min(label.getHeight() + 15, maxHeight));
 		}
 
 		@Override

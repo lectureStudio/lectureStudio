@@ -27,7 +27,7 @@
 					<EventTypeCellFactory />
 				</cellFactory>
 				<cellValueFactory>
-					<PropertyValueFactory property="actionType"/>
+					<EventTypeCellValueFactory />
 				</cellValueFactory>
 			</TableColumn>
 			<TableColumn text="%page.events.time">

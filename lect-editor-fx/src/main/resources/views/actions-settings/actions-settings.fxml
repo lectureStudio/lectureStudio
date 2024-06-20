@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import org.lecturestudio.javafx.util.TextIntegerFormatter?>
+
+<fx:root styleClass="actions-settings" type="GridPane" xmlns="http://javafx.com/javafx/10.0.2-internal" xmlns:fx="http://javafx.com/fxml/1">
+	<columnConstraints>
+		<ColumnConstraints hgrow="ALWAYS" />
+	</columnConstraints>
+	<rowConstraints>
+		<RowConstraints />
+		<RowConstraints />
+		<RowConstraints vgrow="ALWAYS" />
+	</rowConstraints>
+
+	<Label text="%actions.settings.unite.threshold" />
+	<HBox alignment="CENTER_LEFT" spacing="5.0" GridPane.rowIndex="1" GridPane.hgrow="NEVER">
+		<TextField fx:id="uniteThresholdField" prefColumnCount="5"  maxWidth="-Infinity">
+			<GridPane.margin>
+				<Insets />
+			</GridPane.margin>
+			<textFormatter>
+				<TextIntegerFormatter />
+			</textFormatter>
+		</TextField>
+		<Label text="%actions.settings.unite.threshold.ms" />
+	</HBox>
+
+	<HBox alignment="BOTTOM_RIGHT" spacing="5" GridPane.rowIndex="2">
+		<Button fx:id="resetButton" text="%button.reset" />
+		<Button fx:id="closeButton" text="%button.close" />
+	</HBox>
+</fx:root>

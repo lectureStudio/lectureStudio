@@ -1,0 +1,7 @@
+.actions-settings {
+	-fx-hgap: 10;
+	-fx-padding: 2em;
+}
+.actions-settings > .label {
+	-fx-padding: 0 0 0.425em 0;
+}

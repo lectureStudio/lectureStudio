@@ -26,10 +26,10 @@ import javafx.scene.control.TableCell;
 import javafx.scene.control.TableColumn;
 import javafx.util.Callback;
 
-import org.lecturestudio.core.recording.action.ActionType;
+import org.lecturestudio.editor.api.view.model.PageEvent;
 import org.lecturestudio.javafx.control.SvgIcon;
 
-public class EventTypeCellFactory implements Callback<TableColumn<Object, ActionType>, TableCell<Object, ActionType>> {
+public class EventTypeCellFactory implements Callback<TableColumn<Object, PageEvent>, TableCell<Object, PageEvent>> {
 
 	private final ResourceBundle resources;
 
@@ -40,20 +40,20 @@ public class EventTypeCellFactory implements Callback<TableColumn<Object, Action
 	}
 
 	@Override
-	public TableCell<Object, ActionType> call(TableColumn<Object, ActionType> param) {
+	public TableCell<Object, PageEvent> call(TableColumn<Object, PageEvent> param) {
 		return new EventTypeCell();
 	}
 
 
 
-	private class EventTypeCell extends TableCell<Object, ActionType> {
+	private class EventTypeCell extends TableCell<Object, PageEvent> {
 
 		@Override
-		protected void updateItem(ActionType item, boolean empty) {
+		protected void updateItem(PageEvent item, boolean empty) {
 			super.updateItem(item, empty);
 
 			if (!empty) {
-				String typeName = item.toString().toLowerCase();
+				String typeName = item.getActionType().toString().toLowerCase();
 				String eventName = "page.events." + typeName.replace("_", ".");
 				String iconName = typeName.replace("_", "-") + "-icon";
 
@@ -61,7 +61,14 @@ public class EventTypeCellFactory implements Callback<TableColumn<Object, Action
 					SvgIcon icon = new SvgIcon();
 					icon.getStyleClass().add(iconName);
 
-					setText(resources.getString(eventName));
+					int compositeCount = item.getCompositeActions().size();
+					if (compositeCount > 1) {
+						setText(resources.getString(eventName) + String.format(" (%d)", compositeCount));
+					}
+					else {
+						setText(resources.getString(eventName));
+					}
+
 					setGraphic(icon);
 				}
 			}

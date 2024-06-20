@@ -19,12 +19,16 @@
 package org.lecturestudio.editor.api.config;
 
 import org.lecturestudio.core.app.configuration.Configuration;
+import org.lecturestudio.core.beans.IntegerProperty;
 import org.lecturestudio.core.beans.StringProperty;
 
 public class EditorConfiguration extends Configuration {
 
 	/** The path where the video export files are stored at. */
 	private final StringProperty videoExportPath = new StringProperty();
+
+	/** The threshold value in milliseconds for merging annotations. */
+	private final IntegerProperty actionsUniteThreshold = new IntegerProperty(700);
 
 
 	/**
@@ -52,5 +56,32 @@ public class EditorConfiguration extends Configuration {
 	 */
 	public StringProperty videoExportPathProperty() {
 		return videoExportPath;
+	}
+
+	/**
+	 * Get the actions unite threshold in milliseconds.
+	 *
+	 * @return the unite threshold.
+	 */
+	public int getActionsUniteThreshold() {
+		return actionsUniteThreshold.get();
+	}
+
+	/**
+	 * Set the actions unite threshold in milliseconds.
+	 *
+	 * @param threshold the unite threshold.
+	 */
+	public void setActionsUniteThreshold(int threshold) {
+		this.actionsUniteThreshold.set(threshold);
+	}
+
+	/**
+	 * Get the actions unite threshold property.
+	 *
+	 * @return the unite threshold property.
+	 */
+	public IntegerProperty actionsUniteThresholdProperty() {
+		return actionsUniteThreshold;
 	}
 }

@@ -42,6 +42,7 @@ public class DefaultConfiguration extends EditorConfiguration {
 		setAdvancedUIMode(false);
 		setExtendedFullscreen(false);
 		setVideoExportPath(new File(System.getProperty("user.home"), "Desktop").getAbsolutePath());
+		setActionsUniteThreshold(700);
 
 		getWhiteboardConfig().setBackgroundColor(Color.WHITE);
 		getWhiteboardConfig().setVerticalLinesVisible(false);

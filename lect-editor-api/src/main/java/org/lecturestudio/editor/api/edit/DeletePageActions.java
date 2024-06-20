@@ -18,7 +18,6 @@
 
 package org.lecturestudio.editor.api.edit;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import org.lecturestudio.core.model.Interval;
@@ -54,14 +53,7 @@ public class DeletePageActions extends RecordingAction {
 			List<PlaybackAction> actions, int pageNumber) {
 		RecordedEvents lectureEvents = recording.getRecordedEvents();
 
-		List<EditAction> deletions = new ArrayList<>();
-
-		for (var action : actions) {
-			deletions.add(new DeleteEventAction(lectureEvents, action,
-					pageNumber));
-		}
-
-		return deletions;
+		return List.of(new DeleteCompositeEventsAction(lectureEvents, actions, pageNumber));
 	}
 
 	@Override

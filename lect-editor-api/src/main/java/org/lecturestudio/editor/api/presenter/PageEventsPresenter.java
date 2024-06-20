@@ -45,6 +45,7 @@ import org.lecturestudio.core.recording.action.ActionType;
 import org.lecturestudio.core.recording.action.PlaybackAction;
 import org.lecturestudio.core.recording.edit.EditAction;
 import org.lecturestudio.core.service.DocumentService;
+import org.lecturestudio.editor.api.config.EditorConfiguration;
 import org.lecturestudio.editor.api.context.EditorContext;
 import org.lecturestudio.editor.api.edit.DeletePageActions;
 import org.lecturestudio.editor.api.service.RecordingFileService;
@@ -176,6 +177,11 @@ public class PageEventsPresenter extends Presenter<PageEventsView> {
 		PlaybackAction previousAction = null;
 		Integer previousEndTs = null;
 
+		EditorConfiguration config = (EditorConfiguration) context.getConfiguration();
+		int uniteThreshold = config.getActionsUniteThreshold();
+		// Fail-safe if the value is not configured and/or is not present.
+		uniteThreshold = uniteThreshold == 0 ? Integer.MIN_VALUE : uniteThreshold;
+
 		for (var action : recordedPage.getPlaybackActions()) {
 			ActionType actionType = action.getType();
 
@@ -200,7 +206,7 @@ public class PageEventsPresenter extends Presenter<PageEventsView> {
 					|| !previousAction.hasHandle()
 					|| action.getHandle() != previousAction.getHandle()) {
 				if (nonNull(previousAction) && nonNull(previousEndTs)
-						&& Math.abs(action.getTimestamp() - previousEndTs) < -1000
+						&& Math.abs(action.getTimestamp() - previousEndTs) < uniteThreshold
 						&& action.getClass().equals(previousAction.getClass())) {
 					// This is a composite action.
 					PageEvent initEvent = eventList.get(eventList.size() - 1);

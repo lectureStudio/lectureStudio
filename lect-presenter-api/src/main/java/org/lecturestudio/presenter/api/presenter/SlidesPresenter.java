@@ -111,6 +111,7 @@ import org.lecturestudio.presenter.api.event.ScreenShareEndEvent;
 import org.lecturestudio.presenter.api.event.ScreenShareStateEvent;
 import org.lecturestudio.presenter.api.event.StreamReconnectStateEvent;
 import org.lecturestudio.presenter.api.event.StreamingStateEvent;
+import org.lecturestudio.presenter.api.input.MouseWheelHandler;
 import org.lecturestudio.presenter.api.input.Shortcut;
 import org.lecturestudio.presenter.api.model.*;
 import org.lecturestudio.presenter.api.service.*;
@@ -1265,7 +1266,7 @@ public class SlidesPresenter extends Presenter<SlidesView> {
 	@Override
 	public void initialize() {
 		stylusHandler = new StylusHandler(toolController, () -> {
-			// Cancel page selection task.
+			// Cancel a page selection task.
 			if (nonNull(idleTimer)) {
 				idleTimer.stop();
 				idleTimer = null;
@@ -1348,6 +1349,8 @@ public class SlidesPresenter extends Presenter<SlidesView> {
 //		config.useMouseInputProperty().addListener((o, oldValue, newValue) -> {
 //			setUseMouse(newValue);
 //		});
+
+		view.setMouseWheelHandler(this::mouseWheelMoved);
 
 		setUseMouse(config.getUseMouseInput());
 
@@ -1478,6 +1481,15 @@ public class SlidesPresenter extends Presenter<SlidesView> {
 		}
 		else {
 			view.createStylusInput(stylusHandler);
+		}
+	}
+
+	private void mouseWheelMoved(MouseWheelHandler.MouseWheelEvent e) {
+		if (e.wheelRotation() < 0) {
+			previousPage();
+		}
+		else {
+			nextPage();
 		}
 	}
 

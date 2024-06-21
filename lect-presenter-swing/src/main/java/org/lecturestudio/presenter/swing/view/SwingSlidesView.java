@@ -65,6 +65,7 @@ import org.lecturestudio.core.stylus.StylusHandler;
 import org.lecturestudio.core.view.*;
 import org.lecturestudio.core.view.Action;
 import org.lecturestudio.presenter.api.config.SlideViewConfiguration;
+import org.lecturestudio.presenter.api.input.MouseWheelHandler;
 import org.lecturestudio.presenter.api.model.*;
 import org.lecturestudio.presenter.api.service.UserPrivilegeService;
 import org.lecturestudio.presenter.api.view.SlidesView;
@@ -225,6 +226,8 @@ public class SwingSlidesView extends JPanel implements SlidesView {
 	private SlideView slideView;
 
 	private SlideView slideNotesView;
+
+	private MouseWheelListener mouseWheelListener;
 
 	private StylusListener stylusListener;
 
@@ -608,6 +611,19 @@ public class SwingSlidesView extends JPanel implements SlidesView {
 		boolean show = !window.isUndecorated() || !extendedFullscreen;
 
 		bottomTabPane.setVisible(show);
+	}
+
+	@Override
+	public void setMouseWheelHandler(MouseWheelHandler handler) {
+		if (nonNull(mouseWheelListener)) {
+			removeMouseWheelListener(mouseWheelListener);
+		}
+
+		mouseWheelListener = e -> {
+			handler.mouseWheelMoved(new MouseWheelHandler.MouseWheelEvent(e.getX(), e.getY(), e.getWheelRotation()));
+		};
+
+		addMouseWheelListener(mouseWheelListener);
 	}
 
 	@Override
@@ -2128,8 +2144,6 @@ public class SwingSlidesView extends JPanel implements SlidesView {
 			}
 			return false;
 		});
-
-		addMouseWheelListener(e -> scrollPreview(e.getWheelRotation()));
 
 		ToolTipManager.sharedInstance().registerComponent(outlineTree);
 

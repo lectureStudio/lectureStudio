@@ -34,6 +34,7 @@ import org.lecturestudio.core.model.DocumentOutline;
 import org.lecturestudio.core.model.DocumentOutlineItem;
 import org.lecturestudio.core.model.Page;
 import org.lecturestudio.core.view.*;
+import org.lecturestudio.presenter.api.input.MouseWheelHandler;
 import org.lecturestudio.presenter.api.model.*;
 import org.lecturestudio.presenter.api.config.SlideViewConfiguration;
 import org.lecturestudio.swing.model.ExternalWindowPosition;
@@ -81,6 +82,8 @@ public interface SlidesView extends View {
 	void bindShowOutline(BooleanProperty showProperty);
 
 	void setExtendedFullscreen(boolean extended);
+
+	void setMouseWheelHandler(MouseWheelHandler handler);
 
 	void createStylusInput(StylusHandler handler);
 

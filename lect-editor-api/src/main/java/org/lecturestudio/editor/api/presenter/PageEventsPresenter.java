@@ -79,6 +79,11 @@ public class PageEventsPresenter extends Presenter<PageEventsView> {
 
 	@Override
 	public void initialize() {
+		EditorConfiguration config = (EditorConfiguration) context.getConfiguration();
+		config.actionsUniteThresholdProperty().addListener((o, oldValue, newValue) -> {
+			CompletableFuture.runAsync(this::loadSelectedPageEvents);
+		});
+
 		pageEventProperty = new ObjectProperty<>();
 
 		view.bindSelectedPageEvent(pageEventProperty);
@@ -136,7 +141,7 @@ public class PageEventsPresenter extends Presenter<PageEventsView> {
 	/**
 	 * Moves the current timestamp to right before the PlaybackAction
 	 *
-	 * @param event the PlaybackAction, which timestamp should be selected
+	 * @param event the PlaybackAction which timestamp should be selected
 	 */
 	private void selectPageEvent(PageEvent event) {
 		if (Objects.isNull(event)) {
@@ -198,7 +203,7 @@ public class PageEventsPresenter extends Presenter<PageEventsView> {
 					continue;
 			}
 
-			// Do not show the action in the list, if it has the same handle
+			// Do not show the action in the list if it has the same handle
 			// as the previous action.
 			if (isNull(previousAction)
 					|| !action.getClass().equals(previousAction.getClass())

@@ -298,17 +298,13 @@ public class SlideView extends Control implements ParameterChangeListener, org.l
 	}
 
 	public synchronized void repaint() {
-		if (seekProperty.get()) {
-			return;
-		}
-
 		SlideViewSkin skin = (SlideViewSkin) getSkin();
 		skin.repaint();
 	}
 
 	/**
 	 * @return The CssMetaData associated with this class, which may include the
-	 * 		CssMetaData of its super classes.
+	 * 		CssMetaData of its superclasses.
 	 */
 	public static List<CssMetaData<? extends Styleable, ?>> getClassCssMetaData() {
 		return StyleableProperties.STYLEABLES;

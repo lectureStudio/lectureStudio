@@ -57,8 +57,6 @@ public class ActivateDisplaysNotifyState {
 		shapeAdded = true;
 
 		if (notifyState()) {
-			view.showRecordNotification(notifyState());
-
 			showActivateNotification();
 		}
 	}
@@ -71,8 +69,6 @@ public class ActivateDisplaysNotifyState {
 		this.page = page;
 
 		if (notifyState()) {
-			view.showRecordNotification(notifyState());
-
 			showActivateNotification();
 		}
 	}

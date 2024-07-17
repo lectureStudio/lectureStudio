@@ -64,10 +64,10 @@ public class Recording {
 	 * @throws IOException
 	 */
 	public Recording(Recording recording) throws IOException {
-		this.setRecordedDocument(new RecordedDocument(recording.getRecordedDocument().toByteArray()));
-		this.setRecordedAudio(new RecordedAudio(recording.getRecordedAudio().getAudioStream().clone()));
-		this.setRecordedEvents(new RecordedEvents(recording.getRecordedEvents().toByteArray()));
-		this.setRecordingHeader(recording.getRecordingHeader().clone());
+		setRecordedDocument(new RecordedDocument(recording.getRecordedDocument().toByteArray()));
+		setRecordedAudio(new RecordedAudio(recording.getRecordedAudio().getAudioStream().clone()));
+		setRecordedEvents(new RecordedEvents(recording.getRecordedEvents().toByteArray()));
+		setRecordingHeader(recording.getRecordingHeader().clone());
 	}
 
 	public File getSourceFile() {

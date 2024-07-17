@@ -29,8 +29,6 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 
-import javax.inject.Singleton;
-
 import org.lecturestudio.core.ExecutableBase;
 import org.lecturestudio.core.ExecutableException;
 import org.lecturestudio.core.app.ApplicationContext;
@@ -38,7 +36,6 @@ import org.lecturestudio.presenter.api.event.ScreenShareStateEvent;
 import org.lecturestudio.web.api.event.LocalScreenVideoFrameEvent;
 import org.lecturestudio.web.api.model.ScreenSource;
 
-@Singleton
 public class ScreenCaptureService extends ExecutableBase {
 
 	private final ApplicationContext context;

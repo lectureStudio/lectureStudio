@@ -101,6 +101,8 @@ public abstract class ActionFactory {
 				return new NextPageAction();
 			case PAGE:
 				return new PageAction(input);
+			case SCREEN:
+				return new ScreenAction(input);
 			default:
 				throw new IOException("Action not defined: " + type);
 		}

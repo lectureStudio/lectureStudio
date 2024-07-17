@@ -100,12 +100,6 @@
 		</dependency>
 
 		<dependency>
-			<groupId>com.github.javaffmpeg</groupId>
-			<artifactId>JavaFFmpeg</artifactId>
-			<version>0.1</version>
-		</dependency>
-
-		<dependency>
 			<groupId>org.scilab.forge</groupId>
 			<artifactId>jlatexmath</artifactId>
 			<version>1.0.7</version>

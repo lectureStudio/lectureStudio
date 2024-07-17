@@ -24,7 +24,6 @@ module org.lecturestudio.core {
 	requires org.bouncycastle.provider;
 	requires org.bouncycastle.pkix;
 	requires org.knowm.xchart;
-	requires org.lecturestudio.javaffmpeg;
 	requires stylus;
 
 	exports org.lecturestudio.core;

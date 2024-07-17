@@ -37,6 +37,7 @@ import javafx.scene.control.TabPane;
 import javafx.scene.control.TextField;
 import javafx.scene.control.TitledPane;
 import javafx.scene.input.KeyEvent;
+import javafx.scene.input.ScrollEvent;
 import javafx.scene.layout.VBox;
 import javafx.scene.transform.TransformChangedEvent;
 
@@ -52,6 +53,7 @@ import org.lecturestudio.core.view.ConsumerAction;
 import org.lecturestudio.core.view.PageObjectView;
 import org.lecturestudio.core.view.PresentationParameter;
 import org.lecturestudio.core.view.ViewType;
+import org.lecturestudio.core.input.ScrollHandler;
 import org.lecturestudio.editor.api.view.SlidesView;
 import org.lecturestudio.javafx.beans.converter.KeyEventConverter;
 import org.lecturestudio.javafx.beans.converter.MatrixConverter;
@@ -70,6 +72,8 @@ public class FxSlidesView extends VBox implements SlidesView {
 	private final ChangeListener<Node> sceneFocusListener = (o, oldNode, newNode) -> {
 		onFocusChange(newNode);
 	};
+
+	private EventHandler<ScrollEvent> scrollEventHandler;
 
 	private ConsumerAction<org.lecturestudio.core.input.KeyEvent> keyAction;
 
@@ -194,6 +198,19 @@ public class FxSlidesView extends VBox implements SlidesView {
 		this.pageRenderer = pageRenderer;
 
 		slideView.setPageRenderer(pageRenderer);
+	}
+
+	@Override
+	public void setScrollHandler(ScrollHandler handler) {
+		if (nonNull(scrollEventHandler)) {
+			removeEventHandler(ScrollEvent.SCROLL, scrollEventHandler);
+		}
+
+		scrollEventHandler = event -> {
+			handler.onScrollEvent(new ScrollHandler.ScrollEvent(event.getX(), event.getY(), event.getDeltaX(), event.getDeltaY()));
+		};
+
+		addEventHandler(ScrollEvent.SCROLL, scrollEventHandler);
 	}
 
 	@Override

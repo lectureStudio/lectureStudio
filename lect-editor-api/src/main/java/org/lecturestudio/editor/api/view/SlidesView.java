@@ -25,6 +25,7 @@ import org.lecturestudio.core.beans.BooleanProperty;
 import org.lecturestudio.core.controller.RenderController;
 import org.lecturestudio.core.geometry.Matrix;
 import org.lecturestudio.core.input.KeyEvent;
+import org.lecturestudio.core.input.ScrollHandler;
 import org.lecturestudio.core.model.Document;
 import org.lecturestudio.core.model.Page;
 import org.lecturestudio.core.model.shape.Shape;
@@ -49,6 +50,8 @@ public interface SlidesView extends View {
 	void setPage(Page page, PresentationParameter parameter);
 
 	void setPageRenderer(RenderController pageRenderer);
+
+	void setScrollHandler(ScrollHandler scrollHandler);
 
 	void setOnKeyEvent(ConsumerAction<KeyEvent> action);
 

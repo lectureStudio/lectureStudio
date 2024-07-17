@@ -29,12 +29,12 @@ import org.lecturestudio.core.controller.RenderController;
 import org.lecturestudio.core.controller.ToolController;
 import org.lecturestudio.core.geometry.Matrix;
 import org.lecturestudio.core.input.KeyEvent;
+import org.lecturestudio.core.input.ScrollHandler;
 import org.lecturestudio.core.model.Document;
 import org.lecturestudio.core.model.DocumentOutline;
 import org.lecturestudio.core.model.DocumentOutlineItem;
 import org.lecturestudio.core.model.Page;
 import org.lecturestudio.core.view.*;
-import org.lecturestudio.presenter.api.input.MouseWheelHandler;
 import org.lecturestudio.presenter.api.model.*;
 import org.lecturestudio.presenter.api.config.SlideViewConfiguration;
 import org.lecturestudio.swing.model.ExternalWindowPosition;
@@ -83,7 +83,7 @@ public interface SlidesView extends View {
 
 	void setExtendedFullscreen(boolean extended);
 
-	void setMouseWheelHandler(MouseWheelHandler handler);
+	void setScrollHandler(ScrollHandler handler);
 
 	void createStylusInput(StylusHandler handler);
 

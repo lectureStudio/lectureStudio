@@ -16,29 +16,30 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package org.lecturestudio.presenter.api.input;
+package org.lecturestudio.core.input;
 
-public interface MouseWheelHandler {
+public interface ScrollHandler {
 
 	/**
 	 * An event dispatched when the mouse wheel was rotated in a component.
 	 *
-	 * @param x             The horizontal x coordinate for the mouse location.
-	 * @param y             The vertical y coordinate for the mouse location.
-	 * @param wheelRotation The integer number of "clicks" by which the mouse wheel was rotated.
+	 * @param x      The horizontal x coordinate with respect to the scene/window component.
+	 * @param y      The vertical y coordinate with respect to the scene/window component.
+	 * @param deltaX The horizontal scroll amount.
+	 * @param deltaY The vertical scroll amount.
 	 */
-	record MouseWheelEvent(int x, int y, int wheelRotation) {
+	record ScrollEvent(double x, double y, double deltaX, double deltaY) {
 
 	}
 
 
 	/**
-	 * Invoked when the mouse wheel is rotated.
+	 * Invoked when scrolling has occurred.
 	 *
-	 * @param e the event to be processed.
+	 * @param e The event to be processed.
 	 *
-	 * @see MouseWheelEvent
+	 * @see ScrollEvent
 	 */
-	void mouseWheelMoved(MouseWheelEvent e);
+	void onScrollEvent(ScrollEvent e);
 
 }

@@ -58,6 +58,7 @@ import org.lecturestudio.core.geometry.Matrix;
 import org.lecturestudio.core.geometry.Rectangle2D;
 import org.lecturestudio.core.graphics.Color;
 import org.lecturestudio.core.input.KeyEvent;
+import org.lecturestudio.core.input.ScrollHandler;
 import org.lecturestudio.core.model.Document;
 import org.lecturestudio.core.model.DocumentOutlineItem;
 import org.lecturestudio.core.model.Page;
@@ -111,7 +112,6 @@ import org.lecturestudio.presenter.api.event.ScreenShareEndEvent;
 import org.lecturestudio.presenter.api.event.ScreenShareStateEvent;
 import org.lecturestudio.presenter.api.event.StreamReconnectStateEvent;
 import org.lecturestudio.presenter.api.event.StreamingStateEvent;
-import org.lecturestudio.presenter.api.input.MouseWheelHandler;
 import org.lecturestudio.presenter.api.input.Shortcut;
 import org.lecturestudio.presenter.api.model.*;
 import org.lecturestudio.presenter.api.service.*;
@@ -1350,7 +1350,7 @@ public class SlidesPresenter extends Presenter<SlidesView> {
 //			setUseMouse(newValue);
 //		});
 
-		view.setMouseWheelHandler(this::mouseWheelMoved);
+		view.setScrollHandler(this::onScrollEvent);
 
 		setUseMouse(config.getUseMouseInput());
 
@@ -1484,8 +1484,8 @@ public class SlidesPresenter extends Presenter<SlidesView> {
 		}
 	}
 
-	private void mouseWheelMoved(MouseWheelHandler.MouseWheelEvent e) {
-		if (e.wheelRotation() < 0) {
+	private void onScrollEvent(ScrollHandler.ScrollEvent e) {
+		if (e.deltaY() < 0) {
 			previousPage();
 		}
 		else {

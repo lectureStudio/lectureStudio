@@ -40,6 +40,7 @@ import org.lecturestudio.core.bus.event.ToolSelectionEvent;
 import org.lecturestudio.core.controller.RenderController;
 import org.lecturestudio.core.geometry.Matrix;
 import org.lecturestudio.core.input.KeyEvent;
+import org.lecturestudio.core.input.ScrollHandler;
 import org.lecturestudio.core.model.Document;
 import org.lecturestudio.core.model.Page;
 import org.lecturestudio.core.model.listener.PageEditedListener;
@@ -120,6 +121,7 @@ public class SlidesPresenter extends Presenter<SlidesView> {
 		stylusHandler = new EditorStylusHandler(editorToolController, () -> {
 		});
 
+		view.setScrollHandler(this::onScrollEvent);
 		view.setOnKeyEvent(this::keyEvent);
 		view.setOnDeletePage(this::deletePage);
 		view.setOnSelectPage(this::selectPage);
@@ -340,6 +342,15 @@ public class SlidesPresenter extends Presenter<SlidesView> {
 
 	private void registerShortcut(Shortcut shortcut, Action action) {
 		shortcutMap.put(shortcut.getKeyEvent(), action);
+	}
+
+	private void onScrollEvent(ScrollHandler.ScrollEvent e) {
+		if (e.deltaY() > 0) {
+			previousPage();
+		}
+		else {
+			nextPage();
+		}
 	}
 
 	private void keyEvent(KeyEvent event) {

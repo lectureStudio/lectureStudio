@@ -57,6 +57,7 @@ import org.lecturestudio.core.controller.RenderController;
 import org.lecturestudio.core.controller.ToolController;
 import org.lecturestudio.core.geometry.Matrix;
 import org.lecturestudio.core.input.KeyEvent;
+import org.lecturestudio.core.input.ScrollHandler;
 import org.lecturestudio.core.model.Document;
 import org.lecturestudio.core.model.DocumentOutline;
 import org.lecturestudio.core.model.DocumentOutlineItem;
@@ -65,7 +66,6 @@ import org.lecturestudio.core.stylus.StylusHandler;
 import org.lecturestudio.core.view.*;
 import org.lecturestudio.core.view.Action;
 import org.lecturestudio.presenter.api.config.SlideViewConfiguration;
-import org.lecturestudio.presenter.api.input.MouseWheelHandler;
 import org.lecturestudio.presenter.api.model.*;
 import org.lecturestudio.presenter.api.service.UserPrivilegeService;
 import org.lecturestudio.presenter.api.view.SlidesView;
@@ -614,13 +614,14 @@ public class SwingSlidesView extends JPanel implements SlidesView {
 	}
 
 	@Override
-	public void setMouseWheelHandler(MouseWheelHandler handler) {
+	public void setScrollHandler(ScrollHandler handler) {
 		if (nonNull(mouseWheelListener)) {
 			removeMouseWheelListener(mouseWheelListener);
 		}
 
 		mouseWheelListener = e -> {
-			handler.mouseWheelMoved(new MouseWheelHandler.MouseWheelEvent(e.getX(), e.getY(), e.getWheelRotation()));
+			handler.onScrollEvent(new ScrollHandler.ScrollEvent(e.getX(), e.getY(),
+					e.getPreciseWheelRotation(), e.getPreciseWheelRotation()));
 		};
 
 		addMouseWheelListener(mouseWheelListener);

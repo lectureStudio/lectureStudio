@@ -63,6 +63,8 @@ public enum ActionType {
 
 	PAGE,
 
-	RUBBER_EXT, TEXT_SELECTION_EXT;
+	RUBBER_EXT, TEXT_SELECTION_EXT,
+
+	SCREEN;
 
 }

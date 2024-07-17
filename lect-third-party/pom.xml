@@ -18,7 +18,6 @@
 
 	<modules>
 		<module>concentus</module>
-		<module>JavaFFmpeg</module>
 		<module>mupdf</module>
 		<module>shef</module>
 	</modules>

@@ -35,8 +35,6 @@ import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
-import javax.inject.Singleton;
-
 import org.apache.commons.io.FileSystem;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -51,6 +49,7 @@ import org.lecturestudio.core.audio.AudioUtils;
 import org.lecturestudio.core.audio.sink.ByteArrayAudioSink;
 import org.lecturestudio.core.codec.CodecID;
 import org.lecturestudio.core.geometry.Dimension2D;
+import org.lecturestudio.core.recording.action.ScreenAction;
 import org.lecturestudio.media.config.AudioRenderConfiguration;
 import org.lecturestudio.media.config.RenderConfiguration;
 import org.lecturestudio.media.config.VideoRenderConfiguration;
@@ -62,7 +61,6 @@ import org.lecturestudio.presenter.api.model.ScreenShareContext;
 import org.lecturestudio.swing.util.VideoFrameConverter;
 import org.lecturestudio.web.api.event.LocalScreenVideoFrameEvent;
 
-@Singleton
 public class ScreenRecorderService extends ExecutableBase {
 
 	private static final Logger LOG = LogManager.getLogger(ScreenRecorderService.class);
@@ -89,7 +87,11 @@ public class ScreenRecorderService extends ExecutableBase {
 
 	private BufferedImage bufferedImage;
 
+	private ScreenAction screenAction;
+
 	private int timestampMs;
+
+	private int timestampMsSuspend;
 
 	private int frames;
 
@@ -106,6 +108,10 @@ public class ScreenRecorderService extends ExecutableBase {
 
 	public void setScreenShareContext(ScreenShareContext shareContext) {
 		this.shareContext = shareContext;
+	}
+
+	public ScreenAction getScreenAction() {
+		return screenAction;
 	}
 
 	@Subscribe
@@ -128,6 +134,7 @@ public class ScreenRecorderService extends ExecutableBase {
 
 		frames = 0;
 		timestampMs = 0;
+		timestampMsSuspend = 0;
 
 		initMuxer();
 		initAudioRecorder();
@@ -135,6 +142,8 @@ public class ScreenRecorderService extends ExecutableBase {
 
 	@Override
 	protected void startInternal() throws ExecutableException {
+		screenAction = new ScreenAction(outputPath.getFileName().toString());
+
 		audioRecorder.start();
 	}
 
@@ -167,6 +176,12 @@ public class ScreenRecorderService extends ExecutableBase {
 
 	@Override
 	protected void suspendInternal() throws ExecutableException {
+		// Prepare action for the next start.
+		screenAction.setVideoOffset(timestampMsSuspend);
+		screenAction.setVideoLength(timestampMs - timestampMsSuspend);
+
+		timestampMsSuspend = timestampMs;
+
 		audioRecorder.suspend();
 	}
 

@@ -23,6 +23,7 @@ import static java.util.Objects.nonNull;
 import com.google.common.eventbus.Subscribe;
 
 import java.awt.image.BufferedImage;
+import java.io.IOException;
 import java.util.Collections;
 import java.util.List;
 import java.util.Stack;
@@ -39,13 +40,17 @@ import org.lecturestudio.core.model.Document;
 import org.lecturestudio.core.model.Time;
 import org.lecturestudio.core.recording.EventExecutor;
 import org.lecturestudio.core.recording.RecordedPage;
+import org.lecturestudio.core.recording.action.ActionType;
 import org.lecturestudio.core.recording.action.NextPageAction;
 import org.lecturestudio.core.recording.action.PlaybackAction;
+import org.lecturestudio.core.recording.action.ScreenAction;
 import org.lecturestudio.editor.api.recording.RecordingRenderProgressEvent;
 
 public class VideoEventExecutor extends EventExecutor {
 
 	private final VideoRendererView renderView;
+
+	private final VideoReader videoReader;
 
 	private final ToolController toolController;
 
@@ -72,8 +77,10 @@ public class VideoEventExecutor extends EventExecutor {
 	private long frames;
 
 
-	public VideoEventExecutor(VideoRendererView renderView, ToolController toolController, EventBus eventBus) {
+	public VideoEventExecutor(VideoRendererView renderView, VideoReader videoReader, ToolController toolController,
+							  EventBus eventBus) {
 		this.renderView = renderView;
+		this.videoReader = videoReader;
 		this.toolController = toolController;
 		this.eventBus = eventBus;
 		this.playbacks = new Stack<>();
@@ -191,7 +198,7 @@ public class VideoEventExecutor extends EventExecutor {
 					// Execute all events for the current time period.
 					while (true) {
 						if (!playbacks.isEmpty()) {
-							// Get next action for execution.
+							// Get the next action for execution.
 							PlaybackAction action = playbacks.peek();
 
 							if (startTime < action.getTimestamp()) {
@@ -202,6 +209,10 @@ public class VideoEventExecutor extends EventExecutor {
 
 							// Remove executed action.
 							playbacks.pop();
+
+							if (action.getType() == ActionType.SCREEN) {
+								startScreenVideoReader((ScreenAction) action);
+							}
 						}
 						else if (pageNumber < recordedPages.size() - 1) {
 							// Get actions for the next page.
@@ -246,7 +257,19 @@ public class VideoEventExecutor extends EventExecutor {
 			progressEvent.getCurrentTime().setMillis(timestamp);
 			progressEvent.setPageNumber(document.getCurrentPageNumber() + 1);
 
-			frameConsumer.accept(renderView.renderCurrentFrame(), progressEvent);
+			if (videoReader.started()) {
+				// Get screen video frame.
+				try {
+					frameConsumer.accept(videoReader.renderFrame(getElapsedTime()), progressEvent);
+				}
+				catch (IOException e) {
+					throw new RuntimeException(e);
+				}
+			}
+			else {
+				// Get generated slide frame.
+				frameConsumer.accept(renderView.renderCurrentFrame(), progressEvent);
+			}
 		}
 
 		frames++;
@@ -271,5 +294,25 @@ public class VideoEventExecutor extends EventExecutor {
 		}
 
 		this.pageNumber = pageNumber;
+	}
+
+	private void startScreenVideoReader(ScreenAction action) throws ExecutableException {
+		if (videoReader.started()) {
+			videoReader.stop();
+			videoReader.destroy();
+		}
+
+		videoReader.setVideoFile(action.getFileName());
+		videoReader.setVideoOffset(action.getVideoOffset());
+		videoReader.setVideoLength(action.getVideoLength());
+		videoReader.setTargetImageSize(renderView.getImageSize());
+		videoReader.setReferenceTimestamp(getElapsedTime());
+
+		try {
+			videoReader.start();
+		}
+		catch (Exception e) {
+			throw new RuntimeException(e);
+		}
 	}
 }

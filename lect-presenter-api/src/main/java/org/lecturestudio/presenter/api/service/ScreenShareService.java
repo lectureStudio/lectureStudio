@@ -32,6 +32,7 @@ import org.apache.logging.log4j.Logger;
 
 import org.lecturestudio.core.ExecutableException;
 import org.lecturestudio.core.audio.AudioSystemProvider;
+import org.lecturestudio.core.bus.event.RecordActionEvent;
 import org.lecturestudio.presenter.api.context.PresenterContext;
 import org.lecturestudio.presenter.api.model.ScreenShareContext;
 import org.lecturestudio.web.api.model.ScreenSource;
@@ -90,6 +91,8 @@ public class ScreenShareService {
 			service.start();
 
 			activeRecorderService = service;
+
+			context.getEventBus().post(new RecordActionEvent(service.getScreenAction()));
 		}
 		catch (ExecutableException e) {
 			LOG.error("Stop screen-recorder failed", e);

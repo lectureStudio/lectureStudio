@@ -34,13 +34,13 @@ public final class RecordingFileWriter {
 		return write(recFile, destFile, null);
 	}
 
-	public static int write(Recording recFile, File destFile, ProgressCallback progressCallback) throws NoSuchAlgorithmException, IOException {
+	public static int write(Recording recFile, File destFile, ProgressCallback progressCallback)
+			throws NoSuchAlgorithmException, IOException {
 		if (destFile.exists()) {
 			destFile.delete();
 		}
 
 		try (DigestRandomAccessFile raFile = new DigestRandomAccessFile(destFile, "rw", RecordingHeader.CHECKSUM_ALGORITHM)) {
-
 			RecordingHeader header = recFile.getRecordingHeader();
 			RandomAccessAudioStream audioStream = recFile.getRecordedAudio().getAudioStream().clone();
 			audioStream.reset();

@@ -24,16 +24,7 @@ import static java.util.Objects.nonNull;
 import java.io.File;
 import java.io.IOException;
 import java.security.NoSuchAlgorithmException;
-import java.util.Arrays;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Set;
-import java.util.Stack;
-import java.util.Timer;
-import java.util.TimerTask;
-import java.util.UUID;
+import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -62,14 +53,7 @@ import org.lecturestudio.core.bus.event.RecordActionEvent;
 import org.lecturestudio.core.io.RandomAccessAudioStream;
 import org.lecturestudio.core.model.Document;
 import org.lecturestudio.core.model.Page;
-import org.lecturestudio.core.recording.LectureRecorder;
-import org.lecturestudio.core.recording.PendingActions;
-import org.lecturestudio.core.recording.RecordedAudio;
-import org.lecturestudio.core.recording.RecordedDocument;
-import org.lecturestudio.core.recording.RecordedEvents;
-import org.lecturestudio.core.recording.RecordedPage;
-import org.lecturestudio.core.recording.Recording;
-import org.lecturestudio.core.recording.RecordingHeader;
+import org.lecturestudio.core.recording.*;
 import org.lecturestudio.core.recording.action.PlaybackAction;
 import org.lecturestudio.core.recording.action.StaticShapeAction;
 import org.lecturestudio.core.recording.file.RecordingFileWriter;
@@ -456,7 +440,7 @@ public class FileLectureRecorder extends LectureRecorder {
 
 		if (Objects.equals(deviceName, deviceConfigName)) {
 			// The recording device has been disconnected.
-			// Any operation on the audio recorder is not possible any more.
+			// Any operation on the audio recorder is not possible anymore.
 			audioRecorder = null;
 		}
 	}

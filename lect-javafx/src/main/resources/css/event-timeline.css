@@ -16,6 +16,10 @@
     -fx-fill: #FC8181;
 }
 
+.page-event-screen-marker {
+    -fx-fill: #94A3B8;
+}
+
 .event-timeline-pane {
     -fx-background-color: derive(-fx-background, -4%);
 }

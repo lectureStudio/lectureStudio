@@ -90,6 +90,10 @@ public class VideoRendererView implements SlideView, ShapeListener, ParameterCha
 		ppProvider.addParameterChangeListener(this);
 	}
 
+	public Dimension2D getImageSize() {
+		return new Dimension2D(width, height);
+	}
+
 	public void setRenderController(RenderController renderController) {
 		this.renderController = renderController;
 	}

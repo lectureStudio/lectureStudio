@@ -45,10 +45,7 @@ import javafx.geometry.Pos;
 import javafx.geometry.VPos;
 import javafx.scene.Node;
 import javafx.scene.control.SkinBase;
-import javafx.scene.image.ImageView;
-import javafx.scene.image.PixelBuffer;
-import javafx.scene.image.PixelFormat;
-import javafx.scene.image.WritableImage;
+import javafx.scene.image.*;
 import javafx.stage.Screen;
 
 import org.lecturestudio.core.ExecutableException;
@@ -114,6 +111,14 @@ public class SlideViewSkin extends SkinBase<SlideView> {
 		super(control);
 
 		initLayout(control, canvasBounds);
+	}
+
+	public void paintImage(Image image) {
+		renderer.renderForeground();
+
+		Platform.runLater(() -> {
+			updateBuffer(null);
+		});
 	}
 
 	public void repaint() {

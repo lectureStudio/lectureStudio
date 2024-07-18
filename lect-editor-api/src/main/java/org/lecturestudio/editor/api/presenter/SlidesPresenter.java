@@ -23,6 +23,7 @@ import static java.util.Objects.nonNull;
 
 import com.google.common.eventbus.Subscribe;
 
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -67,6 +68,7 @@ import org.lecturestudio.editor.api.input.Shortcut;
 import org.lecturestudio.editor.api.service.RecordingFileService;
 import org.lecturestudio.editor.api.service.RecordingPlaybackService;
 import org.lecturestudio.editor.api.stylus.EditorStylusHandler;
+import org.lecturestudio.editor.api.video.VideoSeeker;
 import org.lecturestudio.editor.api.view.SlidesView;
 import org.lecturestudio.media.event.MediaPlayerProgressEvent;
 
@@ -93,6 +95,8 @@ public class SlidesPresenter extends Presenter<SlidesView> {
 	private PageEditedListener pageEditedListener;
 	private StylusHandler stylusHandler;
 
+	private final VideoSeeker videoSeeker;
+
 
 	@Inject
 	SlidesPresenter(ApplicationContext context, SlidesView view,
@@ -112,6 +116,7 @@ public class SlidesPresenter extends Presenter<SlidesView> {
 		this.shortcutMap = new HashMap<>();
 		this.docExecMap = new ConcurrentHashMap<>();
 		this.pageObjectRegistry = new PageObjectRegistry();
+		this.videoSeeker = new VideoSeeker();
 	}
 
 	@Override
@@ -207,12 +212,22 @@ public class SlidesPresenter extends Presenter<SlidesView> {
 	@Subscribe
 	public void onEvent(final MediaPlayerProgressEvent event) {
 		EditorContext editorContext = (EditorContext) context;
-		double progress = 1.0 * event.getCurrentTime().getMillis() / event.getTotalTime().getMillis();
+		long currentTime = event.getCurrentTime().getMillis();
+		long totalTime = event.getTotalTime().getMillis();
 
-		editorContext.setPrimarySelection(progress);
+		editorContext.setPrimarySelection(1.0 * currentTime / totalTime);
 
-		if (event.getPrevEventNumber() != event.getEventNumber()) {
-			view.repaint();
+		try {
+			var frame = videoSeeker.seek(currentTime);
+			if (nonNull(frame)) {
+				view.paintFrame(frame);
+			}
+			else if (event.getPrevEventNumber() != event.getEventNumber()) {
+				view.repaint();
+			}
+		}
+		catch (IOException e) {
+			throw new RuntimeException(e);
 		}
 	}
 
@@ -328,6 +343,8 @@ public class SlidesPresenter extends Presenter<SlidesView> {
 		try {
 			Recording selectedRecording = recordingService.getSelectedRecording();
 			Recording recording = recordingService.getRecordingWithDocument(document);
+
+			videoSeeker.selectRecording(recording);
 
 			if (nonNull(selectedRecording) && selectedRecording.equals(recording)) {
 				return;

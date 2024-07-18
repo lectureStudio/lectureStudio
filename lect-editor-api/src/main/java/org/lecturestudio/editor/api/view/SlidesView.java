@@ -20,6 +20,7 @@ package org.lecturestudio.editor.api.view;
 
 import java.util.Collection;
 
+import org.bytedeco.javacv.Frame;
 import org.lecturestudio.core.app.ApplicationContext;
 import org.lecturestudio.core.beans.BooleanProperty;
 import org.lecturestudio.core.controller.RenderController;
@@ -42,6 +43,8 @@ public interface SlidesView extends View {
 	void removeDocument(Document doc);
 
 	void selectDocument(Document doc);
+
+	void paintFrame(Frame frame);
 
 	void repaint();
 

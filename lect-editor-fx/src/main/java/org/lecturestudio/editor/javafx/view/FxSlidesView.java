@@ -41,6 +41,9 @@ import javafx.scene.input.ScrollEvent;
 import javafx.scene.layout.VBox;
 import javafx.scene.transform.TransformChangedEvent;
 
+import org.bytedeco.javacv.Frame;
+import org.bytedeco.javacv.JavaFXFrameConverter;
+
 import org.lecturestudio.core.app.ApplicationContext;
 import org.lecturestudio.core.beans.BooleanProperty;
 import org.lecturestudio.core.controller.RenderController;
@@ -66,6 +69,8 @@ import org.lecturestudio.stylus.javafx.JavaFxStylusManager;
 
 @FxmlView(name = "main-slides")
 public class FxSlidesView extends VBox implements SlidesView {
+
+	private final JavaFXFrameConverter frameConverter = new JavaFXFrameConverter();
 
 	private final EventHandler<KeyEvent> keyEventHandler = this::onKeyEvent;
 
@@ -154,7 +159,7 @@ public class FxSlidesView extends VBox implements SlidesView {
 
 			if (thumbPanel.getDocument().getName().equals(doc.getName())) {
 				FxUtils.invoke(() -> {
-					// Reload if document has changed.
+					// Reload if a document has changed.
 					if (!thumbPanel.getDocument().equals(doc)) {
 						// Prevent tab switching for quiz reloading.
 						thumbPanel.setDocument(doc, null);
@@ -165,6 +170,11 @@ public class FxSlidesView extends VBox implements SlidesView {
 				break;
 			}
 		}
+	}
+
+	@Override
+	public void paintFrame(Frame frame) {
+		slideView.paintImage(frameConverter.convert(frame));
 	}
 
 	@Override

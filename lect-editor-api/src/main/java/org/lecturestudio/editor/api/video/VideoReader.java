@@ -78,6 +78,18 @@ public class VideoReader extends ExecutableBase {
 		this.referenceTimestamp = timestamp;
 	}
 
+	public Frame seekToVideoFrame(long timestamp) throws IOException {
+		try {
+			// Convert milliseconds to microseconds.
+			grabber.setVideoTimestamp(((timestamp - referenceTimestamp) + videoOffset) * 1000);
+
+			return grabber.grabImage();
+		}
+		catch (Exception e) {
+			throw new IOException(e);
+		}
+	}
+
 	public BufferedImage renderFrame(long timestamp) throws IOException {
 		try {
 			// Convert milliseconds to microseconds.

@@ -44,6 +44,7 @@ import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.control.Control;
 import javafx.scene.control.Skin;
+import javafx.scene.image.Image;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.transform.Affine;
 
@@ -297,6 +298,11 @@ public class SlideView extends Control implements ParameterChangeListener, org.l
 		updateViewTransform();
 	}
 
+	public synchronized void paintImage(Image image) {
+		SlideViewSkin skin = (SlideViewSkin) getSkin();
+		skin.paintImage(image);
+	}
+
 	public synchronized void repaint() {
 		SlideViewSkin skin = (SlideViewSkin) getSkin();
 		skin.repaint();
@@ -317,7 +323,7 @@ public class SlideView extends Control implements ParameterChangeListener, org.l
 	public List<CssMetaData<? extends Styleable, ?>> getControlCssMetaData() {
 		return getClassCssMetaData();
 	}
-	
+
 	@Override
 	protected Skin<?> createDefaultSkin() {
 		return new SlideViewSkin(this, canvasBounds);

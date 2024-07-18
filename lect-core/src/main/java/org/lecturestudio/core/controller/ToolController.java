@@ -503,7 +503,7 @@ public class ToolController extends Controller implements ToolContext {
 
 	/**
 	 * Redo the last undone action on the current page. If the page contains no
-	 * undone actions the operation has no effect.
+	 * undone actions, the operation has no effect.
 	 */
 	public void redo() {
 		setTool(new RedoTool(this));

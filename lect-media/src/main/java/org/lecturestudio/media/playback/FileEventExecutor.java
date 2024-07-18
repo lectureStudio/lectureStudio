@@ -163,7 +163,7 @@ public class FileEventExecutor extends EventExecutor {
 
 				synchronized (playbacks) {
 					if (!playbacks.isEmpty()) {
-						// Get next action for execution.
+						// Get the next action for execution.
 						PlaybackAction action = playbacks.peek();
 
 						if (time >= action.getTimestamp()) {
@@ -173,7 +173,7 @@ public class FileEventExecutor extends EventExecutor {
 							playbacks.pop();
 
 							if (!playbacks.empty()) {
-								// Time to wait until next action.
+								// Time to wait until the next action.
 								PlaybackAction nextAction = playbacks.peek();
 								sleep = (nextAction.getTimestamp() - action.getTimestamp()) / 2;
 							}

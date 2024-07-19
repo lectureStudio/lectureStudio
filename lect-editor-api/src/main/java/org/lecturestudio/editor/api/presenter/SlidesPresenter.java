@@ -217,6 +217,7 @@ public class SlidesPresenter extends Presenter<SlidesView> {
 
 		editorContext.setPrimarySelection(1.0 * currentTime / totalTime);
 
+		long s = System.currentTimeMillis();
 		try {
 			var frame = videoSeeker.seek(currentTime);
 			if (nonNull(frame)) {
@@ -229,6 +230,7 @@ public class SlidesPresenter extends Presenter<SlidesView> {
 		catch (IOException e) {
 			throw new RuntimeException(e);
 		}
+		System.out.println(System.currentTimeMillis() - s);
 	}
 
 	private void nextPage() {

@@ -19,6 +19,7 @@
 package org.lecturestudio.javafx.render;
 
 import static java.util.Objects.isNull;
+import static java.util.Objects.nonNull;
 
 import java.awt.BasicStroke;
 import java.awt.Color;
@@ -34,6 +35,9 @@ import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.bytedeco.javacv.FFmpegFrameFilter;
+import org.bytedeco.javacv.Frame;
+import org.bytedeco.javacv.Java2DFrameConverter;
 import org.lecturestudio.core.app.configuration.WhiteboardConfiguration;
 import org.lecturestudio.core.controller.RenderController;
 import org.lecturestudio.core.geometry.Dimension2D;
@@ -60,6 +64,12 @@ public class ViewRenderer {
 	private final Dimension2D imageRect = new Dimension2D(0, 0);
 
 	private final ViewType viewType;
+
+	private final Java2DFrameConverter frameConverter = new Java2DFrameConverter();
+
+	private FFmpegFrameFilter frameFilter;
+
+	private Frame videoFrame;
 
 	private Page page;
 
@@ -102,8 +112,42 @@ public class ViewRenderer {
 			return;
 		}
 
+		System.out.println("render page: " + videoFrame);
+
 		updateBackImage(page, size);
-		renderForeground();
+
+		if (isNull(videoFrame)) {
+			renderForeground();
+		}
+		else {
+			try {
+				renderFrame(videoFrame);
+			}
+			catch (Exception e) {
+				throw new RuntimeException(e);
+			}
+		}
+	}
+
+	public void renderFrame(Frame frame) throws Exception {
+		int frameWidth = frame.imageWidth;
+		int frameHeight = frame.imageHeight;
+
+		if (isNull(frameFilter)
+				|| frameFilter.getImageWidth() != currentImage.getWidth()
+				|| frameFilter.getImageHeight() != currentImage.getHeight()) {
+			destroyFrameFilter();
+			createFrameFilter(currentImage.getWidth(), currentImage.getHeight(), frameWidth, frameHeight);
+		}
+
+		this.videoFrame = frame;
+
+		frameFilter.push(frame);
+		frame = frameFilter.pull();
+
+		BufferedImage converted = frameConverter.convert(frame);
+
+		bufferg2d.drawImage(converted, 0, 0, null);
 	}
 
 	public synchronized void renderForeground() {
@@ -116,7 +160,6 @@ public class ViewRenderer {
 		if (!shapes.isEmpty()) {
 			shape = shapes.remove(shapes.size() - 1);
 		}
-
 
 		Graphics2D g = currentImage.createGraphics();
 		refreshFrontImage(g, page, shapes, parameter);
@@ -133,6 +176,11 @@ public class ViewRenderer {
 
 		bufferg2d.setClip(0, 0, bufferImage.getWidth(), bufferImage.getHeight());
 		bufferg2d.drawImage(currentImage, 0, 0, null);
+
+		if (nonNull(videoFrame)) {
+			videoFrame.close();
+		}
+		this.videoFrame = null;
 	}
 
 	public synchronized void render(Page page, Shape shape, Rectangle clip) {
@@ -238,9 +286,9 @@ public class ViewRenderer {
 
 	/**
 	 * Updates the background image. This method is called when the background
-	 * image need to be re-rendered.
+	 * image needs to be re-rendered.
 	 */
-	public synchronized void updateBackImage(Page page, Dimension size) {
+	private synchronized void updateBackImage(Page page, Dimension size) {
 		if (page == null) {
 			adjustImageRect(size);
 			return;
@@ -389,6 +437,20 @@ public class ViewRenderer {
 		}
 		if (bufferg2d != null) {
 			bufferg2d.dispose();
+		}
+	}
+
+	private void createFrameFilter(int width, int height, int frameWidth, int frameHeight) throws Exception {
+		String scale = String.format("scale=%dx%d", width, height, width, height);
+
+		frameFilter = new FFmpegFrameFilter(scale, frameWidth, frameHeight);
+		frameFilter.start();
+	}
+
+	private void destroyFrameFilter() throws Exception {
+		if (nonNull(frameFilter)) {
+			frameFilter.stop();
+			frameFilter.release();
 		}
 	}
 

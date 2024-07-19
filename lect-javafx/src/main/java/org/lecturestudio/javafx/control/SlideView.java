@@ -44,10 +44,10 @@ import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.control.Control;
 import javafx.scene.control.Skin;
-import javafx.scene.image.Image;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.transform.Affine;
 
+import org.bytedeco.javacv.Frame;
 import org.lecturestudio.core.beans.BooleanProperty;
 import org.lecturestudio.core.controller.RenderController;
 import org.lecturestudio.core.geometry.Rectangle2D;
@@ -298,9 +298,9 @@ public class SlideView extends Control implements ParameterChangeListener, org.l
 		updateViewTransform();
 	}
 
-	public synchronized void paintImage(Image image) {
+	public synchronized void paintFrame(Frame frame) {
 		SlideViewSkin skin = (SlideViewSkin) getSkin();
-		skin.paintImage(image);
+		skin.paintFrame(frame);
 	}
 
 	public synchronized void repaint() {

@@ -42,7 +42,6 @@ import javafx.scene.layout.VBox;
 import javafx.scene.transform.TransformChangedEvent;
 
 import org.bytedeco.javacv.Frame;
-import org.bytedeco.javacv.JavaFXFrameConverter;
 
 import org.lecturestudio.core.app.ApplicationContext;
 import org.lecturestudio.core.beans.BooleanProperty;
@@ -69,8 +68,6 @@ import org.lecturestudio.stylus.javafx.JavaFxStylusManager;
 
 @FxmlView(name = "main-slides")
 public class FxSlidesView extends VBox implements SlidesView {
-
-	private final JavaFXFrameConverter frameConverter = new JavaFXFrameConverter();
 
 	private final EventHandler<KeyEvent> keyEventHandler = this::onKeyEvent;
 
@@ -174,7 +171,7 @@ public class FxSlidesView extends VBox implements SlidesView {
 
 	@Override
 	public void paintFrame(Frame frame) {
-		slideView.paintImage(frameConverter.convert(frame));
+		slideView.paintFrame(frame);
 	}
 
 	@Override

@@ -48,6 +48,7 @@ import javafx.scene.control.SkinBase;
 import javafx.scene.image.*;
 import javafx.stage.Screen;
 
+import org.bytedeco.javacv.Frame;
 import org.lecturestudio.core.ExecutableException;
 import org.lecturestudio.core.PageMetrics;
 import org.lecturestudio.core.controller.RenderController;
@@ -113,12 +114,17 @@ public class SlideViewSkin extends SkinBase<SlideView> {
 		initLayout(control, canvasBounds);
 	}
 
-	public void paintImage(Image image) {
-		renderer.renderForeground();
+	public void paintFrame(Frame frame) {
+		try {
+			renderer.renderFrame(frame);
 
-		Platform.runLater(() -> {
-			updateBuffer(null);
-		});
+			Platform.runLater(() -> {
+				updateBuffer(null);
+			});
+		}
+		catch (Exception e) {
+			throw new RuntimeException(e);
+		}
 	}
 
 	public void repaint() {

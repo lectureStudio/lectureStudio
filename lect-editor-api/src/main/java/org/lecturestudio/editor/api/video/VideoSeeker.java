@@ -42,7 +42,6 @@ public class VideoSeeker {
 					videoReader.setVideoFile(screenAction.getFileName());
 					videoReader.setVideoOffset(screenAction.getVideoOffset());
 					videoReader.setVideoLength(screenAction.getVideoLength());
-//					videoReader.setTargetImageSize(renderView.getImageSize());
 					videoReader.start();
 
 					screenReaders.put(screenAction, videoReader);
@@ -52,8 +51,6 @@ public class VideoSeeker {
 	}
 
 	public Frame seek(long timeMs) throws IOException {
-		long t = System.currentTimeMillis();
-
 		for (var entry : screenReaders.entrySet()) {
 			ScreenAction action = entry.getKey();
 			VideoReader videoReader = entry.getValue();
@@ -65,13 +62,9 @@ public class VideoSeeker {
 			if (actionTime < timeMs && actionTimeEnd > timeMs) {
 				long videoTime = timeMs - actionTime;
 
-				System.out.println("action: " + videoTime + ", " + action.getVideoLength());
-
 				return videoReader.seekToVideoFrame(videoTime);
 			}
 		}
-
-		System.out.println(System.currentTimeMillis() - t);
 
 		return null;
 	}

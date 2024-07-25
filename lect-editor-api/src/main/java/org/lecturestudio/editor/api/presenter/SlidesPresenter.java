@@ -217,20 +217,22 @@ public class SlidesPresenter extends Presenter<SlidesView> {
 
 		editorContext.setPrimarySelection(1.0 * currentTime / totalTime);
 
-		long s = System.currentTimeMillis();
 		try {
+			long s = System.currentTimeMillis();
 			var frame = videoSeeker.seek(currentTime);
+//			System.out.println(System.currentTimeMillis() - s);
+
 			if (nonNull(frame)) {
 				view.paintFrame(frame);
 			}
 			else if (event.getPrevEventNumber() != event.getEventNumber()) {
+				System.out.println("view.repaint()");
 				view.repaint();
 			}
 		}
 		catch (IOException e) {
 			throw new RuntimeException(e);
 		}
-		System.out.println(System.currentTimeMillis() - s);
 	}
 
 	private void nextPage() {

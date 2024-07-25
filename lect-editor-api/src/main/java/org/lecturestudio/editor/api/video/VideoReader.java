@@ -19,9 +19,7 @@
 package org.lecturestudio.editor.api.video;
 
 import static java.util.Objects.isNull;
-import static java.util.Objects.nonNull;
 
-import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
 
@@ -29,17 +27,18 @@ import org.bytedeco.javacv.*;
 
 import org.lecturestudio.core.ExecutableBase;
 import org.lecturestudio.core.ExecutableException;
-import org.lecturestudio.core.geometry.Dimension2D;
 
+/**
+ * Reads videos that have been recorded during a presentation. This video reader returns decoded video frames that can
+ * be retrieved sequentially or after jumping to a specific position in the video stream.
+ *
+ * @author Alex Andres
+ */
 public class VideoReader extends ExecutableBase {
-
-	private final Java2DFrameConverter converter = new Java2DFrameConverter();
 
 	private final File workingDir;
 
 	private File videoFile;
-
-	private Dimension2D targetImageSize;
 
 	private int videoOffset;
 
@@ -47,147 +46,137 @@ public class VideoReader extends ExecutableBase {
 
 	private long referenceTimestamp;
 
-	private FFmpegFrameFilter filter;
-
-	private FFmpegFrameGrabber grabber;
-
-	private BufferedImage image;
+	private VideoFrameGrabber grabber;
 
 
+	/**
+	 * Creates a new VideoReader with the provided working directory from which the videos are loaded.
+	 *
+	 * @param workingDir The directory containing the videos to load.
+	 */
 	public VideoReader(File workingDir) {
 		this.workingDir = workingDir;
 	}
 
+	/**
+	 * Sets the file name of the video to load.
+	 *
+	 * @param fileName The video file name.
+	 */
 	public void setVideoFile(String fileName) {
 		videoFile = new File(workingDir, fileName);
 	}
 
+	/**
+	 * Sets the offset in milliseconds indicating from which position to start reading the video frames.
+	 *
+	 * @param offset The offset in milliseconds.
+	 */
 	public void setVideoOffset(int offset) {
 		this.videoOffset = offset;
 	}
 
+	/**
+	 * Sets the length of the video in milliseconds.
+	 *
+	 * @param length The length of the video in milliseconds.
+	 */
 	public void setVideoLength(int length) {
 		videoLength = length;
 	}
 
-	public void setTargetImageSize(Dimension2D size) {
-		this.targetImageSize = size;
-	}
-
+	/**
+	 * Sets the reference timestamp in milliseconds to adjust the reading position of the video frames.
+	 *
+	 * @param timestamp The reference timestamp in milliseconds.
+	 */
 	public void setReferenceTimestamp(long timestamp) {
 		this.referenceTimestamp = timestamp;
 	}
 
+	/**
+	 * Retrieves a video frame at the specified position in the video stream.
+	 *
+	 * @param timestamp The timestamp in milliseconds.
+	 *
+	 * @return The video frame at the specified timestamp.
+	 *
+	 * @throws IOException If the video frame could not be retrieved.
+	 */
 	public Frame seekToVideoFrame(long timestamp) throws IOException {
 		try {
-			// Convert milliseconds to microseconds.
-			grabber.setVideoTimestamp(((timestamp - referenceTimestamp) + videoOffset) * 1000);
+			grabber.setVideoTimestamp((timestamp - referenceTimestamp) + videoOffset, false);
 
-			return grabber.grabImage();
+			return readVideoFrame();
 		}
 		catch (Exception e) {
 			throw new IOException(e);
 		}
 	}
 
-	public BufferedImage renderFrame(long timestamp) throws IOException {
+	/**
+	 * Retrieves a video keyframe at the specified position in the video stream. Reading keyframes using this method is
+	 * less accurate with reference to timestamps than reading frames using {@link #seekToVideoFrame(long)}.
+	 *
+	 * @param timestamp The timestamp in milliseconds.
+	 *
+	 * @return The video keyframe at the specified timestamp.
+	 *
+	 * @throws IOException If the keyframe could not be retrieved.
+	 */
+	public Frame seekToVideoKeyFrame(long timestamp) throws IOException {
 		try {
-			// Convert milliseconds to microseconds.
-			grabber.setVideoTimestamp(((timestamp - referenceTimestamp) + videoOffset) * 1000);
+			grabber.setVideoTimestamp((timestamp - referenceTimestamp) + videoOffset, true);
 
-			image = renderCurrentFrame();
+			return readVideoFrame();
 		}
 		catch (Exception e) {
 			throw new IOException(e);
 		}
-
-		return image;
 	}
 
-	public BufferedImage renderCurrentFrame() throws IOException {
-		try {
-			Frame frame = grabber.grabImage();
+	/**
+	 * Reads one video frame at the current position in the video stream. This call will move the reading position to
+	 * the next frame in the video stream.
+	 *
+	 * @return The video frame at the current position in the video stream.
+	 *
+	 * @throws Exception If the video frame could not be read.
+	 */
+	public Frame readVideoFrame() throws Exception {
+		Frame frame = grabber.grabVideoFrame();
 
-			if (isNull(frame) || (frame.timestamp / 1000) > (videoOffset + videoLength)) {
-				stop();
-				destroy();
-				return image;
-			}
-
-			if (nonNull(filter)) {
-				filter.push(frame);
-				frame = filter.pull();
-			}
-
-			BufferedImage converted = converter.convert(frame);
-
-			if (isNull(image) || image.getWidth() != frame.imageWidth || image.getHeight() != frame.imageHeight) {
-				image = new BufferedImage(frame.imageWidth, frame.imageHeight, BufferedImage.TYPE_INT_RGB);
-			}
-
-			// Convert type byte to type int image.
-			var g2d = image.createGraphics();
-			g2d.drawImage(converted, null, 0, 0);
-			g2d.dispose();
-		}
-		catch (Exception e) {
-			throw new IOException(e);
+		// Check if we reached the end of the video.
+		if (isNull(frame) || (frame.timestamp / 1000) > (videoOffset + videoLength)) {
+			return null;
 		}
 
-		return image;
+		return frame;
 	}
 
 	@Override
 	protected void initInternal() throws ExecutableException {
 		if (isNull(videoFile) || !videoFile.exists()) {
-			throw new ExecutableException("No video file specified");
+			throw new ExecutableException("No video file specified to read");
 		}
 
-		try {
-			grabber = new FFmpegFrameGrabber(videoFile);
-		}
-		catch (Exception e) {
-			throw new ExecutableException(e);
-		}
+		grabber = new VideoFrameGrabber();
+		grabber.setVideoFile(videoFile);
+		grabber.init();
 	}
 
 	@Override
 	protected void startInternal() throws ExecutableException {
-		try {
-			grabber.start();
-
-			if (nonNull(targetImageSize)) {
-				// Initialize the filter after the grabber has been started.
-				String scale = String.format("scale=%dx%d", (int) targetImageSize.getWidth(), (int) targetImageSize.getHeight());
-
-				filter = new FFmpegFrameFilter(scale, grabber.getImageWidth(), grabber.getImageHeight());
-				filter.setPixelFormat(grabber.getPixelFormat());
-				filter.start();
-			}
-		}
-		catch (Exception e) {
-			throw new ExecutableException(e);
-		}
+		grabber.start();
 	}
 
 	@Override
 	protected void stopInternal() throws ExecutableException {
-		try {
-			if (nonNull(filter)) {
-				filter.stop();
-				filter.release();
-			}
-
-			grabber.stop();
-			grabber.release();
-		}
-		catch (Exception e) {
-			throw new ExecutableException(e);
-		}
+		grabber.stop();
 	}
 
 	@Override
-	protected void destroyInternal() {
-		// Nothing to do.
+	protected void destroyInternal() throws ExecutableException {
+		grabber.destroy();
 	}
 }

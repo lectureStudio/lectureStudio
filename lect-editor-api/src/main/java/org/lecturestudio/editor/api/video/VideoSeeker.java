@@ -18,25 +18,46 @@
 
 package org.lecturestudio.editor.api.video;
 
+import static java.util.Objects.nonNull;
+
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
 import org.bytedeco.javacv.Frame;
+
 import org.lecturestudio.core.ExecutableException;
 import org.lecturestudio.core.recording.Recording;
 import org.lecturestudio.core.recording.action.ScreenAction;
 
+/**
+ * Retrieves video frames of recorded videos during a presentation. A recorded presentation may have multiple recorded
+ * videos that can be post-processed and exported. This class is mainly used to seek fast through the recorded videos.
+ * 
+ * @author Alex Andres
+ */
 public class VideoSeeker {
 
-	private final Map<ScreenAction, VideoReader> screenReaders = new HashMap<>();
+	/** Mapping of ScreenActions to corresponding VideoReaders. */
+	private final Map<Map.Entry<Recording, ScreenAction>, VideoReader> screenVideoReaders = new HashMap<>();
 
 
+	/**
+	 * Selects a recording for video rendering and seeking within the recorded video. A recorded video is represented by
+	 * a ScreenAction. Each recorded ScreenAction has its own video reader allocated.
+	 *
+	 * @param recording The recording that contains recorded videos.
+	 *
+	 * @throws ExecutableException If the recorded videos could not be loaded.
+	 * 
+	 * @see #seek(long)
+	 */
 	public void selectRecording(Recording recording) throws ExecutableException {
 		var recordedPages = recording.getRecordedEvents().getRecordedPages();
 
 		for (var page : recordedPages) {
 			for (var action : page.getPlaybackActions()) {
+				// Each ScreenAction has its own VideoReader.
 				if (action instanceof ScreenAction screenAction) {
 					VideoReader videoReader = new VideoReader(recording.getSourceFile().getParentFile());
 					videoReader.setVideoFile(screenAction.getFileName());
@@ -44,25 +65,60 @@ public class VideoSeeker {
 					videoReader.setVideoLength(screenAction.getVideoLength());
 					videoReader.start();
 
-					screenReaders.put(screenAction, videoReader);
+					screenVideoReaders.put(Map.entry(recording, screenAction), videoReader);
 				}
 			}
 		}
 	}
 
-	public Frame seek(long timeMs) throws IOException {
-		for (var entry : screenReaders.entrySet()) {
-			ScreenAction action = entry.getKey();
-			VideoReader videoReader = entry.getValue();
+	/**
+	 * Removes the recording and clears all allocated resources used for video rendering.
+	 *
+	 * @param recording The recording and corresponding resources to remove.
+	 *
+	 * @throws ExecutableException If the resources could not be disposed.
+	 */
+	public void removeRecording(Recording recording) throws ExecutableException {
+		for (var entry : screenVideoReaders.entrySet()) {
+			Map.Entry<Recording, ScreenAction> actionEntry = entry.getKey();
 
-			long actionTime = entry.getKey().getTimestamp();
-			long actionLength = action.getVideoLength();
-			long actionTimeEnd = actionTime + action.getVideoOffset() + actionLength;
+			if (actionEntry.getKey() == recording) {
+				screenVideoReaders.remove(entry);
+
+				VideoReader videoReader = entry.getValue();
+				if (nonNull(videoReader) && (videoReader.started() || videoReader.suspended())) {
+					videoReader.stop();
+					videoReader.destroy();
+				}
+				break;
+			}
+		}
+	}
+
+	/**
+	 * Jumps to the specified timestamp in a recorded video and retrieves the video frame at this position.
+	 *
+	 * @param timeMs The timestamp in milliseconds.
+	 *
+	 * @return The video frame at the specified timestamp or {@code null} if no frame found.
+	 *
+	 * @throws IOException If the video frame could not be retrieved.
+	 *
+	 * @see #selectRecording(Recording)
+	 */
+	public Frame seek(long timeMs) throws IOException {
+		for (var entry : screenVideoReaders.entrySet()) {
+			Map.Entry<Recording, ScreenAction> actionEntry = entry.getKey();
+			VideoReader videoReader = entry.getValue();
+			ScreenAction action = actionEntry.getValue();
+
+			long actionTime = action.getTimestamp();
+			long actionTimeEnd = actionTime + action.getVideoOffset() + action.getVideoLength();
 
 			if (actionTime < timeMs && actionTimeEnd > timeMs) {
 				long videoTime = timeMs - actionTime;
 
-				return videoReader.seekToVideoFrame(videoTime);
+				return videoReader.seekToVideoKeyFrame(videoTime);
 			}
 		}
 

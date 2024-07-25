@@ -23,13 +23,14 @@ import static java.util.Objects.nonNull;
 import com.google.common.eventbus.Subscribe;
 
 import java.awt.image.BufferedImage;
-import java.io.IOException;
 import java.util.Collections;
 import java.util.List;
 import java.util.Stack;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionException;
 import java.util.function.BiConsumer;
+
+import org.bytedeco.javacv.Frame;
 
 import org.lecturestudio.core.ExecutableException;
 import org.lecturestudio.core.ExecutableState;
@@ -57,6 +58,8 @@ public class VideoEventExecutor extends EventExecutor {
 	private final EventBus eventBus;
 
 	private final Stack<PlaybackAction> playbacks;
+
+	private BufferedImageFrameConverter frameConverter;
 
 	private Document document;
 
@@ -143,6 +146,9 @@ public class VideoEventExecutor extends EventExecutor {
 
 		toolController.init();
 
+		frameConverter = new BufferedImageFrameConverter();
+		frameConverter.setImageSize(renderView.getImageSize());
+
 		progressEvent = new RecordingRenderProgressEvent();
 		progressEvent.setCurrentTime(new Time(0));
 		progressEvent.setTotalTime(new Time(duration));
@@ -154,7 +160,7 @@ public class VideoEventExecutor extends EventExecutor {
 		toolController.start();
 
 		ExecutableState state = getPreviousState();
-		
+
 		if (state == ExecutableState.Initialized || state == ExecutableState.Stopped) {
 			eventBus.register(this);
 
@@ -182,6 +188,8 @@ public class VideoEventExecutor extends EventExecutor {
 	@Override
 	protected void destroyInternal() throws ExecutableException {
 		toolController.destroy();
+
+		frameConverter.dispose();
 	}
 
 	@Override
@@ -260,9 +268,10 @@ public class VideoEventExecutor extends EventExecutor {
 			if (videoReader.started()) {
 				// Get screen video frame.
 				try {
-					frameConsumer.accept(videoReader.renderFrame(getElapsedTime()), progressEvent);
+					Frame frame = videoReader.seekToVideoFrame(getElapsedTime());
+					frameConsumer.accept(frameConverter.convert(frame), progressEvent);
 				}
-				catch (IOException e) {
+				catch (Exception e) {
 					throw new RuntimeException(e);
 				}
 			}
@@ -305,14 +314,7 @@ public class VideoEventExecutor extends EventExecutor {
 		videoReader.setVideoFile(action.getFileName());
 		videoReader.setVideoOffset(action.getVideoOffset());
 		videoReader.setVideoLength(action.getVideoLength());
-		videoReader.setTargetImageSize(renderView.getImageSize());
 		videoReader.setReferenceTimestamp(getElapsedTime());
-
-		try {
-			videoReader.start();
-		}
-		catch (Exception e) {
-			throw new RuntimeException(e);
-		}
+		videoReader.start();
 	}
 }

@@ -16,21 +16,12 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package org.lecturestudio.core.recording;
+package org.lecturestudio.media.video;
 
-import org.lecturestudio.core.ExecutableBase;
-import org.lecturestudio.core.ExecutableException;
+import org.bytedeco.javacv.Frame;
 
-public abstract class EventExecutor extends ExecutableBase {
+public interface VideoRenderSurface {
 
-	public abstract long getElapsedTime();
-
-	public abstract int getPageNumber(int timeMillis);
-
-	public abstract int seekByTime(int timeMillis) throws ExecutableException;
-
-	public abstract Integer seekByPage(int pageNumber) throws ExecutableException;
-
-	protected abstract void executeEvents() throws Exception;
+	void renderFrame(Frame frame);
 
 }

@@ -59,6 +59,8 @@ import org.lecturestudio.media.event.MediaPlayerStateEvent;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.lecturestudio.media.video.VideoPlayer;
+import org.lecturestudio.media.video.VideoRenderSurface;
 
 public class RecordingPlayer extends ExecutableBase {
 
@@ -84,6 +86,8 @@ public class RecordingPlayer extends ExecutableBase {
 
 	private ToolController toolController;
 
+	private VideoRenderSurface videoRenderSurface;
+
 	private int seekTime;
 
 	private int previousPage;
@@ -101,6 +105,15 @@ public class RecordingPlayer extends ExecutableBase {
 		this.audioSystemProvider = audioSystemProvider;
 	}
 
+	/**
+	 * Sets the surface where to render the video frames.
+	 *
+	 * @param renderSurface The surface where to render the video frames.
+	 */
+	public void setVideoRenderSurface(VideoRenderSurface renderSurface) {
+		videoRenderSurface = renderSurface;
+	}
+
 	public synchronized void setRecording(Recording recording) {
 		if (!created() && !destroyed()) {
 			throw new IllegalStateException("Recording player must have clean state");
@@ -112,6 +125,13 @@ public class RecordingPlayer extends ExecutableBase {
 
 	@Override
 	protected synchronized void initInternal() throws ExecutableException {
+		if (isNull(recording)) {
+			throw new ExecutableException("A Recording must be provided");
+		}
+		if (isNull(videoRenderSurface)) {
+			throw new ExecutableException("A VideoRenderSurface must be provided");
+		}
+
 		seekTime = -1;
 		previousPage = 0;
 		seeking = false;
@@ -122,7 +142,10 @@ public class RecordingPlayer extends ExecutableBase {
 
 		var pages = new ArrayList<>(recording.getRecordedEvents().getRecordedPages());
 
-		actionExecutor = new FileEventExecutor(toolController, pages, syncState);
+		VideoPlayer videoPlayer = new VideoPlayer(recording.getSourceFile().getParentFile());
+		videoPlayer.setVideoRenderSurface(videoRenderSurface);
+
+		actionExecutor = new FileEventExecutor(toolController, pages, videoPlayer, syncState);
 		actionExecutor.init();
 
 		initAudioPlayer(recording.getRecordedAudio());
@@ -395,7 +418,7 @@ public class RecordingPlayer extends ExecutableBase {
 		Iterator<StaticShapeAction> iter = recPage.getStaticActions().iterator();
 
 		if (iter.hasNext()) {
-			// Remember currently selected page.
+			// Remember the currently selected page.
 			int lastPageNumber = doc.getCurrentPageNumber();
 
 			// Select the page to which to add static actions.
@@ -405,7 +428,7 @@ public class RecordingPlayer extends ExecutableBase {
 				StaticShapeAction staticAction = iter.next();
 				PlaybackAction action = staticAction.getAction();
 				
-				// Execute static action on selected page.
+				// Execute static action on the selected page.
 				try {
 					action.execute(toolController);
 				}

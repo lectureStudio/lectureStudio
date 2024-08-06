@@ -56,6 +56,7 @@ import org.lecturestudio.media.config.RenderConfiguration;
 import org.lecturestudio.media.config.VideoRenderConfiguration;
 import org.lecturestudio.media.video.FFmpegProcessMuxer;
 import org.lecturestudio.media.video.VideoMuxer;
+import org.lecturestudio.media.video.VideoReader;
 import org.lecturestudio.swing.DefaultRenderContext;
 
 public class VideoRenderer extends RecordingExport {

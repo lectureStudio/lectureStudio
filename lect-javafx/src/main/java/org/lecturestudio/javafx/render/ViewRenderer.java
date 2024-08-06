@@ -18,9 +18,6 @@
 
 package org.lecturestudio.javafx.render;
 
-import static java.util.Objects.isNull;
-import static java.util.Objects.nonNull;
-
 import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.Dimension;
@@ -55,6 +52,8 @@ import org.lecturestudio.core.view.PresentationParameter;
 import org.lecturestudio.core.view.ViewType;
 import org.lecturestudio.core.swing.SwingGraphicsContext;
 import org.lecturestudio.swing.converter.RectangleConverter;
+
+import static java.util.Objects.*;
 
 public class ViewRenderer {
 
@@ -112,7 +111,7 @@ public class ViewRenderer {
 			return;
 		}
 
-		System.out.println("render page: " + videoFrame);
+//		System.out.println("render page: " + videoFrame);
 
 		updateBackImage(page, size);
 
@@ -130,6 +129,8 @@ public class ViewRenderer {
 	}
 
 	public void renderFrame(Frame frame) throws Exception {
+		requireNonNull(frame, "A frame is required");
+
 		int frameWidth = frame.imageWidth;
 		int frameHeight = frame.imageHeight;
 

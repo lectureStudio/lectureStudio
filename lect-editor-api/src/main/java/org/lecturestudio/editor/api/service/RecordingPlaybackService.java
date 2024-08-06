@@ -20,11 +20,11 @@ package org.lecturestudio.editor.api.service;
 
 import static java.util.Objects.nonNull;
 
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-
 import javax.inject.Inject;
 import javax.inject.Singleton;
+
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import org.lecturestudio.core.ExecutableBase;
 import org.lecturestudio.core.ExecutableException;
@@ -40,6 +40,7 @@ import org.lecturestudio.core.model.Time;
 import org.lecturestudio.core.recording.Recording;
 import org.lecturestudio.editor.api.context.EditorContext;
 import org.lecturestudio.media.playback.RecordingPlayer;
+import org.lecturestudio.media.video.VideoRenderSurface;
 
 @Singleton
 public class RecordingPlaybackService extends ExecutableBase {
@@ -62,6 +63,8 @@ public class RecordingPlaybackService extends ExecutableBase {
 	};
 
 	private RecordingPlayer recordingPlayer;
+
+	private VideoRenderSurface videoRenderSurface;
 
 
 	@Inject
@@ -96,6 +99,15 @@ public class RecordingPlaybackService extends ExecutableBase {
 		recordingPlayer.getAudioStream().removeAudioFilter(filter);
 	}
 
+	/**
+	 * Sets the surface where to render the video frames.
+	 *
+	 * @param renderSurface The surface where to render the video frames.
+	 */
+	public void setVideoRenderSurface(VideoRenderSurface renderSurface) {
+		videoRenderSurface = renderSurface;
+	}
+
 	public synchronized void setRecording(Recording recording) {
 		if (nonNull(recordingPlayer)) {
 			closeRecording();
@@ -105,6 +117,7 @@ public class RecordingPlaybackService extends ExecutableBase {
 				context.getConfiguration().getAudioConfig(),
 				audioSystemProvider);
 		recordingPlayer.setRecording(recording);
+		recordingPlayer.setVideoRenderSurface(videoRenderSurface);
 
 		try {
 			init();

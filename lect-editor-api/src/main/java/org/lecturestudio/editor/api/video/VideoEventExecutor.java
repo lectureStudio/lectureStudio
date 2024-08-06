@@ -46,6 +46,8 @@ import org.lecturestudio.core.recording.action.NextPageAction;
 import org.lecturestudio.core.recording.action.PlaybackAction;
 import org.lecturestudio.core.recording.action.ScreenAction;
 import org.lecturestudio.editor.api.recording.RecordingRenderProgressEvent;
+import org.lecturestudio.media.video.BufferedImageFrameConverter;
+import org.lecturestudio.media.video.VideoReader;
 
 public class VideoEventExecutor extends EventExecutor {
 

@@ -20,6 +20,7 @@ package org.lecturestudio.media.playback;
 
 import static java.util.Objects.nonNull;
 
+import java.io.File;
 import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -37,29 +38,36 @@ import org.lecturestudio.core.audio.SyncState;
 import org.lecturestudio.core.controller.ToolController;
 import org.lecturestudio.core.recording.EventExecutor;
 import org.lecturestudio.core.recording.RecordedPage;
+import org.lecturestudio.core.recording.action.ActionType;
 import org.lecturestudio.core.recording.action.PageAction;
 import org.lecturestudio.core.recording.action.PlaybackAction;
+import org.lecturestudio.core.recording.action.ScreenAction;
+import org.lecturestudio.media.video.VideoPlayer;
 
 public class FileEventExecutor extends EventExecutor {
 
 	private static final Logger LOG = LogManager.getLogger(FileEventExecutor.class);
 
+	private final SyncState syncState;
+
 	private final ToolController toolController;
 
 	private final List<RecordedPage> recordedPages;
+
+	private final VideoPlayer videoPlayer;
 
 	private Stack<PlaybackAction> playbacks;
 
 	private Map<Integer, Integer> pageChangeEvents;
 
-	private final SyncState syncState;
-
 	private EventThread thread;
 
 
-	public FileEventExecutor(ToolController toolController, List<RecordedPage> recordedPages, SyncState syncState) {
+	public FileEventExecutor(ToolController toolController, List<RecordedPage> recordedPages, VideoPlayer videoPlayer,
+							 SyncState syncState) {
 		this.toolController = toolController;
 		this.recordedPages = recordedPages;
+		this.videoPlayer = videoPlayer;
 		this.syncState = syncState;
 	}
 
@@ -74,7 +82,7 @@ public class FileEventExecutor extends EventExecutor {
 	}
 
 	@Override
-	public synchronized int seekByTime(int seekTime) {
+	public synchronized int seekByTime(int seekTime) throws ExecutableException {
 		int pageNumber = getTimeTablePage(seekTime);
 
 		seek(pageNumber, seekTime);
@@ -83,7 +91,7 @@ public class FileEventExecutor extends EventExecutor {
 	}
 
 	@Override
-	public synchronized Integer seekByPage(int pageNumber) {
+	public synchronized Integer seekByPage(int pageNumber) throws ExecutableException {
 		Integer timestamp = pageChangeEvents.get(pageNumber);
 
 		seek(pageNumber, timestamp);
@@ -104,7 +112,7 @@ public class FileEventExecutor extends EventExecutor {
 	}
 
 	@Override
-	protected void startInternal() {
+	protected void startInternal() throws ExecutableException {
 		ExecutableState state = getPreviousState();
 
 		if (state == ExecutableState.Initialized || state == ExecutableState.Stopped) {
@@ -125,14 +133,23 @@ public class FileEventExecutor extends EventExecutor {
 			});
 			thread.setName("EventExecutor-Thread");
 			thread.start();
+
+			startVideo();
 		}
 		else if (state == ExecutableState.Suspended) {
-			// Interrupt the Thread in case it was sleeping in order to play new annotations again
+			// Interrupt the Thread in case it was sleeping to play new annotations again.
 			if (thread.getState() == Thread.State.TIMED_WAITING) {
 				thread.interrupt();
 			}
 			thread.signal();
+
+			startVideo();
 		}
+	}
+
+	@Override
+	protected void suspendInternal() throws ExecutableException {
+		suspendVideo();
 	}
 
 	@Override
@@ -171,6 +188,12 @@ public class FileEventExecutor extends EventExecutor {
 
 							// Remove executed action.
 							playbacks.pop();
+
+							if (action.getType() == ActionType.SCREEN) {
+								System.out.println("executeEvents SCREEN");
+
+								startVideoPlayer((ScreenAction) action);
+							}
 
 							if (!playbacks.empty()) {
 								// Time to wait until the next action.
@@ -214,7 +237,19 @@ public class FileEventExecutor extends EventExecutor {
 		}
 	}
 
-	private void seek(int pageNumber, int timeMillis) {
+	private void startVideo() throws ExecutableException {
+		if (videoPlayer.stopped() || videoPlayer.suspended() || videoPlayer.initialized()) {
+			videoPlayer.start();
+		}
+	}
+
+	private void suspendVideo() throws ExecutableException {
+		if (videoPlayer.started()) {
+			videoPlayer.suspend();
+		}
+	}
+
+	private void seek(int pageNumber, int timeMillis) throws ExecutableException {
 		RecordedPage recPage = recordedPages.get(pageNumber);
 
 		if (recPage.getNumber() == pageNumber) {
@@ -233,6 +268,20 @@ public class FileEventExecutor extends EventExecutor {
 					}
 
 					playbacks.pop();
+
+					if (action.getType() == ActionType.SCREEN) {
+						startVideoPlayer((ScreenAction) action);
+
+						if (videoPlayer.initialized() || videoPlayer.started() || videoPlayer.suspended()) {
+							// Get a video frame.
+							try {
+								videoPlayer.seekToVideoKeyFrame(timeMillis);
+							}
+							catch (Exception e) {
+								throw new RuntimeException(e);
+							}
+						}
+					}
 
 					syncState.setEventNumber(syncState.getEventNumber() + 1);
 				}
@@ -280,6 +329,25 @@ public class FileEventExecutor extends EventExecutor {
 		}
 
 		return page;
+	}
+
+	private void startVideoPlayer(ScreenAction action) throws ExecutableException {
+		File videoFile = videoPlayer.getVideoFile();
+
+		if (nonNull(videoFile) && videoFile.getName().equals(action.getFileName())) {
+			// Already initialized.
+			return;
+		}
+		if (videoPlayer.started()) {
+			videoPlayer.stop();
+			videoPlayer.destroy();
+		}
+
+		videoPlayer.setVideoFile(action.getFileName());
+		videoPlayer.setVideoOffset(action.getVideoOffset());
+		videoPlayer.setVideoLength(action.getVideoLength());
+		videoPlayer.setReferenceTimestamp(getElapsedTime());
+		videoPlayer.init();
 	}
 
 

@@ -62,6 +62,8 @@ public class FileEventExecutor extends EventExecutor {
 
 	private EventThread thread;
 
+	private ScreenAction activeScreenAction;
+
 
 	public FileEventExecutor(ToolController toolController, List<RecordedPage> recordedPages, VideoPlayer videoPlayer,
 							 SyncState syncState) {
@@ -134,7 +136,7 @@ public class FileEventExecutor extends EventExecutor {
 			thread.setName("EventExecutor-Thread");
 			thread.start();
 
-			startVideo();
+			startVideoPlayer();
 		}
 		else if (state == ExecutableState.Suspended) {
 			// Interrupt the Thread in case it was sleeping to play new annotations again.
@@ -143,18 +145,20 @@ public class FileEventExecutor extends EventExecutor {
 			}
 			thread.signal();
 
-			startVideo();
+			startVideoPlayer();
 		}
 	}
 
 	@Override
 	protected void suspendInternal() throws ExecutableException {
-		suspendVideo();
+		suspendVideoPlayer();
 	}
 
 	@Override
-	protected void stopInternal() {
+	protected void stopInternal() throws ExecutableException {
 		thread.shutdown();
+
+		disposeVideoPlayer();
 
 		getPlaybackActions(0);
 	}
@@ -190,9 +194,8 @@ public class FileEventExecutor extends EventExecutor {
 							playbacks.pop();
 
 							if (action.getType() == ActionType.SCREEN) {
-								System.out.println("executeEvents SCREEN");
-
-								startVideoPlayer((ScreenAction) action);
+								initVideoPlayer((ScreenAction) action);
+								startVideoPlayer();
 							}
 
 							if (!playbacks.empty()) {
@@ -237,18 +240,6 @@ public class FileEventExecutor extends EventExecutor {
 		}
 	}
 
-	private void startVideo() throws ExecutableException {
-		if (videoPlayer.stopped() || videoPlayer.suspended() || videoPlayer.initialized()) {
-			videoPlayer.start();
-		}
-	}
-
-	private void suspendVideo() throws ExecutableException {
-		if (videoPlayer.started()) {
-			videoPlayer.suspend();
-		}
-	}
-
 	private void seek(int pageNumber, int timeMillis) throws ExecutableException {
 		RecordedPage recPage = recordedPages.get(pageNumber);
 
@@ -270,7 +261,7 @@ public class FileEventExecutor extends EventExecutor {
 					playbacks.pop();
 
 					if (action.getType() == ActionType.SCREEN) {
-						startVideoPlayer((ScreenAction) action);
+						initVideoPlayer((ScreenAction) action);
 
 						if (videoPlayer.initialized() || videoPlayer.started() || videoPlayer.suspended()) {
 							// Get a video frame.
@@ -331,22 +322,52 @@ public class FileEventExecutor extends EventExecutor {
 		return page;
 	}
 
-	private void startVideoPlayer(ScreenAction action) throws ExecutableException {
+	private void startVideoPlayer() throws ExecutableException {
+		final long time = getElapsedTime();
+
+		if (nonNull(activeScreenAction)
+				&& (activeScreenAction.getTimestamp() > time
+				|| activeScreenAction.getTimestamp() + activeScreenAction.getVideoLength() < time)) {
+			// Skip if this is not a video section at the current timestamp.
+			return;
+		}
+		if (videoPlayer.stopped() || videoPlayer.suspended() || videoPlayer.initialized()) {
+			videoPlayer.start();
+		}
+	}
+
+	private void suspendVideoPlayer() throws ExecutableException {
+		if (videoPlayer.started()) {
+			videoPlayer.suspend();
+		}
+	}
+
+	private void disposeVideoPlayer() throws ExecutableException {
+		if (videoPlayer.started() || videoPlayer.suspended()) {
+			videoPlayer.stop();
+		}
+		if (videoPlayer.initialized() || videoPlayer.stopped()) {
+			videoPlayer.destroy();
+		}
+	}
+
+	private void initVideoPlayer(ScreenAction action) throws ExecutableException {
+		activeScreenAction = action;
+
 		File videoFile = videoPlayer.getVideoFile();
 
 		if (nonNull(videoFile) && videoFile.getName().equals(action.getFileName())) {
 			// Already initialized.
 			return;
 		}
-		if (videoPlayer.started()) {
-			videoPlayer.stop();
-			videoPlayer.destroy();
-		}
+
+		disposeVideoPlayer();
 
 		videoPlayer.setVideoFile(action.getFileName());
 		videoPlayer.setVideoOffset(action.getVideoOffset());
 		videoPlayer.setVideoLength(action.getVideoLength());
-		videoPlayer.setReferenceTimestamp(getElapsedTime());
+		videoPlayer.setReferenceTimestamp(action.getTimestamp());
+		videoPlayer.setSyncState(syncState);
 		videoPlayer.init();
 	}
 

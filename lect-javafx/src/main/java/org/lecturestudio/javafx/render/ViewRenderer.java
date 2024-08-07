@@ -35,6 +35,7 @@ import java.util.List;
 import org.bytedeco.javacv.FFmpegFrameFilter;
 import org.bytedeco.javacv.Frame;
 import org.bytedeco.javacv.Java2DFrameConverter;
+
 import org.lecturestudio.core.app.configuration.WhiteboardConfiguration;
 import org.lecturestudio.core.controller.RenderController;
 import org.lecturestudio.core.geometry.Dimension2D;
@@ -129,7 +130,9 @@ public class ViewRenderer {
 	}
 
 	public void renderFrame(Frame frame) throws Exception {
-		requireNonNull(frame, "A frame is required");
+		if (isNull(frame) || isNull(frame.type)) {
+			return;
+		}
 
 		int frameWidth = frame.imageWidth;
 		int frameHeight = frame.imageHeight;
@@ -442,7 +445,7 @@ public class ViewRenderer {
 	}
 
 	private void createFrameFilter(int width, int height, int frameWidth, int frameHeight) throws Exception {
-		String scale = String.format("scale=%dx%d", width, height, width, height);
+		String scale = String.format("scale=%dx%d", width, height);
 
 		frameFilter = new FFmpegFrameFilter(scale, frameWidth, frameHeight);
 		frameFilter.start();

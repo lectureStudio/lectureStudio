@@ -31,6 +31,7 @@ import org.bytedeco.javacv.Frame;
 import org.lecturestudio.core.ExecutableBase;
 import org.lecturestudio.core.ExecutableException;
 import org.lecturestudio.core.ExecutableState;
+import org.lecturestudio.core.audio.SyncState;
 
 /**
  * Plays videos that have been recorded during a presentation.
@@ -52,6 +53,8 @@ public class VideoPlayer extends ExecutableBase {
 	private VideoFrameGrabber grabber;
 
 	private VideoRenderSurface videoRenderSurface;
+
+	private SyncState syncState;
 
 	private IoThread ioThread;
 
@@ -151,7 +154,9 @@ public class VideoPlayer extends ExecutableBase {
 			grabber.setVideoTimestamp((timestamp - referenceTimestamp) + videoOffset, true);
 
 			Frame frame = readVideoFrame();
-			videoRenderSurface.renderFrame(frame);
+			if (nonNull(frame)) {
+				videoRenderSurface.renderFrame(frame);
+			}
 		}
 		catch (Exception e) {
 			throw new IOException(e);
@@ -177,6 +182,16 @@ public class VideoPlayer extends ExecutableBase {
 		return frame;
 	}
 
+	/**
+	 * Sets the synchronization state for media playback to keep different media
+	 * streams in sync.
+	 *
+	 * @param syncState The synchronization state.
+	 */
+	public void setSyncState(SyncState syncState) {
+		this.syncState = syncState;
+	}
+
 	@Override
 	protected void initInternal() throws ExecutableException {
 		if (isNull(videoFile) || !videoFile.exists()) {
@@ -188,7 +203,7 @@ public class VideoPlayer extends ExecutableBase {
 		grabber.init();
 		grabber.start();
 
-		ioThread = new IoThread(new IoTask(), "Video IO Thread");
+		ioThread = new IoThread(new IoTask(), "VideoPlayer IO Thread");
 	}
 
 	@Override
@@ -205,8 +220,6 @@ public class VideoPlayer extends ExecutableBase {
 			}
 			ioThread.signal();
 		}
-
-		System.out.println("Video started");
 	}
 
 	@Override
@@ -214,13 +227,16 @@ public class VideoPlayer extends ExecutableBase {
 		grabber.stop();
 
 		ioThread.shutdown();
-
-		System.out.println("Video stopped");
 	}
 
 	@Override
 	protected void destroyInternal() throws ExecutableException {
 		grabber.destroy();
+
+		videoFile = null;
+		videoOffset = 0;
+		videoLength = 0;
+		referenceTimestamp = 0;
 	}
 
 
@@ -240,20 +256,29 @@ public class VideoPlayer extends ExecutableBase {
 				if (state == ExecutableState.Starting || state == ExecutableState.Started) {
 					try {
 						Frame frame = readVideoFrame();
+						if (isNull(frame)) {
+							// End of video.
+							stop();
+							destroy();
+						}
+						else {
+							videoRenderSurface.renderFrame(frame);
 
-						System.out.println("- " + (frame.timestamp / 1000) + " " + grabber.getFrameRate());
+							// Calculate the time to wait to be in sync with the audio stream.
+							final long timestampDelta = (frame.timestamp / 1000 + referenceTimestamp) + videoOffset - syncState.getAudioTime();
 
-						videoRenderSurface.renderFrame(frame);
+							System.out.println("- " + timestampDelta + " " + grabber.getFrameRate());
 
-						Thread.sleep(1000 / 24);
+							if (timestampDelta > 0) {
+								Thread.sleep(timestampDelta);
+							}
+						}
 					}
 					catch (Exception e) {
 						throw new RuntimeException(e);
 					}
-
 				}
 				else if (state == ExecutableState.Suspended) {
-					System.out.println("Video suspended");
 					ioThread.await();
 				}
 			}

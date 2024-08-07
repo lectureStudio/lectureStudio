@@ -218,7 +218,10 @@ public class SlidesPresenter extends Presenter<SlidesView> {
 
 		editorContext.setPrimarySelection(1.0 * currentTime / totalTime);
 
-//		if (editorContext.isSeeking()) {
+		if (editorContext.isSeeking()) {
+			if (event.getPrevEventNumber() != event.getEventNumber()) {
+				view.repaint();
+			}
 //			try {
 //				long s = System.currentTimeMillis();
 //				var frame = videoSeeker.seekToVideoKeyFrame(currentTime);
@@ -236,7 +239,7 @@ public class SlidesPresenter extends Presenter<SlidesView> {
 //			catch (Exception e) {
 //				throw new RuntimeException(e);
 //			}
-//		}
+		}
 	}
 
 	private void nextPage() {

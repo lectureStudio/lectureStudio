@@ -218,7 +218,7 @@ public class SlidesPresenter extends Presenter<SlidesView> {
 
 		editorContext.setPrimarySelection(1.0 * currentTime / totalTime);
 
-		if (editorContext.isSeeking()) {
+//		if (editorContext.isSeeking()) {
 			if (event.getPrevEventNumber() != event.getEventNumber()) {
 				view.repaint();
 			}
@@ -228,18 +228,16 @@ public class SlidesPresenter extends Presenter<SlidesView> {
 ////				System.out.println(System.currentTimeMillis() - s);
 //
 //				if (nonNull(frame)) {
-//					System.out.println("paintFrame: " + editorContext.isSeeking());
 //					view.paintFrame(frame);
 //				}
 //				else if (event.getPrevEventNumber() != event.getEventNumber()) {
-//					System.out.println("view.repaint()");
 //					view.repaint();
 //				}
 //			}
 //			catch (Exception e) {
 //				throw new RuntimeException(e);
 //			}
-		}
+//		}
 	}
 
 	private void nextPage() {

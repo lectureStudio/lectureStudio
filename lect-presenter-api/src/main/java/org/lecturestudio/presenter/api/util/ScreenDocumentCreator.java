@@ -99,7 +99,7 @@ public class ScreenDocumentCreator {
 				if (exists) {
 					documentService.replaceDocument(doc, newDoc, true);
 
-					// Do not close replaced document, since its pages cannot be saved later.
+					// Do not close a replaced document, since its pages cannot be saved later.
 				}
 				else {
 					documentService.addDocument(newDoc);
@@ -111,7 +111,7 @@ public class ScreenDocumentCreator {
 				documentService.selectDocument(newDoc);
 			}
 			catch (Throwable e) {
-				e.printStackTrace();
+				throw new RuntimeException(e);
 			}
 		});
 		desktopCapturer.captureFrame();

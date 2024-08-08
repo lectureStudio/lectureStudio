@@ -46,6 +46,11 @@ public class VideoFrameGrabber extends ExecutableBase {
 	private File videoFile;
 
 
+	/**
+	 * Gets the frame rate of the video.
+	 *
+	 * @return The frame rate.
+	 */
 	public double getFrameRate() {
 		return grabber.getFrameRate();
 	}

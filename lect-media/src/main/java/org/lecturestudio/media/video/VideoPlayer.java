@@ -134,7 +134,9 @@ public class VideoPlayer extends ExecutableBase {
 			grabber.setVideoTimestamp((timestamp - referenceTimestamp) + videoOffset, false);
 
 			Frame frame = readVideoFrame();
-			videoRenderSurface.renderFrame(frame);
+			if (nonNull(frame)) {
+				renderFrame(frame);
+			}
 		}
 		catch (Exception e) {
 			throw new IOException(e);
@@ -155,7 +157,7 @@ public class VideoPlayer extends ExecutableBase {
 
 			Frame frame = readVideoFrame();
 			if (nonNull(frame)) {
-				videoRenderSurface.renderFrame(frame);
+				renderFrame(frame);
 			}
 		}
 		catch (Exception e) {
@@ -190,6 +192,17 @@ public class VideoPlayer extends ExecutableBase {
 	 */
 	public void setSyncState(SyncState syncState) {
 		this.syncState = syncState;
+	}
+
+	/**
+	 *
+	 *
+	 * @param timestamp The timestamp in microseconds.
+	 *
+	 * @return The timestamp in milliseconds.
+	 */
+	public long getFrameTimestamp(long timestamp) {
+		return (timestamp / 1000 + referenceTimestamp) + videoOffset;
 	}
 
 	@Override
@@ -239,6 +252,12 @@ public class VideoPlayer extends ExecutableBase {
 		referenceTimestamp = 0;
 	}
 
+	private void renderFrame(Frame frame) {
+		if (nonNull(videoRenderSurface)) {
+			videoRenderSurface.renderFrame(frame);
+		}
+	}
+
 
 
 	class IoTask implements Runnable {
@@ -262,7 +281,7 @@ public class VideoPlayer extends ExecutableBase {
 							destroy();
 						}
 						else {
-							videoRenderSurface.renderFrame(frame);
+							renderFrame(frame);
 
 							// Calculate the time to wait to be in sync with the audio stream.
 							final long timestampDelta = (frame.timestamp / 1000 + referenceTimestamp) + videoOffset - syncState.getAudioTime();

@@ -80,7 +80,7 @@ public class ScreenShareHandler extends PresenterHandler {
 						screenSourceService.addScreenShareContext(selectedDoc, shareContext);
 					}
 					catch (Error e) {
-						// Select screen source failed.
+						// Select a screen source failed.
 						// Which in this case is not too critical, since the source may be minimized.
 					}
 					catch (Exception e) {

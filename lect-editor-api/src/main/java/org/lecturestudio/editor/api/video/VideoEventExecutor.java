@@ -18,6 +18,7 @@
 
 package org.lecturestudio.editor.api.video;
 
+import static java.util.Objects.isNull;
 import static java.util.Objects.nonNull;
 
 import com.google.common.eventbus.Subscribe;
@@ -70,6 +71,8 @@ public class VideoEventExecutor extends EventExecutor {
 	private RecordingRenderProgressEvent progressEvent;
 
 	private BiConsumer<BufferedImage, RecordingRenderProgressEvent> frameConsumer;
+
+	private Frame frame;
 
 	private int pageNumber;
 
@@ -221,7 +224,7 @@ public class VideoEventExecutor extends EventExecutor {
 							playbacks.pop();
 
 							if (action.getType() == ActionType.SCREEN) {
-								startVideoPlayer((ScreenAction) action);
+								initVideoPlayer((ScreenAction) action);
 							}
 						}
 						else if (pageNumber < recordedPages.size() - 1) {
@@ -268,26 +271,55 @@ public class VideoEventExecutor extends EventExecutor {
 			progressEvent.setPageNumber(document.getCurrentPageNumber() + 1);
 
 			if (videoPlayer.initialized()) {
-				// Get screen video frame.
+				// If we are in a video section, read and render video frames from the corresponding video file.
 				try {
-					Frame frame = videoPlayer.readVideoFrame();
-
-					if (nonNull(frame)) {
-						System.out.println(videoPlayer.getFrameTimestamp(frame.timestamp));
-						frameConsumer.accept(frameConverter.convert(frame), progressEvent);
-					}
+					renderVideoFrame(timestamp);
 				}
 				catch (Exception e) {
 					throw new RuntimeException(e);
 				}
 			}
 			else {
-				// Get generated slide frame.
+				// Generate slide frame from the current action and document state.
 				frameConsumer.accept(renderView.renderCurrentFrame(), progressEvent);
 			}
 		}
 
 		frames++;
+	}
+
+	private boolean consumeFrame(Frame frame, long timestamp) throws Exception {
+		// Use a window of half the framerate to be more in sync.
+		double frameTsMargin = Math.round(1000 / videoPlayer.getFrameRate() / 2);
+		long frameTs = videoPlayer.calculateTimestamp(frame.timestamp);
+		if (frameTs >= timestamp - frameTsMargin) {
+			frameConsumer.accept(frameConverter.convert(frame), progressEvent);
+			return true;
+		}
+		return false;
+	}
+
+	private void renderVideoFrame(long timestamp) throws Exception {
+		if (nonNull(frame)) {
+			if (consumeFrame(frame, timestamp)) {
+				// Frame has been repeated due to the low video frame rate.
+				return;
+			}
+		}
+
+		// Get the video frame with the desired timestamp, otherwise skip over.
+		while ((frame = videoPlayer.readVideoFrame()) != null) {
+			if (consumeFrame(frame, timestamp)) {
+				// Found frame with a suitable timestamp.
+				break;
+			}
+		}
+
+		if (isNull(frame)) {
+			// Reached the end of the video.
+			//videoPlayer.stop();
+			videoPlayer.destroy();
+		}
 	}
 
 	private void getPlaybackActions(int pageNumber) {
@@ -311,7 +343,7 @@ public class VideoEventExecutor extends EventExecutor {
 		this.pageNumber = pageNumber;
 	}
 
-	private void startVideoPlayer(ScreenAction action) throws ExecutableException {
+	private void initVideoPlayer(ScreenAction action) throws ExecutableException {
 		if (videoPlayer.started()) {
 			videoPlayer.stop();
 			videoPlayer.destroy();

@@ -134,14 +134,16 @@ public class ViewRenderer {
 			return;
 		}
 
-		int frameWidth = frame.imageWidth;
-		int frameHeight = frame.imageHeight;
+		final int frameWidth = frame.imageWidth;
+		final int frameHeight = frame.imageHeight;
+		final int targetWidth = currentImage.getWidth();
+		final int targetHeight = currentImage.getHeight();
 
 		if (isNull(frameFilter)
-				|| frameFilter.getImageWidth() != currentImage.getWidth()
-				|| frameFilter.getImageHeight() != currentImage.getHeight()) {
+				|| frameFilter.getImageWidth() != targetWidth
+				|| frameFilter.getImageHeight() != targetHeight) {
 			destroyFrameFilter();
-			createFrameFilter(currentImage.getWidth(), currentImage.getHeight(), frameWidth, frameHeight);
+			createFrameFilter(targetWidth, targetHeight, frameWidth, frameHeight);
 		}
 
 		this.videoFrame = frame;
@@ -151,7 +153,15 @@ public class ViewRenderer {
 
 		BufferedImage converted = frameConverter.convert(frame);
 
-		bufferg2d.drawImage(converted, 0, 0, null);
+		final int x = (targetWidth - converted.getWidth()) / 2;
+		final int y = (targetHeight - converted.getHeight()) / 2;
+
+		if (converted.getWidth() != targetWidth || converted.getHeight() != targetHeight) {
+			bufferg2d.setPaint(Color.BLACK);
+			bufferg2d.fillRect(0, 0, targetWidth, targetHeight);
+		}
+
+		bufferg2d.drawImage(converted, x, y, null);
 	}
 
 	public synchronized void renderForeground() {

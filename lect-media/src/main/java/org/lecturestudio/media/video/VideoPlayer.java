@@ -50,6 +50,8 @@ public class VideoPlayer extends ExecutableBase {
 
 	private long referenceTimestamp;
 
+	private double framerate;
+
 	private VideoFrameGrabber grabber;
 
 	private VideoRenderSurface videoRenderSurface;
@@ -195,14 +197,23 @@ public class VideoPlayer extends ExecutableBase {
 	}
 
 	/**
-	 *
+	 * Calculates a timestamp in milliseconds from a provided timestamp in microseconds.
 	 *
 	 * @param timestamp The timestamp in microseconds.
 	 *
 	 * @return The timestamp in milliseconds.
 	 */
-	public long getFrameTimestamp(long timestamp) {
+	public long calculateTimestamp(long timestamp) {
 		return (timestamp / 1000 + referenceTimestamp) + videoOffset;
+	}
+
+	/**
+	 * Gets the frame rate of the video.
+	 *
+	 * @return The frame rate.
+	 */
+	public double getFrameRate() {
+		return framerate;
 	}
 
 	@Override
@@ -215,6 +226,8 @@ public class VideoPlayer extends ExecutableBase {
 		grabber.setVideoFile(videoFile);
 		grabber.init();
 		grabber.start();
+
+		framerate = grabber.getFrameRate();
 
 		ioThread = new IoThread(new IoTask(), "VideoPlayer IO Thread");
 	}

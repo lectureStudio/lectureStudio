@@ -159,6 +159,20 @@ public class VideoPlayer extends ExecutableBase {
 
 			Frame frame = readVideoFrame();
 			if (nonNull(frame)) {
+
+				int maxSeekSteps = 0;
+
+				while (calculateTimestamp(frame.timestamp) < timestamp) {
+					frame = readVideoFrame();
+
+					maxSeekSteps++;
+				}
+
+				System.out.println("seek frame: " + calculateTimestamp(frame.timestamp));
+				System.out.println("seek delta: " + (timestamp - calculateTimestamp(frame.timestamp)));
+				System.out.println("seek steps: " + maxSeekSteps);
+				System.out.println();
+
 				renderFrame(frame);
 			}
 		}

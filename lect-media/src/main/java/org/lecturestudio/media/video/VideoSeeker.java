@@ -16,7 +16,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package org.lecturestudio.editor.api.video;
+package org.lecturestudio.media.video;
 
 import static java.util.Objects.nonNull;
 
@@ -50,7 +50,7 @@ public class VideoSeeker {
 	 *
 	 * @throws ExecutableException If the recorded videos could not be loaded.
 	 * 
-	 * @see #seek(long)
+	 * @see #seekToVideoKeyFrame(long)
 	 */
 	public void selectRecording(Recording recording) throws ExecutableException {
 		var recordedPages = recording.getRecordedEvents().getRecordedPages();
@@ -96,17 +96,17 @@ public class VideoSeeker {
 	}
 
 	/**
-	 * Jumps to the specified timestamp in a recorded video and retrieves the video frame at this position.
+	 * Jumps to the specified timestamp in a recorded video and retrieves the video keyframe at this position.
 	 *
 	 * @param timeMs The timestamp in milliseconds.
 	 *
 	 * @return The video frame at the specified timestamp or {@code null} if no frame found.
 	 *
-	 * @throws IOException If the video frame could not be retrieved.
+	 * @throws IOException If the video keyframe could not be retrieved.
 	 *
 	 * @see #selectRecording(Recording)
 	 */
-	public Frame seek(long timeMs) throws IOException {
+	public Frame seekToVideoKeyFrame(long timeMs) throws IOException {
 		for (var entry : screenVideoReaders.entrySet()) {
 			Map.Entry<Recording, ScreenAction> actionEntry = entry.getKey();
 			VideoReader videoReader = entry.getValue();

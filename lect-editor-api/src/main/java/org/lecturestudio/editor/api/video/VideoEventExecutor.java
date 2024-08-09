@@ -18,6 +18,7 @@
 
 package org.lecturestudio.editor.api.video;
 
+import static java.util.Objects.isNull;
 import static java.util.Objects.nonNull;
 
 import com.google.common.eventbus.Subscribe;
@@ -46,12 +47,14 @@ import org.lecturestudio.core.recording.action.NextPageAction;
 import org.lecturestudio.core.recording.action.PlaybackAction;
 import org.lecturestudio.core.recording.action.ScreenAction;
 import org.lecturestudio.editor.api.recording.RecordingRenderProgressEvent;
+import org.lecturestudio.media.video.BufferedImageFrameConverter;
+import org.lecturestudio.media.video.VideoPlayer;
 
 public class VideoEventExecutor extends EventExecutor {
 
 	private final VideoRendererView renderView;
 
-	private final VideoReader videoReader;
+	private final VideoPlayer videoPlayer;
 
 	private final ToolController toolController;
 
@@ -69,6 +72,8 @@ public class VideoEventExecutor extends EventExecutor {
 
 	private BiConsumer<BufferedImage, RecordingRenderProgressEvent> frameConsumer;
 
+	private Frame frame;
+
 	private int pageNumber;
 
 	private int duration;
@@ -80,10 +85,10 @@ public class VideoEventExecutor extends EventExecutor {
 	private long frames;
 
 
-	public VideoEventExecutor(VideoRendererView renderView, VideoReader videoReader, ToolController toolController,
+	public VideoEventExecutor(VideoRendererView renderView, VideoPlayer videoPlayer, ToolController toolController,
 							  EventBus eventBus) {
 		this.renderView = renderView;
-		this.videoReader = videoReader;
+		this.videoPlayer = videoPlayer;
 		this.toolController = toolController;
 		this.eventBus = eventBus;
 		this.playbacks = new Stack<>();
@@ -219,7 +224,7 @@ public class VideoEventExecutor extends EventExecutor {
 							playbacks.pop();
 
 							if (action.getType() == ActionType.SCREEN) {
-								startScreenVideoReader((ScreenAction) action);
+								initVideoPlayer((ScreenAction) action);
 							}
 						}
 						else if (pageNumber < recordedPages.size() - 1) {
@@ -265,23 +270,57 @@ public class VideoEventExecutor extends EventExecutor {
 			progressEvent.getCurrentTime().setMillis(timestamp);
 			progressEvent.setPageNumber(document.getCurrentPageNumber() + 1);
 
-			if (videoReader.started()) {
-				// Get screen video frame.
+			if (videoPlayer.initialized()) {
+				// If we are in a video section, read and render video frames from the corresponding video file.
 				try {
-					Frame frame = videoReader.seekToVideoFrame(getElapsedTime());
-					frameConsumer.accept(frameConverter.convert(frame), progressEvent);
+					renderVideoFrame(timestamp);
 				}
 				catch (Exception e) {
 					throw new RuntimeException(e);
 				}
 			}
 			else {
-				// Get generated slide frame.
+				// Generate slide frame from the current action and document state.
 				frameConsumer.accept(renderView.renderCurrentFrame(), progressEvent);
 			}
 		}
 
 		frames++;
+	}
+
+	private boolean consumeFrame(Frame frame, long timestamp) throws Exception {
+		// Use a window of half the framerate to be more in sync.
+		double frameTsMargin = Math.round(1000 / videoPlayer.getFrameRate() / 2);
+		long frameTs = videoPlayer.calculateTimestamp(frame.timestamp);
+		if (frameTs >= timestamp - frameTsMargin) {
+			renderView.renderFrameImage(frameConverter.convert(frame));
+			frameConsumer.accept(renderView.renderCurrentFrame(), progressEvent);
+			return true;
+		}
+		return false;
+	}
+
+	private void renderVideoFrame(long timestamp) throws Exception {
+		if (nonNull(frame)) {
+			if (consumeFrame(frame, timestamp)) {
+				// Frame has been repeated due to the low video frame rate.
+				return;
+			}
+		}
+
+		// Get the video frame with the desired timestamp, otherwise skip over.
+		while ((frame = videoPlayer.readVideoFrame()) != null) {
+			if (consumeFrame(frame, timestamp)) {
+				// Found frame with a suitable timestamp.
+				break;
+			}
+		}
+
+		if (isNull(frame)) {
+			// Reached the end of the video.
+			//videoPlayer.stop();
+			videoPlayer.destroy();
+		}
 	}
 
 	private void getPlaybackActions(int pageNumber) {
@@ -305,16 +344,16 @@ public class VideoEventExecutor extends EventExecutor {
 		this.pageNumber = pageNumber;
 	}
 
-	private void startScreenVideoReader(ScreenAction action) throws ExecutableException {
-		if (videoReader.started()) {
-			videoReader.stop();
-			videoReader.destroy();
+	private void initVideoPlayer(ScreenAction action) throws ExecutableException {
+		if (videoPlayer.started()) {
+			videoPlayer.stop();
+			videoPlayer.destroy();
 		}
 
-		videoReader.setVideoFile(action.getFileName());
-		videoReader.setVideoOffset(action.getVideoOffset());
-		videoReader.setVideoLength(action.getVideoLength());
-		videoReader.setReferenceTimestamp(getElapsedTime());
-		videoReader.start();
+		videoPlayer.setVideoFile(action.getFileName());
+		videoPlayer.setVideoOffset(action.getVideoOffset());
+		videoPlayer.setVideoLength(action.getVideoLength());
+		videoPlayer.setReferenceTimestamp(getElapsedTime());
+		videoPlayer.init();
 	}
 }

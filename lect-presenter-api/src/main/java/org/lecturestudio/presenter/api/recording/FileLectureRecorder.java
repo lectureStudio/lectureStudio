@@ -52,9 +52,11 @@ import org.lecturestudio.core.bus.event.PageEvent;
 import org.lecturestudio.core.bus.event.RecordActionEvent;
 import org.lecturestudio.core.io.RandomAccessAudioStream;
 import org.lecturestudio.core.model.Document;
+import org.lecturestudio.core.model.DocumentType;
 import org.lecturestudio.core.model.Page;
 import org.lecturestudio.core.recording.*;
 import org.lecturestudio.core.recording.action.PlaybackAction;
+import org.lecturestudio.core.recording.action.ScreenAction;
 import org.lecturestudio.core.recording.action.StaticShapeAction;
 import org.lecturestudio.core.recording.file.RecordingFileWriter;
 import org.lecturestudio.core.service.DocumentService;
@@ -482,6 +484,22 @@ public class FileLectureRecorder extends LectureRecorder {
 		}
 
 		long timestamp = getElapsedTime() - openTime;
+
+		if (page.getDocument().getType() == DocumentType.SCREEN) {
+			// Get the last action from the current page.
+			var actions = recordedPages.peek().getPlaybackActions();
+			if (!actions.isEmpty()) {
+				var action = (PlaybackAction) actions.get(0);
+				if (action instanceof ScreenAction screenAction) {
+					long screenEndMs = screenAction.getTimestamp() + screenAction.getVideoOffset() + screenAction.getVideoLength();
+					System.out.println("page start: " + (timestamp));
+					System.out.println("ScreenAction start: " + (screenAction.getTimestamp()));
+					System.out.println("ScreenAction end: " + (screenEndMs));
+					System.out.println("ScreenAction video length: " + (screenAction.getVideoLength()));
+					System.out.println("ScreenAction delta: " + (timestamp - screenEndMs));
+				}
+			}
+		}
 
 		recordPage(page, timestamp);
 	}

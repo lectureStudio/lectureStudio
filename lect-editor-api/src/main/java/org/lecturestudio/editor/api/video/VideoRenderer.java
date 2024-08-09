@@ -56,6 +56,7 @@ import org.lecturestudio.media.config.RenderConfiguration;
 import org.lecturestudio.media.config.VideoRenderConfiguration;
 import org.lecturestudio.media.video.FFmpegProcessMuxer;
 import org.lecturestudio.media.video.VideoMuxer;
+import org.lecturestudio.media.video.VideoPlayer;
 import org.lecturestudio.swing.DefaultRenderContext;
 
 public class VideoRenderer extends RecordingExport {
@@ -203,9 +204,9 @@ public class VideoRenderer extends RecordingExport {
 		VideoRendererView renderView = new VideoRendererView(renderContext, videoConfig.getDimension());
 		renderView.setRenderController(new RenderController(renderContext, new DefaultRenderContext()));
 
-		VideoReader videoReader = new VideoReader(recording.getSourceFile().getParentFile());
+		VideoPlayer videoPlayer = new VideoPlayer(recording.getSourceFile().getParentFile());
 
-		eventExecutor = new VideoEventExecutor(renderView, videoReader, toolController, renderContext.getEventBus());
+		eventExecutor = new VideoEventExecutor(renderView, videoPlayer, toolController, renderContext.getEventBus());
 		eventExecutor.setDocument(documentService.getDocuments().getSelectedDocument());
 		eventExecutor.setRecordedPages(recording.getRecordedEvents().getRecordedPages());
 		eventExecutor.setDuration((int) recording.getRecordedAudio().getAudioStream().getLengthInMillis());

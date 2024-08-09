@@ -16,7 +16,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package org.lecturestudio.editor.api.video;
+package org.lecturestudio.media.video;
 
 import static java.util.Objects.nonNull;
 
@@ -45,6 +45,15 @@ public class VideoFrameGrabber extends ExecutableBase {
 
 	private File videoFile;
 
+
+	/**
+	 * Gets the frame rate of the video.
+	 *
+	 * @return The frame rate.
+	 */
+	public double getFrameRate() {
+		return grabber.getFrameRate();
+	}
 
 	/**
 	 * Reads audio and video frames at the current position in the audio/video stream. This call will move the reading

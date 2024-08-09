@@ -23,7 +23,6 @@ import static java.util.Objects.nonNull;
 
 import com.google.common.eventbus.Subscribe;
 
-import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -68,7 +67,7 @@ import org.lecturestudio.editor.api.input.Shortcut;
 import org.lecturestudio.editor.api.service.RecordingFileService;
 import org.lecturestudio.editor.api.service.RecordingPlaybackService;
 import org.lecturestudio.editor.api.stylus.EditorStylusHandler;
-import org.lecturestudio.editor.api.video.VideoSeeker;
+import org.lecturestudio.media.video.VideoSeeker;
 import org.lecturestudio.editor.api.view.SlidesView;
 import org.lecturestudio.media.event.MediaPlayerProgressEvent;
 
@@ -175,6 +174,8 @@ public class SlidesPresenter extends Presenter<SlidesView> {
 
 		editorToolController.addPageShapeAddedListener(this::pageShapeAdded);
 		pageObjectRegistry.register(ToolType.TEXT, TextBoxView.class);
+
+		playbackService.setVideoRenderSurface(view::paintFrame);
 	}
 
 	@Override
@@ -217,22 +218,26 @@ public class SlidesPresenter extends Presenter<SlidesView> {
 
 		editorContext.setPrimarySelection(1.0 * currentTime / totalTime);
 
-		try {
-			long s = System.currentTimeMillis();
-			var frame = videoSeeker.seek(currentTime);
-//			System.out.println(System.currentTimeMillis() - s);
-
-			if (nonNull(frame)) {
-				view.paintFrame(frame);
-			}
-			else if (event.getPrevEventNumber() != event.getEventNumber()) {
-				System.out.println("view.repaint()");
+//		if (editorContext.isSeeking()) {
+			if (event.getPrevEventNumber() != event.getEventNumber()) {
 				view.repaint();
 			}
-		}
-		catch (IOException e) {
-			throw new RuntimeException(e);
-		}
+//			try {
+//				long s = System.currentTimeMillis();
+//				var frame = videoSeeker.seekToVideoKeyFrame(currentTime);
+////				System.out.println(System.currentTimeMillis() - s);
+//
+//				if (nonNull(frame)) {
+//					view.paintFrame(frame);
+//				}
+//				else if (event.getPrevEventNumber() != event.getEventNumber()) {
+//					view.repaint();
+//				}
+//			}
+//			catch (Exception e) {
+//				throw new RuntimeException(e);
+//			}
+//		}
 	}
 
 	private void nextPage() {

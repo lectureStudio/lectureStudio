@@ -98,6 +98,14 @@ public class VideoRendererView implements SlideView, ShapeListener, ParameterCha
 		this.renderController = renderController;
 	}
 
+	public void renderFrameImage(BufferedImage image) {
+		Graphics2D g = backImage.createGraphics();
+		g.drawImage(image, 0, 0, null);
+		g.dispose();
+
+		setPageChanged();
+	}
+
 	public BufferedImage renderCurrentFrame() {
 		repaintView();
 

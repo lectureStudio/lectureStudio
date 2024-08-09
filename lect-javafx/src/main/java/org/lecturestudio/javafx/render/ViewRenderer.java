@@ -18,9 +18,6 @@
 
 package org.lecturestudio.javafx.render;
 
-import static java.util.Objects.isNull;
-import static java.util.Objects.nonNull;
-
 import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.Dimension;
@@ -38,6 +35,7 @@ import java.util.List;
 import org.bytedeco.javacv.FFmpegFrameFilter;
 import org.bytedeco.javacv.Frame;
 import org.bytedeco.javacv.Java2DFrameConverter;
+
 import org.lecturestudio.core.app.configuration.WhiteboardConfiguration;
 import org.lecturestudio.core.controller.RenderController;
 import org.lecturestudio.core.geometry.Dimension2D;
@@ -55,6 +53,8 @@ import org.lecturestudio.core.view.PresentationParameter;
 import org.lecturestudio.core.view.ViewType;
 import org.lecturestudio.core.swing.SwingGraphicsContext;
 import org.lecturestudio.swing.converter.RectangleConverter;
+
+import static java.util.Objects.*;
 
 public class ViewRenderer {
 
@@ -112,47 +112,53 @@ public class ViewRenderer {
 			return;
 		}
 
-		System.out.println("render page: " + videoFrame);
-
 		updateBackImage(page, size);
 
-		if (isNull(videoFrame)) {
-			renderForeground();
-		}
-		else {
-			try {
-				renderFrame(videoFrame);
-			}
-			catch (Exception e) {
-				throw new RuntimeException(e);
-			}
+		renderForeground();
+	}
+
+	private synchronized void disposeFrame() {
+		if (nonNull(videoFrame)) {
+			videoFrame.close();
+			videoFrame = null;
 		}
 	}
 
-	public void renderFrame(Frame frame) throws Exception {
-		int frameWidth = frame.imageWidth;
-		int frameHeight = frame.imageHeight;
-
-		if (isNull(frameFilter)
-				|| frameFilter.getImageWidth() != currentImage.getWidth()
-				|| frameFilter.getImageHeight() != currentImage.getHeight()) {
-			destroyFrameFilter();
-			createFrameFilter(currentImage.getWidth(), currentImage.getHeight(), frameWidth, frameHeight);
+	public synchronized void renderFrame(Frame frame) throws Exception {
+		if (isNull(frame) || isNull(frame.type)) {
+			disposeFrame();
+			renderForeground();
+			return;
 		}
 
-		this.videoFrame = frame;
+		final int frameWidth = frame.imageWidth;
+		final int frameHeight = frame.imageHeight;
+		final int targetWidth = currentImage.getWidth();
+		final int targetHeight = currentImage.getHeight();
 
-		frameFilter.push(frame);
-		frame = frameFilter.pull();
+		if (isNull(frameFilter)
+				|| frameFilter.getImageWidth() != targetWidth
+				|| frameFilter.getImageHeight() != targetHeight) {
+			destroyFrameFilter();
+			createFrameFilter(targetWidth, targetHeight, frameWidth, frameHeight);
+		}
 
-		BufferedImage converted = frameConverter.convert(frame);
+		// TODO: handle this in connection with painted annotations
+//		disposeFrame();
 
-		bufferg2d.drawImage(converted, 0, 0, null);
+		videoFrame = frame.clone();
+
+		Graphics2D g2d = frontImage.createGraphics();
+		refreshBackground(g2d, page, parameter);
+		g2d.dispose();
+
+		renderForeground();
 	}
 
 	public synchronized void renderForeground() {
-		if (page == null || parameter == null || currentImage == null)
+		if (page == null || parameter == null || currentImage == null) {
 			return;
+		}
 
 		List<Shape> shapes = page.getShapes();
 		Shape shape = null;
@@ -176,11 +182,6 @@ public class ViewRenderer {
 
 		bufferg2d.setClip(0, 0, bufferImage.getWidth(), bufferImage.getHeight());
 		bufferg2d.drawImage(currentImage, 0, 0, null);
-
-		if (nonNull(videoFrame)) {
-			videoFrame.close();
-		}
-		this.videoFrame = null;
 	}
 
 	public synchronized void render(Page page, Shape shape, Rectangle clip) {
@@ -332,8 +333,9 @@ public class ViewRenderer {
 	}
 
 	private synchronized void refreshFrontImage(Graphics g, Page page, List<Shape> shapes, PresentationParameter parameter) {
-		if (frontImage == null)
+		if (frontImage == null) {
 			return;
+		}
 
 		if (parameter.showGrid()) {
 			WhiteboardConfiguration wbConfig = parameter.getWhiteboardConfig();
@@ -358,13 +360,43 @@ public class ViewRenderer {
 	}
 
 	private void refreshBackground(final Graphics2D g, Page page, PresentationParameter parameter) {
-		g.drawImage(backImage, 0, 0, null);
+		if (nonNull(videoFrame)) {
+			drawVideoFrame(g, videoFrame);
+		}
+		else {
+			g.drawImage(backImage, 0, 0, null);
+		}
 
-		if (isWhiteboardSlide(page))
+		if (isWhiteboardSlide(page)) {
 			drawBackground(g);
-
-		if (parameter.isExtended())
+		}
+		if (parameter.isExtended()) {
 			drawContentBorder(g, parameter);
+		}
+	}
+
+	private void drawVideoFrame(final Graphics2D g, Frame frame) {
+		try {
+			frameFilter.push(frame);
+			frame = frameFilter.pull();
+		}
+		catch (Exception e) {
+			throw new RuntimeException(e);
+		}
+
+		BufferedImage converted = frameConverter.convert(frame);
+
+		frame.close();
+
+		final int x = (currentImage.getWidth() - converted.getWidth()) / 2;
+		final int y = (currentImage.getHeight() - converted.getHeight()) / 2;
+
+//		if (converted.getWidth() != targetWidth || converted.getHeight() != targetHeight) {
+//			bufferg2d.setPaint(Color.BLACK);
+//			bufferg2d.fillRect(0, 0, targetWidth, targetHeight);
+//		}
+
+		g.drawImage(converted, x, y, null);
 	}
 
 	private void drawContentBorder(Graphics2D g, PresentationParameter parameter) {
@@ -374,7 +406,7 @@ public class ViewRenderer {
 		int height = (int) (imageRect.getHeight() * (scale.getY() / (imageRect.getHeight() / 3)));
 
 		g.setColor(Color.GRAY);
-		float dash[] = { 3.0f };
+		float[] dash = { 3.0f };
 		g.setStroke(new BasicStroke(1.0f, BasicStroke.CAP_BUTT, BasicStroke.JOIN_MITER, 10.0f, dash, 0.0f));
 		g.drawRect(-2, -2, width + 4, height + 4);
 	}
@@ -441,7 +473,7 @@ public class ViewRenderer {
 	}
 
 	private void createFrameFilter(int width, int height, int frameWidth, int frameHeight) throws Exception {
-		String scale = String.format("scale=%dx%d", width, height, width, height);
+		String scale = String.format("scale=%dx%d", width, height);
 
 		frameFilter = new FFmpegFrameFilter(scale, frameWidth, frameHeight);
 		frameFilter.start();

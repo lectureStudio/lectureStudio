@@ -16,7 +16,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package org.lecturestudio.editor.api.video;
+package org.lecturestudio.media.video;
 
 import static java.util.Objects.*;
 import static org.bytedeco.ffmpeg.global.avutil.AV_PIX_FMT_BGR24;

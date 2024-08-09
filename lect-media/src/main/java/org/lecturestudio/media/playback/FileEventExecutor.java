@@ -273,6 +273,15 @@ public class FileEventExecutor extends EventExecutor {
 							}
 						}
 					}
+					else {
+						// Clear frames if this is not a video section at the current timestamp.
+						if (nonNull(activeScreenAction)
+								&& (activeScreenAction.getTimestamp() > timeMillis
+								|| activeScreenAction.getTimestamp() + activeScreenAction.getVideoLength() < timeMillis)) {
+							videoPlayer.clearFrames();
+							return;
+						}
+					}
 
 					syncState.setEventNumber(syncState.getEventNumber() + 1);
 				}

@@ -23,6 +23,7 @@ import static java.util.Objects.nonNull;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.ReentrantLock;
 
@@ -159,21 +160,7 @@ public class VideoPlayer extends ExecutableBase {
 
 			Frame frame = readVideoFrame();
 			if (nonNull(frame)) {
-
-				int maxSeekSteps = 0;
-
-				while (calculateTimestamp(frame.timestamp) < timestamp) {
-					frame = readVideoFrame();
-
-					maxSeekSteps++;
-				}
-
-				System.out.println("seek frame: " + calculateTimestamp(frame.timestamp));
-				System.out.println("seek delta: " + (timestamp - calculateTimestamp(frame.timestamp)));
-				System.out.println("seek steps: " + maxSeekSteps);
-				System.out.println();
-
-				renderFrame(frame);
+				CompletableFuture.runAsync(() -> renderFrame(frame));
 			}
 		}
 		catch (Exception e) {
@@ -230,6 +217,14 @@ public class VideoPlayer extends ExecutableBase {
 		return framerate;
 	}
 
+	/**
+	 * Clears the video frames from the video render surface by effectively re-rendering the surface after which the
+	 * video frame is not visible on the surface anymore.
+	 */
+	public void clearFrames() {
+		renderFrame(null);
+	}
+
 	@Override
 	protected void initInternal() throws ExecutableException {
 		if (isNull(videoFile) || !videoFile.exists()) {
@@ -279,6 +274,11 @@ public class VideoPlayer extends ExecutableBase {
 		referenceTimestamp = 0;
 	}
 
+	/**
+	 * Renders the provided video frame on the video render surface.
+	 *
+	 * @param frame The video frame to render.
+	 */
 	private void renderFrame(Frame frame) {
 		if (nonNull(videoRenderSurface)) {
 			videoRenderSurface.renderFrame(frame);
@@ -313,7 +313,7 @@ public class VideoPlayer extends ExecutableBase {
 							// Calculate the time to wait to be in sync with the audio stream.
 							final long timestampDelta = (frame.timestamp / 1000 + referenceTimestamp) + videoOffset - syncState.getAudioTime();
 
-							System.out.println("- " + timestampDelta + " " + grabber.getFrameRate());
+//							System.out.println("- " + timestampDelta + " " + grabber.getFrameRate());
 
 							if (timestampDelta > 0) {
 								Thread.sleep(timestampDelta);

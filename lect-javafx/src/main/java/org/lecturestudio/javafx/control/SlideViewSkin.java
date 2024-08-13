@@ -436,9 +436,22 @@ public class SlideViewSkin extends SkinBase<SlideView> {
 
 		@Override
 		public void render() {
+			final Page page = getSkinnable().getPage();
+
+			if (isNull(page)) {
+				return;
+			}
+
+			final int width = (int) viewSize.getWidth();
+			final int height = (int) viewSize.getHeight();
+
+			if (width < 1 || height < 1) {
+				return;
+			}
+
 			setBounds(getSkinnable().getLayoutBounds());
 
-			renderer.renderPage(getSkinnable().getPage(), new Dimension((int) viewSize.getWidth(), (int) viewSize.getHeight()));
+			renderer.renderPage(page, new Dimension(width, height));
 
 			updateBuffer(null);
 		}

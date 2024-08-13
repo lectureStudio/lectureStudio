@@ -119,25 +119,27 @@ public class MainPresenter extends org.lecturestudio.core.presenter.MainPresente
 			return;
 		}
 
-		showWaitingNotification("open.recording", null);
+		CompletableFuture.runAsync(() -> {
+			showWaitingNotification("open.recording", null);
 
-		recordingService.openRecording(file)
-			.thenRun(() -> {
-				hideWaitingNotification();
+			recordingService.openRecording(file)
+					.thenRun(() -> {
+						hideWaitingNotification();
 
-				RecentDocument recentDoc = new RecentDocument();
-				recentDoc.setDocumentName(FileUtils.stripExtension(file.getName()));
-				recentDoc.setDocumentPath(file.getAbsolutePath());
-				recentDoc.setLastModified(new Date());
+						RecentDocument recentDoc = new RecentDocument();
+						recentDoc.setDocumentName(FileUtils.stripExtension(file.getName()));
+						recentDoc.setDocumentPath(file.getAbsolutePath());
+						recentDoc.setLastModified(new Date());
 
-				recentDocumentService.add(recentDoc);
-			})
-			.exceptionally(throwable -> {
-				hideWaitingNotification();
-				handleException(throwable, "Open recording failed",
-						"open.recording.error", file.getPath());
-				return null;
-			});
+						recentDocumentService.add(recentDoc);
+					})
+					.exceptionally(throwable -> {
+						hideWaitingNotification();
+						handleException(throwable, "Open recording failed",
+								"open.recording.error", file.getPath());
+						return null;
+					});
+		});
 	}
 
 	@Override

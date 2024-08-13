@@ -32,6 +32,9 @@ import javafx.scene.Scene;
 import javafx.scene.image.Image;
 import javafx.stage.Stage;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
 import org.lecturestudio.core.ExecutableException;
 import org.lecturestudio.core.app.ApplicationBase;
 import org.lecturestudio.core.app.ApplicationContext;
@@ -42,9 +45,6 @@ import org.lecturestudio.core.app.configuration.Configuration;
 import org.lecturestudio.core.presenter.MainPresenter;
 import org.lecturestudio.core.util.FileUtils;
 import org.lecturestudio.core.util.OsInfo;
-
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 
 public abstract class JavaFxApplication extends ApplicationBase implements GraphicalApplication {
 
@@ -141,7 +141,7 @@ public abstract class JavaFxApplication extends ApplicationBase implements Graph
 			String[] appIcons = FileUtils.getResourceListing("/resources/gfx/app-icon", (name) -> name.endsWith(".png"));
 
 			for (String iconPath : appIcons) {
-				primaryStage.getIcons().add(new Image(JavaFxApplication.class.getResourceAsStream(iconPath)));
+				primaryStage.getIcons().add(new Image(requireNonNull(JavaFxApplication.class.getResourceAsStream(iconPath))));
 			}
 
 			boolean fullscreen = config.getStartFullscreen();
@@ -177,12 +177,14 @@ public abstract class JavaFxApplication extends ApplicationBase implements Graph
 		}
 
 		openFilesHandler = files -> {
-			LOG.info("Handle files: " + files);
+            LOG.info("Handle files: {}", files);
 
 			mainPresenter.openFile(files.get(0));
 		};
 
 		if (!OPEN_FILES.isEmpty()) {
+            LOG.info("Handle files: {}", OPEN_FILES);
+
 			mainPresenter.openFile(OPEN_FILES.get(0));
 			OPEN_FILES.clear();
 		}

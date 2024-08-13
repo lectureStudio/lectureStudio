@@ -108,12 +108,21 @@ public class VideoPlayer extends ExecutableBase {
 	}
 
 	/**
+	 * Gets the reference timestamp in milliseconds to adjust the reading position of the video frames.
+	 *
+	 * @return The reference timestamp in milliseconds.
+	 */
+	public long getReferenceTimestamp() {
+		return referenceTimestamp;
+	}
+
+	/**
 	 * Sets the reference timestamp in milliseconds to adjust the reading position of the video frames.
 	 *
 	 * @param timestamp The reference timestamp in milliseconds.
 	 */
 	public void setReferenceTimestamp(long timestamp) {
-		this.referenceTimestamp = timestamp;
+		referenceTimestamp = timestamp;
 	}
 
 	/**
@@ -134,7 +143,7 @@ public class VideoPlayer extends ExecutableBase {
 	 */
 	public void seekToVideoFrame(long timestamp) throws IOException {
 		try {
-			grabber.setVideoTimestamp((timestamp - referenceTimestamp) + videoOffset, false);
+			grabber.setVideoTimestamp((timestamp - referenceTimestamp) - videoOffset, false);
 
 			Frame frame = readVideoFrame();
 			if (nonNull(frame)) {
@@ -156,7 +165,7 @@ public class VideoPlayer extends ExecutableBase {
 	 */
 	public void seekToVideoKeyFrame(long timestamp) throws IOException {
 		try {
-			grabber.setVideoTimestamp((timestamp - referenceTimestamp) + videoOffset, true);
+			grabber.setVideoTimestamp((timestamp - referenceTimestamp) - videoOffset, false);
 
 			Frame frame = readVideoFrame();
 			if (nonNull(frame)) {
@@ -205,7 +214,7 @@ public class VideoPlayer extends ExecutableBase {
 	 * @return The timestamp in milliseconds.
 	 */
 	public long calculateTimestamp(long timestamp) {
-		return (timestamp / 1000 + referenceTimestamp) + videoOffset;
+		return (timestamp / 1000 + referenceTimestamp) - videoOffset;
 	}
 
 	/**
@@ -301,24 +310,26 @@ public class VideoPlayer extends ExecutableBase {
 
 				if (state == ExecutableState.Starting || state == ExecutableState.Started) {
 					try {
-						Frame frame = readVideoFrame();
+						final Frame frame = readVideoFrame();
 						if (isNull(frame)) {
 							// End of video.
 							stop();
 							destroy();
 						}
 						else {
-							renderFrame(frame);
-
 							// Calculate the time to wait to be in sync with the audio stream.
-							final long timestampDelta = (frame.timestamp / 1000 + referenceTimestamp) + videoOffset - syncState.getAudioTime();
+							final long timestampDelta = (frame.timestamp / 1000 + referenceTimestamp) - videoOffset - syncState.getAudioTime();
 
-//							System.out.println("- " + timestampDelta + " " + grabber.getFrameRate());
-
+							// Skip rendering if the frame is behind the actual sync state.
 							if (timestampDelta > 0) {
+								renderFrame(frame);
+
 								Thread.sleep(timestampDelta);
 							}
 						}
+					}
+					catch (InterruptedException e) {
+						// Ignore
 					}
 					catch (Exception e) {
 						throw new RuntimeException(e);

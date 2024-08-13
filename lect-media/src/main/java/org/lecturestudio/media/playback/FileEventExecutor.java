@@ -365,7 +365,9 @@ public class FileEventExecutor extends EventExecutor {
 
 		File videoFile = videoPlayer.getVideoFile();
 
-		if (nonNull(videoFile) && videoFile.getName().equals(action.getFileName())) {
+		if (nonNull(videoFile)
+				&& videoFile.getName().equals(action.getFileName())
+				&& action.getTimestamp() == videoPlayer.getReferenceTimestamp()) {
 			// Already initialized.
 			return;
 		}

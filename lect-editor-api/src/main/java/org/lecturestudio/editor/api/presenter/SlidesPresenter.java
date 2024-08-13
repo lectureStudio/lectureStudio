@@ -67,7 +67,6 @@ import org.lecturestudio.editor.api.input.Shortcut;
 import org.lecturestudio.editor.api.service.RecordingFileService;
 import org.lecturestudio.editor.api.service.RecordingPlaybackService;
 import org.lecturestudio.editor.api.stylus.EditorStylusHandler;
-import org.lecturestudio.media.video.VideoSeeker;
 import org.lecturestudio.editor.api.view.SlidesView;
 import org.lecturestudio.media.event.MediaPlayerProgressEvent;
 
@@ -94,8 +93,6 @@ public class SlidesPresenter extends Presenter<SlidesView> {
 	private PageEditedListener pageEditedListener;
 	private StylusHandler stylusHandler;
 
-	private final VideoSeeker videoSeeker;
-
 
 	@Inject
 	SlidesPresenter(ApplicationContext context, SlidesView view,
@@ -115,7 +112,6 @@ public class SlidesPresenter extends Presenter<SlidesView> {
 		this.shortcutMap = new HashMap<>();
 		this.docExecMap = new ConcurrentHashMap<>();
 		this.pageObjectRegistry = new PageObjectRegistry();
-		this.videoSeeker = new VideoSeeker();
 	}
 
 	@Override
@@ -218,26 +214,11 @@ public class SlidesPresenter extends Presenter<SlidesView> {
 
 		editorContext.setPrimarySelection(1.0 * currentTime / totalTime);
 
-//		if (editorContext.isSeeking()) {
+		if (editorContext.isSeeking()) {
 			if (event.getPrevEventNumber() != event.getEventNumber()) {
 				view.repaint();
 			}
-//			try {
-//				long s = System.currentTimeMillis();
-//				var frame = videoSeeker.seekToVideoKeyFrame(currentTime);
-////				System.out.println(System.currentTimeMillis() - s);
-//
-//				if (nonNull(frame)) {
-//					view.paintFrame(frame);
-//				}
-//				else if (event.getPrevEventNumber() != event.getEventNumber()) {
-//					view.repaint();
-//				}
-//			}
-//			catch (Exception e) {
-//				throw new RuntimeException(e);
-//			}
-//		}
+		}
 	}
 
 	private void nextPage() {
@@ -352,8 +333,6 @@ public class SlidesPresenter extends Presenter<SlidesView> {
 		try {
 			Recording selectedRecording = recordingService.getSelectedRecording();
 			Recording recording = recordingService.getRecordingWithDocument(document);
-
-			videoSeeker.selectRecording(recording);
 
 			if (nonNull(selectedRecording) && selectedRecording.equals(recording)) {
 				return;

@@ -279,7 +279,7 @@ public class FileEventExecutor extends EventExecutor {
 								&& (activeScreenAction.getTimestamp() > timeMillis
 								|| activeScreenAction.getTimestamp() + activeScreenAction.getVideoLength() < timeMillis)) {
 							videoPlayer.clearFrames();
-							return;
+							activeScreenAction = null;
 						}
 					}
 
@@ -361,6 +361,12 @@ public class FileEventExecutor extends EventExecutor {
 	}
 
 	private void initVideoPlayer(ScreenAction action) throws ExecutableException {
+		// Fix overlapping screen actions into the next page.
+		RecordedPage recPage = recordedPages.get(syncState.getPageNumber() + 1);
+		if (nonNull(recPage) && (action.getTimestamp() + action.getVideoLength()) > recPage.getTimestamp()) {
+			action.setVideoLength(recPage.getTimestamp() - action.getTimestamp());
+		}
+
 		activeScreenAction = action;
 
 		File videoFile = videoPlayer.getVideoFile();

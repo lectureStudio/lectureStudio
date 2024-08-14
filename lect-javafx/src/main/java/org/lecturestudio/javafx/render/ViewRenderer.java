@@ -112,6 +112,9 @@ public class ViewRenderer {
 			return;
 		}
 
+		// A new page has been focused, clear video frame.
+		disposeFrame();
+
 		updateBackImage(page, size);
 
 		renderForeground();

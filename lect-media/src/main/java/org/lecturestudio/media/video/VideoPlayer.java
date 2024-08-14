@@ -143,7 +143,7 @@ public class VideoPlayer extends ExecutableBase {
 	 */
 	public void seekToVideoFrame(long timestamp) throws IOException {
 		try {
-			grabber.setVideoTimestamp((timestamp - referenceTimestamp) - videoOffset, false);
+			grabber.setVideoTimestamp((timestamp - referenceTimestamp) + videoOffset, false);
 
 			Frame frame = readVideoFrame();
 			if (nonNull(frame)) {
@@ -165,7 +165,7 @@ public class VideoPlayer extends ExecutableBase {
 	 */
 	public void seekToVideoKeyFrame(long timestamp) throws IOException {
 		try {
-			grabber.setVideoTimestamp((timestamp - referenceTimestamp) - videoOffset, false);
+			grabber.setVideoTimestamp((timestamp - referenceTimestamp) + videoOffset, true);
 
 			Frame frame = readVideoFrame();
 			if (nonNull(frame)) {
@@ -214,7 +214,7 @@ public class VideoPlayer extends ExecutableBase {
 	 * @return The timestamp in milliseconds.
 	 */
 	public long calculateTimestamp(long timestamp) {
-		return (timestamp / 1000 + referenceTimestamp) - videoOffset;
+		return (timestamp / 1000 + referenceTimestamp) + videoOffset;
 	}
 
 	/**

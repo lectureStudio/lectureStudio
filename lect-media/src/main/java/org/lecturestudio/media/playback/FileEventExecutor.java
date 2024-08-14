@@ -18,6 +18,7 @@
 
 package org.lecturestudio.media.playback;
 
+import static java.util.Objects.isNull;
 import static java.util.Objects.nonNull;
 
 import java.io.File;
@@ -332,6 +333,10 @@ public class FileEventExecutor extends EventExecutor {
 	}
 
 	private void startVideoPlayer() throws ExecutableException {
+		if (isNull(activeScreenAction)) {
+			return;
+		}
+
 		final long time = getElapsedTime();
 
 		if (nonNull(activeScreenAction)

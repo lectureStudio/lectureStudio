@@ -384,7 +384,8 @@ public class ViewRenderer {
 			frame = frameFilter.pull();
 		}
 		catch (Exception e) {
-			throw new RuntimeException(e);
+			e.printStackTrace();
+			return;
 		}
 
 		BufferedImage converted = frameConverter.convert(frame);

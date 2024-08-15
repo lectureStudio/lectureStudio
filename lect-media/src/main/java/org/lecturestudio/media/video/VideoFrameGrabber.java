@@ -28,7 +28,6 @@ import static org.bytedeco.ffmpeg.global.avutil.AV_TIME_BASE;
 import java.io.File;
 
 import org.bytedeco.ffmpeg.avutil.AVRational;
-import org.bytedeco.javacv.FFmpegFrameGrabber;
 import org.bytedeco.javacv.Frame;
 
 import org.lecturestudio.core.ExecutableBase;
@@ -110,7 +109,7 @@ public class VideoFrameGrabber extends ExecutableBase {
 	 * @throws ExecutableException If the timestamp could not be set.
 	 */
 	public void setVideoTimestamp(long timestampMs, boolean keyFrame) throws ExecutableException {
-		try {
+        try {
 			if (keyFrame) {
 				var formatContext = grabber.getFormatContext();
 				var videoStream = formatContext.streams(grabber.getVideoStream());

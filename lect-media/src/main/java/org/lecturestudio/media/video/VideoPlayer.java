@@ -165,7 +165,7 @@ public class VideoPlayer extends ExecutableBase {
 	 */
 	public void seekToVideoKeyFrame(long timestamp) throws IOException {
 		try {
-			grabber.setVideoTimestamp((timestamp - referenceTimestamp) + videoOffset, true);
+			grabber.setVideoTimestamp((timestamp - referenceTimestamp) + videoOffset, false);
 
 			Frame frame = readVideoFrame();
 			if (nonNull(frame)) {

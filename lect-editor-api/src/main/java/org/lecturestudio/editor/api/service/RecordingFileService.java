@@ -177,12 +177,12 @@ public class RecordingFileService {
 
 	public void closeRecording(Recording recording) {
 		if (recordings.remove(recording)) {
-			// Release resources.
-			recording.close();
-
 			eventBus.post(new RecordingEvent(recording, RecordingEvent.Type.CLOSED));
 
 			documentService.closeDocument(recording.getRecordedDocument().getDocument());
+
+			// Release resources.
+			recording.close();
 		}
 	}
 

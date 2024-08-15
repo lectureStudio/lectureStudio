@@ -142,6 +142,8 @@ public class FxSlidesView extends VBox implements SlidesView {
 			if (thumbPanel.getDocument().equals(doc)) {
 				FxUtils.invoke(() -> {
 					tabPane.getTabs().remove(tab);
+
+					slideView.setPage(null);
 				});
 				break;
 			}

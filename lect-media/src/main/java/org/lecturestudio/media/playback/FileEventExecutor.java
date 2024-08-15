@@ -43,6 +43,7 @@ import org.lecturestudio.core.recording.action.ActionType;
 import org.lecturestudio.core.recording.action.PageAction;
 import org.lecturestudio.core.recording.action.PlaybackAction;
 import org.lecturestudio.core.recording.action.ScreenAction;
+import org.lecturestudio.media.video.FFmpegFrameGrabber;
 import org.lecturestudio.media.video.VideoPlayer;
 
 public class FileEventExecutor extends EventExecutor {
@@ -103,12 +104,33 @@ public class FileEventExecutor extends EventExecutor {
 	}
 
 	@Override
-	protected void initInternal() {
+	protected void initInternal() throws ExecutableException {
 		playbacks = new Stack<>();
 		pageChangeEvents = new LinkedHashMap<>();
 
+		boolean videoLibLoaded = false;
+
 		for (RecordedPage recPage : recordedPages) {
 			pageChangeEvents.put(recPage.getNumber(), recPage.getTimestamp());
+
+			for (PlaybackAction action : recPage.getPlaybackActions()) {
+				if (action.getType() == ActionType.SCREEN) {
+					fixScreenAction((ScreenAction) action, recPage.getNumber());
+
+					if (!videoLibLoaded) {
+						// Load native libraries in advance to improve user experience when the first video is going to
+						// be played and therefore avoid ui lagging.
+						videoLibLoaded = true;
+
+                        try {
+                            FFmpegFrameGrabber.tryLoad();
+                        }
+						catch (FFmpegFrameGrabber.Exception e) {
+                            throw new ExecutableException(e);
+                        }
+                    }
+				}
+			}
 		}
 
 		getPlaybackActions(0);
@@ -332,6 +354,14 @@ public class FileEventExecutor extends EventExecutor {
 		return page;
 	}
 
+	private void fixScreenAction(ScreenAction action, int pageNumber) {
+		// Fix overlapping screen actions into the next page.
+		RecordedPage recPage = recordedPages.get(pageNumber + 1);
+		if (nonNull(recPage) && (action.getTimestamp() + action.getVideoLength()) > recPage.getTimestamp()) {
+			action.setVideoLength(recPage.getTimestamp() - action.getTimestamp());
+		}
+	}
+
 	private void startVideoPlayer() throws ExecutableException {
 		if (isNull(activeScreenAction)) {
 			return;
@@ -366,12 +396,6 @@ public class FileEventExecutor extends EventExecutor {
 	}
 
 	private void initVideoPlayer(ScreenAction action) throws ExecutableException {
-		// Fix overlapping screen actions into the next page.
-		RecordedPage recPage = recordedPages.get(syncState.getPageNumber() + 1);
-		if (nonNull(recPage) && (action.getTimestamp() + action.getVideoLength()) > recPage.getTimestamp()) {
-			action.setVideoLength(recPage.getTimestamp() - action.getTimestamp());
-		}
-
 		activeScreenAction = action;
 
 		File videoFile = videoPlayer.getVideoFile();

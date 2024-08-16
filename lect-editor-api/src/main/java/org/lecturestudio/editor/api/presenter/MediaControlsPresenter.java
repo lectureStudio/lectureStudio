@@ -130,8 +130,9 @@ public class MediaControlsPresenter extends Presenter<MediaControlsView> {
 
 	@Subscribe
 	public void onEvent(RecordingEvent event) {
+		EditorContext editorContext = (EditorContext) context;
+
 		if (event.selected()) {
-			EditorContext editorContext = (EditorContext) context;
 			Recording recording = event.getRecording();
 			Document doc = recording.getRecordedDocument().getDocument();
 			Time duration = new Time(recording.getRecordedAudio().getAudioStream().getLengthInMillis());
@@ -144,6 +145,9 @@ public class MediaControlsPresenter extends Presenter<MediaControlsView> {
 			CompletableFuture.runAsync(() -> {
 				editorContext.setPrimarySelection(0.0);
 			});
+		}
+		else if (event.closed()) {
+			playing.set(false);
 		}
 	}
 

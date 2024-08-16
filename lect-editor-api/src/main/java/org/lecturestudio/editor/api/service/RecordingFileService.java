@@ -181,6 +181,8 @@ public class RecordingFileService {
 
 			documentService.closeDocument(recording.getRecordedDocument().getDocument());
 
+			playbackService.closeRecording();
+
 			// Release resources.
 			recording.close();
 		}

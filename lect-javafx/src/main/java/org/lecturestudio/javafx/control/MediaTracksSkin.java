@@ -264,6 +264,13 @@ public class MediaTracksSkin extends SkinBase<MediaTracks> {
 			trackInfoContainer.getChildren().clear();
 
 			control.getTracks().forEach(this::addTrack);
+
+			// Reset value after invalidation.
+			double value = 0;
+
+			mediaTracks.setPrimarySelection(value);
+
+			updateMediaTracksSelection(value);
 		});
 		registerChangeListener(control.getTransform().mxxProperty(), o -> {
 			updateSliderPos();
@@ -277,15 +284,7 @@ public class MediaTracksSkin extends SkinBase<MediaTracks> {
 
 			setSliderPos(primarySlider, value);
 
-			if (leftSlider.stickToPrimary()) {
-				mediaTracks.setLeftSelection(value);
-			}
-			if (rightSlider.stickToPrimary()) {
-				mediaTracks.setRightSelection(value);
-			}
-			if (!primarySlider.isValueChanging()) {
-				centerViewPort(value, false);
-			}
+			updateMediaTracksSelection(value);
 		});
 		registerChangeListener(control.leftSelectionProperty(), o -> {
 			changeSliderValue(leftSlider, (Double) o.getValue());
@@ -299,6 +298,18 @@ public class MediaTracksSkin extends SkinBase<MediaTracks> {
 
 			showSliders(true);
 		});
+	}
+
+	private void updateMediaTracksSelection(double value) {
+		if (leftSlider.stickToPrimary()) {
+			mediaTracks.setLeftSelection(value);
+		}
+		if (rightSlider.stickToPrimary()) {
+			mediaTracks.setRightSelection(value);
+		}
+		if (!primarySlider.isValueChanging()) {
+			centerViewPort(value, false);
+		}
 	}
 
 	private void showSliders(boolean show) {

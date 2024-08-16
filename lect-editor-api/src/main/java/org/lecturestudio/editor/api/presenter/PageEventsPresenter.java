@@ -175,6 +175,10 @@ public class PageEventsPresenter extends Presenter<PageEventsView> {
 
 	private void loadPageEvents(Page page) {
 		Recording recording = recordingService.getSelectedRecording();
+		if (isNull(recording)) {
+			return;
+		}
+
 		RecordedPage recordedPage = recording.getRecordedEvents()
 				.getRecordedPage(page.getPageNumber());
 

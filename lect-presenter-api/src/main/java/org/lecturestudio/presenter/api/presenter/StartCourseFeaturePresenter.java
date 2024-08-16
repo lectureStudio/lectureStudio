@@ -45,8 +45,11 @@ public class StartCourseFeaturePresenter extends Presenter<StartCourseFeatureVie
 
 	private Course course;
 
-	/** The action that is executed when the saving process has been aborted. */
+	/** The action that is executed when the user clicked the start button. */
 	private Action startAction;
+
+	/** The action that is executed when the process has been aborted. */
+	private Action abortAction;
 
 
 	@Inject
@@ -105,6 +108,10 @@ public class StartCourseFeaturePresenter extends Presenter<StartCourseFeatureVie
 
 		PresenterContext presenterContext = (PresenterContext) context;
 		presenterContext.setStreamStarted(false);
+
+		if (nonNull(abortAction)) {
+			abortAction.execute();
+		}
 	}
 
 	@Override
@@ -118,6 +125,10 @@ public class StartCourseFeaturePresenter extends Presenter<StartCourseFeatureVie
 
 	public void setOnStart(Action action) {
 		startAction = action;
+	}
+
+	public void setOnAbort(Action action) {
+		abortAction = action;
 	}
 
 	private void onStart() {

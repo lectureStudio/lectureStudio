@@ -27,19 +27,27 @@ public class StartCourseFeatureCommand extends ShowPresenterCommand<StartCourseF
 
 	private final Action startAction;
 
+	private final Action abortAction;
+
 	private final Course course;
 
 
 	public StartCourseFeatureCommand(Course course, Action startAction) {
+		this(course, startAction, null);
+	}
+
+	public StartCourseFeatureCommand(Course course, Action startAction, Action abortAction) {
 		super(StartCourseFeaturePresenter.class);
 
 		this.course = course;
 		this.startAction = startAction;
+		this.abortAction = abortAction;
 	}
 
 	@Override
 	public void execute(StartCourseFeaturePresenter presenter) {
 		presenter.setCourse(course);
 		presenter.setOnStart(startAction);
+		presenter.setOnAbort(abortAction);
 	}
 }

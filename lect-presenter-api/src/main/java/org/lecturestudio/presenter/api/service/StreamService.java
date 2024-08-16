@@ -127,9 +127,10 @@ public class StreamService {
 					context.getCourse() :
 					null;
 
-			eventBus.post(new StartCourseFeatureCommand(course, () -> {
-				startQuizInternal(quiz);
-			}));
+			eventBus.post(new StartCourseFeatureCommand(course,
+					() -> {
+						startQuizInternal(quiz);
+					}));
 		}
 	}
 
@@ -270,7 +271,7 @@ public class StreamService {
 	}
 
 	private void startMessenger() {
-		if (!webRtcStreamService.stopped()) {
+		if (webRtcStreamService.started()) {
 			startMessengerInternal();
 		}
 		else {
@@ -278,9 +279,15 @@ public class StreamService {
 					context.getCourse() :
 					null;
 
-			eventBus.post(new StartCourseFeatureCommand(course, () -> {
-				startMessengerInternal();
-			}));
+			eventBus.post(new StartCourseFeatureCommand(course,
+					() -> {
+						// On start.
+						startMessengerInternal();
+					},
+					() -> {
+						// On abort.
+						context.setMessengerStarted(false);
+					}));
 		}
 	}
 

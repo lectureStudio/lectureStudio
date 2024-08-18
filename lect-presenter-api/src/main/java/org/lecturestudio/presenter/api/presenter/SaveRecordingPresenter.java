@@ -23,6 +23,7 @@ import static java.util.Objects.nonNull;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -92,12 +93,10 @@ public class SaveRecordingPresenter extends Presenter<SaveRecordingView> {
 	}
 
 	private void chooseFile() {
-		final String pathContext = PresenterContext.RECORDING_CONTEXT;
 		Configuration config = context.getConfiguration();
 		Dictionary dict = context.getDictionary();
 		String recordingPath = config.getAudioConfig().getRecordingPath();
-
-		Path dirPath = FileUtils.getContextPath(config, pathContext, recordingPath);
+		Path dirPath = Paths.get(recordingPath);
 
 		String date = dateFormat.format(new Date());
 		String fileName = recordingService.getBestRecordingName() + "-" + date;
@@ -111,8 +110,6 @@ public class SaveRecordingPresenter extends Presenter<SaveRecordingView> {
 		File selectedFile = fileChooser.showSaveFile(view);
 
 		if (nonNull(selectedFile)) {
-			config.getContextPaths().put(PresenterContext.RECORDING_CONTEXT,
-					selectedFile.getParent());
 			config.getAudioConfig().setRecordingPath(selectedFile.getParent());
 
 			File recFile = FileUtils.ensureExtension(selectedFile, "." + PresenterContext.RECORDING_EXTENSION);

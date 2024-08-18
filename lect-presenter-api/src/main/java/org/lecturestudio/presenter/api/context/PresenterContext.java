@@ -56,7 +56,6 @@ public class PresenterContext extends ApplicationContext {
 	public static final String SLIDES_TO_PDF_CONTEXT = "SlidesToPDF";
 	public static final String SLIDES_EXTENSION = "pdf";
 
-	public static final String RECORDING_CONTEXT = "Recording";
 	public static final String RECORDING_EXTENSION = "presenter";
 
 	private final ObjectProperty<Course> course = new ObjectProperty<>();

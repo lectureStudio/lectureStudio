@@ -271,7 +271,7 @@ public class StreamService {
 	}
 
 	private void startMessenger() {
-		if (webRtcStreamService.started()) {
+		if (webRtcStreamService.started() || webRtcStreamService.getState() == ExecutableState.Starting) {
 			startMessengerInternal();
 		}
 		else {

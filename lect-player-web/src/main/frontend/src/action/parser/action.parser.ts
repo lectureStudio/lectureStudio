@@ -1,3 +1,4 @@
+import { ScreenAction } from "../screen.action";
 import { ProgressiveDataView } from "./progressive-data-view";
 import { Action } from "../action";
 import { ActionType } from "../action-type";
@@ -136,12 +137,7 @@ class ActionParser {
 				action = this.extendViewAction(dataView);
 				break;
 			case ActionType.ZOOM:
-				if (length < 1) {
-					action = this.atomicAction(dataView, ZoomAction);
-				}
-				else {
-					action = this.toolBrushAction(dataView, ZoomAction);
-				}
+				action = this.toolBrushAction(dataView, ZoomAction);
 				break;
 			case ActionType.ZOOM_OUT:
 				action = this.atomicAction(dataView, ZoomOutAction);
@@ -151,6 +147,9 @@ class ActionParser {
 				break;
 			case ActionType.RUBBER_EXT:
 				action = this.rubberAction(dataView);
+				break;
+			case ActionType.SCREEN:
+				action = this.screenAction(dataView);
 				break;
 		}
 
@@ -228,6 +227,15 @@ class ActionParser {
 		const shapeHandle = dataView.getInt32();
 
 		return new RubberActionExt(shapeHandle);
+	}
+
+	private static screenAction(dataView: ProgressiveDataView): ScreenAction {
+		const videoOffset = dataView.getInt32();
+		const videoLength = dataView.getInt32();
+		const dataLength = dataView.getInt32();
+		const fileName = dataView.getString(dataLength);
+
+		return new ScreenAction();
 	}
 
 	private static toolDragAction<T>(dataView: ProgressiveDataView, type: { new(point: PenPoint): T }): T {

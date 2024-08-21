@@ -24,9 +24,9 @@ class RecordedPageParser {
 				const timestamp = dataView.getInt32();
 
 				const action = ActionParser.parse(dataView, type, length);
-				action.timestamp = timestamp;
-
 				if (action) {
+					action.timestamp = timestamp;
+
 					recordedPage.staticActions.push(action);
 				}
 			}
@@ -42,9 +42,9 @@ class RecordedPageParser {
 				const timestamp = dataView.getInt32();
 
 				const action = ActionParser.parse(dataView, type, length);
-				action.timestamp = timestamp;
-
 				if (action) {
+					action.timestamp = timestamp;
+
 					recordedPage.playbackActions.push(action);
 				}
 			}

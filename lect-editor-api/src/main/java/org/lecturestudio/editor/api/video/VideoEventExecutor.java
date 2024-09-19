@@ -24,12 +24,14 @@ import static java.util.Objects.nonNull;
 import com.google.common.eventbus.Subscribe;
 
 import java.awt.image.BufferedImage;
+import java.io.File;
 import java.util.Collections;
 import java.util.List;
 import java.util.Stack;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionException;
 import java.util.function.BiConsumer;
+import java.util.function.Consumer;
 
 import org.bytedeco.javacv.Frame;
 
@@ -69,6 +71,8 @@ public class VideoEventExecutor extends EventExecutor {
 	private List<RecordedPage> recordedPages;
 
 	private RecordingRenderProgressEvent progressEvent;
+
+	private Consumer<Throwable> errorConsumer;
 
 	private BiConsumer<BufferedImage, RecordingRenderProgressEvent> frameConsumer;
 
@@ -112,6 +116,10 @@ public class VideoEventExecutor extends EventExecutor {
 
 	public void setFrameConsumer(BiConsumer<BufferedImage, RecordingRenderProgressEvent> frameConsumer) {
 		this.frameConsumer = frameConsumer;
+	}
+
+	public void setErrorConsumer(Consumer<Throwable> consumer) {
+		this.errorConsumer = consumer;
 	}
 
 	@Subscribe
@@ -224,7 +232,13 @@ public class VideoEventExecutor extends EventExecutor {
 							playbacks.pop();
 
 							if (action.getType() == ActionType.SCREEN) {
-								initVideoPlayer((ScreenAction) action);
+								try {
+									initVideoPlayer((ScreenAction) action);
+								}
+								catch (Exception e) {
+									handleError(e, "Init video reader failed");
+									return;
+								}
 							}
 						}
 						else if (pageNumber < recordedPages.size() - 1) {
@@ -236,7 +250,13 @@ public class VideoEventExecutor extends EventExecutor {
 						}
 					}
 
-					renderFrame(this.time);
+					try {
+						renderFrame(this.time);
+					}
+					catch (Exception e) {
+						handleError(e, "Rendering frame failed");
+						return;
+					}
 
 					this.time += timeStep;
 				}
@@ -345,15 +365,38 @@ public class VideoEventExecutor extends EventExecutor {
 	}
 
 	private void initVideoPlayer(ScreenAction action) throws ExecutableException {
-		if (videoPlayer.started()) {
-			videoPlayer.stop();
-			videoPlayer.destroy();
+		File videoFile = videoPlayer.getVideoFile();
+
+		if (nonNull(videoFile)
+				&& videoFile.getName().equals(action.getFileName())
+				&& action.getTimestamp() == videoPlayer.getReferenceTimestamp()) {
+			// Already initialized.
+			return;
 		}
+
+		disposeVideoPlayer();
 
 		videoPlayer.setVideoFile(action.getFileName());
 		videoPlayer.setVideoOffset(action.getVideoOffset());
 		videoPlayer.setVideoLength(action.getVideoLength());
 		videoPlayer.setReferenceTimestamp(getElapsedTime());
 		videoPlayer.init();
+	}
+
+	private void disposeVideoPlayer() throws ExecutableException {
+		if (videoPlayer.started() || videoPlayer.suspended()) {
+			videoPlayer.stop();
+		}
+		if (videoPlayer.initialized() || videoPlayer.stopped()) {
+			videoPlayer.destroy();
+		}
+	}
+
+	private void handleError(Throwable throwable, String throwMessage) {
+		logException(throwable, throwMessage);
+
+		if (nonNull(errorConsumer)) {
+			errorConsumer.accept(throwable);
+		}
 	}
 }

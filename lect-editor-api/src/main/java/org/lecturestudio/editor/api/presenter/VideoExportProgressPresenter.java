@@ -94,25 +94,14 @@ public class VideoExportProgressPresenter extends Presenter<VideoExportProgressV
 
 	private void onRenderState(RecordingRenderState state) {
 		Dictionary dict = context.getDictionary();
-		String message = null;
-
-		switch (state) {
-			case PASS_1:
-				message = MessageFormat.format(dict.get("recording.render.video.pass"), 1);
-				break;
-			case PASS_2:
-				message = MessageFormat.format(dict.get("recording.render.video.pass"), 2);
-				break;
-			case RENDER_AUDIO:
-				message = dict.get("recording.render.audio");
-				break;
-			case RENDER_VIDEO:
-				message = dict.get("recording.render.video");
-				break;
-			case RENDER_VECTOR:
-				message = dict.get("recording.render.vector");
-				break;
-		}
+		String message = switch (state) {
+			case PASS_1 -> MessageFormat.format(dict.get("recording.render.video.pass"), 1);
+			case PASS_2 -> MessageFormat.format(dict.get("recording.render.video.pass"), 2);
+			case RENDER_AUDIO -> dict.get("recording.render.audio");
+			case RENDER_VIDEO -> dict.get("recording.render.video");
+			case RENDER_VECTOR -> dict.get("recording.render.vector");
+			case ERROR -> dict.get("recording.render.error");
+		};
 
 		if (nonNull(message)) {
 			view.setTitle(message);

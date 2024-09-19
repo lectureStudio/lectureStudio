@@ -210,6 +210,7 @@ public class VideoRenderer extends RecordingExport {
 		eventExecutor.setDocument(documentService.getDocuments().getSelectedDocument());
 		eventExecutor.setRecordedPages(recording.getRecordedEvents().getRecordedPages());
 		eventExecutor.setDuration((int) recording.getRecordedAudio().getAudioStream().getLengthInMillis());
+		eventExecutor.setErrorConsumer(throwable -> onRenderState(RecordingRenderState.ERROR));
 		eventExecutor.setFrameConsumer(this::onVideoFrame);
 		eventExecutor.setFrameRate(videoConfig.getFrameRate());
 		eventExecutor.addStateListener((oldState, newState) -> {

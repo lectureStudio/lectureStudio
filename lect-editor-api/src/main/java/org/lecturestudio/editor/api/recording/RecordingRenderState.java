@@ -28,6 +28,8 @@ public enum RecordingRenderState {
 
 	PASS_1,
 
-	PASS_2;
+	PASS_2,
+
+	ERROR
 
 }

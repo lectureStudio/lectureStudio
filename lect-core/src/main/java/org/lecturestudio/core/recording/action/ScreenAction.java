@@ -69,6 +69,7 @@ public class ScreenAction extends PlaybackAction {
 	@Override
 	public void execute(ToolController controller) throws Exception {
 		// Ignore. Rendering will take place in other components, e.g., VideoReader.
+		controller.clearShapes();
 	}
 
 	@Override

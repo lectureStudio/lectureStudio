@@ -512,6 +512,20 @@ public class ToolController extends Controller implements ToolContext {
 	}
 
 	/**
+	 * Removes all shapes and undo/redo actions from the selected page.
+	 */
+	public void clearShapes() {
+		Document doc = documentService.getDocuments().getSelectedDocument();
+
+		if (isNull(doc)) {
+			return;
+		}
+
+		Page page = doc.getCurrentPage();
+		page.clear();
+	}
+
+	/**
 	 * Deletes a shape with the specified ID from the current page.
 	 *
 	 * @param shapeId The ID of the shape to delete.

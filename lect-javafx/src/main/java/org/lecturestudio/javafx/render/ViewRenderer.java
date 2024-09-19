@@ -365,10 +365,10 @@ public class ViewRenderer {
 	private void refreshBackground(final Graphics2D g, Page page, PresentationParameter parameter) {
 		if (nonNull(videoFrame)) {
 			drawVideoFrame(g, videoFrame);
+			return;
 		}
-		else {
-			g.drawImage(backImage, 0, 0, null);
-		}
+
+		g.drawImage(backImage, 0, 0, null);
 
 		if (isWhiteboardSlide(page)) {
 			drawBackground(g);

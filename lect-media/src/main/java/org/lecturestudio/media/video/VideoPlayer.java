@@ -214,7 +214,7 @@ public class VideoPlayer extends ExecutableBase {
 	 * @return The timestamp in milliseconds.
 	 */
 	public long calculateTimestamp(long timestamp) {
-		return (timestamp / 1000 + referenceTimestamp) + videoOffset;
+		return (timestamp / 1000 + referenceTimestamp) - videoOffset;
 	}
 
 	/**

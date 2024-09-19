@@ -106,6 +106,10 @@ public class VideoRendererView implements SlideView, ShapeListener, ParameterCha
 		setPageChanged();
 	}
 
+	public void renderPageImage() {
+		updateBackImage();
+	}
+
 	public BufferedImage renderCurrentFrame() {
 		repaintView();
 

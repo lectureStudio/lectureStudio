@@ -338,7 +338,9 @@ public class VideoEventExecutor extends EventExecutor {
 
 		if (isNull(frame)) {
 			// Reached the end of the video.
-			//videoPlayer.stop();
+			renderView.renderPageImage();
+
+			videoPlayer.clearFrames();
 			videoPlayer.destroy();
 		}
 	}

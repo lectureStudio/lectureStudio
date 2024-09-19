@@ -298,9 +298,7 @@ public class FileEventExecutor extends EventExecutor {
 					}
 					else {
 						// Clear frames if this is not a video section at the current timestamp.
-						if (nonNull(activeScreenAction)
-								&& (activeScreenAction.getTimestamp() > timeMillis
-								|| activeScreenAction.getTimestamp() + activeScreenAction.getVideoLength() < timeMillis)) {
+						if (isVideoSection(timeMillis)) {
 							videoPlayer.clearFrames();
 							activeScreenAction = null;
 						}
@@ -354,6 +352,12 @@ public class FileEventExecutor extends EventExecutor {
 		return page;
 	}
 
+	private boolean isVideoSection(long timeMs) {
+		return nonNull(activeScreenAction)
+				&& (activeScreenAction.getTimestamp() > timeMs
+					|| activeScreenAction.getTimestamp() + activeScreenAction.getVideoLength() < timeMs);
+	}
+
 	private void fixScreenAction(ScreenAction action, int pageNumber) {
 		// Fix overlapping screen actions into the next page.
 		RecordedPage recPage = recordedPages.get(pageNumber + 1);
@@ -367,11 +371,7 @@ public class FileEventExecutor extends EventExecutor {
 			return;
 		}
 
-		final long time = getElapsedTime();
-
-		if (nonNull(activeScreenAction)
-				&& (activeScreenAction.getTimestamp() > time
-				|| activeScreenAction.getTimestamp() + activeScreenAction.getVideoLength() < time)) {
+		if (isVideoSection(getElapsedTime())) {
 			// Skip if this is not a video section at the current timestamp.
 			return;
 		}

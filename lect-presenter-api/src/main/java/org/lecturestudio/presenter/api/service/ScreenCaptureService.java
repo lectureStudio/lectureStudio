@@ -81,11 +81,17 @@ public class ScreenCaptureService extends ExecutableBase {
 		}
 
 		capturer = source.isWindow() ? new WindowCapturer() : new ScreenCapturer();
-		capturer.selectSource(new DesktopSource(source.getTitle(), source.getId()));
-		capturer.setFocusSelectedSource(true);
-		capturer.start((result, videoFrame) -> {
-			context.getEventBus().post(new LocalScreenVideoFrameEvent(videoFrame));
-		});
+
+		try {
+			capturer.selectSource(new DesktopSource(source.getTitle(), source.getId()));
+			capturer.setFocusSelectedSource(true);
+			capturer.start((result, videoFrame) -> {
+				context.getEventBus().post(new LocalScreenVideoFrameEvent(videoFrame));
+			});
+		}
+		catch (Exception | Error e) {
+			throw new ExecutableException(e);
+		}
 
 		future = Executors.newScheduledThreadPool(1).scheduleAtFixedRate(() -> {
 			if (started()) {

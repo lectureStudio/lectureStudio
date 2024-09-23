@@ -129,7 +129,7 @@ public class ScreenShareHandler extends PresenterHandler {
 		}
 		catch (ExecutableException e) {
 			handleException(e, "Set screen-source failed",
-					"stream.screen.share.error");
+					"stream.screen.share.error", "stream.screen.share.error.message");
 		}
 	}
 

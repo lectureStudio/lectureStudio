@@ -77,7 +77,7 @@ public class ScreenThumbnailPanel extends ThumbnailPanel {
 
 	public void setOnToggleScreenShare(BooleanProperty property) {
 		startScreenShareButton.addActionListener(e -> {
-			// Handle async state behaviour between focus and click events.
+			// Handle async state behavior between focus and click events.
 			if (actionDisabled) {
 				actionDisabled = false;
 				return;
@@ -94,7 +94,7 @@ public class ScreenThumbnailPanel extends ThumbnailPanel {
 	public void setScreenShareState(ExecutableState state) {
 		startScreenShareButton.setState(state);
 
-		// Handle async state behaviour between focus and click events.
+		// Handle async state behavior between focus and click events.
 		if (state == ExecutableState.Stopped) {
 			actionDisabled = !focused;
 		}

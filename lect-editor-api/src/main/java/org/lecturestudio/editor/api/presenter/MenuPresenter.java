@@ -56,7 +56,6 @@ import org.lecturestudio.core.recording.Recording;
 import org.lecturestudio.core.service.RecentDocumentService;
 import org.lecturestudio.core.util.FileUtils;
 import org.lecturestudio.core.view.FileChooserView;
-import org.lecturestudio.core.view.ProgressDialogView;
 import org.lecturestudio.core.view.ProgressView;
 import org.lecturestudio.core.view.ViewContextFactory;
 import org.lecturestudio.editor.api.context.EditorContext;
@@ -357,19 +356,23 @@ public class MenuPresenter extends Presenter<MenuView> {
 
 			File recFile = FileUtils.ensureExtension(file, "." + EditorContext.RECORDING_EXTENSION);
 
-			ProgressDialogView progressView = viewFactory.getInstance(ProgressDialogView.class);
-			progressView.setMessageTitle(context.getDictionary().get("save.recording"));
-			progressView.setParent(view);
-			progressView.open();
-
-			recordingService.saveRecording(recFile, progressView::setProgress)
-				.thenRun(() -> {
-					progressView.setMessageTitle(context.getDictionary().get("save.recording.success"));
-				})
-				.exceptionally(throwable -> {
-					progressView.setError(MessageFormat.format(context.getDictionary().get("save.recording.error"), recFile.getPath()), throwable.getMessage());
-					return null;
-				});
+			eventBus.post(new ShowPresenterCommand<>(ProgressPresenter.class) {
+				@Override
+				public void execute(ProgressPresenter presenter) {
+					ProgressView progressView = presenter.getView();
+					progressView.setTitle(context.getDictionary().get("save.recording"));
+					progressView.setOnViewShown(() -> {
+						recordingService.saveRecording(recFile, progressView::setProgress)
+							.thenRun(() -> {
+								progressView.setTitle(context.getDictionary().get("save.recording.success"));
+							})
+							.exceptionally(throwable -> {
+								progressView.setError(MessageFormat.format(context.getDictionary().get("save.recording.error"), recFile.getPath()));
+								return null;
+							});
+					});
+				}
+			});
 		}
 	}
 
@@ -456,16 +459,20 @@ public class MenuPresenter extends Presenter<MenuView> {
 
 			File wavFile = FileUtils.ensureExtension(file, "." + EditorContext.WAV_EXTENSION);
 
-			ProgressDialogView progressView = viewFactory.getInstance(ProgressDialogView.class);
-			progressView.setMessageTitle(context.getDictionary().get("export.audio"));
-			progressView.setParent(view);
-			progressView.open();
-
-			recordingService.exportAudio(wavFile, progressView::setProgress)
-				.exceptionally(throwable -> {
-					progressView.setError(MessageFormat.format(context.getDictionary().get("export.audio.error"), wavFile.getPath()), throwable.getMessage());
-					return null;
-				});
+			eventBus.post(new ShowPresenterCommand<>(ProgressPresenter.class) {
+				@Override
+				public void execute(ProgressPresenter presenter) {
+					ProgressView progressView = presenter.getView();
+					progressView.setTitle(context.getDictionary().get("export.audio"));
+					progressView.setOnViewShown(() -> {
+						recordingService.exportAudio(wavFile, progressView::setProgress)
+							.exceptionally(throwable -> {
+								progressView.setError(MessageFormat.format(context.getDictionary().get("export.audio.error"), wavFile.getPath()));
+								return null;
+							});
+					});
+				}
+			});
 		}
 	}
 

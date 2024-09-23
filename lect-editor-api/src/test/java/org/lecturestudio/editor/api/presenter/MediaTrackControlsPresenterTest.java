@@ -15,6 +15,7 @@ import com.google.inject.AbstractModule;
 import com.google.inject.Provides;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+
 import org.lecturestudio.core.app.ApplicationContext;
 import org.lecturestudio.core.audio.AudioSystemProvider;
 import org.lecturestudio.core.inject.DIViewContextFactory;
@@ -24,7 +25,6 @@ import org.lecturestudio.core.recording.file.IncompatibleFileFormatException;
 import org.lecturestudio.core.recording.file.RecordingFileReader;
 import org.lecturestudio.core.util.FileUtils;
 import org.lecturestudio.core.view.FileChooserView;
-import org.lecturestudio.core.view.ProgressDialogView;
 import org.lecturestudio.core.view.ViewContextFactory;
 import org.lecturestudio.editor.api.context.EditorContext;
 import org.lecturestudio.editor.api.service.RecordingFileService;
@@ -107,12 +107,6 @@ public class MediaTrackControlsPresenterTest extends PresenterTest {
 			@Singleton
 			FileChooserView provideFileChooser() {
 				return fileChooserMockView;
-			}
-
-			@Provides
-			@Singleton
-			ProgressDialogView provideProgressDialogView() {
-				return progressDialogMockView;
 			}
 		});
 

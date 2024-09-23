@@ -22,15 +22,15 @@ import java.util.ResourceBundle;
 
 import javax.inject.Inject;
 
+import javafx.application.Platform;
+import javafx.scene.control.Button;
+import javafx.scene.control.ProgressIndicator;
+
 import org.lecturestudio.core.view.Action;
 import org.lecturestudio.core.view.NotificationType;
 import org.lecturestudio.core.view.ProgressView;
 import org.lecturestudio.javafx.control.NotificationPane;
 import org.lecturestudio.javafx.util.FxUtils;
-
-import javafx.application.Platform;
-import javafx.scene.control.Button;
-import javafx.scene.control.ProgressIndicator;
 
 public class FxProgressView extends NotificationPane implements ProgressView, FxTopView {
 
@@ -52,8 +52,10 @@ public class FxProgressView extends NotificationPane implements ProgressView, Fx
 
 	@Override
 	public void setError(String message) {
-		setType(NotificationType.ERROR);
-		setMessage(message);
+		FxUtils.invoke(() -> {
+			setType(NotificationType.ERROR);
+			setMessage(message);
+		});
 	}
 
 	@Override

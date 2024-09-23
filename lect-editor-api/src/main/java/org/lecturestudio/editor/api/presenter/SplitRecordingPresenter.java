@@ -13,10 +13,12 @@ import org.lecturestudio.core.app.configuration.Configuration;
 import org.lecturestudio.core.app.dictionary.Dictionary;
 import org.lecturestudio.core.model.Interval;
 import org.lecturestudio.core.presenter.Presenter;
+import org.lecturestudio.core.presenter.ProgressPresenter;
+import org.lecturestudio.core.presenter.command.ShowPresenterCommand;
 import org.lecturestudio.core.recording.RecordingEditException;
 import org.lecturestudio.core.util.FileUtils;
 import org.lecturestudio.core.view.FileChooserView;
-import org.lecturestudio.core.view.ProgressDialogView;
+import org.lecturestudio.core.view.ProgressView;
 import org.lecturestudio.core.view.ViewContextFactory;
 import org.lecturestudio.core.view.ViewLayer;
 import org.lecturestudio.editor.api.context.EditorContext;
@@ -80,27 +82,32 @@ public class SplitRecordingPresenter extends Presenter<SplitRecordingView> {
 			config.getContextPaths().put(EditorContext.RECORDING_CONTEXT,
 					file.getParent());
 
-			ProgressDialogView progressView = viewFactory.getInstance(ProgressDialogView.class);
-			progressView.setMessageTitle(context.getDictionary().get("save.recording"));
-			progressView.setParent(view);
-			progressView.open();
-
-			try {
-				recordingService.savePartialRecording(file, interval, progressView::setProgress)
-						.thenRun(() -> {
-							progressView.setMessageTitle(context.getDictionary().get("save.recording.success"));
-						})
-						.exceptionally(throwable -> {
+			context.getEventBus().post(new ShowPresenterCommand<>(ProgressPresenter.class) {
+				@Override
+				public void execute(ProgressPresenter presenter) {
+					ProgressView progressView = presenter.getView();
+					progressView.setTitle(context.getDictionary().get("save.recording"));
+					progressView.setOnViewShown(() -> {
+						try {
+							recordingService.savePartialRecording(file, interval, progressView::setProgress)
+									.thenRun(() -> {
+										progressView.setTitle(context.getDictionary().get("save.recording.success"));
+									})
+									.exceptionally(throwable -> {
+										progressView.setError(MessageFormat.format(context.getDictionary().get("save.recording.error"),
+												file.getPath()));
+										return null;
+									});
+						}
+						catch (RecordingEditException e) {
 							progressView.setError(MessageFormat.format(context.getDictionary().get("save.recording.error"),
-									file.getPath()), throwable.getMessage());
-							return null;
-						});
-			}
-			catch (RecordingEditException e) {
-				progressView.setError(MessageFormat.format(context.getDictionary().get("save.recording.error"),
-						file.getPath()), e.getMessage());
-			}
+									file.getPath()));
+						}
+					});
+				}
+			});
 		}
+
 		close();
 	}
 

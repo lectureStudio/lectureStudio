@@ -167,7 +167,8 @@ public class VideoPlayer extends ExecutableBase {
 		try {
 			grabber.setVideoTimestamp((timestamp - referenceTimestamp) + videoOffset, false);
 
-			Frame frame = readVideoFrame();
+			final Frame frame = readVideoFrame();
+
 			if (nonNull(frame)) {
 				CompletableFuture.runAsync(() -> renderFrame(frame));
 			}

@@ -18,7 +18,7 @@
 
 package org.lecturestudio.core.camera;
 
-import com.google.common.base.Objects;
+import java.util.Objects;
 
 /**
  * A {@link CameraFormat} represents the image size and frame rate with which a camera
@@ -100,7 +100,7 @@ public class CameraFormat implements Comparable<CameraFormat> {
 
 	@Override
 	public int hashCode() {
-		return Objects.hashCode(width, height);
+		return Objects.hash(width, height);
 	}
 
 	@Override
@@ -114,9 +114,9 @@ public class CameraFormat implements Comparable<CameraFormat> {
 
 		final CameraFormat other = (CameraFormat) obj;
 
-		return Objects.equal(getWidth(), other.getWidth()) && Objects
-				.equal(getHeight(), other.getHeight()) && Objects
-				.equal(getFrameRate(), other.getFrameRate());
+		return Objects.equals(getWidth(), other.getWidth()) && Objects
+				.equals(getHeight(), other.getHeight()) && Objects
+				.equals(getFrameRate(), other.getFrameRate());
 	}
 
 	@Override

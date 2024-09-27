@@ -1,11 +1,9 @@
 package org.lecturestudio.swing.components;
 
 import com.formdev.flatlaf.util.UIScale;
-import org.lecturestudio.swing.model.AdaptiveTab;
-import org.lecturestudio.swing.model.AdaptiveTabType;
-import org.lecturestudio.swing.util.AdaptiveTabbedPaneChangeListener;
 
-import javax.annotation.Nullable;
+import jakarta.annotation.Nullable;
+
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import java.awt.*;
@@ -15,6 +13,10 @@ import java.awt.event.MouseListener;
 import java.util.*;
 import java.util.List;
 import java.util.stream.IntStream;
+
+import org.lecturestudio.swing.model.AdaptiveTab;
+import org.lecturestudio.swing.model.AdaptiveTabType;
+import org.lecturestudio.swing.util.AdaptiveTabbedPaneChangeListener;
 
 public class AdaptiveTabbedPane extends JComponent {
 

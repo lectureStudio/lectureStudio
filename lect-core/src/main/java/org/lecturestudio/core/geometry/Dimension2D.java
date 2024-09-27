@@ -18,9 +18,8 @@
 
 package org.lecturestudio.core.geometry;
 
-import com.google.common.base.Objects;
-
 import java.io.Serializable;
+import java.util.Objects;
 
 /**
  * The {@link Dimension2D} represents the horizontal and vertical extent of an object in 2D space.
@@ -86,7 +85,7 @@ public class Dimension2D implements Cloneable, Serializable {
 
 	@Override
 	public int hashCode() {
-		return Objects.hashCode(width, height);
+		return Objects.hash(width, height);
 	}
 
 	@Override
@@ -100,8 +99,8 @@ public class Dimension2D implements Cloneable, Serializable {
 
 		final Dimension2D other = (Dimension2D) obj;
 
-		return Objects.equal(getWidth(), other.getWidth()) && Objects
-				.equal(getHeight(), other.getHeight());
+		return Objects.equals(getWidth(), other.getWidth()) && Objects
+				.equals(getHeight(), other.getHeight());
 	}
 
 	@Override

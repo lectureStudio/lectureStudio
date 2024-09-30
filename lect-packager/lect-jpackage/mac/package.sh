@@ -69,25 +69,32 @@ signDir() { # $1: dir path, $2: extension
 # Sign all dylibs and app bundles.
 requestStatus() { # $1: requestUUID
 	requestUUID=${1?:"Need a request UUID."}
-	status=$(xcrun altool --notarization-info "$requestUUID" \
-							--username "${package.dev.username}" \
-							--password "${package.dev.password}" 2>&1 \
+
+	xcrun notarytool info "$requestUUID" \
+            --apple-id "${package.dev.username}" \
+            --team-id "${package.dev.teamid}" \
+            --password "${package.dev.password}"
+
+
+	status=$(xcrun notarytool info "$requestUUID" \
+          --apple-id "${package.dev.username}" \
+          --team-id "${package.dev.teamid}" \
+          --password "${package.dev.password}" 2>&1 \
 			| awk -F ': ' '/Status:/ { print $2; }' )
 	echo "$status"
 }
 
 notarizeFile() { # $1: path to file to notarize, $2: identifier
 	filepath=${1:?"Need a file path."}
-	identifier=${2:?"Need an identifier."}
 
 	# Upload the app to the Notarization Service.
 	echo "Uploading $filepath for notarization."
-	requestUUID=$(xcrun altool --notarize-app \
-								--primary-bundle-id "$identifier" \
-								--username "${package.dev.username}" \
-								--password "${package.dev.password}" \
-								--file "$filepath" 2>&1 \
-				| awk '/RequestUUID/ { print $NF; }')
+	requestUUID=$(xcrun notarytool submit "$filepath" \
+                                        --apple-id "${package.dev.username}" \
+                                        --team-id "${package.dev.teamid}" \
+                                        --password "${package.dev.password}" \
+                                        --wait --progress \
+				| awk '/id: / { print $NF; }')
 
 	echo "Notarization Request-UUID: $requestUUID"
 
@@ -96,25 +103,15 @@ notarizeFile() { # $1: path to file to notarize, $2: identifier
 		exit 1
 	fi
 
-	# Wait for status to be not "in progress" any more.
-	request_status="in progress"
-	while [[ "$request_status" == "in progress" ]]; do
-		echo -n "waiting... "
-		sleep 10
-		request_status=$(requestStatus "$requestUUID")
-		echo "$request_status"
-	done
+	#request_status=$(requestStatus "$requestUUID")
 
 	# Print status information.
-	xcrun altool --notarization-info "$requestUUID" \
-				--username "${package.dev.username}" \
-				--password "${package.dev.password}"
-	echo
 
-	if [[ $request_status != "success" ]]; then
-		echo "Could not notarize $filepath"
-		exit 1
-	fi
+
+	#if [[ $request_status != "success" ]]; then
+	#	echo "Could not notarize $filepath"
+	#	exit 1
+	#fi
 }
 
 PRODUCT_NAME="${package.full.name}"
@@ -257,6 +254,8 @@ else
 
 	signFile "$PRODUCT_NAME/app/lib/native/ffmpeg"
 
+  signFile "$PRODUCT_NAME/runtime/Contents/Home/lib/jspawnhelper"
+
 	# Sign all dylib/s.
 	signDir "$PRODUCT_NAME/runtime" "*.dylib"
 	signDir "$PRODUCT_NAME/app/lib/native" "*.dylib"
@@ -294,7 +293,7 @@ else
 	security delete-keychain "${keychain}"
 
 	# Notarizing the Installer Package.
-	notarizeFile "${package.output.dir}/$PRODUCT_NAME".pkg "org.lecturestudio"
+	notarizeFile "${package.output.dir}/$PRODUCT_NAME".pkg
 
 	# Staple the ticket to the Installer Package.
 	xcrun stapler staple "${package.output.dir}/$PRODUCT_NAME".pkg

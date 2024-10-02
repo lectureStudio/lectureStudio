@@ -20,7 +20,7 @@ package org.lecturestudio.javafx.view;
 
 import java.util.ResourceBundle;
 
-import javax.inject.Inject;
+import jakarta.inject.Inject;
 
 import javafx.application.Platform;
 import javafx.scene.control.Button;

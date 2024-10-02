@@ -20,7 +20,7 @@ package org.lecturestudio.javafx.view.builder;
 
 import java.lang.reflect.Constructor;
 
-import javax.inject.Inject;
+import jakarta.inject.Inject;
 
 import javafx.fxml.JavaFXBuilderFactory;
 import javafx.util.Builder;

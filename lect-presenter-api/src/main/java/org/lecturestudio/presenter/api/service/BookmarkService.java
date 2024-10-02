@@ -24,8 +24,8 @@ import static java.util.Objects.nonNull;
 import java.util.Comparator;
 import java.util.List;
 
-import javax.inject.Inject;
-import javax.inject.Singleton;
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
 
 import org.lecturestudio.core.app.ApplicationContext;
 import org.lecturestudio.core.bus.event.BookmarkEvent;

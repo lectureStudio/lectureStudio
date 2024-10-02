@@ -22,7 +22,7 @@ import java.net.URL;
 import java.time.LocalDateTime;
 import java.util.List;
 
-import javax.json.bind.annotation.JsonbDateFormat;
+import jakarta.json.bind.annotation.JsonbDateFormat;
 
 /**
  * GitHub release container with only relevant fields to give a concise view of

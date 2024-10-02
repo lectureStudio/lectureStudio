@@ -27,7 +27,7 @@ import org.lecturestudio.presenter.api.context.PresenterContext;
 import org.lecturestudio.presenter.api.model.Stopwatch;
 import org.lecturestudio.presenter.api.view.StopwatchConfigView;
 
-import javax.inject.Inject;
+import jakarta.inject.Inject;
 
 import static java.util.Objects.nonNull;
 

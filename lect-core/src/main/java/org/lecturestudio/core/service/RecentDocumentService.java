@@ -22,8 +22,8 @@ import java.io.File;
 import java.util.Iterator;
 import java.util.List;
 
-import javax.inject.Inject;
-import javax.inject.Singleton;
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
 
 import org.lecturestudio.core.model.RecentDocument;
 

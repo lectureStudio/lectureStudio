@@ -20,9 +20,9 @@ package org.lecturestudio.web.api.data.bind;
 
 import java.time.ZonedDateTime;
 
-import javax.json.JsonObject;
-import javax.json.JsonString;
-import javax.json.bind.adapter.JsonbAdapter;
+import jakarta.json.JsonObject;
+import jakarta.json.JsonString;
+import jakarta.json.bind.adapter.JsonbAdapter;
 
 import org.lecturestudio.web.api.message.QuizAnswerMessage;
 import org.lecturestudio.web.api.model.quiz.QuizAnswer;

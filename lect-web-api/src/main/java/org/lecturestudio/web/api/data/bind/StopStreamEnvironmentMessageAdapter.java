@@ -2,10 +2,10 @@ package org.lecturestudio.web.api.data.bind;
 
 import static java.util.Objects.nonNull;
 
-import javax.json.Json;
-import javax.json.JsonObject;
-import javax.json.JsonObjectBuilder;
-import javax.json.bind.adapter.JsonbAdapter;
+import jakarta.json.Json;
+import jakarta.json.JsonObject;
+import jakarta.json.JsonObjectBuilder;
+import jakarta.json.bind.adapter.JsonbAdapter;
 
 import org.lecturestudio.web.api.message.StopStreamEnvironmentMessage;
 

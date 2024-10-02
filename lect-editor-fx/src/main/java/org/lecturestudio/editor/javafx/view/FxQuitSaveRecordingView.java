@@ -22,7 +22,7 @@ import static java.util.Objects.nonNull;
 
 import java.util.ResourceBundle;
 
-import javax.inject.Inject;
+import jakarta.inject.Inject;
 
 import javafx.beans.InvalidationListener;
 import javafx.beans.Observable;

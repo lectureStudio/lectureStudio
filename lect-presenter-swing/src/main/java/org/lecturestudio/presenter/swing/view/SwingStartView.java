@@ -24,7 +24,8 @@ import java.awt.Dimension;
 import java.awt.event.ActionListener;
 import java.util.List;
 
-import javax.inject.Inject;
+import jakarta.inject.Inject;
+
 import javax.swing.JButton;
 import javax.swing.JComponent;
 import javax.swing.JPanel;

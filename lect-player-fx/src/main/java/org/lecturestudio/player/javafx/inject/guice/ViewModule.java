@@ -23,7 +23,7 @@ import com.google.inject.TypeLiteral;
 import com.google.inject.spi.TypeEncounter;
 import com.google.inject.spi.TypeListener;
 
-import javax.inject.Provider;
+import jakarta.inject.Provider;
 
 import javafx.util.BuilderFactory;
 

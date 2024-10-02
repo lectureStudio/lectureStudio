@@ -5,7 +5,7 @@ import javafx.scene.control.Button;
 import javafx.scene.control.CheckBox;
 import javafx.scene.layout.StackPane;
 
-import javax.inject.Inject;
+import jakarta.inject.Inject;
 
 import org.lecturestudio.core.beans.BooleanProperty;
 import org.lecturestudio.core.view.Action;

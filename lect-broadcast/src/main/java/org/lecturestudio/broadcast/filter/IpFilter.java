@@ -8,7 +8,10 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 
 import javax.enterprise.inject.Instance;
-import javax.inject.Inject;
+
+import jakarta.inject.Inject;
+import jakarta.ws.rs.core.MediaType;
+
 import javax.servlet.Filter;
 import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
@@ -17,7 +20,6 @@ import javax.servlet.ServletResponse;
 import javax.servlet.annotation.WebFilter;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import javax.ws.rs.core.MediaType;
 
 import org.lecturestudio.web.api.data.ClassroomDataService;
 import org.lecturestudio.web.api.model.Classroom;

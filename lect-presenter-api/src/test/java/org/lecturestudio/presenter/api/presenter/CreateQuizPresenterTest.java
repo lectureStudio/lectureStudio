@@ -18,8 +18,8 @@
 
 package org.lecturestudio.presenter.api.presenter;
 
-import javax.inject.Inject;
-import javax.inject.Singleton;
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
 
 import java.io.File;
 import java.io.IOException;

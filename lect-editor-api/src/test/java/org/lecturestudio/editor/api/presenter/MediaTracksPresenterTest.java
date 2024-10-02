@@ -4,7 +4,8 @@ import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
-import javax.inject.Singleton;
+
+import jakarta.inject.Singleton;
 
 import java.io.File;
 import java.util.List;
@@ -13,8 +14,10 @@ import java.util.concurrent.ExecutionException;
 
 import com.google.inject.AbstractModule;
 import com.google.inject.Provides;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+
 import org.lecturestudio.core.app.ApplicationContext;
 import org.lecturestudio.core.audio.AudioSystemProvider;
 import org.lecturestudio.core.inject.DIViewContextFactory;

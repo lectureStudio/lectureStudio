@@ -25,7 +25,8 @@ import java.util.Map;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.servlet.http.HttpServletRequest;
-import javax.ws.rs.core.Response;
+
+import jakarta.ws.rs.core.Response;
 
 import org.lecturestudio.web.api.filter.FilterRule;
 import org.lecturestudio.web.api.filter.InputFieldRule;

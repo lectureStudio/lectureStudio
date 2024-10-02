@@ -20,7 +20,8 @@ package org.lecturestudio.swing.view;
 
 import java.util.ResourceBundle;
 
-import javax.inject.Inject;
+import jakarta.inject.Inject;
+
 import javax.swing.JButton;
 
 import org.lecturestudio.core.view.Action;

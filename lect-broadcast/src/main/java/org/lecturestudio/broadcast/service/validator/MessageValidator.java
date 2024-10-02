@@ -24,7 +24,8 @@ import java.util.HashMap;
 import java.util.Map;
 
 import javax.enterprise.context.ApplicationScoped;
-import javax.ws.rs.core.Response;
+
+import jakarta.ws.rs.core.Response;
 
 import org.lecturestudio.web.api.model.ClassroomServiceResponse;
 import org.lecturestudio.web.api.model.ClassroomServiceResponse.Status;

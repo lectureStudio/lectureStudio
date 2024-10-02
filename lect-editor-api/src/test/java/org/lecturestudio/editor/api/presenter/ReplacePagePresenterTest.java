@@ -1,6 +1,6 @@
 package org.lecturestudio.editor.api.presenter;
 
-import javax.inject.Singleton;
+import jakarta.inject.Singleton;
 
 import java.io.File;
 import java.util.ArrayList;

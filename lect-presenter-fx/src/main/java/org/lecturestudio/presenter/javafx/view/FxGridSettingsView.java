@@ -18,7 +18,7 @@
 
 package org.lecturestudio.presenter.javafx.view;
 
-import javax.inject.Inject;
+import jakarta.inject.Inject;
 
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;

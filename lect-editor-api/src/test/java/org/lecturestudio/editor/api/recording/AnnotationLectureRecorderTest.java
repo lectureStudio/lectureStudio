@@ -9,7 +9,7 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import javax.inject.Singleton;
+import jakarta.inject.Singleton;
 
 import java.io.File;
 import java.util.ArrayList;

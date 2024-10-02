@@ -27,7 +27,7 @@ import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-import javax.inject.Inject;
+import jakarta.inject.Inject;
 
 import org.lecturestudio.core.camera.AspectRatio;
 import org.lecturestudio.core.camera.Camera;

@@ -21,13 +21,12 @@ package org.lecturestudio.javafx.guice;
 import static java.util.Objects.isNull;
 import static java.util.Objects.nonNull;
 
+import com.google.inject.Provider;
 import com.google.inject.spi.InjectionListener;
 
 import java.io.IOException;
 import java.net.URL;
 import java.util.ResourceBundle;
-
-import javax.inject.Provider;
 
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;

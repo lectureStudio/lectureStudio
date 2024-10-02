@@ -6,14 +6,14 @@ import java.lang.reflect.Type;
 import java.util.Iterator;
 import java.util.Map;
 
-import javax.json.JsonObject;
-import javax.json.JsonValue;
-import javax.json.bind.Jsonb;
-import javax.json.bind.JsonbBuilder;
-import javax.json.bind.JsonbConfig;
-import javax.json.bind.JsonbException;
-import javax.json.bind.serializer.DeserializationContext;
-import javax.json.stream.JsonParser;
+import jakarta.json.JsonObject;
+import jakarta.json.JsonValue;
+import jakarta.json.bind.Jsonb;
+import jakarta.json.bind.JsonbBuilder;
+import jakarta.json.bind.JsonbConfig;
+import jakarta.json.bind.JsonbException;
+import jakarta.json.bind.serializer.DeserializationContext;
+import jakarta.json.stream.JsonParser;
 
 public abstract class PolymorphicDeserializer {
 

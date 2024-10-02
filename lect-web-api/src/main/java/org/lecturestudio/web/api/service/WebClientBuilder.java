@@ -2,8 +2,8 @@ package org.lecturestudio.web.api.service;
 
 import static java.util.Objects.nonNull;
 
-import javax.ws.rs.client.Client;
-import javax.ws.rs.client.ClientBuilder;
+import jakarta.ws.rs.client.Client;
+import jakarta.ws.rs.client.ClientBuilder;
 
 import org.lecturestudio.web.api.client.TokenProvider;
 import org.lecturestudio.web.api.net.SSLContextFactory;

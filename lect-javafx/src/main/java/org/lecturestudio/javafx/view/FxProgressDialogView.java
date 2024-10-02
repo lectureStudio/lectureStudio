@@ -24,7 +24,7 @@ import javafx.scene.Parent;
 import javafx.scene.control.Button;
 import javafx.scene.control.ProgressIndicator;
 
-import javax.inject.Inject;
+import jakarta.inject.Inject;
 
 import org.lecturestudio.core.view.NotificationType;
 import org.lecturestudio.core.view.ProgressDialogView;

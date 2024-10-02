@@ -16,7 +16,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.ExecutionException;
 
-import javax.inject.Singleton;
+import jakarta.inject.Singleton;
 
 import org.lecturestudio.core.app.ApplicationContext;
 import org.lecturestudio.core.audio.AudioSystemProvider;

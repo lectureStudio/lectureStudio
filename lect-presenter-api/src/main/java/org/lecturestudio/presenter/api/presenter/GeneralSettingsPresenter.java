@@ -21,7 +21,7 @@ package org.lecturestudio.presenter.api.presenter;
 import java.text.MessageFormat;
 import java.util.Locale;
 
-import javax.inject.Inject;
+import jakarta.inject.Inject;
 
 import org.lecturestudio.core.app.ApplicationContext;
 import org.lecturestudio.core.app.LocaleProvider;

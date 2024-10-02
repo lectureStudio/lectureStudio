@@ -18,7 +18,7 @@
 
 package org.lecturestudio.presenter.api.presenter;
 
-import javax.inject.Inject;
+import jakarta.inject.Inject;
 
 import org.cef.browser.CefBrowser;
 import org.cef.browser.CefFrame;

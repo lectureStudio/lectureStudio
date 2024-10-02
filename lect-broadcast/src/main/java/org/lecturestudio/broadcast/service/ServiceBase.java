@@ -24,11 +24,11 @@ import static java.util.Objects.nonNull;
 import java.util.Random;
 import java.util.UUID;
 
-import javax.inject.Inject;
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
-import javax.ws.rs.sse.OutboundSseEvent;
-import javax.ws.rs.sse.SseEventSink;
+import jakarta.inject.Inject;
+import jakarta.ws.rs.core.MediaType;
+import jakarta.ws.rs.core.Response;
+import jakarta.ws.rs.sse.OutboundSseEvent;
+import jakarta.ws.rs.sse.SseEventSink;
 
 import org.lecturestudio.web.api.data.ClassroomDataService;
 import org.lecturestudio.web.api.exception.ServiceNotFoundException;

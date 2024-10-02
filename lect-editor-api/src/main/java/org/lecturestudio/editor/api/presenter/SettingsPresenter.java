@@ -20,7 +20,7 @@ package org.lecturestudio.editor.api.presenter;
 
 import static java.util.Objects.nonNull;
 
-import javax.inject.Inject;
+import jakarta.inject.Inject;
 
 import org.lecturestudio.core.app.ApplicationContext;
 import org.lecturestudio.core.presenter.Presenter;

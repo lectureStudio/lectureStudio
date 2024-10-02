@@ -38,7 +38,8 @@ import java.util.Map.Entry;
 import java.util.ResourceBundle;
 import java.util.Vector;
 
-import javax.inject.Inject;
+import jakarta.inject.Inject;
+
 import javax.swing.AbstractAction;
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.JButton;

@@ -25,7 +25,7 @@ import java.io.IOException;
 import java.nio.file.Path;
 import java.util.Stack;
 
-import javax.inject.Inject;
+import jakarta.inject.Inject;
 
 import org.lecturestudio.core.app.ApplicationContext;
 import org.lecturestudio.core.beans.StringProperty;

@@ -18,7 +18,7 @@
 
 package org.lecturestudio.web.api.janus;
 
-import javax.json.bind.annotation.JsonbProperty;
+import jakarta.json.bind.annotation.JsonbProperty;
 
 /**
  * Information about the Janus instance retrieved from the {@code info}

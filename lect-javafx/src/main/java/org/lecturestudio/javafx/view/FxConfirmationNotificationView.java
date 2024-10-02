@@ -1,6 +1,6 @@
 package org.lecturestudio.javafx.view;
 
-import javax.inject.Inject;
+import jakarta.inject.Inject;
 
 import java.util.ResourceBundle;
 

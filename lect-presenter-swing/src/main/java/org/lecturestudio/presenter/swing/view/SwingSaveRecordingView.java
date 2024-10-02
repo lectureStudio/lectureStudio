@@ -23,7 +23,8 @@ import static java.util.Objects.nonNull;
 import java.io.File;
 import java.util.ResourceBundle;
 
-import javax.inject.Inject;
+import jakarta.inject.Inject;
+
 import javax.swing.JButton;
 import javax.swing.JProgressBar;
 import javax.swing.SwingUtilities;

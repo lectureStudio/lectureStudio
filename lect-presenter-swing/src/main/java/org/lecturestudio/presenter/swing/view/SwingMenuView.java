@@ -27,7 +27,8 @@ import java.awt.event.MouseEvent;
 import java.io.File;
 import java.util.List;
 
-import javax.inject.Inject;
+import jakarta.inject.Inject;
+
 import javax.swing.*;
 
 import org.lecturestudio.core.ExecutableState;

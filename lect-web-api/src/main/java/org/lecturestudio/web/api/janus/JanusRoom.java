@@ -22,7 +22,7 @@ import java.math.BigInteger;
 import java.util.List;
 import java.util.StringJoiner;
 
-import javax.json.bind.annotation.JsonbTypeAdapter;
+import jakarta.json.bind.annotation.JsonbTypeAdapter;
 
 import org.lecturestudio.web.api.janus.json.CommaSeparatedListAdapter;
 

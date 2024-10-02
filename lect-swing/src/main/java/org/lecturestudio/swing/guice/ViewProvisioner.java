@@ -21,6 +21,7 @@ package org.lecturestudio.swing.guice;
 import static java.util.Objects.isNull;
 import static java.util.Objects.nonNull;
 
+import com.google.inject.Provider;
 import com.google.inject.spi.ProvisionListener;
 
 import java.awt.Container;
@@ -33,8 +34,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-import javax.inject.Inject;
-import javax.inject.Provider;
+import jakarta.inject.Inject;
+
 import javax.swing.JComponent;
 
 import org.lecturestudio.core.inject.Injector;

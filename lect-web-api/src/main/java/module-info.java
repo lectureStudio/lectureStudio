@@ -1,16 +1,18 @@
 module org.lecturestudio.web.api {
 
 	requires com.fasterxml.jackson.annotation;
+	requires com.fasterxml.jackson.databind;
 	requires com.fasterxml.jackson.jaxrs.base;
 	requires com.fasterxml.jackson.jaxrs.json;
 	requires jakarta.inject;
+	requires jakarta.json;
+	requires jakarta.json.bind;
 	requires jakarta.persistence;
-	requires java.json;
-	requires java.json.bind;
+	requires jakarta.ws.rs;
 	requires java.net.http;
-	requires java.ws.rs;
 	requires lombok;
 	requires maven.artifact;
+	requires microprofile.config.api;
 	requires microprofile.rest.client.api;
 	requires org.apache.logging.log4j;
 	requires org.apache.logging.log4j.core;

@@ -28,7 +28,8 @@ import java.awt.event.MouseEvent;
 import java.text.MessageFormat;
 import java.util.List;
 
-import javax.inject.Inject;
+import jakarta.inject.Inject;
+
 import javax.swing.*;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;

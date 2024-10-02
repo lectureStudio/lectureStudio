@@ -24,7 +24,7 @@ import java.text.MessageFormat;
 import java.time.format.DateTimeFormatter;
 import java.time.format.FormatStyle;
 
-import javax.inject.Inject;
+import jakarta.inject.Inject;
 
 import org.lecturestudio.core.app.ApplicationContext;
 import org.lecturestudio.core.app.dictionary.Dictionary;

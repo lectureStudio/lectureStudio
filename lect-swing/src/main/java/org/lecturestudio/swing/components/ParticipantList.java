@@ -35,7 +35,8 @@ import java.util.Objects;
 import java.util.ResourceBundle;
 import java.util.TreeSet;
 
-import javax.inject.Inject;
+import jakarta.inject.Inject;
+
 import javax.swing.*;
 
 import org.lecturestudio.core.beans.ObjectProperty;

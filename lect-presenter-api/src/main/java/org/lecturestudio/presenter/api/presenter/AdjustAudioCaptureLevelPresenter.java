@@ -22,7 +22,7 @@ import static java.util.Objects.nonNull;
 
 import com.google.common.eventbus.Subscribe;
 
-import javax.inject.Inject;
+import jakarta.inject.Inject;
 
 import org.lecturestudio.core.app.ApplicationContext;
 import org.lecturestudio.core.app.configuration.AudioConfiguration;

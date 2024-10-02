@@ -25,7 +25,7 @@ import java.io.ByteArrayInputStream;
 import java.util.Arrays;
 import java.util.concurrent.CompletableFuture;
 
-import javax.inject.Inject;
+import jakarta.inject.Inject;
 
 import org.lecturestudio.core.Executable;
 import org.lecturestudio.core.ExecutableState;

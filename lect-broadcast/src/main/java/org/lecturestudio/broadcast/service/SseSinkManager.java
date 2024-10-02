@@ -6,7 +6,8 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 import javax.enterprise.context.ApplicationScoped;
-import javax.ws.rs.sse.SseEventSink;
+
+import jakarta.ws.rs.sse.SseEventSink;
 
 @ApplicationScoped
 public class SseSinkManager {

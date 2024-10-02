@@ -6,7 +6,7 @@ import java.io.File;
 import java.nio.file.Path;
 import java.text.MessageFormat;
 
-import javax.inject.Inject;
+import jakarta.inject.Inject;
 
 import org.lecturestudio.core.app.ApplicationContext;
 import org.lecturestudio.core.app.configuration.Configuration;

@@ -23,7 +23,7 @@ import static java.util.Objects.nonNull;
 import java.io.File;
 import java.util.ResourceBundle;
 
-import javax.inject.Inject;
+import jakarta.inject.Inject;
 
 import javafx.application.Platform;
 import javafx.scene.control.Button;

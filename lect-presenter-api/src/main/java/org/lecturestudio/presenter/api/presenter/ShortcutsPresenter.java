@@ -24,7 +24,8 @@ import org.lecturestudio.core.presenter.Presenter;
 import org.lecturestudio.presenter.api.input.Shortcut;
 import org.lecturestudio.presenter.api.view.ShortcutsView;
 
-import javax.inject.Inject;
+import jakarta.inject.Inject;
+
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;

@@ -20,8 +20,8 @@ package org.lecturestudio.media.camera;
 
 import static java.util.Objects.isNull;
 
-import javax.inject.Inject;
-import javax.inject.Singleton;
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
 
 import org.lecturestudio.core.camera.Camera;
 import org.lecturestudio.core.camera.CameraDiscovery;

@@ -24,7 +24,8 @@ import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.util.Optional;
 
-import javax.inject.Inject;
+import jakarta.inject.Inject;
+
 import javax.swing.JFrame;
 
 import org.lecturestudio.core.app.dictionary.Dictionary;

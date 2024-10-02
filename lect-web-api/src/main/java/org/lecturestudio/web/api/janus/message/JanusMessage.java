@@ -18,8 +18,8 @@
 
 package org.lecturestudio.web.api.janus.message;
 
-import javax.json.bind.annotation.JsonbProperty;
-import javax.json.bind.annotation.JsonbTypeAdapter;
+import jakarta.json.bind.annotation.JsonbProperty;
+import jakarta.json.bind.annotation.JsonbTypeAdapter;
 
 import org.lecturestudio.web.api.janus.json.MessageTypeAdapter;
 

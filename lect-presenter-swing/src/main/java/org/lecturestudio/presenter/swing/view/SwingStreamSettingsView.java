@@ -21,7 +21,8 @@ package org.lecturestudio.presenter.swing.view;
 import java.awt.Color;
 import java.util.ResourceBundle;
 
-import javax.inject.Inject;
+import jakarta.inject.Inject;
+
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;

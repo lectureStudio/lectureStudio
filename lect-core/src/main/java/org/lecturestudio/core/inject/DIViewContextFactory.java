@@ -18,7 +18,7 @@
 
 package org.lecturestudio.core.inject;
 
-import javax.inject.Inject;
+import jakarta.inject.Inject;
 
 import org.lecturestudio.core.view.DirectoryChooserView;
 import org.lecturestudio.core.view.FileChooserView;

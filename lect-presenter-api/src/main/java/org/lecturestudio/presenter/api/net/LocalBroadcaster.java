@@ -20,8 +20,8 @@ package org.lecturestudio.presenter.api.net;
 
 import java.util.concurrent.atomic.AtomicInteger;
 
-import javax.inject.Inject;
-import javax.inject.Singleton;
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
 
 import org.lecturestudio.core.Executable;
 import org.lecturestudio.core.ExecutableException;

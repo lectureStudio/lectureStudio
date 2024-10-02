@@ -18,7 +18,7 @@
 
 package org.lecturestudio.core.presenter;
 
-import javax.inject.Inject;
+import jakarta.inject.Inject;
 
 import org.lecturestudio.core.app.ApplicationContext;
 import org.lecturestudio.core.view.NotificationType;

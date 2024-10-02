@@ -21,7 +21,7 @@ package org.lecturestudio.web.api.janus.json;
 import java.util.Arrays;
 import java.util.List;
 
-import javax.json.bind.adapter.JsonbAdapter;
+import jakarta.json.bind.adapter.JsonbAdapter;
 
 public class CommaSeparatedListAdapter implements JsonbAdapter<List<String>, String> {
 

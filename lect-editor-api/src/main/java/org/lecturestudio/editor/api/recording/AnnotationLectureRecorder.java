@@ -11,8 +11,8 @@ import java.util.List;
 import java.util.Queue;
 import java.util.concurrent.CompletableFuture;
 
-import javax.inject.Inject;
-import javax.inject.Singleton;
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
 
 import org.lecturestudio.core.ExecutableException;
 import org.lecturestudio.core.ExecutableState;

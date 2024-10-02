@@ -24,7 +24,8 @@ import static java.util.Objects.nonNull;
 import java.awt.event.ItemEvent;
 import java.util.ResourceBundle;
 
-import javax.inject.Inject;
+import jakarta.inject.Inject;
+
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.JButton;
 import javax.swing.JComboBox;

@@ -21,7 +21,8 @@ package org.lecturestudio.presenter.swing.view;
 import static java.util.Objects.isNull;
 import static java.util.Objects.nonNull;
 
-import javax.inject.Inject;
+import jakarta.inject.Inject;
+
 import javax.swing.*;
 import javax.swing.event.AncestorEvent;
 import javax.swing.event.AncestorListener;

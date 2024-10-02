@@ -22,7 +22,7 @@ import static java.util.Objects.isNull;
 
 import java.util.concurrent.CompletableFuture;
 
-import javax.inject.Inject;
+import jakarta.inject.Inject;
 
 import org.lecturestudio.core.app.ApplicationContext;
 import org.lecturestudio.core.codec.VideoCodecConfiguration;

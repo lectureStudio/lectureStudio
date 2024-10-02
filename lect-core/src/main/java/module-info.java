@@ -1,7 +1,5 @@
 module org.lecturestudio.core {
 
-//	requires static lombok;
-
 	requires com.artifex.mupdf;
 	requires com.fasterxml.jackson.annotation;
 	requires com.fasterxml.jackson.core;
@@ -14,7 +12,7 @@ module org.lecturestudio.core {
 	requires commons.math3;
 	requires java.desktop;
 	requires java.logging;
-	requires javax.inject;
+	requires jakarta.inject;
 	requires jlatexmath;
 	requires JTransforms;
 	requires org.apache.logging.log4j;

@@ -22,7 +22,7 @@ import static java.util.Objects.isNull;
 import static java.util.Objects.nonNull;
 import static java.util.Objects.requireNonNull;
 
-import javax.inject.Inject;
+import jakarta.inject.Inject;
 
 import java.awt.Dimension;
 import java.io.File;

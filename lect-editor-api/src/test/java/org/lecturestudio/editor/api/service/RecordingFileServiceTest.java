@@ -1,7 +1,8 @@
 package org.lecturestudio.editor.api.service;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import javax.inject.Singleton;
+
+import jakarta.inject.Singleton;
 
 import java.io.File;
 import java.io.IOException;

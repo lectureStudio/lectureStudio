@@ -21,7 +21,7 @@ package org.lecturestudio.editor.javafx.view;
 import static java.util.Objects.isNull;
 import static java.util.Objects.nonNull;
 
-import javax.inject.Inject;
+import jakarta.inject.Inject;
 
 import java.util.ArrayDeque;
 import java.util.Deque;

@@ -18,7 +18,7 @@
 
 package org.lecturestudio.web.api.janus.json;
 
-import javax.json.bind.adapter.JsonbAdapter;
+import jakarta.json.bind.adapter.JsonbAdapter;
 
 import org.lecturestudio.web.api.janus.message.JanusRoomRequestType;
 

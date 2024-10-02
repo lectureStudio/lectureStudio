@@ -19,14 +19,13 @@
 package org.lecturestudio.editor.javafx.inject.guice;
 
 import com.google.inject.AbstractModule;
+import com.google.inject.Provider;
 import com.google.inject.TypeLiteral;
 import com.google.inject.spi.TypeEncounter;
 import com.google.inject.spi.TypeListener;
 
 import javafx.scene.text.Font;
 import javafx.util.BuilderFactory;
-
-import javax.inject.Provider;
 
 import org.lecturestudio.core.inject.DIViewContextFactory;
 import org.lecturestudio.core.util.AggregateBundle;

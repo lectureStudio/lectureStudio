@@ -23,7 +23,7 @@ import java.util.ResourceBundle;
 import javafx.fxml.FXML;
 import javafx.scene.layout.Region;
 
-import javax.inject.Inject;
+import jakarta.inject.Inject;
 
 import org.lecturestudio.core.geometry.Position;
 import org.lecturestudio.core.view.Action;

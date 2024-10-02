@@ -26,7 +26,7 @@ import java.util.Deque;
 import java.util.Locale;
 import java.util.function.Predicate;
 
-import javax.inject.Inject;
+import jakarta.inject.Inject;
 
 import javafx.animation.TranslateTransition;
 import javafx.beans.value.ChangeListener;

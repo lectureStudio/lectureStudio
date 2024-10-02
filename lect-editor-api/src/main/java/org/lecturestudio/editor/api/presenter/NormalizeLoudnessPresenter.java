@@ -2,7 +2,7 @@ package org.lecturestudio.editor.api.presenter;
 
 import java.util.concurrent.CompletableFuture;
 
-import javax.inject.Inject;
+import jakarta.inject.Inject;
 
 import org.lecturestudio.core.app.ApplicationContext;
 import org.lecturestudio.core.beans.DoubleProperty;

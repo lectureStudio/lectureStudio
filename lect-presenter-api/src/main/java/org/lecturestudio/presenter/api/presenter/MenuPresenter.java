@@ -21,7 +21,7 @@ package org.lecturestudio.presenter.api.presenter;
 import static java.util.Objects.isNull;
 import static java.util.Objects.nonNull;
 
-import javax.inject.Inject;
+import jakarta.inject.Inject;
 
 import java.awt.Color;
 import java.awt.Desktop;

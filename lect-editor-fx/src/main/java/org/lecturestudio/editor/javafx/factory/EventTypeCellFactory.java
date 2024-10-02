@@ -20,7 +20,7 @@ package org.lecturestudio.editor.javafx.factory;
 
 import java.util.ResourceBundle;
 
-import javax.inject.Inject;
+import jakarta.inject.Inject;
 
 import javafx.scene.control.TableCell;
 import javafx.scene.control.TableColumn;

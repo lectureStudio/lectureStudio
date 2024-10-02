@@ -20,7 +20,7 @@ package org.lecturestudio.javafx.factory;
 
 import java.util.ResourceBundle;
 
-import javax.inject.Inject;
+import jakarta.inject.Inject;
 
 import javafx.scene.control.ListCell;
 import javafx.scene.control.ListView;

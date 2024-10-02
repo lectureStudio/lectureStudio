@@ -20,7 +20,7 @@ package org.lecturestudio.swing.components;
 
 import java.util.ResourceBundle;
 
-import javax.inject.Inject;
+import jakarta.inject.Inject;
 
 import org.lecturestudio.core.text.TeXFont;
 

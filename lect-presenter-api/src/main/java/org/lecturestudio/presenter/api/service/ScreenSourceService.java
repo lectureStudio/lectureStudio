@@ -21,7 +21,7 @@ package org.lecturestudio.presenter.api.service;
 import java.util.HashMap;
 import java.util.Map;
 
-import javax.inject.Singleton;
+import jakarta.inject.Singleton;
 
 import org.lecturestudio.core.model.Document;
 import org.lecturestudio.presenter.api.model.ScreenShareContext;

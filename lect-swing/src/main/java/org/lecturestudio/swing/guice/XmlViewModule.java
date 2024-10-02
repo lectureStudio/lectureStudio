@@ -21,6 +21,7 @@ package org.lecturestudio.swing.guice;
 import com.google.inject.AbstractModule;
 import com.google.inject.Binding;
 import com.google.inject.Module;
+import com.google.inject.Provider;
 import com.google.inject.spi.DefaultBindingTargetVisitor;
 import com.google.inject.spi.DefaultElementVisitor;
 import com.google.inject.spi.Element;
@@ -29,8 +30,6 @@ import com.google.inject.spi.LinkedKeyBinding;
 
 import java.util.HashMap;
 import java.util.Map;
-
-import javax.inject.Provider;
 
 import org.lecturestudio.core.inject.Injector;
 import org.lecturestudio.core.util.AggregateBundle;

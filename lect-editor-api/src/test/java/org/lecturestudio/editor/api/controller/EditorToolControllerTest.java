@@ -2,7 +2,7 @@ package org.lecturestudio.editor.api.controller;
 
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import javax.inject.Singleton;
+import jakarta.inject.Singleton;
 
 import java.io.File;
 import java.util.Objects;

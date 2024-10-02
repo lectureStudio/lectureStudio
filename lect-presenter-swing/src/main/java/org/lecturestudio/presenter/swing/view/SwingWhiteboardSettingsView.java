@@ -18,7 +18,8 @@
 
 package org.lecturestudio.presenter.swing.view;
 
-import javax.inject.Inject;
+import jakarta.inject.Inject;
+
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JPanel;

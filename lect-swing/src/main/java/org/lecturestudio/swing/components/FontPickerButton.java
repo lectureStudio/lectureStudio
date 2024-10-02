@@ -21,7 +21,7 @@ package org.lecturestudio.swing.components;
 import java.awt.Font;
 import java.util.ResourceBundle;
 
-import javax.inject.Inject;
+import jakarta.inject.Inject;
 
 public class FontPickerButton extends ToggleComboButton<Font> {
 

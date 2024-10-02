@@ -20,7 +20,7 @@ package org.lecturestudio.web.api.janus.message;
 
 import java.math.BigInteger;
 
-import javax.json.bind.annotation.JsonbProperty;
+import jakarta.json.bind.annotation.JsonbProperty;
 
 /**
  * Session message to perform session related requests with the Janus WebRTC

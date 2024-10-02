@@ -25,11 +25,11 @@ import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.json.JsonArray;
-import javax.json.JsonObject;
-import javax.json.JsonValue.ValueType;
-import javax.json.bind.Jsonb;
-import javax.ws.rs.NotSupportedException;
+import jakarta.json.JsonArray;
+import jakarta.json.JsonObject;
+import jakarta.json.JsonValue.ValueType;
+import jakarta.json.bind.Jsonb;
+import jakarta.ws.rs.NotSupportedException;
 
 import org.lecturestudio.web.api.janus.JanusInfo;
 import org.lecturestudio.web.api.janus.JanusPublisher;

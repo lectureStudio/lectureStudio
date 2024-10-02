@@ -28,8 +28,6 @@ import javafx.stage.Stage;
 import javafx.stage.Window;
 import javafx.util.FXPermission;
 
-import java.security.AccessController;
-import java.security.PrivilegedAction;
 import java.util.List;
 
 /**
@@ -646,10 +644,7 @@ public class Utils {
 	}
 
 	public static boolean hasFullScreenStage(final Screen screen) {
-		final List<Window> allWindows = AccessController.doPrivileged(
-				(PrivilegedAction<List<Window>>) () -> Window.getWindows(),
-				null,
-				ACCESS_WINDOW_LIST_PERMISSION);
+		final List<Window> allWindows = Window.getWindows();
 
 		for (final Window window : allWindows) {
 			if (window instanceof Stage) {

@@ -26,8 +26,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
 import java.nio.charset.StandardCharsets;
-import java.security.AccessController;
-import java.security.PrivilegedAction;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;
@@ -247,10 +245,7 @@ public abstract class ApplicationBase implements Application {
 	public static void launch(final String[] args) {
 		try {
 			Class<? extends Preloader> preloaderClass = null;
-
-			String preloaderByProperty = AccessController.doPrivileged((PrivilegedAction<String>) () -> {
-				return System.getProperty("application.preloader");
-			});
+			String preloaderByProperty = System.getProperty("application.preloader");
 
 			if (nonNull(preloaderByProperty)) {
 				Class<?> pClass = null;

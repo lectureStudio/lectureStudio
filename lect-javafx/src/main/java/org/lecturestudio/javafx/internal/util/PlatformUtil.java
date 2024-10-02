@@ -24,8 +24,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.security.AccessController;
-import java.security.PrivilegedAction;
 import java.util.Properties;
 
 public class PlatformUtil {
@@ -45,13 +43,13 @@ public class PlatformUtil {
 	private static String javafxPlatform;
 
 	static {
-		javafxPlatform = AccessController.doPrivileged((PrivilegedAction<String>) () -> System.getProperty("javafx.platform"));
+		javafxPlatform = System.getProperty("javafx.platform");
 		loadProperties();
-		embedded = AccessController.doPrivileged((PrivilegedAction<Boolean>) () -> Boolean.getBoolean("com.sun.javafx.isEmbedded"));
-		embeddedType = AccessController.doPrivileged((PrivilegedAction<String>) () -> System.getProperty("embedded"));
-		useEGL = AccessController.doPrivileged((PrivilegedAction<Boolean>) () -> Boolean.getBoolean("use.egl"));
+		embedded = Boolean.getBoolean("com.sun.javafx.isEmbedded");
+		embeddedType = System.getProperty("embedded");
+		useEGL = Boolean.getBoolean("use.egl");
 		if (useEGL) {
-			doEGLCompositing = AccessController.doPrivileged((PrivilegedAction<Boolean>) () -> Boolean.getBoolean("doNativeComposite"));
+			doEGLCompositing = Boolean.getBoolean("doNativeComposite");
 		} else
 			doEGLCompositing = false;
 	}
@@ -126,9 +124,8 @@ public class PlatformUtil {
 	}
 
 	public static boolean useGLES2() {
-		String useGles2 = "false";
-		useGles2 =
-				AccessController.doPrivileged((PrivilegedAction<String>) () -> System.getProperty("use.gles2"));
+		String useGles2 = System.getProperty("use.gles2");
+
 		if ("true".equals(useGles2))
 			return true;
 		else
@@ -238,34 +235,31 @@ public class PlatformUtil {
 				(vmname != null && vmname.indexOf("Embedded") > 0))) {
 			return;
 		}
-		AccessController.doPrivileged((PrivilegedAction<Void>) () -> {
-			final File rtDir = getRTDir();
-			final String propertyFilename = "javafx.platform.properties";
-			File rtProperties = new File(rtDir, propertyFilename);
-			// First look for javafx.platform.properties in the JavaFX runtime
-			// Then in the installation directory of the JRE
-			if (rtProperties.exists()) {
-				loadPropertiesFromFile(rtProperties);
-				return null;
-			}
-			String javaHome = System.getProperty("java.home");
-			File javaHomeProperties = new File(javaHome,
-					"lib" + File.separator
-							+ propertyFilename);
-			if (javaHomeProperties.exists()) {
-				loadPropertiesFromFile(javaHomeProperties);
-				return null;
-			}
 
-			String javafxRuntimePath = System.getProperty("javafx.runtime.path");
-			File javafxRuntimePathProperties = new File(javafxRuntimePath,
-					File.separator + propertyFilename);
-			if (javafxRuntimePathProperties.exists()) {
-				loadPropertiesFromFile(javafxRuntimePathProperties);
-				return null;
-			}
-			return null;
-		});
+		final File rtDir = getRTDir();
+		final String propertyFilename = "javafx.platform.properties";
+		File rtProperties = new File(rtDir, propertyFilename);
+		// First look for javafx.platform.properties in the JavaFX runtime
+		// Then in the installation directory of the JRE
+		if (rtProperties.exists()) {
+			loadPropertiesFromFile(rtProperties);
+			return;
+		}
+		String javaHome = System.getProperty("java.home");
+		File javaHomeProperties = new File(javaHome,
+				"lib" + File.separator
+						+ propertyFilename);
+		if (javaHomeProperties.exists()) {
+			loadPropertiesFromFile(javaHomeProperties);
+			return;
+		}
+
+		String javafxRuntimePath = System.getProperty("javafx.runtime.path");
+		File javafxRuntimePathProperties = new File(javafxRuntimePath,
+				File.separator + propertyFilename);
+		if (javafxRuntimePathProperties.exists()) {
+			loadPropertiesFromFile(javafxRuntimePathProperties);
+		}
 	}
 
 	public static boolean isAndroid() {

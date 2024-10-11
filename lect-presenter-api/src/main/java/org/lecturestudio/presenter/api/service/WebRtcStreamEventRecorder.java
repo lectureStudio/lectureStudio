@@ -150,9 +150,6 @@ public class WebRtcStreamEventRecorder extends StreamEventRecorder {
 		if (recordState == state || state.name().contains("ing")) {
 			return;
 		}
-		if (event.started() && recordState == ExecutableState.Suspended) {
-			return;
-		}
 
 		recordState = state;
 

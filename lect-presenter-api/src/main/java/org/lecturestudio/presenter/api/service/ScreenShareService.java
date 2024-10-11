@@ -131,6 +131,22 @@ public class ScreenShareService {
 		recorderServices.remove(source);
 	}
 
+	public void stopAllScreenRecordings() {
+		for (ScreenRecorderService service : recorderServices.values()) {
+			try {
+				if (service.suspended() || service.started()) {
+					service.stop();
+				}
+			}
+			catch (ExecutableException e) {
+				LOG.error("Stop screen-recorder failed", e);
+			}
+		}
+
+		activeRecorderService = null;
+		recorderServices.clear();
+	}
+
 	public void startScreenCapture(ScreenShareContext shareContext)
 			throws ExecutableException {
 		if (isNull(screenCaptureService)) {

@@ -405,7 +405,7 @@ public class MainPresenter extends org.lecturestudio.core.presenter.MainPresente
 	@Subscribe
 	public void onEvent(final RecordingStateEvent event) {
 		if (event.stopped()) {
-			stopScreenRecording();
+			stopAllScreenRecordings();
 		}
 	}
 
@@ -898,5 +898,9 @@ public class MainPresenter extends org.lecturestudio.core.presenter.MainPresente
 
 	private void stopScreenRecording() {
 		screenShareService.stopScreenRecording();
+	}
+
+	private void stopAllScreenRecordings() {
+		screenShareService.stopAllScreenRecordings();
 	}
 }

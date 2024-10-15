@@ -231,6 +231,18 @@ public class MenuPresenter extends Presenter<MenuView> {
 	}
 
 	@Subscribe
+	public void onEvent(final ExternalSpeechViewEvent event) {
+		if (!event.isEnabled()) {
+			// Set the previous position.
+			SpeechPosition position = getViewPosition(SpeechPosition.class);
+
+			if (nonNull(position)) {
+				view.setSpeechPosition(position);
+			}
+		}
+	}
+
+	@Subscribe
 	public void onEvent(final ExternalSlidePreviewViewEvent event) {
 		if (!event.isEnabled()) {
 			// Set the previous position.

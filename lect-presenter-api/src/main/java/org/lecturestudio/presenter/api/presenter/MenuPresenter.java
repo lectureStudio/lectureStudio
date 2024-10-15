@@ -67,23 +67,7 @@ import org.lecturestudio.core.view.*;
 import org.lecturestudio.presenter.api.config.PresenterConfiguration;
 import org.lecturestudio.presenter.api.config.SlideViewConfiguration;
 import org.lecturestudio.presenter.api.context.PresenterContext;
-import org.lecturestudio.presenter.api.event.ExternalMessagesViewEvent;
-import org.lecturestudio.presenter.api.event.ExternalNotesViewEvent;
-import org.lecturestudio.presenter.api.event.ExternalSlideNotesViewEvent;
-import org.lecturestudio.presenter.api.event.ExternalParticipantsViewEvent;
-import org.lecturestudio.presenter.api.event.ExternalSlidePreviewViewEvent;
-import org.lecturestudio.presenter.api.event.ExternalSpeechViewEvent;
-import org.lecturestudio.presenter.api.event.MessageBarPositionEvent;
-import org.lecturestudio.presenter.api.event.MessengerStateEvent;
-import org.lecturestudio.presenter.api.event.NotesBarPositionEvent;
-import org.lecturestudio.presenter.api.event.SlideNotesBarPositionEvent;
-import org.lecturestudio.presenter.api.event.ParticipantsPositionEvent;
-import org.lecturestudio.presenter.api.event.PreviewPositionEvent;
-import org.lecturestudio.presenter.api.event.QuizStateEvent;
-import org.lecturestudio.presenter.api.event.RecordingStateEvent;
-import org.lecturestudio.presenter.api.event.RecordingTimeEvent;
-import org.lecturestudio.presenter.api.event.StreamReconnectStateEvent;
-import org.lecturestudio.presenter.api.event.StreamingStateEvent;
+import org.lecturestudio.presenter.api.event.*;
 import org.lecturestudio.presenter.api.model.*;
 import org.lecturestudio.presenter.api.presenter.command.GotoBookmarkCommand;
 import org.lecturestudio.presenter.api.presenter.command.StopwatchCommand;
@@ -352,6 +336,8 @@ public class MenuPresenter extends Presenter<MenuView> {
 		}
 		else {
 			setViewPosition(SpeechPosition.class, position);
+
+			eventBus.post(new SpeechPositionEvent(position));
 		}
 	}
 

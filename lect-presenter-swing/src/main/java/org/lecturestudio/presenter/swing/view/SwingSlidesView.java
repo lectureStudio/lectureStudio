@@ -319,6 +319,8 @@ public class SwingSlidesView extends JPanel implements SlidesView {
 
 	private SlidePreviewPosition previewPosition = SlidePreviewPosition.RIGHT;
 
+	private SpeechPosition speechPosition = SpeechPosition.ABOVE_SLIDE_PREVIEW;
+
 	private String selectedSlideLabelText = "";
 
 	List<AdaptiveTab> noneTabs;
@@ -1465,6 +1467,15 @@ public class SwingSlidesView extends JPanel implements SlidesView {
 				showNoteSlide(position);
 			}
 		});
+	}
+
+	@Override
+	public void setSpeechPosition(SpeechPosition position) {
+		if (externalSpeechFrame.isVisible()) {
+			hideExternalSpeech();
+		}
+
+		speechPosition = position;
 	}
 
 	@Override

@@ -94,24 +94,7 @@ import org.lecturestudio.presenter.api.config.ExternalWindowConfiguration;
 import org.lecturestudio.presenter.api.config.PresenterConfiguration;
 import org.lecturestudio.presenter.api.config.SlideViewConfiguration;
 import org.lecturestudio.presenter.api.context.PresenterContext;
-import org.lecturestudio.presenter.api.event.ExternalMessagesViewEvent;
-import org.lecturestudio.presenter.api.event.ExternalNotesViewEvent;
-import org.lecturestudio.presenter.api.event.ExternalSlideNotesViewEvent;
-import org.lecturestudio.presenter.api.event.ExternalParticipantsViewEvent;
-import org.lecturestudio.presenter.api.event.ExternalSlidePreviewViewEvent;
-import org.lecturestudio.presenter.api.event.ExternalSpeechViewEvent;
-import org.lecturestudio.presenter.api.event.MessageBarPositionEvent;
-import org.lecturestudio.presenter.api.event.MessengerStateEvent;
-import org.lecturestudio.presenter.api.event.NotesBarPositionEvent;
-import org.lecturestudio.presenter.api.event.SlideNotesBarPositionEvent;
-import org.lecturestudio.presenter.api.event.ParticipantsPositionEvent;
-import org.lecturestudio.presenter.api.event.PreviewPositionEvent;
-import org.lecturestudio.presenter.api.event.QuizStateEvent;
-import org.lecturestudio.presenter.api.event.RecordingStateEvent;
-import org.lecturestudio.presenter.api.event.ScreenShareEndEvent;
-import org.lecturestudio.presenter.api.event.ScreenShareStateEvent;
-import org.lecturestudio.presenter.api.event.StreamReconnectStateEvent;
-import org.lecturestudio.presenter.api.event.StreamingStateEvent;
+import org.lecturestudio.presenter.api.event.*;
 import org.lecturestudio.presenter.api.input.Shortcut;
 import org.lecturestudio.presenter.api.model.*;
 import org.lecturestudio.presenter.api.service.*;
@@ -556,6 +539,15 @@ public class SlidesPresenter extends Presenter<SlidesView> {
 	@Subscribe
 	public void onEvent(PreviewPositionEvent event) {
 		view.setPreviewPosition(event.position());
+	}
+
+	@Subscribe
+	public void onEvent(SpeechPositionEvent event) {
+		final SpeechPosition position = event.position();
+
+		view.setSpeechPosition(position);
+
+		getPresenterConfig().getSlideViewConfiguration().setSpeechPosition(position);
 	}
 
 	@Subscribe

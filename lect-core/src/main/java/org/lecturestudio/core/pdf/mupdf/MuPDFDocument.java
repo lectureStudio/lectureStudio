@@ -271,7 +271,7 @@ public class MuPDFDocument implements DocumentAdapter {
 
 			PDFObject page = doc.addPage(new Rect(0, 0, width, height), 0, resources, buffer);
 
-			// Insert page object at the end of the document.
+			// Insert a page object at the end of the document.
 			doc.insertPage(-1, page);
 
 			buffer.destroy();
@@ -343,7 +343,13 @@ public class MuPDFDocument implements DocumentAdapter {
 				}
 			}
 
-			doc.insertPage(dstPageIndex, doc.addObject(dstPage));
+			if (dstPageIndex >= doc.countPages()) {
+				dstPageIndex = doc.countPages() - 1;
+			}
+
+			int insertIndex = dstPageIndex > -1 ? dstPageIndex : doc.countPages() - 1;
+
+			doc.insertPage(insertIndex, doc.addObject(dstPage));
 
 			return dstPageIndex > 0 ? dstPageIndex : getPageCount() - 1;
 		}

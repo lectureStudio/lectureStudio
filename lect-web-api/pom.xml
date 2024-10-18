@@ -19,7 +19,7 @@
 		<log4j.version>2.17.1</log4j.version>
 		<resteasy.version>4.7.9.Final</resteasy.version>
 		<jackson.version>2.15.2</jackson.version>
-		<spring.version>6.0.10</spring.version>
+		<spring.version>6.1.14</spring.version>
 		<lombok.version>1.18.30</lombok.version>
 	</properties>
 
@@ -175,7 +175,7 @@
 		<dependency>
 			<groupId>org.apache.tomcat.embed</groupId>
 			<artifactId>tomcat-embed-websocket</artifactId>
-			<version>10.1.19</version>
+			<version>10.1.30</version>
 		</dependency>
 		<dependency>
 			<groupId>org.springframework</groupId>

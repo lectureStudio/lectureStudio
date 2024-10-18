@@ -546,7 +546,7 @@ public class FileLectureRecorder extends LectureRecorder {
 				recPage.setTimestamp((int) timestamp);
 				recPage.setNumber(pageNumber);
 
-				// Copy all actions, if the page was previously annotated and visited again.
+				// Copy all actions if the page was previously annotated and visited again.
 				if (addedPages.containsKey(page)) {
 					RecordedPage rPage = addedPages.get(page);
 
@@ -568,8 +568,10 @@ public class FileLectureRecorder extends LectureRecorder {
 					try {
 						recordedDocument.createPage(page);
 					}
-					catch (Exception e) {
+					catch (Throwable e ) {
 						logException(e, "Create page failed");
+
+						context.showError("recording.notification.title", "recording.slide.error");
 						return;
 					}
 

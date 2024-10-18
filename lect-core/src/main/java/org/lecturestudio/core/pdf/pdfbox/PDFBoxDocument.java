@@ -461,8 +461,10 @@ public class PDFBoxDocument implements DocumentAdapter {
 
 			imported.setContents(newContents);
 
-			doc.getPages().remove(imported);
-			doc.getPages().insertAfter(imported, doc.getPage(dstPageIndex - 1));
+			if (dstPageIndex >= 0 && dstPageIndex < doc.getPages().getCount()) {
+				doc.getPages().remove(imported);
+				doc.getPages().insertAfter(imported, doc.getPage(dstPageIndex - 1));
+			}
 
 			return dstPageIndex > 0 ? dstPageIndex : getPageCount() - 1;
 		}

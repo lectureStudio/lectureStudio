@@ -31,10 +31,7 @@ import org.cef.browser.CefBrowser;
 import org.cef.browser.CefFrame;
 import org.cef.browser.CefMessageRouter;
 import org.cef.callback.CefCommandLine;
-import org.cef.handler.CefAppHandlerAdapter;
-import org.cef.handler.CefRequestHandlerAdapter;
-import org.cef.handler.CefResourceRequestHandler;
-import org.cef.handler.CefResourceRequestHandlerAdapter;
+import org.cef.handler.*;
 import org.cef.misc.BoolRef;
 import org.cef.network.CefRequest;
 import org.lecturestudio.core.app.ApplicationContext;
@@ -115,6 +112,12 @@ public abstract class CefStreamPresenter<T extends View> extends Presenter<T> {
 		client = cefApp.createClient();
 		client.addMessageRouter(CefMessageRouter.create());
 		client.addRequestHandler(new RequestHandler(ctx));
+		client.addDisplayHandler(new CefDisplayHandlerAdapter() {
+			@Override
+			public boolean onConsoleMessage(CefBrowser browser, LogSeverity level, String message, String source, int line) {
+				return super.onConsoleMessage(browser, level, message, source, line);
+			}
+		});
 
 		initCefClient();
 

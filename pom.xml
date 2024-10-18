@@ -252,17 +252,6 @@
 
 		<plugins>
 			<plugin>
-				<groupId>com.github.ferstl</groupId>
-				<artifactId>depgraph-maven-plugin</artifactId>
-				<version>4.0.2</version>
-				<configuration>
-					<includes>lect*:*</includes>
-					<createImage>true</createImage>
-					<imageFormat>pdf</imageFormat>
-				</configuration>
-			</plugin>
-
-			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-compiler-plugin</artifactId>
 			</plugin>

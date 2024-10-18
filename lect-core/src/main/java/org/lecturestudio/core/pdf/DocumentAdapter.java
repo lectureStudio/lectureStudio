@@ -178,7 +178,7 @@ public interface DocumentAdapter {
 	 */
 	void deletePage(int pageNumber);
 
-	int importPage(DocumentAdapter srcDocument, int pageNumber) throws IOException;
+	int importPage(DocumentAdapter srcDocument, int srcPageIndex, int dstPageIndex) throws IOException;
 
 	/**
 	 * Save the document to the specified {@link OutputStream}.

@@ -85,6 +85,7 @@ public class ViewModule extends AbstractModule {
 		bind(AudioEffectsView.class).to(FxAudioEffectsView.class);
 		bind(GeneralSettingsView.class).to(FxGeneralSettingsView.class);
 		bind(ImportRecordingView.class).to(FxImportRecordingView.class);
+		bind(InsertPageView.class).to(FxInsertPageView.class);
 		bind(MainView.class).to(FxMainView.class);
 		bind(MediaControlsView.class).to(FxMediaControlsView.class);
 		bind(MediaTrackControlsView.class).to(FxMediaTrackControlsView.class);

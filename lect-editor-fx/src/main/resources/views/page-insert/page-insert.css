@@ -1,0 +1,66 @@
+.page-replace {
+	-fx-background-color: rgba(64, 64, 64, 0.85);
+}
+.page-replace > .content {
+	-fx-background-color: white;
+	-fx-background-radius: 3;
+	-fx-padding: 1em;
+}
+.page-replace > .content > .header {
+	-fx-font-size: 1.3em;
+	-fx-font-weight: bold;
+	-fx-padding: 0 0 1.25em 0;
+}
+.page-replace .header {
+	-fx-font-weight: bold;
+}
+.page-replace > .content > .replace-options {
+	-fx-padding: 0 0 1.25em 0;
+}
+.page-replace ImageView {
+	-fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.5), 0, 0, 0, 1);
+}
+.page-replace > .content > HBox {
+	-fx-spacing: 5;
+}
+.page-replace > .content > .slide-views > .new-document-view > .search-box {
+	-fx-spacing: 8;
+	-fx-padding: 0 0.25em 0 0;
+}
+.page-replace > .content > .slide-views > .new-document-view > .search-box > .search-field {
+	-fx-background-radius: 20;
+	-fx-padding: 0.1em 0.583em;
+}
+.page-replace > .content > .slide-views > .new-document-view > .search-box > .button-group > .container > .button {
+	-fx-background-radius: 0;
+	-button-size: 2em;
+	-fx-content-display: graphic-only;
+	-fx-pref-width: -button-size;
+	-fx-pref-height: -button-size;
+	-fx-min-width: -button-size;
+	-fx-min-height: -button-size;
+	-fx-max-width: -button-size;
+	-fx-max-height: -button-size;
+}
+.page-replace .prev-icon {
+	-fx-icon-content: "M 5,4.5 A 0.5,0.5 0 0 0 4.5,5 V 19 A 0.5,0.5 0 0 0 5,19.5 0.5,0.5 0 0 0 5.5,19 V 5 A 0.5,0.5 0 0 0 5,4.5 Z m 14.011719,-1 A 0.50005,0.50005 0 0 0 18.6875,3.609375 l -10,8 a 0.50005,0.50005 0 0 0 0,0.78125 l 10,8 A 0.50005,0.50005 0 0 0 19.5,20 V 4 A 0.50005,0.50005 0 0 0 19.011719,3.5 Z M 18.5,5.0410156 V 18.958984 L 9.8007812,12 Z";
+}
+.page-replace .next-icon {
+	-fx-icon-content: "M 4.9804688 3.5 A 0.50005 0.50005 0 0 0 4.5 4 L 4.5 20 A 0.50005 0.50005 0 0 0 5.3125 20.390625 L 15.3125 12.390625 A 0.50005 0.50005 0 0 0 15.3125 11.609375 L 5.3125 3.609375 A 0.50005 0.50005 0 0 0 4.9804688 3.5 z M 19 4.5 A 0.5 0.5 0 0 0 18.5 5 L 18.5 19 A 0.5 0.5 0 0 0 19 19.5 A 0.5 0.5 0 0 0 19.5 19 L 19.5 5 A 0.5 0.5 0 0 0 19 4.5 z M 5.5 5.0410156 L 14.199219 12 L 5.5 18.958984 L 5.5 5.0410156 z";
+}
+.page-replace .pagecount {
+	-fx-padding: 0.25em;
+}
+.page-replace #allPagesTypeLabel {
+	-fx-text-fill: rgb(63, 63, 63);
+	-fx-padding: 0 0 1em 0;
+}
+.page-replace #currentPageTypeLabel {
+	-fx-text-fill: rgb(63, 63, 63);
+}
+.page-replace .search-prev-icon {
+	-fx-icon-content: "M 11.984375,8 A 1.0001,1.0001 0 0 0 11.292969,8.2929688 L 5.2929688,14.292969 a 1.0001,1.0001 0 1 0 1.4140624,1.414062 L 12,10.414062 l 5.292969,5.292969 a 1.0001,1.0001 0 1 0 1.414062,-1.414062 l -6,-6.0000002 A 1.0001,1.0001 0 0 0 11.984375,8 Z";
+}
+.page-replace .search-next-icon {
+	-fx-icon-content: "M 5.9902344,7.9902344 A 1.0001,1.0001 0 0 0 5.2929688,9.7070312 l 6.0000002,5.9999998 a 1.0001,1.0001 0 0 0 1.414062,0 l 6,-5.9999998 A 1.0001,1.0001 0 1 0 17.292969,8.2929688 L 12,13.585938 6.7070312,8.2929688 A 1.0001,1.0001 0 0 0 5.9902344,7.9902344 Z";
+}

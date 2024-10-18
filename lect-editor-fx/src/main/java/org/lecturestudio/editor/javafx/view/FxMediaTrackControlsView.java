@@ -66,6 +66,9 @@ public class FxMediaTrackControlsView extends HBox implements MediaTrackControls
 	private Button adjustVolumeButton;
 
 	@FXML
+	private Button insertPageButton;
+
+	@FXML
 	private Button deletePageButton;
 
 	@FXML
@@ -167,6 +170,11 @@ public class FxMediaTrackControlsView extends HBox implements MediaTrackControls
 	@Override
 	public void setOnAdjustVolume(Action action) {
 		FxUtils.bindAction(adjustVolumeButton, action);
+	}
+
+	@Override
+	public void setOnInsertPage(Action action) {
+		FxUtils.bindAction(insertPageButton, action);
 	}
 
 	@Override

@@ -493,11 +493,15 @@ public class Document {
 	}
 
 	public Page createPage(Page page) throws IOException {
-		return importPage(page, null);
+		return importPage(page, page.getPageNumber(), -1, null);
+	}
+
+	public Page createPage(Page page, int dstPageIndex) throws IOException {
+		return importPage(page, page.getPageNumber(), dstPageIndex, null);
 	}
 
 	public Page createPage(Page page, Rectangle2D pageRect) throws IOException {
-		return importPage(page, pageRect);
+		return importPage(page, page.getPageNumber(), -1, pageRect);
 	}
 
 	public boolean hasTextNotes() {
@@ -632,6 +636,18 @@ public class Document {
 		}
 	}
 
+	/**
+	 * Converts the PDF document to the specified output stream.
+	 *
+	 * @param stream The output stream.
+	 */
+	public void toOutputStreamNative(OutputStream stream) throws IOException {
+		if (pdfDocument != null) {
+			pdfDocument.toOutputStreamNative(stream);
+			stream.flush();
+		}
+	}
+
 	@Override
 	public int hashCode() {
 		final int prime = 31;
@@ -676,18 +692,23 @@ public class Document {
 		fireAddChange(page);
 	}
 
-	private synchronized Page importPage(Page page, Rectangle2D pageRect)
+	private void insertPage(Page page, int index) {
+		pages.add(index, page);
+
+		fireAddChange(page);
+	}
+
+	private synchronized Page importPage(Page page, int srcPageIndex, int dstPageIndex, Rectangle2D pageRect)
 			throws IOException {
 		PdfDocument pagePdfDocument = page.getDocument().getPdfDocument();
-		int pageIndex = pdfDocument.importPage(pagePdfDocument,
-				page.getPageNumber(), pageRect);
+		int pageIndex = pdfDocument.importPage(pagePdfDocument, srcPageIndex, dstPageIndex, pageRect);
 
 		if (pageIndex == -1) {
 			return null;
 		}
 
 		Page newPage = new Page(this, pageIndex);
-		addPage(newPage);
+		insertPage(newPage, pageIndex);
 
 		return newPage;
 	}

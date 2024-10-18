@@ -46,6 +46,7 @@ import org.lecturestudio.core.view.ViewContextFactory;
 import org.lecturestudio.editor.api.context.EditorContext;
 import org.lecturestudio.editor.api.model.ZoomConstraints;
 import org.lecturestudio.editor.api.presenter.command.AdjustAudioCommand;
+import org.lecturestudio.editor.api.presenter.command.InsertPageCommand;
 import org.lecturestudio.editor.api.presenter.command.ReplacePageCommand;
 import org.lecturestudio.editor.api.presenter.command.SplitAndSaveRecordingCommand;
 import org.lecturestudio.editor.api.service.RecordingFileService;
@@ -92,6 +93,7 @@ public class MediaTrackControlsPresenter extends Presenter<MediaTrackControlsVie
 		view.setOnAdjustVolume(this::adjustAudio);
 		view.setOnCut(this::cut);
 		view.setOnCollapseSelection(this::collapseSelection);
+		view.setOnInsertPage(this::insertPage);
 		view.setOnDeletePage(this::deletePage);
 		view.setOnReplacePage(this::replacePage);
 		view.setOnUndo(this::undo);
@@ -185,6 +187,42 @@ public class MediaTrackControlsPresenter extends Presenter<MediaTrackControlsVie
 
 		editorContext.setLeftSelection(primaryValue);
 		editorContext.setRightSelection(primaryValue);
+	}
+
+	private void insertPage() {
+		final String pathContext = EditorContext.SLIDES_CONTEXT;
+		Configuration config = context.getConfiguration();
+		Dictionary dict = context.getDictionary();
+		Path dirPath = FileUtils.getContextPath(config, pathContext);
+
+		FileChooserView fileChooser = viewFactory.createFileChooserView();
+		fileChooser.setInitialDirectory(dirPath.toFile());
+		fileChooser.addExtensionFilter(dict.get("file.description.pdf"),
+				EditorContext.SLIDES_EXTENSION);
+
+		File file = fileChooser.showOpenFile(view);
+
+		if (nonNull(file)) {
+			config.getContextPaths().put(pathContext, file.getParent());
+
+			CompletableFuture.runAsync(() -> {
+					Document doc;
+
+					try {
+						doc = new Document(file);
+					}
+					catch (IOException e) {
+						throw new CompletionException(e);
+					}
+
+					context.getEventBus().post(new InsertPageCommand(doc));
+				})
+				.exceptionally(throwable -> {
+					handleException(throwable, "Open document failed",
+							"open.document.error", file.getPath());
+					return null;
+				});
+		}
 	}
 
 	private void deletePage() {

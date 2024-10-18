@@ -50,6 +50,14 @@
 					<SvgIcon styleClass="adjust-volume-icon"/>
 				</graphic>
 			</Button>
+			<Button fx:id="insertPageButton">
+				<tooltip>
+					<Tooltip text="%media.insert.page" />
+				</tooltip>
+				<graphic>
+					<SvgIcon styleClass="insert-page-icon"/>
+				</graphic>
+			</Button>
 			<Button fx:id="deletePageButton">
 				<tooltip>
 					<Tooltip text="%media.delete.page" />

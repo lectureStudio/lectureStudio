@@ -195,10 +195,10 @@ public class PdfDocument {
 		pdfBoxDocument.setPageContentTransform(pdfBoxDocument, pageIndex, transform);
 	}
 
-	public int importPage(PdfDocument pdfDocument, int pageIndex, Rectangle2D pageRect) throws IOException {
-		muPDFDocument.importPage(pdfDocument.muPDFDocument, pageIndex);
+	public int importPage(PdfDocument pdfDocument, int srcPageIndex, int dstPageIndex, Rectangle2D pageRect) throws IOException {
+		muPDFDocument.importPage(pdfDocument.muPDFDocument, srcPageIndex, dstPageIndex);
 
-		return pdfBoxDocument.importPage(pdfDocument.pdfBoxDocument, pageIndex, pageRect);
+		return pdfBoxDocument.importPage(pdfDocument.pdfBoxDocument, srcPageIndex, dstPageIndex, pageRect);
 	}
 
 	public void setCropbox(int pageNumber,int x, int y, int width, int height){
@@ -368,6 +368,15 @@ public class PdfDocument {
 	 */
 	public void toOutputStream(OutputStream stream) throws IOException {
 		pdfBoxDocument.toOutputStream(stream);
+	}
+
+	/**
+	 * Save the document to the specified {@link OutputStream}.
+	 *
+	 * @param stream The {@link OutputStream} to write to.
+	 */
+	public void toOutputStreamNative(OutputStream stream) throws IOException {
+		muPDFDocument.toOutputStream(stream);
 	}
 
 	/**

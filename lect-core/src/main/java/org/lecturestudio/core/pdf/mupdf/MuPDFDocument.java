@@ -286,7 +286,7 @@ public class MuPDFDocument implements DocumentAdapter {
 	}
 
 	@Override
-	public int importPage(DocumentAdapter srcDocument, int pageNumber) {
+	public int importPage(DocumentAdapter srcDocument, int srcPageIndex, int dstPageIndex) {
 		synchronized (mutex) {
 			PDFGraftMap graftMap;
 
@@ -302,7 +302,7 @@ public class MuPDFDocument implements DocumentAdapter {
 
 			MuPDFDocument muPDFSrcDoc = (MuPDFDocument) srcDocument;
 
-			PDFObject srcPage = muPDFSrcDoc.doc.findPage(pageNumber);
+			PDFObject srcPage = muPDFSrcDoc.doc.findPage(srcPageIndex);
 			PDFObject dstPage = doc.newDictionary();
 
 			PDFObject mediaBox = srcPage.get("MediaBox");
@@ -343,9 +343,9 @@ public class MuPDFDocument implements DocumentAdapter {
 				}
 			}
 
-			doc.insertPage(-1, doc.addObject(dstPage));
+			doc.insertPage(dstPageIndex, doc.addObject(dstPage));
 
-			return getPageCount() - 1;
+			return dstPageIndex > 0 ? dstPageIndex : getPageCount() - 1;
 		}
 	}
 

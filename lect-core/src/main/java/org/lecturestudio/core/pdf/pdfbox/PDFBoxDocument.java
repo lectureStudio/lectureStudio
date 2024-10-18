@@ -326,13 +326,13 @@ public class PDFBoxDocument implements DocumentAdapter {
 	}
 
 	@Override
-	public int importPage(DocumentAdapter srcDocument, int pageNumber) throws IOException {
+	public int importPage(DocumentAdapter srcDocument, int srcPageIndex, int dstPageIndex) throws IOException {
 		PDFBoxDocument pdfBoxSrcDoc = (PDFBoxDocument) srcDocument;
 
-		return importPage(pdfBoxSrcDoc, pageNumber, new AffineTransform());
+		return importPage(pdfBoxSrcDoc, srcPageIndex, dstPageIndex, new AffineTransform());
 	}
 
-	public int importPage(DocumentAdapter srcDocument, int pageNumber, Rectangle2D pageRect) throws IOException {
+	public int importPage(DocumentAdapter srcDocument, int srcPageIndex, int dstPageIndex, Rectangle2D pageRect) throws IOException {
 		PDFBoxDocument pdfBoxSrcDoc = (PDFBoxDocument) srcDocument;
 
 		AffineTransform transform = new AffineTransform();
@@ -342,7 +342,7 @@ public class PDFBoxDocument implements DocumentAdapter {
 			transform.scale(1 / pageRect.getWidth(), 1 / pageRect.getHeight());
 		}
 
-		return importPage(pdfBoxSrcDoc, pageNumber, transform);
+		return importPage(pdfBoxSrcDoc, srcPageIndex, dstPageIndex, transform);
 	}
 
 	public void setPageContentTransform(PDFBoxDocument srcDocument, int pageNumber, AffineTransform transform) throws IOException {
@@ -379,11 +379,11 @@ public class PDFBoxDocument implements DocumentAdapter {
 		page.setCropBox(new PDRectangle(x, y, width, height));
 	}
 
-	public synchronized int importPage(PDFBoxDocument srcDocument, int pageNumber, AffineTransform transform) throws IOException {
+	public synchronized int importPage(PDFBoxDocument srcDocument, int srcPageIndex, int dstPageIndex, AffineTransform transform) throws IOException {
 		PDDocument sourceDocument = srcDocument.doc;
 
 		synchronized (sourceDocument) {
-			PDPage page = sourceDocument.getPage(pageNumber);
+			PDPage page = sourceDocument.getPage(srcPageIndex);
 			PDPage imported = doc.importPage(page);
 
 			imported.setResources(page.getResources());
@@ -461,7 +461,10 @@ public class PDFBoxDocument implements DocumentAdapter {
 
 			imported.setContents(newContents);
 
-			return getPageCount() - 1;
+			doc.getPages().remove(imported);
+			doc.getPages().insertAfter(imported, doc.getPage(dstPageIndex - 1));
+
+			return dstPageIndex > 0 ? dstPageIndex : getPageCount() - 1;
 		}
 	}
 

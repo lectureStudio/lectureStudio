@@ -29,7 +29,7 @@ import org.lecturestudio.core.recording.edit.EditAction;
 
 /**
  * Removes a single action from the page on which it is located. The duration of
- * the recording remains untouched and no parts of the recording other than the
+ * the recording remains untouched, and no parts of the recording other than the
  * event-stream are changed.
  *
  * @author Alex Andres

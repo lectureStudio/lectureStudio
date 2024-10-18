@@ -60,17 +60,7 @@ import org.lecturestudio.core.recording.file.RecordingUtils;
 import org.lecturestudio.core.service.DocumentService;
 import org.lecturestudio.core.util.ProgressCallback;
 import org.lecturestudio.editor.api.context.EditorContext;
-import org.lecturestudio.editor.api.edit.CutAction;
-import org.lecturestudio.editor.api.edit.DeletePageAction;
-import org.lecturestudio.editor.api.edit.HideAndMoveNextPageAction;
-import org.lecturestudio.editor.api.edit.HidePageAction;
-import org.lecturestudio.editor.api.edit.InsertRecordingAction;
-import org.lecturestudio.editor.api.edit.ModifyPlaybackActionPositionsAction;
-import org.lecturestudio.editor.api.edit.MovePageAction;
-import org.lecturestudio.editor.api.edit.NormalizeLoudnessAction;
-import org.lecturestudio.editor.api.edit.ReplaceAllPagesAction;
-import org.lecturestudio.editor.api.edit.ReplaceAudioAction;
-import org.lecturestudio.editor.api.edit.ReplacePageEventsAction;
+import org.lecturestudio.editor.api.edit.*;
 import org.lecturestudio.media.audio.FFmpegLoudnessNormalization;
 import org.lecturestudio.media.audio.LoudnessConfiguration;
 import org.lecturestudio.media.recording.RecordingEvent;
@@ -336,6 +326,29 @@ public class RecordingFileService {
 			public void run() {
 				try {
 					addEditAction(recording, new ReplaceAllPagesAction(recording, document));
+				}
+				catch (Exception e) {
+					throw new CompletionException(e);
+				}
+			}
+		};
+
+		return CompletableFuture.runAsync(runnable);
+	}
+
+	public CompletableFuture<Void> insertPage(Document newDoc) {
+		Recording recording = getSelectedRecording();
+		double timePos = context.getPrimarySelection();
+
+		// PDDocument is getting garbage collected, when it's not actively referenced,
+		// saving the document in a temporary variable might keep the reference alive and make sure it won't get GCed
+		Runnable runnable = new Runnable() {
+			final Document document = newDoc;
+
+			@Override
+			public void run() {
+				try {
+					addEditAction(recording, new InsertPdfPageAction(recording, document, timePos));
 				}
 				catch (Exception e) {
 					throw new CompletionException(e);

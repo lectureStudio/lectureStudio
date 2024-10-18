@@ -19,6 +19,7 @@ public class MediaTrackControlsMockView implements MediaTrackControlsView {
 	public Action onRedoAction;
 	public Action onCutAction;
 	public Action onAdjustVolumeAction;
+	public Action onInsertPageAction;
 	public Action onDeletePageAction;
 	public Action onReplacePageAction;
 	public Action onImportRecordingAction;
@@ -85,6 +86,11 @@ public class MediaTrackControlsMockView implements MediaTrackControlsView {
 	@Override
 	public void setOnAdjustVolume(Action action) {
 		this.onAdjustVolumeAction = action;
+	}
+
+	@Override
+	public void setOnInsertPage(Action action) {
+		this.onInsertPageAction = action;
 	}
 
 	@Override

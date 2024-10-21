@@ -160,10 +160,6 @@ public class InsertPdfPageAction implements EditAction {
 		newRecPage.setNumber(insertIndex);
 		newRecPage.setTimestamp(timeMs);
 
-		for (StaticShapeAction action : startPage.getStaticActions()) {
-			newRecPage.addStaticAction(action.clone());
-		}
-
 		Iterator<PlaybackAction> iter = startPage.getPlaybackActions().iterator();
 		while (iter.hasNext()) {
 			PlaybackAction action = iter.next();
@@ -175,7 +171,7 @@ public class InsertPdfPageAction implements EditAction {
 			}
 		}
 
-		// Shift pages after the insertion point to the right.
+		// Shift page numbers after the insertion point to the right.
 		for (int i = insertIndex; i < recPages.size(); i++) {
 			RecordedPage page = recPages.get(i);
 			page.setNumber(page.getNumber() + 1);

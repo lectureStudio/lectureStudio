@@ -26,8 +26,11 @@ import org.lecturestudio.editor.api.service.RecordingFileService;
 import org.lecturestudio.editor.api.view.SplitRecordingView;
 
 public class SplitRecordingPresenter extends Presenter<SplitRecordingView> {
+
 	private final RecordingFileService recordingService;
+
 	private final ViewContextFactory viewFactory;
+
 
 	@Inject
 	protected SplitRecordingPresenter(ApplicationContext context, SplitRecordingView view,
@@ -92,6 +95,13 @@ public class SplitRecordingPresenter extends Presenter<SplitRecordingView> {
 							recordingService.savePartialRecording(file, interval, progressView::setProgress)
 									.thenRun(() -> {
 										progressView.setTitle(context.getDictionary().get("save.recording.success"));
+									})
+									.thenRun(() -> {
+										// Set slider position.
+										double pos = interval.getStart() == 0 ? 0 : 1.0;
+
+										EditorContext editorContext = (EditorContext) context;
+										editorContext.setPrimarySelection(pos);
 									})
 									.exceptionally(throwable -> {
 										progressView.setError(MessageFormat.format(context.getDictionary().get("save.recording.error"),

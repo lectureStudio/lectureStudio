@@ -505,7 +505,7 @@ public class MuPDFDocument implements DocumentAdapter {
 
 			// Sort page text blocks, so that the page text is chronologically ordered (top-down).
 			var sorted = Arrays.stream(structuredText.getBlocks())
-					.sorted((o1, o2) -> o1.bbox.y0 < o2.bbox.y0 ? -1 : 1)
+					.sorted((o1, o2) -> o1.bbox.y0 <= o2.bbox.y0 ? -1 : 1)
 					.toList();
 
 			// Last text block y-position.

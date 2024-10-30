@@ -60,6 +60,9 @@ public class Configuration {
 	/** Indicates whether to open the application in fullscreen mode. */
 	private final BooleanProperty startFullscreen = new BooleanProperty();
 
+	/** Turn off the screen according to the power plan. */
+	private final BooleanProperty powerPlanScreen = new BooleanProperty(true);
+
 	/** Indicates whether to use native mouse input instead of pen/stylus input. */
 	private final BooleanProperty useMouseInput = new BooleanProperty();
 
@@ -283,6 +286,33 @@ public class Configuration {
 	 */
 	public BooleanProperty startFullscreenProperty() {
 		return startFullscreen;
+	}
+
+	/**
+	 * Check whether to turn off the screen according to the power plan.
+	 *
+	 * @return {@code true} to enable the power plan.
+	 */
+	public Boolean getPowerPlanScreen() {
+		return powerPlanScreen.get();
+	}
+
+	/**
+	 * Turn off the screen according to the power plan.
+	 *
+	 * @param active True to enable the power plan.
+	 */
+	public void setPowerPlanScreen(boolean active) {
+		powerPlanScreen.set(active);
+	}
+
+	/**
+	 * Returns whether to turn off the screen according to the power plan.
+	 *
+	 * @return The screen power plan property.
+	 */
+	public BooleanProperty powerPlanScreenProperty() {
+		return powerPlanScreen;
 	}
 
 	/**

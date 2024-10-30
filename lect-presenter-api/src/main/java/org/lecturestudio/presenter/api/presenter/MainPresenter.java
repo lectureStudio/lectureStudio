@@ -255,6 +255,10 @@ public class MainPresenter extends org.lecturestudio.core.presenter.MainPresente
 			streamService.enableStreamCamera(newValue);
 		});
 
+		config.powerPlanScreenProperty().addListener((observable, oldValue, newValue) -> {
+
+		});
+
 		slidesPresenter = createPresenter(SlidesPresenter.class);
 
 		if (nonNull(slidesPresenter)) {

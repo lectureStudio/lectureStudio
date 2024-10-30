@@ -54,6 +54,8 @@ public interface GeneralSettingsView extends SettingsBaseView {
 
 	void setExtendedFullscreen(BooleanProperty extended);
 
+	void setScreenPowerPlan(BooleanProperty enablePlan);
+
 	void setExtendPageDimension(ObjectProperty<Dimension2D> dimension);
 
 	void setTextSize(DoubleProperty size);

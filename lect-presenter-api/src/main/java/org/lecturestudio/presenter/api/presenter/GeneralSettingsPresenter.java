@@ -65,6 +65,7 @@ public class GeneralSettingsPresenter extends Presenter<GeneralSettingsView> {
 		view.setPageSelectionDelay(config.pageSelectionDelayProperty());
 		view.setExtendPageDimension(config.extendPageDimensionProperty());
 		view.setExtendedFullscreen(config.extendedFullscreenProperty());
+		view.setScreenPowerPlan(config.powerPlanScreenProperty());
 		view.setTextSize(config.uiControlSizeProperty());
 		view.setOnClose(this::close);
 		view.setOnReset(this::reset);
@@ -99,6 +100,7 @@ public class GeneralSettingsPresenter extends Presenter<GeneralSettingsView> {
 		config.setSaveDocumentOnClose(defaultConfig.getSaveDocumentOnClose());
 		config.setPageSelectionDelay(defaultConfig.getPageSelectionDelay());
 		config.setExtendedFullscreen(defaultConfig.getExtendedFullscreen());
+		config.setPowerPlanScreen(defaultConfig.getPowerPlanScreen());
 		config.setExtendPageDimension(defaultConfig.getExtendPageDimension());
 		config.setUIControlSize(defaultConfig.getUIControlSize());
 	}

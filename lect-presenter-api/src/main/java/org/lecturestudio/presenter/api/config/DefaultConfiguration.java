@@ -53,6 +53,7 @@ public class DefaultConfiguration extends PresenterConfiguration {
 		setStartMaximized(true);
 		setUseMouseInput(false);
 		setTabletMode(false);
+		setPowerPlanScreen(true);
 		setSaveDocumentOnClose(true);
 		setAdvancedUIMode(true);
 		setExtendedFullscreen(true);

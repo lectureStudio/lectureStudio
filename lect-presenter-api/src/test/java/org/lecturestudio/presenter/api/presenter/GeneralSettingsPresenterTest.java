@@ -150,11 +150,6 @@ class GeneralSettingsPresenterTest extends PresenterTest {
 		}
 
 		@Override
-		public void setScreenPowerPlan(BooleanProperty enablePlan) {
-			assertTrue(enablePlan.get());
-		}
-
-		@Override
 		public void setExtendPageDimension(ObjectProperty<Dimension2D> dimension) {
 			assertEquals(new Dimension2D(0.4, 0.4), dimension.get());
 		}

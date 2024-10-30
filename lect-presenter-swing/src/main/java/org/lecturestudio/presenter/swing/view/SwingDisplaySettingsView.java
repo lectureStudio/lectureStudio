@@ -43,6 +43,8 @@ import org.lecturestudio.swing.view.SwingView;
 @SwingView(name = "display-settings", presenter = org.lecturestudio.presenter.api.presenter.DisplaySettingsPresenter.class)
 public class SwingDisplaySettingsView extends JPanel implements DisplaySettingsView {
 
+	private JCheckBox screenPowerPlanCheckBox;
+
 	private JCheckBox autoPresentationCheckBox;
 
 	private JCheckBox notifyToActivateCheckBox;
@@ -60,6 +62,11 @@ public class SwingDisplaySettingsView extends JPanel implements DisplaySettingsV
 
 	SwingDisplaySettingsView() {
 		super();
+	}
+
+	@Override
+	public void setScreenPowerPlan(BooleanProperty enablePlan) {
+		SwingUtils.bindBidirectional(screenPowerPlanCheckBox, enablePlan);
 	}
 
 	@Override

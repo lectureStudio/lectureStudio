@@ -65,8 +65,6 @@ public class SwingGeneralSettingsView extends JPanel implements GeneralSettingsV
 
 	private JCheckBox fullscreenModeCheckBox;
 
-	private JCheckBox screenPowerPlanCheckBox;
-
 	private JTextField pageSelectDelayField;
 
 	private JSlider extendViewSlider;
@@ -141,11 +139,6 @@ public class SwingGeneralSettingsView extends JPanel implements GeneralSettingsV
 	@Override
 	public void setExtendedFullscreen(BooleanProperty extended) {
 //		SwingUtils.bindBidirectional(fullscreenModeCheckBox, extended);
-	}
-
-	@Override
-	public void setScreenPowerPlan(BooleanProperty enablePlan) {
-		SwingUtils.bindBidirectional(screenPowerPlanCheckBox, enablePlan);
 	}
 
 	@Override

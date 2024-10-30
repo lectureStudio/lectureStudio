@@ -62,6 +62,7 @@ class DisplaySettingsPresenterTest extends PresenterTest {
 		screens.addAll(List.of(SCREENS));
 
 		DisplayConfiguration config = context.getConfiguration().getDisplayConfig();
+		config.setScreenPowerPlan(true);
 		config.setAutostart(true);
 		config.setNotifyToActivate(true);
 		config.setBackgroundColor(Color.BLACK);
@@ -95,6 +96,7 @@ class DisplaySettingsPresenterTest extends PresenterTest {
 		DisplayConfiguration config = context.getConfiguration().getDisplayConfig();
 		DisplayConfiguration defaultConfig = new DefaultConfiguration().getDisplayConfig();
 
+		assertEquals(defaultConfig.getScreenPowerPlan(), config.getScreenPowerPlan());
 		assertEquals(defaultConfig.getAutostart(), config.getAutostart());
 		assertEquals(defaultConfig.getNotifyToActivate(), config.getNotifyToActivate());
 		assertEquals(defaultConfig.getBackgroundColor(), config.getBackgroundColor());
@@ -109,6 +111,17 @@ class DisplaySettingsPresenterTest extends PresenterTest {
 
 		Action resetAction;
 
+
+		@Override
+		public void setScreenPowerPlan(BooleanProperty enablePlan) {
+			assertTrue(enablePlan.get());
+
+			enablePlan.addListener((observable, oldValue, newValue) -> {
+				if (reset) {
+					assertFalse(enablePlan.get());
+				}
+			});
+		}
 
 		@Override
 		public void setEnableDisplaysOnStart(BooleanProperty enable) {

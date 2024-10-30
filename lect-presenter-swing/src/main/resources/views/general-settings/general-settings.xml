@@ -25,11 +25,8 @@
 	<CheckBox id="saveAnnotationsCheckBox" text="general.settings.annotations.save">
 		<gridbagconstraints gridx="0" gridy="5" gridwidth="2" anchor="GridBagConstraints.WEST" insets="5,0,2,0" />
 	</CheckBox>
-	<CheckBox id="screenPowerPlanCheckBox" text="general.settings.screen.power.plan">
-		<gridbagconstraints gridx="0" gridy="6" gridwidth="2" anchor="GridBagConstraints.WEST" insets="5,0,2,0" />
-	</CheckBox>
 	<HBox gap="5">
-		<gridbagconstraints gridx="0" gridy="7" gridwidth="2" anchor="GridBagConstraints.WEST" insets="5,0,5,0" />
+		<gridbagconstraints gridx="0" gridy="6" gridwidth="2" anchor="GridBagConstraints.WEST" insets="5,0,5,0" />
 
 		<Label text="general.settings.page.select.delay" />
 		<TextField id="pageSelectDelayField" columns="5" />
@@ -38,16 +35,16 @@
 <!--		<gridbagconstraints gridx="0" gridy="6" gridwidth="2" anchor="GridBagConstraints.WEST" insets="5,0,10,0" />-->
 <!--	</CheckBox>-->
 	<Label text="general.settings.extended.space">
-		<gridbagconstraints gridx="0" gridy="8" anchor="GridBagConstraints.WEST" insets="5,0,5,0" />
+		<gridbagconstraints gridx="0" gridy="7" anchor="GridBagConstraints.WEST" insets="5,0,5,0" />
 	</Label>
 	<Slider id="extendViewSlider" maximum="100">
-		<gridbagconstraints gridx="1" gridy="8" anchor="GridBagConstraints.WEST" insets="5,0,5,0" />
+		<gridbagconstraints gridx="1" gridy="7" anchor="GridBagConstraints.WEST" insets="5,0,5,0" />
 	</Slider>
 	<box.vglue>
-		<gridbagconstraints gridx="0" gridy="9" weighty="1.0" />
+		<gridbagconstraints gridx="0" gridy="8" weighty="1.0" />
 	</box.vglue>
 	<HBox gap="5">
-		<gridbagconstraints gridx="0" gridy="10" gridwidth="2" weightx="1.0" fill="GridBagConstraints.HORIZONTAL" />
+		<gridbagconstraints gridx="0" gridy="9" gridwidth="2" weightx="1.0" fill="GridBagConstraints.HORIZONTAL" />
 		<box.hglue />
 		<Button id="resetButton" text="button.reset"/>
 		<Button id="closeButton" text="button.close"/>

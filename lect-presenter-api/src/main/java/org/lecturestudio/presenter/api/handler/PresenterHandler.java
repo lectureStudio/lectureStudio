@@ -42,12 +42,12 @@ public abstract class PresenterHandler {
 	 *
 	 * @param context The presenter application context.
 	 */
-	PresenterHandler(PresenterContext context) {
+	public PresenterHandler(PresenterContext context) {
 		this.context = context;
 	}
 
 	/**
-	 * Initializes the handler, e.g. to set up context specific control flows.
+	 * Initializes the handler, e.g., to set up context-specific control flows.
 	 */
 	abstract public void initialize();
 

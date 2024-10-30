@@ -27,6 +27,8 @@ import org.lecturestudio.core.graphics.Color;
 
 public interface DisplaySettingsView extends SettingsBaseView {
 
+	void setScreenPowerPlan(BooleanProperty enablePlan);
+
 	void setEnableDisplaysOnStart(BooleanProperty enable);
 
 	void setNotifyToActivate(BooleanProperty activate);

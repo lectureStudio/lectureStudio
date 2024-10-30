@@ -53,7 +53,6 @@ public class DefaultConfiguration extends PresenterConfiguration {
 		setStartMaximized(true);
 		setUseMouseInput(false);
 		setTabletMode(false);
-		setPowerPlanScreen(true);
 		setSaveDocumentOnClose(true);
 		setAdvancedUIMode(true);
 		setExtendedFullscreen(true);
@@ -69,6 +68,7 @@ public class DefaultConfiguration extends PresenterConfiguration {
 		getWhiteboardConfig().setGridColor(new Color(230, 230, 230));
 		getWhiteboardConfig().setShowGridOnDisplays(false);
 
+		getDisplayConfig().setScreenPowerPlan(false);
 		getDisplayConfig().setAutostart(false);
 		getDisplayConfig().setNotifyToActivate(true);
 		getDisplayConfig().setBackgroundColor(Color.WHITE);

@@ -33,6 +33,9 @@ import org.lecturestudio.core.util.ObservableList;
  */
 public class DisplayConfiguration {
 
+	/** Turn off the screen according to the power plan. */
+	private final BooleanProperty screenPowerPlan = new BooleanProperty();
+
 	/**
 	 * The list of screen configurations that describe the properties of all
 	 * connected displays.
@@ -56,6 +59,33 @@ public class DisplayConfiguration {
 	 */
 	private final BooleanProperty notifyToActivate = new BooleanProperty(true);
 
+
+	/**
+	 * Check whether to turn off the screen according to the power plan.
+	 *
+	 * @return {@code true} to enable the power plan.
+	 */
+	public Boolean getScreenPowerPlan() {
+		return screenPowerPlan.get();
+	}
+
+	/**
+	 * Turn off the screen according to the power plan.
+	 *
+	 * @param active True to enable the power plan.
+	 */
+	public void setScreenPowerPlan(boolean active) {
+		screenPowerPlan.set(active);
+	}
+
+	/**
+	 * Returns whether to turn off the screen according to the power plan.
+	 *
+	 * @return The screen power plan property.
+	 */
+	public BooleanProperty screenPowerPlanProperty() {
+		return screenPowerPlan;
+	}
 
 	/**
 	 * Obtain the observable list of screen configurations that describe the

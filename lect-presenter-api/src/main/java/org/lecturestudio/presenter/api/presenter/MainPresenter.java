@@ -77,13 +77,7 @@ import org.lecturestudio.presenter.api.event.ScreenShareEndEvent;
 import org.lecturestudio.presenter.api.event.ScreenShareSelectEvent;
 import org.lecturestudio.presenter.api.event.StreamReconnectStateEvent;
 import org.lecturestudio.presenter.api.event.StreamingStateEvent;
-import org.lecturestudio.presenter.api.handler.AudioDeviceChangeHandler;
-import org.lecturestudio.presenter.api.handler.CheckVersionHandler;
-import org.lecturestudio.presenter.api.handler.MicrophoneMuteHandler;
-import org.lecturestudio.presenter.api.handler.PresenterHandler;
-import org.lecturestudio.presenter.api.handler.ScreenShareHandler;
-import org.lecturestudio.presenter.api.handler.StreamHandler;
-import org.lecturestudio.presenter.api.handler.ViewStreamHandler;
+import org.lecturestudio.presenter.api.handler.*;
 import org.lecturestudio.presenter.api.handler.shutdown.ActionHandler;
 import org.lecturestudio.presenter.api.handler.shutdown.CloseMainViewHandler;
 import org.lecturestudio.presenter.api.input.Shortcut;
@@ -217,6 +211,7 @@ public class MainPresenter extends org.lecturestudio.core.presenter.MainPresente
 
 		config.setAdvancedUIMode(true);
 
+		addHandler(new PowerManagementHandler(presenterContext));
 		addHandler(new AudioDeviceChangeHandler(presenterContext,
 				audioSystemProvider, recordingService));
 		addHandler(new MicrophoneMuteHandler(presenterContext, recordingService));
@@ -253,10 +248,6 @@ public class MainPresenter extends org.lecturestudio.core.presenter.MainPresente
 
 		config.getStreamConfig().enableCameraProperty().addListener((observable, oldValue, newValue) -> {
 			streamService.enableStreamCamera(newValue);
-		});
-
-		config.powerPlanScreenProperty().addListener((observable, oldValue, newValue) -> {
-
 		});
 
 		slidesPresenter = createPresenter(SlidesPresenter.class);

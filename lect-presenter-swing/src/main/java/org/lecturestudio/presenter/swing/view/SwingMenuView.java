@@ -46,6 +46,7 @@ import org.lecturestudio.presenter.api.view.MenuView;
 import org.lecturestudio.swing.util.SwingUtils;
 import org.lecturestudio.swing.view.SwingView;
 import org.lecturestudio.swing.view.ViewPostConstruct;
+import org.lecturestudio.web.api.event.HeartbeatEvent;
 
 @SwingView(name = "main-menu", presenter = org.lecturestudio.presenter.api.presenter.MenuPresenter.class)
 public class SwingMenuView extends JMenuBar implements MenuView {
@@ -608,14 +609,7 @@ public class SwingMenuView extends JMenuBar implements MenuView {
 
 			setIndicatorState(streamIndicatorMenu, state);
 			setIndicatorState(speechIndicatorMenu, state);
-
-			streamIndicatorMenu.setBackground(started ?
-					Color.decode("#D1FAE5") :
-					Color.decode("#FEE2E2"));
-
-			streamIndicatorMenu.setToolTipText(started ?
-					dict.get("menu.stream.online") :
-					dict.get("menu.stream.offline"));
+			setStreamState(started);
 		});
 	}
 
@@ -624,15 +618,12 @@ public class SwingMenuView extends JMenuBar implements MenuView {
 		// Reconnection procedure started.
 		final boolean started = state == ExecutableState.Started;
 
-		SwingUtils.invoke(() -> {
-			streamIndicatorMenu.setBackground(!started ?
-					Color.decode("#D1FAE5") :
-					Color.decode("#FEE2E2"));
+		setStreamState(!started);
+	}
 
-			streamIndicatorMenu.setToolTipText(!started ?
-					dict.get("menu.stream.online") :
-					dict.get("menu.stream.offline"));
-		});
+	@Override
+	public void setHeartbeatEvent(HeartbeatEvent event) {
+		setStreamState(event.type() == HeartbeatEvent.Type.SUCCESS);
 	}
 
 	@Override
@@ -840,6 +831,18 @@ public class SwingMenuView extends JMenuBar implements MenuView {
 			public void mouseExited(MouseEvent e) {
 				stopwatchMenu.setBackground(Color.WHITE);
 			}
+		});
+	}
+
+	private void setStreamState(boolean active) {
+		SwingUtils.invoke(() -> {
+			streamIndicatorMenu.setBackground(active ?
+					Color.decode("#D1FAE5") :
+					Color.decode("#FEE2E2"));
+
+			streamIndicatorMenu.setToolTipText(active ?
+					dict.get("menu.stream.online") :
+					dict.get("menu.stream.offline"));
 		});
 	}
 

@@ -34,6 +34,7 @@ import org.lecturestudio.core.view.View;
 import org.lecturestudio.presenter.api.context.PresenterContext.ParticipantCount;
 import org.lecturestudio.presenter.api.model.*;
 import org.lecturestudio.presenter.api.service.QuizWebServiceState;
+import org.lecturestudio.web.api.event.HeartbeatEvent;
 
 public interface MenuView extends View {
 
@@ -150,6 +151,8 @@ public interface MenuView extends View {
 	void setStreamingState(ExecutableState state);
 
 	void setStreamReconnectState(ExecutableState state);
+
+	void setHeartbeatEvent(HeartbeatEvent event);
 
 	/**
 	 * Stopwatch Menu

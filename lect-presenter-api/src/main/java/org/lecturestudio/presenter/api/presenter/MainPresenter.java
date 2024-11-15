@@ -212,15 +212,13 @@ public class MainPresenter extends org.lecturestudio.core.presenter.MainPresente
 		config.setAdvancedUIMode(true);
 
 		addHandler(new PowerManagementHandler(presenterContext));
-		addHandler(new AudioDeviceChangeHandler(presenterContext,
-				audioSystemProvider, recordingService));
+		addHandler(new AudioDeviceChangeHandler(presenterContext, audioSystemProvider, recordingService));
 		addHandler(new MicrophoneMuteHandler(presenterContext, recordingService));
 		addHandler(new ViewStreamHandler(presenterContext));
-		addHandler(new StreamHandler(presenterContext, streamService,
-				screenShareService));
-		addHandler(new ScreenShareHandler(presenterContext, streamService,
-				screenShareService, screenSourceService, documentService,
-				recordingService));
+		addHandler(new HeartbeatErrorHandler(presenterContext));
+		addHandler(new StreamHandler(presenterContext, streamService, screenShareService));
+		addHandler(new ScreenShareHandler(presenterContext, streamService, screenShareService, screenSourceService,
+				documentService, recordingService));
 
 		// TODO: create more separate handlers.
 

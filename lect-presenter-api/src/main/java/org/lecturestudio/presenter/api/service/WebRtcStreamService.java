@@ -31,6 +31,7 @@ import dev.onvoid.webrtc.media.video.VideoDevice;
 
 import java.io.IOException;
 import java.text.MessageFormat;
+import java.time.Duration;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -74,6 +75,7 @@ import org.lecturestudio.web.api.janus.client.JanusWebSocketClient;
 import org.lecturestudio.web.api.message.SpeechBaseMessage;
 import org.lecturestudio.web.api.model.StreamConfig;
 import org.lecturestudio.web.api.model.UserInfo;
+import org.lecturestudio.web.api.net.Heartbeat;
 import org.lecturestudio.web.api.service.ServiceParameters;
 import org.lecturestudio.web.api.stream.StreamAudioContext;
 import org.lecturestudio.web.api.stream.StreamScreenContext;
@@ -106,6 +108,8 @@ public class WebRtcStreamService extends ExecutableBase {
 	private final RecordingService recordingService;
 
 	private final ExecutableStateObserver stateObserver;
+
+	private final Heartbeat heartbeat;
 
 	private final StreamConfig streamConfig;
 
@@ -152,6 +156,8 @@ public class WebRtcStreamService extends ExecutableBase {
 		this.recordingService = recordingService;
 		this.streamConfig = new StreamConfig();
 		this.stateObserver = new ExecutableStateObserver();
+		this.heartbeat = new Heartbeat(context.getEventBus(), webServiceInfo.getStreamPublisherApiUrl(), 3000,
+			Duration.ofSeconds(3));
 		this.clientFailover = new ClientFailover();
 		this.clientFailover.addStateListener((oldState, newState) -> {
 			setReconnectionState(newState);
@@ -478,6 +484,8 @@ public class WebRtcStreamService extends ExecutableBase {
 		audioConfig.playbackDeviceNameProperty().addListener(playbackDeviceListener);
 		audioConfig.playbackVolumeProperty().addListener(playbackVolumeListener);
 
+		heartbeat.start();
+
 		setStreamState(ExecutableState.Started);
 
 		if (streamCamera) {
@@ -505,6 +513,8 @@ public class WebRtcStreamService extends ExecutableBase {
 		catch (Exception e) {
 			throw new ExecutableException(e);
 		}
+
+		heartbeat.stop();
 
 		PresenterConfiguration config = (PresenterConfiguration) context
 				.getConfiguration();

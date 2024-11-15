@@ -29,7 +29,7 @@ import org.lecturestudio.core.view.NotificationType;
  */
 public class NotificationCommand extends ShowPresenterCommand<NotificationPresenter> {
 
-	/** The notification type, error, warning etc. */
+	/** The notification type, error, warning, etc. */
 	private final NotificationType type;
 
 	/** The title of the notification. */

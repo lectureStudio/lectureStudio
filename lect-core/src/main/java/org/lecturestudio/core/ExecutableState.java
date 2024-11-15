@@ -59,7 +59,7 @@ public enum ExecutableState {
 	/** The component has been successfully destroyed. */
 	Destroyed,
 
-	/** An fatal error has occurred during a state transition. */
+	/** A fatal error has occurred during a state transition. */
 	Error
 
 }

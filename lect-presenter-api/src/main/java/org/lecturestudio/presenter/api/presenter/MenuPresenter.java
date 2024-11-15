@@ -77,6 +77,7 @@ import org.lecturestudio.presenter.api.service.RecordingService;
 import org.lecturestudio.presenter.api.service.StreamService;
 import org.lecturestudio.presenter.api.view.MenuView;
 import org.lecturestudio.presenter.api.view.MessengerWindow;
+import org.lecturestudio.web.api.event.HeartbeatEvent;
 
 public class MenuPresenter extends Presenter<MenuView> {
 
@@ -194,6 +195,11 @@ public class MenuPresenter extends Presenter<MenuView> {
 	@Subscribe
 	public void onEvent(final StreamReconnectStateEvent event) {
 		view.setStreamReconnectState(event.getState());
+	}
+
+	@Subscribe
+	public void onEvent(final HeartbeatEvent event) {
+		view.setHeartbeatEvent(event);
 	}
 
 	@Subscribe

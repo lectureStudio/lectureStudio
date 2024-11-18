@@ -26,10 +26,12 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.Collections;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Stack;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+
 import org.lecturestudio.core.ExecutableException;
 import org.lecturestudio.core.app.ApplicationContext;
 import org.lecturestudio.core.bus.event.PageEvent;
@@ -40,6 +42,9 @@ import org.lecturestudio.core.recording.action.PageAction;
 import org.lecturestudio.core.recording.action.PlaybackAction;
 import org.lecturestudio.core.recording.action.StaticShapeAction;
 import org.lecturestudio.core.service.DocumentService;
+import org.lecturestudio.core.view.PresentationParameter;
+import org.lecturestudio.core.view.PresentationParameterProvider;
+import org.lecturestudio.core.view.ViewType;
 
 /**
  * Executes all recorded events at once resulting in a recorded document having
@@ -111,6 +116,65 @@ public class CreateDocumentExecutor {
 		documentRecorder.recordPage(document.getCurrentPage());
 
 		for (RecordedPage recPage : recordedPages) {
+			loadStaticShapes(toolController, document, recPage);
+
+			Stack<PlaybackAction> actions = getPlaybackActions(recPage);
+
+			while (!actions.isEmpty()) {
+				PlaybackAction action = actions.pop();
+
+				action.execute(toolController);
+			}
+		}
+	}
+
+	/**
+	 * Runs through recorded pages that have the specified page numbers and
+	 * executes all events in a newly created {@code Document}. The created
+	 * document will have exactly the same page count as the recorded
+	 * document and can be retrieved by {@link #getDocumentRecorder()}.
+	 *
+	 * @param pageNumbers The page numbers of the source document the recorded
+	 *                    document must contain.
+	 * @param ppProvider  The presentation parameter provider for the original
+	 *                    document.
+	 *
+	 * @throws Exception If any event could not be executed.
+	 */
+	public void executeEvents(List<Integer> pageNumbers, PresentationParameterProvider ppProvider) throws Exception {
+		Document srcDocument = recording.getRecordedDocument().getDocument();
+		Document document = new Document();
+
+		documentRecorder = new DocumentRecorder(context);
+		documentRecorder.setPageRecordingTimeout(0);
+		documentRecorder.start();
+
+		for (int pageNum : pageNumbers) {
+			Page srcPage = srcDocument.getPage(pageNum);
+			Page newPage = document.createPage(srcPage);
+
+			PresentationParameter srcParam = ppProvider.getParameter(srcPage);
+			PresentationParameter newParam = context.getPagePropertyProvider(ViewType.User).getParameter(newPage);
+
+			newParam.setPageRect(srcParam.getPageRect());
+
+			if (srcParam.isZoomMode()) {
+				newParam.zoom(srcParam.getPageRect());
+			}
+		}
+
+		DocumentService docService = new DocumentService(context);
+		docService.addDocument(document);
+
+		ToolController toolController = new ToolController(context, docService);
+
+		var recordedEvents = recording.getRecordedEvents();
+		var recordedPages = recordedEvents.getRecordedPages();
+
+		documentRecorder.recordPage(document.getCurrentPage());
+
+		for (int pageNum : pageNumbers) {
+			RecordedPage recPage = recordedPages.get(pageNum);
 			loadStaticShapes(toolController, document, recPage);
 
 			Stack<PlaybackAction> actions = getPlaybackActions(recPage);

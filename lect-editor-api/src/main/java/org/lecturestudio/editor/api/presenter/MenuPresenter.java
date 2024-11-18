@@ -55,9 +55,7 @@ import org.lecturestudio.core.recording.DocumentRecorder;
 import org.lecturestudio.core.recording.Recording;
 import org.lecturestudio.core.service.RecentDocumentService;
 import org.lecturestudio.core.util.FileUtils;
-import org.lecturestudio.core.view.FileChooserView;
-import org.lecturestudio.core.view.ProgressView;
-import org.lecturestudio.core.view.ViewContextFactory;
+import org.lecturestudio.core.view.*;
 import org.lecturestudio.editor.api.context.EditorContext;
 import org.lecturestudio.editor.api.service.RecordingFileService;
 import org.lecturestudio.editor.api.view.MenuView;
@@ -293,12 +291,15 @@ public class MenuPresenter extends Presenter<MenuView> {
 		};
 
 		CompletableFuture.runAsync(() -> {
+					Document srcDocument = recording.getRecordedDocument().getDocument();
+					PresentationParameterProvider ppProvider = context.getPagePropertyProvider(ViewType.User);
+
 					CreateDocumentExecutor docEventExecutor = new CreateDocumentExecutor(
 							dummyContext, recording);
 					DocumentRecorder documentRecorder;
 
 					try {
-						docEventExecutor.executeEvents();
+						docEventExecutor.executeEvents(List.of(srcDocument.getCurrentPageNumber()), ppProvider);
 
 						documentRecorder = docEventExecutor.getDocumentRecorder();
 					}
@@ -308,8 +309,7 @@ public class MenuPresenter extends Presenter<MenuView> {
 
 					PdfDocumentRenderer documentRenderer = new PdfDocumentRenderer();
 					documentRenderer.setDocuments(new ArrayList<>(documentRecorder.getRecordedDocuments()));
-					documentRenderer.setPages(List.of(documentRecorder.getRecordedPages()
-							.get(recording.getRecordedDocument().getDocument().getCurrentPageNumber())));
+					documentRenderer.setPages(documentRecorder.getRecordedPages());
 					documentRenderer.setParameterProvider(documentRecorder.getRecordedParamProvider());
 					documentRenderer.setProgressCallback(progressView::setProgress);
 					documentRenderer.setOutputFile(file);

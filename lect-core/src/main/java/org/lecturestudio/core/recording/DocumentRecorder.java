@@ -259,6 +259,7 @@ public class DocumentRecorder extends ExecutableBase {
 		recDocument.setActualSplitSlideNotesPosition(pageDoc.getSplitSlideNotesPosition());
 
 		try {
+			// Important here is not to pass the PresentationParameter object to the recorded one. Use its values.
 			PresentationParameter param = paramProvider.getParameter(page);
 
 			Page recPage = recDocument.createPage(page, param.getPageRect());

@@ -19,6 +19,12 @@
 
 package org.lecturestudio.presenter.api.model;
 
+import org.lecturestudio.core.model.Time;
+
+import java.time.Duration;
+import java.time.LocalTime;
+import java.time.temporal.ChronoUnit;
+
 /**
  * Stopwatch that needs to be updated every second to show the correct time.
  *
@@ -31,9 +37,13 @@ public class Stopwatch {
 		STOPWATCH
 	}
 
-	private int stopwatchInterval;
+	private Integer duration;
 
-	private boolean resetStopwatch;
+	private LocalTime endTime;
+
+	private LocalTime startTime;
+
+	private int stopwatchInterval;
 
 	private boolean runStopwatch;
 
@@ -48,8 +58,19 @@ public class Stopwatch {
 
 	public Stopwatch() {
 		stopwatchInterval = 0;
-		resetStopwatch = false;
 		runStopwatch = false;
+	}
+
+	public void setDuration(Integer duration) {
+		this.duration = duration;
+	}
+
+	public void setEndTime(LocalTime time) {
+		this.endTime = time;
+	}
+
+	public void setStartTime(LocalTime time) {
+		this.startTime = time;
 	}
 
 	/**
@@ -88,6 +109,13 @@ public class Stopwatch {
 	 */
 	public void updateStopwatchInterval() {
 		if (runStopwatch) {
+			long timeDiffMs = endTime.until(LocalTime.now(), ChronoUnit.MILLIS);
+
+			Duration duration = Duration.between(LocalTime.now(), endTime);
+
+			System.out.println(new Time(Math.abs(timeDiffMs)));
+
+
 			if (type == StopwatchType.STOPWATCH) {
 				stopwatchInterval++;
 			}
@@ -128,22 +156,21 @@ public class Stopwatch {
 	/**
 	 * Transforms a given string into an actual stopwatch time.
 	 *
-	 * @param time The stopwatchtime in format "ss", "mm:ss" or "hh:mm:ss"
+	 * @param time The stopwatch time in format "ss", "mm:ss" or "hh:mm:ss"
 	 */
 	public void setStopwatchIntervalByString(String time) {
-		if (!time.trim().equals("")) {
+		if (!time.trim().isEmpty()) {
 			String[] timesteps = time.split(":");
 
 			int actualTime = switch (timesteps.length) {
 				case 1 -> Integer.parseInt(timesteps[0]);
-				case 2 ->
-						60 * Integer.parseInt(timesteps[0]) + Integer.parseInt(
-								timesteps[1]);
+				case 2 -> 60 * Integer.parseInt(timesteps[0]) + Integer.parseInt(timesteps[1]);
 				case 3 -> 60 * 60 * Integer.parseInt(timesteps[0])
 						+ 60 * Integer.parseInt(timesteps[1])
 						+ Integer.parseInt(timesteps[2]);
 				default -> 0;
 			};
+
 			stopwatchInterval = actualTime;
 			resetStopwatchInterval = actualTime;
 		}

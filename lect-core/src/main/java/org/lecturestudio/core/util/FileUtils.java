@@ -78,6 +78,17 @@ public class FileUtils {
 		return dirPath;
 	}
 
+	public static boolean validateFileName(String name) {
+		try {
+			Paths.get(name);
+		}
+		catch (Exception e) {
+			// Invalid file name.
+			return false;
+		}
+		return true;
+	}
+
 	public static File ensureExtension(File file, String extension) {
 		String path = file.getAbsolutePath();
 

@@ -511,7 +511,6 @@ public class MenuPresenter extends Presenter<MenuView> {
 		streamService.stopQuiz();
 	}
 
-
 	public void pauseStopwatch(){
 		stopwatch.startStopStopwatch();
 	}
@@ -520,6 +519,7 @@ public class MenuPresenter extends Presenter<MenuView> {
 		stopwatch.resetStopwatch();
 		view.setCurrentStopwatch(stopwatch.calculateCurrentStopwatch());
 	}
+
 	public void clearBookmarks() {
 		bookmarkService.clearBookmarks();
 	}

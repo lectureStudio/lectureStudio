@@ -289,7 +289,7 @@ public class PresenterContext extends ApplicationContext {
 		return recordingDir;
 	}
 
-	public Stopwatch getStopwatch(){
+	public Stopwatch getStopwatch() {
 		return stopwatch;
 	}
 }

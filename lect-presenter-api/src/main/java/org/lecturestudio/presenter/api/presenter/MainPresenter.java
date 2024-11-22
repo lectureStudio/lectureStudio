@@ -26,15 +26,16 @@ import com.google.common.eventbus.Subscribe;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.time.LocalTime;
+import java.time.format.DateTimeFormatter;
+import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionException;
 import java.util.function.Predicate;
 
 import javax.inject.Inject;
+
+import org.apache.commons.cli.*;
 
 import org.lecturestudio.core.ExecutableException;
 import org.lecturestudio.core.ExecutableState;
@@ -81,6 +82,7 @@ import org.lecturestudio.presenter.api.handler.*;
 import org.lecturestudio.presenter.api.handler.shutdown.ActionHandler;
 import org.lecturestudio.presenter.api.handler.shutdown.CloseMainViewHandler;
 import org.lecturestudio.presenter.api.input.Shortcut;
+import org.lecturestudio.presenter.api.model.Stopwatch;
 import org.lecturestudio.presenter.api.presenter.command.StartScreenSharingCommand;
 import org.lecturestudio.presenter.api.recording.RecordingBackup;
 import org.lecturestudio.presenter.api.service.BookmarkService;
@@ -177,9 +179,7 @@ public class MainPresenter extends org.lecturestudio.core.presenter.MainPresente
 		showWaitingNotification("open.document");
 
 		documentService.openDocument(file)
-			.thenRun(() -> {
-				hideWaitingNotification();
-			})
+			.thenRun(this::hideWaitingNotification)
 			.exceptionally(throwable -> {
 				hideWaitingNotification();
 				handleException(throwable, "Open document failed",
@@ -190,7 +190,60 @@ public class MainPresenter extends org.lecturestudio.core.presenter.MainPresente
 
 	@Override
 	public void setArgs(String[] args) {
+		Converter<LocalTime, ?> timeConverter = timeString ->
+				LocalTime.parse(timeString, DateTimeFormatter.ofPattern("HH:mm:ss"));
 
+		Option durationOpt = Option.builder("d")
+				.longOpt("duration")
+				.hasArg()
+				.desc("Duration in minutes of the presentation.")
+				.type(Integer.class)
+				.build();
+
+		Option endTimeOpt = Option.builder("e")
+				.longOpt("end-time")
+				.hasArg()
+				.desc("End time of the presentation. [Format: HH:MM] (24h)")
+				.converter(timeConverter)
+				.build();
+
+		Option startTimeOpt = Option.builder("t")
+				.longOpt("start-time")
+				.hasArg()
+				.desc("Start time of the presentation to be used as a countdown. [Format: HH:MM] (24h)")
+				.converter(timeConverter)
+				.build();
+
+		Options options = new Options();
+		options.addOption(durationOpt);
+		options.addOption(endTimeOpt);
+		options.addOption(startTimeOpt);
+
+		// The DefaultParser does not work here with the 't' argument, for some reason.
+		CommandLineParser parser = new GnuParser();
+		try {
+			CommandLine cmd = parser.parse(options, args);
+
+			Integer duration = cmd.getParsedOptionValue(durationOpt);
+			LocalTime endTime = cmd.getParsedOptionValue(endTimeOpt);
+			LocalTime startTime = cmd.getParsedOptionValue(startTimeOpt);
+
+			System.out.println("duration: " + duration);
+			System.out.println("end-time: " + endTime);
+			System.out.println("start-time: " + startTime);
+
+			PresenterContext pContext = (PresenterContext) context;
+
+			if (nonNull(endTime)) {
+				pContext.getStopwatch().setDuration(duration);
+				pContext.getStopwatch().setStartTime(startTime);
+				pContext.getStopwatch().setEndTime(endTime);
+//				pContext.getStopwatch().setStopwatchType(Stopwatch.StopwatchType.TIMER);
+			}
+		}
+		catch (Exception e) {
+			System.err.println("Error: " + e.getMessage());
+		}
 	}
 
 	@Override

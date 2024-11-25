@@ -82,7 +82,6 @@ import org.lecturestudio.presenter.api.handler.*;
 import org.lecturestudio.presenter.api.handler.shutdown.ActionHandler;
 import org.lecturestudio.presenter.api.handler.shutdown.CloseMainViewHandler;
 import org.lecturestudio.presenter.api.input.Shortcut;
-import org.lecturestudio.presenter.api.model.Stopwatch;
 import org.lecturestudio.presenter.api.presenter.command.StartScreenSharingCommand;
 import org.lecturestudio.presenter.api.recording.RecordingBackup;
 import org.lecturestudio.presenter.api.service.BookmarkService;
@@ -191,13 +190,13 @@ public class MainPresenter extends org.lecturestudio.core.presenter.MainPresente
 	@Override
 	public void setArgs(String[] args) {
 		Converter<LocalTime, ?> timeConverter = timeString ->
-				LocalTime.parse(timeString, DateTimeFormatter.ofPattern("HH:mm:ss"));
+				LocalTime.parse(timeString, DateTimeFormatter.ofPattern("HH:mm"));
 
 		Option durationOpt = Option.builder("d")
 				.longOpt("duration")
 				.hasArg()
 				.desc("Duration in minutes of the presentation.")
-				.type(Integer.class)
+				.type(Long.class)
 				.build();
 
 		Option endTimeOpt = Option.builder("e")
@@ -224,7 +223,7 @@ public class MainPresenter extends org.lecturestudio.core.presenter.MainPresente
 		try {
 			CommandLine cmd = parser.parse(options, args);
 
-			Integer duration = cmd.getParsedOptionValue(durationOpt);
+			Long duration = cmd.getParsedOptionValue(durationOpt);
 			LocalTime endTime = cmd.getParsedOptionValue(endTimeOpt);
 			LocalTime startTime = cmd.getParsedOptionValue(startTimeOpt);
 
@@ -238,7 +237,7 @@ public class MainPresenter extends org.lecturestudio.core.presenter.MainPresente
 				pContext.getStopwatch().setDuration(duration);
 				pContext.getStopwatch().setStartTime(startTime);
 				pContext.getStopwatch().setEndTime(endTime);
-//				pContext.getStopwatch().setStopwatchType(Stopwatch.StopwatchType.TIMER);
+				pContext.getStopwatch().init();
 			}
 		}
 		catch (Exception e) {

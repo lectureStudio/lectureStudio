@@ -23,7 +23,6 @@ import static java.util.Objects.nonNull;
 
 import javax.inject.Inject;
 
-import java.awt.Color;
 import java.awt.Desktop;
 import java.io.File;
 import java.io.IOException;
@@ -48,10 +47,7 @@ import org.lecturestudio.core.audio.AudioDeviceNotConnectedException;
 import org.lecturestudio.core.bus.EventBus;
 import org.lecturestudio.core.bus.event.*;
 import org.lecturestudio.core.controller.ToolController;
-import org.lecturestudio.core.model.Document;
-import org.lecturestudio.core.model.NotesPosition;
-import org.lecturestudio.core.model.Page;
-import org.lecturestudio.core.model.RecentDocument;
+import org.lecturestudio.core.model.*;
 import org.lecturestudio.core.model.listener.PageEditEvent;
 import org.lecturestudio.core.model.listener.ParameterChangeListener;
 import org.lecturestudio.core.presenter.AboutPresenter;
@@ -157,7 +153,7 @@ public class MenuPresenter extends Presenter<MenuView> {
 
 			page.addPageEditedListener(this::pageEdited);
 
-			stopwatch.setRunStopwatch(true);
+			stopwatch.startStopwatch();
 			pageChanged(page);
 		}
 	}
@@ -515,9 +511,9 @@ public class MenuPresenter extends Presenter<MenuView> {
 		stopwatch.startStopStopwatch();
 	}
 
-	public void resetStopwatch(){
+	public void resetStopwatch() {
 		stopwatch.resetStopwatch();
-		view.setCurrentStopwatch(stopwatch.calculateCurrentStopwatch());
+		view.setStopwatch(stopwatch);
 	}
 
 	public void clearBookmarks() {
@@ -755,7 +751,7 @@ public class MenuPresenter extends Presenter<MenuView> {
 		view.setOnCloseQuiz(this::closeQuiz);
 		view.setOnPauseStopwatch(this::pauseStopwatch);
 		view.setOnResetStopwatch(this::resetStopwatch);
-		view.setCurrentStopwatch(this::pauseStopwatch);
+		view.setOnStopwatch(this::pauseStopwatch);
 		view.setOnConfigStopwatch(this::startStopwatchConfiguration);
 
 		view.setOnClearBookmarks(this::clearBookmarks);
@@ -846,15 +842,20 @@ public class MenuPresenter extends Presenter<MenuView> {
 			@Override
 			public void run() {
 				stopwatch.updateStopwatchInterval();
-				view.setCurrentStopwatch(stopwatch.calculateCurrentStopwatch());
-				//Timer blinks 5times when the time ran out
-				if(stopwatch.isTimerEnded()) {
+
+				view.setStopwatch(stopwatch);
+
+				// Timer blinks 5 times when the time ran out.
+				/*
+				if (stopwatch.isTimerEnded()) {
 					if (stopwatch.getTimerEndedInterval() % 2 == 0) {
 						view.setCurrentStopwatchBackgroundColor(Color.WHITE);
-					} else {
+					}
+					else {
 						view.setCurrentStopwatchBackgroundColor(Color.RED);
 					}
 				}
+			 	*/
 			}
 		}, 0, 1000);
 	}
@@ -862,7 +863,7 @@ public class MenuPresenter extends Presenter<MenuView> {
 	public void startStopwatchConfiguration() {
 		eventBus.post(new StopwatchCommand(() -> {
 			stopwatch.stopStopwatch();
-			view.setCurrentStopwatch(stopwatch.calculateCurrentStopwatch());
+			view.setStopwatch(stopwatch);
 		}));
 	}
 }

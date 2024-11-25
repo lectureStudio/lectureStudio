@@ -16,14 +16,15 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-
 package org.lecturestudio.presenter.api.model;
 
-import org.lecturestudio.core.model.Time;
+import static java.util.Objects.nonNull;
 
 import java.time.Duration;
 import java.time.LocalTime;
 import java.time.temporal.ChronoUnit;
+
+import org.lecturestudio.core.model.Time;
 
 /**
  * Stopwatch that needs to be updated every second to show the correct time.
@@ -37,13 +38,24 @@ public class Stopwatch {
 		STOPWATCH
 	}
 
-	private Integer duration;
+	public enum TimeIndication {
+		WAITING,
+		OPTIMAL,
+		SPEED_UP,
+		SLOW_DOWN,
+		ENDED
+	}
+
+	// Duration in minutes.
+	private Long duration;
 
 	private LocalTime endTime;
 
 	private LocalTime startTime;
 
-	private int stopwatchInterval;
+	private Time time;
+
+	private TimeIndication timeIndication;
 
 	private boolean runStopwatch;
 
@@ -57,11 +69,10 @@ public class Stopwatch {
 
 
 	public Stopwatch() {
-		stopwatchInterval = 0;
-		runStopwatch = false;
+		resetStopwatch();
 	}
 
-	public void setDuration(Integer duration) {
+	public void setDuration(Long duration) {
 		this.duration = duration;
 	}
 
@@ -77,10 +88,11 @@ public class Stopwatch {
 	 * Reset the stopwatch to the last configured time and stops it
 	 */
 	public void resetStopwatch() {
-		stopwatchInterval = resetStopwatchInterval;
 		runStopwatch = false;
 		timerEndedInterval = 0;
 		timerEnded = false;
+		timeIndication = TimeIndication.OPTIMAL;
+		time = new Time(0);
 	}
 
 	/**
@@ -104,22 +116,32 @@ public class Stopwatch {
 		runStopwatch = !runStopwatch;
 	}
 
+	public void init() {
+		if (nonNull(startTime) && nonNull(endTime)) {
+			setStopwatchType(StopwatchType.TIMER);
+			setDuration(Duration.between(startTime, endTime).toMinutes());
+			setTime(new Time(Math.abs(endTime.minusMinutes(duration)
+					.until(LocalTime.now(), ChronoUnit.MILLIS))));
+		}
+		else if (nonNull(endTime) && nonNull(duration)) {
+			setStopwatchType(StopwatchType.TIMER);
+			setTime(new Time(Math.abs(endTime.minusMinutes(duration)
+					.until(LocalTime.now(), ChronoUnit.MILLIS))));
+		}
+	}
+
 	/**
 	 * Handles all incoming changes to the current stopwatch.
 	 */
-	public void updateStopwatchInterval() {
+	public synchronized void updateStopwatchInterval() {
 		if (runStopwatch) {
-			long timeDiffMs = endTime.until(LocalTime.now(), ChronoUnit.MILLIS);
-
-			Duration duration = Duration.between(LocalTime.now(), endTime);
-
-			System.out.println(new Time(Math.abs(timeDiffMs)));
-
-
 			if (type == StopwatchType.STOPWATCH) {
-				stopwatchInterval++;
+				//stopwatchInterval++;
 			}
 			else if (type == StopwatchType.TIMER) {
+				runTimer();
+
+				/*
 				if (stopwatchInterval > 0) {
 					stopwatchInterval--;
 					timerEnded = false;
@@ -128,13 +150,31 @@ public class Stopwatch {
 					if (timerEndedInterval <= 11) {
 						timerEnded = true;
 						timerEndedInterval++;
+						setTimeIndication(TimeIndication.ENDED);
 					}
 					else {
-						runStopwatch = false;
+						//runStopwatch = false;
 					}
 				}
+				*/
 			}
 		}
+	}
+
+	public Time getTime() {
+		return time;
+	}
+
+	private void setTime(Time time) {
+		this.time = time;
+	}
+
+	public TimeIndication getTimeIndication() {
+		return timeIndication;
+	}
+
+	public void setTimeIndication(TimeIndication timeIndication) {
+		this.timeIndication = timeIndication;
 	}
 
 	/**
@@ -143,14 +183,7 @@ public class Stopwatch {
      * @return the current stopwatch time as string
      */
 	public String calculateCurrentStopwatch() {
-		int sec = stopwatchInterval % 60;
-		int min = stopwatchInterval / 60 % 60;
-		int h = stopwatchInterval / 60 / 60;
-		String secStr = String.format("%02d", sec);
-		String minStr = String.format("%02d", min);
-		String hStr = String.format("%02d", h);
-
-		return hStr + ":" + minStr + ":" + secStr;
+		return time.toString();
 	}
 
 	/**
@@ -171,17 +204,13 @@ public class Stopwatch {
 				default -> 0;
 			};
 
-			stopwatchInterval = actualTime;
+			//stopwatchInterval = actualTime;
 			resetStopwatchInterval = actualTime;
 		}
 	}
 
 	public StopwatchType getType() {
 		return type;
-	}
-
-	public void setRunStopwatch(boolean runStopwatch) {
-		this.runStopwatch = runStopwatch;
 	}
 
 	public boolean isTimerEnded() {
@@ -194,5 +223,28 @@ public class Stopwatch {
 
 	public int getTimerEndedInterval() {
 		return timerEndedInterval;
+	}
+
+	private void runTimer() {
+		long timeDiffMs = endTime.minusMinutes(duration)
+				.until(LocalTime.now(), ChronoUnit.MILLIS);
+
+		System.out.println("timeDiffMs: " + timeDiffMs);
+
+		if (timeDiffMs < 0) {
+			setTimeIndication(TimeIndication.WAITING);
+			setTime(new Time(Duration.ofMillis(Math.abs(timeDiffMs)).toMillis()));
+		}
+		else {
+			//System.out.println("1: " + timeIndication);
+
+			if (timeIndication == TimeIndication.WAITING) {
+				// Update once.
+				System.out.println("Update once: " + Duration.ofMinutes(duration).toSeconds());
+				setTime(new Time(Duration.ofMinutes(duration).toMillis()));
+				setTimeIndication(TimeIndication.OPTIMAL);
+			}
+		}
+
 	}
 }

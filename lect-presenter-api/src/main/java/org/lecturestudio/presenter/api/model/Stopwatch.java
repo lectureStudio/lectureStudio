@@ -226,25 +226,24 @@ public class Stopwatch {
 	}
 
 	private void runTimer() {
-		long timeDiffMs = endTime.minusMinutes(duration)
-				.until(LocalTime.now(), ChronoUnit.MILLIS);
-
-		System.out.println("timeDiffMs: " + timeDiffMs);
+		long timeDiffMs = endTime.until(LocalTime.now(), ChronoUnit.MILLIS);
 
 		if (timeDiffMs < 0) {
 			setTimeIndication(TimeIndication.WAITING);
 			setTime(new Time(Duration.ofMillis(Math.abs(timeDiffMs)).toMillis()));
 		}
 		else {
-			//System.out.println("1: " + timeIndication);
-
 			if (timeIndication == TimeIndication.WAITING) {
 				// Update once.
-				System.out.println("Update once: " + Duration.ofMinutes(duration).toSeconds());
 				setTime(new Time(Duration.ofMinutes(duration).toMillis()));
 				setTimeIndication(TimeIndication.OPTIMAL);
 			}
-		}
+			else {
+				timeDiffMs = endTime.plusMinutes(duration)
+						.until(LocalTime.now(), ChronoUnit.MILLIS);
 
+				setTime(new Time(Duration.ofMillis(Math.abs(timeDiffMs)).toMillis()));
+			}
+		}
 	}
 }

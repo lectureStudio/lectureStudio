@@ -1060,19 +1060,29 @@ public class SlidesPresenter extends Presenter<SlidesView> {
 		close();
 	}
 
-	private void timerStartToggle() {
+	private void timerStart() {
 		PresenterContext pContext = (PresenterContext) context;
-		pContext.getStopwatch().startStopStopwatch();
+		try {
+			pContext.getStopwatch().start();
+		}
+		catch (ExecutableException e) {
+			throw new RuntimeException(e);
+		}
 	}
 
 	private void timerPause() {
 		PresenterContext pContext = (PresenterContext) context;
-		pContext.getStopwatch().stopStopwatch();
-	}
+        try {
+            pContext.getStopwatch().suspend();
+        }
+		catch (ExecutableException e) {
+            throw new RuntimeException(e);
+        }
+    }
 
 	private void timerReset() {
 		PresenterContext pContext = (PresenterContext) context;
-		pContext.getStopwatch().resetStopwatch();
+		pContext.getStopwatch().reset();
 	}
 
 	private void registerShortcut(Shortcut shortcut, Action action) {
@@ -1434,7 +1444,7 @@ public class SlidesPresenter extends Presenter<SlidesView> {
 		registerShortcut(Shortcut.BOOKMARK_SLIDE, this::bookmarkSlide);
 		registerShortcut(Shortcut.BOOKMARK_GOTO_LAST, this::bookmarkGotoLastSlide);
 
-		registerShortcut(Shortcut.TIMER_START, this::timerStartToggle);
+		registerShortcut(Shortcut.TIMER_START, this::timerStart);
 		registerShortcut(Shortcut.TIMER_PAUSE, this::timerPause);
 		registerShortcut(Shortcut.TIMER_RESET, this::timerReset);
 

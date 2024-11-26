@@ -126,6 +126,10 @@ public class MenuPresenter extends Presenter<MenuView> {
 
 		if (event.selected() && nonNull(page)) {
 			page.addPageEditedListener(this::pageEdited);
+
+			if (!stopwatch.started()) {
+				startStopwatch();
+			}
 		}
 
 		view.setDocument(doc);
@@ -153,8 +157,12 @@ public class MenuPresenter extends Presenter<MenuView> {
 
 			page.addPageEditedListener(this::pageEdited);
 
-			stopwatch.startStopwatch();
 			pageChanged(page);
+
+			if (!stopwatch.started()) {
+				startStopwatch();
+			}
+			stopwatch.setPresentationStarted();
 		}
 	}
 
@@ -507,12 +515,40 @@ public class MenuPresenter extends Presenter<MenuView> {
 		streamService.stopQuiz();
 	}
 
-	public void pauseStopwatch(){
-		stopwatch.startStopStopwatch();
+	public void startStopwatch() {
+		try {
+			stopwatch.start();
+		}
+		catch (ExecutableException e) {
+			throw new RuntimeException(e);
+		}
+	}
+
+	public void stopStopwatch() {
+		try {
+			stopwatch.stop();
+		}
+		catch (ExecutableException e) {
+			throw new RuntimeException(e);
+		}
+	}
+
+	public void pauseStopwatch() {
+		try {
+			if (stopwatch.started()) {
+				stopwatch.suspend();
+			}
+			else {
+				stopwatch.start();
+			}
+		}
+		catch (ExecutableException e) {
+			throw new RuntimeException(e);
+		}
 	}
 
 	public void resetStopwatch() {
-		stopwatch.resetStopwatch();
+		stopwatch.reset();
 		view.setStopwatch(stopwatch);
 	}
 
@@ -841,7 +877,7 @@ public class MenuPresenter extends Presenter<MenuView> {
 
 			@Override
 			public void run() {
-				stopwatch.updateStopwatchInterval();
+				stopwatch.update();
 
 				view.setStopwatch(stopwatch);
 
@@ -862,7 +898,7 @@ public class MenuPresenter extends Presenter<MenuView> {
 
 	public void startStopwatchConfiguration() {
 		eventBus.post(new StopwatchCommand(() -> {
-			stopwatch.stopStopwatch();
+			stopStopwatch();
 			view.setStopwatch(stopwatch);
 		}));
 	}

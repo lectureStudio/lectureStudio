@@ -75,7 +75,7 @@ public class StopwatchConfigPresenter extends Presenter<StopwatchConfigView> {
         dispose();
 
         if (nonNull(startAction)) {
-            stopwatch.setStopwatchType(stopwatchType);
+            stopwatch.setType(stopwatchType);
             stopwatch.setStopwatchIntervalByString(stopwatchTime.get());
             startAction.execute();
         }

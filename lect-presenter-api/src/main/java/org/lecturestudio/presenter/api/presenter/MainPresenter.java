@@ -227,10 +227,6 @@ public class MainPresenter extends org.lecturestudio.core.presenter.MainPresente
 			LocalTime endTime = cmd.getParsedOptionValue(endTimeOpt);
 			LocalTime startTime = cmd.getParsedOptionValue(startTimeOpt);
 
-			System.out.println("duration: " + duration);
-			System.out.println("end-time: " + endTime);
-			System.out.println("start-time: " + startTime);
-
 			PresenterContext pContext = (PresenterContext) context;
 
 			if (nonNull(endTime)) {

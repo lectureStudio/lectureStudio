@@ -833,7 +833,7 @@ public class MenuPresenter extends Presenter<MenuView> {
 
 				File file = new File(path);
 				if (!file.exists()) {
-					// Skip and remove missing document.
+					// Skip and remove a missing document.
 					iter.remove();
 				}
 			}
@@ -880,18 +880,6 @@ public class MenuPresenter extends Presenter<MenuView> {
 				stopwatch.update();
 
 				view.setStopwatch(stopwatch);
-
-				// Timer blinks 5 times when the time ran out.
-				/*
-				if (stopwatch.isTimerEnded()) {
-					if (stopwatch.getTimerEndedInterval() % 2 == 0) {
-						view.setCurrentStopwatchBackgroundColor(Color.WHITE);
-					}
-					else {
-						view.setCurrentStopwatchBackgroundColor(Color.RED);
-					}
-				}
-			 	*/
 			}
 		}, 0, 1000);
 	}

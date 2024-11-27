@@ -35,6 +35,6 @@ public class StopwatchCommand extends ShowPresenterCommand<StopwatchConfigPresen
 
     @Override
     public void execute(StopwatchConfigPresenter stopwatch) {
-        stopwatch.setOnStart(startAction);
+        stopwatch.setOnSave(startAction);
     }
 }

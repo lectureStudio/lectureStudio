@@ -49,13 +49,14 @@ public class Stopwatch extends ExecutableBase {
 		ENDED
 	}
 
-	// Duration in minutes.
+	/** Duration in minutes. */
 	private Long duration;
 
 	private LocalTime endTime;
 
 	private LocalTime startTime;
 
+	/** The current time. */
 	private Time time = new Time();
 
 	private TimeIndication timeIndication;
@@ -121,7 +122,7 @@ public class Stopwatch extends ExecutableBase {
 
 	/**
 	 * Gets the current time indication, which tells the user whether there is time
-	 * left to start the presentation, the pace should increase / decrease or the time
+	 * left to start the presentation, the pace should increase / decrease, or the time
 	 * is up.
 	 *
 	 * @return The time current indication.
@@ -132,7 +133,7 @@ public class Stopwatch extends ExecutableBase {
 
 	/**
 	 * Sets the current time indication, which tells the user whether there is time
-	 * left to start the presentation, the pace should increase / decrease or the time
+	 * left to start the presentation, the pace should increase / decrease, or the time
 	 * is up.
 	 *
 	 * @param timeIndication The time current indication.
@@ -165,6 +166,10 @@ public class Stopwatch extends ExecutableBase {
 	 * Changes the internal state to start the timer with the duration of the presentation.
 	 */
 	public void setPresentationStarted() {
+		if (presentationStarted) {
+			return;
+		}
+
 		setTimeIndication(TimeIndication.OPTIMAL);
 
 		if (nonNull(duration)) {
@@ -178,37 +183,19 @@ public class Stopwatch extends ExecutableBase {
 	}
 
 	/**
-     * Creates a string with the current time.
-     *
-     * @return the current stopwatch time as string
-     */
-	public String calculateCurrentStopwatch() {
-		return time.toString();
-	}
-
-	/**
-	 * Transforms a given string into an actual stopwatch time.
-	 *
-	 * @param time The stopwatch time in format "ss", "mm:ss" or "hh:mm:ss"
-	 */
-	public void setStopwatchIntervalByString(String time) {
-		if (!time.trim().isEmpty()) {
-			//stopwatchInterval = actualTime;
-		}
-	}
-
-	/**
 	 * Reset the stopwatch to the last configured time and stops it
 	 */
 	public void reset() {
-		presentationStarted = false;
-		startTime = null;
 		timeIndication = TimeIndication.OPTIMAL;
 
 		if (type == StopwatchType.STOPWATCH) {
 			// Autostart the counting.
 			startTime = LocalTime.now();
 			presentationStarted = true;
+		}
+		else {
+			presentationStarted = false;
+			startTime = null;
 		}
 	}
 
@@ -231,13 +218,10 @@ public class Stopwatch extends ExecutableBase {
 		if (nonNull(startTime) && nonNull(endTime)) {
 			setType(StopwatchType.TIMER);
 			setDuration(Duration.between(startTime, endTime).toMinutes());
-			setTime(new Time(Math.abs(endTime.minusMinutes(duration)
-						.until(LocalTime.now(), ChronoUnit.MILLIS))));
 		}
 		else if (nonNull(endTime) && nonNull(duration)) {
 			setType(StopwatchType.TIMER);
-			setTime(new Time(Math.abs(endTime.minusMinutes(duration)
-						.until(LocalTime.now(), ChronoUnit.MILLIS))));
+			setStartTime(LocalTime.now());
 		}
 	}
 
@@ -248,6 +232,8 @@ public class Stopwatch extends ExecutableBase {
 
 	@Override
 	protected void startInternal() {
+		reset();
+
 		runStopwatch = true;
 	}
 
@@ -297,9 +283,13 @@ public class Stopwatch extends ExecutableBase {
 				}
 				else {
 					// Count presentation time up.
-					timeDiffMs = endTime.until(LocalTime.now(), ChronoUnit.MILLIS);
+					timeDiffMs = LocalTime.now().until(endTime, ChronoUnit.MILLIS);
 
 					setTime(createTime(timeDiffMs));
+
+					if (timeDiffMs < 0) {
+						setTimeIndication(TimeIndication.ENDED);
+					}
 				}
 			}
 		}

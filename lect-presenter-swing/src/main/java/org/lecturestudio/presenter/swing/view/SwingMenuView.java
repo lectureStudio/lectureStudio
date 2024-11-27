@@ -738,13 +738,21 @@ public class SwingMenuView extends JMenuBar implements MenuView {
 	@Override
 	public void setStopwatch(Stopwatch stopwatch) {
 		SwingUtils.invoke(() -> {
-			stopwatchMenu.setText(stopwatch.getTime().toString());
+			String prefix = "";
 
 			switch (stopwatch.getTimeIndication()) {
-				case WAITING -> stopwatchMenu.setBackground(Color.decode("#D1FAE5"));
-				case ENDED -> stopwatchMenu.setBackground(Color.decode("#FEE2E2"));
+				case WAITING -> {
+					stopwatchMenu.setBackground(Color.decode("#D1FAE5"));
+					prefix = "-";
+				}
+				case ENDED -> {
+					stopwatchMenu.setBackground(Color.decode("#FEE2E2"));
+					prefix = "-";
+				}
 				case OPTIMAL -> stopwatchMenu.setBackground(Color.white);
 			}
+
+			stopwatchMenu.setText(prefix + stopwatch.getTime().toString());
 		});
 	}
 

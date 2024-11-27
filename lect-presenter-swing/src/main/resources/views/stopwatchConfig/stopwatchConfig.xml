@@ -22,7 +22,7 @@
     <HBox>
         <gridbagconstraints gridx="0" gridy="1" insets="20,0,0,0" weightx="1.0" fill="GridBagConstraints.HORIZONTAL" />
         <box.hglue />
-        <Button id="startButton" text="start.stopwatch.start" />
+        <Button id="startButton" text="stopwatch.save" />
         <box.hstrut width="5" />
         <Button id="closeButton" text="button.close" />
     </HBox>

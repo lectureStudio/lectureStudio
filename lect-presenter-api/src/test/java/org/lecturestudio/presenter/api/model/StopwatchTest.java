@@ -6,6 +6,9 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.lecturestudio.core.ExecutableException;
 
+import java.time.LocalTime;
+import java.time.format.DateTimeFormatter;
+
 class StopwatchTest {
 
 	Stopwatch stopwatch;
@@ -17,27 +20,11 @@ class StopwatchTest {
 	}
 
 	@Test
-	final void testHoursMinutesSecondsFormat() {
-		String input = "1:119:65";
+	final void testFormat() {
+		String input = "11:11";
 
-		stopwatch.setStopwatchIntervalByString(input);
-		assertEquals("03:00:05", stopwatch.calculateCurrentStopwatch());
-	}
-
-	@Test
-	final void testMinutesSecondsFormat() {
-		String input = "179:65";
-
-		stopwatch.setStopwatchIntervalByString(input);
-		assertEquals("03:00:05", stopwatch.calculateCurrentStopwatch());
-	}
-
-	@Test
-	final void testSecondsFormat() {
-		String input = "10805";
-
-		stopwatch.setStopwatchIntervalByString(input);
-		assertEquals("03:00:05", stopwatch.calculateCurrentStopwatch());
+		stopwatch.setStartTime(getLocalTime(input));
+		assertEquals("11:11", stopwatch.getTime().toString());
 	}
 
 	@Test
@@ -46,39 +33,43 @@ class StopwatchTest {
 		for (int i = 0; i < 60; i++) {
 			stopwatch.update();
 		}
-		assertEquals("00:01:00", stopwatch.calculateCurrentStopwatch());
+		assertEquals("00:01", stopwatch.getTime().toString());
 		stopwatch.reset();
-		assertEquals("00:00:00", stopwatch.calculateCurrentStopwatch());
+		assertEquals("00:00", stopwatch.getTime().toString());
 	}
 
 	@Test
 	final void testResetPresetStopwatch() throws ExecutableException {
-		String input = "7445";
+		String input = "11:11";
 
-		stopwatch.setStopwatchIntervalByString(input);
+		stopwatch.setStartTime(getLocalTime(input));
 		stopwatch.start();
 		for (int i = 0; i < 60; i++) {
 			stopwatch.update();
 		}
-		assertEquals("02:05:05", stopwatch.calculateCurrentStopwatch());
+		assertEquals("02:05", stopwatch.getTime().toString());
 		stopwatch.reset();
-		assertEquals("02:04:05", stopwatch.calculateCurrentStopwatch());
+		assertEquals("02:04", stopwatch.getTime().toString());
 	}
 
 	@Test
 	final void testEndOfTimer() throws ExecutableException {
 		String input = "60";
 
-		stopwatch.setStopwatchIntervalByString(input);
+		stopwatch.setStartTime(getLocalTime(input));
 		stopwatch.setType(Stopwatch.StopwatchType.TIMER);
 		stopwatch.start();
 		for (int i = 0; i < 61; i++) {
 			stopwatch.update();
 		}
-		assertEquals("00:00:00", stopwatch.calculateCurrentStopwatch());
+		assertEquals("00:00", stopwatch.getTime().toString());
 		assertSame(stopwatch.getTimeIndication(), Stopwatch.TimeIndication.ENDED);
 		stopwatch.reset();
-		assertEquals("00:01:00", stopwatch.calculateCurrentStopwatch());
+		assertEquals("00:01", stopwatch.getTime().toString());
 		assertNotSame(stopwatch.getTimeIndication(), Stopwatch.TimeIndication.ENDED);
+	}
+
+	private LocalTime getLocalTime(String timeString) {
+		return LocalTime.parse(timeString, DateTimeFormatter.ofPattern("HH:mm"));
 	}
 }

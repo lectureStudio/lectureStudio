@@ -33,7 +33,6 @@ import javax.swing.event.AncestorListener;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 
-
 @SwingView(name = "stopwatchConfig")
 public class SwingStopwatchConfigView extends JPanel implements StopwatchConfigView {
 
@@ -86,6 +85,7 @@ public class SwingStopwatchConfigView extends JPanel implements StopwatchConfigV
     public void setOnStopwatchType(ConsumerAction<Stopwatch.StopwatchType> action) {
         stopwatchTypeAction = action;
     }
+
     @ViewPostConstruct
     private void initialize() {
         addAncestorListener(new AncestorListener() {

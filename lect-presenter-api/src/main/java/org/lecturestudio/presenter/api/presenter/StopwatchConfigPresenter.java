@@ -16,8 +16,11 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-
 package org.lecturestudio.presenter.api.presenter;
+
+import static java.util.Objects.nonNull;
+
+import javax.inject.Inject;
 
 import org.lecturestudio.core.beans.StringProperty;
 import org.lecturestudio.core.presenter.Presenter;
@@ -27,9 +30,8 @@ import org.lecturestudio.presenter.api.context.PresenterContext;
 import org.lecturestudio.presenter.api.model.Stopwatch;
 import org.lecturestudio.presenter.api.view.StopwatchConfigView;
 
-import javax.inject.Inject;
-
-import static java.util.Objects.nonNull;
+import java.time.LocalTime;
+import java.time.format.DateTimeFormatter;
 
 /**
  * Handles the properties set in a StopwatchConfigView and updates the Presenter Context stopwatch.
@@ -38,58 +40,71 @@ import static java.util.Objects.nonNull;
  */
 public class StopwatchConfigPresenter extends Presenter<StopwatchConfigView> {
 
-    private Action startAction;
+	private final Stopwatch stopwatch;
 
-    private Stopwatch stopwatch;
+	private final StringProperty stopwatchTime = new StringProperty("");
 
-    private Stopwatch.StopwatchType stopwatchType = Stopwatch.StopwatchType.STOPWATCH;
+	private Action saveAction;
 
-    private StringProperty stopwatchTime = new StringProperty("0");
+	private Stopwatch.StopwatchType stopwatchType = Stopwatch.StopwatchType.STOPWATCH;
 
-    @Inject
-    StopwatchConfigPresenter(PresenterContext context, StopwatchConfigView view) {
-        super(context, view);
-        this.stopwatch = context.getStopwatch();
-    }
 
-    @Override
-    public void initialize() {
-        setStopwatchType(Stopwatch.StopwatchType.STOPWATCH);
-        view.setOnStopwatchType(this::setStopwatchType);
-        view.setStopwatchTime(stopwatchTime);
-        view.setOnStart(this::onSave);
-        view.setOnClose(this::close);
-    }
+	@Inject
+	StopwatchConfigPresenter(PresenterContext context, StopwatchConfigView view) {
+		super(context, view);
 
-    @Override
-    public ViewLayer getViewLayer() {
-        return ViewLayer.Dialog;
-    }
+		stopwatch = context.getStopwatch();
+	}
 
-    @Override
-    public void close() {
-        dispose();
-    }
+	@Override
+	public void initialize() {
+		setStopwatchType(Stopwatch.StopwatchType.STOPWATCH);
 
-    private void onSave() {
-        dispose();
+		view.setOnStopwatchType(this::setStopwatchType);
+		view.setStopwatchTime(stopwatchTime);
+		view.setOnStart(this::onSave);
+		view.setOnClose(this::close);
+	}
 
-        if (nonNull(startAction)) {
-            stopwatch.setStopwatchType(stopwatchType);
-            stopwatch.setStopwatchIntervalByString(stopwatchTime.get());
-            startAction.execute();
-        }
-    }
+	@Override
+	public ViewLayer getViewLayer() {
+		return ViewLayer.Dialog;
+	}
 
-    private void setStopwatchType(Stopwatch.StopwatchType type){
-        stopwatchType = type;
-    }
-    private void dispose() {
-        super.close();
-    }
+	@Override
+	public void close() {
+		dispose();
+	}
 
-    public void setOnStart(Action action) {
-        startAction = action;
-    }
+	public void setOnSave(Action action) {
+		saveAction = action;
+	}
 
+	private void onSave() {
+		dispose();
+
+		LocalTime time = null;
+		String timeString = stopwatchTime.get();
+
+		try {
+			time = LocalTime.parse(timeString, DateTimeFormatter.ofPattern("HH:mm"));
+		}
+		catch (Exception e) {
+			// TODO: Show error
+		}
+
+		if (nonNull(saveAction) && nonNull(time)) {
+			stopwatch.setType(stopwatchType);
+			stopwatch.setStartTime(time);
+			saveAction.execute();
+		}
+	}
+
+	private void setStopwatchType(Stopwatch.StopwatchType type) {
+		stopwatchType = type;
+	}
+
+	private void dispose() {
+		super.close();
+	}
 }

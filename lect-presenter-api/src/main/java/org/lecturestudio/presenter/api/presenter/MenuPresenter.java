@@ -23,7 +23,6 @@ import static java.util.Objects.nonNull;
 
 import javax.inject.Inject;
 
-import java.awt.Color;
 import java.awt.Desktop;
 import java.io.File;
 import java.io.IOException;
@@ -48,10 +47,7 @@ import org.lecturestudio.core.audio.AudioDeviceNotConnectedException;
 import org.lecturestudio.core.bus.EventBus;
 import org.lecturestudio.core.bus.event.*;
 import org.lecturestudio.core.controller.ToolController;
-import org.lecturestudio.core.model.Document;
-import org.lecturestudio.core.model.NotesPosition;
-import org.lecturestudio.core.model.Page;
-import org.lecturestudio.core.model.RecentDocument;
+import org.lecturestudio.core.model.*;
 import org.lecturestudio.core.model.listener.PageEditEvent;
 import org.lecturestudio.core.model.listener.ParameterChangeListener;
 import org.lecturestudio.core.presenter.AboutPresenter;
@@ -130,6 +126,10 @@ public class MenuPresenter extends Presenter<MenuView> {
 
 		if (event.selected() && nonNull(page)) {
 			page.addPageEditedListener(this::pageEdited);
+
+			if (!stopwatch.started()) {
+				startStopwatch();
+			}
 		}
 
 		view.setDocument(doc);
@@ -157,8 +157,12 @@ public class MenuPresenter extends Presenter<MenuView> {
 
 			page.addPageEditedListener(this::pageEdited);
 
-			stopwatch.setRunStopwatch(true);
 			pageChanged(page);
+
+			if (!stopwatch.started()) {
+				startStopwatch();
+			}
+			stopwatch.setPresentationStarted();
 		}
 	}
 
@@ -511,15 +515,43 @@ public class MenuPresenter extends Presenter<MenuView> {
 		streamService.stopQuiz();
 	}
 
-
-	public void pauseStopwatch(){
-		stopwatch.startStopStopwatch();
+	public void startStopwatch() {
+		try {
+			stopwatch.start();
+		}
+		catch (ExecutableException e) {
+			throw new RuntimeException(e);
+		}
 	}
 
-	public void resetStopwatch(){
-		stopwatch.resetStopwatch();
-		view.setCurrentStopwatch(stopwatch.calculateCurrentStopwatch());
+	public void stopStopwatch() {
+		try {
+			stopwatch.stop();
+		}
+		catch (ExecutableException e) {
+			throw new RuntimeException(e);
+		}
 	}
+
+	public void pauseStopwatch() {
+		try {
+			if (stopwatch.started()) {
+				stopwatch.suspend();
+			}
+			else {
+				stopwatch.start();
+			}
+		}
+		catch (ExecutableException e) {
+			throw new RuntimeException(e);
+		}
+	}
+
+	public void resetStopwatch() {
+		stopwatch.reset();
+		view.setStopwatch(stopwatch);
+	}
+
 	public void clearBookmarks() {
 		bookmarkService.clearBookmarks();
 	}
@@ -755,7 +787,7 @@ public class MenuPresenter extends Presenter<MenuView> {
 		view.setOnCloseQuiz(this::closeQuiz);
 		view.setOnPauseStopwatch(this::pauseStopwatch);
 		view.setOnResetStopwatch(this::resetStopwatch);
-		view.setCurrentStopwatch(this::pauseStopwatch);
+		view.setOnStopwatch(this::pauseStopwatch);
 		view.setOnConfigStopwatch(this::startStopwatchConfiguration);
 
 		view.setOnClearBookmarks(this::clearBookmarks);
@@ -801,7 +833,7 @@ public class MenuPresenter extends Presenter<MenuView> {
 
 				File file = new File(path);
 				if (!file.exists()) {
-					// Skip and remove missing document.
+					// Skip and remove a missing document.
 					iter.remove();
 				}
 			}
@@ -845,24 +877,17 @@ public class MenuPresenter extends Presenter<MenuView> {
 
 			@Override
 			public void run() {
-				stopwatch.updateStopwatchInterval();
-				view.setCurrentStopwatch(stopwatch.calculateCurrentStopwatch());
-				//Timer blinks 5times when the time ran out
-				if(stopwatch.isTimerEnded()) {
-					if (stopwatch.getTimerEndedInterval() % 2 == 0) {
-						view.setCurrentStopwatchBackgroundColor(Color.WHITE);
-					} else {
-						view.setCurrentStopwatchBackgroundColor(Color.RED);
-					}
-				}
+				stopwatch.update();
+
+				view.setStopwatch(stopwatch);
 			}
 		}, 0, 1000);
 	}
 
 	public void startStopwatchConfiguration() {
 		eventBus.post(new StopwatchCommand(() -> {
-			stopwatch.stopStopwatch();
-			view.setCurrentStopwatch(stopwatch.calculateCurrentStopwatch());
+			stopStopwatch();
+			view.setStopwatch(stopwatch);
 		}));
 	}
 }

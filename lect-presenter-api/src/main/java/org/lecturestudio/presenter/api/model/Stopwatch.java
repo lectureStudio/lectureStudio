@@ -16,156 +16,282 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-
 package org.lecturestudio.presenter.api.model;
+
+import static java.util.Objects.nonNull;
+
+import java.time.Duration;
+import java.time.LocalTime;
+import java.time.temporal.ChronoUnit;
+
+import org.lecturestudio.core.ExecutableBase;
+import org.lecturestudio.core.ExecutableException;
+import org.lecturestudio.core.model.Time;
 
 /**
  * Stopwatch that needs to be updated every second to show the correct time.
  *
  * @author Dustin Ringel
+ * @author Alex Andres
  */
-public class Stopwatch {
+public class Stopwatch extends ExecutableBase {
 
 	public enum StopwatchType {
 		TIMER,
 		STOPWATCH
 	}
 
-	private int stopwatchInterval;
+	public enum TimeIndication {
+		WAITING,
+		OPTIMAL,
+		SPEED_UP,
+		SLOW_DOWN,
+		ENDED
+	}
 
-	private boolean resetStopwatch;
+	/** Duration in minutes. */
+	private Long duration;
 
-	private boolean runStopwatch;
+	private LocalTime endTime;
 
-	private boolean timerEnded = false;
+	private LocalTime startTime;
 
-	private int timerEndedInterval = 0;
+	/** The current time. */
+	private Time time = new Time();
 
-	private int resetStopwatchInterval = 0;
+	private TimeIndication timeIndication;
 
 	private StopwatchType type = StopwatchType.STOPWATCH;
 
+	private boolean presentationStarted;
 
+	private boolean runStopwatch;
+
+
+	/**
+	 * Creates a new Stopwatch.
+	 */
 	public Stopwatch() {
-		stopwatchInterval = 0;
-		resetStopwatch = false;
-		runStopwatch = false;
+		reset();
+	}
+
+	/**
+	 * Sets the duration of the presentation.
+	 *
+	 * @param duration The duration in minutes.
+	 */
+	public void setDuration(Long duration) {
+		this.duration = duration;
+	}
+
+	/**
+	 * Sets the end time of the presentation.
+	 *
+	 * @param time The end time in the local time format HH:MM (24h).
+	 */
+	public void setEndTime(LocalTime time) {
+		this.endTime = time;
+	}
+
+	/**
+	 * Sets the start time of the presentation.
+	 *
+	 * @param time The start time in the local time format HH:MM (24h).
+	 */
+	public void setStartTime(LocalTime time) {
+		this.startTime = time;
+	}
+
+	/**
+	 * Gets the current time, whether it is the waiting time or the presentation time.
+	 *
+	 * @return The current time.
+	 */
+	public Time getTime() {
+		return time;
+	}
+
+	/**
+	 * Sets the current time, whether it is the waiting time or the presentation time.
+	 *
+	 * @param time The current time.
+	 */
+	private void setTime(Time time) {
+		this.time = time;
+	}
+
+	/**
+	 * Gets the current time indication, which tells the user whether there is time
+	 * left to start the presentation, the pace should increase / decrease, or the time
+	 * is up.
+	 *
+	 * @return The time current indication.
+	 */
+	public TimeIndication getTimeIndication() {
+		return timeIndication;
+	}
+
+	/**
+	 * Sets the current time indication, which tells the user whether there is time
+	 * left to start the presentation, the pace should increase / decrease, or the time
+	 * is up.
+	 *
+	 * @param timeIndication The time current indication.
+	 */
+	public void setTimeIndication(TimeIndication timeIndication) {
+		this.timeIndication = timeIndication;
+	}
+
+	/**
+	 * Gets the type of this watch. The type STOPWATCH will count up the time, the type
+	 * TIMER will count down the time left for the presentation.
+	 *
+	 * @return The current type of the watch.
+	 */
+	public StopwatchType getType() {
+		return type;
+	}
+
+	/**
+	 * Gets the type of this watch. The type STOPWATCH will count up the time, the type
+	 * TIMER will count down the time left for the presentation.
+	 *
+	 * @param type The current type of the watch.
+	 */
+	public void setType(StopwatchType type) {
+		this.type = type;
+	}
+
+	/**
+	 * Changes the internal state to start the timer with the duration of the presentation.
+	 */
+	public void setPresentationStarted() {
+		if (presentationStarted) {
+			return;
+		}
+
+		setTimeIndication(TimeIndication.OPTIMAL);
+
+		if (nonNull(duration)) {
+			startTime = LocalTime.now().plusMinutes(duration);
+		}
+		else {
+			startTime = LocalTime.now();
+		}
+
+		presentationStarted = true;
 	}
 
 	/**
 	 * Reset the stopwatch to the last configured time and stops it
 	 */
-	public void resetStopwatch() {
-		stopwatchInterval = resetStopwatchInterval;
-		runStopwatch = false;
-		timerEndedInterval = 0;
-		timerEnded = false;
-	}
+	public void reset() {
+		timeIndication = TimeIndication.OPTIMAL;
 
-	/**
-	 * Starts the current stopwatch.
-	 */
-	public void startStopwatch() {
-		runStopwatch = true;
-	}
-
-	/**
-	 * Stops the current stopwatch.
-	 */
-	public void stopStopwatch() {
-		runStopwatch = false;
-	}
-
-	/**
-	 * Switching between running and paused stopwatch.
-	 */
-	public void startStopStopwatch() {
-		runStopwatch = !runStopwatch;
+		if (type == StopwatchType.STOPWATCH) {
+			// Autostart the counting.
+			startTime = LocalTime.now();
+			presentationStarted = true;
+		}
+		else {
+			presentationStarted = false;
+			startTime = null;
+		}
 	}
 
 	/**
 	 * Handles all incoming changes to the current stopwatch.
 	 */
-	public void updateStopwatchInterval() {
+	public synchronized void update() {
 		if (runStopwatch) {
 			if (type == StopwatchType.STOPWATCH) {
-				stopwatchInterval++;
+				runStopwatch();
 			}
 			else if (type == StopwatchType.TIMER) {
-				if (stopwatchInterval > 0) {
-					stopwatchInterval--;
-					timerEnded = false;
-				}
-				else {
-					if (timerEndedInterval <= 11) {
-						timerEnded = true;
-						timerEndedInterval++;
-					}
-					else {
-						runStopwatch = false;
-					}
-				}
+				runTimer();
 			}
 		}
 	}
 
-	/**
-     * Creates a string with the current time.
-     *
-     * @return the current stopwatch time as string
-     */
-	public String calculateCurrentStopwatch() {
-		int sec = stopwatchInterval % 60;
-		int min = stopwatchInterval / 60 % 60;
-		int h = stopwatchInterval / 60 / 60;
-		String secStr = String.format("%02d", sec);
-		String minStr = String.format("%02d", min);
-		String hStr = String.format("%02d", h);
-
-		return hStr + ":" + minStr + ":" + secStr;
-	}
-
-	/**
-	 * Transforms a given string into an actual stopwatch time.
-	 *
-	 * @param time The stopwatchtime in format "ss", "mm:ss" or "hh:mm:ss"
-	 */
-	public void setStopwatchIntervalByString(String time) {
-		if (!time.trim().equals("")) {
-			String[] timesteps = time.split(":");
-
-			int actualTime = switch (timesteps.length) {
-				case 1 -> Integer.parseInt(timesteps[0]);
-				case 2 ->
-						60 * Integer.parseInt(timesteps[0]) + Integer.parseInt(
-								timesteps[1]);
-				case 3 -> 60 * 60 * Integer.parseInt(timesteps[0])
-						+ 60 * Integer.parseInt(timesteps[1])
-						+ Integer.parseInt(timesteps[2]);
-				default -> 0;
-			};
-			stopwatchInterval = actualTime;
-			resetStopwatchInterval = actualTime;
+	@Override
+	protected void initInternal() throws ExecutableException {
+		if (nonNull(startTime) && nonNull(endTime)) {
+			setType(StopwatchType.TIMER);
+			setDuration(Duration.between(startTime, endTime).toMinutes());
+		}
+		else if (nonNull(endTime) && nonNull(duration)) {
+			setType(StopwatchType.TIMER);
+			setStartTime(LocalTime.now());
 		}
 	}
 
-	public StopwatchType getType() {
-		return type;
+	@Override
+	protected void suspendInternal() {
+		runStopwatch = false;
 	}
 
-	public void setRunStopwatch(boolean runStopwatch) {
-		this.runStopwatch = runStopwatch;
+	@Override
+	protected void startInternal() {
+		reset();
+
+		runStopwatch = true;
 	}
 
-	public boolean isTimerEnded() {
-		return timerEnded;
+	@Override
+	protected void stopInternal() {
+		runStopwatch = false;
 	}
 
-	public void setStopwatchType(StopwatchType type) {
-		this.type = type;
+	@Override
+	protected void destroyInternal() {
+
 	}
 
-	public int getTimerEndedInterval() {
-		return timerEndedInterval;
+	private Time createTime(long millis) {
+		return new Time(Duration.ofMillis(Math.abs(millis)).toMillis());
+	}
+
+	private void runStopwatch() {
+		if (presentationStarted) {
+			// Count presentation time down.
+			long timeDiffMs = startTime.until(LocalTime.now(), ChronoUnit.MILLIS);
+
+			setTime(createTime(timeDiffMs));
+		}
+	}
+
+	private void runTimer() {
+		if (presentationStarted) {
+			// Count presentation time down.
+			long timeDiffMs = startTime.until(LocalTime.now(), ChronoUnit.MILLIS);
+
+			setTime(createTime(timeDiffMs));
+		}
+		else {
+			long timeDiffMs = endTime.minusMinutes(duration).until(LocalTime.now(), ChronoUnit.MILLIS);
+
+			if (timeDiffMs < 0) {
+				// Count waiting time down.
+				setTimeIndication(TimeIndication.WAITING);
+				setTime(createTime(timeDiffMs));
+			}
+			else {
+				if (timeIndication == TimeIndication.WAITING) {
+					// Update once, switch indication.
+					setTime(new Time(Duration.ofMinutes(duration).toMillis()));
+					setTimeIndication(TimeIndication.OPTIMAL);
+				}
+				else {
+					// Count presentation time up.
+					timeDiffMs = LocalTime.now().until(endTime, ChronoUnit.MILLIS);
+
+					setTime(createTime(timeDiffMs));
+
+					if (timeDiffMs < 0) {
+						setTimeIndication(TimeIndication.ENDED);
+					}
+				}
+			}
+		}
 	}
 }

@@ -26,8 +26,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
 import java.nio.charset.StandardCharsets;
-import java.security.AccessController;
-import java.security.PrivilegedAction;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;
@@ -37,10 +37,11 @@ import org.apache.logging.log4j.Logger;
 
 import org.lecturestudio.core.ExecutableException;
 import org.lecturestudio.core.ExecutableState;
+import org.lecturestudio.core.util.FileUtils;
 
 /**
  * Base Application implementation that manages the application life cycle
- * methods. Sub-classes may extend this base class by only implementing the
+ * methods. Subclasses may extend this base class by only implementing the
  * internal life cycle methods. This base implementation of the {@link
  * Application} interface handles the proper state transition rules.
  *
@@ -94,21 +95,22 @@ public abstract class ApplicationBase implements Application {
 		setState(ExecutableState.Initializing);
 
 		if (args.length > 0) {
-			// First argument must be the file to open.
+			// The First argument must be the file to open.
 			String fileEncoding = System.getProperty("file.encoding");
 			String utf8Path;
 
 			try {
-				utf8Path = new String(args[0].getBytes(fileEncoding),
-						StandardCharsets.UTF_8);
+				utf8Path = new String(args[0].getBytes(fileEncoding), StandardCharsets.UTF_8);
 			}
 			catch (UnsupportedEncodingException e) {
 				throw new RuntimeException(e);
 			}
 
-			File file = new File(utf8Path);
+			if (FileUtils.validateFileName(utf8Path) && Files.exists(Paths.get(utf8Path))) {
+				File file = new File(utf8Path);
 
-			OPEN_FILES.add(file);
+				OPEN_FILES.add(file);
+			}
 		}
 
 		try {
@@ -248,9 +250,7 @@ public abstract class ApplicationBase implements Application {
 		try {
 			Class<? extends Preloader> preloaderClass = null;
 
-			String preloaderByProperty = AccessController.doPrivileged((PrivilegedAction<String>) () -> {
-				return System.getProperty("application.preloader");
-			});
+			String preloaderByProperty = System.getProperty("application.preloader");
 
 			if (nonNull(preloaderByProperty)) {
 				Class<?> pClass = null;

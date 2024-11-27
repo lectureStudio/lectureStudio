@@ -736,18 +736,31 @@ public class SwingMenuView extends JMenuBar implements MenuView {
 	}
 
 	@Override
-	public void setCurrentStopwatch(String time) {
-		SwingUtils.invoke(() -> stopwatchMenu.setText(time));
-	}
-	@Override
-	public void setCurrentStopwatch(Action action) {
-		SwingUtils.bindAction(stopwatchMenu, action);
+	public void setStopwatch(Stopwatch stopwatch) {
+		SwingUtils.invoke(() -> {
+			String prefix = "";
+
+			switch (stopwatch.getTimeIndication()) {
+				case WAITING -> {
+					stopwatchMenu.setBackground(Color.decode("#D1FAE5"));
+					prefix = "-";
+				}
+				case ENDED -> {
+					stopwatchMenu.setBackground(Color.decode("#FEE2E2"));
+					prefix = "-";
+				}
+				case OPTIMAL -> stopwatchMenu.setBackground(Color.white);
+			}
+
+			stopwatchMenu.setText(prefix + stopwatch.getTime().toString());
+		});
 	}
 
 	@Override
-	public void setCurrentStopwatchBackgroundColor(Color color) {
-		stopwatchMenu.setBackground(color);
+	public void setOnStopwatch(Action action) {
+		SwingUtils.bindAction(stopwatchMenu, action);
 	}
+
 	@Override
 	public void setRecordingTime(Time time) {
 		SwingUtils.invoke(() -> recordIndicatorMenu.setText(time.toString()));
@@ -757,6 +770,7 @@ public class SwingMenuView extends JMenuBar implements MenuView {
 	public void setOnConfigStopwatch(Action action) {
 		SwingUtils.bindAction(configStopwatchMenuItem, action);
 	}
+
 	@Override
 	public void bindMessageCount(IntegerProperty count) {
 		count.addListener((observable, oldValue, newValue) -> {

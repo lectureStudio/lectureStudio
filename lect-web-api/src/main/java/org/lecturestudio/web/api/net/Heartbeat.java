@@ -108,8 +108,12 @@ public class Heartbeat {
 
 		try {
 			HttpResponse<String> response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
+
 			if (response.statusCode() != 200) {
 				eventBus.post(new HeartbeatEvent(HeartbeatEvent.Type.FAILURE));
+			}
+			else {
+				eventBus.post(new HeartbeatEvent(HeartbeatEvent.Type.SUCCESS));
 			}
 		}
 		catch (Exception e) {

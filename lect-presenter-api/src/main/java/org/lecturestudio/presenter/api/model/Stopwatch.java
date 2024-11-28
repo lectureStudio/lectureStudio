@@ -21,6 +21,8 @@ package org.lecturestudio.presenter.api.model;
 import static java.util.Objects.nonNull;
 
 import java.time.Duration;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.temporal.ChronoUnit;
 
@@ -52,7 +54,7 @@ public class Stopwatch extends ExecutableBase {
 	/** Duration in minutes. */
 	private Long duration;
 
-	private LocalTime endTime;
+	private LocalDateTime endTime;
 
 	private LocalTime startTime;
 
@@ -90,7 +92,7 @@ public class Stopwatch extends ExecutableBase {
 	 * @param time The end time in the local time format HH:MM (24h).
 	 */
 	public void setEndTime(LocalTime time) {
-		this.endTime = time;
+		this.endTime = LocalDateTime.of(LocalDate.now(), time);
 	}
 
 	/**
@@ -166,7 +168,7 @@ public class Stopwatch extends ExecutableBase {
 	 * Changes the internal state to start the timer with the duration of the presentation.
 	 */
 	public void setPresentationStarted() {
-		if (presentationStarted) {
+		if (presentationStarted || timeIndication == TimeIndication.ENDED) {
 			return;
 		}
 
@@ -186,6 +188,10 @@ public class Stopwatch extends ExecutableBase {
 	 * Reset the stopwatch to the last configured time and stops it
 	 */
 	public void reset() {
+		if (timeIndication == TimeIndication.ENDED) {
+			return;
+		}
+
 		timeIndication = TimeIndication.OPTIMAL;
 
 		if (type == StopwatchType.STOPWATCH) {
@@ -222,6 +228,21 @@ public class Stopwatch extends ExecutableBase {
 		else if (nonNull(endTime) && nonNull(duration)) {
 			setType(StopwatchType.TIMER);
 			setStartTime(LocalTime.now());
+		}
+
+		if (nonNull(endTime) && nonNull(duration)) {
+			LocalDateTime now = LocalDateTime.now();
+			long timeDiffMs = endTime.minusMinutes(duration).until(now, ChronoUnit.MILLIS);
+
+			if (now.getHour() == endTime.getHour() && now.getMinute() == endTime.getMinute()) {
+				// The end time is right now, start the presentation timer.
+//				endTime = endTime.plusMinutes(1);
+				setPresentationStarted();
+			}
+			else if (timeDiffMs > 0) {
+				// The end time is on the next day.
+				endTime = endTime.plusDays(1);
+			}
 		}
 	}
 
@@ -266,9 +287,14 @@ public class Stopwatch extends ExecutableBase {
 			long timeDiffMs = startTime.until(LocalTime.now(), ChronoUnit.MILLIS);
 
 			setTime(createTime(timeDiffMs));
+
+			if (timeDiffMs > 0) {
+				// Time is up.
+				setTimeIndication(TimeIndication.ENDED);
+			}
 		}
 		else {
-			long timeDiffMs = endTime.minusMinutes(duration).until(LocalTime.now(), ChronoUnit.MILLIS);
+			long timeDiffMs = endTime.minusMinutes(duration).until(LocalDateTime.now(), ChronoUnit.MILLIS);
 
 			if (timeDiffMs < 0) {
 				// Count waiting time down.
@@ -283,7 +309,7 @@ public class Stopwatch extends ExecutableBase {
 				}
 				else {
 					// Count presentation time up.
-					timeDiffMs = LocalTime.now().until(endTime, ChronoUnit.MILLIS);
+					timeDiffMs = LocalDateTime.now().until(endTime, ChronoUnit.MILLIS);
 
 					setTime(createTime(timeDiffMs));
 

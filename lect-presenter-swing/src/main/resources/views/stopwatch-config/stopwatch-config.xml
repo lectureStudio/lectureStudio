@@ -14,13 +14,16 @@
                 <gridbagconstraints gridx="1" gridy="1" gridwidth="2" anchor="GridBagConstraints.WEST" insets="5,0,2,0" />
             </Label>
             <TextField id="setTimerTextField">
-                <gridbagconstraints gridx="1" gridy="2" weightx="1" fill="GridBagConstraints.HORIZONTAL" anchor="GridBagConstraints.WEST" insets="5,0,15,0" />
+                <gridbagconstraints gridx="1" gridy="2" weightx="1" fill="GridBagConstraints.HORIZONTAL" anchor="GridBagConstraints.WEST" insets="5,0,2,0" />
                 <Filter class="org.lecturestudio.swing.filter.StopwatchFilter" />
             </TextField>
+            <Label id="errorLabel" foreground="B30000">
+                <gridbagconstraints gridx="1" gridy="3" gridwidth="2" anchor="GridBagConstraints.WEST" insets="5,0,5,0" />
+            </Label>
         </Panel>
     </VBox>
     <HBox>
-        <gridbagconstraints gridx="0" gridy="1" insets="20,0,0,0" weightx="1.0" fill="GridBagConstraints.HORIZONTAL" />
+        <gridbagconstraints gridx="0" gridy="1" insets="10,0,0,0" weightx="1.0" fill="GridBagConstraints.HORIZONTAL" />
         <box.hglue />
         <Button id="startButton" text="stopwatch.save" />
         <box.hstrut width="5" />

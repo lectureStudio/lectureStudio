@@ -25,6 +25,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.temporal.ChronoUnit;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.lecturestudio.core.ExecutableBase;
 import org.lecturestudio.core.ExecutableException;
@@ -51,6 +52,8 @@ public class Stopwatch extends ExecutableBase {
 		ENDED
 	}
 
+	private final AtomicBoolean runStopwatch = new AtomicBoolean(false);
+
 	/** Duration in minutes. */
 	private Long duration;
 
@@ -61,20 +64,20 @@ public class Stopwatch extends ExecutableBase {
 	/** The current time. */
 	private Time time = new Time();
 
-	private TimeIndication timeIndication;
+	private TimeIndication timeIndication = TimeIndication.OPTIMAL;
 
 	private StopwatchType type = StopwatchType.STOPWATCH;
 
-	private boolean presentationStarted;
+	private boolean resettable = true;
 
-	private boolean runStopwatch;
+	private boolean presentationStarted = false;
 
 
 	/**
 	 * Creates a new Stopwatch.
 	 */
 	public Stopwatch() {
-		reset();
+
 	}
 
 	/**
@@ -188,8 +191,13 @@ public class Stopwatch extends ExecutableBase {
 	 * Reset the stopwatch to the last configured time and stops it
 	 */
 	public void reset() {
-		if (timeIndication == TimeIndication.ENDED) {
+		if (!resettable) {
 			return;
+		}
+		switch (timeIndication) {
+			case WAITING:
+			case ENDED:
+				return;
 		}
 
 		timeIndication = TimeIndication.OPTIMAL;
@@ -209,7 +217,7 @@ public class Stopwatch extends ExecutableBase {
 	 * Handles all incoming changes to the current stopwatch.
 	 */
 	public synchronized void update() {
-		if (runStopwatch) {
+		if (runStopwatch.get()) {
 			if (type == StopwatchType.STOPWATCH) {
 				runStopwatch();
 			}
@@ -232,14 +240,15 @@ public class Stopwatch extends ExecutableBase {
 
 		if (nonNull(endTime) && nonNull(duration)) {
 			LocalDateTime now = LocalDateTime.now();
-			long timeDiffMs = endTime.minusMinutes(duration).until(now, ChronoUnit.MILLIS);
+			long timeDiffMs = Duration.between(now, endTime).toMinutes();
 
-			if (now.getHour() == endTime.getHour() && now.getMinute() == endTime.getMinute()) {
+			if (timeDiffMs == 0) {
 				// The end time is right now, start the presentation timer.
-//				endTime = endTime.plusMinutes(1);
+				endTime = now.plusMinutes(duration + 1);
+				resettable = false;
 				setPresentationStarted();
 			}
-			else if (timeDiffMs > 0) {
+			else if (timeDiffMs < 0) {
 				// The end time is on the next day.
 				endTime = endTime.plusDays(1);
 			}
@@ -248,19 +257,19 @@ public class Stopwatch extends ExecutableBase {
 
 	@Override
 	protected void suspendInternal() {
-		runStopwatch = false;
+		runStopwatch.set(false);
 	}
 
 	@Override
 	protected void startInternal() {
-		reset();
-
-		runStopwatch = true;
+		if (runStopwatch.compareAndSet(false, true)) {
+			reset();
+		}
 	}
 
 	@Override
 	protected void stopInternal() {
-		runStopwatch = false;
+		runStopwatch.set(false);
 	}
 
 	@Override
@@ -305,7 +314,8 @@ public class Stopwatch extends ExecutableBase {
 				if (timeIndication == TimeIndication.WAITING) {
 					// Update once, switch indication.
 					setTime(new Time(Duration.ofMinutes(duration).toMillis()));
-					setTimeIndication(TimeIndication.OPTIMAL);
+					setPresentationStarted();
+					resettable = false;
 				}
 				else {
 					// Count presentation time up.

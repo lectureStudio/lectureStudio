@@ -20,6 +20,9 @@ package org.lecturestudio.presenter.api.presenter;
 
 import static java.util.Objects.nonNull;
 
+import java.time.LocalTime;
+import java.time.format.DateTimeFormatter;
+
 import javax.inject.Inject;
 
 import org.lecturestudio.core.beans.StringProperty;
@@ -30,19 +33,19 @@ import org.lecturestudio.presenter.api.context.PresenterContext;
 import org.lecturestudio.presenter.api.model.Stopwatch;
 import org.lecturestudio.presenter.api.view.StopwatchConfigView;
 
-import java.time.LocalTime;
-import java.time.format.DateTimeFormatter;
-
 /**
  * Handles the properties set in a StopwatchConfigView and updates the Presenter Context stopwatch.
  *
  * @author Dustin Ringel
+ * @author Alex Andres
  */
 public class StopwatchConfigPresenter extends Presenter<StopwatchConfigView> {
 
 	private final Stopwatch stopwatch;
 
 	private final StringProperty stopwatchTime = new StringProperty("");
+
+	private final StringProperty error = new StringProperty("");
 
 	private Action saveAction;
 
@@ -62,6 +65,7 @@ public class StopwatchConfigPresenter extends Presenter<StopwatchConfigView> {
 
 		view.setOnStopwatchType(this::setStopwatchType);
 		view.setStopwatchTime(stopwatchTime);
+		view.setError(error);
 		view.setOnStart(this::onSave);
 		view.setOnClose(this::close);
 	}
@@ -81,19 +85,21 @@ public class StopwatchConfigPresenter extends Presenter<StopwatchConfigView> {
 	}
 
 	private void onSave() {
-		dispose();
-
 		LocalTime time = null;
 		String timeString = stopwatchTime.get();
 
 		try {
 			time = LocalTime.parse(timeString, DateTimeFormatter.ofPattern("HH:mm"));
+			error.set("");
 		}
 		catch (Exception e) {
-			// TODO: Show error
+			error.set(e.getMessage());
+			return;
 		}
 
-		if (nonNull(saveAction) && nonNull(time)) {
+		dispose();
+
+		if (nonNull(saveAction)) {
 			stopwatch.setType(stopwatchType);
 			stopwatch.setStartTime(time);
 			saveAction.execute();

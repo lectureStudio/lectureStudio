@@ -16,7 +16,6 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-
 package org.lecturestudio.presenter.api.view;
 
 import org.lecturestudio.core.beans.StringProperty;
@@ -26,9 +25,10 @@ import org.lecturestudio.core.view.View;
 import org.lecturestudio.presenter.api.model.Stopwatch;
 
 /**
- * Interface to configure a stopwatch.
+ * Interface to configure a stopwatch visually.
  *
  * @author Dustin Ringel
+ * @author Alex Andres
  */
 public interface StopwatchConfigView extends View {
 
@@ -36,7 +36,10 @@ public interface StopwatchConfigView extends View {
 
     void setStopwatchTime(StringProperty path);
 
+    void setError(StringProperty error);
+
     void setOnClose(Action action);
 
     void setOnStart(Action action);
+
 }

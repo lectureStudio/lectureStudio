@@ -18,6 +18,13 @@
 
 package org.lecturestudio.presenter.swing.view;
 
+import java.awt.*;
+import java.awt.event.ActionEvent;
+
+import javax.swing.*;
+import javax.swing.event.AncestorEvent;
+import javax.swing.event.AncestorListener;
+
 import org.lecturestudio.core.beans.StringProperty;
 import org.lecturestudio.core.view.Action;
 import org.lecturestudio.core.view.ConsumerAction;
@@ -27,82 +34,88 @@ import org.lecturestudio.swing.util.SwingUtils;
 import org.lecturestudio.swing.view.SwingView;
 import org.lecturestudio.swing.view.ViewPostConstruct;
 
-import javax.swing.*;
-import javax.swing.event.AncestorEvent;
-import javax.swing.event.AncestorListener;
-import java.awt.*;
-import java.awt.event.ActionEvent;
-
-@SwingView(name = "stopwatchConfig")
+@SwingView(name = "stopwatch-config")
 public class SwingStopwatchConfigView extends JPanel implements StopwatchConfigView {
 
-    private ConsumerAction<Boolean> viewVisibleAction;
+	private ConsumerAction<Boolean> viewVisibleAction;
 
-    private ConsumerAction<Stopwatch.StopwatchType> stopwatchTypeAction;
+	private ConsumerAction<Stopwatch.StopwatchType> stopwatchTypeAction;
 
-    private Container contentContainer;
+	private Container contentContainer;
 
-    private JRadioButton stopwatchRadioButton;
+	private JRadioButton stopwatchRadioButton;
 
-    private JRadioButton timerRadioButton;
+	private JRadioButton timerRadioButton;
 
-    private JButton closeButton;
+	private JLabel errorLabel;
 
-    private JButton startButton;
+	private JButton closeButton;
 
-    private JTextField setTimerTextField;
+	private JButton startButton;
 
-    public javax.swing.Action typeAction = new AbstractAction() {
+	private JTextField setTimerTextField;
 
-        @Override
-        public void actionPerformed(ActionEvent e) {
-            Stopwatch.StopwatchType type = Stopwatch.StopwatchType.valueOf(e.getActionCommand());
+	public javax.swing.Action typeAction = new AbstractAction() {
 
-            executeAction(stopwatchTypeAction, type);
-        }
-    };
+		@Override
+		public void actionPerformed(ActionEvent e) {
+			Stopwatch.StopwatchType type = Stopwatch.StopwatchType.valueOf(e.getActionCommand());
 
-    SwingStopwatchConfigView() {
-        super();
-    }
+			executeAction(stopwatchTypeAction, type);
+		}
+	};
 
-    @Override
-    public void setStopwatchTime(StringProperty path) {
-        SwingUtils.bindBidirectional(setTimerTextField, path);
-    }
 
-    @Override
-    public void setOnClose(Action action) {
-        SwingUtils.bindAction(closeButton, action);
-    }
+	SwingStopwatchConfigView() {
+		super();
+	}
 
-    @Override
-    public void setOnStart(Action action) {
-        SwingUtils.bindAction(startButton, action);
-    }
+	@Override
+	public void setStopwatchTime(StringProperty time) {
+		SwingUtils.bindBidirectional(setTimerTextField, time);
+	}
 
-    @Override
-    public void setOnStopwatchType(ConsumerAction<Stopwatch.StopwatchType> action) {
-        stopwatchTypeAction = action;
-    }
+	@Override
+	public void setError(StringProperty error) {
+		error.addListener((o, oldValue, newValue) -> {
+			SwingUtils.invoke(() -> {
+				errorLabel.setText(newValue);
+			});
+		});
+	}
 
-    @ViewPostConstruct
-    private void initialize() {
-        addAncestorListener(new AncestorListener() {
+	@Override
+	public void setOnClose(Action action) {
+		SwingUtils.bindAction(closeButton, action);
+	}
 
-            @Override
-            public void ancestorAdded(AncestorEvent event) {
-                executeAction(viewVisibleAction, true);
-            }
+	@Override
+	public void setOnStart(Action action) {
+		SwingUtils.bindAction(startButton, action);
+	}
 
-            @Override
-            public void ancestorRemoved(AncestorEvent event) {
-                executeAction(viewVisibleAction, false);
-            }
+	@Override
+	public void setOnStopwatchType(ConsumerAction<Stopwatch.StopwatchType> action) {
+		stopwatchTypeAction = action;
+	}
 
-            @Override
-            public void ancestorMoved(AncestorEvent event) {
-            }
-        });
-    }
+	@ViewPostConstruct
+	private void initialize() {
+		addAncestorListener(new AncestorListener() {
+
+			@Override
+			public void ancestorAdded(AncestorEvent event) {
+				executeAction(viewVisibleAction, true);
+			}
+
+			@Override
+			public void ancestorRemoved(AncestorEvent event) {
+				executeAction(viewVisibleAction, false);
+			}
+
+			@Override
+			public void ancestorMoved(AncestorEvent event) {
+			}
+		});
+	}
 }

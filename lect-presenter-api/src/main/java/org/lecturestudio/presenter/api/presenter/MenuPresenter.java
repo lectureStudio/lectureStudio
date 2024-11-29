@@ -526,7 +526,9 @@ public class MenuPresenter extends Presenter<MenuView> {
 
 	public void stopStopwatch() {
 		try {
-			stopwatch.stop();
+			if (!stopwatch.stopped()) {
+				stopwatch.stop();
+			}
 		}
 		catch (ExecutableException e) {
 			throw new RuntimeException(e);

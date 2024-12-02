@@ -18,11 +18,15 @@
 
 package org.lecturestudio.core.audio;
 
+import java.io.IOException;
+import java.io.InputStream;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import org.lecturestudio.core.audio.AudioFormat.Encoding;
+import org.lecturestudio.core.io.DynamicInputStream;
 
 /**
  * Audio-related utility methods.
@@ -135,8 +139,7 @@ public class AudioUtils {
 	 * @param buffer2 The second audio input buffer.
 	 * @param output The mixed audio output buffer.
 	 */
-	public static void mixAudio(ByteBuffer buffer1, ByteBuffer buffer2,
-			byte[] output) {
+	public static void mixAudio(ByteBuffer buffer1, ByteBuffer buffer2, byte[] output) {
 		int pos = 0;
 
 		while (buffer1.hasRemaining()) {
@@ -156,5 +159,29 @@ public class AudioUtils {
 			output[pos++] = (byte) (value & 0xFF);
 			output[pos++] = (byte) ((value >> 8) & 0xFF);
 		}
+	}
+
+	/**
+	 * Generates a byte array of silence for the specified duration, based on the provided audio format.
+	 *
+	 * @param stream      The input stream to read audio data from; it is read for the specified duration,
+	 *                    but the data is replaced with silence.
+	 * @param audioFormat The {@link AudioFormat} of the audio data, used to calculate the bytes per second.
+	 * @param millis      The duration of silence to generate, in milliseconds.
+	 *
+	 * @return a byte array containing silence for the specified duration.
+	 *
+	 * @throws IOException if an I/O error occurs while reading from the input stream.
+	 */
+	public static byte[] silenceAudio(InputStream stream, AudioFormat audioFormat, int millis) throws IOException {
+		int bps = getBytesPerSecond(audioFormat);
+		int bpm = bps / 1000 * millis;
+		byte[] buffer = new byte[bpm];
+
+		stream.read(buffer);
+
+		Arrays.fill(buffer, (byte) 0);
+
+		return buffer;
 	}
 }

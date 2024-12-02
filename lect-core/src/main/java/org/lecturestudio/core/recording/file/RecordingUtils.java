@@ -25,6 +25,7 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 
+import org.lecturestudio.core.audio.AudioUtils;
 import org.lecturestudio.core.io.RandomAccessAudioStream;
 import org.lecturestudio.core.io.WaveOutputStream;
 import org.lecturestudio.core.recording.Recording;
@@ -61,7 +62,13 @@ public final class RecordingUtils {
 			outStream.setAudioFormat(stream.getAudioFormat());
 
 			byte[] buffer = new byte[8192];
+			byte[] silenced = AudioUtils.silenceAudio(stream, stream.getAudioFormat(), 20);
 			int read;
+
+			totalRead += silenced.length;
+
+			// Write silenced audio at the beginning, to avoid eventual clicks.
+			outStream.write(silenced, 0, silenced.length);
 
 			while ((read = stream.read(buffer)) > 0) {
 				outStream.write(buffer, 0, read);

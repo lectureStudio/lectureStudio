@@ -34,6 +34,7 @@ import java.util.function.Consumer;
 import org.lecturestudio.core.ExecutableException;
 import org.lecturestudio.core.ExecutableState;
 import org.lecturestudio.core.app.ApplicationContext;
+import org.lecturestudio.core.audio.AudioUtils;
 import org.lecturestudio.core.bus.EventBus;
 import org.lecturestudio.core.controller.RenderController;
 import org.lecturestudio.core.controller.ToolController;
@@ -143,7 +144,7 @@ public class VideoRenderer extends RecordingExport {
 
 		RenderConfiguration renderConfig = new RenderConfiguration();
 		renderConfig.setFileFormat(config.getFileFormat());
-		// First pass only outputs to the profile.
+		// First, pass only outputs to the profile.
 		renderConfig.setOutputFile(null);
 		renderConfig.setVideoConfig(config.getVideoConfig());
 		renderConfig.setAudioConfig(null);
@@ -232,7 +233,7 @@ public class VideoRenderer extends RecordingExport {
 			Iterator<StaticShapeAction> iter = recPage.getStaticActions().iterator();
 
 			if (iter.hasNext()) {
-				// Remember currently selected page.
+				// Remember the currently selected page.
 				int lastPageNumber = document.getCurrentPageNumber();
 
 				// Select the page to which to add static actions.
@@ -242,7 +243,7 @@ public class VideoRenderer extends RecordingExport {
 					StaticShapeAction staticAction = iter.next();
 					PlaybackAction action = staticAction.getAction();
 
-					// Execute static action on selected page.
+					// Execute static action on the selected page.
 					try {
 						action.execute(toolController);
 					}
@@ -314,7 +315,11 @@ public class VideoRenderer extends RecordingExport {
 		ffmpegMuxer.start();
 
 		byte[] buffer = new byte[8192];
+		byte[] silenced = AudioUtils.silenceAudio(stream, stream.getAudioFormat(), 20);
 		int read;
+
+		// Write silenced audio at the beginning, to avoid eventual clicks.
+		ffmpegMuxer.addAudioFrame(silenced, 0, silenced.length);
 
 		while ((read = stream.read(buffer)) > 0) {
 			ffmpegMuxer.addAudioFrame(buffer, 0, read);
@@ -356,7 +361,7 @@ public class VideoRenderer extends RecordingExport {
 
 			if (videoConfig.getTwoPass()) {
 				if (videoConfig.getPass() == 1) {
-					// Start second pass.
+					// Start the second pass.
 					startPass2();
 				}
 				else if (videoConfig.getPass() == 2) {

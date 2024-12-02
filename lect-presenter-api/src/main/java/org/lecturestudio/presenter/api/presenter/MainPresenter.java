@@ -175,7 +175,9 @@ public class MainPresenter extends org.lecturestudio.core.presenter.MainPresente
 			return;
 		}
 
-		showWaitingNotification("open.document");
+		CompletableFuture.runAsync(() -> {
+			showWaitingNotification("open.document");
+		});
 
 		documentService.openDocument(file)
 			.thenRun(this::hideWaitingNotification)

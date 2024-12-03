@@ -433,6 +433,8 @@ public class MainPresenter extends org.lecturestudio.core.presenter.MainPresente
 		ExecutableState state = event.getState();
 
 		if (state == ExecutableState.Started) {
+			context.getEventBus().post(new ClosePresenterCommand(
+					HeartbeatStreamPresenter.class));
 			context.getEventBus().post(new ShowPresenterCommand<>(
 					ReconnectStreamPresenter.class));
 		}

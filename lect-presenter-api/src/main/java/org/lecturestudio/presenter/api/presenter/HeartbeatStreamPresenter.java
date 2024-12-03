@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2020 TU Darmstadt, Department of Computer Science,
+ * Copyright (C) 2021 TU Darmstadt, Department of Computer Science,
  * Embedded Systems and Applications Group.
  *
  * This program is free software: you can redistribute it and/or modify
@@ -16,47 +16,29 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package org.lecturestudio.core.presenter;
+package org.lecturestudio.presenter.api.presenter;
 
 import javax.inject.Inject;
 
 import org.lecturestudio.core.app.ApplicationContext;
+import org.lecturestudio.core.app.dictionary.Dictionary;
+import org.lecturestudio.core.presenter.NotificationPresenter;
 import org.lecturestudio.core.view.NotificationType;
 import org.lecturestudio.core.view.NotificationView;
-import org.lecturestudio.core.view.ViewLayer;
 
-/**
- * Notification presenter implementation. Notifications will be shown on the
- * {@code Notification} layer at the top-most view layer.
- *
- * @author Alex Andres
- */
-public class NotificationPresenter extends Presenter<NotificationView> {
+public class HeartbeatStreamPresenter extends NotificationPresenter {
 
 	@Inject
-	protected NotificationPresenter(ApplicationContext context, NotificationView view) {
+	protected HeartbeatStreamPresenter(ApplicationContext context, NotificationView view) {
 		super(context, view);
-	}
-
-	public void setNotificationType(NotificationType type) {
-		view.setType(type);
-	}
-
-	public void setTitle(String title) {
-		view.setTitle(title);
-	}
-
-	public void setMessage(String message) {
-		view.setMessage(message);
 	}
 
 	@Override
 	public void initialize() {
-		view.setOnClose(this::close);
-	}
+		Dictionary dict = context.getDictionary();
 
-	@Override
-	public ViewLayer getViewLayer() {
-		return ViewLayer.Notification;
+		setNotificationType(NotificationType.WARNING);
+		setTitle(dict.get("heartbeat.error"));
+		setMessage(dict.get("heartbeat.error.message"));
 	}
 }

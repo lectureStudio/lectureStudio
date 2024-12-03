@@ -22,9 +22,11 @@ import com.google.common.eventbus.Subscribe;
 
 import java.util.concurrent.atomic.AtomicBoolean;
 
-import org.lecturestudio.core.view.NotificationType;
+import org.lecturestudio.core.presenter.command.ClosePresenterCommand;
+import org.lecturestudio.core.presenter.command.ShowPresenterCommand;
 import org.lecturestudio.presenter.api.context.PresenterContext;
 import org.lecturestudio.presenter.api.event.StreamingStateEvent;
+import org.lecturestudio.presenter.api.presenter.HeartbeatStreamPresenter;
 import org.lecturestudio.web.api.event.HeartbeatEvent;
 
 public class HeartbeatErrorHandler extends PresenterHandler {
@@ -56,10 +58,13 @@ public class HeartbeatErrorHandler extends PresenterHandler {
 	public void onEvent(final HeartbeatEvent event) {
 		if (event.type() == HeartbeatEvent.Type.FAILURE) {
 			if (heartbeatError.compareAndSet(false, true)) {
-				context.showNotification(NotificationType.WARNING, "heartbeat.error", "heartbeat.error.message");
+				context.getEventBus().post(new ShowPresenterCommand<>(
+						HeartbeatStreamPresenter.class));
 			}
 		}
 		else {
+			context.getEventBus().post(new ClosePresenterCommand(
+					HeartbeatStreamPresenter.class));
 			heartbeatError.set(false);
 		}
 	}

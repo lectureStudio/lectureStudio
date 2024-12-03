@@ -372,7 +372,7 @@ public class WebRtcStreamService extends ExecutableBase {
 				hasFailed = true;
 
 				if (started()) {
-					// Upon unexpected disruption start recovery process.
+					// Upon unexpected disruption start the recovery process.
 					try {
 						clientFailover.start();
 					}

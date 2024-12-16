@@ -49,7 +49,7 @@ signJarFiles() { # $1: dir path
 
 	for jarFile in $dirpath
 	do
-		jar tf "$jarFile" | grep -E "dylib|jnilib" | while read -r lib ; do
+		jar tf "$jarFile" | grep -E "dylib|jnilib|ffmpeg|ffprobe" | while read -r lib ; do
 			unzip -qq "$jarFile" "$lib" -d signed-libs
 			signFile "signed-libs/$lib"
 			jar uf "$jarFile" -C "signed-libs" "$lib"
@@ -70,17 +70,11 @@ signDir() { # $1: dir path, $2: extension
 requestStatus() { # $1: requestUUID
 	requestUUID=${1?:"Need a request UUID."}
 
-	xcrun notarytool info "$requestUUID" \
-            --apple-id "${package.dev.username}" \
-            --team-id "${package.dev.teamid}" \
-            --password "${package.dev.password}"
-
-
-	status=$(xcrun notarytool info "$requestUUID" \
+	status=$(set -x; xcrun notarytool log \
           --apple-id "${package.dev.username}" \
           --team-id "${package.dev.teamid}" \
-          --password "${package.dev.password}" 2>&1 \
-			| awk -F ': ' '/Status:/ { print $2; }' )
+          --password "${package.dev.password}" \
+          "$requestUUID" 2>&1)
 	echo "$status"
 }
 
@@ -89,26 +83,26 @@ notarizeFile() { # $1: path to file to notarize, $2: identifier
 
 	# Upload the app to the Notarization Service.
 	echo "Uploading $filepath for notarization."
-	requestUUID=$(xcrun notarytool submit "$filepath" \
+	submit_uuid=$(set -x; xcrun notarytool submit "$filepath" \
                                         --apple-id "${package.dev.username}" \
                                         --team-id "${package.dev.teamid}" \
                                         --password "${package.dev.password}" \
-                                        --wait --progress \
-				| awk '/id: / { print $NF; }')
+                                        --wait \
+				| awk '/id: / { print $NF; }' 2>&1)
 
-	echo "Notarization Request-UUID: $requestUUID"
+	echo "UUID: $submit_uuid"
 
-	if [[ $requestUUID == "" ]]; then
+	if [[ $submit_uuid == "" ]]; then
 		echo "Could not upload for notarization."
 		exit 1
 	fi
 
-	#request_status=$(requestStatus "$requestUUID")
+  #request_status=$(requestStatus "$submit_uuid")
 
 	# Print status information.
+  #echo "Status: $request_status"
 
-
-	#if [[ $request_status != "success" ]]; then
+	#if [[ $request_status != "Accepted" ]]; then
 	#	echo "Could not notarize $filepath"
 	#	exit 1
 	#fi

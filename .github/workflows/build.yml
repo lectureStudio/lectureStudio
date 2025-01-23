@@ -1,0 +1,63 @@
+name: Build
+
+on:
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ${{ matrix.os }}
+
+    strategy:
+      matrix:
+        os: [macos-13, macos-14, ubuntu-20.04, windows-2019]
+        java: [21]
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Maven cache
+        uses: actions/cache@v4
+        with:
+          path: ~/.m2/repository
+          key: maven-${{ runner.os }}-${{ hashFiles('**/pom.xml') }}
+          restore-keys: maven-${{ runner.os }}-
+
+      - name: Set up JDK ${{ matrix.java }}
+        uses: actions/setup-java@v4
+        with:
+          java-version: ${{ matrix.java }}
+          distribution: 'temurin'
+
+      - name: Install the Apple certificate
+        if: runner.os == 'macOS'
+        env:
+          CERTIFICATE_BASE64: ${{ secrets.APPLE_CERTIFICATE_BASE64 }}
+        run: |
+          # Create variables
+          CERTIFICATE_PATH=$RUNNER_TEMP/build_certificate.p12
+
+          # Import certificate from secrets
+          echo -n "$CERTIFICATE_BASE64" | base64 --decode -o $CERTIFICATE_PATH
+
+      - name: Build
+        env:
+          APPLE_CERTIFICATE_PATH: ${{ runner.temp }}/build_certificate.p12
+          APPLE_CERTIFICATE_PW: ${{ secrets.APPLE_CERTIFICATE_PW }}
+          APPLE_DEV_ID_APP: ${{ secrets.APPLE_DEV_ID_APP }}
+          APPLE_DEV_ID_INSTALLER: ${{ secrets.APPLE_DEV_ID_INSTALLER }}
+          APPLE_DEV_TEAM_ID: ${{ secrets.APPLE_DEV_TEAM_ID }}
+          APPLE_DEV_USER: ${{ secrets.APPLE_DEV_USER }}
+          APPLE_DEV_PW: ${{ secrets.APPLE_DEV_PW }}
+        run: mvn install
+
+      - name: Upload build
+        uses: actions/upload-artifact@v4
+        with:
+          name: Build-${{ runner.os }}-${{ runner.arch }}
+          path: |
+            target/*.deb
+            target/*.rpm
+            target/*.pkg
+            target/**/*.msi
+            target/*.zip

@@ -1,0 +1,175 @@
+name: Release
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  changelog:
+    name: Generate changelog
+    runs-on: ubuntu-latest
+    outputs:
+      release_body: ${{ steps.git-cliff.outputs.content }}
+      release_version: ${{ steps.git-cliff.outputs.version }}
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Git config
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+      - name: Generate changelog for the current build
+        uses: orhun/git-cliff-action@v4
+        id: git-cliff
+        with:
+          config: .github/cliff-release.toml
+          args: -v -u --strip footer --bump --use-branch-tags
+
+      - name: Update CHANGELOG.md
+        uses: orhun/git-cliff-action@v4
+        with:
+          config: .github/cliff.toml
+          args: -v --bump --use-branch-tags
+        env:
+          OUTPUT: CHANGELOG.md
+
+      - name: Commit CHANGELOG.md
+        run: |
+          git add CHANGELOG.md
+          git commit -m "chore(release): Update CHANGELOG.md for ${{ steps.git-cliff.outputs.version }}"
+          git push
+
+      - name: Commit package version in pom.xml
+        run: |
+          tag=${{ steps.git-cliff.outputs.version }}
+          version=${tag#v}
+
+          mvn versions:set-property -D"property=package.version" -D"newVersion=$version" -D"generateBackupPoms=false"
+          git add pom.xml
+          git commit -m "chore(release): Update package version to $version"
+          git push
+
+  create-release:
+    name: Create GitHub release
+    needs: changelog
+    runs-on: ubuntu-latest
+    outputs:
+      release_version: ${{ needs.changelog.outputs.release_version }}
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          ref: main
+
+      - name: Git config
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+      - name: Create tag
+        run: |
+          version="${{ needs.changelog.outputs.release_version }}"
+
+          git tag -a "$version" -m "Version $version"
+          git push --tags
+
+      - name: Create release draft
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          version="${{ needs.changelog.outputs.release_version }}"
+          body="${{ needs.changelog.outputs.release_body }}"
+
+          gh release create $version -d -t "Release $version" -n "$body"
+
+  build:
+    name: Build release assets
+    needs: create-release
+    runs-on: ${{ matrix.os }}
+    outputs:
+      release_version: ${{ needs.create-release.outputs.release_version }}
+
+    strategy:
+      matrix:
+        os: [macos-13, macos-14, ubuntu-20.04, windows-2019]
+        java: [21]
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          ref: main
+
+      - name: Set up Maven cache
+        uses: actions/cache@v4
+        with:
+          path: ~/.m2/repository
+          key: maven-${{ runner.os }}-${{ hashFiles('**/pom.xml') }}
+          restore-keys: maven-${{ runner.os }}-
+
+      - name: Set up JDK ${{ matrix.java }}
+        uses: actions/setup-java@v4
+        with:
+          java-version: ${{ matrix.java }}
+          distribution: 'temurin'
+
+      - name: Install the Apple certificate
+        if: runner.os == 'macOS'
+        env:
+          CERTIFICATE_BASE64: ${{ secrets.APPLE_CERTIFICATE_BASE64 }}
+        run: |
+          # Create variables
+          CERTIFICATE_PATH=$RUNNER_TEMP/build_certificate.p12
+
+          # Import certificate from secrets
+          echo -n "$CERTIFICATE_BASE64" | base64 --decode -o $CERTIFICATE_PATH
+
+      - name: Build
+        env:
+          APPLE_CERTIFICATE_PATH: ${{ runner.temp }}/build_certificate.p12
+          APPLE_CERTIFICATE_PW: ${{ secrets.APPLE_CERTIFICATE_PW }}
+          APPLE_DEV_ID_APP: ${{ secrets.APPLE_DEV_ID_APP }}
+          APPLE_DEV_ID_INSTALLER: ${{ secrets.APPLE_DEV_ID_INSTALLER }}
+          APPLE_DEV_TEAM_ID: ${{ secrets.APPLE_DEV_TEAM_ID }}
+          APPLE_DEV_USER: ${{ secrets.APPLE_DEV_USER }}
+          APPLE_DEV_PW: ${{ secrets.APPLE_DEV_PW }}
+        run: |
+          mvn install
+
+      - name: Upload release assets
+        if: runner.os != 'windows'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh release upload ${{ needs.create-release.outputs.release_version }} target/lecture*
+
+      # For Windows, we need a separate step, see https://github.com/cli/cli/issues/5099
+      - name: Upload Windows release assets
+        if: runner.os == 'windows'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh release upload ${{ needs.create-release.outputs.release_version }} (get-item .\target\**\lecture*.msi)
+
+  publish-release:
+    name: Publish GitHub release
+    needs: build
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Publish
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh release edit ${{ needs.build.outputs.release_version }} --draft=false

@@ -1,5 +1,17 @@
 #!/bin/bash
 
+PRODUCT_NAME="${package.full.name}"
+VERSION="${package.version}"
+VENDOR="${package.vendor}"
+COPYRIGHT="${package.copyright}"
+DEV_ID_APP=$APPLE_DEV_ID_APP
+DEV_ID_INSTALLER=$APPLE_DEV_ID_INSTALLER
+DEV_TEAM_ID=$APPLE_DEV_TEAM_ID
+DEV_USER=$APPLE_DEV_USER
+DEV_PW=$APPLE_DEV_PW
+DEV_CERT_PATH=$APPLE_CERTIFICATE_PATH
+DEV_CERT_PW=$APPLE_CERTIFICATE_PW
+
 createKeyChain() {
 	echo "Preparing keychain for signing"
 
@@ -16,7 +28,7 @@ createKeyChain() {
 	security set-keychain-settings "${keychain}"
 
 	# Import the certificates.
-	security import "${package.dev.cert}" -k "${keychain}" -P "${package.dev.cert.password}" -T "/usr/bin/codesign" -T "/usr/bin/productbuild"
+	security import "$DEV_CERT_PATH" -k "${keychain}" -P "$DEV_CERT_PW" -T "/usr/bin/codesign" -T "/usr/bin/productbuild"
 
 	# Set to access this identity from command line with tools shipped by apple.
 	security set-key-partition-list -S apple-tool:,apple: -s -k "$keychain_pw" -t private ${keychain} 1> /dev/null
@@ -34,7 +46,7 @@ createKeyChain() {
 signFile() { # $1: file path
 	filepath=${1?:"Need a file path."}
 
-  plutil -convert xml1 entitlements.plist
+	plutil -convert xml1 entitlements.plist
 
 	codesign -s "$DEV_ID_APP" \
 		--timestamp \
@@ -71,9 +83,9 @@ requestStatus() { # $1: requestUUID
 	requestUUID=${1?:"Need a request UUID."}
 
 	status=$(set -x; xcrun notarytool log \
-          --apple-id "${package.dev.username}" \
-          --team-id "${package.dev.teamid}" \
-          --password "${package.dev.password}" \
+          --apple-id "$APPLE_DEV_USER" \
+          --team-id "$APPLE_DEV_TEAM_ID" \
+          --password "$APPLE_DEV_PW" \
           "$requestUUID" 2>&1)
 	echo "$status"
 }
@@ -84,9 +96,9 @@ notarizeFile() { # $1: path to file to notarize, $2: identifier
 	# Upload the app to the Notarization Service.
 	echo "Uploading $filepath for notarization."
 	submit_uuid=$(set -x; xcrun notarytool submit "$filepath" \
-                                        --apple-id "${package.dev.username}" \
-                                        --team-id "${package.dev.teamid}" \
-                                        --password "${package.dev.password}" \
+                                        --apple-id "$APPLE_DEV_USER" \
+                                        --team-id "$APPLE_DEV_TEAM_ID" \
+                                        --password "$APPLE_DEV_PW" \
                                         --wait \
 				| awk '/id: / { print $NF; }' 2>&1)
 
@@ -108,12 +120,6 @@ notarizeFile() { # $1: path to file to notarize, $2: identifier
 	#fi
 }
 
-PRODUCT_NAME="${package.full.name}"
-VERSION="${package.version}"
-VENDOR="${package.vendor}"
-COPYRIGHT="${package.copyright}"
-DEV_ID_APP="${package.dev.id.app}"
-DEV_ID_INSTALLER="${package.dev.id.installer}"
 LIBRARY_PATH=\$ROOTDIR/app/lib/native
 
 app[0]=lecturePresenter
@@ -248,7 +254,7 @@ else
 
 	signFile "$PRODUCT_NAME/app/lib/native/ffmpeg"
 
-  signFile "$PRODUCT_NAME/runtime/Contents/Home/lib/jspawnhelper"
+	signFile "$PRODUCT_NAME/runtime/Contents/Home/lib/jspawnhelper"
 
 	# Sign all dylib/s.
 	signDir "$PRODUCT_NAME/runtime" "*.dylib"

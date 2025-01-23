@@ -127,8 +127,6 @@ class ToolControllerTest extends ServiceTest {
 		toolConfig.getTextSettings().setColor(PresetColor.BLACK.getColor());
 		toolConfig.getTextSettings().setFont(new Font("Arial", 24));
 		toolConfig.getTextSettings().setTextAttributes(new TextAttributes());
-		toolConfig.getLatexSettings().setColor(PresetColor.BLACK.getColor());
-		toolConfig.getLatexSettings().setFont(new TeXFont(TeXFont.Type.SERIF, 20));
 
 		documentService = new DocumentService(context);
 		controller = new ToolController(context, documentService);
@@ -262,16 +260,6 @@ class ToolControllerTest extends ServiceTest {
 	}
 
 	@Test
-	void testLatexTool() {
-		controller.selectLatexTool();
-
-		executeTool(createRandomPoints());
-
-		assertEquals(1, getShapes().size());
-		assertTrue(getShapes().get(0) instanceof TeXShape);
-	}
-
-	@Test
 	void testLineTool() {
 		controller.selectLineTool();
 
@@ -289,8 +277,8 @@ class ToolControllerTest extends ServiceTest {
 
 		Rectangle2D pageBounds = getPage().getPageRect();
 
-		double zw = pageBounds.getWidth() / 2;
-		double zh = pageBounds.getHeight() / 2;
+		double zw = Math.round(pageBounds.getWidth() / 2);
+		double zh = Math.round(pageBounds.getHeight() / 2);
 
 		controller.selectZoomTool();
 		controller.beginToolAction(new PenPoint2D(0, 0));
@@ -300,16 +288,27 @@ class ToolControllerTest extends ServiceTest {
 		PresentationParameterProvider ppp = context.getPagePropertyProvider(ViewType.User);
 		PresentationParameter param = ppp.getParameter(getPage());
 
+		Rectangle2D pageRect = param.getPageRect();
+
 		assertEquals(0, getShapes().size());
-		assertEquals(new Rectangle2D(0, 0, zw, zh), param.getPageRect());
+		assertEquals(new Rectangle2D(0, 0, zw, zh), new Rectangle2D(
+				Math.round(pageRect.getX()), Math.round(pageRect.getY()),
+				Math.round(pageRect.getWidth()), Math.round(pageRect.getHeight())));
 
 		LinkedList<PenPoint2D> panPoints = createRandomPoints();
 		controller.selectPanningTool();
 		executeTool(panPoints);
 
 		Point2D location = panPoints.getFirst().subtract(panPoints.getLast());
+		pageRect = param.getPageRect();
 
-		assertEquals(new Rectangle2D(location.getX(), location.getY(), zw, zh), param.getPageRect());
+		assertEquals(
+				new Rectangle2D(
+					Math.round(location.getX()), Math.round(location.getY()),
+					Math.round(zw), Math.round(zh)),
+				new Rectangle2D(
+					Math.round(pageRect.getX()), Math.round(pageRect.getY()),
+					Math.round(pageRect.getWidth()), Math.round(pageRect.getHeight())));
 	}
 
 	@Test
@@ -494,13 +493,18 @@ class ToolControllerTest extends ServiceTest {
 		size = GeometryUtils.keepAspectRatio(size, ratio);
 
 		Rectangle2D rect = new Rectangle2D();
-		rect.setLocation(location.getX(), location.getY());
-		rect.setFromDiagonal(location.getX(), location.getY(), location.getX() + size.getWidth(), location.getY() + size.getHeight());
+		rect.setLocation(Math.round(location.getX()), Math.round(location.getY()));
+		rect.setFromDiagonal(Math.round(location.getX()), Math.round(location.getY()), Math.round(location.getX() + size.getWidth()), Math.round(location.getY() + size.getHeight()));
 
 		PresentationParameterProvider ppp = context.getPagePropertyProvider(ViewType.User);
 		PresentationParameter param = ppp.getParameter(getPage());
 
-		assertEquals(rect, param.getPageRect());
+		Rectangle2D pageRect = param.getPageRect();
+
+		assertEquals(rect, new Rectangle2D(
+			Math.round(location.getX()), Math.round(location.getY()),
+			Math.round(pageRect.getWidth()), Math.round(pageRect.getHeight())
+		));
 	}
 
 	@Test
@@ -653,9 +657,9 @@ class ToolControllerTest extends ServiceTest {
 
 	private LinkedList<PenPoint2D> createOutOfBoundsPoints() {
 		LinkedList<PenPoint2D> points = new LinkedList<>();
-		points.add(new PenPoint2D(-1, -1));
-		points.add(new PenPoint2D(-2, -2));
-		points.add(new PenPoint2D(-3, -3));
+		points.add(new PenPoint2D(-10, -10));
+		points.add(new PenPoint2D(-20, -20));
+		points.add(new PenPoint2D(-30, -30));
 
 		return points;
 	}

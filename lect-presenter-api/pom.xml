@@ -26,6 +26,7 @@
                 <artifactId>maven-surefire-plugin</artifactId>
                 <configuration>
                     <skipTests>true</skipTests>
+					<argLine>-Djava.library.path=${project.parent.basedir}/lib/native/${os.name}</argLine>
                 </configuration>
             </plugin>
         </plugins>

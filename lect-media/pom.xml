@@ -48,7 +48,7 @@
 		<dependency>
 			<groupId>dev.onvoid.webrtc</groupId>
 			<artifactId>webrtc-java</artifactId>
-			<version>0.8.0</version>
+			<version>0.9.0</version>
 		</dependency>
 
 		<dependency>
@@ -86,6 +86,23 @@
 		</dependency>
 		<dependency>
 			<groupId>org.bytedeco</groupId>
+			<artifactId>javacpp</artifactId>
+			<version>1.5.10</version>
+			<classifier>${bytedeco.os.name}</classifier>
+		</dependency>
+		<dependency>
+			<groupId>org.bytedeco</groupId>
+			<artifactId>javacpp-platform</artifactId>
+			<version>1.5.10</version>
+			<exclusions>
+				<exclusion>
+					<groupId>org.bytedeco</groupId>
+					<artifactId>javacpp</artifactId>
+				</exclusion>
+			</exclusions>
+		</dependency>
+		<dependency>
+			<groupId>org.bytedeco</groupId>
 			<artifactId>javacv</artifactId>
 			<version>1.5.10</version>
 			<exclusions>
@@ -99,6 +116,27 @@
 			<groupId>org.bytedeco</groupId>
 			<artifactId>ffmpeg-platform</artifactId>
 			<version>6.1.1-1.5.10</version>
+			<exclusions>
+				<exclusion>
+					<groupId>org.bytedeco</groupId>
+					<artifactId>ffmpeg</artifactId>
+				</exclusion>
+				<exclusion>
+					<groupId>org.bytedeco</groupId>
+					<artifactId>javacpp-platform</artifactId>
+				</exclusion>
+			</exclusions>
+		</dependency>
+		<dependency>
+			<groupId>org.bytedeco</groupId>
+			<artifactId>ffmpeg</artifactId>
+			<version>6.1.1-1.5.10</version>
+		</dependency>
+		<dependency>
+			<groupId>org.bytedeco</groupId>
+			<artifactId>ffmpeg</artifactId>
+			<version>6.1.1-1.5.10</version>
+			<classifier>${bytedeco.os.name}</classifier>
 		</dependency>
 	</dependencies>
 </project>

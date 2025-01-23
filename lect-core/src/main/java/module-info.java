@@ -69,4 +69,8 @@ module org.lecturestudio.core {
 	exports org.lecturestudio.core.util;
 	exports org.lecturestudio.core.view;
 
+	opens org.lecturestudio.core.app.configuration to com.fasterxml.jackson.databind;
+	opens org.lecturestudio.core.view to com.fasterxml.jackson.databind;
+	opens org.lecturestudio.core.geometry to com.fasterxml.jackson.databind;
+	opens org.lecturestudio.core.app to com.fasterxml.jackson.databind;
 }

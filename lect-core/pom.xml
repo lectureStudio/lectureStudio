@@ -25,7 +25,8 @@
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-surefire-plugin</artifactId>
                 <configuration>
-                    <skipTests>true</skipTests>
+					<skipTests>true</skipTests>
+					<argLine>-Djava.library.path=${project.parent.basedir}/lib/native/${os.name}</argLine>
                 </configuration>
             </plugin>
 
@@ -97,6 +98,12 @@
 			<groupId>com.artifex.mupdf</groupId>
 			<artifactId>mupdf</artifactId>
 			<version>1.18.0</version>
+		</dependency>
+		<dependency>
+			<groupId>com.artifex.mupdf</groupId>
+			<artifactId>mupdf</artifactId>
+			<version>1.18.0</version>
+			<scope>tests</scope>
 		</dependency>
 
 		<dependency>

@@ -63,7 +63,7 @@
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<build.output.dir>${platform.name}-${platform.arch}</build.output.dir>
-		<package.version>6.1.${git.commitsCount}</package.version>
+		<package.version>6.1.1025</package.version>
 		<maven.build.timestamp.format>yyyy-MM-dd HH:mm</maven.build.timestamp.format>
 		<license.path>${project.basedir}/../</license.path>
 		<log4j.version>2.23.1</log4j.version>
@@ -242,11 +242,6 @@
 						</execution>
 					</executions>
 				</plugin>
-				<plugin>
-					<groupId>ru.concerteza.buildnumber</groupId>
-					<artifactId>maven-jgit-buildnumber-plugin</artifactId>
-					<version>1.2.10</version>
-				</plugin>
 			</plugins>
 		</pluginManagement>
 
@@ -280,19 +275,6 @@
 								</resource>
 							</resources>
 						</configuration>
-					</execution>
-				</executions>
-			</plugin>
-			<plugin>
-				<groupId>ru.concerteza.buildnumber</groupId>
-				<artifactId>maven-jgit-buildnumber-plugin</artifactId>
-				<executions>
-					<execution>
-						<id>git-buildnumber</id>
-						<goals>
-							<goal>extract-buildnumber</goal>
-						</goals>
-						<phase>validate</phase>
 					</execution>
 				</executions>
 			</plugin>
@@ -335,6 +317,7 @@
 				<platform.arch>x86_64</platform.arch>
 				<platform.name>linux</platform.name>
 				<os.name>linux-${platform.arch}</os.name>
+				<bytedeco.os.name>linux-${platform.arch}</bytedeco.os.name>
 			</properties>
 		</profile>
 		<profile>
@@ -349,6 +332,7 @@
 				<platform.arch>arm64</platform.arch>
 				<platform.name>mac</platform.name>
 				<os.name>macos-${platform.arch}</os.name>
+				<bytedeco.os.name>macosx-${platform.arch}</bytedeco.os.name>
 			</properties>
 		</profile>
 		<profile>
@@ -363,6 +347,7 @@
 				<platform.arch>x86_64</platform.arch>
 				<platform.name>mac</platform.name>
 				<os.name>macos-${platform.arch}</os.name>
+				<bytedeco.os.name>macosx-${platform.arch}</bytedeco.os.name>
 			</properties>
 		</profile>
 		<profile>
@@ -377,6 +362,7 @@
 				<platform.arch>x86_64</platform.arch>
 				<platform.name>windows</platform.name>
 				<os.name>windows-${platform.arch}</os.name>
+				<bytedeco.os.name>windows-${platform.arch}</bytedeco.os.name>
 			</properties>
 		</profile>
 	</profiles>

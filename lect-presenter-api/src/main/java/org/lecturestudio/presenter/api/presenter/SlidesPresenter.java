@@ -76,6 +76,7 @@ import org.lecturestudio.core.text.Font;
 import org.lecturestudio.core.tool.ToolType;
 import org.lecturestudio.core.util.ListChangeListener;
 import org.lecturestudio.core.util.ObservableList;
+import org.lecturestudio.core.util.OsInfo;
 import org.lecturestudio.core.view.Action;
 import org.lecturestudio.core.view.PageObjectRegistry;
 import org.lecturestudio.core.view.PageObjectView;
@@ -1354,7 +1355,12 @@ public class SlidesPresenter extends Presenter<SlidesView> {
 
 		view.setScrollHandler(this::onScrollEvent);
 
-		setUseMouse(config.getUseMouseInput());
+		if (OsInfo.isMacOs()) {
+			setUseMouse(true);
+		}
+		else {
+			setUseMouse(config.getUseMouseInput());
+		}
 
 		view.setOnExternalMessagesPositionChanged(this::externalMessagesPositionChanged);
 		view.setOnExternalMessagesSizeChanged(this::externalMessagesSizeChanged);

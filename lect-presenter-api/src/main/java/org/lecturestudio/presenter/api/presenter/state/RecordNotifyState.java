@@ -25,6 +25,7 @@ import org.lecturestudio.core.app.ApplicationContext;
 import org.lecturestudio.core.bus.EventBus;
 import org.lecturestudio.core.model.Page;
 import org.lecturestudio.presenter.api.config.PresenterConfiguration;
+import org.lecturestudio.presenter.api.context.PresenterContext;
 import org.lecturestudio.presenter.api.presenter.RemindRecordingPresenter;
 import org.lecturestudio.presenter.api.presenter.command.CloseablePresenterCommand;
 import org.lecturestudio.presenter.api.view.ToolbarView;
@@ -32,6 +33,8 @@ import org.lecturestudio.presenter.api.view.ToolbarView;
 public class RecordNotifyState {
 
 	private final ToolbarView view;
+
+	private final PresenterContext pContext;
 
 	private final PresenterConfiguration config;
 
@@ -51,6 +54,7 @@ public class RecordNotifyState {
 	public RecordNotifyState(ApplicationContext context, ToolbarView toolbarView) {
 		view = toolbarView;
 		config = (PresenterConfiguration) context.getConfiguration();
+		pContext = (PresenterContext) context;
 		eventBus = context.getEventBus();
 	}
 
@@ -92,7 +96,12 @@ public class RecordNotifyState {
 	}
 
 	private boolean notifyState() {
-		if (!config.getNotifyToRecord() || userDeclined) {
+		boolean notify = config.getNotifyToRecord();
+		boolean streamEnabled = pContext.getStreamStarted();
+		boolean streamMicEnabled = config.getStreamConfig().getMicrophoneEnabled();
+		boolean recSuspended = recordingState == ExecutableState.Suspended;
+
+		if (!notify || userDeclined || (streamEnabled && !streamMicEnabled && recSuspended)) {
 			return false;
 		}
 		return (shapeAdded || pageChanged)

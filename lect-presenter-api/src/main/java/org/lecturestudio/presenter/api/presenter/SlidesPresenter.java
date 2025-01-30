@@ -236,7 +236,9 @@ public class SlidesPresenter extends Presenter<SlidesView> {
 
 	@Subscribe
 	public void onEvent(final RecordingStateEvent event) {
-		if (!event.started()) {
+		boolean prevSuspended = recordingService.getPreviousState() == ExecutableState.Suspended;
+
+		if (!event.started() || prevSuspended) {
 			return;
 		}
 

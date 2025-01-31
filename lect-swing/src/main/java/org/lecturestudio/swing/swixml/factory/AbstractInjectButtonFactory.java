@@ -20,12 +20,14 @@ package org.lecturestudio.swing.swixml.factory;
 
 import static java.util.Objects.nonNull;
 
+import java.awt.*;
 import java.awt.event.ActionEvent;
 
 import javax.swing.AbstractAction;
 import javax.swing.AbstractButton;
 import javax.swing.JComponent;
 import javax.swing.KeyStroke;
+import javax.swing.text.JTextComponent;
 
 import org.lecturestudio.core.inject.Injector;
 
@@ -59,6 +61,17 @@ public class AbstractInjectButtonFactory extends InjectViewFactory implements Lo
 								@Override
 								public void actionPerformed(ActionEvent e) {
 									AbstractButton b = (AbstractButton) e.getSource();
+
+									Component focusOwner = KeyboardFocusManager.getCurrentKeyboardFocusManager()
+											.getFocusOwner();
+
+									if (nonNull(focusOwner) && focusOwner.isShowing()) {
+										if (focusOwner instanceof JTextComponent) {
+											// Do not execute keystroke actions in text components.
+											return;
+										}
+									}
+
 									b.doClick();
 								}
 							});

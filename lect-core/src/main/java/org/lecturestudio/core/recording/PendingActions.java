@@ -41,7 +41,7 @@ public class PendingActions {
 	}
 
 	public void addPendingAction(PlaybackAction action) {
-		List<PlaybackAction> list = pendingActions.get(pendingPage);
+		List<PlaybackAction> list = getPendingActions(pendingPage);
 
 		if (isNull(list)) {
 			list = new ArrayList<>();
@@ -85,7 +85,7 @@ public class PendingActions {
 	}
 
 	public boolean hasPendingActions(Page page) {
-		List<PlaybackAction> actions = pendingActions.get(page);
+		List<PlaybackAction> actions = getPendingActions(page);
 		return nonNull(actions) && !actions.isEmpty();
 	}
 
@@ -99,6 +99,10 @@ public class PendingActions {
 		}
 
 		pendingPage = page;
+
+		if (isNull(page)) {
+			return;
+		}
 
 		if (!pendingActions.containsKey(page)) {
 			pendingActions.put(page, new ArrayList<>());

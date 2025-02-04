@@ -130,7 +130,7 @@ public class FileLectureRecorder extends LectureRecorder {
 
 	@Subscribe
 	public void onEvent(final RecordActionEvent event) {
-		if (initialized() || suspended()) {
+		if (initialized() || suspended() || stopped()) {
 			addPendingAction(event.getAction());
 		}
 		if (!started()) {
@@ -149,7 +149,7 @@ public class FileLectureRecorder extends LectureRecorder {
 
 	@Subscribe
 	public void onEvent(final PageEvent event) {
-		if (initialized() || suspended()) {
+		if (initialized() || suspended() || stopped()) {
 			pendingActions.setPendingPage(event.getPage());
 		}
 		if (!started()) {
@@ -168,7 +168,7 @@ public class FileLectureRecorder extends LectureRecorder {
 	public void onEvent(final DocumentEvent event) {
 		Page currentPage = event.getDocument().getCurrentPage();
 
-		if (initialized() || suspended()) {
+		if (initialized() || suspended() || stopped()) {
 			pendingActions.setPendingPage(currentPage);
 		}
 		if (!started()) {
@@ -320,6 +320,24 @@ public class FileLectureRecorder extends LectureRecorder {
 		}
 
 		backup.close();
+
+		pendingActions.clear();
+		pendingActions.initialize();
+
+		// Backup recorded actions, in case the recording is restarted to use them as static actions.
+		for (Map.Entry<Page, RecordedPage> entry : addedPages.entrySet()) {
+			Page page = entry.getKey();
+			RecordedPage rPage = entry.getValue();
+
+			pendingActions.setPendingPage(page);
+
+			for (StaticShapeAction action : rPage.getStaticActions()) {
+				pendingActions.addPendingAction(action.getAction().clone());
+			}
+			for (PlaybackAction action : rPage.getPlaybackActions()) {
+				pendingActions.addPendingAction(action.clone());
+			}
+		}
 
 		bytesConsumed = 0;
 	}
@@ -561,6 +579,7 @@ public class FileLectureRecorder extends LectureRecorder {
 					}
 				}
 				if (pendingActions.hasPendingActions(page)) {
+					// Unrecorded actions, e.g. during suspension.
 					insertPendingPageActions(recPage, page);
 				}
 

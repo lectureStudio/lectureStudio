@@ -686,7 +686,7 @@ public class SwingSlidesView extends JPanel implements SlidesView {
 	public void setStreamState(ExecutableState state) {
 		SwingUtils.invoke(() -> {
 			if (state == ExecutableState.Started) {
-				setMessageBarTabEnabled(dict.get(MESSAGE_LABEL_KEY), true);
+				setParticipantsTabEnabled(dict.get(PARTICIPANTS_LABEL_KEY), true);
 
 				participantList.clear();
 			}
@@ -724,7 +724,10 @@ public class SwingSlidesView extends JPanel implements SlidesView {
 
 			if (started) {
 				removeMessageViews(MessageView.class);
-				setMessageBarTabEnabled(dict.get(MESSAGE_LABEL_KEY), true);
+
+				if (!messageBarPosition.name().equals(participantsPosition.name())) {
+					setMessageBarTabEnabled(dict.get(MESSAGE_LABEL_KEY), true);
+				}
 
 				if (userPrivilegeService.canWriteMessages()) {
 					messageSendPanel.setVisible(true);
@@ -1942,6 +1945,23 @@ public class SwingSlidesView extends JPanel implements SlidesView {
 					maximizeBottomTabPane();
 				}
 			}
+			case LEFT -> {
+				leftTabPane.setTabEnabled(labelText, enable);
+				if (enable) {
+					maximizeLeftTabPane();
+				}
+			}
+			case RIGHT -> {
+				rightTabPane.setTabEnabled(labelText, enable);
+				if (enable) {
+					maximizeRightTabPane();
+				}
+			}
+		}
+	}
+
+	private void setParticipantsTabEnabled(String labelText, boolean enable) {
+		switch (participantsPosition) {
 			case LEFT -> {
 				leftTabPane.setTabEnabled(labelText, enable);
 				if (enable) {

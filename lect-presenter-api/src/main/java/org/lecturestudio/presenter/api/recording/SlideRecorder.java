@@ -173,6 +173,8 @@ public class SlideRecorder extends ExecutableBase {
 	protected void initInternal() throws ExecutableException {
 		addedPages.clear();
 		recordedPages.clear();
+
+		pendingActions.initialize();
 	}
 
 	@Override

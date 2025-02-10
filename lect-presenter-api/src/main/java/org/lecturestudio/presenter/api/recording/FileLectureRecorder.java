@@ -268,6 +268,12 @@ public class FileLectureRecorder extends LectureRecorder {
 
 			initAudioMixer();
 			initAudioRecorder();
+
+			startSlideRecorder();
+
+			// Record the first page.
+			Page firstPage = documentService.getDocuments().getSelectedDocument().getCurrentPage();
+			recordPage(firstPage);
 		}
 		else if (prevState == ExecutableState.Suspended) {
 			resumeSlideRecorder();
@@ -385,11 +391,10 @@ public class FileLectureRecorder extends LectureRecorder {
 	private void initSlideRecorder() throws ExecutableException {
 		slideRecorder = new SlideRecorder();
 		slideRecorder.init();
+	}
 
-		// Record the first page.
-		Page firstPage = documentService.getDocuments().getSelectedDocument()
-				.getCurrentPage();
-		recordPage(firstPage);
+	public void startSlideRecorder() throws ExecutableException {
+		slideRecorder.start();
 	}
 
 	private void stopSlideRecorder() throws ExecutableException {

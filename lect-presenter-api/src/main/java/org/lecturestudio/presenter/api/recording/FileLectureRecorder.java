@@ -270,7 +270,8 @@ public class FileLectureRecorder extends LectureRecorder {
 			initAudioRecorder();
 		}
 		else if (prevState == ExecutableState.Suspended) {
-			resumeRecording();
+			resumeSlideRecorder();
+			resumeAudioRecorder();
 		}
 	}
 
@@ -372,6 +373,15 @@ public class FileLectureRecorder extends LectureRecorder {
 		audioRecorder.start();
 	}
 
+	private void resumeAudioRecorder() throws ExecutableException {
+		if (nonNull(audioRecorder)) {
+			audioRecorder.start();
+		}
+		else {
+			initAudioRecorder();
+		}
+	}
+
 	private void initSlideRecorder() throws ExecutableException {
 		slideRecorder = new SlideRecorder();
 		slideRecorder.init();
@@ -379,30 +389,19 @@ public class FileLectureRecorder extends LectureRecorder {
 		// Record the first page.
 		Page firstPage = documentService.getDocuments().getSelectedDocument()
 				.getCurrentPage();
-		recordPage(firstPage, 0);
+		recordPage(firstPage);
 	}
 
 	private void stopSlideRecorder() throws ExecutableException {
 		slideRecorder.stop();
 	}
 
-	private void resumeRecording() throws ExecutableException {
-		Page pendingPage = slideRecorder.getPendingPage();
-
-		if (nonNull(pendingPage)) {
-			if (isDuplicate(pendingPage)) {
-				insertPendingActions(slideRecorder.getRecentRecordedPage(), pendingPage);
-			}
-			else {
-				insertPage(pendingPage, 0);
-			}
+	private void resumeSlideRecorder() throws ExecutableException {
+		try {
+			slideRecorder.updatePendingPage(getElapsedTime());
 		}
-
-		if (nonNull(audioRecorder)) {
-			audioRecorder.start();
-		}
-		else {
-			initAudioRecorder();
+		catch (IOException e) {
+			throw new ExecutableException(e);
 		}
 	}
 
@@ -422,18 +421,14 @@ public class FileLectureRecorder extends LectureRecorder {
 			return;
 		}
 
-		insertPage(page, openTime);
-	}
-
-	private void insertPage(Page page, long openTime) {
-		// Do not add equal pages consecutively.
-		if (isDuplicate(page) || openTime < 0) {
-			return;
+		try {
+			slideRecorder.insertPage(page, getElapsedTime(), openTime);
 		}
+		catch (IOException e) {
+			logException(e, "Record slide failed");
 
-		long timestamp = getElapsedTime() - openTime;
-
-		recordPage(page, timestamp);
+			context.showError("recording.notification.title", "recording.slide.error");
+		}
 	}
 
 	private synchronized void addPlaybackAction(PlaybackAction action) {
@@ -450,9 +445,9 @@ public class FileLectureRecorder extends LectureRecorder {
 		slideRecorder.getRecentRecordedPage().addPlaybackAction(action);
 	}
 
-	private void recordPage(Page page, long timestamp) {
+	private void recordPage(Page page) {
 		try {
-			slideRecorder.recordPage(page, timestamp);
+			slideRecorder.recordPage(page, 0);
 		}
 		catch (IOException e) {
 			logException(e, "Record slide failed");
@@ -490,23 +485,6 @@ public class FileLectureRecorder extends LectureRecorder {
 
 			recordCurrentPage(idleTimer.getTaskTime());
 		}
-	}
-
-	private boolean isDuplicate(Page page) {
-		Page lastRecorded = getLastRecordedPage();
-		boolean same = page.equals(lastRecorded);
-
-		if (!same && lastRecorded != null) {
-			UUID lastId = lastRecorded.getUid();
-			UUID pageId = page.getUid();
-
-			if (nonNull(lastId) && nonNull(pageId) && lastId.equals(pageId)) {
-				// Do not record duplicate pages.
-				same = true;
-			}
-		}
-
-		return same;
 	}
 
 	private boolean hasRecordingDevice(String deviceName) {

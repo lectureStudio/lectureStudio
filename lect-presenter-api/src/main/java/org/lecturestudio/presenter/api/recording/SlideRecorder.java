@@ -22,10 +22,7 @@ import static java.util.Objects.isNull;
 import static java.util.Objects.nonNull;
 
 import java.io.IOException;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Stack;
+import java.util.*;
 
 import org.lecturestudio.core.ExecutableBase;
 import org.lecturestudio.core.ExecutableException;
@@ -60,6 +57,17 @@ public class SlideRecorder extends ExecutableBase {
 
 	public Document getRecordedDocument() {
 		return recordedDocument;
+	}
+
+	public void insertPage(Page page, long currentTime, long openTime) throws IOException {
+		// Do not add equal pages consecutively.
+		if (isDuplicate(page) || openTime < 0) {
+			return;
+		}
+
+		long timestamp = currentTime - openTime;
+
+		recordPage(page, timestamp);
 	}
 
 	public void recordPage(Page page, long timestamp) throws IOException {
@@ -148,6 +156,19 @@ public class SlideRecorder extends ExecutableBase {
 		pendingActions.setPendingPage(page);
 	}
 
+	public void updatePendingPage(long currentTime) throws IOException {
+		Page pendingPage = getPendingPage();
+
+		if (nonNull(pendingPage)) {
+			if (isDuplicate(pendingPage)) {
+				insertPendingActions(getRecentRecordedPage(), pendingPage);
+			}
+			else {
+				insertPage(pendingPage, currentTime, 0);
+			}
+		}
+	}
+
 	@Override
 	protected void initInternal() throws ExecutableException {
 		addedPages.clear();
@@ -214,5 +235,27 @@ public class SlideRecorder extends ExecutableBase {
 				pendingActions.addPendingAction(action.clone());
 			}
 		}
+	}
+
+	private Page getLastRecordedPage() {
+		Set<Page> pageSet = getRecordedPageMap().keySet();
+		return pageSet.stream().skip(pageSet.size() - 1).findFirst().orElse(null);
+	}
+
+	private boolean isDuplicate(Page page) {
+		Page lastRecorded = getLastRecordedPage();
+		boolean same = page.equals(lastRecorded);
+
+		if (!same && lastRecorded != null) {
+			UUID lastId = lastRecorded.getUid();
+			UUID pageId = page.getUid();
+
+			if (nonNull(lastId) && nonNull(pageId) && lastId.equals(pageId)) {
+				// Do not record duplicate pages.
+				same = true;
+			}
+		}
+
+		return same;
 	}
 }

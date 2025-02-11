@@ -92,7 +92,7 @@ public class SlideRecorder extends ExecutableBase {
 			}
 		}
 		if (pendingActions.hasPendingActions(page)) {
-			// Unrecorded actions, e.g. during suspension.
+			// Unrecorded actions, e.g., during suspension.
 			insertPendingPageActions(recPage, page);
 		}
 
@@ -171,32 +171,42 @@ public class SlideRecorder extends ExecutableBase {
 
 	@Override
 	protected void initInternal() throws ExecutableException {
-		addedPages.clear();
-		recordedPages.clear();
-
-		pendingActions.initialize();
+		clearRecordedPages();
+		clearPendingActions();
 	}
 
 	@Override
 	protected void startInternal() throws ExecutableException {
+		// Release resources, if not happened before.
+		if (nonNull(recordedDocument)) {
+			recordedDocument.close();
+		}
+
 		try {
 			recordedDocument = new Document();
 		}
 		catch (IOException e) {
 			throw new ExecutableException("Could not create document.", e);
 		}
+
+		clearRecordedPages();
 	}
 
 	@Override
 	protected void stopInternal() throws ExecutableException {
-		recordedDocument.close();
-
+		// Do not close the recorded document here, since its resources are
+		// required to be available for storing after this recorder stopps.
 		resetPendingActions();
 	}
 
 	@Override
 	protected void destroyInternal() throws ExecutableException {
+		recordedDocument.close();
+	}
 
+	private void clearRecordedPages() {
+		recordedPages.clear();
+		addedPages.clear();
 	}
 
 	private void insertPendingActions(RecordedPage recPage, Page page) {
@@ -218,10 +228,14 @@ public class SlideRecorder extends ExecutableBase {
 		pendingActions.clearPendingActions(page);
 	}
 
-	private void resetPendingActions() {
-		// Reset state.
+	private void clearPendingActions() {
 		pendingActions.clear();
 		pendingActions.initialize();
+	}
+
+	private void resetPendingActions() {
+		// Reset state.
+		clearPendingActions();
 
 		// Backup recorded actions, in case the recording is restarted to use them as static actions.
 		for (Map.Entry<Page, RecordedPage> entry : getRecordedPageMap().entrySet()) {

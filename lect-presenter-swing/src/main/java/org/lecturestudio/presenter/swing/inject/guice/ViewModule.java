@@ -43,7 +43,7 @@ public class ViewModule extends AbstractModule {
 		bind(DisplaySettingsView.class).to(SwingDisplaySettingsView.class);
 		bind(DirectoryChooserView.class).to(SwingDirectoryChooserView.class);
 		bind(DocumentTemplateSettingsView.class).to(SwingDocumentTemplateSettingsView.class);
-		bind(FileChooserView.class).to(SwingFileChooserView.class);
+		bind(FileChooserView.class).to(SwingFxFileChooserView.class);
 		bind(GeneralSettingsView.class).to(SwingGeneralSettingsView.class);
 		bind(GotoBookmarkView.class).to(SwingGotoBookmarkView.class);
 		bind(MainView.class).to(SwingMainView.class);

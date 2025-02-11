@@ -18,6 +18,7 @@
 
 package org.lecturestudio.presenter.swing;
 
+import org.lecturestudio.core.ExecutableException;
 import org.lecturestudio.core.app.ApplicationFactory;
 import org.lecturestudio.swing.app.LectSwingPreloader;
 import org.lecturestudio.swing.app.SwingApplication;
@@ -38,5 +39,26 @@ public class PresenterApplication extends SwingApplication {
 	@Override
 	public ApplicationFactory createApplicationFactory() {
 		return new PresenterFactory();
+	}
+
+	@Override
+	protected void initInternal(String[] args) throws ExecutableException {
+		// JavaFX should be initialized prior to the app itself,
+		// e.g.,by creating a fake JFXPanel instance.
+		javafx.embed.swing.JFXPanel dummy = new javafx.embed.swing.JFXPanel();
+
+		// Ensure that JavaFX platform keeps running.
+		javafx.application.Platform.setImplicitExit(false);
+
+		super.initInternal(args);
+	}
+
+	@Override
+	protected void stopInternal() throws ExecutableException {
+		// When shutting down the application, ensure that the JavaFX threads
+		// don't prevent JVM exit.
+		javafx.application.Platform.exit();
+
+		super.stopInternal();
 	}
 }

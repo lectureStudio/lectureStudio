@@ -55,7 +55,7 @@ public class SlideRecorder extends ExecutableBase {
 		pendingActions = new PendingActions();
 	}
 
-	public Document getRecordedDocument() {
+	public synchronized Document getRecordedDocument() {
 		return recordedDocument;
 	}
 
@@ -70,7 +70,7 @@ public class SlideRecorder extends ExecutableBase {
 		recordPage(page, timestamp);
 	}
 
-	public void recordPage(Page page, long timestamp) throws IOException {
+	public synchronized void recordPage(Page page, long timestamp) throws IOException {
 		int pageNumber = getRecordedPageCount();
 
 		RecordedPage recPage = new RecordedPage();
@@ -105,20 +105,22 @@ public class SlideRecorder extends ExecutableBase {
 		recordedPages.push(recPage);
 	}
 
-	public Stack<RecordedPage> getRecordedPages() {
+	public synchronized Stack<RecordedPage> getRecordedPages() {
 		return recordedPages;
 	}
 
-	public int getRecordedPageCount() {
+	public synchronized int getRecordedPageCount() {
 		return recordedPages.size();
 	}
 
-	public Map<Page, RecordedPage> getRecordedPageMap() {
+	public synchronized Map<Page, RecordedPage> getRecordedPageMap() {
 		return addedPages;
 	}
 
 	public RecordedPage getRecentRecordedPage() {
-		return recordedPages.peek();
+		synchronized (recordedPages) {
+			return recordedPages.isEmpty() ? null : recordedPages.peek();
+		}
 	}
 
 	public String getBestRecordingName() {
@@ -145,14 +147,16 @@ public class SlideRecorder extends ExecutableBase {
 
 		action.setTimestamp((int) timestamp);
 
-		pendingActions.addPendingAction(action);
+		synchronized (pendingActions) {
+			pendingActions.addPendingAction(action);
+		}
 	}
 
-	public Page getPendingPage() {
+	public synchronized Page getPendingPage() {
 		return pendingActions.getPendingPage();
 	}
 
-	public void setPendingPage(Page page) {
+	public synchronized void setPendingPage(Page page) {
 		pendingActions.setPendingPage(page);
 	}
 

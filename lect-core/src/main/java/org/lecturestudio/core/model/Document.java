@@ -62,8 +62,7 @@ public class Document {
 	private final List<Page> pages = new ArrayList<>();
 
 	/**
-	 * The opened document file. May be null, if this document is not loaded
-	 * from a file.
+	 * The opened document file. May be null if this document is not loaded from a file.
 	 */
 	private File file;
 
@@ -147,7 +146,7 @@ public class Document {
 
 	/**
 	 * Get unique document ID. The unique ID can be used to differentiate
-	 * documents of same type but with different internal content.
+	 * documents of the same type but with different internal content.
 	 *
 	 * @return The unique document ID.
 	 */
@@ -157,7 +156,7 @@ public class Document {
 
 	/**
 	 * Set unique document ID. The unique ID can be used to differentiate
-	 * documents of same type but with different internal content.
+	 * documents of the same type but with different internal content.
 	 *
 	 * @param uid The unique document ID.
 	 */

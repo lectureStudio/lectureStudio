@@ -18,11 +18,14 @@
 
 package org.lecturestudio.swing.view;
 
+import static java.util.Objects.nonNull;
+
 import javafx.application.Platform;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
 
+import java.awt.*;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -34,6 +37,8 @@ import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 import java.util.stream.Collectors;
+
+import javax.swing.*;
 
 import org.lecturestudio.core.view.FileChooserView;
 import org.lecturestudio.core.view.View;
@@ -102,12 +107,26 @@ public class SwingFxFileChooserView implements FileChooserView {
 	 */
 	private File openDialog(View parent, Type type) {
 		File selectedFile;
+		Window ownerWindow;
+		Stage stage = null;
 
-//		Stage stage = new Stage();
-//		stage.initStyle(StageStyle.UTILITY);
-//		stage.setIconified(true);
-//		stage.setOpacity(0);
-//		stage.show();
+		if (nonNull(parent)) {
+			if (!Component.class.isAssignableFrom(parent.getClass())) {
+				throw new IllegalArgumentException("View expected to be a java.awt.Component");
+			}
+
+			ownerWindow = SwingUtilities.getWindowAncestor((Component) parent);
+
+			// Show the stage on top of the Swing Window to block input.
+			stage = new Stage();
+			stage.initStyle(StageStyle.UTILITY);
+			stage.setOpacity(0.01); // Make the stage barely visible, but able to block input.
+			stage.setX(ownerWindow.getX());
+			stage.setY(ownerWindow.getY());
+			stage.setWidth(ownerWindow.getWidth());
+			stage.setHeight(ownerWindow.getHeight());
+			stage.show();
+		}
 
 		FileChooser fileChooser = new FileChooser();
 		fileChooser.getExtensionFilters().addAll(extensionFilters);
@@ -115,13 +134,14 @@ public class SwingFxFileChooserView implements FileChooserView {
 		fileChooser.setInitialFileName(selectedFileName);
 
 		selectedFile = switch (type) {
-			case OPEN -> fileChooser.showOpenDialog(null);
-			case SAVE -> fileChooser.showSaveDialog(null);
+			case OPEN -> fileChooser.showOpenDialog(stage);
+			case SAVE -> fileChooser.showSaveDialog(stage);
 		};
 
-//		stage.hide();
-
-		System.out.println("selectedFile: " + selectedFile);
+		if (nonNull(stage)) {
+			// Close the stage with the native dialog.
+			stage.hide();
+		}
 
 		return selectedFile;
 	}

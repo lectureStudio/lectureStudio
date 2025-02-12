@@ -685,13 +685,13 @@ public class Document {
 	 *
 	 * @param page The new page.
 	 */
-	private void addPage(Page page) {
+	protected void addPage(Page page) {
 		pages.add(page);
 
 		fireAddChange(page);
 	}
 
-	private void insertPage(Page page, int index) {
+	protected void insertPage(Page page, int index) {
 		pages.add(index, page);
 
 		fireAddChange(page);

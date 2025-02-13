@@ -23,6 +23,7 @@ import static java.util.Objects.nonNull;
 import java.io.File;
 import java.nio.file.Path;
 import java.util.Map;
+import java.util.concurrent.CompletableFuture;
 
 import javax.inject.Inject;
 
@@ -114,7 +115,7 @@ public class StartPresenter extends Presenter<StartView> {
 		});
 
 		view.setOnOpenRecentDocument(this::openRecentDocument);
-		view.setOnOpenDocument(this::selectNewDocument);
+		view.setOnOpenDocument(() -> CompletableFuture.runAsync(this::selectNewDocument));
 		view.setOnOpenWhiteboard(this::openWhiteboard);
 		view.setRecentDocuments(recentDocuments);
 	}

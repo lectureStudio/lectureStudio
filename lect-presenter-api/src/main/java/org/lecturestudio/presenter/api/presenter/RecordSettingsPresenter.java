@@ -21,6 +21,7 @@ package org.lecturestudio.presenter.api.presenter;
 import static java.util.Objects.nonNull;
 
 import java.io.File;
+import java.util.concurrent.CompletableFuture;
 
 import javax.inject.Inject;
 
@@ -60,9 +61,8 @@ public class RecordSettingsPresenter extends Presenter<RecordSettingsView> {
 		view.setRecordingAudioFormats(AudioUtils.getAudioFormats());
 		view.setRecordingAudioFormat(audioConfig.recordingFormatProperty());
 		view.setRecordingPath(audioConfig.recordingPathProperty());
-		view.setOnSelectRecordingPath(this::selectRecordingPath);
+		view.setOnSelectRecordingPath(() -> CompletableFuture.runAsync(this::selectRecordingPath));
 		view.setOnReset(this::reset);
-
 	}
 
 	private void selectRecordingPath() {

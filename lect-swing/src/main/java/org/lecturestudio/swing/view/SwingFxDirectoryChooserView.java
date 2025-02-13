@@ -20,58 +20,41 @@ package org.lecturestudio.swing.view;
 
 import static java.util.Objects.nonNull;
 
-import javafx.application.Platform;
-import javafx.stage.FileChooser;
-import javafx.stage.Stage;
-import javafx.stage.StageStyle;
-
 import java.awt.*;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.io.File;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.RunnableFuture;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
-import java.util.stream.Collectors;
 
 import javax.swing.*;
 
-import org.lecturestudio.core.view.FileChooserView;
+import javafx.application.Platform;
+import javafx.stage.DirectoryChooser;
+import javafx.stage.Stage;
+import javafx.stage.StageStyle;
+
+import org.lecturestudio.core.view.DirectoryChooserView;
 import org.lecturestudio.core.view.View;
 
-public class SwingFxFileChooserView implements FileChooserView {
-
-	private enum Type { OPEN, SAVE }
+public class SwingFxDirectoryChooserView implements DirectoryChooserView {
 
 	private final Lock lock;
 
 	private final Condition condition;
 
-	private final List<FileChooser.ExtensionFilter> extensionFilters;
-
 	private File selectedDirectory;
 
-	private String selectedFileName;
+	private String chooserTitle;
 
 
-	public SwingFxFileChooserView() {
+	public SwingFxDirectoryChooserView() {
 		lock = new ReentrantLock();
 		condition = lock.newCondition();
-		extensionFilters = new ArrayList<>();
-	}
-
-	@Override
-	public void addExtensionFilter(String description, String... extensions) {
-		List<String> list = Arrays.stream(extensions).map(s -> "*." + s)
-				.collect(Collectors.toList());
-
-		extensionFilters.add(new FileChooser.ExtensionFilter(description, list));
 	}
 
 	@Override
@@ -80,35 +63,25 @@ public class SwingFxFileChooserView implements FileChooserView {
 	}
 
 	@Override
-	public void setInitialFileName(String name) {
-		selectedFileName = name;
+	public void setTitle(String title) {
+		chooserTitle = title;
 	}
 
 	@Override
-	public File showOpenFile(View parent) {
-		return openFileChooser(parent, Type.OPEN);
-	}
-
-	@Override
-	public File showSaveFile(View parent) {
-		return openFileChooser(parent, Type.SAVE);
-	}
-
-	private File openFileChooser(View parent, Type type) {
-		return openDialogBlocked(parent, type);
+	public File show(View parent) {
+		return openDialogBlocked(parent);
 	}
 
 	/**
-	 * Open the FileChooser in the JavaFX event thread and wait until the
-	 * FileChooser is closed.
+	 * Open the DirectoryChooser in the JavaFX event thread and wait until the
+	 * DirectoryChooser is closed.
 	 *
 	 * @param parent The parent view.
-	 * @param type   The dialog selection type.
 	 *
-	 * @return The selected file or {@code null} if aborted.
+	 * @return The selected directory or {@code null} if aborted.
 	 */
-	private File openDialog(View parent, Type type) {
-		File selectedFile;
+	private File openDialog(View parent) {
+		File selectedDir;
 		Window ownerWindow;
 		Stage stage = null;
 
@@ -141,47 +114,42 @@ public class SwingFxFileChooserView implements FileChooserView {
 			});
 		}
 
-		FileChooser fileChooser = new FileChooser();
-		fileChooser.getExtensionFilters().addAll(extensionFilters);
-		fileChooser.setInitialDirectory(selectedDirectory);
-		fileChooser.setInitialFileName(selectedFileName);
+		DirectoryChooser dirChooser = new DirectoryChooser();
+		dirChooser.setTitle(chooserTitle);
+		dirChooser.setInitialDirectory(selectedDirectory);
 
-		selectedFile = switch (type) {
-			case OPEN -> fileChooser.showOpenDialog(stage);
-			case SAVE -> fileChooser.showSaveDialog(stage);
-		};
+		selectedDir = dirChooser.showDialog(stage);
 
 		if (nonNull(stage)) {
 			// Close the stage with the native dialog.
 			stage.hide();
 		}
 
-		return selectedFile;
+		return selectedDir;
 	}
 
 	/**
-	 * Open the FileChooser in the JavaFX event thread and wait until the
-	 * FileChooser is closed. The call of this method will block the
+	 * Open the DirectoryChooser in the JavaFX event thread and wait until the
+	 * DirectoryChooser is closed. The call of this method will block the
 	 * executing thread.
 	 *
 	 * @param parent The parent view.
-	 * @param type   The dialog selection type.
 	 *
-	 * @return The selected file or {@code null} if aborted.
+	 * @return The selected directory or {@code null} if aborted.
 	 */
-	private File openDialogBlocked(View parent, Type type) {
+	private File openDialogBlocked(View parent) {
 		lock.lock();
 
 		File selectedFile;
 
-		RunnableFuture<File> fileChooserRunnable = new FileChooserRunnable(parent, type);
+		RunnableFuture<File> dirChooserRunnable = new DirectoryChooserRunnable(parent);
 
 		try {
-			Platform.runLater(fileChooserRunnable);
+			Platform.runLater(dirChooserRunnable);
 
 			condition.await();
 
-			selectedFile = fileChooserRunnable.get();
+			selectedFile = dirChooserRunnable.get();
 		}
 		catch (InterruptedException | ExecutionException e) {
 			throw new RuntimeException(e);
@@ -209,24 +177,21 @@ public class SwingFxFileChooserView implements FileChooserView {
 
 
 
-	private class FileChooserRunnable implements RunnableFuture<File> {
+	private class DirectoryChooserRunnable implements RunnableFuture<File> {
 
 		private final View parent;
-
-		private final Type type;
 
 		private File file;
 
 
-		FileChooserRunnable(View parent, Type type) {
+		DirectoryChooserRunnable(View parent) {
 			this.parent = parent;
-			this.type = type;
 			this.file = null;
 		}
 
 		@Override
 		public void run() {
-			file = openDialog(parent, type);
+			file = openDialog(parent);
 
 			resume();
 		}

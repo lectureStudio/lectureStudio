@@ -121,7 +121,7 @@ public class SaveDocumentsPresenter extends Presenter<SaveDocumentsView> {
 		view.setSavePath(savePath);
 		view.setOnClose(this::close);
 		view.setOnMerge(this::saveSelectedDocuments);
-		view.setOnSelectPath(this::selectSavePath);
+		view.setOnSelectPath(() -> CompletableFuture.runAsync(this::selectSavePath));
 	}
 
 	private void saveSelectedDocuments() {
@@ -210,7 +210,7 @@ public class SaveDocumentsPresenter extends Presenter<SaveDocumentsView> {
 		SaveDocumentOptionView optionView = viewFactory.getInstance(SaveDocumentOptionView.class);
 		optionView.setDocumentTitle(doc.getName());
 		optionView.setOnSaveDocument(() -> {
-			saveDocument(doc);
+			CompletableFuture.runAsync(() -> saveDocument(doc));
 		});
 		optionView.setOnSelectDocument(() -> {
 			selectDocument(doc);

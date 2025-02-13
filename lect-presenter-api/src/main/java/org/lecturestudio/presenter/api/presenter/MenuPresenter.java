@@ -735,7 +735,7 @@ public class MenuPresenter extends Presenter<MenuView> {
 		view.setDocument(null);
 		view.setPage(null, null);
 
-		view.setOnOpenDocument(this::selectNewDocument);
+		view.setOnOpenDocument(() -> CompletableFuture.runAsync(this::selectNewDocument));
 		view.setOnOpenDocument(this::openDocument);
 		view.setOnCloseDocument(this::closeSelectedDocument);
 		view.setOnSaveDocuments(this::saveDocuments);

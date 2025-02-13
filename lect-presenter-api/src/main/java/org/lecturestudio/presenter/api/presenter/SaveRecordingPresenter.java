@@ -27,6 +27,7 @@ import java.nio.file.Paths;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.concurrent.CompletableFuture;
 
 import javax.inject.Inject;
 
@@ -72,7 +73,7 @@ public class SaveRecordingPresenter extends Presenter<SaveRecordingView> {
 	public void initialize() {
 		setCloseable(false);
 
-		view.setOnViewShown(this::chooseFile);
+		view.setOnViewShown(() -> CompletableFuture.runAsync(this::chooseFile));
 		view.setOnClose(this::close);
 	}
 

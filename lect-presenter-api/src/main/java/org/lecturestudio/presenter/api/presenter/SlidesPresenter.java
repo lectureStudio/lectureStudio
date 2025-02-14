@@ -540,6 +540,15 @@ public class SlidesPresenter extends Presenter<SlidesView> {
 	}
 
 	@Subscribe
+	public void onEvent(ParticipantVideoPositionEvent event) {
+		final ParticipantVideoPosition position = event.position();
+
+		view.setParticipantVideoPosition(position);
+
+		getPresenterConfig().getSlideViewConfiguration().setParticipantVideoPosition(position);
+	}
+
+	@Subscribe
 	public void onEvent(PreviewPositionEvent event) {
 		view.setPreviewPosition(event.position());
 	}

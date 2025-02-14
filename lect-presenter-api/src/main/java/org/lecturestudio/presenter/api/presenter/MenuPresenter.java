@@ -389,6 +389,19 @@ public class MenuPresenter extends Presenter<MenuView> {
 		}
 	}
 
+	public void positionParticipantVideo(ParticipantVideoPosition position) {
+		if (position == ParticipantVideoPosition.EXTERNAL) {
+			eventBus.post(new ExternalParticipantVideoViewEvent(true));
+
+//			getPresenterConfig().getSlideViewConfiguration().setParticipantVideoPosition(position);
+		}
+		else {
+			setViewPosition(ParticipantVideoPosition.class, position);
+
+			eventBus.post(new ParticipantVideoPositionEvent(position));
+		}
+	}
+
 	public void positionSlidePreview(SlidePreviewPosition position) {
 		if (position == SlidePreviewPosition.EXTERNAL) {
 			eventBus.post(new ExternalSlidePreviewViewEvent(true));
@@ -764,6 +777,9 @@ public class MenuPresenter extends Presenter<MenuView> {
 
 		view.setParticipantsPosition(slideViewConfig.getParticipantsPosition());
 		view.setOnParticipantsPosition(this::positionParticipants);
+
+		view.setParticipantVideoPosition(slideViewConfig.getParticipantVideoPosition());
+		view.setOnParticipantVideoPosition(this::positionParticipantVideo);
 
 		view.setSlidePreviewPosition(slideViewConfig.getSlidePreviewPosition());
 		view.setOnSlidePreviewPosition(this::positionSlidePreview);

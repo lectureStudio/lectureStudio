@@ -97,6 +97,10 @@ public interface MenuView extends View {
 
 	void setOnParticipantsPosition(ConsumerAction<ParticipantsPosition> action);
 
+	void setParticipantVideoPosition(ParticipantVideoPosition position);
+
+	void setOnParticipantVideoPosition(ConsumerAction<ParticipantVideoPosition> action);
+
 	void setSlidePreviewPosition(SlidePreviewPosition position);
 
 	void setOnSlidePreviewPosition(ConsumerAction<SlidePreviewPosition> action);

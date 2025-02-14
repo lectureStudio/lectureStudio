@@ -133,6 +133,14 @@ public class SwingMenuView extends JMenuBar implements MenuView {
 
 	private JRadioButtonMenuItem participantsPositionExternalMenuItem;
 
+	private JMenu participantVideoPositionMenu;
+
+	private JRadioButtonMenuItem participantVideoPositionLeftMenuItem;
+
+	private JRadioButtonMenuItem participantVideoPositionRightMenuItem;
+
+	private JRadioButtonMenuItem participantVideoPositionExternalMenuItem;
+
 	private JMenu previewPositionMenu;
 
 	private JRadioButtonMenuItem previewPositionLeftMenuItem;
@@ -254,6 +262,7 @@ public class SwingMenuView extends JMenuBar implements MenuView {
 			messagesPositionMenu.setEnabled(hasDocument);
 			notesPositionMenu.setEnabled(hasDocument);
 			participantsPositionMenu.setEnabled(hasDocument);
+			participantVideoPositionMenu.setEnabled(hasDocument);
 			previewPositionMenu.setEnabled(hasDocument);
 			noteSlidePositionMenu.setEnabled(hasDocument);
 			speechPositionMenu.setEnabled(hasDocument);
@@ -452,6 +461,22 @@ public class SwingMenuView extends JMenuBar implements MenuView {
 		SwingUtils.bindAction(participantsPositionLeftMenuItem, () -> action.execute(ParticipantsPosition.LEFT));
 		SwingUtils.bindAction(participantsPositionRightMenuItem, () -> action.execute(ParticipantsPosition.RIGHT));
 		SwingUtils.bindAction(participantsPositionExternalMenuItem, () -> action.execute(ParticipantsPosition.EXTERNAL));
+	}
+
+	@Override
+	public void setParticipantVideoPosition(ParticipantVideoPosition position) {
+		switch (position) {
+			case LEFT -> participantVideoPositionLeftMenuItem.setSelected(true);
+			case RIGHT -> participantVideoPositionRightMenuItem.setSelected(true);
+			case EXTERNAL -> participantVideoPositionExternalMenuItem.setSelected(true);
+		}
+	}
+
+	@Override
+	public void setOnParticipantVideoPosition(ConsumerAction<ParticipantVideoPosition> action) {
+		SwingUtils.bindAction(participantVideoPositionLeftMenuItem, () -> action.execute(ParticipantVideoPosition.LEFT));
+		SwingUtils.bindAction(participantVideoPositionRightMenuItem, () -> action.execute(ParticipantVideoPosition.RIGHT));
+		SwingUtils.bindAction(participantVideoPositionExternalMenuItem, () -> action.execute(ParticipantVideoPosition.EXTERNAL));
 	}
 
 	@Override

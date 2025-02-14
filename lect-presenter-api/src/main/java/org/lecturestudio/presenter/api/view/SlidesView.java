@@ -225,6 +225,8 @@ public interface SlidesView extends View {
 
 	void setParticipantsPosition(ParticipantsPosition position);
 
+	void setParticipantVideoPosition(ParticipantVideoPosition position);
+
 	void setPreviewPosition(SlidePreviewPosition position);
 
 	void setSpeechPosition(SpeechPosition position);

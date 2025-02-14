@@ -34,6 +34,13 @@
 				<radiobuttonmenuitem id="participantsPositionExternalMenuItem" text="menu.external" />
 			</buttongroup>
 		</menu>
+		<menu id="participantVideoPositionMenu" text="menu.participant.video.position">
+			<buttongroup>
+				<radiobuttonmenuitem id="participantVideoPositionLeftMenuItem" text="menu.left" />
+				<radiobuttonmenuitem id="participantVideoPositionRightMenuItem" text="menu.right" />
+				<radiobuttonmenuitem id="participantVideoPositionExternalMenuItem" text="menu.external" />
+			</buttongroup>
+		</menu>
 		<menu id="previewPositionMenu" text="menu.preview.position">
 			<buttongroup>
 				<radiobuttonmenuitem id="previewPositionLeftMenuItem" text="menu.left" />

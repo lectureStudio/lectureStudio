@@ -34,6 +34,9 @@ public class SlideViewConfiguration {
 	private final ObjectProperty<ParticipantsPosition> participantsPosition = new ObjectProperty<>(
 			ParticipantsPosition.LEFT);
 
+	private final ObjectProperty<ParticipantVideoPosition> participantVideoPosition = new ObjectProperty<>(
+			ParticipantVideoPosition.EXTERNAL);
+
 	private final ObjectProperty<SlidePreviewPosition> previewPosition = new ObjectProperty<>(
 			SlidePreviewPosition.RIGHT);
 
@@ -123,6 +126,14 @@ public class SlideViewConfiguration {
 
 	public void setParticipantsPosition(ParticipantsPosition position) {
 		participantsPosition.set(position);
+	}
+
+	public ParticipantVideoPosition getParticipantVideoPosition() {
+		return participantVideoPosition.get();
+	}
+
+	public void setParticipantVideoPosition(ParticipantVideoPosition position) {
+		participantVideoPosition.set(position);
 	}
 
 	/**

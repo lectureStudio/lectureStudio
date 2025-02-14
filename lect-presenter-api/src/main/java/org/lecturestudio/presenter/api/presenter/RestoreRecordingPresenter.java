@@ -68,7 +68,7 @@ public class RestoreRecordingPresenter extends Presenter<RestoreRecordingView> {
 		setOnRecordingSaved(this::close);
 
 		view.setOnDiscard(this::discardRecording);
-		view.setOnSave(this::saveRecording);
+		view.setOnSave(() -> CompletableFuture.runAsync(this::saveRecording));
 	}
 
 	@Override

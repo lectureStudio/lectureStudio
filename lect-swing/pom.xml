@@ -16,6 +16,7 @@
 
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+		<javafx.version>21</javafx.version>
 	</properties>
 
 	<build>
@@ -86,6 +87,17 @@
 			<groupId>net.atlanticbb.tantlinger</groupId>
 			<artifactId>shef</artifactId>
 			<version>0.5</version>
+		</dependency>
+
+		<dependency>
+			<groupId>org.openjfx</groupId>
+			<artifactId>javafx-graphics</artifactId>
+			<version>${javafx.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>org.openjfx</groupId>
+			<artifactId>javafx-swing</artifactId>
+			<version>${javafx.version}</version>
 		</dependency>
 	</dependencies>
 </project>

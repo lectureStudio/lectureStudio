@@ -22,6 +22,7 @@ import static java.util.Objects.nonNull;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.concurrent.CompletableFuture;
 import java.util.function.BiConsumer;
 
 import javax.inject.Inject;
@@ -158,20 +159,22 @@ public class DocumentTemplateSettingsPresenter extends Presenter<DocumentTemplat
 		Dictionary dict = context.getDictionary();
 		File initFile = getFile(property.get());
 
-		FileChooserView fileChooser = viewFactory.createFileChooserView();
-		fileChooser.addExtensionFilter(dict.get("file.description.pdf"),
-				PresenterContext.SLIDES_EXTENSION);
+		CompletableFuture.runAsync(() -> {
+			FileChooserView fileChooser = viewFactory.createFileChooserView();
+			fileChooser.addExtensionFilter(dict.get("file.description.pdf"),
+					PresenterContext.SLIDES_EXTENSION);
 
-		if (initFile.exists()) {
-			fileChooser.setInitialDirectory(initFile.getParentFile());
-			fileChooser.setInitialFileName(initFile.getName());
-		}
+			if (initFile.exists()) {
+				fileChooser.setInitialDirectory(initFile.getParentFile());
+				fileChooser.setInitialFileName(initFile.getName());
+			}
 
-		File selectedFile = fileChooser.showOpenFile(view);
+			File selectedFile = fileChooser.showOpenFile(view);
 
-		if (nonNull(selectedFile)) {
-			property.set(selectedFile.getAbsolutePath());
-		}
+			if (nonNull(selectedFile)) {
+				property.set(selectedFile.getAbsolutePath());
+			}
+		});
 	}
 
 	private Document getDocument(String path) throws IOException {

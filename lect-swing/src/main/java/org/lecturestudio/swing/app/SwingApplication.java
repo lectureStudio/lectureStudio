@@ -48,6 +48,7 @@ public abstract class SwingApplication extends ApplicationBase implements Graphi
 
 	private MainPresenter<?> mainPresenter;
 
+
 	@Override
 	protected void initInternal(String[] args) throws ExecutableException {
 		final CountDownLatch initLatch = new CountDownLatch(1);

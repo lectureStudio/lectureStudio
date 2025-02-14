@@ -117,7 +117,7 @@ public class PdfDocument {
 	 * @return The page index of the new page.
 	 */
 	public int createPage() {
-		// Default page size is the size of the first page in the document.
+		// The Default page size is the size of the first page in the document.
 		Rectangle2D pageRect;
 
 		if (getPageCount() > 0) {
@@ -196,6 +196,14 @@ public class PdfDocument {
 	}
 
 	public int importPage(PdfDocument pdfDocument, int srcPageIndex, int dstPageIndex, Rectangle2D pageRect) throws IOException {
+		// The following line causes serious issues in faulty scenarios.
+		// Its no needed though.
+		//muPDFDocument.importPage(pdfDocument.muPDFDocument, srcPageIndex, dstPageIndex);
+
+		return pdfBoxDocument.importPage(pdfDocument.pdfBoxDocument, srcPageIndex, dstPageIndex, pageRect);
+	}
+
+	public int importPageNative(PdfDocument pdfDocument, int srcPageIndex, int dstPageIndex, Rectangle2D pageRect) throws IOException {
 		muPDFDocument.importPage(pdfDocument.muPDFDocument, srcPageIndex, dstPageIndex);
 
 		return pdfBoxDocument.importPage(pdfDocument.pdfBoxDocument, srcPageIndex, dstPageIndex, pageRect);
@@ -204,6 +212,7 @@ public class PdfDocument {
 	public void setCropbox(int pageNumber,int x, int y, int width, int height){
 		pdfBoxDocument.setCropbox(pageNumber,x , y, width,height);
 	}
+
 	/**
 	 * Replaces the page that has the {@code pageIndex} with the page
 	 * that has {@code docIndex} in {@code newPdfDocument}.

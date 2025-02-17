@@ -169,6 +169,12 @@ public interface SlidesView extends View {
 
 	void setOnExternalParticipantsClosed(Action action);
 
+	void setOnExternalParticipantVideoPositionChanged(ConsumerAction<ExternalWindowPosition> action);
+
+	void setOnExternalParticipantVideoSizeChanged(ConsumerAction<Dimension> action);
+
+	void setOnExternalParticipantVideoClosed(Action action);
+
 	void setOnExternalSlidePreviewPositionChanged(ConsumerAction<ExternalWindowPosition> action);
 
 	void setOnExternalSlidePreviewSizeChanged(ConsumerAction<Dimension> action);
@@ -200,6 +206,10 @@ public interface SlidesView extends View {
 	void showExternalParticipants(Screen screen, Point position, Dimension size);
 
 	void hideExternalParticipants();
+
+	void showExternalParticipantVideo(Screen screen, Point position, Dimension size);
+
+	void hideExternalParticipantVideo();
 
 	void showExternalSlidePreview(Screen screen, Point position, Dimension size);
 

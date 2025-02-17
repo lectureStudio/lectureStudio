@@ -53,7 +53,12 @@
 
 			<VBox id="rightVbox">
 				<Panel layout="BorderLayout" id="rightPeerViewContainer" visible="false" />
-				<AdaptiveTabbedPane id="rightTabPane" tabPlacement="JTabbedPane.RIGHT" defaultTabType="AdaptiveTabType.SLIDE" focusTraversable="false" />
+				<AdaptiveTabbedPane id="rightTabPane" tabPlacement="JTabbedPane.RIGHT" defaultTabType="AdaptiveTabType.SLIDE" focusTraversable="false">
+					<Tab id="participantVideoTab" name="participantVideo" text="slides.participant.video" defaultTabType="AdaptiveTabType.PARTICIPANT_VIDEO">
+						<Panel id="participantVideoPanel" layout="BorderLayout">
+						</Panel>
+					</Tab>
+				</AdaptiveTabbedPane>
 				<Panel layout="BorderLayout" id="rightNoteSlideViewContainer" visible="false">
 					<SlideView id="slideNotesView" />
 				</Panel>

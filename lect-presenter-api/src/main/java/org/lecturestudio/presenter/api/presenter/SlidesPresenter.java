@@ -462,6 +462,21 @@ public class SlidesPresenter extends Presenter<SlidesView> {
 	}
 
 	@Subscribe
+	public void onEvent(ExternalParticipantVideoViewEvent event) {
+		if (event.isEnabled()) {
+			if (event.isShow()) {
+				viewShowExternalParticipantVideo(event.isPersistent());
+			}
+			else {
+				view.hideExternalParticipantVideo();
+			}
+		}
+		else {
+			viewHideExternalParticipantVideo(event.isPersistent());
+		}
+	}
+
+	@Subscribe
 	public void onEvent(ExternalSlidePreviewViewEvent event) {
 		if (event.isEnabled()) {
 			if (event.isShow()) {
@@ -626,6 +641,21 @@ public class SlidesPresenter extends Presenter<SlidesView> {
 
 	private void externalParticipantsClosed() {
 		eventBus.post(new ExternalParticipantsViewEvent(false));
+	}
+
+	private void externalParticipantVideoPositionChanged(ExternalWindowPosition position) {
+		final ExternalWindowConfiguration config = getExternalParticipantVideoConfig();
+
+		config.setPosition(position.getPosition());
+		config.setScreen(position.getScreen());
+	}
+
+	private void externalParticipantVideoSizeChanged(Dimension size) {
+		getExternalParticipantVideoConfig().setSize(size);
+	}
+
+	private void externalParticipantVideoClosed() {
+		eventBus.post(new ExternalParticipantVideoViewEvent(false));
 	}
 
 	private void externalSlidePreviewPositionChanged(ExternalWindowPosition position) {
@@ -1261,6 +1291,10 @@ public class SlidesPresenter extends Presenter<SlidesView> {
 		return getPresenterConfig().getExternalParticipantsConfig();
 	}
 
+	private ExternalWindowConfiguration getExternalParticipantVideoConfig() {
+		return getPresenterConfig().getExternalParticipantVideoConfig();
+	}
+
 	private ExternalWindowConfiguration getExternalSlidePreviewConfig() {
 		return getPresenterConfig().getExternalSlidePreviewConfig();
 	}
@@ -1384,6 +1418,12 @@ public class SlidesPresenter extends Presenter<SlidesView> {
 		view.setOnExternalParticipantsClosed(this::externalParticipantsClosed);
 		initExternalScreenBehavior(getExternalParticipantsConfig(),
 				(enabled, show) -> eventBus.post(new ExternalParticipantsViewEvent(enabled, show)));
+
+		view.setOnExternalParticipantVideoPositionChanged(this::externalParticipantVideoPositionChanged);
+		view.setOnExternalParticipantVideoSizeChanged(this::externalParticipantVideoSizeChanged);
+		view.setOnExternalParticipantVideoClosed(this::externalParticipantVideoClosed);
+		initExternalScreenBehavior(getExternalParticipantVideoConfig(),
+				(enabled, show) -> eventBus.post(new ExternalParticipantVideoViewEvent(enabled, show)));
 
 		view.setOnExternalSlidePreviewPositionChanged(this::externalSlidePreviewPositionChanged);
 		view.setOnExternalSlidePreviewSizeChanged(this::externalSlidePreviewSizeChanged);
@@ -1540,6 +1580,10 @@ public class SlidesPresenter extends Presenter<SlidesView> {
 			showExternalScreen(getExternalParticipantsConfig(),
 					(enabled, show) -> eventBus.post(new ExternalParticipantsViewEvent(enabled, show)));
 		}
+		if (viewConfig.getParticipantVideoPosition() == ParticipantVideoPosition.EXTERNAL) {
+			showExternalScreen(getExternalParticipantVideoConfig(),
+					(enabled, show) -> eventBus.post(new ExternalParticipantVideoViewEvent(enabled, show)));
+		}
 		if (viewConfig.getSlidePreviewPosition() == SlidePreviewPosition.EXTERNAL) {
 			showExternalScreen(getExternalSlidePreviewConfig(),
 					(enabled, show) -> eventBus.post(new ExternalSlidePreviewViewEvent(enabled, show)));
@@ -1620,6 +1664,28 @@ public class SlidesPresenter extends Presenter<SlidesView> {
 		}
 
 		view.hideExternalParticipants();
+	}
+
+	private void viewShowExternalParticipantVideo(boolean persistent) {
+		final ExternalWindowConfiguration config = getExternalParticipantVideoConfig();
+
+		if (persistent) {
+			config.setEnabled(true);
+		}
+
+		checkScreenExists(config);
+
+		view.showExternalParticipantVideo(config.getScreen(), config.getPosition(), config.getSize());
+	}
+
+	private void viewHideExternalParticipantVideo(boolean persistent) {
+		final ExternalWindowConfiguration config = getExternalParticipantVideoConfig();
+
+		if (persistent) {
+			config.setEnabled(false);
+		}
+
+		view.hideExternalParticipantVideo();
 	}
 
 	private void viewShowExternalSlidePreview(boolean persistent) {

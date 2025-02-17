@@ -117,6 +117,8 @@ public class SwingSlidesView extends JPanel implements SlidesView {
 
 	private static final String PARTICIPANTS_LABEL_KEY = "slides.participants";
 
+	private static final String PARTICIPANT_VIDEO_LABEL_KEY = "slides.participant.video";
+
 	private static final String NO_PARTICIPANTS_LABEL_KEY = "slides.no.participants";
 
 	private static final String SLIDES_PREVIEW_LABEL_KEY = "slides.slide.preview";
@@ -176,6 +178,12 @@ public class SwingSlidesView extends JPanel implements SlidesView {
 	private ConsumerAction<Dimension> externalParticipantsSizeChangedAction;
 
 	private Action externalParticipantsClosedAction;
+
+	private ConsumerAction<ExternalWindowPosition> externalParticipantVideoPositionChangedAction;
+
+	private ConsumerAction<Dimension> externalParticipantVideoSizeChangedAction;
+
+	private Action externalParticipantVideoClosedAction;
 
 	private ConsumerAction<ExternalWindowPosition> externalSlidePreviewPositionChangedAction;
 
@@ -264,6 +272,8 @@ public class SwingSlidesView extends JPanel implements SlidesView {
 
 	private JPanel participantsPanel;
 
+	private JPanel participantVideoPanel;
+
 	private JPanel messagesPanel;
 
 	private Box messageSendPanel;
@@ -278,6 +288,8 @@ public class SwingSlidesView extends JPanel implements SlidesView {
 
 	private ExternalFrame externalParticipantsFrame;
 
+	private ExternalFrame externalParticipantVideoFrame;
+
 	private ExternalFrame externalSlidePreviewFrame;
 
 	private ExternalFrame externalSpeechFrame;
@@ -291,6 +303,8 @@ public class SwingSlidesView extends JPanel implements SlidesView {
 	private final JScrollPane externalNotesPane = new JScrollPane();
 
 	private final JScrollPane externalParticipantsPane = new JScrollPane();
+
+	private final JPanel externalParticipantVideoPane = new JPanel();
 
 	private final AdaptiveTabbedPane externalSlidePreviewTabPane = new AdaptiveTabbedPane(SwingConstants.RIGHT);
 
@@ -316,6 +330,8 @@ public class SwingSlidesView extends JPanel implements SlidesView {
 	private NoteSlidePosition noteSlidePosition = NoteSlidePosition.NONE;
 
 	private ParticipantsPosition participantsPosition = ParticipantsPosition.LEFT;
+
+	private ParticipantVideoPosition participantVideoPosition = ParticipantVideoPosition.LEFT;
 
 	private SlidePreviewPosition previewPosition = SlidePreviewPosition.RIGHT;
 
@@ -387,7 +403,7 @@ public class SwingSlidesView extends JPanel implements SlidesView {
 				}
 
 				if (thumbnailPanel.getDocument().getName().equals(doc.getName())) {
-					// Reload if document has changed.
+					// Reload if a document has changed.
 					if (!thumbnailPanel.getDocument().equals(doc)) {
 						// Prevent tab switching for quiz reloading.
 						thumbnailPanel.setDocument(doc, ppProvider);
@@ -1066,6 +1082,21 @@ public class SwingSlidesView extends JPanel implements SlidesView {
 	}
 
 	@Override
+	public void setOnExternalParticipantVideoPositionChanged(ConsumerAction<ExternalWindowPosition> action) {
+		this.externalParticipantVideoPositionChangedAction = action;
+	}
+
+	@Override
+	public void setOnExternalParticipantVideoSizeChanged(ConsumerAction<Dimension> action) {
+		this.externalParticipantVideoSizeChangedAction = action;
+	}
+
+	@Override
+	public void setOnExternalParticipantVideoClosed(Action action) {
+		externalParticipantVideoClosedAction = action;
+	}
+
+	@Override
 	public void setOnExternalSlidePreviewPositionChanged(ConsumerAction<ExternalWindowPosition> action) {
 		this.externalSlidePreviewPositionChangedAction = action;
 	}
@@ -1188,6 +1219,40 @@ public class SwingSlidesView extends JPanel implements SlidesView {
 		participantsPanel.add(participantList);
 
 		setParticipantsTabVisible(dict.get(PARTICIPANTS_LABEL_KEY), true);
+	}
+
+	@Override
+	public void showExternalParticipantVideo(Screen screen, Point position, Dimension size) {
+		if (externalParticipantVideoFrame.isVisible()) {
+			return;
+		}
+
+		setParticipantsTabVisible(dict.get(PARTICIPANT_VIDEO_LABEL_KEY), false);
+
+		// TODO
+//		participantVideoPanel.remove(participantList);
+
+//		externalParticipantsPane.getViewport().add(participantList);
+
+		externalParticipantVideoFrame.updatePosition(screen, position, size);
+		externalParticipantVideoFrame.showBody();
+		externalParticipantVideoFrame.setVisible(true);
+	}
+
+	@Override
+	public void hideExternalParticipantVideo() {
+		if (!externalParticipantVideoFrame.isVisible()) {
+			return;
+		}
+
+		// TODO
+		externalParticipantVideoPane.remove(participantList);
+
+		externalParticipantVideoFrame.setVisible(false);
+
+//		participantVideoPanel.add(participantList);
+
+		setParticipantsTabVisible(dict.get(PARTICIPANT_VIDEO_LABEL_KEY), true);
 	}
 
 	@Override
@@ -1444,6 +1509,20 @@ public class SwingSlidesView extends JPanel implements SlidesView {
 		}
 
 		participantsPosition = position;
+	}
+
+	@Override
+	public void setParticipantVideoPosition(ParticipantVideoPosition position) {
+		if (externalParticipantVideoFrame.isVisible()) {
+			hideExternalParticipantVideo();
+		}
+
+		switch (position) {
+			case LEFT -> showParticipantVideoLeft();
+			case RIGHT -> showParticipantVideoRight();
+		}
+
+		participantVideoPosition = position;
 	}
 
 	@Override
@@ -1708,6 +1787,32 @@ public class SwingSlidesView extends JPanel implements SlidesView {
 
 		final boolean prevMinimized = isRightTabPaneMinimized();
 		rightTabPane.addTabs(removeParticipantsTabs());
+
+		if (prevMinimized) {
+			minimizeRightTabPane();
+		}
+	}
+
+	private void showParticipantVideoLeft() {
+		if (participantVideoPosition == ParticipantVideoPosition.LEFT) {
+			return;
+		}
+
+		final boolean prevMinimized = isLeftTabPaneMinimized();
+		leftTabPane.addTabs(removeParticipantVideoTabs());
+
+		if (prevMinimized) {
+			minimizeLeftTabPane();
+		}
+	}
+
+	private void showParticipantVideoRight() {
+		if (participantVideoPosition == ParticipantVideoPosition.RIGHT) {
+			return;
+		}
+
+		final boolean prevMinimized = isRightTabPaneMinimized();
+		rightTabPane.addTabs(removeParticipantVideoTabs());
 
 		if (prevMinimized) {
 			minimizeRightTabPane();
@@ -1984,6 +2089,7 @@ public class SwingSlidesView extends JPanel implements SlidesView {
 			case BOTTOM -> removedTabs.addAll(bottomTabPane.removeTabsByType(AdaptiveTabType.NOTES));
 			case LEFT -> removedTabs.addAll(leftTabPane.removeTabsByType(AdaptiveTabType.NOTES));
 		}
+
 		return removedTabs;
 	}
 
@@ -1993,6 +2099,17 @@ public class SwingSlidesView extends JPanel implements SlidesView {
 		switch (participantsPosition) {
 			case LEFT -> removedTabs.addAll(leftTabPane.removeTabsByType(AdaptiveTabType.PARTICIPANTS));
 			case RIGHT -> removedTabs.addAll(rightTabPane.removeTabsByType(AdaptiveTabType.PARTICIPANTS));
+		}
+
+		return removedTabs;
+	}
+
+	private List<AdaptiveTab> removeParticipantVideoTabs() {
+		final ArrayList<AdaptiveTab> removedTabs = new ArrayList<>();
+
+		switch (participantVideoPosition) {
+			case LEFT -> removedTabs.addAll(leftTabPane.removeTabsByType(AdaptiveTabType.PARTICIPANT_VIDEO));
+			case RIGHT -> removedTabs.addAll(rightTabPane.removeTabsByType(AdaptiveTabType.PARTICIPANT_VIDEO));
 		}
 
 		return removedTabs;
@@ -2361,6 +2478,12 @@ public class SwingSlidesView extends JPanel implements SlidesView {
 				() -> executeAction(externalParticipantsClosedAction),
 				position -> executeAction(externalParticipantsPositionChangedAction, position),
 				size -> executeAction(externalParticipantsSizeChangedAction, size));
+
+		externalParticipantVideoFrame = createExternalFrame(dict.get(PARTICIPANT_VIDEO_LABEL_KEY), externalParticipantVideoPane,
+				"", new Dimension(280, 600),
+				() -> executeAction(externalParticipantVideoClosedAction),
+				position -> executeAction(externalParticipantVideoPositionChangedAction, position),
+				size -> executeAction(externalParticipantVideoSizeChangedAction, size));
 
 		externalSlidePreviewFrame = createExternalFrame(dict.get(SLIDES_PREVIEW_LABEL_KEY), externalPreviewBox,
 				"", new Dimension(300, 700),

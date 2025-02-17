@@ -241,6 +241,18 @@ public class MenuPresenter extends Presenter<MenuView> {
 	}
 
 	@Subscribe
+	public void onEvent(final ExternalParticipantVideoViewEvent event) {
+		if (!event.isEnabled()) {
+			// Set the previous position.
+			ParticipantVideoPosition position = getViewPosition(ParticipantVideoPosition.class);
+
+			if (nonNull(position)) {
+				view.setParticipantVideoPosition(position);
+			}
+		}
+	}
+
+	@Subscribe
 	public void onEvent(final ExternalSpeechViewEvent event) {
 		if (!event.isEnabled()) {
 			// Set the previous position.
@@ -731,6 +743,7 @@ public class MenuPresenter extends Presenter<MenuView> {
 
 		setViewPosition(MessageBarPosition.class, slideViewConfig.getMessageBarPosition());
 		setViewPosition(ParticipantsPosition.class, slideViewConfig.getParticipantsPosition());
+		setViewPosition(ParticipantVideoPosition.class, slideViewConfig.getParticipantVideoPosition());
 		setViewPosition(SlidePreviewPosition.class, slideViewConfig.getSlidePreviewPosition());
 		setViewPosition(SlideNotesPosition.class, slideViewConfig.getSlideNotesPosition());
 		setViewPosition(NoteSlidePosition.class, slideViewConfig.getNoteSlidePosition());

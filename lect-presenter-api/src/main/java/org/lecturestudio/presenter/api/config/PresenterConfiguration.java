@@ -43,6 +43,8 @@ public class PresenterConfiguration extends Configuration {
 
 	private final ExternalWindowConfiguration externalParticipantsConfig = new ExternalWindowConfiguration();
 
+	private final ExternalWindowConfiguration externalParticipantVideoConfig = new ExternalWindowConfiguration();
+
 	private final ExternalWindowConfiguration externalSlidePreviewConfig = new ExternalWindowConfiguration();
 
 	private final ExternalWindowConfiguration externalSlideNotesConfig = new ExternalWindowConfiguration();
@@ -152,6 +154,13 @@ public class PresenterConfiguration extends Configuration {
 	 */
 	public ExternalWindowConfiguration getExternalParticipantsConfig() {
 		return externalParticipantsConfig;
+	}
+
+	/**
+	 * @return External participant video configuration
+	 */
+	public ExternalWindowConfiguration getExternalParticipantVideoConfig() {
+		return externalParticipantVideoConfig;
 	}
 
 	/**

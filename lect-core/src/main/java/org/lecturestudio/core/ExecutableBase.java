@@ -85,8 +85,7 @@ public abstract class ExecutableBase implements Executable {
 	}
 
 	/**
-	 * @throws ExecutableException if the subclass fails to initialize this
-	 *                             component.
+	 * @throws ExecutableException if the subclass fails to initialize this component.
 	 */
 	protected abstract void initInternal() throws ExecutableException;
 	
@@ -111,8 +110,7 @@ public abstract class ExecutableBase implements Executable {
 	}
 
 	/**
-	 * @throws ExecutableException if the subclass fails to start this
-	 *                             component.
+	 * @throws ExecutableException if the subclass fails to start this component.
 	 */
 	protected abstract void startInternal() throws ExecutableException;
     
@@ -133,7 +131,7 @@ public abstract class ExecutableBase implements Executable {
 	}
 
 	/**
-	 * @throws ExecutableException if the sub-class fails to stop this component.
+	 * @throws ExecutableException if the subclass fails to stop this component.
 	 */
 	protected abstract void stopInternal() throws ExecutableException;
     
@@ -154,10 +152,10 @@ public abstract class ExecutableBase implements Executable {
 	}
 	
 	/**
-	 * This method is meant to be overridden by sub-classes in order to implement
+	 * This method is meant to be overridden by subclasses to implement
 	 * a custom suspend routine, if required.
 	 * 
-	 * @throws ExecutableException if the sub-class fails to stop this component.
+	 * @throws ExecutableException if the subclass fails to stop this component.
 	 */
 	protected void suspendInternal() throws ExecutableException {
 		
@@ -184,8 +182,7 @@ public abstract class ExecutableBase implements Executable {
     }
 
 	/**
-	 * @throws ExecutableException if the subclass fails to destroy this
-	 *                             component.
+	 * @throws ExecutableException if the subclass fails to destroy this component.
 	 */
 	protected abstract void destroyInternal() throws ExecutableException;
     
@@ -195,7 +192,7 @@ public abstract class ExecutableBase implements Executable {
 	}
 	
 	/**
-	 * Obtain the previous state of this component.
+	 * Get the previous state of this component.
 	 * 
 	 * @return The previous state of this component.
 	 */
@@ -229,7 +226,7 @@ public abstract class ExecutableBase implements Executable {
 
 	/**
 	 * Notify state listeners about the new state. This method can be overridden
-	 * by subclasses in order to use a custom state notification.
+	 * by subclasses to use a custom state notification.
 	 */
 	protected void fireStateChanged() {
 		for (ExecutableStateListener listener : stateListeners) {
@@ -257,64 +254,40 @@ public abstract class ExecutableBase implements Executable {
 	}
 
 	private boolean validateNextState(ExecutableState nextState) {
-		switch (this.state) {
-			case Created:
-				return isAllowed(nextState,
-						ExecutableState.Initializing,
-						ExecutableState.Destroying);
-
-			case Initializing:
-				return isAllowed(nextState,
-						ExecutableState.Initialized,
-						ExecutableState.Error);
-
-			case Initialized:
-			case Stopped:
-				return isAllowed(nextState,
-						ExecutableState.Starting,
-						ExecutableState.Destroying);
-
-			case Starting:
-				return isAllowed(nextState,
-						ExecutableState.Started,
-						ExecutableState.Error);
-
-			case Started:
-				return isAllowed(nextState,
-						ExecutableState.Suspending,
-						ExecutableState.Stopping,
-						ExecutableState.Destroying,
-						ExecutableState.Error);
-
-			case Stopping:
-				return isAllowed(nextState,
-						ExecutableState.Stopped,
-						ExecutableState.Error);
-
-			case Suspending:
-				return isAllowed(nextState,
-						ExecutableState.Suspended,
-						ExecutableState.Error);
-
-			case Suspended:
-			case Error:	// Allow recovering from previous operation failure.
-				return isAllowed(nextState,
-						ExecutableState.Starting,
-						ExecutableState.Stopping,
-						ExecutableState.Destroying);
-
-			case Destroying:
-				return isAllowed(nextState,
-						ExecutableState.Destroyed,
-						ExecutableState.Error);
-
-			case Destroyed:
-				return isAllowed(nextState,
-						ExecutableState.Initializing);
-
-			default:
-				return false;
-		}
+		return switch (this.state) {
+			case Created -> isAllowed(nextState,
+					ExecutableState.Initializing,
+					ExecutableState.Destroying);
+			case Initializing -> isAllowed(nextState,
+					ExecutableState.Initialized,
+					ExecutableState.Error);
+			case Initialized, Stopped -> isAllowed(nextState,
+					ExecutableState.Starting,
+					ExecutableState.Destroying);
+			case Starting -> isAllowed(nextState,
+					ExecutableState.Started,
+					ExecutableState.Error);
+			case Started -> isAllowed(nextState,
+					ExecutableState.Suspending,
+					ExecutableState.Stopping,
+					ExecutableState.Destroying,
+					ExecutableState.Error);
+			case Stopping -> isAllowed(nextState,
+					ExecutableState.Stopped,
+					ExecutableState.Error);
+			case Suspending -> isAllowed(nextState,
+					ExecutableState.Suspended,
+					ExecutableState.Error);
+			case Suspended, Error -> isAllowed(nextState, // Allow recovering from previous operation failure.
+					ExecutableState.Starting,
+					ExecutableState.Stopping,
+					ExecutableState.Destroying);
+			case Destroying -> isAllowed(nextState,
+					ExecutableState.Destroyed,
+					ExecutableState.Error);
+			case Destroyed -> isAllowed(nextState,
+					ExecutableState.Initializing);
+		};
 	}
 
 	private boolean isAllowed(ExecutableState nextState, ExecutableState... allowedStates) {

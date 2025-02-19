@@ -25,9 +25,6 @@ import java.io.File;
 import java.io.IOException;
 import java.security.NoSuchAlgorithmException;
 import java.util.*;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 
 import com.google.common.eventbus.Subscribe;
 
@@ -52,12 +49,9 @@ import org.lecturestudio.core.bus.event.PageEvent;
 import org.lecturestudio.core.bus.event.RecordActionEvent;
 import org.lecturestudio.core.io.RandomAccessAudioStream;
 import org.lecturestudio.core.model.Document;
-import org.lecturestudio.core.model.DocumentType;
 import org.lecturestudio.core.model.Page;
 import org.lecturestudio.core.recording.*;
 import org.lecturestudio.core.recording.action.PlaybackAction;
-import org.lecturestudio.core.recording.action.ScreenAction;
-import org.lecturestudio.core.recording.action.StaticShapeAction;
 import org.lecturestudio.core.recording.file.RecordingFileWriter;
 import org.lecturestudio.core.service.DocumentService;
 import org.lecturestudio.core.util.FileUtils;
@@ -65,12 +59,6 @@ import org.lecturestudio.core.util.ProgressCallback;
 import org.lecturestudio.presenter.api.event.RecordingStateEvent;
 
 public class FileLectureRecorder extends LectureRecorder {
-
-	private final ExecutorService executor = Executors.newSingleThreadExecutor();
-
-	private final Stack<RecordedPage> recordedPages = new Stack<>();
-
-	private final Map<Page, RecordedPage> addedPages = new LinkedHashMap<>();
 
 	private final RecordingBackup backup;
 
@@ -84,8 +72,6 @@ public class FileLectureRecorder extends LectureRecorder {
 
 	private final DocumentService documentService;
 
-	private final PendingActions pendingActions;
-
 	private IdleTimer idleTimer;
 
 	private AudioRecorder audioRecorder;
@@ -94,7 +80,7 @@ public class FileLectureRecorder extends LectureRecorder {
 
 	private AudioFormat audioFormat;
 
-	private Document recordedDocument;
+	private SlideRecorder slideRecorder;
 
 	private int bytesConsumed = 0;
 
@@ -109,7 +95,6 @@ public class FileLectureRecorder extends LectureRecorder {
 		this.documentService = documentService;
 		this.audioConfig = audioConfig;
 		this.backup = new RecordingBackup(recDir);
-		this.pendingActions = new PendingActions();
 		this.deviceChangeListener = new AudioDeviceChangeListener() {
 
 			@Override
@@ -131,7 +116,7 @@ public class FileLectureRecorder extends LectureRecorder {
 	@Subscribe
 	public void onEvent(final RecordActionEvent event) {
 		if (initialized() || suspended() || stopped()) {
-			addPendingAction(event.getAction());
+			slideRecorder.addPendingAction(event.getAction(), getElapsedTime());
 		}
 		if (!started()) {
 			return;
@@ -150,7 +135,7 @@ public class FileLectureRecorder extends LectureRecorder {
 	@Subscribe
 	public void onEvent(final PageEvent event) {
 		if (initialized() || suspended() || stopped()) {
-			pendingActions.setPendingPage(event.getPage());
+			slideRecorder.setPendingPage(event.getPage());
 		}
 		if (!started()) {
 			return;
@@ -169,7 +154,7 @@ public class FileLectureRecorder extends LectureRecorder {
 		Page currentPage = event.getDocument().getCurrentPage();
 
 		if (initialized() || suspended() || stopped()) {
-			pendingActions.setPendingPage(currentPage);
+			slideRecorder.setPendingPage(currentPage);
 		}
 		if (!started()) {
 			return;
@@ -190,20 +175,7 @@ public class FileLectureRecorder extends LectureRecorder {
 	}
 
 	public String getBestRecordingName() {
-		String name = null;
-
-		for (Page page : addedPages.keySet()) {
-			Document doc = page.getDocument();
-
-			if (doc.isPDF() && nonNull(doc.getName())) {
-				// Return the name of the first used PDF document.
-				return doc.getName();
-			}
-
-			name = doc.getName();
-		}
-
-		return name;
+		return slideRecorder.getBestRecordingName();
 	}
 
 	public void writeRecording(File destFile, ProgressCallback progressCallback) throws IOException, NoSuchAlgorithmException {
@@ -216,6 +188,7 @@ public class FileLectureRecorder extends LectureRecorder {
 		float bps = AudioUtils.getBytesPerSecond(audioFormat);
 		long duration = (long) ((audioFile.length() - 44) / bps * 1000);
 
+		Document recordedDocument = slideRecorder.getRecordedDocument();
 		recordedDocument.setTitle(FileUtils.stripExtension(destFile.getName()));
 
 		try (RandomAccessAudioStream audioStream = new RandomAccessAudioStream(audioFile)) {
@@ -227,7 +200,7 @@ public class FileLectureRecorder extends LectureRecorder {
 			Recording recording = new Recording();
 			recording.setRecordingHeader(fileHeader);
 			recording.setRecordedAudio(new RecordedAudio(audioStream));
-			recording.setRecordedEvents(new RecordedEvents(recordedPages));
+			recording.setRecordedEvents(new RecordedEvents(slideRecorder.getRecordedPages()));
 			recording.setRecordedDocument(new RecordedDocument(recordedDocument));
 
 			RecordingFileWriter.write(recording, destFile, progressCallback);
@@ -260,8 +233,8 @@ public class FileLectureRecorder extends LectureRecorder {
 	}
 
 	@Override
-	protected void initInternal() {
-		pendingActions.initialize();
+	protected void initInternal() throws ExecutableException {
+		initSlideRecorder();
 
 		audioConfig.mixAudioStreamsProperty()
 				.addListener((o, oldValue, newValue) -> {
@@ -291,16 +264,20 @@ public class FileLectureRecorder extends LectureRecorder {
 						deviceName);
 			}
 
-			clearDocumentState();
-
 			backup.open();
 
 			initAudioMixer();
 			initAudioRecorder();
-			initRecordedDocument();
+
+			startSlideRecorder();
+
+			// Record the first page.
+			Page firstPage = documentService.getDocuments().getSelectedDocument().getCurrentPage();
+			recordPage(firstPage);
 		}
 		else if (prevState == ExecutableState.Suspended) {
-			resumeRecording();
+			resumeSlideRecorder();
+			resumeAudioRecorder();
 		}
 	}
 
@@ -319,25 +296,9 @@ public class FileLectureRecorder extends LectureRecorder {
 			logException(e, "Close audio mixer failed");
 		}
 
+		stopSlideRecorder();
+
 		backup.close();
-
-		pendingActions.clear();
-		pendingActions.initialize();
-
-		// Backup recorded actions, in case the recording is restarted to use them as static actions.
-		for (Map.Entry<Page, RecordedPage> entry : addedPages.entrySet()) {
-			Page page = entry.getKey();
-			RecordedPage rPage = entry.getValue();
-
-			pendingActions.setPendingPage(page);
-
-			for (StaticShapeAction action : rPage.getStaticActions()) {
-				pendingActions.addPendingAction(action.getAction().clone());
-			}
-			for (PlaybackAction action : rPage.getPlaybackActions()) {
-				pendingActions.addPendingAction(action.clone());
-			}
-		}
 
 		bytesConsumed = 0;
 	}
@@ -349,7 +310,7 @@ public class FileLectureRecorder extends LectureRecorder {
 				audioRecorder.suspend();
 			}
 
-			pendingActions.setPendingPage(getLastRecordedPage());
+			slideRecorder.setPendingPage(getLastRecordedPage());
 		}
 	}
 
@@ -374,8 +335,6 @@ public class FileLectureRecorder extends LectureRecorder {
 		catch (Exception e) {
 			logException(e, "Destroy audio mixer failed");
 		}
-
-		clearDocumentState();
 	}
 
 	@Override
@@ -420,37 +379,34 @@ public class FileLectureRecorder extends LectureRecorder {
 		audioRecorder.start();
 	}
 
-	private void initRecordedDocument() throws ExecutableException {
-		try {
-			recordedDocument = new Document();
-		}
-		catch (IOException e) {
-			throw new ExecutableException("Could not create document.", e);
-		}
-
-		// Record the first page.
-		Page firstPage = documentService.getDocuments().getSelectedDocument()
-				.getCurrentPage();
-		recordPage(firstPage, 0);
-	}
-
-	private void resumeRecording() throws ExecutableException {
-		Page pendingPage = pendingActions.getPendingPage();
-
-		if (nonNull(pendingPage)) {
-			if (isDuplicate(pendingPage)) {
-				insertPendingActions(recordedPages.peek(), pendingPage);
-			}
-			else {
-				insertPage(pendingPage, 0);
-			}
-		}
-
+	private void resumeAudioRecorder() throws ExecutableException {
 		if (nonNull(audioRecorder)) {
 			audioRecorder.start();
 		}
 		else {
 			initAudioRecorder();
+		}
+	}
+
+	private void initSlideRecorder() throws ExecutableException {
+		slideRecorder = new SlideRecorder();
+		slideRecorder.init();
+	}
+
+	public void startSlideRecorder() throws ExecutableException {
+		slideRecorder.start();
+	}
+
+	private void stopSlideRecorder() throws ExecutableException {
+		slideRecorder.stop();
+	}
+
+	private void resumeSlideRecorder() throws ExecutableException {
+		try {
+			slideRecorder.updatePendingPage(getElapsedTime());
+		}
+		catch (IOException e) {
+			throw new ExecutableException(e);
 		}
 	}
 
@@ -465,80 +421,19 @@ public class FileLectureRecorder extends LectureRecorder {
 		}
 	}
 
-	private void addPendingAction(PlaybackAction action) {
-		if (isNull(action)) {
-			return;
-		}
-
-		action.setTimestamp((int) getElapsedTime());
-
-		pendingActions.addPendingAction(action);
-	}
-
-	private void clearDocumentState() {
-		if (nonNull(recordedDocument)) {
-			synchronized (recordedDocument) {
-				recordedDocument.close();
-				recordedDocument = null;
-			}
-		}
-
-		addedPages.clear();
-		recordedPages.clear();
-	}
-
 	private void addPage(Page page, long openTime) {
 		if (!started()) {
 			return;
 		}
 
-		insertPage(page, openTime);
-	}
-
-	private void insertPage(Page page, long openTime) {
-		// Do not add equal pages consecutively.
-		if (isDuplicate(page) || openTime < 0) {
-			return;
+		try {
+			slideRecorder.insertPage(page, getElapsedTime(), openTime);
 		}
+		catch (IOException e) {
+			logException(e, "Record slide failed");
 
-		long timestamp = getElapsedTime() - openTime;
-
-		if (page.getDocument().getType() == DocumentType.SCREEN) {
-			// Get the last action from the current page.
-			var actions = recordedPages.peek().getPlaybackActions();
-			if (!actions.isEmpty()) {
-				var action = (PlaybackAction) actions.get(0);
-				if (action instanceof ScreenAction screenAction) {
-					long screenEndMs = screenAction.getTimestamp() + screenAction.getVideoOffset() + screenAction.getVideoLength();
-					System.out.println("page start: " + (timestamp));
-					System.out.println("ScreenAction start: " + (screenAction.getTimestamp()));
-					System.out.println("ScreenAction end: " + (screenEndMs));
-					System.out.println("ScreenAction video length: " + (screenAction.getVideoLength()));
-					System.out.println("ScreenAction delta: " + (timestamp - screenEndMs));
-				}
-			}
+			context.showError("recording.notification.title", "recording.slide.error");
 		}
-
-		recordPage(page, timestamp);
-	}
-
-	private void insertPendingActions(RecordedPage recPage, Page page) {
-		List<PlaybackAction> actions = pendingActions.getPendingActions(page);
-
-		for (PlaybackAction action : actions) {
-			recPage.addPlaybackAction(action.clone());
-		}
-	}
-
-	private void insertPendingPageActions(RecordedPage recPage, Page page) {
-		List<PlaybackAction> actions = pendingActions.getPendingActions(page);
-
-		for (PlaybackAction action : actions) {
-			StaticShapeAction staticAction = new StaticShapeAction(action.clone());
-			recPage.addStaticAction(staticAction);
-		}
-
-		pendingActions.clearPendingActions(page);
 	}
 
 	private synchronized void addPlaybackAction(PlaybackAction action) {
@@ -552,74 +447,32 @@ public class FileLectureRecorder extends LectureRecorder {
 		action.setTimestamp((int) getElapsedTime());
 
 		// Add action to the current page.
-		recordedPages.peek().addPlaybackAction(action);
+		slideRecorder.getRecentRecordedPage().addPlaybackAction(action);
 	}
 
-	private void recordPage(Page page, long timestamp) {
+	private void recordPage(Page page) {
 		try {
-			CompletableFuture.runAsync(() -> {
-				int pageNumber = recordedPages.size();
-
-				RecordedPage recPage = new RecordedPage();
-				recPage.setTimestamp((int) timestamp);
-				recPage.setNumber(pageNumber);
-
-				// Copy all actions if the page was previously annotated and visited again.
-				if (addedPages.containsKey(page)) {
-					RecordedPage rPage = addedPages.get(page);
-
-					if (rPage != null) {
-						for (StaticShapeAction action : rPage.getStaticActions()) {
-							recPage.addStaticAction(action.clone());
-						}
-						for (PlaybackAction action : rPage.getPlaybackActions()) {
-							StaticShapeAction staticAction = new StaticShapeAction(action.clone());
-							recPage.addStaticAction(staticAction);
-						}
-					}
-				}
-				if (pendingActions.hasPendingActions(page)) {
-					// Unrecorded actions, e.g. during suspension.
-					insertPendingPageActions(recPage, page);
-				}
-
-				synchronized (recordedDocument) {
-					try {
-						recordedDocument.createPage(page);
-					}
-					catch (Throwable e ) {
-						logException(e, "Create page failed");
-
-						context.showError("recording.notification.title", "recording.slide.error");
-						return;
-					}
-
-					// Update page to last recorded page relation.
-					addedPages.remove(page);
-					addedPages.put(page, recPage);
-
-					recordedPages.push(recPage);
-
-					// Write backup.
-					try {
-						backup.writeDocument(recordedDocument);
-						backup.writePages(recordedPages);
-					}
-					catch (Throwable e) {
-						logException(e, "Write backup failed");
-					}
-				}
-			}, executor).join();
+			slideRecorder.recordPage(page, 0);
 		}
-		catch (Throwable e) {
-			logException(e, "Record page failed");
+		catch (IOException e) {
+			logException(e, "Record slide failed");
 
 			context.showError("recording.notification.title", "recording.slide.error");
+			return;
+		}
+
+		// Write backup.
+		try {
+			backup.writeDocument(slideRecorder.getRecordedDocument());
+			backup.writePages(slideRecorder.getRecordedPages());
+		}
+		catch (Throwable e) {
+			logException(e, "Write backup failed");
 		}
 	}
 
 	private Page getLastRecordedPage() {
-		Set<Page> pageSet = addedPages.keySet();
+		Set<Page> pageSet = slideRecorder.getRecordedPageMap().keySet();
 		return pageSet.stream().skip(pageSet.size() - 1).findFirst().orElse(null);
 	}
 
@@ -637,23 +490,6 @@ public class FileLectureRecorder extends LectureRecorder {
 
 			recordCurrentPage(idleTimer.getTaskTime());
 		}
-	}
-
-	private boolean isDuplicate(Page page) {
-		Page lastRecorded = getLastRecordedPage();
-		boolean same = page.equals(lastRecorded);
-
-		if (!same && lastRecorded != null) {
-			UUID lastId = lastRecorded.getUid();
-			UUID pageId = page.getUid();
-
-			if (nonNull(lastId) && nonNull(pageId) && lastId.equals(pageId)) {
-				// Do not record duplicate pages.
-				same = true;
-			}
-		}
-
-		return same;
 	}
 
 	private boolean hasRecordingDevice(String deviceName) {

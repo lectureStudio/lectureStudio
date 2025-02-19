@@ -45,7 +45,7 @@ public class TemplateDocument extends Document {
 		Page page;
 
 		try {
-			page = super.createPage(templateDoc.getCurrentPage());
+			page = createPage(templateDoc.getCurrentPage());
 		}
 		catch (IOException e) {
 			LOG.error("Create template page failed", e);
@@ -54,5 +54,24 @@ public class TemplateDocument extends Document {
 		}
 
 		return page;
+	}
+
+	@Override
+	public synchronized Page createPage(Page page) throws IOException {
+		return importPage(page, page.getPageNumber());
+	}
+
+	private Page importPage(Page page, int srcPageIndex)
+			throws IOException {
+		PdfDocument pagePdfDocument = page.getDocument().getPdfDocument();
+		int pageIndex = getPdfDocument().importPageNative(pagePdfDocument, srcPageIndex, -1, null);
+		if (pageIndex == -1) {
+			return null;
+		}
+
+		Page newPage = new Page(this, pageIndex);
+		insertPage(newPage, pageIndex);
+
+		return newPage;
 	}
 }

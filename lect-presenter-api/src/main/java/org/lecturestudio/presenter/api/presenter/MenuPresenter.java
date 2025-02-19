@@ -253,18 +253,6 @@ public class MenuPresenter extends Presenter<MenuView> {
 	}
 
 	@Subscribe
-	public void onEvent(final ExternalSpeechViewEvent event) {
-		if (!event.isEnabled()) {
-			// Set the previous position.
-			SpeechPosition position = getViewPosition(SpeechPosition.class);
-
-			if (nonNull(position)) {
-				view.setSpeechPosition(position);
-			}
-		}
-	}
-
-	@Subscribe
 	public void onEvent(final ExternalSlidePreviewViewEvent event) {
 		if (!event.isEnabled()) {
 			// Set the previous position.
@@ -360,19 +348,6 @@ public class MenuPresenter extends Presenter<MenuView> {
 
 	public void customizeToolbar() {
 		eventBus.post(new CustomizeToolbarEvent());
-	}
-
-	public void positionSpeech(SpeechPosition position) {
-		if (position == SpeechPosition.EXTERNAL) {
-			eventBus.post(new ExternalSpeechViewEvent(true));
-
-//			getPresenterConfig().getSlideViewConfiguration().setSpeechPosition(position);
-		}
-		else {
-			setViewPosition(SpeechPosition.class, position);
-
-			eventBus.post(new SpeechPositionEvent(position));
-		}
 	}
 
 	public void positionMessages(MessageBarPosition position) {
@@ -747,7 +722,6 @@ public class MenuPresenter extends Presenter<MenuView> {
 		setViewPosition(SlidePreviewPosition.class, slideViewConfig.getSlidePreviewPosition());
 		setViewPosition(SlideNotesPosition.class, slideViewConfig.getSlideNotesPosition());
 		setViewPosition(NoteSlidePosition.class, slideViewConfig.getNoteSlidePosition());
-		setViewPosition(SpeechPosition.class, slideViewConfig.getSpeechPosition());
 
 		view.setRecordingState(ExecutableState.Stopped);
 		view.setMessengerState(ExecutableState.Stopped);
@@ -775,9 +749,6 @@ public class MenuPresenter extends Presenter<MenuView> {
 		view.bindFullscreen(presenterContext.fullscreenProperty());
 
 		view.setOnCustomizeToolbar(this::customizeToolbar);
-
-		view.setSpeechPosition(slideViewConfig.getSpeechPosition());
-		view.setOnSpeechPosition(this::positionSpeech);
 
 		view.setMessagesPosition(slideViewConfig.getMessageBarPosition());
 		view.setOnMessagesPosition(this::positionMessages);

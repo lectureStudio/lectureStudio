@@ -46,9 +46,6 @@ public class SlideViewConfiguration {
 	private final ObjectProperty<NotesPosition> notesPosition = new ObjectProperty<>(
 			NotesPosition.RIGHT);
 
-	private final ObjectProperty<SpeechPosition> speechPosition = new ObjectProperty<>(
-			SpeechPosition.ABOVE_SLIDE_PREVIEW);
-
 	private final DoubleProperty leftSliderPosition = new DoubleProperty(0.375);
 
 	private final DoubleProperty rightSliderPosition = new DoubleProperty(0.8);
@@ -182,17 +179,4 @@ public class SlideViewConfiguration {
 		notesPosition.set(position);
 	}
 
-	/**
-	 * @return the speech position
-	 */
-	public SpeechPosition getSpeechPosition() {
-		return speechPosition.get();
-	}
-
-	/**
-	 * @param position The speech position
-	 */
-	public void setSpeechPosition(SpeechPosition position) {
-		speechPosition.set(position);
-	}
 }

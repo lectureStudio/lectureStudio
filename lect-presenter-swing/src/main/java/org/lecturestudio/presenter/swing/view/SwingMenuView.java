@@ -93,12 +93,6 @@ public class SwingMenuView extends JMenuBar implements MenuView {
 
 	private JMenu splitNotesPositionMenu;
 
-	private JMenu speechPositionMenu;
-
-	private JRadioButtonMenuItem speechPositionAbovePreviewMenuItem;
-
-	private JRadioButtonMenuItem speechPositionExternalMenuItem;
-
 	private JRadioButtonMenuItem splitNotesPositionRightMenuItem;
 
 	private JRadioButtonMenuItem splitNotesPositionLeftMenuItem;
@@ -265,7 +259,6 @@ public class SwingMenuView extends JMenuBar implements MenuView {
 			participantVideoPositionMenu.setEnabled(hasDocument);
 			previewPositionMenu.setEnabled(hasDocument);
 			noteSlidePositionMenu.setEnabled(hasDocument);
-			speechPositionMenu.setEnabled(hasDocument);
 			splitNotesPositionMenu.setEnabled(hasDocument);
 		});
 	}
@@ -381,20 +374,6 @@ public class SwingMenuView extends JMenuBar implements MenuView {
 	@Override
 	public void setOnCustomizeToolbar(Action action) {
 		SwingUtils.bindAction(customizeToolbarMenuItem, action);
-	}
-
-	@Override
-	public void setSpeechPosition(SpeechPosition position) {
-		switch (position) {
-			case ABOVE_SLIDE_PREVIEW -> speechPositionAbovePreviewMenuItem.setSelected(true);
-			case EXTERNAL -> speechPositionExternalMenuItem.setSelected(true);
-		}
-	}
-
-	@Override
-	public void setOnSpeechPosition(ConsumerAction<SpeechPosition> action) {
-		SwingUtils.bindAction(speechPositionAbovePreviewMenuItem, () -> action.execute(SpeechPosition.ABOVE_SLIDE_PREVIEW));
-		SwingUtils.bindAction(speechPositionExternalMenuItem, () -> action.execute(SpeechPosition.EXTERNAL));
 	}
 
 	@Override

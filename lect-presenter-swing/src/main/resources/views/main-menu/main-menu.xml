@@ -62,12 +62,6 @@
 				<radiobuttonmenuitem id="noteSlidePositionExternalMenuItem" text="menu.external" />
 			</buttongroup>
 		</menu>
-		<menu id="speechPositionMenu" text="menu.speech.position">
-			<buttongroup>
-				<radiobuttonmenuitem id="speechPositionAbovePreviewMenuItem" text="menu.speech.position.above.preview" />
-				<radiobuttonmenuitem id="speechPositionExternalMenuItem" text="menu.external" />
-			</buttongroup>
-		</menu>
 		<separator />
 		<menu id="splitNotesPositionMenu" text="menu.splitNotes.position">
 			<buttongroup>

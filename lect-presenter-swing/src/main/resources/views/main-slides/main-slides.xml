@@ -5,7 +5,6 @@
 			<SplitPane id="notesSplitPane" dividerSize="10" resizeWeight="1" orientation="JSplitPane.VERTICAL_SPLIT">
 				<SplitPane id="docSplitPane" dividerSize="10" resizeWeight="0" focusable="false" orientation="JSplitPane.HORIZONTAL_SPLIT">
 					<VBox id="leftVbox">
-						<Panel layout="BorderLayout" id="leftPeerViewContainer" visible="false" />
 						<AdaptiveTabbedPane id="leftTabPane" tabPlacement="JTabbedPane.LEFT" >
 							<Tab id="participantsTab" name="participants" text="slides.participants" icon="participants.svg, 18" defaultTabType="AdaptiveTabType.PARTICIPANTS">
 								<Panel id="participantsPanel" layout="BorderLayout">
@@ -52,7 +51,6 @@
 			</SplitPane>
 
 			<VBox id="rightVbox">
-				<Panel layout="BorderLayout" id="rightPeerViewContainer" visible="false" />
 				<AdaptiveTabbedPane id="rightTabPane" tabPlacement="JTabbedPane.RIGHT" defaultTabType="AdaptiveTabType.SLIDE" focusTraversable="false">
 					<Tab id="participantVideoTab" name="participantVideo" text="slides.participant.video" defaultTabType="AdaptiveTabType.PARTICIPANT_VIDEO">
 						<Panel id="participantVideoPanel" layout="BorderLayout">

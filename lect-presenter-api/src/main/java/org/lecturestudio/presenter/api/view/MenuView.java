@@ -77,10 +77,6 @@ public interface MenuView extends View {
 
 	void setOnCustomizeToolbar(Action action);
 
-	void setSpeechPosition(SpeechPosition position);
-
-	void setOnSpeechPosition(ConsumerAction<SpeechPosition> action);
-
 	void setMessagesPosition(MessageBarPosition position);
 
 	void setOnMessagesPosition(ConsumerAction<MessageBarPosition> action);

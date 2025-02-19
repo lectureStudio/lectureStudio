@@ -181,12 +181,6 @@ public interface SlidesView extends View {
 
 	void setOnExternalSlidePreviewClosed(Action action);
 
-	void setOnExternalSpeechPositionChanged(ConsumerAction<ExternalWindowPosition> action);
-
-	void setOnExternalSpeechSizeChanged(ConsumerAction<Dimension> action);
-
-	void setOnExternalSpeechClosed(Action action);
-
 	void setOnExternalNotesPositionChanged(ConsumerAction<ExternalWindowPosition> action);
 
 	void setOnExternalNotesSizeChanged(ConsumerAction<Dimension> action);
@@ -215,10 +209,6 @@ public interface SlidesView extends View {
 
 	void hideExternalSlidePreview();
 
-	void showExternalSpeech(Screen screen, Point position, Dimension size);
-
-	void hideExternalSpeech();
-
 	void showExternalNotes(Screen screen, Point position, Dimension size);
 
 	void hideExternalNotes();
@@ -238,7 +228,5 @@ public interface SlidesView extends View {
 	void setParticipantVideoPosition(ParticipantVideoPosition position);
 
 	void setPreviewPosition(SlidePreviewPosition position);
-
-	void setSpeechPosition(SpeechPosition position);
 
 }

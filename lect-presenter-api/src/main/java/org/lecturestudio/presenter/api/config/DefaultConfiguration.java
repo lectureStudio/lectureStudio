@@ -105,7 +105,7 @@ public class DefaultConfiguration extends PresenterConfiguration {
 
 		getExternalMessagesConfig().setEnabled(false);
 		getExternalSlidePreviewConfig().setEnabled(false);
-		getExternalSpeechConfig().setEnabled(false);
+		getExternalParticipantVideoConfig().setEnabled(false);
 
 		getSlideViewConfiguration().setBottomSliderPosition(0.7);
 		getSlideViewConfiguration().setLeftSliderPosition(0.375);

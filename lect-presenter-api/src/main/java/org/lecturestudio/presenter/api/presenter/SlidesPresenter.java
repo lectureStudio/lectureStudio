@@ -492,21 +492,6 @@ public class SlidesPresenter extends Presenter<SlidesView> {
 	}
 
 	@Subscribe
-	public void onEvent(ExternalSpeechViewEvent event) {
-		if (event.isEnabled()) {
-			if (event.isShow()) {
-				viewShowExternalSpeech(event.isPersistent());
-			}
-			else {
-				view.hideExternalSpeech();
-			}
-		}
-		else {
-			viewHideExternalSpeech(event.isPersistent());
-		}
-	}
-
-	@Subscribe
 	public void onEvent(ExternalNotesViewEvent event) {
 		if (event.isEnabled()) {
 			if (event.isShow()) {
@@ -566,15 +551,6 @@ public class SlidesPresenter extends Presenter<SlidesView> {
 	@Subscribe
 	public void onEvent(PreviewPositionEvent event) {
 		view.setPreviewPosition(event.position());
-	}
-
-	@Subscribe
-	public void onEvent(SpeechPositionEvent event) {
-		final SpeechPosition position = event.position();
-
-		view.setSpeechPosition(position);
-
-		getPresenterConfig().getSlideViewConfiguration().setSpeechPosition(position);
 	}
 
 	@Subscribe
@@ -671,21 +647,6 @@ public class SlidesPresenter extends Presenter<SlidesView> {
 
 	private void externalSlidePreviewClosed() {
 		eventBus.post(new ExternalSlidePreviewViewEvent(false));
-	}
-
-	private void externalSpeechPositionChanged(ExternalWindowPosition position) {
-		final ExternalWindowConfiguration config = getExternalSpeechConfig();
-
-		config.setPosition(position.getPosition());
-		config.setScreen(position.getScreen());
-	}
-
-	private void externalSpeechSizeChanged(Dimension size) {
-		getExternalSpeechConfig().setSize(size);
-	}
-
-	private void externalSpeechClosed() {
-		eventBus.post(new ExternalSpeechViewEvent(false));
 	}
 
 	private void externalNotesPositionChanged(ExternalWindowPosition position) {
@@ -1299,10 +1260,6 @@ public class SlidesPresenter extends Presenter<SlidesView> {
 		return getPresenterConfig().getExternalSlidePreviewConfig();
 	}
 
-	private ExternalWindowConfiguration getExternalSpeechConfig() {
-		return getPresenterConfig().getExternalSpeechConfig();
-	}
-
 	private ExternalWindowConfiguration getExternalNotesConfig() {
 		return getPresenterConfig().getExternalNotesConfig();
 	}
@@ -1430,12 +1387,6 @@ public class SlidesPresenter extends Presenter<SlidesView> {
 		view.setOnExternalSlidePreviewClosed(this::externalSlidePreviewClosed);
 		initExternalScreenBehavior(getExternalSlidePreviewConfig(),
 				(enabled, show) -> eventBus.post(new ExternalSlidePreviewViewEvent(enabled, show)));
-
-		view.setOnExternalSpeechPositionChanged(this::externalSpeechPositionChanged);
-		view.setOnExternalSpeechSizeChanged(this::externalSpeechSizeChanged);
-		view.setOnExternalSpeechClosed(this::externalSpeechClosed);
-		initExternalScreenBehavior(getExternalSpeechConfig(),
-				(enabled, show) -> eventBus.post(new ExternalSpeechViewEvent(enabled, show)));
 
 		view.setOnExternalNotesPositionChanged(this::externalNotesPositionChanged);
 		view.setOnExternalNotesSizeChanged(this::externalNotesSizeChanged);
@@ -1588,10 +1539,6 @@ public class SlidesPresenter extends Presenter<SlidesView> {
 			showExternalScreen(getExternalSlidePreviewConfig(),
 					(enabled, show) -> eventBus.post(new ExternalSlidePreviewViewEvent(enabled, show)));
 		}
-		if (viewConfig.getSpeechPosition() == SpeechPosition.EXTERNAL) {
-			showExternalScreen(getExternalSpeechConfig(),
-					(enabled, show) -> eventBus.post(new ExternalSpeechViewEvent(enabled, show)));
-		}
 		if (viewConfig.getSlideNotesPosition() == SlideNotesPosition.EXTERNAL) {
 			showExternalScreen(getExternalNotesConfig(),
 					(enabled, show) -> eventBus.post(new ExternalNotesViewEvent(enabled, show)));
@@ -1611,7 +1558,6 @@ public class SlidesPresenter extends Presenter<SlidesView> {
 	private void hideExternalScreens() {
 		view.hideExternalSlidePreview();
 		view.hideExternalMessages();
-		view.hideExternalSpeech();
 	}
 
 	private void checkScreenExists(ExternalWindowConfiguration config) {
@@ -1708,28 +1654,6 @@ public class SlidesPresenter extends Presenter<SlidesView> {
 		}
 
 		view.hideExternalSlidePreview();
-	}
-
-	private void viewShowExternalSpeech(boolean persistent) {
-		final ExternalWindowConfiguration config = getExternalSpeechConfig();
-
-		if (persistent) {
-			config.setEnabled(true);
-		}
-
-		checkScreenExists(config);
-
-		view.showExternalSpeech(config.getScreen(), config.getPosition(), config.getSize());
-	}
-
-	private void viewHideExternalSpeech(boolean persistent) {
-		final ExternalWindowConfiguration config = getExternalSpeechConfig();
-
-		if (persistent) {
-			config.setEnabled(false);
-		}
-
-		view.hideExternalSpeech();
 	}
 
 	private void viewShowExternalNotes(boolean persistent) {

@@ -291,7 +291,7 @@ public class SwingSlidesView extends JPanel implements SlidesView {
 
 	private final JScrollPane externalParticipantsPane = new JScrollPane();
 
-	private final JPanel externalParticipantVideoPane = new JPanel();
+	private final JPanel externalParticipantVideoPane = new JPanel(new BorderLayout());
 
 	private final AdaptiveTabbedPane externalSlidePreviewTabPane = new AdaptiveTabbedPane(SwingConstants.RIGHT);
 
@@ -486,7 +486,7 @@ public class SwingSlidesView extends JPanel implements SlidesView {
 				}
 
 				if (thumbnailPanel.getDocument().getName().equals(doc.getName())) {
-					// Reload if document has changed.
+					// Reload if a document has changed.
 					if (!thumbnailPanel.getDocument().equals(doc)) {
 						// Prevent tab switching for quiz reloading.
 						thumbnailPanel.setDocument(doc, ppProvider);
@@ -1197,11 +1197,11 @@ public class SwingSlidesView extends JPanel implements SlidesView {
 			return;
 		}
 
-		setParticipantsTabVisible(dict.get(PARTICIPANT_VIDEO_LABEL_KEY), false);
+		setParticipantVideoTabVisible(dict.get(PARTICIPANT_VIDEO_LABEL_KEY), false);
 
 		participantVideoPanel.remove(peerViewContainer);
 
-		externalParticipantsPane.add(peerViewContainer);
+		externalParticipantVideoPane.add(peerViewContainer, BorderLayout.CENTER);
 
 		externalParticipantVideoFrame.updatePosition(screen, position, size);
 		externalParticipantVideoFrame.showBody();
@@ -1220,7 +1220,7 @@ public class SwingSlidesView extends JPanel implements SlidesView {
 
 		participantVideoPanel.add(peerViewContainer);
 
-		setParticipantsTabVisible(dict.get(PARTICIPANT_VIDEO_LABEL_KEY), true);
+		setParticipantVideoTabVisible(dict.get(PARTICIPANT_VIDEO_LABEL_KEY), true);
 	}
 
 	@Override
@@ -1674,10 +1674,6 @@ public class SwingSlidesView extends JPanel implements SlidesView {
 	}
 
 	private void showParticipantVideoLeft() {
-		if (participantVideoPosition == ParticipantVideoPosition.LEFT) {
-			return;
-		}
-
 		final boolean prevMinimized = isLeftTabPaneMinimized();
 		leftTabPane.addTabs(removeParticipantVideoTabs());
 
@@ -1843,6 +1839,13 @@ public class SwingSlidesView extends JPanel implements SlidesView {
 		}
 	}
 
+	private void setParticipantVideoTabVisible(String labelText, boolean visible) {
+		switch (participantVideoPosition) {
+			case RIGHT -> setRightTabVisible(labelText, visible);
+			case LEFT -> setLeftTabVisible(labelText, visible);
+		}
+	}
+
 	private void setNotesBarTabVisible(String labelText, boolean visible) {
 		switch (slideNotesPosition) {
 			case BOTTOM -> setBottomTabVisible(labelText, visible);
@@ -1894,18 +1897,6 @@ public class SwingSlidesView extends JPanel implements SlidesView {
 		}
 	}
 
-	private List<AdaptiveTab> removeMessageBarTabs() {
-		final ArrayList<AdaptiveTab> removedTabs = new ArrayList<>();
-
-		switch (messageBarPosition) {
-			case BOTTOM -> removedTabs.addAll(bottomTabPane.removeTabsByType(AdaptiveTabType.MESSAGE));
-			case LEFT -> removedTabs.addAll(leftTabPane.removeTabsByType(AdaptiveTabType.MESSAGE));
-			case RIGHT -> removedTabs.addAll(rightTabPane.removeTabsByType(AdaptiveTabType.MESSAGE));
-		}
-
-		return removedTabs;
-	}
-
 	private void setMessageBarTabEnabled(String labelText, boolean enable) {
 		switch (messageBarPosition) {
 			case BOTTOM -> {
@@ -1946,45 +1937,31 @@ public class SwingSlidesView extends JPanel implements SlidesView {
 		}
 	}
 
+	private List<AdaptiveTab> removeMessageBarTabs() {
+		return removeTabs(AdaptiveTabType.MESSAGE, bottomTabPane, leftTabPane, rightTabPane);
+	}
+
 	private List<AdaptiveTab> removeNotesBarTabs() {
-		final ArrayList<AdaptiveTab> removedTabs = new ArrayList<>();
-
-		switch (slideNotesPosition) {
-			case BOTTOM -> removedTabs.addAll(bottomTabPane.removeTabsByType(AdaptiveTabType.NOTES));
-			case LEFT -> removedTabs.addAll(leftTabPane.removeTabsByType(AdaptiveTabType.NOTES));
-		}
-
-		return removedTabs;
+		return removeTabs(AdaptiveTabType.NOTES, bottomTabPane, leftTabPane);
 	}
 
 	private List<AdaptiveTab> removeParticipantsTabs() {
-		final ArrayList<AdaptiveTab> removedTabs = new ArrayList<>();
-
-		switch (participantsPosition) {
-			case LEFT -> removedTabs.addAll(leftTabPane.removeTabsByType(AdaptiveTabType.PARTICIPANTS));
-			case RIGHT -> removedTabs.addAll(rightTabPane.removeTabsByType(AdaptiveTabType.PARTICIPANTS));
-		}
-
-		return removedTabs;
+		return removeTabs(AdaptiveTabType.PARTICIPANTS, leftTabPane, rightTabPane);
 	}
 
 	private List<AdaptiveTab> removeParticipantVideoTabs() {
-		final ArrayList<AdaptiveTab> removedTabs = new ArrayList<>();
-
-		switch (participantVideoPosition) {
-			case LEFT -> removedTabs.addAll(leftTabPane.removeTabsByType(AdaptiveTabType.PARTICIPANT_VIDEO));
-			case RIGHT -> removedTabs.addAll(rightTabPane.removeTabsByType(AdaptiveTabType.PARTICIPANT_VIDEO));
-		}
-
-		return removedTabs;
+		return removeTabs(AdaptiveTabType.PARTICIPANT_VIDEO, leftTabPane, rightTabPane);
 	}
 
 	private List<AdaptiveTab> removePreviewTabs() {
+		return removeTabs(AdaptiveTabType.SLIDE, leftTabPane, rightTabPane);
+	}
+
+	private List<AdaptiveTab> removeTabs(AdaptiveTabType tabType, AdaptiveTabbedPane... panes) {
 		final ArrayList<AdaptiveTab> removedTabs = new ArrayList<>();
 
-		switch (previewPosition) {
-			case LEFT -> removedTabs.addAll(leftTabPane.removeTabsByType(AdaptiveTabType.SLIDE));
-			case RIGHT -> removedTabs.addAll(rightTabPane.removeTabsByType(AdaptiveTabType.SLIDE));
+		for (AdaptiveTabbedPane pane : panes) {
+			removedTabs.addAll(pane.removeTabsByType(tabType));
 		}
 
 		return removedTabs;
@@ -2324,8 +2301,6 @@ public class SwingSlidesView extends JPanel implements SlidesView {
 				selectedSlideLabelText = clickedTab.getLabelText();
 			}
 		});
-
-		peerViewContainer = new JPanel();
 
 		messagesPlaceholder = new JLabel(dict.get(NO_MESSAGES_LABEL_KEY), SwingConstants.CENTER);
 

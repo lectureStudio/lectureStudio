@@ -1471,6 +1471,9 @@ public class SlidesPresenter extends Presenter<SlidesView> {
 		view.setParticipantsPosition(getPresenterConfig()
 				.getSlideViewConfiguration().getParticipantsPosition());
 
+		view.setParticipantVideoPosition(getPresenterConfig()
+				.getSlideViewConfiguration().getParticipantVideoPosition());
+
 		view.setPreviewPosition(getPresenterConfig()
 				.getSlideViewConfiguration().getSlidePreviewPosition());
 

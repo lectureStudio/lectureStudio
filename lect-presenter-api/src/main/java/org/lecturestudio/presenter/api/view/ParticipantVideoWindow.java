@@ -16,11 +16,25 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package org.lecturestudio.presenter.api.model;
+package org.lecturestudio.presenter.api.view;
 
-public enum SpeechPosition {
+import dev.onvoid.webrtc.media.video.VideoFrame;
 
-    ABOVE_SLIDE_PREVIEW,
-    EXTERNAL
+import org.lecturestudio.core.view.Action;
+import org.lecturestudio.core.view.View;
+
+public interface ParticipantVideoWindow extends View {
+
+	void setTitle(String title);
+
+	void close();
+
+	void open();
+
+	void setOnClose(Action action);
+
+	void setTextSize(double size);
+
+	void setVideoFrame(VideoFrame frame);
 
 }

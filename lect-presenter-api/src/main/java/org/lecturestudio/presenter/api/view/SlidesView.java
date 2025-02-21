@@ -39,6 +39,7 @@ import org.lecturestudio.presenter.api.model.*;
 import org.lecturestudio.presenter.api.config.SlideViewConfiguration;
 import org.lecturestudio.swing.model.ExternalWindowPosition;
 import org.lecturestudio.core.stylus.StylusHandler;
+import org.lecturestudio.web.api.event.LocalVideoFrameEvent;
 import org.lecturestudio.web.api.event.PeerStateEvent;
 import org.lecturestudio.web.api.event.RemoteVideoFrameEvent;
 import org.lecturestudio.web.api.message.MessengerMessage;
@@ -133,6 +134,8 @@ public interface SlidesView extends View {
 
 	void setOnStopPeerConnection(ConsumerAction<UUID> action);
 
+	void setVideoFrameEvent(LocalVideoFrameEvent event);
+
 	void setVideoFrameEvent(RemoteVideoFrameEvent event);
 
 	void setOnKeyEvent(ConsumerAction<KeyEvent> action);
@@ -169,17 +172,17 @@ public interface SlidesView extends View {
 
 	void setOnExternalParticipantsClosed(Action action);
 
+	void setOnExternalParticipantVideoPositionChanged(ConsumerAction<ExternalWindowPosition> action);
+
+	void setOnExternalParticipantVideoSizeChanged(ConsumerAction<Dimension> action);
+
+	void setOnExternalParticipantVideoClosed(Action action);
+
 	void setOnExternalSlidePreviewPositionChanged(ConsumerAction<ExternalWindowPosition> action);
 
 	void setOnExternalSlidePreviewSizeChanged(ConsumerAction<Dimension> action);
 
 	void setOnExternalSlidePreviewClosed(Action action);
-
-	void setOnExternalSpeechPositionChanged(ConsumerAction<ExternalWindowPosition> action);
-
-	void setOnExternalSpeechSizeChanged(ConsumerAction<Dimension> action);
-
-	void setOnExternalSpeechClosed(Action action);
 
 	void setOnExternalNotesPositionChanged(ConsumerAction<ExternalWindowPosition> action);
 
@@ -201,13 +204,13 @@ public interface SlidesView extends View {
 
 	void hideExternalParticipants();
 
+	void showExternalParticipantVideo(Screen screen, Point position, Dimension size);
+
+	void hideExternalParticipantVideo();
+
 	void showExternalSlidePreview(Screen screen, Point position, Dimension size);
 
 	void hideExternalSlidePreview();
-
-	void showExternalSpeech(Screen screen, Point position, Dimension size);
-
-	void hideExternalSpeech();
 
 	void showExternalNotes(Screen screen, Point position, Dimension size);
 
@@ -225,8 +228,8 @@ public interface SlidesView extends View {
 
 	void setParticipantsPosition(ParticipantsPosition position);
 
-	void setPreviewPosition(SlidePreviewPosition position);
+	void setParticipantVideoPosition(ParticipantVideoPosition position);
 
-	void setSpeechPosition(SpeechPosition position);
+	void setPreviewPosition(SlidePreviewPosition position);
 
 }

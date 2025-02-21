@@ -681,6 +681,7 @@ public class WebRtcStreamService extends ExecutableBase {
 		videoContext.setSendVideo(streamConfig.getCameraEnabled());
 		videoContext.setReceiveVideo(true);
 		videoContext.setCaptureDevice(videoCaptureDevice);
+		videoContext.setCaptureLocalVideo(true);
 		videoContext.setBitrate(cameraConfig.getBitRate());
 		videoContext.setRemoteFrameConsumer(videoFrameEvent -> {
 			context.getEventBus().post(videoFrameEvent);

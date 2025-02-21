@@ -93,12 +93,6 @@ public class SwingMenuView extends JMenuBar implements MenuView {
 
 	private JMenu splitNotesPositionMenu;
 
-	private JMenu speechPositionMenu;
-
-	private JRadioButtonMenuItem speechPositionAbovePreviewMenuItem;
-
-	private JRadioButtonMenuItem speechPositionExternalMenuItem;
-
 	private JRadioButtonMenuItem splitNotesPositionRightMenuItem;
 
 	private JRadioButtonMenuItem splitNotesPositionLeftMenuItem;
@@ -132,6 +126,14 @@ public class SwingMenuView extends JMenuBar implements MenuView {
 	private JRadioButtonMenuItem participantsPositionRightMenuItem;
 
 	private JRadioButtonMenuItem participantsPositionExternalMenuItem;
+
+	private JMenu participantVideoPositionMenu;
+
+	private JRadioButtonMenuItem participantVideoPositionLeftMenuItem;
+
+	private JRadioButtonMenuItem participantVideoPositionRightMenuItem;
+
+	private JRadioButtonMenuItem participantVideoPositionExternalMenuItem;
 
 	private JMenu previewPositionMenu;
 
@@ -254,9 +256,9 @@ public class SwingMenuView extends JMenuBar implements MenuView {
 			messagesPositionMenu.setEnabled(hasDocument);
 			notesPositionMenu.setEnabled(hasDocument);
 			participantsPositionMenu.setEnabled(hasDocument);
+			participantVideoPositionMenu.setEnabled(hasDocument);
 			previewPositionMenu.setEnabled(hasDocument);
 			noteSlidePositionMenu.setEnabled(hasDocument);
-			speechPositionMenu.setEnabled(hasDocument);
 			splitNotesPositionMenu.setEnabled(hasDocument);
 		});
 	}
@@ -375,20 +377,6 @@ public class SwingMenuView extends JMenuBar implements MenuView {
 	}
 
 	@Override
-	public void setSpeechPosition(SpeechPosition position) {
-		switch (position) {
-			case ABOVE_SLIDE_PREVIEW -> speechPositionAbovePreviewMenuItem.setSelected(true);
-			case EXTERNAL -> speechPositionExternalMenuItem.setSelected(true);
-		}
-	}
-
-	@Override
-	public void setOnSpeechPosition(ConsumerAction<SpeechPosition> action) {
-		SwingUtils.bindAction(speechPositionAbovePreviewMenuItem, () -> action.execute(SpeechPosition.ABOVE_SLIDE_PREVIEW));
-		SwingUtils.bindAction(speechPositionExternalMenuItem, () -> action.execute(SpeechPosition.EXTERNAL));
-	}
-
-	@Override
 	public void setMessagesPosition(MessageBarPosition position) {
 		switch (position) {
 			case LEFT -> messagesPositionLeftMenuItem.setSelected(true);
@@ -452,6 +440,22 @@ public class SwingMenuView extends JMenuBar implements MenuView {
 		SwingUtils.bindAction(participantsPositionLeftMenuItem, () -> action.execute(ParticipantsPosition.LEFT));
 		SwingUtils.bindAction(participantsPositionRightMenuItem, () -> action.execute(ParticipantsPosition.RIGHT));
 		SwingUtils.bindAction(participantsPositionExternalMenuItem, () -> action.execute(ParticipantsPosition.EXTERNAL));
+	}
+
+	@Override
+	public void setParticipantVideoPosition(ParticipantVideoPosition position) {
+		switch (position) {
+			case LEFT -> participantVideoPositionLeftMenuItem.setSelected(true);
+			case RIGHT -> participantVideoPositionRightMenuItem.setSelected(true);
+			case EXTERNAL -> participantVideoPositionExternalMenuItem.setSelected(true);
+		}
+	}
+
+	@Override
+	public void setOnParticipantVideoPosition(ConsumerAction<ParticipantVideoPosition> action) {
+		SwingUtils.bindAction(participantVideoPositionLeftMenuItem, () -> action.execute(ParticipantVideoPosition.LEFT));
+		SwingUtils.bindAction(participantVideoPositionRightMenuItem, () -> action.execute(ParticipantVideoPosition.RIGHT));
+		SwingUtils.bindAction(participantVideoPositionExternalMenuItem, () -> action.execute(ParticipantVideoPosition.EXTERNAL));
 	}
 
 	@Override

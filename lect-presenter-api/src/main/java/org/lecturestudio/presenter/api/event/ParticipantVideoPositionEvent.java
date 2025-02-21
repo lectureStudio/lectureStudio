@@ -16,30 +16,10 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package org.lecturestudio.web.api.model;
+package org.lecturestudio.presenter.api.event;
 
-public class UserInfo {
+import org.lecturestudio.presenter.api.model.ParticipantVideoPosition;
 
-	private String userId;
+public record ParticipantVideoPositionEvent(ParticipantVideoPosition position) {
 
-	private String firstName;
-
-	private String familyName;
-
-
-	public String getUserId() {
-		return userId;
-	}
-
-	public String getFirstName() {
-		return firstName;
-	}
-
-	public String getFamilyName() {
-		return familyName;
-	}
-
-	public String getFullName() {
-		return firstName + " " + familyName;
-	}
 }

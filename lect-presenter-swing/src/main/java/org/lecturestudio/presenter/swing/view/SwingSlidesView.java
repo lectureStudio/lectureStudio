@@ -100,6 +100,7 @@ import org.lecturestudio.swing.util.SwingUtils;
 import org.lecturestudio.swing.util.VideoFrameConverter;
 import org.lecturestudio.swing.view.SwingView;
 import org.lecturestudio.swing.view.ViewPostConstruct;
+import org.lecturestudio.web.api.event.LocalVideoFrameEvent;
 import org.lecturestudio.web.api.event.PeerStateEvent;
 import org.lecturestudio.web.api.event.RemoteVideoFrameEvent;
 import org.lecturestudio.web.api.message.MessengerMessage;
@@ -117,17 +118,15 @@ public class SwingSlidesView extends JPanel implements SlidesView {
 
 	private static final String PARTICIPANTS_LABEL_KEY = "slides.participants";
 
+	private static final String PARTICIPANT_VIDEO_LABEL_KEY = "slides.participant.video";
+
 	private static final String NO_PARTICIPANTS_LABEL_KEY = "slides.no.participants";
 
 	private static final String SLIDES_PREVIEW_LABEL_KEY = "slides.slide.preview";
 
-	private static final String SPEECH_LABEL_KEY = "slides.speech";
-
 	private static final String NOTES_LABEL_KEY = "slides.notes";
 
 	private static final String SLIDE_NOTES_LABEL_KEY = "slides.slide.notes";
-
-	private static final String CURRENTLY_NO_SPEECH_LABEL_KEY = "slides.currently.no.speech";
 
 	private static final String MENU_LABEL_KEY = "menu.contents";
 
@@ -177,17 +176,17 @@ public class SwingSlidesView extends JPanel implements SlidesView {
 
 	private Action externalParticipantsClosedAction;
 
+	private ConsumerAction<ExternalWindowPosition> externalParticipantVideoPositionChangedAction;
+
+	private ConsumerAction<Dimension> externalParticipantVideoSizeChangedAction;
+
+	private Action externalParticipantVideoClosedAction;
+
 	private ConsumerAction<ExternalWindowPosition> externalSlidePreviewPositionChangedAction;
 
 	private ConsumerAction<Dimension> externalSlidePreviewSizeChangedAction;
 
 	private Action externalSlidePreviewClosedAction;
-
-	private ConsumerAction<ExternalWindowPosition> externalSpeechPositionChangedAction;
-
-	private ConsumerAction<Dimension> externalSpeechSizeChangedAction;
-
-	private Action externalSpeechClosedAction;
 
 	private ConsumerAction<ExternalWindowPosition> externalNotesPositionChangedAction;
 
@@ -233,7 +232,10 @@ public class SwingSlidesView extends JPanel implements SlidesView {
 
 	private BufferedImage peerViewImage;
 
-	private PeerView peerView;
+	private PeerView localPeerView;
+	private PeerView remotePeerView;
+
+	private Container peerViewContainer;
 
 	private Box leftVbox;
 	private Box rightVbox;
@@ -241,9 +243,6 @@ public class SwingSlidesView extends JPanel implements SlidesView {
 	private AdaptiveTabbedPane rightTabPane;
 
 	private AdaptiveTabbedPane noneTabPane;
-
-	private Container leftPeerViewContainer;
-	private Container rightPeerViewContainer;
 
 	private Container leftNoteSlideViewContainer;
 	private Container rightNoteSlideViewContainer;
@@ -264,6 +263,8 @@ public class SwingSlidesView extends JPanel implements SlidesView {
 
 	private JPanel participantsPanel;
 
+	private JPanel participantVideoPanel;
+
 	private JPanel messagesPanel;
 
 	private Box messageSendPanel;
@@ -278,9 +279,9 @@ public class SwingSlidesView extends JPanel implements SlidesView {
 
 	private ExternalFrame externalParticipantsFrame;
 
-	private ExternalFrame externalSlidePreviewFrame;
+	private ExternalFrame externalParticipantVideoFrame;
 
-	private ExternalFrame externalSpeechFrame;
+	private ExternalFrame externalSlidePreviewFrame;
 
 	private ExternalFrame externalNotesFrame;
 
@@ -291,6 +292,8 @@ public class SwingSlidesView extends JPanel implements SlidesView {
 	private final JScrollPane externalNotesPane = new JScrollPane();
 
 	private final JScrollPane externalParticipantsPane = new JScrollPane();
+
+	private final JPanel externalParticipantVideoPane = new JPanel(new BorderLayout());
 
 	private final AdaptiveTabbedPane externalSlidePreviewTabPane = new AdaptiveTabbedPane(SwingConstants.RIGHT);
 
@@ -317,9 +320,9 @@ public class SwingSlidesView extends JPanel implements SlidesView {
 
 	private ParticipantsPosition participantsPosition = ParticipantsPosition.LEFT;
 
-	private SlidePreviewPosition previewPosition = SlidePreviewPosition.RIGHT;
+	private ParticipantVideoPosition participantVideoPosition = ParticipantVideoPosition.LEFT;
 
-	private SpeechPosition speechPosition = SpeechPosition.ABOVE_SLIDE_PREVIEW;
+	private SlidePreviewPosition previewPosition = SlidePreviewPosition.RIGHT;
 
 	private String selectedSlideLabelText = "";
 
@@ -387,7 +390,7 @@ public class SwingSlidesView extends JPanel implements SlidesView {
 				}
 
 				if (thumbnailPanel.getDocument().getName().equals(doc.getName())) {
-					// Reload if document has changed.
+					// Reload if a document has changed.
 					if (!thumbnailPanel.getDocument().equals(doc)) {
 						// Prevent tab switching for quiz reloading.
 						thumbnailPanel.setDocument(doc, ppProvider);
@@ -485,7 +488,7 @@ public class SwingSlidesView extends JPanel implements SlidesView {
 				}
 
 				if (thumbnailPanel.getDocument().getName().equals(doc.getName())) {
-					// Reload if document has changed.
+					// Reload if a document has changed.
 					if (!thumbnailPanel.getDocument().equals(doc)) {
 						// Prevent tab switching for quiz reloading.
 						thumbnailPanel.setDocument(doc, ppProvider);
@@ -919,15 +922,15 @@ public class SwingSlidesView extends JPanel implements SlidesView {
 			ExecutableState state = event.getState();
 
 			if (state == ExecutableState.Starting) {
-				peerView = createPeerView(event);
+				remotePeerView = createPeerView(event);
 
-				addPeerView(peerView);
+				addPeerView(remotePeerView);
 
 				currentSpeech = true;
 
-				externalSpeechFrame.showBody();
+				externalParticipantVideoFrame.showBody();
 
-				if (rightTabPane.getPaneTabCount() == 0 && !externalSpeechFrame.isVisible()) {
+				if (rightTabPane.getPaneTabCount() == 0 && !externalParticipantVideoFrame.isVisible()) {
 					maximizeRightTabPane();
 				}
 			}
@@ -956,22 +959,43 @@ public class SwingSlidesView extends JPanel implements SlidesView {
 	}
 
 	@Override
-	public void setVideoFrameEvent(RemoteVideoFrameEvent event) {
-		if (isNull(peerView)) {
+	public void setVideoFrameEvent(LocalVideoFrameEvent event) {
+		if (isNull(localPeerView)) {
 			return;
 		}
 
 		try {
 			peerViewImage = VideoFrameConverter.convertVideoFrameToComponentSize(
-					event.getFrame(), peerViewImage, peerView);
+					event.getFrame(), peerViewImage, localPeerView);
 		}
 		catch (Exception e) {
 			return;
 		}
 
 		SwingUtils.invoke(() -> {
-			if (nonNull(peerView)) {
-				peerView.showImage(peerViewImage);
+			if (nonNull(localPeerView)) {
+				localPeerView.showImage(peerViewImage);
+			}
+		});
+	}
+
+	@Override
+	public void setVideoFrameEvent(RemoteVideoFrameEvent event) {
+		if (isNull(remotePeerView)) {
+			return;
+		}
+
+		try {
+			peerViewImage = VideoFrameConverter.convertVideoFrameToComponentSize(
+					event.getFrame(), peerViewImage, remotePeerView);
+		}
+		catch (Exception e) {
+			return;
+		}
+
+		SwingUtils.invoke(() -> {
+			if (nonNull(remotePeerView)) {
+				remotePeerView.showImage(peerViewImage);
 			}
 		});
 	}
@@ -1066,6 +1090,21 @@ public class SwingSlidesView extends JPanel implements SlidesView {
 	}
 
 	@Override
+	public void setOnExternalParticipantVideoPositionChanged(ConsumerAction<ExternalWindowPosition> action) {
+		this.externalParticipantVideoPositionChangedAction = action;
+	}
+
+	@Override
+	public void setOnExternalParticipantVideoSizeChanged(ConsumerAction<Dimension> action) {
+		this.externalParticipantVideoSizeChangedAction = action;
+	}
+
+	@Override
+	public void setOnExternalParticipantVideoClosed(Action action) {
+		externalParticipantVideoClosedAction = action;
+	}
+
+	@Override
 	public void setOnExternalSlidePreviewPositionChanged(ConsumerAction<ExternalWindowPosition> action) {
 		this.externalSlidePreviewPositionChangedAction = action;
 	}
@@ -1078,21 +1117,6 @@ public class SwingSlidesView extends JPanel implements SlidesView {
 	@Override
 	public void setOnExternalSlidePreviewClosed(Action action) {
 		externalSlidePreviewClosedAction = action;
-	}
-
-	@Override
-	public void setOnExternalSpeechPositionChanged(ConsumerAction<ExternalWindowPosition> action) {
-		this.externalSpeechPositionChangedAction = action;
-	}
-
-	@Override
-	public void setOnExternalSpeechSizeChanged(ConsumerAction<Dimension> action) {
-		this.externalSpeechSizeChangedAction = action;
-	}
-
-	@Override
-	public void setOnExternalSpeechClosed(Action action) {
-		externalSpeechClosedAction = action;
 	}
 
 	@Override
@@ -1191,6 +1215,38 @@ public class SwingSlidesView extends JPanel implements SlidesView {
 	}
 
 	@Override
+	public void showExternalParticipantVideo(Screen screen, Point position, Dimension size) {
+		if (externalParticipantVideoFrame.isVisible()) {
+			return;
+		}
+
+		setParticipantVideoTabVisible(dict.get(PARTICIPANT_VIDEO_LABEL_KEY), false);
+
+		participantVideoPanel.remove(peerViewContainer);
+
+		externalParticipantVideoPane.add(peerViewContainer, BorderLayout.CENTER);
+
+		externalParticipantVideoFrame.updatePosition(screen, position, size);
+		externalParticipantVideoFrame.showBody();
+		externalParticipantVideoFrame.setVisible(true);
+	}
+
+	@Override
+	public void hideExternalParticipantVideo() {
+		if (!externalParticipantVideoFrame.isVisible()) {
+			return;
+		}
+
+		externalParticipantVideoPane.remove(peerViewContainer);
+
+		externalParticipantVideoFrame.setVisible(false);
+
+		participantVideoPanel.add(peerViewContainer);
+
+		setParticipantVideoTabVisible(dict.get(PARTICIPANT_VIDEO_LABEL_KEY), true);
+	}
+
+	@Override
 	public void showExternalSlidePreview(Screen screen, Point position, Dimension size) {
 		if (externalSlidePreviewFrame.isVisible()) {
 			return;
@@ -1205,25 +1261,11 @@ public class SwingSlidesView extends JPanel implements SlidesView {
 		if (previewPosition == SlidePreviewPosition.LEFT) {
 			externalSlidePreviewTabPane.addTabs(leftTabPane.removeTabsByType(AdaptiveTabType.SLIDE));
 
-			leftVbox.remove(leftPeerViewContainer);
-			leftVbox.revalidate();
-			leftVbox.repaint();
-
-			leftPeerViewContainer.setVisible(true);
-
-			externalPreviewBox.add(leftPeerViewContainer);
 			externalPreviewBox.add(externalSlidePreviewTabPane);
 		}
 		else if (previewPosition == SlidePreviewPosition.RIGHT) {
 			externalSlidePreviewTabPane.addTabs(rightTabPane.removeTabsByType(AdaptiveTabType.SLIDE));
 
-			rightVbox.remove(rightPeerViewContainer);
-			rightVbox.revalidate();
-			rightVbox.repaint();
-
-			rightPeerViewContainer.setVisible(true);
-
-			externalPreviewBox.add(rightPeerViewContainer);
 			externalPreviewBox.add(externalSlidePreviewTabPane);
 		}
 
@@ -1273,19 +1315,11 @@ public class SwingSlidesView extends JPanel implements SlidesView {
 			leftTabPane.addTabsBefore(externalSlidePreviewTabPane.removeTabsByType(AdaptiveTabType.SLIDE),
 					AdaptiveTabType.MESSAGE);
 			leftTabPane.setPaneTabSelected(prevSelected);
-
-			leftVbox.add(leftPeerViewContainer);
-
-			leftPeerViewContainer.setVisible(true);
 		}
 		else if (position == SlidePreviewPosition.RIGHT) {
 			rightTabPane.addTabsBefore(externalSlidePreviewTabPane.removeTabsByType(AdaptiveTabType.SLIDE),
 					AdaptiveTabType.MESSAGE);
 			rightTabPane.setPaneTabSelected(prevSelected);
-
-			rightVbox.add(rightPeerViewContainer);
-
-			rightPeerViewContainer.setVisible(true);
 		}
 	}
 
@@ -1298,63 +1332,6 @@ public class SwingSlidesView extends JPanel implements SlidesView {
 			return leftTabPane;
 		}
 		return rightTabPane;
-	}
-
-	@Override
-	public void showExternalSpeech(Screen screen, Point position, Dimension size) {
-		if (externalSpeechFrame.isVisible()) {
-			return;
-		}
-
-		if (previewPosition == SlidePreviewPosition.LEFT) {
-			leftVbox.remove(leftPeerViewContainer);
-			leftVbox.revalidate();
-			leftVbox.repaint();
-
-			leftPeerViewContainer.setVisible(true);
-		}
-		else if (previewPosition == SlidePreviewPosition.RIGHT) {
-			rightVbox.remove(rightPeerViewContainer);
-			rightVbox.revalidate();
-			rightVbox.repaint();
-
-			rightPeerViewContainer.setVisible(true);
-		}
-
-		externalSpeechFrame.updatePosition(screen, position, size);
-		externalSpeechFrame.setVisible(true);
-	}
-
-	@Override
-	public void hideExternalSpeech() {
-		if (!externalSpeechFrame.isVisible()) {
-			return;
-		}
-
-		if (rightTabPane.getPaneTabCount() == 0) {
-			maximizeRightTabPane();
-		}
-
-		externalSpeechFrame.setVisible(false);
-
-		if (previewPosition == SlidePreviewPosition.LEFT) {
-			leftVbox.add(leftPeerViewContainer, 0);
-			leftVbox.revalidate();
-			leftVbox.repaint();
-
-			if (!currentSpeech) {
-				leftPeerViewContainer.setVisible(false);
-			}
-		}
-		else if (previewPosition == SlidePreviewPosition.RIGHT) {
-			rightVbox.add(rightPeerViewContainer, 0);
-			rightVbox.revalidate();
-			rightVbox.repaint();
-
-			if (!currentSpeech) {
-				rightPeerViewContainer.setVisible(false);
-			}
-		}
 	}
 
 	@Override
@@ -1447,6 +1424,20 @@ public class SwingSlidesView extends JPanel implements SlidesView {
 	}
 
 	@Override
+	public void setParticipantVideoPosition(ParticipantVideoPosition position) {
+		if (externalParticipantVideoFrame.isVisible()) {
+			hideExternalParticipantVideo();
+		}
+
+		switch (position) {
+			case LEFT -> showParticipantVideoLeft();
+			case RIGHT -> showParticipantVideoRight();
+		}
+
+		participantVideoPosition = position;
+	}
+
+	@Override
 	public void setPreviewPosition(SlidePreviewPosition position) {
 		SwingUtilities.invokeLater(() -> {
 			if (externalSlidePreviewFrame.isVisible()) {
@@ -1470,15 +1461,6 @@ public class SwingSlidesView extends JPanel implements SlidesView {
 				showNoteSlide(position);
 			}
 		});
-	}
-
-	@Override
-	public void setSpeechPosition(SpeechPosition position) {
-		if (externalSpeechFrame.isVisible()) {
-			hideExternalSpeech();
-		}
-
-		speechPosition = position;
 	}
 
 	@Override
@@ -1714,6 +1696,28 @@ public class SwingSlidesView extends JPanel implements SlidesView {
 		}
 	}
 
+	private void showParticipantVideoLeft() {
+		final boolean prevMinimized = isLeftTabPaneMinimized();
+		leftTabPane.addTabs(removeParticipantVideoTabs());
+
+		if (prevMinimized) {
+			minimizeLeftTabPane();
+		}
+	}
+
+	private void showParticipantVideoRight() {
+		if (participantVideoPosition == ParticipantVideoPosition.RIGHT) {
+			return;
+		}
+
+		final boolean prevMinimized = isRightTabPaneMinimized();
+		rightTabPane.addTabs(removeParticipantVideoTabs());
+
+		if (prevMinimized) {
+			minimizeRightTabPane();
+		}
+	}
+
 	private void showPreviewLeft() {
 		if (previewPosition == SlidePreviewPosition.LEFT) {
 			return;
@@ -1761,20 +1765,11 @@ public class SwingSlidesView extends JPanel implements SlidesView {
 			}
 		};
 
-		if (previewPosition == SlidePreviewPosition.LEFT) {
-			adder.accept(leftPeerViewContainer);
-		}
-		else if (previewPosition == SlidePreviewPosition.RIGHT) {
-			adder.accept(rightPeerViewContainer);
-		}
+		adder.accept(peerViewContainer);
 	}
 
 	private void setPeerViewEvent(PeerStateEvent event) {
-		Container container = previewPosition == SlidePreviewPosition.LEFT
-				? leftPeerViewContainer
-				: rightPeerViewContainer;
-
-		for (var component : container.getComponents()) {
+		for (var component : peerViewContainer.getComponents()) {
 			if (component instanceof PeerView peerView) {
 				if (Objects.equals(peerView.getRequestId(), event.getRequestId())) {
 					peerView.setState(event.getState());
@@ -1785,12 +1780,7 @@ public class SwingSlidesView extends JPanel implements SlidesView {
 	}
 
 	private void removePeerView(UUID requestId) {
-		if (previewPosition == SlidePreviewPosition.LEFT) {
-			removePeerView(requestId, leftPeerViewContainer);
-		}
-		else if (previewPosition == SlidePreviewPosition.RIGHT) {
-			removePeerView(requestId, rightPeerViewContainer);
-		}
+		removePeerView(requestId, peerViewContainer);
 	}
 
 	private void removePeerView(UUID requestId, Container container) {
@@ -1800,7 +1790,7 @@ public class SwingSlidesView extends JPanel implements SlidesView {
 			}
 
 			if (Objects.equals(peerView.getRequestId(), requestId)) {
-				this.peerView = null;
+				this.remotePeerView = null;
 
 				container.setVisible(false);
 				container.remove(peerView);
@@ -1808,8 +1798,6 @@ public class SwingSlidesView extends JPanel implements SlidesView {
 				container.repaint();
 
 				currentSpeech = false;
-
-				externalSpeechFrame.hideBody();
 			}
 		}
 	}
@@ -1874,6 +1862,13 @@ public class SwingSlidesView extends JPanel implements SlidesView {
 		}
 	}
 
+	private void setParticipantVideoTabVisible(String labelText, boolean visible) {
+		switch (participantVideoPosition) {
+			case RIGHT -> setRightTabVisible(labelText, visible);
+			case LEFT -> setLeftTabVisible(labelText, visible);
+		}
+	}
+
 	private void setNotesBarTabVisible(String labelText, boolean visible) {
 		switch (slideNotesPosition) {
 			case BOTTOM -> setBottomTabVisible(labelText, visible);
@@ -1925,18 +1920,6 @@ public class SwingSlidesView extends JPanel implements SlidesView {
 		}
 	}
 
-	private List<AdaptiveTab> removeMessageBarTabs() {
-		final ArrayList<AdaptiveTab> removedTabs = new ArrayList<>();
-
-		switch (messageBarPosition) {
-			case BOTTOM -> removedTabs.addAll(bottomTabPane.removeTabsByType(AdaptiveTabType.MESSAGE));
-			case LEFT -> removedTabs.addAll(leftTabPane.removeTabsByType(AdaptiveTabType.MESSAGE));
-			case RIGHT -> removedTabs.addAll(rightTabPane.removeTabsByType(AdaptiveTabType.MESSAGE));
-		}
-
-		return removedTabs;
-	}
-
 	private void setMessageBarTabEnabled(String labelText, boolean enable) {
 		switch (messageBarPosition) {
 			case BOTTOM -> {
@@ -1977,33 +1960,31 @@ public class SwingSlidesView extends JPanel implements SlidesView {
 		}
 	}
 
-	private List<AdaptiveTab> removeNotesBarTabs() {
-		final ArrayList<AdaptiveTab> removedTabs = new ArrayList<>();
+	private List<AdaptiveTab> removeMessageBarTabs() {
+		return removeTabs(AdaptiveTabType.MESSAGE, bottomTabPane, leftTabPane, rightTabPane);
+	}
 
-		switch (slideNotesPosition) {
-			case BOTTOM -> removedTabs.addAll(bottomTabPane.removeTabsByType(AdaptiveTabType.NOTES));
-			case LEFT -> removedTabs.addAll(leftTabPane.removeTabsByType(AdaptiveTabType.NOTES));
-		}
-		return removedTabs;
+	private List<AdaptiveTab> removeNotesBarTabs() {
+		return removeTabs(AdaptiveTabType.NOTES, bottomTabPane, leftTabPane);
 	}
 
 	private List<AdaptiveTab> removeParticipantsTabs() {
-		final ArrayList<AdaptiveTab> removedTabs = new ArrayList<>();
+		return removeTabs(AdaptiveTabType.PARTICIPANTS, leftTabPane, rightTabPane);
+	}
 
-		switch (participantsPosition) {
-			case LEFT -> removedTabs.addAll(leftTabPane.removeTabsByType(AdaptiveTabType.PARTICIPANTS));
-			case RIGHT -> removedTabs.addAll(rightTabPane.removeTabsByType(AdaptiveTabType.PARTICIPANTS));
-		}
-
-		return removedTabs;
+	private List<AdaptiveTab> removeParticipantVideoTabs() {
+		return removeTabs(AdaptiveTabType.PARTICIPANT_VIDEO, leftTabPane, rightTabPane);
 	}
 
 	private List<AdaptiveTab> removePreviewTabs() {
+		return removeTabs(AdaptiveTabType.SLIDE, leftTabPane, rightTabPane);
+	}
+
+	private List<AdaptiveTab> removeTabs(AdaptiveTabType tabType, AdaptiveTabbedPane... panes) {
 		final ArrayList<AdaptiveTab> removedTabs = new ArrayList<>();
 
-		switch (previewPosition) {
-			case LEFT -> removedTabs.addAll(leftTabPane.removeTabsByType(AdaptiveTabType.SLIDE));
-			case RIGHT -> removedTabs.addAll(rightTabPane.removeTabsByType(AdaptiveTabType.SLIDE));
+		for (AdaptiveTabbedPane pane : panes) {
+			removedTabs.addAll(pane.removeTabsByType(tabType));
 		}
 
 		return removedTabs;
@@ -2041,7 +2022,8 @@ public class SwingSlidesView extends JPanel implements SlidesView {
 	}
 
 	private void minimizeRightTabPane(boolean saveOldRatio) {
-		if (currentSpeech && !externalSpeechFrame.isVisible()) {
+		// TODO: check video position
+		if (currentSpeech && !externalParticipantVideoFrame.isVisible()) {
 			return;
 		}
 
@@ -2362,18 +2344,17 @@ public class SwingSlidesView extends JPanel implements SlidesView {
 				position -> executeAction(externalParticipantsPositionChangedAction, position),
 				size -> executeAction(externalParticipantsSizeChangedAction, size));
 
+		externalParticipantVideoFrame = createExternalFrame(dict.get(PARTICIPANT_VIDEO_LABEL_KEY), externalParticipantVideoPane,
+				"", new Dimension(280, 600),
+				() -> executeAction(externalParticipantVideoClosedAction),
+				position -> executeAction(externalParticipantVideoPositionChangedAction, position),
+				size -> executeAction(externalParticipantVideoSizeChangedAction, size));
+
 		externalSlidePreviewFrame = createExternalFrame(dict.get(SLIDES_PREVIEW_LABEL_KEY), externalPreviewBox,
 				"", new Dimension(300, 700),
 				() -> executeAction(externalSlidePreviewClosedAction),
 				position -> executeAction(externalSlidePreviewPositionChangedAction, position),
 				size -> executeAction(externalSlidePreviewSizeChangedAction, size));
-
-		externalSpeechFrame = createExternalFrame(dict.get(SPEECH_LABEL_KEY), rightPeerViewContainer,
-				dict.get(CURRENTLY_NO_SPEECH_LABEL_KEY),
-				new Dimension(1000, 500),
-				() -> executeAction(externalSpeechClosedAction),
-				position -> executeAction(externalSpeechPositionChangedAction, position),
-				size -> executeAction(externalSpeechSizeChangedAction, size));
 
 		externalNotesFrame = createExternalFrame(dict.get(NOTES_LABEL_KEY), externalNotesPane, "",
 				new Dimension(500, 400),

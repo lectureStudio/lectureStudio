@@ -77,10 +77,6 @@ public interface MenuView extends View {
 
 	void setOnCustomizeToolbar(Action action);
 
-	void setSpeechPosition(SpeechPosition position);
-
-	void setOnSpeechPosition(ConsumerAction<SpeechPosition> action);
-
 	void setMessagesPosition(MessageBarPosition position);
 
 	void setOnMessagesPosition(ConsumerAction<MessageBarPosition> action);
@@ -96,6 +92,10 @@ public interface MenuView extends View {
 	void setParticipantsPosition(ParticipantsPosition position);
 
 	void setOnParticipantsPosition(ConsumerAction<ParticipantsPosition> action);
+
+	void setParticipantVideoPosition(ParticipantVideoPosition position);
+
+	void setOnParticipantVideoPosition(ConsumerAction<ParticipantVideoPosition> action);
 
 	void setSlidePreviewPosition(SlidePreviewPosition position);
 

@@ -34,7 +34,6 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Timer;
 import java.util.TimerTask;
-import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 import java.util.function.BiConsumer;
 
@@ -102,6 +101,7 @@ import org.lecturestudio.presenter.api.service.*;
 import org.lecturestudio.presenter.api.view.SlidesView;
 import org.lecturestudio.swing.model.ExternalWindowPosition;
 import org.lecturestudio.web.api.event.LocalScreenVideoFrameEvent;
+import org.lecturestudio.web.api.event.LocalVideoFrameEvent;
 import org.lecturestudio.web.api.event.PeerStateEvent;
 import org.lecturestudio.web.api.event.RemoteVideoFrameEvent;
 import org.lecturestudio.web.api.message.CoursePresenceMessage;
@@ -422,6 +422,11 @@ public class SlidesPresenter extends Presenter<SlidesView> {
 	}
 
 	@Subscribe
+	public void onEvent(LocalVideoFrameEvent event) {
+		view.setVideoFrameEvent(event);
+	}
+
+	@Subscribe
 	public void onEvent(RemoteVideoFrameEvent event) {
 		view.setVideoFrameEvent(event);
 	}
@@ -698,15 +703,7 @@ public class SlidesPresenter extends Presenter<SlidesView> {
 		PresenterContext presenterContext = (PresenterContext) context;
 		presenterContext.getSpeechRequests().remove(message);
 
-		UUID requestId = message.getRequestId();
-		String userName = String.format("%s %s", message.getFirstName(),
-				message.getFamilyName());
-
-		PeerStateEvent event = new PeerStateEvent(requestId, userName,
-				ExecutableState.Starting);
-
 		view.removeSpeechRequest(message);
-		view.setPeerStateEvent(event);
 	}
 
 	private void onRejectSpeech(SpeechBaseMessage message) {

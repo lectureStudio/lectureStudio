@@ -53,7 +53,6 @@ import org.lecturestudio.web.api.janus.message.JanusRoomPublisherJoiningMessage;
 import org.lecturestudio.web.api.janus.message.JanusRoomPublisherLeftMessage;
 import org.lecturestudio.web.api.janus.message.JanusSessionMessage;
 import org.lecturestudio.web.api.janus.message.JanusSessionTimeoutMessage;
-import org.lecturestudio.web.api.janus.state.DestroyRoomState;
 import org.lecturestudio.web.api.janus.state.InfoState;
 import org.lecturestudio.web.api.stream.StreamEventRecorder;
 import org.lecturestudio.web.api.stream.action.StreamSpeechPublishedAction;
@@ -119,6 +118,8 @@ public class JanusHandler extends JanusStateHandler {
 		speechPublishers.put(requestId, speechPublisher);
 
 		editRoom(3);
+
+		sendPeerState(new PeerStateEvent(requestId, userName, ExecutableState.Starting));
 	}
 
 	public void stopRemoteSpeech(UUID requestId) {
@@ -362,11 +363,13 @@ public class JanusHandler extends JanusStateHandler {
 			@Override
 			public void connected() {
 				setConnected();
+				sendOwnPeerState(ExecutableState.Started);
 			}
 
 			@Override
 			public void disconnected() {
 				setDisconnected();
+				sendOwnPeerState(ExecutableState.Stopped);
 			}
 
 			@Override
@@ -383,6 +386,8 @@ public class JanusHandler extends JanusStateHandler {
 		});
 
 		addStateHandler(pubHandler);
+
+		sendOwnPeerState(ExecutableState.Starting);
 	}
 
 	private void startSubscriber(final JanusPublisher publisher, final UUID requestId) {
@@ -441,6 +446,13 @@ public class JanusHandler extends JanusStateHandler {
 		});
 
 		addStateHandler(subHandler);
+	}
+
+	private void sendOwnPeerState(ExecutableState state) {
+		PeerStateEvent event = new PeerStateEvent(BigInteger.ZERO, getStreamContext().getUserInfo().getFullName(), state);
+		event.setHasVideo(getStreamContext().getVideoContext().getSendVideo());
+
+		sendPeerState(event);
 	}
 
 	private void sendPeerState(PeerStateEvent event) {

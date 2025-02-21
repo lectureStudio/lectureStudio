@@ -100,6 +100,7 @@ import org.lecturestudio.swing.util.SwingUtils;
 import org.lecturestudio.swing.util.VideoFrameConverter;
 import org.lecturestudio.swing.view.SwingView;
 import org.lecturestudio.swing.view.ViewPostConstruct;
+import org.lecturestudio.web.api.event.LocalVideoFrameEvent;
 import org.lecturestudio.web.api.event.PeerStateEvent;
 import org.lecturestudio.web.api.event.RemoteVideoFrameEvent;
 import org.lecturestudio.web.api.message.MessengerMessage;
@@ -231,7 +232,8 @@ public class SwingSlidesView extends JPanel implements SlidesView {
 
 	private BufferedImage peerViewImage;
 
-	private PeerView peerView;
+	private PeerView localPeerView;
+	private PeerView remotePeerView;
 
 	private Container peerViewContainer;
 
@@ -920,9 +922,9 @@ public class SwingSlidesView extends JPanel implements SlidesView {
 			ExecutableState state = event.getState();
 
 			if (state == ExecutableState.Starting) {
-				peerView = createPeerView(event);
+				remotePeerView = createPeerView(event);
 
-				addPeerView(peerView);
+				addPeerView(remotePeerView);
 
 				currentSpeech = true;
 
@@ -957,22 +959,43 @@ public class SwingSlidesView extends JPanel implements SlidesView {
 	}
 
 	@Override
-	public void setVideoFrameEvent(RemoteVideoFrameEvent event) {
-		if (isNull(peerView)) {
+	public void setVideoFrameEvent(LocalVideoFrameEvent event) {
+		if (isNull(localPeerView)) {
 			return;
 		}
 
 		try {
 			peerViewImage = VideoFrameConverter.convertVideoFrameToComponentSize(
-					event.getFrame(), peerViewImage, peerView);
+					event.getFrame(), peerViewImage, localPeerView);
 		}
 		catch (Exception e) {
 			return;
 		}
 
 		SwingUtils.invoke(() -> {
-			if (nonNull(peerView)) {
-				peerView.showImage(peerViewImage);
+			if (nonNull(localPeerView)) {
+				localPeerView.showImage(peerViewImage);
+			}
+		});
+	}
+
+	@Override
+	public void setVideoFrameEvent(RemoteVideoFrameEvent event) {
+		if (isNull(remotePeerView)) {
+			return;
+		}
+
+		try {
+			peerViewImage = VideoFrameConverter.convertVideoFrameToComponentSize(
+					event.getFrame(), peerViewImage, remotePeerView);
+		}
+		catch (Exception e) {
+			return;
+		}
+
+		SwingUtils.invoke(() -> {
+			if (nonNull(remotePeerView)) {
+				remotePeerView.showImage(peerViewImage);
 			}
 		});
 	}
@@ -1767,7 +1790,7 @@ public class SwingSlidesView extends JPanel implements SlidesView {
 			}
 
 			if (Objects.equals(peerView.getRequestId(), requestId)) {
-				this.peerView = null;
+				this.remotePeerView = null;
 
 				container.setVisible(false);
 				container.remove(peerView);

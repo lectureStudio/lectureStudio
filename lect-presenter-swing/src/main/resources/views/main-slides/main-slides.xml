@@ -54,7 +54,7 @@
 				<AdaptiveTabbedPane id="rightTabPane" tabPlacement="JTabbedPane.RIGHT" defaultTabType="AdaptiveTabType.SLIDE" focusTraversable="false">
 					<Tab id="participantVideoTab" name="participantVideo" text="slides.participant.video" defaultTabType="AdaptiveTabType.PARTICIPANT_VIDEO">
 						<Panel id="participantVideoPanel" layout="BorderLayout">
-							<Panel id="peerViewContainer" layout="BorderLayout" />
+							<Panel id="peerViewContainer" layout="FlowLayout" />
 						</Panel>
 					</Tab>
 				</AdaptiveTabbedPane>

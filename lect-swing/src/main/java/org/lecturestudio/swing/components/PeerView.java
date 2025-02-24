@@ -21,15 +21,10 @@ package org.lecturestudio.swing.components;
 import static java.util.Objects.isNull;
 import static java.util.Objects.nonNull;
 
-import java.awt.BorderLayout;
-import java.awt.Color;
-import java.awt.Graphics;
-import java.awt.Graphics2D;
-import java.awt.GridBagConstraints;
-import java.awt.GridBagLayout;
-import java.awt.Image;
+import java.awt.*;
 import java.awt.event.ItemEvent;
 import java.awt.geom.AffineTransform;
+import java.math.BigInteger;
 import java.util.UUID;
 
 import javax.swing.Box;
@@ -73,6 +68,8 @@ public class PeerView extends JComponent {
 
 	private Image image;
 
+	private BigInteger peerId;
+
 	private UUID requestId;
 
 
@@ -107,6 +104,7 @@ public class PeerView extends JComponent {
 
 		stopConnectionButton = new JButton(dict.get("button.end"));
 		stopConnectionButton.setBackground(Color.decode("#FEE2E2"));
+		stopConnectionButton.setVisible(false);
 
 		buttonsBox = Box.createHorizontalBox();
 		buttonsBox.setBorder(new EmptyBorder(0, 5, 0, 5));
@@ -228,7 +226,25 @@ public class PeerView extends JComponent {
 	 * @param id The unique request ID of the peer.
 	 */
 	public void setRequestId(UUID id) {
-		this.requestId = id;
+		requestId = id;
+
+		stopConnectionButton.setVisible(nonNull(id));
+	}
+
+	/**
+	 * @return The unique ID of the peer.
+	 */
+	public BigInteger getPeerId() {
+		return peerId;
+	}
+
+	/**
+	 * Set the peer's unique ID.
+	 *
+	 * @param id The unique ID of the remote peer.
+	 */
+	public void setPeerId(BigInteger id) {
+		peerId = id;
 	}
 
 	/**

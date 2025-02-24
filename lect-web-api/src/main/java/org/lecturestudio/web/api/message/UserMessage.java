@@ -33,4 +33,8 @@ public abstract class UserMessage extends WebMessage {
 
 	private String familyName;
 
+
+	public String getFullName() {
+		return firstName + " " + familyName;
+	}
 }

@@ -703,7 +703,7 @@ public class SlidesPresenter extends Presenter<SlidesView> {
 		PresenterContext presenterContext = (PresenterContext) context;
 		presenterContext.getSpeechRequests().remove(message);
 
-		view.removeSpeechRequest(message);
+		view.acceptSpeechRequest(message);
 	}
 
 	private void onRejectSpeech(SpeechBaseMessage message) {

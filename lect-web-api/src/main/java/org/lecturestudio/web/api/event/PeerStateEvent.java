@@ -109,4 +109,14 @@ public class PeerStateEvent extends ExecutableEvent {
 	public void setHasVideo(boolean active) {
 		this.hasVideo = active;
 	}
+
+	@Override
+	public String toString() {
+		return "PeerStateEvent{" +
+				"peerId=" + peerId +
+				", peerName='" + peerName + '\'' +
+				", requestId=" + requestId +
+				", hasVideo=" + hasVideo +
+				'}';
+	}
 }

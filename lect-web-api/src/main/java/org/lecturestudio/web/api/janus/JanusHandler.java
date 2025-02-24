@@ -86,10 +86,21 @@ public class JanusHandler extends JanusStateHandler {
 		this.eventRecorder = eventRecorder;
 	}
 
+	/**
+	 * Sets the consumer that is called when a speech request is rejected.
+	 *
+	 * @param consumer The consumer to be called.
+	 */
 	public void setRejectedConsumer(Consumer<UUID> consumer) {
 		this.rejectedConsumer = consumer;
 	}
 
+	/**
+	 * Starts a remote speech.
+	 *
+	 * @param requestId The unique request ID of the speech request.
+	 * @param userName The name of the user.
+	 */
 	public void startRemoteSpeech(UUID requestId, String userName) {
 		if (!started()) {
 			return;
@@ -119,9 +130,14 @@ public class JanusHandler extends JanusStateHandler {
 
 		editRoom(3);
 
-		sendPeerState(new PeerStateEvent(requestId, userName, ExecutableState.Starting));
+		sendPeerState(new PeerStateEvent(BigInteger.ZERO, requestId, userName, ExecutableState.Starting));
 	}
 
+	/**
+	 * Stops a remote speech.
+	 *
+	 * @param requestId The unique request ID of the speech request.
+	 */
 	public void stopRemoteSpeech(UUID requestId) {
 		if (!started()) {
 			return;
@@ -140,9 +156,7 @@ public class JanusHandler extends JanusStateHandler {
 			sendPeerState(event);
 
 			for (JanusStateHandler handler : handlers) {
-				if (handler instanceof JanusSubscriberHandler) {
-					JanusSubscriberHandler subHandler = (JanusSubscriberHandler) handler;
-
+				if (handler instanceof JanusSubscriberHandler subHandler) {
 					if (subHandler.getPublisher().equals(speechPublisher)) {
 						removeStateHandler(handler);
 						break;
@@ -268,6 +282,11 @@ public class JanusHandler extends JanusStateHandler {
 
 	}
 
+	/**
+	 * Adds a state handler to the list of state handlers.
+	 *
+	 * @param handler The state handler to be added.
+	 */
 	private void addStateHandler(JanusStateHandler handler) {
 		try {
 			handler.start();
@@ -279,6 +298,11 @@ public class JanusHandler extends JanusStateHandler {
 		}
 	}
 
+	/**
+	 * Removes a state handler from the list of state handlers.
+	 *
+	 * @param handler The state handler to be removed.
+	 */
 	private void removeStateHandler(JanusStateHandler handler) {
 		handlers.remove(handler);
 
@@ -294,6 +318,14 @@ public class JanusHandler extends JanusStateHandler {
 		}
 	}
 
+	/**
+	 * Registers a message handler for the specified message class.
+	 *
+	 * @param msgClass The message class.
+	 * @param handler The message handler.
+	 *
+	 * @param <T> The message type.
+	 */
 	private <T extends JanusMessage> void registerHandler(Class<T> msgClass,
 			Consumer<T> handler) {
 		messageHandlers.put(msgClass, handler);
@@ -406,7 +438,7 @@ public class JanusHandler extends JanusStateHandler {
 				JanusPeerConnection peerConnection = subHandler.getPeerConnection();
 				boolean hasVideo = peerConnection.isReceivingVideo();
 
-				var event = new PeerStateEvent(requestId,
+				var event = new PeerStateEvent(subHandler.getPublisher().getId(), requestId,
 						subHandler.getPublisher().getDisplayName(),
 						ExecutableState.Started);
 				event.setHasVideo(hasVideo);
@@ -429,7 +461,7 @@ public class JanusHandler extends JanusStateHandler {
 
 			@Override
 			public void disconnected() {
-				var event = new PeerStateEvent(requestId,
+				var event = new PeerStateEvent(subHandler.getPublisher().getId(), requestId,
 						subHandler.getPublisher().getDisplayName(),
 						ExecutableState.Stopped);
 

@@ -114,6 +114,8 @@ public interface SlidesView extends View {
 
 	void addSpeechRequest(SpeechBaseMessage message);
 
+	void acceptSpeechRequest(SpeechBaseMessage message);
+
 	void removeSpeechRequest(SpeechBaseMessage message);
 
 	void setOnDiscardMessage(ConsumerAction<MessengerMessage> action);

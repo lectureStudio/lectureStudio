@@ -176,7 +176,7 @@ public class WebRtcStreamService extends ExecutableBase {
 		}
 
 		UUID requestId = message.getRequestId();
-		String userName = message.getUserId();
+		String userName = message.getFullName();
 
 		janusSignalingClient.startRemoteSpeech(requestId, userName);
 		streamProviderService.acceptSpeechRequest(requestId);

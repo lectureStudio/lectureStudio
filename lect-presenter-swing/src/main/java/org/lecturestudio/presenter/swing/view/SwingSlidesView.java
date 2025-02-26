@@ -2197,7 +2197,7 @@ public class SwingSlidesView extends JPanel implements SlidesView {
 
 		noneTabPane = new AdaptiveTabbedPane();
 
-		peerViewContainer.setLayout(new VideoTileLayout(10, 10));
+		peerViewContainer.setLayout(new VideoTileLayout(5));
 
 		leftTabPane.addChangeListener(new AdaptiveTabbedPaneChangeListener() {
 

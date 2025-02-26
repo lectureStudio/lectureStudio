@@ -18,124 +18,137 @@
 
 package org.lecturestudio.swing.layout;
 
+import javax.swing.*;
 import java.awt.*;
 
 /**
- *  FlowLayout subclass that supports wrapping of components.
+ * VideoTileLayout is a custom LayoutManager that arranges components in a tiled grid,
+ * optimized for video conferencing or similar applications where multiple video feeds need
+ * to be displayed. It dynamically calculates the optimal number of rows and columns based
+ * on the available space and the number of components to maintain a balanced layout.
+ * <p>
+ * The layout attempts to center the tiles within the container, with a specified padding
+ * between each tile. The tile sizes are calculated to maximize the use of the available space.
+ *
+ * @author Alex Andres
  */
-public class VideoTileLayout extends FlowLayout {
+public class VideoTileLayout implements LayoutManager {
 
+	/** Padding between components in pixels. */
+	private final int padding;
+
+
+	/**
+	 * Constructs a VideoTileLayout with default padding of 5 pixels.
+	 */
 	public VideoTileLayout() {
-		this(FlowLayout.CENTER, 5, 5);
+		this(5);
 	}
 
-	public VideoTileLayout(int hgap, int vgap) {
-		super(FlowLayout.CENTER, hgap, vgap);
-	}
-
-	public VideoTileLayout(int align, int hgap, int vgap) {
-		super(align, hgap, vgap);
-	}
-
-	@Override
-	public Dimension minimumLayoutSize(Container target) {
-		// Size of largest component, so we can resize it in
-		// either direction with something like a split-pane.
-		return computeMinSize(target);
+	/**
+	 * Constructs a VideoTileLayout with the specified padding between components.
+	 *
+	 * @param padding the padding in pixels between components
+	 */
+	public VideoTileLayout(int padding) {
+		this.padding = padding;
 	}
 
 	@Override
-	public Dimension preferredLayoutSize(Container target) {
-		return computeSize(target);
+	public void addLayoutComponent(String name, Component comp) {
+		// Not needed for this implementation.
 	}
 
-	private Dimension computeSize(Container target) {
+	@Override
+	public void removeLayoutComponent(Component comp) {
+		// Not needed for this implementation.
+	}
+
+	@Override
+	public Dimension preferredLayoutSize(Container parent) {
+		return new Dimension(800, 600);
+	}
+
+	@Override
+	public Dimension minimumLayoutSize(Container parent) {
+		return new Dimension(10, 10);
+	}
+
+	@Override
+	public void layoutContainer(Container target) {
 		synchronized (target.getTreeLock()) {
-			int hgap = getHgap();
-			int vgap = getVgap();
-			int w = target.getWidth();
+			int availableWidth = target.getWidth();
+			int availableHeight = target.getHeight();
 
-			// Let this behave like a regular FlowLayout (single row)
-			// if the container hasn't been assigned any size yet.
-			if (w == 0) {
-				w = Integer.MAX_VALUE;
+			if (availableWidth <= 0 || availableHeight <= 0) {
+				return;
 			}
 
 			Insets insets = target.getInsets();
-			if (insets == null) {
-				insets = new Insets(0, 0, 0, 0);
-			}
+			int maxWidth = availableWidth - (insets.left + insets.right);
+			int maxHeight = availableHeight - (insets.top + insets.bottom);
 
-			int reqdWidth = 0;
-			int maxWidth = w - (insets.left + insets.right + hgap * 2);
-			int n = target.getComponentCount();
-			int x = 0;
-			int y = insets.top + vgap;
-			int rowHeight = 0;
+			int participantCount = target.getComponents().length;
 
-			System.out.println("maxWidth: " + maxWidth);
+			// Calculate the optimal tile layout.
+			VideoTileCalculator.TileLayout layout = VideoTileCalculator.calculateOptimalLayout(
+					maxWidth,
+					maxHeight,
+					participantCount,
+					padding
+			);
 
-			for (int i = 0; i < n; i++) {
-				Component c = target.getComponent(i);
-
-				if (c.isVisible()) {
-					Dimension d = c.getPreferredSize();
-
-					System.out.println(d);
-
-					if ((x == 0) || ((x + d.width) <= maxWidth)) {
-						System.out.println("Fits in current row.");
-
-						// Fits in current row.
-						if (x > 0) {
-							x += hgap;
-						}
-						x += d.width;
-						rowHeight = Math.max(rowHeight, d.height);
+			// Position each component.
+			int participantIndex = 0;
+			for (int row = 0; row < layout.rows(); row++) {
+				for (int col = 0; col < layout.cols(); col++) {
+					if (participantIndex >= participantCount) {
+						break;
 					}
-					else {
-						System.out.println("Start of new row.");
 
-						// Start of new row.
-						x = d.width;
-						y += vgap + rowHeight;
-						rowHeight = d.height;
+					Component comp = target.getComponent(participantIndex);
+					if (!comp.isVisible()) {
+						continue;
 					}
-					reqdWidth = Math.max(reqdWidth, x);
+
+					int cols = layout.cols();
+
+					if (row == layout.rows() - 1) {
+						// Calculate the number of columns for the last row.
+						cols = participantCount - (layout.rows() - 1) * layout.cols();
+					}
+
+					// Calculate the total width needed for all columns.
+					double totalWidth = cols * layout.tileWidth() + (cols + 1) * padding;
+					// Calculate the left offset to center the tiles horizontally.
+					int leftOffset = (int) ((maxWidth - totalWidth) / 2);
+
+					// Calculate position for current tile
+					int x = insets.left + padding + col * (layout.tileWidth() + padding) + leftOffset;
+					int y = insets.top + padding + row * (layout.tileHeight() + padding);
+
+					comp.setBounds(x, y, layout.tileWidth(), layout.tileHeight());
+
+					participantIndex++;
 				}
 			}
-
-			y += rowHeight;
-			y += insets.bottom;
-
-			return new Dimension(reqdWidth + insets.left + insets.right, y);
 		}
 	}
 
-	private Dimension computeMinSize(Container target) {
-		synchronized (target.getTreeLock()) {
-			int minx = Integer.MAX_VALUE;
-			int miny = Integer.MIN_VALUE;
-			boolean found_one = false;
-			int n = target.getComponentCount();
+	public static void main(String[] args) {
+		JFrame frame = new JFrame("Resizable FlowLayout Example");
+		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		frame.setSize(600, 400);
 
-			for (int i = 0; i < n; i++) {
-				Component c = target.getComponent(i);
-				
-				if (c.isVisible()) {
-					found_one = true;
-					Dimension d = c.getPreferredSize();
-					minx = Math.min(minx, d.width);
-					miny = Math.min(miny, d.height);
-				}
-			}
-			
-			if (found_one) {
-				return new Dimension(minx, miny);
-			}
-			
-			return new Dimension(0, 0);
+		JPanel panel = new JPanel(new VideoTileLayout());
+		panel.setBackground(Color.LIGHT_GRAY);
+
+		for (int i = 0; i < 5; i++) {
+			JButton button = new JButton("Button " + (i + 1));
+			panel.add(button);
 		}
-	}
 
+		frame.add(panel);
+		frame.setVisible(true);
+	}
 }

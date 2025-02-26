@@ -20,6 +20,8 @@ package org.lecturestudio.web.api.event;
 
 import dev.onvoid.webrtc.media.video.VideoFrame;
 
+import java.math.BigInteger;
+
 /**
  * A VideoFrameEvent containing a VideoFrame that was received from a remote
  * video track.
@@ -31,9 +33,10 @@ public class RemoteVideoFrameEvent extends VideoFrameEvent {
 	/**
 	 * Creates a new RemoteVideoFrameEvent with the specified video frame.
 	 *
-	 * @param frame The video frame received from a remote video track.
+	 * @param frame  The video frame received from a local or remote video track.
+	 * @param peerId The unique identifier assigned to the video frame publisher.
 	 */
-	public RemoteVideoFrameEvent(VideoFrame frame) {
-		super(frame);
+	public RemoteVideoFrameEvent(VideoFrame frame, BigInteger peerId) {
+		super(frame, peerId);
 	}
 }

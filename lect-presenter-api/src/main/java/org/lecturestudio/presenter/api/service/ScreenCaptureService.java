@@ -25,6 +25,7 @@ import dev.onvoid.webrtc.media.video.desktop.DesktopSource;
 import dev.onvoid.webrtc.media.video.desktop.ScreenCapturer;
 import dev.onvoid.webrtc.media.video.desktop.WindowCapturer;
 
+import java.math.BigInteger;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
@@ -86,7 +87,7 @@ public class ScreenCaptureService extends ExecutableBase {
 			capturer.selectSource(new DesktopSource(source.getTitle(), source.getId()));
 			capturer.setFocusSelectedSource(true);
 			capturer.start((result, videoFrame) -> {
-				context.getEventBus().post(new LocalScreenVideoFrameEvent(videoFrame));
+				context.getEventBus().post(new LocalScreenVideoFrameEvent(videoFrame, BigInteger.ZERO));
 			});
 		}
 		catch (Exception | Error e) {

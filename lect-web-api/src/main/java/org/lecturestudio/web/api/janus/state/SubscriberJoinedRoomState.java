@@ -64,8 +64,13 @@ public class SubscriberJoinedRoomState implements JanusState {
 	private JanusRoomSubscribeMessage subscribeRequest;
 
 
-	public SubscriberJoinedRoomState(RTCSessionDescription offer,
-			JanusPublisher publisher) {
+	/**
+	 * Creates a new instance of SubscriberJoinedRoomState for subscribing to a publisher in a Janus video room.
+	 *
+	 * @param offer     the WebRTC session description containing the remote media offer.
+	 * @param publisher the Janus publisher to subscribe to.
+	 */
+	public SubscriberJoinedRoomState(RTCSessionDescription offer, JanusPublisher publisher) {
 		this.offer = offer;
 		this.publisher = publisher;
 	}
@@ -93,7 +98,7 @@ public class SubscriberJoinedRoomState implements JanusState {
 		});
 		peerConnection.setOnRemoteVideoFrame(videoFrame -> {
 			if (nonNull(videoFrameConsumer)) {
-				videoFrameConsumer.accept(new RemoteVideoFrameEvent(videoFrame));
+				videoFrameConsumer.accept(new RemoteVideoFrameEvent(videoFrame, publisher.getId()));
 			}
 		});
 		peerConnection.setAudioTrackSink((data, bitsPerSample, sampleRate, channels, frames) -> {

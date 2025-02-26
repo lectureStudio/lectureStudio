@@ -24,9 +24,9 @@ import static java.util.Objects.nonNull;
 import java.awt.*;
 import java.awt.event.ItemEvent;
 import java.awt.geom.AffineTransform;
-import java.math.BigInteger;
-import java.util.UUID;
+import java.awt.image.BufferedImage;
 
+import javax.inject.Inject;
 import javax.swing.Box;
 import javax.swing.JButton;
 import javax.swing.JComponent;
@@ -36,11 +36,15 @@ import javax.swing.JToggleButton;
 import javax.swing.SwingConstants;
 import javax.swing.border.EmptyBorder;
 
+import dev.onvoid.webrtc.media.video.VideoFrame;
 import org.lecturestudio.core.ExecutableState;
 import org.lecturestudio.core.app.dictionary.Dictionary;
+import org.lecturestudio.core.view.Action;
 import org.lecturestudio.core.view.ConsumerAction;
 import org.lecturestudio.swing.AwtResourceLoader;
 import org.lecturestudio.swing.util.SwingUtils;
+import org.lecturestudio.swing.util.VideoFrameConverter;
+import org.lecturestudio.swing.view.PeerView;
 
 /**
  * The PeerView displays the remote peers video, if activated, and buttons to
@@ -48,7 +52,7 @@ import org.lecturestudio.swing.util.SwingUtils;
  *
  * @author Alex Andres
  */
-public class PeerView extends JComponent {
+public class SwingPeerView extends JComponent implements PeerView {
 
 	private final Dictionary dict;
 
@@ -66,17 +70,14 @@ public class PeerView extends JComponent {
 
 	private ExecutableState peerState;
 
-	private Image image;
-
-	private BigInteger peerId;
-
-	private UUID requestId;
+	private BufferedImage image;
 
 
 	/**
 	 * Creates a new PeerView.
 	 */
-	public PeerView(Dictionary dict) {
+	@Inject
+	public SwingPeerView(Dictionary dict) {
 		this.dict = dict;
 
 		setBorder(new EmptyBorder(0, 0, 0, 0));
@@ -104,7 +105,6 @@ public class PeerView extends JComponent {
 
 		stopConnectionButton = new JButton(dict.get("button.end"));
 		stopConnectionButton.setBackground(Color.decode("#FEE2E2"));
-		stopConnectionButton.setVisible(false);
 
 		buttonsBox = Box.createHorizontalBox();
 		buttonsBox.setBorder(new EmptyBorder(0, 5, 0, 5));
@@ -131,44 +131,37 @@ public class PeerView extends JComponent {
 		add(buttonsBox, BorderLayout.SOUTH);
 	}
 
-	public void setOnMuteAudio(ConsumerAction<Boolean> action) {
-		SwingUtils.bindAction(muteAudioButton, action);
+	@Override
+	public void setPeerName(String name) {
+		SwingUtils.invoke(() -> nameLabel.setText(name));
 	}
 
-	public void setOnMuteVideo(ConsumerAction<Boolean> action) {
-		SwingUtils.bindAction(muteVideoButton, action);
-	}
+	@Override
+	public void setVideoFrame(VideoFrame frame) {
+		SwingUtils.invoke(() -> {
+			if (!muteVideoButton.isSelected()) {
+				return;
+			}
 
-	public void setOnStopPeerConnection(ConsumerAction<UUID> action) {
-		stopConnectionButton.addActionListener(e -> {
-			action.execute(requestId);
+			try {
+				image = VideoFrameConverter.convertVideoFrameToComponentSize(frame, image, this);
+			}
+			catch (Exception e) {
+				return;
+			}
+
+			repaint();
 		});
 	}
 
-	/**
-	 * Display the provided image.
-	 *
-	 * @param image The image to display.
-	 */
-	public void showImage(Image image) {
-		if (isNull(image) || !muteVideoButton.isSelected()) {
-			return;
-		}
-
-		this.image = image;
-
-		repaint();
-	}
-
-	/**
-	 * Clear the image.
-	 */
+	@Override
 	public void clearImage() {
-		this.image = null;
+		image = null;
 
 		repaint();
 	}
 
+	@Override
 	public void setState(ExecutableState state) {
 		this.peerState = state;
 
@@ -188,6 +181,7 @@ public class PeerView extends JComponent {
 		}
 	}
 
+	@Override
 	public void setHasVideo(boolean hasVideo) {
 		if (peerState != ExecutableState.Started) {
 			return;
@@ -198,7 +192,31 @@ public class PeerView extends JComponent {
 		setHasVideoIcon(hasVideo);
 	}
 
-	public void setHasVideoIcon(boolean hasVideo) {
+	@Override
+	public void setMediaControlsEnabled(boolean enabled) {
+		SwingUtils.invoke(() -> {
+			muteAudioButton.setVisible(enabled);
+			muteVideoButton.setVisible(enabled);
+			stopConnectionButton.setVisible(enabled);
+		});
+	}
+
+	@Override
+	public void setOnMuteAudio(ConsumerAction<Boolean> action) {
+		SwingUtils.bindAction(muteAudioButton, action);
+	}
+
+	@Override
+	public void setOnMuteVideo(ConsumerAction<Boolean> action) {
+		SwingUtils.bindAction(muteVideoButton, action);
+	}
+
+	@Override
+	public void setOnKick(Action action) {
+		SwingUtils.bindAction(stopConnectionButton, action);
+	}
+
+	private void setHasVideoIcon(boolean hasVideo) {
 		if (peerState != ExecutableState.Started) {
 			return;
 		}
@@ -213,49 +231,6 @@ public class PeerView extends JComponent {
 		clearImage();
 	}
 
-	/**
-	 * @return The unique request ID of the peer.
-	 */
-	public UUID getRequestId() {
-		return requestId;
-	}
-
-	/**
-	 * Set the peer's unique request ID.
-	 *
-	 * @param id The unique request ID of the peer.
-	 */
-	public void setRequestId(UUID id) {
-		requestId = id;
-
-		stopConnectionButton.setVisible(nonNull(id));
-	}
-
-	/**
-	 * @return The unique ID of the peer.
-	 */
-	public BigInteger getPeerId() {
-		return peerId;
-	}
-
-	/**
-	 * Set the peer's unique ID.
-	 *
-	 * @param id The unique ID of the remote peer.
-	 */
-	public void setPeerId(BigInteger id) {
-		peerId = id;
-	}
-
-	/**
-	 * Set the peer's name.
-	 *
-	 * @param name The name of the remote peer.
-	 */
-	public void setPeerName(String name) {
-		nameLabel.setText(name);
-	}
-
 	@Override
 	public void paintComponent(Graphics g) {
 		final int bottomHeight = buttonsBox.getHeight();
@@ -265,7 +240,7 @@ public class PeerView extends JComponent {
 		g2.fillRect(0, 0, getWidth(), getHeight());
 
 		if (nonNull(image)) {
-			paintWithImage(g2);
+			paintPeerImage(g2);
 		}
 
 		g2.setPaint(new Color(228, 228, 231, 215));
@@ -273,7 +248,7 @@ public class PeerView extends JComponent {
 		g2.dispose();
 	}
 
-	private void paintWithImage(Graphics2D g2) {
+	private void paintPeerImage(Graphics2D g2) {
 		AffineTransform transform = g2.getTransform();
 		AffineTransform imageTransform = new AffineTransform();
 		imageTransform.translate(transform.getTranslateX(), transform.getTranslateY());

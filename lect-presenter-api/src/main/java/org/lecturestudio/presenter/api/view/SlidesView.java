@@ -21,7 +21,6 @@ package org.lecturestudio.presenter.api.view;
 import java.awt.*;
 import java.util.Collection;
 import java.util.List;
-import java.util.UUID;
 
 import org.lecturestudio.core.ExecutableState;
 import org.lecturestudio.core.beans.BooleanProperty;
@@ -39,9 +38,7 @@ import org.lecturestudio.presenter.api.model.*;
 import org.lecturestudio.presenter.api.config.SlideViewConfiguration;
 import org.lecturestudio.swing.model.ExternalWindowPosition;
 import org.lecturestudio.core.stylus.StylusHandler;
-import org.lecturestudio.web.api.event.LocalVideoFrameEvent;
-import org.lecturestudio.web.api.event.PeerStateEvent;
-import org.lecturestudio.web.api.event.RemoteVideoFrameEvent;
+import org.lecturestudio.swing.view.PeerView;
 import org.lecturestudio.web.api.message.MessengerMessage;
 import org.lecturestudio.web.api.message.SpeechBaseMessage;
 import org.lecturestudio.web.api.stream.model.CourseParticipant;
@@ -128,17 +125,9 @@ public interface SlidesView extends View {
 
 	void setOnBan(ConsumerAction<CourseParticipant> action);
 
-	void setPeerStateEvent(PeerStateEvent event);
+	void addPeerView(PeerView peerView);
 
-	void setOnMutePeerAudio(ConsumerAction<Boolean> action);
-
-	void setOnMutePeerVideo(ConsumerAction<Boolean> action);
-
-	void setOnStopPeerConnection(ConsumerAction<UUID> action);
-
-	void setVideoFrameEvent(LocalVideoFrameEvent event);
-
-	void setVideoFrameEvent(RemoteVideoFrameEvent event);
+	void removePeerView(PeerView peerView);
 
 	void setOnKeyEvent(ConsumerAction<KeyEvent> action);
 

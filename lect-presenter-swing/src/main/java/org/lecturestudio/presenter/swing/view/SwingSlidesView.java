@@ -42,7 +42,6 @@ import java.util.Enumeration;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
-import java.util.UUID;
 import java.util.function.Consumer;
 import java.util.function.IntSupplier;
 
@@ -80,7 +79,6 @@ import org.lecturestudio.swing.components.MessagePanel;
 import org.lecturestudio.swing.components.MessageView;
 import org.lecturestudio.swing.components.NotesView;
 import org.lecturestudio.swing.components.ParticipantList;
-import org.lecturestudio.swing.components.PeerView;
 import org.lecturestudio.swing.components.QuizThumbnailPanel;
 import org.lecturestudio.swing.components.ScreenThumbnailPanel;
 import org.lecturestudio.swing.components.SettingsTab;
@@ -98,11 +96,9 @@ import org.lecturestudio.swing.model.AdaptiveTabType;
 import org.lecturestudio.swing.model.ExternalWindowPosition;
 import org.lecturestudio.swing.util.AdaptiveTabbedPaneChangeListener;
 import org.lecturestudio.swing.util.SwingUtils;
+import org.lecturestudio.swing.view.PeerView;
 import org.lecturestudio.swing.view.SwingView;
 import org.lecturestudio.swing.view.ViewPostConstruct;
-import org.lecturestudio.web.api.event.LocalVideoFrameEvent;
-import org.lecturestudio.web.api.event.PeerStateEvent;
-import org.lecturestudio.web.api.event.RemoteVideoFrameEvent;
 import org.lecturestudio.web.api.message.MessengerMessage;
 import org.lecturestudio.web.api.message.SpeechBaseMessage;
 import org.lecturestudio.web.api.message.util.MessageUtil;
@@ -153,12 +149,6 @@ public class SwingSlidesView extends JPanel implements SlidesView {
 	private ConsumerAction<SpeechBaseMessage> acceptSpeechRequestAction;
 
 	private ConsumerAction<SpeechBaseMessage> rejectSpeechRequestAction;
-
-	private ConsumerAction<Boolean> mutePeerAudioAction;
-
-	private ConsumerAction<Boolean> mutePeerVideoAction;
-
-	private ConsumerAction<UUID> stopPeerConnectionAction;
 
 	private ConsumerAction<ExternalWindowPosition> externalMessagesPositionChangedAction;
 
@@ -320,8 +310,6 @@ public class SwingSlidesView extends JPanel implements SlidesView {
 	private SlidePreviewPosition previewPosition = SlidePreviewPosition.RIGHT;
 
 	private String selectedSlideLabelText = "";
-
-	List<AdaptiveTab> noneTabs;
 
 
 	@Inject
@@ -873,7 +861,6 @@ public class SwingSlidesView extends JPanel implements SlidesView {
 	public void removeSpeechRequest(SpeechBaseMessage message) {
 		SwingUtils.invoke(() -> {
 			removeSpeechRequestMessage(message);
-			removePeerView(message.getRequestId());
 		});
 	}
 
@@ -907,85 +894,23 @@ public class SwingSlidesView extends JPanel implements SlidesView {
 	}
 
 	@Override
-	public void setPeerStateEvent(PeerStateEvent event) {
-		SwingUtils.invoke(() -> {
-			ExecutableState state = event.getState();
+	public void addPeerView(PeerView peerView) {
+		if (peerView instanceof JComponent swingPeerView) {
+			peerViewContainer.add(swingPeerView);
 
-			if (state == ExecutableState.Starting) {
-				addPeerView(createPeerView(event));
-
-				// TODO
-//				externalParticipantVideoFrame.showBody();
-
-				if (rightTabPane.getPaneTabCount() == 0 && !externalParticipantVideoFrame.isVisible()) {
-					maximizeRightTabPane();
-				}
+			if (rightTabPane.getPaneTabCount() == 0 && !externalParticipantVideoFrame.isVisible()) {
+				maximizeRightTabPane();
 			}
-			else if (state == ExecutableState.Started) {
-				setPeerViewEvent(event);
-			}
-			else if (state == ExecutableState.Stopped) {
-				removePeerView(event.getRequestId());
-			}
-		});
+		}
 	}
 
 	@Override
-	public void setOnMutePeerAudio(ConsumerAction<Boolean> action) {
-		mutePeerAudioAction = action;
-	}
-
-	@Override
-	public void setOnMutePeerVideo(ConsumerAction<Boolean> action) {
-		mutePeerVideoAction = action;
-	}
-
-	@Override
-	public void setOnStopPeerConnection(ConsumerAction<UUID> action) {
-		stopPeerConnectionAction = action;
-	}
-
-	@Override
-	public void setVideoFrameEvent(LocalVideoFrameEvent event) {
-		// TODO
-//		if (isNull(localPeerView)) {
-//			return;
-//		}
-//
-//		try {
-//			peerViewImage = VideoFrameConverter.convertVideoFrameToComponentSize(
-//					event.getFrame(), peerViewImage, localPeerView);
-//		}
-//		catch (Exception e) {
-//			return;
-//		}
-//
-//		SwingUtils.invoke(() -> {
-//			if (nonNull(localPeerView)) {
-//				localPeerView.showImage(peerViewImage);
-//			}
-//		});
-	}
-
-	@Override
-	public void setVideoFrameEvent(RemoteVideoFrameEvent event) {
-//		if (isNull(remotePeerView)) {
-//			return;
-//		}
-//
-//		try {
-//			peerViewImage = VideoFrameConverter.convertVideoFrameToComponentSize(
-//					event.getFrame(), peerViewImage, remotePeerView);
-//		}
-//		catch (Exception e) {
-//			return;
-//		}
-//
-//		SwingUtils.invoke(() -> {
-//			if (nonNull(remotePeerView)) {
-//				remotePeerView.showImage(peerViewImage);
-//			}
-//		});
+	public void removePeerView(PeerView peerView) {
+		if (peerView instanceof JComponent swingPeerView) {
+			peerViewContainer.remove(swingPeerView);
+			peerViewContainer.revalidate();
+			peerViewContainer.repaint();
+		}
 	}
 
 	@Override
@@ -1122,7 +1047,6 @@ public class SwingSlidesView extends JPanel implements SlidesView {
 		externalNotesClosedAction = action;
 	}
 
-
 	@Override
 	public void setOnExternalSlideNotesPositionChanged(ConsumerAction<ExternalWindowPosition> action) {
 		this.externalSlideNotesPositionChangedAction = action;
@@ -1137,7 +1061,6 @@ public class SwingSlidesView extends JPanel implements SlidesView {
 	public void setOnExternalSlideNotesClosed(Action action) {
 		externalSlideNotesClosedAction = action;
 	}
-
 
 	@Override
 	public void showExternalMessages(Screen screen, Point position, Dimension size) {
@@ -1724,50 +1647,6 @@ public class SwingSlidesView extends JPanel implements SlidesView {
 		rightTabPane.addTabs(removePreviewTabs(), 0);
 
 		maximizeRightTabPane();
-	}
-
-	private PeerView createPeerView(PeerStateEvent event) {
-		PeerView peerView = new PeerView(dict);
-//		peerView.setMinimumSize(new Dimension(300, 150));
-		peerView.setPreferredSize(new Dimension(300, 150));
-		peerView.setPeerId(event.getPeerId());
-		peerView.setState(event.getState());
-		peerView.setRequestId(event.getRequestId());
-		peerView.setPeerName(event.getPeerName());
-		peerView.setOnMuteAudio(mutePeerAudioAction);
-		peerView.setOnMuteVideo(mutePeerVideoAction);
-		peerView.setOnStopPeerConnection(stopPeerConnectionAction);
-
-		return peerView;
-	}
-
-	private void addPeerView(PeerView peerView) {
-		peerViewContainer.add(peerView);
-	}
-
-	private void setPeerViewEvent(PeerStateEvent event) {
-		for (var component : peerViewContainer.getComponents()) {
-			if (!(component instanceof PeerView peerView)) {
-				continue;
-			}
-			if (Objects.equals(peerView.getRequestId(), event.getRequestId())) {
-				peerView.setState(event.getState());
-				peerView.setHasVideo(event.hasVideo());
-			}
-		}
-	}
-
-	private void removePeerView(UUID requestId) {
-		for (var component : peerViewContainer.getComponents()) {
-			if (!(component instanceof PeerView peerView)) {
-				continue;
-			}
-			if (Objects.equals(peerView.getRequestId(), requestId)) {
-				peerViewContainer.remove(peerView);
-				peerViewContainer.revalidate();
-				peerViewContainer.repaint();
-			}
-		}
 	}
 
 	private void removeSpeechRequestMessage(SpeechBaseMessage message) {

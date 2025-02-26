@@ -20,6 +20,7 @@ package org.lecturestudio.web.api.janus.state;
 
 import static java.util.Objects.nonNull;
 
+import java.math.BigInteger;
 import java.util.Map;
 import java.util.UUID;
 import java.util.function.Consumer;
@@ -155,8 +156,7 @@ public class PublishToRoomState implements JanusState {
 			return;
 		}
 
-		if (message instanceof JanusJsepMessage) {
-			JanusJsepMessage jsepMessage = (JanusJsepMessage) message;
+		if (message instanceof JanusJsepMessage jsepMessage) {
 			String sdp = jsepMessage.getSdp();
 			RTCSessionDescription answer = new RTCSessionDescription(RTCSdpType.ANSWER, sdp);
 
@@ -245,7 +245,7 @@ public class PublishToRoomState implements JanusState {
 
 		track.addSink(videoFrame -> {
 			if (nonNull(localScreenFrameConsumer)) {
-				localScreenFrameConsumer.accept(new LocalScreenVideoFrameEvent(videoFrame));
+				localScreenFrameConsumer.accept(new LocalScreenVideoFrameEvent(videoFrame, BigInteger.ZERO));
 			}
 		});
 	}
@@ -255,7 +255,7 @@ public class PublishToRoomState implements JanusState {
 		if (receiveLocalVideo) {
 			peerConnection.setOnLocalVideoFrame(videoFrame -> {
 				if (nonNull(localVideoFrameConsumer)) {
-					localVideoFrameConsumer.accept(new LocalVideoFrameEvent(videoFrame));
+					localVideoFrameConsumer.accept(new LocalVideoFrameEvent(videoFrame, BigInteger.ZERO));
 				}
 			});
 		}

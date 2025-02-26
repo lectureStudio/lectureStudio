@@ -18,6 +18,8 @@
 
 package org.lecturestudio.web.api.event;
 
+import java.math.BigInteger;
+
 import dev.onvoid.webrtc.media.video.VideoFrame;
 
 /**
@@ -29,15 +31,18 @@ public abstract class VideoFrameEvent {
 
 	private final VideoFrame frame;
 
+	private final BigInteger peerId;
+
 
 	/**
 	 * Creates a new VideoFrameEvent with the specified video frame.
 	 *
-	 * @param frame The video frame received from a local or remote video
-	 *              track.
+	 * @param frame  The video frame received from a local or remote video track.
+	 * @param peerId The unique identifier assigned to the video frame publisher.
 	 */
-	public VideoFrameEvent(VideoFrame frame) {
+	public VideoFrameEvent(VideoFrame frame, BigInteger peerId) {
 		this.frame = frame;
+		this.peerId = peerId;
 	}
 
 	/**
@@ -47,4 +52,12 @@ public abstract class VideoFrameEvent {
 		return frame;
 	}
 
+	/**
+	 * Get the unique ID of the publishing peer.
+	 *
+	 * @return The unique ID of the video frame origin.
+	 */
+	public BigInteger getPeerId() {
+		return peerId;
+	}
 }

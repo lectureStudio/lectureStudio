@@ -27,14 +27,11 @@ import javax.inject.Inject;
 import java.awt.Dimension;
 import java.io.File;
 import java.io.IOException;
+import java.math.BigInteger;
 import java.text.MessageFormat;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Timer;
-import java.util.TimerTask;
+import java.util.*;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.BiConsumer;
 
 import com.google.common.eventbus.Subscribe;
@@ -100,6 +97,7 @@ import org.lecturestudio.presenter.api.model.*;
 import org.lecturestudio.presenter.api.service.*;
 import org.lecturestudio.presenter.api.view.SlidesView;
 import org.lecturestudio.swing.model.ExternalWindowPosition;
+import org.lecturestudio.swing.view.PeerView;
 import org.lecturestudio.web.api.event.LocalScreenVideoFrameEvent;
 import org.lecturestudio.web.api.event.LocalVideoFrameEvent;
 import org.lecturestudio.web.api.event.PeerStateEvent;
@@ -123,6 +121,8 @@ public class SlidesPresenter extends Presenter<SlidesView> {
 	private final EventBus eventBus;
 
 	private final Map<KeyEvent, Action> shortcutMap;
+
+	private final Map<AbstractMap.SimpleEntry<BigInteger, UUID>, PeerView> peerViewMap;
 
 	private final PageObjectRegistry pageObjectRegistry;
 
@@ -203,6 +203,7 @@ public class SlidesPresenter extends Presenter<SlidesView> {
 		this.streamService = streamService;
 		this.eventBus = context.getEventBus();
 		this.shortcutMap = new HashMap<>();
+		this.peerViewMap = new ConcurrentHashMap<>();
 		this.pageObjectRegistry = new PageObjectRegistry();
 		this.documentChangeListener = new DocumentChangeHandler();
 		this.screenViewContext = new ScreenPresentationViewContext();
@@ -391,6 +392,8 @@ public class SlidesPresenter extends Presenter<SlidesView> {
 				m.getRequestId(), message.getRequestId()));
 
 		view.removeSpeechRequest(message);
+
+		unregisterPeerView(null, message.getRequestId());
 	}
 
 	@Subscribe
@@ -418,17 +421,53 @@ public class SlidesPresenter extends Presenter<SlidesView> {
 
 	@Subscribe
 	public void onEvent(PeerStateEvent event) {
-		view.setPeerStateEvent(event);
+		ExecutableState state = event.getState();
+
+		if (state == ExecutableState.Starting) {
+			PeerView peerView = viewFactory.getInstance(PeerView.class);
+			peerView.setPeerName(event.getPeerName());
+			peerView.setState(event.getState());
+
+			updatePeerViewControls(peerView, event.getPeerId(), event.getRequestId());
+			registerPeerView(peerView, event.getPeerId(), event.getRequestId());
+
+			view.addPeerView(peerView);
+		}
+		else if (state == ExecutableState.Started) {
+			PeerView peerView = getPeerView(event.getPeerId(), event.getRequestId());
+
+			if (nonNull(peerView)) {
+				peerView.setState(state);
+				peerView.setHasVideo(event.hasVideo());
+
+				updatePeerViewControls(peerView, event.getPeerId(), event.getRequestId());
+			}
+		}
+		else if (state == ExecutableState.Stopped) {
+			PeerView peerView = unregisterPeerView(event.getPeerId(), event.getRequestId());
+
+			if (nonNull(peerView)) {
+				view.removePeerView(peerView);
+			}
+		}
 	}
 
 	@Subscribe
 	public void onEvent(LocalVideoFrameEvent event) {
-		view.setVideoFrameEvent(event);
+		PeerView peerView = getPeerView(event.getPeerId(), null);
+
+		if (nonNull(peerView)) {
+			peerView.setVideoFrame(event.getFrame());
+		}
 	}
 
 	@Subscribe
 	public void onEvent(RemoteVideoFrameEvent event) {
-		view.setVideoFrameEvent(event);
+		PeerView peerView = getPeerView(event.getPeerId(), null);
+
+		if (nonNull(peerView)) {
+			peerView.setVideoFrame(event.getFrame());
+		}
 	}
 
 	@Subscribe
@@ -594,6 +633,54 @@ public class SlidesPresenter extends Presenter<SlidesView> {
 		}
 	}
 
+	private void registerPeerView(PeerView peerView, BigInteger id, UUID requestId) {
+		peerViewMap.put(new AbstractMap.SimpleEntry<>(id, requestId), peerView);
+	}
+
+	private PeerView unregisterPeerView(BigInteger id, UUID requestId) {
+		for (var entry : peerViewMap.entrySet()) {
+			if (Objects.equals(id, entry.getKey().getKey())) {
+				// Found by peer ID.
+				PeerView peerView = entry.getValue();
+				peerViewMap.remove(entry.getKey());
+				return peerView;
+			}
+			else if (Objects.equals(requestId, entry.getKey().getValue())) {
+				// Found by request ID.
+				PeerView peerView = entry.getValue();
+				peerViewMap.remove(entry.getKey());
+				return peerView;
+			}
+		}
+		return null;
+	}
+
+	private PeerView getPeerView(BigInteger id, UUID requestId) {
+		for (var entry : peerViewMap.entrySet()) {
+			if (Objects.equals(id, entry.getKey().getKey())) {
+				// Found by peer ID.
+				return entry.getValue();
+			}
+			else if (Objects.equals(requestId, entry.getKey().getValue())) {
+				// Found by request ID.
+				return entry.getValue();
+			}
+		}
+		return null;
+	}
+
+	private void updatePeerViewControls(PeerView peerView, BigInteger peerId, UUID requestId) {
+		boolean controlsEnabled = !BigInteger.ZERO.equals(peerId);
+
+		if (controlsEnabled) {
+			peerView.setOnMuteAudio(streamService::mutePeerAudio);
+			peerView.setOnMuteVideo(streamService::mutePeerVideo);
+			peerView.setOnKick(() -> streamService.stopPeerConnection(requestId));
+		}
+
+		peerView.setMediaControlsEnabled(controlsEnabled);
+	}
+
 	private void externalMessagesPositionChanged(ExternalWindowPosition position) {
 		final ExternalWindowConfiguration config = getExternalMessagesConfig();
 
@@ -713,6 +800,8 @@ public class SlidesPresenter extends Presenter<SlidesView> {
 		presenterContext.getSpeechRequests().remove(message);
 
 		view.removeSpeechRequest(message);
+
+		unregisterPeerView(null, message.getRequestId());
 	}
 
 	private void onBan(CourseParticipant user) {
@@ -1421,9 +1510,6 @@ public class SlidesPresenter extends Presenter<SlidesView> {
 		view.setOnBan(this::onBan);
 		view.setOnDiscardMessage(this::onDiscardMessage);
 		view.setOnCreateMessageSlide(this::onCreateMessageSlide);
-		view.setOnMutePeerAudio(streamService::mutePeerAudio);
-		view.setOnMutePeerVideo(streamService::mutePeerVideo);
-		view.setOnStopPeerConnection(streamService::stopPeerConnection);
 
 		// Register shortcuts that are associated with the SlideView.
 		registerShortcut(Shortcut.SLIDE_FIRST, this::firstPage);

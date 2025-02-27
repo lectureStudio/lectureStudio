@@ -18,7 +18,6 @@
 
 package org.lecturestudio.swing.layout;
 
-import javax.swing.*;
 import java.awt.*;
 
 /**
@@ -133,22 +132,5 @@ public class VideoTileLayout implements LayoutManager {
 				}
 			}
 		}
-	}
-
-	public static void main(String[] args) {
-		JFrame frame = new JFrame("Resizable FlowLayout Example");
-		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		frame.setSize(600, 400);
-
-		JPanel panel = new JPanel(new VideoTileLayout());
-		panel.setBackground(Color.LIGHT_GRAY);
-
-		for (int i = 0; i < 5; i++) {
-			JButton button = new JButton("Button " + (i + 1));
-			panel.add(button);
-		}
-
-		frame.add(panel);
-		frame.setVisible(true);
 	}
 }

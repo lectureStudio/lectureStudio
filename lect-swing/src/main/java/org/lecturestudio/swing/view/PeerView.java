@@ -68,13 +68,6 @@ public interface PeerView {
 	void setHasVideo(boolean hasVideo);
 
 	/**
-	 * Enables or disables the media controls for the peer.
-	 *
-	 * @param enabled Indicating whether the media controls should be enabled.
-	 */
-	void setMediaControlsEnabled(boolean enabled);
-
-	/**
 	 * Sets the action to be performed when the audio is muted.
 	 *
 	 * @param action The action to be performed on mute audio.

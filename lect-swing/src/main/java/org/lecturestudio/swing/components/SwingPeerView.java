@@ -18,7 +18,6 @@
 
 package org.lecturestudio.swing.components;
 
-import static java.util.Objects.isNull;
 import static java.util.Objects.nonNull;
 
 import java.awt.*;
@@ -37,6 +36,7 @@ import javax.swing.SwingConstants;
 import javax.swing.border.EmptyBorder;
 
 import dev.onvoid.webrtc.media.video.VideoFrame;
+
 import org.lecturestudio.core.ExecutableState;
 import org.lecturestudio.core.app.dictionary.Dictionary;
 import org.lecturestudio.core.view.Action;
@@ -92,6 +92,7 @@ public class SwingPeerView extends JComponent implements PeerView {
 		muteAudioButton.setContentAreaFilled(false);
 		muteAudioButton.setSelected(true);
 		muteAudioButton.setEnabled(false);
+		muteAudioButton.setVisible(false);
 
 		muteVideoButton = new JToggleButton();
 		muteVideoButton.setIcon(AwtResourceLoader.getIcon("camera-off.svg", 22));
@@ -99,12 +100,14 @@ public class SwingPeerView extends JComponent implements PeerView {
 		muteVideoButton.setContentAreaFilled(false);
 		muteVideoButton.setSelected(true);
 		muteVideoButton.setEnabled(false);
+		muteVideoButton.setVisible(false);
 		muteVideoButton.addItemListener(e -> {
 			setHasVideoIcon(e.getStateChange() == ItemEvent.SELECTED);
 		});
 
 		stopConnectionButton = new JButton(dict.get("button.end"));
 		stopConnectionButton.setBackground(Color.decode("#FEE2E2"));
+		stopConnectionButton.setVisible(false);
 
 		buttonsBox = Box.createHorizontalBox();
 		buttonsBox.setBorder(new EmptyBorder(0, 5, 0, 5));
@@ -193,27 +196,24 @@ public class SwingPeerView extends JComponent implements PeerView {
 	}
 
 	@Override
-	public void setMediaControlsEnabled(boolean enabled) {
-		SwingUtils.invoke(() -> {
-			muteAudioButton.setVisible(enabled);
-			muteVideoButton.setVisible(enabled);
-			stopConnectionButton.setVisible(enabled);
-		});
-	}
-
-	@Override
 	public void setOnMuteAudio(ConsumerAction<Boolean> action) {
 		SwingUtils.bindAction(muteAudioButton, action);
+
+		muteAudioButton.setVisible(nonNull(action));
 	}
 
 	@Override
 	public void setOnMuteVideo(ConsumerAction<Boolean> action) {
 		SwingUtils.bindAction(muteVideoButton, action);
+
+		muteVideoButton.setVisible(nonNull(action));
 	}
 
 	@Override
 	public void setOnKick(Action action) {
 		SwingUtils.bindAction(stopConnectionButton, action);
+
+		stopConnectionButton.setVisible(nonNull(action));
 	}
 
 	private void setHasVideoIcon(boolean hasVideo) {

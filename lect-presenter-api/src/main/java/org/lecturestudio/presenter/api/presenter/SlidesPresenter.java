@@ -393,7 +393,11 @@ public class SlidesPresenter extends Presenter<SlidesView> {
 
 		view.removeSpeechRequest(message);
 
-		unregisterPeerView(null, message.getRequestId());
+		PeerView peerView = unregisterPeerView(null, message.getRequestId());
+
+		if (nonNull(peerView)) {
+			view.removePeerView(peerView);
+		}
 	}
 
 	@Subscribe
@@ -437,6 +441,10 @@ public class SlidesPresenter extends Presenter<SlidesView> {
 			PeerView peerView = getPeerView(event.getPeerId(), event.getRequestId());
 
 			if (nonNull(peerView)) {
+				if (nonNull(event.getPeerId())) {
+					// Update peer key.
+					registerPeerView(peerView, event.getPeerId(), event.getRequestId());
+				}
 				peerView.setState(state);
 				peerView.setHasVideo(event.hasVideo());
 
@@ -639,13 +647,13 @@ public class SlidesPresenter extends Presenter<SlidesView> {
 
 	private PeerView unregisterPeerView(BigInteger id, UUID requestId) {
 		for (var entry : peerViewMap.entrySet()) {
-			if (Objects.equals(id, entry.getKey().getKey())) {
+			if (nonNull(id) && Objects.equals(id, entry.getKey().getKey())) {
 				// Found by peer ID.
 				PeerView peerView = entry.getValue();
 				peerViewMap.remove(entry.getKey());
 				return peerView;
 			}
-			else if (Objects.equals(requestId, entry.getKey().getValue())) {
+			else if (nonNull(requestId) && Objects.equals(requestId, entry.getKey().getValue())) {
 				// Found by request ID.
 				PeerView peerView = entry.getValue();
 				peerViewMap.remove(entry.getKey());
@@ -657,11 +665,11 @@ public class SlidesPresenter extends Presenter<SlidesView> {
 
 	private PeerView getPeerView(BigInteger id, UUID requestId) {
 		for (var entry : peerViewMap.entrySet()) {
-			if (Objects.equals(id, entry.getKey().getKey())) {
+			if (nonNull(id) && Objects.equals(id, entry.getKey().getKey())) {
 				// Found by peer ID.
 				return entry.getValue();
 			}
-			else if (Objects.equals(requestId, entry.getKey().getValue())) {
+			else if (nonNull(requestId) && Objects.equals(requestId, entry.getKey().getValue())) {
 				// Found by request ID.
 				return entry.getValue();
 			}
@@ -670,15 +678,16 @@ public class SlidesPresenter extends Presenter<SlidesView> {
 	}
 
 	private void updatePeerViewControls(PeerView peerView, BigInteger peerId, UUID requestId) {
-		boolean controlsEnabled = !BigInteger.ZERO.equals(peerId);
+		boolean controlsEnabled = nonNull(peerId) && !BigInteger.ZERO.equals(peerId);
+		boolean kickEnabled = nonNull(requestId);
 
 		if (controlsEnabled) {
 			peerView.setOnMuteAudio(streamService::mutePeerAudio);
 			peerView.setOnMuteVideo(streamService::mutePeerVideo);
+		}
+		if (kickEnabled) {
 			peerView.setOnKick(() -> streamService.stopPeerConnection(requestId));
 		}
-
-		peerView.setMediaControlsEnabled(controlsEnabled);
 	}
 
 	private void externalMessagesPositionChanged(ExternalWindowPosition position) {

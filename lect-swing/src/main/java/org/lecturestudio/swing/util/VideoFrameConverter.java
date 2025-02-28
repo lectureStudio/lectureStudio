@@ -51,6 +51,7 @@ public class VideoFrameConverter {
 			BufferedImage image, int imageWidth, int imageHeight)
 			throws Exception {
 		VideoFrameBuffer buffer = videoFrame.buffer;
+		buffer.retain();
 
 		int width = buffer.getWidth();
 		int height = buffer.getHeight();
@@ -59,9 +60,9 @@ public class VideoFrameConverter {
 
 		var size = metrics.convert(imageWidth, imageHeight);
 
-		buffer = buffer.cropAndScale(0, 0, width, height, (int) size.getWidth(), (int) size.getHeight());
-		width = buffer.getWidth();
-		height = buffer.getHeight();
+		VideoFrameBuffer croppedBuffer = buffer.cropAndScale(0, 0, width, height, (int) size.getWidth(), (int) size.getHeight());
+		width = croppedBuffer.getWidth();
+		height = croppedBuffer.getHeight();
 
 		if (isNull(image) || image.getWidth() != width || image.getHeight() != height) {
 			if (nonNull(image)) {
@@ -72,9 +73,10 @@ public class VideoFrameConverter {
 
 		byte[] imageBuffer = ((DataBufferByte) image.getRaster().getDataBuffer()).getData();
 
-		VideoBufferConverter.convertFromI420(buffer, imageBuffer, FourCC.RGBA);
+		VideoBufferConverter.convertFromI420(croppedBuffer, imageBuffer, FourCC.RGBA);
 
 		// Release resources.
+		croppedBuffer.release();
 		buffer.release();
 
 		return image;

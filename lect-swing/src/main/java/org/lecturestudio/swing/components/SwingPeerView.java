@@ -141,20 +141,18 @@ public class SwingPeerView extends JComponent implements PeerView {
 
 	@Override
 	public void setVideoFrame(VideoFrame frame) {
-		SwingUtils.invoke(() -> {
-			if (!muteVideoButton.isSelected()) {
-				return;
-			}
+		if (!muteVideoButton.isSelected()) {
+			return;
+		}
 
-			try {
-				image = VideoFrameConverter.convertVideoFrameToComponentSize(frame, image, this);
-			}
-			catch (Exception e) {
-				return;
-			}
+		try {
+			image = VideoFrameConverter.convertVideoFrameToComponentSize(frame, image, this);
+		}
+		catch (Exception e) {
+			return;
+		}
 
-			repaint();
-		});
+		repaint();
 	}
 
 	@Override

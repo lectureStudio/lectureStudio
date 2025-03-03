@@ -21,12 +21,9 @@ package org.lecturestudio.web.api.stream;
 import dev.onvoid.webrtc.media.video.VideoCaptureCapability;
 import dev.onvoid.webrtc.media.video.VideoDevice;
 
-import java.util.function.Consumer;
-
 import org.lecturestudio.core.beans.BooleanProperty;
 import org.lecturestudio.core.beans.IntegerProperty;
 import org.lecturestudio.core.beans.ObjectProperty;
-import org.lecturestudio.web.api.event.RemoteVideoFrameEvent;
 
 public class StreamVideoContext {
 
@@ -124,15 +121,4 @@ public class StreamVideoContext {
 		captureLocalVideo.set(send);
 	}
 
-	public void setLocalFrameConsumer(Consumer<LocalVideoFrameEvent> consumer) {
-		this.localFrameConsumer = consumer;
-	}
-
-	public Consumer<RemoteVideoFrameEvent> getRemoteFrameConsumer() {
-		return remoteFrameConsumer;
-	}
-
-	public void setRemoteFrameConsumer(Consumer<RemoteVideoFrameEvent> consumer) {
-		this.remoteFrameConsumer = consumer;
-	}
 }

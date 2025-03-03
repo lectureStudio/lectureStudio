@@ -100,7 +100,6 @@ import org.lecturestudio.swing.model.ExternalWindowPosition;
 import org.lecturestudio.swing.view.PeerView;
 import org.lecturestudio.web.api.event.LocalScreenVideoFrameEvent;
 import org.lecturestudio.web.api.event.PeerStateEvent;
-import org.lecturestudio.web.api.event.RemoteVideoFrameEvent;
 import org.lecturestudio.web.api.janus.JanusParticipantContext;
 import org.lecturestudio.web.api.message.CoursePresenceMessage;
 import org.lecturestudio.web.api.message.MessengerMessage;

@@ -25,8 +25,6 @@ import java.util.Map;
 import java.util.UUID;
 import java.util.function.Consumer;
 
-import dev.onvoid.webrtc.media.video.VideoFrame;
-import org.lecturestudio.web.api.event.LocalVideoFrameEvent;
 import org.lecturestudio.web.api.event.LocalScreenVideoFrameEvent;
 import org.lecturestudio.web.api.janus.JanusParticipantContext;
 import org.lecturestudio.web.api.janus.JanusPeerConnection;

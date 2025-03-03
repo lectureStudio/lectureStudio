@@ -23,11 +23,7 @@ import static java.util.Objects.nonNull;
 import static java.util.Objects.requireNonNull;
 
 import java.math.BigInteger;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.UUID;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.Executors;
@@ -37,9 +33,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
 
 import org.lecturestudio.core.ExecutableException;
-import org.lecturestudio.core.ExecutableState;
 import org.lecturestudio.core.net.MediaType;
-import org.lecturestudio.web.api.event.PeerStateEvent;
 import org.lecturestudio.web.api.janus.JanusHandlerException.Type;
 import org.lecturestudio.web.api.janus.message.JanusEditRoomMessage;
 import org.lecturestudio.web.api.janus.message.JanusErrorMessage;
@@ -58,27 +52,53 @@ import org.lecturestudio.web.api.stream.StreamEventRecorder;
 import org.lecturestudio.web.api.stream.action.StreamSpeechPublishedAction;
 import org.lecturestudio.web.api.stream.StreamContext;
 
+/**
+ * Manages communication with a Janus WebRTC server for handling real-time audio/video communication
+ * in a lecture/presentation environment. This handler is responsible for: <br>
+ * - Establishing and maintaining a connection with the Janus server <br>
+ * - Managing participant sessions and room interactions <br>
+ * - Handling publisher and subscriber operations <br>
+ * - Processing and routing Janus messages <br>
+ * - Managing remote speech requests and permissions <br>
+ * - Maintaining participants' state <br>
+ * <p>
+ * The handler implements the state pattern through JanusStateHandler to manage different
+ * states of the connection lifecycle.
+ */
 public class JanusHandler extends JanusStateHandler {
 
+	/** Records stream events for later playback. */
 	private final StreamEventRecorder eventRecorder;
 
+	/** Executor for scheduling periodic tasks like keep-alive messages. */
 	private ScheduledExecutorService executorService;
 
+	/** Future representing the scheduled keep-alive task. */
 	private ScheduledFuture<?> timeoutFuture;
 
+	/** Registry of message handlers mapped by message class type. */
 	private Map<Class<? extends JanusMessage>, Consumer<? extends JanusMessage>> messageHandlers;
 
+	/** Maps participant IDs to their publisher objects. */
 	private Map<BigInteger, JanusPublisher> participants;
 
+	/** Maps speech request IDs to their publisher objects. */
 	private Map<UUID, JanusPublisher> speechPublishers;
 
+	/** State handlers for managing different aspects of the Janus communication. */
 	private List<JanusStateHandler> handlers;
 
+	/** Consumer that is called when a speech request is rejected. */
 	private Consumer<UUID> rejectedConsumer;
 
-	private boolean hasFailed = false;
 
-
+	/**
+	 * Constructs a new JanusHandler with the given dependencies.
+	 *
+	 * @param transmitter   The message transmitter for sending messages to the Janus server.
+	 * @param streamContext The stream context containing configuration and state information.
+	 * @param eventRecorder The event recorder for capturing stream events.
+	 */
 	public JanusHandler(JanusMessageTransmitter transmitter,
 			StreamContext streamContext, StreamEventRecorder eventRecorder) {
 		super(new JanusPeerConnectionFactory(streamContext), transmitter);
@@ -129,8 +149,6 @@ public class JanusHandler extends JanusStateHandler {
 		speechPublishers.put(requestId, speechPublisher);
 
 		editRoom(3);
-
-		sendPeerState(new PeerStateEvent(BigInteger.ZERO, requestId, userName, ExecutableState.Starting));
 	}
 
 	/**
@@ -149,11 +167,6 @@ public class JanusHandler extends JanusStateHandler {
 
 		if (nonNull(speechPublisher)) {
 			kickParticipant(speechPublisher);
-
-			var event = new PeerStateEvent(requestId,
-					speechPublisher.getDisplayName(), ExecutableState.Stopped);
-
-			sendPeerState(event);
 
 			for (JanusStateHandler handler : handlers) {
 				if (handler instanceof JanusSubscriberHandler subHandler) {
@@ -258,11 +271,6 @@ public class JanusHandler extends JanusStateHandler {
 
 	@Override
 	protected void stopInternal() throws ExecutableException {
-		if (!hasFailed) {
-			// Destroy room only in stable state.
-//			setState(new DestroyRoomState());
-		}
-
 		for (JanusStateHandler handler : handlers) {
 			handler.destroy();
 		}
@@ -279,7 +287,7 @@ public class JanusHandler extends JanusStateHandler {
 
 	@Override
 	protected void destroyInternal() throws ExecutableException {
-
+		// Left empty for now.
 	}
 
 	/**
@@ -395,19 +403,15 @@ public class JanusHandler extends JanusStateHandler {
 			@Override
 			public void connected() {
 				setConnected();
-				sendOwnPeerState(ExecutableState.Started);
 			}
 
 			@Override
 			public void disconnected() {
 				setDisconnected();
-				sendOwnPeerState(ExecutableState.Stopped);
 			}
 
 			@Override
 			public void failed() {
-				hasFailed = true;
-
 				setFailed();
 			}
 
@@ -418,8 +422,6 @@ public class JanusHandler extends JanusStateHandler {
 		});
 
 		addStateHandler(pubHandler);
-
-		sendOwnPeerState(ExecutableState.Starting);
 	}
 
 	private void startSubscriber(final JanusPublisher publisher, final UUID requestId) {
@@ -435,21 +437,10 @@ public class JanusHandler extends JanusStateHandler {
 
 			@Override
 			public void connected() {
-				JanusPeerConnection peerConnection = subHandler.getPeerConnection();
-				boolean hasVideo = peerConnection.isReceivingVideo();
-
-				var event = new PeerStateEvent(subHandler.getPublisher().getId(), requestId,
-						subHandler.getPublisher().getDisplayName(),
-						ExecutableState.Started);
-				event.setHasVideo(hasVideo);
-
-				sendPeerState(event);
-
 				// Propagate "speech published" to passive participants.
 				for (JanusStateHandler handler : handlers) {
-					if (handler instanceof JanusPublisherHandler) {
+					if (handler instanceof JanusPublisherHandler pubHandler) {
 						// TODO: move to http api
-						JanusPublisherHandler pubHandler = (JanusPublisherHandler) handler;
 						pubHandler.sendStreamAction(
 								new StreamSpeechPublishedAction(
 										publisher.getId(),
@@ -461,12 +452,6 @@ public class JanusHandler extends JanusStateHandler {
 
 			@Override
 			public void disconnected() {
-				var event = new PeerStateEvent(subHandler.getPublisher().getId(), requestId,
-						subHandler.getPublisher().getDisplayName(),
-						ExecutableState.Stopped);
-
-				sendPeerState(event);
-
 				removeStateHandler(subHandler);
 				editRoom(3);
 			}
@@ -478,21 +463,6 @@ public class JanusHandler extends JanusStateHandler {
 		});
 
 		addStateHandler(subHandler);
-	}
-
-	private void sendOwnPeerState(ExecutableState state) {
-		PeerStateEvent event = new PeerStateEvent(BigInteger.ZERO, getStreamContext().getUserInfo().getFullName(), state);
-		event.setHasVideo(getStreamContext().getVideoContext().getSendVideo());
-
-		sendPeerState(event);
-	}
-
-	private void sendPeerState(PeerStateEvent event) {
-		var peerStateConsumer = getStreamContext().getPeerStateConsumer();
-
-		if (nonNull(peerStateConsumer)) {
-			peerStateConsumer.accept(event);
-		}
 	}
 
 	private JanusPublisher getFirstPublisher() {

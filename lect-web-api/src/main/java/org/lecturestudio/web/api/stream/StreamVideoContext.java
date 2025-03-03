@@ -26,7 +26,6 @@ import java.util.function.Consumer;
 import org.lecturestudio.core.beans.BooleanProperty;
 import org.lecturestudio.core.beans.IntegerProperty;
 import org.lecturestudio.core.beans.ObjectProperty;
-import org.lecturestudio.web.api.event.LocalVideoFrameEvent;
 import org.lecturestudio.web.api.event.RemoteVideoFrameEvent;
 
 public class StreamVideoContext {
@@ -42,10 +41,6 @@ public class StreamVideoContext {
 	private final BooleanProperty sendVideo;
 
 	private final BooleanProperty captureLocalVideo;
-
-	private Consumer<LocalVideoFrameEvent> localFrameConsumer;
-
-	private Consumer<RemoteVideoFrameEvent> remoteFrameConsumer;
 
 
 	public StreamVideoContext() {
@@ -127,10 +122,6 @@ public class StreamVideoContext {
 
 	public void setCaptureLocalVideo(boolean send) {
 		captureLocalVideo.set(send);
-	}
-
-	public Consumer<LocalVideoFrameEvent> getLocalFrameConsumer() {
-		return localFrameConsumer;
 	}
 
 	public void setLocalFrameConsumer(Consumer<LocalVideoFrameEvent> consumer) {

@@ -25,8 +25,10 @@ import java.util.Map;
 import java.util.UUID;
 import java.util.function.Consumer;
 
+import dev.onvoid.webrtc.media.video.VideoFrame;
 import org.lecturestudio.web.api.event.LocalVideoFrameEvent;
 import org.lecturestudio.web.api.event.LocalScreenVideoFrameEvent;
+import org.lecturestudio.web.api.janus.JanusParticipantContext;
 import org.lecturestudio.web.api.janus.JanusPeerConnection;
 import org.lecturestudio.web.api.janus.JanusStateHandler;
 import org.lecturestudio.web.api.janus.message.JanusJsepMessage;
@@ -67,7 +69,7 @@ public class PublishToRoomState implements JanusState {
 
 	private Consumer<LocalScreenVideoFrameEvent> localScreenFrameConsumer;
 
-	private Consumer<LocalVideoFrameEvent> localVideoFrameConsumer;
+	private JanusParticipantContext participantContext;
 
 	private Runnable screenSourceEndedCallback;
 
@@ -80,8 +82,7 @@ public class PublishToRoomState implements JanusState {
 		StreamScreenContext screenContext = streamContext.getScreenContext();
 		JanusPeerConnection peerConnection = handler.createPeerConnection();
 
-		localVideoFrameConsumer = videoContext.getLocalFrameConsumer();
-		localScreenFrameConsumer = screenContext.getLocalFrameConsumer();
+		participantContext = handler.getParticipantContext();
 		screenSourceEndedCallback = screenContext.getScreenSourceEndedCallback();
 
 		peerConnection.setOnLocalSessionDescription(description -> {
@@ -254,8 +255,9 @@ public class PublishToRoomState implements JanusState {
 			boolean receiveLocalVideo) {
 		if (receiveLocalVideo) {
 			peerConnection.setOnLocalVideoFrame(videoFrame -> {
-				if (nonNull(localVideoFrameConsumer)) {
-					localVideoFrameConsumer.accept(new LocalVideoFrameEvent(videoFrame, BigInteger.ZERO));
+				var frameConsumer = participantContext.getVideoFrameConsumer();
+				if (nonNull(frameConsumer)) {
+					frameConsumer.accept(videoFrame);
 				}
 			});
 		}

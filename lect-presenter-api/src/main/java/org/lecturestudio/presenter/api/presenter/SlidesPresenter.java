@@ -99,9 +99,9 @@ import org.lecturestudio.presenter.api.view.SlidesView;
 import org.lecturestudio.swing.model.ExternalWindowPosition;
 import org.lecturestudio.swing.view.PeerView;
 import org.lecturestudio.web.api.event.LocalScreenVideoFrameEvent;
-import org.lecturestudio.web.api.event.LocalVideoFrameEvent;
 import org.lecturestudio.web.api.event.PeerStateEvent;
 import org.lecturestudio.web.api.event.RemoteVideoFrameEvent;
+import org.lecturestudio.web.api.janus.JanusParticipantContext;
 import org.lecturestudio.web.api.message.CoursePresenceMessage;
 import org.lecturestudio.web.api.message.MessengerMessage;
 import org.lecturestudio.web.api.message.SpeechBaseMessage;
@@ -122,7 +122,7 @@ public class SlidesPresenter extends Presenter<SlidesView> {
 
 	private final Map<KeyEvent, Action> shortcutMap;
 
-	private final Map<AbstractMap.SimpleEntry<BigInteger, UUID>, PeerView> peerViewMap;
+	private final Map<JanusParticipantContext, PeerView> peerViewMap;
 
 	private final PageObjectRegistry pageObjectRegistry;
 
@@ -393,7 +393,7 @@ public class SlidesPresenter extends Presenter<SlidesView> {
 
 		view.removeSpeechRequest(message);
 
-		PeerView peerView = unregisterPeerView(null, message.getRequestId());
+		PeerView peerView = unregisterPeerView(message.getRequestId());
 
 		if (nonNull(peerView)) {
 			view.removePeerView(peerView);
@@ -426,55 +426,34 @@ public class SlidesPresenter extends Presenter<SlidesView> {
 	@Subscribe
 	public void onEvent(PeerStateEvent event) {
 		ExecutableState state = event.getState();
+		JanusParticipantContext participantContext = event.getParticipantContext();
 
 		if (state == ExecutableState.Starting) {
 			PeerView peerView = viewFactory.getInstance(PeerView.class);
-			peerView.setPeerName(event.getPeerName());
+			peerView.setPeerName(participantContext.getDisplayName());
 			peerView.setState(event.getState());
 
-			updatePeerViewControls(peerView, event.getPeerId(), event.getRequestId());
-			registerPeerView(peerView, event.getPeerId(), event.getRequestId());
+			updatePeerViewControls(peerView, participantContext);
+			registerPeerView(peerView, participantContext);
 
 			view.addPeerView(peerView);
 		}
 		else if (state == ExecutableState.Started) {
-			PeerView peerView = getPeerView(event.getPeerId(), event.getRequestId());
+			PeerView peerView = getPeerView(participantContext);
 
 			if (nonNull(peerView)) {
-				if (nonNull(event.getPeerId())) {
-					// Update peer key.
-					registerPeerView(peerView, event.getPeerId(), event.getRequestId());
-				}
 				peerView.setState(state);
-				peerView.setHasVideo(event.hasVideo());
+				peerView.setHasVideo(participantContext.isVideoActive());
 
-				updatePeerViewControls(peerView, event.getPeerId(), event.getRequestId());
+				updatePeerViewControls(peerView, participantContext);
 			}
 		}
 		else if (state == ExecutableState.Stopped) {
-			PeerView peerView = unregisterPeerView(event.getPeerId(), event.getRequestId());
+			PeerView peerView = unregisterPeerView(participantContext);
 
 			if (nonNull(peerView)) {
 				view.removePeerView(peerView);
 			}
-		}
-	}
-
-	@Subscribe
-	public void onEvent(LocalVideoFrameEvent event) {
-		PeerView peerView = getPeerView(event.getPeerId(), null);
-
-		if (nonNull(peerView)) {
-			peerView.setVideoFrame(event.getFrame());
-		}
-	}
-
-	@Subscribe
-	public void onEvent(RemoteVideoFrameEvent event) {
-		PeerView peerView = getPeerView(event.getPeerId(), null);
-
-		if (nonNull(peerView)) {
-			peerView.setVideoFrame(event.getFrame());
 		}
 	}
 
@@ -641,19 +620,17 @@ public class SlidesPresenter extends Presenter<SlidesView> {
 		}
 	}
 
-	private void registerPeerView(PeerView peerView, BigInteger id, UUID requestId) {
-		peerViewMap.put(new AbstractMap.SimpleEntry<>(id, requestId), peerView);
+	private void registerPeerView(PeerView peerView, JanusParticipantContext context) {
+		peerViewMap.put(context, peerView);
 	}
 
-	private PeerView unregisterPeerView(BigInteger id, UUID requestId) {
+	private PeerView unregisterPeerView(JanusParticipantContext context) {
+		return peerViewMap.remove(context);
+	}
+
+	private PeerView unregisterPeerView(UUID requestId) {
 		for (var entry : peerViewMap.entrySet()) {
-			if (nonNull(id) && Objects.equals(id, entry.getKey().getKey())) {
-				// Found by peer ID.
-				PeerView peerView = entry.getValue();
-				peerViewMap.remove(entry.getKey());
-				return peerView;
-			}
-			else if (nonNull(requestId) && Objects.equals(requestId, entry.getKey().getValue())) {
+			if (Objects.equals(requestId, entry.getKey().getRequestId())) {
 				// Found by request ID.
 				PeerView peerView = entry.getValue();
 				peerViewMap.remove(entry.getKey());
@@ -663,21 +640,23 @@ public class SlidesPresenter extends Presenter<SlidesView> {
 		return null;
 	}
 
-	private PeerView getPeerView(BigInteger id, UUID requestId) {
-		for (var entry : peerViewMap.entrySet()) {
-			if (nonNull(id) && Objects.equals(id, entry.getKey().getKey())) {
-				// Found by peer ID.
-				return entry.getValue();
-			}
-			else if (nonNull(requestId) && Objects.equals(requestId, entry.getKey().getValue())) {
-				// Found by request ID.
-				return entry.getValue();
-			}
-		}
-		return null;
+	private PeerView getPeerView(JanusParticipantContext context) {
+//		for (var entry : peerViewMap.entrySet()) {
+//			if (nonNull(id) && Objects.equals(id, entry.getKey().getKey())) {
+//				// Found by peer ID.
+//				return entry.getValue();
+//			}
+//			else if (nonNull(requestId) && Objects.equals(requestId, entry.getKey().getValue())) {
+//				// Found by request ID.
+//				return entry.getValue();
+//			}
+//		}
+		return peerViewMap.get(context);
 	}
 
-	private void updatePeerViewControls(PeerView peerView, BigInteger peerId, UUID requestId) {
+	private void updatePeerViewControls(PeerView peerView, JanusParticipantContext context) {
+		BigInteger peerId = context.getPeerId();
+		UUID requestId = context.getRequestId();
 		boolean controlsEnabled = nonNull(peerId) && !BigInteger.ZERO.equals(peerId);
 		boolean kickEnabled = nonNull(requestId);
 
@@ -800,6 +779,15 @@ public class SlidesPresenter extends Presenter<SlidesView> {
 		presenterContext.getSpeechRequests().remove(message);
 
 		view.acceptSpeechRequest(message);
+
+		// Create and configure a participant context for the local publisher.
+		// BigInteger '-1' is temporarily used as the peerId to identify the remote user/participant.
+		JanusParticipantContext pContext = new JanusParticipantContext();
+		pContext.setPeerId(BigInteger.valueOf(-1));
+		pContext.setRequestId(message.getRequestId());
+		pContext.setDisplayName(message.getFullName());
+
+		onEvent(new PeerStateEvent(pContext, ExecutableState.Starting));
 	}
 
 	private void onRejectSpeech(SpeechBaseMessage message) {
@@ -810,7 +798,7 @@ public class SlidesPresenter extends Presenter<SlidesView> {
 
 		view.removeSpeechRequest(message);
 
-		unregisterPeerView(null, message.getRequestId());
+		unregisterPeerView(message.getRequestId());
 	}
 
 	private void onBan(CourseParticipant user) {

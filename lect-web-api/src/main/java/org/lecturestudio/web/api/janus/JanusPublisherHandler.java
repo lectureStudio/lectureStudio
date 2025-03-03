@@ -20,7 +20,14 @@ package org.lecturestudio.web.api.janus;
 
 import static java.util.Objects.nonNull;
 
+import java.math.BigInteger;
+import java.util.UUID;
+
+import dev.onvoid.webrtc.media.video.VideoCaptureCapability;
+import dev.onvoid.webrtc.media.video.VideoDevice;
+
 import org.lecturestudio.core.ExecutableException;
+import org.lecturestudio.core.ExecutableState;
 import org.lecturestudio.core.beans.ChangeListener;
 import org.lecturestudio.web.api.janus.message.JanusMessage;
 import org.lecturestudio.web.api.janus.message.JanusPluginDataMessage;
@@ -35,11 +42,6 @@ import org.lecturestudio.web.api.stream.StreamScreenContext;
 import org.lecturestudio.web.api.stream.action.StreamAction;
 import org.lecturestudio.web.api.stream.StreamAudioContext;
 import org.lecturestudio.web.api.stream.StreamVideoContext;
-
-import dev.onvoid.webrtc.media.video.VideoCaptureCapability;
-import dev.onvoid.webrtc.media.video.VideoDevice;
-
-import java.util.UUID;
 
 public class JanusPublisherHandler extends JanusStateHandler {
 
@@ -81,9 +83,7 @@ public class JanusPublisherHandler extends JanusStateHandler {
 
 	@Override
 	public <T extends JanusMessage> void handleMessage(T message) throws Exception {
-		if (message instanceof JanusPluginMessage) {
-			JanusPluginMessage pluginMessage = (JanusPluginMessage) message;
-
+		if (message instanceof JanusPluginMessage pluginMessage) {
 			// Accept only messages that are addressed to this handler.
 			if (!pluginMessage.getHandleId().equals(getPluginId())) {
 				return;
@@ -101,11 +101,13 @@ public class JanusPublisherHandler extends JanusStateHandler {
 			switch (state) {
 				case CONNECTED:
 					setConnected();
+					sendPeerState(ExecutableState.Started);
 					break;
 
 				case DISCONNECTED:
 					// Do not panic, yet. There is a chance to claim the connection.
 					setDisconnected();
+					sendPeerState(ExecutableState.Stopped);
 					break;
 
 				case FAILED:
@@ -129,12 +131,22 @@ public class JanusPublisherHandler extends JanusStateHandler {
 
 	@Override
 	protected void initInternal() throws ExecutableException {
+		// Create and configure a participant context for the local publisher.
+		// BigInteger.ZERO is used as the peerId to identify the local user/participant.
+		participantContext = new JanusParticipantContext();
+		participantContext.setPeerId(BigInteger.ZERO);
+		participantContext.setDisplayName(getStreamContext().getUserInfo().getFullName());
+
 		enableMicListener = (observable, oldValue, newValue) -> {
 			peerConnection.setMicrophoneEnabled(newValue);
+
+			participantContext.setAudioActive(newValue);
 		};
 
 		enableCamListener = (observable, oldValue, newValue) -> {
 			peerConnection.setCameraEnabled(newValue);
+
+			participantContext.setVideoActive(newValue);
 		};
 		camListener = (observable, oldDevice, newDevice) -> {
 			peerConnection.setCameraDevice(newDevice);
@@ -146,6 +158,8 @@ public class JanusPublisherHandler extends JanusStateHandler {
 
 		enableScreenListener = (observable, oldValue, newValue) -> {
 			peerConnection.setScreenShareEnabled(newValue);
+
+			participantContext.setScreenActive(newValue);
 		};
 		screenSourceListener = (observable, oldValue, newValue) -> {
 			peerConnection.getScreenShareConfig().setScreenSource(newValue);
@@ -163,6 +177,8 @@ public class JanusPublisherHandler extends JanusStateHandler {
 		eventRecorder.addRecordedActionConsumer(this::sendStreamAction);
 
 		setState(new AttachPluginState(new CreateRoomState()));
+
+		sendPeerState(ExecutableState.Starting);
 	}
 
 	@Override

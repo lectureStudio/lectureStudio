@@ -201,8 +201,7 @@ public class PublishToRoomState implements JanusState {
 			}
 		}
 
-		publishRequest = new JanusRoomPublishMessage(handler.getSessionId(),
-				handler.getPluginId());
+		publishRequest = new JanusRoomPublishMessage(handler.getSessionId(), handler.getPluginId());
 		publishRequest.setSdp(sdp);
 		publishRequest.setTransaction(UUID.randomUUID().toString());
 		publishRequest.setBody(request);
@@ -222,8 +221,7 @@ public class PublishToRoomState implements JanusState {
 	}
 
 	private void sendEndOfCandidates(JanusStateHandler handler) {
-		JanusPluginMessage message = new JanusPluginMessage(handler.getSessionId(),
-				handler.getPluginId()) {
+		JanusPluginMessage message = new JanusPluginMessage(handler.getSessionId(), handler.getPluginId()) {
 
 			// This field is mandatory.
 			final Map<String, Object> candidate = Map.of("completed", true);
@@ -249,8 +247,7 @@ public class PublishToRoomState implements JanusState {
 		});
 	}
 
-	private void setLocalVideoFrameConsumer(JanusPeerConnection peerConnection,
-			boolean receiveLocalVideo) {
+	private void setLocalVideoFrameConsumer(JanusPeerConnection peerConnection, boolean receiveLocalVideo) {
 		if (receiveLocalVideo) {
 			peerConnection.setOnLocalVideoFrame(videoFrame -> {
 				var frameConsumer = participantContext.getVideoFrameConsumer();

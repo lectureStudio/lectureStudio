@@ -21,9 +21,9 @@ package org.lecturestudio.swing.components;
 import static java.util.Objects.nonNull;
 
 import java.awt.*;
-import java.awt.event.ItemEvent;
 import java.awt.geom.AffineTransform;
 import java.awt.image.BufferedImage;
+import java.math.BigInteger;
 
 import javax.inject.Inject;
 import javax.swing.Box;
@@ -40,11 +40,11 @@ import dev.onvoid.webrtc.media.video.VideoFrame;
 import org.lecturestudio.core.ExecutableState;
 import org.lecturestudio.core.app.dictionary.Dictionary;
 import org.lecturestudio.core.view.Action;
-import org.lecturestudio.core.view.ConsumerAction;
 import org.lecturestudio.swing.AwtResourceLoader;
 import org.lecturestudio.swing.util.SwingUtils;
 import org.lecturestudio.swing.util.VideoFrameConverter;
 import org.lecturestudio.swing.view.PeerView;
+import org.lecturestudio.web.api.janus.JanusParticipantContext;
 
 /**
  * The PeerView displays the remote peers video, if activated, and buttons to
@@ -101,9 +101,6 @@ public class SwingPeerView extends JComponent implements PeerView {
 		muteVideoButton.setSelected(true);
 		muteVideoButton.setEnabled(false);
 		muteVideoButton.setVisible(false);
-		muteVideoButton.addItemListener(e -> {
-			setHasVideoIcon(e.getStateChange() == ItemEvent.SELECTED);
-		});
 
 		stopConnectionButton = new JButton(dict.get("button.end"));
 		stopConnectionButton.setBackground(Color.decode("#FEE2E2"));
@@ -135,34 +132,6 @@ public class SwingPeerView extends JComponent implements PeerView {
 	}
 
 	@Override
-	public void setPeerName(String name) {
-		SwingUtils.invoke(() -> nameLabel.setText(name));
-	}
-
-	@Override
-	public void setVideoFrame(VideoFrame frame) {
-		if (!muteVideoButton.isSelected()) {
-			return;
-		}
-
-		try {
-			image = VideoFrameConverter.convertVideoFrameToComponentSize(frame, image, this);
-		}
-		catch (Exception e) {
-			return;
-		}
-
-		repaint();
-	}
-
-	@Override
-	public void clearImage() {
-		image = null;
-
-		repaint();
-	}
-
-	@Override
 	public void setState(ExecutableState state) {
 		this.peerState = state;
 
@@ -183,28 +152,21 @@ public class SwingPeerView extends JComponent implements PeerView {
 	}
 
 	@Override
-	public void setHasVideo(boolean hasVideo) {
-		if (peerState != ExecutableState.Started) {
-			return;
-		}
+	public void setParticipantContext(JanusParticipantContext context) {
+		context.displayNameProperty().addListener((o, oldValue, newValue) ->
+				onDisplayName(newValue));
+		context.peerIdProperty().addListener((o, oldValue, newValue) ->
+				onPeerId(newValue));
+		context.videoActiveProperty().addListener((o, oldValue, newValue) ->
+				onVideoActivity(newValue));
+		context.setVideoFrameConsumer(this::onVideoFrame);
 
-		muteVideoButton.setEnabled(hasVideo);
+		SwingUtils.bindBidirectional(muteAudioButton, context.audioActiveProperty());
+		SwingUtils.bindBidirectional(muteVideoButton, context.videoActiveProperty());
 
-		setHasVideoIcon(hasVideo);
-	}
-
-	@Override
-	public void setOnMuteAudio(ConsumerAction<Boolean> action) {
-		SwingUtils.bindAction(muteAudioButton, action);
-
-		muteAudioButton.setVisible(nonNull(action));
-	}
-
-	@Override
-	public void setOnMuteVideo(ConsumerAction<Boolean> action) {
-		SwingUtils.bindAction(muteVideoButton, action);
-
-		muteVideoButton.setVisible(nonNull(action));
+		onDisplayName(context.getDisplayName());
+		onPeerId(context.getPeerId());
+		onVideoActivity(context.isVideoActive());
 	}
 
 	@Override
@@ -212,21 +174,6 @@ public class SwingPeerView extends JComponent implements PeerView {
 		SwingUtils.bindAction(stopConnectionButton, action);
 
 		stopConnectionButton.setVisible(nonNull(action));
-	}
-
-	private void setHasVideoIcon(boolean hasVideo) {
-		if (peerState != ExecutableState.Started) {
-			return;
-		}
-
-		if (!hasVideo) {
-			stateLabel.setIcon(AwtResourceLoader.getIcon("user.svg", 50));
-		}
-		else {
-			stateLabel.setIcon(null);
-		}
-
-		clearImage();
 	}
 
 	@Override
@@ -257,5 +204,50 @@ public class SwingPeerView extends JComponent implements PeerView {
 		g2.setTransform(imageTransform);
 		g2.drawImage(image, x, y, null);
 		g2.setTransform(transform);
+	}
+
+	private void onDisplayName(String name) {
+		SwingUtils.invoke(() -> nameLabel.setText(name));
+	}
+
+	private void onVideoFrame(VideoFrame frame) {
+		if (!muteVideoButton.isSelected()) {
+			return;
+		}
+
+		try {
+			image = VideoFrameConverter.convertVideoFrameToComponentSize(frame, image, this);
+		}
+		catch (Exception e) {
+			return;
+		}
+
+		repaint();
+	}
+
+	private void onVideoActivity(boolean videoActive) {
+		SwingUtils.invoke(() -> {
+			muteVideoButton.setEnabled(videoActive);
+
+			if (!videoActive) {
+				stateLabel.setIcon(AwtResourceLoader.getIcon("user.svg", 50));
+			}
+			else {
+				stateLabel.setIcon(null);
+			}
+
+			image = null;
+
+			repaint();
+		});
+	}
+
+	private void onPeerId(BigInteger id) {
+		boolean controlsEnabled = nonNull(id) && !BigInteger.ZERO.equals(id);
+
+		SwingUtils.invoke(() -> {
+			muteAudioButton.setVisible(controlsEnabled);
+			muteVideoButton.setVisible(controlsEnabled);
+		});
 	}
 }

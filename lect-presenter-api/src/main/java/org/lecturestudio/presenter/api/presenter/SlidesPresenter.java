@@ -394,6 +394,8 @@ public class SlidesPresenter extends Presenter<SlidesView> {
 
 		PeerView peerView = unregisterPeerView(message.getRequestId());
 
+		System.out.println(peerView);
+
 		if (nonNull(peerView)) {
 			view.removePeerView(peerView);
 		}
@@ -427,10 +429,12 @@ public class SlidesPresenter extends Presenter<SlidesView> {
 		ExecutableState state = event.getState();
 		JanusParticipantContext participantContext = event.getParticipantContext();
 
+		System.out.println(state);
+
 		if (state == ExecutableState.Starting) {
 			PeerView peerView = viewFactory.getInstance(PeerView.class);
-			peerView.setPeerName(participantContext.getDisplayName());
 			peerView.setState(event.getState());
+			peerView.setParticipantContext(participantContext);
 
 			updatePeerViewControls(peerView, participantContext);
 			registerPeerView(peerView, participantContext);
@@ -442,13 +446,14 @@ public class SlidesPresenter extends Presenter<SlidesView> {
 
 			if (nonNull(peerView)) {
 				peerView.setState(state);
-				peerView.setHasVideo(participantContext.isVideoActive());
 
 				updatePeerViewControls(peerView, participantContext);
 			}
 		}
 		else if (state == ExecutableState.Stopped) {
 			PeerView peerView = unregisterPeerView(participantContext);
+
+			System.out.println(peerView);
 
 			if (nonNull(peerView)) {
 				view.removePeerView(peerView);
@@ -640,29 +645,13 @@ public class SlidesPresenter extends Presenter<SlidesView> {
 	}
 
 	private PeerView getPeerView(JanusParticipantContext context) {
-//		for (var entry : peerViewMap.entrySet()) {
-//			if (nonNull(id) && Objects.equals(id, entry.getKey().getKey())) {
-//				// Found by peer ID.
-//				return entry.getValue();
-//			}
-//			else if (nonNull(requestId) && Objects.equals(requestId, entry.getKey().getValue())) {
-//				// Found by request ID.
-//				return entry.getValue();
-//			}
-//		}
 		return peerViewMap.get(context);
 	}
 
 	private void updatePeerViewControls(PeerView peerView, JanusParticipantContext context) {
-		BigInteger peerId = context.getPeerId();
 		UUID requestId = context.getRequestId();
-		boolean controlsEnabled = nonNull(peerId) && !BigInteger.ZERO.equals(peerId);
 		boolean kickEnabled = nonNull(requestId);
 
-		if (controlsEnabled) {
-			peerView.setOnMuteAudio(streamService::mutePeerAudio);
-			peerView.setOnMuteVideo(streamService::mutePeerVideo);
-		}
 		if (kickEnabled) {
 			peerView.setOnKick(() -> streamService.stopPeerConnection(requestId));
 		}

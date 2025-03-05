@@ -26,6 +26,7 @@ import java.util.function.Consumer;
 import dev.onvoid.webrtc.media.video.VideoFrame;
 
 import org.lecturestudio.core.beans.BooleanProperty;
+import org.lecturestudio.core.beans.ObjectProperty;
 import org.lecturestudio.core.beans.StringProperty;
 
 /**
@@ -38,10 +39,7 @@ import org.lecturestudio.core.beans.StringProperty;
 public class JanusParticipantContext {
 
 	/** The unique identifier of the participant in the Janus system. */
-	private BigInteger peerId;
-
-	/** The unique request identifier associated with this participant's session. */
-	private UUID requestId;
+	private ObjectProperty<BigInteger> peerId;
 
 	/** Property indicating whether audio stream is active. */
 	private final BooleanProperty audioActive;
@@ -55,6 +53,9 @@ public class JanusParticipantContext {
 	/** Property for the display name of the participant. */
 	private final StringProperty displayName;
 
+	/** The unique request identifier associated with this participant's session. */
+	private UUID requestId;
+
 	/** Consumer for processing video frames received from the participant. */
 	private Consumer<VideoFrame> videoFrameConsumer;
 
@@ -64,10 +65,11 @@ public class JanusParticipantContext {
 	 * By default, all media streams are inactive.
 	 */
 	public JanusParticipantContext() {
-		this.audioActive = new BooleanProperty(false);
-		this.videoActive = new BooleanProperty(false);
-		this.screenActive = new BooleanProperty(false);
-		this.displayName = new StringProperty("");
+		peerId = new ObjectProperty<>();
+		audioActive = new BooleanProperty(false);
+		videoActive = new BooleanProperty(false);
+		screenActive = new BooleanProperty(false);
+		displayName = new StringProperty("");
 	}
 
 	/**
@@ -76,7 +78,7 @@ public class JanusParticipantContext {
 	 * @return The peer ID.
 	 */
 	public BigInteger getPeerId() {
-		return peerId;
+		return peerId.get();
 	}
 
 	/**
@@ -85,7 +87,16 @@ public class JanusParticipantContext {
 	 * @param peerId The peer ID to set.
 	 */
 	public void setPeerId(BigInteger peerId) {
-		this.peerId = peerId;
+		this.peerId.set(peerId);
+	}
+
+	/**
+	 * Gets the peer ID property for binding.
+	 *
+	 * @return The peer ID property.
+	 */
+	public ObjectProperty<BigInteger> peerIdProperty() {
+		return peerId;
 	}
 
 	/**

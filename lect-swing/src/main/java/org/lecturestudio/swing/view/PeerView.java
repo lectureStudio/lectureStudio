@@ -18,11 +18,9 @@
 
 package org.lecturestudio.swing.view;
 
-import dev.onvoid.webrtc.media.video.VideoFrame;
-
 import org.lecturestudio.core.ExecutableState;
 import org.lecturestudio.core.view.Action;
-import org.lecturestudio.core.view.ConsumerAction;
+import org.lecturestudio.web.api.janus.JanusParticipantContext;
 
 /**
  * The {@code PeerView} interface defines methods for updating the visual representation
@@ -35,25 +33,6 @@ import org.lecturestudio.core.view.ConsumerAction;
 public interface PeerView {
 
 	/**
-	 * Sets the name of the peer.
-	 *
-	 * @param name The name of the peer.
-	 */
-	void setPeerName(String name);
-
-	/**
-	 * Sets the image associated with the peer.
-	 *
-	 * @param frame The image to set for the peer.
-	 */
-	void setVideoFrame(VideoFrame frame);
-
-	/**
-	 * Clears the image associated with the peer.
-	 */
-	void clearImage();
-
-	/**
 	 * Sets the executable state for the peer.
 	 *
 	 * @param state The new state to set for the executable.
@@ -61,25 +40,11 @@ public interface PeerView {
 	void setState(ExecutableState state);
 
 	/**
-	 * Sets whether the peer has video.
+	 * Sets the participant context for the peer.
 	 *
-	 * @param hasVideo A boolean indicating if the peer has video.
+	 * @param context The participant context containing streaming session-related information.
 	 */
-	void setHasVideo(boolean hasVideo);
-
-	/**
-	 * Sets the action to be performed when the audio is muted.
-	 *
-	 * @param action The action to be performed on mute audio.
-	 */
-	void setOnMuteAudio(ConsumerAction<Boolean> action);
-
-	/**
-	 * Sets the action to be performed when the video is muted.
-	 *
-	 * @param action The action to be performed on mute video.
-	 */
-	void setOnMuteVideo(ConsumerAction<Boolean> action);
+	void setParticipantContext(JanusParticipantContext context);
 
 	/**
 	 * Sets the action to be performed when the peer is kicked.

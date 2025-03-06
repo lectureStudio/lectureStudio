@@ -429,15 +429,19 @@ public class SlidesPresenter extends Presenter<SlidesView> {
 		ExecutableState state = event.getState();
 		JanusParticipantContext participantContext = event.getParticipantContext();
 
-		System.out.println(state);
+		System.out.println(state + " - " + participantContext);
 
 		if (state == ExecutableState.Starting) {
 			PeerView peerView = viewFactory.getInstance(PeerView.class);
 			peerView.setState(event.getState());
 			peerView.setParticipantContext(participantContext);
 
-			updatePeerViewControls(peerView, participantContext);
 			registerPeerView(peerView, participantContext);
+
+			UUID requestId = participantContext.getRequestId();
+			if (nonNull(requestId)) {
+				peerView.setOnKick(() -> streamService.stopPeerConnection(requestId));
+			}
 
 			view.addPeerView(peerView);
 		}
@@ -446,8 +450,6 @@ public class SlidesPresenter extends Presenter<SlidesView> {
 
 			if (nonNull(peerView)) {
 				peerView.setState(state);
-
-				updatePeerViewControls(peerView, participantContext);
 			}
 		}
 		else if (state == ExecutableState.Stopped) {
@@ -646,15 +648,6 @@ public class SlidesPresenter extends Presenter<SlidesView> {
 
 	private PeerView getPeerView(JanusParticipantContext context) {
 		return peerViewMap.get(context);
-	}
-
-	private void updatePeerViewControls(PeerView peerView, JanusParticipantContext context) {
-		UUID requestId = context.getRequestId();
-		boolean kickEnabled = nonNull(requestId);
-
-		if (kickEnabled) {
-			peerView.setOnKick(() -> streamService.stopPeerConnection(requestId));
-		}
 	}
 
 	private void externalMessagesPositionChanged(ExternalWindowPosition position) {

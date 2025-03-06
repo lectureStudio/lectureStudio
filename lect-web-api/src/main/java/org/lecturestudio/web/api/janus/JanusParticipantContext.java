@@ -39,7 +39,7 @@ import org.lecturestudio.core.beans.StringProperty;
 public class JanusParticipantContext {
 
 	/** The unique identifier of the participant in the Janus system. */
-	private ObjectProperty<BigInteger> peerId;
+	private final ObjectProperty<BigInteger> peerId;
 
 	/** Property indicating whether audio stream is active. */
 	private final BooleanProperty audioActive;

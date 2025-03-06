@@ -462,6 +462,8 @@ public class JanusHandler extends JanusStateHandler {
 			}
 		});
 
+		System.out.println(subHandler);
+
 		addStateHandler(subHandler);
 	}
 

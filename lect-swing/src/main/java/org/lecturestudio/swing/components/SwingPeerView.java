@@ -68,8 +68,6 @@ public class SwingPeerView extends JComponent implements PeerView {
 
 	private final Box buttonsBox;
 
-	private ExecutableState peerState;
-
 	private BufferedImage image;
 
 
@@ -133,8 +131,6 @@ public class SwingPeerView extends JComponent implements PeerView {
 
 	@Override
 	public void setState(ExecutableState state) {
-		this.peerState = state;
-
 		String stateText = null;
 
 		if (state == ExecutableState.Starting) {
@@ -211,6 +207,7 @@ public class SwingPeerView extends JComponent implements PeerView {
 	}
 
 	private void onVideoFrame(VideoFrame frame) {
+		System.out.println(frame);
 		if (!muteVideoButton.isSelected()) {
 			return;
 		}

@@ -47,6 +47,7 @@ import org.lecturestudio.core.ExecutableState;
 import org.lecturestudio.web.api.data.bind.JsonConfigProvider;
 import org.lecturestudio.web.api.janus.JanusHandler;
 import org.lecturestudio.web.api.janus.JanusMessageTransmitter;
+import org.lecturestudio.web.api.janus.JanusParticipantContext;
 import org.lecturestudio.web.api.janus.JanusStateHandlerListener;
 import org.lecturestudio.web.api.janus.json.JanusMessageFactory;
 import org.lecturestudio.web.api.janus.message.JanusMessageType;
@@ -78,7 +79,7 @@ public class JanusWebSocketClient extends ExecutableBase implements JanusMessage
 
 	private Jsonb jsonb;
 
-	private Consumer<UUID> rejectedConsumer;
+	private Consumer<JanusParticipantContext> rejectedConsumer;
 
 	private JanusHandler handler;
 
@@ -94,24 +95,25 @@ public class JanusWebSocketClient extends ExecutableBase implements JanusMessage
 		stateListeners.add(listener);
 	}
 
-	public void setRejectedConsumer(Consumer<UUID> consumer) {
+	// TODO remove
+	public void setRejectedConsumer(Consumer<JanusParticipantContext> consumer) {
 		rejectedConsumer = consumer;
 	}
 
-	public void startRemoteSpeech(UUID requestId, String userName) {
+	public void startRemoteSpeech(JanusParticipantContext context) {
 		if (!started()) {
 			return;
 		}
 
-		handler.startRemoteSpeech(requestId, userName);
+		handler.startRemoteSpeech(context);
 	}
 
-	public void stopRemoteSpeech(UUID requestId) {
+	public void stopRemoteSpeech(JanusParticipantContext context) {
 		if (!started()) {
 			return;
 		}
 
-		handler.stopRemoteSpeech(requestId);
+		handler.stopRemoteSpeech(context);
 	}
 
 	@Override

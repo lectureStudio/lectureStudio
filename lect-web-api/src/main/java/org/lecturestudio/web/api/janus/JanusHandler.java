@@ -82,14 +82,14 @@ public class JanusHandler extends JanusStateHandler {
 	/** Maps participant IDs to their publisher objects. */
 	private Map<BigInteger, JanusPublisher> participants;
 
-	/** Maps speech request IDs to their publisher objects. */
-	private Map<UUID, JanusPublisher> speechPublishers;
+	/** Maps participant contexts to their publisher objects. */
+	private Map<JanusParticipantContext, JanusPublisher> speechPublishers;
 
 	/** State handlers for managing different aspects of the Janus communication. */
 	private List<JanusStateHandler> handlers;
 
 	/** Consumer that is called when a speech request is rejected. */
-	private Consumer<UUID> rejectedConsumer;
+	private Consumer<JanusParticipantContext> rejectedConsumer;
 
 
 	/**
@@ -111,42 +111,42 @@ public class JanusHandler extends JanusStateHandler {
 	 *
 	 * @param consumer The consumer to be called.
 	 */
-	public void setRejectedConsumer(Consumer<UUID> consumer) {
-		this.rejectedConsumer = consumer;
+	public void setRejectedConsumer(Consumer<JanusParticipantContext> consumer) {
+		rejectedConsumer = consumer;
 	}
 
 	/**
 	 * Starts a remote speech.
 	 *
-	 * @param requestId The unique request ID of the speech request.
-	 * @param userName The name of the user.
+	 * @param context The participant context for the peer who initiated the speech request.
 	 */
-	public void startRemoteSpeech(UUID requestId, String userName) {
+	public void startRemoteSpeech(JanusParticipantContext context) {
 		if (!started()) {
 			return;
 		}
 
-		Map.Entry<UUID, JanusPublisher> entry = getFirstPublisherEntry();
+		Map.Entry<JanusParticipantContext, JanusPublisher> entry = getFirstPublisherEntry();
 
 		if (nonNull(entry)) {
 			JanusPublisher activePublisher = entry.getValue();
+			JanusParticipantContext pContext = entry.getKey();
 
 			if (isNull(activePublisher.getId())) {
-				speechPublishers.remove(entry.getKey());
+				speechPublishers.remove(pContext);
 
 				if (nonNull(rejectedConsumer)) {
-					rejectedConsumer.accept(entry.getKey());
+					rejectedConsumer.accept(pContext);
 				}
 			}
 			else {
-				stopRemoteSpeech(entry.getKey());
+				stopRemoteSpeech(pContext);
 			}
 		}
 
 		JanusPublisher speechPublisher = new JanusPublisher();
-		speechPublisher.setDisplayName(userName);
+		speechPublisher.setDisplayName(context.getDisplayName());
 
-		speechPublishers.put(requestId, speechPublisher);
+		speechPublishers.put(context, speechPublisher);
 
 		editRoom(3);
 	}
@@ -154,16 +154,16 @@ public class JanusHandler extends JanusStateHandler {
 	/**
 	 * Stops a remote speech.
 	 *
-	 * @param requestId The unique request ID of the speech request.
+	 * @param context The participant context for the peer who initiated the speech request.
 	 */
-	public void stopRemoteSpeech(UUID requestId) {
+	public void stopRemoteSpeech(JanusParticipantContext context) {
 		if (!started()) {
 			return;
 		}
 
 		editRoom(3);
 
-		JanusPublisher speechPublisher = speechPublishers.remove(requestId);
+		JanusPublisher speechPublisher = speechPublishers.remove(context);
 
 		if (nonNull(speechPublisher)) {
 			kickParticipant(speechPublisher);
@@ -424,12 +424,13 @@ public class JanusHandler extends JanusStateHandler {
 		addStateHandler(pubHandler);
 	}
 
-	private void startSubscriber(final JanusPublisher publisher, final UUID requestId) {
+	private void startSubscriber(final JanusPublisher publisher, final JanusParticipantContext context) {
 		getStreamContext().getAudioContext().setReceiveAudio(true);
 		getStreamContext().getVideoContext().setReceiveVideo(true);
 
 		JanusSubscriberHandler subHandler = new JanusSubscriberHandler(publisher,
 				peerConnectionFactory, transmitter);
+		subHandler.setJanusParticipantContext(context);
 		subHandler.setSessionId(getSessionId());
 		subHandler.setRoomId(getRoomId());
 		subHandler.setOpaqueId(getStreamContext().getUserInfo().getUserId());
@@ -475,7 +476,7 @@ public class JanusHandler extends JanusStateHandler {
 		return speechPublishers.entrySet().iterator().next().getValue();
 	}
 
-	private Map.Entry<UUID, JanusPublisher> getFirstPublisherEntry() {
+	private Map.Entry<JanusParticipantContext, JanusPublisher> getFirstPublisherEntry() {
 		if (speechPublishers.isEmpty()) {
 			return null;
 		}

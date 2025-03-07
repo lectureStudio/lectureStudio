@@ -440,7 +440,8 @@ public class SlidesPresenter extends Presenter<SlidesView> {
 
 			UUID requestId = participantContext.getRequestId();
 			if (nonNull(requestId)) {
-				peerView.setOnKick(() -> streamService.stopPeerConnection(requestId));
+				// Kick only participants who initiated a speech request.
+				peerView.setOnKick(() -> streamService.stopPeerConnection(participantContext));
 			}
 
 			view.addPeerView(peerView);
@@ -454,8 +455,6 @@ public class SlidesPresenter extends Presenter<SlidesView> {
 		}
 		else if (state == ExecutableState.Stopped) {
 			PeerView peerView = unregisterPeerView(participantContext);
-
-			System.out.println(peerView);
 
 			if (nonNull(peerView)) {
 				view.removePeerView(peerView);
@@ -754,19 +753,19 @@ public class SlidesPresenter extends Presenter<SlidesView> {
 	}
 
 	private void onAcceptSpeech(SpeechBaseMessage message) {
-		streamService.acceptSpeechRequest(message);
-
-		PresenterContext presenterContext = (PresenterContext) context;
-		presenterContext.getSpeechRequests().remove(message);
-
-		view.acceptSpeechRequest(message);
-
-		// Create and configure a participant context for the local publisher.
+		// Create and configure a participant context for the speech publisher.
 		// BigInteger '-1' is temporarily used as the peerId to identify the remote user/participant.
 		JanusParticipantContext pContext = new JanusParticipantContext();
 		pContext.setPeerId(BigInteger.valueOf(-1));
 		pContext.setRequestId(message.getRequestId());
 		pContext.setDisplayName(message.getFullName());
+
+		streamService.acceptSpeechRequest(pContext);
+
+		PresenterContext presenterContext = (PresenterContext) context;
+		presenterContext.getSpeechRequests().remove(message);
+
+		view.acceptSpeechRequest(message);
 
 		onEvent(new PeerStateEvent(pContext, ExecutableState.Starting));
 	}

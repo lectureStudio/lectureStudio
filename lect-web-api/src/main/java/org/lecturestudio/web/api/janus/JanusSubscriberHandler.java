@@ -40,6 +40,10 @@ public class JanusSubscriberHandler extends JanusStateHandler {
 		this.publisher = publisher;
 	}
 
+	public void setJanusParticipantContext(JanusParticipantContext context) {
+		participantContext = context;
+	}
+
 	public JanusPublisher getPublisher() {
 		return publisher;
 	}
@@ -86,6 +90,10 @@ public class JanusSubscriberHandler extends JanusStateHandler {
 
 	@Override
 	protected void initInternal() throws ExecutableException {
+		if (nonNull(participantContext)) {
+			// Do not initialize the participant context if it is already set.
+			return;
+		}
 		participantContext = new JanusParticipantContext();
 		participantContext.setPeerId(getPublisher().getId());
 		participantContext.setDisplayName(getPublisher().getDisplayName());
@@ -106,6 +114,6 @@ public class JanusSubscriberHandler extends JanusStateHandler {
 
 	@Override
 	protected void destroyInternal() throws ExecutableException {
-
+		participantContext = null;
 	}
 }

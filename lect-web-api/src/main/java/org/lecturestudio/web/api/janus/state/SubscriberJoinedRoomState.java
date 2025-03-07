@@ -76,8 +76,6 @@ public class SubscriberJoinedRoomState implements JanusState {
 
 	@Override
 	public void initialize(JanusStateHandler handler) {
-		System.out.println(handler);
-
 		StreamContext streamContext = handler.getStreamContext();
 		StreamAudioContext audioContext = streamContext.getAudioContext();
 		JanusPeerConnection peerConnection = handler.createPeerConnection();
@@ -97,7 +95,6 @@ public class SubscriberJoinedRoomState implements JanusState {
 			}
 		});
 		peerConnection.setOnRemoteVideoFrame(videoFrame -> {
-//			System.out.println(participantContext);
 			var frameConsumer = participantContext.getVideoFrameConsumer();
 			if (nonNull(frameConsumer)) {
 				frameConsumer.accept(videoFrame);

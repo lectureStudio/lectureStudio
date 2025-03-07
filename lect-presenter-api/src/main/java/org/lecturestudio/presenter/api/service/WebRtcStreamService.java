@@ -35,7 +35,6 @@ import java.time.Duration;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.UUID;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -69,6 +68,7 @@ import org.lecturestudio.web.api.client.TokenProvider;
 import org.lecturestudio.web.api.exception.StreamMediaException;
 import org.lecturestudio.web.api.janus.JanusHandlerException;
 import org.lecturestudio.web.api.janus.JanusHandlerException.Type;
+import org.lecturestudio.web.api.janus.JanusParticipantContext;
 import org.lecturestudio.web.api.janus.JanusPeerConnectionMediaException;
 import org.lecturestudio.web.api.janus.JanusStateHandlerListener;
 import org.lecturestudio.web.api.janus.client.JanusWebSocketClient;
@@ -170,16 +170,13 @@ public class WebRtcStreamService extends ExecutableBase {
 		return streamConfig;
 	}
 
-	public void acceptSpeechRequest(SpeechBaseMessage message) {
+	public void acceptSpeechRequest(JanusParticipantContext context) {
 		if (!started()) {
 			return;
 		}
 
-		UUID requestId = message.getRequestId();
-		String userName = message.getFullName();
-
-		janusSignalingClient.startRemoteSpeech(requestId, userName);
-		streamProviderService.acceptSpeechRequest(requestId);
+		janusSignalingClient.startRemoteSpeech(context);
+		streamProviderService.acceptSpeechRequest(context.getRequestId());
 	}
 
 	public void rejectSpeechRequest(SpeechBaseMessage message) {
@@ -263,6 +260,7 @@ public class WebRtcStreamService extends ExecutableBase {
 		setScreenShareState(ExecutableState.Stopped);
 	}
 
+	// TODO remove
 	public void mutePeerAudio(boolean mute) {
 		if (!started()) {
 			return;
@@ -279,13 +277,13 @@ public class WebRtcStreamService extends ExecutableBase {
 		streamContext.getVideoContext().setReceiveVideo(mute);
 	}
 
-	public void stopPeerConnection(UUID requestId) {
+	public void stopPeerConnection(JanusParticipantContext context) {
 		if (!started()) {
 			return;
 		}
 
-		streamProviderService.rejectSpeechRequest(requestId);
-		janusSignalingClient.stopRemoteSpeech(requestId);
+		streamProviderService.rejectSpeechRequest(context.getRequestId());
+		janusSignalingClient.stopRemoteSpeech(context);
 	}
 
 	public void shareDocument(Document document) throws IOException {

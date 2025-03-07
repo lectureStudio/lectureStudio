@@ -79,6 +79,10 @@ public class JanusSubscriberHandler extends JanusStateHandler {
 					sendPeerState(ExecutableState.Stopped);
 					break;
 
+				case CLOSED:
+					sendPeerState(ExecutableState.Stopped);
+					break;
+
 				case FAILED:
 					setFailed();
 					break;
@@ -114,6 +118,6 @@ public class JanusSubscriberHandler extends JanusStateHandler {
 
 	@Override
 	protected void destroyInternal() throws ExecutableException {
-		participantContext = null;
+		// Nothing to do here yet.
 	}
 }

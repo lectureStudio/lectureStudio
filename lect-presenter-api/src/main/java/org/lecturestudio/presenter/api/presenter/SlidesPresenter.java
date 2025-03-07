@@ -394,8 +394,6 @@ public class SlidesPresenter extends Presenter<SlidesView> {
 
 		PeerView peerView = unregisterPeerView(message.getRequestId());
 
-		System.out.println(peerView);
-
 		if (nonNull(peerView)) {
 			view.removePeerView(peerView);
 		}
@@ -429,7 +427,7 @@ public class SlidesPresenter extends Presenter<SlidesView> {
 		ExecutableState state = event.getState();
 		JanusParticipantContext participantContext = event.getParticipantContext();
 
-		System.out.println(state + " - " + participantContext);
+		System.out.println(state + " - " + participantContext.getDisplayName());
 
 		if (state == ExecutableState.Starting) {
 			PeerView peerView = viewFactory.getInstance(PeerView.class);

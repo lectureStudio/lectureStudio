@@ -70,6 +70,8 @@ public class SwingPeerView extends JComponent implements PeerView {
 
 	private BufferedImage image;
 
+	private ExecutableState state;
+
 
 	/**
 	 * Creates a new PeerView.
@@ -85,16 +87,16 @@ public class SwingPeerView extends JComponent implements PeerView {
 		nameLabel.setFont(nameLabel.getFont().deriveFont(14.f));
 
 		muteAudioButton = new JToggleButton();
-		muteAudioButton.setIcon(AwtResourceLoader.getIcon("microphone-off.svg", 22));
-		muteAudioButton.setSelectedIcon(AwtResourceLoader.getIcon("microphone.svg", 22));
+		muteAudioButton.setIcon(AwtResourceLoader.getIcon("microphone.svg", 22));
+		muteAudioButton.setSelectedIcon(AwtResourceLoader.getIcon("microphone-off.svg", 22));
 		muteAudioButton.setContentAreaFilled(false);
 		muteAudioButton.setSelected(true);
 		muteAudioButton.setEnabled(false);
 		muteAudioButton.setVisible(false);
 
 		muteVideoButton = new JToggleButton();
-		muteVideoButton.setIcon(AwtResourceLoader.getIcon("camera-off.svg", 22));
-		muteVideoButton.setSelectedIcon(AwtResourceLoader.getIcon("camera.svg", 22));
+		muteVideoButton.setIcon(AwtResourceLoader.getIcon("camera.svg", 22));
+		muteVideoButton.setSelectedIcon(AwtResourceLoader.getIcon("camera-off.svg", 22));
 		muteVideoButton.setContentAreaFilled(false);
 		muteVideoButton.setSelected(true);
 		muteVideoButton.setEnabled(false);
@@ -114,6 +116,8 @@ public class SwingPeerView extends JComponent implements PeerView {
 
 		stateLabel = new JLabel();
 		stateLabel.setHorizontalAlignment(SwingConstants.CENTER);
+		stateLabel.setVerticalTextPosition(JLabel.BOTTOM);
+		stateLabel.setHorizontalTextPosition(JLabel.CENTER);
 		stateLabel.setFont(nameLabel.getFont().deriveFont(16.f));
 		stateLabel.setForeground(Color.DARK_GRAY);
 
@@ -131,20 +135,14 @@ public class SwingPeerView extends JComponent implements PeerView {
 
 	@Override
 	public void setState(ExecutableState state) {
-		String stateText = null;
+		this.state = state;
 
-		if (state == ExecutableState.Starting) {
-			stateText = dict.get("speech.waiting");
-		}
-		else if (state == ExecutableState.Started) {
-			muteAudioButton.setEnabled(true);
+		updateStateLabel();
 
-			stateText = "";
-		}
+		boolean started = state == ExecutableState.Started;
 
-		if (nonNull(stateText)) {
-			stateLabel.setText(stateText);
-		}
+		muteAudioButton.setEnabled(started);
+		muteVideoButton.setEnabled(started);
 	}
 
 	@Override
@@ -154,15 +152,18 @@ public class SwingPeerView extends JComponent implements PeerView {
 		context.peerIdProperty().addListener((o, oldValue, newValue) ->
 				onPeerId(newValue));
 		context.videoActiveProperty().addListener((o, oldValue, newValue) ->
-				onVideoActivity(newValue));
+				onVideoActivity());
 		context.setVideoFrameConsumer(this::onVideoFrame);
 
 		SwingUtils.bindBidirectional(muteAudioButton, context.audioActiveProperty());
 		SwingUtils.bindBidirectional(muteVideoButton, context.videoActiveProperty());
 
+		System.out.println(context.isAudioActive() + " " + context.isVideoActive());
+		System.out.println(muteAudioButton.isSelected() + " " + muteVideoButton.isSelected());
+
 		onDisplayName(context.getDisplayName());
 		onPeerId(context.getPeerId());
-		onVideoActivity(context.isVideoActive());
+		onVideoActivity();
 	}
 
 	@Override
@@ -207,8 +208,7 @@ public class SwingPeerView extends JComponent implements PeerView {
 	}
 
 	private void onVideoFrame(VideoFrame frame) {
-		System.out.println(frame);
-		if (!muteVideoButton.isSelected()) {
+		if (muteVideoButton.isSelected()) {
 			return;
 		}
 
@@ -222,16 +222,9 @@ public class SwingPeerView extends JComponent implements PeerView {
 		repaint();
 	}
 
-	private void onVideoActivity(boolean videoActive) {
+	private void onVideoActivity() {
 		SwingUtils.invoke(() -> {
-			muteVideoButton.setEnabled(videoActive);
-
-			if (!videoActive) {
-				stateLabel.setIcon(AwtResourceLoader.getIcon("user.svg", 50));
-			}
-			else {
-				stateLabel.setIcon(null);
-			}
+			updateStateLabel();
 
 			image = null;
 
@@ -246,5 +239,26 @@ public class SwingPeerView extends JComponent implements PeerView {
 			muteAudioButton.setVisible(controlsEnabled);
 			muteVideoButton.setVisible(controlsEnabled);
 		});
+	}
+
+	private void updateStateLabel() {
+		boolean started = state == ExecutableState.Started;
+		boolean starting = state == ExecutableState.Starting;
+
+		// Update state text.
+		if (starting) {
+			stateLabel.setText(dict.get("speech.waiting"));
+		}
+		else if (started) {
+			stateLabel.setText("");
+		}
+
+		// Update state icon.
+		if (muteVideoButton.isSelected() && started) {
+			stateLabel.setIcon(AwtResourceLoader.getIcon("user.svg", 50));
+		}
+		else {
+			stateLabel.setIcon(null);
+		}
 	}
 }

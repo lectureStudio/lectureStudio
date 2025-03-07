@@ -33,7 +33,9 @@ import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
 
 import org.lecturestudio.core.ExecutableException;
+import org.lecturestudio.core.ExecutableState;
 import org.lecturestudio.core.net.MediaType;
+import org.lecturestudio.web.api.event.PeerStateEvent;
 import org.lecturestudio.web.api.janus.JanusHandlerException.Type;
 import org.lecturestudio.web.api.janus.message.JanusEditRoomMessage;
 import org.lecturestudio.web.api.janus.message.JanusErrorMessage;
@@ -88,9 +90,6 @@ public class JanusHandler extends JanusStateHandler {
 	/** State handlers for managing different aspects of the Janus communication. */
 	private List<JanusStateHandler> handlers;
 
-	/** Consumer that is called when a speech request is rejected. */
-	private Consumer<JanusParticipantContext> rejectedConsumer;
-
 
 	/**
 	 * Constructs a new JanusHandler with the given dependencies.
@@ -104,15 +103,6 @@ public class JanusHandler extends JanusStateHandler {
 		super(new JanusPeerConnectionFactory(streamContext), transmitter);
 
 		this.eventRecorder = eventRecorder;
-	}
-
-	/**
-	 * Sets the consumer that is called when a speech request is rejected.
-	 *
-	 * @param consumer The consumer to be called.
-	 */
-	public void setRejectedConsumer(Consumer<JanusParticipantContext> consumer) {
-		rejectedConsumer = consumer;
 	}
 
 	/**
@@ -133,10 +123,6 @@ public class JanusHandler extends JanusStateHandler {
 
 			if (isNull(activePublisher.getId())) {
 				speechPublishers.remove(pContext);
-
-				if (nonNull(rejectedConsumer)) {
-					rejectedConsumer.accept(pContext);
-				}
 			}
 			else {
 				stopRemoteSpeech(pContext);
@@ -168,12 +154,23 @@ public class JanusHandler extends JanusStateHandler {
 		if (nonNull(speechPublisher)) {
 			kickParticipant(speechPublisher);
 
+			boolean foundHandler = false;
+
 			for (JanusStateHandler handler : handlers) {
 				if (handler instanceof JanusSubscriberHandler subHandler) {
 					if (subHandler.getPublisher().equals(speechPublisher)) {
 						removeStateHandler(handler);
+						foundHandler = true;
 						break;
 					}
+				}
+			}
+
+			if (!foundHandler) {
+				// Handle non-authorized or pending context.
+				var peerStateConsumer = getStreamContext().getPeerStateConsumer();
+				if (nonNull(peerStateConsumer)) {
+					peerStateConsumer.accept(new PeerStateEvent(context, ExecutableState.Stopped));
 				}
 			}
 		}
@@ -236,23 +233,6 @@ public class JanusHandler extends JanusStateHandler {
 		speechPublishers = new ConcurrentHashMap<>();
 		participants = new ConcurrentHashMap<>();
 		handlers = new CopyOnWriteArrayList<>();
-
-		getStreamContext().getAudioContext().receiveAudioProperty()
-				.addListener((observable, oldValue, newValue) -> {
-					JanusPublisher speechPublisher = getFirstPublisher();
-
-					if (nonNull(speechPublisher)) {
-						muteParticipant(speechPublisher, !newValue, MediaType.Audio);
-					}
-				});
-		getStreamContext().getVideoContext().receiveVideoProperty()
-				.addListener((observable, oldValue, newValue) -> {
-					JanusPublisher speechPublisher = getFirstPublisher();
-
-					if (nonNull(speechPublisher)) {
-						muteParticipant(speechPublisher, !newValue, MediaType.Camera);
-					}
-				});
 
 		setRoomId(BigInteger.valueOf(getStreamContext().getCourse().getId()));
 		setOpaqueId(getStreamContext().getUserInfo().getUserId());
@@ -463,7 +443,10 @@ public class JanusHandler extends JanusStateHandler {
 			}
 		});
 
-		System.out.println(subHandler);
+		context.audioActiveProperty().addListener((o, oldValue, newValue) ->
+				muteParticipant(subHandler.getPublisher(), newValue, MediaType.Audio));
+		context.videoActiveProperty().addListener((o, oldValue, newValue) ->
+				muteParticipant(subHandler.getPublisher(), newValue, MediaType.Camera));
 
 		addStateHandler(subHandler);
 	}

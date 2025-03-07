@@ -88,7 +88,7 @@ public class SubscriberJoinRoomState implements JanusState {
 			String sdp = jsepMessage.getSdp();
 			RTCSessionDescription offer = new RTCSessionDescription(RTCSdpType.OFFER, sdp);
 
-			handler.setState(new SubscriberJoinedRoomState(offer, publisher));
+			handler.setState(new SubscriberJoinedRoomState(offer));
 		}
 	}
 }

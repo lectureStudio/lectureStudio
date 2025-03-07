@@ -31,9 +31,7 @@ import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.NoSuchElementException;
-import java.util.UUID;
 import java.util.concurrent.CompletionStage;
-import java.util.function.Consumer;
 
 import javax.json.Json;
 import javax.json.JsonObject;
@@ -79,8 +77,6 @@ public class JanusWebSocketClient extends ExecutableBase implements JanusMessage
 
 	private Jsonb jsonb;
 
-	private Consumer<JanusParticipantContext> rejectedConsumer;
-
 	private JanusHandler handler;
 
 
@@ -93,11 +89,6 @@ public class JanusWebSocketClient extends ExecutableBase implements JanusMessage
 
 	public void addJanusStateHandlerListener(JanusStateHandlerListener listener) {
 		stateListeners.add(listener);
-	}
-
-	// TODO remove
-	public void setRejectedConsumer(Consumer<JanusParticipantContext> consumer) {
-		rejectedConsumer = consumer;
 	}
 
 	public void startRemoteSpeech(JanusParticipantContext context) {
@@ -162,7 +153,6 @@ public class JanusWebSocketClient extends ExecutableBase implements JanusMessage
 
 			handler = new JanusHandler(this, streamContext, eventRecorder);
 			handler.addJanusStateHandlerListeners(stateListeners);
-			handler.setRejectedConsumer(rejectedConsumer);
 			handler.init();
 			handler.start();
 

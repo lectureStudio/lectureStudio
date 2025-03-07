@@ -31,7 +31,6 @@ import java.util.function.Consumer;
 import org.lecturestudio.core.audio.AudioFrame;
 import org.lecturestudio.web.api.janus.JanusParticipantContext;
 import org.lecturestudio.web.api.janus.JanusPeerConnection;
-import org.lecturestudio.web.api.janus.JanusPublisher;
 import org.lecturestudio.web.api.janus.JanusStateHandler;
 import org.lecturestudio.web.api.janus.message.JanusMediaMessage;
 import org.lecturestudio.web.api.janus.message.JanusMessage;
@@ -54,8 +53,6 @@ public class SubscriberJoinedRoomState implements JanusState {
 
 	private final RTCSessionDescription offer;
 
-	private final JanusPublisher publisher;
-
 	private JanusParticipantContext participantContext;
 
 	private Consumer<AudioFrame> audioFrameConsumer;
@@ -66,12 +63,10 @@ public class SubscriberJoinedRoomState implements JanusState {
 	/**
 	 * Creates a new instance of SubscriberJoinedRoomState for subscribing to a publisher in a Janus video room.
 	 *
-	 * @param offer     the WebRTC session description containing the remote media offer.
-	 * @param publisher the Janus publisher to subscribe to.
+	 * @param offer The WebRTC session description containing the remote media offer.
 	 */
-	public SubscriberJoinedRoomState(RTCSessionDescription offer, JanusPublisher publisher) {
+	public SubscriberJoinedRoomState(RTCSessionDescription offer) {
 		this.offer = offer;
-		this.publisher = publisher;
 	}
 
 	@Override

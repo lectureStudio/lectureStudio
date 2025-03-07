@@ -260,23 +260,6 @@ public class WebRtcStreamService extends ExecutableBase {
 		setScreenShareState(ExecutableState.Stopped);
 	}
 
-	// TODO remove
-	public void mutePeerAudio(boolean mute) {
-		if (!started()) {
-			return;
-		}
-
-		streamContext.getAudioContext().setReceiveAudio(mute);
-	}
-
-	public void mutePeerVideo(boolean mute) {
-		if (!started()) {
-			return;
-		}
-
-		streamContext.getVideoContext().setReceiveVideo(mute);
-	}
-
 	public void stopPeerConnection(JanusParticipantContext context) {
 		if (!started()) {
 			return;

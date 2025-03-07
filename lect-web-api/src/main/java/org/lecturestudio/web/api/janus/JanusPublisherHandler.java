@@ -110,6 +110,10 @@ public class JanusPublisherHandler extends JanusStateHandler {
 					sendPeerState(ExecutableState.Stopped);
 					break;
 
+				case CLOSED:
+					sendPeerState(ExecutableState.Stopped);
+					break;
+
 				case FAILED:
 					// Requires a new connection setup.
 					setFailed();
@@ -136,6 +140,8 @@ public class JanusPublisherHandler extends JanusStateHandler {
 		participantContext = new JanusParticipantContext();
 		participantContext.setPeerId(BigInteger.ZERO);
 		participantContext.setDisplayName(getStreamContext().getUserInfo().getFullName());
+		participantContext.setAudioActive(audioContext.getSendAudio());
+		participantContext.setVideoActive(videoContext.getSendVideo());
 
 		enableMicListener = (observable, oldValue, newValue) -> {
 			peerConnection.setMicrophoneEnabled(newValue);
@@ -183,7 +189,7 @@ public class JanusPublisherHandler extends JanusStateHandler {
 
 	@Override
 	protected void stopInternal() throws ExecutableException {
-		// Send leave message.
+		// Send a leave message.
 		JanusRoomRequest request = new JanusRoomRequest();
 		request.setRequestType(JanusRoomRequestType.LEAVE);
 

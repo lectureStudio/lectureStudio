@@ -444,19 +444,11 @@ public class JanusHandler extends JanusStateHandler {
 		});
 
 		context.audioActiveProperty().addListener((o, oldValue, newValue) ->
-				muteParticipant(subHandler.getPublisher(), newValue, MediaType.Audio));
+				muteParticipant(subHandler.getPublisher(), !newValue, MediaType.Audio));
 		context.videoActiveProperty().addListener((o, oldValue, newValue) ->
-				muteParticipant(subHandler.getPublisher(), newValue, MediaType.Camera));
+				muteParticipant(subHandler.getPublisher(), !newValue, MediaType.Camera));
 
 		addStateHandler(subHandler);
-	}
-
-	private JanusPublisher getFirstPublisher() {
-		if (speechPublishers.isEmpty()) {
-			return null;
-		}
-
-		return speechPublishers.entrySet().iterator().next().getValue();
 	}
 
 	private Map.Entry<JanusParticipantContext, JanusPublisher> getFirstPublisherEntry() {

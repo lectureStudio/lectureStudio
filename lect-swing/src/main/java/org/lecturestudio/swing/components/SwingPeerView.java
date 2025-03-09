@@ -87,18 +87,18 @@ public class SwingPeerView extends JComponent implements PeerView {
 		nameLabel.setFont(nameLabel.getFont().deriveFont(14.f));
 
 		muteAudioButton = new JToggleButton();
-		muteAudioButton.setIcon(AwtResourceLoader.getIcon("microphone.svg", 22));
-		muteAudioButton.setSelectedIcon(AwtResourceLoader.getIcon("microphone-off.svg", 22));
+		muteAudioButton.setIcon(AwtResourceLoader.getIcon("microphone-off.svg", 22));
+		muteAudioButton.setSelectedIcon(AwtResourceLoader.getIcon("microphone.svg", 22));
 		muteAudioButton.setContentAreaFilled(false);
-		muteAudioButton.setSelected(true);
+		muteAudioButton.setSelected(false);
 		muteAudioButton.setEnabled(false);
 		muteAudioButton.setVisible(false);
 
 		muteVideoButton = new JToggleButton();
-		muteVideoButton.setIcon(AwtResourceLoader.getIcon("camera.svg", 22));
-		muteVideoButton.setSelectedIcon(AwtResourceLoader.getIcon("camera-off.svg", 22));
+		muteVideoButton.setIcon(AwtResourceLoader.getIcon("camera-off.svg", 22));
+		muteVideoButton.setSelectedIcon(AwtResourceLoader.getIcon("camera.svg", 22));
 		muteVideoButton.setContentAreaFilled(false);
-		muteVideoButton.setSelected(true);
+		muteVideoButton.setSelected(false);
 		muteVideoButton.setEnabled(false);
 		muteVideoButton.setVisible(false);
 
@@ -158,9 +158,6 @@ public class SwingPeerView extends JComponent implements PeerView {
 		SwingUtils.bindBidirectional(muteAudioButton, context.audioActiveProperty());
 		SwingUtils.bindBidirectional(muteVideoButton, context.videoActiveProperty());
 
-		System.out.println(context.isAudioActive() + " " + context.isVideoActive());
-		System.out.println(muteAudioButton.isSelected() + " " + muteVideoButton.isSelected());
-
 		onDisplayName(context.getDisplayName());
 		onPeerId(context.getPeerId());
 		onVideoActivity();
@@ -208,7 +205,7 @@ public class SwingPeerView extends JComponent implements PeerView {
 	}
 
 	private void onVideoFrame(VideoFrame frame) {
-		if (muteVideoButton.isSelected()) {
+		if (!muteVideoButton.isSelected()) {
 			return;
 		}
 
@@ -254,7 +251,7 @@ public class SwingPeerView extends JComponent implements PeerView {
 		}
 
 		// Update state icon.
-		if (muteVideoButton.isSelected() && started) {
+		if (!muteVideoButton.isSelected() && started) {
 			stateLabel.setIcon(AwtResourceLoader.getIcon("user.svg", 50));
 		}
 		else {

@@ -69,6 +69,7 @@ public class JanusSubscriberHandler extends JanusStateHandler {
 				case CONNECTED:
 					setConnected();
 
+					participantContext.setAudioActive(peerConnection.isReceivingAudio());
 					participantContext.setVideoActive(peerConnection.isReceivingVideo());
 
 					sendPeerState(ExecutableState.Started);

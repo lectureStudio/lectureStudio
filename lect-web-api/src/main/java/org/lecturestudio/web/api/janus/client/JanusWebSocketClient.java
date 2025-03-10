@@ -205,6 +205,8 @@ public class JanusWebSocketClient extends ExecutableBase implements JanusMessage
 			buffer.append(data);
 
 			if (last) {
+				System.out.println(buffer);
+
 				StringReader reader = new StringReader(buffer.toString());
 
 				try {

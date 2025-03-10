@@ -55,7 +55,6 @@ public class ViewModule extends AbstractModule {
 		bind(NotificationView.class).to(SwingNotificationView.class);
 		bind(NotificationPopupView.class).to(SwingNotificationPopupView.class);
 		bind(NotificationPopupManager.class).to(SwingNotificationPopupManager.class);
-		bind(ParticipantVideoWindow.class).to(SwingParticipantVideoWindow.class);
 		bind(PeerView.class).to(SwingPeerView.class);
 		bind(PreviewStreamView.class).to(SwingPreviewStreamView.class);
 		bind(ProgressView.class).to(SwingProgressView.class);

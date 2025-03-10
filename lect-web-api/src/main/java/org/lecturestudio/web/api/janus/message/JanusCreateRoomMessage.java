@@ -35,6 +35,12 @@ public class JanusCreateRoomMessage extends JanusRoomRequest {
 
 	private Boolean is_private;
 
+	private Boolean audiolevel_event;
+
+	private Integer audio_active_packets;
+
+	private Integer audio_level_average;
+
 	private Boolean notify_joining;
 
 	private Boolean record;
@@ -164,6 +170,60 @@ public class JanusCreateRoomMessage extends JanusRoomRequest {
 	 */
 	public void setPin(String pin) {
 		this.pin = pin;
+	}
+
+	/**
+	 * Get whether emitting an event to other users is enabled or not, default=false.
+	 *
+	 * @return True to emit the audio level event.
+	 */
+	public Boolean getAudioLevelEvent() {
+		return audiolevel_event;
+	}
+
+	/**
+	 * Set whether to emit an event to other users or not.
+	 *
+	 * @param enableEvent True to emit the audio level event.
+	 */
+	public void setAudioLevelEvent(Boolean enableEvent) {
+		audiolevel_event = enableEvent;
+	}
+
+	/**
+	 * Get the number of packets to consider a user active, default=100, 2 seconds.
+	 *
+	 * @return The number of packets to consider a user active.
+	 */
+	public Integer getAudioActivePackets() {
+		return audio_active_packets;
+	}
+
+	/**
+	 * Set the number of packets to consider a user active.
+	 *
+	 * @param packets The number of packets to consider a user active.
+	 */
+	public void setAudioActivePackets(Integer packets) {
+		audio_active_packets = packets;
+	}
+
+	/**
+	 * Get the average value of audio level to consider a user active, 127=muted, 0='too loud', default=25.
+	 *
+	 * @return The average value of audio level to consider a user active.
+	 */
+	public Integer getAudioLevelAverage() {
+		return audio_level_average;
+	}
+
+	/**
+	 * Set the average value of audio level to consider a user active.
+	 *
+	 * @param levelAverage The average audio level to consider a user active.
+	 */
+	public void setAudioLevelAverage(Integer levelAverage) {
+		audio_level_average = levelAverage;
 	}
 
 	/**

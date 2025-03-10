@@ -2194,6 +2194,13 @@ public class SwingSlidesView extends JPanel implements SlidesView {
 		externalPreviewBox = Box.createVerticalBox();
 		externalNoteSlideViewContainer = new JPanel(new BorderLayout());
 
+		JComboBox<String> participantLayoutComboBox = new JComboBox<>(new String[] {
+				"Gallery",
+				"Speaker"
+		});
+
+		externalParticipantVideoPane.add(participantLayoutComboBox, BorderLayout.NORTH);
+
 		externalMessagesFrame = createExternalFrame(dict.get(MESSAGE_LABEL_KEY), externalMessagesPane,
 				dict.get(NO_MESSAGES_LABEL_KEY),
 				new Dimension(500, 400),

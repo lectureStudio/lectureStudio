@@ -157,10 +157,7 @@ public class JanusHandler extends JanusStateHandler {
 
 			if (!foundHandler) {
 				// Handle non-authorized or pending context.
-				var peerStateConsumer = getStreamContext().getPeerStateConsumer();
-				if (nonNull(peerStateConsumer)) {
-					peerStateConsumer.accept(new PeerStateEvent(context, ExecutableState.Stopped));
-				}
+				getStreamContext().setPeerStateEvent(new PeerStateEvent(context, ExecutableState.Stopped));
 			}
 		}
 	}

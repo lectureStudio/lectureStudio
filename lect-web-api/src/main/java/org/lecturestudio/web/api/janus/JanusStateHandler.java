@@ -18,7 +18,6 @@
 
 package org.lecturestudio.web.api.janus;
 
-import static java.util.Objects.nonNull;
 import static java.util.Objects.requireNonNull;
 
 import java.math.BigInteger;
@@ -196,10 +195,6 @@ public abstract class JanusStateHandler extends ExecutableBase {
 	}
 
 	protected void sendPeerState(ExecutableState state) {
-		var peerStateConsumer = getStreamContext().getPeerStateConsumer();
-
-		if (nonNull(peerStateConsumer)) {
-			peerStateConsumer.accept(new PeerStateEvent(participantContext, state));
-		}
+		getStreamContext().setPeerStateEvent(new PeerStateEvent(participantContext, state));
 	}
 }

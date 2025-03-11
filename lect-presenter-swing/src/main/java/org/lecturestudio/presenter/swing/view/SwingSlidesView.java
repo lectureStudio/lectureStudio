@@ -134,7 +134,7 @@ public class SwingSlidesView extends JPanel implements SlidesView {
 
 	private MouseListener mouseListener;
 
-	private ConsumerAction<org.lecturestudio.core.input.KeyEvent> keyAction;
+	private ConsumerAction<KeyEvent> keyAction;
 
 	private ConsumerAction<Document> selectDocumentAction;
 
@@ -562,7 +562,13 @@ public class SwingSlidesView extends JPanel implements SlidesView {
 		SwingUtils.bindBidirectional(participantLayoutComboBox, layoutProperty);
 
 		layoutProperty.addListener((o, oldValue, newValue) -> {
+			switch (newValue) {
+				case GALLERY -> peerViewContainer.setLayout(new VideoTileLayout(5));
+				case SPEAKER -> peerViewContainer.setLayout(new CardLayout(5, 5));
+				default -> throw new IllegalStateException("Unexpected value: " + newValue);
+			}
 
+			peerViewContainer.revalidate();
 		});
 	}
 

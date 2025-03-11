@@ -18,6 +18,8 @@
 
 package org.lecturestudio.web.api.stream;
 
+import static java.util.Objects.nonNull;
+
 import dev.onvoid.webrtc.RTCBundlePolicy;
 import dev.onvoid.webrtc.RTCConfiguration;
 import dev.onvoid.webrtc.RTCIceTransportPolicy;
@@ -118,11 +120,13 @@ public class StreamContext {
 		this.userInfo = userInfo;
 	}
 
-	public Consumer<PeerStateEvent> getPeerStateConsumer() {
-		return peerStateConsumer;
+	public void setPeerStateConsumer(Consumer<PeerStateEvent> consumer) {
+		peerStateConsumer = consumer;
 	}
 
-	public void setPeerStateConsumer(Consumer<PeerStateEvent> peerStateConsumer) {
-		this.peerStateConsumer = peerStateConsumer;
+	public void setPeerStateEvent(PeerStateEvent event) {
+		if (nonNull(peerStateConsumer)) {
+			peerStateConsumer.accept(event);
+		}
 	}
 }

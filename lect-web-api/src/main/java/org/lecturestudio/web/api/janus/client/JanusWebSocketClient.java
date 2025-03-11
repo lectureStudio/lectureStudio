@@ -122,8 +122,6 @@ public class JanusWebSocketClient extends ExecutableBase implements JanusMessage
 
 		logTraceMessage("WebSocket ->: {0}", messageTxt);
 
-		System.out.println("WebSocket ->: " + messageTxt);
-
 		webSocket.sendText(messageTxt, true)
 				.exceptionally(throwable -> {
 					logException(throwable, "Send Janus message failed");
@@ -207,8 +205,6 @@ public class JanusWebSocketClient extends ExecutableBase implements JanusMessage
 			buffer.append(data);
 
 			if (last) {
-				System.out.println("WebSocket <-: " + buffer);
-
 				StringReader reader = new StringReader(buffer.toString());
 
 				try {

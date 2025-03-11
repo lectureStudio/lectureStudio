@@ -136,7 +136,7 @@ public class JanusPublisherHandler extends JanusStateHandler {
 	@Override
 	protected void initInternal() throws ExecutableException {
 		// Create and configure a participant context for the local publisher.
-		// BigInteger.ZERO is used as the peerId to identify the local user/participant.
+		// BigInteger.ZERO is used as the initial peerId for the local participant.
 		participantContext = new JanusParticipantContext();
 		participantContext.setPeerId(BigInteger.ZERO);
 		participantContext.setDisplayName(getStreamContext().getUserInfo().getFullName());

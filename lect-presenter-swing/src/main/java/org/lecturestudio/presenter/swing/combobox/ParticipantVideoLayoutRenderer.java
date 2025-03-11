@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2021 TU Darmstadt, Department of Computer Science,
+ * Copyright (C) 2022 TU Darmstadt, Department of Computer Science,
  * Embedded Systems and Applications Group.
  *
  * This program is free software: you can redistribute it and/or modify
@@ -20,22 +20,23 @@ package org.lecturestudio.presenter.swing.combobox;
 
 import static java.util.Objects.nonNull;
 
-import java.awt.Component;
-import java.util.ResourceBundle;
+import java.awt.*;
 
-import javax.swing.DefaultListCellRenderer;
-import javax.swing.JList;
+import javax.inject.Inject;
+import javax.swing.*;
 
-import org.lecturestudio.core.audio.AudioProcessingSettings.NoiseSuppressionLevel;
+import org.lecturestudio.core.app.dictionary.Dictionary;
+import org.lecturestudio.presenter.api.model.ParticipantVideoLayout;
 
-public class NoiseSuppressionLevelRenderer extends DefaultListCellRenderer {
+public class ParticipantVideoLayoutRenderer extends DefaultListCellRenderer {
 
-	private final ResourceBundle resources;
+	private final Dictionary resources;
 
 	private final String prefix;
 
 
-	public NoiseSuppressionLevelRenderer(ResourceBundle resources, String prefix) {
+	@Inject
+	public ParticipantVideoLayoutRenderer(Dictionary resources, String prefix) {
 		this.resources = resources;
 		this.prefix = prefix;
 	}
@@ -45,10 +46,10 @@ public class NoiseSuppressionLevelRenderer extends DefaultListCellRenderer {
 			int index, boolean isSelected, boolean cellHasFocus) {
 		super.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
 
-		NoiseSuppressionLevel level = (NoiseSuppressionLevel) value;
+		ParticipantVideoLayout layout = (ParticipantVideoLayout) value;
 
-		if (nonNull(level)) {
-			setText(resources.getString(prefix + level.name().toLowerCase()));
+		if (nonNull(layout)) {
+			setText(resources.get(prefix + layout.name().toLowerCase()));
 		}
 		else {
 			setText("< layout translation not found >");

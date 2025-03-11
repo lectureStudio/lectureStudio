@@ -750,7 +750,7 @@ public class SlidesPresenter extends Presenter<SlidesView> {
 
 	private void onAcceptSpeech(SpeechBaseMessage message) {
 		// Create and configure a participant context for the speech publisher.
-		// BigInteger '-1' is temporarily used as the peerId to identify the remote user/participant.
+		// BigInteger '-1' is temporarily used as the peerId to identify the remote participant.
 		JanusParticipantContext pContext = new JanusParticipantContext();
 		pContext.setPeerId(BigInteger.valueOf(-1));
 		pContext.setRequestId(message.getRequestId());
@@ -1466,6 +1466,8 @@ public class SlidesPresenter extends Presenter<SlidesView> {
 		view.setSlideViewConfig(config.getSlideViewConfiguration());
 		view.bindShowOutline(ctx.showOutlineProperty());
 		view.setOnOutlineItem(this::setOutlineItem);
+
+		view.bindParticipantVideoLayout(config.getStreamConfig().participantVideoLayoutProperty());
 
 		view.setOnKeyEvent(this::keyEvent);
 		view.setOnStopQuiz(this::stopQuiz);

@@ -90,10 +90,7 @@ public class SubscriberJoinedRoomState implements JanusState {
 			}
 		});
 		peerConnection.setOnRemoteVideoFrame(videoFrame -> {
-			var frameConsumer = participantContext.getVideoFrameConsumer();
-			if (nonNull(frameConsumer)) {
-				frameConsumer.accept(videoFrame);
-			}
+			participantContext.setVideoFrame(videoFrame);
 		});
 		peerConnection.setAudioTrackSink((data, bitsPerSample, sampleRate, channels, frames) -> {
 			if (nonNull(audioFrameConsumer)) {

@@ -26,13 +26,8 @@ import java.awt.image.BufferedImage;
 import java.math.BigInteger;
 
 import javax.inject.Inject;
-import javax.swing.Box;
-import javax.swing.JButton;
-import javax.swing.JComponent;
-import javax.swing.JLabel;
-import javax.swing.JPanel;
-import javax.swing.JToggleButton;
-import javax.swing.SwingConstants;
+import javax.swing.*;
+import javax.swing.border.Border;
 import javax.swing.border.EmptyBorder;
 
 import dev.onvoid.webrtc.media.video.VideoFrame;
@@ -53,6 +48,10 @@ import org.lecturestudio.web.api.janus.JanusParticipantContext;
  * @author Alex Andres
  */
 public class SwingPeerView extends JComponent implements PeerView {
+
+	private static final Border DEFAULT_BORDER = BorderFactory.createEmptyBorder(3, 3, 3, 3);
+
+	private static final Border TALKING_BORDER = BorderFactory.createLineBorder(Color.GREEN, 3);
 
 	private final Dictionary dict;
 
@@ -80,7 +79,7 @@ public class SwingPeerView extends JComponent implements PeerView {
 	public SwingPeerView(Dictionary dict) {
 		this.dict = dict;
 
-		setBorder(new EmptyBorder(0, 0, 0, 0));
+		setBorder(DEFAULT_BORDER);
 		setLayout(new BorderLayout());
 
 		nameLabel = new JLabel();
@@ -154,6 +153,7 @@ public class SwingPeerView extends JComponent implements PeerView {
 		context.videoActiveProperty().addListener((o, oldValue, newValue) ->
 				onVideoActivity());
 		context.setVideoFrameConsumer(this::onVideoFrame);
+		context.setTalkingActivityConsumer(this::onTalkingActivity);
 
 		SwingUtils.bindBidirectional(muteAudioButton, context.audioActiveProperty());
 		SwingUtils.bindBidirectional(muteVideoButton, context.videoActiveProperty());
@@ -172,18 +172,24 @@ public class SwingPeerView extends JComponent implements PeerView {
 
 	@Override
 	public void paintComponent(Graphics g) {
-		final int bottomHeight = buttonsBox.getHeight();
+		Insets insets = getInsets();
+		int bottomHeight = buttonsBox.getHeight();
+		int padX = insets.left;
+		int padY = insets.top;
+		int padW = insets.left + insets.right;
+		int padH = insets.top + insets.bottom;
 
 		Graphics2D g2 = (Graphics2D) g.create();
 		g2.setPaint(new Color(228, 228, 231));
-		g2.fillRect(0, 0, getWidth(), getHeight());
+		g2.fillRect(padX, padY, getWidth() - padW, getHeight() - padH);
 
 		if (nonNull(image)) {
 			paintPeerImage(g2);
 		}
 
 		g2.setPaint(new Color(228, 228, 231, 215));
-		g2.fillRect(0, getHeight() - bottomHeight, getWidth(), bottomHeight);
+		g2.fillRect(padX, getHeight() - bottomHeight - padY,
+				getWidth() - padW, bottomHeight - padH);
 		g2.dispose();
 	}
 
@@ -227,6 +233,10 @@ public class SwingPeerView extends JComponent implements PeerView {
 
 			repaint();
 		});
+	}
+
+	private void onTalkingActivity(Boolean talking) {
+		SwingUtils.invoke(() -> setBorder(talking ? TALKING_BORDER : DEFAULT_BORDER));
 	}
 
 	private void onPeerId(BigInteger id) {

@@ -29,6 +29,8 @@ import org.lecturestudio.core.beans.BooleanProperty;
 import org.lecturestudio.core.beans.ObjectProperty;
 import org.lecturestudio.core.beans.StringProperty;
 
+import static java.util.Objects.nonNull;
+
 /**
  * Context class that maintains the state of a Janus participant's media streams.
  * This class provides properties to track whether audio and video streams are active
@@ -58,6 +60,9 @@ public class JanusParticipantContext {
 
 	/** Consumer for processing video frames received from the participant. */
 	private Consumer<VideoFrame> videoFrameConsumer;
+
+	/** Consumer for processing talking state changes of the participant. */
+	private Consumer<Boolean> talkingActivityConsumer;
 
 
 	/**
@@ -238,10 +243,52 @@ public class JanusParticipantContext {
 	 * Sets the consumer for received video frames. This consumer is called whenever a new video frame is received from
 	 * this participant.
 	 *
-	 * @param videoFrameConsumer The consumer that will process incoming video frames.
+	 * @param consumer The consumer that will process incoming video frames.
 	 */
-	public void setVideoFrameConsumer(Consumer<VideoFrame> videoFrameConsumer) {
-		this.videoFrameConsumer = videoFrameConsumer;
+	public void setVideoFrameConsumer(Consumer<VideoFrame> consumer) {
+		videoFrameConsumer = consumer;
+	}
+
+	/**
+	 * Processes a received video frame by passing it to the registered video frame consumer.
+	 * If no consumer is registered, this method does nothing.
+	 *
+	 * @param frame The video frame to process.
+	 */
+	public void setVideoFrame(VideoFrame frame) {
+		if (nonNull(videoFrameConsumer)) {
+			videoFrameConsumer.accept(frame);
+		}
+	}
+
+	/**
+	 * Gets the consumer for talking state changes.
+	 *
+	 * @return The consumer that processes talking state changes.
+	 */
+	public Consumer<Boolean> getTalkingActivityConsumer() {
+		return talkingActivityConsumer;
+	}
+
+	/**
+	 * Sets the consumer for talking state changes. This consumer is called when the participant's talking state changes.
+	 *
+	 * @param consumer The consumer that will process talking state changes.
+	 */
+	public void setTalkingActivityConsumer(Consumer<Boolean> consumer) {
+		talkingActivityConsumer = consumer;
+	}
+
+	/**
+	 * Sets the talking state of the participant and notifies the registered consumer.
+	 * This method triggers the talking activity consumer if one has been set.
+	 *
+	 * @param talking True if the participant is currently talking, false otherwise.
+	 */
+	public void setTalking(boolean talking) {
+		if (nonNull(talkingActivityConsumer)) {
+			talkingActivityConsumer.accept(talking);
+		}
 	}
 
 	@Override

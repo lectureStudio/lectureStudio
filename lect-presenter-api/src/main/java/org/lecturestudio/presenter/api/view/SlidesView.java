@@ -24,6 +24,7 @@ import java.util.List;
 
 import org.lecturestudio.core.ExecutableState;
 import org.lecturestudio.core.beans.BooleanProperty;
+import org.lecturestudio.core.beans.ObjectProperty;
 import org.lecturestudio.core.controller.RenderController;
 import org.lecturestudio.core.controller.ToolController;
 import org.lecturestudio.core.geometry.Matrix;
@@ -72,6 +73,8 @@ public interface SlidesView extends View {
 	void setPage(Page page, PresentationParameter parameter);
 
 	void setSlideNotes(Page page, PresentationParameter parameter);
+
+	void bindParticipantVideoLayout(ObjectProperty<ParticipantVideoLayout> layoutProperty);
 
 	void setPageRenderer(RenderController pageRenderer);
 

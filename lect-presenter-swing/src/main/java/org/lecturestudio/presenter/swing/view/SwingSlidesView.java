@@ -52,6 +52,7 @@ import org.lecturestudio.core.PageMetrics;
 import org.lecturestudio.core.app.dictionary.Dictionary;
 import org.lecturestudio.core.beans.BooleanProperty;
 import org.lecturestudio.core.beans.DoubleProperty;
+import org.lecturestudio.core.beans.ObjectProperty;
 import org.lecturestudio.core.controller.RenderController;
 import org.lecturestudio.core.controller.ToolController;
 import org.lecturestudio.core.geometry.Matrix;
@@ -68,6 +69,7 @@ import org.lecturestudio.presenter.api.config.SlideViewConfiguration;
 import org.lecturestudio.presenter.api.model.*;
 import org.lecturestudio.presenter.api.service.UserPrivilegeService;
 import org.lecturestudio.presenter.api.view.SlidesView;
+import org.lecturestudio.presenter.swing.combobox.ParticipantVideoLayoutRenderer;
 import org.lecturestudio.presenter.swing.input.MouseListener;
 import org.lecturestudio.presenter.swing.input.StylusListener;
 import org.lecturestudio.presenter.swing.utils.ViewUtil;
@@ -235,6 +237,8 @@ public class SwingSlidesView extends JPanel implements SlidesView {
 	private Container rightNoteSlideViewContainer;
 
 	private ParticipantList participantList;
+
+	private JComboBox<ParticipantVideoLayout> participantLayoutComboBox;
 
 	private SettingsTab messageTab;
 
@@ -550,6 +554,15 @@ public class SwingSlidesView extends JPanel implements SlidesView {
 		SwingUtils.invoke(() -> {
 			slideNotesView.parameterChanged(page, parameter);
 			slideNotesView.setPage(page);
+		});
+	}
+
+	@Override
+	public void bindParticipantVideoLayout(ObjectProperty<ParticipantVideoLayout> layoutProperty) {
+		SwingUtils.bindBidirectional(participantLayoutComboBox, layoutProperty);
+
+		layoutProperty.addListener((o, oldValue, newValue) -> {
+
 		});
 	}
 
@@ -2194,12 +2207,19 @@ public class SwingSlidesView extends JPanel implements SlidesView {
 		externalPreviewBox = Box.createVerticalBox();
 		externalNoteSlideViewContainer = new JPanel(new BorderLayout());
 
-		JComboBox<String> participantLayoutComboBox = new JComboBox<>(new String[] {
-				"Gallery",
-				"Speaker"
+		participantLayoutComboBox = new JComboBox<>(new ParticipantVideoLayout[]{
+				ParticipantVideoLayout.GALLERY,
+				ParticipantVideoLayout.SPEAKER
 		});
+		participantLayoutComboBox.setRenderer(new ParticipantVideoLayoutRenderer(
+				dict, "participant.layout."));
 
-		externalParticipantVideoPane.add(participantLayoutComboBox, BorderLayout.NORTH);
+		JPanel externalParticipantToolbar = new JPanel();
+//		externalParticipantToolbar.setLayout(new BoxLayout(externalParticipantToolbar, BoxLayout.X_AXIS));
+//		externalParticipantToolbar.add(Box.createHorizontalGlue());
+		externalParticipantToolbar.add(participantLayoutComboBox);
+
+		externalParticipantVideoPane.add(externalParticipantToolbar, BorderLayout.NORTH);
 
 		externalMessagesFrame = createExternalFrame(dict.get(MESSAGE_LABEL_KEY), externalMessagesPane,
 				dict.get(NO_MESSAGES_LABEL_KEY),

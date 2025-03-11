@@ -26,6 +26,7 @@ import dev.onvoid.webrtc.media.video.VideoBufferConverter;
 import dev.onvoid.webrtc.media.video.VideoFrame;
 import dev.onvoid.webrtc.media.video.VideoFrameBuffer;
 
+import java.awt.Insets;
 import java.awt.image.BufferedImage;
 import java.awt.image.DataBufferByte;
 
@@ -38,11 +39,14 @@ public class VideoFrameConverter {
 	public static BufferedImage convertVideoFrameToComponentSize(
 			VideoFrame videoFrame, BufferedImage image, JComponent component)
 			throws Exception {
+		Insets insets = component.getInsets();
 		// Scale video frame to the component size.
 		double uiScale = component.getGraphicsConfiguration()
 				.getDefaultTransform().getScaleX();
-		int viewWidth = (int) (component.getWidth() * uiScale);
-		int viewHeight = (int) (component.getHeight() * uiScale);
+		int padW = insets.left + insets.right;
+		int padH = insets.top + insets.bottom;
+		int viewWidth = (int) ((component.getWidth() - padW) * uiScale);
+		int viewHeight = (int) ((component.getHeight() - padH) * uiScale);
 
 		return convertVideoFrame(videoFrame, image, viewWidth, viewHeight);
 	}

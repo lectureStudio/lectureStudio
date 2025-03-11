@@ -113,8 +113,8 @@ public class CreateRoomState implements JanusState {
 		request.setBitrate(bitrate * 1000); // kBit/s
 		request.setNotifyJoining(true);
 		request.setAudioLevelEvent(true);
-		request.setAudioLevelAverage(10);
-		request.setAudioActivePackets(20);
+		request.setAudioLevelAverage(50);
+		request.setAudioActivePackets(10);
 		//request.setSecret(handler.getRoomSecret());
 
 		requestMessage = new JanusPluginDataMessage(handler.getSessionId(),

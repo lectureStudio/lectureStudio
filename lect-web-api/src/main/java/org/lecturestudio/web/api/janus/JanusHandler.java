@@ -37,18 +37,7 @@ import org.lecturestudio.core.ExecutableState;
 import org.lecturestudio.core.net.MediaType;
 import org.lecturestudio.web.api.event.PeerStateEvent;
 import org.lecturestudio.web.api.janus.JanusHandlerException.Type;
-import org.lecturestudio.web.api.janus.message.JanusEditRoomMessage;
-import org.lecturestudio.web.api.janus.message.JanusErrorMessage;
-import org.lecturestudio.web.api.janus.message.JanusMessage;
-import org.lecturestudio.web.api.janus.message.JanusMessageType;
-import org.lecturestudio.web.api.janus.message.JanusPluginDataMessage;
-import org.lecturestudio.web.api.janus.message.JanusRoomKickRequest;
-import org.lecturestudio.web.api.janus.message.JanusRoomModerateRequest;
-import org.lecturestudio.web.api.janus.message.JanusRoomPublisherJoinedMessage;
-import org.lecturestudio.web.api.janus.message.JanusRoomPublisherJoiningMessage;
-import org.lecturestudio.web.api.janus.message.JanusRoomPublisherLeftMessage;
-import org.lecturestudio.web.api.janus.message.JanusSessionMessage;
-import org.lecturestudio.web.api.janus.message.JanusSessionTimeoutMessage;
+import org.lecturestudio.web.api.janus.message.*;
 import org.lecturestudio.web.api.janus.state.InfoState;
 import org.lecturestudio.web.api.stream.StreamEventRecorder;
 import org.lecturestudio.web.api.stream.action.StreamSpeechPublishedAction;
@@ -81,8 +70,8 @@ public class JanusHandler extends JanusStateHandler {
 	/** Registry of message handlers mapped by message class type. */
 	private Map<Class<? extends JanusMessage>, Consumer<? extends JanusMessage>> messageHandlers;
 
-	/** Maps participant IDs to their publisher objects. */
-	private Map<BigInteger, JanusPublisher> participants;
+	/** Maps participant IDs to their context objects. */
+	private Map<BigInteger, JanusParticipantContext> participants;
 
 	/** Maps participant contexts to their publisher objects. */
 	private Map<JanusParticipantContext, JanusPublisher> speechPublishers;
@@ -242,6 +231,7 @@ public class JanusHandler extends JanusStateHandler {
 		registerHandler(JanusRoomPublisherJoiningMessage.class, this::handlePublisherJoining);
 		registerHandler(JanusRoomPublisherJoinedMessage.class, this::handlePublisherJoined);
 		registerHandler(JanusRoomPublisherLeftMessage.class, this::handlePublisherLeft);
+		registerHandler(JanusRoomTalkingMessage.class, this::handlePublisherTalking);
 	}
 
 	@Override
@@ -338,10 +328,6 @@ public class JanusHandler extends JanusStateHandler {
 	}
 
 	private void handlePublisherJoining(JanusRoomPublisherJoiningMessage message) {
-		JanusPublisher participant = message.getPublisher();
-
-		participants.put(participant.getId(), participant);
-
 		// Left empty for now.
 	}
 
@@ -352,10 +338,13 @@ public class JanusHandler extends JanusStateHandler {
 		var entry = getFirstPublisherEntry();
 
 		if (nonNull(entry)) {
-			entry.getValue().setId(publisher.getId());
-			entry.getValue().setStreams(publisher.getStreams());
+			JanusPublisher mappedPublisher = entry.getValue();
+			mappedPublisher.setId(publisher.getId());
+			mappedPublisher.setStreams(publisher.getStreams());
 
-			startSubscriber(entry.getValue(), entry.getKey());
+			registerParticipant(publisher.getId(), entry.getKey());
+
+			startSubscriber(mappedPublisher, entry.getKey());
 		}
 		else {
 			// Handle non-authorized publisher.
@@ -364,17 +353,28 @@ public class JanusHandler extends JanusStateHandler {
 	}
 
 	private void handlePublisherLeft(JanusRoomPublisherLeftMessage message) {
-		JanusPublisher participant = participants.remove(message.getPublisherId());
+		unregisterParticipant(message.getPublisherId());
+	}
 
-		if (nonNull(participant)) {
-			// Left empty for now.
+	private void handlePublisherTalking(JanusRoomTalkingMessage message) {
+		JanusParticipantContext context = participants.get(message.getPeerId());
+
+		if (nonNull(context)) {
+			context.setTalking(message.isTalking());
 		}
+	}
+
+	private void registerParticipant(BigInteger id, JanusParticipantContext context) {
+		participants.put(id, context);
+	}
+
+	private void unregisterParticipant(BigInteger id) {
+		participants.remove(id);
 	}
 
 	private void startPublisher() {
 		JanusStateHandler pubHandler = new JanusPublisherHandler(
-				peerConnectionFactory,
-				transmitter, eventRecorder);
+				peerConnectionFactory, transmitter, eventRecorder);
 		pubHandler.setSessionId(getSessionId());
 		pubHandler.setRoomId(getRoomId());
 		pubHandler.setOpaqueId(getStreamContext().getUserInfo().getUserId());
@@ -382,11 +382,14 @@ public class JanusHandler extends JanusStateHandler {
 
 			@Override
 			public void connected() {
+				var context = pubHandler.getParticipantContext();
+				registerParticipant(context.getPeerId(), context);
 				setConnected();
 			}
 
 			@Override
 			public void disconnected() {
+				unregisterParticipant(pubHandler.getParticipantContext().getPeerId());
 				setDisconnected();
 			}
 

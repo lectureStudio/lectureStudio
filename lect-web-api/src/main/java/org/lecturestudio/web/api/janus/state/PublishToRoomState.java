@@ -20,7 +20,6 @@ package org.lecturestudio.web.api.janus.state;
 
 import static java.util.Objects.nonNull;
 
-import java.math.BigInteger;
 import java.util.Map;
 import java.util.UUID;
 import java.util.function.Consumer;
@@ -172,7 +171,7 @@ public class PublishToRoomState implements JanusState {
 
 		peerConnection.setOnReplacedTrack(track -> {
 			if (track.getId().equals("screen")) {
-				addScreenTrackListeners((VideoTrack) track);
+				addScreenTrackListeners(handler, (VideoTrack) track);
 			}
 		});
 
@@ -183,7 +182,7 @@ public class PublishToRoomState implements JanusState {
 				request.addStreamDescription(transceiver.getMid(), track.getId());
 
 				if (track.getId().equals("screen")) {
-					addScreenTrackListeners((VideoTrack) track);
+					addScreenTrackListeners(handler, (VideoTrack) track);
 				}
 				else if (track.getId().equals("camera")) {
 					RTCRtpSender sender = transceiver.getSender();
@@ -233,7 +232,7 @@ public class PublishToRoomState implements JanusState {
 		handler.sendMessage(message);
 	}
 
-	private void addScreenTrackListeners(VideoTrack track) {
+	private void addScreenTrackListeners(JanusStateHandler handler, VideoTrack track) {
 		track.addTrackEndedListener(endedTrack -> {
 			if (nonNull(screenSourceEndedCallback)) {
 				screenSourceEndedCallback.run();
@@ -242,7 +241,8 @@ public class PublishToRoomState implements JanusState {
 
 		track.addSink(videoFrame -> {
 			if (nonNull(localScreenFrameConsumer)) {
-				localScreenFrameConsumer.accept(new LocalScreenVideoFrameEvent(videoFrame, BigInteger.ZERO));
+				localScreenFrameConsumer.accept(new LocalScreenVideoFrameEvent(videoFrame,
+						handler.getParticipantContext().getPeerId()));
 			}
 		});
 	}
@@ -250,10 +250,7 @@ public class PublishToRoomState implements JanusState {
 	private void setLocalVideoFrameConsumer(JanusPeerConnection peerConnection, boolean receiveLocalVideo) {
 		if (receiveLocalVideo) {
 			peerConnection.setOnLocalVideoFrame(videoFrame -> {
-				var frameConsumer = participantContext.getVideoFrameConsumer();
-				if (nonNull(frameConsumer)) {
-					frameConsumer.accept(videoFrame);
-				}
+				participantContext.setVideoFrame(videoFrame);
 			});
 		}
 		else {

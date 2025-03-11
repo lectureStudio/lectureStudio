@@ -42,6 +42,7 @@ public class JanusSubscriberHandler extends JanusStateHandler {
 
 	public void setJanusParticipantContext(JanusParticipantContext context) {
 		participantContext = context;
+		participantContext.setPeerId(getPublisher().getId());
 	}
 
 	public JanusPublisher getPublisher() {

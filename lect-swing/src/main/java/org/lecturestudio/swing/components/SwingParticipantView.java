@@ -38,16 +38,16 @@ import org.lecturestudio.core.view.Action;
 import org.lecturestudio.swing.AwtResourceLoader;
 import org.lecturestudio.swing.util.SwingUtils;
 import org.lecturestudio.swing.util.VideoFrameConverter;
-import org.lecturestudio.swing.view.PeerView;
+import org.lecturestudio.swing.view.ParticipantView;
 import org.lecturestudio.web.api.janus.JanusParticipantContext;
 
 /**
- * The PeerView displays the remote peers video, if activated, and buttons to
+ * The ParticipantView displays the remote peers video, if activated, and buttons to
  * control the peer's media.
  *
  * @author Alex Andres
  */
-public class SwingPeerView extends JComponent implements PeerView {
+public class SwingParticipantView extends JComponent implements ParticipantView {
 
 	private static final Border DEFAULT_BORDER = BorderFactory.createEmptyBorder(3, 3, 3, 3);
 
@@ -73,10 +73,10 @@ public class SwingPeerView extends JComponent implements PeerView {
 
 
 	/**
-	 * Creates a new PeerView.
+	 * Creates a new ParticipantView.
 	 */
 	@Inject
-	public SwingPeerView(Dictionary dict) {
+	public SwingParticipantView(Dictionary dict) {
 		this.dict = dict;
 
 		setBorder(DEFAULT_BORDER);
@@ -101,8 +101,10 @@ public class SwingPeerView extends JComponent implements PeerView {
 		muteVideoButton.setEnabled(false);
 		muteVideoButton.setVisible(false);
 
-		stopConnectionButton = new JButton(dict.get("button.end"));
-		stopConnectionButton.setBackground(Color.decode("#FEE2E2"));
+		stopConnectionButton = new JButton();
+		stopConnectionButton.setToolTipText(dict.get("button.end"));
+		stopConnectionButton.setIcon(AwtResourceLoader.getIcon("speech-decline.svg", 14));
+		stopConnectionButton.setContentAreaFilled(false);
 		stopConnectionButton.setVisible(false);
 
 		buttonsBox = Box.createHorizontalBox();
@@ -184,16 +186,15 @@ public class SwingPeerView extends JComponent implements PeerView {
 		g2.fillRect(padX, padY, getWidth() - padW, getHeight() - padH);
 
 		if (nonNull(image)) {
-			paintPeerImage(g2);
+			paintVideoImage(g2);
 		}
 
 		g2.setPaint(new Color(228, 228, 231, 215));
-		g2.fillRect(padX, getHeight() - bottomHeight - padY,
-				getWidth() - padW, bottomHeight - padH);
+		g2.fillRect(padX, getHeight() - bottomHeight - padY, getWidth() - padW, bottomHeight);
 		g2.dispose();
 	}
 
-	private void paintPeerImage(Graphics2D g2) {
+	private void paintVideoImage(Graphics2D g2) {
 		AffineTransform transform = g2.getTransform();
 		AffineTransform imageTransform = new AffineTransform();
 		imageTransform.translate(transform.getTranslateX(), transform.getTranslateY());
@@ -236,7 +237,8 @@ public class SwingPeerView extends JComponent implements PeerView {
 	}
 
 	private void onTalkingActivity(Boolean talking) {
-		SwingUtils.invoke(() -> setBorder(talking ? TALKING_BORDER : DEFAULT_BORDER));
+		// Ignore talking activity for now.
+//		SwingUtils.invoke(() -> setBorder(talking ? TALKING_BORDER : DEFAULT_BORDER));
 	}
 
 	private void onPeerId(BigInteger id) {

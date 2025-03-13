@@ -52,7 +52,6 @@ import org.lecturestudio.core.PageMetrics;
 import org.lecturestudio.core.app.dictionary.Dictionary;
 import org.lecturestudio.core.beans.BooleanProperty;
 import org.lecturestudio.core.beans.DoubleProperty;
-import org.lecturestudio.core.beans.ObjectProperty;
 import org.lecturestudio.core.controller.RenderController;
 import org.lecturestudio.core.controller.ToolController;
 import org.lecturestudio.core.geometry.Matrix;
@@ -69,7 +68,6 @@ import org.lecturestudio.presenter.api.config.SlideViewConfiguration;
 import org.lecturestudio.presenter.api.model.*;
 import org.lecturestudio.presenter.api.service.UserPrivilegeService;
 import org.lecturestudio.presenter.api.view.SlidesView;
-import org.lecturestudio.presenter.swing.combobox.ParticipantVideoLayoutRenderer;
 import org.lecturestudio.presenter.swing.input.MouseListener;
 import org.lecturestudio.presenter.swing.input.StylusListener;
 import org.lecturestudio.presenter.swing.utils.ViewUtil;
@@ -98,7 +96,7 @@ import org.lecturestudio.swing.model.AdaptiveTabType;
 import org.lecturestudio.swing.model.ExternalWindowPosition;
 import org.lecturestudio.swing.util.AdaptiveTabbedPaneChangeListener;
 import org.lecturestudio.swing.util.SwingUtils;
-import org.lecturestudio.swing.view.PeerView;
+import org.lecturestudio.swing.view.ParticipantView;
 import org.lecturestudio.swing.view.SwingView;
 import org.lecturestudio.swing.view.ViewPostConstruct;
 import org.lecturestudio.web.api.message.MessengerMessage;
@@ -224,7 +222,7 @@ public class SwingSlidesView extends JPanel implements SlidesView {
 
 	private BufferedImage peerViewImage;
 
-	private Container peerViewContainer;
+	private Container participantViewContainer;
 
 	private Box leftVbox;
 	private Box rightVbox;
@@ -237,8 +235,6 @@ public class SwingSlidesView extends JPanel implements SlidesView {
 	private Container rightNoteSlideViewContainer;
 
 	private ParticipantList participantList;
-
-	private JComboBox<ParticipantVideoLayout> participantLayoutComboBox;
 
 	private SettingsTab messageTab;
 
@@ -555,35 +551,6 @@ public class SwingSlidesView extends JPanel implements SlidesView {
 			slideNotesView.parameterChanged(page, parameter);
 			slideNotesView.setPage(page);
 		});
-	}
-
-	@Override
-	public void setParticipantViews(ParticipantViewCollection collection) {
-		ParticipantVideoLayout layout = (ParticipantVideoLayout) participantLayoutComboBox.getModel().getSelectedItem();
-
-		if (layout == ParticipantVideoLayout.SPEAKER) {
-			SwingUtils.invoke(() -> {
-				peerViewContainer.removeAll();
-
-				// Add active participants.
-				for (PeerView participant : collection.getActiveParticipants()) {
-					peerViewContainer.add((Component) participant);
-				}
-			});
-		}
-	}
-
-	@Override
-	public void bindParticipantVideoLayout(ObjectProperty<ParticipantVideoLayout> layoutProperty) {
-		SwingUtils.bindBidirectional(participantLayoutComboBox, layoutProperty);
-
-		layoutProperty.addListener((o, oldValue, newValue) -> {
-
-
-			peerViewContainer.revalidate();
-		});
-
-		// TODO
 	}
 
 	@Override
@@ -927,10 +894,10 @@ public class SwingSlidesView extends JPanel implements SlidesView {
 	}
 
 	@Override
-	public void addPeerView(PeerView peerView) {
-		if (peerView instanceof JComponent swingPeerView) {
+	public void addParticipantView(ParticipantView participantView) {
+		if (participantView instanceof JComponent swingParticipantView) {
 			SwingUtils.invoke(() -> {
-				peerViewContainer.add(swingPeerView);
+				participantViewContainer.add(swingParticipantView);
 
 				if (rightTabPane.getPaneTabCount() == 0 && !externalParticipantVideoFrame.isVisible()) {
 					maximizeRightTabPane();
@@ -940,12 +907,44 @@ public class SwingSlidesView extends JPanel implements SlidesView {
 	}
 
 	@Override
-	public void removePeerView(PeerView peerView) {
-		if (peerView instanceof JComponent swingPeerView) {
+	public void removeParticipantView(ParticipantView participantView) {
+		if (participantView instanceof JComponent swingParticipantView) {
 			SwingUtils.invoke(() -> {
-				peerViewContainer.remove(swingPeerView);
-				peerViewContainer.revalidate();
-				peerViewContainer.repaint();
+				participantViewContainer.remove(swingParticipantView);
+				participantViewContainer.revalidate();
+				participantViewContainer.repaint();
+			});
+		}
+	}
+
+	@Override
+	public void setParticipantViews(ParticipantViewCollection collection, ParticipantVideoLayout layout) {
+		layout = externalParticipantVideoFrame.isVisible() ? layout : ParticipantVideoLayout.GALLERY;
+
+		if (layout == ParticipantVideoLayout.SPEAKER) {
+			SwingUtils.invoke(() -> {
+				participantViewContainer.removeAll();
+
+				// Add active participants.
+				for (ParticipantView participant : collection.getActiveParticipants()) {
+					participantViewContainer.add((Component) participant);
+				}
+
+				participantViewContainer.revalidate();
+				participantViewContainer.repaint();
+			});
+		}
+		else if (layout == ParticipantVideoLayout.GALLERY) {
+			SwingUtils.invoke(() -> {
+				participantViewContainer.removeAll();
+
+				// Add all participants.
+				for (ParticipantView participant : collection.getParticipants()) {
+					participantViewContainer.add((Component) participant);
+				}
+
+				participantViewContainer.revalidate();
+				participantViewContainer.repaint();
 			});
 		}
 	}
@@ -1170,9 +1169,9 @@ public class SwingSlidesView extends JPanel implements SlidesView {
 
 		setParticipantVideoTabVisible(dict.get(PARTICIPANT_VIDEO_LABEL_KEY), false);
 
-		participantVideoPanel.remove(peerViewContainer);
+		participantVideoPanel.remove(participantViewContainer);
 
-		externalParticipantVideoPane.add(peerViewContainer, BorderLayout.CENTER);
+		externalParticipantVideoPane.add(participantViewContainer, BorderLayout.CENTER);
 
 		externalParticipantVideoFrame.updatePosition(screen, position, size);
 		externalParticipantVideoFrame.showBody();
@@ -1185,11 +1184,11 @@ public class SwingSlidesView extends JPanel implements SlidesView {
 			return;
 		}
 
-		externalParticipantVideoPane.remove(peerViewContainer);
+		externalParticipantVideoPane.remove(participantViewContainer);
 
 		externalParticipantVideoFrame.setVisible(false);
 
-		participantVideoPanel.add(peerViewContainer);
+		participantVideoPanel.add(participantViewContainer);
 
 		setParticipantVideoTabVisible(dict.get(PARTICIPANT_VIDEO_LABEL_KEY), true);
 	}
@@ -2112,7 +2111,7 @@ public class SwingSlidesView extends JPanel implements SlidesView {
 
 		noneTabPane = new AdaptiveTabbedPane();
 
-		peerViewContainer.setLayout(new VideoTileLayout(5));
+		participantViewContainer.setLayout(new VideoTileLayout(5));
 
 		leftTabPane.addChangeListener(new AdaptiveTabbedPaneChangeListener() {
 
@@ -2229,20 +2228,6 @@ public class SwingSlidesView extends JPanel implements SlidesView {
 
 		externalPreviewBox = Box.createVerticalBox();
 		externalNoteSlideViewContainer = new JPanel(new BorderLayout());
-
-		participantLayoutComboBox = new JComboBox<>(new ParticipantVideoLayout[]{
-				ParticipantVideoLayout.GALLERY,
-				ParticipantVideoLayout.SPEAKER
-		});
-		participantLayoutComboBox.setRenderer(new ParticipantVideoLayoutRenderer(
-				dict, "participant.layout."));
-
-		JPanel externalParticipantToolbar = new JPanel();
-//		externalParticipantToolbar.setLayout(new BoxLayout(externalParticipantToolbar, BoxLayout.X_AXIS));
-//		externalParticipantToolbar.add(Box.createHorizontalGlue());
-		externalParticipantToolbar.add(participantLayoutComboBox);
-
-		externalParticipantVideoPane.add(externalParticipantToolbar, BorderLayout.NORTH);
 
 		externalMessagesFrame = createExternalFrame(dict.get(MESSAGE_LABEL_KEY), externalMessagesPane,
 				dict.get(NO_MESSAGES_LABEL_KEY),

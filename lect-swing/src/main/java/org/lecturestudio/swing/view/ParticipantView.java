@@ -23,14 +23,14 @@ import org.lecturestudio.core.view.Action;
 import org.lecturestudio.web.api.janus.JanusParticipantContext;
 
 /**
- * The {@code PeerView} interface defines methods for updating the visual representation
+ * The {@code ParticipantView} interface defines methods for updating the visual representation
  * of a peer during a WebRTC session. It allows setting the peer's name, image, and
  * actions to be performed when the peer's audio or video is muted, or when the peer is
  * kicked.
  *
  * @author Alex Andres
  */
-public interface PeerView {
+public interface ParticipantView {
 
 	/**
 	 * Sets the executable state for the peer.

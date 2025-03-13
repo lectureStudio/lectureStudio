@@ -34,8 +34,10 @@ import org.lecturestudio.core.beans.ObjectProperty;
 import org.lecturestudio.core.beans.StringProperty;
 import org.lecturestudio.core.converter.RegexConverter;
 import org.lecturestudio.core.view.Action;
+import org.lecturestudio.presenter.api.model.ParticipantVideoLayout;
 import org.lecturestudio.presenter.api.net.ScreenShareProfile;
 import org.lecturestudio.presenter.api.view.StreamSettingsView;
+import org.lecturestudio.presenter.swing.combobox.ParticipantVideoLayoutRenderer;
 import org.lecturestudio.presenter.swing.combobox.ScreenShareProfileRenderer;
 import org.lecturestudio.swing.beans.ConvertibleObjectProperty;
 import org.lecturestudio.swing.util.SwingUtils;
@@ -54,6 +56,8 @@ public class SwingStreamSettingsView extends JPanel implements StreamSettingsVie
 	private JTextField accessTokenTextField;
 
 	private JComboBox<ScreenShareProfile> screenProfileCombo;
+
+	private JComboBox<ParticipantVideoLayout> videoLayoutCombo;
 
 	private JButton updateCoursesButton;
 
@@ -115,6 +119,11 @@ public class SwingStreamSettingsView extends JPanel implements StreamSettingsVie
 	}
 
 	@Override
+	public void setParticipantVideoLayout(ObjectProperty<ParticipantVideoLayout> layoutProperty) {
+		SwingUtils.bindBidirectional(videoLayoutCombo, layoutProperty);
+	}
+
+	@Override
 	public void setOnClose(Action action) {
 		SwingUtils.bindAction(closeButton, action);
 	}
@@ -128,5 +137,9 @@ public class SwingStreamSettingsView extends JPanel implements StreamSettingsVie
 	private void initialize() {
 		screenProfileCombo.setRenderer(new ScreenShareProfileRenderer(resources,
 				"stream.settings.screen.share.profile."));
+
+		videoLayoutCombo.setModel(new DefaultComboBoxModel<>(ParticipantVideoLayout.values()));
+		videoLayoutCombo.setRenderer(new ParticipantVideoLayoutRenderer(
+				resources, "participant.layout."));
 	}
 }

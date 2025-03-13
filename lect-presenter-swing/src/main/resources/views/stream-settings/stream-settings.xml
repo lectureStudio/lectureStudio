@@ -34,13 +34,23 @@
 		<ComboBox id="screenProfileCombo">
 			<gridbagconstraints gridx="0" gridy="8" anchor="GridBagConstraints.WEST" insets="5,0,15,0" />
 		</ComboBox>
+
+		<TitledSeparator text="stream.settings.video.layout.window" name="extendedUI">
+			<gridbagconstraints gridx="0" gridy="9" gridwidth="2" anchor="GridBagConstraints.WEST" weightx="1.0" fill="GridBagConstraints.HORIZONTAL" insets="5,0,5,0" />
+		</TitledSeparator>
+		<Label text="stream.settings.video.layout">
+			<gridbagconstraints gridx="0" gridy="10" gridwidth="2" anchor="GridBagConstraints.WEST" insets="5,0,2,15" />
+		</Label>
+		<ComboBox id="videoLayoutCombo">
+			<gridbagconstraints gridx="0" gridy="11" anchor="GridBagConstraints.WEST" insets="5,0,15,0" />
+		</ComboBox>
 	</Panel>
 
 	<box.vglue>
-		<gridbagconstraints gridx="0" gridy="9" weighty="1.0" />
+		<gridbagconstraints gridx="0" gridy="12" weighty="1.0" />
 	</box.vglue>
 	<HBox gap="5">
-		<gridbagconstraints gridx="0" gridy="10" gridwidth="2" weightx="1.0" fill="GridBagConstraints.HORIZONTAL" />
+		<gridbagconstraints gridx="0" gridy="13" gridwidth="2" weightx="1.0" fill="GridBagConstraints.HORIZONTAL" />
 		<box.hglue />
 		<Button id="resetButton" text="button.reset"/>
 		<Button id="closeButton" text="button.close"/>

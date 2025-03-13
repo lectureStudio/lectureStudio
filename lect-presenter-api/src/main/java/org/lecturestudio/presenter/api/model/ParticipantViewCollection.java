@@ -20,41 +20,90 @@ package org.lecturestudio.presenter.api.model;
 
 import java.util.LinkedHashSet;
 
-import org.lecturestudio.swing.view.PeerView;
+import org.lecturestudio.swing.view.ParticipantView;
 
+/**
+ * A collection class that manages participant views, maintaining both a complete set
+ * of participants and a subset of active participants.
+ * <p>
+ * This class implements a mechanism to limit the number of simultaneously active participants, using a LIFO
+ * (Last-In First-Out) behavior when managing active status.
+ *
+ * @author Alex Andres
+ */
 public class ParticipantViewCollection {
 
-	private LinkedHashSet<PeerView> activeParticipants;
+	/**
+	 * Collection of currently active participants. This set maintains the order of activation and is limited in size by
+	 * {@code maxActiveParticipants}.
+	 */
+	private final LinkedHashSet<ParticipantView> activeParticipants;
 
-	private LinkedHashSet<PeerView> participants;
+	/**
+	 * Collection of all participants, regardless of their active status.
+	 */
+	private final LinkedHashSet<ParticipantView> participants;
 
+	/**
+	 * The maximum number of participants that can be active simultaneously.
+	 */
 	private int maxActiveParticipants;
 
 
+	/**
+	 * Constructs a new ParticipantViewCollection with the specified maximum number of active participants.
+	 *
+	 * @param maxActive The maximum number of participants that can be active at one time.
+	 */
 	public ParticipantViewCollection(int maxActive) {
 		activeParticipants = new LinkedHashSet<>();
 		participants = new LinkedHashSet<>();
 		maxActiveParticipants = maxActive;
 	}
 
+	/**
+	 * Sets the maximum number of participants that can be active simultaneously.
+	 *
+	 * @param maxActive The maximum number of active participants.
+	 */
 	public void setMaxActiveParticipants(int maxActive) {
 		maxActiveParticipants = maxActive;
 	}
 
-	public void addParticipant(PeerView participant) {
+	/**
+	 * Adds a participant to the collection of all participants.
+	 *
+	 * @param participant The participant to add.
+	 */
+	public void addParticipant(ParticipantView participant) {
 		participants.add(participant);
 	}
 
-	public void removeParticipant(PeerView participant) {
+	/**
+	 * Removes a participant from both the general collection and the active participants' collection.
+	 *
+	 * @param participant The participant to remove.
+	 */
+	public void removeParticipant(ParticipantView participant) {
 		participants.remove(participant);
 		activeParticipants.remove(participant);
 	}
 
-	public LinkedHashSet<PeerView> getActiveParticipants() {
+	/**
+	 * Returns the collection of currently active participants.
+	 *
+	 * @return A LinkedHashSet containing the active participants.
+	 */
+	public LinkedHashSet<ParticipantView> getActiveParticipants() {
 		return activeParticipants;
 	}
 
-	public LinkedHashSet<PeerView> getParticipants() {
+	/**
+	 * Returns the collection of all participants.
+	 *
+	 * @return A LinkedHashSet containing all participants.
+	 */
+	public LinkedHashSet<ParticipantView> getParticipants() {
 		return participants;
 	}
 
@@ -65,30 +114,33 @@ public class ParticipantViewCollection {
 	 *
 	 * @param participant The participant to set as active.
 	 */
-	public void setActiveParticipant(PeerView participant) {
+	public void setActiveParticipant(ParticipantView participant) {
 		// If the participant is already active, do nothing to keep the order.
 		if (activeParticipants.contains(participant)) {
 			return;
 		}
 		else if (activeParticipants.size() >= maxActiveParticipants) {
 			// Find the most recently added participant (last element).
-			PeerView mostRecent = null;
-			for (PeerView p : activeParticipants) {
+			ParticipantView mostRecent = null;
+			for (ParticipantView p : activeParticipants) {
 				mostRecent = p;
 			}
 
 			// Remove the most recently added participant.
 			if (mostRecent != null) {
 				activeParticipants.remove(mostRecent);
-
-				// Add the most recently removed participant back to the list of participants.
-				participants.add(mostRecent);
 			}
 		}
 
 		// Add the new participant (which will now be the most recent).
 		activeParticipants.add(participant);
+	}
 
-		participants.remove(participant);
+	/**
+	 * Clears all active participants from the collection. This method removes all participants from the active
+	 * participants set without affecting the main participants' collection.
+	 */
+	public void clearActiveParticipants() {
+		activeParticipants.clear();
 	}
 }

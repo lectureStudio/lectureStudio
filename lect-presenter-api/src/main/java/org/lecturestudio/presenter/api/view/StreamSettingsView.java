@@ -22,6 +22,7 @@ import org.lecturestudio.core.beans.BooleanProperty;
 import org.lecturestudio.core.beans.ObjectProperty;
 import org.lecturestudio.core.beans.StringProperty;
 import org.lecturestudio.core.view.Action;
+import org.lecturestudio.presenter.api.model.ParticipantVideoLayout;
 import org.lecturestudio.presenter.api.net.ScreenShareProfile;
 
 public interface StreamSettingsView extends SettingsBaseView {
@@ -39,5 +40,7 @@ public interface StreamSettingsView extends SettingsBaseView {
 	void setScreenShareProfile(ObjectProperty<ScreenShareProfile> profile);
 
 	void setScreenShareProfiles(ScreenShareProfile[] profiles);
+
+	void setParticipantVideoLayout(ObjectProperty<ParticipantVideoLayout> layoutProperty);
 
 }

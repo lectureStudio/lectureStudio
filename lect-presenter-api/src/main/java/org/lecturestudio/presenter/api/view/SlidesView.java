@@ -39,7 +39,7 @@ import org.lecturestudio.presenter.api.model.*;
 import org.lecturestudio.presenter.api.config.SlideViewConfiguration;
 import org.lecturestudio.swing.model.ExternalWindowPosition;
 import org.lecturestudio.core.stylus.StylusHandler;
-import org.lecturestudio.swing.view.PeerView;
+import org.lecturestudio.swing.view.ParticipantView;
 import org.lecturestudio.web.api.message.MessengerMessage;
 import org.lecturestudio.web.api.message.SpeechBaseMessage;
 import org.lecturestudio.web.api.stream.model.CourseParticipant;
@@ -73,10 +73,6 @@ public interface SlidesView extends View {
 	void setPage(Page page, PresentationParameter parameter);
 
 	void setSlideNotes(Page page, PresentationParameter parameter);
-
-	void setParticipantViews(ParticipantViewCollection collection);
-
-	void bindParticipantVideoLayout(ObjectProperty<ParticipantVideoLayout> layoutProperty);
 
 	void setPageRenderer(RenderController pageRenderer);
 
@@ -130,9 +126,11 @@ public interface SlidesView extends View {
 
 	void setOnBan(ConsumerAction<CourseParticipant> action);
 
-	void addPeerView(PeerView peerView);
+	void addParticipantView(ParticipantView participantView);
 
-	void removePeerView(PeerView peerView);
+	void removeParticipantView(ParticipantView participantView);
+
+	void setParticipantViews(ParticipantViewCollection collection, ParticipantVideoLayout layout);
 
 	void setOnKeyEvent(ConsumerAction<KeyEvent> action);
 

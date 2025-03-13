@@ -21,22 +21,22 @@ package org.lecturestudio.presenter.swing.combobox;
 import static java.util.Objects.nonNull;
 
 import java.awt.*;
+import java.util.ResourceBundle;
 
 import javax.inject.Inject;
 import javax.swing.*;
 
-import org.lecturestudio.core.app.dictionary.Dictionary;
 import org.lecturestudio.presenter.api.model.ParticipantVideoLayout;
 
 public class ParticipantVideoLayoutRenderer extends DefaultListCellRenderer {
 
-	private final Dictionary resources;
+	private final ResourceBundle resources;
 
 	private final String prefix;
 
 
 	@Inject
-	public ParticipantVideoLayoutRenderer(Dictionary resources, String prefix) {
+	public ParticipantVideoLayoutRenderer(ResourceBundle resources, String prefix) {
 		this.resources = resources;
 		this.prefix = prefix;
 	}
@@ -49,7 +49,7 @@ public class ParticipantVideoLayoutRenderer extends DefaultListCellRenderer {
 		ParticipantVideoLayout layout = (ParticipantVideoLayout) value;
 
 		if (nonNull(layout)) {
-			setText(resources.get(prefix + layout.name().toLowerCase()));
+			setText(resources.getString(prefix + layout.name().toLowerCase()));
 		}
 		else {
 			setText("< layout translation not found >");

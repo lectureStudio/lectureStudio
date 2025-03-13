@@ -89,6 +89,7 @@ public class StreamSettingsPresenter extends Presenter<StreamSettingsView> {
 		view.setAccessToken(streamConfig.accessTokenProperty());
 		view.setScreenShareProfile(streamConfig.screenProfileProperty());
 		view.setScreenShareProfiles(ScreenShareProfiles.DEFAULT);
+		view.setParticipantVideoLayout(streamConfig.participantVideoLayoutProperty());
 		view.setOnCheckAccessToken(this::checkAccessToken);
 		view.setOnReset(this::reset);
 

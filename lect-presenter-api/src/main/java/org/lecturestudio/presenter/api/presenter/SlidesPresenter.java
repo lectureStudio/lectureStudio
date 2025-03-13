@@ -94,7 +94,7 @@ import org.lecturestudio.presenter.api.model.*;
 import org.lecturestudio.presenter.api.service.*;
 import org.lecturestudio.presenter.api.view.SlidesView;
 import org.lecturestudio.swing.model.ExternalWindowPosition;
-import org.lecturestudio.swing.view.PeerView;
+import org.lecturestudio.swing.view.ParticipantView;
 import org.lecturestudio.web.api.event.LocalScreenVideoFrameEvent;
 import org.lecturestudio.web.api.event.PeerStateEvent;
 import org.lecturestudio.web.api.janus.JanusParticipantContext;
@@ -118,7 +118,7 @@ public class SlidesPresenter extends Presenter<SlidesView> {
 
 	private final Map<KeyEvent, Action> shortcutMap;
 
-	private final Map<JanusParticipantContext, PeerView> peerViewMap;
+	private final Map<JanusParticipantContext, ParticipantView> participantViewMap;
 
 	private final PageObjectRegistry pageObjectRegistry;
 
@@ -201,7 +201,7 @@ public class SlidesPresenter extends Presenter<SlidesView> {
 		this.streamService = streamService;
 		this.eventBus = context.getEventBus();
 		this.shortcutMap = new HashMap<>();
-		this.peerViewMap = new ConcurrentHashMap<>();
+		this.participantViewMap = new ConcurrentHashMap<>();
 		this.pageObjectRegistry = new PageObjectRegistry();
 		this.documentChangeListener = new DocumentChangeHandler();
 		this.screenViewContext = new ScreenPresentationViewContext();
@@ -392,10 +392,10 @@ public class SlidesPresenter extends Presenter<SlidesView> {
 
 		view.removeSpeechRequest(message);
 
-		PeerView peerView = unregisterPeerView(message.getRequestId());
+		ParticipantView participantView = unregisterParticipantView(message.getRequestId());
 
-		if (nonNull(peerView)) {
-			view.removePeerView(peerView);
+		if (nonNull(participantView)) {
+			view.removeParticipantView(participantView);
 		}
 	}
 
@@ -430,43 +430,50 @@ public class SlidesPresenter extends Presenter<SlidesView> {
 		JanusParticipantContext participantContext = event.getParticipantContext();
 
 		if (state == ExecutableState.Starting) {
-			PeerView peerView = viewFactory.getInstance(PeerView.class);
-			peerView.setState(event.getState());
-			peerView.setParticipantContext(participantContext);
+			ParticipantView participantView = viewFactory.getInstance(ParticipantView.class);
+			participantView.setState(event.getState());
+			participantView.setParticipantContext(participantContext);
 
-			registerPeerView(peerView, participantContext);
+			registerParticipantView(participantView, participantContext);
 
 			UUID requestId = participantContext.getRequestId();
 			if (nonNull(requestId)) {
 				// Kick only participants who initiated a speech request.
-				peerView.setOnKick(() -> streamService.stopPeerConnection(participantContext));
+				participantView.setOnKick(() -> streamService.stopPeerConnection(participantContext));
 			}
 
 			participantContext.setTalkingActivityConsumer(talking -> {
+				ParticipantVideoLayout layout = streamConfig.getParticipantVideoLayout();
+
 				// Do not change active participant in gallery layout.
-				if (streamConfig.getParticipantVideoLayout() == ParticipantVideoLayout.GALLERY) {
+				if (layout == ParticipantVideoLayout.GALLERY) {
 					return;
 				}
 				if (talking) {
-					// TODO
-					participantViewCollection.setActiveParticipant(peerView);
+					participantViewCollection.setActiveParticipant(participantView);
+
+					view.setParticipantViews(participantViewCollection, layout);
 				}
 			});
 
-			view.addPeerView(peerView);
+			participantViewCollection.addParticipant(participantView);
+
+			view.addParticipantView(participantView);
 		}
 		else if (state == ExecutableState.Started) {
-			PeerView peerView = getPeerView(participantContext);
+			ParticipantView participantView = getParticipantView(participantContext);
 
-			if (nonNull(peerView)) {
-				peerView.setState(state);
+			if (nonNull(participantView)) {
+				participantView.setState(state);
 			}
 		}
 		else if (state == ExecutableState.Stopped) {
-			PeerView peerView = unregisterPeerView(participantContext);
+			ParticipantView participantView = unregisterParticipantView(participantContext);
 
-			if (nonNull(peerView)) {
-				view.removePeerView(peerView);
+			if (nonNull(participantView)) {
+				participantViewCollection.removeParticipant(participantView);
+
+				view.removeParticipantView(participantView);
 			}
 		}
 	}
@@ -634,28 +641,28 @@ public class SlidesPresenter extends Presenter<SlidesView> {
 		}
 	}
 
-	private void registerPeerView(PeerView peerView, JanusParticipantContext context) {
-		peerViewMap.put(context, peerView);
+	private void registerParticipantView(ParticipantView view, JanusParticipantContext context) {
+		participantViewMap.put(context, view);
 	}
 
-	private PeerView unregisterPeerView(JanusParticipantContext context) {
-		return peerViewMap.remove(context);
+	private ParticipantView unregisterParticipantView(JanusParticipantContext context) {
+		return participantViewMap.remove(context);
 	}
 
-	private PeerView unregisterPeerView(UUID requestId) {
-		for (var entry : peerViewMap.entrySet()) {
+	private ParticipantView unregisterParticipantView(UUID requestId) {
+		for (var entry : participantViewMap.entrySet()) {
 			if (Objects.equals(requestId, entry.getKey().getRequestId())) {
 				// Found by request ID.
-				PeerView peerView = entry.getValue();
-				peerViewMap.remove(entry.getKey());
-				return peerView;
+				ParticipantView participantView = entry.getValue();
+				participantViewMap.remove(entry.getKey());
+				return participantView;
 			}
 		}
 		return null;
 	}
 
-	private PeerView getPeerView(JanusParticipantContext context) {
-		return peerViewMap.get(context);
+	private ParticipantView getParticipantView(JanusParticipantContext context) {
+		return participantViewMap.get(context);
 	}
 
 	private void externalMessagesPositionChanged(ExternalWindowPosition position) {
@@ -700,6 +707,8 @@ public class SlidesPresenter extends Presenter<SlidesView> {
 	}
 
 	private void externalParticipantVideoClosed() {
+		view.setParticipantViews(participantViewCollection, ParticipantVideoLayout.GALLERY);
+
 		eventBus.post(new ExternalParticipantVideoViewEvent(false));
 	}
 
@@ -787,7 +796,7 @@ public class SlidesPresenter extends Presenter<SlidesView> {
 
 		view.removeSpeechRequest(message);
 
-		unregisterPeerView(message.getRequestId());
+		unregisterParticipantView(message.getRequestId());
 	}
 
 	private void onBan(CourseParticipant user) {
@@ -1423,6 +1432,12 @@ public class SlidesPresenter extends Presenter<SlidesView> {
 			view.setExtendedFullscreen(newValue);
 		});
 
+		config.getStreamConfig().participantVideoLayoutProperty().addListener((o, oldValue, newValue) -> {
+			participantViewCollection.clearActiveParticipants();
+
+			view.setParticipantViews(participantViewCollection, newValue);
+		});
+
 //		config.useMouseInputProperty().addListener((o, oldValue, newValue) -> {
 //			setUseMouse(newValue);
 //		});
@@ -1479,8 +1494,6 @@ public class SlidesPresenter extends Presenter<SlidesView> {
 		view.setSlideViewConfig(config.getSlideViewConfiguration());
 		view.bindShowOutline(ctx.showOutlineProperty());
 		view.setOnOutlineItem(this::setOutlineItem);
-
-		view.bindParticipantVideoLayout(config.getStreamConfig().participantVideoLayoutProperty());
 
 		view.setOnKeyEvent(this::keyEvent);
 		view.setOnStopQuiz(this::stopQuiz);

@@ -18,6 +18,8 @@
 
 package org.lecturestudio.presenter.api.model;
 
+import static java.util.Objects.nonNull;
+
 import java.util.LinkedHashSet;
 
 import org.lecturestudio.swing.view.ParticipantView;
@@ -87,6 +89,13 @@ public class ParticipantViewCollection {
 	public void removeParticipant(ParticipantView participant) {
 		participants.remove(participant);
 		activeParticipants.remove(participant);
+
+		if (activeParticipants.size() < maxActiveParticipants) {
+			ParticipantView mostRecentTalker = findMostRecentTalker();
+			if (nonNull(mostRecentTalker)) {
+				setActiveParticipant(mostRecentTalker);
+			}
+		}
 	}
 
 	/**
@@ -142,5 +151,30 @@ public class ParticipantViewCollection {
 	 */
 	public void clearActiveParticipants() {
 		activeParticipants.clear();
+	}
+
+	/**
+	 * Finds the participant with the most recent talking activity from the collection.
+	 *
+	 * @return The participant with the most recent talking activity, or null if no participants exist.
+	 */
+	private ParticipantView findMostRecentTalker() {
+		if (participants.isEmpty()) {
+			return null;
+		}
+
+		ParticipantView mostRecentTalker = null;
+		long highestTimestamp = Long.MIN_VALUE;
+
+		for (ParticipantView participant : participants) {
+			long talkTimestamp = participant.getParticipantContext().getTalkingActivityTimestamp();
+
+			if (talkTimestamp > highestTimestamp) {
+				highestTimestamp = talkTimestamp;
+				mostRecentTalker = participant;
+			}
+		}
+
+		return mostRecentTalker;
 	}
 }

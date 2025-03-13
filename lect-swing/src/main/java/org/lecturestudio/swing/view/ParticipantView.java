@@ -47,6 +47,13 @@ public interface ParticipantView {
 	void setParticipantContext(JanusParticipantContext context);
 
 	/**
+	 * Gets the participant context associated with this peer.
+	 *
+	 * @return The participant context containing streaming session-related information.
+	 */
+	JanusParticipantContext getParticipantContext();
+
+	/**
 	 * Sets the action to be performed when the peer is kicked.
 	 *
 	 * @param action The action to be performed on kick.

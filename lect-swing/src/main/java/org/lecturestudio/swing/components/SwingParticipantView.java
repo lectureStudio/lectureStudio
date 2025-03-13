@@ -67,6 +67,8 @@ public class SwingParticipantView extends JComponent implements ParticipantView 
 
 	private final Box buttonsBox;
 
+	private JanusParticipantContext context;
+
 	private BufferedImage image;
 
 	private ExecutableState state;
@@ -148,6 +150,8 @@ public class SwingParticipantView extends JComponent implements ParticipantView 
 
 	@Override
 	public void setParticipantContext(JanusParticipantContext context) {
+		this.context = context;
+
 		context.displayNameProperty().addListener((o, oldValue, newValue) ->
 				onDisplayName(newValue));
 		context.peerIdProperty().addListener((o, oldValue, newValue) ->
@@ -163,6 +167,11 @@ public class SwingParticipantView extends JComponent implements ParticipantView 
 		onDisplayName(context.getDisplayName());
 		onPeerId(context.getPeerId());
 		onVideoActivity();
+	}
+
+	@Override
+	public JanusParticipantContext getParticipantContext() {
+		return context;
 	}
 
 	@Override

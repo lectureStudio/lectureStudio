@@ -473,7 +473,8 @@ public class SlidesPresenter extends Presenter<SlidesView> {
 			if (nonNull(participantView)) {
 				participantViewCollection.removeParticipant(participantView);
 
-				view.removeParticipantView(participantView);
+				ParticipantVideoLayout layout = streamConfig.getParticipantVideoLayout();
+				view.setParticipantViews(participantViewCollection, layout);
 			}
 		}
 	}

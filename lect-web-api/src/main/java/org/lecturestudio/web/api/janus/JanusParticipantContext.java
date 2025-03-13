@@ -18,7 +18,6 @@
 
 package org.lecturestudio.web.api.janus;
 
-import static java.util.Objects.isNull;
 import static java.util.Objects.nonNull;
 
 import java.math.BigInteger;
@@ -65,6 +64,9 @@ public class JanusParticipantContext {
 	/** Consumer for processing talking state changes of the participant. */
 	private Consumer<Boolean> talkingActivityConsumer;
 
+	/** The timestamp (in nanoseconds) of the last detected talking activity for this participant. */
+	private long lastTalkingActivityTimestamp;
+
 
 	/**
 	 * Creates a new JanusParticipantContext with default values.
@@ -76,6 +78,11 @@ public class JanusParticipantContext {
 		videoActive = new BooleanProperty(false);
 		screenActive = new BooleanProperty(false);
 		displayName = new StringProperty("");
+		talkingActivityConsumer = talking -> {
+			if (talking) {
+				lastTalkingActivityTimestamp = System.nanoTime();
+			}
+		};
 	}
 
 	/**
@@ -272,17 +279,13 @@ public class JanusParticipantContext {
 	}
 
 	/**
-	 * Sets the consumer for talking state changes. This consumer is called when the participant's talking state changes.
+	 * Sets the consumer for talking state changes. This consumer is called when the participant's talking state
+	 * changes.
 	 *
 	 * @param consumer The consumer that will process talking state changes.
 	 */
 	public void setTalkingActivityConsumer(Consumer<Boolean> consumer) {
-		if (isNull(talkingActivityConsumer)) {
-			talkingActivityConsumer = consumer;
-		}
-		else {
-			talkingActivityConsumer = talkingActivityConsumer.andThen(consumer);
-		}
+		talkingActivityConsumer = talkingActivityConsumer.andThen(consumer);
 	}
 
 	/**
@@ -295,6 +298,15 @@ public class JanusParticipantContext {
 		if (nonNull(talkingActivityConsumer)) {
 			talkingActivityConsumer.accept(talking);
 		}
+	}
+
+	/**
+	 * Gets the timestamp of the last detected talking activity for this participant.
+	 *
+	 * @return The timestamp in nanoseconds when the participant was last talking.
+	 */
+	public long getTalkingActivityTimestamp() {
+		return lastTalkingActivityTimestamp;
 	}
 
 	@Override

@@ -26,6 +26,7 @@ import dev.onvoid.webrtc.media.video.VideoBufferConverter;
 import dev.onvoid.webrtc.media.video.VideoFrame;
 import dev.onvoid.webrtc.media.video.VideoFrameBuffer;
 
+import java.awt.Insets;
 import java.awt.image.BufferedImage;
 import java.awt.image.DataBufferByte;
 
@@ -38,11 +39,14 @@ public class VideoFrameConverter {
 	public static BufferedImage convertVideoFrameToComponentSize(
 			VideoFrame videoFrame, BufferedImage image, JComponent component)
 			throws Exception {
+		Insets insets = component.getInsets();
 		// Scale video frame to the component size.
 		double uiScale = component.getGraphicsConfiguration()
 				.getDefaultTransform().getScaleX();
-		int viewWidth = (int) (component.getWidth() * uiScale);
-		int viewHeight = (int) (component.getHeight() * uiScale);
+		int padW = insets.left + insets.right;
+		int padH = insets.top + insets.bottom;
+		int viewWidth = (int) ((component.getWidth() - padW) * uiScale);
+		int viewHeight = (int) ((component.getHeight() - padH) * uiScale);
 
 		return convertVideoFrame(videoFrame, image, viewWidth, viewHeight);
 	}
@@ -51,6 +55,7 @@ public class VideoFrameConverter {
 			BufferedImage image, int imageWidth, int imageHeight)
 			throws Exception {
 		VideoFrameBuffer buffer = videoFrame.buffer;
+		buffer.retain();
 
 		int width = buffer.getWidth();
 		int height = buffer.getHeight();
@@ -59,9 +64,9 @@ public class VideoFrameConverter {
 
 		var size = metrics.convert(imageWidth, imageHeight);
 
-		buffer = buffer.cropAndScale(0, 0, width, height, (int) size.getWidth(), (int) size.getHeight());
-		width = buffer.getWidth();
-		height = buffer.getHeight();
+		VideoFrameBuffer croppedBuffer = buffer.cropAndScale(0, 0, width, height, (int) size.getWidth(), (int) size.getHeight());
+		width = croppedBuffer.getWidth();
+		height = croppedBuffer.getHeight();
 
 		if (isNull(image) || image.getWidth() != width || image.getHeight() != height) {
 			if (nonNull(image)) {
@@ -72,9 +77,10 @@ public class VideoFrameConverter {
 
 		byte[] imageBuffer = ((DataBufferByte) image.getRaster().getDataBuffer()).getData();
 
-		VideoBufferConverter.convertFromI420(buffer, imageBuffer, FourCC.RGBA);
+		VideoBufferConverter.convertFromI420(croppedBuffer, imageBuffer, FourCC.RGBA);
 
 		// Release resources.
+		croppedBuffer.release();
 		buffer.release();
 
 		return image;

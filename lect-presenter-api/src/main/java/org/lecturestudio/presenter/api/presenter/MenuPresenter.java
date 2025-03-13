@@ -241,13 +241,13 @@ public class MenuPresenter extends Presenter<MenuView> {
 	}
 
 	@Subscribe
-	public void onEvent(final ExternalSpeechViewEvent event) {
+	public void onEvent(final ExternalParticipantVideoViewEvent event) {
 		if (!event.isEnabled()) {
 			// Set the previous position.
-			SpeechPosition position = getViewPosition(SpeechPosition.class);
+			ParticipantVideoPosition position = getViewPosition(ParticipantVideoPosition.class);
 
 			if (nonNull(position)) {
-				view.setSpeechPosition(position);
+				view.setParticipantVideoPosition(position);
 			}
 		}
 	}
@@ -350,19 +350,6 @@ public class MenuPresenter extends Presenter<MenuView> {
 		eventBus.post(new CustomizeToolbarEvent());
 	}
 
-	public void positionSpeech(SpeechPosition position) {
-		if (position == SpeechPosition.EXTERNAL) {
-			eventBus.post(new ExternalSpeechViewEvent(true));
-
-//			getPresenterConfig().getSlideViewConfiguration().setSpeechPosition(position);
-		}
-		else {
-			setViewPosition(SpeechPosition.class, position);
-
-			eventBus.post(new SpeechPositionEvent(position));
-		}
-	}
-
 	public void positionMessages(MessageBarPosition position) {
 		if (position == MessageBarPosition.EXTERNAL) {
 			eventBus.post(new ExternalMessagesViewEvent(true));
@@ -386,6 +373,19 @@ public class MenuPresenter extends Presenter<MenuView> {
 			setViewPosition(ParticipantsPosition.class, position);
 
 			eventBus.post(new ParticipantsPositionEvent(position));
+		}
+	}
+
+	public void positionParticipantVideo(ParticipantVideoPosition position) {
+		if (position == ParticipantVideoPosition.EXTERNAL) {
+			eventBus.post(new ExternalParticipantVideoViewEvent(true));
+
+//			getPresenterConfig().getSlideViewConfiguration().setParticipantVideoPosition(position);
+		}
+		else {
+			setViewPosition(ParticipantVideoPosition.class, position);
+
+			eventBus.post(new ParticipantVideoPositionEvent(position));
 		}
 	}
 
@@ -718,10 +718,10 @@ public class MenuPresenter extends Presenter<MenuView> {
 
 		setViewPosition(MessageBarPosition.class, slideViewConfig.getMessageBarPosition());
 		setViewPosition(ParticipantsPosition.class, slideViewConfig.getParticipantsPosition());
+		setViewPosition(ParticipantVideoPosition.class, slideViewConfig.getParticipantVideoPosition());
 		setViewPosition(SlidePreviewPosition.class, slideViewConfig.getSlidePreviewPosition());
 		setViewPosition(SlideNotesPosition.class, slideViewConfig.getSlideNotesPosition());
 		setViewPosition(NoteSlidePosition.class, slideViewConfig.getNoteSlidePosition());
-		setViewPosition(SpeechPosition.class, slideViewConfig.getSpeechPosition());
 
 		view.setRecordingState(ExecutableState.Stopped);
 		view.setMessengerState(ExecutableState.Stopped);
@@ -750,9 +750,6 @@ public class MenuPresenter extends Presenter<MenuView> {
 
 		view.setOnCustomizeToolbar(this::customizeToolbar);
 
-		view.setSpeechPosition(slideViewConfig.getSpeechPosition());
-		view.setOnSpeechPosition(this::positionSpeech);
-
 		view.setMessagesPosition(slideViewConfig.getMessageBarPosition());
 		view.setOnMessagesPosition(this::positionMessages);
 
@@ -764,6 +761,9 @@ public class MenuPresenter extends Presenter<MenuView> {
 
 		view.setParticipantsPosition(slideViewConfig.getParticipantsPosition());
 		view.setOnParticipantsPosition(this::positionParticipants);
+
+		view.setParticipantVideoPosition(slideViewConfig.getParticipantVideoPosition());
+		view.setOnParticipantVideoPosition(this::positionParticipantVideo);
 
 		view.setSlidePreviewPosition(slideViewConfig.getSlidePreviewPosition());
 		view.setOnSlidePreviewPosition(this::positionSlidePreview);

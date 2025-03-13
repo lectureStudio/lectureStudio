@@ -18,95 +18,41 @@
 
 package org.lecturestudio.web.api.event;
 
-import java.math.BigInteger;
-import java.util.UUID;
-
 import org.lecturestudio.core.ExecutableState;
 import org.lecturestudio.core.bus.event.ExecutableEvent;
+import org.lecturestudio.web.api.janus.JanusParticipantContext;
 
+/**
+ * An event that represents a change in the state of a peer in the WebRTC communication.
+ * This event extends ExecutableEvent and carries information about a participant and
+ * its execution state within the Janus WebRTC framework.
+ *
+ * @author Alex Andres
+ */
 public class PeerStateEvent extends ExecutableEvent {
 
-	private final BigInteger peerId;
-
-	private final String peerName;
-
-	private final UUID requestId;
-
-	private boolean hasVideo;
+	/** The context of the participant associated with this event. */
+	private final JanusParticipantContext participantContext;
 
 
 	/**
-	 * Create the {@link PeerStateEvent} with the specified state.
+	 * Creates a new PeerStateEvent with the specified participant context and state.
 	 *
-	 * @param requestId   The unique request ID of the peer.
-	 * @param peerName The display-name of the peer.
-	 * @param state    The state.
+	 * @param context The context of the participant associated with this event.
+	 * @param state   The execution state of the event (e.g., STARTED, STOPPED).
 	 */
-	public PeerStateEvent(UUID requestId, String peerName, ExecutableState state) {
-		this(null, requestId, peerName, state);
-	}
-
-	/**
-	 * Create the {@link PeerStateEvent} with the specified state.
-	 *
-	 * @param peerId   The unique ID of the peer.
-	 * @param peerName The display-name of the peer.
-	 * @param state    The state.
-	 */
-	public PeerStateEvent(BigInteger peerId, String peerName, ExecutableState state) {
-		this(peerId, null, peerName, state);
-	}
-
-	/**
-	 * Create the {@link PeerStateEvent} with the specified state.
-	 *
-	 * @param peerId    The unique ID of the peer.
-	 * @param requestId The unique request ID.
-	 * @param peerName  The display-name of the peer.
-	 * @param state     The state.
-	 */
-	public PeerStateEvent(BigInteger peerId, UUID requestId, String peerName, ExecutableState state) {
+	public PeerStateEvent(JanusParticipantContext context, ExecutableState state) {
 		super(state);
 
-		this.peerId = peerId;
-		this.requestId = requestId;
-		this.peerName = peerName;
+		participantContext = context;
 	}
 
 	/**
-	 * @return The unique ID of the peer.
-	 */
-	public BigInteger getPeerId() {
-		return peerId;
-	}
-
-	/**
-	 * @return The display-name of the peer.
-	 */
-	public String getPeerName() {
-		return peerName;
-	}
-
-	/**
-	 * @return The unique request ID of the peer.
-	 */
-	public UUID getRequestId() {
-		return requestId;
-	}
-
-	/**
-	 * @return True if the peer is sending video.
-	 */
-	public boolean hasVideo() {
-		return hasVideo;
-	}
-
-	/**
-	 * Sets whether the peer is sending video.
+	 * Gets the participant context associated with this event.
 	 *
-	 * @param active True if the peer is sending video.
+	 * @return The participant context containing information about the peer.
 	 */
-	public void setHasVideo(boolean active) {
-		this.hasVideo = active;
+	public JanusParticipantContext getParticipantContext() {
+		return participantContext;
 	}
 }

@@ -45,8 +45,7 @@ public class ScreenShareProfileRenderer extends DefaultListCellRenderer {
 	@Override
 	public Component getListCellRendererComponent(JList<?> list, Object value,
 			int index, boolean isSelected, boolean cellHasFocus) {
-		super.getListCellRendererComponent(list, value, index, isSelected,
-				cellHasFocus);
+		super.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
 
 		ScreenShareProfile profile = (ScreenShareProfile) value;
 
@@ -54,7 +53,7 @@ public class ScreenShareProfileRenderer extends DefaultListCellRenderer {
 			setText(resources.getString(prefix + profile.getType().name().toLowerCase()));
 		}
 		else {
-			setText("");
+			setText("< layout translation not found >");
 		}
 
 		return this;

@@ -25,6 +25,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.lecturestudio.core.ExecutableBase;
+import org.lecturestudio.core.ExecutableState;
+import org.lecturestudio.web.api.event.PeerStateEvent;
 import org.lecturestudio.web.api.janus.message.JanusMessage;
 import org.lecturestudio.web.api.janus.state.JanusState;
 import org.lecturestudio.web.api.stream.StreamContext;
@@ -42,6 +44,8 @@ public abstract class JanusStateHandler extends ExecutableBase {
 	protected JanusInfo info;
 
 	protected JanusPeerConnection peerConnection;
+
+	protected JanusParticipantContext participantContext;
 
 	protected BigInteger sessionId;
 
@@ -158,6 +162,10 @@ public abstract class JanusStateHandler extends ExecutableBase {
 		return peerConnection;
 	}
 
+	public JanusParticipantContext getParticipantContext() {
+		return participantContext;
+	}
+
 	public StreamContext getStreamContext() {
 		return peerConnectionFactory.getStreamContext();
 	}
@@ -184,5 +192,9 @@ public abstract class JanusStateHandler extends ExecutableBase {
 		for (JanusStateHandlerListener listener : listeners) {
 			listener.error(throwable);
 		}
+	}
+
+	protected void sendPeerState(ExecutableState state) {
+		getStreamContext().setPeerStateEvent(new PeerStateEvent(participantContext, state));
 	}
 }

@@ -43,14 +43,33 @@ public enum JanusParticipantType {
 	private final String type;
 
 
+	/**
+	 * Constructs a new participant type with the specified string representation.
+	 *
+	 * @param type The string representation of this participant type.
+	 */
 	JanusParticipantType(String type) {
 		this.type = type;
 	}
 
+	/**
+	 * Returns the string representation of this participant type.
+	 *
+	 * @return The string representation as defined by Janus API.
+	 */
 	public String getType() {
 		return type;
 	}
 
+	/**
+	 * Returns the participant type corresponding to the specified string representation.
+	 *
+	 * @param typeStr The string representation to convert.
+	 *
+	 * @return The matching participant type.
+	 *
+	 * @throws NoSuchElementException If no enum constant with the specified string representation exists
+	 */
 	public static JanusParticipantType fromString(String typeStr) {
 		for (var value : JanusParticipantType.values()) {
 			if (value.getType().equals(typeStr)) {

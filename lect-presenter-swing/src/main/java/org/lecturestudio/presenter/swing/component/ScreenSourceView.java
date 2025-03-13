@@ -18,19 +18,13 @@
 
 package org.lecturestudio.presenter.swing.component;
 
-import static java.util.Objects.nonNull;
-
 import dev.onvoid.webrtc.media.video.VideoFrame;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Cursor;
-import java.awt.Graphics;
-import java.awt.Graphics2D;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import java.awt.geom.AffineTransform;
-import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;
@@ -43,7 +37,7 @@ import javax.swing.border.EmptyBorder;
 import javax.swing.border.LineBorder;
 
 import org.lecturestudio.presenter.api.model.SharedScreenSource;
-import org.lecturestudio.swing.util.VideoFrameConverter;
+import org.lecturestudio.swing.components.VideoFrameView;
 
 public class ScreenSourceView extends JPanel {
 
@@ -55,7 +49,7 @@ public class ScreenSourceView extends JPanel {
 
 	private final List<Consumer<ScreenSourceView>> actionConsumers = new ArrayList<>();
 
-	private final ImageView imageView;
+	private final VideoFrameView imageView;
 
 	private final JLabel nameLabel;
 
@@ -68,7 +62,7 @@ public class ScreenSourceView extends JPanel {
 		setBorder(BORDER);
 		setLayout(new BorderLayout(2, 2));
 
-		imageView = new ImageView();
+		imageView = new VideoFrameView();
 		imageView.setBorder(new EmptyBorder(0, 0, 0, 0));
 
 		nameLabel = new JLabel();
@@ -129,7 +123,7 @@ public class ScreenSourceView extends JPanel {
 			imageView.paintVideoFrame(videoFrame);
 		}
 		catch (Exception e) {
-			e.printStackTrace();
+			throw new RuntimeException(e);
 		}
 	}
 
@@ -140,41 +134,6 @@ public class ScreenSourceView extends JPanel {
 	private void notifyAction() {
 		for (var consumer : actionConsumers) {
 			consumer.accept(this);
-		}
-	}
-
-
-
-	private static class ImageView extends JPanel {
-
-		private BufferedImage image;
-
-
-		@Override
-		public void paintComponent(Graphics g) {
-			super.paintComponent(g);
-
-			Graphics2D g2 = (Graphics2D) g;
-
-			if (nonNull(image)) {
-				AffineTransform transform = g2.getTransform();
-				AffineTransform imageTransform = new AffineTransform();
-				imageTransform.translate(transform.getTranslateX(), transform.getTranslateY());
-
-				int x = (int) ((getWidth() * transform.getScaleX() - image.getWidth(null)) / 2);
-				int y = (int) ((getHeight() * transform.getScaleX() - image.getHeight(null)) / 2);
-
-				g2.setTransform(imageTransform);
-				g2.drawImage(image, x, y, null);
-				g2.setTransform(transform);
-			}
-		}
-
-		void paintVideoFrame(VideoFrame videoFrame) throws Exception {
-			image = VideoFrameConverter.convertVideoFrameToComponentSize(
-					videoFrame, image, this);
-
-			repaint();
 		}
 	}
 }

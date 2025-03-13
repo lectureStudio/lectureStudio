@@ -38,4 +38,8 @@ public class UserInfo {
 	public String getFamilyName() {
 		return familyName;
 	}
+
+	public String getFullName() {
+		return firstName + " " + familyName;
+	}
 }

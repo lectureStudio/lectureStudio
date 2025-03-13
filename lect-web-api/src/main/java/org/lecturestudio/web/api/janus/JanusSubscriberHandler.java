@@ -21,6 +21,7 @@ package org.lecturestudio.web.api.janus;
 import static java.util.Objects.nonNull;
 
 import org.lecturestudio.core.ExecutableException;
+import org.lecturestudio.core.ExecutableState;
 import org.lecturestudio.web.api.janus.message.JanusMessage;
 import org.lecturestudio.web.api.janus.message.JanusPluginMessage;
 import org.lecturestudio.web.api.janus.state.AttachPluginState;
@@ -39,15 +40,18 @@ public class JanusSubscriberHandler extends JanusStateHandler {
 		this.publisher = publisher;
 	}
 
+	public void setJanusParticipantContext(JanusParticipantContext context) {
+		participantContext = context;
+		participantContext.setPeerId(getPublisher().getId());
+	}
+
 	public JanusPublisher getPublisher() {
 		return publisher;
 	}
 
 	@Override
 	public <T extends JanusMessage> void handleMessage(T message) throws Exception {
-		if (message instanceof JanusPluginMessage) {
-			JanusPluginMessage pluginMessage = (JanusPluginMessage) message;
-
+		if (message instanceof JanusPluginMessage pluginMessage) {
 			// Accept only messages that are addressed to this handler.
 			if (!pluginMessage.getHandleId().equals(getPluginId())) {
 				return;
@@ -65,10 +69,20 @@ public class JanusSubscriberHandler extends JanusStateHandler {
 			switch (state) {
 				case CONNECTED:
 					setConnected();
+
+					participantContext.setAudioActive(peerConnection.isReceivingAudio());
+					participantContext.setVideoActive(peerConnection.isReceivingVideo());
+
+					sendPeerState(ExecutableState.Started);
 					break;
 
 				case DISCONNECTED:
 					setDisconnected();
+					sendPeerState(ExecutableState.Stopped);
+					break;
+
+				case CLOSED:
+					sendPeerState(ExecutableState.Stopped);
 					break;
 
 				case FAILED:
@@ -82,7 +96,13 @@ public class JanusSubscriberHandler extends JanusStateHandler {
 
 	@Override
 	protected void initInternal() throws ExecutableException {
-
+		if (nonNull(participantContext)) {
+			// Do not initialize the participant context if it is already set.
+			return;
+		}
+		participantContext = new JanusParticipantContext();
+		participantContext.setPeerId(getPublisher().getId());
+		participantContext.setDisplayName(getPublisher().getDisplayName());
 	}
 
 	@Override
@@ -100,6 +120,6 @@ public class JanusSubscriberHandler extends JanusStateHandler {
 
 	@Override
 	protected void destroyInternal() throws ExecutableException {
-
+		// Nothing to do here yet.
 	}
 }

@@ -24,6 +24,7 @@ import org.lecturestudio.core.beans.ObjectProperty;
 import org.lecturestudio.core.beans.StringProperty;
 import org.lecturestudio.core.camera.CameraFormat;
 import org.lecturestudio.core.codec.VideoCodecConfiguration;
+import org.lecturestudio.presenter.api.model.ParticipantVideoLayout;
 import org.lecturestudio.presenter.api.net.ScreenShareProfile;
 
 public class StreamConfiguration {
@@ -53,6 +54,8 @@ public class StreamConfiguration {
 	private final BooleanProperty enableCamera = new BooleanProperty();
 
 	private final BooleanProperty enableMessenger = new BooleanProperty();
+
+	private final ObjectProperty<ParticipantVideoLayout> participantVideoLayoutProperty = new ObjectProperty<>();
 
 
 	public boolean getRecordStream() {
@@ -220,5 +223,17 @@ public class StreamConfiguration {
 
 	public BooleanProperty enableMessengerProperty() {
 		return enableMessenger;
+	}
+
+	public ObjectProperty<ParticipantVideoLayout> participantVideoLayoutProperty() {
+		return participantVideoLayoutProperty;
+	}
+
+	public ParticipantVideoLayout getParticipantVideoLayout() {
+		return participantVideoLayoutProperty.get();
+	}
+
+	public void setParticipantVideoLayout(ParticipantVideoLayout layout) {
+		participantVideoLayoutProperty.set(layout);
 	}
 }

@@ -27,15 +27,11 @@ import javax.inject.Inject;
 import java.awt.Dimension;
 import java.io.File;
 import java.io.IOException;
+import java.math.BigInteger;
 import java.text.MessageFormat;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Timer;
-import java.util.TimerTask;
-import java.util.UUID;
+import java.util.*;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.BiConsumer;
 
 import com.google.common.eventbus.Subscribe;
@@ -90,10 +86,7 @@ import org.lecturestudio.core.view.TeXBoxView;
 import org.lecturestudio.core.view.TextBoxView;
 import org.lecturestudio.core.view.ViewContextFactory;
 import org.lecturestudio.core.view.ViewType;
-import org.lecturestudio.presenter.api.config.DocumentTemplateConfiguration;
-import org.lecturestudio.presenter.api.config.ExternalWindowConfiguration;
-import org.lecturestudio.presenter.api.config.PresenterConfiguration;
-import org.lecturestudio.presenter.api.config.SlideViewConfiguration;
+import org.lecturestudio.presenter.api.config.*;
 import org.lecturestudio.presenter.api.context.PresenterContext;
 import org.lecturestudio.presenter.api.event.*;
 import org.lecturestudio.presenter.api.input.Shortcut;
@@ -101,9 +94,10 @@ import org.lecturestudio.presenter.api.model.*;
 import org.lecturestudio.presenter.api.service.*;
 import org.lecturestudio.presenter.api.view.SlidesView;
 import org.lecturestudio.swing.model.ExternalWindowPosition;
+import org.lecturestudio.swing.view.ParticipantView;
 import org.lecturestudio.web.api.event.LocalScreenVideoFrameEvent;
 import org.lecturestudio.web.api.event.PeerStateEvent;
-import org.lecturestudio.web.api.event.RemoteVideoFrameEvent;
+import org.lecturestudio.web.api.janus.JanusParticipantContext;
 import org.lecturestudio.web.api.message.CoursePresenceMessage;
 import org.lecturestudio.web.api.message.MessengerMessage;
 import org.lecturestudio.web.api.message.SpeechBaseMessage;
@@ -123,6 +117,8 @@ public class SlidesPresenter extends Presenter<SlidesView> {
 	private final EventBus eventBus;
 
 	private final Map<KeyEvent, Action> shortcutMap;
+
+	private final Map<JanusParticipantContext, ParticipantView> participantViewMap;
 
 	private final PageObjectRegistry pageObjectRegistry;
 
@@ -153,6 +149,8 @@ public class SlidesPresenter extends Presenter<SlidesView> {
 	private final RecordingService recordingService;
 
 	private final UserPrivilegeService userPrivilegeService;
+
+	private final ParticipantViewCollection participantViewCollection;
 
 	private StylusHandler stylusHandler;
 
@@ -203,9 +201,11 @@ public class SlidesPresenter extends Presenter<SlidesView> {
 		this.streamService = streamService;
 		this.eventBus = context.getEventBus();
 		this.shortcutMap = new HashMap<>();
+		this.participantViewMap = new ConcurrentHashMap<>();
 		this.pageObjectRegistry = new PageObjectRegistry();
 		this.documentChangeListener = new DocumentChangeHandler();
 		this.screenViewContext = new ScreenPresentationViewContext();
+		this.participantViewCollection = new ParticipantViewCollection(1);
 	}
 
 	@Subscribe
@@ -391,6 +391,12 @@ public class SlidesPresenter extends Presenter<SlidesView> {
 				m.getRequestId(), message.getRequestId()));
 
 		view.removeSpeechRequest(message);
+
+		ParticipantView participantView = unregisterParticipantView(message.getRequestId());
+
+		if (nonNull(participantView)) {
+			view.removeParticipantView(participantView);
+		}
 	}
 
 	@Subscribe
@@ -418,12 +424,58 @@ public class SlidesPresenter extends Presenter<SlidesView> {
 
 	@Subscribe
 	public void onEvent(PeerStateEvent event) {
-		view.setPeerStateEvent(event);
-	}
+		ExecutableState state = event.getState();
+		PresenterContext presenterContext = (PresenterContext) context;
+		StreamConfiguration streamConfig = presenterContext.getConfiguration().getStreamConfig();
+		JanusParticipantContext participantContext = event.getParticipantContext();
 
-	@Subscribe
-	public void onEvent(RemoteVideoFrameEvent event) {
-		view.setVideoFrameEvent(event);
+		if (state == ExecutableState.Starting) {
+			ParticipantView participantView = viewFactory.getInstance(ParticipantView.class);
+			participantView.setState(event.getState());
+			participantView.setParticipantContext(participantContext);
+
+			registerParticipantView(participantView, participantContext);
+
+			UUID requestId = participantContext.getRequestId();
+			if (nonNull(requestId)) {
+				// Kick only participants who initiated a speech request.
+				participantView.setOnKick(() -> streamService.stopPeerConnection(participantContext));
+			}
+
+			participantContext.setTalkingActivityConsumer(talking -> {
+				ParticipantVideoLayout layout = streamConfig.getParticipantVideoLayout();
+
+				// Do not change active participant in gallery layout.
+				if (layout == ParticipantVideoLayout.GALLERY) {
+					return;
+				}
+				if (talking) {
+					participantViewCollection.setActiveParticipant(participantView);
+
+					view.setParticipantViews(participantViewCollection, layout);
+				}
+			});
+
+			participantViewCollection.addParticipant(participantView);
+
+			view.addParticipantView(participantView);
+		}
+		else if (state == ExecutableState.Started) {
+			ParticipantView participantView = getParticipantView(participantContext);
+
+			if (nonNull(participantView)) {
+				participantView.setState(state);
+			}
+		}
+		else if (state == ExecutableState.Stopped) {
+			ParticipantView participantView = unregisterParticipantView(participantContext);
+
+			if (nonNull(participantView)) {
+				participantViewCollection.removeParticipant(participantView);
+
+				view.removeParticipantView(participantView);
+			}
+		}
 	}
 
 	@Subscribe
@@ -462,6 +514,21 @@ public class SlidesPresenter extends Presenter<SlidesView> {
 	}
 
 	@Subscribe
+	public void onEvent(ExternalParticipantVideoViewEvent event) {
+		if (event.isEnabled()) {
+			if (event.isShow()) {
+				viewShowExternalParticipantVideo(event.isPersistent());
+			}
+			else {
+				view.hideExternalParticipantVideo();
+			}
+		}
+		else {
+			viewHideExternalParticipantVideo(event.isPersistent());
+		}
+	}
+
+	@Subscribe
 	public void onEvent(ExternalSlidePreviewViewEvent event) {
 		if (event.isEnabled()) {
 			if (event.isShow()) {
@@ -473,21 +540,6 @@ public class SlidesPresenter extends Presenter<SlidesView> {
 		}
 		else {
 			viewHideExternalSlidePreview(event.isPersistent());
-		}
-	}
-
-	@Subscribe
-	public void onEvent(ExternalSpeechViewEvent event) {
-		if (event.isEnabled()) {
-			if (event.isShow()) {
-				viewShowExternalSpeech(event.isPersistent());
-			}
-			else {
-				view.hideExternalSpeech();
-			}
-		}
-		else {
-			viewHideExternalSpeech(event.isPersistent());
 		}
 	}
 
@@ -540,17 +592,17 @@ public class SlidesPresenter extends Presenter<SlidesView> {
 	}
 
 	@Subscribe
-	public void onEvent(PreviewPositionEvent event) {
-		view.setPreviewPosition(event.position());
+	public void onEvent(ParticipantVideoPositionEvent event) {
+		final ParticipantVideoPosition position = event.position();
+
+		view.setParticipantVideoPosition(position);
+
+		getPresenterConfig().getSlideViewConfiguration().setParticipantVideoPosition(position);
 	}
 
 	@Subscribe
-	public void onEvent(SpeechPositionEvent event) {
-		final SpeechPosition position = event.position();
-
-		view.setSpeechPosition(position);
-
-		getPresenterConfig().getSlideViewConfiguration().setSpeechPosition(position);
+	public void onEvent(PreviewPositionEvent event) {
+		view.setPreviewPosition(event.position());
 	}
 
 	@Subscribe
@@ -589,6 +641,30 @@ public class SlidesPresenter extends Presenter<SlidesView> {
 		}
 	}
 
+	private void registerParticipantView(ParticipantView view, JanusParticipantContext context) {
+		participantViewMap.put(context, view);
+	}
+
+	private ParticipantView unregisterParticipantView(JanusParticipantContext context) {
+		return participantViewMap.remove(context);
+	}
+
+	private ParticipantView unregisterParticipantView(UUID requestId) {
+		for (var entry : participantViewMap.entrySet()) {
+			if (Objects.equals(requestId, entry.getKey().getRequestId())) {
+				// Found by request ID.
+				ParticipantView participantView = entry.getValue();
+				participantViewMap.remove(entry.getKey());
+				return participantView;
+			}
+		}
+		return null;
+	}
+
+	private ParticipantView getParticipantView(JanusParticipantContext context) {
+		return participantViewMap.get(context);
+	}
+
 	private void externalMessagesPositionChanged(ExternalWindowPosition position) {
 		final ExternalWindowConfiguration config = getExternalMessagesConfig();
 
@@ -619,6 +695,23 @@ public class SlidesPresenter extends Presenter<SlidesView> {
 		eventBus.post(new ExternalParticipantsViewEvent(false));
 	}
 
+	private void externalParticipantVideoPositionChanged(ExternalWindowPosition position) {
+		final ExternalWindowConfiguration config = getExternalParticipantVideoConfig();
+
+		config.setPosition(position.getPosition());
+		config.setScreen(position.getScreen());
+	}
+
+	private void externalParticipantVideoSizeChanged(Dimension size) {
+		getExternalParticipantVideoConfig().setSize(size);
+	}
+
+	private void externalParticipantVideoClosed() {
+		view.setParticipantViews(participantViewCollection, ParticipantVideoLayout.GALLERY);
+
+		eventBus.post(new ExternalParticipantVideoViewEvent(false));
+	}
+
 	private void externalSlidePreviewPositionChanged(ExternalWindowPosition position) {
 		final ExternalWindowConfiguration config = getExternalSlidePreviewConfig();
 
@@ -632,21 +725,6 @@ public class SlidesPresenter extends Presenter<SlidesView> {
 
 	private void externalSlidePreviewClosed() {
 		eventBus.post(new ExternalSlidePreviewViewEvent(false));
-	}
-
-	private void externalSpeechPositionChanged(ExternalWindowPosition position) {
-		final ExternalWindowConfiguration config = getExternalSpeechConfig();
-
-		config.setPosition(position.getPosition());
-		config.setScreen(position.getScreen());
-	}
-
-	private void externalSpeechSizeChanged(Dimension size) {
-		getExternalSpeechConfig().setSize(size);
-	}
-
-	private void externalSpeechClosed() {
-		eventBus.post(new ExternalSpeechViewEvent(false));
 	}
 
 	private void externalNotesPositionChanged(ExternalWindowPosition position) {
@@ -693,20 +771,21 @@ public class SlidesPresenter extends Presenter<SlidesView> {
 	}
 
 	private void onAcceptSpeech(SpeechBaseMessage message) {
-		streamService.acceptSpeechRequest(message);
+		// Create and configure a participant context for the speech publisher.
+		// BigInteger '-1' is temporarily used as the peerId to identify the remote participant.
+		JanusParticipantContext pContext = new JanusParticipantContext();
+		pContext.setPeerId(BigInteger.valueOf(-1));
+		pContext.setRequestId(message.getRequestId());
+		pContext.setDisplayName(message.getFullName());
+
+		streamService.acceptSpeechRequest(pContext);
 
 		PresenterContext presenterContext = (PresenterContext) context;
 		presenterContext.getSpeechRequests().remove(message);
 
-		UUID requestId = message.getRequestId();
-		String userName = String.format("%s %s", message.getFirstName(),
-				message.getFamilyName());
+		view.acceptSpeechRequest(message);
 
-		PeerStateEvent event = new PeerStateEvent(requestId, userName,
-				ExecutableState.Starting);
-
-		view.removeSpeechRequest(message);
-		view.setPeerStateEvent(event);
+		onEvent(new PeerStateEvent(pContext, ExecutableState.Starting));
 	}
 
 	private void onRejectSpeech(SpeechBaseMessage message) {
@@ -716,6 +795,8 @@ public class SlidesPresenter extends Presenter<SlidesView> {
 		presenterContext.getSpeechRequests().remove(message);
 
 		view.removeSpeechRequest(message);
+
+		unregisterParticipantView(message.getRequestId());
 	}
 
 	private void onBan(CourseParticipant user) {
@@ -1252,12 +1333,12 @@ public class SlidesPresenter extends Presenter<SlidesView> {
 		return getPresenterConfig().getExternalParticipantsConfig();
 	}
 
-	private ExternalWindowConfiguration getExternalSlidePreviewConfig() {
-		return getPresenterConfig().getExternalSlidePreviewConfig();
+	private ExternalWindowConfiguration getExternalParticipantVideoConfig() {
+		return getPresenterConfig().getExternalParticipantVideoConfig();
 	}
 
-	private ExternalWindowConfiguration getExternalSpeechConfig() {
-		return getPresenterConfig().getExternalSpeechConfig();
+	private ExternalWindowConfiguration getExternalSlidePreviewConfig() {
+		return getPresenterConfig().getExternalSlidePreviewConfig();
 	}
 
 	private ExternalWindowConfiguration getExternalNotesConfig() {
@@ -1351,6 +1432,12 @@ public class SlidesPresenter extends Presenter<SlidesView> {
 			view.setExtendedFullscreen(newValue);
 		});
 
+		config.getStreamConfig().participantVideoLayoutProperty().addListener((o, oldValue, newValue) -> {
+			participantViewCollection.clearActiveParticipants();
+
+			view.setParticipantViews(participantViewCollection, newValue);
+		});
+
 //		config.useMouseInputProperty().addListener((o, oldValue, newValue) -> {
 //			setUseMouse(newValue);
 //		});
@@ -1376,17 +1463,17 @@ public class SlidesPresenter extends Presenter<SlidesView> {
 		initExternalScreenBehavior(getExternalParticipantsConfig(),
 				(enabled, show) -> eventBus.post(new ExternalParticipantsViewEvent(enabled, show)));
 
+		view.setOnExternalParticipantVideoPositionChanged(this::externalParticipantVideoPositionChanged);
+		view.setOnExternalParticipantVideoSizeChanged(this::externalParticipantVideoSizeChanged);
+		view.setOnExternalParticipantVideoClosed(this::externalParticipantVideoClosed);
+		initExternalScreenBehavior(getExternalParticipantVideoConfig(),
+				(enabled, show) -> eventBus.post(new ExternalParticipantVideoViewEvent(enabled, show)));
+
 		view.setOnExternalSlidePreviewPositionChanged(this::externalSlidePreviewPositionChanged);
 		view.setOnExternalSlidePreviewSizeChanged(this::externalSlidePreviewSizeChanged);
 		view.setOnExternalSlidePreviewClosed(this::externalSlidePreviewClosed);
 		initExternalScreenBehavior(getExternalSlidePreviewConfig(),
 				(enabled, show) -> eventBus.post(new ExternalSlidePreviewViewEvent(enabled, show)));
-
-		view.setOnExternalSpeechPositionChanged(this::externalSpeechPositionChanged);
-		view.setOnExternalSpeechSizeChanged(this::externalSpeechSizeChanged);
-		view.setOnExternalSpeechClosed(this::externalSpeechClosed);
-		initExternalScreenBehavior(getExternalSpeechConfig(),
-				(enabled, show) -> eventBus.post(new ExternalSpeechViewEvent(enabled, show)));
 
 		view.setOnExternalNotesPositionChanged(this::externalNotesPositionChanged);
 		view.setOnExternalNotesSizeChanged(this::externalNotesSizeChanged);
@@ -1424,9 +1511,6 @@ public class SlidesPresenter extends Presenter<SlidesView> {
 		view.setOnBan(this::onBan);
 		view.setOnDiscardMessage(this::onDiscardMessage);
 		view.setOnCreateMessageSlide(this::onCreateMessageSlide);
-		view.setOnMutePeerAudio(streamService::mutePeerAudio);
-		view.setOnMutePeerVideo(streamService::mutePeerVideo);
-		view.setOnStopPeerConnection(streamService::stopPeerConnection);
 
 		// Register shortcuts that are associated with the SlideView.
 		registerShortcut(Shortcut.SLIDE_FIRST, this::firstPage);
@@ -1470,6 +1554,9 @@ public class SlidesPresenter extends Presenter<SlidesView> {
 
 		view.setParticipantsPosition(getPresenterConfig()
 				.getSlideViewConfiguration().getParticipantsPosition());
+
+		view.setParticipantVideoPosition(getPresenterConfig()
+				.getSlideViewConfiguration().getParticipantVideoPosition());
 
 		view.setPreviewPosition(getPresenterConfig()
 				.getSlideViewConfiguration().getSlidePreviewPosition());
@@ -1531,13 +1618,13 @@ public class SlidesPresenter extends Presenter<SlidesView> {
 			showExternalScreen(getExternalParticipantsConfig(),
 					(enabled, show) -> eventBus.post(new ExternalParticipantsViewEvent(enabled, show)));
 		}
+		if (viewConfig.getParticipantVideoPosition() == ParticipantVideoPosition.EXTERNAL) {
+			showExternalScreen(getExternalParticipantVideoConfig(),
+					(enabled, show) -> eventBus.post(new ExternalParticipantVideoViewEvent(enabled, show)));
+		}
 		if (viewConfig.getSlidePreviewPosition() == SlidePreviewPosition.EXTERNAL) {
 			showExternalScreen(getExternalSlidePreviewConfig(),
 					(enabled, show) -> eventBus.post(new ExternalSlidePreviewViewEvent(enabled, show)));
-		}
-		if (viewConfig.getSpeechPosition() == SpeechPosition.EXTERNAL) {
-			showExternalScreen(getExternalSpeechConfig(),
-					(enabled, show) -> eventBus.post(new ExternalSpeechViewEvent(enabled, show)));
 		}
 		if (viewConfig.getSlideNotesPosition() == SlideNotesPosition.EXTERNAL) {
 			showExternalScreen(getExternalNotesConfig(),
@@ -1558,7 +1645,6 @@ public class SlidesPresenter extends Presenter<SlidesView> {
 	private void hideExternalScreens() {
 		view.hideExternalSlidePreview();
 		view.hideExternalMessages();
-		view.hideExternalSpeech();
 	}
 
 	private void checkScreenExists(ExternalWindowConfiguration config) {
@@ -1613,6 +1699,28 @@ public class SlidesPresenter extends Presenter<SlidesView> {
 		view.hideExternalParticipants();
 	}
 
+	private void viewShowExternalParticipantVideo(boolean persistent) {
+		final ExternalWindowConfiguration config = getExternalParticipantVideoConfig();
+
+		if (persistent) {
+			config.setEnabled(true);
+		}
+
+		checkScreenExists(config);
+
+		view.showExternalParticipantVideo(config.getScreen(), config.getPosition(), config.getSize());
+	}
+
+	private void viewHideExternalParticipantVideo(boolean persistent) {
+		final ExternalWindowConfiguration config = getExternalParticipantVideoConfig();
+
+		if (persistent) {
+			config.setEnabled(false);
+		}
+
+		view.hideExternalParticipantVideo();
+	}
+
 	private void viewShowExternalSlidePreview(boolean persistent) {
 		final ExternalWindowConfiguration config = getExternalSlidePreviewConfig();
 
@@ -1633,28 +1741,6 @@ public class SlidesPresenter extends Presenter<SlidesView> {
 		}
 
 		view.hideExternalSlidePreview();
-	}
-
-	private void viewShowExternalSpeech(boolean persistent) {
-		final ExternalWindowConfiguration config = getExternalSpeechConfig();
-
-		if (persistent) {
-			config.setEnabled(true);
-		}
-
-		checkScreenExists(config);
-
-		view.showExternalSpeech(config.getScreen(), config.getPosition(), config.getSize());
-	}
-
-	private void viewHideExternalSpeech(boolean persistent) {
-		final ExternalWindowConfiguration config = getExternalSpeechConfig();
-
-		if (persistent) {
-			config.setEnabled(false);
-		}
-
-		view.hideExternalSpeech();
 	}
 
 	private void viewShowExternalNotes(boolean persistent) {

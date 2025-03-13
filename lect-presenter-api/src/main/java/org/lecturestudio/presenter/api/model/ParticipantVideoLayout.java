@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2021 TU Darmstadt, Department of Computer Science,
+ * Copyright (C) 2020 TU Darmstadt, Department of Computer Science,
  * Embedded Systems and Applications Group.
  *
  * This program is free software: you can redistribute it and/or modify
@@ -16,24 +16,23 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package org.lecturestudio.web.api.event;
-
-import dev.onvoid.webrtc.media.video.VideoFrame;
+package org.lecturestudio.presenter.api.model;
 
 /**
- * A VideoFrameEvent containing a VideoFrame that was received from a remote
- * video track.
+ * Represents the layout options for displaying participant feeds in a conference.
  *
  * @author Alex Andres
  */
-public class RemoteVideoFrameEvent extends VideoFrameEvent {
+public enum ParticipantVideoLayout {
 
 	/**
-	 * Creates a new RemoteVideoFrameEvent with the specified video frame.
-	 *
-	 * @param frame The video frame received from a remote video track.
+	 * Grid-like layout showing multiple participant feeds simultaneously.
 	 */
-	public RemoteVideoFrameEvent(VideoFrame frame) {
-		super(frame);
-	}
+	GALLERY,
+
+	/**
+	 * Focus layout highlighting the current active speaker.
+	 */
+	SPEAKER
+
 }

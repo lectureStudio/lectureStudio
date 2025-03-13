@@ -18,8 +18,8 @@
 
 package org.lecturestudio.presenter.api.event;
 
-import org.lecturestudio.presenter.api.model.SpeechPosition;
+import org.lecturestudio.presenter.api.model.ParticipantVideoPosition;
 
-public record SpeechPositionEvent(SpeechPosition position) {
+public record ParticipantVideoPositionEvent(ParticipantVideoPosition position) {
 
 }

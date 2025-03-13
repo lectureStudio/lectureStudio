@@ -34,6 +34,9 @@ public class SlideViewConfiguration {
 	private final ObjectProperty<ParticipantsPosition> participantsPosition = new ObjectProperty<>(
 			ParticipantsPosition.LEFT);
 
+	private final ObjectProperty<ParticipantVideoPosition> participantVideoPosition = new ObjectProperty<>(
+			ParticipantVideoPosition.EXTERNAL);
+
 	private final ObjectProperty<SlidePreviewPosition> previewPosition = new ObjectProperty<>(
 			SlidePreviewPosition.RIGHT);
 
@@ -42,9 +45,6 @@ public class SlideViewConfiguration {
 
 	private final ObjectProperty<NotesPosition> notesPosition = new ObjectProperty<>(
 			NotesPosition.RIGHT);
-
-	private final ObjectProperty<SpeechPosition> speechPosition = new ObjectProperty<>(
-			SpeechPosition.ABOVE_SLIDE_PREVIEW);
 
 	private final DoubleProperty leftSliderPosition = new DoubleProperty(0.375);
 
@@ -125,6 +125,14 @@ public class SlideViewConfiguration {
 		participantsPosition.set(position);
 	}
 
+	public ParticipantVideoPosition getParticipantVideoPosition() {
+		return participantVideoPosition.get();
+	}
+
+	public void setParticipantVideoPosition(ParticipantVideoPosition position) {
+		participantVideoPosition.set(position);
+	}
+
 	/**
 	 * @param position Slide preview position
 	 */
@@ -171,17 +179,4 @@ public class SlideViewConfiguration {
 		notesPosition.set(position);
 	}
 
-	/**
-	 * @return the speech position
-	 */
-	public SpeechPosition getSpeechPosition() {
-		return speechPosition.get();
-	}
-
-	/**
-	 * @param position The speech position
-	 */
-	public void setSpeechPosition(SpeechPosition position) {
-		speechPosition.set(position);
-	}
 }

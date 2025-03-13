@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2021 TU Darmstadt, Department of Computer Science,
+ * Copyright (C) 2020 TU Darmstadt, Department of Computer Science,
  * Embedded Systems and Applications Group.
  *
  * This program is free software: you can redistribute it and/or modify
@@ -16,24 +16,12 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package org.lecturestudio.web.api.event;
+package org.lecturestudio.presenter.api.model;
 
-import dev.onvoid.webrtc.media.video.VideoFrame;
+public enum ParticipantVideoPosition {
 
-/**
- * A VideoFrameEvent containing a VideoFrame that was received from a local
- * video track that is sending captured camera video frames to remote peers.
- *
- * @author Alex Andres
- */
-public class LocalVideoFrameEvent extends VideoFrameEvent {
+    LEFT,
+    RIGHT,
+    EXTERNAL
 
-	/**
-	 * Creates a new LocalVideoFrameEvent with the specified video frame.
-	 *
-	 * @param frame The video frame received from a local video track.
-	 */
-	public LocalVideoFrameEvent(VideoFrame frame) {
-		super(frame);
-	}
 }

@@ -36,17 +36,24 @@ import org.lecturestudio.web.api.janus.message.JanusRoomJoinRequest;
 /**
  * This state joins a previously created feed in a video-room published on the
  * Janus WebRTC server. This state joins the room as a subscriber which makes
- * you an receive-only participant.
+ * you a receive-only participant.
  *
  * @author Alex Andres
  */
 public class SubscriberJoinRoomState implements JanusState {
 
+	/** The publisher to subscribe to. */
 	private final JanusPublisher publisher;
 
+	/** The join request message. */
 	private JanusPluginDataMessage joinRequest;
 
 
+	/**
+	 * Constructs a new {@link SubscriberJoinRoomState} instance.
+	 *
+	 * @param publisher The publisher to subscribe to.
+	 */
 	public SubscriberJoinRoomState(JanusPublisher publisher) {
 		requireNonNull(publisher);
 
@@ -77,12 +84,11 @@ public class SubscriberJoinRoomState implements JanusState {
 			return;
 		}
 
-		if (message instanceof JanusJsepMessage) {
-			JanusJsepMessage jsepMessage = (JanusJsepMessage) message;
+		if (message instanceof JanusJsepMessage jsepMessage) {
 			String sdp = jsepMessage.getSdp();
 			RTCSessionDescription offer = new RTCSessionDescription(RTCSdpType.OFFER, sdp);
 
-			handler.setState(new SubscriberJoinedRoomState(offer, publisher));
+			handler.setState(new SubscriberJoinedRoomState(offer));
 		}
 	}
 }

@@ -29,9 +29,8 @@ import java.util.UUID;
 import java.util.function.Consumer;
 
 import org.lecturestudio.core.audio.AudioFrame;
-import org.lecturestudio.web.api.event.RemoteVideoFrameEvent;
+import org.lecturestudio.web.api.janus.JanusParticipantContext;
 import org.lecturestudio.web.api.janus.JanusPeerConnection;
-import org.lecturestudio.web.api.janus.JanusPublisher;
 import org.lecturestudio.web.api.janus.JanusStateHandler;
 import org.lecturestudio.web.api.janus.message.JanusMediaMessage;
 import org.lecturestudio.web.api.janus.message.JanusMessage;
@@ -42,7 +41,6 @@ import org.lecturestudio.web.api.janus.message.JanusRoomSubscribeRequest;
 import org.lecturestudio.web.api.janus.message.JanusTrickleMessage;
 import org.lecturestudio.web.api.stream.StreamAudioContext;
 import org.lecturestudio.web.api.stream.StreamContext;
-import org.lecturestudio.web.api.stream.StreamVideoContext;
 
 /**
  * This state starts publishing media (audio, video and data) to a joined
@@ -55,30 +53,30 @@ public class SubscriberJoinedRoomState implements JanusState {
 
 	private final RTCSessionDescription offer;
 
-	private final JanusPublisher publisher;
+	private JanusParticipantContext participantContext;
 
 	private Consumer<AudioFrame> audioFrameConsumer;
-
-	private Consumer<RemoteVideoFrameEvent> videoFrameConsumer;
 
 	private JanusRoomSubscribeMessage subscribeRequest;
 
 
-	public SubscriberJoinedRoomState(RTCSessionDescription offer,
-			JanusPublisher publisher) {
+	/**
+	 * Creates a new instance of SubscriberJoinedRoomState for subscribing to a publisher in a Janus video room.
+	 *
+	 * @param offer The WebRTC session description containing the remote media offer.
+	 */
+	public SubscriberJoinedRoomState(RTCSessionDescription offer) {
 		this.offer = offer;
-		this.publisher = publisher;
 	}
 
 	@Override
 	public void initialize(JanusStateHandler handler) {
 		StreamContext streamContext = handler.getStreamContext();
 		StreamAudioContext audioContext = streamContext.getAudioContext();
-		StreamVideoContext videoContext = streamContext.getVideoContext();
 		JanusPeerConnection peerConnection = handler.createPeerConnection();
 
+		participantContext = handler.getParticipantContext();
 		audioFrameConsumer = audioContext.getRemoteFrameConsumer();
-		videoFrameConsumer = videoContext.getRemoteFrameConsumer();
 
 		peerConnection.setOnLocalSessionDescription(description -> {
 			sendRequest(handler, description.sdp);
@@ -92,9 +90,7 @@ public class SubscriberJoinedRoomState implements JanusState {
 			}
 		});
 		peerConnection.setOnRemoteVideoFrame(videoFrame -> {
-			if (nonNull(videoFrameConsumer)) {
-				videoFrameConsumer.accept(new RemoteVideoFrameEvent(videoFrame));
-			}
+			participantContext.setVideoFrame(videoFrame);
 		});
 		peerConnection.setAudioTrackSink((data, bitsPerSample, sampleRate, channels, frames) -> {
 			if (nonNull(audioFrameConsumer)) {

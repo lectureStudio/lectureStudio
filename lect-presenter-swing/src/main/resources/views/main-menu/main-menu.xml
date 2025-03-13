@@ -34,6 +34,13 @@
 				<radiobuttonmenuitem id="participantsPositionExternalMenuItem" text="menu.external" />
 			</buttongroup>
 		</menu>
+		<menu id="participantVideoPositionMenu" text="menu.participant.video.position">
+			<buttongroup>
+				<radiobuttonmenuitem id="participantVideoPositionLeftMenuItem" text="menu.left" />
+				<radiobuttonmenuitem id="participantVideoPositionRightMenuItem" text="menu.right" />
+				<radiobuttonmenuitem id="participantVideoPositionExternalMenuItem" text="menu.external" />
+			</buttongroup>
+		</menu>
 		<menu id="previewPositionMenu" text="menu.preview.position">
 			<buttongroup>
 				<radiobuttonmenuitem id="previewPositionLeftMenuItem" text="menu.left" />
@@ -53,12 +60,6 @@
 				<radiobuttonmenuitem id="noteSlidePositionBelowPreviewMenuItem" text="menu.note.slide.below.preview" />
 				<radiobuttonmenuitem id="noteSlidePositionNoneMenuItem" text="menu.none" />
 				<radiobuttonmenuitem id="noteSlidePositionExternalMenuItem" text="menu.external" />
-			</buttongroup>
-		</menu>
-		<menu id="speechPositionMenu" text="menu.speech.position">
-			<buttongroup>
-				<radiobuttonmenuitem id="speechPositionAbovePreviewMenuItem" text="menu.speech.position.above.preview" />
-				<radiobuttonmenuitem id="speechPositionExternalMenuItem" text="menu.external" />
 			</buttongroup>
 		</menu>
 		<separator />

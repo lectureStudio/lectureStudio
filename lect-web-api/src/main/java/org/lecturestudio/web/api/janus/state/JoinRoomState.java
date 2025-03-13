@@ -61,11 +61,12 @@ public class JoinRoomState implements JanusState {
 	public void handleMessage(JanusStateHandler handler, JanusMessage message) {
 		checkTransaction(joinRequest, message);
 
-		if (message instanceof JanusRoomJoinedMessage) {
-			JanusRoomJoinedMessage joinedMessage = (JanusRoomJoinedMessage) message;
-
+		if (message instanceof JanusRoomJoinedMessage joinedMessage) {
 			logDebug("Janus room joined: %d (%s)", joinedMessage.getRoomId(),
 					joinedMessage.getDescription());
+
+			// Now that we've joined the room, we can set our assigned peer id.
+			handler.getParticipantContext().setPeerId(joinedMessage.getId());
 
 			handler.setState(new PublishToRoomState());
 		}

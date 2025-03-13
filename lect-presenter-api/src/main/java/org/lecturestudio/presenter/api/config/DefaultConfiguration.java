@@ -35,10 +35,7 @@ import org.lecturestudio.core.text.Font;
 import org.lecturestudio.core.text.TeXFont;
 import org.lecturestudio.core.text.TextAttributes;
 import org.lecturestudio.core.tool.PresetColor;
-import org.lecturestudio.presenter.api.model.MessageBarPosition;
-import org.lecturestudio.presenter.api.model.NoteSlidePosition;
-import org.lecturestudio.presenter.api.model.ParticipantsPosition;
-import org.lecturestudio.presenter.api.model.SlideNotesPosition;
+import org.lecturestudio.presenter.api.model.*;
 import org.lecturestudio.presenter.api.net.ScreenShareProfiles;
 
 public class DefaultConfiguration extends PresenterConfiguration {
@@ -105,7 +102,7 @@ public class DefaultConfiguration extends PresenterConfiguration {
 
 		getExternalMessagesConfig().setEnabled(false);
 		getExternalSlidePreviewConfig().setEnabled(false);
-		getExternalSpeechConfig().setEnabled(false);
+		getExternalParticipantVideoConfig().setEnabled(false);
 
 		getSlideViewConfiguration().setBottomSliderPosition(0.7);
 		getSlideViewConfiguration().setLeftSliderPosition(0.375);
@@ -136,6 +133,7 @@ public class DefaultConfiguration extends PresenterConfiguration {
 		getStreamConfig().getCameraCodecConfig().setBitRate(200);
 		getStreamConfig().getCameraCodecConfig().setFrameRate(30);
 		getStreamConfig().setScreenShareProfile(ScreenShareProfiles.MOTION);
+		getStreamConfig().setParticipantVideoLayout(ParticipantVideoLayout.GALLERY);
 
 		getTemplateConfig().getQuizTemplateConfig().setBounds(new Rectangle2D(0.05, 0.05, 0.9, 0.9));
 		getTemplateConfig().getChatMessageTemplateConfig().setBounds(new Rectangle2D(0.05, 0.05, 0.9, 0.9));

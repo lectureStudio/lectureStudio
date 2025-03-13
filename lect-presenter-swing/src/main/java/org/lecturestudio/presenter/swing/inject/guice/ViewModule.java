@@ -24,6 +24,7 @@ import org.lecturestudio.core.inject.DIViewContextFactory;
 import org.lecturestudio.core.view.*;
 import org.lecturestudio.presenter.api.view.*;
 import org.lecturestudio.presenter.swing.view.*;
+import org.lecturestudio.swing.components.SwingParticipantView;
 import org.lecturestudio.swing.view.*;
 
 public class ViewModule extends AbstractModule {
@@ -54,6 +55,7 @@ public class ViewModule extends AbstractModule {
 		bind(NotificationView.class).to(SwingNotificationView.class);
 		bind(NotificationPopupView.class).to(SwingNotificationPopupView.class);
 		bind(NotificationPopupManager.class).to(SwingNotificationPopupManager.class);
+		bind(ParticipantView.class).to(SwingParticipantView.class);
 		bind(PreviewStreamView.class).to(SwingPreviewStreamView.class);
 		bind(ProgressView.class).to(SwingProgressView.class);
 		bind(QuitRecordingView.class).to(SwingQuitRecordingView.class);

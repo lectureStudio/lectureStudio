@@ -31,9 +31,7 @@ import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.NoSuchElementException;
-import java.util.UUID;
 import java.util.concurrent.CompletionStage;
-import java.util.function.Consumer;
 
 import javax.json.Json;
 import javax.json.JsonObject;
@@ -47,6 +45,7 @@ import org.lecturestudio.core.ExecutableState;
 import org.lecturestudio.web.api.data.bind.JsonConfigProvider;
 import org.lecturestudio.web.api.janus.JanusHandler;
 import org.lecturestudio.web.api.janus.JanusMessageTransmitter;
+import org.lecturestudio.web.api.janus.JanusParticipantContext;
 import org.lecturestudio.web.api.janus.JanusStateHandlerListener;
 import org.lecturestudio.web.api.janus.json.JanusMessageFactory;
 import org.lecturestudio.web.api.janus.message.JanusMessageType;
@@ -78,8 +77,6 @@ public class JanusWebSocketClient extends ExecutableBase implements JanusMessage
 
 	private Jsonb jsonb;
 
-	private Consumer<UUID> rejectedConsumer;
-
 	private JanusHandler handler;
 
 
@@ -94,24 +91,20 @@ public class JanusWebSocketClient extends ExecutableBase implements JanusMessage
 		stateListeners.add(listener);
 	}
 
-	public void setRejectedConsumer(Consumer<UUID> consumer) {
-		rejectedConsumer = consumer;
-	}
-
-	public void startRemoteSpeech(UUID requestId, String userName) {
+	public void startRemoteSpeech(JanusParticipantContext context) {
 		if (!started()) {
 			return;
 		}
 
-		handler.startRemoteSpeech(requestId, userName);
+		handler.startRemoteSpeech(context);
 	}
 
-	public void stopRemoteSpeech(UUID requestId) {
+	public void stopRemoteSpeech(JanusParticipantContext context) {
 		if (!started()) {
 			return;
 		}
 
-		handler.stopRemoteSpeech(requestId);
+		handler.stopRemoteSpeech(context);
 	}
 
 	@Override
@@ -160,7 +153,6 @@ public class JanusWebSocketClient extends ExecutableBase implements JanusMessage
 
 			handler = new JanusHandler(this, streamContext, eventRecorder);
 			handler.addJanusStateHandlerListeners(stateListeners);
-			handler.setRejectedConsumer(rejectedConsumer);
 			handler.init();
 			handler.start();
 

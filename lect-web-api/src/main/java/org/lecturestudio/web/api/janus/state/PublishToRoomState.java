@@ -24,8 +24,8 @@ import java.util.Map;
 import java.util.UUID;
 import java.util.function.Consumer;
 
-import org.lecturestudio.web.api.event.LocalVideoFrameEvent;
 import org.lecturestudio.web.api.event.LocalScreenVideoFrameEvent;
+import org.lecturestudio.web.api.janus.JanusParticipantContext;
 import org.lecturestudio.web.api.janus.JanusPeerConnection;
 import org.lecturestudio.web.api.janus.JanusStateHandler;
 import org.lecturestudio.web.api.janus.message.JanusJsepMessage;
@@ -66,7 +66,7 @@ public class PublishToRoomState implements JanusState {
 
 	private Consumer<LocalScreenVideoFrameEvent> localScreenFrameConsumer;
 
-	private Consumer<LocalVideoFrameEvent> localVideoFrameConsumer;
+	private JanusParticipantContext participantContext;
 
 	private Runnable screenSourceEndedCallback;
 
@@ -79,8 +79,7 @@ public class PublishToRoomState implements JanusState {
 		StreamScreenContext screenContext = streamContext.getScreenContext();
 		JanusPeerConnection peerConnection = handler.createPeerConnection();
 
-		localVideoFrameConsumer = videoContext.getLocalFrameConsumer();
-		localScreenFrameConsumer = screenContext.getLocalFrameConsumer();
+		participantContext = handler.getParticipantContext();
 		screenSourceEndedCallback = screenContext.getScreenSourceEndedCallback();
 
 		peerConnection.setOnLocalSessionDescription(description -> {
@@ -155,8 +154,7 @@ public class PublishToRoomState implements JanusState {
 			return;
 		}
 
-		if (message instanceof JanusJsepMessage) {
-			JanusJsepMessage jsepMessage = (JanusJsepMessage) message;
+		if (message instanceof JanusJsepMessage jsepMessage) {
 			String sdp = jsepMessage.getSdp();
 			RTCSessionDescription answer = new RTCSessionDescription(RTCSdpType.ANSWER, sdp);
 
@@ -173,7 +171,7 @@ public class PublishToRoomState implements JanusState {
 
 		peerConnection.setOnReplacedTrack(track -> {
 			if (track.getId().equals("screen")) {
-				addScreenTrackListeners((VideoTrack) track);
+				addScreenTrackListeners(handler, (VideoTrack) track);
 			}
 		});
 
@@ -184,7 +182,7 @@ public class PublishToRoomState implements JanusState {
 				request.addStreamDescription(transceiver.getMid(), track.getId());
 
 				if (track.getId().equals("screen")) {
-					addScreenTrackListeners((VideoTrack) track);
+					addScreenTrackListeners(handler, (VideoTrack) track);
 				}
 				else if (track.getId().equals("camera")) {
 					RTCRtpSender sender = transceiver.getSender();
@@ -202,8 +200,7 @@ public class PublishToRoomState implements JanusState {
 			}
 		}
 
-		publishRequest = new JanusRoomPublishMessage(handler.getSessionId(),
-				handler.getPluginId());
+		publishRequest = new JanusRoomPublishMessage(handler.getSessionId(), handler.getPluginId());
 		publishRequest.setSdp(sdp);
 		publishRequest.setTransaction(UUID.randomUUID().toString());
 		publishRequest.setBody(request);
@@ -223,8 +220,7 @@ public class PublishToRoomState implements JanusState {
 	}
 
 	private void sendEndOfCandidates(JanusStateHandler handler) {
-		JanusPluginMessage message = new JanusPluginMessage(handler.getSessionId(),
-				handler.getPluginId()) {
+		JanusPluginMessage message = new JanusPluginMessage(handler.getSessionId(), handler.getPluginId()) {
 
 			// This field is mandatory.
 			final Map<String, Object> candidate = Map.of("completed", true);
@@ -236,7 +232,7 @@ public class PublishToRoomState implements JanusState {
 		handler.sendMessage(message);
 	}
 
-	private void addScreenTrackListeners(VideoTrack track) {
+	private void addScreenTrackListeners(JanusStateHandler handler, VideoTrack track) {
 		track.addTrackEndedListener(endedTrack -> {
 			if (nonNull(screenSourceEndedCallback)) {
 				screenSourceEndedCallback.run();
@@ -245,18 +241,16 @@ public class PublishToRoomState implements JanusState {
 
 		track.addSink(videoFrame -> {
 			if (nonNull(localScreenFrameConsumer)) {
-				localScreenFrameConsumer.accept(new LocalScreenVideoFrameEvent(videoFrame));
+				localScreenFrameConsumer.accept(new LocalScreenVideoFrameEvent(videoFrame,
+						handler.getParticipantContext().getPeerId()));
 			}
 		});
 	}
 
-	private void setLocalVideoFrameConsumer(JanusPeerConnection peerConnection,
-			boolean receiveLocalVideo) {
+	private void setLocalVideoFrameConsumer(JanusPeerConnection peerConnection, boolean receiveLocalVideo) {
 		if (receiveLocalVideo) {
 			peerConnection.setOnLocalVideoFrame(videoFrame -> {
-				if (nonNull(localVideoFrameConsumer)) {
-					localVideoFrameConsumer.accept(new LocalVideoFrameEvent(videoFrame));
-				}
+				participantContext.setVideoFrame(videoFrame);
 			});
 		}
 		else {

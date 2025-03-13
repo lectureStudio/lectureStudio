@@ -31,7 +31,6 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.ListIterator;
 import java.util.Properties;
-import java.util.UUID;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
 
@@ -69,8 +68,10 @@ import org.lecturestudio.presenter.api.view.CreateQuizDefaultOptionView;
 import org.lecturestudio.presenter.api.view.CreateQuizNumericOptionView;
 import org.lecturestudio.presenter.api.view.CreateQuizOptionView;
 import org.lecturestudio.presenter.api.view.CreateQuizView;
+import org.lecturestudio.web.api.janus.JanusParticipantContext;
 import org.lecturestudio.web.api.message.SpeechBaseMessage;
 import org.lecturestudio.web.api.model.quiz.Quiz;
+
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
@@ -661,7 +662,7 @@ class CreateQuizPresenterTest extends PresenterTest {
 		}
 
 		@Override
-		public void acceptSpeechRequest(SpeechBaseMessage message) {
+		public void acceptSpeechRequest(JanusParticipantContext pContext) {
 
 		}
 
@@ -706,7 +707,7 @@ class CreateQuizPresenterTest extends PresenterTest {
 		}
 
 		@Override
-		public void stopPeerConnection(UUID requestId) {
+		public void stopPeerConnection(JanusParticipantContext context) {
 
 		}
 

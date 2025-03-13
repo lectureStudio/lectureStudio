@@ -558,18 +558,32 @@ public class SwingSlidesView extends JPanel implements SlidesView {
 	}
 
 	@Override
+	public void setParticipantViews(ParticipantViewCollection collection) {
+		ParticipantVideoLayout layout = (ParticipantVideoLayout) participantLayoutComboBox.getModel().getSelectedItem();
+
+		if (layout == ParticipantVideoLayout.SPEAKER) {
+			SwingUtils.invoke(() -> {
+				peerViewContainer.removeAll();
+
+				// Add active participants.
+				for (PeerView participant : collection.getActiveParticipants()) {
+					peerViewContainer.add((Component) participant);
+				}
+			});
+		}
+	}
+
+	@Override
 	public void bindParticipantVideoLayout(ObjectProperty<ParticipantVideoLayout> layoutProperty) {
 		SwingUtils.bindBidirectional(participantLayoutComboBox, layoutProperty);
 
 		layoutProperty.addListener((o, oldValue, newValue) -> {
-			switch (newValue) {
-				case GALLERY -> peerViewContainer.setLayout(new VideoTileLayout(5));
-				case SPEAKER -> peerViewContainer.setLayout(new CardLayout(5, 5));
-				default -> throw new IllegalStateException("Unexpected value: " + newValue);
-			}
+
 
 			peerViewContainer.revalidate();
 		});
+
+		// TODO
 	}
 
 	@Override
@@ -915,20 +929,24 @@ public class SwingSlidesView extends JPanel implements SlidesView {
 	@Override
 	public void addPeerView(PeerView peerView) {
 		if (peerView instanceof JComponent swingPeerView) {
-			peerViewContainer.add(swingPeerView);
+			SwingUtils.invoke(() -> {
+				peerViewContainer.add(swingPeerView);
 
-			if (rightTabPane.getPaneTabCount() == 0 && !externalParticipantVideoFrame.isVisible()) {
-				maximizeRightTabPane();
-			}
+				if (rightTabPane.getPaneTabCount() == 0 && !externalParticipantVideoFrame.isVisible()) {
+					maximizeRightTabPane();
+				}
+			});
 		}
 	}
 
 	@Override
 	public void removePeerView(PeerView peerView) {
 		if (peerView instanceof JComponent swingPeerView) {
-			peerViewContainer.remove(swingPeerView);
-			peerViewContainer.revalidate();
-			peerViewContainer.repaint();
+			SwingUtils.invoke(() -> {
+				peerViewContainer.remove(swingPeerView);
+				peerViewContainer.revalidate();
+				peerViewContainer.repaint();
+			});
 		}
 	}
 
@@ -1903,7 +1921,6 @@ public class SwingSlidesView extends JPanel implements SlidesView {
 	}
 
 	private void minimizeRightTabPane(boolean saveOldRatio) {
-		// TODO: check video position
 		if (!externalParticipantVideoFrame.isVisible()) {
 			return;
 		}

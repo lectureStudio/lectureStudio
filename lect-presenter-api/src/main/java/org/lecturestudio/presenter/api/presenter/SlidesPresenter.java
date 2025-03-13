@@ -86,10 +86,7 @@ import org.lecturestudio.core.view.TeXBoxView;
 import org.lecturestudio.core.view.TextBoxView;
 import org.lecturestudio.core.view.ViewContextFactory;
 import org.lecturestudio.core.view.ViewType;
-import org.lecturestudio.presenter.api.config.DocumentTemplateConfiguration;
-import org.lecturestudio.presenter.api.config.ExternalWindowConfiguration;
-import org.lecturestudio.presenter.api.config.PresenterConfiguration;
-import org.lecturestudio.presenter.api.config.SlideViewConfiguration;
+import org.lecturestudio.presenter.api.config.*;
 import org.lecturestudio.presenter.api.context.PresenterContext;
 import org.lecturestudio.presenter.api.event.*;
 import org.lecturestudio.presenter.api.input.Shortcut;
@@ -153,6 +150,8 @@ public class SlidesPresenter extends Presenter<SlidesView> {
 
 	private final UserPrivilegeService userPrivilegeService;
 
+	private final ParticipantViewCollection participantViewCollection;
+
 	private StylusHandler stylusHandler;
 
 	private PageEditedListener pageEditedListener;
@@ -206,6 +205,7 @@ public class SlidesPresenter extends Presenter<SlidesView> {
 		this.pageObjectRegistry = new PageObjectRegistry();
 		this.documentChangeListener = new DocumentChangeHandler();
 		this.screenViewContext = new ScreenPresentationViewContext();
+		this.participantViewCollection = new ParticipantViewCollection(1);
 	}
 
 	@Subscribe
@@ -425,6 +425,8 @@ public class SlidesPresenter extends Presenter<SlidesView> {
 	@Subscribe
 	public void onEvent(PeerStateEvent event) {
 		ExecutableState state = event.getState();
+		PresenterContext presenterContext = (PresenterContext) context;
+		StreamConfiguration streamConfig = presenterContext.getConfiguration().getStreamConfig();
 		JanusParticipantContext participantContext = event.getParticipantContext();
 
 		if (state == ExecutableState.Starting) {
@@ -439,6 +441,17 @@ public class SlidesPresenter extends Presenter<SlidesView> {
 				// Kick only participants who initiated a speech request.
 				peerView.setOnKick(() -> streamService.stopPeerConnection(participantContext));
 			}
+
+			participantContext.setTalkingActivityConsumer(talking -> {
+				// Do not change active participant in gallery layout.
+				if (streamConfig.getParticipantVideoLayout() == ParticipantVideoLayout.GALLERY) {
+					return;
+				}
+				if (talking) {
+					// TODO
+					participantViewCollection.setActiveParticipant(peerView);
+				}
+			});
 
 			view.addPeerView(peerView);
 		}

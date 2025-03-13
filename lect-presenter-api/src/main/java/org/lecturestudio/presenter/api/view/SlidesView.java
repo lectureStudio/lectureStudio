@@ -74,6 +74,8 @@ public interface SlidesView extends View {
 
 	void setSlideNotes(Page page, PresentationParameter parameter);
 
+	void setParticipantViews(ParticipantViewCollection collection);
+
 	void bindParticipantVideoLayout(ObjectProperty<ParticipantVideoLayout> layoutProperty);
 
 	void setPageRenderer(RenderController pageRenderer);

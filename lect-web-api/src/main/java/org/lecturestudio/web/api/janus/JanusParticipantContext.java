@@ -18,6 +18,9 @@
 
 package org.lecturestudio.web.api.janus;
 
+import static java.util.Objects.isNull;
+import static java.util.Objects.nonNull;
+
 import java.math.BigInteger;
 import java.util.Objects;
 import java.util.UUID;
@@ -28,8 +31,6 @@ import dev.onvoid.webrtc.media.video.VideoFrame;
 import org.lecturestudio.core.beans.BooleanProperty;
 import org.lecturestudio.core.beans.ObjectProperty;
 import org.lecturestudio.core.beans.StringProperty;
-
-import static java.util.Objects.nonNull;
 
 /**
  * Context class that maintains the state of a Janus participant's media streams.
@@ -276,7 +277,12 @@ public class JanusParticipantContext {
 	 * @param consumer The consumer that will process talking state changes.
 	 */
 	public void setTalkingActivityConsumer(Consumer<Boolean> consumer) {
-		talkingActivityConsumer = consumer;
+		if (isNull(talkingActivityConsumer)) {
+			talkingActivityConsumer = consumer;
+		}
+		else {
+			talkingActivityConsumer = talkingActivityConsumer.andThen(consumer);
+		}
 	}
 
 	/**

@@ -21,6 +21,15 @@ import org.lecturestudio.web.api.message.SpeechBaseMessage;
 import org.lecturestudio.web.api.stream.model.CourseParticipantType;
 import org.lecturestudio.web.api.stream.model.CoursePresenceType;
 
+/**
+ * A custom list cell renderer for displaying course participants in a JList component.
+ * This renderer displays a participant's name, role type (organizer, co-organizer, participant, etc.),
+ * presence type (stream, classroom), and speech request controls.
+ *
+ * @see org.lecturestudio.swing.components.ParticipantList.CourseParticipantItem
+ *
+ * @author Alex Andres
+ */
 public class ParticipantCellRenderer extends Box implements ListCellRenderer<CourseParticipantItem> {
 
 	private static final Border BORDER = new EmptyBorder(5, 5, 5, 5);
@@ -59,12 +68,13 @@ public class ParticipantCellRenderer extends Box implements ListCellRenderer<Cou
 
 		add(nameLabel);
 		add(Box.createHorizontalGlue());
-		add(typeLabel);
-		add(presenceTypeLabel);
 		add(Box.createHorizontalStrut(3));
 		add(acceptButton);
 		add(Box.createHorizontalStrut(3));
 		add(rejectButton);
+		add(Box.createHorizontalStrut(3));
+		add(typeLabel);
+		add(presenceTypeLabel);
 	}
 
 	@Override

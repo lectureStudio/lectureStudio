@@ -105,7 +105,7 @@ public class SwingParticipantView extends JComponent implements ParticipantView 
 
 		stopConnectionButton = new JButton();
 		stopConnectionButton.setToolTipText(dict.get("button.end"));
-		stopConnectionButton.setIcon(AwtResourceLoader.getIcon("speech-decline.svg", 14));
+		stopConnectionButton.setIcon(AwtResourceLoader.getIcon("speech-decline.svg", 22));
 		stopConnectionButton.setContentAreaFilled(false);
 		stopConnectionButton.setVisible(false);
 

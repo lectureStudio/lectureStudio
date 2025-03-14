@@ -697,16 +697,6 @@ class CreateQuizPresenterTest extends PresenterTest {
 		}
 
 		@Override
-		public void mutePeerAudio(boolean mute) {
-
-		}
-
-		@Override
-		public void mutePeerVideo(boolean mute) {
-
-		}
-
-		@Override
 		public void stopPeerConnection(JanusParticipantContext context) {
 
 		}

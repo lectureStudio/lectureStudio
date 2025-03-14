@@ -35,7 +35,7 @@ public class SlideViewConfiguration {
 			ParticipantsPosition.LEFT);
 
 	private final ObjectProperty<ParticipantVideoPosition> participantVideoPosition = new ObjectProperty<>(
-			ParticipantVideoPosition.EXTERNAL);
+			ParticipantVideoPosition.LEFT);
 
 	private final ObjectProperty<SlidePreviewPosition> previewPosition = new ObjectProperty<>(
 			SlidePreviewPosition.RIGHT);

@@ -381,6 +381,12 @@ public class JanusHandler extends JanusStateHandler {
 			public void connected() {
 				var context = pubHandler.getParticipantContext();
 				registerParticipant(context.getPeerId(), context);
+
+				context.audioActiveProperty().addListener((o, oldValue, newValue) ->
+						getStreamContext().getAudioContext().setSendAudio(newValue));
+				context.videoActiveProperty().addListener((o, oldValue, newValue) ->
+						getStreamContext().getVideoContext().setSendVideo(newValue));
+
 				setConnected();
 			}
 

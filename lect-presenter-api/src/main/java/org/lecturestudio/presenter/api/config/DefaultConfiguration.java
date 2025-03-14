@@ -18,6 +18,7 @@
 
 package org.lecturestudio.presenter.api.config;
 
+import java.awt.*;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Locale;
@@ -100,15 +101,22 @@ public class DefaultConfiguration extends PresenterConfiguration {
 
 		Collections.fill(getToolConfig().getPresetColors(), Color.WHITE);
 
-		getExternalMessagesConfig().setEnabled(false);
 		getExternalSlidePreviewConfig().setEnabled(false);
 		getExternalParticipantVideoConfig().setEnabled(false);
+		getExternalMessagesConfig().setEnabled(false);
+		getExternalMessagesConfig().setSize(new Dimension(500, 400));
+		getExternalParticipantsConfig().setSize(new Dimension(280, 600));
+		getExternalParticipantVideoConfig().setSize(new Dimension(280, 600));
+		getExternalSlidePreviewConfig().setSize(new Dimension(300, 700));
+		getExternalNotesConfig().setSize(new Dimension(500, 400));
+		getExternalSlideNotesConfig().setSize(new Dimension(500, 400));
 
 		getSlideViewConfiguration().setBottomSliderPosition(0.7);
 		getSlideViewConfiguration().setLeftSliderPosition(0.375);
 		getSlideViewConfiguration().setRightSliderPosition(0.8);
 		getSlideViewConfiguration().setMessageBarPosition(MessageBarPosition.BOTTOM);
 		getSlideViewConfiguration().setParticipantsPosition(ParticipantsPosition.LEFT);
+		getSlideViewConfiguration().setParticipantVideoPosition(ParticipantVideoPosition.LEFT);
 		getSlideViewConfiguration().setNoteSlidePosition(NoteSlidePosition.NONE);
 		getSlideViewConfiguration().setSlideNotesPosition(SlideNotesPosition.BOTTOM);
 		getSlideViewConfiguration().setNotesPosition(NotesPosition.RIGHT);

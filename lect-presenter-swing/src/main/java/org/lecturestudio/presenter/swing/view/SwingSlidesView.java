@@ -854,6 +854,8 @@ public class SwingSlidesView extends JPanel implements SlidesView {
 	public void acceptSpeechRequest(SpeechBaseMessage message) {
 		SwingUtils.invoke(() -> {
 			removeSpeechRequestMessage(message);
+
+			setParticipantVideosTabEnabled(dict.get(PARTICIPANT_VIDEO_LABEL_KEY), true);
 		});
 	}
 
@@ -1841,21 +1843,30 @@ public class SwingSlidesView extends JPanel implements SlidesView {
 		}
 	}
 
-	private void setParticipantsTabEnabled(String labelText, boolean enable) {
-		switch (participantsPosition) {
-			case LEFT -> {
-				leftTabPane.setTabEnabled(labelText, enable);
-				if (enable) {
-					maximizeLeftTabPane();
-				}
+	/**
+	 * Helper method to enable/disable a tab and maximize it if necessary.
+	 */
+	private void setTabEnabledForPane(AdaptiveTabbedPane pane, String labelText, boolean enable) {
+		pane.setTabEnabled(labelText, enable);
+
+		if (enable) {
+			if (pane == leftTabPane) {
+				maximizeLeftTabPane();
 			}
-			case RIGHT -> {
-				rightTabPane.setTabEnabled(labelText, enable);
-				if (enable) {
-					maximizeRightTabPane();
-				}
+			else if (pane == rightTabPane) {
+				maximizeRightTabPane();
 			}
 		}
+	}
+
+	private void setParticipantsTabEnabled(String labelText, boolean enable) {
+		AdaptiveTabbedPane targetPane = participantsPosition == ParticipantsPosition.LEFT ? leftTabPane : rightTabPane;
+		setTabEnabledForPane(targetPane, labelText, enable);
+	}
+
+	private void setParticipantVideosTabEnabled(String labelText, boolean enable) {
+		AdaptiveTabbedPane targetPane = participantVideoPosition == ParticipantVideoPosition.LEFT ? leftTabPane : rightTabPane;
+		setTabEnabledForPane(targetPane, labelText, enable);
 	}
 
 	private List<AdaptiveTab> removeMessageBarTabs() {
@@ -2231,38 +2242,36 @@ public class SwingSlidesView extends JPanel implements SlidesView {
 
 		externalMessagesFrame = createExternalFrame(dict.get(MESSAGE_LABEL_KEY), externalMessagesPane,
 				dict.get(NO_MESSAGES_LABEL_KEY),
-				new Dimension(500, 400),
 				() -> executeAction(externalMessagesClosedAction),
 				position -> executeAction(externalMessagesPositionChangedAction, position),
 				size -> executeAction(externalMessagesSizeChangedAction, size));
 
 		externalParticipantsFrame = createExternalFrame(dict.get(PARTICIPANTS_LABEL_KEY), externalParticipantsPane,
 				dict.get(NO_PARTICIPANTS_LABEL_KEY),
-				new Dimension(280, 600),
 				() -> executeAction(externalParticipantsClosedAction),
 				position -> executeAction(externalParticipantsPositionChangedAction, position),
 				size -> executeAction(externalParticipantsSizeChangedAction, size));
 
 		externalParticipantVideoFrame = createExternalFrame(dict.get(PARTICIPANT_VIDEO_LABEL_KEY), externalParticipantVideoPane,
-				"", new Dimension(280, 600),
+				"",
 				() -> executeAction(externalParticipantVideoClosedAction),
 				position -> executeAction(externalParticipantVideoPositionChangedAction, position),
 				size -> executeAction(externalParticipantVideoSizeChangedAction, size));
 
 		externalSlidePreviewFrame = createExternalFrame(dict.get(SLIDES_PREVIEW_LABEL_KEY), externalPreviewBox,
-				"", new Dimension(300, 700),
+				"",
 				() -> executeAction(externalSlidePreviewClosedAction),
 				position -> executeAction(externalSlidePreviewPositionChangedAction, position),
 				size -> executeAction(externalSlidePreviewSizeChangedAction, size));
 
-		externalNotesFrame = createExternalFrame(dict.get(NOTES_LABEL_KEY), externalNotesPane, "",
-				new Dimension(500, 400),
+		externalNotesFrame = createExternalFrame(dict.get(NOTES_LABEL_KEY), externalNotesPane,
+				"",
 				() -> executeAction(externalNotesClosedAction),
 				position -> executeAction(externalNotesPositionChangedAction, position),
 				size -> executeAction(externalNotesSizeChangedAction, size));
 
-		externalSlideNotesFrame = createExternalFrame(dict.get(SLIDE_NOTES_LABEL_KEY), slideNotesView, "",
-				new Dimension(500, 400),
+		externalSlideNotesFrame = createExternalFrame(dict.get(SLIDE_NOTES_LABEL_KEY), slideNotesView,
+				"",
 				() -> executeAction(externalSlideNotesClosedAction),
 				position -> executeAction(externalSlideNotesPositionChangedAction, position),
 				size -> executeAction(externalSlideNotesSizeChangedAction, size));
@@ -2332,11 +2341,10 @@ public class SwingSlidesView extends JPanel implements SlidesView {
 	}
 
 	private ExternalFrame createExternalFrame(String name, Component body, String placeholderText,
-											  Dimension minimumSize, Runnable closedAction,
+											  Runnable closedAction,
 											  Consumer<ExternalWindowPosition> positionChangedAction,
 											  Consumer<Dimension> sizeChangedAction) {
 		ExternalFrame frame = new ExternalFrame(name, body, placeholderText);
-//		frame.setSize(minimumSize);
 		frame.setClosedAction(closedAction);
 		frame.setPositionChangedAction(positionChangedAction);
 		frame.setSizeChangedAction(sizeChangedAction);

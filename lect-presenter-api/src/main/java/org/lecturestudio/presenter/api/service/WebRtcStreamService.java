@@ -637,14 +637,11 @@ public class WebRtcStreamService extends ExecutableBase {
 
 		Rectangle2D cameraViewRect = cameraConfig.getViewRect();
 
-		AudioDevice audioPlaybackDevice = getDeviceByName(
-				MediaDevices.getAudioRenderDevices(),
+		AudioDevice audioPlaybackDevice = getDeviceByName(MediaDevices.getAudioRenderDevices(),
 				audioConfig.getPlaybackDeviceName());
-		AudioDevice audioCaptureDevice = getDeviceByName(
-				MediaDevices.getAudioCaptureDevices(),
+		AudioDevice audioCaptureDevice = getDeviceByName(MediaDevices.getAudioCaptureDevices(),
 				audioConfig.getCaptureDeviceName());
-		VideoDevice videoCaptureDevice = getDeviceByName(
-				MediaDevices.getVideoCaptureDevices(),
+		VideoDevice videoCaptureDevice = getDeviceByName(MediaDevices.getVideoCaptureDevices(),
 				streamConfig.getCameraName());
 
 		StreamContext streamContext = new StreamContext();
@@ -674,16 +671,15 @@ public class WebRtcStreamService extends ExecutableBase {
 
 		// Register media stream state handlers.
 		audioContext.sendAudioProperty().addListener((o, oldValue, newValue) -> {
-			streamProviderService.updateStreamMediaState(course.getId(),
-					Map.of(MediaType.Audio, newValue));
+			streamConfig.setMicrophoneEnabled(newValue);
+			streamProviderService.updateStreamMediaState(course.getId(), Map.of(MediaType.Audio, newValue));
 		});
 		videoContext.sendVideoProperty().addListener((o, oldValue, newValue) -> {
-			streamProviderService.updateStreamMediaState(course.getId(),
-					Map.of(MediaType.Camera, newValue));
+			streamConfig.setCameraEnabled(newValue);
+			streamProviderService.updateStreamMediaState(course.getId(), Map.of(MediaType.Camera, newValue));
 		});
 		screenContext.sendVideoProperty().addListener((o, oldValue, newValue) -> {
-			streamProviderService.updateStreamMediaState(course.getId(),
-					Map.of(MediaType.Screen, newValue));
+			streamProviderService.updateStreamMediaState(course.getId(), Map.of(MediaType.Screen, newValue));
 		});
 
 		if (nonNull(streamConfig.getCameraFormat())) {

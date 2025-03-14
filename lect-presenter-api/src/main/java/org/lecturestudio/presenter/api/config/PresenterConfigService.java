@@ -53,8 +53,28 @@ public class PresenterConfigService extends JsonConfigurationService<PresenterCo
 			config.setLocale(defaultConfig.getLocale());
 		}
 		if (isNull(config.getStreamConfig().getServerName())) {
-			config.getStreamConfig().setServerName(defaultConfig
-					.getStreamConfig().getServerName());
+			config.getStreamConfig().setServerName(defaultConfig.getStreamConfig().getServerName());
+		}
+		if (isNull(config.getStreamConfig().getParticipantVideoLayout())) {
+			config.getStreamConfig().setParticipantVideoLayout(defaultConfig.getStreamConfig().getParticipantVideoLayout());
+		}
+		if (isNull(config.getExternalMessagesConfig().getSize())) {
+			config.getExternalMessagesConfig().setSize(defaultConfig.getExternalMessagesConfig().getSize());
+		}
+		if (isNull(config.getExternalParticipantsConfig().getSize())) {
+			config.getExternalParticipantsConfig().setSize(defaultConfig.getExternalParticipantsConfig().getSize());
+		}
+		if (isNull(config.getExternalParticipantVideoConfig().getSize())) {
+			config.getExternalParticipantVideoConfig().setSize(defaultConfig.getExternalParticipantVideoConfig().getSize());
+		}
+		if (isNull(config.getExternalSlidePreviewConfig().getSize())) {
+			config.getExternalSlidePreviewConfig().setSize(defaultConfig.getExternalSlidePreviewConfig().getSize());
+		}
+		if (isNull(config.getExternalNotesConfig().getSize())) {
+			config.getExternalNotesConfig().setSize(defaultConfig.getExternalNotesConfig().getSize());
+		}
+		if (isNull(config.getExternalSlideNotesConfig().getSize())) {
+			config.getExternalSlideNotesConfig().setSize(defaultConfig.getExternalSlideNotesConfig().getSize());
 		}
 
 		config.getToolConfig().getTextSettings().setFont(new Font("Open Sans Regular", 14));

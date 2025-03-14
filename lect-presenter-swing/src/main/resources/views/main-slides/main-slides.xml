@@ -52,7 +52,7 @@
 
 			<VBox id="rightVbox">
 				<AdaptiveTabbedPane id="rightTabPane" tabPlacement="JTabbedPane.RIGHT" defaultTabType="AdaptiveTabType.SLIDE" focusTraversable="false">
-					<Tab id="participantVideoTab" name="participantVideo" text="slides.participant.video" defaultTabType="AdaptiveTabType.PARTICIPANT_VIDEO">
+					<Tab id="participantVideoTab" name="participantVideo" text="slides.participant.video" icon="participant-video.svg, 18" defaultTabType="AdaptiveTabType.PARTICIPANT_VIDEO">
 						<Panel id="participantVideoPanel" layout="BorderLayout">
 							<Panel id="participantViewContainer" layout="FlowLayout" />
 						</Panel>

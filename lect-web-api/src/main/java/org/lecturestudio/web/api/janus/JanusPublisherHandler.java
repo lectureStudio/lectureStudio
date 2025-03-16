@@ -139,6 +139,7 @@ public class JanusPublisherHandler extends JanusStateHandler {
 		// BigInteger.ZERO is used as the initial peerId for the local participant.
 		participantContext = new JanusParticipantContext();
 		participantContext.setPeerId(BigInteger.ZERO);
+		participantContext.setUserId(getStreamContext().getUserInfo().getUserId());
 		participantContext.setDisplayName(getStreamContext().getUserInfo().getFullName());
 		participantContext.setAudioActive(audioContext.getSendAudio());
 		participantContext.setVideoActive(videoContext.getSendVideo());

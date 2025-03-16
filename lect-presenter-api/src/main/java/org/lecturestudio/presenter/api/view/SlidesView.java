@@ -24,7 +24,6 @@ import java.util.List;
 
 import org.lecturestudio.core.ExecutableState;
 import org.lecturestudio.core.beans.BooleanProperty;
-import org.lecturestudio.core.beans.ObjectProperty;
 import org.lecturestudio.core.controller.RenderController;
 import org.lecturestudio.core.controller.ToolController;
 import org.lecturestudio.core.geometry.Matrix;
@@ -40,6 +39,7 @@ import org.lecturestudio.presenter.api.config.SlideViewConfiguration;
 import org.lecturestudio.swing.model.ExternalWindowPosition;
 import org.lecturestudio.core.stylus.StylusHandler;
 import org.lecturestudio.swing.view.ParticipantView;
+import org.lecturestudio.web.api.janus.JanusParticipantContext;
 import org.lecturestudio.web.api.message.MessengerMessage;
 import org.lecturestudio.web.api.message.SpeechBaseMessage;
 import org.lecturestudio.web.api.stream.model.CourseParticipant;
@@ -112,9 +112,11 @@ public interface SlidesView extends View {
 
 	void addSpeechRequest(SpeechBaseMessage message);
 
-	void acceptSpeechRequest(SpeechBaseMessage message);
-
 	void removeSpeechRequest(SpeechBaseMessage message);
+
+	void acceptSpeechRequest(JanusParticipantContext context);
+
+	void cancelSpeechRequest(JanusParticipantContext context);
 
 	void setOnDiscardMessage(ConsumerAction<MessengerMessage> action);
 

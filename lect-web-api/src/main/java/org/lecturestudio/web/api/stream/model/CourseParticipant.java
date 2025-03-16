@@ -107,9 +107,11 @@ public class CourseParticipant {
 
 	@Override
 	public String toString() {
-		return "CourseParticipant{" + "participantType=" + participantType
-				+ ", presenceType=" + presenceType + ", userId='" + userId
-				+ '\'' + ", firstName='" + firstName + '\'' + ", familyName='"
-				+ familyName + '\'' + '}';
+		return "CourseParticipant{"
+				+ "participantType=" + participantType
+				+ ", presenceType=" + presenceType
+				+ ", userId='" + userId + '\''
+				+ ", firstName='" + firstName + '\''
+				+ ", familyName='" + familyName + '\'' + '}';
 	}
 }

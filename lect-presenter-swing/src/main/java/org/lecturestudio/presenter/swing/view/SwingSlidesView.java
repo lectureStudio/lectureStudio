@@ -36,12 +36,8 @@ import javax.swing.tree.TreePath;
 import java.awt.*;
 import java.awt.event.*;
 import java.awt.image.BufferedImage;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Enumeration;
+import java.util.*;
 import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
 import java.util.function.Consumer;
 import java.util.function.IntSupplier;
 
@@ -99,6 +95,7 @@ import org.lecturestudio.swing.util.SwingUtils;
 import org.lecturestudio.swing.view.ParticipantView;
 import org.lecturestudio.swing.view.SwingView;
 import org.lecturestudio.swing.view.ViewPostConstruct;
+import org.lecturestudio.web.api.janus.JanusParticipantContext;
 import org.lecturestudio.web.api.message.MessengerMessage;
 import org.lecturestudio.web.api.message.SpeechBaseMessage;
 import org.lecturestudio.web.api.message.util.MessageUtil;
@@ -851,18 +848,25 @@ public class SwingSlidesView extends JPanel implements SlidesView {
 	}
 
 	@Override
-	public void acceptSpeechRequest(SpeechBaseMessage message) {
+	public void removeSpeechRequest(SpeechBaseMessage message) {
 		SwingUtils.invoke(() -> {
 			removeSpeechRequestMessage(message);
+		});
+	}
+
+	@Override
+	public void acceptSpeechRequest(JanusParticipantContext context) {
+		SwingUtils.invoke(() -> {
+			setSpeechRequestContext(context);
 
 			setParticipantVideosTabEnabled(dict.get(PARTICIPANT_VIDEO_LABEL_KEY), true);
 		});
 	}
 
 	@Override
-	public void removeSpeechRequest(SpeechBaseMessage message) {
+	public void cancelSpeechRequest(JanusParticipantContext context) {
 		SwingUtils.invoke(() -> {
-			removeSpeechRequestMessage(message);
+			removeSpeechRequestContext(context);
 		});
 	}
 
@@ -1687,12 +1691,28 @@ public class SwingSlidesView extends JPanel implements SlidesView {
 		maximizeRightTabPane();
 	}
 
+	private void setSpeechRequestContext(JanusParticipantContext context) {
+		participantList.setSpeechRequestContext(context);
+
+		removeMessageView(context.getRequestId());
+	}
+
+	private void removeSpeechRequestContext(JanusParticipantContext context) {
+		participantList.removeSpeechRequestContext(context);
+
+		removeMessageView(context.getRequestId());
+	}
+
 	private void removeSpeechRequestMessage(SpeechBaseMessage message) {
 		participantList.removeSpeechRequest(message);
 
+		removeMessageView(message.getRequestId());
+	}
+
+	private void removeMessageView(UUID requestId) {
 		for (Component c : messageViewContainer.getComponents()) {
 			if (c instanceof SpeechRequestView view) {
-				if (Objects.equals(view.getRequestId(), message.getRequestId())) {
+				if (Objects.equals(view.getRequestId(), requestId)) {
 					view.setCanceled();
 
 					removeMessageView(view);

@@ -4,6 +4,7 @@ import static java.util.Objects.nonNull;
 
 import java.awt.Component;
 import java.util.ResourceBundle;
+import java.util.UUID;
 
 import javax.swing.Box;
 import javax.swing.BoxLayout;
@@ -17,6 +18,7 @@ import javax.swing.border.EmptyBorder;
 
 import org.lecturestudio.swing.AwtResourceLoader;
 import org.lecturestudio.swing.components.ParticipantList.CourseParticipantItem;
+import org.lecturestudio.web.api.janus.JanusParticipantContext;
 import org.lecturestudio.web.api.message.SpeechBaseMessage;
 import org.lecturestudio.web.api.stream.model.CourseParticipantType;
 import org.lecturestudio.web.api.stream.model.CoursePresenceType;
@@ -98,12 +100,14 @@ public class ParticipantCellRenderer extends Box implements ListCellRenderer<Cou
 			final CourseParticipantType partType = participant.getParticipantType();
 			final CoursePresenceType presenceType = participant.getPresenceType();
 			final SpeechBaseMessage speechRequest = participant.speechRequest.get();
+			final JanusParticipantContext participantContext = participant.participantContext.get();
+			final UUID requestUuid = nonNull(participantContext) ? participantContext.getRequestId() : null;
 
 			String partTypeStr = "";
 			String presenceTypeStr = "";
 
 			acceptButton.setVisible(nonNull(speechRequest));
-			rejectButton.setVisible(nonNull(speechRequest));
+			rejectButton.setVisible(nonNull(speechRequest) || nonNull(requestUuid));
 
 			switch (partType) {
 				case ORGANISATOR -> {

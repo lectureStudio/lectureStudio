@@ -40,6 +40,9 @@ import org.lecturestudio.core.beans.StringProperty;
  */
 public class JanusParticipantContext {
 
+	/** Property for the unique user identifier. */
+	private final ObjectProperty<String> userId;
+
 	/** The unique identifier of the participant in the Janus system. */
 	private final ObjectProperty<BigInteger> peerId;
 
@@ -73,6 +76,7 @@ public class JanusParticipantContext {
 	 * By default, all media streams are inactive.
 	 */
 	public JanusParticipantContext() {
+		userId = new ObjectProperty<>();
 		peerId = new ObjectProperty<>();
 		audioActive = new BooleanProperty(false);
 		videoActive = new BooleanProperty(false);
@@ -83,6 +87,33 @@ public class JanusParticipantContext {
 				lastTalkingActivityTimestamp = System.nanoTime();
 			}
 		};
+	}
+
+	/**
+	 * Gets the unique user identifier.
+	 *
+	 * @return The user ID.
+	 */
+	public String getUserId() {
+		return userId.get();
+	}
+
+	/**
+	 * Sets the unique user identifier.
+	 *
+	 * @param userId The user ID to set.
+	 */
+	public void setUserId(String userId) {
+		this.userId.set(userId);
+	}
+
+	/**
+	 * Gets the user ID property for binding.
+	 *
+	 * @return The user ID property.
+	 */
+	public ObjectProperty<String> userIdProperty() {
+		return userId;
 	}
 
 	/**

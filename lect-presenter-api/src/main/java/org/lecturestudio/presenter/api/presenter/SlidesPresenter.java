@@ -390,11 +390,10 @@ public class SlidesPresenter extends Presenter<SlidesView> {
 		presenterContext.getSpeechRequests().removeIf(m -> Objects.equals(
 				m.getRequestId(), message.getRequestId()));
 
-		view.removeSpeechRequest(message);
-
 		ParticipantView participantView = unregisterParticipantView(message.getRequestId());
 
 		if (nonNull(participantView)) {
+			view.cancelSpeechRequest(participantView.getParticipantContext());
 			view.removeParticipantView(participantView);
 		}
 	}
@@ -662,6 +661,16 @@ public class SlidesPresenter extends Presenter<SlidesView> {
 		return null;
 	}
 
+	private JanusParticipantContext getJanusParticipantContext(UUID requestId) {
+		for (var entry : participantViewMap.entrySet()) {
+			if (Objects.equals(requestId, entry.getKey().getRequestId())) {
+				// Found by request ID.
+				return entry.getKey();
+			}
+		}
+		return null;
+	}
+
 	private ParticipantView getParticipantView(JanusParticipantContext context) {
 		return participantViewMap.get(context);
 	}
@@ -776,6 +785,7 @@ public class SlidesPresenter extends Presenter<SlidesView> {
 		// BigInteger '-1' is temporarily used as the peerId to identify the remote participant.
 		JanusParticipantContext pContext = new JanusParticipantContext();
 		pContext.setPeerId(BigInteger.valueOf(-1));
+		pContext.setUserId(message.getUserId());
 		pContext.setRequestId(message.getRequestId());
 		pContext.setDisplayName(message.getFullName());
 
@@ -784,7 +794,7 @@ public class SlidesPresenter extends Presenter<SlidesView> {
 		PresenterContext presenterContext = (PresenterContext) context;
 		presenterContext.getSpeechRequests().remove(message);
 
-		view.acceptSpeechRequest(message);
+		view.acceptSpeechRequest(pContext);
 
 		onEvent(new PeerStateEvent(pContext, ExecutableState.Starting));
 	}

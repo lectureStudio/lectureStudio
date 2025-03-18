@@ -40,6 +40,19 @@ jobs:
           # Import certificate from secrets
           echo -n "$CERTIFICATE_BASE64" | base64 --decode -o $CERTIFICATE_PATH
 
+      - name: Get version for the current build
+        uses: orhun/git-cliff-action@v4
+        id: git-cliff
+        with:
+          config: .github/cliff.toml
+          args: -v -u --strip footer --bump --use-branch-tags
+
+      - name: Update version in pom.xml
+        run: |
+          tag=${{ steps.git-cliff.outputs.version }}
+          version=${tag#v}
+          mvn versions:set-property -D"property=package.version" -D"newVersion=$version" -D"generateBackupPoms=false"
+
       - name: Build
         env:
           APPLE_CERTIFICATE_PATH: ${{ runner.temp }}/build_certificate.p12

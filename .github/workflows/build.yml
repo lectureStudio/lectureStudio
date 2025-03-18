@@ -15,6 +15,8 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
       - name: Set up Maven cache
         uses: actions/cache@v4
@@ -52,6 +54,7 @@ jobs:
           tag=${{ steps.git-cliff.outputs.version }}
           version=${tag#v}
           mvn versions:set-property -D"property=package.version" -D"newVersion=$version" -D"generateBackupPoms=false"
+        shell: bash
 
       - name: Build
         env:

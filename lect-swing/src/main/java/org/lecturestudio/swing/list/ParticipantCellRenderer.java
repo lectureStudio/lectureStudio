@@ -107,7 +107,7 @@ public class ParticipantCellRenderer extends Box implements ListCellRenderer<Cou
 			String presenceTypeStr = "";
 
 			acceptButton.setVisible(nonNull(speechRequest));
-			rejectButton.setVisible(nonNull(speechRequest) || nonNull(requestUuid));
+			rejectButton.setVisible(nonNull(speechRequest));
 
 			switch (partType) {
 				case ORGANISATOR -> {

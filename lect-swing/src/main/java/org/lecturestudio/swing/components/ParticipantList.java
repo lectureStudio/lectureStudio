@@ -146,6 +146,7 @@ public class ParticipantList extends JPanel {
 
 		if (nonNull(found)) {
 			found.participantContext.set(context);
+			found.speechRequest.set(null);
 
 			listModel.fireParticipantChanged(found);
 		}
@@ -155,7 +156,6 @@ public class ParticipantList extends JPanel {
 		CourseParticipantItem found = listModel.getParticipantById(context.getUserId());
 
 		if (nonNull(found)) {
-			found.speechRequest.set(null);
 			found.participantContext.set(null);
 
 			listModel.fireParticipantChanged(found);
@@ -257,12 +257,9 @@ public class ParticipantList extends JPanel {
 
 				if (nonNull(action) && actionName.startsWith("speech-")) {
 					ConsumerAction<SpeechBaseMessage> speechAction = (ConsumerAction<SpeechBaseMessage>) action;
+					speechAction.execute(value.speechRequest.get());
 
-					if (nonNull(value.participantContext)) {
-						speechAction.execute(value.speechRequest.get());
-
-						value.speechRequest.set(null);
-					}
+					value.speechRequest.set(null);
 
 					listModel.fireParticipantChanged(index);
 				}

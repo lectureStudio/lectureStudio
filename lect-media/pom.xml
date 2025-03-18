@@ -48,7 +48,7 @@
 		<dependency>
 			<groupId>dev.onvoid.webrtc</groupId>
 			<artifactId>webrtc-java</artifactId>
-			<version>0.9.0</version>
+			<version>0.10.0</version>
 		</dependency>
 
 		<dependency>

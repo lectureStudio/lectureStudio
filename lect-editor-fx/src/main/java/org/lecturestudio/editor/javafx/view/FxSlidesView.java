@@ -24,6 +24,7 @@ import static java.util.Objects.nonNull;
 import java.util.Collection;
 
 import javafx.beans.value.ChangeListener;
+import javafx.event.Event;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.scene.Node;
@@ -122,6 +123,8 @@ public class FxSlidesView extends VBox implements SlidesView {
 			thumbPanel.addSelectListener(page -> {
 				executeAction(selectPageAction, page);
 			});
+			// Prevent emitting scrolling events.
+			thumbPanel.addEventHandler(ScrollEvent.SCROLL, Event::consume);
 
 			// Create the Tab for the TabPane.
 			Tab tab = new Tab();

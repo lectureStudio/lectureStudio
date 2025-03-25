@@ -121,10 +121,10 @@ public class FFmpegFrameGrabber extends FrameGrabber {
                 av_jni_set_java_vm(Loader.getJavaVM(), null);
 //                avcodec_register_all();
 //                av_register_all();
-                avformat_network_init();
+//                avformat_network_init();
 
-                Loader.load(org.bytedeco.ffmpeg.global.avdevice.class);
-                avdevice_register_all();
+//                Loader.load(org.bytedeco.ffmpeg.global.avdevice.class);
+//                avdevice_register_all();
             } catch (Throwable t) {
                 if (t instanceof Exception) {
                     throw loadingException = (Exception)t;

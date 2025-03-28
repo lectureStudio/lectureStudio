@@ -116,10 +116,20 @@ jobs:
           restore-keys: maven-${{ runner.os }}-
 
       - name: Set up JDK ${{ matrix.java }}
+        if: runner.os != 'linux'
         uses: actions/setup-java@v4
         with:
           java-version: ${{ matrix.java }}
           distribution: 'temurin'
+
+      - name: Set up JDK
+        shell: bash
+        if: runner.os == 'linux'
+        run: |
+          sudo apt update
+          sudo apt install -y openjdk-21-jdk
+          echo "JAVA_HOME=/usr/lib/jvm/java-21-openjdk-amd64" >> $GITHUB_ENV
+          echo "PATH=/usr/lib/jvm/java-21-openjdk-amd64/bin:$PATH" >> $GITHUB_ENV
 
       - name: Install the Apple certificate
         if: runner.os == 'macOS'

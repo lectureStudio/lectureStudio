@@ -92,7 +92,6 @@ getAppModules $EDITOR_NAME $EDITOR_JAR
 echo "Create Runtime"
 
 jlink --no-header-files --no-man-pages \
-	--compress=1 \
 	--strip-debug \
 	--strip-native-commands \
 	--include-locales=de,en \

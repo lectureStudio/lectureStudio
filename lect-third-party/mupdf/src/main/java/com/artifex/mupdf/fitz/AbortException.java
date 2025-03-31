@@ -1,4 +1,4 @@
-// Copyright (C) 2004-2024 Artifex Software, Inc.
+// Copyright (C) 2004-2023 Artifex Software, Inc.
 //
 // This file is part of MuPDF.
 //
@@ -22,53 +22,9 @@
 
 package com.artifex.mupdf.fitz;
 
-public class Link
+public class AbortException extends RuntimeException
 {
-	static {
-		Context.init();
-	}
-
-	private long pointer;
-
-	protected native void finalize();
-
-	public void destroy() {
-		finalize();
-	}
-
-	protected Link(long p) {
-		pointer = p;
-	}
-
-	public native Rect getBounds();
-	public native void setBounds(Rect bbox);
-
-	public native String getURI();
-	public native void setURI(String uri);
-
-	public boolean isExternal() {
-		return Link.isExternal(getURI());
-	}
-
-	public static boolean isExternal(String uri) {
-		char c = uri.charAt(0);
-		if (!(c >= 'a' && c <= 'z') && !(c >= 'A' && c <= 'Z'))
-			return false;
-
-		for (int i = 1; i < uri.length(); i++)
-		{
-			c = uri.charAt(i);
-			if ((c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z') ||
-					(c >= '0' && c <= '9') ||
-					c == '+' || c == '-' || c == '.')
-				continue;
-			else
-				return c == ':';
-		}
-		return false;
-	}
-
-	public String toString() {
-		return "Link(bounds="+getBounds()+",uri="+getURI()+")";
+	AbortException(String message) {
+		super(message);
 	}
 }

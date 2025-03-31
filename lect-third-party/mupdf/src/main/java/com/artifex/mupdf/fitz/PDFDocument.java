@@ -1,4 +1,4 @@
-// Copyright (C) 2004-2023 Artifex Software, Inc.
+// Copyright (C) 2004-2024 Artifex Software, Inc.
 //
 // This file is part of MuPDF.
 //
@@ -246,8 +246,10 @@ public class PDFDocument extends Document
 
 	public native PDFObject addEmbeddedFile(String filename, String mimetype, Buffer contents, long created, long modified, boolean addChecksum);
 	public native PDFEmbeddedFileParams getEmbeddedFileParams(PDFObject fs);
+	public native PDFFilespecParams getFilespecParams(PDFObject fs);
 	public native Buffer loadEmbeddedFileContents(PDFObject fs);
 	public native boolean verifyEmbeddedFileChecksum(PDFObject fs);
+	public native boolean isEmbeddedFile(PDFObject fs);
 
 	public PDFObject addEmbeddedFile(String filename, String mimetype, InputStream stream, Date created, Date modified, boolean addChecksum) {
 		Buffer contents = new Buffer();
@@ -257,14 +259,14 @@ public class PDFDocument extends Document
 		return addEmbeddedFile(filename, mimetype, contents, createdTime, modifiedTime, addChecksum);
 	}
 
-	public static class PDFEmbeddedFileParams {
+	public static class PDFFilespecParams {
 		public final String filename;
 		public final String mimetype;
 		public final int size;
 		public final Date creationDate;
 		public final Date modificationDate;
 
-		protected PDFEmbeddedFileParams(String filename, String mimetype, int size, long created, long modified) {
+		protected PDFFilespecParams(String filename, String mimetype, int size, long created, long modified) {
 			this.filename = filename;
 			this.mimetype = mimetype;
 			this.size = size;
@@ -273,4 +275,25 @@ public class PDFDocument extends Document
 		}
 	}
 
+	public static class PDFEmbeddedFileParams extends PDFFilespecParams {
+		protected PDFEmbeddedFileParams(String filename, String mimetype, int size, long created, long modified) {
+			super(filename, mimetype, size, created, modified);
+		}
+	}
+
+	public native int countAssociatedFiles();
+	public native PDFObject associatedFile(int idx);
+
+	public static final int NOT_ZUGFERD = 0;
+	public static final int ZUGFERD_COMFORT = 1;
+	public static final int ZUGFERD_BASIC = 2;
+	public static final int ZUGFERD_EXTENDED = 3;
+	public static final int ZUGFERD_BASIC_WL = 4;
+	public static final int ZUGFERD_MINIMUM = 5;
+	public static final int ZUGFERD_XRECHNUNG = 6;
+	public static final int ZUGFERD_UNKNOWN = 7;
+
+	public native int zugferdProfile();
+	public native float zugferdVersion();
+	public native Buffer zugferdXML();
 }

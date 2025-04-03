@@ -64,7 +64,6 @@ public class AudioProcessingConfigConverter implements
 		config.gainControl.enabled = settings.isGainControlEnabled();
 		config.highPassFilter.enabled = settings.isHighpassFilterEnabled();
 		config.noiseSuppression.enabled = settings.isNoiseSuppressionEnabled();
-		config.transientSuppression.enabled = settings.isNoiseSuppressionEnabled();
 
 		NoiseSuppressionLevel nsLevel = settings.getNoiseSuppressionLevel();
 

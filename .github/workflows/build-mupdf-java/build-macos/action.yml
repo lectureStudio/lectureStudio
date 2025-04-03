@@ -1,0 +1,36 @@
+name: 'macOS Build'
+
+description: 'Performs the macOS build.'
+
+inputs:
+  java-version:
+    description: 'The Java build version.'
+    required: true
+    default: '17'
+
+  platform-name:
+    description: 'The target platform.'
+    required: true
+
+runs:
+  using: "composite"
+  steps:
+    - name: Build Java bindings
+      shell: bash
+      working-directory: mupdf
+      run: |
+        JAVAC_XFLAGS="-source ${{ inputs.java-version }} -target ${{ inputs.java-version }}" make java
+
+    - name: Rename native JNI library
+      shell: bash
+      working-directory: mupdf/build/java/release
+      run: |
+        file=$(find . -name "*.jnilib" | head -n 1)
+        mv "$file" libmupdf_java.dylib
+
+    - name: Upload JNI library
+      uses: actions/upload-artifact@v4
+      with:
+        name: mupdf-java-${{ inputs.platform-name }}
+        path: mupdf/build/java/release/libmupdf_java.dylib
+        if-no-files-found: error

@@ -1,0 +1,47 @@
+name: 'Linux Build'
+
+description: 'Patches the source tree and performs the Linux build.'
+
+inputs:
+  java-version:
+    description: 'The Java build version.'
+    required: true
+    default: '17'
+
+  platform-name:
+    description: 'The target platform.'
+    required: true
+
+runs:
+  using: "composite"
+  steps:
+    - name: Download patch
+      shell: bash
+      run: |
+        curl -L -O https://raw.githubusercontent.com/${{ github.repository }}/refs/heads/main/.github/workflows/build-mupdf-java/java_makefile.patch
+
+    - name: Apply patch
+      shell: bash
+      run: |
+        git apply --stat java_makefile.patch
+        git apply java_makefile.patch
+
+    - name: Build Java bindings
+      shell: bash
+      working-directory: mupdf
+      run: |
+        XCFLAGS="-Wl,-Bsymbolic" JAVAC_XFLAGS="-source ${{ inputs.java-version }} -target ${{ inputs.java-version }}" make java
+
+    - name: Rename and copy native JNI library
+      shell: bash
+      working-directory: mupdf/build/java/release
+      run: |
+        file=$(find . -name "*.so" | head -n 1)
+        mv "$file" libmupdf_java.so
+
+    - name: Upload JNI library
+      uses: actions/upload-artifact@v4
+      with:
+        name: mupdf-java-${{ inputs.platform-name }}
+        path: mupdf/build/java/release/libmupdf_java.so
+        if-no-files-found: error

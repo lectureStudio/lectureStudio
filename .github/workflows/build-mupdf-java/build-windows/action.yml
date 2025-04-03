@@ -1,0 +1,52 @@
+name: 'Windows Build'
+
+description: 'Patches the source tree and performs the Windows build.'
+
+inputs:
+  java-version:
+    description: 'The Java build version.'
+    required: true
+    default: '17'
+
+  platform-name:
+    description: 'The target platform.'
+    required: true
+
+runs:
+  using: "composite"
+  steps:
+    - name: Add msbuild to PATH
+      uses: microsoft/setup-msbuild@v2
+      with:
+        msbuild-architecture: x64
+
+    - name: Download patch
+      shell: bash
+      run: |
+        curl -L -O https://raw.githubusercontent.com/${{ github.repository }}/refs/heads/main/.github/workflows/build-mupdf-java/java_msbuild.patch
+
+    - name: Apply patch
+      shell: bash
+      run: |
+        git apply --stat java_msbuild.patch
+        git apply java_msbuild.patch
+
+    - name: Build Java bindings
+      shell: powershell
+      run: |
+        cd mupdf
+        msbuild platform\win32\mupdf.sln /m /p:Configuration=Release /p:Platform=x64
+
+    - name: Rename native JNI library
+      shell: bash
+      run: |
+        cd mupdf/platform/win32/x64/Release
+        find . -name "*.dll" -exec mv {} mupdf_java.dll \;
+
+    - name: Upload JNI library
+      uses: actions/upload-artifact@v4
+      with:
+        name: mupdf-java-${{ inputs.platform-name }}
+        path: |
+          mupdf/platform/win32/x64/Release/mupdf_java.dll
+        if-no-files-found: error

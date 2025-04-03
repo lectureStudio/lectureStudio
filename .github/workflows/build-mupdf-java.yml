@@ -1,0 +1,141 @@
+name: Build MuPDF for Java
+
+on:
+  workflow_dispatch:
+    inputs:
+      mupdf_version:
+        description: 'MuPDF Release Version (e.g. 1.25.6)'
+        required: true
+        default: '1.25.6'
+      create_pr:
+        description: 'Create Pull Request'
+        required: true
+        default: 'no'
+        type: choice
+        options:
+          - 'yes'
+          - 'no'
+
+jobs:
+  build:
+    name: Build MuPDF for ${{ matrix.platform.name }}
+    runs-on: ${{ matrix.platform.runs-on }}
+    strategy:
+      fail-fast: false
+      matrix:
+        platform:
+          - name: macos-x86_64
+            runs-on: macos-13
+          - name: macos-arm64
+            runs-on: macos-14
+          - name: linux-x86_64
+            runs-on: ubuntu-22.04
+          - name: windows-x86_64
+            runs-on: windows-2019
+        java: [17]
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up JDK ${{ matrix.java }}
+        uses: actions/setup-java@v4
+        with:
+          java-version: ${{ matrix.java }}
+          distribution: 'temurin'
+
+      - name: Clone MuPDF from tag ${{ github.event.inputs.mupdf_version }}
+        run: |
+          git clone --branch ${{ github.event.inputs.mupdf_version }} --depth 1 --shallow-submodules --recurse-submodules=thirdparty https://github.com/ArtifexSoftware/mupdf.git
+
+      - name: Linux build
+        if: runner.os == 'linux'
+        id: build-linux
+        uses: ./.github/workflows/build-mupdf-java/build-linux
+        with:
+          java-version: ${{ matrix.java }}
+          platform-name: ${{ matrix.platform.name }}
+
+      - name: Windows build
+        if: runner.os == 'windows'
+        id: build-windows
+        uses: ./.github/workflows/build-mupdf-java/build-windows
+        with:
+          java-version: ${{ matrix.java }}
+          platform-name: ${{ matrix.platform.name }}
+
+      - name: macOS build
+        if: runner.os == 'macOS'
+        id: build-macos
+        uses: ./.github/workflows/build-mupdf-java/build-macos
+        with:
+          java-version: ${{ matrix.java }}
+          platform-name: ${{ matrix.platform.name }}
+
+  create-pull-request:
+    if: ${{ github.event.inputs.create_pr == 'yes' }}
+    runs-on: ubuntu-latest
+    needs:
+      - build
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Checkout MuPDF from tag ${{ github.event.inputs.mupdf_version }}
+        run: |
+          git clone --branch ${{ github.event.inputs.mupdf_version }} --depth 1 https://github.com/ArtifexSoftware/mupdf.git "${{ runner.temp }}/mupdf"
+
+      - name: Set up Git config
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+      - name: Download all artifacts into the source tree
+        id: artifacts
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          # Parse workflow YAML
+          platforms=$(yq '.jobs.build.strategy.matrix.platform[].name' .github/workflows/build-mupdf-java.yml)
+          while IFS= read -r platform; do
+            rm lib/native/${platform}/*mupdf*
+            gh run download --name "mupdf-java-${platform}" --dir "lib/native/${platform}"
+            echo "Downloaded artifact for $platform"
+          done <<< "$platforms"
+          echo "platforms=$(echo "$platforms" | paste -sd ',')" >> $GITHUB_OUTPUT
+
+      - name: Add MuPDF Java classes into the source tree
+        run: |
+          rsync -av --exclude='com/artifex/mupdf/fitz/android' ${{ runner.temp }}/mupdf/platform/java/src/ lect-third-party/mupdf/src/main/java/
+
+      - name: Create new branch
+        run: |
+          git checkout -b mupdf-${{ github.event.inputs.mupdf_version }}
+
+      - name: Commit artifacts and Java classes
+        run: |
+          git add lib/native/
+          git add lect-third-party/mupdf/src/
+          git commit -m "Add JNI libraries and Java classes"
+
+      - name: Push branch
+        run: |
+          git push origin mupdf-${{ github.event.inputs.mupdf_version }}
+
+      - name: Create Pull Request
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          IFS=',' read -ra platforms <<< "${{ steps.artifacts.outputs.platforms }}"
+  
+          body="$(cat <<EOF
+          This PR includes the Java classes and libraries for:
+          $(for platform in "${platforms[@]}"; do echo "- $platform"; done)
+          EOF
+          )"
+
+          gh pr create \
+            --title "Add MuPDF ${{ github.event.inputs.mupdf_version }} JNI library for all platforms" \
+            --body "${body}" \
+            --head mupdf-${{ github.event.inputs.mupdf_version }} \
+            --base main

@@ -44,13 +44,13 @@ public class Context
 		if (!inited) {
 			inited = true;
 			try {
-				System.loadLibrary("mupdf");
-			}
-			catch (UnsatisfiedLinkError e) {
-				throw new RuntimeException("Cannot load mupdf library", e);
-			}
-			if (initNative() < 0) {
-				throw new RuntimeException("Cannot initialize mupdf library");
+				System.loadLibrary("mupdf_java");
+			} catch (UnsatisfiedLinkError e) {
+				try {
+					System.loadLibrary("mupdf_java64");
+				} catch (UnsatisfiedLinkError ee) {
+					System.loadLibrary("mupdf_java32");
+				}
 			}
 			if (initNative() < 0)
 				throw new RuntimeException("cannot initialize mupdf library");

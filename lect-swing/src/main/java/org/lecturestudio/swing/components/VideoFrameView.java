@@ -56,8 +56,12 @@ public class VideoFrameView extends JPanel {
 	}
 
 	public void paintVideoFrame(VideoFrame videoFrame) throws Exception {
-		image = VideoFrameConverter.convertVideoFrameToComponentSize(
-				videoFrame, image, this);
+		try {
+			image = VideoFrameConverter.convertVideoFrameToComponentSize(videoFrame, image, this);
+		}
+		catch (Exception e) {
+			return;
+		}
 
 		repaint();
 	}

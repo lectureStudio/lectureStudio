@@ -327,6 +327,13 @@ public class Document {
 	 * @return The title.
 	 */
 	public String getTitle() {
+		String title = pdfDocument.getTitle();
+
+		if (title == null && file != null) {
+			// Use filename as title.
+			title = file.getName();
+		}
+
 		return title;
 	}
 

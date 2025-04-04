@@ -116,7 +116,7 @@ jobs:
         run: |
           git add lib/native/
           git add lect-third-party/mupdf/src/
-          git commit -m "Add JNI libraries and Java classes"
+          git commit -m "Update MuPDF JNI library to version ${{ github.event.inputs.mupdf_version }}"
 
       - name: Push branch
         run: |

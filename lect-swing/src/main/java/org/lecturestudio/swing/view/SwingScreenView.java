@@ -49,8 +49,7 @@ public class SwingScreenView extends JComponent implements ScreenViewComponent {
 		}
 
 		try {
-			image = VideoFrameConverter.convertVideoFrameToComponentSize(frame,
-					image, this);
+			image = VideoFrameConverter.convertVideoFrameToComponentSize(frame, image, this);
 		}
 		catch (Exception e) {
 			return;

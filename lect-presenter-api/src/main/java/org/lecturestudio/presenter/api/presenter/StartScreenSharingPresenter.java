@@ -143,8 +143,13 @@ public class StartScreenSharingPresenter extends Presenter<StartScreenSharingVie
 		}
 		executorService.shutdownNow();
 
-		screenCapturer.dispose();
-		windowCapturer.dispose();
+		try {
+			screenCapturer.dispose();
+			windowCapturer.dispose();
+		}
+		catch (Exception e) {
+			// Ignore.
+		}
 
 		for (var task : screenMap.values()) {
 			disposeTask(task);
@@ -220,7 +225,7 @@ public class StartScreenSharingPresenter extends Presenter<StartScreenSharingVie
 			var task = entry.getValue();
 
 			if (!sourceList.contains(task.source)) {
-				// Stop observing screen source.
+				// Stop observing a screen source.
 				disposeTask(task);
 
 				observableList.remove(entry.getKey());
@@ -240,7 +245,7 @@ public class StartScreenSharingPresenter extends Presenter<StartScreenSharingVie
 
 		observableList.add(screenSource);
 
-		// Start observing screen source.
+		// Start observing a screen source.
 		try {
 			task.start();
 		}

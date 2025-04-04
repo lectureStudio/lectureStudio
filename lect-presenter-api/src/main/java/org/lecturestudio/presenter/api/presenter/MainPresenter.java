@@ -461,7 +461,7 @@ public class MainPresenter extends org.lecturestudio.core.presenter.MainPresente
 
 						ScreenDocumentCreator.create(documentService, context.getSource());
 
-						// Register created screen document with the screen source.
+						// Register created a screen document with the screen source.
 						screenSourceService.addScreenShareContext(
 								documentService.getDocuments().getSelectedDocument(),
 								context);

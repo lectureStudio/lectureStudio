@@ -22,7 +22,6 @@ import dev.onvoid.webrtc.media.video.VideoFrame;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.function.Consumer;
 
 import org.lecturestudio.core.view.PresentationViewComponent;
 import org.lecturestudio.core.view.PresentationViewContext;
@@ -31,17 +30,15 @@ import org.lecturestudio.web.api.event.LocalScreenVideoFrameEvent;
 
 public class ScreenPresentationViewContext implements PresentationViewContext {
 
-	private final List<Consumer<VideoFrame>> eventListeners = new ArrayList<>();
+	private final List<ScreenViewComponent> eventListeners = new ArrayList<>();
 
 
 	@Override
 	public void configure(PresentationViewComponent component) {
 		ScreenViewComponent screenComponent = (ScreenViewComponent) component;
 
-		Consumer<VideoFrame> listener = screenComponent::setVideoFrame;
-
-		if (!eventListeners.contains(listener)) {
-			eventListeners.add(screenComponent::setVideoFrame);
+		if (!eventListeners.contains(screenComponent)) {
+			eventListeners.add(screenComponent);
 		}
 	}
 
@@ -53,8 +50,8 @@ public class ScreenPresentationViewContext implements PresentationViewContext {
 	public void addScreenVideoFrameEvent(LocalScreenVideoFrameEvent event) {
 		VideoFrame videoFrame = event.getFrame();
 
-		for (Consumer<VideoFrame> consumer : eventListeners) {
-			consumer.accept(videoFrame);
+		for (ScreenViewComponent consumer : eventListeners) {
+			consumer.setVideoFrame(videoFrame);
 		}
 	}
 }

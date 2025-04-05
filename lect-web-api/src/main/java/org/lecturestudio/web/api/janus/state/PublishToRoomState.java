@@ -81,6 +81,7 @@ public class PublishToRoomState implements JanusState {
 
 		participantContext = handler.getParticipantContext();
 		screenSourceEndedCallback = screenContext.getScreenSourceEndedCallback();
+		localScreenFrameConsumer = screenContext.getLocalFrameConsumer();
 
 		peerConnection.setOnLocalSessionDescription(description -> {
 			sendRequest(handler, description.sdp);

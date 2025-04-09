@@ -441,8 +441,6 @@ public class SoundSettingsPresenter extends Presenter<SoundSettingsView> {
 		settings.setHighpassFilterEnabled(true);
 		settings.setNoiseSuppressionEnabled(true);
 		settings.setNoiseSuppressionLevel(NoiseSuppressionLevel.LOW);
-		settings.setLevelEstimationEnabled(true);
-		settings.setVoiceDetectionEnabled(true);
 		settings.setEchoCancellerEnabled(true);
 
 		levelRecorder = createAudioRecorder();

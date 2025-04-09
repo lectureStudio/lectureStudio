@@ -23,7 +23,7 @@ import org.lecturestudio.core.beans.ObjectProperty;
 
 /**
  * Specifies software audio processing filters to be applied to audio samples
- * coming from an audio input device, e.g. a microphone, or being provided to an
+ * coming from an audio input device, e.g., a microphone, or being provided to an
  * audio output device, e.g. speakers. If the hardware has activated such
  * filters, then the corresponding setting should be disabled here.
  *
@@ -47,10 +47,6 @@ public class AudioProcessingSettings {
 	private final BooleanProperty enableHighpassFilter = new BooleanProperty();
 
 	private final BooleanProperty enableNoiseSuppression = new BooleanProperty();
-
-	private final BooleanProperty enableLevelEstimation = new BooleanProperty();
-
-	private final BooleanProperty enableVoiceDetection = new BooleanProperty();
 
 	private final ObjectProperty<NoiseSuppressionLevel> noiseSuppressionLevel = new ObjectProperty<>();
 
@@ -89,22 +85,6 @@ public class AudioProcessingSettings {
 
 	public void setNoiseSuppressionEnabled(boolean enable) {
 		enableNoiseSuppression.set(enable);
-	}
-
-	public boolean isLevelEstimationEnabled() {
-		return enableLevelEstimation.get();
-	}
-
-	public void setLevelEstimationEnabled(boolean enable) {
-		enableLevelEstimation.set(enable);
-	}
-
-	public boolean isVoiceDetectionEnabled() {
-		return enableVoiceDetection.get();
-	}
-
-	public void setVoiceDetectionEnabled(boolean enable) {
-		enableVoiceDetection.set(enable);
 	}
 
 	public NoiseSuppressionLevel getNoiseSuppressionLevel() {

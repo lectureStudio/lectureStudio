@@ -47,6 +47,7 @@ import org.lecturestudio.core.io.RandomAccessAudioStream;
 import org.lecturestudio.core.presenter.Presenter;
 import org.lecturestudio.core.util.MapChangeListener;
 import org.lecturestudio.core.util.ObservableMap;
+import org.lecturestudio.media.audio.DefaultAudioSink;
 import org.lecturestudio.presenter.api.config.DefaultConfiguration;
 import org.lecturestudio.presenter.api.presenter.command.AdjustAudioCaptureLevelCommand;
 import org.lecturestudio.presenter.api.view.SoundSettingsView;
@@ -445,16 +446,7 @@ public class SoundSettingsPresenter extends Presenter<SoundSettingsView> {
 
 		levelRecorder = createAudioRecorder();
 		levelRecorder.setAudioProcessingSettings(settings);
-		levelRecorder.setAudioSink(new AudioSink() {
-
-			@Override
-			public void open() {}
-
-			@Override
-			public void reset() {}
-
-			@Override
-			public void close() {}
+		levelRecorder.setAudioSink(new DefaultAudioSink() {
 
 			@Override
 			public int write(byte[] data, int offset, int length) {
@@ -471,9 +463,6 @@ public class SoundSettingsPresenter extends Presenter<SoundSettingsView> {
 			public AudioFormat getAudioFormat() {
 				return audioConfig.getRecordingFormat();
 			}
-
-			@Override
-			public void setAudioFormat(AudioFormat format) {}
 
 			private double getSignalPowerLevel(byte[] buffer) {
 				int max = 0;

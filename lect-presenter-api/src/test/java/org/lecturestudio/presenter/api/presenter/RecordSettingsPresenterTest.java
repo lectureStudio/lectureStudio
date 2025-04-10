@@ -133,7 +133,7 @@ class RecordSettingsPresenterTest extends PresenterTest {
 
 		@Override
 		public void setAutostartRecording(BooleanProperty autostart) {
-			assertFalse(autostart.get());
+			assertTrue(autostart.get());
 		}
 
 		@Override

@@ -37,7 +37,7 @@ public class BooleanProperty extends ObjectProperty<Boolean> {
 	 *
 	 * @param defaultValue The initial value.
 	 */
-	public BooleanProperty(boolean defaultValue) {
+	public BooleanProperty(Boolean defaultValue) {
 		super(defaultValue);
 	}
 

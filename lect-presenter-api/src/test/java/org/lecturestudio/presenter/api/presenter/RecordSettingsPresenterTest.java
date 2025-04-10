@@ -132,6 +132,11 @@ class RecordSettingsPresenterTest extends PresenterTest {
 
 
 		@Override
+		public void setAutostartRecording(BooleanProperty autostart) {
+			assertFalse(autostart.get());
+		}
+
+		@Override
 		public void setNotifyToRecord(BooleanProperty notify) {
 			assertFalse(notify.get());
 		}

@@ -267,8 +267,9 @@ public class MainPresenter extends org.lecturestudio.core.presenter.MainPresente
 		}
 
 		addHandler(new AudioDeviceChangeHandler(presenterContext, audioSystemProvider, recordingService));
+		addHandler(new AutostartRecordingHandler(presenterContext, documentService, recordingService));
 		addHandler(new MicrophoneMuteHandler(presenterContext, recordingService));
-		addHandler(new VoiceActivityHandler(presenterContext, audioSystemProvider));
+		addHandler(new VoiceActivityHandler(presenterContext, audioSystemProvider, documentService));
 		addHandler(new ViewStreamHandler(presenterContext));
 		addHandler(new HeartbeatErrorHandler(presenterContext));
 		addHandler(new StreamHandler(presenterContext, streamService, screenShareService));

@@ -186,8 +186,6 @@ public class VoiceActivityHandler extends PresenterHandler implements DocumentLi
 		// When the microphone is muted manually, reset the user's declination status to ensure
 		// that the notifications will be shown again on new voice detection.
 		manualStateObserver.microphoneActiveProperty().addListener((observable, oldValue, newValue) -> {
-			System.out.println("microphoneActiveProperty: " + newValue);
-
 			if (!newValue) {
 				resetUserDeclination();
 			}
@@ -275,7 +273,6 @@ public class VoiceActivityHandler extends PresenterHandler implements DocumentLi
 	}
 
 	private void resetUserDeclination() {
-		System.out.println("Resetting user declination for recording reminder.");
 		userDeclinedRecording = false;
 	}
 

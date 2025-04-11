@@ -30,10 +30,10 @@ import org.lecturestudio.core.beans.BooleanProperty;
 public class ManualStateObserver {
 
 	/** Property that indicates whether a recording has been started. */
-	private final BooleanProperty recordingStarted = new BooleanProperty();
+	private final ManualBooleanProperty recordingStarted = new ManualBooleanProperty();
 
 	/** Property that indicates whether the microphone is currently active. */
-	private final BooleanProperty microphoneActive = new BooleanProperty();
+	private final ManualBooleanProperty microphoneActive = new ManualBooleanProperty();
 
 
 	/**
@@ -88,5 +88,40 @@ public class ManualStateObserver {
 	 */
 	public BooleanProperty microphoneActiveProperty() {
 		return microphoneActive;
+	}
+
+
+
+	/**
+	 * A custom boolean property implementation that extends ObservableBase and implements Property interface.
+	 * This class provides functionality to store a boolean value and notify observers when the value changes.
+	 */
+	private class ManualBooleanProperty extends BooleanProperty {
+
+		/** The current boolean value. */
+		private Boolean value = false;
+
+		/**
+		 * Sets a new value for this property and notifies observers of the change.
+		 *
+		 * @param newValue the new boolean value to set.
+		 */
+		@Override
+		public void set(Boolean newValue) {
+			final Boolean oldValue = value;
+			value = newValue;
+
+			fireChange(this, oldValue, newValue);
+		}
+
+		/**
+		 * Retrieves the current value of this property.
+		 *
+		 * @return the current boolean value.
+		 */
+		@Override
+		public Boolean get() {
+			return value;
+		}
 	}
 }

@@ -90,7 +90,6 @@ public class CreateQuizPresenter extends Presenter<CreateQuizView> {
 	public void initialize() throws Exception {
 		genericDoc = new Document();
 		genericDoc.setTitle(context.getDictionary().get("quiz.generic"));
-		genericDoc.close();
 
 		DocumentList docList = documentService.getDocuments();
 		selectedDoc = docList.getSelectedDocument();
@@ -128,6 +127,13 @@ public class CreateQuizPresenter extends Presenter<CreateQuizView> {
 
 			fillForm();
 		}
+	}
+
+	@Override
+	public void close() {
+		genericDoc.close();
+
+		super.close();
 	}
 
 	public Quiz getQuiz() {

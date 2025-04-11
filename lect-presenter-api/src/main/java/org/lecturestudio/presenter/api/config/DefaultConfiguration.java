@@ -54,7 +54,8 @@ public class DefaultConfiguration extends PresenterConfiguration {
 		setSaveDocumentOnClose(true);
 		setAdvancedUIMode(true);
 		setExtendedFullscreen(true);
-		setNotifyToRecord(false);
+		setNotifyToRecord(true);
+		setAutostartRecording(true);
 		setConfirmStopRecording(true);
 		setPageRecordingTimeout(2000);
 

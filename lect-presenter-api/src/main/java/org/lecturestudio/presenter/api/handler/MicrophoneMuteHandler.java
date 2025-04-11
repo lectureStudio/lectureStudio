@@ -22,8 +22,22 @@ import org.lecturestudio.core.ExecutableException;
 import org.lecturestudio.presenter.api.context.PresenterContext;
 import org.lecturestudio.presenter.api.service.RecordingService;
 
+/**
+ * Handles microphone mute and unmute events for the presenter application.
+ * <p>
+ * This handler listens for changes to the microphone enable state and performs
+ * appropriate actions on the recording service, such as suspending the recording
+ * when the microphone is muted and resuming the recording when it's unmuted.
+ * </p>
+ *
+ * @author Alex Andres
+ */
 public class MicrophoneMuteHandler extends PresenterHandler {
 
+	/**
+	 * The service responsible for managing audio recording operations.
+	 * Used to suspend and resume recordings when the microphone is muted or unmuted.
+	 */
 	private final RecordingService recordingService;
 
 
@@ -33,8 +47,7 @@ public class MicrophoneMuteHandler extends PresenterHandler {
 	 * @param context          The presenter application context.
 	 * @param recordingService The application-wide recording service.
 	 */
-	public MicrophoneMuteHandler(PresenterContext context,
-			RecordingService recordingService) {
+	public MicrophoneMuteHandler(PresenterContext context, RecordingService recordingService) {
 		super(context);
 
 		this.recordingService = recordingService;
@@ -61,8 +74,7 @@ public class MicrophoneMuteHandler extends PresenterHandler {
 				recordingService.suspend();
 			}
 			catch (ExecutableException e) {
-				handleException(e, "Pause recording failed",
-						"recording.pause.error");
+				handleException(e, "Pause recording failed", "recording.pause.error");
 			}
 		}
 	}
@@ -73,8 +85,7 @@ public class MicrophoneMuteHandler extends PresenterHandler {
 				recordingService.start();
 			}
 			catch (ExecutableException e) {
-				handleException(e, "Start recording failed",
-						"recording.start.error");
+				handleException(e, "Start recording failed", "recording.start.error");
 			}
 		}
 	}

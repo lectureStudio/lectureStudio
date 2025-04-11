@@ -113,7 +113,7 @@ public class DocumentList {
 
 		Document prev = getSelectedDocument();
 
-		// Move new document to the tail of the list.
+		// Move the new document to the tail of the list.
 		if (documents.remove(doc)) {
 			documents.add(doc);
 			notifySelected(prev, doc);

@@ -43,6 +43,8 @@ import org.lecturestudio.swing.view.SwingView;
 @SwingView(name = "recording-settings", presenter = org.lecturestudio.presenter.api.presenter.RecordSettingsPresenter.class)
 public class SwingRecordSettingsView extends JPanel implements RecordSettingsView {
 
+	private JCheckBox autostartRecordingCheckBox;
+
 	private JCheckBox notifyToRecordCheckBox;
 
 	private JCheckBox confirmStopRecordingCheckBox;
@@ -64,6 +66,11 @@ public class SwingRecordSettingsView extends JPanel implements RecordSettingsVie
 
 	SwingRecordSettingsView() {
 		super();
+	}
+
+	@Override
+	public void setAutostartRecording(BooleanProperty autostart) {
+		SwingUtils.bindBidirectional(autostartRecordingCheckBox, autostart);
 	}
 
 	@Override

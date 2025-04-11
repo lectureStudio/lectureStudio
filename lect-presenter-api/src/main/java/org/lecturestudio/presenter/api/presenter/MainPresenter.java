@@ -267,7 +267,9 @@ public class MainPresenter extends org.lecturestudio.core.presenter.MainPresente
 		}
 
 		addHandler(new AudioDeviceChangeHandler(presenterContext, audioSystemProvider, recordingService));
+		addHandler(new AutostartRecordingHandler(presenterContext, documentService, recordingService));
 		addHandler(new MicrophoneMuteHandler(presenterContext, recordingService));
+		addHandler(new VoiceActivityHandler(presenterContext, audioSystemProvider, documentService));
 		addHandler(new ViewStreamHandler(presenterContext));
 		addHandler(new HeartbeatErrorHandler(presenterContext));
 		addHandler(new StreamHandler(presenterContext, streamService, screenShareService));
@@ -672,7 +674,12 @@ public class MainPresenter extends org.lecturestudio.core.presenter.MainPresente
 	private void addHandler(PresenterHandler handler) {
 		handlers.add(handler);
 
-		handler.initialize();
+		try {
+			handler.initialize();
+		}
+		catch (Exception e) {
+			handleException(e, "Initialize handler failed", "generic.error");
+		}
 	}
 
 	private void addContext(Presenter<?> presenter) {

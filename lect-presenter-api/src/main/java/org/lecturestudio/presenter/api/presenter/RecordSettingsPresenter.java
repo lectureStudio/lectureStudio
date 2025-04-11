@@ -54,6 +54,7 @@ public class RecordSettingsPresenter extends Presenter<RecordSettingsView> {
 	public void initialize() {
 		PresenterConfiguration config = (PresenterConfiguration) context.getConfiguration();
 
+		view.setAutostartRecording(config.autostartRecordingProperty());
 		view.setNotifyToRecord(config.notifyToRecordProperty());
 		view.setConfirmStopRecording(config.confirmStopRecordingProperty());
 		view.setMixAudioStreams(audioConfig.mixAudioStreamsProperty());
@@ -82,6 +83,7 @@ public class RecordSettingsPresenter extends Presenter<RecordSettingsView> {
 		PresenterConfiguration config = (PresenterConfiguration) context.getConfiguration();
 		DefaultConfiguration defaultConfig = new DefaultConfiguration();
 
+		config.setAutostartRecording(defaultConfig.getAutostartRecording());
 		config.setNotifyToRecord(defaultConfig.getNotifyToRecord());
 		config.setConfirmStopRecording(defaultConfig.getConfirmStopRecording());
 		config.setPageRecordingTimeout(defaultConfig.getPageRecordingTimeout());

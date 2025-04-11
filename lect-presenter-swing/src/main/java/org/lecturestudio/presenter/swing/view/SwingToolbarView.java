@@ -257,7 +257,6 @@ public class SwingToolbarView extends JPanel implements ToolbarView {
 			boolean started = state == ExecutableState.Started ||
 					state == ExecutableState.Suspended;
 
-			streamMicButton.setEnabled(started);
 			streamCamButton.setEnabled(started);
 		});
 	}

@@ -52,6 +52,12 @@ public class PresenterConfigService extends JsonConfigurationService<PresenterCo
 		if (isNull(config.getLocale())) {
 			config.setLocale(defaultConfig.getLocale());
 		}
+		if (isNull(config.getAutostartRecording())) {
+			config.setAutostartRecording(defaultConfig.getAutostartRecording());
+		}
+		if (isNull(config.getNotifyToRecord())) {
+			config.setNotifyToRecord(defaultConfig.getNotifyToRecord());
+		}
 		if (isNull(config.getStreamConfig().getServerName())) {
 			config.getStreamConfig().setServerName(defaultConfig.getStreamConfig().getServerName());
 		}

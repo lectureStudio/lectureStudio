@@ -70,7 +70,6 @@ import org.lecturestudio.presenter.api.event.StreamingStateEvent;
 import org.lecturestudio.presenter.api.model.*;
 import org.lecturestudio.presenter.api.presenter.command.StartRecordingCommand;
 import org.lecturestudio.presenter.api.presenter.state.ActivateDisplaysNotifyState;
-import org.lecturestudio.presenter.api.presenter.state.RecordNotifyState;
 import org.lecturestudio.presenter.api.service.BookmarkService;
 import org.lecturestudio.presenter.api.service.RecordingService;
 import org.lecturestudio.presenter.api.view.ToolbarView;
@@ -80,8 +79,6 @@ public class ToolbarPresenter extends Presenter<ToolbarView> {
 	private final PageEditedListener pageEditedListener = this::pageEdited;
 
 	private final EventBus eventBus;
-
-	private final RecordNotifyState recordNotifyState;
 
 	private final ActivateDisplaysNotifyState activateDisplaysNotifyState;
 
@@ -108,7 +105,6 @@ public class ToolbarPresenter extends Presenter<ToolbarView> {
 		super(context, view);
 
 		eventBus = context.getEventBus();
-		recordNotifyState = new RecordNotifyState(context, view);
 		activateDisplaysNotifyState = new ActivateDisplaysNotifyState(context, view);
 	}
 
@@ -174,8 +170,6 @@ public class ToolbarPresenter extends Presenter<ToolbarView> {
 	@Subscribe
 	public void onEvent(final RecordingStateEvent event) {
 		view.setRecordingState(event.getState());
-
-		recordNotifyState.setRecordingState(event.getState());
 	}
 
 	@Subscribe
@@ -466,7 +460,6 @@ public class ToolbarPresenter extends Presenter<ToolbarView> {
 
 		view.setPage(page, parameter);
 
-		recordNotifyState.setPage(page);
 		activateDisplaysNotifyState.setPage(page);
 	}
 
@@ -477,14 +470,13 @@ public class ToolbarPresenter extends Presenter<ToolbarView> {
 
 		pageChanged(event.getPage());
 
-		recordNotifyState.setShape();
 		activateDisplaysNotifyState.setShape();
 	}
 
 	private void toolChanged(ToolType toolType, PaintSettings settings) {
 		this.toolType = toolType;
 
-		// Update selected tool button.
+		// Update the selected tool button.
 		view.selectToolButton(toolType);
 
 		if (!ColorPalette.hasPalette(toolType)) {

@@ -76,6 +76,11 @@ public class RemindRecordingPresenter extends Presenter<RemindRecordingView> {
 		else if (!recordingService.started()) {
 			startRecording();
 		}
+		else if (recordingService.started()) {
+			PresenterContext pContext = (PresenterContext) context;
+			// Enable microphone input before starting the recording to ensure audio is captured.
+			pContext.getConfiguration().getStreamConfig().setMicrophoneEnabled(true);
+		}
 	}
 
 	private void startRecording() {
@@ -84,7 +89,7 @@ public class RemindRecordingPresenter extends Presenter<RemindRecordingView> {
 		CompletableFuture.runAsync(() -> {
 			context.getEventBus().post(new StartRecordingCommand(() -> {
 				try {
-					recordingService.start();
+					startRecordingMicrophoneEnabled();
 				}
 				catch (ExecutableException e) {
 					throw new CompletionException(e);
@@ -103,13 +108,20 @@ public class RemindRecordingPresenter extends Presenter<RemindRecordingView> {
 	private void resumeRecording() {
 		if (recordingService.suspended()) {
 			try {
-				recordingService.start();
+				startRecordingMicrophoneEnabled();
 			}
 			catch (ExecutableException e) {
-				handleException(e, "Start recording failed",
-						"recording.start.error");
+				handleException(e, "Start recording failed", "recording.start.error");
 			}
 		}
+	}
+
+	private void startRecordingMicrophoneEnabled() throws ExecutableException {
+		recordingService.start();
+
+		PresenterContext pContext = (PresenterContext) context;
+		// Enable microphone input before starting the recording to ensure audio is captured.
+		pContext.getConfiguration().getStreamConfig().setMicrophoneEnabled(true);
 	}
 
 	private void handleRecordingStateError(Throwable e) {

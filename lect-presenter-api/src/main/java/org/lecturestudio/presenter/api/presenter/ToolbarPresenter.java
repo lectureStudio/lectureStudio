@@ -33,7 +33,6 @@ import javax.inject.Inject;
 
 import org.lecturestudio.core.ExecutableException;
 import org.lecturestudio.core.ExecutableState;
-import org.lecturestudio.core.app.ApplicationContext;
 import org.lecturestudio.core.app.dictionary.Dictionary;
 import org.lecturestudio.core.audio.AudioDeviceNotConnectedException;
 import org.lecturestudio.core.audio.bus.event.TextFontEvent;
@@ -101,7 +100,7 @@ public class ToolbarPresenter extends Presenter<ToolbarView> {
 
 
 	@Inject
-	public ToolbarPresenter(ApplicationContext context, ToolbarView view) {
+	public ToolbarPresenter(PresenterContext context, ToolbarView view) {
 		super(context, view);
 
 		eventBus = context.getEventBus();
@@ -339,20 +338,26 @@ public class ToolbarPresenter extends Presenter<ToolbarView> {
 	}
 
 	public void startRecording() {
+		PresenterContext pContext = (PresenterContext) context;
+
 		try {
 			if (recordingService.started()) {
 				recordingService.suspend();
+
+				pContext.getManualStateObserver().setRecordingStarted(false);
 			}
 			else if (recordingService.suspended()) {
 				recordingService.start();
+
+				pContext.getManualStateObserver().setRecordingStarted(true);
 			}
 			else {
 				eventBus.post(new StartRecordingCommand(() -> {
-					PresenterContext pContext = (PresenterContext) context;
-
 					CompletableFuture.runAsync(() -> {
 						try {
 							recordingService.start();
+
+							pContext.getManualStateObserver().setRecordingStarted(true);
 						}
 						catch (ExecutableException e) {
 							throw new CompletionException(e);
@@ -374,7 +379,8 @@ public class ToolbarPresenter extends Presenter<ToolbarView> {
 	}
 
 	public void stopRecording() {
-		PresenterConfiguration config = (PresenterConfiguration) context.getConfiguration();
+		PresenterContext pContext = (PresenterContext) context;
+		PresenterConfiguration config = pContext.getConfiguration();
 
 		if (config.getConfirmStopRecording()) {
 			eventBus.post(new ShowPresenterCommand<>(ConfirmStopRecordingPresenter.class));
@@ -383,6 +389,7 @@ public class ToolbarPresenter extends Presenter<ToolbarView> {
 			try {
 				recordingService.stop();
 
+				pContext.getManualStateObserver().setRecordingStarted(false);
 				eventBus.post(new ShowPresenterCommand<>(SaveRecordingPresenter.class));
 			}
 			catch (ExecutableException e) {
@@ -623,6 +630,8 @@ public class ToolbarPresenter extends Presenter<ToolbarView> {
 		view.bindEnableStreamMicrophone(config.getStreamConfig().enableMicrophoneProperty());
 		view.bindEnableStreamCamera(config.getStreamConfig().enableCameraProperty());
 		view.bindEnableScreenSharing(this::selectScreenSource);
+
+		view.setManualStateObserver(presenterContext.getManualStateObserver());
 
 		view.setOnSelectQuiz(this::selectQuiz);
 		view.setOnAudienceMessage(this::showAudienceMessageTemplate);

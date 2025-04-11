@@ -64,22 +64,47 @@ import org.lecturestudio.web.api.stream.StreamContext;
 import org.lecturestudio.web.api.stream.model.Course;
 import org.lecturestudio.web.api.stream.service.StreamProviderService;
 
+/**
+ * Presenter for the stream initiation dialog that manages stream configuration, audio/video settings,
+ * and camera preview functionality.
+ * <p>
+ * This presenter handles:
+ * <ul>
+ *   <li>Audio device configuration and testing</li>
+ *   <li>Camera selection and preview</li>
+ *   <li>Course selection for streaming</li>
+ *   <li>Stream recording options</li>
+ *   <li>Messaging configuration</li>
+ * </ul>
+ * <p>
+ * It provides the user interface logic for configuring and starting a lecture stream.
+ *
+ * @author Alex Andres
+ */
 public class StartStreamPresenter extends Presenter<StartStreamView> {
 
+	/** The audio system provider used for accessing audio devices and creating audio players/recorders. */
 	private final AudioSystemProvider audioSystemProvider;
 
+	/** Configuration for audio settings including devices, formats and volumes. */
 	private final AudioConfiguration audioConfig;
 
+	/** Configuration for stream settings including camera, microphone and messenger options. */
 	private final StreamConfiguration streamConfig;
 
+	/** Service for accessing and controlling cameras. */
 	private final CameraService camService;
 
+	/** Service for managing recording operations. */
 	private final RecordingService recordingService;
 
+	/** Information about web services for streaming. */
 	private final WebServiceInfo webServiceInfo;
 
+	/** The current course being streamed. */
 	private Course course;
 
+	/** Listener for camera name property changes. */
 	private ChangeListener<String> camListener;
 
 	/** The stream configuration context. */
@@ -88,23 +113,44 @@ public class StartStreamPresenter extends Presenter<StartStreamView> {
 	/** The action that is executed when the saving process has been aborted. */
 	private ConsumerAction<StreamContext> startAction;
 
+	/** Audio recorder used for testing microphone input. */
 	private AudioRecorder testRecorder;
 
+	/** Audio player used for playing back test recordings. */
 	private AudioPlayer audioPlayer;
 
+	/** Audio sink that stores captured audio during microphone tests. */
 	private AudioSink testAudioSink;
 
+	/** Property tracking whether audio capture testing is active. */
 	private BooleanProperty testCapture;
 
+	/** Property tracking whether audio playback testing is active. */
 	private BooleanProperty testPlayback;
 
+	/** Property controlling whether the audio capture test UI is enabled. */
 	private BooleanProperty captureEnabled;
 
+	/** Property controlling whether the audio playback test UI is enabled. */
 	private BooleanProperty playbackEnabled;
 
+	/** Property determining whether the stream should be recorded. */
+	private BooleanProperty recordStreamProperty;
+
+	/** Flag indicating whether camera capture is currently active. */
 	private boolean capture;
 
 
+	/**
+	 * Creates a new StartStreamPresenter with the necessary dependencies.
+	 *
+	 * @param context             The presenter context containing application configuration.
+	 * @param view                The view this presenter controls.
+	 * @param audioSystemProvider Provider for audio system functionality.
+	 * @param camService          Service for camera operations.
+	 * @param recordingService    Service for recording stream content.
+	 * @param webServiceInfo      Information about available web services for streaming.
+	 */
 	@Inject
 	StartStreamPresenter(PresenterContext context, StartStreamView view,
 			AudioSystemProvider audioSystemProvider, CameraService camService,
@@ -147,7 +193,7 @@ public class StartStreamPresenter extends Presenter<StartStreamView> {
 			validateSpeaker();
 		}
 		catch (Throwable e) {
-			// Audio device error, e.g. no device connected, will be visible in the view.
+			// Audio device error, e.g., no device connected, will be visible in the view.
 		}
 
 		PresenterContext pContext = (PresenterContext) context;
@@ -173,7 +219,7 @@ public class StartStreamPresenter extends Presenter<StartStreamView> {
 				Course selectedCourse = pContext.getCourse();
 
 				if (isNull(selectedCourse) && !courses.isEmpty()) {
-					// Set first available lecture by default.
+					// Set the first available lecture by default.
 					pContext.setCourse(courses.get(0));
 				}
 				else if (!courses.isEmpty() && !courses.contains(selectedCourse)) {
@@ -193,12 +239,23 @@ public class StartStreamPresenter extends Presenter<StartStreamView> {
 				streamConfig.setMessengerEnabled(newValue);
 			});
 
+			/*
+			 * Get the property that determines if stream recording is enabled.
+			 * If the recording service is already running, override this property
+			 * with a new one set to true to reflect the active recording state.
+			 */
+			recordStreamProperty = streamConfig.recordStreamProperty();
+
+			if (recordingService.started()) {
+				recordStreamProperty = new BooleanProperty(true);
+			}
+
 			view.setCourses(courses);
 			view.setCourse(pContext.courseProperty());
 			view.setEnableMicrophone(streamConfig.enableMicrophoneProperty());
 			view.setEnableCamera(streamConfig.enableCameraProperty());
 			view.setEnableMessenger(streamContext.enableMessengerProperty());
-			view.setRecordStream(streamConfig.recordStreamProperty());
+			view.setRecordStream(recordStreamProperty);
 			view.setViewStream(streamContext.previewStreamProperty());
 			view.setAudioCaptureDevices(audioSystemProvider.getRecordingDevices());
 			view.setAudioCaptureDevice(audioConfig.captureDeviceNameProperty());
@@ -235,10 +292,20 @@ public class StartStreamPresenter extends Presenter<StartStreamView> {
 		return ViewLayer.Dialog;
 	}
 
+	/**
+	 * Sets the course to be streamed.
+	 *
+	 * @param course The course object to set as the current streaming course
+	 */
 	public void setCourse(Course course) {
 		this.course = course;
 	}
 
+	/**
+	 * Sets the action to be executed when starting a stream.
+	 *
+	 * @param action The consumer action that will be executed with the stream context when starting
+	 */
 	public void setOnStart(ConsumerAction<StreamContext> action) {
 		startAction = action;
 	}
@@ -250,7 +317,7 @@ public class StartStreamPresenter extends Presenter<StartStreamView> {
 			startAction.execute(streamContext);
 		}
 
-		if (streamConfig.getRecordStream() && !recordingService.started()) {
+		if (recordStreamProperty.get() && !recordingService.started()) {
 			try {
 				recordingService.start();
 

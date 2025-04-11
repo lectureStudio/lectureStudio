@@ -31,6 +31,7 @@ import org.lecturestudio.core.view.Action;
 import org.lecturestudio.core.view.ConsumerAction;
 import org.lecturestudio.core.view.PresentationParameter;
 import org.lecturestudio.core.view.View;
+import org.lecturestudio.presenter.api.model.ManualStateObserver;
 
 public interface ToolbarView extends View {
 
@@ -141,6 +142,8 @@ public interface ToolbarView extends View {
 	void bindEnableStreamCamera(BooleanProperty enable);
 
 	void bindEnableScreenSharing(Action action);
+
+	void setManualStateObserver(ManualStateObserver observer);
 
 	void setOnSelectQuiz(Action action);
 

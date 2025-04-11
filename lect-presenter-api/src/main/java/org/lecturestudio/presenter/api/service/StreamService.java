@@ -195,6 +195,10 @@ public class StreamService {
 						var previewStreamHandler = new PreviewStreamHandler(context);
 						previewStreamHandler.initialize();
 					}
+					if (!streamContext.getAudioContext().getSendAudio()) {
+						System.out.println("WebRtcStreamService started no audio");
+						context.getManualStateObserver().setMicrophoneActive(false);
+					}
 
 					webRtcStreamService.getStreamConfig().setStartChat(streamContext.getMessengerEnabled());
 					webRtcStreamService.start();

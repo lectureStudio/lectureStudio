@@ -35,6 +35,7 @@ import org.lecturestudio.core.service.DocumentService;
 import org.lecturestudio.media.audio.DefaultAudioSink;
 import org.lecturestudio.presenter.api.config.PresenterConfiguration;
 import org.lecturestudio.presenter.api.context.PresenterContext;
+import org.lecturestudio.presenter.api.model.ManualStateObserver;
 import org.lecturestudio.presenter.api.presenter.RemindRecordingPresenter;
 import org.lecturestudio.presenter.api.presenter.command.CloseablePresenterCommand;
 
@@ -61,6 +62,9 @@ public class VoiceActivityHandler extends PresenterHandler implements DocumentLi
 	/** Service that manages documents and provides access to the document collection. */
 	private final DocumentService documentService;
 
+	/** Observer that tracks manual state changes affected by user interactions. */
+	private final ManualStateObserver manualStateObserver;
+
 	/** Audio recorder instance used to capture audio input for voice activity detection. */
 	private AudioRecorder recorder;
 
@@ -83,6 +87,7 @@ public class VoiceActivityHandler extends PresenterHandler implements DocumentLi
 		super(context);
 
 		config = context.getConfiguration();
+		manualStateObserver = context.getManualStateObserver();
 		audioSystemProvider = systemProvider;
 		documentService = docService;
 	}
@@ -171,6 +176,23 @@ public class VoiceActivityHandler extends PresenterHandler implements DocumentLi
 			}
 		});
 
+		// Reset the userDeclinedRecording flag when the recording is manually suspended or stopped.
+		// This ensures that notifications will be shown again.
+		manualStateObserver.recordingStartedProperty().addListener((o, oldValue, newValue) -> {
+			if (!newValue) {
+				resetUserDeclination();
+			}
+		});
+		// When the microphone is muted manually, reset the user's declination status to ensure
+		// that the notifications will be shown again on new voice detection.
+		manualStateObserver.microphoneActiveProperty().addListener((observable, oldValue, newValue) -> {
+			System.out.println("microphoneActiveProperty: " + newValue);
+
+			if (!newValue) {
+				resetUserDeclination();
+			}
+		});
+
 		// Respond to document events.
 		documentService.getDocuments().addListener(this);
 
@@ -194,7 +216,7 @@ public class VoiceActivityHandler extends PresenterHandler implements DocumentLi
 
 		// If no document is selected anymore, reset tracking state and stop detection.
 		if (!hasDocument) {
-			userDeclinedRecording = false;
+			resetUserDeclination();
 			stop();
 		}
 	}
@@ -250,6 +272,11 @@ public class VoiceActivityHandler extends PresenterHandler implements DocumentLi
 			// User declined, so do not ask again.
 			userDeclinedRecording = true;
 		}));
+	}
+
+	private void resetUserDeclination() {
+		System.out.println("Resetting user declination for recording reminder.");
+		userDeclinedRecording = false;
 	}
 
 	private void start() {

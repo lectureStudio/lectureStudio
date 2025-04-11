@@ -18,15 +18,15 @@
 
 package org.lecturestudio.presenter.api.presenter.state;
 
-import org.lecturestudio.core.app.ApplicationContext;
+import static java.util.Objects.nonNull;
+
 import org.lecturestudio.core.app.configuration.DisplayConfiguration;
 import org.lecturestudio.core.bus.EventBus;
 import org.lecturestudio.core.model.Page;
+import org.lecturestudio.presenter.api.context.PresenterContext;
 import org.lecturestudio.presenter.api.presenter.RemindDisplayActivationPresenter;
 import org.lecturestudio.presenter.api.presenter.command.CloseablePresenterCommand;
 import org.lecturestudio.presenter.api.view.ToolbarView;
-
-import static java.util.Objects.nonNull;
 
 public class ActivateDisplaysNotifyState {
 
@@ -47,7 +47,7 @@ public class ActivateDisplaysNotifyState {
 	private boolean viewsVisible;
 
 
-	public ActivateDisplaysNotifyState(ApplicationContext context, ToolbarView toolbarView) {
+	public ActivateDisplaysNotifyState(PresenterContext context, ToolbarView toolbarView) {
 		view = toolbarView;
 		config = context.getConfiguration().getDisplayConfig();
 		eventBus = context.getEventBus();

@@ -28,11 +28,29 @@ import org.lecturestudio.core.view.NotificationType;
 import org.lecturestudio.core.view.ViewLayer;
 import org.lecturestudio.presenter.api.view.RemindDisplayActivationView;
 
+/**
+ * A presenter for the RemindDisplayActivationView that manages a dialog to remind users to activate display views for
+ * presentations. This class handles the display activation notification and provides actions to activate displays or
+ * close the notification.
+ *
+ * @author Alex Andres
+ */
 public class RemindDisplayActivationPresenter extends Presenter<RemindDisplayActivationView> {
 
+	/**
+	 * The controller responsible for managing presentation views and their visibility.
+	 * Used to activate display views when needed.
+	 */
 	private final PresentationController presentationController;
 
 
+	/**
+	 * Constructs a new RemindDisplayActivationPresenter with dependency injection.
+	 *
+	 * @param context                The application context providing access to application resources and services.
+	 * @param view                   The view component this presenter controls.
+	 * @param presentationController The controller used for managing presentation views.
+	 */
 	@Inject
 	protected RemindDisplayActivationPresenter(ApplicationContext context,
 											   RemindDisplayActivationView view,

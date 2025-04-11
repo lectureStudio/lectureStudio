@@ -24,11 +24,18 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+/**
+ * A message class for transmitting quiz answers over the web.
+ * Extends the base WebMessage class to provide specific functionality for handling quiz answer data.
+ *
+ * @author Alex Andres
+ */
 @Getter
 @Setter
 @NoArgsConstructor
 public class QuizAnswerMessage extends WebMessage {
 
+    /** The quiz answer data contained within this message. */
 	private QuizAnswer quizAnswer;
 
 }

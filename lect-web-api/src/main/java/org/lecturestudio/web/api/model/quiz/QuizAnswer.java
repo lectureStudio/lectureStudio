@@ -24,27 +24,59 @@ import java.util.Objects;
 
 import org.lecturestudio.web.api.model.ServiceModel;
 
+/**
+ * Represents an answer to a quiz question, consisting of one or more options.
+ *
+ * @author Alex Andres
+ */
 public class QuizAnswer extends ServiceModel implements Comparable<QuizAnswer>, Cloneable, Serializable {
 
+	/** Array of option strings representing the answer choices. */
 	private String[] options;
 
 
+	/**
+	 * Constructs an empty QuizAnswer with no options.
+	 */
 	public QuizAnswer() {
 		this(null);
 	}
 
+	/**
+	 * Constructs a QuizAnswer with the specified options.
+	 *
+	 * @param options Array of strings representing the answer options.
+	 */
 	public QuizAnswer(String[] options) {
 		this.options = options;
 	}
 
+	/**
+	 * Returns the array of option strings.
+	 *
+	 * @return The options array.
+	 */
 	public String[] getOptions() {
 		return options;
 	}
 
+	/**
+	 * Sets the options array.
+	 *
+	 * @param options Array of strings representing the answer options.
+	 */
 	public void setOptions(String[] options) {
 		this.options = options;
 	}
 
+	/**
+	 * Sets the value of a specific option at the given index.
+	 *
+	 * @param index The index of the option to set.
+	 * @param value The new value for the option.
+	 *
+	 * @throws IndexOutOfBoundsException If the index is out of range.
+	 */
 	public void setValue(int index, String value) {
 		if (index < 0 || index >= options.length) {
 			throw new IndexOutOfBoundsException("Cannot set value for index " + index);

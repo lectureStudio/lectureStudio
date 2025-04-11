@@ -21,8 +21,19 @@ package org.lecturestudio.presenter.api.event;
 import org.lecturestudio.core.ExecutableState;
 import org.lecturestudio.core.bus.event.ExecutableEvent;
 
+/**
+ * Event that represents a state change in a quiz. This event is fired when a quiz component
+ * changes its executable state.
+ *
+ * @author Alex Andres
+ */
 public class QuizStateEvent extends ExecutableEvent {
 
+	/**
+	 * Creates a new quiz state event with the specified executable state.
+	 *
+	 * @param state The new state of the quiz.
+	 */
 	public QuizStateEvent(ExecutableState state) {
 		super(state);
 	}

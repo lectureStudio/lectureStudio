@@ -24,16 +24,55 @@ import java.util.List;
 
 import org.lecturestudio.web.api.model.quiz.Quiz;
 
+/**
+ * Repository interface for managing Quiz entities. Provides CRUD operations for Quiz objects with
+ * persistence capabilities.
+ *
+ * @author Alex Andres
+ */
 public interface QuizRepository {
 
+	/**
+	 * Retrieves all Quiz entities from the repository.
+	 *
+	 * @return a list containing all stored Quiz objects.
+	 *
+	 * @throws IOException if an I/O error occurs during the operation.
+	 */
 	List<Quiz> findAll() throws IOException;
 
+	/**
+	 * Saves a single Quiz entity to the repository.
+	 *
+	 * @param quiz the Quiz object to save.
+	 *
+	 * @throws IOException if an I/O error occurs during the operation.
+	 */
 	void save(Quiz quiz) throws IOException;
 
+	/**
+	 * Saves multiple Quiz entities to the repository.
+	 *
+	 * @param quizzes a collection of Quiz objects to save.
+	 *
+	 * @throws IOException if an I/O error occurs during the operation.
+	 */
 	void saveAll(Collection<Quiz> quizzes) throws IOException;
 
+	/**
+	 * Deletes a specific Quiz entity from the repository.
+	 *
+	 * @param quiz the Quiz object to delete.
+	 *
+	 * @throws IOException if an I/O error occurs during the operation.
+	 */
 	void delete(Quiz quiz) throws IOException;
 
+	/**
+	 * Deletes all Quiz entities from the repository.
+	 *
+	 * @throws IOException if an I/O error occurs during the operation.
+	 */
 	void deleteAll() throws IOException;
 
 }

@@ -38,25 +38,68 @@ import org.lecturestudio.presenter.api.quiz.QuizRepository;
 import org.lecturestudio.web.api.model.quiz.Quiz;
 import org.lecturestudio.web.api.model.quiz.Quiz.QuizSet;
 
+/**
+ * A data source for managing quiz-related operations.
+ * <p>
+ * This class provides functionality to load, save, update, and delete quizzes
+ * from the file system. It handles both generic quizzes and document-specific quizzes,
+ * providing different repositories for each context.
+ * <p>
+ * The class also manages backward compatibility with legacy quiz file formats
+ * by automatically converting and backing up old quiz files.
+ *
+ * @author Alex Andres
+ */
 public class QuizDataSource {
 
+	/**
+	 * The file representing the original quiz data source.
+	 * Used for backup and backward compatibility purposes.
+	 */
 	private final File quizFile;
 
+	/**
+	 * The repository for storing and retrieving quiz data in JSON format.
+	 * Provides CRUD operations for quiz entities.
+	 */
 	private final JsonQuizFileRepository repository;
 
 
+	/**
+	 * Constructs a new QuizDataSource with the specified data file.
+	 *
+	 * @param dataFile The file that will serve as the quiz data source.
+	 */
 	public QuizDataSource(File dataFile) {
 		quizFile = dataFile;
 		repository = new JsonQuizFileRepository(
 				new File(FileUtils.stripExtension(dataFile) + ".quizzes"));
 	}
 
+	/**
+	 * Retrieves all generic quizzes from the repository.
+	 * If a legacy quiz file exists, it will be backed up and converted to the new format.
+	 *
+	 * @return A list of all generic quizzes.
+	 *
+	 * @throws IOException If an I/O error occurs during the retrieval process.
+	 */
 	public List<Quiz> getQuizzes() throws IOException {
 		backupFile(quizFile, QuizSet.GENERIC);
 
 		return repository.findAll();
 	}
 
+	/**
+	 * Retrieves all quizzes associated with the specified document.
+	 * If a legacy quiz file exists, it will be backed up and converted to the new format.
+	 *
+	 * @param doc The document for which to retrieve associated quizzes.
+	 *
+	 * @return A list of quizzes associated with the document, or an empty list if none found.
+	 *
+	 * @throws IOException If an I/O error occurs during the retrieval process.
+	 */
 	public List<Quiz> getQuizzes(Document doc) throws IOException {
 		File quizFile = getQuizFile(doc);
 
@@ -67,12 +110,32 @@ public class QuizDataSource {
 		return nonNull(repository) ? repository.findAll() : List.of();
 	}
 
+	/**
+	 * Deletes a quiz from the generic quiz repository.
+	 *
+	 * @param quiz The quiz to delete.
+	 *
+	 * @throws IOException If an I/O error occurs during the deletion process.
+	 *
+	 * @throws NullPointerException If the quiz parameter is null.
+	 */
 	public void deleteQuiz(Quiz quiz) throws IOException {
 		requireNonNull(quiz);
 
 		repository.delete(quiz);
 	}
 
+	/**
+	 * Deletes a quiz associated with the specified document.
+	 * This operation only works for PDF documents.
+	 *
+	 * @param quiz The quiz to delete.
+	 * @param doc  The document associated with the quiz.
+	 *
+	 * @throws IOException          If the repository does not exist or if an I/O error occurs.
+	 *
+	 * @throws NullPointerException If the quiz parameter is nul.
+	 */
 	public void deleteQuiz(Quiz quiz, Document doc) throws IOException {
 		requireNonNull(quiz);
 
@@ -89,12 +152,29 @@ public class QuizDataSource {
 		repository.delete(quiz);
 	}
 
+	/**
+	 * Saves a quiz to the generic quiz repository.
+	 *
+	 * @param quiz The quiz to save.
+	 *
+	 * @throws IOException          If an I/O error occurs during the save process.
+	 * @throws NullPointerException If the quiz parameter is null.
+	 */
 	public void saveQuiz(Quiz quiz) throws IOException {
 		requireNonNull(quiz);
 
 		repository.save(quiz);
 	}
 
+	/**
+	 * Saves a quiz associated with the specified document.
+	 *
+	 * @param quiz The quiz to save.
+	 * @param doc  The document to associate the quiz with.
+	 *
+	 * @throws IOException          If the repository does not exist or if an I/O error occurs.
+	 * @throws NullPointerException If the quiz parameter is null.
+	 */
 	public void saveQuiz(Quiz quiz, Document doc) throws IOException {
 		requireNonNull(quiz);
 
@@ -107,6 +187,16 @@ public class QuizDataSource {
 		repository.save(quiz);
 	}
 
+	/**
+	 * Replaces an existing quiz with a new quiz in the generic repository.
+	 * If the old quiz does not exist, the new quiz will be appended to the repository.
+	 *
+	 * @param oldQuiz The quiz to be replaced.
+	 * @param newQuiz The new quiz to replace the old one.
+	 *
+	 * @throws IOException          If an I/O error occurs during the replacement process.
+	 * @throws NullPointerException If either quiz parameter is null.
+	 */
 	public void replaceQuiz(Quiz oldQuiz, Quiz newQuiz) throws IOException {
 		requireNonNull(oldQuiz);
 		requireNonNull(newQuiz);
@@ -127,6 +217,17 @@ public class QuizDataSource {
 		}
 	}
 
+	/**
+	 * Replaces an existing quiz with a new quiz in the document-specific repository.
+	 * If the old quiz does not exist, the new quiz will be appended to the repository.
+	 *
+	 * @param oldQuiz The quiz to be replaced.
+	 * @param newQuiz The new quiz to replace the old one.
+	 * @param doc     The document associated with these quizzes.
+	 *
+	 * @throws IOException          If the repository does not exist or if an I/O error occurs.
+	 * @throws NullPointerException If either quiz parameter is null.
+	 */
 	public void replaceQuiz(Quiz oldQuiz, Quiz newQuiz, Document doc)
 			throws IOException {
 		requireNonNull(oldQuiz);
@@ -154,6 +255,18 @@ public class QuizDataSource {
 		}
 	}
 
+	/**
+	 * Reads quizzes from a file using the deprecated file format.
+	 *
+	 * @param quizFile The file containing quiz data.
+	 * @param set      The quiz set type (GENERIC or DOCUMENT_SPECIFIC).
+	 *
+	 * @return A list of quizzes read from the file.
+	 *
+	 * @throws IOException If an I/O error occurs during the reading process.
+	 *
+	 * @deprecated This method is used for backward compatibility only.
+	 */
 	@Deprecated
 	private List<Quiz> getQuizzes(File quizFile, Quiz.QuizSet set) throws IOException {
 		QuizReader reader = new QuizFileReader(quizFile, set);
@@ -161,6 +274,15 @@ public class QuizDataSource {
 		return reader.readQuizzes();
 	}
 
+	/**
+	 * Backs up a quiz file after converting it to the new format.
+	 * This method handles the migration from the old quiz file format to the new one.
+	 *
+	 * @param file The quiz file to back up.
+	 * @param set  The quiz set type (GENERIC or DOCUMENT_SPECIFIC).
+	 *
+	 * @throws IOException If an I/O error occurs during the backup process.
+	 */
 	private void backupFile(File file, Quiz.QuizSet set) throws IOException {
 		if (nonNull(file) && file.exists()) {
 			// Convert deprecated file format and backup old file storage.
@@ -179,6 +301,13 @@ public class QuizDataSource {
 		}
 	}
 
+	/**
+	 * Creates a quiz repository for the specified file.
+	 *
+	 * @param file The file for which to create a repository.
+	 *
+	 * @return A QuizRepository instance, or null if the file is null.
+	 */
 	private QuizRepository getQuizRepository(File file) {
 		if (isNull(file)) {
 			return null;
@@ -188,6 +317,14 @@ public class QuizDataSource {
 				new File(FileUtils.stripExtension(file) + ".quizzes"));
 	}
 
+	/**
+	 * Gets the quiz file associated with a document.
+	 * The quiz file has the same path as the document but with a .quiz extension.
+	 *
+	 * @param doc The document for which to find the associated quiz file.
+	 *
+	 * @return The quiz file, or null if the document is invalid or not a PDF.
+	 */
 	private File getQuizFile(Document doc) {
 		if (isNull(doc) || isNull(doc.getFilePath()) || !doc.isPDF()) {
 			return null;

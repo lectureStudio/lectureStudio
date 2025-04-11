@@ -31,49 +31,102 @@ import org.lecturestudio.web.api.filter.InputFieldRule;
 import org.lecturestudio.web.api.filter.RegexRule;
 import org.lecturestudio.web.api.model.HttpResourceFile;
 
+/**
+ * Represents a quiz with a question and answer options.
+ * This class supports different quiz types (multiple choice, single choice, numeric),
+ * questions with media files, and text input rules.
+ * <p>
+ * The class implements Cloneable and Serializable to enable copying and saving quiz instances.
+ * </p>
+ *
+ * @author Alex Andres
+ */
 public class Quiz implements Cloneable, Serializable {
 
 	private static final long serialVersionUID = -2922040254601147407L;
 
 
+	/**
+	 * Defines the type of quiz question presented to users.
+	 * <p>
+	 * MULTIPLE: Multiple choice question allowing multiple correct answers.
+	 * SINGLE: Single choice question with only one correct answer.
+	 * NUMERIC: Question requiring a numeric input as the answer.
+	 * </p>
+	 */
 	public enum QuizType {
 		MULTIPLE, SINGLE, NUMERIC
 	}
 
+	/**
+	 * Defines the scope or context of the quiz.
+	 * <p>
+	 * GENERIC: Quiz that is generally applicable and not tied to specific document content.
+	 * DOCUMENT_SPECIFIC: Quiz that relates to specific content in a document.
+	 * </p>
+	 */
 	public enum QuizSet {
 		GENERIC, DOCUMENT_SPECIFIC
 	}
 
-
+	/** The type of this quiz (multiple choice, single choice, or numeric). */
 	private QuizType type;
 
-	/** This is only used to identify where to store this quiz. */
+	/** Identifies the context where this quiz should be stored or displayed. */
 	private QuizSet set;
 
+	/** The text of the quiz question presented to users. */
 	private String question;
 
+	/** Media files (images, audio, etc.) that accompany the question. */
 	private List<HttpResourceFile> questionResources = new ArrayList<>();
 
+	/** The possible answer options for multiple choice and single choice questions. */
 	private List<String> options = new ArrayList<>();
 
+	/** Regular expression rules used to validate text input for numeric questions. */
 	private List<RegexRule> regexRules = new ArrayList<>();
 
+	/** Filter with rules that validate user input for this quiz. */
 	private InputFieldFilter filter = new InputFieldFilter();
 
 
+	/**
+	 * Creates an empty quiz with no type or question.
+	 */
 	public Quiz() {
 		this(null, null);
 	}
 
+	/**
+	 * Creates a new quiz with the specified type and question.
+	 *
+	 * @param type     The type of quiz (MULTIPLE, SINGLE, or NUMERIC).
+	 * @param question The text of the quiz question.
+	 */
 	public Quiz(QuizType type, String question) {
 		this.type = type;
 		this.question = question;
 	}
 
+	/**
+	 * Adds a new answer option to the quiz.
+	 *
+	 * @param option The text of the answer option to add.
+	 */
 	public void addOption(String option) {
 		options.add(option);
 	}
 
+	/**
+	 * Converts a numeric option index to an alphabetic representation.
+	 * For non-numeric quiz types, returns the corresponding letter (A, B, C, etc.).
+	 * For numeric quiz types, returns the original string.
+	 *
+	 * @param o The option index as a string.
+	 *
+	 * @return The alphabetic representation of the option.
+	 */
 	public String getOptionAlpha(String o) {
 		if (getType() == QuizType.NUMERIC) {
 			return o;
@@ -83,80 +136,161 @@ public class Quiz implements Cloneable, Serializable {
 		}
 	}
 
+	/**
+	 * Returns the type of this quiz.
+	 *
+	 * @return The quiz type (MULTIPLE, SINGLE, or NUMERIC).
+	 */
 	public QuizType getType() {
 		return type;
 	}
 
+	/**
+	 * Sets the type of this quiz.
+	 *
+	 * @param type The quiz type to set.
+	 */
 	public void setType(QuizType type) {
 		this.type = type;
 	}
 
+	/**
+	 * Sets the text of the quiz question.
+	 *
+	 * @param content The question text to set.
+	 */
 	public void setQuestion(String content) {
 		this.question = content;
 	}
 
+	/**
+	 * Returns the text of the quiz question.
+	 *
+	 * @return The question text.
+	 */
 	public String getQuestion() {
 		return question;
 	}
 
+	/**
+	 * Returns the list of media resources associated with the question.
+	 *
+	 * @return List of HTTP resource files for the question.
+	 */
 	public List<HttpResourceFile> getQuestionResources() {
 		return questionResources;
 	}
 
+	/**
+	 * Sets the media resources associated with the question.
+	 *
+	 * @param resources The list of HTTP resource files to set.
+	 */
 	public void setQuestionResources(List<HttpResourceFile> resources) {
 		this.questionResources = resources;
 	}
 
+	/**
+	 * Removes all answer options from the quiz.
+	 */
 	public void clearOptions() {
 		options.clear();
 	}
 
+	/**
+	 * Returns the list of answer options for this quiz.
+	 *
+	 * @return The list of answer option texts.
+	 */
 	public List<String> getOptions() {
 		return options;
 	}
 
+	/**
+	 * Sets the list of answer options for this quiz.
+	 *
+	 * @param options The list of answer option texts to set.
+	 */
 	public void setOptions(List<String> options) {
 		this.options = options;
 	}
 
 	/**
-	 * @return the regex rules
+	 * Returns the list of regular expression rules for validating input.
+	 *
+	 * @return The list of regex rules.
 	 */
 	public List<RegexRule> getRegexRules() {
 		return regexRules;
 	}
 
 	/**
-	 * @param rules the regex rules to set
+	 * Sets the regular expression rules for validating input.
+	 *
+	 * @param rules The list of regex rules to set.
 	 */
 	public void setRegexRules(List<RegexRule> rules) {
 		this.regexRules = rules;
 	}
 
+	/**
+	 * Sets the quiz set (context) for this quiz.
+	 *
+	 * @param set The quiz set to assign (GENERIC or DOCUMENT_SPECIFIC).
+	 */
 	public void setQuizSet(QuizSet set) {
 		this.set = set;
 	}
 
+	/**
+	 * Returns the quiz set (context) of this quiz.
+	 *
+	 * @return The quiz set (GENERIC or DOCUMENT_SPECIFIC).
+	 */
 	public QuizSet getQuizSet() {
 		return set;
 	}
 
+	/**
+	 * Adds a rule for validating user input.
+	 *
+	 * @param rule The input field rule to add.
+	 */
 	public void addInputRule(InputFieldRule<String> rule) {
 		filter.registerRule(rule);
 	}
 
+	/**
+	 * Removes a rule for validating user input.
+	 *
+	 * @param rule The input field rule to remove.
+	 */
 	public void removeInputRule(InputFieldRule<String> rule) {
 		filter.unregisterRule(rule);
 	}
 
+	/**
+	 * Returns the filter used for validating user input.
+	 *
+	 * @return The input field filter.
+	 */
 	public InputFieldFilter getInputFilter() {
 		return filter;
 	}
 
+	/**
+	 * Sets the filter used for validating user input.
+	 *
+	 * @param filter The input field filter to set.
+	 */
 	public void setInputFilter(InputFieldFilter filter) {
 		this.filter = filter;
 	}
 
+	/**
+	 * Removes all rules from the input filter.
+	 * Does nothing if the filter is null.
+	 */
 	public void clearInputFilter() {
 		if (nonNull(filter)) {
 			filter.clear();

@@ -38,13 +38,31 @@ import org.lecturestudio.core.util.ObservableList;
 import org.lecturestudio.core.util.ObservableSet;
 import org.lecturestudio.web.api.model.quiz.Quiz;
 
+/**
+ * A JSON file-based implementation of {@link QuizRepository}.
+ * This class provides functionality to store and retrieve {@link Quiz} objects
+ * using a JSON file as persistence.
+ * <p>
+ * Uses Jackson for JSON serialization and deserialization with customized
+ * configurations for handling Observable collections.
+ * </p>
+ *
+ * @author Alex Andres
+ */
 public class JsonQuizFileRepository implements QuizRepository {
 
+	/** The Jackson ObjectMapper used for JSON serialization and deserialization. */
 	private final ObjectMapper mapper;
 
+	/** The file used as the persistent storage location for Quiz objects. */
 	private final File file;
 
 
+	/**
+	 * Constructs a new JsonQuizFileRepository with the specified file as storage.
+
+	 * @param file The file to use for persistent storage of quizzes.
+	 */
 	public JsonQuizFileRepository(File file) {
 		this.file = file;
 

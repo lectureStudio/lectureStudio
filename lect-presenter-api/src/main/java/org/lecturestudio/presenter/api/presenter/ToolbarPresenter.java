@@ -63,12 +63,12 @@ import org.lecturestudio.core.view.PresentationParameterProvider;
 import org.lecturestudio.core.view.ViewType;
 import org.lecturestudio.presenter.api.config.PresenterConfiguration;
 import org.lecturestudio.presenter.api.context.PresenterContext;
+import org.lecturestudio.presenter.api.event.DisplayNotificationEvent;
 import org.lecturestudio.presenter.api.event.RecordingStateEvent;
 import org.lecturestudio.presenter.api.event.ScreenShareSelectEvent;
 import org.lecturestudio.presenter.api.event.StreamingStateEvent;
 import org.lecturestudio.presenter.api.model.*;
 import org.lecturestudio.presenter.api.presenter.command.StartRecordingCommand;
-import org.lecturestudio.presenter.api.presenter.state.ActivateDisplaysNotifyState;
 import org.lecturestudio.presenter.api.service.BookmarkService;
 import org.lecturestudio.presenter.api.service.RecordingService;
 import org.lecturestudio.presenter.api.view.ToolbarView;
@@ -78,8 +78,6 @@ public class ToolbarPresenter extends Presenter<ToolbarView> {
 	private final PageEditedListener pageEditedListener = this::pageEdited;
 
 	private final EventBus eventBus;
-
-	private final ActivateDisplaysNotifyState activateDisplaysNotifyState;
 
 	private ToolType toolType;
 
@@ -104,7 +102,6 @@ public class ToolbarPresenter extends Presenter<ToolbarView> {
 		super(context, view);
 
 		eventBus = context.getEventBus();
-		activateDisplaysNotifyState = new ActivateDisplaysNotifyState(context, view);
 	}
 
 	@Subscribe
@@ -150,10 +147,8 @@ public class ToolbarPresenter extends Presenter<ToolbarView> {
 			}
 			view.selectNewBookmarkButton(hasBookmark);
 			pageChanged(page);
-
 		}
 	}
-
 
 	@Subscribe
 	public void onEvent(final BookmarkEvent event) {
@@ -184,6 +179,11 @@ public class ToolbarPresenter extends Presenter<ToolbarView> {
 	@Subscribe
 	public void onEvent(final CustomizeToolbarEvent event) {
 		view.openCustomizeToolbarDialog();
+	}
+
+	@Subscribe
+	public void onEvent(final DisplayNotificationEvent event) {
+		view.showRecordNotification(event.showNotification());
 	}
 
 	public void undo() {
@@ -466,8 +466,6 @@ public class ToolbarPresenter extends Presenter<ToolbarView> {
 		}
 
 		view.setPage(page, parameter);
-
-		activateDisplaysNotifyState.setPage(page);
 	}
 
 	private void pageEdited(final PageEditEvent event) {
@@ -476,8 +474,6 @@ public class ToolbarPresenter extends Presenter<ToolbarView> {
 		}
 
 		pageChanged(event.getPage());
-
-		activateDisplaysNotifyState.setShape();
 	}
 
 	private void toolChanged(ToolType toolType, PaintSettings settings) {
@@ -657,7 +653,6 @@ public class ToolbarPresenter extends Presenter<ToolbarView> {
 		});
 		presentationController.presentationViewsVisibleProperty().addListener((observable, oldValue, newValue) -> {
 			view.setPresentationViewsVisible(newValue);
-			activateDisplaysNotifyState.setPresentationViewsVisible(newValue);
 		});
 	}
 }

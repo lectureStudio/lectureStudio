@@ -59,7 +59,6 @@ import org.lecturestudio.core.presenter.command.ShowPresenterCommand;
 import org.lecturestudio.core.service.DocumentService;
 import org.lecturestudio.core.util.ObservableHashMap;
 import org.lecturestudio.core.util.ObservableMap;
-import org.lecturestudio.core.util.OsInfo;
 import org.lecturestudio.core.util.ShutdownHandler;
 import org.lecturestudio.core.view.Action;
 import org.lecturestudio.core.view.NotificationPopupManager;
@@ -262,16 +261,14 @@ public class MainPresenter extends org.lecturestudio.core.presenter.MainPresente
 
 		config.setAdvancedUIMode(true);
 
-		if (!OsInfo.isMacOs()) {
-			addHandler(new PowerManagementHandler(presenterContext));
-		}
-
 		addHandler(new AudioDeviceChangeHandler(presenterContext, audioSystemProvider, recordingService));
 		addHandler(new AutostartRecordingHandler(presenterContext, documentService, recordingService));
+		addHandler(new DisplayNotificationHandler(presenterContext, presentationController));
 		addHandler(new MicrophoneMuteHandler(presenterContext, recordingService));
 		addHandler(new VoiceActivityHandler(presenterContext, audioSystemProvider, documentService));
 		addHandler(new ViewStreamHandler(presenterContext));
 		addHandler(new HeartbeatErrorHandler(presenterContext));
+		addHandler(new PowerManagementHandler(presenterContext));
 		addHandler(new StreamHandler(presenterContext, streamService, screenShareService));
 		addHandler(new ScreenShareHandler(presenterContext, streamService, screenShareService, screenSourceService,
 				documentService, recordingService));

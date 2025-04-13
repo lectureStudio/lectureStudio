@@ -61,15 +61,14 @@ public class MuPDFRenderer implements DocumentRenderer {
 	}
 
 	@Override
-	public void render(Page page, PresentationParameter parameter,
-			BufferedImage image) throws IOException {
+	public void render(Page page, PresentationParameter parameter, BufferedImage image) throws IOException {
 		int imageWidth = image.getWidth();
 		int imageHeight = image.getHeight();
 
 		synchronized (lock) {
 			Rectangle2D pageRect = parameter.getViewRect();
 			int pageNumber = page.getPageNumber();
-			//Needed for notes on right side
+			// Needed for notes on the right side.
 			float stmX = 0;
 			float ctmX = 0;
 
@@ -82,7 +81,7 @@ public class MuPDFRenderer implements DocumentRenderer {
 			DisplayList displayList = document.getDisplayList(pageNumber);
 
 			com.artifex.mupdf.fitz.Page p = document.getPage(pageNumber);
-			Rect bounds = p.getBounds();
+			Rect bounds = new Rect(p.getBounds());
 
 			if (page.getDocument().getSplitSlideNotesPosition() == NotesPosition.RIGHT) {
 				bounds.x1 = bounds.x1 / 2;

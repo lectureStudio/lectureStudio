@@ -32,173 +32,229 @@ import org.lecturestudio.core.model.DocumentOutline;
 import org.lecturestudio.core.model.NotesPosition;
 import org.lecturestudio.core.model.shape.Shape;
 
+/**
+ * Interface for PDF document operations providing access to document content,
+ * rendering, metadata, and annotation capabilities.
+ *
+ * @author Alex Andres
+ */
 public interface DocumentAdapter {
 
 	/**
-	 * Closes the document.
+	 * Closes the document and releases any system resources associated with it.
+	 *
+	 * @throws IOException if an I/O error occurs.
 	 */
 	void close() throws IOException;
 
 	/**
-	 * Get the document outline.
+	 * Gets the outline (bookmarks) of the document.
 	 *
-	 * @return The document outline.
+	 * @return the document outline structure.
 	 */
 	DocumentOutline getDocumentOutline();
 
 	/**
-	 * Get the document renderer.
+	 * Gets the document renderer for this document.
 	 *
-	 * @return The document renderer.
+	 * @return the document renderer.
 	 */
 	DocumentRenderer getDocumentRenderer();
 
 	/**
-	 * Create a {@link Graphics2D} object with the specified parameters.
+	 * Creates a graphics context for drawing on a specific page.
 	 *
-	 * @param pageIndex The index of the PDF page to which to draw.
-	 * @param name The PDF graphics stream name.
-	 * @param appendContent {@code true} if content should be appended to the existing one, {@code false} to overwrite.
+	 * @param pageIndex     the zero-based index of the page.
+	 * @param name          the name of the graphics context.
+	 * @param appendContent whether to append to existing content.
 	 *
-	 * @return The newly created {@link Graphics2D} object.
+	 * @return a Graphics2D object for drawing.
 	 */
 	Graphics2D createGraphics(int pageIndex, String name, boolean appendContent);
 
 	/**
-	 * Create a {@link Graphics2D} object with the specified parameters.
+	 * Creates a graphics context for drawing on a specific page with the position of the notes.
 	 *
-	 * @param pageIndex The index of the PDF page to which to draw.
-	 * @param name The PDF graphics stream name.
-	 * @param appendContent {@code true} if content should be appended to the existing one, {@code false} to overwrite.
-	 * @param notesPosition The position of split slides notes
+	 * @param pageIndex     the zero-based index of the page.
+	 * @param name          the name of the graphics context.
+	 * @param appendContent whether to append to existing content.
+	 * @param notesPosition the position of notes.
 	 *
-	 * @return The newly created {@link Graphics2D} object.
+	 * @return a Graphics2D object for drawing.
 	 */
 	Graphics2D createGraphics(int pageIndex, String name, boolean appendContent, NotesPosition notesPosition);
 
 	/**
-	 * Set the title of the document.
+	 * Sets the title of the document.
 	 *
-	 * @param title The title.
+	 * @param title the title to set.
 	 */
 	void setTitle(String title);
 
 	/**
-	 * Get the title of the document.
+	 * Gets the title of the document.
 	 *
-	 * @return The title.
+	 * @return the document title.
 	 */
 	String getTitle();
 
 	/**
-	 * Set the author of the document.
+	 * Sets the author of the document.
 	 *
-	 * @param author The author.
+	 * @param author the author to set.
 	 */
 	void setAuthor(String author);
 
 	/**
-	 * Get the author of the document.
+	 * Gets the author of the document.
 	 *
-	 * @return The author.
+	 * @return the document author.
 	 */
 	String getAuthor();
 
 	/**
-	 * Get the bounds of the page that has the specified page number.
+	 * Gets the bounds of a page with specified notes position.
 	 *
-	 * @param pageNumber The page number.
-	 * @param position The position of notes on a page.
+	 * @param pageNumber the page number (1-based).
+	 * @param position   the position of notes.
 	 *
-	 * @return The bounds of the page that has the specified page number.
+	 * @return the rectangular bounds of the page.
 	 */
 	Rectangle2D getPageBounds(int pageNumber, NotesPosition position);
 
 	/**
-	 * Get the number of pages in the document.
+	 * Gets the total number of pages in the document.
 	 *
-	 * @return The number of pages in the document.
+	 * @return the page count.
 	 */
 	int getPageCount();
 
 	/**
-	 * Get the text of the page that has the specified page number.
+	 * Gets the text content of a page.
 	 *
-	 * @param pageNumber The page number.
+	 * @param pageNumber the page number (1-based).
 	 *
-	 * @return The text of the page that has the specified page number.
+	 * @return the text content of the page.
+	 *
+	 * @throws IOException if an I/O error occurs.
 	 */
 	String getPageText(int pageNumber) throws IOException;
 
 	/**
-	 * Get the text of the page as a list where each list entry represents a text line in the page.
+	 * Gets a limited number of text lines from a page.
 	 *
-	 * @param pageNumber The page number.
-	 * @param maxLines   The maximum number of lines to retrieve.
+	 * @param pageNumber the page number (1-based).
+	 * @param maxLines   the maximum number of lines to return.
 	 *
-	 * @return the text of the page as a list of text lines in the page.
+	 * @return list of text lines.
 	 */
 	List<String> getPageTextLines(int pageNumber, int maxLines);
 
 	/**
-	 * Get the word bounds of the page that has the specified page number.
+	 * Gets normalized word bounds for a page with specified notes position.
 	 *
-	 * @param pageNumber The page number.
-	 * @param splitNotesPosition Position of the slide notes
+	 * @param pageNumber         the page number (1-based).
+	 * @param splitNotesPosition the position of split notes.
 	 *
-	 * @return The word bounds of the page that has the specified page number.
+	 * @return list of normalized word rectangles.
+	 *
+	 * @throws IOException if an I/O error occurs.
 	 */
 	List<Rectangle2D> getPageWordsNormalized(int pageNumber, NotesPosition splitNotesPosition) throws IOException;
 
 	/**
-	 * Get the text bounds of the page that has the specified page number.
+	 * Gets the bounding rectangle of all text on a page.
 	 *
-	 * @param pageNumber The page number.
+	 * @param pageNumber the page number (1-based).
 	 *
-	 * @return The text bounds of the page that has the specified page number.
+	 * @return the bounding rectangle of text.
+	 *
+	 * @throws IOException if an I/O error occurs.
 	 */
 	Rectangle2D getPageTextBounds(int pageNumber) throws IOException;
 
+	/**
+	 * Gets all hyperlinks on a page.
+	 *
+	 * @param pageNumber the page number (1-based).
+	 *
+	 * @return set of URIs representing links.
+	 */
 	Set<URI> getLinks(int pageNumber);
 
+	/**
+	 * Gets file launch actions on a page.
+	 *
+	 * @param pageNumber the page number (1-based).
+	 *
+	 * @return set of files to be launched.
+	 */
 	Set<File> getLaunchActions(int pageNumber);
 
 	/**
-	 * Add a page with the specified width and height to the end of document.
+	 * Adds a new blank page with specified dimensions.
 	 *
-	 * @param width The width of the page.
-	 * @param height The height of the page.
+	 * @param width  the width of the page.
+	 * @param height the height of the page.
 	 */
 	void addPage(int width, int height);
 
 	/**
-	 * Delete the page that has the specified page number.
+	 * Deletes a page from the document.
 	 *
-	 * @param pageNumber The page number.
+	 * @param pageNumber the page number (1-based) to delete.
 	 */
 	void deletePage(int pageNumber);
 
+	/**
+	 * Imports a page from another document.
+	 *
+	 * @param srcDocument  the source document.
+	 * @param srcPageIndex the page index in the source document.
+	 * @param dstPageIndex the destination page index.
+	 *
+	 * @return the index of the imported page.
+	 *
+	 * @throws IOException if an I/O error occurs.
+	 */
 	int importPage(DocumentAdapter srcDocument, int srcPageIndex, int dstPageIndex) throws IOException;
 
 	/**
-	 * Save the document to the specified {@link OutputStream}.
+	 * Writes the document to an output stream.
 	 *
-	 * @param stream The {@link OutputStream} to write to
+	 * @param stream the output stream.
 	 *
-	 * @throws IOException if the output could not be written
+	 * @throws IOException if an I/O error occurs.
 	 */
 	void toOutputStream(OutputStream stream) throws IOException;
 
+	/**
+	 * Sets editable annotations for a page.
+	 *
+	 * @param pageNumber the page number (1-based).
+	 * @param shapes     the list of shapes to set as annotations.
+	 *
+	 * @throws IOException if an I/O error occurs.
+	 */
 	void setEditableAnnotations(int pageNumber, List<Shape> shapes) throws IOException;
 
+	/**
+	 * Gets editable annotations for a page.
+	 *
+	 * @param pageNumber the page number (1-based).
+	 *
+	 * @return list of shape annotations.
+	 *
+	 * @throws IOException if an I/O error occurs.
+	 */
 	List<Shape> getEditableAnnotations(int pageNumber) throws IOException;
 
 	/**
-	 * Parse page contents and remove editable annotations for page rendering.
+	 * Removes all editable annotations from the document.
 	 *
-	 * @return The removed annotations from all pages.
+	 * @return map of page numbers to removed annotations.
 	 *
-	 * @throws IOException If the cleaned document cannot be created.
+	 * @throws IOException if an I/O error occurs.
 	 */
 	Map<Integer, List<Shape>> removeEditableAnnotations() throws IOException;
 

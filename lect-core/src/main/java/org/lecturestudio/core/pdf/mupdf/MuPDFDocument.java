@@ -55,24 +55,35 @@ import org.lecturestudio.core.pdf.DocumentAdapter;
 import org.lecturestudio.core.pdf.DocumentRenderer;
 import org.lecturestudio.core.pdf.PdfDocument;
 
+/**
+ * Implementation of the DocumentAdapter interface for MuPDF documents.
+ * This class provides functionality to interact with PDF files using the MuPDF library.
+ *
+ * @author Alex Andres
+ */
 public class MuPDFDocument implements DocumentAdapter {
 
+    /** Cache for display lists indexed by page number to improve rendering performance. */
 	private final Map<Integer, PageEntry> displayListMap = new ConcurrentHashMap<>();
 
+    /** The underlying MuPDF document object. */
 	private final PDFDocument doc;
 
+    /** Renderer used to render pages from this document. */
 	private final DocumentRenderer renderer;
 
+    /** Document outline/table of contents structure. Lazily initialized. */
 	private DocumentOutline outline;
 
+    /** Mapping used for grafting objects between different PDF documents during import operations. */
 	private AbstractMap.SimpleEntry<DocumentAdapter, PDFGraftMap> graftMapping;
 
+    /** Synchronization object for thread safety. */
 	private final Object mutex = new Object();
 
 
 	/**
 	 * Create a new {@link MuPDFDocument}.
-	 * (Calls {@link #MuPDFDocument(PDFDocument)} with a new {@link PDFDocument})
 	 */
 	public MuPDFDocument() {
 		this(new PDFDocument());
@@ -80,9 +91,8 @@ public class MuPDFDocument implements DocumentAdapter {
 
 	/**
 	 * Create a new {@link MuPDFDocument} with the specified file.
-	 * (Calls {@link #MuPDFDocument(PDFDocument)})
 	 *
-	 * @param file The file.
+	 * @param file The PDF file.
 	 */
 	public MuPDFDocument(File file) {
 		this((PDFDocument) Document.openDocument(file.getAbsolutePath()));
@@ -90,9 +100,8 @@ public class MuPDFDocument implements DocumentAdapter {
 
 	/**
 	 * Create a new {@link MuPDFDocument} with the specified byte array.
-	 * (Calls {@link #MuPDFDocument(PDFDocument)})
 	 *
-	 * @param byteArray The byte array.
+	 * @param byteArray The byte array containing the PDF content.
 	 */
 	public MuPDFDocument(byte[] byteArray) {
 		this((PDFDocument) Document.openDocument(byteArray, ""));
@@ -351,6 +360,9 @@ public class MuPDFDocument implements DocumentAdapter {
 
 			doc.insertPage(insertIndex, doc.addObject(dstPage));
 
+			// Clear the display list cache. Otherwise, the pages will be rendered in distorted form.
+			displayListMap.clear();
+
 			return dstPageIndex > 0 ? dstPageIndex : getPageCount() - 1;
 		}
 	}
@@ -553,11 +565,12 @@ public class MuPDFDocument implements DocumentAdapter {
 	}
 
 	/**
-	 * Get the display list of the {@link PageEntry} that is mapped to the specified page number.
+	 * Gets the display list for the specified page number.
+	 * The display list is a cached representation of the page for efficient rendering.
 	 *
-	 * @param pageNumber The page number.
+	 * @param pageNumber The zero-based index of the page.
 	 *
-	 * @return The display list of the {@link PageEntry} that is mapped to the specified page number.
+	 * @return The display list for the specified page.
 	 */
 	public DisplayList getDisplayList(int pageNumber) {
 		synchronized (mutex) {
@@ -566,11 +579,11 @@ public class MuPDFDocument implements DocumentAdapter {
 	}
 
 	/**
-	 * Get the page of the {@link PageEntry} that is mapped to the specified page number.
+	 * Gets the MuPDF Page object for the specified page number.
 	 *
-	 * @param pageNumber The page number.
+	 * @param pageNumber The zero-based index of the page.
 	 *
-	 * @return The page of the {@link PageEntry} that is mapped to the specified page number.
+	 * @return The MuPDF Page object for the specified page.
 	 */
 	public Page getPage(int pageNumber) {
 		synchronized (mutex) {
@@ -579,14 +592,14 @@ public class MuPDFDocument implements DocumentAdapter {
 	}
 
 	/**
-	 * Returns the {@link PageEntry} that is mapped to the specified page number.
-	 * If the {@link #displayListMap} doesn't contain a {@link PageEntry} for that page number,
-	 * this method loads the page from {@link #doc},
-	 * creates a new {@link PageEntry} and adds it to {@link #displayListMap}.
+	 * Gets or creates a PageEntry object for the specified page number.
+	 * This method maintains a cache of page entries to improve rendering performance.
+	 * If the requested page is not in the cache, it loads the page and creates its
+	 * display list before caching the result.
 	 *
-	 * @param pageNumber The page number.
+	 * @param pageNumber The zero-based index of the page to retrieve.
 	 *
-	 * @return The {@link PageEntry} that is mapped to the specified page number.
+	 * @return The PageEntry containing the page and its display list.
 	 */
 	private PageEntry getPageEntry(int pageNumber) {
 		synchronized (mutex) {
@@ -605,6 +618,17 @@ public class MuPDFDocument implements DocumentAdapter {
 		}
 	}
 
+	/**
+	 * Recursively loads the document outline (table of contents) into the application's
+	 * document outline structure.
+	 * <p>
+	 * This method processes the MuPDF outline items, extracts page numbers from URIs,
+	 * cleans up the title text, and builds a hierarchical outline structure.
+	 * It handles duplicate entries and processes nested outlines recursively.
+	 *
+	 * @param outlines The array of MuPDF outline objects to process.
+	 * @param outline The document outline item to populate with children.
+	 */
 	private static void loadOutline(Outline[] outlines, DocumentOutlineItem outline) {
 		if (isNull(outlines)) {
 			return;
@@ -658,16 +682,24 @@ public class MuPDFDocument implements DocumentAdapter {
 
 
 
-	private static class PageEntry {
+	/**
+	 * A cache entry holding both a page and its rendered display list.
+	 * <p>
+	 * This class is used for internal caching to improve rendering performance
+	 * by storing the rendered display list alongside the page object.
+	 *
+	 * @param displayList The rendered display list for the page, used for efficient rendering.
+	 * @param page        The MuPDF page object representing a single page in the document.
+	 */
+	private record PageEntry(Page page, DisplayList displayList) {
 
-		final DisplayList displayList;
-
-		final Page page;
-
-
-		PageEntry(Page page, DisplayList displayList) {
-			this.page = page;
-			this.displayList = displayList;
+		/**
+		 * Creates a new page entry with the specified page and its display list.
+		 *
+		 * @param page        The MuPDF page object.
+		 * @param displayList The pre-rendered display list for the page.
+		 */
+		private PageEntry {
 		}
 
 	}

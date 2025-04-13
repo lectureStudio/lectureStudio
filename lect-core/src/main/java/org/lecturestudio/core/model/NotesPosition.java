@@ -20,11 +20,25 @@
 
 package org.lecturestudio.core.model;
 
+/**
+ * Represents the position of document notes within the application.
+ * <p>
+ * This enum defines possible positions for displaying notes in the user interface.
+ *
+ * @author Alex Andres
+ */
 public enum NotesPosition {
 
+    /** Notes positioned on the left side of the screen or document. */
     LEFT,
+
+    /** Notes positioned on the right side of the screen or document. */
     RIGHT,
+
+    /** No notes are displayed. */
     NONE,
+
+    /** The position of notes is not determined or in an undefined state. */
     UNKNOWN
 
 }

@@ -68,6 +68,7 @@ import org.lecturestudio.presenter.api.event.RecordingStateEvent;
 import org.lecturestudio.presenter.api.event.ScreenShareSelectEvent;
 import org.lecturestudio.presenter.api.event.StreamingStateEvent;
 import org.lecturestudio.presenter.api.model.*;
+import org.lecturestudio.presenter.api.presenter.command.CloseablePresenterCommand;
 import org.lecturestudio.presenter.api.presenter.command.StartRecordingCommand;
 import org.lecturestudio.presenter.api.service.BookmarkService;
 import org.lecturestudio.presenter.api.service.RecordingService;
@@ -347,23 +348,22 @@ public class ToolbarPresenter extends Presenter<ToolbarView> {
 				pContext.getManualStateObserver().setRecordingStarted(false);
 			}
 			else if (recordingService.suspended()) {
-				recordingService.start();
-
-				pContext.getManualStateObserver().setRecordingStarted(true);
+				if (!pContext.getConfiguration().getStreamConfig().getMicrophoneEnabled()) {
+					startRecordingMicDisabled();
+				}
+				else {
+					startRecordingMicEnabled();
+				}
 			}
 			else {
 				eventBus.post(new StartRecordingCommand(() -> {
 					CompletableFuture.runAsync(() -> {
-						try {
-							recordingService.start();
-
-							pContext.getManualStateObserver().setRecordingStarted(true);
+						if (!pContext.getConfiguration().getStreamConfig().getMicrophoneEnabled()) {
+							startRecordingMicDisabled();
 						}
-						catch (ExecutableException e) {
-							throw new CompletionException(e);
+						else {
+							startRecordingMicEnabled();
 						}
-
-						pContext.setRecordingStarted(true);
 					})
 					.exceptionally(e -> {
 						handleRecordingStateError(e);
@@ -376,6 +376,40 @@ public class ToolbarPresenter extends Presenter<ToolbarView> {
 		catch (ExecutableException e) {
 			handleRecordingStateError(e);
 		}
+	}
+
+	private void startRecordingMicEnabled() {
+		PresenterContext pContext = (PresenterContext) context;
+
+		try {
+			recordingService.start();
+
+			pContext.getManualStateObserver().setRecordingStarted(true);
+		}
+		catch (ExecutableException e) {
+			throw new CompletionException(e);
+		}
+
+		pContext.setRecordingStarted(true);
+	}
+
+	private void startRecordingMicDisabled() {
+		PresenterContext pContext = (PresenterContext) context;
+
+		context.getEventBus().post(new CloseablePresenterCommand<>(
+				RemindRecordingPresenter.class, () -> {
+			// User declined, start and suspend the recording.
+			try {
+				recordingService.start();
+				recordingService.suspend();
+
+				pContext.getManualStateObserver().setRecordingStarted(true);
+				pContext.setRecordingStarted(true);
+			}
+			catch (ExecutableException e) {
+				handleRecordingStateError(e);
+			}
+		}));
 	}
 
 	public void stopRecording() {

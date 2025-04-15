@@ -2,6 +2,69 @@
 
 All notable changes to this project will be documented in this file.
 
+## [6.2.0](https://github.com/lectureStudio/lectureStudio/compare/v6.1.1025..v6.2.0) - 2025-04-15
+
+### Features
+
+- Native JavaFX file/directory choosers ([#997](https://github.com/lectureStudio/lectureStudio/issues/997))
+- Show participant cam video in tab and external window ([#998](https://github.com/lectureStudio/lectureStudio/issues/998))
+- A different trigger for the recording alert as described ([#991](https://github.com/lectureStudio/lectureStudio/issues/991)) ([#1006](https://github.com/lectureStudio/lectureStudio/issues/1006))
+
+### Bug Fixes
+
+- MacOS specific switches for compatibility reasons
+- Missing recorded PDF slides and removed recording warn ([#986](https://github.com/lectureStudio/lectureStudio/issues/986))
+- Executing keystroke actions in text ([#994](https://github.com/lectureStudio/lectureStudio/issues/994))
+- Missing annotations when the recording was ([#982](https://github.com/lectureStudio/lectureStudio/issues/982))
+- Show participants list instead of chat messages on stream ([#989](https://github.com/lectureStudio/lectureStudio/issues/989))
+- Slide recording eliminating native code calls ([#996](https://github.com/lectureStudio/lectureStudio/issues/996))
+- Speaker layout by taking last talking timestamp into account
+- Participant speech request icons
+- Ui layout glitches around video ([#1002](https://github.com/lectureStudio/lectureStudio/issues/1002))
+- Wire JanusParticipantContext to the ([#1003](https://github.com/lectureStudio/lectureStudio/issues/1003))
+- Memory leak with video frame ([#1000](https://github.com/lectureStudio/lectureStudio/issues/1000)) ([#1001](https://github.com/lectureStudio/lectureStudio/issues/1001))
+- Crashes caused by video frame ([#1000](https://github.com/lectureStudio/lectureStudio/issues/1000)) ([#1001](https://github.com/lectureStudio/lectureStudio/issues/1001))
+- ParticipantList speech request cancellation
+- *(editor)* Prevent the slide preview from triggering scrolling ([#983](https://github.com/lectureStudio/lectureStudio/issues/983))
+- Editor crash when opening a recording with a screen-([#985](https://github.com/lectureStudio/lectureStudio/issues/985))
+- *(editor)* Crash caused by wrong libstdc++ the openjdk and javafx have linked
+- *(build)* Removed deprecation warnings for builds
+- *(editor)* Rendering recorded screen-shares in linux
+- *(editor)* Rendering recorded screen-shares in macOS
+- Updated to mupdf 1.25.5 with customized linux build to fix black boxes
+- Mupdf 1.25.5 lib build with -Bsymbolic ldflags
+- Minor screen-share fixes
+- Screen-share on connected displays
+- Recording warning triggers
+- ManualStateObserver property propagation
+- Create quiz logic with closed generic document
+- Rendering imported PDF pages using ([#1008](https://github.com/lectureStudio/lectureStudio/issues/1008))
+- Start recording with muted microphone shows alert
+
+### Refactor
+
+- Display notification handler
+
+### Other
+
+- Make macOS package.sh use the notarytool for notarization
+- Added GitHub build and release workflows
+
+### Documentation
+
+- Added the complete changelog so far
+- Quiz related docs
+
+### Testing
+
+- Fixed module tests by correctly loading the native MuPDF lib
+
+### Miscellaneous Tasks
+
+- Generate the current version for the build workflow
+- Fetch-depth 0 in the build workflow to get the current version
+- Added MuPDF build workflow
+
 ## [6.1.1025](https://github.com/lectureStudio/lectureStudio/compare/v6.1.963..v6.1.1025) - 2024-12-03
 
 ### Presenter

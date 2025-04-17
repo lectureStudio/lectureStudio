@@ -39,6 +39,7 @@ import org.lecturestudio.core.util.ObservableArrayList;
 import org.lecturestudio.core.util.ObservableHashSet;
 import org.lecturestudio.core.util.ObservableList;
 import org.lecturestudio.core.util.ObservableSet;
+import org.lecturestudio.core.view.View;
 import org.lecturestudio.presenter.api.config.PresenterConfigService;
 import org.lecturestudio.presenter.api.config.PresenterConfiguration;
 import org.lecturestudio.presenter.api.model.ManualStateObserver;
@@ -90,6 +91,9 @@ public class PresenterContext extends ApplicationContext {
 
 	/** File extension for recording files. */
 	public static final String RECORDING_EXTENSION = "presenter";
+
+	/** Tracks the currently visible view in the UI. */
+	private final ObjectProperty<Class<? extends View>> currentlyVisibleView = new ObjectProperty<>();
 
 	/** The current course being presented. */
 	private final ObjectProperty<Course> course = new ObjectProperty<>();
@@ -228,6 +232,33 @@ public class PresenterContext extends ApplicationContext {
 	 */
 	public UserPrivilegeService getUserPrivilegeService() {
 		return userPrivilegeService;
+	}
+
+	/**
+	 * Gets the class of the currently visible view in the UI.
+	 *
+	 * @return The class of the currently visible view.
+	 */
+	public Class<? extends View> getCurrentlyVisibleView() {
+		return currentlyVisibleView.get();
+	}
+
+	/**
+	 * Sets the currently visible view in the UI.
+	 *
+	 * @param view The class of the view to set as currently visible.
+	 */
+	public void setCurrentlyVisibleView(Class<? extends View> view) {
+		this.currentlyVisibleView.set(view);
+	}
+
+	/**
+	 * Gets the property that tracks the currently visible view.
+	 *
+	 * @return The object property containing the currently visible view class.
+	 */
+	public ObjectProperty<Class<? extends View>> currentlyVisibleViewProperty() {
+		return currentlyVisibleView;
 	}
 
 	/**

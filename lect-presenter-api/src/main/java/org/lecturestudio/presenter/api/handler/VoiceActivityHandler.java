@@ -21,6 +21,8 @@ package org.lecturestudio.presenter.api.handler;
 import static java.util.Objects.nonNull;
 import static java.util.Objects.requireNonNullElse;
 
+import java.util.Objects;
+
 import dev.onvoid.webrtc.media.audio.VoiceActivityDetector;
 
 import org.lecturestudio.core.ExecutableException;
@@ -38,6 +40,7 @@ import org.lecturestudio.presenter.api.context.PresenterContext;
 import org.lecturestudio.presenter.api.model.ManualStateObserver;
 import org.lecturestudio.presenter.api.presenter.RemindRecordingPresenter;
 import org.lecturestudio.presenter.api.presenter.command.CloseablePresenterCommand;
+import org.lecturestudio.presenter.api.view.SettingsView;
 
 /**
  * Handles voice activity detection for the presenter application.
@@ -241,7 +244,10 @@ public class VoiceActivityHandler extends PresenterHandler implements DocumentLi
 	 * @return {@code true} if notifications are to be displayed, {@code false} otherwise.
 	 */
 	private boolean isNotificationEnabled() {
-		return !userDeclinedRecording && !config.getStreamConfig().getMicrophoneEnabled();
+		boolean isMicrophoneEnabled = config.getStreamConfig().getMicrophoneEnabled();
+		boolean isSettingsViewVisible = Objects.equals(SettingsView.class, context.getCurrentlyVisibleView());
+
+		return !userDeclinedRecording && !isMicrophoneEnabled && !isSettingsViewVisible;
 	}
 
 	/**

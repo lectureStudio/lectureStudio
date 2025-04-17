@@ -823,6 +823,9 @@ public class MainPresenter extends org.lecturestudio.core.presenter.MainPresente
 	private void setViewShown(Class<? extends View> viewClass) {
 		BooleanProperty property = getViewVisibleProperty(viewClass);
 		property.set(true);
+
+		PresenterContext pContext = (PresenterContext) context;
+		pContext.setCurrentlyVisibleView(viewClass);
 	}
 
 	private void createSettingsPresentation() {

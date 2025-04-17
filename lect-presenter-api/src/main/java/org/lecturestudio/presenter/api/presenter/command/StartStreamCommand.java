@@ -24,13 +24,28 @@ import org.lecturestudio.presenter.api.presenter.StartStreamPresenter;
 import org.lecturestudio.web.api.stream.StreamContext;
 import org.lecturestudio.web.api.stream.model.Course;
 
+/**
+ * Command to show the stream starting presenter with initialized course data.
+ * This command extends ShowPresenterCommand to handle the initialization of
+ * a StartStreamPresenter instance with the specified course and start action.
+ *
+ * @author Alex Andres
+ */
 public class StartStreamCommand extends ShowPresenterCommand<StartStreamPresenter> {
 
+	/** The course to be streamed. */
 	private final Course course;
 
+	/** The action to execute when the stream starts. */
 	private final ConsumerAction<StreamContext> startAction;
 
 
+	/**
+	 * Creates a new StartStreamCommand.
+	 *
+	 * @param course      The course to be streamed.
+	 * @param startAction The action to execute when the stream starts.
+	 */
 	public StartStreamCommand(Course course, ConsumerAction<StreamContext> startAction) {
 		super(StartStreamPresenter.class);
 
@@ -38,6 +53,12 @@ public class StartStreamCommand extends ShowPresenterCommand<StartStreamPresente
 		this.startAction = startAction;
 	}
 
+	/**
+	 * Executes this command by setting the course and start action on the provided
+	 * StartStreamPresenter instance.
+	 *
+	 * @param presenter The presenter instance to initialize.
+	 */
 	@Override
 	public void execute(StartStreamPresenter presenter) {
 		presenter.setCourse(course);

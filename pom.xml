@@ -69,6 +69,8 @@
 		<log4j.version>2.23.1</log4j.version>
 		<stylus.version>0.3.0</stylus.version>
 		<java.version>17</java.version>
+		<maven.compiler.source>17</maven.compiler.source>
+		<maven.compiler.target>17</maven.compiler.target>
 	</properties>
 
 	<repositories>

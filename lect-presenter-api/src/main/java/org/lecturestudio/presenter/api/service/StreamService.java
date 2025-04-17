@@ -195,7 +195,7 @@ public class StreamService {
 						var previewStreamHandler = new PreviewStreamHandler(context);
 						previewStreamHandler.initialize();
 					}
-					if (!streamContext.getAudioContext().getSendAudio()) {
+					if (!context.getConfiguration().getStreamConfig().getMicrophoneEnabled()) {
 						context.getManualStateObserver().setMicrophoneActive(false);
 					}
 

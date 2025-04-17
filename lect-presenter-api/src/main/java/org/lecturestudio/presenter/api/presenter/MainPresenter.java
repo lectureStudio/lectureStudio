@@ -818,6 +818,25 @@ public class MainPresenter extends org.lecturestudio.core.presenter.MainPresente
 	private void setViewHidden(Class<? extends View> viewClass) {
 		BooleanProperty property = getViewVisibleProperty(viewClass);
 		property.set(false);
+
+		// After setting the current view as hidden, this loop iterates through all registered views
+		// to find any that are still visible. If a visible view is found, it updates the
+		// application context to track that view as the currently visible one.
+		// This ensures that after hiding a view, the application maintains awareness
+		// of whichever view (if any) is now in focus.
+		PresenterContext pContext = (PresenterContext) context;
+
+		for (var entry : viewMap.entrySet()) {
+			BooleanProperty p = entry.getValue();
+
+			if (nonNull(p) && p.get()) {
+				pContext.setCurrentlyVisibleView(entry.getKey());
+				return;
+			}
+		}
+
+		// Reset the currently visible view to null since all views are now hidden.
+		pContext.setCurrentlyVisibleView(null);
 	}
 
 	private void setViewShown(Class<? extends View> viewClass) {

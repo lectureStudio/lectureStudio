@@ -241,17 +241,18 @@ public class SoundSettingsPresenter extends Presenter<SoundSettingsView> {
 
 	@Override
 	public void close() {
-		//audioSystemProvider.removeDeviceChangeListener(deviceChangeListener);
-
 		super.close();
 	}
 
 	private void loadDevices() {
 		CompletableFuture.runAsync(() -> {
-			view.setAudioCaptureDevices(audioSystemProvider.getRecordingDevices());
+			AudioDevice[] recordingDevices = audioSystemProvider.getRecordingDevices();
+
+			view.setAudioCaptureDevices(recordingDevices);
 			view.setAudioPlaybackDevices(audioSystemProvider.getPlaybackDevices());
 			view.setAudioCaptureDevice(audioConfig.captureDeviceNameProperty());
 			view.setAudioPlaybackDevice(audioConfig.playbackDeviceNameProperty());
+			view.setViewEnabled(nonNull(recordingDevices) && recordingDevices.length > 0);
 		});
 	}
 
@@ -380,7 +381,7 @@ public class SoundSettingsPresenter extends Presenter<SoundSettingsView> {
 			captureDevice = audioSystemProvider.getDefaultRecordingDevice();
 		}
 		catch (Throwable e) {
-			// Audio device error, e.g. no device connected, will be visible in the view.
+			// Audio device error, e.g., no device connected, will be visible in the view.
 		}
 
 		// Select first available capture device.

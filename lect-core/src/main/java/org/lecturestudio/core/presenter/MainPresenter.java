@@ -24,20 +24,42 @@ import org.lecturestudio.core.app.ApplicationContext;
 import org.lecturestudio.core.view.View;
 
 /**
+ * Abstract base class for main presenters in the application.
+ * <p>
+ * This class provides the foundation for presenters that manage the main view
+ * of the application. It handles common functionality while requiring subclasses
+ * to implement specific file handling and argument processing.
  *
- *
- * @param <T> The type of the view.
+ * @param <T> The type of View this presenter manages, must extend the View interface.
  *
  * @author Alex Andres
  */
 public abstract class MainPresenter<T extends View> extends Presenter<T> {
 
+	/**
+	 * Constructs a new MainPresenter with the specified application context and view.
+	 *
+	 * @param context The application context providing access to application-wide services.
+	 * @param view    The view managed by this presenter.
+	 */
 	public MainPresenter(ApplicationContext context, T view) {
 		super(context, view);
 	}
 
+	/**
+	 * Opens and processes the specified file.
+	 * Implementing classes should handle the file according to the application's requirements.
+	 *
+	 * @param file The file to be opened and processed.
+	 */
 	abstract public void openFile(final File file);
 
+	/**
+	 * Sets the command line arguments passed to the application.
+	 * Implementing classes should process these arguments as needed.
+	 *
+	 * @param args An array of command line arguments.
+	 */
 	abstract public void setArgs(String[] args);
 
 }

@@ -200,6 +200,14 @@ public class JanusPeerConnection implements PeerConnectionObserver {
 		dataChannel.send(new RTCDataChannelBuffer(dataBuffer, true));
 	}
 
+	public RTCPeerConnectionState getPeerConnectionState() {
+		if (isNull(peerConnection)) {
+			return RTCPeerConnectionState.CLOSED;
+		}
+
+		return peerConnection.getConnectionState();
+	}
+
 	@Override
 	public void onRenegotiationNeeded() {
 		if (nonNull(peerConnection.getRemoteDescription())) {

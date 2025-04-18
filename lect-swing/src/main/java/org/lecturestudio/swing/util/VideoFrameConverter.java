@@ -54,24 +54,24 @@ public class VideoFrameConverter {
 	public static BufferedImage convertVideoFrame(VideoFrame videoFrame,
 			BufferedImage image, int imageWidth, int imageHeight)
 			throws Exception {
-		VideoFrameBuffer buffer = videoFrame.buffer;
+		final VideoFrameBuffer buffer = videoFrame.buffer;
 
-		int width = buffer.getWidth();
-		int height = buffer.getHeight();
+		final int width = buffer.getWidth();
+		final int height = buffer.getHeight();
 
-		PageMetrics metrics = new PageMetrics(width, height);
+		final PageMetrics metrics = new PageMetrics(width, height);
 
-		var size = metrics.convert(imageWidth, imageHeight);
+		final var size = metrics.convert(imageWidth, imageHeight);
 
-		VideoFrameBuffer croppedBuffer = buffer.cropAndScale(0, 0, width, height, (int) size.getWidth(), (int) size.getHeight());
-		width = croppedBuffer.getWidth();
-		height = croppedBuffer.getHeight();
+		final VideoFrameBuffer croppedBuffer = buffer.cropAndScale(0, 0, width, height, (int) size.getWidth(), (int) size.getHeight());
+		final int cWidth = croppedBuffer.getWidth();
+		final int cHeight = croppedBuffer.getHeight();
 
-		if (isNull(image) || image.getWidth() != width || image.getHeight() != height) {
+		if (isNull(image) || image.getWidth() != cWidth || image.getHeight() != cHeight) {
 			if (nonNull(image)) {
 				image.flush();
 			}
-			image = new BufferedImage(width, height, BufferedImage.TYPE_4BYTE_ABGR);
+			image = new BufferedImage(cWidth, cHeight, BufferedImage.TYPE_4BYTE_ABGR);
 		}
 
 		byte[] imageBuffer = ((DataBufferByte) image.getRaster().getDataBuffer()).getData();

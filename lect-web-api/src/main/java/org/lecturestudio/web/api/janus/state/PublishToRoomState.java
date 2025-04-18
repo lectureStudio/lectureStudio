@@ -42,14 +42,7 @@ import org.lecturestudio.web.api.stream.StreamScreenContext;
 import org.lecturestudio.web.api.stream.StreamVideoContext;
 import org.lecturestudio.web.api.stream.StreamContext;
 
-import dev.onvoid.webrtc.RTCIceCandidate;
-import dev.onvoid.webrtc.RTCIceGatheringState;
-import dev.onvoid.webrtc.RTCRtpSendParameters;
-import dev.onvoid.webrtc.RTCRtpSender;
-import dev.onvoid.webrtc.RTCRtpTransceiver;
-import dev.onvoid.webrtc.RTCRtpTransceiverDirection;
-import dev.onvoid.webrtc.RTCSdpType;
-import dev.onvoid.webrtc.RTCSessionDescription;
+import dev.onvoid.webrtc.*;
 import dev.onvoid.webrtc.media.MediaStreamTrack;
 import dev.onvoid.webrtc.media.video.VideoTrack;
 
@@ -251,6 +244,10 @@ public class PublishToRoomState implements JanusState {
 	private void setLocalVideoFrameConsumer(JanusPeerConnection peerConnection, boolean receiveLocalVideo) {
 		if (receiveLocalVideo) {
 			peerConnection.setOnLocalVideoFrame(videoFrame -> {
+				if (peerConnection.getPeerConnectionState() != RTCPeerConnectionState.CONNECTED) {
+					return;
+				}
+
 				participantContext.setVideoFrame(videoFrame);
 			});
 		}

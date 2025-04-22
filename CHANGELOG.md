@@ -2,6 +2,15 @@
 
 All notable changes to this project will be documented in this file.
 
+## [6.2.1](https://github.com/lectureStudio/lectureStudio/compare/v6.2.0..v6.2.1) - 2025-04-22
+
+### Bug Fixes
+
+- Start stream with muted microphone
+- Do not react to VAD when settings are opened
+- Audio device changes for voice activity detection
+- Process local video frames when the connection is established
+
 ## [6.2.0](https://github.com/lectureStudio/lectureStudio/compare/v6.1.1025..v6.2.0) - 2025-04-15
 
 ### Features
@@ -64,6 +73,8 @@ All notable changes to this project will be documented in this file.
 - Generate the current version for the build workflow
 - Fetch-depth 0 in the build workflow to get the current version
 - Added MuPDF build workflow
+- *(release)* Update CHANGELOG.md for v6.2.0
+- *(release)* Update package version to 6.2.0
 
 ## [6.1.1025](https://github.com/lectureStudio/lectureStudio/compare/v6.1.963..v6.1.1025) - 2024-12-03
 

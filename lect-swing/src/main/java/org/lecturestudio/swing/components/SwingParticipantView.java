@@ -71,6 +71,8 @@ public class SwingParticipantView extends JComponent implements ParticipantView 
 
 	private BufferedImage image;
 
+	private BufferedImage tempImage;
+
 	private ExecutableState state;
 
 
@@ -230,7 +232,8 @@ public class SwingParticipantView extends JComponent implements ParticipantView 
 		}
 
 		try {
-			image = VideoFrameConverter.convertVideoFrameToComponentSize(frame, image, this);
+			tempImage = VideoFrameConverter.convertVideoFrame(frame, tempImage);
+			image = VideoFrameConverter.convertVideoFrameToComponentSize(image, tempImage, this);
 		}
 		catch (Exception e) {
 			return;

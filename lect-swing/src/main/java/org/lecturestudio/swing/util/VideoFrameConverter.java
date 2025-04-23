@@ -21,11 +21,6 @@ package org.lecturestudio.swing.util;
 import static java.util.Objects.isNull;
 import static java.util.Objects.nonNull;
 
-import dev.onvoid.webrtc.media.FourCC;
-import dev.onvoid.webrtc.media.video.VideoBufferConverter;
-import dev.onvoid.webrtc.media.video.VideoFrame;
-import dev.onvoid.webrtc.media.video.VideoFrameBuffer;
-
 import java.awt.Insets;
 import java.awt.geom.AffineTransform;
 import java.awt.image.AffineTransformOp;
@@ -34,13 +29,37 @@ import java.awt.image.DataBufferByte;
 
 import javax.swing.JComponent;
 
+import dev.onvoid.webrtc.media.FourCC;
+import dev.onvoid.webrtc.media.video.VideoBufferConverter;
+import dev.onvoid.webrtc.media.video.VideoFrame;
+import dev.onvoid.webrtc.media.video.VideoFrameBuffer;
+
 import org.lecturestudio.core.PageMetrics;
 
 public class VideoFrameConverter {
 
-	public static BufferedImage convertVideoFrameToComponentSize(
-			VideoFrame videoFrame, BufferedImage image, JComponent component)
-			throws Exception {
+	public static BufferedImage convertVideoFrame(VideoFrame videoFrame, BufferedImage image) throws Exception {
+		final VideoFrameBuffer buffer = videoFrame.buffer;
+		final int width = buffer.getWidth();
+		final int height = buffer.getHeight();
+
+		if (isNull(image) || image.getWidth() != width || image.getHeight() != height) {
+			if (nonNull(image)) {
+				image.flush();
+			}
+			image = new BufferedImage(width, height, BufferedImage.TYPE_4BYTE_ABGR);
+		}
+
+		byte[] imageBuffer = ((DataBufferByte) image.getRaster().getDataBuffer()).getData();
+		VideoBufferConverter.convertFromI420(buffer, imageBuffer, FourCC.RGBA);
+
+		buffer.release();
+
+		return image;
+	}
+
+	public static BufferedImage convertVideoFrameToComponentSize(BufferedImage image, BufferedImage srcImage,
+																 JComponent component) {
 		Insets insets = component.getInsets();
 		// Scale the video frame to the component size.
 		double uiScale = component.getGraphicsConfiguration()
@@ -50,16 +69,13 @@ public class VideoFrameConverter {
 		int viewWidth = (int) ((component.getWidth() - padW) * uiScale);
 		int viewHeight = (int) ((component.getHeight() - padH) * uiScale);
 
-		return convertVideoFrame(videoFrame, image, viewWidth, viewHeight);
+		return convertVideoFrame(image, srcImage, viewWidth, viewHeight);
 	}
 
-	public static BufferedImage convertVideoFrame(VideoFrame videoFrame,
-			BufferedImage image, int imageWidth, int imageHeight)
-			throws Exception {
-		final VideoFrameBuffer buffer = videoFrame.buffer;
-
-		final int width = buffer.getWidth();
-		final int height = buffer.getHeight();
+	public static BufferedImage convertVideoFrame(BufferedImage image, BufferedImage srcImage,
+												  int imageWidth, int imageHeight) {
+		final int width = srcImage.getWidth();
+		final int height = srcImage.getHeight();
 
 		final PageMetrics metrics = new PageMetrics(width, height);
 
@@ -73,19 +89,13 @@ public class VideoFrameConverter {
 			return image;
 		}
 
-		// Create a temporary image with the original dimensions and convert the video buffer to RGBA format.
-		BufferedImage tempImage = new BufferedImage(width, height, BufferedImage.TYPE_4BYTE_ABGR);
-		byte[] imageBuffer = ((DataBufferByte) tempImage.getRaster().getDataBuffer()).getData();
-		VideoBufferConverter.convertFromI420(buffer, imageBuffer, FourCC.RGBA);
-		buffer.release();
-
 		// Create or reuse the target image with the scaled dimensions.
 		// If the existing image has different dimensions, flush it and create a new one.
 		if (isNull(image) || image.getWidth() != scaleWidth || image.getHeight() != scaleHeight) {
 			if (nonNull(image)) {
 				image.flush();
 			}
-			image = new BufferedImage(scaleWidth, scaleHeight, tempImage.getType());
+			image = new BufferedImage(scaleWidth, scaleHeight, srcImage.getType());
 		}
 
 		// Scale the image using an affine transformation with bilinear interpolation.
@@ -93,9 +103,7 @@ public class VideoFrameConverter {
 		scalingTransform.scale(scaleWidth / (double) width, scaleHeight / (double) height);
 		AffineTransformOp scaleOp = new AffineTransformOp(scalingTransform, AffineTransformOp.TYPE_BILINEAR);
 
-		image = scaleOp.filter(tempImage, image);
-
-		tempImage.flush();
+		image = scaleOp.filter(srcImage, image);
 
 		/*
 		final VideoFrameBuffer croppedBuffer = buffer.cropAndScale(0, 0, width, height, (int) size.getWidth(), (int) size.getHeight());

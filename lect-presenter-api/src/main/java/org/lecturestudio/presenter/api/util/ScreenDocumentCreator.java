@@ -26,6 +26,7 @@ import dev.onvoid.webrtc.media.video.desktop.DesktopSource;
 import dev.onvoid.webrtc.media.video.desktop.ScreenCapturer;
 import dev.onvoid.webrtc.media.video.desktop.WindowCapturer;
 
+import java.awt.image.BufferedImage;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 
@@ -80,8 +81,10 @@ public class ScreenDocumentCreator {
 		desktopCapturer.selectSource(desktopSource);
 		desktopCapturer.start((result, desktopFrame) -> {
 			try {
-				doc.createPage(VideoFrameConverter.convertVideoFrame(desktopFrame,
+				BufferedImage tempImage = VideoFrameConverter.convertVideoFrame(desktopFrame, null);
+				doc.createPage(VideoFrameConverter.convertVideoFrame(
 						null,
+						tempImage,
 						(int) (doc.getPageSize().getWidth() * 3),
 						(int) (doc.getPageSize().getHeight() * 3)));
 

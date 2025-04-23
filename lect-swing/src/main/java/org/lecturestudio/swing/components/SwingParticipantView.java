@@ -221,6 +221,10 @@ public class SwingParticipantView extends JComponent implements ParticipantView 
 	}
 
 	private void onVideoFrame(VideoFrame frame) {
+		if (!isShowing() || !isDisplayable()) {
+			frame.release();
+			return;
+		}
 		if (!muteVideoButton.isSelected()) {
 			return;
 		}

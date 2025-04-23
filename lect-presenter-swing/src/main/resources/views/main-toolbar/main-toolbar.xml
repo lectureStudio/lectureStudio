@@ -41,10 +41,10 @@
 	<Separator type="t" defaultTool="true" />
 	<RecordButton id="startRecordingButton" icon="record-tool.svg, 24" blinkIcon="record-blink-tool.svg, 24" pauseIcon="record-pause-tool.svg, 24" pausedIcon="record-resume-tool.svg, 24" tooltipText="toolbar.recording.start.tooltip" defaultTool="true" />
 	<Button id="stopRecordingButton" icon="record-stop-tool.svg, 24" tooltipText="toolbar.recording.stop.tooltip" defaultTool="true" />
-	<Button id="screenShareEnableButton" icon="screen-share.svg, 24" tooltipText="toolbar.stream.screen.share.start.tooltip" />
-	<ToggleButton id="streamEnableButton" icon="stream-indicator.svg, 24" tooltipText="toolbar.stream.start.tooltip" />
-	<ToggleButton id="streamMicButton" icon="microphone-off.svg, 24" selectedIcon="microphone.svg, 24" tooltipText="toolbar.stream.microphone.tooltip" />
-	<ToggleButton id="streamCamButton" icon="camera-off.svg, 24" selectedIcon="camera.svg, 24" tooltipText="toolbar.stream.camera.tooltip" />
+	<Button id="screenShareEnableButton" icon="screen-share.svg, 24" tooltipText="toolbar.stream.screen.share.start.tooltip" defaultTool="true" />
+	<ToggleButton id="streamEnableButton" icon="stream-indicator.svg, 24" tooltipText="toolbar.stream.start.tooltip" defaultTool="true" />
+	<ToggleButton id="streamMicButton" icon="microphone-off.svg, 24" selectedIcon="microphone.svg, 24" tooltipText="toolbar.stream.microphone.tooltip" defaultTool="true" />
+	<ToggleButton id="streamCamButton" icon="camera-off.svg, 24" selectedIcon="camera.svg, 24" tooltipText="toolbar.stream.camera.tooltip" defaultTool="true" />
 	<Button id="selectQuizButton" icon="quiz-indicator.svg, 24" tooltipText="toolbar.select.quiz.tooltip" />
 	<Button id="audienceMessageButton" icon="audience-message.svg, 24" tooltipText="toolbar.audience.message.tooltip" />
 </Panel>

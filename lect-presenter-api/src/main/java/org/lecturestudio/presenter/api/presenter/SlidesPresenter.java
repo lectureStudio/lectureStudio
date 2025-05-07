@@ -395,6 +395,8 @@ public class SlidesPresenter extends Presenter<SlidesView> {
 		if (nonNull(participantView)) {
 			view.cancelSpeechRequest(participantView.getParticipantContext());
 			view.removeParticipantView(participantView);
+
+			participantViewCollection.removeParticipant(participantView);
 		}
 		else {
 			view.removeSpeechRequest(message);

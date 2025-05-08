@@ -327,7 +327,7 @@ public class Document {
 	 * @return The title.
 	 */
 	public String getTitle() {
-		String title = pdfDocument.getTitle();
+		String title = isClosed() ? this.title : pdfDocument.getTitle();
 
 		if (title == null && file != null) {
 			// Use filename as title.
@@ -356,7 +356,7 @@ public class Document {
 	}
 
 	/**
-	 * Either the filename is returned, if this document is backed by a file, or
+	 * Either the filename is returned if this document is backed by a file, or
 	 * the document title is returned.
 	 *
 	 * @return The name of this document.

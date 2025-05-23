@@ -48,10 +48,13 @@ public class ScreenPresentationViewContext implements PresentationViewContext {
 	}
 
 	public void addScreenVideoFrameEvent(LocalScreenVideoFrameEvent event) {
-		VideoFrame videoFrame = event.getFrame();
+		final VideoFrame videoFrame = event.getFrame();
+		videoFrame.retain();
 
 		for (ScreenViewComponent consumer : eventListeners) {
 			consumer.setVideoFrame(videoFrame);
 		}
+
+		videoFrame.release();
 	}
 }

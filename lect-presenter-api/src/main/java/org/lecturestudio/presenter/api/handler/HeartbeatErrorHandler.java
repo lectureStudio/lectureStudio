@@ -50,7 +50,7 @@ public class HeartbeatErrorHandler extends PresenterHandler {
 
 	@Subscribe
 	public void onEvent(final StreamingStateEvent event) {
-		// Reset error state for any state here.
+		// Reset the error state for any state here.
 		heartbeatError.set(false);
 	}
 

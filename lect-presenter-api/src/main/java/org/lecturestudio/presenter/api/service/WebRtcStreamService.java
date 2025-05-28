@@ -156,8 +156,8 @@ public class WebRtcStreamService extends ExecutableBase {
 		this.recordingService = recordingService;
 		this.streamConfig = new StreamConfig();
 		this.stateObserver = new ExecutableStateObserver();
-		this.heartbeat = new Heartbeat(context.getEventBus(), webServiceInfo.getStreamPublisherApiUrl(), 3000,
-			Duration.ofSeconds(3));
+		this.heartbeat = new Heartbeat(context.getEventBus(), webServiceInfo.getStreamPublisherApiUrl(), 10000,
+			Duration.ofSeconds(10));
 		this.clientFailover = new ClientFailover();
 		this.clientFailover.addStateListener((oldState, newState) -> {
 			setReconnectionState(newState);

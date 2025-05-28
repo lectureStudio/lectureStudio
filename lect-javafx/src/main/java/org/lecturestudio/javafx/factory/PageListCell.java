@@ -68,6 +68,7 @@ public class PageListCell extends ListCell<Page> {
 		addEventFilter(MouseEvent.MOUSE_PRESSED, event -> {
 			if (!getItem().equals(getListView().getSelectionModel().getSelectedItem())) {
 				selectionCallback.accept(getItem());
+				event.consume();
 			}
 		});
 		layoutBoundsProperty().addListener(observable -> {

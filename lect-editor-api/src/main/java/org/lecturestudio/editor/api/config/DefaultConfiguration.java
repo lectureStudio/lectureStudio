@@ -56,14 +56,14 @@ public class DefaultConfiguration extends EditorConfiguration {
 		getDisplayConfig().setBackgroundColor(Color.WHITE);
 
 		getToolConfig().getPenSettings().setColor(PresetColor.BLACK.getColor());
-		getToolConfig().getPenSettings().setWidth(0.003);
+		getToolConfig().getPenSettings().setWidth(0.002);
 		getToolConfig().getHighlighterSettings().setColor(PresetColor.ORANGE.getColor());
 		getToolConfig().getHighlighterSettings().setAlpha(140);
-		getToolConfig().getHighlighterSettings().setWidth(0.011);
+		getToolConfig().getHighlighterSettings().setWidth(0.01);
 		getToolConfig().getHighlighterSettings().setScale(false);
 		getToolConfig().getPointerSettings().setColor(PresetColor.RED.getColor());
 		getToolConfig().getPointerSettings().setAlpha(140);
-		getToolConfig().getPointerSettings().setWidth(0.011);
+		getToolConfig().getPointerSettings().setWidth(0.01);
 		getToolConfig().getArrowSettings().setColor(PresetColor.BLACK.getColor());
 		getToolConfig().getArrowSettings().setWidth(0.003);
 		getToolConfig().getLineSettings().setColor(PresetColor.BLACK.getColor());

@@ -105,11 +105,11 @@ public class ToolbarPresenter extends Presenter<ToolbarView> {
 	private void toolChanged(ToolType toolType, PaintSettings settings) {
 		this.toolType = toolType;
 
-		// Update selected tool button.
+		// Update the selected tool button.
 		view.selectToolButton(toolType);
 
 		if (ColorPalette.hasPalette(toolType)) {
-			// Update color palette for the selected tool.
+			// Update the color palette for the selected tool.
 			view.selectColorButton(toolType, settings);
 		}
 

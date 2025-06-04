@@ -160,13 +160,13 @@ public class PDFBoxDocument implements DocumentAdapter {
 	@Override
 	public PDFGraphics2D createGraphics(int pageIndex, String name, boolean appendContent, NotesPosition notesPosition) {
 		PDPage pdPage = doc.getPage(pageIndex);
-		if(notesPosition == NotesPosition.LEFT){
+		if (notesPosition == NotesPosition.LEFT) {
 			PDRectangle rect = pdPage.getMediaBox();
-			pdPage.setCropBox(new PDRectangle(rect.getWidth()/2, 0, rect.getWidth()/2, rect.getHeight()));
+			pdPage.setCropBox(new PDRectangle(rect.getWidth() / 2, 0, rect.getWidth() / 2, rect.getHeight()));
 		}
-		if(notesPosition == NotesPosition.RIGHT){
+		if (notesPosition == NotesPosition.RIGHT) {
 			PDRectangle rect = pdPage.getMediaBox();
-			pdPage.setCropBox(new PDRectangle(0, 0, rect.getWidth()/2, rect.getHeight()));
+			pdPage.setCropBox(new PDRectangle(0, 0, rect.getWidth() / 2, rect.getHeight()));
 		}
 		return new PDFGraphics2D(doc, pdPage, name, appendContent);
 	}

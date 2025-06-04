@@ -291,45 +291,44 @@ public class MenuPresenter extends Presenter<MenuView> {
 		};
 
 		CompletableFuture.runAsync(() -> {
-					Document srcDocument = recording.getRecordedDocument().getDocument();
-					PresentationParameterProvider ppProvider = context.getPagePropertyProvider(ViewType.User);
+			Document srcDocument = recording.getRecordedDocument().getDocument();
+			PresentationParameterProvider ppProvider = context.getPagePropertyProvider(ViewType.User);
 
-					CreateDocumentExecutor docEventExecutor = new CreateDocumentExecutor(
-							dummyContext, recording);
-					DocumentRecorder documentRecorder;
+			CreateDocumentExecutor docEventExecutor = new CreateDocumentExecutor(dummyContext, recording);
+			DocumentRecorder documentRecorder;
 
-					try {
-						docEventExecutor.executeEvents(List.of(srcDocument.getCurrentPageNumber()), ppProvider);
+			try {
+				docEventExecutor.executeEvents(List.of(srcDocument.getCurrentPageNumber()), ppProvider);
 
-						documentRecorder = docEventExecutor.getDocumentRecorder();
-					}
-					catch (Exception e) {
-						throw new CompletionException(e);
-					}
+				documentRecorder = docEventExecutor.getDocumentRecorder();
+			}
+			catch (Exception e) {
+				throw new CompletionException(e);
+			}
 
-					PdfDocumentRenderer documentRenderer = new PdfDocumentRenderer();
-					documentRenderer.setDocuments(new ArrayList<>(documentRecorder.getRecordedDocuments()));
-					documentRenderer.setPages(documentRecorder.getRecordedPages());
-					documentRenderer.setParameterProvider(documentRecorder.getRecordedParamProvider());
-					documentRenderer.setProgressCallback(progressView::setProgress);
-					documentRenderer.setOutputFile(file);
+			PdfDocumentRenderer documentRenderer = new PdfDocumentRenderer();
+			documentRenderer.setDocuments(new ArrayList<>(documentRecorder.getRecordedDocuments()));
+			documentRenderer.setPages(documentRecorder.getRecordedPages());
+			documentRenderer.setParameterProvider(documentRecorder.getRecordedParamProvider());
+			documentRenderer.setProgressCallback(progressView::setProgress);
+			documentRenderer.setOutputFile(file);
 
-					try {
-						documentRenderer.start();
-					}
-					catch (ExecutableException e) {
-						throw new CompletionException(e);
-					}
-				})
-				.thenRun(() -> {
-					progressView.setTitle(context.getDictionary().get("save.page.current.success"));
-				})
-				.exceptionally(throwable -> {
-					logException(throwable, "Write document to PDF failed");
+			try {
+				documentRenderer.start();
+			}
+			catch (ExecutableException e) {
+				throw new CompletionException(e);
+			}
+		})
+		.thenRun(() -> {
+			progressView.setTitle(context.getDictionary().get("save.page.current.success"));
+		})
+		.exceptionally(throwable -> {
+			logException(throwable, "Write document to PDF failed");
 
-					progressView.setError(context.getDictionary().get("save.page.current.error"));
-					return null;
-				});
+			progressView.setError(context.getDictionary().get("save.page.current.error"));
+			return null;
+		});
 	}
 
 	private void saveRecording() {

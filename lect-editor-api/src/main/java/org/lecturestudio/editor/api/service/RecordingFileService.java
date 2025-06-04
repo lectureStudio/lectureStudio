@@ -564,6 +564,7 @@ public class RecordingFileService {
 	}
 
 	private void recordingChanged(RecordingChangeEvent event) {
+		Recording.Content content = event.getContentType();
 		Recording recording = event.getRecording();
 		Document document = recording.getRecordedDocument().getDocument();
 
@@ -572,10 +573,15 @@ public class RecordingFileService {
 		double prevDuration = playbackService.getDuration().getMillis();
 		double scale = prevDuration / recording.getRecordedAudio().getAudioStream().getLengthInMillis();
 
-		// Do not refresh the recording if new events got added, because the view got already handled by the UI
-		switch (event.getContentType()) {
-			case ALL, DOCUMENT, HEADER, AUDIO, EVENTS_REMOVED, EVENTS_CHANGED -> {
+		switch (content) {
+			case ALL, DOCUMENT, HEADER, AUDIO: {
 				documentService.replaceDocument(document);
+				break;
+			}
+		}
+		// Do not refresh the recording if new events got added, because the view got already handled by the UI.
+		switch (content) {
+			case ALL, DOCUMENT, HEADER, AUDIO, EVENTS_REMOVED, EVENTS_CHANGED -> {
 				playbackService.setRecording(recording);
 
 				updateEditState(recording);

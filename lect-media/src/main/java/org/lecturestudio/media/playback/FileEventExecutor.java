@@ -240,7 +240,7 @@ public class FileEventExecutor extends EventExecutor {
 					}
 				}
 
-				// Fail safe.
+				// Fail-safe.
 				if (sleep < 1) {
 					sleep = 1;
 				}

@@ -268,7 +268,7 @@ public class RecordingPlayer extends ExecutableBase {
 	}
 
 	public synchronized void seek(double time) throws ExecutableException {
-		seek((int) (time * duration.getMillis()));
+		seek((int) (time * duration.getMillis() + 0.5));
 	}
 
 	public synchronized void seek(int timeMs) throws ExecutableException {
@@ -288,7 +288,7 @@ public class RecordingPlayer extends ExecutableBase {
 		}
 		
 		int pageNumber = actionExecutor.getPageNumber(seekTime);
-		
+
 		resetPages(pageNumber, previousPage);
 		
 		actionExecutor.seekByTime(seekTime);

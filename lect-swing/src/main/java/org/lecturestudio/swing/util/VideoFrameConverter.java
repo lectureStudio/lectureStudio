@@ -53,7 +53,7 @@ public class VideoFrameConverter {
 		byte[] imageBuffer = ((DataBufferByte) image.getRaster().getDataBuffer()).getData();
 		VideoBufferConverter.convertFromI420(buffer, imageBuffer, FourCC.RGBA);
 
-		buffer.release();
+//		buffer.release();
 
 		return image;
 	}

@@ -88,6 +88,8 @@ public class ScreenCaptureService extends ExecutableBase {
 			capturer.setFocusSelectedSource(true);
 			capturer.start((result, videoFrame) -> {
 				context.getEventBus().post(new LocalScreenVideoFrameEvent(videoFrame, BigInteger.ZERO));
+
+				videoFrame.release();
 			});
 		}
 		catch (Exception | Error e) {

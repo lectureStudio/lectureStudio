@@ -123,10 +123,10 @@ public class ScreenRecorderService extends ExecutableBase {
 		}
 
 		try {
-			//final VideoFrame videoFrame = event.getFrame();
-			//videoFrame.retain();
-			//addVideoFrame(videoFrame);
-			//videoFrame.release();
+			final VideoFrame videoFrame = event.getFrame();
+			videoFrame.retain();
+			addVideoFrame(videoFrame);
+			videoFrame.release();
 		}
 		catch (Exception e) {
 			LOG.error("Mux video frame failed", e);

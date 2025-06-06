@@ -32,8 +32,6 @@ import org.lecturestudio.swing.util.VideoFrameConverter;
 
 public class VideoFrameView extends JPanel {
 
-	private BufferedImage tempImage;
-
 	private BufferedImage image;
 
 
@@ -59,8 +57,7 @@ public class VideoFrameView extends JPanel {
 
 	public void paintVideoFrame(VideoFrame videoFrame) throws Exception {
 		try {
-			tempImage = VideoFrameConverter.convertVideoFrame(videoFrame, tempImage);
-			image = VideoFrameConverter.convertVideoFrameToComponentSize(image, tempImage, this);
+			image = VideoFrameConverter.convertVideoFrameToComponentSize(videoFrame, image, this);
 		}
 		catch (Exception e) {
 			return;

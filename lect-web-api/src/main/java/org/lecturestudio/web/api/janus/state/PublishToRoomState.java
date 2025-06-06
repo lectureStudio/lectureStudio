@@ -249,6 +249,8 @@ public class PublishToRoomState implements JanusState {
 				}
 
 				participantContext.setVideoFrame(videoFrame);
+
+				videoFrame.release();
 			});
 		}
 		else {

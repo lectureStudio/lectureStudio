@@ -35,8 +35,6 @@ import org.lecturestudio.web.api.stream.ScreenViewComponent;
 
 public class SwingScreenView extends JComponent implements ScreenViewComponent {
 
-	private BufferedImage tempImage;
-
 	private BufferedImage image;
 
 
@@ -51,8 +49,7 @@ public class SwingScreenView extends JComponent implements ScreenViewComponent {
 		}
 
 		try {
-			tempImage = VideoFrameConverter.convertVideoFrame(frame, tempImage);
-			image = VideoFrameConverter.convertVideoFrameToComponentSize(image, tempImage, this);
+			image = VideoFrameConverter.convertVideoFrameToComponentSize(frame, image, this);
 		}
 		catch (Exception e) {
 			return;

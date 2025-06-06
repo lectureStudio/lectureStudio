@@ -85,8 +85,6 @@ public class ScreenRecorderService extends ExecutableBase {
 
 	private ScreenShareContext shareContext;
 
-	private BufferedImage tempImage;
-
 	private BufferedImage bufferedImage;
 
 	private ScreenAction screenAction;
@@ -235,8 +233,7 @@ public class ScreenRecorderService extends ExecutableBase {
 		int height = (int) outputSize.getHeight();
 
 		// Valid frame sizes are when width and height are divisible by 2.
-		tempImage = VideoFrameConverter.convertVideoFrame(videoFrame, tempImage);
-		bufferedImage = VideoFrameConverter.convertVideoFrame(bufferedImage, tempImage, width, height);
+		bufferedImage = VideoFrameConverter.convertVideoFrame(videoFrame, bufferedImage, width, height);
 
 		// Need to perform type (byte-to-int) conversion and center image
 		// vertically and horizontally.

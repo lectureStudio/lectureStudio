@@ -85,5 +85,5 @@ jobs:
             target/*.deb
             target/*.rpm
             target/*.pkg
-            target/**/*.msi
+            target/**/*.exe
             target/*.zip

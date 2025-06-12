@@ -11,25 +11,72 @@
 	</parent>
 
 	<artifactId>lect-msi</artifactId>
-	<version>1.0.0</version>
-	<packaging>msi</packaging>
+	<version>2.0.0</version>
 
 	<properties>
 		<package.input.dir>${project.parent.basedir}/lect-jpackage/target/${package.full.name}</package.input.dir>
 		<package.output.dir>${project.parent.parent.build.directory}</package.output.dir>
-		<wix.version>3.11.1</wix.version>
+		<package.msi.file>${project.build.directory}/build/${package.name}.msi</package.msi.file>
 	</properties>
 
 	<build>
 		<plugins>
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-install-plugin</artifactId>
-				<version>3.0.0-M1</version>
+				<artifactId>maven-antrun-plugin</artifactId>
+				<version>3.1.0</version>
 				<executions>
 					<execution>
-						<id>default-install</id>
-						<phase>none</phase>
+						<id>generate-bundle</id>
+						<phase>package</phase>
+						<goals>
+							<goal>run</goal>
+						</goals>
+						<configuration>
+							<target>
+								<exec dir="target" executable="cmd.exe">
+									<arg value="/c build.bat"/>
+								</exec>
+							</target>
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>
+			<plugin>
+				<artifactId>maven-resources-plugin</artifactId>
+				<executions>
+					<execution>
+						<id>copy-resources</id>
+						<phase>prepare-package</phase>
+						<goals>
+							<goal>copy-resources</goal>
+						</goals>
+						<configuration>
+							<outputDirectory>${project.build.directory}</outputDirectory>
+							<resources>
+								<resource>
+									<directory>resources</directory>
+									<filtering>true</filtering>
+									<includes>
+										<include>build.bat</include>
+									</includes>
+								</resource>
+								<resource>
+									<directory>src</directory>
+									<filtering>false</filtering>
+									<excludes>
+										<exclude>**/*.wxi</exclude>
+									</excludes>
+								</resource>
+								<resource>
+									<directory>src</directory>
+									<filtering>true</filtering>
+									<includes>
+										<include>**/*.wxi</include>
+									</includes>
+								</resource>
+							</resources>
+						</configuration>
 					</execution>
 				</executions>
 			</plugin>
@@ -44,148 +91,16 @@
 				</executions>
 			</plugin>
 			<plugin>
-				<groupId>com.github.wix-maven</groupId>
-				<artifactId>wix-maven-plugin</artifactId>
-				<version>0.3.0</version>
-				<extensions>true</extensions>
-				<configuration>
-					<finalName>${package.full.name}</finalName>
-					<platforms>
-						<arch>x64</arch>
-					</platforms>
-					<baseArtifactItem/>
-					<patchedArtifactItem/>
-				</configuration>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-install-plugin</artifactId>
+				<version>3.1.3</version>
 				<executions>
 					<execution>
-						<id>default-harvest</id>
-						<goals>
-							<goal>harvest</goal>
-						</goals>
-						<configuration>
-							<harvestType>dir</harvestType>
-							<harvestInputDirectory>${package.input.dir}</harvestInputDirectory>
-							<harvestSuppressRootDirectoryElement>true</harvestSuppressRootDirectoryElement>
-							<harvestDirectoryRef>BIN_DIR_REF</harvestDirectoryRef>
-							<harvestComponentGroupName>AppGroupId</harvestComponentGroupName>
-							<generateComponentGUIDs>true</generateComponentGUIDs>
-							<suppress>reg</suppress>
-						</configuration>
-					</execution>
-					<execution>
-						<id>default-candle</id>
-						<goals>
-							<goal>candle</goal>
-						</goals>
-						<configuration>
-							<wxsInputDirectory>${project.build.outputDirectory}</wxsInputDirectory>
-						</configuration>
-					</execution>
-					<execution>
-						<id>default-light</id>
-						<goals>
-							<goal>light</goal>
-						</goals>
-						<configuration>
-							<fileSourceRoots>${package.input.dir}</fileSourceRoots>
-							<outputDirectory>${package.output.dir}</outputDirectory>
-							<wxsInputDirectory>${project.build.outputDirectory}</wxsInputDirectory>
-							<suppress>ice:ICE20</suppress>
-						</configuration>
-					</execution>
-					<execution>
-						<id>default-smoke</id>
-						<goals>
-							<goal>smoke</goal>
-						</goals>
-						<configuration>
-							<outputDirectory>${package.output.dir}</outputDirectory>
-							<suppress>ice:ICE20</suppress>
-						</configuration>
+						<id>default-install</id>
+						<phase>none</phase>
 					</execution>
 				</executions>
-			</plugin>
-			<!-- Need the XML transform because the wix-maven-plugin does not support the '-t' flag for the heat.exe -->
-			<plugin>
-				<groupId>org.codehaus.mojo</groupId>
-				<artifactId>xml-maven-plugin</artifactId>
-				<version>1.1.0</version>
-				<executions>
-					<execution>
-						<phase>process-resources</phase>
-						<goals>
-							<goal>transform</goal>
-						</goals>
-					</execution>
-				</executions>
-				<configuration>
-					<transformationSets>
-						<transformationSet>
-							<dir>target/generated-sources/wixharvest</dir>
-							<outputDir>target/generated-sources/wixharvest</outputDir>
-							<stylesheet>src/main/resources/wix-transform.xslt</stylesheet>
-						</transformationSet>
-					</transformationSets>
-				</configuration>
 			</plugin>
 		</plugins>
-
-		<resources>
-			<resource>
-				<directory>src/main/resources</directory>
-				<filtering>true</filtering>
-				<excludes>
-					<exclude>**/*.bmp</exclude>
-					<exclude>**/*.ico</exclude>
-					<exclude>**/*.rtf</exclude>
-				</excludes>
-			</resource>
-			<resource>
-				<directory>src/main/resources</directory>
-				<filtering>false</filtering>
-				<includes>
-					<include>**/*.bmp</include>
-					<include>**/*.ico</include>
-					<include>**/*.rtf</include>
-				</includes>
-			</resource>
-		</resources>
 	</build>
-
-	<dependencies>
-		<dependency>
-			<groupId>org.wixtoolset</groupId>
-			<artifactId>wix-toolset</artifactId>
-			<version>${wix.version}</version>
-			<scope>provided</scope>
-		</dependency>
-		<dependency>
-			<groupId>org.wixtoolset.maven</groupId>
-			<artifactId>wix-toolset</artifactId>
-			<version>${wix.version}</version>
-			<type>wixext</type>
-			<classifier>WixIISExtension</classifier>
-		</dependency>
-		<dependency>
-			<groupId>org.wixtoolset.maven</groupId>
-			<artifactId>wix-toolset</artifactId>
-			<version>${wix.version}</version>
-			<type>wixext</type>
-			<classifier>WixUIExtension</classifier>
-		</dependency>
-		<dependency>
-			<groupId>org.wixtoolset.maven</groupId>
-			<artifactId>wix-toolset</artifactId>
-			<version>${wix.version}</version>
-			<type>wixext</type>
-			<classifier>WixUtilExtension</classifier>
-		</dependency>
-		<dependency>
-			<groupId>org.wixtoolset.maven</groupId>
-			<artifactId>wix-toolset</artifactId>
-			<version>${wix.version}</version>
-			<type>wixext</type>
-			<classifier>WixVSExtension</classifier>
-		</dependency>
-	</dependencies>
 </project>

@@ -1,0 +1,26 @@
+<?include Config.wxi ?>
+
+<Wix xmlns="http://wixtoolset.org/schemas/v4/wxs">
+    <Fragment>
+        <ComponentGroup Id="AppComponents" Directory="INSTALLFOLDER">
+            <Files Include="$(var.AppDir)\**">
+                <!--
+                  Don't harvest the lectureEditor.exe because it needs manual authoring (see below).
+                -->
+                <Exclude Files="$(var.AppDir)\lectureEditor.exe" />
+            </Files>
+
+            <Component Id="lectureEditor.exe" Guid="91793A7D-D9CA-46B1-A4A1-428EA226910A">
+                <File Id="lectureEditor.exe" KeyPath="yes" Source="$(var.AppDir)\lectureEditor.exe" />
+                <File Id="lect_recording.ico" Source="resources\lect_recording.ico" />
+
+                <!-- Lecture recording file association -->
+                <ProgId Id="lectureStudio.presenter" Description="lectureStudio recording file" Icon="lect_recording.ico">
+                    <Extension Id="presenter" ContentType="application/presenter">
+                        <Verb Id="open" Command="Open" TargetFile="lectureEditor.exe" Argument='"%1"' />
+                    </Extension>
+                </ProgId>
+            </Component>
+        </ComponentGroup>
+    </Fragment>
+</Wix>

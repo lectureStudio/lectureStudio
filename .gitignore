@@ -7,6 +7,9 @@
 **/*.iml
 **/.idea
 
+# Visual Studio Code
+.vs
+
 # VS Code
 .vscode
 
@@ -15,3 +18,7 @@
 
 # Node
 node_modules/
+
+# Build Directories
+**/bin/
+**/obj/

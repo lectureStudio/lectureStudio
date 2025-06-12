@@ -1,0 +1,12 @@
+<Include xmlns="http://wixtoolset.org/schemas/v4/wxs">
+    <?define UpgradeCode = "1B966AC2-8B66-4485-8497-AEA957E8ABD3" ?>
+    <?define Name = "${package.name}" ?>
+    <?define Manufacturer = "${package.vendor}" ?>
+    <?define Version = "${package.version}" ?>
+    <?define Description = "${package.description}" ?>
+    <?define Copyright = "${package.copyright}" ?>
+    <?define Url = "${package.about.url}" ?>
+    <?define UpdateUrl = "${package.update.url}" ?>
+    <?define LicenseUrl = "${package.license.url}" ?>
+	<?define MsiFile = "${package.msi.file}" ?>
+</Include>

@@ -1,0 +1,8 @@
+<Include xmlns="http://wixtoolset.org/schemas/v4/wxs">
+    <?define Id = "org.lecturestudio" ?>
+    <?define UpgradeCode = "1B966AC2-8B66-4485-8497-AEA957E8ABD3" ?>
+    <?define Name = "${package.name}" ?>
+    <?define Manufacturer = "${package.vendor}" ?>
+    <?define Version = "${package.version}" ?>
+    <?define AppDir = "${package.input.dir}" ?>
+</Include>

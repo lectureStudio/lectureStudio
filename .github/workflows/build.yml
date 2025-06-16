@@ -92,5 +92,5 @@ jobs:
             target/*.deb
             target/*.rpm
             target/*.pkg
-            target/**/*.exe
+            target/*.exe
             target/*.zip

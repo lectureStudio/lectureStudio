@@ -20,7 +20,7 @@ wix msi validate ${package.msi.file}
 cd ..\Bundle
 
 wix build -arch x64 ^
-    -ext WixToolset.Bal.wixext ^
+    -ext WixToolset.BootstrapperApplications.wixext ^
     -ext WixToolset.UI.wixext ^
     -culture de-DE ^
     -culture en-US ^

@@ -56,8 +56,8 @@ jobs:
         if: runner.os == 'windows'
         run: |
           dotnet tool install --global wix --version 6.0.1
-          wix extension add -g WixToolset.Bal.wixext
-          wix extension add -g WixToolset.UI.wixext
+          wix extension add -g WixToolset.BootstrapperApplications.wixext/6.0.1
+          wix extension add -g WixToolset.UI.wixext/6.0.1
 
       - name: Get version for the current build
         uses: orhun/git-cliff-action@v4

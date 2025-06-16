@@ -78,12 +78,17 @@ public class ScreenDocumentCreator {
 				screenSource.getId());
 
 		desktopCapturer.selectSource(desktopSource);
-		desktopCapturer.start((result, desktopFrame) -> {
+		desktopCapturer.start((result, videoFrame) -> {
+			// NOTE: Avoid asynchronous access to the VideoFrame, otherwise the app will crash.
+			//       For asynchronous access, the VideoFrame must be copied and released after processing.
 			try {
-				doc.createPage(VideoFrameConverter.convertVideoFrame(desktopFrame,
+				doc.createPage(VideoFrameConverter.convertVideoFrame(videoFrame,
 						null,
 						(int) (doc.getPageSize().getWidth() * 3),
 						(int) (doc.getPageSize().getHeight() * 3)));
+
+				// Release the VideoFrame to avoid memory leaks.
+				videoFrame.release();
 
 				ByteArrayOutputStream stream = new ByteArrayOutputStream();
 
@@ -115,6 +120,6 @@ public class ScreenDocumentCreator {
 			}
 		});
 		desktopCapturer.captureFrame();
-		//desktopCapturer.dispose();
+		desktopCapturer.dispose();
 	}
 }

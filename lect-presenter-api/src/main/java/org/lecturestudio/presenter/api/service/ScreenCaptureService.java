@@ -87,8 +87,11 @@ public class ScreenCaptureService extends ExecutableBase {
 			capturer.selectSource(new DesktopSource(source.getTitle(), source.getId()));
 			capturer.setFocusSelectedSource(true);
 			capturer.start((result, videoFrame) -> {
+				// NOTE: Avoid asynchronous access to the VideoFrame, otherwise the app will crash.
+				//       For asynchronous access, the VideoFrame must be copied and released after processing.
 				context.getEventBus().post(new LocalScreenVideoFrameEvent(videoFrame, BigInteger.ZERO));
 
+				// Release the VideoFrame to avoid memory leaks.
 				videoFrame.release();
 			});
 		}

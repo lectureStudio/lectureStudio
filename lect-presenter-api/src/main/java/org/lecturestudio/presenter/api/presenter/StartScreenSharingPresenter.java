@@ -283,8 +283,13 @@ public class StartScreenSharingPresenter extends Presenter<StartScreenSharingVie
 
 		@Override
 		protected void startInternal() throws ExecutableException {
-			capturer.start((result, desktopFrame) -> {
-				sharedSource.setVideoFrame(desktopFrame);
+			capturer.start((result, videoFrame) -> {
+				// NOTE: Avoid asynchronous access to the VideoFrame, otherwise the app will crash.
+				//       For asynchronous access, the VideoFrame must be copied and released after processing.
+				sharedSource.setVideoFrame(videoFrame);
+
+				// Release the VideoFrame to avoid memory leaks.
+				videoFrame.release();
 			});
 
 			future = executorService.scheduleAtFixedRate(() -> {

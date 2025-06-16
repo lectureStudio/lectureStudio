@@ -235,9 +235,14 @@ public class PublishToRoomState implements JanusState {
 
 		track.addSink(videoFrame -> {
 			if (nonNull(localScreenFrameConsumer)) {
+				// NOTE: Avoid asynchronous access to the VideoFrame, otherwise the app will crash.
+				//       For asynchronous access, the VideoFrame must be copied and released after processing.
 				localScreenFrameConsumer.accept(new LocalScreenVideoFrameEvent(videoFrame,
 						handler.getParticipantContext().getPeerId()));
 			}
+
+			// Release the VideoFrame to avoid memory leaks.
+			videoFrame.release();
 		});
 	}
 

@@ -142,6 +142,13 @@ jobs:
           # Import certificate from secrets
           echo -n "$CERTIFICATE_BASE64" | base64 --decode -o $CERTIFICATE_PATH
 
+      - name: Set up WiX
+        if: runner.os == 'windows'
+        run: |
+          dotnet tool install --global wix --version 6.0.1
+          wix extension add -g WixToolset.Bal.wixext
+          wix extension add -g WixToolset.UI.wixext
+
       - name: Build
         env:
           APPLE_CERTIFICATE_PATH: ${{ runner.temp }}/build_certificate.p12

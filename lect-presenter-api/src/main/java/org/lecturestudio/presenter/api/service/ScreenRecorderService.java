@@ -28,7 +28,6 @@ import dev.onvoid.webrtc.media.video.VideoFrame;
 import java.awt.Graphics2D;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
-import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.text.DateFormat;
@@ -54,62 +53,107 @@ import org.lecturestudio.media.config.AudioRenderConfiguration;
 import org.lecturestudio.media.config.RenderConfiguration;
 import org.lecturestudio.media.config.VideoRenderConfiguration;
 import org.lecturestudio.media.video.AVDefaults;
-import org.lecturestudio.media.video.FFmpegProcessMuxer;
+import org.lecturestudio.media.video.FFmpegMuxer;
 import org.lecturestudio.media.video.VideoMuxer;
 import org.lecturestudio.presenter.api.context.PresenterContext;
 import org.lecturestudio.presenter.api.model.ScreenShareContext;
 import org.lecturestudio.swing.util.VideoFrameConverter;
 import org.lecturestudio.web.api.event.LocalScreenVideoFrameEvent;
 
+/**
+ * Service responsible for recording screen content during presentations.
+ * <p>
+ * This service handles both audio and video recording, processes WebRTC video frames,
+ * and combines them into an MP4 file. It subscribes to screen frame events and
+ * manages the recording lifecycle, including starting, stopping, suspending, and
+ * destroying recording resources.
+ * <p>
+ * The service uses FFmpeg for muxing audio and video streams and maintains timing
+ * information for synchronization.
+ *
+ * @author Alex Andres
+ */
 public class ScreenRecorderService extends ExecutableBase {
 
 	private static final Logger LOG = LogManager.getLogger(ScreenRecorderService.class);
 
+	/** Date formatter used to generate timestamps for recording file names. */
 	private final DateFormat dateFormat = new SimpleDateFormat("yyyy_MM_dd-HH_mm");
 
+	/** The presenter context providing access to configuration settings and the application event bus. */
 	private final PresenterContext context;
 
-	private final Dimension2D outputSize = new Dimension2D(1280, 960);
+	/** The target resolution for recorded videos (1920x1080). */
+	private final Dimension2D outputSize = new Dimension2D(1920, 1080);
 
+	/** Provider for audio system components used in recording. */
 	private final AudioSystemProvider audioSystemProvider;
 
+	/** The audio recorder component that captures system audio. */
 	private AudioRecorder audioRecorder;
 
+	/** The video muxer that combines audio and video streams into the output file. */
 	private VideoMuxer muxer;
 
-	private ByteArrayAudioSink audioSink;
-
+	/** The file system path where the recording will be saved. */
 	private Path outputPath;
 
-	private Path outputVideoPath;
-
+	/** Context containing information about the active screen sharing session. */
 	private ScreenShareContext shareContext;
 
+	/** Buffer used for temporary image processing during video frame conversion. */
 	private BufferedImage bufferedImage;
 
+	/** Action containing metadata about the screen recording. */
 	private ScreenAction screenAction;
 
+	/** Current timestamp in milliseconds for the recording session. */
 	private int timestampMs;
 
+	/** Timestamp in milliseconds when recording was last suspended. */
 	private int timestampMsSuspend;
 
+	/** The total number of video frames processed during the current recording session. */
 	private int frames;
 
 
-	public ScreenRecorderService(PresenterContext context,
-			AudioSystemProvider audioSystemProvider) {
+	/**
+	 * Creates a new ScreenRecorderService instance.
+	 *
+	 * @param context             The presenter context providing configuration and event bus.
+	 * @param audioSystemProvider The provider for audio system components used for recording.
+	 */
+	public ScreenRecorderService(PresenterContext context, AudioSystemProvider audioSystemProvider) {
 		this.context = context;
 		this.audioSystemProvider = audioSystemProvider;
 	}
 
+	/**
+	 * Gets the current screen sharing context.
+	 *
+	 * @return The current screen-share context containing information about the active
+	 *         screen sharing session.
+	 */
 	public ScreenShareContext getScreenShareContext() {
 		return shareContext;
 	}
 
+	/**
+	 * Sets the screen-sharing context for the recorder.
+	 *
+	 * @param shareContext The screen-share context containing information about the active
+	 *                     screen sharing session.
+	 */
 	public void setScreenShareContext(ScreenShareContext shareContext) {
 		this.shareContext = shareContext;
 	}
 
+	/**
+	 * Gets the current screen action for the recording session.
+	 *
+	 * @return The screen action containing information about the current recording,
+	 *         including file name, video offsets, and length.
+	 */
 	public ScreenAction getScreenAction() {
 		return screenAction;
 	}
@@ -159,22 +203,6 @@ public class ScreenRecorderService extends ExecutableBase {
 
 		muxer.stop();
 		muxer.destroy();
-
-		// Write recorded audio into the video.
-		try {
-			flushAudio();
-		}
-		catch (Exception e) {
-			LOG.error("Flush recorded audio failed", e);
-		}
-
-		// Delete temporary video file.
-		try {
-			Files.deleteIfExists(outputVideoPath);
-		}
-		catch (IOException e) {
-			LOG.error("Delete temporary capture file failed", e);
-		}
 	}
 
 	@Override
@@ -190,9 +218,25 @@ public class ScreenRecorderService extends ExecutableBase {
 
 	@Override
 	protected void destroyInternal() throws ExecutableException {
-
+		// No further actions needed here as the resources are cleaned up in stopInternal.
 	}
 
+	/**
+	 * Processes and adds a video frame to the recording, handling synchronization with audio.
+	 * <p>
+	 * This method manages the timing between audio and video streams to ensure proper synchronization.
+	 * It performs the following operations:
+	 * <ul>
+	 *   <li>Checks for audio/video timestamp drift</li>
+	 *   <li>Drops frames if video is ahead of audio</li>
+	 *   <li>Adds or duplicates frames if video is behind audio</li>
+	 *   <li>Converts and muxes the video frame</li>
+	 * </ul>
+	 *
+	 * @param videoFrame The WebRTC video frame to be processed and added to the recording.
+	 *
+	 * @throws Exception If there's an error during frame conversion or muxing.
+	 */
 	private void addVideoFrame(VideoFrame videoFrame) throws Exception {
 		// Check audio/video timestamp drift.
 		int audioTimeMs = timestampMs;
@@ -228,6 +272,22 @@ public class ScreenRecorderService extends ExecutableBase {
 		}
 	}
 
+	/**
+	 * Converts a WebRTC video frame to a properly formatted BufferedImage.
+	 * <p>
+	 * This method performs several transformations on the input video frame:
+	 * <ul>
+	 *   <li>Resizes the frame to match the configured output dimensions</li>
+	 *   <li>Performs byte-to-int type conversion for proper image encoding</li>
+	 *   <li>Centers the image horizontally and vertically in the output frame</li>
+	 * </ul>
+	 *
+	 * @param videoFrame The WebRTC video frame to be converted.
+	 *
+	 * @return A BufferedImage formatted for video recording with proper dimensions and type.
+	 *
+	 * @throws Exception If an error occurs during the video frame conversion process.
+	 */
 	private BufferedImage convertVideoFrame(VideoFrame videoFrame) throws Exception {
 		int width = (int) outputSize.getWidth();
 		int height = (int) outputSize.getHeight();
@@ -237,8 +297,7 @@ public class ScreenRecorderService extends ExecutableBase {
 
 		// Need to perform type (byte-to-int) conversion and center image
 		// vertically and horizontally.
-		BufferedImage converted = new BufferedImage(width, height,
-				BufferedImage.TYPE_INT_ARGB);
+		BufferedImage converted = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
 
 		// Center resized frame.
 		int x = 0;
@@ -258,6 +317,17 @@ public class ScreenRecorderService extends ExecutableBase {
 		return converted;
 	}
 
+	/**
+	 * Adds a video frame to the recording muxer and updates frame count.
+	 * <p>
+	 * This method takes a processed BufferedImage, sends it to the video muxer
+	 * for encoding, and increments the internal frame counter to maintain
+	 * proper frame sequencing and timing.
+	 *
+	 * @param image The BufferedImage to be added to the video stream.
+	 *
+	 * @throws IOException If an error occurs while adding the frame to the muxer.
+	 */
 	private void muxVideoImage(BufferedImage image) throws IOException {
 		muxer.addVideoFrame(image);
 
@@ -273,47 +343,61 @@ public class ScreenRecorderService extends ExecutableBase {
 
 		outputPath = Paths.get(context.getConfiguration().getAudioConfig()
 				.getRecordingPath(), title + "-" + date + ".mp4");
-		outputVideoPath = Paths.get(context.getConfiguration().getAudioConfig()
-				.getRecordingPath(), title + "-temp-" + date + ".mp4");
 
 		VideoRenderConfiguration vRenderConfig = new VideoRenderConfiguration();
-		vRenderConfig.setBitrate(shareContext.getProfile().getBitrate());
+		vRenderConfig.setBitrate(5000);
 		vRenderConfig.setFrameRate(shareContext.getProfile().getFramerate());
 		vRenderConfig.setDimension(outputSize);
 		vRenderConfig.setCodecID(CodecID.H264);
 
+		AudioRenderConfiguration aRenderConfig = new AudioRenderConfiguration();
+		aRenderConfig.setBitrate(AVDefaults.AUDIO_BITRATES[7]);
+		aRenderConfig.setCodecID(CodecID.AAC);
+		aRenderConfig.setOutputFormat(getAudioFormat());
+
 		RenderConfiguration renderConfig = new RenderConfiguration();
 		renderConfig.setFileFormat("mp4");
-		renderConfig.setOutputFile(outputVideoPath.toFile());
-		renderConfig.setAudioConfig(null);
+		renderConfig.setOutputFile(outputPath.toFile());
+		renderConfig.setAudioConfig(aRenderConfig);
 		renderConfig.setVideoConfig(vRenderConfig);
 
-		muxer = new FFmpegProcessMuxer(renderConfig);
+		muxer = new FFmpegMuxer(renderConfig);
 		muxer.start();
 	}
 
 	private void initAudioRecorder() {
 		AudioConfiguration audioConfig = context.getConfiguration().getAudioConfig();
-		AudioFormat audioFormat = audioConfig.getRecordingFormat();
-
+		AudioFormat audioFormat = getAudioFormat();
 		String deviceName = audioConfig.getCaptureDeviceName();
 		Double deviceVolume = audioConfig.getRecordingVolume(deviceName);
 		double masterVolume = audioConfig.getMasterRecordingVolume();
 		double volume = nonNull(deviceVolume) ? deviceVolume : masterVolume;
 
-		audioSink = new ByteArrayAudioSink() {
+		final ByteArrayAudioSink audioSink = new ByteArrayAudioSink() {
 
+			/**
+			 * The number of bytes processed per second based on the audio format.
+			 * Used for calculating timestamps from the byte count.
+			 */
 			final float bytesPerSec = AudioUtils.getBytesPerSecond(audioFormat);
 
+			/**
+			 * Counter tracking the total number of bytes processed by the audio sink.
+			 * Used to calculate the current timestamp in milliseconds for synchronization.
+			 */
 			int bytesConsumed = 0;
 
 
 			@Override
 			public int write(byte[] data, int offset, int length) throws IOException {
+				// Accumulate the total number of audio bytes processed so far.
 				bytesConsumed += length;
+				// Convert bytes processed to timestamp in milliseconds for audio/video synchronization.
 				timestampMs = (int) (bytesConsumed / bytesPerSec * 1000);
 
-				return super.write(data, offset, length);
+				muxer.addAudioFrame(data, offset, length);
+
+				return length;
 			}
 		};
 		audioSink.setAudioFormat(audioFormat);
@@ -326,27 +410,17 @@ public class ScreenRecorderService extends ExecutableBase {
 		audioRecorder.setAudioSink(audioSink);
 	}
 
-	private void flushAudio() throws Exception {
-		AudioRenderConfiguration aRenderConfig = new AudioRenderConfiguration();
-		aRenderConfig.setInputFormat(audioSink.getAudioFormat());
-		aRenderConfig.setVideoInputFile(outputVideoPath.toFile());
-		aRenderConfig.setBitrate(AVDefaults.AUDIO_BITRATES[3]);
-		aRenderConfig.setCodecID(CodecID.AAC);
-		aRenderConfig.setOutputFormat(audioSink.getAudioFormat());
-		aRenderConfig.setVBR(false);
+	/**
+	 * Gets the audio format used for recording.
+	 * Retrieves the recording format from the audio configuration and
+	 * ensures it has 2 channels, while preserving the original encoding and sample rate.
+	 *
+	 * @return AudioFormat with the configured encoding, sample rate, and 2 channels.
+	 */
+	private AudioFormat getAudioFormat() {
+		AudioConfiguration audioConfig = context.getConfiguration().getAudioConfig();
+		AudioFormat configFormat = audioConfig.getRecordingFormat();
 
-		RenderConfiguration renderConfig = new RenderConfiguration();
-		renderConfig.setFileFormat("mp4");
-		renderConfig.setOutputFile(outputPath.toFile());
-		renderConfig.setAudioConfig(aRenderConfig);
-		renderConfig.setVideoConfig(null);
-
-		byte[] stream = audioSink.toByteArray();
-
-		VideoMuxer muxer = new FFmpegProcessMuxer(renderConfig);
-		muxer.start();
-		muxer.addAudioFrame(stream, 0, stream.length);
-		muxer.stop();
-		muxer.destroy();
+		return new AudioFormat(configFormat.getEncoding(), configFormat.getSampleRate(), 2);
 	}
 }

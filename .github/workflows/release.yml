@@ -174,7 +174,7 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          gh release upload ${{ needs.create-release.outputs.release_version }} (get-item .\target\**\lecture*.exe)
+          gh release upload ${{ needs.create-release.outputs.release_version }} (get-item .\target\lecture*.exe)
 
   publish-release:
     name: Publish GitHub release

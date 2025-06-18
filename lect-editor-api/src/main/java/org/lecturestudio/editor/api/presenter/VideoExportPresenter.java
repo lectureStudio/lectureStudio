@@ -86,6 +86,8 @@ public class VideoExportPresenter extends Presenter<VideoExportView> {
 		targetName = new StringProperty(fileName);
 		targetDirectory = new StringProperty(config.getVideoExportPath());
 
+		renderConfig.setVideoExport(true);
+
 		view.bindTargetName(targetName);
 		view.bindTargetDirectory(targetDirectory);
 		view.bindVideo(renderConfig.videoExportProperty());

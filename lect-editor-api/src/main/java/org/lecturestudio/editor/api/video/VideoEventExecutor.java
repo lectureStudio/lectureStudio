@@ -49,7 +49,7 @@ import org.lecturestudio.core.recording.action.NextPageAction;
 import org.lecturestudio.core.recording.action.PlaybackAction;
 import org.lecturestudio.core.recording.action.ScreenAction;
 import org.lecturestudio.editor.api.recording.RecordingRenderProgressEvent;
-import org.lecturestudio.media.video.BufferedImageFrameConverter;
+import org.lecturestudio.media.video.FrameToBufferedImageConverter;
 import org.lecturestudio.media.video.VideoPlayer;
 
 public class VideoEventExecutor extends EventExecutor {
@@ -64,7 +64,7 @@ public class VideoEventExecutor extends EventExecutor {
 
 	private final Stack<PlaybackAction> playbacks;
 
-	private BufferedImageFrameConverter frameConverter;
+	private FrameToBufferedImageConverter frameConverter;
 
 	private Document document;
 
@@ -159,7 +159,7 @@ public class VideoEventExecutor extends EventExecutor {
 
 		toolController.init();
 
-		frameConverter = new BufferedImageFrameConverter();
+		frameConverter = new FrameToBufferedImageConverter();
 		frameConverter.setImageSize(renderView.getImageSize());
 
 		progressEvent = new RecordingRenderProgressEvent();
@@ -300,7 +300,7 @@ public class VideoEventExecutor extends EventExecutor {
 				}
 			}
 			else {
-				// Generate slide frame from the current action and document state.
+				// Generate the slide frame from the current action and document state.
 				frameConsumer.accept(renderView.renderCurrentFrame(), progressEvent);
 			}
 		}

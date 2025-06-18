@@ -21,6 +21,7 @@ package org.lecturestudio.media.video;
 import static java.util.Objects.*;
 import static org.bytedeco.ffmpeg.global.avutil.AV_PIX_FMT_BGR24;
 
+import java.awt.*;
 import java.awt.image.BufferedImage;
 
 import org.bytedeco.javacv.FFmpegFrameFilter;
@@ -34,7 +35,7 @@ import org.lecturestudio.core.geometry.Dimension2D;
  *
  * @author Alex Andres
  */
-public class BufferedImageFrameConverter implements VideoFrameConverter<BufferedImage> {
+public class FrameToBufferedImageConverter implements VideoFrameConverter<BufferedImage> {
 
 	private final Java2DFrameConverter converter = new Java2DFrameConverter();
 
@@ -52,6 +53,8 @@ public class BufferedImageFrameConverter implements VideoFrameConverter<Buffered
 	 */
 	public void setImageSize(Dimension2D size) {
 		this.imageSize = size;
+
+		image = new BufferedImage((int) size.getWidth(), (int) size.getHeight(), BufferedImage.TYPE_INT_RGB);
 	}
 
 	@Override
@@ -64,7 +67,9 @@ public class BufferedImageFrameConverter implements VideoFrameConverter<Buffered
 
 		// Init frame filter if required.
 		if (isNull(filter) && nonNull(imageSize)) {
-			String scale = String.format("scale=%dx%d", (int) imageSize.getWidth(), (int) imageSize.getHeight());
+			// To keep the aspect ratio, we need to specify only one part, either width or height,
+			// and set the other component to -1.
+			String scale = String.format("scale=%d:-1", (int) imageSize.getWidth());
 
 			filter = new FFmpegFrameFilter(scale, frame.imageWidth, frame.imageHeight);
 			filter.setPixelFormat(AV_PIX_FMT_BGR24);
@@ -80,14 +85,14 @@ public class BufferedImageFrameConverter implements VideoFrameConverter<Buffered
 		// Convert frame into a buffered image.
 		BufferedImage converted = converter.convert(frame);
 
-		// Create a new buffered image if required.
-		if (isNull(image) || image.getWidth() != frame.imageWidth || image.getHeight() != frame.imageHeight) {
-			image = new BufferedImage(frame.imageWidth, frame.imageHeight, BufferedImage.TYPE_INT_RGB);
-		}
+		final int x = (int) ((imageSize.getWidth() - converted.getWidth()) / 2);
+		final int y = (int) ((imageSize.getHeight() - converted.getHeight()) / 2);
 
 		// Convert type byte to type int image.
-		var g2d = image.createGraphics();
-		g2d.drawImage(converted, null, 0, 0);
+		Graphics2D g2d = image.createGraphics();
+		g2d.setPaint(Color.WHITE);
+		g2d.fillRect(0, 0, image.getWidth(), image.getHeight());
+		g2d.drawImage(converted, x, y, null);
 		g2d.dispose();
 
 		return image;

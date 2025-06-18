@@ -384,8 +384,7 @@ public class ViewRenderer {
 			frame = frameFilter.pull();
 		}
 		catch (Exception e) {
-			e.printStackTrace();
-			return;
+			throw new RuntimeException(e);
 		}
 
 		BufferedImage converted = frameConverter.convert(frame);
@@ -395,11 +394,8 @@ public class ViewRenderer {
 		final int x = (currentImage.getWidth() - converted.getWidth()) / 2;
 		final int y = (currentImage.getHeight() - converted.getHeight()) / 2;
 
-//		if (converted.getWidth() != targetWidth || converted.getHeight() != targetHeight) {
-//			bufferg2d.setPaint(Color.BLACK);
-//			bufferg2d.fillRect(0, 0, targetWidth, targetHeight);
-//		}
-
+		g.setPaint(Color.WHITE);
+		g.fillRect(0, 0, currentImage.getWidth(), currentImage.getHeight());
 		g.drawImage(converted, x, y, null);
 	}
 
@@ -477,7 +473,9 @@ public class ViewRenderer {
 	}
 
 	private void createFrameFilter(int width, int height, int frameWidth, int frameHeight) throws Exception {
-		String scale = String.format("scale=%dx%d", width, height);
+		// To keep the aspect ratio, we need to specify only one part, either width or height,
+		// and set the other component to -1.
+		String scale = String.format("scale=%d:-1", width);
 
 		frameFilter = new FFmpegFrameFilter(scale, frameWidth, frameHeight);
 		frameFilter.start();

@@ -18,10 +18,27 @@
 
 package org.lecturestudio.core.view;
 
+/**
+ * Defines the context for presentation view components.
+ * This interface provides methods to configure presentation components
+ * and determine the type of presentation view.
+ *
+ * @author Alex Andres
+ */
 public interface PresentationViewContext {
 
+	/**
+	 * Configures the specified presentation view component with this context's settings.
+	 *
+	 * @param component The presentation view component to configure.
+	 */
 	void configure(PresentationViewComponent component);
 
+	/**
+	 * Returns the type of presentation view associated with this context.
+	 *
+	 * @return The presentation view type.
+	 */
 	PresentationViewType getViewType();
 
 }

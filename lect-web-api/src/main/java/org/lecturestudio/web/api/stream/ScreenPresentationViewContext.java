@@ -28,8 +28,17 @@ import org.lecturestudio.core.view.PresentationViewContext;
 import org.lecturestudio.core.view.PresentationViewType;
 import org.lecturestudio.web.api.event.LocalScreenVideoFrameEvent;
 
+/**
+ * Implementation of the PresentationViewContext interface for handling screen presentations.
+ * This class manages screen view components that consume video frames.
+ * It provides functionality to configure components, determine the view type,
+ * and distribute screen video frame events to registered listeners.
+ *
+ * @author Alex Andres
+ */
 public class ScreenPresentationViewContext implements PresentationViewContext {
 
+	/** List of screen view components that will receive video frame events. */
 	private final List<ScreenViewComponent> eventListeners = new ArrayList<>();
 
 
@@ -47,6 +56,14 @@ public class ScreenPresentationViewContext implements PresentationViewContext {
 		return PresentationViewType.SCREEN;
 	}
 
+	/**
+	 * Processes a screen video frame event and distributes it to registered screen view components.
+	 * <p>
+	 * This method extracts the video frame from the event, retains it for processing,
+	 * sends it to all registered screen view components, and then releases the frame.
+	 *
+	 * @param event The local screen video frame event to process.
+	 */
 	public void addScreenVideoFrameEvent(LocalScreenVideoFrameEvent event) {
 		final VideoFrame videoFrame = event.getFrame();
 		videoFrame.retain();

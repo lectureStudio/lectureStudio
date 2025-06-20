@@ -65,32 +65,62 @@ import org.lecturestudio.media.audio.FFmpegLoudnessNormalization;
 import org.lecturestudio.media.audio.LoudnessConfiguration;
 import org.lecturestudio.media.recording.RecordingEvent;
 
+/**
+ * Service class for managing recording files within the lecture editor application.
+ * <p>
+ * This service provides functionality for:
+ * - Opening, saving, and closing recordings
+ * - Editing recordings (cut, delete pages, replace audio, etc.)
+ * - Managing recording selections and state
+ * - Importing and exporting recordings and audio
+ * - Handling undo/redo operations
+ * - Audio processing operations like loudness normalization
+ * <p>
+ * The service maintains the state of opened recordings and coordinates with other
+ * services like document and playback services to provide a cohesive editing experience.
+ *
+ * @author Alex Andres
+ */
 @Singleton
 public class RecordingFileService {
 
 	private static final Logger LOG = LogManager.getLogger(RecordingFileService.class);
 
+	/** Listener for recording change events that delegates to the recordingChanged method. */
 	private final RecordingChangeListener recordingChangeListener = this::recordingChanged;
 
+	/** The editor application context providing access to editor-specific functionality. */
 	private final EditorContext context;
 
+	/** Service for controlling playback of recordings. */
 	private final RecordingPlaybackService playbackService;
 
+	/** Service for handling document operations. */
 	private final DocumentService documentService;
 
+	/** List of all currently opened recordings. */
 	private final List<Recording> recordings;
 
+	/** Maps recordings to their state hash values to track modifications. */
 	private final Map<Recording, Integer> recordingStateMap;
 
+	/** Event bus for publishing and subscribing to application events. */
 	private final EventBus eventBus;
 
+	/** Maps recordings to their audio loudness configurations for normalization operations. */
 	private final Map<Recording, LoudnessConfiguration> loudnessConfigurationMap;
 
 
+	/**
+	 * Creates a new RecordingFileService instance.
+	 *
+	 * @param context         The application context that will be cast to an EditorContext.
+	 * @param playbackService The service for playing back recordings.
+	 * @param documentService The service for handling documents.
+	 */
 	@Inject
-	RecordingFileService(ApplicationContext context,
-			RecordingPlaybackService playbackService,
-			DocumentService documentService) {
+	RecordingFileService(ApplicationContext context, RecordingPlaybackService playbackService,
+						 DocumentService documentService) {
 		this.context = (EditorContext) context;
 		this.eventBus = context.getEventBus();
 		this.playbackService = playbackService;
@@ -100,6 +130,31 @@ public class RecordingFileService {
 		this.loudnessConfigurationMap = new HashMap<>();
 	}
 
+	/**
+	 * Opens a recording from the specified file asynchronously.
+	 * <p>
+	 * This method performs the following operations:
+	 * <ul>
+	 *   <li>Reads the recording file using {@link RecordingFileReader}</li>
+	 *   <li>Adds the recording to the internal list of active recordings</li>
+	 *   <li>Publishes a {@link RecordingEvent} with type CREATED to notify listeners</li>
+	 *   <li>Registers the recording's document with the document service</li>
+	 *   <li>Makes the opened recording the currently selected recording</li>
+	 *   <li>Initiates asynchronous computation of audio loudness configuration</li>
+	 * </ul>
+	 * <p>
+	 * The method executes asynchronously and returns a CompletableFuture that can be used
+	 * to track the operation's progress and handle potential errors.
+	 *
+	 * @param file The file from which to open the recording. Must be a valid recording file.
+	 *
+	 * @return A CompletableFuture that completes with the opened Recording on success,
+	 * or completes exceptionally with a {@link CompletionException} wrapping the
+	 * underlying exception if an error occurs during reading or processing.
+	 *
+	 * @see RecordingFileReader#read(File)
+	 * @see RecordingEvent
+	 */
 	public CompletableFuture<Recording> openRecording(File file) {
 		return CompletableFuture.supplyAsync(() -> {
 			Recording recording;
@@ -111,20 +166,38 @@ public class RecordingFileService {
 				throw new CompletionException(e);
 			}
 
+			// Add the successfully read recording to the list of active recordings.
 			recordings.add(recording);
 
+			// Notify the system via eventBus that a new recording has been created.
 			eventBus.post(new RecordingEvent(recording, RecordingEvent.Type.CREATED));
 
+			// Register the recording's document with the document service.
 			documentService.addDocument(recording.getRecordedDocument().getDocument());
 
+			// Make this the currently selected/active recording.
 			selectRecording(recording);
 
+			// Begin asynchronous computation of audio loudness configuration
+			// for potential normalization operations.
 			computeLoudnessConfiguration(recording);
 
 			return recording;
 		});
 	}
 
+	/**
+	 * Computes the loudness configuration for a recording's audio asynchronously.
+	 * <p>
+	 * This method analyzes the audio stream to determine its loudness characteristics
+	 * and stores the configuration in the loudnessConfigurationMap for later use in
+	 * normalization operations. The computation is performed on a background thread
+	 * to avoid blocking the main thread.
+	 * <p>
+	 * Any exceptions that occur during the computation are silently caught and ignored.
+	 *
+	 * @param recording The recording for which to compute the loudness configuration.
+	 */
 	private void computeLoudnessConfiguration(Recording recording) {
 		CompletableFuture.runAsync(() -> {
 			FFmpegLoudnessNormalization normalization = new FFmpegLoudnessNormalization();
@@ -141,6 +214,28 @@ public class RecordingFileService {
 		});
 	}
 
+	/**
+	 * Imports a recording from a file and inserts it into the currently selected recording at the specified position.
+	 * <p>
+	 * This method asynchronously performs the following operations:
+	 * <ul>
+	 *   <li>Reads the recording from the specified file</li>
+	 *   <li>Inserts the imported recording into the currently selected recording at the specified start time</li>
+	 *   <li>Optionally normalizes the audio of the imported recording</li>
+	 * </ul>
+	 * <p>
+	 * The operation is performed on a background thread, and its progress can be monitored through the provided
+	 * callback.
+	 *
+	 * @param file              The file from which to import the recording.
+	 * @param start             The position in the currently selected recording where the imported recording should be
+	 *                          inserted (normalized time between 0 and 1).
+	 * @param normalizeNewAudio Whether the audio of the imported recording should be normalized.
+	 * @param callback          The progress callback to monitor the import progress.
+	 *
+	 * @return A CompletableFuture that completes with the imported Recording on success,
+	 * or completes exceptionally with a {@link CompletionException} if an error occurs.
+	 */
 	public CompletableFuture<Recording> importRecording(File file, double start, boolean normalizeNewAudio,
 														ProgressCallback callback) {
 		return CompletableFuture.supplyAsync(() -> {
@@ -161,10 +256,28 @@ public class RecordingFileService {
 		});
 	}
 
+	/**
+	 * Closes the currently selected recording by delegating to {@link #closeRecording(Recording)}.
+	 * This is a convenience method that automatically retrieves the selected recording.
+	 */
 	public void closeSelectedRecording() {
 		closeRecording(getSelectedRecording());
 	}
 
+	/**
+	 * Closes the specified recording and cleans up related resources.
+	 * <p>
+	 * This method performs the following operations:
+	 * <ul>
+	 *   <li>Removes the recording from the internal list of recordings</li>
+	 *   <li>Posts a CLOSED event to the event bus</li>
+	 *   <li>Closes the associated document</li>
+	 *   <li>Notifies the playback service</li>
+	 *   <li>Releases resources associated with the recording</li>
+	 * </ul>
+	 *
+	 * @param recording The recording to close. If null or not in the recording list, nothing happens.
+	 */
 	public void closeRecording(Recording recording) {
 		if (recordings.remove(recording)) {
 			eventBus.post(new RecordingEvent(recording, RecordingEvent.Type.CLOSED));
@@ -178,6 +291,22 @@ public class RecordingFileService {
 		}
 	}
 
+	/**
+	 * Selects the specified recording as the currently active recording.
+	 * <p>
+	 * This method performs the following operations:
+	 * <ul>
+	 *   <li>Removes the recording change listener from the previously selected recording</li>
+	 *   <li>Adds the recording change listener to the newly selected recording</li>
+	 *   <li>Moves the selected recording to the end of the recording list</li>
+	 *   <li>Posts a SELECTED event to the event bus</li>
+	 *   <li>Updates the playback service with the new recording</li>
+	 *   <li>Updates the document service with the recording's document</li>
+	 *   <li>Updates the edit state flags based on the recording's edit history</li>
+	 * </ul>
+	 *
+	 * @param recording The recording to select. If null, only the listener is removed from the previous recording.
+	 */
 	public void selectRecording(Recording recording) {
 		Recording oldRec = getSelectedRecording();
 
@@ -187,7 +316,7 @@ public class RecordingFileService {
 		if (nonNull(recording)) {
 			recording.addRecordingChangeListener(recordingChangeListener);
 
-			// Move new recording to the tail in the list.
+			// Move the new recording to the tail in the list.
 			if (recordings.remove(recording)) {
 				recordings.add(recording);
 
@@ -201,9 +330,17 @@ public class RecordingFileService {
 				updateEditState(recording);
 			}
 		}
-
 	}
 
+	/**
+	 * Returns the currently selected recording.
+	 * <p>
+	 * The selected recording is defined as the last recording in the recordings list.
+	 * This design allows for a simple implementation of the recording selection history,
+	 * where newly selected recordings are moved to the end of the list.
+	 *
+	 * @return The currently selected recording, or null if no recordings are available.
+	 */
 	public Recording getSelectedRecording() {
 		if (recordings.isEmpty()) {
 			return null;
@@ -229,7 +366,7 @@ public class RecordingFileService {
 
 		if (selectedRecording.getRecordedDocument().getDocument().getName()
 				.equals(document.getName())) {
-			// Skip if looking for opened recording.
+			// Skip if looking for the opened recording.
 			return selectedRecording;
 		}
 
@@ -243,13 +380,18 @@ public class RecordingFileService {
 		return null;
 	}
 
+	/**
+	 * Checks whether there are any recordings currently open in the service.
+	 *
+	 * @return {@code true} if there is at least one recording open, {@code false} otherwise.
+	 */
 	public boolean hasRecordings() {
 		return !recordings.isEmpty();
 	}
 
 	/**
 	 * Removes a portion of a recording specified by a time interval. All
-	 * recorded parts - audio, events and slides - contained within the interval
+	 * recorded parts - audio, events, and slides - contained within the interval
 	 * will be removed from the recording.
 	 *
 	 * @param start The start time from where to start removing. The value must
@@ -265,7 +407,7 @@ public class RecordingFileService {
 
 	/**
 	 * Removes a portion of a recording specified by a time interval. All
-	 * recorded parts - audio, events and slides - contained within the interval
+	 * recorded parts - audio, events, and slides - contained within the interval
 	 * will be removed from the recording.
 	 *
 	 * @param start     The start time from where to start removing. The value
@@ -297,10 +439,39 @@ public class RecordingFileService {
 		});
 	}
 
+	/**
+	 * Deletes a page at the specified normalized time position in the currently selected recording.
+	 * <p>
+	 * This is a convenience method that delegates to {@link #deletePage(double, Recording)}
+	 * with the currently selected recording.
+	 *
+	 * @param timeNorm The normalized time position (between 0 and 1) that specifies which page to delete.
+	 *
+	 * @return A CompletableFuture that completes when the page deletion operation is done,
+	 * or completes exceptionally if an error occurs.
+	 */
 	public CompletableFuture<Void> deletePage(double timeNorm) {
 		return deletePage(timeNorm, getSelectedRecording());
 	}
 
+	/**
+	 * Deletes a page at the specified normalized time position in the given recording.
+	 * <p>
+	 * This method performs the following operations:
+	 * <ul>
+	 *   <li>Suspends playback if currently active</li>
+	 *   <li>Creates and executes a DeletePageAction on the recording</li>
+	 *   <li>Updates the recording's edit history</li>
+	 * </ul>
+	 * <p>
+	 * The operation is performed asynchronously on a background thread.
+	 *
+	 * @param timeNorm  The normalized time position (between 0 and 1) that specifies which page to delete.
+	 * @param recording The recording from which to delete the page.
+	 *
+	 * @return A CompletableFuture that completes when the page deletion operation is done,
+	 * or completes exceptionally with a {@link CompletionException} if an error occurs.
+	 */
 	public CompletableFuture<Void> deletePage(double timeNorm, Recording recording) {
 		return CompletableFuture.runAsync(() -> {
 			try {
@@ -314,6 +485,25 @@ public class RecordingFileService {
 		});
 	}
 
+	/**
+	 * Replaces all pages in the currently selected recording with the pages from the provided document.
+	 * <p>
+	 * This method performs the following operations:
+	 * <ul>
+	 *   <li>Gets the currently selected recording</li>
+	 *   <li>Creates a new edit action to replace all pages</li>
+	 *   <li>Adds this action to the recording's edit history</li>
+	 * </ul>
+	 * <p>
+	 * The operation is performed asynchronously on a background thread. A special
+	 * reference to the document is maintained to prevent garbage collection issues
+	 * with PDDocument objects.
+	 *
+	 * @param newDoc The document containing the pages that will replace the current document's pages.
+	 *
+	 * @return A CompletableFuture that completes when the page replacement operation is done,
+	 * or completes exceptionally with a {@link CompletionException} if an error occurs.
+	 */
 	public CompletableFuture<Void> replaceAllPages(Document newDoc) {
 		Recording recording = getSelectedRecording();
 
@@ -336,6 +526,22 @@ public class RecordingFileService {
 		return CompletableFuture.runAsync(runnable);
 	}
 
+	/**
+	 * Inserts a new page from the provided document into the currently selected recording
+	 * at the current time position.
+	 * <p>
+	 * This method asynchronously inserts a page from the provided document at the
+	 * current time position indicated by the primary selection in the context.
+	 * The operation creates an edit action that can be undone later.
+	 * <p>
+	 * A special reference to the document is maintained to prevent garbage collection
+	 * issues with PDDocument objects.
+	 *
+	 * @param newDoc The document containing the page to insert into the recording.
+	 *
+	 * @return A CompletableFuture that completes when the page insertion operation is done,
+	 * or completes exceptionally with a {@link CompletionException} if an error occurs.
+	 */
 	public CompletableFuture<Void> insertPage(Document newDoc) {
 		Recording recording = getSelectedRecording();
 		double timePos = context.getPrimarySelection();
@@ -359,6 +565,20 @@ public class RecordingFileService {
 		return CompletableFuture.runAsync(runnable);
 	}
 
+	/**
+	 * Undoes the last edit action performed on the currently selected recording.
+	 * <p>
+	 * This method asynchronously performs the following operations:
+	 * <ul>
+	 *   <li>Suspends playback if it is currently active</li>
+	 *   <li>Gets the currently selected recording</li>
+	 *   <li>Calls the undo method on the recording's edit manager</li>
+	 *   <li>Updates the edit state flags (can undo, can redo, etc.)</li>
+	 * </ul>
+	 *
+	 * @return A CompletableFuture that completes when the undo operation is done,
+	 * or completes exceptionally with a {@link CompletionException} if an error occurs.
+	 */
 	public CompletableFuture<Void> undoChanges() {
 		return CompletableFuture.runAsync(() -> {
 			try {
@@ -375,6 +595,20 @@ public class RecordingFileService {
 		});
 	}
 
+	/**
+	 * Redoes the last undone edit action performed on the currently selected recording.
+	 * <p>
+	 * This method asynchronously performs the following operations:
+	 * <ul>
+	 *   <li>Suspends playback if it is currently active</li>
+	 *   <li>Gets the currently selected recording</li>
+	 *   <li>Calls the redo method on the recording's edit manager</li>
+	 *   <li>Updates the edit state flags (can undo, can redo, etc.)</li>
+	 * </ul>
+	 *
+	 * @return A CompletableFuture that completes when the redo operation is done,
+	 * or completes exceptionally with a {@link CompletionException} if an error occurs.
+	 */
 	public CompletableFuture<Void> redoChanges() {
 		return CompletableFuture.runAsync(() -> {
 			try {
@@ -391,10 +625,45 @@ public class RecordingFileService {
 		});
 	}
 
+	/**
+	 * Saves the currently selected recording to the specified file.
+	 * <p>
+	 * This is a convenience method that delegates to {@link #saveRecording(Recording, File, ProgressCallback)}
+	 * using the currently selected recording.
+	 *
+	 * @param file     The file to which the recording will be saved.
+	 * @param callback A progress callback to monitor the save operation.
+	 *
+	 * @return A CompletableFuture that completes when the save operation is done,
+	 * or completes exceptionally if an error occurs.
+	 */
 	public CompletableFuture<Void> saveRecording(File file, ProgressCallback callback) {
 		return saveRecording(getSelectedRecording(), file, callback);
 	}
 
+	/**
+	 * Saves a recording to the specified file.
+	 * <p>
+	 * This method performs the following operations:
+	 * <ul>
+	 *   <li>Clones the recording's audio stream</li>
+	 *   <li>Creates a temporary file for the audio data</li>
+	 *   <li>Writes the audio data to the temporary file</li>
+	 *   <li>Creates a new recording object with the same content as the original</li>
+	 *   <li>Writes the recording to the destination file using {@link RecordingFileWriter}</li>
+	 *   <li>Updates the original recording's audio stream if overwriting its source file</li>
+	 *   <li>Updates the recording's state hash in the state map</li>
+	 * </ul>
+	 * <p>
+	 * The operations are performed asynchronously on a background thread.
+	 *
+	 * @param recording The recording to save.
+	 * @param file      The file to which the recording will be saved.
+	 * @param callback  A progress callback to monitor the save operation.
+	 *
+	 * @return A CompletableFuture that completes when the save operation is done,
+	 * or completes exceptionally with a {@link CompletionException} if an error occurs.
+	 */
 	public CompletableFuture<Void> saveRecording(Recording recording, File file, ProgressCallback callback) {
 		return CompletableFuture.runAsync(() -> {
 			RandomAccessAudioStream audioStream = recording.getRecordedAudio().getAudioStream().clone();
@@ -446,31 +715,28 @@ public class RecordingFileService {
 	 * Saves the part of the recording that is specified through the interval.
 	 * Removes the saved part from the current recording.
 	 *
-	 * @param file     The file to save the recording in
-	 * @param interval The interval of the recording that should be saved, in
-	 *                 milliseconds
-	 * @param callback Progress callback for the saving progress
+	 * @param file     The file to save the recording in.
+	 * @param interval The interval of the recording that should be saved in milliseconds.
+	 * @param callback Progress callback for the saving progress.
 	 *
-	 * @return An async future completing the task
+	 * @return An async future completing the task.
 	 */
 	public CompletableFuture<Void> savePartialRecording(File file,
 			Interval<Long> interval, ProgressCallback callback)
 			throws RecordingEditException {
-		return savePartialRecording(file, interval, callback,
-				getSelectedRecording());
+		return savePartialRecording(file, interval, callback, getSelectedRecording());
 	}
 
 	/**
 	 * Saves the part of the recording that is specified through the interval.
 	 * Removes the saved part from the current recording.
 	 *
-	 * @param file      The file to save the recording in
-	 * @param interval  The interval of the recording that should be saved, in
-	 *                  milliseconds
-	 * @param callback  Progress callback for the saving progress
-	 * @param recording The recording that should be saved partially
+	 * @param file      The file to save the recording in.
+	 * @param interval  The interval of the recording that should be saved in milliseconds.
+	 * @param callback  Progress callback for the saving progress.
+	 * @param recording The recording that should be saved partially.
 	 *
-	 * @return An async future completing the task
+	 * @return An async future completing the task.
 	 */
 	public CompletableFuture<Void> savePartialRecording(File file,
 			Interval<Long> interval, ProgressCallback callback,
@@ -484,29 +750,28 @@ public class RecordingFileService {
 			CompletableFuture<Void> future = CompletableFuture.completedFuture(null);
 
 			return future.thenCompose(ignored -> {
-						// Checks whether the interval to get extracted starts in the beginning of the recording
-						// if it does not we have to cut out the section before the interval
+						// Checks whether the interval to get extracted starts at the beginning of the recording.
+						// If it does not, we have to cut out the section before the interval.
 						if (start != 0) {
 							return cut(0, start, partial);
 						}
 						return CompletableFuture.completedFuture(null);
 					})
 					.thenCompose(ignored -> {
-						// Checks whether the interval to get extracted ends at the end of the recording
-						// if it does not we have to cut out the section before the interval
+						// Checks whether the interval to get extracted ends at the end of the recording.
+						// If it does not, we have to cut out the section before the interval.
 						if (end != 1) {
 							return cut(end, 1, partial);
 						}
 						return CompletableFuture.completedFuture(null);
 					})
-					// Then we save the extracted part
+					// Then we save the extracted part.
 					.thenCompose(ignored -> saveRecording(partial, file, callback))
-					// And remove the same interval in the selected recording
+					// And remove the same interval in the selected recording.
 					.thenCompose(ignored -> CompletableFuture.runAsync(() -> {
 						try {
 							addEditAction(getSelectedRecording(),
-									new CutAction(getSelectedRecording(), start,
-											end,
+									new CutAction(getSelectedRecording(), start, end,
 											context.primarySelectionProperty()));
 						}
 						catch (RecordingEditException e) {
@@ -519,11 +784,37 @@ public class RecordingFileService {
 		}
 	}
 
+	/**
+	 * Exports audio from the currently selected recording to a file.
+	 * <p>
+	 * This is a convenience method that delegates to {@link #exportAudio(Recording, File, ProgressCallback)}
+	 * with the currently selected recording.
+	 *
+	 * @param file     The destination file where audio will be saved.
+	 * @param callback A callback to track export progress.
+	 *
+	 * @return A CompletableFuture that completes when the export operation is done,
+	 * or completes exceptionally with a {@link CompletionException} if an error occurs.
+	 */
 	public CompletableFuture<Void> exportAudio(File file,
 			ProgressCallback callback) {
 		return exportAudio(getSelectedRecording(), file, callback);
 	}
 
+	/**
+	 * Exports audio from a specified recording to a file.
+	 * <p>
+	 * This method asynchronously extracts audio from the recording and saves it to the specified file.
+	 * The operation is performed on a background thread, and progress can be monitored through the
+	 * provided callback.
+	 *
+	 * @param recording The recording from which to export audio.
+	 * @param file      The destination file where audio will be saved.
+	 * @param callback  A callback to track export progress.
+	 *
+	 * @return A CompletableFuture that completes when the export operation is done,
+	 * or completes exceptionally with a {@link CompletionException} if an error occurs.
+	 */
 	public CompletableFuture<Void> exportAudio(Recording recording, File file,
 			ProgressCallback callback) {
 		return CompletableFuture.runAsync(() -> {
@@ -536,10 +827,36 @@ public class RecordingFileService {
 		});
 	}
 
+	/**
+	 * Imports audio from a file into the currently selected recording.
+	 * <p>
+	 * This is a convenience method that delegates to {@link #importAudio(File, Recording)}
+	 * with the currently selected recording.
+	 *
+	 * @param file The source file from which to import audio.
+	 *
+	 * @return A CompletableFuture that completes when the import operation is done,
+	 * or completes exceptionally with a {@link CompletionException} if an error occurs.
+	 */
 	public CompletableFuture<Void> importAudio(File file) {
 		return importAudio(file, getSelectedRecording());
 	}
 
+	/**
+	 * Imports audio from a file into a specified recording.
+	 * <p>
+	 * This method asynchronously replaces the audio in the specified recording with audio
+	 * from the provided file. It creates a {@link ReplaceAudioAction} that can be undone later
+	 * and updates the recording with the new audio.
+	 * <p>
+	 * The operation is performed on a background thread.
+	 *
+	 * @param file      The source file from which to import audio.
+	 * @param recording The recording whose audio will be replaced.
+	 *
+	 * @return A CompletableFuture that completes when the import operation is done,
+	 * or completes exceptionally with a {@link CompletionException} if an error occurs.
+	 */
 	public CompletableFuture<Void> importAudio(File file, Recording recording) {
 		return CompletableFuture.runAsync(() -> {
 			try {
@@ -559,10 +876,39 @@ public class RecordingFileService {
 		});
 	}
 
+	/**
+	 * Retrieves the state hash value for a recording that was saved.
+	 * <p>
+	 * This method returns the hash value stored when the recording
+	 * was last saved. This hash can be used to determine if a recording
+	 * has been modified since it was last saved.
+	 *
+	 * @param recording The recording for which to retrieve the save hash.
+	 *
+	 * @return The hash value from when the recording was last saved, or null if the recording
+	 * has never been saved or is not being tracked.
+	 */
 	public Integer getRecordingSaveHash(Recording recording) {
 		return recordingStateMap.get(recording);
 	}
 
+	/**
+	 * Handles changes in a recording by updating the UI and related services.
+	 * <p>
+	 * This method is called when a recording change event occurs and performs the following operations:
+	 * <ul>
+	 *   <li>Updates document service if content related to the document, header, or audio changed</li>
+	 *   <li>Updates playback service for major content changes (except when only events are added)</li>
+	 *   <li>Forwards the event to the event bus for other listeners</li>
+	 *   <li>Adjusts the selection position to maintain a consistent user experience</li>
+	 *   <li>Updates the seeking state to reflect changes correctly in the UI</li>
+	 * </ul>
+	 * <p>
+	 * The method applies the appropriate scaling to selections and positions based on
+	 * the duration changes in the recording.
+	 *
+	 * @param event The recording change event containing information about what changed.
+	 */
 	private void recordingChanged(RecordingChangeEvent event) {
 		Recording.Content content = event.getContentType();
 		Recording recording = event.getRecording();
@@ -616,12 +962,31 @@ public class RecordingFileService {
 		context.setPrimarySelection(selection);
 	}
 
+	/**
+	 * Suspends the ongoing playback if it has been started.
+	 * <p>
+	 * This method is used before performing edit operations to ensure that
+	 * playback doesn't conflict with editing actions.
+	 *
+	 * @throws ExecutableException If an error occurs during playback suspension.
+	 */
 	private void suspendPlayback() throws ExecutableException {
 		if (playbackService.started()) {
 			playbackService.suspend();
 		}
 	}
 
+	/**
+	 * Adds an edit action to the recording's edit manager and updates the edit state.
+	 * <p>
+	 * This method handles the process of adding a new edit action to the recording's
+	 * history and updating the UI state to reflect the new capabilities.
+	 *
+	 * @param recording The recording to which the edit action will be added.
+	 * @param action    The edit action to be performed and added to history.
+	 *
+	 * @throws RecordingEditException If an error occurs during the edit operation.
+	 */
 	private void addEditAction(Recording recording, EditAction action)
 			throws RecordingEditException {
 		recording.getEditManager().addEditAction(action);
@@ -629,6 +994,14 @@ public class RecordingFileService {
 		updateEditState(recording);
 	}
 
+	/**
+	 * Updates the UI context with the current edit capabilities based on the recording state.
+	 * <p>
+	 * This method examines the recording's document and edit history to determine
+	 * which edit operations are currently available and updates the context accordingly.
+	 *
+	 * @param recording The recording whose edit state should be evaluated.
+	 */
 	private void updateEditState(Recording recording) {
 		Document document = recording.getRecordedDocument().getDocument();
 
@@ -642,10 +1015,10 @@ public class RecordingFileService {
 	 * affecting other parts of the recording, like the audio or the total
 	 * duration of the recording.
 	 *
-	 * @param timestamp  The new timestamp
-	 * @param pageNumber The number of the page to move the timestamp
+	 * @param timestamp  The new timestamp.
+	 * @param pageNumber The number of the page to move the timestamp.
 	 *
-	 * @return An async future completing the task
+	 * @return An async future completing the task.
 	 */
 	public CompletableFuture<Void> movePage(int timestamp, int pageNumber) {
 		return movePage(timestamp, pageNumber, getSelectedRecording());
@@ -656,20 +1029,18 @@ public class RecordingFileService {
 	 * affecting other parts of the recording, like the audio or the total
 	 * duration of the recording.
 	 *
-	 * @param timestamp  The new timestamp
-	 * @param pageNumber The number of the page to move the timestamp
-	 * @param recording  The recording this should happen in
+	 * @param timestamp  The new timestamp.
+	 * @param pageNumber The number of the page to move the timestamp.
+	 * @param recording  The recording this should happen in.
 	 *
-	 * @return An async future completing the task
+	 * @return An async future completing the task.
 	 */
-	public CompletableFuture<Void> movePage(int timestamp, int pageNumber,
-			Recording recording) {
+	public CompletableFuture<Void> movePage(int timestamp, int pageNumber, Recording recording) {
 		return CompletableFuture.runAsync(() -> {
 			try {
 				suspendPlayback();
 
-				addEditAction(recording,
-						new MovePageAction(recording, pageNumber, timestamp));
+				addEditAction(recording, new MovePageAction(recording, pageNumber, timestamp));
 			}
 			catch (Exception e) {
 				throw new CompletionException(e);
@@ -681,9 +1052,9 @@ public class RecordingFileService {
 	 * Removes the page with the selected number, without affecting other parts
 	 * of the recording, like the audio or the total duration of the recording.
 	 *
-	 * @param pageNumber The number of the page to remove
+	 * @param pageNumber The number of the page to remove.
 	 *
-	 * @return An async future completing the task
+	 * @return An async future completing the task.
 	 */
 	public CompletableFuture<Void> hidePage(int pageNumber) {
 		return hidePage(pageNumber, getSelectedRecording());
@@ -693,10 +1064,10 @@ public class RecordingFileService {
 	 * Removes the page with the selected number, without affecting other parts
 	 * of the recording, like the audio or the total duration of the recording.
 	 *
-	 * @param pageNumber The number of the page to remove
-	 * @param recording  The recording this should happen in
+	 * @param pageNumber The number of the page to remove.
+	 * @param recording  The recording this should happen in.
 	 *
-	 * @return An async future completing the task
+	 * @return An async future completing the task.
 	 */
 	public CompletableFuture<Void> hidePage(int pageNumber,
 			Recording recording) {
@@ -712,10 +1083,39 @@ public class RecordingFileService {
 		});
 	}
 
+	/**
+	 * Hides a page and moves the next page to the specified timestamp in the currently selected recording.
+	 * <p>
+	 * This is a convenience method that delegates to {@link #hideAndMoveNextPage(int, int, Recording)}
+	 * with the currently selected recording.
+	 *
+	 * @param pageNumber The number of the page to hide.
+	 * @param timestamp  The timestamp to which the next page should be moved (in milliseconds).
+	 *
+	 * @return A CompletableFuture that completes when the operation is done,
+	 * or completes exceptionally with a {@link CompletionException} if an error occurs.
+	 */
 	public CompletableFuture<Void> hideAndMoveNextPage(int pageNumber, int timestamp) {
 		return hideAndMoveNextPage(pageNumber, timestamp, getSelectedRecording());
 	}
 
+	/**
+	 * Hides a page and moves the next page to the specified timestamp in a recording.
+	 * <p>
+	 * This method asynchronously performs the following operations:
+	 * <ul>
+	 *   <li>Suspends playback if it is currently active</li>
+	 *   <li>Creates and executes a HideAndMoveNextPageAction on the recording</li>
+	 *   <li>Updates the recording's edit history</li>
+	 * </ul>
+	 *
+	 * @param pageNumber The number of the page to hide.
+	 * @param timestamp  The timestamp to which the next page should be moved (in milliseconds).
+	 * @param recording  The recording on which to perform this operation.
+	 *
+	 * @return A CompletableFuture that completes when the operation is done,
+	 * or completes exceptionally with a {@link CompletionException} if an error occurs.
+	 */
 	public CompletableFuture<Void> hideAndMoveNextPage(int pageNumber,
 			int timestamp, Recording recording) {
 		return CompletableFuture.runAsync(() -> {
@@ -733,12 +1133,11 @@ public class RecordingFileService {
 	}
 
 	/**
-	 * Inserts new actions into a page and optionally removes un-used ones.
+	 * Inserts new actions into a page and optionally removes unused ones.
 	 *
 	 * @param addActions    The actions to be added.
 	 * @param removeActions The actions to be removed.
-	 * @param pageNumber    The page number into which the actions should be
-	 *                      added.
+	 * @param pageNumber    The page number into which the actions should be added.
 	 *
 	 * @return An async task performing the task.
 	 */
@@ -749,6 +1148,21 @@ public class RecordingFileService {
 				getSelectedRecording());
 	}
 
+	/**
+	 * Inserts new actions into a page and optionally removes unused ones in the specified recording.
+	 * <p>
+	 * This method asynchronously modifies the playback actions in the recording by adding the specified
+	 * actions and removing others. The changes are applied to the specified page and recorded as a
+	 * single undoable edit action.
+	 *
+	 * @param addActions    The actions to be added to the recording.
+	 * @param removeActions The actions to be removed from the recording.
+	 * @param pageNumber    The page number into which the actions should be added.
+	 * @param recording     The recording in which the actions should be modified.
+	 *
+	 * @return A CompletableFuture that completes when the operation is done,
+	 * or completes exceptionally with a {@link CompletionException} if an error occurs.
+	 */
 	public CompletableFuture<Void> insertPlaybackActions(
 			List<PlaybackAction> addActions,
 			List<PlaybackAction> removeActions, int pageNumber,
@@ -776,13 +1190,17 @@ public class RecordingFileService {
 	}
 
 	/**
-	 * {@link ModifyPlaybackActionPositionsAction}
+	 * Modifies positions of playback actions in the currently selected recording.
+	 * <p>
+	 * This is a convenience method that delegates to the overloaded version
+	 * using the currently selected recording.
 	 *
-	 * @param handle     the associated shape handle
-	 * @param pageNumber the number of the page the actions should be modified
-	 * @param delta      the amount the locations should be changed by
+	 * @param handle     The handle identifier of the playback action(s) to modify.
+	 * @param pageNumber The page number containing the action(s) to modify.
+	 * @param delta      The position delta to apply to the action(s).
 	 *
-	 * @return an async task performing the task
+	 * @return A CompletableFuture that completes when the operation is done,
+	 * or completes exceptionally with a {@link CompletionException} if an error occurs.
 	 */
 	public CompletableFuture<Void> modifyPlaybackActionPositions(int handle,
 			int pageNumber, PenPoint2D delta) {
@@ -790,14 +1208,28 @@ public class RecordingFileService {
 				getSelectedRecording());
 	}
 
+	/**
+	 * Modifies the positions of playback actions in a recording.
+	 * <p>
+	 * This method asynchronously updates the positions of playback actions that match
+	 * the specified handle in the given page. The action is recorded in the edit history
+	 * and can be undone. The primary selection position is preserved during this operation.
+	 *
+	 * @param handle     The handle identifier of the playback action(s) to modify.
+	 * @param pageNumber The page number containing the action(s) to modify.
+	 * @param delta      The position delta to apply to the action(s).
+	 * @param recording  The recording containing the actions to modify.
+	 *
+	 * @return A CompletableFuture that completes when the operation is done,
+	 * or completes exceptionally with a {@link CompletionException} if an error occurs.
+	 */
 	public CompletableFuture<Void> modifyPlaybackActionPositions(int handle,
 			int pageNumber, PenPoint2D delta, Recording recording) {
 		double timestampBefore = context.getPrimarySelection();
 		return CompletableFuture.runAsync(() -> {
 				try {
 					addEditAction(recording,
-							new ModifyPlaybackActionPositionsAction(recording,
-									handle, pageNumber, delta));
+							new ModifyPlaybackActionPositionsAction(recording, handle, pageNumber, delta));
 				}
 				catch (Exception e) {
 					throw new CompletionException(e);
@@ -809,26 +1241,54 @@ public class RecordingFileService {
 			});
 	}
 
+	/**
+	 * Normalizes the audio loudness of the currently selected recording to a specified LUFS value.
+	 * <p>
+	 * This is a convenience method that delegates to the overloaded version
+	 * using the currently selected recording.
+	 *
+	 * @param lufsValue The target LUFS (Loudness Units relative to Full Scale) value to normalize to.
+	 * @param callback  A progress callback to monitor the normalization progress.
+	 *
+	 * @return A CompletionStage that completes when the normalization operation is done
+	 * or completes exceptionally if an error occurs.
+	 */
 	public CompletionStage<Void> normalizeAudioLoudness(Double lufsValue,
 			ProgressCallback callback) {
 		return normalizeAudioLoudness(lufsValue, callback,
 				getSelectedRecording());
 	}
 
+	/**
+	 * Normalizes the audio loudness of a specified recording to a target LUFS value.
+	 * <p>
+	 * This method asynchronously performs audio loudness normalization on the recording
+	 * by creating and executing a {@link NormalizeLoudnessAction}. The operation is
+	 * recorded in the edit history and can be undone later. After normalization,
+	 * the loudness configuration is recomputed for use in subsequent audio edits.
+	 * <p>
+	 * The method executes on a background thread, and its progress can be monitored
+	 * through the provided callback.
+	 *
+	 * @param lufsValue The target LUFS (Loudness Units relative to Full Scale) value to normalize to
+	 * @param callback  A progress callback to monitor the normalization process
+	 * @param recording The recording whose audio will be normalized
+	 *
+	 * @return A CompletionStage that completes when the normalization operation is done,
+	 * or completes exceptionally with a {@link CompletionException} if an error occurs
+	 */
 	public CompletionStage<Void> normalizeAudioLoudness(Double lufsValue,
 			ProgressCallback callback, Recording recording) {
 		return CompletableFuture.runAsync(() -> {
 				try {
-					addEditAction(recording,
-							new NormalizeLoudnessAction(recording, lufsValue,
-									callback));
+					addEditAction(recording, new NormalizeLoudnessAction(recording, lufsValue, callback));
 				}
 				catch (Exception e) {
 					throw new CompletionException(e);
 				}
 			})
 			.thenCompose((ignored) -> {
-				// Recompute Loudness Configuration, to be used for subsequent audio edits
+				// Recompute Loudness Configuration, to be used for later audio edits.
 				computeLoudnessConfiguration(recording);
 				return CompletableFuture.completedFuture(null);
 			});

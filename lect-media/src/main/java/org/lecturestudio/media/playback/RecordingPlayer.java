@@ -62,41 +62,78 @@ import org.apache.logging.log4j.Logger;
 import org.lecturestudio.media.video.VideoPlayer;
 import org.lecturestudio.media.video.VideoRenderSurface;
 
+/**
+ * A player that manages the synchronized playback of recorded lecture content.
+ * <p>
+ * This class coordinates the playback of audio, video, and document events from a recording.
+ * It provides functionality for controlling playback (play, pause, stop), seeking to specific
+ * positions, navigating between pages, and managing audio settings.
+ * </p>
+ * <p>
+ * The player maintains synchronization between audio playback and recorded events to ensure
+ * that document annotations appear at the correct times. It also supports preloading of static
+ * content and proper page navigation during playback.
+ * </p>
+ *
+ * @author Alex Andres
+ */
 public class RecordingPlayer extends ExecutableBase {
 
 	private static final Logger LOG = LogManager.getLogger(RecordingPlayer.class);
 
+	/** The application context providing access to application services. */
 	private final ApplicationContext context;
 
+	/** Audio configuration settings for playback. */
 	private final AudioConfiguration audioConfig;
 
+	/** Provider for audio system functionality. */
 	private final AudioSystemProvider audioSystemProvider;
 
+	/** Tracks synchronization state between audio and events. */
 	private final SyncState syncState = new SyncState();
 
+	/** Stream for random access to audio data. */
 	private RandomAccessAudioStream audioStream;
 
+	/** The recording being played. */
 	private Recording recording;
 
+	/** Total duration of the recording. */
 	private Time duration;
 
+	/** Executes recorded events during playback. */
 	private EventExecutor actionExecutor;
 
+	/** Handles audio playback. */
 	private AudioPlayer audioPlayer;
 
+	/** Controls document tools during playback. */
 	private ToolController toolController;
 
+	/** Surface where video frames are rendered. */
 	private VideoRenderSurface videoRenderSurface;
 
+	/** Current seek position in milliseconds (-1 if not seeking). */
 	private int seekTime;
 
+	/** Index of the previously selected page. */
 	private int previousPage;
 
+	/** Flag indicating whether the player is currently in seeking mode. */
 	private boolean seeking;
 
+	/** Event for reporting playback progress. */
 	private MediaPlayerProgressEvent progressEvent;
 
 
+	/**
+	 * Creates a new RecordingPlayer instance for playing recorded lecture content.
+	 *
+	 * @param context             The application context providing access to application services.
+	 * @param audioConfig         The audio configuration settings for playback.
+	 * @param audioSystemProvider The provider for audio system functionality.
+	 */
 	public RecordingPlayer(ApplicationContext context,
 			AudioConfiguration audioConfig,
 			AudioSystemProvider audioSystemProvider) {
@@ -114,6 +151,17 @@ public class RecordingPlayer extends ExecutableBase {
 		videoRenderSurface = renderSurface;
 	}
 
+	/**
+	 * Sets the recording to be played by this player.
+	 * <p>
+	 * This method must be called when the player is in a clean state,
+	 * meaning either before initialization or after destruction.
+	 * </p>
+	 *
+	 * @param recording The recording to be played.
+	 *
+	 * @throws IllegalStateException If the player is not in a clean state.
+	 */
 	public synchronized void setRecording(Recording recording) {
 		if (!created() && !destroyed()) {
 			throw new IllegalStateException("Recording player must have clean state");
@@ -215,18 +263,40 @@ public class RecordingPlayer extends ExecutableBase {
 		actionExecutor.destroy();
 	}
 
+	/**
+	 * Gets the audio stream used for playback.
+	 *
+	 * @return The random access audio stream for the current recording.
+	 */
 	public RandomAccessAudioStream getAudioStream() {
 		return audioStream;
 	}
 
+	/**
+	 * Gets the total duration of the current recording.
+	 *
+	 * @return The total duration as a Time object.
+	 */
 	public Time getDuration() {
 		return duration;
 	}
 
+	/**
+	 * Gets the elapsed time in the current playback session.
+	 *
+	 * @return The elapsed time in milliseconds.
+	 */
 	public long getElapsedTime() {
 		return syncState.getAudioTime();
 	}
 
+	/**
+	 * Sets the audio volume for playback.
+	 *
+	 * @param volume The volume level (0.0 to 1.0).
+	 *
+	 * @throws NullPointerException If the audio player has not been initialized.
+	 */
 	public void setVolume(float volume) {
 		if (isNull(audioPlayer)) {
 			throw new NullPointerException("Audio player not initialized");
@@ -235,17 +305,29 @@ public class RecordingPlayer extends ExecutableBase {
 		audioPlayer.setAudioVolume(volume);
 	}
 
+	/**
+	 * Navigates to the next page in the document.
+	 * If the current page is the last page, this method does nothing.
+	 *
+	 * @throws Exception If page selection fails.
+	 */
 	public void selectNextPage() throws Exception {
 		Document document = getDocument();
-		
+
 		int pageNumber = document.getCurrentPageNumber() + 1;
 		if (pageNumber > document.getPageCount() - 1) {
 			return;
 		}
-		
+
 		selectPage(pageNumber, started());
 	}
 
+	/**
+	 * Navigates to the previous page in the document.
+	 * If the current page is the first page, this method does nothing.
+	 *
+	 * @throws Exception If page selection fails.
+	 */
 	public void selectPreviousPage() throws Exception {
 		Document document = getDocument();
 
@@ -257,20 +339,54 @@ public class RecordingPlayer extends ExecutableBase {
 		selectPage(pageNumber, started());
 	}
 
+	/**
+	 * Selects a specific page by page number.
+	 *
+	 * @param pageNumber Zero-based index of the page to select.
+	 *
+	 * @throws Exception If page selection fails.
+	 */
 	public void selectPage(int pageNumber) throws Exception {
 		selectPage(pageNumber, started());
 	}
 
+	/**
+	 * Selects a specific page by Page object.
+	 *
+	 * @param page The Page object to select.
+	 *
+	 * @throws Exception If page selection fails.
+	 */
 	public void selectPage(Page page) throws Exception {
 		int pageNumber = getDocument().getPageIndex(page);
 
 		selectPage(pageNumber, started());
 	}
 
+	/**
+	 * Seeks to a position in the recording using a normalized time value.
+	 * The normalized time should be between 0.0 (beginning) and 1.0 (end).
+	 *
+	 * @param time Normalized time position (between 0.0 and 1.0).
+	 *
+	 * @throws ExecutableException If seeking fails.
+	 */
 	public synchronized void seek(double time) throws ExecutableException {
 		seek((int) (time * duration.getMillis() + 0.5));
 	}
 
+	/**
+	 * Seeks to a specific time position in the recording.
+	 * This method will:
+	 * 1. Enter seeking mode if not already seeking
+	 * 2. Reset the current page state
+	 * 3. Determine the correct page for seek position
+	 * 4. Update the UI with the new position
+	 *
+	 * @param timeMs Position to seek to in milliseconds.
+	 *
+	 * @throws ExecutableException If seeking fails.
+	 */
 	public synchronized void seek(int timeMs) throws ExecutableException {
 		if (seekTime == timeMs) {
 			return;
@@ -278,23 +394,31 @@ public class RecordingPlayer extends ExecutableBase {
 
 		seekTime = timeMs;
 		
+		// Only enter the seeking state if not already seeking.
 		if (!seeking) {
 			setSeeking(true);
 			
+		    // Suspend playback if currently playing.
 			if (started()) {
 				suspend();
 			}
+		    // Reset document state to prepare for seeking.
 			reset();
 		}
 		
+		// Determine which page contains the target seek position.
 		int pageNumber = actionExecutor.getPageNumber(seekTime);
 
+		// Reset and reload pages between previous position and new position.
 		resetPages(pageNumber, previousPage);
 		
+		// Perform the actual seeking operation to position actions at the requested time.
 		actionExecutor.seekByTime(seekTime);
 		
+		// Update tracking of the current page position.
 		previousPage = pageNumber;
 		
+		// Update the UI with new playback position information.
 		onAudioPlaybackProgress(new Time(timeMs), duration);
 	}
 
@@ -313,22 +437,32 @@ public class RecordingPlayer extends ExecutableBase {
 			suspend();
 		}
 
+		// Disable seeking mode since we're performing a direct page selection.
 		setSeeking(false);
+		// Reset document state to prepare for new page selection.
 		reset();
 
+		// Request the timestamp for the selected page from the action executor.
+		// This returns the time position in milliseconds where the page begins.
 		Integer time = actionExecutor.seekByPage(pageNumber);
 
 		if (nonNull(time)) {
+		    // If a valid timestamp was found for the page, position the audio playback
+		    // to the beginning of this page.
 			audioPlayer.seek(time);
-
+		    // Track the newly selected page as our current position.
 			previousPage = pageNumber;
 		}
 		else {
+		    // If no timestamp was found (invalid page), reset to the first page.
 			previousPage = 0;
 		}
 
+		// Update UI components to reflect the new playback position.
 		onAudioPlaybackProgress(new Time(time), duration);
 
+		// If playback was already in progress before page selection,
+		// restart playback from the new position.
 		if (startPlayback) {
 			start();
 		}
@@ -428,7 +562,7 @@ public class RecordingPlayer extends ExecutableBase {
 				StaticShapeAction staticAction = iter.next();
 				PlaybackAction action = staticAction.getAction();
 				
-				// Execute static action on the selected page.
+				// Execute the static action on the selected page.
 				try {
 					action.execute(toolController);
 				}

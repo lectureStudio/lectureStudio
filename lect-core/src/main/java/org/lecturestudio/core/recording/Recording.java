@@ -29,39 +29,73 @@ import java.util.Objects;
 import org.lecturestudio.core.model.Interval;
 import org.lecturestudio.core.recording.edit.RecordingEditManager;
 
+/**
+ * Represents a lecture recording consisting of audio, document, and event data.
+ * This class provides functionality for managing recorded content, including
+ * undo/redo operations, state tracking, and event notifications.
+ * <p>
+ * Recording manages multiple components:
+ * - Audio data
+ * - Document content
+ * - Event timeline
+ * - Recording header metadata
+ * <p>
+ * The class implements observer pattern through {@link RecordingChangeListener}.
+ *
+ * @author Alex Andres
+ */
 public class Recording {
 
+	/** The format version of the recording, used for compatibility checks. */
 	public static final int FORMAT_VERSION = 3;
 
+	/**
+	 * Enumeration of content types that can be modified in a recording.
+	 * Used to specify which part of the recording has changed when firing change events.
+	 */
 	public enum Content {
 		ALL, HEADER, AUDIO, DOCUMENT, EVENTS_ADDED, EVENTS_CHANGED, EVENTS_REMOVED
 	}
 
+	/** List of listeners that get notified when the recording changes. */
 	private final List<RecordingChangeListener> listeners = new ArrayList<>();
 
+	/** Manager for recording edit operations with undo/redo functionality. */
 	private final RecordingEditManager editManager = new RecordingEditManager();
 
-	/** The source file. */
+	/** The source file from which this recording was loaded. */
 	private File sourceFile;
 
+	/** Contains metadata about the recording such as title, presenter, date, etc. */
 	private RecordingHeader header;
 
+	/** Contains the recorded audio data. */
 	private RecordedAudio audio;
 
+	/** Contains the recorded document data and associated state. */
 	private RecordedDocument document;
 
+	/** Contains the recorded events data like annotations and actions. */
 	private RecordedEvents events;
 
 
+	/**
+	 * Creates a new Recording instance with a default RecordingHeader.
+	 * The other recording components (audio, document, events) remain uninitialized
+	 * until explicitly set.
+	 */
 	public Recording() {
 		header = new RecordingHeader();
 	}
 
 	/**
-	 * Copies all mutable object variables from the supplied recording.
+	 * Creates a new Recording instance by copying data from an existing recording.
+	 * This constructor performs a deep copy of the source recording, including its document,
+	 * audio, events, and header information.
 	 *
-	 * @param recording The recording to copy the variables from.
-	 * @throws IOException
+	 * @param recording the source recording to copy data from.
+	 *
+	 * @throws IOException if an error occurs while copying the audio, document, or events data.
 	 */
 	public Recording(Recording recording) throws IOException {
 		setRecordedDocument(new RecordedDocument(recording.getRecordedDocument().toByteArray()));
@@ -70,64 +104,130 @@ public class Recording {
 		setRecordingHeader(recording.getRecordingHeader().clone());
 	}
 
+	/**
+	 * Gets the file from which this recording was loaded.
+	 *
+	 * @return the source file of this recording.
+	 */
 	public File getSourceFile() {
 		return sourceFile;
 	}
 
+	/**
+	 * Sets the file from which this recording was loaded.
+	 *
+	 * @param file the source file to set.
+	 */
 	public void setSourceFile(File file) {
 		this.sourceFile = file;
 	}
 
+	/**
+	 * Gets the edit manager that handles undo/redo operations for this recording.
+	 *
+	 * @return the recording edit manager.
+	 */
 	public RecordingEditManager getEditManager() {
 		return editManager;
 	}
 
+	/**
+	 * Gets the metadata header for this recording.
+	 *
+	 * @return the recording header containing metadata.
+	 */
 	public RecordingHeader getRecordingHeader() {
 		return header;
 	}
 
+	/**
+	 * Sets the metadata header for this recording and notifies listeners of the change.
+	 *
+	 * @param header the recording header to set.
+	 */
 	public void setRecordingHeader(RecordingHeader header) {
 		this.header = header;
 
 		fireChangeEvent(Content.HEADER);
 	}
 
+	/**
+	 * Gets the audio component of this recording.
+	 *
+	 * @return the recorded audio data.
+	 */
 	public RecordedAudio getRecordedAudio() {
 		return audio;
 	}
 
+	/**
+	 * Sets the audio component of this recording and notifies listeners of the change.
+	 *
+	 * @param audio the recorded audio data to set.
+	 */
 	public void setRecordedAudio(RecordedAudio audio) {
 		this.audio = audio;
 
 		fireChangeEvent(Content.AUDIO);
 	}
 
+	/**
+	 * Gets the events component of this recording.
+	 *
+	 * @return the recorded events' data.
+	 */
 	public RecordedEvents getRecordedEvents() {
 		return events;
 	}
 
+	/**
+	 * Sets the events component of this recording and notifies listeners of the change.
+	 *
+	 * @param actions the recorded events data to set.
+	 */
 	public void setRecordedEvents(RecordedEvents actions) {
 		this.events = actions;
 
 		fireChangeEvent(Content.EVENTS_REMOVED);
 	}
 
+	/**
+	 * Gets the document component of this recording.
+	 *
+	 * @return the recorded document data.
+	 */
 	public RecordedDocument getRecordedDocument() {
 		return document;
 	}
 
+	/**
+	 * Sets the document component of this recording and notifies listeners of the change.
+	 *
+	 * @param document the recorded document data to set.
+	 */
 	public void setRecordedDocument(RecordedDocument document) {
 		this.document = document;
 
 		fireChangeEvent(Content.DOCUMENT);
 	}
 
+	/**
+	 * Closes the document resources associated with this recording.
+	 * This should be called when the recording is no longer needed.
+	 */
 	public void close() {
 		if (nonNull(getRecordedDocument().getDocument())) {
 			getRecordedDocument().getDocument().close();
 		}
 	}
 
+	/**
+	 * Undoes the last edit operation across all recording components.
+	 * This method checks and executes undo operations for events, document, audio,
+	 * and header components if available.
+	 *
+	 * @throws RecordingEditException if an error occurs during the undo operation.
+	 */
 	public void undo() throws RecordingEditException {
 		if (!hasUndoActions()) {
 			return;
@@ -149,6 +249,13 @@ public class Recording {
 		fireChangeEvent(Content.ALL);
 	}
 
+	/**
+	 * Redoes the last undone edit operation across all recording components.
+	 * This method checks and executes redo operations for events, document, audio,
+	 * and header components if available.
+	 *
+	 * @throws RecordingEditException if an error occurs during the redo operation.
+	 */
 	public void redo() throws RecordingEditException {
 		if (!hasRedoActions()) {
 			return;
@@ -170,6 +277,11 @@ public class Recording {
 		fireChangeEvent(Content.ALL);
 	}
 
+	/**
+	 * Checks if there are any undo operations available across all recording components.
+	 *
+	 * @return true if at least one part has an undo action available, false otherwise.
+	 */
 	public boolean hasUndoActions() {
 		return getRecordingHeader().hasUndoActions() ||
 				getRecordedEvents().hasUndoActions() ||
@@ -177,6 +289,11 @@ public class Recording {
 				getRecordedAudio().hasUndoActions();
 	}
 
+	/**
+	 * Checks if there are any redo operations available across all recording components.
+	 *
+	 * @return true if at least one part has a redo action available, false otherwise.
+	 */
 	public boolean hasRedoActions() {
 		return getRecordingHeader().hasRedoActions() ||
 				getRecordedEvents().hasRedoActions() ||
@@ -184,6 +301,12 @@ public class Recording {
 				getRecordedAudio().hasRedoActions();
 	}
 
+	/**
+	 * Generates a hash code representing the current state of the recording.
+	 * This hash combines the state hashes of all recording components.
+	 *
+	 * @return an integer hash code representing the current state.
+	 */
 	public int getStateHash() {
 		return Objects.hash(getRecordingHeader().getStateHash(),
 				getRecordedEvents().getStateHash(),
@@ -191,10 +314,20 @@ public class Recording {
 				getRecordedAudio().getStateHash());
 	}
 
+	/**
+	 * Registers a listener to be notified of changes to this recording.
+	 *
+	 * @param listener the listener to add.
+	 */
 	public void addRecordingChangeListener(RecordingChangeListener listener) {
 		listeners.add(listener);
 	}
 
+	/**
+	 * Removes a previously registered recording change listener.
+	 *
+	 * @param listener the listener to remove.
+	 */
 	public void removeRecordingChangeListener(RecordingChangeListener listener) {
 		listeners.remove(listener);
 	}
@@ -206,7 +339,6 @@ public class Recording {
 	public void fireChangeEvent(Content contentType) {
 		fireChangeEvent(contentType, null);
 	}
-
 
 	/**
 	 * Do not run this method in the UI Thread.

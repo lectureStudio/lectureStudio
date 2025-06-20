@@ -19,6 +19,7 @@
 package org.lecturestudio.presenter.api.presenter;
 
 import static java.util.Objects.isNull;
+import static java.util.Objects.nonNull;
 
 import java.util.concurrent.CompletableFuture;
 
@@ -36,6 +37,20 @@ import org.lecturestudio.presenter.api.view.StreamSettingsView;
 import org.lecturestudio.web.api.service.ServiceParameters;
 import org.lecturestudio.web.api.stream.service.StreamProviderService;
 
+/**
+ * Presenter class for managing stream settings in the application.
+ * <p>
+ * This class handles stream configuration settings including
+ * - Stream recording options
+ * - Server connection settings
+ * - Access token validation
+ * - Screen sharing profiles and configuration
+ * <p>
+ * It provides functionality to initialize the view with current settings,
+ * reset settings to default values, and verify access token validity.
+ *
+ * @author Alex Andres
+ */
 public class StreamSettingsPresenter extends Presenter<StreamSettingsView> {
 
 	private final DefaultConfiguration defaultConfig;
@@ -111,6 +126,19 @@ public class StreamSettingsPresenter extends Presenter<StreamSettingsView> {
 					view.setAccessTokenValid(true);
 				})
 				.exceptionally(throwable -> {
+					String errorMessage = throwable.getMessage();
+					String message = context.getDictionary().get("stream.settings.access.token.error.generic");
+
+					if (nonNull(errorMessage)) {
+						if (errorMessage.contains("status code 403")) {
+							message = context.getDictionary().get("stream.settings.access.token.error.unauthorized");
+						}
+						else if (errorMessage.contains("UnknownHostException")) {
+							message = context.getDictionary().get("stream.settings.access.token.error.host");
+						}
+					}
+
+					view.setAccessTokenError(message);
 					view.setAccessTokenValid(false);
 					return null;
 				});

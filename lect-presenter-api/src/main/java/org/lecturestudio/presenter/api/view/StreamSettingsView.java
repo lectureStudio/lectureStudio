@@ -25,22 +25,76 @@ import org.lecturestudio.core.view.Action;
 import org.lecturestudio.presenter.api.model.ParticipantVideoLayout;
 import org.lecturestudio.presenter.api.net.ScreenShareProfile;
 
+/**
+ * Interface defining the view for stream settings configuration.
+ * Provides methods to configure streaming parameters, credentials,
+ * and layout options for presentation streaming functionality.
+ *
+ * @author Alex Andres
+ */
 public interface StreamSettingsView extends SettingsBaseView {
 
+	/**
+	 * Sets whether the stream should be recorded.
+	 *
+	 * @param record The property controlling stream recording state.
+	 */
 	void setRecordStream(BooleanProperty record);
 
+	/**
+	 * Sets the access token for stream authentication.
+	 *
+	 * @param accessToken The property containing the authentication token.
+	 */
 	void setAccessToken(StringProperty accessToken);
 
+	/**
+	 * Sets the validation state of the current access token.
+	 *
+	 * @param valid True if the access token is valid, false otherwise.
+	 */
 	void setAccessTokenValid(boolean valid);
 
+	/**
+	 * Sets an error message for access token validation issues.
+	 *
+	 * @param error The error message to display.
+	 */
+	void setAccessTokenError(String error);
+
+	/**
+	 * Sets the stream server name.
+	 *
+	 * @param serverName The property containing the server name.
+	 */
 	void setServerName(StringProperty serverName);
 
+	/**
+	 * Sets the action to execute when checking access token validity.
+	 *
+	 * @param action The action to perform for token validation.
+	 */
 	void setOnCheckAccessToken(Action action);
 
+	/**
+	 * Sets the screen sharing profile.
+	 *
+	 * @param profile The property containing the screen sharing profile.
+	 */
 	void setScreenShareProfile(ObjectProperty<ScreenShareProfile> profile);
 
+	/**
+	 * Sets the available screen sharing profiles.
+	 *
+	 * @param profiles Array of available screen sharing profiles.
+	 */
 	void setScreenShareProfiles(ScreenShareProfile[] profiles);
 
+	/**
+	 * Sets the layout for participant video display.
+	 *
+	 * @param layoutProperty The property containing the participant video layout.
+	 */
 	void setParticipantVideoLayout(ObjectProperty<ParticipantVideoLayout> layoutProperty);
 
 }

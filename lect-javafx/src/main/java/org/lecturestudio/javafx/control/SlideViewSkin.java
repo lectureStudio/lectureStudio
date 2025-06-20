@@ -19,11 +19,9 @@
 package org.lecturestudio.javafx.control;
 
 import static java.util.Objects.isNull;
-import static java.util.Objects.nonNull;
 
 import java.awt.Dimension;
 import java.awt.Graphics2D;
-import java.awt.Rectangle;
 import java.awt.color.ColorSpace;
 import java.awt.image.BufferedImage;
 import java.awt.image.ColorModel;
@@ -49,6 +47,7 @@ import javafx.scene.image.*;
 import javafx.stage.Screen;
 
 import org.bytedeco.javacv.Frame;
+
 import org.lecturestudio.core.ExecutableException;
 import org.lecturestudio.core.PageMetrics;
 import org.lecturestudio.core.controller.RenderController;
@@ -118,9 +117,7 @@ public class SlideViewSkin extends SkinBase<SlideView> {
 		try {
 			renderer.renderFrame(frame);
 
-			Platform.runLater(() -> {
-				updateBuffer(null);
-			});
+			Platform.runLater(this::updateBuffer);
 		}
 		catch (Exception e) {
 			throw new RuntimeException(e);
@@ -131,7 +128,7 @@ public class SlideViewSkin extends SkinBase<SlideView> {
 		Platform.runLater(() -> {
 			renderer.renderForeground();
 
-			updateBuffer(null);
+			updateBuffer();
 		});
 	}
 
@@ -202,8 +199,7 @@ public class SlideViewSkin extends SkinBase<SlideView> {
 				renderThread.start();
 			}
 			catch (ExecutableException e) {
-				e.printStackTrace();
-				//LOG.error("Start render thread failed.", e);
+				throw new RuntimeException(e);
 			}
 		}
 
@@ -271,6 +267,25 @@ public class SlideViewSkin extends SkinBase<SlideView> {
 				}
 			}
 		});
+
+		control.seekProperty().addListener(((observable, oldValue, newValue) -> {
+			/*
+			 * Handle seek state changes for the slide view.
+			 * When seeking is finished (newValue == false):
+			 *   - Re-add the presentation parameter listener to respond to parameter changes
+			 *   - Trigger a render task to update the view
+			 * When seeking begins (newValue == true):
+			 *   - Remove the presentation parameter listener to prevent rendering during seek
+			 */
+			if (Boolean.FALSE.equals(newValue)) {
+				control.presentationParameterProperty().addListener(presentationListener);
+
+				renderThread.onTask(renderPageTask);
+			}
+			else {
+				control.presentationParameterProperty().removeListener(presentationListener);
+			}
+		}));
 
 		getChildren().addAll(imageView);
 
@@ -371,7 +386,7 @@ public class SlideViewSkin extends SkinBase<SlideView> {
 			renderer.renderPage(getSkinnable().getPage(), new Dimension(
 					(int) viewSize.getWidth(), (int) viewSize.getHeight()));
 
-			updateBuffer(null);
+			updateBuffer();
 		});
 	}
 
@@ -391,21 +406,13 @@ public class SlideViewSkin extends SkinBase<SlideView> {
 		renderThread.onTask(renderPageTask);
 	}
 
-	private void updateBuffer(final Rectangle clip) {
+	private void updateBuffer() {
 		final Graphics2D g2d = slideImage.createGraphics();
-		if (nonNull(clip)) {
-			g2d.setClip(clip.x, clip.y, clip.width, clip.height);
-		}
 		g2d.drawImage(renderer.getImage(), 0, 0, null);
 		g2d.dispose();
 
 		Runnable fxRunnable = () -> {
-			pixelBuffer.updateBuffer(pixelBuffer -> {
-				if (nonNull(clip) && !clip.isEmpty()) {
-					return new javafx.geometry.Rectangle2D(clip.x, clip.y, clip.width, clip.height);
-				}
-				return null;
-			});
+			pixelBuffer.updateBuffer(pixelBuffer -> null);
 		};
 
 		FxUtils.invoke(fxRunnable);
@@ -453,7 +460,7 @@ public class SlideViewSkin extends SkinBase<SlideView> {
 
 			renderer.renderPage(page, new Dimension(width, height));
 
-			updateBuffer(null);
+			updateBuffer();
 		}
 	}
 }

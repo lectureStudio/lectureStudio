@@ -393,11 +393,11 @@ public class RecordingPlayer extends ExecutableBase {
 		}
 
 		seekTime = timeMs;
-		
+
 		// Only enter the seeking state if not already seeking.
 		if (!seeking) {
 			setSeeking(true);
-			
+
 		    // Suspend playback if currently playing.
 			if (started()) {
 				suspend();
@@ -405,19 +405,19 @@ public class RecordingPlayer extends ExecutableBase {
 		    // Reset document state to prepare for seeking.
 			reset();
 		}
-		
+
 		// Determine which page contains the target seek position.
 		int pageNumber = actionExecutor.getPageNumber(seekTime);
 
 		// Reset and reload pages between previous position and new position.
 		resetPages(pageNumber, previousPage);
-		
+
 		// Perform the actual seeking operation to position actions at the requested time.
 		actionExecutor.seekByTime(seekTime);
-		
+
 		// Update tracking of the current page position.
 		previousPage = pageNumber;
-		
+
 		// Update the UI with new playback position information.
 		onAudioPlaybackProgress(new Time(timeMs), duration);
 	}

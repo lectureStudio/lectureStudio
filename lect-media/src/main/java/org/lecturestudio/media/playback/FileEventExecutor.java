@@ -46,27 +46,53 @@ import org.lecturestudio.core.recording.action.ScreenAction;
 import org.lecturestudio.media.video.FFmpegFrameGrabber;
 import org.lecturestudio.media.video.VideoPlayer;
 
+/**
+ * Executes recorded events from files during media playback.
+ * This class manages the playback of recorded actions, handling the timing and
+ * synchronization of events with audio and video content. It processes page changes,
+ * annotations, and screen actions (video) in a synchronized manner.
+ * The executor maintains page timing information to enable seeking by time or page number,
+ * and coordinates with a VideoPlayer to handle video content during playback.
+ *
+ * @author Alex Andres
+ */
 public class FileEventExecutor extends EventExecutor {
 
 	private static final Logger LOG = LogManager.getLogger(FileEventExecutor.class);
 
+	/** The synchronization state that tracks timing for audio, video and events. */
 	private final SyncState syncState;
 
+	/** Controller for handling tool interactions and document manipulations. */
 	private final ToolController toolController;
 
+	/** List of pages with their associated playback actions and timestamps. */
 	private final List<RecordedPage> recordedPages;
 
+	/** Video player component responsible for handling video playback. */
 	private final VideoPlayer videoPlayer;
 
+	/** Stack of playback actions to be executed during playback. */
 	private Stack<PlaybackAction> playbacks;
 
+	/** Maps page numbers to their corresponding timestamp values in milliseconds. */
 	private Map<Integer, Integer> pageChangeEvents;
 
+	/** Thread that handles the sequential execution of playback events. */
 	private EventThread thread;
 
+	/** The currently active screen action that contains video playback information. */
 	private ScreenAction activeScreenAction;
 
 
+	/**
+	 * Constructs a new FileEventExecutor for processing recorded events during playback.
+	 *
+	 * @param toolController The controller that handles tool interactions and document manipulations.
+	 * @param recordedPages  List of pages with their associated actions and timestamps.
+	 * @param videoPlayer    The video player component for handling video content.
+	 * @param syncState      The state that tracks timing for audio, video and events.
+	 */
 	public FileEventExecutor(ToolController toolController, List<RecordedPage> recordedPages, VideoPlayer videoPlayer,
 							 SyncState syncState) {
 		this.toolController = toolController;
@@ -213,7 +239,7 @@ public class FileEventExecutor extends EventExecutor {
 						if (time >= action.getTimestamp()) {
 							action.execute(toolController);
 
-							// Remove executed action.
+							// Remove the executed action.
 							playbacks.pop();
 
 							if (action.getType() == ActionType.SCREEN) {
@@ -419,6 +445,13 @@ public class FileEventExecutor extends EventExecutor {
 
 
 
+	/**
+	 * Thread implementation that handles the execution of playback events.
+	 * This class provides mechanisms for controlling thread execution with
+	 * wait/signal patterns and a clean shutdown procedure.
+	 * It encapsulates a ReentrantLock and Condition to facilitate thread
+	 * coordination during playback state changes (start, suspend, stop).
+	 */
 	private static class EventThread extends Thread {
 
 		private final ReentrantLock lock;

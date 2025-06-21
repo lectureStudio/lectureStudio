@@ -49,6 +49,17 @@ class WebStartView extends WebViewElement implements StartView {
 
 			observer(file);
 		}, false);
+		this.openRecordingButton.addEventListener("dragover", (event: DragEvent) => {
+			event.preventDefault();
+		}, false);
+		this.openRecordingButton.addEventListener("drop", (event: DragEvent) => {
+			event.preventDefault();
+			if (event.dataTransfer.files.length > 0) {
+				const file = event.dataTransfer.files[0];
+
+				observer(file);
+			}
+		}, false);
 	}
 
 	setOnOpenStream(observer: () => void): void {

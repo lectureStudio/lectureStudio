@@ -104,7 +104,7 @@ public class PresenterContext extends ApplicationContext {
 	/** Set of participants in the current course. */
 	private final ObservableSet<CourseParticipant> courseParticipants = new ObservableHashSet<>();
 
-	/** Count of participants categorized by presence type. */
+	/** Count of participants categorized by a presence type. */
 	private final ObjectProperty<ParticipantCount> courseParticipantsCount = new ObjectProperty<>();
 
 	/** List of messenger messages currently displayed. */
@@ -131,7 +131,7 @@ public class PresenterContext extends ApplicationContext {
 	/** Flag indicating whether the stream should be visible. */
 	private final BooleanProperty viewStream = new BooleanProperty();
 
-	/** Flag indicating whether recording is active. */
+	/** Flag indicating whether the recording is active. */
 	private final BooleanProperty recordingStarted = new BooleanProperty();
 
 	/** Flag indicating whether there are unsaved changes in the recording. */
@@ -142,6 +142,9 @@ public class PresenterContext extends ApplicationContext {
 
 	/** Flag indicating whether the outline should be displayed. */
 	private final BooleanProperty showOutline = new BooleanProperty();
+
+	/** Flag indicating whether recording notifications are enabled for users. */
+	private final BooleanProperty notifyToRecord = new BooleanProperty();
 
 	/** Service managing user privileges. */
 	private final UserPrivilegeService userPrivilegeService;
@@ -520,6 +523,24 @@ public class PresenterContext extends ApplicationContext {
 	 */
 	public BooleanProperty showOutlineProperty() {
 		return showOutline;
+	}
+
+	/**
+	 * Checks if users should be notified about recording functionality.
+	 *
+	 * @return True if recording notifications are enabled, false otherwise.
+	 */
+	public boolean getNotifyToRecord() {
+		return notifyToRecord.get();
+	}
+
+	/**
+	 * Sets whether to notify users about recording functionality.
+	 *
+	 * @param notify True if recording notifications should be enabled, false otherwise.
+	 */
+	public void setNotifyToRecord(boolean notify) {
+		notifyToRecord.set(notify);
 	}
 
 	/**

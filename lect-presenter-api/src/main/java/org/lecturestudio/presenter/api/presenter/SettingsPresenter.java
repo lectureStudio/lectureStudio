@@ -24,29 +24,66 @@ import javax.inject.Inject;
 
 import org.lecturestudio.core.app.ApplicationContext;
 import org.lecturestudio.core.presenter.Presenter;
+import org.lecturestudio.core.view.Action;
 import org.lecturestudio.presenter.api.view.SettingsView;
 
+/**
+ * Presenter class for the application settings view.
+ * Manages the settings interface and handles saving configuration when closed.
+ * Controls visibility of advanced settings based on application configuration.
+ *
+ * @author Alex Andres
+ */
 public class SettingsPresenter extends Presenter<SettingsView> {
 
+	/** Action to be executed when the settings view is closed. */
+	private Action closeAction;
+
+
+	/**
+	 * Constructs a new SettingsPresenter.
+	 *
+	 * @param context The application context providing access to application-wide resources and configuration.
+	 * @param view    The view managed by this presenter.
+	 */
 	@Inject
 	SettingsPresenter(ApplicationContext context, SettingsView view) {
 		super(context, view);
 	}
 
+	/**
+	 * Sets the settings path in the view if the provided path is not null.
+	 *
+	 * @param path The settings path to be set.
+	 */
 	public void setSettingsPath(String path) {
 		if (nonNull(path)) {
 			view.setSettingsPath(path);
 		}
 	}
 
+	/**
+	 * Sets the action to be executed when the settings view is closed.
+	 *
+	 * @param action The action to execute on close.
+	 */
+	public void setCloseAction(Action action) {
+		closeAction = action;
+	}
+
 	@Override
 	public void initialize() {
+		// Register callback to be executed when the settings view is closed.
 		setOnClose(() -> {
 			try {
 				context.saveConfiguration();
 			}
 			catch (Exception e) {
 				logException(e, "Save configuration failed");
+			}
+
+			if (nonNull(closeAction)) {
+				closeAction.execute();
 			}
 		});
 

@@ -77,6 +77,15 @@ public abstract class Presenter<T extends View> {
 	}
 
 	/**
+	 * Returns the application context associated with this presenter.
+	 *
+	 * @return The application context providing access to application-wide services and configurations.
+	 */
+	public ApplicationContext getContext() {
+		return context;
+	}
+
+	/**
 	 * Returns the view component controlled by this presenter.
 	 *
 	 * @return The view instance.

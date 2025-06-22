@@ -21,12 +21,33 @@ package org.lecturestudio.presenter.api.view;
 import org.lecturestudio.core.view.Action;
 import org.lecturestudio.core.view.View;
 
+/**
+ * Interface representing the settings view in the presenter application.
+ * Provides methods for configuring and managing application settings.
+ *
+ * @author Alex Andres
+ */
 public interface SettingsView extends View {
 
+	/**
+	 * Sets whether advanced settings should be shown or hidden.
+	 *
+	 * @param selected true to show advanced settings, false to hide them.
+	 */
 	void setAdvancedSettings(boolean selected);
 
+	/**
+	 * Sets the file system path where settings are stored.
+	 *
+	 * @param path the path to the settings storage location.
+	 */
 	void setSettingsPath(String path);
 
+	/**
+	 * Sets the action to be executed when the settings view is closed.
+	 *
+	 * @param action the action to execute on close.
+	 */
 	void setOnClose(Action action);
 
 }

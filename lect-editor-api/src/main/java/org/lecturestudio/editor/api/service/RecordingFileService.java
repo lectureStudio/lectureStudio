@@ -919,10 +919,15 @@ public class RecordingFileService {
 		double prevDuration = playbackService.getDuration().getMillis();
 		double scale = prevDuration / recording.getRecordedAudio().getAudioStream().getLengthInMillis();
 
+		switch (content) {
+			case ALL, DOCUMENT, HEADER, AUDIO: {
+				documentService.replaceDocument(document);
+				break;
+			}
+		}
 		// Do not refresh the recording if new events got added, because the view got already handled by the UI.
 		switch (content) {
-			case ALL, DOCUMENT, HEADER, AUDIO -> {
-				documentService.replaceDocument(document);
+			case ALL, DOCUMENT, HEADER, AUDIO, EVENTS_REMOVED, EVENTS_CHANGED -> {
 				playbackService.setRecording(recording);
 
 				updateEditState(recording);
@@ -1160,7 +1165,8 @@ public class RecordingFileService {
 	 */
 	public CompletableFuture<Void> insertPlaybackActions(
 			List<PlaybackAction> addActions,
-			List<PlaybackAction> removeActions, int pageNumber,
+			List<PlaybackAction> removeActions,
+			int pageNumber,
 			Recording recording) {
 		return CompletableFuture.runAsync(() -> {
 				// Add and remove actions with a single composite action which

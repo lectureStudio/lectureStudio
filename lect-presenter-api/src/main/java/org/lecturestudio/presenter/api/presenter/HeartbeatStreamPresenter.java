@@ -26,6 +26,13 @@ import org.lecturestudio.core.presenter.NotificationPresenter;
 import org.lecturestudio.core.view.NotificationType;
 import org.lecturestudio.core.view.NotificationView;
 
+/**
+ * A presenter for displaying heartbeat stream error notifications.
+ * This class extends NotificationPresenter and is configured to show
+ * warning notifications specifically for heartbeat-related errors.
+ *
+ * @author Alex Andres
+ */
 public class HeartbeatStreamPresenter extends NotificationPresenter {
 
 	@Inject
@@ -35,6 +42,8 @@ public class HeartbeatStreamPresenter extends NotificationPresenter {
 
 	@Override
 	public void initialize() {
+		super.initialize();
+
 		Dictionary dict = context.getDictionary();
 
 		setNotificationType(NotificationType.WARNING);

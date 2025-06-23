@@ -18,14 +18,40 @@
 
 package org.lecturestudio.core.view;
 
+/**
+ * Interface for a notification view component that displays notifications to users.
+ * Extends the base {@link View} interface with notification-specific functionality.
+ *
+ * @author Alex Andres
+ */
 public interface NotificationView extends View {
 
+	/**
+	 * Sets the type of notification.
+	 *
+	 * @param type the notification type to set.
+	 */
 	void setType(NotificationType type);
 
+	/**
+	 * Sets the title of the notification.
+	 *
+	 * @param title the title text to display.
+	 */
 	void setTitle(String title);
 
+	/**
+	 * Sets the message content of the notification.
+	 *
+	 * @param message the message text to display.
+	 */
 	void setMessage(String message);
 
+	/**
+	 * Sets the action to execute when the notification is closed.
+	 *
+	 * @param action the action to execute on close.
+	 */
 	void setOnClose(Action action);
 
 }

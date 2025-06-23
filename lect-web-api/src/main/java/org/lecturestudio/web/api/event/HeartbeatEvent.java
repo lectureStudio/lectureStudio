@@ -25,8 +25,20 @@ package org.lecturestudio.web.api.event;
  */
 public record HeartbeatEvent(Type type) {
 
+	/**
+	 * The type of heartbeat event that occurred.
+	 * Indicates whether the heartbeat was successful or failed.
+	 */
 	public enum Type {
-		SUCCESS, FAILURE
+		/**
+		 * Indicates that the heartbeat was successful and the server/service is available.
+		 */
+		SUCCESS,
+
+		/**
+		 * Indicates that the heartbeat failed and the server/service is unavailable.
+		 */
+		FAILURE
 	}
 
 }

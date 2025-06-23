@@ -54,20 +54,18 @@ public class HeartbeatErrorHandler extends PresenterHandler {
 		heartbeatError.set(false);
 	}
 
-	@Subscribe
+//	@Subscribe
 	public void onEvent(final HeartbeatEvent event) {
-		System.out.println(event);
-
-//		if (event.type() == HeartbeatEvent.Type.FAILURE) {
+		if (event.type() == HeartbeatEvent.Type.FAILURE) {
 			if (heartbeatError.compareAndSet(false, true)) {
 				context.getEventBus().post(new ShowPresenterCommand<>(
 						HeartbeatStreamPresenter.class));
 			}
-//		}
-//		else {
-//			context.getEventBus().post(new ClosePresenterCommand(
-//					HeartbeatStreamPresenter.class));
-//			heartbeatError.set(false);
-//		}
+		}
+		else {
+			context.getEventBus().post(new ClosePresenterCommand(
+					HeartbeatStreamPresenter.class));
+			heartbeatError.set(false);
+		}
 	}
 }

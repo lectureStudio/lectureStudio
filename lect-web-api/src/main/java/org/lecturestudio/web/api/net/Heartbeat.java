@@ -25,6 +25,9 @@ import java.net.http.HttpResponse;
 import java.time.Duration;
 import java.util.concurrent.*;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
 import org.lecturestudio.core.bus.EventBus;
 import org.lecturestudio.web.api.event.HeartbeatEvent;
 
@@ -34,6 +37,8 @@ import org.lecturestudio.web.api.event.HeartbeatEvent;
  * @author Alex Andres
  */
 public class Heartbeat {
+
+	private static final Logger LOG = LogManager.getLogger(Heartbeat.class);
 
 	private final EventBus eventBus;
 	private final HttpClient httpClient;
@@ -117,6 +122,8 @@ public class Heartbeat {
 			}
 		}
 		catch (Exception e) {
+			LOG.error("Heartbeat request failed: {}", e.getMessage(), e);
+
 			eventBus.post(new HeartbeatEvent(HeartbeatEvent.Type.FAILURE));
 		}
 	}

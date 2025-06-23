@@ -919,15 +919,10 @@ public class RecordingFileService {
 		double prevDuration = playbackService.getDuration().getMillis();
 		double scale = prevDuration / recording.getRecordedAudio().getAudioStream().getLengthInMillis();
 
-		switch (content) {
-			case ALL, DOCUMENT, HEADER, AUDIO: {
-				documentService.replaceDocument(document);
-				break;
-			}
-		}
 		// Do not refresh the recording if new events got added, because the view got already handled by the UI.
 		switch (content) {
 			case ALL, DOCUMENT, HEADER, AUDIO, EVENTS_REMOVED, EVENTS_CHANGED -> {
+				documentService.replaceDocument(document);
 				playbackService.setRecording(recording);
 
 				updateEditState(recording);

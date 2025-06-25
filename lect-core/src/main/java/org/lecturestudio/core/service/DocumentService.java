@@ -38,6 +38,7 @@ import org.apache.logging.log4j.Logger;
 
 import org.lecturestudio.core.app.ApplicationContext;
 import org.lecturestudio.core.app.configuration.Configuration;
+import org.lecturestudio.core.app.configuration.WhiteboardConfiguration;
 import org.lecturestudio.core.bus.event.DocumentEvent;
 import org.lecturestudio.core.bus.event.PageEvent;
 import org.lecturestudio.core.geometry.Dimension2D;
@@ -305,6 +306,8 @@ public class DocumentService {
 		if (nonNull(selectedDocument) && selectedDocument.isWhiteboard()) {
 			Page page = selectedDocument.createPage();
 
+			updatePageParameters(page);
+
 			context.getEventBus().post(new PageEvent(page, PageEvent.Type.CREATED));
 
 			selectPage(selectedDocument, page.getPageNumber());
@@ -342,6 +345,8 @@ public class DocumentService {
 
 				if (selectedDocument.getPageCount() == 0) {
 					Page page = selectedDocument.createPage();
+
+					updatePageParameters(page);
 
 					context.getEventBus().post(new PageEvent(page,
 							PageEvent.Type.CREATED));
@@ -446,7 +451,9 @@ public class DocumentService {
 			whiteboard = new TemplateDocument(templateFile);
 			whiteboard.setTitle(name);
 			whiteboard.setDocumentType(DocumentType.WHITEBOARD);
-			whiteboard.createPage();
+
+			Page page = whiteboard.createPage();
+			updatePageParameters(page);
 		}
 		else {
 			whiteboard = createWhiteboard();
@@ -477,9 +484,30 @@ public class DocumentService {
 					pageRect.getHeight()));
 		}
 
-		whiteboard.createPage();
+		Page page = whiteboard.createPage();
+
+		updatePageParameters(page);
 
 		return whiteboard;
+	}
+
+	private void updatePageParameters(Page page) {
+		WhiteboardConfiguration config = context.getConfiguration().getWhiteboardConfig();
+		PresentationParameterProvider pProvider = context.getPagePropertyProvider(ViewType.User);
+		PresentationParameter param = pProvider.getParameter(page);
+
+		// Determine whether to show the grid based on whiteboard configuration.
+		boolean showGrid = config.getShowGridAutomatically();
+
+		// Apply grid setting to the user view.
+		param.setShowGrid(showGrid);
+
+		// Configure grid settings for the presentation view.
+		pProvider = context.getPagePropertyProvider(ViewType.Presentation);
+		param = pProvider.getParameter(page);
+		// For the presentation view, only show the grid if both automatic grids are enabled
+		// and the "show grid on displays" option is enabled.
+		param.setShowGrid(showGrid && config.getShowGridOnDisplays());
 	}
 
 	private void updateRecentDocuments(Document doc) {

@@ -863,7 +863,7 @@ public class ToolController extends Controller implements ToolContext {
 			provider = getContext().getPagePropertyProvider(ViewType.Presentation);
 			param = provider.getParameter(selectedDoc.getCurrentPage());
 
-			// Sync with user's view.
+			// Sync with the user's view.
 			param.setShowGrid(showGrid);
 		}
 	}

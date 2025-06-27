@@ -375,7 +375,7 @@ public class QuizDataSource {
 		}
 
 		return new JsonQuizFileRepository(
-				new File(FileUtils.stripExtension(file) + ".quizzes"));
+				new File(FileUtils.stripExtension(file) + CURRENT_QUIZ_FILE_ENDING));
 	}
 
 	/**

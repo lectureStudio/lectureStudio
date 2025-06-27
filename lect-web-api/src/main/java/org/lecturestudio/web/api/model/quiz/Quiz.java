@@ -96,7 +96,10 @@ public class Quiz implements Cloneable, Serializable {
 	/** The text of the quiz question presented to users. */
 	private String question;
 
-	/** Media files (images, audio, etc.) that accompany the question. */
+	/** Optional comment or explanation associated with the quiz. */
+	private String comment;
+
+	/** Media files (images, audio, etc.) that go with the question. */
 	private List<HttpResourceFile> questionResources = new ArrayList<>();
 
 	/** The possible answer options for multiple choice and single choice questions. */
@@ -188,6 +191,24 @@ public class Quiz implements Cloneable, Serializable {
 	 */
 	public String getQuestion() {
 		return question;
+	}
+
+	/**
+	 * Sets the comment for this quiz.
+	 *
+	 * @param comment The comment text to set.
+	 */
+	public void setComment(final String comment) {
+		this.comment = comment;
+	}
+
+	/**
+	 * Returns the current comment for this quiz.
+	 *
+	 * @return The comment text, or null if no comment has been set.
+	 */
+	public String getComment() {
+		return comment;
 	}
 
 	/**
@@ -330,13 +351,14 @@ public class Quiz implements Cloneable, Serializable {
 		boolean b = Objects.equals(type, other.type);
 		boolean c = Objects.equals(options, other.options);
 		boolean d = Objects.equals(filter, other.filter);
+		boolean e = Objects.equals(comment, other.comment);
 
-		return a && b && c && d;
+		return a && b && c && d && e;
 	}
 
 	@Override
 	public int hashCode() {
-		return Objects.hash(question, type, options, filter);
+		return Objects.hash(question, type, options, filter, comment);
 	}
 
 	@Override
@@ -360,6 +382,7 @@ public class Quiz implements Cloneable, Serializable {
 	@Override
 	public Quiz clone() {
 		Quiz quiz = new Quiz(type, question);
+		quiz.setComment(getComment());
 		quiz.setQuizSet(getQuizSet());
 
 		for (QuizOption o : getOptions()) {

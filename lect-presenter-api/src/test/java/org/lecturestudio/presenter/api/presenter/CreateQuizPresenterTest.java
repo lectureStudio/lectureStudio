@@ -516,6 +516,16 @@ class CreateQuizPresenterTest extends PresenterTest {
 		}
 
 		@Override
+		public String getQuizComment() {
+			return "";
+		}
+
+		@Override
+		public void setQuizComment(String comment) {
+
+		}
+
+		@Override
 		public void setDocuments(List<Document> documents) {
 
 		}

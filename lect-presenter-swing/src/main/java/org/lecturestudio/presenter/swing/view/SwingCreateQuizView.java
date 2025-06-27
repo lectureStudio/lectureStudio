@@ -39,13 +39,7 @@ import java.util.ResourceBundle;
 import java.util.Vector;
 
 import javax.inject.Inject;
-import javax.swing.AbstractAction;
-import javax.swing.DefaultComboBoxModel;
-import javax.swing.JButton;
-import javax.swing.JComboBox;
-import javax.swing.JComponent;
-import javax.swing.JRadioButton;
-import javax.swing.KeyStroke;
+import javax.swing.*;
 import javax.swing.text.JTextComponent;
 
 import net.atlanticbb.tantlinger.shef.HTMLEditorPane;
@@ -77,6 +71,8 @@ public class SwingCreateQuizView extends ContentPane implements CreateQuizView {
 	private Container optionContainer;
 
 	private HTMLEditorPane htmlEditor;
+
+	private JTextArea commentTextArea;
 
 	private JComboBox<Document> docSetComboBox;
 
@@ -221,7 +217,17 @@ public class SwingCreateQuizView extends ContentPane implements CreateQuizView {
 
 	@Override
 	public void setQuizText(String text) {
-		htmlEditor.setText(text);
+		SwingUtils.invoke(() -> htmlEditor.setText(text));
+	}
+
+	@Override
+	public String getQuizComment() {
+		return commentTextArea.getText();
+	}
+
+	@Override
+	public void setQuizComment(String comment) {
+		SwingUtils.invoke(() -> commentTextArea.setText(comment));
 	}
 
 	@Override
@@ -314,6 +320,9 @@ public class SwingCreateQuizView extends ContentPane implements CreateQuizView {
 		});
 
 		htmlEditor.getEditorPane().getDocument().addDocumentListener(
+				new DefaultDocumentListener(() -> updateQuizStateUI(true)));
+
+		commentTextArea.getDocument().addDocumentListener(
 				new DefaultDocumentListener(() -> updateQuizStateUI(true)));
 
 		optionContainer.addContainerListener(new ContainerAdapter() {

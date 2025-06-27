@@ -255,9 +255,14 @@ public class QuizDocument extends HtmlToPdfDocument {
 
 		Quiz quiz = result.getQuiz();
 		QuizType type = quiz.getType();
+		boolean hasCorrectAnswers = quiz.getOptions().stream().anyMatch(QuizOption::correct);
 
 		// Create the first page with the question on it.
-		renderQuestion(tplDoc, doc, contentBounds, quiz);
+		renderQuestion(tplDoc, doc, contentBounds, quiz, false);
+
+		if (type != QuizType.FREE_TEXT && hasCorrectAnswers) {
+			renderQuestion(tplDoc, doc, contentBounds, quiz, true);
+		}
 
 		// Checks if the list of results is empty.
 		if (!result.getResult().isEmpty()) {
@@ -293,7 +298,7 @@ public class QuizDocument extends HtmlToPdfDocument {
 	}
 
 	private static void renderQuestion(PDDocument tplDoc, PDDocument doc,
-			Rectangle2D contentBounds, Quiz quiz) throws IOException {
+			Rectangle2D contentBounds, Quiz quiz, boolean markCorrect) throws IOException {
 		String question = quiz.getQuestion().replaceAll("&nbsp;", " ");
 
 		var jdoc = Jsoup.parseBodyFragment(question);
@@ -329,8 +334,19 @@ public class QuizDocument extends HtmlToPdfDocument {
 					prefix = quiz.getOptionAlpha(i + "") + ") ";
 				}
 
+				QuizOption option = options.get(i);
+				String itemText = prefix + option.optionText();
+
+				if (markCorrect && option.correct()) {
+					itemText += " <span class=\"icon-check\"></span>";
+				}
+
 				Element item = uList.appendElement("p");
-				item.text(prefix + options.get(i).optionText());
+				item.html(itemText);
+
+				if (markCorrect && option.correct()) {
+					item.addClass("correct");
+				}
 			}
 		}
 

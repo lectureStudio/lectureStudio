@@ -106,7 +106,6 @@ import org.lecturestudio.web.api.message.SpeechRequestMessage;
 import org.lecturestudio.web.api.message.util.MessageUtil;
 import org.lecturestudio.web.api.model.Message;
 import org.lecturestudio.web.api.model.ScreenSource;
-import org.lecturestudio.web.api.model.quiz.Quiz;
 import org.lecturestudio.web.api.service.ServiceParameters;
 import org.lecturestudio.web.api.stream.ScreenPresentationViewContext;
 import org.lecturestudio.web.api.stream.model.CourseParticipant;
@@ -267,19 +266,6 @@ public class SlidesPresenter extends Presenter<SlidesView> {
 		quizState = event.getState();
 
 		view.setQuizState(event.getState());
-
-		Quiz quiz = webService.getStartedQuiz();
-
-		if (quizState == ExecutableState.Started && nonNull(quiz)) {
-			String quizComment = quiz.getComment();
-
-			if (nonNull(quizComment) && !quizComment.isBlank()) {
-				view.setNotesText(quizComment);
-			}
-		}
-		else if (quizState == ExecutableState.Stopped) {
-			view.clearNotesViewContainer();
-		}
 
 		checkRemoteServiceState();
 	}
@@ -1274,12 +1260,14 @@ public class SlidesPresenter extends Presenter<SlidesView> {
 		view.setPage(page, parameter);
 
 		view.clearNotesViewContainer();
+
 		//A page can have multiple notes
-		for(String note : page.getNotes()){
+		for (String note : page.getNotes()) {
 			view.setNotesText(note);
 		}
 
 		view.setSlideNotes(page, parameter);
+
 		loadPageObjectViews(page);
 
 		recordPage(page);

@@ -88,11 +88,26 @@ import org.lecturestudio.web.api.model.quiz.QuizResult;
  */
 public class QuizDocument extends HtmlToPdfDocument {
 
+	/**
+	 * Used for sorting numeric quiz answers in {@link #getSortedAnswers(QuizResult)} method
+	 * when dealing with numeric quiz types.
+	 */
 	private static final NumericStringComparator NS_COMPARATOR = new NumericStringComparator();
 
+	/** The quiz result data containing answers and statistics for this document. */
 	private final QuizResult result;
 
 
+	/**
+	 * Creates a new quiz document with the specified template and quiz result.
+	 *
+	 * @param templateFile  the file to use as a template for the document.
+	 * @param contentBounds the dimensional bounds defining the content area of the document.
+	 * @param dict          the dictionary used for localization of text elements.
+	 * @param result        the quiz result data containing questions, answers, and statistics.
+	 *
+	 * @throws IOException if an I/O error occurs during document creation.
+	 */
 	public QuizDocument(File templateFile, Rectangle2D contentBounds,
 			Dictionary dict, QuizResult result) throws IOException {
 		this.result = result;
@@ -100,12 +115,30 @@ public class QuizDocument extends HtmlToPdfDocument {
 		init(createDocument(templateFile, contentBounds, dict, result));
 		setDocumentType(DocumentType.QUIZ);
 		setTitle(dict.get("quiz"));
+		setComment(result.getQuiz().getComment());
 	}
 
+	/**
+	 * Checks whether this quiz document contains any answers.
+	 *
+	 * @return {@code true} if the result exists and contains at least one answer,
+	 * {@code false} otherwise.
+	 */
 	public boolean hasAnswers() {
 		return nonNull(result) && !result.getResult().isEmpty();
 	}
 
+	/**
+	 * Sets a comment on all pages of this quiz document.
+	 * The comment is only added if it is not null and not blank.
+	 *
+	 * @param comment the text to add as a note to each page of the document
+	 */
+	private void setComment(String comment) {
+		if (nonNull(comment) && !comment.isBlank()) {
+			getPages().forEach(page -> page.addTextNote(comment));
+		}
+	}
 
 	/**
 	 * Creates a helper for generating a document representing a multiple-choice quiz,

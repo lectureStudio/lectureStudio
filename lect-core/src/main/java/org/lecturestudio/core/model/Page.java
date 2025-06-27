@@ -40,6 +40,8 @@ import org.lecturestudio.core.model.shape.ZoomShape;
 import org.lecturestudio.core.tool.ShapeModifyEvent;
 import org.lecturestudio.core.tool.ShapePaintEvent;
 
+import static java.util.Objects.isNull;
+
 /**
  * This class is the representation of a {@link Page} in a {@link Document}. It
  * has a background shape, that can either be empty (white board page) or a
@@ -640,6 +642,20 @@ public class Page {
 		undoActions.clear();
 		redoActions.clear();
 		shapes.clear();
+	}
+
+	/**
+	 * Adds a text note to this page. If the provided note is null or blank,
+	 * no action will be taken.
+	 *
+	 * @param note The text note to add to the page.
+	 */
+	public void addTextNote(String note) {
+		if (isNull(note) || note.isBlank()) {
+			return;
+		}
+
+		textNotes.add(note);
 	}
 
 	/**

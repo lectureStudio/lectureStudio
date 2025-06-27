@@ -56,7 +56,7 @@ public class Quiz implements Cloneable, Serializable {
 	 */
 	public enum QuizType {
 		/**
-		 * Represents a multiple choice question where users can select multiple answers.
+		 * Represents a multiple-choice question where users can select multiple answers.
 		 */
 		MULTIPLE,
 
@@ -160,7 +160,7 @@ public class Quiz implements Cloneable, Serializable {
 	/**
 	 * Returns the type of this quiz.
 	 *
-	 * @return The quiz type (MULTIPLE, SINGLE, or NUMERIC).
+	 * @return The quiz type (MULTIPLE, SINGLE, NUMERIC or FREE_TEXT).
 	 */
 	public QuizType getType() {
 		return type;
@@ -367,6 +367,7 @@ public class Quiz implements Cloneable, Serializable {
 		buffer.append(type).append("\n");
 		buffer.append(set).append("\n");
 		buffer.append(question).append("\n");
+		buffer.append(comment).append("\n");
 
 		for (QuizOption option : options) {
 			buffer.append(" ").append(option).append("\n");

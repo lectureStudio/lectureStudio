@@ -20,9 +20,15 @@ package org.lecturestudio.core.presenter.command;
 
 import org.lecturestudio.core.presenter.Presenter;
 
+/**
+ * Command to show a specific presenter.
+ * This class encapsulates the logic required to display the view associated with a presenter.
+ *
+ * @param <T> The type of presenter, which must extend Presenter<?>.
+ */
 public class ShowPresenterCommand<T extends Presenter<?>> {
 
-	/** The presenter class. */
+	/** The class object representing the type of presenter to be shown. */
 	private final Class<T> cls;
 
 

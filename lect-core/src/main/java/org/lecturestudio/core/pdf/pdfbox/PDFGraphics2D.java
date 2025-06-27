@@ -204,7 +204,7 @@ public class PDFGraphics2D extends Graphics2D {
 			stream = new PDPageContentStream(document, page, appendContent ? AppendMode.APPEND : AppendMode.OVERWRITE, true);
 
 			if (!appendContent) {
-				// Move to top-left corner.
+				// Move to the top-left corner.
 				stream.transform(new Matrix(1, 0, 0, -1, 0, page.getMediaBox().getHeight()));
 			}
 		}

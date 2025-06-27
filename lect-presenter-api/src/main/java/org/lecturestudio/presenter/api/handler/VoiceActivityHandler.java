@@ -38,7 +38,6 @@ import org.lecturestudio.presenter.api.context.PresenterContext;
 import org.lecturestudio.presenter.api.model.ManualStateObserver;
 import org.lecturestudio.presenter.api.presenter.RemindRecordingPresenter;
 import org.lecturestudio.presenter.api.presenter.command.CloseablePresenterCommand;
-import org.lecturestudio.presenter.api.view.SettingsView;
 
 /**
  * Handles voice activity detection for the presenter application.
@@ -214,10 +213,10 @@ public class VoiceActivityHandler extends PresenterHandler implements DocumentLi
 	 * @return {@code true} if notifications are to be displayed, {@code false} otherwise.
 	 */
 	private boolean isNotificationEnabled() {
+		boolean notifyToRecord = context.getNotifyToRecord();
 		boolean isMicrophoneEnabled = config.getStreamConfig().getMicrophoneEnabled();
-		boolean isSettingsViewVisible = Objects.equals(SettingsView.class, context.getCurrentlyVisibleView());
 
-		return !userDeclinedRecording && !isMicrophoneEnabled && !isSettingsViewVisible;
+		return notifyToRecord && !userDeclinedRecording && !isMicrophoneEnabled;
 	}
 
 	/**
@@ -240,6 +239,9 @@ public class VoiceActivityHandler extends PresenterHandler implements DocumentLi
 		return notifySettingEnabled && hasDocument && notRecording;
 	}
 
+	/**
+	 * Displays a notification reminding the user to start recording when voice activity is detected.
+	 */
 	private void showRecordNotification() {
 		context.getEventBus().post(new CloseablePresenterCommand<>(
 				RemindRecordingPresenter.class, () -> {

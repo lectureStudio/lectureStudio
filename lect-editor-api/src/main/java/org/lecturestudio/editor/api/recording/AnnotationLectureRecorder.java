@@ -37,6 +37,8 @@ import org.lecturestudio.editor.api.service.RecordingPlaybackService;
  * many times) 3. suspend() 4. persistPlaybackActions() Recordings cannot span
  * multiple slides. It is recommended to persist the annotations after each
  * annotation was fully recorded.
+ *
+ * @author Hendrik Rüthers
  */
 @Singleton
 public class AnnotationLectureRecorder extends LectureRecorder {
@@ -51,6 +53,15 @@ public class AnnotationLectureRecorder extends LectureRecorder {
 	private String errorDuringRecording;
 	private ExecutableState previousPlaybackState;
 
+
+	/**
+	 * Constructs a new AnnotationLectureRecorder.
+	 *
+	 * @param documentService      The service for accessing and manipulating documents.
+	 * @param recordingFileService The service for managing recording files.
+	 * @param context              The application context must be an instance of EditorContext.
+	 * @param playbackService      The service for controlling recording playback.
+	 */
 	@Inject
 	public AnnotationLectureRecorder(DocumentService documentService,
 	                                 RecordingFileService recordingFileService,
@@ -73,6 +84,14 @@ public class AnnotationLectureRecorder extends LectureRecorder {
 		}
 	}
 
+	/**
+	 * Adds a playback action to the current recording session.
+	 * This method sets the timestamp of the action to the current elapsed time
+	 * and handles special cases for rubber and clear actions.
+	 * The action is then added to the list of added actions.
+	 *
+	 * @param action The playback action to add to the recording.
+	 */
 	private void addPlaybackAction(PlaybackAction action) {
 		if (isNull(action)) {
 			return;
@@ -111,19 +130,18 @@ public class AnnotationLectureRecorder extends LectureRecorder {
 	 * Persists the PlaybackActions to the recording if all bounds are met. The
 	 * following bounds have to be met, otherwise an error gets thrown:
 	 * <p>
-	 * 1. The playback has to be running during recording 2. Annotations cannot
-	 * overlap with an already existing PlaybackAction 3. Annotations can only
-	 * be recorded on one page at once
+	 * 1. The playback has to be running during recording
+	 * 2. Annotations cannot overlap with an already existing PlaybackAction
+	 * 3. Annotations can only be recorded on one page at once
 	 * <p>
-	 * Other conditions can be derived from these conditions, such as: 1. The
-	 * playback cannot be over (it will be automatically be paused when it is)
+	 * Other conditions can be derived from these conditions, such as
+	 * 1. The playback cannot be over (it will automatically be paused when it is)
 	 * 2. A single Annotation cannot span multiple pages at once
 	 *
 	 * @return A task which persists the annotations. Might be used for waiting
-	 * until the annotations have been persisted
+	 * until the annotations have been persisted.
 	 *
-	 * @throws IllegalStateException will be thrown if any of the conditions are
-	 *                               not met
+	 * @throws IllegalStateException will be thrown if any of the conditions are not met.
 	 */
 	public synchronized CompletableFuture<Void> persistPlaybackActions()
 			throws IllegalStateException {
@@ -144,76 +162,17 @@ public class AnnotationLectureRecorder extends LectureRecorder {
 		}
 
 		CompletableFuture<Void> task = recordingService.insertPlaybackActions(
-				new ArrayList<>(addedActions), new ArrayList<>(removedActions),
+				new ArrayList<>(addedActions),
+				new ArrayList<>(removedActions),
 				pageNumber);
+
 		reset();
+
 		return task;
 	}
 
-	/**
-	 * Compares the new Annotations with already existing Annotations and makes
-	 * sure that they do not overlap. An overlap will be detected if
-	 * {@code (existingActionStartTime < newActionEndTime && newActionStartTime
-	 * < existingActionEndTime)} is {@code false}. This means, annotations can
-	 * have the same timestamp.
-	 *
-	 * @param actions The playback actions to check for bounding violations.
-	 *
-	 * @return An error message, or {@code null} if no error found.
-	 */
-	private String checkAnnotationBounds(List<PlaybackAction> actions) {
-		String result = null;
-		// New PlaybackActions that should be added to the page
-		int newActionStartTime = addedActions.get(0).getTimestamp();
-		int newActionEndTime = addedActions.get(addedActions.size() - 1)
-				.getTimestamp();
-
-		// Already existing PlaybackActions on the page
-		Integer existingActionStartTime = null;
-		Integer existingActionEndTime = null;
-
-		// Using a queue to get the event before the TOOL_BEGIN in case an event did send a TOOL_END event,
-		// but a new one already started
-		Queue<PlaybackAction> actionQueue = new ArrayDeque<>(3);
-
-		for (PlaybackAction action : actions) {
-			// Only saving 2 Events in the Queue, as the event before the TOOL_BEGIN event describes the current one
-			// and we need the event before that one
-			if (actionQueue.size() >= 3) {
-				actionQueue.poll();
-			}
-			actionQueue.offer(action);
-
-			if (action.getType() != ActionType.TOOL_BEGIN && action.getType() != ActionType.TOOL_END &&
-					existingActionStartTime == null) {
-				// This is to capture atomic actions without start and end times, such as SimpleToolActions
-				existingActionStartTime = action.getTimestamp();
-				existingActionEndTime = action.getTimestamp();
-			}
-			else if (action.getType() == ActionType.TOOL_BEGIN) {
-				existingActionStartTime = action.getTimestamp();
-			}
-			else if (action.getType() == ActionType.TOOL_END) {
-				existingActionEndTime = action.getTimestamp();
-			}
-
-			if (existingActionStartTime != null && existingActionEndTime != null) {
-				if (existingActionStartTime < newActionEndTime && newActionStartTime < existingActionEndTime) {
-					result = "annotationrecorder.overlap.message";
-					break;
-				}
-				else {
-					// No overlap detected
-					existingActionStartTime = null;
-					existingActionEndTime = null;
-				}
-			}
-		}
-		return result;
-	}
-
 	@Override
-	protected void initInternal() throws ExecutableException {
+	protected void initInternal() {
 	}
 
 	@Override
@@ -226,7 +185,7 @@ public class AnnotationLectureRecorder extends LectureRecorder {
 	}
 
 	@Override
-	protected void stopInternal() throws ExecutableException {
+	protected void stopInternal() {
 	}
 
 	@Override
@@ -239,7 +198,7 @@ public class AnnotationLectureRecorder extends LectureRecorder {
 	}
 
 	@Override
-	protected void destroyInternal() throws ExecutableException {
+	protected void destroyInternal() {
 
 	}
 
@@ -275,6 +234,7 @@ public class AnnotationLectureRecorder extends LectureRecorder {
 		});
 
 		reset();
+
 		throw new IllegalStateException(message);
 	}
 
@@ -286,6 +246,68 @@ public class AnnotationLectureRecorder extends LectureRecorder {
 		removedActions = new ArrayList<>();
 		pageNumber = null;
 		errorDuringRecording = null;
+	}
+
+	/**
+	 * Compares the new Annotations with already existing Annotations and makes
+	 * sure that they do not overlap. An overlap will be detected if
+	 * {@code (existingActionStartTime < newActionEndTime && newActionStartTime
+	 * < existingActionEndTime)} is {@code false}. This means annotations can
+	 * have the same timestamp.
+	 *
+	 * @param actions The playback actions to check for bounding violations.
+	 *
+	 * @return An error message, or {@code null} if no error found.
+	 */
+	private String checkAnnotationBounds(List<PlaybackAction> actions) {
+		String result = null;
+		// New PlaybackActions that should be added to the page
+		int newActionStartTime = addedActions.get(0).getTimestamp();
+		int newActionEndTime = addedActions.get(addedActions.size() - 1)
+				.getTimestamp();
+
+		// Already existing PlaybackActions on the page
+		Integer existingActionStartTime = null;
+		Integer existingActionEndTime = null;
+
+		// Using a queue to get the event before the TOOL_BEGIN in case an event did send a TOOL_END event,
+		// but a new one already started
+		Queue<PlaybackAction> actionQueue = new ArrayDeque<>(3);
+
+		for (PlaybackAction action : actions) {
+			// Only saving 2 Events in the Queue, as the event before the TOOL_BEGIN event describes the current one,
+			// and we need the event before that one
+			if (actionQueue.size() >= 3) {
+				actionQueue.poll();
+			}
+			actionQueue.offer(action);
+
+			if (action.getType() != ActionType.TOOL_BEGIN && action.getType() != ActionType.TOOL_END
+					&& existingActionStartTime == null) {
+				// This is to capture atomic actions without start and end times, such as SimpleToolActions
+				existingActionStartTime = action.getTimestamp();
+				existingActionEndTime = action.getTimestamp();
+			}
+			else if (action.getType() == ActionType.TOOL_BEGIN) {
+				existingActionStartTime = action.getTimestamp();
+			}
+			else if (action.getType() == ActionType.TOOL_END) {
+				existingActionEndTime = action.getTimestamp();
+			}
+
+			if (existingActionStartTime != null && existingActionEndTime != null) {
+				if (existingActionStartTime < newActionEndTime && newActionStartTime < existingActionEndTime) {
+					result = "annotationrecorder.overlap.message";
+					break;
+				}
+				else {
+					// No overlap detected
+					existingActionStartTime = null;
+					existingActionEndTime = null;
+				}
+			}
+		}
+		return result;
 	}
 
 	private List<PlaybackAction> getPlaybackActions() {
@@ -300,7 +322,7 @@ public class AnnotationLectureRecorder extends LectureRecorder {
 		int timestamp = rubberAction.getTimestamp();
 		int shapeHandle = rubberAction.getHandle();
 
-		// Check following rubber actions for the same removed event.
+		// Check the following rubber actions for the same removed event.
 		while (iter.hasNext()) {
 			PlaybackAction action = iter.next();
 
@@ -318,7 +340,7 @@ public class AnnotationLectureRecorder extends LectureRecorder {
 		Iterator<PlaybackAction> iter = actions.iterator();
 		int timestamp = clearAction.getTimestamp();
 
-		// Check following 'remove' actions.
+		// Check the following 'remove' actions.
 		while (iter.hasNext()) {
 			PlaybackAction action = iter.next();
 

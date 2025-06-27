@@ -18,6 +18,12 @@
 
 package org.lecturestudio.core.view;
 
+/**
+ * Implementation of the PresentationViewContext interface for slide presentations.
+ * This class provides context for presentation components in a slide view.
+ *
+ * @author Alex Andres
+ */
 public class SlidePresentationViewContext implements PresentationViewContext {
 
 	@Override

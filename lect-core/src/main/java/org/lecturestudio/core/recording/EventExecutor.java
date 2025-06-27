@@ -21,16 +21,57 @@ package org.lecturestudio.core.recording;
 import org.lecturestudio.core.ExecutableBase;
 import org.lecturestudio.core.ExecutableException;
 
+/**
+ * Abstract class for executing recording events with capabilities for navigation
+ * through recording timeline and pages.
+ *
+ * @author Alex Andres
+ */
 public abstract class EventExecutor extends ExecutableBase {
 
+	/**
+	 * Gets the elapsed time of the current recording playback.
+	 *
+	 * @return The elapsed time in milliseconds.
+	 */
 	public abstract long getElapsedTime();
 
+	/**
+	 * Gets the page number at a specified time position in the recording.
+	 *
+	 * @param timeMillis The time position in milliseconds.
+	 *
+	 * @return The corresponding page number.
+	 */
 	public abstract int getPageNumber(int timeMillis);
 
+	/**
+	 * Seeks to a specific time position in the recording.
+	 *
+	 * @param timeMillis The time position in milliseconds to seek to.
+	 *
+	 * @return The page number after seeking.
+	 *
+	 * @throws ExecutableException If seeking operation fails.
+	 */
 	public abstract int seekByTime(int timeMillis) throws ExecutableException;
 
+	/**
+	 * Seeks to a specific page in the recording.
+	 *
+	 * @param pageNumber The page number to seek to.
+	 *
+	 * @return The time position after seeking, in milliseconds.
+	 *
+	 * @throws ExecutableException If seeking operation fails.
+	 */
 	public abstract Integer seekByPage(int pageNumber) throws ExecutableException;
 
+	/**
+	 * Executes the recording events.
+	 *
+	 * @throws Exception If execution of events fails.
+	 */
 	protected abstract void executeEvents() throws Exception;
 
 }

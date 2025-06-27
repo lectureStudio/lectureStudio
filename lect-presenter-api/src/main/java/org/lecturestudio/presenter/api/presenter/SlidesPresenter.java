@@ -395,6 +395,8 @@ public class SlidesPresenter extends Presenter<SlidesView> {
 		if (nonNull(participantView)) {
 			view.cancelSpeechRequest(participantView.getParticipantContext());
 			view.removeParticipantView(participantView);
+
+			participantViewCollection.removeParticipant(participantView);
 		}
 		else {
 			view.removeSpeechRequest(message);
@@ -1433,7 +1435,7 @@ public class SlidesPresenter extends Presenter<SlidesView> {
 				pProvider.getAllPresentationParameters().forEach(param -> param.setShowGrid(newValue));
 			}
 			else {
-				// Sync with user's view.
+				// Sync with the user's view.
 				PresentationParameterProvider uProvider = context.getPagePropertyProvider(ViewType.User);
 
 				for (PresentationParameter param : pProvider.getAllPresentationParameters()) {

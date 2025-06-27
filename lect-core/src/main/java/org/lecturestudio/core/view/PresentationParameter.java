@@ -59,8 +59,6 @@ public class PresentationParameter {
 	public PresentationParameter(Configuration config, Page page) {
 		this.config = config;
 		this.page = page;
-
-		setShowGrid(getWhiteboardConfig().getShowGridAutomatically());
 	}
 
 	public Color getBackgroundColor() {

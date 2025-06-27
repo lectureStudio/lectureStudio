@@ -1,0 +1,29 @@
+﻿<?include Config.wxi ?>
+
+<Wix xmlns="http://wixtoolset.org/schemas/v4/wxs">
+    <Package
+        Id="$(var.Id)"
+        Name="$(var.Name)"
+        Manufacturer="$(var.Manufacturer)"
+        Version="$(var.Version)"
+        UpgradeCode="$(var.UpgradeCode)">
+
+        <MediaTemplate EmbedCab="yes" />
+
+        <MajorUpgrade DowngradeErrorMessage="!(loc.DowngradeError)" />
+
+        <Property Id="CREATE_STARTMENU_SHORTCUTS" Value="1" Secure="yes" />
+        <Property Id="CREATE_DESKTOP_ICONS" Value="1" Secure="yes" />
+
+        <!-- Make properties public so they can be passed from command line or bundle -->
+        <Property Id="WIXUI_INSTALLDIR" Value="INSTALLFOLDER" />
+        <CustomAction Id="SetCreateStartMenuShortcuts" Property="CREATE_STARTMENU_SHORTCUTS" Value="[CREATE_STARTMENU_SHORTCUTS]" />
+        <CustomAction Id="SetCreateDesktopIcons" Property="CREATE_DESKTOP_ICONS" Value="[CREATE_DESKTOP_ICONS]" />
+
+        <Feature Id="Main" Level="1">
+            <ComponentGroupRef Id="AppComponents" />
+            <ComponentRef Id="StartMenuShortcuts" />
+            <ComponentRef Id="DesktopShortcuts" />
+        </Feature>
+    </Package>
+</Wix>

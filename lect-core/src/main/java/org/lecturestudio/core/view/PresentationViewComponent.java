@@ -18,6 +18,15 @@
 
 package org.lecturestudio.core.view;
 
+/**
+ * Interface that defines the contract for presentation view components.
+ * <p>
+ * Implementations of this interface provide functionality for rendering
+ * and managing presentation content within the application's UI.
+ * </p>
+ *
+ * @author Alex Andres
+ */
 public interface PresentationViewComponent {
 
 }

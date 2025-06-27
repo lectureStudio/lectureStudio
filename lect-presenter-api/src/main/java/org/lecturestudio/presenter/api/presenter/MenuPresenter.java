@@ -66,6 +66,7 @@ import org.lecturestudio.presenter.api.context.PresenterContext;
 import org.lecturestudio.presenter.api.event.*;
 import org.lecturestudio.presenter.api.model.*;
 import org.lecturestudio.presenter.api.presenter.command.GotoBookmarkCommand;
+import org.lecturestudio.presenter.api.presenter.command.ShowSettingsCommand;
 import org.lecturestudio.presenter.api.presenter.command.StopwatchCommand;
 import org.lecturestudio.presenter.api.service.BookmarkService;
 import org.lecturestudio.presenter.api.service.QuizWebServiceState;
@@ -343,7 +344,7 @@ public class MenuPresenter extends Presenter<MenuView> {
 	}
 
 	public void showSettingsView() {
-		eventBus.post(new ShowPresenterCommand<>(SettingsPresenter.class));
+		eventBus.post(new ShowSettingsCommand(null));
 	}
 
 	public void customizeToolbar() {

@@ -22,6 +22,7 @@ import static java.util.Objects.nonNull;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
 import java.util.function.Consumer;
 
@@ -45,16 +46,44 @@ import org.lecturestudio.editor.api.service.RecordingFileService;
 import org.lecturestudio.editor.api.tool.EditorSelectTool;
 import org.lecturestudio.editor.api.tool.EditorTextTool;
 
+/**
+ * Controller for managing editor tools and their interactions with the document.
+ * This class extends the core ToolController to provide editor-specific functionality,
+ * including annotation recording, tool state management, and shape event handling.
+ * <p>
+ * It coordinates tool selection, painting actions, and maintains the editing state
+ * while also providing recording capabilities for user annotations during the editing process.
+ * The controller integrates with the recording file service to persist annotation actions.
+ *
+ * @author Hendrik Rüthers
+ */
 @Singleton
 public class EditorToolController extends ToolController {
 
+	/** Service responsible for managing recording files and their operations. */
 	private final RecordingFileService recordingFileService;
+
+	/** Recorder for lecture annotations that handles the capture and persistence of annotation actions during editing. */
 	private final AnnotationLectureRecorder annotationLectureRecorder;
+
+	/** Controls whether tool actions should be recorded. Default value is true, except for certain tools like SELECT. */
 	private final BooleanProperty isToolRecordingEnabled = new BooleanProperty(true);
+
+	/** Indicates whether editing mode is currently enabled. Affects recording behavior and tool operations. */
 	private final BooleanProperty isEditingProperty = new BooleanProperty(false);
+
+	/** Collection of listeners that get notified when shapes are added to the page. */
 	private final List<Consumer<Shape>> shapeAddedListeners = new ArrayList<>();
 
 
+	/**
+	 * Creates a new EditorToolController that manages tool interactions and recording capabilities.
+	 *
+	 * @param context                   The application context providing access to application-wide resources and services.
+	 * @param documentService           Service for managing documents and their state.
+	 * @param recordingFileService      Service for handling recording file operations.
+	 * @param annotationLectureRecorder Recorder responsible for capturing and storing annotation actions.
+	 */
 	@Inject
 	public EditorToolController(ApplicationContext context,
 	                            DocumentService documentService,
@@ -85,7 +114,7 @@ public class EditorToolController extends ToolController {
 	}
 
 	/**
-	 * Ends the Recording only, if the tool allows for recording and the editing is enabled.
+	 * Ends the Recording only if the tool allows for recording and the editing is enabled.
 	 * Saves the recorded annotations, unless a text was recorded, since this one has a separate saving logic.
 	 *
 	 * @param point The location on the painting surface where to end.
@@ -94,8 +123,10 @@ public class EditorToolController extends ToolController {
 	public void endToolAction(PenPoint2D point) {
 		try {
 			super.endToolAction(point);
+
 			if (getIsToolRecordingEnabled() && getIsEditing() && !annotationLectureRecorder.suspended()) {
 				annotationLectureRecorder.suspend();
+
 				if (selectedTool.getType() != ToolType.TEXT) {
 					persistPlaybackActions();
 				}
@@ -119,18 +150,17 @@ public class EditorToolController extends ToolController {
 	}
 
 	/**
-	 * Records the event only if both the tool allows for recording and editing is enabled.
-	 * @param action
+	 * Records a playback action to the editor's event bus.
+	 * This method only forwards the action to the event bus if both the tool recording
+	 * is enabled and the editor is currently in editing mode.
+	 *
+	 * @param action The playback action to be recorded.
 	 */
 	@Override
 	public void recordAction(PlaybackAction action) {
 		if (getIsToolRecordingEnabled() && getIsEditing()) {
 			getContext().getEventBus().post(new EditorRecordActionEvent(action));
 		}
-	}
-
-	private boolean getIsToolRecordingEnabled() {
-		return isToolRecordingEnabled.get();
 	}
 
 	/**
@@ -143,18 +173,11 @@ public class EditorToolController extends ToolController {
 		if (nonNull(tool)) {
 			pushEvent(new EditorToolSelectionEvent(tool.getType(), getPaintSettings(tool.getType())));
 
-			switch (tool.getType()) {
-				case SELECT -> setIsToolRecordingEnabled(false);
-				default -> setIsToolRecordingEnabled(true);
-			}
+			setIsToolRecordingEnabled(Objects.requireNonNull(tool.getType()) != ToolType.SELECT);
 		}
 		else {
 			pushEvent(new EditorToolSelectionEvent(null, getPaintSettings(null)));
 		}
-	}
-
-	private void setIsToolRecordingEnabled(boolean enabled) {
-		isToolRecordingEnabled.set(enabled);
 	}
 
 	/**
@@ -180,6 +203,13 @@ public class EditorToolController extends ToolController {
 		setTool(new EditorSelectTool(this));
 	}
 
+	/**
+	 * Persists the currently recorded playback actions to storage.
+	 * This method delegates to the annotation lecture recorder to save
+	 * the current set of recorded actions.
+	 *
+	 * @return A CompletableFuture representing the completion of the persist operation.
+	 */
 	public CompletableFuture<Void> persistPlaybackActions() {
 		try {
 			return annotationLectureRecorder.persistPlaybackActions();
@@ -190,33 +220,75 @@ public class EditorToolController extends ToolController {
 		return CompletableFuture.completedFuture(null);
 	}
 
+	/**
+	 * Resets all recorded playback actions in the annotation recorder.
+	 * This effectively clears any pending or unsaved annotations.
+	 */
 	public void resetRecordedPlaybackActions() {
 		annotationLectureRecorder.reset();
 	}
 
+	/**
+	 * Provides access to the boolean property that indicates whether editing is enabled.
+	 *
+	 * @return The BooleanProperty representing the editing state.
+	 */
 	public BooleanProperty isEditingProperty() {
 		return isEditingProperty;
 	}
 
+	/**
+	 * Gets the current value of the editing property.
+	 *
+	 * @return true if editing is enabled, false otherwise.
+	 */
 	public boolean getIsEditing() {
 		return isEditingProperty.get();
 	}
 
+	/**
+	 * Sets the editing state of the tool controller.
+	 *
+	 * @param enabled true to enable editing mode, false to disable it.
+	 */
 	public void setIsEditing(boolean enabled) {
 		isEditingProperty.set(enabled);
 	}
 
+	/**
+	 * Registers a listener to be notified when shapes are added to the page.
+	 *
+	 * @param shapeListener the listener to be called when a shape is added.
+	 */
 	public void addPageShapeAddedListener(Consumer<Shape> shapeListener) {
 		shapeAddedListeners.add(shapeListener);
 	}
 
+	/**
+	 * Notifies all registered listeners that a shape has been added to the page.
+	 *
+	 * @param shape the Shape that was added to the page.
+	 */
 	public void fireShapeAdded(Shape shape) {
 		for (Consumer<Shape> listener : shapeAddedListeners) {
 			listener.accept(shape);
 		}
 	}
 
+	/**
+	 * Gets the recording file service associated with this controller.
+	 *
+	 * @return the RecordingFileService instance.
+	 */
 	public RecordingFileService getRecordingFileService() {
 		return recordingFileService;
+	}
+
+	private boolean getIsToolRecordingEnabled() {
+		return isToolRecordingEnabled.get();
+	}
+
+	private void setIsToolRecordingEnabled(boolean enabled) {
+		isToolRecordingEnabled.set(enabled);
 	}
 }

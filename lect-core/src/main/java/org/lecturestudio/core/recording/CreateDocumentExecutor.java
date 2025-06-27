@@ -142,7 +142,7 @@ public class CreateDocumentExecutor {
 	 * @throws Exception If any event could not be executed.
 	 */
 	public void executeEvents(List<Integer> pageNumbers, PresentationParameterProvider ppProvider) throws Exception {
-		Document srcDocument = recording.getRecordedDocument().getDocument();
+		Document srcDocument = createDocument();
 		Document document = new Document();
 
 		documentRecorder = new DocumentRecorder(context);

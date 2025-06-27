@@ -42,15 +42,30 @@ import org.lecturestudio.editor.api.context.EditorContext;
 import org.lecturestudio.media.playback.RecordingPlayer;
 import org.lecturestudio.media.video.VideoRenderSurface;
 
+/**
+ * Service responsible for managing the playback of lecture recordings.
+ * <p>
+ * This service provides functionality for controlling the playback of recordings,
+ * including playing, stopping, seeking, and navigating through pages.
+ * It also supports audio filtering and video rendering capabilities.
+ * <p>
+ * The service maintains the playback state and synchronizes with the EditorContext
+ * to handle user interactions such as page selection and seeking operations.
+ *
+ * @author Alex Andres
+ */
 @Singleton
 public class RecordingPlaybackService extends ExecutableBase {
 
 	private static final Logger LOG = LogManager.getLogger(RecordingPlaybackService.class);
 
+	/**  Provider for audio system functionality used for playback operations. */
 	private final AudioSystemProvider audioSystemProvider;
 
+	/** The editor context that maintains the application state and configuration. */
 	private final EditorContext context;
 
+	/** Listener that monitors the recording player's state changes. */
 	private final ExecutableStateListener playbackStateListener = (oldState, newState) -> {
 		if (newState == ExecutableState.Stopped && getState() != ExecutableState.Stopping) {
 			try {
@@ -62,11 +77,23 @@ public class RecordingPlaybackService extends ExecutableBase {
 		}
 	};
 
+	/** The player responsible for playing back recordings. */
 	private RecordingPlayer recordingPlayer;
 
+	/** Surface where video frames from the recording are rendered. */
 	private VideoRenderSurface videoRenderSurface;
 
 
+	/**
+	 * Constructs a new RecordingPlaybackService.
+	 * <p>
+	 * Initializes the service with the provided application context and audio system provider.
+	 * Sets up a listener for the primary selection property to handle seeking operations
+	 * when the selection changes.
+	 *
+	 * @param context             The application context, which must be an instance of EditorContext.
+	 * @param audioSystemProvider The provider for audio system functionality.
+	 */
 	@Inject
 	RecordingPlaybackService(ApplicationContext context, AudioSystemProvider audioSystemProvider) {
 		this.audioSystemProvider = audioSystemProvider;
@@ -83,18 +110,43 @@ public class RecordingPlaybackService extends ExecutableBase {
 		});
 	}
 
+	/**
+	 * Gets the total duration of the current recording.
+	 *
+	 * @return The total duration as a Time object, or null if no recording player is available.
+	 */
 	public Time getDuration() {
 		return nonNull(recordingPlayer) ? recordingPlayer.getDuration() : null;
 	}
 
+	/**
+	 * Gets the current playback position within the recording.
+	 *
+	 * @return The elapsed time in milliseconds as a Long, or null if no recording player is available.
+	 */
 	public Long getElapsedTime() {
 		return nonNull(recordingPlayer) ? recordingPlayer.getElapsedTime() : null;
 	}
 
+	/**
+	 * Applies an audio filter to a specific interval of the recording.
+	 *
+	 * @param filter   The audio filter to apply to the audio stream.
+	 * @param interval The time interval within which the filter should be applied.
+	 *
+	 * @throws NullPointerException If recordingPlayer is null.
+	 */
 	public void setAudioFilter(AudioFilter filter, Interval<Long> interval) {
 		recordingPlayer.getAudioStream().setAudioFilter(filter, interval);
 	}
 
+	/**
+	 * Removes a previously applied audio filter from the recording.
+	 *
+	 * @param filter The audio filter to remove from the audio stream.
+	 *
+	 * @throws NullPointerException If recordingPlayer is null.
+	 */
 	public void removeAudioFilter(AudioFilter filter) {
 		recordingPlayer.getAudioStream().removeAudioFilter(filter);
 	}
@@ -108,13 +160,20 @@ public class RecordingPlaybackService extends ExecutableBase {
 		videoRenderSurface = renderSurface;
 	}
 
+	/**
+	 * Sets a new recording for playback.
+	 * <p>
+	 * If there's already a recording player, it closes the current recording first.
+	 * Then it creates a new recording player with the provided recording and initializes it.
+	 *
+	 * @param recording The recording to be played back.
+	 */
 	public synchronized void setRecording(Recording recording) {
 		if (nonNull(recordingPlayer)) {
 			closeRecording();
 		}
 
-		recordingPlayer = new RecordingPlayer(context,
-				context.getConfiguration().getAudioConfig(),
+		recordingPlayer = new RecordingPlayer(context, context.getConfiguration().getAudioConfig(),
 				audioSystemProvider);
 		recordingPlayer.setRecording(recording);
 		recordingPlayer.setVideoRenderSurface(videoRenderSurface);
@@ -127,6 +186,12 @@ public class RecordingPlaybackService extends ExecutableBase {
 		}
 	}
 
+	/**
+	 * Closes the current recording.
+	 * <p>
+	 * If there is an active recording player that hasn't been destroyed,
+	 * this method will attempt to destroy it.
+	 */
 	public synchronized void closeRecording() {
 		if (nonNull(recordingPlayer) && !recordingPlayer.destroyed()) {
 			try {
@@ -138,36 +203,86 @@ public class RecordingPlaybackService extends ExecutableBase {
 		}
 	}
 
+	/**
+	 * Navigates to the previous page in the recording.
+	 * <p>
+	 * Sets the seeking state in the context before and after the operation.
+	 *
+	 * @throws Exception If navigation to the previous page fails.
+	 */
 	public synchronized void selectPreviousPage() throws Exception {
 		context.setSeeking(true);
 		recordingPlayer.selectPreviousPage();
 		context.setSeeking(false);
 	}
 
+	/**
+	 * Navigates to the next page in the recording.
+	 * <p>
+	 * Sets the seeking state in the context before and after the operation.
+	 *
+	 * @throws Exception If navigation to the next page fails.
+	 */
 	public synchronized void selectNextPage() throws Exception {
 		context.setSeeking(true);
 		recordingPlayer.selectNextPage();
 		context.setSeeking(false);
 	}
 
+	/**
+	 * Selects a page in the recording by its page number.
+	 * <p>
+	 * Sets the seeking state in the context before and after the operation.
+	 *
+	 * @param pageNumber The page number to select.
+	 *
+	 * @throws Exception If page selection fails.
+	 */
 	public synchronized void selectPage(int pageNumber) throws Exception {
 		context.setSeeking(true);
 		recordingPlayer.selectPage(pageNumber);
 		context.setSeeking(false);
 	}
 
+	/**
+	 * Selects a specific page object in the recording.
+	 * <p>
+	 * Sets the seeking state in the context before and after the operation.
+	 *
+	 * @param page The page object to select.
+	 *
+	 * @throws Exception If page selection fails.
+	 */
 	public synchronized void selectPage(Page page) throws Exception {
 		context.setSeeking(true);
 		recordingPlayer.selectPage(page);
 		context.setSeeking(false);
 	}
 
+	/**
+	 * Sets the playback volume.
+	 * <p>
+	 * Changes the volume of the recording player if it exists.
+	 *
+	 * @param volume The volume level to set, typically between 0.0 and 1.0.
+	 */
 	public synchronized void setVolume(float volume) {
 		if (nonNull(recordingPlayer)) {
 			recordingPlayer.setVolume(volume);
 		}
 	}
 
+	/**
+	 * Seeks to a specific time position in the recording.
+	 * <p>
+	 * Does nothing if the player is already started or destroyed, or if seeking
+	 * is already in progress.
+	 *
+	 * @param time The time position to seek to, expressed as a ratio (0.0 to 1.0)
+	 *             of the total recording duration.
+	 *
+	 * @throws ExecutableException If seeking fails.
+	 */
 	public synchronized void seek(double time) throws ExecutableException {
 		if (started() || destroyed()) {
 			return;

@@ -1,0 +1,5 @@
+<WixLocalization xmlns="http://wixtoolset.org/schemas/v4/wxl" Culture="de-DE">
+
+	<String Id="DowngradeError" Value="Eine neuere Version von [ProductName] ist bereits installiert." />
+
+</WixLocalization>

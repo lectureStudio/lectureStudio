@@ -30,6 +30,7 @@
 
 	<Loggers>
 		<Logger name="org.lecturestudio" level="error" />
+		<Logger name="org.lecturestudio.core.controller.PresentationController" level="debug" />
 		<Logger name="org.lecturestudio.presenter.api.recording" level="debug" />
 		<Logger name="org.lecturestudio.web.api.janus.state" level="error" />
 		<Logger name="org.lecturestudio.web.api.janus.JanusPeerConnection" level="error" />

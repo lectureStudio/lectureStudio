@@ -1,0 +1,42 @@
+<?include Config.wxi ?>
+
+<Wix xmlns="http://wixtoolset.org/schemas/v4/wxs">
+    <Fragment>
+        <!-- Start Menu Shortcuts -->
+        <Component Id="StartMenuShortcuts"
+                   Directory="ApplicationProgramsFolder"
+                   Condition="CREATE_STARTMENU_SHORTCUTS = 1">
+            <Shortcut Id="PresenterStartMenuShortcut"
+                      Name="lecturePresenter"
+                      Description="$(var.Name) Presenter"
+                      Target="[INSTALLFOLDER]lecturePresenter.exe"
+                      WorkingDirectory="INSTALLFOLDER" />
+            <Shortcut Id="EditorStartMenuShortcut"
+                      Name="lectureEditor"
+                      Description="$(var.Name) Editor"
+                      Target="[INSTALLFOLDER]lectureEditor.exe"
+                      WorkingDirectory="INSTALLFOLDER" />
+            <RemoveFolder Id="ApplicationProgramsFolder" On="uninstall" />
+            <RegistryValue Root="HKCU" Key="Software\$(var.Name)\Shortcuts"
+                           Name="StartMenu" Type="integer" Value="1" KeyPath="yes" />
+        </Component>
+
+        <!-- Desktop Shortcuts -->
+        <Component Id="DesktopShortcuts"
+                   Directory="DesktopFolder"
+                   Condition="CREATE_DESKTOP_ICONS = 1">
+            <Shortcut Id="PresenterDesktopShortcut"
+                      Name="lecturePresenter"
+                      Description="$(var.Name) Presenter"
+                      Target="[INSTALLFOLDER]lecturePresenter.exe"
+                      WorkingDirectory="INSTALLFOLDER" />
+            <Shortcut Id="EditorDesktopShortcut"
+                      Name="lectureEditor"
+                      Description="$(var.Name) Editor"
+                      Target="[INSTALLFOLDER]lectureEditor.exe"
+                      WorkingDirectory="INSTALLFOLDER" />
+            <RegistryValue Root="HKCU" Key="Software\$(var.Name)\Shortcuts"
+                           Name="Desktop" Type="integer" Value="1" KeyPath="yes" />
+        </Component>
+    </Fragment>
+</Wix>

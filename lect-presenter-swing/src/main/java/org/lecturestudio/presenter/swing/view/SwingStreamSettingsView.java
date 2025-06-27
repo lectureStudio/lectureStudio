@@ -22,12 +22,7 @@ import java.awt.Color;
 import java.util.ResourceBundle;
 
 import javax.inject.Inject;
-import javax.swing.DefaultComboBoxModel;
-import javax.swing.JButton;
-import javax.swing.JCheckBox;
-import javax.swing.JComboBox;
-import javax.swing.JPanel;
-import javax.swing.JTextField;
+import javax.swing.*;
 
 import org.lecturestudio.core.beans.BooleanProperty;
 import org.lecturestudio.core.beans.ObjectProperty;
@@ -59,7 +54,9 @@ public class SwingStreamSettingsView extends JPanel implements StreamSettingsVie
 
 	private JComboBox<ParticipantVideoLayout> videoLayoutCombo;
 
-	private JButton updateCoursesButton;
+	private JLabel tokenErrorLabel;
+
+	private JButton checkTokenButton;
 
 	private JButton closeButton;
 
@@ -85,12 +82,22 @@ public class SwingStreamSettingsView extends JPanel implements StreamSettingsVie
 
 	@Override
 	public void setAccessTokenValid(boolean valid) {
-		if (valid) {
-			accessTokenTextField.setBackground(Color.decode("#D1FAE5"));
-		}
-		else {
-			accessTokenTextField.setBackground(Color.decode("#FEE2E2"));
-		}
+		SwingUtils.invoke(() -> {
+			if (valid) {
+				tokenErrorLabel.setText("");
+				accessTokenTextField.setBackground(Color.decode("#D1FAE5"));
+			}
+			else {
+				accessTokenTextField.setBackground(Color.decode("#FEE2E2"));
+			}
+		});
+	}
+
+	@Override
+	public void setAccessTokenError(String error) {
+		SwingUtils.invoke(() -> {
+			tokenErrorLabel.setText(error);
+		});
 	}
 
 	@Override
@@ -102,7 +109,7 @@ public class SwingStreamSettingsView extends JPanel implements StreamSettingsVie
 
 	@Override
 	public void setOnCheckAccessToken(Action action) {
-		SwingUtils.bindAction(updateCoursesButton, action);
+		SwingUtils.bindAction(checkTokenButton, action);
 	}
 
 	@Override

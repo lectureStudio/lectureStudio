@@ -23,10 +23,32 @@ import java.io.IOException;
 
 import org.lecturestudio.core.Executable;
 
+/**
+ * Interface for a video muxer that combines video and audio frames into a single output.
+ * Extends Executable to provide start and stop functionality for the muxing process.
+ *
+ * @author Alex Andres
+ */
 public interface VideoMuxer extends Executable {
 
+	/**
+	 * Adds a video frame to the muxing process.
+	 *
+	 * @param image The BufferedImage representing the video frame to add.
+	 *
+	 * @throws IOException If an I/O error occurs during the muxing process.
+	 */
 	void addVideoFrame(BufferedImage image) throws IOException;
 
+	/**
+	 * Adds audio data to the muxing process.
+	 *
+	 * @param samples The audio sample data as a byte array.
+	 * @param offset  The offset in the sample array where the data starts.
+	 * @param length  The number of bytes to use from the sample array.
+	 *
+	 * @throws IOException If an I/O error occurs during the muxing process.
+	 */
 	void addAudioFrame(byte[] samples, int offset, int length) throws IOException;
 
 }

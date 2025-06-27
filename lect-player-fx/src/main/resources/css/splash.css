@@ -1,8 +1,0 @@
-.splash > .splash-image {
-	-fx-image: url("/resources/gfx/splash.png");
-}
-.splash > .version-label {
-	-fx-text-fill: white;
-	-fx-alignment: center-right;
-	-fx-padding: 120 38 0 0;
-}

@@ -1,0 +1,43 @@
+﻿<?include Config.wxi ?>
+
+<Wix xmlns="http://wixtoolset.org/schemas/v4/wxs" xmlns:bal="http://wixtoolset.org/schemas/v4/wxs/bal">
+    <Bundle
+          AboutUrl="$(var.Url)"
+          HelpUrl="$(var.Url)"
+          UpdateUrl="$(var.UpdateUrl)"
+          Name="$(var.Name)"
+          Manufacturer="$(var.Manufacturer)"
+          Copyright="$(var.Copyright)"
+          Version="$(var.Version)"
+          UpgradeCode="$(var.UpgradeCode)"
+          IconSourceFile="resources\logo.ico"
+          Compressed="yes">
+
+        <Variable Name="InstallFolder" Type="formatted" Value="[ProgramFiles64Folder]$(var.Name)" bal:Overridable="yes" />
+        <Variable Name="CreateStartMenuShortcuts" Type="numeric" Value="1" bal:Overridable="yes" />
+        <Variable Name="CreateDesktopIcons" Type="numeric" Value="1" bal:Overridable="yes" />
+
+        <BootstrapperApplication>
+            <bal:WixStandardBootstrapperApplication
+                LicenseUrl="$(var.LicenseUrl)"
+                ShowVersion="yes"
+                Theme="hyperlinkLicense"
+                ThemeFile="theme\HyperlinkTheme.xml"
+                LogoFile="resources\logo.png" />
+
+            <Payload Id="theme_de_de" Compressed="yes" Name="1031\thm.wxl" SourceFile="lang\Bundle.de-de.wxl" />
+            <Payload Id="theme_en_us" Compressed="yes" Name="1033\thm.wxl" SourceFile="lang\Bundle.en-us.wxl" />
+
+            <Payload Name="logo.ico" SourceFile="resources\logo.ico" Compressed="yes" />
+            <Payload Name="header.png" SourceFile="resources\header.png" Compressed="yes" />
+        </BootstrapperApplication>
+
+        <Chain>
+            <MsiPackage SourceFile="$(var.MsiFile)" Vital="yes" Cache="remove" Description="$(var.Description)">
+                <MsiProperty Name="INSTALLFOLDER" Value="[InstallFolder]" />
+                <MsiProperty Name="CREATE_STARTMENU_SHORTCUTS" Value="[CreateStartMenuShortcuts]" />
+                <MsiProperty Name="CREATE_DESKTOP_ICONS" Value="[CreateDesktopIcons]" />
+            </MsiPackage>
+        </Chain>
+    </Bundle>
+</Wix>

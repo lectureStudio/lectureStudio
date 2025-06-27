@@ -33,19 +33,40 @@ import org.lecturestudio.core.view.ViewLayer;
  */
 public class NotificationPresenter extends Presenter<NotificationView> {
 
+	/**
+	 * Creates a new notification presenter.
+	 *
+	 * @param context The application context.
+	 * @param view    The notification views to be managed by this presenter.
+	 */
 	@Inject
 	protected NotificationPresenter(ApplicationContext context, NotificationView view) {
 		super(context, view);
 	}
 
+	/**
+	 * Sets the notification type which determines the visual appearance.
+	 *
+	 * @param type The type of notification to display.
+	 */
 	public void setNotificationType(NotificationType type) {
 		view.setType(type);
 	}
 
+	/**
+	 * Sets the title of the notification.
+	 *
+	 * @param title The title text to display.
+	 */
 	public void setTitle(String title) {
 		view.setTitle(title);
 	}
 
+	/**
+	 * Sets the message body of the notification.
+	 *
+	 * @param message The message text to display.
+	 */
 	public void setMessage(String message) {
 		view.setMessage(message);
 	}

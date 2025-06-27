@@ -1,0 +1,15 @@
+<?include Config.wxi ?>
+
+<Wix xmlns="http://wixtoolset.org/schemas/v4/wxs">
+    <Fragment>
+        <StandardDirectory Id="ProgramFiles64Folder">
+            <Directory Id="INSTALLFOLDER" Name="$(var.Name)" />
+        </StandardDirectory>
+
+        <StandardDirectory Id="ProgramMenuFolder">
+            <Directory Id="ApplicationProgramsFolder" Name="$(var.Name)"/>
+        </StandardDirectory>
+
+        <StandardDirectory Id="DesktopFolder" />
+    </Fragment>
+</Wix>

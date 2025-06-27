@@ -26,6 +26,9 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
 import org.lecturestudio.core.app.ApplicationContext;
 import org.lecturestudio.core.app.configuration.DisplayConfiguration;
 import org.lecturestudio.core.app.configuration.ScreenConfiguration;
@@ -50,6 +53,8 @@ import org.lecturestudio.core.view.SlideViewOverlay;
  * @author Alex Andres
  */
 public class PresentationController {
+
+	private static final Logger LOG = LogManager.getLogger(PresentationController.class);
 
 	/** The application context. */
 	private final ApplicationContext context;
@@ -212,6 +217,7 @@ public class PresentationController {
 
 		if (nonNull(presenter)) {
 			if (containsMainWindow(screen)) {
+				LOG.debug("Main window is on the same screen. Hiding presentation view: {}", screen);
 				return;
 			}
 
@@ -298,6 +304,8 @@ public class PresentationController {
 	}
 
 	private void updatePresentationViews(List<Screen> connectedScreens) {
+		LOG.debug("Updating presentation views for {} connected screens.", connectedScreens);
+
 		// Remove disconnected screens.
 		for (Screen screen : views.keySet()) {
 			if (!connectedScreens.contains(screen)) {
@@ -305,6 +313,7 @@ public class PresentationController {
 				PresentationPresenter<?> presenter = views.remove(screen);
 
 				if (nonNull(presenter)) {
+					LOG.debug("Closing presentation view for screen: {}", screen);
 					presenter.close();
 				}
 			}

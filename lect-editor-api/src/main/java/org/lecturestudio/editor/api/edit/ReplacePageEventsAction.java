@@ -29,19 +29,46 @@ import org.lecturestudio.core.recording.RecordingEditException;
 import org.lecturestudio.core.recording.action.PlaybackAction;
 import org.lecturestudio.core.recording.edit.RecordedObjectAction;
 
+/**
+ * Action that replaces PlaybackActions for a specific page in a Recording.
+ * <p>
+ * This class handles the addition and removal of PlaybackAction elements for a given page
+ * in a recording, maintaining the ability to undo and redo these changes. It preserves
+ * the timestamp ordering of actions when inserting new playback actions.
+ *
+ * @author Alex Andres
+ */
 public class ReplacePageEventsAction extends RecordedObjectAction<RecordedEvents> {
 
+	/** The recording to be modified. */
 	private final Recording recording;
 
+	/** The page number identifying the page in the recording whose events will be replaced. */
 	private final int pageNumber;
 
+	/** The list of PlaybackAction objects to add to the page. */
 	private final List<PlaybackAction> addActions;
 
+	/** The list of PlaybackAction objects to remove from the page. */
 	private final List<PlaybackAction> removeActions;
 
+	/** The type of change being made to the recording content. */
+	private final Recording.Content changeType;
+
+	/** Stores the original actions before modification for undo operations. */
 	private List<PlaybackAction> savedActions;
 
 
+	/**
+	 * Constructs a new ReplacePageEventsAction that replaces page events in the specified recording.
+	 *
+	 * @param recording     The recording whose events will be modified.
+	 * @param addActions    The list of PlaybackAction objects to add to the page.
+	 * @param removeActions The list of PlaybackAction objects to remove from the page.
+	 * @param pageNumber    The page number identifying the page in the recording whose events will be replaced.
+	 *
+	 * @throws IllegalArgumentException If both addActions and removeActions lists are empty.
+	 */
 	public ReplacePageEventsAction(Recording recording,
 			List<PlaybackAction> addActions, List<PlaybackAction> removeActions,
 			int pageNumber) {
@@ -51,6 +78,19 @@ public class ReplacePageEventsAction extends RecordedObjectAction<RecordedEvents
 		this.pageNumber = pageNumber;
 		this.addActions = addActions;
 		this.removeActions = removeActions;
+
+		if (!addActions.isEmpty() && !removeActions.isEmpty()) {
+			this.changeType = Content.EVENTS_CHANGED;
+		}
+		else if (!addActions.isEmpty()) {
+			this.changeType = Content.EVENTS_ADDED;
+		}
+		else if (!removeActions.isEmpty()) {
+			this.changeType = Content.EVENTS_REMOVED;
+		}
+		else {
+			throw new IllegalArgumentException("At least one of addActions or removeActions must not be empty.");
+		}
 	}
 
 	@Override
@@ -60,12 +100,16 @@ public class ReplacePageEventsAction extends RecordedObjectAction<RecordedEvents
 		actions.clear();
 		actions.addAll(savedActions);
 
+		// Notify listeners that the recording events have been changed after restoring the original actions.
 		recording.fireChangeEvent(Content.EVENTS_CHANGED);
 	}
 
 	@Override
 	public void redo() throws RecordingEditException {
 		execute();
+
+		// Notify listeners that the recording events have been changed after redoing the action.
+		recording.fireChangeEvent(Content.EVENTS_CHANGED);
 	}
 
 	@Override
@@ -96,7 +140,7 @@ public class ReplacePageEventsAction extends RecordedObjectAction<RecordedEvents
 			throw new RecordingEditException(e);
 		}
 
-		recording.fireChangeEvent(Content.EVENTS_CHANGED);
+		recording.fireChangeEvent(changeType);
 	}
 
 	private List<PlaybackAction> getPageActions() {

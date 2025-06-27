@@ -57,6 +57,11 @@ import static java.util.Objects.isNull;
  */
 public class Page {
 
+	/**
+	 * This listener propagates shape changes to page edited listeners by firing
+	 * a {@link PageEditEvent} with the type {@link PageEditEvent.Type#SHAPE_CHANGE}
+	 * whenever a shape on this page changes.
+	 */
 	private class PropagateShapeChange implements ShapeChangeListener {
 
 		@Override
@@ -116,7 +121,7 @@ public class Page {
 
 	/**
 	 * Get unique page ID. The unique ID can be used to differentiate pages with
-	 * same index but with different internal content.
+	 * the same index but with different internal content.
 	 *
 	 * @return The unique page ID.
 	 */
@@ -125,8 +130,8 @@ public class Page {
 	}
 
 	/**
-	 * Set unique page ID. The unique ID can be used to differentiate pages with
-	 * same index but with different internal content.
+	 * Set the unique page ID. The unique ID can be used to differentiate pages with
+	 * the same index but with different internal content.
 	 *
 	 * @param uid The unique document ID.
 	 */
@@ -218,11 +223,11 @@ public class Page {
 	}
 
 	/**
-	 * Adopt shapes of provided page if the pages have equal page labels.
+	 * Adopt shapes of the provided page if the pages have equal page labels.
 	 * Adoption is only performed if this page is the successor of the provided
 	 * page.
 	 *
-	 * @param page The page to adopt to.
+	 * @param page The page to adapt to.
 	 */
 	public void adoptNoLabel(Page page) {
 		if (page == null || page.equals(this)) {
@@ -284,7 +289,7 @@ public class Page {
 	}
 
 	/**
-	 * Specifies whether this pages has shapes that are selected.
+	 * Specifies whether this page has shapes that are selected.
 	 *
 	 * @return {@code true} if {@link #shapes} contains shapes that are selected.
 	 */
@@ -361,7 +366,7 @@ public class Page {
 	}
 
 	/**
-	 * Specifies whether are shapes placed in the foreground of the page.
+	 * Specifies whether shapes are placed in the foreground of the page.
 	 *
 	 * @return {@code true} if this page contains {@link Shape}s, otherwise
 	 * {@code false}.
@@ -436,7 +441,7 @@ public class Page {
 	 * @param shapeClass The {@link Class}.
 	 *
 	 * @return {@code true} if the specified {@link Class} is either the same
-	 * as, or is a superclass or superinterface of, the class or interface from
+	 * as or is a superclass or superinterface of, the class or interface from
 	 * one of the shapes in {@link #shapes}, otherwise {@code false}.
 	 */
 	public boolean contains(Class<? extends Shape> shapeClass) {
@@ -513,7 +518,7 @@ public class Page {
 	}
 
 	/**
-	 * Adds a listener that is notified whenever the page is edited, e.g. a
+	 * Adds a listener notified whenever the page is edited, e.g., a
 	 * shape on the page is edited.
 	 *
 	 * @param listener The listener to add.
@@ -567,7 +572,7 @@ public class Page {
 	 * listener in {@link #shapeListeners} with the specified shape modify
 	 * event.
 	 *
-	 * @param event The shape modify event.
+	 * @param event The shape modifies event.
 	 */
 	public void pushShapeModifyEvent(ShapeModifyEvent event) {
 		for (ShapeListener listener : shapeListeners) {
@@ -687,10 +692,22 @@ public class Page {
 		return textNotes;
 	}
 
+	/**
+	 * Determines whether this page is an overlay.
+	 * An overlay page is displayed on top of another page.
+	 *
+	 * @return {@code true} if this page is an overlay, otherwise {@code false}.
+	 */
 	public boolean isOverlay() {
 		return overlay;
 	}
 
+	/**
+	 * Sets the overlay status of this page.
+	 * When a page is marked as an overlay, it is displayed on top of another page.
+	 *
+	 * @param overlay {@code true} to set this page as an overlay, {@code false} otherwise.
+	 */
 	public void setOverlay(boolean overlay) {
 		this.overlay = overlay;
 	}

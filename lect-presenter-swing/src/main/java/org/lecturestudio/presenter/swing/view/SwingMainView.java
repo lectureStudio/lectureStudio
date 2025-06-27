@@ -254,7 +254,7 @@ public class SwingMainView extends JPanel implements MainView, KeyEventDispatche
 				showComponent(componentView, false);
 			}
 			else if (viewStack.peek() == componentView) {
-				// Remove component from the view-stack and show the previous one.
+				// Remove the component from the view-stack and show the previous one.
 				viewStack.pop();
 				showComponent(viewStack.pop(), true);
 			}
@@ -269,6 +269,9 @@ public class SwingMainView extends JPanel implements MainView, KeyEventDispatche
 			if (glassPane.getComponentCount() < 1) {
 				glassPane.setVisible(false);
 			}
+
+			getWindow().revalidate();
+			getWindow().repaint();
 		});
 	}
 
@@ -308,6 +311,9 @@ public class SwingMainView extends JPanel implements MainView, KeyEventDispatche
 			JComponent glassPane = (JComponent) getWindow().getGlassPane();
 			glassPane.add(componentView);
 			glassPane.setVisible(true);
+
+			getWindow().revalidate();
+			getWindow().repaint();
 		});
 	}
 

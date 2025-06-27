@@ -509,8 +509,7 @@ public class SlidesPresenter extends Presenter<SlidesView> {
 
 		if (shape instanceof TextShape textShape) {
 			// TODO: make this generic or remove at all
-			objectView.setOnFocus((ignored -> {
-			}));
+			objectView.setOnFocus((ignored -> {	}));
 			editorToolController.resetRecordedPlaybackActions();
 			textShape.setOnRemove();
 		}
@@ -531,15 +530,16 @@ public class SlidesPresenter extends Presenter<SlidesView> {
 				editorToolController.persistPlaybackActions().get();
 			}
 			else {
-				// If content of the page-object is empty don't save and remove the unnecessary playback actions
+				// If the content of the page-object is empty, don't save and remove the unnecessary playback actions.
 				editorToolController.resetRecordedPlaybackActions();
 			}
 		}
 		catch (InterruptedException | ExecutionException e) {
 			// ignored
 		}
-		objectView.setOnFocus((ignored) -> {
-		});
+
+		objectView.setOnFocus((ignored) -> {});
+
 		view.removePageObjectView(objectView);
 		lastFocusedTextBox = null;
 	}

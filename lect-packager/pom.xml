@@ -14,10 +14,12 @@
 	<properties>
 		<package.name>lectureStudio</package.name>
 		<package.full.name>${package.name}-${package.version}-${platform.name}-${platform.arch}</package.full.name>
-		<package.copyright>Copyright © 2024 TU Darmstadt</package.copyright>
+		<package.copyright>Copyright © 2025 TU Darmstadt</package.copyright>
 		<package.description>An integrated tool for presenting lectures</package.description>
 		<package.vendor>TU Darmstadt</package.vendor>
 		<package.about.url>https://www.lecturestudio.org</package.about.url>
+		<package.license.url>https://www.gnu.org/licenses/gpl-3.0.html.en#license-text</package.license.url>
+		<package.update.url>https://github.com/lectureStudio/lectureStudio/releases</package.update.url>
 	</properties>
 
 	<modules>

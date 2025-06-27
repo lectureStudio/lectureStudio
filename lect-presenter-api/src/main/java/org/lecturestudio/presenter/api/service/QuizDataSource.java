@@ -32,8 +32,6 @@ import java.util.Map;
 
 import com.fasterxml.jackson.databind.JsonDeserializer;
 
-import lombok.Getter;
-
 import org.lecturestudio.core.model.Document;
 import org.lecturestudio.core.util.FileUtils;
 import org.lecturestudio.presenter.api.quiz.JsonQuizFileRepository;
@@ -56,7 +54,6 @@ import org.lecturestudio.web.api.model.quiz.Quiz.QuizSet;
  *
  * @author Alex Andres
  */
-@Getter
 public class QuizDataSource {
 
 	/**

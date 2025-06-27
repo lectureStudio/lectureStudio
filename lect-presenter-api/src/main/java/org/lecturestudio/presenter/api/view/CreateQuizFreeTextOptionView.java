@@ -28,31 +28,4 @@ package org.lecturestudio.presenter.api.view;
  */
 public interface CreateQuizFreeTextOptionView extends CreateQuizOptionView {
 
-    /**
-     * This method sets the maximum number of answers that a user can submit in each quiz.
-     *
-     * @param maxNumberOfAnswers the maximum number of answers that a user can submit in each quiz. The value must
-     *                           be greater than 0.
-     */
-    void setMaxNumberOfAnswers(final int maxNumberOfAnswers);
-
-    /**
-     * This method returns the maximum number of answers that a user can submit in each quiz.
-     *
-     * @return the maximum number of answers that a user can submit in each quiz.
-     */
-    int getMaxNumberOfAnswers();
-
-    /**
-     * This method updates the word cloud visualization based on the answers submitted by users.
-     * Each submitted answer is processed in FIFO (First In, First Out) order,
-     * meaning that the first answer arriving is processed first.
-     */
-    void updateWordCloud();
-
-    /**
-     * This method renders the word cloud visualization.
-     */
-    void renderWordCloud();
-
 }

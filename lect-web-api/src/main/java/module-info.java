@@ -22,9 +22,8 @@ module org.lecturestudio.web.api {
 	requires spring.context;
 	requires spring.core;
 	requires webrtc.java;
-    requires annotations;
 
-    exports org.lecturestudio.web.api.client;
+	exports org.lecturestudio.web.api.client;
 	exports org.lecturestudio.web.api.data.bind;
 	exports org.lecturestudio.web.api.event;
 	exports org.lecturestudio.web.api.filter;

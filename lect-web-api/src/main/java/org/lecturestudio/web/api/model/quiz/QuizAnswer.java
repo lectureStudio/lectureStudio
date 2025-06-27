@@ -54,14 +54,14 @@ public class QuizAnswer extends ServiceModel implements Comparable<QuizAnswer>, 
 	/**
 	 * Returns the array of option strings.
 	 *
-	 * @return The options array.
+	 * @return The option array.
 	 */
 	public String[] getOptions() {
 		return options;
 	}
 
 	/**
-	 * Sets the options array.
+	 * Sets the option array.
 	 *
 	 * @param options Array of strings representing the answer options.
 	 */

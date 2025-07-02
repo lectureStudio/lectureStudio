@@ -3,6 +3,6 @@
 	<HBox gap="5" constraints="BorderLayout.CENTER">
 		<Label text="quiz.default.option.description" />
 		<TextField id="optionTextField" name="last-input" />
-		<CheckBox id="correctCheckBox" border="EmptyBorder(0, 0, 0, 5)" />
+		<CheckBox id="correctCheckBox" tooltipText="quiz.default.option.correct" border="EmptyBorder(0, 0, 0, 5)" />
 	</HBox>
 </Panel>

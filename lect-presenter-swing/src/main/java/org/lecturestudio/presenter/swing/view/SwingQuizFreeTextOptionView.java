@@ -36,8 +36,6 @@ import org.lecturestudio.web.api.model.quiz.QuizOption;
 @SwingView(name = "quiz-freetext-option")
 public class SwingQuizFreeTextOptionView extends SwingQuizOptionView implements CreateQuizFreeTextOptionView {
 
-	private JCheckBox correctCheckBox;
-
 	private JTextField optionTextField;
 
 
@@ -52,14 +50,13 @@ public class SwingQuizFreeTextOptionView extends SwingQuizOptionView implements 
 
 	@Override
 	public QuizOption getOption() {
-		return new QuizOption(optionTextField.getText(), correctCheckBox.isSelected());
+		return new QuizOption(optionTextField.getText(), false);
 	}
 
 	@Override
 	public void setOption(QuizOption option) {
 		SwingUtils.invoke(() -> {
 			optionTextField.setText(option.optionText());
-			correctCheckBox.setSelected(option.correct());
 		});
 	}
 

@@ -64,6 +64,7 @@ import org.lecturestudio.core.model.DocumentType;
 import org.lecturestudio.core.pdf.PdfDocument;
 import org.lecturestudio.core.pdf.pdfbox.PDFGraphics2D;
 import org.lecturestudio.core.util.FileUtils;
+import org.lecturestudio.core.util.IOUtils;
 import org.lecturestudio.presenter.api.quiz.wordcloud.HorizontalWordCloudLayout;
 import org.lecturestudio.presenter.api.quiz.wordcloud.LayoutConfig;
 import org.lecturestudio.presenter.api.quiz.wordcloud.WordItem;
@@ -237,9 +238,12 @@ public class QuizDocument extends HtmlToPdfDocument {
 
 			// For each option in the current answer, increment its frequency count.
 			for (String option : options) {
-				if (option.isBlank()) {
+				if (isNull(option) || option.isBlank()) {
 					continue;
 				}
+
+				// Limit the length of the option to 64 characters for word cloud visualization.
+				option = IOUtils.shortenString(option, 32);
 				Integer frequency = frequencyMap.get(option);
 
 				// Initialize frequency to 0 if this is the first occurrence.

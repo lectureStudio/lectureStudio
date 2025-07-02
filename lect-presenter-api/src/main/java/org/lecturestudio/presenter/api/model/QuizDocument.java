@@ -368,7 +368,8 @@ public class QuizDocument extends HtmlToPdfDocument {
 				}
 
 				QuizOption option = options.get(i);
-				String itemText = prefix + option.optionText();
+				String optionText = option.optionText();
+				String itemText = prefix + (nonNull(optionText) ? optionText : "");
 
 				if (markCorrect && option.correct()) {
 					itemText += " <span class=\"icon-check\"></span>";

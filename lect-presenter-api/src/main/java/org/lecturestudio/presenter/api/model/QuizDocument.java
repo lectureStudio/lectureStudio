@@ -367,7 +367,7 @@ public class QuizDocument extends HtmlToPdfDocument {
 			String prefix = "";
 
 			for (int i = 0; i < options.size(); i++) {
-				if (quiz.getType() != QuizType.NUMERIC) {
+				if (quiz.getType() == QuizType.SINGLE || quiz.getType() == QuizType.MULTIPLE) {
 					prefix = quiz.getOptionAlpha(i + "") + ") ";
 				}
 

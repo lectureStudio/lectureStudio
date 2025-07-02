@@ -236,7 +236,8 @@ public class CreateQuizPresenter extends Presenter<CreateQuizView> {
 		if (type == Quiz.QuizType.FREE_TEXT) {
 			CreateQuizOptionView newView = createOption();
 			addOptionView(newView, false);
-		} else {
+		}
+		else {
 			optionViews.forEach(view -> addOptionView(view, false));
 		}
 	}

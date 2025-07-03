@@ -418,12 +418,7 @@ public class SwingMainView extends JPanel implements MainView, KeyEventDispatche
 						.getDefaultTransform();
 				final Rectangle bounds = window.getBounds();
 
-				double sx = transform.getScaleX();
-				double sy = transform.getScaleY();
-
-				executeAction(boundsAction,
-						new Rectangle2D(bounds.x * sx, bounds.y * sy,
-								bounds.width * sx, bounds.height * sy));
+				executeAction(boundsAction, new Rectangle2D(bounds.x, bounds.y, bounds.width, bounds.height));
 			}
 		});
 	}

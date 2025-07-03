@@ -21,6 +21,7 @@ package org.lecturestudio.core.controller;
 import static java.util.Objects.isNull;
 import static java.util.Objects.nonNull;
 
+import java.awt.*;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -62,7 +63,7 @@ public class PresentationController {
 	/** The configuration for connected displays. */
 	private final DisplayConfiguration displayConfig;
 
-	/** The display service to obtain connected displays. */
+	/** The display service to get connected displays. */
 	private final DisplayService displayService;
 
 	/** Indicates whether any displays are connected or not. */
@@ -217,7 +218,7 @@ public class PresentationController {
 
 		if (nonNull(presenter)) {
 			if (containsMainWindow(screen)) {
-				LOG.debug("Main window is on the same screen. Hiding presentation view: {}", screen);
+				//LOG.debug("Main window is on the same screen. Hiding presentation view: {}", screen);
 				return;
 			}
 
@@ -342,7 +343,13 @@ public class PresentationController {
 			return false;
 		}
 
-		Rectangle2D screenBounds = screen.getBounds();
+		GraphicsConfiguration graphicsConfig = screen.getDevice().getDefaultConfiguration();
+		if (isNull(graphicsConfig)) {
+			return false;
+		}
+
+		Rectangle bounds = graphicsConfig.getBounds();
+		Rectangle2D screenBounds = new Rectangle2D(bounds.getX(), bounds.getY(), bounds.getWidth(), bounds.getHeight());
 
 		if (screenBounds.contains(mainWindowBounds)) {
 			// Don't show any presentation views on the screen that contains the main window.

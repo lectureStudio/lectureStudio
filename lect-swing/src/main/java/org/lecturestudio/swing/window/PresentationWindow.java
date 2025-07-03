@@ -23,22 +23,16 @@ import static java.util.Objects.nonNull;
 
 import com.google.common.eventbus.Subscribe;
 
-import java.awt.Container;
-import java.awt.Dimension;
-import java.awt.GraphicsConfiguration;
-import java.awt.Rectangle;
-import java.awt.Window;
+import java.awt.*;
 import java.awt.event.ComponentAdapter;
 import java.awt.event.ComponentEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
-import java.awt.geom.AffineTransform;
 
 import javax.swing.JWindow;
 import javax.swing.SwingUtilities;
 
 import org.lecturestudio.core.app.ApplicationContext;
-import org.lecturestudio.core.app.view.Screens;
 import org.lecturestudio.core.bus.ApplicationBus;
 import org.lecturestudio.core.bus.event.DisplayConfigEvent;
 import org.lecturestudio.core.bus.event.ShutdownEvent;
@@ -56,24 +50,50 @@ import org.lecturestudio.core.view.SlideViewOverlay;
 import org.lecturestudio.core.view.ViewType;
 import org.lecturestudio.swing.components.SlideView;
 import org.lecturestudio.swing.converter.ColorConverter;
-import org.lecturestudio.swing.converter.RectangleConverter;
 import org.lecturestudio.swing.view.SwingScreenView;
 
+/**
+ * A presentation window implementation that displays slide and screen content.
+ * <p>
+ * This class manages the display of presentation content on a specified screen, handling
+ * both slide views and screen views. It responds to application events and manages the
+ * rendering of presentation content through a {@link RenderController}.
+ * <p>
+ * The window can display document pages with specific presentation parameters and supports
+ * overlays for additional visual elements.
+ *
+ * @see AbstractWindow
+ * @see SlidePresentationView
+ *
+ * @author Alex Andres
+ */
 public class PresentationWindow extends AbstractWindow implements SlidePresentationView {
 
+	/** Controller responsible for rendering content in the presentation window. */
 	private final RenderController renderController;
 
+	/** Action to be executed when the window becomes visible. */
 	private Action onVisibleAction;
 
+	/** The main slide view component for displaying presentation content. */
 	private SlideView slideView;
 
+	/** View component for displaying screen content. */
 	private SwingScreenView screenView;
 
+	/** The current document being displayed. */
 	private Document doc;
 
 
+	/**
+	 * Creates a new presentation window.
+	 *
+	 * @param context          The application context providing configuration and resources.
+	 * @param screen           The screen on which to display the presentation.
+	 * @param renderController The controller used for rendering presentation content.
+	 */
 	public PresentationWindow(ApplicationContext context, Screen screen, RenderController renderController) {
-		super(context, Screens.getGraphicsConfiguration(screen));
+		super(context, screen.getDevice().getDefaultConfiguration());
 
 		this.renderController = renderController;
 
@@ -193,6 +213,15 @@ public class PresentationWindow extends AbstractWindow implements SlidePresentat
 		return (JWindow) super.getWindow();
 	}
 
+	/**
+	 * Initializes the presentation window with the given screen configuration.
+	 * <p>
+	 * This method sets up the window properties (background, bounds, always-on-top),
+	 * creates and configures the slide view and screen view components, registers
+	 * event listeners, and connects to the application event bus.
+	 *
+	 * @param screen The screen on which to display the presentation window.
+	 */
 	protected void init(Screen screen) {
 		Color background = getContext().getConfiguration().getDisplayConfig().getBackgroundColor();
 		Rectangle screenBounds = transformScreenBounds(screen);
@@ -258,28 +287,13 @@ public class PresentationWindow extends AbstractWindow implements SlidePresentat
 	}
 
 	private Rectangle transformScreenBounds(Screen screen) {
-		Rectangle screenBounds = RectangleConverter.INSTANCE.to(screen.getBounds());
-		GraphicsConfiguration gfxConfig = Screens.getGraphicsConfiguration(screen);
+		GraphicsConfiguration gfxConfig = screen.getDevice().getDefaultConfiguration();
 
 		if (isNull(gfxConfig)) {
 			throw new RuntimeException("GraphicsConfiguration does not exist for screen: " + screen);
 		}
 
-		AffineTransform defaultTx = gfxConfig.getDefaultTransform();
-
-		// Main screen / current screen scale ratio.
-		double sx = defaultTx.getScaleX();
-		double sy = defaultTx.getScaleY();
-
-		// Scale current screen size.
-		double x = screenBounds.getX() / sx;
-		double y = screenBounds.getY() / sy;
-		double w = screenBounds.getWidth() / sx;
-		double h = screenBounds.getHeight() / sy;
-
-		screenBounds.setRect(x, y, w, h);
-
-		return screenBounds;
+		return gfxConfig.getBounds();
 	}
 
 	private void centerSlideView() {

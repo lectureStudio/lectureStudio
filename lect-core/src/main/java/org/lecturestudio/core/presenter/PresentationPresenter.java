@@ -21,16 +21,38 @@ package org.lecturestudio.core.presenter;
 import org.lecturestudio.core.app.ApplicationContext;
 import org.lecturestudio.core.view.PresentationView;
 
+/**
+ * Abstract base presenter class for presentation-related functionality.
+ * Extends the generic Presenter class with presentation-specific capabilities.
+ *
+ * @param <T> the type of presentation view this presenter controls must extend PresentationView.
+ *
+ * @author Alex Andres
+ */
 public abstract class PresentationPresenter<T extends PresentationView> extends Presenter<T> {
 
+	/**
+	 * Creates a new presentation presenter with the specified context and view.
+	 *
+	 * @param context the application context.
+	 * @param view    the presentation view this presenter will control.
+	 */
 	public PresentationPresenter(ApplicationContext context, T view) {
 		super(context, view);
 	}
 
+	/**
+	 * Closes the associated presentation view.
+	 */
 	public void close() {
 		view.close();
 	}
 
+	/**
+	 * Returns the presentation view associated with this presenter.
+	 *
+	 * @return the presentation view.
+	 */
 	public PresentationView getPresentationView() {
 		return view;
 	}

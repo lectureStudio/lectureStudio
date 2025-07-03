@@ -20,14 +20,31 @@ package org.lecturestudio.core.view;
 
 import static java.util.Objects.nonNull;
 
+/**
+ * Represents a view component in the application. Provides utility methods for executing actions.
+ *
+ * @author Alex Andres
+ */
 public interface View {
 
+	/**
+	 * Executes the given action if it is not null.
+	 *
+	 * @param action the action to execute
+	 */
 	default void executeAction(Action action) {
 		if (nonNull(action)) {
 			action.execute();
 		}
 	}
 
+	/**
+	 * Executes the given consumer action with the provided parameter if the action is not null.
+	 *
+	 * @param <T>    the type of the parameter.
+	 * @param action the consumer action to execute.
+	 * @param param  the parameter to pass to the action.
+	 */
 	default <T> void executeAction(ConsumerAction<T> action, T param) {
 		if (nonNull(action)) {
 			action.execute(param);

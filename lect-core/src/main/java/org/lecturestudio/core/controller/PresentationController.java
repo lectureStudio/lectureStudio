@@ -48,7 +48,7 @@ import org.lecturestudio.core.view.SlideViewOverlay;
 /**
  * The {@link PresentationController} maintains presentation windows displaying document
  * pages that are shown on connected displays. The windows can be switched on
- * and off for each individual display.
+ * and off for each display.
  *
  * @author Alex Andres
  */

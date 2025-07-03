@@ -23,7 +23,7 @@ import org.lecturestudio.core.beans.ObjectProperty;
 import org.lecturestudio.core.view.Screen;
 
 /**
- * The ScreenConfiguration specifies screen related properties of connected
+ * The ScreenConfiguration specifies screen-related properties of connected
  * displays.
  *
  * @author Alex Andres
@@ -38,7 +38,7 @@ public class ScreenConfiguration {
 
 
 	/**
-	 * Obtain screen property.
+	 * Get screen property.
 	 *
 	 * @return screen property.
 	 */
@@ -47,7 +47,7 @@ public class ScreenConfiguration {
 	}
 
 	/**
-	 * Obtain the associated screen information.
+	 * Collect the associated screen information.
 	 *
 	 * @return the screen information.
 	 */

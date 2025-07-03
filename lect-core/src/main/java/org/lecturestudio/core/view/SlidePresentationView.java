@@ -20,10 +20,27 @@ package org.lecturestudio.core.view;
 
 import org.lecturestudio.core.model.Page;
 
+/**
+ * Interface for slide presentation views that can display pages.
+ * Extends the base presentation view capabilities with specific page handling.
+ *
+ * @author Alex Andres
+ */
 public interface SlidePresentationView extends PresentationView {
 
+	/**
+	 * Sets the current page to be displayed in the presentation view.
+	 *
+	 * @param page The page to be displayed.
+	 */
 	void setPage(Page page);
 
+	/**
+	 * Sets the current page to be displayed with specific presentation parameters.
+	 *
+	 * @param page      The page to be displayed.
+	 * @param parameter The presentation parameters to apply to the page.
+	 */
 	void setPage(Page page, PresentationParameter parameter);
 
 }

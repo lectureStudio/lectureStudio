@@ -31,7 +31,6 @@ import org.lecturestudio.core.model.Page;
 import org.lecturestudio.core.model.listener.PageEditEvent;
 import org.lecturestudio.core.model.listener.PageEditedListener;
 import org.lecturestudio.presenter.api.context.PresenterContext;
-import org.lecturestudio.presenter.api.event.DisplayNotificationEvent;
 import org.lecturestudio.presenter.api.presenter.RemindDisplayActivationPresenter;
 import org.lecturestudio.presenter.api.presenter.command.CloseablePresenterCommand;
 
@@ -145,7 +144,7 @@ public class DisplayNotificationHandler extends PresenterHandler {
 	 * @param event The page edit event containing information about the changes.
 	 */
 	private void pageEdited(final PageEditEvent event) {
-		if (event.shapedChanged()) {
+		if (event.shapeChanged()) {
 			return;
 		}
 

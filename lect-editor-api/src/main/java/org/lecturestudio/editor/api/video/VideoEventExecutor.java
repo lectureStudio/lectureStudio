@@ -228,7 +228,7 @@ public class VideoEventExecutor extends EventExecutor {
 
 							action.execute(toolController);
 
-							// Remove executed action.
+							// Remove the executed action.
 							playbacks.pop();
 
 							if (action.getType() == ActionType.SCREEN) {

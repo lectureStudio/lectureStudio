@@ -437,5 +437,5 @@ public class SlideView extends Control implements ParameterChangeListener, org.l
 		}
 
 	}
-	
+
 }

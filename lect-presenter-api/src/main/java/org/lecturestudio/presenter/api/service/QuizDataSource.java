@@ -24,9 +24,6 @@ import static java.util.Objects.requireNonNull;
 
 import java.io.File;
 import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Paths;
-import java.nio.file.StandardCopyOption;
 import java.util.List;
 import java.util.Map;
 
@@ -35,12 +32,9 @@ import com.fasterxml.jackson.databind.JsonDeserializer;
 import org.lecturestudio.core.model.Document;
 import org.lecturestudio.core.util.FileUtils;
 import org.lecturestudio.presenter.api.quiz.JsonQuizFileRepository;
-import org.lecturestudio.presenter.api.quiz.QuizFileReader;
-import org.lecturestudio.presenter.api.quiz.QuizReader;
 import org.lecturestudio.presenter.api.quiz.QuizRepository;
 import org.lecturestudio.web.api.data.bind.QuizDeserializer;
 import org.lecturestudio.web.api.model.quiz.Quiz;
-import org.lecturestudio.web.api.model.quiz.Quiz.QuizSet;
 
 /**
  * A data source for managing quiz-related operations.
@@ -70,19 +64,13 @@ public class QuizDataSource {
 	 * This constant is used to distinguish the new quiz file format from legacy formats, enabling
 	 * the system to correctly identify and process files containing quizzes.
 	 */
-	private static final String CURRENT_QUIZ_FILE_ENDING = ".json";
-
-	/**
-	 * The file representing the original quiz data source.
-	 * Used for backup and backward compatibility.
-	 */
-	private final File quizFile;
+	private static final String QUIZ_FILE_ENDING = ".json";
 
 	/**
 	 * The repository for storing and retrieving quiz data in JSON format.
 	 * Provides CRUD operations for quiz entities.
 	 */
-	private final JsonQuizFileRepository repository;
+	private final QuizRepository repository;
 
 
 	/**
@@ -91,15 +79,17 @@ public class QuizDataSource {
 	 * @param dataFile The file that will serve as the quiz data source.
 	 */
 	public QuizDataSource(final File dataFile) {
-		quizFile = dataFile;
-		repository = new JsonQuizFileRepository(
-				new File(FileUtils.stripExtension(dataFile) + CURRENT_QUIZ_FILE_ENDING));
+		File quizFile = new File(FileUtils.stripExtension(dataFile) + QUIZ_FILE_ENDING);
 
-		try {
-			migrateQuizFormat(dataFile);
-		}
-		catch (IOException e) {
-			throw new RuntimeException(e);
+		repository = getQuizRepository(quizFile);
+
+		if (!quizFile.exists()) {
+			try {
+				migrateQuizFormat(dataFile, repository);
+			}
+			catch (IOException e) {
+				throw new RuntimeException(e);
+			}
 		}
 	}
 
@@ -112,8 +102,6 @@ public class QuizDataSource {
 	 * @throws IOException If an I/O error occurs during the retrieval process.
 	 */
 	public List<Quiz> getQuizzes() throws IOException {
-		backupFile(quizFile, QuizSet.GENERIC);
-
 		return repository.findAll();
 	}
 
@@ -129,10 +117,16 @@ public class QuizDataSource {
 	 */
 	public List<Quiz> getQuizzes(Document doc) throws IOException {
 		File quizFile = getQuizFile(doc);
-
-		backupFile(quizFile, QuizSet.DOCUMENT_SPECIFIC);
-
 		QuizRepository repository = getQuizRepository(quizFile);
+
+		if (nonNull(quizFile) && !quizFile.exists()) {
+			try {
+				migrateQuizFormat(quizFile, repository);
+			}
+			catch (IOException e) {
+				throw new RuntimeException(e);
+			}
+		}
 
 		return nonNull(repository) ? repository.findAll() : List.of();
 	}
@@ -228,20 +222,7 @@ public class QuizDataSource {
 		requireNonNull(oldQuiz);
 		requireNonNull(newQuiz);
 
-		List<Quiz> quizzes = repository.findAll();
-
-		int index = quizzes != null ? quizzes.indexOf(oldQuiz) : -1;
-		if (index > -1) {
-			// Overwrite old quiz.
-			quizzes.set(index, newQuiz);
-
-			repository.deleteAll();
-			repository.saveAll(quizzes);
-		}
-		else {
-			// Append quiz.
-			repository.save(newQuiz);
-		}
+		replaceQuiz(oldQuiz, newQuiz, repository);
 	}
 
 	/**
@@ -255,8 +236,7 @@ public class QuizDataSource {
 	 * @throws IOException          If the repository does not exist or if an I/O error occurs.
 	 * @throws NullPointerException If either quiz parameter is null.
 	 */
-	public void replaceQuiz(Quiz oldQuiz, Quiz newQuiz, Document doc)
-			throws IOException {
+	public void replaceQuiz(Quiz oldQuiz, Quiz newQuiz, Document doc) throws IOException {
 		requireNonNull(oldQuiz);
 		requireNonNull(newQuiz);
 
@@ -266,6 +246,20 @@ public class QuizDataSource {
 			throw new IOException("Repository does not exist");
 		}
 
+		replaceQuiz(oldQuiz, newQuiz, repository);
+	}
+
+	/**
+	 * Replaces an existing quiz with a new quiz in the specified repository.
+	 * If the old quiz does not exist in the repository, the new quiz will be appended.
+	 *
+	 * @param oldQuiz    The quiz to be replaced.
+	 * @param newQuiz    The new quiz to replace the old one.
+	 * @param repository The repository where the replacement will take place.
+	 *
+	 * @throws IOException If an I/O error occurs during the replacement process.
+	 */
+	public void replaceQuiz(Quiz oldQuiz, Quiz newQuiz, QuizRepository repository) throws IOException {
 		List<Quiz> quizzes = repository.findAll();
 
 		int index = quizzes != null ? quizzes.indexOf(oldQuiz) : -1;
@@ -283,38 +277,26 @@ public class QuizDataSource {
 	}
 
 	/**
-	 * Reads quizzes from a file using the deprecated file format.
-	 *
-	 * @param quizFile The file containing quiz data.
-	 * @param set      The quiz set type (GENERIC or DOCUMENT_SPECIFIC).
-	 *
-	 * @return A list of quizzes read from the file.
-	 *
-	 * @throws IOException If an I/O error occurs during the reading process.
-	 *
-	 * @deprecated This method is used for backward compatibility only.
-	 */
-	@Deprecated
-	private List<Quiz> getQuizzes(File quizFile, Quiz.QuizSet set) throws IOException {
-		QuizReader reader = new QuizFileReader(quizFile, set);
-
-        return reader.readQuizzes();
-	}
-
-	/**
-	 * Migrates quiz data from legacy format to the current format.
+	 * Migrates quiz data from the legacy format to the current format.
 	 * <p>
 	 * This method attempts to read quizzes from the legacy file format, and if any
 	 * are found, saves them to the current repository format. After successful migration,
 	 * the original data file is moved to a backup with the ".old" extension.
 	 *
-	 * @param dataFile The quiz data file to migrate.
+	 * @param dataFile   The quiz data file to migrate.
+	 * @param repository The repository where to store the migrated quizzes.
 	 *
 	 * @throws IOException If an I/O error occurs during the reading, saving, or moving
 	 *                     of files during the migration process.
 	 */
-	private void migrateQuizFormat(final File dataFile) throws IOException {
+	private void migrateQuizFormat(final File dataFile, QuizRepository repository) throws IOException {
 		File legacyFile = new File(FileUtils.stripExtension(dataFile) + LEGACY_QUIZ_FILE_ENDING);
+
+		if (!legacyFile.exists()) {
+			// No legacy file to migrate.
+			return;
+		}
+
 		// Set up legacy quiz deserializers.
 		Map<Class<?>, JsonDeserializer<?>> deserializers = Map.of(Quiz.class, new QuizDeserializer());
 		// Initialize a repository to access quizzes stored in the legacy file format.
@@ -325,37 +307,6 @@ public class QuizDataSource {
 		if (!legacyQuizzes.isEmpty()) {
 		    // Save all quizzes from the legacy format to the current repository format
 			repository.saveAll(legacyQuizzes);
-
-		    // Rename the legacy file with .old extension to indicate it has been migrated
-			Files.move(Paths.get(legacyFile.getAbsolutePath()),
-					Paths.get(legacyFile.getAbsolutePath() + ".old"));
-		}
-	}
-
-	/**
-	 * Backs up a quiz file after converting it to the new format.
-	 * This method handles the migration from the old quiz file format to the new one.
-	 *
-	 * @param file The quiz file to back up.
-	 * @param set  The quiz set type (GENERIC or DOCUMENT_SPECIFIC).
-	 *
-	 * @throws IOException If an I/O error occurs during the backup process.
-	 */
-	private void backupFile(File file, Quiz.QuizSet set) throws IOException {
-		if (nonNull(file) && file.exists()) {
-			// Convert deprecated file format and backup old file storage.
-			List<Quiz> oldList = getQuizzes(file, set);
-
-			QuizRepository repository = getQuizRepository(file);
-			if (nonNull(repository)) {
-				repository.saveAll(oldList);
-			}
-
-			var oldFilePath = file.toPath();
-			var oldBackupPath = Paths.get(file.getAbsolutePath() + ".backup");
-
-			Files.copy(oldFilePath, oldBackupPath, StandardCopyOption.REPLACE_EXISTING);
-			Files.delete(oldFilePath);
 		}
 	}
 
@@ -371,8 +322,7 @@ public class QuizDataSource {
 			return null;
 		}
 
-		return new JsonQuizFileRepository(
-				new File(FileUtils.stripExtension(file) + CURRENT_QUIZ_FILE_ENDING));
+		return new JsonQuizFileRepository(file);
 	}
 
 	/**
@@ -395,7 +345,7 @@ public class QuizDataSource {
 			return null;
 		}
 
-		path = path.substring(0, path.lastIndexOf(".")) + ".quiz";
+		path = path.substring(0, path.lastIndexOf(".")) + QUIZ_FILE_ENDING;
 
 		return new File(path);
 	}

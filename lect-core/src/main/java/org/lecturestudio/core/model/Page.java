@@ -39,10 +39,11 @@ import org.lecturestudio.core.model.shape.Shape;
 import org.lecturestudio.core.model.shape.ZoomShape;
 import org.lecturestudio.core.tool.ShapeModifyEvent;
 import org.lecturestudio.core.tool.ShapePaintEvent;
+import org.lecturestudio.core.tool.ToolEventType;
 
 /**
  * This class is the representation of a {@link Page} in a {@link Document}. It
- * has a background shape, that can either be empty (white board page) or a
+ * has a background shape that can either be empty (white board page) or a
  * SlideShape holding a PDF-Slide. The foreground of the page consists of an
  * arbitrary number of shapes. Adding or removing shapes should be done by
  * actions only, so they can be un- and redone.
@@ -493,6 +494,7 @@ public class Page {
 		if (shapes.remove(shape)) {
 			shape.removeShapeChangedListener(psc);
 			firePageEdited(shape, null, PageEditEvent.Type.SHAPE_REMOVED);
+			pushShapePaintEvent(new ShapePaintEvent(ToolEventType.END, shape, shape.getBounds()));
 		}
 	}
 

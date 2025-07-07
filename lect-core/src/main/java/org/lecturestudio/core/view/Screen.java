@@ -18,13 +18,16 @@
 
 package org.lecturestudio.core.view;
 
+import java.awt.GraphicsDevice;
 import java.util.Objects;
 import java.util.StringJoiner;
+
+import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import org.lecturestudio.core.geometry.Rectangle2D;
 
 /**
- * The Screen defines screen related properties of a connected display.
+ * The Screen defines screen-related properties of a connected display.
  *
  * @author Alex Andres
  */
@@ -33,12 +36,16 @@ public final class Screen {
 	/** The screen bounds. */
 	private final Rectangle2D bounds;
 
+	/** The graphics device associated with this screen. */
+	@JsonIgnore
+	private final transient GraphicsDevice device;
+
 
 	/**
 	 * Create a new Screen instance with empty bounds.
 	 */
 	public Screen() {
-		this(new Rectangle2D());
+		this(new Rectangle2D(), null);
 	}
 
 	/**
@@ -47,28 +54,40 @@ public final class Screen {
 	 * @param x      The x-coordinate of the screen bounds.
 	 * @param y      The x-coordinate of the screen bounds.
 	 * @param width  The width of the screen bounds.
-	 * @param height The height the screen bounds.
+	 * @param height The height of the screen bounds.
+	 * @param device The graphics device associated with this screen.
 	 */
-	public Screen(int x, int y, int width, int height) {
-		this(new Rectangle2D(x, y, width, height));
+	public Screen(int x, int y, int width, int height, GraphicsDevice device) {
+		this(new Rectangle2D(x, y, width, height), device);
 	}
 
 	/**
 	 * Create a new Screen instance with the specified bounds.
 	 *
 	 * @param bounds The bounding rectangle of this screen.
+	 * @param device The graphics device associated with this screen.
 	 */
-	public Screen(Rectangle2D bounds) {
+	public Screen(Rectangle2D bounds, GraphicsDevice device) {
 		this.bounds = bounds;
+		this.device = device;
 	}
 
 	/**
-	 * Obtain the bounding rectangle of this screen.
+	 * Get the bounding rectangle of this screen.
 	 *
 	 * @return the bounding rectangle of this screen.
 	 */
 	public Rectangle2D getBounds() {
-		return bounds;
+		return new Rectangle2D(bounds);
+	}
+
+	/**
+	 * Get the graphics device associated with this screen.
+	 *
+	 * @return the graphics device associated with this screen.
+	 */
+	public GraphicsDevice getDevice() {
+		return device;
 	}
 
 	@Override

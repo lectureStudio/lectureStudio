@@ -35,17 +35,38 @@ import org.lecturestudio.core.view.PresentationParameterProvider;
 import org.lecturestudio.core.view.SlidePresentationView;
 import org.lecturestudio.core.view.ViewType;
 
+/**
+ * A presenter class responsible for managing slide presentations.
+ * <p>
+ * This presenter handles the interaction between the application and the slide presentation view,
+ * managing document and page selection, and responding to events from the event bus.
+ * It updates the view according to changes in the current document and presentation parameters.
+ * </p>
+ *
+ * @author Alex Andres
+ */
 public class SlidePresentationPresenter extends PresentationPresenter<SlidePresentationView> {
 
+	/** The document service used to access and manipulate documents. */
 	private final DocumentService documentService;
 
+	/** The event bus used for publishing and subscribing to events. */
 	private final EventBus eventBus;
 
+	/** Listener that responds to changes in presentation parameters. */
 	private ParameterChangeListener parameterChangeListener;
 
+	/** The document currently being presented. */
 	private Document currentDocument;
 
 
+	/**
+	 * Creates a new slide presentation presenter.
+	 *
+	 * @param context         The application context.
+	 * @param view            The slide presentation view to be managed by this presenter.
+	 * @param documentService The service that provides access to documents.
+	 */
 	public SlidePresentationPresenter(ApplicationContext context, SlidePresentationView view, DocumentService documentService) {
 		super(context, view);
 
@@ -88,23 +109,6 @@ public class SlidePresentationPresenter extends PresentationPresenter<SlidePrese
 		super.close();
 	}
 
-	private void viewVisible() {
-		if (nonNull(currentDocument)) {
-			setPage(currentDocument.getCurrentPage());
-		}
-	}
-
-	private void setPage(Page page) {
-		PresentationParameterProvider ppProvider = context.getPagePropertyProvider(ViewType.Presentation);
-		PresentationParameter parameter = ppProvider.getParameter(page);
-
-		view.setPage(page, parameter);
-	}
-
-	private void setDocument(Document doc) {
-		this.currentDocument = doc;
-	}
-
 	@Override
 	public void initialize() {
 		eventBus.register(this);
@@ -133,5 +137,22 @@ public class SlidePresentationPresenter extends PresentationPresenter<SlidePrese
 		ppProvider.addParameterChangeListener(parameterChangeListener);
 
 		view.setOnVisible(this::viewVisible);
+	}
+
+	private void viewVisible() {
+		if (nonNull(currentDocument)) {
+			setPage(currentDocument.getCurrentPage());
+		}
+	}
+
+	private void setPage(Page page) {
+		PresentationParameterProvider ppProvider = context.getPagePropertyProvider(ViewType.Presentation);
+		PresentationParameter parameter = ppProvider.getParameter(page);
+
+		view.setPage(page, parameter);
+	}
+
+	private void setDocument(Document doc) {
+		this.currentDocument = doc;
 	}
 }

@@ -680,7 +680,7 @@ public class MenuPresenter extends Presenter<MenuView> {
 	}
 
 	private void pageEdited(final PageEditEvent event) {
-		if (event.shapedChanged()) {
+		if (event.shapeChanged()) {
 			return;
 		}
 

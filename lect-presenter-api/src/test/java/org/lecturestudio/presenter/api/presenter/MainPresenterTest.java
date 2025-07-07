@@ -85,9 +85,9 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 class MainPresenterTest extends PresenterTest {
 
 	private static final Screen[] SCREENS = {
-			new Screen(0, 0, 1280, 720),
-			new Screen(1280, 720, 1920, 1200),
-			new Screen(-640, -480, 640, 480)
+			new Screen(0, 0, 1280, 720, null),
+			new Screen(1280, 720, 1920, 1200, null),
+			new Screen(-640, -480, 640, 480, null)
 	};
 
 

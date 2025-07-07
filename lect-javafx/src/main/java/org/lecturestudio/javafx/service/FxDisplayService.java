@@ -84,6 +84,6 @@ public class FxDisplayService implements DisplayService {
 	}
 
 	private Screen createScreen(javafx.stage.Screen fxScreen) {
-		return new Screen(Rectangle2DConverter.INSTANCE.from(fxScreen.getBounds()));
+		return new Screen(Rectangle2DConverter.INSTANCE.from(fxScreen.getBounds()), null);
 	}
 }

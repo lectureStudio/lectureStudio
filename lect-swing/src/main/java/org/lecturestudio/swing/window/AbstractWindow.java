@@ -33,29 +33,58 @@ import org.lecturestudio.core.view.WindowView;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+/**
+ * Abstract base class for window implementations that provides common window functionality.
+ * Implements the WindowView interface and handles basic window operations.
+ *
+ * @author Alex Andres
+ */
 public abstract class AbstractWindow implements WindowView {
 
+	/** Logger for this class. */
 	private static final Logger LOG = LogManager.getLogger(AbstractWindow.class);
 
+	/** Application context containing shared application resources. */
 	private final ApplicationContext context;
 
+	/** The underlying window instance. */
 	private Window window;
 	
+	/** The document currently displayed in this window. */
 	private Document document;
 	
+	/** The current page being displayed from the document. */
 	private Page page;
-	
 
+
+	/**
+	 * Creates the window instance with the specified graphics configuration.
+	 *
+	 * @param gc the graphics configuration to use may be null.
+	 *
+	 * @return the created window instance.
+	 */
 	abstract protected Window createWindow(GraphicsConfiguration gc);
 	
 
 
+	/**
+	 * Creates a new window with the specified application context.
+	 *
+	 * @param context the application context.
+	 */
 	public AbstractWindow(ApplicationContext context) {
 		this.context = context;
 
 		init(null);
 	}
 
+	/**
+	 * Creates a new window with the specified application context and graphics configuration.
+	 *
+	 * @param context the application context.
+	 * @param gc      the graphics configuration to use.
+	 */
 	public AbstractWindow(ApplicationContext context, GraphicsConfiguration gc) {
 		this.context = context;
 
@@ -83,18 +112,44 @@ public abstract class AbstractWindow implements WindowView {
 			setPage(event.getPage());
 		}
 	}
-	
+
+	/**
+	 * Returns the document currently displayed in this window.
+	 *
+	 * @return the current document.
+	 */
 	public Document getDocument() {
 		return document;
 	}
-	
+
+	/**
+	 * Sets the current page to be displayed in this window.
+	 *
+	 * @param page the page to be displayed.
+	 */
+	public void setPage(Page page) {
+		this.page = page;
+	}
+
+	/**
+	 * Returns the current page being displayed.
+	 *
+	 * @return the current page.
+	 */
 	protected Page getPage() {
 		return page;
 	}
 
+	/**
+	 * Sets the document to be displayed in this window and updates the current page.
+	 * If the document is not null and has pages, the current page from the document
+	 * will be set. Otherwise, the current page is set to null.
+	 *
+	 * @param doc the document to be displayed.
+	 */
 	protected void setDocument(Document doc) {
 		this.document = doc;
-		
+
 		if (doc != null) {
 			if (doc.getPageCount() > 0) {
 				setPage(doc.getCurrentPage());
@@ -104,19 +159,20 @@ public abstract class AbstractWindow implements WindowView {
 			setPage(null);
 		}
 	}
-	
-	public void setPage(Page page) {
-		this.page = page;
-	}
-	
+
+	/**
+	 * Returns the application context containing shared application resources.
+	 *
+	 * @return the application context.
+	 */
 	protected ApplicationContext getContext() {
 		return context;
 	}
-	
+
 	/**
 	 * Run this Runnable in the Swing Event Dispatching Thread (EDT). This method can be
-	 * called whether or not the current thread is the EDT.
-	 * 
+	 * called whether the current thread is the EDT.
+	 *
 	 * @param runnable the code to be executed in the EDT.
 	 */
 	protected void invoke(Runnable runnable) {
@@ -136,48 +192,96 @@ public abstract class AbstractWindow implements WindowView {
 		}
 	}
 
-	private void init(GraphicsConfiguration gc) {
-		window = createWindow(gc);
-	}
-
+	/**
+	 * Sets the size of the window.
+	 *
+	 * @param width  the new width of the window in pixels.
+	 * @param height the new height of the window in pixels.
+	 */
 	public void setSize(int width, int height) {
 		window.setSize(new Dimension(width, height));
 	}
 
+	/**
+	 * Sets the layout manager for this window.
+	 *
+	 * @param manager the layout manager to be used.
+	 */
 	public void setLayout(LayoutManager manager) {
 		window.setLayout(manager);
 	}
 
+	/**
+	 * Gets the current size of the window.
+	 *
+	 * @return the current dimensions of the window.
+	 */
 	public Dimension getSize() {
 		return window.getSize();
 	}
 
+	/**
+	 * Sets the bounds of the window.
+	 *
+	 * @param rect the rectangle specifying position and size.
+	 */
 	public void setBounds(Rectangle rect) {
 		window.setBounds(rect);
 	}
 
+	/**
+	 * Sets whether this window should always be on top of other windows.
+	 *
+	 * @param onTop true to set the window always on top, false otherwise.
+	 */
 	public void setAlwaysOnTop(boolean onTop) {
 		window.setAlwaysOnTop(onTop);
 	}
 
+	/**
+	 * Sets the visibility of this window.
+	 *
+	 * @param visible true to make the window visible, false to hide it.
+	 */
 	public void setVisible(boolean visible) {
 		window.setVisible(visible);
 	}
 
+	/**
+	 * Checks whether this window is currently visible.
+	 *
+	 * @return true if the window is visible, false otherwise.
+	 */
 	public boolean isVisible() {
 		return window.isVisible();
 	}
 
+	/**
+	 * Returns the underlying window instance.
+	 *
+	 * @return the underlying window object.
+	 */
 	public Window getWindow() {
 		return window;
 	}
 
+	/**
+	 * Disposes of this window, releasing all resources used by it.
+	 */
 	public void dispose() {
 		window.dispose();
 	}
 
+	/**
+	 * Sets the background color of this window.
+	 *
+	 * @param color the new background color.
+	 */
 	public void setBackground(Color color) {
 		window.setBackground(color);
 	}
 
+	private void init(GraphicsConfiguration gc) {
+		window = createWindow(gc);
+	}
 }

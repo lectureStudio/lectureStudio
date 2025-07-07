@@ -180,7 +180,7 @@ public class ExternalFrame extends JFrame {
 
 	private void externalComponentOpenedOrMoved(ComponentEvent e, Consumer<ExternalWindowPosition> action) {
 		final Point position = e.getComponent().getLocationOnScreen();
-		final Screen screen = Screens.createScreen(e.getComponent().getGraphicsConfiguration().getDevice());
+		final Screen screen = Screens.createScreen(e.getComponent().getGraphicsConfiguration().getDevice(), null);
 
 		action.accept(new ExternalWindowPosition(screen, position));
 	}

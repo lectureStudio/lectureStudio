@@ -24,6 +24,8 @@ import java.awt.GraphicsDevice;
 import java.awt.GraphicsEnvironment;
 import java.awt.Rectangle;
 import java.awt.geom.AffineTransform;
+import java.util.ArrayList;
+import java.util.List;
 
 import org.lecturestudio.core.geometry.Rectangle2D;
 import org.lecturestudio.core.view.Screen;
@@ -46,36 +48,7 @@ public final class Screens {
 	 * @return an array of all connected screens.
 	 */
 	public static Screen[] getAllScreens() {
-		GraphicsDevice[] devices = getScreenDevices();
-		Screen[] screens = new Screen[devices.length];
-
-		for (int i = 0; i < screens.length; i++) {
-			screens[i] = createScreen(devices[i]);
-		}
-
-		return screens;
-	}
-
-	/**
-	 * Get all connected screens without the primary screen.
-	 *
-	 * @return an array of all connected screens.
-	 */
-	public static Screen[] getConnectedScreens() {
-		Rectangle defaultBounds = GE.getDefaultScreenDevice().getDefaultConfiguration().getBounds();
-		GraphicsDevice[] devices = getScreenDevices();
-		Screen[] screens = new Screen[devices.length - 1];
-
-		for (int i = 0, c = 0; i < devices.length; i++) {
-			GraphicsDevice device = devices[i];
-			Rectangle bounds = device.getDefaultConfiguration().getBounds();
-
-			if (!bounds.equals(defaultBounds)) {
-				screens[c++] = createScreen(device);
-			}
-		}
-
-		return screens;
+		return convertMultipleDisplays(getScreenDevices()).toArray(new Screen[0]);
 	}
 
 	/**
@@ -98,7 +71,7 @@ public final class Screens {
 
 	/**
 	 * Get a screen device which contains the specified container. If the
-	 * container has not been placed yet on any screen the default screen device
+	 * container has not been placed yet on any screen, the default screen device
 	 * is returned. In case the container cannot be assigned to any screen, then
 	 * {@code null} is returned. The decision to choose the screen is based on
 	 * the area that the container covers on the corresponding screen.
@@ -134,58 +107,141 @@ public final class Screens {
 		return result;
 	}
 
-	/**
-	 * Get {@link GraphicsConfiguration} associated with a graphics device which
-	 * has the bounds defined by the provided screen.
-	 *
-	 * @param screen The screen for which to obtain the {@link GraphicsConfiguration}.
-	 *
-	 * @return a {@link GraphicsConfiguration} or {@code null}.
-	 */
-	public static GraphicsConfiguration getGraphicsConfiguration(Screen screen) {
-		GraphicsDevice[] devices = GE.getScreenDevices();
-
-		Rectangle screenBounds = toAwtRectangle(screen.getBounds());
-
-		for (GraphicsDevice device : devices) {
-			GraphicsConfiguration deviceConfig = device.getDefaultConfiguration();
-			Rectangle bounds = deviceConfig.getBounds();
-			AffineTransform transform = deviceConfig.getDefaultTransform();
-
-			bounds.setBounds(
-					(int) (bounds.x * transform.getScaleX()),
-					(int) (bounds.y * transform.getScaleY()),
-					(int) (bounds.width * transform.getScaleX()),
-					(int) (bounds.height * transform.getScaleY()));
-
-			if (bounds.equals(screenBounds)) {
-				return device.getDefaultConfiguration();
-			}
+	public static Screen createScreen(GraphicsDevice device, GraphicsDevice primaryDevice) {
+		if (primaryDevice == null) {
+			primaryDevice = getDefaultScreenDevice();
 		}
 
-		return null;
-	}
+		GraphicsConfiguration primaryDeviceConfig = primaryDevice.getDefaultConfiguration();
+		Rectangle primaryBounds = primaryDeviceConfig.getBounds();
 
-	/**
-	 * Converts a {@link Rectangle2D} into a {@link Rectangle}
-	 *
-	 * @param r {@link Rectangle2D} to be converted
-	 * @return the converted {@link Rectangle}
-	 */
-	private static Rectangle toAwtRectangle(Rectangle2D r) {
-		return new Rectangle((int) r.getX(), (int) r.getY(), (int) r.getWidth(), (int) r.getHeight());
-	}
-
-	public static Screen createScreen(GraphicsDevice device) {
 		GraphicsConfiguration deviceConfig = device.getDefaultConfiguration();
 		Rectangle bounds = deviceConfig.getBounds();
 		AffineTransform transform = deviceConfig.getDefaultTransform();
 
-		int x = (int) (bounds.x * transform.getScaleX());
-		int y = (int) (bounds.y * transform.getScaleY());
-		int w = (int) (bounds.width * transform.getScaleX());
-		int h = (int) (bounds.height * transform.getScaleY());
+		int x, y, w, h;
 
-		return new Screen(x, y, w, h);
+		if (device.equals(primaryDevice)) {
+			x = (int) (bounds.x * transform.getScaleX());
+			y = (int) (bounds.y * transform.getScaleY());
+			w = (int) (bounds.width * transform.getScaleX());
+			h = (int) (bounds.height * transform.getScaleY());
+		}
+		else {
+			x = (int) ((bounds.x - primaryBounds.x) * transform.getScaleX());
+			y = (int) ((bounds.y - primaryBounds.y) * transform.getScaleY());
+			w = (int) (bounds.width * transform.getScaleX());
+			h = (int) (bounds.height * transform.getScaleY());
+		}
+
+		return new Screen(x, y, w, h, device);
+	}
+
+	/**
+	 * Converts multiple displays from logical to pixel coordinates.
+	 * This method correctly handles the positioning by considering the actual pixel dimensions
+	 * of displays and their arrangement.
+	 *
+	 * @param devices The graphics devices that represent connected displays.
+	 *
+	 * @return List of Screen objects.
+	 */
+	public static List<Screen> convertMultipleDisplays(GraphicsDevice[] devices) {
+		GraphicsDevice primaryDevice = getDefaultScreenDevice();
+		List<Screen> screens = new ArrayList<>();
+
+		for (int i = 0; i < devices.length; i++) {
+			GraphicsDevice device = devices[i];
+			GraphicsConfiguration deviceConfig = device.getDefaultConfiguration();
+			Rectangle logicalBounds = deviceConfig.getBounds();
+			AffineTransform transform = deviceConfig.getDefaultTransform();
+
+			// Extract scaling factors.
+			double scaleX = transform.getScaleX();
+			double scaleY = transform.getScaleY();
+
+			// Convert dimensions.
+			int pixelWidth = (int) (logicalBounds.width * scaleX);
+			int pixelHeight = (int) (logicalBounds.height * scaleY);
+
+			int pixelX, pixelY;
+
+			if (device.equals(primaryDevice)) {
+				// Primary: use scaled coordinates.
+				pixelX = (int) (logicalBounds.x * scaleX);
+				pixelY = (int) (logicalBounds.y * scaleY);
+			}
+			else {
+				// Find the display that comes immediately before this one in the arrangement.
+				int precedingDisplayIndex = -1;
+
+				// For vertical arrangement: find the display that ends where this one starts.
+				for (int j = 0; j < i; j++) {
+					GraphicsDevice prevDevice = devices[j];
+					Rectangle prevLogical = prevDevice.getDefaultConfiguration().getBounds();
+
+					// Check if this display starts where the previous one ends (vertically).
+					if (logicalBounds.x == prevLogical.x && logicalBounds.y == prevLogical.y + prevLogical.height) {
+						precedingDisplayIndex = j;
+						break;
+					}
+					// Check if this display starts where the previous one ends (horizontally).
+					else if (logicalBounds.y == prevLogical.y && logicalBounds.x == prevLogical.x + prevLogical.width) {
+						precedingDisplayIndex = j;
+						break;
+					}
+				}
+
+				if (precedingDisplayIndex != -1) {
+					// Position relative to the preceding display.
+					GraphicsDevice precedingLogicalDevice = devices[precedingDisplayIndex];
+					Rectangle precedingLogical = precedingLogicalDevice.getDefaultConfiguration().getBounds();
+					Rectangle2D precedingPixel = screens.get(precedingDisplayIndex).getBounds();
+
+					if (logicalBounds.x == precedingLogical.x
+							&& logicalBounds.y == precedingLogical.y + precedingLogical.height) {
+						// Vertical arrangement.
+						pixelX = (int) precedingPixel.getX();
+						pixelY = (int) (precedingPixel.getY() + precedingPixel.getHeight());
+					}
+					else {
+						// Horizontal arrangement.
+						pixelX = (int) (precedingPixel.getX() + precedingPixel.getWidth());
+						pixelY = (int) precedingPixel.getY();
+					}
+				}
+				else {
+					// No direct predecessor found: this might be a case where we need to
+					// find the display that this one is conceptually positioned after.
+					int bestMatch = -1;
+
+					for (int j = 0; j < i; j++) {
+						GraphicsDevice prevLogicalDevice = devices[j];
+						Rectangle prevLogical = prevLogicalDevice.getDefaultConfiguration().getBounds();
+
+						// Check if this display is in the same column and below the previous one.
+						if (logicalBounds.x == prevLogical.x && logicalBounds.y > prevLogical.y + prevLogical.height) {
+							bestMatch = j;
+							// Don't break: keep looking for the closest one.
+						}
+					}
+
+					if (bestMatch != -1) {
+						Rectangle2D precedingPixel = screens.get(bestMatch).getBounds();
+						pixelX = (int) precedingPixel.getX();
+						pixelY = (int) (precedingPixel.getY() + precedingPixel.getHeight());
+					}
+					else {
+						// Fallback: scale the logical coordinates.
+						pixelX = (int) (logicalBounds.x * scaleX);
+						pixelY = (int) (logicalBounds.y * scaleY);
+					}
+				}
+			}
+
+			screens.add(new Screen(pixelX, pixelY, pixelWidth, pixelHeight, device));
+		}
+
+		return screens;
 	}
 }

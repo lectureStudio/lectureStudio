@@ -92,7 +92,7 @@ public class PageEditEvent {
 	 *
 	 * @return {@code true} if {@link #type} equals {@code Type.SHAPE_CHANGE}, otherwise {@code false}.
 	 */
-	public boolean shapedChanged() {
+	public boolean shapeChanged() {
 		return type == Type.SHAPE_CHANGE;
 	}
 

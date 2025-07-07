@@ -95,7 +95,7 @@ public class ToolbarPresenter extends Presenter<ToolbarView> {
 	}
 
 	private void pageEdited(final PageEditEvent event) {
-		if (event.shapedChanged()) {
+		if (event.shapeChanged()) {
 			return;
 		}
 

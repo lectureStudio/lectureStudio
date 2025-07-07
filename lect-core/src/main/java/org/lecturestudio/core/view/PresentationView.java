@@ -20,22 +20,66 @@ package org.lecturestudio.core.view;
 
 import org.lecturestudio.core.graphics.Color;
 
+/**
+ * Interface for a presentation view that displays slides and provides presentation functionality.
+ * Extends the base View interface with presentation-specific capabilities.
+ *
+ * @author Alex Andres
+ */
 public interface PresentationView extends View {
 
+	/**
+	 * Closes the presentation view.
+	 */
 	void close();
 
+	/**
+	 * Sets the background color of the presentation view.
+	 *
+	 * @param color The color to set as a background.
+	 */
 	void setBackgroundColor(Color color);
 
+	/**
+	 * Sets the visibility state of the presentation view.
+	 *
+	 * @param visible true to make the view visible, false to hide it.
+	 */
 	void setVisible(boolean visible);
 
+	/**
+	 * Checks whether the presentation view is currently visible.
+	 *
+	 * @return true if the view is visible, false otherwise.
+	 */
 	boolean isVisible();
 
+	/**
+	 * Sets an action to be executed when the view becomes visible.
+	 *
+	 * @param action The action to execute on visibility change.
+	 */
 	void setOnVisible(Action action);
 
+	/**
+	 * Adds an overlay to the slide view.
+	 *
+	 * @param overlay The overlay to be added.
+	 */
 	void addOverlay(SlideViewOverlay overlay);
 
+	/**
+	 * Removes an overlay from the slide view.
+	 *
+	 * @param overlay The overlay to be removed.
+	 */
 	void removeOverlay(SlideViewOverlay overlay);
 
+	/**
+	 * Sets the presentation view context containing presentation-specific configuration.
+	 *
+	 * @param context The context to be applied to this presentation view.
+	 */
 	void setPresentationViewContext(PresentationViewContext context);
 
 }

@@ -79,7 +79,12 @@ public class VideoFrameConverter {
 		VideoBufferConverter.convertFromI420(croppedBuffer, imageBuffer, FourCC.RGBA);
 
 		// Release resources.
-		croppedBuffer.release();
+		try {
+			croppedBuffer.release();
+		}
+		catch (Exception e) {
+			// May happen if the buffer is already released.
+		}
 
 		return image;
 	}

@@ -138,11 +138,20 @@ public class HorizontalWordCloudLayout {
 		g2d.fillRect(0, 0, canvasWidth, canvasHeight);
 
 		// Draw words
-		for (WordItem word : words) {
-			g2d.setFont(word.font);
-			g2d.setColor(word.color);
-			g2d.drawString(word.text, word.position.x, word.position.y);
-		}
+//		for (WordItem word : words) {
+//			g2d.setFont(word.font);
+//			g2d.setColor(word.color);
+//			g2d.drawString(word.text, word.position.x, word.position.y);
+//		}
+
+		// Draw the words on the PDF slide
+		words.forEach(
+				word -> {
+					g2d.setFont(word.font);
+					g2d.setColor(word.color);
+					g2d.drawString(word.text, word.position.x, word.position.y);
+				}
+		);
 
 		// Optional: Draw bounding boxes for debugging
 		// drawBoundingBoxes(g2d);
@@ -153,8 +162,22 @@ public class HorizontalWordCloudLayout {
 	 * The size is scaled between a minimum and maximum size based on the frequency range.
 	 *
 	 * @param words the list of words to calculate sizes for.
+	 *                 <b>The list should be sorted by frequency in descending order.</b>
 	 */
 	private void calculateFontSizes(List<WordItem> words) {
+		final WordCloudCalculator wordCloudCalculator = new WordCloudCalculator();
+		calculateFontSizesV2(words, wordCloudCalculator);
+		// calculateFontSizesV1(words);
+	}
+
+	/**
+	 * Calculates font sizes and colors for each word based on their frequency.
+	 * The size is scaled between a minimum and maximum size based on the frequency range.
+	 *
+	 * @param words the list of words to calculate sizes for.
+	 *                 <b>The list should be sorted by frequency in descending order.</b>
+	 */
+	private void calculateFontSizesV1(final List<WordItem> words) {
 		if (words.isEmpty()) {
 			return;
 		}
@@ -178,6 +201,41 @@ public class HorizontalWordCloudLayout {
 			word.font = new Font(Font.SANS_SERIF, Font.BOLD, fontSize);
 			word.color = generateColor(word.frequency, maxFreq);
 		}
+	}
+
+	/**
+	 * Calculates font sizes for a list of words based on their frequency.
+	 * The font size is scaled between the minimum and maximum font sizes
+	 * provided by the WordcloudCalculator, proportional to the frequency range.
+	 *
+	 * @param words the list of words for which font sizes are to be calculated.
+	 *              The list should be non-empty and contain WordItem objects with frequency values.
+	 * @param wordCloudCalculator the WordcloudCalculator providing the maximum and minimum font sizes.
+	 */
+	private void calculateFontSizesV2(final List<WordItem> words, final WordCloudCalculator wordCloudCalculator) {
+		if( words.isEmpty() )
+			return;
+
+		final int maxFreq = words.get(0).getFrequency();
+		final int minFreq = words.get(words.size() - 1).getFrequency();
+
+		final int maxFontSize = wordCloudCalculator.getMaxFontSize();
+		final int minFontSize = wordCloudCalculator.getMinFontSize();
+
+		for(final WordItem word : words) {
+
+			int fontSize = wordCloudCalculator.calculateFontSize(
+					word.getFrequency(),
+					maxFreq,
+					minFreq,
+					maxFontSize,
+					minFontSize
+					);
+
+			word.setFont(new Font(Font.SANS_SERIF, Font.BOLD, fontSize));
+			word.setColor(generateColor(word.getFrequency(), maxFreq));
+		}
+
 	}
 
 	/**

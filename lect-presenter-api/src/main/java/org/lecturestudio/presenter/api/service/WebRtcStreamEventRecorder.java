@@ -232,7 +232,7 @@ public class WebRtcStreamEventRecorder extends StreamEventRecorder {
 		else if (event.replaced()) {
 			removeActionsForDocument(event.getOldDocument());
 
-			// Transmit quiz documents only in initial state.
+			// Transmit quiz documents only in the initial state.
 			boolean isInitialQuiz = false;
 
 			if (doc instanceof QuizDocument quizDoc) {

@@ -21,48 +21,42 @@ package org.lecturestudio.presenter.swing.view;
 import static java.util.Objects.isNull;
 import static java.util.Objects.nonNull;
 
-import java.awt.BorderLayout;
+import javax.swing.*;
+import java.awt.*;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 
-import javax.swing.*;
-
-import org.lecturestudio.presenter.api.view.CreateQuizDefaultOptionView;
+import org.lecturestudio.presenter.api.view.CreateQuizFreeTextOptionView;
 import org.lecturestudio.swing.event.DefaultDocumentListener;
 import org.lecturestudio.swing.util.SwingUtils;
 import org.lecturestudio.swing.view.SwingView;
 import org.lecturestudio.swing.view.ViewPostConstruct;
 import org.lecturestudio.web.api.model.quiz.QuizOption;
 
-@SwingView(name = "quiz-default-option")
-public class SwingQuizDefaultOptionView extends SwingQuizOptionView implements CreateQuizDefaultOptionView {
+@SwingView(name = "quiz-freetext-option")
+public class SwingQuizFreeTextOptionView extends SwingQuizOptionView implements CreateQuizFreeTextOptionView {
 
 	private JTextField optionTextField;
 
-	private JCheckBox correctCheckBox;
 
-
-	SwingQuizDefaultOptionView() {
+	SwingQuizFreeTextOptionView() {
 		super();
 	}
 
 	@Override
 	public void focus() {
-		SwingUtils.invoke(() -> {
-			optionTextField.requestFocus();
-		});
+		SwingUtils.invoke(() -> optionTextField.requestFocus());
 	}
 
 	@Override
 	public QuizOption getOption() {
-		return new QuizOption(optionTextField.getText(), correctCheckBox.isSelected());
+		return new QuizOption(optionTextField.getText(), false);
 	}
 
 	@Override
 	public void setOption(QuizOption option) {
 		SwingUtils.invoke(() -> {
 			optionTextField.setText(option.optionText());
-			correctCheckBox.setSelected(option.correct());
 		});
 	}
 
@@ -87,23 +81,9 @@ public class SwingQuizDefaultOptionView extends SwingQuizOptionView implements C
 				upDownKeyHandler(e);
 			}
 		});
-		optionTextField.addKeyListener(new KeyAdapter() {
 
-			@Override
-			public void keyPressed(KeyEvent e) {
-				enterKeyHandler(e);
-			}
-		});
-		optionTextField.addKeyListener(new KeyAdapter() {
+		DefaultDocumentListener docListener = new DefaultDocumentListener(super::fireChange);
 
-			@Override
-			public void keyPressed(KeyEvent e) {
-				tabKeyHandler(e);
-			}
-		});
-		optionTextField.getDocument().addDocumentListener(new DefaultDocumentListener(super::fireChange));
-
-		correctCheckBox.addActionListener(e -> fireChange());
+		optionTextField.getDocument().addDocumentListener(docListener);
 	}
-
 }

@@ -56,6 +56,9 @@ public class QuizThumbnailPanel extends ThumbnailPanel {
 
 			@Override
 			public void setSelectionInterval(int index0, int index1) {
+				if (index0 < 0 || index1 < 0) {
+					return; // Ignore invalid indices.
+				}
 				Page page = getList().getModel().getElementAt(index0);
 
 				if (nonNull(page) && page.getPageNumber() < maxPageIndex) {

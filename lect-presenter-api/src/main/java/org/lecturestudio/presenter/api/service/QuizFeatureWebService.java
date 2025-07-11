@@ -191,10 +191,10 @@ public class QuizFeatureWebService extends FeatureServiceBase {
 	}
 
 	private Document createQuizDocument(final QuizResult result) throws ExecutableException {
+		Dictionary dict = context.getDictionary();
 		Document doc;
 
 		try {
-			Dictionary dict = context.getDictionary();
 			DocumentTemplateConfiguration templateConfig = context.getConfiguration()
 					.getTemplateConfig().getQuizTemplateConfig();
 			String template = templateConfig.getTemplatePath();
@@ -222,7 +222,7 @@ public class QuizFeatureWebService extends FeatureServiceBase {
 
 		Document prevQuizDoc = null;
 
-		// Find old quiz document.
+		// Find an old quiz document.
 		for (Document doc : documentService.getDocuments().asList()) {
 			if (doc.isQuiz()) {
 				prevQuizDoc = doc;

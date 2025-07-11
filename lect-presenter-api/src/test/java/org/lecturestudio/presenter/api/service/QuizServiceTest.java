@@ -40,6 +40,7 @@ import org.junit.jupiter.api.TestMethodOrder;
 
 import org.lecturestudio.core.model.Document;
 import org.lecturestudio.web.api.model.quiz.Quiz;
+import org.lecturestudio.web.api.model.quiz.QuizOption;
 
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 class QuizServiceTest extends ServiceTest {
@@ -96,12 +97,12 @@ class QuizServiceTest extends ServiceTest {
 	@Order(1)
 	void testGetQuizzes() throws IOException {
 		Quiz quiz1 = new Quiz(Quiz.QuizType.MULTIPLE, "What's up?");
-		quiz1.addOption("a");
-		quiz1.addOption("b");
-		quiz1.addOption("c");
+		quiz1.addOption(new QuizOption("a", false));
+		quiz1.addOption(new QuizOption("b", false));
+		quiz1.addOption(new QuizOption("c", false));
 
 		Quiz quiz2 = new Quiz(Quiz.QuizType.SINGLE, "No choice");
-		quiz2.addOption("-");
+		quiz2.addOption(new QuizOption("-", false));
 
 		List<Quiz> quizzes = quizService.getQuizzes();
 
@@ -115,17 +116,17 @@ class QuizServiceTest extends ServiceTest {
 	@Order(2)
 	void testGetDocumentQuizzes() throws Exception {
 		Quiz quiz1 = new Quiz(Quiz.QuizType.MULTIPLE, "Pick one");
-		quiz1.addOption("a");
-		quiz1.addOption("b");
-		quiz1.addOption("c");
+		quiz1.addOption(new QuizOption("a", false));
+		quiz1.addOption(new QuizOption("b", false));
+		quiz1.addOption(new QuizOption("c", false));
 
 		Quiz quiz2 = new Quiz(Quiz.QuizType.SINGLE, "Some smart question");
-		quiz2.addOption("1");
-		quiz2.addOption("1");
+		quiz2.addOption(new QuizOption("1", false));
+		quiz2.addOption(new QuizOption("1", false));
 
 		Quiz quiz3 = new Quiz(Quiz.QuizType.NUMERIC, "a + b");
-		quiz3.addOption("x");
-		quiz3.addOption("y");
+		quiz3.addOption(new QuizOption("x", false));
+		quiz3.addOption(new QuizOption("y", false));
 
 		List<Quiz> quizzes = quizService.getQuizzes(doc);
 
@@ -140,17 +141,17 @@ class QuizServiceTest extends ServiceTest {
 	@Order(3)
 	void testSaveQuiz() throws IOException {
 		Quiz quiz1 = new Quiz(Quiz.QuizType.MULTIPLE, "Pick one");
-		quiz1.addOption("a");
-		quiz1.addOption("b");
-		quiz1.addOption("c");
+		quiz1.addOption(new QuizOption("a", false));
+		quiz1.addOption(new QuizOption("b", false));
+		quiz1.addOption(new QuizOption("c", false));
 
 		Quiz quiz2 = new Quiz(Quiz.QuizType.SINGLE, "Some smart question");
-		quiz2.addOption("1");
-		quiz2.addOption("1");
+		quiz2.addOption(new QuizOption("1", false));
+		quiz2.addOption(new QuizOption("1", false));
 
 		Quiz quiz3 = new Quiz(Quiz.QuizType.NUMERIC, "a + b");
-		quiz3.addOption("x");
-		quiz3.addOption("y");
+		quiz3.addOption(new QuizOption("x", false));
+		quiz3.addOption(new QuizOption("y", false));
 
 		quizService.saveQuiz(quiz1);
 		quizService.saveQuiz(quiz2);
@@ -169,9 +170,9 @@ class QuizServiceTest extends ServiceTest {
 	@Order(4)
 	void testSaveDocumentQuiz() throws Exception {
 		Quiz quiz = new Quiz(Quiz.QuizType.MULTIPLE, "Multiple choice quiz");
-		quiz.addOption("r");
-		quiz.addOption("s");
-		quiz.addOption("t");
+		quiz.addOption(new QuizOption("r", false));
+		quiz.addOption(new QuizOption("s", false));
+		quiz.addOption(new QuizOption("t", false));
 
 		quizService.saveQuiz(quiz, doc);
 
@@ -192,7 +193,7 @@ class QuizServiceTest extends ServiceTest {
 		assertEquals(1, quizzes.size());
 
 		Quiz quiz2 = new Quiz(Quiz.QuizType.SINGLE, "No choice");
-		quiz2.addOption("-");
+		quiz2.addOption(new QuizOption("-", false));
 
 		assertQuizEquals(quiz2, quizzes.get(0));
 	}
@@ -210,8 +211,8 @@ class QuizServiceTest extends ServiceTest {
 		quizService.deleteQuiz(quizzes.get(0));
 
 		Quiz quiz3 = new Quiz(Quiz.QuizType.NUMERIC, "a + b");
-		quiz3.addOption("x");
-		quiz3.addOption("y");
+		quiz3.addOption(new QuizOption("x", false));
+		quiz3.addOption(new QuizOption("y", false));
 
 		assertQuizEquals(quiz3, quizService.getQuizzes(doc).get(0));
 	}
@@ -220,8 +221,8 @@ class QuizServiceTest extends ServiceTest {
 	@Order(7)
 	void testReplaceQuiz() throws IOException {
 		Quiz quiz = new Quiz(Quiz.QuizType.NUMERIC, "Edited question");
-		quiz.addOption("num 1");
-		quiz.addOption("num 2");
+		quiz.addOption(new QuizOption("num 1", false));
+		quiz.addOption(new QuizOption("num 2", false));
 
 		List<Quiz> quizzes = quizService.getQuizzes();
 

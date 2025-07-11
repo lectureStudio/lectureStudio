@@ -135,17 +135,23 @@ public abstract class HtmlToPdfDocument extends Document {
 				.useProtocolsStreamImplementation(
 						new ClassPathStreamFactory(resourceMap), "classpath");
 
-		// Set default document font.
-		Font font = Arrays.stream(GraphicsEnvironment.getLocalGraphicsEnvironment().getAllFonts())
-				.filter(f -> f.getFontName().equals("Open Sans Regular"))
-				.findFirst()
-				.orElse(null);
+		String[] fonts = new String[] {
+				"Open Sans Regular",
+				"Symbols"
+		};
 
-		if (nonNull(font)) {
-			PdfFontManager fontManager = PdfFontManager.getInstance();
-			PDFont pdFont = fontManager.getPdfFont(font, pdDoc);
+		for (String fontName : fonts) {
+			Font font = Arrays.stream(GraphicsEnvironment.getLocalGraphicsEnvironment().getAllFonts())
+					.filter(f -> f.getFontName().equals(fontName))
+					.findFirst()
+					.orElse(null);
 
-			builder.useFont(new PDFontSupplier(pdFont), font.getFamily());
+			if (nonNull(font)) {
+				PdfFontManager fontManager = PdfFontManager.getInstance();
+				PDFont pdFont = fontManager.getPdfFont(font, pdDoc);
+
+				builder.useFont(new PDFontSupplier(pdFont), font.getFamily());
+			}
 		}
 
 		if (nonNull(tplPage)) {

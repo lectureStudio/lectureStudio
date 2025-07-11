@@ -32,6 +32,7 @@ import org.lecturestudio.web.api.filter.InputFieldRule;
 import org.lecturestudio.web.api.model.quiz.Quiz;
 import org.lecturestudio.web.api.model.quiz.Quiz.QuizSet;
 import org.lecturestudio.web.api.model.quiz.Quiz.QuizType;
+import org.lecturestudio.web.api.model.quiz.QuizOption;
 
 @Deprecated
 public class QuizFileReader implements QuizReader {
@@ -117,7 +118,7 @@ public class QuizFileReader implements QuizReader {
 						throw new QuizParseFileException("Missing quiz option: " + (i + 1), question, line);
 					}
 
-					quiz.addOption(scanner.nextLine());
+					quiz.addOption(new QuizOption(scanner.nextLine(), false));
 					line++;
 				}
 

@@ -164,7 +164,7 @@ public class SaveDocumentsPresenter extends Presenter<SaveDocumentsView> {
 		FileChooserView fileChooser = viewFactory.createFileChooserView();
 		fileChooser.addExtensionFilter(dict.get("file.description.pdf"),
 				PresenterContext.SLIDES_EXTENSION);
-		fileChooser.setInitialFileName(initPath.getName());
+		fileChooser.setInitialFileName(FileUtils.toLegalFileName(initPath.getName()));
 		fileChooser.setInitialDirectory(initPath.getParentFile());
 
 		File selectedFile = fileChooser.showSaveFile(view);
@@ -181,7 +181,7 @@ public class SaveDocumentsPresenter extends Presenter<SaveDocumentsView> {
 
 		String date = dateFormat.format(new Date());
 
-		return docName + "-" + date + ".pdf";
+		return FileUtils.toLegalFileName(docName) + "-" + date + ".pdf";
 	}
 
 	private void saveDocuments(List<Document> documents, File file, boolean autoClose) {

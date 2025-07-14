@@ -21,6 +21,7 @@ package org.lecturestudio.presenter.api.quiz;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.DeserializationFeature;
+import com.fasterxml.jackson.databind.JsonDeserializer;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.databind.module.SimpleModule;
@@ -31,6 +32,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 
 import org.lecturestudio.core.util.ObservableArrayList;
 import org.lecturestudio.core.util.ObservableHashSet;
@@ -69,6 +71,30 @@ public class JsonQuizFileRepository implements QuizRepository {
 		SimpleModule module = new SimpleModule();
 		module.addAbstractTypeMapping(ObservableList.class, ObservableArrayList.class);
 		module.addAbstractTypeMapping(ObservableSet.class, ObservableHashSet.class);
+
+		mapper = new ObjectMapper();
+		mapper.setSerializationInclusion(Include.NON_NULL);
+		mapper.setSerializationInclusion(Include.NON_EMPTY);
+		mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+		mapper.enable(SerializationFeature.INDENT_OUTPUT);
+		mapper.registerModules(new Jdk8Module());
+		mapper.registerModule(module);
+	}
+
+	public <T> JsonQuizFileRepository(File file, Map<Class<?>, JsonDeserializer<?>> deserializers) {
+		this.file = file;
+
+		SimpleModule module = new SimpleModule();
+		module.addAbstractTypeMapping(ObservableList.class, ObservableArrayList.class);
+		module.addAbstractTypeMapping(ObservableSet.class, ObservableHashSet.class);
+
+		for (var entry : deserializers.entrySet()) {
+			@SuppressWarnings("unchecked")
+			Class<Object> key = (Class<Object>) entry.getKey();
+			@SuppressWarnings("unchecked")
+			JsonDeserializer<Object> value = (JsonDeserializer<Object>) entry.getValue();
+			module.addDeserializer(key, value);
+		}
 
 		mapper = new ObjectMapper();
 		mapper.setSerializationInclusion(Include.NON_NULL);

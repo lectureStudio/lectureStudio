@@ -27,18 +27,21 @@ import java.awt.event.KeyEvent;
 import java.text.NumberFormat;
 import java.text.ParseException;
 
-import javax.swing.JTextField;
+import javax.swing.*;
 
 import org.lecturestudio.presenter.api.view.CreateQuizNumericOptionView;
 import org.lecturestudio.swing.event.DefaultDocumentListener;
 import org.lecturestudio.swing.util.SwingUtils;
 import org.lecturestudio.swing.view.SwingView;
 import org.lecturestudio.swing.view.ViewPostConstruct;
+import org.lecturestudio.web.api.model.quiz.QuizOption;
 
 @SwingView(name = "quiz-numeric-option")
 public class SwingQuizNumericOptionView extends SwingQuizOptionView implements CreateQuizNumericOptionView {
 
 	private final NumberFormat numberFormat;
+
+	private JCheckBox correctCheckBox;
 
 	private JTextField optionTextField;
 
@@ -61,13 +64,16 @@ public class SwingQuizNumericOptionView extends SwingQuizOptionView implements C
 	}
 
 	@Override
-	public String getOptionText() {
-		return optionTextField.getText();
+	public QuizOption getOption() {
+		return new QuizOption(optionTextField.getText(), correctCheckBox.isSelected());
 	}
 
 	@Override
-	public void setOptionText(String text) {
-		SwingUtils.invoke(() -> optionTextField.setText(text));
+	public void setOption(QuizOption option) {
+		SwingUtils.invoke(() -> {
+			optionTextField.setText(option.optionText());
+			correctCheckBox.setSelected(option.correct());
+		});
 	}
 
 	@Override

@@ -41,7 +41,7 @@ public class QuizResult {
 	 *
 	 * @param quiz The quiz for which results are being collected.
 	 */
-	public QuizResult(Quiz quiz) {
+	public QuizResult(final Quiz quiz) {
 		this.quiz = quiz;
 		this.result = new TreeMap<>();
 	}
@@ -91,7 +91,7 @@ public class QuizResult {
 	 *
 	 * @return A string representation of the answer.
 	 */
-	public String getAnswerText(QuizAnswer answer) {
+	public String getAnswerText(final QuizAnswer answer) {
 		StringBuilder str = new StringBuilder();
 		int c = 1;
 		int length = answer.getOptions().length;
@@ -101,7 +101,7 @@ public class QuizResult {
 			c++;
 		}
 
-		if (str.length() == 0) {
+		if (str.isEmpty()) {
 			str = new StringBuilder("{ }");
 		}
 
@@ -117,7 +117,7 @@ public class QuizResult {
 	 *
 	 * @return true if the answer is valid, false otherwise.
 	 */
-	protected boolean checkAnswer(QuizAnswer answer) {
+	protected boolean checkAnswer(final QuizAnswer answer) {
 		if (answer.getOptions().length > quiz.getOptions().size()
 				&& quiz.getType() != Quiz.QuizType.NUMERIC) {
 			return false;
@@ -134,6 +134,9 @@ public class QuizResult {
 			catch (Exception e) {
 				return false;
 			}
+		}
+		else if (quiz.getType() == Quiz.QuizType.FREE_TEXT) {
+			// Implement restriction for free text answers if needed.
 		}
 		else {
 			try {
@@ -153,7 +156,7 @@ public class QuizResult {
 
 	/**
 	 * Attempts to parse a string value as a number.
-	 * First tries to parse as integer, then as float.
+	 * First try to parse as integer, then as float.
 	 * Handles comma as decimal separator by converting it to a period.
 	 *
 	 * @param value The string to parse.

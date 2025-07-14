@@ -118,6 +118,8 @@ public class WebRtcCamera extends AbstractCamera {
 					VideoBufferConverter.convertFromI420(scaled, imageBuffer, FourCC.ARGB);
 					scaled.release();
 
+					frame.release();
+
 					if (nonNull(imageConsumer)) {
 						imageConsumer.accept(image);
 					}

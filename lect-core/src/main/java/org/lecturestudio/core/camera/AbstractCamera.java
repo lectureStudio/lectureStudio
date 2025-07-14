@@ -90,7 +90,7 @@ public abstract class AbstractCamera implements Camera {
 			return null;
 		}
 
-		CameraFormat highest = formats[0];
+		CameraFormat highest = null;
 
 		for (CameraFormat format : formats) {
 			if (format.getFrameRate() >= fps && format.compareTo(highest) > -1) {

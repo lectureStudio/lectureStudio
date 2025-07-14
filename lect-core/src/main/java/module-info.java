@@ -17,6 +17,7 @@ module org.lecturestudio.core {
 	requires javax.inject;
 	requires jlatexmath;
 	requires JTransforms;
+	requires org.apache.commons.io;
 	requires org.apache.logging.log4j;
 	requires org.apache.logging.log4j.core;
 	requires org.apache.pdfbox;

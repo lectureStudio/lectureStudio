@@ -123,7 +123,7 @@ public class RestoreRecordingPresenter extends Presenter<RestoreRecordingView> {
 			return;
 		}
 
-		String recordingName = backup.getCheckpoint();
+		String recordingName = FileUtils.toLegalFileName(backup.getCheckpoint());
 
 		if (isNull(recordingName)) {
 			view.setError(context.getDictionary().get("recording.restore.missing.backup"));

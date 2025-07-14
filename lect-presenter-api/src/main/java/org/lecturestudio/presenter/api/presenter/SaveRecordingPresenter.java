@@ -100,7 +100,7 @@ public class SaveRecordingPresenter extends Presenter<SaveRecordingView> {
 		Path dirPath = Paths.get(recordingPath);
 
 		String date = dateFormat.format(new Date());
-		String fileName = recordingService.getBestRecordingName() + "-" + date;
+		String fileName = FileUtils.toLegalFileName(recordingService.getBestRecordingName() + "-" + date);
 
 		FileChooserView fileChooser = viewFactory.createFileChooserView();
 		fileChooser.addExtensionFilter(dict.get("file.description.recording"),

@@ -2,6 +2,74 @@
 
 All notable changes to this project will be documented in this file.
 
+## [6.2.2](https://github.com/lectureStudio/lectureStudio/compare/v6.2.1..v6.2.2) - 2025-07-11
+
+### Bug Fixes
+
+- *(presenter)* Set more default buttons in the toolbar
+- *(presenter)* Scale incoming video frames with AffineTransformOp
+- *(presenter)* Buffer video frames for conversion
+- *(presenter)* Remaining video tiles after closing a ([#1012](https://github.com/lectureStudio/lectureStudio/issues/1012))
+- Get document title after the document was ([#1015](https://github.com/lectureStudio/lectureStudio/issues/1015))
+- *(presenter)* Add debug logging for presentation view updates and screen handling
+- *(editor)* Consume mouse event on selection change in the ([#936](https://github.com/lectureStudio/lectureStudio/issues/936))
+- *(presenter)* Adjust heartbeat interval and duration
+- *(editor)* Adjust stroke widths for pen, highlighter, and ([#1020](https://github.com/lectureStudio/lectureStudio/issues/1020))
+- *(editor)* Improve seek ([#1023](https://github.com/lectureStudio/lectureStudio/issues/1023))
+- *(editor)* Fix saving single ([#1021](https://github.com/lectureStudio/lectureStudio/issues/1021))
+- *(editor)* Improve event handling on recording changes
+- *(presenter)* Improve video frame handling and memory management
+- *(presenter)* Optimize video frame conversion and memory ([#1018](https://github.com/lectureStudio/lectureStudio/issues/1018))
+- Memory leak caused by screen-share while ([#1018](https://github.com/lectureStudio/lectureStudio/issues/1018))
+- Set up WiX in GitHub workflows
+- WiX toolset extension versions
+- Wix-module fail maven build on error
+- Build workflow to upload only the lectureStudio exe bundle
+- *(editor)* Scaling and positioning of recorded video frames
+- *(editor)* Select video export option by default in VideoExportPresenter
+- Unnecessarily setting the current recording to ([#1019](https://github.com/lectureStudio/lectureStudio/issues/1019))
+- Undo/redo for the text ([#29](https://github.com/lectureStudio/lectureStudio/issues/29))
+- Improve access token validation and error handling in stream ([#380](https://github.com/lectureStudio/lectureStudio/issues/380))
+- *(editor)* Seek state handling in ([#507](https://github.com/lectureStudio/lectureStudio/issues/507))
+- *(presenter)* Fix main view repaint after showing stacked dialogs
+- *(presenter)* Show notify to record notification while in ([#1028](https://github.com/lectureStudio/lectureStudio/issues/1028))
+- *(editor)* View update caused by regression in fix ([#1019](https://github.com/lectureStudio/lectureStudio/issues/1019)) ([#1027](https://github.com/lectureStudio/lectureStudio/issues/1027))
+- *(editor)* View update regression when changing recorded events
+- *(presenter)* Closing heartbeat notification
+- *(presenter)* Add logging for heartbeat request failures and improve event handling
+- *(presenter)* Auto grid on external displays
+- *(presenter)* Update phrasing for speech ([#1032](https://github.com/lectureStudio/lectureStudio/issues/1032))
+- *(core)* Screen handling logic and enhance ([#1031](https://github.com/lectureStudio/lectureStudio/issues/1031))
+- *(core)* Compare in logical display space instead of pixel space
+- Typo in PageEditEvent
+- *(core)* Add shape paint event on shape removal
+- *(tests)* Update Screen initialization
+- *(core)* Handle exception during buffer release in ([#884](https://github.com/lectureStudio/lectureStudio/issues/884))
+- *(core)* Ensure legal file names in file chooser and recording processes
+
+### Refactor
+
+- ScreenRecorderService to drop the ffmpeg cli muxer and added FFmpegMuxer implemented with JavaCV
+
+### Other
+
+- New windows msi/exe bundle creation
+- Update GitHub workflows to use the new windows bundle
+- *(deps)* Bump org.springframework:spring-context in /lect-web-api ([#1022](https://github.com/lectureStudio/lectureStudio/issues/1022))
+- Allow opening files with drag&drop ([#1026](https://github.com/lectureStudio/lectureStudio/issues/1026))
+- Update Windows runner version to 2022 in CI configurations
+
+### Documentation
+
+- Presentation view java docs
+- Recording player and service documentation
+- Enhance documentation for event execution classes and methods
+- Improve documentation and clarify method descriptions for the presentation context
+
+### Miscellaneous Tasks
+
+- Drop dead code
+
 ## [6.2.1](https://github.com/lectureStudio/lectureStudio/compare/v6.2.0..v6.2.1) - 2025-04-22
 
 ### Bug Fixes
@@ -10,6 +78,11 @@ All notable changes to this project will be documented in this file.
 - Do not react to VAD when settings are opened
 - Audio device changes for voice activity detection
 - Process local video frames when the connection is established
+
+### Miscellaneous Tasks
+
+- *(release)* Update CHANGELOG.md for v6.2.1
+- *(release)* Update package version to 6.2.1
 
 ## [6.2.0](https://github.com/lectureStudio/lectureStudio/compare/v6.1.1025..v6.2.0) - 2025-04-15
 

@@ -33,6 +33,7 @@ import org.lecturestudio.core.model.Document;
 import org.lecturestudio.core.model.DocumentType;
 import org.lecturestudio.core.model.Page;
 import org.lecturestudio.core.presenter.Presenter;
+import org.lecturestudio.core.util.FileUtils;
 import org.lecturestudio.core.view.FileChooserView;
 import org.lecturestudio.core.view.PresentationParameter;
 import org.lecturestudio.core.view.PresentationParameterProvider;
@@ -166,7 +167,7 @@ public class DocumentTemplateSettingsPresenter extends Presenter<DocumentTemplat
 
 			if (initFile.exists()) {
 				fileChooser.setInitialDirectory(initFile.getParentFile());
-				fileChooser.setInitialFileName(initFile.getName());
+				fileChooser.setInitialFileName(FileUtils.toLegalFileName(initFile.getName()));
 			}
 
 			File selectedFile = fileChooser.showOpenFile(view);

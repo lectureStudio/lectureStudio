@@ -48,6 +48,7 @@ import java.util.jar.JarFile;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
+import org.apache.commons.io.FileSystem;
 import org.lecturestudio.core.app.configuration.Configuration;
 
 public class FileUtils {
@@ -76,6 +77,18 @@ public class FileUtils {
 		}
 
 		return dirPath;
+	}
+
+	/**
+	 * Converts a string to a legal file name by replacing illegal characters with underscores.
+	 * Uses the current file system's rules to determine which characters are illegal.
+	 *
+	 * @param name The string to convert to a legal file name.
+	 *
+	 * @return A string with all illegal file name characters replaced with underscores.
+	 */
+	public static String toLegalFileName(final String name) {
+		return FileSystem.getCurrent().toLegalFileName(name, '_');
 	}
 
 	public static boolean validateFileName(String name) {

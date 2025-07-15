@@ -24,7 +24,7 @@
 		<Button id="checkTokenButton" text="button.check">
 			<gridbagconstraints gridx="1" gridy="5" weightx="0.3" anchor="GridBagConstraints.WEST" insets="5,0,5,0" />
 		</Button>
-		<Label id="tokenErrorLabel" text="Error: stream.settings.access.token.error" foreground="red">
+		<Label id="tokenErrorLabel" text="" foreground="red">
 			<gridbagconstraints gridx="0" gridy="6" gridwidth="2" anchor="GridBagConstraints.WEST" insets="0,0,15,0" />
 		</Label>
 

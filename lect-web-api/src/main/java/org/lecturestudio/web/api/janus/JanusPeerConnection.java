@@ -369,13 +369,12 @@ public class JanusPeerConnection implements PeerConnectionObserver {
 						cameraSource.setVideoCaptureDevice(cameraDevice);
 					}
 					if (nonNull(cameraCapability)) {
-						var nearestCapability = getNearestCameraFormat(
-								cameraCapability);
+						var nearestCapability = getNearestCameraFormat(cameraCapability);
 
-						LOGGER.debug("Video capture capability: " + cameraCapability);
-						LOGGER.debug("Video capture nearest capability: " + nearestCapability);
+						System.out.println("Video capture capability: " + cameraCapability);
+						System.out.println("Video capture nearest capability: " + nearestCapability);
 
-						cameraSource.setVideoCaptureCapability(nearestCapability);
+						cameraSource.setVideoCaptureCapability(cameraCapability);
 					}
 
 					cameraSource.start();

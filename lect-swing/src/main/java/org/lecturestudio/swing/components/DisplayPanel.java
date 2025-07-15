@@ -20,19 +20,7 @@ package org.lecturestudio.swing.components;
 
 import static java.util.Objects.isNull;
 
-import java.awt.Color;
-import java.awt.Component;
-import java.awt.Container;
-import java.awt.Dimension;
-import java.awt.Font;
-import java.awt.FontMetrics;
-import java.awt.Graphics;
-import java.awt.Graphics2D;
-import java.awt.Insets;
-import java.awt.ItemSelectable;
-import java.awt.LayoutManager2;
-import java.awt.Rectangle;
-import java.awt.RenderingHints;
+import java.awt.*;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
 import java.awt.event.MouseAdapter;
@@ -52,14 +40,13 @@ public class DisplayPanel extends JPanel implements ItemSelectable {
 
 	private final List<ItemListener> listeners;
 
-	private final Rectangle2D virtualArea;
+	private List<ScreenConfiguration> screens;
 
 
 	public DisplayPanel() {
 		super();
 
 		listeners = new ArrayList<>();
-		virtualArea = new Rectangle2D();
 
 		initialize();
 	}
@@ -84,9 +71,8 @@ public class DisplayPanel extends JPanel implements ItemSelectable {
 			return;
 		}
 
-		virtualArea.setRect(0, 0, 0, 0);
+		this.screens = screens;
 
-		removeAll();
 		addScreens(screens);
 
 		revalidate();
@@ -114,14 +100,12 @@ public class DisplayPanel extends JPanel implements ItemSelectable {
 
 			SwingUtils.bindBidirectional(screenComponent, screenConfig.enabledProperty());
 
-			virtualArea.union(screenComponent.getScreenBounds());
-
 			add(screenComponent);
 		}
 	}
 
 	private void initialize() {
-		setLayout(new DisplayLayoutManager(virtualArea));
+		setLayout(new DisplayLayoutManager(0));
 	}
 
 
@@ -151,6 +135,7 @@ public class DisplayPanel extends JPanel implements ItemSelectable {
 
 			// Draw screen id.
 			g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+			g2d.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
 
 			FontMetrics metrics = g.getFontMetrics();
 			Rectangle rect = getBounds();
@@ -177,18 +162,18 @@ public class DisplayPanel extends JPanel implements ItemSelectable {
 
 
 
-	private static class DisplayLayoutManager implements LayoutManager2 {
+	private class DisplayLayoutManager implements LayoutManager2 {
+
+		private final double padding;
 
 		private SizeRequirements[] xChildren;
 		private SizeRequirements[] yChildren;
 		private SizeRequirements xTotal;
 		private SizeRequirements yTotal;
 
-		private final Rectangle2D virtualArea;
 
-
-		DisplayLayoutManager(Rectangle2D virtualArea) {
-			this.virtualArea = virtualArea;
+		DisplayLayoutManager(double padding) {
+			this.padding = padding;
 		}
 
 		@Override
@@ -243,34 +228,53 @@ public class DisplayPanel extends JPanel implements ItemSelectable {
 			int contentWidth = parent.getWidth() - (insets.left + insets.right);
 			int contentHeight = parent.getHeight() - (insets.top + insets.bottom);
 
-			double scale = contentHeight / virtualArea.getHeight();
-
-			if (virtualArea.getWidth() * scale > contentWidth) {
-				scale = contentWidth / virtualArea.getWidth();
+			if (screens.isEmpty()) {
+				return;
 			}
 
-			// Virtual screen space to node space.
-			double vX = virtualArea.getX() * scale;
-			double vY = virtualArea.getY() * scale;
-			double vWidth = virtualArea.getWidth() * scale;
-			double vHeight = virtualArea.getHeight() * scale;
+			// Find the bounding box of all screens
+			double minX = Double.MAX_VALUE, minY = Double.MAX_VALUE;
+			double maxX = Double.MIN_VALUE, maxY = Double.MIN_VALUE;
 
-			int centerX = (int) ((contentWidth - vWidth) / 2 - vX + insets.left);
-			int centerY = (int) ((contentHeight - vHeight) / 2 - vY + insets.top);
+			for (ScreenConfiguration screen : screens) {
+				Rectangle2D bounds = screen.getScreen().getBounds();
 
-			for (int i = 0 ; i < parent.getComponentCount() ; i++) {
+				minX = Math.min(minX, bounds.getX());
+				minY = Math.min(minY, bounds.getY());
+				maxX = Math.max(maxX, bounds.getX() + bounds.getWidth());
+				maxY = Math.max(maxY, bounds.getY() + bounds.getHeight());
+			}
+
+			double totalWidth = maxX - minX;
+			double totalHeight = maxY - minY;
+
+			double scaleFactor = 1.0;
+
+			// Calculate scale to fit in the component with padding.
+			double scaleX = (contentWidth - 2 * padding) / totalWidth;
+			double scaleY = (contentHeight - 2 * padding) / totalHeight;
+			scaleFactor = Math.min(scaleX, scaleY);
+
+			// Calculate offset to center the screens.
+			double scaledWidth = totalWidth * scaleFactor;
+			double scaledHeight = totalHeight * scaleFactor;
+
+			int centerX = (int) ((contentWidth - scaledWidth) / 2 - minX * scaleFactor);
+			int centerY = (int) ((contentHeight - scaledHeight) / 2 - minY * scaleFactor);
+
+			for (int i = 0; i < parent.getComponentCount(); i++) {
 				ScreenComponent c = (ScreenComponent) parent.getComponent(i);
 
 				if (c.isVisible()) {
 					Rectangle2D bounds = c.getScreenBounds();
 
-					int x = (int) (bounds.getX() * scale);
-					int y = (int) (bounds.getY() * scale);
-					int w = (int) (bounds.getWidth() * scale);
-					int h = (int) (bounds.getHeight() * scale);
+					int x = (int) (bounds.getX() * scaleFactor);
+					int y = (int) (bounds.getY() * scaleFactor);
+					int w = (int) (bounds.getWidth() * scaleFactor);
+					int h = (int) (bounds.getHeight() * scaleFactor);
 
 					c.setBounds(x + centerX, y + centerY, w, h);
-					c.setFont(c.getFont().deriveFont((float) (vHeight * 0.1)));
+					c.setFont(c.getFont().deriveFont((float) (parent.getFont().getSize2D() * scaleFactor * 25)));
 				}
 			}
 		}

@@ -27,7 +27,6 @@ import java.awt.geom.AffineTransform;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.lecturestudio.core.geometry.Rectangle2D;
 import org.lecturestudio.core.view.Screen;
 
 /**
@@ -48,7 +47,7 @@ public final class Screens {
 	 * @return an array of all connected screens.
 	 */
 	public static Screen[] getAllScreens() {
-		return convertMultipleDisplays(getScreenDevices()).toArray(new Screen[0]);
+		return convertDisplayDevices(getScreenDevices()).toArray(new Screen[0]);
 	}
 
 	/**
@@ -139,107 +138,23 @@ public final class Screens {
 
 	/**
 	 * Converts multiple displays from logical to pixel coordinates.
-	 * This method correctly handles the positioning by considering the actual pixel dimensions
-	 * of displays and their arrangement.
 	 *
 	 * @param devices The graphics devices that represent connected displays.
 	 *
 	 * @return List of Screen objects.
 	 */
-	public static List<Screen> convertMultipleDisplays(GraphicsDevice[] devices) {
-		GraphicsDevice primaryDevice = getDefaultScreenDevice();
+	public static List<Screen> convertDisplayDevices(GraphicsDevice[] devices) {
 		List<Screen> screens = new ArrayList<>();
 
-		for (int i = 0; i < devices.length; i++) {
-			GraphicsDevice device = devices[i];
+		for (GraphicsDevice device : devices) {
 			GraphicsConfiguration deviceConfig = device.getDefaultConfiguration();
 			Rectangle logicalBounds = deviceConfig.getBounds();
 			AffineTransform transform = deviceConfig.getDefaultTransform();
 
-			// Extract scaling factors.
-			double scaleX = transform.getScaleX();
-			double scaleY = transform.getScaleY();
-
-			// Convert dimensions.
-			int pixelWidth = (int) (logicalBounds.width * scaleX);
-			int pixelHeight = (int) (logicalBounds.height * scaleY);
-
-			int pixelX, pixelY;
-
-			if (device.equals(primaryDevice)) {
-				// Primary: use scaled coordinates.
-				pixelX = (int) (logicalBounds.x * scaleX);
-				pixelY = (int) (logicalBounds.y * scaleY);
-			}
-			else {
-				// Find the display that comes immediately before this one in the arrangement.
-				int precedingDisplayIndex = -1;
-
-				// For vertical arrangement: find the display that ends where this one starts.
-				for (int j = 0; j < i; j++) {
-					GraphicsDevice prevDevice = devices[j];
-					Rectangle prevLogical = prevDevice.getDefaultConfiguration().getBounds();
-
-					// Check if this display starts where the previous one ends (vertically).
-					if (logicalBounds.x == prevLogical.x && logicalBounds.y == prevLogical.y + prevLogical.height) {
-						precedingDisplayIndex = j;
-						break;
-					}
-					// Check if this display starts where the previous one ends (horizontally).
-					else if (logicalBounds.y == prevLogical.y && logicalBounds.x == prevLogical.x + prevLogical.width) {
-						precedingDisplayIndex = j;
-						break;
-					}
-				}
-
-				if (precedingDisplayIndex != -1) {
-					// Position relative to the preceding display.
-					GraphicsDevice precedingLogicalDevice = devices[precedingDisplayIndex];
-					Rectangle precedingLogical = precedingLogicalDevice.getDefaultConfiguration().getBounds();
-					Rectangle2D precedingPixel = screens.get(precedingDisplayIndex).getBounds();
-
-					if (logicalBounds.x == precedingLogical.x
-							&& logicalBounds.y == precedingLogical.y + precedingLogical.height) {
-						// Vertical arrangement.
-						pixelX = (int) precedingPixel.getX();
-						pixelY = (int) (precedingPixel.getY() + precedingPixel.getHeight());
-					}
-					else {
-						// Horizontal arrangement.
-						pixelX = (int) (precedingPixel.getX() + precedingPixel.getWidth());
-						pixelY = (int) precedingPixel.getY();
-					}
-				}
-				else {
-					// No direct predecessor found: this might be a case where we need to
-					// find the display that this one is conceptually positioned after.
-					int bestMatch = -1;
-
-					for (int j = 0; j < i; j++) {
-						GraphicsDevice prevLogicalDevice = devices[j];
-						Rectangle prevLogical = prevLogicalDevice.getDefaultConfiguration().getBounds();
-
-						// Check if this display is in the same column and below the previous one.
-						if (logicalBounds.x == prevLogical.x && logicalBounds.y > prevLogical.y + prevLogical.height) {
-							bestMatch = j;
-							// Don't break: keep looking for the closest one.
-						}
-					}
-
-					if (bestMatch != -1) {
-						Rectangle2D precedingPixel = screens.get(bestMatch).getBounds();
-						pixelX = (int) precedingPixel.getX();
-						pixelY = (int) (precedingPixel.getY() + precedingPixel.getHeight());
-					}
-					else {
-						// Fallback: scale the logical coordinates.
-						pixelX = (int) (logicalBounds.x * scaleX);
-						pixelY = (int) (logicalBounds.y * scaleY);
-					}
-				}
-			}
-
-			screens.add(new Screen(pixelX, pixelY, pixelWidth, pixelHeight, device));
+			screens.add(new Screen(logicalBounds.x, logicalBounds.y,
+					(int) (logicalBounds.width * transform.getScaleX()),
+					(int) (logicalBounds.height * transform.getScaleX()),
+					device));
 		}
 
 		return screens;

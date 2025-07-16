@@ -68,6 +68,8 @@ import org.lecturestudio.web.api.stream.service.StreamProviderService;
 @Singleton
 public class WebRtcStreamEventRecorder extends StreamEventRecorder {
 
+	private final List<Document> cachedWhiteboards = new ArrayList<>();
+
 	private final DocumentService documentService;
 
 	private StreamProviderService streamProviderService;
@@ -248,7 +250,7 @@ public class WebRtcStreamEventRecorder extends StreamEventRecorder {
 				}
 			}
 
-			// Set current pending page, as it may have been removed previously
+			// Set the current pending page, as it may have been removed previously
 			// by removeActionsForDocument().
 			pendingActions.setPendingPage(doc.getCurrentPage());
 		}
@@ -325,6 +327,12 @@ public class WebRtcStreamEventRecorder extends StreamEventRecorder {
 	protected void stopInternal() {
 		startTime = -1;
 		halted = 0;
+
+//		for (Document document : cachedWhiteboards) {
+//			document.close();
+//		}
+
+//		cachedWhiteboards.clear();
 	}
 
 	@Override
@@ -388,6 +396,9 @@ public class WebRtcStreamEventRecorder extends StreamEventRecorder {
 			}
 
 			document = whiteboard;
+
+			// Add the whiteboard document to the cache so it can be closed later.
+			cachedWhiteboards.add(document);
 		}
 
 		String docFileName = document.getUid().toString() + ".pdf";

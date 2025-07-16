@@ -61,8 +61,14 @@ public class TemplateDocument extends Document {
 		return importPage(page, page.getPageNumber());
 	}
 
-	private Page importPage(Page page, int srcPageIndex)
-			throws IOException {
+	@Override
+	public void close() {
+		super.close();
+
+		templateDoc.close();
+	}
+
+	private Page importPage(Page page, int srcPageIndex) throws IOException {
 		PdfDocument pagePdfDocument = page.getDocument().getPdfDocument();
 		int pageIndex = getPdfDocument().importPageNative(pagePdfDocument, srcPageIndex, -1, null);
 		if (pageIndex == -1) {

@@ -37,35 +37,72 @@ import org.lecturestudio.presenter.api.event.ScreenShareStateEvent;
 import org.lecturestudio.web.api.event.LocalScreenVideoFrameEvent;
 import org.lecturestudio.web.api.model.ScreenSource;
 
+/**
+ * Service responsible for capturing screen or window content as video frames.
+ * This service manages the lifecycle of screen/window capture operations and
+ * broadcasts captured frames via the application's event bus.
+ *
+ * @author Alex Andres
+ */
 public class ScreenCaptureService extends ExecutableBase {
 
+	/** The application context providing access to the event bus and other services. */
 	private final ApplicationContext context;
 
+	/** The frame rate for screen capture in frames per second. */
 	private int frameRate = 20;
 
+	/** The source screen or window to be captured. */
 	private ScreenSource source;
 
+	/** The desktop capturer implementation used to capture frames. */
 	private DesktopCapturer capturer;
 
+	/** Scheduled future for regular frame capture tasks. */
 	private ScheduledFuture<?> future;
 
 
+	/**
+	 * Creates a new ScreenCaptureService instance.
+	 *
+	 * @param context The application context providing access to the event bus.
+	 */
 	public ScreenCaptureService(ApplicationContext context) {
 		this.context = context;
 	}
 
+	/**
+	 * Sets the capture frame rate.
+	 *
+	 * @param frameRate The frame rate in frames per second.
+	 */
 	public void setFrameRate(int frameRate) {
 		this.frameRate = frameRate;
 	}
 
+	/**
+	 * Gets the current capture frame rate.
+	 *
+	 * @return The current frame rate in frames per second.
+	 */
 	public int getFrameRate() {
 		return frameRate;
 	}
 
+	/**
+	 * Gets the currently selected screen source.
+	 *
+	 * @return The current screen source to capture.
+	 */
 	public ScreenSource getScreenSource() {
 		return source;
 	}
 
+	/**
+	 * Sets the screen source to be captured.
+	 *
+	 * @param source The screen source to capture.
+	 */
 	public void setScreenSource(ScreenSource source) {
 		this.source = source;
 	}

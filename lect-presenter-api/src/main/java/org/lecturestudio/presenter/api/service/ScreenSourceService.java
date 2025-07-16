@@ -26,28 +26,59 @@ import javax.inject.Singleton;
 import org.lecturestudio.core.model.Document;
 import org.lecturestudio.presenter.api.model.ScreenShareContext;
 
+/**
+ * Service that manages screen sharing contexts for documents. This service maintains
+ * a mapping between Document objects and their corresponding ScreenShareContext objects.
+ *
+ * @author Alex Andres
+ */
 @Singleton
 public class ScreenSourceService {
 
+	/** Maps Document objects to their corresponding ScreenShareContext objects. */
 	private final Map<Document, ScreenShareContext> docScreenSourceMap;
 
 
+	/**
+	 * Constructs a new ScreenSourceService with an empty document-to-screen-share-context mapping.
+	 */
 	public ScreenSourceService() {
 		docScreenSourceMap = new HashMap<>();
 	}
 
+	/**
+	 * Associates a screen share context with a document.
+	 *
+	 * @param doc     The document to associate the context with.
+	 * @param context The screen-share context to associate with the document.
+	 */
 	public void addScreenShareContext(Document doc, ScreenShareContext context) {
 		docScreenSourceMap.put(doc, context);
 	}
 
+	/**
+	 * Removes the screen-share context associated with the specified document.
+	 *
+	 * @param doc The document whose screen-share context should be removed.
+	 */
 	public void removeScreenSource(Document doc) {
 		docScreenSourceMap.remove(doc);
 	}
 
+	/**
+	 * Retrieves the screen-share context associated with the specified document.
+	 *
+	 * @param doc The document whose screen-share context should be retrieved.
+	 *
+	 * @return The screen-share context associated with the document, or null if none exists.
+	 */
 	public ScreenShareContext getScreenShareContext(Document doc) {
 		return docScreenSourceMap.get(doc);
 	}
 
+	/**
+	 * Removes all document-to-screen-share-context mappings.
+	 */
 	public void clear() {
 		docScreenSourceMap.clear();
 	}

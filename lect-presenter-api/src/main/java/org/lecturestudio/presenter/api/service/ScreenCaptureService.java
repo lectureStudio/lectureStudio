@@ -19,7 +19,10 @@
 package org.lecturestudio.presenter.api.service;
 
 import static java.util.Objects.isNull;
+import static java.util.Objects.nonNull;
 
+import dev.onvoid.webrtc.media.video.VideoFrame;
+import dev.onvoid.webrtc.media.video.VideoFrameBuffer;
 import dev.onvoid.webrtc.media.video.desktop.DesktopCapturer;
 import dev.onvoid.webrtc.media.video.desktop.DesktopSource;
 import dev.onvoid.webrtc.media.video.desktop.ScreenCapturer;
@@ -46,6 +49,9 @@ import org.lecturestudio.web.api.model.ScreenSource;
  */
 public class ScreenCaptureService extends ExecutableBase {
 
+	/** Ensures thread-safe operations when accessing or modifying the video frame. */
+	private final Object frameLock = new Object();
+
 	/** The application context providing access to the event bus and other services. */
 	private final ApplicationContext context;
 
@@ -60,6 +66,9 @@ public class ScreenCaptureService extends ExecutableBase {
 
 	/** Scheduled future for regular frame capture tasks. */
 	private ScheduledFuture<?> future;
+
+	/** Stores the most recently captured video frame. */
+	private VideoFrame lastFrame;
 
 
 	/**
@@ -107,6 +116,18 @@ public class ScreenCaptureService extends ExecutableBase {
 		this.source = source;
 	}
 
+	/**
+	 * Gets the most recently captured video frame. This frame is properly released
+	 * when a new frame is set or when the service stops.
+	 *
+	 * @return The last captured video frame, or null if no frame has been captured yet.
+	 */
+	public VideoFrame getLastFrame() {
+		synchronized (frameLock) {
+			return lastFrame;
+		}
+	}
+
 	@Override
 	protected void initInternal() {
 		// Nothing to do here
@@ -124,6 +145,8 @@ public class ScreenCaptureService extends ExecutableBase {
 			capturer.selectSource(new DesktopSource(source.getTitle(), source.getId()));
 			capturer.setFocusSelectedSource(true);
 			capturer.start((result, videoFrame) -> {
+				setVideoFrame(videoFrame);
+
 				// NOTE: Avoid asynchronous access to the VideoFrame, otherwise the app will crash.
 				//       For asynchronous access, the VideoFrame must be copied and released after processing.
 				context.getEventBus().post(new LocalScreenVideoFrameEvent(videoFrame, BigInteger.ZERO));
@@ -152,6 +175,13 @@ public class ScreenCaptureService extends ExecutableBase {
 		synchronized (capturer) {
 			capturer.dispose();
 		}
+
+		synchronized (frameLock) {
+			if (nonNull(lastFrame)) {
+				lastFrame.release();
+				lastFrame = null;
+			}
+		}
 	}
 
 	@Override
@@ -165,5 +195,22 @@ public class ScreenCaptureService extends ExecutableBase {
 
 		context.getEventBus()
 				.post(new ScreenShareStateEvent(getScreenSource(), getState()));
+	}
+
+	private void setVideoFrame(VideoFrame videoFrame) {
+		VideoFrameBuffer buffer = videoFrame.buffer;
+
+		// This prevents processing and storing frames with insufficient visual content,
+		// e.g., when a window was minimized.
+		if (buffer.getWidth() <= 10 || buffer.getHeight() <= 10) {
+			return;
+		}
+
+		synchronized (frameLock) {
+			if (nonNull(lastFrame)) {
+				lastFrame.release();
+			}
+			lastFrame = videoFrame.copy();
+		}
 	}
 }

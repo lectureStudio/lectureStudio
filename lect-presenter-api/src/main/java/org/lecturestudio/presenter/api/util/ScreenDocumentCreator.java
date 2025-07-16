@@ -21,6 +21,7 @@ package org.lecturestudio.presenter.api.util;
 import static java.util.Objects.isNull;
 import static java.util.Objects.nonNull;
 
+import dev.onvoid.webrtc.media.video.VideoFrame;
 import dev.onvoid.webrtc.media.video.desktop.DesktopCapturer;
 import dev.onvoid.webrtc.media.video.desktop.DesktopSource;
 import dev.onvoid.webrtc.media.video.desktop.ScreenCapturer;
@@ -37,10 +38,115 @@ import org.lecturestudio.core.service.DocumentService;
 import org.lecturestudio.swing.util.VideoFrameConverter;
 import org.lecturestudio.web.api.model.ScreenSource;
 
+/**
+ * Utility class for creating or updating a screen document based on a given screen source and video frame.
+ * It searches for an existing screen document, creates a new one if not found, and adds the captured video frame
+ * as a new page in the document.
+ *
+ * @author Alex Andres
+ */
 public class ScreenDocumentCreator {
 
-	public static void create(DocumentService documentService,
-			ScreenSource screenSource) throws IOException {
+	private record SearchResult(ScreenDocument document, boolean found) {}
+
+
+	/**
+	 * Creates or updates a screen document with the given video frame.
+	 *
+	 * @param documentService The service to manage documents.
+	 * @param screenSource    The source of the screen to capture.
+	 * @param videoFrame      The video frame to add to the document.
+	 *
+	 * @throws IOException If an error occurs while creating or updating the document.
+	 */
+	public static void create(DocumentService documentService, ScreenSource screenSource, VideoFrame videoFrame)
+			throws IOException {
+		final SearchResult searchResult = findScreenDocument(documentService, screenSource);
+
+		try {
+			createScreenDocument(documentService, searchResult.document, videoFrame, searchResult.found);
+		}
+		catch (Exception e) {
+			throw new IOException(e);
+		}
+	}
+
+	/**
+	 * Captures the screen or window specified by the given screen source and creates or updates a screen document
+	 * with the captured video frame.
+	 *
+	 * @param documentService The service to manage documents.
+	 * @param screenSource    The source of the screen to capture.
+	 *
+	 * @throws IOException If an error occurs while capturing the screen or creating/updating the document.
+	 */
+	public static void create(DocumentService documentService, ScreenSource screenSource)
+			throws IOException {
+		final SearchResult searchResult = findScreenDocument(documentService, screenSource);
+
+		DesktopCapturer desktopCapturer = screenSource.isWindow()
+				? new WindowCapturer()
+				: new ScreenCapturer();
+		DesktopSource desktopSource = new DesktopSource(screenSource.getTitle(),
+				screenSource.getId());
+
+		desktopCapturer.selectSource(desktopSource);
+		desktopCapturer.start((result, videoFrame) -> {
+			// NOTE: Avoid asynchronous access to the VideoFrame, otherwise the app will crash.
+			//       For asynchronous access, the VideoFrame must be copied and released after processing.
+			try {
+				createScreenDocument(documentService, searchResult.document, videoFrame, searchResult.found);
+
+				// Release the VideoFrame to avoid memory leaks.
+				videoFrame.release();
+			}
+			catch (Throwable e) {
+				throw new RuntimeException(e);
+			}
+		});
+		desktopCapturer.captureFrame();
+		desktopCapturer.dispose();
+	}
+
+	private static void createScreenDocument(DocumentService documentService, ScreenDocument doc,
+											 VideoFrame videoFrame, boolean replace) throws Exception {
+		if (isNull(videoFrame)) {
+			throw new IllegalArgumentException("VideoFrame must not be null");
+		}
+
+		doc.createPage(VideoFrameConverter.convertVideoFrame(videoFrame,
+				null,
+				(int) (doc.getPageSize().getWidth() * 3),
+				(int) (doc.getPageSize().getHeight() * 3)));
+
+		ByteArrayOutputStream stream = new ByteArrayOutputStream();
+
+		doc.toOutputStream(stream);
+
+		stream.flush();
+		stream.close();
+
+		Document newDoc = new ScreenDocument(stream.toByteArray());
+		// Set the newly created page as the selected one.
+		newDoc.selectPage(newDoc.getPageCount() - 1);
+
+		if (replace) {
+			documentService.replaceDocument(doc, newDoc, true);
+
+			// Do not close a replaced document, since its pages cannot be saved later.
+		}
+		else {
+			documentService.addDocument(newDoc);
+
+			// Close copied document.
+			doc.close();
+		}
+
+		documentService.selectDocument(newDoc);
+	}
+
+	private static SearchResult findScreenDocument(DocumentService documentService, ScreenSource screenSource)
+			throws IOException {
 		ScreenDocument screenDoc = null;
 		boolean found = false;
 
@@ -58,68 +164,14 @@ public class ScreenDocumentCreator {
 			screenDoc = new ScreenDocument();
 			screenDoc.setTitle(screenSource.getTitle());
 
-			Document prevDoc = documentService.getDocuments()
-					.getSelectedDocument();
+			Document prevDoc = documentService.getDocuments().getSelectedDocument();
 
 			if (nonNull(prevDoc)) {
 				Rectangle2D pageRect = prevDoc.getPage(0).getPageRect();
-				screenDoc.setPageSize(new Dimension2D(pageRect.getWidth(),
-						pageRect.getHeight()));
+				screenDoc.setPageSize(new Dimension2D(pageRect.getWidth(), pageRect.getHeight()));
 			}
 		}
 
-		ScreenDocument doc = screenDoc;
-		boolean exists = found;
-
-		DesktopCapturer desktopCapturer = screenSource.isWindow()
-				? new WindowCapturer()
-				: new ScreenCapturer();
-		DesktopSource desktopSource = new DesktopSource(screenSource.getTitle(),
-				screenSource.getId());
-
-		desktopCapturer.selectSource(desktopSource);
-		desktopCapturer.start((result, videoFrame) -> {
-			// NOTE: Avoid asynchronous access to the VideoFrame, otherwise the app will crash.
-			//       For asynchronous access, the VideoFrame must be copied and released after processing.
-			try {
-				doc.createPage(VideoFrameConverter.convertVideoFrame(videoFrame,
-						null,
-						(int) (doc.getPageSize().getWidth() * 3),
-						(int) (doc.getPageSize().getHeight() * 3)));
-
-				// Release the VideoFrame to avoid memory leaks.
-				videoFrame.release();
-
-				ByteArrayOutputStream stream = new ByteArrayOutputStream();
-
-				doc.toOutputStream(stream);
-
-				stream.flush();
-				stream.close();
-
-				Document newDoc = new ScreenDocument(stream.toByteArray());
-				// Set the newly created page as the selected one.
-				newDoc.selectPage(newDoc.getPageCount() - 1);
-
-				if (exists) {
-					documentService.replaceDocument(doc, newDoc, true);
-
-					// Do not close a replaced document, since its pages cannot be saved later.
-				}
-				else {
-					documentService.addDocument(newDoc);
-
-					// Close copied document.
-					doc.close();
-				}
-
-				documentService.selectDocument(newDoc);
-			}
-			catch (Throwable e) {
-				throw new RuntimeException(e);
-			}
-		});
-		desktopCapturer.captureFrame();
-		desktopCapturer.dispose();
+		return new SearchResult(screenDoc, found);
 	}
 }

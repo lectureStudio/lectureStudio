@@ -23,10 +23,17 @@ import static java.util.Objects.nonNull;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
+import dev.onvoid.webrtc.media.video.VideoFrame;
+
+import dev.onvoid.webrtc.media.video.desktop.DesktopCapturer;
+import dev.onvoid.webrtc.media.video.desktop.DesktopSource;
+import dev.onvoid.webrtc.media.video.desktop.ScreenCapturer;
+import dev.onvoid.webrtc.media.video.desktop.WindowCapturer;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -67,10 +74,7 @@ public class ScreenShareService {
 	/** Provider for audio system functionality used during screen recording. */
 	private final AudioSystemProvider audioSystemProvider;
 
-	/**
-	 * Reference to the currently active screen recorder service.
-	 * Only one recorder service can be active at a time.
-	 */
+	/** Reference to the currently active screen recorder service. Only one recorder service can be active at a time. */
 	private ScreenRecorderService activeRecorderService;
 
 	/** Service responsible for capturing and sharing screen content without recording. */
@@ -84,8 +88,7 @@ public class ScreenShareService {
 	 * @param audioSystemProvider The provider for audio system functionality.
 	 */
 	@Inject
-	public ScreenShareService(PresenterContext context,
-			AudioSystemProvider audioSystemProvider) {
+	public ScreenShareService(PresenterContext context, AudioSystemProvider audioSystemProvider) {
 		this.context = context;
 		this.audioSystemProvider = audioSystemProvider;
 	}
@@ -272,9 +275,44 @@ public class ScreenShareService {
 	/**
 	 * Checks if screen capture is currently active.
 	 *
-	 * @return {@code true} if the screen capture service exists and is running.
+	 * @return {@code true} if the screen-capture service exists and is running.
 	 */
 	public boolean isScreenCaptureActive() {
 		return nonNull(screenCaptureService) && screenCaptureService.started();
+	}
+
+	/**
+	 * Retrieves the most recent video frame captured by the screen capture service.
+	 * <p>
+	 * This method provides access to the last frame that was captured during an active
+	 * screen sharing session. If the screen capture service isn't initialized or running,
+	 * this method will return null.
+	 *
+	 * @return The most recent {@code VideoFrame} captured by the screen capture service,
+	 *         or {@code null} if no screen-capture service exists.
+	 */
+	public VideoFrame getLastCapturedVideoFrame() {
+		return nonNull(screenCaptureService) ? screenCaptureService.getLastFrame() : null;
+	}
+
+	/**
+	 * Checks if a specific screen source is available on the system.
+	 * <p>
+	 * This method verifies whether a given screen source (either a window or screen)
+	 * is currently available by querying the appropriate desktop capturer.
+	 *
+	 * @param source The screen source to check for availability.
+	 *
+	 * @return {@code true} if a matching source with the same title is found in the system.
+	 */
+	public boolean isScreenSourceAvailable(ScreenSource source) {
+		DesktopCapturer desktopCapturer = source.isWindow() ? new WindowCapturer() : new ScreenCapturer();
+
+		boolean found = desktopCapturer.getDesktopSources().stream()
+				.anyMatch(desktopSource -> desktopSource.title.equals(source.getTitle()));
+
+		desktopCapturer.dispose();
+
+		return found;
 	}
 }

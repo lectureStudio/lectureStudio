@@ -22,6 +22,7 @@ import org.lecturestudio.core.ExecutableException;
 import org.lecturestudio.core.ExecutableState;
 import org.lecturestudio.core.model.Document;
 import org.lecturestudio.core.service.DocumentService;
+import org.lecturestudio.core.view.NotificationType;
 import org.lecturestudio.presenter.api.context.PresenterContext;
 import org.lecturestudio.presenter.api.model.ScreenShareContext;
 import org.lecturestudio.presenter.api.service.RecordingService;
@@ -29,6 +30,7 @@ import org.lecturestudio.presenter.api.service.ScreenShareService;
 import org.lecturestudio.presenter.api.service.ScreenSourceService;
 import org.lecturestudio.presenter.api.service.StreamService;
 import org.lecturestudio.presenter.api.util.ScreenDocumentCreator;
+import org.lecturestudio.web.api.model.ScreenSource;
 
 public class ScreenShareHandler extends PresenterHandler {
 
@@ -72,19 +74,24 @@ public class ScreenShareHandler extends PresenterHandler {
 				if (streamService.getScreenShareState() == ExecutableState.Started
 						|| screenShareService.isScreenCaptureActive()) {
 					try {
-						ScreenDocumentCreator.create(documentService, shareContext.getSource());
+						ScreenSource screenSource = shareContext.getSource();
+						ScreenDocumentCreator.create(documentService, screenSource, screenShareService.getLastCapturedVideoFrame());
 
 						selectedDoc = documentService.getDocuments().getSelectedDocument();
 
 						// Register the newly created document with the source.
 						screenSourceService.addScreenShareContext(selectedDoc, shareContext);
+
+						if (!screenShareService.isScreenSourceAvailable(screenSource)) {
+							// The source (window) was highly likely minimized.
+							context.showNotification(NotificationType.DEFAULT,
+									"screen.share.source.missing.error",
+									"screen.share.source.missing.error.message", screenSource.getTitle());
+						}
 					}
-					catch (Error e) {
-						// Select a screen source failed.
-						// Which in this case is not too critical, since the source may be minimized.
-					}
-					catch (Exception e) {
-						logException(e, "Create screen-document failed");
+					catch (Exception | Error e) {
+						handleException(e, "Create screen-document failed",
+								"screen.share.document.create.error", "screen.share.document.create.error.message");
 					}
 				}
 

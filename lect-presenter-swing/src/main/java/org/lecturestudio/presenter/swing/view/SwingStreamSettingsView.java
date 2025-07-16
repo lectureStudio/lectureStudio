@@ -102,9 +102,10 @@ public class SwingStreamSettingsView extends JPanel implements StreamSettingsVie
 
 	@Override
 	public void setServerName(StringProperty serverName) {
-		SwingUtils.bindBidirectional(serverNameTextField,
-				new ConvertibleObjectProperty<>(serverName,
-						new RegexConverter("^(?:https?:\\/\\/)?(?:[^@\\/\\n]+@)?(?:www\\.)?([^:\\/?\\n]+)")));
+		SwingUtils.invoke(() -> {
+			SwingUtils.bindBidirectional(serverNameTextField, new ConvertibleObjectProperty<>(serverName,
+					new RegexConverter("^(?:https?:\\/\\/)?(?:[^@\\/\\n]+@)?(?:www\\.)?([^:\\/?\\n]+)")));
+		});
 	}
 
 	@Override

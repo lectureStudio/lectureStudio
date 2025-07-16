@@ -307,9 +307,10 @@ public class ScreenShareService {
 	 */
 	public boolean isScreenSourceAvailable(ScreenSource source) {
 		DesktopCapturer desktopCapturer = source.isWindow() ? new WindowCapturer() : new ScreenCapturer();
+		DesktopSource desktopSource = new DesktopSource(source.getTitle(), source.getId());
 
 		boolean found = desktopCapturer.getDesktopSources().stream()
-				.anyMatch(desktopSource -> desktopSource.title.equals(source.getTitle()));
+				.anyMatch(_desktopSource -> _desktopSource.equals(desktopSource));
 
 		desktopCapturer.dispose();
 

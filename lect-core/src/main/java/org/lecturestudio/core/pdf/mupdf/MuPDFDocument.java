@@ -120,6 +120,10 @@ public class MuPDFDocument implements DocumentAdapter {
 	@Override
 	public void close() {
 		synchronized (mutex) {
+			if (nonNull(graftMapping) && nonNull(graftMapping.getValue())) {
+				graftMapping.getValue().destroy();
+			}
+
 			doc.destroy();
 		}
 	}

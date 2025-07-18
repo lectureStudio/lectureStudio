@@ -23,17 +23,18 @@ import static java.util.Objects.nonNull;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Optional;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
+import com.google.common.eventbus.Subscribe;
 import dev.onvoid.webrtc.media.video.VideoFrame;
-
+import dev.onvoid.webrtc.media.video.VideoFrameBuffer;
 import dev.onvoid.webrtc.media.video.desktop.DesktopCapturer;
 import dev.onvoid.webrtc.media.video.desktop.DesktopSource;
 import dev.onvoid.webrtc.media.video.desktop.ScreenCapturer;
 import dev.onvoid.webrtc.media.video.desktop.WindowCapturer;
+
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -42,6 +43,7 @@ import org.lecturestudio.core.audio.AudioSystemProvider;
 import org.lecturestudio.core.bus.event.RecordActionEvent;
 import org.lecturestudio.presenter.api.context.PresenterContext;
 import org.lecturestudio.presenter.api.model.ScreenShareContext;
+import org.lecturestudio.web.api.event.LocalScreenVideoFrameEvent;
 import org.lecturestudio.web.api.model.ScreenSource;
 
 /**
@@ -65,6 +67,9 @@ public class ScreenShareService {
 
 	private static final Logger LOG = LogManager.getLogger(ScreenShareService.class);
 
+	/** Ensures thread-safe operations when accessing or modifying the video frame. */
+	private final Object frameLock = new Object();
+
 	/** Map associating screen sources with their respective recorder services. */
 	private final Map<ScreenSource, ScreenRecorderService> recorderServices = new HashMap<>();
 
@@ -80,6 +85,9 @@ public class ScreenShareService {
 	/** Service responsible for capturing and sharing screen content without recording. */
 	private ScreenCaptureService screenCaptureService;
 
+	/** Stores the most recently captured video frame. */
+	private VideoFrame lastFrame;
+
 
 	/**
 	 * Constructs a new ScreenShareService with the specified context and audio system provider.
@@ -91,6 +99,13 @@ public class ScreenShareService {
 	public ScreenShareService(PresenterContext context, AudioSystemProvider audioSystemProvider) {
 		this.context = context;
 		this.audioSystemProvider = audioSystemProvider;
+
+		context.getEventBus().register(this);
+	}
+
+	@Subscribe
+	public void onEvent(LocalScreenVideoFrameEvent event) {
+		setVideoFrame(event.getFrame());
 	}
 
 	/**
@@ -270,6 +285,8 @@ public class ScreenShareService {
 		catch (ExecutableException e) {
 			LOG.error("Stop local screen share failed", e);
 		}
+
+		disposeLastVideoFrame();
 	}
 
 	/**
@@ -279,20 +296,6 @@ public class ScreenShareService {
 	 */
 	public boolean isScreenCaptureActive() {
 		return nonNull(screenCaptureService) && screenCaptureService.started();
-	}
-
-	/**
-	 * Retrieves the most recent video frame captured by the screen capture service.
-	 * <p>
-	 * This method provides access to the last frame that was captured during an active
-	 * screen sharing session. If the screen capture service isn't initialized or running,
-	 * this method will return null.
-	 *
-	 * @return The most recent {@code VideoFrame} captured by the screen capture service,
-	 *         or {@code null} if no screen-capture service exists.
-	 */
-	public VideoFrame getLastCapturedVideoFrame() {
-		return nonNull(screenCaptureService) ? screenCaptureService.getLastFrame() : null;
 	}
 
 	/**
@@ -315,5 +318,47 @@ public class ScreenShareService {
 		desktopCapturer.dispose();
 
 		return found;
+	}
+
+	/**
+	 * Retrieves the most recent video frame captured by the screen capture service.
+	 * <p>
+	 * This method provides access to the last frame that was captured during an active
+	 * screen sharing session. If the screen capture service isn't initialized or running,
+	 * this method will return null.
+	 *
+	 * @return The most recent {@code VideoFrame} captured by the screen capture service,
+	 *         or {@code null} if no screen-capture service exists.
+	 */
+	public VideoFrame getLastCapturedVideoFrame() {
+		synchronized (frameLock) {
+			return lastFrame;
+		}
+	}
+
+	private void setVideoFrame(VideoFrame videoFrame) {
+		VideoFrameBuffer buffer = videoFrame.buffer;
+
+		// This prevents processing and storing frames with insufficient visual content,
+		// e.g., when a window was minimized.
+		if (buffer.getWidth() <= 10 || buffer.getHeight() <= 10) {
+			return;
+		}
+
+		synchronized (frameLock) {
+			if (nonNull(lastFrame)) {
+				lastFrame.release();
+			}
+			lastFrame = videoFrame.copy();
+		}
+	}
+
+	private void disposeLastVideoFrame() {
+		synchronized (frameLock) {
+			if (nonNull(lastFrame)) {
+				lastFrame.release();
+				lastFrame = null;
+			}
+		}
 	}
 }

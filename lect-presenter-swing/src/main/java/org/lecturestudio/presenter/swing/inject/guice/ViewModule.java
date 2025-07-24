@@ -40,6 +40,7 @@ public class ViewModule extends AbstractModule {
 		bind(CreateQuizView.class).to(SwingCreateQuizView.class);
 		bind(CreateQuizDefaultOptionView.class).to(SwingQuizDefaultOptionView.class);
 		bind(CreateQuizNumericOptionView.class).to(SwingQuizNumericOptionView.class);
+		bind(CreateQuizFreeTextOptionView.class).to(SwingQuizFreeTextOptionView.class);
 		bind(ConfirmStopRecordingView.class).to(SwingConfirmStopRecordingView.class);
 		bind(DisplaySettingsView.class).to(SwingDisplaySettingsView.class);
 		bind(DirectoryChooserView.class).to(SwingFxDirectoryChooserView.class);

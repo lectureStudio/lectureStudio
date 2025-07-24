@@ -39,6 +39,8 @@ public class QuizTableModel extends TableModelBase<Quiz> {
 
 	private static final Icon NUMERIC_TYPE = AwtResourceLoader.getIcon("numeric-type.svg", 20);
 
+	private static final Icon FREE_TEXT_TYPE = AwtResourceLoader.getIcon("free-text-type.svg", 20);
+
 
 	public QuizTableModel(TableColumnModel columnModel) {
 		super(columnModel);
@@ -95,18 +97,11 @@ public class QuizTableModel extends TableModelBase<Quiz> {
 	}
 
 	private static Icon getTypeIcon(QuizType type) {
-		switch (type) {
-			case MULTIPLE:
-				return MULTIPLE_TYPE;
-
-			case NUMERIC:
-				return NUMERIC_TYPE;
-
-			case SINGLE:
-				return SINGLE_TYPE;
-
-			default:
-				return null;
-		}
+		return switch (type) {
+			case MULTIPLE -> MULTIPLE_TYPE;
+			case NUMERIC -> NUMERIC_TYPE;
+			case SINGLE -> SINGLE_TYPE;
+			case FREE_TEXT -> FREE_TEXT_TYPE;
+		};
 	}
 }

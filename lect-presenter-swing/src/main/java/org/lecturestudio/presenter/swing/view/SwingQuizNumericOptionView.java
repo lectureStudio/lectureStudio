@@ -34,6 +34,7 @@ import org.lecturestudio.swing.event.DefaultDocumentListener;
 import org.lecturestudio.swing.util.SwingUtils;
 import org.lecturestudio.swing.view.SwingView;
 import org.lecturestudio.swing.view.ViewPostConstruct;
+import org.lecturestudio.web.api.model.quiz.QuizOption;
 
 @SwingView(name = "quiz-numeric-option")
 public class SwingQuizNumericOptionView extends SwingQuizOptionView implements CreateQuizNumericOptionView {
@@ -61,13 +62,15 @@ public class SwingQuizNumericOptionView extends SwingQuizOptionView implements C
 	}
 
 	@Override
-	public String getOptionText() {
-		return optionTextField.getText();
+	public QuizOption getOption() {
+		return new QuizOption(optionTextField.getText(), false);
 	}
 
 	@Override
-	public void setOptionText(String text) {
-		SwingUtils.invoke(() -> optionTextField.setText(text));
+	public void setOption(QuizOption option) {
+		SwingUtils.invoke(() -> {
+			optionTextField.setText(option.optionText());
+		});
 	}
 
 	@Override

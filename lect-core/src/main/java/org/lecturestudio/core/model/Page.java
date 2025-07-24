@@ -18,6 +18,8 @@
 
 package org.lecturestudio.core.model;
 
+import static java.util.Objects.isNull;
+
 import java.io.IOException;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
@@ -647,6 +649,20 @@ public class Page {
 		undoActions.clear();
 		redoActions.clear();
 		shapes.clear();
+	}
+
+	/**
+	 * Adds a text note to this page. If the provided note is null or blank,
+	 * no action will be taken.
+	 *
+	 * @param note The text note to add to the page.
+	 */
+	public void addTextNote(String note) {
+		if (isNull(note) || note.isBlank()) {
+			return;
+		}
+
+		textNotes.add(note);
 	}
 
 	/**

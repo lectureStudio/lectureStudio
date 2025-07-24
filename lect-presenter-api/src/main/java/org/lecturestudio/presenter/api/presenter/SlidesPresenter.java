@@ -1263,7 +1263,7 @@ public class SlidesPresenter extends Presenter<SlidesView> {
 
 		view.clearNotesViewContainer();
 		//A page can have multiple notes
-		for(String note : page.getNotes()){
+		for (String note : page.getNotes()) {
 			view.setNotesText(note);
 		}
 

@@ -28,6 +28,8 @@ import java.util.List;
 
 import javax.inject.Inject;
 
+import org.jsoup.Jsoup;
+
 import org.lecturestudio.core.app.ApplicationContext;
 import org.lecturestudio.core.model.Document;
 import org.lecturestudio.core.model.DocumentList;
@@ -37,15 +39,11 @@ import org.lecturestudio.core.view.Action;
 import org.lecturestudio.core.view.ViewContextFactory;
 import org.lecturestudio.presenter.api.service.QuizService;
 import org.lecturestudio.presenter.api.service.StreamService;
-import org.lecturestudio.presenter.api.view.CreateQuizDefaultOptionView;
-import org.lecturestudio.presenter.api.view.CreateQuizNumericOptionView;
-import org.lecturestudio.presenter.api.view.CreateQuizOptionView;
-import org.lecturestudio.presenter.api.view.CreateQuizView;
-
-import org.jsoup.Jsoup;
+import org.lecturestudio.presenter.api.view.*;
 import org.lecturestudio.web.api.filter.MinMaxRule;
 import org.lecturestudio.web.api.model.quiz.Quiz;
 import org.lecturestudio.web.api.model.quiz.Quiz.QuizSet;
+import org.lecturestudio.web.api.model.quiz.QuizOption;
 
 public class CreateQuizPresenter extends Presenter<CreateQuizView> {
 
@@ -228,14 +226,20 @@ public class CreateQuizPresenter extends Presenter<CreateQuizView> {
 
 		for (CreateQuizOptionView currentView : optionContextList) {
 			CreateQuizOptionView newView = createOption();
-			newView.setOptionText(currentView.getOptionText());
+			newView.setOption(currentView.getOption());
 
 			optionViews.add(newView);
 		}
 
 		clearOptions();
 
-		optionViews.forEach(view -> addOptionView(view, false));
+		if (type == Quiz.QuizType.FREE_TEXT) {
+			CreateQuizOptionView newView = createOption();
+			addOptionView(newView, false);
+		}
+		else {
+			optionViews.forEach(view -> addOptionView(view, false));
+		}
 	}
 
 	private boolean isGenericSet() {
@@ -266,6 +270,9 @@ public class CreateQuizPresenter extends Presenter<CreateQuizView> {
 					viewFactory.getInstance(CreateQuizDefaultOptionView.class);
 			case NUMERIC ->
 					viewFactory.getInstance(CreateQuizNumericOptionView.class);
+			case FREE_TEXT ->
+					viewFactory.getInstance(CreateQuizFreeTextOptionView.class);
+
 		};
 	}
 
@@ -342,12 +349,13 @@ public class CreateQuizPresenter extends Presenter<CreateQuizView> {
 		String htmlBody = doc.body().html().replace("&nbsp;", " ");
 
 		quiz.setQuestion(htmlBody);
+		quiz.setComment(view.getQuizComment());
 		quiz.clearOptions();
 		quiz.clearInputFilter();
 
 		for (int index = 0; index < optionContextList.size(); index++) {
 			CreateQuizOptionView view = optionContextList.get(index);
-			String option = view.getOptionText();
+			QuizOption option = view.getOption();
 
 			quiz.addOption(option);
 
@@ -381,26 +389,23 @@ public class CreateQuizPresenter extends Presenter<CreateQuizView> {
 
 			view.setQuizType(quiz.getType());
 
-			List<String> options = quiz.getOptions();
+			List<QuizOption> options = quiz.getOptions();
 
 			for (int i = 0; i < options.size(); i++) {
-				String optionText = options.get(i);
+				QuizOption option = options.get(i);
 
 				switch (quiz.getType()) {
 					case MULTIPLE, SINGLE -> {
-						CreateQuizOptionView optionView = viewFactory.getInstance(
-								CreateQuizDefaultOptionView.class);
-						optionView.setOptionText(optionText);
+						CreateQuizOptionView optionView = viewFactory.getInstance(CreateQuizDefaultOptionView.class);
+						optionView.setOption(option);
 
 						addOptionView(optionView, false);
 					}
 					case NUMERIC -> {
-						MinMaxRule rule = (MinMaxRule) quiz.getInputFilter()
-								.getRules().get(i);
+						MinMaxRule rule = (MinMaxRule) quiz.getInputFilter().getRules().get(i);
 
-						CreateQuizNumericOptionView optionView = viewFactory.getInstance(
-								CreateQuizNumericOptionView.class);
-						optionView.setOptionText(optionText);
+						CreateQuizNumericOptionView optionView = viewFactory.getInstance(CreateQuizNumericOptionView.class);
+						optionView.setOption(option);
 
 						if (rule.getMin() != Integer.MIN_VALUE) {
 							optionView.setMinValue(rule.getMin());
@@ -408,6 +413,12 @@ public class CreateQuizPresenter extends Presenter<CreateQuizView> {
 						if (rule.getMax() != Integer.MAX_VALUE) {
 							optionView.setMaxValue(rule.getMax());
 						}
+
+						addOptionView(optionView, false);
+					}
+					case FREE_TEXT -> {
+						CreateQuizOptionView optionView = viewFactory.getInstance(CreateQuizFreeTextOptionView.class);
+						optionView.setOption(option);
 
 						addOptionView(optionView, false);
 					}

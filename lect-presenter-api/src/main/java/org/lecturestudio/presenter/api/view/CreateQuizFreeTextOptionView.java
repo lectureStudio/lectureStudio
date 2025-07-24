@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2020 TU Darmstadt, Department of Computer Science,
+ * Copyright (C) 2025 TU Darmstadt, Department of Computer Science,
  * Embedded Systems and Applications Group.
  *
  * This program is free software: you can redistribute it and/or modify
@@ -18,28 +18,12 @@
 
 package org.lecturestudio.presenter.api.view;
 
-import org.lecturestudio.core.view.Action;
-import org.lecturestudio.core.view.View;
-import org.lecturestudio.web.api.model.quiz.QuizOption;
-
-public interface CreateQuizOptionView extends View {
-
-	void focus();
-
-	QuizOption getOption();
-
-	void setOption(QuizOption option);
-
-	void addOnChange(Action action);
-
-	void setOnRemove(Action action);
-
-	void setOnMoveUp(Action action);
-
-	void setOnMoveDown(Action action);
-
-	void setOnEnterKey(Action action);
-
-	void setOnTabKey(Action action);
+/**
+ * This interface represents a view for creating a quiz style with free-text answers.
+ * In this quiz style, the user can submit free text answers, which are then evaluated in real-time.
+ * Optionally, the answers can be visualized as a word cloud, where the size of each word corresponds to its frequency
+ * in the answers submitted by users.
+ */
+public interface CreateQuizFreeTextOptionView extends CreateQuizOptionView {
 
 }

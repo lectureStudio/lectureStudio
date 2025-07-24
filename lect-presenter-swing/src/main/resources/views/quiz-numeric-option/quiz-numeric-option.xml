@@ -4,7 +4,7 @@
 	<Panel layout="BorderLayout(10, 0)" constraints="BorderLayout.CENTER">
 		<TextField id="optionTextField" text="" constraints="BorderLayout.CENTER" />
 		<HBox constraints="BorderLayout.EAST">
-			<Label text="quiz.numeric.option.min" border="EmptyBorder(0, 0, 0, 5)" />
+			<Label text="quiz.numeric.option.min" border="EmptyBorder(0, 10, 0, 5)" />
 			<TextField id="minTextField" text="" columns="5">
 				<Filter class="org.lecturestudio.swing.filter.IntFilter" />
 			</TextField>

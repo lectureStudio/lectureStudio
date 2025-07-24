@@ -51,6 +51,7 @@ import org.lecturestudio.presenter.api.service.WebService;
 import org.lecturestudio.presenter.api.service.WebServiceInfo;
 import org.lecturestudio.presenter.api.view.SelectQuizView;
 import org.lecturestudio.web.api.model.quiz.Quiz;
+import org.lecturestudio.web.api.model.quiz.QuizOption;
 
 class SelectQuizPresenterTest extends PresenterTest {
 
@@ -98,25 +99,25 @@ class SelectQuizPresenterTest extends PresenterTest {
 	@Test
 	void testInit() throws IOException {
 		Quiz quiz1 = new Quiz(Quiz.QuizType.MULTIPLE, "What's up?");
-		quiz1.addOption("a");
-		quiz1.addOption("b");
-		quiz1.addOption("c");
+		quiz1.addOption(new QuizOption("a", false));
+		quiz1.addOption(new QuizOption("b", false));
+		quiz1.addOption(new QuizOption("c", false));
 
 		Quiz quiz2 = new Quiz(Quiz.QuizType.SINGLE, "No choice");
-		quiz2.addOption("-");
+		quiz2.addOption(new QuizOption("-", false));
 
 		Quiz quiz3 = new Quiz(Quiz.QuizType.MULTIPLE, "Pick one");
-		quiz3.addOption("a");
-		quiz3.addOption("b");
-		quiz3.addOption("c");
+		quiz3.addOption(new QuizOption("a", false));
+		quiz3.addOption(new QuizOption("b", false));
+		quiz3.addOption(new QuizOption("c", false));
 
 		Quiz quiz4 = new Quiz(Quiz.QuizType.SINGLE, "Some smart question");
-		quiz4.addOption("1");
-		quiz4.addOption("1");
+		quiz4.addOption(new QuizOption("1", false));
+		quiz4.addOption(new QuizOption("1", false));
 
 		Quiz quiz5 = new Quiz(Quiz.QuizType.NUMERIC, "a + b");
-		quiz5.addOption("x");
-		quiz5.addOption("y");
+		quiz5.addOption(new QuizOption("x", false));
+		quiz5.addOption(new QuizOption("y", false));
 
 		AtomicReference<List<Quiz>> quizzesRef = new AtomicReference<>();
 		AtomicReference<List<Quiz>> docQuizzesRef = new AtomicReference<>();

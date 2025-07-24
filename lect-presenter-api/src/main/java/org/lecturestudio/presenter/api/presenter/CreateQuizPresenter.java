@@ -388,6 +388,7 @@ public class CreateQuizPresenter extends Presenter<CreateQuizView> {
 			clearOptions();
 
 			view.setQuizType(quiz.getType());
+			view.setQuizComment(quiz.getComment());
 
 			List<QuizOption> options = quiz.getOptions();
 

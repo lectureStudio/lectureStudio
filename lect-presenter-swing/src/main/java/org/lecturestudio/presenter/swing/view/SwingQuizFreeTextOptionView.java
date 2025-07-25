@@ -56,7 +56,7 @@ public class SwingQuizFreeTextOptionView extends SwingQuizOptionView implements 
 	@Override
 	public void setOption(QuizOption option) {
 		SwingUtils.invoke(() -> {
-			optionTextField.setText(option.optionText());
+			optionTextField.setText(option.getOptionText());
 		});
 	}
 

@@ -385,7 +385,7 @@ public class Quiz implements Cloneable, Serializable {
 		quiz.setQuizSet(getQuizSet());
 
 		for (QuizOption o : getOptions()) {
-			quiz.addOption(new QuizOption(o.optionText(), o.correct()));
+			quiz.addOption(new QuizOption(o.getOptionText(), o.isCorrect()));
 		}
 
 		for (InputFieldRule<String> rule : getInputFilter().getRules()) {

@@ -69,7 +69,7 @@ public class SwingQuizNumericOptionView extends SwingQuizOptionView implements C
 	@Override
 	public void setOption(QuizOption option) {
 		SwingUtils.invoke(() -> {
-			optionTextField.setText(option.optionText());
+			optionTextField.setText(option.getOptionText());
 		});
 	}
 

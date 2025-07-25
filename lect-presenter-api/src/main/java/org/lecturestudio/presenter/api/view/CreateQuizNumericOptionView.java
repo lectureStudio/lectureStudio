@@ -18,6 +18,8 @@
 
 package org.lecturestudio.presenter.api.view;
 
+import org.lecturestudio.core.view.ConsumerAction;
+
 public interface CreateQuizNumericOptionView extends CreateQuizOptionView {
 
 	int getMinValue();
@@ -28,4 +30,9 @@ public interface CreateQuizNumericOptionView extends CreateQuizOptionView {
 
 	void setMaxValue(int value);
 
+	default void addOnChangeCorrect(ConsumerAction<Boolean> action) {
+		// This method is not applicable for numeric options, as they do not have a "correct" answer.
+		// Implementations can choose to ignore this or throw an UnsupportedOperationException.
+		throw new UnsupportedOperationException("Numeric options do not support correct answers.");
+	}
 }

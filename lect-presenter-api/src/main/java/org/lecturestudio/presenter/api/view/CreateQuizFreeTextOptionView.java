@@ -18,6 +18,8 @@
 
 package org.lecturestudio.presenter.api.view;
 
+import org.lecturestudio.core.view.ConsumerAction;
+
 /**
  * This interface represents a view for creating a quiz style with free-text answers.
  * In this quiz style, the user can submit free text answers, which are then evaluated in real-time.
@@ -25,5 +27,11 @@ package org.lecturestudio.presenter.api.view;
  * in the answers submitted by users.
  */
 public interface CreateQuizFreeTextOptionView extends CreateQuizOptionView {
+
+	default void addOnChangeCorrect(ConsumerAction<Boolean> action) {
+		// This method is not applicable for free-text options, as they do not have a "correct" answer.
+		// Implementations can choose to ignore this or throw an UnsupportedOperationException.
+		throw new UnsupportedOperationException("Free-text options do not support correct answers.");
+	}
 
 }

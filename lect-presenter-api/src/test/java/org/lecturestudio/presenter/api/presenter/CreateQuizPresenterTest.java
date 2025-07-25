@@ -625,6 +625,8 @@ class CreateQuizPresenterTest extends PresenterTest {
 
 		Action changeAction;
 
+		ConsumerAction<Boolean> changeCorrectAction;
+
 		Action removeAction;
 
 		Action moveUpAction;
@@ -652,6 +654,13 @@ class CreateQuizPresenterTest extends PresenterTest {
 			assertNotNull(action);
 
 			changeAction = action;
+		}
+
+		@Override
+		public void addOnChangeCorrect(ConsumerAction<Boolean> action) {
+			assertNotNull(action);
+
+			changeCorrectAction = action;
 		}
 
 		@Override

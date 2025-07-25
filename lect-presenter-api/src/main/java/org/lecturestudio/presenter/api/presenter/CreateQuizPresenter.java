@@ -272,7 +272,6 @@ public class CreateQuizPresenter extends Presenter<CreateQuizView> {
 					viewFactory.getInstance(CreateQuizNumericOptionView.class);
 			case FREE_TEXT ->
 					viewFactory.getInstance(CreateQuizFreeTextOptionView.class);
-
 		};
 	}
 
@@ -290,6 +289,19 @@ public class CreateQuizPresenter extends Presenter<CreateQuizView> {
 
 		if (focus) {
 			optionView.focus();
+		}
+
+		// For single-choice quizzes, ensure mutual exclusivity of correct answers
+		// by adding a listener that unchecks all other options when one is marked as correct.
+		if (quiz.getType() == Quiz.QuizType.SINGLE) {
+			optionView.addOnChangeCorrect(correct -> {
+				// Uncheck all other options when a single option is selected.
+				for (CreateQuizOptionView view : optionContextList) {
+					if (view != optionView) {
+						view.getOption().setCorrect(false);
+					}
+				}
+			});
 		}
 
 		optionContextList.add(optionView);

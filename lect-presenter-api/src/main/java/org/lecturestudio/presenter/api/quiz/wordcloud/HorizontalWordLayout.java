@@ -22,9 +22,8 @@ import java.awt.*;
 import java.awt.font.FontRenderContext;
 import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
-import java.util.ArrayList;
+import java.util.*;
 import java.util.List;
-import java.util.Random;
 
 /**
  * This class implements a horizontal word cloud layout algorithm.
@@ -35,7 +34,7 @@ import java.util.Random;
  * placing words in bands with vertical variance for a more natural look.
  * It uses a FontRenderContext for accurate text measurements and collision detection.
  */
-public class HorizontalWordCloudLayout {
+public class HorizontalWordLayout {
 
 	/** Width of the canvas for the word cloud. */
 	private final int canvasWidth;
@@ -52,6 +51,9 @@ public class HorizontalWordCloudLayout {
 	/** Configuration for layout settings such as padding and variance. */
 	private final LayoutConfig config;
 
+	/** Calculator for determining font sizes based on word frequency. */
+	private final FontCalculator fontCalculator;
+
 	/** Random number generator for vertical variance and random placements. */
 	private final Random random;
 
@@ -62,21 +64,23 @@ public class HorizontalWordCloudLayout {
 	 * @param width  the width of the canvas in pixels.
 	 * @param height the height of the canvas in pixels.
 	 */
-	public HorizontalWordCloudLayout(int width, int height) {
-		this(width, height, new LayoutConfig());
+	public HorizontalWordLayout(int width, int height) {
+		this(width, height, new LayoutConfig(), new TieredFontCalculator(4, 18, 48));
 	}
 
 	/**
 	 * Constructs a new horizontal word cloud layout with the specified dimensions and custom configuration.
 	 *
-	 * @param width  the width of the canvas in pixels.
-	 * @param height the height of the canvas in pixels.
-	 * @param config the layout configuration containing padding, variance, and spacing settings.
+	 * @param width          the width of the canvas in pixels.
+	 * @param height         the height of the canvas in pixels.
+	 * @param config         the layout configuration containing padding, variance, and spacing settings.
+	 * @param fontCalculator the calculator to determine font sizes based on word frequency.
 	 */
-	public HorizontalWordCloudLayout(int width, int height, LayoutConfig config) {
+	public HorizontalWordLayout(int width, int height, LayoutConfig config, FontCalculator fontCalculator) {
 		this.canvasWidth = width;
 		this.canvasHeight = height;
 		this.config = config;
+		this.fontCalculator = fontCalculator;
 		this.placedWords = new ArrayList<>();
 		this.random = new Random();
 
@@ -96,22 +100,22 @@ public class HorizontalWordCloudLayout {
 		// Sort words by frequency (largest first)
 		words.sort((a, b) -> Integer.compare(b.frequency, a.frequency));
 
-		// Calculate font sizes based on frequency
-		calculateFontSizes(words);
+		// Calculate font sizes based on frequency.
+		fontCalculator.calculateFontSizes(words);
 
-		// Place words starting from the center
+		// Place words starting from the center.
 		int centerX = canvasWidth / 2;
 		int centerY = canvasHeight / 2;
 
 		for (WordItem word : words) {
-			// Calculate text bounds
+			// Calculate text bounds.
 			word.bounds = word.font.getStringBounds(word.text, frc);
 
-			// Find non-colliding position
+			// Find a non-colliding position.
 			Point position = findHorizontalPosition(word, centerX, centerY);
 			word.position = position;
 
-			// Add to the placed words list (store actual bounds with padding)
+			// Add to the placed words list (store actual bounds with padding).
 			Rectangle2D placedBounds = new Rectangle2D.Double(
 					position.x - config.horizontalPadding,
 					position.y - word.bounds.getHeight() - config.verticalPadding,
@@ -146,56 +150,6 @@ public class HorizontalWordCloudLayout {
 
 		// Optional: Draw bounding boxes for debugging
 		// drawBoundingBoxes(g2d);
-	}
-
-	/**
-	 * Calculates font sizes and colors for each word based on their frequency.
-	 * The size is scaled between a minimum and maximum size based on the frequency range.
-	 *
-	 * @param words the list of words to calculate sizes for.
-	 */
-	private void calculateFontSizes(List<WordItem> words) {
-		if (words.isEmpty()) {
-			return;
-		}
-
-		int maxFreq = words.get(0).frequency;
-		int minFreq = words.get(words.size() - 1).frequency;
-
-		int maxFontSize = 48;
-		int minFontSize = 12;
-
-		for (WordItem word : words) {
-			int fontSize;
-			if (maxFreq == minFreq) {
-				fontSize = maxFontSize;
-			}
-			else {
-				fontSize = minFontSize +
-						(int) ((double) (word.frequency - minFreq) / (maxFreq - minFreq) * (maxFontSize - minFontSize));
-			}
-
-			word.font = new Font(Font.SANS_SERIF, Font.BOLD, fontSize);
-			word.color = generateColor(word.frequency, maxFreq);
-		}
-	}
-
-	/**
-	 * Generates a color based on the frequency of the word.
-	 * The color intensity is scaled between 0 and 255 based on the frequency.
-	 *
-	 * @param frequency the frequency of the word.
-	 * @param maxFreq   the maximum frequency in the dataset.
-	 *
-	 * @return a Color object representing the word's color.
-	 */
-	private Color generateColor(int frequency, int maxFreq) {
-		float intensity = (float) frequency / maxFreq;
-		return new Color(
-				(int) (intensity * 255),
-				(int) ((1 - intensity) * 255),
-				100 + (int) (intensity * 155)
-		);
 	}
 
 	/**

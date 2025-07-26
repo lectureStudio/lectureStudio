@@ -65,9 +65,7 @@ import org.lecturestudio.core.pdf.PdfDocument;
 import org.lecturestudio.core.pdf.pdfbox.PDFGraphics2D;
 import org.lecturestudio.core.util.FileUtils;
 import org.lecturestudio.core.util.IOUtils;
-import org.lecturestudio.presenter.api.quiz.wordcloud.HorizontalWordCloudLayout;
-import org.lecturestudio.presenter.api.quiz.wordcloud.LayoutConfig;
-import org.lecturestudio.presenter.api.quiz.wordcloud.WordItem;
+import org.lecturestudio.presenter.api.quiz.wordcloud.*;
 import org.lecturestudio.presenter.api.util.NumericStringComparator;
 import org.lecturestudio.web.api.model.quiz.Quiz;
 import org.lecturestudio.web.api.model.quiz.Quiz.QuizType;
@@ -210,7 +208,9 @@ public class QuizDocument extends HtmlToPdfDocument {
 				.enableVerticalVariance(true)
 				.minLineSpacing(15);
 
-		HorizontalWordCloudLayout layout = new HorizontalWordCloudLayout(width, height, customConfig);
+		FontCalculator fontCalculator = new TieredFontCalculator(4, 20, 48);
+
+		HorizontalWordLayout layout = new HorizontalWordLayout(width, height, customConfig, fontCalculator);
 		layout.layoutWords(words);
 
 		PDFGraphics2D g2dStream = new PDFGraphics2D(doc, pdPage, true);
@@ -232,9 +232,12 @@ public class QuizDocument extends HtmlToPdfDocument {
 		List<WordItem> words = new ArrayList<>();
 		Map<String, Integer> frequencyMap = new HashMap<>();
 
+//		System.out.println(result.getResult());
+
 		// Process the quiz result to count word frequencies.
 		for (var entry : result.getResult().entrySet()) {
 			String[] options = entry.getKey().getOptions();
+			Integer count = entry.getValue();
 
 			// For each option in the current answer, increment its frequency count.
 			for (String option : options) {
@@ -248,13 +251,15 @@ public class QuizDocument extends HtmlToPdfDocument {
 
 				// Initialize frequency to 0 if this is the first occurrence.
 				if (isNull(frequency)) {
-					frequency = 0;
+					frequency = count;
 				}
 
 				// Update the frequency count for this option.
-				frequencyMap.put(option, frequency + 1);
+				frequencyMap.put(option, frequency);
 			}
 		}
+
+		System.out.println(frequencyMap);
 
 		// Convert the frequency map entries to WordItem objects for word cloud visualization.
 		for (var entry : frequencyMap.entrySet()) {
@@ -292,7 +297,7 @@ public class QuizDocument extends HtmlToPdfDocument {
 
 		Quiz quiz = result.getQuiz();
 		QuizType type = quiz.getType();
-		boolean hasCorrectAnswers = quiz.getOptions().stream().anyMatch(QuizOption::correct);
+		boolean hasCorrectAnswers = quiz.getOptions().stream().anyMatch(QuizOption::isCorrect);
 
 		// Create the first page with the question on it.
 		renderQuestion(tplDoc, doc, contentBounds, quiz, false);
@@ -372,17 +377,17 @@ public class QuizDocument extends HtmlToPdfDocument {
 				}
 
 				QuizOption option = options.get(i);
-				String optionText = option.optionText();
+				String optionText = option.getOptionText();
 				String itemText = prefix + (nonNull(optionText) ? optionText : "");
 
-				if (markCorrect && option.correct()) {
+				if (markCorrect && option.isCorrect()) {
 					itemText += " <span class=\"icon-check\"></span>";
 				}
 
 				Element item = uList.appendElement("p");
 				item.html(itemText);
 
-				if (markCorrect && option.correct()) {
+				if (markCorrect && option.isCorrect()) {
 					item.addClass("correct");
 				}
 			}
@@ -471,7 +476,7 @@ public class QuizDocument extends HtmlToPdfDocument {
 			Element tdDiv = data.appendElement("div");
 
 			String prefix = "";
-			String text = options.get(i).optionText();
+			String text = options.get(i).getOptionText();
 
 			if (quiz.getType() != QuizType.NUMERIC) {
 				prefix = quiz.getOptionAlpha(i + "") + ")";

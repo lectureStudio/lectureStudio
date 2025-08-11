@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2020 TU Darmstadt, Department of Computer Science,
+ * Copyright (C) 2025 TU Darmstadt, Department of Computer Science,
  * Embedded Systems and Applications Group.
  *
  * This program is free software: you can redistribute it and/or modify
@@ -20,19 +20,18 @@ package org.lecturestudio.presenter.api.view;
 
 import org.lecturestudio.core.view.ConsumerAction;
 
-public interface CreateQuizNumericOptionView extends CreateQuizOptionView {
-
-	int getMinValue();
-
-	int getMaxValue();
-
-	void setMinValue(int value);
-
-	void setMaxValue(int value);
+/**
+ * This interface represents a view for creating a quiz style with free-text answers.
+ * In this quiz style, the user can submit free text answers, which are then evaluated in real-time.
+ * Optionally, the answers can be visualized as a word cloud, where the size of each word corresponds to its frequency
+ * in the answers submitted by users.
+ */
+public interface CreateQuizFreeTextOptionView extends CreateQuizOptionView {
 
 	default void addOnChangeCorrect(ConsumerAction<Boolean> action) {
-		// This method is not applicable for numeric options, as they do not have a "correct" answer.
+		// This method is not applicable for free-text options, as they do not have a "correct" answer.
 		// Implementations can choose to ignore this or throw an UnsupportedOperationException.
-		throw new UnsupportedOperationException("Numeric options do not support correct answers.");
+		throw new UnsupportedOperationException("Free-text options do not support correct answers.");
 	}
+
 }

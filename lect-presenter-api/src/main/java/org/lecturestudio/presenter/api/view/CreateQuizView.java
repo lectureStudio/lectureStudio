@@ -42,6 +42,10 @@ public interface CreateQuizView extends View {
 
 	void setQuizText(String text);
 
+	String getQuizComment();
+
+	void setQuizComment(String comment);
+
 	void setDocuments(List<Document> documents);
 
 	void setDocument(Document doc);

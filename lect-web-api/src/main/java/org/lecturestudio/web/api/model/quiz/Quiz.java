@@ -21,9 +21,7 @@ package org.lecturestudio.web.api.model.quiz;
 import static java.util.Objects.nonNull;
 
 import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 
 import org.lecturestudio.web.api.filter.FilterRule;
 import org.lecturestudio.web.api.filter.InputFieldFilter;
@@ -55,7 +53,25 @@ public class Quiz implements Cloneable, Serializable {
 	 * </p>
 	 */
 	public enum QuizType {
-		MULTIPLE, SINGLE, NUMERIC
+		/**
+		 * Represents a multiple-choice question where users can select multiple answers.
+		 */
+		MULTIPLE,
+
+		/**
+		 * Represents a single choice question where exactly one answer is correct.
+		 */
+		SINGLE,
+
+		/**
+		 * Represents a numeric question where users must provide a numeric answer.
+		 */
+		NUMERIC,
+
+		/**
+		 * Represents a free text question where users can provide any text as an answer.
+		 */
+		FREE_TEXT
 	}
 
 	/**
@@ -78,11 +94,14 @@ public class Quiz implements Cloneable, Serializable {
 	/** The text of the quiz question presented to users. */
 	private String question;
 
-	/** Media files (images, audio, etc.) that accompany the question. */
+	/** Optional comment or explanation associated with the quiz. */
+	private String comment;
+
+	/** Media files (images, audio, etc.) that go with the question. */
 	private List<HttpResourceFile> questionResources = new ArrayList<>();
 
 	/** The possible answer options for multiple choice and single choice questions. */
-	private List<String> options = new ArrayList<>();
+	private List<QuizOption> options = new ArrayList<>();
 
 	/** Regular expression rules used to validate text input for numeric questions. */
 	private List<RegexRule> regexRules = new ArrayList<>();
@@ -114,7 +133,7 @@ public class Quiz implements Cloneable, Serializable {
 	 *
 	 * @param option The text of the answer option to add.
 	 */
-	public void addOption(String option) {
+	public void addOption(QuizOption option) {
 		options.add(option);
 	}
 
@@ -139,7 +158,7 @@ public class Quiz implements Cloneable, Serializable {
 	/**
 	 * Returns the type of this quiz.
 	 *
-	 * @return The quiz type (MULTIPLE, SINGLE, or NUMERIC).
+	 * @return The quiz type (MULTIPLE, SINGLE, NUMERIC or FREE_TEXT).
 	 */
 	public QuizType getType() {
 		return type;
@@ -173,6 +192,24 @@ public class Quiz implements Cloneable, Serializable {
 	}
 
 	/**
+	 * Sets the comment for this quiz.
+	 *
+	 * @param comment The comment text to set.
+	 */
+	public void setComment(final String comment) {
+		this.comment = comment;
+	}
+
+	/**
+	 * Returns the current comment for this quiz.
+	 *
+	 * @return The comment text, or null if no comment has been set.
+	 */
+	public String getComment() {
+		return comment;
+	}
+
+	/**
 	 * Returns the list of media resources associated with the question.
 	 *
 	 * @return List of HTTP resource files for the question.
@@ -202,7 +239,7 @@ public class Quiz implements Cloneable, Serializable {
 	 *
 	 * @return The list of answer option texts.
 	 */
-	public List<String> getOptions() {
+	public List<QuizOption> getOptions() {
 		return options;
 	}
 
@@ -211,7 +248,7 @@ public class Quiz implements Cloneable, Serializable {
 	 *
 	 * @param options The list of answer option texts to set.
 	 */
-	public void setOptions(List<String> options) {
+	public void setOptions(List<QuizOption> options) {
 		this.options = options;
 	}
 
@@ -312,13 +349,14 @@ public class Quiz implements Cloneable, Serializable {
 		boolean b = Objects.equals(type, other.type);
 		boolean c = Objects.equals(options, other.options);
 		boolean d = Objects.equals(filter, other.filter);
+		boolean e = Objects.equals(comment, other.comment);
 
-		return a && b && c && d;
+		return a && b && c && d && e;
 	}
 
 	@Override
 	public int hashCode() {
-		return Objects.hash(question, type, options, filter);
+		return Objects.hash(question, type, options, filter, comment);
 	}
 
 	@Override
@@ -327,8 +365,9 @@ public class Quiz implements Cloneable, Serializable {
 		buffer.append(type).append("\n");
 		buffer.append(set).append("\n");
 		buffer.append(question).append("\n");
+		buffer.append(comment).append("\n");
 
-		for (String option : options) {
+		for (QuizOption option : options) {
 			buffer.append(" ").append(option).append("\n");
 		}
 
@@ -342,10 +381,11 @@ public class Quiz implements Cloneable, Serializable {
 	@Override
 	public Quiz clone() {
 		Quiz quiz = new Quiz(type, question);
+		quiz.setComment(getComment());
 		quiz.setQuizSet(getQuizSet());
 
-		for (String o : getOptions()) {
-			quiz.addOption(o);
+		for (QuizOption o : getOptions()) {
+			quiz.addOption(new QuizOption(o.getOptionText(), o.isCorrect()));
 		}
 
 		for (InputFieldRule<String> rule : getInputFilter().getRules()) {

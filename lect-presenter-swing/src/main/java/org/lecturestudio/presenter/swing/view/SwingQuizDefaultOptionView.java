@@ -25,18 +25,24 @@ import java.awt.BorderLayout;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 
-import javax.swing.JTextField;
+import javax.swing.*;
 
+import org.lecturestudio.core.view.ConsumerAction;
 import org.lecturestudio.presenter.api.view.CreateQuizDefaultOptionView;
 import org.lecturestudio.swing.event.DefaultDocumentListener;
 import org.lecturestudio.swing.util.SwingUtils;
 import org.lecturestudio.swing.view.SwingView;
 import org.lecturestudio.swing.view.ViewPostConstruct;
+import org.lecturestudio.web.api.model.quiz.QuizOption;
 
 @SwingView(name = "quiz-default-option")
 public class SwingQuizDefaultOptionView extends SwingQuizOptionView implements CreateQuizDefaultOptionView {
 
+	private final QuizOption option = new QuizOption("", false);
+
 	private JTextField optionTextField;
+
+	private JCheckBox correctCheckBox;
 
 
 	SwingQuizDefaultOptionView() {
@@ -51,13 +57,21 @@ public class SwingQuizDefaultOptionView extends SwingQuizOptionView implements C
 	}
 
 	@Override
-	public String getOptionText() {
-		return optionTextField.getText();
+	public QuizOption getOption() {
+		return option;
 	}
 
 	@Override
-	public void setOptionText(String text) {
-		SwingUtils.invoke(() -> optionTextField.setText(text));
+	public void setOption(QuizOption option) {
+		SwingUtils.invoke(() -> {
+			this.option.setOptionText(option.getOptionText());
+			this.option.setCorrect(option.isCorrect());
+		});
+	}
+
+	@Override
+	public void addOnChangeCorrect(ConsumerAction<Boolean> action) {
+		SwingUtils.bindAction(correctCheckBox, action);
 	}
 
 	@Override
@@ -95,8 +109,12 @@ public class SwingQuizDefaultOptionView extends SwingQuizOptionView implements C
 				tabKeyHandler(e);
 			}
 		});
-		optionTextField.getDocument().addDocumentListener(
-				new DefaultDocumentListener(super::fireChange));
+		optionTextField.getDocument().addDocumentListener(new DefaultDocumentListener(super::fireChange));
+
+		correctCheckBox.addActionListener(e -> fireChange());
+
+		SwingUtils.bindBidirectional(optionTextField, option.textProperty());
+		SwingUtils.bindBidirectional(correctCheckBox, option.correctProperty());
 	}
 
 }

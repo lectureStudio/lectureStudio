@@ -36,9 +36,11 @@ import java.util.stream.Collectors;
 
 import com.google.inject.AbstractModule;
 import com.google.inject.Provides;
+
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+
 import org.lecturestudio.core.ExecutableException;
 import org.lecturestudio.core.ExecutableState;
 import org.lecturestudio.core.app.ApplicationContext;
@@ -71,6 +73,7 @@ import org.lecturestudio.presenter.api.view.CreateQuizView;
 import org.lecturestudio.web.api.janus.JanusParticipantContext;
 import org.lecturestudio.web.api.message.SpeechBaseMessage;
 import org.lecturestudio.web.api.model.quiz.Quiz;
+import org.lecturestudio.web.api.model.quiz.QuizOption;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -173,7 +176,26 @@ class CreateQuizPresenterTest extends PresenterTest {
 
 		viewFactory = new ViewContextMockFactory() {
 
-			final String[] options = {"choose this", "choose that", "I don't understand", "I know this", "I actually dont", "I might", "I might", "I might", "I might", "choose this", "choose that", "I don't understand", "I know this", "I actually dont", "I might", "I might", "I might", "I might"};
+			final QuizOption[] options = {
+					new QuizOption("choose this", false),
+					new QuizOption("choose that", false),
+					new QuizOption("I don't understand", false),
+					new QuizOption("I know this", false),
+					new QuizOption("I actually dont", false),
+					new QuizOption("I might", false),
+					new QuizOption("I might", false),
+					new QuizOption("I might", false),
+					new QuizOption("I might", false),
+					new QuizOption("choose this", false),
+					new QuizOption("choose that", false),
+					new QuizOption("I don't understand", false),
+					new QuizOption("I know this", false),
+					new QuizOption("I actually dont", false),
+					new QuizOption("I might", false),
+					new QuizOption("I might", false),
+					new QuizOption("I might", false),
+					new QuizOption("I might", false)
+			};
 
 
 			@Override
@@ -181,7 +203,7 @@ class CreateQuizPresenterTest extends PresenterTest {
 			public <T> T getInstance(Class<T> cls) {
 				if (cls == CreateQuizDefaultOptionView.class) {
 					CreateQuizOptionMockView view = new CreateQuizDefaultOptionMockView();
-					view.setOptionText(options[optionViews.size()]);
+					view.setOption(options[optionViews.size()]);
 
 					optionViews.add(view);
 
@@ -189,7 +211,7 @@ class CreateQuizPresenterTest extends PresenterTest {
 				}
 				else if (cls == CreateQuizNumericOptionView.class) {
 					CreateQuizOptionMockView view = new CreateQuizNumericOptionMockView();
-					view.setOptionText(options[optionViews.size()]);
+					view.setOption(options[optionViews.size()]);
 
 					optionViews.add(view);
 
@@ -235,9 +257,9 @@ class CreateQuizPresenterTest extends PresenterTest {
 		presenter.initialize();
 		presenter.getQuiz().setQuestion("Smart question");
 		presenter.getQuiz().setType(Quiz.QuizType.SINGLE);
-		presenter.getQuiz().addOption("1");
-		presenter.getQuiz().addOption("2");
-		presenter.getQuiz().addOption("3");
+		presenter.getQuiz().addOption(new QuizOption("1", false));
+		presenter.getQuiz().addOption(new QuizOption("2", false));
+		presenter.getQuiz().addOption(new QuizOption("3", false));
 
 		assertEquals(Quiz.QuizSet.GENERIC, presenter.getQuiz().getQuizSet());
 
@@ -331,10 +353,10 @@ class CreateQuizPresenterTest extends PresenterTest {
 		view.saveQuizAction.execute();
 
 		int count = presenter.getQuiz().getOptions().size();
-		List<String> optionList = optionViews.stream()
-				.map(CreateQuizOptionMockView::getOptionText)
+		List<QuizOption> optionList = optionViews.stream()
+				.map(CreateQuizOptionMockView::getOption)
 				.collect(Collectors.toList());
-		ListIterator<String> optionListIter = optionList.listIterator();
+		ListIterator<QuizOption> optionListIter = optionList.listIterator();
 
 		assertEquals(optionList.size(), count);
 
@@ -364,8 +386,8 @@ class CreateQuizPresenterTest extends PresenterTest {
 		view.saveQuizAction.execute();
 
 		int count = presenter.getQuiz().getOptions().size();
-		List<String> optionList = optionViews.stream()
-				.map(CreateQuizOptionMockView::getOptionText)
+		List<QuizOption> optionList = optionViews.stream()
+				.map(CreateQuizOptionMockView::getOption)
 				.collect(Collectors.toList());
 
 		assertEquals(optionList.size(), count);
@@ -398,8 +420,8 @@ class CreateQuizPresenterTest extends PresenterTest {
 		view.saveQuizAction.execute();
 
 		int count = presenter.getQuiz().getOptions().size();
-		List<String> optionList = optionViews.stream()
-				.map(CreateQuizOptionMockView::getOptionText)
+		List<QuizOption> optionList = optionViews.stream()
+				.map(CreateQuizOptionMockView::getOption)
 				.collect(Collectors.toList());
 
 		assertEquals(optionList.size(), count);
@@ -427,8 +449,8 @@ class CreateQuizPresenterTest extends PresenterTest {
 		view.newOptionAction.execute();
 		view.saveQuizAction.execute();
 
-		List<String> optionList = optionViews.stream()
-				.map(CreateQuizOptionMockView::getOptionText)
+		List<QuizOption> optionList = optionViews.stream()
+				.map(CreateQuizOptionMockView::getOption)
 				.collect(Collectors.toList());
 
 		assertEquals(set, presenter.getQuiz().getQuizSet());
@@ -491,6 +513,16 @@ class CreateQuizPresenterTest extends PresenterTest {
 		@Override
 		public void setQuizText(String text) {
 			this.question = text;
+		}
+
+		@Override
+		public String getQuizComment() {
+			return "";
+		}
+
+		@Override
+		public void setQuizComment(String comment) {
+
 		}
 
 		@Override
@@ -589,9 +621,11 @@ class CreateQuizPresenterTest extends PresenterTest {
 
 	private static abstract class CreateQuizOptionMockView implements CreateQuizOptionView {
 
-		private String option;
+		private QuizOption option;
 
 		Action changeAction;
+
+		ConsumerAction<Boolean> changeCorrectAction;
 
 		Action removeAction;
 
@@ -606,13 +640,13 @@ class CreateQuizPresenterTest extends PresenterTest {
 		}
 
 		@Override
-		public String getOptionText() {
+		public QuizOption getOption() {
 			return option;
 		}
 
 		@Override
-		public void setOptionText(String text) {
-			this.option = text;
+		public void setOption(QuizOption option) {
+			this.option = option;
 		}
 
 		@Override
@@ -620,6 +654,13 @@ class CreateQuizPresenterTest extends PresenterTest {
 			assertNotNull(action);
 
 			changeAction = action;
+		}
+
+		@Override
+		public void addOnChangeCorrect(ConsumerAction<Boolean> action) {
+			assertNotNull(action);
+
+			changeCorrectAction = action;
 		}
 
 		@Override

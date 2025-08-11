@@ -27,13 +27,28 @@ import org.lecturestudio.web.api.message.MessageTransport;
 import org.lecturestudio.web.api.service.ReactiveProviderService;
 import org.lecturestudio.web.api.service.ServiceParameters;
 
+/**
+ * A service that provides quiz functionality for the presenter application.
+ * This service extends ReactiveProviderService and interacts with the quiz feature API
+ * through a REST client.
+ *
+ * @author Alex Andres
+ */
 public class QuizFeatureService extends ReactiveProviderService {
 
+	/** The client used to interact with the quiz feature REST API. */
 	private final QuizFeatureClient featureClient;
 
 
+	/**
+	 * Creates a new QuizFeatureService with the specified parameters.
+	 *
+	 * @param parameters       The service configuration parameters.
+	 * @param tokenProvider    The provider for authentication tokens.
+	 * @param messageTransport The transport layer for sending/receiving messages.
+	 */
 	public QuizFeatureService(ServiceParameters parameters,
-			TokenProvider tokenProvider, MessageTransport messageTransport) {
+							  TokenProvider tokenProvider, MessageTransport messageTransport) {
 		super(parameters, messageTransport);
 
 		RestClientBuilder builder = createClientBuilder(parameters);
@@ -42,10 +57,23 @@ public class QuizFeatureService extends ReactiveProviderService {
 		featureClient = builder.build(QuizFeatureClient.class);
 	}
 
+	/**
+	 * Starts a quiz for the specified course.
+	 *
+	 * @param courseId The ID of the course to start the quiz for.
+	 * @param data     The quiz data to be sent to the server.
+	 *
+	 * @return The unique identifier for the started quiz session.
+	 */
 	public String startQuiz(long courseId, MultipartBody data) {
 		return featureClient.startQuiz(courseId, data);
 	}
 
+	/**
+	 * Stops the currently running quiz for the specified course.
+	 *
+	 * @param courseId The ID of the course to stop the quiz for.
+	 */
 	public void stopQuiz(long courseId) {
 		featureClient.stopQuiz(courseId);
 	}

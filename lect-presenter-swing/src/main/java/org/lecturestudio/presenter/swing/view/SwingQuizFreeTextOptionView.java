@@ -21,44 +21,31 @@ package org.lecturestudio.presenter.swing.view;
 import static java.util.Objects.isNull;
 import static java.util.Objects.nonNull;
 
-import java.awt.BorderLayout;
+import javax.swing.*;
+import java.awt.*;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
-import java.text.NumberFormat;
-import java.text.ParseException;
 
-import javax.swing.JTextField;
-
-import org.lecturestudio.presenter.api.view.CreateQuizNumericOptionView;
+import org.lecturestudio.presenter.api.view.CreateQuizFreeTextOptionView;
 import org.lecturestudio.swing.event.DefaultDocumentListener;
 import org.lecturestudio.swing.util.SwingUtils;
 import org.lecturestudio.swing.view.SwingView;
 import org.lecturestudio.swing.view.ViewPostConstruct;
 import org.lecturestudio.web.api.model.quiz.QuizOption;
 
-@SwingView(name = "quiz-numeric-option")
-public class SwingQuizNumericOptionView extends SwingQuizOptionView implements CreateQuizNumericOptionView {
-
-	private final NumberFormat numberFormat;
+@SwingView(name = "quiz-freetext-option")
+public class SwingQuizFreeTextOptionView extends SwingQuizOptionView implements CreateQuizFreeTextOptionView {
 
 	private JTextField optionTextField;
 
-	private JTextField minTextField;
 
-	private JTextField maxTextField;
-
-
-	SwingQuizNumericOptionView() {
+	SwingQuizFreeTextOptionView() {
 		super();
-
-		numberFormat = NumberFormat.getNumberInstance();
 	}
 
 	@Override
 	public void focus() {
-		SwingUtils.invoke(() -> {
-			optionTextField.requestFocus();
-		});
+		SwingUtils.invoke(() -> optionTextField.requestFocus());
 	}
 
 	@Override
@@ -78,48 +65,6 @@ public class SwingQuizNumericOptionView extends SwingQuizOptionView implements C
 		optionTextField.setToolTipText(tooltip);
 	}
 
-	@Override
-	public int getMinValue() {
-		String minText = minTextField.getText();
-
-		if (isNull(minText) || minText.isBlank() || minText.isEmpty()) {
-			return Integer.MIN_VALUE;
-		}
-
-		try {
-			return numberFormat.parse(minText).intValue();
-		}
-		catch (ParseException e) {
-			throw new RuntimeException(e);
-		}
-	}
-
-	@Override
-	public int getMaxValue() {
-		String maxText = maxTextField.getText();
-
-		if (isNull(maxText) || maxText.isBlank() || maxText.isEmpty()) {
-			return Integer.MAX_VALUE;
-		}
-
-		try {
-			return numberFormat.parse(maxText).intValue();
-		}
-		catch (ParseException e) {
-			throw new RuntimeException(e);
-		}
-	}
-
-	@Override
-	public void setMinValue(int value) {
-		minTextField.setText(numberFormat.format(value));
-	}
-
-	@Override
-	public void setMaxValue(int value) {
-		maxTextField.setText(numberFormat.format(value));
-	}
-
 	@ViewPostConstruct
 	private void initialize() {
 		if (isNull(optionTextField)) {
@@ -136,25 +81,9 @@ public class SwingQuizNumericOptionView extends SwingQuizOptionView implements C
 				upDownKeyHandler(e);
 			}
 		});
-		maxTextField.addKeyListener(new KeyAdapter() {
-
-			@Override
-			public void keyPressed(KeyEvent e) {
-				enterKeyHandler(e);
-			}
-		});
-		maxTextField.addKeyListener(new KeyAdapter() {
-
-			@Override
-			public void keyPressed(KeyEvent e) {
-				tabKeyHandler(e);
-			}
-		});
 
 		DefaultDocumentListener docListener = new DefaultDocumentListener(super::fireChange);
 
 		optionTextField.getDocument().addDocumentListener(docListener);
-		minTextField.getDocument().addDocumentListener(docListener);
-		maxTextField.getDocument().addDocumentListener(docListener);
 	}
 }

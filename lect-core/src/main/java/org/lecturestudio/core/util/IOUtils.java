@@ -18,41 +18,23 @@
 
 package org.lecturestudio.core.util;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.nio.ByteBuffer;
-import java.nio.channels.Channels;
-import java.nio.channels.ReadableByteChannel;
-import java.nio.channels.WritableByteChannel;
 import java.util.Locale;
 
+/**
+ * Utility class providing I/O related helper methods.
+ *
+ * @author Alex Andres
+ */
 public class IOUtils {
 
-	public static void copy(final InputStream src, final OutputStream dest) throws IOException {
-		final ReadableByteChannel inputChannel = Channels.newChannel(src);
-		final WritableByteChannel outputChannel = Channels.newChannel(dest);
-		
-		copy(inputChannel, outputChannel);
-	}
-
-	public static void copy(final ReadableByteChannel src, final WritableByteChannel dest) throws IOException {
-		final ByteBuffer buffer = ByteBuffer.allocateDirect(16 * 1024);
-
-		while (src.read(buffer) != -1) {
-			buffer.flip();
-			dest.write(buffer);
-			buffer.compact();
-		}
-
-		buffer.flip();
-
-		// Make sure the buffer is fully drained.
-		while (buffer.hasRemaining()) {
-			dest.write(buffer);
-		}
-	}
-
+	/**
+	 * Formats a byte size into a human-readable string with binary units (KiB, MiB, etc.).
+	 * The result is formatted with one decimal place and the appropriate unit suffix.
+	 *
+	 * @param bytes the size in bytes to format.
+	 *
+	 * @return a human-readable string representation of the byte size (e.g., "1.5 MiB").
+	 */
 	public static String formatSize(final long bytes) {
 		final String[] units = { "B", "KiB", "MiB", "GiB", "TiB", "PiB", "EiB" };
 		final int base = 1024;
@@ -66,5 +48,29 @@ public class IOUtils {
 
 		return String.format(Locale.getDefault(), "%.1f %s",
 				bytes / Math.pow(base, exponent), unit);
+	}
+
+	/**
+	 * Shortens a string to a specified maximum length by truncating and adding ellipsis.
+	 * If the string is already shorter than the maximum length, it is returned unchanged.
+	 *
+	 * @param str       the string to shorten.
+	 * @param maxLength the maximum length of the resulting string (including ellipsis).
+	 *
+	 * @return the shortened string, or the original if it's already short enough.
+	 *
+	 * @throws IllegalArgumentException if maxLength is less than 4.
+	 */
+	public static String shortenString(String str, int maxLength) {
+		if (str == null) {
+			return null;
+		}
+		if (maxLength < 4) {
+			throw new IllegalArgumentException("Max length must be at least 4 to accommodate dots");
+		}
+		if (str.length() <= maxLength) {
+			return str;
+		}
+		return str.substring(0, maxLength - 3) + "...";
 	}
 }

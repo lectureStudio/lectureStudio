@@ -303,7 +303,7 @@ public class SwingCreateQuizView extends ContentPane implements CreateQuizView {
 
 		oldKFM = KeyboardFocusManager.getCurrentKeyboardFocusManager();
 
-		// Use custom keyboard manager.
+		// Use a custom keyboard manager.
 		addHierarchyListener(e -> {
 			if (e.getChangeFlags() == HierarchyEvent.PARENT_CHANGED) {
 				if (isNull(e.getComponent().getParent())) {
@@ -469,7 +469,7 @@ public class SwingCreateQuizView extends ContentPane implements CreateQuizView {
 				}
 			}
 
-			if (event.getID() != KeyEvent.KEY_PRESSED) {
+			if (event.getID() != KeyEvent.KEY_PRESSED || !(source instanceof JComponent)) {
 				return super.dispatchKeyEvent(event);
 			}
 

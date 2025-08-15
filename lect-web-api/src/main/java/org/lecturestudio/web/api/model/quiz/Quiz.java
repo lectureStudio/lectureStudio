@@ -158,7 +158,7 @@ public class Quiz implements Cloneable, Serializable {
 	/**
 	 * Returns the type of this quiz.
 	 *
-	 * @return The quiz type (MULTIPLE, SINGLE, NUMERIC or FREE_TEXT).
+	 * @return The quiz type (MULTIPLE, SINGLE, NUMERIC, or FREE_TEXT).
 	 */
 	public QuizType getType() {
 		return type;
@@ -347,7 +347,7 @@ public class Quiz implements Cloneable, Serializable {
 
 		boolean a = Objects.equals(question, other.question);
 		boolean b = Objects.equals(type, other.type);
-		boolean c = Objects.equals(options, other.options);
+		boolean c = Objects.deepEquals(options, other.options);
 		boolean d = Objects.equals(filter, other.filter);
 		boolean e = Objects.equals(comment, other.comment);
 

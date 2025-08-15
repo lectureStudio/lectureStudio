@@ -63,7 +63,7 @@ public class QuizOption {
 
 		QuizOption that = (QuizOption) o;
 
-		return correct == that.correct && Objects.equals(getOptionText(), that.getOptionText());
+		return correct.get() == that.correct.get() && Objects.equals(getOptionText(), that.getOptionText());
 	}
 
 	@Override

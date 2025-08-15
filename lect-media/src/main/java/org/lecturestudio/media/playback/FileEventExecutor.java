@@ -385,6 +385,10 @@ public class FileEventExecutor extends EventExecutor {
 	}
 
 	private void fixScreenAction(ScreenAction action, int pageNumber) {
+        if (pageNumber >= recordedPages.size() - 1) {
+            return;
+        }
+
 		// Fix overlapping screen actions into the next page.
 		RecordedPage recPage = recordedPages.get(pageNumber + 1);
 		if (nonNull(recPage) && (action.getTimestamp() + action.getVideoLength()) > recPage.getTimestamp()) {

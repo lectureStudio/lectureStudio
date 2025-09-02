@@ -34,7 +34,6 @@ import javax.inject.Singleton;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import org.lecturestudio.core.app.AppDataLocator;
 import org.lecturestudio.core.app.ApplicationContext;
 import org.lecturestudio.core.app.LocaleProvider;
 import org.lecturestudio.core.app.configuration.Configuration;
@@ -70,10 +69,6 @@ import org.lecturestudio.swing.service.AwtDisplayService;
 public class ApplicationModule extends AbstractModule {
 
 	private final static Logger LOG = LogManager.getLogger(ApplicationModule.class);
-
-	private static final AppDataLocator LOCATOR = new AppDataLocator("lecturePresenter");
-
-	private static final File CONFIG_FILE = new File(LOCATOR.toAppDataPath("config.json"));
 
 
 	@Override
@@ -163,8 +158,8 @@ public class ApplicationModule extends AbstractModule {
 		EventBus eventBus = ApplicationBus.get();
 		EventBus audioBus = AudioBus.get();
 
-		return new PresenterContext(LOCATOR, CONFIG_FILE, config, dict,
-				eventBus, audioBus, privilegeService);
+		return new PresenterContext(ConfigurationModule.LOCATOR, ConfigurationModule.CONFIG_FILE,
+                config, dict, eventBus, audioBus, privilegeService);
 	}
 
 	@Provides
@@ -188,16 +183,16 @@ public class ApplicationModule extends AbstractModule {
 		PresenterConfiguration configuration = null;
 
 		try {
-			DirUtils.createIfNotExists(Paths.get(LOCATOR.getAppDataPath()));
+			DirUtils.createIfNotExists(Paths.get(ConfigurationModule.LOCATOR.getAppDataPath()));
 
-			if (!CONFIG_FILE.exists()) {
-				// Create configuration with default values.
+			if (!ConfigurationModule.CONFIG_FILE.exists()) {
+				// Create a configuration with default values.
 				configuration = new DefaultConfiguration();
 
-				configService.save(CONFIG_FILE, configuration);
+				configService.save(ConfigurationModule.CONFIG_FILE, configuration);
 			}
 			else {
-				configuration = configService.load(CONFIG_FILE, PresenterConfiguration.class);
+				configuration = configService.load(ConfigurationModule.CONFIG_FILE, PresenterConfiguration.class);
 
 				configService.validate(configuration);
 			}

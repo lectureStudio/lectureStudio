@@ -18,8 +18,14 @@
 
 package org.lecturestudio.presenter.swing;
 
+import java.util.Locale;
+
 import org.lecturestudio.core.ExecutableException;
 import org.lecturestudio.core.app.ApplicationFactory;
+import org.lecturestudio.core.app.configuration.Configuration;
+import org.lecturestudio.core.inject.GuiceInjector;
+import org.lecturestudio.core.inject.Injector;
+import org.lecturestudio.presenter.swing.inject.guice.ConfigurationModule;
 import org.lecturestudio.swing.app.LectSwingPreloader;
 import org.lecturestudio.swing.app.SwingApplication;
 
@@ -32,6 +38,8 @@ public class PresenterApplication extends SwingApplication {
 	 * @param args the main method's arguments.
 	 */
 	public static void main(String[] args) {
+		setDefaultLocale();
+
 		// Start with preloader.
 		PresenterApplication.launch(args, LectSwingPreloader.class);
 	}
@@ -47,7 +55,7 @@ public class PresenterApplication extends SwingApplication {
 		// e.g.,by creating a fake JFXPanel instance.
 		javafx.embed.swing.JFXPanel dummy = new javafx.embed.swing.JFXPanel();
 
-		// Ensure that JavaFX platform keeps running.
+		// Ensure that the JavaFX platform keeps running.
 		javafx.application.Platform.setImplicitExit(false);
 
 		super.initInternal(args);
@@ -60,5 +68,12 @@ public class PresenterApplication extends SwingApplication {
 		javafx.application.Platform.exit();
 
 		super.stopInternal();
+	}
+
+	private static void setDefaultLocale() {
+		Injector injector = new GuiceInjector(new ConfigurationModule());
+		Configuration config = injector.getInstance(Configuration.class);
+
+		Locale.setDefault(config.getLocale());
 	}
 }

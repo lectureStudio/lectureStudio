@@ -29,9 +29,9 @@ import org.lecturestudio.core.presenter.MainPresenter;
 public interface ApplicationFactory {
 
 	/**
-	 * Create the application specific ApplicationContext.
+	 * Create the application-specific ApplicationContext.
 	 *
-	 * @return the application specific ApplicationContext.
+	 * @return the application-specific ApplicationContext.
 	 */
 	ApplicationContext getApplicationContext();
 

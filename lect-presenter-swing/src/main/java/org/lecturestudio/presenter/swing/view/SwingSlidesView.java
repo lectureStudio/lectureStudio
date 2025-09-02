@@ -488,12 +488,7 @@ public class SwingSlidesView extends JPanel implements SlidesView {
 		});
 
 		// Show embedded document notes, if available.
-		if (doc.hasTextNotes()) {
-			expandTextNotes();
-		}
-		else {
-			collapseTextNotes();
-		}
+        checkTextNotes(doc);
 	}
 
 	@Override
@@ -2348,16 +2343,17 @@ public class SwingSlidesView extends JPanel implements SlidesView {
 				// Show embedded document notes, if available.
 				Page page = getPage();
 				if (nonNull(page)) {
-					if (page.getDocument().hasTextNotes()) {
-						expandTextNotes();
-					}
-					else {
-						collapseTextNotes();
-					}
+					checkTextNotes(page.getDocument());
 				}
 			}
 		});
 		showMessagesPlaceholder();
+	}
+
+	private void checkTextNotes(Document document) {
+		if (document.hasTextNotes()) {
+			expandTextNotes();
+		}
 	}
 
 	private ExternalFrame createExternalFrame(String name, Component body, String placeholderText,

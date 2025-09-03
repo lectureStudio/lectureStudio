@@ -20,6 +20,7 @@ package org.lecturestudio.presenter.api.presenter;
 
 import static java.util.Objects.nonNull;
 
+import java.time.Duration;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 
@@ -85,11 +86,17 @@ public class StopwatchConfigPresenter extends Presenter<StopwatchConfigView> {
 	}
 
 	private void onSave() {
-		LocalTime time = null;
+		LocalTime time;
 		String timeString = stopwatchTime.get();
 
 		try {
 			time = LocalTime.parse(timeString, DateTimeFormatter.ofPattern("HH:mm"));
+
+			Duration duration1 = Duration.between(LocalTime.MIDNIGHT, time);
+			Duration duration2 = Duration.between(LocalTime.MIDNIGHT, LocalTime.now());
+
+			time = LocalTime.MIDNIGHT.plus(duration1.plus(duration2));
+
 			error.set("");
 		}
 		catch (Exception e) {
@@ -102,6 +109,7 @@ public class StopwatchConfigPresenter extends Presenter<StopwatchConfigView> {
 		if (nonNull(saveAction)) {
 			stopwatch.setType(stopwatchType);
 			stopwatch.setStartTime(time);
+
 			saveAction.execute();
 		}
 	}

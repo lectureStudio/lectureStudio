@@ -889,7 +889,6 @@ public class MenuPresenter extends Presenter<MenuView> {
 
 	public void startStopwatchConfiguration() {
 		eventBus.post(new StopwatchCommand(() -> {
-			stopStopwatch();
 			view.setStopwatch(stopwatch);
 		}));
 	}

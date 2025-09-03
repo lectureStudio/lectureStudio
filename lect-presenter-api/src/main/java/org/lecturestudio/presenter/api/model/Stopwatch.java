@@ -312,6 +312,8 @@ public class Stopwatch extends ExecutableBase {
 		runStopwatch.set(false);
 
 		clearSuspensionMarker();
+
+		reset();
 	}
 
 	@Override

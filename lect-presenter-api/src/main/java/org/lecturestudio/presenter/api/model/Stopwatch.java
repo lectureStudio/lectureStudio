@@ -29,6 +29,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.lecturestudio.core.ExecutableBase;
 import org.lecturestudio.core.ExecutableException;
+import org.lecturestudio.core.ExecutableState;
 import org.lecturestudio.core.model.Time;
 
 /**
@@ -39,38 +40,61 @@ import org.lecturestudio.core.model.Time;
  */
 public class Stopwatch extends ExecutableBase {
 
+	/**
+	 * The type of the stopwatch.
+	 */
 	public enum StopwatchType {
+		/** Counts down the time left for the presentation. */
 		TIMER,
+		/** Counts up the elapsed time. */
 		STOPWATCH
 	}
 
+	/**
+	 * Indicates the current time status of the stopwatch.
+	 */
 	public enum TimeIndication {
+		/** Waiting to start. */
 		WAITING,
+		/** In the optimal time range. */
 		OPTIMAL,
+		/** Should speed up the pace. */
 		SPEED_UP,
+		/** Should slow down the pace. */
 		SLOW_DOWN,
+		/** Time is up. */
 		ENDED
 	}
 
+	/** Indicating whether the stopwatch is currently running. */
 	private final AtomicBoolean runStopwatch = new AtomicBoolean(false);
 
 	/** Duration in minutes. */
 	private Long duration;
 
+	/** The end time of the presentation as a LocalDateTime. */
 	private LocalDateTime endTime;
 
+	/** The start time of the presentation as a LocalTime. */
 	private LocalTime startTime;
 
 	/** The current time. */
 	private Time time = new Time();
 
+	/** Indicates the current time indication status of the stopwatch. */
 	private TimeIndication timeIndication = TimeIndication.OPTIMAL;
 
+	/** The type of the stopwatch (STOPWATCH or TIMER). */
 	private StopwatchType type = StopwatchType.STOPWATCH;
 
+	/** Indicates whether the stopwatch can be reset. */
 	private boolean resettable = true;
 
+	/** Indicates whether the presentation has started. */
 	private boolean presentationStarted = false;
+
+	/** Records when the stopwatch was suspended to adjust time on resume. */
+	private LocalDateTime suspendedAt;
 
 
 	/**
@@ -202,6 +226,9 @@ public class Stopwatch extends ExecutableBase {
 
 		timeIndication = TimeIndication.OPTIMAL;
 
+		// Clear any suspend marker on reset.
+		clearSuspensionMarker();
+
 		if (type == StopwatchType.STOPWATCH) {
 			// Autostart the counting.
 			startTime = LocalTime.now();
@@ -258,23 +285,42 @@ public class Stopwatch extends ExecutableBase {
 	@Override
 	protected void suspendInternal() {
 		runStopwatch.set(false);
+		// Record the suspension time to exclude paused duration on resume.
+		suspendedAt = LocalDateTime.now();
 	}
 
 	@Override
 	protected void startInternal() {
 		if (runStopwatch.compareAndSet(false, true)) {
-			reset();
+			if (getPreviousState() != ExecutableState.Suspended) {
+				reset();
+			}
+			else {
+				// Resuming from suspension: shift startTime forward by paused duration.
+				if (presentationStarted && startTime != null && suspendedAt != null) {
+					long pausedMillis = Duration.between(suspendedAt, LocalDateTime.now()).toMillis();
+					startTime = startTime.plus(pausedMillis, ChronoUnit.MILLIS);
+				}
+			}
+
+			clearSuspensionMarker();
 		}
 	}
 
 	@Override
 	protected void stopInternal() {
 		runStopwatch.set(false);
+
+		clearSuspensionMarker();
 	}
 
 	@Override
 	protected void destroyInternal() {
 
+	}
+
+	private void clearSuspensionMarker() {
+		suspendedAt = null;
 	}
 
 	private Time createTime(long millis) {

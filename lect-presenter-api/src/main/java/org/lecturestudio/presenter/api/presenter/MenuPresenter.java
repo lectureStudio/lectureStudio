@@ -867,7 +867,7 @@ public class MenuPresenter extends Presenter<MenuView> {
 
 		view.setBookmarks(bookmarks);
 
-		// Update current time every 30 seconds.
+		// Update the current time every 30 seconds.
 		timer.scheduleAtFixedRate(new TimerTask() {
 
 			@Override

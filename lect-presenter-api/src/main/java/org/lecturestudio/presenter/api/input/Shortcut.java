@@ -51,7 +51,7 @@ public enum Shortcut {
 	SLIDE_OVERLAY_PREVIOUS			(KeyCode.PAGE_UP, KeyEvent.SHIFT_MASK, "shortcut.overlay.previous"),
 	SLIDE_OVERLAY_NEXT				(KeyCode.PAGE_DOWN, KeyEvent.SHIFT_MASK, "shortcut.overlay.next"),
 
-	COPY_OVERLAY					(KeyCode.V, KeyEvent.CTRL_MASK, "shortcut.annotations.copy"),
+//	COPY_OVERLAY					(KeyCode.V, KeyEvent.CTRL_MASK, "shortcut.annotations.copy"),
 	COPY_OVERLAY_NEXT_PAGE_CTRL		(KeyCode.PAGE_DOWN, KeyEvent.CTRL_MASK, "shortcut.annotations.copy.to.next"),
 
 	UNDO							(KeyCode.Z, KeyEvent.CTRL_MASK, "shortcut.tool.undo"),

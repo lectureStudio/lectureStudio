@@ -1501,7 +1501,7 @@ public class SlidesPresenter extends Presenter<SlidesView> {
 		registerShortcut(Shortcut.SLIDE_OVERLAY_PREVIOUS, this::overlayPreviousPage);
 		registerShortcut(Shortcut.SLIDE_OVERLAY_NEXT, this::overlayNextPage);
 
-		registerShortcut(Shortcut.COPY_OVERLAY, this::copyOverlay);
+//		registerShortcut(Shortcut.COPY_OVERLAY, this::copyOverlay);
 		registerShortcut(Shortcut.COPY_OVERLAY_NEXT_PAGE_CTRL, this::copyNextOverlay);
 
 		view.setMessageBarPosition(getPresenterConfig()

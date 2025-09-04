@@ -1129,31 +1129,8 @@ public class SlidesPresenter extends Presenter<SlidesView> {
 		}
 	}
 
-	private void bookmarkSlide() {
-        try {
-			bookmarkCreated(bookmarkService.createDefaultBookmark());
-        }
-		catch (BookmarkException e) {
-			handleException(e, "Create bookmark failed", "bookmark.assign.warning", "bookmark.exists");
-        }
-    }
-
-	private void bookmarkGotoLastSlide() {
-		Document doc = documentService.getDocuments().getSelectedDocument();
-		Bookmark bookmark = bookmarkService.getBookmarks().getLastBookmark(doc);
-
-		if (nonNull(bookmark)) {
-            try {
-                bookmarkService.gotoBookmark(bookmark);
-            }
-			catch (BookmarkException e) {
-				handleException(e, "Go to bookmark failed", "bookmark.goto.error");
-            }
-        }
-	}
-
 	private void bookmarkCreated(Bookmark bookmark) {
-		String shortcut = bookmark.getShortcut().toUpperCase();
+		String shortcut = bookmark.shortcut().toUpperCase();
 		String message = MessageFormat.format(context.getDictionary().get("bookmark.created"), shortcut);
 
 		context.showNotificationPopup(message);
@@ -1523,9 +1500,6 @@ public class SlidesPresenter extends Presenter<SlidesView> {
 		registerShortcut(Shortcut.SLIDE_OVERLAY_END, this::overlayEnd);
 		registerShortcut(Shortcut.SLIDE_OVERLAY_PREVIOUS, this::overlayPreviousPage);
 		registerShortcut(Shortcut.SLIDE_OVERLAY_NEXT, this::overlayNextPage);
-
-		registerShortcut(Shortcut.BOOKMARK_SLIDE, this::bookmarkSlide);
-		registerShortcut(Shortcut.BOOKMARK_GOTO_LAST, this::bookmarkGotoLastSlide);
 
 		registerShortcut(Shortcut.COPY_OVERLAY, this::copyOverlay);
 		registerShortcut(Shortcut.COPY_OVERLAY_NEXT_PAGE_CTRL, this::copyNextOverlay);

@@ -294,7 +294,7 @@ public class MenuPresenter extends Presenter<MenuView> {
 			bookmarkService.gotoBookmark(bookmark);
 		}
 		catch (BookmarkKeyException e) {
-			context.showError("bookmark.goto.error", "bookmark.key.not.existing", bookmark.getShortcut());
+			context.showError("bookmark.goto.error", "bookmark.key.not.existing", bookmark.shortcut());
 		}
 		catch (Exception e) {
 			handleException(e, "Go to bookmark failed", "bookmark.goto.error");
@@ -580,7 +580,7 @@ public class MenuPresenter extends Presenter<MenuView> {
 	public void removeBookmark() {
 		try {
 			if (nonNull(bookmarkService.getPageBookmark())) {
-				String shortcut = bookmarkService.getPageBookmark().getShortcut();
+				String shortcut = bookmarkService.getPageBookmark().shortcut();
 				bookmarkService.deleteBookmark(bookmarkService.getPageBookmark());
 				bookmarkRemoved(shortcut);
 			}
@@ -598,7 +598,7 @@ public class MenuPresenter extends Presenter<MenuView> {
 
 
 	private void bookmarkCreated(Bookmark bookmark) {
-		String shortcut = bookmark.getShortcut().toUpperCase();
+		String shortcut = bookmark.shortcut().toUpperCase();
 		String message = MessageFormat.format(context.getDictionary().get("bookmark.created"), shortcut);
 
 		context.showNotificationPopup(message);
@@ -612,7 +612,12 @@ public class MenuPresenter extends Presenter<MenuView> {
 	}
 
 	public void previousBookmark() {
-		bookmarkService.gotoPreviousBookmark();
+		try {
+			bookmarkService.gotoLastBookmark();
+		}
+		catch (BookmarkException e) {
+			handleException(e, "Go to bookmark failed", "bookmark.goto.error");
+		}
 	}
 
 	public void showShortcuts() {

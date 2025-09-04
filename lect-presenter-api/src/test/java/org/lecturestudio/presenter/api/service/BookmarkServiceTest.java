@@ -149,12 +149,12 @@ class BookmarkServiceTest extends ServiceTest {
 		Bookmark bookmarkA = bookmarkService.createBookmark("1");
 		documentService.selectNextPage();
 
-		assertNotEquals(document.getCurrentPage(), bookmarkA.getPage());
+		assertNotEquals(document.getCurrentPage(), bookmarkA.page());
 
 		Bookmark bookmarkB = bookmarkService.createBookmark("2");
 		documentService.selectNextPage();
 
-		assertNotEquals(document.getCurrentPage(), bookmarkA.getPage());
+		assertNotEquals(document.getCurrentPage(), bookmarkA.page());
 
 		documentService.selectDocument(document2);
 
@@ -163,14 +163,14 @@ class BookmarkServiceTest extends ServiceTest {
 		documentService.selectDocument(document1);
 
 		bookmarkService.gotoBookmark(bookmarkA);
-		assertEquals(document.getCurrentPage(), bookmarkA.getPage());
+		assertEquals(document.getCurrentPage(), bookmarkA.page());
 
 		bookmarkService.gotoBookmark(bookmarkB);
-		assertEquals(document.getCurrentPage(), bookmarkB.getPage());
+		assertEquals(document.getCurrentPage(), bookmarkB.page());
 
 		bookmarkService.gotoBookmark(bookmarkC);
 		assertEquals(document2, documentService.getDocuments().getSelectedDocument());
-		assertEquals(document2.getCurrentPage(), bookmarkC.getPage());
+		assertEquals(document2.getCurrentPage(), bookmarkC.page());
 
 		assertThrows(NullPointerException.class, () -> {
 			bookmarkService.gotoBookmark(null);
@@ -181,7 +181,7 @@ class BookmarkServiceTest extends ServiceTest {
 	}
 
 	@Test
-	void testGotoPreviousBookmark() throws BookmarkException {
+	void testGotoLastBookmark() throws BookmarkException {
 		Document document = documentService.getDocuments().getSelectedDocument();
 
 		Bookmark bookmarkA = bookmarkService.createBookmark("1");
@@ -193,9 +193,9 @@ class BookmarkServiceTest extends ServiceTest {
 		bookmarkService.gotoBookmark(bookmarkA);
 		bookmarkService.gotoBookmark(bookmarkB);
 
-		bookmarkService.gotoPreviousBookmark();
+		bookmarkService.gotoLastBookmark();
 
-		assertEquals(document.getCurrentPage(), bookmarkA.getPage());
+		assertEquals(document.getCurrentPage(), bookmarkA.page());
 	}
 
 }

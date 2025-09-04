@@ -37,7 +37,7 @@ public class Bookmarks {
 
 
 	public void add(Bookmark bookmark) {
-		Document doc = bookmark.getPage().getDocument();
+		Document doc = bookmark.page().getDocument();
 
 		if (isNull(doc)) {
 			return;
@@ -88,7 +88,7 @@ public class Bookmarks {
 	public Bookmark getBookmark(String shortcut) {
 		for (Document doc : bookmarks.keySet()) {
 			for (Bookmark bookmark : bookmarks.get(doc)) {
-				String accelerator = bookmark.getShortcut();
+				String accelerator = bookmark.shortcut();
 
 				if (nonNull(accelerator) && accelerator.equalsIgnoreCase(shortcut)) {
 					return bookmark;
@@ -104,9 +104,9 @@ public class Bookmarks {
 
 			while (iter.hasNext()) {
 				Bookmark b = iter.next();
-				String accelerator = b.getShortcut();
+				String accelerator = b.shortcut();
 
-				if (nonNull(accelerator) && accelerator.equalsIgnoreCase(bookmark.getShortcut())) {
+				if (nonNull(accelerator) && accelerator.equalsIgnoreCase(bookmark.shortcut())) {
 					iter.remove();
 
 					fireRemoved(b);

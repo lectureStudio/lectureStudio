@@ -652,12 +652,12 @@ public class SwingMenuView extends JMenuBar implements MenuView {
 			int count = 0;
 
 			for (Bookmark bookmark : bookmarkList) {
-				Document doc = bookmark.getPage().getDocument();
+				Document doc = bookmark.page().getDocument();
 				String docName = doc.getName();
-				String text = docName + ": " + (doc.getPageIndex(bookmark.getPage()) + 1);
+				String text = docName + ": " + (doc.getPageIndex(bookmark.page()) + 1);
 
 				JMenuItem bookmarkItem = new JMenuItem(text);
-				bookmarkItem.setAccelerator(KeyStroke.getKeyStroke(bookmark.getShortcut()));
+				bookmarkItem.setAccelerator(KeyStroke.getKeyStroke(bookmark.shortcut()));
 				bookmarkItem.addActionListener(event -> {
 					if (nonNull(openBookmarkAction)) {
 						openBookmarkAction.execute(bookmark);

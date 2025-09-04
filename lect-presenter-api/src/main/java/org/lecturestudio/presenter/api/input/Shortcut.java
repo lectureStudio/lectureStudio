@@ -58,7 +58,7 @@ public enum Shortcut {
 	REDO							(KeyCode.Y, KeyEvent.CTRL_MASK, "shortcut.tool.redo"),
 
 	ZOOM_RESTORE					(KeyCode.DIGIT1, "shortcut.tool.zoom.restore"),
-	ZOOM_TOGGLE						(KeyCode.DIGIT9, KeyEvent.CTRL_MASK, "shortcut.tool.zoom.toggle"),
+//	ZOOM_TOGGLE						(KeyCode.DIGIT9, KeyEvent.CTRL_MASK, "shortcut.tool.zoom.toggle"),
 	ZOOM_PAN						(KeyCode.F11, "shortcut.tool.zoom.pan"),
 	ERASE_ALL						(KeyCode.C, "shortcut.tool.clear"),
 	ERASE_ALL_ESC					(KeyCode.ESCAPE, "shortcut.tool.clear"),
@@ -83,7 +83,7 @@ public enum Shortcut {
 
 	SAVE_QUIZ						(KeyCode.ENTER, KeyEvent.CTRL_MASK, "shortcut.quiz.save"),
 
-	PAUSE_RECORDING					(KeyCode.PAUSE, KeyEvent.CTRL_MASK, "shortcut.recording.pause.toggle"),
+//	PAUSE_RECORDING					(KeyCode.PAUSE, KeyEvent.CTRL_MASK, "shortcut.recording.pause.toggle"),
 	PAUSE_RECORDING_P				(KeyCode.P, KeyEvent.CTRL_MASK, "shortcut.recording.pause.toggle"),
 
 	BOOKMARK_NEW					(KeyCode.B, "shortcut.bookmark.new"),
@@ -93,7 +93,7 @@ public enum Shortcut {
 
 	FULLSCREEN						(KeyCode.ENTER, KeyEvent.ALT_MASK, "shortcut.fullscreen"),
 
-	SHOW_GRID						(KeyCode.G, KeyEvent.CTRL_MASK, "shortcut.grid.show"),
+//	SHOW_GRID						(KeyCode.G, KeyEvent.CTRL_MASK, "shortcut.grid.show"),
 	SHOW_GRID_LECTURER				(KeyCode.Q, "shortcut.grid.show.lecturer"),
 
 	TIMER_START						(KeyCode.S, "shortcut.timer.start.toggle"),

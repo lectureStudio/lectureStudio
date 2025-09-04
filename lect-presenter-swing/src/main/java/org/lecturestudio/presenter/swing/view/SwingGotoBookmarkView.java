@@ -170,7 +170,7 @@ public class SwingGotoBookmarkView extends ContentPane implements GotoBookmarkVi
 		for (int i = 0; i < model.getRowCount(); i++) {
 			Bookmark bookmark = model.getItem(i);
 
-			if (bookmark.getShortcut().equalsIgnoreCase(shortcut)) {
+			if (bookmark.shortcut().equalsIgnoreCase(shortcut)) {
 				executeAction(gotoBookmarkAction, bookmark);
 			}
 		}

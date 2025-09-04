@@ -141,7 +141,7 @@ public class ToolbarPresenter extends Presenter<ToolbarView> {
 
 			boolean hasBookmark = false;
 			for(Bookmark bookmark : bookmarkService.getBookmarks().getAllBookmarks()){
-				if(bookmark.getPage().equals(page)){
+				if(bookmark.page().equals(page)){
 					hasBookmark = true;
 					break;
 				}
@@ -563,7 +563,7 @@ public class ToolbarPresenter extends Presenter<ToolbarView> {
 		try {
 			Bookmark currBookmark = bookmarkService.getPageBookmark();
 			if (nonNull(currBookmark)) {
-				String shortcut = currBookmark.getShortcut();
+				String shortcut = currBookmark.shortcut();
 				bookmarkService.deleteBookmark(currBookmark);
 				bookmarkRemoved(shortcut);
 				view.selectNewBookmarkButton(false);
@@ -583,7 +583,7 @@ public class ToolbarPresenter extends Presenter<ToolbarView> {
 		}
 	}
 	private void bookmarkCreated(Bookmark bookmark) {
-		String shortcut = bookmark.getShortcut().toUpperCase();
+		String shortcut = bookmark.shortcut().toUpperCase();
 		String message = MessageFormat.format(context.getDictionary().get("bookmark.created"), shortcut);
 
 		context.showNotificationPopup(message);

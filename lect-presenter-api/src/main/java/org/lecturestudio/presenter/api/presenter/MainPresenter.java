@@ -253,7 +253,7 @@ public class MainPresenter extends org.lecturestudio.core.presenter.MainPresente
 	@Override
 	public void initialize() {
 		registerShortcut(Shortcut.CLOSE_VIEW, this::closeView);
-		registerShortcut(Shortcut.PAUSE_RECORDING, this::togglePauseRecording);
+//		registerShortcut(Shortcut.PAUSE_RECORDING, this::togglePauseRecording);
 		registerShortcut(Shortcut.PAUSE_RECORDING_P, this::togglePauseRecording);
 
 		PresenterContext presenterContext = (PresenterContext) context;

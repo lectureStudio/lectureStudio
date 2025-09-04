@@ -20,30 +20,23 @@ package org.lecturestudio.presenter.api.model;
 
 import org.lecturestudio.core.model.Page;
 
-import java.util.Objects;
+/**
+ * Represents a bookmark within a presentation.
+ *
+ * @param shortcut The keyboard shortcut or identifier for the bookmark
+ * @param page     The page that is bookmarked
+ *
+ * @author Alex Andres
+ */
+public record Bookmark(String shortcut, Page page) {
 
-public class Bookmark {
-
-	private final String shortcut;
-
-	private final Page page;
-
-
-    public Bookmark(String shortcut) {
-        this(shortcut, null);
-    }
-
-	public Bookmark(String shortcut, Page page) {
-		this.shortcut = shortcut;
-		this.page = page;
-	}
-
-	public String getShortcut() {
-		return shortcut;
-	}
-
-	public Page getPage() {
-		return page;
+	/**
+	 * Creates a bookmark with the given shortcut and no associated page.
+	 *
+	 * @param shortcut The keyboard shortcut or identifier for the bookmark.
+	 */
+	public Bookmark(String shortcut) {
+		this(shortcut, null);
 	}
 
 	@Override
@@ -55,16 +48,14 @@ public class Bookmark {
 
 		final Bookmark other = (Bookmark) obj;
 
-		if (shortcut == null || !shortcut.equalsIgnoreCase(other.getShortcut())) {
-			return false;
-		}
-
-		return true;
+		return shortcut != null && shortcut.equalsIgnoreCase(other.shortcut());
 	}
 
 	@Override
-	public int hashCode() {
-		return Objects.hash(shortcut, page);
+	public String toString() {
+		return "Bookmark{" +
+				"shortcut='" + shortcut + '\'' +
+				", page=" + page +
+				'}';
 	}
-
 }

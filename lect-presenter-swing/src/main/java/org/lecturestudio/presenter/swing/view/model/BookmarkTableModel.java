@@ -35,13 +35,13 @@ public class BookmarkTableModel extends TableModelBase<Bookmark> {
 
 		switch (columnIndex) {
 			case 0:
-				return bookmark.getPage().getDocument().getName();
+				return bookmark.page().getDocument().getName();
 
 			case 1:
-				return bookmark.getPage().getPageNumber() + 1;
+				return bookmark.page().getPageNumber() + 1;
 
 			case 2:
-				return bookmark.getShortcut();
+				return bookmark.shortcut();
 		}
 
 		return null;

@@ -75,7 +75,7 @@ public class GotoBookmarkPresenter extends Presenter<GotoBookmarkView> {
 
 	private void gotoBookmark(Bookmark bookmark) {
 		if (!bookmarkService.hasBookmark(bookmark)) {
-			context.showError("bookmark.goto.error", "bookmark.key.not.existing", bookmark.getShortcut());
+			context.showError("bookmark.goto.error", "bookmark.key.not.existing", bookmark.shortcut());
 			return;
 		}
 

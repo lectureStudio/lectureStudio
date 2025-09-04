@@ -92,10 +92,10 @@ public class BookmarkService {
 
 		if (nonNull(docBookmarks)) {
 			for (Bookmark bookmark : docBookmarks) {
-				if (bookmark.getShortcut().equalsIgnoreCase(keyStr)) {
+				if (bookmark.shortcut().equalsIgnoreCase(keyStr)) {
 					throw new BookmarkKeyException("Bookmark key is already assigned to another bookmark");
 				}
-				if (bookmark.getPage().equals(page)){
+				if (bookmark.page().equals(page)){
 					throw new BookmarkExistsException("Page is already bookmarked");
 				}
 			}
@@ -108,7 +108,7 @@ public class BookmarkService {
 	}
 
 	public void deleteBookmark(Bookmark bookmark) throws BookmarkException {
-		context.getEventBus().post(new BookmarkEvent(bookmark.getPage(), BookmarkEvent.Type.REMOVED));
+		context.getEventBus().post(new BookmarkEvent(bookmark.page(), BookmarkEvent.Type.REMOVED));
 		bookmarks.removeBookmark(bookmark);
 	}
 
@@ -123,7 +123,7 @@ public class BookmarkService {
 
 		if (nonNull(docBookmarks)) {
 			for (Bookmark bookmark : docBookmarks) {
-				if(bookmark.getPage().equals(page)){
+				if(bookmark.page().equals(page)){
 					return bookmark;
 				}
 			}
@@ -136,7 +136,7 @@ public class BookmarkService {
 			throw new NullPointerException("No bookmark provided");
 		}
 
-		Bookmark selectedBookmark = bookmarks.getBookmark(bookmark.getShortcut());
+		Bookmark selectedBookmark = bookmarks.getBookmark(bookmark.shortcut());
 
 		return nonNull(selectedBookmark);
 	}
@@ -146,26 +146,29 @@ public class BookmarkService {
 			throw new NullPointerException("No bookmark provided");
 		}
 
-		Bookmark selectedBookmark = bookmarks.getBookmark(bookmark.getShortcut());
+		Bookmark selectedBookmark = bookmarks.getBookmark(bookmark.shortcut());
 
 		if (isNull(selectedBookmark)) {
 			throw new BookmarkKeyException("No bookmark with given bookmark key was not assigned");
 		}
 
-		if (nonNull(bookmark.getPage())) {
-			selectBookmarkPage(bookmark.getPage());
+		if (nonNull(bookmark.page())) {
+			selectBookmarkPage(bookmark.page());
 		}
-		else if (nonNull(selectedBookmark.getPage())) {
-			selectBookmarkPage(selectedBookmark.getPage());
+		else if (nonNull(selectedBookmark.page())) {
+			selectBookmarkPage(selectedBookmark.page());
 		}
 		else {
 			throw new NullPointerException("Selecting bookmark without assigned bookmark page");
 		}
 	}
 
-	public void gotoPreviousBookmark() {
-		if (nonNull(prevBookmarkPage)) {
-			documentService.selectPage(prevBookmarkPage);
+	public void gotoLastBookmark() throws BookmarkException {
+		Document doc = documentService.getDocuments().getSelectedDocument();
+		Bookmark bookmark = getBookmarks().getLastBookmark(doc);
+
+		if (nonNull(bookmark)) {
+			gotoBookmark(bookmark);
 		}
 	}
 
@@ -216,7 +219,7 @@ public class BookmarkService {
 
 		int maxBookmarks = allDocBookmarks.size();
 
-		allDocBookmarks.sort(Comparator.comparingInt(a -> a.getPage().getPageNumber()));
+		allDocBookmarks.sort(Comparator.comparingInt(a -> a.page().getPageNumber()));
 		int bookmarkPos = allDocBookmarks.indexOf(currBookmark);
 
 		if(maxBookmarks == 0 || bookmarkPos == 0){
@@ -224,7 +227,7 @@ public class BookmarkService {
 		}
 		bookmarkPos--;
 		Bookmark bookmark = allDocBookmarks.get(bookmarkPos);
-		return bookmark.getPage();
+		return bookmark.page();
 	}
 
 	/**
@@ -247,20 +250,20 @@ public class BookmarkService {
 
 		int maxBookmarks = allDocBookmarks.size();
 
-		allDocBookmarks.sort(Comparator.comparingInt(a -> a.getPage().getPageNumber()));
+		allDocBookmarks.sort(Comparator.comparingInt(a -> a.page().getPageNumber()));
 		int bookmarkPos = allDocBookmarks.indexOf(currBookmark);
 		if(bookmarkPos + 1 == maxBookmarks){
 			return null;
 		}
 		bookmarkPos++;
 		Bookmark bookmark = allDocBookmarks.get(bookmarkPos);
-		return bookmark.getPage();
+		return bookmark.page();
 	}
 
 	private Bookmark getBookmarkCurrentPage(List<Bookmark> allDocBookmarks){
 		Page currPage = documentService.getDocuments().getSelectedDocument().getCurrentPage();
 		for(Bookmark bm : allDocBookmarks){
-			if(bm.getPage().equals(currPage)){
+			if(bm.page().equals(currPage)){
 				return bm;
 			}
 		}

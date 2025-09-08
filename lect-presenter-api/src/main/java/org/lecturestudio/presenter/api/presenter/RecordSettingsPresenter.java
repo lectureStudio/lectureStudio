@@ -21,6 +21,9 @@ package org.lecturestudio.presenter.api.presenter;
 import static java.util.Objects.nonNull;
 
 import java.io.File;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.concurrent.CompletableFuture;
 
 import javax.inject.Inject;
@@ -53,6 +56,11 @@ public class RecordSettingsPresenter extends Presenter<RecordSettingsView> {
 	@Override
 	public void initialize() {
 		PresenterConfiguration config = (PresenterConfiguration) context.getConfiguration();
+
+		Path recPath = Paths.get(audioConfig.getRecordingPath());
+		if (!Files.exists(recPath)) {
+			audioConfig.setRecordingPath(Paths.get(System.getProperty("user.home")).toAbsolutePath().toString());
+		}
 
 		view.setAutostartRecording(config.autostartRecordingProperty());
 		view.setNotifyToRecord(config.notifyToRecordProperty());

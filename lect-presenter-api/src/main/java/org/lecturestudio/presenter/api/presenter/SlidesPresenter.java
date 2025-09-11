@@ -1065,8 +1065,11 @@ public class SlidesPresenter extends Presenter<SlidesView> {
 
 			while (listIter.hasPrevious()) {
 				Page previous = listIter.previous();
-				if (!previous.isOverlay() && nonNull(lastOverlay)) {
-					documentService.selectPage(lastOverlay);
+
+				if (!previous.isOverlay() || page.getOverlayId() != previous.getOverlayId()) {
+					if (nonNull(lastOverlay)) {
+						documentService.selectPage(lastOverlay);
+					}
 					break;
 				}
 
@@ -1082,11 +1085,16 @@ public class SlidesPresenter extends Presenter<SlidesView> {
 		if (page.isOverlay()) {
 			Page lastOverlay = null;
 			var listIter = doc.getPages().listIterator(doc.getPageIndex(page));
+			// Skip the current page.
+			listIter.next();
 
 			while (listIter.hasNext()) {
 				Page next = listIter.next();
-				if (!next.isOverlay() && nonNull(lastOverlay)) {
-					documentService.selectPage(lastOverlay);
+
+				if (!next.isOverlay() || page.getOverlayId() != next.getOverlayId()) {
+					if (nonNull(lastOverlay)) {
+						documentService.selectPage(lastOverlay);
+					}
 					break;
 				}
 

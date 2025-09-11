@@ -816,11 +816,13 @@ public class Document {
 
 			// The pages have equal content, thus mark them as overlay pages.
 			if (differences.isEmpty()) {
-				page.setOverlay(true);
+				int hash = pageTextLines.hashCode();
+
+				page.setOverlay(true, hash);
 
 				if (number > 0) {
 					Page prevPage = pages.get(number - 1);
-					prevPage.setOverlay(true);
+					prevPage.setOverlay(true, hash);
 				}
 			}
 

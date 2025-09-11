@@ -18,6 +18,7 @@
 
 package org.lecturestudio.presenter.api.model;
 
+import static java.util.Objects.isNull;
 import static java.util.Objects.nonNull;
 
 import java.time.Duration;
@@ -230,14 +231,16 @@ public class Stopwatch extends ExecutableBase {
 		clearSuspensionMarker();
 
 		if (type == StopwatchType.STOPWATCH) {
-			// Autostart the counting.
-			startTime = LocalTime.now();
+			// Autostart the counting if necessary.
+			startTime = (started() || getState() == ExecutableState.Starting) ? LocalTime.now() : null;
 			presentationStarted = true;
 		}
 		else {
 			presentationStarted = false;
 			startTime = null;
 		}
+
+		setTime(createTime(0));
 	}
 
 	/**
@@ -297,9 +300,12 @@ public class Stopwatch extends ExecutableBase {
 			}
 			else {
 				// Resuming from suspension: shift startTime forward by paused duration.
-				if (presentationStarted && startTime != null && suspendedAt != null) {
+				if (presentationStarted && nonNull(startTime) && nonNull(suspendedAt)) {
 					long pausedMillis = Duration.between(suspendedAt, LocalDateTime.now()).toMillis();
 					startTime = startTime.plus(pausedMillis, ChronoUnit.MILLIS);
+				}
+				if (isNull(startTime)) {
+					startTime = LocalTime.now();
 				}
 			}
 
@@ -330,7 +336,7 @@ public class Stopwatch extends ExecutableBase {
 	}
 
 	private void runStopwatch() {
-		if (presentationStarted) {
+		if (presentationStarted && nonNull(startTime)) {
 			// Count presentation time down.
 			long timeDiffMs = startTime.until(LocalTime.now(), ChronoUnit.MILLIS);
 

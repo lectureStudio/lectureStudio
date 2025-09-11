@@ -130,6 +130,18 @@ public class Stopwatch extends ExecutableBase {
 	 */
 	public void setStartTime(LocalTime time) {
 		this.startTime = time;
+
+		setTime(createTime(startTime.until(LocalTime.now(), ChronoUnit.MILLIS) - 1000));
+
+		// Update state.
+		if (type == StopwatchType.STOPWATCH) {
+			runStopwatch();
+		}
+		else if (type == StopwatchType.TIMER) {
+			runTimer();
+		}
+
+		clearSuspensionMarker();
 	}
 
 	/**

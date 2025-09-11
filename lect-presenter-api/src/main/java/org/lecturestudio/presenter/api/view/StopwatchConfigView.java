@@ -32,14 +32,46 @@ import org.lecturestudio.presenter.api.model.Stopwatch;
  */
 public interface StopwatchConfigView extends View {
 
+    /**
+     * Sets the action to be executed when the stopwatch type is selected or changed.
+     *
+     * @param action The consumer action that accepts a StopwatchType parameter.
+     */
     void setOnStopwatchType(ConsumerAction<Stopwatch.StopwatchType> action);
 
+    /**
+     * Sets the type of the stopwatch.
+     *
+     * @param type The stopwatch type to set.
+     */
+    void setStopwatchType(Stopwatch.StopwatchType type);
+
+    /**
+     * Sets the time value to be displayed or used by the stopwatch.
+     *
+     * @param path The string property containing the stopwatch time value.
+     */
     void setStopwatchTime(StringProperty path);
 
+    /**
+     * Sets the error message to be displayed in the view.
+     *
+     * @param error The string property containing the error message.
+     */
     void setError(StringProperty error);
 
+    /**
+     * Sets the action to be executed when the stopwatch configuration view is closed.
+     *
+     * @param action The action to execute on close.
+     */
     void setOnClose(Action action);
 
+    /**
+     * Sets the action to be executed when the stopwatch is started.
+     *
+     * @param action The action to execute on start.
+     */
     void setOnStart(Action action);
 
 }

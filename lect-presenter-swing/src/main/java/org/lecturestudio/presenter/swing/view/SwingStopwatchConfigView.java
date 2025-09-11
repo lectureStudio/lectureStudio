@@ -99,6 +99,14 @@ public class SwingStopwatchConfigView extends JPanel implements StopwatchConfigV
 		stopwatchTypeAction = action;
 	}
 
+	@Override
+	public void setStopwatchType(Stopwatch.StopwatchType type) {
+		switch (type) {
+			case STOPWATCH -> stopwatchRadioButton.setSelected(true);
+			case TIMER -> timerRadioButton.setSelected(true);
+		}
+	}
+
 	@ViewPostConstruct
 	private void initialize() {
 		addAncestorListener(new AncestorListener() {

@@ -106,7 +106,11 @@ public class Page {
 	/** The unique ID of this document. */
 	private UUID uid;
 
+	/** Flag indicating whether this page is an overlay displayed on top of another page. */
 	private boolean overlay = false;
+
+	/** The identifier associated with this page when used as an overlay. */
+	private int overlayId;
 
 
 	/**
@@ -705,12 +709,23 @@ public class Page {
 	}
 
 	/**
+	 * Returns the identifier associated with this page when used as an overlay.
+	 *
+	 * @return the overlay identifier.
+	 */
+	public int getOverlayId() {
+		return overlayId;
+	}
+
+	/**
 	 * Sets the overlay status of this page.
 	 * When a page is marked as an overlay, it is displayed on top of another page.
 	 *
 	 * @param overlay {@code true} to set this page as an overlay, {@code false} otherwise.
+	 * @param id      The ID this overlay is associated with.
 	 */
-	public void setOverlay(boolean overlay) {
+	public void setOverlay(boolean overlay, int id) {
 		this.overlay = overlay;
+		this.overlayId = id;
 	}
 }

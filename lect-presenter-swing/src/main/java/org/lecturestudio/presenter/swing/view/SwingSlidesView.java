@@ -1491,6 +1491,8 @@ public class SwingSlidesView extends JPanel implements SlidesView {
 
 	@Override
 	public void setNoteSlidePosition(NoteSlidePosition position) {
+		noteSlidePosition = position;
+
 		if (externalSlideNotesFrame.isVisible()) {
 			externalSlideNotesFrame.hideBody();
 			externalSlideNotesFrame.setVisible(false);
@@ -1500,8 +1502,6 @@ public class SwingSlidesView extends JPanel implements SlidesView {
 			case BELOW_SLIDE_PREVIEW -> showNoteSlide(previewPosition);
 			case NONE -> hideNoteSlide();
 		}
-
-		noteSlidePosition = position;
 	}
 
 	private void updateNoteSlideView(Document doc) {
@@ -1514,6 +1514,10 @@ public class SwingSlidesView extends JPanel implements SlidesView {
 	}
 
 	private void showNoteSlide(SlidePreviewPosition position) {
+		if (noteSlidePosition == NoteSlidePosition.NONE) {
+			return;
+		}
+
 		if (externalSlidePreviewFrame.isVisible()) {
 			externalNoteSlideViewContainer.add(slideNotesView);
 

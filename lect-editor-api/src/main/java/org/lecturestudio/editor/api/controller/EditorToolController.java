@@ -66,7 +66,7 @@ public class EditorToolController extends ToolController {
 	/** Recorder for lecture annotations that handles the capture and persistence of annotation actions during editing. */
 	private final AnnotationLectureRecorder annotationLectureRecorder;
 
-	/** Controls whether tool actions should be recorded. Default value is true, except for certain tools like SELECT. */
+	/** Controls whether tool actions should be recorded. The default value is true, except for certain tools like SELECT. */
 	private final BooleanProperty isToolRecordingEnabled = new BooleanProperty(true);
 
 	/** Indicates whether editing mode is currently enabled. Affects recording behavior and tool operations. */

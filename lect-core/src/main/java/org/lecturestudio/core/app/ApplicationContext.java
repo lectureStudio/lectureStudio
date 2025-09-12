@@ -205,19 +205,44 @@ public abstract class ApplicationContext {
 		return fullscreen;
 	}
 
+	/**
+	 * Shows an error notification with the specified title and message.
+	 * If the title or message are dictionary keys, they will be translated.
+	 *
+	 * @param title   The title or title key of the error notification.
+	 * @param message The message or message key of the error notification.
+	 *
+	 * @throws NullPointerException if the title is null.
+	 */
 	public final void showError(String title, String message) {
 		requireNonNull(title);
 
 		showNotification(NotificationType.ERROR, title, message);
 	}
 
+	/**
+	 * Shows an error notification with the specified title and formatted message.
+	 * If the message is a dictionary key, it will be translated before formatting.
+	 *
+	 * @param title         The title or title key of the error notification.
+	 * @param message       The message or message key of the error notification.
+	 * @param messageParams Parameters to be formatted into the message using {@link MessageFormat}.
+	 */
 	public final void showError(String title, String message,
 			Object... messageParams) {
 		showNotification(NotificationType.ERROR, title, message, messageParams);
 	}
 
+	/**
+	 * Shows a notification with the specified type, title, and message.
+	 * If the title or message are dictionary keys, they will be translated.
+	 *
+	 * @param type    The notification type (ERROR, WARNING, INFO, etc.).
+	 * @param title   The title or title key of the notification.
+	 * @param message The message or message key of the notification.
+	 */
 	public final void showNotification(NotificationType type, String title,
-			String message) {
+									   String message) {
 		if (getDictionary().contains(title)) {
 			title = getDictionary().get(title);
 		}
@@ -228,6 +253,15 @@ public abstract class ApplicationContext {
 		getEventBus().post(new NotificationCommand(type, title, message));
 	}
 
+	/**
+	 * Shows a notification with the specified type, title, and formatted message.
+	 * If the message is a dictionary key, it will be translated before formatting.
+	 *
+	 * @param type          The notification type (ERROR, WARNING, INFO, etc.).
+	 * @param title         The title or title key of the notification.
+	 * @param message       The message or message key of the notification.
+	 * @param messageParams Parameters to be formatted into the message using {@link MessageFormat}.
+	 */
 	public final void showNotification(NotificationType type, String title,
 			String message, Object... messageParams) {
 		if (getDictionary().contains(message)) {
@@ -239,10 +273,24 @@ public abstract class ApplicationContext {
 		showNotification(type, title, message);
 	}
 
+	/**
+	 * Shows a notification popup with the specified title and no message.
+	 * If the title is a dictionary key, it will be translated.
+	 *
+	 * @param title The title or title key of the notification popup
+	 */
 	public final void showNotificationPopup(String title) {
 		showNotificationPopup(title, null);
 	}
 
+	/**
+	 * Shows a notification popup with the specified title and message.
+	 * If the title or message are dictionary keys, they will be translated.
+	 * The popup will be displayed at the top-right position.
+	 *
+	 * @param title   The title or title key of the notification popup
+	 * @param message The message or message key of the notification popup
+	 */
 	public final void showNotificationPopup(String title, String message) {
 		if (getDictionary().contains(title)) {
 			title = getDictionary().get(title);
@@ -258,11 +306,11 @@ public abstract class ApplicationContext {
 	/**
 	 * Opens a notification pop with an accept and decline option.
 	 *
-	 * @param type          The Notification Type
-	 * @param title         The title of the notification
-	 * @param message       The message of the notification
-	 * @param confirmAction The action when the user clicks the confirm button
-	 * @param discardAction The action when the user clicks the close button
+	 * @param type          The Notification Type.
+	 * @param title         The title of the notification.
+	 * @param message       The message of the notification.
+	 * @param confirmAction The action when the user clicks the confirm button.
+	 * @param discardAction The action when the user clicks the close button.
 	 */
 	public final void showConfirmationNotification(NotificationType type,
 			String title, String message, Action confirmAction,
@@ -274,11 +322,11 @@ public abstract class ApplicationContext {
 	/**
 	 * Opens a notification pop with an accept and decline option.
 	 *
-	 * @param type          The Notification Type
-	 * @param title         The title of the notification
-	 * @param message       The message of the notification
-	 * @param confirmAction The action when the user clicks the confirm button
-	 * @param discardAction The action when the user clicks the close button
+	 * @param type          The Notification Type.
+	 * @param title         The title of the notification.
+	 * @param message       The message of the notification.
+	 * @param confirmAction The action when the user clicks the confirm button.
+	 * @param discardAction The action when the user clicks the close button.
 	 */
 	public final void showConfirmationNotification(NotificationType type,
 			String title, String message, Action confirmAction,

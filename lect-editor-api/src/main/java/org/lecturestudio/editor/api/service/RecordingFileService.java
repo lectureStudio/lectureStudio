@@ -47,11 +47,7 @@ import org.lecturestudio.core.geometry.PenPoint2D;
 import org.lecturestudio.core.io.RandomAccessAudioStream;
 import org.lecturestudio.core.model.Document;
 import org.lecturestudio.core.model.Interval;
-import org.lecturestudio.core.recording.RecordedAudio;
-import org.lecturestudio.core.recording.Recording;
-import org.lecturestudio.core.recording.RecordingChangeEvent;
-import org.lecturestudio.core.recording.RecordingChangeListener;
-import org.lecturestudio.core.recording.RecordingEditException;
+import org.lecturestudio.core.recording.*;
 import org.lecturestudio.core.recording.action.PlaybackAction;
 import org.lecturestudio.core.recording.edit.EditAction;
 import org.lecturestudio.core.recording.file.RecordingFileReader;
@@ -423,6 +419,11 @@ public class RecordingFileService {
 			try {
 				suspendPlayback();
 
+				if (RecordingUtils.containsScreenSection(start, end, recording)) {
+					context.showError("cut.recording.error", "cut.recording.screen.error");
+					return;
+				}
+
 				double durationOld = recording.getRecordingHeader().getDuration();
 
 				addEditAction(recording, new CutAction(recording, start, end));
@@ -430,7 +431,7 @@ public class RecordingFileService {
 				double durationNew = recording.getRecordingHeader().getDuration();
 				double scale = durationOld / durationNew;
 
-				// Set time marker to the cut position.
+				// Set the time marker to the cut position.
 				context.setPrimarySelection(start * scale);
 			}
 			catch (Exception e) {

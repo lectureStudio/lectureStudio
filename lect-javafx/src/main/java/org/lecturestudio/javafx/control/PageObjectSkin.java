@@ -130,7 +130,7 @@ public abstract class PageObjectSkin<T extends PageObject<?>> extends SkinBase<T
 	}
 
 	void resize() {
-		PageObject pageObject = getSkinnable();
+		PageObject<?> pageObject = getSkinnable();
 		pageObject.resize(pageObject.prefWidth(-1), pageObject.prefHeight(-1));
 	}
 
@@ -221,7 +221,7 @@ public abstract class PageObjectSkin<T extends PageObject<?>> extends SkinBase<T
 	}
 
 	private void onClose() {
-		PageObject pageObject = getSkinnable();
+		PageObject<?> pageObject = getSkinnable();
 		pageObject.getPageTransform().removeEventHandler(TransformChangedEvent.TRANSFORM_CHANGED, transformHandler);
 
 		Action onCloseAction = pageObject.getOnClose();
@@ -232,7 +232,7 @@ public abstract class PageObjectSkin<T extends PageObject<?>> extends SkinBase<T
 	}
 
 	private void relocatePageObject(double dx, double dy) {
-		PageObject pageObject = getSkinnable();
+		PageObject<?> pageObject = getSkinnable();
 		pageObject.relocate(pageObject.getLayoutX() + dx, pageObject.getLayoutY() + dy);
 
 		relocateShape(dx, dy);

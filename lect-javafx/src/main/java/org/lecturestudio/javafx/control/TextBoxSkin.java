@@ -135,11 +135,11 @@ public class TextBoxSkin extends PageObjectSkin<TextBox> {
 		double s = transform.getMxx();
 		double tx = transform.getTx();
 		double ty = transform.getTy();
-		double x = Math.ceil((shapeRect.getX() + tx) * s) - xOffset;
-		double y = Math.ceil((shapeRect.getY() + ty) * s) - yOffset;
+		double x = Math.ceil((shapeRect.getX() - tx) * s) - xOffset;
+		double y = Math.ceil((shapeRect.getY() - ty) * s) - yOffset;
 
 		Font font = textBox.getPageShape().getFont().clone();
-		font.setSize(font.getSize() * transform.getMxx());
+		font.setSize(font.getSize() * s);
 
 		textBox.fontProperty().set(FontConverter.INSTANCE.to(font));
 		textBox.relocate(x, y);

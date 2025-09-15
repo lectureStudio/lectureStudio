@@ -137,7 +137,7 @@ public class MenuPresenter extends Presenter<MenuView> {
 	public void openRecording(File file) {
 		recordingService.openRecordingAndAddToRecent(file, recentDocumentService)
 			.exceptionally(throwable -> {
-				handleOpenRecordingException(throwable, file);
+				recordingService.handleOpenRecordingException(throwable, file);
 				return null;
 			});
 	}

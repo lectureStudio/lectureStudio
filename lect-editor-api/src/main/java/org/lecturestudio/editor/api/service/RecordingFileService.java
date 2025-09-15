@@ -49,6 +49,7 @@ import org.lecturestudio.core.geometry.PenPoint2D;
 import org.lecturestudio.core.io.RandomAccessAudioStream;
 import org.lecturestudio.core.model.Document;
 import org.lecturestudio.core.model.Interval;
+import org.lecturestudio.core.model.RecentDocument;
 import org.lecturestudio.core.recording.*;
 import org.lecturestudio.core.recording.action.PlaybackAction;
 import org.lecturestudio.core.recording.edit.EditAction;
@@ -56,6 +57,7 @@ import org.lecturestudio.core.recording.file.RecordingFileReader;
 import org.lecturestudio.core.recording.file.RecordingFileWriter;
 import org.lecturestudio.core.recording.file.RecordingUtils;
 import org.lecturestudio.core.service.DocumentService;
+import org.lecturestudio.core.service.RecentDocumentService;
 import org.lecturestudio.core.util.ProgressCallback;
 import org.lecturestudio.editor.api.context.EditorContext;
 import org.lecturestudio.editor.api.edit.*;
@@ -190,16 +192,18 @@ public class RecordingFileService {
 	 * Convenience helper to open a recording and add it to the recent documents list.
 	 * This eliminates duplicated code in presenters when opening a recording.
 	 *
-	 * @param file the recording file to open
-	 * @param recentDocumentService the service to update with the opened file
-	 * @return a CompletableFuture that completes when the recording is opened and the recent list is updated
+	 * @param file                  the recording file to open.
+	 * @param recentDocumentService the service to update with the opened file.
+	 *
+	 * @return a CompletableFuture that completes when the recording is opened and the recent list is updated.
 	 */
-	public CompletableFuture<Void> openRecordingAndAddToRecent(File file, org.lecturestudio.core.service.RecentDocumentService recentDocumentService) {
+	public CompletableFuture<Void> openRecordingAndAddToRecent(File file, RecentDocumentService recentDocumentService) {
 		return openRecording(file).thenAccept(recording -> {
-			org.lecturestudio.core.model.RecentDocument recentDoc = new org.lecturestudio.core.model.RecentDocument();
+			RecentDocument recentDoc = new RecentDocument();
 			recentDoc.setDocumentName(org.lecturestudio.core.util.FileUtils.stripExtension(file.getName()));
 			recentDoc.setDocumentPath(file.getAbsolutePath());
 			recentDoc.setLastModified(new java.util.Date());
+
 			recentDocumentService.add(recentDoc);
 		});
 	}
@@ -214,13 +218,17 @@ public class RecordingFileService {
 	public void handleOpenRecordingException(Throwable throwable, File file) {
 		Throwable cause = throwable != null ? throwable.getCause() : null;
 		if (cause instanceof FileNotFoundException) {
+			LOG.error("Recorded screen file not found", throwable);
+
 			String message = MessageFormat.format(context.getDictionary()
 					.get("open.recording.screen.file.error"), cause.getMessage());
-			handleException(throwable, "Recorded screen file not found", "open.recording.error", message);
+			context.showError("open.recording.error", message);
 		}
 		else {
+			LOG.error("Open recording failed", throwable);
+
 			String message = file != null ? file.getPath() : null;
-			handleException(throwable, "Open recording failed", "open.recording.error", message);
+			context.showError("open.recording.error", message);
 		}
 	}
 

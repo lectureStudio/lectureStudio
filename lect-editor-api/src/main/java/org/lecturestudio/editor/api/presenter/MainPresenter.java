@@ -119,11 +119,11 @@ public class MainPresenter extends org.lecturestudio.core.presenter.MainPresente
 		CompletableFuture.runAsync(() -> {
 			showWaitingNotification("open.recording", null);
 
-				recordingService.openRecordingAndAddToRecent(file, recentDocumentService)
+			recordingService.openRecordingAndAddToRecent(file, recentDocumentService)
 					.thenRun(this::hideWaitingNotification)
 					.exceptionally(throwable -> {
 						hideWaitingNotification();
-						handleOpenRecordingException(throwable, file);
+						recordingService.handleOpenRecordingException(throwable, file);
 						return null;
 					});
 		});

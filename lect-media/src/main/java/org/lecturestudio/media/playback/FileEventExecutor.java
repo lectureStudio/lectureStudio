@@ -35,6 +35,7 @@ import org.apache.logging.log4j.Logger;
 
 import org.lecturestudio.core.ExecutableException;
 import org.lecturestudio.core.ExecutableState;
+import org.lecturestudio.core.app.ApplicationContext;
 import org.lecturestudio.core.audio.SyncState;
 import org.lecturestudio.core.controller.ToolController;
 import org.lecturestudio.core.recording.EventExecutor;
@@ -428,6 +429,7 @@ public class FileEventExecutor extends EventExecutor {
 	private void initVideoPlayer(ScreenAction action) throws ExecutableException {
 		activeScreenAction = action;
 
+		ApplicationContext context = toolController.getApplicationContext();
 		File videoFile = videoPlayer.getVideoFile();
 
 		if (nonNull(videoFile)
@@ -444,7 +446,22 @@ public class FileEventExecutor extends EventExecutor {
 		videoPlayer.setVideoLength(action.getVideoLength());
 		videoPlayer.setReferenceTimestamp(action.getTimestamp());
 		videoPlayer.setSyncState(syncState);
-		videoPlayer.init();
+
+		if (!videoPlayer.getVideoFile().exists()) {
+			context.showError("executor.video.error", "executor.video.error.not.found",
+					videoPlayer.getVideoFile());
+			// Do not initialize the video player.
+			return;
+		}
+
+		try {
+			videoPlayer.init();
+		}
+		catch (ExecutableException e) {
+			LOG.error("Failed to initialize video playback", e);
+
+			context.showError("executor.video.error", "executor.video.error.init");
+		}
 	}
 
 

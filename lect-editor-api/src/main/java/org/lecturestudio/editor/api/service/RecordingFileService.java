@@ -25,6 +25,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -47,6 +48,7 @@ import org.lecturestudio.core.geometry.PenPoint2D;
 import org.lecturestudio.core.io.RandomAccessAudioStream;
 import org.lecturestudio.core.model.Document;
 import org.lecturestudio.core.model.Interval;
+import org.lecturestudio.core.model.RecentDocument;
 import org.lecturestudio.core.recording.*;
 import org.lecturestudio.core.recording.action.PlaybackAction;
 import org.lecturestudio.core.recording.edit.EditAction;
@@ -54,6 +56,7 @@ import org.lecturestudio.core.recording.file.RecordingFileReader;
 import org.lecturestudio.core.recording.file.RecordingFileWriter;
 import org.lecturestudio.core.recording.file.RecordingUtils;
 import org.lecturestudio.core.service.DocumentService;
+import org.lecturestudio.core.service.RecentDocumentService;
 import org.lecturestudio.core.util.ProgressCallback;
 import org.lecturestudio.editor.api.context.EditorContext;
 import org.lecturestudio.editor.api.edit.*;
@@ -162,6 +165,16 @@ public class RecordingFileService {
 				throw new CompletionException(e);
 			}
 
+			try {
+				RecordingUtils.validateScreenActions(recording);
+			}
+			catch (FileNotFoundException e) {
+				LOG.error("Recorded screen file not found", e);
+
+				context.showError("open.recording.video.error", "open.recording.video.file.error",
+						e.getMessage());
+			}
+
 			// Add the successfully read recording to the list of active recordings.
 			recordings.add(recording);
 
@@ -180,6 +193,40 @@ public class RecordingFileService {
 
 			return recording;
 		});
+	}
+
+	/**
+	 * Convenience helper to open a recording and add it to the recent documents list.
+	 * This eliminates duplicated code in presenters when opening a recording.
+	 *
+	 * @param file                  the recording file to open.
+	 * @param recentDocumentService the service to update with the opened file.
+	 *
+	 * @return a CompletableFuture that completes when the recording is opened and the recent list is updated.
+	 */
+	public CompletableFuture<Void> openRecordingAndAddToRecent(File file, RecentDocumentService recentDocumentService) {
+		return openRecording(file).thenAccept(recording -> {
+			RecentDocument recentDoc = new RecentDocument();
+			recentDoc.setDocumentName(org.lecturestudio.core.util.FileUtils.stripExtension(file.getName()));
+			recentDoc.setDocumentPath(file.getAbsolutePath());
+			recentDoc.setLastModified(new java.util.Date());
+
+			recentDocumentService.add(recentDoc);
+		});
+	}
+
+	/**
+	 * Unified handler for exceptions occurring while opening a recording file.
+	 * This consolidates duplicated exceptionally-block logic across presenters.
+	 *
+	 * @param throwable The throwable from the async operation.
+	 * @param file      The file being opened (used for error context).
+	 */
+	public void handleOpenRecordingException(Throwable throwable, File file) {
+		LOG.error("Open recording failed", throwable);
+
+		String message = file != null ? file.getPath() : null;
+		context.showError("open.recording.error", message);
 	}
 
 	/**

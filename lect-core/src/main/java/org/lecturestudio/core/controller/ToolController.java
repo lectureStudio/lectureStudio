@@ -290,6 +290,17 @@ public class ToolController extends Controller implements ToolContext {
 	}
 
 	/**
+	 * Returns the application context associated with this controller.
+	 * The application context provides access to application-wide services,
+	 * configurations, and event bus.
+	 *
+	 * @return The application context instance for this controller.
+	 */
+	public ApplicationContext getApplicationContext() {
+		return getContext();
+	}
+
+	/**
 	 * Set the occurred key event that the user may have caused.
 	 *
 	 * @param event The key event to set.

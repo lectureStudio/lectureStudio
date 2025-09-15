@@ -128,6 +128,21 @@ public final class RecordingUtils {
 	}
 
 	/**
+	 * Retrieves all screen-related actions from the provided recording.
+
+	 * @param recording The recording to extract screen actions from.
+	 *
+	 * @return A list containing all screen actions in the recording.
+	 */
+	public static List<ScreenAction> getScreenActions(Recording recording) {
+		return recording.getRecordedEvents().getRecordedPages().stream()
+				.flatMap(page -> page.getPlaybackActions().stream())
+				.filter(action -> action.getType() == ActionType.SCREEN)
+				.map(action -> (ScreenAction) action)
+				.toList();
+	}
+
+	/**
 	 * Exports the audio from a recording to a separate audio file.
 	 * <p>
 	 * This method extracts the audio stream from the provided recording and

@@ -18,6 +18,9 @@
 
 package org.lecturestudio.editor.api.edit;
 
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.ArrayList;
 import java.util.List;
 
 import org.lecturestudio.core.recording.RecordedAudio;
@@ -26,7 +29,9 @@ import org.lecturestudio.core.recording.RecordedEvents;
 import org.lecturestudio.core.recording.RecordedPage;
 import org.lecturestudio.core.recording.Recording;
 import org.lecturestudio.core.recording.RecordingHeader;
+import org.lecturestudio.core.recording.action.ScreenAction;
 import org.lecturestudio.core.recording.edit.EditAction;
+import org.lecturestudio.core.recording.file.RecordingUtils;
 import org.lecturestudio.core.util.ProgressCallback;
 import org.lecturestudio.media.audio.LoudnessConfiguration;
 
@@ -82,7 +87,16 @@ public class InsertRecordingAction extends RecordingAction {
 		InsertDocumentAction documentAction = new InsertDocumentAction(doc, insDoc, split, time, startIndex);
 		InsertAudioAction audioAction = new InsertAudioAction(audio, insAudio, time, normalizeNewAudio, configuration, callback);
 
-		return List.of(headerAction, documentAction, eventsAction, audioAction);
+		List<EditAction> actions = new ArrayList<>(List.of(headerAction, documentAction, eventsAction, audioAction));
+		List<ScreenAction> screenActions = RecordingUtils.getScreenActions(target);
+
+		if (!screenActions.isEmpty()) {
+			Path sourcePath = Paths.get(target.getSourceFile().getParent());
+			Path targetPath = Paths.get(recording.getSourceFile().getParent());
+			actions.add(new CopyScreenRecordingsAction(sourcePath, targetPath, screenActions));
+		}
+
+		return actions;
 	}
 
 	/**

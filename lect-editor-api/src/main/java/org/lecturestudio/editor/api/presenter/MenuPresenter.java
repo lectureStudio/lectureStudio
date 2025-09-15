@@ -29,7 +29,6 @@ import java.net.URI;
 import java.nio.file.Path;
 import java.text.MessageFormat;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
@@ -44,7 +43,6 @@ import org.lecturestudio.core.app.dictionary.Dictionary;
 import org.lecturestudio.core.bus.EventBus;
 import org.lecturestudio.core.bus.event.DocumentEvent;
 import org.lecturestudio.core.model.Document;
-import org.lecturestudio.core.model.RecentDocument;
 import org.lecturestudio.core.presenter.AboutPresenter;
 import org.lecturestudio.core.presenter.Presenter;
 import org.lecturestudio.core.presenter.ProgressPresenter;
@@ -137,17 +135,9 @@ public class MenuPresenter extends Presenter<MenuView> {
 	}
 
 	public void openRecording(File file) {
-		recordingService.openRecording(file)
-			.thenRun(() -> {
-				RecentDocument recentDoc = new RecentDocument();
-				recentDoc.setDocumentName(FileUtils.stripExtension(file.getName()));
-				recentDoc.setDocumentPath(file.getAbsolutePath());
-				recentDoc.setLastModified(new Date());
-
-				recentDocumentService.add(recentDoc);
-			})
+		recordingService.openRecordingAndAddToRecent(file, recentDocumentService)
 			.exceptionally(throwable -> {
-				handleException(throwable, "Open recording failed", "open.recording.error", file.getPath());
+				handleOpenRecordingException(throwable, file);
 				return null;
 			});
 	}

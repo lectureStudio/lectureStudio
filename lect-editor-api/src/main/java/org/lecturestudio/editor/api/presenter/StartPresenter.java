@@ -23,7 +23,6 @@ import static java.util.Objects.nonNull;
 
 import java.io.File;
 import java.nio.file.Path;
-import java.util.Date;
 import java.util.Map;
 
 import javax.inject.Inject;
@@ -76,17 +75,9 @@ public class StartPresenter extends Presenter<StartView> {
 	}
 
 	public void openRecording(File file) {
-		recordingService.openRecording(file)
-			.thenRun(() -> {
-				RecentDocument recentDoc = new RecentDocument();
-				recentDoc.setDocumentName(FileUtils.stripExtension(file.getName()));
-				recentDoc.setDocumentPath(file.getAbsolutePath());
-				recentDoc.setLastModified(new Date());
-
-				recentDocumentService.add(recentDoc);
-			})
+		recordingService.openRecordingAndAddToRecent(file, recentDocumentService)
 			.exceptionally(throwable -> {
-				handleException(throwable, "Open recording failed", "open.recording.error", file.getPath());
+				handleOpenRecordingException(throwable, file);
 				return null;
 			});
 	}

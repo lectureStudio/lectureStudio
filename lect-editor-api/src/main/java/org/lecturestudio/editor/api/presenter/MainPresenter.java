@@ -26,7 +26,6 @@ import com.google.common.eventbus.Subscribe;
 
 import java.io.File;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -42,7 +41,6 @@ import org.lecturestudio.core.app.util.SaveConfigurationHandler;
 import org.lecturestudio.core.beans.BooleanProperty;
 import org.lecturestudio.core.bus.event.ViewVisibleEvent;
 import org.lecturestudio.core.input.KeyEvent;
-import org.lecturestudio.core.model.RecentDocument;
 import org.lecturestudio.core.model.VersionInfo;
 import org.lecturestudio.core.presenter.NewVersionPresenter;
 import org.lecturestudio.core.presenter.NotificationPresenter;
@@ -52,7 +50,6 @@ import org.lecturestudio.core.presenter.command.ClosePresenterCommand;
 import org.lecturestudio.core.presenter.command.NewVersionCommand;
 import org.lecturestudio.core.presenter.command.ShowPresenterCommand;
 import org.lecturestudio.core.service.RecentDocumentService;
-import org.lecturestudio.core.util.FileUtils;
 import org.lecturestudio.core.util.ObservableHashMap;
 import org.lecturestudio.core.util.ObservableMap;
 import org.lecturestudio.core.util.ShutdownHandler;
@@ -122,21 +119,11 @@ public class MainPresenter extends org.lecturestudio.core.presenter.MainPresente
 		CompletableFuture.runAsync(() -> {
 			showWaitingNotification("open.recording", null);
 
-			recordingService.openRecording(file)
-					.thenRun(() -> {
-						hideWaitingNotification();
-
-						RecentDocument recentDoc = new RecentDocument();
-						recentDoc.setDocumentName(FileUtils.stripExtension(file.getName()));
-						recentDoc.setDocumentPath(file.getAbsolutePath());
-						recentDoc.setLastModified(new Date());
-
-						recentDocumentService.add(recentDoc);
-					})
+				recordingService.openRecordingAndAddToRecent(file, recentDocumentService)
+					.thenRun(this::hideWaitingNotification)
 					.exceptionally(throwable -> {
 						hideWaitingNotification();
-						handleException(throwable, "Open recording failed",
-								"open.recording.error", file.getPath());
+						handleOpenRecordingException(throwable, file);
 						return null;
 					});
 		});

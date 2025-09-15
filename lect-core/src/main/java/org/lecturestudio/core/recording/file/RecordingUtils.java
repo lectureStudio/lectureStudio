@@ -22,8 +22,12 @@ import static java.util.Objects.isNull;
 import static java.util.Objects.nonNull;
 
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.List;
 
 import org.lecturestudio.core.audio.AudioUtils;
@@ -140,6 +144,29 @@ public final class RecordingUtils {
 				.filter(action -> action.getType() == ActionType.SCREEN)
 				.map(action -> (ScreenAction) action)
 				.toList();
+	}
+
+	/**
+	 * Validates that all screen actions in the recording have corresponding video files.
+	 * <p>
+	 * This method checks if the video files referenced by screen actions in the recording
+	 * actually exist in the filesystem. If any referenced video file is missing,
+	 * a FileNotFoundException is thrown.
+	 *
+	 * @param recording The recording whose screen actions need to be validated.
+	 *
+	 * @throws FileNotFoundException If any referenced video file is not found.
+	 */
+	public static void validateScreenActions(Recording recording) throws FileNotFoundException {
+		Path sourcePath = Paths.get(recording.getSourceFile().getParent());
+		List<ScreenAction> actions = getScreenActions(recording);
+
+		for (ScreenAction action : actions) {
+			Path videoFile = sourcePath.resolve(action.getFileName());
+			if (Files.notExists(videoFile)) {
+				throw new FileNotFoundException(videoFile.toString());
+			}
+		}
 	}
 
 	/**

@@ -25,10 +25,12 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -157,6 +159,8 @@ public class RecordingFileService {
 
 			try {
 				recording = RecordingFileReader.read(file);
+
+				RecordingUtils.validateScreenActions(recording);
 			}
 			catch (Exception e) {
 				throw new CompletionException(e);
@@ -180,6 +184,44 @@ public class RecordingFileService {
 
 			return recording;
 		});
+	}
+
+	/**
+	 * Convenience helper to open a recording and add it to the recent documents list.
+	 * This eliminates duplicated code in presenters when opening a recording.
+	 *
+	 * @param file the recording file to open
+	 * @param recentDocumentService the service to update with the opened file
+	 * @return a CompletableFuture that completes when the recording is opened and the recent list is updated
+	 */
+	public CompletableFuture<Void> openRecordingAndAddToRecent(File file, org.lecturestudio.core.service.RecentDocumentService recentDocumentService) {
+		return openRecording(file).thenAccept(recording -> {
+			org.lecturestudio.core.model.RecentDocument recentDoc = new org.lecturestudio.core.model.RecentDocument();
+			recentDoc.setDocumentName(org.lecturestudio.core.util.FileUtils.stripExtension(file.getName()));
+			recentDoc.setDocumentPath(file.getAbsolutePath());
+			recentDoc.setLastModified(new java.util.Date());
+			recentDocumentService.add(recentDoc);
+		});
+	}
+
+	/**
+	 * Unified handler for exceptions occurring while opening a recording file.
+	 * This consolidates duplicated exceptionally-block logic across presenters.
+	 *
+	 * @param throwable The throwable from the async operation.
+	 * @param file      The file being opened (used for error context).
+	 */
+	public void handleOpenRecordingException(Throwable throwable, File file) {
+		Throwable cause = throwable != null ? throwable.getCause() : null;
+		if (cause instanceof FileNotFoundException) {
+			String message = MessageFormat.format(context.getDictionary()
+					.get("open.recording.screen.file.error"), cause.getMessage());
+			handleException(throwable, "Recorded screen file not found", "open.recording.error", message);
+		}
+		else {
+			String message = file != null ? file.getPath() : null;
+			handleException(throwable, "Open recording failed", "open.recording.error", message);
+		}
 	}
 
 	/**

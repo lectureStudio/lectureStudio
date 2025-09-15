@@ -30,7 +30,6 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -161,11 +160,19 @@ public class RecordingFileService {
 
 			try {
 				recording = RecordingFileReader.read(file);
-
-				RecordingUtils.validateScreenActions(recording);
 			}
 			catch (Exception e) {
 				throw new CompletionException(e);
+			}
+
+			try {
+				RecordingUtils.validateScreenActions(recording);
+			}
+			catch (FileNotFoundException e) {
+				LOG.error("Recorded screen file not found", e);
+
+				context.showError("open.recording.video.error", "open.recording.video.file.error",
+						e.getMessage());
 			}
 
 			// Add the successfully read recording to the list of active recordings.
@@ -216,20 +223,10 @@ public class RecordingFileService {
 	 * @param file      The file being opened (used for error context).
 	 */
 	public void handleOpenRecordingException(Throwable throwable, File file) {
-		Throwable cause = throwable != null ? throwable.getCause() : null;
-		if (cause instanceof FileNotFoundException) {
-			LOG.error("Recorded screen file not found", throwable);
+		LOG.error("Open recording failed", throwable);
 
-			String message = MessageFormat.format(context.getDictionary()
-					.get("open.recording.screen.file.error"), cause.getMessage());
-			context.showError("open.recording.error", message);
-		}
-		else {
-			LOG.error("Open recording failed", throwable);
-
-			String message = file != null ? file.getPath() : null;
-			context.showError("open.recording.error", message);
-		}
+		String message = file != null ? file.getPath() : null;
+		context.showError("open.recording.error", message);
 	}
 
 	/**

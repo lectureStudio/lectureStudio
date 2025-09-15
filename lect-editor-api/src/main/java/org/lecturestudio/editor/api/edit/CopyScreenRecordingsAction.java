@@ -18,9 +18,7 @@
 
 package org.lecturestudio.editor.api.edit;
 
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
+import java.nio.file.*;
 import java.util.List;
 
 import org.lecturestudio.core.recording.RecordingEditException;
@@ -90,6 +88,9 @@ public class CopyScreenRecordingsAction implements EditAction {
 				Path targetFile = targetPath.resolve(sourceFile.getFileName());
 				try {
 					Files.copy(sourceFile, targetFile);
+				}
+				catch (FileAlreadyExistsException e) {
+					// Ignore to be safe.
 				}
 				catch (Exception e) {
 					throw new RecordingEditException("Failed to copy screen recording file: " + sourceFile, e);

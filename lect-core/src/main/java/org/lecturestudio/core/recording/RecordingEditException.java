@@ -48,6 +48,18 @@ public class RecordingEditException extends Exception {
 
 	/**
 	 * Constructs an <code>RecordingEditException</code> with the specified
+	 * detail message and cause.
+	 *
+	 * @param message the detail message.
+	 * @param cause   the cause (which is saved for later retrieval by the {@link
+	 *                #getCause()} method).
+	 */
+	public RecordingEditException(String message, Throwable cause) {
+		super(message, cause);
+	}
+
+	/**
+	 * Constructs an <code>RecordingEditException</code> with the specified
 	 * cause.
 	 *
 	 * @param cause the cause (which is saved for later retrieval by the {@link

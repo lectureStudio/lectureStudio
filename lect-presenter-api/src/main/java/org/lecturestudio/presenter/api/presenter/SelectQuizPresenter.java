@@ -21,16 +21,11 @@ package org.lecturestudio.presenter.api.presenter;
 import static java.util.Objects.nonNull;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
 
 import javax.inject.Inject;
 
 import org.lecturestudio.core.app.ApplicationContext;
-import org.lecturestudio.core.model.Document;
-import org.lecturestudio.core.model.DocumentList;
 import org.lecturestudio.core.presenter.Presenter;
-import org.lecturestudio.core.service.DocumentService;
 import org.lecturestudio.core.view.ConsumerAction;
 import org.lecturestudio.presenter.api.presenter.command.EditQuizCommand;
 import org.lecturestudio.presenter.api.service.QuizService;
@@ -39,26 +34,51 @@ import org.lecturestudio.presenter.api.service.WebService;
 import org.lecturestudio.presenter.api.view.SelectQuizView;
 import org.lecturestudio.web.api.model.quiz.Quiz;
 
+/**
+ * Presenter class responsible for managing quiz selection, creation, editing, and execution.
+ * <p>
+ * This presenter handles user interactions with the quiz selection view, including
+ * <li>Displaying available quizzes from both general and document-specific sources</li>
+ * <li>Creating new quizzes</li>
+ * <li>Editing existing quizzes</li>
+ * <li>Deleting quizzes</li>
+ * <li>Starting quizzes for participant interaction</li>
+ * <p>
+ * It coordinates with multiple services (QuizService, WebService, StreamService) to manage
+ * quiz data and execution flow.
+ *
+ * @author Alex Andres
+ */
 public class SelectQuizPresenter extends Presenter<SelectQuizView> {
 
-	private final DocumentService documentService;
-
+	/**
+	 * Service for managing quizzes, providing functionality to retrieve, create, and delete quizzes.
+	 */
 	private final QuizService quizService;
 
+	/**
+	 * Service for web-related functionality, used to retrieve information about currently
+	 * started quizzes.
+	 */
 	private final WebService webService;
 
+	/**
+	 * Service for managing the streaming of quizzes to participants.
+	 */
 	private final StreamService streamService;
 
+	/**
+	 * Action to be executed when a quiz is edited. This can be composed with multiple actions
+	 * through the setOnEdit method.
+	 */
 	private ConsumerAction<Quiz> editAction;
 
 
 	@Inject
-	SelectQuizPresenter(ApplicationContext context, SelectQuizView view,
-			DocumentService documentService, QuizService quizService,
-			StreamService streamService, WebService webService) {
+	SelectQuizPresenter(ApplicationContext context, SelectQuizView view, QuizService quizService,
+						StreamService streamService, WebService webService) {
 		super(context, view);
 
-		this.documentService = documentService;
 		this.quizService = quizService;
 		this.streamService = streamService;
 		this.webService = webService;
@@ -66,22 +86,13 @@ public class SelectQuizPresenter extends Presenter<SelectQuizView> {
 
 	@Override
 	public void initialize() throws IOException {
-		List<Quiz> documentQuizzes = new ArrayList<>();
-
-		DocumentList docList = documentService.getDocuments();
-
-		for (Document doc : docList.getPdfDocuments()) {
-			documentQuizzes.addAll(quizService.getQuizzes(doc));
-		}
-
 		setOnEdit((quiz) -> {
 			// Copy quiz. No in-place editing.
-			context.getEventBus().post(new EditQuizCommand(quiz.clone(),
-					this::close, this::reload));
+			context.getEventBus().post(new EditQuizCommand(quiz.clone(), this::close, this::reload));
 		});
 
 		view.setQuizzes(quizService.getQuizzes());
-		view.setDocumentQuizzes(documentQuizzes);
+		view.setDocumentQuizzes(quizService.getAllDocumentQuizzes());
 		view.selectQuiz(webService.getStartedQuiz());
 		view.setOnClose(this::close);
 		view.setOnCreateQuiz(this::createQuiz);
@@ -90,15 +101,30 @@ public class SelectQuizPresenter extends Presenter<SelectQuizView> {
 		view.setOnStartQuiz(this::startQuiz);
 	}
 
+	/**
+	 * Sets or adds an edit action to be executed when a quiz is edited.
+	 * Multiple edit actions can be concatenated.
+	 *
+	 * @param action The consumer action to execute when editing a quiz.
+	 */
 	public void setOnEdit(ConsumerAction<Quiz> action) {
 		this.editAction = ConsumerAction.concatenate(editAction, action);
 	}
 
+	/**
+	 * Creates a new quiz by posting an EditQuizCommand to the event bus.
+	 * The command is initialized with null quiz, indicating a new quiz creation.
+	 */
 	private void createQuiz() {
 		context.getEventBus().post(new EditQuizCommand(null, this::close,
 				this::reload));
 	}
 
+	/**
+	 * Deletes the specified quiz from the quiz service and removes it from the view.
+	 *
+	 * @param quiz The quiz to be deleted.
+	 */
 	private void deleteQuiz(Quiz quiz) {
 		try {
 			quizService.deleteQuiz(quiz);
@@ -109,29 +135,36 @@ public class SelectQuizPresenter extends Presenter<SelectQuizView> {
 		}
 	}
 
+	/**
+	 * Executes the edit action on the specified quiz if an edit action is set.
+	 *
+	 * @param quiz The quiz to be edited.
+	 */
 	private void editQuiz(Quiz quiz) {
 		if (nonNull(editAction)) {
 			editAction.execute(quiz);
 		}
 	}
 
+	/**
+	 * Starts the specified quiz through the stream service and closes the view.
+	 *
+	 * @param quiz The quiz to be started.
+	 */
 	private void startQuiz(Quiz quiz) {
 		streamService.startQuiz(quiz);
 
 		close();
 	}
 
+	/**
+	 * Reloads quiz data from the quiz service and updates the view.
+	 * This is typically called after quiz creation or modification.
+	 */
 	private void reload() {
-		DocumentList docList = documentService.getDocuments();
-		Document doc = docList.getSelectedDocument();
-
-		if (doc.isQuiz()) {
-			doc = docList.getLastNonWhiteboard();
-		}
-
 		try {
 			view.setQuizzes(quizService.getQuizzes());
-			view.setDocumentQuizzes(quizService.getQuizzes(doc));
+			view.setDocumentQuizzes(quizService.getAllDocumentQuizzes());
 			view.selectQuiz(webService.getStartedQuiz());
 		}
 		catch (IOException e) {

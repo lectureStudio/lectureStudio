@@ -135,7 +135,7 @@ class SelectQuizPresenterTest extends PresenterTest {
 		};
 
 		SelectQuizPresenter presenter = new SelectQuizPresenter(context, view,
-				documentService, quizService, streamService, webService);
+				quizService, streamService, webService);
 		presenter.initialize();
 
 		assertEquals(List.of(quiz1, quiz2), quizzesRef.get());
@@ -149,7 +149,7 @@ class SelectQuizPresenterTest extends PresenterTest {
 		SelectQuizMockView view = new SelectQuizMockView();
 
 		SelectQuizPresenter presenter = new SelectQuizPresenter(context, view,
-				documentService, quizService, streamService, webService);
+				quizService, streamService, webService);
 		presenter.initialize();
 		presenter.setOnClose(() -> closed.set(true));
 
@@ -170,7 +170,7 @@ class SelectQuizPresenterTest extends PresenterTest {
 		};
 
 		SelectQuizPresenter presenter = new SelectQuizPresenter(context, view,
-				documentService, quizService, streamService, webService);
+				quizService, streamService, webService);
 		presenter.initialize();
 
 		Quiz toDelete = quizService.getQuizzes().get(1);
@@ -189,7 +189,7 @@ class SelectQuizPresenterTest extends PresenterTest {
 		SelectQuizMockView view = new SelectQuizMockView();
 
 		SelectQuizPresenter presenter = new SelectQuizPresenter(context, view,
-				documentService, quizService, streamService, webService);
+				quizService, streamService, webService);
 		presenter.initialize();
 		presenter.setOnEdit(quizRef::set);
 

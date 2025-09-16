@@ -19,12 +19,14 @@
 package org.lecturestudio.presenter.api.service;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
 import org.lecturestudio.core.model.Document;
+import org.lecturestudio.core.model.DocumentList;
 import org.lecturestudio.core.service.DocumentService;
 import org.lecturestudio.web.api.model.quiz.Quiz;
 
@@ -81,6 +83,25 @@ public class QuizService {
 	}
 
 	/**
+	 * Retrieves all quizzes associated with all PDF documents in the system.
+	 * This method iterates through all PDF documents and collects their associated quizzes.
+	 *
+	 * @return a list containing all quizzes from all PDF documents.
+	 *
+	 * @throws IOException if an I/O error occurs during quiz retrieval.
+	 */
+	public List<Quiz> getAllDocumentQuizzes() throws IOException {
+		List<Quiz> quizList = new ArrayList<>();
+		DocumentList docList = documentService.getDocuments();
+
+		for (Document doc : docList.getPdfDocuments()) {
+			quizList.addAll(getQuizzes(doc));
+		}
+
+		return quizList;
+	}
+
+	/**
 	 * Saves a quiz to the general quiz collection.
 	 *
 	 * @param quiz the quiz to save.
@@ -130,7 +151,7 @@ public class QuizService {
 	 * @throws IOException if an I/O error occurs.
 	 */
 	public void replaceQuiz(Quiz oldQuiz, Quiz newQuiz) throws IOException {
-		// Check, if the generic set contains the edited quiz.
+		// Check if the generic set contains the edited quiz.
 		List<Quiz> quizzes = quizDataSource.getQuizzes();
 
 		if (quizzes.contains(oldQuiz)) {
@@ -164,7 +185,7 @@ public class QuizService {
 	public void replaceQuiz(Quiz oldQuiz, Quiz newQuiz, Document doc) throws IOException {
 		Document selectedDoc = documentService.getDocuments().getSelectedDocument();
 
-		// Remove from generic set.
+		// Remove from a generic set.
 		quizDataSource.deleteQuiz(oldQuiz);
 
 		// Refresh within the same set.
@@ -172,7 +193,7 @@ public class QuizService {
 			quizDataSource.replaceQuiz(oldQuiz, newQuiz, doc);
 		}
 		else {
-			// Remove from current set, since it has been moved to another set.
+			// Remove from the current set, since it has been moved to another set.
 			quizDataSource.deleteQuiz(oldQuiz, selectedDoc);
 
 			if (doc.isPDF()) {

@@ -88,7 +88,9 @@ public class SelectQuizPresenter extends Presenter<SelectQuizView> {
 	public void initialize() throws IOException {
 		setOnEdit((quiz) -> {
 			// Copy quiz. No in-place editing.
-			context.getEventBus().post(new EditQuizCommand(quiz.clone(), this::close, this::reload));
+			context.getEventBus().post(new EditQuizCommand(quiz.clone(),
+					quizService.getDocumentForQuiz(quiz),
+					this::close, this::reload));
 		});
 
 		view.setQuizzes(quizService.getQuizzes());
@@ -103,12 +105,11 @@ public class SelectQuizPresenter extends Presenter<SelectQuizView> {
 
 	/**
 	 * Sets or adds an edit action to be executed when a quiz is edited.
-	 * Multiple edit actions can be concatenated.
 	 *
 	 * @param action The consumer action to execute when editing a quiz.
 	 */
 	public void setOnEdit(ConsumerAction<Quiz> action) {
-		this.editAction = ConsumerAction.concatenate(editAction, action);
+		this.editAction = action;
 	}
 
 	/**
@@ -116,8 +117,7 @@ public class SelectQuizPresenter extends Presenter<SelectQuizView> {
 	 * The command is initialized with null quiz, indicating a new quiz creation.
 	 */
 	private void createQuiz() {
-		context.getEventBus().post(new EditQuizCommand(null, this::close,
-				this::reload));
+		context.getEventBus().post(new EditQuizCommand(this::close, this::reload));
 	}
 
 	/**

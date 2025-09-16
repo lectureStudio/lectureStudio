@@ -102,6 +102,37 @@ public class QuizService {
 	}
 
 	/**
+	 * Retrieves the document associated with the specified quiz.
+	 * This method searches through all PDF documents to find the one containing the quiz.
+	 *
+	 * @param quiz the quiz to find the document for.
+	 *
+	 * @return the document containing the quiz, or null if no matching document is found
+	 *         or if an I/O error occurs during the search.
+	 */
+	public Document getDocumentForQuiz(Quiz quiz) {
+		DocumentList docList = documentService.getDocuments();
+
+		for (Document doc : docList.getPdfDocuments()) {
+			List<Quiz> docQuizzes;
+			try {
+				docQuizzes = getQuizzes(doc);
+			}
+			catch (IOException e) {
+				return null;
+			}
+
+			for (Quiz docQuiz : docQuizzes) {
+				if (docQuiz.equals(quiz)) {
+					return doc;
+				}
+			}
+		}
+
+		return null;
+	}
+
+	/**
 	 * Saves a quiz to the general quiz collection.
 	 *
 	 * @param quiz the quiz to save.

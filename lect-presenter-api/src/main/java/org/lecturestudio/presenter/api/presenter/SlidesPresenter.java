@@ -1112,7 +1112,7 @@ public class SlidesPresenter extends Presenter<SlidesView> {
 
 			while (listIter.hasPrevious()) {
 				Page previous = listIter.previous();
-				if (!previous.isOverlay()) {
+				if (!previous.isOverlay() || page.getOverlayId() != previous.getOverlayId()) {
 					documentService.selectPage(previous);
 					break;
 				}
@@ -1129,7 +1129,7 @@ public class SlidesPresenter extends Presenter<SlidesView> {
 
 			while (listIter.hasNext()) {
 				Page next = listIter.next();
-				if (!next.isOverlay()) {
+				if (!next.isOverlay() || page.getOverlayId() != next.getOverlayId()) {
 					documentService.selectPage(next);
 					break;
 				}

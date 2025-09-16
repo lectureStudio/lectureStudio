@@ -25,6 +25,7 @@ import java.time.format.DateTimeFormatter;
 
 import javax.inject.Inject;
 
+import org.lecturestudio.core.ExecutableException;
 import org.lecturestudio.core.beans.StringProperty;
 import org.lecturestudio.core.presenter.Presenter;
 import org.lecturestudio.core.view.Action;
@@ -105,6 +106,15 @@ public class StopwatchConfigPresenter extends Presenter<StopwatchConfigView> {
 			stopwatch.setTimeIndication(Stopwatch.TimeIndication.OPTIMAL);
 			stopwatch.setType(stopwatchType);
 			stopwatch.setStartTime(time);
+
+			if (stopwatchType == Stopwatch.StopwatchType.TIMER && stopwatch.suspended()) {
+				try {
+					stopwatch.start();
+				}
+				catch (ExecutableException e) {
+					logException(e, "Start timer failed");
+				}
+			}
 
 			saveAction.execute();
 		}

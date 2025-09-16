@@ -19,6 +19,7 @@
 package org.lecturestudio.core.model;
 
 import static java.util.Objects.isNull;
+import static java.util.Objects.nonNull;
 
 import java.io.IOException;
 import java.util.*;
@@ -691,7 +692,13 @@ public class Page {
 
 		for (PDAnnotation annotation : annotations) {
 			if (PDAnnotationText.SUB_TYPE.equals(annotation.getSubtype())) {
-				textNotes.add(annotation.getContents());
+				String note = annotation.getContents();
+
+				if (nonNull(note)) {
+					note = note.replace("\r", "\n");
+				}
+
+				textNotes.add(note);
 			}
 		}
 

@@ -44,26 +44,50 @@ import org.lecturestudio.core.model.listener.ParameterChangeListener;
  */
 public class PresentationParameterProvider implements PropertyChangeListener {
 
+	/**
+	 * Maps Page objects to their corresponding PresentationParameter.
+	 * Stores the presentation parameters for each page.
+	 */
 	private final Map<Page, PresentationParameter> parameter = new HashMap<>();
 
+	/**
+	 * List of listeners that get notified when presentation parameters change.
+	 * These listeners respond to changes in parameters for their associated pages.
+	 */
 	private final List<ParameterChangeListener> listener = new ArrayList<>();
 
+	/**
+	 * The application configuration containing settings for the presentation,
+	 * including whiteboard settings like grid colors and intervals.
+	 */
 	private final Configuration config;
 
 
+	/**
+	 * Constructs a new PresentationParameterProvider with the specified configuration.
+	 * This constructor initializes change listeners for the whiteboard configuration properties
+	 * that affect all presentation parameters, such as grid colors, line intervals, and visibility settings.
+	 * When these configuration properties change, all parameter change listeners are notified.
+	 *
+	 * @param config The application configuration containing presentation settings.
+	 */
 	public PresentationParameterProvider(Configuration config) {
 		this.config = config;
 
+		// Listener for color changes in the whiteboard configuration.
 		ChangeListener<Color> colorListener = (observable, oldValue, newValue) -> {
 			notifyAllParameterChangeListeners();
 		};
+		// Listener for grid interval changes in the whiteboard configuration.
 		ChangeListener<Double> gridIntervalListener = (observable, oldValue, newValue) -> {
 			notifyAllParameterChangeListeners();
 		};
+		// Listener for grid line visibility changes in the whiteboard configuration.
 		ChangeListener<Boolean> gridLineListener = (observable, oldValue, newValue) -> {
 			notifyAllParameterChangeListeners();
 		};
 
+		// Register listeners for all relevant whiteboard configuration properties
 		config.getWhiteboardConfig().gridColorProperty().addListener(colorListener);
 		config.getWhiteboardConfig().horizontalLinesIntervalProperty().addListener(gridIntervalListener);
 		config.getWhiteboardConfig().horizontalLinesVisibleProperty().addListener(gridLineListener);
@@ -73,17 +97,18 @@ public class PresentationParameterProvider implements PropertyChangeListener {
 	}
 
 	/**
-	 * Gets the PresentationParameters for a Page
-	 * 
-	 * @param page
+	 * Gets the presentation parameter for the specified page.
+	 * If no parameter exists for the page, a new one is created.
 	 *
-	 * @return The PresentationParameter for p
+	 * @param page The page for which to get the presentation parameter.
+	 *
+	 * @return The presentation parameter for the specified page, or null if the page is null.
 	 */
 	public PresentationParameter getParameter(Page page) {
 		if (page == null) {
 			return null;
 		}
-		
+
 		PresentationParameter param = parameter.get(page);
 
 		// If there isn't any, create a new one.
@@ -94,21 +119,28 @@ public class PresentationParameterProvider implements PropertyChangeListener {
 		return param;
 	}
 
+	/**
+	 * Removes the presentation parameter for the specified page.
+	 *
+	 * @param p The page for which to clear the parameter.
+	 */
 	public void clearParameter(Page p) {
 		parameter.remove(p);
 	}
 
 	/**
-	 * Gets all PresentationParameters
-	 * 
-	 * @return
+	 * Returns all presentation parameters currently managed by this provider.
+	 *
+	 * @return A collection of all presentation parameters.
 	 */
 	public Collection<PresentationParameter> getAllPresentationParameters() {
 		return parameter.values();
 	}
 
 	/**
-	 * Notify all listeners
+	 * Notifies all registered parameter change listeners about parameter changes.
+	 * For each listener, retrieves the parameter for the listener's page and
+	 * triggers the parameterChanged callback.
 	 */
 	public void notifyAllParameterChangeListeners() {
 		for (ParameterChangeListener l : listener) {
@@ -121,9 +153,10 @@ public class PresentationParameterProvider implements PropertyChangeListener {
 	}
 
 	/**
-	 * Sets the PresentationParameter for the associated page
-	 * 
-	 * @param para
+	 * Sets the presentation parameter for a page and registers this provider
+	 * as a listener for changes to that parameter.
+	 *
+	 * @param para The presentation parameter to set.
 	 */
 	public void setParameter(PresentationParameter para) {
 		parameter.put(para.getPage(), para);
@@ -133,19 +166,30 @@ public class PresentationParameterProvider implements PropertyChangeListener {
 	}
 
 	/**
-	 * listener is notified whenever a PresentationParameter for listener's
-	 * current page is changed
-	 * 
-	 * @param l
+	 * Adds a parameter change listener to be notified when parameters change.
+	 *
+	 * @param l The parameter change listener to add.
 	 */
 	public void addParameterChangeListener(ParameterChangeListener l) {
 		listener.add(l);
 	}
 
+	/**
+	 * Removes a parameter change listener.
+	 *
+	 * @param l The parameter change listener to remove.
+	 */
 	public void removeParameterChangeListener(ParameterChangeListener l) {
 		listener.remove(l);
 	}
 
+	/**
+	 * Called when a property changes in a presentation parameter.
+	 * Notifies only those listeners that are associated with the page
+	 * of the changed parameter.
+	 *
+	 * @param evt The property change event containing the source parameter that changed.
+	 */
 	@Override
 	public void propertyChange(PropertyChangeEvent evt) {
 		// Forward notifications from Parameter to interested listeners
@@ -157,6 +201,9 @@ public class PresentationParameterProvider implements PropertyChangeListener {
 		}
 	}
 
+	/**
+	 * Removes all presentation parameters from this provider.
+	 */
 	public void clearParameters() {
 		parameter.clear();
 	}

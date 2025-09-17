@@ -23,12 +23,29 @@ import java.nio.ByteBuffer;
 
 import org.lecturestudio.core.controller.ToolController;
 
+/**
+ * Action that triggers the zoom out tool functionality during recording playback.
+ * This class is responsible for encapsulating the zoom out operation for serialization
+ * and execution during playback.
+ *
+ * @author Alex Andres
+ */
 public class ZoomOutAction extends PlaybackAction {
 
+	/**
+	 * Creates a new zoom out action with default parameters.
+	 */
 	public ZoomOutAction() {
 		
 	}
 
+	/**
+	 * Creates a new zoom-out action from serialized data.
+	 *
+	 * @param input The byte array containing the serialized action data.
+	 *
+	 * @throws IOException If an error occurs while parsing the input data.
+	 */
 	public ZoomOutAction(byte[] input) throws IOException {
 		parseFrom(input);
 	}

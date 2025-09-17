@@ -495,6 +495,20 @@ public class ToolController extends Controller implements ToolContext {
 	}
 
 	/**
+	 * Selects the extend view tool with a specified rectangle boundary.
+	 * This method sets the current tool to a new ExtendViewTool instance
+	 * initialized with the provided rectangle and immediately executes
+	 * the tool action.
+	 *
+	 * @param rect The rectangle defining the boundaries for the extended view area.
+	 */
+	public void selectExtendViewTool(Rectangle2D rect) {
+		setTool(new ExtendViewTool(this, rect));
+
+		simpleToolAction();
+	}
+
+	/**
 	 * Reset the page content to its original size.
 	 */
 	public void selectZoomOutTool() {

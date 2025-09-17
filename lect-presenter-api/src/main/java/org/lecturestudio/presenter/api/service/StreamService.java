@@ -39,10 +39,10 @@ import org.lecturestudio.core.util.NetUtils;
 import org.lecturestudio.core.view.NotificationType;
 import org.lecturestudio.presenter.api.context.PresenterContext;
 import org.lecturestudio.presenter.api.handler.PreviewStreamHandler;
+import org.lecturestudio.presenter.api.model.DocumentQuiz;
 import org.lecturestudio.presenter.api.model.ScreenShareContext;
 import org.lecturestudio.presenter.api.presenter.command.StartCourseFeatureCommand;
 import org.lecturestudio.presenter.api.presenter.command.StartStreamCommand;
-import org.lecturestudio.web.api.model.quiz.Quiz;
 import org.lecturestudio.web.api.stream.model.Course;
 
 @Singleton
@@ -118,9 +118,9 @@ public class StreamService {
 		});
 	}
 
-	public void startQuiz(Quiz quiz) {
+	public void startQuiz(DocumentQuiz documentQuiz) {
 		if (webRtcStreamService.started()) {
-			startQuizInternal(quiz);
+			startQuizInternal(documentQuiz);
 		}
 		else {
 			Course course = webService.hasActiveService() ?
@@ -129,7 +129,7 @@ public class StreamService {
 
 			eventBus.post(new StartCourseFeatureCommand(course,
 					() -> {
-						startQuizInternal(quiz);
+						startQuizInternal(documentQuiz);
 					}));
 		}
 	}
@@ -149,10 +149,10 @@ public class StreamService {
 		});
 	}
 
-	private void startQuizInternal(Quiz quiz) {
+	private void startQuizInternal(DocumentQuiz documentQuiz) {
 		CompletableFuture.runAsync(() -> {
 			try {
-				webService.startQuiz(quiz);
+				webService.startQuiz(documentQuiz);
 			}
 			catch (ExecutableException e) {
 				throw new CompletionException(e);

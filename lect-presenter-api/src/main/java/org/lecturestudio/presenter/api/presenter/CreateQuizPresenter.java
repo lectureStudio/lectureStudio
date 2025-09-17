@@ -37,6 +37,7 @@ import org.lecturestudio.core.presenter.Presenter;
 import org.lecturestudio.core.service.DocumentService;
 import org.lecturestudio.core.view.Action;
 import org.lecturestudio.core.view.ViewContextFactory;
+import org.lecturestudio.presenter.api.model.DocumentQuiz;
 import org.lecturestudio.presenter.api.service.QuizService;
 import org.lecturestudio.presenter.api.service.StreamService;
 import org.lecturestudio.presenter.api.view.*;
@@ -47,14 +48,19 @@ import org.lecturestudio.web.api.model.quiz.QuizOption;
 
 public class CreateQuizPresenter extends Presenter<CreateQuizView> {
 
+	/** List of quiz option views that are currently displayed in the form. */
 	private final List<CreateQuizOptionView> optionContextList;
 
+	/** Factory for creating view components used in the quiz creation interface. */
 	private final ViewContextFactory viewFactory;
 
+	/** Service for document management and retrieval operations. */
 	private final DocumentService documentService;
 
+	/** Service for quiz storage and management operations. */
 	private final QuizService quizService;
 
+	/** Service for streaming quizzes to participants during a session. */
 	private final StreamService streamService;
 
 	/** The Quiz created by the user. */
@@ -66,8 +72,10 @@ public class CreateQuizPresenter extends Presenter<CreateQuizView> {
 	/** The action that is executed when the user clicks the 'Start Quiz' button. */
 	private Action startQuizAction;
 
+	/** Document representing a generic quiz option that's not associated with any specific document. */
 	private Document genericDoc;
 
+	/** The currently selected document for which a quiz is being created or edited. */
 	private Document selectedDoc;
 
 
@@ -90,13 +98,16 @@ public class CreateQuizPresenter extends Presenter<CreateQuizView> {
 		genericDoc.setTitle(context.getDictionary().get("quiz.generic"));
 
 		DocumentList docList = documentService.getDocuments();
-		selectedDoc = docList.getSelectedDocument();
 
-		if (!selectedDoc.isPDF()) {
-			selectedDoc = docList.getLastNonWhiteboard();
+		if (isNull(selectedDoc)) {
+			selectedDoc = docList.getSelectedDocument();
 
-			if (isNull(selectedDoc)) {
-				selectedDoc = genericDoc;
+			if (!selectedDoc.isPDF()) {
+				selectedDoc = docList.getLastNonWhiteboard();
+
+				if (isNull(selectedDoc)) {
+					selectedDoc = genericDoc;
+				}
 			}
 		}
 
@@ -134,18 +145,49 @@ public class CreateQuizPresenter extends Presenter<CreateQuizView> {
 		super.close();
 	}
 
+	/**
+	 * Returns the current quiz being created or edited.
+	 *
+	 * @return the current quiz instance.
+	 */
 	public Quiz getQuiz() {
 		return quiz;
 	}
 
+	/**
+	 * Sets a quiz to be edited in this presenter.
+	 *
+	 * @param quiz the quiz to be edited.
+	 */
 	public void setQuiz(Quiz quiz) {
 		this.quizEdit = quiz;
 	}
 
+	/**
+	 * Sets the currently selected document for which a quiz is being created.
+	 *
+	 * @param document the document to set as selected.
+	 */
+	public void setSelectedDoc(Document document) {
+		this.selectedDoc = document;
+	}
+
+	/**
+	 * Sets the action to be executed when the user starts a quiz.
+	 *
+	 * @param action the action to execute when starting a quiz.
+	 */
 	public void setOnStartQuiz(Action action) {
 		this.startQuizAction = action;
 	}
 
+	/**
+	 * Saves the current quiz to the quiz service.
+	 * <p>
+	 * This method creates a quiz from the current form data and saves it using the quiz service.
+	 * If editing an existing quiz, it replaces the old quiz with the new one.
+	 * The quiz is saved either as a generic quiz or as document-specific depending on the current selection.
+	 */
 	private void saveQuiz() {
 		try {
 			createQuiz();
@@ -182,6 +224,9 @@ public class CreateQuizPresenter extends Presenter<CreateQuizView> {
 		}
 	}
 
+	/**
+	 * Saves the current quiz and prepares the form for creating a new quiz.
+	 */
 	private void saveAndNextQuiz() {
 		saveQuiz();
 		setQuiz(null);
@@ -197,6 +242,11 @@ public class CreateQuizPresenter extends Presenter<CreateQuizView> {
 		clearOptions();
 	}
 
+	/**
+	 * Creates a quiz from the current form data and starts it immediately.
+	 * If an error occurs during quiz creation, it will be handled by the
+	 * application's exception handling mechanism.
+	 */
 	private void startQuiz() {
 		try {
 			createQuiz();
@@ -205,7 +255,7 @@ public class CreateQuizPresenter extends Presenter<CreateQuizView> {
 			handleException(e, "Create quiz failed", "quiz", "quiz.save.error");
 		}
 
-		streamService.startQuiz(quiz);
+		streamService.startQuiz(new DocumentQuiz(selectedDoc, quiz));
 
 		close();
 
@@ -214,10 +264,22 @@ public class CreateQuizPresenter extends Presenter<CreateQuizView> {
 		}
 	}
 
+	/**
+	 * Sets the quiz set type for the current quiz.
+	 *
+	 * @param set the quiz set type to assign to the quiz (GENERIC or DOCUMENT_SPECIFIC).
+	 */
 	private void setQuizSet(Quiz.QuizSet set) {
 		quiz.setQuizSet(set);
 	}
 
+	/**
+	 * Sets the quiz type for the current quiz and updates the option views accordingly.
+	 * This method recreates all option elements to match the new quiz type while preserving
+	 * existing option data when possible.
+	 *
+	 * @param type the quiz type to set (MULTIPLE, SINGLE, NUMERIC, or FREE_TEXT).
+	 */
 	private void setQuizType(Quiz.QuizType type) {
 		quiz.setType(type);
 
@@ -242,10 +304,23 @@ public class CreateQuizPresenter extends Presenter<CreateQuizView> {
 		}
 	}
 
+	/**
+	 * Determines if the currently selected document is the generic document.
+	 *
+	 * @return true if the selected document is the generic document.
+	 */
 	private boolean isGenericSet() {
 		return selectedDoc == genericDoc;
 	}
 
+	/**
+	 * Handles document selection events and updates the quiz set type accordingly.
+	 * <p>
+	 * If the generic document is selected, the quiz will be set to GENERIC type.
+	 * Otherwise, it will be set to DOCUMENT_SPECIFIC type.
+	 *
+	 * @param doc the document that was selected.
+	 */
 	private void documentSelected(Document doc) {
 		if (doc == genericDoc) {
 			setQuizSet(Quiz.QuizSet.GENERIC);
@@ -259,11 +334,22 @@ public class CreateQuizPresenter extends Presenter<CreateQuizView> {
 		}
 	}
 
+	/**
+	 * Removes all quiz options from the view and clears the internal option list.
+	 */
 	private void clearOptions() {
 		view.clearOptions();
 		optionContextList.clear();
 	}
 
+	/**
+	 * Creates an appropriate quiz option view based on the current quiz type.
+	 * <p>
+	 * This factory method returns different types of option views depending on
+	 * whether the quiz is multiple-choice, single-choice, numeric, or free text.
+	 *
+	 * @return a new quiz option view appropriate for the current quiz type.
+	 */
 	private CreateQuizOptionView createOption() {
 		return switch (quiz.getType()) {
 			case MULTIPLE, SINGLE ->
@@ -275,10 +361,25 @@ public class CreateQuizPresenter extends Presenter<CreateQuizView> {
 		};
 	}
 
+	/**
+	 * Creates and adds a new option to the quiz form.
+	 * <p>
+	 * The new option will be focused on immediate editing.
+	 */
 	private void newOption() {
 		addOptionView(createOption(), true);
 	}
 
+	/**
+	 * Adds a quiz option view to the UI and sets up its event handlers.
+	 * <p>
+	 * This method adds the provided option view to the quiz form, configures its event handlers
+	 * for moving up/down, removing, and tab key navigation. It also adds special behavior for
+	 * single-choice quizzes to ensure mutual exclusivity of correct answers.
+	 *
+	 * @param optionView the quiz option view to add to the form.
+	 * @param focus      whether to set focus on the new option view after adding it.
+	 */
 	private void addOptionView(CreateQuizOptionView optionView, boolean focus) {
 		view.addQuizOptionView(optionView);
 
@@ -307,12 +408,29 @@ public class CreateQuizPresenter extends Presenter<CreateQuizView> {
 		optionContextList.add(optionView);
 	}
 
+	/**
+	 * Removes a quiz option view from the UI and the internal option list.
+	 * <p>
+	 * This method removes the specified option view from both the visual presentation
+	 * and the internal tracking list of options.
+	 *
+	 * @param optionView the quiz option view to remove.
+	 */
 	private void removeOption(CreateQuizOptionView optionView) {
 		view.removeQuizOptionView(optionView);
 
 		optionContextList.remove(optionView);
 	}
 
+	/**
+	 * Moves a quiz option up in the display order (one position earlier).
+	 * <p>
+	 * This method updates both the visual presentation in the view and the internal
+	 * data structure to reflect the new order of options. The operation is ignored
+	 * if the option is already at the top of the list.
+	 *
+	 * @param optionView the quiz option view to move up.
+	 */
 	private void moveOptionUp(CreateQuizOptionView optionView) {
 		int index = optionContextList.indexOf(optionView);
 		int newIndex = index - 1;
@@ -326,6 +444,15 @@ public class CreateQuizPresenter extends Presenter<CreateQuizView> {
 		Collections.swap(optionContextList, index, newIndex);
 	}
 
+	/**
+	 * Moves a quiz option down in the display order (one position later).
+	 * <p>
+	 * This method updates both the visual presentation in the view and the internal
+	 * data structure to reflect the new order of options. The operation is ignored
+	 * if the option is already at the bottom of the list.
+	 *
+	 * @param optionView the quiz option view to move down.
+	 */
 	private void moveOptionDown(CreateQuizOptionView optionView) {
 		int index = optionContextList.indexOf(optionView);
 		int newIndex = index + 1;
@@ -339,6 +466,14 @@ public class CreateQuizPresenter extends Presenter<CreateQuizView> {
 		Collections.swap(optionContextList, index, newIndex);
 	}
 
+	/**
+	 * Handles tab key behavior for quiz option views.
+	 * <p>
+	 * When the tab key is pressed on the last option in the list, this method will
+	 * create a new option, providing a seamless way to add multiple options.
+	 *
+	 * @param optionView the quiz option view where the tab key was pressed.
+	 */
 	private void tabKey(CreateQuizOptionView optionView) {
 		if (!isLastOption(optionView)) {
 			return;
@@ -347,6 +482,16 @@ public class CreateQuizPresenter extends Presenter<CreateQuizView> {
 		newOption();
 	}
 
+	/**
+	 * Determines if the provided option view is the last one in the option list.
+	 * <p>
+	 * This method is used to control tab key behavior and potentially other
+	 * operations that need to know if an option is at the end of the list.
+	 *
+	 * @param optionView the quiz option view to check.
+	 *
+	 * @return true if the option is the last one in the list, false otherwise.
+	 */
 	private boolean isLastOption(CreateQuizOptionView optionView) {
 		int index = optionContextList.indexOf(optionView);
 
@@ -384,6 +529,20 @@ public class CreateQuizPresenter extends Presenter<CreateQuizView> {
 		}
 	}
 
+	/**
+	 * Fills the quiz creation form with data from an existing quiz that is being edited.
+	 * <p>
+	 * This method populates all form fields with values from the {@code quiz} object:
+	 * <ul>
+	 *   <li>Sets the quiz question text</li>
+	 *   <li>Sets the quiz set type (generic or document-specific)</li>
+	 *   <li>Sets the quiz type (multiple choice, single choice, numeric, or free text)</li>
+	 *   <li>Sets the quiz comment</li>
+	 *   <li>Creates and configures option views for each existing quiz option</li>
+	 *   <li>For numeric quizzes, retrieves and applies min/max rules from the input filter</li>
+	 * </ul>
+	 * This method is called during initialization when editing an existing quiz.
+	 */
 	private void fillForm() {
 		if (nonNull(quiz.getQuestion())) {
 			view.setQuizText(quiz.getQuestion());

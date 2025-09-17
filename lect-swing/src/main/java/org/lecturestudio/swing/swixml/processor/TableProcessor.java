@@ -28,6 +28,8 @@ import org.swixml.Parser;
 import org.swixml.processor.TagProcessor;
 import org.w3c.dom.Element;
 
+import static java.util.Objects.nonNull;
+
 public class TableProcessor implements TagProcessor, LogAware {
 
 	@Override
@@ -36,12 +38,11 @@ public class TableProcessor implements TagProcessor, LogAware {
 		if (!Parser.TAG_TABLECOLUMN.equalsIgnoreCase(child.getLocalName())) {
 			return false;
 		}
-		if (!(parent instanceof JTable)) {
+		if (!(parent instanceof JTable table)) {
 			logger.warning("TableColumn tag is valid only inside Table tag. Ignored!");
 			return false;
 		}
 
-		final JTable table = (JTable) parent;
 		final TableColumn column = (TableColumn) parser.getSwing(child, null);
 		column.setModelIndex(table.getColumnModel().getColumnCount());
 		column.setHeaderValue(parser.engine.getLocalizer().getString(
@@ -49,6 +50,43 @@ public class TableProcessor implements TagProcessor, LogAware {
 
 		table.getColumnModel().addColumn(column);
 
+		if (child.hasAttribute("prefWidth")) {
+			String prefWidthStr = child.getAttribute("prefWidth");
+			Integer prefWidth = getIntValue(prefWidthStr);
+
+			if (nonNull(prefWidth)) {
+				column.setPreferredWidth(prefWidth);
+			}
+		}
+		if (child.hasAttribute("minWidth")) {
+			String minWidthStr = child.getAttribute("minWidth");
+			Integer minWidth = getIntValue(minWidthStr);
+
+			if (nonNull(minWidth)) {
+				column.setMinWidth(minWidth);
+			}
+		}
+		if (child.hasAttribute("maxWidth")) {
+			String maxWidthStr = child.getAttribute("maxWidth");
+			Integer maxWidth = getIntValue(maxWidthStr);
+
+			if (nonNull(maxWidth)) {
+				column.setMaxWidth(maxWidth);
+			}
+		}
+
 		return true;
+	}
+
+	private static Integer getIntValue(String value) {
+		if (!value.isBlank()) {
+			try {
+				return Integer.valueOf(value);
+			}
+			catch (NumberFormatException e) {
+				logger.warning("Invalid integer attribute value: " + value);
+			}
+		}
+		return null;
 	}
 }

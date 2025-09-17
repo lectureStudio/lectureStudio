@@ -36,6 +36,7 @@ import org.lecturestudio.presenter.api.config.StreamConfiguration;
 import org.lecturestudio.presenter.api.context.PresenterContext;
 import org.lecturestudio.presenter.api.event.MessengerStateEvent;
 import org.lecturestudio.presenter.api.event.QuizStateEvent;
+import org.lecturestudio.presenter.api.model.DocumentQuiz;
 import org.lecturestudio.presenter.api.net.LocalBroadcaster;
 import org.lecturestudio.web.api.client.TokenProvider;
 import org.lecturestudio.web.api.message.StopStreamEnvironmentMessage;
@@ -44,7 +45,6 @@ import org.lecturestudio.web.api.message.MessageTransport;
 import org.lecturestudio.web.api.message.SpeechBaseMessage;
 import org.lecturestudio.web.api.message.WebSocketStompTransport;
 import org.lecturestudio.web.api.model.Message;
-import org.lecturestudio.web.api.model.quiz.Quiz;
 import org.lecturestudio.web.api.service.ServiceParameters;
 import org.lecturestudio.web.api.stream.model.Course;
 import org.lecturestudio.web.api.stream.service.StreamProviderService;
@@ -75,7 +75,7 @@ public class WebService extends ExecutableBase {
 
 	private MessageTransport messageTransport;
 
-	private Quiz lastQuiz;
+	private DocumentQuiz lastDocumentQuiz;
 
 
 	@Inject
@@ -187,7 +187,7 @@ public class WebService extends ExecutableBase {
 	 *
 	 * @throws ExecutableException if the quiz service could not be started.
 	 */
-	public void startQuiz(Quiz quiz) throws ExecutableException {
+	public void startQuiz(DocumentQuiz documentQuiz) throws ExecutableException {
 		var service = getService(QuizFeatureWebService.class);
 
 		context.getEventBus().post(new QuizStateEvent(ExecutableState.Starting));
@@ -209,11 +209,11 @@ public class WebService extends ExecutableBase {
 			service.stop();
 		}
 
-		service.setQuiz(quiz);
+		service.setQuiz(documentQuiz.quiz());
 
 		startService(service);
 
-		lastQuiz = quiz;
+		lastDocumentQuiz = documentQuiz;
 
 		context.getEventBus().post(new QuizStateEvent(ExecutableState.Started));
 	}
@@ -233,7 +233,7 @@ public class WebService extends ExecutableBase {
 
 		context.getEventBus().post(new QuizStateEvent(ExecutableState.Stopping));
 
-		lastQuiz = null;
+		lastDocumentQuiz = null;
 
 		stopService(service);
 
@@ -245,8 +245,8 @@ public class WebService extends ExecutableBase {
 	 *
 	 * @return the active quiz.
 	 */
-	public Quiz getStartedQuiz() {
-		return lastQuiz;
+	public DocumentQuiz getStartedQuiz() {
+		return lastDocumentQuiz;
 	}
 
 	/**

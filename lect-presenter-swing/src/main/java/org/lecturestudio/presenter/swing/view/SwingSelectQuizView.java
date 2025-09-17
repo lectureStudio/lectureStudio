@@ -31,23 +31,23 @@ import javax.swing.JTable;
 import org.lecturestudio.core.beans.ObjectProperty;
 import org.lecturestudio.core.view.Action;
 import org.lecturestudio.core.view.ConsumerAction;
+import org.lecturestudio.presenter.api.model.DocumentQuiz;
 import org.lecturestudio.presenter.api.view.SelectQuizView;
 import org.lecturestudio.presenter.swing.view.model.QuizTableModel;
 import org.lecturestudio.swing.components.ContentPane;
 import org.lecturestudio.swing.util.SwingUtils;
 import org.lecturestudio.swing.view.SwingView;
 import org.lecturestudio.swing.view.ViewPostConstruct;
-import org.lecturestudio.web.api.model.quiz.Quiz;
 import org.lecturestudio.web.api.model.quiz.Quiz.QuizSet;
 
 @SwingView(name = "select-quiz")
 public class SwingSelectQuizView extends ContentPane implements SelectQuizView {
 
-	private ConsumerAction<Quiz> deleteQuizAction;
+	private ConsumerAction<DocumentQuiz> deleteQuizAction;
 
-	private ConsumerAction<Quiz> editQuizAction;
+	private ConsumerAction<DocumentQuiz> editQuizAction;
 
-	private final ObjectProperty<Quiz> selectedQuizProperty;
+	private final ObjectProperty<DocumentQuiz> selectedQuizProperty;
 
 	private JTable quizTableView;
 
@@ -63,9 +63,9 @@ public class SwingSelectQuizView extends ContentPane implements SelectQuizView {
 		public void actionPerformed(ActionEvent e) {
 			int row = Integer.parseInt(e.getActionCommand());
 			QuizTableModel model = (QuizTableModel) quizTableView.getModel();
-			Quiz quiz = model.getItem(row);
+			DocumentQuiz documentQuiz = model.getItem(row);
 
-			executeAction(deleteQuizAction, quiz);
+			executeAction(deleteQuizAction, documentQuiz);
 		}
 	};
 
@@ -75,9 +75,9 @@ public class SwingSelectQuizView extends ContentPane implements SelectQuizView {
 		public void actionPerformed(ActionEvent e) {
 			int row = Integer.parseInt(e.getActionCommand());
 			QuizTableModel model = (QuizTableModel) quizTableView.getModel();
-			Quiz quiz = model.getItem(row);
+			DocumentQuiz documentQuiz = model.getItem(row);
 
-			executeAction(editQuizAction, quiz);
+			executeAction(editQuizAction, documentQuiz);
 		}
 	};
 
@@ -89,19 +89,19 @@ public class SwingSelectQuizView extends ContentPane implements SelectQuizView {
 	}
 
 	@Override
-	public void removeQuiz(Quiz quiz) {
+	public void removeQuiz(DocumentQuiz documentQuiz) {
 		SwingUtils.invoke(() -> {
 			QuizTableModel model = (QuizTableModel) quizTableView.getModel();
-			model.removeItem(quiz);
+			model.removeItem(documentQuiz);
 		});
 	}
 
 	@Override
-	public void selectQuiz(Quiz quiz) {
+	public void selectQuiz(DocumentQuiz documentQuiz) {
 		SwingUtils.invoke(() -> {
-			if (nonNull(quiz)) {
+			if (nonNull(documentQuiz)) {
 				QuizTableModel model = (QuizTableModel) quizTableView.getModel();
-				int row = model.getRow(quiz);
+				int row = model.getRow(documentQuiz);
 
 				if (row > -1) {
 					quizTableView.setRowSelectionInterval(row, row);
@@ -111,7 +111,7 @@ public class SwingSelectQuizView extends ContentPane implements SelectQuizView {
 	}
 
 	@Override
-	public void setQuizzes(List<Quiz> quizList) {
+	public void setQuizzes(List<DocumentQuiz> quizList) {
 		if (isNull(quizList)) {
 			return;
 		}
@@ -119,12 +119,12 @@ public class SwingSelectQuizView extends ContentPane implements SelectQuizView {
 		QuizTableModel model = (QuizTableModel) quizTableView.getModel();
 
 		// Replace generic quizzes.
-		model.removeIf(quiz -> quiz.getQuizSet() == QuizSet.GENERIC);
+		model.removeIf(documentQuiz -> documentQuiz.quiz().getQuizSet() == QuizSet.GENERIC);
 		model.addItems(quizList);
 	}
 
 	@Override
-	public void setDocumentQuizzes(List<Quiz> quizList) {
+	public void setDocumentQuizzes(List<DocumentQuiz> quizList) {
 		if (isNull(quizList)) {
 			return;
 		}
@@ -132,7 +132,7 @@ public class SwingSelectQuizView extends ContentPane implements SelectQuizView {
 		QuizTableModel model = (QuizTableModel) quizTableView.getModel();
 
 		// Replace document quizzes.
-		model.removeIf(quiz -> quiz.getQuizSet() == QuizSet.DOCUMENT_SPECIFIC);
+		model.removeIf(documentQuiz -> documentQuiz.quiz().getQuizSet() == QuizSet.DOCUMENT_SPECIFIC);
 		model.addItems(quizList);
 	}
 
@@ -147,17 +147,17 @@ public class SwingSelectQuizView extends ContentPane implements SelectQuizView {
 	}
 
 	@Override
-	public void setOnDeleteQuiz(ConsumerAction<Quiz> action) {
+	public void setOnDeleteQuiz(ConsumerAction<DocumentQuiz> action) {
 		deleteQuizAction = action;
 	}
 
 	@Override
-	public void setOnEditQuiz(ConsumerAction<Quiz> action) {
+	public void setOnEditQuiz(ConsumerAction<DocumentQuiz> action) {
 		editQuizAction = action;
 	}
 
 	@Override
-	public void setOnStartQuiz(ConsumerAction<Quiz> action) {
+	public void setOnStartQuiz(ConsumerAction<DocumentQuiz> action) {
 		startQuizButton.addActionListener(event -> {
 			executeAction(action, selectedQuizProperty.get());
 		});
@@ -170,9 +170,9 @@ public class SwingSelectQuizView extends ContentPane implements SelectQuizView {
 			int selectedRow = quizTableView.getSelectedRow();
 
 			QuizTableModel model = (QuizTableModel) quizTableView.getModel();
-			Quiz selectedQuiz = selectedRow > -1 ? model.getItem(selectedRow) : null;
+			DocumentQuiz selectedDocQuiz = selectedRow > -1 ? model.getItem(selectedRow) : null;
 
-			selectedQuizProperty.set(selectedQuiz);
+			selectedQuizProperty.set(selectedDocQuiz);
 		});
 
 		selectedQuizProperty.addListener((observable, oldValue, newValue) -> {

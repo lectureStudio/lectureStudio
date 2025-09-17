@@ -43,6 +43,7 @@ import org.lecturestudio.core.service.DocumentService;
 import org.lecturestudio.core.view.Action;
 import org.lecturestudio.core.view.ConsumerAction;
 import org.lecturestudio.presenter.api.context.PresenterContext;
+import org.lecturestudio.presenter.api.model.DocumentQuiz;
 import org.lecturestudio.presenter.api.net.LocalBroadcaster;
 import org.lecturestudio.presenter.api.service.QuizDataSource;
 import org.lecturestudio.presenter.api.service.QuizService;
@@ -119,27 +120,27 @@ class SelectQuizPresenterTest extends PresenterTest {
 		quiz5.addOption(new QuizOption("x", false));
 		quiz5.addOption(new QuizOption("y", false));
 
-		AtomicReference<List<Quiz>> quizzesRef = new AtomicReference<>();
-		AtomicReference<List<Quiz>> docQuizzesRef = new AtomicReference<>();
+		AtomicReference<List<DocumentQuiz>> quizzesRef = new AtomicReference<>();
+		AtomicReference<List<DocumentQuiz>> docQuizzesRef = new AtomicReference<>();
 
 		SelectQuizMockView view = new SelectQuizMockView() {
 			@Override
-			public void setQuizzes(List<Quiz> quizList) {
+			public void setQuizzes(List<DocumentQuiz> quizList) {
 				quizzesRef.set(quizList);
 			}
 
 			@Override
-			public void setDocumentQuizzes(List<Quiz> quizList) {
+			public void setDocumentQuizzes(List<DocumentQuiz> quizList) {
 				docQuizzesRef.set(quizList);
 			}
 		};
 
 		SelectQuizPresenter presenter = new SelectQuizPresenter(context, view,
-				documentService, quizService, streamService, webService);
+				quizService, streamService, webService);
 		presenter.initialize();
 
-		assertEquals(List.of(quiz1, quiz2), quizzesRef.get());
-		assertEquals(List.of(quiz3, quiz4, quiz5), docQuizzesRef.get());
+		assertEquals(List.of(quiz1, quiz2), quizzesRef.get().stream().map(DocumentQuiz::quiz).toList());
+		assertEquals(List.of(quiz3, quiz4, quiz5), docQuizzesRef.get().stream().map(DocumentQuiz::quiz).toList());
 	}
 
 	@Test
@@ -149,55 +150,58 @@ class SelectQuizPresenterTest extends PresenterTest {
 		SelectQuizMockView view = new SelectQuizMockView();
 
 		SelectQuizPresenter presenter = new SelectQuizPresenter(context, view,
-				documentService, quizService, streamService, webService);
+				quizService, streamService, webService);
 		presenter.initialize();
 		presenter.setOnClose(() -> closed.set(true));
 
-		view.startAction.execute(quizService.getQuizzes().get(0));
+		view.startAction.execute(new DocumentQuiz(documentService.getDocuments().getSelectedDocument(),
+				quizService.getQuizzes().get(0)));
 
 		assertTrue(closed.get());
 	}
 
 	@Test
 	void testDeleteQuiz() throws IOException {
-		AtomicReference<Quiz> quizRef = new AtomicReference<>();
+		AtomicReference<DocumentQuiz> quizRef = new AtomicReference<>();
 
 		SelectQuizMockView view = new SelectQuizMockView() {
 			@Override
-			public void removeQuiz(Quiz quiz) {
+			public void removeQuiz(DocumentQuiz quiz) {
 				quizRef.set(quiz);
 			}
 		};
 
 		SelectQuizPresenter presenter = new SelectQuizPresenter(context, view,
-				documentService, quizService, streamService, webService);
+				quizService, streamService, webService);
 		presenter.initialize();
 
 		Quiz toDelete = quizService.getQuizzes().get(1);
 
-		view.deleteAction.execute(toDelete);
+		view.deleteAction.execute(new DocumentQuiz(
+				documentService.getDocuments().getSelectedDocument(), toDelete));
 
 		assertEquals(1, quizService.getQuizzes().size());
-		assertNotEquals(quizService.getQuizzes().get(0), quizRef.get());
-		assertEquals(toDelete, quizRef.get());
+		assertNotEquals(quizService.getQuizzes().get(0), quizRef.get().quiz());
+		assertEquals(toDelete, quizRef.get().quiz());
 	}
 
 	@Test
 	void testEditQuiz() throws IOException {
-		AtomicReference<Quiz> quizRef = new AtomicReference<>();
+		AtomicReference<DocumentQuiz> quizRef = new AtomicReference<>();
 
 		SelectQuizMockView view = new SelectQuizMockView();
 
 		SelectQuizPresenter presenter = new SelectQuizPresenter(context, view,
-				documentService, quizService, streamService, webService);
+				quizService, streamService, webService);
 		presenter.initialize();
 		presenter.setOnEdit(quizRef::set);
 
 		Document doc = documentService.getDocuments().getSelectedDocument();
 
-		view.editAction.execute(quizService.getQuizzes(doc).get(2));
+		DocumentQuiz toEdit = new DocumentQuiz(doc, quizService.getQuizzes(doc).get(2));
+		view.editAction.execute(toEdit);
 
-		assertEquals(quizService.getQuizzes(doc).get(2), quizRef.get());
+		assertEquals(toEdit, quizRef.get());
 	}
 
 
@@ -206,30 +210,30 @@ class SelectQuizPresenterTest extends PresenterTest {
 
 		Action createAction;
 
-		ConsumerAction<Quiz> startAction;
+		ConsumerAction<DocumentQuiz> startAction;
 
-		ConsumerAction<Quiz> editAction;
+		ConsumerAction<DocumentQuiz> editAction;
 
-		ConsumerAction<Quiz> deleteAction;
+		ConsumerAction<DocumentQuiz> deleteAction;
 
 
 		@Override
-		public void removeQuiz(Quiz quiz) {
+		public void removeQuiz(DocumentQuiz quiz) {
 
 		}
 
 		@Override
-		public void selectQuiz(Quiz quiz) {
+		public void selectQuiz(DocumentQuiz quiz) {
 
 		}
 
 		@Override
-		public void setQuizzes(List<Quiz> quizList) {
+		public void setQuizzes(List<DocumentQuiz> quizList) {
 
 		}
 
 		@Override
-		public void setDocumentQuizzes(List<Quiz> quizList) {
+		public void setDocumentQuizzes(List<DocumentQuiz> quizList) {
 
 		}
 
@@ -244,17 +248,17 @@ class SelectQuizPresenterTest extends PresenterTest {
 		}
 
 		@Override
-		public void setOnDeleteQuiz(ConsumerAction<Quiz> action) {
+		public void setOnDeleteQuiz(ConsumerAction<DocumentQuiz> action) {
 			deleteAction = action;
 		}
 
 		@Override
-		public void setOnEditQuiz(ConsumerAction<Quiz> action) {
+		public void setOnEditQuiz(ConsumerAction<DocumentQuiz> action) {
 			editAction = action;
 		}
 
 		@Override
-		public void setOnStartQuiz(ConsumerAction<Quiz> action) {
+		public void setOnStartQuiz(ConsumerAction<DocumentQuiz> action) {
 			startAction = action;
 		}
 	}

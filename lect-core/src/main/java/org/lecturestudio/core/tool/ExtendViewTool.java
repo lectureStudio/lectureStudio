@@ -19,11 +19,14 @@
 package org.lecturestudio.core.tool;
 
 import org.lecturestudio.core.geometry.PenPoint2D;
+import org.lecturestudio.core.geometry.Rectangle2D;
 import org.lecturestudio.core.model.Page;
 import org.lecturestudio.core.recording.action.ExtendViewAction;
 import org.lecturestudio.core.view.PresentationParameter;
 import org.lecturestudio.core.view.PresentationParameterProvider;
 import org.lecturestudio.core.view.ViewType;
+
+import static java.util.Objects.nonNull;
 
 /**
  * Toggles the Extended-Mode on the current page on all views.
@@ -32,8 +35,33 @@ import org.lecturestudio.core.view.ViewType;
  */
 public class ExtendViewTool extends SimpleTool {
 
+	/**
+	 * The rectangle defining the boundaries for the extended view area.
+	 */
+	private final Rectangle2D rect;
+
+
+	/**
+	 * Constructs a new ExtendViewTool instance.
+	 *
+	 * @param context The tool context providing access to presentation parameters
+	 *                and other required resources.
+	 */
 	public ExtendViewTool(ToolContext context) {
+		this(context, null);
+	}
+
+	/**
+	 * Constructs a new ExtendViewTool instance.
+	 *
+	 * @param context The tool context providing access to presentation parameters
+	 *                and other required resources.
+	 * @param rect    The rectangle defining the boundaries for the extended view area.
+	 */
+	public ExtendViewTool(ToolContext context, Rectangle2D rect) {
 		super(context);
+
+		this.rect = rect;
 	}
 
 	@Override
@@ -57,6 +85,12 @@ public class ExtendViewTool extends SimpleTool {
 	private void extendView(ViewType viewType, Page page) {
 		PresentationParameterProvider ppp = context.getPresentationParameterProvider(viewType);
 		PresentationParameter para = ppp.getParameter(page);
-		para.setExtendedMode(!para.isExtended());
+
+		if (nonNull(rect)) {
+			para.setExtendedMode(!para.isExtended(), rect);
+		}
+		else {
+			para.setExtendedMode(!para.isExtended());
+		}
 	}
 }

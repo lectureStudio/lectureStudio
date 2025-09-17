@@ -24,22 +24,43 @@ import java.nio.ByteBuffer;
 import org.lecturestudio.core.controller.ToolController;
 import org.lecturestudio.core.geometry.Rectangle2D;
 
+/**
+ * Action that extends or zooms the view to a specified rectangle area.
+ * This class is part of the recording playback system.
+ *
+ * @author Alex Andres
+ */
 public class ExtendViewAction extends PlaybackAction {
 
+    /**
+     * The rectangle defining the area to which the view should be extended or zoomed.
+     */
 	private Rectangle2D rect;
 
 
+	/**
+	 * Creates a new extend view action with the specified rectangle.
+	 *
+	 * @param rect The rectangle defining the area to which the view should be extended.
+	 */
 	public ExtendViewAction(Rectangle2D rect) {
 		this.rect = rect;
 	}
 
+	/**
+	 * Creates a new extend view action by parsing the provided byte array.
+	 *
+	 * @param input The byte array containing the serialized rectangle information.
+	 *
+	 * @throws IOException If an error occurs while parsing the input.
+	 */
 	public ExtendViewAction(byte[] input) throws IOException {
 		parseFrom(input);
 	}
 
 	@Override
 	public void execute(ToolController controller) throws Exception {
-		controller.zoom(rect);
+		controller.selectExtendViewTool(rect);
 	}
 
 	@Override

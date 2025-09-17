@@ -23,13 +23,14 @@ import javax.swing.table.TableColumnModel;
 
 import org.jsoup.Jsoup;
 
+import org.lecturestudio.presenter.api.model.DocumentQuiz;
 import org.lecturestudio.swing.AwtResourceLoader;
 import org.lecturestudio.swing.table.TableModelBase;
 import org.lecturestudio.web.api.model.quiz.Quiz;
 import org.lecturestudio.web.api.model.quiz.Quiz.QuizSet;
 import org.lecturestudio.web.api.model.quiz.Quiz.QuizType;
 
-public class QuizTableModel extends TableModelBase<Quiz> {
+public class QuizTableModel extends TableModelBase<DocumentQuiz> {
 
 	private static final Icon DOC_TYPE = AwtResourceLoader.getIcon("doc-type.svg", 20);
 
@@ -48,20 +49,16 @@ public class QuizTableModel extends TableModelBase<Quiz> {
 
 	@Override
 	public Object getValueAt(int rowIndex, int columnIndex) {
-		Quiz quiz = getItem(rowIndex);
+		DocumentQuiz documentQuiz = getItem(rowIndex);
+		Quiz quiz = documentQuiz.quiz();
 
-		switch (columnIndex) {
-			case 0:
-				return getSetIcon(quiz.getQuizSet());
-
-			case 1:
-				return Jsoup.parse(quiz.getQuestion()).text();
-
-			case 2:
-				return getTypeIcon(quiz.getType());
-		}
-
-		return null;
+		return switch (columnIndex) {
+			case 0 -> getSetIcon(quiz.getQuizSet());
+			case 1 -> Jsoup.parse(quiz.getQuestion()).text();
+			case 2 -> documentQuiz.document().getName();
+			case 3 -> getTypeIcon(quiz.getType());
+			default -> null;
+		};
 	}
 
 	@Override
@@ -70,7 +67,7 @@ public class QuizTableModel extends TableModelBase<Quiz> {
 	}
 
 	@Override
-	public int getRow(Quiz item) {
+	public int getRow(DocumentQuiz item) {
 		for (int i = 0; i < getRowCount(); i++) {
 			if (item.equals(getItem(i))) {
 				return i;

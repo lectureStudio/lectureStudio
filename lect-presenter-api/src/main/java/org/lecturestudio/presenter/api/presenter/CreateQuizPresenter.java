@@ -37,6 +37,7 @@ import org.lecturestudio.core.presenter.Presenter;
 import org.lecturestudio.core.service.DocumentService;
 import org.lecturestudio.core.view.Action;
 import org.lecturestudio.core.view.ViewContextFactory;
+import org.lecturestudio.presenter.api.model.DocumentQuiz;
 import org.lecturestudio.presenter.api.service.QuizService;
 import org.lecturestudio.presenter.api.service.StreamService;
 import org.lecturestudio.presenter.api.view.*;
@@ -254,7 +255,7 @@ public class CreateQuizPresenter extends Presenter<CreateQuizView> {
 			handleException(e, "Create quiz failed", "quiz", "quiz.save.error");
 		}
 
-		streamService.startQuiz(quiz);
+		streamService.startQuiz(new DocumentQuiz(selectedDoc, quiz));
 
 		close();
 

@@ -34,12 +34,11 @@ public class TableColumnProcessor implements TagProcessor, LogAware {
 	@Override
 	public boolean process(Parser parser, Object parent, Element child,
 			LayoutManager layoutMgr) throws Exception {
-		if (!(parent instanceof TableColumn)) {
+		if (!(parent instanceof TableColumn column)) {
 			logger.warning("Tag is valid only inside TableColumn tag. Ignored!");
 			return false;
 		}
 
-		final TableColumn column = (TableColumn) parent;
 		final Object object = parser.getSwing(child, null);
 
 		if (object instanceof TableCellRenderer) {

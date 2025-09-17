@@ -6,6 +6,7 @@
 			<Table id="quizTableView" autoCreateColumnsFromModel="false" fillsViewportHeight="true" rowHeight="25" selectionMode="ListSelectionModel.SINGLE_SELECTION">
 				<TableColumn maxWidth="30" />
 				<TableColumn headerValue="select.quiz.question" />
+				<TableColumn headerValue="select.quiz.document" minWidth="200" maxWidth="200" />
 				<TableColumn headerValue="select.quiz.type" maxWidth="80" />
 				<TableColumn maxWidth="35">
 					<TableButtonRenderer icon="edit.svg, 20" toolTipText="select.quiz.edit" />

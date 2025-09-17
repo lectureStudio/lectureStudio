@@ -21,18 +21,20 @@ package org.lecturestudio.presenter.api.presenter;
 import static java.util.Objects.nonNull;
 
 import java.io.IOException;
+import java.util.stream.Collectors;
 
 import javax.inject.Inject;
 
 import org.lecturestudio.core.app.ApplicationContext;
+import org.lecturestudio.core.model.Document;
 import org.lecturestudio.core.presenter.Presenter;
 import org.lecturestudio.core.view.ConsumerAction;
+import org.lecturestudio.presenter.api.model.DocumentQuiz;
 import org.lecturestudio.presenter.api.presenter.command.EditQuizCommand;
 import org.lecturestudio.presenter.api.service.QuizService;
 import org.lecturestudio.presenter.api.service.StreamService;
 import org.lecturestudio.presenter.api.service.WebService;
 import org.lecturestudio.presenter.api.view.SelectQuizView;
-import org.lecturestudio.web.api.model.quiz.Quiz;
 
 /**
  * Presenter class responsible for managing quiz selection, creation, editing, and execution.
@@ -67,11 +69,14 @@ public class SelectQuizPresenter extends Presenter<SelectQuizView> {
 	 */
 	private final StreamService streamService;
 
+	/** Document representing a generic quiz option that's not associated with any specific document. */
+	private Document genericDoc;
+
 	/**
 	 * Action to be executed when a quiz is edited. This can be composed with multiple actions
 	 * through the setOnEdit method.
 	 */
-	private ConsumerAction<Quiz> editAction;
+	private ConsumerAction<DocumentQuiz> editAction;
 
 
 	@Inject
@@ -86,15 +91,19 @@ public class SelectQuizPresenter extends Presenter<SelectQuizView> {
 
 	@Override
 	public void initialize() throws IOException {
-		setOnEdit((quiz) -> {
+		genericDoc = new Document();
+		genericDoc.setTitle(context.getDictionary().get("quiz.generic"));
+
+		setOnEdit((documentQuiz) -> {
 			// Copy quiz. No in-place editing.
-			context.getEventBus().post(new EditQuizCommand(quiz.clone(),
-					quizService.getDocumentForQuiz(quiz),
+			context.getEventBus().post(new EditQuizCommand(documentQuiz.quiz().clone(), documentQuiz.document(),
 					this::close, this::reload));
 		});
 
-		view.setQuizzes(quizService.getQuizzes());
-		view.setDocumentQuizzes(quizService.getAllDocumentQuizzes());
+		view.setQuizzes(quizService.getQuizzes().stream()
+				.map(q -> new DocumentQuiz(genericDoc, q))
+				.collect(Collectors.toList()));
+		view.setDocumentQuizzes(quizService.getDocumentQuizzes());
 		view.selectQuiz(webService.getStartedQuiz());
 		view.setOnClose(this::close);
 		view.setOnCreateQuiz(this::createQuiz);
@@ -108,7 +117,7 @@ public class SelectQuizPresenter extends Presenter<SelectQuizView> {
 	 *
 	 * @param action The consumer action to execute when editing a quiz.
 	 */
-	public void setOnEdit(ConsumerAction<Quiz> action) {
+	public void setOnEdit(ConsumerAction<DocumentQuiz> action) {
 		this.editAction = action;
 	}
 
@@ -123,12 +132,18 @@ public class SelectQuizPresenter extends Presenter<SelectQuizView> {
 	/**
 	 * Deletes the specified quiz from the quiz service and removes it from the view.
 	 *
-	 * @param quiz The quiz to be deleted.
+	 * @param documentQuiz The quiz to be deleted.
 	 */
-	private void deleteQuiz(Quiz quiz) {
+	private void deleteQuiz(DocumentQuiz documentQuiz) {
 		try {
-			quizService.deleteQuiz(quiz);
-			view.removeQuiz(quiz);
+			if (genericDoc.equals(documentQuiz.document())) {
+				quizService.deleteQuiz(documentQuiz.quiz());
+			}
+			else {
+				quizService.deleteQuiz(documentQuiz.quiz(), documentQuiz.document());
+			}
+
+			view.removeQuiz(documentQuiz);
 		}
 		catch (IOException e) {
 			handleException(e, "Delete quiz failed", "quiz.delete.error");
@@ -138,21 +153,21 @@ public class SelectQuizPresenter extends Presenter<SelectQuizView> {
 	/**
 	 * Executes the edit action on the specified quiz if an edit action is set.
 	 *
-	 * @param quiz The quiz to be edited.
+	 * @param documentQuiz The quiz to be edited.
 	 */
-	private void editQuiz(Quiz quiz) {
+	private void editQuiz(DocumentQuiz documentQuiz) {
 		if (nonNull(editAction)) {
-			editAction.execute(quiz);
+			editAction.execute(documentQuiz);
 		}
 	}
 
 	/**
 	 * Starts the specified quiz through the stream service and closes the view.
 	 *
-	 * @param quiz The quiz to be started.
+	 * @param documentQuiz The quiz to be started.
 	 */
-	private void startQuiz(Quiz quiz) {
-		streamService.startQuiz(quiz);
+	private void startQuiz(DocumentQuiz documentQuiz) {
+		streamService.startQuiz(documentQuiz);
 
 		close();
 	}
@@ -163,8 +178,10 @@ public class SelectQuizPresenter extends Presenter<SelectQuizView> {
 	 */
 	private void reload() {
 		try {
-			view.setQuizzes(quizService.getQuizzes());
-			view.setDocumentQuizzes(quizService.getAllDocumentQuizzes());
+			view.setQuizzes(quizService.getQuizzes().stream()
+					.map(q -> new DocumentQuiz(genericDoc, q))
+					.collect(Collectors.toList()));
+			view.setDocumentQuizzes(quizService.getDocumentQuizzes());
 			view.selectQuiz(webService.getStartedQuiz());
 		}
 		catch (IOException e) {

@@ -262,6 +262,8 @@ public class SwingCreateQuizView extends ContentPane implements CreateQuizView {
 			if (stateChange == ItemEvent.SELECTED) {
 				executeAction(action, docSetComboBox.getModel()
 						.getElementAt(docSetComboBox.getSelectedIndex()));
+
+				updateQuizStateUI(true);
 			}
 		});
 	}

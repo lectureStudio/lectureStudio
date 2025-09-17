@@ -28,6 +28,7 @@ import javax.inject.Singleton;
 import org.lecturestudio.core.model.Document;
 import org.lecturestudio.core.model.DocumentList;
 import org.lecturestudio.core.service.DocumentService;
+import org.lecturestudio.presenter.api.model.DocumentQuiz;
 import org.lecturestudio.web.api.model.quiz.Quiz;
 
 /**
@@ -90,46 +91,18 @@ public class QuizService {
 	 *
 	 * @throws IOException if an I/O error occurs during quiz retrieval.
 	 */
-	public List<Quiz> getAllDocumentQuizzes() throws IOException {
-		List<Quiz> quizList = new ArrayList<>();
+	public List<DocumentQuiz> getDocumentQuizzes() throws IOException {
+		List<DocumentQuiz> quizList = new ArrayList<>();
 		DocumentList docList = documentService.getDocuments();
 
 		for (Document doc : docList.getPdfDocuments()) {
-			quizList.addAll(getQuizzes(doc));
+			List<Quiz> quizzes = getQuizzes(doc);
+			for (Quiz quiz : quizzes) {
+				quizList.add(new DocumentQuiz(doc, quiz));
+			}
 		}
 
 		return quizList;
-	}
-
-	/**
-	 * Retrieves the document associated with the specified quiz.
-	 * This method searches through all PDF documents to find the one containing the quiz.
-	 *
-	 * @param quiz the quiz to find the document for.
-	 *
-	 * @return the document containing the quiz, or null if no matching document is found
-	 *         or if an I/O error occurs during the search.
-	 */
-	public Document getDocumentForQuiz(Quiz quiz) {
-		DocumentList docList = documentService.getDocuments();
-
-		for (Document doc : docList.getPdfDocuments()) {
-			List<Quiz> docQuizzes;
-			try {
-				docQuizzes = getQuizzes(doc);
-			}
-			catch (IOException e) {
-				return null;
-			}
-
-			for (Quiz docQuiz : docQuizzes) {
-				if (docQuiz.equals(quiz)) {
-					return doc;
-				}
-			}
-		}
-
-		return null;
 	}
 
 	/**
@@ -156,19 +129,26 @@ public class QuizService {
 	}
 
 	/**
-	 * Deletes a quiz from both the general collection and from all open PDF documents.
+	 * Deletes a quiz from the general quiz collection.
 	 *
 	 * @param quiz the quiz to delete.
 	 *
-	 * @throws IOException if an I/O error occurs.
+	 * @throws IOException if an I/O error occurs during deletion.
 	 */
 	public void deleteQuiz(Quiz quiz) throws IOException {
 		quizDataSource.deleteQuiz(quiz);
+	}
 
-		// Find and delete the quiz for any opened document.
-		for (var document : documentService.getDocuments().getPdfDocuments()) {
-			quizDataSource.deleteQuiz(quiz, document);
-		}
+	/**
+	 * Deletes a quiz from a specific document.
+	 *
+	 * @param quiz     the quiz to delete.
+	 * @param document the document from which to delete the quiz.
+	 *
+	 * @throws IOException if an I/O error occurs during deletion.
+	 */
+	public void deleteQuiz(Quiz quiz, Document document) throws IOException {
+		quizDataSource.deleteQuiz(quiz, document);
 	}
 
 	/**
@@ -225,7 +205,7 @@ public class QuizService {
 		}
 		else {
 			// Remove from the current set, since it has been moved to another set.
-			quizDataSource.deleteQuiz(oldQuiz, selectedDoc);
+			//quizDataSource.deleteQuiz(oldQuiz, selectedDoc);
 
 			if (doc.isPDF()) {
 				quizDataSource.replaceQuiz(oldQuiz, newQuiz, doc);

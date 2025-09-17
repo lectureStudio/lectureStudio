@@ -23,26 +23,78 @@ import java.util.List;
 import org.lecturestudio.core.view.Action;
 import org.lecturestudio.core.view.ConsumerAction;
 import org.lecturestudio.core.view.View;
-import org.lecturestudio.web.api.model.quiz.Quiz;
+import org.lecturestudio.presenter.api.model.DocumentQuiz;
 
+/**
+ * Interface defining the view for quiz selection functionality.
+ * This view allows users to manage quizzes including selection, creation,
+ * deletion, editing, and starting quizzes.
+ *
+ * @author Alex Andres
+ */
 public interface SelectQuizView extends View {
 
-	void removeQuiz(Quiz quiz);
+	/**
+	 * Removes the specified quiz from the view.
+	 *
+	 * @param documentQuiz the quiz to be removed.
+	 */
+	void removeQuiz(DocumentQuiz documentQuiz);
 
-	void selectQuiz(Quiz quiz);
+	/**
+	 * Selects the specified quiz in the view.
+	 *
+	 * @param documentQuiz the quiz to be selected.
+	 */
+	void selectQuiz(DocumentQuiz documentQuiz);
 
-	void setQuizzes(List<Quiz> quizList);
+	/**
+	 * Sets the list of available quizzes in the view.
+	 *
+	 * @param quizList the list of quizzes to display.
+	 */
+	void setQuizzes(List<DocumentQuiz> quizList);
 
-	void setDocumentQuizzes(List<Quiz> quizList);
+	/**
+	 * Sets the list of quizzes associated with the current document.
+	 *
+	 * @param quizList the list of document-specific quizzes.
+	 */
+	void setDocumentQuizzes(List<DocumentQuiz> quizList);
 
+	/**
+	 * Sets the action to be executed when the view is closed.
+	 *
+	 * @param action the action to execute on close.
+	 */
 	void setOnClose(Action action);
 
+	/**
+	 * Sets the action to be executed when creating a new quiz.
+	 *
+	 * @param action the action to execute on quiz creation.
+	 */
 	void setOnCreateQuiz(Action action);
 
-	void setOnDeleteQuiz(ConsumerAction<Quiz> action);
+	/**
+	 * Sets the action to be executed when deleting a quiz.
+	 *
+	 * @param action the consumer action that processes the quiz to be deleted.
+	 */
+	void setOnDeleteQuiz(ConsumerAction<DocumentQuiz> action);
 
-	void setOnEditQuiz(ConsumerAction<Quiz> action);
+	/**
+	 * Sets the action to be executed when editing a quiz.
+	 *
+	 * @param action the consumer action that processes the quiz to be edited.
+	 */
+	void setOnEditQuiz(ConsumerAction<DocumentQuiz> action);
 
-	void setOnStartQuiz(ConsumerAction<Quiz> action);
+	/**
+	 * Sets the action to be executed when starting a quiz.
+	 *
+	 * @param action the consumer action that processes the quiz to be started.
+	 */
+	void setOnStartQuiz(ConsumerAction<DocumentQuiz> action);
 
 }

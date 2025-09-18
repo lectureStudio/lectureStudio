@@ -132,7 +132,8 @@ public class VideoFrameGrabber extends ExecutableBase {
 				early_ts += ts0;
 
 				int ret;
-				if ((ret = avformat_seek_file(formatContext, -1, 0L, early_ts, early_ts, AVSEEK_FLAG_BACKWARD)) < 0) {
+				int streamIndex = grabber.getVideoStream();
+				if ((ret = avformat_seek_file(formatContext, streamIndex, 0L, early_ts, early_ts, AVSEEK_FLAG_BACKWARD)) < 0) {
 					throw new ExecutableException("avformat_seek_file() error [%s]: Could not seek file to timestamp [%s].",
 							ret, timestamp);
 				}

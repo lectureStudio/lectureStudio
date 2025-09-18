@@ -99,7 +99,11 @@ public class ViewRenderer {
 		return bufferImage;
 	}
 
-	public void setPage(Page page) {
+	public synchronized void setPage(Page page) {
+		if (this.page != page) {
+			// Page focus changed, clear any existing video frame.
+			disposeFrame();
+		}
 		this.page = page;
 	}
 
@@ -112,12 +116,13 @@ public class ViewRenderer {
 			return;
 		}
 
-		// A new page has been focused, clear video frame.
-		disposeFrame();
-
 		updateBackImage(page, size);
 
 		renderForeground();
+	}
+
+	public synchronized boolean hasVideoFrame() {
+		return nonNull(videoFrame);
 	}
 
 	private synchronized void disposeFrame() {
@@ -129,7 +134,6 @@ public class ViewRenderer {
 
 	public synchronized void renderFrame(Frame frame) throws Exception {
 		if (isNull(frame) || isNull(frame.type)) {
-			disposeFrame();
 			renderForeground();
 			return;
 		}
@@ -145,9 +149,6 @@ public class ViewRenderer {
 			destroyFrameFilter();
 			createFrameFilter(targetWidth, targetHeight, frameWidth, frameHeight);
 		}
-
-		// TODO: handle this in connection with painted annotations
-//		disposeFrame();
 
 		videoFrame = frame.clone();
 
@@ -453,6 +454,15 @@ public class ViewRenderer {
 	}
 
 	public void dispose() {
+		// Release any pending video frame and filter first
+		disposeFrame();
+		try {
+			destroyFrameFilter();
+		}
+		catch (Exception e) {
+			// Ignore filter cleanup exceptions during dispose
+		}
+
 		if (backImage != null) {
 			backImage.flush();
 			backImage = null;
@@ -487,6 +497,7 @@ public class ViewRenderer {
 		if (nonNull(frameFilter)) {
 			frameFilter.stop();
 			frameFilter.release();
+			frameFilter = null;
 		}
 	}
 

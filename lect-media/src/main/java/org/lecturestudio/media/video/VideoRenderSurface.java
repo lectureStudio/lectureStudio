@@ -20,8 +20,19 @@ package org.lecturestudio.media.video;
 
 import org.bytedeco.javacv.Frame;
 
+/**
+ * Interface for surfaces that can render video frames.
+ * Implementations of this interface provide the capability to display video content.
+ *
+ * @author Alex Andres
+ */
 public interface VideoRenderSurface {
 
+	/**
+	 * Renders a single video frame on the surface.
+	 *
+	 * @param frame The video frame to be rendered.
+	 */
 	void renderFrame(Frame frame);
 
 }

@@ -456,11 +456,13 @@ public class SlideViewSkin extends SkinBase<SlideView> {
 				return;
 			}
 
-			setBounds(getSkinnable().getLayoutBounds());
+			if (!renderer.hasVideoFrame()) {
+				setBounds(getSkinnable().getLayoutBounds());
 
-			renderer.renderPage(page, new Dimension(width, height));
+				renderer.renderPage(page, new Dimension(width, height));
 
-			updateBuffer();
+				updateBuffer();
+			}
 		}
 	}
 }

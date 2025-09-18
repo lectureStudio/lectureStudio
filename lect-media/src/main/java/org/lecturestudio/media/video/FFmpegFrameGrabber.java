@@ -798,7 +798,7 @@ public class FFmpegFrameGrabber extends FrameGrabber {
                         avcodec_flush_buffers(video_c);
                     }
                     if (audio_c != null) {
-//                        avcodec_flush_buffers(audio_c);
+                        avcodec_flush_buffers(audio_c);
                     }
                     if (pkt.stream_index() != -1) {
                         av_packet_unref(pkt);
@@ -854,10 +854,10 @@ public class FFmpegFrameGrabber extends FrameGrabber {
                     throw new Exception("avformat_seek_file() error " + ret + ": Could not seek file to timestamp " + timestamp + ".");
                 }
                 if (video_c != null) {
-//                    avcodec_flush_buffers(video_c);
+                    avcodec_flush_buffers(video_c);
                 }
                 if (audio_c != null) {
-//                    avcodec_flush_buffers(audio_c);
+                    avcodec_flush_buffers(audio_c);
                 }
                 if (pkt.stream_index() != -1) {
                     av_packet_unref(pkt);

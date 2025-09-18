@@ -112,12 +112,18 @@ public class ViewRenderer {
 			return;
 		}
 
+		System.out.println("render page");
+
 		// A new page has been focused, clear video frame.
 		disposeFrame();
 
 		updateBackImage(page, size);
 
 		renderForeground();
+	}
+
+	public synchronized boolean hasVideoFrame() {
+		return nonNull(videoFrame);
 	}
 
 	private synchronized void disposeFrame() {
@@ -128,6 +134,8 @@ public class ViewRenderer {
 	}
 
 	public synchronized void renderFrame(Frame frame) throws Exception {
+		System.out.println("render frame: " + frame);
+
 		if (isNull(frame) || isNull(frame.type)) {
 			disposeFrame();
 			renderForeground();

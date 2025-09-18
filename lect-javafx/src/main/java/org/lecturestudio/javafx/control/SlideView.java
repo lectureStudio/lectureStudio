@@ -304,6 +304,10 @@ public class SlideView extends Control implements ParameterChangeListener, org.l
 	}
 
 	public synchronized void repaint() {
+		if (seekProperty.get()) {
+			return;
+		}
+
 		SlideViewSkin skin = (SlideViewSkin) getSkin();
 		skin.repaint();
 	}

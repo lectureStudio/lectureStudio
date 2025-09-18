@@ -454,6 +454,15 @@ public class ViewRenderer {
 	}
 
 	public void dispose() {
+		// Release any pending video frame and filter first
+		disposeFrame();
+		try {
+			destroyFrameFilter();
+		}
+		catch (Exception e) {
+			// Ignore filter cleanup exceptions during dispose
+		}
+
 		if (backImage != null) {
 			backImage.flush();
 			backImage = null;
@@ -488,6 +497,7 @@ public class ViewRenderer {
 		if (nonNull(frameFilter)) {
 			frameFilter.stop();
 			frameFilter.release();
+			frameFilter = null;
 		}
 	}
 

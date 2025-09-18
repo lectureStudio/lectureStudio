@@ -18,6 +18,8 @@
 
 package org.lecturestudio.editor.api.edit;
 
+import static java.util.Objects.isNull;
+
 import java.io.IOException;
 import java.util.Iterator;
 import java.util.List;
@@ -29,17 +31,41 @@ import org.lecturestudio.core.recording.RecordedPage;
 import org.lecturestudio.core.recording.action.PlaybackAction;
 import org.lecturestudio.core.recording.action.StaticShapeAction;
 
+/**
+ * Action for inserting recorded events into an existing recording.
+ * This class handles the insertion logic including splitting pages if necessary
+ * and maintaining proper timing of events.
+ *
+ * @author Alex Andres
+ */
 public class InsertEventsAction extends RecordingInsertAction<RecordedEvents> {
 
+	/** Flag indicating whether to split the page at the insertion point. */
 	private final boolean split;
 
+	/** Duration of the inserted events in milliseconds. */
 	private final int duration;
 
+	/** The index of the page where events will be inserted. */
 	private final int startIndex;
 
+	/** Serialized byte representation of the original events before modification. */
 	private byte[] eventStream;
 
+	/** Serialized byte representation of the events to be inserted. */
+	private byte[] insertEventStream;
 
+
+	/**
+	 * Creates a new action for inserting events into a recording.
+	 *
+	 * @param recordedObject The target recording where events will be inserted.
+	 * @param events         The events to insert into the recording.
+	 * @param split          Flag indicating whether to split the page at the insertion point.
+	 * @param startTime      The timestamp at which to insert the events.
+	 * @param startIndex     The index of the page where events will be inserted.
+	 * @param duration       The duration of the inserted events in milliseconds.
+	 */
 	public InsertEventsAction(RecordedEvents recordedObject,
 			RecordedEvents events,
 			boolean split,
@@ -59,11 +85,21 @@ public class InsertEventsAction extends RecordingInsertAction<RecordedEvents> {
 			throw new RecordingEditException("Invalid insert position");
 		}
 
-		try {
-			eventStream = getRecordedObject().toByteArray();
+		if (isNull(eventStream)) {
+			try {
+				eventStream = getRecordedObject().toByteArray();
+			}
+			catch (IOException e) {
+				throw new RecordingEditException(e);
+			}
 		}
-		catch (IOException e) {
-			throw new RecordingEditException(e);
+		if (isNull(insertEventStream)) {
+			try {
+				insertEventStream = objectToInsert.toByteArray();
+			}
+			catch (IOException e) {
+				throw new RecordingEditException(e);
+			}
 		}
 
 		List<RecordedPage> recPages = getRecordedObject().getRecordedPages();
@@ -131,6 +167,13 @@ public class InsertEventsAction extends RecordingInsertAction<RecordedEvents> {
 	public void undo() throws RecordingEditException {
 		try {
 			getRecordedObject().parseFrom(eventStream);
+		}
+		catch (IOException e) {
+			throw new RecordingEditException(e);
+		}
+
+		try {
+			objectToInsert.parseFrom(insertEventStream);
 		}
 		catch (IOException e) {
 			throw new RecordingEditException(e);

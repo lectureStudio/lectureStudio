@@ -389,7 +389,9 @@ public class ViewRenderer {
 
 		BufferedImage converted = frameConverter.convert(frame);
 
-		frame.close();
+		if (nonNull(frame)) {
+			frame.close();
+		}
 
 		final int x = (currentImage.getWidth() - converted.getWidth()) / 2;
 		final int y = (currentImage.getHeight() - converted.getHeight()) / 2;

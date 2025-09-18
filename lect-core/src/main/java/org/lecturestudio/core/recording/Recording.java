@@ -54,7 +54,22 @@ public class Recording {
 	 * Used to specify which part of the recording has changed when firing change events.
 	 */
 	public enum Content {
-		ALL, HEADER, AUDIO, DOCUMENT, EVENTS_ADDED, EVENTS_CHANGED, EVENTS_REMOVED
+		/** Indicates all content types in the recording have changed. */
+		ALL,
+		/** Indicates changes to the recording's metadata header. */
+		HEADER,
+		/** Indicates changes to the recording's audio data. */
+		AUDIO,
+		/** Indicates changes to the recording's video data. */
+		VIDEO,
+		/** Indicates changes to the recording's document content. */
+		DOCUMENT,
+		/** Indicates new events have been added to the recording. */
+		EVENTS_ADDED,
+		/** Indicates existing events in the recording have been modified. */
+		EVENTS_CHANGED,
+		/** Indicates events have been removed from the recording. */
+		EVENTS_REMOVED
 	}
 
 	/** List of listeners that get notified when the recording changes. */

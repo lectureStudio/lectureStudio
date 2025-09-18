@@ -101,6 +101,13 @@ public abstract class RecordingAction implements EditAction {
 		return null;
 	}
 
+	/**
+	 * Fires a change event on the recording with the specified duration.
+	 * This notifies listeners that all content of the recording has changed.
+	 *
+	 * @param duration The time interval during which the change occurred,
+	 *                 or null if the duration is not relevant.
+	 */
 	protected void fireChangeEvent(Interval<Double> duration) {
 		recording.fireChangeEvent(Content.ALL, duration);
 	}

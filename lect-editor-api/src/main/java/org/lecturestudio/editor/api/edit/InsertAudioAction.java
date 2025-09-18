@@ -36,20 +36,42 @@ import org.lecturestudio.media.audio.LoudnessConfiguration;
 
 /**
  * Inserts the new audio track at the selected position and adjusts the loudness (perceived volume)
- * of the new track to match the existing if selected
+ * of the new track to match the existing if selected.
+ *
+ * @author Alex Andres
+ * @author Hendrik Ruethers
  */
 public class InsertAudioAction extends RecordingInsertAction<RecordedAudio> {
 
+	/** Flag indicating whether to normalize the new audio. */
+	private final boolean normalizeNewAudio;
+
+	/** Configuration settings for loudness normalization. */
+	private final LoudnessConfiguration configuration;
+
+	/** Callback for reporting progress during the operation. */
+	private final ProgressCallback callback;
+
+	/** The original audio stream before modification. */
 	private RandomAccessAudioStream oldStream;
 
-	private File newStreamFile;
-	private FFmpegLoudnessNormalization normalization = null;
-	private final boolean normalizeNewAudio;
-	private final LoudnessConfiguration configuration;
-	private final ProgressCallback callback;
+	/** Handler for audio loudness normalization. */
+	private FFmpegLoudnessNormalization normalization;
+
+	/** The new audio stream after modifications. */
 	private RandomAccessAudioStream newStream;
 
 
+	/**
+	 * Creates a new audio insertion action.
+	 *
+	 * @param recordedObject    The recorded audio object to modify.
+	 * @param audio             The audio to insert.
+	 * @param startTime         The position (in ms) where to insert the new audio.
+	 * @param normalizeNewAudio Whether to normalize the loudness of the inserted audio.
+	 * @param configuration     The configuration for loudness normalization.
+	 * @param callback          Callback to report progress during execution.
+	 */
 	public InsertAudioAction(RecordedAudio recordedObject, RecordedAudio audio, int startTime,
 							 boolean normalizeNewAudio, LoudnessConfiguration configuration,
 							 ProgressCallback callback) {
@@ -64,7 +86,7 @@ public class InsertAudioAction extends RecordingInsertAction<RecordedAudio> {
 		try {
 			getRecordedObject().setAudioStream(oldStream);
 
-			newStreamFile.delete();
+//			newStreamFile.delete();
 		}
 		catch (IOException e) {
 			throw new RecordingEditException(e);
@@ -124,7 +146,8 @@ public class InsertAudioAction extends RecordingInsertAction<RecordedAudio> {
 		}
 
 		try {
-			newStreamFile = Files.createTempFile("lect-editor-", ".wav").toFile();
+			File newStreamFile = Files.createTempFile("lect-editor-", ".wav").toFile();
+			newStreamFile.deleteOnExit();
 
 			WavFileSink fileOutputStream = new WavFileSink(newStreamFile);
 			fileOutputStream.setAudioFormat(audioFormat);
@@ -192,9 +215,12 @@ public class InsertAudioAction extends RecordingInsertAction<RecordedAudio> {
 			}
 
 			callback.onProgress((float) (++currentStep) / totalSteps);
+
 			fileOutputStream.close();
 			insStream.close();
+
 			getRecordedObject().setAudioStream(new RandomAccessAudioStream(newStreamFile));
+
 			newStream = new RandomAccessAudioStream(newStreamFile);
 		}
 		catch (Exception e) {

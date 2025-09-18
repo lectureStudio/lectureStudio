@@ -288,8 +288,9 @@ public class RecordingFileService {
 			try {
 				imported = RecordingFileReader.read(file);
 
-				addEditAction(recording, new InsertRecordingAction(recording,
-						imported, start, normalizeNewAudio, loudnessConfigurationMap.get(recording), callback));
+				addEditAction(recording, new InsertRecordingAction(recording, imported,
+						start, normalizeNewAudio, loudnessConfigurationMap.get(recording),
+						callback, playbackService::stopVideo));
 			}
 			catch (Exception e) {
 				throw new CompletionException(e);

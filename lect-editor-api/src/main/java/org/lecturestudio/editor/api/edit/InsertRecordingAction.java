@@ -23,17 +23,14 @@ import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.lecturestudio.core.recording.RecordedAudio;
-import org.lecturestudio.core.recording.RecordedDocument;
-import org.lecturestudio.core.recording.RecordedEvents;
-import org.lecturestudio.core.recording.RecordedPage;
-import org.lecturestudio.core.recording.Recording;
-import org.lecturestudio.core.recording.RecordingHeader;
+import org.lecturestudio.core.recording.*;
 import org.lecturestudio.core.recording.action.ScreenAction;
 import org.lecturestudio.core.recording.edit.EditAction;
 import org.lecturestudio.core.recording.file.RecordingUtils;
 import org.lecturestudio.core.util.ProgressCallback;
 import org.lecturestudio.media.audio.LoudnessConfiguration;
+
+import static java.util.Objects.nonNull;
 
 /**
  * Inserts a {@code Recording} into another {@code Recording} that is being
@@ -45,15 +42,43 @@ import org.lecturestudio.media.audio.LoudnessConfiguration;
 public class InsertRecordingAction extends RecordingAction {
 
 	/**
-	 * @param recording The recording on which to operate.
-	 * @param target    The recording to insert.
-	 * @param start     The time position in the target recording where to
-	 *                  insert the new recording.
-	 * @param normalizeNewAudio Whether the new audio track should have the same loudness as the existing audio track
+	 * A callback that is executed when undoing the action if video was inserted.
+	 * This runnable is called during the {@link #undo()} method if any
+	 * {@link CopyScreenRecordingsAction} is present in the edit actions.
+	 * Can be {@code null}.
+	 */
+	private final Runnable onUndoVideo;
+
+
+	/**
+	 * @param recording         The recording on which to operate.
+	 * @param target            The recording to insert.
+	 * @param start             The time position in the target recording where to insert the new recording.
+	 * @param normalizeNewAudio Whether the new audio track should have the same loudness as the existing audio track.
+	 * @param configuration     The loudness configuration to use for normalization.
+	 * @param callback          A progress callback to report progress during audio processing.
+	 * @param onUndoVideo       A callback that is executed when undoing the action if video was inserted.
+	 *                          Can be {@code null}.
 	 */
 	public InsertRecordingAction(Recording recording, Recording target, double start, boolean normalizeNewAudio,
-								 LoudnessConfiguration configuration, ProgressCallback callback) {
+								 LoudnessConfiguration configuration, ProgressCallback callback, Runnable onUndoVideo) {
 		super(recording, createActions(recording, target, start, normalizeNewAudio, configuration, callback));
+
+		this.onUndoVideo = onUndoVideo;
+	}
+
+	@Override
+	public void undo() throws RecordingEditException {
+		if (editActions.stream().anyMatch(CopyScreenRecordingsAction.class::isInstance) && nonNull(onUndoVideo)) {
+			try {
+				onUndoVideo.run();
+			}
+			catch (Exception e) {
+				throw new RecordingEditException("Failed to execute onUndoVideo callback.", e);
+			}
+		}
+
+		super.undo();
 	}
 
 	private static List<EditAction> createActions(Recording recording, Recording target, double start,

@@ -108,6 +108,9 @@ public class RecordingPlayer extends ExecutableBase {
 	/** Handles audio playback. */
 	private AudioPlayer audioPlayer;
 
+	/** Handles video playback for the recording. */
+	private VideoPlayer videoPlayer;
+
 	/** Controls document tools during playback. */
 	private ToolController toolController;
 
@@ -190,7 +193,7 @@ public class RecordingPlayer extends ExecutableBase {
 
 		var pages = new ArrayList<>(recording.getRecordedEvents().getRecordedPages());
 
-		VideoPlayer videoPlayer = new VideoPlayer(recording.getSourceFile().getParentFile());
+		videoPlayer = new VideoPlayer(recording.getSourceFile().getParentFile());
 		videoPlayer.setVideoRenderSurface(videoRenderSurface);
 
 		actionExecutor = new FileEventExecutor(toolController, pages, videoPlayer, syncState);
@@ -236,6 +239,9 @@ public class RecordingPlayer extends ExecutableBase {
 		if (audioPlayer.suspended() || audioPlayer.started()) {
 			audioPlayer.stop();
 		}
+		if (videoPlayer.suspended() || videoPlayer.started()) {
+			videoPlayer.stop();
+		}
 		if (actionExecutor.suspended() || actionExecutor.started()) {
 			actionExecutor.stop();
 		}
@@ -249,6 +255,9 @@ public class RecordingPlayer extends ExecutableBase {
 		if (audioPlayer.started()) {
 			audioPlayer.suspend();
 		}
+		if (videoPlayer.started()) {
+			videoPlayer.suspend();
+		}
 		if (actionExecutor.started()) {
 			actionExecutor.suspend();
 		}
@@ -261,6 +270,10 @@ public class RecordingPlayer extends ExecutableBase {
 		toolController.destroy();
 		audioPlayer.destroy();
 		actionExecutor.destroy();
+
+		if (!videoPlayer.destroyed()) {
+			videoPlayer.destroy();
+		}
 	}
 
 	/**
@@ -361,6 +374,26 @@ public class RecordingPlayer extends ExecutableBase {
 		int pageNumber = getDocument().getPageIndex(page);
 
 		selectPage(pageNumber, started());
+	}
+
+	/**
+	 * Stops video playback if the video player is in a started or suspended state.
+	 * This method gracefully stops the video component of the recording without
+	 * affecting other playback elements.
+	 * <p>
+	 * If the video player has not been initialized or is already stopped, this method
+	 * has no effect.
+	 * </p>
+	 */
+	public void stopVideo() {
+		if (nonNull(videoPlayer) && videoPlayer.suspended() || videoPlayer.started()) {
+			try {
+				videoPlayer.stop();
+			}
+			catch (ExecutableException e) {
+				logException(e, "Stop video player failed.");
+			}
+		}
 	}
 
 	/**

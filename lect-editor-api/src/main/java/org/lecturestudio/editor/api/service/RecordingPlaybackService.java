@@ -273,6 +273,19 @@ public class RecordingPlaybackService extends ExecutableBase {
 	}
 
 	/**
+	 * Stops the video playback of the current recording.
+	 * <p>
+	 * If there is an active recording player, this method will instruct it to stop
+	 * video playback while potentially leaving other aspects of playback unaffected.
+	 * Does nothing if no recording player is available.
+	 */
+	public void stopVideo() {
+		if (nonNull(recordingPlayer)) {
+			recordingPlayer.stopVideo();
+		}
+	}
+
+	/**
 	 * Seeks to a specific time position in the recording.
 	 * <p>
 	 * Does nothing if the player is already started or destroyed, or if seeking

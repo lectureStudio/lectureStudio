@@ -21,32 +21,67 @@ package org.lecturestudio.core.recording;
 import org.lecturestudio.core.model.Interval;
 import org.lecturestudio.core.recording.Recording.Content;
 
+/**
+ * Represents an event that signals changes in a recording file.
+ * This class is used to track modifications to recording content and duration.
+ *
+ * @author Alex Andres
+ */
 public class RecordingChangeEvent {
 
+	/** The recording file that was changed. */
 	private final Recording file;
 
+	/** The type of content that was modified in the recording. */
 	private final Content contentType;
 
+	/** The time interval that was affected by the change. */
 	private Interval<Double> duration;
 
 
+	/**
+	 * Creates a new recording change event for the specified recording and content type.
+	 *
+	 * @param file        The recording file that changed.
+	 * @param contentType The type of content that was modified.
+	 */
 	public RecordingChangeEvent(Recording file, Content contentType) {
 		this.file = file;
 		this.contentType = contentType;
 	}
 
+	/**
+	 * Gets the recording associated with this change event.
+	 *
+	 * @return The recording that was modified.
+	 */
 	public Recording getRecording() {
 		return file;
 	}
 
+	/**
+	 * Gets the type of content that was modified.
+	 *
+	 * @return The content type that was affected.
+	 */
 	public Content getContentType() {
 		return contentType;
 	}
 
+	/**
+	 * Gets the duration or time interval that was affected by the change.
+	 *
+	 * @return The duration of the change, or null if not set.
+	 */
 	public Interval<Double> getDuration() {
 		return duration;
 	}
 
+	/**
+	 * Sets the duration or time interval that was affected by the change.
+	 *
+	 * @param duration The time interval to set.
+	 */
 	public void setDuration(Interval<Double> duration) {
 		this.duration = duration;
 	}

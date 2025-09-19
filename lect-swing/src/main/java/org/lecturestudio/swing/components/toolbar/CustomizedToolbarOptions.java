@@ -55,8 +55,6 @@ import javax.swing.SwingConstants;
 
 public class CustomizedToolbarOptions extends JPanel {
 
-	private static final long serialVersionUID = 8916594208363548892L;
-
 	/**
 	 * Analogous to the toolbar's list of components, except a MockComponent is used for each object.
 	 */
@@ -95,9 +93,9 @@ public class CustomizedToolbarOptions extends JPanel {
 
 	};
 
-	public CustomizedToolbarOptions(CustomizedToolbar t, int maxWidth, ResourceBundle resourceBundle) {
-		toolbar = t;
-		JComponent[] options = t.getPossibleComponents();
+	public CustomizedToolbarOptions(CustomizedToolbar toolbar, int maxWidth, ResourceBundle resourceBundle) {
+		this.toolbar = toolbar;
+		JComponent[] options = toolbar.getPossibleComponents();
 		componentList = new MockComponent[options.length + 3];
 		for (int a = 0; a < options.length; a++) {
 			componentList[a] = (new MockComponent(options[a]));
@@ -107,16 +105,16 @@ public class CustomizedToolbarOptions extends JPanel {
 		separator.setUI(new MacToolbarSeparatorUI());
 		separator.setName("-");
 		Dimension separatorSize = separator.getPreferredSize();
-		separatorSize.height = toolbar.minimumHeight;
+		separatorSize.height = this.toolbar.minimumHeight;
 		separator.setSize(separatorSize);
 		separator.setPreferredSize(separatorSize);
 		componentList[componentList.length - 3] = new MockComponent(separator);
 
-		SpaceComponent space = new SpaceComponent(toolbar, false);
+		SpaceComponent space = new SpaceComponent(this.toolbar, false);
 		space.setName(" ");
 		componentList[componentList.length - 2] = new MockComponent(space);
 
-		SpaceComponent flexSpace = new SpaceComponent(toolbar, true);
+		SpaceComponent flexSpace = new SpaceComponent(this.toolbar, true);
 		flexSpace.setName("\t");
 		componentList[componentList.length - 1] = new MockComponent(flexSpace);
 
@@ -167,8 +165,45 @@ public class CustomizedToolbarOptions extends JPanel {
 		c.gridy++;
 		c.anchor = GridBagConstraints.EAST;
 		c.insets = new Insets(10, 20, 20, 20);
+
+		JPanel buttonPanel = new JPanel(new GridBagLayout());
+		GridBagConstraints bc = new GridBagConstraints();
+		bc.gridx = 0;
+		bc.gridy = 0;
+		bc.insets = new Insets(0, 0, 0, 10);
+		JButton resetButton;
+
+		try {
+			resetButton = new JButton(resourceBundle.getString("button.reset"));
+		}
+		catch (Exception ex) {
+			resetButton = new JButton("Reset");
+		}
+
+		resetButton.addActionListener(e -> {
+			// Reset toolbar layout to defaults
+			toolbar.resetLayoutToDefaults();
+			// Refresh option mock components' visibility according to toolbar state
+			JComponent[] opts = toolbar.getPossibleComponents();
+			for (int i = 0; i < opts.length && i < componentList.length; i++) {
+				componentList[i].setVisible(!opts[i].isVisible());
+			}
+			// Repack the dialog to update layout
+			Component comp = this;
+			while (comp != null && !(comp instanceof javax.swing.JDialog)) {
+				comp = comp.getParent();
+			}
+			if (comp != null) {
+				((javax.swing.JDialog) comp).pack();
+			}
+		});
+		buttonPanel.add(resetButton, bc);
+
+		bc.gridx++;
+		bc.insets = new Insets(0, 0, 0, 0);
 		closeButton = new JButton(resourceBundle.getString("button.close"));
-		add(closeButton, c);
+		buttonPanel.add(closeButton, bc);
+		add(buttonPanel, c);
 
 		setOpaque(true);
 		setBackground(this, Color.white);
@@ -176,8 +211,7 @@ public class CustomizedToolbarOptions extends JPanel {
 
 	private static void setBackground(Component c, Color color) {
 		c.setBackground(color);
-		if (c instanceof Container) {
-			Container c2 = (Container) c;
+		if (c instanceof Container c2) {
 			for (int a = 0; a < c2.getComponentCount(); a++) {
 				setBackground(c2.getComponent(a), color);
 			}

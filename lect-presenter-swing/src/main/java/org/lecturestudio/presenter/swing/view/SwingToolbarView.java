@@ -59,6 +59,7 @@ import org.lecturestudio.core.tool.ToolType;
 import org.lecturestudio.core.view.Action;
 import org.lecturestudio.core.view.ConsumerAction;
 import org.lecturestudio.core.view.PresentationParameter;
+import org.lecturestudio.presenter.api.config.PresenterConfiguration;
 import org.lecturestudio.presenter.api.model.ManualStateObserver;
 import org.lecturestudio.presenter.api.view.ToolbarView;
 import org.lecturestudio.swing.AwtResourceLoader;
@@ -67,6 +68,7 @@ import org.lecturestudio.swing.components.RecordButton;
 import org.lecturestudio.swing.components.ToolColorPickerButton;
 import org.lecturestudio.swing.components.ToolGroupButton;
 import org.lecturestudio.swing.components.toolbar.CustomizedToolbar;
+import org.lecturestudio.swing.components.toolbar.ToolbarLayoutStore;
 import org.lecturestudio.swing.converter.ColorConverter;
 import org.lecturestudio.swing.converter.FontConverter;
 import org.lecturestudio.swing.layout.WrapFlowLayout;
@@ -84,8 +86,6 @@ public class SwingToolbarView extends JPanel implements ToolbarView {
 	private ConsumerAction<Color> paletteColorAction;
 
 	private ConsumerAction<Font> textBoxFontAction;
-
-	private ConsumerAction<TeXFont> texBoxFontAction;
 
 	private ButtonGroup colorGroup;
 
@@ -455,18 +455,10 @@ public class SwingToolbarView extends JPanel implements ToolbarView {
 
 	@Override
 	public void setOnTeXTool(Action action) {
-//		SwingUtils.bindAction(texButton, action);
-//
-//		texButton.addChangeListener(e -> {
-//			if (texButton.isSelected()) {
-//				setColorButtonsEnabled(true);
-//			}
-//		});
 	}
 
 	@Override
 	public void setOnTeXBoxFont(ConsumerAction<TeXFont> action) {
-		this.texBoxFontAction = action;
 	}
 
 	@Override
@@ -715,10 +707,10 @@ public class SwingToolbarView extends JPanel implements ToolbarView {
 
 				if (nonNull(group)) {
 					if (group.equals("colorGroup")) {
-						colorGroup.add((AbstractButton) component);
+						colorGroup.add(button);
 					}
 					else if (group.equals("toolGroup")) {
-						toolGroup.add((AbstractButton) component);
+						toolGroup.add(button);
 					}
 				}
 			}
@@ -737,9 +729,31 @@ public class SwingToolbarView extends JPanel implements ToolbarView {
 				.filter(Predicate.not(JSeparator.class::isInstance))
 				.toArray(JComponent[]::new);
 
-		customizedToolbar = new CustomizedToolbar(jComponents,
-				defaultToolNames.toArray(new String[0]), "default",
-				resourceBundle, toolController, colorGroup, toolGroup);
+		PresenterConfiguration config = (PresenterConfiguration) toolController.getApplicationContext().getConfiguration();
+
+		customizedToolbar = new CustomizedToolbar(jComponents, defaultToolNames.toArray(new String[0]),
+				"default", resourceBundle, toolController, colorGroup, toolGroup);
+		customizedToolbar.setToolbarLayoutStore(new ToolbarLayoutStore() {
+			@Override
+			public java.util.List<String> get(String toolbarName) {
+				return config.getToolbarLayout(toolbarName);
+			}
+
+			@Override
+			public void set(String toolbarName, java.util.List<String> items) {
+				config.setToolbarLayout(toolbarName, items);
+			}
+
+			@Override
+			public void reset(String toolbarName) {
+				config.setToolbarLayout(toolbarName, null);
+			}
+
+			@Override
+			public void resetAll() {
+				config.setToolbarLayouts(new java.util.HashMap<>());
+			}
+		});
 
 		GridBagConstraints c = new GridBagConstraints();
 		c.gridx = 0;
@@ -760,9 +774,6 @@ public class SwingToolbarView extends JPanel implements ToolbarView {
 		textButton.addItemChangeListener(font -> {
 			executeAction(textBoxFontAction, FontConverter.INSTANCE.from(font));
 		});
-//		texButton.addItemChangeListener(font -> {
-//			executeAction(texBoxFontAction, font);
-//		});
 	}
 
 }

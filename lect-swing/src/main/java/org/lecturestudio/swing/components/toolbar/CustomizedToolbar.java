@@ -28,21 +28,8 @@
  */
 package org.lecturestudio.swing.components.toolbar;
 
-import org.lecturestudio.core.controller.ToolController;
+import static java.util.Objects.nonNull;
 
-import javax.swing.AbstractAction;
-import javax.swing.AbstractButton;
-import javax.swing.ButtonGroup;
-import javax.swing.JComponent;
-import javax.swing.JDialog;
-import javax.swing.JFrame;
-import javax.swing.JLayeredPane;
-import javax.swing.JPanel;
-import javax.swing.JSeparator;
-import javax.swing.KeyStroke;
-import javax.swing.SwingConstants;
-import javax.swing.SwingUtilities;
-import javax.swing.border.LineBorder;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.Dimension;
@@ -69,56 +56,52 @@ import java.awt.event.KeyEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.image.BufferedImage;
 import java.lang.reflect.Array;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.ResourceBundle;
-import java.util.prefs.BackingStoreException;
-import java.util.prefs.PreferenceChangeListener;
-import java.util.prefs.Preferences;
+import java.util.*;
 
-import static java.util.Objects.nonNull;
+import javax.swing.AbstractAction;
+import javax.swing.AbstractButton;
+import javax.swing.ButtonGroup;
+import javax.swing.JComponent;
+import javax.swing.JDialog;
+import javax.swing.JFrame;
+import javax.swing.JLayeredPane;
+import javax.swing.JPanel;
+import javax.swing.JSeparator;
+import javax.swing.KeyStroke;
+import javax.swing.SwingConstants;
+import javax.swing.SwingUtilities;
+import javax.swing.border.LineBorder;
 
+import org.lecturestudio.core.controller.ToolController;
+
+/**
+ * A customizable toolbar panel supporting drag and drop reordering, dynamic visibility
+ * of components, and persistence of layout via preferences or an injected layout store.
+ * Components are identified by unique names (including special names for separators
+ * and flexible/regular spaces) whose ordering can be modified at runtime.
+ */
 public class CustomizedToolbar extends JPanel {
 
+	/** Serialization identifier (kept stable for persisted UI state). */
 	private static final long serialVersionUID = -5451068649494911490L;
 
+	/**
+	 * Client property key set to TRUE while the customization dialog is active.
+	 * Used by placeholder components (spaces, separators) to alter painting behavior.
+	 */
 	protected static final String DIALOG_ACTIVE = "customizeDialogActive";
 
+	/**
+	 * Client property key holding a temporary component ordering during drag operations.
+	 * This allows the AnimatedLayout to compute transient layouts without committing them.
+	 */
 	private static final String PROPERTY_TEMPORARY_CONTENTS = CustomizedToolbar.class.getName() + "#contents";
 
-	/** This is where the order of components is stored. */
-	static final Preferences prefs = Preferences.userNodeForPackage(CustomizedToolbar.class);
+	private final String[] defaultNames;
 
-	/** Removes the stored layout information for a particular toolbar. */
-	public static void resetPreferences(String toolbarName) {
-		String base = toolbarName + ".component";
-		int ctr = 0;
-		String s = base + ctr;
-		while (prefs.get(s, null) != null) {
-			prefs.remove(s);
-			ctr++;
-			s = base + ctr;
-		}
-	}
+	private ToolbarLayoutStore layoutStore;
 
-	/** Removes the stored layout information for all toolbars. */
-	public static void resetAllPreferences() {
-		try {
-			prefs.clear();
-		} catch (BackingStoreException e) {
-			throw new RuntimeException(e);
-		}
-	}
-
-	/** Runs <code>updateContents()</code> in the AWT thread. */
-	private final Runnable updateContentsRunnable = this::updateContents;
-
-	class CustomizedToolbarLayout extends AnimatedLayout {
+	public class CustomizedToolbarLayout extends AnimatedLayout {
 
 		@Override
 		protected Map<JComponent, Rectangle> getDestinationMap(JComponent container) {
@@ -136,7 +119,7 @@ public class CustomizedToolbar extends JPanel {
 			int minPreferredWidth = 0;
 			for (String content : contents) {
 				try {
-					if (content.length() > 0 && content.charAt(0) == '\t') {
+					if (!content.isEmpty() && content.charAt(0) == '\t') {
 						// this is a flexible gap
 						totalFlexGaps++;
 					} else {
@@ -158,7 +141,7 @@ public class CustomizedToolbar extends JPanel {
 					JComponent comp = getComponent(content);
 					Dimension d;
 
-					if (content.length() > 0 && content.charAt(0) == '\t') {
+					if (!content.isEmpty() && content.charAt(0) == '\t') {
 						// flexible gap:
 						int width = extraSpace / totalFlexGaps;
 						extraSpace = extraSpace - width;
@@ -190,7 +173,8 @@ public class CustomizedToolbar extends JPanel {
 					returnValue.put(comp, bounds);
 					x += d.width + componentInsets.left + componentInsets.right;
 					processed.add(comp);
-				} catch (NullPointerException e) {
+				}
+				catch (NullPointerException e) {
 					// this may get thrown if getComponent(name) yields no component
 					// this may happen if a component's name changes, or a component is removed.
 				}
@@ -573,14 +557,18 @@ public class CustomizedToolbar extends JPanel {
 		minimumHeight = getMinimumHeight(components);
 
 		setName(toolbarName);
-		String base = getName() + ".component";
+		defaultNames = defaults.clone();
+
 		if (isEmpty()) {
 			for (int a = 0; a < defaults.length; a++) {
 				if (defaults[a] == null)
 					throw new NullPointerException("defaults[" + a + "] is null");
-				prefs.put(base + a, defaults[a]);
+			}
+			if (layoutStore != null) {
+				layoutStore.set(getName(), Arrays.asList(defaults));
 			}
 		}
+
 		setMinimumSize(new Dimension(5, minimumHeight + componentInsets.top + componentInsets.bottom));
 		setPreferredSize(new Dimension(5, minimumHeight + componentInsets.top + componentInsets.bottom));
 		setMaximumSize(new Dimension(5, minimumHeight + componentInsets.top + componentInsets.bottom));
@@ -593,19 +581,15 @@ public class CustomizedToolbar extends JPanel {
 			componentMap.put(component.getName(), component);
 		}
 
-		int ctr = 0;
-		String componentName = prefs.get(base + ctr, null);
-		while (componentName != null) {
-			JComponent component = componentMap.get(componentName);
-			if (component != null)
-				component.setVisible(true);
-			ctr++;
-			componentName = prefs.get(base + ctr, null);
+		List<String> visible = layoutStore != null ? layoutStore.get(getName()) : Collections.emptyList();
+		if (visible != null) {
+			for (String name : visible) {
+				JComponent component = componentMap.get(name);
+				if (component != null) {
+					component.setVisible(true);
+				}
+			}
 		}
-
-		// This listens possibly updates these components if the preferences change.
-		PreferenceChangeListener prefListener = evt -> SwingUtilities.invokeLater(updateContentsRunnable);
-		prefs.addPreferenceChangeListener(prefListener);
 
 		addComponentListener(new ComponentAdapter() {
 			@Override
@@ -614,9 +598,13 @@ public class CustomizedToolbar extends JPanel {
 			}
 		});
 
+		// Runs in the AWT thread.
+		Runnable updateContentsRunnable = this::updateContents;
+
 		if (SwingUtilities.isEventDispatchThread()) {
 			updateContentsRunnable.run();
-		} else {
+		}
+		else {
 			SwingUtilities.invokeLater(updateContentsRunnable);
 		}
 
@@ -633,6 +621,50 @@ public class CustomizedToolbar extends JPanel {
 		this.toolGroup = toolGroup;
 	}
 
+	/**
+	 * Injects a {@link ToolbarLayoutStore} after construction.
+	 * Immediately applies any persisted layout (or falls back to defaults if empty),
+	 * updating component visibility and ordering to match the store.
+	 * <p>
+	 * Thread-safety: should be invoked on the Event Dispatch Thread since it
+	 * triggers UI updates.
+	 *
+	 * @param store the layout persistence backend; may be {@code null} to disable
+	 *              further persistence (current layout remains in memory).
+	 */
+	public void setToolbarLayoutStore(ToolbarLayoutStore store) {
+		this.layoutStore = store;
+		// When a store is set after construction, immediately apply its layout
+		// to update component visibilities and the rendered layout.
+		applyLayout();
+	}
+
+	private void applyLayout() {
+		if (layoutStore != null) {
+			List<String> items = layoutStore.get(getName());
+			if (items == null || items.isEmpty()) {
+				// Populate the store with defaults if available.
+				if (defaultNames != null && defaultNames.length > 0) {
+					setContents(defaultNames.clone());
+					// Ensure default components are visible, others hidden.
+					Set<String> defaults = new HashSet<>();
+					Collections.addAll(defaults, defaultNames);
+					for (JComponent c : componentList) {
+						c.setVisible(defaults.contains(c.getName()));
+					}
+				}
+			}
+			else {
+				// Apply visibilities from the store.
+				Set<String> visible = new HashSet<>(items);
+				for (JComponent c : componentList) {
+					c.setVisible(visible.contains(c.getName()));
+				}
+			}
+			updateContents();
+		}
+	}
+
 	private static int getMinimumHeight(JComponent[] components) {
 		int h = 0;
 		for (JComponent component : components) {
@@ -643,7 +675,8 @@ public class CustomizedToolbar extends JPanel {
 	}
 
 	/**
-	 * Returns the components that may or may not be visible in this toolbar, depending on how the user has configured this toolbar.
+	 * Returns the components that may or may not be visible in this toolbar, depending on how the
+	 * user has configured this toolbar.
 	 */
 	public JComponent[] getPossibleComponents() {
 		JComponent[] array = new JComponent[componentList.length];
@@ -656,6 +689,27 @@ public class CustomizedToolbar extends JPanel {
 		return (CustomizedToolbarLayout) super.getLayout();
 	}
 
+	/**
+	 * Resets this toolbar's layout back to its default order and updates the UI.
+	 * Uses the configured ToolbarLayoutStore if available, otherwise falls back
+	 * to legacy Preferences. This does not remove custom items like additional
+	 * separators/spaces; it only restores the persisted ordering to default.
+	 */
+	public void resetLayoutToDefaults() {
+		if (defaultNames != null) {
+			setContents(defaultNames.clone());
+			// Make sure all components that are part of defaults are visible and others hidden.
+			Set<String> defaultSet = new HashSet<>();
+
+			Collections.addAll(defaultSet, defaultNames);
+
+			for (JComponent c : componentList) {
+				c.setVisible(defaultSet.contains(c.getName()));
+			}
+			updateContents();
+		}
+	}
+
 	protected void endDrag(DragSourceDropEvent e) {
 		if (draggingComponent != null) {
 			Point p = e.getLocation();
@@ -665,9 +719,8 @@ public class CustomizedToolbar extends JPanel {
 	}
 
 	private boolean isEmpty() {
-		String base = getName() + ".component";
-		String s = prefs.get(base + "0", null);
-		return s == null;
+		List<String> list = (layoutStore != null) ? layoutStore.get(getName()) : null;
+		return list == null || list.isEmpty();
 	}
 
 	private void updateContents() {
@@ -683,31 +736,19 @@ public class CustomizedToolbar extends JPanel {
 	 * Returns the component names (in order of appearance) that this toolbar should display from the preferences.
 	 */
 	private String[] getContents() {
-		List<String> v = new ArrayList<>();
-		String base = getName() + ".component";
-		String s;
-		int ctr = 0;
-		while ((s = prefs.get(base + ctr, null)) != null) {
-			v.add(s);
-			ctr++;
+		List<String> items = (layoutStore != null) ? layoutStore.get(getName()) : null;
+		if (items != null && !items.isEmpty()) {
+			return items.toArray(new String[0]);
 		}
-
-		return v.toArray(new String[0]);
+		return defaultNames != null ? defaultNames.clone() : new String[0];
 	}
 
 	/**
 	 * Stores the component names (in order of appearance) that this toolbar should display in the preferences.
 	 */
 	private void setContents(String[] array) {
-		String base = getName() + ".component";
-		for (int a = 0; a < array.length; a++) {
-			prefs.put(base + a, array[a]);
-		}
-
-		int ctr = array.length;
-		while (prefs.get(base + ctr, null) != null) {
-			prefs.remove(base + ctr);
-			ctr++;
+		if (layoutStore != null) {
+			layoutStore.set(getName(), java.util.Arrays.asList(array));
 		}
 	}
 
@@ -770,21 +811,25 @@ public class CustomizedToolbar extends JPanel {
 			if (jComponent.getName().equals(name))
 				return jComponent;
 		}
-		// the rest of this method deals with separators and gaps
+
+		// The rest of this method deals with separators and gaps.
 		for (int a = 0; a < getComponentCount(); a++) {
 			if (getComponent(a).getName().equals(name))
 				return (JComponent) getComponent(a);
 		}
-		if (name.length() > 0 && name.charAt(0) == '-') {
+
+		if (!name.isEmpty() && name.charAt(0) == '-') {
 			JSeparator newSeparator = new JSeparator(SwingConstants.VERTICAL);
 			newSeparator.setUI(new MacToolbarSeparatorUI());
 			newSeparator.setName(name);
 			return newSeparator;
-		} else if (name.length() > 0 && name.charAt(0) == ' ') {
+		}
+		else if (!name.isEmpty() && name.charAt(0) == ' ') {
 			SpaceComponent space = new SpaceComponent(this, false);
 			space.setName(name);
 			return space;
-		} else if (name.length() > 0 && name.charAt(0) == '\t') {
+		}
+		else if (!name.isEmpty() && name.charAt(0) == '\t') {
 			SpaceComponent space = new SpaceComponent(this, true);
 			space.setName(name);
 			return space;

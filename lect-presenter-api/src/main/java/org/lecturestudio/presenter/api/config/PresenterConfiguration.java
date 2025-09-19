@@ -18,6 +18,10 @@
 
 package org.lecturestudio.presenter.api.config;
 
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
 import org.lecturestudio.core.app.configuration.Configuration;
 import org.lecturestudio.core.beans.BooleanProperty;
 import org.lecturestudio.core.beans.IntegerProperty;
@@ -38,6 +42,9 @@ import org.lecturestudio.core.beans.IntegerProperty;
  * @author Alex Andres
  */
 public class PresenterConfiguration extends Configuration {
+
+	/** Stores customized toolbar layouts by toolbar name. */
+	private Map<String, List<String>> toolbarLayouts = new HashMap<>();
 
 	/** Show a reminder notification, if desired, to start lecture recording. */
 	private final BooleanProperty notifyToRecord = new BooleanProperty(null);
@@ -317,6 +324,44 @@ public class PresenterConfiguration extends Configuration {
 	 */
 	public SlideViewConfiguration getSlideViewConfiguration() {
 		return slideViewConfiguration;
+	}
+
+	/**
+	 * Gets all customized toolbar layouts.
+	 *
+	 * @return map of toolbar name to a list of component ids.
+	 */
+	public Map<String, List<String>> getToolbarLayouts() {
+		return toolbarLayouts;
+	}
+
+	/**
+	 * Sets all customized toolbar layouts.
+	 */
+	public void setToolbarLayouts(Map<String, List<String>> toolbarLayouts) {
+		this.toolbarLayouts = (toolbarLayouts != null) ? toolbarLayouts : new HashMap<>();
+	}
+
+	/**
+	 * Get the layout for a specific toolbar.
+	 */
+	public List<String> getToolbarLayout(String toolbarName) {
+		return toolbarLayouts != null ? toolbarLayouts.get(toolbarName) : null;
+	}
+
+	/**
+	 * Store the layout for a specific toolbar.
+	 */
+	public void setToolbarLayout(String toolbarName, List<String> layout) {
+		if (this.toolbarLayouts == null) {
+			this.toolbarLayouts = new HashMap<>();
+		}
+		if (layout == null) {
+			this.toolbarLayouts.remove(toolbarName);
+		}
+		else {
+			this.toolbarLayouts.put(toolbarName, layout);
+		}
 	}
 
 	/**

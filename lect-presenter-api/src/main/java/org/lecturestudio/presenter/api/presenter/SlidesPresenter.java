@@ -1118,6 +1118,9 @@ public class SlidesPresenter extends Presenter<SlidesView> {
 				}
 			}
 		}
+		else {
+			previousPage();
+		}
 	}
 
 	private void overlayNextPage() {
@@ -1135,14 +1138,9 @@ public class SlidesPresenter extends Presenter<SlidesView> {
 				}
 			}
 		}
-	}
-
-	private void bookmarkCreated(Bookmark bookmark) {
-		String shortcut = bookmark.shortcut().toUpperCase();
-		String message = MessageFormat.format(context.getDictionary().get("bookmark.created"), shortcut);
-
-		context.showNotificationPopup(message);
-		close();
+		else {
+			nextPage();
+		}
 	}
 
 	private void registerShortcut(Shortcut shortcut, Action action) {

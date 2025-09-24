@@ -186,11 +186,11 @@ public class PresentationParameter {
 		else {
 			isExtended = false;
 			setPageRect(new Rectangle2D(0, 0, 1, 1));
-		}
 
-		// Clear the remembered state after handling reset.
-		extendedBeforeZoom = false;
-		lastExtendedRect = null;
+			// Clear the remembered state after handling reset.
+			extendedBeforeZoom = false;
+			lastExtendedRect = null;
+		}
 	}
 
 	/**

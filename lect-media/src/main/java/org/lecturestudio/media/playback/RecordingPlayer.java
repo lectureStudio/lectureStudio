@@ -386,9 +386,14 @@ public class RecordingPlayer extends ExecutableBase {
 	 * </p>
 	 */
 	public void stopVideo() {
-		if (nonNull(videoPlayer) && videoPlayer.suspended() || videoPlayer.started()) {
+		if (nonNull(videoPlayer)) {
 			try {
-				videoPlayer.stop();
+				if (videoPlayer.initialized()) {
+					videoPlayer.destroy();
+				}
+				else if (videoPlayer.suspended() || videoPlayer.started()) {
+					videoPlayer.stop();
+				}
 			}
 			catch (ExecutableException e) {
 				logException(e, "Stop video player failed.");

@@ -150,7 +150,9 @@ public class ViewRenderer {
 			createFrameFilter(targetWidth, targetHeight, frameWidth, frameHeight);
 		}
 
-		videoFrame = frame.clone();
+		disposeFrame();
+
+		videoFrame = frame;
 
 		Graphics2D g2d = frontImage.createGraphics();
 		refreshBackground(g2d, page, parameter);
@@ -201,7 +203,7 @@ public class ViewRenderer {
 			return;
 		}
 
-		// Draw last shape permanently.
+		// Draw the last shape permanently.
 		if (!shape.equals(lastShape)) {
 			Graphics2D g2d = frontImage.createGraphics();
 			drawShape(g2d, lastShape);
@@ -247,11 +249,12 @@ public class ViewRenderer {
 	}
 
 	/**
-	 * Calculates the scale factors.
+	 * Calculates the scale factor between destination rectangle and page rectangle.
 	 *
-	 * @param destRect
-	 * @param pageRect
-	 * @return
+	 * @param destRect The destination rectangle dimensions.
+	 * @param pageRect The page rectangle dimensions.
+	 *
+	 * @return A Point2D containing the horizontal scale (x) and vertical scale (y) factors.
 	 */
 	protected Point2D calculateScale(Dimension2D destRect, Rectangle2D pageRect) {
 		return new Point2D.Double(destRect.getWidth() / pageRect.getWidth(), destRect.getHeight() / pageRect.getHeight());
@@ -363,7 +366,7 @@ public class ViewRenderer {
 		g.drawImage(frontImage, 0, 0, null);
 	}
 
-	private void refreshBackground(final Graphics2D g, Page page, PresentationParameter parameter) {
+	private synchronized void refreshBackground(final Graphics2D g, Page page, PresentationParameter parameter) {
 		if (nonNull(videoFrame)) {
 			drawVideoFrame(g, videoFrame);
 			return;

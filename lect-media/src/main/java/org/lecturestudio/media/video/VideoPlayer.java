@@ -23,7 +23,6 @@ import static java.util.Objects.nonNull;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.ReentrantLock;
 
@@ -170,7 +169,9 @@ public class VideoPlayer extends ExecutableBase {
 			final Frame frame = readVideoFrame();
 
 			if (nonNull(frame)) {
-				CompletableFuture.runAsync(() -> renderFrame(frame));
+				renderFrame(frame.clone());
+
+				frame.close();
 			}
 		}
 		catch (Exception e) {

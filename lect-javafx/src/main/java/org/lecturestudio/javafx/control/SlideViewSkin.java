@@ -114,14 +114,16 @@ public class SlideViewSkin extends SkinBase<SlideView> {
 	}
 
 	public void paintFrame(Frame frame) {
-		try {
-			renderer.renderFrame(frame);
+		renderThread.onTask(() -> {
+			try {
+				renderer.renderFrame(frame);
 
-			Platform.runLater(this::updateBuffer);
-		}
-		catch (Exception e) {
-			throw new RuntimeException(e);
-		}
+				Platform.runLater(this::updateBuffer);
+			}
+			catch (Exception e) {
+				throw new RuntimeException(e);
+			}
+		});
 	}
 
 	public void repaint() {

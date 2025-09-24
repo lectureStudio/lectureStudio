@@ -18,8 +18,19 @@
 
 package org.lecturestudio.core.render;
 
+/**
+ * Interface for tasks that can be executed by a render thread.
+ * Implementations of this interface define rendering operations.
+ *
+ * @author Alex Andres
+ */
 public interface RenderThreadTask {
 
+	/**
+	 * Executes the rendering operation.
+	 *
+	 * @throws Exception if any error occurs during the rendering process.
+	 */
 	void render() throws Exception;
 
 }

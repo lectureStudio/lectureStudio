@@ -276,7 +276,9 @@ public class VideoPlayer extends ExecutableBase {
 
 	@Override
 	protected void destroyInternal() throws ExecutableException {
-		grabber.destroy();
+		if (nonNull(grabber)) {
+			grabber.destroy();
+		}
 
 		videoFile = null;
 		videoOffset = 0;

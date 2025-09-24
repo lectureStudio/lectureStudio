@@ -293,6 +293,7 @@ public class RecordingFileService {
 						callback, playbackService::stopVideo));
 			}
 			catch (Exception e) {
+				LOG.error("Importing recording failed", e);
 				throw new CompletionException(e);
 			}
 

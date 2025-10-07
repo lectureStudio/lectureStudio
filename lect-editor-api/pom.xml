@@ -66,10 +66,5 @@
 			<artifactId>lect-media</artifactId>
 			<version>1.0.0</version>
 		</dependency>
-		<dependency>
-			<groupId>org.lecturestudio.player</groupId>
-			<artifactId>lect-player-web</artifactId>
-			<version>1.0.0</version>
-		</dependency>
 	</dependencies>
 </project>

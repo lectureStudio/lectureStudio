@@ -119,6 +119,15 @@ public class VideoPlayer extends ExecutableBase {
 	}
 
 	/**
+	 * Gets the content size dimensions of the video.
+	 *
+	 * @return The dimensions of the video content.
+	 */
+	public Dimension2D getVideoContentSize() {
+		return videoContentSize;
+	}
+
+	/**
 	 * Gets the reference timestamp in milliseconds to adjust the reading position of the video frames.
 	 *
 	 * @return The reference timestamp in milliseconds.

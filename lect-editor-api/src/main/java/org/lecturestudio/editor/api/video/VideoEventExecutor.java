@@ -313,7 +313,7 @@ public class VideoEventExecutor extends EventExecutor {
 		double frameTsMargin = Math.round(1000 / videoPlayer.getFrameRate() / 2);
 		long frameTs = videoPlayer.calculateTimestamp(frame.timestamp);
 		if (frameTs >= timestamp - frameTsMargin) {
-			renderView.renderFrameImage(frameConverter.convert(frame));
+			renderView.renderFrameImage(frameConverter.convert(frame, videoPlayer.getVideoContentSize()));
 			frameConsumer.accept(renderView.renderCurrentFrame(), progressEvent);
 			return true;
 		}

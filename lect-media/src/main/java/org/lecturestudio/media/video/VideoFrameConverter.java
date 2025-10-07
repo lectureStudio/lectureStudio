@@ -20,6 +20,8 @@ package org.lecturestudio.media.video;
 
 import org.bytedeco.javacv.Frame;
 
+import org.lecturestudio.core.geometry.Dimension2D;
+
 /**
  * Converts video frames coming from decoded video into the desired image type.
  *
@@ -32,13 +34,15 @@ public interface VideoFrameConverter<T> {
 	/**
 	 * Converts the provided video frame into the specified image type.
 	 *
-	 * @param frame The video frame to convert.
+	 * @param frame       The video frame to convert.
+	 * @param contentSize The size of the video content in the frame. This may be
+	 *                    different from the frame size if black borders are present.
 	 *
 	 * @return The frame converted into the desired image type.
 	 *
 	 * @throws Exception If the frame could not be converted.
 	 */
-	T convert(Frame frame) throws Exception;
+	T convert(Frame frame, Dimension2D contentSize) throws Exception;
 
 	/**
 	 * Release resources allocated by this converter.

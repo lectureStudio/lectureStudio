@@ -53,6 +53,7 @@ import org.lecturestudio.core.model.shape.TextSelectionShape;
 import org.lecturestudio.core.view.PresentationParameter;
 import org.lecturestudio.core.view.ViewType;
 import org.lecturestudio.core.swing.SwingGraphicsContext;
+import org.lecturestudio.media.video.VideoUtils;
 import org.lecturestudio.swing.converter.RectangleConverter;
 
 import static java.util.Objects.*;
@@ -151,7 +152,7 @@ public class ViewRenderer {
 				|| frameFilter.getImageHeight() != targetHeight
 				|| !Objects.equals(videoContentSize, contentSize)) {
 			destroyFrameFilter();
-			createFrameFilter(targetWidth, targetHeight, frameWidth, frameHeight, contentSize);
+			createFrameFilter(targetWidth, frameWidth, frameHeight, contentSize);
 		}
 
 		disposeFrame();
@@ -492,36 +493,8 @@ public class ViewRenderer {
 		}
 	}
 
-	private void createFrameFilter(int width, int height, int frameWidth, int frameHeight, Dimension2D contentSize) throws Exception {
-		final String filters;
-		if (nonNull(contentSize) && contentSize.getWidth() > 0 && contentSize.getHeight() > 0) {
-			double contentAspectRatio = contentSize.getWidth() / contentSize.getHeight();
-			double frameAspectRatio = (double) frameWidth / frameHeight;
-
-			int cropWidth;
-			int cropHeight;
-			int cropX;
-			int cropY;
-
-			if (contentAspectRatio > frameAspectRatio) { // Letterbox (horizontal bars)
-				cropWidth = frameWidth;
-				cropHeight = (int) Math.round(frameWidth / contentAspectRatio);
-				cropX = 0;
-				cropY = (frameHeight - cropHeight) / 2;
-			}
-			else { // Pillarbox (vertical bars)
-				cropHeight = frameHeight;
-				cropWidth = (int) Math.round(frameHeight * contentAspectRatio);
-				cropX = (frameWidth - cropWidth) / 2;
-				cropY = 0;
-			}
-
-			filters = String.format("crop=%d:%d:%d:%d,scale=%d:-1", cropWidth, cropHeight, cropX, cropY, width);
-		}
-		else {
-			// Fallback to simple scaling if no content size is available
-			filters = String.format("scale=%d:-1", width);
-		}
+	private void createFrameFilter(int width, int frameWidth, int frameHeight, Dimension2D contentSize) throws Exception {
+		final String filters = VideoUtils.getFFmpegFrameFilters(frameWidth, frameHeight, contentSize, width);
 
 		frameFilter = new FFmpegFrameFilter(filters, frameWidth, frameHeight);
 		frameFilter.start();

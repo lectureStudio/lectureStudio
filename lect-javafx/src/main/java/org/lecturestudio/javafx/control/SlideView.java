@@ -50,6 +50,7 @@ import javafx.scene.transform.Affine;
 import org.bytedeco.javacv.Frame;
 import org.lecturestudio.core.beans.BooleanProperty;
 import org.lecturestudio.core.controller.RenderController;
+import org.lecturestudio.core.geometry.Dimension2D;
 import org.lecturestudio.core.geometry.Rectangle2D;
 import org.lecturestudio.core.model.Page;
 import org.lecturestudio.core.model.listener.ParameterChangeListener;
@@ -298,9 +299,9 @@ public class SlideView extends Control implements ParameterChangeListener, org.l
 		updateViewTransform();
 	}
 
-	public synchronized void paintFrame(Frame frame) {
+	public synchronized void paintFrame(Frame frame, Dimension2D contentSize) {
 		SlideViewSkin skin = (SlideViewSkin) getSkin();
-		skin.paintFrame(frame);
+		skin.paintFrame(frame, contentSize);
 	}
 
 	public synchronized void repaint() {

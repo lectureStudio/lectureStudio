@@ -444,6 +444,7 @@ public class FileEventExecutor extends EventExecutor {
 		videoPlayer.setVideoFile(action.getFileName());
 		videoPlayer.setVideoOffset(action.getVideoOffset());
 		videoPlayer.setVideoLength(action.getVideoLength());
+		videoPlayer.setVideoContentSize(action.getVideoDimension());
 		videoPlayer.setReferenceTimestamp(action.getTimestamp());
 		videoPlayer.setSyncState(syncState);
 

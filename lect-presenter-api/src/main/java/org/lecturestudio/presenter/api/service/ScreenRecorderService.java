@@ -289,6 +289,10 @@ public class ScreenRecorderService extends ExecutableBase {
 	 * @throws Exception If an error occurs during the video frame conversion process.
 	 */
 	private BufferedImage convertVideoFrame(VideoFrame videoFrame) throws Exception {
+		if (nonNull(screenAction)) {
+			screenAction.setVideoDimension(new Dimension2D(videoFrame.buffer.getWidth(), videoFrame.buffer.getHeight()));
+		}
+
 		int width = (int) outputSize.getWidth();
 		int height = (int) outputSize.getHeight();
 

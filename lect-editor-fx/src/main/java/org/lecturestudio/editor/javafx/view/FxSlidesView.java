@@ -47,6 +47,7 @@ import org.bytedeco.javacv.Frame;
 import org.lecturestudio.core.app.ApplicationContext;
 import org.lecturestudio.core.beans.BooleanProperty;
 import org.lecturestudio.core.controller.RenderController;
+import org.lecturestudio.core.geometry.Dimension2D;
 import org.lecturestudio.core.geometry.Matrix;
 import org.lecturestudio.core.model.Document;
 import org.lecturestudio.core.model.Page;
@@ -175,8 +176,8 @@ public class FxSlidesView extends VBox implements SlidesView {
 	}
 
 	@Override
-	public void paintFrame(Frame frame) {
-		slideView.paintFrame(frame);
+	public void paintFrame(Frame frame, Dimension2D contentSize) {
+		slideView.paintFrame(frame, contentSize);
 	}
 
 	@Override

@@ -113,10 +113,10 @@ public class SlideViewSkin extends SkinBase<SlideView> {
 		initLayout(control, canvasBounds);
 	}
 
-	public void paintFrame(Frame frame) {
+	public void paintFrame(Frame frame, Dimension2D contentSize) {
 		renderThread.onTask(() -> {
 			try {
-				renderer.renderFrame(frame);
+				renderer.renderFrame(frame, contentSize);
 
 				Platform.runLater(this::updateBuffer);
 			}

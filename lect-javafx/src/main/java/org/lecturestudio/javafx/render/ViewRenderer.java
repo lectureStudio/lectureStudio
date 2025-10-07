@@ -31,6 +31,7 @@ import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 import org.bytedeco.javacv.FFmpegFrameFilter;
 import org.bytedeco.javacv.Frame;
@@ -52,6 +53,7 @@ import org.lecturestudio.core.model.shape.TextSelectionShape;
 import org.lecturestudio.core.view.PresentationParameter;
 import org.lecturestudio.core.view.ViewType;
 import org.lecturestudio.core.swing.SwingGraphicsContext;
+import org.lecturestudio.media.video.VideoUtils;
 import org.lecturestudio.swing.converter.RectangleConverter;
 
 import static java.util.Objects.*;
@@ -70,6 +72,8 @@ public class ViewRenderer {
 	private FFmpegFrameFilter frameFilter;
 
 	private Frame videoFrame;
+
+	private Dimension2D videoContentSize;
 
 	private Page page;
 
@@ -132,7 +136,7 @@ public class ViewRenderer {
 		}
 	}
 
-	public synchronized void renderFrame(Frame frame) throws Exception {
+	public synchronized void renderFrame(Frame frame, Dimension2D contentSize) throws Exception {
 		if (isNull(frame) || isNull(frame.type)) {
 			renderForeground();
 			return;
@@ -145,14 +149,16 @@ public class ViewRenderer {
 
 		if (isNull(frameFilter)
 				|| frameFilter.getImageWidth() != targetWidth
-				|| frameFilter.getImageHeight() != targetHeight) {
+				|| frameFilter.getImageHeight() != targetHeight
+				|| !Objects.equals(videoContentSize, contentSize)) {
 			destroyFrameFilter();
-			createFrameFilter(targetWidth, targetHeight, frameWidth, frameHeight);
+			createFrameFilter(targetWidth, frameWidth, frameHeight, contentSize);
 		}
 
 		disposeFrame();
 
 		videoFrame = frame;
+		videoContentSize = contentSize;
 
 		Graphics2D g2d = frontImage.createGraphics();
 		refreshBackground(g2d, page, parameter);
@@ -487,12 +493,10 @@ public class ViewRenderer {
 		}
 	}
 
-	private void createFrameFilter(int width, int height, int frameWidth, int frameHeight) throws Exception {
-		// To keep the aspect ratio, we need to specify only one part, either width or height,
-		// and set the other component to -1.
-		String scale = String.format("scale=%d:-1", width);
+	private void createFrameFilter(int width, int frameWidth, int frameHeight, Dimension2D contentSize) throws Exception {
+		final String filters = VideoUtils.getFFmpegFrameFilters(frameWidth, frameHeight, contentSize, width);
 
-		frameFilter = new FFmpegFrameFilter(scale, frameWidth, frameHeight);
+		frameFilter = new FFmpegFrameFilter(filters, frameWidth, frameHeight);
 		frameFilter.start();
 	}
 

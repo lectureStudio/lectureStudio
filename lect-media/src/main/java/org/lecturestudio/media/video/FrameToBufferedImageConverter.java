@@ -23,6 +23,7 @@ import static org.bytedeco.ffmpeg.global.avutil.AV_PIX_FMT_BGR24;
 
 import java.awt.*;
 import java.awt.image.BufferedImage;
+import java.util.Objects;
 
 import org.bytedeco.javacv.FFmpegFrameFilter;
 import org.bytedeco.javacv.Frame;
@@ -43,6 +44,8 @@ public class FrameToBufferedImageConverter implements VideoFrameConverter<Buffer
 
 	private Dimension2D imageSize;
 
+	private Dimension2D videoContentSize;
+
 	private BufferedImage image;
 
 
@@ -58,7 +61,7 @@ public class FrameToBufferedImageConverter implements VideoFrameConverter<Buffer
 	}
 
 	@Override
-	public BufferedImage convert(Frame frame) throws Exception {
+	public BufferedImage convert(Frame frame, Dimension2D contentSize) throws Exception {
 		requireNonNull(frame);
 
 		if (isNull(frame.image)) {
@@ -66,15 +69,23 @@ public class FrameToBufferedImageConverter implements VideoFrameConverter<Buffer
 		}
 
 		// Init frame filter if required.
-		if (isNull(filter) && nonNull(imageSize)) {
-			// To keep the aspect ratio, we need to specify only one part, either width or height,
-			// and set the other component to -1.
-			String scale = String.format("scale=%d:-1", (int) imageSize.getWidth());
+		if ((isNull(filter) && nonNull(imageSize)) || !Objects.equals(videoContentSize, contentSize)) {
+			if (nonNull(filter)) {
+				filter.stop();
+				filter.release();
+			}
 
-			filter = new FFmpegFrameFilter(scale, frame.imageWidth, frame.imageHeight);
+			final int frameWidth = frame.imageWidth;
+			final int frameHeight = frame.imageHeight;
+
+			final String filters = VideoUtils.getFFmpegFrameFilters(frameWidth, frameHeight, contentSize, (int) imageSize.getWidth());
+
+			filter = new FFmpegFrameFilter(filters, frameWidth, frameHeight);
 			filter.setPixelFormat(AV_PIX_FMT_BGR24);
 			filter.start();
 		}
+
+		videoContentSize = contentSize;
 
 		// Apply frame filters, e.g., resizing.
 		if (nonNull(filter)) {

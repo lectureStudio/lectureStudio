@@ -313,7 +313,7 @@ public class VideoEventExecutor extends EventExecutor {
 		double frameTsMargin = Math.round(1000 / videoPlayer.getFrameRate() / 2);
 		long frameTs = videoPlayer.calculateTimestamp(frame.timestamp);
 		if (frameTs >= timestamp - frameTsMargin) {
-			renderView.renderFrameImage(frameConverter.convert(frame));
+			renderView.renderFrameImage(frameConverter.convert(frame, videoPlayer.getVideoContentSize()));
 			frameConsumer.accept(renderView.renderCurrentFrame(), progressEvent);
 			return true;
 		}
@@ -331,7 +331,7 @@ public class VideoEventExecutor extends EventExecutor {
 		// Get the video frame with the desired timestamp, otherwise skip over.
 		while ((frame = videoPlayer.readVideoFrame()) != null) {
 			if (consumeFrame(frame, timestamp)) {
-				// Found frame with a suitable timestamp.
+				// Found a frame with a suitable timestamp.
 				break;
 			}
 		}
@@ -381,6 +381,7 @@ public class VideoEventExecutor extends EventExecutor {
 		videoPlayer.setVideoFile(action.getFileName());
 		videoPlayer.setVideoOffset(action.getVideoOffset());
 		videoPlayer.setVideoLength(action.getVideoLength());
+		videoPlayer.setVideoContentSize(action.getVideoDimension());
 		videoPlayer.setReferenceTimestamp(getElapsedTime());
 		videoPlayer.init();
 	}

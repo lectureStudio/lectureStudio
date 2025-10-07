@@ -90,7 +90,6 @@ public class WebVectorExport extends RecordingExport {
 	}
 
 	public void setTitle(String title) {
-		System.out.println("Setting title to '" + title + "'.");
 		data.put("title", title);
 	}
 
@@ -105,6 +104,10 @@ public class WebVectorExport extends RecordingExport {
 		Path outputRootPath = Paths.get(outputPathStr).getParent();
 		String outputFileName = FileUtils.stripExtension(outputFile.getName());
 		File outputFolder = outputRootPath.resolve(outputFileName + "v").toFile();
+
+		if (!outputFolder.exists() && !outputFolder.mkdirs()) {
+			throw new ExecutableException("Failed to create output directory: " + outputFolder);
+		}
 
 		outputPath = outputFolder.getAbsolutePath();
 

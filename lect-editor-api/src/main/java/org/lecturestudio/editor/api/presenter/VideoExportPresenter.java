@@ -137,15 +137,14 @@ public class VideoExportPresenter extends Presenter<VideoExportView> {
 	private RecordingExport createWebVectorExport(Recording recording,
 			RenderConfiguration config) {
 		WebVectorExport vectorExport = new WebVectorExport(recording, config);
-		vectorExport.setTitle("Web Player");
+		vectorExport.setName("lectureRecordingPlayer");
 
 		return vectorExport;
 	}
 
 	private RecordingExport createWebVideoExport(Recording recording,
 			RenderConfiguration config) {
-		WebVideoExport webExport = new WebVideoExport(context, recording,
-				config);
+		WebVideoExport webExport = new WebVideoExport(context, recording, config);
 		webExport.setTitle("Web Player");
 
 		return webExport;

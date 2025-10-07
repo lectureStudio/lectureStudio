@@ -32,6 +32,7 @@ import org.lecturestudio.core.ExecutableBase;
 import org.lecturestudio.core.ExecutableException;
 import org.lecturestudio.core.ExecutableState;
 import org.lecturestudio.core.audio.SyncState;
+import org.lecturestudio.core.geometry.Dimension2D;
 
 /**
  * Plays videos that have been recorded during a presentation.
@@ -47,6 +48,8 @@ public class VideoPlayer extends ExecutableBase {
 	private int videoOffset;
 
 	private int videoLength;
+
+	private Dimension2D videoContentSize;
 
 	private long referenceTimestamp;
 
@@ -104,6 +107,15 @@ public class VideoPlayer extends ExecutableBase {
 	 */
 	public void setVideoLength(int length) {
 		videoLength = length;
+	}
+
+	/**
+	 * Sets the content size dimensions of the video.
+	 *
+	 * @param size The dimensions of the video content.
+	 */
+	public void setVideoContentSize(Dimension2D size) {
+		videoContentSize = size;
 	}
 
 	/**
@@ -294,7 +306,7 @@ public class VideoPlayer extends ExecutableBase {
 	 */
 	private void renderFrame(Frame frame) {
 		if (nonNull(videoRenderSurface)) {
-			videoRenderSurface.renderFrame(frame);
+			videoRenderSurface.renderFrame(frame, videoContentSize);
 		}
 	}
 

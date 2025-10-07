@@ -331,7 +331,7 @@ public class VideoEventExecutor extends EventExecutor {
 		// Get the video frame with the desired timestamp, otherwise skip over.
 		while ((frame = videoPlayer.readVideoFrame()) != null) {
 			if (consumeFrame(frame, timestamp)) {
-				// Found frame with a suitable timestamp.
+				// Found a frame with a suitable timestamp.
 				break;
 			}
 		}
@@ -381,6 +381,7 @@ public class VideoEventExecutor extends EventExecutor {
 		videoPlayer.setVideoFile(action.getFileName());
 		videoPlayer.setVideoOffset(action.getVideoOffset());
 		videoPlayer.setVideoLength(action.getVideoLength());
+		videoPlayer.setVideoContentSize(action.getVideoDimension());
 		videoPlayer.setReferenceTimestamp(getElapsedTime());
 		videoPlayer.init();
 	}

@@ -20,9 +20,11 @@ package org.lecturestudio.media.video;
 
 import org.bytedeco.javacv.Frame;
 
+import org.lecturestudio.core.geometry.Dimension2D;
+
 /**
  * Interface for surfaces that can render video frames.
- * Implementations of this interface provide the capability to display video content.
+ * Implementations of this interface provide the ability to display video content.
  *
  * @author Alex Andres
  */
@@ -31,8 +33,9 @@ public interface VideoRenderSurface {
 	/**
 	 * Renders a single video frame on the surface.
 	 *
-	 * @param frame The video frame to be rendered.
+	 * @param frame       The video frame to be rendered.
+	 * @param contentSize The size of the content area excluding the borders.
 	 */
-	void renderFrame(Frame frame);
+	void renderFrame(Frame frame, Dimension2D contentSize);
 
 }

@@ -35,10 +35,7 @@ import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionException;
 import java.util.function.Consumer;
@@ -74,9 +71,7 @@ import org.lecturestudio.media.config.RenderConfiguration;
 
 public class WebVectorExport extends RecordingExport {
 
-	private static final String TEMPLATE_FOLDER = "web-player";
-
-	private static final String TEMPLATE_FILE = "index.html";
+	private static final String TEMPLATE_FILE = "resources/export/web/vector/index.html";
 
 	private final Map<String, String> data = new HashMap<>();
 
@@ -95,6 +90,7 @@ public class WebVectorExport extends RecordingExport {
 	}
 
 	public void setTitle(String title) {
+		System.out.println("Setting title to '" + title + "'.");
 		data.put("title", title);
 	}
 
@@ -112,19 +108,7 @@ public class WebVectorExport extends RecordingExport {
 
 		outputPath = outputFolder.getAbsolutePath();
 
-		setName(FileUtils.stripExtension(outputFile.getName()));
-
-		String indexContent = loadTemplateFile(TEMPLATE_FOLDER + "/" + TEMPLATE_FILE);
-		indexContent = processTemplateFile(indexContent, data);
-
-		try {
-			copyResourceToFilesystem(TEMPLATE_FOLDER, outputPath, List.of("html", "txt"));
-
-			writeTemplateFile(indexContent, getFile(outputFileName + "." + FileUtils.getExtension(TEMPLATE_FILE)));
-		}
-		catch (Exception e) {
-			throw new ExecutableException(e);
-		}
+		setTitle(FileUtils.stripExtension(outputFile.getName()));
 	}
 
 	@Override
@@ -154,19 +138,24 @@ public class WebVectorExport extends RecordingExport {
 			encRecording.setRecordedAudio(encAudio);
 			encRecording.setRecordedDocument(recording.getRecordedDocument());
 
-			File plrFile = getFile(data.get("name") + ".plr");
-
-			String bundleContent = loadTemplateFile(TEMPLATE_FOLDER + "/main.bundle.js");
-			bundleContent = processTemplateFile(bundleContent, Map.of("recordingFile", plrFile.getName()));
-
 			try {
-				writeTemplateFile(bundleContent, getFile("main.bundle.js"));
+				byte[] rec = RecordingFileWriter.writeToByteArray(encRecording);
+				String recEncoded = Base64.getEncoder().encodeToString(rec);
 
-				RecordingFileWriter.write(encRecording, plrFile);
+				data.put("recording", recEncoded);
 
-				File targetFolder = new File(outputPath);
-				FileUtils.zipFile(targetFolder, Paths.get(outputPath + ".zip").toFile());
-				FileUtils.deleteDir(targetFolder);
+				String indexContent = loadTemplateFile();
+				indexContent = processTemplateFile(indexContent, data);
+
+				try {
+					File outputFile = config.getOutputFile();
+					String outputFileName = FileUtils.stripExtension(outputFile.getName());
+
+					writeTemplateFile(indexContent, getFile(outputFileName + "." + FileUtils.getExtension(TEMPLATE_FILE)));
+				}
+				catch (Exception e) {
+					throw new ExecutableException(e);
+				}
 
 				stop();
 			}
@@ -239,8 +228,8 @@ public class WebVectorExport extends RecordingExport {
 		return new RecordedAudio(audioStream);
 	}
 
-	private String loadTemplateFile(String path) {
-		InputStream is = ResourceLoader.getResourceAsStream(path);
+	private String loadTemplateFile() {
+		InputStream is = ResourceLoader.getResourceAsStream(WebVectorExport.TEMPLATE_FILE);
 
 		if (isNull(is)) {
 			throw new NullPointerException("Missing web index.html file.");
@@ -252,7 +241,7 @@ public class WebVectorExport extends RecordingExport {
 	}
 
 	private String processTemplateFile(String fileContent, Map<String, String> data) {
-		Pattern pattern = Pattern.compile("\\$\\{(.+?)\\}");
+		Pattern pattern = Pattern.compile("#\\{(.+?)}");
 		Matcher matcher = pattern.matcher(fileContent);
 		StringBuilder sb = new StringBuilder();
 
@@ -261,7 +250,7 @@ public class WebVectorExport extends RecordingExport {
 			String replacement = data.get(match);
 
 			if (nonNull(replacement)) {
-				matcher.appendReplacement(sb, replacement);
+				matcher.appendReplacement(sb, Matcher.quoteReplacement(replacement));
 			}
 			else {
 				LOG.warn("Found match '{}' with no replacement.", match);

@@ -20,6 +20,7 @@ package org.lecturestudio.core.recording.file;
 
 import java.io.File;
 import java.io.IOException;
+import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 
 import org.lecturestudio.core.io.DigestRandomAccessFile;
@@ -65,7 +66,7 @@ public final class RecordingFileWriter {
 			written += eventsLength;
 			setProgress(written / totalSize, progressCallback);
 
-			// Write document.
+			// Write the document.
 			raFile.write(docData);
 
 			written += documentLength;
@@ -98,7 +99,7 @@ public final class RecordingFileWriter {
 			header.setDocumentLength(documentLength);
 			header.setAudioLength(audioLength);
 
-			// Write file header at the beginning of the file.
+			// Write the file header at the beginning of the file.
 			raFile.seek(0);
 			raFile.write(header.toByteArray());
 			written += headerLength;
@@ -107,6 +108,80 @@ public final class RecordingFileWriter {
 			return totalSize;
 		}
 
+	}
+
+	public static byte[] writeToByteArray(Recording recFile) throws Exception {
+		return writeToByteArray(recFile, null);
+	}
+
+	public static byte[] writeToByteArray(Recording recFile, ProgressCallback progressCallback)
+			throws NoSuchAlgorithmException, IOException {
+		RecordingHeader header = recFile.getRecordingHeader();
+		RandomAccessAudioStream audioStream = recFile.getRecordedAudio().getAudioStream().clone();
+		audioStream.reset();
+
+		byte[] eventData = recFile.getRecordedEvents().toByteArray();
+		byte[] docData = recFile.getRecordedDocument().toByteArray();
+
+		int headerLength = header.getHeaderLength();
+		int eventsLength = eventData.length;
+		int documentLength = docData.length;
+		int audioLength = (int) audioStream.getLength();
+		int totalSize = headerLength + eventsLength + documentLength + audioLength;
+
+		byte[] result = new byte[totalSize];
+
+		MessageDigest md = MessageDigest.getInstance(RecordingHeader.CHECKSUM_ALGORITHM);
+
+		int offset = headerLength;
+		float written = headerLength;
+
+		// Write events
+		System.arraycopy(eventData, 0, result, offset, eventsLength);
+		md.update(eventData);
+		offset += eventsLength;
+		written += eventsLength;
+		setProgress(written / totalSize, progressCallback);
+
+		// Write the document
+		System.arraycopy(docData, 0, result, offset, documentLength);
+		md.update(docData);
+		offset += documentLength;
+		written += documentLength;
+		setProgress(written / totalSize, progressCallback);
+
+		// Write audio
+		byte[] audioBuffer = new byte[4096];
+		while (true) {
+			int bytesRead = audioStream.read(audioBuffer);
+			if (bytesRead == -1) {
+				break;
+			}
+			System.arraycopy(audioBuffer, 0, result, offset, bytesRead);
+			md.update(audioBuffer, 0, bytesRead);
+			offset += bytesRead;
+			written += bytesRead;
+			setProgress(written / totalSize, progressCallback);
+		}
+
+		audioStream.close();
+
+		byte[] checksum = md.digest();
+
+		// Set header values
+		header.setVersion(Recording.FORMAT_VERSION);
+		header.setChecksum(checksum);
+		header.setEventsLength(eventsLength);
+		header.setDocumentLength(documentLength);
+		header.setAudioLength(audioLength);
+
+		// Write header at the beginning
+		byte[] headerBytes = header.toByteArray();
+		System.arraycopy(headerBytes, 0, result, 0, headerBytes.length);
+		written += headerLength;
+		setProgress(written / totalSize, progressCallback);
+
+		return result;
 	}
 
 	private static void setProgress(float progress, ProgressCallback progressCallback) {

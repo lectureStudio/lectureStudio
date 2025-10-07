@@ -2,6 +2,67 @@
 
 All notable changes to this project will be documented in this file.
 
+## [6.3.0](https://github.com/lectureStudio/lectureStudio/compare/v6.2.2..v6.3.0) - 2025-10-07
+
+### Features
+
+- *(presenter)* Slide creation for minimized windows during screen-([#1039](https://github.com/lectureStudio/lectureStudio/issues/1039))
+- Add free-text quiz and marking of correct quiz options ([#1050](https://github.com/lectureStudio/lectureStudio/issues/1050))
+- Save toolbar layout in the app's configuration ([#1070](https://github.com/lectureStudio/lectureStudio/issues/1070))
+- New recording player for the vector export ([#1071](https://github.com/lectureStudio/lectureStudio/issues/1071))
+- Crop and scale screen-share videos to use max. viewport ([#1072](https://github.com/lectureStudio/lectureStudio/issues/1072))
+
+### Bug Fixes
+
+- *(presenter)* Improve screen source availability check
+- *(presenter)* Ensure server name binding is executed on the Swing event dispatch thread
+- *(presenter)* Implement close method for TemplateDocument and cache whiteboards for streams
+- *(presenter)* Ensure proper destruction of graftMapping with MuPDF
+- *(presenter)* Streamline video frame handling in ScreenCaptureService and ScreenShareService
+- Update webrtc-java version
+- Improve quiz comparison logic and update documentation
+- Key event handling in SwingCreateQuizView
+- Screen action overlap on the last recorded ([#1039](https://github.com/lectureStudio/lectureStudio/issues/1039))
+- Text notes collapsing on document ([#1044](https://github.com/lectureStudio/lectureStudio/issues/1044))
+- Default locale to translate ([#1038](https://github.com/lectureStudio/lectureStudio/issues/1038))
+- Start/suspend stopwatch ([#1038](https://github.com/lectureStudio/lectureStudio/issues/1038))
+- Configuring stopwatch and ([#1038](https://github.com/lectureStudio/lectureStudio/issues/1038))
+- Jumping to last bookmark via ([#1038](https://github.com/lectureStudio/lectureStudio/issues/1038))
+- Disable copy overlay ([#1038](https://github.com/lectureStudio/lectureStudio/issues/1038))
+- Set default recording path if it doesn't exist
+- Enhance overlay functionality with unique identifiers ([#1057](https://github.com/lectureStudio/lectureStudio/issues/1057))
+- Stopwatch configuration ([#1058](https://github.com/lectureStudio/lectureStudio/issues/1058))
+- Add error handling for unsupported screen cutting ([#1059](https://github.com/lectureStudio/lectureStudio/issues/1059))
+- Note slide position handling ([#1060](https://github.com/lectureStudio/lectureStudio/issues/1060))
+- *(editor)* Position calculation in text-box skin ([#1061](https://github.com/lectureStudio/lectureStudio/issues/1061))
+- Handle copying screen recordings in import ([#1062](https://github.com/lectureStudio/lectureStudio/issues/1062))
+- Show error messages on missing videos referenced in recordings ([#1063](https://github.com/lectureStudio/lectureStudio/issues/1063))
+- Overlay navigation logic ([#1064](https://github.com/lectureStudio/lectureStudio/issues/1064))
+- Timer autostart after ([#1038](https://github.com/lectureStudio/lectureStudio/issues/1038))
+- Normalize line endings in PDF text ([#1036](https://github.com/lectureStudio/lectureStudio/issues/1036))
+- Retrieval of all quizzes from PDF documents ([#1065](https://github.com/lectureStudio/lectureStudio/issues/1065))
+- Extend view functionality after zooming out ([#1066](https://github.com/lectureStudio/lectureStudio/issues/1066))
+- Audio and event insertion for undo/redo actions ([#1067](https://github.com/lectureStudio/lectureStudio/issues/1067))
+- Undo of imported and played video ([#1068](https://github.com/lectureStudio/lectureStudio/issues/1068))
+- Rendering video logic when seeking ([#1069](https://github.com/lectureStudio/lectureStudio/issues/1069))
+- Handle navigation to previous/next page when overlaying ([#1038](https://github.com/lectureStudio/lectureStudio/issues/1038))
+- Error handling in video playback and recording operations
+- Adjust indentation for state reset ([#85](https://github.com/lectureStudio/lectureStudio/issues/85))
+- Video player stop logic to handle initialization states properly
+- Frame handling across rendering pipeline
+
+### Other
+
+- Fix the notarization process
+- Update webrtc-java dependency version to 0.13.0-SNAPSHOT
+- Update webrtc-java dependency to version 0.14.0
+- Drop the old web player
+- Remove deprecated lect-player-web dependency
+
+### Documentation
+
+- Documentation for screen capture and sharing services
+
 ## [6.2.2](https://github.com/lectureStudio/lectureStudio/compare/v6.2.1..v6.2.2) - 2025-07-11
 
 ### Bug Fixes
@@ -46,6 +107,8 @@ All notable changes to this project will be documented in this file.
 - *(tests)* Update Screen initialization
 - *(core)* Handle exception during buffer release in ([#884](https://github.com/lectureStudio/lectureStudio/issues/884))
 - *(core)* Ensure legal file names in file chooser and recording processes
+- *(core)* Screen handling and layout management in DisplayPanel
+- *(core)* Update camera format handling
 
 ### Refactor
 
@@ -69,6 +132,8 @@ All notable changes to this project will be documented in this file.
 ### Miscellaneous Tasks
 
 - Drop dead code
+- *(release)* Update CHANGELOG.md for v6.2.2
+- *(release)* Update package version to 6.2.2
 
 ## [6.2.1](https://github.com/lectureStudio/lectureStudio/compare/v6.2.0..v6.2.1) - 2025-04-22
 

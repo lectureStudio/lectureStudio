@@ -155,6 +155,9 @@ public class WebVectorExport extends RecordingExport {
 					String outputFileName = FileUtils.stripExtension(outputFile.getName());
 
 					writeTemplateFile(indexContent, getFile(outputFileName + "." + FileUtils.getExtension(TEMPLATE_FILE)));
+
+					File recFile = getFile(outputFileName + ".plr");
+					Files.write(recFile.toPath(), rec);
 				}
 				catch (Exception e) {
 					throw new ExecutableException(e);

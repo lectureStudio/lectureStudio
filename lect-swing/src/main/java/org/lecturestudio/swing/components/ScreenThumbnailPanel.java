@@ -82,6 +82,9 @@ public class ScreenThumbnailPanel extends ThumbnailPanel {
 				actionDisabled = false;
 				return;
 			}
+			if (!focused) {
+				return;
+			}
 
 			property.set(!property.get());
 		});

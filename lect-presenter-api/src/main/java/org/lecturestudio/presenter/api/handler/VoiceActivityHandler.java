@@ -184,7 +184,7 @@ public class VoiceActivityHandler extends PresenterHandler implements DocumentLi
 		// Check if any document remains selected after removal.
 		boolean hasDocument = nonNull(documentService.getDocuments().getSelectedDocument());
 
-		// If no document is selected anymore, reset tracking state and stop detection.
+		// If no document is selected anymore, reset the tracking state and stop detection.
 		if (!hasDocument) {
 			resetUserDeclination();
 			stop();
@@ -215,8 +215,10 @@ public class VoiceActivityHandler extends PresenterHandler implements DocumentLi
 	private boolean isNotificationEnabled() {
 		boolean notifyToRecord = context.getNotifyToRecord();
 		boolean isMicrophoneEnabled = config.getStreamConfig().getMicrophoneEnabled();
+		boolean isRecordingRunning = manualStateObserver.getRecordingStarted();
 
-		return notifyToRecord && !userDeclinedRecording && !isMicrophoneEnabled;
+		return notifyToRecord && !userDeclinedRecording && !isMicrophoneEnabled
+				|| (isMicrophoneEnabled && !isRecordingRunning);
 	}
 
 	/**
@@ -363,7 +365,8 @@ public class VoiceActivityHandler extends PresenterHandler implements DocumentLi
 
 			/**
 			 * Counter that tracks the duration of continuous voice activity in milliseconds.
-			 * Increments when voice is detected and resets when voice stops or threshold is reached.
+			 * Increments when voice is detected and resets when the voice stops or the threshold
+			 * is reached.
 			 */
 			int voiceDurationMs = 0;
 

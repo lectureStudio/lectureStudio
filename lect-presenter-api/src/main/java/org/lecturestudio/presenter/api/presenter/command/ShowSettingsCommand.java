@@ -53,14 +53,16 @@ public class ShowSettingsCommand extends ShowPresenterCommand<SettingsPresenter>
 
 	@Override
 	public void execute(SettingsPresenter presenter) {
-		PresenterContext pContext = (PresenterContext) presenter.getContext();
+		final PresenterContext pContext = (PresenterContext) presenter.getContext();
+		final boolean notifyToRecord = pContext.getNotifyToRecord();
+
 		// Temporarily disable the notify-to-record feature while in settings.
 		pContext.setNotifyToRecord(false);
 
 		presenter.setSettingsPath(settingsPath);
 		presenter.setCloseAction(() -> {
 			// Re-enable the notify-to-record feature when the settings view is closed.
-			pContext.setNotifyToRecord(true);
+			pContext.setNotifyToRecord(notifyToRecord);
 		});
 	}
 }

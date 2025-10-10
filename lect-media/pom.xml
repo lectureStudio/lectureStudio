@@ -52,12 +52,6 @@
 		</dependency>
 
 		<dependency>
-			<groupId>org.concentus</groupId>
-			<artifactId>concentus</artifactId>
-			<version>1.0.0</version>
-		</dependency>
-
-		<dependency>
 			<groupId>org.apache.commons</groupId>
 			<artifactId>commons-math3</artifactId>
 			<version>3.6.1</version>

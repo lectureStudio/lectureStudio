@@ -25,13 +25,12 @@ import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.net.URL;
+import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
+import java.nio.ShortBuffer;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -44,11 +43,10 @@ import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 import javax.sound.sampled.AudioFormat;
-import javax.sound.sampled.AudioInputStream;
-import javax.sound.sampled.AudioSystem;
-import javax.sound.sampled.UnsupportedAudioFileException;
 
-import org.concentus.OpusSignal;
+import org.bytedeco.ffmpeg.global.avcodec;
+import org.bytedeco.javacv.FFmpegFrameRecorder;
+
 import org.lecturestudio.core.ExecutableException;
 import org.lecturestudio.core.io.DynamicInputStream;
 import org.lecturestudio.core.io.RandomAccessAudioStream;
@@ -60,39 +58,61 @@ import org.lecturestudio.core.recording.RecordedPage;
 import org.lecturestudio.core.recording.Recording;
 import org.lecturestudio.core.recording.file.RecordingFileWriter;
 import org.lecturestudio.core.util.AudioUtils;
-import org.lecturestudio.core.util.DirUtils;
 import org.lecturestudio.core.util.FileUtils;
 import org.lecturestudio.editor.api.recording.RecordingExport;
 import org.lecturestudio.editor.api.recording.RecordingRenderState;
 import org.lecturestudio.editor.api.recording.RecordingRenderProgressEvent;
-import org.lecturestudio.media.audio.opus.OpusAudioFileWriter;
-import org.lecturestudio.media.audio.opus.OpusFileFormatType;
 import org.lecturestudio.media.config.RenderConfiguration;
 
+/**
+ * Exports a recording to web-based vector format. This exporter creates a standalone
+ * HTML/JS-based vector representation of the recording that can be viewed in web browsers.
+ *
+ * @author Alex Andres
+ */
 public class WebVectorExport extends RecordingExport {
 
+	/** Path to the HTML template file used for the export. */
 	private static final String TEMPLATE_FILE = "resources/export/web/vector/index.html";
 
+	/** Map containing template variables to be replaced in the output HTML. */
 	private final Map<String, String> data = new HashMap<>();
 
+	/** The recording to export. */
 	private final Recording recording;
 
+	/** Configuration for the rendering process. */
 	private final RenderConfiguration config;
 
-	private OpusAudioFileWriter writer;
-
+	/** Path where the export files will be written. */
 	private String outputPath;
 
 
+	/**
+	 * Creates a new web vector export for the specified recording.
+	 *
+	 * @param recording The recording to export.
+	 * @param config The configuration for the rendering process.
+	 */
 	public WebVectorExport(Recording recording, RenderConfiguration config) {
 		this.recording = recording;
 		this.config = config;
 	}
 
+	/**
+	 * Sets the title of the exported presentation.
+	 *
+	 * @param title The title to set.
+	 */
 	public void setTitle(String title) {
 		data.put("title", title);
 	}
 
+	/**
+	 * Sets the presenter name for the exported presentation.
+	 *
+	 * @param name The presenter name.
+	 */
 	public void setName(String name) {
 		data.put("name", name);
 	}
@@ -177,9 +197,7 @@ public class WebVectorExport extends RecordingExport {
 
 	@Override
 	protected void stopInternal() {
-		if (nonNull(writer)) {
-			writer.cancelWriting();
-		}
+
 	}
 
 	@Override
@@ -191,45 +209,57 @@ public class WebVectorExport extends RecordingExport {
 		return Paths.get(outputPath, file).toFile();
 	}
 
-	private RecordedAudio encodeAudio() throws IOException, UnsupportedAudioFileException {
+	private RecordedAudio encodeAudio() throws IOException {
 		RecordedAudio recAudio = recording.getRecordedAudio();
 		RandomAccessAudioStream stream = recAudio.getAudioStream().clone();
-
 		AudioFormat sourceFormat = AudioUtils.createAudioFormat(stream.getAudioFormat());
-		AudioFormat targetFormat = new AudioFormat(AudioFormat.Encoding.PCM_SIGNED,
-				16000,
-				sourceFormat.getSampleSizeInBits(),
-				sourceFormat.getChannels(),
-				sourceFormat.getFrameSize(),
-				16000,
-				sourceFormat.isBigEndian());
+		int sampleRate = (int) sourceFormat.getSampleRate();
+		int channels = sourceFormat.getChannels();
 
-		// TODO: avoid this intermediate step and use stream with exclusions directly.
-		File target = new File(Files.createTempFile("export-v", ".wav").toString());
-		try (FileOutputStream outStream = new FileOutputStream(target)) {
-			stream.reset();
-			stream.write(outStream.getChannel());
+		ProgressListener progressListener = new ProgressListener(recording, sourceFormat);
+
+		ByteArrayOutputStream outStream = new ByteArrayOutputStream();
+
+		FFmpegFrameRecorder recorder = new FFmpegFrameRecorder(outStream, channels);
+		recorder.setAudioBitrate(16000);
+		recorder.setAudioCodec(avcodec.AV_CODEC_ID_OPUS);
+		recorder.setSampleRate(48000);
+		recorder.setFormat("opus");
+
+		byte[] buffer = new byte[8192];
+		int readTotal = 0;
+		int read;
+
+		try {
+			recorder.start();
+
+			while ((read = stream.read(buffer)) > 0) {
+				int nSamplesRead = read / 2;
+				short[] shortSamples = new short[nSamplesRead];
+
+				ByteBuffer.wrap(buffer, 0, read).order(ByteOrder.LITTLE_ENDIAN).asShortBuffer().get(shortSamples);
+				ShortBuffer samplesBuffer = ShortBuffer.wrap(shortSamples, 0, nSamplesRead);
+
+				recorder.recordSamples(sampleRate, channels, samplesBuffer);
+
+				readTotal += read;
+				progressListener.accept(readTotal);
+			}
+
+			stream.close();
+
+			recorder.stop();
+			recorder.release();
 		}
-
-		AudioInputStream targetStream = AudioSystem.getAudioInputStream(target);
-		AudioInputStream inputStream = AudioSystem.getAudioInputStream(targetFormat, targetStream);
-		ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-
-		writer = new OpusAudioFileWriter(16000, 10, OpusSignal.OPUS_SIGNAL_VOICE);
-		writer.setProgressListener(new ProgressListener(recording, targetFormat));
-		writer.write(inputStream, OpusFileFormatType.OPUS, outputStream);
+		catch (FFmpegFrameRecorder.Exception e) {
+			throw new IOException(e);
+		}
 
 		ByteArrayInputStream encodedStream = new ByteArrayInputStream(
-				outputStream.toByteArray());
+				outStream.toByteArray());
+
 		RandomAccessAudioStream audioStream = new RandomAccessAudioStream(
 				new DynamicInputStream(encodedStream), true);
-
-		targetStream.close();
-		inputStream.close();
-
-		if (!target.delete()) {
-			target.deleteOnExit();
-		}
 
 		return new RecordedAudio(audioStream);
 	}
@@ -271,31 +301,6 @@ public class WebVectorExport extends RecordingExport {
 	private void writeTemplateFile(String fileContent, File outputFile) throws IOException {
 		Path path = Paths.get(outputFile.getPath());
 		Files.writeString(path, fileContent);
-	}
-
-	private void copyResourceToFilesystem(String resName, String baseDir, List<String> skipList) throws URISyntaxException, IOException {
-		URL resURL = ResourceLoader.getResourceURL(resName);
-
-		if (ResourceLoader.isJarResource(resURL)) {
-			String jarStringPath = resURL.toString().replace("jar:", "");
-			String jarCleanPath = Paths.get(new URI(jarStringPath)).toString();
-			String jarPath = jarCleanPath.substring(0, jarCleanPath.lastIndexOf(".jar") + 4);
-
-			FileUtils.copyJarResource(jarPath, resName, baseDir, skipList);
-		}
-		else {
-			File resFile = new File(resURL.getPath());
-			Path sourcePath = resFile.toPath();
-
-			if (resFile.isFile() && !skipList.contains(FileUtils.getExtension(sourcePath.toString()))) {
-				Path targetPath = Paths.get(baseDir, resFile.getName());
-				Files.copy(sourcePath, targetPath);
-			}
-			else if (resFile.isDirectory()) {
-				Path targetPath = Paths.get(baseDir);
-				DirUtils.copy(sourcePath, targetPath, skipList);
-			}
-		}
 	}
 
 

@@ -27,37 +27,77 @@ import org.apache.logging.log4j.Logger;
 
 import org.lecturestudio.core.ExecutableBase;
 
+/**
+ * Abstract class for recording export operations. Provides functionality for monitoring
+ * render progress and state changes during the export process. Extends ExecutableBase to
+ * leverage execution lifecycle management.
+ *
+ * @author Alex Andres
+ */
 public abstract class RecordingExport extends ExecutableBase {
 
+	/** Logger for this class. */
 	protected static final Logger LOG = LogManager.getLogger(RecordingExport.class);
 
+	/** List of listeners to be notified of recording rendering progress events. */
 	private final List<Consumer<RecordingRenderProgressEvent>> progressListeners = new ArrayList<>();
 
+	/** List of listeners to be notified of recording rendering state changes. */
 	private final List<Consumer<RecordingRenderState>> stateListeners = new ArrayList<>();
 
 
+	/**
+	 * Adds a listener to be notified of recording rendering progress events.
+	 *
+	 * @param listener The consumer that will receive progress events.
+	 */
 	public void addRenderProgressListener(Consumer<RecordingRenderProgressEvent> listener) {
 		progressListeners.add(listener);
 	}
 
+	/**
+	 * Removes a previously added rendering progress listener.
+	 *
+	 * @param listener The listener to remove.
+	 */
 	public void removeRenderProgressListener(Consumer<RecordingRenderProgressEvent> listener) {
 		progressListeners.remove(listener);
 	}
 
+	/**
+	 * Adds a listener to be notified of recording rendering state changes.
+	 *
+	 * @param listener The consumer that will receive state change events.
+	 */
 	public void addRenderStateListener(Consumer<RecordingRenderState> listener) {
 		stateListeners.add(listener);
 	}
 
+	/**
+	 * Removes a previously added rendering state listener.
+	 *
+	 * @param listener The listener to remove.
+	 */
 	public void removeRenderStateListener(Consumer<RecordingRenderState> listener) {
 		stateListeners.remove(listener);
 	}
 
+	/**
+	 * Notifies all registered progress listeners about a render progress event.
+	 *
+	 * @param event The progress event to broadcast to listeners.
+	 */
 	protected void onRenderProgress(RecordingRenderProgressEvent event) {
 		for (var listener : progressListeners) {
 			listener.accept(event);
 		}
 	}
 
+	/**
+	 * Notifies all registered state listeners about a render state change.
+	 *
+	 * @param state The new render state to broadcast to listeners.
+	 */
 	protected void onRenderState(RecordingRenderState state) {
 		for (var listener : stateListeners) {
 			listener.accept(state);

@@ -25,12 +25,6 @@
 						<Region styleClass="notes-icon, tab-icon"/>
 					</graphic>
 				</ExtTab>
-				<ExtTab fx:id="latexTab" text="%slides.latex">
-					<TextArea fx:id="latexTextArea"/>
-					<graphic>
-						<Region styleClass="latex-icon, tab-icon"/>
-					</graphic>
-				</ExtTab>
 			</ExtTabPane>
 		</SplitPane>
 

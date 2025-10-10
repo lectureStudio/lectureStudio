@@ -26,7 +26,6 @@ import java.util.Locale;
 import org.lecturestudio.core.geometry.Dimension2D;
 import org.lecturestudio.core.graphics.Color;
 import org.lecturestudio.core.text.Font;
-import org.lecturestudio.core.text.TeXFont;
 import org.lecturestudio.core.text.TextAttributes;
 import org.lecturestudio.core.tool.PresetColor;
 
@@ -77,8 +76,6 @@ public class DefaultConfiguration extends EditorConfiguration {
 		getToolConfig().getTextSettings().setColor(PresetColor.BLACK.getColor());
 		getToolConfig().getTextSettings().setFont(new Font("Arial", 24));
 		getToolConfig().getTextSettings().setTextAttributes(new TextAttributes());
-		getToolConfig().getLatexSettings().setColor(PresetColor.BLACK.getColor());
-		getToolConfig().getLatexSettings().setFont(new TeXFont(TeXFont.Type.SERIF, 20));
 
 		getToolConfig().getPresetColors().addAll(new ArrayList<>(6));
 		

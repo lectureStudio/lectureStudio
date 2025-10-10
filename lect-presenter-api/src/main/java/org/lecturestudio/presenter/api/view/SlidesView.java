@@ -88,8 +88,6 @@ public interface SlidesView extends View {
 
 	void createMouseInput(ToolController toolController);
 
-	void setLaTeXText(String text);
-
 	void setStreamState(ExecutableState state);
 
 	void setScreenShareState(ExecutableState state, Document document);

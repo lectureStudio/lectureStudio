@@ -142,13 +142,7 @@ public class FxSlidesView extends VBox implements SlidesView {
 	private ExtTab notesTab;
 
 	@FXML
-	private ExtTab latexTab;
-
-	@FXML
 	private TextArea notesTextArea;
-
-	@FXML
-	private TextArea latexTextArea;
 
 
 	@Inject
@@ -339,13 +333,6 @@ public class FxSlidesView extends VBox implements SlidesView {
 	}
 
 	@Override
-	public void setLaTeXText(String text) {
-		FxUtils.invoke(() -> {
-			latexTextArea.setText(text);
-		});
-	}
-
-	@Override
 	public void setStreamState(ExecutableState state) {
 		boolean started = state == ExecutableState.Started;
 
@@ -452,13 +439,6 @@ public class FxSlidesView extends VBox implements SlidesView {
 	}
 
 	@Override
-	public void setOnLaTeXText(ConsumerAction<String> action) {
-		latexTextArea.textProperty().addListener(observable -> {
-			executeAction(action, latexTextArea.getText());
-		});
-	}
-
-	@Override
 	public void setOnSelectDocument(ConsumerAction<Document> action) {
 		this.selectDocumentAction = action;
 	}
@@ -500,8 +480,6 @@ public class FxSlidesView extends VBox implements SlidesView {
 
 	@FXML
 	private void initialize() {
-		focusRegistry.add(latexTextArea);
-
 		// Add the scene listener to attach shortcuts to the scene.
 		slideView.sceneProperty().addListener((observable, oldScene, newScene) -> {
 			onSceneSet(oldScene, newScene);

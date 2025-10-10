@@ -82,7 +82,6 @@ public class ViewModule extends AbstractModule {
 		bind(StreamSettingsView.class).to(SwingStreamSettingsView.class);
 		bind(StopwatchConfigView.class).to(SwingStopwatchConfigView.class);
 		bind(TextBoxView.class).to(SwingTextBoxView.class);
-		bind(TeXBoxView.class).to(SwingTeXBoxView.class);
 		bind(ToolbarView.class).to(SwingToolbarView.class);
 		bind(ToolSettingsView.class).to(SwingToolSettingsView.class);
 		bind(WhiteboardSettingsView.class).to(SwingWhiteboardSettingsView.class);

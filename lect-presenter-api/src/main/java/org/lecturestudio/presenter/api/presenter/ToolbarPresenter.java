@@ -53,7 +53,6 @@ import org.lecturestudio.core.presenter.Presenter;
 import org.lecturestudio.core.presenter.command.ShowPresenterCommand;
 import org.lecturestudio.core.service.DocumentService;
 import org.lecturestudio.core.text.Font;
-import org.lecturestudio.core.text.TeXFont;
 import org.lecturestudio.core.tool.ColorPalette;
 import org.lecturestudio.core.tool.PaintSettings;
 import org.lecturestudio.core.tool.ToolType;
@@ -277,14 +276,6 @@ public class ToolbarPresenter extends Presenter<ToolbarView> {
 		toolController.setTextFont(font);
 
 		eventBus.post(new TextFontEvent(font));
-	}
-
-	public void texTool() {
-		toolController.selectLatexTool();
-	}
-
-	public void setTeXBoxFont(TeXFont font) {
-		toolController.setTeXFont(font);
 	}
 
 	public void clearTool() {
@@ -641,8 +632,6 @@ public class ToolbarPresenter extends Presenter<ToolbarView> {
 		view.setOnEraseTool(this::eraseTool);
 		view.setOnTextTool(this::textTool);
 		view.setOnTextBoxFont(this::setTextBoxFont);
-		view.setOnTeXTool(this::texTool);
-		view.setOnTeXBoxFont(this::setTeXBoxFont);
 		view.setOnClearTool(this::clearTool);
 
 		view.setOnShowGrid(this::showGrid);

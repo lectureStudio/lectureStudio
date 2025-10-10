@@ -61,7 +61,6 @@ import org.lecturestudio.core.model.listener.DocumentChangeListener;
 import org.lecturestudio.core.model.listener.PageEditedListener;
 import org.lecturestudio.core.model.listener.ParameterChangeListener;
 import org.lecturestudio.core.model.shape.Shape;
-import org.lecturestudio.core.model.shape.TeXShape;
 import org.lecturestudio.core.model.shape.TextShape;
 import org.lecturestudio.core.presenter.Presenter;
 import org.lecturestudio.core.recording.DocumentRecorder;
@@ -81,7 +80,6 @@ import org.lecturestudio.core.view.PresentationViewContext;
 import org.lecturestudio.core.view.Screen;
 import org.lecturestudio.core.view.SlidePresentationViewContext;
 import org.lecturestudio.core.view.SlideViewAddressOverlay;
-import org.lecturestudio.core.view.TeXBoxView;
 import org.lecturestudio.core.view.TextBoxView;
 import org.lecturestudio.core.view.ViewContextFactory;
 import org.lecturestudio.core.view.ViewType;
@@ -141,8 +139,6 @@ public class SlidesPresenter extends Presenter<SlidesView> {
 
 	private final RenderController renderController;
 
-	private final BookmarkService bookmarkService;
-
 	private final DocumentService documentService;
 
 	private final RecordingService recordingService;
@@ -191,7 +187,6 @@ public class SlidesPresenter extends Presenter<SlidesView> {
 		this.presentationController = presentationController;
 		this.renderController = renderController;
 		this.documentRecorder = documentRecorder;
-		this.bookmarkService = bookmarkService;
 		this.documentService = documentService;
 		this.recordingService = recordingService;
 		this.userPrivilegeService = userPrivilegeService;
@@ -872,8 +867,6 @@ public class SlidesPresenter extends Presenter<SlidesView> {
 	private void toolChanged(ToolType toolType) {
 		this.toolType = toolType;
 
-		setFocusedTeXView(null);
-
 		view.removeAllPageObjectViews();
 
 		loadPageObjectViews(view.getPage());
@@ -892,16 +885,6 @@ public class SlidesPresenter extends Presenter<SlidesView> {
 			// TODO: make this generic or remove at all
 			textShape.setOnRemove();
 		}
-
-		// Set latex text.
-		Class<? extends Shape> shapeClass = pageObjectRegistry.getShapeClass(ToolType.LATEX);
-
-		if (isNull(shapeClass) || !shapeClass.isAssignableFrom(objectView.getPageShape().getClass())) {
-			return;
-		}
-
-		setFocusedTeXView(null);
-		view.setLaTeXText("");
 	}
 
 	private void pageObjectViewFocused(PageObjectView<? extends Shape> objectView) {
@@ -909,19 +892,6 @@ public class SlidesPresenter extends Presenter<SlidesView> {
 
 		if (nonNull(shapeClass) && shapeClass.isAssignableFrom(objectView.getPageShape().getClass())) {
 			lastFocusedTextBox = (TextBoxView) objectView;
-		}
-
-		// Set latex text.
-		shapeClass = pageObjectRegistry.getShapeClass(ToolType.LATEX);
-
-		if (isNull(shapeClass) || !shapeClass.isAssignableFrom(objectView.getPageShape().getClass())) {
-			return;
-		}
-
-		TeXBoxView teXBoxView = (TeXBoxView) objectView;
-
-		if (objectView.getFocus()) {
-			setFocusedTeXView(teXBoxView);
 		}
 	}
 
@@ -931,24 +901,7 @@ public class SlidesPresenter extends Presenter<SlidesView> {
 
 		if (nonNull(shapeClass) && shapeClass.isAssignableFrom(shape.getClass())) {
 			toolController.copyText((TextShape) shape.clone());
-			return;
 		}
-
-		shapeClass = pageObjectRegistry.getShapeClass(ToolType.LATEX);
-
-		if (nonNull(shapeClass) && shapeClass.isAssignableFrom(shape.getClass())) {
-			toolController.copyTeX((TeXShape) shape.clone());
-		}
-	}
-
-	private void setFocusedTeXView(TeXBoxView teXBoxView) {
-		String texText = "";
-
-		if (nonNull(teXBoxView)) {
-			texText = teXBoxView.getText();
-		}
-
-		view.setLaTeXText(texText);
 	}
 
 	private void shareQuiz() {
@@ -1213,8 +1166,6 @@ public class SlidesPresenter extends Presenter<SlidesView> {
 			page.addPageEditedListener(pageEditedListener);
 		}
 
-		setFocusedTeXView(null);
-
 		view.removeAllPageObjectViews();
 		view.setPage(page, parameter);
 
@@ -1340,7 +1291,6 @@ public class SlidesPresenter extends Presenter<SlidesView> {
 		});
 
 		pageObjectRegistry.register(ToolType.TEXT, TextBoxView.class);
-		pageObjectRegistry.register(ToolType.LATEX, TeXBoxView.class);
 
 		eventBus.register(this);
 

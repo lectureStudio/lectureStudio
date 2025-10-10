@@ -29,7 +29,6 @@ import org.lecturestudio.swing.renderer.PointerRenderer;
 import org.lecturestudio.swing.renderer.RectangleRenderer;
 import org.lecturestudio.swing.renderer.SelectRenderer;
 import org.lecturestudio.swing.renderer.StrokeRenderer;
-import org.lecturestudio.swing.renderer.TeXRenderer;
 import org.lecturestudio.swing.renderer.TextRenderer;
 import org.lecturestudio.swing.renderer.TextSelectionRenderer;
 import org.lecturestudio.swing.renderer.ZoomRenderer;
@@ -45,7 +44,6 @@ public class DefaultRenderContext extends RenderContext {
 	private RenderService createPreviewRenderContext() {
 		RenderService service = new RenderService();
 		service.registerRenderer(new StrokeRenderer());
-		service.registerRenderer(new TeXRenderer());
 		service.registerRenderer(new TextRenderer());
 		service.registerRenderer(new TextSelectionRenderer());
 		service.registerRenderer(new ZoomRenderer());
@@ -62,7 +60,6 @@ public class DefaultRenderContext extends RenderContext {
 		RenderService service = new RenderService();
 		service.registerRenderer(new StrokeRenderer());
 		service.registerRenderer(new PointerRenderer());
-		service.registerRenderer(new TeXRenderer());
 		service.registerRenderer(new TextRenderer());
 		service.registerRenderer(new TextSelectionRenderer());
 		service.registerRenderer(new ZoomRenderer());
@@ -80,7 +77,6 @@ public class DefaultRenderContext extends RenderContext {
 		RenderService service = new RenderService();
 		service.registerRenderer(new StrokeRenderer());
 		service.registerRenderer(new PointerRenderer());
-		service.registerRenderer(new TeXRenderer());
 		service.registerRenderer(new TextRenderer());
 		service.registerRenderer(new TextSelectionRenderer());
 		service.registerRenderer(new ZoomRenderer());

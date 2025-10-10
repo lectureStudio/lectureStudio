@@ -182,6 +182,9 @@ public class PresenterContext extends ApplicationContext {
 		this.userPrivilegeService = userPrivilegeService;
 		this.recordingDir = getDataLocator().toAppDataPath("recording");
 
+		PresenterConfiguration presenterConfig = (PresenterConfiguration) config;
+		setNotifyToRecord(presenterConfig.getNotifyToRecord());
+
 		messengerMessages.addListener(new ListChangeListener<>() {
 
 			@Override

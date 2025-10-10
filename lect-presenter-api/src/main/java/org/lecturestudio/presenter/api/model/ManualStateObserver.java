@@ -66,7 +66,7 @@ public class ManualStateObserver {
 	/**
 	 * Sets the microphone state.
 	 *
-	 * @param started true if microphone is active, false otherwise.
+	 * @param started true if the microphone is active, false otherwise.
 	 */
 	public void setMicrophoneActive(boolean started) {
 		microphoneActive.set(started);
@@ -75,7 +75,7 @@ public class ManualStateObserver {
 	/**
 	 * Gets the current microphone state.
 	 *
-	 * @return true if microphone is active, false otherwise.
+	 * @return true if the microphone is active, false otherwise.
 	 */
 	public boolean getMicrophoneActive() {
 		return microphoneActive.get();
@@ -96,7 +96,7 @@ public class ManualStateObserver {
 	 * A custom boolean property implementation that extends ObservableBase and implements Property interface.
 	 * This class provides functionality to store a boolean value and notify observers when the value changes.
 	 */
-	private class ManualBooleanProperty extends BooleanProperty {
+	private static class ManualBooleanProperty extends BooleanProperty {
 
 		/** The current boolean value. */
 		private Boolean value = false;

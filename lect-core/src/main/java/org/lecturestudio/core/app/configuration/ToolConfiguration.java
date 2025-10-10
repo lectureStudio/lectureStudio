@@ -19,7 +19,6 @@
 package org.lecturestudio.core.app.configuration;
 
 import org.lecturestudio.core.graphics.Color;
-import org.lecturestudio.core.tool.LatexToolSettings;
 import org.lecturestudio.core.tool.StrokeSettings;
 import org.lecturestudio.core.tool.TextSelectionSettings;
 import org.lecturestudio.core.tool.TextSettings;
@@ -27,9 +26,8 @@ import org.lecturestudio.core.util.ObservableArrayList;
 import org.lecturestudio.core.util.ObservableList;
 
 /**
- * The ToolConfiguration specifies tool related properties and settings. Tool
- * specific properties are encapsulated in the respective separate configuration
- * classes.
+ * The ToolConfiguration specifies tool-related properties and settings. Tool-specific
+ * properties are encapsulated in the respective separate configuration classes.
  *
  * @author Alex Andres
  */
@@ -64,9 +62,6 @@ public class ToolConfiguration {
 
 	/** The text tool settings. */
 	private final TextSettings textSettings = new TextSettings();
-
-	/** The LaTeX tool settings. */
-	private final LatexToolSettings latexSettings = new LatexToolSettings();
 
 
 	/**
@@ -157,15 +152,6 @@ public class ToolConfiguration {
 	 */
 	public TextSettings getTextSettings() {
 		return textSettings;
-	}
-
-	/**
-	 * Obtain the LaTeX tool settings.
-	 *
-	 * @return the LaTeX tool settings.
-	 */
-	public LatexToolSettings getLatexSettings() {
-		return latexSettings;
 	}
 
 }

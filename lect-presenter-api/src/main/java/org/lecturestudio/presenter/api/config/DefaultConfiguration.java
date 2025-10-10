@@ -33,7 +33,6 @@ import org.lecturestudio.core.geometry.Rectangle2D;
 import org.lecturestudio.core.graphics.Color;
 import org.lecturestudio.core.model.NotesPosition;
 import org.lecturestudio.core.text.Font;
-import org.lecturestudio.core.text.TeXFont;
 import org.lecturestudio.core.text.TextAttributes;
 import org.lecturestudio.core.tool.PresetColor;
 import org.lecturestudio.presenter.api.model.*;
@@ -95,8 +94,6 @@ public class DefaultConfiguration extends PresenterConfiguration {
 		getToolConfig().getTextSettings().setColor(PresetColor.BLACK.getColor());
 		getToolConfig().getTextSettings().setFont(new Font("Open Sans Regular", 14));
 		getToolConfig().getTextSettings().setTextAttributes(new TextAttributes());
-		getToolConfig().getLatexSettings().setColor(PresetColor.BLACK.getColor());
-		getToolConfig().getLatexSettings().setFont(new TeXFont(TeXFont.Type.SERIF, 20));
 
 		getToolConfig().getPresetColors().addAll(new ArrayList<>(6));
 

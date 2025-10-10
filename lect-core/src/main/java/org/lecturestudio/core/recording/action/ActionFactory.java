@@ -61,10 +61,6 @@ public abstract class ActionFactory {
 				return new SelectAction(input);
 			case SELECT_GROUP:
 				return new SelectGroupAction(input);
-			case LATEX:
-				return new LatexAction(input);
-			case LATEX_FONT_CHANGE:
-				return new LatexFontChangeAction(input);
 			case TEXT:
 				return new TextAction(input);
 			case TEXT_CHANGE:

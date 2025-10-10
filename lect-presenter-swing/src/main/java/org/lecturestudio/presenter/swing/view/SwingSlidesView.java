@@ -640,11 +640,6 @@ public class SwingSlidesView extends JPanel implements SlidesView {
 	}
 
 	@Override
-	public void setLaTeXText(String text) {
-		//SwingUtils.invoke(() -> latexTextArea.setText(text));
-	}
-
-	@Override
 	public void setQuizState(ExecutableState state) {
 		final AdaptiveTabbedPane slidesTabPane = getSlidesTabPane();
 

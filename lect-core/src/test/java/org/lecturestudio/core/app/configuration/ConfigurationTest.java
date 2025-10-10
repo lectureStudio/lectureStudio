@@ -45,7 +45,6 @@ import org.lecturestudio.core.graphics.Color;
 import org.lecturestudio.core.io.file.visitor.DeleteDirVisitor;
 import org.lecturestudio.core.model.RecentDocument;
 import org.lecturestudio.core.text.Font;
-import org.lecturestudio.core.text.TeXFont;
 import org.lecturestudio.core.text.TextAttributes;
 import org.lecturestudio.core.tool.PresetColor;
 
@@ -162,8 +161,6 @@ class ConfigurationTest extends CoreTest {
 		toolConfig.getTextSettings().setColor(PresetColor.BLACK.getColor());
 		toolConfig.getTextSettings().setFont(new Font("Arial", 24));
 		toolConfig.getTextSettings().setTextAttributes(new TextAttributes());
-		toolConfig.getLatexSettings().setColor(PresetColor.BLACK.getColor());
-		toolConfig.getLatexSettings().setFont(new TeXFont(TeXFont.Type.SERIF, 20));
 
 		config.getToolConfig().getPresetColors().addAll(Arrays.asList(Color.BLACK, Color.WHITE));
 

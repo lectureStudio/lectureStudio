@@ -34,7 +34,6 @@ public class DefaultRenderContext extends RenderContext {
 		RenderService service = new RenderService();
 		service.registerRenderer(new StrokeRenderer());
 		service.registerRenderer(new PointerRenderer());
-		service.registerRenderer(new TeXRenderer());
 		service.registerRenderer(new TextRenderer());
 		service.registerRenderer(new TextSelectionRenderer());
 		service.registerRenderer(new ZoomRenderer());
@@ -51,7 +50,6 @@ public class DefaultRenderContext extends RenderContext {
 	private RenderService createPreviewRenderContext() {
 		RenderService service = new RenderService();
 		service.registerRenderer(new StrokeRenderer());
-		service.registerRenderer(new TeXRenderer());
 		service.registerRenderer(new TextRenderer());
 		service.registerRenderer(new TextSelectionRenderer());
 		service.registerRenderer(new ArrowRenderer());
@@ -67,7 +65,6 @@ public class DefaultRenderContext extends RenderContext {
 		RenderService service = new RenderService();
 		service.registerRenderer(new StrokeRenderer());
 		service.registerRenderer(new PointerRenderer());
-		service.registerRenderer(new TeXRenderer());
 		service.registerRenderer(new TextRenderer());
 		service.registerRenderer(new TextSelectionRenderer());
 		service.registerRenderer(new ZoomRenderer());

@@ -48,13 +48,11 @@ import org.lecturestudio.core.input.KeyEvent;
 import org.lecturestudio.core.model.Document;
 import org.lecturestudio.core.model.Page;
 import org.lecturestudio.core.model.shape.Shape;
-import org.lecturestudio.core.model.shape.TeXShape;
 import org.lecturestudio.core.model.shape.TextBoxShape;
 import org.lecturestudio.core.model.shape.TextShape;
 import org.lecturestudio.core.recording.action.PlaybackAction;
 import org.lecturestudio.core.service.DocumentService;
 import org.lecturestudio.core.text.Font;
-import org.lecturestudio.core.text.TeXFont;
 import org.lecturestudio.core.text.TextAttributes;
 import org.lecturestudio.core.tool.ArrowTool;
 import org.lecturestudio.core.tool.CloneTool;
@@ -62,8 +60,6 @@ import org.lecturestudio.core.tool.DeleteAllTool;
 import org.lecturestudio.core.tool.EllipseTool;
 import org.lecturestudio.core.tool.ExtendViewTool;
 import org.lecturestudio.core.tool.HighlighterTool;
-import org.lecturestudio.core.tool.LatexTool;
-import org.lecturestudio.core.tool.LatexToolSettings;
 import org.lecturestudio.core.tool.LineTool;
 import org.lecturestudio.core.tool.PaintSettings;
 import org.lecturestudio.core.tool.PanningTool;
@@ -337,22 +333,6 @@ public class ToolController extends Controller implements ToolContext {
 	}
 
 	/**
-	 * Select the LaTeX tool.
-	 */
-	public void selectLatexTool() {
-		setTool(new LatexTool(this));
-	}
-
-	/**
-	 * Selects the LaTeX Tool and assigns the given handle to the created LaTeXShape.
-	 *
-	 * @param handle The shape handle.
-	 */
-	public void selectLatexTool(int handle) {
-		setTool(new LatexTool(this, handle));
-	}
-
-	/**
 	 * Select the text tool.
 	 */
 	public void selectTextTool() {
@@ -375,15 +355,6 @@ public class ToolController extends Controller implements ToolContext {
 	 */
 	public void setTextFont(Font font) {
 		((TextSettings) getPaintSettings(ToolType.TEXT)).setFont(font);
-	}
-
-	/**
-	 * Set the font for the LaTeX tool.
-	 *
-	 * @param font The font to set.
-	 */
-	public void setTeXFont(TeXFont font) {
-		((LatexToolSettings) getPaintSettings(ToolType.LATEX)).setFont(font);
 	}
 
 	/**
@@ -753,29 +724,6 @@ public class ToolController extends Controller implements ToolContext {
 	}
 
 	/**
-	 * Copy a TeXShape.
-	 *
-	 * @param shape The TeXShape to copy.
-	 */
-	public void copyTeX(TeXShape shape) {
-		Document doc = documentService.getDocuments().getSelectedDocument();
-
-		if (isNull(doc)) {
-			return;
-		}
-
-		Page page = doc.getCurrentPage();
-
-		PenPoint2D loc = new PenPoint2D(shape.getLocation().getX(), shape.getLocation().getY());
-
-		LatexTool tool = new LatexTool(this, shape.getHandle());
-		tool.begin(loc, page);
-		tool.execute(loc);
-		tool.end(loc);
-		tool.copy(shape);
-	}
-
-	/**
 	 * Set text of a text shape with the specified handle.
 	 *
 	 * @param handle The handle of a text shape.
@@ -809,27 +757,6 @@ public class ToolController extends Controller implements ToolContext {
 		if (textShape != null) {
 			textShape.setFont(font);
 			textShape.setTextAttributes(attributes);
-			textShape.setTextColor(color);
-
-			fireToolEvent(new ShapePaintEvent(ToolEventType.BEGIN,
-					(Shape) textShape, null));
-		}
-	}
-
-	/**
-	 * Set LaTeX attributes of a LaTeX shape with the specified handle.
-	 *
-	 * @param handle The handle of a text shape.
-	 * @param color  The text color to set.
-	 * @param font   The text font to set.
-	 *
-	 * @throws NullPointerException If the LaTeX shape could not be found.
-	 */
-	@SuppressWarnings("unchecked")
-	public void setTeXFont(int handle, Color color, TeXFont font) throws NullPointerException {
-		TextBoxShape<TeXFont> textShape = (TextBoxShape<TeXFont>) getTextShape(handle);
-		if (textShape != null) {
-			textShape.setFont(font);
 			textShape.setTextColor(color);
 
 			fireToolEvent(new ShapePaintEvent(ToolEventType.BEGIN,

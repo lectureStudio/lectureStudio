@@ -12,7 +12,6 @@
 <?import org.lecturestudio.javafx.control.ExtToggleButton?>
 <?import org.lecturestudio.javafx.control.FontPickerButton?>
 <?import org.lecturestudio.javafx.control.SvgIcon?>
-<?import org.lecturestudio.javafx.control.TeXFontPickerButton?>
 <?import org.lecturestudio.presenter.javafx.control.RecordButton?>
 <?import org.lecturestudio.presenter.javafx.control.ToolGroupButton?>
 
@@ -207,15 +206,6 @@
 				</graphic>
 				<userData>TEXT</userData>
 			</FontPickerButton>
-			<TeXFontPickerButton fx:id="texButton" accelerator="l" toggleGroup="$toolToggleGroup">
-				<tooltip>
-					<Tooltip text="%toolbar.latex.tooltip"/>
-				</tooltip>
-				<graphic>
-					<SvgIcon styleClass="icon, tex-icon"/>
-				</graphic>
-				<userData>LATEX</userData>
-			</TeXFontPickerButton>
 			<ExtButton fx:id="clearButton" accelerator="esc">
 				<tooltip>
 					<Tooltip text="%toolbar.clear.tooltip"/>

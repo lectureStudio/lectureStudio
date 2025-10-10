@@ -52,7 +52,6 @@ import org.lecturestudio.core.graphics.Color;
 import org.lecturestudio.core.model.Document;
 import org.lecturestudio.core.model.Page;
 import org.lecturestudio.core.text.Font;
-import org.lecturestudio.core.text.TeXFont;
 import org.lecturestudio.core.tool.ColorPalette;
 import org.lecturestudio.core.tool.PaintSettings;
 import org.lecturestudio.core.tool.ToolType;
@@ -451,14 +450,6 @@ public class SwingToolbarView extends JPanel implements ToolbarView {
 	@Override
 	public void setOnTextBoxFont(ConsumerAction<Font> action) {
 		this.textBoxFontAction = action;
-	}
-
-	@Override
-	public void setOnTeXTool(Action action) {
-	}
-
-	@Override
-	public void setOnTeXBoxFont(ConsumerAction<TeXFont> action) {
 	}
 
 	@Override

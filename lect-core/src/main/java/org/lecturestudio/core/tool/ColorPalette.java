@@ -52,7 +52,6 @@ public final class ColorPalette {
 		paletteMap.put(ToolType.PEN, createPalette(defaultColors));
 		paletteMap.put(ToolType.HIGHLIGHTER, createPalette(alphaColors));
 		paletteMap.put(ToolType.POINTER, createPalette(defaultColors));
-		paletteMap.put(ToolType.LATEX, createPalette(defaultColors));
 		paletteMap.put(ToolType.TEXT, createPalette(defaultColors));
 		paletteMap.put(ToolType.TEXT_SELECTION, createPalette(alphaColors));
 		paletteMap.put(ToolType.LINE, createPalette(defaultColors));

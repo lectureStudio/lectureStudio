@@ -26,6 +26,7 @@ public enum ToolType {
 	HIGHLIGHTER,
 	RUBBER,
 	DELETE_ALL,
+	// Obsolete, do not remove
 	LATEX,
 	TEXT,
 	ZOOM,

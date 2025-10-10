@@ -24,7 +24,6 @@ import org.lecturestudio.core.graphics.Color;
 import org.lecturestudio.core.model.Document;
 import org.lecturestudio.core.model.Page;
 import org.lecturestudio.core.text.Font;
-import org.lecturestudio.core.text.TeXFont;
 import org.lecturestudio.core.tool.PaintSettings;
 import org.lecturestudio.core.tool.ToolType;
 import org.lecturestudio.core.view.Action;
@@ -279,20 +278,6 @@ public interface ToolbarView extends View {
 	 * @param action the consumer action for the text box font.
 	 */
 	void setOnTextBoxFont(ConsumerAction<Font> action);
-
-	/**
-	 * Sets the action to perform when the TeX tool is selected.
-	 *
-	 * @param action the TeX tool action.
-	 */
-	void setOnTeXTool(Action action);
-
-	/**
-	 * Sets the action to perform when a TeX box font is selected.
-	 *
-	 * @param action the consumer action for the TeX box font.
-	 */
-	void setOnTeXBoxFont(ConsumerAction<TeXFont> action);
 
 	/**
 	 * Sets the action to perform when the clear tool is selected.

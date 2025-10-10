@@ -147,7 +147,6 @@ public class PdfDocumentRenderer extends ExecutableBase {
 		renderService.registerRenderer(new ArrowRenderer());
 		renderService.registerRenderer(new EllipseRenderer());
 		renderService.registerRenderer(new LineRenderer());
-		renderService.registerRenderer(new PDFTeXRenderer());
 		renderService.registerRenderer(new PDFTextRenderer());
 		renderService.registerRenderer(new StrokeRenderer());
 		renderService.registerRenderer(new RectangleRenderer());

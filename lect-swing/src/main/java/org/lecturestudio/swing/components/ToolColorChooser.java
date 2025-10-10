@@ -53,7 +53,6 @@ import org.lecturestudio.swing.components.previews.LineToolPreview;
 import org.lecturestudio.swing.components.previews.PenToolPreview;
 import org.lecturestudio.swing.components.previews.PointerToolPreview;
 import org.lecturestudio.swing.components.previews.RectangleToolPreview;
-import org.lecturestudio.swing.components.previews.TeXToolPreview;
 import org.lecturestudio.swing.components.previews.TextToolPreview;
 import org.lecturestudio.swing.components.previews.ToolPreview;
 import org.lecturestudio.swing.converter.ColorConverter;
@@ -200,7 +199,6 @@ public class ToolColorChooser extends JPanel {
 		toolPreviewMap.put(ToolType.RECTANGLE, new RectangleToolPreview());
 		toolPreviewMap.put(ToolType.ELLIPSE, new EllipseToolPreview());
 		toolPreviewMap.put(ToolType.TEXT, new TextToolPreview());
-		toolPreviewMap.put(ToolType.LATEX, new TeXToolPreview());
 
 		initializeTool(null, 15f);
 		initializeTool(ToolType.PEN, 15f);
@@ -211,7 +209,6 @@ public class ToolColorChooser extends JPanel {
 		initializeTool(ToolType.RECTANGLE, 8f);
 		initializeTool(ToolType.ELLIPSE, 8f);
 		initializeTool(ToolType.TEXT, 35f);
-		initializeTool(ToolType.LATEX, 25f);
 	}
 
 	private void initializeTool(ToolType toolType, float width) {

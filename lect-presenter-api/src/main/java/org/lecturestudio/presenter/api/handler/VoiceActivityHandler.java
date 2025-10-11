@@ -215,10 +215,8 @@ public class VoiceActivityHandler extends PresenterHandler implements DocumentLi
 	private boolean isNotificationEnabled() {
 		boolean notifyToRecord = context.getNotifyToRecord();
 		boolean isMicrophoneEnabled = config.getStreamConfig().getMicrophoneEnabled();
-		boolean isRecordingRunning = manualStateObserver.getRecordingStarted();
 
-		return notifyToRecord && !userDeclinedRecording && !isMicrophoneEnabled
-				|| (isMicrophoneEnabled && !isRecordingRunning);
+		return notifyToRecord && !userDeclinedRecording && !isMicrophoneEnabled;
 	}
 
 	/**

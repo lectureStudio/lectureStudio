@@ -98,7 +98,11 @@ public class WebVideoExport extends RecordingExport {
 
 	@Override
 	protected void initInternal() {
-		setVideoSource(config.getOutputFile().getName());
+		File targetFile = config.getOutputFile();
+
+		setVideoSource(targetFile.getName());
+
+		setTitle(FileUtils.stripExtension(targetFile.getName()));
 	}
 
 	@Override
@@ -152,7 +156,7 @@ public class WebVideoExport extends RecordingExport {
 	}
 
 	private String processTemplateFile(String fileContent, Map<String, String> data) {
-		Pattern pattern = Pattern.compile("\\$\\{(.+?)\\}");
+		Pattern pattern = Pattern.compile("\"#\\{(.+?)}\"");
 		Matcher matcher = pattern.matcher(fileContent);
 		StringBuilder sb = new StringBuilder();
 
@@ -161,7 +165,7 @@ public class WebVideoExport extends RecordingExport {
 			String replacement = data.get(match);
 
 			if (nonNull(replacement)) {
-				matcher.appendReplacement(sb, replacement);
+				matcher.appendReplacement(sb, "'" + replacement + "'");
 			}
 			else {
 				LOG.warn("Found match '{}' with no replacement.", match);
@@ -198,6 +202,7 @@ public class WebVideoExport extends RecordingExport {
 		List<Page> pages = document.getPages();
 
 		StringBuilder builder = new StringBuilder();
+		builder.append("[");
 
 		for (int i = 0; i < pages.size(); i++) {
 			Page page = pages.get(i);
@@ -215,16 +220,18 @@ public class WebVideoExport extends RecordingExport {
 			}
 		}
 
+		builder.append("]");
+
 		return builder.toString();
 	}
 
 	private void encodePageTime(StringBuilder builder, int timestamp) {
-		builder.append("time: ");
+		builder.append("\"time\": ");
 		builder.append(timestamp + 150);
 	}
 
 	private void encodePageText(StringBuilder builder, String text) {
-		builder.append("text: ");
+		builder.append("\"text\": ");
 		builder.append("\"");
 		builder.append(Base64.getEncoder().encodeToString(text.getBytes()));
 		builder.append("\"");
@@ -257,7 +264,7 @@ public class WebVideoExport extends RecordingExport {
 		ByteArrayOutputStream os = new ByteArrayOutputStream();
 		ImageIO.write(pageImage, "png", os);
 
-		builder.append("thumb: ");
+		builder.append("\"thumb\": ");
 		builder.append("\"");
 		builder.append("data:image/png;base64,");
 		builder.append(Base64.getEncoder().encodeToString(os.toByteArray()));

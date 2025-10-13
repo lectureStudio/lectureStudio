@@ -63,7 +63,7 @@ public class SwingScreenView extends JComponent implements ScreenViewComponent {
 		super.paintComponent(g);
 
 		Graphics2D g2 = (Graphics2D) g.create();
-		g2.setColor(Color.BLACK);
+		g2.setColor(Color.WHITE);
 		g2.fillRect(0, 0, getWidth(), getHeight());
 
 		if (nonNull(image)) {

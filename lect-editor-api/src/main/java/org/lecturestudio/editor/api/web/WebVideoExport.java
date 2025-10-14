@@ -64,23 +64,43 @@ import org.lecturestudio.editor.api.recording.RecordingExport;
 import org.lecturestudio.media.config.RenderConfiguration;
 import org.lecturestudio.swing.DefaultRenderContext;
 
+/**
+ * Handles the export of recordings to web video format. This class extends RecordingExport
+ * to provide functionality for exporting recordings to HTML-based video presentations.
+ *
+ * @author Alex Andres
+ */
 public class WebVideoExport extends RecordingExport {
 
+	/** Path to the HTML template file used for web video export. */
 	private static final String TEMPLATE_FILE = "resources/export/web/video/index.html";
 
+	/** Default width for page preview thumbnails in pixels. */
 	private static final int PREVIEW_WIDTH = 250;
 
+	/** Map containing template data to be injected into the HTML template. */
 	private final Map<String, String> data = new HashMap<>();
 
+	/** Application context providing access to application-wide resources. */
 	private final ApplicationContext context;
 
+	/** The recording to be exported as web video. */
 	private final Recording recording;
 
+	/** Configuration for the rendering process. */
 	private final RenderConfiguration config;
 
+	/** Buffer for rendering page previews. */
 	private BufferedImage pageImage;
 
 
+	/**
+	 * Creates a new web video export instance.
+	 *
+	 * @param context   The application context.
+	 * @param recording The recording to be exported.
+	 * @param config    The rendering configuration.
+	 */
 	public WebVideoExport(ApplicationContext context, Recording recording,
 			RenderConfiguration config) {
 		this.context = context;
@@ -88,12 +108,22 @@ public class WebVideoExport extends RecordingExport {
 		this.config = config;
 	}
 
+	/**
+	 * Sets the title for the exported web video.
+	 *
+	 * @param title The title to be displayed in the exported HTML.
+	 */
 	public void setTitle(String title) {
 		data.put("title", title);
 	}
 
+	/**
+	 * Sets the video source path for the exported web video.
+	 *
+	 * @param source The path to the video file.
+	 */
 	public void setVideoSource(String source) {
-		data.put("videoSource", source);
+		data.put("videoSourcePath", source);
 	}
 
 	@Override

@@ -21,13 +21,7 @@ package org.lecturestudio.editor.api.web;
 import static java.util.Objects.isNull;
 import static java.util.Objects.nonNull;
 
-import java.io.BufferedReader;
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
+import java.io.*;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.nio.ShortBuffer;
@@ -47,6 +41,8 @@ import javax.sound.sampled.AudioFormat;
 import org.bytedeco.ffmpeg.global.avcodec;
 import org.bytedeco.javacv.FFmpegFrameRecorder;
 
+import org.bytedeco.javacv.Frame;
+import org.bytedeco.javacv.FrameGrabber;
 import org.lecturestudio.core.ExecutableException;
 import org.lecturestudio.core.io.DynamicInputStream;
 import org.lecturestudio.core.io.RandomAccessAudioStream;
@@ -56,13 +52,17 @@ import org.lecturestudio.core.recording.RecordedAudio;
 import org.lecturestudio.core.recording.RecordedEvents;
 import org.lecturestudio.core.recording.RecordedPage;
 import org.lecturestudio.core.recording.Recording;
+import org.lecturestudio.core.recording.action.ScreenAction;
 import org.lecturestudio.core.recording.file.RecordingFileWriter;
+import org.lecturestudio.core.recording.file.RecordingUtils;
 import org.lecturestudio.core.util.AudioUtils;
 import org.lecturestudio.core.util.FileUtils;
 import org.lecturestudio.editor.api.recording.RecordingExport;
 import org.lecturestudio.editor.api.recording.RecordingRenderState;
 import org.lecturestudio.editor.api.recording.RecordingRenderProgressEvent;
 import org.lecturestudio.media.config.RenderConfiguration;
+import org.lecturestudio.media.config.VideoRenderConfiguration;
+import org.lecturestudio.media.video.FFmpegFrameGrabber;
 
 /**
  * Exports a recording to web-based vector format. This exporter creates a standalone
@@ -143,6 +143,8 @@ public class WebVectorExport extends RecordingExport {
 
 			try {
 				encAudio = encodeAudio();
+
+				encodeVideo();
 			}
 			catch (Exception e) {
 				throw new CompletionException(e);
@@ -264,6 +266,71 @@ public class WebVectorExport extends RecordingExport {
 		return new RecordedAudio(audioStream);
 	}
 
+	private void encodeVideo() throws IOException {
+		List<ScreenAction> screenActions = RecordingUtils.getScreenActions(recording);
+		if (screenActions.isEmpty()) {
+			return;
+		}
+
+		Path sourcePath = Paths.get(recording.getSourceFile().getParent());
+		Set<Path> videoFiles = new HashSet<>();
+
+		StringBuilder builder = new StringBuilder();
+		builder.append("{");
+
+		for (ScreenAction action : screenActions) {
+			Path videoFile = sourcePath.resolve(action.getFileName());
+			if (Files.exists(videoFile) && !videoFiles.contains(videoFile)) {
+				String base64Video = encodeFileToBase64(videoFile);
+
+				builder.append("\"").append(action.getFileName()).append("\": ");
+				builder.append("\"").append("data:video/mp4;base64,").append(base64Video).append("\"");
+
+				videoFiles.add(videoFile);
+			}
+		}
+
+		builder.append("}");
+
+		data.put("videoMapping", builder.toString());
+	}
+
+	private byte[] transcodeVideo(Path videoFile) throws FFmpegFrameRecorder.Exception {
+		ByteArrayOutputStream outputVideoFile = new ByteArrayOutputStream();
+		VideoRenderConfiguration renderConfig = config.getVideoConfig();
+
+		try (FFmpegFrameGrabber videoGrabber = FFmpegFrameGrabber.createDefault(videoFile.toFile())) {
+			videoGrabber.start();
+
+			FFmpegFrameRecorder recorder = new FFmpegFrameRecorder(outputVideoFile, videoGrabber.getAudioChannels());
+			recorder.setFrameRate(renderConfig.getFrameRate());
+			recorder.setVideoCodec(videoGrabber.getVideoCodec());
+			recorder.setVideoBitrate(renderConfig.getBitrate() * 1000);
+			recorder.setImageHeight(videoGrabber.getImageHeight());
+			recorder.setImageWidth(videoGrabber.getImageWidth());
+			recorder.setFormat(config.getFileFormat());
+			recorder.setVideoOptions(videoGrabber.getVideoOptions());
+			recorder.setVideoMetadata(videoGrabber.getVideoMetadata());
+			recorder.setVideoOption("v:profile", "high");
+			recorder.setVideoOption("level", "4.1");
+			recorder.setVideoOption("tune", "film");
+			recorder.start();
+
+			Frame frame;
+			while ((frame = videoGrabber.grabImage()) != null) {
+				recorder.record(frame);
+			}
+
+			recorder.stop();
+			videoGrabber.stop();
+
+			return outputVideoFile.toByteArray();
+		}
+		catch (FrameGrabber.Exception e) {
+			throw new RuntimeException(e);
+		}
+	}
+
 	private String loadTemplateFile() {
 		InputStream is = ResourceLoader.getResourceAsStream(WebVectorExport.TEMPLATE_FILE);
 
@@ -277,7 +344,7 @@ public class WebVectorExport extends RecordingExport {
 	}
 
 	private String processTemplateFile(String fileContent, Map<String, String> data) {
-		Pattern pattern = Pattern.compile("#\\{(.+?)}");
+		Pattern pattern = Pattern.compile("\"#\\{(.+?)}\"");
 		Matcher matcher = pattern.matcher(fileContent);
 		StringBuilder sb = new StringBuilder();
 
@@ -286,7 +353,7 @@ public class WebVectorExport extends RecordingExport {
 			String replacement = data.get(match);
 
 			if (nonNull(replacement)) {
-				matcher.appendReplacement(sb, Matcher.quoteReplacement(replacement));
+				matcher.appendReplacement(sb, "'" + replacement + "'");
 			}
 			else {
 				LOG.warn("Found match '{}' with no replacement.", match);
@@ -301,6 +368,11 @@ public class WebVectorExport extends RecordingExport {
 	private void writeTemplateFile(String fileContent, File outputFile) throws IOException {
 		Path path = Paths.get(outputFile.getPath());
 		Files.writeString(path, fileContent);
+	}
+
+	private String encodeFileToBase64(Path path) throws IOException {
+		byte[] fileContent = Files.readAllBytes(path);
+		return Base64.getEncoder().encodeToString(fileContent);
 	}
 
 

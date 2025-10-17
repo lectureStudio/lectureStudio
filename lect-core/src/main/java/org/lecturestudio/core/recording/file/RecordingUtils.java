@@ -88,12 +88,12 @@ public final class RecordingUtils {
 			int timestamp = page.getTimestamp();
 
 			if (startMs == timestamp) {
-				// Found exact match - use this page and exit loop.
+				// Found an exact match - use this page and exit the loop.
 				startPage = page;
 				break;
 			}
 			else if (startMs < timestamp) {
-				// Current page is after our start time - use the last found page.
+				// The current page is after our start time - use the last found page.
 				break;
 			}
 
@@ -108,7 +108,7 @@ public final class RecordingUtils {
 		// The time interval of a screen section.
 		Interval<Integer> screenTimeInterval;
 
-		// Check all playback actions in the found page.
+		// Check all playback actions on the found page.
 		for (PlaybackAction action : startPage.getPlaybackActions()) {
 			int timestamp = action.getTimestamp();
 

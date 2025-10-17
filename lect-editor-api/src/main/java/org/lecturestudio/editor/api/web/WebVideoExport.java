@@ -76,7 +76,7 @@ public class WebVideoExport extends RecordingExport {
 	private static final String TEMPLATE_FILE = "resources/export/web/video/index.html";
 
 	/** Default width for page preview thumbnails in pixels. */
-	private static final int PREVIEW_WIDTH = 250;
+	private static final int PREVIEW_WIDTH = 400;
 
 	/** Map containing template data to be injected into the HTML template. */
 	private final Map<String, String> data = new HashMap<>();

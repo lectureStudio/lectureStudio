@@ -29,6 +29,7 @@ import org.lecturestudio.core.app.ApplicationContext;
 import org.lecturestudio.core.model.Document;
 import org.lecturestudio.core.presenter.Presenter;
 import org.lecturestudio.core.view.ConsumerAction;
+import org.lecturestudio.presenter.api.context.PresenterContext;
 import org.lecturestudio.presenter.api.model.DocumentQuiz;
 import org.lecturestudio.presenter.api.presenter.command.EditQuizCommand;
 import org.lecturestudio.presenter.api.service.QuizService;
@@ -70,7 +71,7 @@ public class SelectQuizPresenter extends Presenter<SelectQuizView> {
 	private final StreamService streamService;
 
 	/** Document representing a generic quiz option that's not associated with any specific document. */
-	private Document genericDoc;
+	private final Document genericDoc;
 
 	/**
 	 * Action to be executed when a quiz is edited. This can be composed with multiple actions
@@ -87,13 +88,11 @@ public class SelectQuizPresenter extends Presenter<SelectQuizView> {
 		this.quizService = quizService;
 		this.streamService = streamService;
 		this.webService = webService;
+		this.genericDoc = ((PresenterContext) context).getGenericDocument();
 	}
 
 	@Override
 	public void initialize() throws IOException {
-		genericDoc = new Document();
-		genericDoc.setTitle(context.getDictionary().get("quiz.generic"));
-
 		setOnEdit((documentQuiz) -> {
 			// Copy quiz. No in-place editing.
 			context.getEventBus().post(new EditQuizCommand(documentQuiz.quiz().clone(), documentQuiz.document(),

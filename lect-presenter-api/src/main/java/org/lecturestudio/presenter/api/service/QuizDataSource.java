@@ -240,7 +240,8 @@ public class QuizDataSource {
 		requireNonNull(oldQuiz);
 		requireNonNull(newQuiz);
 
-		QuizRepository repository = getQuizRepository(getQuizFile(doc));
+		File quizFile = getQuizFile(doc);
+		QuizRepository repository = isNull(quizFile) ? this.repository : getQuizRepository(getQuizFile(doc));
 
 		if (isNull(repository)) {
 			throw new IOException("Repository does not exist");

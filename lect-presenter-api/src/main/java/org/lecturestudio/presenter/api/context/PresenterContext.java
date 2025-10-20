@@ -21,6 +21,7 @@ package org.lecturestudio.presenter.api.context;
 import static java.util.Objects.isNull;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
@@ -34,6 +35,7 @@ import org.lecturestudio.core.beans.BooleanProperty;
 import org.lecturestudio.core.beans.IntegerProperty;
 import org.lecturestudio.core.beans.ObjectProperty;
 import org.lecturestudio.core.bus.EventBus;
+import org.lecturestudio.core.model.Document;
 import org.lecturestudio.core.util.ListChangeListener;
 import org.lecturestudio.core.util.ObservableArrayList;
 import org.lecturestudio.core.util.ObservableHashSet;
@@ -91,6 +93,9 @@ public class PresenterContext extends ApplicationContext {
 
 	/** File extension for recording files. */
 	public static final String RECORDING_EXTENSION = "presenter";
+
+	/** Document representing a generic quiz option that's not associated with any specific document. */
+	private final Document genericDocument;
 
 	/** Tracks the currently visible view in the UI. */
 	private final ObjectProperty<Class<? extends View>> currentlyVisibleView = new ObjectProperty<>();
@@ -175,8 +180,11 @@ public class PresenterContext extends ApplicationContext {
 	 */
 	public PresenterContext(AppDataLocator dataLocator, File configFile,
 			Configuration config, Dictionary dict, EventBus eventBus,
-			EventBus audioBus, UserPrivilegeService userPrivilegeService) {
+			EventBus audioBus, UserPrivilegeService userPrivilegeService) throws IOException {
 		super(dataLocator, config, dict, eventBus, audioBus);
+
+		genericDocument = new Document();
+		genericDocument.setTitle(dict.get("quiz.generic"));
 
 		this.configFile = configFile;
 		this.userPrivilegeService = userPrivilegeService;
@@ -229,6 +237,18 @@ public class PresenterContext extends ApplicationContext {
 	public void saveConfiguration() throws Exception {
 		var configService = new PresenterConfigService();
 		configService.save(configFile, getConfiguration());
+	}
+
+	/**
+	 * Returns the generic placeholder document used for quiz options that are not
+	 * associated with any specific document. The returned instance is owned by
+	 * this context and may be reused; callers should not attempt to replace or
+	 * dispose it.
+	 *
+	 * @return the generic {@link Document} instance.
+	 */
+	public Document getGenericDocument() {
+		return genericDocument;
 	}
 
 	/**

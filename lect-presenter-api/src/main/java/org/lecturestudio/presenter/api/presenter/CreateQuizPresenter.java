@@ -37,6 +37,7 @@ import org.lecturestudio.core.presenter.Presenter;
 import org.lecturestudio.core.service.DocumentService;
 import org.lecturestudio.core.view.Action;
 import org.lecturestudio.core.view.ViewContextFactory;
+import org.lecturestudio.presenter.api.context.PresenterContext;
 import org.lecturestudio.presenter.api.model.DocumentQuiz;
 import org.lecturestudio.presenter.api.service.QuizService;
 import org.lecturestudio.presenter.api.service.StreamService;
@@ -57,6 +58,9 @@ public class CreateQuizPresenter extends Presenter<CreateQuizView> {
 	/** Service for document management and retrieval operations. */
 	private final DocumentService documentService;
 
+	/** Document representing a generic quiz option that's not associated with any specific document. */
+	private final Document genericDoc;
+
 	/** Service for quiz storage and management operations. */
 	private final QuizService quizService;
 
@@ -71,9 +75,6 @@ public class CreateQuizPresenter extends Presenter<CreateQuizView> {
 
 	/** The action that is executed when the user clicks the 'Start Quiz' button. */
 	private Action startQuizAction;
-
-	/** Document representing a generic quiz option that's not associated with any specific document. */
-	private Document genericDoc;
 
 	/** The currently selected document for which a quiz is being created or edited. */
 	private Document selectedDoc;
@@ -90,13 +91,11 @@ public class CreateQuizPresenter extends Presenter<CreateQuizView> {
 		this.quizService = quizService;
 		this.streamService = streamService;
 		this.optionContextList = new ArrayList<>();
+		this.genericDoc = ((PresenterContext) context).getGenericDocument();
 	}
 
 	@Override
 	public void initialize() throws Exception {
-		genericDoc = new Document();
-		genericDoc.setTitle(context.getDictionary().get("quiz.generic"));
-
 		DocumentList docList = documentService.getDocuments();
 
 		if (isNull(selectedDoc)) {

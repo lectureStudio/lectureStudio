@@ -154,7 +154,7 @@ public class ApplicationModule extends AbstractModule {
 	@Provides
 	@Singleton
 	PresenterContext createApplicationContext(Configuration config, Dictionary dict,
-			UserPrivilegeService privilegeService) {
+			UserPrivilegeService privilegeService) throws IOException {
 		EventBus eventBus = ApplicationBus.get();
 		EventBus audioBus = AudioBus.get();
 

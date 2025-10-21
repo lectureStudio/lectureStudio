@@ -375,7 +375,7 @@ public class WebVectorExport extends RecordingExport {
 
 	private String encodeFileToBase64(Path path) throws IOException {
 		try {
-			byte[] fileContent = transcodeVideo(path);
+			byte[] fileContent = Files.readAllBytes(path);
 			return Base64.getEncoder().encodeToString(fileContent);
 		}
 		catch (Exception e) {

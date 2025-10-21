@@ -31,6 +31,7 @@ import java.awt.font.TextLayout;
 import java.awt.geom.AffineTransform;
 import java.io.File;
 import java.io.IOException;
+import java.net.URI;
 import java.nio.file.Paths;
 import java.text.AttributedCharacterIterator;
 import java.text.AttributedString;
@@ -108,7 +109,7 @@ public class QuizDocument extends HtmlToPdfDocument {
 	 * @throws IOException if an I/O error occurs during document creation.
 	 */
 	public QuizDocument(File templateFile, Rectangle2D contentBounds,
-						Dictionary dict, QuizResult result) throws IOException {
+						Dictionary dict, QuizResult result) throws Exception {
 		this.result = result;
 
 		init(createDocument(templateFile, contentBounds, dict, result));
@@ -291,7 +292,7 @@ public class QuizDocument extends HtmlToPdfDocument {
 			File templateFile,
 			Rectangle2D contentBounds,
 			Dictionary dict,
-			QuizResult result) throws IOException {
+			QuizResult result) throws Exception {
 		PDDocument tplDoc = templateFile.exists() ? PDDocument.load(templateFile) : null;
 		PDDocument doc = new PDDocument();
 
@@ -340,7 +341,7 @@ public class QuizDocument extends HtmlToPdfDocument {
 	}
 
 	private static void renderQuestion(PDDocument tplDoc, PDDocument doc,
-									   Rectangle2D contentBounds, Quiz quiz, boolean markCorrect) throws IOException {
+									   Rectangle2D contentBounds, Quiz quiz, boolean markCorrect) throws Exception {
 		String question = quiz.getQuestion().replaceAll("&nbsp;", " ");
 
 		var jdoc = Jsoup.parseBodyFragment(question);
@@ -355,6 +356,7 @@ public class QuizDocument extends HtmlToPdfDocument {
 			File imgFile = new File(FileUtils.decodePath(src));
 			String newPath = Paths.get("quiz", imgFile.getName()).toString()
 					.replaceAll("\\\\", "/");
+			newPath = new URI(null, null, newPath, null).toASCIIString();
 
 			// Replace src by new relative web-root path.
 			e.attr("src", newPath);

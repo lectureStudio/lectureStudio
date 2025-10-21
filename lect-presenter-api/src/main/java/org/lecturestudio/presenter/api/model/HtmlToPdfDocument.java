@@ -244,7 +244,7 @@ public abstract class HtmlToPdfDocument extends Document {
 		public FSStream getUrl(String uri) {
 			try {
 				final URI fullUri = new URI(uri);
-				final String path = fullUri.getPath();
+				final String path = fullUri.getRawPath();
 				final String replacement = resourceMap.get(path.substring(1));
 
 				if (nonNull(replacement)) {

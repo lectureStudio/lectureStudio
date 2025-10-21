@@ -233,8 +233,6 @@ public class QuizDocument extends HtmlToPdfDocument {
 		List<WordItem> words = new ArrayList<>();
 		Map<String, Integer> frequencyMap = new HashMap<>();
 
-//		System.out.println(result.getResult());
-
 		// Process the quiz result to count word frequencies.
 		for (var entry : result.getResult().entrySet()) {
 			String[] options = entry.getKey().getOptions();
@@ -247,13 +245,10 @@ public class QuizDocument extends HtmlToPdfDocument {
 				}
 
 				// Limit the length of the option to 64 characters for word cloud visualization.
-				option = IOUtils.shortenString(option, 32);
+				option = IOUtils.shortenString(option.toLowerCase(), 32);
 				Integer frequency = frequencyMap.get(option);
 
-				// Initialize frequency to 0 if this is the first occurrence.
-				if (isNull(frequency)) {
-					frequency = count;
-				}
+				frequency = isNull(frequency) ? count : frequency + count;
 
 				// Update the frequency count for this option.
 				frequencyMap.put(option, frequency);

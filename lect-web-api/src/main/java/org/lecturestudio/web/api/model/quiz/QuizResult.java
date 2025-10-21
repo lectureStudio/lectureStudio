@@ -18,8 +18,7 @@
 
 package org.lecturestudio.web.api.model.quiz;
 
-import java.util.Map;
-import java.util.TreeMap;
+import java.util.*;
 
 /**
  * Represents the result of a quiz, containing the quiz itself and the collected answers.
@@ -55,7 +54,7 @@ public class QuizResult {
 	 * @return true if the answer was added successfully, false if the answer was invalid.
 	 */
 	public boolean addAnswer(QuizAnswer answer) {
-		// Drop distorted answer.
+		// Drop a distorted answer.
 		if (!checkAnswer(answer)) {
 			return false;
 		}
@@ -136,7 +135,19 @@ public class QuizResult {
 			}
 		}
 		else if (quiz.getType() == Quiz.QuizType.FREE_TEXT) {
-			// Implement restriction for free text answers if needed.
+			var filter = quiz.getInputFilter();
+
+			var uniqueOptions = new TreeSet<>(String.CASE_INSENSITIVE_ORDER);
+			uniqueOptions.addAll(Arrays.asList(answer.getOptions()));
+
+			List<String> filteredOptions = new ArrayList<>();
+			for (String option : uniqueOptions) {
+				if (!option.isBlank() && filter.isAllowedByAll(option)) {
+					filteredOptions.add(option);
+				}
+			}
+
+			answer.setOptions(filteredOptions.toArray(String[]::new));
 		}
 		else {
 			try {
@@ -157,7 +168,7 @@ public class QuizResult {
 	/**
 	 * Attempts to parse a string value as a number.
 	 * First try to parse as integer, then as float.
-	 * Handles comma as decimal separator by converting it to a period.
+	 * Handles comma as a decimal separator by converting it to a period.
 	 *
 	 * @param value The string to parse.
 	 *

@@ -232,8 +232,7 @@ public class QuizDocument extends HtmlToPdfDocument {
 	private static List<WordItem> getWordFrequencies(QuizResult result) {
 		List<WordItem> words = new ArrayList<>();
 		Map<String, Integer> frequencyMap = new HashMap<>();
-
-//		System.out.println(result.getResult());
+		Map<String, String> displayTextMap = new HashMap<>();
 
 		// Process the quiz result to count word frequencies.
 		for (var entry : result.getResult().entrySet()) {
@@ -246,25 +245,36 @@ public class QuizDocument extends HtmlToPdfDocument {
 					continue;
 				}
 
-				// Limit the length of the option to 64 characters for word cloud visualization.
-				option = IOUtils.shortenString(option, 32);
-				Integer frequency = frequencyMap.get(option);
+				// Shorten to a maximum length for consistent grouping and rendering.
+				String original = IOUtils.shortenString(option.trim(), 32);
+				String key = original.toLowerCase();
 
-				// Initialize frequency to 0 if this is the first occurrence.
-				if (isNull(frequency)) {
-					frequency = count;
+				Integer frequency = frequencyMap.get(key);
+				frequency = isNull(frequency) ? count : frequency + count;
+
+				// Update the frequency count for this option (case-insensitive).
+				frequencyMap.put(key, frequency);
+
+				// Choose a display string: prefer a variant starting with a capital letter if seen.
+				String currentDisplay = displayTextMap.get(key);
+				if (currentDisplay == null) {
+					displayTextMap.put(key, original);
 				}
+				else {
+					boolean currentStartsCapital = !currentDisplay.isEmpty() && Character.isUpperCase(currentDisplay.codePointAt(0));
+					boolean originalStartsCapital = !original.isEmpty() && Character.isUpperCase(original.codePointAt(0));
 
-				// Update the frequency count for this option.
-				frequencyMap.put(option, frequency);
+					if (originalStartsCapital && !currentStartsCapital) {
+						displayTextMap.put(key, original);
+					}
+				}
 			}
 		}
 
-		System.out.println(frequencyMap);
-
 		// Convert the frequency map entries to WordItem objects for word cloud visualization.
 		for (var entry : frequencyMap.entrySet()) {
-			words.add(new WordItem(entry.getKey(), entry.getValue()));
+			String display = displayTextMap.getOrDefault(entry.getKey(), entry.getKey());
+			words.add(new WordItem(display, entry.getValue()));
 		}
 
 		return words;

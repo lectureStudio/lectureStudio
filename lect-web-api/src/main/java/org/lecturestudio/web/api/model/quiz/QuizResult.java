@@ -18,8 +18,7 @@
 
 package org.lecturestudio.web.api.model.quiz;
 
-import java.util.Map;
-import java.util.TreeMap;
+import java.util.*;
 
 /**
  * Represents the result of a quiz, containing the quiz itself and the collected answers.
@@ -55,7 +54,7 @@ public class QuizResult {
 	 * @return true if the answer was added successfully, false if the answer was invalid.
 	 */
 	public boolean addAnswer(QuizAnswer answer) {
-		// Drop distorted answer.
+		// Drop a distorted answer.
 		if (!checkAnswer(answer)) {
 			return false;
 		}
@@ -136,7 +135,36 @@ public class QuizResult {
 			}
 		}
 		else if (quiz.getType() == Quiz.QuizType.FREE_TEXT) {
-			// Implement restriction for free text answers if needed.
+			var filter = quiz.getInputFilter();
+
+			// Build a case-insensitive map that prefers capitalized variants
+			Map<String, String> byLower = Arrays.stream(answer.getOptions())
+					.filter(Objects::nonNull)
+					.map(String::trim)
+					.filter(s -> !s.isEmpty())
+					.collect(
+						LinkedHashMap::new,
+						(m, s) -> {
+							String k = s.toLowerCase();
+							String cur = m.get(k);
+							if (cur == null || (!startsWithUppercase(cur) && startsWithUppercase(s))) {
+								m.put(k, s);
+							}
+						},
+						Map::putAll
+					);
+
+			List<String> filteredOptions = byLower.values().stream()
+					.filter(filter::isAllowedByAll)
+					.sorted((a, b) -> {
+						boolean aCap = startsWithUppercase(a);
+						boolean bCap = startsWithUppercase(b);
+						if (aCap == bCap) return 0;
+						return aCap ? -1 : 1;
+					})
+					.toList();
+
+			answer.setOptions(filteredOptions.toArray(String[]::new));
 		}
 		else {
 			try {
@@ -157,7 +185,7 @@ public class QuizResult {
 	/**
 	 * Attempts to parse a string value as a number.
 	 * First try to parse as integer, then as float.
-	 * Handles comma as decimal separator by converting it to a period.
+	 * Handles comma as a decimal separator by converting it to a period.
 	 *
 	 * @param value The string to parse.
 	 *
@@ -209,5 +237,11 @@ public class QuizResult {
 		catch (Exception e) {
 			return null;
 		}
+	}
+
+	private static boolean startsWithUppercase(String s) {
+		if (s == null || s.isEmpty()) return false;
+		char ch = s.charAt(0);
+		return Character.isLetter(ch) && Character.isUpperCase(ch);
 	}
 }

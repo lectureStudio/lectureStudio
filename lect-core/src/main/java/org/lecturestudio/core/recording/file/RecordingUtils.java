@@ -230,7 +230,7 @@ public final class RecordingUtils {
 
 			totalRead += silenced.length;
 
-			// Write silenced audio at the beginning, to avoid eventual clicks.
+			// Write silenced audio at the beginning to avoid eventual clicks.
 			outStream.write(silenced, 0, silenced.length);
 
 			while ((read = stream.read(buffer)) > 0) {

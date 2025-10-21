@@ -237,14 +237,13 @@ public class WebVectorExport extends RecordingExport {
 		try {
 			recorder.start();
 
+			// Write silenced audio at the beginning to avoid eventual clicks.
+			byte[] silenced = org.lecturestudio.core.audio.AudioUtils.silenceAudio(stream, stream.getAudioFormat(), 20);
+			writeAudioSamples(recorder, silenced, silenced.length, sampleRate, channels);
+			readTotal += silenced.length;
+
 			while ((read = stream.read(buffer)) > 0) {
-				int nSamplesRead = read / 2;
-				short[] shortSamples = new short[nSamplesRead];
-
-				ByteBuffer.wrap(buffer, 0, read).order(ByteOrder.LITTLE_ENDIAN).asShortBuffer().get(shortSamples);
-				ShortBuffer samplesBuffer = ShortBuffer.wrap(shortSamples, 0, nSamplesRead);
-
-				recorder.recordSamples(sampleRate, channels, samplesBuffer);
+				writeAudioSamples(recorder, buffer, read, sampleRate, channels);
 
 				readTotal += read;
 				progressListener.accept(readTotal);
@@ -266,6 +265,17 @@ public class WebVectorExport extends RecordingExport {
 				new DynamicInputStream(encodedStream), true);
 
 		return new RecordedAudio(audioStream);
+	}
+
+	private void writeAudioSamples(FFmpegFrameRecorder recorder, byte[] buffer, int read, int sampleRate, int channels)
+			throws FFmpegFrameRecorder.Exception {
+		int nSamplesRead = read / 2;
+		short[] shortSamples = new short[nSamplesRead];
+
+		ByteBuffer.wrap(buffer, 0, read).order(ByteOrder.LITTLE_ENDIAN).asShortBuffer().get(shortSamples);
+		ShortBuffer samplesBuffer = ShortBuffer.wrap(shortSamples, 0, nSamplesRead);
+
+		recorder.recordSamples(sampleRate, channels, samplesBuffer);
 	}
 
 	private void encodeVideo() throws IOException {

@@ -26,7 +26,6 @@ import java.util.Arrays;
 import java.util.List;
 
 import org.lecturestudio.core.audio.AudioFormat.Encoding;
-import org.lecturestudio.core.io.DynamicInputStream;
 
 /**
  * Audio-related utility methods.

@@ -318,7 +318,7 @@ public class VideoRenderer extends RecordingExport {
 		byte[] silenced = AudioUtils.silenceAudio(stream, stream.getAudioFormat(), 20);
 		int read;
 
-		// Write silenced audio at the beginning, to avoid eventual clicks.
+		// Write silenced audio at the beginning to avoid eventual clicks.
 		ffmpegMuxer.addAudioFrame(silenced, 0, silenced.length);
 
 		while ((read = stream.read(buffer)) > 0) {

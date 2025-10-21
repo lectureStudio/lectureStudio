@@ -16,6 +16,8 @@
 
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+		<javacpp.version>1.5.12</javacpp.version>
+		<ffmpeg.version>7.1.1-1.5.12</ffmpeg.version>
 	</properties>
 
 	<dependencies>
@@ -76,18 +78,18 @@
 		<dependency>
 			<groupId>org.bytedeco</groupId>
 			<artifactId>javacpp</artifactId>
-			<version>1.5.11</version>
+			<version>${javacpp.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>org.bytedeco</groupId>
 			<artifactId>javacpp</artifactId>
-			<version>1.5.11</version>
+			<version>${javacpp.version}</version>
 			<classifier>${bytedeco.os.name}</classifier>
 		</dependency>
 		<dependency>
 			<groupId>org.bytedeco</groupId>
 			<artifactId>javacpp-platform</artifactId>
-			<version>1.5.11</version>
+			<version>${javacpp.version}</version>
 			<exclusions>
 				<exclusion>
 					<groupId>org.bytedeco</groupId>
@@ -98,7 +100,7 @@
 		<dependency>
 			<groupId>org.bytedeco</groupId>
 			<artifactId>javacv</artifactId>
-			<version>1.5.11</version>
+			<version>${javacpp.version}</version>
 			<exclusions>
 				<exclusion>
 					<groupId>*</groupId>
@@ -109,7 +111,7 @@
 		<dependency>
 			<groupId>org.bytedeco</groupId>
 			<artifactId>ffmpeg-platform</artifactId>
-			<version>7.1-1.5.11</version>
+			<version>${ffmpeg.version}</version>
 			<exclusions>
 				<exclusion>
 					<groupId>org.bytedeco</groupId>
@@ -124,12 +126,12 @@
 		<dependency>
 			<groupId>org.bytedeco</groupId>
 			<artifactId>ffmpeg</artifactId>
-			<version>7.1-1.5.11</version>
+			<version>${ffmpeg.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>org.bytedeco</groupId>
 			<artifactId>ffmpeg</artifactId>
-			<version>7.1-1.5.11</version>
+			<version>${ffmpeg.version}</version>
 			<classifier>${bytedeco.os.name}</classifier>
 		</dependency>
 	</dependencies>

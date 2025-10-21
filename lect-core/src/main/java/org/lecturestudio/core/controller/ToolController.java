@@ -951,7 +951,7 @@ public class ToolController extends Controller implements ToolContext {
 		Shape shape = page.getShape(handle);
 
 		if (isNull(shape) || !(shape instanceof TextBoxShape)) {
-			logErrorMessage("No text shape with given handle found");
+			logDebugMessage("No text shape with given handle found");
 			return null;
 		}
 

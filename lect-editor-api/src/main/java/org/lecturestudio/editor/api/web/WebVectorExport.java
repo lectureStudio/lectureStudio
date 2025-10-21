@@ -39,10 +39,8 @@ import java.util.stream.Collectors;
 import javax.sound.sampled.AudioFormat;
 
 import org.bytedeco.ffmpeg.global.avcodec;
-import org.bytedeco.javacv.FFmpegFrameRecorder;
+import org.bytedeco.javacv.*;
 
-import org.bytedeco.javacv.Frame;
-import org.bytedeco.javacv.FrameGrabber;
 import org.lecturestudio.core.ExecutableException;
 import org.lecturestudio.core.io.DynamicInputStream;
 import org.lecturestudio.core.io.RandomAccessAudioStream;
@@ -62,7 +60,6 @@ import org.lecturestudio.editor.api.recording.RecordingRenderState;
 import org.lecturestudio.editor.api.recording.RecordingRenderProgressEvent;
 import org.lecturestudio.media.config.RenderConfiguration;
 import org.lecturestudio.media.config.VideoRenderConfiguration;
-import org.lecturestudio.media.video.FFmpegFrameGrabber;
 
 /**
  * Exports a recording to web-based vector format. This exporter creates a standalone
@@ -136,6 +133,13 @@ public class WebVectorExport extends RecordingExport {
 
 	@Override
 	protected void startInternal() {
+		try {
+			encodeVideo();
+		}
+		catch (IOException e) {
+			throw new CompletionException(e);
+		}
+
 		CompletableFuture.supplyAsync(() -> {
 			onRenderState(RecordingRenderState.RENDER_VECTOR);
 
@@ -143,8 +147,6 @@ public class WebVectorExport extends RecordingExport {
 
 			try {
 				encAudio = encodeAudio();
-
-				encodeVideo();
 			}
 			catch (Exception e) {
 				throw new CompletionException(e);
@@ -299,34 +301,35 @@ public class WebVectorExport extends RecordingExport {
 		ByteArrayOutputStream outputVideoFile = new ByteArrayOutputStream();
 		VideoRenderConfiguration renderConfig = config.getVideoConfig();
 
+		FFmpegLogCallback.set();
+
+		FFmpegFrameRecorder recorder = FFmpegFrameRecorder.createDefault("dump.mp4", 1920,
+				1080);
+		recorder.setFrameRate(renderConfig.getFrameRate());
+		recorder.setVideoCodec(avcodec.AV_CODEC_ID_H264);
+		recorder.setVideoBitrate(renderConfig.getBitrate() * 1000);
+		recorder.setImageHeight(1080);
+		recorder.setImageWidth(1920);
+		recorder.setFormat(config.getFileFormat());
+//			recorder.setVideoOptions(videoGrabber.getVideoOptions());
+//			recorder.setVideoMetadata(videoGrabber.getVideoMetadata());
+		recorder.start();
+
 		try (FFmpegFrameGrabber videoGrabber = FFmpegFrameGrabber.createDefault(videoFile.toFile())) {
 			videoGrabber.start();
 
-			FFmpegFrameRecorder recorder = new FFmpegFrameRecorder(outputVideoFile, videoGrabber.getAudioChannels());
-			recorder.setFrameRate(renderConfig.getFrameRate());
-			recorder.setVideoCodec(videoGrabber.getVideoCodec());
-			recorder.setVideoBitrate(renderConfig.getBitrate() * 1000);
-			recorder.setImageHeight(videoGrabber.getImageHeight());
-			recorder.setImageWidth(videoGrabber.getImageWidth());
-			recorder.setFormat(config.getFileFormat());
-			recorder.setVideoOptions(videoGrabber.getVideoOptions());
-			recorder.setVideoMetadata(videoGrabber.getVideoMetadata());
-			recorder.setVideoOption("v:profile", "high");
-			recorder.setVideoOption("level", "4.1");
-			recorder.setVideoOption("tune", "film");
-			recorder.start();
-
 			Frame frame;
 			while ((frame = videoGrabber.grabImage()) != null) {
+				System.out.println(frame.imageWidth + "x" + frame.imageHeight + " " + frame.timestamp);
 				recorder.record(frame);
 			}
 
-			recorder.stop();
-			videoGrabber.stop();
+			recorder.close();
+			videoGrabber.close();
 
 			return outputVideoFile.toByteArray();
 		}
-		catch (FrameGrabber.Exception e) {
+		catch (Exception e) {
 			throw new RuntimeException(e);
 		}
 	}
@@ -371,8 +374,14 @@ public class WebVectorExport extends RecordingExport {
 	}
 
 	private String encodeFileToBase64(Path path) throws IOException {
-		byte[] fileContent = Files.readAllBytes(path);
-		return Base64.getEncoder().encodeToString(fileContent);
+		try {
+			byte[] fileContent = Files.readAllBytes(path);
+			return Base64.getEncoder().encodeToString(fileContent);
+		}
+		catch (Exception e) {
+			e.printStackTrace();
+		}
+		return "";
 	}
 
 

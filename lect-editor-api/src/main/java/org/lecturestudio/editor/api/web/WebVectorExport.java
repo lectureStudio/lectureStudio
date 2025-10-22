@@ -336,10 +336,10 @@ public class WebVectorExport extends RecordingExport {
 
 		VideoRenderConfiguration renderConfig = config.getVideoConfig();
 
-		FFmpegFrameRecorder recorder = new FFmpegFrameRecorder(outStream, videoGrabber.getImageWidth(),
-				videoGrabber.getImageHeight());
+		FFmpegFrameRecorder recorder = new FFmpegFrameRecorder(outStream, (int) renderConfig.getDimension().getWidth(),
+				(int) renderConfig.getDimension().getHeight());
 		recorder.setFrameRate(videoGrabber.getFrameRate());
-		recorder.setVideoBitrate(300 * 1000);
+		recorder.setVideoBitrate(500 * 1000);
 		recorder.setVideoCodec(videoGrabber.getVideoCodec());
 		recorder.setFormat(config.getFileFormat());
 		recorder.setVideoQuality(31);

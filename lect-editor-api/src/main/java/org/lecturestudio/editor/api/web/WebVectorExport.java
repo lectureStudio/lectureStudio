@@ -129,15 +129,20 @@ public class WebVectorExport extends RecordingExport {
 
 	@Override
 	protected void startInternal() {
-		try {
-			encodeVideo();
-		}
-		catch (IOException e) {
-			throw new CompletionException(e);
-		}
-
 		CompletableFuture.supplyAsync(() -> {
-			onRenderState(RecordingRenderState.RENDER_VECTOR);
+			List<ScreenAction> screenActions = RecordingUtils.getScreenActions(recording);
+			if (!screenActions.isEmpty()) {
+				onRenderState(RecordingRenderState.RENDER_VIDEO);
+
+				try {
+					encodeVideo(screenActions);
+				}
+				catch (IOException e) {
+					throw new CompletionException(e);
+				}
+			}
+
+			onRenderState(RecordingRenderState.RENDER_AUDIO);
 
 			RecordedAudio encAudio;
 
@@ -148,12 +153,7 @@ public class WebVectorExport extends RecordingExport {
 				throw new CompletionException(e);
 			}
 
-			return encAudio;
-		})
-		.thenAccept(encAudio -> {
-			if (stopped()) {
-				return;
-			}
+			onRenderState(RecordingRenderState.RENDER_VECTOR);
 
 			Recording encRecording = new Recording();
 			encRecording.setRecordingHeader(recording.getRecordingHeader());
@@ -162,32 +162,15 @@ public class WebVectorExport extends RecordingExport {
 			encRecording.setRecordedDocument(recording.getRecordedDocument());
 
 			try {
-				byte[] rec = RecordingFileWriter.writeToByteArray(encRecording);
-				String recEncoded = Base64.getEncoder().encodeToString(rec);
-
-				data.put("recording", recEncoded);
-
-				String indexContent = loadTemplateFile();
-				indexContent = processTemplateFile(indexContent, data);
-
-				try {
-					File outputFile = config.getOutputFile();
-					String outputFileName = FileUtils.stripExtension(outputFile.getName());
-
-					writeTemplateFile(indexContent, getFile(outputFileName + "." + FileUtils.getExtension(TEMPLATE_FILE)));
-
-					File recFile = getFile(outputFileName + ".plr");
-					Files.write(recFile.toPath(), rec);
-				}
-				catch (Exception e) {
-					throw new ExecutableException(e);
-				}
+				encodeRecording(encRecording);
 
 				stop();
 			}
 			catch (Exception e) {
 				throw new CompletionException(e);
 			}
+
+			return null;
 		})
 		.exceptionally(throwable -> {
 			LOG.error("HTML vector export failed", throwable);
@@ -207,6 +190,25 @@ public class WebVectorExport extends RecordingExport {
 
 	private File getFile(String file) {
 		return Paths.get(outputPath, file).toFile();
+	}
+
+	private void encodeRecording(Recording recording) throws Exception {
+		byte[] rec = RecordingFileWriter.writeToByteArray(recording);
+		String recEncoded = Base64.getEncoder().encodeToString(rec);
+
+		data.put("recording", recEncoded);
+
+		String indexContent = loadTemplateFile();
+		indexContent = processTemplateFile(indexContent, data);
+
+		File outputFile = config.getOutputFile();
+		String outputFileName = FileUtils.stripExtension(outputFile.getName());
+
+		writeTemplateFile(indexContent, getFile(outputFileName + "." + FileUtils.getExtension(TEMPLATE_FILE)));
+
+		// For debugging only.
+		File recFile = getFile(outputFileName + ".plr");
+		Files.write(recFile.toPath(), rec);
 	}
 
 	private RecordedAudio encodeAudio() throws IOException {
@@ -274,8 +276,7 @@ public class WebVectorExport extends RecordingExport {
 		recorder.recordSamples(sampleRate, channels, samplesBuffer);
 	}
 
-	private void encodeVideo() throws IOException {
-		List<ScreenAction> screenActions = RecordingUtils.getScreenActions(recording);
+	private void encodeVideo(List<ScreenAction> screenActions) throws IOException {
 		if (screenActions.isEmpty()) {
 			return;
 		}
@@ -304,8 +305,6 @@ public class WebVectorExport extends RecordingExport {
 	}
 
 	private void transcodeVideo(Path videoFile, ByteArrayOutputStream outStream) throws FFmpegFrameRecorder.Exception {
-		onRenderState(RecordingRenderState.RENDER_VIDEO);
-
 		try (FFmpegFrameGrabber videoGrabber = FFmpegFrameGrabber.createDefault(videoFile.toFile())) {
 			videoGrabber.setPixelFormat(avutil.AV_PIX_FMT_YUV420P);
 			videoGrabber.start();
@@ -329,9 +328,6 @@ public class WebVectorExport extends RecordingExport {
 		}
 		catch (Exception e) {
 			throw new FFmpegFrameRecorder.Exception("Could not transcode video", e);
-		}
-		finally {
-			onRenderState(RecordingRenderState.RENDER_VECTOR);
 		}
 	}
 

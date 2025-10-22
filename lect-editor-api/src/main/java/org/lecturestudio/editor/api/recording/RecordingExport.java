@@ -87,7 +87,7 @@ public abstract class RecordingExport extends ExecutableBase {
 	 *
 	 * @param event The progress event to broadcast to listeners.
 	 */
-	protected void onRenderProgress(RecordingRenderProgressEvent event) {
+	public void onRenderProgress(RecordingRenderProgressEvent event) {
 		for (var listener : progressListeners) {
 			listener.accept(event);
 		}

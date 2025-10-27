@@ -44,7 +44,7 @@ runs:
         find . -name "*.dll" -exec mv {} mupdf_java.dll \;
 
     - name: Upload JNI library
-      uses: actions/upload-artifact@v4
+      uses: actions/upload-artifact@v5
       with:
         name: mupdf-java-${{ inputs.platform-name }}
         path: |

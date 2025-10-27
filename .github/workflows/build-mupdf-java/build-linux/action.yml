@@ -40,7 +40,7 @@ runs:
         mv "$file" libmupdf_java.so
 
     - name: Upload JNI library
-      uses: actions/upload-artifact@v4
+      uses: actions/upload-artifact@v5
       with:
         name: mupdf-java-${{ inputs.platform-name }}
         path: mupdf/build/java/release/libmupdf_java.so

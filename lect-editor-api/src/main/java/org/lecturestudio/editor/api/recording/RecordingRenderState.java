@@ -18,18 +18,29 @@
 
 package org.lecturestudio.editor.api.recording;
 
+/**
+ * Enumeration of possible states during the recording rendering process.
+ * These states represent different phases of audio and video rendering,
+ * including vector-based rendering and multi-pass encoding.
+ */
 public enum RecordingRenderState {
 
+	/** Rendering audio from the recording. */
 	RENDER_AUDIO,
-
+	/** Rendering video from the recording. */
 	RENDER_VIDEO,
 
-	RENDER_VECTOR,
+	/** Rendering audio with vector graphics processing. */
+	RENDER_VECTOR_AUDIO,
+	/** Rendering video with vector graphics processing. */
+	RENDER_VECTOR_VIDEO,
 
+	/** First pass of multi-pass rendering. */
 	PASS_1,
-
+	/** Second pass of multi-pass rendering. */
 	PASS_2,
 
+	/** An error occurred during the rendering process. */
 	ERROR
 
 }

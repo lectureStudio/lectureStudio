@@ -130,7 +130,7 @@ public class WebVectorExport extends RecordingExport {
 		CompletableFuture.supplyAsync(() -> {
 			List<ScreenAction> screenActions = RecordingUtils.getScreenActions(recording);
 			if (!screenActions.isEmpty()) {
-				onRenderState(RecordingRenderState.RENDER_VIDEO);
+				onRenderState(RecordingRenderState.RENDER_VECTOR_VIDEO);
 
 				try {
 					encodeVideo(screenActions);
@@ -140,7 +140,7 @@ public class WebVectorExport extends RecordingExport {
 				}
 			}
 
-			onRenderState(RecordingRenderState.RENDER_AUDIO);
+			onRenderState(RecordingRenderState.RENDER_VECTOR_AUDIO);
 
 			RecordedAudio encAudio;
 
@@ -150,8 +150,6 @@ public class WebVectorExport extends RecordingExport {
 			catch (Exception e) {
 				throw new CompletionException(e);
 			}
-
-			onRenderState(RecordingRenderState.RENDER_VECTOR);
 
 			Recording encRecording = new Recording();
 			encRecording.setRecordingHeader(recording.getRecordingHeader());

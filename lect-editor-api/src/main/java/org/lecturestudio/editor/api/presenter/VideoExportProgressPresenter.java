@@ -99,7 +99,8 @@ public class VideoExportProgressPresenter extends Presenter<VideoExportProgressV
 			case PASS_2 -> MessageFormat.format(dict.get("recording.render.video.pass"), 2);
 			case RENDER_AUDIO -> dict.get("recording.render.audio");
 			case RENDER_VIDEO -> dict.get("recording.render.video");
-			case RENDER_VECTOR -> dict.get("recording.render.vector");
+			case RENDER_VECTOR_AUDIO -> dict.get("recording.render.vector.audio");
+			case RENDER_VECTOR_VIDEO -> dict.get("recording.render.vector.video");
 			case ERROR -> dict.get("recording.render.error");
 		};
 

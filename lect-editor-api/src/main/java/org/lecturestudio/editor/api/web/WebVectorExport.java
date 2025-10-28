@@ -114,9 +114,7 @@ public class WebVectorExport extends RecordingExport {
 	protected void initInternal() throws ExecutableException {
 		File outputFile = config.getOutputFile();
 		String outputPathStr = FileUtils.stripExtension(outputFile.getPath());
-		Path outputRootPath = Paths.get(outputPathStr).getParent();
-		String outputFileName = FileUtils.stripExtension(outputFile.getName());
-		File outputFolder = outputRootPath.resolve(outputFileName + "v").toFile();
+		File outputFolder = Paths.get(outputPathStr).getParent().toFile();
 
 		if (!outputFolder.exists() && !outputFolder.mkdirs()) {
 			throw new ExecutableException("Failed to create output directory: " + outputFolder);
@@ -202,13 +200,13 @@ public class WebVectorExport extends RecordingExport {
 		indexContent = processTemplateFile(indexContent, data);
 
 		File outputFile = config.getOutputFile();
-		String outputFileName = FileUtils.stripExtension(outputFile.getName());
+		String outputFileName = FileUtils.stripExtension(outputFile.getName()) + "-Vector";
 
 		writeTemplateFile(indexContent, getFile(outputFileName + "." + FileUtils.getExtension(TEMPLATE_FILE)));
 
 		// For debugging only.
-		File recFile = getFile(outputFileName + ".plr");
-		Files.write(recFile.toPath(), rec);
+		//File recFile = getFile(outputFileName + ".plr");
+		//Files.write(recFile.toPath(), rec);
 	}
 
 	private RecordedAudio encodeAudio() throws IOException {

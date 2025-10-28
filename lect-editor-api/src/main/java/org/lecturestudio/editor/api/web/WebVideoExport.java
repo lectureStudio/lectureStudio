@@ -145,7 +145,7 @@ public class WebVideoExport extends RecordingExport {
 
 				File targetFile = config.getOutputFile();
 				String webExportPath = FileUtils.stripExtension(targetFile.getPath());
-				File outputFile = new File(webExportPath + ".html");
+				File outputFile = new File(String.format("%s-Video.html", webExportPath));
 				String indexContent = loadTemplateFile();
 				indexContent = processTemplateFile(indexContent, data);
 

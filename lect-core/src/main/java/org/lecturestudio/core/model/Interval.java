@@ -18,6 +18,8 @@
 
 package org.lecturestudio.core.model;
 
+import java.util.Objects;
+
 /**
  *
  * @param <T> The {@link Number} type of this interval.
@@ -87,8 +89,12 @@ public class Interval<T extends Number> implements Comparable<Interval<T>> {
 	 *
 	 * @return {@code true} if the specified value is greater or equal to the start value
 	 * and less than or equal to the end value, otherwise {@code false}.
+	 * @throws IllegalStateException if start or end is null
 	 */
 	public boolean contains(long value) {
+		if (start == null || end == null) {
+			throw new IllegalStateException("Interval start or end is null");
+		}
 		return (value >= start.longValue() && value <= end.longValue());
 	}
 
@@ -99,10 +105,18 @@ public class Interval<T extends Number> implements Comparable<Interval<T>> {
 	 *
 	 * @return {@code true} if this interval contains the start and end value of the specified interval,
 	 * otherwise {@code false}.
+	 * @throws IllegalStateException if start or end is null
+	 * @throws IllegalArgumentException if value is null or has null start/end
 	 *
 	 * @see #contains(long)
 	 */
 	public boolean contains(Interval<T> value) {
+		if (value == null) {
+			throw new IllegalArgumentException("Interval value cannot be null");
+		}
+		if (value.start == null || value.end == null) {
+			throw new IllegalArgumentException("Interval value start or end cannot be null");
+		}
 		return contains(value.start.longValue()) && contains(value.end.longValue());
 	}
 
@@ -110,8 +124,12 @@ public class Interval<T extends Number> implements Comparable<Interval<T>> {
 	 * Returns the length of the interval as an integer.
 	 *
 	 * @return The length of the interval as an integer.
+	 * @throws IllegalStateException if start or end is null
 	 */
 	public int lengthInt() {
+		if (start == null || end == null) {
+			throw new IllegalStateException("Interval start or end is null");
+		}
 		return end.intValue() - start.intValue();
 	}
 
@@ -119,13 +137,24 @@ public class Interval<T extends Number> implements Comparable<Interval<T>> {
 	 * Returns the length of the interval as a long.
 	 *
 	 * @return The length of the interval as a long.
+	 * @throws IllegalStateException if start or end is null
 	 */
 	public long lengthLong() {
+		if (start == null || end == null) {
+			throw new IllegalStateException("Interval start or end is null");
+		}
 		return end.longValue() - start.longValue();
 	}
 
 	@Override
 	public int compareTo(Interval<T> o) {
+		if (o == null) {
+			throw new IllegalArgumentException("Cannot compare with null interval");
+		}
+		if (this.start == null || this.end == null || o.start == null || o.end == null) {
+			throw new IllegalStateException("Cannot compare intervals with null start or end values");
+		}
+		
 		if (this.start.doubleValue() < o.start.doubleValue()) {
 			return -1;
 		}
@@ -168,7 +197,7 @@ public class Interval<T extends Number> implements Comparable<Interval<T>> {
 			return false;
 		}
 		
-		return (start.equals(other.start) && end.equals(other.end));
+		return (Objects.equals(start, other.start) && Objects.equals(end, other.end));
 	}
 
 	@Override

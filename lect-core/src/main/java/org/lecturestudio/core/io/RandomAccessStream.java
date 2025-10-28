@@ -27,6 +27,8 @@ import java.nio.file.StandardOpenOption;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import org.lecturestudio.core.model.Interval;
+
 public class RandomAccessStream extends DynamicInputStream {
 
 	/** Logger for {@link RandomAccessStream}. */
@@ -79,16 +81,20 @@ public class RandomAccessStream extends DynamicInputStream {
 
 	@Override
 	public RandomAccessStream clone() {
-		RandomAccessStream stream = null;
-
 		try {
-			stream = new RandomAccessStream(sourceFile, startPointer, length);
+			RandomAccessStream stream = new RandomAccessStream(sourceFile, startPointer, length);
+			
+			// Copy exclusions
+			for (Interval<Long> iv : exclusions) {
+				stream.addExclusion(new Interval<>(iv.getStart(), iv.getEnd()));
+			}
+			
+			return stream;
 		}
 		catch (IOException e) {
 			LOG.error("Clone stream failed", e);
+			throw new RuntimeException("Failed to clone RandomAccessStream", e);
 		}
-
-		return stream;
 	}
 
 	@Override

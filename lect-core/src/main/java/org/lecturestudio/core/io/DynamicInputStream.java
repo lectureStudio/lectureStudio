@@ -21,31 +21,52 @@ package org.lecturestudio.core.io;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 import org.lecturestudio.core.audio.filter.AudioFilter;
 import org.lecturestudio.core.model.Interval;
 
+/**
+ * A thread-safe input stream that supports dynamic exclusion of byte ranges
+ * and audio filtering. This class allows skipping specific byte intervals
+ * during reading and applying audio filters to specific ranges.
+ * 
+ * <p>This class is thread-safe and can be used concurrently by multiple threads.
+ * All state-modifying operations are synchronized to prevent race conditions.
+ * 
+ * @author Alex Andres
+ */
 public class DynamicInputStream extends InputStream implements Cloneable {
 
-	protected List<Interval<Long>> exclusions = new ArrayList<>();
+	/** Thread-safe list of current exclusions (modified during reading) */
+	protected final List<Interval<Long>> exclusions = new CopyOnWriteArrayList<>();
 
-	protected List<Interval<Long>> exclude = new ArrayList<>();
+	/** Thread-safe list of original exclusions (used for reset) */
+	protected final List<Interval<Long>> exclude = new CopyOnWriteArrayList<>();
 
-	protected Map<AudioFilter, Interval<Long>> filters = new HashMap<>();
+	/** Thread-safe map of audio filters and their intervals */
+	protected final Map<AudioFilter, Interval<Long>> filters = new ConcurrentHashMap<>();
 
-	protected InputStream stream;
+	/** The underlying input stream */
+	protected final InputStream stream;
 
-	private long readPointer = 0;
+	/** Current read position (volatile for thread safety) */
+	private volatile long readPointer = 0;
 
 
 	/**
 	 * Creates a new instance of {@link DynamicInputStream} with the specified
 	 * input stream.
 	 *
-	 * @param inputStream The input stream.
+	 * @param inputStream The input stream (must not be null).
+	 * @throws IllegalArgumentException if inputStream is null
 	 */
 	public DynamicInputStream(InputStream inputStream) {
-		stream = inputStream;
+		if (inputStream == null) {
+			throw new IllegalArgumentException("Input stream cannot be null");
+		}
+		this.stream = inputStream;
 	}
 
 	/**
@@ -53,19 +74,30 @@ public class DynamicInputStream extends InputStream implements Cloneable {
 	 * {@link #filters} map.
 	 *
 	 * @param filter   The filter with which the {@link Interval} should be
-	 *                 associated.
-	 * @param interval The {@link Interval}
+	 *                 associated (must not be null).
+	 * @param interval The {@link Interval} (must not be null).
+	 * @throws IllegalArgumentException if filter or interval is null
 	 */
-	public void setAudioFilter(AudioFilter filter, Interval<Long> interval) {
+	public synchronized void setAudioFilter(AudioFilter filter, Interval<Long> interval) {
+		if (filter == null) {
+			throw new IllegalArgumentException("Filter cannot be null");
+		}
+		if (interval == null) {
+			throw new IllegalArgumentException("Interval cannot be null");
+		}
 		filters.put(filter, interval);
 	}
 
 	/**
 	 * Removes the specified filter from {@link #filters}.
 	 *
-	 * @param filter The filter to be removed.
+	 * @param filter The filter to be removed (must not be null).
+	 * @throws IllegalArgumentException if filter is null
 	 */
-	public void removeAudioFilter(AudioFilter filter) {
+	public synchronized void removeAudioFilter(AudioFilter filter) {
+		if (filter == null) {
+			throw new IllegalArgumentException("Filter cannot be null");
+		}
 		filters.remove(filter);
 	}
 
@@ -73,9 +105,13 @@ public class DynamicInputStream extends InputStream implements Cloneable {
 	 * Add the specified {@link Interval} to {@link #exclusions} and
 	 * {@link #exclude}.
 	 *
-	 * @param interval The {@link Interval} to add.
+	 * @param interval The {@link Interval} to add (must not be null).
+	 * @throws IllegalArgumentException if interval is null
 	 */
-	public void addExclusion(Interval<Long> interval) {
+	public synchronized void addExclusion(Interval<Long> interval) {
+		if (interval == null) {
+			throw new IllegalArgumentException("Interval cannot be null");
+		}
 		exclusions.add(interval);
 		exclude.add(interval);
 	}
@@ -84,26 +120,38 @@ public class DynamicInputStream extends InputStream implements Cloneable {
 	 * Remove the specified {@link Interval} from {@link #exclusions} and
 	 * {@link #exclude}.
 	 *
-	 * @param interval The {@link Interval} to remove.
+	 * @param interval The {@link Interval} to remove (must not be null).
+	 * @throws IllegalArgumentException if interval is null
 	 */
-	public void removeExclusion(Interval<Long> interval) {
+	public synchronized void removeExclusion(Interval<Long> interval) {
+		if (interval == null) {
+			throw new IllegalArgumentException("Interval cannot be null");
+		}
 		exclusions.remove(interval);
 		exclude.remove(interval);
 	}
 
-	public void clearExclusions() {
+	/**
+	 * Clear all exclusions from both {@link #exclusions} and {@link #exclude}.
+	 */
+	public synchronized void clearExclusions() {
 		exclusions.clear();
 		exclude.clear();
 	}
 
-	public List<Interval<Long>> getExclusions() {
-		return exclusions;
+	/**
+	 * Get a copy of the current exclusions list.
+	 * 
+	 * @return A new list containing the current exclusions (defensive copy).
+	 */
+	public synchronized List<Interval<Long>> getExclusions() {
+		return new ArrayList<>(exclusions);
 	}
 
 	/**
 	 * Get the position of the {@link DynamicInputStream}.
 	 *
-	 * @return The {@link #readPointer}.
+	 * @return The current read position.
 	 */
 	public long getPosition() {
 		return readPointer;
@@ -114,7 +162,7 @@ public class DynamicInputStream extends InputStream implements Cloneable {
 	 *
 	 * @return The sum of the {@link Interval} lengths in {@link #exclusions}.
 	 */
-	public long getExcludedLength() {
+	public synchronized long getExcludedLength() {
 		long excluded = 0;
 
 		for (Interval<Long> iv : exclusions) {
@@ -128,25 +176,35 @@ public class DynamicInputStream extends InputStream implements Cloneable {
 	public int available() throws IOException {
 		// Take future exclusion into account.
 		long toExclude = getToExcludeLength();
-
-		return (int) (stream.available() - toExclude);
+		long available = stream.available() - toExclude;
+		
+		// Check for integer overflow
+		if (available > Integer.MAX_VALUE) {
+			return Integer.MAX_VALUE;
+		} else if (available < 0) {
+			return 0;
+		}
+		
+		return (int) available;
 	}
 
 	@Override
-	public DynamicInputStream clone() {
+	public synchronized DynamicInputStream clone() {
 		DynamicInputStream clone = new DynamicInputStream(stream);
 
 		try {
 			clone.reset();
 		}
 		catch (IOException e) {
-			throw new RuntimeException(e);
+			throw new RuntimeException("Failed to reset cloned stream", e);
 		}
 
+		// Copy exclusions
 		for (Interval<Long> iv : exclusions) {
 			clone.addExclusion(new Interval<>(iv.getStart(), iv.getEnd()));
 		}
 
+		// Copy filters
 		for (var entry : filters.entrySet()) {
 			clone.setAudioFilter(entry.getKey(), entry.getValue());
 		}
@@ -302,41 +360,49 @@ public class DynamicInputStream extends InputStream implements Cloneable {
 	}
 
 	/**
-	 * Get the length to exclude. (Sums up the length of every {@link Interval}
-	 * in {@link #exclusions} that is not part of another {@link Interval} of
-	 * {@link #exclusions}.)
+	 * Get the length to exclude. This method properly handles overlapping intervals
+	 * by merging them and calculating the total excluded length without double-counting.
 	 *
-	 * @return The length to exclude.
+	 * @return The total length to exclude.
 	 */
-	protected long getToExcludeLength() {
-		long toExclude = 0;
+	protected synchronized long getToExcludeLength() {
+		if (exclusions.isEmpty()) {
+			return 0;
+		}
 
-		Set<Integer> toSkip = new HashSet<>();
-		int count = exclusions.size();
+		// Create a copy and sort by start position
+		List<Interval<Long>> sortedExclusions = new ArrayList<>(exclusions);
+		sortedExclusions.sort(Interval::compareTo);
 
-		for (int i = 0; i < count; i++) {
-			Interval<Long> iv = exclusions.get(i);
+		long totalExcluded = 0;
+		long currentStart = -1;
+		long currentEnd = -1;
 
-			for (int j = i + 1; j < count; j++) {
-				Interval<Long> iv2 = exclusions.get(j);
+		for (Interval<Long> interval : sortedExclusions) {
+			long start = interval.getStart();
+			long end = interval.getEnd();
 
-				if (iv.contains(iv2)) {
-					toSkip.add(j);
-				}
-				if (iv2.contains(iv)) {
-					toSkip.add(i);
-				}
+			if (currentStart == -1) {
+				// First interval
+				currentStart = start;
+				currentEnd = end;
+			} else if (start <= currentEnd) {
+				// Overlapping or adjacent interval - extend current range
+				currentEnd = Math.max(currentEnd, end);
+			} else {
+				// Non-overlapping interval - add previous range and start new one
+				totalExcluded += currentEnd - currentStart;
+				currentStart = start;
+				currentEnd = end;
 			}
 		}
 
-		for (int i = 0; i < count; i++) {
-			if (!toSkip.contains(i)) {
-				Interval<Long> iv = exclusions.get(i);
-				toExclude += iv.lengthLong();
-			}
+		// Add the last range
+		if (currentStart != -1) {
+			totalExcluded += currentEnd - currentStart;
 		}
 
-		return toExclude;
+		return totalExcluded;
 	}
 
 	private synchronized int readInterval(byte[] buffer, int offset, int length) throws IOException {

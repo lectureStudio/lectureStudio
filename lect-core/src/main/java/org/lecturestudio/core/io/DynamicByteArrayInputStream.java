@@ -49,21 +49,20 @@ public class DynamicByteArrayInputStream extends DynamicInputStream {
 	}
 
 	@Override
-	public DynamicByteArrayInputStream clone() {
-		DynamicByteArrayInputStream clone = null;
-		
+	public synchronized DynamicByteArrayInputStream clone() {
 		try {
-			clone = new DynamicByteArrayInputStream(data);
+			DynamicByteArrayInputStream clone = new DynamicByteArrayInputStream(data);
 			
 			for (Interval<Long> iv : exclusions) {
 				clone.addExclusion(new Interval<>(iv.getStart(), iv.getEnd()));
 			}
+			
+			return clone;
 		}
 		catch (Exception e) {
-			LOG.error(e);
+			LOG.error("Failed to clone DynamicByteArrayInputStream", e);
+			throw new RuntimeException("Failed to clone DynamicByteArrayInputStream", e);
 		}
-		
-		return clone;
 	}
 	
 }

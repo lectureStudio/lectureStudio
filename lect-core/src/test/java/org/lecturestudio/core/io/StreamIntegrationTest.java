@@ -56,7 +56,7 @@ class StreamIntegrationTest {
 			testData[i] = (byte) (i % 256);
 		}
 		
-		// Create test file
+		// Create a test file
 		testFile = tempDir.resolve("test.bin").toFile();
 		Files.write(testFile.toPath(), testData);
 	}
@@ -248,11 +248,11 @@ class StreamIntegrationTest {
 		assertNotNull(clone);
 		assertNotSame(audioStream, clone);
 		
-		// Clone should have same exclusions
+		// Clone should have the same exclusions
 		assertEquals(1, clone.getExclusions().size());
 		assertTrue(clone.getExcludedLength() > 0);
 		
-		// Clone should have same audio format
+		// Clone should have the same audio format
 		assertEquals(audioFormat, clone.getAudioFormat());
 		
 		// Test that clone works independently
@@ -289,7 +289,7 @@ class StreamIntegrationTest {
 		// Reset
 		audioStream.reset();
 		
-		// Should be back to beginning
+		// Should be back to the beginning
 		assertEquals(0L, audioStream.getPosition());
 		
 		// Should have same exclusions
@@ -301,7 +301,7 @@ class StreamIntegrationTest {
 
 	@Test
 	void testErrorHandlingInChainedStreams() {
-		// Test with invalid file
+		// Test with an invalid file
 		File invalidFile = new File("non-existent-file.bin");
 		assertThrows(IOException.class, () -> new RandomAccessStream(invalidFile));
 		

@@ -89,7 +89,7 @@ class RandomAccessStreamExtendedTest {
 
 	@Test
 	void testCloneWithExclusions() throws IOException {
-		// Add exclusions to original stream
+		// Add exclusions to the original stream
 		stream.addExclusion(new Interval<>(10L, 20L));
 		stream.addExclusion(new Interval<>(30L, 40L));
 		
@@ -97,7 +97,7 @@ class RandomAccessStreamExtendedTest {
 		assertNotNull(clone);
 		assertNotSame(stream, clone);
 		
-		// Clone should have same exclusions
+		// Clone should have the same exclusions
 		assertEquals(2, clone.getExclusions().size());
 		assertEquals(20L, clone.getExcludedLength());
 	}
@@ -128,14 +128,14 @@ class RandomAccessStreamExtendedTest {
 
 	@Test
 	void testResetWithStartPointer() throws IOException {
-		// Create stream with start pointer
+		// Create a stream with a start pointer
 		RandomAccessStream rangeStream = new RandomAccessStream(testFile, 100L, 200L);
 		
 		// Read some data
 		byte[] buffer = new byte[50];
 		rangeStream.read(buffer);
 		
-		// Reset should go back to start pointer
+		// Reset should go back to the start pointer
 		rangeStream.reset();
 		assertEquals(200, rangeStream.available());
 		
@@ -299,9 +299,11 @@ class RandomAccessStreamExtendedTest {
 
 	@Test
 	void testExcludedLengthWithNegativeLengthInterval() {
-		// Negative-length exclusion (should be handled gracefully)
-		stream.addExclusion(new Interval<>(20L, 10L));
-		long excludedLength = stream.getExcludedLength();
-		assertEquals(0L, excludedLength);
+		// Negative-length exclusion (end < start) should be rejected
+		assertThrows(IllegalArgumentException.class, () -> stream.addExclusion(new Interval<>(20L, 10L)));
+		
+		// No exclusions should have been added
+		assertEquals(0, stream.getExclusions().size());
+		assertEquals(0L, stream.getExcludedLength());
 	}
 }

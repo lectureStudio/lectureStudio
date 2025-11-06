@@ -52,10 +52,17 @@ public class DynamicByteArrayInputStream extends DynamicInputStream {
 	public synchronized DynamicByteArrayInputStream clone() {
 		try {
 			DynamicByteArrayInputStream clone = new DynamicByteArrayInputStream(data);
-			
-			for (Interval<Long> iv : exclusions) {
+
+			// This ensures we get all the original exclusions
+			// Use addExclusion() to ensure validation is applied
+			for (Interval<Long> iv : exclude) {
 				clone.addExclusion(new Interval<>(iv.getStart(), iv.getEnd()));
 			}
+			
+			// Explicitly ensure position is 0
+			// Since it's a new instance, readPointer should already be 0,
+			// but be explicit to ensure it's correct
+			clone.resetPosition();
 			
 			return clone;
 		}

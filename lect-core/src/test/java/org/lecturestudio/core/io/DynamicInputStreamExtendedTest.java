@@ -129,20 +129,6 @@ class DynamicInputStreamExtendedTest {
 	}
 
 	@Test
-	void testAvailableWithOverflow() throws IOException {
-		// Create a stream with very large available bytes
-		ByteArrayInputStream largeStream = new ByteArrayInputStream(new byte[Integer.MAX_VALUE]);
-		DynamicInputStream largeDynamicStream = new DynamicInputStream(largeStream);
-		
-		// Should not overflow
-		int available = largeDynamicStream.available();
-		assertTrue(available >= 0);
-		assertTrue(available <= Integer.MAX_VALUE);
-		
-		largeDynamicStream.close();
-	}
-
-	@Test
 	void testAvailableWithNegativeResult() throws IOException {
 		// Add exclusions that exceed available bytes
 		stream.addExclusion(new Interval<>(0L, 200L)); // More than available

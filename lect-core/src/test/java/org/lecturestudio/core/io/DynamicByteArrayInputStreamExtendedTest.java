@@ -34,6 +34,66 @@ class DynamicByteArrayInputStreamExtendedTest {
 
 	private DynamicByteArrayInputStream stream;
 
+	/**
+	 * Creates a valid WAV file with the specified audio data.
+	 * The WAV header is 44 bytes, followed by the audio data.
+	 *
+	 * @param audioData The audio data to include in the WAV file.
+	 * @return A byte array containing a valid WAV file.
+	 */
+	private byte[] createWavFile(byte[] audioData) {
+		int dataSize = audioData.length;
+		int chunkSize = 36 + dataSize;
+		int subchunk1Size = 16; // PCM format
+		short audioFormat = 1; // PCM = 1
+		short numChannels = 1; // Mono
+		int sampleRate = 44100;
+		short bitsPerSample = 16;
+		short blockAlign = (short) (numChannels * (bitsPerSample / 8));
+		int byteRate = sampleRate * numChannels * (bitsPerSample / 8);
+		int subchunk2Size = dataSize;
+
+		byte[] wavFile = new byte[44 + dataSize];
+		int offset = 0;
+
+		// RIFF chunk
+		System.arraycopy("RIFF".getBytes(), 0, wavFile, offset, 4);
+		offset += 4;
+		System.arraycopy(BitConverter.getLittleEndianBytes(chunkSize), 0, wavFile, offset, 4);
+		offset += 4;
+		System.arraycopy("WAVE".getBytes(), 0, wavFile, offset, 4);
+		offset += 4;
+
+		// fmt chunk
+		System.arraycopy("fmt ".getBytes(), 0, wavFile, offset, 4);
+		offset += 4;
+		System.arraycopy(BitConverter.getLittleEndianBytes(subchunk1Size), 0, wavFile, offset, 4);
+		offset += 4;
+		System.arraycopy(BitConverter.getLittleEndianBytes(audioFormat), 0, wavFile, offset, 2);
+		offset += 2;
+		System.arraycopy(BitConverter.getLittleEndianBytes(numChannels), 0, wavFile, offset, 2);
+		offset += 2;
+		System.arraycopy(BitConverter.getLittleEndianBytes(sampleRate), 0, wavFile, offset, 4);
+		offset += 4;
+		System.arraycopy(BitConverter.getLittleEndianBytes(byteRate), 0, wavFile, offset, 4);
+		offset += 4;
+		System.arraycopy(BitConverter.getLittleEndianBytes(blockAlign), 0, wavFile, offset, 2);
+		offset += 2;
+		System.arraycopy(BitConverter.getLittleEndianBytes(bitsPerSample), 0, wavFile, offset, 2);
+		offset += 2;
+
+		// data chunk
+		System.arraycopy("data".getBytes(), 0, wavFile, offset, 4);
+		offset += 4;
+		System.arraycopy(BitConverter.getLittleEndianBytes(subchunk2Size), 0, wavFile, offset, 4);
+		offset += 4;
+
+		// Audio data
+		System.arraycopy(audioData, 0, wavFile, offset, dataSize);
+
+		return wavFile;
+	}
+
 	@BeforeEach
 	void setUp() throws Exception {
 		// Create test data: 0, 1, 2, ..., 99
@@ -41,7 +101,9 @@ class DynamicByteArrayInputStreamExtendedTest {
 		for (int i = 0; i < testData.length; i++) {
 			testData[i] = (byte) i;
 		}
-		stream = new DynamicByteArrayInputStream(testData);
+		// Wrap test data in a valid WAV file format
+		byte[] wavData = createWavFile(testData);
+		stream = new DynamicByteArrayInputStream(wavData);
 	}
 
 	@Test
@@ -52,14 +114,16 @@ class DynamicByteArrayInputStreamExtendedTest {
 	@Test
 	void testConstructorWithEmptyData() throws Exception {
 		byte[] emptyData = new byte[0];
-		DynamicByteArrayInputStream emptyStream = new DynamicByteArrayInputStream(emptyData);
+		// Wrap empty data in a valid WAV file format
+		byte[] wavData = createWavFile(emptyData);
+		DynamicByteArrayInputStream emptyStream = new DynamicByteArrayInputStream(wavData);
 		assertNotNull(emptyStream);
 		assertEquals(0, emptyStream.available());
 	}
 
 	@Test
 	void testCloneWithExclusions() throws Exception {
-		// Add exclusions to original stream
+		// Add exclusions to the original stream
 		stream.addExclusion(new Interval<>(10L, 20L));
 		stream.addExclusion(new Interval<>(30L, 40L));
 		
@@ -67,7 +131,7 @@ class DynamicByteArrayInputStreamExtendedTest {
 		assertNotNull(clone);
 		assertNotSame(stream, clone);
 		
-		// Clone should have same exclusions
+		// Clone should have the same exclusions
 		assertEquals(2, clone.getExclusions().size());
 		assertEquals(20L, clone.getExcludedLength());
 	}
@@ -94,7 +158,7 @@ class DynamicByteArrayInputStreamExtendedTest {
 		DynamicByteArrayInputStream clone = stream.clone();
 		assertNotNull(clone);
 		
-		// Clone should have same exclusions
+		// Clone should have the same exclusions
 		assertEquals(10, clone.getExclusions().size());
 		assertEquals(20L, clone.getExcludedLength());
 	}
@@ -109,7 +173,7 @@ class DynamicByteArrayInputStreamExtendedTest {
 		DynamicByteArrayInputStream clone = stream.clone();
 		assertNotNull(clone);
 		
-		// Clone should have same exclusions
+		// Clone should have the same exclusions
 		assertEquals(3, clone.getExclusions().size());
 		// Excluded length should be calculated correctly (10-25 merged + 30-40 = 15 + 10 = 25)
 		assertEquals(25L, clone.getExcludedLength());
@@ -125,7 +189,7 @@ class DynamicByteArrayInputStreamExtendedTest {
 		DynamicByteArrayInputStream clone = stream.clone();
 		assertNotNull(clone);
 		
-		// Clone should have same exclusions
+		// Clone should have the same exclusions
 		assertEquals(3, clone.getExclusions().size());
 		// Excluded length should be calculated correctly (10-30 merged + 40-50 = 20 + 10 = 30)
 		assertEquals(30L, clone.getExcludedLength());
@@ -141,10 +205,10 @@ class DynamicByteArrayInputStreamExtendedTest {
 		DynamicByteArrayInputStream clone = stream.clone();
 		assertNotNull(clone);
 		
-		// Clone should have same exclusions
+		// Clone should have the same exclusions
 		assertEquals(3, clone.getExclusions().size());
 		// Excluded length should be calculated correctly (10-30 + 40-50 = 20 + 10 = 30)
-		assertEquals(30L, clone.getExclusions().size());
+		assertEquals(30L, clone.getExcludedLength());
 	}
 
 	@Test
@@ -156,7 +220,7 @@ class DynamicByteArrayInputStreamExtendedTest {
 		DynamicByteArrayInputStream clone = stream.clone();
 		assertNotNull(clone);
 		
-		// Clone should have same exclusions
+		// Clone should have the same exclusions
 		assertEquals(2, clone.getExclusions().size());
 		// Zero-length exclusions should not contribute to excluded length
 		assertEquals(0L, clone.getExcludedLength());
@@ -164,17 +228,31 @@ class DynamicByteArrayInputStreamExtendedTest {
 
 	@Test
 	void testCloneWithNegativeLengthExclusions() throws Exception {
-		// Add negative-length exclusions (should be handled gracefully)
-		stream.addExclusion(new Interval<>(20L, 10L));
-		stream.addExclusion(new Interval<>(30L, 15L));
+		// Invalid intervals (end < start) should be rejected at the point of addition
+		assertThrows(IllegalArgumentException.class, () -> stream.addExclusion(new Interval<>(20L, 10L)));
+		assertThrows(IllegalArgumentException.class, () -> stream.addExclusion(new Interval<>(30L, 15L)));
 		
-		DynamicByteArrayInputStream clone = stream.clone();
-		assertNotNull(clone);
+		// No exclusions should have been added
+		assertEquals(0, stream.getExclusions().size());
+		assertEquals(0L, stream.getExcludedLength());
+	}
+
+	@Test
+	void testAddExclusionWithNegativeValues() throws Exception {
+		// Intervals with negative start values should be rejected
+		assertThrows(IllegalArgumentException.class, () -> stream.addExclusion(new Interval<>(-10L, 5L)));
+		assertThrows(IllegalArgumentException.class, () -> stream.addExclusion(new Interval<>(-5L, -1L)));
 		
-		// Clone should have same exclusions
-		assertEquals(2, clone.getExclusions().size());
-		// Negative-length exclusions should not contribute to excluded length
-		assertEquals(0L, clone.getExcludedLength());
+		// Intervals with negative end values should be rejected
+		assertThrows(IllegalArgumentException.class, () -> stream.addExclusion(new Interval<>(10L, -5L)));
+		
+		// Valid intervals with non-negative values should be accepted
+		stream.addExclusion(new Interval<>(0L, 10L));
+		stream.addExclusion(new Interval<>(20L, 30L));
+		
+		// Only valid exclusions should have been added
+		assertEquals(2, stream.getExclusions().size());
+		assertEquals(20L, stream.getExcludedLength());
 	}
 
 	@Test
@@ -186,7 +264,7 @@ class DynamicByteArrayInputStreamExtendedTest {
 		DynamicByteArrayInputStream clone = stream.clone();
 		assertNotNull(clone);
 		
-		// Clone should have same exclusions
+		// Clone should have the same exclusions
 		assertEquals(2, clone.getExclusions().size());
 		// Excluded length should be 100 (0-100 merged)
 		assertEquals(100L, clone.getExcludedLength());
@@ -202,7 +280,7 @@ class DynamicByteArrayInputStreamExtendedTest {
 		DynamicByteArrayInputStream clone = stream.clone();
 		assertNotNull(clone);
 		
-		// Clone should have same exclusions
+		// Clone should have the same exclusions
 		assertEquals(10, clone.getExclusions().size());
 		// Excluded length should be 10
 		assertEquals(10L, clone.getExcludedLength());
@@ -217,7 +295,7 @@ class DynamicByteArrayInputStreamExtendedTest {
 		DynamicByteArrayInputStream clone = stream.clone();
 		assertNotNull(clone);
 		
-		// Clone should have same exclusions
+		// Clone should have the same exclusions
 		assertEquals(2, clone.getExclusions().size());
 		// Excluded length should be 20
 		assertEquals(20L, clone.getExcludedLength());
@@ -232,7 +310,7 @@ class DynamicByteArrayInputStreamExtendedTest {
 		DynamicByteArrayInputStream clone = stream.clone();
 		assertNotNull(clone);
 		
-		// Clone should have same exclusions
+		// Clone should have the same exclusions
 		assertEquals(2, clone.getExclusions().size());
 		// Excluded length should be 20
 		assertEquals(20L, clone.getExcludedLength());
@@ -252,7 +330,7 @@ class DynamicByteArrayInputStreamExtendedTest {
 		DynamicByteArrayInputStream clone = stream.clone();
 		assertNotNull(clone);
 		
-		// Clone should have same exclusions
+		// Clone should have the same exclusions
 		assertEquals(7, clone.getExclusions().size());
 		// Excluded length should be calculated correctly
 		// 10-25 merged + 30-30 (zero) + 40-60 merged + 70-85 merged = 15 + 0 + 20 + 15 = 50
@@ -300,7 +378,7 @@ class DynamicByteArrayInputStreamExtendedTest {
 		stream.addExclusion(new Interval<>(10L, 20L));
 		stream.addExclusion(new Interval<>(30L, 40L));
 		
-		// Read some data from original
+		// Read some data from the original
 		byte[] buffer = new byte[25];
 		stream.read(buffer);
 		
@@ -308,11 +386,11 @@ class DynamicByteArrayInputStreamExtendedTest {
 		DynamicByteArrayInputStream clone = stream.clone();
 		assertNotNull(clone);
 		
-		// Clone should have same exclusions but independent position
+		// Clone should have the same exclusions but independent position
 		assertEquals(2, clone.getExclusions().size());
 		assertEquals(20L, clone.getExcludedLength());
 		
-		// Clone should start from beginning
+		// Clone should start from the beginning
 		assertEquals(0L, clone.getPosition());
 	}
 
@@ -322,18 +400,18 @@ class DynamicByteArrayInputStreamExtendedTest {
 		stream.addExclusion(new Interval<>(10L, 20L));
 		stream.addExclusion(new Interval<>(30L, 40L));
 		
-		// Skip some data from original
+		// Skip some data from the original
 		stream.skip(25);
 		
 		// Clone should be independent
 		DynamicByteArrayInputStream clone = stream.clone();
 		assertNotNull(clone);
 		
-		// Clone should have same exclusions but independent position
+		// Clone should have the same exclusions but independent position
 		assertEquals(2, clone.getExclusions().size());
 		assertEquals(20L, clone.getExcludedLength());
 		
-		// Clone should start from beginning
+		// Clone should start from the beginning
 		assertEquals(0L, clone.getPosition());
 	}
 
@@ -351,11 +429,11 @@ class DynamicByteArrayInputStreamExtendedTest {
 		DynamicByteArrayInputStream clone = stream.clone();
 		assertNotNull(clone);
 		
-		// Clone should have same exclusions but independent position
+		// Clone should have the same exclusions but independent position
 		assertEquals(2, clone.getExclusions().size());
 		assertEquals(20L, clone.getExcludedLength());
 		
-		// Clone should start from beginning
+		// Clone should start from the beginning
 		assertEquals(0L, clone.getPosition());
 	}
 
@@ -369,7 +447,7 @@ class DynamicByteArrayInputStreamExtendedTest {
 		DynamicByteArrayInputStream clone = stream.clone();
 		assertNotNull(clone);
 		
-		// Clone should have same exclusions
+		// Clone should have the same exclusions
 		assertEquals(20, clone.getExclusions().size());
 		assertEquals(20L, clone.getExcludedLength());
 	}
@@ -384,23 +462,27 @@ class DynamicByteArrayInputStreamExtendedTest {
 		DynamicByteArrayInputStream clone = stream.clone();
 		assertNotNull(clone);
 		
-		// Clone should have same exclusions
+		// Clone should have the same exclusions
 		assertEquals(100, clone.getExclusions().size());
 		assertEquals(100L, clone.getExcludedLength());
 	}
 
 	@Test
 	void testCloneWithExclusionsOutsideRange() throws Exception {
-		// Add exclusions outside the data range
+		// Add exclusions outside the data range (but with non-negative values)
 		stream.addExclusion(new Interval<>(100L, 200L));
-		stream.addExclusion(new Interval<>(-10L, -5L));
+		
+		// Negative intervals should be rejected
+		assertThrows(IllegalArgumentException.class, () -> stream.addExclusion(new Interval<>(-10L, -5L)));
 		
 		DynamicByteArrayInputStream clone = stream.clone();
 		assertNotNull(clone);
 		
-		// Clone should have same exclusions
-		assertEquals(2, clone.getExclusions().size());
-		// Excluded length should be 0 (outside range)
-		assertEquals(0L, clone.getExcludedLength());
+		// Clone should have the same exclusions (only the valid one)
+		assertEquals(1, clone.getExclusions().size());
+		// Excluded length should be 100 (100-200 range)
+		assertEquals(100L, clone.getExcludedLength());
+		// Clone should start from the beginning
+		assertEquals(0L, clone.getPosition());
 	}
 }

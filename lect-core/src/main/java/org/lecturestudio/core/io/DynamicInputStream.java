@@ -106,11 +106,20 @@ public class DynamicInputStream extends InputStream implements Cloneable {
 	 * {@link #exclude}.
 	 *
 	 * @param interval The {@link Interval} to add (must not be null).
-	 * @throws IllegalArgumentException if interval is null
+	 * @throws IllegalArgumentException if interval is null, if interval has negative bounds, or if interval has invalid bounds (end < start)
 	 */
 	public synchronized void addExclusion(Interval<Long> interval) {
 		if (interval == null) {
 			throw new IllegalArgumentException("Interval cannot be null");
+		}
+		if (interval.getStart() != null && interval.getStart() < 0) {
+			throw new IllegalArgumentException("Interval start must be non-negative");
+		}
+		if (interval.getEnd() != null && interval.getEnd() < 0) {
+			throw new IllegalArgumentException("Interval end must be non-negative");
+		}
+		if (interval.getStart() != null && interval.getEnd() != null && interval.getEnd() < interval.getStart()) {
+			throw new IllegalArgumentException("Interval end must be greater than or equal to start");
 		}
 		exclusions.add(interval);
 		exclude.add(interval);
@@ -158,18 +167,59 @@ public class DynamicInputStream extends InputStream implements Cloneable {
 	}
 
 	/**
+	 * Reset the read position to 0.
+	 * This is a protected method to allow subclasses to reset the position
+	 * when needed (e.g., during cloning).
+	 */
+	protected synchronized void resetPosition() {
+		readPointer = 0;
+	}
+
+	/**
 	 * Get the total length of all {@link Interval}s in {@link #exclusions}.
+	 * This method properly handles overlapping intervals by merging them and
+	 * calculating the total excluded length without double-counting.
 	 *
-	 * @return The sum of the {@link Interval} lengths in {@link #exclusions}.
+	 * @return The total excluded length after merging overlapping intervals.
 	 */
 	public synchronized long getExcludedLength() {
-		long excluded = 0;
-
-		for (Interval<Long> iv : exclusions) {
-			excluded += iv.lengthLong();
+		if (exclusions.isEmpty()) {
+			return 0;
 		}
 
-		return excluded;
+		// Create a copy and sort by start position
+		List<Interval<Long>> sortedExclusions = new ArrayList<>(exclusions);
+		sortedExclusions.sort(Interval::compareTo);
+
+		long totalExcluded = 0;
+		long currentStart = -1;
+		long currentEnd = -1;
+
+		for (Interval<Long> interval : sortedExclusions) {
+			long start = interval.getStart();
+			long end = interval.getEnd();
+
+			if (currentStart == -1) {
+				// First interval
+				currentStart = start;
+				currentEnd = end;
+			} else if (start <= currentEnd) {
+				// Overlapping or adjacent interval - extend current range
+				currentEnd = Math.max(currentEnd, end);
+			} else {
+				// Non-overlapping interval - add previous range and start new one
+				totalExcluded += currentEnd - currentStart;
+				currentStart = start;
+				currentEnd = end;
+			}
+		}
+
+		// Add the last range
+		if (currentStart != -1) {
+			totalExcluded += currentEnd - currentStart;
+		}
+
+		return totalExcluded;
 	}
 
 	@Override
@@ -245,7 +295,9 @@ public class DynamicInputStream extends InputStream implements Cloneable {
 
 				readPointer++;
 
-				iter.remove();
+				// CopyOnWriteArrayList doesn't support iterator.remove()
+				// Remove directly from the list instead
+				exclusions.remove(iv);
 
 				foundGap = true;
 				break;
@@ -285,6 +337,10 @@ public class DynamicInputStream extends InputStream implements Cloneable {
 		long nextPos = readPointer + n;
 		long padding = 0;
 
+		// Collect intervals to remove first, since CopyOnWriteArrayList iterator
+		// doesn't support remove() and we may need to remove multiple elements
+		List<Interval<Long>> toRemove = new ArrayList<>();
+
 		Iterator<Interval<Long>> iter = exclusions.iterator();
 
 		while (iter.hasNext()) {
@@ -294,9 +350,12 @@ public class DynamicInputStream extends InputStream implements Cloneable {
 				padding += iv.lengthLong() + 1;
 				nextPos += iv.lengthLong() + 1;
 
-				iter.remove();
+				toRemove.add(iv);
 			}
 		}
+
+		// Remove collected intervals
+		exclusions.removeAll(toRemove);
 
 		long skipped = stream.skip(n + padding);
 
@@ -338,20 +397,26 @@ public class DynamicInputStream extends InputStream implements Cloneable {
 			if (interval.contains(iv)) {
 				end += iv.lengthLong();
 
-				iter.remove();
+				// CopyOnWriteArrayList doesn't support iterator.remove()
+				// Remove directly from the list instead
+				exclusions.remove(iv);
 				break;
 			}
 			else if (interval.contains(iv.getStart())) {
 				end = start + interval.lengthLong() + iv.lengthLong();
 
-				iter.remove();
+				// CopyOnWriteArrayList doesn't support iterator.remove()
+				// Remove directly from the list instead
+				exclusions.remove(iv);
 				break;
 			}
 			else if (interval.contains(iv.getEnd())) {
 				start = iv.getStart();
 				end -= iv.getEnd() - interval.getStart();
 
-				iter.remove();
+				// CopyOnWriteArrayList doesn't support iterator.remove()
+				// Remove directly from the list instead
+				exclusions.remove(iv);
 				break;
 			}
 		}
@@ -420,7 +485,9 @@ public class DynamicInputStream extends InputStream implements Cloneable {
 				readPointer += stream.skip(iv.getEnd() - lpos + 1);
 				foundGap = true;
 
-				iter.remove();
+				// CopyOnWriteArrayList doesn't support iterator.remove()
+				// Remove directly from the list instead
+				exclusions.remove(iv);
 				break;
 			}
 			else if (lpos < iv.getStart() && rpos > iv.getEnd() || iv.contains(rpos)) {
@@ -434,7 +501,9 @@ public class DynamicInputStream extends InputStream implements Cloneable {
 				readPointer += read;
 				foundGap = true;
 
-				iter.remove();
+				// CopyOnWriteArrayList doesn't support iterator.remove()
+				// Remove directly from the list instead
+				exclusions.remove(iv);
 				break;
 			}
 		}

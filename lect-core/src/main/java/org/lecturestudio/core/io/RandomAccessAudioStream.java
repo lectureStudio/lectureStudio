@@ -246,7 +246,12 @@ public class RandomAccessAudioStream extends DynamicInputStream {
 			throw new RuntimeException(e);
 		}
 
-		for (Interval<Long> iv : exclusions) {
+		// Copy audio format if set
+		if (audioFormat != null) {
+			clone.setAudioFormat(audioFormat);
+		}
+
+		for (Interval<Long> iv : exclude) {
 			clone.addExclusion(new Interval<>(iv.getStart(), iv.getEnd()));
 		}
 		for (var entry : filters.entrySet()) {
@@ -287,13 +292,23 @@ public class RandomAccessAudioStream extends DynamicInputStream {
 		
 		// Skip WAV header (typically 44 bytes, but use 70 for safety margin)
 		// and ensure we don't start before the actual audio data
-		if (interval.getStart() < 70) {
+		// Only adjust if the interval would remain valid after adjustment
+		if (interval.getStart() < 70 && interval.getEnd() > 72) {
+			// Interval spans across the header boundary, adjust start to skip header
 			interval.set(72L, interval.getEnd());
 		}
+		// If interval is entirely before 72, leave it as-is (may be valid for encoded streams)
 		
 		// Ensure we don't extend beyond the stream length
 		if (interval.getEnd() > streamLength) {
-			interval.set(interval.getStart(), streamLength);
+			long newEnd = streamLength;
+			// Only adjust if the interval would remain valid
+			if (interval.getStart() < newEnd) {
+				interval.set(interval.getStart(), newEnd);
+			} else {
+				// Interval is entirely beyond stream, set to zero length
+				interval.set(newEnd, newEnd);
+			}
 		}
 	}
 

@@ -29,6 +29,10 @@ import java.util.Map;
 
 import com.fasterxml.jackson.databind.JsonDeserializer;
 
+import org.jsoup.Jsoup;
+import org.jsoup.nodes.Element;
+import org.jsoup.select.Elements;
+
 import org.lecturestudio.core.model.Document;
 import org.lecturestudio.core.util.FileUtils;
 import org.lecturestudio.presenter.api.quiz.JsonQuizFileRepository;
@@ -306,6 +310,28 @@ public class QuizDataSource {
 
 		// Only proceed with migration if legacy quizzes exist.
 		if (!legacyQuizzes.isEmpty()) {
+			// Adjust image paths.
+			for (Quiz quiz : legacyQuizzes) {
+				String html = quiz.getQuestion();
+				org.jsoup.nodes.Document doc = Jsoup.parse(html);
+				doc.outputSettings().prettyPrint(false);
+
+				// Get all elements with the image tag.
+				Elements img = doc.getElementsByTag("img");
+				for (Element e : img) {
+					String src = e.absUrl("src");
+					File imgFile = new File(FileUtils.decodePath(src));
+					File imgLocalFile = new File(dataFile.getParent() + File.separator + imgFile.getName());
+
+					// Replace it by a new updated relative path.
+					if (imgLocalFile.exists()) {
+						e.attr("src", imgLocalFile.toURI().toString());
+					}
+				}
+
+				quiz.setQuestion(doc.body().html());
+			}
+
 		    // Save all quizzes from the legacy format to the current repository format
 			repository.saveAll(legacyQuizzes);
 		}

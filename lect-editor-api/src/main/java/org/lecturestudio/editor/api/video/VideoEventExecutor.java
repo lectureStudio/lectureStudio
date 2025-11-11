@@ -308,41 +308,63 @@ public class VideoEventExecutor extends EventExecutor {
 		frames++;
 	}
 
-	private boolean consumeFrame(Frame frame, long timestamp) throws Exception {
-		// Use a window of half the framerate to be more in sync.
-		double frameTsMargin = Math.round(1000 / videoPlayer.getFrameRate() / 2);
-		long frameTs = videoPlayer.calculateTimestamp(frame.timestamp);
-		if (frameTs >= timestamp - frameTsMargin) {
-			renderView.renderFrameImage(frameConverter.convert(frame, videoPlayer.getVideoContentSize()));
-			frameConsumer.accept(renderView.renderCurrentFrame(), progressEvent);
-			return true;
-		}
-		return false;
+	private void renderVideoImage(Frame frame) throws Exception {
+		renderView.renderFrameImage(frameConverter.convert(frame, videoPlayer.getVideoContentSize()));
+		deliverCurrentFrame();
 	}
 
 	private void renderVideoFrame(long timestamp) throws Exception {
-		if (nonNull(frame)) {
-			if (consumeFrame(frame, timestamp)) {
-				// Frame has been repeated due to the low video frame rate.
-				return;
-			}
-		}
+		double outputFrameInterval = frameRate > 0 ? 1000.0 / frameRate : 30.0;
+		double videoFrameRate = videoPlayer.getFrameRate() > 0 ? videoPlayer.getFrameRate() : frameRate;
+		double videoFrameInterval = videoFrameRate > 0 ? 1000.0 / videoFrameRate : outputFrameInterval;
 
-		// Get the video frame with the desired timestamp, otherwise skip over.
-		while ((frame = videoPlayer.readVideoFrame()) != null) {
-			if (consumeFrame(frame, timestamp)) {
-				// Found a frame with a suitable timestamp.
+		long futureToleranceMs = Math.max(5L, Math.round(outputFrameInterval / 2.0));
+		long maxLagMs = Math.max(futureToleranceMs, Math.round(videoFrameInterval * 2.0));
+
+		boolean rendered = false;
+
+		while (true) {
+			if (isNull(frame)) {
+				frame = videoPlayer.readVideoFrame();
+
+				if (isNull(frame)) {
+					// Reached the end of the video.
+					renderView.renderPageImage();
+					deliverCurrentFrame();
+
+					videoPlayer.clearFrames();
+					videoPlayer.destroy();
+					return;
+				}
+			}
+
+			long frameTs = videoPlayer.calculateTimestamp(frame.timestamp);
+
+			if (frameTs < timestamp - maxLagMs) {
+				// Frame is too far behind the current playback time; drop it to catch up.
+				frame = null;
+				continue;
+			}
+
+			if (frameTs <= timestamp + futureToleranceMs) {
+				renderVideoImage(frame);
+				frame = null;
+				rendered = true;
 				break;
 			}
+
+			// The next frame belongs to the future. Keep it cached for the next render cycle.
+			break;
 		}
 
-		if (isNull(frame)) {
-			// Reached the end of the video.
-			renderView.renderPageImage();
-
-			videoPlayer.clearFrames();
-			videoPlayer.destroy();
+		if (!rendered) {
+			// No new frame rendered in this cycle; reuse the last frame image so the output frame rate stays constant.
+			deliverCurrentFrame();
 		}
+	}
+
+	private void deliverCurrentFrame() {
+		frameConsumer.accept(renderView.renderCurrentFrame(), progressEvent);
 	}
 
 	private void getPlaybackActions(int pageNumber) {

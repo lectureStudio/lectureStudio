@@ -134,7 +134,7 @@ public class MediaTracksPresenter extends Presenter<MediaTracksView> {
 			handleException(e, "Add edit action failed", "generic.error");
 		}
 		catch (NullPointerException exc) {
-			// Audio might be nonexistent, causing the editor to freeze and crash
+			handleException(exc, "Audio track is not available", "audio.track.not.available");
 		}
 	}
 

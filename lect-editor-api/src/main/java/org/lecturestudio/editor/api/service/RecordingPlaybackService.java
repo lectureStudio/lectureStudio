@@ -136,8 +136,10 @@ public class RecordingPlaybackService extends ExecutableBase {
 	 *
 	 * @throws NullPointerException If recordingPlayer is null.
 	 */
-	public void setAudioFilter(AudioFilter filter, Interval<Long> interval) {
-		recordingPlayer.getAudioStream().setAudioFilter(filter, interval);
+	public synchronized void setAudioFilter(AudioFilter filter, Interval<Long> interval) {
+		if (recordingPlayer != null) {
+			recordingPlayer.getAudioStream().setAudioFilter(filter, interval);
+		}
 	}
 
 	/**
@@ -147,8 +149,10 @@ public class RecordingPlaybackService extends ExecutableBase {
 	 *
 	 * @throws NullPointerException If recordingPlayer is null.
 	 */
-	public void removeAudioFilter(AudioFilter filter) {
-		recordingPlayer.getAudioStream().removeAudioFilter(filter);
+	public synchronized void removeAudioFilter(AudioFilter filter) {
+		if (recordingPlayer != null) {
+			recordingPlayer.getAudioStream().removeAudioFilter(filter);
+		}
 	}
 
 	/**

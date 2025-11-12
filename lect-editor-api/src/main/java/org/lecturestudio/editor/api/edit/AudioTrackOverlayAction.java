@@ -99,7 +99,9 @@ public class AudioTrackOverlayAction implements EditAction {
 						});
 			}
 			catch (RecordingEditException e) {
-				// Ignore
+				// Log the error but don't fail the UI operation
+				LogManager.getLogger(AudioTrackOverlayAction.class)
+					.warn("Failed to create undo action for audio filter removal", e);
 			}
 		};
 	}

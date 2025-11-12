@@ -38,6 +38,7 @@ public class AudioTrack extends MediaTrackBase<RandomAccessAudioStream> {
 
 	private final WaveformBuilder waveformBuilder;
 
+	private final Object waveformDataLock = new Object();
 	private WaveformData waveformData;
 
 
@@ -49,17 +50,31 @@ public class AudioTrack extends MediaTrackBase<RandomAccessAudioStream> {
 	public void setData(RandomAccessAudioStream stream) {
 		CompletableFuture.runAsync(() -> {
 			try {
-				waveformData = waveformBuilder.build(stream.getAudioFormat(),
+				WaveformData newWaveformData = waveformBuilder.build(stream.getAudioFormat(),
 						stream.clone(), 30000);
+
+				synchronized (waveformDataLock) {
+					waveformData = newWaveformData;
+				}
 
 				super.setData(stream);
 			}
 			catch (Throwable e) {
+				// Clear waveform data to ensure consistent state
+				synchronized (waveformDataLock) {
+					waveformData = null;
+				}
 				throw new CompletionException("Create waveform data failed", e);
 			}
 		})
 		.exceptionally((e -> {
 			LOG.error("Create waveform data failed", e);
+			// Ensure waveform data is null to prevent inconsistent state
+			synchronized (waveformDataLock) {
+				waveformData = null;
+			}
+			// Notify listeners that the data is now null due to error
+			notifyChange(null);
 			return null;
 		}));
 	}
@@ -76,6 +91,10 @@ public class AudioTrack extends MediaTrackBase<RandomAccessAudioStream> {
 		catch (IOException e) {
 			LOG.error("Close audio stream failed", e);
 		}
+
+		synchronized (waveformDataLock) {
+			waveformData = null;
+		}
 	}
 
 	@Override
@@ -89,6 +108,8 @@ public class AudioTrack extends MediaTrackBase<RandomAccessAudioStream> {
 	}
 
 	public WaveformData getWaveformData() {
-		return waveformData;
+		synchronized (waveformDataLock) {
+			return waveformData;
+		}
 	}
 }

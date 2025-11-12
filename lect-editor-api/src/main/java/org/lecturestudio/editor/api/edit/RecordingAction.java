@@ -18,6 +18,7 @@
 
 package org.lecturestudio.editor.api.edit;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import org.lecturestudio.core.model.Interval;
@@ -83,8 +84,32 @@ public abstract class RecordingAction implements EditAction {
 	public void execute() throws RecordingEditException {
 		var duration = getEditDuration();
 
-		for (EditAction action : editActions) {
-			action.execute();
+		// Execute actions atomically - rollback on failure
+		List<EditAction> executedActions = new ArrayList<>();
+		RecordingEditException executionException = null;
+
+		try {
+			for (EditAction action : editActions) {
+				action.execute();
+				executedActions.add(action);
+			}
+		}
+		catch (RecordingEditException e) {
+			// Rollback all executed actions
+			for (int i = executedActions.size() - 1; i >= 0; i--) {
+				try {
+					executedActions.get(i).undo();
+				}
+				catch (RecordingEditException rollbackException) {
+					// Log rollback failure but continue with other rollbacks
+					System.err.println("Failed to rollback action during atomic execution: " + rollbackException.getMessage());
+				}
+			}
+			executionException = e;
+		}
+
+		if (executionException != null) {
+			throw executionException;
 		}
 
 		fireChangeEvent(duration);

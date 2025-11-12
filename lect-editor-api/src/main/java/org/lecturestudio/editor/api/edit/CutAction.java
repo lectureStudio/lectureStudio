@@ -72,39 +72,86 @@ public class CutAction extends RecordingAction {
 	 *                  must be within the range [0, 1].
 	 * @param end       The end time when to stop removing. The value must be
 	 *                  within the range [0, 1].
+	 * @throws IllegalArgumentException If the recording is null or the time values are invalid.
 	 */
 	public CutAction(Recording recording, double start, double end, DoubleProperty primarySelectionProperty) {
-		super(recording, createActions(recording, start, end, primarySelectionProperty));
+		super(recording, createActions(validateAndPrepare(recording, start, end, primarySelectionProperty)));
 	}
 
-	private static List<EditAction> createActions(Recording recording, double start, double end, DoubleProperty primarySelectionProperty) {
+	private static CutActionParams validateAndPrepare(Recording recording, double start, double end, DoubleProperty primarySelectionProperty) {
+		if (recording == null) {
+			throw new IllegalArgumentException("Recording cannot be null");
+		}
+
+		// Validate time range
+		if (start < 0.0 || start > 1.0) {
+			throw new IllegalArgumentException("Start time must be in range [0.0, 1.0], got: " + start);
+		}
+		if (end < 0.0 || end > 1.0) {
+			throw new IllegalArgumentException("End time must be in range [0.0, 1.0], got: " + end);
+		}
+
+		// Ensure start is before end
+		double validatedStart = Math.min(start, end);
+		double validatedEnd = Math.max(start, end);
+
+		// Check for meaningful cut interval
+		if (validatedStart >= validatedEnd) {
+			throw new IllegalArgumentException("Cut interval must have positive duration");
+		}
+
+		return new CutActionParams(recording, validatedStart, validatedEnd, primarySelectionProperty);
+	}
+
+	private static class CutActionParams {
+		final Recording recording;
+		final double start;
+		final double end;
+		final DoubleProperty primarySelectionProperty;
+
+		CutActionParams(Recording recording, double start, double end, DoubleProperty primarySelectionProperty) {
+			this.recording = recording;
+			this.start = start;
+			this.end = end;
+			this.primarySelectionProperty = primarySelectionProperty;
+		}
+	}
+
+	private static List<EditAction> createActions(CutActionParams params) {
+		Recording recording = params.recording;
+		double start = params.start;
+		double end = params.end;
+		DoubleProperty primarySelectionProperty = params.primarySelectionProperty;
+
 		RecordingHeader header = recording.getRecordingHeader();
 		RecordedAudio audio = recording.getRecordedAudio();
 		RecordedDocument doc = recording.getRecordedDocument();
 		RecordedEvents events = recording.getRecordedEvents();
 
 		long duration = audio.getAudioStream().getLengthInMillis();
-		double startRel = Math.min(start, end);
-		double endRel = Math.max(start, end);
 
-		int startTime = (int) (startRel * duration);
-		int endTime = (int) (endRel * duration);
+		long startTime = (long) (start * duration);
+		long endTime = (long) (end * duration);
+
+		// Ensure we don't overflow when casting to int
+		int startTimeInt = startTime > Integer.MAX_VALUE ? Integer.MAX_VALUE : (int) startTime;
+		int endTimeInt = endTime > Integer.MAX_VALUE ? Integer.MAX_VALUE : (int) endTime;
 
 		final List<RecordedPage> recPages = events.getRecordedPages();
-		final Interval<Integer> editInterval = new Interval<>(startTime, endTime);
+		final Interval<Integer> editInterval = new Interval<>(startTimeInt, endTimeInt);
 		final EditHeaderAction headerAction = new EditHeaderAction(header, -editInterval.lengthLong());
 		final DeleteEventsAction eventsAction = new DeleteEventsAction(events, editInterval);
 		final DeleteDocumentAction documentAction = new DeleteDocumentAction(doc);
 		final DeleteAudioAction audioAction = new DeleteAudioAction(audio, editInterval);
 
 		MovePrimarySelectionAction selectionAction = null;
-		if (primarySelectionProperty != null && primarySelectionProperty.get() > startRel) {
-			selectionAction = new MovePrimarySelectionAction(primarySelectionProperty, primarySelectionProperty.get() - (endRel - startRel));
+		if (primarySelectionProperty != null && primarySelectionProperty.get() > start) {
+			selectionAction = new MovePrimarySelectionAction(primarySelectionProperty, primarySelectionProperty.get() - (end - start));
 		}
 
 		final Map<Integer, Integer> timetable = getPageChangeEvents(events);
 
-		LOG.debug("Cut recording at: {}-{} ms", startTime, endTime);
+		LOG.debug("Cut recording at: {}-{} ms", startTimeInt, endTimeInt);
 
 		for (Integer number : timetable.keySet()) {
 			Integer timestamp = timetable.get(number);

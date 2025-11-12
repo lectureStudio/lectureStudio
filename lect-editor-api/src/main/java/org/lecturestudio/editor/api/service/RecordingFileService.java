@@ -468,20 +468,18 @@ public class RecordingFileService {
 			try {
 				suspendPlayback();
 
-				if (RecordingUtils.containsScreenSection(start, end, recording)) {
+				double startNorm = Math.min(start, end);
+				double endNorm = Math.max(start, end);
+
+				if (RecordingUtils.containsScreenSection(startNorm, endNorm, recording)) {
 					context.showError("cut.recording.error", "cut.recording.screen.error");
 					return;
 				}
 
-				double durationOld = recording.getRecordingHeader().getDuration();
+				addEditAction(recording, new CutAction(recording, startNorm, endNorm,
+						context.primarySelectionProperty()));
 
-				addEditAction(recording, new CutAction(recording, start, end));
-
-				double durationNew = recording.getRecordingHeader().getDuration();
-				double scale = durationOld / durationNew;
-
-				// Set the time marker to the cut position.
-				context.setPrimarySelection(start * scale);
+				// Selection is automatically updated by CutAction via MovePrimarySelectionAction
 			}
 			catch (Exception e) {
 				throw new CompletionException(e);
@@ -995,6 +993,9 @@ public class RecordingFileService {
 			double pos = Math.min(context.getLeftSelection(), context.getRightSelection());
 			selection = Math.min(1.0, pos * scale);
 		}
+
+		// Clamp selection to valid range [0, 1] to prevent invalid seek positions
+		selection = Math.max(0.0, Math.min(1.0, selection));
 
 		try {
 			playbackService.seek(selection);

@@ -98,8 +98,46 @@ public class CutAction extends RecordingAction {
 		final DeleteAudioAction audioAction = new DeleteAudioAction(audio, editInterval);
 
 		MovePrimarySelectionAction selectionAction = null;
-		if (primarySelectionProperty != null && primarySelectionProperty.get() > startRel) {
-			selectionAction = new MovePrimarySelectionAction(primarySelectionProperty, primarySelectionProperty.get() - (endRel - startRel));
+		if (primarySelectionProperty != null) {
+			double currentSelection = primarySelectionProperty.get();
+			// Clamp current selection to valid range
+			currentSelection = Math.max(0.0, Math.min(1.0, currentSelection));
+			
+			// Convert to milliseconds
+			long currentSelectionMs = (long) (currentSelection * duration);
+			
+			// Calculate new duration after cut
+			long removedDurationMs = endTime - startTime;
+			long newDurationMs = duration - removedDurationMs;
+			
+			// Prevent division by zero
+			if (newDurationMs <= 0) {
+				newDurationMs = 1;
+			}
+			
+			double newSelection;
+			
+			if (currentSelectionMs <= startTime) {
+				// Selection is before the cut - position stays the same, but needs renormalization
+				newSelection = currentSelectionMs / (double) newDurationMs;
+			}
+			else if (currentSelectionMs >= endTime) {
+				// Selection is after the cut - shift by removed duration and renormalize
+				long shiftedMs = currentSelectionMs - removedDurationMs;
+				newSelection = shiftedMs / (double) newDurationMs;
+			}
+			else {
+				// Selection is within the cut - move to start of cut
+				newSelection = startTime / (double) newDurationMs;
+			}
+			
+			// Clamp to valid range
+			newSelection = Math.max(0.0, Math.min(1.0, newSelection));
+			
+			// Only create action if selection actually changed
+			if (Math.abs(newSelection - currentSelection) > 1e-10) {
+				selectionAction = new MovePrimarySelectionAction(primarySelectionProperty, newSelection);
+			}
 		}
 
 		final Map<Integer, Integer> timetable = getPageChangeEvents(events);

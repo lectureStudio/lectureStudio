@@ -14,8 +14,9 @@ public class MovePrimarySelectionAction implements EditAction {
 	public MovePrimarySelectionAction(DoubleProperty primarySelectionProperty, double newPosition) {
 
 		this.primarySelectionProperty = primarySelectionProperty;
-		this.newPosition = newPosition;
-		this.oldPosition = primarySelectionProperty.get();
+		// Clamp values to valid range [0, 1] and handle invalid values
+		this.newPosition = clamp(newPosition);
+		this.oldPosition = clamp(primarySelectionProperty.get());
 	}
 
 	@Override
@@ -31,5 +32,12 @@ public class MovePrimarySelectionAction implements EditAction {
 	@Override
 	public void execute() throws RecordingEditException {
 		primarySelectionProperty.set(newPosition);
+	}
+	
+	private static double clamp(double value) {
+		if (Double.isNaN(value) || Double.isInfinite(value)) {
+			return 0.0;
+		}
+		return Math.max(0.0, Math.min(1.0, value));
 	}
 }

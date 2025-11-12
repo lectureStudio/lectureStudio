@@ -103,18 +103,27 @@ public class WaveformSkin extends MediaTrackControlSkinBase {
 			return;
 		}
 
+		// Use effective duration that accounts for cuts/exclusions
+		final long effectiveDurationMs = (waveform.getMediaTrack()).getEffectiveDurationMs();
+		if (effectiveDurationMs <= 0) {
+			return;
+		}
+
 		double sx = transform.getMxx();
 		double tx = transform.getTx() * width;
 
 		double scaledWidth = width * sx;
 
-		// Sample blocks per pixel.
+		// Sample blocks per pixel, scaled by effective duration ratio
 		int blocks = data.negSamples.length;
-		int blocksPerPixel = (int) (blocks / scaledWidth);
-		int errorBlock = 0;
-		int errorBlocks = 0;
-		double error = blocks / scaledWidth - blocksPerPixel;
-		double errorSum = 0;
+
+		// Calculate how many waveform samples we need to cover the scaled width
+		// Since blocks represents the effective duration, we map blocks directly to scaledWidth
+		double samplesPerPixel = (double) blocks / scaledWidth;
+
+		// For high zoom levels, we want to render the full width
+		// If we have fewer samples than pixels, we'll interpolate
+		int pixelsToRender = (int) scaledWidth;
 
 		GraphicsContext ctx = canvas.getGraphicsContext2D();
 		ctx.setFill(waveform.getBackgroundColor());
@@ -123,28 +132,32 @@ public class WaveformSkin extends MediaTrackControlSkinBase {
 
 		double half = height / 2;
 
-		int blocksRead = 0;
+		for (int x = 0; x < pixelsToRender; x++) {
+			// Calculate which waveform sample(s) to use for this pixel
+			int sampleStart, sampleEnd;
 
-		for (int x = 0; x < scaledWidth; x++) {
-			if (errorSum > 1) {
-				errorSum -= 1;
-				errorBlock = 1;
-				errorBlocks++;
+			if (samplesPerPixel >= 1.0) {
+				// Downsampling: multiple samples per pixel
+				sampleStart = (int) (x * samplesPerPixel);
+				sampleEnd = (int) ((x + 1) * samplesPerPixel);
+			} else {
+				// Upsampling: interpolate between samples or repeat samples
+				// For high zoom levels, we want smooth interpolation
+				int sampleIndex = (int) (x * samplesPerPixel);
+				sampleStart = sampleEnd = Math.min(sampleIndex, blocks - 1);
 			}
 
-			double pos = 0;
-			double neg = 0;
+			// Ensure bounds
+			sampleStart = Math.max(0, Math.min(sampleStart, blocks - 1));
+			sampleEnd = Math.max(sampleStart, Math.min(sampleEnd, blocks - 1));
 
-			int blocksToRead = blocksPerPixel + errorBlock;
-			if (blocksToRead + blocksRead >= blocks) {
-				blocksToRead = blocks - blocksRead - 1;
-			}
-
-			for (int i = 0; i < blocksToRead; i++) {
-				int offset = x * blocksPerPixel + i + errorBlocks;
-
-				pos = Math.max(pos, data.posSamples[offset]);
-				neg = Math.max(neg, data.negSamples[offset]);
+			// Find max values in this range
+			float pos = 0, neg = 0;
+			for (int i = sampleStart; i <= sampleEnd; i++) {
+				if (i >= 0 && i < blocks) {
+					pos = Math.max(pos, data.posSamples[i]);
+					neg = Math.max(neg, data.negSamples[i]);
+				}
 			}
 
 			double y1 = pos * half;
@@ -152,8 +165,14 @@ public class WaveformSkin extends MediaTrackControlSkinBase {
 
 			// Scale sample values only for visual representation.
 			for (AdjustAudioVolumeControl control : volumeControls) {
-				double x1 = control.getInterval().getStart() * scaledWidth;
-				double x2 = control.getInterval().getEnd() * scaledWidth;
+				// Convert control intervals from time ratio to pixel coordinates
+				// The controls work on the effective timeline (0-1 range)
+				long controlStartMs = (long) (control.getInterval().getStart() * effectiveDurationMs);
+				long controlEndMs = (long) (control.getInterval().getEnd() * effectiveDurationMs);
+
+				// Convert to pixel positions based on effective duration
+				double x1 = (controlStartMs * scaledWidth) / effectiveDurationMs;
+				double x2 = (controlEndMs * scaledWidth) / effectiveDurationMs;
 
 				if (x > x1 && x < x2) {
 					y1 *= control.getVolumeScalar();
@@ -162,11 +181,6 @@ public class WaveformSkin extends MediaTrackControlSkinBase {
 			}
 
 			ctx.strokeLine(x + tx, half - y1, x + tx, half + y2);
-
-			blocksRead += blocksToRead;
-
-			errorSum += error;
-			errorBlock = 0;
 		}
 
 		ctx.setStroke(waveform.getWaveCenterColor());

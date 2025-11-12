@@ -41,6 +41,7 @@ import org.lecturestudio.core.recording.Recording;
 import org.lecturestudio.core.recording.RecordingChangeEvent;
 import org.lecturestudio.core.recording.RecordingEditException;
 import org.lecturestudio.core.recording.edit.RecordingEditManager;
+import org.lecturestudio.core.util.AudioUtils;
 import org.lecturestudio.core.view.Action;
 import org.lecturestudio.core.view.NotificationType;
 import org.lecturestudio.editor.api.context.EditorContext;
@@ -144,7 +145,7 @@ public class MediaTracksPresenter extends Presenter<MediaTracksView> {
 			final Recording recording = event.getRecording();
 			final Recording prevRecording = event.getOldRecording();
 			final RecordedAudio recAudio = recording.getRecordedAudio();
-			final Time duration = new Time(recAudio.getAudioStream().getLengthInMillis());
+			final Time duration = new Time(calculateEffectiveDuration(recording));
 
 			if (nonNull(prevRecording)) {
 				mediaTracks.forEach(prevRecording::removeRecordingChangeListener);
@@ -181,13 +182,35 @@ public class MediaTracksPresenter extends Presenter<MediaTracksView> {
 	@Subscribe
 	public void onEvent(RecordingChangeEvent event) {
 		switch (event.getContentType()) {
-			case ALL, HEADER:
-				view.setDuration(new Time(event.getRecording().getRecordedAudio().getAudioStream().getLengthInMillis()));
+			case ALL, HEADER, AUDIO:
+				// For audio changes, calculate effective duration accounting for cuts
+				long effectiveDuration = calculateEffectiveDuration(event.getRecording());
+				view.setDuration(new Time(effectiveDuration));
 				view.stickSliders();
 				break;
-			case AUDIO, DOCUMENT, EVENTS_ADDED, EVENTS_CHANGED, EVENTS_REMOVED:
+			case DOCUMENT, EVENTS_ADDED, EVENTS_CHANGED, EVENTS_REMOVED:
 				break;
 		}
+	}
+
+	/**
+	 * Calculates the effective duration of a recording accounting for audio cuts/exclusions.
+	 *
+	 * @param recording The recording to calculate duration for
+	 * @return The effective duration in milliseconds
+	 */
+	private long calculateEffectiveDuration(Recording recording) {
+		var audioStream = recording.getRecordedAudio().getAudioStream();
+		long totalLength = audioStream.getLengthInMillis();
+		long excludedLength = 0;
+
+		for (var exclusion : audioStream.getExclusions()) {
+			excludedLength += exclusion.lengthLong();
+		}
+
+		// Convert byte exclusions to millisecond exclusions
+		long bytesPerSecond = AudioUtils.getBytesPerSecond(audioStream.getAudioFormat());
+		return Math.max(0, totalLength - (excludedLength * 1000 / bytesPerSecond));
 	}
 
 	private void seekPressed() {

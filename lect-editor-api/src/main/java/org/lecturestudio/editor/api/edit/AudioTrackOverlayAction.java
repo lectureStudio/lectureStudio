@@ -18,6 +18,8 @@
 
 package org.lecturestudio.editor.api.edit;
 
+import org.apache.logging.log4j.LogManager;
+
 import org.lecturestudio.core.audio.AudioFormat;
 import org.lecturestudio.core.io.RandomAccessAudioStream;
 import org.lecturestudio.core.model.Interval;

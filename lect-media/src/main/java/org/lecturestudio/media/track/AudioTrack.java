@@ -26,6 +26,7 @@ import java.util.concurrent.CompletionException;
 
 import org.lecturestudio.core.io.RandomAccessAudioStream;
 import org.lecturestudio.core.recording.RecordingChangeEvent;
+import org.lecturestudio.core.util.AudioUtils;
 import org.lecturestudio.media.audio.WaveformBuilder;
 import org.lecturestudio.media.audio.WaveformData;
 
@@ -50,8 +51,9 @@ public class AudioTrack extends MediaTrackBase<RandomAccessAudioStream> {
 	public void setData(RandomAccessAudioStream stream) {
 		CompletableFuture.runAsync(() -> {
 			try {
+				long durationMs = stream.getLengthInMillis();
 				WaveformData newWaveformData = waveformBuilder.build(stream.getAudioFormat(),
-						stream.clone(), 30000);
+						stream.clone(), 30000, durationMs);
 
 				synchronized (waveformDataLock) {
 					waveformData = newWaveformData;
@@ -111,5 +113,30 @@ public class AudioTrack extends MediaTrackBase<RandomAccessAudioStream> {
 		synchronized (waveformDataLock) {
 			return waveformData;
 		}
+	}
+
+	/**
+	 * Gets the effective duration of the audio track accounting for exclusions (cuts).
+	 * This represents the actual playback duration, not the raw stream length.
+	 *
+	 * @return The effective duration in milliseconds
+	 */
+	public long getEffectiveDurationMs() {
+		RandomAccessAudioStream stream = getData();
+		if (stream == null) {
+			return 0;
+		}
+
+		// Calculate effective duration by subtracting excluded portions
+		long totalLength = stream.getLengthInMillis();
+		long excludedLength = 0;
+
+		for (var exclusion : stream.getExclusions()) {
+			excludedLength += exclusion.lengthLong();
+		}
+
+		// Convert byte exclusions to millisecond exclusions
+		long bytesPerSecond = AudioUtils.getBytesPerSecond(stream.getAudioFormat());
+		return totalLength - (excludedLength * 1000 / bytesPerSecond);
 	}
 }

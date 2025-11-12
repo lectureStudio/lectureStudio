@@ -31,7 +31,7 @@ import org.lecturestudio.core.util.AudioUtils;
 
 public class WaveformBuilder {
 
-	public WaveformData build(AudioFormat format, InputStream stream, int width) throws IOException {
+	public WaveformData build(AudioFormat format, InputStream stream, int width, long totalDurationMs) throws IOException {
 		requireNonNull(format);
 		requireNonNull(stream);
 
@@ -39,20 +39,24 @@ public class WaveformBuilder {
 			throw new IllegalArgumentException();
 		}
 
-		float[] posSamples = new float[width];
-		float[] negSamples = new float[width];
+		// Ensure waveform width is appropriate for the actual playback duration
+		// Use a minimum width to maintain detail, but scale based on duration
+		int actualWidth = Math.max(width, Math.min(30000, (int)(totalDurationMs / 10))); // ~100 samples per second minimum
+
+		float[] posSamples = new float[actualWidth];
+		float[] negSamples = new float[actualWidth];
 
 		int streamLength = stream.available();
 		int sampleSize = format.getBytesPerSample();
-		int blockSize = streamLength / width - (streamLength / width) % sampleSize;
+		int blockSize = streamLength / actualWidth - (streamLength / actualWidth) % sampleSize;
 		int pad = 0;
 
-		double error = streamLength / (double) width - blockSize;
+		double error = streamLength / (double) actualWidth - blockSize;
 		double errorSum = 0;
 
 		List<CompletableFuture<Void>> futures = new ArrayList<>();
 
-		for (int i = 0; i < width; i++) {
+		for (int i = 0; i < actualWidth; i++) {
 			int index = i;
 			byte[] buffer = new byte[blockSize + sampleSize];
 

@@ -129,7 +129,7 @@ public class RandomAccessAudioStream extends DynamicInputStream {
 	 * @param interval The interval to keep (must not be null).
 	 * @throws IllegalArgumentException if interval is null
 	 */
-	public synchronized void addExclusiveMillis(Interval<Long> interval) {
+ public synchronized void addExclusiveMillis(Interval<Long> interval) {
 		if (interval == null) {
 			throw new IllegalArgumentException("Interval cannot be null");
 		}
@@ -137,15 +137,32 @@ public class RandomAccessAudioStream extends DynamicInputStream {
 			throw new IllegalStateException("Audio format is not set");
 		}
 		
-		long start = AudioUtils.getAudioBytePosition(audioFormat, interval.getStart());
-		long end = AudioUtils.getAudioBytePosition(audioFormat, interval.getEnd());
+        long start = AudioUtils.getAudioBytePosition(audioFormat, interval.getStart());
+        long end = AudioUtils.getAudioBytePosition(audioFormat, interval.getEnd());
 
-		addExclusion(new Interval<>(0L, start));
+        // Align to frame boundaries to avoid partial frames
+        start = alignToFrame(start, false);
+        end = alignToFrame(end, true);
 
-		if (end < streamLength) {
-			addExclusion(new Interval<>(end, streamLength));
-		}
-	}
+        // Clamp to valid range
+        if (start < 0) start = 0;
+        if (end < 0) end = 0;
+        if (start > streamLength) start = streamLength;
+        if (end > streamLength) end = streamLength;
+
+        // Ignore empty keep interval
+        if (start >= end) {
+            // Keep nothing -> exclude whole stream
+            addExclusion(new Interval<>(0L, streamLength));
+            return;
+        }
+
+        addExclusion(new Interval<>(0L, start));
+
+        if (end < streamLength) {
+            addExclusion(new Interval<>(end, streamLength));
+        }
+    }
 
 	/**
 	 * Remove an exclusive interval in milliseconds.
@@ -153,7 +170,7 @@ public class RandomAccessAudioStream extends DynamicInputStream {
 	 * @param interval The interval to remove (must not be null).
 	 * @throws IllegalArgumentException if interval is null
 	 */
-	public synchronized void removeExclusiveMillis(Interval<Long> interval) {
+ public synchronized void removeExclusiveMillis(Interval<Long> interval) {
 		if (interval == null) {
 			throw new IllegalArgumentException("Interval cannot be null");
 		}
@@ -161,11 +178,21 @@ public class RandomAccessAudioStream extends DynamicInputStream {
 			throw new IllegalStateException("Audio format is not set");
 		}
 		
-		long start = AudioUtils.getAudioBytePosition(audioFormat, interval.getStart());
-		long end = AudioUtils.getAudioBytePosition(audioFormat, interval.getEnd());
+  long start = AudioUtils.getAudioBytePosition(audioFormat, interval.getStart());
+  long end = AudioUtils.getAudioBytePosition(audioFormat, interval.getEnd());
 
-		Interval<Long> iv1 = new Interval<>(0L, start);
-		Interval<Long> iv2 = new Interval<>(end, streamLength);
+  // Align to frame boundaries for symmetry with addExclusiveMillis
+  start = alignToFrame(start, false);
+  end = alignToFrame(end, true);
+
+  // Clamp to valid range
+  if (start < 0) start = 0;
+  if (end < 0) end = 0;
+  if (start > streamLength) start = streamLength;
+  if (end > streamLength) end = streamLength;
+
+  Interval<Long> iv1 = new Interval<>(0L, start);
+  Interval<Long> iv2 = new Interval<>(end, streamLength);
 
 		boundInterval(iv1);
 		boundInterval(iv2);
@@ -182,7 +209,7 @@ public class RandomAccessAudioStream extends DynamicInputStream {
 	 * @throws IllegalArgumentException if start > end
 	 * @throws IllegalStateException if audio format is not set
 	 */
-	public synchronized void addExclusionMillis(long start, long end) {
+ public synchronized void addExclusionMillis(long start, long end) {
 		if (start > end) {
 			throw new IllegalArgumentException("Start time cannot be greater than end time");
 		}
@@ -190,11 +217,25 @@ public class RandomAccessAudioStream extends DynamicInputStream {
 			throw new IllegalStateException("Audio format is not set");
 		}
 		
-		long startBytes = AudioUtils.getAudioBytePosition(audioFormat, start);
-		long endBytes = AudioUtils.getAudioBytePosition(audioFormat, end);
+        long startBytes = AudioUtils.getAudioBytePosition(audioFormat, start);
+        long endBytes = AudioUtils.getAudioBytePosition(audioFormat, end);
 
-		addExclusion(new Interval<>(startBytes, endBytes));
-	}
+        // Align to frame boundaries: start down, end up
+        startBytes = alignToFrame(startBytes, false);
+        endBytes = alignToFrame(endBytes, true);
+
+        // Clamp
+        if (startBytes < 0) startBytes = 0;
+        if (endBytes < 0) endBytes = 0;
+        if (startBytes > streamLength) startBytes = streamLength;
+        if (endBytes > streamLength) endBytes = streamLength;
+
+        if (startBytes == endBytes) {
+            return;
+        }
+
+        addExclusion(new Interval<>(startBytes, endBytes));
+    }
 
 	/**
 	 * Get the length of the stream in milliseconds.
@@ -285,32 +326,45 @@ public class RandomAccessAudioStream extends DynamicInputStream {
 	 * 
 	 * @param interval The interval to bound (must not be null).
 	 */
-	private void boundInterval(Interval<Long> interval) {
-		if (interval == null || interval.lengthLong() == 0) {
-			return;
-		}
-		
-		// Skip WAV header (typically 44 bytes, but use 70 for safety margin)
-		// and ensure we don't start before the actual audio data
-		// Only adjust if the interval would remain valid after adjustment
-		if (interval.getStart() < 70 && interval.getEnd() > 72) {
-			// Interval spans across the header boundary, adjust start to skip header
-			interval.set(72L, interval.getEnd());
-		}
-		// If interval is entirely before 72, leave it as-is (may be valid for encoded streams)
-		
-		// Ensure we don't extend beyond the stream length
-		if (interval.getEnd() > streamLength) {
-			long newEnd = streamLength;
-			// Only adjust if the interval would remain valid
-			if (interval.getStart() < newEnd) {
-				interval.set(interval.getStart(), newEnd);
-			} else {
-				// Interval is entirely beyond stream, set to zero length
-				interval.set(newEnd, newEnd);
-			}
-		}
-	}
+ private void boundInterval(Interval<Long> interval) {
+        if (interval == null) {
+            return;
+        }
+
+        long start = Math.max(0L, interval.getStart());
+        long end = Math.max(0L, interval.getEnd());
+
+        // Clamp to stream length
+        if (start > streamLength) start = streamLength;
+        if (end > streamLength) end = streamLength;
+
+        // Ensure non-negative and non-inverted
+        if (end < start) {
+            // collapse to empty at start
+            end = start;
+        }
+
+        interval.set(start, end);
+    }
+
+    private long alignToFrame(long bytePosition, boolean roundUp) {
+        AudioFormat format = audioFormat;
+        if (format == null) {
+            return bytePosition;
+        }
+        int frameSize = format.getBytesPerSample() * format.getChannels();
+        if (frameSize <= 0) {
+            return bytePosition;
+        }
+
+        if (roundUp) {
+            long rem = bytePosition % frameSize;
+            return rem == 0 ? bytePosition : (bytePosition + (frameSize - rem));
+        }
+        else {
+            return bytePosition - (bytePosition % frameSize);
+        }
+    }
 
 	private static RandomAccessStream createRandomAccessStream(File file) throws IOException {
 		if (file == null) {

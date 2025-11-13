@@ -33,6 +33,7 @@ import org.lecturestudio.core.model.Time;
 import org.lecturestudio.core.recording.RecordedPage;
 import org.lecturestudio.core.view.ConsumerAction;
 import org.lecturestudio.javafx.util.FxStyleablePropertyFactory;
+import org.lecturestudio.media.track.AudioTrack;
 import org.lecturestudio.media.track.EventsTrack;
 
 public class EventTimeline extends MediaTrackControlBase<EventsTrack> {
@@ -43,6 +44,8 @@ public class EventTimeline extends MediaTrackControlBase<EventsTrack> {
 			new FxStyleablePropertyFactory<>(Control.getClassCssMetaData());
 
 	private final ObjectProperty<Time> duration = new SimpleObjectProperty<>();
+
+	private AudioTrack audioTrack;
 
 	private BiConsumer<Time, Double> showTimeCallback;
 
@@ -122,6 +125,14 @@ public class EventTimeline extends MediaTrackControlBase<EventsTrack> {
 
 	public ConsumerAction<RecordedPage> getOnHideAndMoveNextPage() {
 		return this.onHideAndMoveNextPageAction;
+	}
+
+	void setAudioTrack(AudioTrack audioTrack) {
+		this.audioTrack = audioTrack;
+	}
+
+	AudioTrack getAudioTrack() {
+		return audioTrack;
 	}
 
 }

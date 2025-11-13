@@ -96,6 +96,21 @@ public class DynamicInputStream extends InputStream implements Cloneable {
 		exclude.clear();
 	}
 
+	/**
+	 * Get the list of active exclusion intervals.
+	 * 
+	 * <p><strong>Warning:</strong> This method returns a direct reference to the internal
+	 * exclusions list. Modifying the returned list will affect this stream's behavior.
+	 * For a safe snapshot, create a copy of the intervals:
+	 * <pre>{@code
+	 * List<Interval<Long>> snapshot = new ArrayList<>();
+	 * for (Interval<Long> iv : stream.getExclusions()) {
+	 *     snapshot.add(new Interval<>(iv.getStart(), iv.getEnd()));
+	 * }
+	 * }</pre>
+	 * 
+	 * @return The list of active exclusion intervals (may be modified during reads)
+	 */
 	public List<Interval<Long>> getExclusions() {
 		return exclusions;
 	}
@@ -143,12 +158,31 @@ public class DynamicInputStream extends InputStream implements Cloneable {
 			throw new RuntimeException(e);
 		}
 
-		for (Interval<Long> iv : exclusions) {
-			clone.addExclusion(new Interval<>(iv.getStart(), iv.getEnd()));
+		// Clone the persistent exclude list (used for reset operations)
+		// This ensures the clone has the same persistent exclusions that will be
+		// restored when reset() is called
+		clone.exclude.clear();
+		for (Interval<Long> iv : exclude) {
+			// Create new interval instances to avoid reference sharing
+			clone.exclude.add(new Interval<>(iv.getStart(), iv.getEnd()));
 		}
 
+		// Clone the active exclusions list
+		// Note: exclusions may have been modified during reads (items removed as we pass them),
+		// so we need to clone the current state, not just repopulate from exclude
+		clone.exclusions.clear();
+		for (Interval<Long> iv : exclusions) {
+			// Create new interval instances to avoid reference sharing
+			Interval<Long> clonedInterval = new Interval<>(iv.getStart(), iv.getEnd());
+			clone.exclusions.add(clonedInterval);
+		}
+
+		// Clone audio filters with new interval instances
 		for (var entry : filters.entrySet()) {
-			clone.setAudioFilter(entry.getKey(), entry.getValue());
+			Interval<Long> filterInterval = entry.getValue();
+			Interval<Long> clonedFilterInterval = new Interval<>(
+				filterInterval.getStart(), filterInterval.getEnd());
+			clone.setAudioFilter(entry.getKey(), clonedFilterInterval);
 		}
 
 		return clone;
@@ -181,11 +215,16 @@ public class DynamicInputStream extends InputStream implements Cloneable {
 			Interval<Long> iv = iter.next();
 
 			if (iv.contains(lpos)) {
-				readPointer += stream.skip(iv.getEnd() - lpos + 1);
+				// Skip to one byte after the exclusion interval
+				long bytesToSkip = (iv.getEnd() + 1) - lpos;
+				long skipped = stream.skip(bytesToSkip);
+				readPointer += skipped;
 
 				read = stream.read();
 
-				readPointer++;
+				if (read >= 0) {
+					readPointer++;
+				}
 
 				iter.remove();
 
@@ -196,7 +235,9 @@ public class DynamicInputStream extends InputStream implements Cloneable {
 
 		if (!foundGap) {
 			read = stream.read();
-			readPointer++;
+			if (read >= 0) {
+				readPointer++;
+			}
 		}
 
 		return read;
@@ -224,81 +265,134 @@ public class DynamicInputStream extends InputStream implements Cloneable {
 
 	@Override
 	public long skip(long n) throws IOException {
-		long nextPos = readPointer + n;
+		if (n <= 0) {
+			return 0;
+		}
+
+		long logicalTargetPos = readPointer + n;
 		long padding = 0;
 
+		// Calculate padding by finding all exclusions between current position and target
 		Iterator<Interval<Long>> iter = exclusions.iterator();
 
 		while (iter.hasNext()) {
 			Interval<Long> iv = iter.next();
 
-			if (iv.getStart() <= nextPos) {
-				padding += iv.lengthLong() + 1;
-				nextPos += iv.lengthLong() + 1;
-
-				iter.remove();
+			// Check if exclusion overlaps with the skip range
+			if (iv.getEnd() >= readPointer && iv.getStart() <= logicalTargetPos) {
+				// Exclusion overlaps with skip range
+				long overlapStart = Math.max(iv.getStart(), readPointer);
+				long overlapEnd = Math.min(iv.getEnd(), logicalTargetPos);
+				
+				if (overlapStart <= overlapEnd) {
+					// Add the length of the overlapping exclusion (inclusive)
+					padding += overlapEnd - overlapStart + 1;
+				}
+				
+				// Remove exclusion if we've completely passed it
+				if (iv.getEnd() < readPointer) {
+					iter.remove();
+				}
 			}
 		}
 
-		long skipped = stream.skip(n + padding);
+		// Skip physical bytes (logical bytes + padding for exclusions)
+		long physicalBytesToSkip = n + padding;
+		long skipped = stream.skip(physicalBytesToSkip);
 
 		readPointer += skipped;
 
-		return skipped - padding;
+		// Return the logical bytes skipped (excluding padding)
+		// If we couldn't skip all requested bytes, return what we actually skipped logically
+		if (skipped < physicalBytesToSkip) {
+			// Adjust for partial skip
+			long logicalSkipped = Math.max(0, skipped - padding);
+			return logicalSkipped;
+		}
+
+		return n;
 	}
 
 	/**
-	 * @param interval
-	 * @param <T>      The {@link Number} type of the specified
-	 *                 {@link Interval}.
+	 * Calculate the padding (total length of exclusions) that occurs before
+	 * the specified interval's start position in the logical stream.
+	 * 
+	 * @param interval The interval to calculate padding for
+	 * @param <T>      The {@link Number} type of the specified {@link Interval}.
 	 *
-	 * @return The calculated padding.
+	 * @return The calculated padding (total bytes excluded before interval start).
 	 */
 	public <T extends Number> long getPadding(Interval<T> interval) {
 		long padding = 0;
+		long logicalStart = interval.getStart().longValue();
 
-		long start = interval.getStart().longValue();
+		// Sort exclusions by start position for accurate calculation
+		List<Interval<Long>> sortedExclusions = new ArrayList<>(exclusions);
+		sortedExclusions.sort(Comparator.comparingLong(Interval::getStart));
 
-		for (Interval<Long> iv : exclusions) {
-			if (iv.getStart() <= (start + padding)) {
+		for (Interval<Long> iv : sortedExclusions) {
+			// Only count exclusions that end before or at the logical start position
+			if (iv.getEnd() < logicalStart) {
 				padding += iv.lengthLong();
+			}
+			// If exclusion starts before logical start but ends after, count partial
+			else if (iv.getStart() < logicalStart && iv.getEnd() >= logicalStart) {
+				padding += logicalStart - iv.getStart();
 			}
 		}
 
 		return padding;
 	}
 
+	/**
+	 * Adjusts the given interval to account for exclusions that overlap with it.
+	 * Returns an interval in the physical stream coordinates that corresponds to
+	 * the logical interval after accounting for excluded regions.
+	 * 
+	 * This method does NOT modify the exclusions list.
+	 * 
+	 * @param interval The logical interval to adjust
+	 * @return The adjusted interval in physical stream coordinates
+	 */
 	public Interval<Long> getEnclosedPadding(Interval<Long> interval) {
-		long start = interval.getStart();
-		long end = interval.getEnd();
+		long logicalStart = interval.getStart();
+		long logicalEnd = interval.getEnd();
+		long physicalStart = logicalStart;
+		long physicalEnd = logicalEnd;
 
-		Iterator<Interval<Long>> iter = exclusions.iterator();
+		// Create a copy of exclusions to avoid modifying the original
+		List<Interval<Long>> exclusionsCopy = new ArrayList<>(exclusions);
+		exclusionsCopy.sort(Comparator.comparingLong(Interval::getStart));
 
-		while (iter.hasNext()) {
-			Interval<Long> iv = iter.next();
-
-			if (interval.contains(iv)) {
-				end += iv.lengthLong();
-
-				iter.remove();
-				break;
+		// Calculate padding before the interval start
+		long paddingBefore = 0;
+		for (Interval<Long> iv : exclusionsCopy) {
+			if (iv.getEnd() < logicalStart) {
+				paddingBefore += iv.lengthLong();
 			}
-			else if (interval.contains(iv.getStart())) {
-				end = start + interval.lengthLong() + iv.lengthLong();
-
-				iter.remove();
-				break;
-			}
-			else if (interval.contains(iv.getEnd())) {
-				start = iv.getStart();
-				end -= iv.getEnd() - interval.getStart();
-
-				iter.remove();
-				break;
+			else if (iv.getStart() < logicalStart && iv.getEnd() >= logicalStart) {
+				paddingBefore += logicalStart - iv.getStart();
 			}
 		}
 
-		return new Interval<>(start, end);
+		physicalStart = logicalStart + paddingBefore;
+
+		// Calculate padding within the interval
+		long paddingWithin = 0;
+		for (Interval<Long> iv : exclusionsCopy) {
+			// Check if exclusion overlaps with the interval
+			if (iv.getStart() < logicalEnd && iv.getEnd() >= logicalStart) {
+				long overlapStart = Math.max(iv.getStart(), logicalStart);
+				long overlapEnd = Math.min(iv.getEnd(), logicalEnd);
+				if (overlapStart <= overlapEnd) {
+					paddingWithin += overlapEnd - overlapStart + 1;
+				}
+			}
+		}
+
+		physicalEnd = logicalEnd + paddingBefore + paddingWithin;
+
+		return new Interval<>(physicalStart, physicalEnd);
 	}
 
 	/**
@@ -351,34 +445,65 @@ public class DynamicInputStream extends InputStream implements Cloneable {
 			Interval<Long> iv = iter.next();
 
 			if (iv.contains(lpos)) {
-				readPointer += stream.skip(iv.getEnd() - lpos + 1);
+				// Current position is inside an exclusion - skip to after it
+				long bytesToSkip = (iv.getEnd() + 1) - lpos;
+				long skipped = stream.skip(bytesToSkip);
+				readPointer += skipped;
 				foundGap = true;
 
 				iter.remove();
 				break;
 			}
-			else if (lpos < iv.getStart() && rpos > iv.getEnd() || iv.contains(rpos)) {
-				int len = (int) (iv.getStart() - lpos);
+			else if ((lpos < iv.getStart() && rpos > iv.getEnd()) || iv.contains(rpos)) {
+				// Read spans across an exclusion or ends inside it
+				int lenBefore = (int) (iv.getStart() - lpos);
+				
+				// Read data before exclusion
+				if (lenBefore > 0) {
+					int readBefore = stream.read(buffer, offset, lenBefore);
+					read += readBefore;
+					readPointer += readBefore;
+					
+					processAudioFilters(buffer, offset, readBefore);
+					offset += readBefore;
+				}
 
-				read += stream.read(buffer, offset, len);
+				// Skip the exclusion
+				long bytesToSkip = (iv.getEnd() + 1) - iv.getStart();
+				long skipped = stream.skip(bytesToSkip);
+				readPointer += skipped;
 
-				processAudioFilters(buffer, offset, read);
+				// If read ended inside exclusion, we're done
+				if (iv.contains(rpos)) {
+					foundGap = true;
+					iter.remove();
+					break;
+				}
 
-				readPointer += stream.skip(iv.lengthLong() + 1);
-				readPointer += read;
+				// Continue reading after exclusion if there's more to read
+				int remaining = length - read;
+				if (remaining > 0) {
+					int readAfter = stream.read(buffer, offset, remaining);
+					read += readAfter;
+					readPointer += readAfter;
+					
+					processAudioFilters(buffer, offset, readAfter);
+				}
+
 				foundGap = true;
-
 				iter.remove();
 				break;
 			}
 		}
 
 		if (!foundGap) {
-			read += stream.read(buffer, offset, length);
-
-			processAudioFilters(buffer, offset, length);
-
-			readPointer += read;
+			// No exclusion found - normal read
+			read = stream.read(buffer, offset, length);
+			
+			if (read > 0) {
+				processAudioFilters(buffer, offset, read);
+				readPointer += read;
+			}
 		}
 
 		return read;

@@ -134,10 +134,27 @@ public class RandomAccessAudioStream extends DynamicInputStream {
 
 	@Override
 	public int available() {
-		// Take future exclusion into account.
-		long toExclude = getToExcludeLength();
+		// Calculate available bytes accounting for:
+		// 1. Current position in the stream
+		// 2. Exclusions that occur after the current position
+		long currentPos = getPosition();
+		long remainingBytes = streamLength - currentPos;
+		
+		// Calculate exclusions that occur after current position
+		long toExcludeAfter = 0;
+		for (Interval<Long> iv : exclusions) {
+			// Only count exclusions that start after or at current position
+			if (iv.getStart() >= currentPos) {
+				// Full exclusion is after current position
+				toExcludeAfter += iv.lengthLong();
+			}
+			else if (iv.getEnd() >= currentPos) {
+				// Exclusion overlaps with current position - count only the part after
+				toExcludeAfter += iv.getEnd() - currentPos + 1;
+			}
+		}
 
-		return (int) (streamLength - getPosition() - toExclude);
+		return (int) Math.max(0, remainingBytes - toExcludeAfter);
 	}
 
 	@Override
@@ -162,11 +179,32 @@ public class RandomAccessAudioStream extends DynamicInputStream {
 			throw new RuntimeException(e);
 		}
 
-		for (Interval<Long> iv : exclusions) {
+		// Copy audio format
+		clone.audioFormat = audioFormat;
+
+		// Clear any exclusions that might have been inherited from inputStream.clone()
+		// We need to clone our own exclusions state
+		clone.clearExclusions();
+		
+		// Clone persistent exclusions (exclude list) - these are restored on reset()
+		// We clone from exclude to ensure reset() works correctly on the clone
+		for (Interval<Long> iv : exclude) {
+			// Create new interval instances to avoid reference sharing
 			clone.addExclusion(new Interval<>(iv.getStart(), iv.getEnd()));
 		}
+		
+		// The active exclusions list (exclusions) will be populated by addExclusion()
+		// above, which adds to both exclusions and exclude. However, if some exclusions
+		// were removed from the active list during reads, we need to match that state.
+		// Since we're cloning, we want the clone to start fresh, so having all exclusions
+		// in the active list is correct - they'll be removed as the clone reads past them.
+
+		// Clone audio filters with new interval instances
 		for (var entry : filters.entrySet()) {
-			clone.setAudioFilter(entry.getKey(), entry.getValue());
+			Interval<Long> filterInterval = entry.getValue();
+			Interval<Long> clonedFilterInterval = new Interval<>(
+				filterInterval.getStart(), filterInterval.getEnd());
+			clone.setAudioFilter(entry.getKey(), clonedFilterInterval);
 		}
 
 		return clone;
@@ -190,16 +228,38 @@ public class RandomAccessAudioStream extends DynamicInputStream {
 		outputStream.close();
 	}
 
+	/**
+	 * Bounds the interval to valid stream positions.
+	 * For audio streams, this typically means avoiding the file header
+	 * (first ~44 bytes for WAV files, but can vary).
+	 * 
+	 * @param interval The interval to bound
+	 */
 	private void boundInterval(Interval<Long> interval) {
 		if (interval.lengthLong() == 0) {
 			return;
 		}
-		if (interval.getStart() < 70) {
-			interval.set(72L, interval.getEnd());
+		
+		// Ensure start is not negative
+		long start = Math.max(0, interval.getStart());
+		
+		// For audio files, avoid excluding the header (typically first 44 bytes for WAV)
+		// Use a conservative approach: if start is very small, move it to after header
+		// This is a heuristic - ideally we'd detect actual header size
+		final long MIN_AUDIO_HEADER_SIZE = 44; // Typical WAV header size
+		if (start < MIN_AUDIO_HEADER_SIZE) {
+			start = MIN_AUDIO_HEADER_SIZE;
 		}
-		if (interval.getEnd() > streamLength) {
-			interval.set(interval.getStart(), streamLength);
+		
+		// Ensure end doesn't exceed stream length
+		long end = Math.min(streamLength, interval.getEnd());
+		
+		// Ensure start <= end
+		if (start > end) {
+			start = end;
 		}
+		
+		interval.set(start, end);
 	}
 
 	private static AudioInputStream getAudioStream(DynamicInputStream inputStream) {

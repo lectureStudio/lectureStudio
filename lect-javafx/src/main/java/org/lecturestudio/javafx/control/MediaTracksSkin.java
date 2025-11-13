@@ -265,6 +265,9 @@ public class MediaTracksSkin extends SkinBase<MediaTracks> {
 
 			control.getTracks().forEach(this::addTrack);
 
+			// Update audio track references for all EventTimeline controls
+			updateEventTimelineAudioTracks();
+
 			// Reset value after invalidation.
 			double value = 0;
 
@@ -318,6 +321,21 @@ public class MediaTracksSkin extends SkinBase<MediaTracks> {
 		rightSlider.setVisible(show);
 	}
 
+	private void updateEventTimelineAudioTracks() {
+		AudioTrack audioTrack = mediaTracks.getTracks().stream()
+				.filter(AudioTrack.class::isInstance)
+				.map(AudioTrack.class::cast)
+				.findFirst()
+				.orElse(null);
+
+		// Update audio track reference for all EventTimeline controls
+		for (Node node : trackContainer.getChildren()) {
+			if (node instanceof EventTimeline eventTimeline) {
+				eventTimeline.setAudioTrack(audioTrack);
+			}
+		}
+	}
+
 	private void addTrack(MediaTrack<?> track) {
 		if (track instanceof AudioTrack) {
 			Waveform waveform = new Waveform();
@@ -329,6 +347,13 @@ public class MediaTracksSkin extends SkinBase<MediaTracks> {
 			EventTimeline eventTimeline = new EventTimeline();
 			eventTimeline.durationProperty().bind(mediaTracks.durationProperty());
 			eventTimeline.setMediaTrack((EventsTrack) track);
+			// Set audio track reference for effective duration calculation
+			AudioTrack audioTrack = mediaTracks.getTracks().stream()
+					.filter(AudioTrack.class::isInstance)
+					.map(AudioTrack.class::cast)
+					.findFirst()
+					.orElse(null);
+			eventTimeline.setAudioTrack(audioTrack);
 			eventTimeline.setShowTimeCallback(this::showSliderTimeCallback);
 			eventTimeline.setOnMovePage(mediaTracks.getOnMovePage());
 			eventTimeline.setOnHidePage(mediaTracks.getOnHidePage());

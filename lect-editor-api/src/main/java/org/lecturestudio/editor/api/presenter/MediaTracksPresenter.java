@@ -41,7 +41,6 @@ import org.lecturestudio.core.recording.Recording;
 import org.lecturestudio.core.recording.RecordingChangeEvent;
 import org.lecturestudio.core.recording.RecordingEditException;
 import org.lecturestudio.core.recording.edit.RecordingEditManager;
-import org.lecturestudio.core.util.AudioUtils;
 import org.lecturestudio.core.view.Action;
 import org.lecturestudio.core.view.NotificationType;
 import org.lecturestudio.editor.api.context.EditorContext;
@@ -202,15 +201,8 @@ public class MediaTracksPresenter extends Presenter<MediaTracksView> {
 	private long calculateEffectiveDuration(Recording recording) {
 		var audioStream = recording.getRecordedAudio().getAudioStream();
 		long totalLength = audioStream.getLengthInMillis();
-		long excludedLength = 0;
 
-		for (var exclusion : audioStream.getExclusions()) {
-			excludedLength += exclusion.lengthLong();
-		}
-
-		// Convert byte exclusions to millisecond exclusions
-		long bytesPerSecond = AudioUtils.getBytesPerSecond(audioStream.getAudioFormat());
-		return Math.max(0, totalLength - (excludedLength * 1000 / bytesPerSecond));
+		return Math.max(0, totalLength);
 	}
 
 	private void seekPressed() {

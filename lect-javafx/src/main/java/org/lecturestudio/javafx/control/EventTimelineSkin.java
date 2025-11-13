@@ -45,6 +45,7 @@ import org.lecturestudio.core.recording.action.ScreenAction;
 import org.lecturestudio.javafx.util.FxUtils;
 import org.lecturestudio.javafx.util.Slider;
 import org.lecturestudio.javafx.util.ThumbMouseHandler;
+import org.lecturestudio.media.track.AudioTrack;
 import org.lecturestudio.media.track.EventsTrack;
 
 public class EventTimelineSkin extends MediaTrackControlSkinBase {
@@ -134,12 +135,17 @@ public class EventTimelineSkin extends MediaTrackControlSkinBase {
 		final double height = pane.getHeight();
 
 		final Time duration = eventTimeline.getDuration();
+		final long effectiveDurationMs = duration != null ? duration.getMillis() : 0;
+
+		if (effectiveDurationMs <= 0) {
+			return;
+		}
 
 		double sx = transform.getMxx();
 		double tx = transform.getTx() * width;
-		final double pixelPerSecond = width * sx / (duration.getMillis() / 1000D);
+		final double pixelPerMs = (width * sx) / effectiveDurationMs;
 
-		timeToXPositionFunction = (timestamp) -> pixelPerSecond * timestamp / 1000 + tx;
+		timeToXPositionFunction = (timestamp) -> pixelPerMs * timestamp + tx;
 
 		paintEvents(height);
 		paintPageEvents(height);

@@ -100,6 +100,10 @@ public class DynamicInputStream extends InputStream implements Cloneable {
 		return exclusions;
 	}
 
+	public List<Interval<Long>> getExcluded() {
+		return exclude;
+	}
+
 	/**
 	 * Get the position of the {@link DynamicInputStream}.
 	 *
@@ -143,8 +147,9 @@ public class DynamicInputStream extends InputStream implements Cloneable {
 			throw new RuntimeException(e);
 		}
 
-		for (Interval<Long> iv : exclusions) {
-			clone.addExclusion(new Interval<>(iv.getStart(), iv.getEnd()));
+		for (Interval<Long> iv : exclude) {
+			clone.exclusions.add(new Interval<>(iv.getStart(), iv.getEnd()));
+			clone.exclude.add(new Interval<>(iv.getStart(), iv.getEnd()));
 		}
 
 		for (var entry : filters.entrySet()) {
@@ -219,7 +224,10 @@ public class DynamicInputStream extends InputStream implements Cloneable {
 		readPointer = 0;
 
 		exclusions.clear();
-		exclusions.addAll(exclude);
+
+		for (Interval<Long> iv : exclude) {
+			exclusions.add(new Interval<>(iv.getStart(), iv.getEnd()));
+		}
 	}
 
 	@Override

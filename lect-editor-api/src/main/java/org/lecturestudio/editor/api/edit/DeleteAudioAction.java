@@ -79,7 +79,7 @@ public class DeleteAudioAction extends RecordedObjectAction<RecordedAudio> {
 		audioStream.addExclusion(iv);
 
 		try {
-			getRecordedObject().setAudioStream(audioStream);
+			getRecordedObject().setAudioStream(audioStream.clone());
 		}
 		catch (IOException e) {
 			throw new RecordingEditException(e);

@@ -64,9 +64,6 @@ public class AudioInputStreamSource implements AudioSource {
 	public void reset() throws IOException {
 		if (audioStream.markSupported()) {
 			audioStream.reset();
-
-			// Skip audio header.
-			audioStream.skip(128);
 		}
 	}
 

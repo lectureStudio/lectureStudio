@@ -25,115 +25,335 @@ import java.util.*;
 import org.lecturestudio.core.audio.filter.AudioFilter;
 import org.lecturestudio.core.model.Interval;
 
+/**
+ * An input stream that supports dynamic exclusion of byte ranges.
+ * <p>
+ * Exclusion intervals use exclusive end semantics: [start, end) means bytes
+ * from start (inclusive) to end (exclusive) are excluded.
+ * <p>
+ * The stream maintains two coordinate systems:
+ * <ul>
+ *   <li><b>Physical position</b>: The actual byte position in the underlying stream</li>
+ *   <li><b>Virtual position</b>: The logical position after exclusions are applied</li>
+ * </ul>
+ * <p>
+ * Exclusions are always kept sorted and merged to ensure consistent behavior.
+ */
 public class DynamicInputStream extends InputStream implements Cloneable {
 
+	/** The underlying input stream. */
+	protected final InputStream stream;
+
+	/** 
+	 * The canonical list of exclusion intervals, always sorted by start position
+	 * and non-overlapping. Uses exclusive end semantics [start, end).
+	 */
 	protected List<Interval<Long>> exclusions = new ArrayList<>();
 
-	protected List<Interval<Long>> exclude = new ArrayList<>();
-
+	/** Audio filters mapped to their applicable intervals (in physical coordinates). */
 	protected Map<AudioFilter, Interval<Long>> filters = new HashMap<>();
 
-	protected InputStream stream;
+	/** Current physical position in the underlying stream. */
+	private long physicalPosition = 0;
 
-	private long readPointer = 0;
-
+	/** Total length of the underlying stream (cached for efficiency). */
+	private long streamLength = -1;
 
 	/**
-	 * Creates a new instance of {@link DynamicInputStream} with the specified
-	 * input stream.
+	 * Creates a new instance of {@link DynamicInputStream} with the specified input stream.
 	 *
-	 * @param inputStream The input stream.
+	 * @param inputStream The underlying input stream.
 	 */
 	public DynamicInputStream(InputStream inputStream) {
-		stream = inputStream;
+		this.stream = inputStream;
 	}
 
 	/**
-	 * Associate an {@link Interval} with the specified filter in the
-	 * {@link #filters} map.
+	 * Adds an exclusion interval. The interval will be merged with any
+	 * overlapping existing exclusions.
+	 * <p>
+	 * Interval uses exclusive end semantics: [start, end).
 	 *
-	 * @param filter   The filter with which the {@link Interval} should be
-	 *                 associated.
-	 * @param interval The {@link Interval}
+	 * @param interval The interval to exclude (in physical coordinates).
+	 */
+	public void addExclusion(Interval<Long> interval) {
+		if (interval == null || interval.getStart() >= interval.getEnd()) {
+			return;
+		}
+
+		exclusions.add(new Interval<>(interval.getStart(), interval.getEnd()));
+		normalizeExclusions();
+	}
+
+	/**
+	 * Removes an exclusion interval. Only exact matches are removed.
+	 *
+	 * @param interval The interval to remove.
+	 */
+	public void removeExclusion(Interval<Long> interval) {
+		exclusions.removeIf(iv -> 
+			iv.getStart().equals(interval.getStart()) && 
+			iv.getEnd().equals(interval.getEnd()));
+	}
+
+	/**
+	 * Clears all exclusion intervals.
+	 */
+	public void clearExclusions() {
+		exclusions.clear();
+	}
+
+	/**
+	 * Returns a defensive copy of the exclusion intervals.
+	 *
+	 * @return A new list containing copies of all exclusion intervals.
+	 */
+	public List<Interval<Long>> getExclusions() {
+		List<Interval<Long>> copy = new ArrayList<>(exclusions.size());
+		for (Interval<Long> iv : exclusions) {
+			copy.add(new Interval<>(iv.getStart(), iv.getEnd()));
+		}
+		return copy;
+	}
+
+	/**
+	 * Sets the exclusions from a list, replacing any existing exclusions.
+	 * The intervals will be normalized (sorted and merged).
+	 *
+	 * @param intervals The new exclusion intervals.
+	 */
+	public void setExclusions(List<Interval<Long>> intervals) {
+		exclusions.clear();
+		if (intervals != null) {
+			for (Interval<Long> iv : intervals) {
+				if (iv.getStart() < iv.getEnd()) {
+					exclusions.add(new Interval<>(iv.getStart(), iv.getEnd()));
+				}
+			}
+		}
+		normalizeExclusions();
+	}
+
+	/**
+	 * Converts a virtual position to a physical position.
+	 * <p>
+	 * Virtual positions represent the logical byte index after all exclusions
+	 * have been applied. Physical positions are actual byte indices in the
+	 * underlying stream.
+	 *
+	 * @param virtualPos The virtual position.
+	 *
+	 * @return The corresponding physical position.
+	 */
+	public long virtualToPhysical(long virtualPos) {
+		long physical = virtualPos;
+
+		for (Interval<Long> ex : exclusions) {
+			if (ex.getStart() <= physical) {
+				// This exclusion comes before or at our current position.
+				physical += ex.getEnd() - ex.getStart();
+			}
+			else {
+				// Exclusions are sorted, no more can affect us.
+				break;
+			}
+		}
+
+		return physical;
+	}
+
+	/**
+	 * Converts a physical position to a virtual position.
+	 *
+	 * @param physicalPos The physical position.
+	 *
+	 * @return The corresponding virtual position, or -1 if the physical position
+	 *         is within an excluded region.
+	 */
+	public long physicalToVirtual(long physicalPos) {
+		long virtual = physicalPos;
+
+		for (Interval<Long> ex : exclusions) {
+			if (ex.getEnd() <= physicalPos) {
+				// This exclusion is entirely before our position.
+				virtual -= ex.getEnd() - ex.getStart();
+			}
+			else if (ex.getStart() <= physicalPos) {
+				// Position is within an excluded region.
+				return -1;
+			}
+			else {
+				// Exclusions are sorted, no more can affect us.
+				break;
+			}
+		}
+
+		return virtual;
+	}
+
+	/**
+	 * Calculates the total length of all excluded bytes.
+	 *
+	 * @return The total excluded length.
+	 */
+	public long getExcludedLength() {
+		long total = 0;
+		for (Interval<Long> iv : exclusions) {
+			total += iv.getEnd() - iv.getStart();
+		}
+		return total;
+	}
+
+	/**
+	 * Returns the current physical position in the stream.
+	 *
+	 * @return The current physical position.
+	 */
+	public long getPosition() {
+		return physicalPosition;
+	}
+
+	/**
+	 * Returns the current virtual position in the stream.
+	 *
+	 * @return The current virtual position.
+	 */
+	public long getVirtualPosition() {
+		return physicalToVirtual(physicalPosition);
+	}
+
+	/**
+	 * Associates an audio filter with a specific interval (in physical coordinates).
+	 *
+	 * @param filter   The audio filter.
+	 * @param interval The interval where the filter applies.
 	 */
 	public void setAudioFilter(AudioFilter filter, Interval<Long> interval) {
-		filters.put(filter, interval);
+		filters.put(filter, new Interval<>(interval.getStart(), interval.getEnd()));
 	}
 
 	/**
-	 * Removes the specified filter from {@link #filters}.
+	 * Removes an audio filter.
 	 *
-	 * @param filter The filter to be removed.
+	 * @param filter The filter to remove.
 	 */
 	public void removeAudioFilter(AudioFilter filter) {
 		filters.remove(filter);
 	}
 
-	/**
-	 * Add the specified {@link Interval} to {@link #exclusions} and
-	 * {@link #exclude}.
-	 *
-	 * @param interval The {@link Interval} to add.
-	 */
-	public void addExclusion(Interval<Long> interval) {
-		exclusions.add(interval);
-		exclude.add(interval);
-	}
-
-	/**
-	 * Remove the specified {@link Interval} from {@link #exclusions} and
-	 * {@link #exclude}.
-	 *
-	 * @param interval The {@link Interval} to remove.
-	 */
-	public void removeExclusion(Interval<Long> interval) {
-		exclusions.remove(interval);
-		exclude.remove(interval);
-	}
-
-	public void clearExclusions() {
-		exclusions.clear();
-		exclude.clear();
-	}
-
-	public List<Interval<Long>> getExclusions() {
-		return exclusions;
-	}
-
-	public List<Interval<Long>> getExcluded() {
-		return exclude;
-	}
-
-	/**
-	 * Get the position of the {@link DynamicInputStream}.
-	 *
-	 * @return The {@link #readPointer}.
-	 */
-	public long getPosition() {
-		return readPointer;
-	}
-
-	/**
-	 * Get the total length of all {@link Interval}s in {@link #exclusions}.
-	 *
-	 * @return The sum of the {@link Interval} lengths in {@link #exclusions}.
-	 */
-	public long getExcludedLength() {
-		long excluded = 0;
-
-		for (Interval<Long> iv : exclusions) {
-			excluded += iv.lengthLong();
-		}
-
-		return excluded;
+	@Override
+	public synchronized int read() throws IOException {
+		byte[] single = new byte[1];
+		int result = read(single, 0, 1);
+		return result == -1 ? -1 : single[0] & 0xFF;
 	}
 
 	@Override
-	public int available() throws IOException {
-		// Take future exclusion into account.
-		long toExclude = getToExcludeLength();
+	public int read(byte[] buffer) throws IOException {
+		return read(buffer, 0, buffer.length);
+	}
 
-		return (int) (stream.available() - toExclude);
+	@Override
+	public synchronized int read(byte[] buffer, int offset, int length) throws IOException {
+		if (length == 0) {
+			return 0;
+		}
+
+		// Skip any excluded regions at the current position.
+		skipExcludedRegions();
+
+		// Find the next exclusion boundary.
+		long maxRead = length;
+		for (Interval<Long> ex : exclusions) {
+			if (ex.getStart() > physicalPosition) {
+				maxRead = Math.min(maxRead, ex.getStart() - physicalPosition);
+				break;
+			}
+		}
+
+		// Read up to the boundary.
+		int toRead = (int) Math.min(length, maxRead);
+		int bytesRead = stream.read(buffer, offset, toRead);
+
+		if (bytesRead > 0) {
+			applyAudioFilters(buffer, offset, bytesRead);
+			physicalPosition += bytesRead;
+		}
+
+		return bytesRead;
+	}
+
+	@Override
+	public synchronized long skip(long n) throws IOException {
+		if (n <= 0) {
+			return 0;
+		}
+
+		long remaining = n;
+		long skipped = 0;
+
+		while (remaining > 0) {
+			// Skip any excluded regions at the current position.
+			skipExcludedRegions();
+
+			// Find distance to the next exclusion.
+			long distanceToExclusion = Long.MAX_VALUE;
+			for (Interval<Long> ex : exclusions) {
+				if (ex.getStart() > physicalPosition) {
+					distanceToExclusion = ex.getStart() - physicalPosition;
+					break;
+				}
+			}
+
+			// Skip either to the exclusion or the remaining amount.
+			long toSkip = Math.min(remaining, distanceToExclusion);
+			long actualSkip = stream.skip(toSkip);
+
+			if (actualSkip <= 0) {
+				break;
+			}
+
+			physicalPosition += actualSkip;
+			skipped += actualSkip;
+			remaining -= actualSkip;
+		}
+
+		return skipped;
+	}
+
+	@Override
+	public synchronized int available() throws IOException {
+		long total = getStreamLength();
+		long virtualLength = total - getExcludedLength();
+		long virtualPos = physicalToVirtual(physicalPosition);
+		
+		if (virtualPos < 0) {
+			virtualPos = 0;
+		}
+		
+		return (int) Math.max(0, virtualLength - virtualPos);
+	}
+
+	@Override
+	public synchronized void reset() throws IOException {
+		stream.reset();
+
+		physicalPosition = 0;
+	}
+
+	@Override
+	public synchronized void mark(int readLimit) {
+		stream.mark(readLimit);
+	}
+
+	@Override
+	public boolean markSupported() {
+		return stream.markSupported();
+	}
+
+	@Override
+	public synchronized void close() throws IOException {
+		stream.close();
 	}
 
 	@Override
@@ -147,295 +367,123 @@ public class DynamicInputStream extends InputStream implements Cloneable {
 			throw new RuntimeException(e);
 		}
 
-		for (Interval<Long> iv : exclude) {
+		// Deep copy exclusions.
+		for (Interval<Long> iv : exclusions) {
 			clone.exclusions.add(new Interval<>(iv.getStart(), iv.getEnd()));
-			clone.exclude.add(new Interval<>(iv.getStart(), iv.getEnd()));
 		}
 
+		// Deep copy filters.
 		for (var entry : filters.entrySet()) {
-			clone.setAudioFilter(entry.getKey(), entry.getValue());
+			Interval<Long> iv = entry.getValue();
+			clone.filters.put(entry.getKey(), new Interval<>(iv.getStart(), iv.getEnd()));
 		}
+
+		clone.streamLength = this.streamLength;
 
 		return clone;
 	}
 
-	@Override
-	public synchronized void close() throws IOException {
-		stream.close();
-	}
-
-	@Override
-	public synchronized void mark(int readlimit) {
-		stream.mark(readlimit);
-	}
-
-	@Override
-	public boolean markSupported() {
-		return stream.markSupported();
-	}
-
-	@Override
-	public synchronized int read() throws IOException {
-		long lpos = readPointer;
-		int read = 0;
-		boolean foundGap = false;
-
-		Iterator<Interval<Long>> iter = exclusions.iterator();
-
-		while (iter.hasNext()) {
-			Interval<Long> iv = iter.next();
-
-			if (iv.contains(lpos)) {
-				readPointer += stream.skip(iv.getEnd() - lpos + 1);
-
-				read = stream.read();
-
-				readPointer++;
-
-				iter.remove();
-
-				foundGap = true;
-				break;
-			}
+	/**
+	 * Gets the total length of the underlying stream.
+	 *
+	 * @return The stream length.
+	 *
+	 * @throws IOException If an I/O error occurs.
+	 */
+	protected long getStreamLength() throws IOException {
+		if (streamLength < 0) {
+			streamLength = stream.available() + physicalPosition;
 		}
-
-		if (!foundGap) {
-			read = stream.read();
-			readPointer++;
-		}
-
-		return read;
-	}
-
-	@Override
-	public int read(byte[] buffer) throws IOException {
-		return readInterval(buffer, 0, buffer.length);
-	}
-
-	@Override
-	public int read(byte[] buffer, int offset, int length) throws IOException {
-		return readInterval(buffer, offset, length);
-	}
-
-	@Override
-	public synchronized void reset() throws IOException {
-		stream.reset();
-
-		readPointer = 0;
-
-		exclusions.clear();
-
-		for (Interval<Long> iv : exclude) {
-			exclusions.add(new Interval<>(iv.getStart(), iv.getEnd()));
-		}
-	}
-
-	@Override
-	public long skip(long n) throws IOException {
-		long nextPos = readPointer + n;
-		long padding = 0;
-
-		Iterator<Interval<Long>> iter = exclusions.iterator();
-
-		while (iter.hasNext()) {
-			Interval<Long> iv = iter.next();
-
-			if (iv.getStart() <= nextPos) {
-				padding += iv.lengthLong() + 1;
-				nextPos += iv.lengthLong() + 1;
-
-				iter.remove();
-			}
-		}
-
-		long skipped = stream.skip(n + padding);
-
-		readPointer += skipped;
-
-		return skipped - padding;
+		return streamLength;
 	}
 
 	/**
-	 * @param interval
-	 * @param <T>      The {@link Number} type of the specified
-	 *                 {@link Interval}.
+	 * Sets the stream length (for subclasses that know the exact length).
 	 *
-	 * @return The calculated padding.
+	 * @param length The stream length.
 	 */
-	public <T extends Number> long getPadding(Interval<T> interval) {
-		long padding = 0;
-
-		long start = interval.getStart().longValue();
-
-		for (Interval<Long> iv : exclusions) {
-			if (iv.getStart() <= (start + padding)) {
-				padding += iv.lengthLong();
-			}
-		}
-
-		return padding;
-	}
-
-	public Interval<Long> getEnclosedPadding(Interval<Long> interval) {
-		long start = interval.getStart();
-		long end = interval.getEnd();
-
-		Iterator<Interval<Long>> iter = exclusions.iterator();
-
-		while (iter.hasNext()) {
-			Interval<Long> iv = iter.next();
-
-			if (interval.contains(iv)) {
-				end += iv.lengthLong();
-
-				iter.remove();
-				break;
-			}
-			else if (interval.contains(iv.getStart())) {
-				end = start + interval.lengthLong() + iv.lengthLong();
-
-				iter.remove();
-				break;
-			}
-			else if (interval.contains(iv.getEnd())) {
-				start = iv.getStart();
-				end -= iv.getEnd() - interval.getStart();
-
-				iter.remove();
-				break;
-			}
-		}
-
-		return new Interval<>(start, end);
+	protected void setStreamLength(long length) {
+		this.streamLength = length;
 	}
 
 	/**
-	 * Get the length to exclude. (Sums up the length of every {@link Interval}
-	 * in {@link #exclusions} that is not part of another {@link Interval} of
-	 * {@link #exclusions}.)
-	 *
-	 * @return The length to exclude.
+	 * Normalizes the exclusion list by sorting and merging overlapping intervals.
 	 */
-	protected long getToExcludeLength() {
-		long toExclude = 0;
-
-		Set<Integer> toSkip = new HashSet<>();
-		int count = exclusions.size();
-
-		for (int i = 0; i < count; i++) {
-			Interval<Long> iv = exclusions.get(i);
-
-			for (int j = i + 1; j < count; j++) {
-				Interval<Long> iv2 = exclusions.get(j);
-
-				if (iv.contains(iv2)) {
-					toSkip.add(j);
-				}
-				if (iv2.contains(iv)) {
-					toSkip.add(i);
-				}
-			}
+	private void normalizeExclusions() {
+		if (exclusions.size() <= 1) {
+			return;
 		}
 
-		for (int i = 0; i < count; i++) {
-			if (!toSkip.contains(i)) {
-				Interval<Long> iv = exclusions.get(i);
-				toExclude += iv.lengthLong();
+		// Sort by start position.
+		// TODO
+		exclusions.sort(Comparator.comparingLong(Interval::getStart));
+
+		// Merge overlapping intervals.
+		List<Interval<Long>> merged = new ArrayList<>();
+		Interval<Long> current = exclusions.get(0);
+
+		for (int i = 1; i < exclusions.size(); i++) {
+			Interval<Long> next = exclusions.get(i);
+
+			if (next.getStart() <= current.getEnd()) {
+				// Overlapping or adjacent, merge them.
+				current = new Interval<>(
+					current.getStart(),
+					Math.max(current.getEnd(), next.getEnd())
+				);
+			}
+			else {
+				merged.add(current);
+				current = next;
 			}
 		}
+		merged.add(current);
 
-		return toExclude;
+		exclusions = merged;
 	}
 
-	private synchronized int readInterval(byte[] buffer, int offset, int length) throws IOException {
-		long lpos = readPointer;
-		long rpos = lpos + length;
-		int read = 0;
-		boolean foundGap = false;
-
-		Iterator<Interval<Long>> iter = exclusions.iterator();
-
-		while (iter.hasNext()) {
-			Interval<Long> iv = iter.next();
-
-			if (iv.contains(lpos)) {
-				readPointer += stream.skip(iv.getEnd() - lpos + 1);
-				foundGap = true;
-
-				iter.remove();
-				break;
+	/**
+	 * Skips over any excluded regions at the current physical position.
+	 */
+	private void skipExcludedRegions() throws IOException {
+		boolean skipped;
+		do {
+			skipped = false;
+			for (Interval<Long> ex : exclusions) {
+				if (ex.getStart() <= physicalPosition && physicalPosition < ex.getEnd()) {
+					// The current position is in an excluded region, skip to the end.
+					long toSkip = ex.getEnd() - physicalPosition;
+					long actualSkip = stream.skip(toSkip);
+					physicalPosition += actualSkip;
+					skipped = true;
+					break;
+				}
+				else if (ex.getStart() > physicalPosition) {
+					break; // No more exclusions can affect the current position.
+				}
 			}
-			else if (lpos < iv.getStart() && rpos > iv.getEnd() || iv.contains(rpos)) {
-				int len = (int) (iv.getStart() - lpos);
-
-				read += stream.read(buffer, offset, len);
-
-				processAudioFilters(buffer, offset, read);
-
-				readPointer += stream.skip(iv.lengthLong() + 1);
-				readPointer += read;
-				foundGap = true;
-
-				iter.remove();
-				break;
-			}
-		}
-
-		if (!foundGap) {
-			read += stream.read(buffer, offset, length);
-
-			processAudioFilters(buffer, offset, length);
-
-			readPointer += read;
-		}
-
-		return read;
+		} while (skipped);
 	}
 
-	private void processAudioFilters(byte[] buffer, int offset, int length) {
-		long lpos = readPointer;
-		long rpos = readPointer + length;
-		boolean done = false;
+	/**
+	 * Applies audio filters to the given buffer region.
+	 */
+	private void applyAudioFilters(byte[] buffer, int offset, int length) {
+		long startPos = physicalPosition;
+		long endPos = physicalPosition + length;
 
 		for (var entry : filters.entrySet()) {
-			Interval<Long> iv = entry.getValue();
+			Interval<Long> filterRange = entry.getValue();
 			AudioFilter filter = entry.getKey();
 
-			if (iv.contains(lpos)) {
-				if (rpos <= iv.getEnd()) {
-					// Test if interval encloses the total read count.
-					done = iv.contains(rpos);
-				}
+			// Calculate overlap between buffer region and filter range.
+			long overlapStart = Math.max(startPos, filterRange.getStart());
+			long overlapEnd = Math.min(endPos, filterRange.getEnd());
 
-				int processLength = (int) Math.min(rpos, iv.getEnd());
-
-				filter.process(buffer, offset, processLength);
-
-				offset += processLength;
-			}
-			else if (iv.contains(rpos)) {
-				// Interval contains right side of the buffer to process.
-				done = true;
-
-				int processLength = (int) (rpos - iv.getStart());
-				int processOffset = offset + length - processLength;
-
-				filter.process(buffer, processOffset, processLength);
-
-				offset += processLength;
-			}
-			else if (lpos < iv.getStart() && rpos > iv.getEnd()) {
-				// Total read count encloses the interval.
-				int processOffset = (int) (iv.getStart() - lpos);
-				int processLength = (int) (iv.getEnd() - iv.getStart());
-
-				filter.process(buffer, processOffset, processLength);
-
-				offset += processLength;
-			}
-
-			if (done) {
-				break;
+			if (overlapStart < overlapEnd) {
+				int bufferOffset = offset + (int) (overlapStart - startPos);
+				int processLength = (int) (overlapEnd - overlapStart);
+				filter.process(buffer, bufferOffset, processLength);
 			}
 		}
 	}

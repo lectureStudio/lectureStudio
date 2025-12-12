@@ -71,10 +71,10 @@ public class RandomAccessStream extends DynamicInputStream {
 
 	@Override
 	public int available() {
-		// Take future exclusion into account.
-		long toExclude = getToExcludeLength();
+		// Take exclusions into account.
+		long excluded = getExcludedLength();
 
-		return (int) (length - toExclude);
+		return (int) (length - getPosition() - excluded);
 	}
 
 	@Override

@@ -18,6 +18,8 @@
 
 package org.lecturestudio.core.model;
 
+import java.util.Objects;
+
 /**
  *
  * @param <T> The {@link Number} type of this interval.
@@ -78,6 +80,18 @@ public class Interval<T extends Number> implements Comparable<Interval<T>> {
 	 */
 	public T getEnd() {
 		return end;
+	}
+
+	/**
+	 * Check whether the interval is empty.
+	 * <p>
+	 * An interval is considered empty when its start and end values are equal.
+	 * Two {@code null} values are treated as equal (both {@code null} = empty).
+	 *
+	 * @return {@code true} if {@code start} equals {@code end}, otherwise {@code false}.
+	 */
+	public boolean isEmpty() {
+		return Objects.equals(start, end);
 	}
 
 	/**

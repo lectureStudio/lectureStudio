@@ -29,53 +29,83 @@ import org.lecturestudio.core.audio.AudioFormat;
 import org.lecturestudio.core.model.Interval;
 import org.lecturestudio.core.util.AudioUtils;
 
+/**
+ * An audio stream that supports random access and dynamic exclusion of audio segments.
+ * <p>
+ * This class extends {@link DynamicInputStream} with audio-specific functionality:
+ * <ul>
+ *   <li>Time-to-byte position conversion</li>
+ *   <li>Audio format handling</li>
+ *   <li>WAV file output</li>
+ * </ul>
+ * <p>
+ * Exclusion intervals can be specified in either byte positions or milliseconds.
+ * All intervals use exclusive end semantics: [start, end).
+ */
 public class RandomAccessAudioStream extends DynamicInputStream {
 
-	private final DynamicInputStream inputStream;
+	/** Minimum byte position to preserve WAV header integrity. */
+	private static final long MIN_BYTE_POSITION = 72;
 
-	private final long streamLength;
+	/** The original input stream for cloning. */
+	private final DynamicInputStream sourceStream;
 
+	/** Total length of the audio stream in bytes. */
+	private final long totalLength;
+
+	/** Whether the stream is encoded (not raw PCM). */
 	private final boolean encoded;
 
+	/** The audio format of the stream. */
 	private AudioFormat audioFormat;
 
 	/**
-	 * Create a new instance of {@link RandomAccessAudioStream} with the specified file.
-	 * (Creates a new {@link RandomAccessStream} with the file and calls
-	 * {@link #RandomAccessAudioStream(DynamicInputStream)} with it.)
+	 * Creates a new {@link RandomAccessAudioStream} from a file.
 	 *
-	 * @param file The file.
+	 * @param file The audio file.
+	 * @throws IOException If the file cannot be read.
 	 */
 	public RandomAccessAudioStream(File file) throws IOException {
 		this(new RandomAccessStream(file));
 	}
 
 	/**
-	 * Create a new instance of {@link RandomAccessAudioStream} with the specified inputStream.
-	 * (Calls {@link #RandomAccessAudioStream(DynamicInputStream, boolean)} with the input stream and {@code false}
-	 * as {@code encoded} parameter).
+	 * Creates a new {@link RandomAccessAudioStream} from an input stream.
+	 * The stream is assumed to be unencoded (raw PCM or WAV).
 	 *
 	 * @param inputStream The input stream.
+	 *
+	 * @throws IOException If the stream cannot be read.
 	 */
 	public RandomAccessAudioStream(DynamicInputStream inputStream) throws IOException {
 		this(inputStream, false);
 	}
 
+	/**
+	 * Creates a new {@link RandomAccessAudioStream} from an input stream.
+	 *
+	 * @param inputStream The input stream.
+	 * @param encoded     Whether the stream is encoded.
+	 *
+	 * @throws IOException If the stream cannot be read.
+	 */
 	public RandomAccessAudioStream(DynamicInputStream inputStream, boolean encoded) throws IOException {
-		super(encoded ? inputStream : getAudioStream(inputStream));
+		super(encoded ? inputStream : wrapAsAudioStream(inputStream));
 
+		this.sourceStream = inputStream;
 		this.encoded = encoded;
-		this.inputStream = inputStream;
 
+		// Extract audio format from AudioInputStream if available
 		if (stream instanceof AudioInputStream audioInputStream) {
-			audioFormat = AudioUtils.createAudioFormat(audioInputStream.getFormat());
+			this.audioFormat = AudioUtils.createAudioFormat(audioInputStream.getFormat());
 		}
 
-		streamLength = stream.available();
+		this.totalLength = stream.available();
+		setStreamLength(totalLength);
 	}
 
 	/**
-	 * Get the audio format.
+	 * Gets the audio format.
 	 *
 	 * @return The audio format.
 	 */
@@ -84,130 +114,233 @@ public class RandomAccessAudioStream extends DynamicInputStream {
 	}
 
 	/**
-	 * Set a new audio format.
+	 * Sets the audio format.
 	 *
-	 * @param targetFormat The new audio format.
+	 * @param format The new audio format.
 	 */
-	public void setAudioFormat(AudioFormat targetFormat) {
-		this.audioFormat = targetFormat;
+	public void setAudioFormat(AudioFormat format) {
+		this.audioFormat = format;
 	}
 
+	/**
+	 * Gets the total length of the stream after exclusions, in bytes.
+	 *
+	 * @return The effective stream length in bytes.
+	 */
+	public synchronized long getLength() {
+		return totalLength - getExcludedLength();
+	}
+
+	/**
+	 * Gets the total length of the stream after exclusions, in milliseconds.
+	 *
+	 * @return The effective stream length in milliseconds.
+	 */
+	public long getLengthInMillis() {
+		double bytesPerSecond = AudioUtils.getBytesPerSecond(audioFormat);
+		return (long) ((getLength() / bytesPerSecond) * 1000);
+	}
+
+	/**
+	 * Converts a time position in milliseconds to a byte position.
+	 *
+	 * @param millis The time in milliseconds.
+	 *
+	 * @return The corresponding byte position.
+	 */
+	public long millisToBytes(long millis) {
+		return AudioUtils.getAudioBytePosition(audioFormat, millis);
+	}
+
+	/**
+	 * Converts a byte position to a time position in milliseconds.
+	 *
+	 * @param bytes The byte position.
+	 *
+	 * @return The corresponding time in milliseconds.
+	 */
+	public long bytesToMillis(long bytes) {
+		double bytesPerSecond = AudioUtils.getBytesPerSecond(audioFormat);
+		return (long) ((bytes / bytesPerSecond) * 1000);
+	}
+
+	/**
+	 * Adds an exclusion by time range in milliseconds.
+	 * The interval is converted to byte positions.
+	 *
+	 * @param startMillis Start time in milliseconds.
+	 * @param endMillis   End time in milliseconds.
+	 */
+	public void addExclusionMillis(long startMillis, long endMillis) {
+		long startBytes = millisToBytes(startMillis);
+		long endBytes = millisToBytes(endMillis);
+
+		addExclusion(new Interval<>(startBytes, endBytes));
+	}
+
+	/**
+	 * Adds an exclusion interval in virtual coordinates.
+	 * <p>
+	 * This method converts the virtual (post-exclusion) coordinates to
+	 * physical coordinates before adding the exclusion. Use this when
+	 * the user selects a region in the edited/virtual timeline.
+	 *
+	 * @param virtualStartMillis Virtual start time in milliseconds.
+	 * @param virtualEndMillis   Virtual end time in milliseconds.
+	 */
+	public void addExclusionVirtualMillis(long virtualStartMillis, long virtualEndMillis) {
+		long virtualStartBytes = millisToBytes(virtualStartMillis);
+		long virtualEndBytes = millisToBytes(virtualEndMillis);
+
+		long physicalStart = virtualToPhysical(virtualStartBytes);
+		long physicalEnd = virtualToPhysical(virtualEndBytes);
+
+		addExclusion(new Interval<>(physicalStart, physicalEnd));
+	}
+
+	/**
+	 * Adds an "exclusive" region, keeping only the specified time range
+	 * and excluding everything else.
+	 *
+	 * @param interval The time interval to keep (in milliseconds).
+	 */
 	public void addExclusiveMillis(Interval<Long> interval) {
-		long start = AudioUtils.getAudioBytePosition(audioFormat, interval.getStart());
-		long end = AudioUtils.getAudioBytePosition(audioFormat, interval.getEnd());
+		long startBytes = millisToBytes(interval.getStart());
+		long endBytes = millisToBytes(interval.getEnd());
 
-		addExclusion(new Interval<>(0L, start));
-
-		if (end < streamLength) {
-			addExclusion(new Interval<>(end, streamLength));
+		// Exclude everything before and after the specified range.
+		if (startBytes > MIN_BYTE_POSITION) {
+			addExclusion(new Interval<>(MIN_BYTE_POSITION, startBytes));
+		}
+		if (endBytes < totalLength) {
+			addExclusion(new Interval<>(endBytes, totalLength));
 		}
 	}
 
+	/**
+	 * Removes an "exclusive" region that was previously added.
+	 *
+	 * @param interval The time interval that was being kept (in milliseconds).
+	 */
 	public void removeExclusiveMillis(Interval<Long> interval) {
-		long start = AudioUtils.getAudioBytePosition(audioFormat, interval.getStart());
-		long end = AudioUtils.getAudioBytePosition(audioFormat, interval.getEnd());
+		long startBytes = millisToBytes(interval.getStart());
+		long endBytes = millisToBytes(interval.getEnd());
 
-		Interval<Long> iv1 = new Interval<>(0L, start);
-		Interval<Long> iv2 = new Interval<>(end, streamLength);
-
-		boundInterval(iv1);
-		boundInterval(iv2);
-
-		super.removeExclusion(iv1);
-		super.removeExclusion(iv2);
-	}
-
-	public void addExclusionMillis(long start, long end) {
-		start = AudioUtils.getAudioBytePosition(audioFormat, start);
-		end = AudioUtils.getAudioBytePosition(audioFormat, end);
-
-		addExclusion(new Interval<>(start, end));
-	}
-
-	public long getLengthInMillis() {
-		AudioFormat format = getAudioFormat();
-
-		double bytesPerSecond = AudioUtils.getBytesPerSecond(format);
-
-		return (long) ((getLength() / (float) bytesPerSecond) * 1000);
-	}
-
-	@Override
-	public int available() {
-		// Take future exclusion into account.
-		long toExclude = getToExcludeLength();
-
-		return (int) (streamLength - getPosition() - toExclude);
+		// Remove the exclusions before and after.
+		removeExclusion(new Interval<>(MIN_BYTE_POSITION, startBytes));
+		removeExclusion(new Interval<>(endBytes, totalLength));
 	}
 
 	@Override
 	public void addExclusion(Interval<Long> interval) {
-		if (interval.lengthLong() == 0) {
+		if (interval == null || interval.getStart() >= interval.getEnd()) {
 			return;
 		}
 
-		boundInterval(interval);
+		// Bound the interval to valid stream positions.
+		Interval<Long> bounded = boundInterval(interval);
+		if (bounded.getStart() >= bounded.getEnd()) {
+			return;
+		}
 
-		super.addExclusion(interval);
+		super.addExclusion(bounded);
+	}
+
+	/**
+	 * Converts a virtual time position to a physical byte position.
+	 *
+	 * @param virtualMillis Virtual time in milliseconds.
+	 *
+	 * @return Physical byte position.
+	 */
+	public long virtualMillisToPhysicalBytes(long virtualMillis) {
+		long virtualBytes = millisToBytes(virtualMillis);
+		return virtualToPhysical(virtualBytes);
+	}
+
+	/**
+	 * Converts a physical byte position to a virtual time position.
+	 *
+	 * @param physicalBytes Physical byte position.
+	 *
+	 * @return Virtual time in milliseconds, or -1 if in the excluded region.
+	 */
+	public long physicalBytesToVirtualMillis(long physicalBytes) {
+		long virtualBytes = physicalToVirtual(physicalBytes);
+		if (virtualBytes < 0) {
+			return -1;
+		}
+		return bytesToMillis(virtualBytes);
 	}
 
 	@Override
-	public RandomAccessAudioStream clone() {
-		RandomAccessAudioStream clone;
-
-		try {
-			clone = new RandomAccessAudioStream(inputStream.clone(), encoded);
-		}
-		catch (Exception e) {
-			throw new RuntimeException(e);
-		}
-
-		for (Interval<Long> iv : exclusions) {
-			clone.addExclusion(new Interval<>(iv.getStart(), iv.getEnd()));
-		}
-		for (var entry : filters.entrySet()) {
-			clone.setAudioFilter(entry.getKey(), entry.getValue());
-		}
-
-		return clone;
+	public int available() {
+		return (int) Math.max(0, getLength() - getVirtualPosition());
 	}
 
-	public synchronized long getLength() {
-		return streamLength - getExcludedLength();
-	}
-
+	/**
+	 * Writes the stream content (respecting exclusions) to a WAV file.
+	 *
+	 * @param channel The output channel.
+	 *
+	 * @throws IOException If an I/O error occurs.
+	 */
 	public void write(SeekableByteChannel channel) throws IOException {
 		WaveOutputStream outputStream = new WaveOutputStream(channel);
 		outputStream.setAudioFormat(audioFormat);
 
 		byte[] buffer = new byte[8192];
-		int read;
+		int bytesRead;
 
-		while ((read = read(buffer)) > 0) {
-			outputStream.write(buffer, 0, read);
+		while ((bytesRead = read(buffer)) > 0) {
+			outputStream.write(buffer, 0, bytesRead);
 		}
 
 		outputStream.close();
 	}
 
-	private void boundInterval(Interval<Long> interval) {
-		if (interval.lengthLong() == 0) {
-			return;
+	@Override
+	public RandomAccessAudioStream clone() {
+		try {
+			RandomAccessAudioStream clone = new RandomAccessAudioStream(
+				sourceStream.clone(), encoded
+			);
+
+			// Copy exclusions (deep copy).
+			clone.setExclusions(getExclusions());
+
+			// Copy filters (deep copy).
+			for (var entry : filters.entrySet()) {
+				Interval<Long> iv = entry.getValue();
+				clone.setAudioFilter(entry.getKey(), new Interval<>(iv.getStart(), iv.getEnd()));
+			}
+
+			return clone;
 		}
-		if (interval.getStart() < 70) {
-			interval.set(72L, interval.getEnd());
-		}
-		if (interval.getEnd() > streamLength) {
-			interval.set(interval.getStart(), streamLength);
+		catch (IOException e) {
+			throw new RuntimeException(e);
 		}
 	}
 
-	private static AudioInputStream getAudioStream(DynamicInputStream inputStream) {
+	/**
+	 * Bounds an interval to valid stream positions.
+	 */
+	private Interval<Long> boundInterval(Interval<Long> interval) {
+		long start = Math.max(MIN_BYTE_POSITION, interval.getStart());
+		long end = Math.min(totalLength, interval.getEnd());
+
+		return new Interval<>(start, end);
+	}
+
+	/**
+	 * Wraps an input stream as an AudioInputStream.
+	 */
+	private static AudioInputStream wrapAsAudioStream(DynamicInputStream inputStream) {
 		try {
 			return AudioSystem.getAudioInputStream(inputStream);
 		}
 		catch (Exception e) {
-			throw new RuntimeException(e);
+			throw new RuntimeException("Failed to create audio stream", e);
 		}
 	}
 }

@@ -18,14 +18,12 @@
 
 package org.lecturestudio.editor.api.edit;
 
-import org.lecturestudio.core.audio.AudioFormat;
 import org.lecturestudio.core.io.RandomAccessAudioStream;
 import org.lecturestudio.core.model.Interval;
 import org.lecturestudio.core.recording.RecordedAudio;
 import org.lecturestudio.core.recording.Recording;
 import org.lecturestudio.core.recording.RecordingEditException;
 import org.lecturestudio.core.recording.edit.EditAction;
-import org.lecturestudio.core.util.AudioUtils;
 import org.lecturestudio.editor.api.service.RecordingPlaybackService;
 import org.lecturestudio.media.track.MediaTrack;
 import org.lecturestudio.media.track.control.AudioFilterControl;
@@ -131,24 +129,20 @@ public class AudioTrackOverlayAction implements EditAction {
 	private void setAudioVolumeFilter(AudioFilterControl<?> control) {
 		RecordedAudio recordedAudio = recording.getRecordedAudio();
 		RandomAccessAudioStream stream = recordedAudio.getAudioStream();
-		AudioFormat audioFormat = stream.getAudioFormat();
 
-		// Convert [0, 1] values to audio stream byte offsets.
+		// Convert [0, 1] normalized values to virtual milliseconds.
 		long durationMs = stream.getLengthInMillis();
-		long x1 = (long) (control.getInterval().getStart() * durationMs);
-		long x2 = (long) (control.getInterval().getEnd() * durationMs);
+		long startMs = (long) (control.getInterval().getStart() * durationMs);
+		long endMs = (long) (control.getInterval().getEnd() * durationMs);
 
-		long startBytePos = AudioUtils.getAudioBytePosition(audioFormat, x1);
-		long endBytePos = AudioUtils.getAudioBytePosition(audioFormat, x2);
+		// Convert virtual milliseconds to physical byte positions.
+		long physicalStart = stream.virtualMillisToPhysicalBytes(startMs);
+		long physicalEnd = stream.virtualMillisToPhysicalBytes(endMs);
 
-		// Handle padding created by previous exclusions.
-		long padding = stream.getPadding(new Interval<>(startBytePos, endBytePos));
+		Interval<Long> physicalInterval = new Interval<>(physicalStart, physicalEnd);
 
-		stream.setAudioFilter(control.getAudioFilter(),
-				new Interval<>(padding + startBytePos, padding + endBytePos));
-
-		playbackService.setAudioFilter(control.getAudioFilter(),
-				new Interval<>(padding + startBytePos, padding + endBytePos));
+		stream.setAudioFilter(control.getAudioFilter(), physicalInterval);
+		playbackService.setAudioFilter(control.getAudioFilter(), physicalInterval);
 	}
 
 	private void removeAudioVolumeFilter(AudioFilterControl<?> control) {

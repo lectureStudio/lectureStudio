@@ -56,11 +56,11 @@ import org.lecturestudio.core.view.PresentationParameterProvider;
 import org.lecturestudio.core.view.ViewType;
 import org.lecturestudio.media.event.MediaPlayerProgressEvent;
 import org.lecturestudio.media.event.MediaPlayerStateEvent;
+import org.lecturestudio.media.video.VideoPlayer;
+import org.lecturestudio.media.video.VideoRenderSurface;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.lecturestudio.media.video.VideoPlayer;
-import org.lecturestudio.media.video.VideoRenderSurface;
 
 /**
  * A player that manages the synchronized playback of recorded lecture content.

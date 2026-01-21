@@ -23,13 +23,12 @@ import static java.util.Objects.isNull;
 import java.util.Set;
 
 import org.lecturestudio.web.api.model.UserInfo;
-import org.lecturestudio.web.api.model.UserPrivilege;
 
 public class UserPrivilegeService {
 
 	private UserInfo userInfo;
 
-	private Set<UserPrivilege> privileges;
+	private Set<String> privileges;
 
 
 	public UserInfo getUserInfo() {
@@ -40,11 +39,11 @@ public class UserPrivilegeService {
 		this.userInfo = userInfo;
 	}
 
-	public Set<UserPrivilege> getPrivileges() {
+	public Set<String> getPrivileges() {
 		return privileges;
 	}
 
-	public void setPrivileges(Set<UserPrivilege> privileges) {
+	public void setPrivileges(Set<String> privileges) {
 		this.privileges = privileges;
 	}
 
@@ -53,7 +52,7 @@ public class UserPrivilegeService {
 			return false;
 		}
 
-		return privileges.contains(new UserPrivilege(name));
+		return privileges.contains(name);
 	}
 
 	public boolean hasAnyPrivilege(String... names) {

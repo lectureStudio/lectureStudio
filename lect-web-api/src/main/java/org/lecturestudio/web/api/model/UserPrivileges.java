@@ -22,10 +22,10 @@ import java.util.Set;
 
 public class UserPrivileges {
 
-	private Set<UserPrivilege> privileges;
+	private Set<String> privileges;
 
 
-	public Set<UserPrivilege> getPrivileges() {
+	public Set<String> getPrivileges() {
 		return privileges;
 	}
 }

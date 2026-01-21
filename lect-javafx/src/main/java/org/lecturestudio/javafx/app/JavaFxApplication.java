@@ -56,22 +56,27 @@ public abstract class JavaFxApplication extends ApplicationBase implements Graph
 
 
 	public static void launch(final String[] args, Class<? extends Preloader> preloaderClass) {
-		Platform.startup(() -> {
-			if (!OsInfo.isMacOs()) {
-				return;
-			}
-
-			Desktop.getDesktop().setOpenFileHandler(event -> {
-				LOG.info("Open files: " + event.getFiles());
-
-				if (nonNull(openFilesHandler)) {
-					openFilesHandler.accept(event.getFiles());
+		try {
+			Platform.startup(() -> {
+				if (!OsInfo.isMacOs()) {
+					return;
 				}
-				else {
-					OPEN_FILES.addAll(event.getFiles());
-				}
+
+				Desktop.getDesktop().setOpenFileHandler(event -> {
+					LOG.info("Open files: " + event.getFiles());
+
+					if (nonNull(openFilesHandler)) {
+						openFilesHandler.accept(event.getFiles());
+					}
+					else {
+						OPEN_FILES.addAll(event.getFiles());
+					}
+				});
 			});
-		});
+		}
+		catch (IllegalStateException e) {
+			// Platform already started.
+		}
 
 		ApplicationBase.launch(args, preloaderClass);
 	}

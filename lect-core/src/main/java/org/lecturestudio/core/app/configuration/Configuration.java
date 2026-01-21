@@ -46,7 +46,7 @@ public class Configuration {
 	private final ObjectProperty<Theme> theme = new ObjectProperty<>();
 
 	/** The locale of the application. */
-	private final ObjectProperty<Locale> locale = new ObjectProperty<>();
+	private final ObjectProperty<Locale> locale = new ObjectProperty<>(Locale.getDefault());
 
 	/** Indicates whether to check for a new version of the application. */
 	private final BooleanProperty checkNewVersion = new BooleanProperty();

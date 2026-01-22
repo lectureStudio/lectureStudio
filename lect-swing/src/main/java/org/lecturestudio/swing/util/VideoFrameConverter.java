@@ -48,6 +48,11 @@ public class VideoFrameConverter {
 		int viewWidth = (int) ((component.getWidth() - padW) * uiScale);
 		int viewHeight = (int) ((component.getHeight() - padH) * uiScale);
 
+		// Avoid native crash with invalid dimensions.
+		if (viewWidth <= 0 || viewHeight <= 0) {
+			return image;
+		}
+
 		return convertVideoFrame(videoFrame, image, viewWidth, viewHeight);
 	}
 
@@ -59,11 +64,24 @@ public class VideoFrameConverter {
 		final int width = buffer.getWidth();
 		final int height = buffer.getHeight();
 
+		// Avoid native crash with invalid dimensions.
+		if (width <= 0 || height <= 0 || imageWidth <= 0 || imageHeight <= 0) {
+			return image;
+		}
+
 		final PageMetrics metrics = new PageMetrics(width, height);
 
 		final var size = metrics.convert(imageWidth, imageHeight);
 
-		final VideoFrameBuffer croppedBuffer = buffer.cropAndScale(0, 0, width, height, (int) size.getWidth(), (int) size.getHeight());
+		final int scaledWidth = (int) size.getWidth();
+		final int scaledHeight = (int) size.getHeight();
+
+		// Avoid native crash with invalid scaled dimensions.
+		if (scaledWidth <= 0 || scaledHeight <= 0) {
+			return image;
+		}
+
+		final VideoFrameBuffer croppedBuffer = buffer.cropAndScale(0, 0, width, height, scaledWidth, scaledHeight);
 		final int cWidth = croppedBuffer.getWidth();
 		final int cHeight = croppedBuffer.getHeight();
 

@@ -84,12 +84,20 @@ public class TextRenderer extends BaseRenderer {
 		double sx = t.getScaleX();
 		double sy = t.getScaleY();
 
+		// Get FontRenderContext BEFORE resetting the transformation.
+		// Use fractional metrics for more accurate text rendering at small scales.
+		FontRenderContext frc = new FontRenderContext(null, true, true);
+
 		// Perform rendering with identity transformation.
 		Rectangle2D bounds = shape.getBounds();
 		double x = bounds.getX() * sx + t.getTranslateX();
 		double y = bounds.getY() * sy + t.getTranslateY();
 
 		context.setTransform(AffineTransform.getTranslateInstance(x, y));
+
+		// Enable fractional metrics and antialiasing for consistent text rendering at all scales.
+		context.setRenderingHint(RenderingHints.KEY_FRACTIONALMETRICS, RenderingHints.VALUE_FRACTIONALMETRICS_ON);
+		context.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
 
 		// Scale font.
 		Font font = textShape.getFont().clone();
@@ -98,8 +106,6 @@ public class TextRenderer extends BaseRenderer {
 		java.awt.Font textFont = FontConverter.INSTANCE.to(font);
 		Map<TextAttribute, Object> attrs = (Map<TextAttribute, Object>) textFont.getAttributes();
 		attrs.put(TextAttribute.FOREGROUND, ColorConverter.INSTANCE.to(textShape.getTextColor()));
-
-		FontRenderContext frc = context.getFontRenderContext();
 
 		// Get lines of the entire paragraph.
 		String[] lines = text.split("\\n");
@@ -130,6 +136,7 @@ public class TextRenderer extends BaseRenderer {
 		}
 
 		// Set the shape size here, since it is hard to compute it anywhere else, right now.
-		shape.getBounds().setSize(maxWidth / sx, layoutY / sy);
+		// Note: Font is scaled by 'sy', so the width must also be divided by 'sy' for consistency.
+		shape.getBounds().setSize(maxWidth / sy, layoutY / sy);
 	}
 }

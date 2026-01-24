@@ -87,8 +87,18 @@ public class MessageDocument extends HtmlToPdfDocument {
 			}
 
 			// Search for URLs in the text.
+			final String inputPart = part;
 			UrlDetector parser = new UrlDetector(part, UrlDetectorOptions.Default);
-			List<Url> found = parser.detect();
+			List<Url> found = parser.detect().stream()
+					.filter(url -> {
+						String orig = url.getOriginalUrl();
+						// Only accept URLs where the original URL string is actually
+						// present in the input text. This filters out false positives
+						// where the detector adds "http://" scheme.
+						return inputPart.contains(orig)
+								&& (orig.startsWith("http://") || orig.startsWith("https://"));
+					})
+					.toList();
 
 			// Each line is encapsulated in a <pre>.
 			Element div = jdoc.body().appendElement("pre");

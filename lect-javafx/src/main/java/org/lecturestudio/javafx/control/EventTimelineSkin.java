@@ -49,7 +49,10 @@ import org.lecturestudio.media.track.EventsTrack;
 
 public class EventTimelineSkin extends MediaTrackControlSkinBase {
 
-	private final Consumer<List<RecordedPage>> trackListener = recordedPages -> updateControl();
+	private final Consumer<List<RecordedPage>> trackListener = recordedPages -> {
+		// Ensure rendering happens on JavaFX Application Thread to prevent race conditions.
+		FxUtils.invoke(this::updateControl);
+	};
 
 	private final EventTimeline eventTimeline;
 	private Pane pane;
@@ -124,9 +127,15 @@ public class EventTimelineSkin extends MediaTrackControlSkinBase {
 
 	private void render() {
 		final Affine transform = eventTimeline.getTransform();
+
+		// Prevent issues during recording updates
+		if (isNull(eventTimeline.getMediaTrack())) {
+			return;
+		}
+
 		final List<RecordedPage> events = eventTimeline.getMediaTrack().getData();
 
-		if (isNull(events)) {
+		if (isNull(events) || events.isEmpty()) {
 			return;
 		}
 
@@ -134,6 +143,10 @@ public class EventTimelineSkin extends MediaTrackControlSkinBase {
 		final double height = pane.getHeight();
 
 		final Time duration = eventTimeline.getDuration();
+
+		if (isNull(duration) || duration.getMillis() == 0) {
+			return;
+		}
 
 		double sx = transform.getMxx();
 		double tx = transform.getTx() * width;
@@ -146,12 +159,24 @@ public class EventTimelineSkin extends MediaTrackControlSkinBase {
 	}
 
 	private void paintPageEvents(double height) {
+		// Prevent issues during recording updates
+		if (isNull(eventTimeline.getMediaTrack())) {
+			return;
+		}
+
 		List<RecordedPage> pages = eventTimeline.getMediaTrack().getData();
+
+		if (isNull(pages)) {
+			return;
+		}
 
 		pageSliders.forEach(pageSlider -> pane.getChildren().remove(pageSlider));
 		pageSliders.clear();
 
 		for (RecordedPage recPage : pages) {
+			if (isNull(recPage)) {
+				continue;
+			}
 			int pageNumber = recPage.getNumber();
 
 			if (pageNumber != 0) {
@@ -180,12 +205,34 @@ public class EventTimelineSkin extends MediaTrackControlSkinBase {
 		pageEventList.forEach(pageSlider -> pane.getChildren().remove(pageSlider));
 		pageEventList.clear();
 
+		// Prevent issues during recording updates
+		if (isNull(eventTimeline.getMediaTrack())) {
+			return;
+		}
+
 		List<RecordedPage> pages = eventTimeline.getMediaTrack().getData();
+
+		if (isNull(pages)) {
+			return;
+		}
+
 		for (RecordedPage page : pages) {
+			if (isNull(page)) {
+				continue;
+			}
+
 			List<PlaybackAction> actions = page.getPlaybackActions();
+			if (isNull(actions)) {
+				continue;
+			}
+
 			Integer actionStartTime = null;
 
 			for (PlaybackAction action : actions) {
+				if (isNull(action)) {
+					continue;
+				}
+
 				ActionType actionType = action.getType();
 
 				if (actionType == ActionType.TOOL_BEGIN && isNull(actionStartTime)) {

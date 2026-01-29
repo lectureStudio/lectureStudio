@@ -83,6 +83,15 @@ public class CutAction extends RecordingAction {
 		RecordedDocument doc = recording.getRecordedDocument();
 		RecordedEvents events = recording.getRecordedEvents();
 
+		if (audio == null || audio.getAudioStream() == null) {
+			LOG.error("Cannot perform cut action: audio or audio stream is null");
+			throw new IllegalStateException("Recording audio is null or invalid");
+		}
+		if (events == null || events.getRecordedPages() == null) {
+			LOG.error("Cannot perform cut action: events or recorded pages is null");
+			throw new IllegalStateException("Recording events are null or invalid");
+		}
+
 		long duration = audio.getAudioStream().getLengthInMillis();
 		double startRel = Math.min(start, end);
 		double endRel = Math.max(start, end);

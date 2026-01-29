@@ -133,8 +133,9 @@ public class MediaTracksPresenter extends Presenter<MediaTracksView> {
 		catch (RecordingEditException e) {
 			handleException(e, "Add edit action failed", "generic.error");
 		}
-		catch (NullPointerException exc) {
+		catch (NullPointerException e) {
 			// Audio might be nonexistent, causing the editor to freeze and crash
+			logException(e, "Audio track operation failed - audio stream may be null");
 		}
 	}
 
@@ -180,13 +181,31 @@ public class MediaTracksPresenter extends Presenter<MediaTracksView> {
 
 	@Subscribe
 	public void onEvent(RecordingChangeEvent event) {
-		switch (event.getContentType()) {
-			case ALL, HEADER:
-				view.setDuration(new Time(event.getRecording().getRecordedAudio().getAudioStream().getLengthInMillis()));
-				view.stickSliders();
-				break;
-			case AUDIO, DOCUMENT, EVENTS_ADDED, EVENTS_CHANGED, EVENTS_REMOVED:
-				break;
+		if (isNull(event) || isNull(event.getRecording())) {
+			return;
+		}
+
+		try {
+			switch (event.getContentType()) {
+				case ALL, HEADER:
+					Recording recording = event.getRecording();
+					RecordedAudio recAudio = recording.getRecordedAudio();
+
+					if (isNull(recAudio) || isNull(recAudio.getAudioStream())) {
+						logException(new NullPointerException("Audio stream is null"),
+							"Cannot update duration - audio stream is missing");
+						return;
+					}
+
+					view.setDuration(new Time(recAudio.getAudioStream().getLengthInMillis()));
+					view.stickSliders();
+					break;
+				case AUDIO, DOCUMENT, EVENTS_ADDED, EVENTS_CHANGED, EVENTS_REMOVED:
+					break;
+			}
+		}
+		catch (Exception e) {
+			logException(e, "Error handling recording change event");
 		}
 	}
 

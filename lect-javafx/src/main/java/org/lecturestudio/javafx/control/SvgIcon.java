@@ -228,13 +228,29 @@ public class SvgIcon extends Region {
 		if (nonNull(content) && !content.isEmpty()) {
 			Bounds bounds = svgPath.getBoundsInLocal();
 
+			if (isNull(bounds) || bounds.isEmpty()) {
+				return;
+			}
+
 			double width = getContentWidth();
 			double height = getContentHeight();
 			double size = getSize();
+
+			if (Double.isNaN(width) || Double.isNaN(height) || Double.isNaN(size) ||
+				Double.isInfinite(width) || Double.isInfinite(height) || Double.isInfinite(size) ||
+				width <= 0 || height <= 0 || size <= 0) {
+				return;
+			}
+
 			double scale = size / height;
 
 			if (width * scale > size) {
 				scale = size / width;
+			}
+
+			// Prevent invalid scale values
+			if (Double.isNaN(scale) || Double.isInfinite(scale) || scale <= 0) {
+				return;
 			}
 
 			if (isNull(contentWidth.get()) || isNull(contentHeight.get())) {

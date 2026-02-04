@@ -720,6 +720,11 @@ public class SwingToolbarView extends JPanel implements ToolbarView {
 				.filter(Predicate.not(JSeparator.class::isInstance))
 				.toArray(JComponent[]::new);
 
+		// Update tooltips with accelerator keys before wrapping in CustomizedToolbar.
+		for (JComponent component : jComponents) {
+			updateTooltipWithShortcut(component);
+		}
+
 		PresenterConfiguration config = (PresenterConfiguration) toolController.getApplicationContext().getConfiguration();
 
 		customizedToolbar = new CustomizedToolbar(jComponents, defaultToolNames.toArray(new String[0]),
@@ -765,6 +770,18 @@ public class SwingToolbarView extends JPanel implements ToolbarView {
 		textButton.addItemChangeListener(font -> {
 			executeAction(textBoxFontAction, FontConverter.INSTANCE.from(font));
 		});
+	}
+
+	private void updateTooltipWithShortcut(JComponent component) {
+		String ks = (String) component.getClientProperty("KEY_STRING");
+
+		if (nonNull(ks)) {
+			String tooltip = component.getToolTipText();
+
+			component.setToolTipText(nonNull(tooltip)
+					? tooltip + " (" + ks + ")"
+					: ks);
+		}
 	}
 
 }

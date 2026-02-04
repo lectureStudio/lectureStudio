@@ -23,6 +23,7 @@ import static java.util.Objects.nonNull;
 import com.google.common.eventbus.Subscribe;
 
 import org.lecturestudio.core.app.configuration.DisplayConfiguration;
+import org.lecturestudio.core.app.view.Screens;
 import org.lecturestudio.core.bus.event.DocumentEvent;
 import org.lecturestudio.core.bus.event.PageEvent;
 import org.lecturestudio.core.controller.PresentationController;
@@ -197,13 +198,18 @@ public class DisplayNotificationHandler extends PresenterHandler {
 
 	/**
 	 * Determines whether to show a notification based on the current state.
-	 * Returns true if content has changed, displays are not visible, and notifications are not disabled
-	 * by user preference.
+	 * Returns true if content has changed, displays are not visible, external screens are connected,
+	 * and notifications are not disabled by user preference.
 	 *
 	 * @return True if a notification should be shown, false otherwise.
 	 */
 	private boolean notifyState() {
 		if (!displayConfig.getNotifyToActivate() || userDeclined) {
+			return false;
+		}
+
+		// Only notify if external screens are actually connected
+		if (Screens.getScreenDevices().length <= 1) {
 			return false;
 		}
 

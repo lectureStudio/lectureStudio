@@ -90,7 +90,7 @@ public class MouseListener extends MouseAdapter {
 
 		toolController.endToolAction(getPageLoc(point, viewBounds));
 
-		if (inRubberMode && SwingUtilities.isRightMouseButton(e)) {
+		if (inRubberMode) {
 			toolController.selectPreviousTool();
 			inRubberMode = false;
 		}

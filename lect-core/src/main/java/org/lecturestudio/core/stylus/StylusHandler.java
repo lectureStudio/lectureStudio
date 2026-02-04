@@ -99,7 +99,7 @@ public class StylusHandler {
 
 		toolController.endToolAction(getPageLoc(point, viewBounds));
 
-		if (inRubberMode && (stylusEvent.getButton() == StylusButton.RIGHT || stylusEvent.getCursor() == StylusCursor.ERASER)) {
+		if (inRubberMode) {
 			toolController.selectPreviousTool();
 			inRubberMode = false;
 		}

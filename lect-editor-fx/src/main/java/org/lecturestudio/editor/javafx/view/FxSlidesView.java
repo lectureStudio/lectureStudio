@@ -59,6 +59,7 @@ import org.lecturestudio.core.view.PresentationParameter;
 import org.lecturestudio.core.view.ViewType;
 import org.lecturestudio.core.input.ScrollHandler;
 import org.lecturestudio.editor.api.view.SlidesView;
+import org.lecturestudio.editor.javafx.input.MouseListener;
 import org.lecturestudio.javafx.beans.converter.KeyEventConverter;
 import org.lecturestudio.javafx.beans.converter.MatrixConverter;
 import org.lecturestudio.javafx.control.SlideView;
@@ -107,6 +108,8 @@ public class FxSlidesView extends VBox implements SlidesView {
 	private TabPane tabPane;
 
 	private StylusListener stylusListener;
+
+	private MouseListener mouseListener;
 
 
 	public FxSlidesView() {
@@ -283,6 +286,45 @@ public class FxSlidesView extends VBox implements SlidesView {
 	}
 
 	@Override
+	public void createStylusInput(StylusHandler handler) {
+		if (mouseListener != null) {
+			// Detach the mouse to avoid double input.
+			slideView.setOnMousePressed(null);
+			slideView.setOnMouseReleased(null);
+			slideView.setOnMouseDragged(null);
+			slideView.setOnMouseMoved(null);
+			mouseListener = null;
+		}
+
+		stylusListener = new StylusListener(handler, slideView);
+
+		// For Linux: load the shared jawt library in advance, otherwise it will not be found.
+		System.loadLibrary("jawt");
+
+		JavaFxStylusManager manager = JavaFxStylusManager.getInstance();
+		manager.attachStylusListener(slideView, stylusListener);
+	}
+
+	@Override
+	public void createMouseInput(StylusHandler handler) {
+		if (stylusListener != null) {
+			// Detach stylus to avoid double input.
+			JavaFxStylusManager manager = JavaFxStylusManager.getInstance();
+			manager.detachStylusListener(slideView);
+			stylusListener = null;
+		}
+
+		if (mouseListener == null) {
+			mouseListener = new MouseListener(handler, slideView);
+		}
+
+		slideView.setOnMousePressed(mouseListener);
+		slideView.setOnMouseReleased(mouseListener);
+		slideView.setOnMouseDragged(mouseListener);
+		slideView.setOnMouseMoved(mouseListener);
+	}
+
+	@Override
 	public void bindSeekProperty(BooleanProperty seekProperty) {
 		slideView.seekProperty().set(seekProperty.get());
 
@@ -384,3 +426,4 @@ public class FxSlidesView extends VBox implements SlidesView {
 		executeAction(selectDocumentAction, thumbPanel.getDocument());
 	}
 }
+

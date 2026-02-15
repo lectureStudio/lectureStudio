@@ -53,6 +53,7 @@ import org.lecturestudio.core.recording.Recording;
 import org.lecturestudio.core.stylus.StylusHandler;
 import org.lecturestudio.core.text.Font;
 import org.lecturestudio.core.tool.ToolType;
+import org.lecturestudio.core.util.OsInfo;
 import org.lecturestudio.core.view.Action;
 import org.lecturestudio.core.view.PageObjectRegistry;
 import org.lecturestudio.core.view.PageObjectView;
@@ -127,9 +128,10 @@ public class SlidesPresenter extends Presenter<SlidesView> {
 		view.setOnSelectPage(this::selectPage);
 		view.setOnSelectDocument(this::selectDocument);
 		view.setPageRenderer(renderController);
-		view.setStylusHandler(stylusHandler);
 		view.setOnViewTransform(this::setViewTransform);
 		view.bindSeekProperty(((EditorContext) context).seekingProperty());
+
+		setUseMouse(OsInfo.isMacOs());
 
 		// Register for page parameter change updates.
 		PresentationParameterProvider ppProvider = context.getPagePropertyProvider(ViewType.User);
@@ -575,5 +577,14 @@ public class SlidesPresenter extends Presenter<SlidesView> {
 		this.toolType = toolType;
 
 		view.removeAllPageObjectViews();
+	}
+
+	private void setUseMouse(boolean useMouse) {
+		if (useMouse) {
+			view.createMouseInput(stylusHandler);
+		}
+		else {
+			view.createStylusInput(stylusHandler);
+		}
 	}
 }

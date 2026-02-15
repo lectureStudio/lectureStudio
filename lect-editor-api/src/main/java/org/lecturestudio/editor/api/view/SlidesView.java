@@ -180,6 +180,20 @@ public interface SlidesView extends View {
 	void setStylusHandler(StylusHandler handler);
 
 	/**
+	 * Creates stylus input for the slides view.
+	 *
+	 * @param handler The stylus handler to use for input.
+	 */
+	void createStylusInput(StylusHandler handler);
+
+	/**
+	 * Creates mouse input for the slides view.
+	 *
+	 * @param handler The stylus handler to use for mouse input.
+	 */
+	void createMouseInput(StylusHandler handler);
+
+	/**
 	 * Binds the seek property to the slides view.
 	 *
 	 * @param seekProperty The seek property to bind.

@@ -89,6 +89,7 @@ jobs:
         with:
           name: Build-${{ runner.os }}-${{ runner.arch }}
           path: |
+            target/*.AppImage
             target/*.deb
             target/*.rpm
             target/*.pkg

@@ -188,6 +188,7 @@ public class ApplicationModule extends AbstractModule {
 			if (!ConfigurationModule.CONFIG_FILE.exists()) {
 				// Create a configuration with default values.
 				configuration = new DefaultConfiguration();
+				configuration.setLocale(Locale.getDefault());
 
 				configService.save(ConfigurationModule.CONFIG_FILE, configuration);
 			}

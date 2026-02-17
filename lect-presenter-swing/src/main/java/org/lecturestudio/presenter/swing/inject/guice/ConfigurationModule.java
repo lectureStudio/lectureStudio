@@ -20,6 +20,7 @@ package org.lecturestudio.presenter.swing.inject.guice;
 
 import java.io.File;
 import java.nio.file.Paths;
+import java.util.Locale;
 import javax.inject.Singleton;
 
 import com.google.inject.Binder;
@@ -95,6 +96,7 @@ public class ConfigurationModule implements Module {
             if (!CONFIG_FILE.exists()) {
                 // Create a configuration with default values.
                 configuration = new Configuration();
+                configuration.setLocale(Locale.getDefault());
             }
             else {
                 configuration = configService.load(CONFIG_FILE, Configuration.class);

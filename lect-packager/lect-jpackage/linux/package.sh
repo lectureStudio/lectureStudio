@@ -119,6 +119,66 @@ echo "Create ZIP Archive"
 
 zip -r -q "$OUTPUT_DIR/$PRODUCT_NAME".zip "$PRODUCT_NAME"
 
+# Create AppImage package.
+echo "Create AppImage Package"
+
+APPDIR="$PRODUCT_NAME.AppDir"
+APPIMAGETOOL_DIR="$HOME/.cache/lectureStudio"
+APPIMAGETOOL="$APPIMAGETOOL_DIR/appimagetool-x86_64.AppImage"
+
+# Download appimagetool if not present
+if [ ! -f "$APPIMAGETOOL" ]; then
+	echo "Downloading appimagetool..."
+	mkdir -p "$APPIMAGETOOL_DIR"
+	wget -O "$APPIMAGETOOL" "https://github.com/AppImage/AppImageKit/releases/download/continuous/appimagetool-x86_64.AppImage"
+	chmod +x "$APPIMAGETOOL"
+fi
+
+# Create AppDir structure
+mkdir -p "$APPDIR"
+
+# Copy application files from app-image
+cp -r "$PRODUCT_NAME"/* "$APPDIR/"
+
+# Copy AppImage-specific resources
+cp appimage/AppRun "$APPDIR/"
+chmod +x "$APPDIR/AppRun"
+
+# Copy desktop file for main application (lecturePresenter)
+cp appimage/lecturePresenter.desktop "$APPDIR/"
+
+# Get the editor icon path (assuming same directory as presenter icon)
+EDITOR_ICON="${package.editor.icon}"
+
+# Copy icons for main application
+cp "$PRESENTER_ICON" "$APPDIR/lecturePresenter.png"
+cp "$PRESENTER_ICON" "$APPDIR/.DirIcon"
+
+# Create usr/share structure for additional launchers and icons
+mkdir -p "$APPDIR/usr/share/applications"
+mkdir -p "$APPDIR/usr/share/icons/hicolor/128x128/apps"
+
+# Copy desktop file for editor
+cp appimage/lectureEditor.desktop "$APPDIR/usr/share/applications/"
+
+# Copy icons to standard locations
+cp "$PRESENTER_ICON" "$APPDIR/usr/share/icons/hicolor/128x128/apps/lecturePresenter.png"
+cp "$EDITOR_ICON" "$APPDIR/usr/share/icons/hicolor/128x128/apps/lectureEditor.png"
+
+# Create lectureEditor symlink for dual launcher support
+cd "$APPDIR" || exit
+ln -s AppRun lectureEditor
+cd .. || exit
+
+# Ensure native libraries are executable
+chmod +x "$APPDIR"/lib/app/lib/native/ffmpeg
+
+# Create AppImage using appimagetool
+ARCH=x86_64 "$APPIMAGETOOL" "$APPDIR" "$OUTPUT_DIR/$PRODUCT_NAME.AppImage"
+
+# Cleanup AppDir
+rm -rf "$APPDIR"
+
 # Create installable DEB package.
 echo "Create DEB Package"
 

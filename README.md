@@ -34,6 +34,16 @@ If you don't want to create the MSI installer on Windows, run:
 mvn install -P !package:msi
 ```
 
+### Linux Packages
+
+When building on Linux, the following packages are created:
+- **DEB** - Debian/Ubuntu package
+- **RPM** - Fedora/RHEL package
+- **ZIP** - Portable archive
+- **AppImage** - Portable single-file executable (distribution-agnostic)
+
+The AppImage package provides a portable, self-contained application that works across different Linux distributions without installation.
+
 ### Sponsors
 
 This project is financially supported by:

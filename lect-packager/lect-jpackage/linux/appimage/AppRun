@@ -1,0 +1,24 @@
+#!/bin/bash
+
+# AppRun script for lectureStudio AppImage
+# Launches either lecturePresenter or lectureEditor based on invocation
+
+# Set AppImage directory
+APPDIR="$(dirname "$(readlink -f "$0")")"
+export APPDIR
+
+# Detect which application to launch
+APP_TO_LAUNCH="lecturePresenter"
+APP_NAME="$(basename "$0")"
+
+# Check if invoked as lectureEditor or with --editor flag
+if [[ "$APP_NAME" == *"lectureEditor"* ]] || [[ "$1" == "--editor" ]]; then
+    APP_TO_LAUNCH="lectureEditor"
+    # Remove --editor from arguments if it was the first argument
+    if [[ "$1" == "--editor" ]]; then
+        shift
+    fi
+fi
+
+# Launch the application
+exec "$APPDIR/bin/$APP_TO_LAUNCH" "$@"

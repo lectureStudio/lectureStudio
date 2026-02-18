@@ -47,7 +47,6 @@ LINUX_PARAMS=("${COMMON_PARAMS[@]}" \
 	--linux-package-name "lecturestudio" \
 	--linux-menu-group "Education" \
 	--linux-app-category "education" \
-	--linux-app-release "linux" \
 	--linux-shortcut \
 	--license-file "$LICENSE" \
 	--resource-dir resources)

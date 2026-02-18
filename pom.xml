@@ -62,7 +62,7 @@
 		<package.version>6.3.0</package.version>
 		<maven.build.timestamp.format>yyyy-MM-dd HH:mm</maven.build.timestamp.format>
 		<license.path>${project.basedir}/../</license.path>
-		<log4j.version>2.23.1</log4j.version>
+		<log4j.version>2.25.3</log4j.version>
 		<stylus.version>0.3.0</stylus.version>
 		<java.version>17</java.version>
 		<maven.compiler.source>17</maven.compiler.source>

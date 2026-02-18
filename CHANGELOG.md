@@ -2,6 +2,64 @@
 
 All notable changes to this project will be documented in this file.
 
+## [6.4.0](https://github.com/lectureStudio/lectureStudio/compare/v6.3.0..v6.4.0) - 2026-02-18
+
+### Features
+
+- Vector player with split-pane and tooltips
+
+### Bug Fixes
+
+- Update inline script in vector player
+- Improve audio rendering and remove unused Concentus ([#1077](https://github.com/lectureStudio/lectureStudio/issues/1077))
+- Check focus state before toggling screen-share ([#1079](https://github.com/lectureStudio/lectureStudio/issues/1079))
+- Enhance recording state handling and notify-to-record toggle logic ([#1080](https://github.com/lectureStudio/lectureStudio/issues/1080))
+- Refine notify-to-record ([#1076](https://github.com/lectureStudio/lectureStudio/issues/1076))
+- Improve video export and JSON handling in web player rendering
+- Update background color in SwingScreenView rendering
+- Update inline script for video export logic in web player ([#1081](https://github.com/lectureStudio/lectureStudio/issues/1081))
+- Add video encoding support for vector export and improve JSON handling in templates ([#1082](https://github.com/lectureStudio/lectureStudio/issues/1082))
+- Shared generic document instance for the generic quiz set ([#1084](https://github.com/lectureStudio/lectureStudio/issues/1084))
+- Line break in text annotations for web exports ([#1085](https://github.com/lectureStudio/lectureStudio/issues/1085))
+- Handle URI normalization and update exception types in QuizDocument logic ([#1086](https://github.com/lectureStudio/lectureStudio/issues/1086))
+- Improve handling of silenced audio and avoid clicks in the vector format ([#1087](https://github.com/lectureStudio/lectureStudio/issues/1087))
+- Enhance case-insensitive handling and display logic for quiz options and word cloud ([#1088](https://github.com/lectureStudio/lectureStudio/issues/1088))
+- Streamline file handling in vector and video exports ([#1097](https://github.com/lectureStudio/lectureStudio/issues/1097))
+- Add distinct vector rendering states for audio/video processing
+- Video format in the vector ([#1100](https://github.com/lectureStudio/lectureStudio/issues/1100))
+- Copied quiz image ([#1105](https://github.com/lectureStudio/lectureStudio/issues/1105))
+- Improve frame rendering logic to handle frame tolerance and lag efficiently ([#1106](https://github.com/lectureStudio/lectureStudio/issues/1106))
+- Vector player thumbnail ([#1103](https://github.com/lectureStudio/lectureStudio/issues/1103))
+- Refine notify-to-record logic in StartRecordingCommand ([#1110](https://github.com/lectureStudio/lectureStudio/issues/1110))
+- Resolve cloned audio stream issue and refine exclusion handling in DynamicInputStream ([#1111](https://github.com/lectureStudio/lectureStudio/issues/1111))
+- Audio exclusion handling and improve virtual-to-physical conversion in audio streams ([#1112](https://github.com/lectureStudio/lectureStudio/issues/1112))
+- Prevent native crash by validating dimensions in VideoFrameConverter
+- Filter detected URLs to only include valid http/https schemes in ([#1114](https://github.com/lectureStudio/lectureStudio/issues/1114))
+- Enhance text rendering accuracy with fractional metrics and antialiasing in ([#1107](https://github.com/lectureStudio/lectureStudio/issues/1107))
+- Add null checks and exception handling in media tracking and UI rendering
+- Simplify rubber mode handling in MouseListener and StylusHandler
+- Update notification logic to check for connected external screens
+- Update tooltips to include accelerator keys in SwingToolbarView
+- Update macOS intel version in build configurations to macos-15-intel
+- Add mouse input handling to SlidesView for the editor on macOS
+- Set default locale in configuration on initialization
+- Update copyright year and package full name format in pom.xml
+
+### Refactor
+
+- Remove LaTeX-related classes and components ([#1078](https://github.com/lectureStudio/lectureStudio/issues/1078))
+- Improve video/audio rendering, progress tracking and base64 encoding ([#1089](https://github.com/lectureStudio/lectureStudio/issues/1089))
+- Refine html player rendering and tooltips
+
+### Other
+
+- Updated both web players
+- *(deps)* Bump org.bouncycastle:bcpkix-jdk18on in /lect-core ([#1083](https://github.com/lectureStudio/lectureStudio/issues/1083))
+- Updates all GitHub Actions upload-artifact to v5 ([#1096](https://github.com/lectureStudio/lectureStudio/issues/1096))
+- Updates all GitHub Actions checkout to v6 ([#1109](https://github.com/lectureStudio/lectureStudio/issues/1109))
+- *(deps)* Bump org.apache.logging.log4j:log4j-core ([#1113](https://github.com/lectureStudio/lectureStudio/issues/1113))
+- Add linux AppImage packaging support with launcher scripts and desktop entries ([#1117](https://github.com/lectureStudio/lectureStudio/issues/1117))
+
 ## [6.3.0](https://github.com/lectureStudio/lectureStudio/compare/v6.2.2..v6.3.0) - 2025-10-07
 
 ### Features
@@ -62,6 +120,11 @@ All notable changes to this project will be documented in this file.
 ### Documentation
 
 - Documentation for screen capture and sharing services
+
+### Miscellaneous Tasks
+
+- *(release)* Update CHANGELOG.md for v6.3.0
+- *(release)* Update package version to 6.3.0
 
 ## [6.2.2](https://github.com/lectureStudio/lectureStudio/compare/v6.2.1..v6.2.2) - 2025-07-11
 

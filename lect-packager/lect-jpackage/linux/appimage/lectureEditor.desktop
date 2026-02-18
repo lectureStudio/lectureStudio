@@ -1,0 +1,10 @@
+[Desktop Entry]
+Version=1.0
+Type=Application
+Name=lectureEditor
+Comment=Edit and process lecture recordings
+Exec=lecturePresenter --editor
+Icon=lectureEditor
+Categories=Education;
+Terminal=false
+StartupNotify=true

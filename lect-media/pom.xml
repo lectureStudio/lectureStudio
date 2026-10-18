@@ -16,7 +16,7 @@
 
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-		<javacpp.version>1.5.12</javacpp.version>
+		<javacpp.version>1.5.14</javacpp.version>
 		<ffmpeg.version>7.1.1-1.5.12</ffmpeg.version>
 	</properties>
 
